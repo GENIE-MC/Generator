@@ -109,7 +109,6 @@ TClonesArray * PythiaDecayer::Decay(const DecayerInputs_t & inp) const
   }
 
   double sumbr = this->SumBR(kc);
-  LOG("PythiaDec", pINFO) << "Sum{BR} = " << sumbr;
   if(sumbr <= 0) {
     LOG("PythiaDec", pNOTICE)
        << "The sum of enabled "
@@ -250,11 +249,20 @@ double PythiaDecayer::SumBR(int kc) const
      if (!enabled) { 
        has_inhibited_channels = true; 
      } else {
-       sumbr = fPythia->GetBRAT(ichannel);
+       sumbr += fPythia->GetBRAT(ichannel);
      }
+
+/*
+     LOG("PythiaDec", pDEBUG) 
+        << "ich: " << ichannel << ", " << ((enabled)? "ON" : "OFF")
+        << ", br = " << fPythia->GetBRAT(ichannel)
+        << ", curr_sum{br}[enabled] = " << sumbr;
+*/
   }
 
   if(!has_inhibited_channels) return 1.;
+
+  LOG("PythiaDec", pINFO) << "Sum{BR} = " << sumbr;
 
   return sumbr;
 }
