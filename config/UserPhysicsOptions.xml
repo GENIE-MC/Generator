@@ -560,6 +560,18 @@ STFC, Rutherford Appleton Laboratory
   <param type="bool" name="DecayParticleWithCode=42112"> true  </param>  <!-- P11(1710) N0       -->
   <param type="bool" name="DecayParticleWithCode=42212"> true  </param>  <!-- P11(1710) N+       -->
 
+  <!--
+  For particles to be decayed, all decay channels are open. 
+  To inhibit specific decay channels use as many of following configuration options as is needed
+  specifying the particle PDG code and the inhibited TDecayChannel id.
+  To print out the decay channel ids for any particle, use $GENIE/src/contrib/misc/print_decay_channel.C
+
+  <param type="bool" name="InhibitDecay/Particle=15,Channel=0"> true </param>  
+  <param type="bool" name="InhibitDecay/Particle=15,Channel=1"> true </param>  
+  ...
+  ...
+  -->
+
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
