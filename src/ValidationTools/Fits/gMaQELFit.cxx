@@ -14,7 +14,8 @@
 	  -d specifies which data sets to fit 
              (see list below, input as a comma separated list)
 
-\example gtune_mafit -h mysql://localhost/NuScat -u costas -p mypass1 -d 0,3
+         Example:
+         gtune_mafit -h mysql://localhost/NuScat -u costas -p mypass1 -d 0,3
                       
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          STFC, Rutherford Appleton Laboratory
