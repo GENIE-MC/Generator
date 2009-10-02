@@ -50,9 +50,10 @@ private:
 
   void LoadConfig     (void);
   bool AssertValidity (const Interaction * i) const;
+/*
   void SwitchDecays   (int pdgc, bool on_off) const;
   void HandleDecays   (TClonesArray * plist) const;
-
+*/
   mutable TPythia6 * fPythia;   ///< PYTHIA6 wrapper class
 
   const DecayModelI * fDecayer;
