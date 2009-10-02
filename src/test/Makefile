@@ -14,7 +14,8 @@ MAKEFILE = Makefile
 include $(GENIE)/src/make/Make.include
 
 GENIE_LIBS  = $(shell $(GENIE)/src/scripts/setup/genie-config --libs)
-LIBRARIES  := $(LHAPDF_LIBRARIES) $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
+#LIBRARIES  := $(LHAPDF_LIBRARIES) $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
+LIBRARIES  := $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 
 
 TGT =	gtestAlgorithms 	 \
