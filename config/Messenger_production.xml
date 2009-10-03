@@ -107,6 +107,7 @@
   <priority msgstream="PauliBlock">          WARN   </priority>
   <priority msgstream="ParticleDecayer">     WARN   </priority>
   <priority msgstream="PaschLal">            WARN   </priority>
+  <priority msgstream="PythiaDec">           WARN   </priority>
   <priority msgstream="PythiaHad">           WARN   </priority>
   <priority msgstream="PDG">                 WARN   </priority>
   <priority msgstream="PathL">               WARN   </priority>
