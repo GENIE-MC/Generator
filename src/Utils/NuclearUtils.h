@@ -22,6 +22,8 @@
 
 #include <string>
 
+#include "Conventions/Constants.h"
+
 using std::string;
 
 namespace genie {
@@ -36,8 +38,7 @@ namespace nuclear
   double BindEnergy             (const Target & target);
   double BindEnergyPerNucleon   (const Target & target);
   double BindEnergyLastNucleon  (const Target & target);
-  double Radius                 (const Target & target);
-  double Radius                 (int A);
+  double Radius                 (int A, double Ro=constants::kNucRo);
 
   double NuclQELXSecSuppression (string kftable, double pmax, const Interaction * in);
 
