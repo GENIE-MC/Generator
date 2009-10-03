@@ -27,7 +27,6 @@
 
 #include <TMath.h>
 
-#include "Conventions/Constants.h"
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
 #include "Nuclear/FermiMomentumTablePool.h"
@@ -88,22 +87,13 @@ double genie::utils::nuclear::BindEnergyLastNucleon(const Target & target)
    return (utils::nuclear::BindEnergy(target) / target.A());
 }
 //___________________________________________________________________________
-double genie::utils::nuclear::Radius(const Target & target)
+double genie::utils::nuclear::Radius(int A, double Ro)
 {
-// Compute the nuclear radius (in GeV^-1)
-// (to get it in F, for example, use: Radius(target)/genie::units::fermi)
-
-  return Radius(target.A());
-}
-//___________________________________________________________________________
-double genie::utils::nuclear::Radius(int A)
-{
-// Compute the nuclear radius (in GeV^-1)
-// (to get it in F, for example, use: Radius(target)/genie::units::fermi)
+// Compute the nuclear radius (in fm)
 
   if(A<1) return 0;
 
-  double Rn = kNucRo * TMath::Power(A, 0.3333333); // in GeV^-1
+  double Rn = Ro*TMath::Power(1.*A, 0.3333333);
   return Rn;
 }
 //___________________________________________________________________________
@@ -431,8 +421,9 @@ double genie::utils::nuclear::DensityWoodsSaxon(
 // input  : radial distance in nucleus [units: fm]
 // output : nuclear density            [units: fm^-3]
 
-  LOG ("Nuclear",pINFO)
-	<< "c= " << c << ", z= " << z << ",ring= " << ring;
+  LOG("Nuclear",pINFO)
+      << "c= " << c << ", z= " << z << ",ring= " << ring;
+
   ring = TMath::Min(ring, 0.75*c);
 
   double ceval = c + ring;
@@ -440,8 +431,8 @@ double genie::utils::nuclear::DensityWoodsSaxon(
   double dens  = norm / (1 + TMath::Exp((r-ceval)/z));
 
   LOG("Nuclear", pINFO) 
-        << "r = " << r << ", norm = " << norm << ", dens = " << dens << 
-" , ceval= " << ceval;
+     << "r = " << r << ", norm = " << norm 
+     << ", dens = " << dens << " , ceval= " << ceval;
 
   return dens;
 }
