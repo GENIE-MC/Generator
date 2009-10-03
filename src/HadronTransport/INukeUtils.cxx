@@ -20,7 +20,10 @@
    addition to neutrino event files.
  @ Sep 10, 2009 - CA
    Added MeanFreePath(), Dist2Exit(), Dist2ExitMFP()
-
+ @ Sep 30, 2009 - CA
+   Added StepParticle() from Intranuke.cxx
+ @ Oct 02, 2009 - CA
+   Added test MeanFreePath_Delta().
 */
 //____________________________________________________________________________
 
@@ -29,6 +32,7 @@
 
 #include "Algorithm/AlgConfigPool.h"
 #include "Conventions/Units.h"
+#include "Conventions/GBuild.h"
 #include "GHEP/GHepRecord.h"
 #include "GHEP/GHepParticle.h"
 #include "HadronTransport/INukeUtils.h"
@@ -47,7 +51,7 @@ double genie::utils::intranuke::MeanFreePath(
    int pdgc, const TLorentzVector & x4, const TLorentzVector & p4, 
    double A, double nRpi, double nRnuc)
 {
-// Calculate the mean free path (in fm) for a hadron in a nucleus
+// Calculate the mean free path (in fm) for a pions and nucleons in a nucleus
 //
 // Inputs
 //  pdgc : Hadron PDG code
@@ -59,6 +63,8 @@ double genie::utils::intranuke::MeanFreePath(
 //
   bool is_pion    = pdgc == kPdgPiP || pdgc == kPdgPi0 || pdgc == kPdgPiM;
   bool is_nucleon = pdgc == kPdgProton || pdgc == kPdgNeutron;
+
+  if(!is_pion && !is_nucleon) return 0.;
         
   // before getting the nuclear density at the current position
   // check whether the nucleus has to become larger by const times the
@@ -80,18 +86,16 @@ double genie::utils::intranuke::MeanFreePath(
   double rnow = x4.Vect().Mag(); 
   double rho  = A * utils::nuclear::Density(rnow,A,ring);
 
-  // get total xsection for the incident hadron at its current
-  // kinetic energy
-  double sigtot = 0;
-
-  // The hadron+nucleon cross section will be evaluated within the range
-  // of the cross sections spline
-  // The hadron cross section will be taken to be const outside that range
+  // the hadron+nucleon cross section will be evaluated within the range
+  // of the input spline and assumed to be const outside that range
   //
-
   double ke = (p4.Energy() - p4.M()) / units::MeV;  // kinetic energy in MeV
   ke = TMath::Max(INukeHadroData::fMinKinEnergy,   ke);
   ke = TMath::Min(INukeHadroData::fMaxKinEnergyHN, ke);
+
+  // get total xsection for the incident hadron at its current
+  // kinetic energy
+  double sigtot = 0;
 
   INukeHadroData * fHadroData = INukeHadroData::Instance();
 
@@ -115,6 +119,54 @@ double genie::utils::intranuke::MeanFreePath(
 
   // compute the mean free path
   double lamda = 1. / (rho * sigtot);
+
+  // exits if lamda is InF (if cross section is 0)
+  if( ! TMath::Finite(lamda) ) {
+     return -1;
+  }
+
+  return lamda;
+}
+//____________________________________________________________________________
+double genie::utils::intranuke::MeanFreePath_Delta(
+   int pdgc, const TLorentzVector & x4, const TLorentzVector & p4, double A)
+{
+//
+// **test**
+//
+
+// Calculate the mean free path (in fm) for Delta's in a nucleus
+//
+// Inputs
+//  pdgc : Hadron PDG code
+//  x4   : Hadron 4-position in the nucleus coordinate system (units: fm)
+//  p4   : Hadron 4-momentum (units: GeV)
+//  A    : Nucleus atomic mass number
+//
+  bool is_deltapp = (pdgc==kPdgP33m1232_DeltaPP);
+  if(!is_deltapp) return 0.;
+        
+  // get the nuclear density at the current position
+  double rnow = x4.Vect().Mag(); 
+  double rho  = A * utils::nuclear::Density(rnow,A);
+
+  // the Delta+N->N+N cross section will be evaluated within the range
+  // of the input spline and assumed to be const outside that range
+  double ke = (p4.Energy() - p4.M()) / units::MeV;  // kinetic energy in MeV
+  ke = TMath::Max(1500., ke);
+  ke = TMath::Min(   0., ke);
+
+  // get the Delta+N->N+N cross section
+  double sig = 0;
+  if      (ke< 500) sig=20;
+  else if (ke<1000) sig=40;
+  else              sig=30;
+
+  // value is in mb -> convert to fm^2
+  sig *= (units::mb / units::fm2);
+
+  // compute the mean free path
+  double lamda = 1. / (rho * sig);
 
   // exits if lamda is InF (if cross section is 0)
   if( ! TMath::Finite(lamda) ) {
@@ -487,4 +539,54 @@ double genie::utils::intranuke::Dist2ExitMFP(
    return d_mfp;
 }
 //____________________________________________________________________________
+void genie::utils::intranuke::StepParticle(
+           GHepParticle * p, double step, double nuclear_radius)
+{
+// Steps a particle starting from its current position (in fm) and moving
+// along the direction of its current momentum by the input step (in fm).
+// The particle is stepped in a straight line.
+// If a nuclear radius is set then the following check is performed:
+// If the step is too large and takes the the particle far away from the
+// nucleus then its position is scaled back so that the escaped particles are
+// always within a ~1fm from the "outer nucleus surface"
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+  LOG("INukeUtils", pDEBUG)
+      << "Stepping particle [" << p->Name() << "] by dr = " << step << " fm";
+#endif
+
+  // Step particle
+  TVector3 dr = p->P4()->Vect().Unit();      // unit vector along its direction
+  dr.SetMag(step);                           // spatial step size
+  double dt = 0;                             // temporal step:
+  TLorentzVector dx4(dr,dt);                 // 4-vector step
+  TLorentzVector x4new = *(p->X4()) + dx4;   // new position
+  
+  if(nuclear_radius > 0.) {
+    // Check position against nuclear boundary. If the particle was stepped
+    // too far away outside the nuclear boundary bring it back to within 
+    // 1fm from that boundary
+    double epsilon = 1; // fm  
+    double r       = x4new.Vect().Mag(); // fm
+    double rmax    = nuclear_radius+epsilon;
+    if(r > rmax) {
+       LOG("INukeUtils", pINFO)
+         << "Particle was stepped too far away (r = " << r << " fm)";
+       LOG("INukeUtils", pINFO)
+         << "Placing it " << epsilon 
+         << " fm outside the nucleus (r' = " << rmax << " fm)";
+       double scale = rmax/r;
+       x4new *= scale;
+    }//r>rmax
+  }//nucl radius set
+
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+  LOG("INukeUtils", pDEBUG)
+      << "\n Init direction = " << print::Vec3AsString(&dr)
+      << "\n Init position (in fm,nsec) = " << print::X4AsString(p->X4())
+      << "\n Fin  position (in fm,nsec) = " << print::X4AsString(&x4new);
+#endif
+
+  p->SetPosition(x4new);
+}
+//___________________________________________________________________________

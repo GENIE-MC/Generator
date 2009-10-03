@@ -5,12 +5,14 @@
 #pragma link off all functions;
 
 #pragma link C++ namespace genie;
-
-#pragma link C++ class genie::Intranuke;
-#pragma link C++ class genie::NEUTCascade;
+#pragma link C++ namespace genie::utils::intranuke;
 
 #pragma link C++ class genie::INukeHadroData;
+#pragma link C++ class genie::INukeDeltaPropg;
+//#pragma link C++ class genie::INukePhotoPropg;
+#pragma link C++ class genie::Intranuke;
 
-#pragma link C++ namespace genie::utils::intranuke;
+#pragma link C++ class genie::NEUTCascade;
+
 
 #endif
