@@ -42,7 +42,7 @@
   <priority msgstream="COHKinematics">       NOTICE </priority>
   <priority msgstream="DFRHadronicVtx">      DEBUG  </priority>
   <priority msgstream="DFRKinematics">       DEBUG  </priority>
-  <priority msgstream="Decay">               INFO   </priority>
+  <priority msgstream="Decay">               NOTICE </priority>
   <priority msgstream="DISSF">               NOTICE </priority>
   <priority msgstream="DISXSec">             NOTICE </priority> 
   <priority msgstream="DISCharmXSec">        INFO   </priority>
@@ -106,7 +106,8 @@
   <priority msgstream="PauliBlock">          INFO   </priority>
   <priority msgstream="ParticleDecayer">     INFO   </priority>
   <priority msgstream="PaschLal">            INFO   </priority>
-  <priority msgstream="PythiaHad">           INFO   </priority>
+  <priority msgstream="PythiaDec">           NOTICE </priority>
+  <priority msgstream="PythiaHad">           NOTICE </priority>
   <priority msgstream="PDG">                 INFO   </priority>
   <priority msgstream="PathL">               NOTICE </priority>
   <priority msgstream="QELXSec">             NOTICE </priority>
