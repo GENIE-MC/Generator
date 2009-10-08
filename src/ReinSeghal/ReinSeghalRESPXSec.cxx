@@ -5,12 +5,14 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - May 05, 2004
+         STFC, Rutherford Appleton Laboratory 
 
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
-
+ @ Oct 05, 2009 - CA
+   Modified code to handle charged lepton scattering too.
+   Also, the helicity amplitude code now returns a `const RSHelicityAmpl &'.
 */
 //____________________________________________________________________________
 
@@ -72,12 +74,12 @@ double ReinSeghalRESPXSec::XSec(
   const ProcessInfo &  proc_info  = interaction -> ProcInfo();
   const Target & target = init_state.Tgt();
 
-  //----- Get kinematical parameters
+  // Get kinematical parameters
   const Kinematics & kinematics = interaction -> Kine();
   double W  = kinematics.W();
   double q2 = kinematics.q2();
 
-  //----- Under the DIS/RES joining scheme, xsec(RES)=0 for W>=Wcut
+  // Under the DIS/RES joining scheme, xsec(RES)=0 for W>=Wcut
   if(fUsingDisResJoin) {
     if(W>=fWcut) {
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
@@ -89,38 +91,42 @@ double ReinSeghalRESPXSec::XSec(
     }
   }
 
-  //-- Get the input baryon resonance
+  // Get the input baryon resonance
   Resonance_t resonance = interaction->ExclTag().Resonance();
   string      resname   = utils::res::AsString(resonance);
   bool        is_delta  = utils::res::IsDelta (resonance);
 
-  //-- Get the neutrino, hit nucleon & weak current
-  int  nucpdgc = target.HitNucPdg();
-  int  nupdgc  = init_state.ProbePdg();
-  bool is_nu    = pdg::IsNeutrino     (nupdgc);
-  bool is_nubar = pdg::IsAntiNeutrino (nupdgc);
-  bool is_p     = pdg::IsProton       (nucpdgc);
-  bool is_n     = pdg::IsNeutron      (nucpdgc);
-  bool is_CC    = proc_info.IsWeakCC();
+  // Get the neutrino, hit nucleon & weak current
+  int  nucpdgc   = target.HitNucPdg();
+  int  probepdgc = init_state.ProbePdg();
+  bool is_nu     = pdg::IsNeutrino         (probepdgc);
+  bool is_nubar  = pdg::IsAntiNeutrino     (probepdgc);
+  bool is_lplus  = pdg::IsPosChargedLepton (probepdgc);
+  bool is_lminus = pdg::IsNegChargedLepton (probepdgc);
+  bool is_p      = pdg::IsProton  (nucpdgc);
+  bool is_n      = pdg::IsNeutron (nucpdgc);
+  bool is_CC     = proc_info.IsWeakCC();
+  bool is_NC     = proc_info.IsWeakNC();
+  bool is_EM     = proc_info.IsEM();
 
   if(is_CC && !is_delta) {
     if((is_nu && is_p) || (is_nubar && is_n)) return 0;
   }
 
-  //-- Get baryon resonance parameters
+  // Get baryon resonance parameters
   fBRP.RetrieveData(resonance);  
   double Mres = fBRP.Mass();
   double Gres = fBRP.Width();
   int    Nres = fBRP.ResonanceIndex();
 
-  //-- Following NeuGEN, avoid problems with underlying unphysical
-  //   model assumptions by restricting the allowed W phase space
-  //   around the resonance peak
+  // Following NeuGEN, avoid problems with underlying unphysical
+  // model assumptions by restricting the allowed W phase space
+  // around the resonance peak
   if      (W > Mres + fN0ResMaxNWidths * Gres && Nres==0) return 0.;
   else if (W > Mres + fN2ResMaxNWidths * Gres && Nres==2) return 0.;
   else if (W > Mres + fGnResMaxNWidths * Gres)            return 0.;
 
-  //-- Compute auxiliary & kinematical factors 
+  // Compute auxiliary & kinematical factors 
   double E      = init_state.ProbeE(kRfHitNucRest);
   double Mnuc   = target.HitNucMass(); 
   double W2     = TMath::Power(W,    2);
@@ -142,11 +148,15 @@ double ReinSeghalRESPXSec::XSec(
      << "Kinematical params V = " << V << ", U = " << U;
 #endif
 
-  //-- Calculate the Feynman-Kislinger-Ravndall parameters
+  // Calculate the Feynman-Kislinger-Ravndall parameters
 
   double Go     = TMath::Power(1 - 0.25 * q2/Mnuc2, 0.5-Nres);
   double GV     = Go * TMath::Power( 1./(1-q2/fMv2), 2);
   double GA     = Go * TMath::Power( 1./(1-q2/fMa2), 2);
+
+  if(is_EM) { 
+    GA = 0.; // zero the axial term for EM scattering
+  }
 
   double d      = TMath::Power(W+Mnuc,2.) - q2;
   double sq2omg = TMath::Sqrt(2./fOmega);
@@ -173,35 +183,55 @@ double ReinSeghalRESPXSec::XSec(
      << "FKR params for RES = " << resname << " : " << fFKR;
 #endif
 
-  //-- Calculate the Rein-Seghal Helicity Amplitudes
+  // Calculate the Rein-Seghal Helicity Amplitudes
 
   const RSHelicityAmplModelI * hamplmod = 0;
-
-  if(is_CC)   { hamplmod = fHAmplModelCC; }
-  else {
+  if(is_CC) { 
+    hamplmod = fHAmplModelCC; 
+  }
+  else 
+  if(is_NC) { 
     if (is_p) { hamplmod = fHAmplModelNCp;}
     else      { hamplmod = fHAmplModelNCn;}
   }
+  else 
+  if(is_EM) { 
+    if (is_p) { hamplmod = fHAmplModelEMp;}
+    else      { hamplmod = fHAmplModelEMn;}
+  }
   assert(hamplmod);
   
-  RSHelicityAmpl * hampl = hamplmod->Compute(resonance, fFKR); 
-  assert(hampl);
+  const RSHelicityAmpl & hampl = hamplmod->Compute(resonance, fFKR); 
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("RSHAmpl", pDEBUG)
      << "Helicity Amplitudes for RES = " << resname << " : " << *hampl;
 #endif
 
-  //-- Compute the cross section
+  double g2 = kGF2;
+  // For EM interaction replace  G_{Fermi} with :
+  // a_{em} * pi / ( sqrt(2) * sin^2(theta_weinberg) * Mass_{W}^2 }
+  // See C.Quigg, Gauge Theories of the Strong, Weak and E/M Interactions,
+  // ISBN 0-8053-6021-2, p.112 (6.3.57)
+  // Also, take int account that the photon propagator is 1/p^2 but the
+  // W propagator is 1/(p^2-Mass_{W}^2), so weight the EM case with
+  // Mass_{W}^4 / q^4
+  // So, overall:
+  // G_{Fermi}^2 --> a_{em}^2 * pi^2 / (2 * sin^4(theta_weinberg) * q^{4})
+  //
+  if(is_EM) {
+    double q4 = q2*q2;
+    g2 = kAem2 * kPi2 / (2.0 * fSin48w * q4); 
+  }
 
-  double sig0 = 0.125*(kGF2/kPi)*(-q2/Q2)*(W/Mnuc);
+  // Compute the cross section
+
+  double sig0 = 0.125*(g2/kPi)*(-q2/Q2)*(W/Mnuc);
   double scLR = W/Mnuc;
   double scS  = (Mnuc/W)*(-Q2/q2);
-  double sigL = scLR* (hampl->Amp2Plus3 () + hampl->Amp2Plus1 ());
-  double sigR = scLR* (hampl->Amp2Minus3() + hampl->Amp2Minus1());
-  double sigS = scS * (hampl->Amp20Plus () + hampl->Amp20Minus());
-
-  delete hampl;
+  double sigL = scLR* (hampl.Amp2Plus3 () + hampl.Amp2Plus1 ());
+  double sigR = scLR* (hampl.Amp2Minus3() + hampl.Amp2Minus1());
+  double sigS = scS * (hampl.Amp20Plus () + hampl.Amp20Minus());
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("ReinSeghalRes", pDEBUG) << "sig_{0} = " << sig0;
@@ -211,11 +241,13 @@ double ReinSeghalRESPXSec::XSec(
 #endif
 
   double xsec = 0.0;
-  if (is_nu) {
+  if (is_nu || is_lminus) {
      xsec = sig0*(V2*sigR + U2*sigL + 2*UV*sigS);
-  } else {
+  } 
+  else 
+  if (is_nubar || is_lplus) {
      xsec = sig0*(U2*sigR + V2*sigL + 2*UV*sigS);
-  }
+  } 
   xsec = TMath::Max(0.,xsec);
 
   double mult = 1.0;
@@ -224,8 +256,8 @@ double ReinSeghalRESPXSec::XSec(
   }
   xsec *= mult;
 
-  //-- Check whether the cross section is to be weighted with a
-  //   Breit-Wigner distribution (default: true)
+  // Check whether the cross section is to be weighted with a
+  // Breit-Wigner distribution (default: true)
   double bw = 1.0;
   if(fWghtBW) {
      bw = fBreitWigner->Eval(resonance, W);
@@ -236,12 +268,12 @@ double ReinSeghalRESPXSec::XSec(
 #endif
   xsec *= bw; 
 
-  //-- Apply NeuGEN nutau cross section reduction factors
+  // Apply NeuGEN nutau cross section reduction factors
   double rf = 1.0;
   Spline * spl = 0;
   if (is_CC && fUsingNuTauScaling) {
-    if      (pdg::IsNuTau(nupdgc)    ) spl = fNuTauRdSpl;
-    else if (pdg::IsAntiNuTau(nupdgc)) spl = fNuTauBarRdSpl;
+    if      (pdg::IsNuTau    (probepdgc)) spl = fNuTauRdSpl;
+    else if (pdg::IsAntiNuTau(probepdgc)) spl = fNuTauBarRdSpl;
 
     if(spl) {
       if(E <spl->XMax()) rf = spl->Evaluate(E);
@@ -255,17 +287,17 @@ double ReinSeghalRESPXSec::XSec(
           << "](W=" << W << ", q2=" << q2 << ", E=" << E << ") = " << xsec;
 #endif
 
-  //-- The algorithm computes d^2xsec/dWdQ2
-  //   Check whether variable tranformation is needed
+  // The algorithm computes d^2xsec/dWdQ2
+  // Check whether variable tranformation is needed
   if(kps!=kPSWQ2fE) {
     double J = utils::kinematics::Jacobian(interaction,kPSWQ2fE,kps);
     xsec *= J;
   }
 
-  //-- If requested return the free nucleon xsec even for input nuclear tgt
+  // If requested return the free nucleon xsec even for input nuclear tgt
   if( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;
 
-  //-- number of scattering centers in the target
+  // Take into account the number of scattering centers in the target
   int NNucl = (is_p) ? target.Z() : target.N();
 
   xsec*=NNucl; // nuclear xsec (no nuclear suppression factor)
@@ -288,48 +320,23 @@ bool ReinSeghalRESPXSec::ValidProcess(const Interaction * interaction) const
   const XclsTag &      xcls       = interaction->ExclTag();
 
   if(!proc_info.IsResonant()) return false;
-  if(!proc_info.IsWeak())     return false;
+  if(!xcls.KnownResonance())  return false;
 
-  int  nuc = init_state.Tgt().HitNucPdg();
-  int  nu  = init_state.ProbePdg();
+  int  hitnuc = init_state.Tgt().HitNucPdg();
+  bool is_pn = (pdg::IsProton(hitnuc) || pdg::IsNeutron(hitnuc));
 
-  if (!pdg::IsProton(nuc)  && !pdg::IsNeutron(nuc))     return false;
-  if (!pdg::IsNeutrino(nu) && !pdg::IsAntiNeutrino(nu)) return false;
+  if (!is_pn) return false;
 
-  if(!xcls.KnownResonance()) return false;
+  int  probe   = init_state.ProbePdg();
+  bool is_weak = proc_info.IsWeak(); 
+  bool is_em   = proc_info.IsEM();
+  bool nu_weak = (pdg::IsNeutralLepton(probe) && is_weak);
+  bool l_em    = (pdg::IsChargedLepton(probe) && is_em  );
+
+  if (!nu_weak && !l_em) return false;
 
   return true;
 }
-//____________________________________________________________________________
-/*
-bool ReinSeghalRESPXSec::ValidKinematics(const Interaction* interaction) const
-{
-  if(interaction->TestBit(kISkipKinematicChk)) return true;
-
-  const Kinematics &   kinematics = interaction -> Kine();
-  const InitialState & init_state = interaction -> InitState();
-
-  double E    = init_state.ProbeE(kRfHitNucRest);
-  double W    = kinematics.W();
-  double q2   = kinematics.q2();
-
-  //-- Check energy threshold & kinematical limits in q2, W
-  double EvThr = interaction->EnergyThreshold();
-  if(E <= EvThr) {
-    LOG("ReinSeghalRes", pINFO) << "E  = " << E << " < Ethr = " << EvThr;
-    return false;
-  }
-
-  //-- Check against physical range in W and Q2
-  Range1D_t rW  = utils::kinematics::KineRange(interaction, kKVW);
-  Range1D_t rQ2 = utils::kinematics::KineRange(interaction, kKVQ2);
-
-  bool in_physical_range = utils::math::IsWithinLimits(W, rW) &&
-                           utils::math::IsWithinLimits(-q2, rQ2);
-  if(!in_physical_range) return false;
-
-  return true;
-}*/
 //____________________________________________________________________________
 void ReinSeghalRESPXSec::Configure(const Registry & config)
 {
@@ -361,6 +368,11 @@ void ReinSeghalRESPXSec::LoadConfig(void)
 
   fWghtBW = fConfig->GetBoolDef("BreitWignerWeight", true);
 
+  double thw = fConfig->GetDoubleDef(
+         "weinberg-angle", gc->GetDouble("WeinbergAngle"));
+     
+  fSin48w = TMath::Power( TMath::Sin(thw), 4 );
+
   // Load all the sub-algorithms needed
 
   fBaryonResDataSet = 0;
@@ -369,56 +381,63 @@ void ReinSeghalRESPXSec::LoadConfig(void)
   fHAmplModelNCn    = 0;
   fBreitWigner      = 0;
 
-  //-- Access a "Baryon Resonance data-set" sub-algorithm
+  // Access a "Baryon Resonance data-set" sub-algorithm
   fBaryonResDataSet = 
-         dynamic_cast<const BaryonResDataSetI *> (
-                           this->SubAlg("BaryonResData"));
+     dynamic_cast<const BaryonResDataSetI *> (
+         this->SubAlg("BaryonResData"));
   assert(fBaryonResDataSet);
 
   fBRP.SetDataSet(fBaryonResDataSet); // <-- attach data set;
 
   if(fWghtBW) {
-    //-- Access a "Breit-Wigner" sub-algorithm
-    fBreitWigner = dynamic_cast<const BreitWignerI *> (
-                             this->SubAlg("BreitWignerAlg"));
+    // Access a "Breit-Wigner" sub-algorithm
+    fBreitWigner = 
+       dynamic_cast<const BreitWignerI *> (
+          this->SubAlg("BreitWignerAlg"));
     assert(fBreitWigner);
   }
 
-  //-- Access a "Helicity Amplitudes model" sub-algorithms
+  // Access a "Helicity Amplitudes model" sub-algorithms
 
   AlgFactory * algf = AlgFactory::Instance();
 
   fHAmplModelCC  = dynamic_cast<const RSHelicityAmplModelI *> (
-	        algf->GetAlgorithm("genie::RSHelicityAmplModelCC","Default"));
+      algf->GetAlgorithm("genie::RSHelicityAmplModelCC","Default"));
   fHAmplModelNCp = dynamic_cast<const RSHelicityAmplModelI *> (
-	       algf->GetAlgorithm("genie::RSHelicityAmplModelNCp","Default"));
+      algf->GetAlgorithm("genie::RSHelicityAmplModelNCp","Default"));
   fHAmplModelNCn = dynamic_cast<const RSHelicityAmplModelI *> (
-	       algf->GetAlgorithm("genie::RSHelicityAmplModelNCn","Default"));
+      algf->GetAlgorithm("genie::RSHelicityAmplModelNCn","Default"));
+  fHAmplModelEMp = dynamic_cast<const RSHelicityAmplModelI *> (
+      algf->GetAlgorithm("genie::RSHelicityAmplModelEMp","Default"));
+  fHAmplModelEMn = dynamic_cast<const RSHelicityAmplModelI *> (
+      algf->GetAlgorithm("genie::RSHelicityAmplModelEMn","Default"));
 
   assert( fHAmplModelCC  );
   assert( fHAmplModelNCp );
   assert( fHAmplModelNCn );
+  assert( fHAmplModelEMp );
+  assert( fHAmplModelEMn );
 
-  //-- Use algorithm within a DIS/RES join scheme. If yes get Wcut
+  // Use algorithm within a DIS/RES join scheme. If yes get Wcut
   fUsingDisResJoin = fConfig->GetBoolDef(
-                           "UseDRJoinScheme", gc->GetBool("UseDRJoinScheme"));
+    "UseDRJoinScheme", gc->GetBool("UseDRJoinScheme"));
   fWcut = 999999;
   if(fUsingDisResJoin) {
     fWcut = fConfig->GetDoubleDef("Wcut",gc->GetDouble("Wcut"));
   }
 
-  //-- NeuGEN limits in the allowed resonance phase space:
-  //           W < min{ Wmin(physical), (res mass) + x * (res width) }
-  //   This limits the integration area around the peak and avoids the
-  //   problem with huge xsec increase at low Q2 and high W.
-  //   In correspondence with Hugh, Rein said that the underlying problem
-  //   are unphysical assumptions in the model. 
+  // NeuGEN limits in the allowed resonance phase space:
+  // W < min{ Wmin(physical), (res mass) + x * (res width) }
+  // It limits the integration area around the peak and avoids the
+  // problem with huge xsec increase at low Q2 and high W.
+  // In correspondence with Hugh, Rein said that the underlying problem
+  // are unphysical assumptions in the model. 
   fN2ResMaxNWidths = fConfig->GetDoubleDef("MaxNWidthForN2Res", 2.0);
   fN0ResMaxNWidths = fConfig->GetDoubleDef("MaxNWidthForN0Res", 6.0);
   fGnResMaxNWidths = fConfig->GetDoubleDef("MaxNWidthForGNRes", 4.0);
 
-  //-- NeuGEN reduction factors for nu_tau: a gross estimate of the effect of
-  //   neglected form factors in the R/S model
+  // NeuGEN reduction factors for nu_tau: a gross estimate of the effect of
+  // neglected form factors in the R/S model
   fUsingNuTauScaling = fConfig->GetBoolDef("UseNuTauScalingFactors", true);
   if(fUsingNuTauScaling) {
      if(fNuTauRdSpl)    delete fNuTauRdSpl;
@@ -438,7 +457,7 @@ void ReinSeghalRESPXSec::LoadConfig(void)
      fNuTauBarRdSpl = new Spline(filename);
   }
 
-  //-- load the differential cross section integrator
+  // load the differential cross section integrator
   fXSecIntegrator =
       dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));
   assert(fXSecIntegrator);

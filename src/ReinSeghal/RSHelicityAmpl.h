@@ -30,7 +30,6 @@
 
 #include "Interaction/Interaction.h"
 #include "ReinSeghal/FKR.h"
-#include "ReinSeghal/RSHelicityAmplModelI.h"
 
 using std::ostream;
 

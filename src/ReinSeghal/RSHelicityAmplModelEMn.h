@@ -34,8 +34,11 @@ public:
   RSHelicityAmplModelEMn(string config);
   virtual ~RSHelicityAmplModelEMn();
 
-  //-- RSHelicityAmplModelI interface implementation
-  RSHelicityAmpl * Compute(Resonance_t res, const FKR & fkr) const;
+  // RSHelicityAmplModelI interface implementation
+  const RSHelicityAmpl & Compute(Resonance_t res, const FKR & fkr) const;
+
+private:
+  mutable RSHelicityAmpl fAmpl;
 };
 
 }        // genie namespace
