@@ -16,6 +16,9 @@
    Added IsPseudoParticle(), IsParticle(), IsPion(), IsNucleon()
  @ Sep 18, 2009 - CA
    Added IsLepton()
+ @ Oct 08, 2009 - CA
+   Added IsNegChargedLepton(), IsPosChargedLepton()
+
 */
 //____________________________________________________________________________
 
@@ -42,6 +45,19 @@ bool genie::pdg::IsPseudoParticle(int pdgc)
      );
       
   return is_fake;
+}
+//____________________________________________________________________________
+bool genie::pdg::IsIon(int pdgc)
+{
+  return (pdgc > 1000000000 && pdgc < 1999999999);
+}
+//____________________________________________________________________________
+bool genie::pdg::IsParticle(int pdgc)
+{
+  if( genie::pdg::IsPseudoParticle (pdgc) ) return false;
+  if( genie::pdg::IsIon            (pdgc) ) return false;
+
+  return true;
 }
 //____________________________________________________________________________
 int genie::pdg::IonPdgCodeToZ(int ion_pdgc)
@@ -75,17 +91,28 @@ int genie::pdg::IonPdgCode(int A, int Z, int L, int I)
   return ion_pdgc;
 }
 //____________________________________________________________________________
-bool genie::pdg::IsIon(int pdgc)
+bool genie::pdg::IsLepton(int pdgc)
 {
-  return (pdgc > 1000000000 && pdgc < 1999999999);
+  bool is_neutral_lepton = genie::pdg::IsNeutralLepton(pdgc);
+  bool is_charged_lepton = genie::pdg::IsChargedLepton(pdgc);
+
+  bool is_lepton = (is_neutral_lepton || is_charged_lepton);
+  return is_lepton;
 }
 //____________________________________________________________________________
-bool genie::pdg::IsParticle(int pdgc)
+bool genie::pdg::IsNeutralLepton(int pdgc)
 {
-  if( genie::pdg::IsPseudoParticle (pdgc) ) return false;
-  if( genie::pdg::IsIon            (pdgc) ) return false;
+  bool is_neutral_lepton = IsNeutrino(pdgc) || IsAntiNeutrino(pdgc);
+  return is_neutral_lepton;
+}
+//____________________________________________________________________________
+bool genie::pdg::IsChargedLepton(int pdgc)
+{
+  bool is_neg_lepton = genie::pdg::IsNegChargedLepton(pdgc);
+  bool is_pos_lepton = genie::pdg::IsPosChargedLepton(pdgc);
 
-  return true;
+  bool is_charged_lepton = is_neg_lepton || is_pos_lepton;
+  return is_charged_lepton;
 }
 //____________________________________________________________________________
 bool genie::pdg::IsNeutrino(int pdgc)
@@ -105,35 +132,25 @@ bool genie::pdg::IsAntiNeutrino(int pdgc)
   return is_nubar;
 }
 //____________________________________________________________________________
-bool genie::pdg::IsLepton(int pdgc)
-{
-  bool is_neutral_lepton = genie::pdg::IsNeutralLepton(pdgc);
-  bool is_charged_lepton = genie::pdg::IsChargedLepton(pdgc);
-
-  bool is_lepton = (is_neutral_lepton || is_charged_lepton);
-  return is_lepton;
-}
-//____________________________________________________________________________
-bool genie::pdg::IsNeutralLepton(int pdgc)
-{
-  bool is_neutral_lepton = IsNeutrino(pdgc) || IsAntiNeutrino(pdgc);
-  return is_neutral_lepton;
-}
-//____________________________________________________________________________
-bool genie::pdg::IsChargedLepton(int pdgc)
+bool genie::pdg::IsNegChargedLepton(int pdgc)
 {
   bool is_neg_lepton = (pdgc ==  kPdgElectron) ||
                        (pdgc ==  kPdgMuon)     ||
                        (pdgc ==  kPdgTau);
 
+  return is_neg_lepton;
+}
+//____________________________________________________________________________
+bool genie::pdg::IsPosChargedLepton(int pdgc)
+{
   bool is_pos_lepton = (pdgc ==  kPdgPositron) ||
                        (pdgc ==  kPdgAntiMuon) ||
                        (pdgc ==  kPdgAntiTau);
 
-  bool is_charged_lepton = is_neg_lepton || is_pos_lepton;
-  return is_charged_lepton;
+  return is_pos_lepton;
 }
 //____________________________________________________________________________
+
 bool genie::pdg::IsNuE(int pdgc)
 {
   return (pdgc == kPdgNuE);
