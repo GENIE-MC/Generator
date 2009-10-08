@@ -113,6 +113,30 @@ LOG_INCLUDES  := -I$(LOG_INC_DIR)
 LOG_LIBRARIES := -L$(LOG_LIB_DIR) -llog4cpp
 
 #-------------------------------------------------------------------
+#                     libfortran and/or libg2c
+#-------------------------------------------------------------------
+
+FORT_LIBRARIES = -L/usr/lib -L/usr/lib64 -lg2c
+
+ifeq ($(strip $(ARCH)),macosx) 
+FORT_LIBRARIES = /usr/local/lib/libgfortran.dylib 
+have_g2c := $wildcard(/usr/local/lib/libg2c.dylib)
+ifeq ($(strip $(have_g2c)),)
+else
+FORT_LIBRARIES := $(FORT_LIBRARIES) /usr/local/lib/libg2c.dylib 
+endif
+endif # macosx
+
+ifeq ($(strip $(ARCH)),macosx64) 
+FORT_LIBRARIES = /usr/local/lib/libgfortran.dylib 
+have_g2c := $wildcard(/usr/local/lib/libg2c.dylib)
+ifeq ($(strip $(have_g2c)),)
+else
+FORT_LIBRARIES := $(FORT_LIBRARIES) /usr/local/lib/libg2c.dylib 
+endif
+endif # macosx64
+
+#-------------------------------------------------------------------
 #                             CERNLIB
 #-------------------------------------------------------------------
 
@@ -134,20 +158,24 @@ PDFLIB   = $(shell awk 'BEGIN {str="$(PPDFLIB)"; \
 LPDFLIB  = $(shell awk 'BEGIN { str="$(PDFLIB)"; \
 				sub(/lib/, "-l", str); print str}')
 
-CERN_LIBRARIES = -L$(CERN_LIB_DIR) $(LPDFLIB) -lkernlib -lmathlib -lpacklib \
-		 -L/usr/lib -L/usr/lib64 -lg2c
+CERN_LIBRARIES = -L$(CERN_LIB_DIR) $(LPDFLIB) -lkernlib -lmathlib -lpacklib $(FORT_LIBRARIES)
 
-ifeq ($(strip $(ARCH)),macosx) 
-CERN_LIBRARIES = -L$(CERN_LIB_DIR) $(LPDFLIB) -lkernlib -lmathlib -lpacklib \
-		 /usr/local/lib/libgfortran.dylib 
-
-have_g2c := $wildcard(/usr/local/lib/libg2c.dylib)
-ifeq ($(strip $(have_g2c)),)
-else
-CERN_LIBRARIES := $(CERN_LIBRARIES) /usr/local/lib/libg2c.dylib 
-endif
-
-endif # macosx
+#
+#CERN_LIBRARIES = -L$(CERN_LIB_DIR) $(LPDFLIB) -lkernlib -lmathlib -lpacklib \
+#		 -L/usr/lib -L/usr/lib64 -lg2c
+#
+#ifeq ($(strip $(ARCH)),macosx) 
+#CERN_LIBRARIES = -L$(CERN_LIB_DIR) $(LPDFLIB) -lkernlib -lmathlib -lpacklib \
+#		 /usr/local/lib/libgfortran.dylib 
+#
+#have_g2c := $wildcard(/usr/local/lib/libg2c.dylib)
+#ifeq ($(strip $(have_g2c)),)
+#else
+#CERN_LIBRARIES := $(CERN_LIBRARIES) /usr/local/lib/libg2c.dylib 
+#endif
+#
+#endif # macosx
+#
 
 endif # enable-cern
 
@@ -160,20 +188,23 @@ LHAPDF_INCLUDES  =
 
 ifeq ($(strip $(GOPT_ENABLE_LHAPDF)),YES) 
 
-LHAPDF_INCLUDES = -I$(GOPT_WITH_LHAPDF_INC)
+LHAPDF_INCLUDES  = -I$(GOPT_WITH_LHAPDF_INC)
+LHAPDF_LIBRARIES = -L$(GOPT_WITH_LHAPDF_LIB) -lLHAPDF $(FORT_LIBRARIES)
 
-ifeq ($(strip $(ARCH)),macosx) 
-LHAPDF_LIBRARIES = -L$(GOPT_WITH_LHAPDF_LIB) -lLHAPDF /usr/local/lib/libgfortran.dylib 
-
-have_g2c := $wildcard(/usr/local/lib/libg2c.dylib)
-ifeq ($(strip $(have_g2c)),)
-else
-LHAPDF_LIBRARIES := $(LHAPDF_LIBRARIES) /usr/local/lib/libg2c.dylib 
-endif
-
-else
-LHAPDF_LIBRARIES = -L$(GOPT_WITH_LHAPDF_LIB) -lLHAPDF -L/usr/lib -L/usr/lib64 -lg2c
-endif
+#
+#ifeq ($(strip $(ARCH)),macosx) 
+#LHAPDF_LIBRARIES = -L$(GOPT_WITH_LHAPDF_LIB) -lLHAPDF /usr/local/lib/libgfortran.dylib 
+#
+#have_g2c := $wildcard(/usr/local/lib/libg2c.dylib)
+#ifeq ($(strip $(have_g2c)),)
+#else
+#LHAPDF_LIBRARIES := $(LHAPDF_LIBRARIES) /usr/local/lib/libg2c.dylib 
+#endif
+#
+#else
+#LHAPDF_LIBRARIES = -L$(GOPT_WITH_LHAPDF_LIB) -lLHAPDF -L/usr/lib -L/usr/lib64 -lg2c
+#endif
+#
 
 endif
 
@@ -385,14 +416,15 @@ FORTOPTS     := $(FFLAGS) -g -c -O -DLINUX $(F77INCS) -fno-second-underscore
 RANLIB       := ranlib
 SOCMD         = $(LD)
 OutPutOpt     = -o
-SOMINF =
+SOMINF        =
+EXTRALIBS     = 
 endif
 
 # MAC OS X with gcc, 64-bit mode
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ifeq ($(strip $(ARCH)),macosx64) 
 ARCH_OK       = YES
-CXXFLAGS      = -m64 -pipe -W -Wall -Wno-long-double \
+CXXFLAGS      = -m64 -pipe -W -Wall \
 		-fsigned-char -fno-common -flat_namespace \
 		$(GOPT_WITH_CXX_DEBUG_FLAG) \
 		$(GOPT_WITH_CXX_OPTIMIZ_FLAG) \
@@ -413,7 +445,8 @@ FORTOPTS     := $(FFLAGS) -g -c -O -DLINUX $(F77INCS) -fno-second-underscore
 RANLIB       := ranlib
 SOCMD         = $(LD)
 OutPutOpt     = -o
-SOMINF =
+SOMINF        =
+EXTRALIBS     = 
 endif
 
 # LINUX / 32-bit x86 / with gcc
@@ -439,7 +472,8 @@ FORTOPTS     := $(FFLAGS) -g -c -O -DLINUX $(F77INCS) -fno-second-underscore
 RANLIB       := ranlib
 SOCMD         = $(LD)
 OutPutOpt     = -o
-SOMINF =
+SOMINF        =
+EXTRALIBS     = -lnsl
 endif
 
 # LINUX / 64-bit x86 / with gcc
@@ -465,42 +499,37 @@ FORTOPTS     := $(FFLAGS) -g -c -O -DLINUX $(F77INCS) -fno-second-underscore
 RANLIB       := ranlib
 SOCMD         = $(LD)
 OutPutOpt     = -o
-SOMINF =
+SOMINF        =
+EXTRALIBS     = -lnsl
 endif
 
 #-------------------------------------------------------------------
 #                            SUMMING-UP
 #-------------------------------------------------------------------
 
-# LIBS should contain general libraries needed to compile programs. 
+# includes and libraries needed to compile programs. 
+
+INCLUDES := $(ROOT_INCLUDES) \
+	    $(XML_INCLUDES) \
+	    $(LOG_INCLUDES) \
+	    $(LHAPDF_INCLUDES) \
+	    $(GENIE_INCLUDES) \
+	    $(LINUX_SYS_INCLUDES)
 
 LIBRARIES := $(SYSLIBS) \
-	     $(ROOT_LIBRARIES) \
-	     $(PYTHIA_LIBRARIES) \
-	     $(LHAPDF_LIBRARIES) \
+             $(ROOT_LIBRARIES) \
+             $(PYTHIA_LIBRARIES) \
+             $(LHAPDF_LIBRARIES) \
              $(XML_LIBRARIES) \
-	     $(LOG_LIBRARIES) \
-	     $(GPROF_LIBRARIES) -lnsl 
-
-ifeq ($(strip $(ARCH)),macosx) 
-LIBRARIES := $(SYSLIBS) \
-	     $(ROOT_LIBRARIES) \
-	     $(PYTHIA_LIBRARIES) \
-	     $(LHAPDF_LIBRARIES) \
-             $(XML_LIBRARIES) \
-	     $(LOG_LIBRARIES) \
-	     $(GPROF_LIBRARIES)
-endif
-
-INCLUDES  = $(ROOT_INCLUDES) $(XML_INCLUDES) $(LOG_INCLUDES) $(LHAPDF_INCLUDES) \
-	    $(GENIE_INCLUDES) $(LINUX_SYS_INCLUDES)
+             $(LOG_LIBRARIES) \
+             $(GPROF_LIBRARIES) \
+	     $(EXTRALIBS)
 
 # Default compiler and preprocessor flags
 
 CXXFLAGS := $(ENV_CXXFLAGS) $(CXXFLAGS)
 CPPFLAGS  = $(INCLUDES)
 CFLAGS    = -g
-#LDFLAGS  := $(LDFLAGS) $(LIBRARIES)
 
 #-------------------------------------------------------------------
 #                            MAKE RULES
