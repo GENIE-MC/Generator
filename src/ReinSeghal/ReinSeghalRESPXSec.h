@@ -3,19 +3,14 @@
 
 \class    genie::ReinSeghalRESPXSec
 
-\brief    Computes the double differential cross section for production of a
-          single baryon resonance according to the \b Rein-Seghal model.
+\brief    Computes the double differential cross section for resonance 
+          electro- or neutrino-production according to the Rein-Seghal model.
 
           The computed cross section is the d^2 xsec/ dQ^2 dW \n
 
           where \n
             \li \c Q^2 : momentum transfer ^ 2
             \li \c W   : invariant mass of the final state hadronic system
-
-          If it is specified (at the external XML configuration) the cross
-          section can weighted with the value of the resonance's Breit-Wigner
-          distribution at the given W. The Breit-Wigner distribution type can
-          be externally specified. \n
 
           Is a concrete implementation of the XSecAlgorithmI interface.
 
@@ -57,14 +52,13 @@ public:
   ReinSeghalRESPXSec(string config);
   virtual ~ReinSeghalRESPXSec();
 
-  //! XSecAlgorithmI interface implementation
-  double XSec            (const Interaction * i, KinePhaseSpace_t k) const;
-  double Integral        (const Interaction * i) const;
-  bool   ValidProcess    (const Interaction * i) const;
-  ///////////bool   ValidKinematics (const Interaction * i) const;
+  // implement the XSecAlgorithmI interface 
+  double XSec         (const Interaction * i, KinePhaseSpace_t k) const;
+  double Integral     (const Interaction * i) const;
+  bool   ValidProcess (const Interaction * i) const;
 
-  //! overload the Algorithm::Configure() methods to load private data
-  //! members from configuration options
+  // overload the Algorithm::Configure() methods to load private data
+  // members from configuration options
   void Configure(const Registry & config);
   void Configure(string config);
 
@@ -75,19 +69,21 @@ private:
   mutable FKR fFKR;
   mutable BaryonResParams fBRP;
 
-  //! configuration data
-
   const BreitWignerI *         fBreitWigner;
   const BaryonResDataSetI *    fBaryonResDataSet;
   const RSHelicityAmplModelI * fHAmplModelCC;
   const RSHelicityAmplModelI * fHAmplModelNCp;
   const RSHelicityAmplModelI * fHAmplModelNCn;
+  const RSHelicityAmplModelI * fHAmplModelEMp;
+  const RSHelicityAmplModelI * fHAmplModelEMn;
 
+  // configuration data
   bool     fWghtBW;            ///< weight with resonance breit-wigner?
   double   fZeta;              ///< FKR parameter Zeta
   double   fOmega;             ///< FKR parameter Omega
   double   fMa2;               ///< (axial mass)^2
   double   fMv2;               ///< (vector mass)^2
+  double   fSin48w;            ///< sin^4(Weingberg angle)
   bool     fUsingDisResJoin;   ///< use a DIS/RES joining scheme?
   bool     fUsingNuTauScaling; ///< use NeuGEN nutau xsec reduction factors?
   double   fWcut;              ///< apply DIS/RES joining scheme < Wcut

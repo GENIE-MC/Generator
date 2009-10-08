@@ -33,16 +33,18 @@ public:
   RSHelicityAmplModelNCp(string config);
   virtual ~RSHelicityAmplModelNCp();
 
-  //-- RSHelicityAmplModelI interface implementation
-  RSHelicityAmpl * Compute(Resonance_t res, const FKR & fkr) const;
+  // RSHelicityAmplModelI interface implementation
+  const RSHelicityAmpl & Compute(Resonance_t res, const FKR & fkr) const;
 
-  //-- overload the Algorithm::Configure() methods to load private data
-  //   members from configuration options
+  // overload the Algorithm::Configure() methods to load private data
+  // members from configuration options
   void Configure(const Registry & config);
   void Configure(string config);
 
 private:
   void LoadConfig(void);
+
+  mutable RSHelicityAmpl fAmpl;
 
   double fSin28w;
 };

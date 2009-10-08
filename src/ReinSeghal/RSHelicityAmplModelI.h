@@ -21,17 +21,17 @@
 #include "Algorithm/Algorithm.h"
 #include "BaryonResonance/BaryonResonance.h"
 #include "ReinSeghal/FKR.h"
+#include "ReinSeghal/RSHelicityAmpl.h"
 
 namespace genie {
 
-class RSHelicityAmpl;
 class RSHelicityAmplModelI : public Algorithm
 {
 public:
   virtual ~RSHelicityAmplModelI();
 
-  //-- define the RSHelicityAmplModelI interface
-  virtual RSHelicityAmpl * Compute(Resonance_t res, const FKR & fkr) const = 0;
+  // define the RSHelicityAmplModelI interface
+  virtual const RSHelicityAmpl & Compute(Resonance_t res, const FKR & fkr) const = 0;
 
 protected:
   RSHelicityAmplModelI();
