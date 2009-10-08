@@ -7,7 +7,7 @@
           Is a concrete implementation of the XSecAlgorithmI interface. \n
 
 \ref      See for example: 
-          Hyde-Wright and de Jager, Annu. Rev. Nucl. Part. Sci. 2004 54:217
+          R.Bradford, A.Bodek, H.Budd, J.Arrington, Nucl.Phys.B159 (2006) 127
           
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           STFC, Rutherford Appleton Laboratory
@@ -24,6 +24,7 @@
 #define _ROSENBLUTH_CROSS_SECTION_H_
 
 #include "Base/XSecAlgorithmI.h"
+#include "ElFF/ELFormFactors.h"
 
 namespace genie {
 
@@ -50,6 +51,9 @@ private:
 
   void LoadConfig(void);
 
+  const   XSecIntegratorI *     fXSecIntegrator;
+  const   ELFormFactorsModelI * fElFFModel;
+  mutable ELFormFactors         fELFF;
 };
 
 }       // genie namespace
