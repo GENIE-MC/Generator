@@ -5,15 +5,20 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - May 03, 2004
+         STFC, Rutherford Appleton Laboratory
 
  Adapted from neugen 3.
- Primary authors: D.Naples (Pittsburgh U.), H.Gallagher (Tufts U)
+ Primary authors: D.Naples (Pittsburgh U.), H.Gallagher (Tufts U), CA
 
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
-
+ @ Oct 08, 2009 - CA
+   Added structure function calculations for charged leptons.
+   Restructured to make switching off quark contributions and going from 
+   lN->l'X mode to lq->l'q' mode more transparant
+ @ Oct 09, 2009 - CA
+   Renamed to QPMDISStrucFuncBase from DISStructureFuncModel.
 */
 //____________________________________________________________________________
 
@@ -23,53 +28,54 @@
 #include "Conventions/GBuild.h"
 #include "Conventions/Constants.h"
 #include "Messenger/Messenger.h"
-#include "PartonModel/DISStructureFuncModel.h"
+#include "PartonModel/QPMDISStrucFuncBase.h"
 #include "PDF/PDFModelI.h"
 #include "PDG/PDGUtils.h"
 #include "Utils/KineUtils.h"
 #include "Utils/NuclearUtils.h"
+#include "Utils/PhysUtils.h"
 
 using namespace genie;
 using namespace genie::constants;
 
 //____________________________________________________________________________
-DISStructureFuncModel::DISStructureFuncModel() :
+QPMDISStrucFuncBase::QPMDISStrucFuncBase() :
 DISStructureFuncModelI()
 {
   this->InitPDF();
 }
 //____________________________________________________________________________
-DISStructureFuncModel::DISStructureFuncModel(string name) :
+QPMDISStrucFuncBase::QPMDISStrucFuncBase(string name) :
 DISStructureFuncModelI(name)
 {
   this->InitPDF();
 }
 //____________________________________________________________________________
-DISStructureFuncModel::DISStructureFuncModel(string name, string config):
+QPMDISStrucFuncBase::QPMDISStrucFuncBase(string name, string config):
 DISStructureFuncModelI(name, config)
 {
   this->InitPDF();
 }
 //____________________________________________________________________________
-DISStructureFuncModel::~DISStructureFuncModel()
+QPMDISStrucFuncBase::~QPMDISStrucFuncBase()
 {
   delete fPDF;
   delete fPDFc;
 }
 //____________________________________________________________________________
-void DISStructureFuncModel::Configure(const Registry & config)
+void QPMDISStrucFuncBase::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void DISStructureFuncModel::Configure(string param_set)
+void QPMDISStrucFuncBase::Configure(string param_set)
 {
   Algorithm::Configure(param_set);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void DISStructureFuncModel::LoadConfig(void)
+void QPMDISStrucFuncBase::LoadConfig(void)
 {
   LOG("DISSF", pDEBUG) << "Loading configuration...";
 
@@ -115,18 +121,17 @@ void DISStructureFuncModel::LoadConfig(void)
                           "weinberg-angle", gc->GetDouble("WeinbergAngle"));
   fSin2thw = TMath::Power(TMath::Sin(thw), 2);
 
-
   LOG("DISSF", pDEBUG) << "Done loading configuration";
 }
 //____________________________________________________________________________
-void DISStructureFuncModel::InitPDF(void)
+void QPMDISStrucFuncBase::InitPDF(void)
 {
-                     // at each calculation are evaluated at:
+                     // evaluated at:
   fPDF  = new PDF(); //   x = computed (+/-corrections) scaling var, Q2
   fPDFc = new PDF(); //   x = computed charm slow re-scaling var,    Q2
 }
 //____________________________________________________________________________
-void DISStructureFuncModel::Calculate(const Interaction * interaction) const
+void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
 {
   // Reset mutable members
   fF1 = 0;
@@ -136,62 +141,110 @@ void DISStructureFuncModel::Calculate(const Interaction * interaction) const
   fF5 = 0;
   fF6 = 0;
 
-  //-- get process info & perform various checks
+  // Get process info & perform various checks
   const ProcessInfo &  proc_info  = interaction->ProcInfo();
   const InitialState & init_state = interaction->InitState();
   const Target & tgt = init_state.Tgt();
 
-  int  nuc_pdgc = tgt.HitNucPdg();
-  int  nu_pdgc  = init_state.ProbePdg();
-  bool isCC     = proc_info.IsWeakCC();
-  bool isNC     = proc_info.IsWeakNC();
-  bool isP      = pdg::IsProton       ( nuc_pdgc );
-  bool isN      = pdg::IsNeutron      ( nuc_pdgc );
-  bool isNu     = pdg::IsNeutrino     ( nu_pdgc  );
-  bool isNuBar  = pdg::IsAntiNeutrino ( nu_pdgc  );
+  int  nuc_pdgc    = tgt.HitNucPdg();
+  int  probe_pdgc  = init_state.ProbePdg();
+  bool is_p        = pdg::IsProton       ( nuc_pdgc    );
+  bool is_n        = pdg::IsNeutron      ( nuc_pdgc    );
+  bool is_nu       = pdg::IsNeutrino     ( probe_pdgc  );
+  bool is_nubar    = pdg::IsAntiNeutrino ( probe_pdgc  );
+  bool is_lepton   = pdg::IsLepton       ( probe_pdgc  );
+  bool is_CC       = proc_info.IsWeakCC();
+  bool is_NC       = proc_info.IsWeakNC();
+  bool is_EM       = proc_info.IsEM();
 
-  assert(isP  || isN);
-  assert(isNu || isNuBar);
+  if ( !is_lepton           ) return;
+  if ( !is_p && !is_n       ) return;
+  if ( tgt.N() == 0 && is_n ) return;
+  if ( tgt.Z() == 0 && is_p ) return;
 
-  if(tgt.N()==0 && pdg::IsNeutron(nuc_pdgc)) return;
-  if(tgt.Z()==0 && pdg::IsProton(nuc_pdgc) ) return;
+  // Flags switching on/off quark contributions so that this algorithm can be 
+  // used for both l + N -> l' + X, and l + q -> l' + q' level calculations
+
+  double switch_uv    = 1.;
+  double switch_us    = 1.;
+  double switch_ubar  = 1.;
+  double switch_dv    = 1.;
+  double switch_ds    = 1.;
+  double switch_dbar  = 1.;
+  double switch_s     = 1.;
+  double switch_sbar  = 1.;
+  double switch_c     = 1.;
+  double switch_cbar  = 1.;
 
   if(tgt.HitQrkIsSet()) {
-    int  qpdg = tgt.HitQrkPdg();
-    bool isu  = pdg::IsUQuark     (qpdg);
-    bool isub = pdg::IsAntiUQuark (qpdg);
-    bool isd  = pdg::IsDQuark     (qpdg);
-    bool isdb = pdg::IsAntiDQuark (qpdg);
-    bool iss  = pdg::IsSQuark     (qpdg);
-    bool issb = pdg::IsAntiSQuark (qpdg);
 
-    bool isNuCC    = isNu    && isCC;
-    bool isNuBarCC = isNuBar && isCC;
-    if(isNuCC    && isu ) return;
-    if(isNuCC    && isdb) return;
-    if(isNuCC    && issb) return;
-    if(isNuBarCC && isub) return;
-    if(isNuBarCC && isd ) return;
-    if(isNuBarCC && iss ) return;
+     switch_uv    = 0.;
+     switch_us    = 0.;
+     switch_ubar  = 0.;
+     switch_dv    = 0.;
+     switch_ds    = 0.;
+     switch_dbar  = 0.;
+     switch_s     = 0.;
+     switch_sbar  = 0.;
+     switch_c     = 0.;
+     switch_cbar  = 0.;
+
+     int  qpdg = tgt.HitQrkPdg();
+     bool sea  = tgt.HitSeaQrk();
+
+     bool is_u    = pdg::IsUQuark     (qpdg);
+     bool is_ubar = pdg::IsAntiUQuark (qpdg);
+     bool is_d    = pdg::IsDQuark     (qpdg);
+     bool is_dbar = pdg::IsAntiDQuark (qpdg);
+     bool is_s    = pdg::IsSQuark     (qpdg);
+     bool is_sbar = pdg::IsAntiSQuark (qpdg);
+     bool is_c    = pdg::IsCQuark     (qpdg);
+     bool is_cbar = pdg::IsAntiCQuark (qpdg);
+
+     if      (!sea && is_u   ) { switch_uv   = 1; }
+     else if ( sea && is_u   ) { switch_us   = 1; }
+     else if ( sea && is_ubar) { switch_ubar = 1; }
+     else if (!sea && is_d   ) { switch_dv   = 1; }
+     else if ( sea && is_d   ) { switch_ds   = 1; }
+     else if ( sea && is_dbar) { switch_dbar = 1; }
+     else if ( sea && is_s   ) { switch_s    = 1; }
+     else if ( sea && is_sbar) { switch_sbar = 1; }
+     else if ( sea && is_c   ) { switch_c    = 1; }
+     else if ( sea && is_cbar) { switch_cbar = 1; }
+     else return;
+
+     // make sure user inputs make sense
+    if(is_nu    && is_CC && is_u   ) return;
+    if(is_nu    && is_CC && is_c   ) return;
+    if(is_nu    && is_CC && is_dbar) return;
+    if(is_nu    && is_CC && is_sbar) return;
+    if(is_nubar && is_CC && is_ubar) return;
+    if(is_nubar && is_CC && is_cbar) return;
+    if(is_nubar && is_CC && is_d   ) return;
+    if(is_nubar && is_CC && is_s   ) return;
   }
-   
+
   // Compute PDFs [both at (scaling-var,Q2) and (slow-rescaling-var,Q2)
-  // Here all corrections to computing the rescaling variable and the
-  // K factors are applied
-  //
+  // Applying all PDF K-factors abd scaling variable corrections
+
   this -> CalcPDFs (interaction);
 
-  // Compute structure functions
   //
+  // Compute structure functions for the EM, NC and CC cases
+  //
+
   double F2=0, xF3=0;
 
   // ***  NEUTRAL CURRENT
-  //
-  if(isNC) {
-    double GL   = (isNu) ? ( 0.5 - (2./3.)*fSin2thw) : (     - (2./3.)*fSin2thw); // clu
-    double GR   = (isNu) ? (     - (2./3.)*fSin2thw) : ( 0.5 - (2./3.)*fSin2thw); // cru
-    double GLp  = (isNu) ? (-0.5 + (1./3.)*fSin2thw) : (       (1./3.)*fSin2thw); // cld
-    double GRp  = (isNu) ? (       (1./3.)*fSin2thw) : (-0.5 + (1./3.)*fSin2thw); // crd
+
+  if(is_NC) {
+
+    if(!is_nu && !is_nubar) return;
+
+    double GL   = (is_nu) ? ( 0.5 - (2./3.)*fSin2thw) : (     - (2./3.)*fSin2thw); // clu
+    double GR   = (is_nu) ? (     - (2./3.)*fSin2thw) : ( 0.5 - (2./3.)*fSin2thw); // cru
+    double GLp  = (is_nu) ? (-0.5 + (1./3.)*fSin2thw) : (       (1./3.)*fSin2thw); // cld
+    double GRp  = (is_nu) ? (       (1./3.)*fSin2thw) : (-0.5 + (1./3.)*fSin2thw); // crd
     double gvu  = GL  + GR;
     double gau  = GL  - GR;
     double gvd  = GLp + GRp;
@@ -200,25 +253,17 @@ void DISStructureFuncModel::Calculate(const Interaction * interaction) const
     double gau2 = TMath::Power(gau, 2.);
     double gvd2 = TMath::Power(gvd, 2.);
     double gad2 = TMath::Power(gad, 2.);
-    double fc   = 0;
-    double q2   = (fu+fc)  * (gvu2+gau2) + (fd+fs)  * (gvd2+gad2);
-    double q3   = (fu+fc)  * (2*gvu*gau) + (fd+fs)  * (2*gvd*gad);
-    double qb2  = (fus+fc) * (gvu2+gau2) + (fds+fs) * (gvd2+gad2);    
-    double qb3  = (fus+fc) * (2*gvu*gau) + (fds+fs) * (2*gvd*gad);    
- 
-    if(tgt.HitQrkIsSet()) {
-       // \bar{q} contributions are computed from q(sea) pdfs.
-       // Explicity zero q contributions if we have a hit anti-quark.
-       // Vice-versa for hit-quarks.
-       // One has to do that despite the pdf zeroing in CalcPDFs() as the non-zero
-       // q(sea) pdf would give non-zero contributions to S/F from both q and \bar{q}.
-       int qpdg = tgt.HitQrkPdg();
-       q2  *= ( pdg::IsQuark(qpdg)     ? 1. : 0. );
-       q3  *= ( pdg::IsQuark(qpdg)     ? 1. : 0. );
-       qb2 *= ( pdg::IsAntiQuark(qpdg) ? 1. : 0. );
-       qb3 *= ( pdg::IsAntiQuark(qpdg) ? 1. : 0. );
-    }
 
+    double q2   = (switch_uv   * fuv + switch_us   * fus + switch_c    * fc)  * (gvu2+gau2) + 
+                  (switch_dv   * fdv + switch_ds   * fds + switch_s    * fs)  * (gvd2+gad2);
+    double q3   = (switch_uv   * fuv + switch_us   * fus + switch_c    * fc)  * (2*gvu*gau) + 
+                  (switch_dv   * fdv + switch_ds   * fds + switch_s    * fs)  * (2*gvd*gad);
+
+    double qb2  = (switch_ubar * fus + switch_cbar * fc)  * (gvu2+gau2) + 
+                  (switch_dbar * fds + switch_sbar * fs)  * (gvd2+gad2);    
+    double qb3  = (switch_ubar * fus + switch_cbar * fc)  * (2*gvu*gau) + 
+                  (switch_dbar * fds + switch_sbar * fs)  * (2*gvd*gad);    
+ 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("DISSF", pINFO) << "f2 : q = " << q2 << ", bar{q} = " << qb2;
     LOG("DISSF", pINFO) << "xf3: q = " << q3 << ", bar{q} = " << qb3;
@@ -229,22 +274,70 @@ void DISStructureFuncModel::Calculate(const Interaction * interaction) const
   } 
 
   // ***  CHARGED CURRENT
-  //
-  if(isCC) {
+
+  if(is_CC) {
     double q=0, qbar=0;
-    if (isNu) {
-      q    = (fd  * fVud2) + (fs  * fVus2) + (fd_c * fVcd2) + (fs_c * fVcs2);
-      qbar = (fus * fVud2) + (fus * fVus2) + (fc_c * fVcd2) + (fc_c * fVcs2);
+
+    if (is_nu) {
+      q    = ( switch_dv * fdv   + switch_ds * fds   ) * fVud2 + 
+             ( switch_s  * fs                        ) * fVus2 + 
+             ( switch_dv * fdv_c + switch_ds * fds_c ) * fVcd2 + 
+             ( switch_s  * fs_c                      ) * fVcs2;
+
+      qbar = ( switch_ubar * fus  ) * fVud2 + 
+             ( switch_ubar * fus  ) * fVus2 + 
+             ( switch_cbar * fc_c ) * fVcd2 + 
+             ( switch_cbar * fc_c ) * fVcs2;
     }
-    else if (isNuBar) {
-      q    = (fu    * fVud2) + (fu  * fVus2) + (fc_c * fVcd2) + (fc_c * fVcs2);
-      qbar = (fds_c * fVcd2) + (fds * fVud2) + (fs   * fVus2) + (fs_c * fVcs2);
+    else 
+    if (is_nubar) {
+      q    = ( switch_uv * fuv + switch_us * fus    ) * fVud2 + 
+             ( switch_uv * fuv + switch_us * fus    ) * fVus2 + 
+             ( switch_c  * fc_c                     ) * fVcd2 + 
+             ( switch_c  * fc_c                     ) * fVcs2;
+
+      qbar = ( switch_dbar * fds_c ) * fVcd2 + 
+             ( switch_dbar * fds   ) * fVud2 + 
+             ( switch_sbar * fs    ) * fVus2 + 
+             ( switch_sbar * fs_c  ) * fVcs2;
     }
+    else {
+      return;
+    }
+
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("DISSF", pINFO) << "Q(x,Q2) = " << q << ", Qbar(x,Q2) = " << qbar;
 #endif
     F2  = 2*(q+qbar);
     xF3 = 2*(q-qbar);
+  }
+
+  // ***  ELECTROMAGNETIC
+
+  if(is_EM) {
+
+    if(!pdg::IsChargedLepton(probe_pdgc)) return;
+
+    double sq23 = TMath::Power(2./3., 2.);
+    double sq13 = TMath::Power(1./3., 2.);
+
+    double qu   = sq23 * ( switch_uv   * fuv + switch_us * fus );
+    double qd   = sq13 * ( switch_dv   * fdv + switch_ds * fds );
+    double qs   = sq13 * ( switch_s    * fs  );
+    double qbu  = sq23 * ( switch_ubar * fus );
+    double qbd  = sq13 * ( switch_dbar * fds );
+    double qbs  = sq13 * ( switch_sbar * fs  );
+
+    double q    = qu  + qd  + qs;
+    double qbar = qbu + qbd + qbs;
+
+    F2  = q + qbar;;
+    xF3 = 0.;
+
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+    LOG("DISSF", pINFO) << "Q(x,Q2) = " << q << ", Qbar(x,Q2) = " << qbar;
+#endif
+
   }
 
   double Q2 = this->Q2        (interaction);
@@ -259,8 +352,8 @@ void DISStructureFuncModel::Calculate(const Interaction * interaction) const
 
   double a = TMath::Power(x,2.) / TMath::Max(Q2, 0.8);
   double c = (1. + 4. * kNucleonMass2 * a) / (1.+r);
-  //double a = TMath::Power(x,2.) / Q2;
-  //double c = (1. + 4. * kNucleonMass * a) / (1.+r);
+//double a = TMath::Power(x,2.) / Q2;
+//double c = (1. + 4. * kNucleonMass * a) / (1.+r);
 
   fF3 = f * xF3/x;
   fF2 = f * F2;
@@ -275,7 +368,7 @@ void DISStructureFuncModel::Calculate(const Interaction * interaction) const
 #endif
 }
 //____________________________________________________________________________
-double DISStructureFuncModel::Q2(const Interaction * interaction) const
+double QPMDISStrucFuncBase::Q2(const Interaction * interaction) const
 {
 // Return Q2 from the kinematics or, if not set, compute it from x,y
 // The x might be corrected
@@ -302,7 +395,7 @@ double DISStructureFuncModel::Q2(const Interaction * interaction) const
   return 0;
 }
 //____________________________________________________________________________
-double DISStructureFuncModel::ScalingVar(const Interaction* interaction) const
+double QPMDISStrucFuncBase::ScalingVar(const Interaction* interaction) const
 {
 // The scaling variable is set to the normal Bjorken x.
 // Override DISStructureFuncModel::ScalingVar() to compute corrections
@@ -310,7 +403,7 @@ double DISStructureFuncModel::ScalingVar(const Interaction* interaction) const
   return interaction->Kine().x();
 }
 //____________________________________________________________________________
-void DISStructureFuncModel::KFactors(const Interaction *, 
+void QPMDISStrucFuncBase::KFactors(const Interaction *, 
 	         double & kuv, double & kdv, double & kus, double & kds) const
 {
 // This is an abstract class: no model-specific correction
@@ -323,7 +416,7 @@ void DISStructureFuncModel::KFactors(const Interaction *,
   kds = 1.;
 }
 //____________________________________________________________________________
-double DISStructureFuncModel::NuclMod(const Interaction * interaction) const
+double QPMDISStrucFuncBase::NuclMod(const Interaction * interaction) const
 {
 // Nuclear modification to Fi
 // The scaling variable can be overwritten to include corrections
@@ -341,7 +434,7 @@ double DISStructureFuncModel::NuclMod(const Interaction * interaction) const
   return f;
 }
 //____________________________________________________________________________
-double DISStructureFuncModel::R(const Interaction * interaction) const
+double QPMDISStrucFuncBase::R(const Interaction * interaction) const
 {
 // Computes R ( ~ longitudinal structure function FL = R * 2xF1)
 // The scaling variable can be overwritten to include corrections
@@ -349,13 +442,13 @@ double DISStructureFuncModel::R(const Interaction * interaction) const
   if(fIncludeR) {
     double x  = this->ScalingVar(interaction);
     double Q2 = this->Q2(interaction);
-    double R = utils::nuclear::RModelMod(x, Q2);
+    double R = utils::phys::RWhitlow(x, Q2);
     return R;
   }
   return 0;
 }
 //____________________________________________________________________________
-void DISStructureFuncModel::CalcPDFs(const Interaction * interaction) const
+void QPMDISStrucFuncBase::CalcPDFs(const Interaction * interaction) const
 {
   // Clean-up previous calculation
   fPDF  -> Reset();
@@ -461,6 +554,7 @@ void DISStructureFuncModel::CalcPDFs(const Interaction * interaction) const
   fdv   = fPDF  -> DownValence();
   fds   = fPDF  -> DownSea();
   fs    = fPDF  -> Strange();
+  fc    = 0.;
   fuv_c = fPDFc -> UpValence();   // will be 0 if < charm threshold
   fus_c = fPDFc -> UpSea();       // ...
   fdv_c = fPDFc -> DownValence(); // ...
@@ -484,51 +578,5 @@ void DISStructureFuncModel::CalcPDFs(const Interaction * interaction) const
     tmp = fus_c; fus_c = fds_c; fds_c = tmp;
   }
 
-  // Take the sums of valence & sea pdfs
-  fu    = fuv   + fus;
-  fd    = fdv   + fds;
-  fu_c  = fuv_c + fus_c;
-  fd_c  = fdv_c + fds_c;
-
-  // The above can be used to compute vN->lX cross sections taking into account 
-  // the contribution from all quarks. Check whether a struck quark has been set: 
-  // in this case the conributions from all other quarks will be set to 0 as as 
-  // this algorithm can be used from computing vq->lq cross sections as well.
-
-  if(tgt.HitQrkIsSet()) {
-    int  qpdg = tgt.HitQrkPdg();
-    bool sea  = tgt.HitSeaQrk();
-
-    bool isu  = pdg::IsUQuark     (qpdg);
-    bool isub = pdg::IsAntiUQuark (qpdg);
-    bool isd  = pdg::IsDQuark     (qpdg);
-    bool isdb = pdg::IsAntiDQuark (qpdg);
-    bool iss  = pdg::IsSQuark     (qpdg);
-    bool issb = pdg::IsAntiSQuark (qpdg);
-
-    fuv   = ( isu        && !sea) ? fuv   : 0.;
-    fus   = ((isu||isub) &&  sea) ? fus   : 0.; 
-    fdv   = ( isd        && !sea) ? fdv   : 0.;
-    fds   = ((isd||isdb) &&  sea) ? fds   : 0.;
-    fs    = ((iss||issb) &&  sea) ? fs    : 0.;
-    fuv_c = ( isu        && !sea) ? fuv_c : 0.;
-    fus_c = ((isu||isub) &&  sea) ? fus_c : 0.;
-    fdv_c = ( isd        && !sea) ? fdv_c : 0.;
-    fds_c = ((isd||isdb) &&  sea) ? fds_c : 0.;
-    fs_c  = ((iss||issb) &&  sea) ? fs_c  : 0.;
-    fc_c  = 0;
-
-    fu    = fuv   + fus;
-    fd    = fdv   + fds;
-    fu_c  = fuv_c + fus_c;
-    fd_c  = fdv_c + fds_c;
-  }
-/*
-  LOG("DISSF", pDEBUG) << "u(v) = " << fuv;
-  LOG("DISSF", pDEBUG) << "u(s) = " << fus;
-  LOG("DISSF", pDEBUG) << "d(v) = " << fdv;
-  LOG("DISSF", pDEBUG) << "d(s) = " << fds;
-  LOG("DISSF", pDEBUG) << "s    = " << fs;
-*/
 }
 //____________________________________________________________________________

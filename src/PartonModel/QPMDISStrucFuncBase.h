@@ -1,19 +1,21 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::DISStructureFuncModel
+\class    genie::QPMDISStrucFuncBase
 
-\brief    Abstract base class. Provides common implementation for concrete
-          DISStructureFuncModelI objects
+\brief    Abstract base class. 
+          Provides common implementation for concrete objects implementing the
+          DISStructureFuncModelI interface.
 
-\ref      For a discussion of DIS SF see for eaxample E.A.Paschos and J.Y.Yu, 
+\ref      For a discussion of DIS SF see for example E.A.Paschos and J.Y.Yu, 
           Phys.Rev.D 65.033002 and R.Devenish and A.Cooper-Sarkar, OUP 2004.
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           STFC, Rutherford Appleton Laboratory
 
           Adapted from neugen 3.
-          Primary authors: D.Naples (Pittsburgh U.), H.Gallagher (Tufts U)
+          Primary authors: 
+          D.Naples (Pittsburgh U.), H.Gallagher (Tufts U), CA (RAL)
 
 \created  May 03, 2004
 
@@ -23,8 +25,8 @@
 */
 //____________________________________________________________________________
 
-#ifndef _DIS_STRUCTURE_FUNCTIONS_MODEL_H_
-#define _DIS_STRUCTURE_FUNCTIONS_MODEL_H_
+#ifndef _QPM_DIS_STRUCTURE_FUNCTIONS_BASE_H_
+#define _QPM_DIS_STRUCTURE_FUNCTIONS_BASE_H_
 
 #include "Base/DISStructureFuncModelI.h"
 #include "Interaction/Interaction.h"
@@ -32,12 +34,12 @@
 
 namespace genie {
 
-class DISStructureFuncModel : public DISStructureFuncModelI {
+class QPMDISStrucFuncBase : public DISStructureFuncModelI {
 
 public:
-  virtual ~DISStructureFuncModel();
+  virtual ~QPMDISStrucFuncBase();
 
-  //-- common code for all DISFormFactorsModelI interface implementations
+  // common code for all DISFormFactorsModelI interface implementations
   virtual double F1 (void) const { return fF1; }
   virtual double F2 (void) const { return fF2; }
   virtual double F3 (void) const { return fF3; }
@@ -47,18 +49,18 @@ public:
 
   virtual void Calculate (const Interaction * interaction) const;
 
-  //-- Overload Algorithm's Configure() to set the PDF data member
-  //   from the configuration registry
+  // overload Algorithm's Configure() to set the PDF data member
+  // from the configuration registry
   void   Configure  (const Registry & config);
   void   Configure  (string param_set);
 
 protected:
-  DISStructureFuncModel();
-  DISStructureFuncModel(string name);
-  DISStructureFuncModel(string name, string config);
+  QPMDISStrucFuncBase();
+  QPMDISStrucFuncBase(string name);
+  QPMDISStrucFuncBase(string name, string config);
 
-  //-- commom code for SF calculation for all DISFormFactorsModelI
-  //   interface implementations inheriting DISFormFactorsModel
+  // commom code for SF calculation for all DISFormFactorsModelI
+  // interface implementations inheriting from QPMDISStrucFuncBase
   virtual void   LoadConfig (void);
   virtual void   InitPDF    (void);
   virtual double Q2         (const Interaction * i) const;
@@ -98,19 +100,16 @@ protected:
   mutable double fdv; 
   mutable double fds; 
   mutable double fs;
+  mutable double fc;
   mutable double fuv_c; 
   mutable double fus_c; 
   mutable double fdv_c;
   mutable double fds_c;
   mutable double fs_c; 
   mutable double fc_c; 
-  mutable double fu;
-  mutable double fd; 
-  mutable double fu_c;
-  mutable double fd_c;
 
 };
 
 }         // genie namespace
-#endif    // _DIS_STRUCTURE_FUNCTIONS_MODEL_H_
+#endif    // _QPM_DIS_STRUCTURE_FUNCTIONS_BASE_H_
 
