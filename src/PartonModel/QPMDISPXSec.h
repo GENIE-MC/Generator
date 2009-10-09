@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::DISPartonModelPXSec
+\class    genie::QPMDISPXSec
 
 \brief    Computes DIS differential cross sections.
           Is a concrete implementation of the XSecAlgorithmI interface.
@@ -31,20 +31,20 @@ class DISStructureFuncModelI;
 class HadronizationModelI;
 class XSecIntegratorI;
 
-class DISPartonModelPXSec : public XSecAlgorithmI {
+class QPMDISPXSec : public XSecAlgorithmI {
 
 public:
-  DISPartonModelPXSec();
-  DISPartonModelPXSec(string config);
-  virtual ~DISPartonModelPXSec();
+  QPMDISPXSec();
+  QPMDISPXSec(string config);
+  virtual ~QPMDISPXSec();
 
-  //-- XSecAlgorithmI interface implementation
+  // XSecAlgorithmI interface implementation
   double XSec            (const Interaction * i, KinePhaseSpace_t k) const;
   double Integral        (const Interaction * i) const;
   bool   ValidProcess    (const Interaction * i) const;
 
-  //-- overload the Algorithm::Configure() methods to load private data
-  //   members from configuration options
+  // overload the Algorithm::Configure() methods to load private data
+  // members from configuration options
   void Configure(const Registry & config);
   void Configure(string config);
 

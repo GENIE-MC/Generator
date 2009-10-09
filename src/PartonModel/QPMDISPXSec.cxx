@@ -5,12 +5,13 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - May 05, 2004
+         STFC, Rutherford Appleton Laboratory 
 
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
-
+ @ Oct 09, 2009 - CA
+   Renamed QPMDISPXSec from DISPartonModelPXSec
 */
 //____________________________________________________________________________
 
@@ -31,7 +32,7 @@
 #include "Conventions/Units.h"
 #include "Fragmentation/HadronizationModelI.h"
 #include "Messenger/Messenger.h"
-#include "PartonModel/DISPartonModelPXSec.h"
+#include "PartonModel/QPMDISPXSec.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
 #include "Utils/MathUtils.h"
@@ -48,30 +49,30 @@ using namespace genie::constants;
 using namespace genie::units;
 
 //____________________________________________________________________________
-DISPartonModelPXSec::DISPartonModelPXSec() :
-XSecAlgorithmI("genie::DISPartonModelPXSec")
+QPMDISPXSec::QPMDISPXSec() :
+XSecAlgorithmI("genie::QPMDISPXSec")
 {
   fInInitPhase = true;
 }
 //____________________________________________________________________________
-DISPartonModelPXSec::DISPartonModelPXSec(string config) :
-XSecAlgorithmI("genie::DISPartonModelPXSec", config)
+QPMDISPXSec::QPMDISPXSec(string config) :
+XSecAlgorithmI("genie::QPMDISPXSec", config)
 {
   fInInitPhase = true;
 }
 //____________________________________________________________________________
-DISPartonModelPXSec::~DISPartonModelPXSec()
+QPMDISPXSec::~QPMDISPXSec()
 {
 
 }
 //____________________________________________________________________________
-double DISPartonModelPXSec::XSec(
-                const Interaction * interaction, KinePhaseSpace_t kps) const
+double QPMDISPXSec::XSec(
+     const Interaction * interaction, KinePhaseSpace_t kps) const
 {
   if(! this -> ValidProcess    (interaction) ) return 0.;
   if(! this -> ValidKinematics (interaction) ) return 0.;
 
-  //----- Get kinematical & init-state parameters
+  // Get kinematical & init-state parameters
   const Kinematics &   kinematics = interaction -> Kine();
   const InitialState & init_state = interaction -> InitState();
   const ProcessInfo &  proc_info  = interaction -> ProcInfo();
@@ -88,27 +89,26 @@ double DISPartonModelPXSec::XSec(
    << "Computing d2xsec/dxdy @ E = " << E << ", x = " << x << ", y = " << y;
 #endif
 
-  //----- One of the xsec terms changes sign for antineutrinos @ DIS/CC
+  // One of the xsec terms changes sign for antineutrinos @ DIS/CC
 
   bool is_nubar_cc = pdg::IsAntiNeutrino(init_state.ProbePdg()) && 
                      proc_info.IsWeakCC();
   int sign = (is_nubar_cc) ? -1 : 1;
 
-  //----- Calculate the DIS structure functions
-
+  // Calculate the DIS structure functions
   fDISSF.Calculate(interaction); 
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DISPXSec", pDEBUG) << fDISSF;
 #endif
 
-  //-- calculate auxiliary parameters
+  // Calculate auxiliary parameters
   double ml2  = ml    * ml;
   double ml4  = ml2   * ml2;
   double E2   = E     * E;
   double Gfac = (kGF*kGF*Mnuc*E) / kPi;
 
-  //----- Build all dxsec/dxdy terms
+  // Build all dxsec/dxdy terms
   double term1 = y * ( x*y + ml2/(2*E*Mnuc) );
   double term2 = 1 - y - Mnuc*x*y/(2*E) - ml2/(4*E2);
   double term3 = sign * (x*y*(1-y/2) - y*ml2/(4*Mnuc*E));
@@ -121,7 +121,7 @@ double DISPartonModelPXSec::XSec(
                   << term3 << ")*F3+(" << term4 << ")*F4+(" << term5 << ")*F5";
 #endif
 
-  //----- Compute the differential cross section
+  // Compute the differential cross section
   term1 *= fDISSF.F1();
   term2 *= fDISSF.F2();
   term3 *= fDISSF.F3();
@@ -137,7 +137,7 @@ double DISPartonModelPXSec::XSec(
                       << ", x= " << x << ", y= " << y << ") = " << xsec;
 #endif
 
-  //----- If the DIS/RES joining scheme is enabled, modify the xsec accordingly
+  // If the DIS/RES joining scheme is enabled, modify the xsec accordingly
   if(fUsingDisResJoin) {
      double R = this->DISRESJoinSuppressionFactor(interaction);
      xsec*=R;
@@ -147,27 +147,27 @@ double DISPartonModelPXSec::XSec(
 #endif
   }
 
-  //----- The algorithm computes d^2xsec/dxdy
-  //      Check whether variable tranformation is needed
+  // The algorithm computes d^2xsec/dxdy
+  // Check whether variable tranformation is needed
   if(kps!=kPSxyfE) {
     double J = utils::kinematics::Jacobian(interaction,kPSxyfE,kps);
     xsec *= J;
   }
 
-  //----- If requested return the free nucleon xsec even for input nuclear tgt 
+  // If requested return the free nucleon xsec even for input nuclear tgt 
   if( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;
 
-  //----- Compute nuclear cross section (simple scaling here, corrections must
-  //      have been included in the structure functions)
+  // Compute nuclear cross section (simple scaling here, corrections must
+  // have been included in the structure functions)
   const Target & target = init_state.Tgt();
   int nucpdgc = target.HitNucPdg();
   int NNucl = (pdg::IsProton(nucpdgc)) ? target.Z() : target.N(); 
   xsec *= NNucl; 
 
-  //----- Apply scaling / if required to reach well known asymmptotic value
+  // Apply scaling / if required to reach well known asymmptotic value
   xsec *= fScale;
 
-  //----- Subtract the inclusive charm production cross section
+  // Subtract the inclusive charm production cross section
   interaction->ExclTagPtr()->SetCharm();
   double xsec_charm = fCharmProdModel->XSec(interaction,kps);
   interaction->ExclTagPtr()->UnsetCharm();
@@ -179,20 +179,20 @@ double DISPartonModelPXSec::XSec(
   return xsec;
 }
 //____________________________________________________________________________
-double DISPartonModelPXSec::Integral(const Interaction * interaction) const
+double QPMDISPXSec::Integral(const Interaction * interaction) const
 {
   double xsec = fXSecIntegrator->Integrate(this,interaction);
   return xsec;
 }
 //____________________________________________________________________________
-bool DISPartonModelPXSec::ValidProcess(const Interaction * interaction) const
+bool QPMDISPXSec::ValidProcess(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipProcessChk)) return true;
   return true;
 }
 //____________________________________________________________________________
-double DISPartonModelPXSec::DISRESJoinSuppressionFactor(
-                                                const Interaction * in) const
+double QPMDISPXSec::DISRESJoinSuppressionFactor(
+   const Interaction * in) const
 {
 // Computes suppression factors for the DIS xsec under the used DIS/RES join
 // scheme. Since this is a 'low-level' algorithm that is being called many
@@ -225,13 +225,12 @@ double DISPartonModelPXSec::DISRESJoinSuppressionFactor(
     }
   }
   else {
+
     // ** Precompute/cache the reduction factors and then use the 
     // ** cache to evaluate these factors
-    //
 
-    //-- Access the cache branch. The branch key is formed as:
-    //   algid/DIS-RES-Join/nu-pdg:N;hit-nuc-pdg:N/inttype
-
+    // Access the cache branch. The branch key is formed as:
+    // algid/DIS-RES-Join/nu-pdg:N;hit-nuc-pdg:N/inttype
     Cache * cache = Cache::Instance();
     string algkey = this->Id().Key() + "/DIS-RES-Join";
 
@@ -245,8 +244,8 @@ double DISPartonModelPXSec::DISRESJoinSuppressionFactor(
     CacheBranchFx * cbr =
           dynamic_cast<CacheBranchFx *> (cache->FindCacheBranch(key));
 
-    //-- If it does not exist create a new one and cache DIS xsec suppression
-    //   factors
+    // If it does't exist then create a new one 
+    // and cache DIS xsec suppression factors
     bool non_zero=false;
     if(!cbr) {
       LOG("DISXSec", pNOTICE) 
@@ -289,36 +288,37 @@ double DISPartonModelPXSec::DISRESJoinSuppressionFactor(
       assert(cbr);
     } // cache data
 
-    //-- get the reduction factor from the cache branch
+    // get the reduction factor from the cache branch
     if(Wo > Wmin && Wo < fWcut-1E-2) {
        const CacheBranchFx & cache_branch = (*cbr);
        R = cache_branch(Wo);
     }
   }
 
-  //-- Now return the suppression factor
+  // Now return the suppression factor
   if      (Wo > Wmin && Wo < fWcut-1E-2) Ro = R;
   else if (Wo <= Wmin)                   Ro = 0.0;
   else                                   Ro = 1.0;
 
   LOG("DISXSec", pDEBUG) 
-            << "DIS/RES Join: DIS xsec suppr. (W=" << Wo << ") = " << Ro;
+      << "DIS/RES Join: DIS xsec suppr. (W=" << Wo << ") = " << Ro;
+
   return Ro;
 }
 //____________________________________________________________________________
-void DISPartonModelPXSec::Configure(const Registry & config)
+void QPMDISPXSec::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void DISPartonModelPXSec::Configure(string config)
+void QPMDISPXSec::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void DISPartonModelPXSec::LoadConfig(void)
+void QPMDISPXSec::LoadConfig(void)
 {
   // Access global defaults to use in case of missing parameters
   AlgConfigPool * confp = AlgConfigPool::Instance();
@@ -349,19 +349,19 @@ void DISPartonModelPXSec::LoadConfig(void)
   // Cross section scaling factor
   fScale = fConfig->GetDoubleDef("Scale", gc->GetDouble("DIS-XSecScale"));
 
-  //-- Caching the reduction factors used in the DIS/RES joing scheme?
-  //   In normal event generation (1 config -> many calls) it is worth caching
-  //   these suppression factors.
-  //   Depending on the way this algorithm is used during event reweighting,
-  //   precomputing (for all W's) & caching these factors might not be efficient.
-  //   Here we provide the option to turn the caching off (default: on)
+  // Caching the reduction factors used in the DIS/RES joing scheme?
+  // In normal event generation (1 config -> many calls) it is worth caching
+  // these suppression factors.
+  // Depending on the way this algorithm is used during event reweighting,
+  // precomputing (for all W's) & caching these factors might not be efficient.
+  // Here we provide the option to turn the caching off (default: on)
 
   fUseCache = fConfig->GetBoolDef("UseCache", true);
   fUseCache = fUseCache && !(gSystem->Getenv("GDISABLECACHING"));
 
-  //-- Since this method would be called every time the current algorithm is 
-  //   reconfigured at run-time, remove all the data cached by this algorithm
-  //   since they depend on the previous configuration
+  // Since this method would be called every time the current algorithm is 
+  // reconfigured at run-time, remove all the data cached by this algorithm
+  // since they depend on the previous configuration
 
   if(!fInInitPhase) {
      Cache * cache = Cache::Instance();
@@ -375,7 +375,7 @@ void DISPartonModelPXSec::LoadConfig(void)
       dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));
   assert(fXSecIntegrator);
 
-  //-- load the charm production cross section model
+  // Load the charm production cross section model
   RgKey xkey    = "CharmXSecModel";
   RgKey xdefkey = "XSecModel@genie::EventGenerator/DIS-CC-CHARM";
   RgAlg xalg    = fConfig->GetAlgDef(xkey, gc->GetAlg(xdefkey));

@@ -1,10 +1,10 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::DISStructureFuncModelNC
+\class    genie::QPMDISStrucFunc
 
-\brief    Structure functions for neutrino DIS NC.
-          Is a concrete implementation of the DISStructureFuncModelI interface.
+\brief    Standard Quark Parton Model (QPM) Deep Inelastic Scatering (DIS)
+          Structure Functions (SF)
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           STFC, Rutherford Appleton Laboratory
@@ -17,21 +17,21 @@
 */
 //____________________________________________________________________________
 
-#ifndef _DIS_STRUCTURE_FUNC_MODEL_NC_H_
-#define _DIS_STRUCTURE_FUNC_MODEL_NC_H_
+#ifndef _QPM_DIS_STRUC_FUNC_H_
+#define _QPM_DIS_STRUC_FUNC_H_
 
-#include "PartonModel/DISStructureFuncModel.h"
+#include "PartonModel/QPMDISStrucFuncBase.h"
 
 namespace genie {
 
-class DISStructureFuncModelNC : public DISStructureFuncModel {
+class QPMDISStrucFunc : public QPMDISStrucFuncBase {
 
 public:
-  DISStructureFuncModelNC();
-  DISStructureFuncModelNC(string config);
-  virtual ~DISStructureFuncModelNC();
+  QPMDISStrucFunc();
+  QPMDISStrucFunc(string config);
+  virtual ~QPMDISStrucFunc();
 };
 
 }         // genie namespace
-#endif    // _DIS_STRUCTURE_FUNC_MODEL_NC_H_
+#endif    // _QPM_DIS_STRUC_FUNC_H_
 

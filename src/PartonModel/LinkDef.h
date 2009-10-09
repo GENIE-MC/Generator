@@ -6,10 +6,9 @@
 
 #pragma link C++ namespace genie;
 
-#pragma link C++ class genie::DISStructureFuncModel;
-#pragma link C++ class genie::DISStructureFuncModelNC;
-#pragma link C++ class genie::DISStructureFuncModelCC;
-#pragma link C++ class genie::DISStructureFuncModelEM;
-#pragma link C++ class genie::DISPartonModelPXSec;
+#pragma link C++ class genie::QPMDISStrucFuncBase;
+
+#pragma link C++ class genie::QPMDISStrucFunc;
+#pragma link C++ class genie::QPMDISPXSec;
 
 #endif
