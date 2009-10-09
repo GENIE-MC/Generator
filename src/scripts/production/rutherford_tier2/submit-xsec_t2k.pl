@@ -18,6 +18,9 @@
 #   [--queue]        : default: prod
 #   [--softw-topdir] : default: /opt/ppd/t2k/GENIE
 #
+# Notes:
+#   * Use GENIE gspladd utility to merge the job outputs
+#
 # Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
 # STFC, Rutherford Appleton Lab
 #----------------------------------------------------------------------
