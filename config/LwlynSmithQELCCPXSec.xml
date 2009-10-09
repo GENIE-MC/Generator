@@ -14,20 +14,19 @@ XSec-Integrator    alg      No
 CabbiboAngle       double   Yes        Cabbibo angle                    GPL value: CabbiboAngle
 -->
 
-  <param_set name="CC-Default"> 
+  <param_set name="Default"> 
      <param type="alg"  name="FormFactorsAlg">  genie::LwlynSmithFFCC/Default </param>
      <param type="alg"  name="XSec-Integrator"> genie::QELXSec/Default        </param>
   </param_set>
-
-  <param_set name="CC-Dipole"> 
+  <param_set name="DipoleELFF"> 
      <param type="alg"  name="FormFactorsAlg">  genie::LwlynSmithFFCC/Dipole  </param>
      <param type="alg"  name="XSec-Integrator"> genie::QELXSec/Default        </param>
   </param_set>
-  <param_set name="CC-BBA2003"> 
+  <param_set name="BBA2003"> 
      <param type="alg"  name="FormFactorsAlg">  genie::LwlynSmithFFCC/BBA2003 </param>
      <param type="alg"  name="XSec-Integrator"> genie::QELXSec/Default        </param>
   </param_set>
-  <param_set name="CC-BBA2005"> 
+  <param_set name="BBA2005"> 
      <param type="alg"  name="FormFactorsAlg">  genie::LwlynSmithFFCC/BBA2005 </param>
      <param type="alg"  name="XSec-Integrator"> genie::QELXSec/Default        </param>
   </param_set>
