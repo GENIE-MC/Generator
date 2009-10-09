@@ -21,6 +21,7 @@
 #pragma link C++ namespace genie::utils::bwfunc;
 #pragma link C++ namespace genie::utils::prem;
 #pragma link C++ namespace genie::utils::gsl;
+#pragma link C++ namespace genie::utils::system;
 
 #pragma link C++ class genie::Cache;
 #pragma link C++ class genie::CacheBranchI;
