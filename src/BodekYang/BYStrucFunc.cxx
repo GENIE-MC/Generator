@@ -5,11 +5,13 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - October 03, 2004
+         STFC, Rutherford Appleton Laboratory 
 
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
+ @ Oct 09, 2009 - CA
+   Renamed to BYStrucFunc from BYStructureFuncModel
 
 */
 //____________________________________________________________________________
@@ -18,7 +20,7 @@
 
 #include "Algorithm/AlgFactory.h"
 #include "Algorithm/AlgConfigPool.h"
-#include "BodekYang/BYStructureFuncModel.h"
+#include "BodekYang/BYStrucFunc.h"
 #include "Conventions/Constants.h"
 #include "Messenger/Messenger.h"
 
@@ -26,42 +28,42 @@ using namespace genie;
 using namespace genie::constants;
 
 //____________________________________________________________________________
-BYStructureFuncModel::BYStructureFuncModel(string name) :
-DISStructureFuncModel(name)
+BYStrucFunc::BYStrucFunc() :
+QPMDISStrucFuncBase("genie::BYStrucFunc")
 {
   this->Init();
 }
 //____________________________________________________________________________
-BYStructureFuncModel::BYStructureFuncModel(string name, string config):
-DISStructureFuncModel(name, config)
+BYStrucFunc::BYStrucFunc(string config):
+QPMDISStrucFuncBase("genie::BYStrucFunc", config)
 {
   this->Init();
 }
 //____________________________________________________________________________
-BYStructureFuncModel::~BYStructureFuncModel()
+BYStrucFunc::~BYStrucFunc()
 {
 
 }
 //____________________________________________________________________________
-void BYStructureFuncModel::Configure(const Registry & config)
+void BYStrucFunc::Configure(const Registry & config)
 {
 // Overload Algorithm::Configure() to read the config. registry and set
 // private data members.
-// DISStructureFuncModel::Configure() creates the owned PDF object that gets
+// QPMDISStrucFuncBase::Configure() creates the owned PDF object that gets
 // configured with the specified PDFModelI
 // For the ReadBYParams() method see below
 
-  DISStructureFuncModel::Configure(config);
+  QPMDISStrucFuncBase::Configure(config);
   this->ReadBYParams();
 }
 //____________________________________________________________________________
-void BYStructureFuncModel::Configure(string param_set)
+void BYStrucFunc::Configure(string param_set)
 {
-  DISStructureFuncModel::Configure(param_set);
+  QPMDISStrucFuncBase::Configure(param_set);
   this->ReadBYParams();
 }
 //____________________________________________________________________________
-void BYStructureFuncModel::ReadBYParams(void)
+void BYStrucFunc::ReadBYParams(void)
 {
 // Get the Bodek-Yang model parameters A,B,Csea,Cv1,Cv2 from the config.
 // registry and set some private data members so as not to accessing the
@@ -80,7 +82,7 @@ void BYStructureFuncModel::ReadBYParams(void)
   fCv2D = fConfig->GetDoubleDef( "Cv2D", gc->GetDouble("BY-Cv2D") );
 }
 //____________________________________________________________________________
-void BYStructureFuncModel::Init(void)
+void BYStrucFunc::Init(void)
 {
   fA    = 0;
   fB    = 0;
@@ -92,9 +94,9 @@ void BYStructureFuncModel::Init(void)
   fCv2D = 0;
 }
 //____________________________________________________________________________
-double BYStructureFuncModel::ScalingVar(const Interaction * interaction) const
+double BYStrucFunc::ScalingVar(const Interaction * interaction) const
 {
-// Overrides DISStructureFuncModel::ScalingVar() to compute the BY scaling var
+// Overrides QPMDISStrucFuncBase::ScalingVar() to compute the BY scaling var
 
   const Kinematics & kine  = interaction->Kine();
   double x  = kine.x();
@@ -107,10 +109,10 @@ double BYStructureFuncModel::ScalingVar(const Interaction * interaction) const
   return xw;
 }
 //____________________________________________________________________________
-void BYStructureFuncModel::KFactors(const Interaction * interaction, 
+void BYStrucFunc::KFactors(const Interaction * interaction, 
 	         double & kuv, double & kdv, double & kus, double & kds) const
 {
-// Overrides DISStructureFuncModel::KFactors() to compute the BY K factors for
+// Overrides QPMDISStrucFuncBase::KFactors() to compute the BY K factors for
 // u(valence), d(valence), u(sea), d(sea);
 
   double Q2  = this->Q2(interaction);

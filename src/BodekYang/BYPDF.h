@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::BYPDFModel
+\class    genie::BYPDF
 
 \brief    Computes corrected PDFs according to the Bodek-Yang model.
 
@@ -22,13 +22,13 @@
 
 namespace genie {
 
-class BYPDFModel : public PDFModelI {
+class BYPDF : public PDFModelI {
 
 public:
 
-  BYPDFModel();
-  BYPDFModel(string config);
-  virtual ~BYPDFModel();
+  BYPDF();
+  BYPDF(string config);
+  virtual ~BYPDF();
 
   //! PDFModelI interface implementation
   double UpValence   (double x, double q2) const;
