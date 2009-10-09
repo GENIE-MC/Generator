@@ -11,7 +11,8 @@
 
  Important revisions after version 2.0.0 :
  @ Oct 09, 2009 - CA
-   Renamed QPMDISPXSec from DISPartonModelPXSec
+   Modified to handle charged lepton - nucleon(nucleus) scattering.
+   Renamed QPMDISPXSec from DISPartonModelPXSec following code reorganization.
 */
 //____________________________________________________________________________
 
@@ -80,9 +81,13 @@ double QPMDISPXSec::XSec(
   double E     = init_state.ProbeE(kRfHitNucRest);
   double ml    = interaction->FSPrimLepton()->Mass();
   double Mnuc  = init_state.Tgt().HitNucMass();
-  double Mnuc2 = TMath::Power(Mnuc, 2);
   double x     = kinematics.x();
   double y     = kinematics.y();
+
+  double E2    = E    * E;
+  double ml2   = ml   * ml;
+  double ml4   = ml2  * ml2;
+  double Mnuc2 = Mnuc * Mnuc;
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DISPXSec", pDEBUG)  
@@ -102,11 +107,27 @@ double QPMDISPXSec::XSec(
   LOG("DISPXSec", pDEBUG) << fDISSF;
 #endif
 
-  // Calculate auxiliary parameters
-  double ml2  = ml    * ml;
-  double ml4  = ml2   * ml2;
-  double E2   = E     * E;
-  double Gfac = (kGF*kGF*Mnuc*E) / kPi;
+  //
+  // Compute the differential cross section
+  //
+
+  double g2 = kGF2;
+  // For EM interaction replace  G_{Fermi} with :
+  // a_{em} * pi / ( sqrt(2) * sin^2(theta_weinberg) * Mass_{W}^2 }
+  // See C.Quigg, Gauge Theories of the Strong, Weak and E/M Interactions,
+  // ISBN 0-8053-6021-2, p.112 (6.3.57)
+  // Also, take int account that the photon propagator is 1/p^2 but the
+  // W propagator is 1/(p^2-Mass_{W}^2), so weight the EM case with
+  // Mass_{W}^4 / q^4
+  // So, overall:
+  // G_{Fermi}^2 --> a_{em}^2 * pi^2 / (2 * sin^4(theta_weinberg) * q^{4})
+  //
+  if(proc_info.IsEM()) {
+    double Q2 = utils::kinematics::XYtoQ2(E,Mnuc,x,y);
+    double Q4 = Q2*Q2;
+    g2 = kAem2 * kPi2 / (2.0 * fSin48w * Q4); 
+  }
+  double front_factor = (g2*Mnuc*E) / kPi;
 
   // Build all dxsec/dxdy terms
   double term1 = y * ( x*y + ml2/(2*E*Mnuc) );
@@ -121,14 +142,13 @@ double QPMDISPXSec::XSec(
                   << term3 << ")*F3+(" << term4 << ")*F4+(" << term5 << ")*F5";
 #endif
 
-  // Compute the differential cross section
   term1 *= fDISSF.F1();
   term2 *= fDISSF.F2();
   term3 *= fDISSF.F3();
   term4 *= fDISSF.F4();
   term5 *= fDISSF.F5();
 
-  double xsec = Gfac*(term1 + term2 + term3 + term4 + term5);
+  double xsec = front_factor * (term1 + term2 + term3 + term4 + term5);
   xsec = TMath::Max(xsec,0.);
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
@@ -348,6 +368,12 @@ void QPMDISPXSec::LoadConfig(void)
 
   // Cross section scaling factor
   fScale = fConfig->GetDoubleDef("Scale", gc->GetDouble("DIS-XSecScale"));
+
+  // sin^4(theta_weinberg)
+  double thw = fConfig->GetDoubleDef(
+         "weinberg-angle", gc->GetDouble("WeinbergAngle"));
+     
+  fSin48w = TMath::Power( TMath::Sin(thw), 4 );
 
   // Caching the reduction factors used in the DIS/RES joing scheme?
   // In normal event generation (1 config -> many calls) it is worth caching
