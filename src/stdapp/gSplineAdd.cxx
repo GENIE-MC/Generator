@@ -6,18 +6,30 @@
 \brief   Merges XML files containing GENIE cross section splines
 
          Syntax :
-           gspladd -i input1.xml,input2.xml,... -o output.xml
+           gspladd -f file_list -d directory_list -o output.xml
 
          Options :
-           -i a comma separated list of input xml files (can have an arbitrary
-              number of files)
+           -f A list of input xml cross-section files. If more than one then 
+              separate using commas.
+           -d A list of input directories where to look for xml cross section
+              files. If more than one then separate using commas.
            -o output xml file
  
-         Example:
-           gspladd -i xsec_numu_Fe56.xml,xsec_numu_O16.xml -o xsec_all.xml
+         Notes :
+           There must be at least 2 files for the merges to work
 
-           will merge xsec_numu_Fe56.xml and xsec_numu_O16.xml into a single
-           file named xsec_all.xml
+         Examples :
+
+           1) shell% gspladd -f xsec_Fe56.xml,xsec_O16.xml -o xsec.xml
+
+              will merge xsec_Fe56.xml and xsec_O16.xml into a single file
+              named xsec_all.xml
+
+           2) shell% gspladd -f xsec_Fe56.xml -d /path,/other_path  -o xsec.xml
+
+              will merge xsec_Fe56.xml with all the xml cross-section files that
+              can be found in the /path and /other_path directories and write-out
+              a single file named xsec_all.xml
 
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          Rutherford Appleton Laboratory
@@ -42,6 +54,7 @@
 #include "Messenger/Messenger.h"
 #include "Utils/XSecSplineList.h"
 #include "Utils/StringUtils.h"
+#include "Utils/SystemUtils.h"
 #include "Utils/CmdLineArgParserUtils.h"
 #include "Utils/CmdLineArgParserException.h"
 
@@ -51,12 +64,15 @@ using std::ostringstream;
 
 using namespace genie;
 
-void GetCommandLineArgs (int argc, char ** argv);
-void PrintSyntax        (void);
+vector<string> GetAllInputFiles   (void);
+void           GetCommandLineArgs (int argc, char ** argv);
+void           PrintSyntax        (void);
 
 //User-specified options:
-vector<string> gInpFiles;
-string         gOutFile;
+string         gOutFile;   ///< output XML file
+vector<string> gInpFiles;  ///< list of input XML files
+vector<string> gInpDirs;   ///< list of input dirs (to look for XML files)
+vector<string> gAllFiles;  ///< list of all input files
 
 //____________________________________________________________________________
 int main(int argc, char ** argv)
@@ -65,19 +81,50 @@ int main(int argc, char ** argv)
   
   XSecSplineList * xspl = XSecSplineList::Instance();
 
-  vector<string>::const_iterator file_iter = gInpFiles.begin();
-  for( ; file_iter != gInpFiles.end(); ++file_iter) {
+  vector<string>::const_iterator file_iter = gAllFiles.begin();
+  for( ; file_iter != gAllFiles.end(); ++file_iter) {
     string filename = *file_iter;
-    LOG("gspladd", pNOTICE) << " ****** Loading file : " << filename;
-    XmlParserStatus_t  ist = xspl->LoadFromXml(filename, true);
+    LOG("gspladd", pNOTICE) << " ---- >> Loading file : " << filename;
+    XmlParserStatus_t ist = xspl->LoadFromXml(filename, true);
     assert(ist==kXmlOK);
   }
 
   LOG("gspladd", pNOTICE) 
-          << " ****** Saving all loaded splines into : " << gOutFile;
+     << " ****** Saving all loaded splines into : " << gOutFile;
   xspl->SaveAsXml(gOutFile);
 
   return 0;
+}
+//____________________________________________________________________________
+vector<string> GetAllInputFiles(void)
+{
+  vector<string> files;
+
+  vector<string>::const_iterator file_iter;
+  vector<string>::const_iterator dir_iter;
+
+  // add all files that were input explictly
+  file_iter = gInpFiles.begin();
+  for( ; file_iter != gInpFiles.end(); ++file_iter) {
+    string filename = *file_iter;
+    files.push_back(filename);
+  } // file_iter
+
+  // loop over input directories
+  dir_iter = gInpDirs.begin();
+  for( ; dir_iter != gInpDirs.end(); ++dir_iter) {
+    string path = *dir_iter;
+    // get all XML files in this dir
+    vector<string> path_files = utils::system::GetAllFilesInPath(path,"xml");
+    // add these files too
+    file_iter = path_files.begin();
+    for( ; file_iter != path_files.end(); ++file_iter) {
+       string filename = *file_iter;
+       files.push_back(filename);
+    }//file_iter
+  }//dir_iter
+
+  return files;
 }
 //____________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
@@ -86,25 +133,33 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   try {
     LOG("gspladd", pINFO) << "Reading input files";
-    string inpfiles = genie::utils::clap::CmdLineArgAsString(argc,argv,'i');
+    string inpfiles = genie::utils::clap::CmdLineArgAsString(argc,argv,'f');
     if(inpfiles.find(",") != string::npos) {
        // split the comma separated list
        gInpFiles = utils::str::Split(inpfiles, ",");
-       assert(gInpFiles.size()>1);
     } else {
-      LOG("gspladd", pFATAL) 
-         << "You should specify at least 2 input files for the file merger to work...";
-      PrintSyntax();
-      exit(1);
+       // there is just one file
+       gInpFiles.push_back(inpfiles);
     }
-  } catch(exceptions::CmdLineArgParserException e) {
+  }catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
-      LOG("gspladd", pFATAL) << "You must specify a list of input files";
-      PrintSyntax();
-      exit(1);
     }
   }
 
+  try {
+    LOG("gspladd", pINFO) << "Reading input directories";
+    string inpdirs = genie::utils::clap::CmdLineArgAsString(argc,argv,'d');
+    if(inpdirs.find(",") != string::npos) {
+       // split the comma separated list
+       gInpDirs = utils::str::Split(inpdirs, ",");
+    } else {
+       // there is just one directory
+       gInpDirs.push_back(inpdirs);
+    }
+  } catch(exceptions::CmdLineArgParserException e) {
+    if(!e.ArgumentFound()) {
+    }
+  }
 
   try {
     LOG("gspladd", pINFO) << "Reading output file name";
@@ -116,12 +171,19 @@ void GetCommandLineArgs(int argc, char ** argv)
       exit(1);
     }
   }
+
+  gAllFiles = GetAllInputFiles();
+  if(gAllFiles.size() <= 1) {
+      LOG("gspladd", pFATAL) << "There must be at least 2 input files";
+      PrintSyntax();
+      exit(1);
+  }
 }
 //____________________________________________________________________________
 void PrintSyntax(void)
 {
   LOG("gspladd", pNOTICE)
     << "\n\n" << "Syntax:" << "\n"
-    << "   gspladd -i input1.xml,impu2.xml,... -o output.xml\n";
+    << "   gspladd  -f file_list -d directory_list  -o output.xml\n";
 }
 //____________________________________________________________________________
