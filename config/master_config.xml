@@ -68,7 +68,7 @@
 
    <!-- ****** CONFIGURATION FOR PARTON DENSITY FUNCTION ALGORITHMS ****** -->
    <config alg="genie::PDFLIB">                      PDFLIB.xml                      </config>
-   <config alg="genie::BYPDFModel">                  BYPDFModel.xml                  </config>
+   <config alg="genie::BYPDF">                       BYPDF.xml                       </config>
 
    <!-- ****** CONFIGURATION FOR PARTICLE DECAY ALGORITHMS****** -->
    <config alg="genie::PythiaDecayer">               PythiaDecayer.xml               </config>
@@ -91,13 +91,13 @@
    <config alg="genie::BBA05ELFormFactorsModel">     BBA05ELFormFactorsModel.xml     </config>
    <config alg="genie::LwlynSmithFFCC">              LwlynSmithFFCC.xml              </config>
    <config alg="genie::LwlynSmithFFNC">              LwlynSmithFFNC.xml              </config>
-   <config alg="genie::DISStructureFuncModelCC">     DISStructureFuncModelCC.xml     </config>
-   <config alg="genie::DISStructureFuncModelNC">     DISStructureFuncModelNC.xml     </config>
-   <config alg="genie::BYStructureFuncModelCC">      BYStructureFuncModelCC.xml      </config>
-   <config alg="genie::BYStructureFuncModelNC">      BYStructureFuncModelNC.xml      </config>
+   <config alg="genie::QPMDISStrucFunc">             QPMDISStrucFunc.xml             </config>
+   <config alg="genie::BYStrucFunc">                 BYStrucFunc.xml                 </config>
    <config alg="genie::RSHelicityAmplModelCC">       RSHelicityAmplModelCC.xml       </config>
    <config alg="genie::RSHelicityAmplModelNCp">      RSHelicityAmplModelNCp.xml      </config>
    <config alg="genie::RSHelicityAmplModelNCn">      RSHelicityAmplModelNCn.xml      </config>
+   <config alg="genie::RSHelicityAmplModelEMp">      RSHelicityAmplModelEMp.xml      </config>
+   <config alg="genie::RSHelicityAmplModelEMn">      RSHelicityAmplModelEMn.xml      </config>
 
    <!--  ****** CONFIGURATION GENERIC CROSS SECTION INTEGRATORS ****** -->
    <config alg="genie::QELXSec">                     QELXSec.xml                     </config>
@@ -110,7 +110,7 @@
    <!--  ****** CONFIGURATION FOR XSEC ALGORITHMS ****** -->
    <config alg="genie::AhrensNCELPXSec">             AhrensNCELPXSec.xml             </config>
    <config alg="genie::LwlynSmithQELCCPXSec">        LwlynSmithQELCCPXSec.xml        </config>
-   <config alg="genie::DISPartonModelPXSec">         DISPartonModelPXSec.xml         </config>
+   <config alg="genie::QPMDISPXSec">                 QPMDISPXSec.xml                 </config>
    <config alg="genie::AivazisCharmPXSecLO">         AivazisCharmPXSecLO.xml         </config>
    <config alg="genie::SlowRsclCharmDISPXSecLO">     SlowRsclCharmDISPXSecLO.xml     </config>
    <config alg="genie::KovalenkoQELCharmPXSec">      KovalenkoQELCharmPXSec.xml      </config>
@@ -129,8 +129,6 @@
    <config alg="genie::MECPXSec">                    MECPXSec.xml                    </config>
    <config alg="genie::RosenbluthPXSec">             RosenbluthPXSec.xml             </config>
    <config alg="genie::StrumiaVissaniIBDPXSec">      StrumiaVissaniIBDPXSec.xml      </config>
-   <config alg="genie::NuNucElasticPXSec">           NuNucElasticPXSec.xml           </config> <!-- remove -->
-   <config alg="genie::QELPXSec">                    QELPXSec.xml                    </config> <!-- remove -->
 
    <!--  ****** CONFIGURATION FOR NUCLEAR ENV. ALGORITHMS ****** -->
    <config alg="genie::NuclearModelMap">             NuclearModelMap.xml             </config>

@@ -19,19 +19,10 @@ UseCache                    bool    Yes   Cache suppression factors?            
 
 <alg_conf>
 
-  <param_set name="CC-Default"> 
-     <param type="alg" name="SFAlg">           genie::BYStructureFuncModelCC/Default   </param>
-     <param type="alg" name="XSec-Integrator"> genie::DISXSec/Default                  </param>
-     <param type="alg" name="Hadronizer">      genie::KNOHadronization/Default         </param>
-  </param_set>
-
-  <param_set name="NC-Default"> 
-<!--
-     <param type="alg" name="SFAlg">           genie::DISStructureFuncModelNC/Default  </param>
--->
-     <param type="alg" name="SFAlg">           genie::BYStructureFuncModelNC/Default   </param>
-     <param type="alg" name="XSec-Integrator"> genie::DISXSec/Default                  </param>
-     <param type="alg" name="Hadronizer">      genie::KNOHadronization/Default         </param>
+  <param_set name="Default"> 
+     <param type="alg" name="SFAlg">           genie::BYStrucFunc/Default      </param>
+     <param type="alg" name="XSec-Integrator"> genie::DISXSec/Default          </param>
+     <param type="alg" name="Hadronizer">      genie::KNOHadronization/Default </param>
   </param_set>
 
 </alg_conf>

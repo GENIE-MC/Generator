@@ -6,8 +6,6 @@
 
 #pragma link C++ namespace genie;
 
-#pragma link C++ class genie::QELPXSec; ## remove
-
 #pragma link C++ class genie::LwlynSmithQELCCPXSec;
 #pragma link C++ class genie::LwlynSmithFFCC;
 #pragma link C++ class genie::LwlynSmithFFNC;
