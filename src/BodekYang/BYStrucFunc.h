@@ -1,11 +1,9 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::BYStructureFuncModel
+\class    genie::BYStrucFunc
 
-\brief    Abstract class. Provides common implementation for concrete
-          DISStructureFuncModelI objects computing the Bodek Yang structure
-          functions.
+\brief    Bodek Yang structure function model
 
 \ref      hep-ph/0411202
 
@@ -20,19 +18,21 @@
 #ifndef _BODEK_YANG_STRUCTURE_FUNCTION_MODEL_H_
 #define _BODEK_YANG_STRUCTURE_FUNCTION_MODEL_H_
 
-#include "PartonModel/DISStructureFuncModel.h"
+#include "PartonModel/QPMDISStrucFuncBase.h"
 #include "Interaction/Interaction.h"
 #include "PDF/PDFModelI.h"
 
 namespace genie {
 
-class BYStructureFuncModel : public DISStructureFuncModel {
+class BYStrucFunc : public QPMDISStrucFuncBase {
 
 public:
-  virtual ~BYStructureFuncModel();
+  BYStrucFunc();
+  BYStrucFunc(string config);
+  virtual ~BYStrucFunc();
 
-  //! Overload Algorithm::Configure() to read the config. registry
-  //! at the algorithm initialization and set private data members
+  // overload Algorithm::Configure() to read the config. registry
+  // at the algorithm initialization and set private data members
   void Configure (const Registry & config);
   void Configure (string param_set);
 
@@ -41,17 +41,13 @@ protected:
   void Init         (void);
   void ReadBYParams (void);
 
-  //! protected constructors - abstract class
-  BYStructureFuncModel(string name);
-  BYStructureFuncModel(string name, string config);
-
-  //! override part of the DISStructureFuncModel implementation
-  //! to compute all the corrections applied by the Bodek-Yang model.
+  // override part of the DISStructureFuncModel implementation
+  // to compute all the corrections applied by the Bodek-Yang model.
   double ScalingVar (const Interaction * i) const;
   void   KFactors   (const Interaction * i, double & kuv, 
                          double & kdv, double & kus, double & kds) const;
 
-  //! Bodek-Yang model-specific parameters
+  // Bodek-Yang model-specific parameters
 
   double fA;     ///< better scaling var parameter A
   double fB;     ///< better scaling var parameter B

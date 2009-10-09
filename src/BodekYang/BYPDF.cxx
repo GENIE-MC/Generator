@@ -5,12 +5,13 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - October 03, 2004
+         STFC, Rutherford Appleton Laboratory 
 
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
-
+ @ Oct 09, 2009 - CA
+   Renamed to BYPDF from BYPDFModel
 */
 //____________________________________________________________________________
 
@@ -18,75 +19,75 @@
 
 #include "Algorithm/AlgConfigPool.h"
 #include "Conventions/GBuild.h"
-#include "BodekYang/BYPDFModel.h"
+#include "BodekYang/BYPDF.h"
 #include "Messenger/Messenger.h"
 
 using namespace genie;
 
 //____________________________________________________________________________
-BYPDFModel::BYPDFModel() :
-PDFModelI("genie::BYPDFModel")
+BYPDF::BYPDF() :
+PDFModelI("genie::BYPDF")
 {
 
 }
 //____________________________________________________________________________
-BYPDFModel::BYPDFModel(string config) :
-PDFModelI("genie::BYPDFModel", config)
+BYPDF::BYPDF(string config) :
+PDFModelI("genie::BYPDF", config)
 {
 
 }
 //____________________________________________________________________________
-BYPDFModel::~BYPDFModel()
+BYPDF::~BYPDF()
 {
 
 }
 //____________________________________________________________________________
-double BYPDFModel::UpValence(double x, double q2) const
+double BYPDF::UpValence(double x, double q2) const
 {
   return AllPDFs(x,q2).uval;
 }
 //____________________________________________________________________________
-double BYPDFModel::DownValence(double x, double q2) const
+double BYPDF::DownValence(double x, double q2) const
 {
   return AllPDFs(x,q2).dval;
 }
 //____________________________________________________________________________
-double BYPDFModel::UpSea(double x, double q2) const
+double BYPDF::UpSea(double x, double q2) const
 {
   return AllPDFs(x,q2).usea;
 }
 //____________________________________________________________________________
-double BYPDFModel::DownSea(double x, double q2) const
+double BYPDF::DownSea(double x, double q2) const
 {
   return AllPDFs(x,q2).dsea;
 }
 //____________________________________________________________________________
-double BYPDFModel::Strange(double x, double q2) const
+double BYPDF::Strange(double x, double q2) const
 {
   return AllPDFs(x,q2).str;
 }
 //____________________________________________________________________________
-double BYPDFModel::Charm(double x, double q2) const
+double BYPDF::Charm(double x, double q2) const
 {
   return AllPDFs(x,q2).chm;
 }
 //____________________________________________________________________________
-double BYPDFModel::Bottom(double x, double q2) const
+double BYPDF::Bottom(double x, double q2) const
 {
   return AllPDFs(x,q2).bot;
 }
 //____________________________________________________________________________
-double BYPDFModel::Top(double x, double q2) const
+double BYPDF::Top(double x, double q2) const
 {
   return AllPDFs(x,q2).top;
 }
 //____________________________________________________________________________
-double BYPDFModel::Gluon(double x, double q2) const
+double BYPDF::Gluon(double x, double q2) const
 {
   return AllPDFs(x,q2).gl;
 }
 //____________________________________________________________________________
-PDF_t BYPDFModel::AllPDFs(double x, double q2) const
+PDF_t BYPDF::AllPDFs(double x, double q2) const
 {
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("BodekYang", pDEBUG) 
@@ -148,7 +149,7 @@ PDF_t BYPDFModel::AllPDFs(double x, double q2) const
   return corrected_pdfs;
 }
 //____________________________________________________________________________
-double BYPDFModel::DeltaDU(double x) const
+double BYPDF::DeltaDU(double x) const
 {
 // Computes the BY correction factor delta(d/u) 
 
@@ -156,19 +157,19 @@ double BYPDFModel::DeltaDU(double x) const
   return d;
 }
 //____________________________________________________________________________
-void BYPDFModel::Configure(const Registry & config)
+void BYPDF::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void BYPDFModel::Configure(string config)
+void BYPDF::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void BYPDFModel::LoadConfig(void)
+void BYPDF::LoadConfig(void)
 {
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();
@@ -180,8 +181,8 @@ void BYPDFModel::LoadConfig(void)
   fQ2min = fConfig->GetDoubleDef("Q2min", gc->GetDouble("PDF-Q2min"));
 
   // get the base PDF model (typically GRV9* LO)
-  fBasePDFModel = dynamic_cast<const PDFModelI *>(
-                                      this->SubAlg("Uncorr-PDF-Set"));
+  fBasePDFModel = 
+    dynamic_cast<const PDFModelI *>(this->SubAlg("Uncorr-PDF-Set"));
 }
 //____________________________________________________________________________
 
