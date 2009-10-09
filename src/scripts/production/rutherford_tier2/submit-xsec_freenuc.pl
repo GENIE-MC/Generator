@@ -23,6 +23,9 @@
 #   shell% perl submit-xsec_freenuc.pl --version v2.6.0 --xsplset chm,nue,qel
 #   shell% perl submit-xsec_freenuc.pl --version v2.6.0 --xsplset all 
 #
+# Notes:
+#   * Use GENIE gspladd utility to merge the job outputs
+#
 # Costas Andreopoulos <costas.andreopoulos \st stfc.ac.uk>
 # STFC, Rutherford Appleton Lab
 #-----------------------------------------------------------------------------
