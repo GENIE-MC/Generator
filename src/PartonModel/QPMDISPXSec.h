@@ -65,6 +65,7 @@ private:
   bool   fUseCache;         ///< cache reduction factors used in joining scheme
   double fWcut;             ///< apply DIS/RES joining scheme < Wcut
   double fScale;            ///< cross section scaling factor
+  double fSin48w;           ///< sin^4(Weingberg angle)
 };
 
 }       // genie namespace
