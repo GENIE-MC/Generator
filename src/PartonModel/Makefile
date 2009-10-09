@@ -13,8 +13,8 @@ MAKEFILE = Makefile
 include $(GENIE)/src/make/Make.include
 
 PACKAGE           = PartonModel
-DICTIONARY        = _ROOT_DICT_PartonModel
-LIBNAME           = libGPartonModel
+DICTIONARY        = _ROOT_DICT_GQPM
+LIBNAME           = libGQPM
 EXTRA_EXT_LIBS    =
 
 all     : rootcint lib lib-link
