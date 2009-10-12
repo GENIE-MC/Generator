@@ -13,6 +13,9 @@
  @ Oct 09, 2009 - CA
    Modified to handle charged lepton - nucleon(nucleus) scattering.
    Renamed QPMDISPXSec from DISPartonModelPXSec following code reorganization.
+ @ Oct 11, 2009 - CA
+   Implemented ValidProcess()
+
 */
 //____________________________________________________________________________
 
@@ -208,6 +211,19 @@ double QPMDISPXSec::Integral(const Interaction * interaction) const
 bool QPMDISPXSec::ValidProcess(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipProcessChk)) return true;
+
+  const ProcessInfo & proc_info  = interaction->ProcInfo();
+  if(!proc_info.IsDeepInelastic()) return false;
+
+  const InitialState & init_state = interaction -> InitState();
+  int probe_pdg = init_state.ProbePdg();
+  if(!pdg::IsLepton(probe_pdg)) return false;
+
+  if(! init_state.Tgt().HitNucIsSet()) return false;
+
+  int hitnuc_pdg = init_state.Tgt().HitNucPdg();
+  if(!pdg::IsNeutronOrProton(hitnuc_pdg)) return false;
+
   return true;
 }
 //____________________________________________________________________________
