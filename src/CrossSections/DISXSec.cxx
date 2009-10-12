@@ -291,7 +291,8 @@ void DISXSec::CacheFreeNucleonXSec(
          << "Q2 integration range = [" << Q2l.min << ", " << Q2l.max << "]";
 
 #ifdef __GENIE_GSL_ENABLED__
-       ROOT::Math::IntegrationMultiDim::Type ig_type = utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
+       ROOT::Math::IntegrationMultiDim::Type ig_type = 
+             utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
        ROOT::Math::IntegratorMultiDim ig(ig_type);
        //ig.SetAbsTolerance(0.00001);
        ig.SetRelTolerance(fGSLRelTol);
@@ -307,7 +308,8 @@ void DISXSec::CacheFreeNucleonXSec(
     }//Ev>threshold
 
     LOG("DISXSec", pNOTICE)  
-       << "Caching: XSec[DIS] (E = " << Ev << " GeV) = " << xsec;
+       << "Caching: XSec[DIS] (E = " << Ev << " GeV) = " 
+       << xsec / (1E-38 * units::cm2) << " x 1E-38 cm^2";
     cache_branch->AddValues(Ev,xsec);
   }//ie
 
