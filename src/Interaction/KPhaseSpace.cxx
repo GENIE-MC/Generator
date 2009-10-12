@@ -98,7 +98,8 @@ double KPhaseSpace::Threshold(void) const
     assert(tgt.HitNucIsSet());
     double Mn   = tgt.HitNucP4Ptr()->M();
     double Mn2  = TMath::Power(Mn,2);
-    double Wmin = (pi.IsQuasiElastic()) ? kNucleonMass : kNucleonMass+kPionMass;
+    double Wmin = (pi.IsQuasiElastic() || pi.IsInverseBetaDecay()) ? 
+                  kNucleonMass : kNucleonMass+kPionMass;
 
     if(xcls.IsCharmEvent()) {
        if(xcls.IsInclusiveCharm()) {
@@ -106,10 +107,15 @@ double KPhaseSpace::Threshold(void) const
        } else {
           int cpdg = xcls.CharmHadronPdg();
           double mchm = PDGLibrary::Instance()->Find(cpdg)->Mass();
-          if(pi.IsQuasiElastic()) { Wmin = mchm + controls::kASmallNum; }
-          else                    { Wmin = kNeutronMass + mchm + controls::kASmallNum; }
-       }
-    }
+          if(pi.IsQuasiElastic() || pi.IsInverseBetaDecay()) { 
+            Wmin = mchm + controls::kASmallNum; 
+          } 
+          else { 
+            Wmin = kNeutronMass + mchm + controls::kASmallNum; 
+          }
+       }//incl.?
+    }//charm?
+
     double smin = TMath::Power(Wmin+ml,2.);
     double Ethr = 0.5*(smin-Mn2)/Mn;
 
