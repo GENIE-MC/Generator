@@ -389,6 +389,7 @@ make-install-dirs: FORCE
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/ReinSeghal
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Utils
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/VHE
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/VLE
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/ValidationTools/
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/ValidationTools/NuVld/
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Viewer
@@ -440,6 +441,7 @@ copy-install-files: FORCE
 	cd ReinSeghal;             make install; cd ..; \
 	cd ReWeight;               make install; cd ..; \
 	cd Utils;                  make install; cd ..; \
+	cd VHE;                    make install; cd ..; \
 	cd ValidationTools/NuVld;  make install; cd ../../; \
 	cd Viewer;                 make install; \
 	cd ${GENIE}
@@ -489,6 +491,7 @@ purge: FORCE
 	cd ReinSeghal;                    make purge; cd ..; \
 	cd ReWeight;                      make purge; cd ..; \
 	cd Utils;                         make purge; cd ..; \
+	cd VHE;                           make purge; cd ..; \
 	cd ValidationTools/NuVld;         make purge; cd ../../; \
 	cd ValidationTools/NuVld/app;     make purge; cd ../../../; \
 	cd ValidationTools/Basic;         make purge; cd ../../; \
