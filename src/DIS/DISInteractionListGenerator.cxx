@@ -62,13 +62,13 @@ InteractionList * DISInteractionListGenerator::CreateInteractionList(
      return 0;
   }
 
-  int      nupdg  = init_state.ProbePdg();
+  int      ppdg   = init_state.ProbePdg();
   Target * target = init_state.TgtPtr();
 
-  if( !pdg::IsNeutrino(nupdg) && !pdg::IsAntiNeutrino(nupdg) ) {
+  if( !pdg::IsLepton(ppdg) ) {
      LOG("IntLst", pWARN)
        << "Can not handle probe! Returning NULL InteractionList "
-                         << "for init-state: " << init_state.AsString();
+       << "for init-state: " << init_state.AsString();
      return 0;
   }
 
@@ -184,15 +184,15 @@ multimap<int,bool> DISInteractionListGenerator::GetHitQuarks(
     //
     // CC - only I=-1/2 quarks for v+N & I=1/2 quarks for vbar+N
     //
-    int nupdg = interaction->InitState().ProbePdg();
+    int ppdg = interaction->InitState().ProbePdg();
 
-    if (pdg::IsNeutrino(nupdg)){
+    if (pdg::IsNeutrino(ppdg)){
        if(!fIsCharm) hq.insert(pair<int,bool>(kPdgAntiUQuark, true ));
                      hq.insert(pair<int,bool>(kPdgDQuark,     false));
                      hq.insert(pair<int,bool>(kPdgDQuark,     true ));
                      hq.insert(pair<int,bool>(kPdgSQuark,     true ));
     } 
-    else if (pdg::IsAntiNeutrino(nupdg)){
+    else if (pdg::IsAntiNeutrino(ppdg)){
        if(!fIsCharm) hq.insert(pair<int,bool>(kPdgUQuark,     false));
        if(!fIsCharm) hq.insert(pair<int,bool>(kPdgUQuark,     true ));
                      hq.insert(pair<int,bool>(kPdgAntiDQuark, true ));
