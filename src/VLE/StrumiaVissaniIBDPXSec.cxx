@@ -115,14 +115,6 @@ double StrumiaVissaniIBDPXSec::Integral(const Interaction * interaction) const
 {
    // Compute the total cross section for a free nucleon target
 
-   Range1D_t rQ2 = interaction->PhaseSpace().Limits(kKVQ2);
-   fprintf(stderr,"valProc=%d, valKin=%d, "
-	   "abovThresh=%d, lim=(%g,%g)\n",
-	   this->ValidProcess(interaction),
-	   this->ValidKinematics(interaction),
-	   interaction->PhaseSpace().IsAboveThreshold(),
-	   rQ2.min, rQ2.max);
-   
    assert(interaction!=0);
    if(! this -> ValidProcess    (interaction) ) return 0.;
    if(! this -> ValidKinematics (interaction) ) return 0.;
