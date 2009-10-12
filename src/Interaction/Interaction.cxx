@@ -30,7 +30,7 @@
    vector meson production.
  @ Aug 21, 2009 - CR
    Added IBD() named ctors for Inverse Beta Decay interactions
- @ Sep 18, 2009 - CR
+ @ Sep 18, 2009 - CA
    Added QELEM() named ctors for charged lepton QEL interactions. 
    In RecoilNucleonPdg() allow EM interactions.
 */
@@ -181,7 +181,7 @@ int Interaction::RecoilNucleonPdg(void) const
   int recoil_nuc = 0;
   int struck_nuc = target.HitNucPdg();
 
-  if(fProcInfo->IsQuasiElastic()) {
+  if(fProcInfo->IsQuasiElastic() || fProcInfo->IsInverseBetaDecay()) {
     bool struck_is_nuc = pdg::IsNeutronOrProton(struck_nuc);
     bool is_weak = fProcInfo->IsWeak();
     bool is_em   = fProcInfo->IsEM();
