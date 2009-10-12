@@ -10,6 +10,8 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
+ @ Oct 12, 2009 - CA
+   Apply the NC Rijk factors in charged lepton scatterring
 
 */
 //____________________________________________________________________________
@@ -87,32 +89,79 @@ void HadronizationModelBase::ApplyRijk(
   if(!mp) return;
 
   const InitialState & init_state = interaction->InitState();
-  int nu_pdg  = init_state.ProbePdg();
-  int nuc_pdg = init_state.Tgt().HitNucPdg();
+  int probe_pdg = init_state.ProbePdg();
+  int nuc_pdg   = init_state.Tgt().HitNucPdg();
+
+  const ProcessInfo & proc_info = interaction->ProcInfo();
+  bool is_CC = proc_info.IsWeakCC();
+  bool is_NC = proc_info.IsWeakNC();
+  bool is_EM = proc_info.IsEM();
+
+  //
+  // get the R2, R3 factors
+  //
 
   double R2=1., R3=1.;
 
-  const ProcessInfo & proc_info = interaction->ProcInfo();
-  bool isCC = proc_info.IsWeakCC();
+  // weak CC or NC case
 
-  if(pdg::IsNeutrino(nu_pdg) && pdg::IsProton(nuc_pdg))  {
-    R2 = (isCC) ? fRvpCCm2 : fRvpNCm2;
-    R3 = (isCC) ? fRvpCCm3 : fRvpNCm3;
-  } else 
-  if(pdg::IsNeutrino(nu_pdg) && pdg::IsNeutron(nuc_pdg)) {
-    R2 = (isCC) ? fRvnCCm2 : fRvnNCm2;
-    R3 = (isCC) ? fRvnCCm3 : fRvnNCm3;
-  } else 
-  if(pdg::IsAntiNeutrino(nu_pdg) && pdg::IsProton(nuc_pdg))  {
-    R2 = (isCC) ? fRvbpCCm2 :   fRvbpNCm2;
-    R3 = (isCC) ? fRvbpCCm3 :   fRvbpNCm3;
-  } else 
-  if(pdg::IsAntiNeutrino(nu_pdg) && pdg::IsNeutron(nuc_pdg)) {
-    R2 = (isCC) ? fRvbnCCm2 : fRvbnNCm2;
-    R3 = (isCC) ? fRvbnCCm3 : fRvbnNCm3;
-  } else {
-    LOG("BaseHad", pERROR) << "Invalid initial state: " << init_state;
-  }
+  if(is_CC || is_NC) {
+     bool is_nu    = pdg::IsNeutrino     (probe_pdg); 
+     bool is_nubar = pdg::IsAntiNeutrino (probe_pdg);
+     bool is_p     = pdg::IsProton       (nuc_pdg);
+     bool is_n     = pdg::IsNeutron      (nuc_pdg);
+     if(is_nu && is_p)  {
+         R2 = (is_CC) ? fRvpCCm2 : fRvpNCm2;
+         R3 = (is_CC) ? fRvpCCm3 : fRvpNCm3;
+      } else 
+      if(is_nu && is_n) {
+         R2 = (is_CC) ? fRvnCCm2 : fRvnNCm2;
+         R3 = (is_CC) ? fRvnCCm3 : fRvnNCm3;
+      } else 
+      if(is_nubar && is_p)  {
+         R2 = (is_CC) ? fRvbpCCm2 :   fRvbpNCm2;
+         R3 = (is_CC) ? fRvbpCCm3 :   fRvbpNCm3;
+      } else 
+      if(is_nubar && is_n) {
+         R2 = (is_CC) ? fRvbnCCm2 : fRvbnNCm2;
+         R3 = (is_CC) ? fRvbnCCm3 : fRvbnNCm3;
+      } else {
+         LOG("BaseHad", pERROR) 
+            << "Invalid initial state: " << init_state;
+     }
+  }//cc||nc?
+
+  // EM case (apply the NC tuning factors)
+
+  if(is_EM) {
+     bool is_l     = pdg::IsNegChargedLepton (probe_pdg); 
+     bool is_lbar  = pdg::IsPosChargedLepton (probe_pdg);
+     bool is_p     = pdg::IsProton           (nuc_pdg);
+     bool is_n     = pdg::IsNeutron          (nuc_pdg);
+     if(is_l && is_p)  {
+         R2 = fRvpNCm2;
+         R3 = fRvpNCm3;
+      } else 
+      if(is_l && is_n) {
+         R2 = fRvnNCm2;
+         R3 = fRvnNCm3;
+      } else 
+      if(is_lbar && is_p)  {
+         R2 = fRvbpNCm2;
+         R3 = fRvbpNCm3;
+      } else 
+      if(is_lbar && is_n) {
+         R2 = fRvbnNCm2;
+         R3 = fRvbnNCm3;
+      } else {
+         LOG("BaseHad", pERROR) 
+            << "Invalid initial state: " << init_state;
+     }
+  }//em?
+
+  //
+  // Apply to the multiplicity probability distribution
+  //
 
   int nbins = mp->GetNbinsX();
   for(int i = 1; i <= nbins; i++) {
