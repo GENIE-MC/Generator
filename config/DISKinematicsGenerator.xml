@@ -27,6 +27,10 @@ Cache-MinEnergy          double  Yes   minimum energy for which max xsec is cach
      <param type="double" name="MaxXSec-SafetyFactor">   1.500                                  </param>
   </param_set>
 
+  <param_set name="EM-Default"> 
+     <param type="double" name="MaxXSec-SafetyFactor">   1.500                                  </param>
+  </param_set>
+
   <param_set name="CC-Charm-Default"> 
      <param type="double" name="MaxXSec-SafetyFactor">   1.500                                  </param>
   </param_set>
