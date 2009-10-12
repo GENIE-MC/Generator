@@ -29,6 +29,8 @@
 */
 //____________________________________________________________________________
 
+#include <math.h>
+
 #include "HadronTransport/INukeHadroData.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/Spline.h"
