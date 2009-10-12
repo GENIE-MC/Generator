@@ -20,6 +20,8 @@
    Fixed bug in `special mode' aiming to reproduce old NEUGEN limitation (max
    multiplicity = 10) for GENIE/NEUGEN cross-comparisons. Boolean logic in if
    statement was using '&' instead of a '&&'...
+ @ Oct 12, 2009 - CA
+   Modified KNO() and AverageChMult() to handle charge lepton scattering.
 
 */
 //____________________________________________________________________________
@@ -568,7 +570,7 @@ void KNOHadronization::LoadConfig(void)
                      "R-vbn-NC-m3",gc->GetDouble("DIS-HMultWgt-vbn-NC-m3"));
 }
 //____________________________________________________________________________
-double KNOHadronization::KNO(int nu_pdg, int nuc_pdg, double z) const
+double KNOHadronization::KNO(int probe_pdg, int nuc_pdg, double z) const
 {
 // Computes <n>P(n) for the input reduced multiplicity z=n/<n>
 
@@ -576,16 +578,26 @@ double KNOHadronization::KNO(int nu_pdg, int nuc_pdg, double z) const
      bool inrange = z > fKNO->XMin() && z < fKNO->XMax();
      return (inrange) ? fKNO->Evaluate(z) : 0.;
   }
-  assert( pdg::IsNeutrino(nu_pdg) || pdg::IsAntiNeutrino(nu_pdg) );
-  assert( pdg::IsNeutronOrProton(nuc_pdg) );
+
+  bool is_p     = pdg::IsProton           (nuc_pdg);
+  bool is_n     = pdg::IsNeutron          (nuc_pdg);
+  bool is_nu    = pdg::IsNeutrino         (probe_pdg);
+  bool is_nubar = pdg::IsAntiNeutrino     (probe_pdg);
+  bool is_l     = pdg::IsNegChargedLepton (probe_pdg);
+  bool is_lbar  = pdg::IsPosChargedLepton (probe_pdg);
 
   double c=0; // Levy function parameter
 
-  if      ( pdg::IsProton (nuc_pdg) && pdg::IsNeutrino    (nu_pdg) ) c=fCvp;
-  else if ( pdg::IsNeutron(nuc_pdg) && pdg::IsNeutrino    (nu_pdg) ) c=fCvn;
-  else if ( pdg::IsProton (nuc_pdg) && pdg::IsAntiNeutrino(nu_pdg) ) c=fCvbp;
-  else if ( pdg::IsNeutron(nuc_pdg) && pdg::IsAntiNeutrino(nu_pdg) ) c=fCvbn;
-  else return 0;
+  if      ( is_p && (is_nu    || is_l   ) ) c=fCvp;
+  else if ( is_n && (is_nu    || is_l   ) ) c=fCvn;
+  else if ( is_p && (is_nubar || is_lbar) ) c=fCvbp;
+  else if ( is_n && (is_nubar || is_lbar) ) c=fCvbn;
+  else {
+    LOG("KNOHad", pERROR) 
+     << "Invalid initial state (probe = " << probe_pdg << ", "
+     << "hit nucleon = " << nuc_pdg << ")";
+    return 0;
+  }
 
   double x   = c*z+1;
   double kno = 2*TMath::Exp(-c)*TMath::Power(c,x)/TMath::Gamma(x);
@@ -593,26 +605,31 @@ double KNOHadronization::KNO(int nu_pdg, int nuc_pdg, double z) const
   return kno;
 }
 //____________________________________________________________________________
-double KNOHadronization::AverageChMult(int nu_pdg,int nuc_pdg, double W) const
+double KNOHadronization::AverageChMult(
+     int probe_pdg, int nuc_pdg, double W) const
 {
 // computes the average charged multiplicity
 //
-  assert( pdg::IsNeutrino(nu_pdg) || pdg::IsAntiNeutrino(nu_pdg) );
-  assert( pdg::IsNeutronOrProton(nuc_pdg) );
 
-  double a=0, b=0;
+  bool is_p     = pdg::IsProton           (nuc_pdg);
+  bool is_n     = pdg::IsNeutron          (nuc_pdg);
+  bool is_nu    = pdg::IsNeutrino         (probe_pdg);
+  bool is_nubar = pdg::IsAntiNeutrino     (probe_pdg);
+  bool is_l     = pdg::IsNegChargedLepton (probe_pdg);
+  bool is_lbar  = pdg::IsPosChargedLepton (probe_pdg);
 
-  if      ( pdg::IsProton (nuc_pdg) && pdg::IsNeutrino    (nu_pdg) ) a=fAvp;
-  else if ( pdg::IsNeutron(nuc_pdg) && pdg::IsNeutrino    (nu_pdg) ) a=fAvn;
-  else if ( pdg::IsProton (nuc_pdg) && pdg::IsAntiNeutrino(nu_pdg) ) a=fAvbp;
-  else if ( pdg::IsNeutron(nuc_pdg) && pdg::IsAntiNeutrino(nu_pdg) ) a=fAvbn;
-  else return 0;
+  double a=0, b=0; // params controlling average multiplicity
 
-  if      ( pdg::IsProton (nuc_pdg) && pdg::IsNeutrino    (nu_pdg) ) b=fBvp;
-  else if ( pdg::IsNeutron(nuc_pdg) && pdg::IsNeutrino    (nu_pdg) ) b=fBvn;
-  else if ( pdg::IsProton (nuc_pdg) && pdg::IsAntiNeutrino(nu_pdg) ) b=fBvbp;
-  else if ( pdg::IsNeutron(nuc_pdg) && pdg::IsAntiNeutrino(nu_pdg) ) b=fBvbn;
-  else return 0;
+  if      ( is_p && (is_nu    || is_l   ) ) { a=fAvp;  b=fBvp;  }
+  else if ( is_n && (is_nu    || is_l   ) ) { a=fAvn;  b=fBvn;  }
+  else if ( is_p && (is_nubar || is_lbar) ) { a=fAvbp; b=fBvbp; }
+  else if ( is_n && (is_nubar || is_lbar) ) { a=fAvbn; b=fBvbn; }
+  else {
+    LOG("KNOHad", pERROR) 
+      << "Invalid initial state (probe = " << probe_pdg << ", "
+      << "hit nucleon = " << nuc_pdg << ")";
+    return 0;
+  }
 
   double av_nch = a + b * 2*TMath::Log(W);
   return av_nch;        
