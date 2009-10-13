@@ -18,8 +18,7 @@ LIBRARIES   := $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 
 all:    gVldNuEvComp \
 	gVldNuEvScan \
-	gVldNuXsComp \
-	gVldNuSfComp 
+	gVldNuXsComp 
 
 #
 # Neutrino event sample comparison utility
@@ -43,13 +42,6 @@ gVldNuXsComp: FORCE
 	$(CXX) $(CXXFLAGS) -c gVldNuXsComp.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) gVldNuXsComp.o $(LIBRARIES) $(VLDTOOL_LIBS) -o $(GENIE_BIN_PATH)/gvld_nuxs_comp
 
-#
-# Neutrino structure function comparison utility
-#
-gVldNuSfComp: FORCE
-	$(CXX) $(CXXFLAGS) -c gVldNuSfComp.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) gVldNuSfComp.o $(LIBRARIES) $(VLDTOOL_LIBS) -o $(GENIE_BIN_PATH)/gvld_nusf_comp
-
 
 purge: FORCE
 	$(RM) *.o *~ core 
@@ -59,13 +51,11 @@ clean: FORCE
 	$(RM) $(GENIE_BIN_PATH)/gvld_nuev_comp
 	$(RM) $(GENIE_BIN_PATH)/gvld_nuev_scan
 	$(RM) $(GENIE_BIN_PATH)/gvld_nuxs_comp
-	$(RM) $(GENIE_BIN_PATH)/gvld_nusf_comp
 
 distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gvld_nuev_comp
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gvld_nuev_scan
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gvld_nuxs_comp
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gvld_nusf_comp
 
 FORCE:
 
