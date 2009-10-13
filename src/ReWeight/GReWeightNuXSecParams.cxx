@@ -222,24 +222,26 @@ void GReWeightNuXSecParams::Reset(void)
 //____________________________________________________________________________
 void GReWeightNuXSecParams::SetDefValue(GSyst_t syst, double value)
 {
-  fDefParams.insert( map<GSyst_t, double>::value_type(syst, value) );     
+  fDefParams[syst] = value;
 }
 //____________________________________________________________________________
 void GReWeightNuXSecParams::SetCurValue(GSyst_t syst, double value)
 {
-  fCurParams.insert( map<GSyst_t, double>::value_type(syst, value) );     
+  fCurParams[syst] = value;
 }
 //____________________________________________________________________________
 void GReWeightNuXSecParams::SetCurTwkDial(GSyst_t syst, double value)
 {
   // check size of tweaking dial
-  if(TMath::Abs(value) < controls::kASmallNum) return;
+  if(TMath::Abs(value) < controls::kASmallNum){ 
+    this->SetTweakedFlag (syst, false); 
+  }
+  else {
+    this->SetTweakedFlag (syst, true); 
+  }
 
   // update tweaking dial
-  fCurTwkDial.insert( map<GSyst_t, double>::value_type(syst, value) );     
-
-  // set "tweaked" flag
-  this->SetTweakedFlag (syst, true);
+  fCurTwkDial[syst] = value;
 
   // update current value of corresponding physics parameter
   GSystUncertainty * syst_uncertainties = GSystUncertainty::Instance();
@@ -253,7 +255,7 @@ void GReWeightNuXSecParams::SetCurTwkDial(GSyst_t syst, double value)
 //____________________________________________________________________________
 void GReWeightNuXSecParams::SetTweakedFlag(GSyst_t syst, bool value)
 {
-  fIsTweaked.insert( map<GSyst_t, bool>::value_type(syst, value) );  
+  fIsTweaked[syst] = value;
 }
 //____________________________________________________________________________
 void GReWeightNuXSecParams::Init(void)

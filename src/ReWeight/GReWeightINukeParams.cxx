@@ -161,7 +161,9 @@ void GReWeightINukeParams::Fates::Reconfigure()
 void GReWeightINukeParams::Fates::SetCurTwkDial(GSyst_t syst, double val)
 {
   // check size of tweaking dial
-  if(TMath::Abs(val) < controls::kASmallNum) return;
+// JIMFIX - removed following line as it meant that sometimes got situation
+// where old tweaking dial values were being used instead of a value of 0.0.  
+//  if(TMath::Abs(val) < controls::kASmallNum) return;
 
   // check type of systematic 
   if(!this->IsHandled(syst)) return;
