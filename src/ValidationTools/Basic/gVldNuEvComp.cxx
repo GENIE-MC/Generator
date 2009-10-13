@@ -4,12 +4,12 @@
 \program gvld_nuev_comp
 
 \brief   A GENIE neutrino event sample comparison utility.
-         Reads-in a generated GENIE GHEP event tree and generates a postscript 
+         Reads-in a GENIE GHEP event tree and generates a postscript file
          with MC truth quantity plots (& comparisons with a reference event 
-         sample - if any)
+         sample is specified)
 
          Syntax :
-           gvld_nuev_comp -f sample [-r reference_sample] 
+           gvld_nuev_comp -f sample [-r reference_sample]
 
          Options:
            [] Denotes an optional argument
@@ -22,7 +22,7 @@
            GENIE's gntpc utility
            	      
          Example:
-         gvld_nuev_comp -f /path/gntp.1.gst.root -r /path/gntp.2.gst.root
+           gvld_nuev_comp -f /path/gntp.1.gst.root -r /path/gntp.2.gst.root
 		      
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          STFC, Rutherford Appleton Laboratory
