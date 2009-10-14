@@ -16,31 +16,31 @@ GENIE_LIBS   = $(shell $(GENIE)/src/scripts/setup/genie-config --libs)
 VLDTOOL_LIBS = $(shell $(GENIE)/src/scripts/setup/genie-config --vldlibs)
 LIBRARIES   := $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 
-all:    gVldNuEvComp \
-	gVldNuEvScan \
-	gVldNuXsComp 
+all:    gVldSampleComp \
+	gVldSampleScan \
+	gVldXSecComp 
 
 #
 # Neutrino event sample comparison utility
 #
-gVldNuEvComp: FORCE
-	$(CXX) $(CXXFLAGS) -c gVldNuEvComp.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) gVldNuEvComp.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gvld_nuev_comp
+gVldSampleComp: FORCE
+	$(CXX) $(CXXFLAGS) -c gVldSampleComp.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gVldSampleComp.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gvld_sample_comp
 
 #
 # Utility scanning the input file and checking for conservation law violations,
 # strange/undecayed particles etc
 #
-gVldNuEvScan: FORCE
-	$(CXX) $(CXXFLAGS) -c gVldNuEvScan.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) gVldNuEvScan.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gvld_nuev_scan
+gVldSampleScan: FORCE
+	$(CXX) $(CXXFLAGS) -c gVldSampleScan.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gVldSampleScan.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gvld_sample_scan
 
 #
 # Neutrino cross section comparison utility
 #
-gVldNuXsComp: FORCE
-	$(CXX) $(CXXFLAGS) -c gVldNuXsComp.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) gVldNuXsComp.o $(LIBRARIES) $(VLDTOOL_LIBS) -o $(GENIE_BIN_PATH)/gvld_nuxs_comp
+gVldXSecComp: FORCE
+	$(CXX) $(CXXFLAGS) -c gVldXSecComp.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gVldXSecComp.o $(LIBRARIES) $(VLDTOOL_LIBS) -o $(GENIE_BIN_PATH)/gvld_xsec_comp
 
 
 purge: FORCE
@@ -48,14 +48,14 @@ purge: FORCE
 
 clean: FORCE
 	$(RM) *.o *~ core 
-	$(RM) $(GENIE_BIN_PATH)/gvld_nuev_comp
-	$(RM) $(GENIE_BIN_PATH)/gvld_nuev_scan
-	$(RM) $(GENIE_BIN_PATH)/gvld_nuxs_comp
+	$(RM) $(GENIE_BIN_PATH)/gvld_sample_comp
+	$(RM) $(GENIE_BIN_PATH)/gvld_sample_scan
+	$(RM) $(GENIE_BIN_PATH)/gvld_xsec_comp
 
 distclean: FORCE
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gvld_nuev_comp
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gvld_nuev_scan
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gvld_nuxs_comp
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gvld_sample_comp
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gvld_sample_scan
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gvld_xsec_comp
 
 FORCE:
 
