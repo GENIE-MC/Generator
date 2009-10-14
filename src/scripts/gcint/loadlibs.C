@@ -40,7 +40,7 @@
  gSystem->Load("libGGiBUU.so");
  gSystem->Load("libGReinSeghal.so");
  gSystem->Load("libGPaschos.so");
- gSystem->Load("libGPartonModel.so");
+ gSystem->Load("libGQPM.so");
  gSystem->Load("libGBodekYang.so");
  gSystem->Load("libGEVGCore.so");
  gSystem->Load("libGEVGModules.so");
