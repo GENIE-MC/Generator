@@ -1,10 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2008, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2009, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+ Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          STFC, Rutherford Appleton Laboratory - July 04, 2005
 
  For the class documentation see the corresponding header file.
@@ -14,8 +14,12 @@
    This trivial case was added in 2.3.1 so that single energy neutrinos can
    be easily used with the event generation driver that can handle a 
    target mix or detailed geometries.
- @ June 2, 2008 - CA
+ @ Jun 02, 2008 - CA
    Fix bug in Initialize() where weight was used as int
+ @ Jul 21, 2009 - RH
+   Allow a bit more flexibility by giving the user the option to set the
+   neutrino ray's direction cosines and origin.
+
 */
 //____________________________________________________________________________
 
@@ -63,9 +67,9 @@ bool GMonoEnergeticFlux::GenerateNext(void)
   for(iter = fProb.begin(); iter != fProb.end(); ++iter) {
      int    nupdgc = iter->first;
      double prob   = iter->second;
-     if(p<prob) {
-	fgPdgC = nupdgc;
-	break;
+     if (p<prob) {
+       fgPdgC = nupdgc;
+       break;
      }
   }
 
@@ -111,5 +115,33 @@ void GMonoEnergeticFlux::CleanUp(void)
   LOG("Flux", pNOTICE) << "Cleaning up...";
 
   if (fPdgCList) delete fPdgCList;
+}
+//___________________________________________________________________________
+void GMonoEnergeticFlux::SetDirectionCos(double dx, double dy, double dz)
+{
+  TVector3 dircos1 = TVector3(dx,dy,dz).Unit();
+  LOG("Flux", pNOTICE) << "SetDirectionCos " 
+                       << utils::print::P3AsString(&dircos1);
+  double E = fgP4.E();
+  fgP4.SetVect(E*dircos1);
+
+}
+//___________________________________________________________________________
+void GMonoEnergeticFlux::SetRayOrigin(double x, double y, double z)
+{
+  TVector3 xyz(x,y,z);
+  LOG("Flux", pNOTICE) << "SetRayOrigin "
+                       << utils::print::Vec3AsString(&xyz);
+  fgX4.SetVect(xyz);
+}
+//___________________________________________________________________________
+void GMonoEnergeticFlux::SetNuDirection(const TVector3 & direction)
+{
+  SetDirectionCos(direction.x(), direction.y(), direction.z());
+}
+//___________________________________________________________________________
+void GMonoEnergeticFlux::SetBeamSpot(const TVector3 & spot)
+{
+  SetRayOrigin(spot.x(), spot.y(), spot.z());
 }
 //___________________________________________________________________________

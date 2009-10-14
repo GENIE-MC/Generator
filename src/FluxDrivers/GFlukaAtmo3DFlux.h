@@ -14,12 +14,12 @@
          To be able to use this flux driver you will need to download the
          flux data from:  http://lxmi.mi.infn.it/~battist/neutrino.html
 
-\author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+\author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          STFC, Rutherford Appleton Laboratory
 
 \created July 3, 2005 [during the most boring MINOS shift ever!]
 
-\cpright  Copyright (c) 2003-2008, GENIE Neutrino MC Generator Collaboration
+\cpright  Copyright (c) 2003-2009, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */

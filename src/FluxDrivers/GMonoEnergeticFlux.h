@@ -9,12 +9,12 @@
           neutrinos can be easily used with the event generation driver that 
           can handle a target mix or detailed geometries.
 
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           STFC, Rutherford Appleton Laboratory
 
 \created  Feb 08, 2008
 
-\cpright  Copyright (c) 2003-2008, GENIE Neutrino MC Generator Collaboration
+\cpright  Copyright (c) 2003-2009, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
@@ -52,6 +52,13 @@ public :
   const TLorentzVector & Momentum      (void) { return  fgP4;      }
   const TLorentzVector & Position      (void) { return  fgX4;      }
   bool                   End           (void) { return  false;     }
+
+  // special setters for this class
+  void                   SetDirectionCos (double dx, double dy, double dz);
+  void                   SetRayOrigin    (double x,  double y,  double z);
+  // setters consistent w/ GCylindTH1Flux naming
+  void                   SetNuDirection  (const TVector3 & direction);
+  void                   SetBeamSpot     (const TVector3 & spot);
 
 private:
 
