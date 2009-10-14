@@ -1,0 +1,21 @@
+
+*** Any derivative work based on GENIE should cite ***
+
+@Article{Andreopoulos:2009rq,
+   author        = "Andreopoulos, C. and others",
+   title         = "{The GENIE Neutrino Monte Carlo Generator}",
+   year          = "2009",
+   eprint        = "0905.2517",
+   archivePrefix = "arXiv",
+   primaryClass  =  "hep-ph",
+   SLACcitation  = "%%CITATION = 0905.2517;%%"
+}
+
+*** Fair Academic Use ***
+
+The authors of GENIE endorse the MCNET guidelines for fair academic use:
+See http://www.montecarlonet.org/GUIDELINES
+
+Users are invited to consider which GENIE components are important for a 
+particular analysis and cite them, in addition to the main references.
+
