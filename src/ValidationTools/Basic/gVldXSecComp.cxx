@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\program gvld_nuxs_comp
+\program gvld_xsec_comp
 
 \brief   A GENIE utility that reads-in GENIE cross section files and 
          generates comparisons plots.
@@ -10,9 +10,7 @@
            gvld_xsec_comp -f xsec_file [-r reference_xsec_file] [-o output]
 
          Options:
-
            [] Denotes an optional argument.
-
            -f Specifies a ROOT file with GENIE cross section graphs.
 	   -r Specifies a reference file with GENIE cross section graphs.
            -o Specifies the output filename [default: gxsec.ps]
@@ -24,7 +22,7 @@
          Example:
            To compare cross sections in xsec-v2_4.root and xsec-v2_2.root
            type:
-           shell$ gvld_nuxs_comp -f xsec-v2_4.root -r xsec-v2_2.root 
+           shell$ gvld_xsec_comp -f xsec-v2_4.root -r xsec-v2_2.root 
 		      
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          STFC, Rutherford Appleton Laboratory
@@ -1992,7 +1990,7 @@ void PrintSyntax(void)
 {
   LOG("gvldtest", pNOTICE)
     << "\n\n" << "Syntax:" << "\n"
-    << "   gNuSampleTest  -f sample.root [-n nev] [-r reference_sample.root]\n";
+    << "   gvld_xsec_comp  -f xsec_file [-r reference_xsec_file] [-o output]\n";
 }
 //_________________________________________________________________________________
 bool CheckRootFilename(string filename)

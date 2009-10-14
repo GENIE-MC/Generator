@@ -1,12 +1,12 @@
 //____________________________________________________________________________
 /*!
 
-\program gvld_nuev_scan
+\program gvld_sample_scan
 
 \brief   A simple validation program to read-in a GHEP event tree and test 
          whether the generated events obey basic conservation laws
 
-\syntax  gvld_nuev_scan -f ghep_event_file [-n nevents]
+\syntax  gvld_samplev_scan -f ghep_event_file [-n nevents]
 
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          STFC, Rutherford Appleton Laboratory
@@ -324,7 +324,7 @@ void PrintSyntax(void)
 {
   LOG("gvldtest", pNOTICE)
     << "\n\n" << "Syntax:" << "\n"
-    << "   gvld_nuev_scan -f sample.root [-n nev] \n";
+    << "   gvld_sample_scan -f sample.root [-n nev] \n";
 }
 //_________________________________________________________________________________
 bool CheckRootFilename(string filename)

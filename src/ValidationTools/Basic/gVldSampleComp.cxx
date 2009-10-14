@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\program gvld_nuev_comp
+\program gvld_sample_comp
 
 \brief   A GENIE neutrino event sample comparison utility.
          Reads-in a GENIE GHEP event tree and generates a postscript file
@@ -9,7 +9,7 @@
          sample is specified)
 
          Syntax :
-           gvld_nuev_comp -f sample [-r reference_sample]
+           gvld_sample_comp -f sample [-r reference_sample]
 
          Options:
            [] Denotes an optional argument
@@ -22,12 +22,12 @@
            GENIE's gntpc utility
            	      
          Example:
-           gvld_nuev_comp -f /path/gntp.1.gst.root -r /path/gntp.2.gst.root
+           gvld_sample_comp -f /path/gntp.1.gst.root -r /path/gntp.2.gst.root
 		      
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          STFC, Rutherford Appleton Laboratory
 
-\created June 06, 2008 (adapted from older gMCSampleTest.cxx)
+\created June 06, 2008 
 
 \cpright Copyright (c) 2003-2009, GENIE Neutrino MC Generator Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
@@ -2028,7 +2028,7 @@ void PrintSyntax(void)
 {
   LOG("gvldtest", pNOTICE)
     << "\n\n" << "Syntax:" << "\n"
-    << "   gvld_nuev_test -f sample.root [-n nev] [-r reference_sample.root]\n";
+    << "   gvld_sample_comp -f sample.root [-n nev] [-r reference_sample.root]\n";
 }
 //_________________________________________________________________________________
 bool CheckRootFilename(string filename)
