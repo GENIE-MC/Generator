@@ -5,8 +5,9 @@
 
 \brief    A ROOT/GEANT4 geometry driver
 
-\author   Anselmo Meregaglia <anselmo.meregaglia@cern.ch>, ETH Zurich
+\author   Anselmo Meregaglia <anselmo.meregaglia \at cern.ch>, ETH Zurich
           Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>, STFC, Rutherford Lab
+          Robert Hatcher <rhatcher \at fnal.gov>, Fermilab
 
 \created  May 24, 2005
 
@@ -20,8 +21,10 @@
 #define _ROOT_GEOMETRY_ANALYZER_H_
 
 #include <string>
+#include <algorithm>
 
 #include <TGeoManager.h>
+#include <TVector3.h>
 
 #include "EVGDrivers/GeomAnalyzerI.h"
 #include "PDG/PDGUtils.h"
@@ -30,7 +33,6 @@ class TGeoVolume;
 class TGeoMaterial;
 class TGeoMixture;
 class TGeoElement;
-class TVector3;
 class TGeoHMatrix;
 
 using std::string;
@@ -41,75 +43,97 @@ class GFluxI;
 
 namespace geometry {
 
+class PathSegmentList;
+class GeomVolSelectorI;
+
 class ROOTGeomAnalyzer : public GeomAnalyzerI {
 
 public :
   ROOTGeomAnalyzer(string geometry_filename);
   ROOTGeomAnalyzer(TGeoManager * gm);
+  ROOTGeomAnalyzer() : GeomAnalyzerI() { ; } // used ONLY for derived class overloading
  ~ROOTGeomAnalyzer();
 
-  // geometry driver configuration options
+  /// implement the GeomAnalyzerI interface
 
-  void SetScannerNPoints    (int    np) { fNPoints    = np; } /* box  scanner */
-  void SetScannerNRays      (int    nr) { fNRays      = nr; } /* box  scanner */
-  void SetScannerNParticles (int    np) { fNParticles = np; } /* flux scanner */
-  void SetScannerFlux       (GFluxI* f) { fFlux       = f;  } /* flux scanner */
-  void SetWeightWithDensity (bool   wt) { fDensWeight = wt; }
-  void SetMixtureWeightsSum (double sum);
-  void SetLengthUnits       (double lu);
-  void SetDensityUnits      (double du);
-  void SetMaxPlSafetyFactor (double sf);
-  void SetTopVolName        (string nm);
+  virtual const  PDGCodeList &    ListOfTargetNuclei    (void);
+  virtual const  PathLengthList & ComputeMaxPathLengths (void);
 
-  // enquire for geometry driver's  configuration option
+  virtual const  PathLengthList & ComputePathLengths(const TLorentzVector & x, 
+                                                     const TLorentzVector & p);
+  virtual const  TVector3 &       GenerateVertex(const TLorentzVector & x, 
+                                                 const TLorentzVector & p, int tgtpdg);
 
-  int           ScannerNPoints    (void) const { return fNPoints;           }
-  int           ScannerNRays      (void) const { return fNRays;             }
-  int           ScannerNParticles (void) const { return fNParticles;        }
-  bool          WeightWithDensity (void) const { return fDensWeight;        }
-  double        LengthUnits       (void) const { return fLengthScale;       }
-  double        DensityUnits      (void) const { return fDensityScale;      }
-  double        MixtureWeightsSum (void) const { return fMixtWghtSum;       }
-  double        MaxPlSafetyFactor (void) const { return fMaxPlSafetyFactor; }
-  string        TopVolName        (void) const { return fTopVolumeName;     }
-  TGeoManager * GetGeometry       (void) const { return fGeometry;          }
+  /// set geometry driver's configuration options
 
-  // implement the GeomAnalyzerI interface
+  virtual void SetScannerNPoints    (int    np) { fNPoints    = np; } /* box  scanner */
+  virtual void SetScannerNRays      (int    nr) { fNRays      = nr; } /* box  scanner */
+  virtual void SetScannerNParticles (int    np) { fNParticles = np; } /* flux scanner */
+  virtual void SetScannerFlux       (GFluxI* f) { fFlux       = f;  } /* flux scanner */
+  virtual void SetWeightWithDensity (bool   wt) { fDensWeight = wt; }
+  virtual void SetMixtureWeightsSum (double sum);
+  virtual void SetLengthUnits       (double lu);
+  virtual void SetDensityUnits      (double du);
+  virtual void SetMaxPlSafetyFactor (double sf);
+  virtual void SetTopVolName        (string nm);
 
-  const PDGCodeList &    ListOfTargetNuclei    (void);
-  const PathLengthList & ComputeMaxPathLengths (void);
+  /// retrieve geometry driver's configuration options
 
-  const PathLengthList & ComputePathLengths(
-                    const TLorentzVector & x, const TLorentzVector & p);
-  const TVector3 & GenerateVertex(
-        const TLorentzVector & x, const TLorentzVector & p, int tgtpdg);
+  virtual int           ScannerNPoints    (void) const { return fNPoints;           }
+  virtual int           ScannerNRays      (void) const { return fNRays;             }
+  virtual int           ScannerNParticles (void) const { return fNParticles;        }
+  virtual bool          WeightWithDensity (void) const { return fDensWeight;        }
+  virtual double        LengthUnits       (void) const { return fLengthScale;       }
+  virtual double        DensityUnits      (void) const { return fDensityScale;      }
+  virtual double        MixtureWeightsSum (void) const { return fMixtWghtSum;       }
+  virtual double        MaxPlSafetyFactor (void) const { return fMaxPlSafetyFactor; }
+  virtual string        TopVolName        (void) const { return fTopVolumeName;     }
+  virtual TGeoManager * GetGeometry       (void) const { return fGeometry;          }
 
-private:
+  /// access to geometry coordinate/unit transforms for validation/test purposes
 
-  void   Initialize              (void);
-  void   Load                    (string geometry_filename);
-  void   Load                    (TGeoManager * gm);
-  void   CleanUp                 (void);
-  void   BuildListOfTargetNuclei (void);
-  void   MaxPathLengthsBoxMethod (void);
-  void   MaxPathLengthsFluxMethod(void);
-  int    GetTargetPdgCode        (const TGeoMaterial * const m) const;
-  int    GetTargetPdgCode        (const TGeoMixture * const m, int ielement) const;
-  double ComputePathLengthPDG    (const TVector3 & r, const TVector3 & udir, int pdgc);
-  double GetWeight               (TGeoMaterial * mat, int pdgc);
-  double GetWeight               (TGeoMixture * mixt, int pdgc);
-  double GetWeight               (TGeoMixture * mixt, int ielement, int pdgc);
-  bool   FindMaterialInCurrentVol(int pdgc);
-  bool   WillNeverEnter          (double step);
-  double StepToNextBoundary      (void);
-  double Step                    (void);
-  double StepUntilEntering       (void);
-  void   Local2SI                (PathLengthList & pl);
-  void   Local2SI                (TVector3 & v);
-  void   SI2Local                (TVector3 & v);
-  void   Master2Top              (TVector3 & v);
-  void   Master2TopDir           (TVector3 & v);
-  void   Top2Master              (TVector3 & v);
+  virtual void   Local2SI      (PathLengthList & pl) const;
+  virtual void   Local2SI      (TVector3 & v) const;
+  virtual void   SI2Local      (TVector3 & v) const;
+  virtual void   Master2Top    (TVector3 & v) const;
+  virtual void   Master2TopDir (TVector3 & v) const;
+  virtual void   Top2Master    (TVector3 & v) const;
+  virtual void   Top2MasterDir (TVector3 & v) const;
+
+  /// configure processing to perform path segment trimming
+
+  virtual GeomVolSelectorI* AdoptGeomVolSelector (GeomVolSelectorI* selector) /// take ownership, return old
+  { std::swap(selector,fGeomVolSelector); return selector; }
+
+
+protected:
+
+  virtual void   Initialize              (void);
+  virtual void   CleanUp                 (void);
+  virtual void   Load                    (string geometry_filename);
+  virtual void   Load                    (TGeoManager * gm);
+  virtual void   BuildListOfTargetNuclei (void);
+
+  virtual int    GetTargetPdgCode        (const TGeoMaterial * const m) const;
+  virtual int    GetTargetPdgCode        (const TGeoMixture * const m, int ielement) const;
+  virtual double GetWeight               (const TGeoMaterial * mat, int pdgc);
+  virtual double GetWeight               (const TGeoMixture * mixt, int pdgc);
+  virtual double GetWeight               (const TGeoMixture * mixt, int ielement, int pdgc);
+
+  virtual void   MaxPathLengthsFluxMethod(void);
+  virtual void   MaxPathLengthsBoxMethod (void);
+  virtual bool   GenBoxRay               (int indx, TLorentzVector& x4, TLorentzVector& p4);
+
+  virtual double ComputePathLengthPDG    (const TVector3 & r, const TVector3 & udir, int pdgc);
+  virtual void   SwimOnce                (const TVector3 & r, const TVector3 & udir);
+
+  virtual bool   FindMaterialInCurrentVol(int pdgc);
+  virtual bool   WillNeverEnter          (double step);
+  virtual double StepToNextBoundary      (void);
+  virtual double Step                    (void);
+  virtual double StepUntilEntering       (void);
+
+
 
   int              fMaterial;              ///< input selected material for vertex generation
   TGeoManager *    fGeometry;              ///< input detector geometry
@@ -130,6 +154,20 @@ private:
   TGeoVolume *     fTopVolume;             ///< top volume
   TGeoHMatrix *    fMasterToTop;           ///< matrix connecting master coordinates to top volume coordinates
   bool             fMasterToTopIsIdentity; ///< is fMasterToTop matrix the identity matrix?
+
+  PathSegmentList* fCurrPathSegmentList;   ///< current list of path-segments
+  GeomVolSelectorI* fGeomVolSelector;      ///< optional path seg trimmer (owned)
+
+  // used by GenBoxRay to retain history between calls
+  TVector3         fGenBoxRayPos;
+  TVector3         fGenBoxRayDir;
+  int              fiface, fipoint, firay;
+  bool             fnewpnt;
+  double           fdx, fdy, fdz, fox, foy, foz;  ///< top vol size/origin (top vol units)
+  
+  // test purposes
+  double           fmxddist, fmxdstep;   ///< max errors in pathsegmentlist
+
 };
 
 }      // geometry namespace
