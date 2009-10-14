@@ -1,10 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2008, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2009, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+ Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          STFC, Rutherford Appleton Laboratory - May 04, 2004
 
  For the class documentation see the corresponding header file.
@@ -18,6 +18,12 @@
  @ Jun 20, 2008 - CA
    Fix some memleaks - Deleting arrays after passing them to BuildSpline().
    Delete htemp when building the spline from a tree.
+ @ May 31, 2009 - CA
+   Added the YCanBeNegative(bool) method as we are now using the Spline to 
+   interpolate quantities other than cross sections. Default is `false';
+ @ Aug 25, 2009 - CA
+   Adapt code to use the new utils::xml namespace.
+
 */
 //____________________________________________________________________________
 
@@ -189,9 +195,9 @@ bool Spline::LoadFromXmlFile(string filename, string xtag, string ytag)
   }
 
   string name = utils::str::TrimSpaces(
-                             XmlParserUtils::GetAttribute(xmlCur, "name"));
+                    utils::xml::GetAttribute(xmlCur, "name"));
   string snkn = utils::str::TrimSpaces(
-                           XmlParserUtils::GetAttribute(xmlCur, "nknots"));
+                    utils::xml::GetAttribute(xmlCur, "nknots"));
   int nknots = atoi( snkn.c_str() );
 
   LOG("Spline", pINFO)
@@ -224,7 +230,7 @@ bool Spline::LoadFromXmlFile(string filename, string xtag, string ytag)
            bool is_ytag = ! xmlStrcmp(tag,(const xmlChar *) ytag.c_str());
            if (is_xtag || is_ytag) {
               xmlNodePtr xmlValTagChild = xmlKnotChild->xmlChildrenNode;
-              string val = XmlParserUtils::TrimSpaces(
+              string val = utils::xml::TrimSpaces(
                          xmlNodeListGetString(xml_doc, xmlValTagChild, 1));
 
               if (is_xtag) vx[iknot] = atof(val.c_str());
@@ -411,7 +417,7 @@ double Spline::Evaluate(double x) const
      << " is not within spline range [" << fXMin << ", " << fXMax << "]";
   }
 
-  if(y<0) {
+  if(y<0 && !fYCanBeNegative) {
     LOG("Spline", pINFO) << "Negative y (" << y << ")";
     LOG("Spline", pINFO) << "x = " << x;
     LOG("Spline", pINFO) << "spline range [" << fXMin << ", " << fXMax << "]";
@@ -740,6 +746,8 @@ void Spline::InitSpline(void)
   fYMax = 0.0;
 
   fInterpolator = 0;
+
+  fYCanBeNegative = false;
 
   LOG("Spline", pDEBUG) << "...done initializing spline";
 }

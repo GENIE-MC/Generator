@@ -5,12 +5,12 @@
 
 \brief    A more convenient interface to the log4cpp Message Service
 
-\author   Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           STFC, Rutherford Appleton Laboratory
 
 \created  June 16, 2004
 
-\cpright  Copyright (c) 2003-2008, GENIE Neutrino MC Generator Collaboration
+\cpright  Copyright (c) 2003-2009, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
@@ -192,19 +192,17 @@ using std::string;
 
 namespace genie {
 
+extern bool gAbortingInErr; 
+
 class Messenger
 {
 public:
-
   static Messenger * Instance(void);
 
   log4cpp::Category & operator () (const char * stream);
-
-  void SetPriorityLevel(const char * stream,
-                                 log4cpp::Priority::Value priority);
+  void SetPriorityLevel(const char * stream, log4cpp::Priority::Value p);
 
 private:
-
   Messenger();
   Messenger(const Messenger & config_pool);
   virtual ~Messenger();
@@ -229,5 +227,4 @@ private:
 };
 
 }      // genie namespace
-
 #endif // _MESSENGER_H_

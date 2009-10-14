@@ -1,15 +1,17 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2008, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2009, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+ Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          STFC, Rutherford Appleton Laboratory - May 24, 2005
 
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
+ @ Aug 25, 2009 - CA
+   Adapt code to use the new utils::xml namespace.
 
 */
 //____________________________________________________________________________
@@ -240,9 +242,9 @@ XmlParserStatus_t PathLengthList::LoadFromXml(string filename)
        xmlNodePtr xmlPlVal = xmlCur->xmlChildrenNode;
 
        string spdgc = utils::str::TrimSpaces(
-                         XmlParserUtils::GetAttribute(xmlCur, "pdgc"));
+                         utils::xml::GetAttribute(xmlCur, "pdgc"));
 
-       string spl = XmlParserUtils::TrimSpaces(
+       string spl = utils::xml::TrimSpaces(
                            xmlNodeListGetString(xml_doc, xmlPlVal, 1));
 
        LOG("PathL", pDEBUG) << "pdgc = " << spdgc << " --> pl = " << spl;

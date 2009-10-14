@@ -1,10 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2008, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2009, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
+ Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          STFC, Rutherford Appleton Laboratory - May 06, 2004
 
  For the class documentation see the corresponding header file.
@@ -15,6 +15,13 @@
    but a 'Registry *'.
  @ Jun 20, 2008 - CA
    Fix a memory leak in code reading the XML files / added xmlFree(doc)
+ @ Dec 06, 2008 - CA
+   Tweak dtor so as not to clutter the output if GENIE exits in err so as to
+   spot the fatal mesg immediately.  
+ @ Aug 25, 2009 - RH
+   Use the GetXMLFilePath() to search the potential XML config file locations
+   and return the first actual file that can be found. Adapt code to use the
+   utils::xml namespace.
 */
 //____________________________________________________________________________
 
@@ -65,17 +72,22 @@ AlgConfigPool::AlgConfigPool()
 //____________________________________________________________________________
 AlgConfigPool::~AlgConfigPool()
 {
-  cout << "AlgConfigPool singleton dtor: "
-       << "Printing out the main physics parameter list used at this job" 
-       << endl;
-  cout << "(Note: global defaults listed here _may_ have been over-written"
-       << " by specific algorithms. You should make sure you understand the"
-       << " XML config files)" << endl;
-  const Registry * gc = this->GlobalParameterList();
-  cout << *gc;
+// Clean up and report the most important physics params used in this instance.
+// Don't clutter output if exiting in err.
 
-  cout << "AlgConfigPool singleton dtor: "
-       << "Deleting all owned algorithm configurations" << endl;
+  if(!gAbortingInErr) {
+    cout << "AlgConfigPool singleton dtor: "
+         << "Printing out the main physics parameter list used at this job" 
+         << endl;
+    cout << "(Note: global defaults listed here _may_ have been over-written"
+         << " by specific algorithms. You should make sure you understand the"
+         << " XML config files)" << endl;
+    const Registry * gc = this->GlobalParameterList();
+    cout << *gc;
+
+    cout << "AlgConfigPool singleton dtor: "
+         << "Deleting all owned algorithm configurations" << endl;
+  }
   map<string, Registry *>::iterator citer;
   for(citer = fRegistryPool.begin(); citer != fRegistryPool.end(); ++citer) {
     string key = citer->first;
@@ -115,17 +127,6 @@ bool AlgConfigPool::LoadAlgConfig(void)
   //-- read the MASTER_CONFIG XML file
   if(!this->LoadMasterConfig()) return false;
 
-  //-- get the directory where the GENIE algorithm XML configurations are to
-  //   be found (search for $GALGCONF or use the default: $GENIE/config)
-  string config_dir = (gSystem->Getenv("GALGCONF")) ?
-            string(gSystem->Getenv("GALGCONF")) :
-            string(gSystem->Getenv("GENIE")) + string("/config");
-
-  SLOG("AlgConfigPool", pNOTICE)
-     << "\n*** GENIE XML config files would be loaded from the " 
-     << ( (gSystem->Getenv("GALGCONF")) ? "*custom*" : "*default*")
-     << " dir: " << config_dir;
-
   //-- loop over all XML config files and read all named configuration
   //   sets for each algorithm
   map<string, string>::const_iterator conf_file_iter;
@@ -139,7 +140,9 @@ bool AlgConfigPool::LoadAlgConfig(void)
     SLOG("AlgConfigPool", pINFO)
          << setfill('.') << setw(40) << alg_name << " -> " << file_name;
 
-    string full_path = config_dir + "/" + file_name;
+    string full_path = utils::xml::GetXMLFilePath(file_name);
+    SLOG("AlgConfigPool", pNOTICE)
+      << "*** GENIE XML config file " << full_path;
     bool ok = this->LoadSingleAlgConfig(alg_name, full_path);
     if(!ok) {
       SLOG("AlgConfigPool", pERROR)
@@ -154,11 +157,8 @@ bool AlgConfigPool::LoadMasterConfig(void)
 // Loads the master config XML file: the file that specifies which XML config
 // file to load for each algorithm
 
-  //-- get the master config XML file
-  //   (search at $GALGCONF or use the default at: $GENIE/config)
-  fMasterConfig = (gSystem->Getenv("GALGCONF")) ?
-    string(gSystem->Getenv("GALGCONF")) + string("/master_config.xml"):
-    string(gSystem->Getenv("GENIE")) + string("/config/master_config.xml");
+  //-- get the master config XML file using GXMLPATH + default locations
+  fMasterConfig = utils::xml::GetXMLFilePath("master_config.xml");
 
   bool is_accessible = ! (gSystem->AccessPathName( fMasterConfig.c_str() ));
   if (!is_accessible) {
@@ -196,8 +196,8 @@ bool AlgConfigPool::LoadMasterConfig(void)
     if( (!xmlStrcmp(xml_ac->name, (const xmlChar *) "config")) ) {
 
        string alg_name  = utils::str::TrimSpaces(
-                     XmlParserUtils::GetAttribute(xml_ac, "alg"));
-       string config_file = XmlParserUtils::TrimSpaces(
+                     utils::xml::GetAttribute(xml_ac, "alg"));
+       string config_file = utils::xml::TrimSpaces(
                 xmlNodeListGetString(xml_doc, xml_ac->xmlChildrenNode, 1));
 
        pair<string, string> alg_conf(alg_name, config_file);
@@ -217,10 +217,8 @@ bool AlgConfigPool::LoadGlobalParamLists(void)
 //
   SLOG("AlgConfigPool", pINFO) << "Loading global parameter lists";
 
-  // search at $GALGCONF or use the default at: $GENIE/config)
-  string glob_params = (gSystem->Getenv("GALGCONF")) ?
-    string(gSystem->Getenv("GALGCONF")) + string("/UserPhysicsOptions.xml"):
-    string(gSystem->Getenv("GENIE")) + string("/config/UserPhysicsOptions.xml");
+  // -- get the user config XML file using GXMLPATH + default locations
+  string glob_params = utils::xml::GetXMLFilePath("UserPhysicsOptions.xml");
 
   // fixed key prefix
   string key_prefix = "GlobalParameterList";
@@ -282,7 +280,7 @@ bool AlgConfigPool::LoadRegistries(
     if( (!xmlStrcmp(xml_cur->name, (const xmlChar *) "param_set")) ) {
 
       string param_set  = utils::str::TrimSpaces(
-                           XmlParserUtils::GetAttribute(xml_cur, "name"));
+                           utils::xml::GetAttribute(xml_cur, "name"));
 
       // build the registry key
       ostringstream key;
@@ -300,12 +298,12 @@ bool AlgConfigPool::LoadRegistries(
 
             string param_type =
                    utils::str::TrimSpaces(
-                         XmlParserUtils::GetAttribute(xml_param, "type"));
+                       utils::xml::GetAttribute(xml_param, "type"));
             string param_name =
                    utils::str::TrimSpaces(
-                         XmlParserUtils::GetAttribute(xml_param, "name"));
+                       utils::xml::GetAttribute(xml_param, "name"));
             string param_value =
-                   XmlParserUtils::TrimSpaces(
+                    utils::xml::TrimSpaces(
                                xmlNodeListGetString(
                                  xml_doc, xml_param->xmlChildrenNode, 1));
             this->AddConfigParameter(
