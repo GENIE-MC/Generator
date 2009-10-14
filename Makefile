@@ -223,6 +223,8 @@ ifeq ($(strip $(GOPT_ENABLE_VALIDATION_TOOLS)),YES)
 	make; \
 	cd ${GENIE}/src/ValidationTools/Basic; \
 	make; \
+	cd ${GENIE}/src/ValidationTools/CrossSection; \
+	make; \
 	cd ${GENIE}/src/ValidationTools/Hadronization; \
 	make; \
 	cd ${GENIE}/src/ValidationTools/Merenyi; \
@@ -495,6 +497,7 @@ purge: FORCE
 	cd ValidationTools/NuVld;         make purge; cd ../../; \
 	cd ValidationTools/NuVld/app;     make purge; cd ../../../; \
 	cd ValidationTools/Basic;         make purge; cd ../../; \
+	cd ValidationTools/CrossSection;  make purge; cd ../../; \
 	cd ValidationTools/Hadronization; make purge; cd ../../; \
 	cd ValidationTools/Merenyi;       make purge; cd ../../; \
 	cd Viewer;                        make purge; \
@@ -550,6 +553,7 @@ clean-files: FORCE
 	cd ValidationTools/NuVld;         make clean; cd ../../; \
 	cd ValidationTools/NuVld/app;     make clean; cd ../../../; \
 	cd ValidationTools/Basic;         make clean; cd ../../; \
+	cd ValidationTools/CrossSection;  make clean; cd ../../; \
 	cd ValidationTools/Hadronization; make clean; cd ../../; \
 	cd ValidationTools/Merenyi;       make clean; cd ../../; \
 	cd Viewer;                        make clean; cd ..; \
@@ -622,6 +626,7 @@ distclean: FORCE
 	cd ValidationTools/NuVld;          make distclean; cd ../../; \
 	cd ValidationTools/NuVld/app;      make distclean; cd ../../../; \
 	cd ValidationTools/Basic;          make distclean; cd ../../; \
+	cd ValidationTools/CrossSection;   make distclean; cd ../../; \
 	cd ValidationTools/Hadronization;  make distclean; cd ../../; \
 	cd ValidationTools/Merenyi;        make distclean; cd ../../; \
 	cd Viewer;                         make distclean; cd ..; \
