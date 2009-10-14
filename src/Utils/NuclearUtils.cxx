@@ -291,55 +291,6 @@ double genie::utils::nuclear::DISNuclFactor(double x, int A)
   return f;
 }
 //___________________________________________________________________________
-double genie::utils::nuclear::RModelMod(double x, double Q2)
-{
-// Adapted from NeuGEN's rmodel_mod()
-//
-// Hugh's comments in original code:
-//   from NuTeV code provided by Donna Naples, May 2005
-//   added form for R below qsq=.35 GEV**2 from hep-ex/030807
-//
-// NuTEV comments
-//C-------------------------------------------------------------------
-//C  Revised to make HTWIST select between more than two different
-//C  values of R.
-//C
-//C     HTWIST = 'F'     ==> RQCD   - WITH LIMIT R > (2MX)**2/Q2
-//C     HTWIST = 'T'     ==> RSLAC  - WITH LIMIT R > (2MX)**2/Q2
-//C     HTWIST = '0'     ==> R = 0 (NOT TRUE, BUT USEFUL FOR STUDIES)
-//C     HTWIST = '2'     ==> R =.2 (NOT TRUE, BUT USEFUL FOR STUDIES)
-//C     HTWIST = 'C'     ==> R-CALLAN-GROSS = (2MX)**2/Q2
-//C
-//C     HTWIST = 'W'     ==> R PARAMETERIZATION FROM WHITLOW'S THESIS
-//C     HTWIST = '+'     ==> R PARAMETRIZATION FROM WHITLOW +15%
-//C     HTWIST = 'P'     ==> R PARAMETRIZATION FROM WHITLOW +0.03
-//C     HTWIST = 'M'     ==> R PARAMETRIZATION FROM WHITLOW -0.03
-//C
-//C----------------------------------------22-DEC-92 WGS--------------
-//
-  const double C2 = TMath::Power(0.125, 2);
-  const double B1 =  0.0635;
-  const double B2 =  0.5747;
-  const double B3 = -0.3534;
-
-  double Q2R   = TMath::Max(Q2, 0.35);
-  double ss    = TMath::Log(Q2R/.04);
-
-  double x2    = TMath::Power(x,   2.);
-  double Q4R   = TMath::Power(Q2R, 2.);
-  double Q4    = TMath::Power(Q2,  2.);
-
-  double theta = 1. + (12.*Q2R/(Q2R+1.)) * (C2/(C2+x2));
-  double R     = (B1/ss)*theta + B2/Q2R + B3/(Q4R+.09);
-
-  R = TMath::Max(R,0.);
-
-  if(Q2 < 0.35)  {
-      R *= ( 3.207*(Q2/(Q4+1.)) );
-  }
-  return R;
-}
-//___________________________________________________________________________
 double genie::utils::nuclear::Density(double r, int A, double ring)
 {
 // [by S.Dytman]
