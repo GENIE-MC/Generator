@@ -11,7 +11,8 @@
          where 'mc_data_files' is a string specifying a list of models and
          corresponding GHEP event files.
          The general syntax is:
-         model_name:file_name.root,another_file_name.root,...+another_model_name:file_name.root,...
+         model_name:file_name.root,another_file_name.root,...\
+         +another_model_name:file_name.root,...
 
          Example:
          Assume that you have 2 hadronization models: `AGKY_v1' and `AGKY_v2'.
