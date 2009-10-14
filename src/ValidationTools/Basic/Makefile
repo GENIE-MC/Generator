@@ -13,7 +13,7 @@ include $(GENIE)/src/make/Make.include
 
 # Add extra libraries needed for these executables
 GENIE_LIBS   = $(shell $(GENIE)/src/scripts/setup/genie-config --libs)
-VLDTOOL_LIBS = $(shell $(GENIE)/src/scripts/setup/genie-config --vldlibs)
+##VLDTOOL_LIBS = $(shell $(GENIE)/src/scripts/setup/genie-config --vldlibs)
 LIBRARIES   := $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 
 all:    gVldSampleComp \
