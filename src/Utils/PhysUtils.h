@@ -3,7 +3,7 @@
 
 \namespace  genie::utils::phys
 
-\brief      Various physics formulas
+\brief      Various physics formulas & utilities
 
 \author     Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
             STFC, Rutherford Appleton Laboratory
@@ -24,11 +24,18 @@ namespace utils {
 
 namespace phys
 {
-  //
-  // parameterizations of the longitudinal to transverse cross section ratio R 
-  //
+
+  // Longitudinal to transverse cross section ratio (R) parametrizations
   double R99118   (double x, double Q2); ///< PRL 98, 142301, 2007
   double RWhitlow (double x, double Q2);
+
+  // Extract F1, F2, xF3 from a three d^2sigma/dxdy cross section values
+  // evaluated at different (E,y) for fixed (x,Q2)
+  // See H.Gallagher, Nucl.Phys.Proc.Suppl.159:229-234,2006
+/*
+  void ExtractStructFunc (
+    double x, double Q2, double dxs[3], double& F1, double& F2, double& xF3);
+*/
 
 } // phys  namespace
 } // utils namespace
