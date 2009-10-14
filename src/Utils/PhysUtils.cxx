@@ -106,4 +106,44 @@ double genie::utils::phys::RWhitlow(double x, double Q2)
   return R;
 }
 //___________________________________________________________________________
+/*
+void genie::utils::phys::ExtractStructFunc (
+        double x, double Q2, double d2sig_dxdy[3], 
+        double & F1, double & F2, double & xF3)
+{
+// Solve the system of equations:
+//   (Sigma) = (A) x (SF) => SF = (A)^-1 x (Sigma)
+//
 
+  const double sign = 1;
+  const double M    = kNucleonMass;
+
+  TMatrixD A     (3,3); // (row,col) 
+  TMatrixD Sigma (3,1);
+
+  A(0,0) = x * TMath::Power(y[0],2.);
+  A(1,0) = x * TMath::Power(y[1],2.);
+  A(2,0) = x * TMath::Power(y[2],2.);
+
+  A(0,1) = 1. - y[0] - 0.5*M*x*y[0]/E[0];
+  A(1,1) = 1. - y[1] - 0.5*M*x*y[1]/E[1];
+  A(2,1) = 1. - y[2] - 0.5*M*x*y[2]/E[2];
+
+  A(0,2) = sign * y[0] * (1.-0.5*y[0]);
+  A(1,2) = sign * y[1] * (1.-0.5*y[1]);
+  A(2,2) = sign * y[2] * (1.-0.5*y[2]);
+
+  Sigma(0,0) = d2sig_dxdy[0] / (kGF2*M*E[0]/kPi);
+  Sigma(1,0) = d2sig_dxdy[1] / (kGF2*M*E[1]/kPi);
+  Sigma(2,0) = d2sig_dxdy[2] / (kGF2*M*E[2]/kPi);
+
+  A.Invert();
+
+  TMatrixD SF = A*Sigma;
+
+  F1  = SF(0,0);
+  F2  = SF(1,0);
+  xF3 = SF(2,0);
+}
+//___________________________________________________________________________
+*/
