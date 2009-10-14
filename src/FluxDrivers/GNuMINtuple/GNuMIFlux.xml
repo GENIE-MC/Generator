@@ -441,6 +441,68 @@
 
 <!--
   ****************************************************************************
+  **   ArgoNeuT section
+  ****************************************************************************
+  -->
+
+  <param_set name="ArgoNeuT">
+    <!-- verbosity of XML parsing -->
+    <verbose> 0 </verbose>
+
+    <!-- setting user units should be first -->
+    <units> m </units>
+
+    <!--
+      Jun'09 Wes Smart pointed out that the Earth is not round and
+      other improvements:
+           NearDet beam angle:    -0.058297760  rad =    -3.3402156 deg
+     -->
+
+    <!-- beamdir must come before beam zero position -->
+    <!-- rotation matrix created by sequence of rotations -->
+    <beamdir type="series">
+       <rotation axis="x" units="rad"> -0.0582977560 </rotation>
+       <!-- for ArgoNeuT we don't need more than one rotation,
+            but others could follow to build up a more complex matrix -->
+    </beamdir>
+
+    <!-- position in ( user coords ) = ( beam coords ) -->
+    <!-- convenient for MINOS because it is how the survey is reported -->
+    <!-- XML config must have already set the rotation matrix -->
+    <beampos> ( 0.25, 0.25747, 0.0 ) = ( 0, 0, 1037.98837 ) </beampos>
+
+    <!-- define flux window in detector coords -->
+    <!-- need 3 positions to define a rectoid -->
+    <!-- first point is the base, 2nd & 3rd should be orthogonal points
+         (ie 2nd 3rd point should not be kitty-corner from 1st) -->
+    <!-- gminos distance to near hall face to detector front 4907.2cm
+         4888.85 - 4907.2 = -18.35,   4966.43 - 4907.2 = 59.23 -->
+    <!-- not yet support beam coords,
+         but if/when must have already specified transform -->
+    <!-- this window is square to the beam but at angle in user coords -->
+    <window>
+      <point coord="det"> -4.358, -2.903, -0.1835 </point>
+      <point coord="det">  4.796, -2.903, -0.1835 </point>
+      <point coord="det"> -4.358, 10.377,  0.5923 </point>
+    </window>
+
+    <!--
+    default:  <enumax> 120. 1.05 1.05 2500000 </enumax>
+    -->
+    <enumax> 120. 1.05 1.05 2500000 </enumax>
+
+    <!-- allow entry to be reused 10 times before moving on -->
+    <reuse> 10 </reuse>
+
+    <!-- force ray orgin from flux window to user coord z = -1.0
+    <upstreamz> -1.0 </upstreamz>
+    -->
+    <upstreamz> -400.0 </upstreamz>
+
+  </param_set>
+
+<!--
+  ****************************************************************************
   **   Other detectors
   ****************************************************************************
   -->
