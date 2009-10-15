@@ -19,13 +19,15 @@
 #ifndef _VLD_TEST_INPUTS_H_
 #define _VLD_TEST_INPUTS_H_
 
+#include <iostream>
+#include <string>
+#include <vector>
+
 #include <TChain.h>
 #include <TTree.h>
 #include <TFile.h>
 
-#include <string>
-#include <vector>
-
+using std::ostream;
 using std::string;
 using std::vector;
 
@@ -39,13 +41,16 @@ public:
   VldTestInputs(bool chain=true, const int nmaxmodels=10);
  ~VldTestInputs(void);
 
-  int              NModels       (void)       const;
-  string           ModelTag      (int imodel) const;
-  TFile *          XSecFile      (int imodel) const;
-  string           XSecFileName  (int imodel) const;
-  TChain *         EvtChain      (int imodel) const;
-  vector<string> & EvtFileNames  (int imodel) const;
+  int              NModels       (void)             const;
+  string           ModelTag      (int imodel)       const;
+  TFile *          XSecFile      (int imodel)       const;
+  string           XSecFileName  (int imodel)       const;
+  TChain *         EvtChain      (int imodel)       const;
+  vector<string> & EvtFileNames  (int imodel)       const;
+  void             Print         (ostream & stream) const;
   bool             LoadFromFile  (string xmlfile);
+
+  friend ostream & operator << (ostream & stream, const VldTestInputs & inp);  
 
 private:
 

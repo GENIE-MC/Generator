@@ -25,9 +25,23 @@
 #include "Utils/VldTestInputs.h"
 #include "Utils/StringUtils.h"
 
+using std::endl;
+
 using namespace genie;
 using namespace genie::utils::vld;
 
+//____________________________________________________________________________
+namespace genie {
+ namespace utils {
+  namespace vld {
+    ostream & operator << (ostream & stream, const VldTestInputs & inp)
+    {
+      inp.Print(stream);
+      return stream;
+    }
+  }
+ }
+}
 //____________________________________________________________________________
 VldTestInputs::VldTestInputs(bool chain, const int nmaxmodels)
 {
@@ -213,8 +227,25 @@ bool VldTestInputs::LoadFromFile(string xmlfile)
   return true;
 }
 //____________________________________________________________________________
+void VldTestInputs::Print(ostream & stream) const
+{
+  for(int imodel=0; imodel < this->NModels(); imodel++) {
+     stream << "[" << this->ModelTag(imodel) << "]" << endl;
+     if(this->XSecFile(imodel)) {
+        stream << "   xsec file  : " << this->XSecFileName(imodel) << endl;
+     }
+     const vector<string> & filenames = this->EvtFileNames(imodel);  
+     vector<string>::const_iterator iter = filenames.begin();
+     for( ; iter != filenames.end(); ++iter) {
+        string filename = *iter;
+        stream << "   event file : " << filename << endl;
+     }
+  }
+}
+//____________________________________________________________________________
 void VldTestInputs::Init(const int nmaxmodels)
 {
+  fNModels      = 0;
   fModelTag     = new vector<string>          (nmaxmodels);
   fXSecFile     = new vector<TFile*>          (nmaxmodels);
   fXSecFileName = new vector<string>          (nmaxmodels);
