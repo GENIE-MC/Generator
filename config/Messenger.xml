@@ -144,6 +144,7 @@
   <priority msgstream="Utils">               INFO   </priority>
   <priority msgstream="Vtx">                 INFO   </priority>
   <priority msgstream="VldContext">          NOTICE </priority>
+  <priority msgstream="VldTestInputs">       WARN   </priority>
   <priority msgstream="XSecBase">            NOTICE </priority>
   <priority msgstream="XSecAlgMap">          NOTICE </priority>
   <priority msgstream="XSecSplLst">          NOTICE </priority>
