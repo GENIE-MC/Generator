@@ -239,7 +239,7 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
       $tgt     = $xsec_tgtpdg_hash  {$curr_init_state};
 
       $gspl2root_cmd = "gspl2root -p $nu -t $tgt -f $xspl_file -o xsec.root";
-      print PBS "gspl2root_cmd \n";
+      print PBS "$gspl2root_cmd \n";
       print "EXEC: $gspl2root_cmd \n";
    }
    close(PBS);
