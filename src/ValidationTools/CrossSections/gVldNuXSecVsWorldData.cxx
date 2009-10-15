@@ -116,48 +116,48 @@ using namespace genie::nuvld;
 NEUTRINO CROSS SECTION DATA
 ..............................................................................
 ID   DESCRIPTION
- 0   nu_mu      QEL [all]
- 1   nu_mu      QEL [light targets]
- 2   nu_mu      QEL [heavy targets]
- 3   nu_mu_bar  QEL [all]
- 4   nu_mu_bar  QEL [light targets]
- 5   nu_mu_bar  QEL [heavy targets]
- 6   nu_mu      RES [all: v + p -> mu- + p + pi+]
- 7   nu_mu      TOT [E>10]
- 8   nu_mu_bar  TOT [E>10]
- 9   nu_mu      MPP [v + n -> l + p + pi+ + pi-]
-10   nu_mu      MPP [v + p -> l + p + pi+ + pi0]
-11   nu_mu      MPP [v + p -> l + n + pi+ + pi+]
-12   numu       NC COH pion production [A = 20] 
-13   numu       CC COH pion production [A = 20] 
-14   nu_mu_bar  CC COH pion production [A = 20] 
-15   numu       NC COH pion production [A = 27]
-16   numu       NC COH pion production [A = 30] 
-17   numu       CC COH pion production [A = 30] 
-18   nu_mu_bar  CC COH pion production [A = 30] 
+ 0   nu_mu      CC QE     [all data]
+ 1   nu_mu      CC QE     [data on light targets]
+ 2   nu_mu      CC QE     [data on heavy targets]
+ 3   nu_mu_bar  CC QE     [all data]
+ 4   nu_mu_bar  CC QE     [data on light targets]
+ 5   nu_mu_bar  CC QE     [data on heavy targets]
+ 6   nu_mu      CC 1pi    [v + p -> mu- + p + pi+, all data]
+ 7   nu_mu      CC TOT    [E>10]
+ 8   nu_mu_bar  CC TOT    [E>10]
+ 9   nu_mu      CC 2pi    [v + n -> l + p + pi+ + pi-, all data]
+10   nu_mu      CC 2pi    [v + p -> l + p + pi+ + pi0, all data]
+11   nu_mu      CC 2pi    [v + p -> l + n + pi+ + pi+, all data]
+12   numu       NC COH pi [A = 20] 
+13   numu       CC COH pi [A = 20] 
+14   nu_mu_bar  CC COH pi [A = 20] 
+15   numu       NC COH pi [A = 27]
+16   numu       NC COH pi [A = 30] 
+17   numu       CC COH pi [A = 30] 
+18   nu_mu_bar  CC COH pi [A = 30] 
 ..............................................................................
 */
 const int    kNuXSecDataSets = 19;
 const char * kNuXSecDataSetLabel[kNuXSecDataSets] = {
-/* 0 */ "#nu_{#mu} QEL [all data]          ",
-/* 1 */ "#nu_{#mu} QEL [light target data] ",
-/* 2 */ "#nu_{#mu} QEL [heavy target data] ",
-/* 3 */ "#bar{#nu_{#mu}} QEL [all data]          ",
-/* 4 */ "#bar{#nu_{#mu}} QEL [light target data] ",
-/* 5 */ "#bar{#nu_{#mu}} QEL [heavy target data] ",
-/* 6 */ "#nu_{#mu} single-pi (#nu_{#mu} p -> #mu^{-} p #pi^{+}) ",
-/* 7 */ "#nu_{#mu} TOT [E>10 GeV data]             ",
-/* 8 */ "#bar{#nu_{#mu}} TOT [E>10 GeV data]             ",
-/* 9 */ "#nu_{#mu} multi-pi (#nu_{#mu} n -> #mu^{-} p #pi^{+} #pi^{-})",
-/*10 */ "#nu_{#mu} multi-pi (#nu_{#mu} p -> #mu^{-} p #pi^{+} #pi^{0})",
-/*11 */ "#nu_{#mu} multi-pi (#nu_{#mu} p -> #mu^{-} n #pi^{+} #pi^{+})",
-/*12 */ "#nu_{#mu} NC COH pi-production (A = 20)", 
-/*13 */ "#nu_{#mu} CC COH pi-production (A = 20)",
-/*14 */ "#bar{#nu_{#mu}} CC COH pi-production (A = 20)",
-/*15 */ "#nu_{#mu} NC COH pi-production (A = 27)",
-/*16 */ "#nu_{#mu} NC COH pi-production (A = 30)",
-/*17 */ "#nu_{#mu} CC COH pi-production (A = 30)",
-/*18 */ "#bar{#nu_{#mu}} CC COH pi-production (A = 30)"
+/* 0 */ "#nu_{#mu} CC QE [all data]          ",
+/* 1 */ "#nu_{#mu} CC QE [light target data] ",
+/* 2 */ "#nu_{#mu} CC QE [heavy target data] ",
+/* 3 */ "#bar{#nu_{#mu}} CC QE [all data]          ",
+/* 4 */ "#bar{#nu_{#mu}} CC QE [light target data] ",
+/* 5 */ "#bar{#nu_{#mu}} CC QE [heavy target data] ",
+/* 6 */ "#nu_{#mu} CC 1pi (#nu_{#mu} p -> #mu^{-} p #pi^{+}) ",
+/* 7 */ "#nu_{#mu} CC TOT [E>10 GeV data]             ",
+/* 8 */ "#bar{#nu_{#mu}} CC TOT [E>10 GeV data]             ",
+/* 9 */ "#nu_{#mu} CC 2pi (#nu_{#mu} n -> #mu^{-} p #pi^{+} #pi^{-})",
+/*10 */ "#nu_{#mu} CC 2pi (#nu_{#mu} p -> #mu^{-} p #pi^{+} #pi^{0})",
+/*11 */ "#nu_{#mu} CC 2pi (#nu_{#mu} p -> #mu^{-} n #pi^{+} #pi^{+})",
+/*12 */ "#nu_{#mu} NC COH pi (A = 20)", 
+/*13 */ "#nu_{#mu} CC COH pi (A = 20)",
+/*14 */ "#bar{#nu_{#mu}} CC COH pi (A = 20)",
+/*15 */ "#nu_{#mu} NC COH pi (A = 27)",
+/*16 */ "#nu_{#mu} NC COH pi (A = 30)",
+/*17 */ "#nu_{#mu} CC COH pi (A = 30)",
+/*18 */ "#bar{#nu_{#mu}} CC COH pi (A = 30)"
 };
 const char * kNuXSecKeyList[kNuXSecDataSets] = {
 /* 0 */ "ANL_12FT,1;ANL_12FT,3;BEBC,12;BNL_7FT,3;FNAL_15FT,3;Gargamelle,2;SERP_A1,0;SERP_A1,1;SKAT,8",
@@ -334,7 +334,7 @@ void AddCoverPage(void)
   for(int imodel=0; imodel< gOptGenieInputs.NModels(); imodel++) {
     ostringstream stream;
     stream << "model tag: " << gOptGenieInputs.ModelTag(imodel)
-           << "(" << kLStyleTxt[imodel] << ")";
+           << " (" << kLStyleTxt[imodel] << " line)";
     hdr.AddText(stream.str().c_str());
   }
   hdr.AddText(" ");
@@ -371,10 +371,12 @@ TGraph * Model(int iset, int imodel)
   TChain * event_chain = gOptGenieInputs.EvtChain(imodel);
   if(!event_chain) {
      LOG("vldtest", pNOTICE) 
-        << "No corresponding event chain";
+        << "No corresponding event chain.";
   }
 
   switch(iset) {
+
+    // nu_mu CC QE 
     case (0) :
     case (1) :
     case (2) :
@@ -385,6 +387,8 @@ TGraph * Model(int iset, int imodel)
        return model;
        break;
     }
+
+    // nu_mu_bar CC QE   
     case (3) :
     case (4) :
     case (5) :
@@ -395,14 +399,42 @@ TGraph * Model(int iset, int imodel)
        return model;
        break;
     }
+
+    // nu_mu CC 1pi [v + p -> mu- + p + pi+]
     case (6) :
     {
-       TDirectory * dir  = (TDirectory *) xsec_file->Get("nu_mu_H1");
-       if(!dir) return 0;
-       TGraph * model = (TGraph*) dir->Get("res_cc_p");
-       return model;
-       break;
+      LOG("vldtest", pNOTICE)     << "Getting GENIE nu_mu CC 1pi [v + p -> mu- + p + pi+] prediction" ;
+
+      TDirectory * dir  = (TDirectory *) xsec_file->Get("nu_mu_H1");
+      if(!dir) return 0;
+      TGraph * tot_cc = (TGraph*) dir->Get("tot_cc");
+      if(!tot_cc) return 0;
+
+      if(!event_chain) return 0;
+      const int n = 100;
+      double emin = 0.010;
+      double emax = 100.0;
+      TH1D * hcc    = new TH1D("hcc",   "",n, TMath::Log10(emin), TMath::Log10(emax)); // log binning
+      TH1D * hcc1pi = new TH1D("hcc1pi","",n, TMath::Log10(emin), TMath::Log10(emax));
+      event_chain->Draw("log10(Ev)>>hcc",    "cc&&neu==14&&Z==1&&A==1", "goff");
+      event_chain->Draw("log10(Ev)>>hcc1pi", "cc&&neu==14&&Z==1&&A==1&&nfpim==0&&nfpi0==0&&nfpip==1&&nfp==1&&nfn==0", "goff");
+      hcc1pi->Divide(hcc);
+
+      double e[n], sig[n];
+      for(int i = 0; i < hcc1pi->GetNbinsX(); i++) {
+         int ibin = i+1;
+         e  [i] = TMath::Power(10., hcc1pi->GetBinCenter(ibin));
+         sig[i] = hcc1pi->GetBinContent(ibin) * tot_cc->Eval(e[i]);
+
+         LOG("vldtest", pNOTICE) << "E = " << e[i] << "GeV , sig = " << sig[i] << " x1E-38 cm^2";
+
+      }
+      TGraph * model = new TGraph(n,e,sig);
+      return model;
+      break;
     }
+
+    // nu_mu CC TOT (isoscalar target)
     case (7) :
     {
        TDirectory * dir_n  = (TDirectory *) xsec_file->Get("nu_mu_n");
@@ -421,6 +453,8 @@ TGraph * Model(int iset, int imodel)
        return model;
        break;
     }
+
+    // nu_mu_bar CC TOT (isoscalar target)
     case (8) :
     {
        TDirectory * dir_n  = (TDirectory *) xsec_file->Get("nu_mu_bar_n");
@@ -439,46 +473,179 @@ TGraph * Model(int iset, int imodel)
        return model;
        break;
     }
+
+    // nu_mu CC 2pi [v + n -> l + p + pi+ + pi-]
     case (9) :
     {
-       break;
+      LOG("vldtest", pNOTICE) << "Getting GENIE nu_mu CC 2pi [v + n -> l + p + pi+ + pi-] prediction" ;
+
+      TDirectory * dir  = (TDirectory *) xsec_file->Get("nu_mu_n");
+      if(!dir) return 0;
+      TGraph * tot_cc = (TGraph*) dir->Get("tot_cc");
+      if(!tot_cc) return 0;
+
+      if(!event_chain) return 0;
+      const int n = 100;
+      double emin = 0.010;
+      double emax = 100.0;
+      TH1D * hcc    = new TH1D("hcc",   "",n, TMath::Log10(emin), TMath::Log10(emax)); // log binning
+      TH1D * hcc2pi = new TH1D("hcc2pi","",n, TMath::Log10(emin), TMath::Log10(emax));
+      event_chain->Draw("log10(Ev)>>hcc",    "cc&&neu==14&&Z==1&&A==1", "goff");
+      event_chain->Draw("log10(Ev)>>hcc2pi", "cc&&neu==14&&Z==1&&A==1&&nfpim==1&&nfpi0==0&&nfpip==1&&nfp==1&&nfn==0", "goff");
+      hcc2pi->Divide(hcc);
+
+      double e[n], sig[n];
+      for(int i = 0; i < hcc2pi->GetNbinsX(); i++) {
+         int ibin = i+1;
+         e  [i] = TMath::Power(10., hcc2pi->GetBinCenter(ibin));
+         sig[i] = hcc2pi->GetBinContent(ibin) * tot_cc->Eval(e[i]);
+
+         LOG("vldtest", pNOTICE) << "E = " << e[i] << "GeV , sig = " << sig[i] << " x1E-38 cm^2";
+
+      }
+      TGraph * model = new TGraph(n,e,sig);
+      return model;
+      break;
     }
+
+    // nu_mu CC 2pi [v + p -> l + p + pi+ + pi0]
     case (10) :
     {
-       break;
+      LOG("vldtest", pNOTICE) << "Getting GENIE nu_mu CC 2pi [v + p -> l + p + pi+ + pi0] prediction" ;
+
+      TDirectory * dir  = (TDirectory *) xsec_file->Get("nu_mu_H1");
+      if(!dir) return 0;
+      TGraph * tot_cc = (TGraph*) dir->Get("tot_cc");
+      if(!tot_cc) return 0;
+
+      if(!event_chain) return 0;
+      const int n = 100;
+      double emin = 0.010;
+      double emax = 100.0;
+      TH1D * hcc    = new TH1D("hcc",   "",n, TMath::Log10(emin), TMath::Log10(emax)); // log binning
+      TH1D * hcc2pi = new TH1D("hcc2pi","",n, TMath::Log10(emin), TMath::Log10(emax));
+      event_chain->Draw("log10(Ev)>>hcc",    "cc&&neu==14&&Z==1&&A==1", "goff");
+      event_chain->Draw("log10(Ev)>>hcc2pi", "cc&&neu==14&&Z==1&&A==1&&nfpim==0&&nfpi0==1&&nfpip==1&&nfp==1&&nfn==0", "goff");
+      hcc2pi->Divide(hcc);
+
+      double e[n], sig[n];
+      for(int i = 0; i < hcc2pi->GetNbinsX(); i++) {
+         int ibin = i+1;
+         e  [i] = TMath::Power(10., hcc2pi->GetBinCenter(ibin));
+         sig[i] = hcc2pi->GetBinContent(ibin) * tot_cc->Eval(e[i]);
+
+         LOG("vldtest", pNOTICE) << "E = " << e[i] << "GeV , sig = " << sig[i] << " x1E-38 cm^2";
+
+      }
+      TGraph * model = new TGraph(n,e,sig);
+      return model;
+      break;
     }
+
+    // nu_mu CC 2pi [v + p -> l + n + pi+ + pi+]
     case (11) :
     {
-       break;
+      LOG("vldtest", pNOTICE) << "Getting GENIE nu_mu CC 2pi [v + p -> l + n + pi+ + pi+] prediction" ;
+
+      TDirectory * dir  = (TDirectory *) xsec_file->Get("nu_mu_H1");
+      if(!dir) return 0;
+      TGraph * tot_cc = (TGraph*) dir->Get("tot_cc");
+      if(!tot_cc) return 0;
+
+      if(!event_chain) return 0;
+      const int n = 100;
+      double emin = 0.010;
+      double emax = 100.0;
+      TH1D * hcc    = new TH1D("hcc",   "",n, TMath::Log10(emin), TMath::Log10(emax)); // log binning
+      TH1D * hcc2pi = new TH1D("hcc2pi","",n, TMath::Log10(emin), TMath::Log10(emax));
+      event_chain->Draw("log10(Ev)>>hcc",    "cc&&neu==14&&Z==1&&A==1", "goff");
+      event_chain->Draw("log10(Ev)>>hcc2pi", "cc&&neu==14&&Z==1&&A==1&&nfpim==0&&nfpi0==0&&nfpip==2&&nfp==0&&nfn==1", "goff");
+      hcc2pi->Divide(hcc);
+
+      double e[n], sig[n];
+      for(int i = 0; i < hcc2pi->GetNbinsX(); i++) {
+         int ibin = i+1;
+         e  [i] = TMath::Power(10., hcc2pi->GetBinCenter(ibin));
+         sig[i] = hcc2pi->GetBinContent(ibin) * tot_cc->Eval(e[i]);
+
+         LOG("vldtest", pNOTICE) << "E = " << e[i] << "GeV , sig = " << sig[i] << " x1E-38 cm^2";
+
+      }
+      TGraph * model = new TGraph(n,e,sig);
+      return model;
+      break;
     }
+
+    // numu NC COH pi [A = 20] 
     case (12) :
     {
+       TDirectory * dir  = (TDirectory *)xsec_file->Get("nu_mu_Ne20");
+       if(!dir) return 0;
+       TGraph * model = (TGraph*) dir->Get("coh_nc");
+       return model;
        break;
     }
+
+    // numu CC COH pi [A = 20] 
     case (13) :
     {
+       TDirectory * dir  = (TDirectory *)xsec_file->Get("nu_mu_Ne20");
+       if(!dir) return 0;
+       TGraph * model = (TGraph*) dir->Get("coh_cc");
+       return model;
        break;
     }
+
+    // nu_mu_bar  CC COH pi [A = 20] 
     case (14) :
     {
+       TDirectory * dir  = (TDirectory *)xsec_file->Get("nu_mu_bar_Ne20");
+       if(!dir) return 0;
+       TGraph * model = (TGraph*) dir->Get("coh_cc");
+       return model;
        break;
     }
+
+    // numu NC COH pi [A = 27]
     case (15) :
     {
+       TDirectory * dir  = (TDirectory *)xsec_file->Get("nu_mu_Al27");
+       if(!dir) return 0;
+       TGraph * model = (TGraph*) dir->Get("coh_nc");
+       return model;
        break;
     }
+
+    // numu NC COH pi [A = 30] 
     case (16) :
     {
+       TDirectory * dir  = (TDirectory *)xsec_file->Get("nu_mu_Si30");
+       if(!dir) return 0;
+       TGraph * model = (TGraph*) dir->Get("coh_nc");
+       return model;
        break;
     }
+
+    // numu CC COH pi [A = 30] 
     case (17) :
     {
+       TDirectory * dir  = (TDirectory *)xsec_file->Get("nu_mu_Si30");
+       if(!dir) return 0;
+       TGraph * model = (TGraph*) dir->Get("coh_cc");
+       return model;
        break;
     }
+
+    // nu_mu_bar CC COH pi [A = 30] 
     case (18) :
     {
+       TDirectory * dir  = (TDirectory *)xsec_file->Get("nu_mu_bar_Si30");
+       if(!dir) return 0;
+       TGraph * model = (TGraph*) dir->Get("coh_cc");
+       return model;
        break;
     }
+
     default:
     {
        break;
