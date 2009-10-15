@@ -97,6 +97,7 @@ void INukeDeltaPropg::ProcessEventRecord(GHepRecord * event) const
 
     // Start stepping particle out of the nucleus
     bool has_interacted = false;
+    bool has_decayed    = false;
     while (1) {
 
       const TLorentzVector & p4 = *(sp->P4());
@@ -108,34 +109,49 @@ void INukeDeltaPropg::ProcessEventRecord(GHepRecord * event) const
       // step
       utils::intranuke::StepParticle(sp, step_sz, nucl_radius);
 
+      // check whether it decayed at this step
+      double Ldec =  0.; // calculate
+      double ddec = -1. * Ldec * TMath::Log(rnd->RndFsi().Rndm()); 
+      has_decayed = (ddec < step_sz);
+      if(has_decayed) break;
+
       // check whether it interacted at this step
-      double L = utils::intranuke::MeanFreePath_Delta(pdgc,x4,p4,A);
-      double d = -1.*L * TMath::Log(rnd->RndFsi().Rndm()); 
-      has_interacted = (d < step_sz);
+      double Lint = utils::intranuke::MeanFreePath_Delta(pdgc,x4,p4,A);
+      double dint = -1. * Lint * TMath::Log(rnd->RndFsi().Rndm()); 
+      has_interacted = (dint < step_sz);
       if(has_interacted) break;
+
     }//stepping
 
+    if(has_decayed) {
+       // the particle decays 
+
+    }
+    else
     if(has_interacted)  {
-        // the particle interacts - simulate the hadronic interaction
-        LOG("INukeDelta", pINFO)
+       // the particle interacts - simulate the hadronic interaction
+       LOG("INukeDelta", pINFO)
           << "Particle has interacted at location:  "
           << sp->X4()->Vect().Mag() << " / nucl radius = " << nucl_radius;
 
-        //
-        // *** Temporary / Used in test mode only ***
-        // For now, just change the Delta++ to a proton to prevent the 
-        // Delta++ decay later on.
-        // Causes energy and chare non-conservation
-        //
-        sp->SetPdgCode(kPdgProton);
-        sp->SetStatus(kIStHadronInTheNucleus);
-        event->AddParticle(*sp);
+       //
+       // *** Temporary / Used in test mode only ***
+       // For now, just change the Delta++ to a proton to prevent the 
+       // Delta++ decay later on.
+       // Causes energy and charge non-conservation
+       //
+       sp->SetPdgCode(kPdgProton);
+       sp->SetStatus(kIStHadronInTheNucleus);
+       event->AddParticle(*sp);
     }
     else {
-      // do nothing, delete the clone & leave the Delta as is so as to
-      // proceed by decaying it and intranuking the decay products
-      delete sp;
-    }//interacted?
+       // the particle escapes the nucleus
+       LOG("Intranuke", pNOTICE)
+          << "*** Hadron escaped the nucleus! Done with it.";
+      sp->SetStatus(kIStStableFinalState);
+      event->AddParticle(*sp);
+    }//decay? interacts? escapes?
+
   }//particle loop
 }
 //___________________________________________________________________________

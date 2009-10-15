@@ -1,3 +1,7 @@
+// shell% genie
+// genie[0] .x test_xsec.C
+//
+
 #if !defined(__CINT__) || defined(__MAKECINT__)
 #include "TROOT.h"
 #include "TFile.h"
