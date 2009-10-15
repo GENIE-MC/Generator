@@ -28,8 +28,8 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "    cernlib           Use the CERN libraries                                   default: disabled (CERNLIBs to be phased-out. Please use LHAPDF instead)\n";
   print "    flux-drivers      Built-in flux drivers                                    default: enabled  \n";
   print "    geom-drivers      Built-in detector geometry drivers                       default: enabled  \n";
-  print "    vle-extension     GENIE very low energy (10 MeV - 100 MeV) extension       default: disabled \n";
-  print "    vhe-extension     GENIE very high energy ( > 500 GeV ) extension           default: disabled \n";
+  print "    vle-extension     GENIE very low energy (10 MeV - 100 MeV) extension       default: disabled (Experimental) \n";
+  print "    vhe-extension     GENIE very high energy ( > 500 GeV ) extension           default: disabled (Experimental) \n";
   print "    validation-tools  GENIE physics model validation tools (requires MySQL)    default: disabled \n";
   print "    mueloss           Muon energy loss modeling                                default: enabled  \n";
   print "    viewer            Event generation GUI (incomplete)                        default: disabled \n";
