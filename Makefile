@@ -24,9 +24,13 @@ BUILD_TARGETS =    print-make-info \
 		   base-framework \
 		   utils \
 		   evgen-framework \
-		   evgen-models \
+		   core-medium-energy-range \
+		   test-medium-energy-range \
+		   vle-extension \
+		   vhe-extension \
 		   flux-drivers \
 		   geom-drivers \
+		   reweight \
 		   viewer \
 		   mueloss \
 		   vld-tools \
@@ -72,9 +76,18 @@ utils: FORCE
 	@echo " "
 	@echo "** Building utility libraries..."
 	cd ${GENIE}/src;\
-	cd Numerical;  make; cd ..; \
-	cd Utils;      make; \
+	cd Numerical;      make; cd ..; \
+	cd CrossSections;  make; cd ..; \
+	cd PDG;            make; cd ..; \
+	cd Utils;          make; \
 	cd ${GENIE}
+
+reweight:
+	@echo " "
+	@echo "** Building event reweighting toolkits..."
+	cd ${GENIE}/src;\
+	cd ReWeight; \
+        make; 
 
 evgen-framework: FORCE
 	@echo " "
@@ -86,18 +99,15 @@ evgen-framework: FORCE
 	cd EVGDrivers;         make; cd ..; \
 	cd Interaction;        make; cd ..; \
 	cd GHEP;               make; cd ..; \
-	cd Ntuple;             make; cd ..; \
-	cd ReWeight;           make; \
-	cd ${GENIE}
+	cd Ntuple;             make; 
 
-evgen-models: FORCE
+core-medium-energy-range: FORCE
 	@echo " "
-	@echo "** Building evgen-models..."
+	@echo "** Building core medium energy range physics models..."
 	cd ${GENIE}/src;\
 	cd BodekYang;          make; cd ..; \
 	cd Charm;              make; cd ..; \
 	cd Coherent;           make; cd ..; \
-	cd CrossSections;      make; cd ..; \
 	cd Decay; 	       make; cd ..; \
 	cd Diffractive;        make; cd ..; \
 	cd DIS;                make; cd ..; \
@@ -108,19 +118,45 @@ evgen-models: FORCE
 	cd GiBUU;              make; cd ..; \
 	cd HadronTransport;    make; cd ..; \
 	cd LlewellynSmith;     make; cd ..; \
-	cd MEC;                make; cd ..; \
-	cd NuGamma;            make; cd ..; \
 	cd NuE;                make; cd ..; \
 	cd Nuclear;            make; cd ..; \
 	cd PartonModel;        make; cd ..; \
 	cd Paschos; 	       make; cd ..; \
 	cd PDF;                make; cd ..; \
-	cd PDG;                make; cd ..; \
 	cd QEL;                make; cd ..; \
 	cd ReinSeghal;         make; cd ..; \
-	cd RES;                make; cd ..; \
-	cd VHE;                make; \
+	cd RES;                make; cd ..; 
+
+test-medium-energy-range: FORCE
+	@echo " "
+	@echo "** Building tested medium energy range physics models..."
+	cd ${GENIE}/src;\
+	cd MEC;                make; cd ..; \
+	cd NuGamma;            make; cd ..; 
+
+vle-extension: FORCE
+ifeq ($(strip $(GOPT_ENABLE_VLE_EXTENSION)),YES)
+	@echo " "
+	@echo "** Building VLE extension..."
+	cd ${GENIE}/src/VLE; \
+	make; \
 	cd ${GENIE}
+else
+	@echo " "
+	@echo "** The VLE extension was not enabled. Skipping..."
+endif
+
+vhe-extension: FORCE
+ifeq ($(strip $(GOPT_ENABLE_VLE_EXTENSION)),YES)
+	@echo " "
+	@echo "** Building VHE extension..."
+	cd ${GENIE}/src/VHE; \
+	make; \
+	cd ${GENIE}
+else
+	@echo " "
+	@echo "** The VHE extension was not enabled. Skipping..."
+endif
 
 flux-drivers: FORCE
 ifeq ($(strip $(GOPT_ENABLE_FLUX_DRIVERS)),YES)
@@ -223,7 +259,7 @@ ifeq ($(strip $(GOPT_ENABLE_VALIDATION_TOOLS)),YES)
 	make; \
 	cd ${GENIE}/src/ValidationTools/Basic; \
 	make; \
-	cd ${GENIE}/src/ValidationTools/CrossSection; \
+	cd ${GENIE}/src/ValidationTools/CrossSections; \
 	make; \
 	cd ${GENIE}/src/ValidationTools/Hadronization; \
 	make; \
@@ -390,8 +426,8 @@ make-install-dirs: FORCE
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Registry
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/ReinSeghal
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Utils
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/VHE
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/VLE
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/VHE
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/ValidationTools/
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/ValidationTools/NuVld/
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Viewer
@@ -443,6 +479,7 @@ copy-install-files: FORCE
 	cd ReinSeghal;             make install; cd ..; \
 	cd ReWeight;               make install; cd ..; \
 	cd Utils;                  make install; cd ..; \
+	cd VLE;                    make install; cd ..; \
 	cd VHE;                    make install; cd ..; \
 	cd ValidationTools/NuVld;  make install; cd ../../; \
 	cd Viewer;                 make install; \
@@ -493,11 +530,12 @@ purge: FORCE
 	cd ReinSeghal;                    make purge; cd ..; \
 	cd ReWeight;                      make purge; cd ..; \
 	cd Utils;                         make purge; cd ..; \
+	cd VLE;                           make purge; cd ..; \
 	cd VHE;                           make purge; cd ..; \
 	cd ValidationTools/NuVld;         make purge; cd ../../; \
 	cd ValidationTools/NuVld/app;     make purge; cd ../../../; \
 	cd ValidationTools/Basic;         make purge; cd ../../; \
-	cd ValidationTools/CrossSection;  make purge; cd ../../; \
+	cd ValidationTools/CrossSections; make purge; cd ../../; \
 	cd ValidationTools/Hadronization; make purge; cd ../../; \
 	cd ValidationTools/Merenyi;       make purge; cd ../../; \
 	cd Viewer;                        make purge; \
@@ -553,10 +591,11 @@ clean-files: FORCE
 	cd ValidationTools/NuVld;         make clean; cd ../../; \
 	cd ValidationTools/NuVld/app;     make clean; cd ../../../; \
 	cd ValidationTools/Basic;         make clean; cd ../../; \
-	cd ValidationTools/CrossSection;  make clean; cd ../../; \
+	cd ValidationTools/CrossSections; make clean; cd ../../; \
 	cd ValidationTools/Hadronization; make clean; cd ../../; \
 	cd ValidationTools/Merenyi;       make clean; cd ../../; \
 	cd Viewer;                        make clean; cd ..; \
+	cd VLE;                           make clean; cd ..; \
 	cd VHE;                           make clean; cd ..; \
 	cd stdapp;                        make clean; cd ..; \
 	cd support/minos/EventServer/;    make clean; cd ../../../; \
@@ -626,10 +665,11 @@ distclean: FORCE
 	cd ValidationTools/NuVld;          make distclean; cd ../../; \
 	cd ValidationTools/NuVld/app;      make distclean; cd ../../../; \
 	cd ValidationTools/Basic;          make distclean; cd ../../; \
-	cd ValidationTools/CrossSection;   make distclean; cd ../../; \
+	cd ValidationTools/CrossSections;  make distclean; cd ../../; \
 	cd ValidationTools/Hadronization;  make distclean; cd ../../; \
 	cd ValidationTools/Merenyi;        make distclean; cd ../../; \
 	cd Viewer;                         make distclean; cd ..; \
+	cd VLE;                            make distclean; cd ..; \
 	cd VHE;                            make distclean; cd ..; \
 	cd stdapp;                         make distclean; cd ..; \
 	cd support/minos/EventServer/;     make distclean; cd ../../../; \
