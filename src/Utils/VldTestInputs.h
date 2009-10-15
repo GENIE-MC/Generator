@@ -30,31 +30,39 @@ using std::string;
 using std::vector;
 
 namespace genie {
+namespace utils {
+namespace vld   {
 
 class VldTestInputs
 {
 public:
-  VldTestInputs(const int nmaxmodels=10);
+  VldTestInputs(bool chain=true, const int nmaxmodels=10);
  ~VldTestInputs(void);
 
-  int     NModels  (void)       const;
-  string  ModelTag (int imodel) const;
-  TFile*  XSecFile (int imodel) const;
-  TChain* EvtChain (int imodel) const;
-
-  bool LoadFromFile(string xmlfile);
+  int              NModels       (void)       const;
+  string           ModelTag      (int imodel) const;
+  TFile *          XSecFile      (int imodel) const;
+  string           XSecFileName  (int imodel) const;
+  TChain *         EvtChain      (int imodel) const;
+  vector<string> & EvtFileNames  (int imodel) const;
+  bool             LoadFromFile  (string xmlfile);
 
 private:
 
-  void Init(const int nmaxmodels);
+  void Init    (const int nmaxmodels);
+  void CleanUp (void);
 
-
-  int             fNModels;
-  vector<string>  *fModelTag;
-  vector<TFile*>  *fXSecFile;
-  vector<TChain*> *fEvtChain;
+  bool                      fDoChain;
+  int                       fNModels;
+  vector<string>          * fModelTag;
+  vector<TFile*>          * fXSecFile;
+  vector<string>          * fXSecFileName;
+  vector<TChain*>         * fEvtChain;
+  vector<vector<string> > * fEvtFileNames;
 };
 
+}      // vld   namespace
+}      // utils namespace
 }      // genie namespace
 
 #endif // _VLD_TEST_INPUTS_H_
