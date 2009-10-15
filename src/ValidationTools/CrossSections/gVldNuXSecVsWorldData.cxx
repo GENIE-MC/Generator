@@ -22,19 +22,19 @@
 
               <?xml version="1.0" encoding="ISO-8859-1"?>
               <vld_inputs>
-                 <model name="name">
-                   <xsec_file> /path/to/model_1/cross_sections.root  </xsec_file>
-                   <evt_file>  /path/to/model_1/eventfile_0.root     </evt_file>
-                   <evt_file>  /path/to/model_1/eventfile_1.root     </evt_file>
-                   <evt_file>  /path/to/model_1/eventfile_2.root     </evt_file>
+                 <model name="a_model_name">
+                   <xsec_file>             /path/model_1/xsec.root     </xsec_file>
+                   <evt_file format="gst"> /path/model_1/evtfile0.root </evt_file>
+                   <evt_file format="gst"> /path/model_1/evtfile1.root </evt_file>
+                   <evt_file format="gst"> /path/model_1/evtfile2.root </evt_file>
                    ...
                  </model>
 
-                 <model name="another_name">
-                   <xsec_file> /path/to/model_2/cross_sections.root  </xsec_file>
-                   <evt_file>  /path/to/model_2/eventfile_0.root     </evt_file>
-                   <evt_file>  /path/to/model_2/eventfile_1.root     </evt_file>
-                   <evt_file>  /path/to/model_2/eventfile_2.root     </evt_file>
+                 <model name="another_model_name">
+                   <xsec_file>             /path/model_2/xsec.root     </xsec_file>
+                   <evt_file format="gst"> /path/model_2/evtfile0.root </evt_file>
+                   <evt_file format="gst"> /path/model_2/evtfile1.root </evt_file>
+                   <evt_file format="gst"> /path/model_2/evtfile2.root </evt_file>
                    ...
                  </model>
                  ...
@@ -76,6 +76,7 @@
 */
 //____________________________________________________________________________
 
+#include <cstdlib>
 #include <cassert>
 #include <sstream>
 #include <string>
@@ -110,6 +111,7 @@ using std::string;
 
 using namespace genie;
 using namespace genie::nuvld;
+using namespace genie::utils::vld;
 
 /* 
 ..............................................................................
@@ -870,7 +872,11 @@ void GetCommandLineArgs(int argc, char ** argv)
   // get GENIE inputs
   try {
      string inputs = utils::clap::CmdLineArgAsString(argc,argv,'g');
-     gOptGenieInputs.LoadFromFile(inputs);
+     bool ok = gOptGenieInputs.LoadFromFile(inputs);
+     if(!ok) {
+        LOG("gvldtest", pFATAL) << "Could not read: " << inputs;
+        exit(1);
+     }
   } catch(exceptions::CmdLineArgParserException e) {
      if(!e.ArgumentFound()) {
      }
