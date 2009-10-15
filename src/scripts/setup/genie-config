@@ -13,7 +13,7 @@ libdir=$GENIE/lib
 ### GENIE src top level directory:
 srcdir=$GENIE/src
 
-### GENIE Libraries;
+### GENIE libraries;
 libs="-L$libdir -lGAlgorithm -lGBaryonResonance -lGBase -lGBodekYang -lGCharm -lGCoh -lGDfrc -lGDIS \
  -lGCrossSections -lGDecay -lGElas -lGElFF -lGHEP -lGEVGCore -lGEVGModules -lGEVGDrivers -lGGiBUU \
  -lGHadronTransp -lGFragmentation -lGInteraction -lGLlewellynSmith -lGMEC \
@@ -25,6 +25,12 @@ if test "$GOPT_ENABLE_GEOM_DRIVERS" = "YES"; then
 fi
 if test "$GOPT_ENABLE_FLUX_DRIVERS" = "YES"; then
   libs="$libs -lGFluxDrivers"
+fi
+if test "$GOPT_ENABLE_VLE_EXTENSION" = "YES"; then
+  libs="$libs -lGVLE"
+fi
+if test "$GOPT_ENABLE_VHE_EXTENSION" = "YES"; then
+  libs="$libs -lGVHE"
 fi
 if test "$GOPT_ENABLE_VIEWER" = "YES"; then
   libs="$libs -lGViewer"
