@@ -26,10 +26,12 @@
 #include "Utils/StringUtils.h"
 
 using namespace genie;
+using namespace genie::utils::vld;
 
 //____________________________________________________________________________
-VldTestInputs::VldTestInputs(const int nmaxmodels)
+VldTestInputs::VldTestInputs(bool chain, const int nmaxmodels)
 {
+  fDoChain = chain;
   Init(nmaxmodels);
 }
 //____________________________________________________________________________
@@ -53,27 +55,46 @@ TFile*  VldTestInputs::XSecFile(int imodel) const
   return (*fXSecFile)[imodel];
 }
 //____________________________________________________________________________
+string VldTestInputs::XSecFileName(int imodel) const
+{
+  return (*fXSecFileName)[imodel];
+}
+//____________________________________________________________________________
 TChain* VldTestInputs::EvtChain(int imodel) const
 {
   return (*fEvtChain)[imodel];
+}
+//____________________________________________________________________________
+vector<string> & VldTestInputs::EvtFileNames(int imodel) const
+{
+  return (*fEvtFileNames)[imodel];
 }
 //____________________________________________________________________________
 bool VldTestInputs::LoadFromFile(string xmlfile)
 {
   LOG("VldTestInputs", pNOTICE) << "Loading: " << xmlfile;
 
-  vector<string>  & model_tag  = *fModelTag;
-  vector<TFile*>  & xsec_file  = *fXSecFile;
-  vector<TChain*> & evt_chain  = *fEvtChain;
-
+  vector<string>  &          model_tag      = *fModelTag;
+  vector<TFile*>  &          xsec_file      = *fXSecFile;
+  vector<string>  &          xsec_filename  = *fXSecFileName;
+  vector<TChain*> &          evt_chain      = *fEvtChain;
+  vector< vector<string> > & evt_filenames  = *fEvtFileNames;
+ 
   xmlTextReaderPtr reader = xmlNewTextReaderFilename(xmlfile.c_str());
+  if(reader == NULL) {
+    return false;
+  }
 
   const int kNodeTypeStartElement = 1;
-//const int kNodeTypeEndElement   = 15;
+  const int kNodeTypeEndElement   = 15;
 
-  int  imodel       = -1;
-  bool is_xsec_file = false;
-  bool is_evt_file  = false;
+  int  imodel            = 0;
+  bool is_xsec_file      = false;
+  bool is_evt_file       = false;
+  bool is_ghep_evt_file  = false;
+  bool is_gst_evt_file   = false;
+  bool have_ghep_files   = false;
+  bool have_gst_files    = false;
 
   if (reader != NULL) {
      int ret = xmlTextReaderRead(reader);
@@ -84,6 +105,7 @@ bool VldTestInputs::LoadFromFile(string xmlfile)
        int       depth = xmlTextReaderDepth    (reader);
 
        bool start_element = (type==kNodeTypeStartElement);
+       bool end_element   = (type==kNodeTypeEndElement);
 
        if(depth==0 && start_element) {
          LOG("VldTestInputs", pDEBUG) << "Root element = " << name;
@@ -94,10 +116,8 @@ bool VldTestInputs::LoadFromFile(string xmlfile)
            return false;
          }
        }
+
        if( (!xmlStrcmp(name, (const xmlChar *) "model")) && start_element) {
-         imodel++;
-         is_xsec_file      = false;
-         is_evt_file       = false;
          xmlChar * xname = xmlTextReaderGetAttribute(reader,(const xmlChar*)"name");
          string sname    = utils::str::TrimSpaces((const char *)xname);
          model_tag[imodel] = sname;
@@ -106,29 +126,71 @@ bool VldTestInputs::LoadFromFile(string xmlfile)
             << imodel << " (" << model_tag[imodel] << ")";
          xmlFree(xname);
        }
+       if( (!xmlStrcmp(name, (const xmlChar *) "model")) && end_element) {
+         LOG("VldTestInputs", pNOTICE) 
+            << "Done adding files for model ID: " << imodel;
+         imodel++;
+       }
        if( (!xmlStrcmp(name, (const xmlChar *) "xsec_file")) && start_element) {
          is_xsec_file = true;
-         is_evt_file  = false;
+       }
+       if( (!xmlStrcmp(name, (const xmlChar *) "xsec_file")) && end_element) {
+         is_xsec_file = false;
        }
        if( (!xmlStrcmp(name, (const xmlChar *) "evt_file")) && start_element) {
-         is_xsec_file = false;
-         is_evt_file  = true;
+         is_evt_file       = true;
+         is_ghep_evt_file  = false;
+         is_gst_evt_file   = false;
+         xmlChar * xfmt = xmlTextReaderGetAttribute(reader,(const xmlChar*)"format");
+         string sfmt = utils::str::TrimSpaces((const char *)xfmt);
+         if (sfmt.find("gst")  != string::npos) 
+         { 
+            is_gst_evt_file  = true; 
+            if(!have_gst_files) { have_gst_files = true; }
+         }
+         else 
+         if (sfmt.find("ghep") != string::npos) 
+         { 
+            is_ghep_evt_file = true; 
+            if(!have_ghep_files) { have_ghep_files = true; }
+         } 
+         if(have_gst_files && have_ghep_files) {
+            LOG("VldTestInputs", pFATAL) 
+               << "Oops! You shouldn't mix GHEP and GST event files in VldTestInputs";
+            LOG("VldTestInputs", pFATAL) 
+               << "Please correct XML file: " << xmlfile;
+            gAbortingInErr = true;;
+            exit(1);
+         }
+         xmlFree(xfmt);
        }
-
+       if( (!xmlStrcmp(name, (const xmlChar *) "evt_file")) && end_element) {
+         is_evt_file  = false;
+       }
        if( (!xmlStrcmp(name, (const xmlChar *) "#text")) && depth==3) {
          string filename = utils::str::TrimSpaces((const char *)value);
          if(is_evt_file) {
            LOG("VldTestInputs", pNOTICE) 
                 << " * Adding event file: " << filename;
-           if(!evt_chain[imodel]) {
-              evt_chain[imodel] = new TChain("gst");
-           }
-           evt_chain[imodel]->Add(filename.c_str());
+           // chain the event trees, if requested
+           if(fDoChain) {
+             if(!evt_chain[imodel] && is_gst_evt_file) {
+                 evt_chain[imodel] = new TChain("gst");
+             } else 
+             if(!evt_chain[imodel] && is_ghep_evt_file) {
+                 evt_chain[imodel] = new TChain("gtree");
+             }
+             if(evt_chain[imodel]) {
+                evt_chain[imodel]->Add(filename.c_str());
+             }
+           }//chain?
+           evt_filenames[imodel].push_back(filename);
          }
          if(is_xsec_file) {
            LOG("VldTestInputs", pNOTICE) 
                 << " * Adding cross section file: " << filename;
-           xsec_file[imodel] = new TFile(filename.c_str(), "read");
+           xsec_file    [imodel] = new TFile(filename.c_str(), "read");
+           xsec_filename[imodel] = filename;
            if(!xsec_file[imodel]) {
              exit(1);
            }
@@ -137,7 +199,9 @@ bool VldTestInputs::LoadFromFile(string xmlfile)
 
        xmlFree(name);
        xmlFree(value);
+
        ret = xmlTextReaderRead(reader);
+
      }//ret==1
 
      xmlFreeTextReader(reader);
@@ -151,9 +215,11 @@ bool VldTestInputs::LoadFromFile(string xmlfile)
 //____________________________________________________________________________
 void VldTestInputs::Init(const int nmaxmodels)
 {
-  fModelTag = new vector<string>  (nmaxmodels);
-  fXSecFile = new vector<TFile*>  (nmaxmodels);
-  fEvtChain = new vector<TChain*> (nmaxmodels);
+  fModelTag     = new vector<string>          (nmaxmodels);
+  fXSecFile     = new vector<TFile*>          (nmaxmodels);
+  fXSecFileName = new vector<string>          (nmaxmodels);
+  fEvtChain     = new vector<TChain*>         (nmaxmodels);
+  fEvtFileNames = new vector<vector<string> > (nmaxmodels);
 
   for(int i=0; i<nmaxmodels; i++) {
     (*fModelTag) [i] = "";
