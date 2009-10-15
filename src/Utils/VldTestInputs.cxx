@@ -222,15 +222,16 @@ bool VldTestInputs::LoadFromFile(string xmlfile)
 
   }//reader!=null
 
-  fNModels = imodel+1;
+  fNModels = imodel;
 
   return true;
 }
 //____________________________________________________________________________
 void VldTestInputs::Print(ostream & stream) const
 {
+  stream << endl;
   for(int imodel=0; imodel < this->NModels(); imodel++) {
-     stream << "[" << this->ModelTag(imodel) << "]" << endl;
+     stream << "model tag: [" << this->ModelTag(imodel) << "]" << endl;
      if(this->XSecFile(imodel)) {
         stream << "   xsec file  : " << this->XSecFileName(imodel) << endl;
      }
