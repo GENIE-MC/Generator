@@ -3,6 +3,9 @@
 #---------------------------------------------------------------------------------------------------------------------
 # Submit standard vA event generation jobs for GENIE release validation
 #
+# The outputs can be compared with outputs from past releases using GENIE's gvld_sample_comp utility.
+# Sanity checks can be performed using GENIE's gvld_sample_scan utility.
+#
 # Syntax:
 #   shell% perl submit-vld_vA.pl <options>
 #
