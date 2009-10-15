@@ -6,7 +6,8 @@
 \brief   Compares the GENIE neutrino cross sections against the world data.
 
          Syntax:
-           gvld_nuxsec_vs_world_data [-h host] [-u user] [-p passwd] [-g files]
+           gvld_nuxsec_vs_world_data 
+                [-h host] [-u user] [-p passwd] [-g genie_inputs]
 
          Options:
 
