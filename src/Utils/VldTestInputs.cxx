@@ -32,12 +32,12 @@ using namespace genie::utils::vld;
 VldTestInputs::VldTestInputs(bool chain, const int nmaxmodels)
 {
   fDoChain = chain;
-  Init(nmaxmodels);
+  this->Init(nmaxmodels);
 }
 //____________________________________________________________________________
 VldTestInputs::~VldTestInputs(void)
 {
-
+  this->CleanUp();
 }
 //____________________________________________________________________________
 int VldTestInputs::NModels(void) const
@@ -226,6 +226,11 @@ void VldTestInputs::Init(const int nmaxmodels)
     (*fXSecFile) [i] = 0;
     (*fEvtChain) [i] = 0;
   }
+}
+//____________________________________________________________________________
+void VldTestInputs::CleanUp(void)
+{
+
 }
 //____________________________________________________________________________
 
