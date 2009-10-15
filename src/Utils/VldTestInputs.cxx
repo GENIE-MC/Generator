@@ -128,7 +128,7 @@ bool VldTestInputs::LoadFromFile(string xmlfile)
          if(is_xsec_file) {
            LOG("VldTestInputs", pNOTICE) 
                 << " * Adding cross section file: " << filename;
-           xsec_file[imodel] = new TFile(filename.c_str(), "recreate");
+           xsec_file[imodel] = new TFile(filename.c_str(), "read");
            if(!xsec_file[imodel]) {
              exit(1);
            }
