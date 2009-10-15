@@ -1,15 +1,16 @@
 #!/usr/bin/perl
 
----------------------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------------------
 # Submit jobs to generate all data needed for validating GENIE's cross section model 
-# The generated data can be fed into GENIE's gvld_nuxsec_vs_world_data utiity.
+#
+# The generated data can be fed into GENIE's gvld_nuxsec_vs_world_data utility.
 #
 # Syntax:
 #   perl submit-vld_xsec.pl <options>
 #
 # Options:
 #  --version       : GENIE version number
-# [--nsubruns]     : number of subruns per run
+# [--nsubruns]     : number of subruns per run, default: 1
 # [--arch]         : <SL4_32bit, SL5_64bit>, default: SL5_64bit
 # [--production]   : production name, default: xsecvld_<version>
 # [--cycle]        : cycle in current production, default: 01
@@ -17,19 +18,18 @@
 # [--queue]        : default: prod
 # [--softw-topdir] : default: /opt/ppd/t2k/GENIE
 #
-# Examples:
-#  perl submit-nuint09_jobs.pl --production nuint09 --cycle 01 --version v2.5.1 --run 1001 --nsubruns 5
-#  perl submit-nuint09_jobs.pl --production nuint09 --cycle 01 --version v2.5.1 --run all  --nsubruns 5
-#
 # Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
 # STFC, Rutherford Appleton Lab
-#----------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------------------
 #
-# SAMPLES:
+# EVENT SAMPLES:
+# The following samples will be submitted.
+# The output GHEP event trees will be analyzed and converted to GST summary trees.
+# The gvld_nuxsec_vs_world_data utility uses the samples to decompose the inclusive cross section
+# to cross section for various exclusive channels
 #......................................................................
 # run number      |  init state      | energy   | processes
 #                 |                  | (GeV)    | enabled
-# (xx=subrun_id)  |
 #......................................................................
 #
 # 1000xx          | numu    + n      | 0.1-120. | all
@@ -37,8 +37,25 @@
 # 1200xx          | numubar + n      | 0.1-120. | all
 # 1300xx          | numubar + p      | 0.1-120. | all
 #
-# xx : Run id, 01-99, 100k events each
+# xx : Run ID, 01-99, 100k events each
 #......................................................................
+#
+# CROSS SECTIONS:
+# A job will be submitted to run GENIE's gspl2root utility, extract
+# cross sections (from the pre-computed XML cross section spline file) 
+# and save them into a single ROOT file (xsec.root).
+# The file will contain the following folders (TDirectories):
+# - nu_mu_n
+# - nu_mu_H1
+# - nu_mubar_n
+# - nu_mubar_H1
+# - nu_mu_Ne20
+# - nu_mu_bar_Ne20
+# - nu_mu_Al27
+# - nu_mu_Si30     (Si30: proxy for freon (average A=30), used for coherent pi production plots only)
+# - nu_mu_bar_Si30 ( -//- )
+# Each folder will contain graphs for all cross sections for the given initial state.
+# Expand as required if more published data are inluded in this GENIE physics benchmark test.
 #
 
 use File::Path;
@@ -57,8 +74,6 @@ foreach (@ARGV) {
   if($_ eq '--softw-topdir')  { $softw_topdir  = $ARGV[$iarg+1]; }  
   $iarg++;
 }
-die("** Aborting [Undefined benchmark runs #. Use the --run option]")
-unless defined $runnu;
 die("** Aborting [Undefined GENIE version. Use the --version option]")
 unless defined $genie_version;
 
@@ -193,7 +208,7 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
        #
        # submit job
        #
-       #`qsub -q $queue $batch_script`;
+       `qsub -q $queue $batch_script`;
 
     } # loop over subruns
  # } #checking whether to submit current run
@@ -232,5 +247,5 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
    #
    # submit job
    #
-   #`qsub -q $queue $batch_script`;
+   `qsub -q $queue $batch_script`;
 }
