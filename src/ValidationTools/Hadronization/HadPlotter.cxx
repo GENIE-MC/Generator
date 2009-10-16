@@ -39,7 +39,8 @@ using namespace genie::vld_hadronization;
 const int mccolors[7] = {2,4,3,1,6,7,5};
 
 //____________________________________________________________________________
-HadPlotter::HadPlotter(string data_file_directory) :
+HadPlotter::HadPlotter(bool in_eps, string data_file_directory) :
+fInEps(in_eps),
 fDataDir(data_file_directory)
 {
   //if there was no input directory, then use default location
@@ -63,8 +64,9 @@ void HadPlotter::ShowPlots()
 {  
   TH2D * htemp = 0;
 
-  // Neutrino plots
-  // _________________________________________________________________________
+  //
+  // *** Neutrino plots
+  // 
 
   // .........................................................................
   // Charged hadron multiplicity
@@ -873,21 +875,11 @@ void HadPlotter::ShowPlots()
   }
   leg_pt2_xf_n->Draw();
 
-  cMulCh->Print("cMulCh.gif");
-  cDispCh->Print("cDispCh.gif");
-  cKNO->Print("cKNO.gif");
-  cMulPi0->Print("cMulPi0.gif");
-  cCorr_Pi0_Ch->Print("cCorr_Pi0_Ch.gif");
-  cTopo->Print("cTopo.gif");
-  cMulFB->Print("cMulFB.gif");
-  cXF->Print("cXF.gif");
-  cZ->Print("cZ.gif");
-  cPt_W2->Print("cPt_W2.gif");
-  cPt2_xf->Print("cPt2_xf.gif");
 
+  //
+  // *** Anti-neutrino plots
+  // 
 
-  // Anti-neutrino plots
-  // _________________________________________________________________________
 
   // .........................................................................
   // Charged hadron multiplicity
@@ -1247,16 +1239,31 @@ void HadPlotter::ShowPlots()
   tptw3->SetTextSize(0.08);
   tptw3->Draw();
 
-  cMulCh_nubar->Print("cMulCh_nubar.gif");
-  cDispCh_nubar->Print("cDispCh_nubar.gif");
-  cTopo_nubar->Print("cTopo_nubar.gif");
-  cMulPi0_nubar->Print("cMulPi0_nubar.gif");
-  cMulFB_nubar->Print("cMulFB_nubar.gif");
-  cXf_nubar->Print("cXf_nubar.gif");
-  cXf2_nubar->Print("cXf2_nubar.gif");
-  cZ_nubar->Print("cZ_nubar.gif");
-  cPt_W_nubar->Print("cPt_W_nubar.gif");
 
+  //
+  // Save the plots
+  //
+
+  cMulCh        -> Print ( ((fInEps) ? "cMulCh.eps"        : "cMulCh.gif"        ));
+  cDispCh       -> Print ( ((fInEps) ? "cDispCh.eps"       : "cDispCh.gif"       ));
+  cKNO          -> Print ( ((fInEps) ? "cKNO.eps"          : "cKNO.gif"          ));
+  cMulPi0       -> Print ( ((fInEps) ? "cMulPi0.eps"       : "cMulPi0.gif"       ));
+  cCorr_Pi0_Ch  -> Print ( ((fInEps) ? "cCorr_Pi0_Ch.eps"  : "cCorr_Pi0_Ch.gif"  ));
+  cTopo         -> Print ( ((fInEps) ? "cTopo.eps"         : "cTopo.gif"         ));
+  cMulFB        -> Print ( ((fInEps) ? "cMulFB.eps"        : "cMulFB.gif"        ));
+  cXF           -> Print ( ((fInEps) ? "cXF.eps"           : "cXF.gif"           ));
+  cZ            -> Print ( ((fInEps) ? "cZ.eps"            : "cZ.gif"            ));
+  cPt_W2        -> Print ( ((fInEps) ? "cPt_W2.eps"        : "cPt_W2.gif"        ));
+  cPt2_xf       -> Print ( ((fInEps) ? "cPt2_xf.eps"       : "cPt2_xf.gif"       ));
+  cMulCh_nubar  -> Print ( ((fInEps) ? "cMulCh_nubar.eps"  : "cMulCh_nubar.gif"  ));
+  cDispCh_nubar -> Print ( ((fInEps) ? "cDispCh_nubar.eps" : "cDispCh_nubar.gif" ));
+  cTopo_nubar   -> Print ( ((fInEps) ? "cTopo_nubar.eps"   : "cTopo_nubar.gif"   ));
+  cMulPi0_nubar -> Print ( ((fInEps) ? "cMulPi0_nubar.eps" : "cMulPi0_nubar.gif" ));
+  cMulFB_nubar  -> Print ( ((fInEps) ? "cMulFB_nubar.eps"  : "cMulFB_nubar.gif"  ));
+  cXf_nubar     -> Print ( ((fInEps) ? "cXf_nubar.eps"     : "cXf_nubar.gif"     ));
+  cXf2_nubar    -> Print ( ((fInEps) ? "cXf2_nubar.eps"    : "cXf2_nubar.gif"    ));
+  cZ_nubar      -> Print ( ((fInEps) ? "cZ_nubar.eps"      : "cZ_nubar.gif"      ));
+  cPt_W_nubar   -> Print ( ((fInEps) ? "cPt_W_nubar.eps"   : "cPt_W_nubar.gif"   ));
 }
 //____________________________________________________________________________
 TGraphErrors* HadPlotter::MakeGraph(string file)

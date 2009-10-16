@@ -36,9 +36,19 @@ using namespace genie;
 using namespace genie::vld_hadronization;
 
 //____________________________________________________________________________
+HadPlots::HadPlots()
+{
+
+}
+//____________________________________________________________________________
 HadPlots::HadPlots(string name)
 {
   modelName = name;
+}
+//____________________________________________________________________________
+HadPlots::~HadPlots()
+{
+
 }
 //____________________________________________________________________________
 void HadPlots::SetName(string name)
@@ -176,12 +186,14 @@ void HadPlots::BookHists()
     pt2_xf_hiW[i] = new TProfile();
     pt2_xf_loW[i]->SetBins(20,-1,1);
     pt2_xf_hiW[i]->SetBins(20,-1,1);
-
   }
 }
 //____________________________________________________________________________
 void HadPlots::Analyze()
 {
+  LOG("VldHadro", pNOTICE) 
+    << "Analyzing input files for model: " << modelName;
+
   if (!mcFiles.size()){
     LOG("VldHadro", pERROR) << "No MC files available";
     exit(0);
@@ -463,7 +475,7 @@ void HadPlots::Analyze()
 //	LOG("VldHadro",pINFO) << event;
 //      }
       if (im==1&&ncharged%2==0){
-	LOG("VldHadro",pINFO) << event;
+//	LOG("VldHadro",pINFO) << event;
       }
       if (W<2){
 	nchkno[0] += weight*(ncharged);
