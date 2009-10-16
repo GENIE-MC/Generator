@@ -36,8 +36,8 @@ namespace vld_hadronization {
 class HadPlotter {
       
 public:
-  HadPlotter(string data_file_directory = "");
-  virtual ~HadPlotter();
+  HadPlotter(bool in_eps=true, string data_file_directory = "");
+ ~HadPlotter();
 
   void AddPlots  (HadPlots hp);
   void ShowPlots (void);
@@ -51,8 +51,10 @@ private:
   void          DrawGraph (TGraph* gr, int mstyle, int mcol, double msize=0.8, string opt = "def");
   void          SetLegend (TLegend *leg);
 
-  string fDataDir; ///< top level dir for data files
   vector<HadPlots> hadPlots;
+
+  bool   fInEps;   ///< save plots in eps or gif?
+  string fDataDir; ///< top level dir for data files
 };
 
 } // vld_hadronization
