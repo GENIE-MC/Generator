@@ -7,7 +7,7 @@
 
          Syntax:
            gvld_e_res_xsec 
-                [-h host] [-u user] [-p passwd] [-m genie_model]
+                [-h host] [-u user] [-p passwd] 
 
          Options:
 
@@ -16,11 +16,12 @@
            -h NuVld MySQL URL (eg mysql://localhost/NuScat).
            -u NuVld MySQL username.
            -p NuVld MySQL password.
-           -m Specifies a GENIE model 
+
+           ... add option to specify model (currently hardcoded choice)
 
          Example:
 
-           .. .. .. ..
+           ...
 
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          STFC, Rutherford Appleton Laboratory
@@ -52,9 +53,15 @@
 #include <TText.h>
 #include <TStyle.h>
 #include <TLegend.h>
-#include <TChain.h>
+#include <TBox.h>
 
+#include "Algorithm/AlgFactory.h"
+#include "Base/XSecAlgorithmI.h"
+#include "BaryonResonance/BaryonResonance.h"
+#include "BaryonResonance/BaryonResUtils.h"
 #include "Conventions/GBuild.h"
+#include "Conventions/Constants.h"
+#include "Conventions/Units.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGUtils.h"
 #include "PDG/PDGCodes.h"
@@ -69,6 +76,7 @@ using std::string;
 
 using namespace genie;
 using namespace genie::nuvld;
+using namespace genie::constants;
 
 /* 
 ..............................................................................
@@ -148,8 +156,25 @@ DBI *           gDBI          = 0;
 TPostScript *   gPS           = 0;
 TCanvas *       gC            = 0;
 
+// consts
+
 const int kNCx = 2; // number of columns in TCanvas::Divide()
 const int kNCy = 2; // number of rows    in TCanvas::Divide()
+
+const int kNRes=18;  
+Resonance_t kResId[kNRes] = {
+   kP33_1232, kS11_1535, kD13_1520, kS11_1650,
+   kD13_1700, kD15_1675, kS31_1620, kD33_1700,
+   kP11_1440, kP33_1600, kP13_1720, kF15_1680,
+   kP31_1910, kP33_1920, kF35_1905, kF37_1950,
+   kP11_1710, kF17_1970 
+};
+
+// current program draws predictions only for the explicit resonance-production
+// model at W<Wcut
+const bool kDrawHatchcedScalingRegion = true; 
+
+const double kWcut = 1.7; // Wcut from UserPhysicsOptions.xml
 
 //_________________________________________________________________________________
 int main(int argc, char ** argv)
@@ -234,24 +259,74 @@ TGraph * Model(int iset, int imodel)
     << "Getting GENIE prediction (model ID = " 
     << imodel << ", data set ID = " << iset << ")";
 
-  switch(iset) {
+  AlgFactory * algf = AlgFactory::Instance();
+  const XSecAlgorithmI * xsec_alg = 
+     dynamic_cast<const XSecAlgorithmI *> (algf->GetAlgorithm(
+                             "genie::ReinSeghalRESPXSec", "Default"));
 
-    case (0) :
-    case (1) :
-    case (2) :
-    case (3) :
-    {
-       return 0;
-       break;
-    }
+  double M     = kNucleonMass;
+  double M2    = M*M;
 
-    default:
-    {
-       return 0;
-       break;
-    }
+  double E     = (double) kElXSecEnergy[iset];
+  double theta = (double) kElXSecTheta [iset];
+  double costh = TMath::Cos(2*kPi*theta/360.);
+
+  LOG("vldtest", pNOTICE) 
+     << " ** E = " << E << ", theta = " << theta 
+     << " (cos(theta) = " << costh << ")";
+
+  Interaction * interaction = 
+       Interaction::RESEM(1000010010, kPdgProton, kPdgElectron, E);
+
+  const int n = 150;
+  double d2sig_dEpdOmega_array[n];
+  double W2_array[n];
+
+  double Epmin = 0.;
+  double Epmax = E;
+  double dEp = (Epmax-Epmin)/(n-1);
+
+  for(int i=0; i<n; i++) {
+
+     double Ep = Epmin + i*dEp;
+
+     LOG("vldtest", pNOTICE) << " ** Ep = " << Ep;
+
+     double Q2 = 2*E*Ep*(1-costh);
+     double W2 = M2 + 2*M*(E-Ep)-Q2;
+     double W  = TMath::Sqrt( TMath::Max(0.,W2) );
+
+     interaction->KinePtr()->SetW (W);
+     interaction->KinePtr()->SetQ2(Q2);
+
+     double d2sig_dWdQ2 = 0;
+    
+     for(int ires=0; ires<kNRes; ires++) {
+
+        interaction->ExclTagPtr()->SetResonance(kResId[ires]);
+        double d2sig_dWdQ2_res = 
+             xsec_alg->XSec(interaction,kPSWQ2fE) / units::nb;
+
+        LOG("vldtest", pNOTICE) 
+          << "d2xsec_dWdQ2(" << utils::res::AsString(kResId[ires])
+          << "; E=" << E << ", W=" << W << ", Q2=" << Q2 << ") = "
+          << d2sig_dWdQ2_res << " nbarn/GeV^3";
+
+        d2sig_dWdQ2_res = TMath::Max(0., d2sig_dWdQ2_res);
+ 
+        d2sig_dWdQ2 += d2sig_dWdQ2_res;
+     }
+
+     double jacobian    = (E*Ep)*(M+2*E*(1-costh))/(kPi*W);
+     double d2sig_dEpdOmega = jacobian * d2sig_dWdQ2;
+
+     d2sig_dEpdOmega_array[i] = TMath::Max(0., d2sig_dEpdOmega);
+     W2_array[i] = W2;
   }
-  return 0;
+  
+  TGraph * gr = new TGraph(n,W2_array,d2sig_dEpdOmega_array);
+
+  return gr;
 }
 //_________________________________________________________________________________
 // Download cross section data from NuVld MySQL dbase 
@@ -311,11 +386,9 @@ void Draw(int iset)
   DBT * dbtable = Data(iset);
 
   // get the corresponding GENIE model prediction
-  //
-  // ...
-  //
+  TGraph * model = Model(iset,0);
 
-  if( /* not genie data && */ !dbtable) return;
+  if(!model && !dbtable) return;
 
   int plots_per_page = kNCx * kNCy;
   int iplot = 1 + iset % plots_per_page;
@@ -331,9 +404,10 @@ void Draw(int iset)
   gC -> GetPad(iplot) -> SetBorderMode(0);
   gC -> GetPad(iplot) -> cd();
 
-//  TLatex * title = new TLatex(1,600,kElXSecDataSetLabel[iset]);
-//  title->SetNDC(false);
-//  title->Draw();
+  double xmin = 0.0, scale_xmin = 0.5;
+  double xmax = 0.0, scale_xmax = 1.2;
+  double ymin = 0.0, scale_ymin = 0.4;
+  double ymax = 0.0, scale_ymax = 1.2;
 
   TH1F * hframe = 0;
   bool have_frame = false;
@@ -343,13 +417,12 @@ void Draw(int iset)
     TGraphAsymmErrors * graph = dbtable->GetGraph("err","W2");
 
     // create frame from the data point range
-    double xmin  = ( graph->GetX() )[TMath::LocMin(graph->GetN(),graph->GetX())];
-    double xmax  = ( graph->GetX() )[TMath::LocMax(graph->GetN(),graph->GetX())];
-    double ymin  = ( graph->GetY() )[TMath::LocMin(graph->GetN(),graph->GetY())];
-    double ymax  = ( graph->GetY() )[TMath::LocMax(graph->GetN(),graph->GetY())];
-    hframe = (TH1F*) gC->GetPad(1)->DrawFrame(0.5*xmin, 0.4*ymin, 1.2*xmax, 1.2*ymax);
-    hframe->SetTitle(kElXSecDataSetLabel[iset]);
-//    hframe->Draw();
+    xmin  = ( graph->GetX() )[TMath::LocMin(graph->GetN(),graph->GetX())];
+    xmax  = ( graph->GetX() )[TMath::LocMax(graph->GetN(),graph->GetX())];
+    ymin  = ( graph->GetY() )[TMath::LocMin(graph->GetN(),graph->GetY())];
+    ymax  = ( graph->GetY() )[TMath::LocMax(graph->GetN(),graph->GetY())];
+    hframe = (TH1F*) gC->GetPad(1)->DrawFrame(
+      scale_xmin*xmin, scale_ymin*ymin, scale_xmax*xmax, scale_ymax*ymax);
     have_frame = true;
 
     //
@@ -357,43 +430,49 @@ void Draw(int iset)
     //
     MultiGraph * mgraph = dbtable->GetMultiGraph("err","W2");
     for(unsigned int igraph = 0; igraph < mgraph->NGraphs(); igraph++) {
+       Format(mgraph->GetGraph(igraph), 1,1,1,1,8,0.8);
        mgraph->GetGraph(igraph)->Draw("P");
     }
   }//dbtable?
 
   // have model prediction to plot?
-/*
-  if( have_genie_prediction? ) {
+  if(model) {
      if(!have_frame) {
         // the data points have not been plotted
         // create a frame from this graph range
-        double xmin  = ...
-        double xmax  = ...
-        double ymin  = ... // get from output graph
-        double ymax  = ...
-        hframe = (TH1F*) gC->GetPad(1)->DrawFrame(0.5*xmin, 0.4*ymin, 1.2*xmax, 1.2*ymax);
+        xmin  = ( model->GetX() )[TMath::LocMin(model->GetN(),model->GetX())];
+        xmax  = ( model->GetX() )[TMath::LocMax(model->GetN(),model->GetX())];
+        ymin  = ( model->GetY() )[TMath::LocMin(model->GetN(),model->GetY())];
+        ymax  = ( model->GetY() )[TMath::LocMax(model->GetN(),model->GetY())];
+        hframe = (TH1F*) gC->GetPad(1)->DrawFrame(
+           scale_xmin*xmin, scale_ymin*ymin, scale_xmax*xmax, scale_ymax*ymax);
         hframe->Draw();
      }
-     for(loop over models, if multiple one are used) {
-       TGraph * plot = get plot for current model;
-       if(plot) {
-         int lsty = kLStyle[imodel];     
-         Format(plot,1,lsty,2,1,1,1);
-         plot->Draw("L");
-       }
-     }
-  }//model?
-*/
+     Format(model, 1,1,1,1,1,1);
+     model->Draw("L");
+  }
 
   hframe->GetXaxis()->SetTitle("W^{2} (GeV^{2})");
   hframe->GetYaxis()->SetTitle("d^{2}#sigma / d#Omega dE (nb/sr/GeV)");
 
+  TBox * scaling_region = 0;
+  if(kDrawHatchcedScalingRegion) {
+    double W2c = kWcut*kWcut;
+    if(W2c > scale_xmin*xmin && W2c < scale_xmax*xmax) {
+       scaling_region = new TBox(
+           W2c, scale_ymin*ymin, scale_xmax*xmax, scale_ymax*ymax);
+       scaling_region->SetFillColor(kRed);
+       scaling_region->SetFillStyle(3005);
+       scaling_region->Draw();
+    }
+  }
+
+  TLatex * title = new TLatex(
+     scale_ymin*xmin,1.01*scale_ymax*ymax,kElXSecDataSetLabel[iset]);
+  title->Draw();
+
   gC->GetPad(iplot)->Update();
   gC->Update();
-
-  if(dbtable) {
-    delete dbtable;
-  }
 }
 //_________________________________________________________________________________
 // Formatting
@@ -449,7 +528,7 @@ void SetStyle(void)
       
   // Adjust size and placement of axis labels
   //                                                                             
-  gStyle -> SetLabelSize   (0.050,  "xyz");
+  gStyle -> SetLabelSize   (0.040,  "xyz");
   gStyle -> SetLabelOffset (0.005,  "x"  );
   gStyle -> SetLabelOffset (0.005,  "y"  );
   gStyle -> SetLabelOffset (0.005,  "z"  );
