@@ -11,7 +11,7 @@
 
  Important revisions after version 2.0.0 :
  @ Sep 19, 2007 - CA
-   Added == operator and Compare() method
+   Added == operator and Compare() method.
  @ Nov 21, 2007 - CA
    In order to handle the introduction of a new type of coherent interactions 
    (coherent elastic) renamed the COHCC() and COHNC() methods to COHPiCC() 
@@ -20,19 +20,21 @@
    For ve- 'weak mix' interactions (ve+e->ve+e) the neutrino is always set
    as the primary final state lepton
  @ Feb 15, 2008 - CA
-   Added named ctors for anomaly mediated nu-gamma interactions
+   Added named ctors for anomaly mediated nu-gamma interactions.
  @ Sep 24, 2008 - CA
-   Added named ctors for MEC interactions
+   Added named ctors for MEC interactions.
  @ Feb 09, 2009 - CA
-   Added named ctors for diffractive interactions
+   Added named ctors for diffractive interactions.
  @ Mar 03, 2009 - CA
    Adapted COH name ctors (COHPi -> COH) in anticipation of including coherent
    vector meson production.
  @ Aug 21, 2009 - CR
-   Added IBD() named ctors for Inverse Beta Decay interactions
+   Added IBD() named ctors for Inverse Beta Decay interactions.
  @ Sep 18, 2009 - CA
    Added QELEM() named ctors for charged lepton QEL interactions. 
    In RecoilNucleonPdg() allow EM interactions.
+ @ Oct 19, 2009 - CA
+   Added RESEM() named ctors for charged lepton RES interactions.
 */
 //____________________________________________________________________________
 
@@ -550,6 +552,31 @@ Interaction * Interaction::RESNC(
 {
   Interaction * interaction = 
      Interaction::Create(target,probe,kScResonant, kIntWeakNC);
+
+  InitialState * init_state = interaction->InitStatePtr();
+  init_state->SetProbeP4(p4probe);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
+
+  return interaction;
+}
+//___________________________________________________________________________
+Interaction * Interaction::RESEM(int target, int hitnuc, int probe, double E)
+{
+  Interaction * interaction = 
+     Interaction::Create(target,probe,kScResonant, kIntEM);
+
+  InitialState * init_state = interaction->InitStatePtr();
+  init_state->SetProbeE(E);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
+
+  return interaction;
+}
+//___________________________________________________________________________
+Interaction * Interaction::RESEM(
+   int target, int hitnuc, int probe, const TLorentzVector & p4probe)
+{
+  Interaction * interaction = 
+     Interaction::Create(target,probe,kScResonant, kIntEM);
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeP4(p4probe);
