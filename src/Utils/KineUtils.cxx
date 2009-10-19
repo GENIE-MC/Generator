@@ -132,8 +132,18 @@ double genie::utils::kinematics::Jacobian(
             const Interaction * const i, 
                               KinePhaseSpace_t fromps, KinePhaseSpace_t tops)
 {
-// returns the Jacobian for the transformation: fromps -> tops
+// Returns the Jacobian for the transformation: 
+//                  from_phase_space -> to_phase_space
 //
+// dx*dy*dz = J(u,v,w) * du*dv*dw
+//
+//                           | dx/du   dx/dv   dx/dw |
+//            d {x,y,z}      |                       |
+// J(u,v,w) = ---------- =   | dy/du   dy/dv   dy/dw |
+//            d {u,v,w}      |                       |
+//                           | dz/du   dz/dv   dz/dw |
+//
+
   SLOG("KineLimits", pDEBUG) 
        << "Computing Jacobian for transformation: "
                 << KinePhaseSpace::AsString(fromps) << " --> " 
