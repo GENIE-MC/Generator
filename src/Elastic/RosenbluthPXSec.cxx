@@ -94,7 +94,8 @@ double RosenbluthPXSec::XSec(
   double epsilon = 1. / (1. + 2.*(1.+tau)*tan2_halftheta);
 
   // Calculate the scattered lepton energy 
-  double Ep = E / (1. + 2.*(E/M)*sin2_halftheta);
+  double Ep  = E / (1. + 2.*(E/M)*sin2_halftheta);
+  double Ep2 = Ep*Ep;
 
   // Calculate the Mott cross section dsigma/dOmega
   double xsec_mott = (0.25 * kAem2 * Ep / E3) * (cos_halftheta/sin4_halftheta);
@@ -103,7 +104,7 @@ double RosenbluthPXSec::XSec(
   double xsec = xsec_mott * (Ge2 + (tau/epsilon)*Gm2) / (1+tau);
 
   // Convert dsigma/dOmega --> dsigma/dQ2
-  xsec *= ( 2*kPi*(M/E)*(4*M*E-Q2) / TMath::Power(2*M*E-Q2, 2.) );
+  xsec *= (2*kPi/Ep2);
 
   // The algorithm computes dxsec/dQ2
   // Check whether variable tranformation is needed
