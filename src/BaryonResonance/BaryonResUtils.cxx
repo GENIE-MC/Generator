@@ -15,6 +15,9 @@
    Now set to 1114. The bug affected the final state nubar RES events.
  @ Jun 17, 2009 - CA
    Used resonance codes from PDG/PDGCodes.h
+ @ Oct 20, 2009 - CA
+   Modified ResonanceCharge() to take into account the probe charge (so as
+   to conserve charge in charged lepton scattering)
 */
 //____________________________________________________________________________
 
@@ -443,12 +446,14 @@ int genie::utils::res::ResonanceCharge(const Interaction * interaction)
 
   const InitialState & init_state = interaction->InitState();
 
-  int nuc_pdgc = init_state.Tgt().HitNucPdg();
-  int fsl_pdgc = interaction->FSPrimLeptonPdg();
+  int prb_pdgc = init_state.ProbePdg();
+  int nuc_pdgc   = init_state.Tgt().HitNucPdg();
+  int fsl_pdgc   = interaction->FSPrimLeptonPdg();
 
+  int q_prb = int( PDGLibrary::Instance()->Find(prb_pdgc)->Charge() );
   int q_nuc = int( PDGLibrary::Instance()->Find(nuc_pdgc)->Charge() );
   int q_fsl = int( PDGLibrary::Instance()->Find(fsl_pdgc)->Charge() );
-  int q_res = (q_nuc - q_fsl) /3;
+  int q_res = (q_prb + q_nuc - q_fsl) /3;
 
   return q_res;
 }
