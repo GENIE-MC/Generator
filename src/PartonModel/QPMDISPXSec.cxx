@@ -421,7 +421,7 @@ void QPMDISPXSec::LoadConfig(void)
   RgKey xkey    = "CharmXSecModel";
   RgKey xdefkey = "XSecModel@genie::EventGenerator/DIS-CC-CHARM";
   RgAlg xalg    = fConfig->GetAlgDef(xkey, gc->GetAlg(xdefkey));
-  LOG("DISXSec", pNOTICE)
+  LOG("DISXSec", pDEBUG)
      << "Loading the cross section model: " << xalg;
   fCharmProdModel = dynamic_cast<const XSecAlgorithmI *> (this->SubAlg(xkey));
   assert(fCharmProdModel);
