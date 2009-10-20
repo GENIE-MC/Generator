@@ -10,6 +10,9 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
+ @ Oct 20, 2009 - CA
+   Modified HadronShowerCharge() to take into account the probe charge (so as
+   to conserve charge in charged lepton scattering)
 
 */
 //____________________________________________________________________________
@@ -211,9 +214,11 @@ int HadronicSystemGenerator::HadronShowerCharge(GHepRecord * evrec) const
   assert( pdg::IsProton(hit_nucleon) || pdg::IsNeutron(hit_nucleon) );
 
   double qfsl  = interaction->FSPrimLepton()->Charge() / 3.;
-  double qinit = PDGLibrary::Instance()->Find(hit_nucleon)->Charge() / 3.;
+  double qp    = interaction->InitState().Probe()->Charge() / 3.;
+  double qnuc  = PDGLibrary::Instance()->Find(hit_nucleon)->Charge() / 3.;
 
-  HadronShowerCharge = (int) (qinit - qfsl);
+  // probe + nucleon - primary final state lepton
+  HadronShowerCharge = (int) (qp + qnuc - qfsl);
 
   return HadronShowerCharge;
 }
