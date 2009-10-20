@@ -146,7 +146,7 @@ Algorithm * AlgFactory::AdoptAlgorithm(string name, string config) const
 void AlgFactory::ForceReconfiguration(bool ignore_alg_opt_out)
 {
   LOG("AlgFactory", pNOTICE) 
-       << "Forcing reconfiguration of all owned algorithms";
+       << " ** Forcing algorithm re-configuration";
 
   map<string, Algorithm *>::iterator alg_iter = fAlgPool.begin();
   for( ; alg_iter != fAlgPool.end(); ++alg_iter) {
