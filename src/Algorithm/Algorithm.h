@@ -68,6 +68,11 @@ public:
   //! Get algorithm status
   virtual AlgStatus_t GetStatus(void) const { return fStatus; }
 
+  //! Allow reconfigration after initializaton?
+  //! Algorithms may opt-out, if reconfiguration is not necessary, 
+  //! to improve event reweighting speed.
+  virtual bool AllowReconfig(void) const { return fAllowReconfig; }
+
   //! Compare with input algorithm
   virtual AlgCmp_t Compare(const Algorithm * alg) const;
 
@@ -107,12 +112,13 @@ protected:
   void DeleteConfig       (void);
   void DeleteSubstructure (void);
 
-  bool         fOwnsConfig;   ///< true if it owns its config. registry
-  bool         fOwnsSubstruc; ///< true if it owns its substructure (sub-algs,...)
-  AlgId        fID;           ///< algorithm name and configuration set
-  Registry *   fConfig;       ///< config. (either owned or pointing to config pool)
-  AlgStatus_t  fStatus;       ///< algorithm execution status
-  AlgMap *     fOwnedSubAlgMp;///< local pool for owned sub-algs (taken out of the factory pool)
+  bool         fAllowReconfig; ///<
+  bool         fOwnsConfig;    ///< true if it owns its config. registry
+  bool         fOwnsSubstruc;  ///< true if it owns its substructure (sub-algs,...)
+  AlgId        fID;            ///< algorithm name and configuration set
+  Registry *   fConfig;        ///< config. (either owned or pointing to config pool)
+  AlgStatus_t  fStatus;        ///< algorithm execution status
+  AlgMap *     fOwnedSubAlgMp; ///< local pool for owned sub-algs (taken out of the factory pool)
 };
 
 }       // genie namespace

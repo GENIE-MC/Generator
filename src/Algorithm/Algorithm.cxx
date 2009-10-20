@@ -5,12 +5,15 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - May 02, 2004
+         STFC, Rutherford Appleton Laboratory 
 
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
-
+ @ Oct 20, 2009 - CA
+   Added fAllowReconfig private data member and AllowReconfig() method.
+   Algorithms can set this method to opt-out of reconfiguration. Speeds up 
+   reweighting if algorithms (that don't need to be reconfigured) opt out.
 */
 //____________________________________________________________________________
 
@@ -217,6 +220,7 @@ void Algorithm::Initialize(void)
 {
 // Algorithm initialization
 //
+  fAllowReconfig  = true;
   fOwnsConfig     = false;
   fOwnsSubstruc   = false;
   fConfig         = 0;

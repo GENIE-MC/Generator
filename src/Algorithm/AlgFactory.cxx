@@ -13,6 +13,9 @@
  @ Dec 06, 2008 - CA
    Tweak dtor so as not to clutter the output if GENIE exits in err so as to
    spot the fatal mesg immediately.
+ @ Oct 20, 2009 - CA
+   Added argument in ForceReconfiguration() to ignore algorithm opt-outs.
+   Default is to respect opt-outs.
 */
 //____________________________________________________________________________
 
@@ -140,7 +143,7 @@ Algorithm * AlgFactory::AdoptAlgorithm(string name, string config) const
    return alg_base;
 }
 //____________________________________________________________________________
-void AlgFactory::ForceReconfiguration(void)
+void AlgFactory::ForceReconfiguration(bool ignore_alg_opt_out)
 {
   LOG("AlgFactory", pNOTICE) 
        << "Forcing reconfiguration of all owned algorithms";
@@ -148,12 +151,15 @@ void AlgFactory::ForceReconfiguration(void)
   map<string, Algorithm *>::iterator alg_iter = fAlgPool.begin();
   for( ; alg_iter != fAlgPool.end(); ++alg_iter) {
     Algorithm * alg = alg_iter->second;
-    string config = alg->Id().Config();
-    bool skip_conf = (config=="NoConfig" || config=="");
-    if(!skip_conf) {
-//      LOG("AlgFactory", pINFO) << "Reconfiguring: " << alg->Id().Key();
-	alg->Configure(config);
-    }
+    bool reconfig = (ignore_alg_opt_out) ? true : alg->AllowReconfig();
+    if(reconfig) {
+       string config = alg->Id().Config();
+       bool skip_conf = (config=="NoConfig" || config=="");
+       if(!skip_conf) {
+//         LOG("AlgFactory", pINFO) << "Reconfiguring: " << alg->Id().Key();
+	   alg->Configure(config);
+       }
+    }//allow?
   }
 }
 //____________________________________________________________________________
