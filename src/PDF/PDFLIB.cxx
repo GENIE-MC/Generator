@@ -245,6 +245,8 @@ void PDFLIB::Configure(const Registry & config)
 
   this->Initialize();         
   this->SetPDFSetFromConfig();
+
+  fAllowReconfig=false;
 }
 //____________________________________________________________________________
 void PDFLIB::Configure(string config)
@@ -253,6 +255,8 @@ void PDFLIB::Configure(string config)
 
   this->Initialize();          
   this->SetPDFSetFromConfig(); 
+
+  fAllowReconfig=false;
 }
 //____________________________________________________________________________
 
