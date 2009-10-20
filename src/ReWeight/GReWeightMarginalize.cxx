@@ -63,12 +63,37 @@ double genie::rew::margin::MarginalizeFates(
 */
 #endif
 
+  bool is_pion_fate    = 
+         genie::rew::GSyst::IsINukePionFateSystematic(fixed_fate); 
+  bool is_nucleon_fate = 
+         genie::rew::GSyst::IsINukeNuclFateSystematic(fixed_fate);
+
+  // Peek fwd to avoid wasting time
+  // Return 1 if margninalizing pion rescattering fates but there are
+  // no primary pions in this event (similarly for nucleons)
+  TIter event_iter(event);
+  GHepParticle * p = 0;
+  int npi  = 0;
+  int nnuc = 0;
+  while((p=dynamic_cast<GHepParticle *>(event_iter.Next())))
+  {
+    if(p->Status() != kIStHadronInTheNucleus) continue;
+    if(pdg::IsPion   (p->Pdg())) { npi++;  }
+    if(pdg::IsNucleon(p->Pdg())) { nnuc++; }
+  }
+
+  bool skip = (is_pion_fate    && npi  == 0) || 
+              (is_nucleon_fate && nnuc == 0);
+  if(skip) {
+    return 1.;
+  }
+
   genie::rew::GReWeight rw;
   genie::rew::GSystSet & systematics = rw.Systematics();
 
   genie::rew::GSyst_t cushion_term = kSystNull;
 
-  if(genie::rew::GSyst::IsINukePionFateSystematic(fixed_fate)) {
+  if(is_pion_fate) {
      systematics.Include ( genie::rew::kSystINuke_CExTwk_pi    );
      systematics.Include ( genie::rew::kSystINuke_InelTwk_pi   );
      systematics.Include ( genie::rew::kSystINuke_AbsTwk_pi    );
@@ -76,7 +101,7 @@ double genie::rew::margin::MarginalizeFates(
      cushion_term = genie::rew::kSystINuke_ElTwk_pi;
   } 
   else
-  if(genie::rew::GSyst::IsINukeNuclFateSystematic(fixed_fate)) {
+  if(is_nucleon_fate) {
      systematics.Include ( genie::rew::kSystINuke_CExTwk_N    );
      systematics.Include ( genie::rew::kSystINuke_InelTwk_N   );
      systematics.Include ( genie::rew::kSystINuke_AbsTwk_N    );
@@ -97,7 +122,7 @@ double genie::rew::margin::MarginalizeFates(
   while(itry < n) {
     itry++;
 
-    if(genie::rew::GSyst::IsINukePionFateSystematic(fixed_fate)) {
+    if(is_pion_fate) {
       for(int i=0; i<5; i++) {
         genie::rew::GSyst_t syst = genie::rew::GSyst::NextPionFateSystematic(i);
         if(syst == fixed_fate  ) continue;
@@ -107,7 +132,7 @@ double genie::rew::margin::MarginalizeFates(
       }
     } 
     else
-    if(genie::rew::GSyst::IsINukeNuclFateSystematic(fixed_fate)) {
+    if(is_nucleon_fate) {
       for(int i=0; i<5; i++) {
         genie::rew::GSyst_t syst = genie::rew::GSyst::NextNuclFateSystematic(i);
         if(syst == fixed_fate  ) continue;
@@ -123,14 +148,14 @@ double genie::rew::margin::MarginalizeFates(
 
     double prob = 1.;
 
-    if(genie::rew::GSyst::IsINukePionFateSystematic(fixed_fate)) {
+    if(is_pion_fate) {
       for(int i=0; i<5; i++) {
         genie::rew::GSyst_t syst = genie::rew::GSyst::NextPionFateSystematic(i);
         prob *= (TMath::Gaus( systematics.CurValue(syst), 0., 1., true ));
       }
     }
     else
-    if(genie::rew::GSyst::IsINukeNuclFateSystematic(fixed_fate)) {
+    if(is_nucleon_fate) {
       for(int i=0; i<5; i++) {
         genie::rew::GSyst_t syst = genie::rew::GSyst::NextNuclFateSystematic(i);
         prob *= (TMath::Gaus( systematics.CurValue(syst), 0., 1., true ));
