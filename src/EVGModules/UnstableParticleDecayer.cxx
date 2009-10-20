@@ -273,12 +273,16 @@ void UnstableParticleDecayer::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
+
+  fAllowReconfig = false;
 }
 //___________________________________________________________________________
 void UnstableParticleDecayer::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
+
+  fAllowReconfig = false;
 }
 //___________________________________________________________________________
 void UnstableParticleDecayer::LoadConfig(void)
