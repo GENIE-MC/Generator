@@ -53,7 +53,7 @@ public:
   //! Forces a reconfiguration of all algorithms kept at the factory pool.
   //! The algorithms look up their nominal configuration from the config pool.
   //! Use that to propagate modifications made directly at the config pool.
-  void ForceReconfiguration(void);
+  void ForceReconfiguration(bool ignore_alg_opt_out=false);
 
   //! print algorithm factory
   void Print(ostream & stream) const;
