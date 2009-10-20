@@ -22,7 +22,9 @@
    statement was using '&' instead of a '&&'...
  @ Oct 12, 2009 - CA
    Modified KNO() and AverageChMult() to handle charge lepton scattering.
-
+ @ Oct 20, 2009 - CA
+   Modified HadronShowerCharge() to take into account the probe charge (so as
+   to conserve charge in charged lepton scattering)
 */
 //____________________________________________________________________________
 
@@ -648,6 +650,9 @@ int KNOHadronization::HadronShowerCharge(const Interaction* interaction) const
   // find out the charge of the final state lepton
   double ql = interaction->FSPrimLepton()->Charge() / 3.;
 
+  // find out the charge of the probe
+  double qp = interaction->InitState().Probe()->Charge() / 3.;
+
   // get the initial state, ask for the hit-nucleon and get
   // its charge ( = initial state charge for vN interactions)
   const InitialState & init_state = interaction->InitState();
@@ -656,10 +661,10 @@ int KNOHadronization::HadronShowerCharge(const Interaction* interaction) const
   assert( pdg::IsProton(hit_nucleon) || pdg::IsNeutron(hit_nucleon) );
 
   // Ask PDGLibrary for the nucleon charge
-  double qinit = PDGLibrary::Instance()->Find(hit_nucleon)->Charge() / 3.;
+  double qnuc = PDGLibrary::Instance()->Find(hit_nucleon)->Charge() / 3.;
 
   // calculate the hadron shower charge
-  HadronShowerCharge = (int) ( qinit - ql );
+  HadronShowerCharge = (int) ( qp + qnuc - ql );
 
   return HadronShowerCharge;
 }
