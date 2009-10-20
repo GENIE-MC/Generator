@@ -5,7 +5,7 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - November 18, 2004
+         STFC, Rutherford Appleton Laboratory
 
  For the class documentation see the corresponding header file.
 
@@ -15,6 +15,10 @@
  @ Sep 21, 2009 - CA
    In ComputeMaxXSec() protect against NW=1 when calculating the step size dW
    as pointed out by Robert.
+ @ Oct 20, 2009 - CA
+   For charged lepton scattering do a more brute force kinematical selection
+   and do not use the importance sampling envelope used for v scattering
+   (was very inefficient)
 */
 //____________________________________________________________________________
 
@@ -80,6 +84,9 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   Interaction * interaction = evrec->Summary();
   interaction->SetBit(kISkipProcessChk);
 
+  //-- EM or CC/NC process (different importance sampling methods)
+  bool is_em = interaction->ProcInfo().IsEM();
+
   //-- Compute the W limits
   //  (the physically allowed W's, unless an external cut is imposed)
   const KPhaseSpace & kps = interaction->PhaseSpace();
@@ -141,56 +148,73 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
        interaction->SetBit(kISkipKinematicChk);
 
      } else {
-       //-- Selecting unweighted event kinematics using an importance sampling
-       //   method. Q2 with be transformed to QD2 to take out the dipole form.
-       //   An importance sampling envelope will be constructed for W.
 
-       if(iter==1) {
-         LOG("RESKinematics", pINFO) << "Initializing the sampling envelope";
-
-         if(!fEnvelope) {
-            LOG("RESKinematics", pFATAL) << "Null sampling envelope!";
-            exit(1);
-         }
-         interaction->KinePtr()->SetW(W.min);
+       // > charged lepton scattering
+       if(is_em) {
          Range1D_t Q2 = kps.Q2Lim_W();
-	 double Q2min  = 0 + kASmallNum;
-	 double Q2max  = Q2.max - kASmallNum;         
-
-         // In unweighted mode - use transform that takes out the dipole form
-         double QD2min = utils::kinematics::Q2toQD2(Q2max);
-         double QD2max = utils::kinematics::Q2toQD2(Q2min);
-
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-         LOG("RESKinematics", pDEBUG) 
-             <<  "Q^2: [" << Q2min  << ", " << Q2max  << "] => "
-             << "QD^2: [" << QD2min << ", " << QD2max << "]";
-#endif
-         double mR, gR;
-         if(!interaction->ExclTag().KnownResonance()) { mR=1.2; gR = 0.6; }
-         else {
-           Resonance_t res = interaction->ExclTag().Resonance();
-           mR=res::Mass(res);
-           gR= (E>mR) ? 0.220 : 0.400;
-         }
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-         LOG("RESKinematics", pDEBUG) 
-            <<  "(m,g) = (" << mR << ", " << gR 
-            << "), max(xsec,W) = (" << xsec_max << ", " << W.max << ")";
-#endif
-         fEnvelope->SetRange(QD2min,W.min,QD2max,W.max); // range
-         fEnvelope->SetParameter(0,  mR);                // resonance mass
-         fEnvelope->SetParameter(1,  gR);                // resonance width
-         fEnvelope->SetParameter(2,  xsec_max);          // max differential xsec
-         fEnvelope->SetParameter(3,  W.max);             // kinematically allowed Wmax
-	 //envelope->SetNpy(150); 
+	 double Q2min      = Q2.min + kASmallNum;
+	 double Q2max      = Q2.max - kASmallNum;         
+         double log10Q2min = TMath::Log10(Q2min);
+         double log10Q2max = TMath::Log10(Q2max);
+         double dlog10Q2   = log10Q2max - log10Q2min;
+         gQ2 = TMath::Power(10., log10Q2min + rnd->RndKine().Rndm() * dlog10Q2);
+         gW  = W.min + dW  * rnd->RndKine().Rndm();
        }
-       // Generate W,QD2 using the 2-D envelope as PDF
-       fEnvelope->GetRandom2(gQD2,gW);
 
-       // QD2 -> Q2
-       gQ2 = utils::kinematics::QD2toQ2(gQD2);
-     }
+       // > neutrino scattering
+       // Selecting unweighted event kinematics using an importance sampling
+       // method. Q2 with be transformed to QD2 to take out the dipole form.
+       // An importance sampling envelope will be constructed for W.
+       else {
+         // first pass, configure the sampling envelope
+         if(iter==1) {
+            LOG("RESKinematics", pINFO) << "Initializing the sampling envelope";
+            if(!fEnvelope) {
+               LOG("RESKinematics", pFATAL) << "Null sampling envelope!";
+               exit(1);
+            }
+            interaction->KinePtr()->SetW(W.min);
+            Range1D_t Q2 = kps.Q2Lim_W();
+   	    double Q2min  = 0 + kASmallNum;
+	    double Q2max  = Q2.max - kASmallNum;         
+
+            // In unweighted mode - use transform that takes out the dipole form
+            double QD2min = utils::kinematics::Q2toQD2(Q2max);
+            double QD2max = utils::kinematics::Q2toQD2(Q2min);
+
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+            LOG("RESKinematics", pDEBUG) 
+                <<  "Q^2: [" << Q2min  << ", " << Q2max  << "] => "
+                << "QD^2: [" << QD2min << ", " << QD2max << "]";
+#endif
+            double mR, gR;
+            if(!interaction->ExclTag().KnownResonance()) { 
+               mR = 1.2; 
+               gR = 0.6; 
+            } else {
+               Resonance_t res = interaction->ExclTag().Resonance();
+               mR = res::Mass(res);
+               gR = (E>mR) ? 0.220 : 0.400;
+            }
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+            LOG("RESKinematics", pDEBUG) 
+               <<  "(m,g) = (" << mR << ", " << gR 
+               << "), max(xsec,W) = (" << xsec_max << ", " << W.max << ")";
+#endif
+            fEnvelope->SetRange(QD2min,W.min,QD2max,W.max); // range
+            fEnvelope->SetParameter(0,  mR);                // resonance mass
+            fEnvelope->SetParameter(1,  gR);                // resonance width
+            fEnvelope->SetParameter(2,  xsec_max);          // max differential xsec
+            fEnvelope->SetParameter(3,  W.max);             // kinematically allowed Wmax
+         }// first pass
+
+         // Generate W,QD2 using the 2-D envelope as PDF
+         fEnvelope->GetRandom2(gQD2,gW);
+
+         // QD2 -> Q2
+         gQ2 = utils::kinematics::QD2toQ2(gQD2);
+        } // charged lepton or neutrino scattering?
+     } // uniformly over phase space?
 
      LOG("RESKinematics", pINFO) << "Trying: W = " << gW << ", Q2 = " << gQ2;
 
@@ -203,21 +227,30 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
      //-- Decide whether to accept the current kinematics
      if(!fGenerateUniformly) {
-        double max = fEnvelope->Eval(gQD2, gW);
-        double t   = max * rnd->RndKine().Rndm();
-        double J   = kinematics::Jacobian(interaction,kPSWQ2fE,kPSWQD2fE);
+        // > charged lepton scattering
+        if(is_em) {
+          this->AssertXSecLimits(interaction, xsec, xsec_max);
+          double t  = xsec_max * rnd->RndKine().Rndm();
+          accept = (t < xsec);
+        }
+        // > neutrino scattering (using importance sampling envelope)
+        else {
+          double max = fEnvelope->Eval(gQD2, gW);
+          double t   = max * rnd->RndKine().Rndm();
+          double J   = kinematics::Jacobian(interaction,kPSWQ2fE,kPSWQD2fE);
 
-        this->AssertXSecLimits(interaction, xsec, max);
+          this->AssertXSecLimits(interaction, xsec, max);
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-        LOG("RESKinematics", pDEBUG)
+          LOG("RESKinematics", pDEBUG)
                      << "xsec= " << xsec << ", J= " << J << ", Rnd= " << t;
 #endif
-        accept = (t < J*xsec);
+          accept = (t < J*xsec);
+        } // charged lepton or neutrino scattering?
      }
      else {
         accept = (xsec>0);
-     }
+     } // uniformly over phase space
 
      //-- If the generated kinematics are accepted, finish-up module's job
      if(accept) {        
