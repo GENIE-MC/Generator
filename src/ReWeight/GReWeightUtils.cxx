@@ -126,14 +126,14 @@ double genie::utils::rew::FateFraction(
       fate_frac += hd->Frac(kPdgPiP, kIHAFtAbsNPP,  ke);
       fate_frac += hd->Frac(kPdgPiP, kIHAFtAbsNNP,  ke);
       fate_frac += hd->Frac(kPdgPiP, kIHAFtAbs2N2P, ke);
-      fate_frac += hd->Frac(kPdgPiP, kIHAFtAbs2N3P, ke);
+    //fate_frac += hd->Frac(kPdgPiP, kIHAFtAbs2N3P, ke);
     }
     break;
 
     case (genie::rew::kSystINuke_PiProdTwk_pi) :
     {
       fate_frac = 0.; 
-      fate_frac += hd->Frac(kPdgPiP, kIHAFtNPip,    ke);
+    //fate_frac += hd->Frac(kPdgPiP, kIHAFtNPip,    ke);
       fate_frac += hd->Frac(kPdgPiP, kIHAFtNPipPi0, ke);
     }
     break;
@@ -167,7 +167,7 @@ double genie::utils::rew::FateFraction(
       fate_frac += hd->Frac(kPdgProton, kIHAFtAbsPP,   ke);
       fate_frac += hd->Frac(kPdgProton, kIHAFtAbsNPP,  ke);
       fate_frac += hd->Frac(kPdgProton, kIHAFtAbsNNP,  ke);
-      fate_frac += hd->Frac(kPdgProton, kIHAFtAbs2N2P, ke);
+    //fate_frac += hd->Frac(kPdgProton, kIHAFtAbs2N2P, ke);
       fate_frac += hd->Frac(kPdgProton, kIHAFtAbs2N3P, ke);
     }
     break;
