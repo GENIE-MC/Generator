@@ -61,8 +61,8 @@ int main(int argc, char ** argv)
     LOG("NuVld", pINFO) << "*** XML document successfully parsed";
  } else { 
     LOG("NuVld", pFATAL) 
-          << "Problems parsing XML document: " 
-              << XmlParserStatus::AsString( xml_parser.GetXmlParsingStatus() );
+        << "Problem! XML parser status : " 
+        << XmlParserStatus::AsString( xml_parser.GetXmlParsingStatus() );
     exit(1);
  }
 
