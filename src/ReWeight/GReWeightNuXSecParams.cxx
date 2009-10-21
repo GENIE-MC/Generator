@@ -81,17 +81,12 @@ bool GReWeightNuXSecParams::IsTweaked(GSyst_t syst) const
 //____________________________________________________________________________
 bool GReWeightNuXSecParams::IsTweaked(void) const
 {
-  LOG("main",pERROR) << "CHECK ISTWEAK??";
-
   map<GSyst_t, bool>::const_iterator iter = fIsTweaked.begin();
   for( ; iter != fIsTweaked.end(); ++iter)
   {
-    LOG("main",pERROR) << GSyst::AsString(iter->first);
-
+    //LOG("main", pDEBUG) << GSyst::AsString(iter->first);
     if(iter->second) return true;
   }
-
-  LOG("main",pERROR) << "RET FALSE";
 
   return false;
 }
@@ -152,8 +147,6 @@ void GReWeightNuXSecParams::Reconfigure(void) const
 
 
   // Force reconfiguration of GENIE algorithms
-
-LOG("main",pERROR) << "Calls reconfiguration!";
 
   AlgFactory * algf = AlgFactory::Instance();
   algf->ForceReconfiguration();
