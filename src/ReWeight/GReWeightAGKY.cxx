@@ -40,6 +40,11 @@ GReWeightAGKY::~GReWeightAGKY()
 
 }
 //_______________________________________________________________________________________
+bool GReWeightAGKY::IsHandled(GSyst_t /*syst*/)
+{
+  return false;
+}
+//_______________________________________________________________________________________
 void GReWeightAGKY::SetSystematic(GSyst_t /*syst*/, double /*val*/)
 {
 

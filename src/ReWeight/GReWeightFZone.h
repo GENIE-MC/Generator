@@ -37,6 +37,7 @@ namespace rew   {
   ~GReWeightFZone();
 
    // implement the GReWeightI interface
+   bool   IsHandled      (GSyst_t syst);
    void   SetSystematic  (GSyst_t syst, double val);
    void   Reset          (void);
    void   Reconfigure    (void);

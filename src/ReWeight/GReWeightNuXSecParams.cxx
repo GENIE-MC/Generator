@@ -25,6 +25,7 @@
 #include "Algorithm/AlgFactory.h"
 #include "Algorithm/AlgConfigPool.h"
 #include "Conventions/Controls.h"
+#include "Messenger/Messenger.h"
 #include "Registry/Registry.h"
 #include "ReWeight/GReWeightNuXSecParams.h"
 #include "ReWeight/GSystUncertainty.h"
@@ -80,17 +81,24 @@ bool GReWeightNuXSecParams::IsTweaked(GSyst_t syst) const
 //____________________________________________________________________________
 bool GReWeightNuXSecParams::IsTweaked(void) const
 {
+  LOG("main",pERROR) << "CHECK ISTWEAK??";
+
   map<GSyst_t, bool>::const_iterator iter = fIsTweaked.begin();
   for( ; iter != fIsTweaked.end(); ++iter)
   {
+    LOG("main",pERROR) << GSyst::AsString(iter->first);
+
     if(iter->second) return true;
   }
+
+  LOG("main",pERROR) << "RET FALSE";
+
   return false;
 }
 //____________________________________________________________________________
 double GReWeightNuXSecParams::ChisqPenalty(void) const
 {
- double chisq = 0;
+  double chisq = 0;
 
   chisq += TMath::Power(this->CurTwkDial(kSystNuXSec_MaQEL),         2.0);
   chisq += TMath::Power(this->CurTwkDial(kSystNuXSec_MvQEL),         2.0);
@@ -118,6 +126,7 @@ double GReWeightNuXSecParams::ChisqPenalty(void) const
 //____________________________________________________________________________
 void GReWeightNuXSecParams::Reconfigure(void) const
 {
+  if (fCurParams.size()==0) return;
   if (! this->IsTweaked() ) return;
 
   // Use current reweighting params inputs to tweak the GENIE configuration
@@ -143,6 +152,9 @@ void GReWeightNuXSecParams::Reconfigure(void) const
 
 
   // Force reconfiguration of GENIE algorithms
+
+LOG("main",pERROR) << "Calls reconfiguration!";
+
   AlgFactory * algf = AlgFactory::Instance();
   algf->ForceReconfiguration();
 }

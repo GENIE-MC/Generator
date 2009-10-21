@@ -40,6 +40,9 @@ namespace rew   {
   // define the GReWeightI interface
   //
 
+  //! does the current weight calculator handle the input nuisance param?
+  virtual bool IsHandled (GSyst_t syst) = 0; 
+
   //! update the value for the specified nuisance param
   virtual void SetSystematic (GSyst_t syst, double val) = 0; 
 
