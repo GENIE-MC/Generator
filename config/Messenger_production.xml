@@ -113,7 +113,6 @@
   <priority msgstream="PathL">               WARN   </priority>
   <priority msgstream="QELXSec">             WARN   </priority>
   <priority msgstream="QELCharmXSec">        WARN   </priority>
-  <priority msgstream="QELPXSec">            WARN   </priority>
   <priority msgstream="QELHadronicVtx">      WARN   </priority>
   <priority msgstream="QELKinematics">       WARN   </priority>
   <priority msgstream="RESXSec">             WARN   </priority>
