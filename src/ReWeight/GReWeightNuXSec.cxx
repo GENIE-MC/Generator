@@ -50,9 +50,62 @@ void GReWeightNuXSec::Init(void)
   fXSecRwParams.LoadDefaults();
 }
 //_______________________________________________________________________________________
+bool GReWeightNuXSec::IsHandled(GSyst_t syst)
+{
+   bool handle;
+
+   switch(syst) {
+     case ( kSystNuXSec_MaQEL       ) : 
+     case ( kSystNuXSec_MvQEL       ) : 
+     case ( kSystNuXSec_MaRES       ) : 
+     case ( kSystNuXSec_MvRES       ) : 
+     case ( kSystNuXSec_MaCOHPi     ) : 
+     case ( kSystNuXSec_RvpCC1pi    ) : 
+     case ( kSystNuXSec_RvpCC2pi    ) : 
+     case ( kSystNuXSec_RvpNC1pi    ) : 
+     case ( kSystNuXSec_RvpNC2pi    ) : 
+     case ( kSystNuXSec_RvnCC1pi    ) : 
+     case ( kSystNuXSec_RvnCC2pi    ) : 
+     case ( kSystNuXSec_RvnNC1pi    ) : 
+     case ( kSystNuXSec_RvnNC2pi    ) : 
+     case ( kSystNuXSec_RvbarpCC1pi ) : 
+     case ( kSystNuXSec_RvbarpCC2pi ) :
+     case ( kSystNuXSec_RvbarpNC1pi ) :
+     case ( kSystNuXSec_RvbarpNC2pi ) : 
+     case ( kSystNuXSec_RvbarnCC1pi ) : 
+     case ( kSystNuXSec_RvbarnCC2pi ) : 
+     case ( kSystNuXSec_RvbarnNC1pi ) : 
+     case ( kSystNuXSec_RvbarnNC2pi ) : 
+
+          handle = true;
+          break;
+
+     case ( kSystINuke_MFPTwk_pi    ) : 
+     case ( kSystINuke_MFPTwk_N     ) : 
+     case ( kSystINuke_CExTwk_pi    ) : 
+     case ( kSystINuke_ElTwk_pi     ) : 
+     case ( kSystINuke_InelTwk_pi   ) : 
+     case ( kSystINuke_AbsTwk_pi    ) : 
+     case ( kSystINuke_PiProdTwk_pi ) : 
+     case ( kSystINuke_CExTwk_N     ) : 
+     case ( kSystINuke_ElTwk_N      ) : 
+     case ( kSystINuke_InelTwk_N    ) : 
+     case ( kSystINuke_AbsTwk_N     ) : 
+     case ( kSystINuke_PiProdTwk_N  ) : 
+     default:
+
+          handle = false;
+          break;
+   }
+
+   return handle;
+}
+//_______________________________________________________________________________________
 void GReWeightNuXSec::SetSystematic(GSyst_t syst, double twk_dial)
 {
-  fXSecRwParams.SetCurTwkDial (syst, twk_dial );
+   if( this->IsHandled(syst) ) {
+      fXSecRwParams.SetCurTwkDial (syst, twk_dial);
+   }
 }
 //_______________________________________________________________________________________
 void GReWeightNuXSec::Reset(void)

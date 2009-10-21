@@ -36,6 +36,11 @@ GReWeightFZone::~GReWeightFZone()
 
 }
 //_______________________________________________________________________________________
+bool GReWeightFZone::IsHandled(GSyst_t /*syst*/)
+{
+   return false;
+}
+//_______________________________________________________________________________________
 void GReWeightFZone::SetSystematic(GSyst_t /*syst*/, double /*val*/)
 {
 
