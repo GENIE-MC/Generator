@@ -19,11 +19,20 @@ LIBRARIES   := $(GENIE_LIBS) $(VLDTOOL_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 all: gVldeRESXSec
 
 #
-# Program comparing GENIE neutrino cross sections against the world data
+# Program comparing GENIE electron cross sections in the resonance region 
+# against data from S.Wood's online dbase.
 #
 gVldeRESXSec: FORCE
 	$(CXX) $(CXXFLAGS) -c gVldeRESXSec.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) gVldeRESXSec.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gvld_e_res_xsec
+
+#
+# Program comparing GENIE quasi-elastic electron cross sections 
+# against data from D.Day's online dbase.
+#
+gVldeQELXSec: FORCE
+	$(CXX) $(CXXFLAGS) -c gVldeQELXSec.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gVldeQELXSec.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gvld_e_qel_xsec
 
 
 purge: FORCE
@@ -32,9 +41,11 @@ purge: FORCE
 clean: FORCE
 	$(RM) *.o *~ core 
 	$(RM) $(GENIE_BIN_PATH)/gvld_e_res_xsec
+	$(RM) $(GENIE_BIN_PATH)/gvld_e_qel_xsec
 
 distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gvld_e_res_xsec
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gvld_e_qel_xsec
 
 FORCE:
 
