@@ -46,7 +46,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- GARGAMELLE - nu_mu total xsec - Eichten et al., Phys. Lett 46B 274, 1973 -->
 
-	<measurement observable="tot_xsec">
+	<measurement observable="tot_xsec" id="0">
 	       <header>
                     Comments for this measurement can be entered
  
@@ -78,7 +78,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- GARGAMELLE - nu_mu_bar total xsec - Eichten et al., Phys. Lett 46B 274, 1973 -->
 
-	<measurement observable="tot_xsec">
+	<measurement observable="tot_xsec" id="1">
 	       <header>
                     Comments for this measurement can be entered
  
@@ -108,10 +108,10 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- GARGAMELLE - nu_mu QE xsec - S. Bonetti et al., Nuovo Cimento, A38, 260 (1977)  -->
 
-	<measurement observable="qes_xsec">
+	<measurement observable="qes_xsec" id="2">
 	       <header>
-                    - S.Boneti: freon (dom by ^19F, ^18Br)
-                    - M.Pohl: propane-freon (dom by ^12C)
+                    S.Boneti: freon (dominated by 19F, 18Br)
+                    M.Pohl: propane-freon (dominated by 12C)
  
                     <ref>
                          <author>   S. Bonetti et al.        </author>
@@ -241,7 +241,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- GARGAMELLE - nu_mu_bar QE xsec - S. Bonetti et al., Nuovo Cimento, A38, 260 (1977)  -->
 
-	<measurement observable="qes_xsec">
+	<measurement observable="qes_xsec" id="3">
 	       <header>
                     - S.Boneti: freon (dom by ^19F, ^18Br)
  
@@ -344,7 +344,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- GARGAMELLE - nu_mu res. xsec - Lerche et al., Phys. Lett. B78 510, 1978 -->
 
-	<measurement observable="spp_xsec">
+	<measurement observable="spp_xsec" id="4">
 	       <header>
 
                     M(p pi+) less than 1.4 GeV - i.e. Delta++
@@ -409,7 +409,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- GARGAMELLE - nu_mu_bar QE xsec - Armenise et al., Nucl.Phys. B152:365 1979 -->
 
-	<measurement observable="qes_xsec">
+	<measurement observable="qes_xsec" id="5">
 	       <header>
                     Comments can be inserted here
  
@@ -522,7 +522,7 @@ Costas Andreopoulos and Hugh Gallagher
         <!-- GARGAMELLE - nu_mu_bar + n res. xsec  - final state: mu+ n pi- / no W cut -->
 	<!-- Bolognese et al., Phys. Lett. B81:393, 1979 -->
 
-	<measurement observable="spp_xsec">
+	<measurement observable="spp_xsec" id="6">
 	       <header>
 
                     <ref>
@@ -594,7 +594,7 @@ Costas Andreopoulos and Hugh Gallagher
         <!-- GARGAMELLE - nu_mu_bar + n res. xsec  - final state: mu+ n pi- / W cut = 1.4 GeV -->
 	<!-- Bolognese et al., Phys. Lett. B81:393, 1979 -->
 
-	<measurement observable="spp_xsec">
+	<measurement observable="spp_xsec" id="7">
 	       <header>
 
                     <ref>
@@ -658,7 +658,7 @@ Costas Andreopoulos and Hugh Gallagher
         <!-- GARGAMELLE - nu_mu_bar + N res. xsec  - final state: mu+ N pi- / no W cut -->
 	<!-- Bolognese et al., Phys. Lett. B81:393, 1979 -->
 
-	<measurement observable="spp_xsec">
+	<measurement observable="spp_xsec" id="8">
 	       <header>
 
                     <ref>
@@ -730,7 +730,7 @@ Costas Andreopoulos and Hugh Gallagher
         <!-- GARGAMELLE - nu_mu_bar + N res. xsec  - final state: mu+ N pi- / W cut = 1.4 GeV -->
 	<!-- Bolognese et al., Phys. Lett. B81:393, 1979 -->
 
-	<measurement observable="spp_xsec">
+	<measurement observable="spp_xsec" id="9">
 	       <header>
 
                     <ref>
@@ -793,7 +793,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- GARGAMELLE - nu_mu tot. xsec - Ciampolillo et al., Phys. Lett. 84B 281, 1979 -->
 
-	<measurement observable="tot_xsec">
+	<measurement observable="tot_xsec" id="10">
 	       <header>
                     Comments can be inserted here
  
@@ -832,7 +832,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- GARGAMELLE - nu_mu_bar tot. xsec - Erriquez et al., Phys. Lett. B80 309, 1979 -->
 
-	<measurement observable="tot_xsec">
+	<measurement observable="tot_xsec" id="11">
 	       <header>
                     Comments can be inserted here
  
@@ -862,7 +862,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- GARGAMELLE - nu_mu tot. xsec - Morfin et al., Phys. Lett. 104B 235, 1981 -->
 
-	<measurement observable="tot_xsec">
+	<measurement observable="tot_xsec" id="12">
 	       <header>
                     Comments can be inserted here
  
@@ -915,7 +915,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- GARGAMELLE - nu_mu_bar tot. xsec - Morfin et al., Phys. Lett. 104B 235, 1981 -->
 
-	<measurement observable="tot_xsec">
+	<measurement observable="tot_xsec" id="13">
 	       <header>
                     Comments can be inserted here
  
@@ -969,7 +969,7 @@ Costas Andreopoulos and Hugh Gallagher
         <!-- GARGAMELLE - nu_mu coh. xsec - nu_mu A to nu_mu A pi0 -->
 	<!-- et al., Phys.Rev.Lett.52:1096, 1984 -->
 
-	<measurement observable="coh_xsec">
+	<measurement observable="coh_xsec" id="14">
 	       <header>
                     Comments can be inserted here
  
@@ -1000,7 +1000,7 @@ Costas Andreopoulos and Hugh Gallagher
         <!-- GARGAMELLE - nu_mu coh. xsec - nu_mu_bar A to nu_mu A pi0 -->
 	<!-- Isiksal et al., Phys.Rev.Lett.52:1096, 1984 -->
 
-	<measurement observable="coh_xsec">
+	<measurement observable="coh_xsec" id="15">
 	       <header>
                     Comments can be inserted here
  
@@ -1057,7 +1057,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- LSND - nu_mu_bar qes xsec @ Carbon - Auerbach et al., PR. C66, 015501, 2002 -->
 
-	<measurement observable="qes_xsec">
+	<measurement observable="qes_xsec" id="0">
 	       <header>
                     Comments can be inserted here
  
@@ -1114,7 +1114,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- BEBC - nu_mu tot. xsec @ Neon-H2 - Bosseti et al., Phys. Lett. 70B 273, 1977 -->
 
-	<measurement observable="tot_xsec">
+	<measurement observable="tot_xsec" id="0">
 	       <header>
                     Comments can be inserted here
  
@@ -1168,7 +1168,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- BEBC - nu_mu_bar tot. xsec @ Neon-H2 - Bosseti et al., Phys. Lett. 70B 273, 1977 -->
 
-	<measurement observable="tot_xsec">
+	<measurement observable="tot_xsec" id="1">
 	       <header>
                     Comments can be inserted here
  
@@ -1214,7 +1214,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- BEBC - nu_mu tot. xsec @ Neon-H2 - Colley et al., Zeit. Phys. C2 187, 1979 -->
 
-	<measurement observable="tot_xsec">
+	<measurement observable="tot_xsec" id="2">
 	       <header>
                     Comments can be inserted here
  
@@ -1260,7 +1260,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- BEBC - nu_mu_bar tot. xsec @ Neon-H2 - Colley et al., Zeit. Phys. C2 187, 1979 -->
 
-	<measurement observable="tot_xsec">
+	<measurement observable="tot_xsec" id="3">
 	       <header>
                     Comments can be inserted here
  
@@ -1291,7 +1291,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- BEBC - nu_mu spp xsec @ H2 - Allen et al., Nucl.Phys.B176:269, 1980 -->
 
-	<measurement observable="spp_xsec">
+	<measurement observable="spp_xsec" id="4">
 	       <header>
                     M(p pi+) less than 1.4 GeV - i.e. Delta++
 		     
@@ -1371,7 +1371,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- BEBC - nu_mu tot. xsec @ Neon-H2 - Bosetti et al., Phys.Lett. 110B 167, 1982 -->
 
-	<measurement observable="tot_xsec">
+	<measurement observable="tot_xsec" id="5">
 	       <header>
 
                     Corrections: For nonisoscalarity of the target
@@ -1450,7 +1450,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- BEBC - nu_mu_bar tot. xsec @ Neon-H2 - Bosetti et al., Phys.Lett. 110B 167, 1982 -->
 
-	<measurement observable="tot_xsec">
+	<measurement observable="tot_xsec" id="6">
 	       <header>
 
                     Corrections (?): For nonisoscalarity of the target
@@ -1530,7 +1530,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- BEBC - nu_mu_bar tot. xsec @ Neon-H2 - Parker et al., Nucl.Phys.B232:1, 1984 -->
 
-	<measurement observable="tot_xsec">
+	<measurement observable="tot_xsec" id="7">
 	       <header>
                     Comments can be inserted here
  
@@ -1560,7 +1560,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- BEBC - nu_mu tot. xsec @ Neon-H2 - Parker et al., Nucl.Phys.B232:1, 1984 -->
 
-	<measurement observable="tot_xsec">
+	<measurement observable="tot_xsec" id="8">
 	       <header>
                     Comments can be inserted here
  
@@ -1591,7 +1591,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- BEBC - nu_mu spp xsec @ H2 - Allen et al., Nucl.Phys.B264:221, 1986 -->
 
-	<measurement observable="spp_xsec">
+	<measurement observable="spp_xsec" id="9">
 	       <header>
 		     
                     W less than 2 GeV
@@ -1656,7 +1656,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- BEBC - nu_mu_bar CC coherent pion production - Marage et al., Z.Phys.C31:191, 1986 -->
 
-	<measurement observable="coh_xsec">
+	<measurement observable="coh_xsec" id="10">
 	       <header>
                     comments,...
  
@@ -1710,7 +1710,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- BEBC - nu_mu CC coherent pion production - Marage et al., Z.Phys.C43:523, 1989 -->
 
-	<measurement observable="coh_xsec">
+	<measurement observable="coh_xsec" id="11">
 	       <header>
                     comments,...
 
@@ -1750,7 +1750,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- BEBC - nu_mu QE CC xsec @ D, Allasia et al, Nucl.Phys.B343:285, 1990-->
 
-	<measurement observable="qes_xsec">
+	<measurement observable="qes_xsec" id="12">
 	       <header>
                     <ref>
                          <author>   Allasia et al.           </author>
@@ -1807,7 +1807,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- BEBC - nu_mu SPP xsec @ D, Allasia et al, Nucl.Phys.B343:285, 1990-->
 
-	<measurement observable="spp_xsec">
+	<measurement observable="spp_xsec" id="13">
 	       <header>
 	            W less than 2 GeV
 		    
@@ -1878,7 +1878,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- BEBC - nu_mu SPP xsec @ D, Allasia et al, Nucl.Phys.B343:285, 1990-->
 
-	<measurement observable="spp_xsec">
+	<measurement observable="spp_xsec" id="14">
 	       <header>
 	       
 	            W less than 2 GeV 
@@ -1976,7 +1976,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- ANL-12FT - nu_mu SPP xsec @ H, Campbell et al, Phys.Rev.Lett.30:335, 1973 -->
 
-	<measurement observable="spp_xsec">
+	<measurement observable="spp_xsec" id="0">
 	       <header>
                     <ref>
                          <author>   Campbell et al.          </author>
@@ -2046,7 +2046,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- ANL-12FT - nu_mu QEL xsec @ D, Mann et al, Phys.Rev.Lett.31:844, 1973 -->
 
-	<measurement observable="qes_xsec">
+	<measurement observable="qes_xsec" id="1">
 	       <header>
                     <ref>
                          <author>   Mann et al    .          </author>
@@ -2122,7 +2122,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- ANL-12FT nu_mu total CC xsec @ H, D - Barish et al, Phys.Lett.B66:291, 1976 -->
 
-	<measurement observable="tot_xsec">
+	<measurement observable="tot_xsec" id="2">
 	       <header>
                     Comments can be inserted here
  
@@ -2153,7 +2153,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- ANL-12FT nu_mu QE CC xsec @ H, D - Barish et al, Phys.Rev.D16:3103, 1977 -->
 
-	<measurement observable="qes_xsec">
+	<measurement observable="qes_xsec" id="3">
 	       <header>
                     Comments can be inserted here
  
@@ -2224,7 +2224,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- ANL-12FT nu_mu total CC xsec @ H, D - Barish et al, Phys.Rev.D19:2521, 1979 -->
 
-	<measurement observable="tot_xsec">
+	<measurement observable="tot_xsec" id="4">
 	       <header>
                     Comments can be inserted here
  
@@ -2263,7 +2263,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- ANL-12FT nu_mu SPP xsec @ H, D - Barish et al, Phys.Rev.D19:2521, 1979 -->
 
-	<measurement observable="spp_xsec">
+	<measurement observable="spp_xsec" id="5">
 	       <header>
                     Comments can be inserted here
  
@@ -2342,7 +2342,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- ANL-12FT nu_mu SPP xsec @ H, D - Barish et al, Phys.Rev.D19:2521, 1979 -->
 
-	<measurement observable="spp_xsec">
+	<measurement observable="spp_xsec" id="6">
 	       <header>
                     Comments can be inserted here
  
@@ -2398,7 +2398,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- ANL-12FT nu_mu SPP xsec @ H, D - Barish et al, Phys.Rev.D19:2521, 1979 -->
 
-	<measurement observable="spp_xsec">
+	<measurement observable="spp_xsec" id="7">
 	       <header>
                     Comments can be inserted here
  
@@ -2462,7 +2462,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- ANL-12FT, nu_mu SPP xsec @ H, D - Radecky et al, Phys.Rev.D25:1161, 1982 -->
 
-	<measurement observable="spp_xsec">
+	<measurement observable="spp_xsec" id="8">
 	       <header>
                     Comments can be inserted here
  
@@ -2550,7 +2550,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- ANL-12FT, nu_mu SPP xsec @ H, D - Radecky et al, Phys.Rev.D25:1161, 1982 -->
 
-	<measurement observable="spp_xsec">
+	<measurement observable="spp_xsec" id="9">
 	       <header>
                     Comments can be inserted here
  
@@ -2614,7 +2614,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- ANL-12FT, nu_mu SPP xsec @ H, D - Radecky et al, Phys.Rev.D25:1161, 1982 -->
 
-	<measurement observable="spp_xsec">
+	<measurement observable="spp_xsec" id="10">
 	       <header>
                     Comments can be inserted here
  
@@ -2678,7 +2678,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- ANL-12FT, nu_mu MPP xsec @ D - Day et al, Phys.Rev.D28:2714, 1983 -->
 
-	<measurement observable="mpp_xsec">
+	<measurement observable="mpp_xsec" id="11">
 	       <header>
 	       
                     <ref>
@@ -2740,7 +2740,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- ANL-12FT, nu_mu MPP xsec @ D - Day et al, Phys.Rev.D28:2714, 1983 -->
 
-	<measurement observable="mpp_xsec">
+	<measurement observable="mpp_xsec" id="12">
 	       <header>
 	       
                     <ref>
@@ -2802,7 +2802,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- ANL-12FT, nu_mu MPP xsec @ D - Day et al, Phys.Rev.D28:2714, 1983 -->
 
-	<measurement observable="mpp_xsec">
+	<measurement observable="mpp_xsec" id="13">
 	       <header>
 	       
                     <ref>
@@ -2902,7 +2902,7 @@ Costas Andreopoulos and Hugh Gallagher
 
        <!-- Baltay 1980, Phys.Rev.Lett.44:916, BNL-7FT - nu_mu total CC xsec @ Ne-H2 -->
 
-	<measurement observable="tot_xsec">
+	<measurement observable="tot_xsec" id="0">
 	       <header>
                     Comments can be inserted here
  
@@ -2937,7 +2937,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- Fanourakis 1980, Phys.Rev.D21 562, BNL-7FT - nu_mu_bar total CC xsec @ H2 -->
 
-	<measurement observable="tot_xsec">
+	<measurement observable="tot_xsec" id="1">
 	       <header>
                     Comments can be inserted here
  
@@ -2967,7 +2967,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- Fanourakis 1980, Phys.Rev.D21 562, BNL-7FT - nu_mu_bar QEL CC xsec @ H2 -->
 
-	<measurement observable="qes_xsec">
+	<measurement observable="qes_xsec" id="2">
 	       <header>
                     Comments can be inserted here
  
@@ -2998,7 +2998,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- Baker 1981, Phys.Rev.D23 2499, BNL-7FT - nu_mu QE CC xsec @ D2 -->
 
-	<measurement observable="qes_xsec">
+	<measurement observable="qes_xsec" id="3">
 	       <header>
                     BNL-737, wide band neutrino beam, average Enu = 1.6 GeV
  
@@ -3045,7 +3045,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- Baker 1982, Phys.Rev.D25 617, BNL-7FT - nu_mu tot CC xsec @ D2 -->
 
-	<measurement observable="tot_xsec">
+	<measurement observable="tot_xsec" id="4">
 	       <header>
 	       
                     PDG reported only average cross section at 3.2 GeV: 0.80 +/- 0.03
@@ -3147,7 +3147,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- Kitagaki 1986, Phys.Rev.D34 2554, BNL-7FT - nu_mu @ D2, SPP xsec -->
 
-	<measurement observable="spp_xsec">
+	<measurement observable="spp_xsec" id="5">
 	       <header>
 	       
                     <ref>
@@ -3235,7 +3235,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- Kitagaki 1986, Phys.Rev.D34 2554, BNL-7FT - nu_mu @ D2, SPP xsec -->
 
-	<measurement observable="spp_xsec">
+	<measurement observable="spp_xsec" id="6">
 	       <header>
 	       
                     <ref>
@@ -3330,7 +3330,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- Kitagaki 1986, Phys.Rev.D34 2554, BNL-7FT - nu_mu @ D2, SPP xsec -->
 
-	<measurement observable="spp_xsec">
+	<measurement observable="spp_xsec" id="7">
 	       <header>
 	       
                     <ref>
@@ -3425,7 +3425,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- Kitagaki 1986, Phys.Rev.D34 2554, BNL-7FT - nu_mu @ D2, multipion production -->
 
-	<measurement observable="mpp_xsec">
+	<measurement observable="mpp_xsec" id="8">
 	       <header>
 	       
                     <ref>
@@ -3579,11 +3579,10 @@ Costas Andreopoulos and Hugh Gallagher
         </flux_spectrum>
 
 
-
         <!-- Bell 1978, Phys.Rev.Lett.41 1008, FNAL-15FT BC (FNAL-E-0045) -->
         <!-- CC, single pion production @ H2: nu_mu p -> p pi+ mu- -->
 
-	<measurement observable="spp_xsec">
+	<measurement observable="spp_xsec" id="0">
 	       <header>
                     Comments for this measurement can be entered
  
@@ -3648,7 +3647,7 @@ Costas Andreopoulos and Hugh Gallagher
         <!-- Kitagaki 1982, Phys.Rev.Lett.49 98, FNAL-15FT BC (FNAL-E-0545) -->
         <!-- CC, total cross section @ D2: nu_mu N -> mu- X -->
 
-	<measurement observable="tot_xsec">
+	<measurement observable="tot_xsec" id="1">
 	       <header>
                     Comments for this measurement can be entered
  
@@ -3726,7 +3725,7 @@ Costas Andreopoulos and Hugh Gallagher
         <!-- Baker 1983, Phys.Rev.Lett.51 735, FNAL-15FT BC (FNAL-E-0545) -->
         <!-- CC, total cross section @ Ne-H2: nu_mu N -> mu- X -->
 
-	<measurement observable="tot_xsec">
+	<measurement observable="tot_xsec" id="2">
 	       <header>
                     Comments for this measurement can be entered
  
@@ -3785,7 +3784,7 @@ Costas Andreopoulos and Hugh Gallagher
         <!-- Kitagaki 1983, Phys.Rev.D28 436, FNAL-15FT BC (FNAL-E-0545)  -->
         <!-- CC, quasi elastic cross section @ D2: nu_mu n -> mu- p -->
 
-	<measurement observable="qes_xsec">
+	<measurement observable="qes_xsec" id="3">
 	       <header>
                     Comments for this measurement can be entered
  
@@ -3822,7 +3821,7 @@ Costas Andreopoulos and Hugh Gallagher
         <!-- Taylor 1983, Phys.Rev.Lett.51 739, FNAL-15FT BC (FNAL-E-0388) -->
         <!-- CC, total cross section @ Ne-H2: nu_mu_bar N -> mu+ X -->
 
-	<measurement observable="tot_xsec">
+	<measurement observable="tot_xsec" id="4">
 	       <header>
                     Comments for this measurement can be entered
  
@@ -3877,7 +3876,7 @@ Costas Andreopoulos and Hugh Gallagher
         <!-- Asratyan 1984, Phys.Lett.B137:122, FNAL-15FT BC (FNAL-E-0388) -->
         <!-- CC, total cross section @ Ne-H2: nu_mu_bar N -> mu+ X -->
 
-	<measurement observable="tot_xsec">
+	<measurement observable="tot_xsec" id="5">
 	       <header>
                     Comments for this measurement can be entered
  
@@ -3957,7 +3956,7 @@ Costas Andreopoulos and Hugh Gallagher
         <!-- Aderholz 1989, Phys.Rev.Lett.63:2349, FNAL-15FT  -->
         <!-- CC, coh. pi production cross section @ Ne-H2: nu_mu A -> mu- A pi+ -->
 
-	<measurement observable="coh_xsec">
+	<measurement observable="coh_xsec" id="6">
 	       <header>
                     Comments for this measurement can be entered
  
@@ -3989,7 +3988,7 @@ Costas Andreopoulos and Hugh Gallagher
         <!-- Aderholz 1989, Phys.Rev.Lett.63:2349, FNAL-15FT  -->
         <!-- CC, coh. pi production cross section @ Ne-H2: nu_mu_bar A -> mu+ A pi- -->
 
-	<measurement observable="coh_xsec">
+	<measurement observable="coh_xsec" id="7">
 	       <header>
                     Comments for this measurement can be entered
  
@@ -4022,7 +4021,7 @@ Costas Andreopoulos and Hugh Gallagher
         <!-- Wilocq 1993, Phys.Rev.D47:2661, FNAL-15FT  -->
         <!-- CC, coh. pi production cross section @ Ne-H2: nu_mu A -> mu- A pi+ -->
 
-	<measurement observable="coh_xsec">
+	<measurement observable="coh_xsec" id="8">
 	       <header>
                     Comments for this measurement can be entered
  
@@ -4054,7 +4053,7 @@ Costas Andreopoulos and Hugh Gallagher
         <!-- Wilocq 1993, Phys.Rev.D47:2661, FNAL-15FT  -->
         <!-- CC, coh. pi production cross section @ Ne-H2: nu_mu_bar A -> mu+ A pi- -->
 
-	<measurement observable="coh_xsec">
+	<measurement observable="coh_xsec" id="9">
 	       <header>
 
                     Mean neutrino energy 70 GeV
@@ -4098,7 +4097,7 @@ Costas Andreopoulos and Hugh Gallagher
         <!-- Barish 1980, Phys.Lett.B91 161, FNAL-15FT BC (FNAL-E-0031) -->
         <!-- CC, single pion production @ H2: nu_mu_bar p -> p pi- mu+ -->
 
-	<measurement observable="spp_xsec">
+	<measurement observable="spp_xsec" id="10">
 	       <header>
                     Comments for this measurement can be entered
  
@@ -4164,11 +4163,9 @@ Costas Andreopoulos and Hugh Gallagher
 
 
 
-
         <!-- Baranov 1979, Phys.Lett.B81 255, SKAT - total nu_mu inclusive CC isoscalar xsec @ heavy Freon -->
 
-
-	<measurement observable="tot_xsec">
+	<measurement observable="tot_xsec" id="0">
 	       <header>
                     Comments for this measurement can be entered
  
@@ -4223,7 +4220,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- Grabosch 1986, Zeit.Phys.C31 203, SKAT - nu_mu coherent pi+ xsec @ heavy Freon -->
 
-	<measurement observable="coh_xsec">
+	<measurement observable="coh_xsec" id="1">
 	       <header>
                     Comments for this measurement can be entered
  
@@ -4255,7 +4252,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- Grabosch 1986, Zeit.Phys.C31 203, SKAT - nu_mu_bar coherent pi- xsec @ heavy Freon -->
 
-	<measurement observable="coh_xsec">
+	<measurement observable="coh_xsec" id="2">
 	       <header>
                     Comments for this measurement can be entered
  
@@ -4287,7 +4284,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- Grabosch 1986, Zeit.Phys.C31 203, SKAT - nu_mu coherent pi0 xsec @ heavy Freon -->
 
-	<measurement observable="coh_xsec">
+	<measurement observable="coh_xsec" id="3">
 	       <header>
                     Comments for this measurement can be entered
  
@@ -4319,7 +4316,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- Ammosov 1988, Sov.J.Nucl.Phys.50:67, SKAT - nu_mu SPP @ heavy Freon -->
 
-	<measurement observable="spp_xsec">
+	<measurement observable="spp_xsec" id="4">
 	       <header>
                     M(p pi+) less than 1.6 GeV
  
@@ -4373,7 +4370,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- Grabosch 1989, Zeit.Phys.C41 527, SKAT - nu_mu SPP @ heavy Freon -->
 
-	<measurement observable="spp_xsec">
+	<measurement observable="spp_xsec" id="5">
 	       <header>
                     <ref>
                          <author>   Grabosch et al.       </author>
@@ -4425,7 +4422,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- Grabosch 1989, Zeit.Phys.C41 527, SKAT - nu_mu SPP @ heavy Freon -->
 
-	<measurement observable="spp_xsec">
+	<measurement observable="spp_xsec" id="6">
 	       <header>
                     <ref>
                          <author>   Grabosch et al.       </author>
@@ -4482,7 +4479,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- Grabosch 1989, Zeit.Phys.C41 527, SKAT - nu_mu SPP @ heavy Freon -->
 
-	<measurement observable="spp_xsec">
+	<measurement observable="spp_xsec" id="7">
 	       <header>
                     <ref>
                          <author>   Grabosch et al.       </author>
@@ -4534,7 +4531,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- Bruner 1990, Zeit.Phys.C45 551, SKAT - nu_mu QE CC xsec @ heavy Freon -->
 
-	<measurement observable="qes_xsec">
+	<measurement observable="qes_xsec" id="8">
 	       <header>
                     Comments for this measurement can be entered
  
@@ -4599,15 +4596,12 @@ Costas Andreopoulos and Hugh Gallagher
                    <stat_err value="xsec">                        +/-0.30  </stat_err>
 	       </point>
         </measurement>
-	
-	
-	
-	
+
 	
 
         <!-- Bruner 1990, Zeit.Phys.C45 551, SKAT - nu_mu_bar QE CC xsec @ heavy Freon -->
 
-	<measurement observable="qes_xsec">
+	<measurement observable="qes_xsec" id="9">
 	       <header>
                     Comments for this measurement can be entered
  
@@ -4707,7 +4701,7 @@ Costas Andreopoulos and Hugh Gallagher
         <!-- Berge 1987, Zeit. Phys. C35 443, CDHS (CERN-WA-001) -->
         <!-- nu_mu N -> mu- X, total inclusive CC isoscalar cross section measurements -->
 
-	<measurement observable="tot_xsec">
+	<measurement observable="tot_xsec" id="0">
 	       <header>
                     Comments for this measurement can be entered
  
@@ -4772,7 +4766,7 @@ Costas Andreopoulos and Hugh Gallagher
         <!-- Berge 1987, Zeit. Phys. C35 443, CDHS (CERN-WA-001) -->
         <!-- nu_mu_bar N -> mu+ X, total inclusive CC isoscalar cross section measurements -->
 
-	<measurement observable="tot_xsec">
+	<measurement observable="tot_xsec" id="1">
 	       <header>
                     Comments for this measurement can be entered
  
@@ -4881,7 +4875,7 @@ Costas Andreopoulos and Hugh Gallagher
         <!-- Auchincloss 1990 - Zeit.Phys. C48 11, CCFR 1996 (FNAL-E-0701)  -->
         <!-- nu_mu N -> mu- X, total inclusive CC isoscalar cross section measurements -->
 
-	<measurement observable="tot_xsec">
+	<measurement observable="tot_xsec" id="0">
 	       <header>
                     comments, comments,...
 
@@ -4995,7 +4989,7 @@ Costas Andreopoulos and Hugh Gallagher
         <!-- Auchincloss 1990 - Zeit.Phys. C48 11, CCFR 1996 (FNAL-E-0701)  -->
         <!-- nu_mu N -> mu- X, total inclusive CC isoscalar cross section measurements -->
 
-	<measurement observable="tot_xsec">
+	<measurement observable="tot_xsec" id="1">
 	       <header>
                     comments, comments,...
 
@@ -5034,7 +5028,7 @@ Costas Andreopoulos and Hugh Gallagher
         <!-- Seligman 1996, Thesis - Nevis Report 292, CCFR 1996 (FNAL-E-0770) -->
         <!-- nu_mu N -> mu- X, total inclusive CC isoscalar cross section measurements -->
 
-	<measurement observable="tot_xsec">
+	<measurement observable="tot_xsec" id="2">
 	       <header>
                     measurement comments...
 
@@ -5162,7 +5156,7 @@ Costas Andreopoulos and Hugh Gallagher
         <!-- Seligman 1996, Thesis - Nevis Report 292, CCFR 1996 (FNAL-E-0770) -->
         <!-- nu_mu_bar N -> mu+ X, total inclusive CC isoscalar cross section measurements -->
 
-	<measurement observable="tot_xsec">
+	<measurement observable="tot_xsec" id="3">
 	       <header>
                     measurement comments...
 
@@ -5318,7 +5312,7 @@ Costas Andreopoulos and Hugh Gallagher
         <!-- MacFarlane 1984 - Zeit.Phys. C26 1, CCFRR 1996 (FNAL-E-0616) -->
         <!-- nu_mu N -> mu- X, total inclusive CC isoscalar cross section measurements -->
 
-	<measurement observable="tot_xsec">
+	<measurement observable="tot_xsec" id="0">
 	       <header>
                     comments, comments,...
 
@@ -5480,7 +5474,7 @@ Costas Andreopoulos and Hugh Gallagher
         <!-- Asratyan 1978 - Phys.Lett.B76:239, IHEP-ITEP (Serpukhov-045) -->
         <!-- nu_mu N -> mu- X, total inclusive CC isoscalar cross section measurements -->
 
-	<measurement observable="tot_xsec">
+	<measurement observable="tot_xsec" id="0">
 	       <header>
                     comments, comments,...
 
@@ -5513,7 +5507,7 @@ Costas Andreopoulos and Hugh Gallagher
         <!-- Asratyan 1978 - Phys.Lett.B76:239, IHEP-ITEP (Serpukhov-045) -->
         <!-- nu_mu N -> mu- X, total inclusive CC isoscalar cross section measurements -->
 
-	<measurement observable="tot_xsec">
+	<measurement observable="tot_xsec" id="1">
 	       <header>
                     comments, comments,...
 
@@ -5545,7 +5539,7 @@ Costas Andreopoulos and Hugh Gallagher
         <!-- Vovenko 1980- Soviet J. Nucl. Phys. 30, 527, IHEP-ITEP (Serpukhov-045) -->
         <!-- nu_mu N -> mu- X, total inclusive CC isoscalar cross section measurements -->
 
-	<measurement observable="tot_xsec">
+	<measurement observable="tot_xsec" id="2">
 	       <header>
                     comments, comments,...
 
@@ -5605,7 +5599,7 @@ Costas Andreopoulos and Hugh Gallagher
         <!-- Vovenko 1980- Soviet J. Nucl. Phys. 30, 527, IHEP-ITEP (Serpukhov-045) -->
         <!-- nu_mu_bar N -> mu+ X, total inclusive CC isoscalar cross section measurements -->
 
-	<measurement observable="tot_xsec">
+	<measurement observable="tot_xsec" id="3">
 	       <header>
                     comments, comments,...
 
@@ -5697,7 +5691,7 @@ Costas Andreopoulos and Hugh Gallagher
 	<!-- nu_mu inclusive CC isoscalar xsec @ Aluminium -->
 	
 
-	<measurement observable="tot_xsec">
+	<measurement observable="tot_xsec" id="0">
 	       <header>
                     comments, comments,...
 
@@ -5803,7 +5797,7 @@ Costas Andreopoulos and Hugh Gallagher
 	<!-- nu_mu_bar inclusive CC isoscalar xsec @ Aluminium -->
 
 
-	<measurement observable="tot_xsec">
+	<measurement observable="tot_xsec" id="1">
 	       <header>
                     comments, comments,...
 
@@ -5929,7 +5923,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- Belikov 1982, Yad.Fiz.35 59, SERP-A1 - nu_mu QE CC xsec @ Al -->
 
-	<measurement observable="qes_xsec">
+	<measurement observable="qes_xsec" id="0">
 	       <header>
                     comments, comments,...
 
@@ -6007,7 +6001,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- Belikov 1985, Z.Phys.A320:625, SERP-A1 - nu_mu QE CC xsec @ Al -->
 
-	<measurement observable="qes_xsec">
+	<measurement observable="qes_xsec" id="1">
 	       <header>
                     comments, comments,...
 
@@ -6102,7 +6096,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- Belikov 1985, Z.Phys.A320:625, SERP-A1 - nu_mu_bar QE CC xsec @ Al -->
 
-	<measurement observable="qes_xsec">
+	<measurement observable="qes_xsec" id="2">
 	       <header>
                     comments, comments,...
 
@@ -6222,7 +6216,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- Faissner 1983, Phys. Lett. 125B, 230, Aachen Padova nu_mu NC coherent pi0 xsec @ Al -->
 
-	<measurement observable="coh_xsec">
+	<measurement observable="coh_xsec" id="0">
 	       <header>
                     comments, comments,...
 
@@ -6307,7 +6301,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- Jonker 1981, Phys.Lett. 99B 265, CHARM- nu_mu inclusive CC isoscalar xsec @ Marble -->
 
-	<measurement observable="tot_xsec">
+	<measurement observable="tot_xsec" id="0">
 	       <header>
                     comments, comments,...
 
@@ -6339,7 +6333,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- Jonker 1981, Phys.Lett. 99B 265, CHARM- nu_mu_bar inclusive CC isoscalar xsec @ Marble -->
 
-	<measurement observable="tot_xsec">
+	<measurement observable="tot_xsec" id="1">
 	       <header>
                     comments, comments,...
 
@@ -6372,7 +6366,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- Bergsma 1985, Phys.Lett.B157 469, CHARM- nu_mu NC coherent pi xsec @ Marble -->
 
-	<measurement observable="coh_xsec">
+	<measurement observable="coh_xsec" id="2">
 	       <header>
                     comments, comments,...
 
@@ -6404,7 +6398,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- Bergsma 1985, Phys.Lett.B157 469, CHARM- nu_mu NC coherent pi xsec @ Marble -->
 
-	<measurement observable="coh_xsec">
+	<measurement observable="coh_xsec" id="3">
 	       <header>
                     comments, comments,...
 
@@ -6436,7 +6430,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- Allaby 1988, Zeit.Phys.C38 403, CHARM- nu_mu inclusive CC isoscalar xsec @ Marble -->
 
-	<measurement observable="tot_xsec">
+	<measurement observable="tot_xsec" id="4">
 	       <header>
                     comments, comments,...
 
@@ -6468,7 +6462,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- Allaby 1988, Zeit.Phys.C38 403, CHARM- nu_mu_bar inclusive CC isoscalar xsec @ Marble -->
 
-	<measurement observable="tot_xsec">
+	<measurement observable="tot_xsec" id="5">
 	       <header>
                     comments, comments,...
 
@@ -6496,11 +6490,9 @@ Costas Andreopoulos and Hugh Gallagher
 	</measurement>
 
 
-
-
         <!-- Vilain 1993, Phys.Lett.B313 267, CHARM- nu_mu CC coherent pi xsec @ Glass -->
 
-	<measurement observable="coh_xsec">
+	<measurement observable="coh_xsec" id="6">
 	       <header>
                     comments, comments,...
 
@@ -6555,7 +6547,7 @@ Costas Andreopoulos and Hugh Gallagher
 
         <!-- Vilain 1993, Phys.Lett.B313 267, CHARM- nu_mu_bar CC coherent pi xsec @ Glass -->
 
-	<measurement observable="coh_xsec">
+	<measurement observable="coh_xsec" id="7">
 	       <header>
                     comments, comments,...
 
