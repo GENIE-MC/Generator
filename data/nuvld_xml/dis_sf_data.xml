@@ -4,37 +4,32 @@
 <nuscat_data version="0.01" update="2005-04-21">
                                                                                                                                                              
                                                                                                                                                              
-   <!-- ********************************************************************* -->
-   <!-- ****************************[NUTEV]********************************** -->
-   <!-- ********************************************************************* -->
+<!-- ********************************************************************* -->
+<!-- ****************************[NUTEV]********************************** -->
+<!-- ********************************************************************* -->
+                                                                                                                                                                                                                                                                                                                          
+<experiment name="NUTEV">
                                                                                                                                                              
-                                                                                                                                                             
-   <experiment name="NUTEV">
-                                                                                                                                                             
-        <exp_info>
-                                                                                                                                                             
-           HJ:information received from Donna.
-                                                                                                                                                             
+  <exp_info>
            <facility>                   FNAL                   </facility>
            <detector>                   Counter                </detector>
            <target>                     iron                   </target>
            <exposure units="kgr*yr">                           </exposure>
            <year>                       unknown                </year>
-           <beam>                       neutrino                   </beam>
-           <E frame="lab" units="GeV">  120-280                 </E>
-        </exp_info>
+           <beam>                       neutrino               </beam>
+           <E frame="lab" units="GeV">  120-280                </E>
+   </exp_info>
                                                                                                                                                              
+   <flux_spectrum beam="nu" flux_units="" E_units="GeV" E_frame="lab">
                                                                                                                                                              
-        <flux_spectrum beam="nu" flux_units="" E_units="GeV" E_frame="lab">
+   </flux_spectrum>
                                                                                                                                                              
-        </flux_spectrum>
+   <flux_spectrum beam="nu_bar" flux_units="" E_units="GeV" E_frame="lab">
                                                                                                                                                              
-        <flux_spectrum beam="nu_bar" flux_units="" E_units="GeV" E_frame="lab">
-                                                                                                                                                             
-        </flux_spectrum>
+   </flux_spectrum>
                                                                                                                                                              
 
-        <measurement observable="f2" probe="neutrino">
+   <measurement id="0" observable="f2" probe="neutrino">
           <header>
             <ref>
               <author>       Naples et al.      </author>
@@ -592,11 +587,9 @@
             <stat_err value="sf">                +/-0.0011420          </stat_err>
             <syst_err value="sf">                +/-0.00154449008737512 </syst_err>
           </point> 
-        </measurement>
+   </measurement>
 
-
-
-        <measurement observable="xf3" probe="neutrino">
+   <measurement id="1" observable="xf3" probe="neutrino">
           <header>
             <ref>
               <author>       Naples et al.      </author>
@@ -1133,52 +1126,48 @@
            <stat_err value="sf">                +/-0.0042410          </stat_err>
            <syst_err value="sf">                +/-0.0015740473309275 </syst_err>
          </point> 
-        </measurement>
+   </measurement>
 
 </experiment>
 
 
 
-   <!-- ********************************************************************* -->
-   <!-- ****************************[CCFR]********************************** -->
-   <!-- ********************************************************************* -->
-                                                                                                                                                             
-                                                                                                                                                             
-   <experiment name="CCFR">
-                                                                                                                                                             
-        <exp_info>
-                                                                                                                                                             
-           HJ:Unknown
-                                                                                                                                                             
-           <facility>                   FNAL                   </facility>
-           <detector>                   Counter                </detector>
-           <target>                     iron                   </target>
-           <exposure units="kgr*yr">                           </exposure>
-           <year>                       unknown                </year>
-           <beam>                       neutrino                   </beam>
-           <E frame="lab" units="GeV">  120-280                 </E>
-        </exp_info>
-                                                                                                                                                             
-                                                                                                                                                             
-        <flux_spectrum beam="nu" flux_units="" E_units="GeV" E_frame="lab">
-                                                                                                                                                             
-        </flux_spectrum>
-                                                                                                                                                             
-        <flux_spectrum beam="nu_bar" flux_units="" E_units="GeV" E_frame="lab">
-                                                                                                                                                             
-        </flux_spectrum>
+<!-- ********************************************************************* -->
+<!-- ****************************[CCFR]*********************************** -->
+<!-- ********************************************************************* -->
 
-<measurement observable="f2" probe="neutrino">
+<experiment name="CCFR">
+                                                                                                                                                             
+  <exp_info>
+     <facility>                   FNAL                   </facility>
+     <detector>                   Counter                </detector>
+     <target>                     iron                   </target>
+     <exposure units="kgr*yr">                           </exposure>
+     <year>                       unknown                </year>
+     <beam>                       neutrino               </beam>
+     <E frame="lab" units="GeV">  120-280                </E>
+   </exp_info>
+                                                                                                                                                             
+                                                                                                                                                             
+    <flux_spectrum beam="nu" flux_units="" E_units="GeV" E_frame="lab">
+                                                                                                                                                             
+    </flux_spectrum>
+                                                                                                                                                             
+    <flux_spectrum beam="nu_bar" flux_units="" E_units="GeV" E_frame="lab">
+                                                                                                                                                             
+    </flux_spectrum>
+
+<measurement id="0" observable="f2" probe="neutrino">
   <header>
     <ref>
       <author>    Unknown         </author>
-      <journal>   Unknown    </journal>
-      <year>      2005                 </year>
+      <journal>   Unknown         </journal>
+      <year>      2005            </year>
     </ref>
     <reaction>     nu_mu N --> mu-  X </reaction>
     <target>       Iron               </target>
-    <npoints>      117              </npoints>
-    <data_source>  Durham database </data_source>
+    <npoints>      117                </npoints>
+    <data_source>  Durham database    </data_source>
   </header>
   <point> 
     <x>                                  0.0075         </x>
@@ -1880,7 +1869,7 @@
 
 
 
-<measurement observable="xf3" probe="neutrino">
+<measurement id="1" observable="xf3" probe="neutrino">
   <header>
     <ref>
       <author>    Unknown       </author>
@@ -2589,40 +2578,9 @@
     <stat_err value="sf">                +/-0.1072E-02          </stat_err>
   </point> 
 </measurement>
-</experiment>
 
 
-<!-- ********************************************************************* -->
-<!-- ****************************[CCFR]********************************** -->
-<!-- ********************************************************************* -->
-                                                                                                                                                             
-                                                                                                                                                             
-   <experiment name="CCFR">
-                                                                                                                                                             
-        <exp_info>
-                                                                                                                                                             
-           HJ:Unknown
-                                                                                                                                                             
-           <facility>                   FNAL                   </facility>
-           <detector>                   Counter                </detector>
-           <target>                     iron                   </target>
-           <exposure units="kgr*yr">                           </exposure>
-           <year>                       unknown                </year>
-           <beam>                       neutrino                   </beam>
-           <E frame="lab" units="GeV">  120-280                 </E>
-        </exp_info>
-                                                                                                                                                             
-                                                                                                                                                             
-        <flux_spectrum beam="nu" flux_units="" E_units="GeV" E_frame="lab">
-                                                                                                                                                             
-        </flux_spectrum>
-                                                                                                                                                             
-        <flux_spectrum beam="nu_bar" flux_units="" E_units="GeV" E_frame="lab">
-                                                                                                                                                             
-        </flux_spectrum>
-
-
-<measurement observable="f2" probe="neutrino">
+<measurement id="2" observable="f2" probe="neutrino">
   <header>
     <ref>
       <author>    Fleming         </author>
@@ -3014,24 +2972,23 @@
   </point> 
 </measurement>
 
+
 </experiment>
 
 
 
-<!-- ********************************************************************* -->
-<!-- ****************************[CDHS]********************************** -->
-<!-- ********************************************************************* -->
-                                                                                                                                                             
-                                                                                                                                                             
+   <!-- ********************************************************************* -->
+   <!-- ****************************[CDHS]*********************************** -->
+   <!-- ********************************************************************* -->
+
    <experiment name="CDHS">
                                                                                                                                                              
         <exp_info>
                                                                                                                                                              
-           HJ:The nucleon structure functions as measured by the CDHSW
-              collaboration in nu-iron deep inelastic scattering. The second
-              systematic error represents the uncertainty associated with
-              errors in the total cross section.
- 
+           The nucleon structure functions as measured by the CDHSW
+           collaboration in nu-iron deep inelastic scattering. The second
+           systematic error represents the uncertainty associated with
+           errors in the total cross section.
                                                                                                                                                           
            <facility>                   FNAL                   </facility>
            <detector>                   Counter                </detector>
@@ -3051,7 +3008,7 @@
                                                                                                                                                              
         </flux_spectrum>
 
-<measurement observable="f2" probe="neutrino">
+<measurement id="0" observable="f2" probe="neutrino">
   <header>
     <ref>
       <author>       Berge et al.      </author>
@@ -3977,7 +3934,7 @@
 
 
 
-<measurement observable="xf3" probe="neutrino">
+<measurement id="1" observable="xf3" probe="neutrino">
   <header>
     <ref>
       <author>       Berge et al.      </author>
@@ -5028,7 +4985,7 @@
         </flux_spectrum>
                                                                                                                                                              
 
-<measurement observable="f2" probe="neutrino">
+<measurement id="0" observable="f2" probe="neutrino">
   <header>
     <ref>
       <author>       Varvell et al     </author>
@@ -5443,7 +5400,7 @@
 
 
 
-<measurement observable="xf3" probe="neutrino">
+<measurement id="1" observable="xf3" probe="neutrino">
   <header>
     <ref>
       <author>       Varvell et al.      </author>
@@ -5728,16 +5685,12 @@
 
 
    <!-- ********************************************************************* -->
-   <!-- ****************************[EMC]********************************** -->
+   <!-- ****************************[EMC]************************************ -->
    <!-- ********************************************************************* -->
- 
  
    <experiment name="EMC">                                
  
-        <exp_info>
- 
-           HJ:The EMC combined energy nucleon structure function measured with the iron target.
- 
+        <exp_info> 
            <facility>                   FNAL                   </facility>
            <detector>                   Counter                </detector>
            <target>                     iron                   </target>
@@ -5757,18 +5710,21 @@
         </flux_spectrum>
 
 
-<measurement observable="f2" probe="muon">
- <header>
+        <measurement id="0" observable="f2" probe="muon">
+
+          The EMC combined energy nucleon structure function measured with the iron target.
+          <header>
             <ref>
-              <author>       Aubert et al.      </author>
-              <journal>      Nucl. Phys. B272 (1986) 158           </journal>
-              <year>         1986               </year>
+              <author>     Aubert et al.                 </author>
+              <journal>    Nucl. Phys. B272 (1986) 158   </journal>
+              <year>       1986                          </year>
             </ref>
-            <reaction>     muon Fe --> muon X </reaction>
-            <target>       Iron               </target>
-            <npoints>      105               </npoints>
-            <data_source>  Durham Database </data_source>
+            <reaction>     muon Fe --> muon X  </reaction>
+            <target>       Iron                </target>
+            <npoints>      105                 </npoints>
+            <data_source>  Durham Database     </data_source>
           </header>
+
           <point> 
             <x>                                  0.050          </x>
             <Q2>                                 9.00          </Q2>
@@ -6506,53 +6462,22 @@
           </point> 
         </measurement>
 
-</experiment>
 
+        <measurement id="1" observable="f2" probe="muon">
 
+          The EMC neutron structure functions measured with the deuterium
+          target and extracted by combining with the proton data.
 
-  
-   <!-- ********************************************************************* -->
-   <!-- ****************************[EMC]********************************** -->
-   <!-- ********************************************************************* -->
-  
-  
-   <experiment name="EMC">
-  
-        <exp_info>
-  
-            HJ:The EMC neutron structure functions measured with the deuterium
-                 target and extracted by combining with the proton data.
-        
-           <facility>                   FNAL                   </facility>
-           <detector>                   Counter                </detector>
-           <target>                     deutrium                   </target>
-           <exposure units="kgr*yr">                           </exposure>
-           <year>                       unknown                </year>
-           <beam>                       muon                   </beam>
-           <E frame="lab" units="GeV">  280                 </E>
-        </exp_info>
-  
-  
-        <flux_spectrum beam="muon" flux_units="" E_units="GeV" E_frame="lab">
-            
-        </flux_spectrum>
-  
-        <flux_spectrum beam="muon_bar" flux_units="" E_units="GeV" E_frame="lab">
-  
-        </flux_spectrum>
-
-
-        <measurement observable="f2" probe="muon">
           <header>
             <ref>
-              <author>       Aubert et al.      </author>
-              <journal>      Nucl. Phys. B293 (1987) 740           </journal>
-              <year>         1987               </year>
+              <author>     Aubert et al.        </author>
+              <journal>    Nucl. Phys. B293 740 </journal>
+              <year>       1987                 </year>
             </ref>
             <reaction>     muon deutrium --> muon X </reaction>
-            <target>       Deuterium               </target>
-            <npoints>      65               </npoints>
-            <data_source>  Durham Database </data_source>
+            <target>       Deuterium                </target>
+            <npoints>      65                       </npoints>
+            <data_source>  Durham Database          </data_source>
           </header>
           <point> 
             <x>                                  0.030          </x>
@@ -7011,53 +6936,23 @@
           </point> 
         </measurement>
 
-</experiment>
 
-   
-   
-   <!-- ********************************************************************* -->
-   <!-- ****************************[EMC]********************************** -->
-   <!-- ********************************************************************* -->
-   
-   
-   <experiment name="EMC">
-   
-        <exp_info>
-   
-               HJ: The combined energy proton structure functions as measured
-                  by the EMC Collaboration in muon-proton deep inelastic
-                  scattering.
 
-         
-           <facility>                   FNAL                   </facility>
-           <detector>                   Counter                </detector>
-           <target>                     proton                   </target>
-           <exposure units="kgr*yr">                           </exposure>
-           <year>                       unknown                </year>
-           <beam>                       muon                   </beam>
-           <E frame="lab" units="GeV">  280                 </E>
-        </exp_info>
-   
-   
-        <flux_spectrum beam="muon" flux_units="" E_units="GeV" E_frame="lab">
-             
-        </flux_spectrum>
-   
-        <flux_spectrum beam="muon_bar" flux_units="" E_units="GeV" E_frame="lab">
-   
-        </flux_spectrum>
+        <measurement id="2" observable="f2" probe="muon">
 
-        <measurement observable="f2" probe="muon">
+          The combined energy proton structure functions as measured
+          by the EMC Collaboration in muon-proton deep inelastic scattering.
+
           <header>
             <ref>
-              <author>       Aubert et al. , Bazizi et al.     </author>
-              <journal>      Nucl. Phys. B259 (1985) 189  , CERN-PPE/90-175 (1990) </journal>
-              <year>         1985 , 1990              </year>
+              <author>       Aubert et al. , Bazizi et al.                       </author>
+              <journal>      Nucl. Phys. B259 (1985) 189, CERN-PPE/90-175 (1990) </journal>
+              <year>         1985, 1990                                          </year>
             </ref>
             <reaction>     muon proton --> muon X </reaction>
-            <target>       Proton               </target>
-            <npoints>      95               </npoints>
-            <data_source>  Durham Database </data_source>
+            <target>       Proton                 </target>
+            <npoints>      95                     </npoints>
+            <data_source>  Durham Database        </data_source>
           </header>
           <point> 
             <x>                                  0.0175          </x>
@@ -7726,29 +7621,26 @@
           </point> 
         </measurement>
 
-</experiment>
+
+   </experiment>
 
 
-
-
-
-<!-- ********************************************************************* -->
-<!-- ****************************[NMC]********************************** -->
-<!-- ********************************************************************* -->
-  
+   <!-- ********************************************************************* -->
+   <!-- ****************************[NMC]********************************** -->
+   <!-- ********************************************************************* -->
   
    <experiment name="NMC">
   
         <exp_info>
   
-           HJ: The proton structure function F2p measured by the NMC   Collaboration in muon p deep inelastic scattering from the merged data sets at 
-               incident momenta 90, 120, 200 and 280 GeV. Data cover the x range 0.002 to 0.6 and Q^2 range from 0.5 to 75 GeV^2.
-               This data is  the final full NMC data set and supersedes any previous NMC data.
-               The structure function F2p averaged over measurements for all energies and both triggers with the normalisation corrections (see Table 
-               2 in the paper). The results are the statistically weighted averages given at the centre of each (x,Q**2)-bin.
-               The values of R are those used in the analysis ie. for x below 0.12 values obtained from NMC data (these analysis) and for higher x 
-               Slac R(1990). In the last column we give the values of F2(R1990) obtained using the values of R(1990) from the parameterisation given 
-               in the paper Whitlow et al, Phys.Lett.B250(1990)193, for all x values.
+           The proton structure function F2p measured by the NMC   Collaboration in muon p deep inelastic scattering from the merged data sets at 
+           incident momenta 90, 120, 200 and 280 GeV. Data cover the x range 0.002 to 0.6 and Q^2 range from 0.5 to 75 GeV^2.
+           This data is  the final full NMC data set and supersedes any previous NMC data.
+           The structure function F2p averaged over measurements for all energies and both triggers with the normalisation corrections (see Table 
+           2 in the paper). The results are the statistically weighted averages given at the centre of each (x,Q**2)-bin.
+           The values of R are those used in the analysis ie. for x below 0.12 values obtained from NMC data (these analysis) and for higher x 
+           Slac R(1990). In the last column we give the values of F2(R1990) obtained using the values of R(1990) from the parameterisation given 
+           in the paper Whitlow et al, Phys.Lett.B250(1990)193, for all x values.
 
   
            <facility>                   FNAL                   </facility>
@@ -7769,7 +7661,7 @@
   
         </flux_spectrum>
 
-<measurement observable="f2" probe="muon">
+<measurement id="0" observable="f2" probe="muon">
   <header>
     <ref>
       <author>       Arneodo et al     </author>
@@ -8893,50 +8785,47 @@
 </experiment>
 
 
-
-
 <!-- ********************************************************************* -->
 <!-- ****************************[BCDMS]********************************** -->
 <!-- ********************************************************************* -->
    
    
-   <experiment name="BCDMS">
+<experiment name="BCDMS">
    
-        <exp_info>
-   
-           HJ: The combined energy proton structure function as measured
-                 by the BCDMS Collaboration in muon-proton deep inelastic
-                 scattering.
+  <exp_info>
 
-           <facility>                   FNAL                   </facility>
-           <detector>                   Counter                </detector>
-           <target>                     proton                   </target>
-           <exposure units="kgr*yr">                           </exposure>
-           <year>                       unknown                </year>
-           <beam>                       muon                   </beam>
-           <E frame="lab" units="GeV">  100-280                 </E>
-        </exp_info>
+     The combined energy proton structure function as measured
+     by the BCDMS Collaboration in muon-proton deep inelastic scattering.
+
+     <facility>                   FNAL                   </facility>
+     <detector>                   Counter                </detector>
+     <target>                     proton                   </target>
+     <exposure units="kgr*yr">                           </exposure>
+     <year>                       unknown                </year>
+     <beam>                       muon                   </beam>
+     <E frame="lab" units="GeV">  100-280                 </E>
+  </exp_info>
    
    
-        <flux_spectrum beam="muon" flux_units="" E_units="GeV" E_frame="lab">
+  <flux_spectrum beam="muon" flux_units="" E_units="GeV" E_frame="lab">
              
-        </flux_spectrum>
+  </flux_spectrum>
    
-        <flux_spectrum beam="muon_bar" flux_units="" E_units="GeV" E_frame="lab">
+   <flux_spectrum beam="muon_bar" flux_units="" E_units="GeV" E_frame="lab">
    
-        </flux_spectrum>
+   </flux_spectrum>
 
-<measurement observable="f2" probe="muon">
+<measurement id="0" observable="f2" probe="muon">
   <header>
     <ref>
-      <author>       Benvenuti et al     </author>
+      <author>       Benvenuti et al             </author>
       <journal>      Phys. Lett. 223B (1989) 485 </journal>
-      <year>         1989               </year>
+      <year>         1989                        </year>
     </ref>
     <reaction>     muon proton --> muon X </reaction>
-    <target>       Proton           </target>
-    <npoints>      178              </npoints>
-    <data_source>  Durham database </data_source>
+    <target>       Proton                 </target>
+    <npoints>      178                    </npoints>
+    <data_source>  Durham database        </data_source>
   </header>
   <point> 
     <x>                                  0.070         </x>
@@ -10186,40 +10075,11 @@
   </point> 
 </measurement>
 
-</experiment>
 
+<measurement id="1" observable="f2" probe="muon">
 
+  The BCDMS nucleon structure function measured with a carbon target at 113.6 GeV.
 
-<!-- ********************************************************************* -->
-<!-- ****************************[BCDMS]********************************** -->
-<!-- ********************************************************************* -->
-                                                                                                                                                             
-                                                                                                                                                             
-   <experiment name="BCDMS">
-                                                                                                                                                             
-        <exp_info>
-
-           HJ:The BCDMS nucleon structure function measured with a carbon target at 113.6 GeV.
-                                                                                                                                                                                                                                                                            
-           <facility>                   FNAL                   </facility>
-           <detector>                   Counter                </detector>
-           <target>                     carbon                   </target>
-           <exposure units="kgr*yr">                           </exposure>
-           <year>                       unknown                </year>
-           <beam>                       muon                   </beam>
-           <E frame="lab" units="GeV">  100-280                 </E>
-        </exp_info>
-                                                                                                                                                             
-                                                                                                                                                             
-        <flux_spectrum beam="muon" flux_units="" E_units="GeV" E_frame="lab">
-                                                                                                                                                             
-        </flux_spectrum>
-                                                                                                                                                             
-        <flux_spectrum beam="muon_bar" flux_units="" E_units="GeV" E_frame="lab">
-                                                                                                                                                             
-        </flux_spectrum>
-
-<measurement observable="f2" probe="muon">
   <header>
     <ref>
       <author>       Benvenuti et al     </author>
@@ -10557,8 +10417,8 @@
   </point> 
 </measurement>
 
-</experiment>
 
+</experiment>
 
 
 <!-- ********************************************************************* -->
@@ -10566,43 +10426,41 @@
 <!-- ********************************************************************* -->
                                                                                                                                                              
                                                                                                                                                              
-   <experiment name="SLAC">
+<experiment name="SLAC">
                                                                                                                                                              
-        <exp_info>
-                                           
-                 HJ: Re-analysed data
-                 The proton structure function from a re-analysis of the
-                 SLAC experiments E49, E61, E87, and E89 in electron proton
-                 deep inelastic scattering.                                                                                                                  
+<exp_info>
+  The proton structure function from a re-analysis of the
+  SLAC experiments E49, E61, E87, and E89 in electron proton
+  deep inelastic scattering.                                                                                                                  
                                                                                                                                                              
-           <facility>                   FNAL                   </facility>
-           <detector>                   Counter                </detector>
-           <target>                     proton                   </target>
-           <exposure units="kgr*yr">                           </exposure>
-           <year>                       unknown                </year>
-           <beam>                       electron                   </beam>
-           <E frame="lab" units="GeV">  4.5-20                 </E>
-        </exp_info>
+  <facility>                   FNAL                   </facility>
+  <detector>                   Counter                </detector>
+  <target>                     proton                 </target>
+  <exposure units="kgr*yr">                           </exposure>
+  <year>                       unknown                </year>
+  <beam>                       electron               </beam>
+  <E frame="lab" units="GeV">  4.5-20                 </E>
+</exp_info>
                                                                                                                                                              
                                                                                                                                                              
-        <flux_spectrum beam="electron" flux_units="" E_units="GeV" E_frame="lab">
+<flux_spectrum beam="electron" flux_units="" E_units="GeV" E_frame="lab">
                                                                                                                                                              
-        </flux_spectrum>
+</flux_spectrum>
                                                                                                                                                              
-        <flux_spectrum beam="electron bar" flux_units="" E_units="GeV" E_frame="lab">
+<flux_spectrum beam="electron bar" flux_units="" E_units="GeV" E_frame="lab">
                                                                                                                                                              
-        </flux_spectrum>
+</flux_spectrum>
 
-<measurement observable="f2" probe="electron">
+<measurement id="0" observable="f2" probe="electron">
   <header>
     <ref>
-      <author>       Whitlow     </author>
+      <author>       Whitlow                                 </author>
       <journal>      PL B282(92)475 and SLAC-357 (1990) Ph.D </journal>
-      <year>         1990               </year>
+      <year>         1990                                    </year>
     </ref>
     <reaction>     electron proton --> electron  X </reaction>
     <target>       Proton           </target>
-    <npoints>       661              </npoints>
+    <npoints>      661              </npoints>
     <data_source>  Durham database </data_source>
   </header>
   <point> 
