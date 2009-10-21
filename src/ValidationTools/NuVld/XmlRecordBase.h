@@ -1,15 +1,20 @@
-//_____________________________________________________________________________
+//____________________________________________________________________________
 /*!
 
 \class    genie::nuvld::XmlRecordBase
 
-\brief
+\brief                                                           
 
-\author   Costas Andreopoulos (Rutherford Lab.)  <costas.andreopoulos \at stfc.ac.uk>
+\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+          STFC, Rutherford Appleton Laboratory
 
-\created  August 2003
+\created  Aug, 2003
+
+\cpright  Copyright (c) 2003-2009, GENIE Neutrino MC Generator Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org
+          or see $GENIE/LICENSE
 */
-//_____________________________________________________________________________
+//____________________________________________________________________________
 
 #ifndef _RECORD_BASE_H_
 #define _RECORD_BASE_H_

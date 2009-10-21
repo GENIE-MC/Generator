@@ -17,6 +17,7 @@
 */
 //____________________________________________________________________________ 
 
+#include "Messenger/Messenger.h"
 #include "ValidationTools/NuVld/XmlCitation.h"
 
 namespace genie {
@@ -26,17 +27,17 @@ namespace nuvld {
 ostream & operator << (ostream & stream, const XmlCitation & ref)
 {
   stream << "[-] Reference " << endl;
-  stream << " |-> author...........: " << ref._author   << endl;
-  stream << " |-> journal..........: " << ref._journal  << endl;
-  stream << " |-> year.............: " << ref._year     << endl;
+  stream << " |-> author...........: " << ref.fAuthor   << endl;
+  stream << " |-> journal..........: " << ref.fJournal  << endl;
+  stream << " |-> year.............: " << ref.fYear     << endl;
 
   return stream;
 }
 //___________________________________________________________________________
 XmlCitation::XmlCitation() :
-_author(string("")),
-_journal(string("")),
-_year(string(""))
+fAuthor (string("")),
+fJournal(string("")),
+fYear   (string(""))
 {
 
 }
@@ -48,10 +49,12 @@ XmlCitation::XmlCitation(const XmlCitation & /*ref*/)
 //___________________________________________________________________________
 void XmlCitation::Add(string key, string value)
 {
-  if      (key.compare("author")   == 0) _author   = value;
-  else if (key.compare("journal")  == 0) _journal  = value;
-  else if (key.compare("year")     == 0) _year     = value;
-  else cerr << "XmlCitation::add(string, string): unknown key" << endl;
+  if      (key.compare("author")   == 0) fAuthor   = value;
+  else if (key.compare("journal")  == 0) fJournal  = value;
+  else if (key.compare("year")     == 0) fYear     = value;
+  else {
+    LOG("NuVld", pERROR) << "Unknown key: " << key;
+  }
 }
 //___________________________________________________________________________
 

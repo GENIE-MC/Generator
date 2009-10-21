@@ -5,7 +5,7 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - Aug 01, 2003
+         STFC, Rutherford Appleton Laboratory
 
  For the class documentation see the corresponding header file.
 
@@ -38,7 +38,7 @@ ostream & operator << (ostream & stream, const XmlRecordStructure & recbase)
   map<string, vector<string> >::const_iterator element_iter;
   vector<string>::const_iterator               attribute_iter;
 
-  stream << "printing record structure" << endl;
+  stream << "[record structure]" << endl;
   for(element_iter = recbase._elements.begin(); 
                     element_iter != recbase._elements.end(); ++element_iter) {
 

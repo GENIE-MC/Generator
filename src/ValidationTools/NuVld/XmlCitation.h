@@ -1,15 +1,20 @@
-//_____________________________________________________________________________
+//____________________________________________________________________________
 /*!
 
 \class    genie::nuvld::XmlCitation
 
-\brief    Encapsulates an XML data file citation
+\brief    A citation for a measurement stored in an NuValidator XML file.
 
-\author   Costas Andreopoulos (Rutherford Lab.)  <costas.andreopoulos \at stfc.ac.uk>
+\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+          STFC, Rutherford Appleton Laboratory
 
-\created  August 2003
+\created  Aug, 2003
+
+\cpright  Copyright (c) 2003-2009, GENIE Neutrino MC Generator Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org
+          or see $GENIE/LICENSE
 */
-//_____________________________________________________________________________
+//____________________________________________________________________________
 
 #ifndef _CITATION_H_
 #define _CITATION_H_
@@ -36,24 +41,23 @@ const string c_ref_tag[c_ref_ntags] = {
 class XmlCitation
 {
 public:
-
   XmlCitation();
   XmlCitation(const XmlCitation & ref);
   virtual ~XmlCitation() { }
 
   void Add(string key, string value);
 
-  virtual const string Author  (void) const { return _author;  }     
-  virtual const string Journal (void) const { return _journal; }
-  virtual const string Year    (void) const { return _year;    }
+  virtual const string Author  (void) const { return fAuthor;  }     
+  virtual const string Journal (void) const { return fJournal; }
+  virtual const string Year    (void) const { return fYear;    }
 
   friend ostream & operator << (ostream & stream, const XmlCitation & ref);
 
 protected:
 
-  string  _author;
-  string  _journal;
-  string  _year;
+  string  fAuthor;
+  string  fJournal;
+  string  fYear;
 };
 
 } // nuvld namespace

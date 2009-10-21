@@ -61,23 +61,22 @@ public:
 
 private:
 
-  XmlParserStatus_t           VerifyParsing             (void);
-  void                        FillDataSet               (void);
-  XmlExperimentMeasurements * ParseExperiment           (xmlNodePtr xml_cur, string name);
-  XmlExperimentInfo *         ParseXmlExperimentInfo    (xmlNodePtr xml_cur);
-  XmlBeamFluxSpectrum *       ParseXmlBeamFluxSpectrum  (xmlNodePtr xml_cur);
-  XmlBeamFluxBin *            ParseXmlBeamFluxBin       (xmlNodePtr xml_cur);
-  XmlMeasurement *            ParseXmlMeasurement       (xmlNodePtr xml_cur, XmlObservable_t obs);
-  XmlMeasurementHeader *      ParseXmlMeasurementHeader (xmlNodePtr xml_cur);
-  XmlCitation *               ParseReference            (xmlNodePtr xml_cur);
-  XmlRecordBase *             ParsePoint                (xmlNodePtr xml_cur, XmlObservable_t obs);
-  XmlRecordBase *             CreateNewXmlRecord        (XmlObservable_t obs);
+  XmlParserStatus_t           Verify                 (void);
+  void                        FillDataSet            (void);
+  XmlExperimentMeasurements * ParseExperiment        (xmlNodePtr xml_cur, string name);
+  XmlExperimentInfo *         ParseExperimentInfo    (xmlNodePtr xml_cur);
+  XmlBeamFluxSpectrum *       ParseBeamFluxSpectrum  (xmlNodePtr xml_cur);
+  XmlBeamFluxBin *            ParseBeamFluxBin       (xmlNodePtr xml_cur);
+  XmlMeasurement *            ParseMeasurement       (xmlNodePtr xml_cur, XmlObservable_t obs, int id);
+  XmlMeasurementHeader *      ParseMeasurementHeader (xmlNodePtr xml_cur);
+  XmlCitation *               ParseReference         (xmlNodePtr xml_cur);
+  XmlRecordBase *             ParsePoint             (xmlNodePtr xml_cur, XmlObservable_t obs);
+  XmlRecordBase *             CreateNewXmlRecord     (XmlObservable_t obs);
       
-  xmlDocPtr                fXmlDoc;
-  string                   fXmlFilename;   
-  XmlDataSet *             fDataSet;
-  int                      fMeasurementTag;
-  XmlParserStatus_t        fXmlPStatus;
+  xmlDocPtr         fXmlDoc;       ///< parsed XML doc
+  string            fXmlFilename;  ///< input XML file name
+  XmlDataSet *      fDataSet;      ///< parsed data set
+  XmlParserStatus_t fXmlPStatus;   ///< parser status
 };
 
 } // nuvld namespace

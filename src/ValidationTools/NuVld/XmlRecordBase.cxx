@@ -27,13 +27,12 @@ namespace nuvld {
 //_____________________________________________________________________________
 ostream & operator << (ostream & stream, const XmlRecordBase & rec_base)
 {
-  map<string, string>::const_iterator rec_iter;
+  map<string, string>::const_iterator it = rec_base._rec.begin();
 
-  stream << "----------------------------------------printing record:" << endl;
-  for(rec_iter = rec_base._rec.begin(); 
-                      rec_iter != rec_base._rec.end(); ++rec_iter) 
-                                    stream << (*rec_iter).first << " :....... " 
-                                                 << (*rec_iter).second << endl;
+  stream << endl;
+  for( ; it != rec_base._rec.end(); ++it) {
+     stream << it->first << " : " << it->second << endl;
+  }
   return stream;
 }
 //_____________________________________________________________________________
