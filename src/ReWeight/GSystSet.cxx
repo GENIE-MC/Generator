@@ -17,13 +17,8 @@
 */
 //____________________________________________________________________________
 
-#include <iostream>
-
+#include "Messenger/Messenger.h"
 #include "ReWeight/GSystSet.h"
-
-using std::cerr;
-using std::cout;
-using std::endl;
 
 using namespace genie;
 using namespace genie::rew;
@@ -140,16 +135,16 @@ void GSystSet::SetStep(GSyst_t syst, double step)
 //_______________________________________________________________________________________
 void GSystSet::PrintSummary(void)
 {
-  cout << "Have included " << this->NIncluded() << " systematics:" << endl;  
+  LOG("ReW", pNOTICE) 
+     << "Considering " << this->NIncluded() << " systematics";
 				    
   vector<genie::rew::GSyst_t> svec = this->AllIncluded();
-  GSyst syst_obj;
 
+  unsigned int i=0;
   vector<genie::rew::GSyst_t>::const_iterator it = svec.begin();
   for( ; it != svec.end(); ++it) {
     GSyst_t syst = *it;
-    
-    cout << " |--> " << syst_obj.AsString(syst) << endl;
+    LOG("ReW", pNOTICE) << "(" << i++ << ") : " << GSyst::AsString(syst);
   }
 }
 //_______________________________________________________________________________________

@@ -22,8 +22,12 @@
 #ifndef _G_REWEIGHT_H_
 #define _G_REWEIGHT_H_
 
+#include <vector>
+
 #include "ReWeight/GSystSet.h"
 #include "ReWeight/GReWeightI.h"
+
+using std::vector;
 
 namespace genie {
 
@@ -48,11 +52,8 @@ namespace rew   {
    void Init    (void);
    void CleanUp (void);
 
-   GSystSet     fSystSet;         ///< set of enabled nuisance parameters
-   GReWeightI * fReWeightNuXSec;  ///< handles all GENIE cross section params
-   GReWeightI * fReWeightAGKY;    ///< handles all GENIE (free nucleon) hadronization params
-   GReWeightI * fReWeightFZone;   ///< handles all GENIE formation zone params
-   GReWeightI * fReWeightINuke;   ///< handles all GENIE intranuclear rescattering params
+   GSystSet             fSystSet;   ///< set of enabled nuisance parameters
+   vector<GReWeightI *> fWghtCalc;  ///< concrete weight calculators
  };
 
 } // rew   namespace

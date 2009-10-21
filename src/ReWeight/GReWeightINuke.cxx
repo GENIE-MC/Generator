@@ -106,10 +106,12 @@ bool GReWeightINuke::IsHandled(GSyst_t syst)
      case ( kSystINuke_InelTwk_N    ) :
      case ( kSystINuke_AbsTwk_N     ) :
      case ( kSystINuke_PiProdTwk_N  ) :
-     default:
 
           handle = true;
           break;
+
+     default:
+          handle = false;
    }
 
    return handle;
