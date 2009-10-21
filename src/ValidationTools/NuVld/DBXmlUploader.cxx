@@ -5,7 +5,7 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - Jan 12, 2004
+         STFC, Rutherford Appleton Laboratory 
 
  For the class documentation see the corresponding header file.
 
@@ -62,19 +62,25 @@ DBStatus_t DBXmlUploader::Upload(const XmlDataSet & nuscat_data) const
        this->UploadReferences( exp_info, m_header );
        this->UploadMeasHdr   ( exp_info, m_header );
 
-       if( m_header.XmlObservable().find("TOT_XSEC") == 0  ||
-           m_header.XmlObservable().find("QES_XSEC") == 0  ||
-           m_header.XmlObservable().find("SPP_XSEC") == 0  ||
-           m_header.XmlObservable().find("COH_XSEC") == 0  ||
-           m_header.XmlObservable().find("MPP_XSEC") == 0  )
-                                        this->UploadNuXSec(exp_info, *meas_iter);
+       if( m_header.Observable().find("TOT_XSEC") == 0  ||
+           m_header.Observable().find("QES_XSEC") == 0  ||
+           m_header.Observable().find("SPP_XSEC") == 0  ||
+           m_header.Observable().find("COH_XSEC") == 0  ||
+           m_header.Observable().find("MPP_XSEC") == 0  ) 
+       {
+          this->UploadNuXSec(exp_info, *meas_iter);
+       }
        else
-       if( m_header.XmlObservable().find("ELEC_PXSEC") == 0 )
-                                    this->UploadElDiffXSec(exp_info, *meas_iter);
+       if( m_header.Observable().find("ELEC_PXSEC") == 0 )
+       {
+          this->UploadElDiffXSec(exp_info, *meas_iter);
+       }
        else
-       if( m_header.XmlObservable().find("F2") == 0 ||
-           m_header.XmlObservable().find("xF3") == 0 )
-                                            this->UploadSF(exp_info, *meas_iter);
+       if( m_header.Observable().find("F2") == 0 ||
+           m_header.Observable().find("xF3") == 0 )
+       {
+          this->UploadSF(exp_info, *meas_iter);
+       }
        else {
           SLOG("NuVld", pERROR) << "Unrecognized observable!";
        }
@@ -192,14 +198,14 @@ DBStatus_t DBXmlUploader::UploadReferences(
 }
 //_______________________________________________________________________________
 DBStatus_t DBXmlUploader::UploadMeasHdr(
-       const XmlExperimentInfo & exp_info, const XmlMeasurementHeader & m_header) const
+ const XmlExperimentInfo & exp_info, const XmlMeasurementHeader & m_header) const
 {
   ostringstream sql_string;
 
   sql_string << "INSERT INTO MEASUREMENT_HEADER VALUES "
                 << "(\""  << exp_info.Name()           << "\""
                 << ",\""  << m_header.Tag()            << "\""
-                << ",\""  << m_header.XmlObservable()     << "\""
+                << ",\""  << m_header.Observable()     << "\""
                 << ",\""  << m_header.Target()         << "\""
                 << ",\""  << m_header.Reaction()       << "\""
                 << ",\""  << m_header.A()              << "\""
@@ -213,7 +219,7 @@ DBStatus_t DBXmlUploader::UploadMeasHdr(
                 << ");";
 
   SLOG("NuVld", pINFO)
-          << "SQL string to be sent to the DBase: " << sql_string.str().c_str();
+     << "\nSQL string to be sent to the DBase: " << sql_string.str().c_str();
 
   _sql_server->Query( sql_string.str().c_str() );
 
@@ -221,14 +227,13 @@ DBStatus_t DBXmlUploader::UploadMeasHdr(
 }
 //_______________________________________________________________________________
 DBStatus_t DBXmlUploader::UploadNuXSec(
-                 const XmlExperimentInfo & exp_info, const XmlMeasurement * meas) const
+    const XmlExperimentInfo & exp_info, const XmlMeasurement * meas) const
 {
   const vector<XmlRecordBase *> & d_points = meas->GetDataPoints();
   const XmlMeasurementHeader &    m_header = meas->GetXmlMeasurementHeader();
 
-  vector<XmlRecordBase *>::const_iterator point_iter;
-
-  for(point_iter = d_points.begin(); point_iter != d_points.end(); ++point_iter){
+  vector<XmlRecordBase *>::const_iterator point_iter = d_points.begin();
+  for( ; point_iter != d_points.end(); ++point_iter){
 
      ostringstream sql_string;
 
@@ -260,14 +265,14 @@ DBStatus_t DBXmlUploader::UploadNuXSec(
 }
 //_______________________________________________________________________________
 DBStatus_t DBXmlUploader::UploadElDiffXSec(
-                 const XmlExperimentInfo & exp_info, const XmlMeasurement * meas) const
+    const XmlExperimentInfo & exp_info, const XmlMeasurement * meas) const
 {
   const vector<XmlRecordBase *> & d_points = meas->GetDataPoints();
   const XmlMeasurementHeader &    m_header = meas->GetXmlMeasurementHeader();
 
-  vector<XmlRecordBase *>::const_iterator point_iter;
+  vector<XmlRecordBase *>::const_iterator point_iter = d_points.begin();
 
-  for(point_iter = d_points.begin(); point_iter != d_points.end(); ++point_iter){
+  for( ; point_iter != d_points.end(); ++point_iter){
 
      ostringstream sql_string;
 
@@ -303,14 +308,14 @@ DBStatus_t DBXmlUploader::UploadElDiffXSec(
 }
 //_______________________________________________________________________________
 DBStatus_t DBXmlUploader::UploadSF(
-                 const XmlExperimentInfo & exp_info, const XmlMeasurement * meas) const
+   const XmlExperimentInfo & exp_info, const XmlMeasurement * meas) const
 {
   const vector<XmlRecordBase *> & d_points = meas->GetDataPoints();
   const XmlMeasurementHeader &    m_header = meas->GetXmlMeasurementHeader();
 
-  vector<XmlRecordBase *>::const_iterator point_iter;
+  vector<XmlRecordBase *>::const_iterator point_iter = d_points.begin();
 
-  for(point_iter = d_points.begin(); point_iter != d_points.end(); ++point_iter){
+  for( ; point_iter != d_points.end(); ++point_iter){
 
      ostringstream sql_string;
 

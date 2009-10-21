@@ -5,7 +5,7 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - Aug 01, 2003
+         STFC, Rutherford Appleton Laboratory 
 
  For the class documentation see the corresponding header file.
 
@@ -17,6 +17,7 @@
 */
 //____________________________________________________________________________ 
 
+#include "Messenger/Messenger.h"
 #include "ValidationTools/NuVld/XmlMeasurementHeader.h"
 
 namespace genie {
@@ -26,71 +27,71 @@ namespace nuvld {
 ostream & operator << (ostream & stream, const XmlMeasurementHeader & header)
 {
   stream << endl;
-  stream << "---------------------- printing measurement header: " << endl;
 
   const vector<XmlCitation *> & refs = header.GetRefs();
-
-  vector<XmlCitation *>::const_iterator ref_iter;
-  for(ref_iter = refs.begin();
-                ref_iter != refs.end(); ++ref_iter) stream << *(*ref_iter);
+  vector<XmlCitation *>::const_iterator ref_iter = refs.begin();
+  for( ; ref_iter != refs.end(); ++ref_iter) {
+     stream << *(*ref_iter);
+  }
 
   stream << "[-] " << endl;
-  stream << " |-> observable.......: " << header._observable     << endl;
-  stream << " |-> target...........: " << header._target         << endl;
-  stream << " |-> reaction.........: " << header._reaction       << endl;
-  stream << " |-> A................: " << header._A              << endl;
-  stream << " |-> exposure.........: " << header._exposure       << endl;
-  stream << " |-> exposure units...: " << header._exposure_units << endl;
-  stream << " |-> data source......: " << header._data_source    << endl;
-  stream << " |-> tag..............: " << header._tag            << endl;
-  stream << " |-> npoints..........: " << header._npoints        << endl;
-  stream << " |-> error status.....: " << header._err_status     << endl;
-  stream << " |-> comment..........: " << header._comment        << endl;
+  stream << " |-> tag..............: " << header.fTag            << endl;
+  stream << " |-> observable.......: " << header.fObservable     << endl;
+  stream << " |-> target...........: " << header.fTarget         << endl;
+  stream << " |-> reaction.........: " << header.fReaction       << endl;
+  stream << " |-> A................: " << header.fA              << endl;
+  stream << " |-> exposure.........: " << header.fExposure       << endl;
+  stream << " |-> exposure units...: " << header.fExposureUnits  << endl;
+  stream << " |-> data source......: " << header.fDataSource     << endl;
+  stream << " |-> npoints..........: " << header.fNpoints        << endl;
+  stream << " |-> error status.....: " << header.fErrStatus      << endl;
+  stream << " |-> comment..........: " << header.fComment        << endl;
 
   return stream;
 }
 //___________________________________________________________________________
 XmlMeasurementHeader::XmlMeasurementHeader() :
-_observable(""),
-_target(""),
-_reaction(""),
-_A("1"),
-_exposure(""),
-_exposure_units(""),
-_data_source(""),
-_tag(""),
-_npoints(""),
-_err_status("1"),
-_comment("")
+fTag           (""),
+fObservable    (""),
+fTarget        (""),
+fReaction      (""),
+fA             ("1"),
+fExposure      (""),
+fExposureUnits (""),
+fDataSource    (""),
+fNpoints       (""),
+fErrStatus     ("1"),
+fComment       ("")
 {
-  _refs = new vector<XmlCitation *>;
+  fRefs = new vector<XmlCitation *>;
 }
 //___________________________________________________________________________
-XmlMeasurementHeader::XmlMeasurementHeader(const XmlMeasurementHeader & /*header*/)
+XmlMeasurementHeader::XmlMeasurementHeader(const XmlMeasurementHeader& /*h*/)
 {
 
 }
 //___________________________________________________________________________
 void XmlMeasurementHeader::Add(string key, string value)
 {
-  if      (key.compare("observable")     == 0) _observable     = value;
-  else if (key.compare("target")         == 0) _target         = value;
-  else if (key.compare("reaction")       == 0) _reaction       = value;
-  else if (key.compare("A")              == 0) _A              = value;
-  else if (key.compare("exposure")       == 0) _exposure       = value;
-  else if (key.compare("exposure_units") == 0) _exposure_units = value;
-  else if (key.compare("data_source")    == 0) _data_source    = value;
-  else if (key.compare("tag")            == 0) _tag            = value;
-  else if (key.compare("npoints")        == 0) _npoints        = value;
-  else if (key.compare("error_status")   == 0) _err_status     = value;
-  else if (key.compare("comment")        == 0) _comment        = value;
-  else
-      cerr << "XmlMeasurementHeader::add(string, string): unknown key" << endl;
+  if      (key.compare("tag")            == 0) fTag            = value;
+  else if (key.compare("observable")     == 0) fObservable     = value;
+  else if (key.compare("target")         == 0) fTarget         = value;
+  else if (key.compare("reaction")       == 0) fReaction       = value;
+  else if (key.compare("A")              == 0) fA              = value;
+  else if (key.compare("exposure")       == 0) fExposure       = value;
+  else if (key.compare("exposure_units") == 0) fExposureUnits  = value;
+  else if (key.compare("data_source")    == 0) fDataSource     = value;
+  else if (key.compare("npoints")        == 0) fNpoints        = value;
+  else if (key.compare("error_status")   == 0) fErrStatus      = value;
+  else if (key.compare("comment")        == 0) fComment        = value;
+  else {
+   LOG("NuVld", pERROR) << "Unknown key: " << key;
+  }
 }
 //___________________________________________________________________________
 void XmlMeasurementHeader::Add(XmlCitation * ref)
 {
-  _refs->push_back(ref);
+  fRefs->push_back(ref);
 }
 //___________________________________________________________________________
 

@@ -1,15 +1,20 @@
-//_____________________________________________________________________________
+//____________________________________________________________________________
 /*!
 
 \class    genie::nuvld::XmlMeasurementHeader
 
-\brief
+\brief    NuVld DB measurement header
 
-\author   Costas Andreopoulos (Rutherford Lab.)  <costas.andreopoulos \at stfc.ac.uk>
+\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+          STFC, Rutherford Appleton Laboratory
 
-\created  August 2003
+\created  Aug, 2003
+
+\cpright  Copyright (c) 2003-2009, GENIE Neutrino MC Generator Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org
+          or see $GENIE/LICENSE
 */
-//_____________________________________________________________________________
+//____________________________________________________________________________
 
 #ifndef _MEASUREMENT_HEADER_H_
 #define _MEASUREMENT_HEADER_H_
@@ -34,7 +39,7 @@ const string c_meas_header_tag[c_meas_header_ntags] = {
    string("observable"),
    string("target"),
    string("reaction"),
-   string("A"),              /* defaults to 1, only set for COHERENT XSEC */
+   string("A"),          
    string("exposure"),
    string("exposure_units"),
    string("data_source"),
@@ -53,37 +58,37 @@ public:
   void Add(string key, string value = "");
   void Add(XmlCitation * ref);
 
-  virtual const string XmlObservable    (void) const { return _observable;     }
-  virtual const string Target        (void) const { return _target;         }
-  virtual const string Reaction      (void) const { return _reaction;       }
-  virtual const string A             (void) const { return _A;              }
-  virtual const string Exposure      (void) const { return _exposure;       }
-  virtual const string ExposureUnits (void) const { return _exposure_units; }
-  virtual const string DataSource    (void) const { return _data_source;    }
-  virtual const string Tag           (void) const { return _tag;            }
-  virtual const string NPoints       (void) const { return _npoints;        }
-  virtual const string ErrorStatus   (void) const { return _err_status;     }
-  virtual const string Comment       (void) const { return _comment;        }
+  virtual const string Tag           (void) const { return fTag;            }
+  virtual const string Observable    (void) const { return fObservable;     }
+  virtual const string Target        (void) const { return fTarget;         }
+  virtual const string Reaction      (void) const { return fReaction;       }
+  virtual const string A             (void) const { return fA;              }
+  virtual const string Exposure      (void) const { return fExposure;       }
+  virtual const string ExposureUnits (void) const { return fExposureUnits;  }
+  virtual const string DataSource    (void) const { return fDataSource;     }
+  virtual const string NPoints       (void) const { return fNpoints;        }
+  virtual const string ErrorStatus   (void) const { return fErrStatus;      }
+  virtual const string Comment       (void) const { return fComment;        }
 
-  const vector<XmlCitation *> & GetRefs(void) const { return *_refs; }
+  const vector<XmlCitation *> & GetRefs(void) const { return * fRefs; }
 
   friend ostream & operator << (ostream & stream, const XmlMeasurementHeader & header);
 
 protected:
 
-  vector<XmlCitation *> * _refs;
+  vector<XmlCitation *> * fRefs;
 
-  string  _observable;
-  string  _target;
-  string  _reaction;
-  string  _A;
-  string  _exposure;
-  string  _exposure_units;
-  string  _data_source;
-  string  _tag;
-  string  _npoints;
-  string  _err_status;
-  string  _comment;
+  string  fTag;
+  string  fObservable;
+  string  fTarget;
+  string  fReaction;
+  string  fA;
+  string  fExposure;
+  string  fExposureUnits;
+  string  fDataSource;
+  string  fNpoints;
+  string  fErrStatus;
+  string  fComment;
 };
 
 } // nuvld namespace
