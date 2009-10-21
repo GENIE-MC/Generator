@@ -112,7 +112,6 @@
   <priority msgstream="PathL">               NOTICE </priority>
   <priority msgstream="QELXSec">             NOTICE </priority>
   <priority msgstream="QELCharmXSec">        NOTICE </priority>
-  <priority msgstream="QELPXSec">            NOTICE </priority> <!-- remove -->
   <priority msgstream="QELHadronicVtx">      INFO   </priority>
   <priority msgstream="QELKinematics">       INFO   </priority>
   <priority msgstream="RESXSec">             INFO   </priority>
