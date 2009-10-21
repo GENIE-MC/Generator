@@ -40,6 +40,7 @@ TGT =	gtestAlgorithms 	 \
 	gtestRecoINukeHadroFates \
 	gtestInteraction	 \
 	gtestResonances		 \
+	gtestRwMarginalization	 \
 	gtestRwNuXSecHelperP2P	 \
 	gtestRwNuXSecHelperLoop	 \
 	gtestKPhaseSpace	
@@ -151,6 +152,10 @@ gtestResonances: FORCE
 	$(CXX) $(CXXFLAGS) -c testResonances.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) testResonances.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestResonances
 
+gtestRwMarginalization: FORCE
+	$(CXX) $(CXXFLAGS) -c testRwMarginalization.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) testRwMarginalization.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestRwMarginalization
+
 gtestRwNuXSecHelperP2P: FORCE
 	$(CXX) $(CXXFLAGS) -c testRwNuXSecHelperP2P.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) testRwNuXSecHelperP2P.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestRwNuXSecHelperP2P
@@ -203,6 +208,7 @@ clean: FORCE
 	$(RM) $(GENIE_BIN_PATH)/gtestRegistry		
 	$(RM) $(GENIE_BIN_PATH)/gtestInteraction	
 	$(RM) $(GENIE_BIN_PATH)/gtestResonances		
+	$(RM) $(GENIE_BIN_PATH)/gtestRwMarginalization	
 	$(RM) $(GENIE_BIN_PATH)/gtestRwNuXSecHelperP2P	
 	$(RM) $(GENIE_BIN_PATH)/gtestRwNuXSecHelperLoop		
 	$(RM) $(GENIE_BIN_PATH)/gtestRecoINukeHadroFates		
@@ -236,6 +242,7 @@ distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestRegistry		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestInteraction	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestResonances		
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestRwMarginalization		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestRwNuXSecHelperP2P		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestRwNuXSecHelperLoop		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestRecoINukeHadroFates		
@@ -247,90 +254,6 @@ ifeq ($(strip $(GOPT_ENABLE_GEOM_DRIVERS)),YES)
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestROOTGeometry		
 endif
 
-
-clean--gtestAlgorithms: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestAlgorithms
-
-clean--gtestBaryonResDataSet: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestBaryonResDataSet
-
-clean--gtestBLI2DUnifGrid: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestBLI2DUnifGrid
-
-clean--gtestConfigPool: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestConfigPool
-
-clean--gtestDecay: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestDecay
-
-clean--gtestDISSF: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestDISSF
-
-clean--gtestElFormFactors: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestElFormFactors
-
-clean--gtestEventLoop: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestEventLoop
-
-clean--gtestGiBUUData: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestGiBUUData
-
-clean--gtestHadronization: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestHadronization
-
-clean--gtestIntranuke: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestIntranuke
-
-clean--gtestINukeHadroData: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestINukeHadroData
-
-clean--gtestXSec: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestXSec
-
-clean--gtestMessenger: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestMessenger
-
-clean--gtestNumerical: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestNumerical
-
-clean--gtestNaturalIsotopes: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestNaturalIsotopes
-
-clean--gtestPDFLIB: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestPDFLIB
-
-clean--gtestPREM: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestPREM
-
-clean--gtestFermiP: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestFermiP
-
-clean--gtestFluxDriver: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestFluxDriver
-
-clean--gtestRegistry: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestRegistry
-
-clean--gtestInteraction: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestInteraction
-
-clean--gtestResonances: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestInteraction
-
-clean--gtestRwNuXSecHelperP2P: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestRwNuXSecHelperP2P
-
-clean--gtestRwNuXSecHelperLoop: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestRwNuXSecHelperLoop
-
-clean--gtestRecoINukeHadroFates: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestRecoINukeHadroFates
-
-clean--gtestKPhaseSpace: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestKPhaseSpace
-
-clean--gtestROOTGeometry: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gtestROOTGeometry
 
 FORCE:
 
