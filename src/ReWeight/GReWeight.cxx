@@ -114,9 +114,16 @@ double GReWeight::CalcChisq(void)
 //____________________________________________________________________________
 void GReWeight::Init(void)
 {
+  // handles all GENIE cross section params
   fWghtCalc.push_back( new GReWeightNuXSec );
+
+  // handles all GENIE (free nucleon) hadronization params
   fWghtCalc.push_back( new GReWeightAGKY   );
+
+  // handles all GENIE formation zone params
   fWghtCalc.push_back( new GReWeightFZone  );
+
+  // handles all GENIE intranuclear rescattering params
   fWghtCalc.push_back( new GReWeightINuke  );
 }
 //____________________________________________________________________________
