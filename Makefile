@@ -265,6 +265,8 @@ ifeq ($(strip $(GOPT_ENABLE_VALIDATION_TOOLS)),YES)
 	make; \
 	cd ${GENIE}/src/ValidationTools/Merenyi; \
 	make; \
+	cd ${GENIE}/src/ValidationTools/eA; \
+	make; \
 	cd ${GENIE}
 else
 	@echo " "
@@ -538,6 +540,7 @@ purge: FORCE
 	cd ValidationTools/CrossSections; make purge; cd ../../; \
 	cd ValidationTools/Hadronization; make purge; cd ../../; \
 	cd ValidationTools/Merenyi;       make purge; cd ../../; \
+	cd ValidationTools/eA;            make purge; cd ../../; \
 	cd Viewer;                        make purge; \
 	cd ${GENIE}
 
@@ -594,6 +597,7 @@ clean-files: FORCE
 	cd ValidationTools/CrossSections; make clean; cd ../../; \
 	cd ValidationTools/Hadronization; make clean; cd ../../; \
 	cd ValidationTools/Merenyi;       make clean; cd ../../; \
+	cd ValidationTools/eA;            make clean; cd ../../; \
 	cd Viewer;                        make clean; cd ..; \
 	cd VLE;                           make clean; cd ..; \
 	cd VHE;                           make clean; cd ..; \
@@ -668,6 +672,7 @@ distclean: FORCE
 	cd ValidationTools/CrossSections;  make distclean; cd ../../; \
 	cd ValidationTools/Hadronization;  make distclean; cd ../../; \
 	cd ValidationTools/Merenyi;        make distclean; cd ../../; \
+	cd ValidationTools/eA;             make distclean; cd ../../; \
 	cd Viewer;                         make distclean; cd ..; \
 	cd VLE;                            make distclean; cd ..; \
 	cd VHE;                            make distclean; cd ..; \
