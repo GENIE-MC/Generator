@@ -62,77 +62,75 @@ void GReWeight::Reconfigure(void)
 {
   LOG("ReW", pNOTICE) << "Reconfiguring ...";
 
-  fSystSet.PrintSummary();
-
   vector<genie::rew::GSyst_t> svec = fSystSet.AllIncluded();
 
-  vector<genie::rew::GSyst_t>::const_iterator it = svec.begin();
-  for( ; it != svec.end(); ++it) {
-    GSyst_t syst = *it;
-    double val = fSystSet.CurValue(syst);
+  vector<GReWeightI *>::iterator wcalc_iter = fWghtCalc.begin();
+  for( ; wcalc_iter != fWghtCalc.end(); ++wcalc_iter) {
 
-    fReWeightNuXSec -> SetSystematic(syst, val);
-    fReWeightAGKY   -> SetSystematic(syst, val);
-    fReWeightFZone  -> SetSystematic(syst, val);
-    fReWeightINuke  -> SetSystematic(syst, val);
-  }
+      GReWeightI * wcalc = *wcalc_iter;
 
-  fReWeightNuXSec -> Reconfigure();
-  fReWeightAGKY   -> Reconfigure();
-  fReWeightFZone  -> Reconfigure();
-  fReWeightINuke  -> Reconfigure();
+      vector<genie::rew::GSyst_t>::const_iterator parm_iter = svec.begin();
+      for( ; parm_iter != svec.end(); ++parm_iter) {
+          GSyst_t syst = *parm_iter;
+          double val = fSystSet.CurValue(syst);
+          wcalc->SetSystematic(syst, val);
+      }//params
 
-  LOG("ReW", pNOTICE) << "Done reconfiguring";
+      wcalc->Reconfigure();
+
+  }//weight calculators
+
+  LOG("ReW", pDEBUG) << "Done reconfiguring";
 }
 //____________________________________________________________________________
 double GReWeight::CalcWeight(const genie::EventRecord & event) 
 {
 // calculate weight for all tweaked physics parameters
 //
-  double weight_xsec  = fReWeightNuXSec -> CalcWeight(event);  // cross sections
-  double weight_agky  = fReWeightAGKY   -> CalcWeight(event);  // hadronization
-  double weight_fzone = fReWeightFZone  -> CalcWeight(event);  // form. zone
-  double weight_inuke = fReWeightINuke  -> CalcWeight(event);  // intranuke
-
-  double weight = weight_xsec * 
-                  weight_agky *
-                  weight_fzone *
-                  weight_inuke;
-
+  double weight = 1.0;
+  vector<GReWeightI *>::iterator it = fWghtCalc.begin();
+  for( ; it != fWghtCalc.end(); ++it) {
+    GReWeightI * wcalc = *it;
+    double w = wcalc->CalcWeight(event); 
+    weight *= w;
+  }
   return weight;
 }
 //____________________________________________________________________________
 double GReWeight::CalcChisq(void) 
 {
 // calculate the sum of penalty terms for all tweaked physics parameters
+//
+  double tot_chisq = 0.0;
 
-  double chisq_xsec  = fReWeightNuXSec -> CalcChisq(); 
-  double chisq_agky  = fReWeightAGKY   -> CalcChisq();  
-  double chisq_fzone = fReWeightFZone  -> CalcChisq();  
-  double chisq_inuke = fReWeightINuke  -> CalcChisq(); 
-
-  double chisq = TMath::Max(0., chisq_xsec ) +
-                 TMath::Max(0., chisq_agky ) +
-                 TMath::Max(0., chisq_fzone) +
-                 TMath::Max(0., chisq_inuke);
-
-  return chisq;
+  vector<GReWeightI *>::iterator it = fWghtCalc.begin();
+  for( ; it != fWghtCalc.end(); ++it) {
+    GReWeightI * wcalc = *it;
+    double chisq = wcalc->CalcChisq(); 
+    tot_chisq *= chisq;
+  }
+  return tot_chisq;
 }
 //____________________________________________________________________________
 void GReWeight::Init(void)
 {
-  fReWeightNuXSec = new GReWeightNuXSec;
-  fReWeightAGKY   = new GReWeightAGKY;
-  fReWeightFZone  = new GReWeightFZone;
-  fReWeightINuke  = new GReWeightINuke;
+  fWghtCalc.push_back( new GReWeightNuXSec );
+  fWghtCalc.push_back( new GReWeightAGKY   );
+  fWghtCalc.push_back( new GReWeightFZone  );
+  fWghtCalc.push_back( new GReWeightINuke  );
 }
 //____________________________________________________________________________
 void GReWeight::CleanUp(void)
 {
-  delete fReWeightNuXSec; 
-  delete fReWeightAGKY; 
-  delete fReWeightFZone; 
-  delete fReWeightINuke; 
+  vector<GReWeightI *>::iterator it = fWghtCalc.begin();
+  for( ; it != fWghtCalc.end(); ++it) {
+    GReWeightI * rw = *it;
+    if(rw) {
+      delete rw;
+      rw=0;
+    }
+  }
+  fWghtCalc.clear();
 }
 //____________________________________________________________________________
 void GReWeight::Print()

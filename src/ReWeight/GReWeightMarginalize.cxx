@@ -92,7 +92,7 @@ double genie::rew::margin::MarginalizeFates(
 
   systematics.SetCurValue (fixed_fate, fixed_dial);
 
-  double w_wght_sum = 0;
+  double tot_wgt = 0;
   int itry=0;
 
   while(itry < n) {
@@ -119,11 +119,15 @@ double genie::rew::margin::MarginalizeFates(
 
     // Reconfigure GENIE to use the new settings and calculate a weight
     rw.Reconfigure();
-    w_wght_sum += rw.CalcWeight(*event);
+    double w = rw.CalcWeight(*event);
+    tot_wgt += w;
+
+    LOG("ReW", pNOTICE) 
+        << "Current weight = " << w << " (sum = " << tot_wgt << ")";
 
   }//n
 
-  double w_wght_avg = w_wght_sum/n;
-  return w_wght_avg;
+  double avg_wgt = tot_wgt/n;
+  return avg_wgt;
 }
 //____________________________________________________________________________
