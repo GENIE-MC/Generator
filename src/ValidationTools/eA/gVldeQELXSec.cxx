@@ -96,6 +96,7 @@
 #include <TPostScript.h>
 #include <TLatex.h>
 #include <TH1D.h>
+#include <TH2D.h>
 #include <TMath.h>
 #include <TCanvas.h>
 #include <TPavesText.h>
@@ -143,13 +144,13 @@ const char * kElXSecKeyList[kElXSecDataSets] = {
 // ... add more
 //
 };
-float kElXSecEnergy[kElXSecDataSets] = {
+double kElXSecEnergy[kElXSecDataSets] = {
 /*  0 */ 0.700
 //
 // ... add more
 //
 };
-float kElXSecTheta[kElXSecDataSets] = {
+double kElXSecTheta[kElXSecDataSets] = {
 /*  0 */ 32.00,
 //
 // ... add more
@@ -172,7 +173,7 @@ void     End                (void);
 void     SetStyle           (void);
 void     AddCoverPage       (void);
 bool     Connect            (void);
-DBQ      FormQuery          (const char * key_list, float energy, float theta);
+DBQ      FormQuery          (const char * key_list, double energy, double theta);
 DBT *    Data               (int iset);
 TGraph * Model              (int iset, int imodel);
 void     Draw               (int iset);
@@ -255,7 +256,7 @@ void Init(void)
   gC->SetGridy();
 
   // output postscript file
-  gPS = new TPostScript("genie.ps", 111);
+  gPS = new TPostScript("genie_eqel_vs_data.ps", 111);
 
   // cover page
   AddCoverPage();
@@ -302,28 +303,108 @@ TGraph * Model(int iset, int imodel)
 
   TFile * xsec_file = gOptGenieInputs.XSecFile(imodel);
   if(!xsec_file) {
-     LOG("vldtest", pNOTICE)
+     LOG("vldtest", pWARN)
         << "No corresponding cross section file";
      return 0;
   }
       
   TChain * event_chain = gOptGenieInputs.EvtChain(imodel);
   if(!event_chain) {
-     LOG("vldtest", pNOTICE)
+     LOG("vldtest", pWARN)
         << "No corresponding event chain.";
+     return 0;
+  }
+
+  // electron energy and scattering angle
+  double E        = kElXSecEnergy [iset]; // GeV
+  double theta    = kElXSecTheta  [iset]; // deg
+
+  double dE       = 0.01; // GeV
+  double costheta = TMath::Cos(kPi*theta/180.);
+
+  // total cross section
+  TGraph * xsec_em_gr = 0; // get it from the input xsec_file
+  if(!xsec_em_gr) {
+     LOG("vldtest", pWARN)
+        << "Null E/M cross section graph";
+     return 0;
+  }
+  double xsec_em = xsec_em_gr->Eval(E);
+  if(xsec_em <= 0) {
+     LOG("vldtest", pWARN)
+        << "Null E/M cross section graph";
+     return 0;
   }
 
   //
-  //
-  // .... ..... .....
-  // .... ..... .....
-  // .... ..... .....
-  // .... ..... .....
-  // .... ..... .....
-  //
+  // book histograms
   //
 
-  return 0;
+  // E', final state primary lepton energy
+  double Ep_min   = 0;
+  double Ep_max   = E;
+  double Ep_bin   = 0.01;
+  double Ep_nbins = (Ep_max-Ep_min)/Ep_bin;
+
+  // theta, scattering angle
+  double costh_min   = -1;
+  double costh_max   =  1;
+  double costh_bin   =  0.01;
+  double costh_nbins = (costh_max-costh_min)/costh_bin;
+
+  TH2D * h2EpOmega = 
+     new TH2D("h2EpOmega",  "N=N(E',Omega)|{fixed:E}", 
+         Ep_nbins, Ep_min, Ep_max, costh_nbins, costh_min, costh_max);
+
+  //
+  // estimate d^2 sigma / dE' dOmega at the current incoming lepton energy E0
+  //
+
+  char cut[500];
+  Form(cut,"em&&(fabs(Ev-%d)<%d)", E, dE);
+
+  event_chain->Draw("((pxv*pxl+pyv*pyl+pzv*pzl)/(Ev*El)):El>>h2EpOmega", cut, "GOFF");
+
+  double integral = h2EpOmega->Integral("width");
+  if(integral <= 0) {
+     LOG("vldtest", pWARN)
+        << "Non-positive d^2N / dEp dOmega integral";
+     return 0;
+  }
+  double normalization = 2*kPi*xsec_em/integral;
+
+  h2EpOmega->Scale(normalization); // units: 1E-38 cm^2 / GeV /sterad
+
+  //
+  // now pick a slice at selected theta and return 
+  // d^2 sigma / dE' dOmega (fixed: E, theta) = f(v = E-E') 
+  // in the same units as the expt data (nbar/GeV/sterad)
+  //
+
+  int N = Ep_nbins;
+
+  double * x = new double[N]; // v
+  double * y = new double[N]; // d^2 sigma / dE' dOmega
+
+  int costheta_bin = h2EpOmega->GetYaxis()->FindBin(costheta);
+
+  for(int i = 0; i < h2EpOmega->GetNbinsX(); i++) {
+    int Ep_bin = i+1;
+    double Ep  = h2EpOmega->GetXaxis()->GetBinCenter(Ep_bin);
+
+    double v      = E - Ep;
+    double d2xsec = h2EpOmega->GetBinContent(Ep_bin, costheta_bin);
+
+    x[i] = v;
+    y[i] = d2xsec;
+  }
+
+  TGraph * gr = new TGraph(N,x,y);
+
+  delete [] x;
+  delete [] y;
+
+  return gr;
 }
 //_________________________________________________________________________________
 // Download cross section data from NuVld MySQL dbase 
@@ -343,7 +424,7 @@ bool Connect(void)
   return true;
 }
 //_________________________________________________________________________________
-DBQ FormQuery(const char * key_list, float energy, float theta)
+DBQ FormQuery(const char * key_list, double energy, double theta)
 {
 // forms a DBQueryString for extracting neutrino cross section data from the input 
 // key-list and for the input energy range
@@ -380,8 +461,8 @@ DBT * Data(int iset)
   DBT * dbtable = new DBT;
 
   const char * keylist = kElXSecKeyList[iset];
-  float        energy  = kElXSecEnergy [iset];
-  float        theta   = kElXSecTheta  [iset];
+  double       energy  = kElXSecEnergy [iset];
+  double       theta   = kElXSecTheta  [iset];
 
   DBQ query = FormQuery(keylist, energy, theta);
   assert( gDBI->FillTable(dbtable, query) == eDbu_OK );
@@ -629,7 +710,7 @@ void PrintSyntax(void)
 {
   LOG("gvldtest", pNOTICE)
     << "\n\n" << "Syntax:" << "\n"
-    << "   gvld_nuxsec_vs_world_data [-h host] [-u user] [-p passwd] [-m model]\n";
+    << "  gvld_e_qel_xsec [-h host] [-u user] [-p passwd] [-g input_file_list]\n";
 }
 //_________________________________________________________________________________
 
