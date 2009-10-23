@@ -33,6 +33,7 @@
 #include "Ntuple/NtpMCTreeHeader.h"
 #include "Ntuple/NtpMCEventRecord.h"
 #include "PDG/PDGLibrary.h"
+#include "PDG/PDGCodes.h"
 #include "Messenger/Messenger.h"
 #include "Utils/CmdLineArgParserUtils.h"
 #include "Utils/CmdLineArgParserException.h"
@@ -104,11 +105,11 @@ int main(int argc, char ** argv)
 
   vector<int> evtnum;
 
-  //-- loop over events & test conservation laws
-
   int nev = (gOptNEvt > 0) ?
                  TMath::Min(gOptNEvt, (int)tree->GetEntries()) :
                  (int) tree->GetEntries();
+
+  // Event loop
 
   for(int i = 0; i < nev; i++) {
     tree->GetEntry(i);
@@ -125,49 +126,48 @@ int main(int argc, char ** argv)
      int          pdgc = p->Pdg();
      GHepStatus_t ist  = p->Status();
 
-     // Check energy & momentum conservation
      //
+     // Check energy & momentum, charge and strangeness conservation
+     //
+
      if(ist == kIStInitialState) {
-       E_init   += p->E();
-       px_init  += p->Px();
-       py_init  += p->Py();
-       pz_init  += p->Pz();
+       E_init  += p->E();
+       px_init += p->Px();
+       py_init += p->Py();
+       pz_init += p->Pz();
+       Q_init  += p->Charge();
+     //s_init  += pdglib->Find(p->Pdg())->Strangeness();
+       s_init  += Strangeness(pdgc);
+
      }
-     if(ist == kIStStableFinalState || ist == kIStFinalStateNuclearRemnant) {
+     if(ist == kIStStableFinalState || 
+        ist == kIStFinalStateNuclearRemnant) {
        E_fin   += p->E();
        px_fin  += p->Px();
        py_fin  += p->Py();
        pz_fin  += p->Pz();
+       Q_fin   += p->Charge();
+     //s_fin   += pdglib->Find(p->Pdg())->Strangeness();
+       s_fin   += Strangeness(pdgc);
      }
 
-     // Check charge conservation
-     //
-     //Q_init += p->Charge();
-     //Q_fin  += p->Charge();
-    
-     // Check strangeness conservation
-     //
-     //s_fin  += pdglib->Find(p->Pdg())->Strangeness();
-     //s_init += pdglib->Find(p->Pdg())->Strangeness();
 
+     //
      // Check particle frequencies
      //
 
      all_particles[pdgc]++;
      all_n++;
   
-     if (ist == kIStStableFinalState)
-     {
+     if (ist == kIStStableFinalState) {
        fs_particles[pdgc]++;
        fs_n++;
      }
-     else if (ist == kIStDecayedState)
-     {
+     else if (ist == kIStDecayedState) {
        dec_particles[pdgc]++;
        dec_n++;
      }
-     else if (ist == kIStHadronInTheNucleus)
-     {
+     else if (ist == kIStHadronInTheNucleus) {
        primh_particles[pdgc]++;
        primh_n++;
      }
@@ -285,8 +285,36 @@ int main(int argc, char ** argv)
   return 0;
 }
 //____________________________________________________________________________
-int Strangeness(int /*pdgc*/)
+int Strangeness(int pdgc)
 {
+  switch (pdgc) {
+
+   case ( kPdgKP         ) : // K^+
+   case ( kPdgK0         ) : // K^0
+   case ( kPdgDPs        ) : // Ds^+
+   case ( kPdgAntiLambda ) : // \bar{Lambda^0}
+   case ( kPdgAntiSigmaP ) : // \bar{Sigma+}
+   case ( kPdgAntiSigma0 ) : // \bar{Sigma0}
+   case ( kPdgAntiSigmaM ) : // \bar{Sigma-}
+   
+    return 1;
+    break;
+
+   case ( kPdgKM         ) : // K^-
+   case ( kPdgAntiK0     ) : // \bar{K^0}
+   case ( kPdgDMs        ) : // Ds^-
+   case ( kPdgLambda     ) : // Lambda^0
+   case ( kPdgSigmaP     ) : // Sigma+
+   case ( kPdgSigma0     ) : // Sigma0
+   case ( kPdgSigmaM     ) : // Sigma-
+
+    return -1;
+    break;
+
+   default:
+    return 0;
+  }
+
   return 0;
 }
 //____________________________________________________________________________
