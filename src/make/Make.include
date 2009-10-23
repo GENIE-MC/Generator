@@ -160,23 +160,6 @@ LPDFLIB  = $(shell awk 'BEGIN { str="$(PDFLIB)"; \
 
 CERN_LIBRARIES = -L$(CERN_LIB_DIR) $(LPDFLIB) -lkernlib -lmathlib -lpacklib $(FORT_LIBRARIES)
 
-#
-#CERN_LIBRARIES = -L$(CERN_LIB_DIR) $(LPDFLIB) -lkernlib -lmathlib -lpacklib \
-#		 -L/usr/lib -L/usr/lib64 -lg2c
-#
-#ifeq ($(strip $(ARCH)),macosx) 
-#CERN_LIBRARIES = -L$(CERN_LIB_DIR) $(LPDFLIB) -lkernlib -lmathlib -lpacklib \
-#		 /usr/local/lib/libgfortran.dylib 
-#
-#have_g2c := $wildcard(/usr/local/lib/libg2c.dylib)
-#ifeq ($(strip $(have_g2c)),)
-#else
-#CERN_LIBRARIES := $(CERN_LIBRARIES) /usr/local/lib/libg2c.dylib 
-#endif
-#
-#endif # macosx
-#
-
 endif # enable-cern
 
 #-------------------------------------------------------------------
@@ -190,21 +173,6 @@ ifeq ($(strip $(GOPT_ENABLE_LHAPDF)),YES)
 
 LHAPDF_INCLUDES  = -I$(GOPT_WITH_LHAPDF_INC)
 LHAPDF_LIBRARIES = -L$(GOPT_WITH_LHAPDF_LIB) -lLHAPDF $(FORT_LIBRARIES)
-
-#
-#ifeq ($(strip $(ARCH)),macosx) 
-#LHAPDF_LIBRARIES = -L$(GOPT_WITH_LHAPDF_LIB) -lLHAPDF /usr/local/lib/libgfortran.dylib 
-#
-#have_g2c := $wildcard(/usr/local/lib/libg2c.dylib)
-#ifeq ($(strip $(have_g2c)),)
-#else
-#LHAPDF_LIBRARIES := $(LHAPDF_LIBRARIES) /usr/local/lib/libg2c.dylib 
-#endif
-#
-#else
-#LHAPDF_LIBRARIES = -L$(GOPT_WITH_LHAPDF_LIB) -lLHAPDF -L/usr/lib -L/usr/lib64 -lg2c
-#endif
-#
 
 endif
 
@@ -222,32 +190,6 @@ PYTHIA_LIBRARIES  = -L$(PYTHIA_DIR) -lPythia6 $(PYTHIA_O)
 ifeq ($(strip $(ARCH)),macosx) 
 PYTHIA_LIBRARIES  = -L$(PYTHIA_DIR) -lPythia6 
 endif
-
-#-------------------------------------------------------------------
-#                             NEUGEN3
-#-------------------------------------------------------------------
-
-ifeq ($(strip $(GOPT_ENABLE_NEUGEN)),NO) 
-
-# if NeuGEN was not enabled a dummy NeuGEN library will be built so 
-# that the NuValidator's NeuGEN facade can compile. In this case, 
-# set NEUGEN3PATH=GENIE
-#1  NEUGEN3PATH=$(GENIE)
-#1  NEUGEN_LIBRARIES = -L$(NEUGEN3PATH)/lib -lneugen3 
-else
-#
-# In case the actual NeuGEN library is used, add CERNLIB's stdhep
-# which is used by NeuGEN (in addition to the 'std' CERNLIBs)
-#1  NEUGEN3PATH=$(GOPT_WITH_NEUGEN_PATH)
-#1  NEUGEN_LIBRARIES = -L$(CERN_LIB_DIR) -lstdhep \
-#1			-L$(NEUGEN3PATH)/lib -lneugen3 
-endif
-
-#1ifeq ($(strip $(ARCH)),macosx) 
-#1  NEUGEN_LIBRARIES := $(NEUGEN_LIBRARIES) /usr/local/lib/libgfortran.dylib
-#1else
-#1  NEUGEN_LIBRARIES := $(NEUGEN_LIBRARIES) -lg2c
-#1endif
 
 #-------------------------------------------------------------------
 #                              NEUT
