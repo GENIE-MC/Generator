@@ -1,12 +1,12 @@
 //____________________________________________________________________________
 /*!
 
-\program gvld_hadronization_test
+\program gvld_free_nucleon_hadronz_test
 
 \brief   Hadronization validation program
          (comparing GENIE models with neutrino bubble chamber data).
 
-\syntax  gvld_hadronization_test -g genie_inputs.xml [-f fmt]
+\syntax  gvld_free_nucleon_hadronz_test -g genie_inputs.xml [-f fmt]
 
          Options:
 
@@ -329,6 +329,6 @@ void PrintSyntax(void)
 {
   LOG("vldtest", pNOTICE)
     << "\n\n" << "Syntax:" << "\n"
-    << "   gvld_hadronization_test -g genie_inputs.xml\n [-f format]";
+    << " gvld_free_nucleon_hadronz_test -g genie_inputs.xml\n [-f format]";
 }
 //____________________________________________________________________________
