@@ -245,6 +245,7 @@ void ConvertToGST(void)
   bool   brIsDfr       = false;  // Is Diffractive?
   bool   brIsImd       = false;  // Is IMD?
   bool   brIsNuEL      = false;  // Is ve elastic?
+  bool   brIsEM        = false;  // Is Electro-magnetic?
   bool   brIsCC        = false;  // Is CC?
   bool   brIsNC        = false;  // Is NC?
   bool   brIsCharmPro  = false;  // Produces charm?
@@ -342,6 +343,7 @@ void ConvertToGST(void)
   s_tree->Branch("dfr",           &brIsDfr,         "dfr/O"	    );
   s_tree->Branch("imd",	          &brIsImd,	    "imd/O"	    );
   s_tree->Branch("nuel",          &brIsNuEL,        "nuel/O"	    );
+  s_tree->Branch("em",	          &brIsEM,	    "em/O"	    );
   s_tree->Branch("cc",	          &brIsCC,	    "cc/O"	    );
   s_tree->Branch("nc",	          &brIsNC,	    "nc/O"	    );
   s_tree->Branch("charm",         &brIsCharmPro,    "charm/O"	    );
@@ -516,6 +518,7 @@ void ConvertToGST(void)
     bool is_dfr    = proc_info.IsDiffractive();
     bool is_imd    = proc_info.IsInverseMuDecay();
     bool is_nuel   = proc_info.IsNuElectronElastic();
+    bool is_em     = proc_info.IsEM();
     bool is_weakcc = proc_info.IsWeakCC();
     bool is_weaknc = proc_info.IsWeakNC();
 
@@ -697,6 +700,7 @@ void ConvertToGST(void)
     brIsDfr      = is_dfr;  
     brIsImd      = is_imd;  
     brIsNuEL     = is_nuel;  
+    brIsEM       = is_em;  
     brIsCC       = is_weakcc;  
     brIsNC       = is_weaknc;  
     brIsCharmPro = charm;
