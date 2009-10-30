@@ -5,7 +5,7 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - May 04, 2004
+         STFC, Rutherford Appleton Laboratory 
 
  For the class documentation see the corresponding header file.
 
@@ -16,7 +16,12 @@
    (see also XSecSplineList.cxx).
  @ Sep 07, 2009 - CA
    Integrated with GNU Numerical Library (GSL) via ROOT's MathMore library.
-
+ @ Oct 30, 2009 - CA
+   Fix problem reported by Hyupwoo Lee (Rochester) using GENIE in electron
+   scattering mode. Check kinematical limits before integration to avoid 
+   problems when users override the physical limits raising the minimum Q2 
+   (for computational efficiency in certain cases; depending on the detector 
+   acceptance).
 */
 //____________________________________________________________________________
 
@@ -161,29 +166,39 @@ double DISXSec::Integrate(
      LOG("DISXSec", pINFO)  
          << "Q2 integration range = [" << Q2l.min << ", " << Q2l.max << "]";
 
+     bool phsp_ok = 
+          (Q2l.min >= 0. && Q2l.max >= 0. && Q2l.max >= Q2l.min &&
+            Wl.min >= 0. &&  Wl.max >= 0. &&  Wl.max >=  Wl.min);
+
+     double xsec = 0.;
+
+     if(phsp_ok) {
 #ifdef __GENIE_GSL_ENABLED__
-     ROOT::Math::IBaseFunctionMultiDim * func = 
+       ROOT::Math::IBaseFunctionMultiDim * func = 
           new utils::gsl::wrap::d2XSec_dWdQ2_E(model, interaction);
-     ROOT::Math::IntegrationMultiDim::Type ig_type = 
+       ROOT::Math::IntegrationMultiDim::Type ig_type = 
           utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
-     ROOT::Math::IntegratorMultiDim ig(ig_type);
-     //ig.SetAbsTolerance(0.00001);
-     ig.SetRelTolerance(fGSLRelTol);
-     ig.SetFunction(*func);
-     double kine_min[2] = { Wl.min, Q2l.min };
-     double kine_max[2] = { Wl.max, Q2l.max };
-     double xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2);
+       ROOT::Math::IntegratorMultiDim ig(ig_type);
+       //ig.SetAbsTolerance(0.00001);
+       ig.SetRelTolerance(fGSLRelTol);
+       ig.SetFunction(*func);
+       double kine_min[2] = { Wl.min, Q2l.min };
+       double kine_max[2] = { Wl.max, Q2l.max };
+       xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2);
+       delete func;
 #else
-     GXSecFunc * func = new Integrand_D2XSec_DWDQ2_E(model, interaction);
-     func->SetParam(0,"W", Wl);
-     func->SetParam(1,"Q2",Q2l);
-     double xsec = fIntegrator->Integrate(*func);
+       GXSecFunc * func = new Integrand_D2XSec_DWDQ2_E(model, interaction);
+       func->SetParam(0,"W", Wl);
+       func->SetParam(1,"Q2",Q2l);
+       xsec = fIntegrator->Integrate(*func);
+       delete func;
 #endif
-   
+     }//phase space ok?
+
      LOG("DISXSec", pINFO)  << "XSec[DIS] (E = " << Ev << " GeV) = " << xsec;
 
      delete interaction;
-     delete func;
+
      return xsec;
   }
   return 0;
@@ -290,21 +305,27 @@ void DISXSec::CacheFreeNucleonXSec(
        LOG("DISXSec", pINFO)  
          << "Q2 integration range = [" << Q2l.min << ", " << Q2l.max << "]";
 
+       bool phsp_ok = 
+          (Q2l.min >= 0. && Q2l.max >= 0. && Q2l.max >= Q2l.min &&
+            Wl.min >= 0. &&  Wl.max >= 0. &&  Wl.max >=  Wl.min);
+
+       if(phsp_ok) {
 #ifdef __GENIE_GSL_ENABLED__
-       ROOT::Math::IntegrationMultiDim::Type ig_type = 
+         ROOT::Math::IntegrationMultiDim::Type ig_type = 
              utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
-       ROOT::Math::IntegratorMultiDim ig(ig_type);
-       //ig.SetAbsTolerance(0.00001);
-       ig.SetRelTolerance(fGSLRelTol);
-       ig.SetFunction(*func);
-       double kine_min[2] = { Wl.min, Q2l.min };
-       double kine_max[2] = { Wl.max, Q2l.max };
-       xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2);
+         ROOT::Math::IntegratorMultiDim ig(ig_type);
+         //ig.SetAbsTolerance(0.00001);
+         ig.SetRelTolerance(fGSLRelTol);
+         ig.SetFunction(*func);
+         double kine_min[2] = { Wl.min, Q2l.min };
+         double kine_max[2] = { Wl.max, Q2l.max };
+         xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2);
 #else
-       func->SetParam(0,"W", Wl);
-       func->SetParam(1,"Q2",Q2l);
-       xsec = fIntegrator->Integrate(*func);
+         func->SetParam(0,"W", Wl);
+         func->SetParam(1,"Q2",Q2l);
+         xsec = fIntegrator->Integrate(*func);
 #endif
+       }// phase space limits ok?
     }//Ev>threshold
 
     LOG("DISXSec", pNOTICE)  
