@@ -120,7 +120,7 @@ FORT_LIBRARIES = -L/usr/lib -L/usr/lib64 -lg2c
 
 ifeq ($(strip $(ARCH)),macosx) 
 FORT_LIBRARIES = /usr/local/lib/libgfortran.dylib 
-have_g2c := $wildcard(/usr/local/lib/libg2c.dylib)
+have_g2c := $(wildcard /usr/local/lib/libg2c.dylib)
 ifeq ($(strip $(have_g2c)),)
 else
 FORT_LIBRARIES := $(FORT_LIBRARIES) /usr/local/lib/libg2c.dylib 
@@ -129,7 +129,7 @@ endif # macosx
 
 ifeq ($(strip $(ARCH)),macosx64) 
 FORT_LIBRARIES = /usr/local/lib/libgfortran.dylib 
-have_g2c := $wildcard(/usr/local/lib/libg2c.dylib)
+have_g2c := $(wildcard /usr/local/lib/libg2c.dylib)
 ifeq ($(strip $(have_g2c)),)
 else
 FORT_LIBRARIES := $(FORT_LIBRARIES) /usr/local/lib/libg2c.dylib 
