@@ -189,6 +189,7 @@ double GReWeightINukeParams::Fates::ScaleFactor(
   double twk_dial          = this->CurTwkDial(syst, KE);
 
   double fate_fraction_scale = 1. + twk_dial * fractional_error;
+
   return fate_fraction_scale;
 }
 //___________________________________________________________________________
@@ -200,7 +201,6 @@ double GReWeightINukeParams::Fates::CurTwkDial(GSyst_t syst, double KE) const
       << "Systematic " << GSyst::AsString(syst) << " not included";
     return 0.;
   }
-
   bool is_cushion = this->IsCushionTerm(syst);
 
   // If it not acting as a cushion term just return the tweaking dial 
@@ -223,6 +223,8 @@ double GReWeightINukeParams::Fates::CurTwkDial(GSyst_t syst, double KE) const
   GSystUncertainty * uncert = GSystUncertainty::Instance();
 
   double total_fraction_nocushion = 0.;
+  double sum_non_cushion_fractions = 0.;
+  double sum_error_non_cushion_fractions =0.;
 
   map<GSyst_t, double>::const_iterator iter = fSystListMap.begin();  
   for( ; iter != fSystListMap.end(); ++iter)
@@ -230,7 +232,6 @@ double GReWeightINukeParams::Fates::CurTwkDial(GSyst_t syst, double KE) const
      GSyst_t curr_syst       = iter->first;
      double  curr_twk_dial   = iter->second;
      bool    curr_is_cushion = this->IsCushionTerm(curr_syst);
-
      if(!curr_is_cushion){
        double fractional_error    = uncert->OneSigmaErr(curr_syst);
        double fate_fraction_scale = 1. + curr_twk_dial * fractional_error;
@@ -238,14 +239,17 @@ double GReWeightINukeParams::Fates::CurTwkDial(GSyst_t syst, double KE) const
        total_fraction_nocushion += 
           genie::utils::rew::FateFraction(curr_syst, KE, fate_fraction_scale);
      }// no cushion
+     else {
+       double fractional_error    = uncert->OneSigmaErr(curr_syst);
+       double fate_fraction_scale = 1.; //+ curr_twk_dial * fractional_error;
+       double default_fate_fraction = genie::utils::rew::FateFraction(curr_syst, KE, fate_fraction_scale);
+       double error_on_default_fate_fraction = fractional_error*default_fate_fraction;
+       sum_non_cushion_fractions += default_fate_fraction;
+       sum_error_non_cushion_fractions += error_on_default_fate_fraction;
+     } // is cushion
   } // systs loop
 
-  double fractional_error_cushion = uncert->OneSigmaErr(syst);
-  double def_fraction_cushion = genie::utils::rew::FateFraction(syst, KE, 1.);
-  double twk_fraction_cushion = 1. - total_fraction_nocushion;
-
-  double fraction_ratio = twk_fraction_cushion / def_fraction_cushion;
-  double twk_dial = (fraction_ratio-1.)/fractional_error_cushion;
+  double twk_dial = ( (1.0- total_fraction_nocushion) - sum_non_cushion_fractions)/sum_error_non_cushion_fractions;
 
   return twk_dial;
 }
@@ -336,7 +340,7 @@ void GReWeightINukeParams::Fates::AddCushionTerms(void)
 // remaining cushion terms.
 
   int ncursyst = (int)fSystListMap.size();
-  bool add_cushion_terms = (ncursyst == (fNSysts-fNCushionTerms));
+  bool add_cushion_terms = true;//(ncursyst == (fNSysts-4/*fNCushionTerms*/));
 
   if (!add_cushion_terms) {
      LOG("ReW", pDEBUG) << "Cannot determine the cushion terms just yet";
