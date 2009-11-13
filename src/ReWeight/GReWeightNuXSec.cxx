@@ -25,6 +25,7 @@
 #include "BaryonResonance/BaryonResonance.h"
 #include "Conventions/Units.h"
 #include "EVGCore/EventRecord.h"
+#include "GHEP/GHepParticle.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGCodes.h"
 #include "ReWeight/GReWeightNuXSec.h"
@@ -123,7 +124,11 @@ double GReWeightNuXSec::CalcWeight(const genie::EventRecord & event)
 {
   if (! fXSecRwParams.IsTweaked() ) return 1.;
 
-  double wght = fXSecRwHelper.NewWeight(event);
+  double w1 = this->WghtStandardXSec (event);
+  double w2 = this->WghtNonResBkgXSec(event);
+  
+  double wght = w1*w2;
+
   return wght;
 }
 //_______________________________________________________________________________________
@@ -132,3 +137,65 @@ double GReWeightNuXSec::CalcChisq()
   return fXSecRwParams.ChisqPenalty();
 }
 //_______________________________________________________________________________________
+double GReWeightNuXSec::WghtStandardXSec(const EventRecord & event)
+{
+  double wght = fXSecRwHelper.NewWeight(event);
+  return wght;
+}
+//_______________________________________________________________________________________
+double GReWeightNuXSec::WghtNonResBkgXSec(const EventRecord & event)
+{
+  bool is_dis = event.Summary()->ProcInfo().IsDeepInelastic();
+  if(!is_dis) return 1.;
+
+  bool selected = true;
+  double W    = event.Summary()->Kine().W(selected);
+  double Wcut = 1.7;//GeV, get from config rather than using hardcoded value
+  bool in_transition = (W<Wcut);
+  if(!in_transition) return 1.;
+
+  int probe  = event.Summary()->InitState().ProbePdg();
+  int hitnuc = event.Summary()->InitState().Tgt().HitNucPdg();
+  InteractionType_t itype = event.Summary()->ProcInfo().InteractionTypeId();
+
+  int nhadmult = 0;
+  int nnuc     = 0;
+  int npi      = 0;
+
+  GHepParticle * p = 0;
+  TIter event_iter(&event);
+  while ( (p = dynamic_cast<GHepParticle *>(event_iter.Next())) ) {
+
+     int pdgc = p->Pdg();        
+     int imom = p->FirstMother();
+     if(imom == -1) continue;
+
+     GHepParticle * mom = event.Particle(imom);
+     if(!mom) continue;
+
+     if( mom->Pdg() == kPdgHadronicSyst) 
+     {
+        nhadmult++;
+        if ( pdg::IsNucleon(pdgc) ) { nnuc++; }
+        if ( pdg::IsPion   (pdgc) ) { npi++;  }
+     }
+  }//p
+
+  if(nhadmult < 2 || nhadmult > 3) return 1.;
+  if(nnuc != 1) return 1.;
+
+  GSyst_t syst = GSyst::RBkg(itype, probe, hitnuc, npi);
+
+  if(syst == kSystNull) return 1.;
+
+  if(!fXSecRwParams.IsTweaked(syst)) return 1.;
+
+  double Rtwk = fXSecRwParams.CurValue(syst);
+  double Rdef = fXSecRwParams.DefValue(syst);
+
+  double wght = Rtwk / Rdef;
+  return wght;
+}
+//_______________________________________________________________________________________
+
+

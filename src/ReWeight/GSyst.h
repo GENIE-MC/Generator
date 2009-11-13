@@ -22,6 +22,7 @@
 #include <string>
 
 #include "PDG/PDGUtils.h"
+#include "Interaction/InteractionType.h"
 #include "HadronTransport/INukeHadroFates.h"
 
 using std::string;
@@ -291,6 +292,58 @@ public:
      }
   }
   return kSystNull;
+ }
+ //......................................................................................
+ static GSyst_t RBkg(InteractionType_t itype, int probe, int hitnuc, int npi)
+ {
+   bool is_v    = pdg::IsNeutrino     (probe);
+   bool is_vbar = pdg::IsAntiNeutrino (probe);
+   bool is_p    = pdg::IsProton       (hitnuc);
+   bool is_n    = pdg::IsNeutron      (hitnuc);
+  
+   // CC
+   bool is_cc = (itype == kIntWeakCC);
+   if(is_cc) {
+     if(is_v && is_p) {
+       if(npi==1) return kSystNuXSec_RvpCC1pi;
+       if(npi==2) return kSystNuXSec_RvpCC2pi;   
+     }
+     if(is_v && is_n) {
+       if(npi==1) return kSystNuXSec_RvnCC1pi;
+       if(npi==2) return kSystNuXSec_RvnCC2pi;   
+     }
+     if(is_vbar && is_p) {
+       if(npi==1) return kSystNuXSec_RvbarpCC1pi;
+       if(npi==2) return kSystNuXSec_RvbarpCC2pi;   
+     }
+     if(is_vbar && is_n) {
+       if(npi==1) return kSystNuXSec_RvbarnCC1pi;
+       if(npi==2) return kSystNuXSec_RvbarnCC2pi;   
+     }
+   }//cc
+
+   // NC
+   bool is_nc = (itype == kIntWeakNC);
+   if(is_nc) {
+     if(is_v && is_p) {
+       if(npi==1) return kSystNuXSec_RvpNC1pi;
+       if(npi==2) return kSystNuXSec_RvpNC2pi;   
+     }
+     if(is_v && is_n) {
+       if(npi==1) return kSystNuXSec_RvnNC1pi;
+       if(npi==2) return kSystNuXSec_RvnNC2pi;   
+     }
+     if(is_vbar && is_p) {
+       if(npi==1) return kSystNuXSec_RvbarpNC1pi;
+       if(npi==2) return kSystNuXSec_RvbarpNC2pi;   
+     }
+     if(is_vbar && is_n) {
+       if(npi==1) return kSystNuXSec_RvbarnNC1pi;
+       if(npi==2) return kSystNuXSec_RvbarnNC2pi;   
+     }
+   }//nc
+
+   return kSystNull;
  }
  //......................................................................................
 

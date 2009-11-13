@@ -141,11 +141,6 @@ void GReWeightNuXSecParams::Reconfigure(void) const
       user_config->Set("RES-Mv", this->CurValue(kSystNuXSec_MvRES));
   }
 
-  //
-  // note: *** need to add resonance background params ***
-  //
-
-
   // Force reconfiguration of GENIE algorithms
 
   AlgFactory * algf = AlgFactory::Instance();
