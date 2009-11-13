@@ -193,8 +193,12 @@ double GReWeightNuXSec::WghtNonResBkgXSec(const EventRecord & event)
   double Rtwk = fXSecRwParams.CurValue(syst);
   double Rdef = fXSecRwParams.DefValue(syst);
 
-  double wght = Rtwk / Rdef;
-  return wght;
+  if(Rdef!=0) {
+    double wght = Rtwk / Rdef;
+    return wght;
+  }
+
+  return 1.;
 }
 //_______________________________________________________________________________________
 
