@@ -7,6 +7,10 @@
 #pragma link C++ namespace genie;
 
 #pragma link C++ class genie::StrumiaVissaniIBDPXSec+;
+#pragma link C++ class genie::IBDInteractionListGenerator+;
+#pragma link C++ class genie::IBDKinematicsGenerator+;
+#pragma link C++ class genie::IBDHadronicSystemGenerator+;
+#pragma link C++ class genie::IBDPrimaryLeptonGenerator+;
 
 
 #endif
