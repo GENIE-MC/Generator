@@ -12,6 +12,9 @@
  Important revisions after version 2.0.0 :
  @ Sep 19, 2009 - CA
    First included in v2.5.1.
+ @ Nov 26, 2009 - CA
+   Fix mistake in convertion from dsigma/dOmega --> dsigma/dQ2 uncovered at
+   the first comparison against electron QE data.
 
 */
 //____________________________________________________________________________
@@ -104,7 +107,7 @@ double RosenbluthPXSec::XSec(
   double xsec = xsec_mott * (Ge2 + (tau/epsilon)*Gm2) / (1+tau);
 
   // Convert dsigma/dOmega --> dsigma/dQ2
-  xsec *= (2*kPi/Ep2);
+  xsec *= (kPi/Ep2);
 
   // The algorithm computes dxsec/dQ2
   // Check whether variable tranformation is needed
