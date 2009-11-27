@@ -1,13 +1,31 @@
 //
-// test macro to read a GENIE event tree in the t2k_rootracker format
+// Test macro to read a GENIE event tree in the t2k_rootracker format
 // and print-out the neutrino event and flux pass-through info
+//
+// To run:
+//   shell% root
+//   root[0] .L read_t2k_rootracker.C++
+//   root[1] read_t2k_rootracker("./your_rootracker_file.root");
 //
 // Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
 // STFC, Rutherford Appleton Laboratory
 //
 
+#include <iostream>
+
+#include <TFile.h>
+#include <TTree.h>
+#include <TBranch.h>
+#include <TBits.h>
+#include <TObjString.h>
+
+using std::cout;
+using std::endl;
+
 void read_t2k_rootracker(const char * filename)
 {
+  bool using_new_version = false; // StdHepReScat and G2NeutEvtCode branches available only for versions >= 2.5.1
+
   const int kNPmax = 100;
 
   TFile file(filename, "READ");
@@ -25,7 +43,7 @@ void read_t2k_rootracker(const char * filename)
   int         StdHepN;                  // number of particles in particle array 
   int         StdHepPdg   [kNPmax];     // stdhep-like particle array: pdg codes (& generator specific codes for pseudoparticles)
   int         StdHepStatus[kNPmax];     // stdhep-like particle array: generator-specific status code
-  int         StdHepRescat[kNPmax];     // stdhep-like particle array: intranuclear rescattering code
+  int         StdHepRescat[kNPmax];     // stdhep-like particle array: intranuclear rescattering code [ >= v2.5.1 ]
   double      StdHepX4    [kNPmax][4];  // stdhep-like particle array: 4-x (x, y, z, t) of particle in hit nucleus frame (fm)
   double      StdHepP4    [kNPmax][4];  // stdhep-like particle array: 4-p (px,py,pz,E) of particle in LAB frame (GeV)
   double      StdHepPolz  [kNPmax][3];  // stdhep-like particle array: polarization vector
@@ -33,6 +51,7 @@ void read_t2k_rootracker(const char * filename)
   int         StdHepLd    [kNPmax];     // stdhep-like particle array: last  daughter 
   int         StdHepFm    [kNPmax];     // stdhep-like particle array: first mother
   int         StdHepLm    [kNPmax];     // stdhep-like particle array: last  mother
+  int         G2NeutEvtCode;            // NEUT code for the current GENIE event [ >= v2.5.1 ]
   int         NuParentPdg;              // parent hadron pdg code
   int         NuParentDecMode;          // parent hadron decay mode
   double      NuParentDecP4 [4];        // parent hadron 4-momentum at decay
@@ -53,7 +72,7 @@ void read_t2k_rootracker(const char * filename)
   TBranch * brStdHepN         = tree -> GetBranch ("StdHepN");
   TBranch * brStdHepPdg       = tree -> GetBranch ("StdHepPdg");
   TBranch * brStdHepStatus    = tree -> GetBranch ("StdHepStatus");
-  TBranch * brStdHepStatus    = tree -> GetBranch ("StdHepRescat");
+  TBranch * brStdHepRescat    = (using_new_version) ? tree -> GetBranch ("StdHepRescat") : 0;
   TBranch * brStdHepX4        = tree -> GetBranch ("StdHepX4");
   TBranch * brStdHepP4        = tree -> GetBranch ("StdHepP4");
   TBranch * brStdHepPolz      = tree -> GetBranch ("StdHepPolz");
@@ -61,6 +80,7 @@ void read_t2k_rootracker(const char * filename)
   TBranch * brStdHepLd        = tree -> GetBranch ("StdHepLd");
   TBranch * brStdHepFm        = tree -> GetBranch ("StdHepFm");
   TBranch * brStdHepLm        = tree -> GetBranch ("StdHepLm");
+  TBranch * brG2NeutEvtCode   = (using_new_version) ? tree -> GetBranch ("G2NeutEvtCode") : 0;
   TBranch * brNuParentPdg     = tree -> GetBranch ("NuParentPdg");
   TBranch * brNuParentDecMode = tree -> GetBranch ("NuParentDecMode");
   TBranch * brNuParentDecP4   = tree -> GetBranch ("NuParentDecP4");
@@ -70,32 +90,37 @@ void read_t2k_rootracker(const char * filename)
   TBranch * brNuParentProNVtx = tree -> GetBranch ("NuParentProNVtx");   
 
   // set address
-  brEvtFlags        -> SetAddress (&EvtFlags);
-  brEvtCode         -> SetAddress (&EvtCode);
-  brEvtNum          -> SetAddress (&EvtNum);
-  brEvtXSec         -> SetAddress (&EvtXSec);
-  brEvtDXSec        -> SetAddress (&EvtDXSec);
-  brEvtWght         -> SetAddress (&EvtWght);
-  brEvtProb         -> SetAddress (&EvtProb);
-  brEvtVtx          -> SetAddress ( EvtVtx);
-  brStdHepN         -> SetAddress (&StdHepN);
-  brStdHepPdg       -> SetAddress ( StdHepPdg);
-  brStdHepStatus    -> SetAddress ( StdHepStatus);
-  brStdHepRescat    -> SetAddress ( StdHepRescat);
-  brStdHepX4        -> SetAddress ( StdHepX4);
-  brStdHepP4        -> SetAddress ( StdHepP4);
-  brStdHepPolz      -> SetAddress ( StdHepPolz);
-  brStdHepFd        -> SetAddress ( StdHepFd);
-  brStdHepLd        -> SetAddress ( StdHepLd);
-  brStdHepFm        -> SetAddress ( StdHepFm);
-  brStdHepLm        -> SetAddress ( StdHepLm);
-  brNuParentPdg     -> SetAddress (&NuParentPdg);
-  brNuParentDecMode -> SetAddress (&NuParentDecMode);
-  brNuParentDecP4   -> SetAddress ( NuParentDecP4);
-  brNuParentDecX4   -> SetAddress ( NuParentDecX4);
-  brNuParentProP4   -> SetAddress ( NuParentProP4);     
-  brNuParentProX4   -> SetAddress ( NuParentProX4);     
-  brNuParentProNVtx -> SetAddress (&NuParentProNVtx);   
+  brEvtFlags        -> SetAddress ( &EvtFlags         );
+  brEvtCode         -> SetAddress ( &EvtCode          );
+  brEvtNum          -> SetAddress ( &EvtNum           );
+  brEvtXSec         -> SetAddress ( &EvtXSec          );
+  brEvtDXSec        -> SetAddress ( &EvtDXSec         );
+  brEvtWght         -> SetAddress ( &EvtWght          );
+  brEvtProb         -> SetAddress ( &EvtProb          );
+  brEvtVtx          -> SetAddress (  EvtVtx           );
+  brStdHepN         -> SetAddress ( &StdHepN          );
+  brStdHepPdg       -> SetAddress (  StdHepPdg        );
+  brStdHepStatus    -> SetAddress (  StdHepStatus     );
+  if(using_new_version) {
+  brStdHepRescat    -> SetAddress (  StdHepRescat     );
+  }
+  brStdHepX4        -> SetAddress (  StdHepX4         );
+  brStdHepP4        -> SetAddress (  StdHepP4         );
+  brStdHepPolz      -> SetAddress (  StdHepPolz       );
+  brStdHepFd        -> SetAddress (  StdHepFd         );
+  brStdHepLd        -> SetAddress (  StdHepLd         );
+  brStdHepFm        -> SetAddress (  StdHepFm         );
+  brStdHepLm        -> SetAddress (  StdHepLm         );
+  if(using_new_version) {
+  brG2NeutEvtCode   -> SetAddress ( &G2NeutEvtCode   );
+  }
+  brNuParentPdg     -> SetAddress ( &NuParentPdg     );
+  brNuParentDecMode -> SetAddress ( &NuParentDecMode );
+  brNuParentDecP4   -> SetAddress (  NuParentDecP4   );
+  brNuParentDecX4   -> SetAddress (  NuParentDecX4   );
+  brNuParentProP4   -> SetAddress (  NuParentProP4   );     
+  brNuParentProX4   -> SetAddress (  NuParentProX4   );     
+  brNuParentProNVtx -> SetAddress ( &NuParentProNVtx );   
 
   int n = tree->GetEntries(); 
   printf("Number of entries: %d", n);
@@ -111,8 +136,8 @@ void read_t2k_rootracker(const char * filename)
     printf("\n Event x-section            : %10.5f * 1E-38* cm^2",  EvtXSec);
     printf("\n Event kinematics x-section : %10.5f * 1E-38 * cm^2/{K^n}", EvtDXSec);
     printf("\n Event weight               : %10.8f", EvtWght);
-    printf("\n Event vertex               : x = %8.2f mm, y = %8.2 mm, z = %8.2 mm", brEvtVtx[0], brEvtVtx[1], brEvtVtx[2])
-    printf("\nParticle list:")
+    printf("\n Event vertex               : x = %8.2f mm, y = %8.2f mm, z = %8.2f mm", EvtVtx[0], EvtVtx[1], EvtVtx[2]);
+    printf("\n *Particle list:");
     printf("\n --------------------------------------------------------------------------------------------------------------------------");
     printf("\n | Idx | Ist |    PDG     | Rescat |   Mother  |  Daughter |   Px   |   Py   |   Pz   |   E    |   x    |   y    |    z   |");
     printf("\n |     |     |            |        |           |           |(GeV/c) |(GeV/c) |(GeV/c) | (GeV)  |  (fm)  |  (fm)  |   (fm) |");
@@ -126,7 +151,7 @@ void read_t2k_rootracker(const char * filename)
            StdHepX4[ip][0], StdHepX4[ip][1], StdHepX4[ip][2]); 
     }
     printf("\n --------------------------------------------------------------------------------------------------------------------------");
-    printf("\nFlux Info:")
+    printf("\n *Flux Info:");
     printf("\n Parent hadron pdg code    : %d", NuParentPdg);
     printf("\n Parent hadron decay mode  : %d", NuParentDecMode);
     printf("\n Parent hadron 4p at decay : Px = %6.3f GeV/c, Py = %6.3f GeV/c, Pz = %6.3f GeV/c, E = %6.3f GeV", 
@@ -137,7 +162,7 @@ void read_t2k_rootracker(const char * filename)
                NuParentDecX4[0], NuParentDecX4[1], NuParentDecX4[2], NuParentDecX4[3]);
     printf("\n Parent hadron 4x at prod. : x = %6.3f m, y = %6.3f m, z = %6.3f m, t = %6.3f s", 
                NuParentProX4[0], NuParentProX4[1], NuParentProX4[2], NuParentProX4[3]);
-    printf("\n --------------------------------------------------------------------------------------------------------------------------");
+    printf("\n -------------------------------------------------------------------------------------------------------------------------- \n");
 
  } // tree entries
 

@@ -12,6 +12,7 @@
 // STFC, Rutherford Appleton Laboratory
 //
 
+#include <cassert>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -32,8 +33,8 @@ using std::string;
 
 void get_neut_code_from_rootracker(const char * filename)
 {
-  bool using_cvs_head = false; // StdHepReScat and G2NeutEvtCode branches available only in CVS head version of GENIE (v2.5.1)
-  bool event_printout = false; // 
+  bool using_new_version = false; // StdHepReScat and G2NeutEvtCode branches available only for versions >= 2.5.1
+  bool event_printout    = false; 
 
   //
   // constants
@@ -106,7 +107,7 @@ void get_neut_code_from_rootracker(const char * filename)
   int         StdHepN;                  // number of particles in particle array 
   int         StdHepPdg   [kNPmax];     // stdhep-like particle array: pdg codes (& generator specific codes for pseudoparticles)
   int         StdHepStatus[kNPmax];     // stdhep-like particle array: generator-specific status code
-  int         StdHepRescat[kNPmax];     // stdhep-like particle array: intranuclear rescattering code [AVAILABLE in CVS HEAD only]
+  int         StdHepRescat[kNPmax];     // stdhep-like particle array: intranuclear rescattering code [ >= v2.5.1 ]
   double      StdHepX4    [kNPmax][4];  // stdhep-like particle array: 4-x (x, y, z, t) of particle in hit nucleus frame (fm)
   double      StdHepP4    [kNPmax][4];  // stdhep-like particle array: 4-p (px,py,pz,E) of particle in LAB frame (GeV)
   double      StdHepPolz  [kNPmax][3];  // stdhep-like particle array: polarization vector
@@ -114,7 +115,7 @@ void get_neut_code_from_rootracker(const char * filename)
   int         StdHepLd    [kNPmax];     // stdhep-like particle array: last  daughter 
   int         StdHepFm    [kNPmax];     // stdhep-like particle array: first mother
   int         StdHepLm    [kNPmax];     // stdhep-like particle array: last  mother
-  int         G2NeutEvtCode;            // NEUT code for the current GENIE event [AVAILABLE in CVS HEAD only]
+  int         G2NeutEvtCode;            // NEUT code for the current GENIE event [ >= v2.5.1 ]
   int         NuParentPdg;              // parent hadron pdg code
   int         NuParentDecMode;          // parent hadron decay mode
   double      NuParentDecP4 [4];        // parent hadron 4-momentum at decay
@@ -138,7 +139,7 @@ void get_neut_code_from_rootracker(const char * filename)
   TBranch * brStdHepN         = tree -> GetBranch ("StdHepN");
   TBranch * brStdHepPdg       = tree -> GetBranch ("StdHepPdg");
   TBranch * brStdHepStatus    = tree -> GetBranch ("StdHepStatus");
-  TBranch * brStdHepRescat    = (using_cvs_head) ? tree -> GetBranch ("StdHepRescat") : 0;
+  TBranch * brStdHepRescat    = (using_new_version) ? tree -> GetBranch ("StdHepRescat") : 0;
   TBranch * brStdHepX4        = tree -> GetBranch ("StdHepX4");
   TBranch * brStdHepP4        = tree -> GetBranch ("StdHepP4");
   TBranch * brStdHepPolz      = tree -> GetBranch ("StdHepPolz");
@@ -146,7 +147,7 @@ void get_neut_code_from_rootracker(const char * filename)
   TBranch * brStdHepLd        = tree -> GetBranch ("StdHepLd");
   TBranch * brStdHepFm        = tree -> GetBranch ("StdHepFm");
   TBranch * brStdHepLm        = tree -> GetBranch ("StdHepLm");
-  TBranch * brG2NeutEvtCode   = (using_cvs_head) ? tree -> GetBranch ("G2NeutEvtCode") : 0;
+  TBranch * brG2NeutEvtCode   = (using_new_version) ? tree -> GetBranch ("G2NeutEvtCode") : 0;
   TBranch * brNuParentPdg     = tree -> GetBranch ("NuParentPdg");
   TBranch * brNuParentDecMode = tree -> GetBranch ("NuParentDecMode");
   TBranch * brNuParentDecP4   = tree -> GetBranch ("NuParentDecP4");
@@ -166,7 +167,7 @@ void get_neut_code_from_rootracker(const char * filename)
   brStdHepN         -> SetAddress ( &StdHepN         );
   brStdHepPdg       -> SetAddress (  StdHepPdg       );
   brStdHepStatus    -> SetAddress (  StdHepStatus    );
-  if(using_cvs_head) {
+  if(using_new_version) {
   brStdHepRescat    -> SetAddress (  StdHepRescat    ); 
   }
   brStdHepX4        -> SetAddress (  StdHepX4        );
@@ -176,7 +177,7 @@ void get_neut_code_from_rootracker(const char * filename)
   brStdHepLd        -> SetAddress (  StdHepLd        );
   brStdHepFm        -> SetAddress (  StdHepFm        );
   brStdHepLm        -> SetAddress (  StdHepLm        );
-  if(using_cvs_head) {
+  if(using_new_version) {
   brG2NeutEvtCode   -> SetAddress ( &G2NeutEvtCode   );
   }
   brNuParentPdg     -> SetAddress ( &NuParentPdg     );
@@ -518,7 +519,7 @@ void get_neut_code_from_rootracker(const char * filename)
     }
 
     cout << " *** GENIE event = " << i << " --> NEUT reaction code = " << evtype << endl;
-    if(using_cvs_head) {
+    if(using_new_version) {
        // for validation, use a file generated + converted with the CVS head version of GENIE
        // where the NeutCode is stored at the t2k_rootracker tree
        cout << "NEUT reaction code stored at the rootracker file = " << G2NeutEvtCode << endl;
