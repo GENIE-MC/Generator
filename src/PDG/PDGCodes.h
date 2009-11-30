@@ -167,6 +167,7 @@ const int kPdgWM               =   -24; // W-
 // Define names for some commonly used nuclear PDG codes:
 const int kPdgTgtFreeP     = 1000010010;
 const int kPdgTgtFreeN     = 1000000010;
+const int kPdgTgtDeuterium = 1000010020;
 const int kPdgTgtC12       = 1000060120;
 const int kPdgTgtO16       = 1000080160;
 const int kPdgTgtFe56      = 1000260560;
