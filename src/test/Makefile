@@ -33,6 +33,7 @@ TGT =	gtestAlgorithms 	 \
 	gtestNumerical		 \
 	gtestNaturalIsotopes	 \
 	gtestPDFLIB		 \
+	gtestQENuclSuppression   \
 	gtestPREM		 \
 	gtestROOTGeometry	 \
 	gtestFermiP		 \
@@ -103,6 +104,10 @@ gtestXSec: FORCE
 gtestPDFLIB: FORCE
 	$(CXX) $(CXXFLAGS) -c testPDFLIB.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) testPDFLIB.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestPDFLIB
+
+gtestQENuclSuppression: FORCE
+	$(CXX) $(CXXFLAGS) -c testQENuclSuppression.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) testQENuclSuppression.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestQENuclSuppression
 
 gtestPREM: FORCE
 	$(CXX) $(CXXFLAGS) -c testPREM.cxx $(INCLUDES)
@@ -203,6 +208,7 @@ clean: FORCE
 	$(RM) $(GENIE_BIN_PATH)/gtestNumerical		
 	$(RM) $(GENIE_BIN_PATH)/gtestNaturalIsotopes	
 	$(RM) $(GENIE_BIN_PATH)/gtestPDFLIB		
+	$(RM) $(GENIE_BIN_PATH)/gtestQENuclSuppression
 	$(RM) $(GENIE_BIN_PATH)/gtestPREM		
 	$(RM) $(GENIE_BIN_PATH)/gtestFermiP		
 	$(RM) $(GENIE_BIN_PATH)/gtestRegistry		
@@ -237,6 +243,7 @@ distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestNumerical		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestNaturalIsotopes		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestPDFLIB		
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestQENuclSuppression
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestPREM		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestFermiP		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestRegistry		
