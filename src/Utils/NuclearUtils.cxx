@@ -19,7 +19,10 @@
    nuclear size by a const times the de Broglie wavelength of a transported
    hadron). Density() methods have a new default argument (ring) which is 0
    if not explicity set.
-
+ @ Nov 30, 2009 - CA
+   Overriding NuclQELXSecSuppression() calc for deuterium and using input 
+   data from S.K.Singh, Nucl. Phys. B 36, 419 (1972) [data used by Hugh for
+   the Merenyi test]
 */
 //____________________________________________________________________________
 
@@ -31,6 +34,7 @@
 #include "Messenger/Messenger.h"
 #include "Nuclear/FermiMomentumTablePool.h"
 #include "Nuclear/FermiMomentumTable.h"
+#include "Nuclear/NuclearData.h"
 #include "PDG/PDGUtils.h"
 #include "Utils/NuclearUtils.h"
 
@@ -117,7 +121,22 @@ double genie::utils::nuclear::NuclQELXSecSuppression(
   const ProcessInfo &  proc_info  = interaction->ProcInfo();
   const Target &       target     = init_state.Tgt();
 
-  if (!target.IsNucleus()) return 1.0; // no suppression for free nucleon tgt
+  if (!target.IsNucleus()) {
+     return 1.0; // no suppression for free nucleon tgt
+  }
+
+  //
+  // special case: deuterium   
+  //
+
+  if (target.A() == 2) {
+    NuclearData * nucldat = NuclearData::Instance();
+    return nucldat->DeuteriumSuppressionFactor(interaction->Kine().Q2());
+  }
+
+  //
+  // general case
+  //
 
   double R = 1; // computed suppression factor
 
@@ -125,8 +144,9 @@ double genie::utils::nuclear::NuclQELXSecSuppression(
   int struck_nucleon_pdgc = target.HitNucPdg();
   int final_nucleon_pdgc  = struck_nucleon_pdgc;
 
-  if(proc_info.IsWeakCC()) 
+  if(proc_info.IsWeakCC()) {
           final_nucleon_pdgc = pdg::SwitchProtonNeutron(struck_nucleon_pdgc);
+  }
 
   // get the requested Fermi momentum table 
   FermiMomentumTablePool * kftp = FermiMomentumTablePool::Instance();
@@ -356,8 +376,8 @@ double genie::utils::nuclear::DensityGaus(
   double dens  = norm * (1. + alf*b) * TMath::Exp(-b);
 
   LOG("Nuclear", pINFO) 
-        << "r = " << r << ", norm = " << norm << ", dens = " << dens << 
-", aeval= " << aeval;
+        << "r = " << r << ", norm = " << norm << ", dens = " << dens 
+        << ", aeval= " << aeval;
 
   return dens;
 }
