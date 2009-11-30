@@ -13,7 +13,15 @@ Integrator         alg      No
 -->
 
   <param_set name="Default"> 
-     <param type="alg" name="Integrator">   genie::Simpson1D/Default-Logarithmic  </param>
+     <param type="alg"    name="Integrator">                    genie::Simpson1D/Default-Logarithmic  </param>
+     <param type="bool"   name="AverageOverNucleonMomentum">    false                                 </param>
+  </param_set>
+
+  <param_set name="AverageOverNucleonMomentum"> 
+     <param type="alg"    name="Integrator">                    genie::Simpson1D/Default-Logarithmic  </param>
+     <param type="bool"   name="AverageOverNucleonMomentum">    true                                  </param>
+     <param type="alg"    name="NuclearModel">                  genie::NuclearModelMap/Default        </param>
+     <param type="double" name="NuclearInfluenceCutoffEnergy">  2.0                                   </param>
   </param_set>
 
 </alg_conf>
