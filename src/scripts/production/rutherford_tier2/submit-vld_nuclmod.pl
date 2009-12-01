@@ -11,8 +11,8 @@
 #
 # Options:
 #  --version       : GENIE version number
-#  --run           : runs to submit (eg --run 10060120680 / --run 10060120680,10060122000 / -run all)
-# [--model-enum]   : physics model enumeration, default: 00
+#  --run           : runs to submit (eg --run 1060680 / --run 1060680,1062000 / -run all)
+# [--model-enum]   : physics model enumeration, default: 0
 # [--nsubruns]     : number of subruns per run, default: 1
 # [--arch]         : <SL4_32bit, SL5_64bit>, default: SL5_64bit
 # [--production]   : production name, default: hadnucvld_<version>
@@ -31,23 +31,22 @@
 #
 # EVENT SAMPLES:
 #
-# Run number key: IZZZAAAEEEEMMxxx
+# Run number key: ITTEEEEMxx
 #
-# I    : probe (1: e-)
-# ZZZ  : nuclear target atomic number (eg 026 for Fe56)
-# AAA  : nuclear target mass   number (eg 056 for Fe56)
+# I    : probe  (1:e-)
+# TT   : target (01:H1, 02:D2, 06:C12, 08:O16, 26:Fe56)
 # EEEE : energy used in MeV (eg 0680->0.68GeV, 2015->2.015GeV etc) 
-# MM   : physics model enumeration, 00-99
-# xxx  : sub-run ID, 000-999, 50k events each
+# M    : physics model enumeration, 0-9
+# xx   : sub-run ID, 00-99, 50k events each
 #
-#.......................................................................
-# run number         |  init state      | energy   | GEVGL             | 
-#                    |                  | (GeV)    | setting           |
-#.......................................................................
-# 10060120680MMxxx   | e-    + C12      | 0.680    | EM                | 
-# 10060121501MMxxx   | e-    + C12      | 1.501    | EM                | 
-# 10060122000MMxxx   | e-    + C12      | 2.000    | EM                | 
-#.......................................................................
+#.................................................................
+# run number   |  init state      | energy   | GEVGL             | 
+#              |                  | (GeV)    | setting           |
+#.................................................................
+# 1060680Mxx   | e-    + C12      | 0.680    | EM                | 
+# 1061501Mxx   | e-    + C12      | 1.501    | EM                | 
+# 1062000Mxx   | e-    + C12      | 2.000    | EM                | 
+#.................................................................
 #
 
 use File::Path;
@@ -57,7 +56,7 @@ use File::Path;
 $iarg=0;
 foreach (@ARGV) {
   if($_ eq '--nsubruns')      { $nsubruns      = $ARGV[$iarg+1]; }
-  if($_ eq '--runnu')         { $runnu         = $ARGV[$iarg+1]; }
+  if($_ eq '--run')           { $runnu         = $ARGV[$iarg+1]; }
   if($_ eq '--model-enum')    { $model_enum    = $ARGV[$iarg+1]; }
   if($_ eq '--version')       { $genie_version = $ARGV[$iarg+1]; }
   if($_ eq '--arch')          { $arch          = $ARGV[$iarg+1]; }
@@ -74,6 +73,7 @@ unless defined $genie_version;
 die("** Aborting [You need to specify which runs to submit. Use the --run option]")
 unless defined $runnu;
 
+$model_enum     = "0"                                     unless defined $model_enum;
 $nsubruns       = 1                                       unless defined $nsubruns;
 $use_valgrind   = 0                                       unless defined $use_valgrind;
 $arch           = "SL5_64bit"                             unless defined $arch;
@@ -87,33 +87,33 @@ $genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
 $jobs_dir       = "$softw_topdir/scratch/$production\_$cycle";
 $xspl_file      = "$softw_topdir/data/job_inputs/xspl/gxspl-emode-$genie_version.xml";
 $mcseed         = 210921029;
-$nev_per_subrun = 20000;
+$nev_per_subrun = 2;
 
 # inputs for event generation jobs
 %evg_pdg_hash = ( 
-  '10060120680' =>   '11',
-  '10060121501' =>   '11',
-  '10060122000' =>   '11'
+  '1060680' =>   '11',
+  '1061501' =>   '11',
+  '1062000' =>   '11'
 );
 %evg_tgtpdg_hash = ( 
-  '10060120680' =>   '1000060120',
-  '10060121501' =>   '1000060120',
-  '10060122000' =>   '1000060120'
+  '1060680' =>   '1000060120',
+  '1061501' =>   '1000060120',
+  '1062000' =>   '1000060120'
 );
 %evg_energy_hash = ( 
-  '10060120680' =>   '0.680',
-  '10060121501' =>   '1.501',
-  '10060122000' =>   '2.000'
+  '1060680' =>   '0.680',
+  '1061501' =>   '1.501',
+  '1062000' =>   '2.000'
 );
 %evg_gevgl_hash = ( 
-  '10060120680' =>   'EM',
-  '10060121501' =>   'EM',
-  '10060122000' =>   'EM'
+  '1060680' =>   'EM',
+  '1061501' =>   'EM',
+  '1062000' =>   'EM'
 );
 %evg_fluxopt_hash = ( 
-  '10060120680' =>   '',
-  '10060121501' =>   '',
-  '10060122000' =>   ''
+  '1060680' =>   '',
+  '1061501' =>   '',
+  '1062000' =>   ''
 );
 
 # make the jobs directory
@@ -144,21 +144,23 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
     # submit subruns
     for($isubrun = 0; $isubrun < $nsubruns; $isubrun++) {
 
-       $curr_subrunnu = 100000 * $curr_runnu + 1000 * $model_enum + $isubrun;
+       # Run number key: ITTEEEEMxx
+       $curr_subrunnu = 1000 * $curr_runnu + 100 * $model_enum + $isubrun;
 
+       $grep_pipe     = "grep -B 20 -A 30 -i \"warn\\|error\\|fatal\"";
        $logfile_evgen = "$jobs_dir/nucl-$curr_subrunnu.evgen.log";
        $logfile_conv  = "$jobs_dir/nucl-$curr_subrunnu.conv.log";
 
        $curr_seed     = $mcseed + $isubrun;
-       $grep_pipe     = "grep -B 20 -A 30 -i \"warn\\|error\\|fatal\"";
        $valgrind_cmd  = "valgrind --tool=memcheck --error-limit=no --leak-check=yes --show-reachable=yes";
-       $evgen_cmd     = "gevgen -n $nev_per_subrun -s -e $en -p $probe -t $tgt -r $curr_subrunnu $fluxopt | grep_pipe &> $logfile_evgen";
-       $conv_cmd      = "gntpc -f gst -i gntp.$curr_subrunnu.ghep.root | grep_pipe &> $logfile_conv";
+       $evgen_cmd     = "gevgen -n $nev_per_subrun -s -e $en -p $probe -t $tgt -r $curr_subrunnu $fluxopt";
+       $conv_cmd      = "gntpc -f gst -i gntp.$curr_subrunnu.ghep.root";
 
        #
        # specifics for the RAL tier2
        #
        if($system eq "RAL_tier2") {
+
           $batch_script  = "$jobs_dir/nucl-$curr_subrunnu.pbs";
           $logfile_pbse  = "$jobs_dir/nucl-$curr_subrunnu.pbs_e.log";
           $logfile_pbso  = "$jobs_dir/nucl-$curr_subrunnu.pbs_o.log";
@@ -174,8 +176,8 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
           print PBS "export GSPLOAD=$xspl_file \n";
           print PBS "export GEVGL=$gevgl \n";
           print PBS "export GSEED=$curr_seed \n";
-          print PBS "$evgen_cmd \n";
-          print PBS "$conv_cmd \n";
+          print PBS "$evgen_cmd | $grep_pipe &> $logfile_evgen \n";
+          print PBS "$conv_cmd  | $grep_pipe &> $logfile_conv  \n";
           close(PBS);
 
           print "EXEC: $evgen_cmd \n";
