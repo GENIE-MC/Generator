@@ -87,7 +87,7 @@ $genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
 $jobs_dir       = "$softw_topdir/scratch/$production\_$cycle";
 $xspl_file      = "$softw_topdir/data/job_inputs/xspl/gxspl-emode-$genie_version.xml";
 $mcseed         = 210921029;
-$nev_per_subrun = 2;
+$nev_per_subrun = 50000;
 
 # inputs for event generation jobs
 %evg_pdg_hash = ( 
