@@ -51,7 +51,7 @@ $cycle          = "01"                    unless defined $cycle;
 $queue          = "prod"                  unless defined $queue;
 $softw_topdir   = "/opt/ppd/t2k/GENIE"    unless defined $softw_topdir;
 $genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
-$jobs_dir       = "$softw_topdir/scratch/xsec-$production\_$cycle/";
+$jobs_dir       = "$softw_topdir/scratch/$production\_$cycle/";
 
 $nkots     = 200;
 $emax      =  35;
