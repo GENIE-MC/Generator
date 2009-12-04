@@ -12,6 +12,8 @@
 #
 # Options:
 #  --version       : GENIE version number
+#  --run           : runs to submit (eg --run 101102 / --run 101102,154002 / -run all)
+# [--model-enum]   : physics model enumeration, default: 0
 # [--nsubruns]     : number of subruns per run, default: 1
 # [--arch]         : <SL4_32bit, SL5_64bit>, default: SL5_64bit
 # [--production]   : production name, default: hadnucvld_<version>
@@ -26,26 +28,24 @@
 #
 # EVENT SAMPLES:
 #
-# Run number key: IZZZAAAJJxxx
-# I   :  1->e-, 2->e+, 3->mu-, 4->mu+
-# ZZZ :  nuclear target atomic number (eg 026 for Fe56)
-# AAA :  nuclear target mass   number (eg 056 for Fe56)
-# JJ  :  flux setting 
-#            01 -> 12.0 GeV [HERMES]
-#            02 -> 27.6 GeV [HERMES]
-# xxx :  sub-run ID, 001-999, 20k events each
+# Run number key: ITTJJMxxx
+# I   :  probe (1:e-, 2:e+)
+# TT  :  nuclear target (01:H1, 02:D2, 03:He4, 06:C12, 07:N14, 08:O16, 10:Ne20, 26:Fe56, 36:Kr83, 54:Xe131)
+# JJ  :  flux setting (01: 12.0 GeV [HERMES], 02: 27.6 GeV [HERMES])
+# M   :  model enumeration
+# xxx :  sub-run ID, 000-999, 50k events each
 #
 #...................................................................................
-# run number      |  init state      | energy   | GEVGL              | flux
-#                 |                  | (GeV)    | setting            |
+# run number     |  init state      | energy   | GEVGL         | flux
+#                |                  | (GeV)    | setting       |
 #...................................................................................
 #
-# 100100202xxx    | e-    + D2       | 27.6     | EM                | -
-# 100200402xxx    | e-    + He4      | 27.6     | EM                | -
-# 100701402xxx    | e-    + N14      | 27.6     | EM                | -
-# 101002002xxx    | e-    + Ne20     | 27.6     | EM                | -
-# 103608302xxx    | e-    + Kr83     | 27.6     | EM                | -
-# 105413102xxx    | e-    + Xe131    | 27.6     | EM                | -
+# 10202Mxxx      | e-    + D2       | 27.6     | EM            | monoenergetic
+# 10302Mxxx      | e-    + He4      | 27.6     | EM            | monoenergetic
+# 10702Mxxx      | e-    + N14      | 27.6     | EM            | monoenergetic
+# 11002Mxxx      | e-    + Ne20     | 27.6     | EM            | monoenergetic
+# 13602Mxxx      | e-    + Kr83     | 27.6     | EM            | monoenergetic
+# 15402Mxxx      | e-    + Xe131    | 27.6     | EM            | monoenergetic
 #
 #...................................................................................
 #
@@ -56,8 +56,10 @@ use File::Path;
 #
 $iarg=0;
 foreach (@ARGV) {
-  if($_ eq '--nsubruns')      { $nsubruns      = $ARGV[$iarg+1]; }
   if($_ eq '--version')       { $genie_version = $ARGV[$iarg+1]; }
+  if($_ eq '--run')           { $runnu         = $ARGV[$iarg+1]; }
+  if($_ eq '--model-enum')    { $model_enum    = $ARGV[$iarg+1]; }
+  if($_ eq '--nsubruns')      { $nsubruns      = $ARGV[$iarg+1]; }
   if($_ eq '--arch')          { $arch          = $ARGV[$iarg+1]; }
   if($_ eq '--production')    { $production    = $ARGV[$iarg+1]; }
   if($_ eq '--cycle')         { $cycle         = $ARGV[$iarg+1]; }
@@ -68,7 +70,10 @@ foreach (@ARGV) {
 }
 die("** Aborting [Undefined GENIE version. Use the --version option]")
 unless defined $genie_version;
+die("** Aborting [You need to specify which runs to submit. Use the --run option]")
+unless defined $runnu;
 
+$model_enum     = "0"                         unless defined $model_enum;
 $nsubruns       = 1                           unless defined $nsubruns;
 $use_valgrind   = 0                           unless defined $use_valgrind;
 $arch           = "SL5_64bit"                 unless defined $arch;
@@ -81,60 +86,63 @@ $genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
 $jobs_dir       = "$softw_topdir/scratch/$production\_$cycle";
 $xspl_file      = "$softw_topdir/data/job_inputs/xspl/gxspl-emode-$genie_version.xml";
 $mcseed         = 210921029;
-$nev_per_subrun = 20000;
+$nev_per_subrun = 50000;
 
 # inputs for event generation jobs
 %evg_pdg_hash = ( 
-  '100100202' =>   '11',
-  '100200402' =>   '11',
-  '100701402' =>   '11',
-  '101002002' =>   '11',
-  '103608302' =>   '11',
-  '105413102' =>   '11'
+  '10202' =>   '11',
+  '10302' =>   '11',
+  '10702' =>   '11',
+  '11002' =>   '11',
+  '13602' =>   '11',
+  '15402' =>   '11'
 );
 %evg_tgtpdg_hash = ( 
-  '100100202' =>   '1000010020',
-  '100200402' =>   '1000020040',
-  '100701402' =>   '1000070140',
-  '101002002' =>   '1000100200',
-  '103608302' =>   '1000360830',
-  '105413102' =>   '1000541310'
+  '10202' =>   '1000010020',
+  '10302' =>   '1000020040',
+  '10702' =>   '1000070140',
+  '11002' =>   '1000100200',
+  '13602' =>   '1000360830',
+  '15402' =>   '1000541310'
 );
 %evg_energy_hash = ( 
-  '100100202' =>   '27.6',
-  '100200402' =>   '27.6',
-  '100701402' =>   '27.6',
-  '101002002' =>   '27.6',
-  '103608302' =>   '27.6',
-  '105413102' =>   '27.6'
+  '10202' =>   '27.6',
+  '10302' =>   '27.6',
+  '10702' =>   '27.6',
+  '11002' =>   '27.6',
+  '13602' =>   '27.6',
+  '15402' =>   '27.6'
 );
 %evg_gevgl_hash = ( 
-  '100100202' =>   'EM',
-  '100200402' =>   'EM',
-  '100701402' =>   'EM',
-  '101002002' =>   'EM',
-  '103608302' =>   'EM',
-  '105413102' =>   'EM'
+  '10202' =>   'EM',
+  '10302' =>   'EM',
+  '10702' =>   'EM',
+  '11002' =>   'EM',
+  '13602' =>   'EM',
+  '15402' =>   'EM'
 );
 %evg_fluxopt_hash = ( 
-  '100100202' =>   '',
-  '100200402' =>   '',
-  '100701402' =>   '',
-  '101002002' =>   '',
-  '103608302' =>   '',
-  '105413102' =>   ''
+  '10202' =>   '',
+  '10302' =>   '',
+  '10702' =>   '',
+  '11002' =>   '',
+  '13602' =>   '',
+  '15402' =>   ''
 );
 
 # make the jobs directory
 #
 mkpath ($jobs_dir, {verbose => 1, mode=>0777});
 
+#
 # submit event generation jobs
 #
+
+# run loop
 for my $curr_runnu (keys %evg_gevgl_hash)  {
 
- # uncomment if you want to include a cmd line input to specify specific runs (and fill-in $runnu)
- # if($runnu=~m/$curr_runnu/ || $runnu eq "all") {
+  # check whether to commit current run
+  if($runnu=~m/$curr_runnu/ || $runnu eq "all") {
 
     print "** submitting event generation run: $curr_runnu \n";
 
@@ -150,7 +158,8 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
     # submit subruns
     for($isubrun = 0; $isubrun < $nsubruns; $isubrun++) {
 
-       $curr_subrunnu = 1000 * $curr_runnu + $isubrun;
+       # Run number key: ITTJJMxxx
+       $curr_subrunnu = 10000 * $curr_runnu + 1000 * $model_enum + $isubrun;
 
        $batch_script  = "$jobs_dir/hdzvld-$curr_subrunnu.pbs";
        $logfile_evgen = "$jobs_dir/hdzvld-$curr_subrunnu.evgen.log";
@@ -185,6 +194,6 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
        `qsub -q $queue $batch_script`;
 
     } # loop over subruns
- # } #checking whether to submit current run
+  } #checking whether to submit current run
 } # loop over runs
 
