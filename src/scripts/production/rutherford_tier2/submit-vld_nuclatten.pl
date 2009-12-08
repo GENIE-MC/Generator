@@ -15,6 +15,7 @@
 #  --run           : runs to submit (eg --run 101102 / --run 101102,154002 / -run all)
 # [--model-enum]   : physics model enumeration, default: 0
 # [--nsubruns]     : number of subruns per run, default: 1
+# [--offset]       : subrun offset (for augmenting existing sample), default: 0
 # [--arch]         : <SL4_32bit, SL5_64bit>, default: SL5_64bit
 # [--production]   : production name, default: hadnucvld_<version>
 # [--cycle]        : cycle in current production, default: 01
@@ -60,6 +61,7 @@ foreach (@ARGV) {
   if($_ eq '--run')           { $runnu         = $ARGV[$iarg+1]; }
   if($_ eq '--model-enum')    { $model_enum    = $ARGV[$iarg+1]; }
   if($_ eq '--nsubruns')      { $nsubruns      = $ARGV[$iarg+1]; }
+  if($_ eq '--offset')        { $offset        = $ARGV[$iarg+1]; }
   if($_ eq '--arch')          { $arch          = $ARGV[$iarg+1]; }
   if($_ eq '--production')    { $production    = $ARGV[$iarg+1]; }
   if($_ eq '--cycle')         { $cycle         = $ARGV[$iarg+1]; }
@@ -75,6 +77,7 @@ unless defined $runnu;
 
 $model_enum     = "0"                         unless defined $model_enum;
 $nsubruns       = 1                           unless defined $nsubruns;
+$offset         = 0                           unless defined $offset;
 $use_valgrind   = 0                           unless defined $use_valgrind;
 $arch           = "SL5_64bit"                 unless defined $arch;
 $production     = "hadnucvld\_$genie_version" unless defined $production;
@@ -159,7 +162,7 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
     for($isubrun = 0; $isubrun < $nsubruns; $isubrun++) {
 
        # Run number key: ITTJJMxxx
-       $curr_subrunnu = 10000 * $curr_runnu + 1000 * $model_enum + $isubrun;
+       $curr_subrunnu = 10000 * $curr_runnu + 1000 * $model_enum + $isubrun + $offset;
 
        $batch_script  = "$jobs_dir/hdzvld-$curr_subrunnu.pbs";
        $logfile_evgen = "$jobs_dir/hdzvld-$curr_subrunnu.evgen.log";
@@ -167,7 +170,7 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
        $logfile_pbse  = "$jobs_dir/hdzvld-$curr_subrunnu.pbs_e.log";
        $logfile_pbso  = "$jobs_dir/hdzvld-$curr_subrunnu.pbs_o.log";
 
-       $curr_seed     = $mcseed + $isubrun;
+       $curr_seed     = $mcseed + $isubrun + $offset;
        $grep_pipe     = "grep -B 20 -A 30 -i \"warn\\|error\\|fatal\"";
        $valgrind_cmd  = "valgrind --tool=memcheck --error-limit=no --leak-check=yes --show-reachable=yes";
        $evgen_cmd     = "gevgen -n $nev_per_subrun -s -e $en -p $probe -t $tgt -r $curr_subrunnu $fluxopt | grep_pipe &> $logfile_evgen";
