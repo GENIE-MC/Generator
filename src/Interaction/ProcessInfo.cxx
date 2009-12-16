@@ -5,7 +5,7 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - May 04, 2004
+         STFC, Rutherford Appleton Laboratory 
 
  For the class documentation see the corresponding header file.
 
@@ -26,6 +26,8 @@
    coherent vector meson production.
  @ Sep 08, 2009 - CR
    Added IsInverseBetaDecay()
+ @ Dec 14, 2009 - CA
+   Added IsGlashowResonance()
 */
 //____________________________________________________________________________
 
@@ -125,6 +127,11 @@ bool ProcessInfo::IsInverseMuDecay(void) const
 bool ProcessInfo::IsInverseBetaDecay(void) const
 {
   return (fScatteringType == kScInverseBetaDecay);
+}
+//____________________________________________________________________________
+bool ProcessInfo::IsGlashowResonance(void) const
+{
+  return (fScatteringType == kScGlashowResonance);
 }
 //____________________________________________________________________________
 bool ProcessInfo::IsAMNuGamma(void) const

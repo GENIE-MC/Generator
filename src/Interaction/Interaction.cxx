@@ -35,6 +35,8 @@
    In RecoilNucleonPdg() allow EM interactions.
  @ Oct 19, 2009 - CA
    Added RESEM() named ctors for charged lepton RES interactions.
+ @ Dec 14, 2009 - CA
+   Added GLR() named ctors for Glashow resonance interactions
 */
 //____________________________________________________________________________
 
@@ -768,6 +770,30 @@ Interaction * Interaction::MECNC(
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeP4(p4probe);
+
+  return interaction;
+}
+//___________________________________________________________________________
+Interaction * Interaction::GLR(int tgt, double E)
+{
+  Interaction * interaction = 
+     Interaction::Create(tgt, kPdgAntiNuE, kScGlashowResonance, kIntWeakCC);
+
+  InitialState * init_state = interaction->InitStatePtr();
+  init_state->SetProbeE(E);
+  init_state->TgtPtr()->SetHitNucPdg(0);
+
+  return interaction;
+}
+//___________________________________________________________________________
+Interaction * Interaction::GLR(int tgt, const TLorentzVector & p4probe)
+{
+  Interaction * interaction = 
+     Interaction::Create(tgt, kPdgAntiNuE, kScGlashowResonance, kIntWeakCC);
+
+  InitialState * init_state = interaction->InitStatePtr();
+  init_state->SetProbeP4(p4probe);
+  init_state->TgtPtr()->SetHitNucPdg(0);
 
   return interaction;
 }
