@@ -52,6 +52,11 @@ Name                        Type    Opt  Comment                                
      <param type="alg" name="Generator-0">  genie::EventGenerator/AM-NUGAMMA   </param>
   </param_set>
 
+  <param_set name="GLRES"> 
+     <param type="int" name="NGenerators">  1                                  </param>
+     <param type="alg" name="Generator-0">  genie::EventGenerator/GLRES        </param>
+  </param_set>
+
   <param_set name="MEC"> 
      <param type="int" name="NGenerators">  1                                  </param>
      <param type="alg" name="Generator-0">  genie::EventGenerator/MEC          </param>

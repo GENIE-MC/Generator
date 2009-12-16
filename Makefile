@@ -147,7 +147,7 @@ else
 endif
 
 vhe-extension: FORCE
-ifeq ($(strip $(GOPT_ENABLE_VLE_EXTENSION)),YES)
+ifeq ($(strip $(GOPT_ENABLE_VHE_EXTENSION)),YES)
 	@echo " "
 	@echo "** Building VHE extension..."
 	cd ${GENIE}/src/VHE; \

@@ -5,11 +5,13 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - October 04, 2004
+         STFC, Rutherford Appleton Laboratory 
 
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
+ @ Dec 14, 2009 - CA
+   Include the struck e- for Glashow resonance reactions.
 
 */
 //____________________________________________________________________________
@@ -63,7 +65,8 @@ void InitialStateAppender::ProcessEventRecord(GHepRecord * evrec) const
   //   It is added with status-code = 0 (init state) if the target was a
   //   free nucleon, or with a status-code = 11 (nucleon target) if the
   //   target was a nucleus.
-  //   If the interaction was an IMD it will add the target e- instead.
+  //   If the interaction was ve- elastic, inverse muon decay or Glashow 
+  //   resonance then it will add the target e- instead.
   this->AddStruckParticle(evrec);
 }
 //___________________________________________________________________________
@@ -113,7 +116,10 @@ void InitialStateAppender::AddStruckParticle(GHepRecord * evrec) const
   const InitialState & init_state = interaction->InitState();
   const ProcessInfo & proc_info   = interaction->ProcInfo();
 
-  bool hit_e = proc_info.IsInverseMuDecay() || proc_info.IsNuElectronElastic();
+  bool hit_e = proc_info.IsInverseMuDecay()    || 
+               proc_info.IsNuElectronElastic() ||
+               proc_info.IsGlashowResonance();
+
   if(hit_e) {
     int    pdgc = kPdgElectron;
     double mass = PDGLibrary::Instance()->Find(pdgc)->Mass();

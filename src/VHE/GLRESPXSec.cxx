@@ -5,7 +5,7 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - May 04, 2005
+         STFC, Rutherford Appleton Laboratory 
 
  For the class documentation see the corresponding header file.
 
@@ -22,36 +22,36 @@
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
 #include "PDG/PDGLibrary.h"
-#include "VHE/GlashowResonancePXSec.h"
+#include "VHE/GLRESPXSec.h"
 
 using namespace genie;
 using namespace genie::constants;
 
 //____________________________________________________________________________
-GlashowResonancePXSec::GlashowResonancePXSec() :
-XSecAlgorithmI("genie::GlashowResonancePXSec")
+GLRESPXSec::GLRESPXSec() :
+XSecAlgorithmI("genie::GLRESPXSec")
 {
 
 }
 //____________________________________________________________________________
-GlashowResonancePXSec::GlashowResonancePXSec(string config) :
-XSecAlgorithmI("genie::GlashowResonancePXSec", config)
+GLRESPXSec::GLRESPXSec(string config) :
+XSecAlgorithmI("genie::GLRESPXSec", config)
 {
 
 }
 //____________________________________________________________________________
-GlashowResonancePXSec::~GlashowResonancePXSec()
+GLRESPXSec::~GLRESPXSec()
 {
 
 }
 //____________________________________________________________________________
-double GlashowResonancePXSec::XSec(
+double GLRESPXSec::XSec(
    const Interaction * /*interaction*/, KinePhaseSpace_t /*kps*/) const
 {
   return 0;
 }
 //____________________________________________________________________________
-double GlashowResonancePXSec::Integral(const Interaction * interaction) const
+double GLRESPXSec::Integral(const Interaction * interaction) const
 {
   if(! this -> ValidProcess    (interaction) ) return 0.;
   if(! this -> ValidKinematics (interaction) ) return 0.;
@@ -71,12 +71,12 @@ double GlashowResonancePXSec::Integral(const Interaction * interaction) const
   double bw    = Mw4 / (TMath::Power(s-Mw2,2) + Gw2*Mw2);
   double xsec  = gf*s*bw;
 
-  LOG("GlashowResXSec", pDEBUG) << "XSec (E = " << E << ") = " << xsec;
+  LOG("GLRES", pDEBUG) << "XSec (E = " << E << ") = " << xsec;
 
   return xsec;
 }
 //____________________________________________________________________________
-bool GlashowResonancePXSec::ValidProcess(const Interaction* interaction) const
+bool GLRESPXSec::ValidProcess(const Interaction* interaction) const
 {
   if(interaction->TestBit(kISkipProcessChk)) return true;
 
@@ -94,7 +94,7 @@ bool GlashowResonancePXSec::ValidProcess(const Interaction* interaction) const
   return true;
 }
 //____________________________________________________________________________
-bool GlashowResonancePXSec::ValidKinematics(const Interaction * /*in*/) const
+bool GLRESPXSec::ValidKinematics(const Interaction * /*in*/) const
 {
   return true;
 }
