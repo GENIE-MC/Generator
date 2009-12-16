@@ -69,7 +69,7 @@
   <priority msgstream="GuiUtils">            WARN   </priority>
   <priority msgstream="GridDim">             WARN   </priority>
   <priority msgstream="GXSecFunc">           WARN   </priority>
-  <priority msgstream="GlashowResXSec">      WARN   </priority>
+  <priority msgstream="GLRES">               WARN   </priority>
   <priority msgstream="GIBUU">               WARN   </priority>
   <priority msgstream="HadTransp">           WARN   </priority>
   <priority msgstream="HadronicVtx">         WARN   </priority>

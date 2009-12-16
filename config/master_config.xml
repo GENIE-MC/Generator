@@ -37,7 +37,7 @@
    <config alg="genie::RSPPResonanceSelector">       RSPPResonanceSelector.xml       </config>
    <config alg="genie::AMNuGammaGenerator">          AMNuGammaGenerator.xml          </config>
    <config alg="genie::MECGenerator">                MECGenerator.xml                </config>
-   <config alg="genie::GlashowResonanceGenerator">   GlashowResonanceGenerator.xml   </config>
+   <config alg="genie::GLRESGenerator">              GLRESGenerator.xml              </config>
 
    <!-- ****** CONFIGURATION FOR LIST-GENERATORS ****** -->
    <config alg="genie::QELInteractionListGenerator">       QELInteractionListGenerator.xml       </config>
@@ -48,6 +48,7 @@
    <config alg="genie::COHInteractionListGenerator">       COHInteractionListGenerator.xml       </config>
    <config alg="genie::AMNuGammaInteractionListGenerator"> AMNuGammaInteractionListGenerator.xml </config>
    <config alg="genie::MECInteractionListGenerator">       MECInteractionListGenerator.xml       </config>
+   <config alg="genie::GLRESInteractionListGenerator">     GLRESInteractionListGenerator.xml     </config>
    <config alg="genie::DFRInteractionListGenerator">       DFRInteractionListGenerator.xml       </config>
    <config alg="genie::InteractionListAssembler">          InteractionListAssembler.xml          </config>
    <config alg="genie::EventGeneratorListAssembler">       EventGeneratorListAssembler.xml       </config>
@@ -118,7 +119,7 @@
    <config alg="genie::BardinIMDRadCorPXSec">        BardinIMDRadCorPXSec.xml        </config>
    <config alg="genie::COHElasticPXSec">             COHElasticPXSec.xml             </config>
    <config alg="genie::NuElectronPXSec">             NuElectronPXSec.xml             </config>
-   <config alg="genie::GlashowResonancePXSec">       GlashowResonancePXSec.xml       </config>
+   <config alg="genie::GLRESPXSec">                  GLRESPXSec.xml                  </config>
    <config alg="genie::ReinDFRPXSec">                ReinDFRPXSec.xml                </config>
    <config alg="genie::ReinSeghalCOHPiPXSec">        ReinSeghalCOHPiPXSec.xml        </config>
    <config alg="genie::ReinSeghalRESPXSec">          ReinSeghalRESPXSec.xml          </config>

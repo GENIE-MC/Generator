@@ -10,10 +10,8 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
- @ Feb 25, 2008 - CA
-   This event generation modules was first added in version 2.3.1 as part of
-   the new event generation thread handling amonaly-mediated single gamma
-   interactions. 
+ @ Dec 14, 2009 - CA
+   Was first added in v2.5.1 
 
 */
 //____________________________________________________________________________
@@ -29,62 +27,67 @@
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
 #include "PDG/PDGLibrary.h"
-#include "VHE/GlashowResonanceGenerator.h"
+#include "VHE/GLRESGenerator.h"
 
 using namespace genie;
 using namespace genie::constants;
 
 //___________________________________________________________________________
-GlashowResonanceGenerator::GlashowResonanceGenerator() :
-EventRecordVisitorI("genie::GlashowResonanceGenerator")
+GLRESGenerator::GLRESGenerator() :
+EventRecordVisitorI("genie::GLRESGenerator")
 {
 
 }
 //___________________________________________________________________________
-GlashowResonanceGenerator::GlashowResonanceGenerator(string config) :
-EventRecordVisitorI("genie::GlashowResonanceGenerator", config)
+GLRESGenerator::GLRESGenerator(string config) :
+EventRecordVisitorI("genie::GLRESGenerator", config)
 {
 
 }
 //___________________________________________________________________________
-GlashowResonanceGenerator::~GlashowResonanceGenerator()
+GLRESGenerator::~GLRESGenerator()
 {
 
 }
 //___________________________________________________________________________
-void GlashowResonanceGenerator::ProcessEventRecord(GHepRecord * evrec) const
+void GLRESGenerator::ProcessEventRecord(GHepRecord * event) const
 {
-  this -> PickHitElectron (evrec);
-  this -> AddResonance    (evrec);
+  this -> SelectElectronVelocity (event);
+  this -> AddRemnantNucleus      (event); 
+  this -> AddResonance           (event);
 }
 //___________________________________________________________________________
-void GlashowResonanceGenerator::PickHitElectron(GHepRecord * evrec) const
+void GLRESGenerator::SelectElectronVelocity(GHepRecord * event) const
 {
-//
-//
 
 }
 //___________________________________________________________________________
-void GlashowResonanceGenerator::AddResonance(GHepRecord * evrec) const
+void GLRESGenerator::AddRemnantNucleus(GHepRecord * event) const
 {
-//
-//
-/*
-  TLorentzVector p4_nu (* evrec -> Probe()       -> P4());
-  TLorentzVector p4_e  (* evrec -> HitElectron() -> P4());
+  GHepParticle * target = event -> TargetNucleus();
 
-  double etot = p4_nu.E() + p4_e.E();
+  int pdgc = target->Pdg();
 
-  TVector3 cm_boost = -1 * (p4_nu.Vect() + p4_e.Vect()) / etot;
+  TLorentzVector p4 ( * target->P4() );
+  TLorentzVector x4 ( * target->X4() );
 
-  p4_nu.Boost(cm_boost);
-  p4_e. Boost(cm_boost);
+  event->AddParticle(pdgc, kIStStableFinalState, 1,-1,-1,-1, p4, x4);
+}
+//___________________________________________________________________________
+void GLRESGenerator::AddResonance(GHepRecord * event) const
+{
+  GHepParticle * nu = event -> Probe();
+  GHepParticle * el = event -> HitElectron();
 
-  TLorentzVector p4_W = p4_nu + p4_e;
+  assert(nu);
+  assert(el);
 
-  p4
+  TLorentzVector p4_nu (* nu->P4());
+  TLorentzVector p4_el (* el->P4());
 
-  evrec->
-*/
+  TLorentzVector p4_W = p4_nu + p4_el;
+  TLorentzVector x4_W(* el->X4());
+
+  event->AddParticle(kPdgWM, kIStStableFinalState, 0,-1,-1,-1, p4_W, x4_W);
 }
 //___________________________________________________________________________

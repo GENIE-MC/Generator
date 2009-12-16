@@ -1,10 +1,10 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::GlashowResonanceXSec
+\class    genie::GLRESPXSec
 
-\brief    Nuebar cross section at the Glashow resonance (nuebar + e- -> W-).\n
-          Is a concrete implementation of the XSecAlgorithmI interface. \n
+\brief    Nuebar cross section at the Glashow resonance (nuebar + e- -> W-).
+          Is a concrete implementation of the XSecAlgorithmI interface. 
 
 \ref      T.K.Gaisser, F.Halzen and T.Stanev, Physics Reports 258:173 (1995)
 
@@ -26,14 +26,12 @@
 
 namespace genie {
 
-class IntegratorI;
-
-class GlashowResonancePXSec : public XSecAlgorithmI {
+class GLRESPXSec : public XSecAlgorithmI {
 
 public:
-  GlashowResonancePXSec ();
-  GlashowResonancePXSec (string config);
-  virtual ~GlashowResonancePXSec ();
+  GLRESPXSec ();
+  GLRESPXSec (string config);
+  virtual ~GLRESPXSec ();
 
   // XSecAlgorithmI interface implementation
   double XSec            (const Interaction * i, KinePhaseSpace_t k=kPSfE) const;
@@ -44,4 +42,4 @@ public:
 
 }       // genie namespace
 
-#endif  // _GLASHOW_RES_XSEC_H_
+#endif  // _GLASHOW_RESONANCE_XSEC_H_

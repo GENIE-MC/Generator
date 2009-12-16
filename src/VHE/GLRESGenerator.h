@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::GlashowResonanceGenerator
+\class    genie::GLRESGenerator
 
 \brief    
 
@@ -23,22 +23,23 @@
 
 namespace genie {
 
-class GlashowResonanceGenerator : public EventRecordVisitorI {
+class GLRESGenerator : public EventRecordVisitorI {
 
 public :
-  GlashowResonanceGenerator();
-  GlashowResonanceGenerator(string config);
- ~GlashowResonanceGenerator();
+  GLRESGenerator();
+  GLRESGenerator(string config);
+ ~GLRESGenerator();
 
   // implement the EventRecordVisitorI interface
-  void ProcessEventRecord (GHepRecord * event_rec) const;
+  void ProcessEventRecord (GHepRecord * event) const;
 
 private:
 
-  void PickHitElectron (GHepRecord * event_rec) const;
-  void AddResonance    (GHepRecord * event_rec) const;
-
+  void SelectElectronVelocity (GHepRecord * event) const;
+  void AddRemnantNucleus      (GHepRecord * event) const;
+  void AddResonance           (GHepRecord * event) const;
 };
 
 }      // genie namespace
+
 #endif // _GLASHOW_RESONANCE_GENERATOR_H_
