@@ -33,6 +33,10 @@ namespace system
 
   vector<string> GetAllFilesInPath  (string path, string extension="");
 
+  int GenieMajorVrsNum (string tag);
+  int GenieMinorVrsNum (string tag);
+  int GenieRevisVrsNum (string tag);
+
 } // system namespace
 } // utils  namespace
 } // genie  namespace

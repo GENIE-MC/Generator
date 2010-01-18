@@ -16,12 +16,16 @@
 */
 //____________________________________________________________________________
 
+#include <cstdlib>
+
 #include <sys/types.h>
 #include <dirent.h>
 
 #include "Messenger/Messenger.h"
 #include "Utils/StringUtils.h"
 #include "Utils/SystemUtils.h"
+
+using std::atoi;
 
 //___________________________________________________________________________
 vector<string> 
@@ -55,3 +59,25 @@ vector<string>
   return files;
 }
 //___________________________________________________________________________
+int genie::utils::system::GenieMajorVrsNum(string tag)
+{
+  vector<string> vrs = utils::str::Split(tag,".");
+  assert(vrs.size() == 3);
+  return atoi(vrs[0].c_str());
+}
+//___________________________________________________________________________
+int genie::utils::system::GenieMinorVrsNum(string tag)
+{
+  vector<string> vrs = utils::str::Split(tag,".");
+  assert(vrs.size() == 3);
+  return atoi(vrs[1].c_str());
+}
+//___________________________________________________________________________
+int genie::utils::system::GenieRevisVrsNum(string tag)
+{
+  vector<string> vrs = utils::str::Split(tag,".");
+  assert(vrs.size() == 3);
+  return atoi(vrs[2].c_str());
+}
+//___________________________________________________________________________
+
