@@ -7,11 +7,18 @@
          plain text, XML or bare-ROOT formats.
 
          Syntax:
-           gntpc -i input_filename [-o output_filename] -f format [-n nev]
+           gntpc -i input_file [-o output_file] -f format [-n nev] [-v vrs]
 
          Options :
+
            [] denotes an optional argument
-           -n number of events to convert
+
+           -n number of events to convert 
+              (optional, default: convert all events)
+
+           -v output format version, if multiple versions are supported
+              (optional, default: use latest version of each format)
+
            -f is a string that specifies the output file format. 
 
 	      [Generic formats]
@@ -119,6 +126,7 @@
 #include "PDG/PDGLibrary.h"
 #include "Utils/CmdLineArgParserUtils.h"
 #include "Utils/CmdLineArgParserException.h"
+#include "Utils/SystemUtils.h"
 
 #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
 #include "FluxDrivers/GJPARCNuFlux.h"
@@ -141,16 +149,17 @@ using namespace genie;
 using namespace genie::constants;
 
 //func prototypes
-void   ConvertToGST            (void);
-void   ConvertToGTracker       (void);
-void   ConvertToGRooTracker    (void);
-void   ConvertToGXML           (void);
-void   ConvertToGHad           (void);
-void   ConvertToGINuke         (void);
-void   GetCommandLineArgs      (int argc, char ** argv);
-void   PrintSyntax             (void);
-string DefaultOutputFile       (void);
-bool   CheckRootFilename       (string filename);
+void   ConvertToGST              (void);
+void   ConvertToGTracker         (void);
+void   ConvertToGRooTracker      (void);
+void   ConvertToGXML             (void);
+void   ConvertToGHad             (void);
+void   ConvertToGINuke           (void);
+void   GetCommandLineArgs        (int argc, char ** argv);
+void   PrintSyntax               (void);
+string DefaultOutputFile         (void);
+int    LatestFormatVersionNumber (void);
+bool   CheckRootFilename         (string filename);
 
 //format enum
 typedef enum EGNtpcFmt {
@@ -167,10 +176,16 @@ typedef enum EGNtpcFmt {
 } GNtpcFmt_t;
 
 //input options (from command line arguments):
-string     gOptInpFileName;
-string     gOptOutFileName;
-GNtpcFmt_t gOptOutFileFormat;
-Long64_t   gOptN; 
+string     gOptInpFileName;   ///< input file name
+string     gOptOutFileName;   ///< output file name
+GNtpcFmt_t gOptOutFileFormat; ///< output file format id
+int        gOptVersion;       ///< output file format version
+Long64_t   gOptN;             ///< number of events to process
+
+//genie version used to generate the input event file 
+int gFileMajorVrs = -1;
+int gFileMinorVrs = -1;
+int gFileRevisVrs = -1;
 
 //consts
 const int kNPmax = 100;
@@ -1019,6 +1034,16 @@ void ConvertToGTracker(void)
 
   LOG("gntpc", pINFO) << "Input tree header: " << *thdr;
 
+  gFileMajorVrs = utils::system::GenieMajorVrsNum(thdr->cvstag.GetString().Data());
+  gFileMinorVrs = utils::system::GenieMinorVrsNum(thdr->cvstag.GetString().Data());
+  gFileRevisVrs = utils::system::GenieRevisVrsNum(thdr->cvstag.GetString().Data());
+
+/*
+  LOG("gntpc", pINFO) 
+    << "Version (major,minor,revis) = (" 
+    << gFileMajorVrs << ", " << gFileMinorVrs << ", " << gFileRevisVrs << ")";
+*/
+
   //-- get mc record
   NtpMCEventRecord * mcrec = 0;
   tree->SetBranchAddress("gmcrec", &mcrec);
@@ -1259,9 +1284,30 @@ void ConvertToGTracker(void)
       //
       // The $info lines are formatted as follows:
       //
+      // version 1: 
+      //
       // $ info event_num err_flag string_event_code
       // $ info xsec_event diff_xsec_kinematics weight prob
       // $ info vtxx vtxy vtxz vtxt
+      // $ info nparticles
+      // $ info 0 pdg_code status_code first_daughter last_daughter first_mother last_mother px py pz E x y z t polx poly polz 
+      // $ info 1 pdg_code status_code first_daughter last_daughter first_mother last_mother px py pz E x y z t polx poly polz 
+      // ... ... ...
+      // $ info k pdg_code status_code first_daughter last_daughter first_mother last_mother px py pz E x y z t polx poly polz 
+      // ... ... ...
+      // $ info jnubeam_parent_pdg_code jnubeam_parent_decay_mode
+      // $ info jnubeam_parent_decay_px jnubeam_parent_decay_py jnubeam_parent_decay_pz jnubeam_parent_decay_E
+      // $ info jnubeam_parent_decay_x jnubeam_parent_decay_y jnubeam_parent_decay_z jnubeam_parent_decay_t
+      // $ info jnubeam_parent_prod_px jnubeam_parent_prod_py jnubeam_parent_prod_pz jnubeam_parent_prod_E
+      // $ info jnubeam_parent_prod_x jnubeam_parent_prod_y jnubeam_parent_prod_z jnubeam_parent_prod_t
+      // $ info jnubeam_parent_nvtx
+      //
+      // version 2:
+      //
+      // $ info event_num err_flag string_event_code
+      // $ info xsec_event diff_xsec_kinematics weight prob
+      // $ info vtxx vtxy vtxz vtxt
+      // $ info etc
       // $ info nparticles
       // $ info 0 pdg_code status_code first_daughter last_daughter first_mother last_mother px py pz E x y z t polx poly polz rescatter_code
       // $ info 1 pdg_code status_code first_daughter last_daughter first_mother last_mother px py pz E x y z t polx poly polz rescatter_code
@@ -1287,11 +1333,19 @@ void ConvertToGTracker(void)
       // - weight is the event weight (1 for unweighted MC)
       // - prob is the event probability (given cross sectios and density-weighted path-length)
       // - vtxx,y,z,t is the vertex position/time in SI units 
+      // - etc (added in format vrs >= 2) is used to pass any additional information with event-scope. 
+      //   For the time being it is being used to pass the hit quark id (for DIS events) that was lost before 
+      //   as SKDETSIM doesn't read the string_event_code where this info is nominally contained.
+      //   The quark id is set as (quark_pdg_code) x 10 + i, where i=0 for valence and i=1 for sea quarks. Set to -1 for non-DIS events.
       // - nparticles is the number of particles in the GHEP record (number of $info lines to follow before the start of the JNUBEAM block)
       // - first_/last_daughter first_/last_mother indicate the particle
       // - px,py,pz,E is the particle 4-momentum at the LAB frame (in GeV)
       // - x,y,z,t is the particle 4-position at the hit nucleus coordinate system (in fm, t is not set)
       // - polx,y,z is the particle polarization vector
+      // - rescatter_code (added in format vrs >= 2) is a model-dependent intranuclear rescattering code
+      //   added to simplify the event analysis (although, in principle, it is recoverable from the particle record).
+      //   See $GENIE/src/HadronTransport/INukeHadroFates.h for the meaning of various codes when INTRANUKE is in use.
+      //   The rescattering code is stored at the GHEP event record for files generated with GENIE vrs >= 2.5.1.
       // See also ConvertToGRooTracker() for further descriptions of the variables stored at
       // the rootracker files.
       //
@@ -1308,6 +1362,18 @@ void ConvertToGTracker(void)
                           << event.Vertex()->Z() << " "
                           << event.Vertex()->T() 
                           << endl;
+
+      // insert etc info line for format versions >= 2
+      if(gOptVersion >= 2) {
+         int quark_id = -1;
+         if( interaction->ProcInfo().IsDeepInelastic() && interaction->InitState().Tgt().HitQrkIsSet() ) {
+            int quark_pdg = interaction->InitState().Tgt().HitQrkPdg();
+            int sorv      = ( interaction->InitState().Tgt().HitSeaQrk() ) ? 1 : 0; // sea q: 1, valence q: 0
+            quark_id = 10 * quark_pdg + sorv;
+         }
+         output << "$ info " << quark_id << endl;
+      }
+
       //
       // copy stdhep-like particle list
       //
@@ -1331,8 +1397,25 @@ void ConvertToGTracker(void)
         } else {
             output << "0. 0. 0.";
         }
-        output << " ";
-        output << p->RescatterCode();
+
+        // append rescattering code for format versions >= 2 
+        if(gOptVersion >= 2) {
+           int rescat_code = -1;
+           bool have_rescat_code = false;
+           if(gFileMajorVrs >= 2) {
+             if(gFileMinorVrs >= 5) {
+                if(gFileRevisVrs >= 1) {
+                    have_rescat_code = true;
+                }
+             }
+           }
+           if(have_rescat_code) {
+             rescat_code = p->RescatterCode();
+           }
+           output << " ";
+           output << rescat_code;
+        }
+
         output << endl;
         iparticle++;
       }
@@ -2317,6 +2400,22 @@ void GetCommandLineArgs(int argc, char ** argv)
       gOptN = -1;
     }
   }
+
+  //get format version number
+  try {
+    LOG("gntpc", pINFO) << "Reading format version number";
+    gOptVersion = genie::utils::clap::CmdLineArgAsInt(argc,argv,'v');
+    LOG("gntpc", pINFO)
+       << "Using version number: " << gOptVersion;
+  } catch(exceptions::CmdLineArgParserException e) {
+    if(!e.ArgumentFound()) {
+      LOG("gntpc", pINFO)
+          << "Unspecified version number - Use latest";
+      gOptVersion = LatestFormatVersionNumber();
+      LOG("gntpc", pINFO)
+          << "Latest version number: " << gOptVersion;
+    }
+  }
 }
 //___________________________________________________________________
 string DefaultOutputFile(void)
@@ -2352,6 +2451,21 @@ string DefaultOutputFile(void)
   name << inpname << ext;
 
   return gSystem->BaseName(name.str().c_str());
+}
+//___________________________________________________________________
+int LatestFormatVersionNumber(void)
+{
+  if      (gOptOutFileFormat == kConvFmt_gst            ) return 1;
+  else if (gOptOutFileFormat == kConvFmt_rootracker     ) return 1;
+  else if (gOptOutFileFormat == kConvFmt_gxml           ) return 1;
+  else if (gOptOutFileFormat == kConvFmt_t2k_rootracker ) return 1;
+  else if (gOptOutFileFormat == kConvFmt_t2k_tracker    ) return 2;
+  else if (gOptOutFileFormat == kConvFmt_numi_rootracker) return 1;
+  else if (gOptOutFileFormat == kConvFmt_nuance_tracker ) return 1;
+  else if (gOptOutFileFormat == kConvFmt_ghad           ) return 1;
+  else if (gOptOutFileFormat == kConvFmt_ginuke         ) return 1;
+
+  return -1;
 }
 //___________________________________________________________________
 void PrintSyntax(void)
