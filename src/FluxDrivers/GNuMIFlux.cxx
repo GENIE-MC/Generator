@@ -154,6 +154,7 @@
 
 #include <TFile.h>
 #include <TChain.h>
+#include <TChainElement.h>
 #include <TSystem.h>
 #include <TStopwatch.h>
 
@@ -350,7 +351,7 @@ bool GNuMIFlux::GenerateNext_weighted(void)
       }
     }
     
-    if ( fG3NuMI ) { 
+    if ( fG3NuMI ) {
       fG3NuMI->GetEntry(fIEntry); 
       fCurEntry->MakeCopy(fG3NuMI); 
     } else if ( fG4NuMI ) { 
@@ -462,8 +463,10 @@ bool GNuMIFlux::GenerateNext_weighted(void)
     << "Generated neutrino: " << fIEntry << " " << fCurEntry->evtno
     << " nenergyn " << fCurEntry->nenergyn
     << "\n pdg-code: " << fCurEntry->fgPdgC
-    << "\n p4: " << utils::print::P4AsShortString(&fCurEntry->fgP4)
-    << "\n x4: " << utils::print::X4AsString(&fCurEntry->fgX4);
+    << "\n p4 beam: " << utils::print::P4AsShortString(&fCurEntry->fgP4)
+    << "\n x4 beam: " << utils::print::X4AsString(&fCurEntry->fgX4)
+    << "\n p4 user: " << utils::print::P4AsShortString(&(fCurEntry->fgP4User))
+    << "\n x4 user: " << utils::print::X4AsString(&(fCurEntry->fgX4User));
 #endif
   if ( Ev > fMaxEv ) {
     LOG("Flux", pFATAL)
@@ -494,6 +497,13 @@ void GNuMIFlux::MoveToZ0(double z0usr)
   // move ray origin to specified user z0
   // move beam coord entry correspondingly
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+  LOG("Flux", pNOTICE)
+    << "MoveToZ0 (z0usr=" << z0usr << ") before:"
+    << "\n p4 user: " << utils::print::P4AsShortString(&(fCurEntry->fgP4User))
+    << "\n x4 user: " << utils::print::X4AsString(&(fCurEntry->fgX4User));
+#endif
+
   double pzusr    = fCurEntry->fgP4User.Pz();
   if ( TMath::Abs(pzusr) < 1.0e-30 ) {
     // neutrino is moving almost entirely in x-y plane
@@ -508,6 +518,12 @@ void GNuMIFlux::MoveToZ0(double z0usr)
   // this scaling works for distances, but not the time component
   fCurEntry->fgX4.SetT(0);
   fCurEntry->fgX4User.SetT(0);
+
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+  LOG("Flux", pNOTICE)
+    << "MoveToZ0 (" << z0usr << ") after:"
+    << "\n x4 user: " << utils::print::X4AsString(&(fCurEntry->fgX4User));
+#endif
 
 }
 
@@ -775,7 +791,8 @@ void GNuMIFlux::ScanForMaxWeight(void)
   t.Stop();
   t.Print("u");
   LOG("Flux", pNOTICE) << "Maximum flux weight for spin = " 
-                       << wgtgenmx << ", energy = " << enumx;
+                       << wgtgenmx << ", energy = " << enumx
+                       << " (" << fMaxWgtEntries << ")";
 
   if (wgtgenmx > fMaxWeight ) fMaxWeight = wgtgenmx;
   // apply a fudge factor to estimated weight
@@ -1082,6 +1099,7 @@ void GNuMIFlux::Initialize(void)
   fNuFluxTree      =  0;
   fG3NuMI          =  0;
   fG4NuMI          =  0;
+  fFlugg           =  0;
   fNuFluxTreeName  = "";
   fNuFluxGen       = "";
   fNFiles          =  0;
@@ -2237,6 +2255,11 @@ void GNuMIFlux::PrintConfig()
   for ( ; itr != fPdgCList->end(); ++itr)
     s << (*itr) << " ";
 
+  std::ostringstream flistout;
+  std::vector<std::string> flist = GetFileList();
+  for (size_t i = 0; i < flist.size(); ++i)
+    flistout << "\n [" << std::setw(3) << i << "] " << flist[i];
+
   LOG("Flux", pNOTICE)
     << "GNuMIFlux Config:"
     << "\n Enu_max " << fMaxEv 
@@ -2249,6 +2272,7 @@ void GNuMIFlux::PrintConfig()
     << " (FilePOTs " << fFilePOTs << ") "
     <<  "in " << fNFiles << " files like: "
     << "\n " << fNuFluxFilePattern
+    << flistout.str()
     << "\n wgt max=" << fMaxWeight << " fudge=" << fMaxWgtFudge << " using "
     << fMaxWgtEntries << " entries"
     << "\n Z0 pushback " << fZ0
@@ -2272,10 +2296,23 @@ void GNuMIFlux::PrintConfig()
     << "\n  base " << utils::print::X4AsString(&fBeamZero)
     << "\n BeamRot/BeamRotInv ... not yet implemented"
     << "\n UseFluxAtDetCenter " << fUseFluxAtDetCenter;
+  
 
 }
 
 //___________________________________________________________________________
+std::vector<std::string> GNuMIFlux::GetFileList() 
+{
+  std::vector<std::string> flist;
+  TObjArray *fileElements=fNuFluxTree->GetListOfFiles();
+  TIter next(fileElements);
+  TChainElement *chEl=0;
+  while (( chEl=(TChainElement*)next() )) {
+    flist.push_back(chEl->GetTitle());
+  }
+  return flist;
+}
+
 //___________________________________________________________________________
 
 std::vector<double> GNuMIFluxXMLHelper::GetDoubleVector(std::string str)
