@@ -95,6 +95,7 @@ using namespace genie::geometry;
 using namespace genie::controls;
 
 //#define RWH_DEBUG
+//#define RWH_DEBUG_2
 //#define RWH_COUNTVOLS
 #ifdef RWH_COUNTVOLS
 // keep some statistics about how many volumes traversed for each box face
@@ -293,12 +294,14 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
   LOG("GROOTGeom", pINFO)
        << "Generated 'distance' in selected material = " << gen_dist;
 #ifdef RWH_DEBUG
-  fCurrPathSegmentList->SetDoCrossCheck(true);       //RWH
-  LOG("GROOTGeom", pINFO) << *fCurrPathSegmentList;  //RWH
-  double mxddist = 0, mxdstep = 0;
-  fCurrPathSegmentList->CrossCheck(mxddist,mxdstep);
-  fmxddist = TMath::Max(fmxddist,mxddist);
-  fmxdstep = TMath::Max(fmxdstep,mxdstep);
+  if ( ( fDebugFlags & 0x01 ) ) {
+    fCurrPathSegmentList->SetDoCrossCheck(true);       //RWH
+    LOG("GROOTGeom", pINFO) << *fCurrPathSegmentList;  //RWH
+    double mxddist = 0, mxdstep = 0;
+    fCurrPathSegmentList->CrossCheck(mxddist,mxdstep);
+    fmxddist = TMath::Max(fmxddist,mxddist);
+    fmxdstep = TMath::Max(fmxdstep,mxdstep);
+  }
 #endif
 
 
@@ -324,20 +327,22 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
   for ( sitr = segments.begin(); sitr != segments.end(); ++sitr) {
     const genie::geometry::PathSegment& seg = *sitr;
     const TGeoMaterial* mat = seg.fMaterial;
-    double trimmed_step = seg.fStepTrimHigh - seg.fStepTrimLow;
+    double trimmed_step = seg.GetSummedStepRange();
     double wgtstep = trimmed_step * wgtmap[mat];
     double beyond = walked + wgtstep;
     if ( beyond > gen_dist ) {
 #ifdef RWH_DEBUG
-      LOG("GROOTGeom", pINFO)
-        << "Choose vertex pos walked " << walked << " wgtstep " << wgtstep
-        << " ( " << trimmed_step << "*" << wgtmap[mat] << ")"
-        << " beyond " << beyond << " in " << seg.fVolume->GetName() << " "
-        << mat->GetName() << " look for " << gen_dist;
+      if ( ( fDebugFlags & 0x01 ) ) {
+        LOG("GROOTGeom", pINFO)
+          << "Choose vertex pos walked " << walked << " wgtstep " << wgtstep
+          << " ( " << trimmed_step << "*" << wgtmap[mat] << ")"
+          << " beyond " << beyond << " in " << seg.fVolume->GetName() << " "
+          << mat->GetName() << " look for " << gen_dist;
+      }
 #endif
       // choose a vertex in this step
       double frac = ( gen_dist - walked ) / wgtstep;
-      pos = seg.fEnter + frac * ( seg.fExit - seg.fEnter );
+      pos = seg.GetPosition(frac);
       fGeometry -> SetCurrentPoint (pos[0],pos[1],pos[2]);
       fGeometry -> FindNode();
       LOG("GROOTGeom", pINFO)
@@ -657,6 +662,7 @@ void ROOTGeomAnalyzer::Initialize(void)
   fCurrPDGCodeList       = 0;
   fTopVolume             = 0;
   fTopVolumeName         = "";
+  fKeepSegPath           = false;
 
   // some defaults:
   this -> SetScannerNPoints    (200);
@@ -673,6 +679,7 @@ void ROOTGeomAnalyzer::Initialize(void)
 
   fmxddist = 0;
   fmxdstep = 0;
+  fDebugFlags = 0;
 }
 
 //___________________________________________________________________________
@@ -1338,6 +1345,10 @@ void ROOTGeomAnalyzer::SwimOnce(const TVector3 & r0, const TVector3 & udir)
   const TGeoMedium *   med = 0;
   const TGeoMaterial * mat = 0;
 
+  // determining the geometry path is expensive, do it only if necessary
+  bool selneedspath = ( fGeomVolSelector && fGeomVolSelector->GetNeedPath() );
+  const bool fill_path = fKeepSegPath || selneedspath;
+
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("GROOTGeom", pNOTICE)  
     << "SwimOnce x [" << r0[0] << "," << r0[1] << "," << r0[2]
@@ -1352,10 +1363,14 @@ void ROOTGeomAnalyzer::SwimOnce(const TVector3 & r0, const TVector3 & udir)
 
      fGeometry->FindNode();
 
-     med = 0;
-     mat = 0;
-     vol = fGeometry->GetCurrentVolume();
      ps_curr.SetEnter( fGeometry->GetCurrentPoint() , raydist );
+     vol = fGeometry->GetCurrentVolume();
+     med = vol->GetMedium();
+     mat = med->GetMaterial();
+     ps_curr.SetGeo(vol,med,mat);
+#ifdef PATHSEG_KEEP_PATH
+     if (fill_path) ps_curr.SetPath(fGeometry->GetPath());
+#endif
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
 #ifdef DUMP_SWIM
@@ -1418,10 +1433,6 @@ void ROOTGeomAnalyzer::SwimOnce(const TVector3 & r0, const TVector3 & udir)
 
         ps_curr.SetExit(fGeometry->GetCurrentPoint());
         ps_curr.SetStep(step);
-        ps_curr.SetGeo(vol,med,mat);
-#ifdef PATHSEG_KEEP_PATH
-        ps_curr.SetPath(fGeometry->GetPath());
-#endif
         fCurrPathSegmentList->AddSegment(ps_curr);
 
      }  // outside or !vol
@@ -1429,15 +1440,11 @@ void ROOTGeomAnalyzer::SwimOnce(const TVector3 & r0, const TVector3 & udir)
      if (keep_on) {
        if (!found_vol) found_vol = true;
 
-       med  = vol->GetMedium();
-       mat  = med->GetMaterial();
-
        step   = this->StepUntilEntering();
        raydist += step;
 
        ps_curr.SetExit(fGeometry->GetCurrentPoint());
        ps_curr.SetStep(step);
-       ps_curr.SetGeo(vol,med,mat);
        fCurrPathSegmentList->AddSegment(ps_curr);
 
        nvolswim++; //rwh
@@ -1472,12 +1479,28 @@ void ROOTGeomAnalyzer::SwimOnce(const TVector3 & r0, const TVector3 & udir)
     << "PathSegmentList size " << fCurrPathSegmentList->size();
 #endif
 
-  // PathSegmentList trimming should occur here!
+#ifdef RWH_DEBUG_2
+  if ( ( fDebugFlags & 0x02 ) ) {
+    fCurrPathSegmentList->SetDoCrossCheck(true);       //RWH
+    LOG("GROOTGeom", pNOTICE) << "Before trimming" << *fCurrPathSegmentList;
+    double mxddist = 0, mxdstep = 0;
+    fCurrPathSegmentList->CrossCheck(mxddist,mxdstep);
+    fmxddist = TMath::Max(fmxddist,mxddist);
+    fmxdstep = TMath::Max(fmxdstep,mxdstep);
+  }
+#endif
+
+  // PathSegmentList trimming occurs here!
   if ( fGeomVolSelector ) {
     PathSegmentList* altlist = 
       fGeomVolSelector->GenerateTrimmedList(fCurrPathSegmentList);
     std::swap(altlist,fCurrPathSegmentList);
     delete altlist;  // after swap delete original
+#ifdef RWH_DEBUG_2
+    if ( ( fDebugFlags & 0x02 ) ) {
+      LOG("GROOTGeom", pNOTICE) << "After  trimming" << *fCurrPathSegmentList;
+    }
+#endif
   }
 
   fCurrPathSegmentList->FillMatStepSum();
