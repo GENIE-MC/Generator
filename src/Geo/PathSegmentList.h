@@ -23,11 +23,12 @@
 #define _PATH_SEGMENT_LIST_H_
 
 /// --- for test purposes allow compilation of class without string member
-/// fetching/keeping the geometry path seems to add a negligable (<2%)
+/// fetching/keeping the geometry path seems to add a significant (2x)
 /// overhead to swimming through the geometry.
 #define PATHSEG_KEEP_PATH
 //#undef  PATHSEG_KEEP_PATH
 
+#include <utility>  // for pair<>
 #include <vector>
 #include <list>
 #include <ostream>
@@ -42,9 +43,13 @@ class TGeoMaterial;
 using std::vector;
 using std::ostream;
 using std::string;
+using std::pair;
 
 namespace genie {
 namespace geometry {
+
+typedef std::pair<Double_t,Double_t> StepRange;
+typedef std::vector<StepRange>       StepRangeSet;
 
 class PathSegment {
 
@@ -52,14 +57,18 @@ class PathSegment {
   PathSegment();
  ~PathSegment() { ; }
 
+  /// point of entry to geometry element
   void SetEnter(const TVector3 & p3enter, double raydist) 
      { fEnter = p3enter; fRayDist = raydist; }
   void SetEnter(const Double_t * p3enter, double raydist) 
      { fEnter.SetXYZ(p3enter[0],p3enter[1],p3enter[2]); fRayDist = raydist; }
+
+  /// point of exit from geometry element
   void SetExit(const TVector3 & p3exit) { fExit = p3exit;  }
   void SetExit(const Double_t * p3exit) 
      { fExit.SetXYZ(p3exit[0],p3exit[1],p3exit[2]); }
-  void SetStep(Double_t step, bool setlimits = true );
+
+  /// info about the geometry element
   void SetGeo(const TGeoVolume * gvol, const TGeoMedium * gmed, 
               const TGeoMaterial * gmat)
   { fVolume = gvol; fMedium = gmed; fMaterial = gmat; }
@@ -67,6 +76,18 @@ class PathSegment {
   void SetPath(const char* path) { fPathString = path; }
 #endif
 
+  /// step taken in the geometry element
+  void SetStep(Double_t step, bool setlimits = true );
+
+  bool IsTrimmedEmpty() const { return fStepRangeSet.empty(); }
+
+  /// get the sum of all the step range (in case step has been trimmed or split)
+  Double_t GetSummedStepRange() const;
+
+  /// calculate position within allowed ranges passed on fraction of total
+  TVector3 GetPosition(Double_t frac) const;
+
+  /// perform cross check on segment, return differences
   void DoCrossCheck(const TVector3& startpos, double& ddist, double& dstep) const;
 
   //void Copy (const PathSegment & ps);
@@ -79,8 +100,6 @@ class PathSegment {
 
   Double_t               fRayDist;      ///< distance from start of ray
   Double_t               fStepLength;   ///< total step size in volume
-  Double_t               fStepTrimLow;  ///< trimmed low end
-  Double_t               fStepTrimHigh; ///< trimmed high end
   const TGeoVolume *     fVolume;       ///< ref only ptr to TGeoVolume
   const TGeoMedium *     fMedium;       ///< ref only ptr to TGeoMedium
   const TGeoMaterial *   fMaterial;     ///< ref only ptr to TGeoMaterial
@@ -89,10 +108,8 @@ class PathSegment {
 #ifdef PATHSEG_KEEP_PATH
   std::string            fPathString;   ///< full path names
 #endif
+  StepRangeSet           fStepRangeSet; ///< collection of {steplo,stephi} pairs
 };
-
-inline void PathSegment::SetStep(Double_t step, bool setlimits) 
-  { fStepLength = step; if (setlimits) {fStepTrimLow=0; fStepTrimHigh=step;} }
 
 inline bool operator < (const PathSegment &lhs, const PathSegment &rhs)
   { return ( lhs.fRayDist < rhs.fRayDist ); }
