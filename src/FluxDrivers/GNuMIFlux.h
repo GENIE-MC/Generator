@@ -23,6 +23,7 @@
 #ifndef _GNUMI_NEUTRINO_FLUX_H_
 #define _GNUMI_NEUTRINO_FLUX_H_
 
+#include <vector>
 #include <string>
 #include <iostream>
 
@@ -199,6 +200,8 @@ public :
   //
   const GNuMIFluxPassThroughInfo &
      PassThroughInfo(void) { return *fCurEntry; } ///< GNuMIFluxPassThroughInfo
+  Long64_t GetEntryNumber() { return fIEntry; }   ///< index in chain
+
   double    GetDecayDist() const; ///< dist (user units) from dk to current pos
   void      MoveToZ0(double z0);  ///< move ray origin to user coord Z0
 
@@ -212,6 +215,8 @@ public :
 
   void      PrintCurrent(void);         ///< print current entry from leaves
   void      PrintConfig();              ///< print the current configuration
+
+  std::vector<std::string> GetFileList();  ///< list of files currently part of chain
 
   //
   // configuration of GNuMIFlux
