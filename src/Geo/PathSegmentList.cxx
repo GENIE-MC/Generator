@@ -78,12 +78,13 @@ namespace genie {
 
 //___________________________________________________________________________
 PathSegment::PathSegment(void) :
-  fRayDist(0), fStepLength(0), fStepTrimLow(0), fStepTrimHigh(0), 
+  fRayDist(0), fStepLength(0), 
   fVolume(0), fMedium(0), fMaterial(0),
   fEnter(), fExit()
 {
 }
 
+//___________________________________________________________________________
 void PathSegment::DoCrossCheck(const TVector3& startpos, 
                                double& ddist, double& dstep) const
 {
@@ -94,23 +95,80 @@ void PathSegment::DoCrossCheck(const TVector3& startpos,
   dstep = step_recalc - fStepLength;
 }
 
+//___________________________________________________________________________
 void PathSegment::Print(ostream & stream) const
 {
   const char* vname = (fVolume)   ? fVolume->GetName()   : "no volume";
   const char* mname = (fMaterial) ? fMaterial->GetName() : "no material";
   stream << genie::pathsegutils::Vec3AsString(&fEnter) << " " 
     //<< genie::pathsegutils::Vec3AsString(&fExit) 
-         << " raydist " << std::setw(12) << fRayDist 
-         << " step " << std::setw(12) << fStepLength << " "
-         << "[" << std::setw(12) << fStepTrimLow << ":"
-         << std::setw(12) << fStepTrimHigh << "] "
+         << " " // "raydist " 
+         << std::setw(12) << fRayDist 
+         << " " // "step " 
+         << std::setw(12) << fStepLength << " "
+         << std::left
          << std::setw(16) << vname << " '"
-         << std::setw(18) << mname << "'"
+         << std::setw(18) << mname << "' ";
+  size_t n = fStepRangeSet.size();
+  const int rngw = 24;
+  if ( n == 0 ) {
+    stream << std::setw(rngw) << "[ ]";
+  } else {
+    std::ostringstream rngset;
+    for ( size_t i = 0 ; i < n; ++i ) {
+      const StepRange& sr = fStepRangeSet[i];
+      rngset << "[" << sr.first << ":" << sr.second << "]";
+    }
+    stream << std::setw(rngw) << rngset.str();
+  }
+  stream << std::right;
 #ifdef PATHSEG_KEEP_PATH
-         << " " << fPathString
+  stream << " " << fPathString;
 #endif
-    ;
+
 }
+
+//___________________________________________________________________________
+void PathSegment::SetStep(Double_t step, bool setlimits)
+{ 
+  fStepLength = step; 
+  if (setlimits) {
+    fStepRangeSet.clear();
+    fStepRangeSet.push_back(StepRange(0,step));
+  }
+}
+
+//___________________________________________________________________________
+Double_t PathSegment::GetSummedStepRange() const
+{
+  Double_t sum = 0;
+  for ( size_t i = 0; i < fStepRangeSet.size(); ++i ) {
+    const StepRange& sr = fStepRangeSet[i];
+    sum += ( sr.second - sr.first );
+  }
+  return sum;
+}
+
+TVector3 PathSegment::GetPosition(Double_t fractrim) const
+{
+  /// calculate position within allowed ranges passed on 
+  ///fraction of trimmed segment
+  ///      seg.fEnter + fractotal * ( seg.fExit - seg.fEnter );
+  Double_t target = fractrim * GetSummedStepRange();
+  Double_t sum = 0;
+  for ( size_t i = 0; i < fStepRangeSet.size(); ++i ) {
+    const StepRange& sr = fStepRangeSet[i];
+    Double_t ds = ( sr.second - sr.first );
+    sum += ds;
+    if ( sum >= target ) {
+      Double_t fractotal = 1;
+      return  fEnter + fractotal * ( fExit - fEnter );
+    }
+  }
+  LOG("PathS", pFATAL) << "GetPosition failed fractrim=" << fractrim;
+  return TVector3(0,0,0);
+}
+
 
 //===========================================================================
 //___________________________________________________________________________
@@ -165,8 +223,7 @@ void PathSegmentList::FillMatStepSum(void)
     const PathSegment& ps = *sitr;
     const TGeoMaterial* mat  = ps.fMaterial;
     // use the post-trim limits on how much material is stepped through
-    double              step = ( ps.fStepTrimHigh - ps.fStepTrimLow );
-    fMatStepSum[mat] += step;
+    fMatStepSum[mat] += ps.GetSummedStepRange();
   }
 
 }
