@@ -25,6 +25,7 @@
 namespace genie {
 namespace geometry {
 
+class PathSegment;
 class PathSegmentList;
 
 class GeomVolSelectorI {
@@ -37,7 +38,11 @@ public :
 
   /// create and return a new PathSegmentList from the old list
   /// relinquishes ownership of returned object
-  virtual PathSegmentList* GenerateTrimmedList(const PathSegmentList* untrimmed) const = 0;
+  virtual PathSegmentList* GenerateTrimmedList(const PathSegmentList* untrimmed) const;
+
+  /// This is the method every derived version must implement
+  /// To reject a segment outright:  segment.fStepRangeSet.clear()
+  virtual void TrimSegment(PathSegment& segment) const = 0;
 
   /// configure for individual neutrino ray
   void SetCurrentRay(const TLorentzVector& x4, const TLorentzVector& p4)
@@ -46,17 +51,25 @@ public :
   /// set scale factor for SI to "raydist" units of PathSegmentList
   void SetSI2Local(double scale) { fScale = scale; }
 
- std::string GetName() const { return fName; }
+  void        SetRemoveEntries(bool rmset) { fRemoveEntries = rmset; }
+  bool        GetRemoveEntries()           { return fRemoveEntries; }
+
+  void        SetNeedPath()                { fNeedPath = true; }  /// allow toggle *on* only
+  bool        GetNeedPath() const          { return fNeedPath; }
+
+  std::string GetName() const              { return fName; }
 
 protected:
 
  GeomVolSelectorI();
  GeomVolSelectorI(std::string name);
 
- TLorentzVector     fX4;    ///< current neutrino ray's start position (global)
- TLorentzVector     fP4;    ///< current neutrino ray's momentum (global)
- double             fScale; ///< SI->raydist scale factor
- std::string        fName;  ///< volume selector name                                    
+ TLorentzVector     fX4;             ///< current neutrino ray's start position (global)
+ TLorentzVector     fP4;             ///< current neutrino ray's momentum (global)
+ double             fScale;          ///< SI->raydist scale factor
+ bool               fRemoveEntries;  ///< whether selector should remove entries or set hi=lo
+ bool               fNeedPath;       ///< selector needs PathSegment "path" string
+ std::string        fName;           ///< volume selector name    
 
 };
 
