@@ -76,6 +76,8 @@ public :
   virtual void SetDensityUnits      (double du);
   virtual void SetMaxPlSafetyFactor (double sf);
   virtual void SetTopVolName        (string nm);
+  virtual void SetKeepSegPath       (bool keep) { fKeepSegPath = keep; }
+  virtual void SetDebugFlags        (int  flgs) { fDebugFlags  = flgs; }
 
   /// retrieve geometry driver's configuration options
 
@@ -89,6 +91,7 @@ public :
   virtual double        MaxPlSafetyFactor (void) const { return fMaxPlSafetyFactor; }
   virtual string        TopVolName        (void) const { return fTopVolumeName;     }
   virtual TGeoManager * GetGeometry       (void) const { return fGeometry;          }
+  virtual bool          GetKeepSegPath    (void) const { return fKeepSegPath;       }
 
   /// access to geometry coordinate/unit transforms for validation/test purposes
 
@@ -155,6 +158,7 @@ protected:
   TGeoHMatrix *    fMasterToTop;           ///< matrix connecting master coordinates to top volume coordinates
   bool             fMasterToTopIsIdentity; ///< is fMasterToTop matrix the identity matrix?
 
+  bool             fKeepSegPath;           ///< need to fill path segment "path"
   PathSegmentList* fCurrPathSegmentList;   ///< current list of path-segments
   GeomVolSelectorI* fGeomVolSelector;      ///< optional path seg trimmer (owned)
 
@@ -167,6 +171,7 @@ protected:
   
   // test purposes
   double           fmxddist, fmxdstep;   ///< max errors in pathsegmentlist
+  int              fDebugFlags;
 
 };
 
