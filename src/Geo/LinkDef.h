@@ -16,4 +16,6 @@
 #pragma link C++ class genie::geometry::PathSegmentList;
 #pragma link C++ class genie::geometry::GeomVolSelectorI;
 
+#pragma link C++ class genie::geometry::GeomVolSelectorBasic;
+
 #endif
