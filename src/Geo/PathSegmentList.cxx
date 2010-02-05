@@ -10,6 +10,43 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
+ @ May 26, 2009 - RWH
+   First added in v2.5.1
+ @ July 16, 2009 - RWH
+   Reworked ROOTGeomAnalyzer code so that each neutrino from the flux is only
+   swum through the geometry once (not once per tgt PDG + 2 more to pick vertex 
+   if interaction is selected). The PathSegmentList class holds all the individual 
+   steps taken and is amenable to the next step which is trimming the list to 
+   restrict the interactions to a non-physically realized volume.
+ @ July 27, 2009 - RWH
+   Print() also shows start pos and dir
+ @ August 3, 2009 - RWH
+   Individual path segments can be further trimmed to be less than the full   
+   step (which corresponds to a volume).       
+   The list is now internally a STL list (no longer a STL vector).
+   This is in anticipation of a possible need for segment splitting if 
+   trimming causes disjoint segments.
+   Both classes have provisions for cross checking ray distance and step size 
+   values after completion of the list. Generally I've found ray distance 
+   errors of no more than ~8e-9 cm (80000fm) in a 42000cm swim through a 
+   geometry. This is on order an atomic size so one shouldn't worry about it.  
+   This precision will allow trimming to be based on the distance travelled 
+   along the ray.  
+ @ August 8, 2009 - RWH
+   Push PathSegmentList down a namespace so it's in genie::geometry.  
+   Fix const'ness of some functions. Add SetPath() function and fPathString 
+   data member for recording geometry path info in case users want to cut on 
+   something there.
+ @ February 4, 2010 - RWH
+   Correct statement about how overhead much fetching geometry path adds
+   (significant, not negligable).     
+   Generalize from (lo,hi) pair to vector of (lo,hi) pairs to allow the 
+   geometry step to be split and not just squeezed.  This might not be 
+   necessary and how much this adds to overhead isn't quite clear 
+   (needs more testing).          
+   New methods IsTrimmedEmpty() and GetSummedStepRange().  
+   Also GetPosition() to pick position within vector of (lo,hi) pairs based on 
+   fraction of total.  Needs more testing for case of split segments.
 
 */
 //____________________________________________________________________________

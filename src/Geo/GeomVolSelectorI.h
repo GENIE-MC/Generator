@@ -8,7 +8,7 @@
 \author   Robert Hatcher <rhatcher@fnal.gov>
           FNAL
 
-\created  December 3, 2008
+\created  August 25, 2009
 
 \cpright  Copyright (c) 2003-2008, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
