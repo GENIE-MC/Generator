@@ -20,6 +20,9 @@
    Decay() returns null if decay is inhibited or if the sum{branching ratios}
    for all enabled decay channels is non-positive. In case of inhibited decay
    channels, a weight is calculated as w = 1./sum{BR for enabled channels}.
+ @ Feb 04, 2010 - CA
+   Comment out (unused) code using the fForceDecay flag
+
 */
 //____________________________________________________________________________
 
@@ -128,11 +131,13 @@ TClonesArray * PythiaDecayer::Decay(const DecayerInputs_t & inp) const
 
   py1ent_(&ip, &pdgc, &E, &Theta, &Phi);
 
+/*
   //-- check whether we are asked to force the decay 
   if(fForceDecay) {
     int F = 1;
     pydecy_(&F); // FORCE DECAY
   }
+*/
   
   //-- get decay products
   fPythia->GetPrimaries();
@@ -361,8 +366,9 @@ void PythiaDecayer::Configure(string config)
 void PythiaDecayer::LoadConfig(void)
 {
 // Read configuration options or set defaults
-
+/*
   // check whether we are asked to force the decay / default = false
   fForceDecay = fConfig->GetBoolDef("ForceDecay", false);
+*/
 }
 //____________________________________________________________________________
