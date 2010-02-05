@@ -57,7 +57,7 @@ private:
 
   mutable TPythia6 * fPythia;  ///< PYTHIA6 wrapper class
   mutable double fWeight;
-  bool fForceDecay;
+//bool fForceDecay;
 };
 
 }         // genie namespace
