@@ -47,12 +47,37 @@
    Added Master2Top(v), Master2TopDir(v) and Top2Master(v) methods and the
    fMasterToTop TGeoHMatrix to store the transformation matrix between the 
    master and top volume coordinates.
-@ June 4, 2009 - RWH
+ @ June 4, 2009 - RWH
    Refactorized code so swimming the same start point and direction only
    ever happens once for all the target PDG codes; do so generates a 
    PathSegmentList from whence the individual PDG lengths can be derived.  
    This also allows for future culling or trimming of path segments by an 
    externally supplied function as well as being more efficient.
+ @ July 17, 2009 - RWH
+   StepUntilEntering() wasn't accumulating total distance stepped if the 
+   StepToNextBoudary() didn't leave the position IsEntering().  
+   Also, small tweaks to LOG messages.
+ @ July 27, 2009 - RWH
+   The method StepToNextBoundary() doesn't actually move the current point 
+   but just finds the boundary so the returned "step" size shouldn't be part 
+   of the sum in StepUntilEntering().
+ @ August 3, 2009 - RWH
+   Handle case where initial step is from outside the geometry into the top
+   volume.  It appears that the volume name is given as the top volume 
+   (perhaps incorrectly), but the material (correctly) is null. Such steps 
+   don't contribute to any material path length but document the total path.          
+   Provision for keeping track of maximum ray distance and step size errors.
+ @ August 28, 2009 - RWH
+   Adjust to PathSegmentList move to genie::geometry namespace.  
+   Add AdoptGeomVolSelector() function with takes ownership of GeomVolSelectorI*.  
+   This selector can generate an trimmed PathSegmentList* which can be swapped 
+   in for the original to limit what material is considered.
+ @ February 4, 2010 - RWH
+   Allow forcing fetch of geometry hierarchy path (or'ed with desire of the 
+   GeomVolSelector, if any) but to get it by default as it is costly.  
+   Fill the PathSegment medium and material upon entry along with volume name, 
+   not at exit.
+
 */
 //____________________________________________________________________________
 

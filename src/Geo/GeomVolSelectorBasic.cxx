@@ -9,6 +9,11 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
+ @ February 04, 2010 - RWH
+   Was first added in v2.5.1.
+   Introduce GeomVolSelectorBasic as concrete example of GeomVolSelectorI that 
+   accepts/rejects path segments based on volume name, material, medium, or 
+   path in geometry hierarchy.
 
 */
 //____________________________________________________________________________
