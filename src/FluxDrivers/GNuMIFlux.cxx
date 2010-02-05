@@ -137,6 +137,26 @@
    function needs to know about those as well.
  @ Aug 25, 2009 - CA
    Adapt code to use the new utils::xml namespace.
+ @ Aug 28, 2009 - RH
+   New XML tag <using_param_set> allows one configuration to include another.
+ @ Sep 17, 2009 - RH
+   Fix EffPOTsPerNu calculation so it doesn't get lost in integer arithmetic.
+   If fMaxWeight is bumped print new value.
+   Make debug class xypartials output-able to ostream; print as part of 
+   GNuMIFluxPathThrough ostreaming if GNUMI_TEST_XY_WGT defined.
+   Still looking for why flux files with low E cuts tend to walk the MaxWeight 
+   up to very high values (and thus severly lower the efficiency).
+ @ Sep 17, 2009 - RH
+   Support "flugg" ntuples as well as "g3numi" and "g4numi".  
+   Each ntuple file/tree has a slightly different layout (element sizes, 
+   capitalization in the names, mix of elements).  All share sufficient basic 
+   info in order to calculate flavor, p4, x4 and weight.
+ @ Feb 04, 2010 - RH
+   New methods: 
+   GetEntryNumber() - current entry # in the TChain.
+   GetFileList() - get list of expanded file names used in TChain.
+   Also, initialize fFlugg pointer; tweak debug messages and ostream<< op.
+
 */
 //____________________________________________________________________________
 
