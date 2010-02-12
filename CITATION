@@ -1,5 +1,18 @@
 
-*** Any derivative work based on GENIE should cite ***
+******************************************************************************
+*                                                                            *
+* Fair Academic Use                                                          *
+*                                                                            *
+* The authors of GENIE endorse the MCNET guidelines for fair academic use:   *
+* See http://www.montecarlonet.org/GUIDELINES                                *
+*                                                                            *
+* Users are invited to consider which GENIE components are important for a   *
+* particular analysis and cite them, in addition to the main references.     *
+*                                                                            *
+******************************************************************************
+
+
+Any derivative work based on GENIE should cite, at least, the following:
 
 @Article{Andreopoulos:2009rq,
    author        = "Andreopoulos, C. and others",
@@ -11,11 +24,4 @@
    SLACcitation  = "%%CITATION = 0905.2517;%%"
 }
 
-*** Fair Academic Use ***
-
-The authors of GENIE endorse the MCNET guidelines for fair academic use:
-See http://www.montecarlonet.org/GUIDELINES
-
-Users are invited to consider which GENIE components are important for a 
-particular analysis and cite them, in addition to the main references.
 
