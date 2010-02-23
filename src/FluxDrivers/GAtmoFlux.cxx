@@ -5,7 +5,7 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - Feb 05, 2008
+         STFC, Rutherford Appleton Laboratory 
 
  For the class documentation see the corresponding header file.
 
@@ -14,6 +14,9 @@
    This class was added in 2.3.1 by code factored out from the concrete
    GFlukaAtmo3DFlux driver & the newer, largely similar, GBartolAtmoFlux
    driver.
+ @ Feb 23, 2010 - CA
+   Re-structuring and clean-up. Added option to generate weighted flux.
+   Added option to specify a maximum energy cut.
 */
 //____________________________________________________________________________
 
@@ -28,6 +31,8 @@
 #include "Numerical/RandomGen.h"
 #include "PDG/PDGCodeList.h"
 #include "PDG/PDGCodes.h"
+#include "PDG/PDGUtils.h"
+#include "PDG/PDGLibrary.h"
 #include "Utils/PrintUtils.h"
 
 using namespace genie;
@@ -45,7 +50,33 @@ GAtmoFlux::~GAtmoFlux()
   this->CleanUp();
 }
 //___________________________________________________________________________
+double GAtmoFlux::MaxEnergy(void)
+{
+  return TMath::Min(fMaxEv, fMaxEvCut);
+}
+//___________________________________________________________________________
 bool GAtmoFlux::GenerateNext(void)
+{
+  while(1) {
+     // Attempt to generate next flux neutrino
+     bool nextok = this->GenerateNext_1try();
+     if(!nextok) continue;
+
+     // Check generated neutrino energy against max energy.
+     // We may have to reject the current neutrino if a user-defined max
+     // energy cut restricts the available range of energies.
+     const TLorentzVector & p4 = this->Momentum();
+     double E    = p4.Energy();
+     double Emax = this->MaxEnergy();
+     double wght = this->Weight();
+
+     bool accept = (E<=Emax && wght>0);
+     if(accept) return true;
+  }
+  return false;
+}
+//___________________________________________________________________________
+bool GAtmoFlux::GenerateNext_1try(void)
 {
   //-- Reset previously generated neutrino code / 4-p / 4-x
   this->ResetSelection();
@@ -55,37 +86,89 @@ bool GAtmoFlux::GenerateNext(void)
 
   //-- Generate a (Ev, costheta) pair from the 'combined' flux histogram
   //   and select (phi) uniformly over [0,2pi]
-  Axis_t aEv   = 0;
-  Axis_t aCos8 = 0;
-  fFluxSum2D->GetRandom2( aEv, aCos8);
-  double Ev   = (double)aEv;
-  double cos8 = (double)aCos8;
-  double phi  = 2.*kPi* rnd->RndFlux().Rndm();
+  double Ev       = 0.;
+  double costheta = 0.;
+  double phi      = 2.*kPi* rnd->RndFlux().Rndm();
+  double weight   = 0;
+  int    nu_pdg   = 0;
 
-  //-- etc trigonometric numbers
-  double sin8   = TMath::Sqrt(1-cos8*cos8);
-  double cosphi = TMath::Cos(phi);
-  double sinphi = TMath::Sin(phi);
+  if(fGenWeighted) {
+     // generate weighted flux
+     //
+     double log10emin = TMath::Log10(fEnergyBins[0]);
+     double log10emax = TMath::Log10(fEnergyBins[fNumEnergyBins]);
+     double dlog10e   = log10emax - log10emin;
 
-  //-- Select a neutrino species from the flux fractions at the selected
-  //   (Ev,costtheta) pair
+   //Ev       = fEnergyBins[0] + (fEnergyBins[fNumEnergyBins] - fEnergyBins[0]) * rnd->RndFlux().Rndm();
+     Ev       = TMath::Power(10., log10emin + dlog10e * rnd->RndFlux().Rndm());
+     costheta = -1+2*rnd->RndFlux().Rndm();
+     nu_pdg   = (*fPdgCList)[rnd->RndFlux().Integer(fPdgCList->size())];
 
-  fgPdgC = (*fPdgCList)[this->SelectNeutrino(Ev, cos8)];
+     if(Ev < fEnergyBins[0]) {
+        LOG("Flux", pINFO) << "E < Emin";
+	return false;
+     }
+
+     // calculate weight
+     map<int,TH2D*>::iterator iter = fFlux2D.find(nu_pdg);
+     if(iter == fFlux2D.end()) {
+        LOG("Flux", pERROR) << "Can't find flux histogram for selected neutrino";
+	return false;
+     }
+     TH2D* flux_histo = iter->second;
+     if(!flux_histo) {
+        LOG("Flux", pERROR) << "Null flux histogram!";
+	return false;
+     }
+     int E_bin        = flux_histo->GetXaxis()->FindBin(Ev);
+     int costheta_bin = flux_histo->GetYaxis()->FindBin(costheta);
+     double flux      = flux_histo->GetBinContent(E_bin, costheta_bin);
+   //double dE        = flux_histo->GetXaxis()->GetBinWidth(E_bin);
+   //double dcostheta = flux_histo->GetYaxis()->GetBinWidth(costheta_bin);
+   //if(fFluxSum2DIntg <= 0) {
+   //   LOG("Flux", pERROR) << "Null flux integral!";
+   //   return false;
+   //}
+   //weight = flux*dE*dcostheta / fFluxSum2DIntg;
+     weight = flux;
+  } 
+  else {
+     // generate un-weighted flux
+     //
+     Axis_t ax = 0, ay = 0;
+     fFluxSum2D->GetRandom2(ax, ay);
+
+     Ev       = (double)ax;
+     costheta = (double)ay;
+     nu_pdg   = (*fPdgCList)[this->SelectNeutrino(Ev, costheta)];
+     weight   = 1.0;
+  }
+
+  //-- Compute etc trigonometric numbers
+  double sintheta  = TMath::Sqrt(1-costheta*costheta);
+  double cosphi    = TMath::Cos(phi);
+  double sinphi    = TMath::Sin(phi);
+
+  //-- Set the neutrino pdg code
+  fgPdgC = nu_pdg;
+
+  //-- Set the neutrino weight
+  fWeight = weight;
 
   //-- Compute the neutrino 4-p
   //   (the - means it is directed towards the detector)
-  double pz = -1.* Ev * cos8;
-  double py = -1.* Ev * sin8 * cosphi;
-  double px = -1.* Ev * sin8 * sinphi;
+  double pz = -1.* Ev * costheta;
+  double py = -1.* Ev * sintheta * cosphi;
+  double px = -1.* Ev * sintheta * sinphi;
 
   fgP4.SetPxPyPzE(px, py, pz, Ev);
 
   //-- Compute neutrino 4-x
 
   // compute its position at the surface of a sphere with R=fRl
-  double z = fRl * cos8;
-  double y = fRl * sin8 * cosphi;
-  double x = fRl * sin8 * sinphi;
+  double z = fRl * costheta;
+  double y = fRl * sintheta * cosphi;
+  double x = fRl * sintheta * sinphi;
 
   // If the position is left as is, then all generated neutrinos
   // would point towards the origin.
@@ -117,34 +200,47 @@ bool GAtmoFlux::GenerateNext(void)
   return true;
 }
 //___________________________________________________________________________
+void GAtmoFlux::ForceMaxEnergy(double emax)
+{
+  emax = TMath::Max(0., emax);
+  fMaxEvCut = emax;
+}
+//___________________________________________________________________________
+void GAtmoFlux::GenerateWeighted(bool gen_weighted)
+{
+  fGenWeighted = gen_weighted;
+}
+//___________________________________________________________________________
 void GAtmoFlux::Initialize(void)
 {
-  LOG("Flux", pNOTICE) << "Initializing base atmospheric flux driver";
+  LOG("Flux", pNOTICE) 
+    << "Initializing atmospheric flux driver";
+
+  bool allow_dup = false;
+  fPdgCList = new PDGCodeList(allow_dup);
+
+  // initializing flux TH2D histos [ flux = f(Ev,costheta) ] & files
+  fFluxFile.clear();
+  fFlux2D.clear();
+  fFluxSum2D = 0;
+  fFluxSum2DIntg = 0;
 
   // setting maximum energy in flux files
-  fMaxEv = fkEvBins[fkNEvBins];
+  assert(fEnergyBins);
+  fMaxEv = fEnergyBins[fNumEnergyBins];
 
-  // setting neutrino-types in flux files
-  PDGCodeList::size_type nnu = 4;
-  fPdgCList = new PDGCodeList(nnu);
-  (*fPdgCList)[0]= kPdgNuMu;
-  (*fPdgCList)[1]= kPdgAntiNuMu;
-  (*fPdgCList)[2]= kPdgNuE;
-  (*fPdgCList)[3]= kPdgAntiNuE;
+  // Default option is to generate unweighted flux neutrinos
+  // (flux = f(E,costheta) will be used as PDFs)
+  // User can enable option to generate weighted neutrinos
+  // (neutrinos will be generated uniformly over costheta, logE and
+  // the input flux = f(E,costheta) will be used for calculating a weight).
+  // Using a weighted flux avoids statistical fluctuations at high energies.
+  this->GenerateWeighted(false);
 
-  // Filenames for flux files [you need to get them from the web
-  // - see class documentation]
-  // You need to Set...() them before LoadFluxData()
-  // You do not have to set all 4 if you need one flux component skipped
-  // (but you do have to set at least one)
-  fNSkipped  = 0;
-  for (unsigned int iflux=0; iflux<kNNu; iflux++) fFluxFile[iflux] = "";
+  // Default: No max energy cut
+  this->ForceMaxEnergy(9999999999);
 
-  // initializing flux TH2D histos [ flux = f(Ev,costheta) ]
-  //fFlux2D = new TH2D[kNNu];
-  for (unsigned int iflux=0; iflux<kNNu; iflux++) fFlux2D[iflux] = 0;
-  fFluxSum2D = 0;
-
+  // Reset `current' selected flux neutrino
   this->ResetSelection();
 }
 //___________________________________________________________________________
@@ -161,10 +257,21 @@ void GAtmoFlux::CleanUp(void)
 {
   LOG("Flux", pNOTICE) << "Cleaning up...";
 
-  for(unsigned int iflux = 0;
-        iflux < kNNu; iflux++) { if (fFlux2D[iflux]) delete fFlux2D[iflux]; }
+  map<int,TH2D*>::iterator iter = fFlux2D.begin();
+  for( ; iter != fFlux2D.end(); ++iter) {
+    TH2D * flux_histogram = iter->second;
+    if(flux_histogram) {
+       delete flux_histogram;
+       flux_histogram = 0;
+    }
+  }
+  fFlux2D.clear();
+
   if (fFluxSum2D) delete fFluxSum2D;
   if (fPdgCList ) delete fPdgCList;
+
+  delete [] fCosThetaBins;
+  delete [] fEnergyBins;
 }
 //___________________________________________________________________________
 void GAtmoFlux::SetRadii(double Rlongitudinal, double Rtransverse)
@@ -176,33 +283,41 @@ void GAtmoFlux::SetRadii(double Rlongitudinal, double Rtransverse)
   fRt = Rtransverse;
 }
 //___________________________________________________________________________
-void GAtmoFlux::SetCosThetaBins(unsigned int nbins, const double * bins)
+void GAtmoFlux::SetFluxFile(int nu_pdg, string filename)
 {
-  fkNCosBins = nbins;
-  fkCosBins  = bins;
-}
-//___________________________________________________________________________
-void GAtmoFlux::SetEnergyBins(unsigned int nbins, const double * bins)
-{
-  fkNEvBins = nbins;
-  fkEvBins  = bins;
+  if ( pdg::IsNeutrino(nu_pdg) || pdg::IsAntiNeutrino(nu_pdg) ) {
+    fFluxFile.insert(map<int,string>::value_type(nu_pdg,filename));
+  } else {
+    LOG ("Flux", pWARN) 
+     << "Input particle code: " << nu_pdg << " not a neutrino!";
+  }
 }
 //___________________________________________________________________________
 bool GAtmoFlux::LoadFluxData(void)
 {
-  LOG("Flux", pNOTICE) << "Creating Flux = f(Ev,cos8z) 2-D histograms";
-
-  fFlux2D[0] = this->CreateFluxHisto2D("numu",   "atmo flux: numu"   );
-  fFlux2D[1] = this->CreateFluxHisto2D("numubar","atmo flux: numubar");
-  fFlux2D[2] = this->CreateFluxHisto2D("nue",    "atmo flux: nue"    );
-  fFlux2D[3] = this->CreateFluxHisto2D("nuebar", "atmo flux: nuebar" );
-
   LOG("Flux", pNOTICE)
-      << "Loading atmospheric neutrino flux simulation data";
+        << "Loading atmospheric neutrino flux simulation data";
+
+  fFlux2D.clear();
+  fPdgCList->clear();
 
   bool loading_status = true;
-  for(unsigned int iflux = 0; iflux < kNNu; iflux++) {
-    bool loaded = this->FillFluxHisto2D(fFlux2D[iflux], fFluxFile[iflux]);
+  map<int,string>::iterator file_iter = fFluxFile.begin();
+  for ( ; file_iter != fFluxFile.end(); ++file_iter) {
+    int    nu_pdg    = file_iter->first;
+    string filename  = file_iter->second;
+    string pname = PDGLibrary::Instance()->Find(nu_pdg)->GetName();
+
+    LOG("Flux", pNOTICE)
+        << "Loading data for: " << pname;
+
+    TH2D * hst = this->CreateFluxHisto2D(pname.c_str(), pname.c_str());
+
+    bool loaded = this->FillFluxHisto2D(hst, filename);
+    if(loaded) {
+       fPdgCList->push_back(nu_pdg);
+       fFlux2D.insert(map<int,TH2D*>::value_type(nu_pdg, hst));
+    }
     loading_status = loading_status && loaded;
   }
   if(loading_status) {
@@ -220,10 +335,10 @@ void GAtmoFlux::ZeroFluxHisto2D(TH2D * histo)
 {
   LOG("Flux", pNOTICE) << "Forcing flux histogram contents to 0";
 
-  for(unsigned int ie = 0; ie < fkNEvBins; ie++) {
-    for(unsigned int ic = 0; ic < fkNCosBins; ic++) {
-       double energy   = fkEvBins[ie]  - 1.E-4;
-       double costheta = fkCosBins[ic] - 1.E-4;
+  for(unsigned int ie = 0; ie < fNumEnergyBins; ie++) {
+    for(unsigned int ic = 0; ic < fNumCosThetaBins; ic++) {
+       double energy   = fEnergyBins  [ie];
+       double costheta = fCosThetaBins[ic];
        histo->Fill(energy,costheta,0.);
     }
   }
@@ -234,11 +349,17 @@ void GAtmoFlux::AddAllFluxes(void)
   LOG("Flux", pNOTICE)
        << "Computing combined flux & flux normalization factor";
 
+  if(fFluxSum2D) delete fFluxSum2D;
+
   fFluxSum2D = this->CreateFluxHisto2D("sum", "combined flux" );
-  for(unsigned int iflux=0; iflux<kNNu; iflux++) {
-	fFluxSum2D->Add(fFlux2D[iflux]);
+
+  map<int,TH2D*>::iterator iter = fFlux2D.begin();
+  for( ; iter != fFlux2D.end(); ++iter) {
+    TH2D * flux_histogram = iter->second;
+    fFluxSum2D->Add(flux_histogram);
   }
-  fWeight = fFluxSum2D->Integral(0, fkNEvBins, 0, fkNCosBins, "width");
+
+  fFluxSum2DIntg = fFluxSum2D->Integral("width");
 }
 //___________________________________________________________________________
 TH2D * GAtmoFlux::CreateFluxHisto2D(string name, string title)
@@ -246,22 +367,29 @@ TH2D * GAtmoFlux::CreateFluxHisto2D(string name, string title)
   LOG("Flux", pNOTICE) << "Instantiating histogram: [" << name << "]";
   TH2D * h2 = new TH2D(
            name.c_str(), title.c_str(),
-                     fkNEvBins, fkEvBins, fkNCosBins, fkCosBins);
+           fNumEnergyBins, fEnergyBins, fNumCosThetaBins, fCosThetaBins);
   return h2;
 }
 //___________________________________________________________________________
 int GAtmoFlux::SelectNeutrino(double Ev, double costheta)
 {
-  double flux[kNNu];
-  for(unsigned int iflux=0; iflux<kNNu; iflux++) {
-     int ibin = fFlux2D[iflux]->FindBin(Ev,costheta);
-     flux[iflux] = fFlux2D[iflux]->GetBinContent(ibin);
+  unsigned int n = fPdgCList->size();
+  double * flux = new double[n];
+
+  unsigned int i=0;
+  map<int,TH2D*>::iterator iter = fFlux2D.begin();
+  for( ; iter != fFlux2D.end(); ++iter) {
+
+     TH2D * flux_histogram = iter->second;
+     int ibin = flux_histogram->FindBin(Ev,costheta);
+     flux[i]  = flux_histogram->GetBinContent(ibin);
+     i++;
   }
   double flux_sum = 0;
-  for(unsigned int iflux=0; iflux<kNNu; iflux++) {
-     flux_sum   += flux[iflux];
-     flux[iflux] = flux_sum;
-     LOG("Flux", pINFO) << "SUM-FLUX(0->" << iflux <<") = " << flux[iflux];
+  for(i=0; i<n; i++) {
+     flux_sum  += flux[i];
+     flux[i]    = flux_sum;
+     LOG("Flux", pINFO) << "SUM-FLUX(0->" << i <<") = " << flux[i];
   }
 
   RandomGen * rnd = RandomGen::Instance();
@@ -269,8 +397,8 @@ int GAtmoFlux::SelectNeutrino(double Ev, double costheta)
 
   LOG("Flux", pINFO) << "R = " << R;
 
-  for(unsigned int iflux = 0; iflux < kNNu; iflux++) {
-     if( R < flux[iflux] ) return iflux;
+  for(i=0; i<n; i++) {
+     if( R < flux[i] ) return (*fPdgCList)[i];
   }
 
   LOG("Flux", pERROR) << "Could not select a neutrino species";

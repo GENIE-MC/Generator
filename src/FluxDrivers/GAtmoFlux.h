@@ -21,6 +21,7 @@
 #define _GATMO_FLUX_H_
 
 #include <string>
+#include <map>
 
 #include <TLorentzVector.h>
 
@@ -29,12 +30,10 @@
 class TH2D;
 
 using std::string;
+using std::map;
 
 namespace genie {
 namespace flux  {
-
-// Number of neutrino species considered by concrete flux drivers
-const unsigned int kNNu = 4;
 
 class GAtmoFlux: public GFluxI {
 
@@ -43,7 +42,7 @@ public :
 
   // methods implementing the GENIE GFluxI interface
   virtual const PDGCodeList &    FluxParticles (void) { return *fPdgCList; }
-  virtual double                 MaxEnergy     (void) { return  fMaxEv;    }
+  virtual double                 MaxEnergy     (void);
   virtual bool                   GenerateNext  (void);
   virtual int                    PdgCode       (void) { return fgPdgC;     }
   virtual double                 Weight        (void) { return fWeight;    }
@@ -52,21 +51,19 @@ public :
   virtual bool                   End           (void) { return false;      }
 
   // methods specific to the atmospheric flux drivers
+  void ForceMaxEnergy     (double emax);
+  void GenerateWeighted   (bool gen_weighted);
   void SetRadii           (double Rlongitudinal, double Rtransverse);
-  void SetCosThetaBins    (unsigned int nbins, const double * bins);
-  void SetEnergyBins      (unsigned int nbins, const double * bins);
-  void SetNuMuFluxFile    (string filename) { fFluxFile[0] = filename; }
-  void SetNuMuBarFluxFile (string filename) { fFluxFile[1] = filename; }
-  void SetNuEFluxFile     (string filename) { fFluxFile[2] = filename; }
-  void SetNuEBarFluxFile  (string filename) { fFluxFile[3] = filename; }
+  void SetFluxFile        (int neutrino_pdg, string filename);
   bool LoadFluxData       (void);
 
 protected:
 
-  //
+  // abstract class, ctor hidden
   GAtmoFlux();
 
   // protected methods
+  bool    GenerateNext_1try (void);
   void    Initialize        (void);
   void    CleanUp           (void);
   void    ResetSelection    (void);
@@ -75,26 +72,28 @@ protected:
   void    AddAllFluxes      (void);
   int     SelectNeutrino    (double Ev, double costheta);
 
-  //
+  // pure virtual protected methods; to be implemented by concrete flux drivers
   virtual bool FillFluxHisto2D   (TH2D * h2, string filename) = 0;
 
   // protected data members
-  double         fMaxEv;          ///< (declared) maximum energy
-  PDGCodeList *  fPdgCList;       ///< (declared) list of neutrino pdg-codes
-  int            fgPdgC;          ///< (current) generated nu pdg-code
-  TLorentzVector fgP4;            ///< (current) generated nu 4-momentum
-  TLorentzVector fgX4;            ///< (current) generated nu 4-position
-  string         fFluxFile[kNNu]; ///< (config) input flux files
-  double         fRl;             ///< (config) flux neutrino generation surface: longitudinal radius
-  double         fRt;             ///< (config) flux neutrino generation surface: transverse radius
-  unsigned int   fkNCosBins;      ///< (config) number of cos(theta) bins in input flux data files
-  unsigned int   fkNEvBins;       ///< (config) number of energy bins in input flux data files
-  const double * fkCosBins;       ///< (config) cos(theta) bins in input flux data files
-  const double * fkEvBins;        ///< (config) energy bins in input flux data files
-  TH2D *         fFlux2D[kNNu];   ///< flux = f(Ev,cos8), 1/neutrino species
-  TH2D *         fFluxSum2D;      ///< combined flux = f(Ev,cos8)
-  int            fNSkipped;       ///< number of skipped fluxes
-  double         fWeight;         ///< integral of fFluxSum2D used for flux normalization
+  double           fMaxEv;            ///< (input) maximum energy (in input flux files)
+  PDGCodeList *    fPdgCList;         ///< (input) list of neutrino pdg-codes
+  int              fgPdgC;            ///< (current) generated nu pdg-code
+  TLorentzVector   fgP4;              ///< (current) generated nu 4-momentum
+  TLorentzVector   fgX4;              ///< (current) generated nu 4-position
+  double           fWeight;           ///< (current) generated nu weight
+  double           fMaxEvCut;         ///< (config) user-defined maximum energy cut
+  map<int, string> fFluxFile;         ///< (config) input flux file for each neutrino species
+  double           fRl;               ///< (config) flux neutrino generation surface: longitudinal radius
+  double           fRt;               ///< (config) flux neutrino generation surface: transverse radius
+  unsigned int     fNumCosThetaBins;  ///< (config) number of cos(theta) bins in input flux data files
+  unsigned int     fNumEnergyBins;    ///< (config) number of energy bins in input flux data files
+  double *         fCosThetaBins;     ///< (config) cos(theta) bins in input flux data files
+  double *         fEnergyBins;       ///< (config) energy bins in input flux data files
+  bool             fGenWeighted;      ///< (config) generate a weighted or unweighted flux?
+  map<int, TH2D*>  fFlux2D;           ///< flux = f(Ev,cos8) for each neutrino species
+  TH2D *           fFluxSum2D;        ///< flux = f(Ev,cos8) summed over neutrino species
+  double           fFluxSum2DIntg;    ///< fFluxSum2D integral 
 };
 
 } // flux namespace
