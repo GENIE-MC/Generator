@@ -51,6 +51,7 @@ public :
   virtual bool                   End           (void) { return false;      }
 
   // methods specific to the atmospheric flux drivers
+  void ForceMinEnergy     (double emin);
   void ForceMaxEnergy     (double emax);
   void GenerateWeighted   (bool gen_weighted);
   void SetRadii           (double Rlongitudinal, double Rtransverse);
@@ -67,11 +68,12 @@ protected:
   void    Initialize        (void);
   void    CleanUp           (void);
   void    ResetSelection    (void);
+  double  MinEnergy         (void) { return fMinEvCut; }
   TH2D *  CreateFluxHisto2D (string name, string title);
   void    ZeroFluxHisto2D   (TH2D * h2);
   void    AddAllFluxes      (void);
   int     SelectNeutrino    (double Ev, double costheta);
-
+  
   // pure virtual protected methods; to be implemented by concrete flux drivers
   virtual bool FillFluxHisto2D   (TH2D * h2, string filename) = 0;
 
@@ -83,6 +85,7 @@ protected:
   TLorentzVector   fgX4;              ///< (current) generated nu 4-position
   double           fWeight;           ///< (current) generated nu weight
   double           fMaxEvCut;         ///< (config) user-defined maximum energy cut
+  double           fMinEvCut;         ///< (config) user-defined minimum energy cut
   map<int, string> fFluxFile;         ///< (config) input flux file for each neutrino species
   double           fRl;               ///< (config) flux neutrino generation surface: longitudinal radius
   double           fRt;               ///< (config) flux neutrino generation surface: transverse radius
