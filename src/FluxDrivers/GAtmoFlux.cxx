@@ -17,6 +17,8 @@
  @ Feb 23, 2010 - CA
    Re-structuring and clean-up. Added option to generate weighted flux.
    Added option to specify a maximum energy cut.
+ @ Feb 24, 2010 - CA
+   Added option to specify a minimum energy cut.
 */
 //____________________________________________________________________________
 
@@ -67,10 +69,11 @@ bool GAtmoFlux::GenerateNext(void)
      // energy cut restricts the available range of energies.
      const TLorentzVector & p4 = this->Momentum();
      double E    = p4.Energy();
+     double Emin = this->MinEnergy();
      double Emax = this->MaxEnergy();
      double wght = this->Weight();
 
-     bool accept = (E<=Emax && wght>0);
+     bool accept = (E<=Emax && E>=Emin && wght>0);
      if(accept) return true;
   }
   return false;
@@ -93,16 +96,21 @@ bool GAtmoFlux::GenerateNext_1try(void)
   int    nu_pdg   = 0;
 
   if(fGenWeighted) {
+
+     //
      // generate weighted flux
      //
+
      double log10emin = TMath::Log10(fEnergyBins[0]);
      double log10emax = TMath::Log10(fEnergyBins[fNumEnergyBins]);
      double dlog10e   = log10emax - log10emin;
-
-   //Ev       = fEnergyBins[0] + (fEnergyBins[fNumEnergyBins] - fEnergyBins[0]) * rnd->RndFlux().Rndm();
      Ev       = TMath::Power(10., log10emin + dlog10e * rnd->RndFlux().Rndm());
+
      costheta = -1+2*rnd->RndFlux().Rndm();
-     nu_pdg   = (*fPdgCList)[rnd->RndFlux().Integer(fPdgCList->size())];
+
+     unsigned int nnu = fPdgCList->size();
+     unsigned int inu = rnd->RndFlux().Integer(nnu);
+     nu_pdg   = (*fPdgCList)[inu];
 
      if(Ev < fEnergyBins[0]) {
         LOG("Flux", pINFO) << "E < Emin";
@@ -133,14 +141,14 @@ bool GAtmoFlux::GenerateNext_1try(void)
      weight = flux;
   } 
   else {
+     //
      // generate un-weighted flux
      //
      Axis_t ax = 0, ay = 0;
      fFluxSum2D->GetRandom2(ax, ay);
-
      Ev       = (double)ax;
      costheta = (double)ay;
-     nu_pdg   = (*fPdgCList)[this->SelectNeutrino(Ev, costheta)];
+     nu_pdg   = this->SelectNeutrino(Ev, costheta);
      weight   = 1.0;
   }
 
@@ -200,6 +208,12 @@ bool GAtmoFlux::GenerateNext_1try(void)
   return true;
 }
 //___________________________________________________________________________
+void GAtmoFlux::ForceMinEnergy(double emin)
+{
+  emin = TMath::Max(0., emin);
+  fMinEvCut = emin;
+}
+//___________________________________________________________________________
 void GAtmoFlux::ForceMaxEnergy(double emax)
 {
   emax = TMath::Max(0., emax);
@@ -237,8 +251,9 @@ void GAtmoFlux::Initialize(void)
   // Using a weighted flux avoids statistical fluctuations at high energies.
   this->GenerateWeighted(false);
 
-  // Default: No max energy cut
-  this->ForceMaxEnergy(9999999999);
+  // Default: No min/max energy cut
+  this->ForceMinEnergy(0.);
+  this->ForceMaxEnergy(9999999999.);
 
   // Reset `current' selected flux neutrino
   this->ResetSelection();
@@ -373,13 +388,16 @@ TH2D * GAtmoFlux::CreateFluxHisto2D(string name, string title)
 //___________________________________________________________________________
 int GAtmoFlux::SelectNeutrino(double Ev, double costheta)
 {
+// Select a neutrino species at the input Ev and costheta given their
+// relatve flux at this bin.
+// Returns a neutrino PDG code
+
   unsigned int n = fPdgCList->size();
   double * flux = new double[n];
 
   unsigned int i=0;
   map<int,TH2D*>::iterator iter = fFlux2D.begin();
   for( ; iter != fFlux2D.end(); ++iter) {
-
      TH2D * flux_histogram = iter->second;
      int ibin = flux_histogram->FindBin(Ev,costheta);
      flux[i]  = flux_histogram->GetBinContent(ibin);
@@ -389,19 +407,27 @@ int GAtmoFlux::SelectNeutrino(double Ev, double costheta)
   for(i=0; i<n; i++) {
      flux_sum  += flux[i];
      flux[i]    = flux_sum;
-     LOG("Flux", pINFO) << "SUM-FLUX(0->" << i <<") = " << flux[i];
+     LOG("Flux", pDEBUG) 
+       << "Sum{Flux(0->" << i <<")} = " << flux[i];
   }
 
   RandomGen * rnd = RandomGen::Instance();
   double R = flux_sum * rnd->RndFlux().Rndm();
 
-  LOG("Flux", pINFO) << "R = " << R;
+  LOG("Flux", pDEBUG) << "R = " << R;
 
   for(i=0; i<n; i++) {
-     if( R < flux[i] ) return (*fPdgCList)[i];
+     if( R < flux[i] ) {
+	delete [] flux;
+        int selected_pdg = (*fPdgCList)[i];
+        LOG("Flux", pINFO) 
+          << "Selected neutrino PDG code = " << selected_pdg;
+	return selected_pdg;
+     }
   }
 
-  LOG("Flux", pERROR) << "Could not select a neutrino species";
+  // shouldn't be here
+  LOG("Flux", pERROR) << "Could not select a neutrino species!";
   assert(false);
 
   return -1;
