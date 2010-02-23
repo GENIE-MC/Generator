@@ -26,6 +26,7 @@ TGT =	gtestAlgorithms 	 \
  	gtestDISSF		 \
  	gtestElFormFactors	 \
  	gtestEventLoop 		 \
+ 	gtestFluxAtmo 		 \
         gtestGiBUUData           \
 	gtestHadronization	 \
 	gtestINukeHadroData      \
@@ -80,6 +81,10 @@ gtestElFormFactors: FORCE
 gtestEventLoop: FORCE
 	$(CXX) $(CXXFLAGS) -c testEventLoop.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) testEventLoop.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestEventLoop
+
+gtestFluxAtmo: FORCE
+	$(CXX) $(CXXFLAGS) -c testFluxAtmo.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) testFluxAtmo.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestFluxAtmo
 
 gtestGiBUUData: FORCE
 	$(CXX) $(CXXFLAGS) -c testGiBUUData.cxx $(INCLUDES)
@@ -200,6 +205,7 @@ clean: FORCE
 	$(RM) $(GENIE_BIN_PATH)/gtestDISSF		
 	$(RM) $(GENIE_BIN_PATH)/gtestElFormFactors
 	$(RM) $(GENIE_BIN_PATH)/gtestEventLoop
+	$(RM) $(GENIE_BIN_PATH)/gtestFluxAtmo
 	$(RM) $(GENIE_BIN_PATH)/gtestGiBUUData
 	$(RM) $(GENIE_BIN_PATH)/gtestHadronization	
 	$(RM) $(GENIE_BIN_PATH)/gtestIntranuke	
@@ -235,6 +241,7 @@ distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestDISSF		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestElFormFactors
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestEventLoop
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestFluxAtmo
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestGiBUUData
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestHadronization	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestIntranuke		
