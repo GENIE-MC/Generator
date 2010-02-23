@@ -5,7 +5,7 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - July 03, 2005
+         STFC, Rutherford Appleton Laboratory
 
  For the class documentation see the corresponding header file.
 
@@ -17,9 +17,9 @@
  @ Feb 05, 2008 - Chris Backhouse (Oxford)
    Fixed a bug in bin definitions (the TH2 constructor takes an array of 
    bin lower edges, but the bin centres were being passed in instead).
-   Added an ad-hoc scaling factor to get agreement with the Bartol flux 
-   normalization (needed when both fluxes are stitched together in a single
-   simulation with the Bartol flux used as a high energy extension).
+ @ Feb 23, 2010 - CA
+   Build bin arrays at ctor. Re-structuring and clean-up.
+
 */
 //____________________________________________________________________________
 
@@ -44,9 +44,7 @@ GAtmoFlux()
   LOG("Flux", pNOTICE)
        << "Instantiating the Fluka-3D atmospheric neutrino flux driver";
 
-  this->SetCosThetaBins(kNGFlk3DCos, kGFlk3DCos);
-  this->SetEnergyBins  (kNGFlk3DEv,  kGFlk3DEv);
-
+  this->SetBinSizes();
   this->Initialize();
 }
 //___________________________________________________________________________
@@ -55,22 +53,71 @@ GFlukaAtmo3DFlux::~GFlukaAtmo3DFlux()
 
 }
 //___________________________________________________________________________
+void GFlukaAtmo3DFlux::SetBinSizes(void)
+{
+// Generate the correct cos(theta) and energy bin sizes
+// The flux is given in 40 bins of cos(zenith angle) from -1.0 to 1.0
+// (bin width = 0.05) and 61 equally log-spaced energy bins (20 bins 
+// per decade), with Emin = 0.100 GeV.
+//
+
+  fCosThetaBins  = new double [kGFlk3DNumCosThetaBins  + 1];
+  fEnergyBins    = new double [kGFlk3DNumLogEvBins     + 1];
+
+  double dcostheta = 
+      (kGFlk3DCosThetaMax - kGFlk3DCosThetaMin) /
+      (double) kGFlk3DNumCosThetaBins;
+
+  double logEmax = TMath::Log10(1.);
+  double logEmin = TMath::Log10(kGFlk3DEvMin);
+  double dlogE = 
+      (logEmax - logEmin) / 
+      (double) kGFlk3DNumLogEvBinsPerDecade;
+
+  for(unsigned int i=0; i<= kGFlk3DNumCosThetaBins; i++) {
+     fCosThetaBins[i] = kGFlk3DCosThetaMin + i * dcostheta;
+     if(i != kGFlk3DNumCosThetaBins) {
+       LOG("Flux", pDEBUG) 
+         << "FLUKA 3d flux: CosTheta bin " << i+1 
+         << ": lower edge = " << fCosThetaBins[i];
+     } else {
+       LOG("Flux", pDEBUG) 
+         << "FLUKA 3d flux: CosTheta bin " << kGFlk3DNumCosThetaBins 
+         << ": upper edge = " << fCosThetaBins[kGFlk3DNumCosThetaBins];
+     }
+  }
+
+  for(unsigned int i=0; i<= kGFlk3DNumLogEvBins; i++) {
+     fEnergyBins[i] = TMath::Power(10., logEmin + i*dlogE);
+     if(i != kGFlk3DNumLogEvBins) {
+       LOG("Flux", pDEBUG) 
+         << "FLUKA 3d flux: Energy bin " << i+1 
+         << ": lower edge = " << fEnergyBins[i];
+     } else {
+       LOG("Flux", pDEBUG) 
+         << "FLUKA 3d flux: Energy bin " << kGFlk3DNumLogEvBins 
+         << ": upper edge = " << fEnergyBins[kGFlk3DNumLogEvBins];
+     }
+  }
+
+  for(unsigned int i=0; i< kGFlk3DNumLogEvBins; i++) {
+       LOG("Flux", pDEBUG) 
+         << "FLUKA 3d flux: Energy bin " << i+1
+         << ": bin centre = " << (fEnergyBins[i] + fEnergyBins[i+1])/2.;
+  }
+
+  fNumCosThetaBins = kGFlk3DNumCosThetaBins;
+  fNumEnergyBins   = kGFlk3DNumLogEvBins;
+}
+//____________________________________________________________________________
 bool GFlukaAtmo3DFlux::FillFluxHisto2D(TH2D * histo, string filename)
 {
   LOG("Flux", pNOTICE) << "Loading: " << filename;
 
   if(!histo) {
-     LOG("Flux", pERROR) << "The flux histo to fill is not instantiated!";
+     LOG("Flux", pERROR) << "Null flux histogram!";
      return false;
   }
-  if(filename.size() == 0) {
-     // the user wants to skip this flux component - create an empty flux
-     this->ZeroFluxHisto2D(histo);
-     fNSkipped++;
-     assert(fNSkipped<4); // you must load at least one flux file
-     return true;
-  }
-
   ifstream flux_stream(filename.c_str(), ios::in);
   if(!flux_stream) {
      LOG("Flux", pERROR) << "Could not open file: " << filename;
@@ -80,12 +127,13 @@ bool GFlukaAtmo3DFlux::FillFluxHisto2D(TH2D * histo, string filename)
   double energy, costheta, flux;
   char   j1, j2;
 
-  const int kNLines = kNGFlk3DCos * kNGFlk3DEv;
+  const int kNLines = kGFlk3DNumCosThetaBins * kGFlk3DNumLogEvBins;
   int iline = 0;
   while (++iline<=kNLines) {
     flux_stream >> energy >> j1 >> costheta >> j2 >> flux;
-    LOG("Flux", pDEBUG)
-      << "Flux[Ev = " << energy << ", cos8 = " << costheta << "] = " << flux;
+    LOG("Flux", pINFO)
+      << "Flux[Ev = " << energy 
+      << ", cos8 = " << costheta << "] = " << flux;
     histo->Fill( (Axis_t)energy, (Axis_t)costheta, (Stat_t)flux);
   }
   return true;

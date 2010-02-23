@@ -5,12 +5,28 @@
 
 \brief   A flux driver for the Bartol Atmospheric Neutrino Flux
 
-\ref     published shortly as
-	 G. Barr, T.K. Gaisser, P. Lipari, S. Robbins and T. Stanev
+\ref     G. Barr, T.K. Gaisser, P. Lipari, S. Robbins and T. Stanev,
+         astro-ph/0403630
 
          To be able to use this flux driver you will need to download the
-         flux data from:
-	 http://www-pnp.physics.ox.ac.uk/~barr/fluxfiles/0408i/index.html
+         flux data from:  http://www-pnp.physics.ox.ac.uk/~barr/fluxfiles/
+
+         Please note that this class expects to read flux files formatted as 
+         described in the above BGLRS flux page.
+         Each file contains 5 columns:
+         - neutrino energy (GeV) at bin centre
+         - neutrino cos(zenith angle) at bin centre
+         - neutrino flux dN/dlnE (#neutrinos /m^2 /sec /sr)
+         - MC statistical error on the flux (not used here)
+         - Number of unweighted events entering in the bin (not used here)
+         The flux is given in 20 bins of cos(zenith angle) from -1.0 to 1.0 
+         (bin width = 0.1) and 30 equally log-spaced energy bins (10 bins per 
+         decade), with Emin = 10.00 GeV.
+
+         Note that in the BGLRS input files the flux is defined as dN/dlnE, 
+         while in the FLUKA files the flux is defined as dN/dE.
+         We compensate for logarithmic units (dlnE = dE/E) as we read-in the
+         BGLRS files.
 
 \author  Christopher Backhouse <c.backhouse1@physics.ox.ac.uk>
          Oxford University
@@ -31,21 +47,13 @@
 namespace genie {
 namespace flux  {
 
-// Number of cos8 and energy bins in flux simulation
-const unsigned int kNGBrtCos = 20;
-const unsigned int kNGBrtEv  = 30;
-
-const double kGBrtCos[kNGBrtCos+1] = {
-  -1, -.9, -.8, -.7, -.6, -.5, -.4, -.3, -.2, -.1,
-   0, +.1, +.2, +.3, +.4, +.5, +.6, +.7, +.8, +.9, +1
-};
-
-const double kGBrtEv[kNGBrtEv+1] = {
-  10.00, 12.59, 15.85, 19.95, 25.12, 31.62, 39.81, 50.12, 63.10, 79.43,
-  100.0, 125.9, 158.5, 199.5, 251.2, 316.2, 398.1, 501.2, 631.0, 794.3,
-  1000., 1259., 1585., 1995., 2512., 3162., 3981., 5012., 6310., 7943.,
-  10000
-};
+// Number of cos(zenith) and energy bins in flux simulation
+const unsigned int kBGLRS3DNumCosThetaBins       = 40;
+const double       kBGLRS3DCosThetaMin           = -1.0;
+const double       kBGLRS3DCosThetaMax           =  1.0;
+const unsigned int kBGLRS3DNumLogEvBins          = 61;
+const unsigned int kBGLRS3DNumLogEvBinsPerDecade = 20;
+const double       kBGLRS3DEvMin                 = 10.0; // GeV
 
 class GBartolAtmoFlux: public GAtmoFlux {
 
@@ -53,11 +61,16 @@ public :
   GBartolAtmoFlux();
  ~GBartolAtmoFlux();
 
+  //     
   // Most implementation is derived from the base GAtmoFlux
   // The concrete driver is only required to implement a function for
   // loading the input data files
+  //
+
 private:
-  bool FillFluxHisto2D(TH2D * h2, string filename);
+
+  void SetBinSizes     (void);
+  bool FillFluxHisto2D (TH2D * h2, string filename);
 };
 
 } // flux namespace
