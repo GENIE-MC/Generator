@@ -39,6 +39,7 @@ BUILD_TARGETS =    print-make-info \
 		   generator-std-exe \
 		   minos-support-softw \
 		   t2k-support-softw \
+		   ino-support-softw \
   		   install-scripts
 INSTALL_TARGETS =  print-makeinstall-info \
 		   check-previous-installation \
@@ -331,6 +332,17 @@ ifeq ($(strip $(GOPT_ENABLE_T2K)),YES)
 	cd ${GENIE}/src/support/t2k/EvGen/;\
 	make all; \
 	cd ${GENIE}/src/support/t2k/SKNorm/;\
+	make all; \
+	cd ${GENIE}
+else
+endif
+
+ino-support-softw: FORCE
+	@echo " "
+	@echo "** Building INO-specific support software..."
+ifeq ($(strip $(GOPT_ENABLE_INO)),YES)
+	@echo "* Building INO-specific GENIE tools"
+	cd ${GENIE}/src/support/ino/EvGen/;\
 	make all; \
 	cd ${GENIE}
 else
