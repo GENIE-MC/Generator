@@ -3,7 +3,9 @@
 
 \program gSKXSecTable
 
-\brief   Write-out the cross section table needed for the SK MC job normalization
+\brief   Write-out the cross section table needed for the SK MC job normalization; now 
+         changed to just have the total cross section, not cross section per nucleon 
+	 (basically going back to the original version)
 
 \author  Costas Andreopoulos <costas.andreopoulos@stfc.ac.uk>
          STFC, Rutherford Appleton Laboratory
@@ -98,10 +100,10 @@ int main(int /*argc*/, char ** /*argv*/)
 
   LOG("gSKXSecTable", pNOTICE) << "Writing out the GENIE cross section table";
 
-  ofstream outf("./genie_v2.4.0-sk_xsec_table.dat",ios::out);
+  ofstream outf("./genie_sk_xsec_table.dat",ios::out);
 
-  double w_H1  = 0.1121;  // H weight fraction in H2O
-  double w_O16 = 0.8879;  // O weight fraction in H2O
+  double w_H1  = 2;  // # of H in H2O
+  double w_O16 = 1;  // # of O in H2O
   double EvMin  =  0.025; // GeV
   double EvMax  = 15.000; // GeV
   double dEv   =  0.050;  // GeV
@@ -119,10 +121,10 @@ int main(int /*argc*/, char ** /*argv*/)
     double xsec_nuebar_H1   = nuebar_H1.   XSecSumSpline() -> Evaluate(Ev) / (1E-38 * units::cm2);
     double xsec_nuebar_O16  = nuebar_O16.  XSecSumSpline() -> Evaluate(Ev) / (1E-38 * units::cm2);
 
-    double xsec_numu_H20    = w_H1 * xsec_numu_H1    / 2. + w_O16 * xsec_numu_O16     / 16.;
-    double xsec_numubar_H20 = w_H1 * xsec_numubar_H1 / 2. + w_O16 * xsec_numubar_O16  / 16.;
-    double xsec_nue_H20     = w_H1 * xsec_nue_H1     / 2. + w_O16 * xsec_nue_O16      / 16.;
-    double xsec_nuebar_H20  = w_H1 * xsec_nuebar_H1  / 2. + w_O16 * xsec_nuebar_O16   / 16.;
+    double xsec_numu_H20    = w_H1 * xsec_numu_H1    + w_O16 * xsec_numu_O16     ;
+    double xsec_numubar_H20 = w_H1 * xsec_numubar_H1 + w_O16 * xsec_numubar_O16  ;
+    double xsec_nue_H20     = w_H1 * xsec_nue_H1     + w_O16 * xsec_nue_O16      ;
+    double xsec_nuebar_H20  = w_H1 * xsec_nuebar_H1  + w_O16 * xsec_nuebar_O16   ;
 
     outf << setfill(' ') << setw(10) << setiosflags(ios::fixed) << setprecision(5) << Ev
          << setfill(' ') << setw(12) << setiosflags(ios::fixed) << setprecision(5) << xsec_numu_H20
