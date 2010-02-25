@@ -29,10 +29,13 @@
  @ Dec 06, 2008 - CA
    Tweak dtor so as not to clutter the output if GENIE exits in err so as to
    spot the fatal mesg immediately.
+ @ Feb 25, 2010 - CA
+   Exit immediately if the file pointed to by GSPLOAD isn't accessible.
 */
 //____________________________________________________________________________
 
 #include <fstream>
+#include <cstdlib>
 
 #include "libxml/parser.h"
 #include "libxml/xmlmemory.h"
@@ -569,8 +572,10 @@ bool XSecSplineList::AutoLoad(void)
        assert(status==kXmlOK);
        return true;
      } else {
-       SLOG("XSecSplLst", pWARN)
-              << "Specified XML file [" << xmlfile << "] is not accessible!";
+       LOG("XSecSplLst", pFATAL)
+         << "Specified XML file [" << xmlfile << "] is not accessible!";
+       gAbortingInErr = true;
+       exit(1);       
        return false;
      }
   }
