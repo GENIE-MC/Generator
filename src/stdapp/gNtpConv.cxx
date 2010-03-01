@@ -1022,9 +1022,6 @@ void ConvertToGXML(void)
 //___________________________________________________________________
 void ConvertToGTracker(void)
 {
-  //-- get pdglib
-  PDGLibrary * pdglib = PDGLibrary::Instance();
-
   //-- open the ROOT file and get the TTree & its header
   TFile fin(gOptInpFileName.c_str(),"READ");
   TTree *           tree = 0;
@@ -1048,8 +1045,17 @@ void ConvertToGTracker(void)
   NtpMCEventRecord * mcrec = 0;
   tree->SetBranchAddress("gmcrec", &mcrec);
 
+
+#ifdef __GENIE_FLUX_DRIVERS_ENABLED__
   flux::GJPARCNuFluxPassThroughInfo * flux_info = 0;
   tree->SetBranchAddress("flux", &flux_info);
+#else
+  LOG("gntpc", pWARN) 
+    << "\n Flux drivers are not enabled." 
+    << "\n No flux pass-through information will be written-out in the rootracker file"
+    << "\n If this isn't what you are supposed to be doing then build GENIE by adding "
+    << "--with-flux-drivers in the configuration step.";
+#endif
 
   //-- open the output stream
   ofstream output(gOptOutFileName.c_str(), ios::out);
@@ -1423,6 +1429,8 @@ void ConvertToGTracker(void)
       // JNUBEAM flux info - that may not be available, eg if events were generated using 
       // plain flux histograms - not the beam simulation's output flux ntuples
       //
+#ifdef __GENIE_FLUX_DRIVERS_ENABLED__
+      PDGLibrary * pdglib = PDGLibrary::Instance();
       if(flux_info) {
          // parent hadron pdg code and decay mode
          output << "$ info " << flux_info->pdg << " " << flux_info->decayMode << endl;
@@ -1457,6 +1465,8 @@ void ConvertToGTracker(void)
          // nvtx
          output << "$ info " << output << "$info " << endl;
      }
+#endif
+
     }//fmt==kConvFmt_t2k_tracker
 
     //
@@ -1480,9 +1490,6 @@ void ConvertToGTracker(void)
 //___________________________________________________________________
 void ConvertToGRooTracker(void)
 {
-  //-- get pdglib
-  PDGLibrary * pdglib = PDGLibrary::Instance();
-
   //-- define the output rootracker tree branches
 
   // event info
@@ -1768,6 +1775,7 @@ void ConvertToGRooTracker(void)
     LOG("gntpc", pINFO) << rec_header;
     LOG("gntpc", pINFO) << event;
     LOG("gntpc", pINFO) << *interaction;
+#ifdef __GENIE_FLUX_DRIVERS_ENABLED__
     if(gOptOutFileFormat == kConvFmt_t2k_rootracker) {
        if(jnubeam_flux_info) {
           LOG("gntpc", pINFO) << *jnubeam_flux_info;
@@ -1775,6 +1783,7 @@ void ConvertToGRooTracker(void)
           LOG("gntpc", pINFO) << "No JNUBEAM flux info associated with this event";
        }
     }
+#endif
 
     //
     // clear output tree branches
@@ -1865,6 +1874,8 @@ void ConvertToGRooTracker(void)
     }
 
 #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
+     PDGLibrary * pdglib = PDGLibrary::Instance();
+
     // Copy flux info if this is the t2k rootracker variance.
     // The flux may not be available, eg if events were generated using plain flux 
     // histograms and not the JNUBEAM simulation's output flux ntuples.
