@@ -203,6 +203,7 @@ ifeq ($(strip $(GOPT_ENABLE_MUELOSS)),YES)
 	make; \
 	cd ${GENIE}
 else
+	@echo " "
 	@echo "** Mueloss was not enabled. Skipping..."
 endif
 
@@ -311,6 +312,8 @@ ifeq ($(strip $(GOPT_ENABLE_TEST)),YES)
 	make all; \
 	cd ${GENIE}
 else
+	@echo " "
+	@echo "** Test applications were not enabled! Skipping..."
 endif
 
 minos-support-softw: FORCE
@@ -322,6 +325,7 @@ ifeq ($(strip $(GOPT_ENABLE_MINOS)),YES)
 	make all; \
 	cd ${GENIE}
 else
+	@echo "Not enabled! Skipping..."
 endif
 
 t2k-support-softw: FORCE
@@ -335,6 +339,7 @@ ifeq ($(strip $(GOPT_ENABLE_T2K)),YES)
 	make all; \
 	cd ${GENIE}
 else
+	@echo "Not enabled! Skipping..."
 endif
 
 ino-support-softw: FORCE
@@ -346,6 +351,7 @@ ifeq ($(strip $(GOPT_ENABLE_INO)),YES)
 	make all; \
 	cd ${GENIE}
 else
+	@echo "Not enabled! Skipping..."
 endif
 
 install-scripts: FORCE
