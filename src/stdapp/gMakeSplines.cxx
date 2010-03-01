@@ -71,7 +71,10 @@ using std::string;
 using std::vector;
 
 using namespace genie;
+
+#ifdef __GENIE_GEOM_DRIVERS_ENABLED__
 using namespace genie::geometry;
+#endif
 
 //Prototypes:
 void          GetCommandLineArgs (int argc, char ** argv);
