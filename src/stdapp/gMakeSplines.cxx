@@ -47,13 +47,14 @@
 //____________________________________________________________________________
 
 #include <cassert>
+#include <cstdlib>
 #include <string>
 #include <vector>
 
 #include <TSystem.h>
 
+#include "Conventions/GBuild.h"
 #include "EVGDrivers/GEVGDriver.h"
-#include "Geo/ROOTGeomAnalyzer.h"
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGCodeList.h"
@@ -61,6 +62,10 @@
 #include "Utils/XSecSplineList.h"
 #include "Utils/CmdLineArgParserUtils.h"
 #include "Utils/CmdLineArgParserException.h"
+
+#ifdef __GENIE_GEOM_DRIVERS_ENABLED__
+#include "Geo/ROOTGeomAnalyzer.h"
+#endif
 
 using std::string;
 using std::vector;
@@ -290,6 +295,7 @@ PDGCodeList * GetTargetCodes(void)
   }
 
   if (from_geom_file) {
+#ifdef __GENIE_GEOM_DRIVERS_ENABLED__
      // create/configure a geometry driver
      LOG("gmkspl", pINFO) << "Creating/configuring a ROOT geom. driver";
      ROOTGeomAnalyzer * geom = new ROOTGeomAnalyzer(gOptGeomFilename);
@@ -298,6 +304,14 @@ PDGCodeList * GetTargetCodes(void)
 
      delete geom;
      return list;
+#else
+     LOG("gmkspl", pFATAL) 
+      << "To read-in a ROOT geometry you need to enable the geometry drivers!";
+     gAbortingInErr = true;
+     exit(1);
+     return 0;
+#endif
+
   }
   return 0;
 }
