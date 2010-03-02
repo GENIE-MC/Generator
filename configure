@@ -290,9 +290,10 @@ if($gopt_enable_lhapdf eq "YES") {
     print "Setting --with-lhapdf-inc=$gopt_with_lhapdf_lib\n";
   }
   # check
-  my $file = "$gopt_with_lhapdf_lib/libLHAPDF.a";
-  if(! -e $file) {
-     print "*** Error *** You need to specify the path to the libLHAPDF.so library using --with-lhapdf-lib=/some/path/\n";
+  my $fileso    = "$gopt_with_lhapdf_lib/libLHAPDF.so";
+  my $filedylib = "$gopt_with_lhapdf_lib/libLHAPDF.dylib";
+  if(! -e $fileso && ! -e $filedylib) {
+     print "*** Error *** You need to specify the path to libLHAPDF using --with-lhapdf-lib=/some/path/\n";
      print "*** Error *** Otherwise, you should --disable-lhapdf\n\n";
      exit 1;
   }
