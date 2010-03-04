@@ -58,7 +58,6 @@ public :
   ~GEVGDriver();
 
   //-- Set driver options before calling Configure()
-  void FilterUnphysical (const TBits & unphysmask);
   void UseSplines       (void);
 
   //-- Configure the driver
