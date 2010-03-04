@@ -31,6 +31,9 @@
  @ Sep 19, 2009 - CA
    In AssertIsValidInitState() accept any lepton, not just neutrinos. 
    Make Print() less neutrino-centric.
+ @ Feb 04, 2010 - CA
+   Remove FilterUnphysical(TBits). Now flags set exclusively via the
+   GUNPHYSMASK env.var.
 */
 //____________________________________________________________________________
 
@@ -90,15 +93,6 @@ GEVGDriver::~GEVGDriver()
   this->CleanUp();
 }
 //___________________________________________________________________________
-void GEVGDriver::FilterUnphysical(const TBits & unphysmask)
-{
-  *fFiltUnphysMask = unphysmask;
-
-  LOG("GEVGDriver", pNOTICE) 
-    << "Set unphysical event mask (" << GHepFlags::NFlags() << "->0) = " 
-    << *fFiltUnphysMask;
-}
-//___________________________________________________________________________
 void GEVGDriver::Init(void)
 {
   // initial state for which this driver is configured
@@ -138,10 +132,9 @@ void GEVGDriver::Init(void)
   // Default driver behaviour is to filter out unphysical events
   // If needed, set the fFiltUnphysMask bitfield to get pre-selected types of 
   // unphysical events (just set to 1 the bit you want ignored from the check).
-  // You can do that either by calling the FilterUnphysical() or setting the 
-  // GUNPHYSMASK env.var) but be warned that the event record for unphysical 
-  // events might be incomplete depending on the processing step that event 
-  // generation was stopped.
+  // You can do so by setting the GUNPHYSMASK env.var) but be warned that the 
+  // event record for unphysical events might be incomplete depending on the 
+  // processing step that event generation was stopped.
 
   fFiltUnphysMask = new TBits(GHepFlags::NFlags());
   fFiltUnphysMask->ResetAllBits(false); 

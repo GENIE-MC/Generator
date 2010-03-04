@@ -5,7 +5,7 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - May 25, 2005
+         STFC, Rutherford Appleton Laboratory 
 
  For the class documentation see the corresponding header file.
 
@@ -47,6 +47,9 @@
  @ Mar 11, 2009 - CA
    In GenerateEvent1Try() handle failure to generate kinematics. Added sanity
    check on the no interaction probability.
+ @ Mar 04, 2010 - CA
+   Remove unused FilterUnphysical(TBits) method. Now set exclusively via the
+   GUNPHYSMASK env.var.
 */
 //____________________________________________________________________________
 
@@ -136,20 +139,6 @@ void GMCJDriver::KeepOnThrowingFluxNeutrinos(bool keep_on)
         << "Keep on throwing flux neutrinos till one interacts? : "
                              << utils::print::BoolAsYNString(keep_on);
   fKeepThrowingFluxNu = keep_on;
-}
-//___________________________________________________________________________
-void GMCJDriver::FilterUnphysical(const TBits & unphysmask)
-{
-  fUnphysMask = unphysmask;
-
-  //if Configure() was run first configure all GEVGDrivers now
-  if(fGPool) {
-    GEVGPool::const_iterator giter;
-    for(giter = fGPool->begin(); giter != fGPool->end(); ++giter) {
-      GEVGDriver * driver = giter->second;
-      driver->FilterUnphysical(fUnphysMask);
-    }
-  }
 }
 //___________________________________________________________________________
 void GMCJDriver::ForceSingleProbScale()
@@ -331,7 +320,6 @@ void GMCJDriver::PopulateEventGenDriverPool(void)
 
      GEVGDriver * evgdriver = new GEVGDriver;
      evgdriver->Configure(init_state);
-     //evgdriver->FilterUnphysical(fUnphysMask);
      evgdriver->UseSplines(); // check if all splines needed are loaded
 
      LOG("GMCJDriver", pDEBUG) << "Adding new GEVGDriver object to GEVGPool";

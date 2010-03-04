@@ -24,7 +24,6 @@
 #include <string>
 #include <map>
 
-#include <TBits.h>
 #include <TH1D.h>
 #include <TLorentzVector.h>
 
@@ -54,7 +53,6 @@ public :
   void UseSplines                  (bool useLogE = true);
   void UseMaxPathLengths           (string xml_filename);
   void KeepOnThrowingFluxNeutrinos (bool keep_on);
-  void FilterUnphysical            (const TBits & unphysmask);
   void ForceSingleProbScale        (void);
   void Configure                   (void);
 
@@ -115,7 +113,6 @@ private:
   bool            fUseLogE;            ///< [config] build splines = f(logE) (rather than f(E)) ?
   bool            fKeepThrowingFluxNu; ///< [config] keep firing flux neutrinos till one of them interacts
   bool            fGenerateUnweighted; ///< [config] force single probability scale?
-  TBits           fUnphysMask;         ///< [config] unphysical events filtering mask
 };
 
 }      // genie namespace
