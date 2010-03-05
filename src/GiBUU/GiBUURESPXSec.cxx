@@ -61,11 +61,14 @@ GiBUURESPXSec::~GiBUURESPXSec()
 }
 //____________________________________________________________________________
 double GiBUURESPXSec::XSec(
-                 const Interaction * interaction, KinePhaseSpace_t kps) const
+  const Interaction * interaction, KinePhaseSpace_t /*kps*/) const
 {
   if(! this -> ValidProcess    (interaction) ) return 0.;
   if(! this -> ValidKinematics (interaction) ) return 0.;
 
+  double xsec = 0;
+
+/*
   // Get kinematical parameters
   const Kinematics & kinematics = interaction -> Kine();
   double W  = kinematics.W();
@@ -102,29 +105,24 @@ double GiBUURESPXSec::XSec(
   string      resname   = utils::res::AsString(resonance);
   bool        is_delta  = utils::res::IsDelta (resonance);
 
-/*
-  bool is_CC    = proc_info.IsWeakCC();
-  if(is_CC && !is_delta) {
-    if((is_nu && is_p) || (is_nubar && is_n)) return 0;
-  }
-*/
-/*
-  //-- Get baryon resonance parameters
-  fBRP.RetrieveData(resonance);  
-  double Mres = fBRP.Mass();
-  double Gres = fBRP.Width();
-  int    Nres = fBRP.ResonanceIndex();
-*/
+//  bool is_CC    = proc_info.IsWeakCC();
+//  if(is_CC && !is_delta) {
+//    if((is_nu && is_p) || (is_nubar && is_n)) return 0;
+//  }
 
-  //-- Get the GiBUU form factor data
+
+  // Get baryon resonance parameters
+//  fBRP.RetrieveData(resonance);  
+//  double Mres = fBRP.Mass();
+//  double Gres = fBRP.Width();
+//  int    Nres = fBRP.ResonanceIndex();
+
+  // Get the GiBUU form factor data
   GiBUUData * gibuu_data = GiBUUData::Instance();
 
-  //-- Calculate the double differential cross section d2sigma/dWdQ2
-
-  double xsec = 0;
+  // Calculate the double differential cross section d2sigma/dWdQ2
 
   const GiBUUData::FormFactors & ff = gibuu_data->FF();
-
   if(is_delta) {
     //
     // Delta resonances
@@ -136,7 +134,8 @@ double GiBUURESPXSec::XSec(
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("GiBUURes", pINFO) 
-      << "\n F1V = " << F1V << ", F2V = " << F2V << ", FA = " << FA << ", FP = " << FP;
+      << "\n F1V = " << F1V << ", F2V = " << F2V
+      << ", FA = " << FA << ", FP = " << FP;
 #endif
 
   } 
@@ -155,8 +154,10 @@ double GiBUURESPXSec::XSec(
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("GiBUURes", pINFO) 
-      << "\n C3V = " << C3V << ", C4V = " << C4V << ", C5V = " << C5V << ", C6V = " << C6V
-      << "\n C3A = " << C3A << ", C4A = " << C4A << ", C5A = " << C5A << ", C6A = " << C6A;
+      << "\n C3V = " << C3V << ", C4V = " << C4V 
+      <<  ", C5V = " << C5V << ", C6V = " << C6V
+      << "\n C3A = " << C3A << ", C4A = " << C4A 
+      <<  ", C5A = " << C5A << ", C6A = " << C6A;
 #endif
 
   } // Delta or N
@@ -164,7 +165,7 @@ double GiBUURESPXSec::XSec(
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("GiBUURes", pINFO) 
     << "\n d2xsec/dQ2dW"  << "[" << interaction->AsString()
-          << "](W=" << W << ", q2=" << q2 << ", E=" << E << ") = " << xsec;
+          << "](W=" << W << ", Q2=" << Q2 << ", E=" << E << ") = " << xsec;
 #endif
 
   // The algorithm computes d^2xsec/dWdQ2
@@ -180,6 +181,7 @@ double GiBUURESPXSec::XSec(
   // Number of scattering centers in the target
   int NNucl = (is_p) ? target.Z() : target.N();
   xsec*=NNucl; // nuclear xsec (no nuclear suppression factor)
+*/
 
   return xsec;
 }
