@@ -28,7 +28,7 @@ using namespace genie;
 
 double func(double x, double y);
 
-int main(int argc, char ** argv)
+int main(int /*argc*/, char ** /*argv*/)
 {
   int npoints=10000;
 

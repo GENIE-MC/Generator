@@ -27,6 +27,7 @@ TGT =	gtestAlgorithms 	 \
  	gtestElFormFactors	 \
  	gtestEventLoop 		 \
  	gtestFluxAtmo 		 \
+ 	gtestFluxSimple 	 \
         gtestGiBUUData           \
 	gtestHadronization	 \
 	gtestINukeHadroData      \
@@ -83,8 +84,20 @@ gtestEventLoop: FORCE
 	$(LD) $(LDFLAGS) testEventLoop.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestEventLoop
 
 gtestFluxAtmo: FORCE
+ifeq ($(strip $(GOPT_ENABLE_FLUX_DRIVERS)),YES)
 	$(CXX) $(CXXFLAGS) -c testFluxAtmo.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) testFluxAtmo.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestFluxAtmo
+else
+	@echo "You need to enable the flux drivers to build the gtestFluxAtmo program"
+endif
+
+gtestFluxSimple: FORCE
+ifeq ($(strip $(GOPT_ENABLE_FLUX_DRIVERS)),YES)
+	$(CXX) $(CXXFLAGS) -c testFluxSimple.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) testFluxSimple.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestFluxSimple
+else
+	@echo "You need to enable the flux drivers to build the gtestFluxSimple program"
+endif
 
 gtestGiBUUData: FORCE
 	$(CXX) $(CXXFLAGS) -c testGiBUUData.cxx $(INCLUDES)
@@ -121,14 +134,6 @@ gtestPREM: FORCE
 gtestFermiP: FORCE
 	$(CXX) $(CXXFLAGS) -c testFermiP.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) testFermiP.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestFermiP
-
-gtestFluxDriver: FORCE
-ifeq ($(strip $(GOPT_ENABLE_FLUX_DRIVERS)),YES)
-	$(CXX) $(CXXFLAGS) -c testFluxDriver.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) testFluxDriver.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestFluxDriver
-else
-	@echo "You need to enable the flux drivers to build the gtestFluxDriver program"
-endif
 
 gtestMessenger: FORCE
 	$(CXX) $(CXXFLAGS) -c testMessenger.cxx $(INCLUDES)
@@ -206,6 +211,7 @@ clean: FORCE
 	$(RM) $(GENIE_BIN_PATH)/gtestElFormFactors
 	$(RM) $(GENIE_BIN_PATH)/gtestEventLoop
 	$(RM) $(GENIE_BIN_PATH)/gtestFluxAtmo
+	$(RM) $(GENIE_BIN_PATH)/gtestFluxSimple
 	$(RM) $(GENIE_BIN_PATH)/gtestGiBUUData
 	$(RM) $(GENIE_BIN_PATH)/gtestHadronization	
 	$(RM) $(GENIE_BIN_PATH)/gtestIntranuke	
@@ -242,6 +248,7 @@ distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestElFormFactors
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestEventLoop
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestFluxAtmo
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestFluxSimple
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestGiBUUData
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestHadronization	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestIntranuke		
