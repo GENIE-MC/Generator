@@ -42,6 +42,9 @@ public :
   void Configure(string config);
 
 private:
+
+  void SpectralFuncExperimentalCode(GHepRecord * event_rec) const;
+
   void   LoadConfig     (void);
   double ComputeMaxXSec (const Interaction * in) const;
 };

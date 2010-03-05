@@ -5,13 +5,15 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - October 03, 2004
+         STFC, Rutherford Appleton Laboratory
 
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
  @ Mar 03, 2009 - CA
    Moved into the new QEL package from its previous location (EVGModules)
+ @ Mar 05, 2010 - CA
+   Added a temprorary SpectralFuncExperimentalCode() 
 
 */
 //____________________________________________________________________________
@@ -221,6 +223,210 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         interaction->KinePtr()->Setx (gx,  true);
         interaction->KinePtr()->Sety (gy,  true);
         interaction->KinePtr()->ClearRunningValues();
+
+        return;
+     }
+  }// iterations
+}
+//___________________________________________________________________________
+void QELKinematicsGenerator::SpectralFuncExperimentalCode(
+  GHepRecord * evrec) const
+{
+  //-- Get the random number generators
+  RandomGen * rnd = RandomGen::Instance();
+
+  //-- Access cross section algorithm for running thread
+  RunningThreadInfo * rtinfo = RunningThreadInfo::Instance();
+  const EventGeneratorI * evg = rtinfo->RunningThread();
+  fXSecModel = evg->CrossSectionAlg();
+
+  //-- Get the interaction and set the 'trust' bits
+  Interaction * interaction = new Interaction(*evrec->Summary());
+  interaction->SetBit(kISkipProcessChk);
+  interaction->SetBit(kISkipKinematicChk);
+
+  //-- Note: The kinematic generator would be using the free nucleon cross
+  //   section (even for nuclear targets) so as not to double-count nuclear
+  //   suppression. This assumes that a) the nuclear suppression was turned
+  //   on when computing the cross sections for selecting the current event 
+  //   and that b) if the event turns out to be unphysical (Pauli-blocked) 
+  //   the next attempted event will be forced to QEL again.
+  //   (discussion with Hugh - GENIE/NeuGEN integration workshop - 07APR2006
+  interaction->SetBit(kIAssumeFreeNucleon);
+
+  //-- Assume scattering off a nucleon on the mass shell (PWIA prescription)
+  double Mn  = interaction->InitState().Tgt().HitNucMass(); // PDG mass, take it to be on-shell
+  double pxn = interaction->InitState().Tgt().HitNucP4().Px();
+  double pyn = interaction->InitState().Tgt().HitNucP4().Py();
+  double pzn = interaction->InitState().Tgt().HitNucP4().Pz();
+  double En  = interaction->InitState().Tgt().HitNucP4().Energy();
+  double En0 = TMath::Sqrt(pxn*pxn + pyn*pyn + pzn*pzn + Mn*Mn);
+  double Eb  = En0 - En;
+  interaction->InitStatePtr()->TgtPtr()->HitNucP4Ptr()->SetE(En0);
+
+  //-- Get the limits for the generated Q2
+  const KPhaseSpace & kps = interaction->PhaseSpace();
+  Range1D_t Q2 = kps.Limits(kKVQ2);
+
+  if(Q2.max <=0 || Q2.min>=Q2.max) {
+     LOG("QELKinematics", pWARN) << "No available phase space";
+     evrec->EventFlags()->SetBitNumber(kKineGenErr, true);
+     genie::exceptions::EVGThreadException exception;
+     exception.SetReason("No available phase space");
+     exception.SwitchOnFastForward();
+     throw exception;
+  }
+
+  //-- For the subsequent kinematic selection with the rejection method:
+  //   Calculate the max differential cross section or retrieve it from the
+  //   cache. Throw an exception and quit the evg thread if a non-positive
+  //   value is found.
+  //   If the kinematics are generated uniformly over the allowed phase
+  //   space the max xsec is irrelevant
+//  double xsec_max = (fGenerateUniformly) ? -1 : this->MaxXSec(evrec);
+  double xsec_max = this->MaxXSec(evrec);
+
+  // get neutrino energy at struck nucleon rest frame and the
+  // struck nucleon mass (can be off the mass shell)
+  const InitialState & init_state = interaction->InitState();
+  double E  = init_state.ProbeE(kRfHitNucRest);
+
+  LOG("QELKinematics", pNOTICE) << "E = " << E << ", M = "<< Mn;
+
+  //-- Try to select a valid Q2 using the rejection method
+
+  // kinematical limits
+  double Q2min  = Q2.min+kASmallNum;
+  double Q2max  = Q2.max-kASmallNum;
+  double QD2min = utils::kinematics::Q2toQD2(Q2min);
+  double QD2max = utils::kinematics::Q2toQD2(Q2max);
+  double xsec   = -1.;
+  double gQ2    =  0.;
+  double gW     =  0.;
+  double gx     =  0.;
+  double gy     =  0.;
+
+  unsigned int iter = 0;
+  bool accept = false;
+  while(1) {
+     iter++;
+     if(iter > kRjMaxIterations) {
+        LOG("QELKinematics", pWARN)
+          << "Couldn't select a valid Q^2 after " << iter << " iterations";
+        evrec->EventFlags()->SetBitNumber(kKineGenErr, true);
+        genie::exceptions::EVGThreadException exception;
+        exception.SetReason("Couldn't select kinematics");
+        exception.SwitchOnFastForward();
+        throw exception;
+     }
+
+     //-- Generate a Q2 value within the allowed phase space
+     //   In unweighted mode - use transform that takes out the dipole form
+//     if(fGenerateUniformly) {
+//         gQ2 = Q2min + (Q2max-Q2min) * rnd->RndKine().Rndm();
+//     } else {
+         double gQD2 = QD2min + (QD2max-QD2min) * rnd->RndKine().Rndm();
+         gQ2  = utils::kinematics::QD2toQ2(gQD2);
+//     }
+//     interaction->KinePtr()->SetQ2(gQ2);
+
+     LOG("QELKinematics", pNOTICE) << "Trying: Q^2 = " << gQ2;
+
+     // The hadronic inv. mass is equal to the recoil nucleon on-shell mass.
+     // For QEL/Charm events it is set to be equal to the on-shell mass of
+     // the generated charm baryon (Lamda_c+, Sigma_c+ or Sigma_c++)
+     //
+     const XclsTag & xcls = interaction->ExclTag();
+     int rpdgc = 0;
+     if(xcls.IsCharmEvent()) { rpdgc = xcls.CharmHadronPdg();           }
+     else                    { rpdgc = interaction->RecoilNucleonPdg(); }
+     assert(rpdgc);
+     gW = PDGLibrary::Instance()->Find(rpdgc)->Mass();
+
+     // (W,Q2) -> (x,y)
+     kinematics::WQ2toXY(E,Mn,gW,gQ2,gx,gy);
+
+     LOG("QELKinematics", pNOTICE) << "W = "<< gW;
+     LOG("QELKinematics", pNOTICE) << "x = "<< gx;
+     LOG("QELKinematics", pNOTICE) << "y = "<< gy;
+
+     // v
+     double gv  = gy * E;
+     double gv2 = gv*gv;
+
+     LOG("QELKinematics", pNOTICE) << "v = "<< gv;
+
+     // v -> v~
+     double gvtilde  = gv + Mn - Eb - TMath::Sqrt(Mn*Mn+pxn*pxn+pyn*pyn+pzn*pzn);
+     double gvtilde2 = gvtilde*gvtilde;
+
+     LOG("QELKinematics", pNOTICE) << "v~ = "<< gvtilde;
+
+     // Q~^2
+     double gQ2tilde = gQ2 - gv2 + gvtilde2;
+
+     LOG("QELKinematics", pNOTICE) << "Q~^2 = "<< gQ2tilde;
+
+     // Set updated Q2
+     interaction->KinePtr()->SetQ2(gQ2tilde);
+
+     //-- Computing cross section for the current kinematics
+     xsec = fXSecModel->XSec(interaction, kPSQ2fE);
+
+     //-- Decide whether to accept the current kinematics
+//     if(!fGenerateUniformly) {
+        this->AssertXSecLimits(interaction, xsec, xsec_max);
+
+        double t = xsec_max * rnd->RndKine().Rndm();
+        double J = kinematics::Jacobian(interaction,kPSQ2fE,kPSQD2fE);
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+        LOG("QELKinematics", pDEBUG)
+            << "xsec= " << xsec << ", J= " << J << ", Rnd= " << t;
+#endif
+        accept = (t < J*xsec);
+//     } else {
+//        accept = (xsec>0);
+//     }
+
+     //-- If the generated kinematics are accepted, finish-up module's job
+     if(accept) {
+        LOG("QELKinematics", pNOTICE) << "Selected: Q^2 = " << gQ2;
+
+        // reset bits
+//        interaction->ResetBit(kISkipProcessChk);
+//        interaction->ResetBit(kISkipKinematicChk);
+//        interaction->ResetBit(kIAssumeFreeNucleon);
+
+        // set the cross section for the selected kinematics
+        evrec->SetDiffXSec(xsec);
+
+        // for uniform kinematics, compute an event weight as
+        // wght = (phase space volume)*(differential xsec)/(event total xsec)
+//        if(fGenerateUniformly) {
+//          double vol     = kinematics::PhaseSpaceVolume(interaction,kPSQ2fE);
+//          double totxsec = evrec->XSec();
+//          double wght    = (vol/totxsec)*xsec;
+//          LOG("QELKinematics", pNOTICE)  << "Kinematics wght = "<< wght;
+
+          // apply computed weight to the current event weight
+//          wght *= evrec->Weight();
+//          LOG("QELKinematics", pNOTICE) << "Current event wght = " << wght;
+//          evrec->SetWeight(wght);
+//        }
+
+        // lock selected kinematics & clear running values
+//        interaction->KinePtr()->SetQ2(gQ2, true);
+//        interaction->KinePtr()->SetW (gW,  true);
+//        interaction->KinePtr()->Setx (gx,  true);
+//        interaction->KinePtr()->Sety (gy,  true);
+//        interaction->KinePtr()->ClearRunningValues();
+
+        evrec->Summary()->KinePtr()->SetQ2(gQ2, true);
+        evrec->Summary()->KinePtr()->SetW (gW,  true);
+        evrec->Summary()->KinePtr()->Setx (gx,  true);
+        evrec->Summary()->KinePtr()->Sety (gy,  true);
+        evrec->Summary()->KinePtr()->ClearRunningValues();
+	delete interaction;
 
         return;
      }
