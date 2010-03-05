@@ -262,6 +262,19 @@ void GetCommandLineArgs(int argc, char ** argv)
     }
   } //-n
 
+  // event file prefix
+  try {
+    LOG("gINOevgen", pDEBUG) << "Reading the event filename prefix";
+    gOptEvFilePrefix = genie::utils::clap::CmdLineArgAsString(argc,argv,'o');
+  } catch(exceptions::CmdLineArgParserException e) {
+    if(!e.ArgumentFound()) {
+      LOG("gINOevgen", pDEBUG)
+        << "Will set the default event filename prefix";
+      gOptEvFilePrefix = kDefOptEvFilePrefix;
+    }
+  } //-o
+
+
   // neutrino energy range:
   try {
     LOG("gINOevgen", pINFO) << "Reading neutrino energy range";
