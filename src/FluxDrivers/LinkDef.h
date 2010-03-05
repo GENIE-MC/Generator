@@ -21,4 +21,11 @@
 #pragma link C++ class genie::flux::GFlukaAtmo3DFlux;
 #pragma link C++ class genie::flux::GBartolAtmoFlux;
 
+#pragma link C++ class genie::flux::GSimpleNtpEntry+;
+#pragma link C++ class genie::flux::GSimpleNtpNuMI+;
+#pragma link C++ class genie::flux::GSimpleNtpAux+;
+#pragma link C++ class genie::flux::GSimpleNtpMeta+;
+
+#pragma link C++ class genie::flux::GSimpleNtpFlux;
+
 #endif
