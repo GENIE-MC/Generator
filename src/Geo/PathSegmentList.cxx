@@ -79,6 +79,8 @@ using std::endl;
 using namespace genie;
 using namespace genie::geometry;
 
+//#define RWH_DEBUG
+
 //____________________________________________________________________________
 namespace genie {
 namespace geometry {
@@ -191,14 +193,31 @@ TVector3 PathSegment::GetPosition(Double_t fractrim) const
   /// calculate position within allowed ranges passed on 
   ///fraction of trimmed segment
   ///      seg.fEnter + fractotal * ( seg.fExit - seg.fEnter );
-  Double_t target = fractrim * GetSummedStepRange();
-  Double_t sum = 0;
+  Double_t sumrange = GetSummedStepRange();
+  if ( sumrange <= 0.0 ) {
+    LOG("PathS", pFATAL) << "GetPosition failed fractrim=" << fractrim
+                         << " because sumrange = " << sumrange;
+    return TVector3(0,0,0);
+  }
+  Double_t target   = fractrim * sumrange;
+  Double_t sum      = 0;
   for ( size_t i = 0; i < fStepRangeSet.size(); ++i ) {
     const StepRange& sr = fStepRangeSet[i];
     Double_t ds = ( sr.second - sr.first );
     sum += ds;
+#ifdef RWH_DEBUG
+    LOG("PathS", pINFO) << "GetPosition fractrim=" << fractrim
+                        << " target " << target << " [" << i << "] "
+                        << " ds " << ds << " sum " << sum;
+#endif
     if ( sum >= target ) {
-      Double_t fractotal = 1;
+      Double_t overstep  = sum - target;
+      Double_t fractotal = (sr.second - overstep)/sumrange;
+#ifdef RWH_DEBUG
+    LOG("PathS", pINFO) << "GetPosition fractrim=" << fractrim
+                        << " overstep " << overstep
+                        << " fractotal " << fractotal;
+#endif
       return  fEnter + fractotal * ( fExit - fEnter );
     }
   }

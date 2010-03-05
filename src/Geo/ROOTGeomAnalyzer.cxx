@@ -355,6 +355,11 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
     double trimmed_step = seg.GetSummedStepRange();
     double wgtstep = trimmed_step * wgtmap[mat];
     double beyond = walked + wgtstep;
+#ifdef RWH_DEBUG
+    LOG("GROOTGeom", pINFO)
+      << " beyond " << beyond << " gen_dist " << gen_dist
+      << " trimmed_step " << trimmed_step << " wgtstep " << wgtstep;
+#endif
     if ( beyond > gen_dist ) {
 #ifdef RWH_DEBUG
       if ( ( fDebugFlags & 0x01 ) ) {
