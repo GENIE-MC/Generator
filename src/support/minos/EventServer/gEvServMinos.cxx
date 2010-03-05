@@ -283,9 +283,6 @@ void Configure(string mesg)
   PDGCodeList::const_iterator nuiter;
   PDGCodeList::const_iterator tgtiter;
 
-  TBits unphysmask(GHepFlags::NFlags());
-  unphysmask.ResetAllBits(false);
-
   for(nuiter = neutrinos.begin(); nuiter != neutrinos.end(); ++nuiter) {
    for(tgtiter = targets.begin(); tgtiter != targets.end(); ++tgtiter) {
 
@@ -300,7 +297,6 @@ void Configure(string mesg)
 
      GEVGDriver * evgdriver = new GEVGDriver;
      evgdriver->Configure(init_state);
-     evgdriver->FilterUnphysical(unphysmask);
      evgdriver->UseSplines(); // will also check if all splines needed are loaded
 
      gGPool.insert( GEVGPool::value_type(init_state.AsString(), evgdriver) );
