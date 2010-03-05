@@ -31,9 +31,9 @@
  @ Sep 19, 2009 - CA
    In AssertIsValidInitState() accept any lepton, not just neutrinos. 
    Make Print() less neutrino-centric.
- @ Feb 04, 2010 - CA
-   Remove FilterUnphysical(TBits). Now flags set exclusively via the
-   GUNPHYSMASK env.var.
+ @ Mar 05, 2010 - CA
+   Remove FilterUnphysical(TBits). Flags set exclusively via GUNPHYSMASK.
+   Simplify the code cheecking whether to pass-though unphysical events.
 */
 //____________________________________________________________________________
 
@@ -318,39 +318,44 @@ EventRecord * GEVGDriver::GenerateEvent(const TLorentzVector & nu4p)
   //   returned
 
   bool unphys = fCurrentRecord->IsUnphysical();
-  if(unphys) {
-     LOG("GEVGDriver", pWARN) << "I generated an unphysical event!";
-  }
-
-  TBits evflags = *(fCurrentRecord->EventFlags());
-  TBits mask    = *(fFiltUnphysMask);
-
-  TBits flags   = evflags & (~mask);
-  bool  filter  = (flags.CountBits()>0);
-
-  if(!filter) {
-     LOG("GEVGDriver", pNOTICE) << "Returning the current event!";
-     fNRecLevel = 0;     
-     return fCurrentRecord; // The client 'adopts' the event record
+  if(!unphys) {
+       LOG("GEVGDriver", pNOTICE) << "Returning the current event!";
+       fNRecLevel = 0;     
+       return fCurrentRecord; // The client 'adopts' the event record
 
   } else {
-     LOG("GEVGDriver", pWARN) << "I am filtering out the current event!";
-     delete fCurrentRecord;
-     fCurrentRecord = 0;
-     fNRecLevel++; // increase the nested level counter
+     LOG("GEVGDriver", pWARN) << "I generated an unphysical event!";
 
-     if(fNRecLevel<=kRecursiveModeMaxDepth) {
-         LOG("GEVGDriver", pWARN) << "Attempting to regenerate the event.";
-         return this->GenerateEvent(nu4p);
+     TBits evflags = *(fCurrentRecord->EventFlags());
+     TBits mask    = *(fFiltUnphysMask);
+     TBits matched = evflags & mask;
+
+     bool pass_through  = (matched.CountBits()>0);
+     if(pass_through) {
+       LOG("GEVGDriver", pNOTICE) 
+          << "Passing through the current unphysical event!";
+       fNRecLevel = 0;     
+       return fCurrentRecord; // The client 'adopts' the event record
+
      } else {
-        LOG("GEVGDriver", pERROR)
-             << "Could not produce a physical event after "
+       LOG("GEVGDriver", pWARN) << "I am filtering out the current event!";
+       delete fCurrentRecord;
+       fCurrentRecord = 0;
+       fNRecLevel++; // increase the nested level counter
+
+       if(fNRecLevel<=kRecursiveModeMaxDepth) {
+          LOG("GEVGDriver", pWARN) << "Attempting to regenerate the event.";
+          return this->GenerateEvent(nu4p);
+       } else {
+          LOG("GEVGDriver", pERROR)
+               << "Could not produce a physical event after "
                       << kRecursiveModeMaxDepth << " attempts!";
-        delete fCurrentRecord;
-        fCurrentRecord = 0;
-        fNRecLevel = 0;
-        return 0;
-//      exit(1);
+          delete fCurrentRecord;
+          fCurrentRecord = 0;
+          fNRecLevel = 0;
+          return 0;
+//        exit(1);
+       }
      }
   }
 }
