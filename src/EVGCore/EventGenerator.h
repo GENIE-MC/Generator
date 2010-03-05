@@ -30,6 +30,7 @@
 #include "GHEP/GHepRecordHistory.h"
 
 class TStopwatch;
+class TBits;
 
 using std::vector;
 
@@ -61,13 +62,14 @@ private:
   void LoadConfig (void);
 
   //-- private data members
-  vector<const EventRecordVisitorI *> * fEVGModuleVec; ///< list of modules
-  vector<double> *                      fEVGTime;      ///< module timing info
-  const XSecAlgorithmI *                fXSecModel;    ///< xsec model for events handled by thread
-  const InteractionListGeneratorI *     fIntListGen;   ///< generates list of handled interactions
-  GVldContext *                         fVldContext;   ///< validity context
-  TStopwatch *                          fWatch;        ///< stopwatch for module timing
-  mutable GHepRecordHistory             fRecHistory;   ///< event record history 
+  vector<const EventRecordVisitorI *> * fEVGModuleVec;   ///< list of modules
+  vector<double> *                      fEVGTime;        ///< module timing info
+  const XSecAlgorithmI *                fXSecModel;      ///< xsec model for events handled by thread
+  const InteractionListGeneratorI *     fIntListGen;     ///< generates list of handled interactions
+  GVldContext *                         fVldContext;     ///< validity context
+  TStopwatch *                          fWatch;          ///< stopwatch for module timing
+  TBits *                               fFiltUnphysMask; ///< mask for allowing unphysical events to pass through (if requested)
+  mutable GHepRecordHistory             fRecHistory;     ///< event record history 
 };
 
 }      // genie namespace

@@ -5,11 +5,14 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - October 03, 2004
+         STFC, Rutherford Appleton Laboratory 
 
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
+ @ Mar 05, 2010 - CA
+   User options regarding whether to pass-through unphysical events take
+   precedence over processing instructions read from caught exception.
 
 */
 //____________________________________________________________________________
@@ -20,6 +23,8 @@
 #include <algorithm>
 
 #include <TMath.h>
+#include <TBits.h>
+#include <TSystem.h>
 #include <TStopwatch.h>
 
 #include "Algorithm/AlgConfigPool.h"
@@ -31,6 +36,7 @@
 #include "EVGCore/GVldContext.h"
 #include "GHEP/GHepVirtualListFolder.h"
 #include "GHEP/GHepRecord.h"
+#include "GHEP/GHepFlags.h"
 #include "Messenger/Messenger.h"
 #include "Utils/PrintUtils.h"
 
@@ -57,6 +63,7 @@ EventGeneratorI("genie::EventGenerator", config)
 EventGenerator::~EventGenerator()
 {
   delete fWatch;
+  delete fFiltUnphysMask;
 
   if(fEVGModuleVec) delete fEVGModuleVec;
   if(fEVGTime)      delete fEVGTime;
@@ -121,9 +128,37 @@ void EventGenerator::ProcessEventRecord(GHepRecord * event_rec) const
       if ( nexceptions > kMaxEVGThreadExceptions ) {
          LOG("EventGenerator", pFATAL)
            << "Caught max allowed number (" << kMaxEVGThreadExceptions
-                           << ") of EVGThreadExceptions/thread. Aborting";
+           << ") of EVGThreadExceptions/thread. Aborting";
          exit(1);
       }
+
+      //
+      // What should I do with this exception?
+      // Check whether the user wants to get this unphysical event anyway by
+      // comparing the event err bits against the GUNPHYSMASK env.var.
+      // If not, follow instructions coming with the instruction:
+      // Either step back to a particular processing step and try re-generating
+      // the event or pass it through
+      //
+
+      // check whether user wants this type of unphysical events passed through
+      if( event_rec->IsUnphysical() ) {
+         TBits evflags = *(event_rec->EventFlags());
+         TBits mask    = *(fFiltUnphysMask);
+         TBits matched = evflags & mask;
+/*
+         LOG("EventGenerator", pDEBUG) << "event flags: " << evflags;
+         LOG("EventGenerator", pDEBUG) << "mask       : " << mask;
+         LOG("EventGenerator", pDEBUG) << "matched    : " << matched;
+*/
+         bool pass_through  = (matched.CountBits()>0);
+         if(pass_through) {
+           LOG("EventGenerator", pINFO) << "Passing-through unphysical event";
+           break;
+         }
+      }
+
+      // now, follow instructions contained in the exception itself
 
       // make sure we are not asked to go at both directions...
       assert( !(exception.FastForward() && exception.StepBack()) );
@@ -209,6 +244,24 @@ void EventGenerator::Init(void)
   fEVGTime      = 0;
   fXSecModel    = 0;
   fIntListGen   = 0;
+
+  fFiltUnphysMask = new TBits(GHepFlags::NFlags());
+  fFiltUnphysMask->ResetAllBits(false);
+
+  if (gSystem->Getenv("GUNPHYSMASK")) {
+     unsigned int i=0;
+     const char * bitfield = gSystem->Getenv("GUNPHYSMASK");
+
+     while(bitfield[i]) {
+        bool flag = (bitfield[i]=='1');
+
+        if(i<GHepFlags::NFlags()) fFiltUnphysMask->SetBitNumber(i,flag);
+        i++;
+     }
+  }
+  LOG("EventGenerator", pDEBUG)
+    << "Initializing unphysical event mask (" << GHepFlags::NFlags()
+    << "->0) = " << *fFiltUnphysMask;
 }
 //___________________________________________________________________________
 void EventGenerator::LoadConfig(void)
