@@ -338,6 +338,8 @@
 #include <TMath.h>
 #include <TGeoVolume.h>
 #include <TGeoShape.h>
+#include <TList.h>
+#include <TObject.h>
 
 #include "Conventions/Units.h"
 #include "EVGCore/EventRecord.h"
@@ -366,6 +368,8 @@
 #include "Geo/ROOTGeomAnalyzer.h"
 #include "Geo/PointGeomAnalyzer.h"
 #endif
+
+#include "gT2KEvGenMetaData.h"
 
 using std::string;
 using std::vector;
@@ -515,7 +519,7 @@ int main(int argc, char ** argv)
     map<int,TH1D*>::iterator it = gOptFluxHst.begin();
     for( ; it != gOptFluxHst.end(); ++it) {
         int    pdg_code = it->first;
-        TH1D * spectrum = it->second;
+        TH1D * spectrum = new TH1D(*(it->second));
         hst_flux_driver->AddEnergySpectrum(pdg_code, spectrum);
     }
     // casting to the GENIE flux driver interface
@@ -686,6 +690,27 @@ int main(int argc, char ** argv)
 
     ntpw.EventTree()->SetWeight(pot); // POT
   }
+
+  // *************************************************************************
+  // * MC job meta-data
+  // *************************************************************************
+
+  gT2KEvGenMetaData * metadata = new gT2KEvGenMetaData;
+
+  metadata -> jnubeam_version    = ((gOptUsingHistFlux) ? 
+                                    "" : jparc_flux_driver->FluxVersion());
+  metadata -> jnubeam_file       = gOptFluxFile;
+  metadata -> detector_location  = gOptDetectorLocation;
+  metadata -> geom_file          = gOptRootGeom;
+  metadata -> geom_top_volume    = gOptRootGeomTopVol;
+  metadata -> geom_length_units  = gOptGeomLUnits;
+  metadata -> geom_density_units = gOptGeomDUnits;
+  metadata -> using_root_geom    = gOptUsingRootGeom;
+  metadata -> target_mix         = gOptTgtMix;
+  metadata -> using_hist_flux    = gOptUsingHistFlux; 
+  metadata -> flux_hists         = gOptFluxHst;
+
+  ntpw.EventTree()->GetUserInfo()->Add(metadata);
 
   // *************************************************************************
   // * Save & clean-up
@@ -943,13 +968,20 @@ void GetCommandLineArgs(int argc, char ** argv)
                 exit(1);
             }
             // create a local copy of the input histogram
+            TString origname = ihst->GetName();
+            TString tmpname; tmpname.Form("%s_", origname.Data());
             TH1D * spectrum = new TH1D(
-                 histo.c_str(), histo.c_str(), ihst->GetNbinsX(),  
+                 tmpname.Data(), ihst->GetName(), ihst->GetNbinsX(),  
                  ihst->GetXaxis()->GetXmin(), ihst->GetXaxis()->GetXmax());
             spectrum->SetDirectory(0);
             for(int ibin = 1; ibin <= ihst->GetNbinsX(); ibin++) {
                spectrum->SetBinContent(ibin, ihst->GetBinContent(ibin));
             }
+            // get rid of original
+            delete ihst;
+            // rename copy
+            spectrum->SetName(origname.Data());          
+
             // convert neutrino name -> pdg code
             int pdg = atoi(nutype.c_str());
             if(!pdg::IsNeutrino(pdg) && !pdg::IsAntiNeutrino(pdg)) {
@@ -1197,3 +1229,4 @@ void PrintSyntax(void)
    << "\n";
 }
 //____________________________________________________________________________
+
