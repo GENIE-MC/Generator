@@ -58,6 +58,16 @@
    In GenerateNext_weighted() Moved the code updating the number of neutrinos
    and sum of weights higher so that force-rejected flux neutrinos still
    count for normalization purposes.
+ @ March 6, 2010 - JD
+   Made compatible with 10a version of jnubeam flux. Maintained compatibility 
+   with 07a version. This involved finding a few more branches - now look for 
+   all branches and only use them if they exist. Also added check for required 
+   branches. GJPARCNuFluxPassThroughInfo class now passes through flux info in 
+   identical format as given in flux file. Any conversions to more usable 
+   format happen at later stage (gNtpConv.cxx). In addition also store the flux
+   entry unmber for current neutrino and the deduced flux version.
+   Changed method to search for maximum flux weight to avoid seg faults when 
+   have large number of flux entries in a file (~1.5E6). 
 */
 //____________________________________________________________________________
 
@@ -274,28 +284,29 @@ bool GJPARCNuFlux::GenerateNext_weighted(void)
         << "\n p4: " << utils::print::P4AsShortString(&fgP4)
         << "\n x4: " << utils::print::X4AsString(&fgX4);
 #endif
-
   // Update pass-through info (= info on the flux neutrino parent particle 
   // that may be stored at an extra branch of the output event tree -alongside 
   // with the generated event branch- for use further upstream in the t2k 
   // analysis chain -eg for beam reweighting etc-)
-  fPassThroughInfo -> pdg       = pdg::GeantToPdg(fLfPpid);
-  fPassThroughInfo -> decayMode = fLfMode;
-  fPassThroughInfo -> decayP    = fLfPpi;
-  fPassThroughInfo -> decayX    = fLfXpi[0];
-  fPassThroughInfo -> decayY    = fLfXpi[1];
-  fPassThroughInfo -> decayZ    = fLfXpi[2];
-  fPassThroughInfo -> decayDirX = fLfNpi[0];
-  fPassThroughInfo -> decayDirY = fLfNpi[1];
-  fPassThroughInfo -> decayDirZ = fLfNpi[2];
-  fPassThroughInfo -> prodP     = fLfPpi0;
-  fPassThroughInfo -> prodX     = fLfXpi0[0];
-  fPassThroughInfo -> prodY     = fLfXpi0[1];
-  fPassThroughInfo -> prodZ     = fLfXpi0[2];
-  fPassThroughInfo -> prodDirX  = fLfNpi0[0];
-  fPassThroughInfo -> prodDirY  = fLfNpi0[1];
-  fPassThroughInfo -> prodDirZ  = fLfNpi0[2];
-  fPassThroughInfo -> prodNVtx  = (int) fLfNVtx0;
+  fPassThroughInfo -> fluxentry= fIEntry-1; // Offset required so that start at 0 
+  fPassThroughInfo -> ppid     = fLfPpid; 
+  fPassThroughInfo -> mode     = fLfMode; 
+  fPassThroughInfo -> ppi      = fLfPpi; 
+  fPassThroughInfo -> ppi0     = fLfPpi0;  
+  fPassThroughInfo -> nvtx0    = (int) fLfNVtx0;
+  fPassThroughInfo -> cospibm  = fLfCospibm;
+  fPassThroughInfo -> cospi0bm = fLfCospi0bm;
+  fPassThroughInfo -> idfd     = fLfIdfd;
+  fPassThroughInfo -> gamom0 = fLfGamom0;
+  fPassThroughInfo -> gipart = (int) fLfGipart;
+  for(int i = 0; i < 3; i++){
+    fPassThroughInfo -> xpi[i]   = fLfXpi[i];
+    fPassThroughInfo -> npi[i]   = fLfNpi[i];
+    fPassThroughInfo -> xpi0[i]  = fLfXpi0[i];
+    fPassThroughInfo -> npi0[i]  = fLfNpi0[i];
+    fPassThroughInfo -> gpos0[i] = fLfGpos0[i];
+    fPassThroughInfo -> gvec0[i] = fLfGvec0[i];
+  }
 
   return true;
 }
@@ -364,9 +375,9 @@ void GJPARCNuFlux::LoadBeamSimData(string filename, string detector_location)
   fDetLocId = this->DLocName2Id(fDetLoc);  
 
   if(fDetLocId == 0) {
-     LOG("Flux", pERROR) 
-          << " ** Unknown input detector location: " << fDetLoc;
-     return;
+    LOG("Flux", pERROR) 
+         << " ** Unknown input detector location: " << fDetLoc;
+    return;
   }
 
   fIsFDLoc = (fDetLocId==-1);
@@ -374,18 +385,23 @@ void GJPARCNuFlux::LoadBeamSimData(string filename, string detector_location)
 
   fNuFluxFile = new TFile(filename.c_str(), "read");
   if(fNuFluxFile) {
-      string ntuple_name = (fIsNDLoc) ? "h3001" : "h2000";
-      LOG("Flux", pINFO) 
-           << "Getting flux tree: " << ntuple_name;
+    // nd treename can be h3002 or h3001 depending on fluxfile version
+    string ntuple_name = (fIsNDLoc) ? "h3002" : "h2000";
+    fNuFluxTree = (TTree*) fNuFluxFile->Get(ntuple_name.c_str());
+    if(!fNuFluxTree && fIsNDLoc){
+      ntuple_name = "h3001";
       fNuFluxTree = (TTree*) fNuFluxFile->Get(ntuple_name.c_str());
-      if(!fNuFluxTree) {
-          LOG("Flux", pERROR) 
-             << "** Couldn't get flux tree: " << ntuple_name;
-          return;
-      }
-  } else {
-      LOG("Flux", pERROR) << "** Couldn't open: " << filename;
+    }
+    LOG("Flux", pINFO)   
+     << "Getting flux tree: " << ntuple_name;
+    if(!fNuFluxTree) {
+      LOG("Flux", pERROR) 
+        << "** Couldn't get flux tree: " << ntuple_name;
       return;
+    }
+  } else {
+    LOG("Flux", pERROR) << "** Couldn't open: " << filename;
+    return;
   }
 
   fNEntries = fNuFluxTree->GetEntries();
@@ -395,82 +411,85 @@ void GJPARCNuFlux::LoadBeamSimData(string filename, string detector_location)
   LOG("Flux", pDEBUG) 
       << "Getting tree branches & setting leaf addresses";
 
-  // the following branches can be found in both 'sk' and 'nd' flux ntuples
-  fBrNorm       = fNuFluxTree -> GetBranch ("norm");
-  fBrEnu        = fNuFluxTree -> GetBranch ("Enu");
-  fBrPpid       = fNuFluxTree -> GetBranch ("ppid");
-  fBrMode       = fNuFluxTree -> GetBranch ("mode");
-  fBrPpi        = fNuFluxTree -> GetBranch ("ppi");
-  fBrXpi        = fNuFluxTree -> GetBranch ("xpi");
-  fBrNpi        = fNuFluxTree -> GetBranch ("npi");
-  fBrCospibm    = fNuFluxTree -> GetBranch ("cospibm");
-  fBrPpi0       = fNuFluxTree -> GetBranch ("ppi0");
-  fBrXpi0       = fNuFluxTree -> GetBranch ("xpi0");
-  fBrNpi0       = fNuFluxTree -> GetBranch ("npi0");
-  // the following branches can be found only in 'nd' flux ntuples
-  if(fIsNDLoc) {
-    fBrIdfd     = fNuFluxTree -> GetBranch ("idfd");
-    fBrRnu      = fNuFluxTree -> GetBranch ("rnu");
-    fBrXnu      = fNuFluxTree -> GetBranch ("xnu");
-    fBrYnu      = fNuFluxTree -> GetBranch ("ynu");
-    fBrNnu      = fNuFluxTree -> GetBranch ("nnu");
-    fBrCospi0bm = fNuFluxTree -> GetBranch ("cospi0bm");
+  // try to get all the branches that we know about and only set address if
+  // they exist
+  if( (fBrNorm = fNuFluxTree->GetBranch("norm" )) ) fBrNorm->SetAddress(&fLfNorm);
+  else LOG("Flux", pFATAL)
+        <<"Cannot find flux branch: norm";
+  if( (fBrEnu  = fNuFluxTree->GetBranch("Enu"  )) ) fBrEnu->SetAddress(&fLfEnu);
+  else LOG("Flux", pFATAL)
+        <<"Cannot find flux branch: Enu";  
+  if( (fBrPpid = fNuFluxTree->GetBranch("ppid" )) ) fBrPpid->SetAddress(&fLfPpid);
+  else LOG("Flux", pFATAL)
+        <<"Cannot find flux branch: ppid"; 
+  if( (fBrMode = fNuFluxTree->GetBranch("mode" )) ) fBrMode->SetAddress(&fLfMode);
+  else LOG("Flux", pFATAL)
+        <<"Cannot find flux branch: mode"; 
+  if( (fBrRnu  = fNuFluxTree->GetBranch("rnu"  )) ) fBrRnu->SetAddress(&fLfRnu);
+  else if(fIsNDLoc) LOG("Flux", pFATAL)
+        <<"Cannot find flux branch: rnu"; 
+  if( (fBrXnu  = fNuFluxTree->GetBranch("xnu"  )) ) fBrXnu->SetAddress(&fLfXnu);
+  else if(fIsNDLoc) LOG("Flux", pFATAL)
+        <<"Cannot find flux branch: xnu"; 
+  if( (fBrYnu  = fNuFluxTree->GetBranch("ynu"  )) ) fBrYnu->SetAddress(&fLfYnu);
+  else if(fIsNDLoc) LOG("Flux", pFATAL)
+        <<"Cannot find flux branch: ynu"; 
+  if( (fBrNnu  = fNuFluxTree->GetBranch("nnu"  )) ) fBrNnu->SetAddress(fLfNnu);
+  else if(fIsNDLoc) LOG("Flux", pFATAL)
+        <<"Cannot find flux branch: nnu"; 
+  if( (fBrIdfd = fNuFluxTree->GetBranch("idfd" )) ) fBrIdfd->SetAddress(&fLfIdfd);
+  else if(fIsNDLoc) LOG("Flux", pFATAL)
+        <<"Cannot find flux branch: idfd"; 
+  // check that have found essential branches
+  if((fBrEnu && fBrPpid && fBrMode &&  
+     ((fBrRnu && fBrXnu && fBrYnu && fBrNnu && fBrIdfd) || !fIsNDLoc))==false){
+    LOG("Flux", pFATAL)
+     << "Unable to find critical information in the flux ntuple! Initialization failed!";
+    exit(1);
   }
-  // the following branches can be found only in 'fd' flux ntuples
-  if(fIsFDLoc) {
-    fBrNVtx0    = fNuFluxTree -> GetBranch ("nvtx0");
-  }
+  if( (fBrPpi      = fNuFluxTree->GetBranch("ppi"     )) ) fBrPpi->SetAddress(&fLfPpi);
+  if( (fBrXpi      = fNuFluxTree->GetBranch("xpi"     )) ) fBrXpi->SetAddress(fLfXpi);
+  if( (fBrNpi      = fNuFluxTree->GetBranch("npi"     )) ) fBrNpi->SetAddress(fLfNpi);
+  if( (fBrPpi0     = fNuFluxTree->GetBranch("ppi0"    )) ) fBrPpi0->SetAddress(&fLfPpi0);
+  if( (fBrXpi0     = fNuFluxTree->GetBranch("xpi0"    )) ) fBrXpi0->SetAddress(fLfXpi0);
+  if( (fBrNpi0     = fNuFluxTree->GetBranch("npi0"    )) ) fBrNpi0->SetAddress(fLfNpi0);
+  if( (fBrNVtx0    = fNuFluxTree->GetBranch("nvtx0"   )) ) fBrNVtx0->SetAddress(&fLfNVtx0);
+  if( (fBrCospibm  = fNuFluxTree->GetBranch("cospibm" )) ) fBrCospibm->SetAddress(&fLfCospibm);
+  if( (fBrCospi0bm = fNuFluxTree->GetBranch("cospi0bm")) ) fBrCospi0bm->SetAddress(&fLfCospi0bm);
+  if( (fBrGamom0   = fNuFluxTree->GetBranch("gamom0"  )) ) fBrGamom0->SetAddress(&fLfGamom0);
+  if( (fBrGipart   = fNuFluxTree->GetBranch("gipart"  )) ) fBrGipart->SetAddress(&fLfGipart);
+  if( (fBrGvec0    = fNuFluxTree->GetBranch("gvec0"   )) ) fBrGvec0->SetAddress(fLfGvec0);
+  if( (fBrGpos0    = fNuFluxTree->GetBranch("gpos0"   )) ) fBrGpos0->SetAddress(fLfGpos0);
 
-  // set the leaf addresses for the above branches
-  fBrNorm      -> SetAddress (&fLfNorm);
-  fBrEnu       -> SetAddress (&fLfEnu);
-  fBrPpid      -> SetAddress (&fLfPpid);
-  fBrMode      -> SetAddress (&fLfMode);
-  fBrPpi       -> SetAddress (&fLfPpi);
-  fBrXpi       -> SetAddress ( fLfXpi);
-  fBrNpi       -> SetAddress ( fLfNpi);
-  fBrCospibm   -> SetAddress (&fLfCospibm);
-  fBrPpi0      -> SetAddress (&fLfPpi0);
-  fBrXpi0      -> SetAddress ( fLfXpi0);
-  fBrNpi0      -> SetAddress ( fLfNpi0);
-  if(fIsNDLoc) {
-    fBrIdfd    -> SetAddress (&fLfIdfd);
-    fBrRnu     -> SetAddress (&fLfRnu);
-    fBrXnu     -> SetAddress (&fLfXnu);
-    fBrYnu     -> SetAddress (&fLfYnu);
-    fBrNnu     -> SetAddress ( fLfNnu);
-    fBrCospi0bm-> SetAddress (&fLfCospi0bm);
-  }
-  if(fIsFDLoc) {
-    fBrNVtx0   -> SetAddress (&fLfNVtx0);
-  }
+  // deduce if have 07a or 10a flux files. Not used in any logic and is just for record
+  fFluxVersion = "10a";
+  if(fNuFluxTree -> GetBranch("gamom0") == NULL) fFluxVersion = "07a";
+  LOG("Flux", pNOTICE)
+      << "Have flux version: " <<  fFluxVersion.c_str();
 
   // current ntuple cycle # (flux ntuples may be recycled)
   fICycle = 1;
 
-  // scan for the maximum weight  
-  fNuFluxTree->Draw("norm","","goff");
-  Long64_t idx = TMath::LocMax(
-                     fNuFluxTree->GetSelectedRows(),
-                     fNuFluxTree->GetV1());
-  fMaxWeight = fNuFluxTree->GetV1()[idx];
-  LOG("Flux", pNOTICE) << "Maximum flux weight = " << fMaxWeight; 
-  if(fMaxWeight <=0 ) {
-      LOG("Flux", pFATAL) << "Non-positive maximum flux weight!";
-      exit(1);
-  }
-
   // sum-up weights & number of neutrinos for the specified location
-  // over a complete cycle
+  // over a complete cycle. Also record the maximum weight as previous
+  // method using TTree::GetV1() seg faulted for more than ~1.5E6 entries
   fSumWeightTot1c  = 0;
   fNNeutrinosTot1c = 0;
   for(int ientry = 0; ientry < fNEntries; ientry++) {
      fNuFluxTree->GetEntry(ientry);
+     // update maximum weight
+     fMaxWeight = TMath::Max(fMaxWeight, (double) fLfNorm); 
      // compare detector location (see GenerateNext_weighted() for details)
      if(fIsNDLoc && fDetLocId!=fLfIdfd) continue;
      fSumWeightTot1c += this->Weight();
      fNNeutrinosTot1c++;
   }
+  LOG("Flux", pNOTICE) << "Maximum flux weight = " << fMaxWeight;  
+  if(fMaxWeight <=0 ) {
+      LOG("Flux", pFATAL) << "Non-positive maximum flux weight!";
+      exit(1);
+  }
+
   LOG("Flux", pINFO)
     << "Totals / cycle: #neutrinos = " << fNNeutrinosTot1c 
     << ", Sum{Weights} = " << fSumWeightTot1c;
@@ -534,6 +553,7 @@ void GJPARCNuFlux::Initialize(void)
   fPassThroughInfo = new GJPARCNuFluxPassThroughInfo;
 
   fNuFluxFile      = 0;
+  fFluxVersion     = "";
   fNuFluxTree      = 0;
   fDetLoc          = "";
   fDetLocId        = 0;
@@ -570,6 +590,11 @@ void GJPARCNuFlux::Initialize(void)
   fBrNpi0          = 0;
   fBrCospi0bm      = 0;
   fBrNVtx0         = 0;
+  fBrGipart        = 0;
+  fBrGpos0         = 0;
+  fBrGvec0         = 0;
+  fBrGamom0        = 0;
+
 
   this->SetDefaults();
   this->ResetCurrent();
@@ -611,24 +636,30 @@ void GJPARCNuFlux::ResetCurrent(void)
   fgP4.SetPxPyPzE (0.,0.,0.,0.);
   fgX4.SetXYZT    (0.,0.,0.,0.);
 
-  fLfNorm     = 0;          
-  fLfIdfd     = 0;   
   fLfEnu      = 0;  
+  fLfPpid     = 0;          
+  fLfMode     = 0;          
+  fLfPpi      = 0;          
+  fLfNorm     = 0;          
+  fLfCospibm  = 0;       
+  fLfNVtx0    = 0;       
+  fLfPpi0     = 0;          
+  fLfIdfd     = 0;
   fLfRnu      = 0;    
   fLfXnu      = 0;    
   fLfYnu      = 0;          
-  for(int i=0; i<3; i++) fLfNnu[i] = 0;       
-  fLfPpid     = 0;          
-  fLfMode     = 0;          
-  fLfPpi      = 0;           
-  for(int i=0; i<3; i++) fLfXpi[i] = 0;      
-  for(int i=0; i<3; i++) fLfNpi[i] = 0;        
-  fLfCospibm  = 0;       
-  fLfPpi0     = 0;          
-  for(int i=0; i<3; i++) fLfXpi0[i] = 0;    
-  for(int i=0; i<3; i++) fLfNpi0[i] = 0;    
   fLfCospi0bm = 0;       
-  fLfNVtx0    = 0;       
+  fLfGipart   = 0;
+  fLfGamom0   = 0;
+  for(int i=0; i<3; i++){
+    fLfNnu[i] = 0.;       
+    fLfXpi[i] = -999.999;      
+    fLfNpi[i] = 0.;        
+    fLfXpi0[i] = -999.999;    
+    fLfNpi0[i] = 0.;    
+    fLfGpos0[i] = -999.999;    
+    fLfGvec0[i] = 0.;
+  }    
 }
 //___________________________________________________________________________
 void GJPARCNuFlux::CleanUp(void)
@@ -668,49 +699,48 @@ int GJPARCNuFlux::DLocName2Id(string name)
 }
 //___________________________________________________________________________
 GJPARCNuFluxPassThroughInfo::GJPARCNuFluxPassThroughInfo() :
-TObject(),
-pdg       (0),
-decayMode (0),
-decayP    (0.),
-decayX    (0.),
-decayY    (0.), 
-decayZ    (0.), 
-decayDirX (0.), 
-decayDirY (0.), 
-decayDirZ (0.),
-prodP     (0.), 
-prodX     (0.), 
-prodY     (0.),  
-prodZ     (0.),  
-prodDirX  (0.),  
-prodDirY  (0.),  
-prodDirZ  (0.),
-prodNVtx  (0)
+TObject()
 {
-
+  fluxentry = -1;
+  ppid      = 0;
+  mode      = 0;
+  ppi       = 0.;
+  ppi0      = 0.;
+  nvtx0     = 0;
+  cospibm   = 0.; 
+  cospi0bm  = 0.; 
+  idfd      = 0;
+  gamom0    = 0.;
+  gipart    = -1;
+  for(int i = 0; i<3; i++){ 
+    xpi[i] = xpi0[i] = gpos0[i] = -999.999;
+    npi[i]  = npi0[i] = gvec0[i] = 0.;
+  }
 }
 //___________________________________________________________________________
 GJPARCNuFluxPassThroughInfo::GJPARCNuFluxPassThroughInfo(
                         const GJPARCNuFluxPassThroughInfo & info) :
-TObject(),
-pdg       (info.pdg),
-decayMode (info.decayMode),
-decayP    (info.decayP),
-decayX    (info.decayX),
-decayY    (info.decayY), 
-decayZ    (info.decayZ), 
-decayDirX (info.decayDirX), 
-decayDirY (info.decayDirY), 
-decayDirZ (info.decayDirZ),
-prodP     (info.prodP), 
-prodX     (info.prodX), 
-prodY     (info.prodY),  
-prodZ     (info.prodZ),  
-prodDirX  (info.prodDirX),  
-prodDirY  (info.prodDirY),  
-prodDirZ  (info.prodDirZ),
-prodNVtx  (info.prodNVtx)
+TObject()
 {
+  fluxentry  = info.fluxentry;
+  ppid       = info.ppid;
+  mode       = info.mode;
+  ppi        = info.ppi;
+  ppi0       = info.ppi0; 
+  nvtx0      = info.nvtx0;
+  cospibm    = info.cospibm;
+  cospi0bm   = info.cospi0bm;
+  idfd       = info.idfd;
+  gamom0     = info.gamom0;
+  gipart     = info.gipart;
+  for(int i = 0; i<3; i++){
+    xpi[i] = info.xpi[i];
+    xpi0[i] = info.xpi0[i];
+    gpos0[i] = info.gpos0[i];
+    npi[i]  = info.npi[i];
+    npi0[i] = info.npi0[i];
+    gvec0[i] = info.gvec0[i];
+  }
 
 }
 //___________________________________________________________________________
@@ -719,30 +749,35 @@ namespace flux  {
   ostream & operator << (
     ostream & stream, const genie::flux::GJPARCNuFluxPassThroughInfo & info) 
     {
-      stream << "\n pdg code   = " << info.pdg   
-             << "\n decay mode = " << info.decayMode 
-             << "\n |momentum| @ decay       = " << info.decayP    
+      stream << "\n idfd       = " << info.idfd
+             << "\n flux entry = " << info.fluxentry
+             << "\n geant code = " << info.ppid
+             << "\n (pdg code) = " << pdg::GeantToPdg(info.ppid)   
+             << "\n decay mode = " << info.mode
+             << "\n nvtx0      = " << info.nvtx0
+             << "\n |momentum| @ decay       = " << info.ppi    
              << "\n position_vector @ decay  = (" 
-                 << info.decayX << ", " 
-                 << info.decayY << ", " 
-                 << info.decayZ  << ")"
+                 << info.xpi[0] << ", " 
+                 << info.xpi[1] << ", " 
+                 << info.xpi[2]  << ")"
              << "\n direction_vector @ decay = (" 
-                 << info.decayDirX << ", " 
-                 << info.decayDirY << ", " 
-                 << info.decayDirZ  << ")"
-             << "\n |momentum| @ prod.       = " << info.prodP    
+                 << info.npi[0] << ", " 
+                 << info.npi[1] << ", " 
+                 << info.npi[2]  << ")"
+             << "\n |momentum| @ prod.       = " << info.ppi0 
              << "\n position_vector @ prod.  = (" 
-                 << info.prodX << ", " 
-                 << info.prodY << ", " 
-                 << info.prodZ  << ")"
+                 << info.xpi0[0] << ", " 
+                 << info.xpi0[1] << ", " 
+                 << info.xpi0[2]  << ")"
              << "\n direction_vector @ prod. = (" 
-                 << info.prodDirX << ", " 
-                 << info.prodDirY << ", " 
-                 << info.prodDirZ  << ")"
-             << "\n parent produced in vtx num (fd only) = " << info.prodNVtx
+                 << info.npi0[0] << ", " 
+                 << info.npi0[1] << ", " 
+                 << info.npi0[2]  << ")"
+             << "\n cospibm = " << info.cospibm
+             << "\n cospi0bm = " << info.cospi0bm
              << endl;
 
-     return stream;
+    return stream;
   }
 }//flux 
 }//genie

@@ -28,6 +28,7 @@
 
 #include <TLorentzVector.h>
 #include <TVector3.h>
+#include <TH1D.h>
 
 #include "EVGDrivers/GFluxI.h"
 #include "PDG/PDGUtils.h"
@@ -79,6 +80,7 @@ public :
   double   POT_curravg    (void);                              ///< current average POT
   long int NFluxNeutrinos (void) const { return fNNeutrinos; } ///< number of flux neutrinos looped so far
   double   SumWeight      (void) const { return fSumWeight;  } ///< intergated weight for flux neutrinos looped so far
+  string   FluxVersion    (void) const { return fFluxVersion;} ///< return the string describing the current flux version
 
 
   const GJPARCNuFluxPassThroughInfo & 
@@ -122,10 +124,13 @@ private:
   double    fSumWeightTot1c;   ///< total sum of weights for neutrinos to be thrown / cycle
   long int  fNNeutrinosTot1c;  ///< total number of flux neutrinos to be thrown / cycle
 
+  string    fFluxVersion;      ///< string representing current flux version, e.g., "07a", "10a", etc...
+
   //-- jnubeam ntuple branches
   //   branches marked with [f] can be found in SK flux ntuples only
   //   branches marked with [n] can be found in near detector flux ntuples only
   //   branches marked with [a] can be found in both ntuples
+  //   branches marked with [10a] first appeared in JNUBEAM version 10a flux ntuples
   TBranch * fBrNorm;           ///< 'norm'     branch [a]: Weight to give flux in /N POT/det. [ND] or /N POT/cm^2 [FD], where is N is typically 1E+21
   TBranch * fBrIdfd;           ///< 'idfd'     branch [n]: Detector ID
   TBranch * fBrEnu;            ///< 'Enu'      branch [a]: Nu energy (GeV)
@@ -144,6 +149,11 @@ private:
   TBranch * fBrNpi0;           ///< 'npi0'     branch [a]: Nu parent direction vector at production (in t2k global coord system)
   TBranch * fBrCospi0bm;       ///< 'cospi0bm' branch [n]: Nu parent direction cosine at production (with respect to the beam direction)
   TBranch * fBrNVtx0;          ///< 'nvtx0'    branch [f]: Number of vtx where the nu. parent was produced
+  TBranch * fBrGipart;         ///< 'gipart'   branch [a][10a]: Primary particle ID
+  TBranch * fBrGpos0;          ///< 'gpos0'    branch [a][10a]: Primary particle starting point
+  TBranch * fBrGvec0;          ///< 'gvec0'    branch [a][10a]: Primary particle direction at the starting point
+  TBranch * fBrGamom0;         ///< 'gamom0'   branch [a][10a]: Momentum of the primary particle at the starting point
+
   float     fLfNorm;           ///< leaf on branch 'norm'
   int       fLfIdfd;           ///< leaf on branch 'idfd'
   float     fLfEnu;            ///< leaf on branch 'Enu'
@@ -161,8 +171,12 @@ private:
   float     fLfXpi0[3];        ///< leaf on branch 'xpi0'
   float     fLfNpi0[3];        ///< leaf on branch 'npi0'
   float     fLfCospi0bm;       ///< leaf on branch 'cospi0bm'
-  float     fLfNVtx0;          ///< leaf on branch 'nvtx0'
-
+  int       fLfNVtx0;          ///< leaf on branch 'nvtx0'
+  float     fLfGpos0[3];       ///< leaf on branch 'gpos0'
+  float     fLfGvec0[3];       ///< leaf on branch 'gvec0'
+  float     fLfGamom0;         ///< leaf on branch 'gamom0'
+  unsigned char fLfGipart;     ///< leaf on branch 'gipart'
+  
   GJPARCNuFluxPassThroughInfo * fPassThroughInfo;
 };
 
@@ -179,15 +193,23 @@ public:
 
    friend ostream & operator << (ostream & stream, const GJPARCNuFluxPassThroughInfo & info);
 
-   int    pdg;
-   int    decayMode;
-   double decayP;
-   double decayX, decayY, decayZ;
-   double decayDirX, decayDirY, decayDirZ;
-   double prodP;
-   double prodX,  prodY,  prodZ;
-   double prodDirX,  prodDirY,  prodDirZ;
-   int    prodNVtx;
+   long   fluxentry;
+   int    ppid;
+   int    mode;
+   float  ppi;
+   float  xpi[3];
+   float  npi[3];
+   float  ppi0;
+   float  xpi0[3];
+   float  npi0[3];
+   int    nvtx0;
+   float  cospibm;
+   float  cospi0bm;
+   int    idfd;
+   float  gpos0[3];
+   float  gvec0[3];
+   float  gamom0;
+   int    gipart; 
 
 ClassDef(GJPARCNuFluxPassThroughInfo,1)
 };
