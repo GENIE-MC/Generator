@@ -1299,14 +1299,7 @@ void ConvertToGTracker(void)
       // $ info 0 pdg_code status_code first_daughter last_daughter first_mother last_mother px py pz E x y z t polx poly polz 
       // $ info 1 pdg_code status_code first_daughter last_daughter first_mother last_mother px py pz E x y z t polx poly polz 
       // ... ... ...
-      // $ info k pdg_code status_code first_daughter last_daughter first_mother last_mother px py pz E x y z t polx poly polz 
-      // ... ... ...
-      // $ info jnubeam_parent_pdg_code jnubeam_parent_decay_mode
-      // $ info jnubeam_parent_decay_px jnubeam_parent_decay_py jnubeam_parent_decay_pz jnubeam_parent_decay_E
-      // $ info jnubeam_parent_decay_x jnubeam_parent_decay_y jnubeam_parent_decay_z jnubeam_parent_decay_t
-      // $ info jnubeam_parent_prod_px jnubeam_parent_prod_py jnubeam_parent_prod_pz jnubeam_parent_prod_E
-      // $ info jnubeam_parent_prod_x jnubeam_parent_prod_y jnubeam_parent_prod_z jnubeam_parent_prod_t
-      // $ info jnubeam_parent_nvtx
+      // $ info n pdg_code status_code first_daughter last_daughter first_mother last_mother px py pz E x y z t polx poly polz 
       //
       // version 2:
       //
@@ -1318,18 +1311,9 @@ void ConvertToGTracker(void)
       // $ info 0 pdg_code status_code first_daughter last_daughter first_mother last_mother px py pz E x y z t polx poly polz rescatter_code
       // $ info 1 pdg_code status_code first_daughter last_daughter first_mother last_mother px py pz E x y z t polx poly polz rescatter_code
       // ... ... ...
-      // $ info k pdg_code status_code first_daughter last_daughter first_mother last_mother px py pz E x y z t polx poly polz rescatter_code
-      // ... ... ...
-      // $ info jnubeam_parent_pdg_code jnubeam_parent_decay_mode
-      // $ info jnubeam_parent_decay_px jnubeam_parent_decay_py jnubeam_parent_decay_pz jnubeam_parent_decay_E
-      // $ info jnubeam_parent_decay_x jnubeam_parent_decay_y jnubeam_parent_decay_z jnubeam_parent_decay_t
-      // $ info jnubeam_parent_prod_px jnubeam_parent_prod_py jnubeam_parent_prod_pz jnubeam_parent_prod_E
-      // $ info jnubeam_parent_prod_x jnubeam_parent_prod_y jnubeam_parent_prod_z jnubeam_parent_prod_t
-      // $ info jnubeam_parent_nvtx
+      // $ info n pdg_code status_code first_daughter last_daughter first_mother last_mother px py pz E x y z t polx poly polz rescatter_code
       //
       // Comments:
-      // - The jnubeam lines may not always be available (eg if event generation used histogram-based flux descriptions)
-      // - The jnubeam variables are in whatever units are used by jnubeam.
       // - The err_flag is a bit field (16 bits)
       // - The string_event_code is a rather long string which encapsulates lot of summary info on the event
       //   (neutrino/nuclear target/hit nucleon/hit quark(if any)/process type/...).
@@ -1426,47 +1410,55 @@ void ConvertToGTracker(void)
         iparticle++;
       }
       //
-      // JNUBEAM flux info - that may not be available, eg if events were generated using 
-      // plain flux histograms - not the beam simulation's output flux ntuples
+      // JNUBEAM flux info - this info will only be available if events were generated 
+      // by gT2Kevgen using JNUBEAM flux ntuples as inputs
       //
+/*
+The T2K/SK collaboration produces MC based on JNUBEAM flux histograms, not flux ntuples.
+Therefore JNUBEAM flux pass-through info is never available for generated events.
+Commented-out the following info so as not to maintain/support unused code.
+If this section is ever re-instated the JNUBEAM passed-through info needs to be matched 
+to the latest version of JNUBEAM and an appropriate updated t2k_tracker format needs to 
+be agreed with the SKDETSIM maintainers.
+
 #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
       PDGLibrary * pdglib = PDGLibrary::Instance();
       if(flux_info) {
          // parent hadron pdg code and decay mode
-         output << "$ info " << flux_info->pdg << " " << flux_info->decayMode << endl;
+         output << "$ info " << pdg::GeantToPdg(flux_info->ppid) << " " << flux_info->mode << endl;
          // parent hadron px,py,pz,E at decay
-         output << "$ info " << flux_info->decayP * flux_info->decayDirX << " " 
-                             << flux_info->decayP * flux_info->decayDirY << " " 
-                             << flux_info->decayP * flux_info->decayDirZ << " " 
+         output << "$ info " << flux_info->ppi * flux_info->npi[0] << " " 
+                             << flux_info->ppi * flux_info->npi[1] << " " 
+                             << flux_info->ppi * flux_info->npi[2] << " " 
                              << TMath::Sqrt(
-                                   TMath::Power(pdglib->Find(flux_info->pdg)->Mass(), 2.)
-                                 + TMath::Power(flux_info->decayP, 2.)
+                                   TMath::Power(pdglib->Find(pdg::GeantToPdg(flux_info->ppid))->Mass(), 2.)
+                                 + TMath::Power(flux_info->ppi, 2.)
                                 )  << endl;
          // parent hadron x,y,z,t at decay
-         output << "$ info " << flux_info->decayX << " "
-                             << flux_info->decayY << " "
-                             << flux_info->decayZ << " "
+         output << "$ info " << flux_info->xpi[0] << " "
+                             << flux_info->xpi[1] << " "
+                             << flux_info->xpi[2] << " "
                              << "0." 
                              << endl;
          // parent hadron px,py,pz,E at production
-         output << "$ info " << flux_info->prodP * flux_info->prodDirX << " "
-                             << flux_info->prodP * flux_info->prodDirY << " "
-                             << flux_info->prodP * flux_info->prodDirZ << " "
+         output << "$ info " << flux_info->ppi0 * flux_info->npi0[0] << " "
+                             << flux_info->ppi0 * flux_info->npi0[1] << " "
+                             << flux_info->ppi0 * flux_info->npi0[2] << " "
                              << TMath::Sqrt(
-                                   TMath::Power(pdglib->Find(flux_info->pdg)->Mass(), 2.)
-                                 + TMath::Power(flux_info->prodP, 2.)
+                                   TMath::Power(pdglib->Find(pdg::GeantToPdg(flux_info->ppid))->Mass(), 2.)
+                                 + TMath::Power(flux_info->ppi0, 2.)
                                 ) << endl;
          // parent hadron x,y,z,t at production
-         output << "$ info " << flux_info->prodX << " "
-                             << flux_info->prodY << " "
-                             << flux_info->prodZ << " "
+         output << "$ info " << flux_info->xpi0[0] << " "
+                             << flux_info->xpi0[1] << " "
+                             << flux_info->xpi0[2] << " "
                              << "0." 
                              << endl;
          // nvtx
          output << "$ info " << output << "$info " << endl;
      }
 #endif
-
+*/
     }//fmt==kConvFmt_t2k_tracker
 
     //
@@ -1493,6 +1485,7 @@ void ConvertToGRooTracker(void)
   //-- define the output rootracker tree branches
 
   // event info
+
   TBits*      brEvtFlags = 0;             // Generator-specific event flags
   TObjString* brEvtCode = 0;              // Generator-specific string with 'event code'
   int         brEvtNum;                   // Event num.
@@ -1514,7 +1507,9 @@ void ConvertToGRooTracker(void)
   int         brStdHepFm    [kNPmax];     // First mother
   int         brStdHepLm    [kNPmax];     // Last  mother
 
-  // >> for the t2k rootracker variance only
+  //
+  // >> info available at the t2k rootracker variance only
+  //
 
   // neutrino parent info (passed-through from the beam-line MC / quantities in 'jnubeam' units)
   int         brNuParentPdg;              // Parent hadron pdg code
@@ -1524,10 +1519,22 @@ void ConvertToGRooTracker(void)
   double      brNuParentProP4 [4];        // Parent hadron 4-momentum at production
   double      brNuParentProX4 [4];        // Parent hadron 4-position at production
   int         brNuParentProNVtx;          // Parent hadron vtx id
+  // variables added since 10a flux compatibility changes
+  long        brNuFluxEntry;              // Entry number from flux file
+  int         brNuIdfd;                   // Detector location id
+  double      brNuCospibm;                // Cosine of the angle between the parent particle direction and the beam direction
+  double      brNuCospi0bm;               // Same as above except at the production of the parent particle 
+  int         brNuGipart;                 // Primary particle ID
+  double      brNuGpos0[3];               // Primary particle starting point
+  double      brNuGvec0[3];               // Primary particle direction at the starting point
+  double      brNuGamom0;                 // Momentum of the primary particle at the starting point
+    
   // codes for T2K cross-generator comparisons 
   int         brNeutCode;                 // NEUT-like reaction code for the GENIE event
 
-  // >> for the numi rootracker variance only
+  //
+  // >> info available at the numi rootracker variance only
+  //
 
   // neutrino parent info (GNuMI passed-through info)
   // see http://www.hep.utexas.edu/~zarko/wwwgnumi/v19/[/v19/output_gnumi.html]
@@ -1652,6 +1659,15 @@ void ConvertToGRooTracker(void)
     rootracker_tree->Branch("NuParentProP4",    brNuParentProP4,   "NuParentProP4[4]/D");     
     rootracker_tree->Branch("NuParentProX4",    brNuParentProX4,   "NuParentProX4[4]/D");     
     rootracker_tree->Branch("NuParentProNVtx", &brNuParentProNVtx, "NuParentProNVtx/I");   
+    // Branches added since JNUBEAM '10a' compatibility changes
+    rootracker_tree->Branch("NuFluxEntry", &brNuFluxEntry, "NuFluxEntry/I");
+    rootracker_tree->Branch("NuIdfd", &brNuIdfd, "NuIdfd/I");
+    rootracker_tree->Branch("NuCospibm", &brNuCospibm, "NuCospibm/D");
+    rootracker_tree->Branch("NuCospi0bm", &brNuCospi0bm, "NuCospi0bm/D");
+    rootracker_tree->Branch("NuGipart", &brNuGipart, "NuGipart/I");
+    rootracker_tree->Branch("NuGpos0", brNuGpos0, "NuGpos0[3]/D");
+    rootracker_tree->Branch("NuGvec0", brNuGvec0, "NuGvec0[3]/D");
+    rootracker_tree->Branch("NuGamom0", &brNuGamom0, "NuGamom0/D");
 
     // NEUT-like reaction code
     rootracker_tree->Branch("G2NeutEvtCode",   &brNeutCode,        "G2NeutEvtCode/I");   
@@ -1747,6 +1763,9 @@ void ConvertToGRooTracker(void)
   if(gOptOutFileFormat == kConvFmt_numi_rootracker) {
      gtree->SetBranchAddress("flux", &gnumi_flux_info);
   }
+else {
+  LOG("gntpc", pWARN) << "Unable to find metadata";
+}
 #else
   LOG("gntpc", pWARN) 
     << "\n Flux drivers are not enabled." 
@@ -1826,6 +1845,16 @@ void ConvertToGRooTracker(void)
     }
     brNuParentProNVtx = 0;     
     brNeutCode = 0;     
+    brNuFluxEntry = -1;
+    brNuIdfd = 0;
+    brNuCospibm = -999.999;
+    brNuCospi0bm = -999.999;
+    brNuGipart = -1;
+    brNuGamom0 = -999.999;   
+    for(int k=0; k< 3; k++){
+      brNuGvec0[k] = 0.;
+      brNuGpos0[k] = -999.999;
+    }    
 
     //
     // copy current event info to output tree
@@ -1881,34 +1910,46 @@ void ConvertToGRooTracker(void)
     // histograms and not the JNUBEAM simulation's output flux ntuples.
     if(gOptOutFileFormat == kConvFmt_t2k_rootracker) {
      if(jnubeam_flux_info) {
-       brNuParentPdg       = jnubeam_flux_info->pdg;        
-       brNuParentDecMode   = jnubeam_flux_info->decayMode;        
+       brNuParentPdg       = pdg::GeantToPdg(jnubeam_flux_info->ppid);
+       brNuParentDecMode   = jnubeam_flux_info->mode;
 
-       brNuParentDecP4 [0] = jnubeam_flux_info->decayP * jnubeam_flux_info->decayDirX; // px
-       brNuParentDecP4 [1] = jnubeam_flux_info->decayP * jnubeam_flux_info->decayDirY; // py
-       brNuParentDecP4 [2] = jnubeam_flux_info->decayP * jnubeam_flux_info->decayDirZ; // px
+       brNuParentDecP4 [0] = jnubeam_flux_info->ppi * jnubeam_flux_info->npi[0]; // px
+       brNuParentDecP4 [1] = jnubeam_flux_info->ppi * jnubeam_flux_info->npi[1]; // py
+       brNuParentDecP4 [2] = jnubeam_flux_info->ppi * jnubeam_flux_info->npi[2]; // px
        brNuParentDecP4 [3] = TMath::Sqrt(
-                                 TMath::Power(pdglib->Find(jnubeam_flux_info->pdg)->Mass(), 2.)
-                               + TMath::Power(jnubeam_flux_info->decayP, 2.)
+                                 TMath::Power(pdglib->Find(brNuParentPdg)->Mass(), 2.)
+                               + TMath::Power(jnubeam_flux_info->ppi, 2.)
                               ); // E
-       brNuParentDecX4 [0] = jnubeam_flux_info->decayX; // x
-       brNuParentDecX4 [1] = jnubeam_flux_info->decayY; // y       
-       brNuParentDecX4 [2] = jnubeam_flux_info->decayZ; // x   
+       brNuParentDecX4 [0] = jnubeam_flux_info->xpi[0]; // x
+       brNuParentDecX4 [1] = jnubeam_flux_info->xpi[1]; // y       
+       brNuParentDecX4 [2] = jnubeam_flux_info->xpi[2]; // x   
        brNuParentDecX4 [3] = 0;                 // t
 
-       brNuParentProP4 [0] = jnubeam_flux_info->prodP * jnubeam_flux_info->prodDirX; // px
-       brNuParentProP4 [1] = jnubeam_flux_info->prodP * jnubeam_flux_info->prodDirY; // py
-       brNuParentProP4 [2] = jnubeam_flux_info->prodP * jnubeam_flux_info->prodDirZ; // px
+       brNuParentProP4 [0] = jnubeam_flux_info->ppi0 * jnubeam_flux_info->npi0[0]; // px
+       brNuParentProP4 [1] = jnubeam_flux_info->ppi0 * jnubeam_flux_info->npi0[1]; // py
+       brNuParentProP4 [2] = jnubeam_flux_info->ppi0 * jnubeam_flux_info->npi0[2]; // px
        brNuParentProP4 [3] = TMath::Sqrt(
-                                TMath::Power(pdglib->Find(jnubeam_flux_info->pdg)->Mass(), 2.)
-                              + TMath::Power(jnubeam_flux_info->prodP, 2.)
+                                TMath::Power(pdglib->Find(brNuParentPdg)->Mass(), 2.)
+                              + TMath::Power(jnubeam_flux_info->ppi0, 2.)
                               ); // E
-       brNuParentProX4 [0] = jnubeam_flux_info->prodX; // x
-       brNuParentProX4 [1] = jnubeam_flux_info->prodY; // y       
-       brNuParentProX4 [2] = jnubeam_flux_info->prodZ; // x   
+       brNuParentProX4 [0] = jnubeam_flux_info->xpi0[0]; // x
+       brNuParentProX4 [1] = jnubeam_flux_info->xpi0[1]; // y       
+       brNuParentProX4 [2] = jnubeam_flux_info->xpi0[2]; // x   
        brNuParentProX4 [3] = 0;                // t
 
-       brNuParentProNVtx   = jnubeam_flux_info->prodNVtx;
+       brNuParentProNVtx   = jnubeam_flux_info->nvtx0;
+
+       // Copy info added post JNUBEAM '10a' compatibility changes 
+       brNuFluxEntry = jnubeam_flux_info->fluxentry;
+       brNuIdfd = jnubeam_flux_info->idfd;
+       brNuCospibm = jnubeam_flux_info->cospibm;
+       brNuCospi0bm = jnubeam_flux_info->cospi0bm;
+       brNuGipart = jnubeam_flux_info->gipart;
+       brNuGamom0 = jnubeam_flux_info->gamom0;
+       for(int k=0; k<3; k++){
+         brNuGpos0[k] = (double) jnubeam_flux_info->gpos0[k];
+         brNuGvec0[k] = (double) jnubeam_flux_info->gvec0[k];
+       }
      }
     }
 
