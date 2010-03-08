@@ -65,9 +65,15 @@
    branches. GJPARCNuFluxPassThroughInfo class now passes through flux info in 
    identical format as given in flux file. Any conversions to more usable 
    format happen at later stage (gNtpConv.cxx). In addition also store the flux
-   entry unmber for current neutrino and the deduced flux version.
+   entry number for current neutrino and the deduced flux version.
    Changed method to search for maximum flux weight to avoid seg faults when 
    have large number of flux entries in a file (~1.5E6). 
+ @ March 8, 2010 - JD
+   Incremented the GJPARCNuFluxPassThroughInfo class def number to reflect
+   changes made in previous commit. Added a failsafe which will terminate 
+   the job if go through a whole flux cycle without finding a detector location
+   matching that specified by user. This avoids potential infinite number of
+   cycles.
 */
 //____________________________________________________________________________
 
@@ -164,6 +170,14 @@ bool GJPARCNuFlux::GenerateNext_weighted(void)
 
   // Read next flux ntuple entry
   if(fIEntry >= fNEntries) {
+     // Exit if have not found neutrino at specified location for whole cycle
+     if(fNDetLocIdFound == 0){
+       LOG("Flux", pFATAL)
+         << "The input jnubeam flux ntuple contains no entries for detector id "
+         << fDetLocId << ". Terminating job!";
+       exit(1);
+     }
+     fNDetLocIdFound = 0; // reset the counter
      // Run out of entries @ the current cycle.
      // Check whether more (or infinite) number of cycles is requested
      if(fICycle < fNCycles || fNCycles == 0 ) {
@@ -194,6 +208,9 @@ bool GJPARCNuFlux::GenerateNext_weighted(void)
   //
   // Handling neutrinos at specified detector location
   //
+
+  // count the number of times we have neutrinos at specified detector location
+  fNDetLocIdFound += 1;
 
   // update the sum of weights & number of neutrinos
   fSumWeight += this->Weight();
@@ -557,6 +574,7 @@ void GJPARCNuFlux::Initialize(void)
   fNuFluxTree      = 0;
   fDetLoc          = "";
   fDetLocId        = 0;
+  fNDetLocIdFound  = 0;
   fIsFDLoc         = false;
   fIsNDLoc         = false;
 
