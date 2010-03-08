@@ -35,5 +35,6 @@
 #pragma link C++ class genie::Range1F_t;
 #pragma link C++ class genie::Range1I_t;
 #pragma link C++ class genie::utils::vld::VldTestInputs;
+#pragma link C++ class genie::utils::T2KEvGenMetaData;
 
 #endif
