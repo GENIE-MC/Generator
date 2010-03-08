@@ -127,6 +127,7 @@
 #include "Utils/CmdLineArgParserUtils.h"
 #include "Utils/CmdLineArgParserException.h"
 #include "Utils/SystemUtils.h"
+#include "Utils/T2KEvGenMetaData.h"
 
 #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
 #include "FluxDrivers/GJPARCNuFlux.h"
@@ -1754,6 +1755,24 @@ void ConvertToGRooTracker(void)
   NtpMCEventRecord * mcrec = 0;
   gtree->SetBranchAddress("gmcrec", &mcrec);
 
+  //-- print-out metadata associated with the input event file in case the
+  //   event file was generated using the gT2Kevgen driver
+  //   (assuming this is the case if the requested output format is the t2k_rootracker format)
+  if(gOptOutFileFormat == kConvFmt_t2k_rootracker) 
+  {
+    // Check can find the MetaData
+    genie::utils::T2KEvGenMetaData * metadata = NULL;
+    metadata = (genie::utils::T2KEvGenMetaData *) gtree->GetUserInfo()->At(0);
+    if(metadata){
+      LOG("gntpc", pINFO) << "Found T2KMetaData!";
+      LOG("gntpc", pINFO) << *metadata;
+    }
+    else { 
+      LOG("gntpc", pWARN) 
+        << "Could not find T2KMetaData attached to the event tree!";
+    }
+  }
+
 #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
   flux::GJPARCNuFluxPassThroughInfo * jnubeam_flux_info = 0;
   if(gOptOutFileFormat == kConvFmt_t2k_rootracker) {
@@ -1763,9 +1782,6 @@ void ConvertToGRooTracker(void)
   if(gOptOutFileFormat == kConvFmt_numi_rootracker) {
      gtree->SetBranchAddress("flux", &gnumi_flux_info);
   }
-else {
-  LOG("gntpc", pWARN) << "Unable to find metadata";
-}
 #else
   LOG("gntpc", pWARN) 
     << "\n Flux drivers are not enabled." 
