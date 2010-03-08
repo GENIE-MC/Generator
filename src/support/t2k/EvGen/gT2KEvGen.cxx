@@ -357,6 +357,7 @@
 #include "Utils/UnitUtils.h"
 #include "Utils/CmdLineArgParserUtils.h"
 #include "Utils/CmdLineArgParserException.h"
+#include "Utils/T2KEvGenMetaData.h"
 
 #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
 #include "FluxDrivers/GJPARCNuFlux.h"
@@ -369,7 +370,6 @@
 #include "Geo/PointGeomAnalyzer.h"
 #endif
 
-#include "gT2KEvGenMetaData.h"
 
 using std::string;
 using std::vector;
@@ -695,7 +695,7 @@ int main(int argc, char ** argv)
   // * MC job meta-data
   // *************************************************************************
 
-  gT2KEvGenMetaData * metadata = new gT2KEvGenMetaData;
+  genie::utils::T2KEvGenMetaData * metadata = new genie::utils::T2KEvGenMetaData;
 
   metadata -> jnubeam_version    = ((gOptUsingHistFlux) ? 
                                     "" : jparc_flux_driver->FluxVersion());
