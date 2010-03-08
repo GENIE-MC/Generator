@@ -110,9 +110,10 @@ private:
   TTree *   fNuFluxTree;       ///< input flux ntuple
   string    fDetLoc;           ///< input detector location ('sk','nd1','nd2',...)
   int       fDetLocId;         ///< input detector location id (fDetLoc -> jnubeam idfd)
+  int       fNDetLocIdFound;   ///< per cycle keep track of the number of fDetLocId are found - if this is zero will exit job 
   bool      fIsFDLoc;          ///< input location is a 'far'  detector location?
   bool      fIsNDLoc;          ///< input location is a 'near' detector location?
-  long int  fNEntries;         ///< number offlux ntuple entries
+  long int  fNEntries;         ///< number of flux ntuple entries
   long int  fIEntry;           ///< current flux ntuple entry
   double    fMaxWeight;        ///< max flux  neutrino weight in input file for the specified detector location
   double    fFilePOT;          ///< file POT normalization, typically 1E+21
@@ -211,7 +212,7 @@ public:
    float  gamom0;
    int    gipart; 
 
-ClassDef(GJPARCNuFluxPassThroughInfo,1)
+ClassDef(GJPARCNuFluxPassThroughInfo,2)
 };
 
 } // flux namespace
