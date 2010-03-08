@@ -19,12 +19,14 @@
 #ifndef _T2KEVGEN_METADATA_H_
 #define _T2KEVGEN_METADATA_H_
 
+#include <iostream>
 #include <string>
 #include <map>
 
 #include <TObject.h>
 #include <TH1D.h>
 
+using std::ostream;
 using std::string;
 using std::map;
 
@@ -51,6 +53,10 @@ public:
   ~T2KEvGenMetaData() 
   { 
   }
+
+  void Print(ostream & stream) const;
+
+  friend ostream & operator << (ostream & stream, const T2KEvGenMetaData & md);
 
   string           jnubeam_version;
   string           jnubeam_file;
