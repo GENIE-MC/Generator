@@ -2344,7 +2344,7 @@ void NuVldMainFrame::Run1dScanner(void)
 */
 }
 //______________________________________________________________________________
-void NuVldMainFrame::PlotXSecBoundaries(TCanvas * c, bool clear)
+void NuVldMainFrame::PlotXSecBoundaries(TCanvas * /*c*/, bool /*clear*/)
 {
 /*
   fFitKernel->lowb->SetLineWidth(2);
