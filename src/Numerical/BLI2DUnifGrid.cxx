@@ -12,6 +12,9 @@
  Important revisions after version 2.0.0 :
  @ May 30, 2009 - CA
    Was first added in v2.5.1.
+ @ Mar 08, 2010 - CA
+   Fix `converting to `int' from `double'' warnings by using TMath::FloorInt
+   in all lines similar to `int ix = (xmax-xmin)/dx'.
 */
 //____________________________________________________________________________
 
@@ -64,8 +67,8 @@ BLI2DUnifGrid::~BLI2DUnifGrid()
 //___________________________________________________________________________
 bool BLI2DUnifGrid::AddPoint(double x, double y, double z)
 {
-  int ix = (x - fXmin + fDX/2) / fDX;
-  int iy = (y - fYmin + fDY/2) / fDY;
+  int ix = TMath::FloorNint( (x - fXmin + fDX/2) / fDX );
+  int iy = TMath::FloorNint( (y - fYmin + fDY/2) / fDY );
   int iz = this->IdxZ(ix,iy);
 
   fZ[iz] = z;
@@ -86,8 +89,8 @@ double BLI2DUnifGrid::Evaluate(double x, double y) const
   if(x < fXmin || x > fXmax) return 0.;
   if(y < fYmin || y > fYmax) return 0.;
 
-  int ix_lo  = (x - fXmin) / fDX; 
-  int iy_lo  = (y - fYmin) / fDY; 
+  int ix_lo  = TMath::FloorNint( (x - fXmin) / fDX ); 
+  int iy_lo  = TMath::FloorNint( (y - fYmin) / fDY ); 
   int ix_hi  = ix_lo + 1;
   int iy_hi  = iy_lo + 1;
 
