@@ -623,6 +623,7 @@ clean-files: FORCE
 	cd support/minos/EventServer/;    make clean; cd ../../../; \
 	cd support/t2k/EvGen/;            make clean; cd ../../../; \
 	cd support/t2k/SKNorm/;           make clean; cd ../../../; \
+	cd support/ino/EvGen/;            make clean; cd ../../../; \
 	cd test;                          make clean; cd ..; \
 	cd scripts;	                  make clean; \
 	cd ${GENIE}
@@ -698,6 +699,7 @@ distclean: FORCE
 	cd support/minos/EventServer/;     make distclean; cd ../../../; \
 	cd support/t2k/EvGen/;             make distclean; cd ../../../; \
 	cd support/t2k/SKNorm/;            make distclean; cd ../../../; \
+	cd support/ino/EvGen/;             make distclean; cd ../../../; \
 	cd test;                           make distclean; cd ..; \
 	cd scripts;	                   make distclean; \
 	cd ${GENIE}
