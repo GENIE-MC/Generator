@@ -391,7 +391,8 @@ void GuiStackHandler::LoadDBTables(string root_file, bool keep_current)
   }
 }
 //______________________________________________________________________________
-void GuiStackHandler::LoadNeugenConfig(string root_file, bool keep_current)
+void GuiStackHandler::LoadNeugenConfig(
+   string /*root_file*/, bool /*keep_current*/)
 {
 /*
   TFile f(root_file.c_str(), "READ");
@@ -487,7 +488,7 @@ string GuiStackHandler::StackedDBTableName(unsigned int id) const
   return dbtname;
 }
 //______________________________________________________________________________
-string GuiStackHandler::StackedConfigName(unsigned int id) const
+string GuiStackHandler::StackedConfigName(unsigned int /*id*/) const
 {
 /*
   NuVldUserData * user_data = NuVldUserData::Instance();
@@ -503,5 +504,6 @@ string GuiStackHandler::StackedConfigName(unsigned int id) const
 
   return cfgname;
 */
+  return "";
 }
 //______________________________________________________________________________
