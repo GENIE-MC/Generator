@@ -10,6 +10,10 @@
           Imperial College London
 
 \created  Aug 1, 2008
+
+\cpright  Copyright (c) 2003-2010, GENIE Neutrino MC Generator Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org
+          or see $GENIE/LICENSE
 */
 //____________________________________________________________________________
 
@@ -49,20 +53,20 @@ namespace rew {
   //
 
   // pi+,pi-,pi0
-  const double kINuke_MFPTwk_pi_1SigmaErr       = 0.1;    ///< mean free path sigma
-  const double kINuke_CExTwk_pi_1SigmaErr       = 0.1;    ///< charge exchange sigma
+  const double kINuke_MFPTwk_pi_1SigmaErr       = 0.2;    ///< mean free path sigma
+  const double kINuke_CExTwk_pi_1SigmaErr       = 0.5;    ///< charge exchange sigma
   const double kINuke_ElTwk_pi_1SigmaErr        = 0.1;    ///< elastic sigma
-  const double kINuke_InelTwk_pi_1SigmaErr      = 0.1;    ///< inelastic sigma
-  const double kINuke_AbsTwk_pi_1SigmaErr       = 0.1;    ///< absorption sigma
-  const double kINuke_PiProdTwk_pi_1SigmaErr    = 0.1;    ///< pi production sigma
+  const double kINuke_InelTwk_pi_1SigmaErr      = 0.4;    ///< inelastic sigma
+  const double kINuke_AbsTwk_pi_1SigmaErr       = 0.3;    ///< absorption sigma
+  const double kINuke_PiProdTwk_pi_1SigmaErr    = 0.2;    ///< pi production sigma
 
   // p, n
-  const double kINuke_MFPTwk_N_1SigmaErr       = 0.1;    ///< mean free path sigma
-  const double kINuke_CExTwk_N_1SigmaErr       = 0.1;    ///< charge exchange sigma
-  const double kINuke_ElTwk_N_1SigmaErr        = 0.1;    ///< elastic sigma
-  const double kINuke_InelTwk_N_1SigmaErr      = 0.1;    ///< inelastic sigma
-  const double kINuke_AbsTwk_N_1SigmaErr       = 0.1;    ///< absorption sigma
-  const double kINuke_PiProdTwk_N_1SigmaErr    = 0.1;    ///< pi production sigma
+  const double kINuke_MFPTwk_N_1SigmaErr       = 0.2;    ///< mean free path sigma
+  const double kINuke_CExTwk_N_1SigmaErr       = 0.5;    ///< charge exchange sigma
+  const double kINuke_ElTwk_N_1SigmaErr        = 0.3;    ///< elastic sigma
+  const double kINuke_InelTwk_N_1SigmaErr      = 0.4;    ///< inelastic sigma
+  const double kINuke_AbsTwk_N_1SigmaErr       = 0.2;    ///< absorption sigma
+  const double kINuke_PiProdTwk_N_1SigmaErr    = 0.2;    ///< pi production sigma
 
 } // rew
 } // genie

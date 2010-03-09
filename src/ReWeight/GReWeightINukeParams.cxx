@@ -16,7 +16,8 @@
  @ Sep 10, 2009 - CA
    Was adapted from Jim's and Costas' T2K-specific GENIE reweighting code.
    First included in v2.5.1.
-
+ @ Mar 09, 2010 - JD
+   Protect against negative hadron fate cross section
 */
 //____________________________________________________________________________
 
@@ -251,6 +252,10 @@ double GReWeightINukeParams::Fates::CurTwkDial(GSyst_t syst, double KE) const
 
   double twk_dial = ( (1.0- total_fraction_nocushion) - sum_non_cushion_fractions)/sum_error_non_cushion_fractions;
 
+  // This is a temporary measure to ensure that we are not tweaking any of the parameters in such a way
+  // that would require a negative cross section. This issue needs to be resolved.
+  assert( (twk_dial*uncert->OneSigmaErr(syst)) > -1.0 );
+
   return twk_dial;
 }
 //___________________________________________________________________________
@@ -339,7 +344,7 @@ void GReWeightINukeParams::Fates::AddCushionTerms(void)
 // if have added all non cushion terms then fill rest of map with the 
 // remaining cushion terms.
 
-  int ncursyst = (int)fSystListMap.size();
+  //int ncursyst = (int)fSystListMap.size();
   bool add_cushion_terms = true;//(ncursyst == (fNSysts-4/*fNCushionTerms*/));
 
   if (!add_cushion_terms) {
