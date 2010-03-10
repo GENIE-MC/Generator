@@ -3,7 +3,7 @@
 //
 // % root
 // root[0] .L generate_sk_flux_histograms.C++
-// root[1] generate_sk_flux_histograms(flux_dir, file_prefix, file_suffix, min_run, max_run, Emin, Emax, Nbins);
+// root[1] generate_sk_flux_histograms(flux_dir, file_prefix, file_suffix, min_run, max_run, Emin, Emax, Ebinsize);
 //
 // C.Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
 //
