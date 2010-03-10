@@ -209,7 +209,7 @@
                                     scale factor to multiply max scan energy by -->
   </param_set>
 
-  <param_set name="NOvA-IPNDShed">
+  <param_set name="NOvA-NDOS">
     <!-- verbosity of XML parsing -->
     <verbose>0</verbose>
 
