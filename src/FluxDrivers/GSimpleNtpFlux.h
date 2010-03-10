@@ -157,6 +157,8 @@ namespace flux  {
     Int_t    seed;     ///< random seed used in generation
     UInt_t   metakey;  ///< index key to tie to individual entries
 
+    static UInt_t mxfileprint;  ///< allow user to limit # of files to print
+
     ClassDef(GSimpleNtpMeta,1)
   };
 
