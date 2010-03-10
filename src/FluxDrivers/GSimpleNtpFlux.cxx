@@ -17,6 +17,7 @@
 #include <vector>
 #include <sstream>
 #include <cassert>
+#include <limits.h>
 
 #include <TFile.h>
 #include <TChain.h>
@@ -57,6 +58,9 @@ ClassImp(GSimpleNtpEntry)
 ClassImp(GSimpleNtpNuMI)
 ClassImp(GSimpleNtpAux)
 ClassImp(GSimpleNtpMeta)
+
+// static storage
+  UInt_t genie::flux::GSimpleNtpMeta::mxfileprint = UINT_MAX;
 
 //____________________________________________________________________________
 GSimpleNtpFlux::GSimpleNtpFlux()
@@ -176,11 +180,15 @@ bool GSimpleNtpFlux::GenerateNext_weighted(void)
     
     int nbytes = fNuFluxTree->GetEntry(fIEntry);
     UInt_t metakey = fCurEntry->metakey;
-    if ( fCurMeta->metakey != metakey ) {
+    if ( fAllFilesMeta && ( fCurMeta->metakey != metakey ) ) {
       UInt_t oldkey = fCurMeta->metakey;
       int nbmeta = fNuMetaTree->GetEntryWithIndex(metakey);
       LOG("Flux",pDEBUG) << "Get meta " << metakey 
-                         << " (was " << oldkey << ") nb " << nbmeta;
+                         << " (was " << oldkey << ") "
+                         << fCurMeta->metakey << " nb " << nbmeta;
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+      LOG("Flux",pDEBUG) << "Get meta " << *fCurMeta; 
+#endif
     }
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     Int_t ifile = fNuFluxTree->GetFileNumber();
@@ -447,7 +455,8 @@ void GSimpleNtpFlux::ProcessMeta(void)
 
   if ( fAllFilesMeta ) {
     fNuMetaTree->SetBranchAddress("meta",&fCurMeta);
-    fNuMetaTree->BuildIndex("metakey"); // key used to tie entries to meta data
+    int nindices = fNuMetaTree->BuildIndex("metakey"); // key used to tie entries to meta data
+    LOG("Flux", pDEBUG) << "ProcessMeta() BuildIndex nindices " << nindices;
     int nmeta = fNuMetaTree->GetEntries();
     for (int imeta = 0; imeta < nmeta; ++imeta ) {
       fNuMetaTree->GetEntry(imeta);
@@ -890,8 +899,10 @@ ostream & operator << (ostream & stream,
         stream << " " << meta.auxdblname[ijDbl];
 
       size_t nfiles = meta.infiles.size();
-      stream << "\n input files: ";
-      for (size_t ifiles=0; ifiles < nfiles; ++ifiles)
+      stream << "\n " << nfiles << " input files: ";
+      UInt_t nprint = TMath::Min(UInt_t(nfiles),
+                                 genie::flux::GSimpleNtpMeta::mxfileprint);
+      for (UInt_t ifiles=0; ifiles < nprint; ++ifiles)
         stream << "\n    " << meta.infiles[ifiles];
 
       stream << "\n input seed: " << meta.seed;
