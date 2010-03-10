@@ -384,8 +384,8 @@ int genie::pdg::GeantToPdg(int geant_code)
   if(geant_code == 23) return kPdgXiM;          //  3312 / Xi-
   if(geant_code == 30) return kPdgAntiXi0;      // -3322 / \bar{Xi0}
   if(geant_code == 31) return kPdgAntiXiP;      // -3312 / \bar{Xi+}
-  if(geant_code == 24) return kPdgOmegaM;       //  3332 / Omega-
-  if(geant_code == 32) return kPdgAntiOmegaP;   // -3332 / \bar{Omega+}
+  if(geant_code == 24) return kPdgOmegaM;       //  3334 / Omega-
+  if(geant_code == 32) return kPdgAntiOmegaP;   // -3334 / \bar{Omega+}
 
   LOG("PDG", pWARN)
         << "Can not convert geant code: " << geant_code << " to PDG";
