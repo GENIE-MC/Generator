@@ -321,7 +321,9 @@ STFC, Rutherford Appleton Laboratory
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Parameters controlling the hadronic multiplicities in the KNO model
+  Parameters controlling the average charged hadron multiplicities in the AGKY/KNO model
+  (paramerers a,b entering in the empirical expression: <n> = a + b * lnW^2 )
+  See Nucl.Instrum.Meth.A614:87-104,2010 and Eur.Phys.J.C63:1-10,2009. 
   -->
   <param type="double" name="KNO-Alpha-vp">  0.40 </param> 
   <param type="double" name="KNO-Alpha-vn"> -0.20 </param> 
@@ -331,6 +333,16 @@ STFC, Rutherford Appleton Laboratory
   <param type="double" name="KNO-Beta-vn">   1.42 </param> 
   <param type="double" name="KNO-Beta-vbp">  1.28 </param> 
   <param type="double" name="KNO-Beta-vbn">  0.95 </param> 
+
+ <!-- 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Parameters controlling the probability of producing a strange baryon via associated production.
+  (paramerers a,b entering in the empirical expression: P_{hyperon} = a + b * lnW^2 )
+  Determined from a fit to \Lambda production data.
+  See Nucl.Instrum.Meth.A614:87-104,2010 and Eur.Phys.J.C63:1-10,2009. 
+  -->
+  <param type="double" name="KNO-Alpha-Hyperon"> 0.021951447 </param> 
+  <param type="double" name="KNO-Beta-Hyperon">  0.041969985 </param> 
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -347,12 +359,15 @@ STFC, Rutherford Appleton Laboratory
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  KNO hadronization model probabilities for producing hadron pairs
+  AGKY/KNO hadronization model probabilities for producing hadron pairs.
+  See Nucl.Instrum.Meth.A614:87-104,2010 and Eur.Phys.J.C63:1-10,2009. 
+  Values below are modified values following strange hadron production tuning (see gDocDB-890-v1).
+  Previous values were P(pi0 pi0) = 0.30, P(pi+ pi-) = 0.60, P(K+ K-) = 0.05, P(K0 \barK0) = 0.05.
   -->
-  <param type="double" name="KNO-ProbPi0Pi0">        0.30 </param>
-  <param type="double" name="KNO-ProbPiplusPiminus"> 0.60 </param>
-  <param type="double" name="KNO-ProbKplusKminus">   0.05 </param>
-  <param type="double" name="KNO-ProbK0K0bar">       0.05 </param>
+  <param type="double" name="KNO-ProbPi0Pi0">        0.3133 </param>
+  <param type="double" name="KNO-ProbPiplusPiminus"> 0.6267 </param>
+  <param type="double" name="KNO-ProbKplusKminus">   0.03 </param>
+  <param type="double" name="KNO-ProbK0K0bar">       0.03 </param>
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -375,12 +390,15 @@ STFC, Rutherford Appleton Laboratory
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Parameters controlling the PYTHIA hadronization model:
-  - ssbar:   [PYTHIA def:0.30    ] [NUX tune:0.21    ]
-  - pt2:     [PYTHIA def:0.36 GeV] [NUX tune:0.44 GeV]
-  - pt2tail: [PYTHIA def:0.01    ] [NUX tune:0.01    ]
-  - cutoff:  [PYTHIA def:0.80 GeV] [NUX tune:0.20 GeV]
+
+             PYTHIA    NUX 2001   AGKY 2010 strange prod.
+             default   tune       re-tune (see gDocDB-890-v1)
+  - ssbar:   0.30      0.21       0.30
+  - pt2:     0.36 GeV  0.44 GeV
+  - pt2tail: 0.01      0.01    
+  - cutoff:  0.80 GeV  0.20 GeV
   -->
-  <param type="double" name="PYTHIA-SSBarSuppression">      0.21 </param>
+  <param type="double" name="PYTHIA-SSBarSuppression">      0.30 </param>
   <param type="double" name="PYTHIA-GaussianPt2">           0.44 </param> 
   <param type="double" name="PYTHIA-NonGaussianPt2Tail">    0.01 </param>
   <param type="double" name="PYTHIA-RemainingEnergyCutoff"> 0.20 </param>

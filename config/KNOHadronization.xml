@@ -7,50 +7,52 @@ Algorithm Configurable Parameters:
 .......................................................................................................................
 Name                          Type    Opt   Comment                                       Default
 .......................................................................................................................
-Alpha-vp                      double  Yes   a for vp in <mult> = a + 2blnW                GPL KNO-Alpha-vp
-Alpha-vn                      double  Yes   a for vn                                      GPL KNO-Alpha-vn
-Alpha-vbp                     double  Yes   a for vbp                                     GPL KNO-Alpha-vbp
-Alpha-vbn                     double  Yes   a for vbn                                     GPL KNO-Alpha-vbn
-Beta-vp                       double  Yes   b for vp                                      GPL KNO-Alpha-vp
-Beta-vn                       double  Yes   b for vn                                      GPL KNO-Alpha-vn
-Beta-vbp                      double  Yes   b for vbp                                     GPL KNO-Alpha-vbp
-Beta-vbn                      double  Yes   b for vbn                                     GPL KNO-Alpha-vbn
-LevyC-vp                      double  Yes   Levy function param c for vp                  GPL KNO-LevyC-vp
-LevyC-vn                      double  Yes   Levy function param c for vn                  GPL KNO-LevyC-vn
-LevyC-vbp                     double  Yes   Levy function param c for vbp                 GPL KNO-LevyC-vbp
-LevyC-vbn                     double  Yes   Levy function param c for vbn                 GPL KNO-LevyC-vbn
+Alpha-vp                      double  Yes   a for vp in <mult> = a + blnW^2               KNO-Alpha-vp
+Alpha-vn                      double  Yes   a for vn                                      KNO-Alpha-vn
+Alpha-vbp                     double  Yes   a for vbp                                     KNO-Alpha-vbp
+Alpha-vbn                     double  Yes   a for vbn                                     KNO-Alpha-vbn
+Beta-vp                       double  Yes   b for vp                                      KNO-Alpha-vp
+Beta-vn                       double  Yes   b for vn                                      KNO-Alpha-vn
+Beta-vbp                      double  Yes   b for vbp                                     KNO-Alpha-vbp
+Beta-vbn                      double  Yes   b for vbn                                     KNO-Alpha-vbn
+Alpha-Hyperon                 double  Yes   a in Pstrange = a+blnW^2                      KNO-Alpha-Hyperon
+Beta-Hyperon                  double  Yes   b in Pstrange = a+blnW^2                      KNO-Beta-Hyperon
+LevyC-vp                      double  Yes   Levy function param c for vp                  KNO-LevyC-vp
+LevyC-vn                      double  Yes   Levy function param c for vn                  KNO-LevyC-vn
+LevyC-vbp                     double  Yes   Levy function param c for vbp                 KNO-LevyC-vbp
+LevyC-vbn                     double  Yes   Levy function param c for vbn                 KNO-LevyC-vbn
 UseLegacyKNOSpl               bool    Yes   Uses the legacy KNO instead of the Levy func  false
 ForceNeugenMultLimit          bool    Yes   force neugen upper multiplicity limit (10)    false
-Wcut                          double  Yes   W cut in DIS/RES join scheme                  GPL Wcut
-R-vp-CC-m2                    double  Yes   scaling factor, vp  CC, multiplicity=2        GPL DIS-HMultWgt-vp-CC-m2
-R-vp-CC-m3                    double  Yes   scaling factor, vp  CC, multiplicity=3        GPL DIS-HMultWgt-vp-CC-m3
-R-vp-NC-m2                    double  Yes   scaling factor, vp  NC, multiplicity=2        GPL DIS-HMultWgt-vp-NC-m2
-R-vp-NC-m3                    double  Yes   scaling factor, vp  NC, multiplicity=3        GPL DIS-HMultWgt-vp-NC-m3
-R-vn-CC-m2                    double  Yes   scaling factor, vn  CC, multiplicity=2        GPL DIS-HMultWgt-vn-CC-m2
-R-vn-CC-m3                    double  Yes   scaling factor, vn  CC, multiplicity=3        GPL DIS-HMultWgt-vn-CC-m3
-R-vn-NC-m2                    double  Yes   scaling factor, vn  NC, multiplicity=2        GPL DIS-HMultWgt-vn-NC-m2
-R-vn-NC-m3                    double  Yes   scaling factor, vn  NC, multiplicity=3        GPL DIS-HMultWgt-vn-NC-m3
-R-vbp-CC-m2                   double  Yes   scaling factor, vbp CC, multiplicity=2        GPL DIS-HMultWgt-vbp-CC-m2
-R-vbp-CC-m3                   double  Yes   scaling factor, vbp CC, multiplicity=3        GPL DIS-HMultWgt-vbp-CC-m3
-R-vbp-NC-m2                   double  Yes   scaling factor, vbp NC, multiplicity=2        GPL DIS-HMultWgt-vbp-NC-m2
-R-vbp-NC-m3                   double  Yes   scaling factor, vbp NC, multiplicity=3        GPL DIS-HMultWgt-vbp-NC-m3
-R-vbn-CC-m2                   double  Yes   scaling factor, vbn CC, multiplicity=2        GPL DIS-HMultWgt-vbn-CC-m2
-R-vbn-CC-m3                   double  Yes   scaling factor, vbn CC, multiplicity=3        GPL DIS-HMultWgt-vbn-CC-m3
-R-vbn-NC-m2                   double  Yes   scaling factor, vbn NC, multiplicity=2        GPL DIS-HMultWgt-vbn-NC-m2
-R-vbn-NC-m3                   double  Yes   scaling factor, vbn NC, multiplicity=3        GPL DIS-HMultWgt-vbn-NC-m3
-ProbPi0Pi0                    double  Yes   probability for pi0 pair                      GPL KNO-ProbPi0Pi0
-ProbPiplusPiminus             double  Yes   probability for pi+pi- pair                   GPL KNO-ProbPiplusPiminus
-ProbKplusKminus               double  Yes   probability for K+K- pair                     GPL KNO-ProbKplusKminus
-ProbK0K0bar                   double  Yes   probability for K0 K0bar pair                 GPL KNO-ProbK0K0bar
+Wcut                          double  Yes   W cut in DIS/RES join scheme                  Wcut
+R-vp-CC-m2                    double  Yes   scaling factor, vp  CC, multiplicity=2        DIS-HMultWgt-vp-CC-m2
+R-vp-CC-m3                    double  Yes   scaling factor, vp  CC, multiplicity=3        DIS-HMultWgt-vp-CC-m3
+R-vp-NC-m2                    double  Yes   scaling factor, vp  NC, multiplicity=2        DIS-HMultWgt-vp-NC-m2
+R-vp-NC-m3                    double  Yes   scaling factor, vp  NC, multiplicity=3        DIS-HMultWgt-vp-NC-m3
+R-vn-CC-m2                    double  Yes   scaling factor, vn  CC, multiplicity=2        DIS-HMultWgt-vn-CC-m2
+R-vn-CC-m3                    double  Yes   scaling factor, vn  CC, multiplicity=3        DIS-HMultWgt-vn-CC-m3
+R-vn-NC-m2                    double  Yes   scaling factor, vn  NC, multiplicity=2        DIS-HMultWgt-vn-NC-m2
+R-vn-NC-m3                    double  Yes   scaling factor, vn  NC, multiplicity=3        DIS-HMultWgt-vn-NC-m3
+R-vbp-CC-m2                   double  Yes   scaling factor, vbp CC, multiplicity=2        DIS-HMultWgt-vbp-CC-m2
+R-vbp-CC-m3                   double  Yes   scaling factor, vbp CC, multiplicity=3        DIS-HMultWgt-vbp-CC-m3
+R-vbp-NC-m2                   double  Yes   scaling factor, vbp NC, multiplicity=2        DIS-HMultWgt-vbp-NC-m2
+R-vbp-NC-m3                   double  Yes   scaling factor, vbp NC, multiplicity=3        DIS-HMultWgt-vbp-NC-m3
+R-vbn-CC-m2                   double  Yes   scaling factor, vbn CC, multiplicity=2        DIS-HMultWgt-vbn-CC-m2
+R-vbn-CC-m3                   double  Yes   scaling factor, vbn CC, multiplicity=3        DIS-HMultWgt-vbn-CC-m3
+R-vbn-NC-m2                   double  Yes   scaling factor, vbn NC, multiplicity=2        DIS-HMultWgt-vbn-NC-m2
+R-vbn-NC-m3                   double  Yes   scaling factor, vbn NC, multiplicity=3        DIS-HMultWgt-vbn-NC-m3
+ProbPi0Pi0                    double  Yes   probability for pi0 pair                      KNO-ProbPi0Pi0
+ProbPiplusPiminus             double  Yes   probability for pi+pi- pair                   KNO-ProbPiplusPiminus
+ProbKplusKminus               double  Yes   probability for K+K- pair                     KNO-ProbKplusKminus
+ProbK0K0bar                   double  Yes   probability for K0 K0bar pair                 KNO-ProbK0K0bar
 ForceDecays                   bool    Yes   force decays of unstable particles            false   
 Decayer                       alg     Dep   decayer to be used if decayes are forced
 ForceMinMultiplicity          bool    Yes   force a minimum multiplicity of 2             true
 GenerateWeighted              bool    Yes   generate weighted events                      false
-UseBaryonPdfs-xFpT2           bool    Yes   use a baryon pT^2, xF parameterization        GPL KNO-UseBaryonPdfs-xFpT2
-UseIsotropic2BodyDec          bool    Yes   use isotropic, non-reweighted 2-body decays   GPL KNO-UseIsotropic2BodyDec
+UseBaryonPdfs-xFpT2           bool    Yes   use a baryon pT^2, xF parameterization        KNO-UseBaryonPdfs-xFpT2
+UseIsotropic2BodyDec          bool    Yes   use isotropic, non-reweighted 2-body decays   KNO-UseIsotropic2BodyDec
                                             for compatibility with neuugen/daikon
-PhaseSpDec-Reweight           bool    Yes   reweight decays to to reproduce exp pT2       GPL KNO-PhaseSpDec-Reweight
-PhaseSpDec-ReweightParm       double  Yes   parameter controlling the reweight function   GPL KNO-PhaseSpDec-ReweightParm
+PhaseSpDec-Reweight           bool    Yes   reweight decays to to reproduce exp pT2       KNO-PhaseSpDec-Reweight
+PhaseSpDec-ReweightParm       double  Yes   parameter controlling the reweight function   KNO-PhaseSpDec-ReweightParm
 -->
 
 <alg_conf>
