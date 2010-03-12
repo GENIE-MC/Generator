@@ -3,8 +3,21 @@
 
 \class    genie::flux::GAtmoFlux
 
-\brief    A base class for the concrete FLUKA and Bartol atmospheric neutrino 
+\brief    A base class for the concrete FLUKA and BGLRS atmospheric neutrino 
           flux drivers.
+          The driver depends on data files provided by the atmospheric neutrino
+          flux simulation authors in order to determine the angular and energy
+          dependence for each neutrino species.
+          The position of each flux neutrino [going towards a detector centered 
+          at (0,0,0)] is generated uniformly on a plane that is perpendicular 
+          to a sphere of radius Rl at the point that is determined by the 
+          generated neutrino direction (theta,phi). The size of the area of 
+          that plane, where flux neutrinos are generated, is determined by the 
+          transverse radius Rt. You can tweak Rl, Rt to match the size of your 
+          detector.
+          The driver allows minimum and maximum energy cuts.
+          Also it provides the options to generate wither unweighted or weighted 
+          flux neutrinos (the latter giving smoother distributions at the tails).
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           STFC, Rutherford Appleton Laboratory
