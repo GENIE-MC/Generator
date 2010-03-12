@@ -1,21 +1,25 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2009, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2008, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+ Author: Costas Andreopoulos  <costas.andreopoulos \at stfc.ac.uk>
          STFC, Rutherford Appleton Laboratory 
 
-         Hugh Gallagher <gallag@minos.phy.tufts.edu>
+         Hugh Gallagher <gallag \at minos.phy.tufts.edu>
          Tufts University
 
-         Tinjun Yang <tjyang@stanford.edu>          
+         Tinjun Yang <tjyang \at stanford.edu>          
          Stanford University
 
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
+ @ Aug 11, 2008 - KH,HG
+   Added strange baryon production, and adjusted hadronic shower 
+   production to conserve strangeness, and to continue balancing charge
+   and maintaining correct multiplicity (see gDocDB-890-v1).
  @ Aug 25, 2009 - CA
    Fixed bug in `special mode' aiming to reproduce old NEUGEN limitation (max
    multiplicity = 10) for GENIE/NEUGEN cross-comparisons. Boolean logic in if
@@ -25,6 +29,7 @@
  @ Oct 20, 2009 - CA
    Modified HadronShowerCharge() to take into account the probe charge (so as
    to conserve charge in charged lepton scattering)
+
 */
 //____________________________________________________________________________
 
@@ -116,12 +121,12 @@ TClonesArray * KNOHadronization::Hadronize(
 
   if(!pdgcv) {
     LOG("KNOHad", pNOTICE) 
-              << "Failed selecting particles for " << *interaction;
+        << "Failed selecting particles for " << *interaction;
     return 0;
   }
 
   //-- Decay the hadronic final state
-  //   Two stratefies are considered (for N particles):
+  //   Two strategies are considered (for N particles):
   //   1- N (>=2) particles get passed to the phase space decayer. This is the
   //      old NeuGEN strategy.
   //   2- decay strategy adopted at the July-2006 hadronization model mini-workshop 
@@ -150,7 +155,7 @@ TClonesArray * KNOHadronization::Hadronize(
   if(!particle_list) {
     LOG("KNOHad", pNOTICE) 
         << "Failed decaying a hadronic system @ W=" << W 
-        	                    << "with  multiplicity=" << pdgcv->size();
+        << "with  multiplicity=" << pdgcv->size();
 
     // clean-up and exit
     delete pdgcv;
@@ -214,7 +219,7 @@ PDGCodeList * KNOHadronization::SelectParticles(
     if(itry>kMaxKNOHadSystIterations) {
        LOG("KNOHad", pERROR) 
          << "Couldn't select hadronic shower particles after: " 
-                                                 << itry << " attempts!";
+         << itry << " attempts!";
        delete mprob;
        return 0;
     }
@@ -225,7 +230,7 @@ PDGCodeList * KNOHadronization::SelectParticles(
     LOG("KNOHad", pINFO) << "Hadron multiplicity  = " << mult;
 
     //-- Check that the generated multiplicity is consistent with the charge
-    //   thet the hadronic shower is required to have - else retry
+    //   that the hadronic shower is required to have - else retry
     if(mult < (unsigned int) TMath::Abs(maxQ)) {
        LOG("KNOHad", pWARN) 
         << "Multiplicity not enough to generate hadronic charge! Retrying.";
@@ -240,18 +245,18 @@ PDGCodeList * KNOHadronization::SelectParticles(
       if(fForceMinMult) {
         LOG("KNOHad", pWARN) 
            << "Low generated multiplicity: " << mult 
-              << ". Forcing to minimum accepted multiplicity: " << min_mult;
+           << ". Forcing to minimum accepted multiplicity: " << min_mult;
         mult = min_mult;
       } else {
         LOG("KNOHad", pWARN) 
-           << "Generated multiplicity: " << mult << " is too low - Quitting";
+           << "Generated multiplicity: " << mult << " is too low! Quitting";
         delete mprob;
         return 0;
       }
     }
 
     //-- Determine what kind of particles we have in the final state
-    pdgcv = this->GenerateFSHadronCodes(mult, maxQ, W);
+    pdgcv = this->GenerateHadronCodes(mult, maxQ, W);
 
     LOG("KNOHad", pNOTICE) 
          << "Generated multiplicity (@ W = " << W << "): " << pdgcv->size();
@@ -282,9 +287,11 @@ PDGCodeList * KNOHadronization::SelectParticles(
     }
 
     allowed_state = true;
+
     LOG("KNOHad", pNOTICE) 
-             << "Found an allowed hadronic state @ W=" << W 
-                                              << " multiplicity=" << mult;
+        << "Found an allowed hadronic state @ W=" << W 
+        << " multiplicity=" << mult;
+
   } // attempts
 
   delete mprob;
@@ -309,7 +316,7 @@ TH1D * KNOHadronization::MultiplicityProb(
 
   if(!this->AssertValidity(interaction)) {
      LOG("KNOHad", pWARN) 
-                << "Returning a null multiplicity probability distribution!";
+       << "Returning a null multiplicity probability distribution!";
      return 0;
   }
 
@@ -325,7 +332,7 @@ TH1D * KNOHadronization::MultiplicityProb(
   double avn   = 1.5*avnch;
 
   SLOG("KNOHad", pINFO) 
-             << "Average hadronic multiplicity (W=" << W << ") = " << avn;
+      << "Average hadronic multiplicity (W=" << W << ") = " << avn;
 
   // Find the max possible multiplicity as W = Mneutron + (maxmult-1)*Mpion
   double maxmult = this->MaxMult(interaction);
@@ -364,7 +371,8 @@ TH1D * KNOHadronization::MultiplicityProb(
 
        SLOG("KNOHad", pDEBUG)
           << "n = " << n << " (n/<n> = " << z
-                            << ", <n>*P = " << avnP << ") => P = " << P;
+          << ", <n>*P = " << avnP << ") => P = " << P;
+
        mult_prob->Fill(n,P);
     }
   } else {
@@ -513,7 +521,7 @@ void KNOHadronization::LoadConfig(void)
      fKNO = new Spline(knodata);
   }
 
-  // Load parameters determining the average multiplicity
+  // Load parameters determining the average charged hadron multiplicity
   fAvp  = fConfig->GetDoubleDef("Alpha-vp",  gc->GetDouble("KNO-Alpha-vp") );
   fAvn  = fConfig->GetDoubleDef("Alpha-vn",  gc->GetDouble("KNO-Alpha-vn") ); 
   fAvbp = fConfig->GetDoubleDef("Alpha-vbp", gc->GetDouble("KNO-Alpha-vbp")); 
@@ -522,6 +530,11 @@ void KNOHadronization::LoadConfig(void)
   fBvn  = fConfig->GetDoubleDef("Beta-vn",   gc->GetDouble("KNO-Beta-vn") ); 
   fBvbp = fConfig->GetDoubleDef("Beta-vbp",  gc->GetDouble("KNO-Beta-vbp")); 
   fBvbn = fConfig->GetDoubleDef("Beta-vbn",  gc->GetDouble("KNO-Beta-vbn"));
+
+  // Load parameters determining the prob of producing a strange baryon
+  // via associated production
+  fAhyperon = fConfig->GetDoubleDef("Alpha-Hyperon", gc->GetDouble("KNO-Alpha-Hyperon"));
+  fBhyperon = fConfig->GetDoubleDef("Beta-Hyperon",  gc->GetDouble("KNO-Beta-Hyperon") );
 
   // Load the Levy function parameter
   fCvp  = fConfig->GetDoubleDef("LevyC-vp",  gc->GetDouble("KNO-LevyC-vp") );
@@ -595,24 +608,23 @@ double KNOHadronization::KNO(int probe_pdg, int nuc_pdg, double z) const
   else if ( is_p && (is_nubar || is_lbar) ) c=fCvbp;
   else if ( is_n && (is_nubar || is_lbar) ) c=fCvbn;
   else {
-    LOG("KNOHad", pERROR) 
+    LOG("KNOHad", pERROR)
      << "Invalid initial state (probe = " << probe_pdg << ", "
      << "hit nucleon = " << nuc_pdg << ")";
     return 0;
   }
-
+  
   double x   = c*z+1;
   double kno = 2*TMath::Exp(-c)*TMath::Power(c,x)/TMath::Gamma(x);
-
+                      
   return kno;
 }
 //____________________________________________________________________________
 double KNOHadronization::AverageChMult(
-     int probe_pdg, int nuc_pdg, double W) const
+     int probe_pdg,int nuc_pdg, double W) const
 {
 // computes the average charged multiplicity
 //
-
   bool is_p     = pdg::IsProton           (nuc_pdg);
   bool is_n     = pdg::IsNeutron          (nuc_pdg);
   bool is_nu    = pdg::IsNeutrino         (probe_pdg);
@@ -627,14 +639,14 @@ double KNOHadronization::AverageChMult(
   else if ( is_p && (is_nubar || is_lbar) ) { a=fAvbp; b=fBvbp; }
   else if ( is_n && (is_nubar || is_lbar) ) { a=fAvbn; b=fBvbn; }
   else {
-    LOG("KNOHad", pERROR) 
+    LOG("KNOHad", pERROR)
       << "Invalid initial state (probe = " << probe_pdg << ", "
       << "hit nucleon = " << nuc_pdg << ")";
     return 0;
   }
-
+  
   double av_nch = a + b * 2*TMath::Log(W);
-  return av_nch;        
+  return av_nch;
 }
 //____________________________________________________________________________
 int KNOHadronization::HadronShowerCharge(const Interaction* interaction) const
@@ -649,15 +661,15 @@ int KNOHadronization::HadronShowerCharge(const Interaction* interaction) const
 
   // find out the charge of the final state lepton
   double ql = interaction->FSPrimLepton()->Charge() / 3.;
-
+  
   // find out the charge of the probe
   double qp = interaction->InitState().Probe()->Charge() / 3.;
-
+  
   // get the initial state, ask for the hit-nucleon and get
   // its charge ( = initial state charge for vN interactions)
   const InitialState & init_state = interaction->InitState();
   int hit_nucleon = init_state.Tgt().HitNucPdg();
-
+  
   assert( pdg::IsProton(hit_nucleon) || pdg::IsNeutron(hit_nucleon) );
 
   // Ask PDGLibrary for the nucleon charge
@@ -711,7 +723,8 @@ TClonesArray * KNOHadronization::DecayMethod2(
   double MN     = PDGLibrary::Instance()->Find(baryon)->Mass();
   double MN2    = TMath::Power(MN, 2);
 
-  assert(pdg::IsNeutronOrProton(baryon));
+  // Check baryon code
+  // ...
 
   // Strip the PDG list from the baryon
   bool allowdup = true;
@@ -721,7 +734,6 @@ TClonesArray * KNOHadronization::DecayMethod2(
   // Get the sum of all masses for the particles in the stripped list
   double mass_sum = 0;
   vector<int>::const_iterator pdg_iter = pdgv_strip.begin();
-
   for( ; pdg_iter != pdgv_strip.end(); ++pdg_iter) {
     int pdgc = *pdg_iter;
     mass_sum += PDGLibrary::Instance()->Find(pdgc)->Mass();
@@ -785,7 +797,8 @@ TClonesArray * KNOHadronization::DecayMethod2(
         << "Remaining system: Available mass = " << p4d.Mag() 
         << ", Particle masses = " << mass_sum; 
 
-    bool is_ok = this->PhaseSpaceDecay(*plist, p4d, pdgv_strip, 1, reweight_decays); 
+    bool is_ok = this->PhaseSpaceDecay(
+                          *plist, p4d, pdgv_strip, 1, reweight_decays); 
 
     got_hadsyst_4p = is_ok;
 
@@ -1044,33 +1057,114 @@ double KNOHadronization::ReWeightPt2(const PDGCodeList & pdgcv) const
   return w;
 }
 //____________________________________________________________________________
-PDGCodeList * KNOHadronization::GenerateFSHadronCodes(
+PDGCodeList * KNOHadronization::GenerateHadronCodes(
                                    int multiplicity, int maxQ, double W) const
 {
 // Selection of fragments (identical as in NeuGEN).
 
-  // PDG Library
+  // Get PDG library and rnd num generator
   PDGLibrary * pdg = PDGLibrary::Instance();
+  RandomGen * rnd = RandomGen::Instance();
 
-  // vector to add final state hadron PDG codes
+  // Create vector to add final state hadron PDG codes
   bool allowdup=true;
   PDGCodeList * pdgc = new PDGCodeList(allowdup);
   //pdgc->reserve(multiplicity);
   int hadrons_to_add = multiplicity;
 
-  //----- Assign baryon as p or n.
+  //
+  // Assign baryon as p, n, Sigma+, Sigma- or Lambda
+  //
 
-  int baryon_code = this->GenerateBaryonPdgCode(multiplicity, maxQ);
+  int baryon_code = this->GenerateBaryonPdgCode(multiplicity, maxQ, W);
   pdgc->push_back(baryon_code);
 
-  // update number of hadrons to add, available shower charge & invariant mass
-  if( (*pdgc)[0] == kPdgProton ) maxQ -= 1;
+  bool baryon_is_strange = (baryon_code == kPdgSigmaP || 
+                            baryon_code == kPdgLambda || 
+                            baryon_code == kPdgSigmaM);
+  bool baryon_chg_is_pos = (baryon_code == kPdgProton ||
+                            baryon_code == kPdgSigmaP);
+  bool baryon_chg_is_neg = (baryon_code == kPdgSigmaM);
+
+  // Update number of hadrons to add, available shower charge & invariant mass
+  if(baryon_chg_is_pos) maxQ -= 1;
+  if(baryon_chg_is_neg) maxQ += 1;
   hadrons_to_add--;
   W -= pdg->Find( (*pdgc)[0] )->Mass();
 
-  //----- Assign remaining hadrons up to n = multiplicity
+  //
+  // Assign remaining hadrons up to n = multiplicity
+  //
 
-  //-- Handle charge imbalance
+  // Conserve strangeness
+  if(baryon_is_strange) {
+        LOG("KNOHad", pDEBUG) 
+           << " Remnant baryon is strange. Conserving strangeness...";
+
+        //conserve strangeness and handle charge imbalance with one particle
+        if(multiplicity == 2) { 
+           if(maxQ == 1) { 
+              LOG("KNOHad", pDEBUG) << " -> Adding a K+"; 
+              pdgc->push_back( kPdgKP );
+   
+              // update n-of-hadrons to add, avail. shower charge & invariant mass
+              maxQ -= 1;
+              hadrons_to_add--;
+              W -= pdg->Find(kPdgKP)->Mass();
+           }
+           else if(maxQ == 0) {
+              LOG("KNOHad", pDEBUG) << " -> Adding a K0";
+              pdgc->push_back( kPdgK0 );
+    
+              // update n-of-hadrons to add, avail. shower charge & invariant mass
+              hadrons_to_add--;
+              W -= pdg->Find(kPdgK0)->Mass();
+           }
+        }
+
+        //only two particles left to balance charge
+        else if(multiplicity == 3 && maxQ == 2) { 
+           LOG("KNOHad", pDEBUG) << " -> Adding a K+"; 
+           pdgc->push_back( kPdgKP );
+   
+           // update n-of-hadrons to add, avail. shower charge & invariant mass
+           maxQ -= 1;
+           hadrons_to_add--;
+           W -= pdg->Find(kPdgKP)->Mass();
+        }
+        else if(multiplicity == 3 && maxQ == -1) { //adding K+ makes it impossible to balance charge
+           LOG("KNOHad", pDEBUG) << " -> Adding a K0"; 
+           pdgc->push_back( kPdgK0 );
+   
+           // update n-of-hadrons to add, avail. shower charge & invariant mass
+           hadrons_to_add--;
+           W -= pdg->Find(kPdgK0)->Mass();
+        }
+
+        //simply conserve strangeness, without regard to charge
+        else { 
+           double y = rnd->RndHadro().Rndm();
+           if(y < 0.5) {
+              LOG("KNOHad", pDEBUG) <<" -> Adding a K+";
+              pdgc->push_back( kPdgKP );
+   
+              // update n-of-hadrons to add, avail. shower charge & invariant mass
+              maxQ -= 1;
+              hadrons_to_add--;
+              W -= pdg->Find(kPdgKP)->Mass();
+           }
+           else {
+              LOG("KNOHad", pDEBUG) <<" -> Adding a K0";
+              pdgc->push_back( kPdgK0 );
+    
+              // update n-of-hadrons to add, avail. shower charge & invariant mass
+              hadrons_to_add--;
+              W -= pdg->Find(kPdgK0)->Mass();
+           } 
+        }
+  }//if the baryon is strange
+
+  // Handle charge imbalance
   while(maxQ != 0) {
 
      if (maxQ < 0) {
@@ -1097,7 +1191,7 @@ PDGCodeList * KNOHadronization::GenerateFSHadronCodes(
      }
   }
 
-  //-- Add remaining neutrals or pairs up to the generated multiplicity
+  // Add remaining neutrals or pairs up to the generated multiplicity
   if(maxQ == 0) {
 
      LOG("KNOHad", pDEBUG) 
@@ -1130,30 +1224,24 @@ PDGCodeList * KNOHadronization::GenerateFSHadronCodes(
      }
 
      // Now add pairs (pi0 pi0 / pi+ pi- / K+ K- / K0 K0bar)
-
      assert( hadrons_to_add % 2 == 0 ); // even number
-
-     RandomGen * rnd = RandomGen::Instance();
 
      while(hadrons_to_add > 0 && W >= M2pi0) {
 
          double x = rnd->RndHadro().Rndm();
          LOG("KNOHad", pDEBUG) << "rndm = " << x;
-         
+
+         // Add a pi0 pair         
          if (x >= 0 && x < fPpi0) {  
-            //-------------------------------------------------------------
-            // Add a pi0 pair
-            //-------------------------------------------------------------
             LOG("KNOHad", pDEBUG) << " -> Adding a pi0pi0 pair";
             pdgc->push_back( kPdgPi0 );
             pdgc->push_back( kPdgPi0 );
             hadrons_to_add -= 2; // update the number of hadrons to add
             W -= M2pi0; // update the available invariant mass
+         } 
 
-         } else if (x < fPpi0 + fPpic) {
-            //-------------------------------------------------------------
-            // Add a pi+ pi- pair 
-            //-------------------------------------------------------------
+         // Add a pi+ pi- pair 
+         else if (x < fPpi0 + fPpic) {
             if(W >= M2pic) {
                 LOG("KNOHad", pDEBUG) << " -> Adding a pi+pi- pair";
                 pdgc->push_back( kPdgPiP );
@@ -1164,11 +1252,10 @@ PDGCodeList * KNOHadronization::GenerateFSHadronCodes(
                 LOG("KNOHad", pDEBUG) 
                   << "Not enough mass for a pi+pi-: trying something else";
             }
+         } 
 
-         } else if (x < fPpi0 + fPpic + fPKc) {
-            //-------------------------------------------------------------
-            // Add a K+ K- pair 
-            //-------------------------------------------------------------
+         // Add a K+ K- pair 
+         else if (x < fPpi0 + fPpic + fPKc) {
             if(W >= M2Kc) {
                 LOG("KNOHad", pDEBUG) << " -> Adding a K+K- pair";
                 pdgc->push_back( kPdgKP );
@@ -1179,11 +1266,10 @@ PDGCodeList * KNOHadronization::GenerateFSHadronCodes(
                 LOG("KNOHad", pDEBUG) 
                      << "Not enough mass for a K+K-: trying something else";
             }
+         } 
 
-         } else if (x <= fPpi0 + fPpic + fPKc + fPK0) {
-            //-------------------------------------------------------------
-            // Add a K0 - \bar{K0} pair 
-            //-------------------------------------------------------------
+         // Add a K0 - \bar{K0} pair 
+         else if (x <= fPpi0 + fPpic + fPKc + fPK0) {
             if( W >= M2K0 ) {
                 LOG("KNOHad", pDEBUG) << " -> Adding a K0 K0bar pair";
                 pdgc->push_back( kPdgK0     );
@@ -1213,54 +1299,85 @@ PDGCodeList * KNOHadronization::GenerateFSHadronCodes(
   return pdgc;
 }
 //____________________________________________________________________________
-int KNOHadronization::GenerateBaryonPdgCode(int multiplicity, int maxQ) const
+int KNOHadronization::GenerateBaryonPdgCode(
+                 int multiplicity, int maxQ, double W) const
 {
 // Selection of main target fragment (identical as in NeuGEN).
 // Assign baryon as p or n. Force it for ++ and - I=3/2 at mult. = 2
 
   RandomGen * rnd = RandomGen::Instance();
+  double x = rnd->RndHadro().Rndm();
+  double y = rnd->RndHadro().Rndm();
 
   // initialize to neutron & then change it to proton if you must
   int pdgc = kPdgNeutron;
-  double x = rnd->RndHadro().Rndm();
 
-  //-- available hadronic system charge = 2
+  // Assign a probability for the given W for the baryon to become strange
+  // using a function derived from a fit to the data in Jones et al. (1993)
+  // Don't let the probability be larger than 1.
+  double Pstr = fAhyperon + fBhyperon * TMath::Log(W*W);
+  Pstr = TMath::Min(1.,Pstr);
+  Pstr = TMath::Max(0.,Pstr);
+  
+  // Available hadronic system charge = 2
   if(maxQ == 2) {
-     // for multiplicity == 2, force it to p
-     if(multiplicity == 2) pdgc = kPdgProton;
+     //for multiplicity ==2, force it to p
+     if(multiplicity ==2 ) pdgc = kPdgProton;
      else {
-           if(x < 0.66667) pdgc = kPdgProton;
+       if(x < 0.66667) pdgc = kPdgProton;
      }
   }
-
-  //-- available hadronic system charge = 1
+  // Available hadronic system charge = 1
   if(maxQ == 1) {
      if(multiplicity == 2) {
-              if(x < 0.33333) pdgc = kPdgProton;
+        if(x < 0.33333) pdgc = kPdgProton;
      } else {
-              if(x < 0.50000) pdgc = kPdgProton;
+        if(x < 0.50000) pdgc = kPdgProton;
      }
   }
 
-  //-- available hadronic system charge = 0
+  // Available hadronic system charge = 0
   if(maxQ == 0) {
      if(multiplicity == 2) {
-              if(x < 0.66667) pdgc = kPdgProton;
+        if(x < 0.66667) pdgc = kPdgProton;
      } else {
-              if(x < 0.50000) pdgc = kPdgProton;
+        if(x < 0.50000) pdgc = kPdgProton;
      }
   }
-
-  //-- available hadronic system charge = -1
+  // Available hadronic system charge = -1
   if(maxQ == -1) {
      // for multiplicity == 2, force it to n
      if(multiplicity != 2) {
-           if(x < 0.33333) pdgc = kPdgProton;
+        if(x < 0.33333) pdgc = kPdgProton;
      }
   }
 
-  LOG("KNOHad", pDEBUG) 
-       << " -> Adding a " << (( pdgc == kPdgProton ) ? "proton" : "neutron");
+  // For neutrino interactions turn protons and neutrons to Sigma+ and
+  // Lambda respectively (Lambda and Sigma- respectively for anti-neutrino
+  // interactions).
+  if(pdgc == kPdgProton && y < Pstr && maxQ > 0) {
+     pdgc = kPdgSigmaP;
+  }
+  else if(pdgc == kPdgProton && y < Pstr && maxQ <= 0) {
+     pdgc = kPdgLambda;
+  }
+  else if(pdgc == kPdgNeutron && y < Pstr && maxQ > 0) {
+     pdgc = kPdgLambda;
+  }
+  else if(pdgc == kPdgNeutron && y < Pstr && maxQ <= 0) {
+     pdgc = kPdgSigmaM;
+  }
+
+  if(pdgc == kPdgProton)
+     LOG("KNOHad", pDEBUG) << " -> Adding a proton";
+  if(pdgc == kPdgNeutron)
+     LOG("KNOHad", pDEBUG) << " -> Adding a neutron";
+  if(pdgc == kPdgSigmaP)
+     LOG("KNOHad", pDEBUG) << " -> Adding a sigma+";
+  if(pdgc == kPdgLambda)
+     LOG("KNOHad", pDEBUG) << " -> Adding a lambda";
+  if(pdgc == kPdgSigmaM)
+     LOG("KNOHad", pDEBUG) << " -> Adding a sigma-";
 
   return pdgc;
 }

@@ -24,7 +24,7 @@
 
 \created  August 17, 2004
 
-\cpright  Copyright (c) 2003-2009, GENIE Neutrino MC Generator Collaboration
+\cpright  Copyright (c) 2003-2010, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
@@ -69,8 +69,8 @@ private:
 
   void          LoadConfig            (void);
   bool          AssertValidity        (const Interaction * i)        const;
-  PDGCodeList * GenerateFSHadronCodes (int mult, int maxQ, double W) const;
-  int           GenerateBaryonPdgCode (int mult, int maxQ)           const;
+  PDGCodeList * GenerateHadronCodes   (int mult, int maxQ, double W) const;
+  int           GenerateBaryonPdgCode (int mult, int maxQ, double W) const;
   int           HadronShowerCharge    (const Interaction * )         const;
   double        KNO                   (int nu, int nuc, double z)    const;
   double        AverageChMult         (int nu, int nuc, double W)    const;
@@ -102,18 +102,20 @@ private:
   bool     fForceMinMult;        ///< force minimum multiplicity if (at low W) generated less?
   bool     fGenerateWeighted;    ///< generate weighted events?
   double   fPhSpRwA;             ///< parameter for phase space decay reweighting
-  double   fPpi0;                ///< pi0 pi0 production probability
-  double   fPpic;                ///< pi+ pi- production probability
-  double   fPKc;                 ///< K+  K- production probability
-  double   fPK0;                 ///< K0  K0bar production probability
-  double   fAvp;                 ///< offset in average multiplicity = f(W) relation for vp
-  double   fAvn;                 ///< offset in average multiplicity = f(W) relation for vn
-  double   fAvbp;                ///< offset in average multiplicity = f(W) relation for vbp
-  double   fAvbn;                ///< offset in average multiplicity = f(W) relation for vbn
-  double   fBvp;                 ///< slope  in average multiplicity = f(W) relation for vp
-  double   fBvn;                 ///< slope  in average multiplicity = f(W) relation for vn
-  double   fBvbp;                ///< slope  in average multiplicity = f(W) relation for vbp
-  double   fBvbn;                ///< slope  in average multiplicity = f(W) relation for vbn
+  double   fPpi0;                ///< {pi0 pi0  } production probability
+  double   fPpic;                ///< {pi+ pi-  } production probability
+  double   fPKc;                 ///< {K+  K-   } production probability
+  double   fPK0;                 ///< {K0  K0bar} production probability
+  double   fAvp;                 ///< offset in average charged hadron multiplicity = f(W) relation for vp
+  double   fAvn;                 ///< offset in average charged hadron multiplicity = f(W) relation for vn
+  double   fAvbp;                ///< offset in average charged hadron multiplicity = f(W) relation for vbp
+  double   fAvbn;                ///< offset in average charged hadron multiplicity = f(W) relation for vbn
+  double   fBvp;                 ///< slope  in average charged hadron multiplicity = f(W) relation for vp
+  double   fBvn;                 ///< slope  in average charged hadron multiplicity = f(W) relation for vn
+  double   fBvbp;                ///< slope  in average charged hadron multiplicity = f(W) relation for vbp
+  double   fBvbn;                ///< slope  in average charged hadron multiplicity = f(W) relation for vbn
+  double   fAhyperon;            ///< parameter controlling strange baryon production probability via associated production (P=a+b*lnW^2)
+  double   fBhyperon;            ///< see above
   double   fCvp;                 ///< Levy function parameter for vp
   double   fCvn;                 ///< Levy function parameter for vn
   double   fCvbp;                ///< Levy function parameter for vbp
