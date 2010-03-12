@@ -1,0 +1,16 @@
+#	"e+A from HERMES, 26.7 GeV"													
+#	"""Date: "	04/11/2009												
+#		paper		pic		target		y		x		hadron		energy(GeV)
+#	dat file:	airapetian-NuclPhysB780_2007	_	FIG2	_	Kr	_	RhA	_	Q2	_	pip		27.6
+#	min-x=	1.22846					unit=		unit=	GeV^2				
+#	erros	symmetric		err-ave=(up-low)/2										
+#	marker=	green down triangle filled						 						
+#	Q2	RhA	y-err-av		y-err-up	y-err-low		y-err(up/low)						
+	1.23	0.78	0.024		0.80191	0.75449		0.82						
+	1.73	0.77	0.025		0.7935	0.74379		0.86						
+	2.43	0.78	0.026		0.79885	0.74608		0.60						
+	3.44	0.80	0.027		0.82715	0.77361		0.75						
+	4.43	0.81	0.027		0.8325	0.7782		0.77						
+	5.43	0.82	0.029		0.84321	0.78509		0.81						
+	6.76	0.82	0.029		0.84168	0.78432		0.79						
+	9.40	0.79	0.031		0.82409	0.76138		0.95	ave=	0.79				
