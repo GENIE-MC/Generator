@@ -7,15 +7,17 @@
 #   shell% perl submit-evg_sk_fhst.pl <options>
 #
 # Options:
-#    --run           : 1,2,3,...
-#    --neutrino      : numu, numubar, nue, nuesig
-#    --version       : GENIE version
-#   [--arch]         : <SL4_32bit, SL5_64bit>, default: SL5_64bit
-#   [--production]   : default: superkmc_<version>
-#   [--cycle]        : default: 01
-#   [--use-valgrind] : default: off
-#   [--queue]        : default: prod
-#   [--softw-topdir] : default: /opt/ppd/t2k/GENIE
+#    --run             : 1,2,3,...
+#    --neutrino        : numu, numubar, nue, nuesig
+#    --version         : GENIE version
+#   [--flux-version]   : JNUBEAM flux version, <07a, 10>, default: 10
+#   [--flux-hist-file] : JNUBEAM flux histogram file, default: sk_flux_histograms.root
+#   [--arch]           : <SL4_32bit, SL5_64bit>, default: SL5_64bit
+#   [--production]     : default: superkmc_<version>
+#   [--cycle]          : default: 01
+#   [--use-valgrind]   : default: off
+#   [--queue]          : default: prod
+#   [--softw-topdir]   : default: /opt/ppd/t2k/GENIE
 #
 # Example:
 #   shell& perl submit-evg_sk_fhst.pl --run 180 --neutrino numubar --version v2.5.1
@@ -32,15 +34,17 @@ use File::Path;
 #
 $iarg=0;
 foreach (@ARGV) {
-  if($_ eq '--run'     )      { $run           = $ARGV[$iarg+1]; }
-  if($_ eq '--neutrino')      { $neutrino      = $ARGV[$iarg+1]; }
-  if($_ eq '--version')       { $genie_version = $ARGV[$iarg+1]; }
-  if($_ eq '--arch')          { $arch          = $ARGV[$iarg+1]; }
-  if($_ eq '--production')    { $production    = $ARGV[$iarg+1]; }
-  if($_ eq '--cycle')         { $cycle         = $ARGV[$iarg+1]; }
-  if($_ eq '--use-valgrind')  { $use_valgrind  = $ARGV[$iarg+1]; }
-  if($_ eq '--queue')         { $queue         = $ARGV[$iarg+1]; }
-  if($_ eq '--softw-topdir')  { $softw_topdir  = $ARGV[$iarg+1]; }  
+  if($_ eq '--run'     )       { $run            = $ARGV[$iarg+1]; }
+  if($_ eq '--neutrino')       { $neutrino       = $ARGV[$iarg+1]; }
+  if($_ eq '--version')        { $genie_version  = $ARGV[$iarg+1]; }
+  if($_ eq '--flux-version')   { $flux_version   = $ARGV[$iarg+1]; }
+  if($_ eq '--flux-hist-file') { $flux_hist_file = $ARGV[$iarg+1]; }
+  if($_ eq '--arch')           { $arch           = $ARGV[$iarg+1]; }
+  if($_ eq '--production')     { $production     = $ARGV[$iarg+1]; }
+  if($_ eq '--cycle')          { $cycle          = $ARGV[$iarg+1]; }
+  if($_ eq '--use-valgrind')   { $use_valgrind   = $ARGV[$iarg+1]; }
+  if($_ eq '--queue')          { $queue          = $ARGV[$iarg+1]; }
+  if($_ eq '--softw-topdir')   { $softw_topdir   = $ARGV[$iarg+1]; }  
   $iarg++;
 }
 die("** Aborting [Undefined run number. Use the --run option]")
@@ -56,6 +60,8 @@ $production     = "superkmc\_$genie_version"   unless defined $production;
 $cycle          = "01"                         unless defined $cycle;
 $queue          = "prod"                       unless defined $queue;
 $softw_topdir   = "/opt/ppd/t2k/GENIE"         unless defined $softw_topdir;
+$flux_version   = "10"                         unless defined $flux_version;
+$flux_hist_file = "sk_flux_histograms.root"    unless defined $flux_hist_file;
 $nevents        = "2000";   
 $time_limit     = "05:00:00";
 $production_dir = "$softw_topdir/scratch";
@@ -63,8 +69,8 @@ $inputs_dir     = "$softw_topdir/data/job_inputs";
 $genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
 $geom_tgt_mix   = "1000080160[0.8879],1000010010[0.1121]";
 $xspl_file      = "$inputs_dir/xspl/gxspl-t2k-$genie_version.xml";
-$flux_file      = "$inputs_dir/t2k_flux/07a/sk/hist.nu.sk.root";
-$job_dir        = "$production_dir/sk-$production\_$cycle-$neutrino";
+$flux_file      = "$inputs_dir/t2k_flux/$flux_version/sk/$flux_hist_file";
+$job_dir        = "$production_dir/sk-$genie_version-$production\_$cycle-$neutrino";
 $file_prefix    = "genie_sk";
 
 %mcseed_base    = ( 'numu'    => '183221029',
@@ -79,10 +85,14 @@ $file_prefix    = "genie_sk";
                     'numubar' => '-14',
                     'nue'     =>  '12',
                     'nuesig'  =>  '12' );
-%flux_hist_name = ( 'numu'    => 'h100',
-                    'numubar' => 'h200',
-                    'nue'     => 'h300',
-                    'nuesig'  => 'h100' );
+%flux_hist_name = ( 'numu'    => 'numu_flux',
+                    'numubar' => 'numubar_flux',
+                    'nue'     => 'nue_flux',
+                    'nuesig'  => 'numu_flux' );
+#%flux_hist_name = ( 'numu'    => 'h100',
+#                    'numubar' => 'h200',
+#                    'nue'     => 'h300',
+#                    'nuesig'  => 'h100' );
 
 die("** Aborting [Can not find GENIE setup script: ..... $genie_setup]") 
 unless -e $genie_setup;

@@ -7,17 +7,20 @@
 #   shell$ perl submit-evg_sk_fntp.pl <options>
 #
 # Options:
-#    --fluxrun       : Input flux run number
-#    --version       : GENIE version 
-#   [--arch]         : <SL4_32bit, SL5_64bit>, default: SL5_64bit
-#   [--production]   : default: superkmc_<version>
-#   [--cycle]        : default: 01
-#   [--use-valgrind] : default: off
-#   [--queue]        : default: prod
-#   [--softw-topdir] : default: /opt/ppd/t2k/GENIE
+#    --version             : GENIE version 
+#    --flux-run            : Input flux run number
+#   [--flux-version]       : JNUBEAM flux version, <07a, 10>, default: 10
+#   [--flux-file-prefix]   : JNUBEAM flux file prefix, default: nu.sk_horn250ka.
+#   [--flux-file-suffix]   : JNUBEAM flux file suffix, default: .root
+#   [--arch]               : <SL4_32bit, SL5_64bit>, default: SL5_64bit
+#   [--production]         : default: superkmc_<version>
+#   [--cycle]              : default: 01
+#   [--use-valgrind]       : default: off
+#   [--queue]              : default: prod
+#   [--softw-topdir]       : default: /opt/ppd/t2k/GENIE
 #
 # Example:
-#   shell$ perl submit-evg_sk_fntp.pl --fluxrun 180 --version v2.4.0 --production mdc0 --cycle 01
+#   shell$ perl submit-evg_sk_fntp.pl --flux-run 180 --version v2.4.0 --production mdc0 --cycle 01
 #
 # Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
 # STFC, Rutherford Appleton Lab
@@ -31,45 +34,49 @@ use File::Path;
 #
 $iarg=0;
 foreach (@ARGV) {
-  if($_ eq '--fluxrun')       { $fluxrun = $ARGV[$iarg+1]; }
-  if($_ eq '--version')       { $genie_version = $ARGV[$iarg+1]; }
-  if($_ eq '--arch')          { $arch          = $ARGV[$iarg+1]; }
-  if($_ eq '--production')    { $production    = $ARGV[$iarg+1]; }
-  if($_ eq '--cycle')         { $cycle         = $ARGV[$iarg+1]; }
-  if($_ eq '--use-valgrind')  { $use_valgrind  = $ARGV[$iarg+1]; }
-  if($_ eq '--queue')         { $queue         = $ARGV[$iarg+1]; }
-  if($_ eq '--softw-topdir')  { $softw_topdir  = $ARGV[$iarg+1]; }   
+  if($_ eq '--version')           { $genie_version      = $ARGV[$iarg+1]; }
+  if($_ eq '--flux-run')          { $flux_run           = $ARGV[$iarg+1]; }
+  if($_ eq '--flux-version')      { $flux_version       = $ARGV[$iarg+1]; }
+  if($_ eq '--flux-file-prefix')  { $flux_file_prefix   = $ARGV[$iarg+1]; }
+  if($_ eq '--flux-file-suffix')  { $flux_file_suffix   = $ARGV[$iarg+1]; }
+  if($_ eq '--arch')              { $arch               = $ARGV[$iarg+1]; }
+  if($_ eq '--production')        { $production         = $ARGV[$iarg+1]; }
+  if($_ eq '--cycle')             { $cycle              = $ARGV[$iarg+1]; }
+  if($_ eq '--use-valgrind')      { $use_valgrind       = $ARGV[$iarg+1]; }
+  if($_ eq '--queue')             { $queue              = $ARGV[$iarg+1]; }
+  if($_ eq '--softw-topdir')      { $softw_topdir       = $ARGV[$iarg+1]; }   
   $iarg++;
 }
-die("** Aborting [Undefined run number. Use the --fluxrun option]")
-unless defined $fluxrun;
+die("** Aborting [Undefined run number. Use the --flux-run option]")
+unless defined $flux_run;
 die("** Aborting [Undefined GENIE version. Use the --version option]")
 unless defined $genie_version;
 
-$use_valgrind   = 0                          unless defined $use_valgrind;
-$arch           = "SL5_64bit"                unless defined $arch;
-$production     = "superkmc\_$genie_version" unless defined $production;
-$cycle          = "01"                       unless defined $cycle;
-$queue          = "prod"                     unless defined $queue;
-$softw_topdir   = "/opt/ppd/t2k/GENIE"       unless defined $softw_topdir;
-$nevents        = "50000";   
-$mcrun_base     = 10000000;
-$mcseed_base    = 210921029;
-$time_limit     = "25:00:00";
-$production_dir = "$softw_topdir/scratch";
-$inputs_dir     = "$softw_topdir/data/job_inputs";
-$genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
-$geom_tgt_mix   = "1000080160[0.8879],1000010010[0.1121]";
-$xspl_file      = "$inputs_dir/xspl/gxspl-t2k-$genie_version.xml";
-$flux_dir       = "$inputs_dir/t2k_flux/07a/sk";
-$flux_file_prfx = "nu.2.0deg.sk.";
-$flux_file_sufx = ".root";
-$flux_file      = "$flux_dir/$flux_file_prfx$fluxrun$flux_file_sufx";
-$flux_det_loc   = "sk";
-$job_dir        = "$production_dir/sk-$production\_$cycle";
-$file_prefix    = "genie_sk";
-$mcrun          = $mcrun_base  + $fluxrun;
-$mcseed         = $mcseed_base + $fluxrun;
+$use_valgrind      = 0                          unless defined $use_valgrind;
+$arch              = "SL5_64bit"                unless defined $arch;
+$production        = "superkmc\_$genie_version" unless defined $production;
+$cycle             = "01"                       unless defined $cycle;
+$queue             = "prod"                     unless defined $queue;
+$softw_topdir      = "/opt/ppd/t2k/GENIE"       unless defined $softw_topdir;
+$flux_version      = "10"                       unless defined $flux_version;
+$flux_file_prefix  = "nu.sk_horn250ka."         unless defined $flux_file_prefix;
+$flux_file_suffix  = ".root"                    unless defined $flux_file_suffix;
+$nevents           = "50000";   
+$mcrun_base        = 10000000;
+$mcseed_base       = 210921029;
+$time_limit        = "25:00:00";
+$production_dir    = "$softw_topdir/scratch";
+$inputs_dir        = "$softw_topdir/data/job_inputs";
+$genie_setup       = "$softw_topdir/builds/$arch/$genie_version-setup";
+$geom_tgt_mix      = "1000080160[0.8879],1000010010[0.1121]";
+$xspl_file         = "$inputs_dir/xspl/gxspl-t2k-$genie_version.xml";
+$flux_dir          = "$inputs_dir/t2k_flux/$fluxversion/sk";
+$flux_file         = "$flux_dir/$flux_file_prfx$flux_run$flux_file_sufx";
+$flux_det_loc      = "sk";
+$job_dir           = "$production_dir/sk-$genie_version-$production\_$cycle";
+$file_prefix       = "genie_sk";
+$mcrun             = $mcrun_base  + $flux_run;
+$mcseed            = $mcseed_base + $flux_run;
 
 die("** Aborting [Can not find GENIE setup script: ..... $genie_setup]") 
 unless -e $genie_setup;
