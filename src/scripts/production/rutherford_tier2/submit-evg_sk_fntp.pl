@@ -13,7 +13,7 @@
 #   [--flux-file-prefix]   : JNUBEAM flux file prefix, default: nu.sk_horn250ka.
 #   [--flux-file-suffix]   : JNUBEAM flux file suffix, default: .root
 #   [--arch]               : <SL4_32bit, SL5_64bit>, default: SL5_64bit
-#   [--production]         : default: superkmc_<version>
+#   [--production]         : default: <version>
 #   [--cycle]              : default: 01
 #   [--use-valgrind]       : default: off
 #   [--queue]              : default: prod
@@ -54,7 +54,7 @@ unless defined $genie_version;
 
 $use_valgrind      = 0                          unless defined $use_valgrind;
 $arch              = "SL5_64bit"                unless defined $arch;
-$production        = "superkmc\_$genie_version" unless defined $production;
+$production        = "$genie_version"           unless defined $production;
 $cycle             = "01"                       unless defined $cycle;
 $queue             = "prod"                     unless defined $queue;
 $softw_topdir      = "/opt/ppd/t2k/GENIE"       unless defined $softw_topdir;
@@ -73,7 +73,7 @@ $xspl_file         = "$inputs_dir/xspl/gxspl-t2k-$genie_version.xml";
 $flux_dir          = "$inputs_dir/t2k_flux/$fluxversion/sk";
 $flux_file         = "$flux_dir/$flux_file_prfx$flux_run$flux_file_sufx";
 $flux_det_loc      = "sk";
-$job_dir           = "$production_dir/sk-$genie_version-$production\_$cycle";
+$job_dir           = "$production_dir/skmc-$production\_$cycle";
 $file_prefix       = "genie_sk";
 $mcrun             = $mcrun_base  + $flux_run;
 $mcseed            = $mcseed_base + $flux_run;

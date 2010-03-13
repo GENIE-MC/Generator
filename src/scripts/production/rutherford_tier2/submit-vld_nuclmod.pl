@@ -15,7 +15,7 @@
 # [--model-enum]   : physics model enumeration, default: 0
 # [--nsubruns]     : number of subruns per run, default: 1
 # [--arch]         : <SL4_32bit, SL5_64bit>, default: SL5_64bit
-# [--production]   : production name, default: hadnucvld_<version>
+# [--production]   : production name, default: <model>_<version>
 # [--cycle]        : cycle in current production, default: 01
 # [--use-valgrind] : default: off
 # [--system]       : <RAL_tier2, Imperial_batch, Interactive>, default: RAL_tier2
@@ -77,14 +77,14 @@ $model_enum     = "0"                                     unless defined $model_
 $nsubruns       = 1                                       unless defined $nsubruns;
 $use_valgrind   = 0                                       unless defined $use_valgrind;
 $arch           = "SL5_64bit"                             unless defined $arch;
-$production     = "nuclmod\_$model_enum\_$genie_version"  unless defined $production;
+$production     = "$model_enum\_$genie_version"           unless defined $production;
 $cycle          = "01"                                    unless defined $cycle;
 $queue          = "prod"                                  unless defined $queue;
 $system         = "RAL_tier2"                             unless defined $system;
 $softw_topdir   = "/opt/ppd/t2k/GENIE"                    unless defined $softw_topdir;
 $time_limit     = "60:00:00";
 $genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
-$jobs_dir       = "$softw_topdir/scratch/$production\_$cycle";
+$jobs_dir       = "$softw_topdir/scratch/vld\_nuclmod-$production\_$cycle";
 $xspl_file      = "$softw_topdir/data/job_inputs/xspl/gxspl-emode-$genie_version.xml";
 $mcseed         = 210921029;
 $nev_per_subrun = 50000;

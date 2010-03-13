@@ -12,7 +12,7 @@
 #    --flux-run      : Input flux run number
 #   [--flux-version] : JNUBEAM flux version, <07a, 10>, default: 10
 #   [--arch]         : <SL4_32bit, SL5_64bit>, default: SL5_64bit
-#   [--production]   : default: nd280mc_<version>
+#   [--production]   : default: <version>
 #   [--cycle]        : default: 01
 #   [--use-valgrind] : default: off
 #   [--queue]        : default: prod
@@ -51,7 +51,7 @@ unless defined $genie_version;
 
 $use_valgrind   = 0                         unless defined $use_valgrind;
 $arch           = "SL5_64bit"               unless defined $arch;
-$production     = "nd280mc\_$genie_version" unless defined $production;
+$production     = "$genie_version"          unless defined $production;
 $cycle          = "01"                      unless defined $cycle;
 $queue          = "prod"                    unless defined $queue;
 $softw_topdir   = "/opt/ppd/t2k/GENIE"      unless defined $softw_topdir;
@@ -63,7 +63,7 @@ $time_limit     = "30:00:00";
 $genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
 $production_dir = "$softw_topdir/scratch";
 $inputs_dir     = "$softw_topdir/data/job_inputs";
-$job_dir        = "$production_dir/nd280-$genie_version-$production\_$cycle";
+$job_dir        = "$production_dir/nd280mc-$production\_$cycle";
 $flux_dir       = "$inputs_dir/t2k_flux/$flux_version/nd";
 $flux_file_prfx = "nu.nd280.";
 $flux_file_sufx = ".root";
