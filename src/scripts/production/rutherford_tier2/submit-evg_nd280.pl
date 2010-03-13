@@ -35,17 +35,17 @@ use File::Path;
 #
 $iarg=0;
 foreach (@ARGV) {
-  if($_ eq '--version')           { $genie_version = $ARGV[$iarg+1]; }
-  if($_ eq '--flux-run')          { $flux_run      = $ARGV[$iarg+1]; }
-  if($_ eq '--flux-version')      { $flux_version  = $ARGV[$iarg+1]; }
-  if($_ eq '--flux-file-prefix')  { $flux_file_prefix   = $ARGV[$iarg+1]; }
-  if($_ eq '--flux-file-suffix')  { $flux_file_suffix   = $ARGV[$iarg+1]; }
-  if($_ eq '--arch')              { $arch          = $ARGV[$iarg+1]; }
-  if($_ eq '--production')        { $production    = $ARGV[$iarg+1]; }
-  if($_ eq '--cycle')             { $cycle         = $ARGV[$iarg+1]; }
-  if($_ eq '--use-valgrind')      { $use_valgrind  = $ARGV[$iarg+1]; }
-  if($_ eq '--queue')             { $queue         = $ARGV[$iarg+1]; }
-  if($_ eq '--softw-topdir')      { $softw_topdir  = $ARGV[$iarg+1]; } 
+  if($_ eq '--version')           { $genie_version    = $ARGV[$iarg+1]; }
+  if($_ eq '--flux-run')          { $flux_run         = $ARGV[$iarg+1]; }
+  if($_ eq '--flux-version')      { $flux_version     = $ARGV[$iarg+1]; }
+  if($_ eq '--flux-file-prefix')  { $flux_file_prefix = $ARGV[$iarg+1]; }
+  if($_ eq '--flux-file-suffix')  { $flux_file_suffix = $ARGV[$iarg+1]; }
+  if($_ eq '--arch')              { $arch             = $ARGV[$iarg+1]; }
+  if($_ eq '--production')        { $production       = $ARGV[$iarg+1]; }
+  if($_ eq '--cycle')             { $cycle            = $ARGV[$iarg+1]; }
+  if($_ eq '--use-valgrind')      { $use_valgrind     = $ARGV[$iarg+1]; }
+  if($_ eq '--queue')             { $queue            = $ARGV[$iarg+1]; }
+  if($_ eq '--softw-topdir')      { $softw_topdir     = $ARGV[$iarg+1]; } 
   $iarg++;
 }
 die("** Aborting [Undefined flux file run #. Use the --flux-run option]")
@@ -71,7 +71,7 @@ $production_dir    = "$softw_topdir/scratch";
 $inputs_dir        = "$softw_topdir/data/job_inputs";
 $job_dir           = "$production_dir/nd280mc-$production\_$cycle";
 $flux_dir          = "$inputs_dir/t2k_flux/$flux_version/nd";
-$flux_file         = "$flux_dir/$flux_file_prfx$flux_run$flux_file_sufx";
+$flux_file         = "$flux_dir/$flux_file_prefix$flux_run$flux_file_suffix";
 $flux_det_loc      = "nd5";
 $geom_file         = "$inputs_dir/t2k_geom/ND280.root";
 $xspl_file         = "$inputs_dir/xspl/gxspl-t2k-$genie_version.xml";
