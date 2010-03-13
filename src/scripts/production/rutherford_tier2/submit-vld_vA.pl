@@ -13,7 +13,7 @@
 #    --run           : Comma separated list of run numbers
 #    --version       : GENIE version number
 #   [--arch]         : <SL4_32bit, SL5_64bit>, default: SL5_64bit
-#   [--production]   : default: vAtest_<version>
+#   [--production]   : default: <version>
 #   [--cycle]        : default: 01
 #   [--use-valgrind] : default: off
 #   [--queue]        : default: prod
@@ -78,12 +78,12 @@ unless defined $genie_version;
 
 $use_valgrind   = 0                        unless defined $use_valgrind;
 $arch           = "SL5_64bit"              unless defined $arch;
-$production     = "vAtest\_$genie_version" unless defined $production;
+$production     = "$genie_version"         unless defined $production;
 $cycle          = "01"                     unless defined $cycle;
 $queue          = "prod"                   unless defined $queue;
 $softw_topdir   = "/opt/ppd/t2k/GENIE"     unless defined $softw_topdir;
 $genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
-$jobs_dir       = "$softw_topdir/scratch/vA-$production\_$cycle";
+$jobs_dir       = "$softw_topdir/scratch/vld\_vA-$production\_$cycle";
 $xspl_file      = "$softw_topdir/data/job_inputs/xspl/gxspl-t2k-$genie_version.xml";
 $mcseed         = 210921029;
 
