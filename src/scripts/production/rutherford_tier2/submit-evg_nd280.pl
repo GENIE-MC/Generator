@@ -8,15 +8,17 @@
 #   shell$ perl submit-evg_nd280.pl <options>
 #
 # Options:
-#    --version       : GENIE version
-#    --flux-run      : Input flux run number
-#   [--flux-version] : JNUBEAM flux version, <07a, 10>, default: 10
-#   [--arch]         : <SL4_32bit, SL5_64bit>, default: SL5_64bit
-#   [--production]   : default: <version>
-#   [--cycle]        : default: 01
-#   [--use-valgrind] : default: off
-#   [--queue]        : default: prod
-#   [--softw-topdir] : default: /opt/ppd/t2k/GENIE
+#    --version             : GENIE version
+#    --flux-run            : Input flux run number
+#   [--flux-version]       : JNUBEAM flux version, <07a, 10>, default: 10
+#   [--flux-file-prefix]   : JNUBEAM flux file prefix, default: nu.nd.
+#   [--flux-file-suffix]   : JNUBEAM flux file suffix, default: .root
+#   [--arch]               : <SL4_32bit, SL5_64bit>, default: SL5_64bit
+#   [--production]         : default: <version>
+#   [--cycle]              : default: 01
+#   [--use-valgrind]       : default: off
+#   [--queue]              : default: prod
+#   [--softw-topdir]       : default: /opt/ppd/t2k/GENIE
 #
 # Example:
 #   shell$ perl submit-evg_nd280.pl --flux-run 180 --version v2.4.0 --production mdc0 --cycle 01
@@ -33,15 +35,17 @@ use File::Path;
 #
 $iarg=0;
 foreach (@ARGV) {
-  if($_ eq '--version')       { $genie_version = $ARGV[$iarg+1]; }
-  if($_ eq '--flux-run')      { $flux_run      = $ARGV[$iarg+1]; }
-  if($_ eq '--flux-version')  { $flux_version  = $ARGV[$iarg+1]; }
-  if($_ eq '--arch')          { $arch          = $ARGV[$iarg+1]; }
-  if($_ eq '--production')    { $production    = $ARGV[$iarg+1]; }
-  if($_ eq '--cycle')         { $cycle         = $ARGV[$iarg+1]; }
-  if($_ eq '--use-valgrind')  { $use_valgrind  = $ARGV[$iarg+1]; }
-  if($_ eq '--queue')         { $queue         = $ARGV[$iarg+1]; }
-  if($_ eq '--softw-topdir')  { $softw_topdir  = $ARGV[$iarg+1]; } 
+  if($_ eq '--version')           { $genie_version = $ARGV[$iarg+1]; }
+  if($_ eq '--flux-run')          { $flux_run      = $ARGV[$iarg+1]; }
+  if($_ eq '--flux-version')      { $flux_version  = $ARGV[$iarg+1]; }
+  if($_ eq '--flux-file-prefix')  { $flux_file_prefix   = $ARGV[$iarg+1]; }
+  if($_ eq '--flux-file-suffix')  { $flux_file_suffix   = $ARGV[$iarg+1]; }
+  if($_ eq '--arch')              { $arch          = $ARGV[$iarg+1]; }
+  if($_ eq '--production')        { $production    = $ARGV[$iarg+1]; }
+  if($_ eq '--cycle')             { $cycle         = $ARGV[$iarg+1]; }
+  if($_ eq '--use-valgrind')      { $use_valgrind  = $ARGV[$iarg+1]; }
+  if($_ eq '--queue')             { $queue         = $ARGV[$iarg+1]; }
+  if($_ eq '--softw-topdir')      { $softw_topdir  = $ARGV[$iarg+1]; } 
   $iarg++;
 }
 die("** Aborting [Undefined flux file run #. Use the --flux-run option]")
@@ -49,33 +53,33 @@ unless defined $flux_run;
 die("** Aborting [Undefined GENIE version. Use the --version option]")
 unless defined $genie_version;
 
-$use_valgrind   = 0                         unless defined $use_valgrind;
-$arch           = "SL5_64bit"               unless defined $arch;
-$production     = "$genie_version"          unless defined $production;
-$cycle          = "01"                      unless defined $cycle;
-$queue          = "prod"                    unless defined $queue;
-$softw_topdir   = "/opt/ppd/t2k/GENIE"      unless defined $softw_topdir;
-$flux_version   = "10"                      unless defined $flux_version;
-$job_pot        = "1E+18";
-$mcrun_base     = 10000000;
-$mcseed_base    = 210921029;
-$time_limit     = "30:00:00";
-$genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
-$production_dir = "$softw_topdir/scratch";
-$inputs_dir     = "$softw_topdir/data/job_inputs";
-$job_dir        = "$production_dir/nd280mc-$production\_$cycle";
-$flux_dir       = "$inputs_dir/t2k_flux/$flux_version/nd";
-$flux_file_prfx = "nu.nd280.";
-$flux_file_sufx = ".root";
-$flux_file      = "$flux_dir/$flux_file_prfx$flux_run$flux_file_sufx";
-$flux_det_loc   = "nd5";
-$geom_file      = "$inputs_dir/t2k_geom/ND280.root";
-$xspl_file      = "$inputs_dir/xspl/gxspl-t2k-$genie_version.xml";
-$geom_dunits    = "clhep_def_density_unit";
-$geom_lunits    = "mm";
-$file_prefix    = "genie_nd280";
-$mcrun          = $mcrun_base  + $flux_run; 
-$mcseed         = $mcseed_base + $flux_run;
+$use_valgrind      = 0                         unless defined $use_valgrind;
+$arch              = "SL5_64bit"               unless defined $arch;
+$production        = "$genie_version"          unless defined $production;
+$cycle             = "01"                      unless defined $cycle;
+$queue             = "prod"                    unless defined $queue;
+$softw_topdir      = "/opt/ppd/t2k/GENIE"      unless defined $softw_topdir;
+$flux_version      = "10"                      unless defined $flux_version;
+$flux_file_prefix  = "nu.nd."                  unless defined $flux_file_prefix;
+$flux_file_suffix  = ".root"                   unless defined $flux_file_suffix;
+$job_pot           = "1E+18";
+$mcrun_base        = 10000000;
+$mcseed_base       = 210921029;
+$time_limit        = "30:00:00";
+$genie_setup       = "$softw_topdir/builds/$arch/$genie_version-setup";
+$production_dir    = "$softw_topdir/scratch";
+$inputs_dir        = "$softw_topdir/data/job_inputs";
+$job_dir           = "$production_dir/nd280mc-$production\_$cycle";
+$flux_dir          = "$inputs_dir/t2k_flux/$flux_version/nd";
+$flux_file         = "$flux_dir/$flux_file_prfx$flux_run$flux_file_sufx";
+$flux_det_loc      = "nd5";
+$geom_file         = "$inputs_dir/t2k_geom/ND280.root";
+$xspl_file         = "$inputs_dir/xspl/gxspl-t2k-$genie_version.xml";
+$geom_dunits       = "clhep_def_density_unit";
+$geom_lunits       = "mm";
+$file_prefix       = "genie_nd280";
+$mcrun             = $mcrun_base  + $flux_run; 
+$mcseed            = $mcseed_base + $flux_run;
 
 die("** Aborting [Can not find GENIE setup script: ....... $genie_setup]") 
 unless -e $genie_setup;
