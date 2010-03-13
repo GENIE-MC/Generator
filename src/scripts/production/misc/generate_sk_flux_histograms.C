@@ -16,6 +16,7 @@
 #include <TFile.h>
 #include <TChain.h>
 #include <TH1D.h>
+#include <TMath.h>
 
 using namespace std;
 
@@ -48,7 +49,7 @@ void generate_sk_flux_histograms(
   assert ( Emin<Emax );
   assert ( Emin>=0.  );
   assert ( Ebinsz>0. );
-  int nbins = (Emax-Emin)/Ebinsz;
+  int nbins = TMath::FloorNint((Emax-Emin)/Ebinsz);
   TH1D * numu_flux    = new TH1D("numu_flux",    "numu flux at SuperK",    nbins, Emin, Emax);
   TH1D * numubar_flux = new TH1D("numubar_flux", "numubar flux at SuperK", nbins, Emin, Emax);
   TH1D * nue_flux     = new TH1D("nue_flux",     "nue flux at SuperK",     nbins, Emin, Emax);
