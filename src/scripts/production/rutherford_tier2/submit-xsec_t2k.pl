@@ -12,7 +12,7 @@
 # Options:
 #    --version       : GENIE version number
 #   [--arch]         : <SL4_32bit, SL5_64bit>, default: SL5_64bit
-#   [--production]   : default: t2kxspl_<version>
+#   [--production]   : default: <version>
 #   [--cycle]        : default: 01
 #   [--use-valgrind] : default: off
 #   [--queue]        : default: prod
@@ -45,12 +45,12 @@ unless defined $genie_version;
 
 $use_valgrind   = 0                         unless defined $use_valgrind;
 $arch           = "SL5_64bit"               unless defined $arch;
-$production     = "t2kxspl\_$genie_version" unless defined $production;
+$production     = "$genie_version"          unless defined $production;
 $cycle          = "01"                      unless defined $cycle;
 $queue          = "prod"                    unless defined $queue;
 $softw_topdir   = "/opt/ppd/t2k/GENIE"      unless defined $softw_topdir;
 $genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
-$jobs_dir       = "$softw_topdir/scratch/xsect2k-$genie_version-$production\_$cycle/";
+$jobs_dir       = "$softw_topdir/scratch/xsec\_t2k-$production\_$cycle/";
 $freenucsplines = "$softw_topdir/data/job_inputs/xspl/gxspl-freenuc-$genie_version.xml";
 
 $nkots     = 200;

@@ -13,7 +13,7 @@
 #   [--flux-version]   : JNUBEAM flux version, <07a, 10>, default: 10
 #   [--flux-hist-file] : JNUBEAM flux histogram file, default: sk_flux_histograms.root
 #   [--arch]           : <SL4_32bit, SL5_64bit>, default: SL5_64bit
-#   [--production]     : default: superkmc_<version>
+#   [--production]     : default: <version>
 #   [--cycle]          : default: 01
 #   [--use-valgrind]   : default: off
 #   [--queue]          : default: prod
@@ -56,7 +56,7 @@ unless defined $genie_version;
 
 $use_valgrind   = 0                            unless defined $use_valgrind;
 $arch           = "SL5_64bit"                  unless defined $arch;
-$production     = "superkmc\_$genie_version"   unless defined $production;
+$production     = "$genie_version"             unless defined $production;
 $cycle          = "01"                         unless defined $cycle;
 $queue          = "prod"                       unless defined $queue;
 $softw_topdir   = "/opt/ppd/t2k/GENIE"         unless defined $softw_topdir;
@@ -70,7 +70,7 @@ $genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
 $geom_tgt_mix   = "1000080160[0.8879],1000010010[0.1121]";
 $xspl_file      = "$inputs_dir/xspl/gxspl-t2k-$genie_version.xml";
 $flux_file      = "$inputs_dir/t2k_flux/$flux_version/sk/$flux_hist_file";
-$job_dir        = "$production_dir/sk-$genie_version-$production\_$cycle-$neutrino";
+$job_dir        = "$production_dir/skmc-$production\_$cycle-$neutrino";
 $file_prefix    = "genie_sk";
 
 %mcseed_base    = ( 'numu'    => '183221029',
