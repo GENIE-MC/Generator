@@ -138,7 +138,7 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
        $curr_seed     = $mcseed + $isubrun;
        $grep_pipe     = "grep -B 20 -A 30 -i \"warn\\|error\\|fatal\"";
        $valgrind_cmd  = "valgrind --tool=memcheck --error-limit=no --leak-check=yes --show-reachable=yes";
-       $evgen_cmd     = "gevgen -n $nev_per_subrun -s -e $en -p $nu -t $tgt -r $curr_subrunnu $fluxopt | grep_pipe &> $logfile_evgen";
+       $evgen_cmd     = "gevgen -n $nev_per_subrun -s -e $en -p $nu -t $tgt -r $curr_subrunnu $fluxopt | $grep_pipe &> $logfile_evgen";
 
        # create the PBS script
        open(PBS, ">$batch_script") or die("Can not create the PBS batch script");
