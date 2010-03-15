@@ -15,6 +15,7 @@
 #   [--arch]         : <SL4_32bit, SL5_64bit>, default: SL5_64bit
 #   [--production]   : default: <version>
 #   [--cycle]        : default: 01
+#   [--ref-samples]  : Path for reference samples, default: no reference samples / no plots will be generated
 #   [--use-valgrind] : default: off
 #   [--queue]        : default: prod
 #   [--softw-topdir] : default: /opt/ppd/t2k/GENIE
@@ -61,14 +62,15 @@ use File::Path;
 #
 $iarg=0;
 foreach (@ARGV) {
-  if($_ eq '--run')           { $runnu         = $ARGV[$iarg+1]; }
-  if($_ eq '--version')       { $genie_version = $ARGV[$iarg+1]; }
-  if($_ eq '--arch')          { $arch          = $ARGV[$iarg+1]; }
-  if($_ eq '--production')    { $production    = $ARGV[$iarg+1]; }
-  if($_ eq '--cycle')         { $cycle         = $ARGV[$iarg+1]; }
-  if($_ eq '--use-valgrind')  { $use_valgrind  = $ARGV[$iarg+1]; }
-  if($_ eq '--queue')         { $queue         = $ARGV[$iarg+1]; }
-  if($_ eq '--softw-topdir')  { $softw_topdir  = $ARGV[$iarg+1]; }  
+  if($_ eq '--run')           { $runnu           = $ARGV[$iarg+1]; }
+  if($_ eq '--version')       { $genie_version   = $ARGV[$iarg+1]; }
+  if($_ eq '--arch')          { $arch            = $ARGV[$iarg+1]; }
+  if($_ eq '--production')    { $production      = $ARGV[$iarg+1]; }
+  if($_ eq '--cycle')         { $cycle           = $ARGV[$iarg+1]; }
+  if($_ eq '--ref-samples')   { $ref_sample_path = $ARGV[$iarg+1]; }
+  if($_ eq '--use-valgrind')  { $use_valgrind    = $ARGV[$iarg+1]; }
+  if($_ eq '--queue')         { $queue           = $ARGV[$iarg+1]; }
+  if($_ eq '--softw-topdir')  { $softw_topdir    = $ARGV[$iarg+1]; }  
   $iarg++;
 }
 die("** Aborting [Undefined benchmark runs #. Use the --run option]")
@@ -76,16 +78,17 @@ unless defined $runnu;
 die("** Aborting [Undefined GENIE version. Use the --version option]")
 unless defined $genie_version;
 
-$use_valgrind   = 0                        unless defined $use_valgrind;
-$arch           = "SL5_64bit"              unless defined $arch;
-$production     = "$genie_version"         unless defined $production;
-$cycle          = "01"                     unless defined $cycle;
-$queue          = "prod"                   unless defined $queue;
-$softw_topdir   = "/opt/ppd/t2k/GENIE"     unless defined $softw_topdir;
-$genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
-$jobs_dir       = "$softw_topdir/scratch/vld\_vA-$production\_$cycle";
-$xspl_file      = "$softw_topdir/data/job_inputs/xspl/gxspl-t2k-$genie_version.xml";
-$mcseed         = 210921029;
+$use_valgrind    = 0                        unless defined $use_valgrind;
+$arch            = "SL5_64bit"              unless defined $arch;
+$production      = "$genie_version"         unless defined $production;
+$cycle           = "01"                     unless defined $cycle;
+$queue           = "prod"                   unless defined $queue;
+$softw_topdir    = "/opt/ppd/t2k/GENIE"     unless defined $softw_topdir;
+$ref_sample_path = 0                        unless defined $ref_sample_path;
+$genie_setup     = "$softw_topdir/builds/$arch/$genie_version-setup";
+$jobs_dir        = "$softw_topdir/scratch/vld\_vA-$production\_$cycle";
+$xspl_file       = "$softw_topdir/data/job_inputs/xspl/gxspl-vldsamples-$genie_version.xml";
+$mcseed          = 210921029;
 
 %nevents_hash = ( 
   '1000' => '100000',
@@ -228,6 +231,7 @@ for my $curr_runnu (keys %gevgl_hash)  {
     $valgrind_cmd  = "valgrind --tool=memcheck --error-limit=no --leak-check=yes --show-reachable=yes";
     $evgen_cmd     = "gevgen -n $nev -s -e $en -p $nu -t $tgt -r $curr_runnu | grep_pipe &> $logfile_evgen";
     $conv_cmd      = "gntpc -f gst -i gntp.$curr_runnu.ghep.root | grep -B 100 -A 30 -i \"warn\\|error\\|fatal\" &> $logfile_conv";
+    $comp_cmd      = "gvld_sample_comp -f gntp.$curr_runnu.gst.root -r $ref_sample_path/gntp.$curr_runnu.gst.root | grep -B 100 -A 30 -i \"warn\\|error\\|fatal\" &> $logfile_comp";
 
     # create the PBS script
     #
@@ -242,7 +246,9 @@ for my $curr_runnu (keys %gevgl_hash)  {
     print PBS "export GSEED=$mcseed  \n";
     print PBS "$evgen_cmd \n";
     print PBS "$conv_cmd \n";
-
+    if(-d $ref_sample_path) {
+      print PBS "$comp_cmd \n";
+    }
     print "EXEC: $evgen_cmd \n";
 
     # submit job
