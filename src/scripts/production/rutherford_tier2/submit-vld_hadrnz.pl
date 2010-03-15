@@ -6,7 +6,7 @@
 # The generated data can be fed into GENIE's `gvld_free_nucleon_hadronz_test' utility.
 #
 # Syntax:
-#   perl submit-vld_xsec.pl <options>
+#   perl submit-vld_hadrnz.pl <options>
 #
 # Options:
 #  --version       : GENIE version number
