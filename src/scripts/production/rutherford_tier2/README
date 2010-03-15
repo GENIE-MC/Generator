@@ -23,13 +23,13 @@
      |                        |
      |                        |----------- t2k_flux/
      |                        |             |
-     |                        |             |---------- <flux_version> (07a, 10,...)
-     |                        |                          |
-     |                        |                          |------- nd/
-     |                        |                          |         |------- nu.nd280.<run#>.root files
-     |                        |                          |
-     |                        |                          |------- sk/
-     |                        |                                    |------- nu.2.0deg.sk<run#>.root files
+     |                        |             |---------- <flux_version>/ (eg "07a", "10",...)
+     |                        |                                |
+     |                        |                                |------- nd/
+     |                        |                                |         |------- (flux files)
+     |                        |                                |
+     |                        |                                |------- sk/
+     |                        |                                          |------- (flux files)
      |                        |----------- t2k_geom/
      |                        |              |
      |                        |              |---------- ND280.root
@@ -38,12 +38,13 @@
      |                        |
      |                        |----------- xspl/
      |                                      |
-     |                                      |---------- gxspl-freenuc-<version>.xml files (for each installed <version>)
-     |                                      |---------- gxspl-t2k-<version>.xml     files (for each installed <version>)
+     |                                      |---------- gxspl-freenuc-<version>.xml    files (for each installed <version>)
+     |                                      |---------- gxspl-t2k-<version>.xml        files (for each installed <version>)
+     |                                      |---------- gxspl-vldsamples-<version>.xml files (for each installed <version>)
      |    
      |    
      |    
      |-------- scratch/
-     |
-     |
+     |		  |	
+     |            |--> (job outputs go here...)
      |
