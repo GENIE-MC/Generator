@@ -230,9 +230,9 @@ for my $curr_runnu (keys %gevgl_hash)  {
 
     $grep_pipe     = "grep -B 20 -A 30 -i \"warn\\|error\\|fatal\"";
     $valgrind_cmd  = "valgrind --tool=memcheck --error-limit=no --leak-check=yes --show-reachable=yes";
-    $evgen_cmd     = "gevgen -n $nev -s -e $en -p $nu -t $tgt -r $curr_runnu | grep_pipe &> $logfile_evgen";
-    $conv_cmd      = "gntpc -f gst -i gntp.$curr_runnu.ghep.root | grep_pipe &> $logfile_conv";
-    $comp_cmd      = "gvld_sample_comp -f gntp.$curr_runnu.gst.root -r $ref_sample_path/gntp.$curr_runnu.gst.root | grep_pipe &> $logfile_comp";
+    $evgen_cmd     = "gevgen -n $nev -s -e $en -p $nu -t $tgt -r $curr_runnu | $grep_pipe &> $logfile_evgen";
+    $conv_cmd      = "gntpc -f gst -i gntp.$curr_runnu.ghep.root | $grep_pipe &> $logfile_conv";
+    $comp_cmd      = "gvld_sample_comp -f gntp.$curr_runnu.gst.root -r $ref_sample_path/gntp.$curr_runnu.gst.root | $grep_pipe &> $logfile_comp";
 
     # create the PBS script
     #
