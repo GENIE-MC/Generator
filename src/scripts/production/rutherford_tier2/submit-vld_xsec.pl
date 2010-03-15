@@ -87,7 +87,7 @@ $softw_topdir   = "/opt/ppd/t2k/GENIE"      unless defined $softw_topdir;
 $time_limit     = "60:00:00";
 $genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
 $jobs_dir       = "$softw_topdir/scratch/vld\_xsec-$production\_$cycle";
-$xspl_file      = "$softw_topdir/data/job_inputs/xspl/gxspl-t2k-$genie_version.xml";
+$xspl_file      = "$softw_topdir/data/job_inputs/xspl/gxspl-vldsamples-$genie_version.xml";
 $mcseed         = 210921029;
 $nev_per_subrun = 100000;
 
