@@ -11,6 +11,7 @@
 # Options:
 #  --version       : GENIE version number
 # [--nsubruns]     : number of subruns per run, default: 1
+# [--offset]       : subrun offset (for augmenting existing sample), default: 0
 # [--arch]         : <SL4_32bit, SL5_64bit>, default: SL5_64bit
 # [--production]   : production name, default: <version>
 # [--cycle]        : cycle in current production, default: 01
@@ -64,8 +65,9 @@ use File::Path;
 #
 $iarg=0;
 foreach (@ARGV) {
-  if($_ eq '--nsubruns')      { $nsubruns      = $ARGV[$iarg+1]; }
   if($_ eq '--version')       { $genie_version = $ARGV[$iarg+1]; }
+  if($_ eq '--nsubruns')      { $nsubruns      = $ARGV[$iarg+1]; }
+  if($_ eq '--offset')        { $offset        = $ARGV[$iarg+1]; }
   if($_ eq '--arch')          { $arch          = $ARGV[$iarg+1]; }
   if($_ eq '--production')    { $production    = $ARGV[$iarg+1]; }
   if($_ eq '--cycle')         { $cycle         = $ARGV[$iarg+1]; }
@@ -78,6 +80,7 @@ die("** Aborting [Undefined GENIE version. Use the --version option]")
 unless defined $genie_version;
 
 $nsubruns       = 1                         unless defined $nsubruns;
+$offset         = 0                         unless defined $offset;
 $use_valgrind   = 0                         unless defined $use_valgrind;
 $arch           = "SL5_64bit"               unless defined $arch;
 $production     = "$genie_version"          unless defined $production;
@@ -174,7 +177,7 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
     # submit subruns
     for($isubrun = 0; $isubrun < $nsubruns; $isubrun++) {
 
-       $curr_subrunnu = 100 * $curr_runnu + $isubrun;
+       $curr_subrunnu = 100 * $curr_runnu + $isubrun + $offset;
 
        $batch_script  = "$jobs_dir/xsecvld-$curr_subrunnu.pbs";
        $logfile_evgen = "$jobs_dir/xsecvld-$curr_subrunnu.evgen.log";
@@ -182,7 +185,7 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
        $logfile_pbse  = "$jobs_dir/xsecvld-$curr_subrunnu.pbs_e.log";
        $logfile_pbso  = "$jobs_dir/xsecvld-$curr_subrunnu.pbs_o.log";
 
-       $curr_seed     = $mcseed + $isubrun;
+       $curr_seed     = $mcseed + $isubrun + $offset;
        $grep_pipe     = "grep -B 20 -A 30 -i \"warn\\|error\\|fatal\"";
        $valgrind_cmd  = "valgrind --tool=memcheck --error-limit=no --leak-check=yes --show-reachable=yes";
        $evgen_cmd     = "gevgen -n $nev_per_subrun -s -e $en -p $nu -t $tgt -r $curr_subrunnu $fluxopt | grep_pipe &> $logfile_evgen";
