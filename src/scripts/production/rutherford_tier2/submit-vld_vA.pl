@@ -224,7 +224,7 @@ for my $curr_runnu (keys %gevgl_hash)  {
     $batch_script  = "$jobs_dir/job_vA-$curr_runnu.pbs";
     $logfile_evgen = "$jobs_dir/job_vA-$curr_runnu.evgen.log";
     $logfile_conv  = "$jobs_dir/job_vA-$curr_runnu.conv.log";
-    $logfile_conv  = "$jobs_dir/job_vA-$curr_runnu.comp.log";
+    $logfile_comp  = "$jobs_dir/job_vA-$curr_runnu.comp.log";
     $logfile_pbse  = "$jobs_dir/job_vA-$curr_runnu.pbs_e.log";
     $logfile_pbso  = "$jobs_dir/job_vA-$curr_runnu.pbs_o.log";
 
