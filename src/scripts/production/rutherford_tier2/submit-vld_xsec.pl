@@ -186,10 +186,10 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
        $logfile_pbso  = "$jobs_dir/xsecvld-$curr_subrunnu.pbs_o.log";
 
        $curr_seed     = $mcseed + $isubrun + $offset;
-       $grep_pipe     = "grep -B 20 -A 30 -i \"warn\\|error\\|fatal\"";
+       $grep_pipe     = "grep -B 100 -A 30 -i \"warn\\|error\\|fatal\"";
        $valgrind_cmd  = "valgrind --tool=memcheck --error-limit=no --leak-check=yes --show-reachable=yes";
-       $evgen_cmd     = "gevgen -n $nev_per_subrun -s -e $en -p $nu -t $tgt -r $curr_subrunnu $fluxopt | grep_pipe &> $logfile_evgen";
-       $conv_cmd      = "gntpc -f gst -i gntp.$curr_subrunnu.ghep.root | grep -B 100 -A 30 -i \"warn\\|error\\|fatal\" &> $logfile_conv";
+       $evgen_cmd     = "gevgen -n $nev_per_subrun -s -e $en -p $nu -t $tgt -r $curr_subrunnu $fluxopt | $grep_pipe &> $logfile_evgen";
+       $conv_cmd      = "gntpc -f gst -i gntp.$curr_subrunnu.ghep.root | $grep_pipe &> $logfile_conv";
 
        # create the PBS script
        open(PBS, ">$batch_script") or die("Can not create the PBS batch script");
