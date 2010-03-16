@@ -116,7 +116,15 @@ LOG_LIBRARIES := -L$(LOG_LIB_DIR) -llog4cpp
 #                     libfortran and/or libg2c
 #-------------------------------------------------------------------
 
-FORT_LIBRARIES = -L/usr/lib -L/usr/lib64 -lg2c
+FORT_LIBRARIES =
+
+ifeq ($(strip $(ARCH)),linux) 
+FORT_LIBRARIES = -L/usr/lib -lg2c
+endif
+
+ifeq ($(strip $(ARCH)),linuxx8664gcc) 
+FORT_LIBRARIES = -L/usr/lib64 -lg2c
+endif
 
 ifeq ($(strip $(ARCH)),macosx) 
 FORT_LIBRARIES = /usr/local/lib/libgfortran.dylib 
