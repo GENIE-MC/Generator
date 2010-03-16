@@ -158,7 +158,7 @@ void Init(void)
   if(gOptHaveRef) {
      hdr.AddText(" ");
      hdr.AddText("Comparing with reference data (red circles) from: ");
-     hdr.AddText(gOptXSecFilename_curr.c_str());
+     hdr.AddText(gOptXSecFilename_ref0.c_str());
   } else {
      hdr.AddText(" ");
   }
