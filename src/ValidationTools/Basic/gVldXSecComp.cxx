@@ -38,6 +38,7 @@
 #include <cassert>
 #include <sstream>
 #include <string>
+#include <vector>
 
 #include <TSystem.h>
 #include <TFile.h>
@@ -55,6 +56,7 @@
 
 #include "Conventions/GBuild.h"
 #include "Messenger/Messenger.h"
+#include "Numerical/RandomGen.h"
 #include "PDG/PDGUtils.h"
 #include "PDG/PDGCodes.h"
 #include "Utils/CmdLineArgParserUtils.h"
@@ -62,6 +64,7 @@
 
 using std::ostringstream;
 using std::string;
+using std::vector;
 
 using namespace genie;
 
@@ -79,6 +82,7 @@ TH1F *  DrawFrame          (double xmin, double xmax, double ymin, double yman);
 void    Format             (TGraph* gr, int lcol, int lsty, int lwid, int mcol, int msty, double msiz);
 void    Draw               (const char * plot, const char * title);
 void    Draw               (TGraph* gr, const char * opt);
+TGraph* TrimGraph          (TGraph * gr, int max_np_per_decade);
 void    GetCommandLineArgs (int argc, char ** argv);
 void    PrintSyntax        (void);
 bool    CheckRootFilename  (string filename);
@@ -1927,22 +1931,101 @@ void Draw(const char * plot, const char * title)
     DrawFrame (gr_curr, gr_ref0);
   }
 
-  Format(gr_curr, 1,1,1,1,1,1.0);
-  Format(gr_ref0, 1,1,1,2,4,1.0);
+  // trim points in reference plot (shown with markers) so that the markers
+  // don't hide the current prediction (shown with a line).
+  // Keep, at most, 20 points per decade.
+  TGraph * gr_ref0_trim = TrimGraph(gr_ref0, 20);
 
-  Draw (gr_curr, "L");
-  Draw (gr_ref0, "P");
+  Format(gr_curr,      1,1,1,1,1,1.0);
+  Format(gr_ref0_trim, 1,1,1,2,4,1.0);
+
+  Draw (gr_curr,      "L");
+  Draw (gr_ref0_trim, "P");
 
   if(title) {
     gLS->SetHeader(title);
     gLS->Draw();
     gC ->Update();
   }
+
+  if(gr_ref0_trim) {
+    delete gr_ref0_trim;
+  }
+}
+//_________________________________________________________________________________
+TGraph * TrimGraph(TGraph * gr, int max_np_per_decade)
+{
+  if(!gr) return 0;
+
+  const int np = gr->GetN();
+  vector<bool> remv(np);
+
+  int    fp   = 0; 
+  int    lp   = 0; 
+
+  while(1) {
+    double xmin = gr->GetX()[fp];
+    double xmax = 10 * xmin;
+    int ndec = 0;
+    for(int i=fp; i<np; i++) {
+       remv[i] = false;
+       lp = i;
+       double x = gr->GetX()[i];
+       if(x > xmin && x <= xmax) ndec++;
+       if(x > xmax) break;
+    }
+    if(ndec > max_np_per_decade) {
+/*
+       RandomGen * rgen = RandomGen::Instance();
+       double keep_prob = (double)max_np_per_decade/ (double) ndec;
+       for(int i=fp; i<=lp; i++) {
+           double r = rgen->RndGen().Rndm();
+           if(r > keep_prob) { remv[i] = true; }
+       }
+*/
+       double keep_prob = (double)max_np_per_decade/ (double) ndec;
+       int keep_rate = TMath::FloorNint(1./keep_prob);
+       int ithrow = 0;
+       for(int i=fp; i<=lp; i++) {
+         if(ithrow % keep_rate) {
+           remv[i] = true;
+         }
+         ithrow++;
+       } 
+    }
+    if(lp == np-1) break;
+    fp = lp+1;
+  }
+ 
+  int np2 = 0;
+  for(int i=0; i<np; i++) {
+   if(!remv[i]) {
+     np2++;
+   }
+  }
+
+  double * x = new double[np2];
+  double * y = new double[np2];
+
+  int j=0;
+  for(int i=0; i<np; i++) {
+   if(!remv[i]) {
+     x[j] = gr->GetX()[i];
+     y[j] = gr->GetY()[i];
+     j++;
+   }
+  }
+  TGraph * gr2 = new TGraph(np2,x,y);
+
+  delete [] x;
+  delete [] y;
+
+  return gr2;
 }
 //_________________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
 {
-  LOG("gvldtest", pNOTICE) << "*** Parsing commad line arguments";
+  LOG("gvldtest", pINFO) << "*** Parsing command line arguments";
 
   // get input GENIE cross section file
   try {
