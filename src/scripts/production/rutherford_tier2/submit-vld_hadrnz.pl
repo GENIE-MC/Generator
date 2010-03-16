@@ -3,7 +3,7 @@
 #---------------------------------------------------------------------------------------------------------------------
 # Submit jobs to generate all data needed for validating GENIE's hadronization model.
 #
-# The generated data can be fed into GENIE's `gvld_free_nucleon_hadronz_test' utility.
+# The generated data can be fed into GENIE's `gvld_hadronz_test' utility.
 #
 # Syntax:
 #   perl submit-vld_hadrnz.pl <options>

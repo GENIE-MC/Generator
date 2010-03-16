@@ -5,7 +5,7 @@
 # (with emphasis  on the modeling of medium effects to the hadronization) in a set of comparisons against 
 # the CLAS and HERMES nuclear attenuation data.
 #
-# The generated data can be fed into GENIE's `gvld_medium_effects_hadronz_test' utility.
+# The generated data can be fed into GENIE's `gvld_hadroatten_test' utility.
 #
 # Syntax:
 #   perl submit-vld_nuclatten.pl <options>
