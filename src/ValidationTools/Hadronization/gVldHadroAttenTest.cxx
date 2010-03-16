@@ -1,12 +1,13 @@
 //____________________________________________________________________________
 /* !
 
-\program gvld_hadronization_medium_effect_test
+\program gvld_hadroatten_test
 
-\brief   Compares the GENIE 
+\brief   Compares GENIE with hadron attenuation measurements from semi-inclusive
+         electron-nucleus scattering data
 
          Syntax:
-           gvld_hadronization_medium_effect_test [-g genie_inputs]
+           gvld_hadroatten_test [-g genie_inputs]
 
          Options:
 
