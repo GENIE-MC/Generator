@@ -53,5 +53,5 @@ $i=0;
 for($i=$min; $i<=$max; $i++) {
   $full_cmd = "$cmd $arg $i";
   print "Running: $full_cmd \n";
-#  `$full_cmd`;
+  `$full_cmd`;
 }
