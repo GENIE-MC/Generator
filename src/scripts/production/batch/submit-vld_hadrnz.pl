@@ -131,9 +131,9 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
     # submit subruns
     for($isubrun = 0; $isubrun < $nsubruns; $isubrun++) {
 
-       $job_file_base = "$jobs_dir/hdzvld-$curr_subrunnu";
        $curr_subrunnu = 100 * $curr_runnu + $isubrun;
        $curr_seed     = $mcseed + $isubrun;
+       $job_file_base = "$jobs_dir/hdzvld-$curr_subrunnu";
        $grep_pipe     = "grep -B 20 -A 30 -i \"warn\\|error\\|fatal\"";
        $valgrind_cmd  = "valgrind --tool=memcheck --error-limit=no --leak-check=yes --show-reachable=yes";
        $evgen_cmd     = "gevgen -n $nev_per_subrun -s -e $en -p $nu -t $tgt -r $curr_subrunnu $fluxopt | $grep_pipe &> $job_file_base.evgen.log";

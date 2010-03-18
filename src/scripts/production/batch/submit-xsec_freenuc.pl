@@ -217,7 +217,7 @@ for my $curr_xsplset (keys %OUTXML)  {
         print PBS "export GEVGL=$gevgl \n";
         print PBS "$cmd \n";
         close(PBS);
-        `qsub -q $queue $BATCH_SCRIPT`;
+        `qsub -q $queue $batch_script`;
     } #PBS
 
   }

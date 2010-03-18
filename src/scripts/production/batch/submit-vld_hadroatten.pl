@@ -7,7 +7,7 @@
 # The generated data can be fed into GENIE's `gvld_hadroatten_test' utility.
 #
 # Syntax:
-#   perl submit-vld_nuclatten.pl <options>
+#   perl submit-vld_hadroatten.pl <options>
 #
 # Options:
 #    --version       : GENIE version number
@@ -90,7 +90,7 @@ $queue          = "prod"                      unless defined $queue;
 $softw_topdir   = "/opt/ppd/t2k/GENIE"        unless defined $softw_topdir;
 $time_limit     = "60:00:00";
 $genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
-$jobs_dir       = "$softw_topdir/scratch/vld\_nuclatten-$production\_$cycle";
+$jobs_dir       = "$softw_topdir/scratch/vld\_hadroatten-$production\_$cycle";
 $xspl_file      = "$softw_topdir/data/job_inputs/xspl/gxspl-emode-$genie_version.xml";
 $mcseed         = 210921029;
 $nev_per_subrun = 50000;
@@ -167,8 +167,8 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
 
        # Run number key: ITTJJMxxx
        $curr_subrunnu = 10000 * $curr_runnu + 1000 * $model_enum + $isubrun + $offset;
-       $job_file_base = "$jobs_dir/hdzvld-$curr_subrunnu.";
        $curr_seed     = $mcseed + $isubrun + $offset;
+       $job_file_base = "$jobs_dir/hadroatten-$curr_subrunnu";
        $grep_pipe     = "grep -B 20 -A 30 -i \"warn\\|error\\|fatal\"";
        $valgrind_cmd  = "valgrind --tool=memcheck --error-limit=no --leak-check=yes --show-reachable=yes";
        $evgen_cmd     = "gevgen -n $nev_per_subrun -s -e $en -p $probe -t $tgt -r $curr_subrunnu $fluxopt | $grep_pipe &> $job_file_base.evgen.log";
