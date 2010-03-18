@@ -101,7 +101,7 @@ while( my ($tgt_name, $tgt_code) = each %targets ) {
 	print PBS "export GSPLOAD=$freenucsplines\n";
 	print PBS "$cmd \n";
         close(PBS);
-	`qsub -q $queue $BATCH_SCRIPT`;
+	`qsub -q $queue $batch_script`;
     } #PBS
 
 }

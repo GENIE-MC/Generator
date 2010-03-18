@@ -225,7 +225,7 @@ for my $curr_runnu (keys %gevgl_hash)  {
     $en    = $energy_hash  {$curr_runnu};
     $gevgl = $gevgl_hash   {$curr_runnu};
 
-    $job_file_base = "$jobs_dir/job_vA-$curr_runnu.evgen.log";
+    $job_file_base = "$jobs_dir/job_vA-$curr_runnu";
     $grep_pipe     = "grep -B 20 -A 30 -i \"warn\\|error\\|fatal\"";
     $valgrind_cmd  = "valgrind --tool=memcheck --error-limit=no --leak-check=yes --show-reachable=yes";
     $evgen_cmd     = "gevgen -n $nev -s -e $en -p $nu -t $tgt -r $curr_runnu | $grep_pipe &> $job_file_base.evgen.log";
