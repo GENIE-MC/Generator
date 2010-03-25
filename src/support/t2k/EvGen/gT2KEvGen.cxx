@@ -575,7 +575,8 @@ int main(int argc, char ** argv)
 
   // Initialize an Ntuple Writer to save GHEP records into a TTree
   NtpWriter ntpw(kDefOptNtpFormat, gOptRunNu);
-  ntpw.Initialize(gOptEvFilePrefix);
+  ntpw.CustomizeFilenamePrefix(gOptEvFilePrefix);
+  ntpw.Initialize();
 
   // Add a custom-branch at the standard GENIE event tree so that
   // info on the flux neutrino parent particle can be passed-through
