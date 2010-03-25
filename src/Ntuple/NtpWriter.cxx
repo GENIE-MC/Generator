@@ -50,6 +50,8 @@ fNtpMCTreeHeader(0)
   LOG("Ntp", pNOTICE) << "Run number: " << runnu;
   LOG("Ntp", pNOTICE)
     << "Requested G/ROOT tree format: " << NtpMCFormat::AsString(fNtpFormat);
+
+  this->SetDefaultFilename();
 }
 //____________________________________________________________________________
 NtpWriter::~NtpWriter()
@@ -83,12 +85,12 @@ void NtpWriter::AddEventRecord(int ievent, const EventRecord * ev_rec)
   }
 }
 //____________________________________________________________________________
-void NtpWriter::Initialize(string filename_prefix)
+void NtpWriter::Initialize()
 {
   LOG("Ntp",pINFO) << "Initializing GENIE output MC tree";
 
-  this->OpenFile(filename_prefix); // open ROOT file
-  this->CreateTree();              // create output tree
+  this->OpenFile(fOutFilename); // open ROOT file
+  this->CreateTree();           // create output tree
 
   //-- create the event branch
   this->CreateEventBranch(); 
@@ -106,19 +108,35 @@ void NtpWriter::Initialize(string filename_prefix)
   environment.TakeSnapshot()->Write();
 }
 //____________________________________________________________________________
-void NtpWriter::OpenFile(string filename_prefix)
+void NtpWriter::CustomizeFilename(string filename)
+{
+ fOutFilename = filename;
+}
+//____________________________________________________________________________
+void NtpWriter::CustomizeFilenamePrefix (string prefix)
+{
+  this->SetDefaultFilename(prefix);
+}
+//____________________________________________________________________________
+void NtpWriter::SetDefaultFilename(string filename_prefix)
+{
+  ostringstream fnstr;
+  fnstr << filename_prefix  << "." 
+        << fRunNu << "."
+        << NtpMCFormat::FilenameTag(fNtpFormat)
+        << ".root";
+
+  fOutFilename = fnstr.str();
+}
+//____________________________________________________________________________
+void NtpWriter::OpenFile(string filename)
 {
   if(fOutFile) delete fOutFile;
 
-  // modify the filename to add the run number & the ntuple format
-  ostringstream filename;
-  filename << filename_prefix  << "." 
-           << fRunNu << "."
-           << NtpMCFormat::FilenameTag(fNtpFormat)
-           << ".root";
+  LOG("Ntp", pINFO) 
+      << "Opening the output ROOT file: " << filename;
 
-  LOG("Ntp", pINFO) << "Opening the output ROOT file: " << filename;
-  fOutFile = new TFile(filename.str().c_str(),"RECREATE");
+  fOutFile = new TFile(filename.c_str(),"RECREATE");
 }
 //____________________________________________________________________________
 void NtpWriter::CreateTree(void)

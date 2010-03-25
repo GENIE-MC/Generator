@@ -43,13 +43,27 @@ public :
   NtpWriter(NtpMCFormat_t fmt = kNFGHEP, Long_t runnu = 0);
  ~NtpWriter();
 
-  void     Initialize       (string filename_prefix="gntp");
-  void     AddEventRecord   (int ievent, const EventRecord * ev_rec);
-  void     Save             (void);
-  TTree *  EventTree        (void) { return fOutTree; }  
+  ///< initialize the ntuple writer
+  void Initialize (void);
+
+  ///< add event
+  void AddEventRecord (int ievent, const EventRecord * ev_rec);
+
+  ///< save the event tree
+  void Save (void);
+
+  ///< get the even tree
+  TTree *  EventTree (void) { return fOutTree; }  
+
+  ///< use before Initialize() only if you wish to override the default
+  ///< filename, or the default filename prefix
+  void CustomizeFilename       (string filename);   
+  void CustomizeFilenamePrefix (string prefix);
 
 private:
-  void OpenFile              (string filename_prefix="gntp");
+
+  void SetDefaultFilename    (string filename_prefix="gntp");
+  void OpenFile              (string filename);
   void CreateTree            (void);
   void CreateTreeHeader      (void);
   void CreateEventBranch     (void);
@@ -57,6 +71,7 @@ private:
 
   NtpMCFormat_t      fNtpFormat;          ///< enumeration of event formats
   Long_t             fRunNu;              ///< run nu
+  string             fOutFilename;        ///< output filename
   TFile *            fOutFile;            ///< output file
   TTree *            fOutTree;            ///< output tree
   TBranch *          fEventBranch;        ///< the generated event branch 
