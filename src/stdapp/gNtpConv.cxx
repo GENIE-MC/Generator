@@ -1,4 +1,4 @@
-//____________________________________________________________________________
+//_____________________________________________________________________________________________
 /*!
 
 \program gntpc
@@ -22,22 +22,28 @@
            -f is a string that specifies the output file format. 
 
 	      [Generic formats]
+
                * `gst': 
                     The 'definite' GENIE summary tree format (gst).
    	       * `gxml': 
                      GENIE XML event format 
+   	       * `ghep_mock_data': 
+                     Output file has the same format as the input file (GHEP) but
+                     all information other than final state particles is hidden
    	       * `rootracker': 
                      A bare-ROOT STDHEP-like GENIE event tree.
+   	       * `rootracker_mock_data': 
+                     As the `rootracker' format but hiddes all information
+                     except the final state particles.
 
 	      [Experiment-specific formats]
+
+   	       * `t2k_rootracker':
+                     A variance of the `rootracker' format used by the nd280, INGRID and 2km. 
+                     Includes, in addition, JPARC flux pass-through info.
    	       * `numi_rootracker':
                      A variance of the `rootracker' format for the NuMI expts.
-                     Includes full information about the generated neutrino event 
-                     and pass-through NuMI flux info.
-   	       * `t2k_rootracker':
-                     A variance of the `rootracker' format used by the nd280, 
-                     INGRID and 2km MC. Includes full information about the 
-                     generated neutrino event and pass-through JPARC flux info.
+                     Includes, in addition, NuMI flux pass-through info.
    	       * `t2k_tracker': 
                      A tracker-type format with tweaks required by the SuperK
                      detector MC (SKDETSIM):
@@ -51,6 +57,7 @@
                           global systematic studies.
 
 	      [GENIE test / cross-generator comparison formats]
+
    	       * `ghad': 
 	             NEUGEN-style text-based format for hadronization studies
    	       * `ginuke': 
@@ -63,15 +70,17 @@
            -o specifies the output filename. 
               If not specified a the default filename is constructed by the 
               input base name and an extension depending on the file format: 
-               `gst'             -> *.gst.root
-               `rootracker'      -> *.gtrac.root
-               `gxml'            -> *.gxml 
-               `t2k_tracker'     -> *.gtrac.dat
-               `t2k_rootracker'  -> *.gtrac.root
-               `numi_rootracker' -> *.gtrac.root
-               `ghad'            -> *.ghad.dat
-               `ginuke'          -> *.ginuke.root
-               `nuance_tracker'  -> *.gtrac_legacy.dat
+               `gst'                  -> *.gst.root
+               `gxml'                 -> *.gxml 
+               `ghep_mock_data'       -> *.mockd.ghep.root
+               `rootracker'           -> *.gtrac.root
+               `rootracker_mock_data' -> *.mockd.gtrac.root
+               `t2k_rootracker'       -> *.gtrac.root
+               `numi_rootracker'      -> *.gtrac.root
+               `t2k_tracker'          -> *.gtrac.dat
+               `nuance_tracker'       -> *.gtrac_legacy.dat
+               `ghad'                 -> *.ghad.dat
+               `ginuke'               -> *.ginuke.root
 		
          Examples:
            (1)  shell% gntpc -i myfile.ghep.root -f t2k_rootracker
@@ -89,7 +98,7 @@
          For the full text of the license visit http://copyright.genie-mc.org
          or see $GENIE/LICENSE
 */
-//____________________________________________________________________________
+//_____________________________________________________________________________________________
 
 #include <cassert>
 #include <string>
@@ -119,6 +128,7 @@
 #include "Ntuple/NtpMCFormat.h"
 #include "Ntuple/NtpMCTreeHeader.h"
 #include "Ntuple/NtpMCEventRecord.h"
+#include "Ntuple/NtpWriter.h"
 #include "Numerical/RandomGen.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGCodes.h"
@@ -151,9 +161,10 @@ using namespace genie::constants;
 
 //func prototypes
 void   ConvertToGST              (void);
+void   ConvertToGXML             (void);
+void   ConvertToGHepMock         (void);
 void   ConvertToGTracker         (void);
 void   ConvertToGRooTracker      (void);
-void   ConvertToGXML             (void);
 void   ConvertToGHad             (void);
 void   ConvertToGINuke           (void);
 void   GetCommandLineArgs        (int argc, char ** argv);
@@ -166,11 +177,13 @@ bool   CheckRootFilename         (string filename);
 typedef enum EGNtpcFmt {
   kConvFmt_undef = 0,
   kConvFmt_gst,
-  kConvFmt_rootracker,
   kConvFmt_gxml,
+  kConvFmt_ghep_mock_data,
+  kConvFmt_rootracker,
+  kConvFmt_rootracker_mock_data,
   kConvFmt_t2k_rootracker,
-  kConvFmt_t2k_tracker,
   kConvFmt_numi_rootracker,
+  kConvFmt_t2k_tracker,
   kConvFmt_nuance_tracker,
   kConvFmt_ghad,
   kConvFmt_ginuke
@@ -191,7 +204,7 @@ int gFileRevisVrs = -1;
 //consts
 const int kNPmax = 100;
 
-//___________________________________________________________________
+//____________________________________________________________________________________
 int main(int argc, char ** argv)
 {
   //-- get the command line arguments
@@ -199,33 +212,46 @@ int main(int argc, char ** argv)
 
   //-- call the appropriate conversion function
   switch(gOptOutFileFormat) {
+
    case (kConvFmt_gst)  :
+
 	ConvertToGST();        
 	break;  
-   case (kConvFmt_rootracker) :  
-	ConvertToGRooTracker(); 
-	break;
+
    case (kConvFmt_gxml) :  
+
 	ConvertToGXML();         
 	break;
-   case (kConvFmt_t2k_rootracker) :  
+
+   case (kConvFmt_ghep_mock_data) :  
+
+	ConvertToGHepMock();         
+	break;
+
+   case (kConvFmt_rootracker          ) :  
+   case (kConvFmt_rootracker_mock_data) :  
+   case (kConvFmt_t2k_rootracker      ) :  
+   case (kConvFmt_numi_rootracker     ) :  
+
 	ConvertToGRooTracker(); 
 	break;
-   case (kConvFmt_t2k_tracker)  :  
-	ConvertToGTracker();        
-	break;
-   case (kConvFmt_numi_rootracker) :  
-	ConvertToGRooTracker(); 
-	break;
+
+   case (kConvFmt_t2k_tracker   )  :  
    case (kConvFmt_nuance_tracker)  :  
+
 	ConvertToGTracker();        
 	break;
+
    case (kConvFmt_ghad) :  
+
 	ConvertToGHad();         
 	break;
+
    case (kConvFmt_ginuke) :  
+
 	ConvertToGINuke();         
 	break;
+
    default:
      LOG("gntpc", pFATAL)
           << "Invalid output format [" << gOptOutFileFormat << "]";
@@ -235,9 +261,9 @@ int main(int argc, char ** argv)
   }
   return 0;
 }
-//___________________________________________________________________
-// ***** GENIE GHEP EVENT TREE FORMAT -> GENIE SUMMARY NTUPLE *****
-//___________________________________________________________________
+//____________________________________________________________________________________
+// GENIE GHEP EVENT TREE FORMAT -> GENIE SUMMARY NTUPLE 
+//____________________________________________________________________________________
 void ConvertToGST(void)
 {
   //-- some constants
@@ -872,9 +898,9 @@ void ConvertToGST(void)
   fout.Write();
   fout.Close();
 }
-//___________________________________________________________________
-//  ** GENIE GHEP EVENT TREE FORMAT -> GENIE XML EVENT FILE FORMAT **
-//___________________________________________________________________
+//____________________________________________________________________________________
+// GENIE GHEP EVENT TREE FORMAT -> GENIE XML EVENT FILE FORMAT 
+//____________________________________________________________________________________
 void ConvertToGXML(void)
 {
   //-- open the ROOT file and get the TTree & its header
@@ -1018,9 +1044,81 @@ void ConvertToGXML(void)
 
   LOG("gntpc", pINFO) << "\nDone converting GENIE's GHEP ntuple";
 }
-//___________________________________________________________________
-// ******** GENIE GHEP EVENT TREE FORMAT -> TRACKER FORMATS ********
-//___________________________________________________________________
+//____________________________________________________________________________________
+// GENIE GHEP FORMAT -> GHEP MOCK DATA FORMAT
+//____________________________________________________________________________________
+void ConvertToGHepMock(void)
+{
+  //-- open the ROOT file and get the TTree & its header
+  TFile fin(gOptInpFileName.c_str(),"READ");
+  TTree *           tree = 0;
+  NtpMCTreeHeader * thdr = 0;
+  tree = dynamic_cast <TTree *>           ( fin.Get("gtree")  );
+  thdr = dynamic_cast <NtpMCTreeHeader *> ( fin.Get("header") );
+        
+  LOG("gntpc", pINFO) << "Input tree header: " << *thdr;
+   
+  //-- get mc record
+  NtpMCEventRecord * mcrec = 0;
+  tree->SetBranchAddress("gmcrec", &mcrec);
+        
+  //-- figure out how many events to analyze
+  Long64_t nmax = (gOptN<0) ?
+       tree->GetEntries() : TMath::Min(tree->GetEntries(), gOptN);
+  if (nmax<0) {
+    LOG("gntpc", pERROR) << "Number of events = 0";
+    return;
+  }
+  LOG("gntpc", pNOTICE) << "*** Analyzing: " << nmax << " events";
+
+  //-- initialize an Ntuple Writer
+  NtpWriter ntpw(kNFGHEP, thdr->runnu);
+  ntpw.CustomizeFilename(gOptOutFileName);
+  ntpw.Initialize();
+
+  //-- event loop
+  for(Long64_t iev = 0; iev < nmax; iev++) {
+    tree->GetEntry(iev);
+    NtpMCRecHeader rec_header = mcrec->hdr;
+    EventRecord &  event      = *(mcrec->event);
+
+    LOG("gntpc", pINFO) << rec_header;
+    LOG("gntpc", pINFO) << event;
+
+    EventRecord * stripped_event = new EventRecord;
+    Interaction * nullint = new Interaction;
+
+    stripped_event -> AttachSummary (nullint);
+    stripped_event -> SetWeight     (event.Weight());
+    stripped_event -> SetVertex     (*event.Vertex());
+
+    GHepParticle * p = 0;
+    TIter iter(&event);
+    while( (p = (GHepParticle *)iter.Next()) ) {
+       if(!p) continue;
+       GHepStatus_t ist = p->Status();
+       if(ist!=kIStStableFinalState) continue;
+       stripped_event->AddParticle(
+          p->Pdg(), ist, -1,-1,-1,-1, *p->P4(), *p->X4());
+    }//p
+
+    ntpw.AddEventRecord(iev,stripped_event);
+
+    mcrec->Clear();
+  } // event loop
+
+  //-- save the generated MC events
+  ntpw.Save();
+
+  //-- rename the output file
+      
+  fin.Close();
+      
+  LOG("gntpc", pINFO) << "\nDone converting GENIE's GHEP ntuple";
+}
+//____________________________________________________________________________________
+// GENIE GHEP EVENT TREE FORMAT -> TRACKER FORMATS
+//____________________________________________________________________________________
 void ConvertToGTracker(void)
 {
   //-- open the ROOT file and get the TTree & its header
@@ -1036,16 +1134,9 @@ void ConvertToGTracker(void)
   gFileMinorVrs = utils::system::GenieMinorVrsNum(thdr->cvstag.GetString().Data());
   gFileRevisVrs = utils::system::GenieRevisVrsNum(thdr->cvstag.GetString().Data());
 
-/*
-  LOG("gntpc", pINFO) 
-    << "Version (major,minor,revis) = (" 
-    << gFileMajorVrs << ", " << gFileMinorVrs << ", " << gFileRevisVrs << ")";
-*/
-
   //-- get mc record
   NtpMCEventRecord * mcrec = 0;
   tree->SetBranchAddress("gmcrec", &mcrec);
-
 
 #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
   flux::GJPARCNuFluxPassThroughInfo * flux_info = 0;
@@ -1478,9 +1569,9 @@ be agreed with the SKDETSIM maintainers.
 
   LOG("gntpc", pINFO) << "\nDone converting GENIE's GHEP ntuple";
 }
-//___________________________________________________________________
-//  **** GENIE GHEP EVENT TREE FORMAT -> ROOTRACKER FORMATS ****
-//___________________________________________________________________
+//____________________________________________________________________________________
+// GENIE GHEP EVENT TREE FORMAT -> ROOTRACKER FORMATS 
+//____________________________________________________________________________________
 void ConvertToGRooTracker(void)
 {
   //-- define the output rootracker tree branches
@@ -1628,26 +1719,43 @@ void ConvertToGRooTracker(void)
   //-- create the output ROOT tree
   TTree * rootracker_tree = new TTree("gRooTracker","GENIE event tree rootracker format");
 
+  //-- is it a `mock data' variance?
+  bool hide_truth = (gOptOutFileFormat == kConvFmt_rootracker_mock_data);
+
   //-- create the output ROOT tree branches
-  rootracker_tree->Branch("EvtFlags", "TBits",      &brEvtFlags, 32000, 1);           
-  rootracker_tree->Branch("EvtCode",  "TObjString", &brEvtCode,  32000, 1);            
-  rootracker_tree->Branch("EvtNum",          &brEvtNum,          "EvtNum/I");             
-  rootracker_tree->Branch("EvtXSec",         &brEvtXSec,         "EvtXSec/D");            
-  rootracker_tree->Branch("EvtDXSec",        &brEvtDXSec,        "EvtDXSec/D");           
-  rootracker_tree->Branch("EvtWght",         &brEvtWght,         "EvtWght/D");            
-  rootracker_tree->Branch("EvtProb",         &brEvtProb,         "EvtProb/D");            
-  rootracker_tree->Branch("EvtVtx",           brEvtVtx,          "EvtVtx[4]/D");             
-  rootracker_tree->Branch("StdHepN",         &brStdHepN,         "StdHepN/I");              
-  rootracker_tree->Branch("StdHepPdg",        brStdHepPdg,       "StdHepPdg[StdHepN]/I");  
-  rootracker_tree->Branch("StdHepStatus",     brStdHepStatus,    "StdHepStatus[StdHepN]/I"); 
-  rootracker_tree->Branch("StdHepRescat",     brStdHepRescat,    "StdHepRescat[StdHepN]/I"); 
-  rootracker_tree->Branch("StdHepX4",         brStdHepX4,        "StdHepX4[StdHepN][4]/D"); 
-  rootracker_tree->Branch("StdHepP4",         brStdHepP4,        "StdHepP4[StdHepN][4]/D"); 
-  rootracker_tree->Branch("StdHepPolz",       brStdHepPolz,      "StdHepPolz[StdHepN][3]/D"); 
-  rootracker_tree->Branch("StdHepFd",         brStdHepFd,        "StdHepFd[StdHepN]/I"); 
-  rootracker_tree->Branch("StdHepLd",         brStdHepLd,        "StdHepLd[StdHepN]/I"); 
-  rootracker_tree->Branch("StdHepFm",         brStdHepFm,        "StdHepFm[StdHepN]/I"); 
-  rootracker_tree->Branch("StdHepLm",         brStdHepLm,        "StdHepLm[StdHepN]/I"); 
+
+  // branches common to all rootracker(_mock_data) formats
+  if(!hide_truth) {
+    // full version
+    rootracker_tree->Branch("EvtFlags", "TBits",      &brEvtFlags, 32000, 1);           
+    rootracker_tree->Branch("EvtCode",  "TObjString", &brEvtCode,  32000, 1);            
+    rootracker_tree->Branch("EvtNum",          &brEvtNum,          "EvtNum/I");             
+    rootracker_tree->Branch("EvtXSec",         &brEvtXSec,         "EvtXSec/D");            
+    rootracker_tree->Branch("EvtDXSec",        &brEvtDXSec,        "EvtDXSec/D");           
+    rootracker_tree->Branch("EvtWght",         &brEvtWght,         "EvtWght/D");            
+    rootracker_tree->Branch("EvtProb",         &brEvtProb,         "EvtProb/D");            
+    rootracker_tree->Branch("EvtVtx",           brEvtVtx,          "EvtVtx[4]/D");             
+    rootracker_tree->Branch("StdHepN",         &brStdHepN,         "StdHepN/I");              
+    rootracker_tree->Branch("StdHepPdg",        brStdHepPdg,       "StdHepPdg[StdHepN]/I");  
+    rootracker_tree->Branch("StdHepStatus",     brStdHepStatus,    "StdHepStatus[StdHepN]/I"); 
+    rootracker_tree->Branch("StdHepRescat",     brStdHepRescat,    "StdHepRescat[StdHepN]/I"); 
+    rootracker_tree->Branch("StdHepX4",         brStdHepX4,        "StdHepX4[StdHepN][4]/D"); 
+    rootracker_tree->Branch("StdHepP4",         brStdHepP4,        "StdHepP4[StdHepN][4]/D"); 
+    rootracker_tree->Branch("StdHepPolz",       brStdHepPolz,      "StdHepPolz[StdHepN][3]/D"); 
+    rootracker_tree->Branch("StdHepFd",         brStdHepFd,        "StdHepFd[StdHepN]/I"); 
+    rootracker_tree->Branch("StdHepLd",         brStdHepLd,        "StdHepLd[StdHepN]/I"); 
+    rootracker_tree->Branch("StdHepFm",         brStdHepFm,        "StdHepFm[StdHepN]/I"); 
+    rootracker_tree->Branch("StdHepLm",         brStdHepLm,        "StdHepLm[StdHepN]/I"); 
+  } else {
+    // for mock_data variances
+    rootracker_tree->Branch("EvtNum",          &brEvtNum,          "EvtNum/I");             
+    rootracker_tree->Branch("EvtWght",         &brEvtWght,         "EvtWght/D");            
+    rootracker_tree->Branch("EvtVtx",           brEvtVtx,          "EvtVtx[4]/D");             
+    rootracker_tree->Branch("StdHepN",         &brStdHepN,         "StdHepN/I");              
+    rootracker_tree->Branch("StdHepPdg",        brStdHepPdg,       "StdHepPdg[StdHepN]/I");  
+    rootracker_tree->Branch("StdHepX4",         brStdHepX4,        "StdHepX4[StdHepN][4]/D"); 
+    rootracker_tree->Branch("StdHepP4",         brStdHepP4,        "StdHepP4[StdHepN][4]/D"); 
+  }
 
   // extra branches of the t2k rootracker variance
   if(gOptOutFileFormat == kConvFmt_t2k_rootracker) 
@@ -1661,14 +1769,14 @@ void ConvertToGRooTracker(void)
     rootracker_tree->Branch("NuParentProX4",    brNuParentProX4,   "NuParentProX4[4]/D");     
     rootracker_tree->Branch("NuParentProNVtx", &brNuParentProNVtx, "NuParentProNVtx/I");   
     // Branches added since JNUBEAM '10a' compatibility changes
-    rootracker_tree->Branch("NuFluxEntry", &brNuFluxEntry, "NuFluxEntry/I");
-    rootracker_tree->Branch("NuIdfd", &brNuIdfd, "NuIdfd/I");
-    rootracker_tree->Branch("NuCospibm", &brNuCospibm, "NuCospibm/D");
-    rootracker_tree->Branch("NuCospi0bm", &brNuCospi0bm, "NuCospi0bm/D");
-    rootracker_tree->Branch("NuGipart", &brNuGipart, "NuGipart/I");
-    rootracker_tree->Branch("NuGpos0", brNuGpos0, "NuGpos0[3]/D");
-    rootracker_tree->Branch("NuGvec0", brNuGvec0, "NuGvec0[3]/D");
-    rootracker_tree->Branch("NuGamom0", &brNuGamom0, "NuGamom0/D");
+    rootracker_tree->Branch("NuFluxEntry",     &brNuFluxEntry,     "NuFluxEntry/I");
+    rootracker_tree->Branch("NuIdfd",          &brNuIdfd,          "NuIdfd/I");
+    rootracker_tree->Branch("NuCospibm",       &brNuCospibm,       "NuCospibm/D");
+    rootracker_tree->Branch("NuCospi0bm",      &brNuCospi0bm,      "NuCospi0bm/D");
+    rootracker_tree->Branch("NuGipart",        &brNuGipart,        "NuGipart/I");
+    rootracker_tree->Branch("NuGpos0",          brNuGpos0,         "NuGpos0[3]/D");
+    rootracker_tree->Branch("NuGvec0",          brNuGvec0,         "NuGvec0[3]/D");
+    rootracker_tree->Branch("NuGamom0",        &brNuGamom0,        "NuGamom0/D");
 
     // NEUT-like reaction code
     rootracker_tree->Branch("G2NeutEvtCode",   &brNeutCode,        "G2NeutEvtCode/I");   
@@ -1834,7 +1942,7 @@ void ConvertToGRooTracker(void)
     for(int k=0; k<4; k++) { 
       brEvtVtx[k] = 0;
     }
-    brStdHepN = event.GetEntries(); 
+    brStdHepN = 0; 
     for(int i=0; i<kNPmax; i++) {
        brStdHepPdg   [i] =  0;  
        brStdHepStatus[i] = -1;  
@@ -1888,13 +1996,15 @@ void ConvertToGRooTracker(void)
     brEvtVtx[2] = event.Vertex()->Z();    
     brEvtVtx[3] = event.Vertex()->T();    
 
-    brStdHepN = event.GetEntries(); 
-
     int iparticle=0;
     GHepParticle * p = 0;
     TIter event_iter(&event);
     while ( (p = dynamic_cast<GHepParticle *>(event_iter.Next())) ) {
         assert(p);
+
+        // for mock_data variances write out only stable final state particles
+        if(hide_truth && p->Status() != kIStStableFinalState) continue;
+
         brStdHepPdg   [iparticle] = p->Pdg(); 
         brStdHepStatus[iparticle] = (int) p->Status(); 
         brStdHepRescat[iparticle] = p->RescatterCode(); 
@@ -1917,60 +2027,72 @@ void ConvertToGRooTracker(void)
         brStdHepLm    [iparticle] = p->LastMother(); 
         iparticle++;
     }
+    brStdHepN = iparticle; 
+
+    //
+    // fill in additional info for the t2k_rootracker format
+    //
+    if(gOptOutFileFormat == kConvFmt_t2k_rootracker) {
+
+      // map GENIE event to NEUT reaction codes
+      brNeutCode = utils::ghep::NeutReactionCode(&event);
 
 #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
-     PDGLibrary * pdglib = PDGLibrary::Instance();
+      // Copy flux info if this is the t2k rootracker variance.
+      // The flux may not be available, eg if events were generated using plain flux 
+      // histograms and not the JNUBEAM simulation's output flux ntuples.
+      PDGLibrary * pdglib = PDGLibrary::Instance();
+      if(jnubeam_flux_info) {
+        brNuParentPdg       = pdg::GeantToPdg(jnubeam_flux_info->ppid);
+        brNuParentDecMode   = jnubeam_flux_info->mode;
 
-    // Copy flux info if this is the t2k rootracker variance.
-    // The flux may not be available, eg if events were generated using plain flux 
-    // histograms and not the JNUBEAM simulation's output flux ntuples.
-    if(gOptOutFileFormat == kConvFmt_t2k_rootracker) {
-     if(jnubeam_flux_info) {
-       brNuParentPdg       = pdg::GeantToPdg(jnubeam_flux_info->ppid);
-       brNuParentDecMode   = jnubeam_flux_info->mode;
-
-       brNuParentDecP4 [0] = jnubeam_flux_info->ppi * jnubeam_flux_info->npi[0]; // px
-       brNuParentDecP4 [1] = jnubeam_flux_info->ppi * jnubeam_flux_info->npi[1]; // py
-       brNuParentDecP4 [2] = jnubeam_flux_info->ppi * jnubeam_flux_info->npi[2]; // px
-       brNuParentDecP4 [3] = TMath::Sqrt(
+        brNuParentDecP4 [0] = jnubeam_flux_info->ppi * jnubeam_flux_info->npi[0]; // px
+        brNuParentDecP4 [1] = jnubeam_flux_info->ppi * jnubeam_flux_info->npi[1]; // py
+        brNuParentDecP4 [2] = jnubeam_flux_info->ppi * jnubeam_flux_info->npi[2]; // px
+        brNuParentDecP4 [3] = TMath::Sqrt(
                                  TMath::Power(pdglib->Find(brNuParentPdg)->Mass(), 2.)
                                + TMath::Power(jnubeam_flux_info->ppi, 2.)
                               ); // E
-       brNuParentDecX4 [0] = jnubeam_flux_info->xpi[0]; // x
-       brNuParentDecX4 [1] = jnubeam_flux_info->xpi[1]; // y       
-       brNuParentDecX4 [2] = jnubeam_flux_info->xpi[2]; // x   
-       brNuParentDecX4 [3] = 0;                 // t
+        brNuParentDecX4 [0] = jnubeam_flux_info->xpi[0]; // x
+        brNuParentDecX4 [1] = jnubeam_flux_info->xpi[1]; // y       
+        brNuParentDecX4 [2] = jnubeam_flux_info->xpi[2]; // x   
+        brNuParentDecX4 [3] = 0;                 // t
 
-       brNuParentProP4 [0] = jnubeam_flux_info->ppi0 * jnubeam_flux_info->npi0[0]; // px
-       brNuParentProP4 [1] = jnubeam_flux_info->ppi0 * jnubeam_flux_info->npi0[1]; // py
-       brNuParentProP4 [2] = jnubeam_flux_info->ppi0 * jnubeam_flux_info->npi0[2]; // px
-       brNuParentProP4 [3] = TMath::Sqrt(
+        brNuParentProP4 [0] = jnubeam_flux_info->ppi0 * jnubeam_flux_info->npi0[0]; // px
+        brNuParentProP4 [1] = jnubeam_flux_info->ppi0 * jnubeam_flux_info->npi0[1]; // py
+        brNuParentProP4 [2] = jnubeam_flux_info->ppi0 * jnubeam_flux_info->npi0[2]; // px
+        brNuParentProP4 [3] = TMath::Sqrt(
                                 TMath::Power(pdglib->Find(brNuParentPdg)->Mass(), 2.)
                               + TMath::Power(jnubeam_flux_info->ppi0, 2.)
                               ); // E
-       brNuParentProX4 [0] = jnubeam_flux_info->xpi0[0]; // x
-       brNuParentProX4 [1] = jnubeam_flux_info->xpi0[1]; // y       
-       brNuParentProX4 [2] = jnubeam_flux_info->xpi0[2]; // x   
-       brNuParentProX4 [3] = 0;                // t
+        brNuParentProX4 [0] = jnubeam_flux_info->xpi0[0]; // x
+        brNuParentProX4 [1] = jnubeam_flux_info->xpi0[1]; // y       
+        brNuParentProX4 [2] = jnubeam_flux_info->xpi0[2]; // x   
+        brNuParentProX4 [3] = 0;                // t
 
-       brNuParentProNVtx   = jnubeam_flux_info->nvtx0;
+        brNuParentProNVtx   = jnubeam_flux_info->nvtx0;
 
-       // Copy info added post JNUBEAM '10a' compatibility changes 
-       brNuFluxEntry = jnubeam_flux_info->fluxentry;
-       brNuIdfd = jnubeam_flux_info->idfd;
-       brNuCospibm = jnubeam_flux_info->cospibm;
-       brNuCospi0bm = jnubeam_flux_info->cospi0bm;
-       brNuGipart = jnubeam_flux_info->gipart;
-       brNuGamom0 = jnubeam_flux_info->gamom0;
-       for(int k=0; k<3; k++){
-         brNuGpos0[k] = (double) jnubeam_flux_info->gpos0[k];
-         brNuGvec0[k] = (double) jnubeam_flux_info->gvec0[k];
-       }
-     }
-    }
+        // Copy info added post JNUBEAM '10a' compatibility changes 
+        brNuFluxEntry = jnubeam_flux_info->fluxentry;
+        brNuIdfd = jnubeam_flux_info->idfd;
+        brNuCospibm = jnubeam_flux_info->cospibm;
+        brNuCospi0bm = jnubeam_flux_info->cospi0bm;
+        brNuGipart = jnubeam_flux_info->gipart;
+        brNuGamom0 = jnubeam_flux_info->gamom0;
+        for(int k=0; k<3; k++){
+            brNuGpos0[k] = (double) jnubeam_flux_info->gpos0[k];
+            brNuGvec0[k] = (double) jnubeam_flux_info->gvec0[k];
+        }
+      }//jnubeam_flux_info
+#endif
+    }//kConvFmt_t2k_rootracker
 
-    // Copy flux info if this is the numi rootracker variance.
+    //
+    // fill in additional info for the numi_rootracker format
+    //
     if(gOptOutFileFormat == kConvFmt_numi_rootracker) {
+#ifdef __GENIE_FLUX_DRIVERS_ENABLED__
+     // Copy flux info if this is the numi rootracker variance.
      if(gnumi_flux_info) {
        brNumiFluxRun      = gnumi_flux_info->run;
        brNumiFluxEvtno    = gnumi_flux_info->evtno;
@@ -2034,14 +2156,11 @@ void ConvertToGRooTracker(void)
        brNumiFluxBeampx   = gnumi_flux_info->beampx;
        brNumiFluxBeampy   = gnumi_flux_info->beampy;
        brNumiFluxBeampz   = gnumi_flux_info->beampz;
-     }
-    }
-
+     } // gnumi_flux_info
 #endif
+    } // kConvFmt_numi_rootracker
 
-    // map GENIE event to NEUT reaction codes
-    brNeutCode = utils::ghep::NeutReactionCode(&event);
-
+    // fill tree
     rootracker_tree->Fill();
     mcrec->Clear();
 
@@ -2058,9 +2177,9 @@ void ConvertToGRooTracker(void)
 
   LOG("gntpc", pINFO) << "\nDone converting GENIE's GHEP ntuple";
 }
-//___________________________________________________________________
-// * GENIE GHEP EVENT TREE -> NEUGEN-style format for AGKY studies *
-//___________________________________________________________________
+//____________________________________________________________________________________
+// GENIE GHEP EVENT TREE -> NEUGEN-style format for AGKY studies 
+//____________________________________________________________________________________
 void ConvertToGHad(void)
 {
 // Neugen-style text format for the AGKY hadronization model studies
@@ -2303,9 +2422,9 @@ void ConvertToGHad(void)
 
   LOG("gntpc", pINFO) << "\nDone converting GENIE's GHEP ntuple";
 }
-//___________________________________________________________________
-// * GENIE GHEP EVENT TREE -> Summary tree for INTRANUKE studies *
-//___________________________________________________________________
+//____________________________________________________________________________________
+// GENIE GHEP EVENT TREE -> Summary tree for INTRANUKE studies 
+//____________________________________________________________________________________
 void ConvertToGINuke(void)
 {
   //-- open output file & create output summary tree & create the tree branches
@@ -2386,9 +2505,9 @@ void ConvertToGINuke(void)
        
   LOG("gntpc", pINFO) << "\nDone converting GENIE's GHEP ntuple";
 }
-//___________________________________________________________________
-//            FUNCTIONS FOR PARSING CMD-LINE ARGUMENTS 
-//___________________________________________________________________
+//____________________________________________________________________________________
+// FUNCTIONS FOR PARSING CMD-LINE ARGUMENTS 
+//____________________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
 {
   //get input ROOT file (containing a GENIE GHEP event tree)
@@ -2420,16 +2539,18 @@ void GetCommandLineArgs(int argc, char ** argv)
     LOG("gntpc", pINFO) << "Reading output file format";
     string fmt = utils::clap::CmdLineArgAsString(argc,argv,'f');
 
-         if (fmt == "gst")             { gOptOutFileFormat = kConvFmt_gst;             }
-    else if (fmt == "gxml")            { gOptOutFileFormat = kConvFmt_gxml;            }
-    else if (fmt == "rootracker")      { gOptOutFileFormat = kConvFmt_rootracker;      }
-    else if (fmt == "t2k_rootracker")  { gOptOutFileFormat = kConvFmt_t2k_rootracker;  }
-    else if (fmt == "t2k_tracker")     { gOptOutFileFormat = kConvFmt_t2k_tracker;     }
-    else if (fmt == "numi_rootracker") { gOptOutFileFormat = kConvFmt_numi_rootracker; }
-    else if (fmt == "nuance_tracker" ) { gOptOutFileFormat = kConvFmt_nuance_tracker;  }
-    else if (fmt == "ghad")            { gOptOutFileFormat = kConvFmt_ghad;            }
-    else if (fmt == "ginuke")          { gOptOutFileFormat = kConvFmt_ginuke;          }
-    else                               { gOptOutFileFormat = kConvFmt_undef;           }
+         if (fmt == "gst")                   { gOptOutFileFormat = kConvFmt_gst;                   }
+    else if (fmt == "gxml")                  { gOptOutFileFormat = kConvFmt_gxml;                  }
+    else if (fmt == "ghep_mock_data")        { gOptOutFileFormat = kConvFmt_ghep_mock_data;        }
+    else if (fmt == "rootracker")            { gOptOutFileFormat = kConvFmt_rootracker;            }
+    else if (fmt == "rootracker_mock_data")  { gOptOutFileFormat = kConvFmt_rootracker_mock_data;  }
+    else if (fmt == "t2k_rootracker")        { gOptOutFileFormat = kConvFmt_t2k_rootracker;        }
+    else if (fmt == "numi_rootracker")       { gOptOutFileFormat = kConvFmt_numi_rootracker;       }
+    else if (fmt == "t2k_tracker")           { gOptOutFileFormat = kConvFmt_t2k_tracker;           }
+    else if (fmt == "nuance_tracker" )       { gOptOutFileFormat = kConvFmt_nuance_tracker;        }
+    else if (fmt == "ghad")                  { gOptOutFileFormat = kConvFmt_ghad;                  }
+    else if (fmt == "ginuke")                { gOptOutFileFormat = kConvFmt_ginuke;                }
+    else                                     { gOptOutFileFormat = kConvFmt_undef;                 }
 
     if(gOptOutFileFormat == kConvFmt_undef) {
       LOG("gntpc", pFATAL) << "Unknown output file format (" << fmt << ")";
@@ -2485,20 +2606,22 @@ void GetCommandLineArgs(int argc, char ** argv)
     }
   }
 }
-//___________________________________________________________________
+//____________________________________________________________________________________
 string DefaultOutputFile(void)
 {
   // filename extension - depending on file format
   string ext="";
-  if      (gOptOutFileFormat == kConvFmt_gst            ) { ext = "gst.root";         }
-  else if (gOptOutFileFormat == kConvFmt_rootracker     ) { ext = "gtrac.root";       }
-  else if (gOptOutFileFormat == kConvFmt_gxml           ) { ext = "gxml";             }
-  else if (gOptOutFileFormat == kConvFmt_t2k_rootracker ) { ext = "gtrac.root";       }
-  else if (gOptOutFileFormat == kConvFmt_t2k_tracker    ) { ext = "gtrac.dat";        }
-  else if (gOptOutFileFormat == kConvFmt_numi_rootracker) { ext = "gtrac.root";       }
-  else if (gOptOutFileFormat == kConvFmt_nuance_tracker ) { ext = "gtrac_legacy.dat"; }
-  else if (gOptOutFileFormat == kConvFmt_ghad           ) { ext = "ghad.dat";         }
-  else if (gOptOutFileFormat == kConvFmt_ginuke         ) { ext = "ginuke.root";      }
+  if      (gOptOutFileFormat == kConvFmt_gst                  ) { ext = "gst.root";         }
+  else if (gOptOutFileFormat == kConvFmt_gxml                 ) { ext = "gxml";             }
+  else if (gOptOutFileFormat == kConvFmt_ghep_mock_data       ) { ext = "mockd.ghep.root";  }
+  else if (gOptOutFileFormat == kConvFmt_rootracker           ) { ext = "gtrac.root";       }
+  else if (gOptOutFileFormat == kConvFmt_rootracker_mock_data ) { ext = "mockd.gtrac.root"; }
+  else if (gOptOutFileFormat == kConvFmt_t2k_rootracker       ) { ext = "gtrac.root";       }
+  else if (gOptOutFileFormat == kConvFmt_numi_rootracker      ) { ext = "gtrac.root";       }
+  else if (gOptOutFileFormat == kConvFmt_t2k_tracker          ) { ext = "gtrac.dat";        }
+  else if (gOptOutFileFormat == kConvFmt_nuance_tracker       ) { ext = "gtrac_legacy.dat"; }
+  else if (gOptOutFileFormat == kConvFmt_ghad                 ) { ext = "ghad.dat";         }
+  else if (gOptOutFileFormat == kConvFmt_ginuke               ) { ext = "ginuke.root";      }
 
   string inpname = gOptInpFileName;
   unsigned int L = inpname.length();
@@ -2520,22 +2643,24 @@ string DefaultOutputFile(void)
 
   return gSystem->BaseName(name.str().c_str());
 }
-//___________________________________________________________________
+//____________________________________________________________________________________
 int LatestFormatVersionNumber(void)
 {
-  if      (gOptOutFileFormat == kConvFmt_gst            ) return 1;
-  else if (gOptOutFileFormat == kConvFmt_rootracker     ) return 1;
-  else if (gOptOutFileFormat == kConvFmt_gxml           ) return 1;
-  else if (gOptOutFileFormat == kConvFmt_t2k_rootracker ) return 1;
-  else if (gOptOutFileFormat == kConvFmt_t2k_tracker    ) return 2;
-  else if (gOptOutFileFormat == kConvFmt_numi_rootracker) return 1;
-  else if (gOptOutFileFormat == kConvFmt_nuance_tracker ) return 1;
-  else if (gOptOutFileFormat == kConvFmt_ghad           ) return 1;
-  else if (gOptOutFileFormat == kConvFmt_ginuke         ) return 1;
+  if      (gOptOutFileFormat == kConvFmt_gst                  ) return 1;
+  else if (gOptOutFileFormat == kConvFmt_gxml                 ) return 1;
+  else if (gOptOutFileFormat == kConvFmt_ghep_mock_data       ) return 1;
+  else if (gOptOutFileFormat == kConvFmt_rootracker           ) return 1;
+  else if (gOptOutFileFormat == kConvFmt_rootracker_mock_data ) return 1;
+  else if (gOptOutFileFormat == kConvFmt_t2k_rootracker       ) return 1;
+  else if (gOptOutFileFormat == kConvFmt_numi_rootracker      ) return 1;
+  else if (gOptOutFileFormat == kConvFmt_t2k_tracker          ) return 2;
+  else if (gOptOutFileFormat == kConvFmt_nuance_tracker       ) return 1;
+  else if (gOptOutFileFormat == kConvFmt_ghad                 ) return 1;
+  else if (gOptOutFileFormat == kConvFmt_ginuke               ) return 1;
 
   return -1;
 }
-//___________________________________________________________________
+//____________________________________________________________________________________
 void PrintSyntax(void)
 {
   string basedir  = string( gSystem->Getenv("GENIE") );
@@ -2544,4 +2669,4 @@ void PrintSyntax(void)
 
   gSystem->Exec(cmd.c_str());
 }
-//___________________________________________________________________
+//____________________________________________________________________________________
