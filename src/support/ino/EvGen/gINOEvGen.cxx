@@ -153,7 +153,8 @@ int main(int argc, char** argv)
 
   // initialize an ntuple writer
   NtpWriter ntpw(kDefOptNtpFormat, gOptRunNu);
-  ntpw.Initialize(gOptEvFilePrefix);
+  ntpw.CustomizeFilenamePrefix(gOptEvFilePrefix);
+  ntpw.Initialize();
 
   // Create a MC job monitor for a periodically updated status file
   GMCJMonitor mcjmonitor(gOptRunNu);
