@@ -130,7 +130,8 @@ int main(int argc, char ** argv)
 
   //-- initialize an Ntuple Writer to save GHEP records into a ROOT tree
   NtpWriter ntpw(kNFGHEP, gOptRunNu);
-  ntpw.Initialize(gOptEvFilePrefix);
+  ntpw.CustomizeFilenamePrefix(gOptEvFilePrefix);
+  ntpw.Initialize();
 
   //-- create an MC Job Monitor
   GMCJMonitor mcjmonitor(gOptRunNu);
