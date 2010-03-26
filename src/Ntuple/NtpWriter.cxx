@@ -5,7 +5,7 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - October 01, 2004
+         STFC, Rutherford Appleton Laboratory 
 
  For the class documentation see the corresponding header file.
 
@@ -14,6 +14,11 @@
    Made event branch a priv data member and modified code accordingly.
    Added method to hand over the event tree so that additional user-defined
    branches (eg flux info) may be added.
+ @ Mar 26, 2010 - CA
+   Added CustomizeFilename() and CustomizeFilenamePrefix() to allow the use
+   to customize either the entire output name or just the prefix before the
+   run number.
+
 */
 //____________________________________________________________________________
 
