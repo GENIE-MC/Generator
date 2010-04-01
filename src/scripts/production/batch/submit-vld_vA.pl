@@ -16,7 +16,7 @@
 #   [--cycle]        : default: 01
 #   [--ref-samples]  : Path for reference samples, default: no reference samples / no plots will be generated
 #   [--use-valgrind] : default: off
-#   [--batch-system] : <PBS, >, default: PBS
+#   [--batch-system] : <PBS, LSF>, default: PBS
 #   [--queue]        : default: prod
 #   [--softw-topdir] : default: /opt/ppd/t2k/GENIE
 #
@@ -225,12 +225,12 @@ for my $curr_runnu (keys %gevgl_hash)  {
     $en    = $energy_hash  {$curr_runnu};
     $gevgl = $gevgl_hash   {$curr_runnu};
 
-    $job_file_base = "$jobs_dir/job_vA-$curr_runnu";
+    $fntemplate    = "$jobs_dir/job_vA-$curr_runnu";
     $grep_pipe     = "grep -B 20 -A 30 -i \"warn\\|error\\|fatal\"";
     $valgrind_cmd  = "valgrind --tool=memcheck --error-limit=no --leak-check=yes --show-reachable=yes";
-    $evgen_cmd     = "gevgen -n $nev -s -e $en -p $nu -t $tgt -r $curr_runnu | $grep_pipe &> $job_file_base.evgen.log";
-    $conv_cmd      = "gntpc -f gst -i gntp.$curr_runnu.ghep.root | $grep_pipe &> $job_file_base.conv.log";
-    $comp_cmd      = "gvld_sample_comp -f gntp.$curr_runnu.gst.root -r $ref_sample_path/gntp.$curr_runnu.gst.root | $grep_pipe &> $job_file_base.comp.log";
+    $evgen_cmd     = "gevgen -n $nev -s -e $en -p $nu -t $tgt -r $curr_runnu | $grep_pipe &> $fntemplate.evgen.log";
+    $conv_cmd      = "gntpc -f gst -i gntp.$curr_runnu.ghep.root | $grep_pipe &> $fntemplate.conv.log";
+    $comp_cmd      = "gvld_sample_comp -f gntp.$curr_runnu.gst.root -r $ref_sample_path/gntp.$curr_runnu.gst.root | $grep_pipe &> $fntemplate.comp.log";
 
     print "@@ exec: $evgen_cmd \n";
 
@@ -240,11 +240,11 @@ for my $curr_runnu (keys %gevgl_hash)  {
   
     # PBS case
     if($batch_system eq 'PBS') {
-        $batch_script  = "$jobs_dir/job_vA-$curr_runnu.pbs";
+        $batch_script  = "$fntemplate.pbs";
         open(PBS, ">$batch_script") or die("Can not create the PBS batch script");
         print PBS "#!/bin/bash \n";
-        print PBS "#PBS -o $job_file_base.pbsout.log \n";
-        print PBS "#PBS -e $job_file_base.pbserr.log \n";
+        print PBS "#PBS -o $fntemplate.pbsout.log \n";
+        print PBS "#PBS -e $fntemplate.pbserr.log \n";
         print PBS "source $genie_setup \n"; 
         print PBS "cd $jobs_dir \n";
         print PBS "export GSPLOAD=$xspl_file \n";
@@ -258,6 +258,28 @@ for my $curr_runnu (keys %gevgl_hash)  {
         close(PBS);
         `qsub -q $queue $batch_script`;
     } #PBS
+
+    # LSF case
+    if($batch_system eq 'LSF') {
+        $batch_script  = "$fntemplate.sh";
+        open(LSF, ">$batch_script") or die("Can not create the LSF batch script");
+        print LSF "#!/bin/bash \n";
+        print LSF "#BSUB-q $queue \n";
+        print LSF "#BSUB-o $fntemplate.lsfout.log \n";
+        print LSF "#BSUB-e $fntemplate.lsferr.log \n";
+        print LSF "source $genie_setup \n"; 
+        print LSF "cd $jobs_dir \n";
+        print LSF "export GSPLOAD=$xspl_file \n";
+        print LSF "export GEVGL=$gevgl \n";
+        print LSF "export GSEED=$mcseed  \n";
+        print LSF "$evgen_cmd \n";
+        print LSF "$conv_cmd \n";
+        if(-d $ref_sample_path) {
+           print LSF "$comp_cmd \n";
+        }
+        close(LSF);
+        `bsub < $batch_script`;
+    } #LSF
 
   }
 }

@@ -14,7 +14,7 @@
 #   [--production]   : production name, default: <version>
 #   [--cycle]        : cycle in current production, default: 01
 #   [--use-valgrind] : default: off
-#   [--batch-system] : <PBS, >, default: PBS
+#   [--batch-system] : <PBS, LSF>, default: PBS
 #   [--queue]        : default: prod
 #   [--softw-topdir] : default: /opt/ppd/t2k/GENIE
 #
@@ -133,10 +133,10 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
 
        $curr_subrunnu = 100 * $curr_runnu + $isubrun;
        $curr_seed     = $mcseed + $isubrun;
-       $job_file_base = "$jobs_dir/hdzvld-$curr_subrunnu";
+       $fntemplate    = "$jobs_dir/hdzvld-$curr_subrunnu";
        $grep_pipe     = "grep -B 20 -A 30 -i \"warn\\|error\\|fatal\"";
        $valgrind_cmd  = "valgrind --tool=memcheck --error-limit=no --leak-check=yes --show-reachable=yes";
-       $evgen_cmd     = "gevgen -n $nev_per_subrun -s -e $en -p $nu -t $tgt -r $curr_subrunnu $fluxopt | $grep_pipe &> $job_file_base.evgen.log";
+       $evgen_cmd     = "gevgen -n $nev_per_subrun -s -e $en -p $nu -t $tgt -r $curr_subrunnu $fluxopt | $grep_pipe &> $fntemplate.evgen.log";
 
        print "@@ exec: $evgen_cmd \n";
 
@@ -146,12 +146,13 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
   
        # PBS case
        if($batch_system eq 'PBS') {
-           $batch_script  = "$jobs_dir/hdzvld-$curr_subrunnu.pbs";
+           $batch_script = $fntemplate.pbs";
            open(PBS, ">$batch_script") or die("Can not create the PBS batch script");
            print PBS "#!/bin/bash \n";
+           print PBS "#PBS -N hdzvld-$curr_subrunnu \n";
            print PBS "#PBS -l cput=$time_limit \n";
-           print PBS "#PBS -o $job_file_base.pbsout.log \n";
-           print PBS "#PBS -e $job_file_base.pbserr.log \n";
+           print PBS "#PBS -o $fntemplate.pbsout.log \n";
+           print PBS "#PBS -e $fntemplate.pbserr.log \n";
            print PBS "source $genie_setup \n"; 
            print PBS "cd $jobs_dir \n";
            print PBS "export GSPLOAD=$xspl_file \n";
@@ -161,6 +162,26 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
            close(PBS);
            `qsub -q $queue $batch_script`;
        }#PBS
+
+       # LSF case
+       if($batch_system eq 'LSF') {
+           $batch_script = "$fntemplate.sh";
+           open(LSF, ">$batch_script") or die("Can not create the LSF batch script");
+           print LSF "#!/bin/bash \n";
+           print PBS "#BSUB-j hdzvld-$curr_subrunnu \n";
+           print LSF "#BSUB-q $queue \n";
+           print LSF "#BSUB-c $time_limit \n";
+           print LSF "#BSUB-o $fntemplate.lsfout.log \n";
+           print LSF "#BSUB-e $fntemplate.lsferr.log \n";
+           print LSF "source $genie_setup \n"; 
+           print LSF "cd $jobs_dir \n";
+           print LSF "export GSPLOAD=$xspl_file \n";
+           print LSF "export GEVGL=$gevgl \n";
+           print LSF "export GSEED=$curr_seed \n";
+           print LSF "$evgen_cmd \n";
+           close(LSF);
+           `bsub < $batch_script`;
+       }#LSF
 
     } # loop over subruns
  # } #checking whether to submit current run
