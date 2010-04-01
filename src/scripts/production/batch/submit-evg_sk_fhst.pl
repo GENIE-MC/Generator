@@ -14,7 +14,7 @@
 #   [--production]     : default: <version>
 #   [--cycle]          : default: 01
 #   [--use-valgrind]   : default: off
-#   [--batch-system]   : <PBS, >, default: PBS
+#   [--batch-system]   : <PBS, LSF>, default: PBS
 #   [--queue]          : default: prod
 #   [--softw-topdir]   : default: /opt/ppd/t2k/GENIE
 #
@@ -122,11 +122,11 @@ $hst = $flux_hist_name {$neutrino};
 
 # form event generation and file conversion commands
 #
-$job_file_base = "$job_dir/skjob-$mcrun";
+$fntemplate    = "$job_dir/skjob-$mcrun";
 $ghep_file     = "$file_prefix.$production\_$cycle.$neutrino.$mcrun.ghep.root";
 $grep_pipe     = "grep -B 50 -A 50 -i \"warn\\|error\\|fatal\"";
 $valgrind_cmd  = "valgrind --tool=memcheck --error-limit=no --leak-check=yes --show-reachable=yes";
-$evgen_cmd     = "gT2Kevgen -g $geom_tgt_mix -f $flux_file,$nu\[$hst\] -r $mcrun -n $nevents | $grep_pipe &> $job_file_base.evgen.log";
+$evgen_cmd     = "gT2Kevgen -g $geom_tgt_mix -f $flux_file,$nu\[$hst\] -r $mcrun -n $nevents | $grep_pipe &> $fntemplate.evgen.log";
 $frenm_cmd     = "mv gntp.$mcrun.ghep.root $ghep_file";
 $fconv_cmd     = "gntpc -f t2k_tracker -i $ghep_file";
 
@@ -138,13 +138,13 @@ print "@@@ exec: $evgen_cmd \n";
 
 # PBS case
 if($batch_system eq 'PBS') {
-  $batch_script = "$job_file_base.pbs";
+  $batch_script = "$fntemplate.pbs";
   open(PBS, ">$batch_script") or die("Can not create the PBS batch script");
   print PBS "#!/bin/bash \n";
-  print PBS "#PBS -l cput=$time_limit \n";
   print PBS "#PBS -N $mcrun\_sk-$production-$cycle \n";
-  print PBS "#PBS -o $job_file_base.pbsout.log \n";
-  print PBS "#PBS -e $job_file_base.pbserr.log \n";
+  print PBS "#PBS -l cput=$time_limit \n";
+  print PBS "#PBS -o $fntemplate.pbsout.log \n";
+  print PBS "#PBS -e $fntemplate.pbserr.log \n";
   print PBS "source $genie_setup \n";
   print PBS "cd $job_dir \n";
   print PBS "export GSPLOAD=$xspl_file \n";
@@ -155,4 +155,26 @@ if($batch_system eq 'PBS') {
   print PBS "$fconv_cmd \n";
   close(PBS);
   `qsub -q $queue $batch_script`;
+}
+
+# LSF case
+if($batch_system eq 'LSF') {
+  $batch_script = "$fntemplate.sh";
+  open(LSF, ">$batch_script") or die("Can not create the LSF batch script");
+  print LSF "#!/bin/bash \n";
+  print LSF "#BSUB-j $mcrun\_sk-$production-$cycle \n";
+  print LSF "#BSUB-q $queue \n";
+  print LSF "#BSUB-c $time_limit \n";
+  print LSF "#BSUB-o $fntemplate.lsfout.log \n";
+  print LSF "#BSUB-e $fntemplate.lsferr.log \n";
+  print LSF "source $genie_setup \n";
+  print LSF "cd $job_dir \n";
+  print LSF "export GSPLOAD=$xspl_file \n";
+  print LSF "unset GEVGL \n";
+  print LSF "export GSEED=$mcseed \n";
+  print LSF "$evgen_cmd \n";
+  print LSF "$frenm_cmd \n";
+  print LSF "$fconv_cmd \n";
+  close(LSF);
+  `bsub < $batch_script`;
 }

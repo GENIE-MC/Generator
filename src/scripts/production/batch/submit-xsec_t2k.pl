@@ -13,7 +13,7 @@
 #   [--production]   : default: <version>
 #   [--cycle]        : default: 01
 #   [--use-valgrind] : default: off
-#   [--batch-system] : <PBS, >, default: PBS
+#   [--batch-system] : <PBS, LSF>, default: PBS
 #   [--queue]        : default: prod
 #   [--softw-topdir] : default: /opt/ppd/t2k/GENIE
 #
@@ -113,9 +113,9 @@ mkpath ($jobs_dir, {verbose => 1, mode=>0777});
 #
 while( my ($tgt_name, $tgt_code) = each %targets ) {
 
-    $job_file_base = "$jobs_dir/job_$tgt_name";
+    $fntemplate    = "$jobs_dir/job_$tgt_name";
     $grep_pipe     = "grep -B 100 -A 30 -i \"warn\\|error\\|fatal\"";
-    $cmd = "gmkspl -p $neutrinos -t $tgt_code -n $nkots -e $emax -o gxspl_$tgt_name.xml | $grep_pipe  &> $job_file_base.mkspl.log";
+    $cmd = "gmkspl -p $neutrinos -t $tgt_code -n $nkots -e $emax -o gxspl_$tgt_name.xml | $grep_pipe  &> $fntemplate.mkspl.log";
     print "@@ exec: $cmd \n";
 
     #
@@ -124,12 +124,12 @@ while( my ($tgt_name, $tgt_code) = each %targets ) {
 
     # PBS case
     if($batch_system eq 'PBS') {
-	$batch_script = "$job_file_base.pbs";
+	$batch_script = "$fntemplate.pbs";
 	open(PBS, ">$batch_script") or die("Can not create the PBS batch script");
 	print PBS "#!/bin/bash \n";
         print PBS "#PBS -N $tgt_name \n";
-        print PBS "#PBS -o $job_file_base.pbsout.log \n";
-        print PBS "#PBS -e $job_file_base.pbserr.log \n";
+        print PBS "#PBS -o $fntemplate.pbsout.log \n";
+        print PBS "#PBS -e $fntemplate.pbserr.log \n";
 	print PBS "source $genie_setup \n";
 	print PBS "cd $jobs_dir \n";
 	print PBS "export GSPLOAD=$freenucsplines\n";
@@ -137,6 +137,23 @@ while( my ($tgt_name, $tgt_code) = each %targets ) {
         close(PBS);
 	`qsub -q $queue $batch_script`;
     } #PBS
+
+    # LSF case
+    if($batch_system eq 'LSF') {
+	$batch_script = "$fntemplate.sh";
+	open(LSF, ">$batch_script") or die("Can not create the LSF batch script");
+	print LSF "#!/bin/bash \n";
+        print LSF "#BSUB-j $tgt_name \n";
+        print LSF "#BSUB-q $queue \n";
+        print LSF "#BSUB-o $fntemplate.pbsout.log \n";
+        print LSF "#BSUB-e $fntemplate.pbserr.log \n";
+	print LSF "source $genie_setup \n";
+	print LSF "cd $jobs_dir \n";
+	print LSF "export GSPLOAD=$freenucsplines\n";
+	print LSF "$cmd \n";
+        close(LSF);
+	`bsub < $batch_script`;
+    } #LSF
 
 }
 
