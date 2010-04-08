@@ -92,13 +92,13 @@ static const double kMz2            =  TMath::Power(kMz,2);  // GeV^2
 //
 // Misc constants for empirical formulas
 //
-static const double kNucRo      = 1.2E-15*units::m;             // Ro in nuclear radius formula R=Ro*A^(1/3), in GeV^-1
-static const double kNucDensity = 2.3E+17 *units::kg/units::m3; // Nuclear density (in nuclear core), in GeV^4
+static const double kNucRo      = 1.2E-15 * units::m;            // Ro in nuclear radius formula R=Ro*A^(1/3), in GeV^-1
+static const double kNucDensity = 2.3E+17 * units::kg/units::m3; // Nuclear density (in nuclear core), in GeV^4
 
 //
 // Earth consts
 //
-static const double kREarth = 6371; // km
+static const double kREarth = 6371 * units::km; 
 
 //
 // Sqrts frequently encountered in helicity amplitude calculations
