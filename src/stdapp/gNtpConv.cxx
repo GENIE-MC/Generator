@@ -21,7 +21,7 @@
 
            -f is a string that specifies the output file format. 
 
-	      [Generic formats]
+	      >> Generic formats
 
                * `gst': 
                     The 'definite' GENIE summary tree format (gst).
@@ -36,7 +36,7 @@
                      As the `rootracker' format but hiddes all information
                      except the final state particles.
 
-	      [Experiment-specific formats]
+	      >> Experiment-specific formats
 
    	       * `t2k_rootracker':
                      A variance of the `rootracker' format used by the nd280, INGRID and 2km. 
@@ -45,8 +45,7 @@
                      A variance of the `rootracker' format for the NuMI expts.
                      Includes, in addition, NuMI flux pass-through info.
    	       * `t2k_tracker': 
-                     A tracker-type format with tweaks required by the SuperK
-                     detector MC (SKDETSIM):
+                     A tracker-type format with tweaks required by the SuperK MC (SKDETSIM):
                         - Converting K0, \bar{K0} -> KO_{long}, K0_{short}
                         - Emulating 'NEUT' reaction codes
                         - Appropriate $track ordering for SKDETSIM
@@ -56,14 +55,15 @@
                           one used at the near detectors and can be used for 
                           global systematic studies.
 
-	      [GENIE test / cross-generator comparison formats]
+	      >> GENIE test / cross-generator comparison formats
 
    	       * `ghad': 
 	             NEUGEN-style text-based format for hadronization studies
    	       * `ginuke': 
 	             INTRANUKE summary ntuple for intranuclear-rescattering studies
 
-	      [Other (depreciated) formats]
+	      >> Other (depreciated) formats
+
    	       * `nuance_tracker': 
    		     NUANCE-style tracker text-based format 
 
@@ -273,6 +273,7 @@ void ConvertToGST(void)
   //
   int    brIev         = 0;      // Event number 
   int    brNeutrino    = 0;      // Neutrino pdg code
+  int    brFSPrimLept  = 0;      // Final state primary lepton pdg code
   int    brTarget      = 0;      // Nuclear target pdg code (10LZZZAAAI)
   int    brTargetZ     = 0;      // Nuclear target Z (extracted from pdg code above)
   int    brTargetA     = 0;      // Nuclear target A (extracted from pdg code above)
@@ -287,9 +288,9 @@ void ConvertToGST(void)
   bool   brIsDfr       = false;  // Is Diffractive?
   bool   brIsImd       = false;  // Is IMD?
   bool   brIsNuEL      = false;  // Is ve elastic?
-  bool   brIsEM        = false;  // Is Electro-magnetic?
-  bool   brIsCC        = false;  // Is CC?
-  bool   brIsNC        = false;  // Is NC?
+  bool   brIsEM        = false;  // Is EM process?
+  bool   brIsCC        = false;  // Is Weak CC process?
+  bool   brIsNC        = false;  // Is Weak NC process?
   bool   brIsCharmPro  = false;  // Produces charm?
   int    brCodeNeut    = 0;      // The equivalent NEUT reaction code (if any)
   int    brCodeNuance  = 0;      // The equivalent NUANCE reaction code (if any)
@@ -371,6 +372,7 @@ void ConvertToGST(void)
   //
   s_tree->Branch("iev",           &brIev,           "iev/I"         );
   s_tree->Branch("neu",	          &brNeutrino,      "neu/I"	    );
+  s_tree->Branch("fspl",	  &brFSPrimLept,    "fspl/I"	    );
   s_tree->Branch("tgt",           &brTarget,        "tgt/I"	    );
   s_tree->Branch("Z",             &brTargetZ,       "Z/I"	    );
   s_tree->Branch("A",             &brTargetA,       "A/I"	    );
@@ -728,6 +730,7 @@ void ConvertToGST(void)
     //
     brIev        = (int) iev;      
     brNeutrino   = neutrino->Pdg();      
+    brFSPrimLept = fsl->Pdg();
     brTarget     = target->Pdg(); 
     brTargetZ    = tgtZ;
     brTargetA    = tgtA;   
