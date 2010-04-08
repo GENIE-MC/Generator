@@ -21,6 +21,10 @@
 #pragma link C++ class genie::flux::GFlukaAtmo3DFlux;
 #pragma link C++ class genie::flux::GBartolAtmoFlux;
 
+#pragma link C++ class genie::flux::GAstroFlux;
+#pragma link C++ class genie::flux::GPointSourceAstroFlux;
+#pragma link C++ class genie::flux::GDiffuseAstroFlux;
+
 #pragma link C++ class genie::flux::GSimpleNtpEntry+;
 #pragma link C++ class genie::flux::GSimpleNtpNuMI+;
 #pragma link C++ class genie::flux::GSimpleNtpAux+;
