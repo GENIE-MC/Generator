@@ -32,8 +32,9 @@ double genie::utils::prem::Density(double r)
 
   r = TMath::Max(0., r/units::km); // convert to km
 
+  double rE  = constants::kREarth/units::km;  
   double rho = 0.;
-  double x   = r/constants::kREarth;
+  double x   = r / rE;
 
   if (r <= 1221.5 ) 
   { 
@@ -71,7 +72,7 @@ double genie::utils::prem::Density(double r)
   { 
     rho = 2.60; 
   } 
-  else if (r >  6368.0 && r <= constants::kREarth) 
+  else if (r >  6368.0 && r <= rE) 
   { 
     rho = 1.02; 
   } 
