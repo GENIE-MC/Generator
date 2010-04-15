@@ -23,6 +23,8 @@
 using namespace genie;
 using namespace genie::constants;
 
+ClassImp(StrumiaVissaniIBDPXSec)
+
 //____________________________________________________________________________
 StrumiaVissaniIBDPXSec::StrumiaVissaniIBDPXSec() :
    XSecAlgorithmI("genie::StrumiaVissaniIBDPXSec"),
