@@ -88,6 +88,8 @@ private:
 
   const XSecIntegratorI * fXSecIntegrator; //! the integrator to get total xsec
 
+public:      
+  ClassDef(StrumiaVissaniIBDPXSec, 1) // Inverse Beta Decay partial cross section calculation based on a Strumia/Vissani paper
 };
 }       // genie namespace
 #endif  // _SV_QUASIELASTIC_NU_NUCLEON_XSEC_H_
