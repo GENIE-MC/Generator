@@ -50,6 +50,11 @@
  @ Mar 04, 2010 - CA
    Remove unused FilterUnphysical(TBits) method. Now set exclusively via the
    GUNPHYSMASK env.var.
+ @ Apr 15, 2010 - CA
+   Fix unit error in ComputeEventProbability() - Reported by Corey Reed.
+   The probability stored at the output event was wrong but this doesn't
+   affect any of the existing applications as this number wasn't actually
+   used anywhere.
 */
 //____________________________________________________________________________
 
@@ -870,29 +875,27 @@ void GMCJDriver::ComputeEventProbability(void)
 {
 // Compute event probability for the given flux neutrino & detector geometry
 
-  // interaction cross section
-  // (convert from physical units -> cm^2)
-  double xsec = fCurEvt->XSec() / units::cm2; 
+  // get interaction cross section
+  double xsec = fCurEvt->XSec();
 
-  // path length in detector along v direction for specified target material
-  // (convert from kgr/m2 to gr/cm2)
+  // get path length in detector along v direction for specified target material
   PathLengthList::const_iterator pliter = fCurPathLengths.find(fSelTgtPdg);
   double path_length = pliter->second;
-  path_length *= ((units::kilogram/units::m2)/(units::gram/units::cm2));
 
-  // target material mass number
-  // (in gr)
+  // get target material mass number
   int A = pdg::IonPdgCodeToA(fSelTgtPdg);
 
-  // gett info on the interacted neutrino
+  // calculate interaction probability
+  double P = this->InteractionProbability(xsec, path_length, A);
+
+  //
+  // get weight for selected event
+  //
+
   GHepParticle * nu = fCurEvt->Probe();
   int    nu_pdg = nu->Pdg();
   double Ev     = nu->P4()->Energy();
  
-  // interaction probability
-  double P = this->InteractionProbability(xsec, path_length, A);
-
-  // weight for selected event
   double weight = 1.0;
   if(!fGenerateUnweighted) {
      map<int,TH1D*>::const_iterator pmax_iter = fPmax.find(nu_pdg);
