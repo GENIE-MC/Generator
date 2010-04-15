@@ -67,11 +67,11 @@ void IBDXSecMap::LoadConfig(void)
 
    // load default global model (should work for all nuclei)
    RgAlg dgmodel =
-      fConfig->GetAlgDef("IBDNucXsecModel", gc->GetAlg("IBDNucXsecModel"));
+      fConfig->GetAlgDef("IBDNucXSecModel", gc->GetAlg("IBDNucXSecModel"));
    LOG("IBD", pINFO)
       << "Default IBD cross section model: " << dgmodel;
    fDefaultModel =
-      dynamic_cast<const XSecAlgorithmI*>(this->SubAlg("IBDNucXsecModel"));
+      dynamic_cast<const XSecAlgorithmI*>(this->SubAlg("IBDNucXSecModel"));
    assert(fDefaultModel!=0);
    
    // check whether to map according to specific isotopes
@@ -84,7 +84,7 @@ void IBDXSecMap::LoadConfig(void)
       for(int A=Z; A<3*Z; A++) {
 	 std::ostringstream key;
 	 const int nucpdg = pdg::IonPdgCode(A,Z);
-	 key << "IBDNucXsecModel@Pdg=" << nucpdg;
+	 key << "IBDNucXSecModel@Pdg=" << nucpdg;
 	 RgKey rgkey = key.str();
 	 if (this->GetConfig().Exists(rgkey) || gc->Exists(rgkey)) {
 	    RgAlg rgmodel = fConfig->GetAlgDef(rgkey, gc->GetAlg(rgkey));
@@ -115,3 +115,51 @@ const XSecAlgorithmI* IBDXSecMap::SelectModel(const Target & t) const
    else return fDefaultModel;
 }
 //____________________________________________________________________________
+double IBDXSecMap::XSec(const Interaction * i, KinePhaseSpace_t k) const
+{
+   const XSecAlgorithmI* xs = this->SelectModel(i->InitState().Tgt());
+   if (xs!=0) {
+      return xs->XSec(i, k);
+   } else {
+      LOG("IBD", pERROR) << "No IBD XSec model found for target "
+			 << i->InitState().TgtPdg();
+      return 0;
+   }
+}
+//____________________________________________________________________________
+double IBDXSecMap::Integral(const Interaction * i) const
+{
+   const XSecAlgorithmI* xs = this->SelectModel(i->InitState().Tgt());
+   if (xs!=0) {
+      return xs->Integral(i);
+   } else {
+      LOG("IBD", pERROR) << "No IBD XSec model found for target "
+			 << i->InitState().TgtPdg();
+      return 0;
+   }
+}
+//____________________________________________________________________________
+bool   IBDXSecMap::ValidProcess(const Interaction * i) const
+{
+   const XSecAlgorithmI* xs = this->SelectModel(i->InitState().Tgt());
+   if (xs!=0) {
+      return xs->ValidProcess(i);
+   } else {
+      LOG("IBD", pERROR) << "No IBD XSec model found for target "
+			 << i->InitState().TgtPdg();
+      return 0;
+   }
+}
+//____________________________________________________________________________
+bool   IBDXSecMap::ValidKinematics(const Interaction * i) const
+{
+   const XSecAlgorithmI* xs = this->SelectModel(i->InitState().Tgt());
+   if (xs!=0) {
+      return xs->ValidKinematics(i);
+   } else {
+      LOG("IBD", pERROR) << "No IBD XSec model found for target "
+			 << i->InitState().TgtPdg();
+      return 0;
+   }
+}
+
