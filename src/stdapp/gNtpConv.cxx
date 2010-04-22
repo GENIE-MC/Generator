@@ -59,8 +59,9 @@
 
    	       * `ghad': 
 	             NEUGEN-style text-based format for hadronization studies
-   	       * `ginuke': 
-	             INTRANUKE summary ntuple for intranuclear-rescattering studies
+   	       * `ghA': 
+	             summary ntuple for intranuclear-rescattering studies using simulated
+                     hadron-nucleus samples
 
 	      >> Other (depreciated) formats
 
@@ -80,7 +81,7 @@
                `t2k_tracker'          -> *.gtrac.dat
                `nuance_tracker'       -> *.gtrac_legacy.dat
                `ghad'                 -> *.ghad.dat
-               `ginuke'               -> *.ginuke.root
+               `ghA'                  -> *.ghA.root
 		
          Examples:
            (1)  shell% gntpc -i myfile.ghep.root -f t2k_rootracker
@@ -166,7 +167,7 @@ void   ConvertToGHepMock         (void);
 void   ConvertToGTracker         (void);
 void   ConvertToGRooTracker      (void);
 void   ConvertToGHad             (void);
-void   ConvertToGINuke           (void);
+void   ConvertToGhA              (void);
 void   GetCommandLineArgs        (int argc, char ** argv);
 void   PrintSyntax               (void);
 string DefaultOutputFile         (void);
@@ -186,7 +187,7 @@ typedef enum EGNtpcFmt {
   kConvFmt_t2k_tracker,
   kConvFmt_nuance_tracker,
   kConvFmt_ghad,
-  kConvFmt_ginuke
+  kConvFmt_ghA
 } GNtpcFmt_t;
 
 //input options (from command line arguments):
@@ -247,9 +248,9 @@ int main(int argc, char ** argv)
 	ConvertToGHad();         
 	break;
 
-   case (kConvFmt_ginuke) :  
+   case (kConvFmt_ghA) :  
 
-	ConvertToGINuke();         
+	ConvertToGhA();         
 	break;
 
    default:
@@ -2428,27 +2429,44 @@ void ConvertToGHad(void)
 //____________________________________________________________________________________
 // GENIE GHEP EVENT TREE -> Summary tree for INTRANUKE studies 
 //____________________________________________________________________________________
-void ConvertToGINuke(void)
+void ConvertToGhA(void)
 {
-  //-- open output file & create output summary tree & create the tree branches
+  //
+  // Open output file & create output summary tree & create the tree branches
   //
   LOG("gntpc", pNOTICE)
        << "*** Saving summary tree to: " << gOptOutFileName;
   TFile fout(gOptOutFileName.c_str(),"recreate");
   
-  TTree * s_tree = new TTree("ginuke","GENIE INuke Summary Tree");
+  TTree * s_tree = new TTree("ghA","GENIE hadron+nucleus sample summary tree");
   assert(s_tree);
 
-  //-- define summary ntuple
+  //
+  // Define summary ntuple
   //
 
+  int    brProbe;  ///<
+  int    brTgtA;   ///<
+  int    brTgtZ;   ///<
+  double brKE;     ///<
+  int    brFSI;    ///<
+  double brX0;     ///<
+  double brY0;     ///<
+  double brZ0;     ///<
+
+  s_tree->Branch("probe",  &brProbe,  "probe/I"); 
+  s_tree->Branch("A",      &brTgtA,   "A/I"); 
+  s_tree->Branch("Z",      &brTgtZ,   "Z/I"); 
+  s_tree->Branch("ke",     &brKE,     "ke/D");  
+  s_tree->Branch("fsi",    &brFSI,    "ke/I");  
+  s_tree->Branch("x0",     &brX0,     "x0/D");  
+  s_tree->Branch("y0",     &brY0,     "y0/D");  
+  s_tree->Branch("z0",     &brZ0,     "z0/D");  
+
   //
-  // ... 
-  // ... add code here
-  // ... 
+  // Open the input ROOT file and get the event tree & its header
   //
 
-  //-- open the ROOT file and get the TTree & its header
   TFile fin(gOptInpFileName.c_str(),"READ");
   TTree *           er_tree = 0;
   NtpMCTreeHeader * thdr    = 0;
@@ -2460,15 +2478,18 @@ void ConvertToGINuke(void)
   }
   LOG("gntpc", pINFO) << "Input tree header: " << *thdr;
 
-  //-- get the mc record
   NtpMCEventRecord * mcrec = 0;
   er_tree->SetBranchAddress("gmcrec", &mcrec);
   if (!mcrec) {
     LOG("gntpc", pERROR) << "Null MC record";
     return;
   }
+
+  //
+  // Event loop
+  //
   
-  //-- figure out how many events to analyze
+  // figure out how many events to analyze
   Long64_t nmax = (gOptN<0) ? 
        er_tree->GetEntries() : TMath::Min( er_tree->GetEntries(), gOptN );
   if (nmax<0) {
@@ -2487,16 +2508,34 @@ void ConvertToGINuke(void)
     LOG("gntpc", pINFO) << rec_header;
     LOG("gntpc", pINFO) << event;
 
-
-    // analyze current event and fill the summary ntuple
-
     //
-    // ...
-    // ... add code here
+    // Particle loop
     //
-    // ...
 
+    unsigned int ip=0;
+    GHepParticle * p = 0;
+    TIter event_iter(&event);
+    while ( (p = dynamic_cast<GHepParticle *>(event_iter.Next())) ) {
+      if(ip==0) {
+        brProbe  = p->Pdg();
+        brKE     = p->KinE();
+        brFSI    = p->RescatterCode();
+        brX0     = p->Vx();
+        brY0     = p->Vy();
+        brZ0     = p->Vz();
+      }
+      if(ip==1) {
+       brTgtZ = pdg::IonPdgCodeToZ(p->Pdg());
+       brTgtA = pdg::IonPdgCodeToA(p->Pdg());
+      }
+      if(ip>1) break;
+      ip++;
+    }
 
+    // fill-in output ntuple for current event
+    s_tree->Fill();
+
+    // clean-up
     mcrec->Clear();
 
   } // event loop
@@ -2552,7 +2591,7 @@ void GetCommandLineArgs(int argc, char ** argv)
     else if (fmt == "t2k_tracker")           { gOptOutFileFormat = kConvFmt_t2k_tracker;           }
     else if (fmt == "nuance_tracker" )       { gOptOutFileFormat = kConvFmt_nuance_tracker;        }
     else if (fmt == "ghad")                  { gOptOutFileFormat = kConvFmt_ghad;                  }
-    else if (fmt == "ginuke")                { gOptOutFileFormat = kConvFmt_ginuke;                }
+    else if (fmt == "ghA")                   { gOptOutFileFormat = kConvFmt_ghA;                   }
     else                                     { gOptOutFileFormat = kConvFmt_undef;                 }
 
     if(gOptOutFileFormat == kConvFmt_undef) {
@@ -2624,7 +2663,7 @@ string DefaultOutputFile(void)
   else if (gOptOutFileFormat == kConvFmt_t2k_tracker          ) { ext = "gtrac.dat";        }
   else if (gOptOutFileFormat == kConvFmt_nuance_tracker       ) { ext = "gtrac_legacy.dat"; }
   else if (gOptOutFileFormat == kConvFmt_ghad                 ) { ext = "ghad.dat";         }
-  else if (gOptOutFileFormat == kConvFmt_ginuke               ) { ext = "ginuke.root";      }
+  else if (gOptOutFileFormat == kConvFmt_ghA                  ) { ext = "ghA.root";         }
 
   string inpname = gOptInpFileName;
   unsigned int L = inpname.length();
@@ -2659,7 +2698,7 @@ int LatestFormatVersionNumber(void)
   else if (gOptOutFileFormat == kConvFmt_t2k_tracker          ) return 2;
   else if (gOptOutFileFormat == kConvFmt_nuance_tracker       ) return 1;
   else if (gOptOutFileFormat == kConvFmt_ghad                 ) return 1;
-  else if (gOptOutFileFormat == kConvFmt_ginuke               ) return 1;
+  else if (gOptOutFileFormat == kConvFmt_ghA                  ) return 1;
 
   return -1;
 }
