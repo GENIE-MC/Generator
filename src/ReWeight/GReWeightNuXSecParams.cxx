@@ -95,10 +95,15 @@ double GReWeightNuXSecParams::ChisqPenalty(void) const
 {
   double chisq = 0;
 
-  chisq += TMath::Power(this->CurTwkDial(kSystNuXSec_MaQEL),         2.0);
-  chisq += TMath::Power(this->CurTwkDial(kSystNuXSec_MvQEL),         2.0);
-  chisq += TMath::Power(this->CurTwkDial(kSystNuXSec_MaRES),         2.0);
-  chisq += TMath::Power(this->CurTwkDial(kSystNuXSec_MvRES),         2.0);
+  chisq += TMath::Power(this->CurTwkDial(kSystNuXSec_NormCCQE),      2.0);
+  chisq += TMath::Power(this->CurTwkDial(kSystNuXSec_MaCCQEshape),   2.0);
+  chisq += TMath::Power(this->CurTwkDial(kSystNuXSec_MaCCQE),        2.0);
+  chisq += TMath::Power(this->CurTwkDial(kSystNuXSec_MvCCQE),        2.0);
+  chisq += TMath::Power(this->CurTwkDial(kSystNuXSec_NormCCRES),     2.0);
+  chisq += TMath::Power(this->CurTwkDial(kSystNuXSec_MaCCRESshape),  2.0);
+  chisq += TMath::Power(this->CurTwkDial(kSystNuXSec_MvCCRESshape),  2.0);
+  chisq += TMath::Power(this->CurTwkDial(kSystNuXSec_MaCCRES),       2.0);
+  chisq += TMath::Power(this->CurTwkDial(kSystNuXSec_MvCCRES),       2.0);
   chisq += TMath::Power(this->CurTwkDial(kSystNuXSec_RvpCC1pi),      2.0);
   chisq += TMath::Power(this->CurTwkDial(kSystNuXSec_RvpCC2pi),      2.0);
   chisq += TMath::Power(this->CurTwkDial(kSystNuXSec_RvpNC1pi),      2.0);
@@ -115,6 +120,7 @@ double GReWeightNuXSecParams::ChisqPenalty(void) const
   chisq += TMath::Power(this->CurTwkDial(kSystNuXSec_RvbarnCC2pi),   2.0);
   chisq += TMath::Power(this->CurTwkDial(kSystNuXSec_RvbarnNC1pi),   2.0);
   chisq += TMath::Power(this->CurTwkDial(kSystNuXSec_RvbarnNC2pi),   2.0);
+  chisq += TMath::Power(this->CurTwkDial(kSystNuXSec_NormCCSafeDIS), 2.0);
 
   return chisq;
 }
@@ -128,17 +134,26 @@ void GReWeightNuXSecParams::Reconfigure(void) const
   AlgConfigPool * conf_pool = AlgConfigPool::Instance();
   Registry * user_config = conf_pool->GlobalParameterList();
 
-  if(this->IsIncluded(kSystNuXSec_MaQEL)) {
-      user_config->Set("QEL-Ma", this->CurValue(kSystNuXSec_MaQEL));
+  if(this->IsIncluded(kSystNuXSec_MaCCQE)) {
+      user_config->Set("QEL-Ma", this->CurValue(kSystNuXSec_MaCCQE));
   }
-  if(this->IsIncluded(kSystNuXSec_MvQEL)) {
-      user_config->Set("QEL-Mv", this->CurValue(kSystNuXSec_MvQEL));
+  if(this->IsIncluded(kSystNuXSec_MaCCQEshape)) {
+      user_config->Set("QEL-Ma", this->CurValue(kSystNuXSec_MaCCQEshape));
   }
-  if(this->IsIncluded(kSystNuXSec_MaRES)) {
-      user_config->Set("RES-Ma", this->CurValue(kSystNuXSec_MaRES));
+  if(this->IsIncluded(kSystNuXSec_MvCCQE)) {
+      user_config->Set("QEL-Mv", this->CurValue(kSystNuXSec_MvCCQE));
   }
-  if(this->IsIncluded(kSystNuXSec_MvRES)) {
-      user_config->Set("RES-Mv", this->CurValue(kSystNuXSec_MvRES));
+  if(this->IsIncluded(kSystNuXSec_MaCCRES)) {
+      user_config->Set("RES-Ma", this->CurValue(kSystNuXSec_MaCCRES));
+  }
+  if(this->IsIncluded(kSystNuXSec_MaCCRESshape)) {
+      user_config->Set("RES-Ma", this->CurValue(kSystNuXSec_MaCCRESshape));
+  }
+  if(this->IsIncluded(kSystNuXSec_MvCCRES)) {
+      user_config->Set("RES-Mv", this->CurValue(kSystNuXSec_MvCCRES));
+  }
+  if(this->IsIncluded(kSystNuXSec_MvCCRESshape)) {
+      user_config->Set("RES-Mv", this->CurValue(kSystNuXSec_MvCCRESshape));
   }
 
   // Force reconfiguration of GENIE algorithms
@@ -155,48 +170,60 @@ void GReWeightNuXSecParams::LoadDefaults(void)
   Registry * user_config = conf_pool->GlobalParameterList();
   user_config->UnLock();
 
-  double MaQEL_def       = user_config->GetDouble("QEL-Ma");
-  double MvQEL_def       = user_config->GetDouble("QEL-Mv");
-  double MaRES_def       = user_config->GetDouble("RES-Ma");
-  double MvRES_def       = user_config->GetDouble("RES-Mv");
-  double RvpCC1pi_def    = user_config->GetDouble("DIS-HMultWgt-vp-CC-m2" );
-  double RvpCC2pi_def    = user_config->GetDouble("DIS-HMultWgt-vp-CC-m3" );
-  double RvpNC1pi_def    = user_config->GetDouble("DIS-HMultWgt-vp-NC-m2" );
-  double RvpNC2pi_def    = user_config->GetDouble("DIS-HMultWgt-vp-NC-m3" );
-  double RvnCC1pi_def    = user_config->GetDouble("DIS-HMultWgt-vn-CC-m2" );
-  double RvnCC2pi_def    = user_config->GetDouble("DIS-HMultWgt-vn-CC-m3" );
-  double RvnNC1pi_def    = user_config->GetDouble("DIS-HMultWgt-vn-NC-m2" );
-  double RvnNC2pi_def    = user_config->GetDouble("DIS-HMultWgt-vn-NC-m3" );
-  double RvbarpCC1pi_def = user_config->GetDouble("DIS-HMultWgt-vbp-CC-m2");
-  double RvbarpCC2pi_def = user_config->GetDouble("DIS-HMultWgt-vbp-CC-m3");
-  double RvbarpNC1pi_def = user_config->GetDouble("DIS-HMultWgt-vbp-NC-m2");
-  double RvbarpNC2pi_def = user_config->GetDouble("DIS-HMultWgt-vbp-NC-m3");
-  double RvbarnCC1pi_def = user_config->GetDouble("DIS-HMultWgt-vbn-CC-m2");
-  double RvbarnCC2pi_def = user_config->GetDouble("DIS-HMultWgt-vbn-CC-m3");
-  double RvbarnNC1pi_def = user_config->GetDouble("DIS-HMultWgt-vbn-NC-m2");
-  double RvbarnNC2pi_def = user_config->GetDouble("DIS-HMultWgt-vbn-NC-m3");
+  double NormCCQE_def      = 1.0;
+  double MaCCQE_def        = user_config->GetDouble("QEL-Ma");
+  double MaCCQEshape_def   = user_config->GetDouble("QEL-Ma");
+  double MvCCQE_def        = user_config->GetDouble("QEL-Mv");
+  double NormCCRES_def     = 1.0;
+  double MaCCRES_def       = user_config->GetDouble("RES-Ma");
+  double MvCCRES_def       = user_config->GetDouble("RES-Mv");
+  double MaCCRESshape_def  = user_config->GetDouble("RES-Ma");
+  double MvCCRESshape_def  = user_config->GetDouble("RES-Mv");
+  double RvpCC1pi_def      = user_config->GetDouble("DIS-HMultWgt-vp-CC-m2" );
+  double RvpCC2pi_def      = user_config->GetDouble("DIS-HMultWgt-vp-CC-m3" );
+  double RvpNC1pi_def      = user_config->GetDouble("DIS-HMultWgt-vp-NC-m2" );
+  double RvpNC2pi_def      = user_config->GetDouble("DIS-HMultWgt-vp-NC-m3" );
+  double RvnCC1pi_def      = user_config->GetDouble("DIS-HMultWgt-vn-CC-m2" );
+  double RvnCC2pi_def      = user_config->GetDouble("DIS-HMultWgt-vn-CC-m3" );
+  double RvnNC1pi_def      = user_config->GetDouble("DIS-HMultWgt-vn-NC-m2" );
+  double RvnNC2pi_def      = user_config->GetDouble("DIS-HMultWgt-vn-NC-m3" );
+  double RvbarpCC1pi_def   = user_config->GetDouble("DIS-HMultWgt-vbp-CC-m2");
+  double RvbarpCC2pi_def   = user_config->GetDouble("DIS-HMultWgt-vbp-CC-m3");
+  double RvbarpNC1pi_def   = user_config->GetDouble("DIS-HMultWgt-vbp-NC-m2");
+  double RvbarpNC2pi_def   = user_config->GetDouble("DIS-HMultWgt-vbp-NC-m3");
+  double RvbarnCC1pi_def   = user_config->GetDouble("DIS-HMultWgt-vbn-CC-m2");
+  double RvbarnCC2pi_def   = user_config->GetDouble("DIS-HMultWgt-vbn-CC-m3");
+  double RvbarnNC1pi_def   = user_config->GetDouble("DIS-HMultWgt-vbn-NC-m2");
+  double RvbarnNC2pi_def   = user_config->GetDouble("DIS-HMultWgt-vbn-NC-m3");
+  double NormCCSafeDIS_def = 1.0;
 
   // store local copies of the defaults
-  this->SetDefValue(kSystNuXSec_MaQEL,       MaQEL_def       );
-  this->SetDefValue(kSystNuXSec_MvQEL,       MvQEL_def       );
-  this->SetDefValue(kSystNuXSec_MaRES,       MaRES_def       );
-  this->SetDefValue(kSystNuXSec_MvRES,       MvRES_def       );
-  this->SetDefValue(kSystNuXSec_RvpCC1pi,    RvpCC1pi_def    );
-  this->SetDefValue(kSystNuXSec_RvpCC2pi,    RvpCC2pi_def    );
-  this->SetDefValue(kSystNuXSec_RvpNC1pi,    RvpNC1pi_def    );
-  this->SetDefValue(kSystNuXSec_RvpNC2pi,    RvpNC2pi_def    );
-  this->SetDefValue(kSystNuXSec_RvnCC1pi,    RvnCC1pi_def    );
-  this->SetDefValue(kSystNuXSec_RvnCC2pi,    RvnCC2pi_def    );
-  this->SetDefValue(kSystNuXSec_RvnNC1pi,    RvnNC1pi_def    );
-  this->SetDefValue(kSystNuXSec_RvnNC2pi,    RvnNC2pi_def    );
-  this->SetDefValue(kSystNuXSec_RvbarpCC1pi, RvbarpCC1pi_def );
-  this->SetDefValue(kSystNuXSec_RvbarpCC2pi, RvbarpCC2pi_def );
-  this->SetDefValue(kSystNuXSec_RvbarpNC1pi, RvbarpNC1pi_def );
-  this->SetDefValue(kSystNuXSec_RvbarpNC2pi, RvbarpNC2pi_def );
-  this->SetDefValue(kSystNuXSec_RvbarnCC1pi, RvbarnCC1pi_def );
-  this->SetDefValue(kSystNuXSec_RvbarnCC2pi, RvbarnCC2pi_def );
-  this->SetDefValue(kSystNuXSec_RvbarnNC1pi, RvbarnNC1pi_def );
-  this->SetDefValue(kSystNuXSec_RvbarnNC2pi, RvbarnNC2pi_def );
+  this->SetDefValue(kSystNuXSec_NormCCQE,      NormCCQE_def     );
+  this->SetDefValue(kSystNuXSec_MaCCQEshape,   MaCCQEshape_def  );
+  this->SetDefValue(kSystNuXSec_MaCCQE,        MaCCQE_def       );
+  this->SetDefValue(kSystNuXSec_MvCCQE,        MvCCQE_def       );
+  this->SetDefValue(kSystNuXSec_NormCCRES,     NormCCRES_def    );
+  this->SetDefValue(kSystNuXSec_MaCCRES,       MaCCRES_def      );
+  this->SetDefValue(kSystNuXSec_MvCCRES,       MvCCRES_def      );
+  this->SetDefValue(kSystNuXSec_MaCCRESshape,  MaCCRESshape_def );
+  this->SetDefValue(kSystNuXSec_MvCCRESshape,  MvCCRESshape_def );
+  this->SetDefValue(kSystNuXSec_RvpCC1pi,      RvpCC1pi_def     );
+  this->SetDefValue(kSystNuXSec_RvpCC2pi,      RvpCC2pi_def     );
+  this->SetDefValue(kSystNuXSec_RvpNC1pi,      RvpNC1pi_def     );
+  this->SetDefValue(kSystNuXSec_RvpNC2pi,      RvpNC2pi_def     );
+  this->SetDefValue(kSystNuXSec_RvnCC1pi,      RvnCC1pi_def     );
+  this->SetDefValue(kSystNuXSec_RvnCC2pi,      RvnCC2pi_def     );
+  this->SetDefValue(kSystNuXSec_RvnNC1pi,      RvnNC1pi_def     );
+  this->SetDefValue(kSystNuXSec_RvnNC2pi,      RvnNC2pi_def     );
+  this->SetDefValue(kSystNuXSec_RvbarpCC1pi,   RvbarpCC1pi_def  );
+  this->SetDefValue(kSystNuXSec_RvbarpCC2pi,   RvbarpCC2pi_def  );
+  this->SetDefValue(kSystNuXSec_RvbarpNC1pi,   RvbarpNC1pi_def  );
+  this->SetDefValue(kSystNuXSec_RvbarpNC2pi,   RvbarpNC2pi_def  );
+  this->SetDefValue(kSystNuXSec_RvbarnCC1pi,   RvbarnCC1pi_def  );
+  this->SetDefValue(kSystNuXSec_RvbarnCC2pi,   RvbarnCC2pi_def  );
+  this->SetDefValue(kSystNuXSec_RvbarnNC1pi,   RvbarnNC1pi_def  );
+  this->SetDefValue(kSystNuXSec_RvbarnNC2pi,   RvbarnNC2pi_def  );
+  this->SetDefValue(kSystNuXSec_NormCCSafeDIS, NormCCSafeDIS_def);
 }
 //____________________________________________________________________________
 void GReWeightNuXSecParams::Reset(GSyst_t syst) 

@@ -16,7 +16,9 @@
  @ Aug 01, 2009 - CA
    Was adapted from Jim's and Costas' T2K-specific GENIE reweighting code. 
    First included in v2.5.1.
-
+ @ Apr 27, 2010 - CA
+   Included new parameters in preparation for the Summer 2010 T2K analyses.
+   Added SanityCheck() to warn user for odd choices of systematic params.
 */
 //____________________________________________________________________________
 
@@ -51,48 +53,47 @@ void GReWeightNuXSec::Init(void)
   fXSecRwParams.LoadDefaults();
 }
 //_______________________________________________________________________________________
+void GReWeightNuXSec::SanityCheck(void)
+{
+
+}
+//_______________________________________________________________________________________
 bool GReWeightNuXSec::IsHandled(GSyst_t syst)
 {
    bool handle;
 
    switch(syst) {
-     case ( kSystNuXSec_MaQEL       ) : 
-     case ( kSystNuXSec_MvQEL       ) : 
-     case ( kSystNuXSec_MaRES       ) : 
-     case ( kSystNuXSec_MvRES       ) : 
-     case ( kSystNuXSec_MaCOHPi     ) : 
-     case ( kSystNuXSec_RvpCC1pi    ) : 
-     case ( kSystNuXSec_RvpCC2pi    ) : 
-     case ( kSystNuXSec_RvpNC1pi    ) : 
-     case ( kSystNuXSec_RvpNC2pi    ) : 
-     case ( kSystNuXSec_RvnCC1pi    ) : 
-     case ( kSystNuXSec_RvnCC2pi    ) : 
-     case ( kSystNuXSec_RvnNC1pi    ) : 
-     case ( kSystNuXSec_RvnNC2pi    ) : 
-     case ( kSystNuXSec_RvbarpCC1pi ) : 
-     case ( kSystNuXSec_RvbarpCC2pi ) :
-     case ( kSystNuXSec_RvbarpNC1pi ) :
-     case ( kSystNuXSec_RvbarpNC2pi ) : 
-     case ( kSystNuXSec_RvbarnCC1pi ) : 
-     case ( kSystNuXSec_RvbarnCC2pi ) : 
-     case ( kSystNuXSec_RvbarnNC1pi ) : 
-     case ( kSystNuXSec_RvbarnNC2pi ) : 
+     case ( kSystNuXSec_NormCCQE      ) : 
+     case ( kSystNuXSec_MaCCQEshape   ) : 
+     case ( kSystNuXSec_MaCCQE        ) : 
+     case ( kSystNuXSec_MvCCQE        ) : 
+     case ( kSystNuXSec_NormCCRES     ) : 
+     case ( kSystNuXSec_MaCCRESshape  ) : 
+     case ( kSystNuXSec_MvCCRESshape  ) : 
+     case ( kSystNuXSec_MaCCRES       ) : 
+     case ( kSystNuXSec_MvCCRES       ) : 
+     case ( kSystNuXSec_MaCOHPi       ) : 
+     case ( kSystNuXSec_RvpCC1pi      ) : 
+     case ( kSystNuXSec_RvpCC2pi      ) : 
+     case ( kSystNuXSec_RvpNC1pi      ) : 
+     case ( kSystNuXSec_RvpNC2pi      ) : 
+     case ( kSystNuXSec_RvnCC1pi      ) : 
+     case ( kSystNuXSec_RvnCC2pi      ) : 
+     case ( kSystNuXSec_RvnNC1pi      ) : 
+     case ( kSystNuXSec_RvnNC2pi      ) : 
+     case ( kSystNuXSec_RvbarpCC1pi   ) : 
+     case ( kSystNuXSec_RvbarpCC2pi   ) :
+     case ( kSystNuXSec_RvbarpNC1pi   ) :
+     case ( kSystNuXSec_RvbarpNC2pi   ) : 
+     case ( kSystNuXSec_RvbarnCC1pi   ) : 
+     case ( kSystNuXSec_RvbarnCC2pi   ) : 
+     case ( kSystNuXSec_RvbarnNC1pi   ) : 
+     case ( kSystNuXSec_RvbarnNC2pi   ) : 
+     case ( kSystNuXSec_NormCCSafeDIS ) : 
 
           handle = true;
           break;
 
-     case ( kSystINuke_MFPTwk_pi    ) : 
-     case ( kSystINuke_MFPTwk_N     ) : 
-     case ( kSystINuke_CExTwk_pi    ) : 
-     case ( kSystINuke_ElTwk_pi     ) : 
-     case ( kSystINuke_InelTwk_pi   ) : 
-     case ( kSystINuke_AbsTwk_pi    ) : 
-     case ( kSystINuke_PiProdTwk_pi ) : 
-     case ( kSystINuke_CExTwk_N     ) : 
-     case ( kSystINuke_ElTwk_N      ) : 
-     case ( kSystINuke_InelTwk_N    ) : 
-     case ( kSystINuke_AbsTwk_N     ) : 
-     case ( kSystINuke_PiProdTwk_N  ) : 
      default:
 
           handle = false;
@@ -106,6 +107,7 @@ void GReWeightNuXSec::SetSystematic(GSyst_t syst, double twk_dial)
 {
    if( this->IsHandled(syst) ) {
       fXSecRwParams.SetCurTwkDial (syst, twk_dial);
+      this->SanityCheck();
    }
 }
 //_______________________________________________________________________________________
@@ -124,11 +126,14 @@ double GReWeightNuXSec::CalcWeight(const genie::EventRecord & event)
 {
   if (! fXSecRwParams.IsTweaked() ) return 1.;
 
-  double w1 = this->WghtStandardXSec (event);
-  double w2 = this->WghtNonResBkgXSec(event);
+  double wght =
+    this->RewXSecCCQE          (event)  *
+    this->RewXSecCCRES         (event)  *
+    this->RewNonRESBackground  (event)  *
+    this->RewNormCCQE          (event)  *
+    this->RewNormCCRES         (event)  *
+    this->RewNormCCSafeDIS     (event);
   
-  double wght = w1*w2;
-
   return wght;
 }
 //_______________________________________________________________________________________
@@ -137,13 +142,49 @@ double GReWeightNuXSec::CalcChisq()
   return fXSecRwParams.ChisqPenalty();
 }
 //_______________________________________________________________________________________
-double GReWeightNuXSec::WghtStandardXSec(const EventRecord & event)
+double GReWeightNuXSec::RewXSecCCQE(const EventRecord & event)
 {
-  double wght = fXSecRwHelper.NewWeight(event);
-  return wght;
+  bool is_qe = event.Summary()->ProcInfo().IsQuasiElastic();
+  bool is_cc = event.Summary()->ProcInfo().IsWeakCC();
+  if(!is_qe || !is_cc) return 1.;
+
+  if(fXSecRwParams.IsTweaked(kSystNuXSec_MaCCQE)) {
+     double wght = fXSecRwHelper.NewWeight(event, false);
+     return wght;
+  }
+
+  if(fXSecRwParams.IsTweaked(kSystNuXSec_MaCCQEshape)) {
+     double wght = fXSecRwHelper.NewWeight(event, true);
+     return wght;
+  }
+
+  return 1.;
 }
 //_______________________________________________________________________________________
-double GReWeightNuXSec::WghtNonResBkgXSec(const EventRecord & event)
+double GReWeightNuXSec::RewXSecCCRES(const EventRecord & event)
+{
+  bool is_res = event.Summary()->ProcInfo().IsResonant();
+  bool is_cc  = event.Summary()->ProcInfo().IsWeakCC();
+  if(!is_res || !is_cc) return 1.;
+
+  if(fXSecRwParams.IsTweaked(kSystNuXSec_MaCCRES) ||
+     fXSecRwParams.IsTweaked(kSystNuXSec_MvCCRES)) 
+  {
+     double wght = fXSecRwHelper.NewWeight(event, false);
+     return wght;
+  }
+
+  if(fXSecRwParams.IsTweaked(kSystNuXSec_MaCCRESshape) ||
+     fXSecRwParams.IsTweaked(kSystNuXSec_MvCCRESshape)) 
+  {
+     double wght = fXSecRwHelper.NewWeight(event, true);
+     return wght;
+  }
+
+  return 1.;
+}
+//_______________________________________________________________________________________
+double GReWeightNuXSec::RewNonRESBackground(const EventRecord & event)
 {
   bool is_dis = event.Summary()->ProcInfo().IsDeepInelastic();
   if(!is_dis) return 1.;
@@ -193,7 +234,7 @@ double GReWeightNuXSec::WghtNonResBkgXSec(const EventRecord & event)
   double Rtwk = fXSecRwParams.CurValue(syst);
   double Rdef = fXSecRwParams.DefValue(syst);
 
-  if(Rdef!=0) {
+  if(Rdef>0 && Rtwk>0) {
     double wght = Rtwk / Rdef;
     return wght;
   }
@@ -201,5 +242,72 @@ double GReWeightNuXSec::WghtNonResBkgXSec(const EventRecord & event)
   return 1.;
 }
 //_______________________________________________________________________________________
+double GReWeightNuXSec::RewNormCCQE(const EventRecord & event)
+{
+// tweak QE normalization
+//
+  bool is_qe = event.Summary()->ProcInfo().IsQuasiElastic();
+  bool is_cc = event.Summary()->ProcInfo().IsWeakCC();
+  if(!is_qe || !is_cc) return 1.;
 
+  if(!fXSecRwParams.IsTweaked(kSystNuXSec_NormCCQE)) return 1.;
 
+  double TwkNorm = fXSecRwParams.CurValue(kSystNuXSec_NormCCQE);
+  double DefNorm = fXSecRwParams.DefValue(kSystNuXSec_NormCCQE);
+
+  if(DefNorm > 0. && TwkNorm > 0.) {
+    double wght = TwkNorm / DefNorm;
+    return wght;
+  }
+
+  return 1.;
+}
+//_______________________________________________________________________________________
+double GReWeightNuXSec::RewNormCCRES(const EventRecord & event)
+{
+// tweak resonance neutrino-production normalization
+//
+  bool is_res = event.Summary()->ProcInfo().IsResonant();
+  bool is_cc  = event.Summary()->ProcInfo().IsWeakCC();
+  if(!is_res || !is_cc) return 1.;
+
+  if(!fXSecRwParams.IsTweaked(kSystNuXSec_NormCCRES)) return 1.;
+
+  double TwkNorm = fXSecRwParams.CurValue(kSystNuXSec_NormCCRES);
+  double DefNorm = fXSecRwParams.DefValue(kSystNuXSec_NormCCRES);
+
+  if(DefNorm >= 0. && TwkNorm > 0.) {
+    double wght = TwkNorm / DefNorm;
+    return wght;
+  }
+
+  return 1.;
+}
+//_______________________________________________________________________________________
+double GReWeightNuXSec::RewNormCCSafeDIS(const EventRecord & event)
+{
+// tweak (safe) DIS normalization
+//
+  bool is_dis = event.Summary()->ProcInfo().IsDeepInelastic();
+  bool is_cc  = event.Summary()->ProcInfo().IsWeakCC();
+  if(!is_dis || !is_cc) return 1.;
+
+  if(!fXSecRwParams.IsTweaked(kSystNuXSec_NormCCSafeDIS)) return 1.;
+
+  bool selected = true;
+  double Ws  = event.Summary()->Kine().W (selected);
+  double Q2s = event.Summary()->Kine().Q2(selected);
+  bool in_safe_dis_regime = (Ws > 2.0 /*GeV*/ && Q2s > 1.0 /*GeV^2*/);
+  if(!in_safe_dis_regime) return 1.;
+ 
+  double TwkNorm = fXSecRwParams.CurValue(kSystNuXSec_NormCCSafeDIS);
+  double DefNorm = fXSecRwParams.DefValue(kSystNuXSec_NormCCSafeDIS);
+
+  if(DefNorm >= 0. && TwkNorm > 0.) {
+    double wght = TwkNorm / DefNorm;
+    return wght;
+  }
+
+  return 1.;
+}
+//_______________________________________________________________________________________

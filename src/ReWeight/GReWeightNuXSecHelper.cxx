@@ -5,7 +5,7 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - Oct 09, 2007
+         STFC, Rutherford Appleton Laboratory
 
  For the class documentation see the corresponding header file.
 
@@ -15,7 +15,9 @@
  @ Sep 08, 2009 - CA
    Renamed from ReWeightCrossSection to GReWeightNuXSecHelper and included in
    the genie::rew namespace. Integrated with new event reweighting framework.
-
+ @ Apr 27, 2010 - CA
+   Added option to reweight differential cross sections normalizing to a const
+   integral (shape only effect of tweaked physics parameter)
 */
 //____________________________________________________________________________
 
@@ -83,14 +85,14 @@ void GReWeightNuXSecHelper::DiffCrossSecType(
      map<ScatteringType_t,KinePhaseSpace_t>::value_type(sct,kps));
 }
 //___________________________________________________________________________
-double GReWeightNuXSecHelper::NewWeight(const EventRecord & event)
+double GReWeightNuXSecHelper::NewWeight(
+  const EventRecord & event, bool shape_only)
 {
   // Get event summary (Interaction) from the input event
   assert(event.Summary());
   Interaction & interaction = * event.Summary();
-//  Interaction interaction(*event.Summary());
 
-  LOG("ReW", pDEBUG) << "Computing new weight for: \n" << interaction;
+  //LOG("ReW", pDEBUG) << "Computing new weight for: \n" << interaction;
 
   // Reweight that process? (user can exclude specific processes)
   InteractionList::const_iterator iiter = fNoRewProc.begin();
@@ -153,6 +155,13 @@ double GReWeightNuXSecHelper::NewWeight(const EventRecord & event)
   double old_weight = event.Weight();
   double new_xsec   = xsec_model->XSec(&interaction,kps);
   double new_weight = old_weight * (new_xsec/old_xsec);
+
+  if(shape_only) {
+    double old_integrated_xsec = event.XSec();
+    double new_integrated_xsec = xsec_model->Integral(&interaction);
+    assert(new_integrated_xsec > 0);
+    new_weight *= (old_integrated_xsec/new_integrated_xsec);
+  }
 
   // hack - closing parenthesis
   if(interaction.ProcInfo().IsQuasiElastic()) 

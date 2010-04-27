@@ -40,7 +40,7 @@ public :
   void   HandleInitState  (const InitialState & init_state);            
   void   DiffCrossSecType (ScatteringType_t sct, KinePhaseSpace_t kps); 
   void   DontReweight     (const Interaction & interaction);            
-  double NewWeight        (const EventRecord & event);
+  double NewWeight        (const EventRecord & event, bool shape_only = false);
 
 private:
 
