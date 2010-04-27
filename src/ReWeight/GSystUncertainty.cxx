@@ -93,6 +93,8 @@ void GSystUncertainty::SetDefaults(void)
   fOneSigmeErrMap.insert(map<GSyst_t,double>::value_type(kSystNuXSec_RvbarnNC2pi,    0.50));
   fOneSigmeErrMap.insert(map<GSyst_t,double>::value_type(kSystNuXSec_NormCCSafeDIS,  0.05));
 
+  fOneSigmeErrMap.insert(map<GSyst_t,double>::value_type(kSystHadrnz_FormZone,       0.50));
+
   fOneSigmeErrMap.insert(map<GSyst_t,double>::value_type(kSystINuke_MFPTwk_pi,       0.20));
   fOneSigmeErrMap.insert(map<GSyst_t,double>::value_type(kSystINuke_MFPTwk_N,        0.20));
 

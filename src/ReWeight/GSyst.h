@@ -71,6 +71,14 @@ typedef enum EGSyst {
   kSystNuXSec_NormCCSafeDIS,     ///< tweak CC Safe (Q2>Q2o, W>Wo) DIS normalization, typically Q2o=1GeV^2, Wo=1.7-2.0GeV
   //...
 
+
+  //
+  // Medium-effects to hadronization
+  // 
+
+  kSystHadrnz_FormZone,         ///< tweak formation zone
+  //...
+
   //
   // Intranuclear rescattering systematics
   // 
@@ -128,6 +136,7 @@ public:
      case ( kSystNuXSec_RvbarnNC1pi   ) : return "NonRESBGvbarpNC1pi";   break;
      case ( kSystNuXSec_RvbarnNC2pi   ) : return "NonRESBGvbarpNC2pi";   break;
      case ( kSystNuXSec_NormCCSafeDIS ) : return "NormCCSafeDIS";        break;
+     case ( kSystHadrnz_FormZone      ) : return "FormZone";             break;
      case ( kSystINuke_MFPTwk_pi      ) : return "PiMeanFreePathTwk";    break;
      case ( kSystINuke_MFPTwk_N       ) : return "NucMeanFreePathTwk";   break;
      case ( kSystINuke_CExTwk_pi      ) : return "PiCExTwk";             break;
