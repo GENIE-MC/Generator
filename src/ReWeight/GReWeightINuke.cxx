@@ -69,31 +69,6 @@ bool GReWeightINuke::IsHandled(GSyst_t syst)
    bool handle;
 
    switch(syst) {
-     case ( kSystNuXSec_MaQEL       ) :
-     case ( kSystNuXSec_MvQEL       ) :
-     case ( kSystNuXSec_MaRES       ) :
-     case ( kSystNuXSec_MvRES       ) :
-     case ( kSystNuXSec_MaCOHPi     ) :
-     case ( kSystNuXSec_RvpCC1pi    ) :
-     case ( kSystNuXSec_RvpCC2pi    ) :
-     case ( kSystNuXSec_RvpNC1pi    ) :
-     case ( kSystNuXSec_RvpNC2pi    ) :
-     case ( kSystNuXSec_RvnCC1pi    ) :
-     case ( kSystNuXSec_RvnCC2pi    ) :
-     case ( kSystNuXSec_RvnNC1pi    ) :
-     case ( kSystNuXSec_RvnNC2pi    ) :
-     case ( kSystNuXSec_RvbarpCC1pi ) :
-     case ( kSystNuXSec_RvbarpCC2pi ) :
-     case ( kSystNuXSec_RvbarpNC1pi ) :
-     case ( kSystNuXSec_RvbarpNC2pi ) :
-     case ( kSystNuXSec_RvbarnCC1pi ) :
-     case ( kSystNuXSec_RvbarnCC2pi ) :
-     case ( kSystNuXSec_RvbarnNC1pi ) :
-     case ( kSystNuXSec_RvbarnNC2pi ) :
-          
-          handle = false;
-          break;
-          
      case ( kSystINuke_MFPTwk_pi    ) :
      case ( kSystINuke_MFPTwk_N     ) :
      case ( kSystINuke_CExTwk_pi    ) :
@@ -106,7 +81,6 @@ bool GReWeightINuke::IsHandled(GSyst_t syst)
      case ( kSystINuke_InelTwk_N    ) :
      case ( kSystINuke_AbsTwk_N     ) :
      case ( kSystINuke_PiProdTwk_N  ) :
-
           handle = true;
           break;
 

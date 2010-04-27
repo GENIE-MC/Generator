@@ -23,5 +23,6 @@
 #pragma link C++ class genie::rew::GReWeightINukeParams::MFP;
 #pragma link C++ class genie::rew::GReWeightAGKY;
 #pragma link C++ class genie::rew::GReWeightFZone;
+#pragma link C++ class genie::rew::GReWeightFGM;
 
 #endif

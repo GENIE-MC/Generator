@@ -53,10 +53,14 @@ namespace rew   {
       
  private:
 
-   void   Init (void);
-
-   double WghtStandardXSec  (const EventRecord & event);
-   double WghtNonResBkgXSec (const EventRecord & event);
+   void   Init                (void);
+   void   SanityCheck         (void);
+   double RewXSecCCQE         (const EventRecord & event);
+   double RewXSecCCRES        (const EventRecord & event);
+   double RewNonRESBackground (const EventRecord & event);
+   double RewNormCCQE         (const EventRecord & event);
+   double RewNormCCRES        (const EventRecord & event);
+   double RewNormCCSafeDIS    (const EventRecord & event);
 
    GReWeightNuXSecHelper fXSecRwHelper;      ///<
    GReWeightNuXSecParams fXSecRwParams;      ///<
