@@ -7,7 +7,7 @@
          plain text, XML or bare-ROOT formats.
 
          Syntax:
-           gntpc -i input_file [-o output_file] -f format [-n nev] [-v vrs]
+           gntpc -i input_file [-o output_file] -f format [-n nev] [-v vrs] [-c]
 
          Options :
 
@@ -18,6 +18,8 @@
 
            -v output format version, if multiple versions are supported
               (optional, default: use latest version of each format)
+
+           -c copy MC job metadata (gconfig and genv TFolders) from the input GHEP file.
 
            -f is a string that specifies the output file format. 
 
@@ -115,6 +117,7 @@
 #include <TSystem.h>
 #include <TFile.h>
 #include <TTree.h>
+#include <TFolder.h>
 #include <TBits.h>
 #include <TObjString.h>
 #include <TMath.h>
@@ -191,11 +194,12 @@ typedef enum EGNtpcFmt {
 } GNtpcFmt_t;
 
 //input options (from command line arguments):
-string     gOptInpFileName;   ///< input file name
-string     gOptOutFileName;   ///< output file name
-GNtpcFmt_t gOptOutFileFormat; ///< output file format id
-int        gOptVersion;       ///< output file format version
-Long64_t   gOptN;             ///< number of events to process
+string     gOptInpFileName;         ///< input file name
+string     gOptOutFileName;         ///< output file name
+GNtpcFmt_t gOptOutFileFormat;       ///< output file format id
+int        gOptVersion;             ///< output file format version
+Long64_t   gOptN;                   ///< number of events to process
+bool       gOptCopyJobMeta = false; ///< copy MC job metadata (gconfig, genv TFolders)
 
 //genie version used to generate the input event file 
 int gFileMajorVrs = -1;
@@ -896,6 +900,16 @@ void ConvertToGST(void)
     mcrec->Clear();
 
   } // event loop
+
+
+  // Copy MC job metadata (gconfig and genv TFolders)
+  if(gOptCopyJobMeta) {
+    TFolder * genv    = (TFolder*) fin.Get("genv");
+    TFolder * gconfig = (TFolder*) fin.Get("gconfig");
+    fout.cd();       
+    genv    -> Write("genv");
+    gconfig -> Write("gconfig");
+  }
 
   fin.Close();
 
@@ -2174,6 +2188,15 @@ void ConvertToGRooTracker(void)
   double pot = gtree->GetWeight();
   rootracker_tree->SetWeight(pot);
 
+  // Copy MC job metadata (gconfig and genv TFolders)
+  if(gOptCopyJobMeta) {
+    TFolder * genv    = (TFolder*) fin.Get("genv");
+    TFolder * gconfig = (TFolder*) fin.Get("gconfig");    
+    fout.cd();
+    genv    -> Write("genv");
+    gconfig -> Write("gconfig");
+  }
+
   fin.Close();
 
   fout.Write();
@@ -2647,6 +2670,9 @@ void GetCommandLineArgs(int argc, char ** argv)
           << "Latest version number: " << gOptVersion;
     }
   }
+
+  //check whether to copy MC job metadata (only if output file is in ROOT format)
+  gOptCopyJobMeta = genie::utils::clap::CmdLineArgAsBool(argc,argv,'c');
 }
 //____________________________________________________________________________________
 string DefaultOutputFile(void)
