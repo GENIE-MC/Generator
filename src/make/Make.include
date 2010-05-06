@@ -119,29 +119,47 @@ LOG_LIBRARIES := -L$(LOG_LIB_DIR) -llog4cpp
 FORT_LIBRARIES =
 
 ifeq ($(strip $(ARCH)),linux) 
+have_g2c := $(wildcard /usr/lib/libg2c.so)
+ifneq ($(strip $(have_g2c)),)
 FORT_LIBRARIES = -L/usr/lib -lg2c
 endif
+have_gfortran := $(wildcard /usr/lib/libgfortran.so)
+ifneq ($(strip $(have_gfortran)),)
+FORT_LIBRARIES := $(FORT_LIBRARIES) -lgfortran
+endif 
+endif # linux
 
 ifeq ($(strip $(ARCH)),linuxx8664gcc) 
+have_g2c := $(wildcard /usr/lib64/libg2c.so)
+ifneq ($(strip $(have_g2c)),)
 FORT_LIBRARIES = -L/usr/lib64 -lg2c
 endif
+have_gfortran := $(wildcard /usr/lib64/libgfortran.so)
+ifneq ($(strip $(have_gfortran)),)
+FORT_LIBRARIES := $(FORT_LIBRARIES) -lgfortran
+endif 
+endif # linuxx8664gcc
 
 ifeq ($(strip $(ARCH)),macosx) 
-FORT_LIBRARIES = /usr/local/lib/libgfortran.dylib 
 have_g2c := $(wildcard /usr/local/lib/libg2c.dylib)
-ifeq ($(strip $(have_g2c)),)
-else
-FORT_LIBRARIES := $(FORT_LIBRARIES) /usr/local/lib/libg2c.dylib 
+ifneq ($(strip $(have_g2c)),)
+FORT_LIBRARIES = /usr/local/lib/libg2c.dylib
 endif
+have_gfortran := $(wildcard /usr/local/lib/libgfortran.dylib)
+ifneq ($(strip $(have_gfortran)),)
+FORT_LIBRARIES := $(FORT_LIBRARIES) /usr/local/lib/libgfortran.dylib
+endif 
 endif # macosx
 
 ifeq ($(strip $(ARCH)),macosx64) 
-FORT_LIBRARIES = /usr/local/lib/libgfortran.dylib 
 have_g2c := $(wildcard /usr/local/lib/libg2c.dylib)
-ifeq ($(strip $(have_g2c)),)
-else
-FORT_LIBRARIES := $(FORT_LIBRARIES) /usr/local/lib/libg2c.dylib 
+ifneq ($(strip $(have_g2c)),)
+FORT_LIBRARIES = /usr/local/lib/libg2c.dylib
 endif
+have_gfortran := $(wildcard /usr/local/lib/libgfortran.dylib)
+ifneq ($(strip $(have_gfortran)),)
+FORT_LIBRARIES := $(FORT_LIBRARIES) /usr/local/lib/libgfortran.dylib
+endif 
 endif # macosx64
 
 #-------------------------------------------------------------------
