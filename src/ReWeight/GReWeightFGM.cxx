@@ -16,6 +16,7 @@
 */
 //____________________________________________________________________________
 
+#include "Conventions/Controls.h"
 #include "EVGCore/EventRecord.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGCodes.h"
@@ -36,33 +37,103 @@ GReWeightFGM::~GReWeightFGM()
 
 }
 //_______________________________________________________________________________________
-bool GReWeightFGM::IsHandled(GSyst_t /*syst*/)
+bool GReWeightFGM::IsHandled(GSyst_t syst)
 {
-   return false;
+  switch(syst) {
+    case ( kSystNucl_CCQEPauliSupViaKF   ) : 
+    case ( kSystNucl_CCQEMomDistroFGtoSF ) : 
+        return true;
+        break;
+    default:
+        return false;
+        break;
+  }
+  return false;
 }
 //_______________________________________________________________________________________
-void GReWeightFGM::SetSystematic(GSyst_t /*syst*/, double /*val*/)
+void GReWeightFGM::SetSystematic(GSyst_t syst, double val)
 {
-
+  switch(syst) {
+    case ( kSystNucl_CCQEPauliSupViaKF   ) : 
+        fKFTwkDial = val;
+        break;
+    case ( kSystNucl_CCQEMomDistroFGtoSF ) : 
+        fMomDistroTwkDial = val;
+        break;
+    default:
+        return;
+        break;
+  }
 }
 //_______________________________________________________________________________________
 void GReWeightFGM::Reset(void)
 {
-
+  fKFTwkDial        = 1.;
+  fMomDistroTwkDial = 1.;
 }
 //_______________________________________________________________________________________
 void GReWeightFGM::Reconfigure(void)
 {
-
+  
 }
 //_______________________________________________________________________________________
-double GReWeightFGM::CalcWeight(const EventRecord & /*event*/) 
-{  
-  return 1.0;
+double GReWeightFGM::CalcWeight(const EventRecord & event) 
+{ 
+  double wght =
+    this->RewCCQEPauliSupViaKF   (event) *
+    this->RewCCQEMomDistroFGtoSF (event);
+ 
+  return wght;
 }
 //_______________________________________________________________________________________
 double GReWeightFGM::CalcChisq(void)
 {
   return 0.;
+}
+//_______________________________________________________________________________________
+double GReWeightFGM::RewCCQEPauliSupViaKF(const EventRecord & event) 
+{
+  bool kF_tweaked = (TMath::Abs(fKFTwkDial) < controls::kASmallNum);
+  if(!kF_tweaked) return 1.;
+
+  bool is_qe = event.Summary()->ProcInfo().IsQuasiElastic();
+  bool is_cc = event.Summary()->ProcInfo().IsWeakCC();
+  if(!is_qe || !is_cc) return 1.;
+
+  double wght = 1.;
+
+//  double kF_def = 0;/////
+//  double kF_err = 0;/////
+//  double kF_twk = kF_def * (1 + fKFTwkDial * kF_err);
+
+  //
+  // ...
+  // ...
+  // ...
+  //
+
+
+  return wght;
+}
+//_______________________________________________________________________________________
+double GReWeightFGM::RewCCQEMomDistroFGtoSF(const EventRecord & event) 
+{
+  bool momdistro_tweaked = (TMath::Abs(fMomDistroTwkDial) < controls::kASmallNum);
+  if(!momdistro_tweaked) return 1.;
+
+  bool is_qe = event.Summary()->ProcInfo().IsQuasiElastic();
+  bool is_cc = event.Summary()->ProcInfo().IsWeakCC();
+  if(!is_qe || !is_cc) return 1.;
+
+  double wght = 1.;
+
+  //
+  // ...
+  // ...
+  // ...
+  //
+
+
+  return wght;
 }
 //_______________________________________________________________________________________
