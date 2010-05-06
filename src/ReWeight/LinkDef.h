@@ -24,5 +24,6 @@
 #pragma link C++ class genie::rew::GReWeightAGKY;
 #pragma link C++ class genie::rew::GReWeightFZone;
 #pragma link C++ class genie::rew::GReWeightFGM;
+#pragma link C++ class genie::rew::GReWeightResonanceDecay;
 
 #endif

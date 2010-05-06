@@ -69,7 +69,12 @@ typedef enum EGSyst {
   kSystNuXSec_RvbarnNC1pi,       ///< controls the 1pi non-RES bkg in the RES region, for vbar+n NC
   kSystNuXSec_RvbarnNC2pi,       ///< controls the 2pi non-RES bkg in the RES region, for vbar+n NC
   kSystNuXSec_NormCCSafeDIS,     ///< tweak CC Safe (Q2>Q2o, W>Wo) DIS normalization, typically Q2o=1GeV^2, Wo=1.7-2.0GeV
-  //...
+
+
+  //
+  // Hadronization (free nucleon target)
+  // 
+
 
 
   //
@@ -77,7 +82,7 @@ typedef enum EGSyst {
   // 
 
   kSystHadrnz_FormZone,         ///< tweak formation zone
-  //...
+
 
   //
   // Intranuclear rescattering systematics
@@ -86,7 +91,6 @@ typedef enum EGSyst {
   // Parameters controlling the total rescattering probability
   kSystINuke_MFPTwk_pi,          ///< mean free path tweaking factor for pions
   kSystINuke_MFPTwk_N,           ///< mean free path tweaking factor for nucleons
-
   // Parameters controlling the rescattered hadron fate
   kSystINuke_CExTwk_pi,          ///< charge exchange probability tweaking factor for pions
   kSystINuke_ElTwk_pi,           ///< elastic         probability tweaking factor for pions
@@ -97,8 +101,23 @@ typedef enum EGSyst {
   kSystINuke_ElTwk_N,            ///< elastic         probability tweaking factor for nucleons
   kSystINuke_InelTwk_N,          ///< inelastic       probability tweaking factor for nucleons
   kSystINuke_AbsTwk_N,           ///< absorption      probability tweaking factor for nucleons
-  kSystINuke_PiProdTwk_N         ///< pion production probability tweaking factor for nucleons
-  //...
+  kSystINuke_PiProdTwk_N,        ///< pion production probability tweaking factor for nucleons
+
+  //
+  // Nuclear model
+  // 
+  kSystNucl_CCQEPauliSupViaKF,   ///<
+  kSystNucl_CCQEMomDistroFGtoSF  ///<
+
+  //
+  // Resonance decays
+  // 
+
+
+  //
+  // Misc
+  // 
+
 
 } GSyst_t;
 
@@ -109,46 +128,49 @@ public:
  static string AsString(GSyst_t syst) 
  {
    switch(syst) {
-     case ( kSystNuXSec_NormCCQE      ) : return "NormCCQE";             break;
-     case ( kSystNuXSec_MaCCQE        ) : return "MaCCQE";               break;
-     case ( kSystNuXSec_MaCCQEshape   ) : return "MaCCQEshape";          break;
-     case ( kSystNuXSec_MvCCQE        ) : return "MvCCQE";               break;
-     case ( kSystNuXSec_NormCCRES     ) : return "NormCCRES";            break;
-     case ( kSystNuXSec_MaCCRESshape  ) : return "MaCCRESshape";         break;
-     case ( kSystNuXSec_MvCCRESshape  ) : return "MvCCRESshape";         break;
-     case ( kSystNuXSec_MaCCRES       ) : return "MaCCRES";              break;
-     case ( kSystNuXSec_MvCCRES       ) : return "MvCCRES";              break;
-     case ( kSystNuXSec_MaCOHPi       ) : return "MaCOHPi";              break;
-     case ( kSystNuXSec_RvpCC1pi      ) : return "NonRESBGvpCC1pi";      break;
-     case ( kSystNuXSec_RvpCC2pi      ) : return "NonRESBGvpCC2pi";      break;
-     case ( kSystNuXSec_RvpNC1pi      ) : return "NonRESBGvpNC1pi";      break;
-     case ( kSystNuXSec_RvpNC2pi      ) : return "NonRESBGvpNC2pi";      break;
-     case ( kSystNuXSec_RvnCC1pi      ) : return "NonRESBGvpCC1pi";      break;
-     case ( kSystNuXSec_RvnCC2pi      ) : return "NonRESBGvpCC2pi";      break;
-     case ( kSystNuXSec_RvnNC1pi      ) : return "NonRESBGvpNC1pi";      break;
-     case ( kSystNuXSec_RvnNC2pi      ) : return "NonRESBGvpNC2pi";      break;
-     case ( kSystNuXSec_RvbarpCC1pi   ) : return "NonRESBGvbarpCC1pi";   break;
-     case ( kSystNuXSec_RvbarpCC2pi   ) : return "NonRESBGvbarpCC2pi";   break;
-     case ( kSystNuXSec_RvbarpNC1pi   ) : return "NonRESBGvbarpNC1pi";   break;
-     case ( kSystNuXSec_RvbarpNC2pi   ) : return "NonRESBGvbarpNC2pi";   break;
-     case ( kSystNuXSec_RvbarnCC1pi   ) : return "NonRESBGvbarpCC1pi";   break;
-     case ( kSystNuXSec_RvbarnCC2pi   ) : return "NonRESBGvbarpCC2pi";   break;
-     case ( kSystNuXSec_RvbarnNC1pi   ) : return "NonRESBGvbarpNC1pi";   break;
-     case ( kSystNuXSec_RvbarnNC2pi   ) : return "NonRESBGvbarpNC2pi";   break;
-     case ( kSystNuXSec_NormCCSafeDIS ) : return "NormCCSafeDIS";        break;
-     case ( kSystHadrnz_FormZone      ) : return "FormZone";             break;
-     case ( kSystINuke_MFPTwk_pi      ) : return "PiMeanFreePathTwk";    break;
-     case ( kSystINuke_MFPTwk_N       ) : return "NucMeanFreePathTwk";   break;
-     case ( kSystINuke_CExTwk_pi      ) : return "PiCExTwk";             break;
-     case ( kSystINuke_ElTwk_pi       ) : return "PiElTwk";              break;
-     case ( kSystINuke_InelTwk_pi     ) : return "PiInelTwk";            break;
-     case ( kSystINuke_AbsTwk_pi      ) : return "PiAbsTwk";             break;
-     case ( kSystINuke_PiProdTwk_pi   ) : return "PiPiProdTwk";          break;
-     case ( kSystINuke_CExTwk_N       ) : return "NucCExTwk";            break;
-     case ( kSystINuke_ElTwk_N        ) : return "NucElTwk";             break;
-     case ( kSystINuke_InelTwk_N      ) : return "NucInelTwk";           break;
-     case ( kSystINuke_AbsTwk_N       ) : return "NucAbsTwk";            break;
-     case ( kSystINuke_PiProdTwk_N    ) : return "NucPiProdTwk";         break;
+     case ( kSystNuXSec_NormCCQE          ) : return "NormCCQE";             break;
+     case ( kSystNuXSec_MaCCQE            ) : return "MaCCQE";               break;
+     case ( kSystNuXSec_MaCCQEshape       ) : return "MaCCQEshape";          break;
+     case ( kSystNuXSec_MvCCQE            ) : return "MvCCQE";               break;
+     case ( kSystNuXSec_NormCCRES         ) : return "NormCCRES";            break;
+     case ( kSystNuXSec_MaCCRESshape      ) : return "MaCCRESshape";         break;
+     case ( kSystNuXSec_MvCCRESshape      ) : return "MvCCRESshape";         break;
+     case ( kSystNuXSec_MaCCRES           ) : return "MaCCRES";              break;
+     case ( kSystNuXSec_MvCCRES           ) : return "MvCCRES";              break;
+     case ( kSystNuXSec_MaCOHPi           ) : return "MaCOHPi";              break;
+     case ( kSystNuXSec_RvpCC1pi          ) : return "NonRESBGvpCC1pi";      break;
+     case ( kSystNuXSec_RvpCC2pi          ) : return "NonRESBGvpCC2pi";      break;
+     case ( kSystNuXSec_RvpNC1pi          ) : return "NonRESBGvpNC1pi";      break;
+     case ( kSystNuXSec_RvpNC2pi          ) : return "NonRESBGvpNC2pi";      break;
+     case ( kSystNuXSec_RvnCC1pi          ) : return "NonRESBGvpCC1pi";      break;
+     case ( kSystNuXSec_RvnCC2pi          ) : return "NonRESBGvpCC2pi";      break;
+     case ( kSystNuXSec_RvnNC1pi          ) : return "NonRESBGvpNC1pi";      break;
+     case ( kSystNuXSec_RvnNC2pi          ) : return "NonRESBGvpNC2pi";      break;
+     case ( kSystNuXSec_RvbarpCC1pi       ) : return "NonRESBGvbarpCC1pi";   break;
+     case ( kSystNuXSec_RvbarpCC2pi       ) : return "NonRESBGvbarpCC2pi";   break;
+     case ( kSystNuXSec_RvbarpNC1pi       ) : return "NonRESBGvbarpNC1pi";   break;
+     case ( kSystNuXSec_RvbarpNC2pi       ) : return "NonRESBGvbarpNC2pi";   break;
+     case ( kSystNuXSec_RvbarnCC1pi       ) : return "NonRESBGvbarpCC1pi";   break;
+     case ( kSystNuXSec_RvbarnCC2pi       ) : return "NonRESBGvbarpCC2pi";   break;
+     case ( kSystNuXSec_RvbarnNC1pi       ) : return "NonRESBGvbarpNC1pi";   break;
+     case ( kSystNuXSec_RvbarnNC2pi       ) : return "NonRESBGvbarpNC2pi";   break;
+     case ( kSystNuXSec_NormCCSafeDIS     ) : return "NormCCSafeDIS";        break;
+     case ( kSystHadrnz_FormZone          ) : return "FormZone";             break;
+     case ( kSystINuke_MFPTwk_pi          ) : return "PiMeanFreePathTwk";    break;
+     case ( kSystINuke_MFPTwk_N           ) : return "NucMeanFreePathTwk";   break;
+     case ( kSystINuke_CExTwk_pi          ) : return "PiCExTwk";             break;
+     case ( kSystINuke_ElTwk_pi           ) : return "PiElTwk";              break;
+     case ( kSystINuke_InelTwk_pi         ) : return "PiInelTwk";            break;
+     case ( kSystINuke_AbsTwk_pi          ) : return "PiAbsTwk";             break;
+     case ( kSystINuke_PiProdTwk_pi       ) : return "PiPiProdTwk";          break;
+     case ( kSystINuke_CExTwk_N           ) : return "NucCExTwk";            break;
+     case ( kSystINuke_ElTwk_N            ) : return "NucElTwk";             break;
+     case ( kSystINuke_InelTwk_N          ) : return "NucInelTwk";           break;
+     case ( kSystINuke_AbsTwk_N           ) : return "NucAbsTwk";            break;
+     case ( kSystINuke_PiProdTwk_N        ) : return "NucPiProdTwk";         break;
+     case ( kSystNucl_CCQEPauliSupViaKF   ) : return "CCQEPauliSupViaKF";    break;
+     case ( kSystNucl_CCQEMomDistroFGtoSF ) : return "CCQEMomDistroFGtoSF";  break;
+
      default: 
        return "-";
    }
