@@ -4,8 +4,8 @@
 # genie-config a la ROOT's root-config
 #
 
-### Source GENIE config options::
-source $GENIE/src/make/Make.config
+### GENIE config options:
+. $GENIE/src/make/Make.config
 
 ### GENIE libraries path:
 libdir=$GENIE/lib
