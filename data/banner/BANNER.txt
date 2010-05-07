@@ -30,6 +30,7 @@
 **    Anselmo Meregaglia  - IPHC - Strasbourg (France)                                       **
 **    Donna Naples        - Pittsburgh University (USA)                                      **
 **    Geoff Pearce        - STFC, Rutherford Appleton Laboratory (UK)                        **
+**    Corey Reed          - NIKHEF (The Netherlands)
 **    Andre Rubbia        - ETH Zurich (Switzerland)                                         **
 **    Mike Whalley        - Durham University (UK)                                           **
 **                                                                                           **
