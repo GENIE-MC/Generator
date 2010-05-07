@@ -26,6 +26,7 @@ TGT =	gtestAlgorithms 	 \
  	gtestDISSF		 \
  	gtestElFormFactors	 \
  	gtestEventLoop 		 \
+ 	gtestFluxAstro 		 \
  	gtestFluxAtmo 		 \
  	gtestFluxSimple 	 \
         gtestGiBUUData           \
@@ -82,6 +83,14 @@ gtestElFormFactors: FORCE
 gtestEventLoop: FORCE
 	$(CXX) $(CXXFLAGS) -c testEventLoop.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) testEventLoop.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestEventLoop
+
+gtestFluxAstro: FORCE
+ifeq ($(strip $(GOPT_ENABLE_FLUX_DRIVERS)),YES)
+	$(CXX) $(CXXFLAGS) -c testFluxAstro.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) testFluxAstro.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestFluxAstro
+else
+	@echo "You need to enable the flux drivers to build the gtestFluxAstro program"
+endif
 
 gtestFluxAtmo: FORCE
 ifeq ($(strip $(GOPT_ENABLE_FLUX_DRIVERS)),YES)
@@ -210,6 +219,7 @@ clean: FORCE
 	$(RM) $(GENIE_BIN_PATH)/gtestDISSF		
 	$(RM) $(GENIE_BIN_PATH)/gtestElFormFactors
 	$(RM) $(GENIE_BIN_PATH)/gtestEventLoop
+	$(RM) $(GENIE_BIN_PATH)/gtestFluxAstro
 	$(RM) $(GENIE_BIN_PATH)/gtestFluxAtmo
 	$(RM) $(GENIE_BIN_PATH)/gtestFluxSimple
 	$(RM) $(GENIE_BIN_PATH)/gtestGiBUUData
@@ -247,6 +257,7 @@ distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestDISSF		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestElFormFactors
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestEventLoop
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestFluxAstro
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestFluxAtmo
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestFluxSimple
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestGiBUUData
