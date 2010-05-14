@@ -55,7 +55,6 @@
   <priority msgstream="FermiMover">          WARN   </priority>
   <priority msgstream="FermiP">              WARN   </priority>
   <priority msgstream="Flux">                WARN   </priority>
-  <priority msgstream="FLUKA">               WARN   </priority>
   <priority msgstream="FragmRecUtils">       WARN   </priority>
   <priority msgstream="FMap">                WARN   </priority>
   <priority msgstream="GEVGDriver">          WARN   </priority>
