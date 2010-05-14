@@ -473,7 +473,6 @@ STFC, Rutherford Appleton Laboratory
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Intranuclear rescattering 
   Use the HadronTransportEnable option to toggle intranuclear rescattering on/off. 
-  Possible model options include INTRANUKE, FLUKA and GIBUU
   -->
   <param type="bool" name="HadronTransp-Enable"> true </param>
   <param type="alg"  name="HadronTransp-Model">  genie::Intranuke/Default  </param>
