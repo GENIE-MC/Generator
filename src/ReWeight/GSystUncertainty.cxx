@@ -47,66 +47,67 @@ GSystUncertainty * GSystUncertainty::Instance()
     static GSystUncertainty::Cleaner cleaner;
     cleaner.DummyMethodAndSilentCompiler();
     fInstance = new GSystUncertainty;
+    fInstance->SetDefaults();
   }
   return fInstance;
 }
 //____________________________________________________________________________
 double GSystUncertainty::OneSigmaErr(GSyst_t s) const
 {
-  map<GSyst_t,double>::const_iterator it = fOneSigmeErrMap.find(s);
-  if(it != fOneSigmeErrMap.end()) return it->second;
+  map<GSyst_t,double>::const_iterator it = fOneSigErrMap.find(s);
+  if(it != fOneSigErrMap.end()) return it->second;
   return 0;
 }
 //____________________________________________________________________________
 void GSystUncertainty::OverrideDefaultUncertainty(GSyst_t s, double onesigerr)
 {
-  fOneSigmeErrMap[s] = onesigerr;
+  fOneSigErrMap[s] = onesigerr;
 }
 //____________________________________________________________________________
 void GSystUncertainty::SetDefaults(void)
 {
-  fOneSigmeErrMap.insert(map<GSyst_t,double>::value_type(kSystNuXSec_NormCCQE,       0.15));
-  fOneSigmeErrMap.insert(map<GSyst_t,double>::value_type(kSystNuXSec_MaCCQEshape,    0.10));
-  fOneSigmeErrMap.insert(map<GSyst_t,double>::value_type(kSystNuXSec_MaCCQE,         0.15));
-  fOneSigmeErrMap.insert(map<GSyst_t,double>::value_type(kSystNuXSec_MvCCQE,         0.05));
-  fOneSigmeErrMap.insert(map<GSyst_t,double>::value_type(kSystNuXSec_NormCCRES,      0.20));
-  fOneSigmeErrMap.insert(map<GSyst_t,double>::value_type(kSystNuXSec_MaCCRESshape,   0.10));
-  fOneSigmeErrMap.insert(map<GSyst_t,double>::value_type(kSystNuXSec_MvCCRESshape,   0.05));
-  fOneSigmeErrMap.insert(map<GSyst_t,double>::value_type(kSystNuXSec_MaCCRES,        0.20));
-  fOneSigmeErrMap.insert(map<GSyst_t,double>::value_type(kSystNuXSec_MvCCRES,        0.10));
-  fOneSigmeErrMap.insert(map<GSyst_t,double>::value_type(kSystNuXSec_MaCOHPi,        0.40));
-  fOneSigmeErrMap.insert(map<GSyst_t,double>::value_type(kSystNuXSec_RvpCC1pi,       0.50));
-  fOneSigmeErrMap.insert(map<GSyst_t,double>::value_type(kSystNuXSec_RvpCC2pi,       0.50));
-  fOneSigmeErrMap.insert(map<GSyst_t,double>::value_type(kSystNuXSec_RvpNC1pi,       0.50));
-  fOneSigmeErrMap.insert(map<GSyst_t,double>::value_type(kSystNuXSec_RvpNC2pi,       0.50));
-  fOneSigmeErrMap.insert(map<GSyst_t,double>::value_type(kSystNuXSec_RvnCC1pi,       0.50));
-  fOneSigmeErrMap.insert(map<GSyst_t,double>::value_type(kSystNuXSec_RvnCC2pi,       0.50));
-  fOneSigmeErrMap.insert(map<GSyst_t,double>::value_type(kSystNuXSec_RvnNC1pi,       0.50));
-  fOneSigmeErrMap.insert(map<GSyst_t,double>::value_type(kSystNuXSec_RvnNC2pi,       0.50));
-  fOneSigmeErrMap.insert(map<GSyst_t,double>::value_type(kSystNuXSec_RvbarpCC1pi,    0.50));
-  fOneSigmeErrMap.insert(map<GSyst_t,double>::value_type(kSystNuXSec_RvbarpCC2pi,    0.50));
-  fOneSigmeErrMap.insert(map<GSyst_t,double>::value_type(kSystNuXSec_RvbarpNC1pi,    0.50));
-  fOneSigmeErrMap.insert(map<GSyst_t,double>::value_type(kSystNuXSec_RvbarpNC2pi,    0.50));
-  fOneSigmeErrMap.insert(map<GSyst_t,double>::value_type(kSystNuXSec_RvbarnCC1pi,    0.50));
-  fOneSigmeErrMap.insert(map<GSyst_t,double>::value_type(kSystNuXSec_RvbarnCC2pi,    0.50));
-  fOneSigmeErrMap.insert(map<GSyst_t,double>::value_type(kSystNuXSec_RvbarnNC1pi,    0.50));
-  fOneSigmeErrMap.insert(map<GSyst_t,double>::value_type(kSystNuXSec_RvbarnNC2pi,    0.50));
-  fOneSigmeErrMap.insert(map<GSyst_t,double>::value_type(kSystNuXSec_NormCCSafeDIS,  0.05));
+  map<GSyst_t, double> & m = fOneSigErrMap;
 
-  fOneSigmeErrMap.insert(map<GSyst_t,double>::value_type(kSystHadrnz_FormZone,       0.50));
-
-  fOneSigmeErrMap.insert(map<GSyst_t,double>::value_type(kSystINuke_MFPTwk_pi,       0.20));
-  fOneSigmeErrMap.insert(map<GSyst_t,double>::value_type(kSystINuke_MFPTwk_N,        0.20));
-
-  fOneSigmeErrMap.insert(map<GSyst_t,double>::value_type(kSystINuke_CExTwk_pi,       0.50));
-  fOneSigmeErrMap.insert(map<GSyst_t,double>::value_type(kSystINuke_ElTwk_pi,        0.10));
-  fOneSigmeErrMap.insert(map<GSyst_t,double>::value_type(kSystINuke_InelTwk_pi,      0.40));
-  fOneSigmeErrMap.insert(map<GSyst_t,double>::value_type(kSystINuke_AbsTwk_pi,       0.30));
-  fOneSigmeErrMap.insert(map<GSyst_t,double>::value_type(kSystINuke_PiProdTwk_pi,    0.20));
-  fOneSigmeErrMap.insert(map<GSyst_t,double>::value_type(kSystINuke_CExTwk_N,        0.50));
-  fOneSigmeErrMap.insert(map<GSyst_t,double>::value_type(kSystINuke_ElTwk_N,         0.30));
-  fOneSigmeErrMap.insert(map<GSyst_t,double>::value_type(kSystINuke_InelTwk_N,       0.40));
-  fOneSigmeErrMap.insert(map<GSyst_t,double>::value_type(kSystINuke_AbsTwk_N,        0.20));
-  fOneSigmeErrMap.insert(map<GSyst_t,double>::value_type(kSystINuke_PiProdTwk_N,     0.20));
+  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_NormCCQE,       0.15));
+  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_MaCCQEshape,    0.10));
+  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_MaCCQE,         0.15));
+  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_NormCCRES,      0.20));
+  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_MaCCRESshape,   0.10));
+  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_MvCCRESshape,   0.05));
+  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_MaCCRES,        0.20));
+  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_MvCCRES,        0.10));
+  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_MaCOHpi,        0.40));
+  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_R0COHpi,        0.20));
+  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_RvpCC1pi,       0.50));
+  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_RvpCC2pi,       0.50));
+  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_RvpNC1pi,       0.50));
+  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_RvpNC2pi,       0.50));
+  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_RvnCC1pi,       0.50));
+  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_RvnCC2pi,       0.50));
+  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_RvnNC1pi,       0.50));
+  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_RvnNC2pi,       0.50));
+  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_RvbarpCC1pi,    0.50));
+  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_RvbarpCC2pi,    0.50));
+  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_RvbarpNC1pi,    0.50));
+  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_RvbarpNC2pi,    0.50));
+  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_RvbarnCC1pi,    0.50));
+  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_RvbarnCC2pi,    0.50));
+  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_RvbarnNC1pi,    0.50));
+  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_RvbarnNC2pi,    0.50));
+  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_NormCCSafeDIS,  0.05));
+  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_DISNuclMod,     1.00));
+  m.insert(map<GSyst_t,double>::value_type(kHadroTwkDial_FormZone,      0.50));
+  m.insert(map<GSyst_t,double>::value_type(kINukeTwkDial_MFP_pi,        0.20));
+  m.insert(map<GSyst_t,double>::value_type(kINukeTwkDial_MFP_N,         0.20));
+  m.insert(map<GSyst_t,double>::value_type(kINukeTwkDial_FrCEx_pi,      0.50));
+  m.insert(map<GSyst_t,double>::value_type(kINukeTwkDial_FrElas_pi,     0.10));
+  m.insert(map<GSyst_t,double>::value_type(kINukeTwkDial_FrInel_pi,     0.40));
+  m.insert(map<GSyst_t,double>::value_type(kINukeTwkDial_FrAbs_pi,      0.30));
+  m.insert(map<GSyst_t,double>::value_type(kINukeTwkDial_FrPiProd_pi,   0.20));
+  m.insert(map<GSyst_t,double>::value_type(kINukeTwkDial_FrCEx_N,       0.50));
+  m.insert(map<GSyst_t,double>::value_type(kINukeTwkDial_FrElas_N,      0.30));
+  m.insert(map<GSyst_t,double>::value_type(kINukeTwkDial_FrInel_N,      0.40));
+  m.insert(map<GSyst_t,double>::value_type(kINukeTwkDial_FrAbs_N,       0.20));
+  m.insert(map<GSyst_t,double>::value_type(kINukeTwkDial_FrPiProd_N,    0.20));
 }
 //____________________________________________________________________________

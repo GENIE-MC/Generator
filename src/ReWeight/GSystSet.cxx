@@ -41,7 +41,7 @@ GSystSet::~GSystSet()
 //_______________________________________________________________________________________
 void GSystSet::Include(GSyst_t syst)
 {
-  if(syst == kSystNull) return;
+  if(syst == kNullSystematic) return;
 
   GSystInfo * syst_info = new GSystInfo;
   fSystematics.insert( map<GSyst_t, GSystInfo*>::value_type(syst, syst_info) );     

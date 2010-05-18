@@ -22,12 +22,21 @@
 #ifndef _G_REWEIGHT_FGM_H_
 #define _G_REWEIGHT_FGM_H_
 
+#include <map>
+
 #include "ReWeight/GReWeightI.h"
+
+using std::map;
 
 using namespace genie::rew;
 using namespace genie;
 
+class TH1D;
+
 namespace genie {
+
+class NuclearModelI;
+
 namespace rew   {
 
  class GReWeightFGM : public GReWeightI 
@@ -46,11 +55,26 @@ namespace rew   {
 
  private:
 
+   static const int    kNEv  = 20000;
+   static const int    kNP   = 500;
+   static const double kPmin = 0;
+   static const double kPmax = 0.5;
+
+   void Init(void);
+
    double RewCCQEPauliSupViaKF   (const EventRecord & event);
    double RewCCQEMomDistroFGtoSF (const EventRecord & event);
 
    double fKFTwkDial;
    double fMomDistroTwkDial;
+
+   const NuclearModelI * fFG;
+   const NuclearModelI * fSF;
+
+   map<int, TH1D *> fMapFGn;
+   map<int, TH1D *> fMapFGp;
+   map<int, TH1D *> fMapSFn;
+   map<int, TH1D *> fMapSFp;
  };
 
 } // rew

@@ -69,18 +69,18 @@ bool GReWeightINuke::IsHandled(GSyst_t syst)
    bool handle;
 
    switch(syst) {
-     case ( kSystINuke_MFPTwk_pi    ) :
-     case ( kSystINuke_MFPTwk_N     ) :
-     case ( kSystINuke_CExTwk_pi    ) :
-     case ( kSystINuke_ElTwk_pi     ) :
-     case ( kSystINuke_InelTwk_pi   ) :
-     case ( kSystINuke_AbsTwk_pi    ) :
-     case ( kSystINuke_PiProdTwk_pi ) :
-     case ( kSystINuke_CExTwk_N     ) :
-     case ( kSystINuke_ElTwk_N      ) :
-     case ( kSystINuke_InelTwk_N    ) :
-     case ( kSystINuke_AbsTwk_N     ) :
-     case ( kSystINuke_PiProdTwk_N  ) :
+     case ( kINukeTwkDial_MFP_pi      ) :
+     case ( kINukeTwkDial_MFP_N       ) :
+     case ( kINukeTwkDial_FrCEx_pi    ) :
+     case ( kINukeTwkDial_FrElas_pi   ) :
+     case ( kINukeTwkDial_FrInel_pi   ) :
+     case ( kINukeTwkDial_FrAbs_pi    ) :
+     case ( kINukeTwkDial_FrPiProd_pi ) :
+     case ( kINukeTwkDial_FrCEx_N     ) :
+     case ( kINukeTwkDial_FrElas_N    ) :
+     case ( kINukeTwkDial_FrInel_N    ) :
+     case ( kINukeTwkDial_FrAbs_N     ) :
+     case ( kINukeTwkDial_FrPiProd_N  ) :
           handle = true;
           break;
 

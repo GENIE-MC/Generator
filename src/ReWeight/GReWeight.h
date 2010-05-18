@@ -41,15 +41,15 @@ namespace rew   {
    GReWeight();
   ~GReWeight();
 
-   GSystSet & Systematics (void);                             ///<
-   void       Reconfigure (void);                             ///<
-   double     CalcWeight  (const genie::EventRecord & event); ///<
-   double     CalcChisq   (void);                             ///<
-   void       Print       (void);                             ///<       
+   void       AdoptWghtCalc (GReWeightI* wcalc);                ///< add concrete weight calculator, transfers ownership
+   GSystSet & Systematics   (void);                             ///< set of enabled systematic params & values
+   void       Reconfigure   (void);                             ///< reconfigure weight calculators with new params
+   double     CalcWeight    (const genie::EventRecord & event); ///< calculate weight for input event
+   double     CalcChisq     (void);                             ///< calculate penalty chisq for current values of tweaking dials
+   void       Print         (void);                             ///< print
 
   private:
 
-   void Init    (void);
    void CleanUp (void);
 
    GSystSet             fSystSet;   ///< set of enabled nuisance parameters

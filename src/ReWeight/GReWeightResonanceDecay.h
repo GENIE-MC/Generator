@@ -43,6 +43,13 @@ namespace rew   {
    void   Reconfigure    (void);
    double CalcWeight     (const EventRecord & event);
    double CalcChisq      (void);
+
+ private:
+   double RewBRDelta2Ngamma (const EventRecord & event);
+   double RewThetaDelta2Npi (const EventRecord & event);
+
+   double fBRDelta2NgammaTwkDial;
+   double fThetaDelta2NpiTwkDial;
  };
 
 } // rew
