@@ -42,7 +42,7 @@ private:
 
   void SetDefaults(void);
 
-  map<GSyst_t, double> fOneSigmeErrMap;
+  map<GSyst_t, double> fOneSigErrMap;
 
   GSystUncertainty();
   GSystUncertainty(const GSystUncertainty & err);

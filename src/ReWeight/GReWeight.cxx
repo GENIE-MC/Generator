@@ -28,10 +28,12 @@
 #include "EVGCore/EventRecord.h"
 #include "Messenger/Messenger.h"
 #include "ReWeight/GReWeight.h"
-#include "ReWeight/GReWeightNuXSec.h"
+#include "ReWeight/GReWeightNuXSecCCQE.h"
 #include "ReWeight/GReWeightAGKY.h"
 #include "ReWeight/GReWeightFZone.h"
 #include "ReWeight/GReWeightINuke.h"
+#include "ReWeight/GReWeightFGM.h"
+#include "ReWeight/GReWeightResonanceDecay.h"
 
 using std::cout;
 using std::cerr;
@@ -45,12 +47,18 @@ using namespace genie::rew;
 //____________________________________________________________________________
 GReWeight::GReWeight()
 {
-  this->Init();
+
 }
 //____________________________________________________________________________
 GReWeight::~GReWeight()
 {
   this->CleanUp();
+}
+//____________________________________________________________________________
+void GReWeight::AdoptWghtCalc(GReWeightI* wcalc)
+{
+  if(!wcalc) return;
+  fWghtCalc.push_back(wcalc);
 }
 //____________________________________________________________________________
 GSystSet & GReWeight::Systematics(void)
@@ -110,21 +118,6 @@ double GReWeight::CalcChisq(void)
     tot_chisq *= chisq;
   }
   return tot_chisq;
-}
-//____________________________________________________________________________
-void GReWeight::Init(void)
-{
-  // handles all GENIE cross section params
-  fWghtCalc.push_back( new GReWeightNuXSec );
-
-  // handles all GENIE (free nucleon) hadronization params
-  fWghtCalc.push_back( new GReWeightAGKY   );
-
-  // handles all GENIE formation zone params
-  fWghtCalc.push_back( new GReWeightFZone  );
-
-  // handles all GENIE intranuclear rescattering params
-  fWghtCalc.push_back( new GReWeightINuke  );
 }
 //____________________________________________________________________________
 void GReWeight::CleanUp(void)

@@ -100,25 +100,25 @@ double genie::utils::rew::FateFraction(
     // pions
     //
 
-    case (genie::rew::kSystINuke_CExTwk_pi) :
+    case (genie::rew::kINukeTwkDial_FrCEx_pi) :
     {
       fate_frac = hd->Frac(kPdgPiP, kIHAFtCEx, ke);
     }
     break;
 
-    case (genie::rew::kSystINuke_ElTwk_pi) :
+    case (genie::rew::kINukeTwkDial_FrElas_pi) :
     {
       fate_frac = hd->Frac(kPdgPiP, kIHAFtElas, ke);
     }
     break;
 
-    case (genie::rew::kSystINuke_InelTwk_pi) :
+    case (genie::rew::kINukeTwkDial_FrInel_pi) :
     {
       fate_frac = hd->Frac(kPdgPiP, kIHAFtInelas, ke);
     }
     break;
 
-    case (genie::rew::kSystINuke_AbsTwk_pi) :
+    case (genie::rew::kINukeTwkDial_FrAbs_pi) :
     {  
       fate_frac = 0.; 
       fate_frac += hd->Frac(kPdgPiP, kIHAFtAbsNP,   ke);
@@ -130,7 +130,7 @@ double genie::utils::rew::FateFraction(
     }
     break;
 
-    case (genie::rew::kSystINuke_PiProdTwk_pi) :
+    case (genie::rew::kINukeTwkDial_FrPiProd_pi) :
     {
       fate_frac = 0.; 
     //fate_frac += hd->Frac(kPdgPiP, kIHAFtNPip,    ke);
@@ -142,25 +142,25 @@ double genie::utils::rew::FateFraction(
     // nucleons
     //
 
-    case (genie::rew::kSystINuke_CExTwk_N) :
+    case (genie::rew::kINukeTwkDial_FrCEx_N) :
     {
       fate_frac = hd->Frac(kPdgProton, kIHAFtCEx, ke);
     }
     break;
 
-    case (genie::rew::kSystINuke_ElTwk_N) :
+    case (genie::rew::kINukeTwkDial_FrElas_N) :
     {
       fate_frac = hd->Frac(kPdgProton, kIHAFtElas, ke);
     }
     break;
 
-    case (genie::rew::kSystINuke_InelTwk_N) :
+    case (genie::rew::kINukeTwkDial_FrInel_N) :
     {
       fate_frac = hd->Frac(kPdgProton, kIHAFtInelas, ke);
     }
     break;
 
-    case (genie::rew::kSystINuke_AbsTwk_N) :
+    case (genie::rew::kINukeTwkDial_FrAbs_N) :
     {
       fate_frac = 0.; 
       fate_frac += hd->Frac(kPdgProton, kIHAFtAbsNP,   ke);
@@ -172,7 +172,7 @@ double genie::utils::rew::FateFraction(
     }
     break;
 
-    case (genie::rew::kSystINuke_PiProdTwk_N) :
+    case (genie::rew::kINukeTwkDial_FrPiProd_N) :
     {
       fate_frac = 0.; 
       fate_frac += hd->Frac(kPdgProton, kIHAFtNPip,    ke);

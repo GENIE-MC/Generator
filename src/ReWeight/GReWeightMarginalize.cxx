@@ -70,22 +70,22 @@ double genie::rew::margin::MarginalizeFates(
   genie::rew::GReWeight rw;
   genie::rew::GSystSet & systematics = rw.Systematics();
 
-  genie::rew::GSyst_t cushion_term = kSystNull;
+  genie::rew::GSyst_t cushion_term = kNullSystematic;
 
   if(is_pion_fate) {
-     systematics.Include ( genie::rew::kSystINuke_CExTwk_pi    );
-     systematics.Include ( genie::rew::kSystINuke_InelTwk_pi   );
-     systematics.Include ( genie::rew::kSystINuke_AbsTwk_pi    );
-     systematics.Include ( genie::rew::kSystINuke_PiProdTwk_pi );
-     cushion_term = genie::rew::kSystINuke_ElTwk_pi;
+     systematics.Include ( genie::rew::kINukeTwkDial_FrCEx_pi    );
+     systematics.Include ( genie::rew::kINukeTwkDial_FrInel_pi   );
+     systematics.Include ( genie::rew::kINukeTwkDial_FrAbs_pi    );
+     systematics.Include ( genie::rew::kINukeTwkDial_FrPiProd_pi );
+     cushion_term = genie::rew::kINukeTwkDial_FrElas_pi;
   } 
   else
   if(is_nucleon_fate) {
-     systematics.Include ( genie::rew::kSystINuke_CExTwk_N    );
-     systematics.Include ( genie::rew::kSystINuke_InelTwk_N   );
-     systematics.Include ( genie::rew::kSystINuke_AbsTwk_N    );
-     systematics.Include ( genie::rew::kSystINuke_PiProdTwk_N );
-     cushion_term = genie::rew::kSystINuke_ElTwk_N;
+     systematics.Include ( genie::rew::kINukeTwkDial_FrCEx_N    );
+     systematics.Include ( genie::rew::kINukeTwkDial_FrInel_N   );
+     systematics.Include ( genie::rew::kINukeTwkDial_FrAbs_N    );
+     systematics.Include ( genie::rew::kINukeTwkDial_FrPiProd_N );
+     cushion_term = genie::rew::kINukeTwkDial_FrElas_N;
   }
 
   RandomGen * rnd = RandomGen::Instance();
