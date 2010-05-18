@@ -21,12 +21,17 @@
 #include "EVGCore/EventRecord.h"
 #include "GHEP/GHepParticle.h"
 #include "Messenger/Messenger.h"
+#include "Nuclear/FermiMomentumTablePool.h"
+#include "Nuclear/FermiMomentumTable.h"
 #include "Nuclear/NuclearModelI.h"
 #include "PDG/PDGCodes.h"
 #include "ReWeight/GReWeightFGM.h"
+#include "ReWeight/GSystUncertainty.h"
+#include "Utils/NuclearUtils.h"
 
 using namespace genie;
 using namespace genie::rew;
+using namespace genie::utils;
 
 //_______________________________________________________________________________________
 GReWeightFGM::GReWeightFGM() :
@@ -103,20 +108,58 @@ double GReWeightFGM::RewCCQEPauliSupViaKF(const EventRecord & event)
   bool is_cc = event.Summary()->ProcInfo().IsWeakCC();
   if(!is_qe || !is_cc) return 1.;
 
-  double wght = 1.;
+  const Target & target = event.Summary()->InitState().Tgt();
+  if (!target.IsNucleus()) {
+     return 1.; 
+  }
 
-//  double kF_def = 0;/////
-//  double kF_err = 0;/////
-//  double kF_twk = kF_def * (1 + fKFTwkDial * kF_err);
+  double A = target.A();
+  if(A <= 4) {
+     return 1.; 
+  }
 
-  //
-  // ...
-  // ...
-  // ...
-  //
+  int target_pdgc         = target.Pdg();
+  int struck_nucleon_pdgc = target.HitNucPdg();
+  int final_nucleon_pdgc  = pdg::SwitchProtonNeutron(struck_nucleon_pdgc);
+             
+  FermiMomentumTablePool * kftp = FermiMomentumTablePool::Instance();
+  const FermiMomentumTable * kft  = kftp->GetTable("Default");
 
+  // Fermi momentum for initial, final nucleons
+  double kFi = kft->FindClosestKF(target_pdgc, struck_nucleon_pdgc);
+  double kFf = kft->FindClosestKF(target_pdgc, final_nucleon_pdgc );
+ 
+  // hit nucleon mass
+  double Mn = target.HitNucP4Ptr()->M(); // can be off m/shell
 
-  return wght;
+  // momentum transfer
+  const Kinematics & kine = event.Summary()->Kine();
+  bool selected = true;
+  double q2 = kine.q2(selected);
+  
+  const double pmax = 0.5; // GeV
+
+  // default nuclear suppression 
+  double R = utils::nuclear::RQEFG_generic(q2, Mn, kFi, kFf, pmax);
+
+  // tweak kF
+  GSystUncertainty * uncertainty = GSystUncertainty::Instance();
+  double kF_fracerr = uncertainty->OneSigmaErr(kSystNucl_CCQEPauliSupViaKF);
+
+  double kFi_twk = kFi * (1 + fKFTwkDial * kF_fracerr);
+  double kFf_twk = kFf * (1 + fKFTwkDial * kF_fracerr);
+
+  // calculate tweaked nuclear suppression factor
+  double Rtwk = nuclear::RQEFG_generic(q2, Mn, kFi_twk, kFf_twk, pmax);
+  
+  // calculate weight (ratio of suppression factors)
+
+  if(R>0 && Rtwk>0) {
+    double wght = Rtwk/R;
+    return wght;
+  }
+
+  return 1.;
 }
 //_______________________________________________________________________________________
 double GReWeightFGM::RewCCQEMomDistroFGtoSF(const EventRecord & event) 
