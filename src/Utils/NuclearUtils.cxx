@@ -5,7 +5,7 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - May 06, 2004
+         STFC, Rutherford Appleton Laboratory 
 
  For documentation see the corresponding header file.
 
@@ -23,6 +23,10 @@
    Overriding NuclQELXSecSuppression() calc for deuterium and using input 
    data from S.K.Singh, Nucl. Phys. B 36, 419 (1972) [data used by Hugh for
    the Merenyi test]
+ @ May 18, 2010 - CA
+   Restructure NuclQELXSecSuppression() (Add RQEFG_generic()) to aid 
+   reweighting. 
+
 */
 //____________________________________________________________________________
 
@@ -104,19 +108,6 @@ double genie::utils::nuclear::Radius(int A, double Ro)
 double genie::utils::nuclear::NuclQELXSecSuppression(
                 string kftable, double pmax, const Interaction * interaction)
 {
-// Computes the suppression of the EL/QEL differential cross section due to
-// nuclear effects.
-//
-// A direct adaptation of NeuGEN's qelnuc() and r_factor()
-//
-// Hugh's comments from the original code: 
-// "This routine is based on an analytic calculation of the rejection factor 
-//  in the Fermi Gas model using the form for the fermi momentum distribution 
-//  given in the  Bodek and Ritchie paper.  [P.R.  D23 (1981) 1070]
-//  R is the ratio of the differential cross section from the nuclear material 
-//  specified by (kf,pf) to the differential cross section for a free nucleon".
-//  (kf,pf = Fermi Gas model Fermi momentum for initial,final nucleons)
-//
   const InitialState & init_state = interaction->InitState();
   const ProcessInfo &  proc_info  = interaction->ProcInfo();
   const Target &       target     = init_state.Tgt();
@@ -138,32 +129,59 @@ double genie::utils::nuclear::NuclQELXSecSuppression(
   // general case
   //
 
-  double R = 1; // computed suppression factor
-
   int target_pdgc         = target.Pdg();
   int struck_nucleon_pdgc = target.HitNucPdg();
   int final_nucleon_pdgc  = struck_nucleon_pdgc;
 
   if(proc_info.IsWeakCC()) {
-          final_nucleon_pdgc = pdg::SwitchProtonNeutron(struck_nucleon_pdgc);
+     final_nucleon_pdgc = pdg::SwitchProtonNeutron(struck_nucleon_pdgc);
   }
 
   // get the requested Fermi momentum table 
   FermiMomentumTablePool * kftp = FermiMomentumTablePool::Instance();
   const FermiMomentumTable * kft  = kftp->GetTable(kftable);
 
-  // Fermi Gas model Fermi momentum for initial,final nucleons
-
+  // Fermi momentum for initial, final nucleons
   double kFi = kft->FindClosestKF(target_pdgc, struck_nucleon_pdgc);
   double kFf = (struck_nucleon_pdgc==final_nucleon_pdgc) ? kFi : 
                kft->FindClosestKF(target_pdgc, final_nucleon_pdgc );
 
-  // Compute magnitude of the 3-momentum transfer to the nucleon
-
-  double Mn2 = target.HitNucP4Ptr()->M2(); // can be off m/shell
+  double Mn = target.HitNucP4Ptr()->M(); // can be off m/shell
 
   const Kinematics & kine = interaction->Kine();
-  double q2     = kine.q2();
+  double q2 = kine.q2();
+
+  double R = RQEFG_generic(q2, Mn, kFi, kFf, pmax);
+  return R;
+}
+//___________________________________________________________________________
+double genie::utils::nuclear::RQEFG_generic (
+            double q2, double Mn, double kFi, double kFf, double pmax)
+{
+// Computes the nuclear suppression of the QEL differential cross section 
+//
+// Inputs:
+//  - q2   : momentum transfer (< 0)
+//  - Mn   : hit nucleon mass (nucleon can be off the mass shell)
+//  - kFi  : Fermi momentum, initial state (hit) nucleon @ nuclear target
+//  - kFf  : Fermi momentum, final state (recoil) nucleon @ nuclear target
+//  - pmax : A Fermi momentum cutoff
+//
+// A direct adaptation of NeuGEN's qelnuc() and r_factor()
+//
+// Hugh's comments from the original code: 
+// "This routine is based on an analytic calculation of the rejection factor 
+//  in the Fermi Gas model using the form for the fermi momentum distribution 
+//  given in the  Bodek and Ritchie paper.  [P.R.  D23 (1981) 1070]
+//  R is the ratio of the differential cross section from the nuclear material 
+//  specified by (kf,pf) to the differential cross section for a free nucleon".
+//  (kf,pf = Fermi Gas model Fermi momentum for initial,final nucleons)
+//
+
+  double R = 1.;
+
+  // Compute magnitude of the 3-momentum transfer to the nucleon
+  double Mn2    = Mn*Mn;
   double magq2  = q2 * (0.25*q2/Mn2 - 1.);
   double q      = TMath::Sqrt(TMath::Max(0.,magq2));
 
