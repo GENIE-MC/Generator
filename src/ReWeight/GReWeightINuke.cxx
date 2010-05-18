@@ -150,7 +150,7 @@ double GReWeightINuke::CalcWeight(const EventRecord & event)
      INukeFateHA_t hadron_fate = (interacted) ?
           (INukeFateHA_t) p->RescatterCode() : kIHAFtUndefined;
     
-     LOG("ReW", pNOTICE) 
+     LOG("ReW", pINFO) 
         << "Hadron pdg = " << pdgc 
        << ", fate: " << INukeHadroFates::AsString(hadron_fate);
 

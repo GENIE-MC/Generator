@@ -22,12 +22,14 @@
 #ifndef _G_REWEIGHT_H_
 #define _G_REWEIGHT_H_
 
-#include <vector>
+#include <string>
+#include <map>
 
 #include "ReWeight/GSystSet.h"
 #include "ReWeight/GReWeightI.h"
 
-using std::vector;
+using std::string;
+using std::map;
 
 namespace genie {
 
@@ -41,19 +43,20 @@ namespace rew   {
    GReWeight();
   ~GReWeight();
 
-   void       AdoptWghtCalc (GReWeightI* wcalc);                ///< add concrete weight calculator, transfers ownership
-   GSystSet & Systematics   (void);                             ///< set of enabled systematic params & values
-   void       Reconfigure   (void);                             ///< reconfigure weight calculators with new params
-   double     CalcWeight    (const genie::EventRecord & event); ///< calculate weight for input event
-   double     CalcChisq     (void);                             ///< calculate penalty chisq for current values of tweaking dials
-   void       Print         (void);                             ///< print
+   void        AdoptWghtCalc (string name, GReWeightI* wcalc);   ///< add concrete weight calculator, transfers ownership
+   GReWeightI* WghtCalc      (string name);                      ///< access a weight calculator by name
+   GSystSet &  Systematics   (void);                             ///< set of enabled systematic params & values
+   void        Reconfigure   (void);                             ///< reconfigure weight calculators with new params
+   double      CalcWeight    (const genie::EventRecord & event); ///< calculate weight for input event
+   double      CalcChisq     (void);                             ///< calculate penalty chisq for current values of tweaking dials
+   void        Print         (void);                             ///< print
 
   private:
 
    void CleanUp (void);
 
-   GSystSet             fSystSet;   ///< set of enabled nuisance parameters
-   vector<GReWeightI *> fWghtCalc;  ///< concrete weight calculators
+   GSystSet                  fSystSet;   ///< set of enabled nuisance parameters
+   map<string, GReWeightI *> fWghtCalc;  ///< concrete weight calculators
  };
 
 } // rew   namespace
