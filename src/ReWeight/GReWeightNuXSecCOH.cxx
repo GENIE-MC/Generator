@@ -114,31 +114,31 @@ void GReWeightNuXSecCOH::Reconfigure(void)
 
   fXSecModel->Configure(r);
 
-//LOG("ReW, pDEBUG) << *fXSecModel;
+//LOG("ReW", pDEBUG) << *fXSecModel;
 }
 //_______________________________________________________________________________________
 double GReWeightNuXSecCOH::CalcWeight(const genie::EventRecord & event) 
 {
-  bool is_coh = event.Summary()->ProcInfo().IsCoherent();
+  Interaction * interaction = event.Summary();
+
+  bool is_coh = interaction->ProcInfo().IsCoherent();
   if(!is_coh) return 1.;
-
-  bool is_cc  = event.Summary()->ProcInfo().IsWeakCC();
-  bool is_nc  = event.Summary()->ProcInfo().IsWeakNC();
-  if(is_cc || !fRewCC) return 1.;
-  if(is_nc || !fRewNC) return 1.;
-
-  int nupdg = event.Probe()->Pdg();
-  if(nupdg==kPdgNuMu     && !fRewNumu   ) return 1.;
-  if(nupdg==kPdgAntiNuMu && !fRewNumubar) return 1.;
-  if(nupdg==kPdgNuE      && !fRewNue    ) return 1.;
-  if(nupdg==kPdgAntiNuE  && !fRewNuebar ) return 1.;
 
   bool tweaked = 
       (TMath::Abs(fMaTwkDial) > controls::kASmallNum) ||
       (TMath::Abs(fR0TwkDial) > controls::kASmallNum);
   if(!tweaked) return 1.0;
 
-  Interaction * interaction = event.Summary();
+  bool is_cc  = interaction->ProcInfo().IsWeakCC();
+  bool is_nc  = interaction->ProcInfo().IsWeakNC();
+  if(is_cc && !fRewCC) return 1.;
+  if(is_nc && !fRewNC) return 1.;
+
+  int nupdg = interaction->InitState().ProbePdg();
+  if(nupdg==kPdgNuMu     && !fRewNumu   ) return 1.;
+  if(nupdg==kPdgAntiNuMu && !fRewNumubar) return 1.;
+  if(nupdg==kPdgNuE      && !fRewNue    ) return 1.;
+  if(nupdg==kPdgAntiNuE  && !fRewNuebar ) return 1.;
 
   interaction->KinePtr()->UseSelectedKinematics();
 

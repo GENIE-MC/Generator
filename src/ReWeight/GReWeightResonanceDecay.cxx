@@ -23,6 +23,7 @@
 #include "Messenger/Messenger.h"
 #include "PDG/PDGCodes.h"
 #include "ReWeight/GReWeightResonanceDecay.h"
+#include "ReWeight/GSystUncertainty.h"
 
 using namespace genie;
 using namespace genie::rew;
@@ -95,7 +96,7 @@ double GReWeightResonanceDecay::CalcChisq(void)
 //_______________________________________________________________________________________
 double GReWeightResonanceDecay::RewBRDelta2Ngamma(const EventRecord & event)
 {
-  bool tweaked = (TMath::Abs(fBRDelta2NgammaTwkDial) < controls::kASmallNum);
+  bool tweaked = (TMath::Abs(fBRDelta2NgammaTwkDial) > controls::kASmallNum);
   if(!tweaked) return 1.;
 
   bool is_res = event.Summary()->ProcInfo().IsResonant();
@@ -118,6 +119,7 @@ double GReWeightResonanceDecay::RewBRDelta2Ngamma(const EventRecord & event)
       if(is_Ngamma) break;
     }
   }
+
   if(!is_Ngamma) return 1.;
 
   if(is_Ngamma) {
@@ -125,15 +127,19 @@ double GReWeightResonanceDecay::RewBRDelta2Ngamma(const EventRecord & event)
     LOG("ReW", pDEBUG) << event;
   }
 
+//GSystUncertainty * uncertainty = GSystUncertainty::Instance();
+
   double err  = 1;
-  double wght = (1. + fBRDelta2NgammaTwkDial * err);
+  double dial = fBRDelta2NgammaTwkDial;
+
+  double wght = (1. + dial * err);
 
   return wght;
 }
 //_______________________________________________________________________________________
 double GReWeightResonanceDecay::RewThetaDelta2Npi(const EventRecord & event)
 {
-  bool tweaked = (TMath::Abs(fThetaDelta2NpiTwkDial) < controls::kASmallNum);
+  bool tweaked = (TMath::Abs(fThetaDelta2NpiTwkDial) > controls::kASmallNum);
   if(!tweaked) return 1.;
 
   bool is_res = event.Summary()->ProcInfo().IsResonant();
