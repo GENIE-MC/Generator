@@ -166,7 +166,7 @@ double GReWeightNonResonanceBkg::CalcWeight(const genie::EventRecord & event)
      GHepParticle * mom = event.Particle(imom);
      if(!mom) continue;
 
-     if( mom->Pdg() == kPdgHadronicSyst) 
+     if(mom->Pdg() == kPdgHadronicSyst) 
      {
         nhadmult++;
         if ( pdg::IsNucleon(pdgc) ) { nnuc++; }

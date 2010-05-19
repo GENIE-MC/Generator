@@ -164,7 +164,7 @@ double GReWeightFGM::RewCCQEPauliSupViaKF(const EventRecord & event)
 //_______________________________________________________________________________________
 double GReWeightFGM::RewCCQEMomDistroFGtoSF(const EventRecord & event) 
 {
-  bool momdistro_tweaked = (TMath::Abs(fMomDistroTwkDial) < controls::kASmallNum);
+  bool momdistro_tweaked = (TMath::Abs(fMomDistroTwkDial) > controls::kASmallNum);
   if(!momdistro_tweaked) return 1.;
 
   bool is_qe = event.Summary()->ProcInfo().IsQuasiElastic();
