@@ -40,6 +40,7 @@ TGT =	gtestAlgorithms 	 \
 	gtestPREM		 \
 	gtestROOTGeometry	 \
 	gtestFermiP		 \
+	gtestRewght		 \
 	gtestRegistry		 \
 	gtestRecoINukeHadroFates \
 	gtestInteraction	 \
@@ -164,6 +165,10 @@ gtestNaturalIsotopes: FORCE
 	$(CXX) $(CXXFLAGS) -c testNaturalIsotopes.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) testNaturalIsotopes.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestNaturalIsotopes
 
+gtestRewght: FORCE
+	$(CXX) $(CXXFLAGS) -c testRewght.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) testRewght.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestRewght
+
 gtestRegistry: FORCE
 	$(CXX) $(CXXFLAGS) -c testRegistry.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) testRegistry.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestRegistry
@@ -233,6 +238,7 @@ clean: FORCE
 	$(RM) $(GENIE_BIN_PATH)/gtestQENuclSuppression
 	$(RM) $(GENIE_BIN_PATH)/gtestPREM		
 	$(RM) $(GENIE_BIN_PATH)/gtestFermiP		
+	$(RM) $(GENIE_BIN_PATH)/gtestRewght		
 	$(RM) $(GENIE_BIN_PATH)/gtestRegistry		
 	$(RM) $(GENIE_BIN_PATH)/gtestInteraction	
 	$(RM) $(GENIE_BIN_PATH)/gtestResonances		
@@ -271,6 +277,7 @@ distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestQENuclSuppression
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestPREM		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestFermiP		
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestRewght		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestRegistry		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestInteraction	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestResonances		
