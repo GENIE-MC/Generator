@@ -55,11 +55,6 @@ namespace rew   {
 
  private:
 
-   static const int    kNEv  = 20000;
-   static const int    kNP   = 500;
-   static const double kPmin = 0;
-   static const double kPmax = 0.5;
-
    void Init(void);
 
    double RewCCQEPauliSupViaKF   (const EventRecord & event);

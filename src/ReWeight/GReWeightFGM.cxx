@@ -177,6 +177,7 @@ double GReWeightFGM::RewCCQEMomDistroFGtoSF(const EventRecord & event)
   GHepParticle * hitnuc = event.HitNucleon();
   if(!hitnuc) return 1.;
 
+  const double kPmax = 0.5;
   double p = hitnuc->P4()->Vect().Mag();
   if(p > kPmax) return 1.;
 
@@ -197,8 +198,10 @@ double GReWeightFGM::RewCCQEMomDistroFGtoSF(const EventRecord & event)
 
   bool have_weight_func = (hfg!=0) && (hsf!=0);
   if(!have_weight_func) {
-     hfg = new TH1D("","",kNP,kPmin,kPmax);
-     hsf = new TH1D("","",kNP,kPmin,kPmax);
+     const int kNEv  = 20000;
+     const int kNP   = 500;
+     hfg = new TH1D("","",kNP,0.,kPmax);
+     hsf = new TH1D("","",kNP,0.,kPmax);
      hfg -> SetDirectory(0);
      hsf -> SetDirectory(0);
      const Target & tgt = event.Summary()->InitState().Tgt();
