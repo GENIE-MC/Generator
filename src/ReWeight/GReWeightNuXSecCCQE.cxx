@@ -145,6 +145,9 @@ double GReWeightNuXSecCCQE::CalcWeight(const genie::EventRecord & event)
   bool is_cc = event.Summary()->ProcInfo().IsWeakCC();
   if(!is_qe || !is_cc) return 1.;
 
+  bool charm = event.Summary()->ExclTag().IsCharmEvent(); // skip CCQE charm
+  if(charm) return 1.;
+
   int nupdg = event.Probe()->Pdg();
   if(nupdg==kPdgNuMu     && !fRewNumu   ) return 1.;
   if(nupdg==kPdgAntiNuMu && !fRewNumubar) return 1.;
