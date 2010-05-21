@@ -22,7 +22,13 @@
 #ifndef _G_REWEIGHT_RESDEC_H_
 #define _G_REWEIGHT_RESDEC_H_
 
+#include <map>
+
 #include "ReWeight/GReWeightI.h"
+
+class TH1D;
+
+using std::map;
 
 using namespace genie::rew;
 using namespace genie;
@@ -44,12 +50,34 @@ namespace rew   {
    double CalcWeight     (const EventRecord & event);
    double CalcChisq      (void);
 
+   // various config options
+   void RewNue      (bool tf ) { fRewNue     = tf; }
+   void RewNuebar   (bool tf ) { fRewNuebar  = tf; }
+   void RewNumu     (bool tf ) { fRewNumu    = tf; }
+   void RewNumubar  (bool tf ) { fRewNumubar = tf; }
+   void RewCC       (bool tf ) { fRewCC      = tf; }
+   void RewNC       (bool tf ) { fRewNC      = tf; }
+
  private:
-   double RewBRDelta2Ngamma (const EventRecord & event);
+
+   void   Init              (void);
+   double RewBR             (const EventRecord & event);
    double RewThetaDelta2Npi (const EventRecord & event);
 
-   double fBRDelta2NgammaTwkDial;
+   double fBR1gammaTwkDial;
+   double fBR1etaTwkDial;
    double fThetaDelta2NpiTwkDial;
+
+   bool   fRewNue;       ///< reweight nu_e?
+   bool   fRewNuebar;    ///< reweight nu_e_bar?
+   bool   fRewNumu;      ///< reweight nu_mu?
+   bool   fRewNumubar;   ///< reweight nu_mu_bar?
+   bool   fRewCC;        ///< reweight CC?
+   bool   fRewNC;        ///< reweight NC?
+
+   map<int, TH1D*> fMpBR1gammaDef; // resonance pdg -> X + 1gamma, default BR = f(W)
+   map<int, TH1D*> fMpBR1etaDef;   // resonance pdg -> X + 1eta,   default BR = f(W)
+
  };
 
 } // rew

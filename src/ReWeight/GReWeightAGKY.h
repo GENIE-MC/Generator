@@ -27,6 +27,8 @@
 using namespace genie::rew;
 using namespace genie;
 
+class TF1;
+
 namespace genie {
 namespace rew   {
 
@@ -43,6 +45,39 @@ namespace rew   {
    void   Reconfigure    (void);
    double CalcWeight     (const EventRecord & event);
    double CalcChisq      (void);
+
+   // various config options
+   void RewNue      (bool tf ) { fRewNue     = tf; }
+   void RewNuebar   (bool tf ) { fRewNuebar  = tf; }
+   void RewNumu     (bool tf ) { fRewNumu    = tf; }
+   void RewNumubar  (bool tf ) { fRewNumubar = tf; }
+   void RewCC       (bool tf ) { fRewCC      = tf; }
+   void RewNC       (bool tf ) { fRewNC      = tf; }
+
+ private:
+
+   void   Init       (void);
+   double RewxFpT1pi (const EventRecord & event);
+
+   bool   fRewNue;              ///< reweight nu_e?
+   bool   fRewNuebar;           ///< reweight nu_e_bar?
+   bool   fRewNumu;             ///< reweight nu_mu?
+   bool   fRewNumubar;          ///< reweight nu_mu_bar?
+   bool   fRewCC;               ///< reweight CC?
+   bool   fRewNC;               ///< reweight NC?
+   double fXFmin;               ///<
+   double fXFmax;               ///<
+   double fPT2min;              ///<
+   double fPT2max;              ///<
+   TF1 *  fBaryonXFpdf;         ///<
+   TF1 *  fBaryonPT2pdf;        ///<
+   TF1 *  fBaryonXFpdfTwk;      ///<
+   TF1 *  fBaryonPT2pdfTwk;     ///<
+   double fDefPeakBaryonXF;     ///<
+   double fDefAvgPT2;           ///<
+   double fPeakBaryonXFTwkDial; ///<
+   double fAvgPT2TwkDial;       ///<
+
  };
 
 } // rew

@@ -97,6 +97,8 @@ void GSystUncertainty::SetDefaults(void)
   m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_NormCCSafeDIS,  0.05));
   m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_DISNuclMod,     1.00));
   m.insert(map<GSyst_t,double>::value_type(kSystNucl_CCQEPauliSupViaKF, 0.05));
+  m.insert(map<GSyst_t,double>::value_type(kHadrAGKYTwkDial_xF1pi,      0.20));
+  m.insert(map<GSyst_t,double>::value_type(kHadrAGKYTwkDial_pT1pi,      0.03));
   m.insert(map<GSyst_t,double>::value_type(kHadroTwkDial_FormZone,      0.50));
   m.insert(map<GSyst_t,double>::value_type(kINukeTwkDial_MFP_pi,        0.20));
   m.insert(map<GSyst_t,double>::value_type(kINukeTwkDial_MFP_N,         0.20));
