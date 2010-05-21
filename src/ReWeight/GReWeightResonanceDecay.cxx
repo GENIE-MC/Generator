@@ -16,12 +16,17 @@
 */
 //____________________________________________________________________________
 
+#include <TH1D.h>
+#include <TParticlePDG.h>
+#include <TDecayChannel.h>
+
 #include "BaryonResonance/BaryonResUtils.h"
 #include "Conventions/Controls.h"
 #include "EVGCore/EventRecord.h"
 #include "GHEP/GHepParticle.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGCodes.h"
+#include "PDG/PDGLibrary.h"
 #include "ReWeight/GReWeightResonanceDecay.h"
 #include "ReWeight/GSystUncertainty.h"
 
@@ -32,7 +37,7 @@ using namespace genie::rew;
 GReWeightResonanceDecay::GReWeightResonanceDecay() :
 GReWeightI()
 {
-  this->Reset();
+  this->Init();
 }
 //_______________________________________________________________________________________
 GReWeightResonanceDecay::~GReWeightResonanceDecay()
@@ -43,7 +48,8 @@ GReWeightResonanceDecay::~GReWeightResonanceDecay()
 bool GReWeightResonanceDecay::IsHandled(GSyst_t syst)
 {
   switch(syst) {
-     case ( kRDcyTwkDial_BR_Delta2Ngamma  ) :
+     case ( kRDcyTwkDial_BR1gamma         ) :
+     case ( kRDcyTwkDial_BR1eta           ) :
      case ( kRDcyTwkDial_Theta_Delta2Npi  ) :
         return true;
         break;
@@ -57,8 +63,11 @@ bool GReWeightResonanceDecay::IsHandled(GSyst_t syst)
 void GReWeightResonanceDecay::SetSystematic(GSyst_t syst, double twk_dial)
 {
   switch(syst) {
-     case ( kRDcyTwkDial_BR_Delta2Ngamma  ) :
-        fBRDelta2NgammaTwkDial = twk_dial;
+     case ( kRDcyTwkDial_BR1gamma ) :
+        fBR1gammaTwkDial = twk_dial;
+        break;
+     case ( kRDcyTwkDial_BR1eta ) :
+        fBR1etaTwkDial = twk_dial;
         break;
      case ( kRDcyTwkDial_Theta_Delta2Npi  ) :
         fThetaDelta2NpiTwkDial = twk_dial;
@@ -71,8 +80,9 @@ void GReWeightResonanceDecay::SetSystematic(GSyst_t syst, double twk_dial)
 //_______________________________________________________________________________________
 void GReWeightResonanceDecay::Reset(void)
 {
-  fBRDelta2NgammaTwkDial = 0.0;
-  fThetaDelta2NpiTwkDial = 0.0;
+  fBR1gammaTwkDial       = 0.;
+  fBR1etaTwkDial         = 0.;
+  fThetaDelta2NpiTwkDial = 0.;
 }
 //_______________________________________________________________________________________
 void GReWeightResonanceDecay::Reconfigure(void)
@@ -82,8 +92,24 @@ void GReWeightResonanceDecay::Reconfigure(void)
 //_______________________________________________________________________________________
 double GReWeightResonanceDecay::CalcWeight(const EventRecord & event) 
 {  
+  Interaction * interaction = event.Summary();
+
+  bool is_res = interaction->ProcInfo().IsResonant();
+  if(!is_res) return 1.;
+
+  bool is_cc  = interaction->ProcInfo().IsWeakCC();
+  bool is_nc  = interaction->ProcInfo().IsWeakNC();
+  if(is_cc && !fRewCC) return 1.;
+  if(is_nc && !fRewNC) return 1.;
+
+  int nupdg = interaction->InitState().ProbePdg();
+  if(nupdg==kPdgNuMu     && !fRewNumu   ) return 1.;
+  if(nupdg==kPdgAntiNuMu && !fRewNumubar) return 1.;
+  if(nupdg==kPdgNuE      && !fRewNue    ) return 1.;
+  if(nupdg==kPdgAntiNuE  && !fRewNuebar ) return 1.;
+
   double wght = 
-    this->RewBRDelta2Ngamma(event) * 
+    this->RewBR(event) * 
     this->RewThetaDelta2Npi(event);
 
   return wght;
@@ -91,48 +117,75 @@ double GReWeightResonanceDecay::CalcWeight(const EventRecord & event)
 //_______________________________________________________________________________________
 double GReWeightResonanceDecay::CalcChisq(void)
 {
-  return 0.;
+  double chisq =
+    TMath::Power(fBR1gammaTwkDial,       2.) +
+    TMath::Power(fBR1etaTwkDial,         2.) +
+    TMath::Power(fThetaDelta2NpiTwkDial, 2.);
+
+  return chisq;
 }
 //_______________________________________________________________________________________
-double GReWeightResonanceDecay::RewBRDelta2Ngamma(const EventRecord & event)
+double GReWeightResonanceDecay::RewBR(const EventRecord & event)
 {
-  bool tweaked = (TMath::Abs(fBRDelta2NgammaTwkDial) > controls::kASmallNum);
+  bool tweaked_br1gamma = (TMath::Abs(fBR1gammaTwkDial) > controls::kASmallNum);
+  bool tweaked_br1eta   = (TMath::Abs(fBR1etaTwkDial)   > controls::kASmallNum);
+
+  bool tweaked = (tweaked_br1gamma || tweaked_br1eta);
   if(!tweaked) return 1.;
 
-  bool is_res = event.Summary()->ProcInfo().IsResonant();
-  if(!is_res) return 1.;
+  double wght = 1.;
 
-  bool is_Ngamma = false;
+  GSystUncertainty * uncertainty = GSystUncertainty::Instance();
+
   GHepParticle * p = 0;
   TIter iter(&event);
   while((p=(GHepParticle*)iter.Next())) {
     if(utils::res::IsBaryonResonance(p->Pdg())) {
       int fd = p->FirstDaughter();
       int ld = p->LastDaughter();
-      int nd = 1 + ld - fd;
-      if(nd==2) {
-        int fpdg = event.Particle(fd)->Pdg();
-        int lpdg = event.Particle(ld)->Pdg();
-        if((fpdg==kPdgProton||fpdg==kPdgNeutron) && lpdg==kPdgGamma) is_Ngamma = true;
-        if((lpdg==kPdgProton||lpdg==kPdgNeutron) && fpdg==kPdgGamma) is_Ngamma = true;
+      int ngamma = 0;
+      int neta   = 0;
+      for(int i=fd; i<=ld; i++) {
+        int dpdg = event.Particle(i)->Pdg();
+        if(dpdg==kPdgGamma) ngamma++; 
+        if(dpdg==kPdgEta  ) neta++; 
+      }//i
+      bool is_1gamma = (ngamma==1);
+      bool is_1eta   = (neta  ==1);
+
+      //
+      // For Resonance -> X + gamma, tweak the branching ratio as:
+      // BR_{tweaked} = BR_{default} * (1 + dial * fractional_error)
+      // so that, basically, weight = 1 + dial * fractional_error.
+      // For all other decay modes adjust the branching ratio so that Sum{BR} = 1.
+      //
+      if(tweaked_br1gamma) {
+        double frerr = uncertainty->OneSigmaErr(kRDcyTwkDial_BR1gamma);
+        double dial  = fBR1gammaTwkDial;
+        double w = (1. + dial*frerr);
+        w = TMath::Max(0.,w);
+        TH1D * brfw  = fMpBR1gammaDef[p->Pdg()];
+        double mass = p->P4()->M();
+        mass = TMath::Min(mass, brfw->GetXaxis()->GetXmax());
+        int ibin = brfw->FindBin(mass);
+        double brdef = brfw->GetBinContent(ibin);
+        double brtwk = brdef*w;
+        if(brtwk>1) {
+         brtwk = 1.;
+         w = brtwk/brdef;
+        }
+        if(is_1gamma) {
+         wght *= w;
+        } else {         
+         wght *= ((1-brtwk)/(1-brdef));
+        }
       }
-      if(is_Ngamma) break;
-    }
-  }
+      // Similarly for Resonance -> X + eta
+      //
+      //...
 
-  if(!is_Ngamma) return 1.;
-
-  if(is_Ngamma) {
-    LOG("ReW", pDEBUG) << "A Resonance -> N + gamma event:";
-    LOG("ReW", pDEBUG) << event;
-  }
-
-//GSystUncertainty * uncertainty = GSystUncertainty::Instance();
-
-  double err  = 1;
-  double dial = fBRDelta2NgammaTwkDial;
-
-  double wght = (1. + dial * err);
+    }//res?
+  }//p
 
   return wght;
 }
@@ -142,34 +195,140 @@ double GReWeightResonanceDecay::RewThetaDelta2Npi(const EventRecord & event)
   bool tweaked = (TMath::Abs(fThetaDelta2NpiTwkDial) > controls::kASmallNum);
   if(!tweaked) return 1.;
 
-  bool is_res = event.Summary()->ProcInfo().IsResonant();
-  if(!is_res) return 1.;
-
-  bool is_Deltapp_1pi = false;
+  bool is_Deltapp_1pi = false; 
+  int ir = -1; // resonance position
+  int ip = -1; // pion position
+  int i  =  0;
   GHepParticle * p = 0;
   TIter iter(&event);
   while((p=(GHepParticle*)iter.Next())) {
     bool is_Deltapp = (p->Pdg()==kPdgP33m1232_DeltaPP);
     if(is_Deltapp) {
+      ir = i;
       int fd = p->FirstDaughter();
       int ld = p->LastDaughter();
       int nd = 1 + ld - fd;
       if(nd==2) {
         int fpdg = event.Particle(fd)->Pdg();
         int lpdg = event.Particle(ld)->Pdg();
-        if(fpdg==kPdgProton && lpdg==kPdgPiP) is_Deltapp_1pi = true;
-        if(lpdg==kPdgProton && fpdg==kPdgPiP) is_Deltapp_1pi = true;
+        if(fpdg==kPdgProton && lpdg==kPdgPiP) { is_Deltapp_1pi = true; ip = ld; }
+        if(lpdg==kPdgProton && fpdg==kPdgPiP) { is_Deltapp_1pi = true; ip = fd; }
       }
       if(is_Deltapp_1pi) break;
     }
+    i++;
   }
+
   if(!is_Deltapp_1pi) return 1.;
 
-  if(is_Deltapp_1pi) {
-    LOG("ReW", pDEBUG) << "A Delta++ -> p pi+ event:";
-    LOG("ReW", pDEBUG) << event;
+  LOG("ReW", pFATAL) << "A Delta++ -> p pi+ event:";
+  LOG("ReW", pFATAL) << "Resonance is at position: " << ir;
+  LOG("ReW", pFATAL) << "Pion is at position: " << ip;
+//LOG("ReW", pDEBUG) << event;
+
+
+  const TVector3 & p3r = event.Particle(ir)->P4()->Vect();
+  const TVector3 & p3p = event.Particle(ip)->P4()->Vect();
+
+  double theta = p3p.Angle(p3r);
+  LOG("ReW", pFATAL) 
+    << "Pion momentum, wrt to Delta momentum, has an angle of " << theta << " rad";
+
+  double p32iso   = 0.50;
+  double p12iso   = 0.50;
+  double p32rs    = 0.75;
+  double p12rs    = 0.25;
+  double costheta = TMath::Cos(theta);
+  double P2       = 0.5 * (3.*costheta*costheta - 1.);
+  double Wiso     = 1.;
+  double Wrs      = 1 - p32rs * P2 + p12rs * P2;
+  double dial     = fThetaDelta2NpiTwkDial;
+  double Wdef     = Wiso;
+  double Wtwk     = dial*Wrs + (1-dial)*Wiso;
+
+  if(Wdef>0. && Wtwk>0.) {
+    double wght = Wtwk/Wdef;
+    return wght;
   }
 
-  return 0.;
+  return 1.;
+}
+//_______________________________________________________________________________________
+void GReWeightResonanceDecay::Init(void)
+{
+  this->RewNue    (true);
+  this->RewNuebar (true);
+  this->RewNumu   (true);
+  this->RewNumubar(true);
+  this->RewCC     (true);
+  this->RewNC     (true);
+
+  fBR1gammaTwkDial       = 0.;
+  fBR1etaTwkDial         = 0.;
+  fThetaDelta2NpiTwkDial = 0.;
+
+  const int respdgarray[] = {
+    kPdgP33m1232_DeltaM, kPdgP33m1232_Delta0, kPdgP33m1232_DeltaP, kPdgP33m1232_DeltaPP,
+    kPdgS31m1620_DeltaM, kPdgS31m1620_Delta0, kPdgS31m1620_DeltaP, kPdgS31m1620_DeltaPP,
+    kPdgD33m1700_DeltaM, kPdgD33m1700_Delta0, kPdgD33m1700_DeltaP, kPdgD33m1700_DeltaPP,
+    kPdgF35m1905_DeltaM, kPdgF35m1905_Delta0, kPdgF35m1905_DeltaP, kPdgF35m1905_DeltaPP,
+    kPdgP31m1910_DeltaM, kPdgP31m1910_Delta0, kPdgP31m1910_DeltaP, kPdgP31m1910_DeltaPP,
+    kPdgP33m1920_DeltaM, kPdgP33m1920_Delta0, kPdgP33m1920_DeltaP, kPdgP33m1920_DeltaPP,
+    kPdgF37m1950_DeltaM, kPdgF37m1950_Delta0, kPdgF37m1950_DeltaP, kPdgF37m1950_DeltaPP,
+    kPdgP11m1440_N0, kPdgP11m1440_NP,    
+    kPdgD13m1520_N0, kPdgD13m1520_NP,   
+    kPdgS11m1535_N0, kPdgS11m1535_NP,  
+    kPdgS11m1650_N0, kPdgS11m1650_NP,  
+    kPdgD15m1675_N0, kPdgD15m1675_NP,    
+    kPdgF15m1680_N0, kPdgF15m1680_NP,     
+    kPdgD13m1700_N0, kPdgD13m1700_NP,  
+    kPdgP11m1710_N0, kPdgP11m1710_NP,      
+    kPdgP13m1720_N0, kPdgP13m1720_NP,
+    0
+  };
+
+  // init
+  const int    kNW   = 30;
+  const double kWmin = 0.9;
+  const double kWmax = 5.0;
+  unsigned int ires=0;
+  int respdg = 0;
+  while((respdg = respdgarray[ires++])) {
+    fMpBR1gammaDef [respdg] = new TH1D("","",kNW,kWmin,kWmax);
+    fMpBR1etaDef   [respdg] = new TH1D("","",kNW,kWmin,kWmax);
+    fMpBR1gammaDef [respdg] -> SetDirectory(0);
+    fMpBR1etaDef   [respdg] -> SetDirectory(0);
+  }
+
+  // find corresponding decay channels and store default BR
+  PDGLibrary * pdglib = PDGLibrary::Instance();
+  ires=0;
+  while((respdg = respdgarray[ires++])) {
+    TParticlePDG * res = pdglib->Find(respdg);
+    if(!res) continue;
+    for(int j=0; j<res->NDecayChannels(); j++) {
+        TDecayChannel * dch = res->DecayChannel(j);
+        int ngamma = 0;
+        int neta   = 0;
+        double br = dch->BranchingRatio();
+        double mt = 0.;
+        for(int k=0; k<dch->NDaughters(); k++) {
+          int dpdg = dch->DaughterPdgCode(k);
+          if(dpdg==kPdgGamma) ngamma++; 
+          if(dpdg==kPdgEta  ) neta++; 
+          mt += 0;
+        }//decay channel f/s particles
+        bool is_1gamma = (ngamma==1);
+        bool is_1eta   = (neta  ==1);
+        for(int ibin = 1; ibin <= fMpBR1gammaDef[respdg]->GetNbinsX(); ibin++) {
+          double W = fMpBR1gammaDef[respdg]->GetBinLowEdge(ibin) + 
+                     fMpBR1gammaDef[respdg]->GetBinWidth(ibin);
+          bool is_allowed = (W>mt);
+          if(is_allowed && is_1gamma) { fMpBR1gammaDef[respdg]->Fill(W, br); }
+          if(is_allowed && is_1eta  ) { fMpBR1etaDef  [respdg]->Fill(W, br); }
+        }//W bins
+    }//decay channels
+  }//resonances
+
 }
 //_______________________________________________________________________________________

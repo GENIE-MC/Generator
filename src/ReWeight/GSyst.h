@@ -37,8 +37,8 @@ typedef enum EGSyst {
   //
   // Neutrino cross section systematics
   // 
-  //
-  //
+  // Note: 
+  // 
   //
   //
 
@@ -76,6 +76,8 @@ typedef enum EGSyst {
   // Hadronization (free nucleon target)
   // 
 
+  kHadrAGKYTwkDial_xF1pi,         ///< tweak xF distribution for low multiplicity (N + pi) DIS f/s produced by AGKY
+  kHadrAGKYTwkDial_pT1pi,         ///< tweak pT distribution for low multiplicity (N + pi) DIS f/s produced by AGKY
 
 
   //
@@ -117,8 +119,9 @@ typedef enum EGSyst {
   // Resonance decays
   // 
 
-  kRDcyTwkDial_BR_Delta2Ngamma,  ///< tweak Delta -> N + gamma branching ratio
-  kRDcyTwkDial_Theta_Delta2Npi   ///< distort pi angular distribution in Delta -> N + pi
+  kRDcyTwkDial_BR1gamma,        ///< tweak Resonance -> X + gamma branching ratio, eg Delta+(1232) -> p gamma
+  kRDcyTwkDial_BR1eta,          ///< tweak Resonance -> X + eta   branching ratio, eg N+(1440) -> p eta
+  kRDcyTwkDial_Theta_Delta2Npi  ///< distort pi angular distribution in Delta -> N + pi
 
 
   //
@@ -163,6 +166,8 @@ public:
      case ( kXSecTwkDial_RvbarnNC2pi      ) : return "NonRESBGvbarpNC2pi";   break;
      case ( kXSecTwkDial_NormCCSafeDIS    ) : return "NormCCSafeDIS";        break;
      case ( kXSecTwkDial_DISNuclMod       ) : return "DISNuclMod";           break;
+     case ( kHadrAGKYTwkDial_xF1pi        ) : return "AGKYxF1pi";            break;
+     case ( kHadrAGKYTwkDial_pT1pi        ) : return "AGKYpT1pi";            break;
      case ( kHadroTwkDial_FormZone        ) : return "FormZone";             break;
      case ( kINukeTwkDial_MFP_pi          ) : return "MFP_pi";               break;
      case ( kINukeTwkDial_MFP_N           ) : return "MFP_N";                break;
@@ -178,7 +183,8 @@ public:
      case ( kINukeTwkDial_FrPiProd_N      ) : return "FrPiProd_N";           break;
      case ( kSystNucl_CCQEPauliSupViaKF   ) : return "CCQEPauliSupViaKF";    break;
      case ( kSystNucl_CCQEMomDistroFGtoSF ) : return "CCQEMomDistroFGtoSF";  break;
-     case ( kRDcyTwkDial_BR_Delta2Ngamma  ) : return "BR_Delta2Ngamma";      break;
+     case ( kRDcyTwkDial_BR1gamma         ) : return "RDecBR1gamma";         break;
+     case ( kRDcyTwkDial_BR1eta           ) : return "RDecBR1eta";           break;
      case ( kRDcyTwkDial_Theta_Delta2Npi  ) : return "Theta_Delta2Npi";      break;
 
      default: 
