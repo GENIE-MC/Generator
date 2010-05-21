@@ -84,7 +84,7 @@ typedef enum EGSyst {
   // Medium-effects to hadronization
   // 
 
-  kHadroTwkDial_FormZone,         ///< tweak formation zone
+  kHadrNuclTwkDial_FormZone,         ///< tweak formation zone
 
 
   //
@@ -168,7 +168,7 @@ public:
      case ( kXSecTwkDial_DISNuclMod       ) : return "DISNuclMod";           break;
      case ( kHadrAGKYTwkDial_xF1pi        ) : return "AGKYxF1pi";            break;
      case ( kHadrAGKYTwkDial_pT1pi        ) : return "AGKYpT1pi";            break;
-     case ( kHadroTwkDial_FormZone        ) : return "FormZone";             break;
+     case ( kHadrNuclTwkDial_FormZone     ) : return "FormZone";             break;
      case ( kINukeTwkDial_MFP_pi          ) : return "MFP_pi";               break;
      case ( kINukeTwkDial_MFP_N           ) : return "MFP_N";                break;
      case ( kINukeTwkDial_FrCEx_pi        ) : return "FrCEx_pi";             break;
