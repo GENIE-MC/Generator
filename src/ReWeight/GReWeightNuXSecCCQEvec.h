@@ -1,9 +1,10 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::rew::GReWeightNonResonanceBkg
+\class    genie::rew::GReWeightNuXSecCCQEvec
 
-\brief    Reweighting non-resonance background level.
+\brief    Reweighting vector form factors in GENIE CCQE neutrino cross
+          section calculations.
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           STFC, Rutherford Appleton Laboratory
@@ -11,7 +12,7 @@
           Jim Dobson <J.Dobson07 \at imperial.ac.uk>
           Imperial College London
 
-\created  Aug 1, 2009
+\created  May 24, 2010
 
 \cpright  Copyright (c) 2003-2010, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
@@ -19,23 +20,28 @@
 */
 //____________________________________________________________________________
 
-#ifndef _G_REWEIGHT_NON_RES_BKG_H_
-#define _G_REWEIGHT_NON_RES_BKG_H_
+#ifndef _G_REWEIGHT_NU_XSEC_CCQE_VEC_H_
+#define _G_REWEIGHT_NU_XSEC_CCQE_VEC_H_
 
 #include <map>
+#include <string>
 
 #include "ReWeight/GReWeightI.h"
 
 using std::map;
+using std::string;
 
 namespace genie {
+
+class XSecAlgorithmI;
+
 namespace rew   {
 
- class GReWeightNonResonanceBkg : public GReWeightI 
+ class GReWeightNuXSecCCQEvec : public GReWeightI 
  {
  public:
-   GReWeightNonResonanceBkg();
-  ~GReWeightNonResonanceBkg();
+   GReWeightNuXSecCCQEvec();
+  ~GReWeightNuXSecCCQEvec();
 
    // implement the GReWeightI interface
    bool   IsHandled      (GSyst_t syst);
@@ -46,17 +52,25 @@ namespace rew   {
    double CalcChisq      (void);
 
    // various config options
-   void SetWminCut (double W ) { fWmin = W; }
+   void RewNue      (bool tf ) { fRewNue     = tf;   }
+   void RewNuebar   (bool tf ) { fRewNuebar  = tf;   }
+   void RewNumu     (bool tf ) { fRewNumu    = tf;   }
+   void RewNumubar  (bool tf ) { fRewNumubar = tf;   }
 
  private:
 
    void Init (void);
 
-   double fWmin;   ///< W_{min} cut. Reweight only events with W < W_{min}
+   XSecAlgorithmI * fXSecModel_bba;  ///< CCQE model with BBA05  f/f (default)
+   XSecAlgorithmI * fXSecModel_dpl;  ///< CCQE model with dipole f/f ("maximally" tweaked)
 
-   map<GSyst_t, double> fRTwkDial;
-   map<GSyst_t, double> fRDef;
-   map<GSyst_t, double> fRCurr;
+   double fFFTwkDial;    ///< tweaking dial (0: bba/default, +1: dipole)
+
+   bool   fRewNue;       ///< reweight nu_e CC?
+   bool   fRewNuebar;    ///< reweight nu_e_bar CC?
+   bool   fRewNumu;      ///< reweight nu_mu CC?
+   bool   fRewNumubar;   ///< reweight nu_mu_bar CC?
+
  };
 
 } // rew   namespace

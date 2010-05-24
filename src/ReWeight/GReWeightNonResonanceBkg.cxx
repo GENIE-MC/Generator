@@ -27,6 +27,7 @@
 #include "Algorithm/AlgFactory.h"
 #include "Algorithm/AlgConfigPool.h"
 #include "Conventions/Controls.h"
+#include "Conventions/Units.h"
 #include "EVGCore/EventRecord.h"
 #include "GHEP/GHepParticle.h"
 #include "Interaction/Interaction.h"
@@ -142,9 +143,8 @@ double GReWeightNonResonanceBkg::CalcWeight(const genie::EventRecord & event)
   if(!is_dis) return 1.;
 
   bool selected = true;
-  double W    = interaction->Kine().W(selected);
-  double Wcut = 1.7;//GeV, get from config rather than using hardcoded value
-  bool in_transition = (W<Wcut);
+  double W = interaction->Kine().W(selected);
+  bool in_transition = (W<fWmin);
   if(!in_transition) return 1.;
 
   int probe  = interaction->InitState().ProbePdg();
@@ -204,6 +204,8 @@ double GReWeightNonResonanceBkg::CalcChisq()
 //_______________________________________________________________________________________
 void GReWeightNonResonanceBkg::Init(void)
 {
+  this->SetWminCut(2.0*units::GeV);
+
   // Get the default  parameters 
   AlgConfigPool * conf_pool = AlgConfigPool::Instance();
   Registry * user_config = conf_pool->GlobalParameterList();
