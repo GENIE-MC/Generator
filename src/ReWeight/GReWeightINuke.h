@@ -5,6 +5,17 @@
 
 \brief    Reweighting GENIE INTRANUKE/hA hadron transport model.
 
+	  The reweighting code considers two sets of physics changes:
+          * Change in the hadron mean free path \lambda, i.e. change in  
+            the total rescattering probability P_{rescat}.
+          * Changes in probabilty for rescattering mode X, given a fixed
+            total rescattering probability P(X | \lambda).
+            X = {elastic, inelastic, charge exchange, pion production,
+                 absorption + multi-nucleon knockout}.        
+
+          Physics changes are considered separately for pions and nucleons.
+          Unitarity is explicitly conserved.
+
 \author   Jim Dobson <J.Dobson07 \at imperial.ac.uk>
           Imperial College London
 
