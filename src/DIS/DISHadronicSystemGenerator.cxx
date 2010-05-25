@@ -277,11 +277,6 @@ void DISHadronicSystemGenerator::SimulateFormationZone(
         x4new *= scale;
     }
 
-    LOG("DISHadronicVtx", pDEBUG)
-         << "\n Init direction = " << print::Vec3AsString(&dr)
-         << "\n Init position (in m,sec) = " << print::X4AsString(p->X4())
-         << "\n Fin  position (in m,sec) = " << print::X4AsString(&x4new);
-
     p->SetPosition(x4new);
   }
 }
