@@ -24,6 +24,8 @@
 #include "Messenger/Messenger.h"
 #include "PDG/PDGCodes.h"
 #include "ReWeight/GReWeightFZone.h"
+#include "ReWeight/GReWeightUtils.h"
+#include "ReWeight/GSystUncertainty.h"
 
 using namespace genie;
 using namespace genie::rew;
@@ -92,6 +94,17 @@ double GReWeightFZone::CalcWeight(const EventRecord & event)
 
   double event_weight = 1.;
 
+  // nuclear radius for particle tracking purposes
+  //double R = (fNR * fR0 * TMath::Power(A, 1./3.))/units::fm;
+
+  // hadronic system 4-/3-momentum
+  TLorentzVector p4hadr = utils::rew::Hadronic4pLAB(event);
+  TVector3 p3hadr = p4hadr.Vect();
+
+  // formation zone: fractional 1sigma err
+  GSystUncertainty * uncertainty = GSystUncertainty::Instance();
+  double fracerr = uncertainty->OneSigmaErr(kHadrNuclTwkDial_FormZone);
+
   // Loop over particles calculate weights for all primary hadrons inside the nucleus.
   GHepParticle * p = 0;
   TIter event_iter(&event);
@@ -104,8 +117,26 @@ double GReWeightFZone::CalcWeight(const EventRecord & event)
         continue;
      }
      
+     // Default formation zone
+     // Calculation below copied from the actual generation code.
+     // Could also get default formation zone as the distance between the actual
+     // vertex and the current position.
+     TVector3 p3  = p->P4()->Vect();      // hadron's: p (px,py,pz)
+     double   m   = p->Mass();            //           m
+     double   m2  = m*m;                  //           m^2
+     double   P   = p->P4()->P();         //           |p|
+     double   Pt  = p3.Pt(p3hadr);        //           pT
+     double   Pt2 = Pt*Pt;                //           pT^2
+
+     double fz_def = P*fct0*m/(m2+fK*Pt2) / units::fm; 
+
+     // Tweaked formation zone
+     double fz_twk  = fz_def * (1 + fFZoneTwkDial * fracerr);
+     fz_twk = TMath::Max(0.,fz_twk);
+
      // Calculate particle weight
      double hadron_weight = 1.;
+
      //     
      // ...
      // ...
@@ -113,6 +144,7 @@ double GReWeightFZone::CalcWeight(const EventRecord & event)
      //     
 
 
+     // Update event weight
      event_weight *= hadron_weight;
   }
 
@@ -128,6 +160,11 @@ double GReWeightFZone::CalcChisq(void)
 void GReWeightFZone::Init(void)
 {
   fFZoneTwkDial = 0.;
+
+  this->SetR0  (1.3 * units::fm);
+  this->SetNR  (3.);
+  this->SetCT0 (0.342 * units::fm);
+  this->SetK   (0.);
 }
 //_______________________________________________________________________________________
 
