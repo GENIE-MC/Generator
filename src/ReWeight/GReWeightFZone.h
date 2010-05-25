@@ -44,11 +44,23 @@ namespace rew   {
    double CalcWeight     (const EventRecord & event);
    double CalcChisq      (void);
 
+   // other config options
+   // set to match values used at event generation
+   void SetR0 (double R0 ) { fR0  = R0;  }
+   void SetNR (double NR ) { fNR  = NR;  }
+   void SetCT0(double ct0) { fct0 = ct0; }
+   void SetK  (double k  ) { fK   = k;   }
+
  private:
 
    void Init(void);
 
    double fFZoneTwkDial; ///< formation zone tweaking dial
+
+   double fNR;  ///<
+   double fR0;  ///<
+   double fct0; ///<
+   double fK;   ///<
  };
 
 } // rew
