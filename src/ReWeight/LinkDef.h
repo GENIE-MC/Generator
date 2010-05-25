@@ -29,6 +29,7 @@
 #pragma link C++ class genie::rew::GReWeightNuXSecCCRES;
 #pragma link C++ class genie::rew::GReWeightNuXSecCOH;
 #pragma link C++ class genie::rew::GReWeightNuXSecDIS;
+#pragma link C++ class genie::rew::GReWeightNuXSecNC;
 #pragma link C++ class genie::rew::GReWeightNuXSecHelper;
 
 #endif

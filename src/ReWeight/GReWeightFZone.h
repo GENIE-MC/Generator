@@ -43,6 +43,12 @@ namespace rew   {
    void   Reconfigure    (void);
    double CalcWeight     (const EventRecord & event);
    double CalcChisq      (void);
+
+ private:
+
+   void Init(void);
+
+   double fFZoneTwkDial; ///< formation zone tweaking dial
  };
 
 } // rew

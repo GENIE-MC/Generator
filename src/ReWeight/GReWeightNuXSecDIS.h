@@ -22,13 +22,7 @@
 #ifndef _G_REWEIGHT_NU_XSEC_DIS_H_
 #define _G_REWEIGHT_NU_XSEC_DIS_H_
 
-#include <map>
-#include <string>
-
 #include "ReWeight/GReWeightI.h"
-
-using std::map;
-using std::string;
 
 namespace genie {
 
@@ -39,6 +33,9 @@ namespace rew   {
 
  class GReWeightNuXSecDIS : public GReWeightI 
  {
+ static const int kModeABCV12u      = 0;
+ static const int kModeABCV12uShape = 1;
+
  public:
    GReWeightNuXSecDIS();
   ~GReWeightNuXSecDIS();
@@ -52,6 +49,7 @@ namespace rew   {
    double CalcChisq      (void);
 
    // various config options
+   void SetMode      (int    m )  { fMode       = m;  }
    void RewNue       (bool   tf)  { fRewNue     = tf; }
    void RewNuebar    (bool   tf)  { fRewNuebar  = tf; }
    void RewNumu      (bool   tf)  { fRewNumu    = tf; }
@@ -67,7 +65,9 @@ namespace rew   {
 
  private:
 
-   void Init (void);
+   void   Init                   (void);
+   double CalcWeightABCV12u      (const genie::EventRecord & event); ///< rew. Aht,Bht,CV1u,CV2u
+   double CalcWeightABCV12uShape (const genie::EventRecord & event); ///< rew. AhtShape,BhtShape,CV1uShape,CV2uShape
 
    XSecAlgorithmI * fXSecModel;       ///< cross section model
    Registry *       fXSecModelConfig; ///< config for cross section model
@@ -79,6 +79,7 @@ namespace rew   {
    bool   fRewCC;                ///< reweight CC?
    bool   fRewNC;                ///< reweight NC?
 
+   int    fMode;            ///< 0: Aht,Bht,CV1u,CV2u, 1:AhtShape,BhtShape,CV1uShape,CV2uShape
    double fWmin;            ///< W_{min}  cut. Reweight only events with W  > W_{min}.
    double fQ2min;           ///< Q2_{min} cut. Reweight only events with Q2 > Q2_{min}.
    double fAhtBYTwkDial;    ///< tweak dial for BY parameter: Aht

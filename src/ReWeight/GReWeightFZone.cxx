@@ -16,7 +16,11 @@
 */
 //____________________________________________________________________________
 
+#include "Conventions/Controls.h"
+#include "Conventions/Units.h"
 #include "EVGCore/EventRecord.h"
+#include "GHEP/GHepParticle.h"
+#include "GHEP/GHepStatus.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGCodes.h"
 #include "ReWeight/GReWeightFZone.h"
@@ -28,7 +32,7 @@ using namespace genie::rew;
 GReWeightFZone::GReWeightFZone() :
 GReWeightI()
 {
-
+  this->Init();
 }
 //_______________________________________________________________________________________
 GReWeightFZone::~GReWeightFZone()
@@ -36,19 +40,33 @@ GReWeightFZone::~GReWeightFZone()
 
 }
 //_______________________________________________________________________________________
-bool GReWeightFZone::IsHandled(GSyst_t /*syst*/)
+bool GReWeightFZone::IsHandled(GSyst_t syst)
 {
-   return false;
+  switch(syst) {
+    case (kHadrNuclTwkDial_FormZone) :
+      return true;
+      break;
+    default:
+      return false;
+      break;
+  }
+  return false;
 }
 //_______________________________________________________________________________________
-void GReWeightFZone::SetSystematic(GSyst_t /*syst*/, double /*val*/)
+void GReWeightFZone::SetSystematic(GSyst_t syst, double twk_dial)
 {
-
+  switch(syst) {
+    case (kHadrNuclTwkDial_FormZone) :
+      fFZoneTwkDial = twk_dial;
+      break;
+    default:
+      return;
+  }
 }
 //_______________________________________________________________________________________
 void GReWeightFZone::Reset(void)
 {
-
+  fFZoneTwkDial = 0.;
 }
 //_______________________________________________________________________________________
 void GReWeightFZone::Reconfigure(void)
@@ -56,13 +74,60 @@ void GReWeightFZone::Reconfigure(void)
 
 }
 //_______________________________________________________________________________________
-double GReWeightFZone::CalcWeight(const EventRecord & /*event*/) 
+double GReWeightFZone::CalcWeight(const EventRecord & event) 
 {  
-  return 1.0;
+  // Physics parameter tweaked?
+  bool tweaked = (TMath::Abs(fFZoneTwkDial) > controls::kASmallNum);
+  if(!tweaked) return 1.;
+
+  // Skip events not involving nuclear targets.
+  GHepParticle * tgt = event.TargetNucleus();
+  if (!tgt) return 1.;
+  double A = tgt->A();
+  if (A<=1) return 1.;
+
+  //
+  // Calculate event weight.
+  //
+
+  double event_weight = 1.;
+
+  // Loop over particles calculate weights for all primary hadrons inside the nucleus.
+  GHepParticle * p = 0;
+  TIter event_iter(&event);
+  while ( (p = dynamic_cast<GHepParticle *>(event_iter.Next())) ) {
+
+     // Skip particles with code other than 'hadron in the nucleus'
+     GHepStatus_t ist  = p->Status();
+     if(ist != kIStHadronInTheNucleus)
+     {
+        continue;
+     }
+     
+     // Calculate particle weight
+     double hadron_weight = 1.;
+     //     
+     // ...
+     // ...
+     // ...
+     //     
+
+
+     event_weight *= hadron_weight;
+  }
+
+  return event_weight;
 }
 //_______________________________________________________________________________________
 double GReWeightFZone::CalcChisq(void)
 {
-  return 0.;
+  double chisq = TMath::Power(fFZoneTwkDial, 2.);
+  return chisq;
 }
 //_______________________________________________________________________________________
+void GReWeightFZone::Init(void)
+{
+  fFZoneTwkDial = 0.;
+}
+//_______________________________________________________________________________________
+

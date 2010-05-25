@@ -94,7 +94,23 @@ void GSystUncertainty::SetDefaults(void)
   m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_RvbarnCC2pi,    0.50));
   m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_RvbarnNC1pi,    0.50));
   m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_RvbarnNC2pi,    0.50));
-  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_NormCCSafeDIS,  0.05));
+
+  // from Debdatta's thesis: 
+  //   Aht  = 0.538 +/- 0.134	
+  //   Bht  = 0.305 +/- 0.076
+  //   CV1u = 0.291 +/- 0.087
+  //   CV2u = 0.189 +/- 0.076
+
+  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_AhtBY,          0.25));
+  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_BhtBY,          0.25));
+  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_CV1uBY,         0.30));
+  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_CV2uBY,         0.40));
+
+  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_AhtBYshape,     0.25));
+  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_BhtBYshape,     0.25));
+  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_CV1uBYshape,    0.30));
+  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_CV2uBYshape,    0.40));
+
   m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_DISNuclMod,     1.00));
   m.insert(map<GSyst_t,double>::value_type(kSystNucl_CCQEPauliSupViaKF, 0.05));
   m.insert(map<GSyst_t,double>::value_type(kHadrAGKYTwkDial_xF1pi,      0.20));
