@@ -23,6 +23,8 @@
 */
 //____________________________________________________________________________
 
+#include <cassert>
+
 #include <TMath.h>
 
 #include "Algorithm/AlgFactory.h"
@@ -56,32 +58,53 @@ GReWeightNuXSecDIS::~GReWeightNuXSecDIS()
 //_______________________________________________________________________________________
 bool GReWeightNuXSecDIS::IsHandled(GSyst_t syst)
 {
+   bool handle = false;
+
    switch(syst) {
      case ( kXSecTwkDial_AhtBYshape  ) : 
      case ( kXSecTwkDial_BhtBYshape  ) : 
      case ( kXSecTwkDial_CV1uBYshape ) : 
      case ( kXSecTwkDial_CV2uBYshape ) : 
-       return true;
+
+       if      (fMode == kModeABCV12u     ) handle = false;
+       else if (fMode == kModeABCV12uShape) handle = true;
        break;
+
+     case ( kXSecTwkDial_AhtBY  ) : 
+     case ( kXSecTwkDial_BhtBY  ) : 
+     case ( kXSecTwkDial_CV1uBY ) : 
+     case ( kXSecTwkDial_CV2uBY ) : 
+
+       if      (fMode == kModeABCV12u     ) handle = true;
+       else if (fMode == kModeABCV12uShape) handle = false;
+       break;
+
      default:
-       return false;
+       handle = false;
        break;
    }
-   return false;
+
+   return handle;
 }
 //_______________________________________________________________________________________
 void GReWeightNuXSecDIS::SetSystematic(GSyst_t syst, double twk_dial)
 {
+   if(! this->IsHandled(syst)) return;
+
    switch(syst) {
+     case ( kXSecTwkDial_AhtBY       ) : 
      case ( kXSecTwkDial_AhtBYshape  ) : 
        fAhtBYTwkDial = twk_dial;
        break;
+     case ( kXSecTwkDial_BhtBY       ) : 
      case ( kXSecTwkDial_BhtBYshape  ) : 
        fBhtBYTwkDial = twk_dial;
        break;
+     case ( kXSecTwkDial_CV1uBY      ) : 
      case ( kXSecTwkDial_CV1uBYshape ) : 
        fCV1uBYTwkDial = twk_dial;
        break;
+     case ( kXSecTwkDial_CV2uBY      ) : 
      case ( kXSecTwkDial_CV2uBYshape ) : 
        fCV2uBYTwkDial = twk_dial;
        break;
@@ -105,10 +128,24 @@ void GReWeightNuXSecDIS::Reconfigure(void)
 {
   GSystUncertainty * fracerr = GSystUncertainty::Instance();
 
-  double fracerr_aht  = fracerr->OneSigmaErr (kXSecTwkDial_AhtBYshape );
-  double fracerr_bht  = fracerr->OneSigmaErr (kXSecTwkDial_BhtBYshape );
-  double fracerr_cv1u = fracerr->OneSigmaErr (kXSecTwkDial_CV1uBYshape);
-  double fracerr_cv2u = fracerr->OneSigmaErr (kXSecTwkDial_CV2uBYshape);
+  double fracerr_aht  = 0.;
+  double fracerr_bht  = 0.;
+  double fracerr_cv1u = 0.;
+  double fracerr_cv2u = 0.;
+
+  if(fMode == kModeABCV12u) {
+      fracerr_aht  = fracerr->OneSigmaErr (kXSecTwkDial_AhtBY );
+      fracerr_bht  = fracerr->OneSigmaErr (kXSecTwkDial_BhtBY );
+      fracerr_cv1u = fracerr->OneSigmaErr (kXSecTwkDial_CV1uBY);
+      fracerr_cv2u = fracerr->OneSigmaErr (kXSecTwkDial_CV2uBY);
+  }
+  else
+  if(fMode == kModeABCV12uShape) {
+      fracerr_aht  = fracerr->OneSigmaErr (kXSecTwkDial_AhtBYshape );
+      fracerr_bht  = fracerr->OneSigmaErr (kXSecTwkDial_BhtBYshape );
+      fracerr_cv1u = fracerr->OneSigmaErr (kXSecTwkDial_CV1uBYshape);
+      fracerr_cv2u = fracerr->OneSigmaErr (kXSecTwkDial_CV2uBYshape);
+  }
 
   fAhtBYCur  = fAhtBYDef  * (1. + fAhtBYTwkDial  * fracerr_aht );
   fBhtBYCur  = fBhtBYDef  * (1. + fBhtBYTwkDial  * fracerr_bht );
@@ -129,6 +166,13 @@ void GReWeightNuXSecDIS::Reconfigure(void)
 //_______________________________________________________________________________________
 double GReWeightNuXSecDIS::CalcWeight(const genie::EventRecord & event) 
 {
+  bool tweaked = 
+      (TMath::Abs(fAhtBYTwkDial)  > controls::kASmallNum) ||
+      (TMath::Abs(fBhtBYTwkDial)  > controls::kASmallNum) ||
+      (TMath::Abs(fCV1uBYTwkDial) > controls::kASmallNum) ||
+      (TMath::Abs(fCV2uBYTwkDial) > controls::kASmallNum);
+  if(!tweaked) return 1.0;
+
   Interaction * interaction = event.Summary();
 
   bool is_dis = interaction->ProcInfo().IsDeepInelastic();
@@ -136,13 +180,6 @@ double GReWeightNuXSecDIS::CalcWeight(const genie::EventRecord & event)
 
   bool charm = event.Summary()->ExclTag().IsCharmEvent(); // skip DIS charm
   if(charm) return 1.;
-
-  bool tweaked = 
-      (TMath::Abs(fAhtBYTwkDial)  > controls::kASmallNum) ||
-      (TMath::Abs(fBhtBYTwkDial)  > controls::kASmallNum) ||
-      (TMath::Abs(fCV1uBYTwkDial) > controls::kASmallNum) ||
-      (TMath::Abs(fCV2uBYTwkDial) > controls::kASmallNum);
-  if(!tweaked) return 1.0;
 
   bool is_cc  = interaction->ProcInfo().IsWeakCC();
   bool is_nc  = interaction->ProcInfo().IsWeakNC();
@@ -165,19 +202,57 @@ double GReWeightNuXSecDIS::CalcWeight(const genie::EventRecord & event)
   // calculate weight
   //
 
+  if(fMode == kModeABCV12u) {
+     double wght = this->CalcWeightABCV12u(event);
+     return wght;
+  }
+  else
+  if(fMode == kModeABCV12uShape) {
+     double wght = this->CalcWeightABCV12uShape(event);
+     return wght;
+  }
+
+  return 1.;
+}
+//_______________________________________________________________________________________
+double GReWeightNuXSecDIS::CalcWeightABCV12u(const genie::EventRecord & event) 
+{
+  Interaction * interaction = event.Summary();
+
   interaction->KinePtr()->UseSelectedKinematics();
 
   double old_xsec   = event.DiffXSec();
   double old_weight = event.Weight();
-  double new_xsec   = fXSecModel->XSec(interaction, kPSxyfE);
-  double new_weight = old_weight * (new_xsec/old_xsec);
+  double twk_xsec   = fXSecModel->XSec(interaction, kPSxyfE);
+  double weight = old_weight * (twk_xsec/old_xsec);
 
   interaction->KinePtr()->ClearRunningValues();
 
-  return new_weight;
+  return weight;
 }
 //_______________________________________________________________________________________
-double GReWeightNuXSecDIS::CalcChisq()
+double GReWeightNuXSecDIS::CalcWeightABCV12uShape(const genie::EventRecord & event) 
+{
+  Interaction * interaction = event.Summary();
+
+  interaction->KinePtr()->UseSelectedKinematics();
+
+  double old_xsec   = event.DiffXSec();
+  double old_weight = event.Weight();
+  double twk_xsec   = fXSecModel->XSec(interaction, kPSxyfE);
+  double weight = old_weight * (twk_xsec/old_xsec);
+
+  double old_integrated_xsec = event.XSec();
+  double twk_integrated_xsec = fXSecModel->Integral(interaction);
+  assert(twk_integrated_xsec > 0);
+  weight *= (old_integrated_xsec/twk_integrated_xsec);
+
+  interaction->KinePtr()->ClearRunningValues();
+
+  return weight;
+}
+//_______________________________________________________________________________________
+double GReWeightNuXSecDIS::CalcChisq(void)
 {
   double chisq = 
       TMath::Power(fAhtBYTwkDial,  2.) +

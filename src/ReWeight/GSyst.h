@@ -42,17 +42,21 @@ typedef enum EGSyst {
   //
   //
 
+  // CCQE tweaking parameters:
   kXSecTwkDial_NormCCQE,          ///< tweak CCQE normalization
   kXSecTwkDial_MaCCQEshape,       ///< tweak Ma CCQE, affects dsigma(CCQE)/dQ2 - in shape only (normalized to constant integral)
   kXSecTwkDial_MaCCQE,            ///< tweak Ma CCQE, affects dsigma(CCQE)/dQ2 - both in shape and normalization
   kXSecTwkDial_VecFFCCQEshape,    ///< tweak elastic nucleon form factors (BBA/default -> dipole) - shape only effect of dsigma(CCQE)/dQ2
+  // CCRES tweaking parameters:
   kXSecTwkDial_NormCCRES,         ///< tweak CCRES normalization
   kXSecTwkDial_MaCCRESshape,      ///< tweak Ma CCRES, affects d2sigma(CCRES)/dWdQ2 - in shape only (normalized to constant integral)
   kXSecTwkDial_MvCCRESshape,      ///< tweak Mv CCRES, affects d2sigma(CCRES)/dWdQ2 - in shape only (normalized to constant integral)
   kXSecTwkDial_MaCCRES,           ///< tweak Ma CCRES, affects d2sigma(CCRES)/dWdQ2 - both in shape and normalization
   kXSecTwkDial_MvCCRES,           ///< tweak Mv CCRES, affects d2sigma(CCRES)/dWdQ2 - both in shape and normalization
+  // Coherent pion production tweaking parameters:
   kXSecTwkDial_MaCOHpi,           ///< tweak Ma for COH pion production
   kXSecTwkDial_R0COHpi,           ///< tweak R0 for COH pion production
+  // Non-resonance background tweaking parameters:
   kXSecTwkDial_RvpCC1pi,          ///< tweak the 1pi non-RES bkg in the RES region, for v+p CC
   kXSecTwkDial_RvpCC2pi,          ///< tweak the 2pi non-RES bkg in the RES region, for v+p CC
   kXSecTwkDial_RvpNC1pi,          ///< tweak the 1pi non-RES bkg in the RES region, for v+p NC
@@ -69,12 +73,20 @@ typedef enum EGSyst {
   kXSecTwkDial_RvbarnCC2pi,       ///< tweak the 2pi non-RES bkg in the RES region, for vbar+n CC
   kXSecTwkDial_RvbarnNC1pi,       ///< tweak the 1pi non-RES bkg in the RES region, for vbar+n NC
   kXSecTwkDial_RvbarnNC2pi,       ///< tweak the 2pi non-RES bkg in the RES region, for vbar+n NC
+  // DIS tweaking parameters - applied for DIS events with (Q2>Q2o, W>Wo), typically Q2o=1GeV^2, Wo=1.7-2.0GeV
+  kXSecTwkDial_AhtBY,             ///< tweak the Bodek-Yang model parameter A_{ht} - incl. both shape and normalization effect
+  kXSecTwkDial_BhtBY,             ///< tweak the Bodek-Yang model parameter B_{ht} - incl. both shape and normalization effect 
+  kXSecTwkDial_CV1uBY,            ///< tweak the Bodek-Yang model parameter CV1u - incl. both shape and normalization effect 
+  kXSecTwkDial_CV2uBY,            ///< tweak the Bodek-Yang model parameter CV2u - incl. both shape and normalization effect 
   kXSecTwkDial_AhtBYshape,        ///< tweak the Bodek-Yang model parameter A_{ht} - shape only effect to d2sigma(DIS)/dxdy
   kXSecTwkDial_BhtBYshape,        ///< tweak the Bodek-Yang model parameter B_{ht} - shape only effect to d2sigma(DIS)/dxdy
   kXSecTwkDial_CV1uBYshape,       ///< tweak the Bodek-Yang model parameter CV1u - shape only effect to d2sigma(DIS)/dxdy
   kXSecTwkDial_CV2uBYshape,       ///< tweak the Bodek-Yang model parameter CV2u - shape only effect to d2sigma(DIS)/dxdy
-  kXSecTwkDial_NormCCSafeDIS,     ///< tweak CC Safe (Q2>Q2o, W>Wo) DIS normalization, typically Q2o=1GeV^2, Wo=1.7-2.0GeV
+  kXSecTwkDial_NormDISCC,         ///< tweak the inclusive DIS CC normalization
+  kXSecTwkDial_RnubarnuCC,        ///< tweak the ratio of \sigma(\bar\nu CC) / \sigma(\nu CC)
   kXSecTwkDial_DISNuclMod,        ///< tweak DIS nuclear modification (shadowing, anti-shadowing, EMC)
+  //
+  kXSecTwkDial_NC,                ///< 
 
 
   //
@@ -170,11 +182,16 @@ public:
      case ( kXSecTwkDial_RvbarnCC2pi      ) : return "NonRESBGvbarpCC2pi";   break;
      case ( kXSecTwkDial_RvbarnNC1pi      ) : return "NonRESBGvbarpNC1pi";   break;
      case ( kXSecTwkDial_RvbarnNC2pi      ) : return "NonRESBGvbarpNC2pi";   break;
+     case ( kXSecTwkDial_AhtBY            ) : return "AhtBY";                break;
+     case ( kXSecTwkDial_BhtBY            ) : return "BhtBY";                break;
+     case ( kXSecTwkDial_CV1uBY           ) : return "CV1uBY";               break;
+     case ( kXSecTwkDial_CV2uBY           ) : return "CV2uBY";               break;
      case ( kXSecTwkDial_AhtBYshape       ) : return "AhtBYshape";           break;
      case ( kXSecTwkDial_BhtBYshape       ) : return "BhtBYshape";           break;
      case ( kXSecTwkDial_CV1uBYshape      ) : return "CV1uBYshape";          break;
      case ( kXSecTwkDial_CV2uBYshape      ) : return "CV2uBYshape";          break;
-     case ( kXSecTwkDial_NormCCSafeDIS    ) : return "NormCCSafeDIS";        break;
+     case ( kXSecTwkDial_NormDISCC        ) : return "NormDISCC";            break;
+     case ( kXSecTwkDial_RnubarnuCC       ) : return "RnubarnuCC";           break;
      case ( kXSecTwkDial_DISNuclMod       ) : return "DISNuclMod";           break;
      case ( kHadrAGKYTwkDial_xF1pi        ) : return "AGKYxF1pi";            break;
      case ( kHadrAGKYTwkDial_pT1pi        ) : return "AGKYpT1pi";            break;
