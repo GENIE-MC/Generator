@@ -80,8 +80,8 @@ void GReWeightAGKY::SetSystematic(GSyst_t syst, double twk_dial)
 //_______________________________________________________________________________________
 void GReWeightAGKY::Reset(void)
 {
-   fPeakBaryonXFTwkDial = 0.;
-   fAvgPT2TwkDial       = 0.;
+  fPeakBaryonXFTwkDial = 0.;
+  fAvgPT2TwkDial       = 0.;
 }
 //_______________________________________________________________________________________
 void GReWeightAGKY::Reconfigure(void)
@@ -90,7 +90,7 @@ void GReWeightAGKY::Reconfigure(void)
 }
 //_______________________________________________________________________________________
 double GReWeightAGKY::CalcWeight(const EventRecord & event) 
-{  
+{ 
   Interaction * interaction = event.Summary();
 
   bool is_cc  = interaction->ProcInfo().IsWeakCC();
@@ -132,43 +132,85 @@ double GReWeightAGKY::RewxFpT1pi(const EventRecord & event)
   // Did the hadronization code produced a `nucleon+pion' system?
   // If yes, keep the nucleon xF and pT (in HCM) for event reweighting.
   //
-  bool is_Npi = false;
-  TLorentzVector p4N(0.,0.,0.,0.);
 
-  //
-  // ...
-  // ...
-  // ...
-  //
-
-/*
   GHepParticle * p = 0;
   TIter event_iter(&event);
+  int i=-1, ihadsyst = -1;
   while ( (p = dynamic_cast<GHepParticle *>(event_iter.Next())) ) {
-	int imom = p->FirstMother();
-        if(imom==-1) continue;
-        if(event.Particle(imom)->Pdg() != kPdgHadronicSyst) continue;
-
+     i++;
+     if(p->Pdg() != kPdgHadronicSyst) continue;
+     ihadsyst = i;
+     break;
   }
-*/
+  if(ihadsyst<0) return 1.;
 
+  LOG("ReW", pDEBUG) 
+   << "Found HadronicSystem pseudo-particle at position = " << ihadsyst;
+
+  int fd = event.Particle(ihadsyst)->FirstDaughter();
+  int ld = event.Particle(ihadsyst)->LastDaughter();
+  int nd = ld-fd+1;
+
+  LOG("ReW", pDEBUG) 
+   << "HadronicSystem pseudo-particle's num. of daughters = " << nd
+   << " at positions (" << fd << ", " << ld << ")";
+
+  bool is_Npi = false;
+  int iN = -1;
+  if(nd==2) {
+    int fdpdg = event.Particle(fd)->Pdg();
+    int ldpdg = event.Particle(ld)->Pdg();
+    if( pdg::IsNucleon(fdpdg) && pdg::IsPion(ldpdg) ) {
+       is_Npi = true;
+       iN = fd;
+    }
+    else
+    if( pdg::IsNucleon(ldpdg) && pdg::IsPion(fdpdg) ) {
+       is_Npi = true;
+       iN = ld;
+    }
+  }
   if(!is_Npi) return 1.;
 
-  // Get the hadronic system 4-momentum and boost velocity (LAB -> HCM)
-  TLorentzVector p4hadsyst = utils::rew::Hadronic4pLAB(event);
-  TVector3 bv = -1 * p4hadsyst.BoostVector();
+  // Nucleon 4-momentum at LAB
+  GHepParticle * N = event.Particle(fd);
+  TLorentzVector p4N(N->Px(), N->Py(), N->Pz(), N->E());
+  TVector3 p3N = p4N.Vect();
+  LOG("ReW", pDEBUG)
+     << "4-p @ LAB: px = " << p4N.Px() << ",  py = " << p4N.Py()
+     << ", pz = " << p4N.Pz() << ",  E = " << p4N.Energy();
+
+  // Hadronic system 4-momentum
+  TLorentzVector p4had = utils::rew::Hadronic4pLAB(event);
+  TVector3 p3had = p4had.Vect();
+
+  // Nucleon 4-momentum at LAB' (LAB but with z' rotated 
+  // along the hadron shower direction)
+  double pTlabp = p3N.Pt(p3had);
+  double pLlabp = TMath::Sqrt(p3N.Mag2()-pTlabp*pTlabp);
+  double Elabp  = p4N.Energy();
+  TLorentzVector p4Nr(0,pTlabp,pLlabp,Elabp);
+
+  // Boost velocity (LAB' -> HCM)
+  TVector3 bv(0,0,-1.*p4had.P()/p4had.Energy());
+
+  // Nucleon 4-momentum at HCM
+  p4Nr.Boost(bv);
 
   // Get baryon xF and pT2 in HCM
-  double XF  = 0;
-  double PT2 = 0;
-  p4N.Boost(bv);
+  bool selected = true;
+  double W     = event.Summary()->Kine().W(selected);
+  double PZmax = W/2.;
+  double XF    = p4Nr.Pz() / PZmax;
+  double PT2   = p4Nr.Perp2();
   
-  // ...
-  // ...
-  // ...
+  LOG("ReW", pDEBUG) 
+     << "@ HCM: pT2 = " << PT2 << ", xF = " << XF;
 
+  //
   // Calculate event weight
-  
+  //
+
   GSystUncertainty * uncertainty = GSystUncertainty::Instance();
 
   double XFwght = 1.;
