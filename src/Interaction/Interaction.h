@@ -37,6 +37,8 @@
 using std::ostream;
 using std::string;
 
+class TRootIOCtor;
+
 namespace genie {
 
 const UInt_t kISkipProcessChk      = 1<<17; ///< if set, skip process validity checks
@@ -51,6 +53,7 @@ public:
   Interaction();
   Interaction(const InitialState & init, const ProcessInfo & proc);
   Interaction(const Interaction & i);
+  Interaction(TRootIOCtor*);
  ~Interaction();
 
   //-- Methods accessing aggregate/owned objects holding interaction information

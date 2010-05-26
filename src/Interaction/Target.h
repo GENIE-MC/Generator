@@ -31,6 +31,8 @@
 using std::ostream;
 using std::string;
 
+class TRootIOCtor;
+
 namespace genie {
 
 class Target : public TObject {
@@ -41,6 +43,7 @@ public:
   Target(int Z, int A);
   Target(int Z, int A, int hit_nucleon_pdgc);
   Target(const Target & tgt);
+  Target(TRootIOCtor*);
  ~Target();
 
   //-- Set target properties

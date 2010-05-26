@@ -5,7 +5,7 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - April 25, 2004
+         STFC, Rutherford Appleton Laboratory 
 
  For the class documentation see the corresponding header file.
 
@@ -36,11 +36,18 @@
  @ Oct 19, 2009 - CA
    Added RESEM() named ctors for charged lepton RES interactions.
  @ Dec 14, 2009 - CA
-   Added GLR() named ctors for Glashow resonance interactions
+   Added GLR() named ctors for Glashow resonance interactions.
+ @ May 05, 2010 - CR
+   Adding special ctor for ROOT I/O purposes so as to avoid memory leak due to
+   memory allocated in the default ctor when objects of this class are read by 
+   the ROOT Streamer. 
+
 */
 //____________________________________________________________________________
 
 #include <sstream>
+
+#include <TRootIOCtor.h>
 
 #include "Conventions/Constants.h"
 #include "Interaction/Interaction.h"
@@ -86,6 +93,17 @@ TObject()
 {
   this->Init();
   this->Copy(interaction);
+}
+//___________________________________________________________________________
+Interaction::Interaction(TRootIOCtor*) :
+TObject(),
+fInitialState(0), 
+fProcInfo(0),
+fKinematics(0), 
+fExclusiveTag(0), 
+fKinePhSp(0)
+{
+
 }
 //___________________________________________________________________________
 Interaction::~Interaction()

@@ -14,4 +14,6 @@
 #pragma link C++ class genie::XclsTag;
 #pragma link C++ class genie::KPhaseSpace;
 
+#pragma link C++ ioctortype TRootIOCtor;
+
 #endif

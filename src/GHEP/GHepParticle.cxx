@@ -18,6 +18,11 @@
    Added 'rescattering code' to allow intranuclear hadron transport MCs to
    store a hadronic reaction code which can not always be easily recreated
    from the particle list.
+ @ May 05, 2010 - CR
+   Adding special ctor for ROOT I/O purposes so as to avoid memory leak due to
+   memory allocated in the default ctor when objects of this class are read by 
+   the ROOT Streamer. 
+
 */
 //____________________________________________________________________________
 
@@ -26,6 +31,7 @@
 #include <iomanip>
 
 #include <TMath.h>
+#include <TRootIOCtor.h>
 
 #include "Conventions/GBuild.h"
 #include "Conventions/Constants.h"
@@ -118,6 +124,25 @@ TObject()
 {
   this->Init();
   this->Copy(particle);
+}
+//___________________________________________________________________________
+GHepParticle::GHepParticle(TRootIOCtor*) :
+TObject(),
+fPdgCode(0),
+fStatus(kIStUndefined),
+fRescatterCode(-1),
+fFirstMother(-1),
+fLastMother(-1),
+fFirstDaughter(-1),
+fLastDaughter(-1),
+fP4(0), 
+fX4(0),
+fPolzTheta(-999.),
+fPolzPhi(-999.),
+fRemovalEnergy(0),
+fIsBound(false)
+{
+
 }
 //___________________________________________________________________________
 GHepParticle::~GHepParticle()
