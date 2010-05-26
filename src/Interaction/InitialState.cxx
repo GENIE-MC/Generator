@@ -5,7 +5,7 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - May 02, 2004
+         STFC, Rutherford Appleton Laboratory 
 
  For the class documentation see the corresponding header file.
 
@@ -13,6 +13,10 @@
  @ Dec 03, 2007 - CA
    Assert that the hit nucleon is set when energy is requested at the hit 
    nucleon rest frame.
+ @ May 05, 2010 - CR
+   Adding special ctor for ROOT I/O purposes so as to avoid memory leak due to
+   memory allocated in the default ctor when objects of this class are read by 
+   the ROOT Streamer. 
 	
 */
 //____________________________________________________________________________
@@ -20,6 +24,8 @@
 #include <cassert>
 #include <sstream>
 #include <iomanip>
+
+#include <TRootIOCtor.h>
 
 #include "Interaction/InitialState.h"
 #include "Messenger/Messenger.h"
@@ -75,6 +81,16 @@ TObject()
 {
   this->Init();
   this->Copy(init_state);
+}
+//___________________________________________________________________________
+InitialState::InitialState(TRootIOCtor*) :
+TObject(),
+fProbePdg(0),
+fTgt(0), 
+fProbeP4(0), 
+fTgtP4(0)
+{
+
 }
 //___________________________________________________________________________
 InitialState::~InitialState()

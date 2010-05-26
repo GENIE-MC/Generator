@@ -23,6 +23,11 @@
  @ Sep 15, 2009 - CA
    IsNucleus() is no longer available in GHepParticle. Use pdg::IsIon().
    Print-out the particle 'rescattering code' (if it was set).
+ @ May 05, 2010 - CR
+   Adding special ctor for ROOT I/O purposes so as to avoid memory leak due to
+   memory allocated in the default ctor when objects of this class are read by 
+   the ROOT Streamer.
+
 */
 //____________________________________________________________________________
 
@@ -33,6 +38,7 @@
 #include <TLorentzVector.h>
 #include <TVector3.h>
 #include <TSystem.h>
+#include <TRootIOCtor.h>
 
 #include "Conventions/GBuild.h"
 #include "Conventions/Units.h"
@@ -81,6 +87,19 @@ TClonesArray("genie::GHepParticle", record.GetEntries())
 {
   this->InitRecord();
   this->Copy(record);
+}
+//___________________________________________________________________________
+GHepRecord::GHepRecord(TRootIOCtor*) :
+TClonesArray("genie::GHepParticle"),
+fInteraction(0),
+fVtx(0), 
+fEventFlags(0), 
+fWeight(0.),
+fProb(0.),
+fXSec(0.),
+fDiffXSec(0.)
+{
+
 }
 //___________________________________________________________________________
 GHepRecord::~GHepRecord()

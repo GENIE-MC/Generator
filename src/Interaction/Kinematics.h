@@ -29,6 +29,7 @@
 using std::map;
 using std::ostream;
 
+class TRootIOCtor;
 class TLorentzVector;
 
 namespace genie {
@@ -38,6 +39,7 @@ class Kinematics : public TObject {
 public:
   Kinematics();
   Kinematics(const Kinematics & kv);
+  Kinematics(TRootIOCtor*);
  ~Kinematics();
 
   double x       (bool selected=false) const;
