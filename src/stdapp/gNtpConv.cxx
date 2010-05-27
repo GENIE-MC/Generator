@@ -2468,23 +2468,31 @@ void ConvertToGhA(void)
   // Define summary ntuple
   //
 
-  int    brProbe;  ///<
-  int    brTgtA;   ///<
-  int    brTgtZ;   ///<
-  double brKE;     ///<
-  int    brFSI;    ///<
-  double brX0;     ///<
-  double brY0;     ///<
-  double brZ0;     ///<
+  int    brProbe;  ///< incoming hadron
+  int    brTgtA;   ///< nuclear target A
+  int    brTgtZ;   ///< nuclear target Z
+  double brKE;     ///< hadron kinetic energy
+  int    brFSI;    ///< hadron interaction code
+  double brX0;     ///< incoming hadron x position (at nucleus periphery)
+  double brY0;     ///< incoming hadron y position (at nucleus periphery)
+  double brZ0;     ///< incoming hadron z position (at nucleus periphery)
+  double brXi;     ///< interacting hadron x position (inside the nucleus, if an interaction took place)
+  double brYi;     ///< interacting hadron x position (inside the nucleus, if an interaction took place)
+  double brZi;     ///< interacting hadron x position (inside the nucleus, if an interaction took place)
+  double brDist;   ///< distance travelled by hadron within target nucleus before interacting or escaping
 
   s_tree->Branch("probe",  &brProbe,  "probe/I"); 
   s_tree->Branch("A",      &brTgtA,   "A/I"); 
   s_tree->Branch("Z",      &brTgtZ,   "Z/I"); 
   s_tree->Branch("ke",     &brKE,     "ke/D");  
-  s_tree->Branch("fsi",    &brFSI,    "ke/I");  
+  s_tree->Branch("fsi",    &brFSI,    "fsi/I");  
   s_tree->Branch("x0",     &brX0,     "x0/D");  
   s_tree->Branch("y0",     &brY0,     "y0/D");  
   s_tree->Branch("z0",     &brZ0,     "z0/D");  
+  s_tree->Branch("xi",     &brXi,     "xi/D");  
+  s_tree->Branch("yi",     &brYi,     "yi/D");  
+  s_tree->Branch("zi",     &brZi,     "zi/D");  
+  s_tree->Branch("dist",   &brDist,   "dist/D");  
 
   //
   // Open the input ROOT file and get the event tree & its header
@@ -2532,30 +2540,27 @@ void ConvertToGhA(void)
     LOG("gntpc", pINFO) << event;
 
     //
-    // Particle loop
+    // Fill in summary ntuple
     //
 
-    unsigned int ip=0;
-    GHepParticle * p = 0;
-    TIter event_iter(&event);
-    while ( (p = dynamic_cast<GHepParticle *>(event_iter.Next())) ) {
-      if(ip==0) {
-        brProbe  = p->Pdg();
-        brKE     = p->KinE();
-        brFSI    = p->RescatterCode();
-        brX0     = p->Vx();
-        brY0     = p->Vy();
-        brZ0     = p->Vz();
-      }
-      if(ip==1) {
-       brTgtZ = pdg::IonPdgCodeToZ(p->Pdg());
-       brTgtA = pdg::IonPdgCodeToA(p->Pdg());
-      }
-      if(ip>1) break;
-      ip++;
-    }
+    GHepParticle * pprobe = event.Particle(0);
+    GHepParticle * ptgt   = event.Particle(1);
+    GHepParticle * presc  = event.Particle(2);
 
-    // fill-in output ntuple for current event
+    brProbe  = pprobe->Pdg();
+    brKE     = pprobe->KinE();
+    brFSI    = pprobe->RescatterCode();
+    brX0     = pprobe->Vx();
+    brY0     = pprobe->Vy();
+    brZ0     = pprobe->Vz();
+    brTgtZ   = pdg::IonPdgCodeToZ(ptgt->Pdg());
+    brTgtA   = pdg::IonPdgCodeToA(ptgt->Pdg());
+    brXi     = presc->Vx();
+    brYi     = presc->Vy();
+    brZi     = presc->Vz();
+    brDist   = TMath::Sqrt( TMath::Power(brX0-brXi, 2.) +
+                            TMath::Power(brY0-brYi, 2.) +
+                            TMath::Power(brZ0-brZi, 2.) );
     s_tree->Fill();
 
     // clean-up
