@@ -23,7 +23,6 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "    lowlevel-mesg     Disable (rather than filter out at run time) prolific    default: disabled \n";
   print "                      debug/info level messages known to slow GENIE down       \n";
   print "    debug             Adds -g in the compiler options to request debug info    default: disabled \n";
-  print "    neut-cascade      Alt. intranuclear hadron transport MC, requires NEUT     default: disabled (T2K internal) \n";
   print "    lhapdf            Use the LHAPDF parton density function library           default: enabled  \n";
   print "    cernlib           Use the CERN libraries                                   default: disabled (CERNLIBs to be phased-out. Please use LHAPDF instead)\n";
   print "    flux-drivers      Built-in flux drivers                                    default: enabled  \n";
@@ -42,7 +41,6 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "    optimiz-level     Compiler optimization        any of O,O2,O3,OO,Os / default: O2 \n";
   print "    profiler-lib      Path to profiler library     needed if you --enable-profiler \n";
   print "    doxygen-path      Doxygen binary path          needed if you --enable-doxygen-doc  (if unset: checks for a \$DOXYGENPATH env.var.) \n";
-  print "    neut-lib          Path to the NEUT libraries   needed if you --enable-neut-cascade (if unset: checks for a \$NEUT_LIB env.var.) \n";
   print "    pythia6-lib       PYTHIA6 library path         always needed                       (if unset: checks for a \$PYTHIA6 env.var.,    then tries to auto-detect it) \n";
   print "    cern-lib          CERN libraries path          needed if you --enable-cernlib      (if unset: checks for a \$CERNLIB env.var.,    then tries to auto-detect it) \n";
   print "    lhapdf-inc        Path to LHAPDF includes      needed if you --enable-lhapdf       (if unset: checks for a \$LHAPDF_INC env.var., then tries to auto-detect it) \n";
@@ -122,7 +120,6 @@ my $gopt_enable_doxygen_doc      = "NO";
 my $gopt_enable_dylibversion     = "YES";
 my $gopt_enable_lowlevel_mesg    = "NO";
 my $gopt_enable_debug            = "NO";
-my $gopt_enable_neut_cascade     = "NO";
 my $gopt_enable_lhapdf           = "YES";
 my $gopt_enable_cernlib          = "NO";
 my $gopt_enable_flux_drivers     = "YES";
@@ -145,7 +142,6 @@ if(($match = grep(/--enable-doxygen-doc/i,      @ARGV)) > 0) { $gopt_enable_doxy
 if(($match = grep(/--disable-dylibversion/i,    @ARGV)) > 0) { $gopt_enable_dylibversion     = "NO";  }
 if(($match = grep(/--enable-lowlevel-mesg/i,    @ARGV)) > 0) { $gopt_enable_lowlevel_mesg    = "YES"; }
 if(($match = grep(/--enable-debug/i,            @ARGV)) > 0) { $gopt_enable_debug            = "YES"; }
-if(($match = grep(/--enable-neut-cascade/i,     @ARGV)) > 0) { $gopt_enable_neut_cascade     = "YES"; }
 if(($match = grep(/--disable-lhapdf/i,          @ARGV)) > 0) { $gopt_enable_lhapdf           = "NO";  }
 if(($match = grep(/--enable-cernlib/i ,         @ARGV)) > 0) { $gopt_enable_cernlib          = "YES"; }
 if(($match = grep(/--disable-flux-drivers/i,    @ARGV)) > 0) { $gopt_enable_flux_drivers     = "NO";  }
@@ -225,42 +221,6 @@ if($gopt_enable_doxygen_doc eq "YES") {
      print "*** Error *** You need to specify the path to doxygen using --with-doxygen-path=/some/path/\n";
      print "*** Error *** Otherwise, you should --disable-doxygen-doc\n\n";
      exit 1;
-  }
-}
-
-# If --enable-neut-cascade was set then the full path to the NEUT libraries must be specified
-#
-my $gopt_with_neut_lib = "";
-if($gopt_enable_neut_cascade eq "YES") {
-  if(($match = grep(/--with-neut-lib/i, @ARGV)) > 0) { 
-    $options=~m/--with-neut-lib=(\S*)/i;
-    $gopt_with_neut_lib = $1;
-  }
-  # if it was not set, try to pick it up from the environment
-  if($gopt_with_neut_lib eq "" && defined $ENV{'NEUT_LIB'}) { $gopt_with_neut_lib = $ENV{'NEUT_LIB'}; }
-  # check
-  my @libs = `ls $gopt_with_neut_lib`;
-  my %libs_found = (
-        'libneutcore'   => 0,
-        'libnuccorrspl' => 0,
-        'libnuceff'     => 0,
-        'libpartnuck'   => 0,
-        'libskmcsvc'    => 0  );
-  foreach(@libs) {
-     chomp($_);
-     if ( m/libneutcore/i   ) { $libs_found{'libneutcore'}   = 1; } #print "Found NEUT library: $_ \n"; }
-     if ( m/libnuccorrspl/i ) { $libs_found{'libnuccorrspl'} = 1; } #print "Found NEUT library: $_ \n"; }
-     if ( m/libnuceff/i     ) { $libs_found{'libnuceff'}     = 1; } #print "Found NEUT library: $_ \n"; }
-     if ( m/libpartnuck/i   ) { $libs_found{'libpartnuck'}   = 1; } #print "Found NEUT library: $_ \n"; }
-     if ( m/libskmcsvc/i    ) { $libs_found{'libskmcsvc'}    = 1; } #print "Found NEUT library: $_ \n"; }
-  }
-  for my $lib_key (keys %libs_found) {
-    my $found = $libs_found{$lib_key};
-    if ($found == 0) {
-       print "*** Error *** You need to specify the path to the NEUT $lib_key.<version>.a library using --with-neut-lib=/some/path/\n";
-       print "*** Error *** Otherwise, you should --disable-neut-cascade\n\n";
-       exit 1;
-    }
   }
 }
 
@@ -520,7 +480,6 @@ print MKCONF "GOPT_ENABLE_PROFILER=$gopt_enable_profiler\n";
 print MKCONF "GOPT_ENABLE_DOXYGEN_DOC=$gopt_enable_doxygen_doc\n"; 
 print MKCONF "GOPT_ENABLE_DYLIBVERSION=$gopt_enable_dylibversion\n";
 print MKCONF "GOPT_ENABLE_LOW_LEVEL_MESG=$gopt_enable_lowlevel_mesg\n";
-print MKCONF "GOPT_ENABLE_NEUT_CASCADE=$gopt_enable_neut_cascade\n";
 print MKCONF "GOPT_ENABLE_LHAPDF=$gopt_enable_lhapdf\n";
 print MKCONF "GOPT_ENABLE_CERNLIB=$gopt_enable_cernlib\n";
 print MKCONF "GOPT_ENABLE_FLUX_DRIVERS=$gopt_enable_flux_drivers\n";
@@ -539,7 +498,6 @@ print MKCONF "GOPT_WITH_CXX_DEBUG_FLAG=$gopt_with_cxx_debug_flag\n";
 print MKCONF "GOPT_WITH_CXX_OPTIMIZ_FLAG=-$gopt_with_cxx_optimiz_flag\n";
 print MKCONF "GOPT_WITH_PROFILER_LIB=$gopt_with_profiler_lib\n";
 print MKCONF "GOPT_WITH_DOXYGEN_PATH=$gopt_with_doxygen_path\n";
-print MKCONF "GOPT_WITH_NEUT_LIB=$gopt_with_neut_lib\n";
 print MKCONF "GOPT_WITH_PYTHIA6_LIB=$gopt_with_pythia6_lib\n";
 print MKCONF "GOPT_WITH_CERN_LIB=$gopt_with_cern_lib\n";
 print MKCONF "GOPT_WITH_LHAPDF_LIB=$gopt_with_lhapdf_lib\n";
