@@ -41,21 +41,15 @@ public:
   GSystSet(const GSystSet & syst_set);
  ~GSystSet();
 
-  void    Include      (GSyst_t syst);
-  void    Remove       (GSyst_t syst);
-  int     NIncluded    (void) const;
-  bool    IsIncluded   (GSyst_t syst) const;
-  double  CurValue     (GSyst_t syst) const;
-  double  InitValue    (GSyst_t syst) const;
-  double  MinValue     (GSyst_t syst) const;
-  double  MaxValue     (GSyst_t syst) const;
-  double  Step         (GSyst_t syst) const;
-  void    SetCurValue  (GSyst_t syst, double val);
-  void    SetInitValue (GSyst_t syst, double val);
-  void    SetRange     (GSyst_t syst, double min, double max);
-  void    SetStep      (GSyst_t syst, double step);
-  void    PrintSummary (void);
-  void    Copy         (const GSystSet & syst_set);
+  void Init    (GSyst_t syst, double init=0., double min=-1., double max=+1., double step=0.05);
+  void Remove  (GSyst_t syst);
+  void Set     (GSyst_t syst, double current_value);
+  int  Size    (void) const;
+  bool Added   (GSyst_t syst) const;
+  void Print   (void);
+  void Copy    (const GSystSet & syst_set);
+
+  const GSystInfo * Info(GSyst_t syst) const;
 
   vector<genie::rew::GSyst_t> AllIncluded (void);
 

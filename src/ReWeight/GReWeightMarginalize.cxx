@@ -73,24 +73,24 @@ double genie::rew::margin::MarginalizeFates(
   genie::rew::GSyst_t cushion_term = kNullSystematic;
 
   if(is_pion_fate) {
-     systematics.Include ( genie::rew::kINukeTwkDial_FrCEx_pi    );
-     systematics.Include ( genie::rew::kINukeTwkDial_FrInel_pi   );
-     systematics.Include ( genie::rew::kINukeTwkDial_FrAbs_pi    );
-     systematics.Include ( genie::rew::kINukeTwkDial_FrPiProd_pi );
+     systematics.Init ( genie::rew::kINukeTwkDial_FrCEx_pi    );
+     systematics.Init ( genie::rew::kINukeTwkDial_FrInel_pi   );
+     systematics.Init ( genie::rew::kINukeTwkDial_FrAbs_pi    );
+     systematics.Init ( genie::rew::kINukeTwkDial_FrPiProd_pi );
      cushion_term = genie::rew::kINukeTwkDial_FrElas_pi;
   } 
   else
   if(is_nucleon_fate) {
-     systematics.Include ( genie::rew::kINukeTwkDial_FrCEx_N    );
-     systematics.Include ( genie::rew::kINukeTwkDial_FrInel_N   );
-     systematics.Include ( genie::rew::kINukeTwkDial_FrAbs_N    );
-     systematics.Include ( genie::rew::kINukeTwkDial_FrPiProd_N );
+     systematics.Init ( genie::rew::kINukeTwkDial_FrCEx_N    );
+     systematics.Init ( genie::rew::kINukeTwkDial_FrInel_N   );
+     systematics.Init ( genie::rew::kINukeTwkDial_FrAbs_N    );
+     systematics.Init ( genie::rew::kINukeTwkDial_FrPiProd_N );
      cushion_term = genie::rew::kINukeTwkDial_FrElas_N;
   }
 
   RandomGen * rnd = RandomGen::Instance();
 
-  systematics.SetCurValue (fixed_fate, fixed_dial);
+  systematics.Set(fixed_fate, fixed_dial);
 
   double tot_wgt = 0;
   int itry=0;
@@ -104,7 +104,7 @@ double genie::rew::margin::MarginalizeFates(
         genie::rew::GSyst_t syst = genie::rew::GSyst::NextPionFateSystematic(i);
         if(syst == fixed_fate  ) continue;
         if(syst == cushion_term) continue;
-        systematics.SetCurValue(syst, rnd->RndGen().Gaus(0,1));
+        systematics.Set(syst, rnd->RndGen().Gaus(0,1));
       }
     } 
     else
@@ -113,7 +113,7 @@ double genie::rew::margin::MarginalizeFates(
         genie::rew::GSyst_t syst = genie::rew::GSyst::NextNuclFateSystematic(i);
         if(syst == fixed_fate  ) continue;
         if(syst == cushion_term) continue;
-        systematics.SetCurValue(syst, rnd->RndGen().Gaus(0,1));
+        systematics.Set(syst, rnd->RndGen().Gaus(0,1));
       }
     }
 

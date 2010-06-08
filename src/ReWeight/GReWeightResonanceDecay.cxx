@@ -146,6 +146,8 @@ double GReWeightResonanceDecay::RewBR(const EventRecord & event)
 
   GSystUncertainty * uncertainty = GSystUncertainty::Instance();
 
+  LOG("ReW", pDEBUG) << "Checking resonance decay mode.";
+
   GHepParticle * p = 0;
   TIter iter(&event);
   while((p=(GHepParticle*)iter.Next())) {
@@ -161,6 +163,13 @@ double GReWeightResonanceDecay::RewBR(const EventRecord & event)
       }//i
       bool is_1gamma = (ngamma==1);
       bool is_1eta   = (neta  ==1);
+
+      if(is_1gamma) {
+         LOG("ReW", pDEBUG) << "A resonance -> X + 1gamma event";
+      }
+      if(is_1eta) {
+         LOG("ReW", pDEBUG) << "A resonance -> X + 1eta event";
+      }
 
       //
       // For Resonance -> X + gamma, tweak the branching ratio as:
