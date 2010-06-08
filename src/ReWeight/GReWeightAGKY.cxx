@@ -20,6 +20,8 @@
 #include <TLorentzVector.h>
 #include <TF1.h>
 #include <TMath.h>
+#include <TFile.h>
+#include <TNtupleD.h>
 
 #include "Conventions/Controls.h"
 #include "EVGCore/EventRecord.h"
@@ -29,6 +31,8 @@
 #include "ReWeight/GReWeightAGKY.h"
 #include "ReWeight/GReWeightUtils.h"
 #include "ReWeight/GSystUncertainty.h"
+
+//#define _G_REWEIGHT_AGKY_DEBUG_
 
 using namespace genie;
 using namespace genie::rew;
@@ -46,6 +50,15 @@ GReWeightAGKY::~GReWeightAGKY()
   delete fBaryonPT2pdf; 
   delete fBaryonXFpdfTwk;
   delete fBaryonPT2pdfTwk;
+
+#ifdef _G_REWEIGHT_AGKY_DEBUG_
+  fTestFile->cd();
+  fTestNtp ->Write(); 
+  //fBaryonXFpdf->Write("xf");
+  //fBaryonXFpdfTwk->Write("xftwk");
+  fTestFile->Close();
+  delete fTestFile;
+#endif
 }
 //_______________________________________________________________________________________
 bool GReWeightAGKY::IsHandled(GSyst_t syst)
@@ -172,6 +185,9 @@ double GReWeightAGKY::RewxFpT1pi(const EventRecord & event)
   }
   if(!is_Npi) return 1.;
 
+  LOG("ReW", pDEBUG) 
+      << "A DIS event with a 'nucleon+pion' primary hadronic state";
+
   // Nucleon 4-momentum at LAB
   GHepParticle * N = event.Particle(fd);
   TLorentzVector p4N(N->Px(), N->Py(), N->Pz(), N->E());
@@ -250,6 +266,11 @@ double GReWeightAGKY::RewxFpT1pi(const EventRecord & event)
   }
 
   double wght = PT2wght * XFwght;
+
+#ifdef _G_REWEIGHT_AGKY_DEBUG_
+  fTestNtp->Fill(W,XF,PT2,XFwght,PT2wght);
+#endif
+
   return wght;
 }
 //_______________________________________________________________________________________
@@ -305,6 +326,11 @@ void GReWeightAGKY::Init(void)
   // init tweaking dials
   fPeakBaryonXFTwkDial = 0.;
   fAvgPT2TwkDial       = 0.;
+
+#ifdef _G_REWEIGHT_AGKY_DEBUG_
+  fTestFile = new TFile("./agky_reweight_test.root","recreate");
+  fTestNtp  = new TNtupleD("testntp","","W:xF:pT2:xFwght:pT2wght");
+#endif   
 }
 //_______________________________________________________________________________________
 
