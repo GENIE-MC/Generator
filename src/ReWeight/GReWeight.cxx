@@ -83,7 +83,7 @@ void GReWeight::Reconfigure(void)
       vector<genie::rew::GSyst_t>::const_iterator parm_iter = svec.begin();
       for( ; parm_iter != svec.end(); ++parm_iter) {
           GSyst_t syst = *parm_iter;
-          double val = fSystSet.CurValue(syst);
+          double val = fSystSet.Info(syst)->CurValue;
           wcalc->SetSystematic(syst, val);
       }//params
 
@@ -149,7 +149,7 @@ void GReWeight::Print()
   for(int i = 0 ; i < vec_size ; i ++){
      LOG("ReW", pNOTICE) 
         << " --o "  << GSyst::AsString(syst_vec[i])
-        << " is set at " << this->Systematics().CurValue(syst_vec[i]);
+        << " is set at " << this->Systematics().Info(syst_vec[i])->CurValue;
   }		       	        
 
   double chi2val = this->CalcChisq();

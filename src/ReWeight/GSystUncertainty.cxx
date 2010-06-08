@@ -95,7 +95,7 @@ void GSystUncertainty::SetDefaults(void)
   m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_RvbarnNC1pi,    0.50));
   m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_RvbarnNC2pi,    0.50));
 
-  // from Debdatta's thesis: 
+  // From Debdatta's thesis: 
   //   Aht  = 0.538 +/- 0.134	
   //   Bht  = 0.305 +/- 0.076
   //   CV1u = 0.291 +/- 0.087
@@ -116,6 +116,9 @@ void GSystUncertainty::SetDefaults(void)
   m.insert(map<GSyst_t,double>::value_type(kHadrAGKYTwkDial_xF1pi,      0.20));
   m.insert(map<GSyst_t,double>::value_type(kHadrAGKYTwkDial_pT1pi,      0.03));
   m.insert(map<GSyst_t,double>::value_type(kHadrNuclTwkDial_FormZone,   0.50));
+
+  // From INTRANUKE pi+A and N+A mode comparisons with hadron scattering data:
+  //
   m.insert(map<GSyst_t,double>::value_type(kINukeTwkDial_MFP_pi,        0.20));
   m.insert(map<GSyst_t,double>::value_type(kINukeTwkDial_MFP_N,         0.20));
   m.insert(map<GSyst_t,double>::value_type(kINukeTwkDial_FrCEx_pi,      0.50));
@@ -128,5 +131,9 @@ void GSystUncertainty::SetDefaults(void)
   m.insert(map<GSyst_t,double>::value_type(kINukeTwkDial_FrInel_N,      0.40));
   m.insert(map<GSyst_t,double>::value_type(kINukeTwkDial_FrAbs_N,       0.20));
   m.insert(map<GSyst_t,double>::value_type(kINukeTwkDial_FrPiProd_N,    0.20));
+
+  m.insert(map<GSyst_t,double>::value_type(kRDcyTwkDial_BR1gamma,       0.50));
+  m.insert(map<GSyst_t,double>::value_type(kRDcyTwkDial_BR1eta,         0.50));
+
 }
 //____________________________________________________________________________
