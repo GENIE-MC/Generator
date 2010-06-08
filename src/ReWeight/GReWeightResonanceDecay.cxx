@@ -16,6 +16,8 @@
 */
 //____________________________________________________________________________
 
+#include <TFile.h>
+#include <TNtupleD.h>
 #include <TH1D.h>
 #include <TParticlePDG.h>
 #include <TDecayChannel.h>
@@ -30,6 +32,8 @@
 #include "ReWeight/GReWeightResonanceDecay.h"
 #include "ReWeight/GSystUncertainty.h"
 
+#define _G_REWEIGHT_RESDEC_DEBUG_
+
 using namespace genie;
 using namespace genie::rew;
 
@@ -42,7 +46,12 @@ GReWeightI()
 //_______________________________________________________________________________________
 GReWeightResonanceDecay::~GReWeightResonanceDecay()
 {
-
+#ifdef _G_REWEIGHT_RESDEC_DEBUG_
+  fTestFile->cd();
+  fTestNtp ->Write();
+  fTestFile->Close();
+  delete fTestFile;  
+#endif
 }
 //_______________________________________________________________________________________
 bool GReWeightResonanceDecay::IsHandled(GSyst_t syst)
@@ -182,6 +191,30 @@ double GReWeightResonanceDecay::RewBR(const EventRecord & event)
       }
       // Similarly for Resonance -> X + eta
       //
+      if(tweaked_br1eta) {
+        double frerr = uncertainty->OneSigmaErr(kRDcyTwkDial_BR1eta);
+        double dial  = fBR1etaTwkDial;
+        double w = (1. + dial*frerr);
+        w = TMath::Max(0.,w);
+        TH1D * brfw  = fMpBR1etaDef[p->Pdg()];
+        double mass = p->P4()->M();
+        mass = TMath::Min(mass, brfw->GetXaxis()->GetXmax());
+        int ibin = brfw->FindBin(mass);
+        double brdef = brfw->GetBinContent(ibin);
+        double brtwk = brdef*w;
+        if(brtwk>1) {
+         brtwk = 1.;
+         w = brtwk/brdef;
+        }
+        if(is_1eta) {
+         wght *= w;
+        } else {         
+         wght *= ((1-brtwk)/(1-brdef));
+        }
+      }
+      // Similarly for other modes with tweaked BRs
+      //
+      //...
       //...
 
     }//res?
@@ -221,37 +254,58 @@ double GReWeightResonanceDecay::RewThetaDelta2Npi(const EventRecord & event)
 
   if(!is_Deltapp_1pi) return 1.;
 
-  LOG("ReW", pFATAL) << "A Delta++ -> p pi+ event:";
-  LOG("ReW", pFATAL) << "Resonance is at position: " << ir;
-  LOG("ReW", pFATAL) << "Pion is at position: " << ip;
+  LOG("ReW", pDEBUG) << "A Delta++ -> p pi+ event:";
+  LOG("ReW", pDEBUG) << "Resonance is at position: " << ir;
+  LOG("ReW", pDEBUG) << "Pion is at position: " << ip;
 //LOG("ReW", pDEBUG) << event;
 
+  // Get Delta and pi+ 4-momentum vectors
+  TLorentzVector p4res(*event.Particle(ir)->P4());
+  TLorentzVector p4pip(*event.Particle(ip)->P4());
 
-  const TVector3 & p3r = event.Particle(ir)->P4()->Vect();
-  const TVector3 & p3p = event.Particle(ip)->P4()->Vect();
+  // Boost pi+ to the Delta CM
+  TVector3 bv = -1*p4res.BoostVector();
+  p4pip.Boost(bv);
 
-  double theta = p3p.Angle(p3r);
-  LOG("ReW", pFATAL) 
-    << "Pion momentum, wrt to Delta momentum, has an angle of " << theta << " rad";
+  //
+  // Calculate weight.
+  // Angular distribution for pi+, given 2 possible sub-states mi=1/2,3/2
+  // is: Wpi(theta) = 1 - p(3/2)*P2(costheta) + p(1/2)*P2(costheta).
+  // mi is the projection of Delta momentum along quantization axis.
+  // P2(costheta) is the 2nd order Legendre polynomial.
+  // Isotropy implies equal populations: p(3/2)=p(1/2)=1
+  // R/S predict: p(3/2)=0.75, p(1/2)=0.5
+  // The above follow the notation used in Sam Zeller's invited talk in a 
+  // MINOS Physics Simulation mtg on Sep 28th, 2007.
+  // Sam's talk cited a paper by G.Garvey and O.Lalakulich which I haven't
+  // been able to locate.
+  //
 
   double p32iso   = 0.50;
   double p12iso   = 0.50;
   double p32rs    = 0.75;
   double p12rs    = 0.25;
-  double costheta = TMath::Cos(theta);
+  double costheta = p4pip.Vect().CosTheta();
   double P2       = 0.5 * (3.*costheta*costheta - 1.);
-  double Wiso     = 1.;
-  double Wrs      = 1 - p32rs * P2 + p12rs * P2;
+  double Wiso     = 1 - p32iso * P2 + p12iso * P2; // = 1.0
+  double Wrs      = 1 - p32rs  * P2 + p12rs  * P2;
   double dial     = fThetaDelta2NpiTwkDial;
   double Wdef     = Wiso;
   double Wtwk     = dial*Wrs + (1-dial)*Wiso;
 
+  double wght = 1.;
   if(Wdef>0. && Wtwk>0.) {
-    double wght = Wtwk/Wdef;
-    return wght;
+     wght = Wtwk/Wdef;
   }
 
-  return 1.;
+  LOG("ReW", pDEBUG) 
+       << "Pion Cos(ThetaCM) = " << costheta << ", weight = " << wght;
+
+#ifdef _G_REWEIGHT_RESDEC_DEBUG_
+  fTestNtp->Fill(costheta,wght);
+#endif
+
+  return wght;
 }
 //_______________________________________________________________________________________
 void GReWeightResonanceDecay::Init(void)
@@ -330,5 +384,9 @@ void GReWeightResonanceDecay::Init(void)
     }//decay channels
   }//resonances
 
+#ifdef _G_REWEIGHT_RESDEC_DEBUG_
+  fTestFile = new TFile("./resdec_reweight_test.root","recreate");
+  fTestNtp  = new TNtupleD("testntp","","costheta:wght");
+#endif
 }
 //_______________________________________________________________________________________

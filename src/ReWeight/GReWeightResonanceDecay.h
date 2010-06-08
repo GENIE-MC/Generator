@@ -27,6 +27,8 @@
 #include "ReWeight/GReWeightI.h"
 
 class TH1D;
+class TNtupleD;
+class TFile;
 
 using std::map;
 
@@ -78,6 +80,8 @@ namespace rew   {
    map<int, TH1D*> fMpBR1gammaDef; // resonance pdg -> X + 1gamma, default BR = f(W)
    map<int, TH1D*> fMpBR1etaDef;   // resonance pdg -> X + 1eta,   default BR = f(W)
 
+   TFile *    fTestFile;
+   TNtupleD * fTestNtp;
  };
 
 } // rew
