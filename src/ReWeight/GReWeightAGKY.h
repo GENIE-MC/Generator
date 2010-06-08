@@ -28,6 +28,8 @@ using namespace genie::rew;
 using namespace genie;
 
 class TF1;
+class TFile;
+class TNtupleD;
 
 namespace genie {
 namespace rew   {
@@ -78,6 +80,8 @@ namespace rew   {
    double fPeakBaryonXFTwkDial; ///<
    double fAvgPT2TwkDial;       ///<
 
+   TFile *    fTestFile;
+   TNtupleD * fTestNtp;
  };
 
 } // rew
