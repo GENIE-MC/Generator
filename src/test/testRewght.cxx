@@ -104,24 +104,9 @@ int main(int argc, char ** argv)
   rw.AdoptWghtCalc( "hadro_agky",      new GReWeightAGKY            );
 
   //
-  // Include a list of systematic parameters (more to be found at
-  // GSyst.h). Weight calculators included above must be able to handle
-  // the parameters included below.
-  //
-
-  GSystSet & syst = rw.Systematics();
-  syst.Include(kXSecTwkDial_NormCCQE    );
-  syst.Include(kXSecTwkDial_MaCCQEshape );
-  syst.Include(kXSecTwkDial_NormCCRES   );
-  syst.Include(kXSecTwkDial_MaCCRESshape);
-  syst.Include(kXSecTwkDial_RvpCC1pi    );
-  syst.Include(kXSecTwkDial_RvnCC1pi    );
-  syst.Include(kXSecTwkDial_MaCOHpi     );
-  syst.Include(kINukeTwkDial_MFP_pi     );
-  syst.Include(kINukeTwkDial_MFP_N      );
-
-  //
-  // Set non-default values and re-configure.
+  // Create a list of systematic params (more to be found at GSyst.h)
+  // set non-default values and re-configure.
+  // Weight calculators included above must be able to handle the tweaked params.
   // Each tweaking dial t modifies a physics parameter p as:
   // p_{tweaked} = p_{default} ( 1 + t * dp/p )
   // So setting a tweaking dial to +/-1 modifies a physics quantity
@@ -130,15 +115,17 @@ int main(int argc, char ** argv)
   // and can be overriden.
   //
 
-  syst.SetCurValue(kXSecTwkDial_NormCCQE,     +1.0);
-  syst.SetCurValue(kXSecTwkDial_MaCCQEshape,  +1.0);
-  syst.SetCurValue(kXSecTwkDial_NormCCRES,    -1.0);
-  syst.SetCurValue(kXSecTwkDial_MaCCRESshape, -1.0);
-  syst.SetCurValue(kXSecTwkDial_RvpCC1pi,     +0.5);
-  syst.SetCurValue(kXSecTwkDial_RvnCC1pi,     +0.5);
-  syst.SetCurValue(kXSecTwkDial_MaCOHpi,      -0.5);
-  syst.SetCurValue(kINukeTwkDial_MFP_pi,      +1.0);
-  syst.SetCurValue(kINukeTwkDial_MFP_N,       -1.0);
+  GSystSet & syst = rw.Systematics();
+
+  syst.Set(kXSecTwkDial_NormCCQE,     +1.0);
+  syst.Set(kXSecTwkDial_MaCCQEshape,  +1.0);
+  syst.Set(kXSecTwkDial_NormCCRES,    -1.0);
+  syst.Set(kXSecTwkDial_MaCCRESshape, -1.0);
+  syst.Set(kXSecTwkDial_RvpCC1pi,     +0.5);
+  syst.Set(kXSecTwkDial_RvnCC1pi,     +0.5);
+  syst.Set(kXSecTwkDial_MaCOHpi,      -0.5);
+  syst.Set(kINukeTwkDial_MFP_pi,      +1.0);
+  syst.Set(kINukeTwkDial_MFP_N,       -1.0);
 
   rw.Reconfigure();
 
