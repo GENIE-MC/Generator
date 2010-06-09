@@ -18,15 +18,19 @@
 //____________________________________________________________________________
 
 #include <TLorentzVector.h>
+#include <TGenPhaseSpace.h>
 #include <TF1.h>
+#include <TH2F.h>
 #include <TMath.h>
 #include <TFile.h>
 #include <TNtupleD.h>
 
 #include "Conventions/Controls.h"
+#include "Conventions/Constants.h"
 #include "EVGCore/EventRecord.h"
 #include "GHEP/GHepParticle.h"
 #include "Messenger/Messenger.h"
+#include "Numerical/RandomGen.h"
 #include "PDG/PDGCodes.h"
 #include "ReWeight/GReWeightAGKY.h"
 #include "ReWeight/GReWeightUtils.h"
@@ -36,6 +40,7 @@
 
 using namespace genie;
 using namespace genie::rew;
+using namespace genie::constants;
 
 //_______________________________________________________________________________________
 GReWeightAGKY::GReWeightAGKY() :
@@ -54,8 +59,6 @@ GReWeightAGKY::~GReWeightAGKY()
 #ifdef _G_REWEIGHT_AGKY_DEBUG_
   fTestFile->cd();
   fTestNtp ->Write(); 
-  //fBaryonXFpdf->Write("xf");
-  //fBaryonXFpdfTwk->Write("xftwk");
   fTestFile->Close();
   delete fTestFile;
 #endif
@@ -223,52 +226,98 @@ double GReWeightAGKY::RewxFpT1pi(const EventRecord & event)
   LOG("ReW", pDEBUG) 
      << "@ HCM: pT2 = " << PT2 << ", xF = " << XF;
 
-  //
-  // Calculate event weight
-  //
+  bool XFinrange  = (XF > fXFmin && XF < fXFmax);
+  bool PT2inrange = (PT2 > fPT2min && PT2 < fPT2max);
+  bool inrange    = XFinrange && PT2inrange;
+  if(!inrange) return 1.;
+
+  // Get tweaked weighting functions
 
   GSystUncertainty * uncertainty = GSystUncertainty::Instance();
-
-  double XFwght = 1.;
-  bool XFinrange = (XF > fXFmin && XF < fXFmax);
-  if(XFinrange && XFtweaked) {
+  if(XFtweaked) {
     double frcerr = uncertainty->OneSigmaErr(kHadrAGKYTwkDial_xF1pi);
     double XFpeak = fDefPeakBaryonXF * (1. + fPeakBaryonXFTwkDial * frcerr);
     fBaryonXFpdfTwk->SetParameter(1, XFpeak);
-    double I = fBaryonXFpdfTwk->Integral(fXFmin,fXFmax);
-    if(I>0) {
-       double norm = 1/I;
+    double I  = fBaryonXFpdfTwk->Integral(fXFmin,fXFmax);
+    if(I>0.) {
+       double norm = fI0XFpdf/I;
        fBaryonXFpdfTwk->SetParameter(0, norm);
-       double def = fBaryonXFpdf    -> Eval(XF);
-       double twk = fBaryonXFpdfTwk -> Eval(XF);
-       if(def>0 && twk>=0) {
-         XFwght = twk/def;
-       }	    
     }
   }
-  
-  double PT2wght = 1.;
-  bool PT2inrange = (PT2 > fPT2min && PT2 < fPT2max);
-  if(PT2inrange && PT2tweaked) {
+  if(PT2tweaked) {
     double frcerr = uncertainty->OneSigmaErr(kHadrAGKYTwkDial_pT1pi);
     double PT2avg = fDefAvgPT2* (1. + fAvgPT2TwkDial * frcerr);
     fBaryonPT2pdfTwk->SetParameter(1, PT2avg);
     double I = fBaryonPT2pdfTwk->Integral(fPT2min,fPT2max);
     if(I>0.) {
-       double norm = 1/I;
+       double norm = fI0PT2pdf/I;
        fBaryonPT2pdfTwk->SetParameter(0, norm);
-       double def = fBaryonPT2pdf    -> Eval(PT2);
-       double twk = fBaryonPT2pdfTwk -> Eval(PT2);
-       if(def>0 && twk>=0) {
-         PT2wght = twk/def;
-       }	    
     }
   }
 
-  double wght = PT2wght * XFwght;
+  // Default and tweaked nucleon xF:pT2 distribution at given W and for
+  // given tweaking dials.
+  Double_t masses[2] = { kNucleonMass, kPionMass } ;
+  int ndec=20000;
+  int nbin=20;
+  RandomGen * rnd = RandomGen::Instance();
+  TLorentzVector ph(0,0,0,W);
+  TGenPhaseSpace phspgen;
+  phspgen.SetDecay(ph, 2, masses);
+  TH2F hdef("hdef","def xF:pT2 at given W", nbin, fXFmin, fXFmax, nbin, fPT2min, fPT2max);
+  TH2F htwk("htwk","twk xF:pT2 at given W", nbin, fXFmin, fXFmax, nbin, fPT2min, fPT2max);
+  for (Int_t n=0;n<ndec;n++) {
+    double dec_weight = phspgen.Generate();
+    TLorentzVector * nucp4 = phspgen.GetDecay(0);
+    double dec_px=nucp4->Px();
+    double dec_py=nucp4->Py();
+    double dec_pz=nucp4->Pz();
+    double dec_pT2 = dec_px*dec_px+dec_py*dec_py;
+    double dec_xF  = dec_pz/(W/2.);
+
+    double fpT2max = 1.1 * fBaryonXFpdf ->GetMaximum(fXFmin, fXFmax );
+    double fxFmax  = 1.1 * fBaryonPT2pdf->GetMaximum(fPT2min,fPT2max);
+    double fpT2rnd = fpT2max * rnd->RndHadro().Rndm();
+    double fxFrnd  = fxFmax  * rnd->RndHadro().Rndm();
+    double fpT2pdf = fBaryonPT2pdf->Eval(dec_pT2);
+    double fxFpdf  = fBaryonXFpdf ->Eval(dec_xF );
+    if(fxFrnd < fxFpdf && fpT2rnd < fpT2pdf) {
+      hdef.Fill(dec_xF, dec_pT2, dec_weight);
+    }
+
+    fpT2max = 1.1 * fBaryonXFpdfTwk ->GetMaximum(fXFmin, fXFmax );
+    fxFmax  = 1.1 * fBaryonPT2pdfTwk->GetMaximum(fPT2min,fPT2max);
+    fpT2rnd = fpT2max * rnd->RndHadro().Rndm();
+    fxFrnd  = fxFmax  * rnd->RndHadro().Rndm();
+    fpT2pdf = fBaryonPT2pdfTwk->Eval(dec_pT2);
+    fxFpdf  = fBaryonXFpdfTwk ->Eval(dec_xF );
+    if(fxFrnd < fxFpdf && fpT2rnd < fpT2pdf) {
+      htwk.Fill(dec_xF, dec_pT2, dec_weight);
+    }
+  }//ndec 
+
+  double Idef = hdef.Integral("width");
+  double Itwk = htwk.Integral("width");
+  if(Idef > 0 && Itwk > 0) {
+     hdef.Scale(1./hdef.Integral("width"));
+     htwk.Scale(1./htwk.Integral("width"));
+  } else {
+     return 1.;
+  }
+
+  int xfbin  = hdef.GetXaxis()->FindBin(XF);
+  int pt2bin = hdef.GetYaxis()->FindBin(PT2);
+
+  double prob_def = hdef.GetBinContent(xfbin,pt2bin); 
+  double prob_twk = htwk.GetBinContent(xfbin,pt2bin);
+  if(prob_def <= 0 || prob_twk < 0) {
+    return 1.;
+  } 
+
+  double wght = prob_twk/prob_def;
 
 #ifdef _G_REWEIGHT_AGKY_DEBUG_
-  fTestNtp->Fill(W,XF,PT2,XFwght,PT2wght);
+  fTestNtp->Fill(W,XF,PT2,fPeakBaryonXFTwkDial,fAvgPT2TwkDial,wght);
 #endif
 
   return wght;
@@ -305,6 +354,10 @@ void GReWeightAGKY::Init(void)
                    "0.083*exp(-0.5*pow(x+0.385,2.)/0.131)", fXFmin, fXFmax);  
   fBaryonPT2pdf = new TF1("fBaryonPT2pdf", 
                    "exp(-0.214-6.625*x)", fPT2min, fPT2max);  
+
+  fI0XFpdf  = fBaryonXFpdf ->Integral(fXFmin, fXFmax);
+  fI0PT2pdf = fBaryonPT2pdf->Integral(fPT2min,fPT2max);
+
   //
   // Now, define same function as above, but insert tweaking dials.
   // - For the xF  PDF add a parameter to shift the peak of the distribution.
@@ -329,7 +382,7 @@ void GReWeightAGKY::Init(void)
 
 #ifdef _G_REWEIGHT_AGKY_DEBUG_
   fTestFile = new TFile("./agky_reweight_test.root","recreate");
-  fTestNtp  = new TNtupleD("testntp","","W:xF:pT2:xFwght:pT2wght");
+  fTestNtp  = new TNtupleD("testntp","","W:xF:pT2:xFtwkdial:pT2twkdial:wght");
 #endif   
 }
 //_______________________________________________________________________________________

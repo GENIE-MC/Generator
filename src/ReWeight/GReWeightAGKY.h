@@ -79,6 +79,8 @@ namespace rew   {
    double fDefAvgPT2;           ///<
    double fPeakBaryonXFTwkDial; ///<
    double fAvgPT2TwkDial;       ///<
+   double fI0XFpdf;             ///<
+   double fI0PT2pdf;            ///<
 
    TFile *    fTestFile;
    TNtupleD * fTestNtp;
