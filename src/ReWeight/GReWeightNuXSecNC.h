@@ -3,7 +3,8 @@
 
 \class    genie::rew::GReWeightNuXSecNC
 
-\brief    
+\brief    Tweak NC level. Make sure you don't include NC sources handled
+          by another reweighting function.
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           STFC, Rutherford Appleton Laboratory
@@ -46,6 +47,9 @@ namespace rew   {
    void RewNuebar    (bool   tf)  { fRewNuebar  = tf; }
    void RewNumu      (bool   tf)  { fRewNumu    = tf; }
    void RewNumubar   (bool   tf)  { fRewNumubar = tf; }
+   void RewQE        (bool   tf)  { fRewQE      = tf; }
+   void RewRES       (bool   tf)  { fRewRES     = tf; }
+   void RewDIS       (bool   tf)  { fRewDIS     = tf; }
 
  private:
 
@@ -55,8 +59,10 @@ namespace rew   {
    bool   fRewNuebar;      ///< reweight nu_e_bar?
    bool   fRewNumu;        ///< reweight nu_mu?
    bool   fRewNumubar;     ///< reweight nu_mu_bar?
-
-   double fNCTwkDial;      ///<
+   bool   fRewQE;          ///< reweight NC elastic?
+   bool   fRewRES;         ///< reweight NC RES?
+   bool   fRewDIS;         ///< reweight NC DIS?
+   double fNCTwkDial;      ///< tweaking dial
  };
 
 } // rew   namespace

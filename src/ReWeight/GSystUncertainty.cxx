@@ -76,6 +76,11 @@ void GSystUncertainty::SetDefaults(void)
   m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_MvCCRESshape,   0.05));
   m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_MaCCRES,        0.20));
   m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_MvCCRES,        0.10));
+  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_NormNCRES,      0.20));
+  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_MaNCRESshape,   0.10));
+  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_MvNCRESshape,   0.05));
+  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_MaNCRES,        0.20));
+  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_MvNCRES,        0.10));
   m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_MaCOHpi,        0.40));
   m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_R0COHpi,        0.20));
   m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_RvpCC1pi,       0.50));
