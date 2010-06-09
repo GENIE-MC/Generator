@@ -1,9 +1,10 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::rew::GReWeightNuXSecCCRES
+\class    genie::rew::GReWeightNuXSecNCRES
 
-\brief    Reweight GENIE CC resonance neutrino-production
+\brief    Reweight GENIE NC resonance neutrino-production cross section.
+          Basically a clone of the corresponding CC code.
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           STFC, Rutherford Appleton Laboratory
@@ -19,8 +20,8 @@
 */
 //____________________________________________________________________________
 
-#ifndef _G_REWEIGHT_NU_XSEC_CCRES_H_
-#define _G_REWEIGHT_NU_XSEC_CCRES_H_
+#ifndef _G_REWEIGHT_NU_XSEC_NCRES_H_
+#define _G_REWEIGHT_NU_XSEC_NCRES_H_
 
 #include <map>
 #include <string>
@@ -37,14 +38,14 @@ class Registry;
 
 namespace rew   {
 
- class GReWeightNuXSecCCRES : public GReWeightI 
+ class GReWeightNuXSecNCRES : public GReWeightI 
  {
  static const int kModeMaMv             = 0;
  static const int kModeNormAndMaMvShape = 1;
 
  public:
-   GReWeightNuXSecCCRES();
-  ~GReWeightNuXSecCCRES();
+   GReWeightNuXSecNCRES();
+  ~GReWeightNuXSecNCRES();
 
    // implement the GReWeightI interface
    bool   IsHandled      (GSyst_t syst);
@@ -76,10 +77,10 @@ namespace rew   {
    int    fMode;         ///< 0: Ma/Mv, 1: Norm and MaShape/MvShape
    string fMaPath;       ///< M_{A} path in configuration
    string fMvPath;       ///< M_{V} path in configuration
-   bool   fRewNue;       ///< reweight nu_e CC?
-   bool   fRewNuebar;    ///< reweight nu_e_bar CC?
-   bool   fRewNumu;      ///< reweight nu_mu CC?
-   bool   fRewNumubar;   ///< reweight nu_mu_bar CC?
+   bool   fRewNue;       ///< reweight nu_e NC?
+   bool   fRewNuebar;    ///< reweight nu_e_bar NC?
+   bool   fRewNumu;      ///< reweight nu_mu NC?
+   bool   fRewNumubar;   ///< reweight nu_mu_bar NC?
    double fNormTwkDial;  ///<
    double fNormDef;      ///<
    double fNormCurr;     ///<

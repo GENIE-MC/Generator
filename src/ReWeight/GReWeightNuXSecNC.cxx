@@ -90,6 +90,15 @@ double GReWeightNuXSecNC::CalcWeight(const genie::EventRecord & event)
   bool is_nc  = interaction->ProcInfo().IsWeakNC();
   if(!is_nc) return 1.;
 
+  bool is_qel = event.Summary()->ProcInfo().IsQuasiElastic();
+  if(is_qel && !fRewQE) return 1.;
+
+  bool is_res = event.Summary()->ProcInfo().IsResonant();
+  if(is_res && !fRewRES) return 1.;
+
+  bool is_dis = event.Summary()->ProcInfo().IsDeepInelastic();
+  if(is_dis && !fRewDIS) return 1.;
+
   int nupdg = interaction->InitState().ProbePdg();
   if(nupdg==kPdgNuMu     && !fRewNumu   ) return 1.;
   if(nupdg==kPdgAntiNuMu && !fRewNumubar) return 1.;
@@ -108,6 +117,16 @@ double GReWeightNuXSecNC::CalcChisq(void)
 void GReWeightNuXSecNC::Init(void)
 {
   fNCTwkDial = 0.;
+
+  this->RewNue       (true);
+  this->RewNuebar    (true);
+  this->RewNumu      (true);
+  this->RewNumubar   (true);
+
+  this->RewQE  (true );
+  this->RewRES (false); // assume GReWeightNuXSecNCRES is going to be your 1st choice
+  this->RewDIS (false); // assume GReWeightNuXSecDIS   is going to be your 1st choice
+
 }
 //_______________________________________________________________________________________
 

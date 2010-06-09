@@ -13,12 +13,9 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
- @ Aug 01, 2009 - CA
-   Was adapted from Jim's and Costas' T2K-specific GENIE reweighting code. 
-   First included in v2.5.1.
- @ May 17, 2010 - CA
-   Code extracted from GReWeightNuXSec and redeveloped in preparation for 
-   the Summer 2010 T2K analyses.
+ @ Jun 09, 2010 - CA
+   Created by cloning the CCRES reweight code so that NCRES events can
+   be tweaked / reweighted independently.  First included in v2.7.1.
 
 */
 //____________________________________________________________________________
@@ -35,7 +32,7 @@
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGCodes.h"
-#include "ReWeight/GReWeightNuXSecCCRES.h"
+#include "ReWeight/GReWeightNuXSecNCRES.h"
 #include "ReWeight/GSystSet.h"
 #include "ReWeight/GSystUncertainty.h"
 #include "Registry/Registry.h"
@@ -44,25 +41,25 @@ using namespace genie;
 using namespace genie::rew;
 
 //_______________________________________________________________________________________
-GReWeightNuXSecCCRES::GReWeightNuXSecCCRES() 
+GReWeightNuXSecNCRES::GReWeightNuXSecNCRES() 
 {
   this->Init();
 }
 //_______________________________________________________________________________________
-GReWeightNuXSecCCRES::~GReWeightNuXSecCCRES()
+GReWeightNuXSecNCRES::~GReWeightNuXSecNCRES()
 {
 
 }
 //_______________________________________________________________________________________
-bool GReWeightNuXSecCCRES::IsHandled(GSyst_t syst)
+bool GReWeightNuXSecNCRES::IsHandled(GSyst_t syst)
 {
    bool handle;
 
    switch(syst) {
 
-     case ( kXSecTwkDial_NormCCRES    ) :
-     case ( kXSecTwkDial_MaCCRESshape ) :
-     case ( kXSecTwkDial_MvCCRESshape ) :
+     case ( kXSecTwkDial_NormNCRES    ) :
+     case ( kXSecTwkDial_MaNCRESshape ) :
+     case ( kXSecTwkDial_MvNCRESshape ) :
        if(fMode==kModeNormAndMaMvShape) { 
           handle = true;  
        } else { 
@@ -70,8 +67,8 @@ bool GReWeightNuXSecCCRES::IsHandled(GSyst_t syst)
        }
        break;
 
-     case ( kXSecTwkDial_MaCCRES ) :
-     case ( kXSecTwkDial_MvCCRES ) :
+     case ( kXSecTwkDial_MaNCRES ) :
+     case ( kXSecTwkDial_MvNCRES ) :
        if(fMode==kModeMaMv) { 
           handle = true;  
        } else { 
@@ -87,20 +84,20 @@ bool GReWeightNuXSecCCRES::IsHandled(GSyst_t syst)
    return handle;
 }
 //_______________________________________________________________________________________
-void GReWeightNuXSecCCRES::SetSystematic(GSyst_t syst, double twk_dial)
+void GReWeightNuXSecNCRES::SetSystematic(GSyst_t syst, double twk_dial)
 {
   if(!this->IsHandled(syst)) return;
 
   switch(syst) {
-    case ( kXSecTwkDial_NormCCRES ) :
+    case ( kXSecTwkDial_NormNCRES ) :
       fNormTwkDial = twk_dial;
       break;
-    case ( kXSecTwkDial_MaCCRESshape ) :
-    case ( kXSecTwkDial_MaCCRES ) :
+    case ( kXSecTwkDial_MaNCRESshape ) :
+    case ( kXSecTwkDial_MaNCRES ) :
       fMaTwkDial = twk_dial;
       break;
-    case ( kXSecTwkDial_MvCCRESshape ) :
-    case ( kXSecTwkDial_MvCCRES ) :
+    case ( kXSecTwkDial_MvNCRESshape ) :
+    case ( kXSecTwkDial_MvNCRES ) :
       fMvTwkDial = twk_dial;
       break;
     default:
@@ -108,7 +105,7 @@ void GReWeightNuXSecCCRES::SetSystematic(GSyst_t syst, double twk_dial)
   }
 }
 //_______________________________________________________________________________________
-void GReWeightNuXSecCCRES::Reset(void)
+void GReWeightNuXSecNCRES::Reset(void)
 {
   fNormTwkDial = 0.;
   fNormCurr    = fNormDef;
@@ -120,21 +117,21 @@ void GReWeightNuXSecCCRES::Reset(void)
   this->Reconfigure();
 }
 //_______________________________________________________________________________________
-void GReWeightNuXSecCCRES::Reconfigure(void)
+void GReWeightNuXSecNCRES::Reconfigure(void)
 {
   GSystUncertainty * fracerr = GSystUncertainty::Instance();
 
   if(fMode==kModeMaMv) {   
-     double fracerr_ma = fracerr->OneSigmaErr(kXSecTwkDial_MaCCRES);
-     double fracerr_mv = fracerr->OneSigmaErr(kXSecTwkDial_MvCCRES);
+     double fracerr_ma = fracerr->OneSigmaErr(kXSecTwkDial_MaNCRES);
+     double fracerr_mv = fracerr->OneSigmaErr(kXSecTwkDial_MvNCRES);
      fMaCurr = fMaDef * (1. + fMaTwkDial * fracerr_ma);
      fMvCurr = fMvDef * (1. + fMvTwkDial * fracerr_mv);
   }
   else
   if(fMode==kModeNormAndMaMvShape) { 
-     double fracerr_norm = fracerr->OneSigmaErr(kXSecTwkDial_NormCCRES);
-     double fracerr_mash = fracerr->OneSigmaErr(kXSecTwkDial_MaCCRESshape);
-     double fracerr_mvsh = fracerr->OneSigmaErr(kXSecTwkDial_MvCCRESshape);
+     double fracerr_norm = fracerr->OneSigmaErr(kXSecTwkDial_NormNCRES);
+     double fracerr_mash = fracerr->OneSigmaErr(kXSecTwkDial_MaNCRESshape);
+     double fracerr_mvsh = fracerr->OneSigmaErr(kXSecTwkDial_MvNCRESshape);
      fNormCurr = fNormDef * (1. + fNormTwkDial * fracerr_norm);
      fMaCurr   = fMaDef   * (1. + fMaTwkDial   * fracerr_mash);
      fMvCurr   = fMvDef   * (1. + fMvTwkDial   * fracerr_mvsh);
@@ -153,11 +150,11 @@ void GReWeightNuXSecCCRES::Reconfigure(void)
 //LOG("ReW, pDEBUG) << *fXSecModel;
 }
 //_______________________________________________________________________________________
-double GReWeightNuXSecCCRES::CalcWeight(const genie::EventRecord & event) 
+double GReWeightNuXSecNCRES::CalcWeight(const genie::EventRecord & event) 
 {
   bool is_res = event.Summary()->ProcInfo().IsResonant();
-  bool is_cc  = event.Summary()->ProcInfo().IsWeakCC();
-  if(!is_res || !is_cc) return 1.;
+  bool is_nc  = event.Summary()->ProcInfo().IsWeakNC();
+  if(!is_res || !is_nc) return 1.;
 
   int nupdg = event.Probe()->Pdg();
   if(nupdg==kPdgNuMu     && !fRewNumu   ) return 1.;
@@ -180,7 +177,7 @@ double GReWeightNuXSecCCRES::CalcWeight(const genie::EventRecord & event)
   return 1.;
 }
 //_______________________________________________________________________________________
-double GReWeightNuXSecCCRES::CalcChisq()
+double GReWeightNuXSecNCRES::CalcChisq()
 {
   double chisq = 0.;
   if(fMode==kModeMaMv) {   
@@ -196,7 +193,7 @@ double GReWeightNuXSecCCRES::CalcChisq()
   return chisq;
 }
 //_______________________________________________________________________________________
-void GReWeightNuXSecCCRES::Init(void)
+void GReWeightNuXSecNCRES::Init(void)
 {
   AlgId id("genie::ReinSeghalRESPXSec","Default");
 
@@ -230,7 +227,7 @@ void GReWeightNuXSecCCRES::Init(void)
   fMvCurr      = fMvDef;
 }
 //_______________________________________________________________________________________
-double GReWeightNuXSecCCRES::CalcWeightNorm(const genie::EventRecord & /*event*/) 
+double GReWeightNuXSecNCRES::CalcWeightNorm(const genie::EventRecord & /*event*/) 
 {
   bool tweaked = (TMath::Abs(fNormTwkDial) > controls::kASmallNum);
   if(!tweaked) return 1.0;
@@ -239,7 +236,7 @@ double GReWeightNuXSecCCRES::CalcWeightNorm(const genie::EventRecord & /*event*/
   return wght;
 }
 //_______________________________________________________________________________________
-double GReWeightNuXSecCCRES::CalcWeightMaMv(const genie::EventRecord & event) 
+double GReWeightNuXSecNCRES::CalcWeightMaMv(const genie::EventRecord & event) 
 {
   bool tweaked = 
      (TMath::Abs(fMaTwkDial) > controls::kASmallNum) ||
@@ -260,7 +257,7 @@ double GReWeightNuXSecCCRES::CalcWeightMaMv(const genie::EventRecord & event)
   return new_weight;
 }
 //_______________________________________________________________________________________
-double GReWeightNuXSecCCRES::CalcWeightMaMvShape(const genie::EventRecord & event) 
+double GReWeightNuXSecNCRES::CalcWeightMaMvShape(const genie::EventRecord & event) 
 {
   bool tweaked = 
      (TMath::Abs(fMaTwkDial) > controls::kASmallNum) ||
