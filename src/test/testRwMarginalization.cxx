@@ -85,10 +85,10 @@ int main(int argc, char ** argv)
 
     double piabsm = 
         rew::margin::MarginalizeFates(
-             -1,rew::kSystINuke_AbsTwk_pi,&event);
+             -1,rew::kINukeTwkDial_FrAbs_pi,&event);
     double piabsp = 
         rew::margin::MarginalizeFates(
-             +1,rew::kSystINuke_AbsTwk_pi,&event);
+             +1,rew::kINukeTwkDial_FrAbs_pi,&event);
 
     LOG("main", pNOTICE)  << " weight (abs + 1 sigma) = " << piabsp;	
     LOG("main", pNOTICE)  << " weight (abs - 1 sigma) = " << piabsm;
