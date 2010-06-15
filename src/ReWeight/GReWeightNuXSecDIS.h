@@ -69,8 +69,9 @@ namespace rew   {
    double CalcWeightABCV12u      (const genie::EventRecord & event); ///< rew. Aht,Bht,CV1u,CV2u
    double CalcWeightABCV12uShape (const genie::EventRecord & event); ///< rew. AhtShape,BhtShape,CV1uShape,CV2uShape
 
-   XSecAlgorithmI * fXSecModel;       ///< cross section model
-   Registry *       fXSecModelConfig; ///< config for cross section model
+   XSecAlgorithmI * fXSecModelDef;    ///< default model
+   XSecAlgorithmI * fXSecModel;       ///< tweaked model
+   Registry *       fXSecModelConfig; ///< config in tweaked model
 
    bool   fRewNue;               ///< reweight nu_e?
    bool   fRewNuebar;            ///< reweight nu_e_bar?

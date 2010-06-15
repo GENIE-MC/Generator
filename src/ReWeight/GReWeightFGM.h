@@ -32,6 +32,8 @@ using namespace genie::rew;
 using namespace genie;
 
 class TH1D;
+class TNtupleD;
+class TFile;
 
 namespace genie {
 
@@ -70,6 +72,9 @@ namespace rew   {
    map<int, TH1D *> fMapFGp;
    map<int, TH1D *> fMapSFn;
    map<int, TH1D *> fMapSFp;
+
+   TFile *    fTestFile;
+   TNtupleD * fTestNtp;
  };
 
 } // rew

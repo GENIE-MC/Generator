@@ -242,8 +242,10 @@ double GReWeightNuXSecDIS::CalcWeightABCV12uShape(const genie::EventRecord & eve
   double twk_xsec   = fXSecModel->XSec(interaction, kPSxyfE);
   double weight = old_weight * (twk_xsec/old_xsec);
 
-  double old_integrated_xsec = event.XSec();
-  double twk_integrated_xsec = fXSecModel->Integral(interaction);
+//double old_integrated_xsec = event.XSec();
+  double old_integrated_xsec = fXSecModelDef -> Integral(interaction);
+  double twk_integrated_xsec = fXSecModel    -> Integral(interaction);   
+
   assert(twk_integrated_xsec > 0);
   weight *= (old_integrated_xsec/twk_integrated_xsec);
 
@@ -267,8 +269,12 @@ void GReWeightNuXSecDIS::Init(void)
   AlgId id("genie::QPMDISPXSec","Default");
 
   AlgFactory * algf = AlgFactory::Instance();
-  Algorithm * alg = algf->AdoptAlgorithm(id);
 
+  Algorithm * algdef = algf->AdoptAlgorithm(id);
+  fXSecModelDef = dynamic_cast<XSecAlgorithmI*>(algdef);
+  fXSecModelDef->AdoptSubstructure();
+
+  Algorithm * alg = algf->AdoptAlgorithm(id);
   fXSecModel = dynamic_cast<XSecAlgorithmI*>(alg);
   fXSecModel->AdoptSubstructure();
 

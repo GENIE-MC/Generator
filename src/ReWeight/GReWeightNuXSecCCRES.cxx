@@ -23,7 +23,11 @@
 */
 //____________________________________________________________________________
 
+#include <cassert>
+
 #include <TMath.h>
+#include <TFile.h>
+#include <TNtupleD.h>
 
 #include "Algorithm/AlgFactory.h"
 #include "Algorithm/AlgConfigPool.h"
@@ -40,6 +44,8 @@
 #include "ReWeight/GSystUncertainty.h"
 #include "Registry/Registry.h"
 
+//#define _G_REWEIGHT_CCRES_DEBUG_
+
 using namespace genie;
 using namespace genie::rew;
 
@@ -51,7 +57,12 @@ GReWeightNuXSecCCRES::GReWeightNuXSecCCRES()
 //_______________________________________________________________________________________
 GReWeightNuXSecCCRES::~GReWeightNuXSecCCRES()
 {
-
+#ifdef _G_REWEIGHT_CCRES_DEBUG_
+  fTestFile->cd();
+  fTestNtp ->Write();
+  fTestFile->Close();
+  delete fTestFile;
+#endif
 }
 //_______________________________________________________________________________________
 bool GReWeightNuXSecCCRES::IsHandled(GSyst_t syst)
@@ -201,8 +212,12 @@ void GReWeightNuXSecCCRES::Init(void)
   AlgId id("genie::ReinSeghalRESPXSec","Default");
 
   AlgFactory * algf = AlgFactory::Instance();
-  Algorithm * alg = algf->AdoptAlgorithm(id);
 
+  Algorithm * algdef = algf->AdoptAlgorithm(id);
+  fXSecModelDef = dynamic_cast<XSecAlgorithmI*>(algdef);
+  fXSecModelDef->AdoptSubstructure();
+
+  Algorithm * alg = algf->AdoptAlgorithm(id);
   fXSecModel = dynamic_cast<XSecAlgorithmI*>(alg);
   fXSecModel->AdoptSubstructure();
 
@@ -228,6 +243,11 @@ void GReWeightNuXSecCCRES::Init(void)
   fMvTwkDial   = 0.; 
   fMvDef       = fXSecModelConfig->GetDouble(fMvPath);
   fMvCurr      = fMvDef;
+
+#ifdef _G_REWEIGHT_CCRES_DEBUG_
+  fTestFile = new TFile("./ccres_reweight_test.root","recreate");
+  fTestNtp  = new TNtupleD("testntp","","E:Q2:W:wght");
+#endif
 }
 //_______________________________________________________________________________________
 double GReWeightNuXSecCCRES::CalcWeightNorm(const genie::EventRecord & /*event*/) 
@@ -281,16 +301,24 @@ double GReWeightNuXSecCCRES::CalcWeightMaMvShape(const genie::EventRecord & even
 //LOG("ReW", pDEBUG) << "event generation weight = " << old_weight;
 //LOG("ReW", pDEBUG) << "new weight = " << new_weight;
 
-  double old_integrated_xsec = event.XSec();
-  double new_integrated_xsec = fXSecModel->Integral(interaction);
-  assert(new_integrated_xsec > 0);
-  new_weight *= (old_integrated_xsec/new_integrated_xsec);
+//double old_integrated_xsec = event.XSec();
+  double old_integrated_xsec = fXSecModelDef -> Integral(interaction);
+  double twk_integrated_xsec = fXSecModel    -> Integral(interaction);
+  assert(twk_integrated_xsec > 0);
+  new_weight *= (old_integrated_xsec/twk_integrated_xsec);
 
 //LOG("ReW", pDEBUG) << "integrated cross section (old) = " << old_integrated_xsec;
-//LOG("ReW", pDEBUG) << "integrated cross section (new) = " << new_integrated_xsec;
+//LOG("ReW", pDEBUG) << "integrated cross section (twk) = " << twk_integrated_xsec;
 //LOG("ReW", pDEBUG) << "new weight (normalized to const integral) = " << new_weight;
 
   interaction->KinePtr()->ClearRunningValues();
+
+#ifdef _G_REWEIGHT_CCRES_DEBUG_
+  double E  = interaction->InitState().ProbeE(kRfHitNucRest);
+  double Q2 = interaction->Kine().Q2(true);
+  double W  = interaction->Kine().W(true);
+  fTestNtp->Fill(E,Q2,W,new_weight);
+#endif
 
   return new_weight;
 }

@@ -3,8 +3,10 @@
 
 \class    genie::rew::GReWeightNuXSecNC
 
-\brief    Tweak NC level. Make sure you don't include NC sources handled
-          by another reweighting function.
+\brief    Tweak NC level in a gross way (scale by a given factor).
+          More detailed rew. functions also exist for specific NC sources.
+          RES NC cross section rew. is also handled by GReWeightNuXSecNCRES.
+          DIS NC cross section rew. is also handled by GReWeightNuXSecDIS.
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           STFC, Rutherford Appleton Laboratory
