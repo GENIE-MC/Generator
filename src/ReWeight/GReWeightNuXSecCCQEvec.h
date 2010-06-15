@@ -31,6 +31,9 @@
 using std::map;
 using std::string;
 
+class TFile;
+class TNtupleD;
+
 namespace genie {
 
 class XSecAlgorithmI;
@@ -71,6 +74,8 @@ namespace rew   {
    bool   fRewNumu;      ///< reweight nu_mu CC?
    bool   fRewNumubar;   ///< reweight nu_mu_bar CC?
 
+   TFile *    fTestFile;
+   TNtupleD * fTestNtp;
  };
 
 } // rew   namespace

@@ -24,6 +24,8 @@
 //____________________________________________________________________________
 
 #include <TMath.h>
+#include <TFile.h>
+#include <TNtupleD.h>
 
 #include "Algorithm/AlgFactory.h"
 #include "Algorithm/AlgConfigPool.h"
@@ -40,6 +42,8 @@
 #include "ReWeight/GSystUncertainty.h"
 #include "Registry/Registry.h"
 
+//#define _G_REWEIGHT_CCQE_DEBUG_
+
 using namespace genie;
 using namespace genie::rew;
 
@@ -51,7 +55,12 @@ GReWeightNuXSecCCQE::GReWeightNuXSecCCQE()
 //_______________________________________________________________________________________
 GReWeightNuXSecCCQE::~GReWeightNuXSecCCQE()
 {
-
+#ifdef _G_REWEIGHT_CCQE_DEBUG_
+  fTestFile->cd();
+  fTestNtp ->Write();
+  fTestFile->Close();
+  delete fTestFile;
+#endif
 }
 //_______________________________________________________________________________________
 bool GReWeightNuXSecCCQE::IsHandled(GSyst_t syst)
@@ -87,8 +96,6 @@ bool GReWeightNuXSecCCQE::IsHandled(GSyst_t syst)
 //_______________________________________________________________________________________
 void GReWeightNuXSecCCQE::SetSystematic(GSyst_t syst, double twk_dial)
 {
-  if(!this->IsHandled(syst)) return;
-
   switch(syst) {
     case ( kXSecTwkDial_NormCCQE ) :
       fNormTwkDial = twk_dial;
@@ -188,8 +195,12 @@ void GReWeightNuXSecCCQE::Init(void)
   AlgId id("genie::LwlynSmithQELCCPXSec","Default");
 
   AlgFactory * algf = AlgFactory::Instance();
-  Algorithm * alg = algf->AdoptAlgorithm(id);
 
+  Algorithm * algdef = algf->AdoptAlgorithm(id);
+  fXSecModelDef = dynamic_cast<XSecAlgorithmI*>(algdef);
+  fXSecModelDef->AdoptSubstructure();
+
+  Algorithm * alg = algf->AdoptAlgorithm(id);
   fXSecModel = dynamic_cast<XSecAlgorithmI*>(alg);
   fXSecModel->AdoptSubstructure();
 
@@ -211,6 +222,11 @@ void GReWeightNuXSecCCQE::Init(void)
   fMaTwkDial   = 0.; 
   fMaDef       = fXSecModelConfig->GetDouble(fMaPath);
   fMaCurr      = fMaDef;
+
+#ifdef _G_REWEIGHT_CCQE_DEBUG_
+  fTestFile = new TFile("./ccqe_reweight_test.root","recreate");
+  fTestNtp  = new TNtupleD("testntp","","E:Q2:wght");
+#endif
 }
 //_______________________________________________________________________________________
 double GReWeightNuXSecCCQE::CalcWeightNorm(const genie::EventRecord & /*event*/) 
@@ -263,8 +279,9 @@ double GReWeightNuXSecCCQE::CalcWeightMaShape(const genie::EventRecord & event)
 //LOG("ReW", pDEBUG) << "event generation weight = " << old_weight;
 //LOG("ReW", pDEBUG) << "new weight = " << new_weight;
 
-  double old_integrated_xsec = event.XSec();
-  double new_integrated_xsec = fXSecModel->Integral(interaction);
+//double old_integrated_xsec = event.XSec();
+  double old_integrated_xsec = fXSecModelDef -> Integral(interaction);
+  double new_integrated_xsec = fXSecModel    -> Integral(interaction);   
   assert(new_integrated_xsec > 0);
   new_weight *= (old_integrated_xsec/new_integrated_xsec);
 
@@ -274,6 +291,12 @@ double GReWeightNuXSecCCQE::CalcWeightMaShape(const genie::EventRecord & event)
 
   interaction->KinePtr()->ClearRunningValues();
   interaction->ResetBit(kIAssumeFreeNucleon);
+
+#ifdef _G_REWEIGHT_CCQE_DEBUG_
+  double E  = interaction->InitState().ProbeE(kRfHitNucRest);
+  double Q2 = interaction->Kine().Q2(true);
+  fTestNtp->Fill(E,Q2,new_weight);
+#endif
 
   return new_weight;
 }

@@ -20,6 +20,8 @@
 */
 //____________________________________________________________________________
 
+#include <cassert>
+
 #include <TMath.h>
 
 #include "Conventions/Units.h"

@@ -20,7 +20,10 @@
 //____________________________________________________________________________
 
 #include <cassert>
+
 #include <TMath.h>
+#include <TFile.h>
+#include <TNtupleD.h>
 
 #include "Algorithm/AlgFactory.h"
 #include "Algorithm/AlgConfigPool.h"
@@ -36,6 +39,8 @@
 #include "ReWeight/GSystSet.h"
 #include "ReWeight/GSystUncertainty.h"
 
+//#define _G_REWEIGHT_CCQE_VEC_DEBUG_
+
 using namespace genie;
 using namespace genie::rew;
 
@@ -47,7 +52,12 @@ GReWeightNuXSecCCQEvec::GReWeightNuXSecCCQEvec()
 //_______________________________________________________________________________________
 GReWeightNuXSecCCQEvec::~GReWeightNuXSecCCQEvec()
 {
-
+#ifdef _G_REWEIGHT_CCQE_VEC_DEBUG_   
+  fTestFile->cd();
+  fTestNtp ->Write();
+  fTestFile->Close();
+  delete fTestFile;
+#endif
 }
 //_______________________________________________________________________________________
 bool GReWeightNuXSecCCQEvec::IsHandled(GSyst_t syst)
@@ -118,8 +128,8 @@ double GReWeightNuXSecCCQEvec::CalcWeight(const genie::EventRecord & event)
   double dial                = fFFTwkDial;
   double old_weight          = event.Weight();
   double def_xsec            = event.DiffXSec();
-  double def_integrated_xsec = event.XSec();
   double dpl_xsec            = fXSecModel_dpl->XSec(interaction, kPSQ2fE);
+  double def_integrated_xsec = fXSecModel_bba->Integral(interaction);
   double dpl_integrated_xsec = fXSecModel_dpl->Integral(interaction);
 
   assert(def_integrated_xsec > 0.);
@@ -133,6 +143,15 @@ double GReWeightNuXSecCCQEvec::CalcWeight(const genie::EventRecord & event)
 //  if(def_ratio <= 0) return 1.;
 
   double weight = old_weight * (dial * dpl_ratio + (1-dial)*def_ratio) / def_ratio;
+
+#ifdef _G_REWEIGHT_CCQE_VEC_DEBUG_
+  double E  = interaction->InitState().ProbeE(kRfHitNucRest);
+  double Q2 = interaction->Kine().Q2(true);
+  fTestNtp->Fill(
+    E,Q2,weight,def_integrated_xsec,dpl_integrated_xsec,def_xsec,dpl_xsec);
+#endif
+
+
   return weight;
 }
 //_______________________________________________________________________________________
@@ -145,12 +164,12 @@ double GReWeightNuXSecCCQEvec::CalcChisq()
 void GReWeightNuXSecCCQEvec::Init(void)
 {
   AlgFactory * algf = AlgFactory::Instance();
-/*
+
   AlgId id0("genie::LwlynSmithQELCCPXSec","Default");
   Algorithm * alg0 = algf->AdoptAlgorithm(id0);
   fXSecModel_bba = dynamic_cast<XSecAlgorithmI*>(alg0);
   fXSecModel_bba->AdoptSubstructure();
-*/
+
   AlgId id1("genie::LwlynSmithQELCCPXSec","DipoleELFF");
   Algorithm * alg1 = algf->AdoptAlgorithm(id1);
   fXSecModel_dpl = dynamic_cast<XSecAlgorithmI*>(alg1);
@@ -162,6 +181,12 @@ void GReWeightNuXSecCCQEvec::Init(void)
   this->RewNumubar(true);
 
   fFFTwkDial = 0.;
+
+#ifdef _G_REWEIGHT_CCQE_VEC_DEBUG_
+  fTestFile = new TFile("./ccqevec_reweight_test.root","recreate");
+  fTestNtp  = new TNtupleD("testntp","","E:Q2:wght:sig0:sig:dsig0:dsig");
+#endif
+
 }
 //_______________________________________________________________________________________
 

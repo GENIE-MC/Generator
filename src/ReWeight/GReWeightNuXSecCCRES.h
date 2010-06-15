@@ -30,6 +30,9 @@ using std::string;
 
 #include "ReWeight/GReWeightI.h"
 
+class TFile;
+class TNtupleD;
+
 namespace genie {
 
 class XSecAlgorithmI;
@@ -70,8 +73,9 @@ namespace rew   {
    double CalcWeightMaMvShape (const EventRecord & event);
    double CalcWeightMaMv      (const EventRecord & event);
 
-   XSecAlgorithmI * fXSecModel;       ///<
-   Registry *       fXSecModelConfig; ///<
+   XSecAlgorithmI * fXSecModelDef;    ///< default model
+   XSecAlgorithmI * fXSecModel;       ///< tweaked model
+   Registry *       fXSecModelConfig; ///< config in tweaked model
 
    int    fMode;         ///< 0: Ma/Mv, 1: Norm and MaShape/MvShape
    string fMaPath;       ///< M_{A} path in configuration
@@ -90,6 +94,8 @@ namespace rew   {
    double fMvDef;        ///<
    double fMvCurr;       ///<
 
+   TFile *    fTestFile;
+   TNtupleD * fTestNtp;
  };
 
 } // rew   namespace

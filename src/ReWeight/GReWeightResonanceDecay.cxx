@@ -32,7 +32,7 @@
 #include "ReWeight/GReWeightResonanceDecay.h"
 #include "ReWeight/GSystUncertainty.h"
 
-#define _G_REWEIGHT_RESDEC_DEBUG_
+//#define _G_REWEIGHT_RESDEC_DEBUG_
 
 using namespace genie;
 using namespace genie::rew;

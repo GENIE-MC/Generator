@@ -16,6 +16,9 @@
 */
 //____________________________________________________________________________
 
+#include <TFile.h>
+#include <TNtupleD.h>
+
 #include "Algorithm/AlgFactory.h"
 #include "Conventions/Controls.h"
 #include "EVGCore/EventRecord.h"
@@ -28,6 +31,8 @@
 #include "ReWeight/GReWeightFGM.h"
 #include "ReWeight/GSystUncertainty.h"
 #include "Utils/NuclearUtils.h"
+
+#define _G_REWEIGHT_FGM_DEBUG_
 
 using namespace genie;
 using namespace genie::rew;
@@ -42,7 +47,12 @@ GReWeightI()
 //_______________________________________________________________________________________
 GReWeightFGM::~GReWeightFGM()
 {
-
+#ifdef _G_REWEIGHT_FGM_DEBUG_
+  fTestFile->cd();
+  fTestNtp ->Write();
+  fTestFile->Close();
+  delete fTestFile;
+#endif
 }
 //_______________________________________________________________________________________
 bool GReWeightFGM::IsHandled(GSyst_t syst)
@@ -101,7 +111,7 @@ double GReWeightFGM::CalcChisq(void)
 //_______________________________________________________________________________________
 double GReWeightFGM::RewCCQEPauliSupViaKF(const EventRecord & event) 
 {
-  bool kF_tweaked = (TMath::Abs(fKFTwkDial) < controls::kASmallNum);
+  bool kF_tweaked = (TMath::Abs(fKFTwkDial) > controls::kASmallNum);
   if(!kF_tweaked) return 1.;
 
   bool is_qe = event.Summary()->ProcInfo().IsQuasiElastic();
@@ -154,12 +164,17 @@ double GReWeightFGM::RewCCQEPauliSupViaKF(const EventRecord & event)
   
   // calculate weight (ratio of suppression factors)
 
+  double wght = 1.0;
+
   if(R>0 && Rtwk>0) {
-    double wght = Rtwk/R;
-    return wght;
+    wght = Rtwk/R;
   }
 
-  return 1.;
+#ifdef _G_REWEIGHT_FGM_DEBUG_
+  fTestNtp->Fill(-q2,wght);
+#endif
+
+  return wght;
 }
 //_______________________________________________________________________________________
 double GReWeightFGM::RewCCQEMomDistroFGtoSF(const EventRecord & event) 
@@ -250,6 +265,11 @@ void GReWeightFGM::Init(void)
     algf->GetAlgorithm("genie::FGMBodekRitchie","Default"));
   fSF = dynamic_cast<const NuclearModelI*> (
     algf->GetAlgorithm("genie::SpectralFunc","Default"));
+
+#ifdef _G_REWEIGHT_FGM_DEBUG_
+  fTestFile = new TFile("./fgm_reweight_test.root","recreate");
+  fTestNtp  = new TNtupleD("testntp","","Q2:wght");
+#endif
 }
 //_______________________________________________________________________________________
 

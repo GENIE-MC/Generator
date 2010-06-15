@@ -30,6 +30,9 @@
 using std::map;
 using std::string;
 
+class TFile;
+class TNtupleD;
+
 namespace genie {
 
 class XSecAlgorithmI;
@@ -69,8 +72,9 @@ namespace rew   {
    double CalcWeightMaShape (const EventRecord & event);
    double CalcWeightMa      (const EventRecord & event);
 
-   XSecAlgorithmI * fXSecModel;       ///<
-   Registry *       fXSecModelConfig; ///<
+   XSecAlgorithmI * fXSecModelDef;    ///< default model
+   XSecAlgorithmI * fXSecModel;       ///< tweaked model
+   Registry *       fXSecModelConfig; ///< config in tweaked model
 
    int    fMode;         ///< 0: Ma, 1: Norm and MaShape
    bool   fRewNue;       ///< reweight nu_e CC?
@@ -85,6 +89,8 @@ namespace rew   {
    double fMaDef;        ///<
    double fMaCurr;       ///<
 
+   TFile *    fTestFile;
+   TNtupleD * fTestNtp;
  };
 
 } // rew   namespace

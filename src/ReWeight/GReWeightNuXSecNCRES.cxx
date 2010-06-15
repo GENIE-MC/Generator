@@ -20,6 +20,8 @@
 */
 //____________________________________________________________________________
 
+#include <cassert>
+
 #include <TMath.h>
 
 #include "Algorithm/AlgFactory.h"
@@ -198,8 +200,12 @@ void GReWeightNuXSecNCRES::Init(void)
   AlgId id("genie::ReinSeghalRESPXSec","Default");
 
   AlgFactory * algf = AlgFactory::Instance();
-  Algorithm * alg = algf->AdoptAlgorithm(id);
 
+  Algorithm * algdef = algf->AdoptAlgorithm(id);
+  fXSecModelDef = dynamic_cast<XSecAlgorithmI*>(algdef);
+  fXSecModelDef->AdoptSubstructure();
+ 
+  Algorithm * alg = algf->AdoptAlgorithm(id);
   fXSecModel = dynamic_cast<XSecAlgorithmI*>(alg);
   fXSecModel->AdoptSubstructure();
 
@@ -278,13 +284,14 @@ double GReWeightNuXSecNCRES::CalcWeightMaMvShape(const genie::EventRecord & even
 //LOG("ReW", pDEBUG) << "event generation weight = " << old_weight;
 //LOG("ReW", pDEBUG) << "new weight = " << new_weight;
 
-  double old_integrated_xsec = event.XSec();
-  double new_integrated_xsec = fXSecModel->Integral(interaction);
-  assert(new_integrated_xsec > 0);
-  new_weight *= (old_integrated_xsec/new_integrated_xsec);
+//double old_integrated_xsec = event.XSec();
+  double old_integrated_xsec = fXSecModelDef -> Integral(interaction);
+  double twk_integrated_xsec = fXSecModel    -> Integral(interaction);   
+  assert(twk_integrated_xsec > 0);
+  new_weight *= (old_integrated_xsec/twk_integrated_xsec);
 
 //LOG("ReW", pDEBUG) << "integrated cross section (old) = " << old_integrated_xsec;
-//LOG("ReW", pDEBUG) << "integrated cross section (new) = " << new_integrated_xsec;
+//LOG("ReW", pDEBUG) << "integrated cross section (twk) = " << twk_integrated_xsec;
 //LOG("ReW", pDEBUG) << "new weight (normalized to const integral) = " << new_weight;
 
   interaction->KinePtr()->ClearRunningValues();
