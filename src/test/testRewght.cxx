@@ -39,7 +39,10 @@
 #include "ReWeight/GSystSet.h"
 #include "ReWeight/GReWeight.h"
 #include "ReWeight/GReWeightNuXSecCCQE.h"
+#include "ReWeight/GReWeightNuXSecCCQEvec.h"
 #include "ReWeight/GReWeightNuXSecCCRES.h"
+#include "ReWeight/GReWeightNuXSecNCRES.h"
+#include "ReWeight/GReWeightNuXSecDIS.h"
 #include "ReWeight/GReWeightNuXSecCOH.h"
 #include "ReWeight/GReWeightNonResonanceBkg.h"
 #include "ReWeight/GReWeightFGM.h"
@@ -93,9 +96,12 @@ int main(int argc, char ** argv)
   GReWeight rw;
 
   rw.AdoptWghtCalc( "xsec_ccqe",       new GReWeightNuXSecCCQE      );
+  rw.AdoptWghtCalc( "xsec_ccqe_vec",   new GReWeightNuXSecCCQEvec   );
   rw.AdoptWghtCalc( "xsec_ccres",      new GReWeightNuXSecCCRES     );
-  rw.AdoptWghtCalc( "xsec_coh",        new GReWeightNuXSecCOH       );
+  rw.AdoptWghtCalc( "xsec_ncres",      new GReWeightNuXSecNCRES     );
   rw.AdoptWghtCalc( "xsec_nonresbkg",  new GReWeightNonResonanceBkg );
+  rw.AdoptWghtCalc( "xsec_dis",        new GReWeightNuXSecDIS       );
+  rw.AdoptWghtCalc( "xsec_coh",        new GReWeightNuXSecCOH       );
   rw.AdoptWghtCalc( "nuclear_qe",      new GReWeightFGM             );
   rw.AdoptWghtCalc( "nuclear_dis",     new GReWeightDISNuclMod      );
   rw.AdoptWghtCalc( "hadro_res_decay", new GReWeightResonanceDecay  );
@@ -117,15 +123,25 @@ int main(int argc, char ** argv)
 
   GSystSet & syst = rw.Systematics();
 
-  syst.Set(kXSecTwkDial_NormCCQE,     +1.0);
-  syst.Set(kXSecTwkDial_MaCCQEshape,  +1.0);
-  syst.Set(kXSecTwkDial_NormCCRES,    -1.0);
-  syst.Set(kXSecTwkDial_MaCCRESshape, -1.0);
-  syst.Set(kXSecTwkDial_RvpCC1pi,     +0.5);
-  syst.Set(kXSecTwkDial_RvnCC1pi,     +0.5);
-  syst.Set(kXSecTwkDial_MaCOHpi,      -0.5);
-  syst.Set(kINukeTwkDial_MFP_pi,      +1.0);
-  syst.Set(kINukeTwkDial_MFP_N,       -1.0);
+  syst.Set(kXSecTwkDial_NormCCQE,        +1.0);
+  syst.Set(kXSecTwkDial_MaCCQEshape,     +1.0);
+  syst.Set(kXSecTwkDial_NormCCRES,       -1.0);
+  syst.Set(kXSecTwkDial_VecFFCCQEshape,  -1.0);
+  syst.Set(kXSecTwkDial_MaCCRESshape,    -1.0);
+  syst.Set(kXSecTwkDial_MvCCRESshape,    +0.5);
+  syst.Set(kXSecTwkDial_NormNCRES,       +1.0);
+  syst.Set(kXSecTwkDial_MaNCRESshape,    -0.7);
+  syst.Set(kXSecTwkDial_MvNCRESshape,    +0.3);
+  syst.Set(kXSecTwkDial_RvpCC1pi,        +0.5);
+  syst.Set(kXSecTwkDial_RvnCC1pi,        +0.5);
+  syst.Set(kXSecTwkDial_MaCOHpi,         -0.5);
+  syst.Set(kINukeTwkDial_MFP_pi,         +1.0);
+  syst.Set(kINukeTwkDial_MFP_N,          -1.0);
+  syst.Set(kINukeTwkDial_FrPiProd_pi,    -0.7);
+  syst.Set(kHadrAGKYTwkDial_xF1pi,       -1.0);
+  syst.Set(kHadrAGKYTwkDial_pT1pi,       +1.0);
+  syst.Set(kHadrNuclTwkDial_FormZone,    +1.0);
+  syst.Set(kRDcyTwkDial_Theta_Delta2Npi, +1.0);
 
   rw.Reconfigure();
 
