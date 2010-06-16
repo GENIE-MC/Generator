@@ -26,6 +26,8 @@
 #include <cassert>
 
 #include <TMath.h>
+#include <TFile.h>
+#include <TNtupleD.h>
 
 #include "Algorithm/AlgFactory.h"
 #include "Algorithm/AlgConfigPool.h"
@@ -42,6 +44,8 @@
 #include "ReWeight/GSystUncertainty.h"
 #include "Registry/Registry.h"
 
+//#define _G_REWEIGHT_DIS_DEBUG_
+
 using namespace genie;
 using namespace genie::rew;
 
@@ -53,7 +57,12 @@ GReWeightNuXSecDIS::GReWeightNuXSecDIS()
 //_______________________________________________________________________________________
 GReWeightNuXSecDIS::~GReWeightNuXSecDIS()
 {
-
+#ifdef _G_REWEIGHT_DIS_DEBUG_   
+  fTestFile->cd();
+  fTestNtp ->Write();
+  fTestFile->Close();
+  delete fTestFile;
+#endif
 }
 //_______________________________________________________________________________________
 bool GReWeightNuXSecDIS::IsHandled(GSyst_t syst)
@@ -202,17 +211,28 @@ double GReWeightNuXSecDIS::CalcWeight(const genie::EventRecord & event)
   // calculate weight
   //
 
+  double wght = 1.;
+
   if(fMode == kModeABCV12u) {
-     double wght = this->CalcWeightABCV12u(event);
-     return wght;
+     wght = this->CalcWeightABCV12u(event);
   }
   else
   if(fMode == kModeABCV12uShape) {
-     double wght = this->CalcWeightABCV12uShape(event);
-     return wght;
+     wght = this->CalcWeightABCV12uShape(event);
   }
 
-  return 1.;
+#ifdef _G_REWEIGHT_DIS_DEBUG_
+  double E = interaction->InitState().ProbeE(kRfHitNucRest);
+  double x = interaction->Kine().x(true);
+  double y = interaction->Kine().y(true);
+  int ccnc = (is_cc) ? 1 : 0;
+  int nuc  = interaction->InitState().Tgt().HitNucPdg();
+  int qrk  = interaction->InitState().Tgt().HitQrkPdg();
+  int sea  = (interaction->InitState().Tgt().HitSeaQrk()) ? 1 : 0;
+  fTestNtp->Fill(E,x,y,nupdg,nuc,qrk,sea,ccnc,wght);
+#endif
+
+  return wght;
 }
 //_______________________________________________________________________________________
 double GReWeightNuXSecDIS::CalcWeightABCV12u(const genie::EventRecord & event) 
@@ -281,6 +301,8 @@ void GReWeightNuXSecDIS::Init(void)
   fXSecModelConfig = new Registry(fXSecModel->GetConfig());
 //LOG("ReW", pNOTICE) << *fXSecModelConfig;
 
+  this->SetMode   (kModeABCV12u);
+
   this->RewNue    (true);
   this->RewNuebar (true);
   this->RewNumu   (true);
@@ -308,6 +330,11 @@ void GReWeightNuXSecDIS::Init(void)
   fBhtBYCur  = fBhtBYDef;       
   fCV1uBYCur = fCV1uBYDef;      
   fCV2uBYCur = fCV2uBYDef;      
+
+#ifdef _G_REWEIGHT_DIS_DEBUG_
+  fTestFile = new TFile("./dis_reweight_test.root","recreate");
+  fTestNtp  = new TNtupleD("testntp","","E:x:y:nu:nuc:qrk:sea:ccnc:wght");
+#endif
 }
 //_______________________________________________________________________________________
 

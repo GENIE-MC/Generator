@@ -24,6 +24,9 @@
 
 #include "ReWeight/GReWeightI.h"
 
+class TFile;
+class TNtupleD;
+
 namespace genie {
 
 class XSecAlgorithmI;
@@ -100,6 +103,8 @@ namespace rew   {
    string fCV1uBYPath;      ///<
    string fCV2uBYPath;      ///<
 
+   TFile *    fTestFile;
+   TNtupleD * fTestNtp;
  };
 
 } // rew   namespace
