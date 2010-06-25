@@ -38,9 +38,10 @@ BUILD_TARGETS =    print-make-info \
 		   generator-test-exe \
 		   generator-std-exe \
 		   minos-support-softw \
+		   numi-support-softw \
 		   t2k-support-softw \
 		   ino-support-softw \
-  		   install-scripts
+		   install-scripts
 INSTALL_TARGETS =  print-makeinstall-info \
 		   check-previous-installation \
 		   make-install-dirs \
@@ -63,7 +64,7 @@ print-makeinstall-info: FORCE
 	@echo " "
 	@echo "***** Installing GENIE version $(GVERSION) at $(GENIE_INSTALLATION_PATH)"
 	@echo " "
-	
+
 base-framework: FORCE
 	@echo " "
 	@echo "** Building base-framework..."
@@ -322,6 +323,18 @@ minos-support-softw: FORCE
 ifeq ($(strip $(GOPT_ENABLE_MINOS)),YES)
 	@echo "* Building MINOS-specific GENIE tools"
 	cd ${GENIE}/src/support/minos/EventServer/;\
+	make all; \
+	cd ${GENIE}
+else
+	@echo "Not enabled! Skipping..."
+endif
+
+numi-support-softw: FORCE
+	@echo " "
+	@echo "** Building NuMI-specific support software..."
+ifeq ($(strip $(GOPT_ENABLE_NUMI)),YES)
+	@echo "* Building NuMI-specific GENIE tools"
+	cd ${GENIE}/src/support/numi/EvGen/;\
 	make all; \
 	cd ${GENIE}
 else
@@ -621,6 +634,7 @@ clean-files: FORCE
 	cd VHE;                           make clean; cd ..; \
 	cd stdapp;                        make clean; cd ..; \
 	cd support/minos/EventServer/;    make clean; cd ../../../; \
+	cd support/numi/EvGen/;           make clean; cd ../../../; \
 	cd support/t2k/EvGen/;            make clean; cd ../../../; \
 	cd support/t2k/SKNorm/;           make clean; cd ../../../; \
 	cd support/ino/EvGen/;            make clean; cd ../../../; \
@@ -697,6 +711,7 @@ distclean: FORCE
 	cd VHE;                            make distclean; cd ..; \
 	cd stdapp;                         make distclean; cd ..; \
 	cd support/minos/EventServer/;     make distclean; cd ../../../; \
+	cd support/numi/EvGen/;            make distclean; cd ../../../; \
 	cd support/t2k/EvGen/;             make distclean; cd ../../../; \
 	cd support/t2k/SKNorm/;            make distclean; cd ../../../; \
 	cd support/ino/EvGen/;             make distclean; cd ../../../; \
