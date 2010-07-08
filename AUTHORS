@@ -5,32 +5,34 @@ The GENIE Collaboration (http://www.genie-mc.org)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
  Costas Andreopoulos   costas.andreopoulos \at stfc.ac.uk  [1]  (*)
- Flavio Cavanna        flavio.cavanna \at aquila.infn.it   [2]
- James Dobson          j.dobson07 \at imperial.ac.uk       [3]
- Steve Dytman          dytman+ \at pitt.edu                [4]
- Hugh Gallagher        gallag \at minos.phy.tufts.edu      [5]
- Pawel Guzowski        p.guzowski07 \at imperial.ac.uk     [3]
- Robert Hatcher        rhatcher \at fnal.gov               [6]
- Yoshinari Hayato      hayato \at icrr.u-tokyo.ac.jp       [7]
- Pauli Kehayias        pauli.kehayias \at tufts.edu        [5]
- Anselmo Meregaglia    anselmo.meregaglia \at cern.ch      [8]
- Donna Naples          naples \at merlin.phyast.pitt.edu   [4]
+ Omar Benhar           omar.benhar \at roma1.infn.it       [2]
+ Flavio Cavanna        flavio.cavanna \at aquila.infn.it   [3]
+ James Dobson          j.dobson07 \at imperial.ac.uk       [4]
+ Steve Dytman          dytman+ \at pitt.edu                [5]
+ Hugh Gallagher        gallag \at minos.phy.tufts.edu      [6]
+ Pawel Guzowski        p.guzowski07 \at imperial.ac.uk     [4]
+ Robert Hatcher        rhatcher \at fnal.gov               [7]
+ Yoshinari Hayato      hayato \at icrr.u-tokyo.ac.jp       [8]
+ Pauli Kehayias        pauli.kehayias \at tufts.edu        [6]
+ Anselmo Meregaglia    anselmo.meregaglia \at cern.ch      [9]
+ Donna Naples          naples \at merlin.phyast.pitt.edu   [5]
  Geoff Pearce          geoff.pearce \at stfc.ac.uk         [1]
- Corey Reed            cjreed \at nikhef.nl                [9]
- Andre Rubbia          rubbia \at phys.ethz.ch            [10]
- Mike Whalley          M.R.Whalley \at durham.ac.uk       [11]
+ Corey Reed            cjreed \at nikhef.nl               [10]
+ Andre Rubbia          rubbia \at phys.ethz.ch            [11]
+ Mike Whalley          M.R.Whalley \at durham.ac.uk       [12]
 
  [ 1] Science & Technology Facilities Council, Rutherford Appleton Laboratory (UK)
- [ 2] L'Aquila University, INFN (Italy)
- [ 3] Imperial College London (UK)
- [ 4] Pittsburgh University (USA)
- [ 5] Tufts University (USA)
- [ 6] Fermi National Accelerator Laboratory (USA)
- [ 7] Kamioka Observatory, ICRR, University of Tokyo (Japan)
- [ 8] IPHC Strasbourg (France)
- [ 9] NIKHEF (The Netherlands)
- [10] ETH Zurich (Switzerland)
- [11] Durham University (UK)
+ [ 2] Sapienza University of Rome and INFN (Italy) 
+ [ 3] L'Aquila University and INFN (Italy)
+ [ 4] Imperial College London (UK)
+ [ 5] Pittsburgh University (USA)
+ [ 6] Tufts University (USA)
+ [ 7] Fermi National Accelerator Laboratory (USA)
+ [ 8] Kamioka Observatory, ICRR, University of Tokyo (Japan)
+ [ 9] IPHC Strasbourg (France)
+ [10] NIKHEF (The Netherlands)
+ [11] ETH Zurich (Switzerland)
+ [12] Durham University (UK)
 
 
   (*) Corresponding Author:

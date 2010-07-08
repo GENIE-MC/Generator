@@ -19,6 +19,7 @@
 **                                                                                           **
 ** Authors:                                                                                  **
 **    Costas Andreopoulos - STFC, Rutherford Appleton Laboratory (UK)                        **
+**    Omar Benhar         - Sapienza University of Rome and INFN (Italy)                     **
 **    Flavio Cavanna      - INFN, L'Aquila University (Italy)                                **
 **    James Dobson        - Imperial College London (UK)                                     **
 **    Steve Dytman        - Pittsburgh University (USA)                                      **
