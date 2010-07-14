@@ -8,7 +8,7 @@
 # files from the downloaded source, but uses definitions embedded in this
 # script. Should work on both Linux and Mac OS X.
 #
-# Usage:  ./build_pythia6 [version] [--dummies=bestry|remove|keep] [--refetch]
+# Usage:  ./build_pythia6 [version] [--dummies=bestry|remove|keep] [--refetch] [gfortran|g77|g95]
 #
 # where [version] takes a form like "6.4.12", "6412" or "6_412" w/ or
 # without an optional leading "v".  It will created a subdirectory named 
@@ -53,7 +53,9 @@
 #                    remove always removes dummy routine and tries to link
 #                      to what ever libraries that it can find
 #                    keep always keeps dummy routine
-#    2008-01-05:   fix "keep" option to actually keep dummy stubs.
+#    2008-01-05:  fix "keep" option to actually keep dummy stubs.
+#    2009-04-09:  choose fortran compiler, if cmd line specified use that
+#                 otherwise first of gfortran or g77 found
 #
 ############################################################################
 #
@@ -61,6 +63,7 @@ version=6.4.12
 doclean=0
 dummyaction="besttry"
 refetch=0
+whichftn="unknown"
 while [ $# -gt 0 ] ; do
   case $1 in
   *clean*)
@@ -78,6 +81,12 @@ while [ $# -gt 0 ] ; do
      esac ;;
   *refetch*)
      refetch=1 ;;
+  *g77*)
+     whichftn="g77" ;;
+  *gfortran*)
+     whichftn="gfortran" ;;
+  *g95*)
+     whichftn="g95" ;;
   *)
      version=$1 ;;
   esac
@@ -148,6 +157,34 @@ for subdir in inc lib download src tpythia6_build ; do
     mkdir ${subdir}
   fi
 done
+
+############################################################################
+#
+# pick a fortran:  g77 vs. gfortran vs. g95
+#
+if [ "$whichftn" == "unknown" ] ; then
+# for now not g95 option ...
+#  whichg95=`which g95 | grep -v "no g95 in"`
+  if [ ! -z "${whichg95}" ] ; then 
+     whichftn="g95"
+  else
+#    echo "no g95"
+    whichgfortran=`which gfortran | grep -v "no gfortran in"`
+    if [ ! -z "${whichgfortran}" ] ; then 
+       whichftn="gfortran"
+    else
+#      echo "no gfortran"
+      whichg77=`which g77 | grep -v "no g77 in"`
+      if [ ! -z "${whichg77}" ] ; then 
+         whichftn="g77"
+      else
+         echo "could not find a fortran compiler (g95, gfortran, g77)"
+      fi
+    fi
+  fi
+fi
+export FORT=$whichftn
+echo "using $FORT as fortran compiler"
 
 ############################################################################
 #
@@ -361,14 +398,14 @@ cat > Makefile <<EOF
 UNAME = \$(shell uname)
 ifeq "\$(UNAME)" "Linux"
     AR=ar
-    F77=g77
+    F77=$FORT
     FFLAG= -O -fno-second-underscore -fPIC
     CPP = gcc -E
     CPPFLG= -C -P
 endif
 ifeq "\$(UNAME)" "Darwin"
     AR=ar
-    F77=g77
+    F77=$FORT
     FFLAG= -O -fno-second-underscore -fPIC 
     CPP = cc -E
     CPPFLG= -C -P
@@ -472,13 +509,13 @@ rmdir pythia6
 echo 'void MAIN__() {}' > main.c
 gcc -c -fPIC main.c
 gcc -c -fPIC pythia6_common_address.c
-g77 -c -fPIC -fno-second-underscore tpythia6_called_from_cc.F
+$FORT -c -fPIC -fno-second-underscore tpythia6_called_from_cc.F
 
 cd ${toppath}/lib
 
 arch=`uname`
 if [ ${arch} == "Linux" ] ; then
-  g77 -shared -Wl,-soname,libPythia6.so -o libPythia6.so \
+  $FORT -shared -Wl,-soname,libPythia6.so -o libPythia6.so \
     ${toppath}/tpythia6_build/*.o ${toppath}/src/*.o ${CERNLINK}
 fi
 if [ ${arch} == "Darwin" ] ; then
