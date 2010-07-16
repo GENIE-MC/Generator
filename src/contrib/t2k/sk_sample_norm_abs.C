@@ -6,8 +6,8 @@
 //   = Integral{
 //      (d3Flux / dE dS dI) * sig(E) * (Na/A) * dE*dM*dI}
 // where
-//   (d3Flux / dE dS dI): numu flux per GeV, per cm^2, per POT
-//   sigma(E): total numu cross section on water, 1E-38 cm^2
+//   (d3Flux / dE dS dI): numu flux per energy bin, per unit area, per POT 
+//   sigma(E): total numu cross section on water
 //   Na: Avogadro's number
 //   A: average mass number for water (weighted average for O16,H)
 //   rho: average density for water (weighted average for O16,H)
@@ -15,14 +15,18 @@
 //   M: mass
 //   I: beam intensity (POT)
 //
-// N = 6.023E+23 x 1E-38 x Io x (Mfv/A) x Ebinsz x Sum_{i} { F_{i} * sig_{i} }
+// SK flux is given in #neutrinos per 0.05 GeV per cm2 per 1E+21 POTs
+// Input water cross sections are given in 1E-28 cm2
+//
+// N = 6.023E+23 x 1E-38 x NF x (Mfv/A) x Ebinsz x Sum_{i} { F_{i} * sig_{i} }
 //
 // where 
-//  Mfv: fiducial volume mass ( = 5xE+10 gr)
-//  Io : integrated beam intensity ( = Nfiles * Ifile = 100 x 1E+21 = 1E+23 POT)
+//  Mfv: fiducial volume mass
+//  NF : number of 1E+21 POT worth of flux files chained together to produce the flux histogram
 //  Ebinsz: energy bin size (0.05 GeV)
-//  F_{i): flux in bin i, in #neutrinos / energy bin
+//  F_{i): flux in bin i
 //  sig_{i}: cross section evaluated at centre of bin i
+//
 
   // output of $GENIE/src/scripts/production/misc/generate_sk_flux_histograms.C
   const char * skfluxfile = "/opt/ppd/t2k/GENIE/data/job_inputs/t2k_flux/10/sk/sk_flux_histograms.root";
@@ -32,7 +36,7 @@
 
   // consts
   double Na  = 6.023E+23;
-  double Mfv = 5E+10; // gr
+  double Mfv = 1E+10; // gr
   double A   = 0.8879 * 16 + 0.1121 * 1; // gr
   double Io  = 1E+23; // pot (all flux files)
   double If  = 1E+21; // pot (per flux file)
@@ -69,5 +73,6 @@
 
   N *= ( Na * 1E-38 * (Io/If) * (Mfv/A) * dE );
 
-  cout << "n = " << N << " SK numu events per " << Io << " POT" << endl;
+  cout << "n = " << N << " SK numu events "
+       << "per " << Io << " POT per " << Mfv/1E+9 << " kton fiducial"<< endl;
 }
