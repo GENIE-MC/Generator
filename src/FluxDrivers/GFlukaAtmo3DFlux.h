@@ -12,7 +12,7 @@
          Teresa Montaruli    <Teresa.Montaruli@ba.infn.it>
 
          To be able to use this flux driver you will need to download the
-         flux data from:  http://lxmi.mi.infn.it/~battist/neutrino.html
+         flux data from:  http://pcbat1.mi.infn.it/~battist/neutrino.html
 
          Please note that this class expects to read flux files formatted as 
          described in the above FLUKA flux page.
