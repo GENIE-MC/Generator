@@ -153,6 +153,6 @@
   <priority msgstream="gntpc">               INFO   </priority>
   <priority msgstream="gmkspl">              INFO   </priority>
   <priority msgstream="gT2Kevgen">           INFO   </priority>
+  <priority msgstream="gLBNEAtmosEvgen">     INFO   </priority>
 
 </messenger_config>
-
