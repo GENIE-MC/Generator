@@ -221,6 +221,7 @@ void SetStyle(bool bw)
 void LoadFilesAndBookPlots(void)
 {
   vector<HadPlots *>::iterator hpvit;
+  int nfiles = 0;
 
   // loop over models considered at the current validation test
   for(int imodel=0; imodel < gOptGenieInputs.NModels(); imodel++) {
@@ -232,14 +233,24 @@ void LoadFilesAndBookPlots(void)
             << "Booking plots for model: " << model_name;
 
       HadPlots * hadplot = new HadPlots(model_name);
-
+      
       // include all data files for current model
       vector<string>::const_iterator file_iter = event_filenames.begin();
       for( ; file_iter != event_filenames.end(); ++file_iter) {
+        
+        if(nfiles==kMaxFiles)  {
+          LOG("vldtest",pFATAL) 
+              << "Number of Input Files greater than Maximum: " << 
+              kMaxFiles;
+          gAbortingInErr=true;
+          exit(1) ; 
+        }
+
          string filename = *file_iter;
          LOG("vldtest", pNOTICE)
             << " Loading data from file:.....: " << filename;
          hadplot->LoadData(filename);
+         nfiles++;
       }// file_iter
 
       // store
