@@ -68,7 +68,7 @@ void HadPlots::BookHists()
   const int nw = 14;
   const double W2bins[nw+1] = {1,2,3,4,6,8,12,16,23,32,45,63,90,125,225};
   const double Wbins[nw+1] = {1,2,2.5,3,3.5,4,4.5,5,5.5,6,6.5,7,8,9,10};
-  for (int i = 0; i<4; i++){//loop over interaction types
+  for (int i = 0; i<kMaxFiles; i++){//loop over interaction types
     
     for (int j = 0; j<5; j++){
       kno[j][i] = new TH1D();
@@ -202,6 +202,7 @@ void HadPlots::Analyze()
   BookHists();
 
   for (unsigned imc = 0; imc < mcFiles.size(); imc++){//loop over mc files
+    LOG("VldHadro", pDEBUG) << "*** Trying File Number " << imc ;
     TFile fin(mcFiles[imc].c_str(),"READ");
     TTree * er_tree = 0;
     NtpMCTreeHeader *thdr = 0;
@@ -380,8 +381,8 @@ void HadPlots::Analyze()
       //double Phs = sqrt(pow(p2.Px(),2)+pow(p2.Py(),2)+pow(p2.Pz(),2));
       v+=M;  //measured v
 
-      //LOG("VldHadro", pINFO) 
-      //  << "Q2 = " << Q2 << ", W = " << W << ", y = " << y << ", v = " << v;
+      LOG("VldHadro", pDEBUG) 
+        << "Q2 = " << Q2 << ", W = " << W << ", y = " << y << ", v = " << v;
 
       int np = 0;
       int nn = 0;
@@ -422,9 +423,9 @@ void HadPlots::Analyze()
 	}
       }
       
-      //LOG("VldHadro",pINFO) 
-      //  << "np = " << np << ", nn = " << nn
-      //  << ", npip = " << npip << ", npim = " << npim << ", npi0 = " << npi0;
+      LOG("VldHadro",pDEBUG) 
+        << "np = " << np << ", nn = " << nn
+        << ", npip = " << npip << ", npim = " << npim << ", npi0 = " << npi0;
 
       double weight = 1.;
 
