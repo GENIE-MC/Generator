@@ -559,10 +559,11 @@ void SaveGraphsToRootFile(void)
     else if (proc.IsNuElectronElastic()) { title << "ve";    }
     else                                 { continue;         }
 
-    if      (proc.IsWeakCC()) { title << "_cc"; }
-    else if (proc.IsWeakNC()) { title << "_nc"; }
-    else if (proc.IsEM()    ) { title << "_em"; }
-    else                      { continue;       }
+    if      (proc.IsWeakCC())  { title << "_cc";      }
+    else if (proc.IsWeakNC())  { title << "_nc";      }
+    else if (proc.IsWeakMix()) { title << "_ccncmix"; }
+    else if (proc.IsEM()    )  { title << "_em";      }
+    else                       { continue;            }
 
     if(tgt.HitNucIsSet()) {
       int hitnuc = tgt.HitNucPdg();
