@@ -329,6 +329,6 @@ void PrintSyntax(void)
 {
   LOG("vldtest", pNOTICE)
     << "\n\n" << "Syntax:" << "\n"
-    << " gvld_free_nucleon_hadronz_test -g genie_inputs.xml\n [-f format]";
+    << " gvld_hadronz_test -g genie_inputs.xml\n [-f format]";
 }
 //____________________________________________________________________________
