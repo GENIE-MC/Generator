@@ -1,48 +1,37 @@
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The GENIE Collaboration (http://www.genie-mc.org)
+ Luis Alvarez-Ruso [1], Costas Andreopoulos (*) [11], Omar Benhar [10], Flavio Cavanna [7],
+      James Dobson [5], Steve Dytman [9], Hugh Gallagher [13], Pawel Guzowski [5],
+ Robert Hatcher [4], Yoshinari Hayato [6], Anselmo Meregaglia [3,12], Aaron Meyer [9],
+ Donna Naples [9], Geoff Pearce [11], Corey Reed [8], Andre Rubbia [3], Mike Whalley [2]
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                              (The GENIE Collaboration)
 
- Costas Andreopoulos   costas.andreopoulos \at stfc.ac.uk  [1]  (*)
- Omar Benhar           omar.benhar \at roma1.infn.it       [2]
- Flavio Cavanna        flavio.cavanna \at aquila.infn.it   [3]
- James Dobson          j.dobson07 \at imperial.ac.uk       [4]
- Steve Dytman          dytman+ \at pitt.edu                [5]
- Hugh Gallagher        gallag \at minos.phy.tufts.edu      [6]
- Pawel Guzowski        p.guzowski07 \at imperial.ac.uk     [4]
- Robert Hatcher        rhatcher \at fnal.gov               [7]
- Yoshinari Hayato      hayato \at icrr.u-tokyo.ac.jp       [8]
- Pauli Kehayias        pauli.kehayias \at tufts.edu        [6]
- Anselmo Meregaglia    anselmo.meregaglia \at cern.ch      [9]
- Donna Naples          naples \at merlin.phyast.pitt.edu   [5]
- Geoff Pearce          geoff.pearce \at stfc.ac.uk         [1]
- Corey Reed            cjreed \at nikhef.nl               [10]
- Andre Rubbia          rubbia \at phys.ethz.ch            [11]
- Mike Whalley          M.R.Whalley \at durham.ac.uk       [12]
+                          (1) Coimbra University (Portugal)
+                            (2) Durham University (UK)
+                           (3) ETH Zurich (Switzerland)
+                   (4) Fermi National Accelerator Laboratory (USA)
+                         (5) Imperial College London (UK)
+              (6) Kamioka Observatory, ICRR, University of Tokyo (Japan)
+                       (7) L'Aquila University and INFN (Italy)
+                            (8) NIKHEF (The Netherlands)
+                          (9) Pittsburgh University (USA)
+                   (10) Rome Sapienza University and INFN (Italy) 
+   (11) Rutherford Appleton Laboratory / Science & Technology Facilities Council (UK)
+                           (12) Strasbourg IPHC (France)
+                            (13) Tufts University (USA)
 
- [ 1] Science & Technology Facilities Council, Rutherford Appleton Laboratory (UK)
- [ 2] Sapienza University of Rome and INFN (Italy) 
- [ 3] L'Aquila University and INFN (Italy)
- [ 4] Imperial College London (UK)
- [ 5] Pittsburgh University (USA)
- [ 6] Tufts University (USA)
- [ 7] Fermi National Accelerator Laboratory (USA)
- [ 8] Kamioka Observatory, ICRR, University of Tokyo (Japan)
- [ 9] IPHC Strasbourg (France)
- [10] NIKHEF (The Netherlands)
- [11] ETH Zurich (Switzerland)
- [12] Durham University (UK)
 
+ ----------------------------
 
   (*) Corresponding Author:
 
-  Dr. Costas Andreopoulos
+  Dr. Costas Andreopoulos < costas.andreopoulos \at stfc.ac.uk >
 
-  Science & Technology Facilities Council, Rutherford Appleton Laboratory,
-  Harwell Science & Innovation Campus, Oxfordshire OX11 0QX, United Kingdom
+  Rutherford Appleton Laboratory / Science & Technology Facilities Council
+  Harwell Science & Innovation Campus
+  Oxfordshire OX11 0QX, 
+  United Kingdom
 
-  E-Mail: costas.andreopoulos \at stfc.ac.uk
   TEL : +44-(0)1235-445091
   FAX : +44-(0)1235-446733
 
