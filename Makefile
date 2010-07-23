@@ -123,7 +123,6 @@ core-medium-energy-range: FORCE
 	cd NuE;                make; cd ..; \
 	cd Nuclear;            make; cd ..; \
 	cd PartonModel;        make; cd ..; \
-	cd Paschos; 	       make; cd ..; \
 	cd PDF;                make; cd ..; \
 	cd QEL;                make; cd ..; \
 	cd ReinSeghal;         make; cd ..; \
@@ -452,7 +451,6 @@ make-install-dirs: FORCE
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/PDF
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/PDG
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/PartonModel
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/Paschos
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/QEL
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/RES
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/ReWeight
@@ -503,7 +501,6 @@ copy-install-files: FORCE
 	cd NuGamma;                make install; cd ..; \
 	cd Numerical;              make install; cd ..; \
 	cd PartonModel;            make install; cd ..; \
-	cd Paschos;                make install; cd ..; \
 	cd PDF;                    make install; cd ..; \
 	cd PDG;                    make install; cd ..; \
 	cd QEL;                    make install; cd ..; \
@@ -554,7 +551,6 @@ purge: FORCE
 	cd NuE;                           make purge; cd ..; \
 	cd Numerical;                     make purge; cd ..; \
 	cd PartonModel;                   make purge; cd ..; \
-	cd Paschos;                       make purge; cd ..; \
 	cd PDF;                           make purge; cd ..; \
 	cd PDG;                           make purge; cd ..; \
 	cd QEL;                           make purge; cd ..; \
@@ -613,7 +609,6 @@ clean-files: FORCE
 	cd NuE;                           make clean; cd ..; \
 	cd Numerical;                     make clean; cd ..; \
 	cd PartonModel;                   make clean; cd ..; \
-	cd Paschos;                       make clean; cd ..; \
 	cd PDF;                           make clean; cd ..; \
 	cd PDG;                           make clean; cd ..; \
 	cd QEL;                           make clean; cd ..; \
@@ -690,7 +685,6 @@ distclean: FORCE
 	cd NuE;                            make distclean; cd ..; \
 	cd Numerical;                      make distclean; cd ..; \
 	cd PartonModel;                    make distclean; cd ..; \
-	cd Paschos;                        make distclean; cd ..; \
 	cd PDF;                            make distclean; cd ..; \
 	cd PDG;                            make distclean; cd ..; \
 	cd QEL;                            make distclean; cd ..; \
