@@ -22,16 +22,16 @@ all: $(TGT)
 
 gLBNEAtmosEvGen: FORCE 
 	$(CXX) $(CXXFLAGS) -c gLBNEAtmosEvGen.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) gLBNEAtmosEvGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gLBNEAtmosEvGen
+	$(LD) $(LDFLAGS) gLBNEAtmosEvGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gLBNEevgen_atmo
 
 purge: FORCE
 	$(RM) *.o *~ core 
 
 clean: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gLBNEAtmosEvGen
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gLBNEevgen_atmo
 
 distclean: FORCE
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gLBNEAtmosEvGen
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gLBNEevgen_atmo
 
 FORCE:
 
