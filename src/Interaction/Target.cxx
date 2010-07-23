@@ -5,13 +5,17 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - May 03, 2004
+         STFC, Rutherford Appleton Laboratory 
 
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
  @ Oct 09, 2007 - CA
    Hit nucleon not auto-set for hit nucleon targets
+ @ May 05, 2010 - CR
+   Adding special ctor for ROOT I/O purposes so as to avoid memory leak due to
+   memory allocated in the default ctor when objects of this class are read by 
+   the ROOT Streamer. 
 
 */
 //____________________________________________________________________________
@@ -19,6 +23,7 @@
 #include <sstream>
 
 #include <TParticlePDG.h>
+#include <TRootIOCtor.h>
 
 #include "Conventions/Constants.h"
 #include "Interaction/Target.h"
@@ -78,6 +83,18 @@ TObject()
 {
   this->Init();
   this->Copy(tgt);
+}
+//___________________________________________________________________________
+Target::Target(TRootIOCtor*) :
+TObject(),
+fZ(0),
+fA(0),
+fTgtPDG(0),
+fHitNucPDG(0),
+fHitSeaQrk(false),
+fHitNucP4(0)
+{
+
 }
 //___________________________________________________________________________
 Target::~Target()

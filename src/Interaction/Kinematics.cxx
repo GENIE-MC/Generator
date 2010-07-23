@@ -5,17 +5,22 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - May 08, 2004
+         STFC, Rutherford Appleton Laboratory
 
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
+ @ May 05, 2010 - CR
+   Adding special ctor for ROOT I/O purposes so as to avoid memory leak due to
+   memory allocated in the default ctor when objects of this class are read by 
+   the ROOT Streamer. 
 
 */
 //____________________________________________________________________________
 
 #include <TMath.h>
 #include <TLorentzVector.h>
+#include <TRootIOCtor.h>
 
 #include "Interaction/Kinematics.h"
 #include "Messenger/Messenger.h"
@@ -46,6 +51,14 @@ TObject()
 {
   this->Init();
   this->Copy(kinematics);
+}
+//____________________________________________________________________________
+Kinematics::Kinematics(TRootIOCtor*) :
+TObject(),
+fP4Fsl(0), 
+fP4HadSyst(0)
+{
+
 }
 //____________________________________________________________________________
 Kinematics::~Kinematics()

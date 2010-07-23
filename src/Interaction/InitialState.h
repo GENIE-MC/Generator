@@ -32,6 +32,8 @@
 using std::ostream;
 using std::string;
 
+class TRootIOCtor;
+
 namespace genie {
 
 class InitialState : public TObject {
@@ -42,6 +44,7 @@ public:
   InitialState(int Z, int A, int probe_pdgc);
   InitialState(const Target & tgt, int probe_pdgc);
   InitialState(const InitialState & initial_state);
+  InitialState(TRootIOCtor*);
  ~InitialState();
 
   TParticlePDG *   Probe      (void) const;
