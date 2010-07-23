@@ -13,6 +13,11 @@
  @ Oct 05, 2009 - CA
    Modified code to handle charged lepton scattering too.
    Also, the helicity amplitude code now returns a `const RSHelicityAmpl &'.
+ @ July 23, 2010 - CA
+   BaryonResParams, and BreitWignerI, BaryonResDataSetI implementations are
+   now redundant. Get resonance parameters from BaryonResUtils and use the
+   Breit-Weigner functions from utils::bwfunc.
+
 */
 //____________________________________________________________________________
 
@@ -22,7 +27,6 @@
 #include "Algorithm/AlgFactory.h"
 #include "Algorithm/AlgConfigPool.h"
 #include "Base/XSecIntegratorI.h"
-#include "BaryonResonance/BaryonResDataSetI.h"
 #include "BaryonResonance/BaryonResUtils.h"
 #include "Conventions/GBuild.h"
 #include "Conventions/Constants.h"
@@ -39,6 +43,7 @@
 #include "Utils/KineUtils.h"
 #include "Utils/MathUtils.h"
 #include "Utils/Range1.h"
+#include "Utils/BWFunc.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -114,17 +119,18 @@ double ReinSeghalRESPXSec::XSec(
   }
 
   // Get baryon resonance parameters
-  fBRP.RetrieveData(resonance);  
-  double Mres = fBRP.Mass();
-  double Gres = fBRP.Width();
-  int    Nres = fBRP.ResonanceIndex();
+  int    IR  = utils::res::ResonanceIndex    (resonance);
+  int    LR  = utils::res::OrbitalAngularMom (resonance);
+  double MR  = utils::res::Mass              (resonance);
+  double WR  = utils::res::Width             (resonance);
+  double NR  = utils::res::BWNorm            (resonance);
 
   // Following NeuGEN, avoid problems with underlying unphysical
   // model assumptions by restricting the allowed W phase space
   // around the resonance peak
-  if      (W > Mres + fN0ResMaxNWidths * Gres && Nres==0) return 0.;
-  else if (W > Mres + fN2ResMaxNWidths * Gres && Nres==2) return 0.;
-  else if (W > Mres + fGnResMaxNWidths * Gres)            return 0.;
+  if      (W > MR + fN0ResMaxNWidths * WR && IR==0) return 0.;
+  else if (W > MR + fN2ResMaxNWidths * WR && IR==2) return 0.;
+  else if (W > MR + fGnResMaxNWidths * WR)          return 0.;
 
   // Compute auxiliary & kinematical factors 
   double E      = init_state.ProbeE(kRfHitNucRest);
@@ -150,9 +156,9 @@ double ReinSeghalRESPXSec::XSec(
 
   // Calculate the Feynman-Kislinger-Ravndall parameters
 
-  double Go     = TMath::Power(1 - 0.25 * q2/Mnuc2, 0.5-Nres);
-  double GV     = Go * TMath::Power( 1./(1-q2/fMv2), 2);
-  double GA     = Go * TMath::Power( 1./(1-q2/fMa2), 2);
+  double Go  = TMath::Power(1 - 0.25 * q2/Mnuc2, 0.5-IR);
+  double GV  = Go * TMath::Power( 1./(1-q2/fMv2), 2);
+  double GA  = Go * TMath::Power( 1./(1-q2/fMa2), 2);
 
   if(is_EM) { 
     GA = 0.; // zero the axial term for EM scattering
@@ -160,7 +166,7 @@ double ReinSeghalRESPXSec::XSec(
 
   double d      = TMath::Power(W+Mnuc,2.) - q2;
   double sq2omg = TMath::Sqrt(2./fOmega);
-  double nomg   = Nres * fOmega;
+  double nomg   = IR * fOmega;
   double mq_w   = Mnuc*Q/W;
 
   fFKR.Lamda  = sq2omg * mq_w;
@@ -260,7 +266,7 @@ double ReinSeghalRESPXSec::XSec(
   // Breit-Wigner distribution (default: true)
   double bw = 1.0;
   if(fWghtBW) {
-     bw = fBreitWigner->Eval(resonance, W);
+     bw = utils::bwfunc::BreitWignerL(W,LR,MR,WR,NR); 
   } 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
      LOG("ReinSeghalRes", pDEBUG) 
@@ -375,29 +381,11 @@ void ReinSeghalRESPXSec::LoadConfig(void)
 
   // Load all the sub-algorithms needed
 
-  fBaryonResDataSet = 0;
   fHAmplModelCC     = 0;
   fHAmplModelNCp    = 0;
   fHAmplModelNCn    = 0;
-  fBreitWigner      = 0;
-
-  // Access a "Baryon Resonance data-set" sub-algorithm
-  fBaryonResDataSet = 
-     dynamic_cast<const BaryonResDataSetI *> (
-         this->SubAlg("BaryonResData"));
-  assert(fBaryonResDataSet);
-
-  fBRP.SetDataSet(fBaryonResDataSet); // <-- attach data set;
-
-  if(fWghtBW) {
-    // Access a "Breit-Wigner" sub-algorithm
-    fBreitWigner = 
-       dynamic_cast<const BreitWignerI *> (
-          this->SubAlg("BreitWignerAlg"));
-    assert(fBreitWigner);
-  }
-
-  // Access a "Helicity Amplitudes model" sub-algorithms
+  fHAmplModelEMp    = 0;
+  fHAmplModelEMn    = 0;
 
   AlgFactory * algf = AlgFactory::Instance();
 
