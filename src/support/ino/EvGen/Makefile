@@ -14,22 +14,22 @@ include $(GENIE)/src/make/Make.include
 GENIE_LIBS  = $(shell $(GENIE)/src/scripts/setup/genie-config --libs)
 LIBRARIES  := $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 
-TGT = gINOevgen
+TGT = gINOAtmosEvGen
 
 all: $(TGT)
 
-gINOevgen: FORCE
-	$(CXX) $(CXXFLAGS) -c gINOEvGen.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) gINOEvGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gINOevgen
+gINOAtmosEvGen: FORCE
+	$(CXX) $(CXXFLAGS) -c gINOAtmosEvGen.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gINOAtmosEvGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gINOevgen_atmo
 
 purge: FORCE
 	$(RM) *.o *~ core 
 
 clean: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gINOevgen 
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gINOevgen_atmo
 
 distclean: FORCE
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gINOevgen 
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gINOevgen_atmo 
 
 FORCE:
 
