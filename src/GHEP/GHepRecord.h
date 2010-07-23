@@ -28,6 +28,7 @@
 #include "Interaction/Interaction.h" 
 #include "GHEP/GHepStatus.h"
 
+class TRootIOCtor;
 class TLorentzVector;
 
 using std::ostream;
@@ -43,6 +44,7 @@ public :
   GHepRecord();
   GHepRecord(int size);
   GHepRecord(const GHepRecord & record);
+  GHepRecord(TRootIOCtor*);
   virtual ~GHepRecord();
 
   //-- methods to attach / get summary information

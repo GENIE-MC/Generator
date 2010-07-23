@@ -27,6 +27,8 @@
 
 #include "GHEP/GHepStatus.h"
 
+class TRootIOCtor;
+
 using std::string;
 using std::ostream;
 
@@ -48,6 +50,8 @@ public :
          int mother1, int mother2, int daughter1, int daughter2,
                            double px, double py, double pz, double E,
                                     double x, double y, double z, double t);
+
+  GHepParticle(TRootIOCtor*);
  ~GHepParticle();
 
   // Basic properties

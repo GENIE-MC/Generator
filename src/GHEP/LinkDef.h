@@ -13,4 +13,6 @@
 #pragma link C++ class genie::GHepVirtualList;
 #pragma link C++ class genie::GHepVirtualListFolder;
 
+#pragma link C++ ioctortype TRootIOCtor;
+
 #endif
