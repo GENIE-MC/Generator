@@ -11,7 +11,6 @@ Algorithm Configurable Parameters:
 ..........................................................................................................................
 Name                        Type    Opt  Comment                                               Default
 ..........................................................................................................................
-DiffXSecAlg                 alg     No   algorithm used for computing res excitation xsec
 Integrator                  alg     No   algorithm used for integrating res excitation xsec 
 ResonanceNameList           string  Yes  list of resonances to be taken into account           GPL: ResonanceNameList
 UseDRJoinScheme             bool    Yes  Use DIS/RES joining scheme?                           GPL: UseDRJoinScheme
@@ -28,7 +27,6 @@ ESplineMax                  double  No   Emax in RES splines, xsec(E>Emax)=xsec(
   In this configuration set we include only the first two resonances
 -->
   <param_set name="Fast"> 
-     <param type="alg"    name="DiffXSecAlg">            genie::ReinSeghalRESPXSec/Default   </param>
      <param type="alg"    name="Integrator">             genie::Simpson2DFixN/RS             </param>
      <param type="double" name="ESplineMax">             100                                 </param>
      <param type="string" name="ResonanceNameList">      P33(1232),P11(1440)                 </param>
@@ -39,7 +37,6 @@ ESplineMax                  double  No   Emax in RES splines, xsec(E>Emax)=xsec(
   In this configuration set we include all the resonances defined in GlobalParameterList
 -->
   <param_set name="Default"> 
-     <param type="alg"    name="DiffXSecAlg">            genie::ReinSeghalRESPXSec/Default   </param>
      <param type="alg"    name="Integrator">             genie::Simpson2DFixN/RS             </param>
      <param type="double" name="ESplineMax">             100                                 </param>
   </param_set>
@@ -48,7 +45,6 @@ ESplineMax                  double  No   Emax in RES splines, xsec(E>Emax)=xsec(
   In this configuration set we include all resonances known to GENIE including the the ambiguous P33(1600), F17(1970)
 -->
   <param_set name="AllResonances"> 
-     <param type="alg"    name="DiffXSecAlg">            genie::ReinSeghalRESPXSec/Default     </param>
      <param type="alg"    name="Integrator">             genie::Simpson2DFixN/RS               </param>
      <param type="double" name="ESplineMax">             100                                   </param>
      <param type="string" name="ResonanceNameList">  
