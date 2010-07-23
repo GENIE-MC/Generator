@@ -90,7 +90,7 @@ char * CmdLnArgParser::Arg(char op)
   return argument;
 }
 //____________________________________________________________________________
-bool CmdLnArgParser::Exists(char op)
+bool CmdLnArgParser::OptionExists(char op)
 {
   bool set = false;
 

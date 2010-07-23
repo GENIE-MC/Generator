@@ -33,8 +33,8 @@ public:
   CmdLnArgParser(int argc, char **argv);
  ~CmdLnArgParser();
 
-  bool    Exists (char opt); ///< was option set?
-  char *  Arg    (char opt); ///< return argument
+  bool    OptionExists (char opt); ///< was option set?
+  char *  Arg          (char opt); ///< return argument following -`opt'
 
   string         ArgAsString       (char opt);
   vector<string> ArgAsStringTokens (char opt, string delimeter);
