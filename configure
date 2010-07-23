@@ -34,9 +34,10 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "    viewer            Event generation GUI (incomplete)                        default: disabled \n";
   print "    test              Build test programs                                      default: disabled \n";
   print "    gsl               Enable use of the GSL math library (via ROOT MathMore)   default: disabled (Experimental. Don't use yet)\n";
+  print "    event-server      Enable event server                                      default: disabled \n";
   print "    t2k               Enable T2K-specific ev.gen. drivers and tools            default: disabled \n";
-  print "    minos             Enable MINOS-specific ev.gen. drivers and tools          default: disabled \n";
-  print "    numi              Enable NuMI-specific ev.gen. drivers and tools          default: disabled \n";
+  print "    numi              Enable NuMI-specific ev.gen. drivers and tools           default: disabled \n";
+  print "    lbne              Enable LBNE-specific ev.gen. drivers and tools           default: disabled \n";
   print "    ino               Enable INO-specific ev.gen. drivers and tools            default: disabled \n";
   print "\n options for 3rd party software, prefix with --with- (eg --with-lhapdf-lib=/some/path/)\n\n";
   print "    optimiz-level     Compiler optimization        any of O,O2,O3,OO,Os / default: O2 \n";
@@ -132,9 +133,10 @@ my $gopt_enable_mueloss          = "YES";
 my $gopt_enable_viewer           = "NO";
 my $gopt_enable_test             = "NO";
 my $gopt_enable_gsl              = "NO";
-my $gopt_enable_minos            = "NO";
-my $gopt_enable_numi             = "NO";
+my $gopt_enable_evserv           = "NO";
 my $gopt_enable_t2k              = "NO";
+my $gopt_enable_numi             = "NO";
+my $gopt_enable_lbne             = "NO";
 my $gopt_enable_ino              = "NO";
 
 # Check configure's command line arguments for non-default values
@@ -155,9 +157,10 @@ if(($match = grep(/--disable-mueloss/i,         @ARGV)) > 0) { $gopt_enable_muel
 if(($match = grep(/--enable-viewer/i,           @ARGV)) > 0) { $gopt_enable_viewer           = "YES"; }
 if(($match = grep(/--enable-test/i,             @ARGV)) > 0) { $gopt_enable_test             = "YES"; }
 if(($match = grep(/--enable-gsl/i,              @ARGV)) > 0) { $gopt_enable_gsl              = "YES"; }
-if(($match = grep(/--enable-minos/i,            @ARGV)) > 0) { $gopt_enable_minos            = "YES"; }
-if(($match = grep(/--enable-numi/i,             @ARGV)) > 0) { $gopt_enable_numi            = "YES"; }
+if(($match = grep(/--enable-event-server/i,     @ARGV)) > 0) { $gopt_enable_evserv           = "YES"; }
 if(($match = grep(/--enable-t2k/i,              @ARGV)) > 0) { $gopt_enable_t2k              = "YES"; }
+if(($match = grep(/--enable-numi/i,             @ARGV)) > 0) { $gopt_enable_numi             = "YES"; }
+if(($match = grep(/--enable-lbne/i,             @ARGV)) > 0) { $gopt_enable_lbne             = "YES"; }
 if(($match = grep(/--enable-ino/i,              @ARGV)) > 0) { $gopt_enable_ino              = "YES"; }
 
 my $gopt_with_cxx_debug_flag="";
@@ -494,9 +497,10 @@ print MKCONF "GOPT_ENABLE_MUELOSS=$gopt_enable_mueloss\n";
 print MKCONF "GOPT_ENABLE_TEST=$gopt_enable_test\n";
 print MKCONF "GOPT_ENABLE_GSL=$gopt_enable_gsl\n";
 print MKCONF "GOPT_ENABLE_VIEWER=$gopt_enable_viewer\n";
-print MKCONF "GOPT_ENABLE_MINOS=$gopt_enable_minos\n";
-print MKCONF "GOPT_ENABLE_NUMI=$gopt_enable_numi\n";
+print MKCONF "GOPT_ENABLE_EVENT_SERVER=$gopt_enable_evserv\n";
 print MKCONF "GOPT_ENABLE_T2K=$gopt_enable_t2k\n";
+print MKCONF "GOPT_ENABLE_NUMI=$gopt_enable_numi\n";
+print MKCONF "GOPT_ENABLE_LBNE=$gopt_enable_lbne\n";
 print MKCONF "GOPT_ENABLE_INO=$gopt_enable_ino\n";
 print MKCONF "GOPT_WITH_CXX_DEBUG_FLAG=$gopt_with_cxx_debug_flag\n";
 print MKCONF "GOPT_WITH_CXX_OPTIMIZ_FLAG=-$gopt_with_cxx_optimiz_flag\n";
