@@ -5,7 +5,7 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - July 16, 2005
+         STFC, Rutherford Appleton Laboratory 
 
  For the class documentation see the corresponding header file.
 
@@ -13,7 +13,9 @@
  @ Oct 20, 2009 - CA
    Modified HadronShowerCharge() to take into account the probe charge (so as
    to conserve charge in charged lepton scattering)
-
+ @ Jul 23, 2010 - CA
+   Moved ResonanceCharge() from utils::res. Identical to HadronShowerCharge()
+   but maintained the method name nevertheless.
 */
 //____________________________________________________________________________
 
@@ -223,4 +225,8 @@ int HadronicSystemGenerator::HadronShowerCharge(GHepRecord * evrec) const
   return HadronShowerCharge;
 }
 //____________________________________________________________________________
-
+int HadronicSystemGenerator::ResonanceCharge(GHepRecord * evrec) const
+{
+  return this->HadronShowerCharge(evrec);
+}
+//____________________________________________________________________________
