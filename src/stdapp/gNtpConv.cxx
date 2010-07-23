@@ -138,8 +138,7 @@
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
 #include "PDG/PDGLibrary.h"
-#include "Utils/CmdLineArgParserUtils.h"
-#include "Utils/CmdLineArgParserException.h"
+#include "Utils/CmdLnArgParser.h"
 #include "Utils/SystemUtils.h"
 #include "Utils/T2KEvGenMetaData.h"
 
@@ -2580,34 +2579,34 @@ void ConvertToGhA(void)
 //____________________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
 {
-  //get input ROOT file (containing a GENIE GHEP event tree)
-  try {
+  CmdLnArgParser parser(argc,argv);
+
+  // get input ROOT file (containing a GENIE GHEP event tree)
+  if( parser.OptionExists('i') ) {
     LOG("gntpc", pINFO) << "Reading input filename";
-    gOptInpFileName = utils::clap::CmdLineArgAsString(argc,argv,'i');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gntpc", pFATAL)
-               << "Unspecified input filename - Exiting";
-      PrintSyntax();
-      gAbortingInErr = true;
-      exit(1);
-    }
+    gOptInpFileName = parser.ArgAsString('i');
+  } else {
+    LOG("gntpc", pFATAL)
+       << "Unspecified input filename - Exiting";
+    PrintSyntax();
+    gAbortingInErr = true;
+    exit(1);
   }
 
-  //check input GENIE ROOT file
+  // check input GENIE ROOT file
   bool inpok = !(gSystem->AccessPathName(gOptInpFileName.c_str()));
   if (!inpok) {
     LOG("gntpc", pFATAL)
-           << "The input ROOT file ["
-                       << gOptInpFileName << "] is not accessible";
+        << "The input ROOT file ["
+        << gOptInpFileName << "] is not accessible";
     gAbortingInErr = true;
     exit(2);
   }
 
-  //get output file format
-  try {
+  // get output file format
+  if( parser.OptionExists('f') ) {
     LOG("gntpc", pINFO) << "Reading output file format";
-    string fmt = utils::clap::CmdLineArgAsString(argc,argv,'f');
+    string fmt = parser.ArgAsString('f');
 
          if (fmt == "gst")                   { gOptOutFileFormat = kConvFmt_gst;                   }
     else if (fmt == "gxml")                  { gOptOutFileFormat = kConvFmt_gxml;                  }
@@ -2628,56 +2627,48 @@ void GetCommandLineArgs(int argc, char ** argv)
       exit(3);
     }
 
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gntpc", pFATAL) << "Unspecified output file format";
-      gAbortingInErr = true;
-      exit(4);
-    }
+  } else {
+    LOG("gntpc", pFATAL) << "Unspecified output file format";
+    gAbortingInErr = true;
+    exit(4);
   }
 
-  //get output file name 
-  try {
+  // get output file name 
+  if( parser.OptionExists('o') ) {
     LOG("gntpc", pINFO) << "Reading output filename";
-    gOptOutFileName = utils::clap::CmdLineArgAsString(argc,argv,'o');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gntpc", pINFO)
-                << "Unspecified output filename - Using default";
-      gOptOutFileName = DefaultOutputFile();
-    }
+    gOptOutFileName = parser.ArgAsString('o');
+  } else {
+    LOG("gntpc", pINFO)
+       << "Unspecified output filename - Using default";
+    gOptOutFileName = DefaultOutputFile();
   }
 
-  //get number of events to convert
-  try {
+  // get number of events to convert
+  if( parser.OptionExists('n') ) {
     LOG("gntpc", pINFO) << "Reading number of events to analyze";
-    gOptN = genie::utils::clap::CmdLineArgAsInt(argc,argv,'n');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gntpc", pINFO)
-          << "Unspecified number of events to analyze - Use all";
-      gOptN = -1;
-    }
+    gOptN = parser.ArgAsInt('n');
+  } else {
+    LOG("gntpc", pINFO)
+       << "Unspecified number of events to analyze - Use all";
+    gOptN = -1;
   }
 
-  //get format version number
-  try {
+  // get format version number
+  if( parser.OptionExists('v') ) {
     LOG("gntpc", pINFO) << "Reading format version number";
-    gOptVersion = genie::utils::clap::CmdLineArgAsInt(argc,argv,'v');
+    gOptVersion = parser.ArgAsInt('v');
     LOG("gntpc", pINFO)
        << "Using version number: " << gOptVersion;
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gntpc", pINFO)
-          << "Unspecified version number - Use latest";
-      gOptVersion = LatestFormatVersionNumber();
-      LOG("gntpc", pINFO)
-          << "Latest version number: " << gOptVersion;
-    }
+  } else {
+    LOG("gntpc", pINFO)
+       << "Unspecified version number - Use latest";
+    gOptVersion = LatestFormatVersionNumber();
+    LOG("gntpc", pINFO)
+       << "Latest version number: " << gOptVersion;
   }
 
-  //check whether to copy MC job metadata (only if output file is in ROOT format)
-  gOptCopyJobMeta = genie::utils::clap::CmdLineArgAsBool(argc,argv,'c');
+  // check whether to copy MC job metadata (only if output file is in ROOT format)
+  gOptCopyJobMeta = parser.OptionExists('c');
 }
 //____________________________________________________________________________________
 string DefaultOutputFile(void)

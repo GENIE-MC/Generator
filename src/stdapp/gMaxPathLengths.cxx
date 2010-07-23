@@ -62,8 +62,7 @@
 #include "EVGDrivers/PathLengthList.h"
 #include "Geo/ROOTGeomAnalyzer.h"
 #include "Messenger/Messenger.h"
-#include "Utils/CmdLineArgParserUtils.h"
-#include "Utils/CmdLineArgParserException.h"
+#include "Utils/CmdLnArgParser.h"
 #include "Utils/UnitUtils.h"
 
 using std::string;
@@ -127,84 +126,80 @@ int main(int argc, char ** argv)
 //____________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
 {
-  LOG("gmxpl", pINFO) << "Parsing commad line arguments";
+  LOG("gmxpl", pINFO) << "Parsing command line arguments";
 
-  //output XML file name:
-  try {
+  CmdLnArgParser parser(argc,argv);
+
+  // output XML file name:
+  if( parser.OptionExists('o') ) {
     LOG("gmxpl", pDEBUG) << "Reading output filename";
-    gOptXMLFilename = genie::utils::clap::CmdLineArgAsString(argc,argv,'o');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gmxpl", pDEBUG) << "Unspecified output filename - Using default";
-      gOptXMLFilename = kDefOptXMLFilename;
-    }
+    gOptXMLFilename = parser.ArgAsString('o');
+  } else {
+    LOG("gmxpl", pDEBUG) 
+       << "Unspecified output filename - Using default";
+    gOptXMLFilename = kDefOptXMLFilename;
   } // -o
 
   // legth & density units:
   string lunits, dunits;
-  try {
+  if( parser.OptionExists('L') ) {
     LOG("gmxpl", pDEBUG) << "Checking for input geometry length units";
-    lunits = genie::utils::clap::CmdLineArgAsString(argc,argv,'L');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-        LOG("gmxpl", pDEBUG) << "Using default geometry length units";
-        lunits = kDefOptGeomLUnits;
-    }
+    lunits = parser.ArgAsString('L');
+  } else {
+    LOG("gmxpl", pDEBUG) << "Using default geometry length units";
+    lunits = kDefOptGeomLUnits;
   } // -L
-  try {
-     LOG("gmxpl", pDEBUG) << "Checking for input geometry density units";
-     dunits = genie::utils::clap::CmdLineArgAsString(argc,argv,'D');
-  } catch(exceptions::CmdLineArgParserException e) {
-     if(!e.ArgumentFound()) {
-         LOG("gmxpl", pDEBUG) << "Using default geometry density units";
-         dunits = kDefOptGeomDUnits;
-     }
+  if( parser.OptionExists('D') ) {
+    LOG("gmxpl", pDEBUG) << "Checking for input geometry density units";
+    dunits = parser.ArgAsString('D');
+  } else {
+    LOG("gmxpl", pDEBUG) << "Using default geometry density units";
+    dunits = kDefOptGeomDUnits;
   } // -D
   gOptGeomLUnits = genie::utils::units::UnitFromString(lunits);
   gOptGeomDUnits = genie::utils::units::UnitFromString(dunits);
 
-  //root geometry top volume name:
-  try {
-    LOG("gmxpl", pDEBUG) << "Reading root geometry top volume name";
-    gOptRootGeomTopVol = genie::utils::clap::CmdLineArgAsString(argc,argv,'t');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gmxpl", pDEBUG) << "Unspecified geometry top volume - Using default";
-      gOptRootGeomTopVol = "";
-    }
+  // root geometry top volume name:
+  if( parser.OptionExists('t') ) {
+    LOG("gmxpl", pDEBUG) 
+       << "Reading root geometry top volume name";
+    gOptRootGeomTopVol = parser.ArgAsString('t');
+  } else {
+    LOG("gmxpl", pDEBUG) 
+       << "Unspecified geometry top volume - Using default";
+    gOptRootGeomTopVol = "";
   } // -o
   
-  //number of scanning points / surface
-  try {
-    LOG("gmxpl", pDEBUG) << "Reading input number of scanning points/surface";
-    gOptNPoints = genie::utils::clap::CmdLineArgAsInt(argc,argv,'n');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gmxpl", pDEBUG)
-         << "Unspecified number of points - Using driver's default";
-    }
+  // number of scanning points / surface
+  if( parser.OptionExists('n') ) {
+    LOG("gmxpl", pDEBUG) 
+       << "Reading input number of scanning points/surface";
+    gOptNPoints = parser.ArgAsInt('n');
+  } else {
+    LOG("gmxpl", pDEBUG)
+      << "Unspecified number of points - Using driver's default";
   } //-n
-  //number of scanning rays / point
-  try {
-    LOG("gmxpl", pDEBUG) << "Reading input number of scanning rays/point";
-    gOptNRays = genie::utils::clap::CmdLineArgAsInt(argc,argv,'r');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gmxpl", pDEBUG)
-         << "Unspecified number of rays - Using driver's default";
-    }
+
+  // number of scanning rays / point
+  if( parser.OptionExists('r') ) {
+    LOG("gmxpl", pDEBUG) 
+       << "Reading input number of scanning rays/point";
+    gOptNRays = parser.ArgAsInt('r');
+  } else {
+    LOG("gmxpl", pDEBUG)
+      << "Unspecified number of rays - Using driver's default";
   } //-r
 
-  //output geometry file:
-  try {
-    LOG("gmxpl", pDEBUG) << "Reading ROOT/GEANT geometry filename";
-    gOptGeomFilename = genie::utils::clap::CmdLineArgAsString(argc,argv,'f');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gmxpl", pFATAL) << "No geometry file was specified - Exiting";
-      PrintSyntax();
-      exit(1);
-    }
+  // input geometry file:
+  if( parser.OptionExists('f') ) {
+    LOG("gmxpl", pDEBUG) 
+       << "Reading ROOT/GEANT geometry filename";
+    gOptGeomFilename = parser.ArgAsString('f');
+  } else {
+    LOG("gmxpl", pFATAL) 
+       << "No geometry file was specified - Exiting";
+    PrintSyntax();
+    exit(1);
   } //-f
 
   // print the command line arguments

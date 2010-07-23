@@ -1,5 +1,5 @@
 #
-# Makefile for Neutrino Generator Test Programs
+# Makefile for GENIE standard apps
 #
 # Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
 # May 02, 2004
