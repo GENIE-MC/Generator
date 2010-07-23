@@ -10,7 +10,7 @@
 **              /               \         @                                                  **
 **             /                d\______ @@@            NEUTRINO MONTE CARLO GENERATOR       **
 **            /                         @@@@@                                                **
-**           /           u  ____________@@@@@                       v2.6.0                   **
+**           /           u  ____________@@@@@                       v2.6.2                   **
 **          /     jet <===               @@@@@@@                                             **
 **         /             u  ____________@@@@@                                                **
 **       nu_mu                          @@@@@              http://www.genie-mc.org           ** 
@@ -34,7 +34,7 @@
 **    Mike Whalley        - Durham University (UK)                                           **
 **                                                                                           **
 **                                                                                           **
-** (c) 2003-2009 GENIE Collaboration                                                         **
+** (c) 2003-2010 GENIE Collaboration                                                         **
 **                                                                                           **
 ** This program is free software: you can redistribute it and/or modify it under the terms   **
 ** of the GNU General Public License as published by the Free Software Foundation, either    **
