@@ -37,9 +37,10 @@ BUILD_TARGETS =    print-make-info \
 		   doxygen-doc \
 		   generator-test-exe \
 		   generator-std-exe \
-		   minos-support-softw \
-		   numi-support-softw \
+		   event-server \
 		   t2k-support-softw \
+		   numi-support-softw \
+		   lbne-support-softw \
 		   ino-support-softw \
 		   install-scripts
 INSTALL_TARGETS =  print-makeinstall-info \
@@ -316,24 +317,11 @@ else
 	@echo "** Test applications were not enabled! Skipping..."
 endif
 
-minos-support-softw: FORCE
+event-server: FORCE
 	@echo " "
-	@echo "** Building MINOS-specific support software..."
-ifeq ($(strip $(GOPT_ENABLE_MINOS)),YES)
-	@echo "* Building MINOS-specific GENIE tools"
-	cd ${GENIE}/src/support/minos/EventServer/;\
-	make all; \
-	cd ${GENIE}
-else
-	@echo "Not enabled! Skipping..."
-endif
-
-numi-support-softw: FORCE
-	@echo " "
-	@echo "** Building NuMI-specific support software..."
-ifeq ($(strip $(GOPT_ENABLE_NUMI)),YES)
-	@echo "* Building NuMI-specific GENIE tools"
-	cd ${GENIE}/src/support/numi/EvGen/;\
+	@echo "** Building event server..."
+ifeq ($(strip $(GOPT_ENABLE_EVENT_SERVER)),YES)
+	cd ${GENIE}/src/support/evserv/;\
 	make all; \
 	cd ${GENIE}
 else
@@ -344,10 +332,31 @@ t2k-support-softw: FORCE
 	@echo " "
 	@echo "** Building T2K-specific support software..."
 ifeq ($(strip $(GOPT_ENABLE_T2K)),YES)
-	@echo "* Building T2K-specific GENIE tools"
 	cd ${GENIE}/src/support/t2k/EvGen/;\
 	make all; \
 	cd ${GENIE}/src/support/t2k/SKNorm/;\
+	make all; \
+	cd ${GENIE}
+else
+	@echo "Not enabled! Skipping..."
+endif
+
+numi-support-softw: FORCE
+	@echo " "
+	@echo "** Building NuMI-specific support software..."
+ifeq ($(strip $(GOPT_ENABLE_NUMI)),YES)
+	cd ${GENIE}/src/support/numi/EvGen/;\
+	make all; \
+	cd ${GENIE}
+else
+	@echo "Not enabled! Skipping..."
+endif
+
+lbne-support-softw: FORCE
+	@echo " "
+	@echo "** Building LBNE-specific support software..."
+ifeq ($(strip $(GOPT_ENABLE_LBNE)),YES)
+	cd ${GENIE}/src/support/lbne/EvGen/;\
 	make all; \
 	cd ${GENIE}
 else
@@ -628,10 +637,11 @@ clean-files: FORCE
 	cd VLE;                           make clean; cd ..; \
 	cd VHE;                           make clean; cd ..; \
 	cd stdapp;                        make clean; cd ..; \
-	cd support/minos/EventServer/;    make clean; cd ../../../; \
-	cd support/numi/EvGen/;           make clean; cd ../../../; \
+	cd support/evserv/;		  make clean; cd ../../; \
 	cd support/t2k/EvGen/;            make clean; cd ../../../; \
 	cd support/t2k/SKNorm/;           make clean; cd ../../../; \
+	cd support/numi/EvGen/;           make clean; cd ../../../; \
+	cd support/lbne/EvGen/;           make clean; cd ../../../; \
 	cd support/ino/EvGen/;            make clean; cd ../../../; \
 	cd test;                          make clean; cd ..; \
 	cd scripts;	                  make clean; \
@@ -704,10 +714,11 @@ distclean: FORCE
 	cd VLE;                            make distclean; cd ..; \
 	cd VHE;                            make distclean; cd ..; \
 	cd stdapp;                         make distclean; cd ..; \
-	cd support/minos/EventServer/;     make distclean; cd ../../../; \
-	cd support/numi/EvGen/;            make distclean; cd ../../../; \
+	cd support/evserv/;                make distclean; cd ../../; \
 	cd support/t2k/EvGen/;             make distclean; cd ../../../; \
 	cd support/t2k/SKNorm/;            make distclean; cd ../../../; \
+	cd support/numi/EvGen/;            make distclean; cd ../../../; \
+	cd support/lbne/EvGen/;            make distclean; cd ../../../; \
 	cd support/ino/EvGen/;             make distclean; cd ../../../; \
 	cd test;                           make distclean; cd ..; \
 	cd scripts;	                   make distclean; \
