@@ -16,7 +16,11 @@
  @ Aug 01, 2009 - CA
    Was adapted from Jim's and Costas' T2K-specific GENIE reweighting code.
    First included in v2.5.1.
-
+ @ May 18, 2010 - CA
+   AdoptWghtCalc(string,GReWeightI*) allows user to decide which weight 
+   calculator to include. Weight calculators are owned by GReWeight and are 
+   identified by a name. Weight calculators can be retrieved via the 
+   WghtCalc(string) method and their reweighting options can be fine-tuned.
 */
 //____________________________________________________________________________
 
@@ -28,16 +32,8 @@
 #include "EVGCore/EventRecord.h"
 #include "Messenger/Messenger.h"
 #include "ReWeight/GReWeight.h"
-#include "ReWeight/GReWeightNuXSec.h"
-#include "ReWeight/GReWeightAGKY.h"
-#include "ReWeight/GReWeightFZone.h"
-#include "ReWeight/GReWeightINuke.h"
 
-using std::cout;
-using std::cerr;
-using std::endl;
 using std::vector;
-using std::string;
 
 using namespace genie;
 using namespace genie::rew;
@@ -45,12 +41,27 @@ using namespace genie::rew;
 //____________________________________________________________________________
 GReWeight::GReWeight()
 {
-  this->Init();
+
 }
 //____________________________________________________________________________
 GReWeight::~GReWeight()
 {
   this->CleanUp();
+}
+//____________________________________________________________________________
+void GReWeight::AdoptWghtCalc(string name, GReWeightI* wcalc)
+{
+  if(!wcalc) return;
+
+  fWghtCalc.insert(map<string, GReWeightI*>::value_type(name,wcalc));
+}
+//____________________________________________________________________________
+GReWeightI* GReWeight::WghtCalc(string name)
+{ 
+  map<string, GReWeightI*>::iterator iter = fWghtCalc.find(name);
+  if(iter != fWghtCalc.end()) return iter->second;
+  
+  return 0;
 }
 //____________________________________________________________________________
 GSystSet & GReWeight::Systematics(void)
@@ -64,15 +75,15 @@ void GReWeight::Reconfigure(void)
 
   vector<genie::rew::GSyst_t> svec = fSystSet.AllIncluded();
 
-  vector<GReWeightI *>::iterator wcalc_iter = fWghtCalc.begin();
-  for( ; wcalc_iter != fWghtCalc.end(); ++wcalc_iter) {
+  map<string, GReWeightI *>::iterator it = fWghtCalc.begin();
+  for( ; it != fWghtCalc.end(); ++it) {
 
-      GReWeightI * wcalc = *wcalc_iter;
+      GReWeightI * wcalc = it->second;
 
       vector<genie::rew::GSyst_t>::const_iterator parm_iter = svec.begin();
       for( ; parm_iter != svec.end(); ++parm_iter) {
           GSyst_t syst = *parm_iter;
-          double val = fSystSet.CurValue(syst);
+          double val = fSystSet.Info(syst)->CurValue;
           wcalc->SetSystematic(syst, val);
       }//params
 
@@ -88,10 +99,12 @@ double GReWeight::CalcWeight(const genie::EventRecord & event)
 // calculate weight for all tweaked physics parameters
 //
   double weight = 1.0;
-  vector<GReWeightI *>::iterator it = fWghtCalc.begin();
+  map<string, GReWeightI *>::iterator it = fWghtCalc.begin();
   for( ; it != fWghtCalc.end(); ++it) {
-    GReWeightI * wcalc = *it;
+    GReWeightI * wcalc = it->second;
     double w = wcalc->CalcWeight(event); 
+    LOG("ReW", pNOTICE) 
+       << "Calculator: " << it->first << " => wght = " << w;	
     weight *= w;
   }
   return weight;
@@ -103,35 +116,22 @@ double GReWeight::CalcChisq(void)
 //
   double tot_chisq = 0.0;
 
-  vector<GReWeightI *>::iterator it = fWghtCalc.begin();
+  map<string, GReWeightI *>::iterator it = fWghtCalc.begin();
   for( ; it != fWghtCalc.end(); ++it) {
-    GReWeightI * wcalc = *it;
+    GReWeightI * wcalc = it->second;
     double chisq = wcalc->CalcChisq(); 
+    LOG("ReW", pNOTICE) 
+       << "Calculator: " << it->first << " => chisq = " << chisq;	
     tot_chisq *= chisq;
   }
   return tot_chisq;
 }
 //____________________________________________________________________________
-void GReWeight::Init(void)
-{
-  // handles all GENIE cross section params
-  fWghtCalc.push_back( new GReWeightNuXSec );
-
-  // handles all GENIE (free nucleon) hadronization params
-  fWghtCalc.push_back( new GReWeightAGKY   );
-
-  // handles all GENIE formation zone params
-  fWghtCalc.push_back( new GReWeightFZone  );
-
-  // handles all GENIE intranuclear rescattering params
-  fWghtCalc.push_back( new GReWeightINuke  );
-}
-//____________________________________________________________________________
 void GReWeight::CleanUp(void)
 {
-  vector<GReWeightI *>::iterator it = fWghtCalc.begin();
+  map<string, GReWeightI *>::iterator it = fWghtCalc.begin();
   for( ; it != fWghtCalc.end(); ++it) {
-    GReWeightI * rw = *it;
+    GReWeightI * rw = it->second;
     if(rw) {
       delete rw;
       rw=0;
@@ -144,12 +144,12 @@ void GReWeight::Print()
 {
   vector<genie::rew::GSyst_t> syst_vec = this->Systematics().AllIncluded();
   int vec_size = syst_vec.size();
-	
-  cout << "\nCurrent list of tweaking parameter dials:"<< endl;
+
+  LOG("ReW", pNOTICE) << "Current set of systematic params:";	
   for(int i = 0 ; i < vec_size ; i ++){
      LOG("ReW", pNOTICE) 
-         << "    "     << GSyst::AsString(syst_vec[i])
-         << " set at " << this->Systematics().CurValue(syst_vec[i]);
+        << " --o "  << GSyst::AsString(syst_vec[i])
+        << " is set at " << this->Systematics().Info(syst_vec[i])->CurValue;
   }		       	        
 
   double chi2val = this->CalcChisq();

@@ -39,20 +39,29 @@ GSystSet::~GSystSet()
   fSystematics.clear();
 }
 //_______________________________________________________________________________________
-void GSystSet::Include(GSyst_t syst)
+void GSystSet::Init(GSyst_t syst, double init, double min, double max, double step)
 {
-  if(syst == kSystNull) return;
+  if(syst == kNullSystematic) return;
 
-  GSystInfo * syst_info = new GSystInfo;
+  if(this->Added(syst)) {
+    this->Remove(syst);    
+  }
+
+  GSystInfo * syst_info = new GSystInfo(init,min,max,step);
   fSystematics.insert( map<GSyst_t, GSystInfo*>::value_type(syst, syst_info) );     
 }
 //_______________________________________________________________________________________
-int GSystSet::NIncluded(void) const
+void GSystSet::Remove(GSyst_t syst)
+{
+  fSystematics.erase(syst);
+}
+//_______________________________________________________________________________________
+int GSystSet::Size(void) const
 {
   return fSystematics.size();
 }
 //_______________________________________________________________________________________
-bool GSystSet::IsIncluded(GSyst_t syst) const
+bool GSystSet::Added(GSyst_t syst) const
 {
   return (fSystematics.find(syst) != fSystematics.end());
 }
@@ -69,74 +78,29 @@ vector<genie::rew::GSyst_t> GSystSet::AllIncluded(void)
   return svec;
 }
 //_______________________________________________________________________________________
-void GSystSet::Remove(GSyst_t syst)
+const GSystInfo * GSystSet::Info(GSyst_t syst) const
 {
-  fSystematics.erase(syst);
+  if ( this->Added(syst) ) {
+    return fSystematics.find(syst)->second;
+  }
+  return 0;
 }
 //_______________________________________________________________________________________
-double GSystSet::CurValue(GSyst_t syst) const
+void GSystSet::Set(GSyst_t syst, double val)
 {
-  if ( this->IsIncluded(syst) ) return fSystematics.find(syst)->second->CurValue;
-  else return 0.;
-}
-//_______________________________________________________________________________________
-double GSystSet::InitValue(GSyst_t syst) const
-{
-  if ( this->IsIncluded(syst) ) return fSystematics.find(syst)->second->InitValue;
-  else return 0.;
-}
-//_______________________________________________________________________________________
-double GSystSet::MinValue(GSyst_t syst) const
-{
-  if ( this->IsIncluded(syst) ) return fSystematics.find(syst)->second->MinValue;
-  else return 0.;
-}
-//_______________________________________________________________________________________
-double GSystSet::MaxValue(GSyst_t syst) const
-{
-  if ( this->IsIncluded(syst) ) return fSystematics.find(syst)->second->MaxValue;
-  else return 0.;
-}
-//_______________________________________________________________________________________
-double GSystSet::Step(GSyst_t syst) const
-{
-  if ( this->IsIncluded(syst) ) return fSystematics.find(syst)->second->Step;
-  else return 0.;
-}
-//_______________________________________________________________________________________
-void GSystSet::SetCurValue(GSyst_t syst, double val)
-{
-  if ( this->IsIncluded(syst) ) {
+  if ( this->Added(syst) ) {
     fSystematics[syst]->CurValue = val;
   }
-}
-//_______________________________________________________________________________________
-void GSystSet::SetInitValue(GSyst_t syst, double val)
-{
-  if ( this->IsIncluded(syst) ) {
-    fSystematics[syst]->InitValue = val;
+  else {
+    this->Init(syst);
+    this->Set(syst,val);
   }
 }
 //_______________________________________________________________________________________
-void GSystSet::SetRange(GSyst_t syst, double min, double max)
-{
-  if ( this->IsIncluded(syst) ) {
-    fSystematics[syst]->MinValue = min;
-    fSystematics[syst]->MaxValue = max;
-  }
-}
-//_______________________________________________________________________________________
-void GSystSet::SetStep(GSyst_t syst, double step)
-{
-  if ( this->IsIncluded(syst) ) {
-    fSystematics[syst]->Step = step;
-  }
-}
-//_______________________________________________________________________________________
-void GSystSet::PrintSummary(void)
+void GSystSet::Print(void)
 {
   LOG("ReW", pNOTICE) 
-     << "Considering " << this->NIncluded() << " systematics";
+     << "Considering " << this->Size() << " systematics";
 				    
   vector<genie::rew::GSyst_t> svec = this->AllIncluded();
 
@@ -163,11 +127,8 @@ void GSystSet::Copy(const GSystSet & syst_set)
     double max  = syst_info->MaxValue;
     double step = syst_info->Step;
 
-    this->Include      (syst);
-    this->SetCurValue  (syst, cur);
-    this->SetInitValue (syst, init);
-    this->SetRange     (syst, min, max);
-    this->SetStep      (syst, step);
+    this->Init(syst,init,min,max,step);
+    this->Set(syst,cur);
   }
 }
 //_______________________________________________________________________________________

@@ -352,13 +352,13 @@ void GReWeightINukeParams::Fates::AddCushionTerms(void)
      return;
   }
 
-  GSyst_t syst = kSystNull;
+  GSyst_t syst = kNullSystematic;
   int i=0;
   while( 
          (syst = (fHadType == kRwINukePion) ?
             GSyst::NextPionFateSystematic(i++) :
             GSyst::NextNuclFateSystematic(i++)
-         ) != kSystNull
+         ) != kNullSystematic
        )
   {      
       if(this->IsIncluded(syst)) {
@@ -450,8 +450,8 @@ GReWeightINukeParams::MFP::MFP(GReWeightINukeParams::HadronType_t ht)
   fHadType = ht;
 
   // corresponding GSyst_t
-  if(ht == kRwINukePion) fSyst = kSystINuke_MFPTwk_pi;
-  if(ht == kRwINukeNucl) fSyst = kSystINuke_MFPTwk_N;
+  if(ht == kRwINukePion) fSyst = kINukeTwkDial_MFP_pi;
+  if(ht == kRwINukeNucl) fSyst = kINukeTwkDial_MFP_N;
 
   this->Reset();
 }

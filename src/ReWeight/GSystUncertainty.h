@@ -22,7 +22,10 @@
 #ifndef _G_SYST_UNCERTAINTY_H_
 #define _G_SYST_UNCERTAINTY_H_
 
+#include <map>
 #include "ReWeight/GSyst.h"
+
+using std::map;
 
 namespace genie {
 namespace rew   {
@@ -32,9 +35,15 @@ class GSystUncertainty {
 public:  
   static GSystUncertainty * Instance (void);
 
-  double OneSigmaErr(GSyst_t syst) const;
+  double OneSigmaErr (GSyst_t syst) const;
+  void   OverrideDefaultUncertainty (GSyst_t syst, double onesigerr);
 
 private:
+
+  void SetDefaults(void);
+
+  map<GSyst_t, double> fOneSigErrMap;
+
   GSystUncertainty();
   GSystUncertainty(const GSystUncertainty & err);
  ~GSystUncertainty();

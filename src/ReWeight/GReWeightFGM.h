@@ -1,9 +1,9 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::rew::GReWeightFZone
+\class    genie::rew::GReWeightFGM
 
-\brief    Reweighting the formation zone model
+\brief    Reweighting the Fermi Gas nuclear model
 
 \author   Jim Dobson <J.Dobson07 \at imperial.ac.uk>
           Imperial College London
@@ -11,7 +11,7 @@
           Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           STFC, Rutherford Appleton Laboratory
 
-\created  Sep 20, 2009
+\created  Apr 26, 2010
 
 \cpright  Copyright (c) 2003-2010, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
@@ -19,22 +19,33 @@
 */
 //____________________________________________________________________________
 
-#ifndef _G_REWEIGHT_FZONE_H_
-#define _G_REWEIGHT_FZONE_H_
+#ifndef _G_REWEIGHT_FGM_H_
+#define _G_REWEIGHT_FGM_H_
+
+#include <map>
 
 #include "ReWeight/GReWeightI.h"
+
+using std::map;
 
 using namespace genie::rew;
 using namespace genie;
 
+class TH1D;
+class TNtupleD;
+class TFile;
+
 namespace genie {
+
+class NuclearModelI;
+
 namespace rew   {
 
- class GReWeightFZone : public GReWeightI 
+ class GReWeightFGM : public GReWeightI 
  {
  public:
-   GReWeightFZone();
-  ~GReWeightFZone();
+   GReWeightFGM();
+  ~GReWeightFGM();
 
    // implement the GReWeightI interface
    bool   IsHandled      (GSyst_t syst);
@@ -44,23 +55,26 @@ namespace rew   {
    double CalcWeight     (const EventRecord & event);
    double CalcChisq      (void);
 
-   // other config options
-   // set to match values used at event generation
-   void SetR0 (double R0 ) { fR0  = R0;  }
-   void SetNR (double NR ) { fNR  = NR;  }
-   void SetCT0(double ct0) { fct0 = ct0; }
-   void SetK  (double k  ) { fK   = k;   }
-
  private:
 
    void Init(void);
 
-   double fFZoneTwkDial; ///< formation zone tweaking dial
+   double RewCCQEPauliSupViaKF   (const EventRecord & event);
+   double RewCCQEMomDistroFGtoSF (const EventRecord & event);
 
-   double fNR;  ///<
-   double fR0;  ///<
-   double fct0; ///<
-   double fK;   ///<
+   double fKFTwkDial;
+   double fMomDistroTwkDial;
+
+   const NuclearModelI * fFG;
+   const NuclearModelI * fSF;
+
+   map<int, TH1D *> fMapFGn;
+   map<int, TH1D *> fMapFGp;
+   map<int, TH1D *> fMapSFn;
+   map<int, TH1D *> fMapSFp;
+
+   TFile *    fTestFile;
+   TNtupleD * fTestNtp;
  };
 
 } // rew
