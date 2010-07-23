@@ -77,8 +77,7 @@
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
 #include "Utils/StringUtils.h"
-#include "Utils/CmdLineArgParserUtils.h"
-#include "Utils/CmdLineArgParserException.h"
+#include "Utils/CmdLnArgParser.h"
 
 using std::string;
 using std::vector;
@@ -139,7 +138,6 @@ int main(int argc, char ** argv)
   const PathLengthList & maxpl = geom_driver->ComputeMaxPathLengths();
 
   LOG("test", pINFO) << "Maximum math lengths: " << maxpl;
-
 
   TFile f("geomtest.root","recreate");
   TNtupleD vtxnt("vtxnt","","x:y:z:A:Z");
@@ -268,99 +266,93 @@ int GetTargetMaterial(const PathLengthList & pl)
 //____________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
 {
-  // *** geometry file:
-  try {
+  CmdLnArgParser parser(argc,argv);
+
+  // geometry file
+  if( parser.OptionExists('f') ) {
     LOG("test", pINFO) << "Getting ROOT geometry filename";
-    gOptGeomFile = genie::utils::clap::CmdLineArgAsString(argc,argv,'f');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-       string base_dir = string( gSystem->Getenv("GENIE") );
-       string filename = base_dir + 
-                         string("/src/test/data/GeometryLArPbBox.root");
-       gOptGeomFile = filename;
-    }
+    gOptGeomFile = parser.ArgAsString('f');
+  } else {
+    string base_dir = string( gSystem->Getenv("GENIE") );
+    string filename = base_dir + 
+          string("/src/test/data/GeometryLArPbBox.root");
+    gOptGeomFile = filename;
   }
 
-  // *** check whether an event generation volume name has been 
-  // *** specified -- default is the 'top volume'
-  try {
+  // check whether an event generation volume name has been 
+  // specified -- default is the 'top volume'
+  if( parser.OptionExists('v') ) {
     LOG("test", pDEBUG) << "Checking for input volume name";
-    gOptRootGeomTopVol = 
-          genie::utils::clap::CmdLineArgAsString(argc,argv,'v');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-       LOG("test", pDEBUG) << "Using the <master volume>";
-    }
-  } // try-catch (-v) 
+    gOptRootGeomTopVol = parser.ArgAsString('v');
+  } else {
+    LOG("test", pDEBUG) << "Using the <master volume>";
+  } 
 
-  // *** ray direction:
-  string direction = "";
-  try {
+  // direction
+  if( parser.OptionExists('d') ) {
     LOG("test", pINFO) << "Reading ray direction";
-    direction = genie::utils::clap::CmdLineArgAsString(argc,argv,'d');
     // split the comma separated list
-    vector<string> dirv = utils::str::Split(direction, ",");
+    vector<double> dirv = parser.ArgAsDoubleTokens('d', ",");
     assert(dirv.size() == 3);
-    double dx = atof( dirv[0].c_str() );
-    double dy = atof( dirv[1].c_str() );
-    double dz = atof( dirv[2].c_str() );
-    gOptRayDirection.SetXYZ(dx,dy,dz);
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("test", pINFO) << "No input ray direction - Using default";
-      gOptRayDirection = kDefOptRayDirection;
-    }
+    gOptRayDirection.SetXYZ(dirv[0],dirv[1],dirv[2]);
+  } else {
+    LOG("test", pINFO) << "No input ray direction - Using default";
+    gOptRayDirection = kDefOptRayDirection;
   }
 
-  // *** ray surface:
-  string rsurf = "";
-  try {
+  // ray surface:
+  if( parser.OptionExists('s') ) {
     LOG("test", pINFO) << "Reading ray generation surface";
-    rsurf = genie::utils::clap::CmdLineArgAsString(argc,argv,'s');
     // split the comma separated list
-    vector<string> rsv = utils::str::Split(rsurf, ",");
+    vector<double> rsv = parser.ArgAsDoubleTokens('s', ",");
     assert(rsv.size() == 3);
-    double x = atof( rsv[0].c_str() );
-    double y = atof( rsv[1].c_str() );
-    double z = atof( rsv[2].c_str() );
-    gOptRaySurf.SetXYZ(x,y,z);
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("test", pINFO) << "No input ray generation surface - Using default";
-      gOptRaySurf = kDefOptRaySurf;
-    }
+    gOptRaySurf.SetXYZ(rsv[0],rsv[1],rsv[2]);
+  } else {
+    LOG("test", pINFO) << "No input ray generation surface - Using default";
+    gOptRaySurf = kDefOptRaySurf;
   }
 
-  // *** ray generation area radius:
-  try {
+  // ray generation area radius:
+  if( parser.OptionExists('r') ) {
     LOG("test", pINFO) << "Reading radius of ray generation area";
-    gOptRayR = genie::utils::clap::CmdLineArgAsDouble(argc,argv,'r');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("test", pINFO) << "No input radius of ray generation area - Using default";
-      gOptRayR = kDefOptRayR;
-    }
+    gOptRayR = parser.ArgAsDouble('r');
+  } else {
+    LOG("test", pINFO) << "No input radius of ray generation area - Using default";
+    gOptRayR = kDefOptRayR;
   }
   gOptRayR = TMath::Abs(gOptRayR); // must be positive
 
-  // *** number of vertices to generate:
-  try {
+  // number of vertices to generate:
+  if( parser.OptionExists('n') ) {
     LOG("test", pINFO) << "Getting number of vertices to generate";
-    gOptNVtx = genie::utils::clap::CmdLineArgAsInt(argc,argv,'n');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-       gOptNVtx = 0;
-    }
+    gOptNVtx = parser.ArgAsInt('n');
+  } else {
+    gOptNVtx = 0;
   }
 
-  // *** 'forced' target pdg:
-  try {
+  // 'forced' target pdg:
+  if( parser.OptionExists('p') ) {
     LOG("test", pINFO) << "Getting 'forced' target pdg";
-    gOptTgtPdg = genie::utils::clap::CmdLineArgAsInt(argc,argv,'p');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-       gOptTgtPdg = -1;
-    }
+    gOptTgtPdg = parser.ArgAsInt('p');
+  } else {
+    gOptTgtPdg = -1;
   }
+
+  LOG("test", pNOTICE) 
+    << "\n Options: "
+    << "\n ROOT geometry file: " << gOptGeomFile
+    << "\n ROOT geometry top volume: " << gOptRootGeomTopVol
+    << "\n Ray direction: (" 
+           << gOptRayDirection.X() << ", "
+           << gOptRayDirection.Y() << ", "
+           << gOptRayDirection.Z() << ") "
+    << "\n Ray generation surface : (" 
+           << gOptRaySurf.X() << ", "
+           << gOptRaySurf.Y() << ", "
+           << gOptRaySurf.Z() << ") "
+    << "\n Ray generation area radius : " << gOptRayR 
+    << "\n Number of vertices : " << gOptNVtx
+    << "\n Forced targer PDG : "  << gOptTgtPdg;
+
 }
 //____________________________________________________________________________
