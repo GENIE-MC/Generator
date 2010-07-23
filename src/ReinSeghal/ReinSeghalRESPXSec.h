@@ -33,14 +33,10 @@
 
 #include "Base/XSecAlgorithmI.h"
 #include "BaryonResonance/BaryonResonance.h"
-#include "BaryonResonance/BaryonResParams.h"
-#include "BaryonResonance/BreitWignerI.h"
 #include "ReinSeghal/FKR.h"
 
 namespace genie {
 
-class BreitWignerI;
-class BaryonResDataSetI;
 class RSHelicityAmplModelI;
 class Spline;
 class XSecIntegratorI;
@@ -67,10 +63,7 @@ private:
   void LoadConfig (void);
 
   mutable FKR fFKR;
-  mutable BaryonResParams fBRP;
 
-  const BreitWignerI *         fBreitWigner;
-  const BaryonResDataSetI *    fBaryonResDataSet;
   const RSHelicityAmplModelI * fHAmplModelCC;
   const RSHelicityAmplModelI * fHAmplModelNCp;
   const RSHelicityAmplModelI * fHAmplModelNCn;
