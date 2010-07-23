@@ -120,6 +120,6 @@ int main(int /*argc*/, char ** /*argv*/)
   //-- see that the interaction was updated
 
   LOG("test", pINFO) << "Printing the interaction object after all changes";
-  LOG("Main", pINFO) << interaction;
+  LOG("test", pINFO) << interaction;
 }
 

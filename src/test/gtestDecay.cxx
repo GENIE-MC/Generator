@@ -65,7 +65,7 @@ int main(int /*argc*/, char ** /*argv*/)
 void TestPythiaTauDecays(void)
 {
   // Get the pythia decayer
-  LOG("Main",pINFO)
+  LOG("test",pINFO)
      << "Asking the AlgFactory for a genie::PythiaDecayer\\Default instance";
   AlgFactory * algf = AlgFactory::Instance();
   const DecayModelI * pdecayer =
@@ -73,11 +73,11 @@ void TestPythiaTauDecays(void)
          algf->GetAlgorithm("genie::PythiaDecayer","Default"));
 
   // Decayer config print-out
-  LOG("Main",pINFO) << "Algorithm name = " << pdecayer->Id().Name();
-  LOG("Main",pINFO) << "Parameter set  = " << pdecayer->Id().Config();
+  LOG("test",pINFO) << "Algorithm name = " << pdecayer->Id().Name();
+  LOG("test",pINFO) << "Parameter set  = " << pdecayer->Id().Config();
 
   const Registry & conf_registry = pdecayer->GetConfig();
-  LOG("Main", pINFO) << conf_registry;
+  LOG("test", pINFO) << conf_registry;
 
   double E = 10;
   int ndec = 3;
@@ -91,7 +91,7 @@ void TestPythiaTauDecays(void)
   // now inhibit all but the tau- --> nu_mu_bar + mu- + nu_tau decay channel
   // (see $GENIE/src/contrib/misc/print_decay_channels.C)
   // and perform some more decays
-  LOG("Main",pINFO) 
+  LOG("test",pINFO) 
     << "\n\n"
     << " **** Inhibiting all but the `tau- --> nu_mu_bar + mu- + nu_tau' decay channel"
     << "\n\n";
@@ -156,7 +156,7 @@ void TestPythiaTauDecays(void)
   Decay(pdecayer, kPdgTau, E, ndec);
 
   // restore all decay channels
-  LOG("Main",pINFO) 
+  LOG("test",pINFO) 
     << "\n\n"
     << " **** Restoring all tau- decay channels"
     << "\n\n";
@@ -167,7 +167,7 @@ void TestPythiaTauDecays(void)
   Decay(pdecayer, kPdgTau, E, ndec);
 
   // now inhibit all decay channels and try to decay!
-  LOG("Main",pINFO) 
+  LOG("test",pINFO) 
     << "\n\n"
     << " **** Inhibit all tau- decay channels"
     << "\n\n";
@@ -194,7 +194,7 @@ void Decay(const DecayModelI * decayer, int pdgc, double E, int ndecays)
   TParticlePDG * pp = pdglib->Find(pdgc);
   if(!pp) return;
 
-  LOG("Main",pINFO) 
+  LOG("test",pINFO) 
        << "Decaying a " << pp->GetName() << " with E = " << p4.Energy();
 
   // Perform the decay a few times & print-out the decay products
@@ -204,13 +204,13 @@ void Decay(const DecayModelI * decayer, int pdgc, double E, int ndecays)
   	TClonesArray * particle_list = decayer->Decay(dinp); 
 
         if(!particle_list) {
-          LOG("Main",pWARN) 
+          LOG("test",pWARN) 
                << "\n ** Decay nu.: " << idec << " ==> NULL particle list";
            continue;
         }
 
         // Print-out       
-        LOG("Main",pINFO) 
+        LOG("test",pINFO) 
              << "\n ** Decay nu.: " << idec 
              << " (weight = " << decayer->Weight() << ") : \n "
              << particle_list;

@@ -226,7 +226,7 @@ int main(int argc, char ** argv)
              intr.InitStatePtr()->TgtPtr()->SetHitSeaQrk(SeaQrk[iqrk]);
            }
 
-           LOG("main",pNOTICE) << "hadronizing: " << intr.AsString();
+           LOG("test",pNOTICE) << "hadronizing: " << intr.AsString();
 
            for(int iw=0; iw<kNW; iw++) {
              intr.KinePtr()->SetW(W[iw]);
@@ -312,7 +312,7 @@ int main(int argc, char ** argv)
                 if(br_model!=0) {
                    pysphe_(&sph,&apl);
                    pythru_(&thr,&obl);
-                   LOG("Main", pINFO) << "Sphericity = " << sph << ", aplanarity = " << apl;
+                   LOG("test", pINFO) << "Sphericity = " << sph << ", aplanarity = " << apl;
                 }
 
                 br_sphericity = sph;
@@ -378,11 +378,11 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   //number of events:
   try {
-    LOG("Main", pINFO) << "Reading number of events to generate";
+    LOG("test", pINFO) << "Reading number of events to generate";
     gNEvents = genie::utils::clap::CmdLineArgAsInt(argc,argv,'n');
   } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
-      LOG("Main", pFATAL) << "Number of events was not specified";
+      LOG("test", pFATAL) << "Number of events was not specified";
       PrintSyntax();
       exit(1);
     }
@@ -390,11 +390,11 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   // hadronizer:
   try {
-    LOG("Main", pINFO) << "Reading hadronization algorithm name";
+    LOG("test", pINFO) << "Reading hadronization algorithm name";
     gHadAlg = genie::utils::clap::CmdLineArgAsString(argc,argv,'a');
   } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
-      LOG("Main", pINFO) << "No hadronization algorithm was specified";
+      LOG("test", pINFO) << "No hadronization algorithm was specified";
       PrintSyntax();
       exit(1);
     }
@@ -402,11 +402,11 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   // hadronizer config:
   try {
-    LOG("Main", pINFO) << "Reading hadronization algorithm config name";
+    LOG("test", pINFO) << "Reading hadronization algorithm config name";
     gHadConfig = genie::utils::clap::CmdLineArgAsString(argc,argv,'c');
   } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
-      LOG("Main", pINFO) << "No hadronization algorithm config was specified";
+      LOG("test", pINFO) << "No hadronization algorithm config was specified";
       PrintSyntax();
       exit(1);
     }
@@ -414,16 +414,16 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   // set struck quark?
   try {
-    LOG("Main", pINFO) << "reading struck quark option";
+    LOG("test", pINFO) << "reading struck quark option";
     gSetHitQrk = genie::utils::clap::CmdLineArgAsBool(argc,argv,'q');
   } catch(exceptions::CmdLineArgParserException e) {
-      LOG("Main", pINFO) << "Using default option for setting hit quark";
+      LOG("test", pINFO) << "Using default option for setting hit quark";
   }
 }
 //____________________________________________________________________________
 void PrintSyntax(void)
 {
-  LOG("Main", pNOTICE)
+  LOG("test", pNOTICE)
     << "\n\n" << "Syntax:" << "\n"
           << "  testHadronization -n nevents -a hadronizer -c config [-q]\n";
 }

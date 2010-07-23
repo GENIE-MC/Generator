@@ -28,39 +28,39 @@ using namespace genie;
 int main(int /*argc*/, char ** /*argv*/)
 {
   // Get an instance of the ConfigPool
-  LOG("Main", pINFO) << "Get config pool instance";
+  LOG("test", pINFO) << "Get config pool instance";
   AlgConfigPool * pool = AlgConfigPool::Instance();
 
   // Print the ConfigPool ( => print all its configuration registries )
-  LOG("Main", pINFO) << "Printing the config pool\n" << *pool;
+  LOG("test", pINFO) << "Printing the config pool\n" << *pool;
 
   // Get the algorithm factory
   AlgFactory * algf = AlgFactory::Instance();
 
   // Instantiate an algorithm
-  LOG("Main", pINFO) << "Instantiate a concrete algorithm";
+  LOG("test", pINFO) << "Instantiate a concrete algorithm";
   const Algorithm * alg0 = 
        algf->GetAlgorithm("genie::LwlynSmithFFCC","Default");
   const QELFormFactorsModelI * llewellyn_smith =
        dynamic_cast<const QELFormFactorsModelI *> (alg0);
-  LOG("Main", pINFO) << *alg0;
+  LOG("test", pINFO) << *alg0;
 
-  LOG("Main", pINFO) << "Instantiate another concrete algorithm";
+  LOG("test", pINFO) << "Instantiate another concrete algorithm";
   const Algorithm * alg1 = 
        algf->GetAlgorithm("genie::DipoleELFormFactorsModel","Default");
   const ELFormFactorsModelI * dipole_elff =
         dynamic_cast<const ELFormFactorsModelI *> (alg1);
-  LOG("Main", pINFO) << *alg1;
+  LOG("test", pINFO) << *alg1;
 
   // Ask the ConfigPool for this algorithm's config registry and print it
 
-  LOG("Main", pINFO) << "Find the configuration for both algorithms";
+  LOG("test", pINFO) << "Find the configuration for both algorithms";
 
   Registry * config1 = pool->FindRegistry( llewellyn_smith );
   Registry * config2 = pool->FindRegistry( dipole_elff     );
 
-  if(config1) LOG("Main", pINFO) << "1st algorithm config: \n" << *config1;
-  if(config2) LOG("Main", pINFO) << "2nd algorithm config: \n" << *config2;
+  if(config1) LOG("test", pINFO) << "1st algorithm config: \n" << *config1;
+  if(config2) LOG("test", pINFO) << "2nd algorithm config: \n" << *config2;
 
   return 0;
 }

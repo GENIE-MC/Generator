@@ -50,7 +50,7 @@ int main(int /*argc*/, char ** /*argv*/)
 //__________________________________________________________________________
 void PrintLimits(const Interaction * interaction)
 {
-  LOG("Main", pNOTICE) << *interaction;
+  LOG("test", pNOTICE) << *interaction;
 
   const KPhaseSpace & phase_space = interaction->PhaseSpace();
 
@@ -59,9 +59,9 @@ void PrintLimits(const Interaction * interaction)
   Range1D_t Q2l = phase_space.Limits(kKVQ2);
   Range1D_t Wl  = phase_space.Limits(kKVW);
 
-  LOG("Main", pNOTICE) << "x  e [" << xl.min  << ", " << xl.max  << "]";
-  LOG("Main", pNOTICE) << "y  e [" << yl.min  << ", " << yl.max  << "]";
-  LOG("Main", pNOTICE) << "Q2 e [" << Q2l.min << ", " << Q2l.max << "]";
-  LOG("Main", pNOTICE) << "W  e [" << Wl.min  << ", " << Wl.max  << "]";
+  LOG("test", pNOTICE) << "x  e [" << xl.min  << ", " << xl.max  << "]";
+  LOG("test", pNOTICE) << "y  e [" << yl.min  << ", " << yl.max  << "]";
+  LOG("test", pNOTICE) << "Q2 e [" << Q2l.min << ", " << Q2l.max << "]";
+  LOG("test", pNOTICE) << "W  e [" << Wl.min  << ", " << Wl.max  << "]";
 }
 //__________________________________________________________________________

@@ -119,17 +119,17 @@ void testNumericalIntegration(void)
   double I2d = integrator2d->Integrate(myfunc2d);
   double I2e = integrator2e->Integrate(myfunc2d);
 
-  LOG("Main",pINFO) 
+  LOG("test",pINFO) 
          << "1-D Integral <for given numerical accuracy> = " << I1a;
-  LOG("Main",pINFO) 
+  LOG("test",pINFO) 
          << "2-D Integral <for given numerical accuracy> a= " << I2a;
-  LOG("Main",pINFO) 
+  LOG("test",pINFO) 
          << "2-D Integral <for given numerical accuracy> b= " << I2b;
-  LOG("Main",pINFO) 
+  LOG("test",pINFO) 
          << "2-D Integral <for given numerical accuracy> c= " << I2c;
-  LOG("Main",pINFO) 
+  LOG("test",pINFO) 
          << "2-D Integral <for given numerical accuracy> d= " << I2d;
-  LOG("Main",pINFO) 
+  LOG("test",pINFO) 
          << "2-D Integral <for given numerical accuracy> e= " << I2e;
 }
 //____________________________________________________________________________
@@ -166,7 +166,7 @@ void testSplineInterpolation(void)
     p[0] = lim.min + i*dx;
     double yfunc = myfunc1d(p);
     double yspln = spline->Evaluate(p[0]);
-    LOG("Main",pINFO) << "x = " << p[0] 
+    LOG("test",pINFO) << "x = " << p[0] 
                << ", f(x) = " << yfunc << ", spline(x) = " << yspln;
   }
   delete spline;
@@ -195,23 +195,23 @@ void testSplineOperators(void)
   Spline spl2(N,x1,y1);
   spl2.SetName("test spline #2");
 
-  LOG("Main",pINFO) << "Printing spline_1";
-  LOG("Main",pINFO) << spl1;
+  LOG("test",pINFO) << "Printing spline_1";
+  LOG("test",pINFO) << spl1;
 
-  LOG("Main",pINFO) << "Printing spline_2";
-  LOG("Main",pINFO) << spl2;
+  LOG("test",pINFO) << "Printing spline_2";
+  LOG("test",pINFO) << spl2;
 
-  LOG("Main",pINFO) << "...adding 3 to spline_1";
+  LOG("test",pINFO) << "...adding 3 to spline_1";
   spl1.Add(3.);
-  LOG("Main",pINFO) << spl1;
+  LOG("test",pINFO) << spl1;
 
-  LOG("Main",pINFO) << "...multiplying spline_1 with 3";
+  LOG("test",pINFO) << "...multiplying spline_1 with 3";
   spl1.Multiply(3.);
-  LOG("Main",pINFO) << spl1;
+  LOG("test",pINFO) << spl1;
 
-  LOG("Main",pINFO) << "...multiplying spline_1 with 2*spline_2";
+  LOG("test",pINFO) << "...multiplying spline_1 with 2*spline_2";
   spl1.Multiply(spl2, 2.);
-  LOG("Main",pINFO) << spl1;
+  LOG("test",pINFO) << spl1;
 }
 //____________________________________________________________________________
 

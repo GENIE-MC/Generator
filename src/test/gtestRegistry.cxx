@@ -42,9 +42,9 @@ int main(int /*argc*/, char ** /*argv*/)
  // Basic Tests:
  // Build a Registry, unlock it, add some vars, lock it, print it.
  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- LOG("Main", pINFO) << "***** Basic Registry tests *****";
+ LOG("test", pINFO) << "***** Basic Registry tests *****";
 
- LOG("Main", pINFO) << "Building, Unlocking, Setting, Locking, Printing...";
+ LOG("test", pINFO) << "Building, Unlocking, Setting, Locking, Printing...";
 
  Registry registry("example-registry");
 
@@ -60,21 +60,21 @@ int main(int /*argc*/, char ** /*argv*/)
 
  registry.Lock();
 
- LOG("Main", pINFO) << "registry:\n" << registry;
+ LOG("test", pINFO) << "registry:\n" << registry;
 
  // try to override var-int-2 and add a new var-int-3 to the locked registry
 
- LOG("Main", pINFO)
+ LOG("test", pINFO)
               << "Trying to set variables in a locked registry - should fail";
 
  registry.Set("var-int-2",    12);
  registry.Set("var-int-3",    89);
 
- LOG("Main", pINFO) << "registry:\n" << registry;
+ LOG("test", pINFO) << "registry:\n" << registry;
 
  // do the same and add a couple of string vars, but now unlock it first
 
- LOG("Main", pINFO)
+ LOG("test", pINFO)
    << "Unlock the registry first and then set the variables - should succeed";
 
  registry.UnLock();
@@ -86,25 +86,25 @@ int main(int /*argc*/, char ** /*argv*/)
 
  registry.Lock();
 
- LOG("Main", pINFO) << "registry\n" << registry;
+ LOG("test", pINFO) << "registry\n" << registry;
 
  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  // Testing copy constructor
  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
- LOG("Main", pINFO)
+ LOG("test", pINFO)
     << "***** Testing copy constructor: Registry registry2(registry) *****";
 
  Registry registry2(registry);
 
- LOG("Main", pINFO) << "Registry clone:    \n" << registry2;
- LOG("Main", pINFO) << "Original registry: \n" << registry;
+ LOG("test", pINFO) << "Registry clone:    \n" << registry2;
+ LOG("test", pINFO) << "Original registry: \n" << registry;
 
  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  // Testing operator () overloading
  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
- LOG("Main", pINFO) << "***** Testing operator () *****";
+ LOG("test", pINFO) << "***** Testing operator () *****";
 
  registry2.UnLock();
 
@@ -115,13 +115,13 @@ int main(int /*argc*/, char ** /*argv*/)
 
  registry2.Lock();
 
- LOG("Main", pINFO) << "registry:\n" << registry2;
+ LOG("test", pINFO) << "registry:\n" << registry2;
 
  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  // Testing data retrieval
  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
- LOG("Main", pINFO) << "***** Testing data retrieval *****";
+ LOG("test", pINFO) << "***** Testing data retrieval *****";
 
  bool   retrieved_bool   = false;
  int    retrieved_int    = 0;
@@ -133,28 +133,28 @@ int main(int /*argc*/, char ** /*argv*/)
  registry.Get("var-double-1", retrieved_double);
  registry.Get("var-string-1", retrieved_string);
 
- LOG("Main", pINFO) << "retrieved-bool   = " << retrieved_bool;
- LOG("Main", pINFO) << "retrieved-int    = " << retrieved_int;
- LOG("Main", pINFO) << "retrieved-double = " << retrieved_double;
- LOG("Main", pINFO) << "retrieved-string = " << retrieved_string;
+ LOG("test", pINFO) << "retrieved-bool   = " << retrieved_bool;
+ LOG("test", pINFO) << "retrieved-int    = " << retrieved_int;
+ LOG("test", pINFO) << "retrieved-double = " << retrieved_double;
+ LOG("test", pINFO) << "retrieved-string = " << retrieved_string;
 
  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  // Test Copy()
  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
- LOG("Main", pINFO) << "***** Testing Copy(const Registry & reg) *****";
+ LOG("test", pINFO) << "***** Testing Copy(const Registry & reg) *****";
 
  Registry registry3;        // create an empty registry
  registry3.Copy(registry2); // copy registry2 contents to registry3
 
- LOG("Main", pINFO) << "Registry clone:    \n" << registry3;
- LOG("Main", pINFO) << "Original registry: \n" << registry2;
+ LOG("test", pINFO) << "Registry clone:    \n" << registry3;
+ LOG("test", pINFO) << "Original registry: \n" << registry2;
 
  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  // Test Individual Item Locking
  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
- LOG("Main", pINFO) << "***** Testing individual item locking *****";
+ LOG("test", pINFO) << "***** Testing individual item locking *****";
 
  Registry registry4("example-registry-with-locked-items");
 
@@ -165,7 +165,7 @@ int main(int /*argc*/, char ** /*argv*/)
  registry4("a double variable",  2.71   );
  registry4("a string variable", "hello" );
 
- LOG("Main", pINFO)
+ LOG("test", pINFO)
     << "Initial registry: \n" << registry4;
 
  // lock two of the variables
@@ -173,10 +173,10 @@ int main(int /*argc*/, char ** /*argv*/)
  registry4.LockItem("an int variable");
  registry4.LockItem("a double variable");
 
- LOG("Main", pINFO)
+ LOG("test", pINFO)
     << "Registry with locked keys: \n" << registry4;
 
- LOG("Main", pINFO)
+ LOG("test", pINFO)
     << "Attempting to change locked items in unlocked registry";
 
  // try to change the locked variables - this should fail even though
@@ -185,85 +185,85 @@ int main(int /*argc*/, char ** /*argv*/)
  registry4.Set("an int variable",   25);
  registry4.Set("a double variable", 129320.21);
 
- LOG("Main", pINFO)
+ LOG("test", pINFO)
     << "Should have failed to change locked entries: \n" << registry4;
 
  // inhibit individual item locking
 
- LOG("Main", pINFO) << "Inhibit item locking";
+ LOG("test", pINFO) << "Inhibit item locking";
  registry4.InhibitItemLocks();
 
- LOG("Main", pINFO) 
+ LOG("test", pINFO) 
    << "registry with item locks inhibited: \n" << registry4;
 
  // re-try to change the locked variables
- LOG("Main", pINFO)
+ LOG("test", pINFO)
     << "Retrying to change locked items in unlocked registry with inhibited item locking";
 
  registry4.Set("an int variable",   25);
  registry4.Set("a double variable", 9.21);
 
- LOG("Main", pINFO) << "registry: \n" << registry4;
+ LOG("test", pINFO) << "registry: \n" << registry4;
 
  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  // Test Assignment operator =
  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
- LOG("Main", pINFO) << "***** Testing operator = *****";
+ LOG("test", pINFO) << "***** Testing operator = *****";
 
  Registry & registry5 = registry4;
 
- LOG("Main", pINFO) << "Printing registry set with the assignment operator = ";
- LOG("Main", pINFO) << "registry: \n" << registry5;
+ LOG("test", pINFO) << "Printing registry set with the assignment operator = ";
+ LOG("test", pINFO) << "registry: \n" << registry5;
  
  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  // Test operator +=
  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
- LOG("Main", pINFO) << "***** Testing operator += *****";
+ LOG("test", pINFO) << "***** Testing operator += *****";
 
  registry5 += registry;
 
- LOG("Main", pINFO) << "Printing registry after adding values with the += operator ";
- LOG("Main", pINFO) << "registry: \n" << registry5;
+ LOG("test", pINFO) << "Printing registry after adding values with the += operator ";
+ LOG("test", pINFO) << "registry: \n" << registry5;
 
  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  // Test FindKeys()
  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
- LOG("Main", pINFO) << "***** Testing FindKeys() *****";
+ LOG("test", pINFO) << "***** Testing FindKeys() *****";
 
- LOG("Main", pINFO) << "Looking for all entries whose key contain the word `variable'";
+ LOG("test", pINFO) << "Looking for all entries whose key contain the word `variable'";
  RgKeyList klist = registry5.FindKeys("variable");
 
- LOG("Main", pINFO) << "Found " << klist.size() << " entries";
+ LOG("test", pINFO) << "Found " << klist.size() << " entries";
  RgKeyList::const_iterator kiter = klist.begin();
  for( ; kiter != klist.end(); ++kiter) {
-    LOG("Main", pINFO) << "Matching key: " << *kiter;
+    LOG("test", pINFO) << "Matching key: " << *kiter;
  }
 
  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  // Test ItemType()
  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
- LOG("Main", pINFO) << " ";;
- LOG("Main", pINFO) << "***** Testing ItemType() *****";
+ LOG("test", pINFO) << " ";;
+ LOG("test", pINFO) << "***** Testing ItemType() *****";
 
- LOG("Main", pINFO) 
+ LOG("test", pINFO) 
    << "Type of var pointed to by key = `var-int-2' is: "
       << RgType::AsString(registry5.ItemType("var-int-2"));
- LOG("Main", pINFO) 
+ LOG("test", pINFO) 
    << "Type of var pointed to by key = `var-string-1' is: "
       << RgType::AsString(registry5.ItemType("var-string-1"));
- LOG("Main", pINFO) 
+ LOG("test", pINFO) 
    << "Type of var pointed to by key = `var-th1f-1' is: "
       << RgType::AsString(registry5.ItemType("var-th1f-1"));
- LOG("Main", pINFO) 
+ LOG("test", pINFO) 
    << "Type of var pointed to by key = `??&&bla bla ###@ :-)' is: "
       << RgType::AsString(registry5.ItemType("??&&bla bla ###@ :-)"));
  
 
- LOG("Main", pINFO) << "Done!!";
+ LOG("test", pINFO) << "Done!!";
 
  return 0;
 }

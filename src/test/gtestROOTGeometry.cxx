@@ -113,7 +113,7 @@ int main(int argc, char ** argv)
  
   // Create & configure the geometry driver
   //
-  LOG("GeomTest", pINFO) 
+  LOG("test", pINFO) 
      << "Creating a geometry driver for ROOT geometry at: " 
      << gOptGeomFile;
   geometry::ROOTGeomAnalyzer * geom_driver = 
@@ -123,7 +123,7 @@ int main(int argc, char ** argv)
   // Draw the geometry
   // & define TPolyMarker3D for drawing vertices later on
   //
-  LOG("GeomTest", pINFO) 
+  LOG("test", pINFO) 
       << "Drawing the ROOT geometry";
   geom_driver->GetGeometry()->GetTopVolume()->Draw();
 
@@ -134,11 +134,11 @@ int main(int argc, char ** argv)
 
   // Compute & Printout the (density weighted) max path lengths
   //
-  LOG("GeomTest", pINFO) 
+  LOG("test", pINFO) 
        << "Computing max {density-weighted path lengths}";
   const PathLengthList & maxpl = geom_driver->ComputeMaxPathLengths();
 
-  LOG("GeomTest", pINFO) << "Maximum math lengths: " << maxpl;
+  LOG("test", pINFO) << "Maximum math lengths: " << maxpl;
 
 
   TFile f("geomtest.root","recreate");
@@ -156,7 +156,7 @@ int main(int argc, char ** argv)
     // compute density-weighted path lengths for each geometry
     // material for the current ray
     const PathLengthList & pl = geom_driver->ComputePathLengths(x,p);
-    LOG("GeomTest",pINFO)        
+    LOG("test",pINFO)        
        << "Current path lengths: " << pl;
 
     // select detector material (amongst all materials defined in the 
@@ -164,11 +164,11 @@ int main(int argc, char ** argv)
     // or force it to the user-selected material
     int tpdg = GetTargetMaterial(pl);
     if (tpdg == -1) continue;
-    LOG("GeomTest",pINFO) << "Selected target material: " << tpdg;
+    LOG("test",pINFO) << "Selected target material: " << tpdg;
 
     // generate an 'interaction vertex' in the selected material
     const TVector3 & vtx = geom_driver->GenerateVertex(x,p,tpdg);
-    LOG("GeomTest",pINFO) 
+    LOG("test",pINFO) 
       << "Generated vtx: (x = " << vtx.X() 
       << ", y = " << vtx.Y() << ", z = " <<vtx.Z() << ")";
 
@@ -178,7 +178,7 @@ int main(int argc, char ** argv)
     vtxp->SetNextPoint(vtx.X(),vtx.Y(),vtx.Z()); 
 
     n++;
-    LOG("GeomTest", pNOTICE) 
+    LOG("test", pNOTICE) 
       << " *** Vertices generated so far: " << n;
   }
  
@@ -191,7 +191,7 @@ int main(int argc, char ** argv)
   theApp.Run(kTRUE);
 
 #else
-    LOG("GeomTest", pERROR) 
+    LOG("test", pERROR) 
        << "*** You should have enabled the geometry drivers first!";
 #endif
 
@@ -230,11 +230,11 @@ void GetRandomRay(TLorentzVector & x, TLorentzVector & p)
   x = xx;
   p = pp;
 
-  LOG("GeomTest", pNOTICE) 
+  LOG("test", pNOTICE) 
    << "** Curr ray:";
-  LOG("GeomTest", pNOTICE) 
+  LOG("test", pNOTICE) 
    << "    x = " << x.X() << ",  y = " << x.Y() << ",  z = " << x.Z();
-  LOG("GeomTest", pNOTICE) 
+  LOG("test", pNOTICE) 
    << "    px = " << p.X() << ", py = " << p.Y() << ", pz = " << p.Z();
 
 }
@@ -270,7 +270,7 @@ void GetCommandLineArgs(int argc, char ** argv)
 {
   // *** geometry file:
   try {
-    LOG("GeomTest", pINFO) << "Getting ROOT geometry filename";
+    LOG("test", pINFO) << "Getting ROOT geometry filename";
     gOptGeomFile = genie::utils::clap::CmdLineArgAsString(argc,argv,'f');
   } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
@@ -284,19 +284,19 @@ void GetCommandLineArgs(int argc, char ** argv)
   // *** check whether an event generation volume name has been 
   // *** specified -- default is the 'top volume'
   try {
-    LOG("GeomTest", pDEBUG) << "Checking for input volume name";
+    LOG("test", pDEBUG) << "Checking for input volume name";
     gOptRootGeomTopVol = 
           genie::utils::clap::CmdLineArgAsString(argc,argv,'v');
   } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
-       LOG("GeomTest", pDEBUG) << "Using the <master volume>";
+       LOG("test", pDEBUG) << "Using the <master volume>";
     }
   } // try-catch (-v) 
 
   // *** ray direction:
   string direction = "";
   try {
-    LOG("GeomTest", pINFO) << "Reading ray direction";
+    LOG("test", pINFO) << "Reading ray direction";
     direction = genie::utils::clap::CmdLineArgAsString(argc,argv,'d');
     // split the comma separated list
     vector<string> dirv = utils::str::Split(direction, ",");
@@ -307,7 +307,7 @@ void GetCommandLineArgs(int argc, char ** argv)
     gOptRayDirection.SetXYZ(dx,dy,dz);
   } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
-      LOG("GeomTest", pINFO) << "No input ray direction - Using default";
+      LOG("test", pINFO) << "No input ray direction - Using default";
       gOptRayDirection = kDefOptRayDirection;
     }
   }
@@ -315,7 +315,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   // *** ray surface:
   string rsurf = "";
   try {
-    LOG("GeomTest", pINFO) << "Reading ray generation surface";
+    LOG("test", pINFO) << "Reading ray generation surface";
     rsurf = genie::utils::clap::CmdLineArgAsString(argc,argv,'s');
     // split the comma separated list
     vector<string> rsv = utils::str::Split(rsurf, ",");
@@ -326,18 +326,18 @@ void GetCommandLineArgs(int argc, char ** argv)
     gOptRaySurf.SetXYZ(x,y,z);
   } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
-      LOG("GeomTest", pINFO) << "No input ray generation surface - Using default";
+      LOG("test", pINFO) << "No input ray generation surface - Using default";
       gOptRaySurf = kDefOptRaySurf;
     }
   }
 
   // *** ray generation area radius:
   try {
-    LOG("GeomTest", pINFO) << "Reading radius of ray generation area";
+    LOG("test", pINFO) << "Reading radius of ray generation area";
     gOptRayR = genie::utils::clap::CmdLineArgAsDouble(argc,argv,'r');
   } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
-      LOG("GeomTest", pINFO) << "No input radius of ray generation area - Using default";
+      LOG("test", pINFO) << "No input radius of ray generation area - Using default";
       gOptRayR = kDefOptRayR;
     }
   }
@@ -345,7 +345,7 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   // *** number of vertices to generate:
   try {
-    LOG("GeomTest", pINFO) << "Getting number of vertices to generate";
+    LOG("test", pINFO) << "Getting number of vertices to generate";
     gOptNVtx = genie::utils::clap::CmdLineArgAsInt(argc,argv,'n');
   } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
@@ -355,7 +355,7 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   // *** 'forced' target pdg:
   try {
-    LOG("GeomTest", pINFO) << "Getting 'forced' target pdg";
+    LOG("test", pINFO) << "Getting 'forced' target pdg";
     gOptTgtPdg = genie::utils::clap::CmdLineArgAsInt(argc,argv,'p');
   } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {

@@ -76,17 +76,17 @@ int main(int argc, char ** argv)
 
   int nevents = getNEvents(argc,argv);
   if(input_tree->GetEntries() < nevents){ nevents = input_tree->GetEntries();}
-  LOG("Main", pINFO)
+  LOG("test", pINFO)
      << "Processing " << nevents << " events";
 
   for(int i = 0; i < nevents; i++) {
-    LOG("Main", pINFO) 
+    LOG("test", pINFO) 
       << "\n\n\n\n--------Determining hadron fates for event "<< i << " -----------";
 
     input_tree->GetEntry(i);
 
     EventRecord &  event = *(mcrec->event);
-    LOG("Main", pINFO) << event;
+    LOG("test", pINFO) << event;
 
     // Get the incoming hadron 
     GHepParticle * incoming_hadron = event.Particle(0);
@@ -97,7 +97,7 @@ int main(int argc, char ** argv)
     hadron_energy  = incoming_hadron->P4()->Energy();
     hadron_fate    = (int) utils::intranuke::ReconstructHadronFateHA(&event,0,true); 
 
-    LOG("Main", pNOTICE) 
+    LOG("test", pNOTICE) 
     << "Event: " << i << ", Hadron code = " << hadron_pdgcode 
     << ", energy = " << hadron_energy << ", fate = " << hadron_fate;
 
@@ -111,15 +111,15 @@ int main(int argc, char ** argv)
   output_file->Write();
   output_file->Close();
 
-  LOG("Main", pINFO)  << "Done!";
+  LOG("test", pINFO)  << "Done!";
   return 0;
 }
 //___________________________________________________________________
 bool testCommandLineArgs(int argc)
 {
   if(argc!=5) {
-   LOG("Main", pERROR) << "Not enough command line arguments";
-   LOG("Main", pINFO)  << "Syntax: gtestGetHadronFates -f root_filename -n nevents";
+   LOG("test", pERROR) << "Not enough command line arguments";
+   LOG("test", pINFO)  << "Syntax: gtestGetHadronFates -f root_filename -n nevents";
    return false;
   }
   return true;
@@ -151,7 +151,7 @@ bool checkRootFilename(string filename)
 {
   bool is_accessible = ! (gSystem->AccessPathName(filename.c_str()));
   if (!is_accessible) {
-   LOG("Main", pERROR)
+   LOG("test", pERROR)
        << "The input ROOT file [" << filename << "] is not accessible";
    return false;
   }

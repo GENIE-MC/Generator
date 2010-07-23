@@ -59,7 +59,7 @@ int main(int /*argc*/, char ** /*argv*/)
       double x  = TMath::Power(10, xmin_idx + ix * dx_idx);
 
       pdf.Calculate(x, Q2);
-      LOG("Main", pINFO) << "PDFs:\n" << pdf;
+      LOG("test", pINFO) << "PDFs:\n" << pdf;
 
       nt->Fill(pdf.UpValence(),
                pdf.DownValence(),

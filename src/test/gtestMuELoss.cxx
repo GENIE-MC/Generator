@@ -101,7 +101,7 @@ int main(int argc, char ** argv)
 
     MuELMaterial_t mt = (MuELMaterial_t) atoi(iter->c_str());
 
-     LOG("Main", pINFO) 
+     LOG("test", pINFO) 
         << "---------- Computing/Printing muon energy losses in "
                        << MuELMaterial::AsString(mt) << " ----------";
 
@@ -111,7 +111,7 @@ int main(int argc, char ** argv)
        //-------- due to: ionization 
        double ion = betheBloch->dE_dx(E[i],mt) / myunits_conversion;
 
-       LOG("Main", pINFO) 
+       LOG("test", pINFO) 
          << "Process: " << MuELProcess::AsString(betheBloch->Process())
          << ", Model: " << betheBloch->Id().Key() 
          << " : \n -dE/dx(E=" << E[i] << ") = " << ion << myunits_name;
@@ -119,7 +119,7 @@ int main(int argc, char ** argv)
        //-------- due to: bremsstrahlung
        double brem = petrukhinShestakov->dE_dx(E[i],mt) / myunits_conversion;
 
-       LOG("Main", pINFO) 
+       LOG("test", pINFO) 
          << "Process: " << MuELProcess::AsString(petrukhinShestakov->Process())
          << ", Model: " << petrukhinShestakov->Id().Key() 
          << " : \n -dE/dx(E=" << E[i] << ") = " << brem << myunits_name;
@@ -127,7 +127,7 @@ int main(int argc, char ** argv)
        //-------- due to: e-e+ pair production
        double pair = kokoulinPetroukhin->dE_dx(E[i],mt) / myunits_conversion;
 
-       LOG("Main", pINFO) 
+       LOG("test", pINFO) 
          << "Process: " << MuELProcess::AsString(kokoulinPetroukhin->Process())
          << ", Model: " << kokoulinPetroukhin->Id().Key() 
          << " : \n -dE/dx(E=" << E[i] << ") = " << pair << myunits_name;
@@ -135,7 +135,7 @@ int main(int argc, char ** argv)
        //-------- due to: photonuclear interactions
        double pnucl = bezroukovBugaev->dE_dx(E[i],mt) / myunits_conversion;
 
-       LOG("Main", pINFO) 
+       LOG("test", pINFO) 
          << "Process: " << MuELProcess::AsString(bezroukovBugaev->Process())
          << ", Model: " << bezroukovBugaev->Id().Key() 
          << " : \n -dE/dx(E=" << E[i] << ") = " << pnucl << myunits_name
@@ -153,13 +153,13 @@ int main(int argc, char ** argv)
 //____________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
 {
-  LOG("Main", pNOTICE) << "Parsing command line arguments";
+  LOG("test", pNOTICE) << "Parsing command line arguments";
   try {
-    LOG("Main", pINFO) << "Reading material ids";
+    LOG("test", pINFO) << "Reading material ids";
     gOptMaterials = genie::utils::clap::CmdLineArgAsString(argc,argv,'m');
   } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
-      LOG("Main", pINFO) << "Unspecified material ids - Exiting";
+      LOG("test", pINFO) << "Unspecified material ids - Exiting";
       exit(1);
     }
   }

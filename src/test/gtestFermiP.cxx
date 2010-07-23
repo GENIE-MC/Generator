@@ -65,9 +65,9 @@ int main(int /*argc*/, char ** /*argv*/)
   for(unsigned int it = 0; it < kNTargets; it++) {
      nucltgt[it]->SetHitNucPdg(kPdgProton);
      const Target & target = *nucltgt[it];
-     LOG("Main", pNOTICE)  << "** Using target : " << target;;
+     LOG("test", pNOTICE)  << "** Using target : " << target;;
      for(unsigned int im = 0; im < kNModels; im++) {
-        LOG("Main", pNOTICE) << "Running model : " << nuclmodel[im]->Id();
+        LOG("test", pNOTICE) << "Running model : " << nuclmodel[im]->Id();
         for(unsigned int iev = 0; iev < kNEvents; iev++) {
             nuclmodel[im]->GenerateNucleon(target);
             double   w  = nuclmodel[im]->RemovalEnergy();
@@ -76,7 +76,7 @@ int main(int /*argc*/, char ** /*argv*/)
             double   py = p3.Py();
             double   pz = p3.Pz();
             double   p  = p3.Mag();
-            LOG("Main", pDEBUG)
+            LOG("test", pDEBUG)
                 << "Nucleon 4-P = " << utils::print::Vec3AsString(&p3);
             nuclnt->Fill(it,im,p,px,py,pz,w);
         }//ievents

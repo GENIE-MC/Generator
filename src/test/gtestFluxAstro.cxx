@@ -54,7 +54,7 @@ int main(int /*argc*/, char ** /*argv*/)
 
   unsigned int ievent = 0;
   while(ievent++ < kNEvents) {
-    LOG("Main", pINFO)  << "Event number: " << ievent;
+    LOG("test", pINFO)  << "Event number: " << ievent;
     difflx->GenerateNext();
     int    pdgc = difflx->PdgCode();
     double wght = difflx->Weight();
@@ -69,7 +69,7 @@ int main(int /*argc*/, char ** /*argv*/)
   fluxntp->Write();
   f.Close();
 
-  LOG("Main", pINFO)  << "Done!";
+  LOG("test", pINFO)  << "Done!";
 
   return 0;
 }

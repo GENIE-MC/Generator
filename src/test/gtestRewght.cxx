@@ -80,13 +80,13 @@ int main(int argc, char ** argv)
 
   if(!tree) return 1;
 
-  LOG("main", pNOTICE) << "Input tree header: " << *thdr;
+  LOG("test", pNOTICE) << "Input tree header: " << *thdr;
 
   int nev = (gOptNEvt > 0) ?
         TMath::Min(gOptNEvt, (int)tree->GetEntries()) :
         (int) tree->GetEntries();
 
-  LOG("main", pNOTICE) << "Will process " << nev << " events";
+  LOG("test", pNOTICE) << "Will process " << nev << " events";
 
   //
   // Create a GReWeight object and add to it a set of 
@@ -166,31 +166,31 @@ int main(int argc, char ** argv)
     tree->GetEntry(i);
 
     EventRecord & event = *(mcrec->event);
-    LOG("main", pNOTICE) << event;
+    LOG("test", pNOTICE) << event;
 
     double wght = rw.CalcWeight(event);
-    LOG("main", pNOTICE) << "Overall weight = " << wght;
+    LOG("test", pNOTICE) << "Overall weight = " << wght;
 
     mcrec->Clear();
   }
 
   file.Close();
 
-  LOG("main", pNOTICE)  << "Done!";
+  LOG("test", pNOTICE)  << "Done!";
   return 0;
 }
 //___________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
 {
-  LOG("main", pINFO) << "*** Parsing command line arguments";
+  LOG("test", pINFO) << "*** Parsing command line arguments";
 
   // get GENIE event sample
   try {
-    LOG("main", pINFO) << "Reading event sample filename";
+    LOG("test", pINFO) << "Reading event sample filename";
     gOptInpFilename = utils::clap::CmdLineArgAsString(argc,argv,'f');
   } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
-      LOG("main", pFATAL) 
+      LOG("test", pFATAL) 
         << "Unspecified input filename - Exiting";
       exit(1);
     }
@@ -198,11 +198,11 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   // number of events:
   try {    
-    LOG("main", pINFO) << "Reading number of events to analyze";
+    LOG("test", pINFO) << "Reading number of events to analyze";
     gOptNEvt = genie::utils::clap::CmdLineArgAsInt(argc,argv,'n');
   } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
-      LOG("main", pINFO)
+      LOG("test", pINFO)
         << "Unspecified number of events to analyze - Use all";
       gOptNEvt = -1;
     }
