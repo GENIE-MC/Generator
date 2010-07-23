@@ -1,12 +1,12 @@
 //____________________________________________________________________________
 /*!
 
-\program gevserv_minos
+\program gevserv
 
-\brief   GENIE v+A event generation server for MINOS
+\brief   GENIE v+A event generation server 
 
          Syntax :
-           gevserv_minos [-p port]
+           gevserv [-p port]
 
          Options :
            [] denotes an optional argument
@@ -36,7 +36,6 @@
 #include <TBits.h>
 #include <TMath.h>
 
-//#include "Conventions/XmlParserStatus.h"
 #include "Conventions/Units.h"
 #include "EVGCore/EventRecord.h"
 #include "EVGDrivers/GEVGDriver.h"
@@ -51,8 +50,7 @@
 #include "PDG/PDGCodeList.h"
 #include "Utils/XSecSplineList.h"
 #include "Utils/StringUtils.h"
-#include "Utils/CmdLineArgParserUtils.h"
-#include "Utils/CmdLineArgParserException.h"
+#include "Utils/CmdLnArgParser.h"
 
 using std::string;
 using std::vector;
@@ -124,11 +122,11 @@ int main(int argc, char ** argv)
   gSock = serv_sock->Accept();
 
   if(!gSock) exit(1);
-  LOG("gevserv_minos", pNOTICE) << "Listening on port: " << gOptPortNum;
+  LOG("gevserv", pNOTICE) << "Listening on port: " << gOptPortNum;
   
   // Set no TCP/IP NODELAY
   int delay_ok = gSock->SetOption(kNoDelay,1);
-  LOG("gevserv_minos", pNOTICE) << "TCP_NODELAY > " << delay_ok;
+  LOG("gevserv", pNOTICE) << "TCP_NODELAY > " << delay_ok;
 
   // Start listening for messages & take the corresponding actions
 
@@ -146,7 +144,7 @@ int main(int argc, char ** argv)
     char mesg_content[2048];
     mesg->ReadString(mesg_content, 2048);
 
-    LOG("gevserv_minos", pNOTICE) << "Processing mesg > " << mesg_content;
+    LOG("gevserv", pNOTICE) << "Processing mesg > " << mesg_content;
 
     HandleMesg(mesg_content);
 
@@ -187,12 +185,12 @@ void Handshake(void)
 {
 // Reply to client messages checking whether the event server is active
 //
-  LOG("gevserv_minos", pNOTICE) 
+  LOG("gevserv", pNOTICE) 
          << "GENIE was pinged by a client (lamp was rubbed)! Responding...";
   
   gSock->Send(kHandshakeMesgSent.c_str());
 
-  LOG("gevserv_minos", pINFO) << "...done!";
+  LOG("gevserv", pINFO) << "...done!";
 }
 //____________________________________________________________________________
 void Configure(string mesg)
@@ -215,13 +213,13 @@ void Configure(string mesg)
 //   by setting all the std GENIE env vars at the server side. 
 //   See the GENIE web site.
 
-  LOG("gevserv_minos", pNOTICE)  << "Configuring GENIE event server";
+  LOG("gevserv", pNOTICE)  << "Configuring GENIE event server";
 
   mesg = str::FilterString(kConfigCmdRecv, mesg); 
   mesg = str::FilterString(":", mesg); 
   mesg = str::TrimSpaces(mesg);             
 
-  LOG("gevserv_minos", pNOTICE) << "Configure options: " << mesg;
+  LOG("gevserv", pNOTICE) << "Configure options: " << mesg;
 
   // Autoload splines from the XML file pointed at the $GSPLOAD env. var.
   // (if set at the server side)
@@ -245,7 +243,7 @@ void Configure(string mesg)
 
   for( ; conf_opt_iter != conf_opt_v.end(); ++conf_opt_iter) {
     string conf_opt = *conf_opt_iter;
-    LOG("gevserv_minos", pNOTICE) 
+    LOG("gevserv", pNOTICE) 
           << "Processing config option: " << conf_opt;
 
     vector<string> sv = str::Split(conf_opt, "=");
@@ -271,9 +269,9 @@ void Configure(string mesg)
     }
   }
 
-  LOG("gevserv_minos", pNOTICE) 
+  LOG("gevserv", pNOTICE) 
         << "Specified neutrino list: " << neutrinos;
-  LOG("gevserv_minos", pNOTICE) 
+  LOG("gevserv", pNOTICE) 
         << "Specified target list: "   << targets;
 
 
@@ -291,7 +289,7 @@ void Configure(string mesg)
 
      InitialState init_state(target_code, neutrino_code);
 
-     LOG("gevserv_minos", pNOTICE)
+     LOG("gevserv", pNOTICE)
        << "\n\n ---- Creating a GEVGDriver object configured for init-state: "
        << init_state.AsString() << " ----\n\n";
 
@@ -304,23 +302,23 @@ void Configure(string mesg)
    } // targets
   } // neutrinos
 
-  LOG("gevserv_minos", pNOTICE)
+  LOG("gevserv", pNOTICE)
        << "All necessary GEVGDriver object were pushed into GEVGPool\n";
 
   gConfigured = true;
 
   gSock->Send(kConfigOkMesgSent.c_str());
 
-  LOG("gevserv_minos", pINFO) << "...done!";
+  LOG("gevserv", pINFO) << "...done!";
 }
 //____________________________________________________________________________
 void CalcTotalXSec(string mesg)
 {
-  LOG("gevserv_minos", pNOTICE) 
+  LOG("gevserv", pNOTICE) 
        << "Sending total xsec for enabled channels  - Input info : " << mesg;
 
   if(!gConfigured) {
-      LOG("gevserv_minos", pERROR) 
+      LOG("gevserv", pERROR) 
              << "Event server is not configured - Can not generate event";
       gSock->Send(kErrNoConf.c_str());
       gSock->Send(kErr.c_str());
@@ -344,7 +342,7 @@ void CalcTotalXSec(string mesg)
   InitialState init_state(ipdgtgt, ipdgnu);
   GEVGDriver * evg_driver = gGPool.FindDriver(init_state);
   if(!evg_driver) {
-     LOG("gevserv_minos", pERROR)
+     LOG("gevserv", pERROR)
        << "No GEVGDriver object for init state: " << init_state.AsString();
      gSock->Send(kErrNoDriver.c_str());
      gSock->Send(kErr.c_str());
@@ -354,10 +352,12 @@ void CalcTotalXSec(string mesg)
   // Ask the event generation driver to sum up the splines for all enabled
   // channels
 
-   LOG("gevserv_minos", pNOTICE)
-       << "Requesting total cross section for init state: " << init_state.AsString();
+   LOG("gevserv", pNOTICE)
+       << "Requesting total cross section for init state: " 
+       << init_state.AsString();
 
-  evg_driver->CreateXSecSumSpline (1000 /*nknots*/, 0.001 /*Emin*/, 300 /*Emax*/, true /*in-log*/);
+  evg_driver->CreateXSecSumSpline (
+     1000 /*nknots*/, 0.001 /*Emin*/, 300 /*Emax*/, true /*in-log*/);
 
   const Spline * total_xsec_spl = evg_driver->XSecSumSpline();
   assert(total_xsec_spl);
@@ -384,15 +384,15 @@ void CalcTotalXSec(string mesg)
 
   gSock->Send(kXSecOkMesgSent.c_str());
 
-  LOG("gevserv_minos", pINFO) << "...done!";
+  LOG("gevserv", pINFO) << "...done!";
 }
 //____________________________________________________________________________
 void GenerateEvent(string mesg)
 {
-  LOG("gevserv_minos", pNOTICE) << "Generating event - Input info : " << mesg;
+  LOG("gevserv", pNOTICE) << "Generating event - Input info : " << mesg;
 
   if(!gConfigured) {
-      LOG("gevserv_minos", pERROR) 
+      LOG("gevserv", pERROR) 
              << "Event server is not configured - Can not generate event";
       gSock->Send(kErrNoConf.c_str());
       gSock->Send(kErr.c_str());
@@ -428,7 +428,7 @@ void GenerateEvent(string mesg)
   InitialState init_state(ipdgtgt, ipdgnu);
   GEVGDriver * evg_driver = gGPool.FindDriver(init_state);
   if(!evg_driver) {
-     LOG("gevserv_minos", pERROR)
+     LOG("gevserv", pERROR)
        << "No GEVGDriver object for init state: " << init_state.AsString();
      gSock->Send(kErrNoDriver.c_str());
      gSock->Send(kErr.c_str());
@@ -442,13 +442,13 @@ void GenerateEvent(string mesg)
   // Check/print the generated event
   bool failed = (event==0) || event->IsUnphysical();
   if(failed) {
-      LOG("gevserv_minos", pWARN) 
+      LOG("gevserv", pWARN) 
               << "Failed to generate the requested event";
       gSock->Send(kErrNoEvent.c_str());
       gSock->Send(kErr.c_str());
       return;
   }
-  LOG("gevserv_minos", pINFO) << "Generated event: " << *event;
+  LOG("gevserv", pINFO) << "Generated event: " << *event;
 
   // Extract some summary info & convert to what MINOS expects
 
@@ -555,18 +555,18 @@ void GenerateEvent(string mesg)
 
   gSock->Send(kEvgenOkMesgSent.c_str());
 
-  LOG("gevserv_minos", pINFO) << "...done!";
+  LOG("gevserv", pINFO) << "...done!";
 }
 //____________________________________________________________________________
 void Shutdown(void)
 {
-  LOG("gevserv_minos", pNOTICE) << "Shutting GENIE event server down ...";
+  LOG("gevserv", pNOTICE) << "Shutting GENIE event server down ...";
 
   gShutDown = true;
 
   gSock->Send(kShutdownOkMesgSent.c_str());
 
-  LOG("gevserv_minos", pINFO) << "...done!";
+  LOG("gevserv", pINFO) << "...done!";
 }
 //____________________________________________________________________________
 void RunInitChecks(void)
@@ -575,39 +575,40 @@ void RunInitChecks(void)
     string splines_filename = gSystem->Getenv("GSPLOAD");
     bool is_accessible = ! (gSystem->AccessPathName( splines_filename.c_str() ));
     if (!is_accessible) {
-       LOG("gevserv_minos", pWARN) 
-           << "*** The file (" << splines_filename 
-                     << ") specified in $GSPLOAD doesn't seem to be available!";
-       LOG("gevserv_minos", pWARN) << "*** Expect a significant start-up overhead!";
+       LOG("gevserv", pWARN) 
+          << "*** The file (" << splines_filename 
+          << ") specified in $GSPLOAD doesn't seem to be available!";
+       LOG("gevserv", pWARN) 
+          << "*** Expect a significant start-up overhead!";
     }     
   } else {
-     LOG("gevserv_minos", pWARN) << "*** $GSPLOAD was not set!";
-     LOG("gevserv_minos", pWARN) << "*** Expect a significant start-up overhead!";
+     LOG("gevserv", pWARN) << "*** $GSPLOAD was not set!";
+     LOG("gevserv", pWARN) << "*** Expect a significant start-up overhead!";
   }
 }
 //____________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
 {
-  LOG("gevserv_minos", pNOTICE) << "Parsing command line arguments";
+  LOG("gevserv", pNOTICE) << "Parsing command line arguments";
 
-  // number of events:
-  try {
-    LOG("gevserv_minos", pINFO) << "Reading port number";
-    gOptPortNum = genie::utils::clap::CmdLineArgAsInt(argc,argv,'p');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gevserv_minos", pINFO)
-	<< "Unspecified port number  - Using default (" << kDefPortNum << ")";
-      gOptPortNum = kDefPortNum;
-    }
+  CmdLnArgParser parser(argc,argv);
+
+  // port number:
+  if( parser.OptionExists('p') ) {
+    LOG("gevserv", pINFO) << "Reading port number";
+    gOptPortNum = parser.ArgAsInt('p');
+  } else {
+    LOG("gevserv", pINFO)
+	<< "Unspecified port number - Using default (" << kDefPortNum << ")";
+    gOptPortNum = kDefPortNum;
   }
 }
 //____________________________________________________________________________
 void PrintSyntax(void)
 {
-  LOG("gevserv_minos", pNOTICE)
+  LOG("gevserv", pNOTICE)
     << "\n\n" << "Syntax:" << "\n"
-    << "   gevserv_minos [-p port] \n";
+    << "   gevserv [-p port] \n";
 }
 //____________________________________________________________________________
 
