@@ -29,11 +29,12 @@ namespace utils {
 
 namespace clap
 {
-  string CmdLineArgAsString (int argc, char ** argv, char opt);
-  double CmdLineArgAsDouble (int argc, char ** argv, char opt);
-  int    CmdLineArgAsInt    (int argc, char ** argv, char opt);
-  bool   CmdLineArgAsBool   (int argc, char ** argv, char opt);
-  char * CmdLineArg         (int argc, char ** argv, char opt);
+  string   CmdLineArgAsString  (int argc, char ** argv, char opt);
+  double   CmdLineArgAsDouble  (int argc, char ** argv, char opt);
+  int      CmdLineArgAsInt     (int argc, char ** argv, char opt);
+  long     CmdLineArgAsLong    (int argc, char ** argv, char opt);
+  bool     CmdLineArgAsBool    (int argc, char ** argv, char opt);
+  char *   CmdLineArg          (int argc, char ** argv, char opt);
 
 }      // clap  namespace
 

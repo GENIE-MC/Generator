@@ -114,6 +114,15 @@ int genie::utils::clap::CmdLineArgAsInt(int argc, char ** argv, char op)
   return arg_as_int;
 }
 //____________________________________________________________________________
+long genie::utils::clap::CmdLineArgAsLong(int argc, char ** argv, char op)
+{
+  char * argument = CmdLineArg(argc, argv, op);
+  long arg_as_long_int = atol(argument);
+  delete [] argument;
+
+  return arg_as_long_int;
+}
+//____________________________________________________________________________
 bool genie::utils::clap::CmdLineArgAsBool(int argc, char ** argv, char op)
 {
   bool set = false;
