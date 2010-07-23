@@ -33,11 +33,11 @@ class HadronicSystemGenerator : public EventRecordVisitorI {
 
 public :
 
-  //-- Do not implement the EventRecordVisitorI interface.
-  //   Leave it for its children that are EventRecordVisitors too
+  // Do not implement the EventRecordVisitorI interface.
+  // Leave it for the concrete subclasses
 
-  //-- Common methods for all concrete PrimaryLeptonGenerator-type
-  //   EventRecordVisitors
+
+  // Common methods for all concrete subclasses
 
   void AddTargetNucleusRemnant  (GHepRecord * event_rec) const;
   void AddFinalHadronicSyst     (GHepRecord * event_rec) const;
@@ -47,10 +47,11 @@ public :
   TLorentzVector MomentumTransferLAB (GHepRecord * event_rec) const;
   TVector3       HCM2LAB             (GHepRecord * event_rec) const;
   int            HadronShowerCharge  (GHepRecord * event_rec) const;
+  int            ResonanceCharge     (GHepRecord * event_rec) const;
 
 protected:
 
-  //-- Abstract class - Can only be instantiated by its children.
+  // Abstract base class
   HadronicSystemGenerator();
   HadronicSystemGenerator(string name);
   HadronicSystemGenerator(string name, string config);
