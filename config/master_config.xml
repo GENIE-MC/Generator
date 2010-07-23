@@ -75,9 +75,6 @@
    <config alg="genie::PythiaDecayer">               PythiaDecayer.xml               </config>
    <config alg="genie::BaryonResonanceDecayer">      BaryonResonanceDecayer.xml      </config>
 
-   <!-- ****** CONFIGURATION FOR BARYON RESONANCE ALGORITHMS ****** -->
-   <config alg="genie::BaryonResDataPDG">            BaryonResDataPDG.xml            </config>
-
    <!-- ****** CONFIGURATION FOR INTEGRATORS ****** -->
    <config alg="genie::Simpson1D">                   Simpson1D.xml                   </config>
    <config alg="genie::Simpson2D">                   Simpson2D.xml                   </config>
@@ -136,10 +133,6 @@
    <config alg="genie::FGMBodekRitchie">             FGMBodekRitchie.xml             </config>
    <config alg="genie::SpectralFunc1d">              SpectralFunc1d.xml              </config>
    <config alg="genie::SpectralFunc">                SpectralFunc.xml                </config>
-
-   <!--  ****** CONFIGURATION FOR BREIT-WIGNER ALGORITHMS  ****** -->
-   <config alg="genie::BreitWignerLRes">             BreitWignerRes.xml              </config>
-   <config alg="genie::BreitWignerRes">              BreitWignerRes.xml              </config>
 
    <!-- ****** CONFIGURATION FOR MODELS IN MUELOSS UTILITY PACKAGE ****** -->
    <config alg="genie::mueloss::BetheBlochModel">         BetheBlochModel.xml        </config>
