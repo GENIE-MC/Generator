@@ -50,7 +50,7 @@ int main(int argc, char** argv)
     } 
   }
 
-  LOG("Main", pNOTICE) 
+  LOG("test", pNOTICE) 
      << "Testing the NaturalIsotopes utility";  
 
   /* PDGLibrary * pdglib  =  */ PDGLibrary::Instance();  // get msg out
@@ -58,13 +58,13 @@ int main(int argc, char** argv)
 
 
   if ( docheckpdg ) {
-    LOG("Main", pNOTICE) 
+    LOG("test", pNOTICE) 
       << "Check on PDG in PDGLibrary: [PDG,PDG-proton,PDG-neutron]";
   }
 
   for(int Z = 1; Z < 104; Z++){
     int nel = ni->NElements(Z);
-    LOG("Main", pNOTICE) << "** Z = " << Z
+    LOG("test", pNOTICE) << "** Z = " << Z
                          << "   Number of elements = " << nel;
     
     int pdg;
@@ -76,7 +76,7 @@ int main(int argc, char** argv)
       abund = el->Abundance();
       avg_a += double(getA(pdg)) * abund;
       extra = ( docheckpdg ) ? PDGcheck(pdg) : "";
-      LOG("Main", pNOTICE) 
+      LOG("test", pNOTICE) 
         << "   -- Element: " << n 
         << ", PdgCode = " << pdg
         << extra
@@ -86,7 +86,7 @@ int main(int argc, char** argv)
       avg_a /= 100.; // abundances were in %
       pdg = setA(pdg,TMath::Nint(avg_a));
       extra = ( docheckpdg ) ? PDGcheck(pdg) : "";
-      LOG("Main", pNOTICE)
+      LOG("test", pNOTICE)
         << "                 "
         << " PdgCode = " << pdg
         << extra

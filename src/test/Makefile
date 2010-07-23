@@ -1,5 +1,5 @@
 #
-# Makefile for Neutrino Generator Test Programs
+# Makefile for GENIE test programs
 #
 # Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
 # May 02, 2004
@@ -19,8 +19,8 @@ LIBRARIES  := $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 
 
 TGT =	gtestAlgorithms 	 \
- 	gtestBaryonResDataSet	 \
 	gtestBLI2DUnifGrid       \
+	gtestCmdLnArg		 \
  	gtestConfigPool		 \
  	gtestDecay		 \
  	gtestDISSF		 \
@@ -46,165 +46,150 @@ TGT =	gtestAlgorithms 	 \
 	gtestInteraction	 \
 	gtestResonances		 \
 	gtestRwMarginalization	 \
-	gtestRwNuXSecHelperP2P	 \
-	gtestRwNuXSecHelperLoop	 \
 	gtestKPhaseSpace	
-# 	gtestIntranuke		 
 
 all: $(TGT)
 
 gtestAlgorithms: FORCE
-	$(CXX) $(CXXFLAGS) -c testAlgorithms.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) testAlgorithms.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestAlgorithms
-
-gtestBaryonResDataSet: FORCE
-	$(CXX) $(CXXFLAGS) -c testBaryonResDataSet.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) testBaryonResDataSet.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestBaryonResDataSet
+	$(CXX) $(CXXFLAGS) -c gtestAlgorithms.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gtestAlgorithms.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestAlgorithms
 
 gtestBLI2DUnifGrid: FORCE
-	$(CXX) $(CXXFLAGS) -c testBLI2DUnifGrid.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) testBLI2DUnifGrid.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestBLI2DUnifGrid
+	$(CXX) $(CXXFLAGS) -c gtestBLI2DUnifGrid.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gtestBLI2DUnifGrid.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestBLI2DUnifGrid
+
+gtestCmdLnArg: FORCE
+	$(CXX) $(CXXFLAGS) -c gtestCmdLnArg.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gtestCmdLnArg.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestCmdLnArg
 
 gtestConfigPool: FORCE
-	$(CXX) $(CXXFLAGS) -c testConfigPool.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) testConfigPool.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestConfigPool
+	$(CXX) $(CXXFLAGS) -c gtestConfigPool.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gtestConfigPool.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestConfigPool
 
 gtestDecay: FORCE
-	$(CXX) $(CXXFLAGS) -c testDecay.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) testDecay.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestDecay
+	$(CXX) $(CXXFLAGS) -c gtestDecay.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gtestDecay.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestDecay
 
 gtestDISSF: FORCE
-	$(CXX) $(CXXFLAGS) -c testDISSF.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) testDISSF.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestDISSF
+	$(CXX) $(CXXFLAGS) -c gtestDISSF.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gtestDISSF.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestDISSF
 
 gtestElFormFactors: FORCE
-	$(CXX) $(CXXFLAGS) -c testElFormFactors.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) testElFormFactors.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestElFormFactors
+	$(CXX) $(CXXFLAGS) -c gtestElFormFactors.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gtestElFormFactors.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestElFormFactors
 
 gtestEventLoop: FORCE
-	$(CXX) $(CXXFLAGS) -c testEventLoop.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) testEventLoop.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestEventLoop
+	$(CXX) $(CXXFLAGS) -c gtestEventLoop.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gtestEventLoop.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestEventLoop
 
 gtestFluxAstro: FORCE
 ifeq ($(strip $(GOPT_ENABLE_FLUX_DRIVERS)),YES)
-	$(CXX) $(CXXFLAGS) -c testFluxAstro.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) testFluxAstro.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestFluxAstro
+	$(CXX) $(CXXFLAGS) -c gtestFluxAstro.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gtestFluxAstro.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestFluxAstro
 else
 	@echo "You need to enable the flux drivers to build the gtestFluxAstro program"
 endif
 
 gtestFluxAtmo: FORCE
 ifeq ($(strip $(GOPT_ENABLE_FLUX_DRIVERS)),YES)
-	$(CXX) $(CXXFLAGS) -c testFluxAtmo.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) testFluxAtmo.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestFluxAtmo
+	$(CXX) $(CXXFLAGS) -c gtestFluxAtmo.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gtestFluxAtmo.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestFluxAtmo
 else
 	@echo "You need to enable the flux drivers to build the gtestFluxAtmo program"
 endif
 
 gtestFluxSimple: FORCE
 ifeq ($(strip $(GOPT_ENABLE_FLUX_DRIVERS)),YES)
-	$(CXX) $(CXXFLAGS) -c testFluxSimple.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) testFluxSimple.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestFluxSimple
+	$(CXX) $(CXXFLAGS) -c gtestFluxSimple.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gtestFluxSimple.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestFluxSimple
 else
 	@echo "You need to enable the flux drivers to build the gtestFluxSimple program"
 endif
 
 gtestGiBUUData: FORCE
-	$(CXX) $(CXXFLAGS) -c testGiBUUData.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) testGiBUUData.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestGiBUUData
+	$(CXX) $(CXXFLAGS) -c gtestGiBUUData.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gtestGiBUUData.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestGiBUUData
 
 gtestHadronization: FORCE
-	$(CXX) $(CXXFLAGS) -c testHadronization.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) testHadronization.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestHadronization
-
-gtestIntranuke: FORCE
-	$(CXX) $(CXXFLAGS) -c testIntranuke.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) testIntranuke.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestIntranuke
+	$(CXX) $(CXXFLAGS) -c gtestHadronization.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gtestHadronization.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestHadronization
 
 gtestINukeHadroData: FORCE
-	$(CXX) $(CXXFLAGS) -c testINukeHadroData.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) testINukeHadroData.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestINukeHadroData
+	$(CXX) $(CXXFLAGS) -c gtestINukeHadroData.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gtestINukeHadroData.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestINukeHadroData
 
 gtestXSec: FORCE
-	$(CXX) $(CXXFLAGS) -c testXSec.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) testXSec.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestXSec
+	$(CXX) $(CXXFLAGS) -c gtestXSec.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gtestXSec.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestXSec
 
 gtestPDFLIB: FORCE
-	$(CXX) $(CXXFLAGS) -c testPDFLIB.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) testPDFLIB.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestPDFLIB
+	$(CXX) $(CXXFLAGS) -c gtestPDFLIB.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gtestPDFLIB.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestPDFLIB
 
 gtestQENuclSuppression: FORCE
-	$(CXX) $(CXXFLAGS) -c testQENuclSuppression.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) testQENuclSuppression.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestQENuclSuppression
+	$(CXX) $(CXXFLAGS) -c gtestQENuclSuppression.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gtestQENuclSuppression.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestQENuclSuppression
 
 gtestPREM: FORCE
-	$(CXX) $(CXXFLAGS) -c testPREM.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) testPREM.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestPREM
+	$(CXX) $(CXXFLAGS) -c gtestPREM.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gtestPREM.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestPREM
 
 gtestFermiP: FORCE
-	$(CXX) $(CXXFLAGS) -c testFermiP.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) testFermiP.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestFermiP
+	$(CXX) $(CXXFLAGS) -c gtestFermiP.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gtestFermiP.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestFermiP
 
 gtestMessenger: FORCE
-	$(CXX) $(CXXFLAGS) -c testMessenger.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) testMessenger.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestMessenger
+	$(CXX) $(CXXFLAGS) -c gtestMessenger.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gtestMessenger.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestMessenger
 
 gtestMuELoss: FORCE
 ifeq ($(strip $(GOPT_ENABLE_MUELOSS)),YES)
-	$(CXX) $(CXXFLAGS) -c testMuELoss.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) testMuELoss.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestMuELoss
+	$(CXX) $(CXXFLAGS) -c gtestMuELoss.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gtestMuELoss.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestMuELoss
 else
 	@echo "You need to enable the MuELoss package to build the gtestMuELoss program"
 endif
 
 gtestNumerical: FORCE
-	$(CXX) $(CXXFLAGS) -c testNumerical.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) testNumerical.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestNumerical
+	$(CXX) $(CXXFLAGS) -c gtestNumerical.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gtestNumerical.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestNumerical
 
 gtestNaturalIsotopes: FORCE
-	$(CXX) $(CXXFLAGS) -c testNaturalIsotopes.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) testNaturalIsotopes.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestNaturalIsotopes
+	$(CXX) $(CXXFLAGS) -c gtestNaturalIsotopes.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gtestNaturalIsotopes.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestNaturalIsotopes
 
 gtestRewght: FORCE
-	$(CXX) $(CXXFLAGS) -c testRewght.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) testRewght.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestRewght
+	$(CXX) $(CXXFLAGS) -c gtestRewght.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gtestRewght.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestRewght
 
 gtestRegistry: FORCE
-	$(CXX) $(CXXFLAGS) -c testRegistry.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) testRegistry.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestRegistry
+	$(CXX) $(CXXFLAGS) -c gtestRegistry.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gtestRegistry.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestRegistry
 
 gtestInteraction: FORCE
-	$(CXX) $(CXXFLAGS) -c testInteraction.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) testInteraction.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestInteraction
+	$(CXX) $(CXXFLAGS) -c gtestInteraction.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gtestInteraction.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestInteraction
 
 gtestResonances: FORCE
-	$(CXX) $(CXXFLAGS) -c testResonances.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) testResonances.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestResonances
+	$(CXX) $(CXXFLAGS) -c gtestResonances.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gtestResonances.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestResonances
 
 gtestRwMarginalization: FORCE
-	$(CXX) $(CXXFLAGS) -c testRwMarginalization.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) testRwMarginalization.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestRwMarginalization
-
-gtestRwNuXSecHelperP2P: FORCE
-	$(CXX) $(CXXFLAGS) -c testRwNuXSecHelperP2P.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) testRwNuXSecHelperP2P.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestRwNuXSecHelperP2P
-
-gtestRwNuXSecHelperLoop: FORCE
-	$(CXX) $(CXXFLAGS) -c testRwNuXSecHelperLoop.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) testRwNuXSecHelperLoop.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestRwNuXSecHelperLoop
+	$(CXX) $(CXXFLAGS) -c gtestRwMarginalization.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gtestRwMarginalization.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestRwMarginalization
 
 gtestRecoINukeHadroFates: FORCE
-	$(CXX) $(CXXFLAGS) -c testRecoINukeHadroFates.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) testRecoINukeHadroFates.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestRecoINukeHadroFates
+	$(CXX) $(CXXFLAGS) -c gtestRecoINukeHadroFates.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gtestRecoINukeHadroFates.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestRecoINukeHadroFates
 
 gtestKPhaseSpace: FORCE
-	$(CXX) $(CXXFLAGS) -c testKPhaseSpace.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) testKPhaseSpace.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestKPhaseSpace
+	$(CXX) $(CXXFLAGS) -c gtestKPhaseSpace.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gtestKPhaseSpace.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestKPhaseSpace
 
 gtestROOTGeometry: FORCE
 ifeq ($(strip $(GOPT_ENABLE_GEOM_DRIVERS)),YES)
-	$(CXX) $(CXXFLAGS) -c testROOTGeometry.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) testROOTGeometry.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestROOTGeometry
+	$(CXX) $(CXXFLAGS) -c gtestROOTGeometry.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gtestROOTGeometry.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestROOTGeometry
 else
 	@echo "You need to enable the geometry drivers to build the gtestROOTGeometry program"
 endif
@@ -217,8 +202,8 @@ purge: FORCE
 clean: FORCE
 	$(RM) *.o *~ core 
 	$(RM) $(GENIE_BIN_PATH)/gtestAlgorithms 	
-	$(RM) $(GENIE_BIN_PATH)/gtestBaryonResDataSet	
 	$(RM) $(GENIE_BIN_PATH)/gtestBLI2DUnifGrid	
+	$(RM) $(GENIE_BIN_PATH)/gtestCmdLnArg		
 	$(RM) $(GENIE_BIN_PATH)/gtestConfigPool		
 	$(RM) $(GENIE_BIN_PATH)/gtestDecay		
 	$(RM) $(GENIE_BIN_PATH)/gtestDISSF		
@@ -229,7 +214,6 @@ clean: FORCE
 	$(RM) $(GENIE_BIN_PATH)/gtestFluxSimple
 	$(RM) $(GENIE_BIN_PATH)/gtestGiBUUData
 	$(RM) $(GENIE_BIN_PATH)/gtestHadronization	
-	$(RM) $(GENIE_BIN_PATH)/gtestIntranuke	
 	$(RM) $(GENIE_BIN_PATH)/gtestINukeHadroData	
 	$(RM) $(GENIE_BIN_PATH)/gtestMessenger		
 	$(RM) $(GENIE_BIN_PATH)/gtestNumerical		
@@ -243,8 +227,6 @@ clean: FORCE
 	$(RM) $(GENIE_BIN_PATH)/gtestInteraction	
 	$(RM) $(GENIE_BIN_PATH)/gtestResonances		
 	$(RM) $(GENIE_BIN_PATH)/gtestRwMarginalization	
-	$(RM) $(GENIE_BIN_PATH)/gtestRwNuXSecHelperP2P	
-	$(RM) $(GENIE_BIN_PATH)/gtestRwNuXSecHelperLoop		
 	$(RM) $(GENIE_BIN_PATH)/gtestRecoINukeHadroFates		
 	$(RM) $(GENIE_BIN_PATH)/gtestKPhaseSpace	
 ifeq ($(strip $(GOPT_ENABLE_MUELOSS)),YES)
@@ -256,8 +238,8 @@ endif
 
 distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestAlgorithms 	
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestBaryonResDataSet	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestBLI2DUnifGrid	
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestCmdLnArg		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestConfigPool		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestDecay		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestDISSF		
@@ -268,7 +250,6 @@ distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestFluxSimple
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestGiBUUData
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestHadronization	
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestIntranuke		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestINukeHadroData
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestMessenger		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestNumerical		
@@ -282,8 +263,6 @@ distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestInteraction	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestResonances		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestRwMarginalization		
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestRwNuXSecHelperP2P		
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestRwNuXSecHelperLoop		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestRecoINukeHadroFates		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestKPhaseSpace	
 ifeq ($(strip $(GOPT_ENABLE_MUELOSS)),YES)

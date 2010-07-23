@@ -215,13 +215,13 @@ void VerticalSlice(void)
            kine->Setx(gX);
            kine->SetQ2(gQ2);
 
-           LOG("Main", pNOTICE) << "*** Vertical SF slice for: ";
-           LOG("Main", pNOTICE) << *interaction;
+           LOG("test", pNOTICE) << "*** Vertical SF slice for: ";
+           LOG("test", pNOTICE) << *interaction;
 
            // calculate the structure functions for the input interaction
            dissf.Calculate(interaction);
 
-           LOG("Main", pNOTICE) << dissf;
+           LOG("test", pNOTICE) << dissf;
 
            delete interaction;
         }
@@ -229,7 +229,7 @@ void VerticalSlice(void)
   }
 
   // print algorithms & heir configurations
-  LOG("Main", pNOTICE) << *algf;
+  LOG("test", pNOTICE) << *algf;
 }
 //__________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
@@ -238,11 +238,11 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   // DIS SF alg:
   try {
-    LOG("Main", pINFO) << "Reading DIS SF algorithm name";
+    LOG("test", pINFO) << "Reading DIS SF algorithm name";
     gDISSFAlg = genie::utils::clap::CmdLineArgAsString(argc,argv,'a');
   } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
-      LOG("Main", pINFO) << "No DIS SF algorithm was specified";
+      LOG("test", pINFO) << "No DIS SF algorithm was specified";
       PrintSyntax();
       exit(1);
     }
@@ -250,11 +250,11 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   // DIS SF config:
   try {
-    LOG("Main", pINFO) << "Reading DIS SF algorithm config name";
+    LOG("test", pINFO) << "Reading DIS SF algorithm config name";
     gDISSFConfig = genie::utils::clap::CmdLineArgAsString(argc,argv,'c');
   } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
-      LOG("Main", pINFO) << "No DIS SF algorithm config was specified";
+      LOG("test", pINFO) << "No DIS SF algorithm config was specified";
       PrintSyntax();
       exit(1);
     }
@@ -262,11 +262,11 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   // testDISSF mode:
   try {
-    LOG("Main", pINFO) << "Reading testDISSF mode";
+    LOG("test", pINFO) << "Reading testDISSF mode";
     gMode = genie::utils::clap::CmdLineArgAsInt(argc,argv,'m');
   } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
-      LOG("Main", pINFO) << "No testDISSF was specified. Using default";
+      LOG("test", pINFO) << "No testDISSF was specified. Using default";
     }
   }
 
@@ -274,21 +274,21 @@ void GetCommandLineArgs(int argc, char ** argv)
   if(gMode==2) {
     // DIS SF config:
     try {
-      LOG("Main", pINFO) << "Reading x";
+      LOG("test", pINFO) << "Reading x";
       gX = genie::utils::clap::CmdLineArgAsDouble(argc,argv,'x');
     } catch(exceptions::CmdLineArgParserException e) {
       if(!e.ArgumentFound()) {
-        LOG("Main", pINFO) << "No Bjorken x was specified for vertical slice";
+        LOG("test", pINFO) << "No Bjorken x was specified for vertical slice";
         PrintSyntax();
         exit(1);
       }
     }
     try {
-      LOG("Main", pINFO) << "Reading Q2";
+      LOG("test", pINFO) << "Reading Q2";
       gQ2 = genie::utils::clap::CmdLineArgAsDouble(argc,argv,'q');
     } catch(exceptions::CmdLineArgParserException e) {
       if(!e.ArgumentFound()) {
-        LOG("Main", pINFO) 
+        LOG("test", pINFO) 
               << "No momentum transfer Q2 was specified for vertical slice";
         PrintSyntax();
         exit(1);
@@ -299,7 +299,7 @@ void GetCommandLineArgs(int argc, char ** argv)
 //__________________________________________________________________________
 void PrintSyntax(void)
 {
-  LOG("Main", pNOTICE)
+  LOG("test", pNOTICE)
     << "\n\n" << "Syntax:" << "\n"
           << "  testDISSF -a model -c config [-m mode] [-x x] [-q Q2]\n";
 }

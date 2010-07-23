@@ -80,8 +80,8 @@ int main(int argc, char ** argv)
     tree->GetEntry(i);
     EventRecord & event = *(mcrec->event);
 
-    LOG("main", pNOTICE)  << " ****** current event nu. = " << i;
-  //LOG("main", pNOTICE)  << event;
+    LOG("test", pNOTICE)  << " ****** current event nu. = " << i;
+  //LOG("test", pNOTICE)  << event;
 
     double piabsm = 
         rew::margin::MarginalizeFates(
@@ -90,8 +90,8 @@ int main(int argc, char ** argv)
         rew::margin::MarginalizeFates(
              +1,rew::kINukeTwkDial_FrAbs_pi,&event);
 
-    LOG("main", pNOTICE)  << " weight (abs + 1 sigma) = " << piabsp;	
-    LOG("main", pNOTICE)  << " weight (abs - 1 sigma) = " << piabsm;
+    LOG("test", pNOTICE)  << " weight (abs + 1 sigma) = " << piabsp;	
+    LOG("test", pNOTICE)  << " weight (abs - 1 sigma) = " << piabsm;
 
     piabs_m1sig_weight.SetAt(piabsm, i);
     piabs_p1sig_weight.SetAt(piabsp, i);
@@ -168,22 +168,22 @@ int main(int argc, char ** argv)
   hEmu_abs_p1sig -> Write();
   outf.Close();
 
-  LOG("main", pNOTICE)  << "Done!";
+  LOG("test", pNOTICE)  << "Done!";
 
   return 0;
 }
 //___________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
 {
-  LOG("main", pINFO) << "Parsing commad line arguments";
+  LOG("test", pINFO) << "Parsing commad line arguments";
 
   // get GENIE event sample
   try {
-    LOG("main", pINFO) << "Reading event sample filename";
+    LOG("test", pINFO) << "Reading event sample filename";
     gOptInpFilename = utils::clap::CmdLineArgAsString(argc,argv,'f');
   } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
-      LOG("main", pFATAL) 
+      LOG("test", pFATAL) 
         << "Unspecified input filename - Exiting";
       exit(1);
     }
@@ -191,11 +191,11 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   // number of events to analyse
   try {    
-    LOG("main", pINFO) << "Reading number of events to analyze";
+    LOG("test", pINFO) << "Reading number of events to analyze";
     gOptNEvt = genie::utils::clap::CmdLineArgAsInt(argc,argv,'n');
   } catch(exceptions::CmdLineArgParserException e) {
     if(!e.ArgumentFound()) {
-      LOG("main", pINFO)
+      LOG("test", pINFO)
         << "Unspecified number of events to analyze - Use all";
       gOptNEvt = -1;
     }

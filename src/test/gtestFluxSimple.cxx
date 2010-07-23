@@ -37,11 +37,11 @@ TNtuple * createFluxNtuple          (GFluxI * flux);
 //___________________________________________________________________
 int main(int /*argc*/, char ** /*argv*/)
 {
-  LOG("Main", pINFO)  << "Running GCylindTH1Flux driver test";
+  LOG("test", pINFO)  << "Running GCylindTH1Flux driver test";
   TNtuple * ntcylh1f = runGCylindTH1FluxDriver();
   ntcylh1f->SetTitle("GCylindTH1Flux driver data");
 
-  LOG("Main", pINFO) << "Saving flux ntuples";
+  LOG("test", pINFO) << "Saving flux ntuples";
 
   TFile f("./genie-flux-drivers.root","recreate");
   ntcylh1f  -> Write("ntcylh1f");
@@ -49,18 +49,18 @@ int main(int /*argc*/, char ** /*argv*/)
 
   delete ntcylh1f;
 
-  LOG("Main", pINFO)  << "Done!";
+  LOG("test", pINFO)  << "Done!";
 
   return 0;
 }
 //___________________________________________________________________
 TNtuple * runGCylindTH1FluxDriver(void)
 {
-  LOG("Main", pINFO)  << "Creating GCylindTH1Flux flux driver";
+  LOG("test", pINFO)  << "Creating GCylindTH1Flux flux driver";
 
   GCylindTH1Flux * flux = new GCylindTH1Flux;
 
-  LOG("Main", pINFO)  << "Setting configuration data";
+  LOG("test", pINFO)  << "Setting configuration data";
 
   TF1 * f1 = new TF1("f1","1./x",0.5,5.0);
   TH1D * spectrum1 = new TH1D("spectrum1","numu E",    20,0.5,5);
@@ -75,7 +75,7 @@ TNtuple * runGCylindTH1FluxDriver(void)
 
   double Rtransverse = 0.5;
 
-  LOG("Main", pINFO)  << "Configuring GCylindTH1Flux flux driver";
+  LOG("test", pINFO)  << "Configuring GCylindTH1Flux flux driver";
 
   flux -> SetNuDirection      (direction);
   flux -> SetBeamSpot         (beam_spot);
@@ -83,7 +83,7 @@ TNtuple * runGCylindTH1FluxDriver(void)
   flux -> AddEnergySpectrum   (kPdgNuMu,     spectrum1);
   flux -> AddEnergySpectrum   (kPdgAntiNuMu, spectrum2);
 
-  LOG("Main", pINFO) << "Creating flux ntuple";
+  LOG("test", pINFO) << "Creating flux ntuple";
   GFluxI * fluxi = dynamic_cast<GFluxI*>(flux);
 
   TNtuple * fluxntp = createFluxNtuple(fluxi);
@@ -101,7 +101,7 @@ TNtuple * createFluxNtuple(GFluxI * flux)
       new TNtuple("fluxntp",
             "flux data", "x:y:z:t:px:py:pz:E:pdgc");
 
-  LOG("Main", pINFO) << "Generating flux neutrinos";
+  LOG("test", pINFO) << "Generating flux neutrinos";
 
   unsigned int ievent = 0;
   while(ievent++ < kNEvents) {

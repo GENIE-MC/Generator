@@ -73,7 +73,7 @@ int main(int /*argc*/, char ** /*argv*/)
   nt->Write();
   f.Close();
 
-  LOG("Main", pINFO)  << "Done!";
+  LOG("test", pINFO)  << "Done!";
   return 0;
 }
 

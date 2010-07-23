@@ -39,22 +39,22 @@ TNtuple * createFluxNtuple          (GFluxI * flux);
 //____________________________________________________________________________
 int main(int /*argc*/, char ** /*argv*/)
 {
-  LOG("Main", pINFO)  << "Running GFlukaAtmo3DFlux driver test";
+  LOG("test", pINFO)  << "Running GFlukaAtmo3DFlux driver test";
   TNtuple * ntfluka = runGFlukaAtmo3DFluxDriver();
   ntfluka->SetTitle("GFlukaAtmo3DFlux driver data");
 
-  LOG("Main", pINFO)  << "Running GBartolAtmoFlux driver test";
+  LOG("test", pINFO)  << "Running GBartolAtmoFlux driver test";
   TNtuple * ntbartol = runGBartolAtmoFluxDriver();
   ntbartol->SetTitle("GBartolAtmoFlux driver data");
 
-  LOG("Main", pINFO) << "Saving flux ntuples";
+  LOG("test", pINFO) << "Saving flux ntuples";
 
   TFile f("./genie-flux-drivers.root","recreate");
   ntfluka  -> Write("ntfluka");
   ntbartol -> Write("ntbartol");
   f.Close();
 
-  LOG("Main", pINFO)  << "Done!";
+  LOG("test", pINFO)  << "Done!";
 
   return 0;
 }
@@ -79,7 +79,7 @@ TNtuple * runGFlukaAtmo3DFluxDriver(void)
   flux -> GenerateWeighted(true);
 //flux -> ForceMaxEnergy(3);
 
-  LOG("Main", pINFO) << "Generating events";
+  LOG("test", pINFO) << "Generating events";
   TNtuple * fluxntp = createFluxNtuple(dynamic_cast<GFluxI*>(flux));
   return fluxntp;
 }
@@ -104,7 +104,7 @@ TNtuple * runGBartolAtmoFluxDriver(void)
 //flux -> GenerateWeighted(true);
 //flux -> ForceMaxEnergy(300);
 
-  LOG("Main", pINFO) << "Generating events";
+  LOG("test", pINFO) << "Generating events";
   TNtuple * fluxntp = createFluxNtuple(dynamic_cast<GFluxI*>(flux));
   delete flux;
 
@@ -116,11 +116,11 @@ TNtuple * createFluxNtuple(GFluxI * flux)
   TNtuple * fluxntp = 
      new TNtuple("fluxntp", "flux", "x:y:z:t:px:py:pz:E:pdgc:wght");
 
-  LOG("Main", pINFO) << "Generating flux neutrinos";
+  LOG("test", pINFO) << "Generating flux neutrinos";
 
   unsigned int ievent = 0;
   while(ievent++ < kNEvents) {
-    LOG("Main", pINFO)  << "Event number: " << ievent;
+    LOG("test", pINFO)  << "Event number: " << ievent;
     flux->GenerateNext();
     int    pdgc = flux->PdgCode();
     double wght = flux->Weight();

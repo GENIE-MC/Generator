@@ -61,27 +61,27 @@ void testReconfigInCommonPool(void)
   AlgFactory *    algf = AlgFactory::Instance();
 
   // instantiate some algorithms
-  LOG("Main", pINFO) << "Instantiate a concrete algorithm";
+  LOG("test", pINFO) << "Instantiate a concrete algorithm";
   AlgId id("genie::QELPXSec","CC-Default");
   const Algorithm * alg = algf->GetAlgorithm(id);
-  LOG("Main", pINFO) << *alg;
+  LOG("test", pINFO) << *alg;
 
-  LOG("Main", pINFO) << "Access its configuration at the config pool";
+  LOG("test", pINFO) << "Access its configuration at the config pool";
   Registry * r = cnfp->FindRegistry(alg);
   r->UnLock();
-  LOG("Main", pINFO) << *r;
+  LOG("test", pINFO) << *r;
 
   // modify configuration 
-  LOG("Main", pINFO) << "Modifying registry";
+  LOG("test", pINFO) << "Modifying registry";
   r->Set("CabbiboAngle",0.25);
-  LOG("Main", pINFO) << *r;
+  LOG("test", pINFO) << *r;
 
   // force reconfiguration
   algf->ForceReconfiguration();
 
   // print all algorithms stored at the algorithm factory pool (for now just 1) 
   // & their configurations to verify that the change was propagated correctly
-  LOG("Main", pINFO) << *algf;
+  LOG("test", pINFO) << *algf;
 }
 //____________________________________________________________________________
 void testReconfigInOwnedModules (void)
@@ -107,39 +107,39 @@ void testReconfigInOwnedModules (void)
   AlgFactory * algf = AlgFactory::Instance();
 
   // instantiate some algorithms
-  LOG("Main", pINFO) << "Instantiate a concrete algorithm";
+  LOG("test", pINFO) << "Instantiate a concrete algorithm";
   AlgId id("genie::QELPXSec","CC-Default");
   Algorithm * alg = algf->AdoptAlgorithm(id);
   XSecAlgorithmI * xsecalg = dynamic_cast<XSecAlgorithmI*>(alg);
 
-  LOG("Main", pINFO) << *xsecalg;
+  LOG("test", pINFO) << *xsecalg;
 
-  LOG("Main", pINFO) << "Adopting substructure";
+  LOG("test", pINFO) << "Adopting substructure";
   xsecalg->AdoptSubstructure();
 
-  LOG("Main", pINFO) << *xsecalg;
+  LOG("test", pINFO) << *xsecalg;
 
   // access the top level algorithm registry where all the config params
   // (including config params of all the referenced sub-algs have been 
   // bundled) following a special naming convention
   //
-  LOG("Main", pINFO) << "Taking a clone of the deep config registry:";
+  LOG("test", pINFO) << "Taking a clone of the deep config registry:";
   Registry r(xsecalg->GetConfig());
-  LOG("Main", pINFO) << r;
+  LOG("test", pINFO) << r;
 
-  LOG("Main", pINFO) << "Modifying parameters at the deep registry";
+  LOG("test", pINFO) << "Modifying parameters at the deep registry";
   r.Set("CabbiboAngle",                        0.23); // refers to top level alg
   r.Set("FormFactorsAlg/MuN",                 -1.92); // refers to an alg 1-level deep
   r.Set("FormFactorsAlg/ElFormFactorsAlg/MuN",-1.92); // refers to an alg 2-level deep
 
-  LOG("Main", pINFO) << "Modified deep config registry:";
-  LOG("Main", pINFO) << r;
+  LOG("test", pINFO) << "Modified deep config registry:";
+  LOG("test", pINFO) << r;
 
   // This would reconfigure the top level algorithm and then, in a recursive
   // mode, all owned sub-algorithms will be reconfigured and then their owned
   // sub-algorithms and so on, however complex the algorithm strucure
   xsecalg->Configure(r);
 
-  LOG("Main", pINFO) << *xsecalg;
+  LOG("test", pINFO) << *xsecalg;
 }
 //____________________________________________________________________________
