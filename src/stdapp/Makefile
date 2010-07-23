@@ -109,7 +109,6 @@ clean: FORCE
 	$(RM) $(GENIE_BIN_PATH)/gspl2root		
 	$(RM) $(GENIE_BIN_PATH)/gmxpl		
 	$(RM) $(GENIE_BIN_PATH)/gntpc		
-	$(RM) $(GENIE_BIN_PATH)/gnc2eN  
 
 distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevgen		
@@ -121,7 +120,6 @@ distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gspl2root		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gmxpl		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gntpc		
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gnc2eN		
 
 clean--gEvGen: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gevgen
