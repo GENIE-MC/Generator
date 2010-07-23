@@ -42,6 +42,9 @@ namespace nuclear
 
   double NuclQELXSecSuppression (string kftable, double pmax, const Interaction * in);
 
+  double RQEFG_generic (
+            double q2, double Mn, double kFi, double kFf, double pmax);
+
   double FmI1   (double alpha, double beta,
                   double a, double b,  double kFi, double kFf, double q);
   double FmI2   (double alpha, double beta,
