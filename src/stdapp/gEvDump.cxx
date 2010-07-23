@@ -48,8 +48,7 @@
 #include "Ntuple/NtpMCTreeHeader.h"
 #include "Ntuple/NtpMCEventRecord.h"
 #include "Messenger/Messenger.h"
-#include "Utils/CmdLineArgParserUtils.h"
-#include "Utils/CmdLineArgParserException.h"
+#include "Utils/CmdLnArgParser.h"
 
 using std::string;
 using namespace genie;
@@ -140,34 +139,32 @@ void PrintN(TTree * tree)
 //___________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
 {
-  LOG("gevdump", pINFO) << "*** Parsing commad line arguments";
+  LOG("gevdump", pINFO) << "*** Parsing command line arguments";
+
+  CmdLnArgParser parser(argc,argv);
 
   // get GENIE event sample
-  try {
+  if ( parser.OptionExists('f') ) {
     LOG("gevdump", pINFO) << "Reading event sample filename";
-    gOptInpFilename = utils::clap::CmdLineArgAsString(argc,argv,'f');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gevdump", pFATAL) 
-        << "Unspecified input filename - Exiting";
-      PrintSyntax();
-      exit(1);
-    }
+    gOptInpFilename = parser.ArgAsString('f');
+  } else {
+    LOG("gevdump", pFATAL) 
+       << "Unspecified input filename - Exiting";
+    PrintSyntax();
+    exit(1);
   }
 
   // number of events:
-  try {    
+  if ( parser.OptionExists('n') ) {
     LOG("gevdump", pINFO) << "Reading number of events to analyze";
-    gOptNEvt = genie::utils::clap::CmdLineArgAsInt(argc,argv,'n');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gevdump", pINFO)
-        << "Unspecified number of events to analyze - Use all";
-      gOptNEvt = -1;
-    }
+    gOptNEvt = parser.ArgAsInt('n');
+  } else {
+    LOG("gevdump", pINFO)
+      << "Unspecified number of events to analyze - Use all";
+    gOptNEvt = -1;
   }
 
-  gOptPrint1 = genie::utils::clap::CmdLineArgAsBool(argc,argv,'o');  
+  gOptPrint1 = parser.OptionExists('o');  
 }
 //_________________________________________________________________________________
 void PrintSyntax(void)

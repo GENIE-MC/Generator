@@ -55,8 +55,7 @@
 #include "Utils/XSecSplineList.h"
 #include "Utils/StringUtils.h"
 #include "Utils/SystemUtils.h"
-#include "Utils/CmdLineArgParserUtils.h"
-#include "Utils/CmdLineArgParserException.h"
+#include "Utils/CmdLnArgParser.h"
 
 using std::string;
 using std::vector;
@@ -131,9 +130,11 @@ void GetCommandLineArgs(int argc, char ** argv)
 {
   LOG("gspladd", pNOTICE) << "Parsing command line arguments";
 
-  try {
+  CmdLnArgParser parser(argc,argv);
+
+  if( parser.OptionExists('f') ) {
     LOG("gspladd", pINFO) << "Reading input files";
-    string inpfiles = genie::utils::clap::CmdLineArgAsString(argc,argv,'f');
+    string inpfiles = parser.ArgAsString('f');
     if(inpfiles.find(",") != string::npos) {
        // split the comma separated list
        gInpFiles = utils::str::Split(inpfiles, ",");
@@ -141,14 +142,11 @@ void GetCommandLineArgs(int argc, char ** argv)
        // there is just one file
        gInpFiles.push_back(inpfiles);
     }
-  }catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-    }
   }
 
-  try {
+  if( parser.OptionExists('d') ) {
     LOG("gspladd", pINFO) << "Reading input directories";
-    string inpdirs = genie::utils::clap::CmdLineArgAsString(argc,argv,'d');
+    string inpdirs = parser.ArgAsString('d');
     if(inpdirs.find(",") != string::npos) {
        // split the comma separated list
        gInpDirs = utils::str::Split(inpdirs, ",");
@@ -156,27 +154,22 @@ void GetCommandLineArgs(int argc, char ** argv)
        // there is just one directory
        gInpDirs.push_back(inpdirs);
     }
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-    }
   }
 
-  try {
+  if( parser.OptionExists('o') ) {
     LOG("gspladd", pINFO) << "Reading output file name";
-    gOutFile = genie::utils::clap::CmdLineArgAsString(argc,argv,'o');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gspladd", pFATAL) << "You must specify an output file name";
-      PrintSyntax();
-      exit(1);
-    }
+    gOutFile = parser.ArgAsString('o');
+  } else {
+    LOG("gspladd", pFATAL) << "You must specify an output file name";
+    PrintSyntax();
+    exit(1);
   }
 
   gAllFiles = GetAllInputFiles();
   if(gAllFiles.size() <= 1) {
-      LOG("gspladd", pFATAL) << "There must be at least 2 input files";
-      PrintSyntax();
-      exit(1);
+    LOG("gspladd", pFATAL) << "There must be at least 2 input files";
+    PrintSyntax();
+    exit(1);
   }
 }
 //____________________________________________________________________________
