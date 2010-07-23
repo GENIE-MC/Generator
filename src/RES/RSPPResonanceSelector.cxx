@@ -5,13 +5,15 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - November 18, 2004
+         STFC, Rutherford Appleton Laboratory 
 
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
  @ Mar 03, 2009 - CA
    Moved into the new RES package from its previous location (EVGModules).
+ @ Jul 23, 2010 - CA
+   Use ResonanceCharge() from base class. Function removed from utils::res.
 
 */
 //____________________________________________________________________________
@@ -77,9 +79,10 @@ Resonance_t RSPPResonanceSelector::SelectResonance(GHepRecord * evrec) const
 
   LOG("RESSelector", pNOTICE) << "Selecting a baryon resonance";
 
-  //-- Figure out what the resonance charge should be.
   Interaction * interaction = evrec->Summary();
-  int q_res = utils::res::ResonanceCharge(interaction);
+
+  //-- Figure out what the resonance charge should be.
+  int q_res = this->ResonanceCharge(evrec);
 
   //-- Use selected kinematics
   interaction->KinePtr()->UseSelectedKinematics();
@@ -167,7 +170,7 @@ void RSPPResonanceSelector::AddResonance(GHepRecord * evrec) const
   //-- Determine the RES pdg code (from the selected Resonance_t & charge)
   Interaction * interaction = evrec->Summary();
   Resonance_t res = interaction->ExclTag().Resonance();
-  int charge = utils::res::ResonanceCharge(interaction);
+  int charge = this->ResonanceCharge(evrec);
   int pdgc   = utils::res::PdgCode(res,charge);
 
   LOG("RESSelector", pNOTICE)
