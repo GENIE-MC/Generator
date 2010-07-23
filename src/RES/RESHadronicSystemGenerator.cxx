@@ -5,7 +5,7 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - November 23, 2004
+         STFC, Rutherford Appleton Laboratory 
 
  For the class documentation see the corresponding header file.
 
@@ -15,6 +15,8 @@
    performed further upstream in the processing chain.  
  @ Mar 03, 2009 - CA
    Moved into the new RES package from its previous location (EVGModules)
+ @ Jul 23, 2010 - CA
+   Use ResonanceCharge() from base class. Function removed from utils::res.
 
 */
 //____________________________________________________________________________
@@ -92,16 +94,21 @@ int RESHadronicSystemGenerator::GetResonancePdgCode(GHepRecord * evrec) const
 // In the RES thread the resonance is specifed when selecting interaction 
 // This method adds it to the GHEP record.
 
-  //-- Determine the RES pdg code (from the selected Resonance_t & charge)
   Interaction * interaction = evrec->Summary();
+
+  // Get resonance id
   const XclsTag & xcls = interaction->ExclTag();
   assert(xcls.KnownResonance());
   Resonance_t res = xcls.Resonance();
-  int charge = utils::res::ResonanceCharge(interaction);
-  int pdgc   = utils::res::PdgCode(res,charge);
+
+  // Get resonance charge
+  int q_res = this->ResonanceCharge(evrec);
+
+  // Find resonance PDG code from resonance charge and id
+  int pdgc = utils::res::PdgCode(res, q_res);
 
   LOG("RESHadronicVtx", pNOTICE)
-      << "Selected event has RES with PDGC = " << pdgc << ", Q = " << charge;
+     << "Selected event has RES with PDGC = " << pdgc << ", Q = " << q_res;
 
   return pdgc;
 }
