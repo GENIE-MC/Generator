@@ -39,11 +39,9 @@
 #include "Base/DISStructureFuncModelI.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGCodes.h"
-#include "Utils/CmdLineArgParserUtils.h"
-#include "Utils/CmdLineArgParserException.h"
+#include "Utils/CmdLnArgParser.h"
 
 using namespace genie;
-using namespace genie::utils;
 using std::string;
 
 void GetCommandLineArgs(int argc, char ** argv);
@@ -236,65 +234,58 @@ void GetCommandLineArgs(int argc, char ** argv)
 {
 // Parse the command line arguments
 
+  CmdLnArgParser parser(argc,argv);
+
   // DIS SF alg:
-  try {
+  if( parser.OptionExists('a') ) {
     LOG("test", pINFO) << "Reading DIS SF algorithm name";
-    gDISSFAlg = genie::utils::clap::CmdLineArgAsString(argc,argv,'a');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("test", pINFO) << "No DIS SF algorithm was specified";
-      PrintSyntax();
-      exit(1);
-    }
+    gDISSFAlg = parser.ArgAsString('a');
+  } else {
+    LOG("test", pINFO) << "No DIS SF algorithm was specified";
+    PrintSyntax();
+    exit(1);
   }
 
   // DIS SF config:
-  try {
+  if( parser.OptionExists('c') ) {
     LOG("test", pINFO) << "Reading DIS SF algorithm config name";
-    gDISSFConfig = genie::utils::clap::CmdLineArgAsString(argc,argv,'c');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("test", pINFO) << "No DIS SF algorithm config was specified";
-      PrintSyntax();
-      exit(1);
-    }
+    gDISSFConfig = parser.ArgAsString('c');
+  } else {
+    LOG("test", pINFO) << "No DIS SF algorithm config was specified";
+    PrintSyntax();
+    exit(1);
   }
 
   // testDISSF mode:
-  try {
+  if( parser.OptionExists('m') ) {
     LOG("test", pINFO) << "Reading testDISSF mode";
-    gMode = genie::utils::clap::CmdLineArgAsInt(argc,argv,'m');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("test", pINFO) << "No testDISSF was specified. Using default";
-    }
+    gMode = parser.ArgAsInt('m');
+  } else {
+    LOG("test", pINFO) << "No testDISSF was specified. Using default";
   }
 
   // x,Q2 for vertical slice mode
   if(gMode==2) {
-    // DIS SF config:
-    try {
+    // x:
+    if( parser.OptionExists('x') ) {
       LOG("test", pINFO) << "Reading x";
-      gX = genie::utils::clap::CmdLineArgAsDouble(argc,argv,'x');
-    } catch(exceptions::CmdLineArgParserException e) {
-      if(!e.ArgumentFound()) {
-        LOG("test", pINFO) << "No Bjorken x was specified for vertical slice";
-        PrintSyntax();
-        exit(1);
-      }
+      gX = parser.ArgAsDouble('x');
+    } else {
+      LOG("test", pINFO) 
+        << "No Bjorken x was specified for vertical slice";
+      PrintSyntax();
+      exit(1);
     }
-    try {
+    if( parser.OptionExists('q') ) {
       LOG("test", pINFO) << "Reading Q2";
-      gQ2 = genie::utils::clap::CmdLineArgAsDouble(argc,argv,'q');
-    } catch(exceptions::CmdLineArgParserException e) {
-      if(!e.ArgumentFound()) {
-        LOG("test", pINFO) 
-              << "No momentum transfer Q2 was specified for vertical slice";
-        PrintSyntax();
-        exit(1);
-      }
+      gQ2 = parser.ArgAsDouble('q');
+    } else {
+      LOG("test", pINFO) 
+        << "No momentum transfer Q2 was specified for vertical slice";
+      PrintSyntax();
+      exit(1);
     }
-  }
+  }//mode=2
 }
 //__________________________________________________________________________
 void PrintSyntax(void)

@@ -32,13 +32,11 @@ int main(int argc, char **argv)
   CmdLnArgParser parser(argc,argv);
 
   LOG("test", pNOTICE)
-     << "Option -f exists? " << parser.Exists('f');
+     << "Option -f exists? " << parser.OptionExists('f');
   LOG("test", pNOTICE)
-     << "Option -n exists? " << parser.Exists('n');
-  LOG("test", pNOTICE)
-     << "Option -s exists? " << parser.Exists('s');
+     << "Option -s exists? " << parser.OptionExists('s');
 
-  if(parser.Exists('d')) {
+  if(parser.OptionExists('d')) {
     LOG("test", pNOTICE)
        << "Command line argument following -d : " 
        << parser.Arg('d');
@@ -47,7 +45,7 @@ int main(int argc, char **argv)
        << parser.ArgAsDouble('d');
   }
 
-  if(parser.Exists('l')) {
+  if(parser.OptionExists('l')) {
     LOG("test", pNOTICE)
        << "Command line argument following -l : " 
        << parser.Arg('l');
@@ -56,7 +54,7 @@ int main(int argc, char **argv)
        << parser.ArgAsLong('l');
   }
 
-  if(parser.Exists('v')) {
+  if(parser.OptionExists('v')) {
     LOG("test", pNOTICE)
        << "Command line argument following -v : " 
        << parser.Arg('v');

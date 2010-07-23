@@ -51,8 +51,7 @@
 #include "ReWeight/GReWeightFZone.h"
 #include "ReWeight/GReWeightINuke.h"
 #include "ReWeight/GReWeightAGKY.h"
-#include "Utils/CmdLineArgParserUtils.h"
-#include "Utils/CmdLineArgParserException.h"
+#include "Utils/CmdLnArgParser.h"
 
 using std::string;
 
@@ -184,28 +183,26 @@ void GetCommandLineArgs(int argc, char ** argv)
 {
   LOG("test", pINFO) << "*** Parsing command line arguments";
 
+  CmdLnArgParser parser(argc,argv);
+
   // get GENIE event sample
-  try {
+  if( parser.OptionExists('f') ) {  
     LOG("test", pINFO) << "Reading event sample filename";
-    gOptInpFilename = utils::clap::CmdLineArgAsString(argc,argv,'f');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("test", pFATAL) 
-        << "Unspecified input filename - Exiting";
-      exit(1);
-    }
+    gOptInpFilename = parser.ArgAsString('f');
+  } else {
+    LOG("test", pFATAL) 
+      << "Unspecified input filename - Exiting";
+    exit(1);
   }
 
   // number of events:
-  try {    
+  if( parser.OptionExists('n') ) {  
     LOG("test", pINFO) << "Reading number of events to analyze";
-    gOptNEvt = genie::utils::clap::CmdLineArgAsInt(argc,argv,'n');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("test", pINFO)
-        << "Unspecified number of events to analyze - Use all";
-      gOptNEvt = -1;
-    }
+    gOptNEvt = parser.ArgAsInt('n');
+  } else {
+    LOG("test", pINFO)
+       << "Unspecified number of events to analyze - Use all";
+    gOptNEvt = -1;
   }
 }
 //_________________________________________________________________________________

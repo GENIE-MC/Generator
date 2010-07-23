@@ -40,8 +40,7 @@
 #include "MuELoss/MuELProcess.h"
 #include "Messenger/Messenger.h"
 #include "Utils/StringUtils.h"
-#include "Utils/CmdLineArgParserUtils.h"
-#include "Utils/CmdLineArgParserException.h"
+#include "Utils/CmdLnArgParser.h"
 
 using std::string;
 using std::vector;
@@ -105,10 +104,10 @@ int main(int argc, char ** argv)
         << "---------- Computing/Printing muon energy losses in "
                        << MuELMaterial::AsString(mt) << " ----------";
 
-     //loop over energies
+     // loop over energies
      for(int i=0; i<N; i++)  {
       
-       //-------- due to: ionization 
+       // ionization 
        double ion = betheBloch->dE_dx(E[i],mt) / myunits_conversion;
 
        LOG("test", pINFO) 
@@ -116,7 +115,7 @@ int main(int argc, char ** argv)
          << ", Model: " << betheBloch->Id().Key() 
          << " : \n -dE/dx(E=" << E[i] << ") = " << ion << myunits_name;
 
-       //-------- due to: bremsstrahlung
+       // bremsstrahlung
        double brem = petrukhinShestakov->dE_dx(E[i],mt) / myunits_conversion;
 
        LOG("test", pINFO) 
@@ -124,7 +123,7 @@ int main(int argc, char ** argv)
          << ", Model: " << petrukhinShestakov->Id().Key() 
          << " : \n -dE/dx(E=" << E[i] << ") = " << brem << myunits_name;
 
-       //-------- due to: e-e+ pair production
+       // e-e+ pair production
        double pair = kokoulinPetroukhin->dE_dx(E[i],mt) / myunits_conversion;
 
        LOG("test", pINFO) 
@@ -132,7 +131,7 @@ int main(int argc, char ** argv)
          << ", Model: " << kokoulinPetroukhin->Id().Key() 
          << " : \n -dE/dx(E=" << E[i] << ") = " << pair << myunits_name;
 
-       //-------- due to: photonuclear interactions
+       // photonuclear interactions
        double pnucl = bezroukovBugaev->dE_dx(E[i],mt) / myunits_conversion;
 
        LOG("test", pINFO) 
@@ -154,14 +153,15 @@ int main(int argc, char ** argv)
 void GetCommandLineArgs(int argc, char ** argv)
 {
   LOG("test", pNOTICE) << "Parsing command line arguments";
-  try {
+
+  CmdLnArgParser parser(argc,argv);
+
+  if ( parser.OptionExists('m') ) {
     LOG("test", pINFO) << "Reading material ids";
-    gOptMaterials = genie::utils::clap::CmdLineArgAsString(argc,argv,'m');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("test", pINFO) << "Unspecified material ids - Exiting";
-      exit(1);
-    }
+    gOptMaterials = parser.ArgAsString('m');
+  } else {
+    LOG("test", pINFO) << "Unspecified material ids - Exiting";
+    exit(1);
   }
 }
 //____________________________________________________________________________

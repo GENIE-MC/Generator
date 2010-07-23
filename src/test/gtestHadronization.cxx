@@ -56,8 +56,7 @@
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
 #include "Utils/FragmRecUtils.h"
-#include "Utils/CmdLineArgParserUtils.h"
-#include "Utils/CmdLineArgParserException.h"
+#include "Utils/CmdLnArgParser.h"
 
 using std::string;
 using std::vector;
@@ -376,48 +375,45 @@ void GetCommandLineArgs(int argc, char ** argv)
 {
 // Parse the command line arguments
 
-  //number of events:
-  try {
+  CmdLnArgParser parser(argc,argv);
+
+  // number of events:
+  if( parser.OptionExists('n') ) {
     LOG("test", pINFO) << "Reading number of events to generate";
-    gNEvents = genie::utils::clap::CmdLineArgAsInt(argc,argv,'n');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("test", pFATAL) << "Number of events was not specified";
-      PrintSyntax();
-      exit(1);
-    }
+    gNEvents = parser.ArgAsInt('n');
+  } else {
+    LOG("test", pFATAL) << "Number of events was not specified";
+    PrintSyntax();
+    exit(1);
   }
 
   // hadronizer:
-  try {
+  if( parser.OptionExists('a') ) {
     LOG("test", pINFO) << "Reading hadronization algorithm name";
-    gHadAlg = genie::utils::clap::CmdLineArgAsString(argc,argv,'a');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("test", pINFO) << "No hadronization algorithm was specified";
-      PrintSyntax();
-      exit(1);
-    }
+    gHadAlg = parser.ArgAsString('a');
+  } else {
+    LOG("test", pINFO) << "No hadronization algorithm was specified";
+    PrintSyntax();
+    exit(1);
   }
 
   // hadronizer config:
-  try {
+  if( parser.OptionExists('c') ) {
     LOG("test", pINFO) << "Reading hadronization algorithm config name";
-    gHadConfig = genie::utils::clap::CmdLineArgAsString(argc,argv,'c');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("test", pINFO) << "No hadronization algorithm config was specified";
-      PrintSyntax();
-      exit(1);
-    }
+    gHadConfig = parser.ArgAsString('c');
+  } else {
+    LOG("test", pINFO) << "No hadronization algorithm config was specified";
+    PrintSyntax();
+    exit(1);
   }
 
   // set struck quark?
-  try {
+  if( parser.OptionExists('q') ) {
     LOG("test", pINFO) << "reading struck quark option";
-    gSetHitQrk = genie::utils::clap::CmdLineArgAsBool(argc,argv,'q');
-  } catch(exceptions::CmdLineArgParserException e) {
-      LOG("test", pINFO) << "Using default option for setting hit quark";
+    gSetHitQrk = true;
+  } else {
+    LOG("test", pINFO) << "Using default option for setting hit quark";
+    gSetHitQrk = false;
   }
 }
 //____________________________________________________________________________

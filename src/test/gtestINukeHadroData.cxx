@@ -12,10 +12,10 @@
          program will print out the cross section values at the specified
          kinetic energy.
 
-\syntax  gtestINukeHadroData [-e energy(MeV)]
+\syntax  gtestINukeHadroData [-k energy(MeV)]
 
          []  denotes an optionan argument
-         -e  can be used to pass a kinetic energy for which all the hadron
+         -k  can be used to pass a kinetic energy for which all the hadron
              cross sections will be printed out
 
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
@@ -34,8 +34,7 @@
 #include "HadronTransport/INukeHadroData.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/Spline.h"
-#include "Utils/CmdLineArgParserUtils.h"
-#include "Utils/CmdLineArgParserException.h"
+#include "Utils/CmdLnArgParser.h"
 
 using namespace genie;
 
@@ -45,14 +44,18 @@ void  PrintOutForInputKE    (double ke);
 int main(int argc, char ** argv)
 {
   double ke = -1; // input hadron kinetic energy
-  try {
-    string ske = genie::utils::clap::CmdLineArgAsString(argc,argv,'e');
-    ke = atof(ske.c_str());
-  } catch(exceptions::CmdLineArgParserException e) {
+
+  CmdLnArgParser parser(argc,argv);
+  if( parser.OptionExists('k') ) {
+    ke = parser.ArgAsDouble('k');
   }
 
-  if(ke<0) SaveSplinesToRootFile();
-  else     PrintOutForInputKE(ke);
+  if(ke < 0) {
+    SaveSplinesToRootFile();
+  }
+  else {     
+    PrintOutForInputKE(ke);
+  }
   
   return 0;
 }
