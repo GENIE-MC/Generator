@@ -21,12 +21,13 @@
 
 #include <vector>
 #include <iostream>
+#include <string>
 
-#include "BaryonResonance/BaryonResDataSetI.h"
 #include "BaryonResonance/BaryonResonance.h"
 
 using std::vector;
 using std::ostream;
+using std::string;
 
 namespace genie {
 

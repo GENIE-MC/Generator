@@ -5,7 +5,7 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - November 25, 2004
+         STFC, Rutherford Appleton Laboratory 
 
  For the namespace documentation see the corresponding header file.
 
@@ -18,11 +18,24 @@
  @ Oct 20, 2009 - CA
    Modified ResonanceCharge() to take into account the probe charge (so as
    to conserve charge in charged lepton scattering)
+ @ Jul 23, 2010 - CA
+   Moved ResonanceCharge(Interaction) to EVGModules/HadronicSystemGenerator 
+   to avoid dependency of BaryonResonance package on the Interaction package.
+   Added OrbitalAngularMom(Resonance_t), ResonanceIndex(Resonance_t)
+   Width(Resonance_t) and BWNorm(Resonance_t) functions, previously available
+   through a BaryonResDataSetI implementation. Simplified BaryonResonance
+   package by removing the redundant BaryonResDataPDG, BaryonResDataSetI
+   BreitWignerI, BreitWignerRes, BreitWignerLRes and BaryonResParams classes.
+
 */
 //____________________________________________________________________________
 
+#include <cassert>
+#include <cstdlib>
+
 #include "BaryonResonance/BaryonResUtils.h"
-#include "Interaction/Interaction.h"
+#include "Conventions/Units.h"
+#include "Messenger/Messenger.h"
 #include "PDG/PDGLibrary.h"
 #include "PDG/PDGCodes.h"
 
@@ -53,32 +66,6 @@ const char * genie::utils::res::AsString(Resonance_t res)
     default: break;
   }
   return "unknown resonance!";
-}
-//____________________________________________________________________________
-double genie::utils::res::Mass(Resonance_t res)
-{
-  switch(res) {
-    case kP33_1232  : return 1.232 ; break;
-    case kS11_1535  : return 1.535 ; break;
-    case kD13_1520  : return 1.520 ; break;
-    case kS11_1650  : return 1.650 ; break;
-    case kD13_1700  : return 1.700 ; break;
-    case kD15_1675  : return 1.675 ; break;
-    case kS31_1620  : return 1.620 ; break;
-    case kD33_1700  : return 1.700 ; break;
-    case kP11_1440  : return 1.440 ; break;
-    case kP33_1600  : return 1.600 ; break;
-    case kP13_1720  : return 1.720 ; break;
-    case kF15_1680  : return 1.680 ; break;
-    case kP31_1910  : return 1.910 ; break;
-    case kP33_1920  : return 1.920 ; break;
-    case kF35_1905  : return 1.905 ; break;
-    case kF37_1950  : return 1.950 ; break;
-    case kP11_1710  : return 1.710 ; break;
-    case kF17_1970  : return 1.970 ; break;
-    default: break;
-  }
-  return -1;
 }
 //____________________________________________________________________________
 Resonance_t genie::utils::res::FromString(const char * res)
@@ -439,23 +426,143 @@ bool genie::utils::res::IsN(Resonance_t res)
   return (! utils::res::IsDelta(res) );
 }
 //____________________________________________________________________________
-int genie::utils::res::ResonanceCharge(const Interaction * interaction) 
+double genie::utils::res::Mass(Resonance_t res)
 {
-// Figure out what the resonance charge should be to conserve the charge in
-// RES interactions 
-
-  const InitialState & init_state = interaction->InitState();
-
-  int prb_pdgc = init_state.ProbePdg();
-  int nuc_pdgc   = init_state.Tgt().HitNucPdg();
-  int fsl_pdgc   = interaction->FSPrimLeptonPdg();
-
-  int q_prb = int( PDGLibrary::Instance()->Find(prb_pdgc)->Charge() );
-  int q_nuc = int( PDGLibrary::Instance()->Find(nuc_pdgc)->Charge() );
-  int q_fsl = int( PDGLibrary::Instance()->Find(fsl_pdgc)->Charge() );
-  int q_res = (q_prb + q_nuc - q_fsl) /3;
-
-  return q_res;
+  switch(res) {
+    case kP33_1232  : return 1.232 * units::GeV ; break;
+    case kS11_1535  : return 1.535 * units::GeV ; break;
+    case kD13_1520  : return 1.520 * units::GeV ; break;
+    case kS11_1650  : return 1.650 * units::GeV ; break;
+    case kD13_1700  : return 1.700 * units::GeV ; break;
+    case kD15_1675  : return 1.675 * units::GeV ; break;
+    case kS31_1620  : return 1.620 * units::GeV ; break;
+    case kD33_1700  : return 1.700 * units::GeV ; break;
+    case kP11_1440  : return 1.440 * units::GeV ; break;
+    case kP33_1600  : return 1.600 * units::GeV ; break;
+    case kP13_1720  : return 1.720 * units::GeV ; break;
+    case kF15_1680  : return 1.680 * units::GeV ; break;
+    case kP31_1910  : return 1.910 * units::GeV ; break;
+    case kP33_1920  : return 1.920 * units::GeV ; break;
+    case kF35_1905  : return 1.905 * units::GeV ; break;
+    case kF37_1950  : return 1.950 * units::GeV ; break;
+    case kP11_1710  : return 1.710 * units::GeV ; break;
+    case kF17_1970  : return 1.970 * units::GeV ; break;
+    default: break;
+  }
+  return -1;
 }
-//___________________________________________________________________________
-
+//____________________________________________________________________________
+double genie::utils::res::Width(Resonance_t res)
+{
+  switch(res) {
+    case kP33_1232  : return 0.120 * units::GeV ; break;
+    case kS11_1535  : return 0.150 * units::GeV ; break;
+    case kD13_1520  : return 0.120 * units::GeV ; break;
+    case kS11_1650  : return 0.150 * units::GeV ; break;
+    case kD13_1700  : return 0.100 * units::GeV ; break;
+    case kD15_1675  : return 0.150 * units::GeV ; break;
+    case kS31_1620  : return 0.150 * units::GeV ; break;
+    case kD33_1700  : return 0.300 * units::GeV ; break;
+    case kP11_1440  : return 0.350 * units::GeV ; break;
+    case kP33_1600  : return 0.350 * units::GeV ; break;
+    case kP13_1720  : return 0.150 * units::GeV ; break;
+    case kF15_1680  : return 0.130 * units::GeV ; break;
+    case kP31_1910  : return 0.250 * units::GeV ; break;
+    case kP33_1920  : return 0.200 * units::GeV ; break;
+    case kF35_1905  : return 0.350 * units::GeV ; break;
+    case kF37_1950  : return 0.300 * units::GeV ; break;
+    case kP11_1710  : return 0.100 * units::GeV ; break;
+    case kF17_1970  : return 0.325 * units::GeV ; break;
+    default: break;
+  }
+  return -1;
+}
+//____________________________________________________________________________
+double genie::utils::res::BWNorm(Resonance_t res)
+{
+  switch(res) {
+    case kP33_1232  : return 0.916744 ; break;
+    case kS11_1535  : return 0.934833 ; break;
+    case kD13_1520  : return 0.920773 ; break;
+    case kS11_1650  : return 0.933974 ; break;
+    case kD13_1700  : return 0.954652 ; break;
+    case kD15_1675  : return 0.924617 ; break;
+    case kS31_1620  : return 0.934125 ; break;
+    case kD33_1700  : return 0.747914 ; break;
+    case kP11_1440  : return 0.762679 ; break;
+    case kP33_1600  : return 0.852495 ; break;
+    case kP13_1720  : return 0.857668 ; break;
+    case kF15_1680  : return 0.789636 ; break;
+    case kP31_1910  : return 0.838467 ; break;
+    case kP33_1920  : return 0.850868 ; break;
+    case kF35_1905  : return 0.622885 ; break;
+    case kF37_1950  : return 0.677866 ; break;
+    case kP11_1710  : return 0.872677 ; break;
+    case kF17_1970  : return 0.950270 ; break;
+    default: break;
+  }
+  return -1;
+}
+//____________________________________________________________________________
+int genie::utils::res::OrbitalAngularMom(Resonance_t res)
+{
+  switch(res) {
+    case kP33_1232:  return 1; break;
+    case kS11_1535:  return 0; break;
+    case kD13_1520:  return 2; break;
+    case kS11_1650:  return 0; break;
+    case kD13_1700:  return 2; break;
+    case kD15_1675:  return 2; break;
+    case kS31_1620:  return 0; break;
+    case kD33_1700:  return 2; break;
+    case kP11_1440:  return 1; break;
+    case kP33_1600:  return 1; break;
+    case kP13_1720:  return 1; break;
+    case kF15_1680:  return 3; break;
+    case kP31_1910:  return 1; break;
+    case kP33_1920:  return 1; break;
+    case kF35_1905:  return 3; break;
+    case kF37_1950:  return 3; break;
+    case kP11_1710:  return 1; break;
+    case kF17_1970:  return 3; break;
+    default:
+       // should not be here - meaningless to return anything
+       gAbortingInErr = true;
+       LOG("BaryonRes", pFATAL) 
+         << "Unknown resonance " << res;
+       exit(1);
+  }
+  return 0;
+}
+//____________________________________________________________________________
+int genie::utils::res::ResonanceIndex(Resonance_t res)
+{
+  switch(res) {
+    case kP33_1232:  return 0; break;
+    case kS11_1535:  return 1; break;
+    case kD13_1520:  return 1; break;
+    case kS11_1650:  return 1; break;
+    case kD13_1700:  return 1; break;
+    case kD15_1675:  return 1; break;
+    case kS31_1620:  return 1; break;
+    case kD33_1700:  return 1; break;
+    case kP11_1440:  return 2; break;
+    case kP33_1600:  return 9; break;
+    case kP13_1720:  return 2; break;
+    case kF15_1680:  return 2; break;
+    case kP31_1910:  return 2; break;
+    case kP33_1920:  return 2; break;
+    case kF35_1905:  return 2; break;
+    case kF37_1950:  return 2; break;
+    case kP11_1710:  return 2; break;
+    case kF17_1970:  return 0; break;
+    default:
+       // should not be here - meaningless to return anything
+       gAbortingInErr = true;
+       LOG("BaryonRes", pFATAL) 
+         << "Unknown resonance " << res;
+       exit(1);
+  }
+  return 0;
+}
+//____________________________________________________________________________
