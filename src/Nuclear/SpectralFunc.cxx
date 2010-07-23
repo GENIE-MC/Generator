@@ -47,8 +47,8 @@ NuclearModelI("genie::SpectralFunc", config)
 //____________________________________________________________________________
 SpectralFunc::~SpectralFunc()
 {
-  if (fSfFe56) delete fSfFe56;
-  if (fSfC12 ) delete fSfC12;
+///  if (fSfFe56) delete fSfFe56;
+///  if (fSfC12 ) delete fSfC12;
 }
 //____________________________________________________________________________
 bool SpectralFunc::GenerateNucleon(const Target & target) const
