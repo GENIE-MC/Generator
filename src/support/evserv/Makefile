@@ -1,5 +1,5 @@
 #########################################################
-# Makefile for the MINOS GENIE Event Server
+# Makefile for the GENIE Event Server
 # Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
 #########################################################
 
@@ -14,22 +14,22 @@ include $(GENIE)/src/make/Make.include
 GENIE_LIBS  = $(shell $(GENIE)/src/scripts/setup/genie-config --libs)
 LIBRARIES  := $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 
-TGT =    gevserv_minos
+TGT =    gevserv
 
 all: $(TGT)
 
-gevserv_minos: FORCE
-	$(CXX) $(CXXFLAGS) -c gEvServMinos.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) gEvServMinos.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevserv_minos
+gevserv: FORCE
+	$(CXX) $(CXXFLAGS) -c gEvServ.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gEvServ.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevserv
 
 purge: FORCE
 	$(RM) *.o *~ core 
 
 clean: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gevserv_minos 
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gevserv 
 
 distclean: FORCE
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevserv_minos 
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevserv 
 
 FORCE:
 
