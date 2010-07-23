@@ -226,8 +226,7 @@
 #include "Utils/XSecSplineList.h"
 #include "Utils/StringUtils.h"
 #include "Utils/UnitUtils.h"
-#include "Utils/CmdLineArgParserUtils.h"
-#include "Utils/CmdLineArgParserException.h"
+#include "Utils/CmdLnArgParser.h"
 
 #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
 #include "FluxDrivers/GNuMIFlux.h"
@@ -310,11 +309,19 @@ int main(int argc, char ** argv)
       LOG("gNuMIevgen", pFATAL) << "Null top ROOT geometry volume!";
       exit(1);
     }
-    TGeoShape * bounding_box = topvol->GetShape();
+        //TGeoShape * bounding_box = topvol->GetShape();
+        //bounding_box->GetAxisRange(3, zmin, zmax);
+        //zmin *= rgeom->LengthUnits();
+        //zmax *= rgeom->LengthUnits();
+
+        // Try to get the Minerva bounding box
+    TGeoIterator next(rgeom->GetGeometry()->GetMasterVolume());
+    TGeoVolume* topDetVol = next()->GetVolume();
+    TGeoShape * bounding_box = topDetVol->GetShape();
     bounding_box->GetAxisRange(3, zmin, zmax);
     zmin *= rgeom->LengthUnits();
     zmax *= rgeom->LengthUnits();
-
+   
     // switch on/off volumes as requested
     if ( (gOptRootGeomTopVol[0] == '+') || (gOptRootGeomTopVol[0] == '-') ) {
       bool exhaust = (*gOptRootGeomTopVol.c_str() == '+');
@@ -538,24 +545,25 @@ void GetCommandLineArgs(int argc, char ** argv)
   // >>> get the command line arguments
   //
 
+  LOG("gNuMIevgen", pNOTICE) << "Parsing command line arguments";
+
+  CmdLnArgParser parser(argc,argv);
+
   // help?
-  bool help = genie::utils::clap::CmdLineArgAsBool(argc,argv,'h');
+  bool help = parser.OptionExists('h');
   if(help) {
       PrintSyntax();
       exit(0);
   }
 
-  LOG("gNuMIevgen", pNOTICE) << "Parsing command line arguments";
-
   // run number:
-  try {
+  if( parser.OptionExists('r') ) {
     LOG("gNuMIevgen", pDEBUG) << "Reading MC run number";
-    gOptRunNu = genie::utils::clap::CmdLineArgAsInt(argc,argv,'r');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gNuMIevgen", pDEBUG) << "Unspecified run number - Using default";
-      gOptRunNu = 0;
-    }
+    gOptRunNu = parser.ArgAsLong('r');
+  } else {
+    LOG("gNuMIevgen", pDEBUG) 
+      << "Unspecified run number - Using default";
+    gOptRunNu = 0;
   } //-r
 
   //
@@ -564,9 +572,9 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   string geom = "";
   string lunits, dunits;
-  try {
+  if( parser.OptionExists('g') ) {
     LOG("gNuMIevgen", pDEBUG) << "Getting input geometry";
-    geom = genie::utils::clap::CmdLineArgAsString(argc,argv,'g');
+    geom = parser.ArgAsString('g');
 
     // is it a ROOT file that contains a ROOT geometry?
     bool accessible_geom_file = 
@@ -575,69 +583,57 @@ void GetCommandLineArgs(int argc, char ** argv)
       gOptRootGeom      = geom;
       gOptUsingRootGeom = true;
     }                 
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
+  } else {
       LOG("gNuMIevgen", pFATAL) 
         << "No geometry option specified - Exiting";
       PrintSyntax();
       exit(1);
-    }
   } //-g
 
   if(gOptUsingRootGeom) {
      // using a ROOT geometry - get requested geometry units
 
      // legth units:
-     try {
+     if( parser.OptionExists('L') ) {
         LOG("gNuMIevgen", pDEBUG) 
            << "Checking for input geometry length units";
-        lunits = genie::utils::clap::CmdLineArgAsString(argc,argv,'L');
-     } catch(exceptions::CmdLineArgParserException e) {
-        if(!e.ArgumentFound()) {
-            LOG("gNuMIevgen", pDEBUG) << "Using default geometry length units";
-            lunits = kDefOptGeomLUnits;
-        }
+        lunits = parser.ArgAsString('L');
+     } else {
+        LOG("gNuMIevgen", pDEBUG) << "Using default geometry length units";
+        lunits = kDefOptGeomLUnits;
      } // -L
      // density units:
-     try {
+     if( parser.OptionExists('D') ) {
         LOG("gNuMIevgen", pDEBUG) 
            << "Checking for input geometry density units";
-        dunits = genie::utils::clap::CmdLineArgAsString(argc,argv,'D');
-     } catch(exceptions::CmdLineArgParserException e) {
-        if(!e.ArgumentFound()) {
-            LOG("gNuMIevgen", pDEBUG) << "Using default geometry density units";
-            dunits = kDefOptGeomDUnits;
-        }
+        dunits = parser.ArgAsString('D');
+     } else {
+        LOG("gNuMIevgen", pDEBUG) << "Using default geometry density units";
+        dunits = kDefOptGeomDUnits;
      } // -D 
      gOptGeomLUnits = genie::utils::units::UnitFromString(lunits);
      gOptGeomDUnits = genie::utils::units::UnitFromString(dunits);
 
      // check whether an event generation volume name has been 
      // specified -- default is the 'top volume'
-     try {
+     if( parser.OptionExists('t') ) {
         LOG("gNuMIevgen", pDEBUG) << "Checking for input volume name";
-        gOptRootGeomTopVol = 
-            genie::utils::clap::CmdLineArgAsString(argc,argv,'t');
-     } catch(exceptions::CmdLineArgParserException e) {
-        if(!e.ArgumentFound()) {
-            LOG("gNuMIevgen", pDEBUG) << "Using the <master volume>";
-        }
+        gOptRootGeomTopVol = parser.ArgAsString('t');
+     } else {
+        LOG("gNuMIevgen", pDEBUG) << "Using the <master volume>";
      } // -t 
 
      // check whether an XML file with the maximum (density weighted)
      // path lengths for each detector material is specified -
      // otherwise will compute the max path lengths at job init
-     try {
+     if( parser.OptionExists('m') ) {
         LOG("gNuMIevgen", pDEBUG) 
               << "Checking for maximum path lengths XML file";
-        gOptExtMaxPlXml = 
-            genie::utils::clap::CmdLineArgAsString(argc,argv,'m');
-     } catch(exceptions::CmdLineArgParserException e) {
-        if(!e.ArgumentFound()) {
-            LOG("gNuMIevgen", pDEBUG) 
+        gOptExtMaxPlXml = parser.ArgAsString('m');
+     } else {
+        LOG("gNuMIevgen", pDEBUG) 
               << "Will compute the maximum path lengths at job init";
-            gOptExtMaxPlXml = "";
-        }
+        gOptExtMaxPlXml = "";
      } // -m
   } // using root geom?
 
@@ -684,9 +680,9 @@ void GetCommandLineArgs(int argc, char ** argv)
   //
   // *** flux 
   // 
-  try {
+  if( parser.OptionExists('f') ) {
     LOG("gNuMIevgen", pDEBUG) << "Getting input flux";
-    string flux = genie::utils::clap::CmdLineArgAsString(argc,argv,'f');
+    string flux = parser.ArgAsString('f');
     gOptUsingHistFlux = (flux.find("[") != string::npos);
 
     if(!gOptUsingHistFlux) {
@@ -784,48 +780,40 @@ void GetCommandLineArgs(int argc, char ** argv)
         flux_file.Close();
     } // flux from histograms or from jnubeam ntuples?
 
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
+  } else {
       LOG("gNuMIevgen", pFATAL) << "No flux info was specified - Exiting";
       PrintSyntax();
       exit(1);
-    }
   }
 
   // number of events to generate
-  try {
+  if( parser.OptionExists('n') ) {
     LOG("gNuMIevgen", pDEBUG) 
         << "Reading limit on number of events to generate";
-    gOptNev = genie::utils::clap::CmdLineArgAsInt(argc,argv,'n');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gNuMIevgen", pDEBUG)
-        << "Will keep on generating events till the flux driver stops";
-      gOptNev = -1;
-    }
+    gOptNev = parser.ArgAsInt('n');
+  } else {
+    LOG("gNuMIevgen", pDEBUG)
+       << "Will keep on generating events till the flux driver stops";
+    gOptNev = -1;
   } //-n
 
   // statistics to generate in terms of POT
-  try {
+  if( parser.OptionExists('e') ) {
     LOG("gNuMIevgen", pDEBUG)  << "Reading requested exposure in POT";
-    gOptPOT = genie::utils::clap::CmdLineArgAsDouble(argc,argv,'e');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gNuMIevgen", pDEBUG) << "No POT exposure was requested";
-      gOptPOT = -1;
-    }
+    gOptPOT = parser.ArgAsDouble('e');
+  } else {
+    LOG("gNuMIevgen", pDEBUG) << "No POT exposure was requested";
+    gOptPOT = -1;
   } //-e
 
   // event file prefix
-  try {
+  if( parser.OptionExists('o') ) {
     LOG("gNuMIevgen", pDEBUG) << "Reading the event filename prefix";
-    gOptEvFilePrefix = genie::utils::clap::CmdLineArgAsString(argc,argv,'o');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gNuMIevgen", pDEBUG)
-        << "Will set the default event filename prefix";
-      gOptEvFilePrefix = kDefOptEvFilePrefix;
-    }
+    gOptEvFilePrefix = parser.ArgAsString('o');
+  } else {
+    LOG("gNuMIevgen", pDEBUG)
+      << "Will set the default event filename prefix";
+    gOptEvFilePrefix = kDefOptEvFilePrefix;
   } //-o
 
   //
