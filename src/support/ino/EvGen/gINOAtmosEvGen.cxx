@@ -1,9 +1,9 @@
 //________________________________________________________________________________________
 /*!
 
-\program gINOevgen
+\program gINOevgen_atmo
 
-\brief   A GENIE event generation driver 'customized' for INO.
+\brief   A GENIE atmospheric neutrino event generation driver 'customized' for INO.
 
          *** Syntax :
 
@@ -96,8 +96,7 @@
 #include "PDG/PDGCodes.h"
 #include "Utils/XSecSplineList.h"
 #include "Utils/StringUtils.h"
-#include "Utils/CmdLineArgParserUtils.h"
-#include "Utils/CmdLineArgParserException.h"
+#include "Utils/CmdLnArgParser.h"
 
 using namespace std;
 using namespace genie;
@@ -229,57 +228,52 @@ void GetCommandLineArgs(int argc, char ** argv)
   // >>> get the command line arguments
   //
 
+  LOG("gINOevgen", pNOTICE) << "Parsing command line arguments";
+
+  CmdLnArgParser parser(argc,argv);
+
   // help?
-  bool help = genie::utils::clap::CmdLineArgAsBool(argc,argv,'h');
+  bool help = parser.OptionExists('h');
   if(help) {
       PrintSyntax();
       exit(0);
   }
 
-  LOG("gINOevgen", pNOTICE) << "Parsing command line arguments";
-
   // run number:
-  try {
+  if( parser.OptionExists('r') ) {
     LOG("gINOevgen", pDEBUG) << "Reading MC run number";
-    gOptRunNu = genie::utils::clap::CmdLineArgAsInt(argc,argv,'r');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gINOevgen", pDEBUG) << "Unspecified run number - Using default";
-      gOptRunNu = 0;
-    }
+    gOptRunNu = parser.ArgAsLong('r');
+  } else {
+    LOG("gINOevgen", pDEBUG) << "Unspecified run number - Using default";
+    gOptRunNu = 0;
   } //-r
 
   // number of events:
-  try {
+  if( parser.OptionExists('n') ) {
     LOG("gINOevgen", pDEBUG) 
         << "Reading number of events to generate";
-    gOptNev = genie::utils::clap::CmdLineArgAsInt(argc,argv,'n');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gINOevgen", pERROR)
+    gOptNev = parser.ArgAsInt('n');
+  } else {
+    LOG("gINOevgen", pERROR)
         << "You need to specify the number of events";
-      PrintSyntax();
-      exit(0);
-    }
+    PrintSyntax();
+    exit(0);
   } //-n
 
-  // event file prefix
-  try {
+  // event file prefix:
+  if( parser.OptionExists('o') ) {
     LOG("gINOevgen", pDEBUG) << "Reading the event filename prefix";
-    gOptEvFilePrefix = genie::utils::clap::CmdLineArgAsString(argc,argv,'o');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gINOevgen", pDEBUG)
-        << "Will set the default event filename prefix";
-      gOptEvFilePrefix = kDefOptEvFilePrefix;
-    }
+    gOptEvFilePrefix = parser.ArgAsString('o');
+  } else {
+    LOG("gINOevgen", pDEBUG)
+       << "Will set the default event filename prefix";
+    gOptEvFilePrefix = kDefOptEvFilePrefix;
   } //-o
 
-
   // neutrino energy range:
-  try {
+  if( parser.OptionExists('e') ) {
     LOG("gINOevgen", pINFO) << "Reading neutrino energy range";
-    string nue = genie::utils::clap::CmdLineArgAsString(argc,argv,'e');
+    string nue = parser.ArgAsString('e');
 
     // must be a comma separated set of values
     if(nue.find(",") != string::npos) {
@@ -297,19 +291,17 @@ void GetCommandLineArgs(int argc, char ** argv)
       PrintSyntax();
       exit(0);
     }
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gINOevgen", pNOTICE)
+  } else {
+     LOG("gINOevgen", pNOTICE)
         << "No -e option. Using default energy range";
-       gOptEvMin = kDefOptEvMax;
-       gOptEvMax = kDefOptEvMax;
-    }
+     gOptEvMin = kDefOptEvMax;
+     gOptEvMax = kDefOptEvMax;
   }
 
   // flux files:
-  try {
+  if( parser.OptionExists('f') ) {
     LOG("gINOevgen", pDEBUG) << "Getting input flux files";
-    string flux = genie::utils::clap::CmdLineArgAsString(argc,argv,'f');
+    string flux = parser.ArgAsString('f');
 
     vector<string> fluxv = utils::str::Split(flux,",");      
     vector<string>::const_iterator fluxiter = fluxv.begin();
@@ -335,12 +327,10 @@ void GetCommandLineArgs(int argc, char ** argv)
           map<int,string>::value_type(atoi(neutrino_pdg.c_str()), flux_filename));
     }
 
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gINOevgen", pFATAL) << "No flux info was specified! Use the -f option.";
-      PrintSyntax();
-      exit(1);
-    }
+  } else {
+    LOG("gINOevgen", pFATAL) << "No flux info was specified! Use the -f option.";
+    PrintSyntax();
+    exit(1);
   }
 
   // print out
