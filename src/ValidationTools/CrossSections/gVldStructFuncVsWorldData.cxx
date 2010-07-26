@@ -46,8 +46,7 @@
 #include "Messenger/Messenger.h"
 #include "PDG/PDGUtils.h"
 #include "PDG/PDGCodes.h"
-#include "Utils/CmdLineArgParserUtils.h"
-#include "Utils/CmdLineArgParserException.h"
+#include "Utils/CmdLnArgParser.h"
 #include "ValidationTools/NuVld/DBI.h"
 #include "ValidationTools/NuVld/DBStatus.h"
 
@@ -570,33 +569,29 @@ void Draw(TGraph* gr, const char * opt)
 //.................................................................................
 void GetCommandLineArgs(int argc, char ** argv)
 {
+  CmdLnArgParser parser(argc,argv);
+
   gCmpWithData = true;
 
   // get DB URL
-  try {
-     gOptDbURL = utils::clap::CmdLineArgAsString(argc,argv,'h');
-  } catch(exceptions::CmdLineArgParserException e) {
-     if(!e.ArgumentFound()) {
-       gOptDbURL = kDefDbURL;
-     }
+  if( parser.OptionExists('h') ) {
+     gOptDbURL = parser.ArgAsString('h');
+  } else {
+     gOptDbURL = kDefDbURL;
   }
 
   // get DB username
-  try {
-     gOptDbUser = utils::clap::CmdLineArgAsString(argc,argv,'u');
-  } catch(exceptions::CmdLineArgParserException e) {
-     if(!e.ArgumentFound()) {
-       gCmpWithData = false;
-     }
+  if( parser.OptionExists('u') ) {
+     gOptDbUser = parser.ArgAsString('u');
+  } else {
+     gCmpWithData = false;
   }
 
   // get DB passwd
-  try {
-     gOptDbPasswd = utils::clap::CmdLineArgAsString(argc,argv,'p');
-  } catch(exceptions::CmdLineArgParserException e) {
-     if(!e.ArgumentFound()) {
-       gCmpWithData = false;
-     }
+  if( parser.OptionExists('p') ) {
+     gOptDbPasswd = parser.ArgAsString('p');
+  } else {
+     gCmpWithData = false;
   }
 }
 //_________________________________________________________________________________
