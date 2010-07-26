@@ -109,8 +109,7 @@
 #include "Messenger/Messenger.h"
 #include "PDG/PDGUtils.h"
 #include "PDG/PDGCodes.h"
-#include "Utils/CmdLineArgParserUtils.h"
-#include "Utils/CmdLineArgParserException.h"
+#include "Utils/CmdLnArgParser.h"
 #include "Utils/StringUtils.h"
 #include "Utils/VldTestInputs.h"
 #include "ValidationTools/NuVld/DBI.h"
@@ -879,46 +878,39 @@ void GetCommandLineArgs(int argc, char ** argv)
 {
   LOG("gvldtest", pNOTICE) << "*** Parsing command line arguments";
 
+  CmdLnArgParser parser(argc,argv);
+
   // get GENIE inputs
-  try {
-     string inputs = utils::clap::CmdLineArgAsString(argc,argv,'g');
+  if( parser.OptionExists('g') ) {
+     string inputs = parser.ArgAsString('g');
      bool ok = gOptGenieInputs.LoadFromFile(inputs);
      if(!ok) {
         LOG("gvldtest", pFATAL) << "Could not read: " << inputs;
         exit(1);
-     }
-  } catch(exceptions::CmdLineArgParserException e) {
-     if(!e.ArgumentFound()) {
      }
   }
 
   gCmpWithData = true;
 
   // get DB URL
-  try {
-     gOptDbURL = utils::clap::CmdLineArgAsString(argc,argv,'h');
-  } catch(exceptions::CmdLineArgParserException e) {
-     if(!e.ArgumentFound()) {
-       gOptDbURL = kDefDbURL;
-     }
+  if( parser.OptionExists('h') ) {
+     gOptDbURL = parser.ArgAsString('h');
+  } else {
+     gOptDbURL = kDefDbURL;
   }
 
   // get DB username
-  try {
-     gOptDbUser = utils::clap::CmdLineArgAsString(argc,argv,'u');
-  } catch(exceptions::CmdLineArgParserException e) {
-     if(!e.ArgumentFound()) {
-       gCmpWithData = false;
-     }
+  if( parser.OptionExists('u') ) {
+     gOptDbUser = parser.ArgAsString('u');
+  } else {
+     gCmpWithData = false;
   }
 
   // get DB passwd
-  try {
-     gOptDbPasswd = utils::clap::CmdLineArgAsString(argc,argv,'p');
-  } catch(exceptions::CmdLineArgParserException e) {
-     if(!e.ArgumentFound()) {
-       gCmpWithData = false;
-     }
+  if( parser.OptionExists('p') ) {
+     gOptDbPasswd = parser.ArgAsString('p');
+  } else {
+     gCmpWithData = false;
   }
 
 }
