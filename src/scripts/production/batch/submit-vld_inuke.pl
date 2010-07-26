@@ -8,7 +8,11 @@
 #
 # Options:
 #    --version       : GENIE version number
-#    --run           : runs to submit (eg --run 1060680 / --run 1060680,1062000 / -run all)
+#    --run           : runs to submit (Can be a run number, or a comma separated list of run numbers. 
+#                      Use `--run all' to submit all jobs. 
+#                      Can specify runs used for comparisons with data from a specific author using the 
+#                      author name, eg `--run iwamoto'. 
+#                      Can specify runs by probe, eg `-run pion').
 #   [--model-enum]   : physics model enumeration, default: 0
 #   [--nsubruns]     : number of subruns per run, default: 1
 #   [--arch]         : <SL4_32bit, SL5_64bit>, default: SL5_64bit
@@ -19,10 +23,30 @@
 #   [--queue]        : default: prod
 #   [--softw-topdir] : default: /opt/ppd/t2k/GENIE
 #
+# Examples:
+#
+# (1) Submit (in an LSF farm) 10-subruns (100k events each) of run 4000600597, using GENIE v2.7.1:
+#     % perl submit-vld_inuke.pl --version v2.7.1 --nsubruns 10 --batch-system LSF --run 4000600597
+#
+# (2) Submit (in an LSF farm) 10-subruns (100k events each) of runs 4000600597,1002600870 and 1000800240,
+#     using GENIE v2.7.1:
+#     % perl submit-vld_inuke.pl --version v2.7.1 --nsubruns 10 \
+#                --batch-system LSF --run 4000600597,1002600870,1000800240
+#
+# (3) Submit (in an LSF farm) 10-subruns (100k events each) of *all* runs, using GENIE v2.7.1:
+#     % perl submit-vld_inuke.pl --version v2.7.1 --nsubruns 10 --batch-system LSF --run all
+#
+# (4) Submit (in an LSF farm) 10-subruns (100k events each) of all runs used for comparisons with the
+#     `iwamoto' data, using GENIE v2.7.1:
+#     % perl submit-vld_inuke.pl --version v2.7.1 --nsubruns 10 --batch-system LSF --run iwamoto
+#
+# (5) Submit (in an LSF farm) 10-subruns (100k events each) of all runs with a pion probe,
+#     using GENIE v2.7.1:
+#     % perl submit-vld_inuke.pl --version v2.7.1 --nsubruns 10 --batch-system LSF --run pion
+#
+#
 # Tested at the RAL/PPD Tier2 PBS batch farm.
-#
-# Adapted from Steve Dytman's script
-#
+##
 # Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
 # STFC, Rutherford Appleton Lab
 #
@@ -96,8 +120,7 @@ $queue          = "prod"                                  unless defined $queue;
 $softw_topdir   = "/opt/ppd/t2k/GENIE"                    unless defined $softw_topdir;
 $time_limit     = "60:00:00";
 $genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
-$jobs_dir       = "$softw_topdir/scratch/vld\_nuclmod-$production\_$cycle";
-$xspl_file      = "$softw_topdir/data/job_inputs/xspl/gxspl-emode-$genie_version.xml";
+$jobs_dir       = "$softw_topdir/scratch/vld\_inuke-$production\_$cycle";
 $mcseed         = 210921029;
 $nev_per_subrun = 100000;
 
@@ -154,9 +177,9 @@ $nev_per_subrun = 100000;
   '4002000800' => '0.800',
   '1008200220' => '0.220',
   '1000600220' => '0.220',
-  '1002800220' => '0.220',
+  '1002800220' => '0.220'
 );
-%group_hash = ( 
+%vld_group_hash = ( 
   '4000600597' => 'amian',
   '1002600870' => 'iwamoto',
   '1202600870' => 'iwamoto',
@@ -172,7 +195,25 @@ $nev_per_subrun = 100000;
   '4002000800' => 'mcgill',
   '1008200220' => 'levenson',
   '1000600220' => 'levenson',
-  '1002800220' => 'levenson',
+  '1002800220' => 'levenson'
+);
+%probe_group_hash = ( 
+  '4000600597' => 'nucleon',
+  '1002600870' => 'pion',
+  '1202600870' => 'pion',
+  '1008200870' => 'pion',
+  '1002602100' => 'pion',
+  '1002800220' => 'pion',
+  '1002600220' => 'pion',
+  '4001300256' => 'nucleon',
+  '4008200256' => 'nucleon',
+  '1000800114' => 'pion',
+  '1000800240' => 'pion',
+  '4000600800' => 'nucleon',
+  '4002000800' => 'nucleon',
+  '1008200220' => 'pion',
+  '1000600220' => 'pion',
+  '1002800220' => 'pion'
 );
 
 # make the jobs directory
@@ -184,13 +225,17 @@ mkpath ($jobs_dir, {verbose => 1, mode=>0777});
 #
 
 # run loop
-for my $curr_runnu (keys %evg_gevgl_hash)  {
+for my $curr_runnu (keys %evg_probepdg_hash)  {
 
- # check whether to commit current run 
- if($runnu=~m/$curr_runnu/ || $runnu eq "all") {
+ # check whether to commit current run  
+ print "checking whether to submit run: $curr_runnu \n";
+ $do_submit = $runnu=~m/$curr_runnu/                   || 
+              $runnu eq "all"                          || 
+              $runnu eq $vld_group_hash{$curr_runnu}   ||
+              $runnu eq $probe_group_hash{$curr_runnu};
 
+ if($do_submit) {
     print "** submitting event generation run: $curr_runnu \n";
-
     #
     # get runnu-dependent info
     #
