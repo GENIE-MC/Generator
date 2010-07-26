@@ -266,7 +266,7 @@ for my $curr_runnu (keys %evg_probepdg_hash)  {
           $batch_script  = "$fntemplate.pbs";
           open(PBS, ">$batch_script") or die("Can not create the PBS batch script");
           print PBS "#!/bin/bash \n";
-          print PBS "#PBS -N nucl-$curr_subrunnu \n";
+          print PBS "#PBS -N inuke-$curr_subrunnu \n";
           print PBS "#PBS -l cput=$time_limit \n";
           print PBS "#PBS -o $fntemplate.pbsout.log \n";
           print PBS "#PBS -e $fntemplate.pbserr.log \n";
@@ -284,7 +284,7 @@ for my $curr_runnu (keys %evg_probepdg_hash)  {
           $batch_script  = "$fntemplate.sh";
           open(LSF, ">$batch_script") or die("Can not create the LSF batch script");
           print LSF "#!/bin/bash \n";
-          print LSF "#BSUB-j nucl-$curr_subrunnu \n";
+          print LSF "#BSUB-j inuke-$curr_subrunnu \n";
           print LSF "#BSUB-q $queue \n";
           print LSF "#BSUB-c $time_limit \n";
           print LSF "#BSUB-o $fntemplate.lsfout.log \n";
