@@ -35,8 +35,7 @@
 #include "PDG/PDGLibrary.h"
 #include "PDG/PDGCodes.h"
 #include "Messenger/Messenger.h"
-#include "Utils/CmdLineArgParserUtils.h"
-#include "Utils/CmdLineArgParserException.h"
+#include "Utils/CmdLnArgParser.h"
 
 using std::string;
 using std::vector;
@@ -320,31 +319,29 @@ int Strangeness(int pdgc)
 //____________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
 {
-  LOG("gvldtest", pNOTICE) << "*** Parsing commad line arguments";
+  LOG("gvldtest", pNOTICE) << "*** Parsing command line arguments";
 
-  //number of events:
-  try {    
+  CmdLnArgParser parser(argc,argv);
+
+  // number of events:
+  if( parser.OptionExists('n') ) {
     LOG("gvldtest", pINFO) << "Reading number of events to analyze";
-    gOptNEvt = genie::utils::clap::CmdLineArgAsInt(argc,argv,'n');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gvldtest", pINFO)
+    gOptNEvt = parser.ArgAsInt('n');
+  } else {
+    LOG("gvldtest", pINFO)
         << "Unspecified number of events to analyze - Use all";
-      gOptNEvt = -1;
-    }
+    gOptNEvt = -1;
   }
   
-  //get GENIE event sample
-  try {
+  // get GENIE event sample
+  if( parser.OptionExists('f') ) {
     LOG("gvldtest", pINFO) << "Reading event sample filename";
-    gOptInpFilename = utils::clap::CmdLineArgAsString(argc,argv,'f');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gvldtest", pFATAL) 
+    gOptInpFilename = parser.ArgAsString('f');
+  } else {
+    LOG("gvldtest", pFATAL) 
         << "Unspecified input filename - Exiting";
-      PrintSyntax();
-      exit(1);
-    }
+    PrintSyntax();
+    exit(1);
   }
 }
 //____________________________________________________________________________

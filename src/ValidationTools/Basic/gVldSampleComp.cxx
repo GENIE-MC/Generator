@@ -59,8 +59,7 @@
 #include "Messenger/Messenger.h"
 #include "PDG/PDGUtils.h"
 #include "PDG/PDGCodes.h"
-#include "Utils/CmdLineArgParserUtils.h"
-#include "Utils/CmdLineArgParserException.h"
+#include "Utils/CmdLnArgParser.h"
 
 using std::ostringstream;
 using std::string;
@@ -1999,28 +1998,26 @@ string OutputFileName(string inpname)
 //_________________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
 {
-  LOG("gvldtest", pNOTICE) << "*** Parsing commad line arguments";
+  LOG("gvldtest", pNOTICE) << "*** Parsing command line arguments";
+
+  CmdLnArgParser parser(argc,argv);
 
   // get GENIE summary ntuple
-  try {
+  if( parser.OptionExists('f') ) {
     LOG("gvldtest", pINFO) << "Reading filename for tested event sample";
-    gOptInpFile = utils::clap::CmdLineArgAsString(argc,argv,'f');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gvldtest", pFATAL) << "Unspecified input filename - Exiting";
-      PrintSyntax();
-      exit(1);
-    }
+    gOptInpFile = parser.ArgAsString('f');
+  } else {
+    LOG("gvldtest", pFATAL) << "Unspecified input filename - Exiting";
+    PrintSyntax();
+    exit(1);
   }
 
   // get another (reference) GENIE summary ntuple
-  try {
+  if( parser.OptionExists('r') ) {
     LOG("gvldtest", pINFO) << "Reading filename for reference event sample";
-    gOptInpFileRef = utils::clap::CmdLineArgAsString(argc,argv,'r');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gvldtest", pNOTICE) << "Unspecified 'reference' event sample";
-    }
+    gOptInpFileRef = parser.ArgAsString('r');
+  } else {
+    LOG("gvldtest", pNOTICE) << "Unspecified 'reference' event sample";
   }
 }
 //_________________________________________________________________________________
