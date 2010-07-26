@@ -59,8 +59,7 @@
 #include "Numerical/RandomGen.h"
 #include "PDG/PDGUtils.h"
 #include "PDG/PDGCodes.h"
-#include "Utils/CmdLineArgParserUtils.h"
-#include "Utils/CmdLineArgParserException.h"
+#include "Utils/CmdLnArgParser.h"
 
 using std::ostringstream;
 using std::string;
@@ -2027,44 +2026,40 @@ void GetCommandLineArgs(int argc, char ** argv)
 {
   LOG("gvldtest", pINFO) << "*** Parsing command line arguments";
 
+  CmdLnArgParser parser(argc,argv);
+
   // get input GENIE cross section file
-  try {
-    gOptXSecFilename_curr = utils::clap::CmdLineArgAsString(argc,argv,'f');
+  if( parser.OptionExists('f') ) {
+    gOptXSecFilename_curr = parser.ArgAsString('f');
     bool ok = CheckRootFilename(gOptXSecFilename_curr.c_str());
     if(!ok) {
       PrintSyntax();
       exit(1);
     }
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      PrintSyntax();
-      exit(1);
-    }
+  } else {
+    PrintSyntax();
+    exit(1);
   }
 
   // get [reference] input GENIE cross section file
-  try {
-    gOptXSecFilename_ref0 = utils::clap::CmdLineArgAsString(argc,argv,'r');
+  if( parser.OptionExists('r') ) {
+    gOptXSecFilename_ref0 = parser.ArgAsString('r');
     bool ok = CheckRootFilename(gOptXSecFilename_ref0.c_str());
     if(!ok) {
       PrintSyntax();
       exit(1);
     }
     gOptHaveRef = true;
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gvldtest", pNOTICE) << "No reference cross section file";
-      gOptHaveRef = false;
-    }
+  } else {
+    LOG("gvldtest", pNOTICE) << "No reference cross section file";
+    gOptHaveRef = false;
   }
 
   // get output filename
-  try {
-    gOptOutputFilename = utils::clap::CmdLineArgAsString(argc,argv,'o');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      gOptOutputFilename = "gxsec.ps";
-    }
+  if( parser.OptionExists('o') ) {
+    gOptOutputFilename = parser.ArgAsString('o');
+  } else {
+    gOptOutputFilename = "gxsec.ps";
   }
 
 }
