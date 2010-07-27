@@ -17,5 +17,10 @@
 #pragma link C++ class genie::geometry::GeomVolSelectorI;
 
 #pragma link C++ class genie::geometry::GeomVolSelectorBasic;
+#pragma link C++ class genie::geometry::PlaneParam;
+#pragma link C++ class genie::geometry::GeomVolSelectorFiducial;
+
+#pragma link C++ class genie::geometry::GeomVolSelectorRWH;
+#pragma link C++ class genie::geometry::ROOTGeomAnalyzerOld;
 
 #endif
