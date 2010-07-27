@@ -7,8 +7,8 @@
 	 Similar to NEUGEN's pitest (S.Dytman & H.Gallagher)
 
          Syntax :
-           ghAevgen [-n nev] -p hadron_pdg -t tgt_pdg [-r run#] 
-                     -k KE [-f flux] [-o prefix] [-m mode]
+           ghAevgen [-n nev] -p probe -t tgt [-r run#] -k KE 
+                    [-f flux] [-o prefix] [-m mode]
 
          Options :
            [] Denotes an optional argument
