@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\program ghAevgen
+\program gevgen_hadron
 
 \brief   Generates hadron + nucleus interactions using GENIE's INTRANUKE
 	 Similar to NEUGEN's pitest (S.Dytman & H.Gallagher)
@@ -146,7 +146,7 @@ int main(int argc, char ** argv)
 
   int ievent = 0;
   while (ievent < gOptNevents) {
-      LOG("ghAevgen", pINFO) 
+      LOG("gevgen_hadron", pINFO) 
          << " *** Generating event............ " << ievent;
       
       // initialize
@@ -157,8 +157,8 @@ int main(int argc, char ** argv)
   
       // print n first generated events (then continue printing out 
       // with debug priority level)
-      if(ievent > 100) { LOG("ghAevgen", pDEBUG ) << *evrec; }
-      else             { LOG("ghAevgen", pNOTICE) << *evrec; }
+      if(ievent > 100) { LOG("gevgen_hadron", pDEBUG ) << *evrec; }
+      else             { LOG("gevgen_hadron", pNOTICE) << *evrec; }
   
       // add event at the output ntuple
       ntpw.AddEventRecord(ievent, evrec);
@@ -207,7 +207,7 @@ const EventRecordVisitorI * GetIntranuke(void)
      sconfig = "hN";
   }
   else {
-    LOG("testIntranuke", pFATAL) << "Invalid Intranuke mode - Exiting";
+    LOG("gevgen_hadron", pFATAL) << "Invalid Intranuke mode - Exiting";
     gAbortingInErr = true;
     exit(1);
   }
@@ -270,7 +270,7 @@ void BuildKineticEnergySpectrum(void)
     gSpectrum = 0;
   }
 
-  LOG("ghAevgen", pNOTICE) 
+  LOG("gevgen_hadron", pNOTICE) 
       << "Generating a flux histogram ... ";
 
   int    flux_bins    = 300;
@@ -307,7 +307,8 @@ void BuildKineticEnergySpectrum(void)
       while(!accept) {
         iter++;
         if(iter > kRjMaxIterations) {
-           LOG("ghAevgen", pFATAL) << "Couldn't generate a flux histogram";
+           LOG("gevgen_hadron", pFATAL) 
+             << "Couldn't generate a flux histogram";
            gAbortingInErr = true;
            exit(1);
         }
@@ -333,35 +334,35 @@ void BuildKineticEnergySpectrum(void)
 //____________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
 {
-  LOG("ghAevgen", pNOTICE) << "Parsing command line arguments";
+  LOG("gevgen_hadron", pNOTICE) << "Parsing command line arguments";
 
   CmdLnArgParser parser(argc,argv);
 
   // number of events:
   if( parser.OptionExists('n') ) {
-    LOG("ghAevgen", pINFO) << "Reading number of events to generate";
+    LOG("gevgen_hadron", pINFO) << "Reading number of events to generate";
     gOptNevents = parser.ArgAsInt('n');
   } else {
-    LOG("ghAevgen", pINFO)
+    LOG("gevgen_hadron", pINFO)
        << "Unspecified number of events to generate - Using default";
     gOptNevents = kDefOptNevents;
   }
 
   // run number:
   if( parser.OptionExists('r') ) {
-    LOG("ghAevgen", pINFO) << "Reading MC run number";
+    LOG("gevgen_hadron", pINFO) << "Reading MC run number";
     gOptRunNu = parser.ArgAsLong('r');
   } else {
-    LOG("ghAevgen", pINFO) << "Unspecified run number - Using default";
+    LOG("gevgen_hadron", pINFO) << "Unspecified run number - Using default";
     gOptRunNu = kDefOptRunNu;
   }
 
   // incoming hadron PDG code:
   if( parser.OptionExists('p') ) {
-    LOG("ghAevgen", pINFO) << "Reading rescattering particle PDG code";
+    LOG("gevgen_hadron", pINFO) << "Reading rescattering particle PDG code";
     gOptProbePdgCode = parser.ArgAsInt('p');
   } else {
-    LOG("ghAevgen", pFATAL) << "Unspecified PDG code - Exiting";
+    LOG("gevgen_hadron", pFATAL) << "Unspecified PDG code - Exiting";
     PrintSyntax();
     gAbortingInErr = true;
     exit(1);
@@ -369,10 +370,10 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   // target PDG code:
   if( parser.OptionExists('t') ) {
-    LOG("ghevAgen", pINFO) << "Reading target PDG code";
+    LOG("gevgen_hadron", pINFO) << "Reading target PDG code";
     gOptTgtPdgCode = parser.ArgAsInt('t');
   } else {
-    LOG("ghAevgen", pFATAL) << "Unspecified target PDG code - Exiting";
+    LOG("gevgen_hadron", pFATAL) << "Unspecified target PDG code - Exiting";
     PrintSyntax();
     gAbortingInErr = true;
     exit(1);
@@ -380,14 +381,14 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   // flux functional form or flux file
   if( parser.OptionExists('f') ) {
-    LOG("ghAevgen", pINFO) << "Reading hadron's kinetic energy spectrum";
+    LOG("gevgen_hadron", pINFO) << "Reading hadron's kinetic energy spectrum";
     gOptFlux = parser.ArgAsString('f');
     gOptUsingFlux = true;
   }
 
   // incoming hadron kinetic energy (or kinetic energy range, if using flux):
   if( parser.OptionExists('k') ) {
-    LOG("ghAevgen", pINFO) << "Reading probe kinetic energy";
+    LOG("gevgen_hadron", pINFO) << "Reading probe kinetic energy";
     string ke = parser.ArgAsString('k');
     // is it just a value or a range (comma separated set of values)   
     if(ke.find(",") != string::npos) {
@@ -410,7 +411,7 @@ void GetCommandLineArgs(int argc, char ** argv)
        gOptProbeKEmin = -1; 
        gOptProbeKEmax = -1; 
        if(gOptUsingFlux) {
-          LOG("ghAevgen", pFATAL) 
+          LOG("gevgen_hadron", pFATAL) 
             << "You specified an input flux without a kinetic energy range";
           PrintSyntax();
           gAbortingInErr = true;
@@ -418,7 +419,7 @@ void GetCommandLineArgs(int argc, char ** argv)
        }
     }
   } else {
-    LOG("ghAevgen", pFATAL) << "Unspecified kinetic energy - Exiting";
+    LOG("gevgen_hadron", pFATAL) << "Unspecified kinetic energy - Exiting";
     PrintSyntax();
     gAbortingInErr = true;
     exit(1);
@@ -426,28 +427,28 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   // event file prefix
   if( parser.OptionExists('o') ) {
-    LOG("ghAevgen", pINFO) << "Reading the event filename prefix";
+    LOG("gevgen_hadron", pINFO) << "Reading the event filename prefix";
     gOptEvFilePrefix = parser.ArgAsString('o');
   } else {
-    LOG("ghAevgen", pDEBUG)
+    LOG("gevgen_hadron", pDEBUG)
       << "Will set the default event filename prefix";
     gOptEvFilePrefix = kDefOptEvFilePrefix;
   } //-o
 
-  LOG("ghAevgen", pINFO) << "Number of events requested = " << gOptNevents;
-  LOG("ghAevgen", pINFO) << "MC Run Number              = " << gOptRunNu;
-  LOG("ghAevgen", pINFO) << "Probe PDG code             = " << gOptProbePdgCode;
-  LOG("ghAevgen", pINFO) << "Target PDG code            = " << gOptTgtPdgCode;
+  LOG("gevgen_hadron", pINFO) << "Number of events requested = " << gOptNevents;
+  LOG("gevgen_hadron", pINFO) << "MC Run Number              = " << gOptRunNu;
+  LOG("gevgen_hadron", pINFO) << "Probe PDG code             = " << gOptProbePdgCode;
+  LOG("gevgen_hadron", pINFO) << "Target PDG code            = " << gOptTgtPdgCode;
   if(gOptProbeKEmin<0 && gOptProbeKEmax<0) {
-    LOG("ghAevgen", pINFO) 
+    LOG("gevgen_hadron", pINFO) 
         << "Hadron input KE            = " << gOptProbeKE;
   } else {
-    LOG("ghAevgen", pINFO) 
+    LOG("gevgen_hadron", pINFO) 
         << "Hadron input KE range      = [" 
         << gOptProbeKEmin << ", " << gOptProbeKEmax << "]";
   }
   if(gOptUsingFlux) {
-    LOG("ghAevgen", pINFO) 
+    LOG("gevgen_hadron", pINFO) 
         << "Input flux                 = " 
         << gOptFlux;
   }
@@ -455,11 +456,11 @@ void GetCommandLineArgs(int argc, char ** argv)
 //____________________________________________________________________________
 void PrintSyntax(void)
 {
-  LOG("ghAevgen", pNOTICE)
+  LOG("gevgen_hadron", pNOTICE)
     << "\n\n" 
     << "Syntax:" << "\n"
     << "   ghAevgen [-n nev] -p hadron_pdg -t tgt_pdg [-r run] "
-    << "[-a R0] -k KE [-f flux] [-m mode]"
+    << "             -k KE [-f flux] [-m mode]"
     << "\n";
 }
 //____________________________________________________________________________
