@@ -44,6 +44,13 @@ public :
   /// To reject a segment outright:  segment.fStepRangeSet.clear()
   virtual void TrimSegment(PathSegment& segment) const = 0;
 
+  /// Every derived version must also respond to a signal that starts
+  /// a new path segment list processing and ends it.
+  /// In general they can simply ignore the signal.
+  /// If the derived class needs to cache something, make it mutable
+  virtual void BeginPSList(const PathSegmentList* untrimmed) const = 0;
+  virtual void EndPSList() const = 0;
+
   /// configure for individual neutrino ray
   void SetCurrentRay(const TLorentzVector& x4, const TLorentzVector& p4)
   { fX4 = x4; fP4 = p4; }
