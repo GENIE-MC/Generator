@@ -252,11 +252,12 @@ for my $curr_runnu (keys %evg_probepdg_hash)  {
        # Run number key: PPTTTEEEEEMMxx
        $curr_subrunnu = 10000 * $curr_runnu + 100 * $model_enum + $isubrun;
        $grep_pipe     = "grep -B 20 -A 30 -i \"warn\\|error\\|fatal\"";
-       $fntemplate    = "$jobs_dir/inuke-$curr_subrunnu";
+       $fntemplate    = "$jobs_dir/inuke-$inuke_model-$curr_subrunnu";
        $curr_seed     = $mcseed + $isubrun;
        $valgrind_cmd  = "valgrind --tool=memcheck --error-limit=no --leak-check=yes --show-reachable=yes";
-       $evgen_cmd     = "gevgen_hadron -n $nev_per_subrun -m $inuke_model -k $ke -p $probe -t $tgt -r $curr_subrunnu";
-       $conv_cmd      = "gntpc -f ginuke -i gntp.$curr_subrunnu.ghep.root";
+       $gntp_prefix   = "gntp.$inuke_model"
+       $evgen_cmd     = "gevgen_hadron -n $nev_per_subrun -m $inuke_model -k $ke -p $probe -t $tgt -r $curr_subrunnu -o $gntp_prefix";
+       $conv_cmd      = "gntpc -f ginuke -i $gntp_prefix.$curr_subrunnu.ghep.root";
 
        $evgen_cmd = "$evgen_cmd | $grep_pipe &> $fntemplate.evgen.log";
        $conv_cmd  = "$conv_cmd  | $grep_pipe &> $fntemplate.conv.log ";
