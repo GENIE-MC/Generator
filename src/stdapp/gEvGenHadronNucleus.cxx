@@ -92,18 +92,19 @@ using namespace genie;
 using namespace genie::controls;
 
 // Function prototypes
-void BuildKineticEnergySpectrum (void);
-
 void                        GetCommandLineArgs    (int argc, char ** argv);
 const EventRecordVisitorI * GetIntranuke          (void);
 double                      GenProbeKineticEnergy (void);
 EventRecord *               InitializeEvent       (void);
+void                        BuildSpectrum         (void);
 void                        PrintSyntax           (void);
 
 // Default options 
 int     kDefOptNevents      = 10000;   // n-events to generate
 Long_t  kDefOptRunNu        = 0;       // default run number
-string  kDefOptEvFilePrefix = "gntp";
+string  kDefOptEvFilePrefix = "gntp";  // default output file prefix
+string  kDefOptMode         = "hA";    // default mode
+
 
 // User-specified options:
 string gOptMode;             // mode variable
@@ -127,7 +128,7 @@ int main(int argc, char ** argv)
   GetCommandLineArgs(argc,argv);
 
   // build the incident hadron kinetic energy spectrum, if required
-  BuildKineticEnergySpectrum();
+  BuildSpectrum();
 
   // get the specified INTRANUKE model
   const EventRecordVisitorI * intranuke = GetIntranuke();
@@ -261,8 +262,11 @@ double GenProbeKineticEnergy(void)
   else              return gOptProbeKE;            // mono-energetic
 }
 //____________________________________________________________________________
-void BuildKineticEnergySpectrum(void)
+void BuildSpectrum(void)
 {
+// Create kinetic energy spectrum from input function
+//
+
   if(!gOptUsingFlux) return;
 
   if(gSpectrum) {
@@ -435,21 +439,32 @@ void GetCommandLineArgs(int argc, char ** argv)
     gOptEvFilePrefix = kDefOptEvFilePrefix;
   } //-o
 
-  LOG("gevgen_hadron", pINFO) << "Number of events requested = " << gOptNevents;
-  LOG("gevgen_hadron", pINFO) << "MC Run Number              = " << gOptRunNu;
-  LOG("gevgen_hadron", pINFO) << "Probe PDG code             = " << gOptProbePdgCode;
-  LOG("gevgen_hadron", pINFO) << "Target PDG code            = " << gOptTgtPdgCode;
+  // INTRANUKE mode
+  if( parser.OptionExists('m') ) {
+    LOG("gevgen_hadron", pINFO) << "Reading mode";
+    gOptMode = parser.ArgAsString('m');
+  } else {
+    LOG("gevgen_hadron", pDEBUG) 
+       << "Unspecified mode - Using default";
+    gOptMode = kDefOptMode;
+  }
+
+  LOG("gevgen_hadron", pINFO) << "MC Run Number      = " << gOptRunNu;
+  LOG("gevgen_hadron", pINFO) << "Mode               = " << gOptMode;
+  LOG("gevgen_hadron", pINFO) << "Number of events   = " << gOptNevents;
+  LOG("gevgen_hadron", pINFO) << "Probe PDG code     = " << gOptProbePdgCode;
+  LOG("gevgen_hadron", pINFO) << "Target PDG code    = " << gOptTgtPdgCode;
   if(gOptProbeKEmin<0 && gOptProbeKEmax<0) {
     LOG("gevgen_hadron", pINFO) 
-        << "Hadron input KE            = " << gOptProbeKE;
+        << "Hadron input KE    = " << gOptProbeKE;
   } else {
     LOG("gevgen_hadron", pINFO) 
-        << "Hadron input KE range      = [" 
+        << "Hadron input KE range = [" 
         << gOptProbeKEmin << ", " << gOptProbeKEmax << "]";
   }
   if(gOptUsingFlux) {
     LOG("gevgen_hadron", pINFO) 
-        << "Input flux                 = " 
+        << "Input flux            = " 
         << gOptFlux;
   }
 }
@@ -459,8 +474,8 @@ void PrintSyntax(void)
   LOG("gevgen_hadron", pNOTICE)
     << "\n\n" 
     << "Syntax:" << "\n"
-    << "   ghAevgen [-n nev] -p hadron_pdg -t tgt_pdg [-r run] "
-    << "             -k KE [-f flux] [-m mode]"
+    << "   gevgen_hadron [-n nev] -p hadron_pdg -t tgt_pdg [-r run] "
+    << "                  -k KE [-f flux] [-m mode]"
     << "\n";
 }
 //____________________________________________________________________________
