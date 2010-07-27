@@ -17,14 +17,14 @@ GENIE_LIBS  = $(shell $(GENIE)/src/scripts/setup/genie-config --libs)
 
 LIBRARIES  := $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 
-TGT =    gEvGen		  \
-	 gEvDump          \
-	 ghAEvGen         \
-	 gEvGenGUI	  \
-	 gMakeSplines	  \
-	 gSplineAdd   	  \
-	 gSplineXml2Root  \
-	 gMaxPathLengths  \
+TGT =    gEvGen		  	\
+	 gEvDump          	\
+	 gEvGenHadronNucleus    \
+	 gEvGenGUI	  	\
+	 gMakeSplines	  	\
+	 gSplineAdd   	  	\
+	 gSplineXml2Root  	\
+	 gMaxPathLengths  	\
 	 gNtpConv	  
 
 all: $(TGT)
@@ -42,11 +42,11 @@ gEvDump: FORCE
 	$(LD) $(LDFLAGS) gEvDump.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevdump
 
 
-# ghAgen program generating hadron + nucleus interactions using GENIE's INTRANUKE
+# gevgen_hadron program generating hadron + nucleus interactions using GENIE's INTRANUKE
 #
-ghAEvGen: FORCE
-	$(CXX) $(CXXFLAGS) -c ghAEvGen.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) ghAEvGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/ghAevgen
+gEvGenHadronNucleus: FORCE
+	$(CXX) $(CXXFLAGS) -c gEvGenHadronNucleus.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gEvGenHadronNucleus.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen_hadron
 
 # A gevgen GUI (in devel)
 #
@@ -102,7 +102,7 @@ clean: FORCE
 	$(RM) *.o *~ core
 	$(RM) $(GENIE_BIN_PATH)/gevgen		
 	$(RM) $(GENIE_BIN_PATH)/gevdump		
-	$(RM) $(GENIE_BIN_PATH)/ghAevgen
+	$(RM) $(GENIE_BIN_PATH)/gevgen_hadron
 	$(RM) $(GENIE_BIN_PATH)/gevgen_gui
 	$(RM) $(GENIE_BIN_PATH)/gmkspl 	
 	$(RM) $(GENIE_BIN_PATH)/gspladd 	
@@ -113,7 +113,7 @@ clean: FORCE
 distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevgen		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevdump		
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/ghAevgen	
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevgen_hadron
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevgen_gui
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gmkspl 	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gspladd 	
@@ -127,8 +127,8 @@ clean--gEvGen: FORCE
 clean--gEvDump: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gevdump
 
-clean--ghAEvGen: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/ghAevgen
+clean--gEvGenHadronNucleus: FORCE
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gevgen_hadron
 
 clean--gEvGenGUI: FORCE
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gevgen_gui
