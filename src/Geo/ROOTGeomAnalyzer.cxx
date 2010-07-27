@@ -275,6 +275,10 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
        << "Generating vtx in material: " << tgtpdg
        << " along the input neutrino direction";
 
+  int nretry = 0;
+  retry:  // goto label in case of abject failure
+  nretry++;
+
   // reset current interaction vertex
   fCurrVertex->SetXYZ(0.,0.,0.);
 
@@ -300,8 +304,8 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
     this->Master2TopDir(udir);   // transform direction (master -> top)
   }
 
-  double max_dist = this->ComputePathLengthPDG(pos,udir,tgtpdg);
-  if (max_dist<=0) {
+  double maxwgt_dist = this->ComputePathLengthPDG(pos,udir,tgtpdg);
+  if ( maxwgt_dist <= 0 ) {
     LOG("GROOTGeom", pERROR)
      << "The current trajectory does not cross the selected material!!";
     return *fCurrVertex;
@@ -309,15 +313,15 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
 
   // generate random number between 0 and max_dist
   RandomGen * rnd = RandomGen::Instance();
-  double gen_dist(max_dist * rnd->RndGeom().Rndm());
+  double genwgt_dist(maxwgt_dist * rnd->RndGeom().Rndm());
 
   LOG("GROOTGeom", pINFO)
     << "Swim mass: Top Vol dir = " << utils::print::P3AsString(&udir)
     << ", pos = " << utils::print::Vec3AsString(&pos);
   LOG("GROOTGeom", pINFO)
-     << "Max {L x Density x Weight} given (init,dir) = " << max_dist;
+     << "Max {L x Density x Weight} given (init,dir) = " << maxwgt_dist;
   LOG("GROOTGeom", pINFO)
-       << "Generated 'distance' in selected material = " << gen_dist;
+       << "Generated 'distance' in selected material = " << genwgt_dist;
 #ifdef RWH_DEBUG
   if ( ( fDebugFlags & 0x01 ) ) {
     fCurrPathSegmentList->SetDoCrossCheck(true);       //RWH
@@ -328,7 +332,6 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
     fmxdstep = TMath::Max(fmxdstep,mxdstep);
   }
 #endif
-
 
   // compute the pdg weight for each material just once, then use a stl map 
   PathSegmentList::MaterialMap_t wgtmap;
@@ -342,6 +345,12 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
     const TGeoMaterial* mat = mitr->first;
     double wgt = ( mat ) ? this->GetWeight(mat,tgtpdg) : 0;
     wgtmap[mat] = wgt;
+#ifdef RWH_DEBUG
+    if ( ( fDebugFlags & 0x01 ) ) {
+      LOG("GROOTGeom", pINFO)
+        << " wgtmap[" << mat->GetName() << "] pdg " << tgtpdg << " wgt " << Form("%.6f",wgt);
+    }
+#endif
   }
 
   // walk down the path to pick the vertex
@@ -356,22 +365,33 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
     double wgtstep = trimmed_step * wgtmap[mat];
     double beyond = walked + wgtstep;
 #ifdef RWH_DEBUG
-    LOG("GROOTGeom", pINFO)
-      << " beyond " << beyond << " gen_dist " << gen_dist
-      << " trimmed_step " << trimmed_step << " wgtstep " << wgtstep;
+    if ( ( fDebugFlags & 0x01 ) ) {
+      LOG("GROOTGeom", pINFO)
+        << " beyond " << beyond << " genwgt_dist " << genwgt_dist
+        << " trimmed_step " << trimmed_step << " wgtstep " << wgtstep;
+    }
 #endif
-    if ( beyond > gen_dist ) {
+    if ( beyond > genwgt_dist ) {
+      // the end of this segment is beyond our generation point
 #ifdef RWH_DEBUG
       if ( ( fDebugFlags & 0x01 ) ) {
         LOG("GROOTGeom", pINFO)
-          << "Choose vertex pos walked " << walked << " wgtstep " << wgtstep
+          << "Choose vertex pos walked=" << walked 
+          << " beyond=" << beyond 
+          << " wgtstep " << wgtstep
           << " ( " << trimmed_step << "*" << wgtmap[mat] << ")"
-          << " beyond " << beyond << " in " << seg.fVolume->GetName() << " "
-          << mat->GetName() << " look for " << gen_dist;
+          << " look for " << genwgt_dist
+          << " in " << seg.fVolume->GetName() << " "
+          << mat->GetName();
       }
 #endif
-      // choose a vertex in this step
-      double frac = ( gen_dist - walked ) / wgtstep;
+      // choose a vertex in this segment (possibly multiple steps)
+      double frac = ( genwgt_dist - walked ) / wgtstep;
+      if ( frac > 1.0 ) {
+        LOG("GROOTGeom", pWARN)
+          << "Hey, frac = " << frac << " ( > 1.0 ) "
+          << genwgt_dist << " " << walked << " " << wgtstep;
+      }
       pos = seg.GetPosition(frac);
       fGeometry -> SetCurrentPoint (pos[0],pos[1],pos[2]);
       fGeometry -> FindNode();
@@ -394,7 +414,13 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
     LOG("GROOTGeom", pWARN)
        << "Geometry volume was probably overshot";
     LOG("GROOTGeom", pWARN)
-       << "No material with code = " << tgtpdg << " could be found";
+       << "No material with code = " << tgtpdg << " could be found at genwgt_dist="
+       << genwgt_dist << " (maxwgt_dist=" << maxwgt_dist << ")";
+    if ( nretry < 10 ) {
+      LOG("GROOTGeom", pWARN)
+        << "retry placing vertex";
+      goto retry;  // yeah, I know! MyBad.
+    }
   }
 
   if (!fMasterToTopIsIdentity) {
@@ -1037,14 +1063,15 @@ void ROOTGeomAnalyzer::MaxPathLengthsFluxMethod(void)
     bool enters = false;  // rwh: how is this ever set to false?
 
     for (pl_iter = pl.begin(); pl_iter != pl.end(); ++pl_iter) {
-       int    pdgc = pl_iter->first;
-       double pl   = pl_iter->second;
+       int    pdgc       = pl_iter->first;
+       double pathlength = pl_iter->second;
 
-       if (pl>0) {
-          pl *= (this->MaxPlSafetyFactor());
+       if ( pathlength > 0 ) {
+          pathlength *= (this->MaxPlSafetyFactor());
 
-          pl = TMath::Max(pl, fCurrMaxPathLengthList->PathLength(pdgc));
-          fCurrMaxPathLengthList->SetPathLength(pdgc,pl);
+          pathlength = TMath::Max(pathlength, fCurrMaxPathLengthList->PathLength(pdgc));
+          fCurrMaxPathLengthList->SetPathLength(pdgc,pathlength);
+          enters = true;
        }
     }
     if (enters) iparticle++;  
@@ -1463,7 +1490,15 @@ void ROOTGeomAnalyzer::SwimOnce(const TVector3 & r0, const TVector3 & udir)
 
         ps_curr.SetExit(fGeometry->GetCurrentPoint());
         ps_curr.SetStep(step);
-        fCurrPathSegmentList->AddSegment(ps_curr);
+        if ( ( fDebugFlags & 0x04 ) ) {
+          // In genera don't add the path segments from the start point to
+          // the top volume (here for debug purposes)
+          // Clear out the step range even if we keep it
+          ps_curr.fStepRangeSet.clear();
+          LOG("GROOTGeom", pNOTICE)
+            << "debug: step towards top volume: " << ps_curr;
+          fCurrPathSegmentList->AddSegment(ps_curr);
+        }
 
      }  // outside or !vol
 
@@ -1526,14 +1561,21 @@ void ROOTGeomAnalyzer::SwimOnce(const TVector3 & r0, const TVector3 & udir)
       fGeomVolSelector->GenerateTrimmedList(fCurrPathSegmentList);
     std::swap(altlist,fCurrPathSegmentList);
     delete altlist;  // after swap delete original
-#ifdef RWH_DEBUG_2
-    if ( ( fDebugFlags & 0x02 ) ) {
-      LOG("GROOTGeom", pNOTICE) << "After  trimming" << *fCurrPathSegmentList;
-    }
-#endif
   }
 
   fCurrPathSegmentList->FillMatStepSum();
+
+#ifdef RWH_DEBUG_2
+  if ( fGeomVolSelector) { 
+    // after FillMatStepSum() so one can see the summed mass
+    if ( ( fDebugFlags & 0x02 ) ) {
+      fCurrPathSegmentList->SetPrintVerbose(true);
+      LOG("GROOTGeom", pNOTICE) << "After  trimming" << *fCurrPathSegmentList;
+      fCurrPathSegmentList->SetPrintVerbose(false);
+    }
+  }
+#endif
+
 
   return;
 }
