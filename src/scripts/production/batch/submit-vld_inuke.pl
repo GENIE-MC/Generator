@@ -255,7 +255,7 @@ for my $curr_runnu (keys %evg_probepdg_hash)  {
        $fntemplate    = "$jobs_dir/inuke-$inuke_model-$curr_subrunnu";
        $curr_seed     = $mcseed + $isubrun;
        $valgrind_cmd  = "valgrind --tool=memcheck --error-limit=no --leak-check=yes --show-reachable=yes";
-       $gntp_prefix   = "gntp.$inuke_model"
+       $gntp_prefix   = "gntp.$inuke_model";
        $evgen_cmd     = "gevgen_hadron -n $nev_per_subrun -m $inuke_model -k $ke -p $probe -t $tgt -r $curr_subrunnu -o $gntp_prefix";
        $conv_cmd      = "gntpc -f ginuke -i $gntp_prefix.$curr_subrunnu.ghep.root";
 
