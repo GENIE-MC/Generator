@@ -2471,29 +2471,33 @@ void ConvertToGINuke(void)
 {
   //-- output tree branch variables
   //
-  int    brProbe    = 0;      // Incident hadron code
-  int    brTarget   = 0;      // Nuclear target pdg code (10LZZZAAAI)
-  double brKE       = 0;      // Probe kinetic energy
-  double brE        = 0;      // Probe energy
-  double brP        = 0;      // Probe momentum
-  double brVtxX     = 0;      // "vertex x" (initial placement of h /in h+A events/ on the nuclear boundary)
-  double brVtxY     = 0;      // "vertex y"
-  double brVtxZ     = 0;      // "vertex z"
-  double brDist     = 0;      // Distance travelled by h before interacting (if at all before escaping)
-  int    brNh       = 0;      // Number of final state hadrons
-  int    brPdgh[kNPmax];      // Pdg code of i^th final state hadron
-  double brEh  [kNPmax];      // Energy   of i^th final state hadron
-  double brPh  [kNPmax];      // P        of i^th final state hadron
-  double brPxh [kNPmax];      // Px       of i^th final state hadron
-  double brPyh [kNPmax];      // Py       of i^th final state hadron
-  double brPzh [kNPmax];      // Pz       of i^th final state hadron
-  double brCosth[kNPmax];     // cos(th)  of i^th final state hadron
-  double brMh  [kNPmax];      // mass     of i^th final state hadron
-  int    brNp       = 0;      // Number of final state p
-  int    brNn       = 0;      // Number of final state n
-  int    brNpip     = 0;      // Number of final state pi+
-  int    brNpim     = 0;      // Number of final state pi-
-  int    brNpi0     = 0;      // Number of final state pi0
+  int    brIEv        = 0;  // Event number
+  int    brProbe      = 0;  // Incident hadron code
+  int    brTarget     = 0;  // Nuclear target pdg code (10LZZZAAAI)
+  double brKE         = 0;  // Probe kinetic energy
+  double brE          = 0;  // Probe energy
+  double brP          = 0;  // Probe momentum
+  int    brTgtA       = 0;  // Target A (mass   number)
+  int    brTgtZ       = 0;  // Target Z (atomic number)
+  double brVtxX       = 0;  // "Vertex x" (initial placement of h /in h+A events/ on the nuclear boundary)
+  double brVtxY       = 0;  // "Vertex y"
+  double brVtxZ       = 0;  // "Vertex z"
+  int    brProbeFSI   = 0;  // Rescattering code for incident hadron
+  double brDist       = 0;  // Distance travelled by h before interacting (if at all before escaping)
+  int    brNh         = 0;  // Number of final state hadrons
+  int    brPdgh  [kNPmax];  // Pdg code of i^th final state hadron
+  double brEh    [kNPmax];  // Energy   of i^th final state hadron
+  double brPh    [kNPmax];  // P        of i^th final state hadron
+  double brPxh   [kNPmax];  // Px       of i^th final state hadron
+  double brPyh   [kNPmax];  // Py       of i^th final state hadron
+  double brPzh   [kNPmax];  // Pz       of i^th final state hadron
+  double brCosth [kNPmax];  // Cos(th)  of i^th final state hadron
+  double brMh    [kNPmax];  // Mass     of i^th final state hadron
+  int    brNp         = 0;  // Number of final state p
+  int    brNn         = 0;  // Number of final state n
+  int    brNpip       = 0;  // Number of final state pi+
+  int    brNpim       = 0;  // Number of final state pi-
+  int    brNpi0       = 0;  // Number of final state pi0
 
   //-- open output file & create output summary tree & create the tree branches
   //
@@ -2506,14 +2510,18 @@ void ConvertToGINuke(void)
 
   //-- create tree branches
   //
+  tEvtTree->Branch("iev",       &brIEv,          "iev/I"       );
   tEvtTree->Branch("probe",     &brProbe,        "probe/I"     );
   tEvtTree->Branch("tgt" ,      &brTarget,       "tgt/I"       );
   tEvtTree->Branch("ke",        &brKE,           "ke/D"        );
   tEvtTree->Branch("e",         &brE,            "e/D"         );
   tEvtTree->Branch("p",         &brP,            "p/D"         );
+  tEvtTree->Branch("A",         &brTgtA,         "A/I"         );
+  tEvtTree->Branch("Z",         &brTgtZ,         "Z/I"         );
   tEvtTree->Branch("vtxx",      &brVtxX,         "vtxx/D"      );
   tEvtTree->Branch("vtxy",      &brVtxY,         "vtxy/D"      );
   tEvtTree->Branch("vtxz",      &brVtxZ,         "vtxz/D"      );
+  tEvtTree->Branch("probe_fsi", &brProbeFSI,     "probe_fsi/I" );
   tEvtTree->Branch("dist",      &brDist,         "dist/D"      );
   tEvtTree->Branch("nh",        &brNh,           "nh/I"        );
   tEvtTree->Branch("pdgh",      brPdgh,          "pdgh[nh]/I " );
@@ -2560,7 +2568,7 @@ void ConvertToGINuke(void)
   LOG("gntpc", pNOTICE) << "*** Analyzing: " << nmax << " events";
 
   for(Long64_t iev = 0; iev < nmax; iev++) {
-
+    brIEv = iev;
     er_tree->GetEntry(iev);
     NtpMCRecHeader rec_header = mcrec->hdr;
     EventRecord &  event      = *(mcrec->event);
@@ -2589,14 +2597,17 @@ void ConvertToGINuke(void)
     GHepParticle * target = event.Particle(1);
     assert(probe && target);
 
-    brProbe  = probe  -> Pdg();
-    brTarget = target -> Pdg();
-    brKE     = probe  -> KinE();
-    brE      = probe  -> E();
-    brP      = probe  -> P4()->Vect().Mag();
-    brVtxX   = probe  -> Vx();
-    brVtxY   = probe  -> Vy();
-    brVtxZ   = probe  -> Vz();
+    brProbe    = probe  -> Pdg();
+    brTarget   = target -> Pdg();
+    brKE       = probe  -> KinE();
+    brE        = probe  -> E();
+    brP        = probe  -> P4()->Vect().Mag();
+    brTgtA     = pdg::IonPdgCodeToA(target->Pdg()); 
+    brTgtZ     = pdg::IonPdgCodeToZ(target->Pdg());
+    brVtxX     = probe  -> Vx();
+    brVtxY     = probe  -> Vy();
+    brVtxZ     = probe  -> Vz();
+    brProbeFSI = probe  -> RescatterCode(); 
 
     GHepParticle * rescattered_hadron  = event.Particle(probe->FirstDaughter());
     assert(rescattered_hadron);
