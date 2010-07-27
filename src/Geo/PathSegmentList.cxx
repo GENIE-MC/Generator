@@ -190,8 +190,8 @@ Double_t PathSegment::GetSummedStepRange() const
 
 TVector3 PathSegment::GetPosition(Double_t fractrim) const
 {
-  /// calculate position within allowed ranges passed on 
-  ///fraction of trimmed segment
+  /// calculate position within allowed ranges passed as
+  /// fraction of trimmed segment
   ///      seg.fEnter + fractotal * ( seg.fExit - seg.fEnter );
   Double_t sumrange = GetSummedStepRange();
   if ( sumrange <= 0.0 ) {
@@ -212,7 +212,7 @@ TVector3 PathSegment::GetPosition(Double_t fractrim) const
 #endif
     if ( sum >= target ) {
       Double_t overstep  = sum - target;
-      Double_t fractotal = (sr.second - overstep)/sumrange;
+      Double_t fractotal = (sr.second - overstep)/fStepLength;
 #ifdef RWH_DEBUG
     LOG("PathS", pINFO) << "GetPosition fractrim=" << fractrim
                         << " overstep " << overstep
@@ -229,7 +229,7 @@ TVector3 PathSegment::GetPosition(Double_t fractrim) const
 //===========================================================================
 //___________________________________________________________________________
 PathSegmentList::PathSegmentList(void)
-  : fDoCrossCheck(false)
+  : fDoCrossCheck(false), fPrintVerbose(false)
 {
 
 }
@@ -302,7 +302,7 @@ void PathSegmentList::Copy(const PathSegmentList & plist)
   fSegmentList  = plist.fSegmentList;
   fMatStepSum   = plist.fMatStepSum;
   fDoCrossCheck = plist.fDoCrossCheck;
-
+  fPrintVerbose = plist.fPrintVerbose;
 }
 
 //___________________________________________________________________________
@@ -329,16 +329,17 @@ void PathSegmentList::CrossCheck(double& mxddist, double& mxdstep) const
 void PathSegmentList::Print(ostream & stream) const
 {
   stream << "\nPathSegmentList [-]" << endl;
-  stream << "          start " << pathsegutils::Vec3AsString(&fStartPos)
+  stream << " start " << pathsegutils::Vec3AsString(&fStartPos)
          << " dir " << pathsegutils::Vec3AsString(&fDirection) << endl;
 
   double dstep, ddist, mxdstep = 0, mxddist = 0;
-  int k = 0; 
+  int k = 0, nseg = 0;
   PathSegmentList::PathSegVCItr_t sitr = fSegmentList.begin();
   PathSegmentList::PathSegVCItr_t sitr_end = fSegmentList.end();
   for ( ; sitr != sitr_end ; ++sitr, ++k ) {
     const PathSegment& ps = *sitr;
-    stream << "[" << setw(4) << k << "] " << ps;
+    ++nseg;
+    stream << " [" << setw(4) << k << "] " << ps;
     if ( fDoCrossCheck ) {
       ps.DoCrossCheck(fStartPos,ddist,dstep);
       double addist = TMath::Abs(ddist);
@@ -351,12 +352,26 @@ void PathSegmentList::Print(ostream & stream) const
         }
     stream << std::endl;
   }
+  if ( nseg == 0 ) stream << " holds no segments." << std::endl;
 
   if ( fDoCrossCheck )
     stream << "PathSegmentList " 
            << " mxddist " << mxddist 
            << " mxdstep " << mxdstep 
-           << endl;
+           << std::endl;
+
+  if ( fPrintVerbose ) {
+    PathSegmentList::MaterialMapCItr_t mitr     = GetMatStepSumMap().begin();
+    PathSegmentList::MaterialMapCItr_t mitr_end = GetMatStepSumMap().end();
+    // loop over map to get tgt weight for each material (once)
+    // steps outside the geometry may have no assigned material
+    for ( ; mitr != mitr_end; ++mitr ) {
+      const TGeoMaterial* mat = mitr->first;
+      double sumsteps         = mitr->second;
+      stream << " fMatStepSum[" << mat->GetName() << "] = " << sumsteps << std::endl;
+    }
+  }
+
 }
 //___________________________________________________________________________
 #ifdef PATH_SEGMENT_SUPPORT_XML
