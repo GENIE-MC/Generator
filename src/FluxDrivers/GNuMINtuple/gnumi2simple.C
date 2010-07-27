@@ -175,13 +175,21 @@ void fill_simple(string fname, string cfg, int flxset,
     fentry->pz      = p4u.Pz();
     fentry->E       = p4u.E();
 
-    fnumi->run     = gnumi->PassThroughInfo().run;
-    fnumi->evtno   = gnumi->PassThroughInfo().evtno;
-    fnumi->entryno = gnumi->GetEntryNumber();
-    fnumi->tptype  = gnumi->PassThroughInfo().tptype;
-    fnumi->tpx     = gnumi->PassThroughInfo().tpx;
-    fnumi->tpy     = gnumi->PassThroughInfo().tpy;
-    fnumi->tpz     = gnumi->PassThroughInfo().tpz;
+    fnumi->run      = gnumi->PassThroughInfo().run;
+    fnumi->evtno    = gnumi->PassThroughInfo().evtno;
+    fnumi->entryno  = gnumi->GetEntryNumber();
+
+    fnumi->tpx      = gnumi->PassThroughInfo().tpx;
+    fnumi->tpy      = gnumi->PassThroughInfo().tpy;
+    fnumi->tpz      = gnumi->PassThroughInfo().tpz;
+    fnumi->vx       = gnumi->PassThroughInfo().vx;
+    fnumi->vy       = gnumi->PassThroughInfo().vy;
+    fnumi->vz       = gnumi->PassThroughInfo().vz;
+
+    fnumi->ndecay   = gnumi->PassThroughInfo().ndecay;
+    fnumi->ppmedium = gnumi->PassThroughInfo().ppmedium;
+    fnumi->tptype   = gnumi->PassThroughInfo().tptype;
+
 
     if ( doaux ) {
       faux->auxint.push_back(gnumi->PassThroughInfo().tptype);
