@@ -32,6 +32,7 @@
 
 #include "libxml/parser.h"
 #include "libxml/xmlmemory.h"
+#include "log4cpp/SimpleLayout.hh"
 
 #include <TSystem.h>
 
@@ -82,7 +83,13 @@ Messenger * Messenger::Instance()
 
     log4cpp::Appender * appender;
     appender = new log4cpp::OstreamAppender("default", &cout);
-    appender->setLayout(new log4cpp::BasicLayout());
+    const char* layoutenv = gSystem->Getenv("GMSGLAYOUT");
+    std::string layoutstr = (layoutenv) ? string(layoutenv) : "BASIC";
+    if ( layoutstr == "SIMPLE" ) 
+      appender->setLayout(new log4cpp::SimpleLayout());
+    else
+      appender->setLayout(new log4cpp::BasicLayout());
+
 
     log4cpp::Category & MSG = log4cpp::Category::getRoot();
 
