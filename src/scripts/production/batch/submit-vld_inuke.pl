@@ -13,7 +13,8 @@
 #                      Can specify runs used for comparisons with data from a specific author using the 
 #                      author name, eg `--run iwamoto'. 
 #                      Can specify runs by probe, eg `-run pion').
-#   [--model-enum]   : physics model enumeration, default: 0
+#   [--inuke-model]  : physics model, <hA, hN>, default: hA
+#   [--model-enum]   : physics model enumeration, default: 01
 #   [--nsubruns]     : number of subruns per run, default: 1
 #   [--arch]         : <SL4_32bit, SL5_64bit>, default: SL5_64bit
 #   [--production]   : production name, default: <model>_<version>
@@ -93,6 +94,7 @@ $iarg=0;
 foreach (@ARGV) {
   if($_ eq '--nsubruns')      { $nsubruns      = $ARGV[$iarg+1]; }
   if($_ eq '--run')           { $runnu         = $ARGV[$iarg+1]; }
+  if($_ eq '--inuke-model')   { $inuke_model   = $ARGV[$iarg+1]; }
   if($_ eq '--model-enum')    { $model_enum    = $ARGV[$iarg+1]; }
   if($_ eq '--version')       { $genie_version = $ARGV[$iarg+1]; }
   if($_ eq '--arch')          { $arch          = $ARGV[$iarg+1]; }
@@ -109,7 +111,8 @@ unless defined $genie_version;
 die("** Aborting [You need to specify which runs to submit. Use the --run option]")
 unless defined $runnu;
 
-$model_enum     = "0"                                     unless defined $model_enum;
+$inuke_model    = "hA"                                    unless defined $inuke_model;
+$model_enum     = "01"                                    unless defined $model_enum;
 $nsubruns       = 1                                       unless defined $nsubruns;
 $use_valgrind   = 0                                       unless defined $use_valgrind;
 $arch           = "SL5_64bit"                             unless defined $arch;
@@ -252,10 +255,14 @@ for my $curr_runnu (keys %evg_probepdg_hash)  {
        $fntemplate    = "$jobs_dir/inuke-$curr_subrunnu";
        $curr_seed     = $mcseed + $isubrun;
        $valgrind_cmd  = "valgrind --tool=memcheck --error-limit=no --leak-check=yes --show-reachable=yes";
-       $evgen_cmd     = "gevgen_hadron -n $nev_per_subrun -k $ke -p $probe -t $tgt -r $curr_subrunnu | $grep_pipe &> $fntemplate.evgen.log";
-       $conv_cmd      = "gntpc -f ginuke -i gntp.$curr_subrunnu.ghep.root | $grep_pipe &> $fntemplate.conv.log";
+       $evgen_cmd     = "gevgen_hadron -n $nev_per_subrun -m $inuke_model -k $ke -p $probe -t $tgt -r $curr_subrunnu";
+       $conv_cmd      = "gntpc -f ginuke -i gntp.$curr_subrunnu.ghep.root";
+
+       $evgen_cmd = "$evgen_cmd | $grep_pipe &> $fntemplate.evgen.log";
+       $conv_cmd  = "$conv_cmd  | $grep_pipe &> $fntemplate.conv.log ";
 
        print "@@ exec: $evgen_cmd \n";
+       print "@@ exec: $conv_cmd  \n\n";
 
        #
        # submit
