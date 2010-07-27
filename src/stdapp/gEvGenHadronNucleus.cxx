@@ -7,7 +7,7 @@
 	 Similar to NEUGEN's pitest (S.Dytman & H.Gallagher)
 
          Syntax :
-           ghAevgen [-n nev] -p probe -t tgt [-r run#] -k KE 
+           gevgen_hadron [-n nev] -p probe -t tgt [-r run#] -k KE 
                     [-f flux] [-o prefix] [-m mode]
 
          Options :
@@ -32,17 +32,17 @@
 	      
          Examples:
 
-           shell% ghAevgen -n 100000 -p 211 -t 1000260560 -k 0.165
-           * will generate 100k pi^{+}+Fe56 events with a pi^{+} kinetic
-             energy of 165 MeV
+         (1) Generate 100k pi^{+}+Fe56 events with a pi^{+} kinetic energy 
+             of 165 MeV:
+             % gevgen_hadron -n 100000 -p 211 -t 1000260560 -k 0.165
 
-           shell% ghAevgen -n 100000 -p 211 -t 1000260560 -k 0.165,1.200
-           * will generate 100k pi^{+}+Fe56 events with the pi^{+} kinetic
-             energy distributed uniformly in the [165 MeV, 1200 MeV] range
+         (2) Generate 100k pi^{+}+Fe56 events with the pi^{+} kinetic energy
+             distributed uniformly in the [165 MeV, 1200 MeV] range:
+             % gevgen_hadron -n 100000 -p 211 -t 1000260560 -k 0.165,1.200
 
-           shell% ghAevgen -n 100000 -p 211 -t 1000260560 -k 0.165,1.200 -f '1/x'
-           * will generate 100k pi^{+}+Fe56 events with the pi^{+} kinetic
-             energy distributed as f(KE) = 1/KE in the [165 MeV, 1200 MeV] range
+         (3) Generate 100k pi^{+}+Fe56 events with the pi^{+} kinetic energy
+             distributed as f(KE) = 1/KE in the [165 MeV, 1200 MeV] range:
+             % ghAevgen -n gevgen_hadron -p 211 -t 1000260560 -k 0.165,1.200 -f '1/x'
 
 \authors  Steve Dytman, Minsuk Kim and Aaron Meyer 
           University of Pittsburgh
@@ -103,7 +103,7 @@ void                        PrintSyntax           (void);
 // Default options 
 int     kDefOptNevents      = 10000;   // n-events to generate
 Long_t  kDefOptRunNu        = 0;       // default run number
-string  kDefOptEvFilePrefix = "gntp.inuke";
+string  kDefOptEvFilePrefix = "gntp";
 
 // User-specified options:
 string gOptMode;             // mode variable
