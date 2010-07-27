@@ -317,7 +317,8 @@ private:
   // Private data members
   //
   double         fMaxEv;          ///< maximum energy
-  PDGCodeList *  fPdgCList;       ///< list of neutrino pdg-codes
+  PDGCodeList *  fPdgCList;       ///< list of neutrino pdg-codes to generate
+  PDGCodeList *  fPdgCListRej;    ///< list of neutrino pdg-codes seen but rejected
   bool           fEnd;            ///< end condition reached
 
   string    fNuFluxFilePattern;   ///< wildcarded path

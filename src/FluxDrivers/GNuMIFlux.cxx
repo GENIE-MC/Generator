@@ -411,13 +411,18 @@ bool GNuMIFlux::GenerateNext_weighted(void)
   // initialization via GNuMIFlux::SetFluxParticles(const PDGCodeList &)
 
   if ( ! fPdgCList->ExistsInPDGCodeList(fCurEntry->fgPdgC) ) {
-     LOG("Flux", pWARN)
-          << "Unknown decay mode or decay mode producing an undeclared"
-          << " neutrino species: "
-          << fCurEntry->ntype 
-          << " (pcodes=" << fCurEntry->pcodes << ")"
-          << "\nDeclared list of neutrino species: " << *fPdgCList;
-     //exit(123);
+     /// user might modify list via SetFluxParticles() in order to reject certain
+     /// flavors, even if they're found in the file.  So don't make a big fuss.
+     /// Spit out a single message and then stop reporting that flavor as problematic.
+     int badpdg = fCurEntry->fgPdgC;
+     if ( ! fPdgCListRej->ExistsInPDGCodeList(badpdg) ) {
+       fPdgCListRej->push_back(badpdg);
+       LOG("Flux", pWARN)
+         << "Encountered neutrino specie (" << badpdg 
+         << " pcodes=" << fCurEntry->pcodes << ")"
+         << " that wasn't in SetFluxParticles() list, "
+         << "\nDeclared list of neutrino species: " << *fPdgCList;
+     }
      return false;	
   }
 
@@ -1114,7 +1119,8 @@ void GNuMIFlux::Initialize(void)
   fMaxEv           =  0;
   fEnd             =  false;
   fPdgCList        = new PDGCodeList;
-  fCurEntry    = new GNuMIFluxPassThroughInfo;
+  fPdgCListRej     = new PDGCodeList;
+  fCurEntry        = new GNuMIFluxPassThroughInfo;
 
   fNuFluxTree      =  0;
   fG3NuMI          =  0;
@@ -1195,12 +1201,13 @@ void GNuMIFlux::CleanUp(void)
 {
   LOG("Flux", pNOTICE) << "Cleaning up...";
 
-  if (fPdgCList) delete fPdgCList;
-  if (fCurEntry) delete fCurEntry;
+  if (fPdgCList)    delete fPdgCList;
+  if (fPdgCListRej) delete fPdgCListRej;
+  if (fCurEntry)    delete fCurEntry;
 
-  if ( fG3NuMI ) delete fG3NuMI;
-  if ( fG4NuMI ) delete fG4NuMI;
-  if ( fFlugg  ) delete fFlugg;
+  if ( fG3NuMI )    delete fG3NuMI;
+  if ( fG4NuMI )    delete fG4NuMI;
+  if ( fFlugg  )    delete fFlugg;
 
   LOG("Flux", pNOTICE)
     << " flux file cycles: " << fICycle << " of " << fNCycles 
@@ -2272,8 +2279,11 @@ void GNuMIFlux::PrintConfig()
   
   std::ostringstream s;
   PDGCodeList::const_iterator itr = fPdgCList->begin();
-  for ( ; itr != fPdgCList->end(); ++itr)
-    s << (*itr) << " ";
+  for ( ; itr != fPdgCList->end(); ++itr) s << (*itr) << " ";
+  s << "[rejected: ";
+  itr = fPdgCListRej->begin();
+  for ( ; itr != fPdgCListRej->end(); ++itr) s << (*itr) << " ";
+  s << " ] ";
 
   std::ostringstream flistout;
   std::vector<std::string> flist = GetFileList();
