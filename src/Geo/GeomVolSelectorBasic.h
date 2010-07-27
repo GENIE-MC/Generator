@@ -51,9 +51,11 @@ public :
   void     SetPathSelection(string pathstr);
 
   //
-  // define the missing part of the GeomVolSelectorI interface:
+  // define the missing parts of the GeomVolSelectorI interface:
   //
-  virtual void TrimSegment(PathSegment& segment) const;
+  void TrimSegment(PathSegment& segment) const;
+  void BeginPSList(const PathSegmentList* untrimmed) const;
+  void EndPSList() const;
 
 protected:
 
