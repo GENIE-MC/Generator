@@ -90,16 +90,22 @@ namespace flux  {
     void Reset();
     void Print(const Option_t* opt = "") const;
     friend ostream & operator << (ostream & stream, const GSimpleNtpNuMI & info);
-    Double_t   tpx;     ///< parent particle px at target exit
+    Double_t   tpx;      ///< parent particle px at target exit
     Double_t   tpy;
     Double_t   tpz;
-    Int_t      tptype;  ///< parent particle type at target exit
+    Double_t   vx;       ///< vertex position of hadron/muon decay
+    Double_t   vy;
+    Double_t   vz;
+
+    Int_t      ndecay;   ///< decay mode
+    Int_t      ppmedium; ///< tracking medium where parent was produced
+    Int_t      tptype;   ///< parent particle type at target exit
     
     Int_t      run;      ///< 
     Int_t      evtno;    ///<
     Int_t      entryno;  ///<
     
-    ClassDef(GSimpleNtpNuMI,1)
+    ClassDef(GSimpleNtpNuMI,2)
   };
 
 

@@ -60,7 +60,7 @@ ClassImp(GSimpleNtpAux)
 ClassImp(GSimpleNtpMeta)
 
 // static storage
-  UInt_t genie::flux::GSimpleNtpMeta::mxfileprint = UINT_MAX;
+UInt_t genie::flux::GSimpleNtpMeta::mxfileprint = UINT_MAX;
 
 //____________________________________________________________________________
 GSimpleNtpFlux::GSimpleNtpFlux()
@@ -723,13 +723,18 @@ GSimpleNtpNuMI::GSimpleNtpNuMI() { Reset(); }
 
 void GSimpleNtpNuMI::Reset()
 { 
-  tpx     = 0.;
-  tpy     = 0.;
-  tpz     = 0.;
-  tptype  =  0;
-  run     = -1;
-  evtno   = -1;
-  entryno = -1;
+  tpx      = 0.;
+  tpy      = 0.;
+  tpz      = 0.;
+  vx       = 0.;
+  vy       = 0.;
+  vz       = 0.;
+  ndecay   =  0;
+  ppmedium =  0;
+  tptype   =  0;
+  run      = -1;
+  evtno    = -1;
+  entryno  = -1;
 }
 
 void GSimpleNtpNuMI::Print(const Option_t* /* opt */ ) const
@@ -846,7 +851,10 @@ ostream & operator << (ostream & stream,
          << " evtno " << numi.evtno
          << " entryno " << numi.entryno
          << "\n   tptype " << numi.tptype
-         << " tp [" << numi.tpx << "," << numi.tpy << "," << numi.tpz << "]";
+         << " tp[xyz] [" << numi.tpx << "," << numi.tpy << "," << numi.tpz << "]"
+         << "\n   ndecay " << numi.ndecay << " ppmedium " << numi.ppmedium
+         << "\n   v[xyz] [" << numi.vx << "," << numi.vy << "," << numi.vz << "]"
+    ;
   return stream;
 }
 
