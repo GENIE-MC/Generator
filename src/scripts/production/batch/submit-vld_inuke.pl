@@ -8,21 +8,21 @@
 #
 # Options:
 #    --version       : GENIE version number
-#    --run           : runs to submit (Can be a run number, or a comma separated list of run numbers. 
+#    --run           : Runs to submit (Can be a run number, or a comma separated list of run numbers.) 
 #                      Use `--run all' to submit all jobs. 
-#                      Can specify runs used for comparisons with data from a specific author using the 
-#                      author name, eg `--run iwamoto'. 
-#                      Can specify runs by probe, eg `-run pion').
-#   [--inuke-model]  : physics model, <hA, hN>, default: hA
-#   [--model-enum]   : physics model enumeration, default: 01
-#   [--nsubruns]     : number of subruns per run, default: 1
-#   [--arch]         : <SL4_32bit, SL5_64bit>, default: SL5_64bit
-#   [--production]   : production name, default: <model>_<version>
-#   [--cycle]        : cycle in current production, default: 01
-#   [--use-valgrind] : default: off
-#   [--batch-system] : <PBS, LSF, none>, default: PBS
-#   [--queue]        : default: prod
-#   [--softw-topdir] : default: /opt/ppd/t2k/GENIE
+#                      Can also specify runs used for comparisons with data from a specific author using 
+#                      the author name, eg `--run iwamoto', or `--run iwamoto,ingram'.
+#                      Can also specify runs by probe, eg `--run piplus', or `--run piplus,piminus,proton'.
+#   [--inuke-model]  : Physics model, <hA, hN>, default: hA
+#   [--model-enum]   : Physics model enumeration, default: 01
+#   [--nsubruns]     : Number of subruns per run, default: 1
+#   [--arch]         : <SL4_32bit, SL5_64bit>,  default: SL5_64bit
+#   [--production]   : Production name, default: <model>_<version>
+#   [--cycle]        : Cycle in current production, default: 01
+#   [--use-valgrind] : Use valgrind? default: off
+#   [--batch-system] : Batch system <PBS, LSF, none>, default: PBS
+#   [--queue]        : Batch queue, default: prod
+#   [--softw-topdir] : Top lever dir for GENIE softw. installation, default: /opt/ppd/t2k/GENIE
 #
 # Examples:
 #
@@ -41,9 +41,9 @@
 #     `iwamoto' data, using GENIE v2.7.1:
 #     % perl submit-vld_inuke.pl --version v2.7.1 --nsubruns 10 --batch-system LSF --run iwamoto
 #
-# (5) Submit (in an LSF farm) 10-subruns (100k events each) of all runs with a pion probe,
+# (5) Submit (in an LSF farm) 10-subruns (100k events each) of all runs with a pi+ or pi- probe,
 #     using GENIE v2.7.1:
-#     % perl submit-vld_inuke.pl --version v2.7.1 --nsubruns 10 --batch-system LSF --run pion
+#     % perl submit-vld_inuke.pl --version v2.7.1 --nsubruns 10 --batch-system LSF --run piplus,piminus
 #
 #
 # Tested at the RAL/PPD Tier2 PBS batch farm.
@@ -64,25 +64,25 @@
 # xx    : sub-run ID, 00-99, 100k events each
 #
 #.......................................................................................
-# run number       |  init state      | kin energy   | req. statistics    | group of   | 
-#                  |                  | (GeV)        | (num events)       | runs       |     
+# run number       |  init state      | kin energy   | req.  | group of                | 
+#                  |                  |   (GeV)      | stat  | runs                    |     
+#                  |                  |              |(# evt)| runs                    |     
 #.......................................................................................
-# 4000600597MMxx   | p     + C12      |   0.597      | 1.0M               | amian      | 
-# 1002600870MMxx   | pi+   + F56      |   0.870      | 0.5M               | iwamoto    | 
-# 1202600870MMxx   | pi-   + F56      |   0.870      | 1.0M               | iwamoto    | 
-# 1008200870MMxx   | pi+   + Pb208    |   0.870      | 1.0M               | iwamoto    | 
-# 1002602100MMxx   | pi+   + F56      |   2.100      | 1.0M               | iwamoto    | 
-# 1002800220MMxx   | pi+   + Ni58     |   0.220      | 1.0M               | mckeown    | 
-# 1002600220MMxx   | pi+   + F56      |   0.220      | 1.0M               | mckeown    | 
-# 4001300256MMxx   | p     + Al27     |   0.256      | 1.0M               | stamer     | 
-# 4008200256MMxx   | p     + Pb208    |   0.256      | 1.0M               | stamer     | 
-# 1000800114MMxx   | pi+   + O16      |   0.114      | 1.0M               | ingram     | 
-# 1000800240MMxx   | pi+   + O16      |   0.240      | 1.0M               | ingram     | 
-# 4000600800MMxx   | p     + C12      |   0.800      | 0.3M               | mcgill     | 
-# 4002000800MMxx   | p     + Ca40     |   0.800      | 1.0M               | mcgill     | 
-# 1008200220MMxx   | pi+   + Pb208    |   0.220      | 1.0M               | levenson   | 
-# 1000600220MMxx   | pi+   + C12      |   0.220      | 1.0M               | levenson   | 
-# 1002800220MMxx   | pi+   + Ni58     |   0.220      | 1.0M               | levenson   | 
+# 4000600597MMxx   | p     + C12      |   0.597      | 1.0M  | amian                   | 
+# 1002600870MMxx   | pi+   + F56      |   0.870      | 0.5M  | iwamoto                 | 
+# 1202600870MMxx   | pi-   + F56      |   0.870      | 1.0M  | iwamoto                 | 
+# 1008200870MMxx   | pi+   + Pb208    |   0.870      | 1.0M  | iwamoto                 | 
+# 1002602100MMxx   | pi+   + F56      |   2.100      | 1.0M  | iwamoto                 | 
+# 1000600220MMxx   | pi+   + C12      |   0.220      | 1.0M  | mckeown,levenson        | 
+# 1002800220MMxx   | pi+   + Ni58     |   0.220      | 1.0M  | mckeown,levenson        | 
+# 1002600220MMxx   | pi+   + F56      |   0.220      | 1.0M  | mckeown                 | 
+# 4001300256MMxx   | p     + Al27     |   0.256      | 1.0M  | stamer                  | 
+# 4008200256MMxx   | p     + Pb208    |   0.256      | 1.0M  | stamer                  | 
+# 1000800114MMxx   | pi+   + O16      |   0.114      | 1.0M  | ingram                  | 
+# 1000800240MMxx   | pi+   + O16      |   0.240      | 1.0M  | ingram                  | 
+# 4000600800MMxx   | p     + C12      |   0.800      | 0.3M  | mcgill                  | 
+# 4002000800MMxx   | p     + Ca40     |   0.800      | 1.0M  | mcgill                  | 
+# 1008200220MMxx   | pi+   + Pb208    |   0.220      | 1.0M  | levenson                | 
 #.......................................................................................
 #
 
@@ -134,6 +134,7 @@ $nev_per_subrun = 100000;
   '1202600870' => '-211',
   '1008200870' => '211',
   '1002602100' => '211',
+  '1000600220' => '211',
   '1002800220' => '211',
   '1002600220' => '211',
   '4001300256' => '2212',
@@ -142,9 +143,7 @@ $nev_per_subrun = 100000;
   '1000800240' => '211',
   '4000600800' => '2212',
   '4002000800' => '2212',
-  '1008200220' => '211',
-  '1000600220' => '211',
-  '1002800220' => '211'
+  '1008200220' => '211'
 );
 %evg_tgtpdg_hash = ( 
   '4000600597' => '1000060120',
@@ -152,6 +151,7 @@ $nev_per_subrun = 100000;
   '1202600870' => '1000260560',
   '1008200870' => '1000822080',
   '1002602100' => '1000260560',
+  '1000600220' => '1000060120',
   '1002800220' => '1000280580',
   '1002600220' => '1000260560',
   '4001300256' => '1000130270',
@@ -160,9 +160,7 @@ $nev_per_subrun = 100000;
   '1000800240' => '1000080160',
   '4000600800' => '1000060120',
   '4002000800' => '1000200400',
-  '1008200220' => '1000822080',
-  '1000600220' => '1000060120',
-  '1002800220' => '1000280580'
+  '1008200220' => '1000822080'
 );
 %evg_kinetic_energy_hash = ( 
   '4000600597' => '0.597',
@@ -170,6 +168,7 @@ $nev_per_subrun = 100000;
   '1202600870' => '0.870',
   '1008200870' => '0.870',
   '1002602100' => '2.100',
+  '1000600220' => '0.220',
   '1002800220' => '0.220',
   '1002600220' => '0.220',
   '4001300256' => '0.256',
@@ -178,9 +177,7 @@ $nev_per_subrun = 100000;
   '1000800240' => '0.240',
   '4000600800' => '0.800',
   '4002000800' => '0.800',
-  '1008200220' => '0.220',
-  '1000600220' => '0.220',
-  '1002800220' => '0.220'
+  '1008200220' => '0.220'
 );
 %vld_group_hash = ( 
   '4000600597' => 'amian',
@@ -188,7 +185,8 @@ $nev_per_subrun = 100000;
   '1202600870' => 'iwamoto',
   '1008200870' => 'iwamoto',
   '1002602100' => 'iwamoto',
-  '1002800220' => 'mckeown',
+  '1000600220' => 'mckeown,levenson',
+  '1002800220' => 'mckeown,levenson',
   '1002600220' => 'mckeown',
   '4001300256' => 'stamer',
   '4008200256' => 'stamer',
@@ -196,27 +194,7 @@ $nev_per_subrun = 100000;
   '1000800240' => 'ingram',
   '4000600800' => 'mcgill',
   '4002000800' => 'mcgill',
-  '1008200220' => 'levenson',
-  '1000600220' => 'levenson',
-  '1002800220' => 'levenson'
-);
-%probe_group_hash = ( 
-  '4000600597' => 'nucleon',
-  '1002600870' => 'pion',
-  '1202600870' => 'pion',
-  '1008200870' => 'pion',
-  '1002602100' => 'pion',
-  '1002800220' => 'pion',
-  '1002600220' => 'pion',
-  '4001300256' => 'nucleon',
-  '4008200256' => 'nucleon',
-  '1000800114' => 'pion',
-  '1000800240' => 'pion',
-  '4000600800' => 'nucleon',
-  '4002000800' => 'nucleon',
-  '1008200220' => 'pion',
-  '1000600220' => 'pion',
-  '1002800220' => 'pion'
+  '1008200220' => 'levenson'
 );
 
 # make the jobs directory
@@ -230,21 +208,32 @@ mkpath ($jobs_dir, {verbose => 1, mode=>0777});
 # run loop
 for my $curr_runnu (keys %evg_probepdg_hash)  {
 
+ #
+ # get runnu-dependent info
+ #
+ $probe   = $evg_probepdg_hash       {$curr_runnu};
+ $tgt     = $evg_tgtpdg_hash         {$curr_runnu};
+ $ke      = $evg_kinetic_energy_hash {$curr_runnu};
+ $vldgrp  = $vld_group_hash          {$curr_runnu};
+
  # check whether to commit current run  
  print "checking whether to submit run: $curr_runnu \n";
- $do_submit = $runnu=~m/$curr_runnu/                   || 
-              $runnu eq "all"                          || 
-              $runnu eq $vld_group_hash{$curr_runnu}   ||
-              $runnu eq $probe_group_hash{$curr_runnu};
+
+ $do_submit = 
+    ( $runnu=~m/$curr_runnu/                 ) || 
+    ( $runnu eq "all"                        ) || 
+    ( $vldgrp=~m/$runnu/                     ) ||
+    ( $probe eq   '22' && $runnu=~m/gamma/   ) ||
+    ( $probe eq  '211' && $runnu=~m/piplus/  ) ||
+    ( $probe eq '-211' && $runnu=~m/piminus/ ) ||
+    ( $probe eq  '111' && $runnu=~m/pi0/     ) ||
+    ( $probe eq  '311' && $runnu=~m/Kplus/   ) ||
+    ( $probe eq '-311' && $runnu=~m/Kminus/  ) ||
+    ( $probe eq '2212' && $runnu=~m/proton/  ) ||
+    ( $probe eq '2112' && $runnu=~m/neutron/ );
 
  if($do_submit) {
     print "** submitting event generation run: $curr_runnu \n";
-    #
-    # get runnu-dependent info
-    #
-    $probe   = $evg_probepdg_hash       {$curr_runnu};
-    $tgt     = $evg_tgtpdg_hash         {$curr_runnu};
-    $ke      = $evg_kinetic_energy_hash {$curr_runnu};
 
     # submit subruns
     for($isubrun = 0; $isubrun < $nsubruns; $isubrun++) {
@@ -308,7 +297,7 @@ for my $curr_runnu (keys %evg_probepdg_hash)  {
 
        # no batch system, run jobs interactively
        if($batch_system eq 'none') {
-          system("source $genie_setup; cd $jobs_dir; export GSEED=$curr_seed; $evgen_cmd; $conv_cmd");
+###          system("source $genie_setup; cd $jobs_dir; export GSEED=$curr_seed; $evgen_cmd; $conv_cmd");
        } # interactive mode
 
     } # loop over subruns
