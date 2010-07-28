@@ -60,7 +60,7 @@
 # PP    : probe  (10:pi+, 11:pi0, 12:pi-, 20:K+, 21:K0, 22:K-, 30:gamma, 40:p, 41:n)
 # TTT   : target (006:C12, 008:O16, 013:Al27, 020:Ca40, 026:Fe56: 028:Ni58, 082:Pb208)
 # EEEEE : kinetic energy (MeV)
-# MM    : physics model enumeration, default: 00
+# MM    : physics model enumeration, default: 01
 # xx    : sub-run ID, 00-99, 100k events each
 #
 #.......................................................................................
@@ -84,6 +84,10 @@
 # 4002000800MMxx   | p     + Ca40     |   0.800      | 1.0M  | mcgill                  | 
 # 1008200220MMxx   | pi+   + Pb208    |   0.220      | 1.0M  | levenson                | 
 #.......................................................................................
+#
+# OUTPUTS:
+#  - gntp.<inuke_mode>.<PPTTTEEEEEMMxx>.ghep.root   GHEP event file
+#  - gntp.<inuke_mode>.<PPTTTEEEEEMMxx>.ginuke.root GINUKE summary/analysis ntuple
 #
 
 use File::Path;
