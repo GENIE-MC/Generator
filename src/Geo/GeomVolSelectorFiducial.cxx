@@ -159,10 +159,8 @@ Bool_t GeomVolSelectorFiducial::NewStepPairs(Double_t raydist,
 //___________________________________________________________________________
 void GeomVolSelectorFiducial::BeginPSList(const PathSegmentList* untrimmed) const
 {
-  LOG("GeomVolSel", pNOTICE)
-    << "GeomVolSelectorFiducial::BeginPSList getting started";
-
   // A new neutrino ray has been set, calculate the entrance/exit distances.
+
   GeomVolSelectorBasic::BeginPSList(untrimmed);  // initialize base class in case it is needed
 
   fCurrPathSegmentList = untrimmed;
