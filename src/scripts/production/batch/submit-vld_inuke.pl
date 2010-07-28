@@ -297,7 +297,7 @@ for my $curr_runnu (keys %evg_probepdg_hash)  {
 
        # no batch system, run jobs interactively
        if($batch_system eq 'none') {
-###          system("source $genie_setup; cd $jobs_dir; export GSEED=$curr_seed; $evgen_cmd; $conv_cmd");
+          system("source $genie_setup; cd $jobs_dir; export GSEED=$curr_seed; $evgen_cmd; $conv_cmd");
        } # interactive mode
 
     } # loop over subruns
