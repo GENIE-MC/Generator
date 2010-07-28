@@ -122,7 +122,7 @@ void genie::utils::print::PrintBanner(void)
 // loads & prints the GENIE banner
 
   string base_dir = string(gSystem->Getenv("GENIE"));
-  string filename = base_dir + string("/data/banner/BANNER.txt");
+  string filename = base_dir + string("/data/logo/genie_banner_long.txt");
 
   ifstream banner(filename.c_str(), ios::in);
 
