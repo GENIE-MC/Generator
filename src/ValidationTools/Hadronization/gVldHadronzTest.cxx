@@ -53,15 +53,11 @@
 #include <vector>
 #include <string>
 
-#include <TROOT.h>
-#include <TStyle.h>
-#include <TColor.h>
-
 #include "Messenger/Messenger.h"
 #include "Utils/StringUtils.h"
+#include "Utils/Style.h"
 #include "Utils/VldTestInputs.h"
-#include "Utils/CmdLineArgParserUtils.h"
-#include "Utils/CmdLineArgParserException.h"
+#include "Utils/CmdLnArgParser.h"
 #include "ValidationTools/Hadronization/HadPlots.h"
 #include "ValidationTools/Hadronization/HadPlotter.h"
 
@@ -72,7 +68,6 @@ using namespace genie::utils::vld;
 using namespace genie::vld_hadronization;
 
 // prototypes
-void SetStyle              (bool bw=false);
 void LoadFilesAndBookPlots (void);
 void Analyze               (void);
 void Plot                  (void);
@@ -89,7 +84,7 @@ int                gFmt = 1;
 int main(int argc, char ** argv)
 {
   GetCommandLineArgs(argc, argv);
-  SetStyle();
+  style::SetDefaultStyle();
   LoadFilesAndBookPlots();
   Analyze();
   Plot();
@@ -98,124 +93,6 @@ int main(int argc, char ** argv)
   LOG("vldtest", pNOTICE) << "Done!";
 
   return 0;
-}
-//____________________________________________________________________________
-void SetStyle(bool bw)
-{
-  gROOT->SetStyle("Plain");
-
-  gStyle -> SetPadTickX (1);
-  gStyle -> SetPadTickY (1);
-
-  // Turn off all borders
-  //
-  gStyle -> SetCanvasBorderMode (0);
-  gStyle -> SetFrameBorderMode  (0);
-  gStyle -> SetPadBorderMode    (0);
-  gStyle -> SetDrawBorder       (0);
-  gStyle -> SetCanvasBorderSize (0);
-  gStyle -> SetFrameBorderSize  (0);
-  gStyle -> SetPadBorderSize    (0);
-  gStyle -> SetTitleBorderSize  (0);
-
-  // Set the size of the default canvas
-  //
-  gStyle -> SetCanvasDefH (600);
-  gStyle -> SetCanvasDefW (730);
-  gStyle -> SetCanvasDefX  (10);
-  gStyle -> SetCanvasDefY  (10);
-
-  // Set marker style
-  //
-  gStyle -> SetMarkerStyle (20);
-  gStyle -> SetMarkerSize   (1);
-
-  // Set line widths
-  //
-  gStyle -> SetFrameLineWidth (1);
-  gStyle -> SetFuncWidth      (2);
-  gStyle -> SetHistLineWidth  (3);
-  gStyle -> SetFuncColor      (2);
-  gStyle -> SetFuncWidth      (3);
-
-  // Set margins 
-  //
-  gStyle -> SetPadTopMargin    (0.10);
-  gStyle -> SetPadBottomMargin (0.20);
-  gStyle -> SetPadLeftMargin   (0.15);
-  gStyle -> SetPadRightMargin  (0.03);
-
-  // Set tick marks and turn off grids
-  //
-  gStyle -> SetNdivisions (505,"xyz");
-
-  // Adjust size and placement of axis labels
-  //
-  gStyle -> SetLabelSize   (0.050,  "xyz");
-  gStyle -> SetLabelOffset (0.005,  "x"  );
-  gStyle -> SetLabelOffset (0.005,  "y"  );
-  gStyle -> SetLabelOffset (0.005,  "z"  );
-  gStyle -> SetTitleSize   (0.060,  "xyz");
-  gStyle -> SetTitleOffset (1.200,  "xz" );
-  gStyle -> SetTitleOffset (1.000,  "y"  );
-
-  // Set Data/Stat/... and other options
-  //
-  gStyle -> SetOptDate          (0);
-  gStyle -> SetOptFile          (0);
-  gStyle -> SetOptStat          (0);
-  gStyle -> SetStatFormat       ("6.2f");
-  gStyle -> SetFitFormat        ("8.4f");
-  gStyle -> SetOptFit           (1);
-  gStyle -> SetStatH            (0.20);
-  gStyle -> SetStatStyle        (0);
-  gStyle -> SetStatW            (0.30);
-  gStyle -> SetStatX            (0.845);
-  gStyle -> SetStatY            (0.845);
-  gStyle -> SetOptTitle         (0);
-  gStyle -> SetTitleX           (0.15);
-  gStyle -> SetTitleW           (0.75);
-  gStyle -> SetTitleY           (0.90);
-  gStyle -> SetPalette          (1);
-  gStyle -> SetLegendBorderSize (0);
-
-
-  // Set paper size for life in the US or EU
-  //
-  gStyle -> SetPaperSize (TStyle::kA4);       //<-- tartes aux fraises
-//gStyle -> SetPaperSize (TStyle::kUSLetter); //<-- donuts
-
-  // In B&W (papers)
-  //
-  if(bw){
-    const int ncol = 7;
-
-    double red   [ncol];
-    double green [ncol];
-    double blue  [ncol];
-    double stops [ncol];
-
-    double dcol = -1/double(ncol);
-    double gray = 1;
-    for (int j = 0; j < ncol; j++) {
-      // Define color with RGB equal to : gray, gray, gray
-      stops[j] = double(j)/double(ncol-1);
-      red  [j] = gray;
-      blue [j] = gray;
-      green[j] = gray;
-      
-      gray += dcol;
-    }
-    UInt_t totcol=50;
-    TColor::CreateGradientColorTable(ncol,stops,red,green,blue,totcol); 
-
-    gStyle -> SetFuncWidth     (1);
-    gStyle -> SetHistLineWidth (1);
-    gStyle -> SetFuncColor     (1);
-    gStyle -> SetFuncWidth     (1);
-  }//bw
-
-  gROOT->ForceStyle();
 }
 //____________________________________________________________________________
 void LoadFilesAndBookPlots(void)
@@ -295,45 +172,44 @@ void End(void)
 //____________________________________________________________________________
 void GetCommandLineArgs(int argc, char** argv)
 {
+  CmdLnArgParser parser(argc,argv);
+
   // help?
-  bool help = genie::utils::clap::CmdLineArgAsBool(argc,argv,'h');
+  bool help = parser.OptionExists('h');
   if(help) {
       PrintSyntax();
       exit(0);
   }
 
   // get GENIE inputs
-  try {
-     string inputs = utils::clap::CmdLineArgAsString(argc,argv,'g');
+  if(parser.OptionExists('g')) {
+     string inputs = parser.ArgAsString('g');
      bool ok = gOptGenieInputs.LoadFromFile(inputs);
      if(!ok) { 
-        LOG("gvldtest", pFATAL) << "Could not read: " << inputs;
+        LOG("gvldtest", pFATAL) 
+          << "Could not read validation program inputs from: " << inputs;
+        PrintSyntax();
+        gAbortingInErr=true;
         exit(1);
      }
-  } catch(exceptions::CmdLineArgParserException e) {
-     if(!e.ArgumentFound()) {
-     }
-  }
+  } 
 
   // output plot format
-  try {
-     int format = utils::clap::CmdLineArgAsInt(argc,argv,'f');
+  if(parser.OptionExists('f')) {
+     int format = parser.ArgAsInt('f');
      if(format==0 || format==1) {
        gFmt=format;
-     }
-  } catch(exceptions::CmdLineArgParserException e) {
-     if(!e.ArgumentFound()) {
      }
   }
 
   if(gOptGenieInputs.NModels()==0) {
-    LOG("gvldtest", pFATAL) << "Not input model data to analyze";
+    LOG("gvldtest", pFATAL) << "** No input model data to analyze";
+    gAbortingInErr=true;
     exit(1);
   }
 
   LOG("gvldtest", pFATAL) << "Input data: ";  
   LOG("gvldtest", pFATAL) << gOptGenieInputs;
-
 }
 //____________________________________________________________________________
 void PrintSyntax(void)
