@@ -22,6 +22,7 @@
 #pragma link C++ namespace genie::utils::prem;
 #pragma link C++ namespace genie::utils::gsl;
 #pragma link C++ namespace genie::utils::system;
+#pragma link C++ namespace genie::utils::style;
 #pragma link C++ namespace genie::utils::vld;
 
 #pragma link C++ class genie::Cache;
