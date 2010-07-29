@@ -1,0 +1,36 @@
+#
+# Observable : K+ multiplicity ratio RhA (Kr/deuterium) as a function of momentum transfer Q2, electron scattering, E = 27.6 GeV
+# Source     : The HERMES Collaboration, Nuclear Physics B 780 (2007) 1-27, Fig. 2 (middle right, green markers)
+# Digitizer  : Athans Chatzikoutelis, Lancaster Univ.
+#
+# Q2        RhA      RhA+dRhA    RhA-dRhA
+# (GeV^2)
+  1.24      0.89     0.91        0.86
+  1.74      0.89     0.91        0.86
+  2.45      0.91     0.93        0.88
+  3.46      0.92     0.94        0.89
+  4.46      0.95     0.98        0.91
+  5.46      0.92     0.96        0.88
+  6.76      0.88     0.91        0.84
+  9.45      0.80     0.84        0.76
+														
+														
+														
+														
+														
+														
+														
+														
+														
+														
+														
+														
+														
+														
+														
+														
+														
+														
+														
+														
+														

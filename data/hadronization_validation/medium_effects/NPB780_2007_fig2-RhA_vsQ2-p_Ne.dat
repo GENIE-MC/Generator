@@ -1,0 +1,16 @@
+#
+# Observable : proton multiplicity ratio RhA (Ne/deuterium) as a function of momentum transfer Q2, electron scattering, E = 27.6 GeV
+# Source     : The HERMES Collaboration, Nuclear Physics B 780 (2007) 1-27, Fig. 2 (bottom right, black markers)
+# Digitizer  : Athans Chatzikoutelis, Lancaster Univ.
+#
+# Q2        RhA      RhA+dRhA    RhA-dRhA
+# (GeV^2)
+  1.24      1.006    1.03        0.98
+  1.73      1.007    1.06        0.96
+  2.45      1.007    1.04        0.98
+  3.45      1.006    1.05        0.98
+  4.46      1.007    1.03        0.97
+  5.45      0.988    0.99        0.95
+  6.78      1.042    1.09        1.00
+  9.37      0.982    1.04        0.94
+
