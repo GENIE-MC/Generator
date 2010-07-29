@@ -72,7 +72,7 @@
 #include <TSystem.h>
 #include <TFile.h>
 #include <TDirectory.h>
-#include <TGraph.h>
+#include <TGraphAsymmErrors.h>
 #include <TPostScript.h>
 #include <TH1D.h>
 #include <TMath.h>
@@ -88,9 +88,9 @@
 #include "Messenger/Messenger.h"
 #include "PDG/PDGUtils.h"
 #include "PDG/PDGCodes.h"
-#include "Utils/CmdLineArgParserUtils.h"
-#include "Utils/CmdLineArgParserException.h"
+#include "Utils/CmdLnArgParser.h"
 #include "Utils/StringUtils.h"
+#include "Utils/Style.h"
 #include "Utils/VldTestInputs.h"
 
 using std::ostringstream;
@@ -103,41 +103,85 @@ using namespace genie::utils::vld;
 ..............................................................................
 DATA
 ..............................................................................
-ID   DESCRIPTION
- 0   bla bla
-..............................................................................
 */
-const int    kNDataSets = 1;
+const int    kNDataSets = 12;
 const char * kDataSetLabel[kNDataSets] = {
-/* 0 */ "bla bla",
+/*  0 */ "pi+ multiplicity ratio (He/D) vs Q2 - HERMES / 27.6 GeV",
+/*  1 */ "K+  multiplicity ratio (He/D) vs Q2 - HERMES / 27.6 GeV",
+/*  2 */ "p   multiplicity ratio (He/D) vs Q2 - HERMES / 27.6 GeV",
+/*  3 */ "pi+ multiplicity ratio (Ne/D) vs Q2 - HERMES / 27.6 GeV",
+/*  4 */ "K+  multiplicity ratio (Ne/D) vs Q2 - HERMES / 27.6 GeV",
+/*  5 */ "p   multiplicity ratio (Ne/D) vs Q2 - HERMES / 27.6 GeV",
+/*  6 */ "pi+ multiplicity ratio (Kr/D) vs Q2 - HERMES / 27.6 GeV",
+/*  7 */ "K+  multiplicity ratio (Kr/D) vs Q2 - HERMES / 27.6 GeV",
+/*  8 */ "p   multiplicity ratio (Kr/D) vs Q2 - HERMES / 27.6 GeV",
+/*  9 */ "pi+ multiplicity ratio (Xe/D) vs Q2 - HERMES / 27.6 GeV",
+/* 10 */ "K+  multiplicity ratio (Xe/D) vs Q2 - HERMES / 27.6 GeV",
+/* 11 */ "p   multiplicity ratio (Xe/D) vs Q2 - HERMES / 27.6 GeV"
 //
 // add more
 //
 };
 const char * kDataSetXAxisLabel[kNDataSets] = {
-/* 0 */ "??",
+/*  0 */ "Q2 (GeV^{2})",
+/*  1 */ "Q2 (GeV^{2})",
+/*  2 */ "Q2 (GeV^{2})",
+/*  3 */ "Q2 (GeV^{2})",
+/*  4 */ "Q2 (GeV^{2})",
+/*  5 */ "Q2 (GeV^{2})",
+/*  6 */ "Q2 (GeV^{2})",
+/*  7 */ "Q2 (GeV^{2})",
+/*  8 */ "Q2 (GeV^{2})",
+/*  9 */ "Q2 (GeV^{2})",
+/* 10 */ "Q2 (GeV^{2})",
+/* 11 */ "Q2 (GeV^{2})"
 //
 // add more
 //
 };
 const char * kDataSetYAxisLabel[kNDataSets] = {
-/* 0 */ "??",
+/*  0 */ "R_{#pi^{+}} (He/D)",
+/*  1 */ "R_{K^{+}} (He/D)",
+/*  2 */ "R_{p} (He/D)",
+/*  3 */ "R_{#pi^{+}} (Ne/D)",
+/*  4 */ "R_{K^{+}} (Ne/D)",
+/*  5 */ "R_{p} (Ne/D)",
+/*  6 */ "R_{#pi^{+}} (Kr/D)",
+/*  7 */ "R_{K^{+}} (Kr/D)",
+/*  8 */ "R_{p} (Kr/D)",
+/*  9 */ "R_{#pi^{+}} (Xe/D)",
+/* 10 */ "R_{K^{+}} (Xe/D)",
+/* 11 */ "R_{p} (Xe/D)"
 //
 // add more
 //
 };
+const char * kDigitizedDataFile[kNDataSets] = {
+/*  0 */ "NPB780_2007_fig2-RhA_vsQ2-pi+_He.dat",
+/*  1 */ "NPB780_2007_fig2-RhA_vsQ2-K+_He.dat",
+/*  2 */ "NPB780_2007_fig2-RhA_vsQ2-p_He.dat",
+/*  3 */ "NPB780_2007_fig2-RhA_vsQ2-pi+_Ne.dat",
+/*  4 */ "NPB780_2007_fig2-RhA_vsQ2-K+_Ne.dat",
+/*  5 */ "NPB780_2007_fig2-RhA_vsQ2-p_Ne.dat",
+/*  6 */ "NPB780_2007_fig2-RhA_vsQ2-pi+_Kr.dat",
+/*  7 */ "NPB780_2007_fig2-RhA_vsQ2-K+_Kr.dat",
+/*  8 */ "NPB780_2007_fig2-RhA_vsQ2-p_Kr.dat",
+/*  9 */ "NPB780_2007_fig2-RhA_vsQ2-pi+_Xe.dat",
+/* 10 */ "NPB780_2007_fig2-RhA_vsQ2-K+_Xe.dat",
+/* 11 */ "NPB780_2007_fig2-RhA_vsQ2-p_Xe.dat"
+};
 
 // function prototypes
-void     Init               (void);
-void     Run                (void);
-void     End                (void);
-void     AddCoverPage       (void);
-TGraph * Data               (int iset);
-TGraph * Model              (int iset, int imodel);
-void     Draw               (int iset);
-void     Format             (TGraph* gr, int lcol, int lsty, int lwid, int mcol, int msty, double msiz);
-void     GetCommandLineArgs (int argc, char ** argv);
-void     PrintSyntax        (void);
+void               Init               (void);
+void               Run                (void);
+void               End                (void);
+void               AddCoverPage       (void);
+TGraphAsymmErrors* Data               (int iset);
+TGraph *           Model              (int iset, int imodel);
+void               Draw               (int iset);
+void               Format             (TGraph* gr, int lcol, int lsty, int lwid, int mcol, int msty, double msiz);
+void               GetCommandLineArgs (int argc, char ** argv);
+void               PrintSyntax        (void);
 
 // command-line arguments
 VldTestInputs  gOptGenieInputs;
@@ -164,6 +208,8 @@ string    kLStyleTxt [kNMaxNumModels] = {
 int main(int argc, char ** argv)
 {
   GetCommandLineArgs (argc,argv);
+
+  utils::style::SetDefaultStyle();
 
   Init();
   Run ();
@@ -278,12 +324,50 @@ TGraph * Model(int iset, int imodel)
   return 0;
 }
 //_________________________________________________________________________________
-TGraph * Data(int iset)
+TGraphAsymmErrors * Data(int iset)
 {
   LOG("vldtest", pNOTICE) 
     << "Loading experimental data set ID = " << iset;
 
-  return 0;
+  ostringstream filename;
+  filename << gSystem->Getenv("GENIE")
+           << "/data/hadronization_validation/medium_effects/"
+           << kDigitizedDataFile[iset];
+
+  LOG("vldtest", pNOTICE) 
+    << "Reading from data file: " << filename.str().c_str();
+
+  TTree digitized_data;
+  digitized_data.ReadFile(filename.str().c_str(), "Q2/D:R/D:Rp/D:Rm/D");
+
+  digitized_data.Draw("Q2:R:Rp:Rm","","GOFF");
+
+  const int n = digitized_data.GetSelectedRows();
+  double * Q2  = new double[n];
+  double * R   = new double[n];
+  double * dRp = new double[n];
+  double * dRm = new double[n];
+  for(int i=0; i<n; i++) {
+    Q2 [i] = digitized_data.GetV1()[i];
+    R  [i] = digitized_data.GetV2()[i];
+    dRp[i] = TMath::Abs(R[i] - digitized_data.GetV3()[i]);
+    dRm[i] = TMath::Abs(R[i] - digitized_data.GetV4()[i]);
+
+    LOG("vldtest", pNOTICE) 
+       << "Q2 =  " << Q2[i] << " GeV^2 -> "
+       << "RA = " << R[i] << " +" << dRp[i] << " -" << dRm[i];
+  }
+
+  TGraphAsymmErrors * gr = new TGraphAsymmErrors(n,Q2,R,0,0,dRp,dRm);
+
+  Format(gr, kBlack, kSolid, 1, kBlack, 20, 1.5);
+
+  delete [] Q2;
+  delete [] R;
+  delete [] dRp;
+  delete [] dRm;
+
+  return gr;
 }
 //_________________________________________________________________________________
 void Draw(int iset)
@@ -398,18 +482,21 @@ void GetCommandLineArgs(int argc, char ** argv)
 {
   LOG("gvldtest", pNOTICE) << "*** Parsing command line arguments";
 
+  CmdLnArgParser parser(argc,argv);
+
   // get GENIE inputs
-  try {
-     string inputs = utils::clap::CmdLineArgAsString(argc,argv,'g');
+  if(parser.OptionExists('g')) {
+     string inputs = parser.ArgAsString('g');
      bool ok = gOptGenieInputs.LoadFromFile(inputs);
      if(!ok) {
-        LOG("gvldtest", pFATAL) << "Could not read: " << inputs;
+        LOG("gvldtest", pFATAL) 
+           << "Could not read your validation program inputs from: " << inputs;
+        gAbortingInErr = true;
         exit(1);
      }
-  } catch(exceptions::CmdLineArgParserException e) {
-     if(!e.ArgumentFound()) {
-
-     }
+  } else {
+     LOG("gvldtest", pNOTICE) << " *** You didn't specify any GENIE MC outputs!";
+     LOG("gvldtest", pNOTICE) << " *** Will plot only digitized expt data";
   }
 }
 //_________________________________________________________________________________
@@ -417,7 +504,7 @@ void PrintSyntax(void)
 {
   LOG("gvldtest", pNOTICE)
     << "\n\n" << "Syntax:" << "\n"
-    << "   gvld_hadronization_medium_effect_test [-g genie_inputs.xml]\n";
+    << "  gvld_hadroatten_test [-g genie_inputs.xml]\n";
 }
 //_________________________________________________________________________________
 

@@ -18,7 +18,8 @@ HADRONZ_TEST_OBJECTS    = $(addsuffix .$(ObjSuf), $(basename $(HADRONZ_TEST_SOUR
 HADROATTEN_TEST_SOURCES := gVldHadroAttenTest.cxx
 HADROATTEN_TEST_OBJECTS  = $(addsuffix .$(ObjSuf), $(basename $(HADROATTEN_TEST_SOURCES)))
 
-all: gVldHadronzTest
+all:    gVldHadronzTest \
+	gVldHadroAttenTest
 
 gVldHadronzTest: FORCE
 	$(CXX) $(CXXFLAGS) -c $(HADRONZ_TEST_SOURCES) $(INCLUDES)
