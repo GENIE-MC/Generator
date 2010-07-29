@@ -21,16 +21,18 @@ all: $(TGT)
 
 gSKMergeData: FORCE
 	$(CXX) $(CXXFLAGS) -c gSKMergeData.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) gSKMergeData.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gSKmergedata
+	$(LD) $(LDFLAGS) gSKMergeData.o $(LIBRARIES) -o gSKmergedata
+#	$(LD) $(LDFLAGS) gSKMergeData.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gSKmergedata
 
 purge: FORCE
 	$(RM) *.o *~ core 
 
 clean: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gSKmergedata
+	$(RM) *.o *~ core gSKmergedata
+#	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gSKmergedata
 
 distclean: FORCE
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gSKmergedata
+#	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gSKmergedata
 
 FORCE:
 
