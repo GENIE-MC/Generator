@@ -13,7 +13,7 @@
          Options:
 
           -f  A ROOT file containing a ROOT/GEANT geometry description
-              [default: $GENIE/src/test/data/GeometryLArPbBox.root]
+              [default: $GENIE/data/geo/samples/BoxWithLArPbLayers.root]
           -n  Number of vertices to generate
           -d  Direction of generated rays (dirx,diry,dirz) 
               [default: 1,0,0 - along x]
@@ -39,12 +39,12 @@
             
           gtestROOTGeometry -n 20000 -d 1,0,0 -s -10,0,0 -r 10 -p 1000180400
 
-          will take the default (test) geometry included in GENIE (and located
-          in $GENIE/src/test/data/GeometryLArPbBox.root) and generate 20k 
-          vertices in Ar40 (pdg=1000180400) only, using rays (flux) generated
-          uniformly (in area) within a circle of radius = 10 m (that is units 
-          of that input geometry), centered ay (-10m,0m,0m) and perpendicular
-          to the ray direction (1,0,0)
+          will take a test geom ($GENIE/data/geo/samples/BoxWithLArPbLayers.root)
+          and generate 20k vertices in Ar40 (pdg=1000180400) only, using rays 
+          (flux) generated uniformly (in area) within a circle of radius = 10
+          (in units of that input geometry, m in this case), centered at 
+          (-10,0,0) (see prev comment on units) and perpendicular to the ray 
+          direction (1,0,0).
 
 \Author  Anselmo Meregaglia <anselmo.meregaglia@cern.ch>
          ETH Zurich
@@ -275,7 +275,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   } else {
     string base_dir = string( gSystem->Getenv("GENIE") );
     string filename = base_dir + 
-          string("/src/test/data/GeometryLArPbBox.root");
+          string("/data/geo/samples/BoxWithLArPbLayers.root");
     gOptGeomFile = filename;
   }
 
