@@ -60,6 +60,7 @@
 #include "PDG/PDGUtils.h"
 #include "PDG/PDGCodes.h"
 #include "Utils/CmdLnArgParser.h"
+#include "Utils/Style.h"
 
 using std::ostringstream;
 using std::string;
@@ -81,6 +82,7 @@ string   gOptInpFileRef  = ""; // (-r) input GENIE event sample file (reference)
 int main(int argc, char ** argv)
 {
   GetCommandLineArgs(argc,argv);
+  utils::style::SetDefaultStyle();
   CreatePlots(gOptInpFile,gOptInpFileRef);
   
   LOG("gvldtest", pINFO)  << "Done!";
