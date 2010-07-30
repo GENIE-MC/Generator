@@ -106,18 +106,18 @@ DATA
 */
 const int    kNDataSets = 12;
 const char * kDataSetLabel[kNDataSets] = {
-/*  0 */ "pi+ multiplicity ratio (He/D) vs Q2 - HERMES / 27.6 GeV",
-/*  1 */ "K+  multiplicity ratio (He/D) vs Q2 - HERMES / 27.6 GeV",
-/*  2 */ "p   multiplicity ratio (He/D) vs Q2 - HERMES / 27.6 GeV",
-/*  3 */ "pi+ multiplicity ratio (Ne/D) vs Q2 - HERMES / 27.6 GeV",
-/*  4 */ "K+  multiplicity ratio (Ne/D) vs Q2 - HERMES / 27.6 GeV",
-/*  5 */ "p   multiplicity ratio (Ne/D) vs Q2 - HERMES / 27.6 GeV",
-/*  6 */ "pi+ multiplicity ratio (Kr/D) vs Q2 - HERMES / 27.6 GeV",
-/*  7 */ "K+  multiplicity ratio (Kr/D) vs Q2 - HERMES / 27.6 GeV",
-/*  8 */ "p   multiplicity ratio (Kr/D) vs Q2 - HERMES / 27.6 GeV",
-/*  9 */ "pi+ multiplicity ratio (Xe/D) vs Q2 - HERMES / 27.6 GeV",
-/* 10 */ "K+  multiplicity ratio (Xe/D) vs Q2 - HERMES / 27.6 GeV",
-/* 11 */ "p   multiplicity ratio (Xe/D) vs Q2 - HERMES / 27.6 GeV"
+/*  0 */ "pi+ multiplicity ratio (He/D) vs Q2 / HERMES / 27.6 GeV",
+/*  1 */ "K+  multiplicity ratio (He/D) vs Q2 / HERMES / 27.6 GeV",
+/*  2 */ "p   multiplicity ratio (He/D) vs Q2 / HERMES / 27.6 GeV",
+/*  3 */ "pi+ multiplicity ratio (Ne/D) vs Q2 / HERMES / 27.6 GeV",
+/*  4 */ "K+  multiplicity ratio (Ne/D) vs Q2 / HERMES / 27.6 GeV",
+/*  5 */ "p   multiplicity ratio (Ne/D) vs Q2 / HERMES / 27.6 GeV",
+/*  6 */ "pi+ multiplicity ratio (Kr/D) vs Q2 / HERMES / 27.6 GeV",
+/*  7 */ "K+  multiplicity ratio (Kr/D) vs Q2 / HERMES / 27.6 GeV",
+/*  8 */ "p   multiplicity ratio (Kr/D) vs Q2 / HERMES / 27.6 GeV",
+/*  9 */ "pi+ multiplicity ratio (Xe/D) vs Q2 / HERMES / 27.6 GeV",
+/* 10 */ "K+  multiplicity ratio (Xe/D) vs Q2 / HERMES / 27.6 GeV",
+/* 11 */ "p   multiplicity ratio (Xe/D) vs Q2 / HERMES / 27.6 GeV"
 //
 // add more
 //
@@ -177,9 +177,8 @@ void               Run                (void);
 void               End                (void);
 void               AddCoverPage       (void);
 TGraphAsymmErrors* Data               (int iset);
-TGraph *           Model              (int iset, int imodel);
+TH1D *             Model              (int iset, int imodel);
 void               Draw               (int iset);
-void               Format             (TGraph* gr, int lcol, int lsty, int lwid, int mcol, int msty, double msiz);
 void               GetCommandLineArgs (int argc, char ** argv);
 void               PrintSyntax        (void);
 
@@ -209,12 +208,10 @@ int main(int argc, char ** argv)
 {
   GetCommandLineArgs (argc,argv);
 
-  utils::style::SetDefaultStyle();
-
   Init();
   Run ();
   End ();
-
+  
   LOG("gvldtest", pINFO)  << "Done!";
   return 0;
 }
@@ -231,6 +228,8 @@ void Run(void)
 void Init(void)
 {
   LOG("vldtest", pNOTICE) << "Initializing...";;
+
+  utils::style::SetDefaultStyle();
 
   gC = new TCanvas("c","",20,20,500,650);
   gC->SetBorderMode(0);
@@ -280,7 +279,7 @@ void End(void)
 //_________________________________________________________________________________
 // Corresponding GENIE prediction for the `iset' data set 
 //.................................................................................
-TGraph * Model(int iset, int imodel)
+TH1D* Model(int iset, int imodel)
 {
   LOG("vldtest", pNOTICE) 
     << "Getting GENIE prediction (model ID = " 
@@ -293,35 +292,71 @@ TGraph * Model(int iset, int imodel)
      return 0;
   }
 
+  const int    nbins = 20;
+  const double Q2min =  0;
+  const double Q2max = 10;
+
+  TH1D * RhA = new TH1D("RhA","",nbins,Q2min,Q2max);
+  TH1D * yD  = new TH1D("yD", "",nbins,Q2min,Q2max);
+
   switch(iset) {
 
+    //
+    // Data sets 0-11
+    // Cuts: v > 6 GeV, z > 0.2, xF > 0
+    //
+
+    // pi+ multiplicity ratio (He/D) vs Q2 - HERMES / 27.6 GeV
     case (0) :
     {
-      //
-      // do calculation
-      //
+      event_chain->Draw("Q2>>yD", "nfpip*((abs(Ev-27.6)<0.01)&&(Z==1)&&(A==2)&&(Ev-El>6.)&&(Ef/(y*Ev)>0.2)&&(pdgf==211))","goff");
+      LOG("vldtest", pNOTICE) 
+        << "Used " << event_chain->GetSelectedRows() << " entries";
+      event_chain->Draw("Q2>>RhA","nfpip*((abs(Ev-27.6)<0.01)&&(Z==2)&&(A==4)&&(Ev-El>6.)&&(Ef/(y*Ev)>0.2)&&(pdgf==211))","goff");
+      LOG("vldtest", pNOTICE) 
+        << "Used " << event_chain->GetSelectedRows() << " entries";
+      RhA->Divide(yD);
       break;
     }
 
+    // K+  multiplicity ratio (He/D) vs Q2 - HERMES / 27.6 GeV
     case (1) :
     {
-      //
-      // do calculation
-      //
+      event_chain->Draw("Q2>>yD",  "nfkp *(abs(Ev-27.6)<0.01&&Z==1&&A==2)","goff");
+      event_chain->Draw("Q2>>RhA", "nfkp *(abs(Ev-27.6)<0.01&&Z==2&&A==4)","goff");
+      RhA->Divide(yD);
+      break;
+    }
+
+    // p   multiplicity ratio (He/D) vs Q2 - HERMES / 27.6 GeV
+    case (2) :
+    {
+      event_chain->Draw("Q2>>yD",  "nfp  *(abs(Ev-27.6)<0.01&&Z==1&&A==2)","goff");
+      event_chain->Draw("Q2>>RhA", "nfp  *(abs(Ev-27.6)<0.01&&Z==2&&A==4)","goff");
+      RhA->Divide(yD);
       break;
     }
 
     //
     // add more
     //
+    // pi+ multiplicity ratio (Ne/D) vs Q2 - HERMES / 27.6 GeV
+    // K+  multiplicity ratio (Ne/D) vs Q2 - HERMES / 27.6 GeV
+    // p   multiplicity ratio (Ne/D) vs Q2 - HERMES / 27.6 GeV
+    // pi+ multiplicity ratio (Kr/D) vs Q2 - HERMES / 27.6 GeV
+    // K+  multiplicity ratio (Kr/D) vs Q2 - HERMES / 27.6 GeV
+    // p   multiplicity ratio (Kr/D) vs Q2 - HERMES / 27.6 GeV
+    // pi+ multiplicity ratio (Xe/D) vs Q2 - HERMES / 27.6 GeV
+    // K+  multiplicity ratio (Xe/D) vs Q2 - HERMES / 27.6 GeV
+    // p   multiplicity ratio (Xe/D) vs Q2 - HERMES / 27.6 GeV
 
     default:
     {
-       return 0;
+
     }
   }
 
-  return 0;
+  return RhA;
 }
 //_________________________________________________________________________________
 TGraphAsymmErrors * Data(int iset)
@@ -360,7 +395,7 @@ TGraphAsymmErrors * Data(int iset)
 
   TGraphAsymmErrors * gr = new TGraphAsymmErrors(n,Q2,R,0,0,dRp,dRm);
 
-  Format(gr, kBlack, kSolid, 1, kBlack, 20, 1.5);
+  utils::style::Format(gr, kBlack, kSolid, 1, kBlack, 20, 1.5);
 
   delete [] Q2;
   delete [] R;
@@ -376,9 +411,10 @@ void Draw(int iset)
   TGraph * data = Data(iset);
 
   // get the corresponding GENIE model prediction
-  vector<TGraph*> models;
+  vector<TH1D*> models;
   for(int imodel=0; imodel< gOptGenieInputs.NModels(); imodel++) {
-     models.push_back(Model(iset,imodel));
+    TH1D * h = Model(iset,imodel);
+    models.push_back(h);
   }
 
   if(models.size()==0 && !data) return;
@@ -423,23 +459,13 @@ void Draw(int iset)
 
   // have model prediction to plot?
   if(models.size()>0) {
-     if(!have_frame) {
-        // the data points have not been plotted
-        // create a frame from this graph range
-        xmin  = ( models[0]->GetX() )[TMath::LocMin(models[0]->GetN(),models[0]->GetX())];
-        xmax  = ( models[0]->GetX() )[TMath::LocMax(models[0]->GetN(),models[0]->GetX())];
-        ymin  = ( models[0]->GetY() )[TMath::LocMin(models[0]->GetN(),models[0]->GetY())];
-        ymax  = ( models[0]->GetY() )[TMath::LocMax(models[0]->GetN(),models[0]->GetY())];
-        hframe = (TH1F*) gC->GetPad(1)->DrawFrame(
-           scale_xmin*xmin, scale_ymin*ymin, scale_xmax*xmax, scale_ymax*ymax);
-        hframe->Draw();
-     }
      for(int imodel=0; imodel<gOptGenieInputs.NModels(); imodel++) {
-       TGraph * plot = models[imodel];
+
+       TH1D * plot = models[imodel];
        if(plot) {
          int lsty = kLStyle[imodel];     
-         Format(plot,1,lsty,2,1,1,1);
-         plot->Draw("L");
+         utils::style::Format(plot,1,lsty,2,1,1,1);
+         plot->Draw("CSAME");
        }
      }
   }//model?
@@ -458,22 +484,6 @@ void Draw(int iset)
   // update    
   gC->GetPad(iplot)->Update();
   gC->Update();
-}
-//_________________________________________________________________________________
-// Formatting
-//.................................................................................
-void Format(
-    TGraph* gr, int lcol, int lsty, int lwid, int mcol, int msty, double msiz)
-{
-  if(!gr) return;
-
-  if (lcol >= 0) gr -> SetLineColor   (lcol);
-  if (lsty >= 0) gr -> SetLineStyle   (lsty);
-  if (lwid >= 0) gr -> SetLineWidth   (lwid);
-
-  if (mcol >= 0) gr -> SetMarkerColor (mcol);
-  if (msty >= 0) gr -> SetMarkerStyle (msty);
-  if (msiz >= 0) gr -> SetMarkerSize  (msiz);
 }
 //_________________________________________________________________________________
 // Parsing command-line arguments, check/form filenames, etc
