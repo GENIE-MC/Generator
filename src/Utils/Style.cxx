@@ -19,6 +19,8 @@
 #include <TROOT.h>
 #include <TStyle.h>
 #include <TColor.h>
+#include <TGraph.h>
+#include <TH1.h>
 
 #include "Utils/Style.h"
 
@@ -147,6 +149,34 @@ void genie::utils::style::SetDefaultStyle(bool black_n_white)
   }//bw
 
   gROOT->ForceStyle();
+}
+//___________________________________________________________________________
+void genie::utils::style::Format(
+   TGraph* gr, int lcol, int lsty, int lwid, int mcol, int msty, double msiz)
+{
+  if(!gr) return;
+
+  if (lcol >= 0) gr -> SetLineColor   (lcol);
+  if (lsty >= 0) gr -> SetLineStyle   (lsty);
+  if (lwid >= 0) gr -> SetLineWidth   (lwid);
+
+  if (mcol >= 0) gr -> SetMarkerColor (mcol);
+  if (msty >= 0) gr -> SetMarkerStyle (msty);
+  if (msiz >= 0) gr -> SetMarkerSize  (msiz);
+}
+//___________________________________________________________________________
+void genie::utils::style::Format(
+     TH1* hst, int lcol, int lsty, int lwid, int mcol, int msty, double msiz)
+{
+  if(!hst) return;
+
+  if (lcol >= 0) hst -> SetLineColor   (lcol);
+  if (lsty >= 0) hst -> SetLineStyle   (lsty);
+  if (lwid >= 0) hst -> SetLineWidth   (lwid);
+
+  if (mcol >= 0) hst -> SetMarkerColor (mcol);
+  if (msty >= 0) hst -> SetMarkerStyle (msty);
+  if (msiz >= 0) hst -> SetMarkerSize  (msiz);
 }
 //___________________________________________________________________________
 
