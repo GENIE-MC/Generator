@@ -19,6 +19,9 @@
 #ifndef _STYLE_UTILS_H_
 #define _STYLE_UTILS_H_
 
+class TGraph;
+class TH1;
+
 namespace genie {
 namespace utils {
 
@@ -26,6 +29,11 @@ namespace style
 {
 
   void SetDefaultStyle(bool black_n_white=false);
+
+  void Format(TGraph* gr, 
+        int lcol, int lsty, int lwid, int mcol, int msty, double msiz);
+  void Format(TH1* hst, 
+        int lcol, int lsty, int lwid, int mcol, int msty, double msiz);
 
 } // style namespace
 } // utils namespace
