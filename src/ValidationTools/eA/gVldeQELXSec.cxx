@@ -111,9 +111,9 @@
 #include "Messenger/Messenger.h"
 #include "PDG/PDGUtils.h"
 #include "PDG/PDGCodes.h"
-#include "Utils/CmdLineArgParserUtils.h"
-#include "Utils/CmdLineArgParserException.h"
+#include "Utils/CmdLnArgParser.h"
 #include "Utils/VldTestInputs.h"
+#include "Utils/Style.h"
 #include "ValidationTools/NuVld/DBI.h"
 #include "ValidationTools/NuVld/DBStatus.h"
 
@@ -130,34 +130,90 @@ using namespace genie::utils::vld;
 QUASI-ELASTIC ELECTRON SCATTERING CROSS SECTION DATA 
 ..............................................................................
 */
-const int    kElXSecDataSets = 1;
+const int    kElXSecDataSets = 12;
 const char * kElXSecDataSetLabel[kElXSecDataSets] = 
 {
-/*  0 */ "16O(e,e') E = 0.7 GeV, #theta = 32^{o}"
+/*  0 */ "C12(e,e') E = 0.620 GeV, #theta = 36.00^{o}",
+/*  1 */ "C12(e,e') E = 0.620 GeV, #theta = 60.00^{o}",
+/*  2 */ "C12(e,e') E = 0.680 GeV, #theta = 36.00^{o}",
+/*  3 */ "C12(e,e') E = 0.680 GeV, #theta = 60.00^{o}",
+/*  4 */ "C12(e,e') E = 0.730 GeV, #theta = 37.10^{o}",
+/*  5 */ "C12(e,e') E = 0.961 GeV, #theta = 37.50^{o}",
+/*  6 */ "C12(e,e') E = 1.108 GeV, #theta = 37.50^{o}",
+/*  7 */ "C12(e,e') E = 1.299 GeV, #theta = 37.50^{o}",
+/*  8 */ "C12(e,e') E = 1.500 GeV, #theta = 11.95^{o}",
+/*  9 */ "C12(e,e') E = 1.500 GeV, #theta = 13.54^{o}",
+/* 10 */ "C12(e,e') E = 1.501 GeV, #theta = 37.50^{o}",
+/* 11 */ "C12(e,e') E = 2.020 GeV, #theta = 20.02^{o}"
 //
 // ... add more
 //
 };
 const char * kElXSecKeyList[kElXSecDataSets] = {
-/*  0 */ "database keys"
+/*  0 */ "database keys - data not in NuVld yet",
+/*  1 */ "database keys - data not in NuVld yet",
+/*  2 */ "database keys - data not in NuVld yet",
+/*  3 */ "database keys - data not in NuVld yet",
+/*  4 */ "database keys - data not in NuVld yet",
+/*  5 */ "database keys - data not in NuVld yet",
+/*  6 */ "database keys - data not in NuVld yet",
+/*  7 */ "database keys - data not in NuVld yet",
+/*  8 */ "database keys - data not in NuVld yet",
+/*  9 */ "database keys - data not in NuVld yet",
+/* 10 */ "database keys - data not in NuVld yet",
+/* 11 */ "database keys - data not in NuVld yet",
+/* 12 */ "database keys - data not in NuVld yet"
 //
 // ... add more
 //
 };
 double kElXSecEnergy[kElXSecDataSets] = {
-/*  0 */ 0.700
+/*  0 */ 0.620,
+/*  1 */ 0.620,
+/*  2 */ 0.680,
+/*  3 */ 0.680,
+/*  4 */ 0.730,
+/*  5 */ 0.961,
+/*  6 */ 1.108,
+/*  7 */ 1.299,
+/*  8 */ 1.500,
+/*  9 */ 1.500,
+/* 10 */ 1.501,
+/* 11 */ 2.020
 //
 // ... add more
 //
 };
 double kElXSecTheta[kElXSecDataSets] = {
-/*  0 */ 32.00,
+/*  0 */ 36.00,
+/*  1 */ 60.00,
+/*  2 */ 36.00,
+/*  3 */ 60.00,
+/*  4 */ 37.10,
+/*  5 */ 37.50,
+/*  6 */ 37.50,
+/*  7 */ 37.50,
+/*  8 */ 11.95,
+/*  9 */ 13.54,
+/* 10 */ 37.50,
+/* 11 */ 20.02
 //
 // ... add more
 //
 };
 int kElXSecTarget[kElXSecDataSets] = {
-/*  0 */ 1000080160
+/*  0 */ 1000060120,
+/*  1 */ 1000060120,
+/*  2 */ 1000060120,
+/*  3 */ 1000060120,
+/*  4 */ 1000060120,
+/*  5 */ 1000060120,
+/*  6 */ 1000060120,
+/*  7 */ 1000060120,
+/*  8 */ 1000060120,
+/*  9 */ 1000060120,
+/* 10 */ 1000060120,
+/* 11 */ 1000060120
 //
 // ... add more
 //
@@ -170,14 +226,12 @@ typedef DBTable<DBElDiffXSecTableRow> DBT; // replace with proper table
 void     Init               (void);
 void     Plot               (void);
 void     End                (void);
-void     SetStyle           (void);
 void     AddCoverPage       (void);
 bool     Connect            (void);
 DBQ      FormQuery          (const char * key_list, double energy, double theta);
 DBT *    Data               (int iset);
 TGraph * Model              (int iset, int imodel);
 void     Draw               (int iset);
-void     Format             (TGraph* gr, int lcol, int lsty, int lwid, int mcol, int msty, double msiz);
 void     GetCommandLineArgs (int argc, char ** argv);
 void     PrintSyntax        (void);
 
@@ -246,7 +300,7 @@ void Init(void)
   LOG("vldtest", pNOTICE) << "Initializing...";
 
   // genie style
-  SetStyle();
+  utils::style::SetDefaultStyle();
 
   // canvas
   gC = new TCanvas("c","",20,20,500,650);
@@ -517,7 +571,7 @@ void Draw(int iset)
 
     MultiGraph * mgraph = dbtable->GetMultiGraph("err","v");
     for(unsigned int igraph = 0; igraph < mgraph->NGraphs(); igraph++) {
-       Format(mgraph->GetGraph(igraph), 1,1,1,1,8,0.8);
+       utils::style::Format(mgraph->GetGraph(igraph), 1,1,1,1,8,0.8);
        mgraph->GetGraph(igraph)->Draw("P");
     }
   }//dbtable?
@@ -535,7 +589,7 @@ void Draw(int iset)
        TGraph * plot = models[imodel];
        if(plot) {
          int lsty = kLStyle[imodel];
-         Format(plot,1,lsty,2,1,1,1);
+         utils::style::Format(plot,1,lsty,2,1,1,1);
          plot->Draw("L");
        }
     }
@@ -555,153 +609,47 @@ void Draw(int iset)
   gC->Update();
 }
 //_________________________________________________________________________________
-// Formatting
-//.................................................................................
-void SetStyle(void)
-{
-  gROOT->SetStyle("Plain");
-  
-  gStyle -> SetPadTickX (1);
-  gStyle -> SetPadTickY (1);
-  
-  // Turn off all borders
-  //
-  gStyle -> SetCanvasBorderMode (0);
-  gStyle -> SetFrameBorderMode  (0);
-  gStyle -> SetPadBorderMode    (0);
-  gStyle -> SetDrawBorder       (0);
-  gStyle -> SetCanvasBorderSize (0);
-  gStyle -> SetFrameBorderSize  (0);
-  gStyle -> SetPadBorderSize    (0);
-  gStyle -> SetTitleBorderSize  (0);
-  
-  // Set the size of the default canvas
-  //
-  gStyle -> SetCanvasDefH (600);
-  gStyle -> SetCanvasDefW (730);
-  gStyle -> SetCanvasDefX  (10);
-  gStyle -> SetCanvasDefY  (10);
-  
-  // Set marker style
-  //
-  gStyle -> SetMarkerStyle (20);
-  gStyle -> SetMarkerSize   (1);
-            
-  // Set line widths
-  //
-  gStyle -> SetFrameLineWidth (1);
-  gStyle -> SetFuncWidth      (2);
-  gStyle -> SetHistLineWidth  (3);
-  gStyle -> SetFuncColor      (2);
-  gStyle -> SetFuncWidth      (3);
-  
-  // Set margins
-  //     
-  gStyle -> SetPadTopMargin    (0.10);
-  gStyle -> SetPadBottomMargin (0.20);
-  gStyle -> SetPadLeftMargin   (0.15);
-  gStyle -> SetPadRightMargin  (0.03);
-   
-  // Set tick marks and turn off grids
-  //
-  gStyle -> SetNdivisions (505,"xyz");
-      
-  // Adjust size and placement of axis labels
-  //                                                                             
-  gStyle -> SetLabelSize   (0.040,  "xyz");
-  gStyle -> SetLabelOffset (0.005,  "x"  );
-  gStyle -> SetLabelOffset (0.005,  "y"  );
-  gStyle -> SetLabelOffset (0.005,  "z"  );
-  gStyle -> SetTitleSize   (0.060,  "xyz");
-  gStyle -> SetTitleOffset (1.200,  "xz" );
-  gStyle -> SetTitleOffset (1.000,  "y"  );
-
-  // Set Data/Stat/... and other options
-  //
-  gStyle -> SetOptDate          (0);
-  gStyle -> SetOptFile          (0);
-  gStyle -> SetOptStat          (0);
-  gStyle -> SetStatFormat       ("6.2f");
-  gStyle -> SetFitFormat        ("8.4f");
-  gStyle -> SetOptFit           (1);
-  gStyle -> SetStatH            (0.20);
-  gStyle -> SetStatStyle        (0);
-  gStyle -> SetStatW            (0.30);
-  gStyle -> SetStatX            (0.845);
-  gStyle -> SetStatY            (0.845);
-  gStyle -> SetOptTitle         (0);
-  gStyle -> SetTitleX           (0.15);
-  gStyle -> SetTitleW           (0.75);
-  gStyle -> SetTitleY           (0.90);
-  gStyle -> SetPalette          (1);
-  gStyle -> SetLegendBorderSize (0);
-
-  // Set paper size for life in the US or EU
-  //
-  gStyle -> SetPaperSize (TStyle::kA4);       //<-- tartes aux fraises
-//gStyle -> SetPaperSize (TStyle::kUSLetter); //<-- donuts
-}
-//_________________________________________________________________________________
-void Format(
-    TGraph* gr, int lcol, int lsty, int lwid, int mcol, int msty, double msiz)
-{
-  if(!gr) return;
-
-  if (lcol >= 0) gr -> SetLineColor   (lcol);
-  if (lsty >= 0) gr -> SetLineStyle   (lsty);
-  if (lwid >= 0) gr -> SetLineWidth   (lwid);
-
-  if (mcol >= 0) gr -> SetMarkerColor (mcol);
-  if (msty >= 0) gr -> SetMarkerStyle (msty);
-  if (msiz >= 0) gr -> SetMarkerSize  (msiz);
-}
-//_________________________________________________________________________________
 // Parsing command-line arguments, check/form filenames, etc
 //.................................................................................
 void GetCommandLineArgs(int argc, char ** argv)
 {
   LOG("gvldtest", pNOTICE) << "*** Parsing command line arguments";
 
+  CmdLnArgParser  parser(argc, argv);
+
   gCmpWithData = true;
 
   // get GENIE inputs
-  try {
-     string inputs = utils::clap::CmdLineArgAsString(argc,argv,'g');
+  if(parser.OptionExists('g')) {
+     string inputs = parser.ArgAsString('g');
      bool ok = gOptGenieInputs.LoadFromFile(inputs);
      if(!ok) {
-        LOG("gvldtest", pFATAL) << "Could not read: " << inputs;
+        LOG("gvldtest", pFATAL) 
+           << "Could not read validation program inputs: " << inputs;
+        gAbortingInErr = true;
         exit(1);
-     }
-  } catch(exceptions::CmdLineArgParserException e) {
-     if(!e.ArgumentFound()) {
      }
   }
       
   // get DB URL
-  try {
-     gOptDbURL = utils::clap::CmdLineArgAsString(argc,argv,'h');
-  } catch(exceptions::CmdLineArgParserException e) {
-     if(!e.ArgumentFound()) {
-       gOptDbURL = kDefDbURL;
-     }
+  if(parser.OptionExists('h')) {
+     gOptDbURL = parser.ArgAsString('h');
+  } else {
+     gOptDbURL = kDefDbURL;
   }
 
   // get DB username
-  try {
-     gOptDbUser = utils::clap::CmdLineArgAsString(argc,argv,'u');
-  } catch(exceptions::CmdLineArgParserException e) {
-     if(!e.ArgumentFound()) {
-       gCmpWithData = false;
-     }
+  if(parser.OptionExists('u')) {
+     gOptDbUser = parser.ArgAsString('u');
+  } else {
+     gCmpWithData = false;
   }
 
   // get DB passwd
-  try {
-     gOptDbPasswd = utils::clap::CmdLineArgAsString(argc,argv,'p');
-  } catch(exceptions::CmdLineArgParserException e) {
-     if(!e.ArgumentFound()) {
-       gCmpWithData = false;
-     }
+  if(parser.OptionExists('p')) {
+     gOptDbPasswd = parser.ArgAsString('p');
+  } else {
+     gCmpWithData = false;
   }
 
 }

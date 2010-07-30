@@ -45,7 +45,6 @@
 #include <sstream>
 #include <string>
 
-#include <TROOT.h>
 #include <TSystem.h>
 #include <TFile.h>
 #include <TDirectory.h>
@@ -57,7 +56,6 @@
 #include <TCanvas.h>
 #include <TPavesText.h>
 #include <TText.h>
-#include <TStyle.h>
 #include <TLegend.h>
 #include <TBox.h>
 
@@ -71,9 +69,9 @@
 #include "Messenger/Messenger.h"
 #include "PDG/PDGUtils.h"
 #include "PDG/PDGCodes.h"
-#include "Utils/CmdLineArgParserUtils.h"
-#include "Utils/CmdLineArgParserException.h"
+#include "Utils/CmdLnArgParser.h"
 #include "Utils/StringUtils.h"
+#include "Utils/Style.h"
 #include "ValidationTools/NuVld/DBI.h"
 #include "ValidationTools/NuVld/DBStatus.h"
 
@@ -869,14 +867,12 @@ typedef DBTable<DBElDiffXSecTableRow> DBT;
 void     Init               (void);
 void     Plot               (void);
 void     End                (void);
-void     SetStyle           (void);
 void     AddCoverPage       (void);
 bool     Connect            (void);
 DBQ      FormQuery          (const char * key_list, float energy, float theta);
 DBT *    Data               (int iset);
 TGraph * Model              (int iset, int imodel);
 void     Draw               (int iset);
-void     Format             (TGraph* gr, int lcol, int lsty, int lwid, int mcol, int msty, double msiz);
 void     GetCommandLineArgs (int argc, char ** argv);
 void     PrintSyntax        (void);
 
@@ -953,7 +949,7 @@ void Init(void)
   LOG("vldtest", pNOTICE) << "Initializing...";
 
   // genie style
-  SetStyle();
+  utils::style::SetDefaultStyle();
 
   // canvas
   gC = new TCanvas("c","",20,20,500,650);
@@ -1223,7 +1219,7 @@ void Draw(int iset)
 
     MultiGraph * mgraph = dbtable->GetMultiGraph("err","W2");
     for(unsigned int igraph = 0; igraph < mgraph->NGraphs(); igraph++) {
-       Format(mgraph->GetGraph(igraph), 1,1,1,1,8,0.8);
+       utils::style::Format(mgraph->GetGraph(igraph), 1,1,1,1,8,0.8);
        mgraph->GetGraph(igraph)->Draw("P");
     }
   }//dbtable?
@@ -1237,7 +1233,7 @@ void Draw(int iset)
        hframe = (TH1F*) gC->GetPad(1)->DrawFrame(
          scale_xmin*xmin, scale_ymin*ymin, scale_xmax*xmax, scale_ymax*ymax);
     }
-    Format(model, 1,1,1,1,1,1);
+    utils::style::Format(model, 1,1,1,1,1,1);
     model->Draw("L");
   }
 
@@ -1279,154 +1275,48 @@ void Draw(int iset)
   gC->Update();
 }
 //_________________________________________________________________________________
-// Formatting
-//.................................................................................
-void SetStyle(void)
-{
-  gROOT->SetStyle("Plain");
-  
-  gStyle -> SetPadTickX (1);
-  gStyle -> SetPadTickY (1);
-  
-  // Turn off all borders
-  //
-  gStyle -> SetCanvasBorderMode (0);
-  gStyle -> SetFrameBorderMode  (0);
-  gStyle -> SetPadBorderMode    (0);
-  gStyle -> SetDrawBorder       (0);
-  gStyle -> SetCanvasBorderSize (0);
-  gStyle -> SetFrameBorderSize  (0);
-  gStyle -> SetPadBorderSize    (0);
-  gStyle -> SetTitleBorderSize  (0);
-  
-  // Set the size of the default canvas
-  //
-  gStyle -> SetCanvasDefH (600);
-  gStyle -> SetCanvasDefW (730);
-  gStyle -> SetCanvasDefX  (10);
-  gStyle -> SetCanvasDefY  (10);
-  
-  // Set marker style
-  //
-  gStyle -> SetMarkerStyle (20);
-  gStyle -> SetMarkerSize   (1);
-            
-  // Set line widths
-  //
-  gStyle -> SetFrameLineWidth (1);
-  gStyle -> SetFuncWidth      (2);
-  gStyle -> SetHistLineWidth  (3);
-  gStyle -> SetFuncColor      (2);
-  gStyle -> SetFuncWidth      (3);
-  
-  // Set margins
-  //     
-  gStyle -> SetPadTopMargin    (0.10);
-  gStyle -> SetPadBottomMargin (0.20);
-  gStyle -> SetPadLeftMargin   (0.15);
-  gStyle -> SetPadRightMargin  (0.03);
-   
-  // Set tick marks and turn off grids
-  //
-  gStyle -> SetNdivisions (505,"xyz");
-      
-  // Adjust size and placement of axis labels
-  //                                                                             
-  gStyle -> SetLabelSize   (0.040,  "xyz");
-  gStyle -> SetLabelOffset (0.005,  "x"  );
-  gStyle -> SetLabelOffset (0.005,  "y"  );
-  gStyle -> SetLabelOffset (0.005,  "z"  );
-  gStyle -> SetTitleSize   (0.050,  "xyz");
-  gStyle -> SetTitleOffset (1.200,  "xz" );
-  gStyle -> SetTitleOffset (1.100,  "y"  );
-
-  // Set Data/Stat/... and other options
-  //
-  gStyle -> SetOptDate          (0);
-  gStyle -> SetOptFile          (0);
-  gStyle -> SetOptStat          (0);
-  gStyle -> SetStatFormat       ("6.2f");
-  gStyle -> SetFitFormat        ("8.4f");
-  gStyle -> SetOptFit           (1);
-  gStyle -> SetStatH            (0.20);
-  gStyle -> SetStatStyle        (0);
-  gStyle -> SetStatW            (0.30);
-  gStyle -> SetStatX            (0.845);
-  gStyle -> SetStatY            (0.845);
-  gStyle -> SetOptTitle         (0);
-  gStyle -> SetTitleX           (0.15);
-  gStyle -> SetTitleW           (0.75);
-  gStyle -> SetTitleY           (0.90);
-  gStyle -> SetPalette          (1);
-  gStyle -> SetLegendBorderSize (0);
-
-  // Set paper size for life in the US or EU
-  //
-  gStyle -> SetPaperSize (TStyle::kA4);       //<-- tartes aux fraises
-//gStyle -> SetPaperSize (TStyle::kUSLetter); //<-- donuts
-}
-//_________________________________________________________________________________
-void Format(
-    TGraph* gr, int lcol, int lsty, int lwid, int mcol, int msty, double msiz)
-{
-  if(!gr) return;
-
-  if (lcol >= 0) gr -> SetLineColor   (lcol);
-  if (lsty >= 0) gr -> SetLineStyle   (lsty);
-  if (lwid >= 0) gr -> SetLineWidth   (lwid);
-
-  if (mcol >= 0) gr -> SetMarkerColor (mcol);
-  if (msty >= 0) gr -> SetMarkerStyle (msty);
-  if (msiz >= 0) gr -> SetMarkerSize  (msiz);
-}
-//_________________________________________________________________________________
 // Parsing command-line arguments, check/form filenames, etc
 //.................................................................................
 void GetCommandLineArgs(int argc, char ** argv)
 {
   LOG("gvldtest", pNOTICE) << "*** Parsing command line arguments";
 
+  CmdLnArgParser parser(argc,argv);
+
   gCmpWithData = true;
 
   // get the name and configuration for the GENIE model to be tested
-  try {
-     string model = utils::clap::CmdLineArgAsString(argc,argv,'m');
+  if(parser.OptionExists('m')){
+     string model = parser.ArgAsString('m');
      vector<string> modelv = utils::str::Split(model,"/");
      assert(modelv.size()==2);
      gOptGModelName = modelv[0];
      gOptGModelConf = modelv[1];
-     gShowModel     = true;
-  } catch(exceptions::CmdLineArgParserException e) {
-     if(!e.ArgumentFound()) {
-        gShowModel = false;
-     }
+     gShowModel = true;
+  } else {
+     gShowModel = false;
   }
 
+
   // get DB URL
-  try {
-     gOptDbURL = utils::clap::CmdLineArgAsString(argc,argv,'h');
-  } catch(exceptions::CmdLineArgParserException e) {
-     if(!e.ArgumentFound()) {
-       gOptDbURL = kDefDbURL;
-     }
+  if(parser.OptionExists('h')) {
+     gOptDbURL = parser.ArgAsString('h');
+  } else {
+     gOptDbURL = kDefDbURL;
   }
 
   // get DB username
-  try {
-     gOptDbUser = utils::clap::CmdLineArgAsString(argc,argv,'u');
-  } catch(exceptions::CmdLineArgParserException e) {
-     if(!e.ArgumentFound()) {
-       gCmpWithData = false;
-     }
+  if(parser.OptionExists('u')) {
+     gOptDbUser = parser.ArgAsString('u');
+  } else {
+     gCmpWithData = false;
   }
 
   // get DB passwd
-  try {
-     gOptDbPasswd = utils::clap::CmdLineArgAsString(argc,argv,'p');
-  } catch(exceptions::CmdLineArgParserException e) {
-     if(!e.ArgumentFound()) {
-       gCmpWithData = false;
-     }
+  if(parser.OptionExists('p')) {
+     gOptDbPasswd = parser.ArgAsString('p');
+  } else {
+     gCmpWithData = false;
   }
 
 }
