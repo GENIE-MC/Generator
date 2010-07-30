@@ -112,6 +112,7 @@
 #include "Utils/CmdLnArgParser.h"
 #include "Utils/StringUtils.h"
 #include "Utils/VldTestInputs.h"
+#include "Utils/Style.h"
 #include "ValidationTools/NuVld/DBI.h"
 #include "ValidationTools/NuVld/DBStatus.h"
 
@@ -282,6 +283,8 @@ string    kLStyleTxt [kNMaxNumModels] = {
 int main(int argc, char ** argv)
 {
   GetCommandLineArgs (argc,argv);
+
+  utils::style::SetDefaultStyle();
 
   Init();
   Plot();
@@ -790,7 +793,7 @@ void Draw(int iset)
        TGraph * plot = models[imodel];
        if(plot) {
          int lsty = kLStyle[imodel];     
-         Format(plot,1,lsty,2,1,1,1);
+         utils::style::Format(plot,1,lsty,2,1,1,1);
          plot->Draw("L");
        }
      }
@@ -856,20 +859,6 @@ TH1F* DrawFrame(double xmin, double xmax, double ymin, double ymax)
   hf->GetXaxis()->SetLabelSize(0.03);
   hf->GetYaxis()->SetLabelSize(0.03);
   return hf;
-}
-//_________________________________________________________________________________
-void Format(
-    TGraph* gr, int lcol, int lsty, int lwid, int mcol, int msty, double msiz)
-{
-  if(!gr) return;
-
-  if (lcol >= 0) gr -> SetLineColor   (lcol);
-  if (lsty >= 0) gr -> SetLineStyle   (lsty);
-  if (lwid >= 0) gr -> SetLineWidth   (lwid);
-
-  if (mcol >= 0) gr -> SetMarkerColor (mcol);
-  if (msty >= 0) gr -> SetMarkerStyle (msty);
-  if (msiz >= 0) gr -> SetMarkerSize  (msiz);
 }
 //_________________________________________________________________________________
 // Parsing command-line arguments, check/form filenames, etc
