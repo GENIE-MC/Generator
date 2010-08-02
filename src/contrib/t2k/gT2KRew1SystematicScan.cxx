@@ -1,15 +1,15 @@
 //____________________________________________________________________________
 /*!
 
-\program gT2KRew1SystematicScan
+\program gT2Krew_1systscan
 
 \brief   Generates weights given a GHEP event file. 
          It saves a ROOT tree with an entry for every event containing
          a TArrayF of all the weights and a TArrayF of all used tweak dial 
          values.   
 
-\syntax  gT2KRew1SystematicScan \
-           -f filename [-n nev] -s systematic -t ndiallvalues
+\syntax  gT2Krew_1systscan \
+           -f filename [-n nev] -s systematic -t n_twk_diall_values
 
          where 
          [] is an optional argument
