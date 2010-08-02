@@ -27,8 +27,8 @@ gSKMergeData: FORCE
 
 gT2KRew1SystematicScan: FORCE
 	$(CXX) $(CXXFLAGS) -c gT2KRew1SystematicScan.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) gT2KRew1SystematicScan.o $(LIBRARIES) -o gT2Krew1systscan
-#	$(LD) $(LDFLAGS) gT2KRew1SystematicScan.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gT2Krew1systscan
+	$(LD) $(LDFLAGS) gT2KRew1SystematicScan.o $(LIBRARIES) -o gT2Krew_1systscan
+#	$(LD) $(LDFLAGS) gT2KRew1SystematicScan.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gT2Krew_1systscan
 
 purge: FORCE
 	$(RM) *.o *~ core 
@@ -37,11 +37,11 @@ clean: FORCE
 	$(RM) *.o *~ core gSKmergedata
 	$(RM) *.o *~ core gT2Krew1systscan
 #	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gSKmergedata
-#	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gT2Krew1systscan
+#	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gT2Krew_1systscan
 
 distclean: FORCE
 #	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gSKmergedata
-#	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gT2Krew1systscan
+#	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gT2Krew_1systscan
 
 FORCE:
 
