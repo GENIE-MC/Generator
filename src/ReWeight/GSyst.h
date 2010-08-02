@@ -230,6 +230,87 @@ public:
    return "";
  }
  //......................................................................................
+ static GSyst_t FromString(string syst)
+ {
+   GSyst_t systematics[] = 
+   {
+       kXSecTwkDial_NormCCQE,   
+       kXSecTwkDial_MaCCQE,        
+       kXSecTwkDial_MaCCQEshape,   
+       kXSecTwkDial_VecFFCCQEshape,
+       kXSecTwkDial_NormCCRES,    
+       kXSecTwkDial_MaCCRESshape, 
+       kXSecTwkDial_MvCCRESshape, 
+       kXSecTwkDial_MaCCRES,      
+       kXSecTwkDial_MvCCRES,      
+       kXSecTwkDial_NormNCRES,    
+       kXSecTwkDial_MaNCRESshape, 
+       kXSecTwkDial_MvNCRESshape, 
+       kXSecTwkDial_MaNCRES,      
+       kXSecTwkDial_MvNCRES,      
+       kXSecTwkDial_MaCOHpi,      
+       kXSecTwkDial_R0COHpi,    
+       kXSecTwkDial_RvpCC1pi,   
+       kXSecTwkDial_RvpCC2pi,   
+       kXSecTwkDial_RvpNC1pi,    
+       kXSecTwkDial_RvpNC2pi,     
+       kXSecTwkDial_RvnCC1pi,     
+       kXSecTwkDial_RvnCC2pi,     
+       kXSecTwkDial_RvnNC1pi,     
+       kXSecTwkDial_RvnNC2pi,     
+       kXSecTwkDial_RvbarpCC1pi,  
+       kXSecTwkDial_RvbarpCC2pi,  
+       kXSecTwkDial_RvbarpNC1pi,  
+       kXSecTwkDial_RvbarpNC2pi,  
+       kXSecTwkDial_RvbarnCC1pi,  
+       kXSecTwkDial_RvbarnCC2pi,  
+       kXSecTwkDial_RvbarnNC1pi,  
+       kXSecTwkDial_RvbarnNC2pi,  
+       kXSecTwkDial_AhtBY,        
+       kXSecTwkDial_BhtBY,        
+       kXSecTwkDial_CV1uBY,       
+       kXSecTwkDial_CV2uBY,       
+       kXSecTwkDial_AhtBYshape,   
+       kXSecTwkDial_BhtBYshape,   
+       kXSecTwkDial_CV1uBYshape,  
+       kXSecTwkDial_CV2uBYshape,  
+       kXSecTwkDial_NormDISCC,    
+       kXSecTwkDial_RnubarnuCC,   
+       kXSecTwkDial_DISNuclMod,   
+       kHadrAGKYTwkDial_xF1pi,    
+       kHadrAGKYTwkDial_pT1pi,    
+       kHadrNuclTwkDial_FormZone, 
+       kINukeTwkDial_MFP_pi,      
+       kINukeTwkDial_MFP_N,       
+       kINukeTwkDial_FrCEx_pi,    
+       kINukeTwkDial_FrElas_pi,   
+       kINukeTwkDial_FrInel_pi,   
+       kINukeTwkDial_FrAbs_pi,    
+       kINukeTwkDial_FrPiProd_pi, 
+       kINukeTwkDial_FrCEx_N,    
+       kINukeTwkDial_FrElas_N,   
+       kINukeTwkDial_FrInel_N,   
+       kINukeTwkDial_FrAbs_N,    
+       kINukeTwkDial_FrPiProd_N, 
+       kSystNucl_CCQEPauliSupViaKF,   
+       kSystNucl_CCQEMomDistroFGtoSF,
+       kRDcyTwkDial_BR1gamma,       
+       kRDcyTwkDial_BR1eta,         
+       kRDcyTwkDial_Theta_Delta2Npi,
+       kNullSystematic
+   };
+
+   int isyst=0;
+   while(systematics[isyst]!=kNullSystematic) {
+     if( AsString(systematics[isyst]) == syst ) {
+        return systematics[isyst];
+     }
+     isyst++;
+   }
+
+   return kNullSystematic;
+ }
+ //......................................................................................
  static bool IsINukePionFateSystematic(GSyst_t syst) 
  {
    switch(syst) {
