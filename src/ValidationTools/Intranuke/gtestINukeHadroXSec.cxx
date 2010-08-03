@@ -24,6 +24,7 @@
 
 #include <iomanip>
 #include <fstream>
+#include <iostream>
 #include <string>
 #include <cstdlib>
 
@@ -57,7 +58,8 @@ void PrintSyntax        (void);
 
 // command line options
 string gOptInpFilename = "";    ///< input event file
-bool   gOptWriteOutput = false; ///< write out hadron cross sections?
+bool   gOptWriteOutput = false; ///< write out hadron cross sections
+string gOptOutputFilename = "gevgen_hadron_xsection.txt";
 
 //____________________________________________________________________________
 int main(int argc, char ** argv)
@@ -258,12 +260,14 @@ int main(int argc, char ** argv)
   if(gOptWriteOutput) 
   {
     ofstream xsec_file; 
+    xsec_file.open(gOptOutputFilename.c_str(), std::ios::app);
     xsec_file << kin_energy;
     for(int k=0; k<nfates; k++) {
        xsec_file << "\t" << sigma[k] << "\t" << sigma_err[k];
     }
     xsec_file << "\t" << sigtot_noelas << "\t" << sigtoterr_noelas;
     xsec_file << "\t" << sigtot        << "\t" << sigtoterr << endl;
+    xsec_file.close();
   }
 
   return 0;
