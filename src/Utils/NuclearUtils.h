@@ -36,6 +36,7 @@ namespace utils {
 namespace nuclear
 {
   double BindEnergy             (const Target & target);
+  double BindEnergy             (int nucA, int nucZ);
   double BindEnergyPerNucleon   (const Target & target);
   double BindEnergyLastNucleon  (const Target & target);
   double Radius                 (int A, double Ro=constants::kNucRo);

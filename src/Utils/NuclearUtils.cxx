@@ -26,6 +26,8 @@
  @ May 18, 2010 - CA
    Restructure NuclQELXSecSuppression() (Add RQEFG_generic()) to aid 
    reweighting. 
+ @ Jul 15, 2010 - AM
+   Added BindEnergy(int nucA, int nucZ), used in Intranuke
 
 */
 //____________________________________________________________________________
@@ -53,18 +55,31 @@ double genie::utils::nuclear::BindEnergy(const Target & target)
 
   if(!target.IsNucleus()) return 0;
 
-  double a = 15.835;
+  int Z = (int) target.Z();
+  int A = (int) target.A();
+
+  return BindEnergy(A,Z);
+}
+//___________________________________________________________________________
+double genie::utils::nuclear::BindEnergy(int nucA, int nucZ)
+{
+// Compute the average binding energy (in GeV) using the semi-empirical
+// formula from Wapstra (Handbuch der Physik, XXXVIII/1)
+
+  if (nucA<=0 || nucZ<=0) return 0;
+
+  double a =  15.835;
   double b =  18.33;
   double s =  23.20;
   double d =   0.714;
 
-  double delta = 0;                       /*E-O*/
-  if (target.IsOddOdd()  ) delta =  11.2; /*O-O*/
-  if (target.IsEvenEven()) delta = -11.2; /*E-E*/
+  double delta = 0;                          /*E-O*/
+  if (nucZ%2==1 && nucA%2==1) delta =  11.2; /*O-O*/
+  if (nucZ%2==0 && nucA%2==0) delta = -11.2; /*E-E*/
 
-  double N = (double) target.N();
-  double Z = (double) target.Z();
-  double A = (double) target.A();
+  double N = (double) (nucA-nucZ);
+  double Z = (double) nucZ;
+  double A = (double) nucA;
 
   double BE =  a * A
              - b * TMath::Power(A,0.667)
