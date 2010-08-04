@@ -194,7 +194,7 @@ TVector3 PathSegment::GetPosition(Double_t fractrim) const
   /// fraction of trimmed segment
   ///      seg.fEnter + fractotal * ( seg.fExit - seg.fEnter );
   Double_t sumrange = GetSummedStepRange();
-  if ( sumrange <= 0.0 ) {
+  if ( sumrange < 0.0 ) {
     LOG("PathS", pFATAL) << "GetPosition failed fractrim=" << fractrim
                          << " because sumrange = " << sumrange;
     return TVector3(0,0,0);
