@@ -35,7 +35,7 @@ purge: FORCE
 
 clean: FORCE
 	$(RM) *.o *~ core gSKmergedata
-	$(RM) *.o *~ core gT2Krew1systscan
+	$(RM) *.o *~ core gT2Krew_1systscan
 #	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gSKmergedata
 #	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gT2Krew_1systscan
 

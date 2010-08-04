@@ -10,6 +10,7 @@
 
 \syntax  gT2Krew_1systscan \
            -f filename [-n nev] -s systematic -t n_twk_diall_values
+           [-p neutrino_codes]
 
          where 
          [] is an optional argument
@@ -19,6 +20,8 @@
             (must be odd so as to include al -1, 0 and 1 / if it is an even
              number it will be incremented by 1)
          -s systematic param to tweak
+         -p if set, reweights *only* the specified neutrino species
+            (input can be a comma separated list of codes) 
 
 \author  Jim Dobson
          Imperial College London
@@ -42,10 +45,13 @@
 #include <TArrayF.h>
 
 #include "EVGCore/EventRecord.h"
+#include "GHEP/GHepParticle.h"
 #include "Ntuple/NtpMCFormat.h"
 #include "Ntuple/NtpMCTreeHeader.h"
 #include "Ntuple/NtpMCEventRecord.h"
 #include "Messenger/Messenger.h"
+#include "PDG/PDGCodes.h"
+#include "PDG/PDGCodeList.h"
 #include "ReWeight/GReWeightI.h"
 #include "ReWeight/GSystSet.h"
 #include "ReWeight/GSyst.h"
@@ -72,10 +78,11 @@ using namespace genie::rew;
 
 void GetCommandLineArgs (int argc, char ** argv);
 
-string  gOptInpFilename; ///< filename for input event tree
-int     gOptNEvt;        ///< number of event to process (-1 for all)
-GSyst_t gOptSyst;        ///< input systematic param
-int     gOptInpNTwk;     ///< # of tweaking dial values between [-1,1]
+string      gOptInpFilename; ///< filename for input event tree
+int         gOptNEvt;        ///< number of event to process (-1 for all)
+GSyst_t     gOptSyst;        ///< input systematic param
+int         gOptInpNTwk;     ///< # of tweaking dial values between [-1,1]
+PDGCodeList gOptNu(false);   ///< neutrinos to consider
 
 //___________________________________________________________________
 int main(int argc, char ** argv)
@@ -93,11 +100,11 @@ int main(int argc, char ** argv)
   tree = dynamic_cast <TTree *>           ( file.Get("gtree")  );
   thdr = dynamic_cast <NtpMCTreeHeader *> ( file.Get("header") );
 
-  LOG("main", pNOTICE) 
+  LOG("RewScan1", pNOTICE) 
     << "Input tree header: " << *thdr;
 
   if(!tree){
-    LOG("main", pFATAL) 
+    LOG("RewScan1", pFATAL) 
       << "Can't find a GHEP tree in input file: "<< file.GetName();
     gAbortingInErr = true;
     exit(1);
@@ -109,7 +116,7 @@ int main(int argc, char ** argv)
   int nev = (gOptNEvt > 0) ? 
        TMath::Min(gOptNEvt, (int)tree->GetEntries()) : 
        (int) tree->GetEntries();
-  LOG("main", pNOTICE) 
+  LOG("RewScan1", pNOTICE) 
      << "Will process " << nev << " events";
 
   //
@@ -157,7 +164,7 @@ int main(int argc, char ** argv)
 
      // Set non-default values and re-configure.    
      double twk_dial = twk_dial_min + ith_dial * twk_dial_step;  
-     LOG("main", pNOTICE) 
+     LOG("RewScan1", pNOTICE) 
        << "Reconfiguring systematic: " << syst_name 
        << " - Setting tweaking dial to: " << twk_dial;
      syst.Set(gOptSyst, twk_dial);
@@ -169,19 +176,29 @@ int main(int argc, char ** argv)
           // Get next event
           tree->GetEntry(i);
           EventRecord & event = *(mcrec->event);
-          LOG("main", pDEBUG) << event;
+          LOG("RewScan1", pDEBUG) << event;
 
-          // Reset arrays.
+          // Reset arrays
           weights  [i][ith_dial] = -99999.0;
           twkdials [i][ith_dial] = twk_dial;
 
-          // Calculate & store weight
-	  double wght = rw.CalcWeight(event);
-          LOG("main", pDEBUG) << "Overall weight = " << wght;
+          // Reweight this event?
+          int nupdg = event.Probe()->Pdg();
+          bool do_reweight = gOptNu.ExistsInPDGCodeList(nupdg);
+
+          // Calculate weight
+          double wght=1.;
+          if(do_reweight) {
+	     wght = rw.CalcWeight(event);
+          }
+
+          // Print/store
+          LOG("RewScan1", pDEBUG) 
+              << "Overall weight = " << wght;
           weights[i][ith_dial] = wght;
 
           if(i%100 == 0) {
-              LOG("main", pNOTICE) 
+              LOG("RewScan1", pNOTICE) 
                  << "***** Processed "<< i+1 << " events";
            }
 
@@ -214,7 +231,7 @@ int main(int argc, char ** argv)
   for(int i = 0; i < nev; i++) {
     branch_eventnum = i; 
     for(int ith_dial = 0; ith_dial < n_points; ith_dial++){  
-        LOG("main", pDEBUG)
+        LOG("RewScan1", pDEBUG)
           << "Filling tree with wght = " << weights[i][ith_dial] 
           << ", twk dial = "<< twkdials[i][ith_dial];
        branch_weight_array   -> AddAt (weights [i][ith_dial], ith_dial);
@@ -229,24 +246,24 @@ int main(int argc, char ** argv)
   wght_tree = 0; 
   wght_file->Close();
 
-  LOG("main", pNOTICE)  << "Done!";
+  LOG("RewScan1", pNOTICE)  << "Done!";
 
   return 0;
 }
 //___________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
 {
-  LOG("main", pINFO) 
+  LOG("RewScan1", pINFO) 
      << "*** Parsing command line arguments";
 
   CmdLnArgParser parser(argc,argv);
 
   // get GENIE event sample
   if(parser.OptionExists('f')) {
-    LOG("main", pINFO) << "Reading event sample filename";
+    LOG("RewScan1", pINFO) << "Reading event sample filename";
     gOptInpFilename = parser.ArgAsString('f');
   } else {
-    LOG("main", pFATAL) 
+    LOG("RewScan1", pFATAL) 
         << "Unspecified input filename - Exiting";
     gAbortingInErr = true;
     exit(1);
@@ -254,17 +271,17 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   // number of events
   if(parser.OptionExists('n')) {
-    LOG("main", pINFO) << "Reading number of events to analyze";
+    LOG("RewScan1", pINFO) << "Reading number of events to analyze";
     gOptNEvt = parser.ArgAsInt('n');
   } else {
-    LOG("main", pINFO)
+    LOG("RewScan1", pINFO)
       << "Unspecified number of events to analyze - Use all";
     gOptNEvt = -1;
   }
 
   // get the number of tweak dials to scan
   if(parser.OptionExists('t')) {
-    LOG("main", pINFO) 
+    LOG("RewScan1", pINFO) 
        << "Reading number of tweak dial values";
     gOptInpNTwk = parser.ArgAsInt('t');
     if(gOptInpNTwk % 2 == 0)
@@ -273,13 +290,13 @@ void GetCommandLineArgs(int argc, char ** argv)
     }
     if(gOptInpNTwk < 3)
     { 
-      LOG("main", pFATAL)
+      LOG("RewScan1", pFATAL)
 	 << "Specified number of tweak dial is too low, min value is 3 - Exiting";
       gAbortingInErr = true;
       exit(1);
     } 
   } else {
-     LOG("main", pFATAL) 
+     LOG("RewScan1", pFATAL) 
        << "Unspecified number of tweak dials - Exiting";
      gAbortingInErr = true;
      exit(1);
@@ -287,22 +304,60 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   // get the systematics
   if(parser.OptionExists('s')) {
-   LOG("main", pINFO) 
+   LOG("RewScan1", pINFO) 
       << "Reading input systematic parameter";
    string systematic = parser.ArgAsString('s');
-   gOptSyst = genie::rew::GSyst::FromString(systematic);
+   gOptSyst = GSyst::FromString(systematic);
    if(gOptSyst == kNullSystematic) {
-      LOG("main", pFATAL) << "Unknown systematic: " << systematic;
+      LOG("RewScan1", pFATAL) << "Unknown systematic: " << systematic;
       gAbortingInErr = true;
       exit(1);
    }
   } else {
-    LOG("main", pFATAL) 
+    LOG("RewScan1", pFATAL) 
        << "You need to specify a systematic param using -s";
     gAbortingInErr = true;
     exit(1);
   }
 
+  // which species to reweight?
+  if(parser.OptionExists('p')) {
+   LOG("RewScan1", pINFO) 
+      << "Reading input list of neutrino codes";
+   vector<int> vecpdg = parser.ArgAsIntTokens('p',",");
+   if(vecpdg.size()==0) {
+      LOG("RewScan1", pFATAL) 
+         << "Empty list of neutrino codes!?";
+      gAbortingInErr = true;
+      exit(1);
+   }
+   vector<int>::const_iterator it = vecpdg.begin();
+   for( ; it!=vecpdg.end(); ++it) {
+     gOptNu.push_back(*it);
+   }
+  } else {
+    LOG("RewScan1", pINFO) 
+       << "Considering all neutrino species";
+    gOptNu.push_back (kPdgNuE      );
+    gOptNu.push_back (kPdgAntiNuE  );
+    gOptNu.push_back (kPdgNuMu     );
+    gOptNu.push_back (kPdgAntiNuMu );
+    gOptNu.push_back (kPdgNuTau    );
+    gOptNu.push_back (kPdgAntiNuTau);
+  }
+
+  //
+  // Summarize
+  //
+
+  LOG("RewScan1", pNOTICE) 
+    << "\n\n** gT2Krew_1systscan job inputs: "
+    << "\n - Input event file: " << gOptInpFilename 
+    << "\n - Number of events: " << ((gOptNEvt>0) ? Form("%d",gOptNEvt) : "all")
+    << "\n - Systematic parameter: " << GSyst::AsString(gOptSyst)
+    << "\n - Number of tweak dial values in [-1,1] : " << gOptInpNTwk
+    << "\n - Neutrino species to reweight : " << gOptNu
+    << "\n\n";
 }
 //_________________________________________________________________________________
 

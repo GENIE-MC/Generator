@@ -5,8 +5,8 @@
 //
 // To run:
 //   shell% root
-//   root[0] .L get_neut_code_from_rootracker.C++
-//   root[1] get_neut_code_from_rootracker("./your_rootracker_file.root");
+//   root[0] .L neut_code_from_rootracker.C++
+//   root[1] neut_code_from_rootracker("./your_rootracker_file.root");
 //
 // Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
 // STFC, Rutherford Appleton Laboratory
@@ -31,7 +31,7 @@ using std::ostringstream;
 using std::ofstream;
 using std::string;
 
-void get_neut_code_from_rootracker(const char * filename)
+void neut_code_from_rootracker(const char * filename)
 {
   bool using_new_version = false; // StdHepReScat and G2NeutEvtCode branches available only for versions >= 2.5.1
   bool event_printout    = false; 
