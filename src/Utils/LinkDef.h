@@ -5,10 +5,8 @@
 #pragma link off all functions;
 
 #pragma link C++ namespace genie;
-#pragma link C++ namespace genie::exceptions;
 #pragma link C++ namespace genie::utils;
 #pragma link C++ namespace genie::utils::gui;
-#pragma link C++ namespace genie::utils::clap;
 #pragma link C++ namespace genie::utils::print;
 #pragma link C++ namespace genie::utils::str;
 #pragma link C++ namespace genie::utils::math;
