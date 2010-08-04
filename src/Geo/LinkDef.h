@@ -15,9 +15,14 @@
 #pragma link C++ class genie::geometry::PathSegment;
 #pragma link C++ class genie::geometry::PathSegmentList;
 #pragma link C++ class genie::geometry::GeomVolSelectorI;
-
 #pragma link C++ class genie::geometry::GeomVolSelectorBasic;
+
+#pragma link C++ class genie::geometry::RayIntercept;
 #pragma link C++ class genie::geometry::PlaneParam;
+#pragma link C++ class genie::geometry::FidShape;
+#pragma link C++ class genie::geometry::FidSphere;
+#pragma link C++ class genie::geometry::FidCylinder;
+#pragma link C++ class genie::geometry::FidPolyhedron;
 #pragma link C++ class genie::geometry::GeomVolSelectorFiducial;
 
 #endif
