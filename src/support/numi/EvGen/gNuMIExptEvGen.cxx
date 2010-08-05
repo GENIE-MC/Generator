@@ -29,7 +29,11 @@
                      [-D density_units_at_geom]
                      [-n n_of_events] 
                      [-e exposure_in_POTs]
-		     [-o output_event_file_prefix]
+                     [-o output_event_file_prefix]
+                     [-F fid_cut_string]
+                     [-S nrays]
+                     [-z zmin]
+                     [-d debug flags]
 
          *** Options :
 
@@ -94,9 +98,10 @@
               This option can be used to specify any of:
               1 > A gNuMI beam simulation output file and the detector location
                   The general sytax is:
-                      -f /full/path/flux_file.root,detector
+                      -f /full/path/flux_file.root,detector,flavor1,flavor2...
                   [Notes] 
                   - For more information on the flux ntuples, see the gNuMI doc
+                  - If flavors aren't specified then use default (12,-12,14,-14)
                   - See GNuMIFlux.xml for all supported detector locations
                   - The original hbook ntuples need to be converted to a ROOT 
                     format using the h2root ROOT utility.   
@@ -127,7 +132,7 @@
                     So, when using this option you must be using a simple 'target mix'
                     See the -g option for possible geometry settings.
                     If you want to use the detailed detector geometry description
-                    then you should be feeding this driver with the jnubeam flux 
+                    then you should be feeding this driver with the gnumi beam flux 
                     simulation outputs.
                   - When using flux from histograms there is no branch with neutrino
                     parent information added in the output event tree as your flux 
@@ -154,6 +159,20 @@
               - If the input flux is described with histograms then only the -n
                 option is available.
 
+           -F Apply a fiducial cut (for now hard coded ... generalize)
+              Only used with ROOTGeomAnalyzer
+              if string starts with "-" then reverses sense (ie. anti-fiducial)
+
+           -S Number of rays to use to scan geometry for max path length
+              Only used with ROOTGeomAnalyzer & GNuMIFlux
+              +N  Use flux to scan geometry for max path length
+              -N  Use N rays x N points on each face of a box
+
+           -z Z from which to start flux ray in user world coordinates
+              Only use with ROOTGeomAnalyzer & GNuMIFlux
+              If left unset then flux originates on the flux window
+              [No longer attempts to determine z from geometry, generally got this wrong]
+
            -o Sets the prefix of the output event file. 
               The output filename is built as: 
               [prefix].[run_number].[event_tree_format].[file_format]
@@ -165,7 +184,7 @@
         
          (1) shell% gNuMIevgen 
                        -r 1001 
-                       -f /data/mc_inputs/flux/flux_00001.root,MINOS-NearDet
+                       -f /data/mc_inputs/flux/flux_00001.root,MINOS-NearDet,12,-12
                        -g /data/mc_inputs/geom/minos.root 
                        -L mm -D g_cm3
                        -e 5E+17
@@ -200,10 +219,13 @@
 
 #include <cassert>
 #include <cstdlib>
+#include <csignal>
+
 #include <string>
 #include <sstream>
 #include <vector>
 #include <map>
+#include <algorithm>  // for transform()
 
 #include <TSystem.h>
 #include <TTree.h>
@@ -219,9 +241,11 @@
 #include "EVGDrivers/GMCJDriver.h"
 #include "EVGDrivers/GMCJMonitor.h"
 #include "Messenger/Messenger.h"
+#include "Numerical/RandomGen.h"
 #include "Ntuple/NtpWriter.h"
 #include "PDG/PDGLibrary.h"
 #include "PDG/PDGCodes.h"
+#include "Pdg/PdgCodeList.h"
 #include "Ntuple/NtpMCFormat.h"
 #include "Utils/XSecSplineList.h"
 #include "Utils/StringUtils.h"
@@ -237,6 +261,7 @@
 #include "Geo/GeoUtils.h"
 #include "Geo/ROOTGeomAnalyzer.h"
 #include "Geo/PointGeomAnalyzer.h"
+#include "Geo/GeomVolSelectorFiducial.h"
 #endif
 
 using std::string;
@@ -248,6 +273,7 @@ using namespace genie;
 
 void GetCommandLineArgs (int argc, char ** argv);
 void PrintSyntax        (void);
+void CreateFidSelection (string fidcut, GeomAnalyzerI* geom_driver);
 
 // Default options (override them using the command line arguments):
 //
@@ -260,7 +286,8 @@ string          kDefOptEvFilePrefix = "gntp";
 //
 Long_t          gOptRunNu;                     // run number
 bool            gOptUsingRootGeom = false;     // using root geom or target mix?
-bool            gOptUsingHistFlux = false;     // using jnubeam flux ntuples or flux from histograms?
+bool            gOptUsingHistFlux = false;     // using gnumi beam flux ntuples or flux from histograms?
+PDGCodeList     gOptFluxPdg;                   // list of neutrino flavors to accept
 map<int,double> gOptTgtMix;                    // target mix  (tgt pdg -> wght frac) / if not using detailed root geom
 map<int,TH1D*>  gOptFluxHst;                   // flux histos (nu pdg  -> spectrum)  / if not using beam sim ntuples
 string          gOptRootGeom;                  // input ROOT file with realistic detector geometry
@@ -268,11 +295,23 @@ string          gOptRootGeomTopVol = "";       // input geometry top event gener
 double          gOptGeomLUnits = 0;            // input geometry length units 
 double          gOptGeomDUnits = 0;            // input geometry density units 
 string          gOptExtMaxPlXml;               // max path lengths XML file for input geometry 
-string          gOptFluxFile;                  // ROOT file with jnubeam flux ntuple
+string          gOptFluxFile;                  // ROOT file with gnumi beam flux ntuple
 string          gOptDetectorLocation;          // detector location (see GNuMIFlux.xml for supported locations))
 int             gOptNev;                       // number of events to generate
 double          gOptPOT;                       // exposure (in POT)
+string          gOptFidCut;                    // fiducial cut selection
+int             gOptNScan = 0;                 // # of geometry scan rays
+double          gOptZmin = -2.0e30;            // starting z position [ if abs() < 1e30 ]
 string          gOptEvFilePrefix;              // event file prefix
+int             gOptDebug = 0;                 // debug flags
+
+bool            gSigTERM = false;              // was TERM signal sent?
+
+static void gsSIGTERMhandler(int /* s */)
+{ 
+  gSigTERM = true;
+  std::cerr << "Caught SIGTERM" << std::endl;
+}
 
 //____________________________________________________________________________
 int main(int argc, char ** argv)
@@ -280,6 +319,10 @@ int main(int argc, char ** argv)
   // Parse command line arguments
   GetCommandLineArgs(argc,argv);
   
+  // Set seed if not set by GSEED
+  RandomGen* rgen = RandomGen::Instance();  // get random generator initialized
+  if ( gSystem->Getenv("GSEED") == 0 ) rgen->SetSeed(gOptRunNu);
+
   // Autoload splines (from the XML file pointed at the $GSPLOAD env. var.,
   // if the env. var. has been set)
   //XSecSplineList * xspl = XSecSplineList::Instance();
@@ -289,7 +332,6 @@ int main(int argc, char ** argv)
   // * Create / configure the geometry driver 
   // *************************************************************************
   GeomAnalyzerI * geom_driver = 0;
-  double zmin=0, zmax=0;
 
   if(gOptUsingRootGeom) {
     //
@@ -302,6 +344,7 @@ int main(int argc, char ** argv)
     rgeom -> SetLengthUnits  (gOptGeomLUnits);
     rgeom -> SetDensityUnits (gOptGeomDUnits);
     rgeom -> SetTopVolName   (gOptRootGeomTopVol);
+
     // getting the bounding box dimensions along z so as to set the
     // appropriate upstream generation surface for the NuMI flux driver
     TGeoVolume * topvol = rgeom->GetGeometry()->GetTopVolume();
@@ -309,26 +352,29 @@ int main(int argc, char ** argv)
       LOG("gNuMIevgen", pFATAL) << "Null top ROOT geometry volume!";
       exit(1);
     }
-        //TGeoShape * bounding_box = topvol->GetShape();
-        //bounding_box->GetAxisRange(3, zmin, zmax);
-        //zmin *= rgeom->LengthUnits();
-        //zmax *= rgeom->LengthUnits();
+    // RWH 2010-07-16:  do not try to automatically get zmin from geometry, rather
+    // by default let the flux start from the window.  If the user wants to 
+    // override this then they need to explicitly set a "zmin".   Trying to use
+    // the geometry is fraught with problems in local vs. global coordinates and
+    // units where it can appear to work in some cases but it actually isn't really
+    // universally correct.  
+    //was// TGeoShape * bounding_box = topvol->GetShape();
+    //was// bounding_box->GetAxisRange(3, zmin, zmax);
+    //was// zmin *= rgeom->LengthUnits();
+    //was// zmax *= rgeom->LengthUnits();
 
-        // Try to get the Minerva bounding box
-    TGeoIterator next(rgeom->GetGeometry()->GetMasterVolume());
-    TGeoVolume* topDetVol = next()->GetVolume();
-    TGeoShape * bounding_box = topDetVol->GetShape();
-    bounding_box->GetAxisRange(3, zmin, zmax);
-    zmin *= rgeom->LengthUnits();
-    zmax *= rgeom->LengthUnits();
-   
     // switch on/off volumes as requested
     if ( (gOptRootGeomTopVol[0] == '+') || (gOptRootGeomTopVol[0] == '-') ) {
       bool exhaust = (*gOptRootGeomTopVol.c_str() == '+');
       utils::geometry::RecursiveExhaust(topvol, gOptRootGeomTopVol, exhaust);
-    }                
+    }       
+         
     // casting to the GENIE geometry driver interface
     geom_driver = dynamic_cast<GeomAnalyzerI *> (rgeom);
+
+    // user specifid a fiducial volume cut ... parse that out
+    if ( gOptFidCut != "" ) CreateFidSelection(gOptFidCut,rgeom);
+
   } 
   else {
     //
@@ -361,8 +407,18 @@ int main(int argc, char ** argv)
     numi_flux_driver = new flux::GNuMIFlux;
     numi_flux_driver->LoadBeamSimData(gOptFluxFile, gOptDetectorLocation);
   //numi_flux_driver->SetFilePOT(gOptFluxNorm);
-    numi_flux_driver->SetUpstreamZ(zmin);
+    numi_flux_driver->SetUpstreamZ(gOptZmin);  // was "zmin" from bounding_box
     numi_flux_driver->SetNumOfCycles(0);
+
+    if ( gOptFluxPdg.size() > 0 ) {
+      // user specified list of neutrino PDGs
+      numi_flux_driver->SetFluxParticles(gOptFluxPdg);
+      std::ostringstream s;
+      PDGCodeList::const_iterator itr = gOptFluxPdg.begin();
+      for ( ; itr != gOptFluxPdg.end(); ++itr) s << (*itr) << " ";
+      LOG("gNuMIevgen", pNOTICE) 
+        << "Limiting to nu PDGs:" << s.str();
+    }
     // casting to the GENIE flux driver interface
     flux_driver = dynamic_cast<GFluxI *> (numi_flux_driver);
   } 
@@ -386,6 +442,33 @@ int main(int argc, char ** argv)
     }
     // casting to the GENIE flux driver interface
     flux_driver = dynamic_cast<GFluxI *> (hst_flux_driver);
+  }
+
+  // *************************************************************************
+  // * Handle chicken/egg problem: geom analyzer vs. flux.
+  // * Need both at this point change geom scan defaults.
+  // *************************************************************************
+  if ( gOptUsingRootGeom && !gOptUsingHistFlux ) {
+
+    geometry::ROOTGeomAnalyzer * rgeom = 
+      dynamic_cast<geometry::ROOTGeomAnalyzer *>(geom_driver);
+    if ( ! rgeom ) assert(0);
+
+    rgeom -> SetDebugFlags(gOptDebug);
+
+    // even if user doesn't specify gOptNScan configure to scan using flux
+    if ( gOptNScan >= 0 ) {
+      LOG("gNuMIevgen", pNOTICE)
+        << "Using ROOTGeomAnalyzer: geom scan using flux: nparticles=" << gOptNScan;
+      rgeom->SetScannerFlux(flux_driver);
+      if ( gOptNScan > 0 ) rgeom->SetScannerNParticles(gOptNScan);
+    } else {
+      int nabs = TMath::Abs(gOptNScan);
+      LOG("gNuMIevgen", pNOTICE)
+        << "Using ROOTGeomAnalyzer: geom scan using box: npoints=nrays=" << nabs;
+      rgeom->SetScannerNPoints(nabs);
+      rgeom->SetScannerNRays(nabs);
+    }
   }
 
   // *************************************************************************
@@ -425,8 +508,9 @@ int main(int argc, char ** argv)
   // * Event generation loop
   // *************************************************************************
 
+  signal(SIGTERM,gsSIGTERMhandler);  // define handler to allow signal to end job gracefully
   int ievent = 0;
-  while (1) 
+  while ( ! gSigTERM ) 
   {
      LOG("gNuMIevgen", pNOTICE) 
           << " *** Generating event............ " << ievent;
@@ -466,7 +550,7 @@ int main(int argc, char ** argv)
      // A valid event was generated: extract flux info (parent decay/prod
      // position/kinematics) for that simulated event so that it can be 
      // passed-through.
-     // Can only do so if I am generating events using the jnubeam flux
+     // Can only do so if I am generating events using the gnumi beam flux
      // ntuples, not simple histograms
      if(!gOptUsingHistFlux) {
         flux_info = new flux::GNuMIFluxPassThroughInfo(
@@ -514,6 +598,8 @@ int main(int argc, char ** argv)
         << "\n ** Normalization for generated sample:      " << pot << " POT * detector";
 
     ntpw.EventTree()->SetWeight(pot); // store POT
+
+    //RWH//numi_flux_driver->PrintConfig();
   }
 
   // *************************************************************************
@@ -544,7 +630,6 @@ void GetCommandLineArgs(int argc, char ** argv)
   //
   // >>> get the command line arguments
   //
-
   LOG("gNuMIevgen", pNOTICE) << "Parsing command line arguments";
 
   CmdLnArgParser parser(argc,argv);
@@ -557,7 +642,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   }
 
   // run number:
-  if( parser.OptionExists('r') ) {
+  if ( parser.OptionExists('r') ) {
     LOG("gNuMIevgen", pDEBUG) << "Reading MC run number";
     gOptRunNu = parser.ArgAsLong('r');
   } else {
@@ -632,9 +717,49 @@ void GetCommandLineArgs(int argc, char ** argv)
         gOptExtMaxPlXml = parser.ArgAsString('m');
      } else {
         LOG("gNuMIevgen", pDEBUG) 
-              << "Will compute the maximum path lengths at job init";
+               << "Will compute the maximum path lengths at job init";
         gOptExtMaxPlXml = "";
      } // -m
+
+     // fidcut:
+     if( parser.OptionExists('F') ) {
+       LOG("gNuMIevgen", pDEBUG) << "Using Fiducial cut?";
+       gOptFidCut = parser.ArgAsString('F');
+     } else {
+       LOG("gNuMIevgen", pDEBUG) << "No fiducial volume cut";
+       gOptFidCut = "";
+     } //-F
+
+     if(!gOptUsingHistFlux) {
+       // how to scan the geometry (if relevant)
+       if( parser.OptionExists('S') ) {
+         LOG("gNuMIevgen", pDEBUG)  << "Reading requested geom scan count";
+         gOptNScan = parser.ArgAsInt('S');
+       } else {
+         LOG("gNuMIevgen", pDEBUG) << "No geom scan count was requested";
+         gOptNScan = 0;
+       } //-S
+       
+       // z for flux rays to start
+       if( parser.OptionExists('z') ) {
+         LOG("gNuMIevgen", pDEBUG)  << "Reading requested zmin";
+         gOptZmin = parser.ArgAsDouble('z');
+       } else {
+         LOG("gNuMIevgen", pDEBUG) << "No zmin was requested";
+         gOptZmin = -2.0e30; // < -1.0e30 ==> leave it on flux window
+       } //-z
+
+       // debug flags
+       if ( parser.OptionExists('d') ) {
+         LOG("gNuMIevgen", pDEBUG) << "Reading debug flag value";
+         gOptDebug = parser.ArgAsInt('d');
+       } else {
+         LOG("gNuMIevgen", pDEBUG) << "Unspecified debug flags - Using default";
+         gOptDebug = 0;
+       } //-d
+
+     } // root geom && gnumi flux
+
   } // using root geom?
 
   else {
@@ -686,8 +811,8 @@ void GetCommandLineArgs(int argc, char ** argv)
     gOptUsingHistFlux = (flux.find("[") != string::npos);
 
     if(!gOptUsingHistFlux) {
-        // Using jnubeam flux ntuples
-        // Extract jnubeam flux (root) file name & detector location
+        // Using gnumi beam flux ntuples
+        // Extract gnumi beam flux (root) file name & detector location
         //
         vector<string> fluxv = utils::str::Split(flux,",");
         if(fluxv.size()<2) {
@@ -699,6 +824,10 @@ void GetCommandLineArgs(int argc, char ** argv)
         }
         gOptFluxFile         = fluxv[0];
         gOptDetectorLocation = fluxv[1];
+        for ( size_t j = 2; j < fluxv.size(); ++j ) {
+          int ipdg = atoi(fluxv[j].c_str());
+          gOptFluxPdg.push_back(ipdg);
+        }
     } else {
         // Using flux from histograms
         // Extract the root file name & the list of histogram names & neutrino 
@@ -778,7 +907,7 @@ void GetCommandLineArgs(int argc, char ** argv)
            exit(1);
         }
         flux_file.Close();
-    } // flux from histograms or from jnubeam ntuples?
+    } // flux from histograms or from gnumi beam ntuples?
 
   } else {
       LOG("gNuMIevgen", pFATAL) << "No flux info was specified - Exiting";
@@ -905,7 +1034,7 @@ void GetCommandLineArgs(int argc, char ** argv)
           }//p?
     }
   } else {
-    fluxinfo << "Using jnubeam simulation - "
+    fluxinfo << "Using gnumi beam simulation - "
              << "file = "        << gOptFluxFile
              << ", location = "  << gOptDetectorLocation;
   }
@@ -933,9 +1062,144 @@ void PrintSyntax(void)
    << "\n            [-L length_units_at_geom] [-D density_units_at_geom]"
    << "\n            [-n n_of_events] [-e exposure_in_POTs]"
    << "\n            [-o output_event_file_prefix]"
+   << "\n            [-F fid_cut_string] [-S nrays_scan]"
+   << "\n            [-z zmin_start]"
    << "\n"
    << " Please also read the detailed documentation at "
    << "$GENIE//src/support/numi/EvGen/gNuMIExptEvGen.cxx"
    << "\n";
+}
+//____________________________________________________________________________
+void CreateFidSelection (string fidcut, GeomAnalyzerI* geom_driver)
+{
+  ///
+  /// User defined fiducial volume cut
+  ///      [0][M]<SHAPE>:val1,val2,...
+  ///   "0" means reverse the cut (i.e. exclude the volume)
+  ///   "M" means the coordinates are given in the ROOT geometry
+  ///       "master" system and need to be transformed to "top vol" system
+  ///   <SHAPE> can be any of "zcyl" "box" "zpoly" "sphere"
+  ///       [each takes different # of args]
+  ///   This must be followed by a ":" and a list of values separated by punctuation
+  ///       (allowed separators: commas , parentheses () braces {} or brackets [] )
+  ///   Value mapping:
+  ///      zcly:x0,y0,radius,zmin,zmax           - cylinder along z at (x0,y0) capped at z's
+  ///      box:xmin,ymin,zmin,xmax,ymax,zmax     - box w/ upper & lower extremes
+  ///      zpoly:nfaces,x0,y0,r_in,phi,zmin,zmax - nfaces sided polygon in x-y plane
+  //       sphere:x0,y0,z0,radius                - sphere of fixed radius at (x0,y0,z0)
+  ///   Examples:    
+  ///      1) 0mbox:0,0,0.25,1,1,8.75
+  ///         exclude (i.e. reverse) a box in master coordinates w/ corners (0,0,0.25) (1,1,8.75)
+  ///      2) mzpoly:6,(2,-1),1.75,0,{0.25,8.75}
+  ///         six sided polygon in x-y plane, centered at x,y=(2,-1) w/ inscribed radius 1.75
+  ///         no rotation (so first face is in y-z plane +r from center, i.e. hex sits on point)
+  ///         limited to the z range of {0.25,8.75} in the master ROOT geom coordinates
+  ///      3) zcly:(3,4),5.5,-2,10
+  ///         a cylinder oriented parallel to the z axis in the "top vol" coordinates
+  ///         at x,y=(3,4) with radius 5.5 and z range of {-2,10}
+  ///
+  geometry::ROOTGeomAnalyzer * rgeom = 
+    dynamic_cast<geometry::ROOTGeomAnalyzer *>(geom_driver);
+  if ( ! rgeom ) {
+    LOG("gNuMIevgen", pWARN)
+      << "Can not create GeomVolSelectorFiduction,"
+      << " geometry driver is not ROOTGeomAnalyzer";
+    return;
+  }
+
+  LOG("gNuMIevgen", pNOTICE) << "-F " << fidcut;
+
+  genie::geometry::GeomVolSelectorFiducial* fidsel =
+    new genie::geometry::GeomVolSelectorFiducial();
+
+  fidsel->SetRemoveEntries(true);  // drop segments that won't be considered
+
+  // convert string to lowercase
+  std::transform(fidcut.begin(),fidcut.end(),fidcut.begin(),::tolower);
+
+  vector<string> strtok = genie::utils::str::Split(fidcut,":");
+  if ( strtok.size() != 2 ) {
+    LOG("gNuMIevgen", pWARN)
+      << "Can not create GeomVolSelectorFiduction,"
+      << " no \":\" separating type from values.  nsplit=" << strtok.size();
+    for ( unsigned int i=0; i < strtok.size(); ++i )
+      LOG("gNuMIevgen",pNOTICE)
+        << "strtok[" << i << "] = \"" << strtok[i] << "\"";
+    return;
+  }
+
+  // parse out optional "x" and "m"
+  string stype = strtok[0];
+  bool reverse = ( stype.find("0") != string::npos );
+  bool master  = ( stype.find("m") != string::npos );  // action after values are set
+
+  // parse out values
+  vector<double> vals;
+  vector<string> valstrs = genie::utils::str::Split(strtok[1]," ,;(){}[]");
+  vector<string>::const_iterator iter = valstrs.begin();
+  for ( ; iter != valstrs.end(); ++iter ) {
+    const string& valstr1 = *iter;
+    if ( valstr1 != "" ) vals.push_back(atof(valstr1.c_str()));
+  }
+  size_t nvals = vals.size();
+
+  std::cout << "ivals = [";
+  for (unsigned int i=0; i < nvals; ++i) {
+    if (i>0) cout << ",";
+    std::cout << vals[i];
+  }
+  std::cout << "]" << std::endl;
+    
+  // std::vector elements are required to be adjacent so we can treat address as ptr
+  
+  if        ( stype.find("zcyl")   != string::npos ) {
+    // cylinder along z direction at (x0,y0) radius zmin zmax
+    if ( nvals < 5 ) 
+      LOG("gNuMIevgen", pFATAL) << "MakeZCylinder needs 5 values, not " << nvals
+                                << " fidcut=\"" << fidcut << "\"";
+    fidsel->MakeZCylinder(vals[0],vals[1],vals[2],vals[3],vals[4]);
+
+  } else if ( stype.find("box")    != string::npos ) {
+    // box (xmin,ymin,zmin) (xmax,ymax,zmax)
+    if ( nvals < 6 ) 
+      LOG("gNuMIevgen", pFATAL) << "MakeBox needs 6 values, not " << nvals
+                                << " fidcut=\"" << fidcut << "\"";
+    double xyzmin[3] = { vals[0], vals[1], vals[2] };
+    double xyzmax[3] = { vals[4], vals[5], vals[5] };
+    fidsel->MakeBox(xyzmin,xyzmax);
+
+  } else if ( stype.find("zpoly")  != string::npos ) {
+    // polygon along z direction nfaces at (x0,y0) radius phi zmin zmax
+    if ( nvals < 7 ) 
+      LOG("gNuMIevgen", pFATAL) << "MakeZPolygon needs 7 values, not " << nvals
+                                << " fidcut=\"" << fidcut << "\"";
+    int nfaces = (int)vals[0];
+    if ( nfaces < 3 ) 
+      LOG("gNuMIevgen", pFATAL) << "MakeZPolygon needs nfaces>=3, not " << nfaces
+                                << " fidcut=\"" << fidcut << "\"";
+    fidsel->MakeZPolygon(nfaces,vals[1],vals[2],vals[3],vals[4],vals[5],vals[6]);
+
+  } else if ( stype.find("sphere") != string::npos ) {
+    // sphere at (x0,y0,z0) radius 
+    if ( nvals < 4 ) 
+      LOG("gNuMIevgen", pFATAL) << "MakeZSphere needs 4 values, not " << nvals
+                                << " fidcut=\"" << fidcut << "\"";
+    fidsel->MakeSphere(vals[0],vals[1],vals[2],vals[3]);
+
+  } else {
+    LOG("gNuMIevgen", pFATAL)
+      << "Can not create GeomVolSelectorFiduction for shape \"" << stype << "\"";
+  }
+
+  if ( master  ) {
+    fidsel->ConvertShapeMaster2Top(rgeom);
+    LOG("gNuMIevgen", pNOTICE) << "Convert fiducial volume from master to topvol coords";
+  }
+  if ( reverse ) {
+    fidsel->SetReverseFiducial(true);
+    LOG("gNuMIevgen", pNOTICE) << "Reverse sense of fiducial volume cut";
+  }
+  rgeom->AdoptGeomVolSelector(fidsel);
+
 }
 //____________________________________________________________________________
