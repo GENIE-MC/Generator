@@ -220,20 +220,20 @@ void GeomVolSelectorFiducial::MakeBox(Double_t* xyzmin, Double_t* xyzmax)
 {
   // This sets parameters for a box
 
-  double boxXYZMin[3], boxXYZMax[3];
+  double boxXYZmin[3], boxXYZmax[3];
   for ( int j = 0; j < 3; ++j ) {
-    boxXYZMin[j] = TMath::Min(xyzmin[j],xyzmax[j]);
-    boxXYZMax[j] = TMath::Max(xyzmax[j],xyzmax[j]);
+    boxXYZmin[j] = TMath::Min(xyzmin[j],xyzmax[j]);
+    boxXYZmax[j] = TMath::Max(xyzmax[j],xyzmax[j]);
   }
 
   FidPolyhedron* poly = new FidPolyhedron();
   // careful about sign of "d" vs. direction normal
-  PlaneParam pln0(-1,0,0, xyzmin[0]);  poly->push_back(pln0);
-  PlaneParam pln1(0,-1,0, xyzmin[1]);  poly->push_back(pln1);
-  PlaneParam pln2(0,0,-1, xyzmin[2]);  poly->push_back(pln2);
-  PlaneParam pln3(+1,0,0,-xyzmax[0]);  poly->push_back(pln3);
-  PlaneParam pln4(0,+1,0,-xyzmax[1]);  poly->push_back(pln4);
-  PlaneParam pln5(0,0,+1,-xyzmax[2]);  poly->push_back(pln5);
+  PlaneParam pln0(-1,0,0, boxXYZmin[0]);  poly->push_back(pln0);
+  PlaneParam pln1(0,-1,0, boxXYZmin[1]);  poly->push_back(pln1);
+  PlaneParam pln2(0,0,-1, boxXYZmin[2]);  poly->push_back(pln2);
+  PlaneParam pln3(+1,0,0,-boxXYZmax[0]);  poly->push_back(pln3);
+  PlaneParam pln4(0,+1,0,-boxXYZmax[1]);  poly->push_back(pln4);
+  PlaneParam pln5(0,0,+1,-boxXYZmax[2]);  poly->push_back(pln5);
 
   AdoptFidShape(poly);
 }
