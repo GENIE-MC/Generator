@@ -192,26 +192,26 @@ void GeomVolSelectorFiducial::ConvertShapeMaster2Top(const ROOTGeomAnalyzer* rge
   if ( fShape ) fShape->ConvertMaster2Top(rgeom);
 }
 //___________________________________________________________________________
-void GeomVolSelectorFiducial::SetSphere(Double_t x0, Double_t y0, Double_t z0, Double_t radius)
+void GeomVolSelectorFiducial::MakeSphere(Double_t x0, Double_t y0, Double_t z0, Double_t radius)
 {
   AdoptFidShape(new FidSphere(TVector3(x0,y0,z0),radius));
 }
 
 //___________________________________________________________________________
-void GeomVolSelectorFiducial::SetZCylinder(Double_t x0, Double_t y0, Double_t radius, 
-                                           Double_t zmin, Double_t zmax)
+void GeomVolSelectorFiducial::MakeZCylinder(Double_t x0, Double_t y0, Double_t radius, 
+                                            Double_t zmin, Double_t zmax)
 {
   // This sets parameters for a cylinder parallel to the z-axis
   Double_t base[] = { x0, y0,  0 };
   Double_t axis[] = {  0,  0,  1 };
   Double_t cap1[] = {  0,  0, -1,  zmin };
   Double_t cap2[] = {  0,  0, +1, -zmax };  // note sign change
-  this->SetCylinder(base,axis,radius,cap1,cap2);
+  this->MakeCylinder(base,axis,radius,cap1,cap2);
 }
 
 //___________________________________________________________________________
-void GeomVolSelectorFiducial::SetCylinder(Double_t* base, Double_t* axis, Double_t radius,
-                                          Double_t* cap1, Double_t* cap2)
+void GeomVolSelectorFiducial::MakeCylinder(Double_t* base, Double_t* axis, Double_t radius,
+                                           Double_t* cap1, Double_t* cap2)
 {
   // This sets parameters for a cylinder
   AdoptFidShape(new FidCylinder(TVector3(base),TVector3(axis),radius,
@@ -219,7 +219,7 @@ void GeomVolSelectorFiducial::SetCylinder(Double_t* base, Double_t* axis, Double
 }
 
 //___________________________________________________________________________
-void GeomVolSelectorFiducial::SetBox(Double_t* xyzmin, Double_t* xyzmax)
+void GeomVolSelectorFiducial::MakeBox(Double_t* xyzmin, Double_t* xyzmax)
 {
   // This sets parameters for a box
 
@@ -242,8 +242,8 @@ void GeomVolSelectorFiducial::SetBox(Double_t* xyzmin, Double_t* xyzmax)
 }
 
 //___________________________________________________________________________
-void GeomVolSelectorFiducial::SetZPolygon(Int_t n, Double_t x0, Double_t y0, Double_t inradius, 
-                                          Double_t phi0deg, Double_t zmin, Double_t zmax)
+void GeomVolSelectorFiducial::MakeZPolygon(Int_t n, Double_t x0, Double_t y0, Double_t inradius, 
+                                           Double_t phi0deg, Double_t zmin, Double_t zmax)
 {
   // phi=0 will put flat face towards +x
   // inscribed radius

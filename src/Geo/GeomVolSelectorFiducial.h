@@ -63,11 +63,11 @@ public :
   // in "top vol" coordinates and units
   //
   void AdoptFidShape(FidShape* shape);
-  void SetSphere(Double_t x0, Double_t y0, Double_t z0, Double_t radius);
-  void SetZCylinder(Double_t x0, Double_t y0, Double_t radius, Double_t zmin, Double_t zmax);
-  void SetCylinder(Double_t* base, Double_t* axis, Double_t radius, Double_t* cap1, Double_t* cap2);
-  void SetBox(Double_t* xyzmin, Double_t* xyzmax);
-  void SetZPolygon(Int_t n, Double_t x0, Double_t y0, Double_t inradius, Double_t phi0deg, Double_t zmin, Double_t zmax);
+  void MakeSphere(Double_t x0, Double_t y0, Double_t z0, Double_t radius);
+  void MakeZCylinder(Double_t x0, Double_t y0, Double_t radius, Double_t zmin, Double_t zmax);
+  void MakeCylinder(Double_t* base, Double_t* axis, Double_t radius, Double_t* cap1, Double_t* cap2);
+  void MakeBox(Double_t* xyzmin, Double_t* xyzmax);
+  void MakeZPolygon(Int_t n, Double_t x0, Double_t y0, Double_t inradius, Double_t phi0deg, Double_t zmin, Double_t zmax);
 
   // by default shapes are assumed to be in "top vol" coordinates
   // in the case where they are entered in master coordinates
