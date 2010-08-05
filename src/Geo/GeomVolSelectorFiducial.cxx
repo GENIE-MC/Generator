@@ -22,9 +22,6 @@ using namespace genie::geometry;
 #include <TGeoMaterial.h>
 #include <TGeoMedium.h>
 
-const Double_t gLocalInfPos = 1.0e30;
-const Double_t gLocalInfNeg = -gLocalInfPos;
-
 //____________________________________________________________________________
 GeomVolSelectorFiducial::GeomVolSelectorFiducial() 
   : GeomVolSelectorBasic(), fSelectReverse(false)
