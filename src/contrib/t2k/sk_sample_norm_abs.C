@@ -9,8 +9,8 @@
 //   (d3Flux / dE dS dI): numu flux per energy bin, per unit area, per POT 
 //   sigma(E): total numu cross section on water
 //   Na: Avogadro's number
-//   A: average mass number for water (weighted average for O16,H)
-//   rho: average density for water (weighted average for O16,H)
+//   A: mass number for water 
+//   rho: water density 
 //   L: path length
 //   M: mass
 //   I: beam intensity (POT)
@@ -27,6 +27,13 @@
 //  F_{i): flux in bin i
 //  sig_{i}: cross section evaluated at centre of bin i
 //
+// notes:
+//  Ptot = P(H1) + P(O16) = sigma(H1)*w(H1)*rho/A(H1) + sigma(O16)*w(O16)*rho/A(O16)
+//  rho: water density and w: mass contribution, w(H1)=2/18, w(O16)=16/18
+//  So: Ptot ~ sigma(H1) * (2/18) + sigma(O16) * (16/18) / 16 =>
+//      Ptot ~ (2*sigma(H1)+sigma(O16))/18 =>
+//      Ptot ~ sigma(H20)/A(H20)
+//
 
   // output of $GENIE/src/scripts/production/misc/generate_sk_flux_histograms.C
   const char * skfluxfile = "/opt/ppd/t2k/GENIE/data/job_inputs/t2k_flux/10/sk/sk_flux_histograms.root";
@@ -37,7 +44,7 @@
   // consts
   double Na  = 6.023E+23;
   double Mfv = 1E+10; // gr
-  double A   = 0.8879 * 16 + 0.1121 * 1; // gr
+  double A   = 18; // gr
   double Io  = 1E+23; // pot (all flux files)
   double If  = 1E+21; // pot (per flux file)
 
