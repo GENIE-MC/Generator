@@ -20,6 +20,7 @@ LIBRARIES  := $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 TGT =    gEvGen		  	\
 	 gEvDump          	\
 	 gEvGenHadronNucleus    \
+	 gEvPick	        \
 	 gEvGenGUI	  	\
 	 gMakeSplines	  	\
 	 gSplineAdd   	  	\
@@ -47,6 +48,12 @@ gEvDump: FORCE
 gEvGenHadronNucleus: FORCE
 	$(CXX) $(CXXFLAGS) -c gEvGenHadronNucleus.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) gEvGenHadronNucleus.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen_hadron
+
+# gevpick event topology cherry-picking program
+#
+gEvPick: FORCE
+	$(CXX) $(CXXFLAGS) -c gEvPick.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gEvPick.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevpick
 
 # A gevgen GUI (in devel)
 #
@@ -103,6 +110,7 @@ clean: FORCE
 	$(RM) $(GENIE_BIN_PATH)/gevgen		
 	$(RM) $(GENIE_BIN_PATH)/gevdump		
 	$(RM) $(GENIE_BIN_PATH)/gevgen_hadron
+	$(RM) $(GENIE_BIN_PATH)/gevpick
 	$(RM) $(GENIE_BIN_PATH)/gevgen_gui
 	$(RM) $(GENIE_BIN_PATH)/gmkspl 	
 	$(RM) $(GENIE_BIN_PATH)/gspladd 	
@@ -114,40 +122,13 @@ distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevgen		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevdump		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevgen_hadron
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevpick
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevgen_gui
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gmkspl 	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gspladd 	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gspl2root		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gmxpl		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gntpc		
-
-clean--gEvGen: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gevgen
-
-clean--gEvDump: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gevdump
-
-clean--gEvGenHadronNucleus: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gevgen_hadron
-
-clean--gEvGenGUI: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gevgen_gui
-
-clean--gMakeSplines: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gmkspl
-
-clean--gSplineAdd: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gspladd
-
-clean--gSplineXml2Root: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gspl2root
-
-clean--gMaxPathLengths: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gmxpl
-
-clean--gNtpConv: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gntpc
-
 
 FORCE:
 
