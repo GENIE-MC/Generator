@@ -3,10 +3,10 @@
 
 \program gevpick
 
-\brief   Reads a list of GENIE event files, cherry-picks events with a given topology and 
-         writes them out in a separate file (GHEP event tree format).
-         Additional branches are added in the output tree so that for each cherry-picked event
-         the name of its original event file and its original event number are saved 
+\brief   Reads a list of GENIE event files (GHEP format), cherry-picks events with a given 
+         topology and writes them out in a separate file.
+         2 additional branches are added in the output tree: For each cherry-picked event we 
+         store the name of the original file and its original event number in that file.
 
          The program can be used to obtain event files with given detector topologies by
          cherry-picking event files produced by running GENIE in its default/comprehensive mode.
@@ -25,8 +25,11 @@
            followed by pion absorption.
          - numuCCQE gives mostly {1mu-,0pi} but occasionaly can give {1mu-,1pi} if the recoil 
            nucleon re-interacts.
-         - NC1pi0 final states can be caused by all a) NC elastic followed by nucleon rescattering,
-           b) NC resonance neutrino-production, c) NC non-resonance background, d) low-W NC DIS
+         - NC1pi0 final states can be caused by all 
+           a) NC elastic followed by nucleon rescattering,
+           b) NC resonance neutrino-production, 
+           c) NC non-resonance background, 
+           d) low-W NC DIS
            e) NC coherent scattering. 
            Each such NC1pi0 source contributes differently in the pion momentum distribution.
 
@@ -42,15 +45,18 @@
               Wildcards accepted, eg `-i "/data/genie/t2k/gntp.*.ghep.root"'
 
            -t Specify event topology to cherry-pick.
-              Accepted values:
-                - all             :
-                - numu_cc_1pip    :
-                - numu_cc_1pi0    :
-                - numu_cc_1pim    :
-                - numu_nc_1pip    :
-                - numu_nc_1pi0    :
-                - numu_nc_1pim    :
-                - numu_cc_hyperon :
+              The input topology can be any of
+                - all             : all (basically merges all files into one)
+                - numu_cc_1pip    : numu CC with 1 \pi^{+} (and no other pion) in final state
+                - numu_cc_1pi0    : numu CC with 1 \pi^{0} (and no other pion) in final state
+                - numu_cc_1pim    : numu CC with 1 \pi^{-} (and no other pion) in final state
+                - numu_nc_1pip    : numu NC with 1 \pi^{+} (and no other pion) in final state
+                - numu_nc_1pi0    : numu NC with 1 \pi^{0} (and no other pion) in final state
+                - numu_nc_1pim    : numu NC with 1 \pi^{-} (and no other pion) in final state
+                - numu_cc_hyperon : numu CC with at least one hyperon (\Sigma^{+,0,-}, 
+                                    \Lambda^{0}, \Xi^{0,-}, \Omega^{-}) in final state
+
+                - <can add more / please send request to costas.andreopoulos \at stfc.ac.uk>
 
            -o Specify output filename.
               (optional, default: gntp.<topology>.ghep.root)
@@ -141,15 +147,17 @@ int main(int argc, char ** argv)
 void RunCherryPicker(void)
 {
   // Create an NtpWriter for writing out a tree with the cherry-picked events
-  // Add 2 additional branches to the output event tree to save XXX
+  // Add 2 additional branches to the output event tree to save the original filename
+  // and the event number in the original file (so that all info can be traced back 
+  // to its source).
 
   NtpWriter ntpw(kNFGHEP, 0);
   ntpw.CustomizeFilename(gOptOutFileName);
   ntpw.Initialize();
-  TObjString brOrigFilename;
-  Long64_t   brOrigEvtNum;
-//  ntpw.EventTree()->Branch("orig_filename", "TObjString", &brOrigFilename, 1024,1);
-  ntpw.EventTree()->Branch("orig_evtnum", &brOrigEvtNum, "brOrigEvtNum/I");
+  TObjString* brOrigFilename = new TObjString;
+  Long64_t    brOrigEvtNum;
+  ntpw.EventTree()->Branch("orig_filename", "TObjString", &brOrigFilename, 5000,0);
+  ntpw.EventTree()->Branch("orig_evtnum", &brOrigEvtNum, "brOrigEvtNum/L");
   Long64_t iev_glob = 0;
 
   // Load input trees. More than one trees can be loaded here if a wildcard was
@@ -212,8 +220,8 @@ void RunCherryPicker(void)
        LOG("gevpick", pDEBUG) << rec_header;
        LOG("gevpick", pDEBUG) << event;
        if(AcceptEvent(event)) {
-//          brOrigFilename = chEl->GetTitle();
-          brOrigEvtNum   = iev;
+          brOrigFilename->SetString(chEl->GetTitle());
+          brOrigEvtNum = iev;
           EventRecord * event_copy = new EventRecord(event);
           ntpw.AddEventRecord(iev_glob,event_copy);
           iev_glob++;
@@ -241,15 +249,25 @@ bool AcceptEvent(const EventRecord & event)
   bool iscc   = interaction->ProcInfo().IsWeakCC();
   bool isnc   = interaction->ProcInfo().IsWeakNC();
 
-  int NfP     = 0;
-  int NfN     = 0;
-  int NfPip   = 0;
-  int NfPim   = 0;
-  int NfPi0   = 0;
-  int NfKp    = 0;
-  int NfKm    = 0;
-  int NfK0    = 0;
-  int NfOther = 0;
+  int NfP       = 0; // number of protons         in final state
+  int NfPbar    = 0; // number of anti-protons    in final state
+  int NfN       = 0; // number of neutrons        in final state
+  int NfNbar    = 0; // number of anti-neutrons   in final state
+  int NfPip     = 0; // number of \pi^+'s         in final state
+  int NfPim     = 0; // number of \pi^-'s         in final state
+  int NfPi0     = 0; // number of \pi^0's         in final state
+  int NfKp      = 0; // number of \K^+'s          in final state
+  int NfKm      = 0; // number of \K^-'s          in final state
+  int NfK0      = 0; // number of \K^0's          in final state
+  int NfK0bar   = 0; // number of \bar{\K^0}'s    in final state
+  int NfSigmap  = 0; // number of \Sigma^+'s      in final state
+  int NfSigma0  = 0; // number of \Sigma^0's      in final state
+  int NfSigmam  = 0; // number of \Sigma^-'s      in final state
+  int NfLambda0 = 0; // number of \Lambda^0's     in final state
+  int NfXi0     = 0; // number of \Xi^0's         in final state
+  int NfXim     = 0; // number of \Xi^-'s         in final state
+  int NfOmegam  = 0; // number of \Omega^-'s      in final state
+  int NfOther   = 0; // number of other particles in final state
 
   TObjArrayIter piter(&event);
   GHepParticle * p = 0;
@@ -265,44 +283,58 @@ bool AcceptEvent(const EventRecord & event)
     // skip pseudo-particles
     if(pdg::IsPseudoParticle(pdgc)) continue;
     // count ...
-    if      (pdgc == kPdgProton  || pdgc == kPdgAntiProton)   NfP++;
-    else if (pdgc == kPdgNeutron || pdgc == kPdgAntiNeutron)  NfN++;
-    else if (pdgc == kPdgPiP) NfPip++;
-    else if (pdgc == kPdgPiM) NfPim++;
-    else if (pdgc == kPdgPi0) NfPi0++;
-    else if (pdgc == kPdgKP)  NfKp++;
-    else if (pdgc == kPdgKM)  NfKm++;
-    else if (pdgc == kPdgK0 || pdgc == kPdgAntiK0)  NfK0++;
-    else NfOther++;
+    if      (pdgc == kPdgProton     ) NfP++;
+    else if (pdgc == kPdgAntiProton ) NfPbar++;
+    else if (pdgc == kPdgNeutron    ) NfN++;
+    else if (pdgc == kPdgAntiNeutron) NfNbar++;
+    else if (pdgc == kPdgPiP        ) NfPip++;
+    else if (pdgc == kPdgPiM        ) NfPim++;
+    else if (pdgc == kPdgPi0        ) NfPi0++;
+    else if (pdgc == kPdgKP         ) NfKp++;
+    else if (pdgc == kPdgKM         ) NfKm++;
+    else if (pdgc == kPdgK0         ) NfK0++;
+    else if (pdgc == kPdgAntiK0     ) NfK0bar++;
+    else if (pdgc == kPdgSigmaP     ) NfSigmap++;
+    else if (pdgc == kPdgSigma0     ) NfSigma0++;
+    else if (pdgc == kPdgSigmaM     ) NfSigmam++;
+    else if (pdgc == kPdgLambda     ) NfLambda0++;
+    else if (pdgc == kPdgXi0        ) NfXi0++;
+    else if (pdgc == kPdgXiM        ) NfXim++;
+    else if (pdgc == kPdgOmegaM     ) NfOmegam++;
+    else                              NfOther++;
   }
 
-  bool is1pip = (NfPip==1 && NfPi0==0 && NfPim==0 && NfKp==0 && NfKm==0 && NfK0==0);
-  bool is1pi0 = (NfPip==0 && NfPi0==1 && NfPim==0 && NfKp==0 && NfKm==0 && NfK0==0);
-  bool is1pim = (NfPip==0 && NfPi0==0 && NfPim==1 && NfKp==0 && NfKm==0 && NfK0==0);
+  bool is1pipX  = (NfPip==1 && NfPi0==0 && NfPim==0);
+  bool is1pi0X  = (NfPip==0 && NfPi0==1 && NfPim==0);
+  bool is1pimX  = (NfPip==0 && NfPi0==0 && NfPim==1);
+  bool has_hype = (NfSigmap+NfSigma0+NfSigmam+NfLambda0+NfXi0+NfXim+NfOmegam > 0);
 
   if ( gPickedTopology == kPtNumuCC1pip ) {
-    if(isnumu && iscc && is1pip) return true;
+    if(isnumu && iscc && is1pipX) return true;
     return false;
   }
   if ( gPickedTopology == kPtNumuCC1pi0 ) {
-    if(isnumu && iscc && is1pi0) return true;
+    if(isnumu && iscc && is1pi0X) return true;
     return false;
   }
   if ( gPickedTopology == kPtNumuCC1pim ) {
-    if(isnumu && iscc && is1pim) return true;
+    if(isnumu && iscc && is1pimX) return true;
     return false;
   }
   if ( gPickedTopology == kPtNumuNC1pip ) {
-    if(isnumu && isnc && is1pip) return true;
+    if(isnumu && isnc && is1pipX) return true;
     return false;
   }
   if ( gPickedTopology == kPtNumuNC1pi0 ) {
-    if(isnumu && isnc && is1pi0) return true;
+    if(isnumu && isnc && is1pi0X) return true;
     return false;
   }
   if ( gPickedTopology == kPtNumuNC1pim ) {
-    if(isnumu && isnc && is1pim) return true;
+    if(isnumu && isnc && is1pimX) return true;
     return false;
+  }
+  if ( gPickedTopology == kPtNumuCChyperon ) {
+    if(isnumu && iscc && has_hype) return true;
   }
 
   return false;
