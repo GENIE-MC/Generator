@@ -43,44 +43,91 @@
   const char xsecfile = "./genie_sk_xsec_table.dat";
 
   // consts
+
+  double Mfv = 2.2E+10; // want final event numbers shown for this ficucial mass (gr)
+  double I0  = 1E+21;   // want final event numbers shown for this POT exposure
+
   double Na  = 6.023E+23;
-  double Mfv = 1E+10; // gr
-  double A   = 18;    // gr
-  double If  = 1E+21; // pot (per flux file)
-  int    NF  = 100;   // number of flux files used
+  double A   = 18;      // gr
+  double IF  = 1E+21;   // number of POTs per flux file
+  int    NF  = 100;     // number of flux files used
 
   // binning in xsection and flux files
+
   double Emin =  0.0;
   double Emax = 15.0;
   double dE   =  0.050;
   int    nE   = (Emax-Emin)/dE;
 
   // load genie cross sections for water
+
   TTree xsec_water;
   xsec_water.ReadFile("genie_sk_xsec_table.dat", "E/D:xsec_numu/D:xsec_numubar/D:xsec_nue/D:xsec_nuebar/D");
-  TH1D * xnumu = new TH1D("xnumu", "", nE, Emin, Emax);
-  xsec_water.Draw("E>>xnumu", "xsec_numu", "goff");
+  TH1D * xnumu    = new TH1D("xnumu",    "", nE, Emin, Emax);
+  TH1D * xnumubar = new TH1D("xnumubar", "", nE, Emin, Emax);
+  TH1D * xnue     = new TH1D("xnue",     "", nE, Emin, Emax);
+  xsec_water.Draw("E>>xnumu",    "xsec_numu",    "goff");
+  xsec_water.Draw("E>>xnumubar", "xsec_numubar", "goff");
+  xsec_water.Draw("E>>xnue",     "xsec_nue",     "goff");
 
   // load SuperK flux histograms
-  TFile * flux = new TFile(skfluxfile, "read");
-  TH1D * fnumu = (TH1D*) flux->Get("numu_flux");
 
-  double N = 0;
+  TFile * flux = new TFile(skfluxfile, "read");
+  TH1D * fnumu    = (TH1D*) flux->Get("numu_flux");
+  TH1D * fnumubar = (TH1D*) flux->Get("numubar_flux");
+  TH1D * fnue     = (TH1D*) flux->Get("nue_flux");  // instrinsic beam nue
+
+  // integrate flux x cross section and apply exposure / fiducial mass and dimensional factors
+
+  double Nnumu    = 0;
+  double Nnumubar = 0;
+  double Nnue     = 0;
+  double Nnuesig  = 0; // numu->nue
 
   for(int i=1; i<=fnumu->GetNbinsX(); i++) {
     double E = fnumu->GetBinCenter(i);
     
-    double xsec_numu = xnumu -> GetBinContent (xnumu -> FindBin(E));
-    double flux_numu = fnumu -> GetBinContent (fnumu -> FindBin(E));
+    double xsec_numu    = xnumu    -> GetBinContent (xnumu    -> FindBin(E));
+    double flux_numu    = fnumu    -> GetBinContent (fnumu    -> FindBin(E));
+    double xsec_numubar = xnumubar -> GetBinContent (xnumubar -> FindBin(E));
+    double flux_numubar = fnumubar -> GetBinContent (fnumubar -> FindBin(E));
+    double xsec_nue     = xnue     -> GetBinContent (xnue     -> FindBin(E));
+    double flux_nue     = fnue     -> GetBinContent (fnue     -> FindBin(E));
 
-    cout << "E = " << E << ", sigma(numu) = " << xsec_numu << ", flux(numu) = " << flux_numu << endl;
+    cout << "E = " << E << " GeV";
+    cout << " - numu   : sigma(H20) = " << xsec_numu    << " x1E-38 cm2, flux(@SK) = " << flux_numu    
+         << " /" << dE << " GeV /" << (NF*IF) << " POT /cm2" << endl;
+    cout << " - numubar: sigma(H20) = " << xsec_numubar << " x1E-38 cm2, flux(@SK) = " << flux_numubar 
+         << " /" << dE << " GeV /" << (NF*IF) << " POT /cm2" << endl;
+    cout << " - nue    : sigma(H20) = " << xsec_nue     << " x1E-38 cm2, flux(@SK) = "  << flux_nue    
+         << " /" << dE << " GeV /" << (NF*IF) << " POT /cm2" << endl;
 
-    N += (flux_numu * xsec_numu);
-    cout << N << endl;
+    Nnumu    += ( flux_numu    * xsec_numu    );
+    Nnumubar += ( flux_numubar * xsec_numubar );
+    Nnue     += ( flux_nue     * xsec_nue     );
+    Nnuesig  += ( flux_numu    * xsec_nue     ); // 100% numu->nue 
   }
 
-  N *= ( Na * 1E-38 * (Mfv/A) * dE );
+  double f =  Na * 1E-38 * (Mfv/A) * I0 / (NF*IF);
 
-  cout << "n = " << N << " SK numu events "
-       << "per " << (NF * If)  << " POT per " << Mfv/1E+9 << " kton fiducial"<< endl;
+  Nnumu    *= f;
+  Nnumubar *= f;
+  Nnue     *= f;
+  Nnuesig  *= f;
+
+  // print-out results
+
+  cout << endl;
+  cout << endl;
+  cout << "---------------------------------------------------------------------------" << endl;
+  cout << "species                 | # of SK events per " 
+       << I0  << " POT per " << Mfv/1E+9 << " kton fiducial"<< endl;
+  cout << "---------------------------------------------------------------------------" << endl;
+  cout << "numu                    | " << Nnumu    << endl; 
+  cout << "numubar                 | " << Nnumubar << endl;
+  cout << "nue(bkg)                | " << Nnue     << endl;
+  cout << "nue(sig,100% numu->nue) | " << Nnuesig  << endl;
+  cout << "---------------------------------------------------------------------------" << endl;
+  cout << endl;
+
 }
