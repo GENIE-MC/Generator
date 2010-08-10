@@ -3,16 +3,12 @@
 
 \program gevpick
 
-\brief   Reads a list of GENIE event files (GHEP format), cherry-picks events with a given 
+\brief   Reads a list of GENIE event files (GHEP format), `cherry-picks' events with a given 
          topology and writes them out in a separate file.
-         2 additional branches are added in the output tree: For each cherry-picked event we 
-         store the name of the original file and its original event number in that file.
 
-         The program can be used to obtain event files with given detector topologies by
-         cherry-picking event files produced by running GENIE in its default/comprehensive mode.
-
-         Note that this is the __only_recommended__ way to obtain such samples.
-
+         This is the _only_recommended_ way to obtain event files that contain specific final 
+         states (by cherry-picking events from files generated running GENIE in a comprehensive 
+         mode). We don't recommend you attempt switching off generator-level reaction modes.
          No detector measures generator-level reaction modes like CCQE or NCRES.
          Detectors measure final states / topologies like {1mu-,0pi}, {1mu-,1pi+},
          {0mu-, 1pi0}, {1 track, 1 shower}, {1 mu-like ring} etc depending on granularity, 
@@ -32,6 +28,11 @@
            d) low-W NC DIS
            e) NC coherent scattering. 
            Each such NC1pi0 source contributes differently in the pion momentum distribution.
+
+         Note on output event tree: 
+         2 additional branches are added in the output GHEP tree. For each cherry-picked 
+         event we store a) the name of the original file and b) its original event number 
+         so that a link to the original event data files in maintained.
 
 
          Syntax:
