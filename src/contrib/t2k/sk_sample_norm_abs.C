@@ -16,16 +16,17 @@
 //   I: beam intensity (POT)
 //
 // SK flux is given in #neutrinos per 0.05 GeV per cm2 per 1E+21 POTs
-// Input water cross sections are given in 1E-28 cm2
+// Input water cross sections are given in 1E-38 cm2
 //
-// N = 6.023E+23 x 1E-38 x NF x (Mfv/A) x Ebinsz x Sum_{i} { F_{i} * sig_{i} }
+// N = 6.023E+23 x 1E-38 x (Mfv/A) x Ebinsz x Sum_{i} { F_{i} * sig_{i} }
 //
 // where 
+//  N  : expected number of events for NF x 1E+21 POT
 //  Mfv: fiducial volume mass
 //  NF : number of 1E+21 POT worth of flux files chained together to produce the flux histogram
 //  Ebinsz: energy bin size (0.05 GeV)
-//  F_{i): flux in bin i
-//  sig_{i}: cross section evaluated at centre of bin i
+//  F_{i): flux in bin i (in number of flux neutrinos / Ebinsz / (NF x 1E+21 POT))
+//  sig_{i}: cross section evaluated at centre of bin i (1E-38 cm^2)
 //
 // notes:
 //  Ptot = P(H1) + P(O16) = sigma(H1)*w(H1)*rho/A(H1) + sigma(O16)*w(O16)*rho/A(O16)
@@ -44,9 +45,9 @@
   // consts
   double Na  = 6.023E+23;
   double Mfv = 1E+10; // gr
-  double A   = 18; // gr
-  double Io  = 1E+23; // pot (all flux files)
+  double A   = 18;    // gr
   double If  = 1E+21; // pot (per flux file)
+  int    NF  = 100;   // number of flux files used
 
   // binning in xsection and flux files
   double Emin =  0.0;
@@ -78,8 +79,8 @@
     cout << N << endl;
   }
 
-  N *= ( Na * 1E-38 * (Io/If) * (Mfv/A) * dE );
+  N *= ( Na * 1E-38 * (Mfv/A) * dE );
 
   cout << "n = " << N << " SK numu events "
-       << "per " << Io << " POT per " << Mfv/1E+9 << " kton fiducial"<< endl;
+       << "per " << (NF * If)  << " POT per " << Mfv/1E+9 << " kton fiducial"<< endl;
 }
