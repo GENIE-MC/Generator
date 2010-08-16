@@ -1,5 +1,5 @@
 {
-// Absolute normalization of SuperK numu event sample
+// Absolute normalization of SuperK event samples
 //
 // N = Integral{
 //      (d3Flux / dE dS dI) * sig(E) * (Na/A) * rho*L * dE*dS*dI}
@@ -44,8 +44,8 @@
 
   // consts
 
-  double Mfv = 2.2E+10; // want final event numbers shown for this ficucial mass (gr)
-  double I0  = 1E+21;   // want final event numbers shown for this POT exposure
+  double Mfv = 2.25E+10; // want final event numbers shown for this ficucial mass (gr)
+  double I0  = 1E+21;    // want final event numbers shown for this POT exposure
 
   double Na  = 6.023E+23;
   double A   = 18;      // gr
