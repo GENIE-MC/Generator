@@ -23,4 +23,5 @@ void test_units(void)
   cout << "MeV    -> GeV        ? => x" << mev2gev    << endl;
   cout << "GeV^-2 -> 1E-38 cm^2 ? => x" << to1E_38cm2 << endl;
   cout << "fm^2   -> mbarn      ? => x" << fm2tomb    << endl;
+  cout << "MeV    -> GeV        ? => x" << units::MeV   << endl;
 }
