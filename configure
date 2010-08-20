@@ -39,6 +39,7 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "    numi              Enable NuMI-specific ev.gen. drivers and tools           default: disabled \n";
   print "    lbne              Enable LBNE-specific ev.gen. drivers and tools           default: disabled \n";
   print "    ino               Enable INO-specific ev.gen. drivers and tools            default: disabled \n";
+  print "    atmo              Enable generic atmospheric nu ev.gen drivers and tools   default: disabled \n";
   print "\n options for 3rd party software, prefix with --with- (eg --with-lhapdf-lib=/some/path/)\n\n";
   print "    optimiz-level     Compiler optimization        any of O,O2,O3,OO,Os / default: O2 \n";
   print "    profiler-lib      Path to profiler library     needed if you --enable-profiler \n";
@@ -138,6 +139,7 @@ my $gopt_enable_t2k              = "NO";
 my $gopt_enable_numi             = "NO";
 my $gopt_enable_lbne             = "NO";
 my $gopt_enable_ino              = "NO";
+my $gopt_enable_atmo             = "NO";
 
 # Check configure's command line arguments for non-default values
 #
@@ -162,6 +164,7 @@ if(($match = grep(/--enable-t2k/i,              @ARGV)) > 0) { $gopt_enable_t2k 
 if(($match = grep(/--enable-numi/i,             @ARGV)) > 0) { $gopt_enable_numi             = "YES"; }
 if(($match = grep(/--enable-lbne/i,             @ARGV)) > 0) { $gopt_enable_lbne             = "YES"; }
 if(($match = grep(/--enable-ino/i,              @ARGV)) > 0) { $gopt_enable_ino              = "YES"; }
+if(($match = grep(/--enable-atmo/i,             @ARGV)) > 0) { $gopt_enable_atmo             = "YES"; }
 
 my $gopt_with_cxx_debug_flag="";
 if($gopt_enable_debug eq "YES") { $gopt_with_cxx_debug_flag = "-g"; }
@@ -502,6 +505,7 @@ print MKCONF "GOPT_ENABLE_T2K=$gopt_enable_t2k\n";
 print MKCONF "GOPT_ENABLE_NUMI=$gopt_enable_numi\n";
 print MKCONF "GOPT_ENABLE_LBNE=$gopt_enable_lbne\n";
 print MKCONF "GOPT_ENABLE_INO=$gopt_enable_ino\n";
+print MKCONF "GOPT_ENABLE_ATMO=$gopt_enable_atmo\n";
 print MKCONF "GOPT_WITH_CXX_DEBUG_FLAG=$gopt_with_cxx_debug_flag\n";
 print MKCONF "GOPT_WITH_CXX_OPTIMIZ_FLAG=-$gopt_with_cxx_optimiz_flag\n";
 print MKCONF "GOPT_WITH_PROFILER_LIB=$gopt_with_profiler_lib\n";

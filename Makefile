@@ -42,6 +42,7 @@ BUILD_TARGETS =    print-make-info \
 		   numi-support-softw \
 		   lbne-support-softw \
 		   ino-support-softw \
+		   atmo-support-softw \
 		   install-scripts
 INSTALL_TARGETS =  print-makeinstall-info \
 		   check-previous-installation \
@@ -367,8 +368,18 @@ ino-support-softw: FORCE
 	@echo " "
 	@echo "** Building INO-specific support software..."
 ifeq ($(strip $(GOPT_ENABLE_INO)),YES)
-	@echo "* Building INO-specific GENIE tools"
 	cd ${GENIE}/src/support/ino/EvGen/;\
+	make all; \
+	cd ${GENIE}
+else
+	@echo "Not enabled! Skipping..."
+endif
+
+atmo-nu-support-softw: FORCE
+	@echo " "
+	@echo "** Building support software for atmospheric neutrino studies..."
+ifeq ($(strip $(GOPT_ENABLE_ATMO)),YES)
+	cd ${GENIE}/src/support/atmo/EvGen/;\
 	make all; \
 	cd ${GENIE}
 else
@@ -643,6 +654,7 @@ clean-files: FORCE
 	cd support/numi/EvGen/;           make clean; cd ../../../; \
 	cd support/lbne/EvGen/;           make clean; cd ../../../; \
 	cd support/ino/EvGen/;            make clean; cd ../../../; \
+	cd support/atmo/EvGen/;           make clean; cd ../../../; \
 	cd test;                          make clean; cd ..; \
 	cd scripts;	                  make clean; \
 	cd ${GENIE}
@@ -720,6 +732,7 @@ distclean: FORCE
 	cd support/numi/EvGen/;            make distclean; cd ../../../; \
 	cd support/lbne/EvGen/;            make distclean; cd ../../../; \
 	cd support/ino/EvGen/;             make distclean; cd ../../../; \
+	cd support/atmo/EvGen/;            make distclean; cd ../../../; \
 	cd test;                           make distclean; cd ..; \
 	cd scripts;	                   make distclean; \
 	cd ${GENIE}
