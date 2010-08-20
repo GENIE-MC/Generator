@@ -29,6 +29,7 @@ TGT =	gtestAlgorithms 	 \
  	gtestFluxAstro 		 \
  	gtestFluxAtmo 		 \
  	gtestFluxSimple 	 \
+	gtestFGPauliBlockSuppr   \
         gtestGiBUUData           \
 	gtestHadronization	 \
 	gtestINukeHadroData      \
@@ -36,7 +37,6 @@ TGT =	gtestAlgorithms 	 \
 	gtestNumerical		 \
 	gtestNaturalIsotopes	 \
 	gtestPDFLIB		 \
-	gtestQENuclSuppression   \
 	gtestPREM		 \
 	gtestROOTGeometry	 \
 	gtestFermiP		 \
@@ -106,6 +106,10 @@ else
 	@echo "You need to enable the flux drivers to build the gtestFluxSimple program"
 endif
 
+gtestFGPauliBlockSuppr:
+	$(CXX) $(CXXFLAGS) -c gtestFGPauliBlockSuppr.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gtestFGPauliBlockSuppr.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestFGPauliBlockSuppr
+
 gtestGiBUUData: FORCE
 	$(CXX) $(CXXFLAGS) -c gtestGiBUUData.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) gtestGiBUUData.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestGiBUUData
@@ -125,10 +129,6 @@ gtestXSec: FORCE
 gtestPDFLIB: FORCE
 	$(CXX) $(CXXFLAGS) -c gtestPDFLIB.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) gtestPDFLIB.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestPDFLIB
-
-gtestQENuclSuppression: FORCE
-	$(CXX) $(CXXFLAGS) -c gtestQENuclSuppression.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) gtestQENuclSuppression.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestQENuclSuppression
 
 gtestPREM: FORCE
 	$(CXX) $(CXXFLAGS) -c gtestPREM.cxx $(INCLUDES)
@@ -212,6 +212,7 @@ clean: FORCE
 	$(RM) $(GENIE_BIN_PATH)/gtestFluxAstro
 	$(RM) $(GENIE_BIN_PATH)/gtestFluxAtmo
 	$(RM) $(GENIE_BIN_PATH)/gtestFluxSimple
+	$(RM) $(GENIE_BIN_PATH)/gtestFGPauliBlockSuppr
 	$(RM) $(GENIE_BIN_PATH)/gtestGiBUUData
 	$(RM) $(GENIE_BIN_PATH)/gtestHadronization	
 	$(RM) $(GENIE_BIN_PATH)/gtestINukeHadroData	
@@ -219,7 +220,6 @@ clean: FORCE
 	$(RM) $(GENIE_BIN_PATH)/gtestNumerical		
 	$(RM) $(GENIE_BIN_PATH)/gtestNaturalIsotopes	
 	$(RM) $(GENIE_BIN_PATH)/gtestPDFLIB		
-	$(RM) $(GENIE_BIN_PATH)/gtestQENuclSuppression
 	$(RM) $(GENIE_BIN_PATH)/gtestPREM		
 	$(RM) $(GENIE_BIN_PATH)/gtestFermiP		
 	$(RM) $(GENIE_BIN_PATH)/gtestRewght		
@@ -248,6 +248,7 @@ distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestFluxAstro
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestFluxAtmo
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestFluxSimple
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestFGPauliBlockSuppr
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestGiBUUData
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestHadronization	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestINukeHadroData
@@ -255,7 +256,6 @@ distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestNumerical		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestNaturalIsotopes		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestPDFLIB		
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestQENuclSuppression
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestPREM		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestFermiP		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestRewght		
