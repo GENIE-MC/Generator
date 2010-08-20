@@ -17,9 +17,10 @@
 //____________________________________________________________________________
 
 #include <cstdlib>
-
 #include <sys/types.h>
 #include <dirent.h>
+
+#include <TSystem.h>
 
 #include "Messenger/Messenger.h"
 #include "Utils/StringUtils.h"
@@ -78,6 +79,16 @@ int genie::utils::system::GenieRevisVrsNum(string tag)
   vector<string> vrs = utils::str::Split(tag,".");
   assert(vrs.size() == 3);
   return atoi(vrs[2].c_str());
+}
+//___________________________________________________________________________
+bool genie::utils::system::FileExists(string filename)
+{
+  if(filename.size() == 0) return false;
+
+  bool is_accessible = ! (gSystem->AccessPathName(filename.c_str()));
+  if (is_accessible) return true;
+    
+  return false;
 }
 //___________________________________________________________________________
 
