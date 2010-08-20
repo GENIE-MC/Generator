@@ -29,13 +29,20 @@
               [default: 100000000]
 
            -f Specifies the input flux files
-              The general syntax is: `-f /path/file.data[neutrino_code],...'
+              The general syntax is: `-f simulation:/path/file.data[neutrino_code],...'
               [Notes] 
+               - The `simulation' string can be either `FLUKA' or `BGLRS' (so that
+                 input data are binned using the correct FLUKA and BGLRS energy and
+                 costheta binning). See comments in 
+                 - $GENIE/src/Flux/GFlukaAtmo3DFlux.h
+                 - $GENIE/src/Flux/GBartolAtmoFlux.h
+                 and follow the links to the FLUKA and BGLRS atmo. flux web pages.
                - The neutrino codes are the PDG ones.
                - The /path/file.data,neutrino_code part of the option can be 
                  repeated multiple times (separated by commas), once for each 
                  flux neutrino species you want to consider, 
-                 eg. '-f ~/data/sdave_numu07.dat[14],~/data/sdave_nue07.dat[12]'
+                 eg. '-f FLUKA:~/data/sdave_numu07.dat[14],~/data/sdave_nue07.dat[12]'
+                 eg. '-f BGLRS:~/data/flux10_271003_z.kam_nue[12]'
 
            -g Input 'geometry'.
               This option can be used to specify any of:
@@ -108,14 +115,14 @@
 
            (1) Generate 100k events (run number 999210) in the energy range 1-10 GeV
                for nu_e and nu_mu only, using the sdave_numu07.dat FLUKA flux file for
-               nu_mu and the sdave_nue07.dat file for nu_e (files in /data/flux/).
-               Use the detector geometry in the /data/geom.root file, where the geometry
-               length and density units are m and kgr/m^3. Generate events over the
-               entire geometry volume.
+               nu_mu and the sdave_nue07.dat file for nu_e (files in /data/flx/).
+               Use the detector geometry in the /data/geo/SuperK.root file, where the 
+               geometry length and density units are m and kgr/m^3. Generate events over 
+               the entire geometry volume.
 
                % gevgen_atmo -r 999210 -n 100000 -e 1,10
-                       -f /data/flux/sdave_numu07.dat[14],/data/flux/sdave_nue07.dat[12] 
-                       -g /data/geom.root -L "m" -D "kg_m3"
+                       -f FLUKA:/data/flx/sdave_numu07.dat[14],/data/flx/sdave_nue07.dat[12] 
+                       -g /data/geo/SuperK.root -L "m" -D "kg_m3"
 
 
            (2) Like above but, instead of generating events in a realistic detector
@@ -144,6 +151,9 @@
          Hugh Gallagher <hugh.gallagher \at stfc.ac.uk>
          Tufts University
 
+         Tarak Thakore <tarak \at mailhost.tifr.res.in>
+         Tata Institute of Fundamental Research 
+
 \cpright Copyright (c) 2003-2010, GENIE Neutrino MC Generator Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
          or see $GENIE/LICENSE
@@ -152,6 +162,7 @@
 
 #include <cassert>
 #include <cstdlib>
+#include <cctype>
 #include <string>
 #include <vector>
 #include <sstream>
@@ -200,6 +211,7 @@ GeomAnalyzerI * GetGeometry        (void);
 // User-specified options:
 //
 Long_t          gOptRunNu;                     // run number
+string          gOptFluxSim;                   // flux simulation (FLUKA or BGLRS)
 map<int,string> gOptFluxFiles;                 // neutrino pdg code -> flux file map
 bool            gOptUsingRootGeom = false;     // using root geom or target mix?
 map<int,double> gOptTgtMix;                    // target mix  (tgt pdg -> wght frac) / if not using detailed root geom
@@ -354,23 +366,35 @@ GFluxI* GetFlux(void)
 
 #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
 
-  GFlukaAtmo3DFlux * fluka_flux = new GFlukaAtmo3DFlux;
-
-  // set min/max energy
-  fluka_flux->ForceMinEnergy (gOptEvMin * units::GeV);
-  fluka_flux->ForceMaxEnergy (gOptEvMax * units::GeV);    
-  // set flux files
-  assert(gOptFluxFiles.size() != 0);
+  // Instantiate appropriate concrete flux driver
+  GAtmoFlux * atmo_flux_driver = 0;
+  if(gOptFluxSim == "FLUKA") {
+     GFlukaAtmo3DFlux * fluka_flux = new GFlukaAtmo3DFlux;
+     atmo_flux_driver = dynamic_cast<GAtmoFlux *>(fluka_flux);
+  } else
+  if(gOptFluxSim == "BGLRS") {
+     GBartolAtmoFlux * bartol_flux = new GBartolAtmoFlux;
+     atmo_flux_driver = dynamic_cast<GAtmoFlux *>(bartol_flux);
+  } else {
+     LOG("gevgen_atmo", pFATAL) << "Uknonwn flux simulation: " << gOptFluxSim;
+     gAbortingInErr = true;
+     exit(1);
+  }
+  // Configure GAtmoFlux options (common to all concrete atmospheric flux drivers)
+  // set min/max energy:
+  atmo_flux_driver->ForceMinEnergy (gOptEvMin * units::GeV);
+  atmo_flux_driver->ForceMaxEnergy (gOptEvMax * units::GeV);    
+  // set flux files:
   map<int,string>::const_iterator file_iter = gOptFluxFiles.begin();
   for( ; file_iter != gOptFluxFiles.end(); ++file_iter) {
-     int neutrino_code = file_iter->first;
-     string filename   = file_iter->second;
-     fluka_flux->SetFluxFile(neutrino_code, filename);
+    int neutrino_code = file_iter->first;
+    string filename   = file_iter->second;
+    atmo_flux_driver->SetFluxFile(neutrino_code, filename);
   }
-  fluka_flux->LoadFluxData();
-  fluka_flux->SetRadii(1, 1);
-
-  flux_driver = dynamic_cast<GFluxI *>(fluka_flux);
+  atmo_flux_driver->LoadFluxData();
+  atmo_flux_driver->SetRadii(1, 1);
+  // Cast to GFluxI, the generic flux driver interface 
+  flux_driver = dynamic_cast<GFluxI *>(atmo_flux_driver);
 
 #else
   LOG("gevgen_atmo", pFATAL) << "You need to enable the GENIE flux drivers first!";
@@ -469,10 +493,36 @@ void GetCommandLineArgs(int argc, char ** argv)
   //
   // *** flux files
   //
+  // syntax: 
+  // simulation:/path/file.data[neutrino_code],/path/file.data[neutrino_code],...
+  //
   if( parser.OptionExists('f') ) {
     LOG("gevgen_atmo", pDEBUG) << "Getting input flux files";
     string flux = parser.ArgAsString('f');
 
+    // get flux simulation info (FLUKA,BGLRS) so as to instantiate the
+    // appropriate flux driver
+    string::size_type jsimend = flux.find_first_of(":",0);
+    if(jsimend==string::npos) {
+       LOG("gevgen_atmo", pFATAL) 
+           << "You need to specify the flux file source"; 
+       PrintSyntax();
+       gAbortingInErr = true;
+       exit(1);
+    }
+    gOptFluxSim = flux.substr(0,jsimend);
+    for(string::size_type i=0; i<gOptFluxSim.size(); i++) {
+       gOptFluxSim[i] = toupper(gOptFluxSim[i]);
+    }
+    if((gOptFluxSim != "FLUKA") && (gOptFluxSim != "BGLRS")) {
+        LOG("gevgen_atmo", pFATAL) 
+             << "The flux file source needs to be one of <FLUKA,BGLRS>"; 
+        PrintSyntax();
+        gAbortingInErr = true;
+        exit(1);
+    }
+    // now get the list of input files and the corresponding neutrino codes.
+    flux.erase(0,jsimend+1); 
     vector<string> fluxv = utils::str::Split(flux,",");      
     vector<string>::const_iterator fluxiter = fluxv.begin();
     for( ; fluxiter != fluxv.end(); ++fluxiter) {
@@ -496,6 +546,13 @@ void GetCommandLineArgs(int argc, char ** argv)
        string neutrino_pdg    = filename_and_pdg.substr(jbeg,jend-jbeg);
        gOptFluxFiles.insert( 
           map<int,string>::value_type(atoi(neutrino_pdg.c_str()), flux_filename));
+    }
+    if(gOptFluxFiles.size() == 0) {
+       LOG("gevgen_atmo", pFATAL) 
+          << "You must specify at least one flux file!"; 
+       PrintSyntax();
+       gAbortingInErr = true;
+       exit(1);
     }
 
   } else {
@@ -647,7 +704,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   }
      
   ostringstream fluxinfo;
-  fluxinfo << "Using flux files: ";
+  fluxinfo << "Using " << gOptFluxSim << " flux files: ";
   map<int,string>::const_iterator file_iter = gOptFluxFiles.begin();
   for( ; file_iter != gOptFluxFiles.end(); ++file_iter) {
      int neutrino_code = file_iter->first;
@@ -655,11 +712,12 @@ void GetCommandLineArgs(int argc, char ** argv)
      TParticlePDG * p = pdglib->Find(neutrino_code);
      if(p) {
         string name = p->GetName();
-        gminfo << "(" << name << ") -> " << filename << " / ";
+        fluxinfo << "(" << name << ") -> " << filename << " / ";
      }
   }
 
   LOG("gevgen_atmo", pNOTICE) 
+     << "\n"
      << "\n ****** MC Job (" << gOptRunNu << ") Settings ****** "
      << "\n @@ Geometry"
      << "\n\t" << gminfo.str()
@@ -668,8 +726,8 @@ void GetCommandLineArgs(int argc, char ** argv)
      << "\n @@ Exposure" 
      << "\n\t Number of events = " << gOptNev
      << "\n @@ Cuts"
-     << "\n\t Energy range = (" << gOptEvMin << " GeV, " << gOptEvMax << " GeV)";
-
+     << "\n\t Using energy range = (" << gOptEvMin << " GeV, " << gOptEvMax << " GeV)"
+     << "\n\n";
 }
 //________________________________________________________________________________________
 void PrintSyntax(void)
@@ -678,7 +736,7 @@ void PrintSyntax(void)
    << "\n **Syntax**"
    << "\n gevgen_atmo [-h]"
    << "\n           [-r run#]"
-   << "\n            -f flux_file[neutrino_code],..."
+   << "\n            -f simulation:flux_file[neutrino_code],..."
    << "\n            -g geometry"
    << "\n           [-t top_volume_name_at_geom]"
    << "\n           [-m max_path_lengths_xml_file]"
