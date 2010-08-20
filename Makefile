@@ -375,7 +375,7 @@ else
 	@echo "Not enabled! Skipping..."
 endif
 
-atmo-nu-support-softw: FORCE
+atmo-support-softw: FORCE
 	@echo " "
 	@echo "** Building support software for atmospheric neutrino studies..."
 ifeq ($(strip $(GOPT_ENABLE_ATMO)),YES)
