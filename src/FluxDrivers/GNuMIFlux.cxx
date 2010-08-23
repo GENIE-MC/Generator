@@ -165,6 +165,7 @@
 #include <vector>
 #include <sstream>
 #include <cassert>
+#include <climits>
 
 #include "libxml/xmlmemory.h"
 #include "libxml/parser.h"
@@ -1224,20 +1225,31 @@ void GNuMIFlux::AddFile(TTree* thetree, string fname)
   // first/last "evtno" are the proton # of the first/last proton
   // that generated a neutrino ... not necessarily true first/last #
   // estimate we're probably not off by more than 100 ...
+  // !Important change
+  // Some files (due to some intermediate flugg issues) list evtno==0
+  // when it isn't really true, we need to scan nearby values in case the
+  // last entry is one of these (otherwise file contributes 0 POTs).  
+  // Also assume quantization of 500 (instead of 100).
   Int_t evtno = 0;
   TBranch* br_evtno = 0;
   thetree->SetBranchAddress("evtno",&evtno, &br_evtno);
-  thetree->GetEntry(0);
-  Int_t evt_1 = evtno;
-  Int_t est_1 = (TMath::FloorNint(evt_1/100.))*100 + 1;
-  thetree->GetEntry(nentries-1);
-  Int_t evt_N = evtno;
-  Int_t est_N = (TMath::FloorNint((evt_N-1)/100.)+1)*100;
+  Int_t evt_1 = 0x7FFFFFFF;
+  Int_t evt_N = 1;
+  for (int j=0; j<50; ++j) {
+    thetree->GetEntry(j);
+    if (evtno != 0) evt_1 = TMath::Min(evtno,evt_1);
+    thetree->GetEntry(nentries-1 -j );
+    if (evtno != 0) evt_N = TMath::Max(evtno,evt_N);
+  }
+  const Int_t    nquant = 500;  // 100
+  const Double_t rquant = nquant;
+  Int_t est_1 = (TMath::FloorNint(evt_1/rquant))*nquant + 1;
+  Int_t est_N = (TMath::FloorNint((evt_N-1)/rquant)+1)*nquant;
   ULong64_t npots = est_N - est_1 + 1;
-
   LOG("Flux",pNOTICE) //INFO)
     << fNuFluxTreeName << "->AddFile() of " << nentries << " entries ["
-    << evt_1 << ":" << evt_N << "(" <<  est_1 << ":" << est_N << ")=" 
+    << evt_1 << ":" << evt_N << "%" << nquant 
+    << "(" <<  est_1 << ":" << est_N << ")=" 
     << npots <<" POTs] in {" << fNuFluxGen << "} file: " << fname;
   fNuTot    += nentries;
   fFilePOTs += npots;
