@@ -262,30 +262,31 @@ bool AcceptEvent(const EventRecord & event)
 
   const Interaction * interaction = event.Summary();
 
-  int  nupdg  = event.Probe()->Pdg();
-  bool isnumu = (nupdg == kPdgNuMu);
-  bool iscc   = interaction->ProcInfo().IsWeakCC();
-  bool isnc   = interaction->ProcInfo().IsWeakNC();
+  int  nupdg     = event.Probe()->Pdg();
+  bool isnumu    = (nupdg == kPdgNuMu);
+  bool isnumubar = (nupdg == kPdgAntiNuMu);
+  bool iscc      = interaction->ProcInfo().IsWeakCC();
+  bool isnc      = interaction->ProcInfo().IsWeakNC();
 
-  int NfP       = 0; // number of protons         in final state
-  int NfPbar    = 0; // number of anti-protons    in final state
-  int NfN       = 0; // number of neutrons        in final state
-  int NfNbar    = 0; // number of anti-neutrons   in final state
-  int NfPip     = 0; // number of \pi^+'s         in final state
-  int NfPim     = 0; // number of \pi^-'s         in final state
-  int NfPi0     = 0; // number of \pi^0's         in final state
-  int NfKp      = 0; // number of \K^+'s          in final state
-  int NfKm      = 0; // number of \K^-'s          in final state
-  int NfK0      = 0; // number of \K^0's          in final state
-  int NfK0bar   = 0; // number of \bar{\K^0}'s    in final state
-  int NfSigmap  = 0; // number of \Sigma^+'s      in final state
-  int NfSigma0  = 0; // number of \Sigma^0's      in final state
-  int NfSigmam  = 0; // number of \Sigma^-'s      in final state
-  int NfLambda0 = 0; // number of \Lambda^0's     in final state
-  int NfXi0     = 0; // number of \Xi^0's         in final state
-  int NfXim     = 0; // number of \Xi^-'s         in final state
-  int NfOmegam  = 0; // number of \Omega^-'s      in final state
-  int NfOther   = 0; // number of other particles in final state
+  int NfP        = 0; // number of protons         in final state
+  int NfPbar     = 0; // number of anti-protons    in final state
+  int NfN        = 0; // number of neutrons        in final state
+  int NfNbar     = 0; // number of anti-neutrons   in final state
+  int NfPip      = 0; // number of \pi^+'s         in final state
+  int NfPim      = 0; // number of \pi^-'s         in final state
+  int NfPi0      = 0; // number of \pi^0's         in final state
+  int NfKp       = 0; // number of \K^+'s          in final state
+  int NfKm       = 0; // number of \K^-'s          in final state
+  int NfK0       = 0; // number of \K^0's          in final state
+  int NfK0bar    = 0; // number of \bar{\K^0}'s    in final state
+  int NfSigmap   = 0; // number of \Sigma^+'s      in final state
+  int NfSigma0   = 0; // number of \Sigma^0's      in final state
+  int NfSigmam   = 0; // number of \Sigma^-'s      in final state
+  int NfLambda0  = 0; // number of \Lambda^0's     in final state
+  int NfXi0      = 0; // number of \Xi^0's         in final state
+  int NfXim      = 0; // number of \Xi^-'s         in final state
+  int NfOmegam   = 0; // number of \Omega^-'s      in final state
+  int NfOther    = 0; // number of other particles in final state
 
   TObjArrayIter piter(&event);
   GHepParticle * p = 0;
@@ -329,30 +330,38 @@ bool AcceptEvent(const EventRecord & event)
 
   if ( gPickedTopology == kPtNumuCC1pip ) {
     if(isnumu && iscc && is1pipX) return true;
-    return false;
   }
+  else
   if ( gPickedTopology == kPtNumuCC1pi0 ) {
     if(isnumu && iscc && is1pi0X) return true;
-    return false;
   }
+  else
   if ( gPickedTopology == kPtNumuCC1pim ) {
     if(isnumu && iscc && is1pimX) return true;
-    return false;
   }
+  else
   if ( gPickedTopology == kPtNumuNC1pip ) {
     if(isnumu && isnc && is1pipX) return true;
-    return false;
   }
+  else
   if ( gPickedTopology == kPtNumuNC1pi0 ) {
     if(isnumu && isnc && is1pi0X) return true;
-    return false;
   }
+  else
   if ( gPickedTopology == kPtNumuNC1pim ) {
     if(isnumu && isnc && is1pimX) return true;
-    return false;
   }
+  else
   if ( gPickedTopology == kPtNumuCChyperon ) {
     if(isnumu && iscc && has_hype) return true;
+  }
+  else
+  if ( gPickedTopology == kPtNumubarCChyperon ) {
+    if(isnumubar && iscc && has_hype) return true;
+  }
+  else
+  if ( gPickedTopology == kPtCChyperon ) {
+    if(iscc && has_hype) return true;
   }
 
   return false;
