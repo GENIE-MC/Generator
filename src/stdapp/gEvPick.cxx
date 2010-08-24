@@ -47,15 +47,29 @@
 
            -t Specify event topology to cherry-pick.
               The input topology can be any of
-                - all             : all (basically merges all files into one)
-                - numu_cc_1pip    : numu CC with 1 \pi^{+} (and no other pion) in final state
-                - numu_cc_1pi0    : numu CC with 1 \pi^{0} (and no other pion) in final state
-                - numu_cc_1pim    : numu CC with 1 \pi^{-} (and no other pion) in final state
-                - numu_nc_1pip    : numu NC with 1 \pi^{+} (and no other pion) in final state
-                - numu_nc_1pi0    : numu NC with 1 \pi^{0} (and no other pion) in final state
-                - numu_nc_1pim    : numu NC with 1 \pi^{-} (and no other pion) in final state
-                - numu_cc_hyperon : numu CC with at least one hyperon (\Sigma^{+,0,-}, 
-                                    \Lambda^{0}, \Xi^{0,-}, \Omega^{-}) in final state
+                - all 
+                    all (basically merges all files into one)
+                - numu_cc_1pip 
+                    numu CC with 1 \pi^{+} (and no other pion) in final state
+                - numu_cc_1pi0 
+                    numu CC with 1 \pi^{0} (and no other pion) in final state
+                - numu_cc_1pim 
+                    numu CC with 1 \pi^{-} (and no other pion) in final state
+                - numu_nc_1pip    
+                    numu NC with 1 \pi^{+} (and no other pion) in final state
+                - numu_nc_1pi0    
+                    numu NC with 1 \pi^{0} (and no other pion) in final state
+                - numu_nc_1pim    
+                    numu NC with 1 \pi^{-} (and no other pion) in final state
+                - numu_cc_hyperon 
+                    numu CC with at least one hyperon 
+                    (\Sigma^{+,0,-}, \Lambda^{0}, \Xi^{0,-}, \Omega^{-}) in final state
+                - numubar_cc_hyperon 
+                    \bar{numu} CC with at least one hyperon 
+                    (\Sigma^{+,0,-}, \Lambda^{0}, \Xi^{0,-}, \Omega^{-}) in final state
+                - cc_hyperon         
+                    any (anti)neutrino CC with at least one hyperon 
+                    (\Sigma^{+,0,-}, \Lambda^{0}, \Xi^{0,-}, \Omega^{-}) in final state
 
                 - <can add more / please send request to costas.andreopoulos \at stfc.ac.uk>
 
@@ -129,7 +143,10 @@ typedef enum EGPickTopo {
   kPtNumuNC1pip,
   kPtNumuNC1pi0,
   kPtNumuNC1pim,
-  kPtNumuCChyperon
+  kPtNumuCChyperon,
+  kPtNumubarCChyperon,
+  kPtCChyperon
+
 } GPickTopo_t;
 
 // input options (from command line arguments):
@@ -360,15 +377,18 @@ void GetCommandLineArgs(int argc, char ** argv)
   string topo = "";
   if( parser.OptionExists('t') ) {
     topo = parser.ArgAsString('t');
-    if      ( topo == "all"             ) { gPickedTopology = kPtAll;           }
-    else if ( topo == "numu_cc_1pip"    ) { gPickedTopology = kPtNumuCC1pip;    }
-    else if ( topo == "numu_cc_1pi0"    ) { gPickedTopology = kPtNumuCC1pi0;    }
-    else if ( topo == "numu_cc_1pim"    ) { gPickedTopology = kPtNumuCC1pim;    }
-    else if ( topo == "numu_nc_1pip"    ) { gPickedTopology = kPtNumuNC1pip;    }
-    else if ( topo == "numu_nc_1pi0"    ) { gPickedTopology = kPtNumuNC1pi0;    }
-    else if ( topo == "numu_nc_1pim"    ) { gPickedTopology = kPtNumuNC1pim;    }
-    else if ( topo == "numu_cc_hyperon" ) { gPickedTopology = kPtNumuCChyperon; }
-    else                                  { gPickedTopology = kPtUndefined;     }
+    if      ( topo == "all"                ) { gPickedTopology = kPtAll;              }
+    else if ( topo == "numu_cc_1pip"       ) { gPickedTopology = kPtNumuCC1pip;       }
+    else if ( topo == "numu_cc_1pi0"       ) { gPickedTopology = kPtNumuCC1pi0;       }
+    else if ( topo == "numu_cc_1pim"       ) { gPickedTopology = kPtNumuCC1pim;       }
+    else if ( topo == "numu_nc_1pip"       ) { gPickedTopology = kPtNumuNC1pip;       }
+    else if ( topo == "numu_nc_1pi0"       ) { gPickedTopology = kPtNumuNC1pi0;       }
+    else if ( topo == "numu_nc_1pim"       ) { gPickedTopology = kPtNumuNC1pim;       }
+    else if ( topo == "numu_cc_hyperon"    ) { gPickedTopology = kPtNumuCChyperon;    }
+    else if ( topo == "numubar_cc_hyperon" ) { gPickedTopology = kPtNumubarCChyperon; }
+    else if ( topo == "cc_hyperon"         ) { gPickedTopology = kPtCChyperon;        }
+    else                                     { gPickedTopology = kPtUndefined;        }
+
     if(gPickedTopology == kPtUndefined) {
       LOG("gevpick", pFATAL) << "Unknown topology (" << topo << ")";
       gAbortingInErr = true;
@@ -403,14 +423,16 @@ string DefaultOutputFile(void)
 {
   string tp = "";
 
-  if      (gPickedTopology == kPtAll          ) { tp  = "all";              }
-  else if (gPickedTopology == kPtNumuCC1pip   ) { tp  = "numu_cc_1pip";     }
-  else if (gPickedTopology == kPtNumuCC1pi0   ) { tp  = "numu_cc_1pi0";     }
-  else if (gPickedTopology == kPtNumuCC1pim   ) { tp  = "numu_cc_1pim";     }
-  else if (gPickedTopology == kPtNumuNC1pip   ) { tp  = "numu_nc_1pip";     }
-  else if (gPickedTopology == kPtNumuNC1pi0   ) { tp  = "numu_nc_1pi0";     }
-  else if (gPickedTopology == kPtNumuNC1pim   ) { tp  = "numu_nc_1pim";     }
-  else if (gPickedTopology == kPtNumuCChyperon) { tp  = "numu_cc_hyperon";  }
+  if      (gPickedTopology == kPtAll              ) { tp = "all";                }
+  else if (gPickedTopology == kPtNumuCC1pip       ) { tp = "numu_cc_1pip";       }
+  else if (gPickedTopology == kPtNumuCC1pi0       ) { tp = "numu_cc_1pi0";       }
+  else if (gPickedTopology == kPtNumuCC1pim       ) { tp = "numu_cc_1pim";       }
+  else if (gPickedTopology == kPtNumuNC1pip       ) { tp = "numu_nc_1pip";       }
+  else if (gPickedTopology == kPtNumuNC1pi0       ) { tp = "numu_nc_1pi0";       }
+  else if (gPickedTopology == kPtNumuNC1pim       ) { tp = "numu_nc_1pim";       }
+  else if (gPickedTopology == kPtNumuCChyperon    ) { tp = "numu_cc_hyperon";    }
+  else if (gPickedTopology == kPtNumubarCChyperon ) { tp = "numubar_cc_hyperon"; }
+  else if (gPickedTopology == kPtCChyperon        ) { tp = "cc_hyperon";         } 
 
   ostringstream fnm;
   fnm << "gntp." << tp << ".ghep.root";
