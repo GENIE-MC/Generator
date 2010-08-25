@@ -55,7 +55,7 @@ lib-link: FORCE
 ifeq ($(strip $(GOPT_ENABLE_DYLIBVERSION)),YES)
 	$(SYMLINK) $(PACKAGE_LIB) $(PACKAGE_LIBNOVRS_WITH_PATH)
 endif
-ifeq ($(strip $(ARCH)),macosx)
+ifeq ($(strip $(IS_MACOSX)),YES)
 	$(SYMLINK) $(PACKAGE_LIB) $(PACKAGE_LIBMACLINK_WITH_PATH)
 endif
 

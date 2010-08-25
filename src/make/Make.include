@@ -20,8 +20,9 @@ endif
 #                           ARCHITECTURE 
 #-------------------------------------------------------------------
 # As defined by ROOT
-ARCH    = $(shell root-config --arch)  
-ARCH_OK = 
+ARCH      = $(shell root-config --arch)  
+ARCH_OK   = 
+IS_MACOSX =
 
 #-------------------------------------------------------------------
 #                              GENIE
@@ -294,6 +295,7 @@ GCC_GE_4_1_0  = $(shell awk 'BEGIN {\
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ifeq ($(strip $(ARCH)),macosx) 
 ARCH_OK       = YES
+IS_MACOSX     = YES
 CXXFLAGS      = -pipe -W -Wall -Wno-long-double \
 		-fsigned-char -fno-common -flat_namespace \
 		$(GOPT_WITH_CXX_DEBUG_FLAG) \
@@ -323,6 +325,7 @@ endif
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ifeq ($(strip $(ARCH)),macosx64) 
 ARCH_OK       = YES
+IS_MACOSX     = YES
 CXXFLAGS      = -m64 -pipe -W -Wall \
 		-fsigned-char -fno-common -flat_namespace \
 		$(GOPT_WITH_CXX_DEBUG_FLAG) \
