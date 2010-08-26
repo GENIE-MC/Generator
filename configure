@@ -37,9 +37,7 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "    event-server      Enable event server application                          default: disabled \n";
   print "    t2k               Enable T2K-specific event generation / analysis tools    default: disabled \n";
   print "    numi              Enable NuMI-specific event generation / analysis tools   default: disabled \n";
-# print "    lbne              Enable LBNE-specific event generation / analysis tools   default: disabled \n";
-# print "    ino               Enable INO-specific event generation / analysis  tools   default: disabled \n";
-  print "    atmo              Enable atmospheric neutrino event generation tools       default: disabled \n";
+  print "    atmo              Enable atmospheric neutrino event generation tools       default: disabled (Replaces older INO- and LBNE-specific apps)\n";
   print "    rwght             Enable event reweighting tools                           default: disabled \n";
   print "\n options for 3rd party software, prefix with --with- (eg --with-lhapdf-lib=/some/path/)\n\n";
   print "    optimiz-level     Compiler optimization        any of O,O2,O3,OO,Os / default: O2 \n";
@@ -138,8 +136,6 @@ my $gopt_enable_gsl              = "NO";
 my $gopt_enable_evserv           = "NO";
 my $gopt_enable_t2k              = "NO";
 my $gopt_enable_numi             = "NO";
-#my $gopt_enable_lbne             = "NO";
-#my $gopt_enable_ino              = "NO";
 my $gopt_enable_atmo             = "NO";
 my $gopt_enable_rwght            = "NO";
 
@@ -164,8 +160,6 @@ if(($match = grep(/--enable-gsl/i,              @ARGV)) > 0) { $gopt_enable_gsl 
 if(($match = grep(/--enable-event-server/i,     @ARGV)) > 0) { $gopt_enable_evserv           = "YES"; }
 if(($match = grep(/--enable-t2k/i,              @ARGV)) > 0) { $gopt_enable_t2k              = "YES"; }
 if(($match = grep(/--enable-numi/i,             @ARGV)) > 0) { $gopt_enable_numi             = "YES"; }
-#if(($match = grep(/--enable-lbne/i,             @ARGV)) > 0) { $gopt_enable_lbne             = "YES"; }
-#if(($match = grep(/--enable-ino/i,              @ARGV)) > 0) { $gopt_enable_ino              = "YES"; }
 if(($match = grep(/--enable-atmo/i,             @ARGV)) > 0) { $gopt_enable_atmo             = "YES"; }
 if(($match = grep(/--enable-rwght/i,            @ARGV)) > 0) { $gopt_enable_rwght            = "YES"; }
 
@@ -506,8 +500,6 @@ print MKCONF "GOPT_ENABLE_VIEWER=$gopt_enable_viewer\n";
 print MKCONF "GOPT_ENABLE_EVENT_SERVER=$gopt_enable_evserv\n";
 print MKCONF "GOPT_ENABLE_T2K=$gopt_enable_t2k\n";
 print MKCONF "GOPT_ENABLE_NUMI=$gopt_enable_numi\n";
-#print MKCONF "GOPT_ENABLE_LBNE=$gopt_enable_lbne\n";
-#print MKCONF "GOPT_ENABLE_INO=$gopt_enable_ino\n";
 print MKCONF "GOPT_ENABLE_ATMO=$gopt_enable_atmo\n";
 print MKCONF "GOPT_ENABLE_RWGHT=$gopt_enable_rwght\n";
 print MKCONF "GOPT_WITH_CXX_DEBUG_FLAG=$gopt_with_cxx_debug_flag\n";
