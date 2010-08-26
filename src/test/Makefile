@@ -159,9 +159,13 @@ gtestNaturalIsotopes: FORCE
 	$(LD) $(LDFLAGS) gtestNaturalIsotopes.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestNaturalIsotopes
 
 gtestRewght: FORCE
+ifeq ($(strip $(GOPT_ENABLE_RWGHT)),YES)
 	$(CXX) $(CXXFLAGS) -c gtestRewght.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) gtestRewght.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestRewght
-
+else
+	@echo "You need to enable event reweighting first!"
+endif
+                   
 gtestRegistry: FORCE
 	$(CXX) $(CXXFLAGS) -c gtestRegistry.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) gtestRegistry.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestRegistry
@@ -175,8 +179,12 @@ gtestResonances: FORCE
 	$(LD) $(LDFLAGS) gtestResonances.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestResonances
 
 gtestRwMarginalization: FORCE
+ifeq ($(strip $(GOPT_ENABLE_RWGHT)),YES)
 	$(CXX) $(CXXFLAGS) -c gtestRwMarginalization.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) gtestRwMarginalization.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestRwMarginalization
+else
+	@echo "You need to enable event reweighting first!"
+endif
 
 gtestRecoINukeHadroFates: FORCE
 	$(CXX) $(CXXFLAGS) -c gtestRecoINukeHadroFates.cxx $(INCLUDES)
