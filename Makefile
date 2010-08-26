@@ -627,7 +627,8 @@ clean-files: FORCE
 	cd support/atmo/EvGen/;           make clean; cd ../../../; \
 	cd support/rwght/;                make clean; cd ../../; \
 	cd test;                          make clean; cd ..; \
-	cd scripts;	                  make clean; \
+	cd scripts;	                  make clean; cd ../../;\
+	cd bin;	                          rm ./*;\
 	cd ${GENIE}
 
 clean-dir: FORCE
