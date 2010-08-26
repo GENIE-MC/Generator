@@ -40,9 +40,8 @@ BUILD_TARGETS =    print-make-info \
 		   event-server \
 		   t2k-support-softw \
 		   numi-support-softw \
-		   lbne-support-softw \
-		   ino-support-softw \
 		   atmo-support-softw \
+		   reweight-support-softw \
 		   install-scripts
 INSTALL_TARGETS =  print-makeinstall-info \
 		   check-previous-installation \
@@ -88,10 +87,16 @@ utils: FORCE
 
 reweight:
 	@echo " "
-	@echo "** Building event reweighting toolkits..."
+	@echo "** Building event reweighting library..."
+ifeq ($(strip $(GOPT_ENABLE_RWGHT)),YES)
 	cd ${GENIE}/src;\
 	cd ReWeight; \
-        make; 
+	make; \
+	cd ${GENIE}
+else
+	@echo " "
+	@echo "** Event reweighting was not enabled. Skipping..."
+endif
 
 evgen-framework: FORCE
 	@echo " "
@@ -209,50 +214,6 @@ else
 	@echo "** Mueloss was not enabled. Skipping..."
 endif
 
-#dummy-neugen: FORCE
-#ifeq ($(strip $(GOPT_ENABLE_NEUGEN)),NO)
-#	@echo " "
-#	@echo "** Neugen was not enabled. Building dummy-neugen..."
-#	cd ${GENIE}/src;\
-#	cd NuValidator; make dummy-neugen; \
-#	cd ${GENIE}
-#else
-#	@echo " "
-#	@echo "** Neugen was enabled. Will not build dummy version..."
-#endif
-
-#neugen: FORCE
-#ifeq ($(strip $(GOPT_ENABLE_NUVALIDATOR)),YES)
-#	@echo " "
-#	@echo "** Building nuvalidator's neugen interface..."
-#	cd ${GENIE}/src;\
-#	cd NuValidator; make neugen; \
-#	cd ${GENIE}
-#else
-#endif
-
-#nuvld-libs: FORCE
-#ifeq ($(strip $(GOPT_ENABLE_NUVALIDATOR)),YES)
-#	@echo " "
-#	@echo "** Building nuvalidator libraries..."
-#	cd ${GENIE}/src/NuValidator; \
-#	make libs; \
-#	cd ${GENIE}
-#else
-#	@echo " "
-#	@echo "** Nuvalidator was not enabled. Skipping..."
-#endif
-
-#nuvld-exe: FORCE
-#ifeq ($(strip $(GOPT_ENABLE_NUVALIDATOR)),YES)
-#	@echo " "
-#	@echo "** Building nuvalidator executables..."
-#	cd ${GENIE}/src/NuValidator; \
-#	make exe; \
-#	cd ${GENIE}
-#else
-#endif
-
 vld-tools: FORCE
 ifeq ($(strip $(GOPT_ENABLE_VALIDATION_TOOLS)),YES)
 	@echo " "
@@ -353,27 +314,27 @@ else
 	@echo "Not enabled! Skipping..."
 endif
 
-lbne-support-softw: FORCE
-	@echo " "
-	@echo "** Building LBNE-specific support software..."
-ifeq ($(strip $(GOPT_ENABLE_LBNE)),YES)
-	cd ${GENIE}/src/support/lbne/EvGen/;\
-	make all; \
-	cd ${GENIE}
-else
-	@echo "Not enabled! Skipping..."
-endif
+#lbne-support-softw: FORCE
+#	@echo " "
+#	@echo "** Building LBNE-specific support software..."
+#ifeq ($(strip $(GOPT_ENABLE_LBNE)),YES)
+#	cd ${GENIE}/src/support/lbne/EvGen/;\
+#	make all; \
+#	cd ${GENIE}
+#else
+#	@echo "Not enabled! Skipping..."
+#endif
 
-ino-support-softw: FORCE
-	@echo " "
-	@echo "** Building INO-specific support software..."
-ifeq ($(strip $(GOPT_ENABLE_INO)),YES)
-	cd ${GENIE}/src/support/ino/EvGen/;\
-	make all; \
-	cd ${GENIE}
-else
-	@echo "Not enabled! Skipping..."
-endif
+#ino-support-softw: FORCE
+#	@echo " "
+#	@echo "** Building INO-specific support software..."
+#ifeq ($(strip $(GOPT_ENABLE_INO)),YES)
+#	cd ${GENIE}/src/support/ino/EvGen/;\
+#	make all; \
+#	cd ${GENIE}
+#else
+#	@echo "Not enabled! Skipping..."
+#endif
 
 atmo-support-softw: FORCE
 	@echo " "
@@ -384,6 +345,17 @@ ifeq ($(strip $(GOPT_ENABLE_ATMO)),YES)
 	cd ${GENIE}
 else
 	@echo "Not enabled! Skipping..."
+endif
+
+reweight-support-softw: FORCE
+	@echo " "
+	@echo "** Building event reweighting applications ..."
+ifeq ($(strip $(GOPT_ENABLE_RWGHT)),YES)
+	cd ${GENIE}/src/support/rwght/;\
+	make all; \
+	cd ${GENIE}
+else
+	@echo "Event reweighting not enabled! Skipping..."
 endif
 
 install-scripts: FORCE
@@ -652,9 +624,8 @@ clean-files: FORCE
 	cd support/t2k/EvGen/;            make clean; cd ../../../; \
 	cd support/t2k/SKNorm/;           make clean; cd ../../../; \
 	cd support/numi/EvGen/;           make clean; cd ../../../; \
-	cd support/lbne/EvGen/;           make clean; cd ../../../; \
-	cd support/ino/EvGen/;            make clean; cd ../../../; \
 	cd support/atmo/EvGen/;           make clean; cd ../../../; \
+	cd support/rwght/;                make clean; cd ../../; \
 	cd test;                          make clean; cd ..; \
 	cd scripts;	                  make clean; \
 	cd ${GENIE}
@@ -730,9 +701,8 @@ distclean: FORCE
 	cd support/t2k/EvGen/;             make distclean; cd ../../../; \
 	cd support/t2k/SKNorm/;            make distclean; cd ../../../; \
 	cd support/numi/EvGen/;            make distclean; cd ../../../; \
-	cd support/lbne/EvGen/;            make distclean; cd ../../../; \
-	cd support/ino/EvGen/;             make distclean; cd ../../../; \
 	cd support/atmo/EvGen/;            make distclean; cd ../../../; \
+	cd support/rwght/;                 make distclean; cd ../../../; \
 	cd test;                           make distclean; cd ..; \
 	cd scripts;	                   make distclean; \
 	cd ${GENIE}
