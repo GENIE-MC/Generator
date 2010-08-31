@@ -17,7 +17,11 @@
 //* 20259 Hamburg
 //* torben.ferber@desy.de
 //*
+//* @ Aug 30, 2010 - TF
+//* added list of isotope masses, added index check, added arrary initialization, corrected iterator initialization
+//*
 //****************************************************************************
+
 
 #include <iostream>
 #include <string>
@@ -26,7 +30,7 @@
 
 #include "../../Conventions/Units.h"
 
-//#define _debug_
+// #define _debug_
 
 using namespace std;
 using namespace genie;
@@ -58,6 +62,7 @@ void get_target_mass (
 
    get_mass(length_unit, density_unit);
 }
+
 //____________________________________________________________________________
 Int_t set_top_volume(string topvolname)
 {	
@@ -76,6 +81,10 @@ Int_t set_top_volume(string topvolname)
 //____________________________________________________________________________
 void get_mass(Double_t length_unit, Double_t density_unit)
 {
+   //tables of Z and A
+   const Int_t lcin_Z = 150;
+   const Int_t lcin_A = 300;
+
    // calc unit conversion factors
    Double_t density_unit_to_SI = density_unit / units::kg_m3;
    Double_t length_unit_to_SI  = length_unit  / units::m;
@@ -95,12 +104,26 @@ void get_mass(Double_t length_unit, Double_t density_unit)
      matlist->Print();
 #endif
    }
+
    int max_idx = 0; // number of mixtures in geometry
    Int_t nmat = matlist->GetEntries();
    for( Int_t imat = 0; imat < nmat; imat++ )
    {
       Int_t idx = gGeoManager->GetMaterial(imat)->GetIndex();
       max_idx = TMath::Max(max_idx, idx);
+   }
+
+   //check if material index is unique
+   Int_t * checkindex = new Int_t[max_idx+1];
+   for( Int_t i = 0; i<max_idx+1; i++ ) checkindex[i] = 0;
+   for( Int_t imat = 0; imat < nmat; imat++ )
+   {
+      if( !checkindex[imat] ) checkindex[imat] = 1;
+      else 
+      {
+         cout << "material index is not unique" << endl;
+        return;
+      }
    }
 
 #ifdef _debug_
@@ -113,24 +136,20 @@ void get_mass(Double_t length_unit, Double_t density_unit)
      cout << "volume does not exist" << endl;
      return;
    }
+
    TGeoIterator NodeIter(topvol);
-   TGeoNode *node=NodeIter();
+   TGeoNode *node;
    NodeIter.SetType(0); // include  all daughters
 
    Double_t * volume = new Double_t[max_idx+1];
    Double_t * mass   = new Double_t[max_idx+1];
 
-   volume[ topvol->GetMaterial()->GetIndex() ] = topvol->Capacity(); //iterator does not include topvolume
+   for( Int_t i = 0; i<max_idx+1; i++ ){ volume[i]=0.; mass[i]=0.; } // IMPORTANT! force empty arrays, allows repated calls without ending ROOT session
 
-   Int_t first = 1;
-   while ( node=NodeIter() ) 
+   volume[ topvol->GetMaterial()->GetIndex() ] = topvol->Capacity() * volume_unit_to_SI; //iterator does not include topvolume  
+
+   while ( (node=NodeIter()) )
    {
-      if( first )
-      {
-         NodeIter.Reset();
-         first = 0;
-      }	
-
       Int_t momidx = node->GetMotherVolume()->GetMaterial()->GetIndex() ;
       Int_t idx    = node->GetVolume()      ->GetMaterial()->GetIndex() ;
 
@@ -140,9 +159,46 @@ void get_mass(Double_t length_unit, Double_t density_unit)
       volume[ idx    ] += node_vol;
    }
 
+
+   Double_t larr_MassIsotopes[lcin_Z][lcin_A] = {0.}; //[Z][A], no map in pure ROOT
+   Double_t larr_VolumeIsotopes[lcin_Z][lcin_A] = {0.}; //[Z][A], no map in pure ROOT
+
+   for( Int_t i=0; i<gGeoManager->GetListOfMaterials()->GetEntries(); i++ )
+   {
+      TGeoMaterial *lgeo_Mat = gGeoManager->GetMaterial(i);
+      Int_t    idx     = gGeoManager->GetMaterial(i)->GetIndex();
+
+      if( lgeo_Mat->IsMixture() )
+      {
+         TGeoMixture * lgeo_Mix = dynamic_cast <TGeoMixture*> ( lgeo_Mat );
+         Int_t lint_Nelements = lgeo_Mix->GetNelements();
+
+         for ( Int_t j=0; j<lint_Nelements; j++) 
+         {
+            Int_t lint_Z = TMath::Nint( (Double_t) lgeo_Mix->GetZmixt()[j] );
+            Int_t lint_A = TMath::Nint( (Double_t) lgeo_Mix->GetAmixt()[j] );
+            Double_t ldou_Fraction = lgeo_Mix->GetWmixt()[j];
+            Double_t ldou_Density = lgeo_Mix->GetDensity() * density_unit_to_SI;
+
+            larr_MassIsotopes[ lint_Z ][ lint_A ] += volume[idx] * ldou_Fraction * ldou_Density;
+            larr_VolumeIsotopes[ lint_Z ][ lint_A ] += volume[idx] * ldou_Fraction;
+         }
+      }
+   }
+
    //
    // print out volume/mass for each `material'
    //
+
+   Double_t ldou_MinimumVolume = 1e-20;
+
+   cout <<endl << "materials:" << endl;
+   cout << setw(6) << "index"
+             << setw(15) << "name"
+             << setprecision(6) 
+             << setw(20) << "volume (m^3)"
+             << setw(20) << "mass (kg)"
+             <<  endl;
 
    for( Int_t i=0; i<gGeoManager->GetListOfMaterials()->GetEntries(); i++ )
    {
@@ -151,27 +207,50 @@ void get_mass(Double_t length_unit, Double_t density_unit)
 
       mass[idx] = density * volume[idx];
 
-      if( volume[idx] > 1e-20) {
-        cout << setw(6) << i << "  " 
-             << setw(15) << gGeoManager->GetMaterial(i)->GetName() << ": "
+      if( volume[idx] > ldou_MinimumVolume ) {
+        cout << setw(6) << i 
+             << setw(15) << gGeoManager->GetMaterial(i)->GetName() 
              << setprecision(6) 
-             << setw(20) << volume[idx] << " m^3 " 
-             << setw(20) << mass[idx] << " kg" 
+             << setw(20) << volume[idx] 
+             << setw(20) << mass[idx] 
              <<  endl;
       }
    }
 
-   delete [] volume;
-   delete [] mass; 
 
    //
    // print out mass contribution for each nuclear target
    //
 
-   // ...
-   // ...
-   // ...
-   // ...
+   cout <<endl << "isotopes:" << endl;
+   cout << setw(6) << "Z" 
+             << setw(6) << "A"
+             << setw(14) << "PDG isotope"
+             << setprecision(6)
+             << setw(20) << "volume (m^3)"
+             << setw(20) << "mass (kg)"
+             <<  endl;
+   for( Int_t i=0; i<lcin_Z; i++ )
+   {
+      for( Int_t j=0; j<lcin_A; j++ )
+      {
+         if( larr_VolumeIsotopes[ i ][ j ] > ldou_MinimumVolume ) {
+              cout << setw(6) << i
+             << setw(6)<< j
+             << setw(14) << 1000000000 + i*10000 + j*10
+             << setprecision(6) 
+             << setw(20) << larr_VolumeIsotopes[ i ][ j ]
+             << setw(20) << larr_MassIsotopes[ i ][ j ] 
+             <<  endl;
+         }
+         else if ( larr_VolumeIsotopes[ i ][ j ] < -ldou_MinimumVolume ) {
+            cout << "negative volume, check geometry " << larr_VolumeIsotopes[ i ][ j ] << endl;
+         }
+      }
+   }
+
+   delete [] volume;
+   delete [] mass;
 
 }
 //____________________________________________________________________________
