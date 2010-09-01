@@ -117,11 +117,11 @@ core-medium-energy-range: FORCE
 	cd BodekYang;          make; cd ..; \
 	cd Charm;              make; cd ..; \
 	cd Coherent;           make; cd ..; \
-	cd Decay; 	       make; cd ..; \
+	cd Decay;              make; cd ..; \
 	cd Diffractive;        make; cd ..; \
 	cd DIS;                make; cd ..; \
-	cd Elastic; 	       make; cd ..; \
-	cd ElFF; 	       make; cd ..; \
+	cd Elastic;            make; cd ..; \
+	cd ElFF;               make; cd ..; \
 	cd EVGModules;         make; cd ..; \
 	cd Fragmentation;      make; cd ..; \
 	cd GiBUU;              make; cd ..; \
@@ -468,11 +468,11 @@ copy-install-files: FORCE
 	cd Coherent;               make install; cd ..; \
 	cd Conventions;            make install; cd ..; \
 	cd CrossSections;          make install; cd ..; \
-	cd Decay; 	           make install; cd ..; \
-	cd Diffractive; 	   make install; cd ..; \
-	cd DIS; 		   make install; cd ..; \
-	cd Elastic; 	           make install; cd ..; \
-	cd ElFF; 	           make install; cd ..; \
+	cd Decay;                  make install; cd ..; \
+	cd Diffractive;            make install; cd ..; \
+	cd DIS;                    make install; cd ..; \
+	cd Elastic;                make install; cd ..; \
+	cd ElFF;                   make install; cd ..; \
 	cd EVGCore;                make install; cd ..; \
 	cd EVGModules;             make install; cd ..; \
 	cd EVGDrivers;             make install; cd ..; \
@@ -484,9 +484,9 @@ copy-install-files: FORCE
 	cd HadronTransport;        make install; cd ..; \
 	cd Interaction;            make install; cd ..; \
 	cd LlewellynSmith;         make install; cd ..; \
-	cd MEC;	                   make install; cd ..; \
-	cd Messenger;	           make install; cd ..; \
-	cd MuELoss;	           make install; cd ..; \
+	cd MEC;                    make install; cd ..; \
+	cd Messenger;              make install; cd ..; \
+	cd MuELoss;                make install; cd ..; \
 	cd Nuclear;                make install; cd ..; \
 	cd Ntuple;                 make install; cd ..; \
 	cd NuE;                    make install; cd ..; \
@@ -518,11 +518,11 @@ purge: FORCE
 	cd Charm;                         make purge; cd ..; \
 	cd Coherent;                      make purge; cd ..; \
 	cd CrossSections;                 make purge; cd ..; \
-	cd Decay; 	                  make purge; cd ..; \
+	cd Decay;                         make purge; cd ..; \
 	cd Diffractive;                   make purge; cd ..; \
-	cd DIS; 	                  make purge; cd ..; \
-	cd Elastic; 	                  make purge; cd ..; \
-	cd ElFF; 	                  make purge; cd ..; \
+	cd DIS;                           make purge; cd ..; \
+	cd Elastic;                       make purge; cd ..; \
+	cd ElFF;                          make purge; cd ..; \
 	cd EVGCore;                       make purge; cd ..; \
 	cd EVGModules;                    make purge; cd ..; \
 	cd EVGDrivers;                    make purge; cd ..; \
@@ -534,9 +534,9 @@ purge: FORCE
 	cd HadronTransport;               make purge; cd ..; \
 	cd Interaction;                   make purge; cd ..; \
 	cd LlewellynSmith;                make purge; cd ..; \
-	cd MEC;	                          make purge; cd ..; \
-	cd Messenger;	                  make purge; cd ..; \
-	cd MuELoss;	                  make purge; cd ..; \
+	cd MEC;                           make purge; cd ..; \
+	cd Messenger;                     make purge; cd ..; \
+	cd MuELoss;                       make purge; cd ..; \
 	cd Nuclear;                       make purge; cd ..; \
 	cd Ntuple;                        make purge; cd ..; \
 	cd NuGamma;                       make purge; cd ..; \
@@ -576,11 +576,11 @@ clean-files: FORCE
 	cd Charm;                         make clean; cd ..; \
 	cd Coherent;                      make clean; cd ..; \
 	cd CrossSections;                 make clean; cd ..; \
-	cd Decay; 	                  make clean; cd ..; \
-	cd Diffractive; 	          make clean; cd ..; \
-	cd DIS;	 		          make clean; cd ..; \
-	cd Elastic; 	                  make clean; cd ..; \
-	cd ElFF; 	                  make clean; cd ..; \
+	cd Decay;                         make clean; cd ..; \
+	cd Diffractive;                   make clean; cd ..; \
+	cd DIS;                           make clean; cd ..; \
+	cd Elastic;                       make clean; cd ..; \
+	cd ElFF;                          make clean; cd ..; \
 	cd EVGCore;                       make clean; cd ..; \
 	cd EVGModules;                    make clean; cd ..; \
 	cd EVGDrivers;                    make clean; cd ..; \
@@ -593,8 +593,8 @@ clean-files: FORCE
 	cd Interaction;                   make clean; cd ..; \
 	cd LlewellynSmith;                make clean; cd ..; \
 	cd MEC;                           make clean; cd ..; \
-	cd Messenger;	                  make clean; cd ..; \
-	cd MuELoss;	                  make clean; cd ..; \
+	cd Messenger;                     make clean; cd ..; \
+	cd MuELoss;                       make clean; cd ..; \
 	cd Nuclear;                       make clean; cd ..; \
 	cd Ntuple;                        make clean; cd ..; \
 	cd NuGamma;                       make clean; cd ..; \
@@ -620,16 +620,17 @@ clean-files: FORCE
 	cd VLE;                           make clean; cd ..; \
 	cd VHE;                           make clean; cd ..; \
 	cd stdapp;                        make clean; cd ..; \
-	cd support/evserv/;		  make clean; cd ../../; \
+	cd support/evserv/;               make clean; cd ../../; \
 	cd support/t2k/EvGen/;            make clean; cd ../../../; \
 	cd support/t2k/SKNorm/;           make clean; cd ../../../; \
 	cd support/numi/EvGen/;           make clean; cd ../../../; \
 	cd support/atmo/EvGen/;           make clean; cd ../../../; \
 	cd support/rwght/;                make clean; cd ../../; \
 	cd test;                          make clean; cd ..; \
-	cd scripts;	                  make clean; cd ../../;\
-	cd bin;	                          rm ./*;\
-	cd ${GENIE}
+	cd scripts;                       make clean; cd ..;\
+	cd $(GENIE);\
+    [ ! -d ./bin ] || rm ./bin/*;\
+	cd $(GENIE)
 
 clean-dir: FORCE
 	@echo "Deleting GENIE lib and bin directories...";\
@@ -654,11 +655,11 @@ distclean: FORCE
 	cd Charm;                          make distclean; cd ..; \
 	cd Coherent;                       make distclean; cd ..; \
 	cd CrossSections;                  make distclean; cd ..; \
-	cd Decay; 	                   make distclean; cd ..; \
-	cd Diffractive; 	           make distclean; cd ..; \
-	cd DIS;		 	           make distclean; cd ..; \
-	cd Elastic; 	                   make distclean; cd ..; \
-	cd ElFF; 	                   make distclean; cd ..; \
+	cd Decay;                          make distclean; cd ..; \
+	cd Diffractive;                    make distclean; cd ..; \
+	cd DIS;                            make distclean; cd ..; \
+	cd Elastic;                        make distclean; cd ..; \
+	cd ElFF;                           make distclean; cd ..; \
 	cd EVGCore;                        make distclean; cd ..; \
 	cd EVGModules;                     make distclean; cd ..; \
 	cd EVGDrivers;                     make distclean; cd ..; \
@@ -671,8 +672,8 @@ distclean: FORCE
 	cd Interaction;                    make distclean; cd ..; \
 	cd LlewellynSmith;                 make distclean; cd ..; \
 	cd MEC;                            make distclean; cd ..; \
-	cd Messenger;	                   make distclean; cd ..; \
-	cd MuELoss;	                   make distclean; cd ..; \
+	cd Messenger;                      make distclean; cd ..; \
+	cd MuELoss;                        make distclean; cd ..; \
 	cd Nuclear;                        make distclean; cd ..; \
 	cd Ntuple;                         make distclean; cd ..; \
 	cd NuGamma;                        make distclean; cd ..; \
@@ -705,7 +706,7 @@ distclean: FORCE
 	cd support/atmo/EvGen/;            make distclean; cd ../../../; \
 	cd support/rwght/;                 make distclean; cd ../../../; \
 	cd test;                           make distclean; cd ..; \
-	cd scripts;	                   make distclean; \
+	cd scripts;                        make distclean; \
 	cd ${GENIE}
 
 FORCE:
