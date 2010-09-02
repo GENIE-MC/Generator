@@ -131,6 +131,11 @@ static const double MeV = megaelectronvolt;
 static const double TeV = teraelectronvolt;
 static const double PeV = petaelectronvolt;
 
+static const double GeV2 = GeV * GeV;
+static const double GeV3 = GeV * GeV2;
+static const double GeV4 = GeV * GeV3;
+static const double GeV5 = GeV * GeV4;
+
 //-- [M: Mass]
 
 static const double      gram = 1.e-3 *kilogram;
