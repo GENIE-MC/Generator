@@ -24,13 +24,20 @@
      |                        |
      |                        |----------- t2k_flux/
      |                        |             |
-     |                        |             |---------- <flux_version>/ (eg "07a", "10",...)
+     |                        |             |---------- <flux_version>/ (eg "07a", "10a", "10b", "10c"...)
      |                        |                                |
      |                        |                                |------- nd/
-     |                        |                                |         |------- (flux files)
+     |                        |                                |         |
+     |                        |                                |         |------- <flux_config>/ (eg "nominal", "flat36mm", "yshift2mm", ...)
+     |                        |                                |                         |
+     |                        |                                |                         |------- (flux files)
      |                        |                                |
      |                        |                                |------- sk/
-     |                        |                                          |------- (flux files)
+     |                        |                                          |
+     |                        |                                          |------- <flux_config>/ (eg "nominal", "flat36mm", "yshift2mm", ...)
+     |                        |                                                          |
+     |                        |                                                          |------- (flux files)
+     |                        |                                        
      |                        |----------- t2k_geom/
      |                        |              |
      |                        |              |---------- ND280.root

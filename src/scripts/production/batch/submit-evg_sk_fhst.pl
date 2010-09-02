@@ -8,7 +8,8 @@
 #    --version         : GENIE version
 #    --run             : 1,2,3,...
 #    --neutrino        : numu, numubar, nue, nuesig
-#   [--flux-version]   : JNUBEAM flux version, <07a, 10>, default: 10
+#   [--flux-version]   : JNUBEAM flux version, <07a, 10a, 10c, ...>, default: 10c
+#   [--flux-config]    : JNUBEAM config, <nominal, yshift2mm,...>, default: nominal
 #   [--flux-hist-file] : JNUBEAM flux histogram file, default: sk_flux_histograms.root
 #   [--arch]           : <SL4_32bit, SL5_64bit>, default: SL5_64bit
 #   [--production]     : default: <version>
@@ -39,6 +40,7 @@ foreach (@ARGV) {
   if($_ eq '--run'     )       { $run            = $ARGV[$iarg+1]; }
   if($_ eq '--neutrino')       { $neutrino       = $ARGV[$iarg+1]; }
   if($_ eq '--flux-version')   { $flux_version   = $ARGV[$iarg+1]; }
+  if($_ eq '--flux-config')    { $flux_config    = $ARGV[$iarg+1]; }
   if($_ eq '--flux-hist-file') { $flux_hist_file = $ARGV[$iarg+1]; }
   if($_ eq '--arch')           { $arch           = $ARGV[$iarg+1]; }
   if($_ eq '--production')     { $production     = $ARGV[$iarg+1]; }
@@ -60,10 +62,11 @@ $use_valgrind   = 0                            unless defined $use_valgrind;
 $arch           = "SL5_64bit"                  unless defined $arch;
 $production     = "$genie_version"             unless defined $production;
 $cycle          = "01"                         unless defined $cycle;
-$batch_system   = "PBS"                     unless defined $batch_system;
+$batch_system   = "PBS"                        unless defined $batch_system;
 $queue          = "prod"                       unless defined $queue;
 $softw_topdir   = "/opt/ppd/t2k/GENIE"         unless defined $softw_topdir;
 $flux_version   = "10"                         unless defined $flux_version;
+$flux_config    = "nominal"                    unless defined $flux_config;
 $flux_hist_file = "sk_flux_histograms.root"    unless defined $flux_hist_file;
 $nevents        = "2000";   
 $time_limit     = "05:00:00";
@@ -72,7 +75,7 @@ $inputs_dir     = "$softw_topdir/data/job_inputs";
 $genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
 $geom_tgt_mix   = "1000080160[0.8879],1000010010[0.1121]";
 $xspl_file      = "$inputs_dir/xspl/gxspl-t2k-$genie_version.xml";
-$flux_file      = "$inputs_dir/t2k_flux/$flux_version/sk/$flux_hist_file";
+$flux_file      = "$inputs_dir/t2k_flux/$flux_version/sk/$flux_config/$flux_hist_file";
 $job_dir        = "$production_dir/skmc-$production\_$cycle-$neutrino";
 $file_prefix    = "genie_sk";
 
