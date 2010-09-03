@@ -278,9 +278,9 @@
     <!-- make this window big enough to cover the ipnd, also offset it from 
          the origin towards the beam in x and y -->
     <window>
-      <point coord="det">   1.320,  -1.970, 0.0 </point>
-      <point coord="det"> -10.000,   4.000, 0.0 </point>
-      <point coord="det"> -10.000,  -1.970, 0.0 </point>
+      <point coord="det">  5.000,  -1.970, -5. </point>
+      <point coord="det">  5.000,   5.000, -5. </point>
+      <point coord="det"> -2.500,  -1.970, -5. </point>
     </window>
 
   </param_set>
