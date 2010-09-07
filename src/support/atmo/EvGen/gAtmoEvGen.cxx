@@ -5,23 +5,25 @@
 
 \brief   A GENIE atmospheric neutrino event generation application.
 
-         *** Syntax :
+         *** Synopsis :
 
            gevgen_atmo [-h] 
                        [-r run#] 
                         -f flux
                         -g geometry
-                       [-t top_volume_name_at_geom]
+                       [-t geometry_top_volume_name]
                        [-m max_path_lengths_xml_file]
-                       [-L length_units_at_geom]
-                       [-D density_units_at_geom]
-                        -n n_of_events
-                        -e min_energy,max_energy
-                        [-o output_event_file_prefix]
+                       [-L geometry_length_units]
+                       [-D geometry_density_units]
+                       <-n n_of_events,
+                        -e exposure_in_kton_x_yrs >
+                        -E min_energy,max_energy
+                       [-o output_event_file_prefix]
 
          *** Options :
 
-           [] Denotes an optional argument
+           [] Denotes an optional argument.
+           <> Denotes a set of arguments out of which only one can be set.
 
            -h Prints out the syntax and exits
 
@@ -99,8 +101,10 @@
 
            -n Specifies how many events to generate.
 
-           -e Specifies the neutrino energy in GeV. 
-              Must be a comma-separated pair of numbers, eg `-e 0.3,70'
+           -e Specifies requested exposure in terms of kton*yrs.
+
+           -E Specifies the neutrino energy in GeV. 
+              Must be a comma-separated pair of numbers, eg `-E 0.3,70'
               [default: 0.5,50]
 
            -o Sets the prefix of the output event file. 
@@ -120,7 +124,7 @@
                geometry length and density units are m and kgr/m^3. Generate events over 
                the entire geometry volume.
 
-               % gevgen_atmo -r 999210 -n 100000 -e 1,10
+               % gevgen_atmo -r 999210 -n 100000 -E 1,10
                        -f FLUKA:/data/flx/sdave_numu07.dat[14],/data/flx/sdave_nue07.dat[12] 
                        -g /data/geo/SuperK.root -L "m" -D "kg_m3"
 
@@ -128,7 +132,7 @@
            (2) Like above but, instead of generating events in a realistic detector
                geometry, use a simple target mix (88.79% O16 + 11.21% H, i.e. `water')
 
-               % gevgen_atmo -r 999210 -n 100000 -e 1,10
+               % gevgen_atmo -r 999210 -n 100000 -E 1,10
                        -f /data/flux/sdave_numu07.dat[14],/data/flux/sdave_nue07.dat[12] 
                        -g 1000080160[0.8879],1000010010[0.1121]
 
@@ -220,7 +224,8 @@ string          gOptRootGeomTopVol = "";       // input geometry top event gener
 double          gOptGeomLUnits = 0;            // input geometry length units
 double          gOptGeomDUnits = 0;            // input geometry density units
 string          gOptExtMaxPlXml;               // max path lengths XML file for input geometry
-int             gOptNev;                       // number of events to generate
+int             gOptNev = -1;                  // exposure - in terms of number of events 
+double          gOptKtonYrExposure = -1;       // exposure - in terms of kton*yrs
 double          gOptEvMin;                     // minimum neutrino energy
 double          gOptEvMax;                     // maximum neutrino energy
 string          gOptEvFilePrefix;              // event file prefix
@@ -231,8 +236,8 @@ NtpMCFormat_t   kDefOptNtpFormat    = kNFGHEP; // def event tree format
 string          kDefOptEvFilePrefix = "gntp";  // def output prefix (override with -o)
 string          kDefOptGeomLUnits   = "mm";    // def geom length units (override with -L)
 string          kDefOptGeomDUnits   = "g_cm3"; // def geom density units (override with -D)
-double          kDefOptEvMin =  0.5;           // min neutrino energy (override with -e)
-double          kDefOptEvMax = 50.0;           // max neutrino energy (override with -e)
+double          kDefOptEvMin =  0.5;           // min neutrino energy (override with -E)
+double          kDefOptEvMax = 50.0;           // max neutrino energy (override with -E)
 
 //________________________________________________________________________________________
 int main(int argc, char** argv)
@@ -436,20 +441,41 @@ void GetCommandLineArgs(int argc, char ** argv)
   // *** exposure
   // 
 
-  // number of events
+  // in number of events
+  bool have_required_statistics = false;
   if( parser.OptionExists('n') ) {
     LOG("gevgen_atmo", pDEBUG) 
         << "Reading number of events to generate";
     gOptNev = parser.ArgAsInt('n');
-  } else {
-    LOG("gevgen_atmo", pFATAL)
-        << "You need to specify the number of events";
+    have_required_statistics = true;
+  }//-n?
+  // or, in kton*yrs
+  if( parser.OptionExists('e') ) {
+    if(have_required_statistics) {
+      LOG("gevgen_atmo", pFATAL) 
+         << "Can't request exposure both in terms of number of events and  kton*yrs"
+         << "\nUse just one of the -n and -e options";
+      PrintSyntax();
+      gAbortingInErr = true;
+      exit(1);
+    }
+    LOG("gevgen_atmo", pDEBUG) 
+        << "Reading requested exposure in kton*yrs";
+    gOptKtonYrExposure = parser.ArgAsDouble('e');
+    have_required_statistics = true;
+  }//-e?
+  if(!have_required_statistics) {
+    LOG("gevgen_atmo", pFATAL) 
+       << "You must request exposure either in terms of number of events and  kton*yrs"
+       << "\nUse any of the -n, -e options";
     PrintSyntax();
     gAbortingInErr = true;
     exit(1);
-  } //-n
+  }
 
-  // event file prefix
+  //
+  // *** event file prefix
+  //
   if( parser.OptionExists('o') ) {
     LOG("gevgen_atmo", pDEBUG) << "Reading the event filename prefix";
     gOptEvFilePrefix = parser.ArgAsString('o');
@@ -462,9 +488,9 @@ void GetCommandLineArgs(int argc, char ** argv)
   //
   // *** neutrino energy range
   //
-  if( parser.OptionExists('e') ) {
+  if( parser.OptionExists('E') ) {
     LOG("gevgen_atmo", pINFO) << "Reading neutrino energy range";
-    string nue = parser.ArgAsString('e');
+    string nue = parser.ArgAsString('E');
 
     // must be a comma separated set of values
     if(nue.find(",") != string::npos) {
@@ -478,7 +504,7 @@ void GetCommandLineArgs(int argc, char ** argv)
        gOptEvMax = emax;
     } else {
       LOG("gevgen_atmo", pFATAL)
-        << "Invalid energy range. Use `-e emin,emax', eg `-e 0.5,100.";
+        << "Invalid energy range. Use `-E emin,emax', eg `-E 0.5,100.";
       PrintSyntax();
       gAbortingInErr = true;
       exit(1);
@@ -716,6 +742,10 @@ void GetCommandLineArgs(int argc, char ** argv)
      }
   }
 
+  ostringstream expinfo;
+  if(gOptNev > 0)            { expinfo << gOptNev            << " events";   } 
+  if(gOptKtonYrExposure > 0) { expinfo << gOptKtonYrExposure << " kton*yrs"; } 
+
   LOG("gevgen_atmo", pNOTICE) 
      << "\n"
      << "\n ****** MC Job (" << gOptRunNu << ") Settings ****** "
@@ -724,10 +754,22 @@ void GetCommandLineArgs(int argc, char ** argv)
      << "\n @@ Flux"
      << "\n\t" << fluxinfo.str()
      << "\n @@ Exposure" 
-     << "\n\t Number of events = " << gOptNev
+     << "\n\t" << expinfo.str()
      << "\n @@ Cuts"
      << "\n\t Using energy range = (" << gOptEvMin << " GeV, " << gOptEvMax << " GeV)"
      << "\n\n";
+
+  //
+  // final checks
+  //
+  if(gOptKtonYrExposure > 0) {
+    LOG("gevgen_atmo", pFATAL) 
+      << "\n Option to set exposure in terms of kton*yrs not supported just yet!"
+      << "\n Try the -n option instead";
+    PrintSyntax();
+    gAbortingInErr = true;
+    exit(1);
+  }
 }
 //________________________________________________________________________________________
 void PrintSyntax(void)
@@ -738,12 +780,13 @@ void PrintSyntax(void)
    << "\n           [-r run#]"
    << "\n            -f simulation:flux_file[neutrino_code],..."
    << "\n            -g geometry"
-   << "\n           [-t top_volume_name_at_geom]"
+   << "\n           [-t geometry_top_volume_name]"
    << "\n           [-m max_path_lengths_xml_file]"
-   << "\n           [-L length_units_at_geom]"
-   << "\n           [-D density_units_at_geom]"
-   << "\n            -n n_of_events"
-   << "\n            -e min_energy,max_energy"
+   << "\n           [-L geometry_length_units]"
+   << "\n           [-D geometry_density_units]"
+   << "\n           <-n n_of_events,"
+   << "\n            -e exposure_in_kton_x_yrs>"
+   << "\n            -E min_energy,max_energy"
    << "\n           [-o output_event_file_prefix]"
    << "\n"
    << " Please also read the detailed documentation at http://www.genie-mc.org"
