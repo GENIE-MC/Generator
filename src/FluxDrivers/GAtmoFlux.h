@@ -14,7 +14,15 @@
           generated neutrino direction (theta,phi). The size of the area of 
           that plane, where flux neutrinos are generated, is determined by the 
           transverse radius Rt. You can tweak Rl, Rt to match the size of your 
-          detector.
+          detector. 
+          Initially, neutrino coordinates are generated in a default detector 
+          coordinate system (Topocentric Horizontal Coordinate -THZ-):
+             +z: Points towards the local zenith.
+             +x: On same plane as local meridian, pointing south.
+             +y: As needed to make a right-handed coordinate system.
+             origin: detector centre
+          Alternative user-defined topocentric systems can
+          be defined by specifying the appropriate rotation from THZ.
           The driver allows minimum and maximum energy cuts.
           Also it provides the options to generate wither unweighted or weighted 
           flux neutrinos (the latter giving smoother distributions at the tails).
@@ -37,6 +45,7 @@
 #include <map>
 
 #include <TLorentzVector.h>
+#include <TRotation.h>
 
 #include "EVGDrivers/GFluxI.h"
 
@@ -68,6 +77,7 @@ public :
   void ForceMaxEnergy     (double emax);
   void GenerateWeighted   (bool gen_weighted);
   void SetRadii           (double Rlongitudinal, double Rtransverse);
+  void SetUserCoordSystem (TRotation & rotation); ///< rotation: Topocentric Horizontal -> User-defined Topocentric Coord System
   void SetFluxFile        (int neutrino_pdg, string filename);
   bool LoadFluxData       (void);
 
@@ -102,6 +112,7 @@ protected:
   map<int, string> fFluxFile;         ///< (config) input flux file for each neutrino species
   double           fRl;               ///< (config) flux neutrino generation surface: longitudinal radius
   double           fRt;               ///< (config) flux neutrino generation surface: transverse radius
+  TRotation        fRotTHz2User;      ///< (config) coord. system rotation: THZ -> Topocentric user-defined
   unsigned int     fNumCosThetaBins;  ///< (config) number of cos(theta) bins in input flux data files
   unsigned int     fNumEnergyBins;    ///< (config) number of energy bins in input flux data files
   double *         fCosThetaBins;     ///< (config) cos(theta) bins in input flux data files

@@ -225,6 +225,11 @@ void GAtmoFlux::GenerateWeighted(bool gen_weighted)
   fGenWeighted = gen_weighted;
 }
 //___________________________________________________________________________
+void GAtmoFlux::SetUserCoordSystem(TRotation & rotation)
+{
+  fRotTHz2User = rotation;
+}
+//___________________________________________________________________________
 void GAtmoFlux::Initialize(void)
 {
   LOG("Flux", pNOTICE) 
@@ -254,6 +259,9 @@ void GAtmoFlux::Initialize(void)
   // Default: No min/max energy cut
   this->ForceMinEnergy(0.);
   this->ForceMaxEnergy(9999999999.);
+
+  // Default detector coord system: Topocentric Horizontal Coordinate system
+  fRotTHz2User.SetToIdentity(); 
 
   // Reset `current' selected flux neutrino
   this->ResetSelection();
