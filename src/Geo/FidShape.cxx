@@ -12,11 +12,41 @@
 //____________________________________________________________________________
 
 #include "Messenger/Messenger.h"
+#include <iomanip>
+using namespace std;
+
 #include "Geo/FidShape.h"
 #include "Geo/ROOTGeomAnalyzer.h"
 
 using namespace genie;
 using namespace genie::geometry;
+
+//___________________________________________________________________________
+std::ostream& 
+genie::geometry::operator<< (std::ostream& stream, 
+                             const genie::geometry::PlaneParam& pparam)
+{
+  pparam.Print(stream);
+  return stream;
+}
+
+std::ostream& 
+genie::geometry::operator<< (std::ostream& stream, 
+                             const genie::geometry::RayIntercept& ri)
+{
+  stream << "RayIntercept: dist in/out " << ri.fDistIn << "/" << ri.fDistOut
+         << " hit=" << ((ri.fIsHit)?"true":"false")
+         << " surf " << ri.fSurfIn << "/" << ri.fSurfOut;
+  return stream;
+}
+
+std::ostream& 
+genie::geometry::operator<< (std::ostream& stream, 
+                             const genie::geometry::FidShape& shape)
+{
+  shape.Print(stream);
+  return stream;
+}
 
 //___________________________________________________________________________
 void PlaneParam::ConvertMaster2Top(const ROOTGeomAnalyzer* rgeom)
@@ -31,6 +61,12 @@ void PlaneParam::ConvertMaster2Top(const ROOTGeomAnalyzer* rgeom)
   c = dir.Z();
   d = d - ( a*zero.X() + b*zero.Y() + c*zero.Z() );
 
+}
+
+//___________________________________________________________________________
+void PlaneParam::Print(ostream& stream) const
+{
+  stream << "PlaneParam=[" << a << "," << b << "," << c << "," << d << "]"; 
 }
 
 //___________________________________________________________________________
@@ -68,6 +104,15 @@ RayIntercept FidSphere::Intercept(const TVector3& start, const TVector3& dir) co
 void FidSphere::ConvertMaster2Top(const ROOTGeomAnalyzer* rgeom)
 {
   rgeom->Master2Top(fCenter);
+}
+
+//___________________________________________________________________________
+void FidSphere::Print(ostream& stream) const
+{
+  stream << "FidSphere @ ["
+         << fCenter.X() << ","
+         << fCenter.Y() << ","
+         << fCenter.Z() << "]  r = " << fSRadius;
 }
 
 //___________________________________________________________________________
@@ -160,6 +205,19 @@ void FidCylinder::ConvertMaster2Top(const ROOTGeomAnalyzer* rgeom)
 }
 
 //___________________________________________________________________________
+void FidCylinder::Print(ostream& stream) const
+{
+  stream << "FidCylinder @ ["
+         << fCylBase.X() << ","
+         << fCylBase.Y() << ","
+         << fCylBase.Z() << "]  dir ["
+         << fCylAxis.X() << ","
+         << fCylAxis.Y() << ","
+         << fCylAxis.Z() << "]  r = " << fCylRadius;
+  stream << " cap1=" << fCylCap1 << " cap2=" << fCylCap2;
+}
+
+//___________________________________________________________________________
 RayIntercept FidPolyhedron::Intercept(const TVector3& start, const TVector3& dir) const
 {
   // A new neutrino ray has been set, calculate the entrance/exit distances.
@@ -245,6 +303,15 @@ void FidPolyhedron::ConvertMaster2Top(const ROOTGeomAnalyzer* rgeom)
   for (unsigned int i = 0; i < fPolyFaces.size(); ++i ) {
     PlaneParam& aplane = fPolyFaces[i];
     aplane.ConvertMaster2Top(rgeom);
+  }
+}
+void FidPolyhedron::Print(ostream& stream) const
+{
+  size_t nfaces = fPolyFaces.size();
+  stream << "FidPolyhedron n=" << nfaces;
+  for ( size_t i=0; i<nfaces; ++i) {
+    const PlaneParam& aface = fPolyFaces[i];
+    stream << std::endl << "[" << setw(2) << i << "]" << aface;
   }
 }
 

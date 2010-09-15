@@ -25,4 +25,8 @@
 #pragma link C++ class genie::geometry::FidPolyhedron;
 #pragma link C++ class genie::geometry::GeomVolSelectorFiducial;
 
+#pragma link C++ function genie::geometry::operator<<(ostream&, const genie::geometry::RayIntercept&);
+#pragma link C++ function genie::geometry::operator<<(ostream&, const genie::geometry::PlaneParam&);
+#pragma link C++ function genie::geometry::operator<<(ostream&, const genie::geometry::FidShape&);
+
 #endif

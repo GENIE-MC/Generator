@@ -32,8 +32,6 @@
 #include "TMath.h"
 #include "TLorentzVector.h"
 
-using namespace std;
-
 namespace genie {
 namespace geometry {
 
@@ -52,6 +50,8 @@ class RayIntercept {
   Int_t     fSurfIn;   /// what surface was hit on way in
   Int_t     fSurfOut;  /// what surface was hit on way out
 };
+std::ostream& operator<< (std::ostream& stream, 
+                          const genie::geometry::RayIntercept& ri);
 
 class PlaneParam {
   // A plane is described by the equation a*x +b*y + c*z + d = 0
@@ -73,6 +73,9 @@ class PlaneParam {
     { return raycos.Px()*a + raycos.Py()*b + raycos.Pz()*c; }
   Bool_t   IsValid() const { return (a != 0 || b != 0 || c != 0 ); }
   void     ConvertMaster2Top(const ROOTGeomAnalyzer* rgeom);
+  void     Print(ostream& stream) const;
+  friend std::ostream& operator<< (std::ostream& stream, 
+                                   const genie::geometry::PlaneParam& pparam);
 
   Double_t a, b, c, d; // the parameters
 };
@@ -88,6 +91,10 @@ class FidShape {
   /// derived classes must implement the ConvertMaster2Top() method
   /// which transforms the shape specification from master coordinates to "top vol"
   virtual void ConvertMaster2Top(const ROOTGeomAnalyzer* rgeom) = 0;
+  virtual void Print(ostream& stream) const = 0;
+  friend ostream& operator<< (ostream& stream, 
+                              const genie::geometry::FidShape& shape);
+
 };
 
 class FidSphere : public FidShape {
@@ -95,6 +102,7 @@ class FidSphere : public FidShape {
  FidSphere(const TVector3& center, Double_t radius) : fCenter(center), fSRadius(radius) { ; }
  RayIntercept Intercept(const TVector3& start, const TVector3& dir) const;
  void         ConvertMaster2Top(const ROOTGeomAnalyzer* rgeom);
+ void         Print(ostream& stream) const;
  protected:
  TVector3    fCenter;   /// center of the sphere
  Double_t    fSRadius;  /// radius of the sphere
@@ -107,6 +115,7 @@ class FidCylinder : public FidShape {
    : fCylBase(base), fCylAxis(axis), fCylRadius(radius), fCylCap1(cap1), fCylCap2(cap2) { ; }
  RayIntercept Intercept(const TVector3& start, const TVector3& dir) const;
  void         ConvertMaster2Top(const ROOTGeomAnalyzer* rgeom);
+ void         Print(ostream& stream) const;
  protected:
  RayIntercept InterceptUncapped(const TVector3& start, const TVector3& dir) const;
  TVector3    fCylBase;   /// base point on cylinder axis
@@ -124,6 +133,7 @@ class FidPolyhedron : public FidShape {
  void clear() { fPolyFaces.clear(); }
  RayIntercept Intercept(const TVector3& start, const TVector3& dir) const;
  void         ConvertMaster2Top(const ROOTGeomAnalyzer* rgeom);
+ void         Print(ostream& stream) const;
  protected:
  std::vector<PlaneParam> fPolyFaces;  /// the collection of planar equations for the faces
 };
