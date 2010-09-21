@@ -14,14 +14,14 @@
          Please see the GENIE documentation (http://www.genie-mc.org) and contact me 
          <costas.andreopoulos \at stfc.ac.uk> if in doubt.
 
-         *** Syntax :
+         *** Synopsis :
 
            gT2Kevgen [-h] 
                      [-r run#] 
                       -f flux 
                       -g geometry 
                      [-p pot_normalization_of_flux_file] 
-                     [-t top_volume_name_at_geom] 
+                     [-t top_volume_name_at_geom || -t +Vol1-Vol2...] 
                      [-m max_path_lengths_xml_file]
                      [-L length_units_at_geom] 
                      [-D density_units_at_geom]
@@ -51,7 +51,7 @@
                     '-g /some/path/nd280-geom.root'
 
               2 > A mix of target materials, each with its corresponding weight,
-                  typed as a comma-separated list of nuclear pdg codes (in the
+                  typed as a comma-separated list of nuclear PDG codes (in the
                   std PDG2006 convention: 10LZZZAAAI) with the weight fractions
                   in brackets, eg code1[fraction1],code2[fraction2],...
                   If that option is used (no detailed input geometry description) 
@@ -117,6 +117,8 @@
                   [Notes] 
                   - For more information on the flux ntuples, see (T2K internal):  
                     http://jnusrv01.kek.jp/internal/t2k/nubeam/flux/
+                  - The original HBOOK JNUBAM ntuples need to be converted to a ROOT 
+                    format using the h2root ROOT utility.   
                   - The detector location can be any of 'sk' or the near detector
                     positions 'nd1',...,'nd6' simulated in JNUBEAM.
                     See the above JNUBEAM web page for more info.
@@ -127,8 +129,6 @@
                     If no neutrino list is specified then GENIE will consider all
                     possible flavours (nu_e, nu_e_bar, nu_mu, nu_mu_bar).
                     See examples below.
-                  - The original HBOOK JNUBAM ntuples need to be converted to a ROOT 
-                    format using the h2root ROOT utility.   
                   - The JNUBEAM flux ntuples are read via GENIE's GJPARCNuFlux 
                     driver. This customized GENIE event generation driver 
                     passes-through the complete JPARC input flux information 
