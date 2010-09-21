@@ -4,7 +4,10 @@
 \program gevpick
 
 \brief   Reads a list of GENIE event files (GHEP format), `cherry-picks' events with a given 
-         topology and writes them out in a separate file.
+         topology and writes them out in a separate file. The output event tree contains two
+         additional branches to aid book-keeping by maintaining a link to the source location
+         of each cherry-picked event. For each such event we store a) the name of the original
+         file and b) its original event number.
 
          This is the _only_recommended_ way to obtain event files that contain specific final 
          states (by cherry-picking events from files generated running GENIE in a comprehensive 
@@ -17,28 +20,22 @@
          Intranuclear re-scattering in particular causes significant migration between states
          (see Table 8.1 in the Physics and User manual).
          Examples:
-         - {1mu-,0pi} is mostly numuCCQE, but can also be caused by numu resonance production 
-           followed by pion absorption.
-         - numuCCQE gives mostly {1mu-,0pi} but occasionaly can give {1mu-,1pi} if the recoil 
-           nucleon re-interacts.
+         - {1mu-,0pi} is mostly numuCCQE but this particular final state can also come about 
+           by numu resonance production followed by pion absorption.
+         - numuCCQE yields mostly {1mu-,0pi} final states but occasionaly can yield {1mu-,1pi} 
+           if the recoil nucleon re-interacts.
          - NC1pi0 final states can be caused by all 
            a) NC elastic followed by nucleon rescattering,
            b) NC resonance neutrino-production, 
            c) NC non-resonance background, 
            d) low-W NC DIS
            e) NC coherent scattering. 
-           Each such NC1pi0 source contributes differently in the pion momentum distribution.
+           Each such NC1pi0 source contributes differently to the pion momentum distribution.
 
-         Note on output event tree: 
-         2 additional branches are added in the output GHEP tree. For each cherry-picked 
-         event we store a) the name of the original file and b) its original event number 
-         so that a link to the original event data files in maintained.
-
-
-         Syntax:
+         Synopsis:
            gevpick -i list_of_input_files -t topology [-o output_file]
 
-         Options :
+         Options:
 
            [] denotes an optional argument
 

@@ -6,11 +6,11 @@
 \brief   Generates hadron + nucleus interactions using GENIE's INTRANUKE
 	 Similar to NEUGEN's pitest (S.Dytman & H.Gallagher)
 
-         Syntax :
+         Synopsis:
            gevgen_hadron [-n nev] -p probe -t tgt [-r run#] -k KE 
                     [-f flux] [-o prefix] [-m mode]
 
-         Options :
+         Options:
            [] Denotes an optional argument
            -n Specifies the number of events to generate (default: 10000)
            -p Specifies the incoming hadron PDG code 
@@ -42,7 +42,7 @@
 
          (3) Generate 100k pi^{+}+Fe56 events with the pi^{+} kinetic energy
              distributed as f(KE) = 1/KE in the [165 MeV, 1200 MeV] range:
-             % ghAevgen -n gevgen_hadron -p 211 -t 1000260560 -k 0.165,1.200 -f '1/x'
+             % gevgen_hadron -n 100000 -p 211 -t 1000260560 -k 0.165,1.200 -f '1/x'
 
 \authors  Steve Dytman, Minsuk Kim and Aaron Meyer 
           University of Pittsburgh
