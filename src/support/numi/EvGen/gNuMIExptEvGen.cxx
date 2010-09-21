@@ -17,7 +17,7 @@
          Please see the GENIE documentation (http://www.genie-mc.org) and contact me 
          <costas.andreopoulos \at stfc.ac.uk> if in doubt.
 
-         *** Syntax :
+         *** Synopsis :
 
            gNuMIevgen [-h] 
                      [-r run#] 
@@ -48,10 +48,10 @@
               1 > A ROOT file containing a ROOT/GEANT geometry description
                   [Examples] 
 		  - To use the master volume from the ROOT geometry stored 
-                    in the argoneut-geom.root file, type:
+                    in the /some/path/nova-geom.root file, type:
                     '-g /some/path/nova-geom.root'
               2 > A mix of target materials, each with its corresponding weight,
-                  typed as a comma-separated list of nuclear pdg codes (in the
+                  typed as a comma-separated list of nuclear PDG codes (in the
                   std PDG2006 convention: 10LZZZAAAI) with the weight fractions
                   in brackets, eg code1[fraction1],code2[fraction2],...
                   If that option is used (no detailed input geometry description) 
@@ -100,11 +100,11 @@
                   The general sytax is:
                       -f /full/path/flux_file.root,detector,flavor1,flavor2...
                   [Notes] 
-                  - For more information on the flux ntuples, see the gNuMI doc
-                  - If flavors aren't specified then use default (12,-12,14,-14)
-                  - See GNuMIFlux.xml for all supported detector locations
+                  - For more information on the flux ntuples, see the gNuMI doc.
                   - The original hbook ntuples need to be converted to a ROOT 
                     format using the h2root ROOT utility.   
+                  - If flavors aren't specified then use default (12,-12,14,-14)
+                  - See GNuMIFlux.xml for all supported detector locations
                   - The gNuMI flux ntuples are read via GENIE's GNuMIFlux driver. 
                     This customized GENIE event generation driver passes-through the 
                     complete gNuMI input flux information (eg parent decay kinematics 
@@ -118,9 +118,7 @@
                   The general syntax is:
                       -f /path/histogram_file.root,neutrino_code[histo_name],...
                   [Notes] 
-                  - The neutrino codes are the PDG ones:
-                    nu_e     ->  12, nu_mu     ->  14, nu_tau     ->  16,
-                    nu_e_bar -> -12, nu_mu_bar -> -14, nu_tau_bar -> -16
+                  - The neutrino codes are the PDG ones.
                   - The 'neutrino_code[histogram_name]' part of the option can be 
                     repeated multiple times (separated by commas), once for each 
                     flux neutrino species you want to consider, eg
