@@ -437,6 +437,11 @@ int main(int argc, char ** argv)
         int    pdg_code = it->first;
         TH1D * spectrum = it->second;
         hst_flux_driver->AddEnergySpectrum(pdg_code, spectrum);
+        // once the histogram has been added to the GCylindTH1Flux driver
+        // it is owned by the driver and it is up to the the driver
+        // to clean up (i.e. delete it).  
+        // remove it from this map to avoid double deletion.
+        it->second = 0;
     }
     // casting to the GENIE flux driver interface
     flux_driver = dynamic_cast<GFluxI *> (hst_flux_driver);
@@ -611,6 +616,8 @@ int main(int argc, char ** argv)
   delete geom_driver;
   delete flux_driver;
   delete mcj_driver;
+  // this list should only be histograms that have (for some reason)
+  // not been handed over to the GCylindTH1Flux driver.
   map<int,TH1D*>::iterator it = gOptFluxHst.begin();
   for( ; it != gOptFluxHst.end(); ++it) {
     TH1D * spectrum = it->second;
