@@ -19,6 +19,13 @@
    Added option to specify a maximum energy cut.
  @ Feb 24, 2010 - CA
    Added option to specify a minimum energy cut.
+ @ Sep 22, 2010 - TF, CA
+   Added SetUserCoordSystem(TRotation &) to specify a rotation from the
+   Topocentric Horizontal (THZ) coordinate system to a user-defined 
+   topocentric coordinate system. Added NFluxNeutrinos() to get number of
+   flux neutrinos generated for sample normalization purposes (note that, in 
+   the presence of cuts, this is not the same as the number of flux neutrinos 
+   thrown towards the geometry).
 */
 //____________________________________________________________________________
 
@@ -81,14 +88,14 @@ bool GAtmoFlux::GenerateNext(void)
 //___________________________________________________________________________
 bool GAtmoFlux::GenerateNext_1try(void)
 {
-  //-- Reset previously generated neutrino code / 4-p / 4-x
+  // Reset previously generated neutrino code / 4-p / 4-x
   this->ResetSelection();
 
-  //-- Get a RandomGen instance
+  // Get a RandomGen instance
   RandomGen * rnd = RandomGen::Instance();
 
-  //-- Generate a (Ev, costheta) pair from the 'combined' flux histogram
-  //   and select (phi) uniformly over [0,2pi]
+  // Generate a (Ev, costheta) pair from the 'combined' flux histogram
+  // and select (phi) uniformly over [0,2pi]
   double Ev       = 0.;
   double costheta = 0.;
   double phi      = 2.*kPi* rnd->RndFlux().Rndm();
@@ -141,9 +148,11 @@ bool GAtmoFlux::GenerateNext_1try(void)
      weight = flux;
   } 
   else {
+
      //
      // generate un-weighted flux
      //
+
      Axis_t ax = 0, ay = 0;
      fFluxSum2D->GetRandom2(ax, ay);
      Ev       = (double)ax;
@@ -152,53 +161,73 @@ bool GAtmoFlux::GenerateNext_1try(void)
      weight   = 1.0;
   }
 
-  //-- Compute etc trigonometric numbers
+  // Compute etc trigonometric numbers
   double sintheta  = TMath::Sqrt(1-costheta*costheta);
   double cosphi    = TMath::Cos(phi);
   double sinphi    = TMath::Sin(phi);
 
-  //-- Set the neutrino pdg code
+  // Set the neutrino pdg code
   fgPdgC = nu_pdg;
 
-  //-- Set the neutrino weight
+  // Set the neutrino weight
   fWeight = weight;
 
-  //-- Compute the neutrino 4-p
-  //   (the - means it is directed towards the detector)
+  // Compute the neutrino momentum
+  // The `-1' means it is directed towards the detector.
   double pz = -1.* Ev * costheta;
   double py = -1.* Ev * sintheta * cosphi;
   double px = -1.* Ev * sintheta * sinphi;
 
-  fgP4.SetPxPyPzE(px, py, pz, Ev);
-
-  //-- Compute neutrino 4-x
-
-  // compute its position at the surface of a sphere with R=fRl
+  // Compute the neutrino position (on the flux generation surface)
+  // The position is computed at the surface of a sphere with R=fRl
+  // at the topocentric horizontal (THZ) coordinate system.
   double z = fRl * costheta;
   double y = fRl * sintheta * cosphi;
   double x = fRl * sintheta * sinphi;
+
+  // Apply user-defined rotation from THZ -> user-defined topocentric 
+  // coordinate system.
+
+  if( !fRotTHz2User.IsIdentity() )
+  {
+    TVector3 tx3(x, y, z );
+    TVector3 tp3(px,py,pz);
+
+    tx3 = fRotTHz2User * tx3;
+    tp3 = fRotTHz2User * tp3;
+
+    x  = tx3.X();
+    y  = tx3.Y();
+    z  = tx3.Z();
+    px = tp3.X();
+    py = tp3.Y();
+    pz = tp3.Z();
+ }
 
   // If the position is left as is, then all generated neutrinos
   // would point towards the origin.
   // Displace the position randomly on the surface that is
   // perpendicular to the selected point P(xo,yo,zo) on the sphere
-
   TVector3 vec(x,y,z);              // vector towards selected point
   TVector3 dvec = vec.Orthogonal(); // orthogonal vector
-
   double psi = 2.*kPi* rnd->RndFlux().Rndm(); // rndm angle [0,2pi]
   double Rt  = fRt* rnd->RndFlux().Rndm();    // rndm norm  [0,Rtransverse]
-
   dvec.Rotate(psi,vec); // rotate around original vector
   dvec.SetMag(Rt);      // set new norm
-
-  // displace the original vector & set the neutrino 4-position
+  // displace the original vector 
   x += dvec.X();
   y += dvec.Y();
   z += dvec.Z();
 
-  fgX4.SetXYZT(x,y,z,0.);
+  // Set the neutrino momentum and position 4-vectors with values
+  // calculated at previous steps.
+  fgP4.SetPxPyPzE(px, py, pz, Ev);
+  fgX4.SetXYZT   (x,  y,  z,  0.);
 
+  // Increment flux neutrino counter used for sample normalization purposes.
+  fNNeutrinos++;
+
+  // Report and exit
   LOG("Flux", pINFO)
        << "Generated neutrino: "
        << "\n pdg-code: " << fgPdgC
@@ -206,6 +235,11 @@ bool GAtmoFlux::GenerateNext_1try(void)
        << "\n x4: " << utils::print::X4AsString(&fgX4);
 
   return true;
+}
+//___________________________________________________________________________
+long int GAtmoFlux::NFluxNeutrinos(void) const
+{
+  return fNNeutrinos;
 }
 //___________________________________________________________________________
 void GAtmoFlux::ForceMinEnergy(double emin)
@@ -265,6 +299,9 @@ void GAtmoFlux::Initialize(void)
 
   // Reset `current' selected flux neutrino
   this->ResetSelection();
+
+  // Reset number of neutrinos thrown so far
+  fNNeutrinos = 0;
 }
 //___________________________________________________________________________
 void GAtmoFlux::ResetSelection(void)
