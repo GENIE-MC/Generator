@@ -11,6 +11,7 @@
                        [-r run#] 
                         -f flux
                         -g geometry
+                       [-R coordinate_rotation_matrix]
                        [-t geometry_top_volume_name]
                        [-m max_path_lengths_xml_file]
                        [-L geometry_length_units]
@@ -74,6 +75,33 @@
                   - To use a target which is 100% C12, type:
                     '-g 1000060120'
 
+           -R Input rotation matrix for transforming the flux neutrino coordinates
+              from the default Topocentric Horizontal (see GENIE manual) coordinate
+              system to the user-defined topocentric coordinate system. 
+              The rotation is specified by the 3 Euler angles (phi, theta, psi).
+              The Euler angles are input as a comma separated list as:
+              `-R <convention>:phi,theta,psi',
+              where <convention> is either X (for X-convention), Y (for Y-convention),
+              X^-1 or Y^-1 (as previously, but using the inverse matrix).
+              By default, the X-convention (rotation about Z-axis, then about the 
+              new X-axis, then about the Z-axis) is used. 
+              Notes: 
+              - (Extract from TRotation documentation)
+               "Euler angles usually define the rotation of the new coordinate 
+                system with respect to the original system, however, the TRotation 
+                class specifies the rotation of the object in the original system 
+                (an active rotation). To recover the usual Euler rotations (ie. 
+                rotate the system not the object), you must take the inverse of 
+                the rotation."
+              Examples:
+              1. To set the Euler angles phi=3.14, theta=1.28, psi=1.0 using the
+                 X-convention, type: `-R 3.14,1.28,1.0', or `-R X:3.14,1.28,1.0'
+              2. To set the Euler angles phi=3.14, theta=1.28, psi=1.0 using the
+                 Y-convention, type: `-R Y:3.14,1.28,1.0'
+              3. To set the Euler angles phi=3.14, theta=1.28, psi=1.0 using the
+                 Y-convention, and then use the inverse rotation matrix, type:
+                 `-R Y^-1:3.14,1.28,1.0'              
+              
            -L Input geometry length units, eg 'm', 'cm', 'mm', ...
               [default: 'mm']
 
@@ -90,7 +118,7 @@
               `-t +Vol1-Vol2+Vol3-Vol4',
               `-t "+Vol1 -Vol2 +Vol3 -Vol4"', 
               `-t -Vol2-Vol4+Vol1+Vol3',
-              `-t "-Vol2 -Vol4 +Vol1 +Vol3"'m
+              `-t "-Vol2 -Vol4 +Vol1 +Vol3"'
               where:
               "+Vol1" and "+Vol3" tells GENIE to `switch on'  Vol1 and Vol3, while
               "-Vol2" and "-Vol4" tells GENIE to `switch off' Vol2 and Vol4.
@@ -172,6 +200,8 @@
 #include <sstream>
 #include <map>
 
+#include <TRotation.h>
+
 #include "Conventions/Units.h"
 #include "EVGCore/EventRecord.h"
 #include "EVGDrivers/GFluxI.h"
@@ -229,6 +259,7 @@ double          gOptKtonYrExposure = -1;       // exposure - in terms of kton*yr
 double          gOptEvMin;                     // minimum neutrino energy
 double          gOptEvMax;                     // maximum neutrino energy
 string          gOptEvFilePrefix;              // event file prefix
+TRotation       gOptRot;                       // coordinate rotation matrix: topocentric horizontal -> user-defined topocentric system
 
 // Defaults:
 //
@@ -397,7 +428,13 @@ GFluxI* GetFlux(void)
     atmo_flux_driver->SetFluxFile(neutrino_code, filename);
   }
   atmo_flux_driver->LoadFluxData();
+  // configure flux generation surface:
   atmo_flux_driver->SetRadii(1, 1);
+  // set rotation for coordinate tranformation from the topocentric horizontal
+  // system to a user-defined coordinate system:
+  if(!gOptRot.IsIdentity()) {
+     atmo_flux_driver->SetUserCoordSystem(gOptRot);
+  }
   // Cast to GFluxI, the generic flux driver interface 
   flux_driver = dynamic_cast<GFluxI *>(atmo_flux_driver);
 
@@ -701,6 +738,56 @@ void GetCommandLineArgs(int argc, char ** argv)
   } // using tgt mix?
     
   //
+  // Coordinate rotation matrix
+  //
+  gOptRot.SetToIdentity();   
+  if( parser.OptionExists('R') ) {
+    string rotarg = parser.ArgAsString('R');
+    //get convention
+    string::size_type j = rotarg.find_first_of(":",0);
+    string convention = "";
+    if(j==string::npos) { convention = "X"; }
+    else                { convention = rotarg.substr(0,j); }
+    //get angles phi,theta,psi
+    rotarg.erase(0,j+1); 
+    vector<string> euler_angles = utils::str::Split(rotarg,",");
+    if(euler_angles.size() != 3) {
+       LOG("gevgen_atmo", pFATAL)
+         << "You didn't specify all 3 Euler angles using the -R option";
+       PrintSyntax();
+       gAbortingInErr = true;
+       exit(1);
+    }
+    double phi   = atof(euler_angles[0].c_str()); 
+    double theta = atof(euler_angles[1].c_str());
+    double psi   = atof(euler_angles[2].c_str());
+    //set Euler angles using appropriate convention
+    if(convention.find("X")!=string::npos || 
+       convention.find("x")!=string::npos) 
+    {
+       LOG("gevgen_atmo", pNOTICE) << "Using X-convention for input Euler angles";
+       gOptRot.SetXEulerAngles(phi,theta,psi);
+    } else 
+    if(convention.find("Y")!=string::npos || 
+       convention.find("y")!=string::npos) 
+    {
+       LOG("gevgen_atmo", pNOTICE) << "Using Y-convention for input Euler angles";
+       gOptRot.SetYEulerAngles(phi,theta,psi);
+    } else {
+       LOG("gevgen_atmo", pFATAL)
+         << "Unknown Euler angle convention. Please use the X- or Y-convention";
+       PrintSyntax();
+       gAbortingInErr = true;
+       exit(1);
+    }
+    //invert?
+    if(convention.find("^-1")!=string::npos) {
+       LOG("gevgen_atmo", pNOTICE) << "Inverting rotation matrix";
+       gOptRot.Invert();
+    }
+  }
+
+  //
   // print-out summary
   //
 
@@ -746,6 +833,11 @@ void GetCommandLineArgs(int argc, char ** argv)
   if(gOptNev > 0)            { expinfo << gOptNev            << " events";   } 
   if(gOptKtonYrExposure > 0) { expinfo << gOptKtonYrExposure << " kton*yrs"; } 
 
+  ostringstream rotation;
+  rotation << "\t| " <<  gOptRot.XX() << "  " << gOptRot.XY() << "  " << gOptRot.XZ() << " |\n";
+  rotation << "\t| " <<  gOptRot.YX() << "  " << gOptRot.YY() << "  " << gOptRot.YZ() << " |\n";
+  rotation << "\t| " <<  gOptRot.ZX() << "  " << gOptRot.ZY() << "  " << gOptRot.ZZ() << " |\n";
+
   LOG("gevgen_atmo", pNOTICE) 
      << "\n"
      << "\n ****** MC Job (" << gOptRunNu << ") Settings ****** "
@@ -757,6 +849,8 @@ void GetCommandLineArgs(int argc, char ** argv)
      << "\n\t" << expinfo.str()
      << "\n @@ Cuts"
      << "\n\t Using energy range = (" << gOptEvMin << " GeV, " << gOptEvMax << " GeV)"
+     << "\n @@ Coordinate transformation (Rotation THZ -> User-defined coordinate system)"
+     << "\n" << rotation.str()
      << "\n\n";
 
   //
@@ -780,6 +874,7 @@ void PrintSyntax(void)
    << "\n           [-r run#]"
    << "\n            -f simulation:flux_file[neutrino_code],..."
    << "\n            -g geometry"
+   << "\n           [-R coordinate_rotation_matrix]"
    << "\n           [-t geometry_top_volume_name]"
    << "\n           [-m max_path_lengths_xml_file]"
    << "\n           [-L geometry_length_units]"
