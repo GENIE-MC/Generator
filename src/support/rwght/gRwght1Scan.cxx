@@ -11,19 +11,30 @@
          Is a RAL/T2K analysis program.
 
 \syntax  grwght1scan \
-           -f filename [-n nev] -s systematic -t n_twk_diall_values
+           -f filename [-n n1[,n2]] -s systematic -t n_twk_diall_values
            [-p neutrino_codes]
 
          where 
          [] is an optional argument
-         -f specifies a GHEP input file
-         -n specifies the number of events to process (default: all)
-         -t number of tweak dial values between -1 and 1 
+
+         -f Specifies a GHEP input file.
+         -n Specifies an event range.
+            Examples:
+            - Type `-n 50,2350' to process all 2301 events from 50 up to 2350.
+              Note: Both 50 and 2350 are included.
+            - Type `-n 1000' to process the first 1000 events;
+              from event number 0 up to event number 999.
+            This is an optional argument. By default GENIE will process all events.
+         -t Specified the number of tweak dial values between -1 and 1 
             (must be odd so as to include al -1, 0 and 1 / if it is an even
              number it will be incremented by 1)
-         -s systematic param to tweak
-         -p if set, reweights *only* the specified neutrino species
-            (input can be a comma separated list of codes) 
+         -s Specifies the systematic param to tweak.
+            See $GENIE/src/ReWeight/GSyst.h for a list of parameters and
+            their corresponding label, which is what should be input here.
+         -p If set, grwght1scan reweights *only* the specified neutrino 
+            species. The input is a comma separated list of PDG codes.
+            This is an optional argument. By default GENIE will reweight
+            interactions of all neutrino species.
 
 \author  Jim Dobson
          Imperial College London
@@ -40,6 +51,7 @@
 //____________________________________________________________________________
 
 #include <string>
+#include <cassert>
 
 #include <TSystem.h>
 #include <TFile.h>
@@ -79,9 +91,11 @@ using namespace genie;
 using namespace genie::rew;
 
 void GetCommandLineArgs (int argc, char ** argv);
+void GetEventRange      (Long64_t nev_in_file, Long64_t & nfirst, Long64_t & nlast);
 
 string      gOptInpFilename; ///< filename for input event tree
-int         gOptNEvt;        ///< number of event to process (-1 for all)
+Long64_t    gOptNEvt1;       ///< range of events to process (1st input, if any)
+Long64_t    gOptNEvt2;       ///< range of events to process (2nd input, if any)
 GSyst_t     gOptSyst;        ///< input systematic param
 int         gOptInpNTwk;     ///< # of tweaking dial values between [-1,1]
 PDGCodeList gOptNu(false);   ///< neutrinos to consider
@@ -91,9 +105,7 @@ int main(int argc, char ** argv)
 {
   GetCommandLineArgs (argc, argv);
 
-  //
   // Get the input event sample
-  //
 
   TTree *           tree = 0;
   NtpMCTreeHeader * thdr = 0;
@@ -115,15 +127,44 @@ int main(int argc, char ** argv)
   NtpMCEventRecord * mcrec = 0;
   tree->SetBranchAddress("gmcrec", &mcrec);
 
-  int nev = (gOptNEvt > 0) ? 
-       TMath::Min(gOptNEvt, (int)tree->GetEntries()) : 
-       (int) tree->GetEntries();
-  LOG("RewScan1", pNOTICE) 
-     << "Will process " << nev << " events";
+  Long64_t nev_in_file = tree->GetEntries();
+
+  // The tweaking dial takes N values between [-1,1]
+
+  const int   n_points      = gOptInpNTwk;
+  const float twk_dial_min  = -1.0;
+  const float twk_dial_max  =  1.0;
+  const float twk_dial_step = (twk_dial_max - twk_dial_min) / (n_points-1);
+
+  // Work-out the range of events to process
+  Long64_t nfirst = 0;
+  Long64_t nlast  = 0;
+  GetEventRange(nev_in_file, nfirst, nlast);
+
+  Long64_t nev = (nlast - nfirst + 1);
 
   //
-  // Create a GReWeight object and add to it a set of weight calculators
+  // Summarize
   //
+
+  LOG("RewScan1", pNOTICE) 
+    << "\n"
+    << "\n** grwght1scan: Will start processing events promptly."
+    << "\nHere is a summary of inputs: "
+    << "\n - Input event file: " << gOptInpFilename 
+    << "\n - Processing: " << nev << " events in the range [" << nfirst << ", " << nlast << "]"
+    << "\n - Systematic parameter to tweak: " << GSyst::AsString(gOptSyst)
+    << "\n - Number of tweak dial values in [-1,1] : " << gOptInpNTwk
+    << "\n - Neutrino species to reweight : " << gOptNu
+    << "\n\n";
+
+
+  // Declare the weights and twkdial arrays 
+  const int n_events = (const int) nev;
+  float weights  [n_events][n_points]; 
+  float twkdials [n_events][n_points]; 
+
+  // Create a GReWeight object and add to it a set of weight calculators
 
   GReWeight rw;
   rw.AdoptWghtCalc( "xsec_ccqe",       new GReWeightNuXSecCCQE      );
@@ -140,26 +181,12 @@ int main(int argc, char ** argv)
   rw.AdoptWghtCalc( "xsec_ncres",      new GReWeightNuXSecNCRES     );
   rw.AdoptWghtCalc( "xsec_dis",        new GReWeightNuXSecDIS       );
 
-  //
-  // Init GSystSet
-  //
+  // Get GSystSet and include the (single) input systematic parameter
+
   GSystSet & syst = rw.Systematics();
   syst.Init(gOptSyst);
 
-  string syst_name = genie::rew::GSyst::AsString(gOptSyst);
-
-  //
-  // The tweaking dial takes N values between [-1,1]
-  //
-  const int   n_points      = gOptInpNTwk;
-  const float twk_dial_min  = -1.0;
-  const float twk_dial_max  =  1.0;
-  const float twk_dial_step = (twk_dial_max - twk_dial_min) / (n_points-1);
-	
-  // Declare the weights and twkdial arrays 
-  const int n_events = (const int) nev;
-  float weights  [n_events][n_points]; 
-  float twkdials [n_events][n_points]; 
+  string syst_name = GSyst::AsString(gOptSyst);
 
   // Twk dial loop
   for(int ith_dial = 0; ith_dial < n_points; ith_dial++){  
@@ -173,7 +200,7 @@ int main(int argc, char ** argv)
      rw.Reconfigure();
 
      // Event loop
-     for(int i = 0; i < nev; i++) {
+     for(int i = nfirst; i <= nlast; i++) {
 
           // Get next event
           tree->GetEntry(i);
@@ -230,7 +257,7 @@ int main(int argc, char ** argv)
   wght_tree->Branch("weights",  &branch_weight_array);
   wght_tree->Branch("twkdials", &branch_twkdials_array);
 
-  for(int i = 0; i < nev; i++) {
+  for(int i = nfirst; i <= nlast; i++) {
     branch_eventnum = i; 
     for(int ith_dial = 0; ith_dial < n_points; ith_dial++){  
         LOG("RewScan1", pDEBUG)
@@ -271,15 +298,36 @@ void GetCommandLineArgs(int argc, char ** argv)
     exit(1);
   }
 
-  // number of events
-  if(parser.OptionExists('n')) {
-    LOG("RewScan1", pINFO) << "Reading number of events to analyze";
-    gOptNEvt = parser.ArgAsInt('n');
+  // range of event numbers to process
+  if ( parser.OptionExists('n') ) {
+    //
+    LOG("gevdump", pINFO) << "Reading number of events to analyze";
+    string nev =  parser.ArgAsString('n');
+    if (nev.find(",") != string::npos) {
+      vector<long> vecn = parser.ArgAsLongTokens('n',",");
+      if(vecn.size()!=2) {
+         LOG("gevdump", pFATAL) << "Invalid syntax";
+         gAbortingInErr = true;
+         exit(1);
+      }
+      // User specified a comma-separated set of values n1,n2.
+      // Use [n1,n2] as the event range to process.
+      gOptNEvt1 = vecn[0];
+      gOptNEvt2 = vecn[1];
+    } else {
+      // User specified a single number n.
+      // Use [0,n] as the event range to process.
+      gOptNEvt1 = -1;
+      gOptNEvt2 = parser.ArgAsLong('n');
+    }  
   } else {
-    LOG("RewScan1", pINFO)
+    LOG("gevdump", pINFO)
       << "Unspecified number of events to analyze - Use all";
-    gOptNEvt = -1;
+    gOptNEvt1 = -1;
+    gOptNEvt2 = -1;
   }
+  LOG("RewScan1", pDEBUG) 
+    << "Input event range: " << gOptNEvt1 << ", " << gOptNEvt2;
 
   // get the number of tweak dials to scan
   if(parser.OptionExists('t')) {
@@ -347,19 +395,35 @@ void GetCommandLineArgs(int argc, char ** argv)
     gOptNu.push_back (kPdgNuTau    );
     gOptNu.push_back (kPdgAntiNuTau);
   }
-
-  //
-  // Summarize
-  //
-
-  LOG("RewScan1", pNOTICE) 
-    << "\n\n** gT2Krew_1systscan job inputs: "
-    << "\n - Input event file: " << gOptInpFilename 
-    << "\n - Number of events: " << ((gOptNEvt>0) ? Form("%d",gOptNEvt) : "all")
-    << "\n - Systematic parameter: " << GSyst::AsString(gOptSyst)
-    << "\n - Number of tweak dial values in [-1,1] : " << gOptInpNTwk
-    << "\n - Neutrino species to reweight : " << gOptNu
-    << "\n\n";
 }
 //_________________________________________________________________________________
+void GetEventRange(Long64_t nev_in_file, Long64_t & nfirst, Long64_t & nlast)
+{
+  nfirst = 0;
+  nlast  = 0;
 
+  if(gOptNEvt1>=0 && gOptNEvt2>=0) {
+    // Input was `-n N1,N2'.
+    // Process events [N1,N2].
+    // Note: Incuding N1 and N2.
+    nfirst = gOptNEvt1;
+    nlast  = TMath::Min(nev_in_file-1, gOptNEvt2);
+  }
+  else 
+  if(gOptNEvt1<0 && gOptNEvt2>=0) {
+    // Input was `-n N'.
+    // Process first N events [0,N). 
+    // Note: Event N is not included.
+    nfirst = 0;
+    nlast  = TMath::Min(nev_in_file-1, gOptNEvt2-1);
+  }
+  else
+  if(gOptNEvt1<0 && gOptNEvt2<0) {
+    // No input. Process all events.
+    nfirst = 0;
+    nlast  = nev_in_file-1;    
+  }
+
+  assert(nfirst < nlast && nfirst >= 0 && nlast <= nev_in_file-1);
+}
+//_________________________________________________________________________________
