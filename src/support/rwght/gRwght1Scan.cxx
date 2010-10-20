@@ -210,16 +210,17 @@ int main(int argc, char ** argv)
      rw.Reconfigure();
 
      // Event loop
-     for(int i = nfirst; i <= nlast; i++) {
+     for(int iev = nfirst; iev <= nlast; iev++) {
 
           // Get next event
-          tree->GetEntry(i);
+          tree->GetEntry(iev);
           EventRecord & event = *(mcrec->event);
           LOG("RewScan1", pDEBUG) << event;
 
           // Reset arrays
-          weights  [i][ith_dial] = -99999.0;
-          twkdials [i][ith_dial] = twk_dial;
+          int idx = iev - nfirst;
+          weights  [idx][ith_dial] = -99999.0;
+          twkdials [idx][ith_dial] = twk_dial;
 
           // Reweight this event?
           int nupdg = event.Probe()->Pdg();
@@ -234,11 +235,11 @@ int main(int argc, char ** argv)
           // Print/store
           LOG("RewScan1", pDEBUG) 
               << "Overall weight = " << wght;
-          weights[i][ith_dial] = wght;
+          weights[idx][ith_dial] = wght;
 
-          if(i%100 == 0) {
+          if(iev%100 == 0) {
               LOG("RewScan1", pNOTICE) 
-                 << "***** Processed "<< i+1 << " events";
+                 << "***** Currently at event number: "<< iev;
            }
 
            // Clean-up
@@ -265,14 +266,15 @@ int main(int argc, char ** argv)
   wght_tree->Branch("weights",  &branch_weight_array);
   wght_tree->Branch("twkdials", &branch_twkdials_array);
 
-  for(int i = nfirst; i <= nlast; i++) {
-    branch_eventnum = i; 
+  for(int iev = nfirst; iev <= nlast; iev++) {
+    int idx = iev - nfirst;
+    branch_eventnum = iev; 
     for(int ith_dial = 0; ith_dial < n_points; ith_dial++){  
         LOG("RewScan1", pDEBUG)
-          << "Filling tree with wght = " << weights[i][ith_dial] 
-          << ", twk dial = "<< twkdials[i][ith_dial];
-       branch_weight_array   -> AddAt (weights [i][ith_dial], ith_dial);
-       branch_twkdials_array -> AddAt (twkdials[i][ith_dial], ith_dial);
+          << "Filling tree with wght = " << weights[idx][ith_dial] 
+          << ", twk dial = "<< twkdials[idx][ith_dial];
+       branch_weight_array   -> AddAt (weights [idx][ith_dial], ith_dial);
+       branch_twkdials_array -> AddAt (twkdials[idx][ith_dial], ith_dial);
     } // twk_dial loop
     wght_tree->Fill();
   } 
