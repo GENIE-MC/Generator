@@ -4,7 +4,7 @@
 # Script to submit jobs used for evaluating neutrino interaction systematics.
 #
 # Syntax:
-#   perl submit-nuint_syst-1d_scan.pl <options>
+#   perl submit-systematics-1d_scan.pl <options>
 #
 # Options:
 #    --version         : GENIE version number.
@@ -214,7 +214,7 @@ mkpath ($jobs_dir, {verbose => 1, mode=>0777});
 for my $curr_syst (keys %def_ntwkdials)  {
 
   # check whether to commit weight calculation run for current systematic
-  print "checking whether to submit job for systematic: $curr_syst \n";
+# print "checking whether to submit job for systematic: $curr_syst \n";
 
   $using_a_std_analysis_syst_list = 
          ($syst eq "standard-t2k-analysis-list");
@@ -232,12 +232,12 @@ for my $curr_syst (keys %def_ntwkdials)  {
     $grep_pipe     = "grep -B 20 -A 30 -i \"warn\\|error\\|fatal\"";
     $valgrind_cmd  = "valgrind --tool=memcheck --error-limit=no --leak-check=yes --show-reachable=yes";
     $ntwkdials     = $def_ntwkdials{$curr_syst};
-    $genie_cmd     = "$gexec -f $input_events -s $curr_syst -t $ntwkdials | $grep_pipe &> $fntemplate.log";
+    $genie_cmd     = "$gexec -f $input_events -s $curr_syst -t $ntwkdials";
     $genie_cmd     = "$genie_cmd -n $nevents"        if defined $nevents;        # add optional argument
     $genie_cmd     = "$genie_cmd -o $output_weights" if defined $output_weights; # add optional argument
     $genie_cmd     = "$genie_cmd | $grep_pipe &> $fntemplate.log";
 
-#   print "@@ exec: $genie_cmd \n";
+    print "@@ exec: $genie_cmd \n";
 
     #
     # submit
