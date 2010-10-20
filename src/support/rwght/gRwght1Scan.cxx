@@ -11,11 +11,15 @@
          Is a RAL/T2K analysis program.
 
 \syntax  grwght1scan \
-           -f filename [-n n1[,n2]] -s systematic -t n_twk_diall_values
-           [-p neutrino_codes]
+           -f input_event_file 
+          [-n n1[,n2]] 
+           -s systematic 
+           -t n_twk_diall_values
+          [-p neutrino_codes] 
+          [-o output_weights_file]
 
          where 
-         [] is an optional argument
+         [] is an optional argument.
 
          -f Specifies a GHEP input file.
          -n Specifies an event range.
@@ -24,7 +28,8 @@
               Note: Both 50 and 2350 are included.
             - Type `-n 1000' to process the first 1000 events;
               from event number 0 up to event number 999.
-            This is an optional argument. By default GENIE will process all events.
+            This is an optional argument. 
+            By default GENIE will process all events.
          -t Specified the number of tweak dial values between -1 and 1 
             (must be odd so as to include al -1, 0 and 1 / if it is an even
              number it will be incremented by 1)
@@ -33,8 +38,11 @@
             their corresponding label, which is what should be input here.
          -p If set, grwght1scan reweights *only* the specified neutrino 
             species. The input is a comma separated list of PDG codes.
-            This is an optional argument. By default GENIE will reweight
-            interactions of all neutrino species.
+            This is an optional argument. 
+            By default GENIE will reweight all neutrino species.
+         -o Specifies the filename of the output weight file.
+            This is an optional argument. 
+            By default filename is weights_<name_of_systematic_param>.root.
 
 \author  Jim Dobson
          Imperial College London
@@ -51,6 +59,7 @@
 //____________________________________________________________________________
 
 #include <string>
+#include <sstream>
 #include <cassert>
 
 #include <TSystem.h>
@@ -86,6 +95,7 @@
 #include "Utils/CmdLnArgParser.h"
 
 using std::string;
+using std::ostringstream;
 
 using namespace genie;
 using namespace genie::rew;
@@ -93,7 +103,8 @@ using namespace genie::rew;
 void GetCommandLineArgs (int argc, char ** argv);
 void GetEventRange      (Long64_t nev_in_file, Long64_t & nfirst, Long64_t & nlast);
 
-string      gOptInpFilename; ///< filename for input event tree
+string      gOptInpFilename; ///< name for input file (contains input event tree)
+string      gOptOutFilename; ///< name for output file (contains the output weight tree)
 Long64_t    gOptNEvt1;       ///< range of events to process (1st input, if any)
 Long64_t    gOptNEvt2;       ///< range of events to process (2nd input, if any)
 GSyst_t     gOptSyst;        ///< input systematic param
@@ -156,6 +167,7 @@ int main(int argc, char ** argv)
     << "\n - Systematic parameter to tweak: " << GSyst::AsString(gOptSyst)
     << "\n - Number of tweak dial values in [-1,1] : " << gOptInpNTwk
     << "\n - Neutrino species to reweight : " << gOptNu
+    << "\n - Output weights to be saved in : " << gOptOutFilename 
     << "\n\n";
 
 
@@ -186,15 +198,13 @@ int main(int argc, char ** argv)
   GSystSet & syst = rw.Systematics();
   syst.Init(gOptSyst);
 
-  string syst_name = GSyst::AsString(gOptSyst);
-
   // Twk dial loop
   for(int ith_dial = 0; ith_dial < n_points; ith_dial++){  
 
      // Set non-default values and re-configure.    
      double twk_dial = twk_dial_min + ith_dial * twk_dial_step;  
      LOG("RewScan1", pNOTICE) 
-       << "Reconfiguring systematic: " << syst_name 
+       << "Reconfiguring systematic: " << GSyst::AsString(gOptSyst)
        << " - Setting tweaking dial to: " << twk_dial;
      syst.Set(gOptSyst, twk_dial);
      rw.Reconfigure();
@@ -246,10 +256,8 @@ int main(int argc, char ** argv)
 
   // Make an output tree for saving the weights. As only considering 
   // varying a single systematic use this for name of tree.
-  TString wght_filename; 
-  wght_filename.Form("weights_%s.root", syst_name.c_str());
-  TFile * wght_file = new TFile(wght_filename.Data(), "RECREATE");
-  TTree * wght_tree = new TTree(syst_name.c_str(),   "weights tree");
+  TFile * wght_file = new TFile(gOptOutFilename.c_str(), "RECREATE");
+  TTree * wght_tree = new TTree(GSyst::AsString(gOptSyst).c_str(), "GENIE weights tree");
   int branch_eventnum = 0;
   TArrayF * branch_weight_array   = new TArrayF(n_points);
   TArrayF * branch_twkdials_array = new TArrayF(n_points);  
@@ -368,6 +376,17 @@ void GetCommandLineArgs(int argc, char ** argv)
        << "You need to specify a systematic param using -s";
     gAbortingInErr = true;
     exit(1);
+  }
+
+  // output weight file
+  if(parser.OptionExists('o')) {
+    LOG("RewScan1", pINFO) << "Reading requested output filename";
+    gOptOutFilename = parser.ArgAsString('o');
+  } else {
+    LOG("RewScan1", pINFO) << "Setting default output filename";
+    ostringstream nm;
+    nm << "weights_" << GSyst::AsString(gOptSyst) << ".root";
+    gOptOutFilename = nm.str();
   }
 
   // which species to reweight?
