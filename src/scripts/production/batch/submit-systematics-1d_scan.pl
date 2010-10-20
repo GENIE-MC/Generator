@@ -7,18 +7,22 @@
 #   perl submit-nuint_syst-1d_scan.pl <options>
 #
 # Options:
-#    --version       : GENIE version number
-#    --input-events  : input event file
-#    --syst          : Systematics for which to submit weight calculation jobs, 
-#                      eg `--syst MaCCQE', `--syst MaCCQE,MFP_pi', `--syst all' etc.
-#                      Alternatively you can use `predefined' lists, eg  `--syst standard-t2k-analysis-list'
-#   [--arch]         : <SL4_32bit, SL5_64bit>, default: SL5_64bit
-#   [--production]   : production name, default: <version>
-#   [--cycle]        : cycle in current production, default: 01
-#   [--use-valgrind] : default: off
-#   [--batch-system] : <PBS, LSF, none>, default: PBS
-#   [--queue]        : default: prod
-#   [--softw-topdir] : default: /opt/ppd/t2k/GENIE
+#    --version         : GENIE version number.
+#    --input-events    : Input event file.
+#    --syst            : Systematics for which to submit weight calculation jobs, 
+#                        eg `--syst MaCCQE', `--syst MaCCQE,MFP_pi', `--syst all' etc.
+#                        Alternatively you can use `predefined' lists, eg  `--syst standard-t2k-analysis-list'
+#   [--nevents]        : Event numbers to process. 
+#                        To process the first 10000 events, type `--nevents 10000'.
+#                        To process the 3000 events between 1000 and 4999, type `--nevents 1000,4999'.
+#   [--output-weights] : Output weight file. Default: weights_<name of systematic>.root
+#   [--arch]           : <SL4_32bit, SL5_64bit>. Default: SL5_64bit
+#   [--production]     : Production name. Default: <version>
+#   [--cycle]          : Cycle in current production. Default: 01
+#   [--use-valgrind]   : Use Valgrind? Default: off
+#   [--batch-system]   : Batch system: <PBS, LSF, none>. Default: PBS
+#   [--queue]          : Batch queue. Default: prod
+#   [--softw-topdir]   : Software installation top directory. Default: /opt/ppd/t2k/GENIE
 #
 # Tested at the RAL/PPD Tier2 PBS batch farm.
 #
@@ -33,16 +37,18 @@ use File::Path;
 #
 $iarg=0;
 foreach (@ARGV) {
-  if($_ eq '--version')       { $genie_version = $ARGV[$iarg+1]; }
-  if($_ eq '--syst')          { $syst          = $ARGV[$iarg+1]; }
-  if($_ eq '--input-events')  { $input_events  = $ARGV[$iarg+1]; }
-  if($_ eq '--arch')          { $arch          = $ARGV[$iarg+1]; }
-  if($_ eq '--production')    { $production    = $ARGV[$iarg+1]; }
-  if($_ eq '--cycle')         { $cycle         = $ARGV[$iarg+1]; }
-  if($_ eq '--use-valgrind')  { $use_valgrind  = $ARGV[$iarg+1]; }
-  if($_ eq '--batch-system')  { $batch_system  = $ARGV[$iarg+1]; }
-  if($_ eq '--queue')         { $queue         = $ARGV[$iarg+1]; }
-  if($_ eq '--softw-topdir')  { $softw_topdir  = $ARGV[$iarg+1]; }  
+  if($_ eq '--version')        { $genie_version  = $ARGV[$iarg+1]; }
+  if($_ eq '--syst')           { $syst           = $ARGV[$iarg+1]; }
+  if($_ eq '--input-events')   { $input_events   = $ARGV[$iarg+1]; }
+  if($_ eq '--nevents')        { $nevents        = $ARGV[$iarg+1]; }
+  if($_ eq '--output-weights') { $output_weights = $ARGV[$iarg+1]; }
+  if($_ eq '--arch')           { $arch           = $ARGV[$iarg+1]; }
+  if($_ eq '--production')     { $production     = $ARGV[$iarg+1]; }
+  if($_ eq '--cycle')          { $cycle          = $ARGV[$iarg+1]; }
+  if($_ eq '--use-valgrind')   { $use_valgrind   = $ARGV[$iarg+1]; }
+  if($_ eq '--batch-system')   { $batch_system   = $ARGV[$iarg+1]; }
+  if($_ eq '--queue')          { $queue          = $ARGV[$iarg+1]; }
+  if($_ eq '--softw-topdir')   { $softw_topdir   = $ARGV[$iarg+1]; }  
   $iarg++;
 }
 die("** Aborting [Undefined GENIE version. Use the --version option]")
@@ -226,7 +232,10 @@ for my $curr_syst (keys %def_ntwkdials)  {
     $grep_pipe     = "grep -B 20 -A 30 -i \"warn\\|error\\|fatal\"";
     $valgrind_cmd  = "valgrind --tool=memcheck --error-limit=no --leak-check=yes --show-reachable=yes";
     $ntwkdials     = $def_ntwkdials{$curr_syst};
-    $genie_cmd     = "$gexec -f -t $ntwkdials | $grep_pipe &> $fntemplate.log";
+    $genie_cmd     = "$gexec -f $input_events -s $curr_syst -t $ntwkdials | $grep_pipe &> $fntemplate.log";
+    $genie_cmd     = "$genie_cmd -n $nevents"        if defined $nevents;        # add optional argument
+    $genie_cmd     = "$genie_cmd -o $output_weights" if defined $output_weights; # add optional argument
+    $genie_cmd     = "$genie_cmd | $grep_pipe &> $fntemplate.log";
 
 #   print "@@ exec: $genie_cmd \n";
 
