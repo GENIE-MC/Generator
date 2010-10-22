@@ -16,6 +16,9 @@
  @ Jun 09, 2010 - CA
    Created by cloning the CCRES reweight code so that NCRES events can
    be tweaked / reweighted independently.  First included in v2.7.1.
+ @ Oct 20, 2010 - CA
+   Made static consts `kModeMaMv' and `kModeNormAndMaMvShape' public to
+   aid external configuration.
 
 */
 //____________________________________________________________________________

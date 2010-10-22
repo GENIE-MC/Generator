@@ -32,7 +32,7 @@
 #include "ReWeight/GSystUncertainty.h"
 #include "Utils/NuclearUtils.h"
 
-#define _G_REWEIGHT_FGM_DEBUG_
+//#define _G_REWEIGHT_FGM_DEBUG_
 
 using namespace genie;
 using namespace genie::rew;

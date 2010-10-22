@@ -283,7 +283,7 @@ double GReWeightResonanceDecay::RewThetaDelta2Npi(const EventRecord & event)
   // mi is the projection of Delta momentum along quantization axis.
   // P2(costheta) is the 2nd order Legendre polynomial.
   // Isotropy implies equal populations: p(3/2)=p(1/2)=1
-  // R/S predict: p(3/2)=0.75, p(1/2)=0.5
+  // R/S predict: p(3/2)=0.75, p(1/2)=0.25
   // The above follow the notation used in Sam Zeller's invited talk in a 
   // MINOS Physics Simulation mtg on Sep 28th, 2007.
   // Sam's talk cited a paper by G.Garvey and O.Lalakulich which I haven't
