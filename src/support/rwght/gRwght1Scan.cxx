@@ -198,6 +198,40 @@ int main(int argc, char ** argv)
   GSystSet & syst = rw.Systematics();
   syst.Init(gOptSyst);
 
+  // Fine-tune weight calculators
+
+  if(gOptSyst == kXSecTwkDial_MaCCQE) {
+     // By default GReWeightNuXSecCCQE is in `NormAndMaShape' mode 
+     // where Ma affects the shape of dsigma/dQ2 and a different param affects the normalization
+     // If the input is MaCCQE, switch the weight calculator to `Ma' mode
+     GReWeightNuXSecCCQE * rwccqe =      
+        dynamic_cast<GReWeightNuXSecCCQE *> (rw.WghtCalc("xsec_ccqe"));  
+     rwccqe->SetMode(GReWeightNuXSecCCQE::kModeMa);
+  }
+  if(gOptSyst == kXSecTwkDial_MaCCRES || gOptSyst == kXSecTwkDial_MvCCRES) {
+     // As above, but for the GReWeightNuXSecCCRES weight calculator
+     GReWeightNuXSecCCRES * rwccres = 
+        dynamic_cast<GReWeightNuXSecCCRES *> (rw.WghtCalc("xsec_ccres"));  
+     rwccres->SetMode(GReWeightNuXSecCCRES::kModeMaMv);
+  }
+  if(gOptSyst == kXSecTwkDial_MaNCRES || gOptSyst == kXSecTwkDial_MvNCRES) {
+     // As above, but for the GReWeightNuXSecNCRES weight calculator
+     GReWeightNuXSecNCRES * rwncres = 
+        dynamic_cast<GReWeightNuXSecNCRES *> (rw.WghtCalc("xsec_ncres"));  
+     rwncres->SetMode(GReWeightNuXSecNCRES::kModeMaMv);
+  }
+  if(gOptSyst == kXSecTwkDial_AhtBYshape  || gOptSyst == kXSecTwkDial_BhtBYshape ||
+     gOptSyst == kXSecTwkDial_CV1uBYshape || gOptSyst == kXSecTwkDial_CV2uBYshape ) {
+     // Similarly for the GReWeightNuXSecDIS weight calculator.
+     // There the default behaviour is for the Aht, Bht, CV1u and CV2u Bodek-Yang
+     // params to affects both normalization and dsigma/dxdy shape.
+     // Switch mode if a shape-only param is specified.
+     GReWeightNuXSecDIS * rwdis = 
+        dynamic_cast<GReWeightNuXSecDIS *> (rw.WghtCalc("xsec_dis"));  
+     rwdis->SetMode(GReWeightNuXSecDIS::kModeABCV12uShape);
+  }
+
+
   // Twk dial loop
   for(int ith_dial = 0; ith_dial < n_points; ith_dial++){  
 
