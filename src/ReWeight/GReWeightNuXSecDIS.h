@@ -36,10 +36,10 @@ namespace rew   {
 
  class GReWeightNuXSecDIS : public GReWeightI 
  {
- static const int kModeABCV12u      = 0;
- static const int kModeABCV12uShape = 1;
-
  public:
+   static const int kModeABCV12u      = 0;
+   static const int kModeABCV12uShape = 1;
+
    GReWeightNuXSecDIS();
   ~GReWeightNuXSecDIS();
 

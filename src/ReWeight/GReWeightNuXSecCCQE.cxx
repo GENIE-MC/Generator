@@ -19,7 +19,9 @@
  @ May 17, 2010 - CA
    Code extracted from GReWeightNuXSec and redeveloped in preparation for 
    the Summer 2010 T2K analyses.
-
+ @ Oct 22, 2010 - CA
+   Make static consts kModeMa and kModeNormAndMaShape public to aid
+   external configuration.
 */
 //____________________________________________________________________________
 
@@ -252,6 +254,11 @@ double GReWeightNuXSecCCQE::CalcWeightMa(const genie::EventRecord & event)
   double old_weight = event.Weight();
   double new_xsec   = fXSecModel->XSec(interaction, kPSQ2fE);
   double new_weight = old_weight * (new_xsec/old_xsec);
+
+//LOG("ReW", pDEBUG) << "differential cross section (old) = " << old_xsec;
+//LOG("ReW", pDEBUG) << "differential cross section (new) = " << new_xsec;
+//LOG("ReW", pDEBUG) << "event generation weight = " << old_weight;
+//LOG("ReW", pDEBUG) << "new weight = " << new_weight;
 
   interaction->KinePtr()->ClearRunningValues();
   interaction->ResetBit(kIAssumeFreeNucleon);
