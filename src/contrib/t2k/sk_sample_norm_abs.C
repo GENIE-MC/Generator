@@ -37,7 +37,7 @@
 //
 
   // output of $GENIE/src/scripts/production/misc/generate_sk_flux_histograms.C
-  const char * skfluxfile = "/opt/ppd/t2k/GENIE/data/job_inputs/t2k_flux/10/sk/sk_flux_histograms.root";
+  const char * skfluxfile = "./sk_flux_histograms.root";
 
   // output of $GENIE/src/support/t2k/SKNorm/gSKXSecTable.cxx (gSKxsect executable)
   const char xsecfile = "./genie_sk_xsec_table.dat";
