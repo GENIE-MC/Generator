@@ -211,14 +211,20 @@ bool GSimpleNtpFlux::GenerateNext_weighted(void)
     // initialization via GSimpleNtpFlux::SetFluxParticles(const PDGCodeList &)
 
     if ( ! fPdgCList->ExistsInPDGCodeList(fCurEntry->pdg) ) {
-      LOG("Flux", pWARN)
-        << "Unknown decay mode or decay mode producing an undeclared"
-        << " neutrino species: "
-        << fCurEntry->pdg 
-        << "\nDeclared list of neutrino species: " << *fPdgCList;
-      assert(0);
+      /// user might modify list via SetFluxParticles() in order to reject certain
+      /// flavors, even if they're found in the file.  So don't make a big fuss.
+      /// Spit out a single message and then stop reporting that flavor as problematic.
+      int badpdg = fCurEntry->pdg;
+      if ( ! fPdgCListRej->ExistsInPDGCodeList(badpdg) ) {
+        fPdgCListRej->push_back(badpdg);
+        LOG("Flux", pWARN)
+          << "Encountered neutrino specie (" << badpdg 
+          << ") that wasn't in SetFluxParticles() list, "
+          << "\nDeclared list of neutrino species: " << *fPdgCList;
+      }
       return false;	
     }
+
   }
 
   // Update the curr neutrino p4/x4 lorentz vector
@@ -572,6 +578,7 @@ void GSimpleNtpFlux::Initialize(void)
   fMaxEv           =  0;
   fEnd             =  false;
   fPdgCList        = new PDGCodeList;
+  fPdgCListRej     = new PDGCodeList;
   fCurEntry        = new GSimpleNtpEntry;
   fCurNuMI         = new GSimpleNtpNuMI;
   fCurAux          = new GSimpleNtpAux;
@@ -638,14 +645,15 @@ void GSimpleNtpFlux::CleanUp(void)
 {
   LOG("Flux", pINFO) << "Cleaning up...";
 
-  if (fPdgCList) delete fPdgCList;
-  if (fCurEntry) delete fCurEntry;
-  if (fCurNuMI)  delete fCurNuMI;
-  if (fCurAux)   delete fCurAux;
-  if (fCurMeta)  delete fCurMeta;
+  if (fPdgCList)    delete fPdgCList;
+  if (fPdgCListRej) delete fPdgCListRej;
+  if (fCurEntry)    delete fCurEntry;
+  if (fCurNuMI)     delete fCurNuMI;
+  if (fCurAux)      delete fCurAux;
+  if (fCurMeta)     delete fCurMeta;
 
-  if (fNuFluxTree) delete fNuFluxTree;
-  if (fNuMetaTree) delete fNuMetaTree;
+  if (fNuFluxTree)  delete fNuFluxTree;
+  if (fNuMetaTree)  delete fNuMetaTree;
 
   LOG("Flux", pNOTICE)
     << " flux file cycles: " << fICycle << " of " << fNCycles 
@@ -929,8 +937,11 @@ void GSimpleNtpFlux::PrintConfig()
   
   std::ostringstream s;
   PDGCodeList::const_iterator itr = fPdgCList->begin();
-  for ( ; itr != fPdgCList->end(); ++itr)
-    s << (*itr) << " ";
+  for ( ; itr != fPdgCList->end(); ++itr) s << (*itr) << " ";
+  s << "[rejected: ";
+  itr = fPdgCListRej->begin();
+  for ( ; itr != fPdgCListRej->end(); ++itr) s << (*itr) << " ";
+  s << " ] ";
 
   std::ostringstream flistout;
   std::vector<std::string> flist = GetFileList();
