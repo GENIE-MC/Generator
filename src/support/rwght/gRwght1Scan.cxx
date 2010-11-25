@@ -79,6 +79,7 @@
 #include "ReWeight/GSystSet.h"
 #include "ReWeight/GSyst.h"
 #include "ReWeight/GReWeight.h"
+#include "ReWeight/GReWeightNuXSecNCEL.h"
 #include "ReWeight/GReWeightNuXSecCCQE.h"
 #include "ReWeight/GReWeightNuXSecCCRES.h"
 #include "ReWeight/GReWeightNuXSecCOH.h"
@@ -101,6 +102,7 @@ using namespace genie;
 using namespace genie::rew;
 
 void GetCommandLineArgs (int argc, char ** argv);
+void PrintSyntax        (void);
 void GetEventRange      (Long64_t nev_in_file, Long64_t & nfirst, Long64_t & nlast);
 
 string      gOptInpFilename; ///< name for input file (contains input event tree)
@@ -132,6 +134,7 @@ int main(int argc, char ** argv)
     LOG("RewScan1", pFATAL) 
       << "Can't find a GHEP tree in input file: "<< file.GetName();
     gAbortingInErr = true;
+    PrintSyntax();
     exit(1);
   }
 
@@ -179,19 +182,20 @@ int main(int argc, char ** argv)
   // Create a GReWeight object and add to it a set of weight calculators
 
   GReWeight rw;
+  rw.AdoptWghtCalc( "xsec_ncel",       new GReWeightNuXSecNCEL      );
   rw.AdoptWghtCalc( "xsec_ccqe",       new GReWeightNuXSecCCQE      );
+  rw.AdoptWghtCalc( "xsec_ccqe_vec",   new GReWeightNuXSecCCQEvec   );
   rw.AdoptWghtCalc( "xsec_ccres",      new GReWeightNuXSecCCRES     );
-  rw.AdoptWghtCalc( "xsec_coh",        new GReWeightNuXSecCOH       );
+  rw.AdoptWghtCalc( "xsec_ncres",      new GReWeightNuXSecNCRES     );
   rw.AdoptWghtCalc( "xsec_nonresbkg",  new GReWeightNonResonanceBkg );
+  rw.AdoptWghtCalc( "xsec_coh",        new GReWeightNuXSecCOH       );
+  rw.AdoptWghtCalc( "xsec_dis",        new GReWeightNuXSecDIS       );
   rw.AdoptWghtCalc( "nuclear_qe",      new GReWeightFGM             );
   rw.AdoptWghtCalc( "nuclear_dis",     new GReWeightDISNuclMod      );
   rw.AdoptWghtCalc( "hadro_res_decay", new GReWeightResonanceDecay  );
   rw.AdoptWghtCalc( "hadro_fzone",     new GReWeightFZone           );
   rw.AdoptWghtCalc( "hadro_intranuke", new GReWeightINuke           );
   rw.AdoptWghtCalc( "hadro_agky",      new GReWeightAGKY            );
-  rw.AdoptWghtCalc( "xsec_ccqe_vec",   new GReWeightNuXSecCCQEvec   );
-  rw.AdoptWghtCalc( "xsec_ncres",      new GReWeightNuXSecNCRES     );
-  rw.AdoptWghtCalc( "xsec_dis",        new GReWeightNuXSecDIS       );
 
   // Get GSystSet and include the (single) input systematic parameter
 
@@ -230,7 +234,6 @@ int main(int argc, char ** argv)
         dynamic_cast<GReWeightNuXSecDIS *> (rw.WghtCalc("xsec_dis"));  
      rwdis->SetMode(GReWeightNuXSecDIS::kModeABCV12uShape);
   }
-
 
   // Twk dial loop
   for(int ith_dial = 0; ith_dial < n_points; ith_dial++){  
@@ -339,6 +342,7 @@ void GetCommandLineArgs(int argc, char ** argv)
     LOG("RewScan1", pFATAL) 
         << "Unspecified input filename - Exiting";
     gAbortingInErr = true;
+    PrintSyntax();
     exit(1);
   }
 
@@ -352,6 +356,7 @@ void GetCommandLineArgs(int argc, char ** argv)
       if(vecn.size()!=2) {
          LOG("gevdump", pFATAL) << "Invalid syntax";
          gAbortingInErr = true;
+         PrintSyntax();
          exit(1);
       }
       // User specified a comma-separated set of values n1,n2.
@@ -387,12 +392,14 @@ void GetCommandLineArgs(int argc, char ** argv)
       LOG("RewScan1", pFATAL)
 	 << "Specified number of tweak dial is too low, min value is 3 - Exiting";
       gAbortingInErr = true;
+      PrintSyntax();
       exit(1);
     } 
   } else {
      LOG("RewScan1", pFATAL) 
        << "Unspecified number of tweak dials - Exiting";
      gAbortingInErr = true;
+     PrintSyntax();
      exit(1);
   }
 
@@ -405,12 +412,14 @@ void GetCommandLineArgs(int argc, char ** argv)
    if(gOptSyst == kNullSystematic) {
       LOG("RewScan1", pFATAL) << "Unknown systematic: " << systematic;
       gAbortingInErr = true;
+      PrintSyntax();
       exit(1);
    }
   } else {
     LOG("RewScan1", pFATAL) 
        << "You need to specify a systematic param using -s";
     gAbortingInErr = true;
+    PrintSyntax();
     exit(1);
   }
 
@@ -434,6 +443,7 @@ void GetCommandLineArgs(int argc, char ** argv)
       LOG("RewScan1", pFATAL) 
          << "Empty list of neutrino codes!?";
       gAbortingInErr = true;
+      PrintSyntax();
       exit(1);
    }
    vector<int>::const_iterator it = vecpdg.begin();
@@ -482,3 +492,18 @@ void GetEventRange(Long64_t nev_in_file, Long64_t & nfirst, Long64_t & nlast)
   assert(nfirst < nlast && nfirst >= 0 && nlast <= nev_in_file-1);
 }
 //_________________________________________________________________________________
+void PrintSyntax(void)
+{
+  LOG("RewScan1", pFATAL)
+     << "\n\n"
+     << "grwght1scan                  \n"
+     << "     -f input_event_file     \n"
+     << "    [-n n1[,n2]]             \n"
+     << "     -s systematic           \n"
+     << "     -t n_twk_diall_values   \n"
+     << "    [-p neutrino_codes]      \n"
+     << "    [-o output_weights_file] \n\n\n"
+     << " See the GENIE Physics and User manual for more details";      
+}
+//_________________________________________________________________________________
+
