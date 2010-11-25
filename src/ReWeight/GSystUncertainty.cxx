@@ -19,6 +19,8 @@
  @ Apr 27, 2010 - CA
    Included new parameters in preparation for the Summer 2010 T2K analyses.
    Added option to override the default 1\sigma errors.
+ @ Nov 25, 2010 - CA
+   Allow for asymmetric 1 sigma fractional errors.
 */
 //____________________________________________________________________________
 
@@ -52,53 +54,72 @@ GSystUncertainty * GSystUncertainty::Instance()
   return fInstance;
 }
 //____________________________________________________________________________
-double GSystUncertainty::OneSigmaErr(GSyst_t s) const
+double GSystUncertainty::OneSigmaErr(GSyst_t s, int sign) const
 {
-  map<GSyst_t,double>::const_iterator it = fOneSigErrMap.find(s);
-  if(it != fOneSigErrMap.end()) return it->second;
-  return 0;
+  if(sign > 0) {
+    map<GSyst_t,double>::const_iterator it = fOneSigPlusErrMap.find(s);
+    if(it != fOneSigPlusErrMap.end()) return it->second;
+    return 0;
+  } 
+  else 
+  if(sign < 0) {
+    map<GSyst_t,double>::const_iterator it = fOneSigMnusErrMap.find(s);
+    if(it != fOneSigMnusErrMap.end()) return it->second;
+    return 0;
+  } 
+  else {
+    // Handle default argument (sign=0)
+    // Case added for compatibility purposes since most existing weight 
+    // calcutators call GSystUncertainty::OneSigmaErr(GSyst_t) and the error 
+    // on most GSyst_t params is symmetric.
+    double err = 0.5 * (
+        this->OneSigmaErr(s, +1) + this->OneSigmaErr(s, -1));
+    return err;
+  }
 }
 //____________________________________________________________________________
-void GSystUncertainty::OverrideDefaultUncertainty(GSyst_t s, double onesigerr)
+void GSystUncertainty::SetUncertainty(
+   GSyst_t s, double plus_err, double minus_err)
 {
-  fOneSigErrMap[s] = onesigerr;
+  fOneSigPlusErrMap.insert( map<GSyst_t,double>::value_type(s, plus_err ) );
+  fOneSigMnusErrMap.insert( map<GSyst_t,double>::value_type(s, minus_err) );
 }
 //____________________________________________________________________________
 void GSystUncertainty::SetDefaults(void)
 {
-  map<GSyst_t, double> & m = fOneSigErrMap;
-
-  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_NormCCQE,       0.15));
-  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_MaCCQEshape,    0.10));
-  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_MaCCQE,         0.15));
-  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_NormCCRES,      0.20));
-  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_MaCCRESshape,   0.10));
-  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_MvCCRESshape,   0.05));
-  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_MaCCRES,        0.20));
-  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_MvCCRES,        0.10));
-  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_NormNCRES,      0.20));
-  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_MaNCRESshape,   0.10));
-  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_MvNCRESshape,   0.05));
-  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_MaNCRES,        0.20));
-  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_MvNCRES,        0.10));
-  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_MaCOHpi,        0.40));
-  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_R0COHpi,        0.10));
-  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_RvpCC1pi,       0.50));
-  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_RvpCC2pi,       0.50));
-  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_RvpNC1pi,       0.50));
-  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_RvpNC2pi,       0.50));
-  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_RvnCC1pi,       0.50));
-  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_RvnCC2pi,       0.50));
-  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_RvnNC1pi,       0.50));
-  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_RvnNC2pi,       0.50));
-  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_RvbarpCC1pi,    0.50));
-  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_RvbarpCC2pi,    0.50));
-  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_RvbarpNC1pi,    0.50));
-  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_RvbarpNC2pi,    0.50));
-  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_RvbarnCC1pi,    0.50));
-  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_RvbarnCC2pi,    0.50));
-  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_RvbarnNC1pi,    0.50));
-  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_RvbarnNC2pi,    0.50));
+  this->SetUncertainty( kXSecTwkDial_MaNCEL,         0.25, 0.25);
+  this->SetUncertainty( kXSecTwkDial_EtaNCEL,        0.30, 0.30);
+  this->SetUncertainty( kXSecTwkDial_NormCCQE,       0.20, 0.15);
+  this->SetUncertainty( kXSecTwkDial_MaCCQEshape,    0.10, 0.10);
+  this->SetUncertainty( kXSecTwkDial_MaCCQE,         0.25, 0.15);
+  this->SetUncertainty( kXSecTwkDial_NormCCRES,      0.20, 0.20);
+  this->SetUncertainty( kXSecTwkDial_MaCCRESshape,   0.10, 0.10);
+  this->SetUncertainty( kXSecTwkDial_MvCCRESshape,   0.05, 0.05);
+  this->SetUncertainty( kXSecTwkDial_MaCCRES,        0.20, 0.20);
+  this->SetUncertainty( kXSecTwkDial_MvCCRES,        0.10, 0.10);
+  this->SetUncertainty( kXSecTwkDial_NormNCRES,      0.20, 0.20);
+  this->SetUncertainty( kXSecTwkDial_MaNCRESshape,   0.10, 0.10);
+  this->SetUncertainty( kXSecTwkDial_MvNCRESshape,   0.05, 0.05);
+  this->SetUncertainty( kXSecTwkDial_MaNCRES,        0.20, 0.20);
+  this->SetUncertainty( kXSecTwkDial_MvNCRES,        0.10, 0.10);
+  this->SetUncertainty( kXSecTwkDial_MaCOHpi,        0.40, 0.40);
+  this->SetUncertainty( kXSecTwkDial_R0COHpi,        0.10, 0.10);
+  this->SetUncertainty( kXSecTwkDial_RvpCC1pi,       0.50, 0.50);
+  this->SetUncertainty( kXSecTwkDial_RvpCC2pi,       0.50, 0.50);
+  this->SetUncertainty( kXSecTwkDial_RvpNC1pi,       0.50, 0.50);
+  this->SetUncertainty( kXSecTwkDial_RvpNC2pi,       0.50, 0.50);
+  this->SetUncertainty( kXSecTwkDial_RvnCC1pi,       0.50, 0.50);
+  this->SetUncertainty( kXSecTwkDial_RvnCC2pi,       0.50, 0.50);
+  this->SetUncertainty( kXSecTwkDial_RvnNC1pi,       0.50, 0.50);
+  this->SetUncertainty( kXSecTwkDial_RvnNC2pi,       0.50, 0.50);
+  this->SetUncertainty( kXSecTwkDial_RvbarpCC1pi,    0.50, 0.50);
+  this->SetUncertainty( kXSecTwkDial_RvbarpCC2pi,    0.50, 0.50);
+  this->SetUncertainty( kXSecTwkDial_RvbarpNC1pi,    0.50, 0.50);
+  this->SetUncertainty( kXSecTwkDial_RvbarpNC2pi,    0.50, 0.50);
+  this->SetUncertainty( kXSecTwkDial_RvbarnCC1pi,    0.50, 0.50);
+  this->SetUncertainty( kXSecTwkDial_RvbarnCC2pi,    0.50, 0.50);
+  this->SetUncertainty( kXSecTwkDial_RvbarnNC1pi,    0.50, 0.50);
+  this->SetUncertainty( kXSecTwkDial_RvbarnNC2pi,    0.50, 0.50);
 
   // From Debdatta's thesis: 
   //   Aht  = 0.538 +/- 0.134	
@@ -106,39 +127,38 @@ void GSystUncertainty::SetDefaults(void)
   //   CV1u = 0.291 +/- 0.087
   //   CV2u = 0.189 +/- 0.076
 
-  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_AhtBY,          0.25));
-  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_BhtBY,          0.25));
-  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_CV1uBY,         0.30));
-  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_CV2uBY,         0.40));
+  this->SetUncertainty( kXSecTwkDial_AhtBY,          0.25, 0.25);
+  this->SetUncertainty( kXSecTwkDial_BhtBY,          0.25, 0.25);
+  this->SetUncertainty( kXSecTwkDial_CV1uBY,         0.30, 0.30);
+  this->SetUncertainty( kXSecTwkDial_CV2uBY,         0.40, 0.40);
 
-  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_AhtBYshape,     0.25));
-  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_BhtBYshape,     0.25));
-  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_CV1uBYshape,    0.30));
-  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_CV2uBYshape,    0.40));
+  this->SetUncertainty( kXSecTwkDial_AhtBYshape,     0.25, 0.25);
+  this->SetUncertainty( kXSecTwkDial_BhtBYshape,     0.25, 0.25);
+  this->SetUncertainty( kXSecTwkDial_CV1uBYshape,    0.30, 0.30);
+  this->SetUncertainty( kXSecTwkDial_CV2uBYshape,    0.40, 0.40);
 
-  m.insert(map<GSyst_t,double>::value_type(kXSecTwkDial_DISNuclMod,     1.00));
-  m.insert(map<GSyst_t,double>::value_type(kSystNucl_CCQEPauliSupViaKF, 0.05));
-  m.insert(map<GSyst_t,double>::value_type(kHadrAGKYTwkDial_xF1pi,      0.20));
-  m.insert(map<GSyst_t,double>::value_type(kHadrAGKYTwkDial_pT1pi,      0.03));
-  m.insert(map<GSyst_t,double>::value_type(kHadrNuclTwkDial_FormZone,   0.50));
+  this->SetUncertainty( kXSecTwkDial_DISNuclMod,     1.00, 1.00);
+  this->SetUncertainty( kSystNucl_CCQEPauliSupViaKF, 0.30, 0.30);
+  this->SetUncertainty( kHadrAGKYTwkDial_xF1pi,      0.20, 0.20);
+  this->SetUncertainty( kHadrAGKYTwkDial_pT1pi,      0.03, 0.03);
+  this->SetUncertainty( kHadrNuclTwkDial_FormZone,   0.50, 0.50);
 
   // From INTRANUKE pi+A and N+A mode comparisons with hadron scattering data:
   //
-  m.insert(map<GSyst_t,double>::value_type(kINukeTwkDial_MFP_pi,        0.20));
-  m.insert(map<GSyst_t,double>::value_type(kINukeTwkDial_MFP_N,         0.20));
-  m.insert(map<GSyst_t,double>::value_type(kINukeTwkDial_FrCEx_pi,      0.50));
-  m.insert(map<GSyst_t,double>::value_type(kINukeTwkDial_FrElas_pi,     0.10));
-  m.insert(map<GSyst_t,double>::value_type(kINukeTwkDial_FrInel_pi,     0.40));
-  m.insert(map<GSyst_t,double>::value_type(kINukeTwkDial_FrAbs_pi,      0.30));
-  m.insert(map<GSyst_t,double>::value_type(kINukeTwkDial_FrPiProd_pi,   0.20));
-  m.insert(map<GSyst_t,double>::value_type(kINukeTwkDial_FrCEx_N,       0.50));
-  m.insert(map<GSyst_t,double>::value_type(kINukeTwkDial_FrElas_N,      0.30));
-  m.insert(map<GSyst_t,double>::value_type(kINukeTwkDial_FrInel_N,      0.40));
-  m.insert(map<GSyst_t,double>::value_type(kINukeTwkDial_FrAbs_N,       0.20));
-  m.insert(map<GSyst_t,double>::value_type(kINukeTwkDial_FrPiProd_N,    0.20));
+  this->SetUncertainty( kINukeTwkDial_MFP_pi,        0.20, 0.20);
+  this->SetUncertainty( kINukeTwkDial_MFP_N,         0.20, 0.20);
+  this->SetUncertainty( kINukeTwkDial_FrCEx_pi,      0.50, 0.50);
+  this->SetUncertainty( kINukeTwkDial_FrElas_pi,     0.10, 0.10);
+  this->SetUncertainty( kINukeTwkDial_FrInel_pi,     0.40, 0.40);
+  this->SetUncertainty( kINukeTwkDial_FrAbs_pi,      0.30, 0.30);
+  this->SetUncertainty( kINukeTwkDial_FrPiProd_pi,   0.20, 0.20);
+  this->SetUncertainty( kINukeTwkDial_FrCEx_N,       0.50, 0.50);
+  this->SetUncertainty( kINukeTwkDial_FrElas_N,      0.30, 0.30);
+  this->SetUncertainty( kINukeTwkDial_FrInel_N,      0.40, 0.40);
+  this->SetUncertainty( kINukeTwkDial_FrAbs_N,       0.20, 0.20);
+  this->SetUncertainty( kINukeTwkDial_FrPiProd_N,    0.20, 0.20);
 
-  m.insert(map<GSyst_t,double>::value_type(kRDcyTwkDial_BR1gamma,       0.50));
-  m.insert(map<GSyst_t,double>::value_type(kRDcyTwkDial_BR1eta,         0.50));
-
+  this->SetUncertainty( kRDcyTwkDial_BR1gamma,       0.50, 0.50);
+  this->SetUncertainty( kRDcyTwkDial_BR1eta,         0.50, 0.50);
 }
 //____________________________________________________________________________

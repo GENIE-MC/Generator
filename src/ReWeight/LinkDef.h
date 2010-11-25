@@ -24,6 +24,7 @@
 #pragma link C++ class genie::rew::GReWeightResonanceDecay;
 #pragma link C++ class genie::rew::GReWeightNonResonanceBkg;
 #pragma link C++ class genie::rew::GReWeightDISNuclMod;
+#pragma link C++ class genie::rew::GReWeightNuXSecNCEL;
 #pragma link C++ class genie::rew::GReWeightNuXSecCCQE;
 #pragma link C++ class genie::rew::GReWeightNuXSecCCQEvec;
 #pragma link C++ class genie::rew::GReWeightNuXSecCCRES;

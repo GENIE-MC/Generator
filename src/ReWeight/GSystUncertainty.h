@@ -35,14 +35,15 @@ class GSystUncertainty {
 public:  
   static GSystUncertainty * Instance (void);
 
-  double OneSigmaErr (GSyst_t syst) const;
-  void   OverrideDefaultUncertainty (GSyst_t syst, double onesigerr);
+  double OneSigmaErr    (GSyst_t syst, int sign=0) const;
+  void   SetUncertainty (GSyst_t syst, double plus_err, double minus_err);
 
 private:
 
   void SetDefaults(void);
 
-  map<GSyst_t, double> fOneSigErrMap;
+  map<GSyst_t, double> fOneSigPlusErrMap; // + err
+  map<GSyst_t, double> fOneSigMnusErrMap; // - err
 
   GSystUncertainty();
   GSystUncertainty(const GSystUncertainty & err);

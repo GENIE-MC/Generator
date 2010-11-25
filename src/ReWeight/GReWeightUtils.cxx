@@ -247,4 +247,11 @@ double genie::utils::rew::AGKYWeight(int /*pdgc*/, double /*xF*/, double /*pT2*/
   return 1.0;
 }
 //____________________________________________________________________________
+int genie::utils::rew::Sign(double twkdial)
+{
+  if(twkdial < 0.) return -1;
+  if(twkdial > 0.) return +1;
+  return 0;
+}
+//____________________________________________________________________________
 

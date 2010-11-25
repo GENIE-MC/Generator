@@ -280,9 +280,9 @@ double GReWeightResonanceDecay::RewThetaDelta2Npi(const EventRecord & event)
   // Calculate weight.
   // Angular distribution for pi+, given 2 possible sub-states mi=1/2,3/2
   // is: Wpi(theta) = 1 - p(3/2)*P2(costheta) + p(1/2)*P2(costheta).
-  // mi is the projection of Delta momentum along quantization axis.
+  // mi is the projection of Delta angular momentum along quantization axis.
   // P2(costheta) is the 2nd order Legendre polynomial.
-  // Isotropy implies equal populations: p(3/2)=p(1/2)=1
+  // Isotropy implies equal populations: p(3/2)=p(1/2)=0.5
   // R/S predict: p(3/2)=0.75, p(1/2)=0.25
   // The above follow the notation used in Sam Zeller's invited talk in a 
   // MINOS Physics Simulation mtg on Sep 28th, 2007.
