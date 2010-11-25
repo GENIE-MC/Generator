@@ -151,6 +151,12 @@ double GReWeightNuXSecNCEL::CalcWeight(const genie::EventRecord & event)
 //LOG("ReW", pDEBUG) << "event generation weight = " << old_weight;
 //LOG("ReW", pDEBUG) << "new weight = " << new_weight;
 
+#ifdef _G_REWEIGHT_NCEL_DEBUG_
+  double E  = interaction->InitState().ProbeE(kRfHitNucRest);
+  double Q2 = interaction->Kine().Q2(true);
+  fTestNtp->Fill(E,Q2,new_weight);
+#endif
+
   interaction->KinePtr()->ClearRunningValues();
   interaction->ResetBit(kIAssumeFreeNucleon);
 
@@ -180,7 +186,7 @@ void GReWeightNuXSecNCEL::Init(void)
   fXSecModel->AdoptSubstructure();
 
   fXSecModelConfig = new Registry(fXSecModel->GetConfig());
-//LOG("ReW, pDEBUG) << *fXSecModelConfig;
+//LOG("ReW", pDEBUG) << *fXSecModelConfig;
 
   this->RewNue    (true);
   this->RewNuebar (true);
@@ -188,7 +194,7 @@ void GReWeightNuXSecNCEL::Init(void)
   this->RewNumubar(true);
 
   this->SetMaPath ("Ma");
-  this->SetEtaPath("Ma");
+  this->SetEtaPath("Eta");
 
   fMaTwkDial   = 0.; 
   fMaDef       = fXSecModelConfig->GetDouble(fMaPath);

@@ -57,7 +57,7 @@ namespace rew   {
    void RewNumu     (bool tf ) { fRewNumu    = tf;   }
    void RewNumubar  (bool tf ) { fRewNumubar = tf;   }
    void SetMaPath   (string p) { fMaPath     = p;    }
-   void SetEtaPath  (string p) { fMaPath     = p;    }
+   void SetEtaPath  (string p) { fEtaPath    = p;    }
 
  private:
 
