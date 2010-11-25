@@ -22,6 +22,8 @@
  @ Oct 22, 2010 - CA
    Make static consts kModeMa and kModeNormAndMaShape public to aid
    external configuration.
+ @ Nov 25, 2010 - CA
+   Allow asymmetric errors
 */
 //____________________________________________________________________________
 
@@ -42,6 +44,7 @@
 #include "ReWeight/GReWeightNuXSecCCQE.h"
 #include "ReWeight/GSystSet.h"
 #include "ReWeight/GSystUncertainty.h"
+#include "ReWeight/GReWeightUtils.h"
 #include "Registry/Registry.h"
 
 //#define _G_REWEIGHT_CCQE_DEBUG_
@@ -126,13 +129,16 @@ void GReWeightNuXSecCCQE::Reconfigure(void)
   GSystUncertainty * fracerr = GSystUncertainty::Instance();
 
   if(fMode==kModeMa) {   
-     double fracerr_ma = fracerr->OneSigmaErr(kXSecTwkDial_MaCCQE);
-     fMaCurr   = fMaDef * (1. + fMaTwkDial * fracerr_ma);
+     int    sign_matwk = utils::rew::Sign(fMaTwkDial);
+     double fracerr_ma = fracerr->OneSigmaErr(kXSecTwkDial_MaCCQE, sign_matwk);
+     fMaCurr = fMaDef * (1. + fMaTwkDial * fracerr_ma);
   }
   else
   if(fMode==kModeNormAndMaShape) { 
-     double fracerr_norm = fracerr->OneSigmaErr(kXSecTwkDial_NormCCQE);
-     double fracerr_mash = fracerr->OneSigmaErr(kXSecTwkDial_MaCCQEshape);
+     int    sign_normtwk = utils::rew::Sign(fNormTwkDial);
+     int    sign_mashtwk = utils::rew::Sign(fMaTwkDial  );
+     double fracerr_norm = fracerr->OneSigmaErr(kXSecTwkDial_NormCCQE,    sign_normtwk);
+     double fracerr_mash = fracerr->OneSigmaErr(kXSecTwkDial_MaCCQEshape, sign_mashtwk);
      fNormCurr = fNormDef * (1. + fNormTwkDial * fracerr_norm);
      fMaCurr   = fMaDef   * (1. + fMaTwkDial   * fracerr_mash);
   }
