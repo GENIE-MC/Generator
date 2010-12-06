@@ -5,8 +5,6 @@
 # with GENIE's validation programs comparing GENIE against electron 
 # scattering data.
 #
-# For use at the RAL/PPD Tier2 PBS batch farm.
-#
 # Syntax:
 #   shell% perl submit-xsec_emode.pl <options>
 #
@@ -16,11 +14,14 @@
 #   [--production]   : default: <version>
 #   [--cycle]        : default: 01
 #   [--use-valgrind] : default: off
+#   [--batch-system] : <PBS, LSF>, default: PBS
 #   [--queue]        : default: prod
 #   [--softw-topdir] : default: /opt/ppd/t2k/GENIE
 #
 # Notes:
 #   * Use GENIE gspladd utility to merge the job outputs
+#
+# Tested at the RAL/PPD Tier2 PBS batch farm.
 #
 # Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
 # STFC, Rutherford Appleton Lab
@@ -37,6 +38,7 @@ foreach (@ARGV) {
   if($_ eq '--production')    { $production    = $ARGV[$iarg+1]; }
   if($_ eq '--cycle')         { $cycle         = $ARGV[$iarg+1]; }
   if($_ eq '--use-valgrind')  { $use_valgrind  = $ARGV[$iarg+1]; }
+  if($_ eq '--batch-system')  { $batch_system  = $ARGV[$iarg+1]; }
   if($_ eq '--queue')         { $queue         = $ARGV[$iarg+1]; }
   if($_ eq '--softw-topdir')  { $softw_topdir  = $ARGV[$iarg+1]; }
   $iarg++;
@@ -48,6 +50,7 @@ $use_valgrind   = 0                       unless defined $use_valgrind;
 $arch           = "SL5_64bit"             unless defined $arch;
 $production     = "$genie_version"        unless defined $production;
 $cycle          = "01"                    unless defined $cycle;
+$batch_system   = "PBS"                   unless defined $batch_system;
 $queue          = "prod"                  unless defined $queue;
 $softw_topdir   = "/opt/ppd/t2k/GENIE"    unless defined $softw_topdir;
 $genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
@@ -77,24 +80,43 @@ mkpath ($jobs_dir, {verbose => 1, mode=>0777});
 #
 while( my ($tgt_name, $tgt_code) = each %targets ) {
 
-	$BATCH_SCRIPT = "$jobs_dir/job_$tgt_name.pbs";
-	open(PBS, ">$BATCH_SCRIPT") 
-	or die("Can not create the PBS batch script");
+    $fntemplate    = "$jobs_dir/job_$tgt_name";
+    $grep_pipe     = "grep -B 100 -A 30 -i \"warn\\|error\\|fatal\"";
+    $cmd  = "gmkspl -p $probes -t $tgt_code -n $nkots -e $emax -o gxspl_emode_$tgt_name.xml | $grep_pipe &> $fntemplate.mkspl.log";
+    print "@@ exec: $cmd \n";
 
-	$cmd = "gmkspl -p $probes -t $tgt_code -n $nkots -e $emax -o gxspl_emode_$tgt_name.xml &> job_$tgt_name.log";
-
+    # PBS case
+    if($batch_system eq 'PBS') {
+	$batch_script = "$fntemplate.pbs";
+	open(PBS, ">$batch_script") or die("Can not create the PBS batch script");
 	print PBS "#!/bin/bash \n";
         print PBS "#PBS -N $tgt_name \n";
-        print PBS "#PBS -o $jobs_dir/job-$tgt_name.pbs_o \n";
-        print PBS "#PBS -e $jobs_dir/job-$tgt_name.pbs_e \n";
+        print PBS "#PBS -o $fntemplate.pbsout.log \n";
+        print PBS "#PBS -e $fntemplate.pbserr.log \n";
 	print PBS "source $genie_setup \n";
 	print PBS "cd $jobs_dir \n";
 	print PBS "export GEVGL=EM \n";
 	print PBS "$cmd \n";
+        close(PBS);
+	`qsub -q $queue $batch_script`;
+    } #PBS
 
-	print "EXEC: $cmd \n";
+    # LSF case
+    if($batch_system eq 'LSF') {
+	$batch_script = "$fntemplate.sh";
+	open(LSF, ">$batch_script") or die("Can not create the LSF batch script");
+	print LSF "#!/bin/bash \n";
+        print LSF "#BSUB-j $tgt_name \n";
+        print LSF "#BSUB-q $queue \n";
+        print LSF "#BSUB-o $fntemplate.lsfout.log \n";
+        print LSF "#BSUB-e $fntemplate.lsferr.log \n";
+	print LSF "source $genie_setup \n";
+	print LSF "cd $jobs_dir \n";
+	print LSF "export GEVGL=EM \n";
+	print LSF "$cmd \n";
+        close(LSF);
+	`bsub < $batch_script`;
+    } #LSF
 
-	# submit job
-	`qsub -q $queue $BATCH_SCRIPT`;
 }
 

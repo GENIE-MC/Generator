@@ -3,24 +3,25 @@
 #-----------------------------------------------------------------------------------------------------------
 # Submit jobs to generate data needed for validating GENIE's nuclear modelling
 # giving empashis on comparisons with eletron QE scattering data.
-#
 # The generated data can be fed into GENIE's `gvld_e_qel_xsec' utility.
 #
 # Syntax:
 #   perl submit-vld_nuclmod.pl <options>
 #
 # Options:
-#  --version       : GENIE version number
-#  --run           : runs to submit (eg --run 1060680 / --run 1060680,1062000 / -run all)
-# [--model-enum]   : physics model enumeration, default: 0
-# [--nsubruns]     : number of subruns per run, default: 1
-# [--arch]         : <SL4_32bit, SL5_64bit>, default: SL5_64bit
-# [--production]   : production name, default: <model>_<version>
-# [--cycle]        : cycle in current production, default: 01
-# [--use-valgrind] : default: off
-# [--system]       : <RAL_tier2, Imperial_batch, Interactive>, default: RAL_tier2
-# [--queue]        : default: prod
-# [--softw-topdir] : default: /opt/ppd/t2k/GENIE
+#    --version       : GENIE version number
+#    --run           : runs to submit (eg --run 1060680 / --run 1060680,1062000 / -run all)
+#   [--model-enum]   : physics model enumeration, default: 0
+#   [--nsubruns]     : number of subruns per run, default: 1
+#   [--arch]         : <SL4_32bit, SL5_64bit>, default: SL5_64bit
+#   [--production]   : production name, default: <model>_<version>
+#   [--cycle]        : cycle in current production, default: 01
+#   [--use-valgrind] : default: off
+#   [--batch-system] : <PBS, LSF>, default: PBS
+#   [--queue]        : default: prod
+#   [--softw-topdir] : default: /opt/ppd/t2k/GENIE
+#
+# Tested at the RAL/PPD Tier2 PBS batch farm.
 #
 # Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
 # STFC, Rutherford Appleton Lab
@@ -63,7 +64,7 @@ foreach (@ARGV) {
   if($_ eq '--production')    { $production    = $ARGV[$iarg+1]; }
   if($_ eq '--cycle')         { $cycle         = $ARGV[$iarg+1]; }
   if($_ eq '--use-valgrind')  { $use_valgrind  = $ARGV[$iarg+1]; }
-  if($_ eq '--system')        { $system        = $ARGV[$iarg+1]; }
+  if($_ eq '--batch-system')  { $batch_system  = $ARGV[$iarg+1]; }
   if($_ eq '--queue')         { $queue         = $ARGV[$iarg+1]; }
   if($_ eq '--softw-topdir')  { $softw_topdir  = $ARGV[$iarg+1]; }  
   $iarg++;
@@ -79,8 +80,8 @@ $use_valgrind   = 0                                       unless defined $use_va
 $arch           = "SL5_64bit"                             unless defined $arch;
 $production     = "$model_enum\_$genie_version"           unless defined $production;
 $cycle          = "01"                                    unless defined $cycle;
+$batch_system   = "PBS"                                   unless defined $batch_system;
 $queue          = "prod"                                  unless defined $queue;
-$system         = "RAL_tier2"                             unless defined $system;
 $softw_topdir   = "/opt/ppd/t2k/GENIE"                    unless defined $softw_topdir;
 $time_limit     = "60:00:00";
 $genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
@@ -146,66 +147,59 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
 
        # Run number key: ITTEEEEMxx
        $curr_subrunnu = 1000 * $curr_runnu + 100 * $model_enum + $isubrun;
-
        $grep_pipe     = "grep -B 20 -A 30 -i \"warn\\|error\\|fatal\"";
-       $logfile_evgen = "$jobs_dir/nucl-$curr_subrunnu.evgen.log";
-       $logfile_conv  = "$jobs_dir/nucl-$curr_subrunnu.conv.log";
-
+       $fntemplate    = "$jobs_dir/nucl-$curr_subrunnu";
        $curr_seed     = $mcseed + $isubrun;
        $valgrind_cmd  = "valgrind --tool=memcheck --error-limit=no --leak-check=yes --show-reachable=yes";
-       $evgen_cmd     = "gevgen -n $nev_per_subrun -s -e $en -p $probe -t $tgt -r $curr_subrunnu $fluxopt";
-       $conv_cmd      = "gntpc -f gst -i gntp.$curr_subrunnu.ghep.root";
+       $evgen_cmd     = "gevgen -n $nev_per_subrun -s -e $en -p $probe -t $tgt -r $curr_subrunnu $fluxopt | $grep_pipe &> $fntemplate.evgen.log";
+       $conv_cmd      = "gntpc -f gst -i gntp.$curr_subrunnu.ghep.root | $grep_pipe &> $fntemplate.conv.log";
+
+       print "@@ exec: $evgen_cmd \n";
 
        #
-       # specifics for the RAL tier2
+       # submit
        #
-       if($system eq "RAL_tier2") {
-
-          $batch_script  = "$jobs_dir/nucl-$curr_subrunnu.pbs";
-          $logfile_pbse  = "$jobs_dir/nucl-$curr_subrunnu.pbs_e.log";
-          $logfile_pbso  = "$jobs_dir/nucl-$curr_subrunnu.pbs_o.log";
-
-          # create the PBS script
+  
+       # PBS case
+       if($batch_system eq 'PBS') {
+          $batch_script  = "$fntemplate.pbs";
           open(PBS, ">$batch_script") or die("Can not create the PBS batch script");
           print PBS "#!/bin/bash \n";
+          print PBS "#PBS -N nucl-$curr_subrunnu \n";
           print PBS "#PBS -l cput=$time_limit \n";
-          print PBS "#PBS -o $logfile_pbso \n";
-          print PBS "#PBS -e $logfile_pbse \n";
+          print PBS "#PBS -o $fntemplate.pbsout.log \n";
+          print PBS "#PBS -e $fntemplate.pbserr.log \n";
           print PBS "source $genie_setup \n"; 
           print PBS "cd $jobs_dir \n";
           print PBS "export GSPLOAD=$xspl_file \n";
           print PBS "export GEVGL=$gevgl \n";
           print PBS "export GSEED=$curr_seed \n";
-          print PBS "$evgen_cmd | $grep_pipe &> $logfile_evgen \n";
-          print PBS "$conv_cmd  | $grep_pipe &> $logfile_conv  \n";
+          print PBS "$evgen_cmd \n";
+          print PBS "$conv_cmd \n";
           close(PBS);
-
-          print "EXEC: $evgen_cmd \n";
-
-          # submit job
           `qsub -q $queue $batch_script`;
-       } # RAL tier2
+       } # PBS
 
-       #
-       # specifics for the Imperial batch system
-       #
-       if($system eq "Imperial_batch") {
-
-       }
-
-       #
-       # become unpopular:
-       # run jobs at the interactive front-end
-       #
-       if($system eq "Interactive") {
-          `source $genie_setup;
-           cd $jobs_dir;
-           export GSPLOAD=$xspl_file;
-           export GEVGL=$gevgl;
-           export GSEED=$curr_seed;
-           $evgen_cmd;
-           $conv_cmd`;
-       }
+       # LSF case
+       if($batch_system eq 'LSF') {
+          $batch_script  = "$fntemplate.sh";
+          open(LSF, ">$batch_script") or die("Can not create the LSF batch script");
+          print LSF "#!/bin/bash \n";
+          print LSF "#BSUB-j nucl-$curr_subrunnu \n";
+          print LSF "#BSUB-q $queue \n";
+          print LSF "#BSUB-c $time_limit \n";
+          print LSF "#BSUB-o $fntemplate.lsfout.log \n";
+          print LSF "#BSUB-e $fntemplate.lsferr.log \n";
+          print LSF "source $genie_setup \n"; 
+          print LSF "cd $jobs_dir \n";
+          print LSF "export GSPLOAD=$xspl_file \n";
+          print LSF "export GEVGL=$gevgl \n";
+          print LSF "export GSEED=$curr_seed \n";
+          print LSF "$evgen_cmd \n";
+          print LSF "$conv_cmd \n";
+          close(LSF);
+          `bsub < $batch_script`;
+       } # LSF
 
     } # loop over subruns
 

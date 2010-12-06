@@ -2,7 +2,6 @@
 
 #---------------------------------------------------------------------------------------------------------------------
 # Submit standard vA event generation jobs for GENIE release validation
-#
 # The outputs can be compared with outputs from past releases using GENIE's gvld_sample_comp utility.
 # Sanity checks can be performed using GENIE's gvld_sample_scan utility.
 #
@@ -10,13 +9,14 @@
 #   shell% perl submit-vld_vA.pl <options>
 #
 # Options:
-#    --run           : Comma separated list of run numbers
 #    --version       : GENIE version number
+#    --run           : Comma separated list of run numbers
 #   [--arch]         : <SL4_32bit, SL5_64bit>, default: SL5_64bit
 #   [--production]   : default: <version>
 #   [--cycle]        : default: 01
 #   [--ref-samples]  : Path for reference samples, default: no reference samples / no plots will be generated
 #   [--use-valgrind] : default: off
+#   [--batch-system] : <PBS, LSF>, default: PBS
 #   [--queue]        : default: prod
 #   [--softw-topdir] : default: /opt/ppd/t2k/GENIE
 #
@@ -24,6 +24,8 @@
 #   shell% perl submit-vld_vA.pl --production 2.5.1_prelease_tests --cycle 01 --version v2.5.1 --run 1001
 #   shell% perl submit-vld_vA.pl --production 2.5.1_prelease_tests --cycle 01 --version v2.5.1 --run 1000,1001,9203
 #   shell% perl submit-vld_vA.pl --production 2.5.1_prelease_tests --cycle 01 --version v2.5.1 --run all
+#
+# Tested at the RAL/PPD Tier2 PBS batch farm.
 #
 # Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
 # STFC, Rutherford Appleton Lab
@@ -62,13 +64,14 @@ use File::Path;
 #
 $iarg=0;
 foreach (@ARGV) {
-  if($_ eq '--run')           { $runnu           = $ARGV[$iarg+1]; }
   if($_ eq '--version')       { $genie_version   = $ARGV[$iarg+1]; }
+  if($_ eq '--run')           { $runnu           = $ARGV[$iarg+1]; }
   if($_ eq '--arch')          { $arch            = $ARGV[$iarg+1]; }
   if($_ eq '--production')    { $production      = $ARGV[$iarg+1]; }
   if($_ eq '--cycle')         { $cycle           = $ARGV[$iarg+1]; }
   if($_ eq '--ref-samples')   { $ref_sample_path = $ARGV[$iarg+1]; }
   if($_ eq '--use-valgrind')  { $use_valgrind    = $ARGV[$iarg+1]; }
+  if($_ eq '--batch-system')  { $batch_system    = $ARGV[$iarg+1]; }
   if($_ eq '--queue')         { $queue           = $ARGV[$iarg+1]; }
   if($_ eq '--softw-topdir')  { $softw_topdir    = $ARGV[$iarg+1]; }  
   $iarg++;
@@ -82,6 +85,7 @@ $use_valgrind    = 0                        unless defined $use_valgrind;
 $arch            = "SL5_64bit"              unless defined $arch;
 $production      = "$genie_version"         unless defined $production;
 $cycle           = "01"                     unless defined $cycle;
+$batch_system    = "PBS"                    unless defined $batch_system;
 $queue           = "prod"                   unless defined $queue;
 $softw_topdir    = "/opt/ppd/t2k/GENIE"     unless defined $softw_topdir;
 $ref_sample_path = 0                        unless defined $ref_sample_path;
@@ -221,39 +225,61 @@ for my $curr_runnu (keys %gevgl_hash)  {
     $en    = $energy_hash  {$curr_runnu};
     $gevgl = $gevgl_hash   {$curr_runnu};
 
-    $batch_script  = "$jobs_dir/job_vA-$curr_runnu.pbs";
-    $logfile_evgen = "$jobs_dir/job_vA-$curr_runnu.evgen.log";
-    $logfile_conv  = "$jobs_dir/job_vA-$curr_runnu.conv.log";
-    $logfile_comp  = "$jobs_dir/job_vA-$curr_runnu.comp.log";
-    $logfile_pbse  = "$jobs_dir/job_vA-$curr_runnu.pbs_e.log";
-    $logfile_pbso  = "$jobs_dir/job_vA-$curr_runnu.pbs_o.log";
-
+    $fntemplate    = "$jobs_dir/job_vA-$curr_runnu";
     $grep_pipe     = "grep -B 20 -A 30 -i \"warn\\|error\\|fatal\"";
     $valgrind_cmd  = "valgrind --tool=memcheck --error-limit=no --leak-check=yes --show-reachable=yes";
-    $evgen_cmd     = "gevgen -n $nev -s -e $en -p $nu -t $tgt -r $curr_runnu | $grep_pipe &> $logfile_evgen";
-    $conv_cmd      = "gntpc -f gst -i gntp.$curr_runnu.ghep.root | $grep_pipe &> $logfile_conv";
-    $comp_cmd      = "gvld_sample_comp -f gntp.$curr_runnu.gst.root -r $ref_sample_path/gntp.$curr_runnu.gst.root | $grep_pipe &> $logfile_comp";
+    $evgen_cmd     = "gevgen -n $nev -s -e $en -p $nu -t $tgt -r $curr_runnu | $grep_pipe &> $fntemplate.evgen.log";
+    $conv_cmd      = "gntpc -f gst -i gntp.$curr_runnu.ghep.root | $grep_pipe &> $fntemplate.conv.log";
+    $comp_cmd      = "gvld_sample_comp -f gntp.$curr_runnu.gst.root -r $ref_sample_path/gntp.$curr_runnu.gst.root | $grep_pipe &> $fntemplate.comp.log";
 
-    # create the PBS script
-    #
-    open(PBS, ">$batch_script") or die("Can not create the PBS batch script");
-    print PBS "#!/bin/bash \n";
-    print PBS "#PBS -o $logfile_pbso \n";
-    print PBS "#PBS -e $logfile_pbse \n";
-    print PBS "source $genie_setup \n"; 
-    print PBS "cd $jobs_dir \n";
-    print PBS "export GSPLOAD=$xspl_file \n";
-    print PBS "export GEVGL=$gevgl \n";
-    print PBS "export GSEED=$mcseed  \n";
-    print PBS "$evgen_cmd \n";
-    print PBS "$conv_cmd \n";
-    if(-d $ref_sample_path) {
-      print PBS "$comp_cmd \n";
-    }
-    print "EXEC: $evgen_cmd \n";
+    print "@@ exec: $evgen_cmd \n";
 
-    # submit job
     #
-    `qsub -q $queue $batch_script`;
+    # submit
+    #
+  
+    # PBS case
+    if($batch_system eq 'PBS') {
+        $batch_script  = "$fntemplate.pbs";
+        open(PBS, ">$batch_script") or die("Can not create the PBS batch script");
+        print PBS "#!/bin/bash \n";
+        print PBS "#PBS -o $fntemplate.pbsout.log \n";
+        print PBS "#PBS -e $fntemplate.pbserr.log \n";
+        print PBS "source $genie_setup \n"; 
+        print PBS "cd $jobs_dir \n";
+        print PBS "export GSPLOAD=$xspl_file \n";
+        print PBS "export GEVGL=$gevgl \n";
+        print PBS "export GSEED=$mcseed  \n";
+        print PBS "$evgen_cmd \n";
+        print PBS "$conv_cmd \n";
+        if(-d $ref_sample_path) {
+           print PBS "$comp_cmd \n";
+        }
+        close(PBS);
+        `qsub -q $queue $batch_script`;
+    } #PBS
+
+    # LSF case
+    if($batch_system eq 'LSF') {
+        $batch_script  = "$fntemplate.sh";
+        open(LSF, ">$batch_script") or die("Can not create the LSF batch script");
+        print LSF "#!/bin/bash \n";
+        print LSF "#BSUB-q $queue \n";
+        print LSF "#BSUB-o $fntemplate.lsfout.log \n";
+        print LSF "#BSUB-e $fntemplate.lsferr.log \n";
+        print LSF "source $genie_setup \n"; 
+        print LSF "cd $jobs_dir \n";
+        print LSF "export GSPLOAD=$xspl_file \n";
+        print LSF "export GEVGL=$gevgl \n";
+        print LSF "export GSEED=$mcseed  \n";
+        print LSF "$evgen_cmd \n";
+        print LSF "$conv_cmd \n";
+        if(-d $ref_sample_path) {
+           print LSF "$comp_cmd \n";
+        }
+        close(LSF);
+        `bsub < $batch_script`;
+    } #LSF
+
   }
 }

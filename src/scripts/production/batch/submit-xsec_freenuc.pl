@@ -3,18 +3,17 @@
 #-----------------------------------------------------------------------------
 # Submit jobs for calculating GENIE free-nucleon cross section splines.
 #
-# For use at the RAL/PPD Tier2 PBS batch farm.
-#
 # Syntax:
 #   shell% perl submit-xsec_freenuc.pl <options>
 #
 # Options:
-#    --xsplset       : set of splines to generate
 #    --version       : genie version number
+#    --xsplset       : set of splines to generate
 #   [--arch]         : <SL4_32bit, SL5_64bit>, default: SL5_64bit
 #   [--production]   : default: <version>
 #   [--cycle]        : default: 01
 #   [--use-valgrind] : default: off
+#   [--batch-system] : <PBS, LSF>, default: PBS
 #   [--queue]        : default: prod
 #   [--softw-topdir] : default: /opt/ppd/t2k/GENIE
 #
@@ -26,6 +25,8 @@
 # Notes:
 #   * Use GENIE gspladd utility to merge the job outputs
 #
+# Tested at the RAL/PPD Tier2 PBS batch farm.
+#
 # Costas Andreopoulos <costas.andreopoulos \st stfc.ac.uk>
 # STFC, Rutherford Appleton Lab
 #-----------------------------------------------------------------------------
@@ -36,12 +37,13 @@ use File::Path;
 #  
 $iarg=0;
 foreach (@ARGV) {
-  if($_ eq '--xsplset')       { $xsplset       = $ARGV[$iarg+1]; }
   if($_ eq '--version')       { $genie_version = $ARGV[$iarg+1]; }
+  if($_ eq '--xsplset')       { $xsplset       = $ARGV[$iarg+1]; }
   if($_ eq '--arch')          { $arch          = $ARGV[$iarg+1]; }
   if($_ eq '--production')    { $production    = $ARGV[$iarg+1]; }
   if($_ eq '--cycle')         { $cycle         = $ARGV[$iarg+1]; }
   if($_ eq '--use-valgrind')  { $use_valgrind  = $ARGV[$iarg+1]; }
+  if($_ eq '--batch-system')  { $batch_system  = $ARGV[$iarg+1]; }
   if($_ eq '--queue')         { $queue         = $ARGV[$iarg+1]; }
   if($_ eq '--softw-topdir')  { $softw_topdir  = $ARGV[$iarg+1]; }           
   $iarg++;
@@ -55,6 +57,7 @@ $use_valgrind   = 0                             unless defined $use_valgrind;
 $arch           = "SL5_64bit"                   unless defined $arch;
 $production     = "$genie_version"              unless defined $production;
 $cycle          = "01"                          unless defined $cycle;
+$batch_system   = "PBS"                         unless defined $batch_system;
 $queue          = "prod"                        unless defined $queue;
 $softw_topdir   = "/opt/ppd/t2k/GENIE"          unless defined $softw_topdir;
 $genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
@@ -181,6 +184,7 @@ mkpath ($jobs_dir, {verbose => 1, mode=>0777});
 
 for my $curr_xsplset (keys %OUTXML)  {
   if($xsplset=~m/$curr_xsplset/ || $xsplset eq "all") {
+
     #
     # get runnu-dependent info 
     #
@@ -189,31 +193,49 @@ for my $curr_xsplset (keys %OUTXML)  {
     $gevgl  = $GEVGL   {$curr_xsplset};
     $outxml = $OUTXML  {$curr_xsplset};
 
-    #
-    # create the PBS script 
-    #
-    $BATCH_SCRIPT = "$jobs_dir/job-$curr_xsplset.pbs";
-    open(PBS, ">$BATCH_SCRIPT") or die("Can not create the PBS batch script");
-
-    $logfile_pbse  = "$jobs_dir/job-xspl-$curr_xsplset.pbs_e.log";
-    $logfile_pbso  = "$jobs_dir/job-xspl-$curr_xsplset.pbs_o.log";
+    $fntemplate    = "$jobs_dir/job-$curr_xsplset"; 
+    $grep_pipe     = "grep -B 100 -A 30 -i \"warn\\|error\\|fatal\"";
     $valgrind_cmd  = "valgrind --tool=memcheck --error-limit=no --leak-check=yes --show-reachable=yes";
-    $cmd           = "gmkspl -p $nu -t $tgt -n $nkots -e $emax -o $outxml &> job-$curr_xsplset.log";
+    $cmd           = "gmkspl -p $nu -t $tgt -n $nkots -e $emax -o $outxml | $grep_pipe &> $fntemplate.mkspl.log";
 
-    print PBS "#!/bin/bash \n";
-    print PBS "#PBS -o $logfile_pbso \n";
-    print PBS "#PBS -e $logfile_pbse \n";
-    print PBS "source $genie_setup \n";
-    print PBS "cd $jobs_dir \n";
-    print PBS "unset GSPLOAD \n";
-    print PBS "export GEVGL=$gevgl \n";
-    print PBS "$cmd \n";
-
-    print "EXEC: $cmd \n";
+    print "@@ exec: $cmd \n";
 
     #
-    # submit job 
+    # submit
     #
-    `qsub -q $queue $BATCH_SCRIPT`;
+  
+    # PBS case
+    if($batch_system eq 'PBS') {
+        $batch_script = "$fntemplate.pbs";
+        open(PBS, ">$batch_script") or die("Can not create the PBS batch script");
+        print PBS "#!/bin/bash \n";
+        print PBS "#PBS -o $fntemplate.pbsout.log \n";
+        print PBS "#PBS -e $fntemplate.pbserr.log \n";
+        print PBS "source $genie_setup \n";
+        print PBS "cd $jobs_dir \n";
+        print PBS "unset GSPLOAD \n";
+        print PBS "export GEVGL=$gevgl \n";
+        print PBS "$cmd \n";
+        close(PBS);
+        `qsub -q $queue $batch_script`;
+    } #PBS
+
+    # LSF case
+    if($batch_system eq 'LSF') {
+        $batch_script = "$fntemplate.sh";
+        open(LSF, ">$batch_script") or die("Can not create the LSF batch script");
+        print LSF "#!/bin/bash \n";
+        print LSF "#BSUB-q $queue \n";
+        print LSF "#BSUB-o $fntemplate.lsfout.log \n";
+        print LSF "#BSUB-e $fntemplate.lsferr.log \n";
+        print LSF "source $genie_setup \n";
+        print LSF "cd $jobs_dir \n";
+        print LSF "unset GSPLOAD \n";
+        print LSF "export GEVGL=$gevgl \n";
+        print LSF "$cmd \n";
+        close(LSF);
+        `bsub < $batch_script`;
+    } #LSF
+
   }
 }
