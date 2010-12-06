@@ -50,6 +50,15 @@
  @ Mar 04, 2010 - CA
    Remove unused FilterUnphysical(TBits) method. Now set exclusively via the
    GUNPHYSMASK env.var.
+ @ Apr 15, 2010 - CA
+   Fix unit error in ComputeEventProbability() - Reported by Corey Reed.
+   The probability stored at the output event was wrong but this doesn't
+   affect any of the existing applications as this number wasn't actually
+   used anywhere.
+ @ Dec 07, 2010 - CA
+   Don't use a fixed bin size in ComputeProbScales() as this was causing 
+   errors for low energy applications. Addresses a problem reported by
+   Joachim Kopp.
 */
 //____________________________________________________________________________
 
@@ -419,9 +428,8 @@ void GMCJDriver::ComputeProbScales(void)
   fPmax.clear();
 
   // for maximum interaction probability vs E /for given geometry/ I will
-  // be using ~200 MeV bins
-  //
-  double de   = 0.2;
+  // be using 300 bins up to the maximum energy for the input flux
+  double de   = fEmax/300.;
   double emin = 0.0;
   double emax = fEmax + de;
   int n = 1 + (int) ((emax-emin)/de);
@@ -566,11 +574,12 @@ EventRecord * GMCJDriver::GenerateEvent1Try(void)
        Psum = this->ComputeInteractionProbabilities(true /* <- max PL*/);
        Pno  = 1-Psum;
        LOG("GMCJDriver", pNOTICE)
-          << "The 'no interaction' probability (max. path lengths) is: " 
+          << "The no-interaction probability (max. path lengths) is: " 
           << 100*Pno << " %";
        if(Pno<0.) {
            LOG("GMCJDriver", pFATAL) 
-             << "Negative no interactin probability! (P = " << 100*Pno << " %)";
+             << "Negative no-interaction probability! (P = " << 100*Pno << " %)";
+           gAbortingInErr=true;
            exit(1);
        }
        if(R>=1-Pno) {
@@ -870,29 +879,27 @@ void GMCJDriver::ComputeEventProbability(void)
 {
 // Compute event probability for the given flux neutrino & detector geometry
 
-  // interaction cross section
-  // (convert from physical units -> cm^2)
-  double xsec = fCurEvt->XSec() / units::cm2; 
+  // get interaction cross section
+  double xsec = fCurEvt->XSec();
 
-  // path length in detector along v direction for specified target material
-  // (convert from kgr/m2 to gr/cm2)
+  // get path length in detector along v direction for specified target material
   PathLengthList::const_iterator pliter = fCurPathLengths.find(fSelTgtPdg);
   double path_length = pliter->second;
-  path_length *= ((units::kilogram/units::m2)/(units::gram/units::cm2));
 
-  // target material mass number
-  // (in gr)
+  // get target material mass number
   int A = pdg::IonPdgCodeToA(fSelTgtPdg);
 
-  // gett info on the interacted neutrino
+  // calculate interaction probability
+  double P = this->InteractionProbability(xsec, path_length, A);
+
+  //
+  // get weight for selected event
+  //
+
   GHepParticle * nu = fCurEvt->Probe();
   int    nu_pdg = nu->Pdg();
   double Ev     = nu->P4()->Energy();
  
-  // interaction probability
-  double P = this->InteractionProbability(xsec, path_length, A);
-
-  // weight for selected event
   double weight = 1.0;
   if(!fGenerateUnweighted) {
      map<int,TH1D*>::const_iterator pmax_iter = fPmax.find(nu_pdg);
