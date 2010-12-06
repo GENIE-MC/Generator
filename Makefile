@@ -40,6 +40,7 @@ BUILD_TARGETS =    print-make-info \
 		   minos-support-softw \
 		   t2k-support-softw \
 		   ino-support-softw \
+		   reweight-support-softw \
   		   install-scripts
 INSTALL_TARGETS =  print-makeinstall-info \
 		   check-previous-installation \
@@ -85,10 +86,16 @@ utils: FORCE
 
 reweight:
 	@echo " "
-	@echo "** Building event reweighting toolkits..."
+	@echo "** Building event reweighting library..."
+ifeq ($(strip $(GOPT_ENABLE_RWGHT)),YES)
 	cd ${GENIE}/src;\
 	cd ReWeight; \
-        make; 
+	make; \
+	cd ${GENIE}
+else
+	@echo " "
+	@echo "** Event reweighting was not enabled. Skipping..."
+endif
 
 evgen-framework: FORCE
 	@echo " "
@@ -352,6 +359,17 @@ ifeq ($(strip $(GOPT_ENABLE_INO)),YES)
 	cd ${GENIE}
 else
 	@echo "Not enabled! Skipping..."
+endif
+
+reweight-support-softw: FORCE
+	@echo " "
+	@echo "** Building event reweighting applications ..."
+ifeq ($(strip $(GOPT_ENABLE_RWGHT)),YES)
+	cd ${GENIE}/src/support/rwght/;\
+	make all; \
+	cd ${GENIE}
+else
+	@echo "Event reweighting not enabled! Skipping..."
 endif
 
 install-scripts: FORCE
@@ -624,6 +642,7 @@ clean-files: FORCE
 	cd support/t2k/EvGen/;            make clean; cd ../../../; \
 	cd support/t2k/SKNorm/;           make clean; cd ../../../; \
 	cd support/ino/EvGen/;            make clean; cd ../../../; \
+	cd support/rwght/;                make clean; cd ../../; \
 	cd test;                          make clean; cd ..; \
 	cd scripts;	                  make clean; \
 	cd ${GENIE}
@@ -700,6 +719,7 @@ distclean: FORCE
 	cd support/t2k/EvGen/;             make distclean; cd ../../../; \
 	cd support/t2k/SKNorm/;            make distclean; cd ../../../; \
 	cd support/ino/EvGen/;             make distclean; cd ../../../; \
+	cd support/rwght/;                 make distclean; cd ../../../; \
 	cd test;                           make distclean; cd ..; \
 	cd scripts;	                   make distclean; \
 	cd ${GENIE}

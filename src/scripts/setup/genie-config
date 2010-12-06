@@ -18,7 +18,7 @@ libs="-L$libdir -lGAlgorithm -lGBaryonResonance -lGBase -lGBodekYang -lGCharm -l
  -lGCrossSections -lGDecay -lGElas -lGElFF -lGHEP -lGEVGCore -lGEVGModules -lGEVGDrivers -lGGiBUU \
  -lGHadronTransp -lGFragmentation -lGInteraction -lGLlewellynSmith -lGMEC \
  -lGMessenger -lGNuGamma -lGNuE -lGNtuple -lGNuclear -lGNumerical -lGQPM -lGPDG -lGPDF\
- -lGQEL -lGRES -lGRegistry -lGReinSeghal -lGReWeight -lGUtils"
+ -lGQEL -lGRES -lGRegistry -lGReinSeghal -lGUtils"
 
 if test "$GOPT_ENABLE_GEOM_DRIVERS" = "YES"; then
   libs="$libs -lGGeo"
@@ -37,6 +37,9 @@ if test "$GOPT_ENABLE_VIEWER" = "YES"; then
 fi
 if test "$GOPT_ENABLE_MUELOSS" = "YES"; then
   libs="$libs -lGMuELoss"
+fi
+if test "$GOPT_ENABLE_RWGHT" = "YES"; then
+  libs="$libs -lGReWeight"
 fi
 
 ### GENIE validation tools;
