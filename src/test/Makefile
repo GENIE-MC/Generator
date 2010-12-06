@@ -43,11 +43,9 @@ TGT =	gtestAlgorithms 	 \
 	gtestRecoINukeHadroFates \
 	gtestInteraction	 \
 	gtestResonances		 \
+	gtestRewght		 \
 	gtestRwMarginalization	 \
-	gtestRwNuXSecHelperP2P	 \
-	gtestRwNuXSecHelperLoop	 \
 	gtestKPhaseSpace	
-# 	gtestIntranuke		 
 
 all: $(TGT)
 
@@ -167,17 +165,21 @@ gtestResonances: FORCE
 	$(CXX) $(CXXFLAGS) -c testResonances.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) testResonances.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestResonances
 
+gtestRewght: FORCE
+ifeq ($(strip $(GOPT_ENABLE_RWGHT)),YES)
+	$(CXX) $(CXXFLAGS) -c gtestRewght.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gtestRewght.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestRewght
+else
+	@echo "You need to enable event reweighting first!"
+endif
+
 gtestRwMarginalization: FORCE
+ifeq ($(strip $(GOPT_ENABLE_RWGHT)),YES)
 	$(CXX) $(CXXFLAGS) -c testRwMarginalization.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) testRwMarginalization.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestRwMarginalization
-
-gtestRwNuXSecHelperP2P: FORCE
-	$(CXX) $(CXXFLAGS) -c testRwNuXSecHelperP2P.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) testRwNuXSecHelperP2P.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestRwNuXSecHelperP2P
-
-gtestRwNuXSecHelperLoop: FORCE
-	$(CXX) $(CXXFLAGS) -c testRwNuXSecHelperLoop.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) testRwNuXSecHelperLoop.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestRwNuXSecHelperLoop
+else
+	@echo "You need to enable event reweighting first!"
+endif
 
 gtestRecoINukeHadroFates: FORCE
 	$(CXX) $(CXXFLAGS) -c testRecoINukeHadroFates.cxx $(INCLUDES)
@@ -226,9 +228,8 @@ clean: FORCE
 	$(RM) $(GENIE_BIN_PATH)/gtestRegistry		
 	$(RM) $(GENIE_BIN_PATH)/gtestInteraction	
 	$(RM) $(GENIE_BIN_PATH)/gtestResonances		
+	$(RM) $(GENIE_BIN_PATH)/gtestReweight	
 	$(RM) $(GENIE_BIN_PATH)/gtestRwMarginalization	
-	$(RM) $(GENIE_BIN_PATH)/gtestRwNuXSecHelperP2P	
-	$(RM) $(GENIE_BIN_PATH)/gtestRwNuXSecHelperLoop		
 	$(RM) $(GENIE_BIN_PATH)/gtestRecoINukeHadroFates		
 	$(RM) $(GENIE_BIN_PATH)/gtestKPhaseSpace	
 ifeq ($(strip $(GOPT_ENABLE_MUELOSS)),YES)
@@ -263,9 +264,8 @@ distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestRegistry		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestInteraction	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestResonances		
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestReweight		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestRwMarginalization		
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestRwNuXSecHelperP2P		
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestRwNuXSecHelperLoop		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestRecoINukeHadroFates		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestKPhaseSpace	
 ifeq ($(strip $(GOPT_ENABLE_MUELOSS)),YES)
