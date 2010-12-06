@@ -19,7 +19,11 @@
  @ May 17, 2010 - CA
    Code extracted from GReWeightNuXSec and redeveloped in preparation for 
    the Summer 2010 T2K analyses.
-
+ @ Oct 22, 2010 - CA
+   Make static consts kModeMa and kModeNormAndMaShape public to aid
+   external configuration.
+ @ Nov 25, 2010 - CA
+   Allow asymmetric errors
 */
 //____________________________________________________________________________
 
@@ -40,6 +44,7 @@
 #include "ReWeight/GReWeightNuXSecCCQE.h"
 #include "ReWeight/GSystSet.h"
 #include "ReWeight/GSystUncertainty.h"
+#include "ReWeight/GReWeightUtils.h"
 #include "Registry/Registry.h"
 
 //#define _G_REWEIGHT_CCQE_DEBUG_
@@ -124,13 +129,16 @@ void GReWeightNuXSecCCQE::Reconfigure(void)
   GSystUncertainty * fracerr = GSystUncertainty::Instance();
 
   if(fMode==kModeMa) {   
-     double fracerr_ma = fracerr->OneSigmaErr(kXSecTwkDial_MaCCQE);
-     fMaCurr   = fMaDef * (1. + fMaTwkDial * fracerr_ma);
+     int    sign_matwk = utils::rew::Sign(fMaTwkDial);
+     double fracerr_ma = fracerr->OneSigmaErr(kXSecTwkDial_MaCCQE, sign_matwk);
+     fMaCurr = fMaDef * (1. + fMaTwkDial * fracerr_ma);
   }
   else
   if(fMode==kModeNormAndMaShape) { 
-     double fracerr_norm = fracerr->OneSigmaErr(kXSecTwkDial_NormCCQE);
-     double fracerr_mash = fracerr->OneSigmaErr(kXSecTwkDial_MaCCQEshape);
+     int    sign_normtwk = utils::rew::Sign(fNormTwkDial);
+     int    sign_mashtwk = utils::rew::Sign(fMaTwkDial  );
+     double fracerr_norm = fracerr->OneSigmaErr(kXSecTwkDial_NormCCQE,    sign_normtwk);
+     double fracerr_mash = fracerr->OneSigmaErr(kXSecTwkDial_MaCCQEshape, sign_mashtwk);
      fNormCurr = fNormDef * (1. + fNormTwkDial * fracerr_norm);
      fMaCurr   = fMaDef   * (1. + fMaTwkDial   * fracerr_mash);
   }
@@ -252,6 +260,11 @@ double GReWeightNuXSecCCQE::CalcWeightMa(const genie::EventRecord & event)
   double old_weight = event.Weight();
   double new_xsec   = fXSecModel->XSec(interaction, kPSQ2fE);
   double new_weight = old_weight * (new_xsec/old_xsec);
+
+//LOG("ReW", pDEBUG) << "differential cross section (old) = " << old_xsec;
+//LOG("ReW", pDEBUG) << "differential cross section (new) = " << new_xsec;
+//LOG("ReW", pDEBUG) << "event generation weight = " << old_weight;
+//LOG("ReW", pDEBUG) << "new weight = " << new_weight;
 
   interaction->KinePtr()->ClearRunningValues();
   interaction->ResetBit(kIAssumeFreeNucleon);

@@ -19,7 +19,9 @@
  @ May 17, 2010 - CA
    Code extracted from GReWeightNuXSec and redeveloped in preparation for 
    the Summer 2010 T2K analyses.
-
+ @ Oct 20, 2010 - CA
+   Make static consts kModeABCV12u and kModeABCV12uShape public so as to
+   aid external configuration.
 */
 //____________________________________________________________________________
 

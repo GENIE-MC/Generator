@@ -42,10 +42,10 @@ namespace rew   {
 
  class GReWeightNuXSecCCRES : public GReWeightI 
  {
- static const int kModeMaMv             = 0;
- static const int kModeNormAndMaMvShape = 1;
-
  public:
+   static const int kModeMaMv             = 0;
+   static const int kModeNormAndMaMvShape = 1;
+
    GReWeightNuXSecCCRES();
   ~GReWeightNuXSecCCRES();
 

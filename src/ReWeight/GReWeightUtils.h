@@ -56,6 +56,10 @@ namespace rew   {
   //
   double AGKYWeight(int pdgc, double xF, double pT2);
 
+  // Get the sign of the tweaking dial so as to correctly pick-p the +err or the -err,
+  // in case of asymmetric errors
+  int Sign(double twkdial);
+
 }  // rew   namespace
 }  // utils namespace
 }  // genie namespace

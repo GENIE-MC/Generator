@@ -42,8 +42,12 @@ typedef enum EGSyst {
   //
   //
 
+  // NCEL tweaking parameters:
+  kXSecTwkDial_MaNCEL,            ///< tweak Ma NCEL, affects dsigma(NCEL)/dQ2 both in shape and normalization
+  kXSecTwkDial_EtaNCEL,           ///< tweak NCEL strange axial form factor eta, affects dsigma(NCEL)/dQ2 both in shape and normalization
   // CCQE tweaking parameters:
-  kXSecTwkDial_NormCCQE,          ///< tweak CCQE normalization
+  kXSecTwkDial_NormCCQE,          ///< tweak CCQE normalization (energy independent)
+  kXSecTwkDial_NormCCQEenu,       ///< tweak CCQE normalization (maintains dependence on neutrino energy)
   kXSecTwkDial_MaCCQEshape,       ///< tweak Ma CCQE, affects dsigma(CCQE)/dQ2 in shape only (normalized to constant integral)
   kXSecTwkDial_MaCCQE,            ///< tweak Ma CCQE, affects dsigma(CCQE)/dQ2 both in shape and normalization
   kXSecTwkDial_VecFFCCQEshape,    ///< tweak elastic nucleon form factors (BBA/default -> dipole) - shape only effect of dsigma(CCQE)/dQ2
@@ -160,7 +164,10 @@ public:
  static string AsString(GSyst_t syst) 
  {
    switch(syst) {
+     case ( kXSecTwkDial_MaNCEL           ) : return "MaNCEL";               break;
+     case ( kXSecTwkDial_EtaNCEL          ) : return "EtaNCEL";              break;
      case ( kXSecTwkDial_NormCCQE         ) : return "NormCCQE";             break;
+     case ( kXSecTwkDial_NormCCQEenu      ) : return "NormCCQEenu";          break;
      case ( kXSecTwkDial_MaCCQE           ) : return "MaCCQE";               break;
      case ( kXSecTwkDial_MaCCQEshape      ) : return "MaCCQEshape";          break;
      case ( kXSecTwkDial_VecFFCCQEshape   ) : return "VecFFCCQEshape";       break;
@@ -234,7 +241,10 @@ public:
  {
    GSyst_t systematics[] = 
    {
+       kXSecTwkDial_MaNCEL,
+       kXSecTwkDial_EtaNCEL,
        kXSecTwkDial_NormCCQE,   
+       kXSecTwkDial_NormCCQEenu,   
        kXSecTwkDial_MaCCQE,        
        kXSecTwkDial_MaCCQEshape,   
        kXSecTwkDial_VecFFCCQEshape,
