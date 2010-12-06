@@ -71,6 +71,8 @@ $jobs_dir       = "$softw_topdir/scratch/vAsyst-$production\_$cycle";
 $gexec          = "grwght1scan"; # name of GENIE executable (src code in $GENIE/src/rwght/ in v2.7.1 and above)
 
 %def_ntwkdials = ( 
+ 'MaNCEL'              =>  '3',
+ 'EtaNCEL'             =>  '3',
  'NormCCQE'            =>  '3',
  'MaCCQE'              => '11',
  'MaCCQEshape'         => '11',
@@ -137,9 +139,11 @@ $gexec          = "grwght1scan"; # name of GENIE executable (src code in $GENIE/
 );
 
 %used_in_t2k_analysis = ( 
- 'NormCCQE'            => '1',
- 'MaCCQE'              => '0',
- 'MaCCQEshape'         => '1',
+ 'MaNCEL'              => '1',
+ 'EtaNCEL'             => '1',
+ 'NormCCQE'            => '0',
+ 'MaCCQE'              => '1',
+ 'MaCCQEshape'         => '0',
  'VecFFCCQEshape'      => '1',
  'NormCCRES'           => '0',
  'MaCCRESshape'        => '0',
