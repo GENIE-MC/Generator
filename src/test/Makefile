@@ -228,7 +228,7 @@ clean: FORCE
 	$(RM) $(GENIE_BIN_PATH)/gtestRegistry		
 	$(RM) $(GENIE_BIN_PATH)/gtestInteraction	
 	$(RM) $(GENIE_BIN_PATH)/gtestResonances		
-	$(RM) $(GENIE_BIN_PATH)/gtestReweight	
+	$(RM) $(GENIE_BIN_PATH)/gtestRewght	
 	$(RM) $(GENIE_BIN_PATH)/gtestRwMarginalization	
 	$(RM) $(GENIE_BIN_PATH)/gtestRecoINukeHadroFates		
 	$(RM) $(GENIE_BIN_PATH)/gtestKPhaseSpace	
@@ -264,7 +264,7 @@ distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestRegistry		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestInteraction	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestResonances		
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestReweight		
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestRewght		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestRwMarginalization		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestRecoINukeHadroFates		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestKPhaseSpace	
