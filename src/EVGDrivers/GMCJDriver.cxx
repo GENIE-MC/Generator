@@ -55,6 +55,10 @@
    The probability stored at the output event was wrong but this doesn't
    affect any of the existing applications as this number wasn't actually
    used anywhere.
+ @ Dec 07, 2010 - CA
+   Don't use a fixed bin size in ComputeProbScales() as this was causing 
+   errors for low energy applications. Addresses a problem reported by
+   Joachim Kopp.
 */
 //____________________________________________________________________________
 
@@ -424,9 +428,8 @@ void GMCJDriver::ComputeProbScales(void)
   fPmax.clear();
 
   // for maximum interaction probability vs E /for given geometry/ I will
-  // be using ~200 MeV bins
-  //
-  double de   = 0.2;
+  // be using 300 bins up to the maximum energy for the input flux
+  double de   = fEmax/300.;
   double emin = 0.0;
   double emax = fEmax + de;
   int n = 1 + (int) ((emax-emin)/de);
@@ -571,11 +574,12 @@ EventRecord * GMCJDriver::GenerateEvent1Try(void)
        Psum = this->ComputeInteractionProbabilities(true /* <- max PL*/);
        Pno  = 1-Psum;
        LOG("GMCJDriver", pNOTICE)
-          << "The 'no interaction' probability (max. path lengths) is: " 
+          << "The no-interaction probability (max. path lengths) is: " 
           << 100*Pno << " %";
        if(Pno<0.) {
            LOG("GMCJDriver", pFATAL) 
-             << "Negative no interactin probability! (P = " << 100*Pno << " %)";
+             << "Negative no-interaction probability! (P = " << 100*Pno << " %)";
+           gAbortingInErr=true;
            exit(1);
        }
        if(R>=1-Pno) {
