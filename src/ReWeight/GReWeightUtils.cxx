@@ -16,6 +16,8 @@
  @ Sep 11, 2009 - CA
    Was first added in v2.5.1. Adapted from the T2K-specific version of the
    GENIE reweighting tool.
+ @ Dec 17, 2010 - JD
+   Added method to calculate weight for a modified formation zone. 
 
 */
 //____________________________________________________________________________
@@ -57,6 +59,40 @@ double genie::utils::rew::MeanFreePathWeight(
    // Calculate weight
    double w_mfp = utils::rew::MeanFreePathWeight(pdef, ptwk, interacted);
    return w_mfp;
+}
+//____________________________________________________________________________
+double genie::utils::rew::FZoneWeight(
+  int pdgc, const TLorentzVector & vtx, const TLorentzVector & x4, 
+  const TLorentzVector & p4, double A, double fz_scale_factor, bool interacted,
+  double nRpi, double nRnuc, double NR, double R0)
+{
+   // Calculate hadron start assuming tweaked formation zone
+   TLorentzVector fz    = x4 - vtx;
+   TLorentzVector fztwk = fz_scale_factor*fz;
+   TLorentzVector x4twk    = x4 + fztwk - fz;
+
+   LOG("ReW", pDEBUG)  << "FZone = "<< fz.Vect().Mag();
+
+   // Get nominal survival probability.
+   double pdef = utils::intranuke::ProbSurvival(
+      pdgc,x4,p4,A,1.,nRpi,nRnuc,NR,R0);
+   LOG("ReW", pDEBUG)  << "PDef = "<< pdef;
+   if(pdef<=0) return 1.; 
+   if(pdef>=1.){
+     LOG("ReW", pERROR) <<  "Default formation zone takes hadron outside "
+                        <<  "nucleus so cannot reweight!" ;
+     return 1.;
+   }
+
+   // Get tweaked survival probability.
+   double ptwk = utils::intranuke::ProbSurvival(
+      pdgc,x4twk,p4,A,1.,nRpi,nRnuc,NR,R0);
+   if(ptwk<=0) return 1.;
+
+   LOG("ReW", pDEBUG)  << "PTwk = "<< ptwk;
+   // Calculate weight
+   double w_fz = utils::rew::MeanFreePathWeight(pdef, ptwk, interacted);
+   return w_fz;  
 }
 //____________________________________________________________________________
 double genie::utils::rew::MeanFreePathWeight(
