@@ -40,6 +40,14 @@ namespace rew   {
   double MeanFreePathWeight(
       double prob_def, double prob_twk, bool interacted);
 
+  // Calculates a weight to account for a change in the formation zone. Is 
+  // only an approximation as impossible to calculate a weight for hadrons 
+  // which were already outside the nucleus with the default formation zone.
+  double FZoneWeight(
+    int pdgc, const TLorentzVector & vtx, const TLorentzVector & x4, 
+    const TLorentzVector & p4, double A, double fz_scale_factor, bool interacted,
+    double nRpi=0.5, double nRnuc=1.0, double NR=3, double R0=1.4);
+
   // Return the fraction of the hadron rescatering fate described by the input
   // systematic enumeration at the input hadron kinetic energy
   double FateFraction(genie::rew::GSyst_t syst, double kinE, double frac_scale_factor=1.);
