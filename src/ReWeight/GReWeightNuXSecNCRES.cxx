@@ -45,6 +45,9 @@
 using namespace genie;
 using namespace genie::rew;
 
+const int GReWeightNuXSecNCRES::kModeMaMv;
+const int GReWeightNuXSecNCRES::kModeNormAndMaMvShape;
+
 //_______________________________________________________________________________________
 GReWeightNuXSecNCRES::GReWeightNuXSecNCRES() 
 {

@@ -52,6 +52,9 @@
 using namespace genie;
 using namespace genie::rew;
 
+const int GReWeightNuXSecCCQE::kModeMa;
+const int GReWeightNuXSecCCQE::kModeNormAndMaShape;
+
 //_______________________________________________________________________________________
 GReWeightNuXSecCCQE::GReWeightNuXSecCCQE() 
 {
