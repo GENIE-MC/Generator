@@ -54,15 +54,15 @@ public :
   // Methods implementing the GENIE GFluxI interface, required for integrating
   // the JPARC neutrino flux simulations with the GENIE event generation drivers
 
-  const PDGCodeList &    FluxParticles (void) { return *fPdgCList;            }
-  double                 MaxEnergy     (void) { return  fMaxEv;               }
+  const PDGCodeList &    FluxParticles (void) { return *fPdgCList;             }
+  double                 MaxEnergy     (void) { return  fMaxEv;                }
   bool                   GenerateNext  (void);
-  int                    PdgCode       (void) { return  fgPdgC;               }
-  double                 Weight        (void) { return  fLfNorm;              }
-  const TLorentzVector & Momentum      (void) { return  fgP4;                 }
-  const TLorentzVector & Position      (void) { return  fgX4;                 }
+  int                    PdgCode       (void) { return  fgPdgC;                }
+  double                 Weight        (void) { return  fNorm;}
+  const TLorentzVector & Momentum      (void) { return  fgP4;                  }
+  const TLorentzVector & Position      (void) { return  fgX4;                  }
   bool                   End           (void) { return  fIEntry >= fNEntries 
-                                                     && fICycle == fNCycles;  }
+                                                     && fICycle == fNCycles;   }
 
   // Methods specific to the JPARC flux driver, 
   // for configuration/initialization of the flux & event generation drivers and
@@ -80,7 +80,6 @@ public :
   double   POT_curravg    (void);                              ///< current average POT
   long int NFluxNeutrinos (void) const { return fNNeutrinos; } ///< number of flux neutrinos looped so far
   double   SumWeight      (void) const { return fSumWeight;  } ///< intergated weight for flux neutrinos looped so far
-  string   FluxVersion    (void) const { return fFluxVersion;} ///< return the string describing the current flux version
 
 
   const GJPARCNuFluxPassThroughInfo & 
@@ -108,6 +107,7 @@ private:
 
   TFile *   fNuFluxFile;       ///< input flux file
   TTree *   fNuFluxTree;       ///< input flux ntuple
+  TTree *   fNuFluxSumTree;    ///< input summary ntuple for flux file. This tree is only present for later flux versions > 10a
   string    fDetLoc;           ///< input detector location ('sk','nd1','nd2',...)
   int       fDetLocId;         ///< input detector location id (fDetLoc -> jnubeam idfd)
   int       fNDetLocIdFound;   ///< per cycle keep track of the number of fDetLocId are found - if this is zero will exit job 
@@ -115,6 +115,7 @@ private:
   bool      fIsNDLoc;          ///< input location is a 'near' detector location?
   long int  fNEntries;         ///< number of flux ntuple entries
   long int  fIEntry;           ///< current flux ntuple entry
+  double    fNorm;             ///< current flux ntuple normalisation
   double    fMaxWeight;        ///< max flux  neutrino weight in input file for the specified detector location
   double    fFilePOT;          ///< file POT normalization, typically 1E+21
   double    fZ0;               ///< configurable starting z position for each flux neutrino (in detector coord system)
@@ -125,59 +126,6 @@ private:
   double    fSumWeightTot1c;   ///< total sum of weights for neutrinos to be thrown / cycle
   long int  fNNeutrinosTot1c;  ///< total number of flux neutrinos to be thrown / cycle
 
-  string    fFluxVersion;      ///< string representing current flux version, e.g., "07a", "10a", etc...
-
-  //-- jnubeam ntuple branches
-  //   branches marked with [f] can be found in SK flux ntuples only
-  //   branches marked with [n] can be found in near detector flux ntuples only
-  //   branches marked with [a] can be found in both ntuples
-  //   branches marked with [10a] first appeared in JNUBEAM version 10a flux ntuples
-  TBranch * fBrNorm;           ///< 'norm'     branch [a]: Weight to give flux in /N POT/det. [ND] or /N POT/cm^2 [FD], where is N is typically 1E+21
-  TBranch * fBrIdfd;           ///< 'idfd'     branch [n]: Detector ID
-  TBranch * fBrEnu;            ///< 'Enu'      branch [a]: Nu energy (GeV)
-  TBranch * fBrRnu;            ///< 'rnu'      branch [n]: Nu radial position (cm, in detectro coord system)
-  TBranch * fBrXnu;            ///< 'xnu'      branch [n]: Nu x position (cm, in detector coord system)
-  TBranch * fBrYnu;            ///< 'ynu'      branch [n]: Nu y position (cm, in detector coord system)
-  TBranch * fBrNnu;            ///< 'nnu'      branch [n]: Nu direction (in t2k global coord system)
-  TBranch * fBrPpid;           ///< 'ppid'     branch [a]: Nu parent GEANT particle id 
-  TBranch * fBrMode;           ///< 'mode'     branch [a]: Nu parent decay mode (see http://jnusrv01.kek.jp/internal/t2k/nubeam/flux/nemode.h)
-  TBranch * fBrPpi;            ///< 'ppi'      branch [a]: Nu parent momentum at its decay point (GeV)
-  TBranch * fBrXpi;            ///< 'xpi'      branch [a]: Nu parent position vector at decay (cm, in t2k global coord system)
-  TBranch * fBrNpi;            ///< 'npi'      branch [a]: Nu parent direction vector at decay (in t2k global coord system) 
-  TBranch * fBrCospibm;        ///< 'cospibm'  branch [a]: Nu parent direction cosine at decay (with respect to the beam direction)
-  TBranch * fBrPpi0;           ///< 'ppi0'     branch [a]: Nu parent momentum at its production point (GeV)
-  TBranch * fBrXpi0;           ///< 'xpi0'     branch [a]: Nu parent position vector at production (cm, in t2k global coord system)
-  TBranch * fBrNpi0;           ///< 'npi0'     branch [a]: Nu parent direction vector at production (in t2k global coord system)
-  TBranch * fBrCospi0bm;       ///< 'cospi0bm' branch [n]: Nu parent direction cosine at production (with respect to the beam direction)
-  TBranch * fBrNVtx0;          ///< 'nvtx0'    branch [f]: Number of vtx where the nu. parent was produced
-  TBranch * fBrGipart;         ///< 'gipart'   branch [a][10a]: Primary particle ID
-  TBranch * fBrGpos0;          ///< 'gpos0'    branch [a][10a]: Primary particle starting point
-  TBranch * fBrGvec0;          ///< 'gvec0'    branch [a][10a]: Primary particle direction at the starting point
-  TBranch * fBrGamom0;         ///< 'gamom0'   branch [a][10a]: Momentum of the primary particle at the starting point
-
-  float     fLfNorm;           ///< leaf on branch 'norm'
-  int       fLfIdfd;           ///< leaf on branch 'idfd'
-  float     fLfEnu;            ///< leaf on branch 'Enu'
-  float     fLfRnu;            ///< leaf on branch 'rnu'
-  float     fLfXnu;            ///< leaf on branch 'xnu'
-  float     fLfYnu;            ///< leaf on branch 'ynu'
-  float     fLfNnu[3];         ///< leaf on branch 'nnu'
-  int       fLfPpid;           ///< leaf on branch 'ppid'
-  int       fLfMode;           ///< leaf on branch 'mode'
-  float     fLfPpi;            ///< leaf on branch 'ppi'
-  float     fLfXpi[3];         ///< leaf on branch 'xpi'
-  float     fLfNpi[3];         ///< leaf on branch 'npi'
-  float     fLfCospibm;        ///< leaf on branch 'cospibm'
-  float     fLfPpi0;           ///< leaf on branch 'ppi0'
-  float     fLfXpi0[3];        ///< leaf on branch 'xpi0'
-  float     fLfNpi0[3];        ///< leaf on branch 'npi0'
-  float     fLfCospi0bm;       ///< leaf on branch 'cospi0bm'
-  int       fLfNVtx0;          ///< leaf on branch 'nvtx0'
-  float     fLfGpos0[3];       ///< leaf on branch 'gpos0'
-  float     fLfGvec0[3];       ///< leaf on branch 'gvec0'
-  float     fLfGamom0;         ///< leaf on branch 'gamom0'
-  unsigned char fLfGipart;     ///< leaf on branch 'gipart'
-  
   GJPARCNuFluxPassThroughInfo * fPassThroughInfo;
 };
 
@@ -186,33 +134,79 @@ private:
 // the output event tree -alongside with the generated event branch- for use further 
 // upstream in the t2k analysis chain -eg beam reweighting etc-)
 //
+const int fNgmax = 12;
 class GJPARCNuFluxPassThroughInfo: public TObject { 
 public:
    GJPARCNuFluxPassThroughInfo();
    GJPARCNuFluxPassThroughInfo(const GJPARCNuFluxPassThroughInfo & info);
    virtual ~GJPARCNuFluxPassThroughInfo() { };
 
+   void Reset();
    friend ostream & operator << (ostream & stream, const GJPARCNuFluxPassThroughInfo & info);
 
    long   fluxentry;
-   int    ppid;
-   int    mode;
-   float  ppi;
-   float  xpi[3];
-   float  npi[3];
-   float  ppi0;
-   float  xpi0[3];
-   float  npi0[3];
-   int    nvtx0;
-   float  cospibm;
-   float  cospi0bm;
-   int    idfd;
-   float  gpos0[3];
-   float  gvec0[3];
-   float  gamom0;
-   int    gipart; 
+   string fluxfilename;
+   // Using an instance of this class the following datamembers are set 
+   // directly as the branch addresses of jnubeam flux ntuples tree:
+   float  Enu;            // set to "Enu/F": Nu energy (GeV)  
+   int    ppid;           // set to "ppid/I": Nu parent GEANT particle id 
+   int    mode;           // set to "mode/I": Nu parent decay mode (see http://jnusrv01.kek.jp/internal/t2k/nubeam/flux/nemode.h)
+   float  ppi;            // set to "ppi/F": Nu parent momentum at its decay point (GeV)
+   float  xpi[3];         // set to "xpi[3]/F": Nu parent position vector at decay (cm, in t2k global coord system)
+   float  npi[3];         // set to "npi[3]/F": Nu parent direction vector at decay (in t2k global coord system) 
+   float  norm;           // set to "norm/F": Weight to give flux in /N POT/det. [ND] or /N POT/cm^2 [FD], where is N is typically 1E+21
+   int    nvtx0;          // set to "nvtx0/I": Number of vtx where the nu. parent was produced (made obsolete by nd variable inroduced in 10d flux version)
+   float  ppi0;           // set to "ppi0/F": Nu parent momentum at its production point (GeV)
+   float  xpi0[3];        // set to "xpi0[3]/F": Nu parent position vector at production (cm, in t2k global coord system)
+   float  npi0[3];        // set to "npi0[3]/F": Nu parent direction vector at production (in t2k global coord system)
+   float  rnu;            // set to "rnu/F": Nu radial position (cm, in detector coord system)
+   float  xnu;            // set to "xnu/F": Nu x position (cm, in detector coord system)
+   float  ynu;            // set to "ynu/F": Nu y position (cm, in detector coord system)
+   float  nnu[3];         // set to "nnu[3]/F": Nu direction (in t2k global coord system)
+   // New since JNuBeam 10a flux version.
+   float  cospibm;        // set to "cospibm/F": Nu parent direction cosine at decay (with respect to the beam direction) 
+   float  cospi0bm;       // set to "cospi0bm/F": Nu parent direction cosine at production (with respect to the beam direction)
+   int    idfd;           // set to "idfd/I": Detector ID
+   unsigned char gipart;  // set to "gipart/B": Primary particle ID
+   float  gpos0[3];       // set to "gpos0[3]/F": Primary particle starting point
+   float  gvec0[3];       // set to "gvec0[3]/F": Primary particle direction at the starting point
+   float  gamom0;         // set to "gamom0/F": Momentum of the primary particle at the starting point
+   // New since JNuBeam 10d and 11a flux version updates
+   int    ng;             // set to "ng/I": Number of parents (number of generations)
+   float  gpx[fNgmax];    // set to "gpx[20]/F":  Momentum X of each ancestor particle
+   float  gpy[fNgmax];    // set to "gpy[20]/F":  Momentum Y of each ancestor particle
+   float  gpz[fNgmax];    // set to "gpz[20]/F":  Momentum Z of each ancestor particle
+   float  gcosbm[fNgmax]; // set to "gcosbm[20]/F": Cosine of the angle between the ancestor particle direction and the beam direction
+   float  gvx[fNgmax];    // set to "gvx[20]/F": Vertex X position of each ancestor particle 
+   float  gvy[fNgmax];    // set to "gvy[20]/F": Vertex Y position of each ancestor particle 
+   float  gvz[fNgmax];    // set to "gvz[20]/F": Vertex Z position of each ancestor particle 
+   int    gpid[fNgmax];   // set to "gpid[20]/I": Particle ID of each ancestor particles
+   int    gmec[fNgmax];   // set to "gmec[20]/I": Particle production mechanism of each ancestor particle 
+   // Next five only present since 11a flux
+   int    gmat[fNgmax];   // set to "gmat[fNgmax]/I": Material in which the particle originates 
+   float  gdistc[fNgmax]; // set to "gdistc[fNgmax]/F": Distance traveled through carbon 
+   float  gdistal[fNgmax]; // set to "gdista[fNgmax]/F": Distance traveled through aluminum
+   float  gdistti[fNgmax];// set to "gdistti[fNgmax]/F": Distance traveled through titanium
+   float  gdistfe[fNgmax];// set to "gdistte[fNgmax]/F": Distance traveled through iron
+   float  Enusk;          // set to "Enusk/F": "Enu" for SK
+   float  normsk;         // set to "normsk/F": "norm" for SK 
+   float  anorm;          // set to "anorm/F": Norm component from ND acceptance calculation
+   // The following do not change per flux entry as is summary info for the flux
+   // file. For simplicity we just store per flux entry and accept the duplication.
+   float  version;        // set to "version/F": Jnubeam version
+   int    tuneid;         // set to "tuneid/I": Parameter set identifier
+   int    ntrig;          // set to "ntrig/I": Number of Triggers in simulation
+   int    pint;           // set to "pint/I": Interaction model ID
+   float  bpos[2];        // set to "bpos[2]/F": Beam center position
+   float  btilt[2];       // set to "btilt[2]/F": Beam Direction
+   float  brms[2];        // set to "brms[2]/F": Beam RMS Width
+   float  emit[2];        // set to "emit[2]/F": Beam Emittance 
+   float  alpha[2];       // set to "alpha[2]/F": Beam alpha parameter
+   float  hcur[3];        // set to "hcur[3]/F": Horns 1, 2 and 3 Currents
+   int    rand;           // set to "rand/I": Random seed
+   int    rseed[2];          // set to "rseed/I": Random seed
 
-ClassDef(GJPARCNuFluxPassThroughInfo,2)
+ClassDef(GJPARCNuFluxPassThroughInfo,3)
 };
 
 } // flux namespace

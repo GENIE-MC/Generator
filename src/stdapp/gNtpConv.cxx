@@ -207,7 +207,6 @@ int gFileRevisVrs = -1;
 
 //consts
 const int kNPmax = 100;
-
 //____________________________________________________________________________________
 int main(int argc, char ** argv)
 {
@@ -1635,25 +1634,58 @@ void ConvertToGRooTracker(void)
   //
   // >> info available at the t2k rootracker variance only
   //
+  TObjString* brNuFileName = 0;           // flux file name
+  long        brNuFluxEntry;              // entry number from flux file
 
   // neutrino parent info (passed-through from the beam-line MC / quantities in 'jnubeam' units)
-  int         brNuParentPdg;              // Parent hadron pdg code
-  int         brNuParentDecMode;          // Parent hadron decay mode
-  double      brNuParentDecP4 [4];        // Parent hadron 4-momentum at decay 
-  double      brNuParentDecX4 [4];        // Parent hadron 4-position at decay
-  double      brNuParentProP4 [4];        // Parent hadron 4-momentum at production
-  double      brNuParentProX4 [4];        // Parent hadron 4-position at production
-  int         brNuParentProNVtx;          // Parent hadron vtx id
+  int         brNuParentPdg;              // parent hadron pdg code
+  int         brNuParentDecMode;          // parent hadron decay mode
+  float       brNuParentDecP4 [4];        // parent hadron 4-momentum at decay 
+  float       brNuParentDecX4 [4];        // parent hadron 4-position at decay
+  float       brNuParentProP4 [4];        // parent hadron 4-momentum at production
+  float       brNuParentProX4 [4];        // parent hadron 4-position at production
+  int         brNuParentProNVtx;          // parent hadron vtx id
   // variables added since 10a flux compatibility changes
-  long        brNuFluxEntry;              // Entry number from flux file
-  int         brNuIdfd;                   // Detector location id
-  double      brNuCospibm;                // Cosine of the angle between the parent particle direction and the beam direction
-  double      brNuCospi0bm;               // Same as above except at the production of the parent particle 
-  int         brNuGipart;                 // Primary particle ID
-  double      brNuGpos0[3];               // Primary particle starting point
-  double      brNuGvec0[3];               // Primary particle direction at the starting point
-  double      brNuGamom0;                 // Momentum of the primary particle at the starting point
-    
+  int         brNuIdfd;                   // detector location id
+  float       brNuCospibm;                // cosine of the angle between the parent particle direction and the beam direction
+  float       brNuCospi0bm;               // same as above except at the production of the parent particle 
+  int         brNuGipart;                 // primary particle ID
+  float       brNuGpos0[3];               // primary particle starting point
+  float       brNuGvec0[3];               // primary particle direction at the starting point
+  float       brNuGamom0;                 // momentum of the primary particle at the starting point
+  // variables added since 10d and 11a flux compatibility changes
+  float       brNuRnu;                    // neutrino r position at ND5/6 plane
+  float       brNuXnu[2];                 // neutrino (x,y) position at ND5/6 plane
+  // interation history information
+  int         brNuNg;                     // number of parents (number of generations) 
+  int         brNuGpid[flux::fNgmax];     // particle ID of each ancestor particles
+  int         brNuGmec[flux::fNgmax];     // particle production mechanism of each ancestor particle
+  float       brNuGcosbm[flux::fNgmax];   // ancestor particle cos(theta) relative to beam
+  float       brNuGv[flux::fNgmax][3];    // X,Y and Z vertex position of each ancestor particle
+  float       brNuGp[flux::fNgmax][3];    // Px,Px and Pz directional momentum of each ancestor particle
+  // out-of-target secondary interactions
+  int         brNuGmat[flux::fNgmax];     // material in which the particle originates 
+  float       brNuGdistc[flux::fNgmax];   // distance traveled through carbon
+  float       brNuGdistal[flux::fNgmax];  // distance traveled through aluminum
+  float       brNuGdistti[flux::fNgmax];  // distance traveled through titanium
+  float       brNuGdistfe[flux::fNgmax];  // distance traveled through iron
+  
+  float       brNuNorm;                   // normalisation weight (makes no sense to apply this when generating unweighted events) 
+  float       brNuEnusk;                  // "Enu" for SK
+  float       brNuNormsk;                 // "norm" for SK
+  float       brNuAnorm;                  // Norm component from ND acceptance calculation
+  float       brNuVersion;                // Jnubeam version
+  int         brNuNtrig;                  // Number of Triggers in simulation
+  int         brNuTuneid;                 // Parameter set identifier
+  int         brNuPint;                   // Interaction model ID
+  float       brNuBpos[2];                // Beam center position
+  float       brNuBtilt[2];               // Beam Direction
+  float       brNuBrms[2];                // Beam RMS Width
+  float       brNuEmit[2];                // Beam Emittance
+  float       brNuAlpha[2];               // Beam alpha parameter
+  float       brNuHcur[3];                // Horns 1, 2 and 3 Currents 
+  int         brNuRand;                   // Random seed
+  int         brNuRseed[2];                  // Random seed
   // codes for T2K cross-generator comparisons 
   int         brNeutCode;                 // NEUT-like reaction code for the GENIE event
 
@@ -1793,26 +1825,57 @@ void ConvertToGRooTracker(void)
   // extra branches of the t2k rootracker variance
   if(gOptOutFileFormat == kConvFmt_t2k_rootracker) 
   {
-    // JNUBEAM pass-through info
-    rootracker_tree->Branch("NuParentPdg",     &brNuParentPdg,     "NuParentPdg/I");       
-    rootracker_tree->Branch("NuParentDecMode", &brNuParentDecMode, "NuParentDecMode/I");   
-    rootracker_tree->Branch("NuParentDecP4",    brNuParentDecP4,   "NuParentDecP4[4]/D");     
-    rootracker_tree->Branch("NuParentDecX4",    brNuParentDecX4,   "NuParentDecX4[4]/D");     
-    rootracker_tree->Branch("NuParentProP4",    brNuParentProP4,   "NuParentProP4[4]/D");     
-    rootracker_tree->Branch("NuParentProX4",    brNuParentProX4,   "NuParentProX4[4]/D");     
-    rootracker_tree->Branch("NuParentProNVtx", &brNuParentProNVtx, "NuParentProNVtx/I");   
-    // Branches added since JNUBEAM '10a' compatibility changes
-    rootracker_tree->Branch("NuFluxEntry",     &brNuFluxEntry,     "NuFluxEntry/I");
-    rootracker_tree->Branch("NuIdfd",          &brNuIdfd,          "NuIdfd/I");
-    rootracker_tree->Branch("NuCospibm",       &brNuCospibm,       "NuCospibm/D");
-    rootracker_tree->Branch("NuCospi0bm",      &brNuCospi0bm,      "NuCospi0bm/D");
-    rootracker_tree->Branch("NuGipart",        &brNuGipart,        "NuGipart/I");
-    rootracker_tree->Branch("NuGpos0",          brNuGpos0,         "NuGpos0[3]/D");
-    rootracker_tree->Branch("NuGvec0",          brNuGvec0,         "NuGvec0[3]/D");
-    rootracker_tree->Branch("NuGamom0",        &brNuGamom0,        "NuGamom0/D");
-
     // NEUT-like reaction code
     rootracker_tree->Branch("G2NeutEvtCode",   &brNeutCode,        "G2NeutEvtCode/I");   
+    // JNUBEAM pass-through info
+    rootracker_tree->Branch("NuFileName", "TObjString", &brNuFileName, 32000, 1); 
+    rootracker_tree->Branch("NuParentPdg",     &brNuParentPdg,     "NuParentPdg/I");       
+    rootracker_tree->Branch("NuParentDecMode", &brNuParentDecMode, "NuParentDecMode/I");   
+    rootracker_tree->Branch("NuParentDecP4",    brNuParentDecP4,   "NuParentDecP4[4]/F");     
+    rootracker_tree->Branch("NuParentDecX4",    brNuParentDecX4,   "NuParentDecX4[4]/F");     
+    rootracker_tree->Branch("NuParentProP4",    brNuParentProP4,   "NuParentProP4[4]/F");     
+    rootracker_tree->Branch("NuParentProX4",    brNuParentProX4,   "NuParentProX4[4]/F");     
+    rootracker_tree->Branch("NuParentProNVtx", &brNuParentProNVtx, "NuParentProNVtx/I");   
+    // Branches added since JNUBEAM '10a' compatibility changes
+    rootracker_tree->Branch("NuFluxEntry",     &brNuFluxEntry,     "NuFluxEntry/L");
+    rootracker_tree->Branch("NuIdfd",          &brNuIdfd,          "NuIdfd/I");
+    rootracker_tree->Branch("NuCospibm",       &brNuCospibm,       "NuCospibm/F");
+    rootracker_tree->Branch("NuCospi0bm",      &brNuCospi0bm,      "NuCospi0bm/F");
+    rootracker_tree->Branch("NuGipart",        &brNuGipart,        "NuGipart/I");
+    rootracker_tree->Branch("NuGpos0",          brNuGpos0,         "NuGpos0[3]/F");
+    rootracker_tree->Branch("NuGvec0",          brNuGvec0,         "NuGvec0[3]/F");
+    rootracker_tree->Branch("NuGamom0",        &brNuGamom0,        "NuGamom0/F");
+    // Branches added since JNUBEAM '10d' compatibility changes
+    rootracker_tree->Branch("NuXnu",        brNuXnu, "NuXnu[2]/F");
+    rootracker_tree->Branch("NuRnu",       &brNuRnu,      "NuRnu/F");
+    rootracker_tree->Branch("NuNg",        &brNuNg,       "NuNg/I");
+    rootracker_tree->Branch("NuGpid",       brNuGpid,     "NuGpid[NuNg]/I");
+    rootracker_tree->Branch("NuGmec",       brNuGmec,     "NuGmec[NuNg]/I");
+    rootracker_tree->Branch("NuGv",         brNuGv,       "NuGv[NuNg][3]/F");
+    rootracker_tree->Branch("NuGp",         brNuGp,       "NuGp[NuNg][3]/F");
+    rootracker_tree->Branch("NuGcosbm",     brNuGcosbm,   "NuGcosbm[NuNg]/F");
+    rootracker_tree->Branch("NuGmat",       brNuGmat,     "NuGmat[NuNg]/I");
+    rootracker_tree->Branch("NuGdistc",     brNuGdistc,   "NuGdistc[NuNg]/F");
+    rootracker_tree->Branch("NuGdistal",    brNuGdistal,  "NuGdistal[NuNg]/F");
+    rootracker_tree->Branch("NuGdistti",    brNuGdistti,  "NuGdistti[NuNg]/F");
+    rootracker_tree->Branch("NuGdistfe",    brNuGdistfe,  "NuGdistfe[NuNg]/F");
+    rootracker_tree->Branch("NuNorm",      &brNuNorm,     "NuNorm/F");
+    rootracker_tree->Branch("NuEnusk",     &brNuEnusk,    "NuEnusk/F");
+    rootracker_tree->Branch("NuNormsk",    &brNuNormsk,   "NuNormsk/F");
+    rootracker_tree->Branch("NuAnorm",     &brNuAnorm,    "NuAnorm/F");
+    rootracker_tree->Branch("NuVersion",   &brNuVersion,  "NuVersion/F");
+    rootracker_tree->Branch("NuNtrig",     &brNuNtrig,    "NuNtrig/I");
+    rootracker_tree->Branch("NuTuneid",    &brNuTuneid,   "NuTuneid/I");
+    rootracker_tree->Branch("NuPint",      &brNuPint,     "NuPint/I");
+    rootracker_tree->Branch("NuBpos",       brNuBpos,     "NuBpos[2]/F");
+    rootracker_tree->Branch("NuBtilt",      brNuBtilt,    "NuBtilt[2]/F");
+    rootracker_tree->Branch("NuBrms",       brNuBrms,     "NuBrms[2]/F");
+    rootracker_tree->Branch("NuEmit",       brNuEmit,     "NuEmit[2]/F");
+    rootracker_tree->Branch("NuAlpha",      brNuAlpha,    "NuAlpha[2]/F");
+    rootracker_tree->Branch("NuHcur",       brNuHcur,     "NuHcur[3]/F");
+    rootracker_tree->Branch("NuRand",      &brNuRand,     "NuRand/I");
+    rootracker_tree->Branch("NuRseed",      brNuRseed,    "NuRseed[2]/I");
+
   }
 
   // extra branches of the numi rootracker variance
@@ -1964,8 +2027,9 @@ void ConvertToGRooTracker(void)
     //
     // clear output tree branches
     //
-
+    if(brEvtFlags) delete brEvtFlags;
     brEvtFlags  = 0;
+    if(brEvtCode) delete brEvtCode;
     brEvtCode   = 0;
     brEvtNum    = 0;    
     brEvtXSec   = 0;
@@ -2003,15 +2067,48 @@ void ConvertToGRooTracker(void)
     brNuParentProNVtx = 0;     
     brNeutCode = 0;     
     brNuFluxEntry = -1;
-    brNuIdfd = 0;
-    brNuCospibm = -999.999;
-    brNuCospi0bm = -999.999;
+    brNuIdfd = -999999;
+    brNuCospibm = -999999.;
+    brNuCospi0bm = -999999.;
     brNuGipart = -1;
-    brNuGamom0 = -999.999;   
+    brNuGamom0 = -999999.;   
     for(int k=0; k< 3; k++){
-      brNuGvec0[k] = 0.;
-      brNuGpos0[k] = -999.999;
+      brNuGvec0[k] = -999999.;
+      brNuGpos0[k] = -999999.;
     }    
+    // variables added since 10d flux compatibility changes
+    for(int k=0; k<2; k++) {
+      brNuXnu[k] = brNuBpos[k] = brNuBtilt[k] = brNuBrms[k] = brNuEmit[k] = brNuAlpha[k] = -999999.; 
+      brNuRseed[k] = -999999;
+    }
+    for(int k=0; k<3; k++) brNuHcur[k] = -999999.; 
+    for(int np = 0; np < flux::fNgmax; np++){
+        for(int  k=0; k<3; k++){
+          brNuGv[np][k] = -999999.;
+          brNuGp[np][k] = -999999.;
+        }
+      brNuGpid[np] = -999999;
+      brNuGmec[np] = -999999;
+      brNuGmat[np] = -999999;
+      brNuGcosbm[np]  = -999999.;
+      brNuGdistc[np]  = -999999.;
+      brNuGdistal[np] = -999999.;
+      brNuGdistti[np] = -999999.;
+      brNuGdistfe[np] = -999999.;
+    }  
+    brNuNg     = -999999;
+    brNuRnu    = -999999.;
+    brNuNorm   = -999999.;
+    brNuEnusk  = -999999.;
+    brNuNormsk = -999999.;
+    brNuAnorm  = -999999.;
+    brNuVersion= -999999.;
+    brNuNtrig  = -999999;
+    brNuTuneid = -999999;
+    brNuPint   = -999999;
+    brNuRand = -999999;
+    if(brNuFileName) delete brNuFileName;
+    brNuFileName = 0;
 
     //
     // copy current event info to output tree
@@ -2116,6 +2213,46 @@ void ConvertToGRooTracker(void)
             brNuGpos0[k] = (double) jnubeam_flux_info->gpos0[k];
             brNuGvec0[k] = (double) jnubeam_flux_info->gvec0[k];
         }
+        // Copy info added post JNUBEAM '10d' compatibility changes 
+        brNuXnu[0] = (double) jnubeam_flux_info->xnu;
+        brNuXnu[1] = (double) jnubeam_flux_info->ynu;
+        brNuRnu    = (double) jnubeam_flux_info->rnu; 
+        for(int k=0; k<2; k++){
+          brNuBpos[k] = (double) jnubeam_flux_info->bpos[k];
+          brNuBtilt[k] = (double) jnubeam_flux_info->btilt[k];
+          brNuBrms[k] = (double) jnubeam_flux_info->brms[k];
+          brNuEmit[k] = (double) jnubeam_flux_info->emit[k];
+          brNuAlpha[k] = (double) jnubeam_flux_info->alpha[k];
+          brNuRseed[k]  = jnubeam_flux_info->rseed[k];
+        } 
+        for(int k=0; k<3; k++) brNuHcur[k] = jnubeam_flux_info->hcur[k]; 
+        for(int np = 0; np < flux::fNgmax; np++){
+          brNuGv[np][0] = jnubeam_flux_info->gvx[np];
+          brNuGv[np][1] = jnubeam_flux_info->gvy[np];
+          brNuGv[np][2] = jnubeam_flux_info->gvz[np];
+          brNuGp[np][0] = jnubeam_flux_info->gpx[np];
+          brNuGp[np][1] = jnubeam_flux_info->gpy[np];
+          brNuGp[np][2] = jnubeam_flux_info->gpz[np];
+          brNuGpid[np]  = jnubeam_flux_info->gpid[np];
+          brNuGmec[np]  = jnubeam_flux_info->gmec[np];
+          brNuGcosbm[np]  = jnubeam_flux_info->gcosbm[np];
+          brNuGmat[np]    = jnubeam_flux_info->gmat[np];
+          brNuGdistc[np]  = jnubeam_flux_info->gdistc[np];
+          brNuGdistal[np] = jnubeam_flux_info->gdistal[np];
+          brNuGdistti[np] = jnubeam_flux_info->gdistti[np];
+          brNuGdistfe[np] = jnubeam_flux_info->gdistfe[np];
+        }  
+        brNuNg     = jnubeam_flux_info->ng;
+        brNuNorm   = jnubeam_flux_info->norm;
+        brNuEnusk  = jnubeam_flux_info->Enusk;
+        brNuNormsk = jnubeam_flux_info->normsk;
+        brNuAnorm  = jnubeam_flux_info->anorm;
+        brNuVersion= jnubeam_flux_info->version;
+        brNuNtrig  = jnubeam_flux_info->ntrig;
+        brNuTuneid = jnubeam_flux_info->tuneid;
+        brNuPint   = jnubeam_flux_info->pint;
+        brNuRand   = jnubeam_flux_info->rand;
+        brNuFileName = new TObjString(jnubeam_flux_info->fluxfilename.c_str()); 
       }//jnubeam_flux_info
 #endif
     }//kConvFmt_t2k_rootracker
