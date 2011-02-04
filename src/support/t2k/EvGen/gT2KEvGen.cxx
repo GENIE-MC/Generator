@@ -436,19 +436,21 @@ int main(int argc, char ** argv)
             new geometry::ROOTGeomAnalyzer(gOptRootGeom);
     rgeom -> SetLengthUnits  (gOptGeomLUnits);
     rgeom -> SetDensityUnits (gOptGeomDUnits);
-    rgeom -> SetTopVolName   (gOptRootGeomTopVol);
-    // getting the bounding box dimensions along z so as to set the
-    // appropriate upstream generation surface for the JPARC flux driver
+    // getting the bounding box dimensions, before setting topvolume,
+    // along z so as to set the appropriate upstream generation surface
+    // for the JPARC flux driver
     TGeoVolume * topvol = rgeom->GetGeometry()->GetTopVolume();
-    if(!topvol) {
-      LOG("gT2Kevgen", pFATAL) << "Null top ROOT geometry volume!";
-      exit(1);
-    }
     TGeoShape * bounding_box = topvol->GetShape();
     bounding_box->GetAxisRange(3, zmin, zmax);
     zmin *= rgeom->LengthUnits();
     zmax *= rgeom->LengthUnits();
-
+    // now update to the requested topvolume for use in recursive exhaust method
+    rgeom -> SetTopVolName   (gOptRootGeomTopVol);
+    topvol = rgeom->GetGeometry()->GetTopVolume();
+    if(!topvol) {
+      LOG("gT2Kevgen", pFATAL) << "Null top ROOT geometry volume!";
+      exit(1);
+    }
     // switch on/off volumes as requested
     if ( (gOptRootGeomTopVol[0] == '+') || (gOptRootGeomTopVol[0] == '-') ) {
       bool exhaust = (*gOptRootGeomTopVol.c_str() == '+');
@@ -696,8 +698,6 @@ int main(int argc, char ** argv)
 
   genie::utils::T2KEvGenMetaData * metadata = new genie::utils::T2KEvGenMetaData;
 
-  metadata -> jnubeam_version    = ((gOptUsingHistFlux) ? 
-                                    "" : jparc_flux_driver->FluxVersion());
   metadata -> jnubeam_file       = gOptFluxFile;
   metadata -> detector_location  = gOptDetectorLocation;
   metadata -> geom_file          = gOptRootGeom;
