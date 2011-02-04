@@ -77,6 +77,11 @@
    GeomVolSelector, if any) but to get it by default as it is costly.  
    Fill the PathSegment medium and material upon entry along with volume name, 
    not at exit.
+ @ February 4, 2011 - JD
+   Change the way the topvolume is matched in SetTopVolName(string name). 
+   Previously used TString::Contains("vol2match") which did not require the string
+   length to be the same and sometime lead to degeneracies and selection of 
+   incorrect top volume. Bug and fix were found by Kevin Connolly.   
 
 */
 //____________________________________________________________________________
@@ -534,7 +539,7 @@ void ROOTGeomAnalyzer::SetTopVolName(string name)
   const char* volName = fTopVolumeName.c_str();
   while ((node = next())) {
     nodeName = node->GetVolume()->GetName();
-    if (nodeName.Contains(volName)) {
+    if (nodeName == volName) {
       if (fMasterToTop) delete fMasterToTop;
       fMasterToTop = new TGeoHMatrix(*next.GetCurrentMatrix());
       fMasterToTopIsIdentity = fMasterToTop->IsIdentity();
