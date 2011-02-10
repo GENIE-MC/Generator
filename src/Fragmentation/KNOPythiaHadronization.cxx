@@ -5,11 +5,14 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - August 17, 2004
+         STFC, Rutherford Appleton Laboratory 
 
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
+ @ Feb 10, 2011
+   Fixed a bug reported by Torben Ferber affecting the KNO -> PYTHIA
+   model transition (the order was reversed!)
 
 */
 //____________________________________________________________________________
@@ -143,7 +146,7 @@ const HadronizationModelI * KNOPythiaHadronization::SelectHadronizer(
       // Transition window
       double R = rnd->RndHadro().Rndm();
       double f = (W-fWminTrWindow)/(fWmaxTrWindow-fWminTrWindow);
-      if(R<f) hadronizer = fKNOHadronizer;
+      if(R>f) hadronizer = fKNOHadronizer;
       else    hadronizer = fPythiaHadronizer;
     }
     break;
