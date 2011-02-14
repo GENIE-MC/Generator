@@ -62,6 +62,7 @@
 
 #include <string>
 #include <vector>
+#include <cassert>
 
 #include <TFile.h>
 #include <TNtupleD.h>
