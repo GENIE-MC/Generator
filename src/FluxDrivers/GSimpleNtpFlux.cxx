@@ -47,8 +47,9 @@ using std::endl;
 #include "TRegexp.h"
 #include "TString.h"
 
-/// RWH!!! until it is debugged
-#define __GENIE_LOW_LEVEL_MESG_ENABLED__
+//#define __GENIE_LOW_LEVEL_MESG_ENABLED__
+// next line won't work for NOvA: ROOT's Error() != DefaultErrorHandler
+//#define USE_INDEX_FOR_META 
 
 using namespace genie;
 using namespace genie::flux;
@@ -182,10 +183,32 @@ bool GSimpleNtpFlux::GenerateNext_weighted(void)
     UInt_t metakey = fCurEntry->metakey;
     if ( fAllFilesMeta && ( fCurMeta->metakey != metakey ) ) {
       UInt_t oldkey = fCurMeta->metakey;
+#ifdef USE_INDEX_FOR_META
       int nbmeta = fNuMetaTree->GetEntryWithIndex(metakey);
+#else
+      // unordered indices makes ROOT call Error() which might,
+      // if not DefaultErrorHandler, be fatal.
+      // so find the right one by a simple linear search.
+      // not a large burden since it only happens infrequently and
+      // the list is normally quite short.
+      int nmeta = fNuMetaTree->GetEntries();
+      int nbmeta = 0;
+      for (int imeta = 0; imeta < nmeta; ++imeta ) {
+        nbmeta = fNuMetaTree->GetEntry(imeta);
+        if ( fCurMeta->metakey == metakey ) break;
+      }
+      // next condition should never happen
+      if ( fCurMeta->metakey != metakey ) {
+        fCurMeta = 0; // didn't find it!?
+        LOG("Flux",pERROR) << "Failed to find right metakey=" << metakey
+                           << " (was " << oldkey << ") out of " << nmeta 
+                           << " entries";
+      }
+#endif
       LOG("Flux",pDEBUG) << "Get meta " << metakey 
                          << " (was " << oldkey << ") "
-                         << fCurMeta->metakey << " nb " << nbmeta;
+                         << fCurMeta->metakey 
+                         << " nb " << nbytes << " " << nbmeta;
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
       LOG("Flux",pDEBUG) << "Get meta " << *fCurMeta; 
 #endif
@@ -461,8 +484,10 @@ void GSimpleNtpFlux::ProcessMeta(void)
 
   if ( fAllFilesMeta ) {
     fNuMetaTree->SetBranchAddress("meta",&fCurMeta);
+#ifdef USE_INDEX_FOR_META
     int nindices = fNuMetaTree->BuildIndex("metakey"); // key used to tie entries to meta data
     LOG("Flux", pDEBUG) << "ProcessMeta() BuildIndex nindices " << nindices;
+#endif
     int nmeta = fNuMetaTree->GetEntries();
     for (int imeta = 0; imeta < nmeta; ++imeta ) {
       fNuMetaTree->GetEntry(imeta);
