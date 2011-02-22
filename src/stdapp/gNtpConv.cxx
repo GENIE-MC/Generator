@@ -1640,10 +1640,10 @@ void ConvertToGRooTracker(void)
   // neutrino parent info (passed-through from the beam-line MC / quantities in 'jnubeam' units)
   int         brNuParentPdg;              // parent hadron pdg code
   int         brNuParentDecMode;          // parent hadron decay mode
-  float       brNuParentDecP4 [4];        // parent hadron 4-momentum at decay 
-  float       brNuParentDecX4 [4];        // parent hadron 4-position at decay
-  float       brNuParentProP4 [4];        // parent hadron 4-momentum at production
-  float       brNuParentProX4 [4];        // parent hadron 4-position at production
+  double      brNuParentDecP4 [4];        // parent hadron 4-momentum at decay 
+  double      brNuParentDecX4 [4];        // parent hadron 4-position at decay
+  double      brNuParentProP4 [4];        // parent hadron 4-momentum at production
+  double      brNuParentProX4 [4];        // parent hadron 4-position at production
   int         brNuParentProNVtx;          // parent hadron vtx id
   // variables added since 10a flux compatibility changes
   int         brNuIdfd;                   // detector location id
@@ -1831,10 +1831,10 @@ void ConvertToGRooTracker(void)
     rootracker_tree->Branch("NuFileName", "TObjString", &brNuFileName, 32000, 1); 
     rootracker_tree->Branch("NuParentPdg",     &brNuParentPdg,     "NuParentPdg/I");       
     rootracker_tree->Branch("NuParentDecMode", &brNuParentDecMode, "NuParentDecMode/I");   
-    rootracker_tree->Branch("NuParentDecP4",    brNuParentDecP4,   "NuParentDecP4[4]/F");     
-    rootracker_tree->Branch("NuParentDecX4",    brNuParentDecX4,   "NuParentDecX4[4]/F");     
-    rootracker_tree->Branch("NuParentProP4",    brNuParentProP4,   "NuParentProP4[4]/F");     
-    rootracker_tree->Branch("NuParentProX4",    brNuParentProX4,   "NuParentProX4[4]/F");     
+    rootracker_tree->Branch("NuParentDecP4",    brNuParentDecP4,   "NuParentDecP4[4]/D");     
+    rootracker_tree->Branch("NuParentDecX4",    brNuParentDecX4,   "NuParentDecX4[4]/D");     
+    rootracker_tree->Branch("NuParentProP4",    brNuParentProP4,   "NuParentProP4[4]/D");     
+    rootracker_tree->Branch("NuParentProX4",    brNuParentProX4,   "NuParentProX4[4]/D");     
     rootracker_tree->Branch("NuParentProNVtx", &brNuParentProNVtx, "NuParentProNVtx/I");   
     // Branches added since JNUBEAM '10a' compatibility changes
     rootracker_tree->Branch("NuFluxEntry",     &brNuFluxEntry,     "NuFluxEntry/L");
