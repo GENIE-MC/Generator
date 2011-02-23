@@ -1874,7 +1874,8 @@ void ConvertToGRooTracker(void)
     rootracker_tree->Branch("NuAlpha",      brNuAlpha,    "NuAlpha[2]/F");
     rootracker_tree->Branch("NuHcur",       brNuHcur,     "NuHcur[3]/F");
     rootracker_tree->Branch("NuRand",      &brNuRand,     "NuRand/I");
-    rootracker_tree->Branch("NuRseed",      brNuRseed,    "NuRseed[2]/I");
+// Remove the following as when dealing with combined flux files it makes no sense
+//    rootracker_tree->Branch("NuRseed",      brNuRseed,    "NuRseed[2]/I");
 
   }
 
