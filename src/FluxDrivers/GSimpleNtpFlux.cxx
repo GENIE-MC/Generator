@@ -9,6 +9,11 @@
 
  For the class documentation see the corresponding header file.
 
+ @ Feb 22, 2011 - JD
+   Implemented dummy versions of the new GFluxI::Clear, GFluxI::Index and 
+   GFluxI::GenerateWeighted methods needed for pre-generation of flux
+   interaction probabilities in GMCJDriver.
+
 */
 //____________________________________________________________________________
 
@@ -594,6 +599,23 @@ void GSimpleNtpFlux::GetFluxWindow(TVector3& p0, TVector3& p1, TVector3& p2) con
 void GSimpleNtpFlux::PrintCurrent(void)
 {
   LOG("Flux", pNOTICE) << "CurrentEntry:" << *fCurEntry;
+}
+//___________________________________________________________________________
+void GSimpleNtpFlux::Clear(Option_t * opt)
+{
+// Dummy clear method needed to conform to GFluxI interface 
+//
+  LOG("Flux", pERROR) <<
+      "No Clear(Option_t * opt) method implemented for opt: "<< opt;
+}
+//___________________________________________________________________________
+void GSimpleNtpFlux::GenerateWeighted(bool gen_weighted)
+{
+// Dummy implementation needed to conform to GFluxI interface
+//
+  LOG("Flux", pERROR) <<
+      "No GenerateWeighted(bool gen_weighted) method implemented for " <<
+      "gen_weighted: " << gen_weighted;
 }
 //___________________________________________________________________________
 void GSimpleNtpFlux::Initialize(void)

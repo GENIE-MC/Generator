@@ -156,6 +156,10 @@
    GetEntryNumber() - current entry # in the TChain.
    GetFileList() - get list of expanded file names used in TChain.
    Also, initialize fFlugg pointer; tweak debug messages and ostream<< op.
+ @ Feb 22, 2011 - JD
+   Implemented dummy versions of the new GFluxI::Clear, GFluxI::Index and 
+   GFluxI::GenerateWeighted methods needed for pre-generation of flux
+   interaction probabilities in GMCJDriver. 
 
 */
 //____________________________________________________________________________
@@ -1111,6 +1115,23 @@ void GNuMIFlux::User2BeamP4 (const TLorentzVector& usrp4,
 void GNuMIFlux::PrintCurrent(void)
 {
   LOG("Flux", pNOTICE) << "CurrentEntry:" << *fCurEntry;
+}
+//___________________________________________________________________________
+void GNuMIFlux::Clear(Option_t * opt)
+{
+// Dummy clear method needed to conform to GFluxI interface 
+//
+  LOG("Flux", pERROR) <<
+      "No Clear(Option_t * opt) method implemented for opt: "<< opt;
+}
+//___________________________________________________________________________
+void GNuMIFlux::GenerateWeighted(bool gen_weighted)
+{
+// Dummy implementation needed to conform to GFluxI interface
+//
+  LOG("Flux", pERROR) <<
+      "No GenerateWeighted(bool gen_weighted) method implemented for " <<
+      "gen_weighted: " << gen_weighted;
 }
 //___________________________________________________________________________
 void GNuMIFlux::Initialize(void)

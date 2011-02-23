@@ -11,6 +11,11 @@
 
  Important revisions after version 2.0.0 :
 
+ @ Feb 22, 2011 - JD
+   Implemented dummy versions of the new GFluxI::Clear, GFluxI::Index and 
+   GFluxI::GenerateWeighted methods needed for pre-generation of flux
+   interaction probabilities in GMCJDriver.
+
 */
 //____________________________________________________________________________
 
@@ -94,6 +99,23 @@ bool GCylindTH1Flux::GenerateNext(void)
              << "Generated neutrino x4: " << utils::print::X4AsString(&fgX4);
 
   return true;
+}
+//___________________________________________________________________________
+void GCylindTH1Flux::Clear(Option_t * opt)
+{
+// Dummy clear method needed to conform to GFluxI interface 
+//
+  LOG("Flux", pERROR) << 
+      "No Clear(Option_t * opt) method implemented for opt: "<< opt;
+}
+//___________________________________________________________________________
+void GCylindTH1Flux::GenerateWeighted(bool gen_weighted)
+{
+// Dummy implementation needed to conform to GFluxI interface
+//
+  LOG("Flux", pERROR) << 
+      "No GenerateWeighted(bool gen_weighted) method implemented for " << 
+      "gen_weighted: " << gen_weighted;
 }
 //___________________________________________________________________________
 void GCylindTH1Flux::Initialize(void)

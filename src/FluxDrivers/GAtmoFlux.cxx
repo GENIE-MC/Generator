@@ -26,6 +26,10 @@
    flux neutrinos generated for sample normalization purposes (note that, in 
    the presence of cuts, this is not the same as the number of flux neutrinos 
    thrown towards the geometry).
+ @ Feb 22, 2011 - JD
+   Implemented dummy versions of the new GFluxI::Clear and GFluxI::Index as 
+   these methods needed for pre-generation of flux interaction probabilities 
+   in GMCJDriver.
 */
 //____________________________________________________________________________
 
@@ -252,6 +256,13 @@ void GAtmoFlux::ForceMaxEnergy(double emax)
 {
   emax = TMath::Max(0., emax);
   fMaxEvCut = emax;
+}
+//___________________________________________________________________________
+void GAtmoFlux::Clear(Option_t * opt)
+{
+// Dummy clear method needed to conform to GFluxI interface 
+//
+  LOG("Flux", pERROR) << "No clear method implemented for option:"<< opt;
 }
 //___________________________________________________________________________
 void GAtmoFlux::GenerateWeighted(bool gen_weighted)

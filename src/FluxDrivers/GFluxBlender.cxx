@@ -7,6 +7,12 @@
 ///          Fermi National Accelerator Laboratory
 ///
 /// \update  2010-10-31 initial version
+///
+/// \update  2011-02-22 - JD
+///   Implemented dummy versions of the new GFluxI::Clear, GFluxI::Index 
+///   and GFluxI::GenerateWeighted methods needed for pre-generation of 
+///   flux interaction probabilities in GMCJDriver.
+///
 ////////////////////////////////////////////////////////////////////////
 #include <math.h>
 #include <iostream>
@@ -107,7 +113,23 @@ bool GFluxBlender::GenerateNext(void)
   }
   return true;
 }
-
+//____________________________________________________________________________
+void GFluxBlender::Clear(Option_t * opt)
+{
+// Dummy clear method needed to conform to GFluxI interface 
+//
+  LOG("FluxBlender", pERROR) <<
+      "No Clear(Option_t * opt) method implemented for opt: "<< opt;
+}
+//____________________________________________________________________________
+void GFluxBlender::GenerateWeighted(bool gen_weighted)
+{
+// Dummy implementation needed to conform to GFluxI interface
+//
+  LOG("FluxBlender", pERROR) <<
+      "No GenerateWeighted(bool gen_weighted) method implemented for " <<
+      "gen_weighted: " << gen_weighted;
+}
 //____________________________________________________________________________
 GFluxI* GFluxBlender::AdoptFluxGenerator(GFluxI* generator)
 {

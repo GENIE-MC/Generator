@@ -52,6 +52,9 @@ public :
   const TLorentzVector & Momentum      (void) { return  fgP4;      }
   const TLorentzVector & Position      (void) { return  fgX4;      }
   bool                   End           (void) { return  false;     }
+  long int               Index         (void) { return -1;         }
+  void                   Clear            (Option_t * opt);
+  void                   GenerateWeighted (bool gen_weighted);
 
   // special setters for this class
   void                   SetDirectionCos (double dx, double dy, double dz);
