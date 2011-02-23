@@ -59,6 +59,18 @@
    Don't use a fixed bin size in ComputeProbScales() as this was causing 
    errors for low energy applications. Addresses a problem reported by
    Joachim Kopp.
+ @ Feb 22, 2011 - JD
+   Added a number of new methods to allow pre-calculation of exact flux 
+   interaction probabilities for a given set of flux neutrinos from the 
+   flux driver. See the comments for the new LoadFluxProbabilities, 
+   SaveFluxProbabilities, PreCalcFluxProbabilities and PreSelectEvents 
+   methods for details. Using these methods mean that there is no need 
+   to generate maximum path lengths as instead use the exact interaction 
+   probabilities to pre-select. This can result in very significant speed 
+   increases (between factor of 5 and ~300) for event generation over complex
+   detector geometries and with realistic flux drivers. See 
+   src/support/t2k/EvGen/gT2KEvGen.cxx for an example of how to use.
+   
 */
 //____________________________________________________________________________
 
@@ -72,6 +84,7 @@
 #include "Conventions/GBuild.h"
 #include "Conventions/Constants.h"
 #include "Conventions/Units.h"
+#include "Conventions/Controls.h"
 #include "EVGCore/EventRecord.h"
 #include "EVGDrivers/GMCJDriver.h"
 #include "EVGDrivers/GEVGDriver.h"
@@ -87,6 +100,7 @@
 #include "PDG/PDGUtils.h"
 #include "Utils/PrintUtils.h"
 #include "Utils/XSecSplineList.h"
+#include "Conventions/Constants.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -109,6 +123,9 @@ GMCJDriver::~GMCJDriver()
     }
   }
   fPmax.clear();
+
+  if(fFluxIntTree) delete fFluxIntTree;
+  if(fFluxIntProbFile) delete fFluxIntProbFile;
 }
 //___________________________________________________________________________
 void GMCJDriver::UseFluxDriver(GFluxI * flux_driver)
@@ -162,7 +179,206 @@ void GMCJDriver::ForceSingleProbScale()
     << "Note: That does not force unweighted event kinematics!";
 }
 //___________________________________________________________________________
-void GMCJDriver::Configure(void)
+void GMCJDriver::PreSelectEvents(bool preselect)
+{
+// Set whether to pre-select events based on a max-path lengths file. This
+// should be turned off if using pre-generated interaction probabilities 
+// calculated from a given flux file.
+  fPreSelect = preselect;
+}
+//___________________________________________________________________________
+bool GMCJDriver::PreCalcFluxProbabilities(void)
+{
+// Loop over complete set of flux entries satisfying input config options 
+// (such as neutrino type) and save the interaction probability in a tree 
+// relating flux index (entry number in input flux tree) to interaction 
+// probability. If a pre-generated flux interaction probability tree has 
+// already been loaded then just returns true. Also save tree to a TFile
+// for use in later jobs if flag is set 
+//
+  bool success = true;
+ 
+  bool save_to_file = fFluxIntProbFile == 0 && fFluxIntFileName.size()>0;
+
+  // check if already loaded flux interaction probs using LoadFluxProbTree
+  if(fFluxIntTree){
+    LOG("GMCJDriver", pNOTICE) << 
+         "Skipping pre-generation of flux interaction probabilities - "<<
+         "using pre-generated file";
+    success = true;
+  }
+  // otherwise create them on the fly now 
+  else {
+
+    if(save_to_file){
+      fFluxIntProbFile = new TFile(fFluxIntFileName.c_str(), "CREATE");
+      if(fFluxIntProbFile->IsZombie()){
+        LOG("GMCJDriver", pFATAL) << "Cannot overwrite an existing file. Exiting!";
+        exit(1);
+      } 
+    } 
+  
+    // Create the tree to store flux probs
+    fFluxIntTree = new TTree(fFluxIntTreeName.c_str(), 
+                         "Tree storing pre-calculated flux interaction probs"); 
+    fFluxIntTree->Branch("FluxIndex", &fBrFluxIndex, "FluxIndex/I");
+    fFluxIntTree->Branch("FluxIntProb", &fBrFluxIntProb, "FluxIntProb/D");
+    fFluxIntTree->Branch("FluxEnu", &fBrFluxEnu, "FluxEnu/D"); 
+    fFluxIntTree->Branch("FluxWeight", &fBrFluxWeight, "FluxWeight/D"); 
+    fFluxIntTree->SetDirectory(0);  
+ 
+    fFluxDriver->GenerateWeighted(true);
+  
+    fGlobPmax = 1.0; // Force ComputeInteractionProbabilities to return absolute value
+  
+    // Loop over flux entries and calculate interaction probabilities
+    TStopwatch stopwatch; 
+    stopwatch.Start();
+    long int first_index = -1;
+    bool first_loop = true;
+    // loop until at end of flux ntuple
+    while(fFluxDriver->End() == false){ 
+
+      // get the next flux neutrino
+      bool gotnext = fFluxDriver->GenerateNext(); 
+      if(!gotnext){
+        LOG("GMCJDriver", pWARN) << "*** Couldn't generate next flux ray! ";
+        continue;
+      }
+
+      // stop if completed a full cycle (this check is necessary as fluxdriver
+      // may be set to loop over more than one cycle before reaching end) 
+      bool already_been_here = first_loop ? false : first_index == fFluxDriver->Index();
+      if(already_been_here) break; 
+   
+      // compute the path lengths for current flux neutrino 
+      if(this->ComputePathLengths() == false){ success = false; break;}
+  
+      // compute and store the interaction probability 
+      double psum = this->ComputeInteractionProbabilities(false /*Based on actual PLs*/);
+      assert(psum+controls::kASmallNum > 0.);
+      fBrFluxIntProb = psum;
+      fBrFluxIndex   = fFluxDriver->Index();
+      fBrFluxEnu     = fFluxDriver->Momentum().E();
+      fBrFluxWeight  = fFluxDriver->Weight();
+      fFluxIntTree->Fill();
+
+      // store the first index so know when have cycled exactly once
+      if(first_loop){
+        first_index = fFluxDriver->Index();
+        first_loop = false;
+      }
+    } // flux loop
+    stopwatch.Stop();            
+    LOG("GMCJDriver", pNOTICE)
+                    << "Finished pre-calculating flux interaction probabilities. "
+                    << "Total CPU time to process "<< fFluxIntTree->GetEntries()
+                    << " entries: "<< stopwatch.CpuTime();
+
+    // reset the flux driver so can be used at next stage. N.B. This 
+    // should also reset flux driver to throw de-weighted flux neutrinos
+    fFluxDriver->Clear("CycleHistory");
+  }
+
+  // If successfully calculated/loaded interaction probabilities then set global
+  // probability scale and, if requested, save tree to output file
+  if(success){
+    fGlobPmax = 0.0;
+    double safety_factor = 1.01;
+    for(int i = 0; i< fFluxIntTree->GetEntries(); i++){
+      fFluxIntTree->GetEntry(i);
+      fGlobPmax = TMath::Max(fGlobPmax, fBrFluxIntProb*safety_factor); 
+    }
+    LOG("GMCJDriver", pNOTICE) <<
+        "Updated global probability scale to fGlobPmax = "<< fGlobPmax;
+ 
+
+    if(save_to_file){
+      LOG("GMCJDriver", pNOTICE) <<
+          "Saving pre-generated interaction probabilities to file: "<<
+          fFluxIntProbFile->GetName();
+      fFluxIntProbFile->cd();
+      fFluxIntTree->Write();
+    }
+
+    // Also build index for use later
+    if(fFluxIntTree->BuildIndex("FluxIndex") != fFluxIntTree->GetEntries()){
+      LOG("GMCJDriver", pFATAL) << 
+          "Cannot build index using branch \"FluxIndex\" for flux prob tree!"; 
+      exit(1);
+    } 
+ 
+    // Now that have pre-generated flux probabilities need to trun off event 
+    // preselection as this is only advantages when using max path lengths
+    this->PreSelectEvents(false);
+
+    LOG("GMCJDriver", pNOTICE) << "Successfully generated/loaded pre-calculate flux interaction probabilities";
+  }
+  // Otherwise clean up
+  else if(fFluxIntTree){ 
+    delete fFluxIntTree; 
+    fFluxIntTree = 0;
+  }
+  
+  // Return whether have successfully pre-calculated flux interaction probabilities
+  return success;
+}
+//___________________________________________________________________________
+bool GMCJDriver::LoadFluxProbabilities(string filename)
+{
+// Load a pre-generated set of flux interaction probabilities from an external
+// file. This is recommended when using large flux files (>1M entries) as  
+// for these the time to calculate the interaction probabilities can exceed 
+// ~20 minutes. After loading the input tree we call PreCalcFluxProbabilities
+// to check that has successfully loaded
+//
+  if(fFluxIntProbFile){
+    LOG("GMCJDriver", pWARN) 
+     << "Can't load flux interaction prob file as one is already loaded"; 
+    return false;
+  }
+
+  fFluxIntProbFile = new TFile(filename.c_str(), "OPEN");
+
+  if(fFluxIntProbFile){
+    fFluxIntTree = dynamic_cast<TTree*>(fFluxIntProbFile->Get(fFluxIntTreeName.c_str())); 
+    if(fFluxIntTree){
+      bool set_addresses = 
+        fFluxIntTree->SetBranchAddress("FluxIntProb", &fBrFluxIntProb) >= 0 &&
+        fFluxIntTree->SetBranchAddress("FluxIndex", &fBrFluxIndex) >= 0 &&
+        fFluxIntTree->SetBranchAddress("FluxEnu", &fBrFluxEnu) >= 0; 
+      if(set_addresses){ 
+        // Finally check that can use them
+        if(this->PreCalcFluxProbabilities()) {
+          LOG("GMCJDriver", pNOTICE) 
+           << "Successfully loaded pre-generated flux interaction probabilities";
+          return true;
+        }
+      }
+      // If cannot load then delete tree 
+      LOG("GMCJDriver", pERROR) << 
+          "Cannot find expected branches in input flux probability tree!"; 
+      delete fFluxIntTree; fFluxIntTree = 0; 
+    }
+    else LOG("GMCJDriver", pERROR) 
+          << "Cannot find tree: "<< fFluxIntTreeName.c_str();
+  }
+     
+  LOG("GMCJDriver", pWARN)
+     << "Unable to load flux interaction probabilities file";
+  return false;
+}
+//___________________________________________________________________________
+void GMCJDriver::SaveFluxProbabilities(string outfilename)
+{
+// Configue the flux driver to save the calculated flux interaction
+// probabilities to the specified output file name for use in later jobs. See
+// the LoadFluxProbTree method for how they are fed into a later job. 
+//
+  fFluxIntFileName = outfilename;
+}
+//___________________________________________________________________________
+void GMCJDriver::Configure(bool calc_prob_scales)
 {
   LOG("GMCJDriver", pNOTICE)
      << utils::print::PrintFramedMesg("Configuring GMCJDriver");
@@ -170,10 +386,6 @@ void GMCJDriver::Configure(void)
   // Get the list of neutrino types from the input flux driver and the list
   // of target materials from the input geometry driver
   this->GetParticleLists();
-
-  // Ask the input geometry driver to compute the max. path length for each
-  // material in the list of target materials (or load a precomputed list)
-  this->GetMaxPathLengthList();
 
   // Ask the input GFluxI for the max. neutrino energy (to compute Pmax)
   this->GetMaxFluxEnergy();
@@ -202,10 +414,15 @@ void GMCJDriver::Configure(void)
   // for each possible initial state)
   this->BootstrapXSecSplineSummation();
 
-  // Compute the max. interaction probability to scale all interaction
-  // probabilities to be computed by this driver
-  this->ComputeProbScales();
+  if(calc_prob_scales){
+    // Ask the input geometry driver to compute the max. path length for each
+    // material in the list of target materials (or load a precomputed list)
+    this->GetMaxPathLengthList();
 
+    // Compute the max. interaction probability to scale all interaction
+    // probabilities to be computed by this driver
+    this->ComputeProbScales();
+  }
   LOG("GMCJDriver", pNOTICE) << "Finished configuring GMCJDriver\n\n";
 }
 //___________________________________________________________________________
@@ -224,10 +441,20 @@ void GMCJDriver::InitJob(void)
   fPmax.clear();               // <-- maximum interaction probability per neutrino & per energy bin
 
   fGenerateUnweighted = false; // <-- default opt to generate weighted events
+  fPreSelect          = true;  // <-- default to use pre-selection based on maximum path lengths 
 
   fSelTgtPdg          = 0;
   fCurEvt             = 0;
   fCurVtx.SetXYZT(0.,0.,0.,0.);
+
+  fFluxIntProbFile    = 0; 
+  fFluxIntTreeName    = "gFlxIntProb";
+  fFluxIntFileName    = "";
+  fFluxIntTree        = 0;
+  fBrFluxIntProb      = -1.;
+  fBrFluxIndex        = -1;
+  fBrFluxEnu          = -1.;       
+  fBrFluxWeight       = -1.;
 
   // Throw as many flux neutrinos as necessary till one has interacted
   // so that GenerateEvent() never  returns NULL (except when in error)
@@ -548,7 +775,6 @@ EventRecord * GMCJDriver::GenerateEvent1Try(void)
 // attempt generating a neutrino interaction by firing a single flux neutrino
 //
   RandomGen * rnd = RandomGen::Instance();
-  bool preselect = true;
 
   double Pno=0, Psum=0;
   double R = rnd->RndEvg().Rndm();
@@ -566,8 +792,9 @@ EventRecord * GMCJDriver::GenerateEvent1Try(void)
   // and decide whether the neutrino would interact -- 
   // Many flux neutrinos should be rejected here, drastically reducing 
   // the number of neutrinos that I need to propagate through the 
-  // actual detector geometry
-  if(preselect) {
+  // actual detector geometry (this is skipped when using 
+  // pre-calculated flux interaction probabilities)
+  if(fPreSelect) {
        LOG("GMCJDriver", pNOTICE) 
           << "Computing interaction probabilities for max. path lengths";
 
@@ -589,21 +816,39 @@ EventRecord * GMCJDriver::GenerateEvent1Try(void)
        }
   } // preselect 
 
-  // Compute (pathLength x density x weight fraction) for all materials
-  // in the input geometry, for the neutrino generated by the flux driver
-  bool pl_ok = this->ComputePathLengths();
-  if(!pl_ok) {
-     LOG("GMCJDriver", pERROR) 
-        << "** Rejecting current flux neutrino (err computing path-lengths)";
-     return 0;
-  }
-  if(fCurPathLengths.AreAllZero()) {
-     LOG("GMCJDriver", pNOTICE) 
-        << "** Rejecting current flux neutrino (misses generation volume)";
-     return 0;
+  bool pl_ok = false;
+
+
+  // If possible use pre-generated flux neutrino interaction probabilities 
+  if(fFluxIntTree){
+    Psum = this->PreGenFluxInteractionProbability(); 
+  }         
+  // Else compute them in the usual manner
+  else {
+    // Compute (pathLength x density x weight fraction) for all materials
+    // in the input geometry, for the neutrino generated by the flux driver
+    pl_ok = this->ComputePathLengths();
+    if(!pl_ok) {
+       LOG("GMCJDriver", pERROR) 
+          << "** Rejecting current flux neutrino (err computing path-lengths)";
+       return 0;
+    }
+    if(fCurPathLengths.AreAllZero()) {
+       LOG("GMCJDriver", pNOTICE) 
+          << "** Rejecting current flux neutrino (misses generation volume)";
+       return 0;
+    }
+    Psum = this->ComputeInteractionProbabilities(false /* <- actual PL */);
   }
 
-  Psum = this->ComputeInteractionProbabilities(false /* <- actual PL */);
+
+  if(TMath::Abs(Psum) < controls::kASmallNum){
+    LOG("GMCJDriver", pNOTICE)
+       << "** Rejecting current flux neutrino (has null interaction probability)";
+    return 0;
+  } 
+
+  // Now decide whether the current neutrino interacts
   Pno  = 1-Psum;
   LOG("GMCJDriver", pNOTICE)
      << "The actual 'no interaction' probability is: " << 100*Pno << " %";
@@ -619,8 +864,28 @@ EventRecord * GMCJDriver::GenerateEvent1Try(void)
   }
 
   //
-  // The flux neutrino interacts! Select a target material
+  // The flux neutrino interacts! 
   //
+
+  // Calculate path lengths for first time and check potential mismatch if 
+  // used pre-generated flux interaction probabilities
+  if(fFluxIntTree){
+    pl_ok = this->ComputePathLengths(); 
+    if(!pl_ok) { 
+      LOG("GMCJDriver", pFATAL) << "** Cannot calculate path lenths!"; 
+      exit(1); 
+    }  
+    double Psum_curr = this->ComputeInteractionProbabilities(false /* <- actual PL */);
+    bool mismatch = TMath::Abs(Psum-Psum_curr) > controls::kASmallNum;    
+    if(mismatch){
+      LOG("GMCJDriver", pFATAL) << 
+          "** Mismatch between pre-calculated and current interaction "<<
+          "probabilities!";
+      exit(1);
+    }
+  }
+
+  // Select a target material
   fSelTgtPdg = this->SelectTargetMaterial(R);
   if(fSelTgtPdg==0) {
      LOG("GMCJDriver", pERROR) 
@@ -927,5 +1192,51 @@ double GMCJDriver::InteractionProbability(double xsec, double pL, int A)
   pL   = pL   * ((units::kilogram/units::m2)/(units::gram/units::cm2));
 
   return kNA*(xsec*pL)/A;
+}
+//___________________________________________________________________________
+double GMCJDriver::PreGenFluxInteractionProbability()
+{
+// Return the pre-computed interaction probability for the current flux 
+// neutrino index (entry number in flux file). Exit if not possible as 
+// using meaningless interaction probability leads to incorrect physics 
+//
+  if(!fFluxIntTree){
+    LOG("GMCJDriver", pERROR) << 
+         "Cannot get pre-computed flux interaction probability as no tree!";
+    exit(1);
+  }
+
+  assert(fFluxDriver->Index() >= 0); // Check trying to find meaningfull index
+
+  // Check if can find relevant entry and no mismatch in energies -->
+  // using correct pre-gen interaction prob file
+  bool found_entry = fFluxIntTree->GetEntryWithIndex(fFluxDriver->Index()) > 0;
+  bool enu_match = false;
+  if(found_entry){
+    assert(fBrFluxEnu > controls::kASmallNum); // protect against zero division
+    double rel_err = (fBrFluxEnu-fFluxDriver->Momentum().E())/fBrFluxEnu;
+    enu_match = TMath::Abs(rel_err)<controls::kASmallNum;
+    if(enu_match == false){
+      LOG("GMCJDriver", pERROR) << 
+           "Mismatch between: Enu_curr  = "<< fFluxDriver->Momentum().E() <<
+           ", Enu_pre_gen = "<< fBrFluxEnu;
+    } 
+  }
+  else {
+    LOG("GMCJDriver", pERROR) << "Cannot find flux entry in interaction prob tree!";
+  }
+
+  // Exit if not successful
+  bool success = found_entry && enu_match;
+  if(!success){
+    LOG("GMCJDriver", pFATAL) << 
+         "Cannot find pre-generated interaction probability! Check you "<<
+         "are using the correct pre-generated interaction prob file "   <<
+         "generated using current flux input file with same input "     <<
+         "config (same geom TopVol, neutrino species list)";
+    exit(1);
+  }
+  assert(fGlobPmax+controls::kASmallNum>0.0);
+  return fBrFluxIntProb/fGlobPmax; 
 }
 //___________________________________________________________________________
