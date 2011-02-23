@@ -71,12 +71,14 @@ public :
   virtual const TLorentzVector & Momentum      (void) { return fgP4;       }
   virtual const TLorentzVector & Position      (void) { return fgX4;       }
   virtual bool                   End           (void) { return false;      }
+  virtual long int               Index         (void) { return -1;         }
+  virtual void                   Clear            (Option_t * opt);
+  virtual void                   GenerateWeighted (bool gen_weighted);
 
   // methods specific to the atmospheric flux drivers
   long int NFluxNeutrinos     (void) const; ///< Number of flux nu's generated. Not the same as the number of nu's thrown towards the geometry (if there are cuts).
   void     ForceMinEnergy     (double emin);
   void     ForceMaxEnergy     (double emax);
-  void     GenerateWeighted   (bool gen_weighted);
   void     SetRadii           (double Rlongitudinal, double Rtransverse);
   void     SetUserCoordSystem (TRotation & rotation); ///< Rotation: Topocentric Horizontal -> User-defined Topocentric Coord System.
   void     SetFluxFile        (int neutrino_pdg, string filename);

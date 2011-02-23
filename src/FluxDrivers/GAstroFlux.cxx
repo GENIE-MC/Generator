@@ -12,6 +12,10 @@
  Important revisions after version 2.0.0 :
  @ Mar 27, 2010 - CA
    This class was first added in 2.7.1.
+ @ Feb 22, 2011 - JD
+   Implemented dummy versions of the new GFluxI::Clear and GFluxI::Index as 
+   these methods needed for pre-generation of flux interaction probabilities 
+   in GMCJDriver. 
 
 */
 //____________________________________________________________________________
@@ -153,6 +157,13 @@ void GAstroFlux::ForceMaxEnergy(double emax)
 {
   emax = TMath::Max(0., emax/units::GeV);
   fMaxEvCut = emax;
+}
+//___________________________________________________________________________
+void GAstroFlux::Clear(Option_t * opt)
+{
+// Dummy clear method needed to conform to GFluxI interface 
+//
+  LOG("Flux", pERROR) << "No clear method implemented for option:"<< opt;
 }
 //___________________________________________________________________________
 void GAstroFlux::GenerateWeighted(bool gen_weighted)

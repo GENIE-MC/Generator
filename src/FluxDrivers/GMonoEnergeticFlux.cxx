@@ -19,6 +19,10 @@
  @ Jul 21, 2009 - RH
    Allow a bit more flexibility by giving the user the option to set the
    neutrino ray's direction cosines and origin.
+ @ Feb 22, 2011 - JD
+   Implemented dummy versions of the new GFluxI::Clear, GFluxI::Index and 
+   GFluxI::GenerateWeighted methods needed for pre-generation of flux
+   interaction probabilities in GMCJDriver.
 
 */
 //____________________________________________________________________________
@@ -80,6 +84,23 @@ bool GMonoEnergeticFlux::GenerateNext(void)
         << "\n x4: " << utils::print::X4AsString(&fgX4);
 
   return true;
+}
+//___________________________________________________________________________
+void GMonoEnergeticFlux::Clear(Option_t * opt)
+{
+// Dummy clear method needed to conform to GFluxI interface 
+//
+  LOG("Flux", pERROR) <<
+      "No Clear(Option_t * opt) method implemented for opt: "<< opt;
+}
+//___________________________________________________________________________
+void GMonoEnergeticFlux::GenerateWeighted(bool gen_weighted)
+{
+// Dummy implementation needed to conform to GFluxI interface
+//
+  LOG("Flux", pERROR) <<
+      "No GenerateWeighted(bool gen_weighted) method implemented for " <<
+      "gen_weighted: " << gen_weighted;
 }
 //___________________________________________________________________________
 void GMonoEnergeticFlux::Initialize(double Ev, const map<int,double> & numap) 

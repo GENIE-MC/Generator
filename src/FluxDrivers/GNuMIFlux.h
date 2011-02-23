@@ -188,6 +188,9 @@ public :
   const TLorentzVector & Momentum      (void) { return  fCurEntry->fgP4User;  }
   const TLorentzVector & Position      (void) { return  fCurEntry->fgX4User;  }
   bool                   End           (void) { return  fEnd;                 }
+  long int               Index         (void) { return  fIEntry;              }
+  void                   Clear            (Option_t * opt);
+  void                   GenerateWeighted (bool gen_weighted);
 
   // Methods specific to the NuMI flux driver,
   // for configuration/initialization of the flux & event generation drivers 

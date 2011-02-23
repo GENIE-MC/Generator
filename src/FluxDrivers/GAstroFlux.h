@@ -142,13 +142,15 @@ public :
   virtual const TLorentzVector & Momentum      (void) { return fgP4;       }
   virtual const TLorentzVector & Position      (void) { return fgX4;       }
   virtual bool                   End           (void) { return false;      }
+  virtual long int               Index         (void) { return -1;         }
+  virtual void                   Clear            (Option_t * opt);
+  virtual void                   GenerateWeighted (bool gen_weighted);
 
   //
   // configuration methods specific to all astrophysical neutrino flux drivers
   //
   void ForceMinEnergy      (double emin);
   void ForceMaxEnergy      (double emax);
-  void GenerateWeighted    (bool gen_weighted);
   void SetDetectorPosition (double latitude, double longitude, double depth, double size);
   void SetRelNuPopulations (double nnue=1, double nnumu=2, double nnutau=0, double nnuebar=1, double nnumubar=2, double nnutaubar=0);
   void SetEnergyPowLawIdx  (double n);
