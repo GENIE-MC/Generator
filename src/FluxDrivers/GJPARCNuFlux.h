@@ -58,11 +58,14 @@ public :
   double                 MaxEnergy     (void) { return  fMaxEv;                }
   bool                   GenerateNext  (void);
   int                    PdgCode       (void) { return  fgPdgC;                }
-  double                 Weight        (void) { return  fNorm;}
+  double                 Weight        (void) { return  fNorm / fMaxWeight;    }
   const TLorentzVector & Momentum      (void) { return  fgP4;                  }
   const TLorentzVector & Position      (void) { return  fgX4;                  }
-  bool                   End           (void) { return  fIEntry >= fNEntries 
-                                                     && fICycle == fNCycles;   }
+  bool                   End           (void) { return  fEntriesThisCycle >= fNEntries 
+                                                     && fICycle == fNCycles && fNCycles > 0;   }
+  long int               Index         (void);                              
+  void                   Clear            (Option_t * opt); 
+  void                   GenerateWeighted (bool gen_weighted = true);
 
   // Methods specific to the JPARC flux driver, 
   // for configuration/initialization of the flux & event generation drivers and
@@ -75,12 +78,13 @@ public :
   void SetFilePOT       (double pot);                          ///< flux file norm is in /N POT/det [ND] or /N POT/cm^2 [FD]. Specify N (typically 1E+21)
   void SetUpstreamZ     (double z0);                           ///< set flux neutrino initial z position (upstream of the detector)
   void SetNumOfCycles   (int n);                               ///< set how many times to cycle through the ntuple (default: 1 / n=0 means 'infinite')
+  void DisableOffset    (void){fUseRandomOffset = false;}      ///< switch off random offset, must be called before LoadBeamSimData to have any effect 
+  void RandomOffset     (void);                                ///< choose a random offset as starting entry in flux ntuple 
 
   double   POT_1cycle     (void);                              ///< flux POT per cycle
   double   POT_curravg    (void);                              ///< current average POT
   long int NFluxNeutrinos (void) const { return fNNeutrinos; } ///< number of flux neutrinos looped so far
   double   SumWeight      (void) const { return fSumWeight;  } ///< intergated weight for flux neutrinos looped so far
-
 
   const GJPARCNuFluxPassThroughInfo & 
      PassThroughInfo(void) { return *fPassThroughInfo; } ///< GJPARCNuFluxPassThroughInfo
@@ -115,6 +119,8 @@ private:
   bool      fIsNDLoc;          ///< input location is a 'near' detector location?
   long int  fNEntries;         ///< number of flux ntuple entries
   long int  fIEntry;           ///< current flux ntuple entry
+  long int  fEntriesThisCycle; ///< keep track of number of entries used so far for this cycle   
+  long int  fOffset;           ///< start looping at entry fOffset
   double    fNorm;             ///< current flux ntuple normalisation
   double    fMaxWeight;        ///< max flux  neutrino weight in input file for the specified detector location
   double    fFilePOT;          ///< file POT normalization, typically 1E+21
@@ -125,6 +131,9 @@ private:
   long int  fNNeutrinos;       ///< number of flux neutrinos thrown so far
   double    fSumWeightTot1c;   ///< total sum of weights for neutrinos to be thrown / cycle
   long int  fNNeutrinosTot1c;  ///< total number of flux neutrinos to be thrown / cycle
+  bool      fGenerateWeighted; ///< generate weighted/deweighted flux neutrinos (default is false)
+  bool      fUseRandomOffset;  ///< whether set random starting point when looping over flux ntuples
+  bool      fGenNextCalled;    ///< set to true when GenerateNext has been called successfully
 
   GJPARCNuFluxPassThroughInfo * fPassThroughInfo;
 };

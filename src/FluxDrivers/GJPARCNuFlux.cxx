@@ -78,6 +78,16 @@
    Made compatible with 11a version of jnubeam flux. Still compatable with older
    versions. Now set the data members of the pass-through class directly as the
    branch addresses of the input tree to reduce amount of duplicated code. 
+ @ Feb 22, 2011 - JD
+   Added functionality to start looping over input flux file from a random 
+   offset. This is to avoid any potential biases when processing very large 
+   flux files and always starting from the same position. The default is to
+   apply a random offset but this can be switched off using the 
+   GJPARCNuFlux::DisableOffset() method.
+ @ Feb 22, 2011 - JD
+   Implemented the new GFluxI::Clear, GFluxI::Index and GFluxI::GenerateWeighted
+   methods needed so that can be used with the new pre-generation of flux 
+   interaction probabilities methods added to GMCJDriver. 
 
 */
 //____________________________________________________________________________
@@ -91,6 +101,7 @@
 
 #include "Conventions/Units.h"
 #include "Conventions/GBuild.h"
+#include "Conventions/Controls.h"
 #include "FluxDrivers/GJPARCNuFlux.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
@@ -134,25 +145,29 @@ bool GJPARCNuFlux::GenerateNext(void)
 
      if(fNCycles==0) {
        LOG("Flux", pNOTICE) 
-          << "Got flux entry: " << fIEntry 
+          << "Got flux entry: " << this->Index()
           << " - Cycle: "<< fICycle << "/ infinite"; 
      } else {
        LOG("Flux", pNOTICE) 
-          << "Got flux entry: "<< fIEntry 
+          << "Got flux entry: "<< this->Index() 
           << " - Cycle: "<< fICycle << "/"<< fNCycles; 
      }
 
-     // Get fractional weight & decide whether to accept curr flux neutrino
-     double f = this->Weight() / fMaxWeight;
+     // If de-weighting get fractional weight & decide whether to accept curr flux neutrino
+     double f = 1.0;
+     if(fGenerateWeighted == false) f = this->Weight();
      LOG("Flux", pNOTICE) 
         << "Curr flux neutrino fractional weight = " << f;
-     if(f > 1.) {
+     if(f > (1.+controls::kASmallNum)) {
        LOG("Flux", pERROR) 
            << "** Fractional weight = " << f << " > 1 !!";
      }
      double r = (f < 1.) ? rnd->RndFlux().Rndm() : 0;
      bool accept = (r<f);
-     if(accept) return true;
+     if(accept) {
+       fGenNextCalled = true;
+       return true;
+     }
 
      LOG("Flux", pNOTICE) 
        << "** Rejecting current flux neutrino based on the flux weight only";
@@ -175,8 +190,9 @@ bool GJPARCNuFlux::GenerateNext_weighted(void)
      return false;	
   }
 
-  // Read next flux ntuple entry
-  if(fIEntry >= fNEntries) {
+  // Read next flux ntuple entry. Use fEntriesThisCycle to keep track of when
+  // in new cycle as fIEntry can now have an offset
+  if(fEntriesThisCycle >= fNEntries) {
      // Exit if have not found neutrino at specified location for whole cycle
      if(fNDetLocIdFound == 0){
        LOG("Flux", pFATAL)
@@ -185,15 +201,15 @@ bool GJPARCNuFlux::GenerateNext_weighted(void)
        exit(1);
      }
      fNDetLocIdFound = 0; // reset the counter
+     fICycle++;
+     fIEntry=fOffset;
+     fEntriesThisCycle = 0;
      // Run out of entries @ the current cycle.
      // Check whether more (or infinite) number of cycles is requested
-     if(fICycle < fNCycles || fNCycles == 0 ) {
-        fICycle++;
-        fIEntry=0;
-     } else {
-        LOG("Flux", pWARN) 
+     if(fICycle >= fNCycles && fNCycles != 0){
+        LOG("Flux", pWARN)
             << "No more entries in input flux neutrino ntuple";
-        return false;	
+        return false;
      }
   }
 
@@ -202,9 +218,13 @@ bool GJPARCNuFlux::GenerateNext_weighted(void)
   // that may be stored at an extra branch of the output event tree -alongside 
   // with the generated event branch- for use further upstream in the t2k 
   // analysis chain -eg for beam reweighting etc-)
-  fNuFluxTree->GetEntry(fIEntry);
+  bool found_entry = fNuFluxTree->GetEntry(fIEntry) > 0;
+  assert(found_entry);
+  fEntriesThisCycle++;
+  fIEntry = (fIEntry+1) % fNEntries;
   if(fNuFluxSumTree) fNuFluxSumTree->GetEntry(0); // Get entry 0 as only 1 entry in tree
-  fIEntry++;
+
+  // Remember to update fNorm as no longer set to fNuFluxTree branch address
   fNorm = (double) fPassThroughInfo->norm;
 
   // For 'near detector' flux ntuples make sure that the current entry
@@ -226,8 +246,9 @@ bool GJPARCNuFlux::GenerateNext_weighted(void)
   // count the number of times we have neutrinos at specified detector location
   fNDetLocIdFound += 1;
 
+
   // update the sum of weights & number of neutrinos
-  fSumWeight += this->Weight();
+  fSumWeight += this->Weight() * fMaxWeight; // Weight returns fNorm/fMaxWeight
   fNNeutrinos++;
 
   // Convert the current parent paticle decay mode into a neutrino pdg code
@@ -316,7 +337,7 @@ bool GJPARCNuFlux::GenerateNext_weighted(void)
         << "\n x4: " << utils::print::X4AsString(&fgX4);
 #endif
   // Update flux pass through info not set as branch addresses of flux ntuples
-  fPassThroughInfo->fluxentry = fIEntry-1;
+  fPassThroughInfo->fluxentry = fIEntry - 1;
   std::string filename = fNuFluxFile->GetName();
   std::string::size_type start_pos = filename.rfind("/");
   if (start_pos == std::string::npos) start_pos = 0; else ++start_pos;
@@ -364,6 +385,14 @@ double GJPARCNuFlux::POT_curravg(void)
   double cnt1c = (double)fNNeutrinosTot1c;
   double pot  = (cnt/cnt1c) * this->POT_1cycle();
   return pot;
+}
+//___________________________________________________________________________
+long int GJPARCNuFlux::Index(void)
+{ 
+// Return the current flux entry index. If GenerateNext has not yet been 
+// called then return -1. 
+//
+  return fGenNextCalled ? fIEntry-1 : -1;
 }
 //___________________________________________________________________________
 void GJPARCNuFlux::LoadBeamSimData(string filename, string detector_location)
@@ -546,7 +575,7 @@ void GJPARCNuFlux::LoadBeamSimData(string filename, string detector_location)
      fMaxWeight = TMath::Max(fMaxWeight, fNorm); 
      // compare detector location (see GenerateNext_weighted() for details)
      if(fIsNDLoc && fDetLocId!=fPassThroughInfo->idfd) continue;
-     fSumWeightTot1c += this->Weight();
+     fSumWeightTot1c += fNorm;
      fNNeutrinosTot1c++;
   }
   LOG("Flux", pNOTICE) << "Maximum flux weight = " << fMaxWeight;  
@@ -558,6 +587,10 @@ void GJPARCNuFlux::LoadBeamSimData(string filename, string detector_location)
   LOG("Flux", pINFO)
     << "Totals / cycle: #neutrinos = " << fNNeutrinosTot1c 
     << ", Sum{Weights} = " << fSumWeightTot1c;
+
+  if(fUseRandomOffset){
+    this->RandomOffset();  // Random start point when looping over ntuple
+  }
 }
 //___________________________________________________________________________
 void GJPARCNuFlux::SetFluxParticles(const PDGCodeList & particles)
@@ -609,6 +642,51 @@ void GJPARCNuFlux::SetNumOfCycles(int n)
   fNCycles = TMath::Max(0, n);
 }
 //___________________________________________________________________________
+void GJPARCNuFlux::GenerateWeighted(bool gen_weighted)
+{
+// Ignore the flux weights when getting next flux neutrino. Always set to
+// true for unweighted event generation but need option to switch off when
+// using pre-calculated interaction probabilities for each flux ray to speed
+// up event generation.
+  fGenerateWeighted = gen_weighted;
+}
+//___________________________________________________________________________
+void GJPARCNuFlux::RandomOffset()
+{
+// Choose a random number between 0-->fNEntries to set as start point for 
+// looping over flux ntuple. May be necessary when looping over very large 
+// flux files as always starting fromthe same point may introduce biases 
+// (inversely proportional to number of cycles). This method resets the 
+// starting value for fIEntry so must be called before any call to GenerateNext
+// is made.
+//
+  double ran_frac = RandomGen::Instance()->RndFlux().Rndm();
+  long int offset = (long int) floor(ran_frac * fNEntries); 
+  LOG("Flux", pERROR) << "Setting flux driver to start looping over entries "
+                      << "with offset of "<< offset;
+  fIEntry = fOffset = offset;
+}
+//___________________________________________________________________________
+void GJPARCNuFlux::Clear(Option_t * opt)
+{
+// If opt = "CycleHistory" then:
+// Reset all counters and state variables from any previous cycles. This 
+// should be called if, for instance, before event generation this flux
+// driver had been used for pre-calculating interaction probabilities. Does
+// not reset initial state variables such as flux particle types, POTs etc... 
+//
+  if(std::strcmp(opt, "CycleHistory") == 0){
+    // Reset so that generate de-weighted events
+    this->GenerateWeighted(false);
+    // Reset cycle counters
+    fICycle          = 0;
+    fSumWeight       = 0;
+    fNNeutrinos      = 0;
+    fIEntry          = fOffset;
+    fEntriesThisCycle = 0;
+  }
+}
+//___________________________________________________________________________
 void GJPARCNuFlux::Initialize(void)
 {
   LOG("Flux", pNOTICE) << "Initializing GJPARCNuFlux driver";
@@ -628,6 +706,8 @@ void GJPARCNuFlux::Initialize(void)
 
   fNEntries        = 0;
   fIEntry          = 0;
+  fEntriesThisCycle= 0;
+  fOffset          = 0;
   fNorm            = 0.;
   fMaxWeight       = 0;
   fFilePOT         = 0;
@@ -638,6 +718,9 @@ void GJPARCNuFlux::Initialize(void)
   fNNeutrinos      = 0;
   fSumWeightTot1c  = 0;
   fNNeutrinosTot1c = 0;
+  fGenerateWeighted= false;
+  fUseRandomOffset = true;
+  fGenNextCalled   = false;
 
   this->SetDefaults();
   this->ResetCurrent();
@@ -674,6 +757,8 @@ void GJPARCNuFlux::ResetCurrent(void)
 {
 // reset running values of neutrino pdg-code, 4-position & 4-momentum
 // and the input ntuple leaves
+
+  fGenNextCalled = false;
 
   fgPdgC = 0;
   fgP4.SetPxPyPzE (0.,0.,0.,0.);
