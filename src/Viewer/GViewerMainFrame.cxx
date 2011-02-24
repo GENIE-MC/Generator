@@ -4,8 +4,8 @@
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>, Rutherford Lab.
-         October 07, 2004
+ Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+         STFC, Rutherford Appleton Laboratory
 
  For the class documentation see the corresponding header file.
 
@@ -24,8 +24,10 @@
 #include <string>
 #include <vector>
 
-#include <TVirtualX.h>
 #include <TSystem.h>
+#include <TFile.h>
+#include <TTree.h>
+#include <TVirtualX.h>
 #include <TGListBox.h>
 #include <TGComboBox.h>
 #include <TGClient.h>
@@ -45,7 +47,6 @@
 #include <TCanvas.h>
 #include <TGraphAsymmErrors.h>
 #include <TRootEmbeddedCanvas.h>
-#include <TF1.h>
 #include <TLorentzVector.h>
 #include <TLine.h>
 #include <TEllipse.h>
@@ -56,10 +57,10 @@
 #include "EVGCore/EventRecord.h"
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
-#include "Utils/XSecSplineList.h"
-#include "Viewer/GHepDrawer.h"
-#include "Viewer/GHepPrinter.h"
+#include "Ntuple/NtpMCTreeHeader.h"
+#include "Ntuple/NtpMCEventRecord.h"
 #include "Viewer/GViewerMainFrame.h"
+#include "Viewer/MCTruthDisplay.h"
 
 using std::ostringstream;
 using std::setprecision;
@@ -67,289 +68,226 @@ using std::string;
 using std::vector;
 
 using namespace genie;
+using namespace genie::gview;
 
 ClassImp(GViewerMainFrame)
-
-const char * neutrinos[] = {
-   "nu_e", "nu_mu", "nu_tau", "nu_e_bar", "nu_mu_bar", "nu_tau_bar", 0 };
-const int neutrino_pdg[] = { 
-    12, 14, 16, -12, -14, -16, 0 };
 
 //______________________________________________________________________________
 GViewerMainFrame::GViewerMainFrame(const TGWindow * p, UInt_t w, UInt_t h) :
 TGMainFrame(p, w, h)
 {
-  _main = new TGMainFrame(p,w,h);
-  _main->Connect(
-        "CloseWindow()", "genie::GViewerMainFrame", this, "Close()");
+  this->Init();
+  this->BuildGUI(p,w,h);
+  this->BuildHelpers();
+}
+//______________________________________________________________________________
+void GViewerMainFrame::Init(void)
+{
+   fMain                = 0;
+   fImgButtonGroupFrame = 0;
+   fMainFrame           = 0;
+   fUpperFrame          = 0;
+   fLowerFrame          = 0;
+   fViewerTabs          = 0;
+   fFeynmanTab          = 0;
+   fGHepTab             = 0;
+   fEmbeddedCanvas      = 0;
+   fGHep                = 0;
+   fStatusBar           = 0;
+   fFeynmanTabLayout    = 0;
+   fGHepTabLayout       = 0;
+   fStatusBarLayout     = 0;
+   fViewerTabsLayout    = 0;
+   fButtonMatrixLayout  = 0;
+   fFileOpenButton      = 0;
+   fNextEventButton     = 0;
+   fExitButton          = 0;
+   fViewTabWidth        = 0;
+   fViewTabHeight       = 0;
+   
+   fTruthDisplay = 0;
+   
+   fEventFilename = "";
+   fEventFile     = 0;
+   fGHepTree      = 0;
+   fMCRecord      = 0;
+   fNuOfEvents    = 0;
+   fCurrEventNu   = 0;
 
-  //-- define TGLayoutHints
-  this->DefineLayoutHints();
+}
+//______________________________________________________________________________
+void GViewerMainFrame::BuildGUI(const TGWindow * p, UInt_t w, UInt_t h)
+{
+  fMain = new TGMainFrame(p,w,h);
 
-  //-- instantiate main frames (below menu & above the status bar)
+  fMain->Connect(
+     "CloseWindow()", "genie::GViewerMainFrame", this, "Close()");
 
-  fMainFrame  = new TGCompositeFrame(_main,      1, 1, kVerticalFrame);
-  fUpperFrame = new TGCompositeFrame(fMainFrame, 3, 3, kHorizontalFrame);
-  fLowerFrame = new TGCompositeFrame(fMainFrame, 3, 3, kHorizontalFrame);
+  this->BuildMainFrames();
 
-  //-- UPPER FRAME: add image buttons frame
+  //
+  // UPPER FRAME: add image buttons frame
+  //
 
-  fImgButtonGroupFrame = BuildImageButtonFrame();
-
+  fImgButtonGroupFrame = this->BuildImageButtonFrame();
   fUpperFrame -> AddFrame( fImgButtonGroupFrame );
 
-  //-- LOWER FRAME:
-  //         left  : Controls
-  //         right : Feynman diagram & STDHEP record viewers
+  this->BuildTabs();
+  this->BuildStatusBar();
 
-  fLowerLeftFrame   = new TGCompositeFrame(fLowerFrame, 3, 3, kVerticalFrame);
-  fLowerRightFrame  = new TGCompositeFrame(fLowerFrame, 3, 3, kVerticalFrame);
-
-  fLowerFrame  -> AddFrame ( fLowerLeftFrame,   fLowerLeftFrameLayout  );
-  fLowerFrame  -> AddFrame ( fLowerRightFrame,  fLowerRightFrameLayout );
-
-  fControlsGroupFrame     = this->BuildGenieControls();
-  fInitStateGroupFrame    = this->BuildInitialStateControls();
-  fNuP4ControlsGroupFrame = this->BuildNeutrinoP4Controls();
-  fViewerTabs             = this->BuildViewerTabs();
-
-  fLowerLeftFrame  -> AddFrame ( fControlsGroupFrame,  fControlsFrameLayout  );
-  fLowerLeftFrame  -> AddFrame ( fInitStateGroupFrame    );
-  fLowerLeftFrame  -> AddFrame ( fNuP4ControlsGroupFrame );
-  fLowerRightFrame -> AddFrame ( fViewerTabs,          fViewerTabsLayout     );
-
-  //-- add top/bottom main frames to main frame, and main frame to main
-
-  fMainFrame -> AddFrame ( fUpperFrame    );
-  fMainFrame -> AddFrame ( fLowerFrame );
-  _main      -> AddFrame ( fMainFrame  );
-
-  //-- add Status Bar
-
-  Int_t parts[] = { 60, 20, 20 };
-
-  fStatusBar = new TGStatusBar(_main, 50, 10, kHorizontalFrame);
-  fStatusBar->SetParts(parts, 3);
-
-  _main->AddFrame(fStatusBar, fStatusBarLayout);
-
-  //-- initialize
-  this->Initialize();
-  _main->SetWindowName("GENIE Viewer");
-  _main->MapSubwindows();
-  _main->Resize( _main->GetDefaultSize() );
-  _main->MapWindow();
+  // initialize
+  fMain->SetWindowName("GENIE Event Viewer");
+  fMain->MapSubwindows();
+  fMain->Resize( fMain->GetDefaultSize() );
+  fMain->MapWindow();
 }
 //______________________________________________________________________________
 GViewerMainFrame::~GViewerMainFrame()
 {
-  _main->Cleanup();
-  delete _main;
+  fMain->Cleanup();
+  delete fMain;
 
-  delete fEVGDriver;
-  delete fGHepDrawer;
-  delete fGHepPrinter;
+  delete fTruthDisplay;
 }
 //______________________________________________________________________________
-void GViewerMainFrame::DefineLayoutHints(void)
+void GViewerMainFrame::BuildMainFrames(void)
 {
-  ULong_t hintFeynmanTabLayout  = kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY;
-  ULong_t hintGHepTabLayout     = kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY;
-  ULong_t hintStatusBarLayout   = kLHintsBottom | kLHintsLeft | kLHintsExpandX;
-  ULong_t hintLLeftFrameLayout  = kLHintsCenterY;
-  ULong_t hintLRightFrameLayout = kLHintsTop | kLHintsExpandX | kLHintsExpandY;
-  ULong_t hintControlsLayout    = kLHintsTop | kLHintsExpandX | kLHintsExpandY;
-  ULong_t hintViewerTabsLayout  = kLHintsTop | kLHintsExpandX | kLHintsExpandY;
+  fMainFrame  = new TGCompositeFrame(fMain,      1, 1, kVerticalFrame  );
+  fUpperFrame = new TGCompositeFrame(fMainFrame, 3, 3, kHorizontalFrame);
+  fLowerFrame = new TGCompositeFrame(fMainFrame, 3, 3, kHorizontalFrame);
 
-  fFeynmanTabLayout      = new TGLayoutHints(hintFeynmanTabLayout,    5, 5, 10, 1);
-  fGHepTabLayout         = new TGLayoutHints(hintGHepTabLayout,       5, 5, 10, 1);
-  fStatusBarLayout       = new TGLayoutHints(hintStatusBarLayout,     0, 0,  2, 0);
-  fLowerLeftFrameLayout  = new TGLayoutHints(hintLLeftFrameLayout,    1, 1,  1, 1);
-  fLowerRightFrameLayout = new TGLayoutHints(hintLRightFrameLayout,   1, 1,  1, 1);
-  fControlsFrameLayout   = new TGLayoutHints(hintControlsLayout,      5, 5, 10, 1);
-  fViewerTabsLayout      = new TGLayoutHints(hintViewerTabsLayout,    5, 5, 10, 1);
+  fMainFrame -> AddFrame ( fUpperFrame );
+  fMainFrame -> AddFrame ( fLowerFrame );
+  fMain      -> AddFrame ( fMainFrame  );
 }
 //______________________________________________________________________________
 TGGroupFrame * GViewerMainFrame::BuildImageButtonFrame(void)
 {
-  TGGroupFrame * button_group_frame = new TGGroupFrame(
-                       fUpperFrame, "Viewer Control Buttons", kHorizontalFrame);
+  TGGroupFrame * bf = new TGGroupFrame(
+        fUpperFrame, "Viewer Control Buttons", kHorizontalFrame);
 
-//  fButtonMatrixLayout = new TGMatrixLayout(button_group_frame, 0, 2, 1);
+  fFileOpenButton  = 
+    new TGPictureButton(bf, gClient->GetPicture(Icon("open"),32,32));
+  fNextEventButton = 
+    new TGPictureButton(bf, gClient->GetPicture(Icon("next"),32,32));
+  fExitButton = 
+    new TGPictureButton(bf, gClient->GetPicture(Icon("exit"), 32,32),
+    "gApplication->Terminate(0)");
 
-//  button_group_frame->SetLayoutManager( fButtonMatrixLayout );
+  fFileOpenButton   -> SetToolTipText( "Open event file" , 1);
+  fNextEventButton  -> SetToolTipText( "Get next event" ,  1);
+  fExitButton       -> SetToolTipText( "Exit",             1);
 
-  fNextEventButton = new TGPictureButton(button_group_frame,
-                                     gClient->GetPicture(Icon("next"),32,32));
-  fExitButton      = new TGPictureButton(button_group_frame,
-                                     gClient->GetPicture(Icon("exit"),32,32),
-                                                 "gApplication->Terminate(0)");
-
-  fNextEventButton  -> SetToolTipText( "Next Event" ,   1);
-  fExitButton       -> SetToolTipText( "Exit Viewer",   1);
-
+  fFileOpenButton  -> Connect(
+     "Clicked()","genie::gview::GViewerMainFrame", this,"FileOpen()");
   fNextEventButton  -> Connect(
-        "Clicked()","genie::GViewerMainFrame", this,"NextEvent()");
+     "Clicked()","genie::gview::GViewerMainFrame", this,"NextEvent()");
 
-  button_group_frame -> AddFrame( fNextEventButton  );
-  button_group_frame -> AddFrame( fExitButton       );
+  bf -> AddFrame( fFileOpenButton   );
+  bf -> AddFrame( fNextEventButton  );
+  bf -> AddFrame( fExitButton       );
 
-  return button_group_frame;
+  return bf;
 }
 //______________________________________________________________________________
-TGGroupFrame * GViewerMainFrame::BuildGenieControls(void)
+void GViewerMainFrame::BuildTabs(void)
 {
-  TGGroupFrame *  controls_frame = new TGGroupFrame(fLowerLeftFrame,
-                                               "Run Switches",  kVerticalFrame);
+  fViewTabWidth  = 780;
+  fViewTabHeight = 300;
 
-  fCcCheckButton  = new TGCheckButton(controls_frame, "Toggle CC",  101);
-  fNcCheckButton  = new TGCheckButton(controls_frame, "Toggle NC",  102);
-  fQelCheckButton = new TGCheckButton(controls_frame, "Toggle QEL", 103);
-  fSppCheckButton = new TGCheckButton(controls_frame, "Toggle SPP", 104);
-  fDisCheckButton = new TGCheckButton(controls_frame, "Toggle DIS", 105);
-  fCohCheckButton = new TGCheckButton(controls_frame, "Toggle COH", 106);
+  fViewerTabs = new TGTab(fLowerFrame, 1, 1);
 
-  controls_frame -> AddFrame( fCcCheckButton  );
-  controls_frame -> AddFrame( fNcCheckButton  );
-  controls_frame -> AddFrame( fQelCheckButton );
-  controls_frame -> AddFrame( fSppCheckButton );
-  controls_frame -> AddFrame( fDisCheckButton );
-  controls_frame -> AddFrame( fCohCheckButton );
+  this->BuildMCTruthTab          ();
+  this->BuildFastSimScintCaloTab ();
+  this->BuildFastSimCherenkovTab ();
 
-  return controls_frame;
+  ULong_t hintViewerTabsLayout = 
+       kLHintsTop | kLHintsExpandX | kLHintsExpandY;
+  fViewerTabsLayout      
+       = new TGLayoutHints(hintViewerTabsLayout, 5, 5, 10, 1);
+
+  fLowerFrame -> AddFrame ( fViewerTabs, fViewerTabsLayout );
 }
 //______________________________________________________________________________
-TGGroupFrame * GViewerMainFrame::BuildNeutrinoP4Controls(void)
+void GViewerMainFrame::BuildMCTruthTab(void)
 {
-  TGGroupFrame *  nup4_frame = new TGGroupFrame(fLowerLeftFrame,
-                                               "Neutrino 4-P",  kVerticalFrame);
-
-  fNuP4MatrixLayout = new TGMatrixLayout(nup4_frame, 0, 2, 5);
-
-  nup4_frame->SetLayoutManager( fNuP4MatrixLayout );
-
-  fPx = new TGNumberEntry(nup4_frame, 0, 7, 3, TGNumberFormat::kNESReal);
-  fPy = new TGNumberEntry(nup4_frame, 0, 7, 3, TGNumberFormat::kNESReal);
-  fPz = new TGNumberEntry(nup4_frame, 0, 7, 3, TGNumberFormat::kNESReal);
-  fE  = new TGNumberEntry(nup4_frame, 0, 7, 3, TGNumberFormat::kNESReal);
-
-  fPxLabel = new TGLabel(nup4_frame, new TGString( "Px = "));
-  fPyLabel = new TGLabel(nup4_frame, new TGString( "Py = "));
-  fPzLabel = new TGLabel(nup4_frame, new TGString( "Pz = "));
-  fELabel  = new TGLabel(nup4_frame, new TGString( "E  = "));
-
-  nup4_frame -> AddFrame ( fPxLabel );
-  nup4_frame -> AddFrame ( fPx      );
-  nup4_frame -> AddFrame ( fPyLabel );
-  nup4_frame -> AddFrame ( fPy      );
-  nup4_frame -> AddFrame ( fPzLabel );
-  nup4_frame -> AddFrame ( fPz      );
-  nup4_frame -> AddFrame ( fELabel  );
-  nup4_frame -> AddFrame ( fE       );
-
-  fEmptyLabel  = new TGLabel(nup4_frame, new TGString( " "));
-
-  nup4_frame -> AddFrame ( fEmptyLabel  );
-  nup4_frame -> AddFrame ( fEmptyLabel  );
-
-  return nup4_frame;
-}
-//______________________________________________________________________________
-TGGroupFrame * GViewerMainFrame::BuildInitialStateControls(void)
-{
-  LOG("gviewer", pINFO) << "Building initial state controls...";
-
-  TGGroupFrame *  init_state_frame = new TGGroupFrame(fLowerLeftFrame,
-                                             "Initial State",  kVerticalFrame);
-
-  fInitStateMatrixLayout = new TGMatrixLayout(init_state_frame, 0, 2, 4);
-
-  init_state_frame->SetLayoutManager( fInitStateMatrixLayout );
-
-  LOG("gviewer", pINFO) << "1";
-
-  fA = new TGNumberEntry(init_state_frame, 1, 4, 0, TGNumberFormat::kNESInteger);
-  fZ = new TGNumberEntry(init_state_frame, 1, 4, 0, TGNumberFormat::kNESInteger);
-
-  LOG("gviewer", pINFO) << "2";
-
-  fALabel  = new TGLabel(init_state_frame, new TGString( "A = "));
-  fZLabel  = new TGLabel(init_state_frame, new TGString( "Z = "));
-  fNuLabel = new TGLabel(init_state_frame, new TGString( "Nu "));
-
-  LOG("gviewer", pINFO) << "3";
-
-  fNu = new TGComboBox(init_state_frame, 201);
-
-  LOG("gviewer", pINFO) << "4";
-
-  int i = 0;
-  while( neutrinos[i] ) {
-    fNu->AddEntry(neutrinos[i], i);
-    i++;
-  }
-
-  LOG("gviewer", pINFO) << "5";
-
-  fNu -> Resize (80, 20);
-
-  LOG("gviewer", pINFO) << "6";
-
-  init_state_frame -> AddFrame ( fALabel  );
-  init_state_frame -> AddFrame ( fA       );
-  init_state_frame -> AddFrame ( fZLabel  );
-  init_state_frame -> AddFrame ( fZ       );
-  init_state_frame -> AddFrame ( fNuLabel );
-  init_state_frame -> AddFrame ( fNu      );
-
-  LOG("gviewer", pINFO) << "7";
-
-  fEmptyLabel2  = new TGLabel(init_state_frame, new TGString(" "));
-
-  init_state_frame -> AddFrame ( fEmptyLabel2 );
-  init_state_frame -> AddFrame ( fEmptyLabel2 );
-
-  LOG("gviewer", pINFO) << "8";
-
-  return init_state_frame;
-}
-//______________________________________________________________________________
-TGTab * GViewerMainFrame::BuildViewerTabs(void)
-{
+// Add tab for displaying MC truth
+//
   TGCompositeFrame * tf = 0;
 
-  unsigned int width  = 780;
-  unsigned int height = 300;
+  unsigned int w = fViewTabWidth;
+  unsigned int h = fViewTabHeight;
 
-  TGTab * tab = new TGTab(fLowerRightFrame, 1, 1);
+  // tab: Draw "Feynman" diagram
 
-  //--- tab: "Plotter"
+  tf = fViewerTabs->AddTab( "Feynman Diagram" );
 
-  tf = tab->AddTab( "Feynman Diagram" );
-
-  fFeynmanTab     = new TGCompositeFrame    (tf, width, height, kVerticalFrame);
-  fEmbeddedCanvas = new TRootEmbeddedCanvas (
-                                 "fEmbeddedCanvas", fFeynmanTab, width, height);
+  fFeynmanTab = new TGCompositeFrame(tf, w, h, kVerticalFrame);
+  fEmbeddedCanvas =  new TRootEmbeddedCanvas("fEmbeddedCanvas", fFeynmanTab, w, h);
 
   fEmbeddedCanvas -> GetCanvas() -> SetBorderMode (0);
   fEmbeddedCanvas -> GetCanvas() -> SetFillColor  (0);
 
+  ULong_t hintFeynmanTabLayout  = 
+     kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY;
+  fFeynmanTabLayout = 
+     new TGLayoutHints(hintFeynmanTabLayout, 5, 5, 10, 1);
+
   fFeynmanTab -> AddFrame( fEmbeddedCanvas, fFeynmanTabLayout );
   tf          -> AddFrame( fFeynmanTab,     fFeynmanTabLayout );
 
-  //--- tab "Data Viewer"
+  // tab: Print GHEP record
 
-  tf = tab->AddTab("GHEP Record");
+  tf = fViewerTabs->AddTab("GHEP Record");
 
-  fGHepTab = new TGCompositeFrame(tf,  width, height, kVerticalFrame);
+  fGHepTab = new TGCompositeFrame(tf, w, h, kVerticalFrame);
 
-  fGHep = new TGTextEdit(fGHepTab,  width, height, kSunkenFrame | kDoubleBorder);
+  fGHep = new TGTextEdit(fGHepTab, w, h, kSunkenFrame | kDoubleBorder);
   fGHep->AddLine( "GHEP:" );
 
-  fGHepTab -> AddFrame( fGHep,    fGHepTabLayout);
-  tf       -> AddFrame( fGHepTab, fGHepTabLayout);
+  ULong_t hintGHepTabLayout = 
+     kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY;
+  fGHepTabLayout         
+     = new TGLayoutHints(hintGHepTabLayout, 5, 5, 10, 1);
 
-  return tab;
+  fGHepTab -> AddFrame(fGHep,    fGHepTabLayout);
+  tf       -> AddFrame(fGHepTab, fGHepTabLayout);
+}
+//______________________________________________________________________________
+void GViewerMainFrame::BuildFastSimScintCaloTab (void)
+{
+// Build tab for displaying fast simulation results of scintillator calorimeter
+// response and for controlling simulation inputs.
+//
+  TGCompositeFrame * tf = 0;
+
+  tf = fViewerTabs->AddTab("FastSim/ScintCalo");
+
+}
+//______________________________________________________________________________
+void GViewerMainFrame::BuildFastSimCherenkovTab (void)
+{
+// Build tab for displaying fast simulation results of Cherenkov detector 
+// response and for controlling simulation inputs.
+//
+  TGCompositeFrame * tf = 0;
+
+  tf = fViewerTabs->AddTab("FastSim/Cherenkov");
+
+}
+//______________________________________________________________________________
+void GViewerMainFrame::BuildStatusBar(void)
+{
+  Int_t parts[] = { 60, 20, 20 };
+  fStatusBar = new TGStatusBar(fMain, 50, 10, kHorizontalFrame);
+  fStatusBar->SetParts(parts, 3);
+
+  ULong_t hintStatusBarLayout = 
+     kLHintsBottom | kLHintsLeft | kLHintsExpandX;
+  fStatusBarLayout       
+     = new TGLayoutHints(hintStatusBarLayout, 0, 0,  2, 0);
+
+  fMain->AddFrame(fStatusBar, fStatusBarLayout);
 }
 //______________________________________________________________________________
 const char * GViewerMainFrame::Icon(const char * name)
@@ -362,45 +300,82 @@ const char * GViewerMainFrame::Icon(const char * name)
   return pic.str().c_str();
 }
 //______________________________________________________________________________
-void GViewerMainFrame::Initialize(void)
+void GViewerMainFrame::BuildHelpers(void)
 {
-  //-- build GENIE interface object
+  fTruthDisplay = new MCTruthDisplay(fEmbeddedCanvas,fGHep);
+}
+//______________________________________________________________________________
+void GViewerMainFrame::FileOpen(void)
+{
+  fStatusBar->SetText( "Asking for event file name...", 0);
 
-  XSecSplineList * xspl = XSecSplineList::Instance();
-  xspl->AutoLoad();
+  static TString dir(".");
+  const char * kFileExt[] = {"GHEP/ROOT event files", "*.root", 0, 0};
 
-  fEVGDriver = new GEVGDriver();
+  TGFileInfo fi;
+  fi.fFileTypes = kFileExt;
+  fi.fIniDir    = StrDup(dir.Data());
 
-  //-- build Feynman diagram renderers and STDHEP record printer
-  fGHepDrawer  = new GHepDrawer;
-  fGHepPrinter = new GHepPrinter;
+  new TGFileDialog(gClient->GetRoot(), fMain, kFDOpen, &fi);
 
-  fGHepDrawer  -> SetEmbeddedCanvas(fEmbeddedCanvas);
-  fGHepPrinter -> SetTextEdit(fGHep);
+  if( fi.fFilename ) {
+     fEventFilename = string( fi.fFilename );
+
+     ostringstream cmd;
+     cmd << "Will read events from: " << fEventFilename;
+     fStatusBar -> SetText( cmd.str().c_str(), 0 );
+
+     if(fEventFile) {
+       fEventFile->Close();
+       delete fEventFile;
+     }
+     if(fGHepTree) {
+       delete fGHepTree;
+     }
+
+     fEventFile = 
+         new TFile(fEventFilename.c_str(),"READ");
+     fGHepTree = 
+         dynamic_cast <TTree *> (fEventFile->Get("gtree"));
+     if(!fGHepTree) {
+        LOG("gviewer", pFATAL) 
+            << "No GHEP event tree in input file: " << fEventFilename;
+        gAbortingInErr=true;
+        exit(1);
+     }
+     fCurrEventNu = 0;
+     fNuOfEvents  = fGHepTree->GetEntries();
+     LOG("gviewer", pNOTICE)  
+       << "Input GHEP event tree has " << fNuOfEvents 
+       << ((fNuOfEvents==1) ? " entry." : " entries.");
+
+     NtpMCTreeHeader * thdr = 
+         dynamic_cast <NtpMCTreeHeader *> ( fEventFile->Get("header") );
+     LOG("gviewer", pNOTICE) 
+         << "Input tree header: " << *thdr;
+
+     fGHepTree->SetBranchAddress("gmcrec", &fMCRecord);
+
+  }
 }
 //______________________________________________________________________________
 void GViewerMainFrame::NextEvent(void)
 {
-  fEVGDriver->Configure(14,(int) fZ->GetNumber(), (int) fA->GetNumber()); // Z,A
-  fEVGDriver->UseSplines();
+  if(fCurrEventNu >= fNuOfEvents-1) {
+	exit(1);
+  }
 
-  double px = fPx->GetNumber();
-  double py = fPy->GetNumber();
-  double pz = fPz->GetNumber();
-  double E  = fE ->GetNumber();
+  fGHepTree->GetEntry(fCurrEventNu);
+  fCurrEventNu++;
 
-  TLorentzVector nu_p4(px,py,pz,E); // px,py,pz,E (GeV)
+  EventRecord * event = fMCRecord->event;
 
-  EventRecord * ev_rec = fEVGDriver->GenerateEvent(nu_p4);
-
-  LOG("gviewer", pINFO) << *ev_rec;
-
-  this->ShowEvent(ev_rec);
+  this->ShowEvent(event);
 }
 //______________________________________________________________________________
-void GViewerMainFrame::ShowEvent(EventRecord * ev_rec)
+void GViewerMainFrame::ShowEvent(EventRecord * event)
 {
-  fGHepPrinter -> Print (ev_rec);
-  fGHepDrawer  -> Draw  (ev_rec);
+  fTruthDisplay->DrawDiagram(event);
+  fTruthDisplay->PrintEventRecord(event);
 }
 //______________________________________________________________________________
