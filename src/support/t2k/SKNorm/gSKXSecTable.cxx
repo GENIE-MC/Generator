@@ -3,9 +3,7 @@
 
 \program gSKXSecTable
 
-\brief   Write-out the cross section table needed for the SK MC job normalization; now 
-         changed to just have the total cross section, not cross section per nucleon 
-	 (basically going back to the original version)
+\brief   Write-out the cross section table needed by SuperK softw for MC normalization; 
 
 \author  Costas Andreopoulos <costas.andreopoulos@stfc.ac.uk>
          STFC, Rutherford Appleton Laboratory
