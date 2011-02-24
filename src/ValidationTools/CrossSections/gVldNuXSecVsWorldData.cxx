@@ -813,6 +813,9 @@ void Draw(int iset)
   if(dbtable) {
     delete dbtable;
   }
+
+  gC->SaveAs(Form("gxs%d.eps",iset));
+
 }
 //_________________________________________________________________________________
 // Formatting
