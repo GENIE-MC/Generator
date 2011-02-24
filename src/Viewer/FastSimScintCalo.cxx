@@ -4,15 +4,14 @@
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>, Rutherford Lab.
-         November 30, 2007
+ Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+         STFC, Rutherford Appleton Laboratory
 
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
- @ Nov 30, 2007 - CA
-   Was added in 2.0.1, intended to replace an older set of GHEP rendering
-   classes. No GHEP drawing at that time.
+ @ Sep 22, 2010 - CA
+   Was first added in 2.7.1.
 
 */
 //____________________________________________________________________________
@@ -32,27 +31,28 @@
 #include "EVGCore/EventRecord.h"
 #include "GHEP/GHepParticle.h"
 #include "Messenger/Messenger.h"
-#include "Viewer/GHepDrawer.h"
+#include "Viewer/FastSimScintCalo.h"
 
 using namespace genie;
+using namespace genie::gview::fastsim;
 
 //______________________________________________________________________________
-GHepDrawer::GHepDrawer() 
+FastSimScintCalo::FastSimScintCalo() 
 {
 
 }
 //______________________________________________________________________________
-GHepDrawer::~GHepDrawer()
+FastSimScintCalo::~FastSimScintCalo()
 {
 
 }
 //______________________________________________________________________________
-void GHepDrawer::SetEmbeddedCanvas(TRootEmbeddedCanvas * ec)
+void FastSimScintCalo::SetEmbeddedCanvas(TRootEmbeddedCanvas * ec)
 {
   fEmbeddedCanvas = ec;
 }
 //______________________________________________________________________________
-void GHepDrawer::Draw(EventRecord * /*ev_rec*/) 
+void FastSimScintCalo::Draw(EventRecord * /*event*/) 
 {
    LOG("gviewer", pINFO) << "Drawing input event";
 
