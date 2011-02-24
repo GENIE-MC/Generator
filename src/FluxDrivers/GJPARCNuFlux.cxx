@@ -88,7 +88,11 @@
    Implemented the new GFluxI::Clear, GFluxI::Index and GFluxI::GenerateWeighted
    methods needed so that can be used with the new pre-generation of flux 
    interaction probabilities methods added to GMCJDriver. 
-
+ @ Feb 24, 2011 - JD
+   Updated list of expected decay modes for the JNuBeam flux neutrinos for >10a
+   flux mc. The decay mode is used to infer the neutrino pdg and previously we
+   were just skipping them if we didn't recognise the mode - now the job aborts
+   as this can lead to unphysical results.
 */
 //____________________________________________________________________________
 
@@ -267,11 +271,28 @@ bool GJPARCNuFlux::GenerateNext_weighted(void)
   //  41      nue_bar from K- (Ke3) 
   //  42      nue_bar from K0L(Ke3) 
   //  43      nue_bar from Mu-      
-
-  if(fPassThroughInfo->mode >= 11 && fPassThroughInfo->mode <= 13) fgPdgC = kPdgNuMu;
-  if(fPassThroughInfo->mode >= 21 && fPassThroughInfo->mode <= 23) fgPdgC = kPdgAntiNuMu;
-  if(fPassThroughInfo->mode >= 31 && fPassThroughInfo->mode <= 33) fgPdgC = kPdgNuE;
-  if(fPassThroughInfo->mode >= 41 && fPassThroughInfo->mode <= 43) fgPdgC = kPdgAntiNuE;
+  // Since JNuBeam flux version >= 10a the following modes also expected
+  //  14  --> numu from K+(3)
+  //  15  --> numu from K0(3)
+  //  24  --> numu_bar from K-(3)
+  //  25  --> numu_bar from K0(3)
+  //  34  --> nue from pi+     
+  //  44  --> nue_bar from pi-  
+  
+  // If following gets more complicated should probably be put in an separate 
+  // method which can check for degeneracy etc... 
+  if(fPassThroughInfo->mode >= 11 && fPassThroughInfo->mode <= 15) fgPdgC = kPdgNuMu;
+  else if(fPassThroughInfo->mode >= 21 && fPassThroughInfo->mode <= 25) fgPdgC = kPdgAntiNuMu;
+  else if(fPassThroughInfo->mode >= 31 && fPassThroughInfo->mode <= 34) fgPdgC = kPdgNuE;
+  else if(fPassThroughInfo->mode >= 41 && fPassThroughInfo->mode <= 44) fgPdgC = kPdgAntiNuE;
+  else {
+    // If here then trying to process a neutrino from an unknown decay mode.
+    // Rather than just skipping this flux neutrino the job is aborted to avoid
+    // unphysical results. 
+    LOG("Flux", pFATAL) << "Unexpected decay mode: "<< fPassThroughInfo->mode <<
+                           "  --> unable to infer neutrino pdg! Aborting job!";
+    exit(1);  
+  }
 
   // Check neutrino pdg against declared list of neutrino species declared
   // by the current instance of the JPARC neutrino flux driver.
