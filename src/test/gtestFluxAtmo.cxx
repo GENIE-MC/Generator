@@ -70,6 +70,12 @@ TNtuple * runGFlukaAtmo3DFluxDriver(void)
 
   GFlukaAtmo3DFlux * flux = new GFlukaAtmo3DFlux;
 
+  LOG("test", pINFO) << base_dir + "/sdave_numu07.dat";
+  LOG("test", pINFO) << base_dir + "/sdave_anumu07.dat";
+  LOG("test", pINFO) << base_dir + "/sdave_nue07.dat";
+  LOG("test", pINFO) << base_dir + "/sdave_anue07.dat";
+
+
   flux -> SetFluxFile ( kPdgNuMu,     base_dir + "/sdave_numu07.dat"  );
   flux -> SetFluxFile ( kPdgAntiNuMu, base_dir + "/sdave_anumu07.dat" );
   flux -> SetFluxFile ( kPdgNuE,      base_dir + "/sdave_nue07.dat"   );
@@ -101,7 +107,7 @@ TNtuple * runGBartolAtmoFluxDriver(void)
   flux -> SetFluxFile ( kPdgAntiNuE,  base_dir + "/f210_3_z.kam_nbe" );
   flux -> SetRadii(Rlongitudinal, Rtransverse);
   flux -> LoadFluxData();
-//flux -> GenerateWeighted(true);
+  flux -> GenerateWeighted(true);
 //flux -> ForceMaxEnergy(300);
 
   LOG("test", pINFO) << "Generating events";
