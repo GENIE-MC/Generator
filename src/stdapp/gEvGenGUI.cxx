@@ -23,6 +23,7 @@
 #include "Viewer/GViewerMainFrame.h"
 
 using namespace genie;
+using namespace genie::gview;
 
 int main(int argc, char ** argv)
 {
