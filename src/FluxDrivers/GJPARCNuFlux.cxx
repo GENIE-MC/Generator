@@ -226,12 +226,16 @@ bool GJPARCNuFlux::GenerateNext_weighted(void)
   assert(found_entry);
   fEntriesThisCycle++;
   fIEntry = (fIEntry+1) % fNEntries;
-  if(fNuFluxSumTree) fNuFluxSumTree->GetEntry(0); // Get entry 0 as only 1 entry in tree
-
-  // Remember to update fNorm as no longer set to fNuFluxTree branch address
+  if(fNuFluxSumTree) fNuFluxSumTree->GetEntry(0); // get entry 0 as only 1 entry in tree
+  // check for negative flux weights 
+  if(fPassThroughInfo->norm + controls::kASmallNum < 0.0){ 
+    LOG("Flux", pERROR) << "Negative flux weight! Will set weight to 0.0";
+    fPassThroughInfo->norm  = 0.0;
+  } 
+  // remember to update fNorm as no longer set to fNuFluxTree branch address
   fNorm = (double) fPassThroughInfo->norm;
 
-  // For 'near detector' flux ntuples make sure that the current entry
+  // for 'near detector' flux ntuples make sure that the current entry
   // corresponds to a flux neutrino at the specified detector location
   if(fIsNDLoc           /* nd */  && 
      fDetLocId!=fPassThroughInfo->idfd /* doesn't match specified detector location*/) {
@@ -272,19 +276,24 @@ bool GJPARCNuFlux::GenerateNext_weighted(void)
   //  42      nue_bar from K0L(Ke3) 
   //  43      nue_bar from Mu-      
   // Since JNuBeam flux version >= 10a the following modes also expected
-  //  14  --> numu from K+(3)
-  //  15  --> numu from K0(3)
-  //  24  --> numu_bar from K-(3)
-  //  25  --> numu_bar from K0(3)
-  //  34  --> nue from pi+     
-  //  44  --> nue_bar from pi-  
-  
-  // If following gets more complicated should probably be put in an separate 
-  // method which can check for degeneracy etc... 
-  if(fPassThroughInfo->mode >= 11 && fPassThroughInfo->mode <= 15) fgPdgC = kPdgNuMu;
-  else if(fPassThroughInfo->mode >= 21 && fPassThroughInfo->mode <= 25) fgPdgC = kPdgAntiNuMu;
-  else if(fPassThroughInfo->mode >= 31 && fPassThroughInfo->mode <= 34) fgPdgC = kPdgNuE;
-  else if(fPassThroughInfo->mode >= 41 && fPassThroughInfo->mode <= 44) fgPdgC = kPdgAntiNuE;
+  //  14      numu from K+(3)
+  //  15      numu from K0(3)
+  //  24      numu_bar from K-(3)
+  //  25      numu_bar from K0(3)
+  //  34      nue from pi+     
+  //  44      nue_bar from pi-  
+  // In general expect more modes following the rule:
+  //  11->19 --> numu
+  //  21->29 --> numu_bar
+  //  31->39 --> nue
+  //  41->49 --> nuebar
+  // This is based on example given at:
+  //  http://jnusrv01.kek.jp/internal/t2k/nubeam/flux/efill.kumac 
+ 
+  if(fPassThroughInfo->mode >= 11 && fPassThroughInfo->mode <= 19) fgPdgC = kPdgNuMu;
+  else if(fPassThroughInfo->mode >= 21 && fPassThroughInfo->mode <= 29) fgPdgC = kPdgAntiNuMu;
+  else if(fPassThroughInfo->mode >= 31 && fPassThroughInfo->mode <= 39) fgPdgC = kPdgNuE;
+  else if(fPassThroughInfo->mode >= 41 && fPassThroughInfo->mode <= 49) fgPdgC = kPdgAntiNuE;
   else {
     // If here then trying to process a neutrino from an unknown decay mode.
     // Rather than just skipping this flux neutrino the job is aborted to avoid
@@ -591,9 +600,14 @@ void GJPARCNuFlux::LoadBeamSimData(string filename, string detector_location)
   fNNeutrinosTot1c = 0;
   for(int ientry = 0; ientry < fNEntries; ientry++) {
      fNuFluxTree->GetEntry(ientry);
-     // update maximum weight
+     // check for negative flux weights
+     if(fPassThroughInfo->norm + controls::kASmallNum < 0.0){ 
+       LOG("Flux", pERROR) << "Negative flux weight! Will set weight to 0.0";
+       fPassThroughInfo->norm  = 0.0;
+     } 
      fNorm = (double) fPassThroughInfo->norm;
-     fMaxWeight = TMath::Max(fMaxWeight, fNorm); 
+     // update maximum weight
+     fMaxWeight = TMath::Max(fMaxWeight, (double) fPassThroughInfo->norm); 
      // compare detector location (see GenerateNext_weighted() for details)
      if(fIsNDLoc && fDetLocId!=fPassThroughInfo->idfd) continue;
      fSumWeightTot1c += fNorm;
