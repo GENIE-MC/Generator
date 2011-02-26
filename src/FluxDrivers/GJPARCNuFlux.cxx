@@ -93,6 +93,11 @@
    flux mc. The decay mode is used to infer the neutrino pdg and previously we
    were just skipping them if we didn't recognise the mode - now the job aborts
    as this can lead to unphysical results.
+ @ Feb 26, 2011 - JD
+   Now check that there is at least one entry with matching flux location (idfd)
+   at the LoadBeamSimData stage. Previously were only checking this after a 
+   cycle of calling GenerateNext. This stops case where if only looping over a 
+   single cycle the user was not warned that there were no flux location matches. 
 */
 //____________________________________________________________________________
 
@@ -140,7 +145,7 @@ bool GJPARCNuFlux::GenerateNext(void)
   RandomGen * rnd = RandomGen::Instance();
   while(1) {
      // Check for end of flux ntuple
-     bool end = this->End();        
+     bool end = this->End();
      if(end) return false;
 
      // Get next weighted flux ntuple entry
@@ -598,6 +603,7 @@ void GJPARCNuFlux::LoadBeamSimData(string filename, string detector_location)
   // method using TTree::GetV1() seg faulted for more than ~1.5E6 entries
   fSumWeightTot1c  = 0;
   fNNeutrinosTot1c = 0;
+  fNDetLocIdFound = 0;
   for(int ientry = 0; ientry < fNEntries; ientry++) {
      fNuFluxTree->GetEntry(ientry);
      // check for negative flux weights
@@ -612,7 +618,17 @@ void GJPARCNuFlux::LoadBeamSimData(string filename, string detector_location)
      if(fIsNDLoc && fDetLocId!=fPassThroughInfo->idfd) continue;
      fSumWeightTot1c += fNorm;
      fNNeutrinosTot1c++;
+     fNDetLocIdFound++;
   }
+  // Exit if have not found neutrino at specified location for whole cycle
+  if(fNDetLocIdFound == 0){
+    LOG("Flux", pFATAL)
+     << "The input jnubeam flux ntuple contains no entries for detector id "
+     << fDetLocId << ". Terminating job!";
+    exit(1); 
+  }
+  fNDetLocIdFound = 0; // reset the counter
+
   LOG("Flux", pNOTICE) << "Maximum flux weight = " << fMaxWeight;  
   if(fMaxWeight <=0 ) {
       LOG("Flux", pFATAL) << "Non-positive maximum flux weight!";
