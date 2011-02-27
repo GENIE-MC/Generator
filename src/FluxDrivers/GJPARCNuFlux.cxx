@@ -174,7 +174,6 @@ bool GJPARCNuFlux::GenerateNext(void)
      double r = (f < 1.) ? rnd->RndFlux().Rndm() : 0;
      bool accept = (r<f);
      if(accept) {
-       fGenNextCalled = true;
        return true;
      }
 
@@ -229,6 +228,7 @@ bool GJPARCNuFlux::GenerateNext_weighted(void)
   // analysis chain -eg for beam reweighting etc-)
   bool found_entry = fNuFluxTree->GetEntry(fIEntry) > 0;
   assert(found_entry);
+  fLoadedNeutrino = true;
   fEntriesThisCycle++;
   fIEntry = (fIEntry+1) % fNEntries;
   if(fNuFluxSumTree) fNuFluxSumTree->GetEntry(0); // get entry 0 as only 1 entry in tree
@@ -372,7 +372,7 @@ bool GJPARCNuFlux::GenerateNext_weighted(void)
         << "\n x4: " << utils::print::X4AsString(&fgX4);
 #endif
   // Update flux pass through info not set as branch addresses of flux ntuples
-  fPassThroughInfo->fluxentry = fIEntry - 1;
+  fPassThroughInfo->fluxentry = this->Index();
   std::string filename = fNuFluxFile->GetName();
   std::string::size_type start_pos = filename.rfind("/");
   if (start_pos == std::string::npos) start_pos = 0; else ++start_pos;
@@ -427,7 +427,13 @@ long int GJPARCNuFlux::Index(void)
 // Return the current flux entry index. If GenerateNext has not yet been 
 // called then return -1. 
 //
-  return fGenNextCalled ? fIEntry-1 : -1;
+  if(fLoadedNeutrino){
+    // subtract 1 as fIEntry was incremented since call to TTree::GetEntry
+    // and deal with special case where fIEntry-1 is last entry in cycle 
+    return fIEntry == 0 ? fNEntries - 1 : fIEntry-1;
+  }
+  // return -1 if no neutrino loaded since last call to this->ResetCurrent()
+  return -1;
 }
 //___________________________________________________________________________
 void GJPARCNuFlux::LoadBeamSimData(string filename, string detector_location)
@@ -771,7 +777,7 @@ void GJPARCNuFlux::Initialize(void)
   fNNeutrinosTot1c = 0;
   fGenerateWeighted= false;
   fUseRandomOffset = true;
-  fGenNextCalled   = false;
+  fLoadedNeutrino   = false;
 
   this->SetDefaults();
   this->ResetCurrent();
@@ -809,7 +815,7 @@ void GJPARCNuFlux::ResetCurrent(void)
 // reset running values of neutrino pdg-code, 4-position & 4-momentum
 // and the input ntuple leaves
 
-  fGenNextCalled = false;
+  fLoadedNeutrino = false;
 
   fgPdgC = 0;
   fgP4.SetPxPyPzE (0.,0.,0.,0.);

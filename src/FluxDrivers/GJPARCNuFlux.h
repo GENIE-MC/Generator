@@ -133,7 +133,7 @@ private:
   long int  fNNeutrinosTot1c;  ///< total number of flux neutrinos to be thrown / cycle
   bool      fGenerateWeighted; ///< generate weighted/deweighted flux neutrinos (default is false)
   bool      fUseRandomOffset;  ///< whether set random starting point when looping over flux ntuples
-  bool      fGenNextCalled;    ///< set to true when GenerateNext has been called successfully
+  bool      fLoadedNeutrino;   ///< set to true when GenerateNext_weighted has been called successfully
 
   GJPARCNuFluxPassThroughInfo * fPassThroughInfo;
 };
