@@ -327,7 +327,7 @@ bool GMCJDriver::PreCalcFluxProbabilities(void)
 bool GMCJDriver::LoadFluxProbabilities(string filename)
 {
 // Load a pre-generated set of flux interaction probabilities from an external
-// file. This is recommended when using large flux files (>1M entries) as  
+// file. This is recommended when using large flux files (>100k entries) as  
 // for these the time to calculate the interaction probabilities can exceed 
 // ~20 minutes. After loading the input tree we call PreCalcFluxProbabilities
 // to check that has successfully loaded
