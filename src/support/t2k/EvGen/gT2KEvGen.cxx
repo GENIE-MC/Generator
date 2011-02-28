@@ -98,7 +98,7 @@
               per job you can pre-generate them using a dedicated job (see the
               -S option) and tell the event generator to use them by setting 
               the optional [pre_gen_prob_file] value. This is advised when 
-              processing flux files with more than ~1M entries as the time to 
+              processing flux files with more than ~100k entries as the time to 
               pre-calculate the interaction probabilities becomes comparable to 
               the event generation time. For smaller flux files there is less 
               book-keeping if just calculate them per job and on the fly.  
@@ -115,8 +115,7 @@
               generation using the [pre_gen_prob_file] optional value of the
               -P option. The default output interaction probabilities file 
               name is constructed as: [FLUXFILENAME].[TOPVOL].flxprobs.root. 
-              Specifying [output_name] will replace [FLUXFILENAME] with 
-              [output_name]. 
+              Specifying [output_name] will override this.
               Introducing multiple functionality to the executable is not 
               desirable but is less error prone than duplicating a lot of the
               functionality in a separate application. 
@@ -604,12 +603,11 @@ int main(int argc, char ** argv)
 
     // set flux probs output file name     
     if(gOptSaveFluxProbsFile){
-      // set to output name to: OUTNAME.TOPVOL.flxprobs.root where OUTNAME
-      // is specified at cmd line. OUTNAME --> FLUXFILENAME if not specified.
+      // default output name is ${FLUFILENAME}.${TOPVOL}.flxprobs.root 
       string name = gOptFluxFile.substr(0, gOptFluxFile.rfind("."));
+      name += "."+gOptRootGeomTopVol+".flxprobs.root";
+      // if specified override with cmd line option
       if(gOptSaveFluxProbsFileName.size()>0) name = gOptSaveFluxProbsFileName;
-      if(gOptRootGeomTopVol.size()>0) name += "."+gOptRootGeomTopVol;
-      name += ".flxprobs.root";
       // Tell the driver save pre-generated probabilities to an output file
       mcj_driver->SaveFluxProbabilities(name);
     }
