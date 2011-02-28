@@ -604,7 +604,8 @@ int main(int argc, char ** argv)
     // set flux probs output file name     
     if(gOptSaveFluxProbsFile){
       // default output name is ${FLUFILENAME}.${TOPVOL}.flxprobs.root 
-      string name = gOptFluxFile.substr(0, gOptFluxFile.rfind("."));
+      string basename = gOptFluxFile.substr(gOptFluxFile.rfind("/")+1);
+      string name = basename.substr(0, basename.rfind("."));
       name += "."+gOptRootGeomTopVol+".flxprobs.root";
       // if specified override with cmd line option
       if(gOptSaveFluxProbsFileName.size()>0) name = gOptSaveFluxProbsFileName;
