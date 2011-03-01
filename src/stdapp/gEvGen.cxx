@@ -105,8 +105,7 @@
 #include "PDG/PDGUtils.h"
 #include "Utils/XSecSplineList.h"
 #include "Utils/StringUtils.h"
-#include "Utils/CmdLineArgParserUtils.h"
-#include "Utils/CmdLineArgParserException.h"
+#include "Utils/CmdLnArgParser.h"
 
 #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
 #ifdef __GENIE_GEOM_DRIVERS_ENABLED__
@@ -448,59 +447,54 @@ void GetCommandLineArgs(int argc, char ** argv)
 {
   LOG("gevgen", pNOTICE) << "Parsing command line arguments";
 
+  CmdLnArgParser parser(argc,argv);
+
   // help?
-  bool help = genie::utils::clap::CmdLineArgAsBool(argc,argv,'h');
+  bool help = parser.OptionExists('h');
   if(help) {
       PrintSyntax();
       exit(0);
   }
 
   // number of events:
-  try {
+  if( parser.OptionExists('n') ) {
     LOG("gevgen", pINFO) << "Reading number of events to generate";
-    gOptNevents = genie::utils::clap::CmdLineArgAsInt(argc,argv,'n');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gevgen", pINFO)
-            << "Unspecified number of events to generate - Using default";
-      gOptNevents = kDefOptNevents;
-    }
+    gOptNevents = parser.ArgAsInt('n');
+  } else {
+    LOG("gevgen", pINFO)
+       << "Unspecified number of events to generate - Using default";
+    gOptNevents = kDefOptNevents;
   }
 
   // run number:
-  try {
+  if( parser.OptionExists('r') ) {
     LOG("gevgen", pINFO) << "Reading MC run number";
-    gOptRunNu = genie::utils::clap::CmdLineArgAsInt(argc,argv,'r');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gevgen", pINFO) << "Unspecified run number - Using default";
-      gOptRunNu = kDefOptRunNu;
-    }
+    gOptRunNu = parser.ArgAsLong('r');
+  } else {
+    LOG("gevgen", pINFO) << "Unspecified run number - Using default";
+    gOptRunNu = kDefOptRunNu;
   }
 
   // flux functional form
   bool using_flux = false;
-  try {
+  if( parser.OptionExists('f') ) {
     LOG("gevgen", pINFO) << "Reading flux function";
-    gOptFlux = genie::utils::clap::CmdLineArgAsString(argc,argv,'f');
+    gOptFlux = parser.ArgAsString('f');
     using_flux = true;
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-    }
   }
 
   // spline building option
-  gOptBuildSplines = genie::utils::clap::CmdLineArgAsBool(argc,argv,'s');
+  gOptBuildSplines = parser.OptionExists('s');
 
   // generate weighted events option (only relevant if using a flux)
-  gOptWeighted = genie::utils::clap::CmdLineArgAsBool(argc,argv,'w');
+  gOptWeighted = parser.OptionExists('w');
 
   //-- Required arguments
 
   // neutrino energy:
-  try {
+  if( parser.OptionExists('e') ) {
     LOG("gevgen", pINFO) << "Reading neutrino energy";
-    string nue = genie::utils::clap::CmdLineArgAsString(argc,argv,'e');
+    string nue = parser.ArgAsString('e');
 
     // is it just a value or a range (comma separated set of values)
     if(nue.find(",") != string::npos) {
@@ -523,31 +517,27 @@ void GetCommandLineArgs(int argc, char ** argv)
        gOptNuEnergy       = atof(nue.c_str());
        gOptNuEnergyRange = -1;
     }
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gevgen", pFATAL) << "Unspecified neutrino energy - Exiting";
-      PrintSyntax();
-      exit(1);
-    }
+  } else {
+    LOG("gevgen", pFATAL) << "Unspecified neutrino energy - Exiting";
+    PrintSyntax();
+    exit(1);
   }
 
   // neutrino PDG code:
-  try {
+  if( parser.OptionExists('p') ) {
     LOG("gevgen", pINFO) << "Reading neutrino PDG code";
-    gOptNuPdgCode = genie::utils::clap::CmdLineArgAsInt(argc,argv,'p');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gevgen", pFATAL) << "Unspecified neutrino PDG code - Exiting";
-      PrintSyntax();
-      exit(1);
-    }
+    gOptNuPdgCode = parser.ArgAsInt('p');
+  } else {
+    LOG("gevgen", pFATAL) << "Unspecified neutrino PDG code - Exiting";
+    PrintSyntax();
+    exit(1);
   }
 
   // target mix (their PDG codes with their corresponding weights):
   bool using_tgtmix = false;
-  try {
+  if( parser.OptionExists('t') ) {
     LOG("gevgen", pINFO) << "Reading target mix";
-    string stgtmix = genie::utils::clap::CmdLineArgAsString(argc,argv,'t');
+    string stgtmix = parser.ArgAsString('t');
     gOptTgtMix.clear();
     vector<string> tgtmix = utils::str::Split(stgtmix,",");
     if(tgtmix.size()==1) {
@@ -573,12 +563,10 @@ void GetCommandLineArgs(int argc, char ** argv)
       }//tgtmix_iter
     }//>1
 
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gevgen", pFATAL) << "Unspecified target PDG code - Exiting";
-      PrintSyntax();
-      exit(1);
-    }
+  } else {
+    LOG("gevgen", pFATAL) << "Unspecified target PDG code - Exiting";
+    PrintSyntax();
+    exit(1);
   }
 
   gOptUsingFluxOrTgtMix = using_flux || using_tgtmix;

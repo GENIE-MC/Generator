@@ -6,25 +6,23 @@
 \brief   A GENIE utility printing-out GHEP event trees.
 
          Syntax:
-           shell$ gevdump -f filename [-n nevents] [-o]
+           shell$ gevdump -f filename [-n n1[,n2]] 
 
          [] denotes an optional argument
 
          -f Specifies a GENIE GHEP/ROOT event file.
-         -n Specifies how many event to print (default: all)
-         -o If set, instructs GENIE to print-out only the event whose number is
-            specified via the `-n' option.
+         -n Specifies range of events to print-out (default: all)
 
          Examples:
 
          1. Print out all events from /data/sample.ghep.root 
-            shell$ gevdump -f /data/sample.ghep.root
+            % gevdump -f /data/sample.ghep.root
 
          2. Print out the first 500 events from /data/sample.ghep.root 
-            shell$ gevdump -f /data/sample.ghep.root -n 500
+            % gevdump -f /data/sample.ghep.root -n 0,499
 
-         3. Print out the event with id=178 from /data/sample.ghep.root 
-            shell$ gevdump -f /data/sample.ghep.root -n 178 -o
+         3. Print out the event 178 from /data/sample.ghep.root 
+            shell$ gevdump -f /data/sample.ghep.root -n 178
 
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          STFC, Rutherford Appleton Laboratory
@@ -39,56 +37,161 @@
 
 #include <string>
 
-#include <TSystem.h>
 #include <TFile.h>
 #include <TTree.h>
+#include <TLeaf.h>
 
+#include "Conventions/GBuild.h"
 #include "EVGCore/EventRecord.h"
 #include "Ntuple/NtpMCFormat.h"
 #include "Ntuple/NtpMCTreeHeader.h"
 #include "Ntuple/NtpMCEventRecord.h"
 #include "Messenger/Messenger.h"
-#include "Utils/CmdLineArgParserUtils.h"
-#include "Utils/CmdLineArgParserException.h"
+#include "Utils/CmdLnArgParser.h"
+
+#ifdef __GENIE_FLUX_DRIVERS_ENABLED__
+#include "FluxDrivers/GJPARCNuFlux.h"
+#include "FluxDrivers/GNuMIFlux.h"
+#endif 
 
 using std::string;
 using namespace genie;
 
 void GetCommandLineArgs (int argc, char ** argv);
 void PrintSyntax        (void);
-bool CheckRootFilename  (string filename);
-void Print1             (TTree * event_tree);
-void PrintN             (TTree * event_tree);
+void GetEventRange      (Long64_t nev, Long64_t & n1, Long64_t & n2);
 
-int    gOptNEvt;
-string gOptInpFilename;
-bool   gOptPrint1;
+Long64_t gOptNEvtL;
+Long64_t gOptNEvtH;
+string   gOptInpFilename;
 
 //___________________________________________________________________
 int main(int argc, char ** argv)
 {
   GetCommandLineArgs (argc, argv);
 
-  //-- open the ROOT file and get the TTree & its header
-  TTree *           tree = 0;
-  NtpMCTreeHeader * thdr = 0;
+  //
+  // open the ROOT file and get the TTree & its header
+  //
 
   TFile file(gOptInpFilename.c_str(),"READ");
 
-  tree = dynamic_cast <TTree *>           ( file.Get("gtree")  );
-  thdr = dynamic_cast <NtpMCTreeHeader *> ( file.Get("header") );
+  TTree * ghep_tree = 
+     dynamic_cast <TTree *> (file.Get("gtree"));
+  if(!ghep_tree) {
+    LOG("gevdump", pFATAL) 
+        << "No GHEP event tree in input file: " << gOptInpFilename;
+    gAbortingInErr=true;
+    exit(1);
+  }
+  Long64_t nev = ghep_tree->GetEntries();
+  LOG("gevdump", pFATAL) 
+     << "Input GHEP event tree has " << nev 
+     << ((nev==1) ? " entry." : " entries.");
 
-  if(!tree) return 1;
-
+  NtpMCTreeHeader * thdr = 
+     dynamic_cast <NtpMCTreeHeader *> ( file.Get("header") );
   LOG("gevdump", pNOTICE) 
      << "Input tree header: " << *thdr;
 
-  NtpMCFormat_t format = thdr->format;
-  LOG("gevdump", pINFO) 
-    << "This ntuple's format is : " << NtpMCFormat::AsString(format);
+  //  
+  // set branch addresses
+  //
 
-  if(gOptPrint1) Print1(tree);
-  else           PrintN(tree);
+  // main event record branch, always present
+  NtpMCEventRecord * mcrec = 0;
+  ghep_tree->SetBranchAddress("gmcrec", &mcrec);
+
+  // if the event file was created by GENIE's gevpick `cherry-picking' app 
+  // (see $GENIE/src/stdapp/gEvPick.cxx) then there will be additional branches
+  // holding the original event filename and event number (in that file) 
+  // for each `cherry-picked' event.
+  bool have_gevpick_branches = false;
+  TObjString* orig_filename = 0;
+  Long64_t    orig_evtnum;
+  TBranch * brOrigFilename = ghep_tree->GetBranch("orig_filename");
+  TBranch * brOrigEvtNum   = ghep_tree->GetBranch("orig_evtnum");
+  if(brOrigFilename!=0 && brOrigEvtNum!=0) {
+    have_gevpick_branches = true;
+    brOrigFilename->SetAddress(&orig_filename);
+    brOrigEvtNum  ->SetAddress(&orig_evtnum);
+  }
+
+  // if the event file was created by one of GENIE's specialized event generation 
+  // applications for T2K or the NuMI-beamline expts (see $GENIE/src/support/) 
+  // then there may be additional branches holding JPARC and NuMI flux pass-through 
+  // info (flux neutrino parent info for each generated event).
+#ifdef __GENIE_FLUX_DRIVERS_ENABLED__
+  flux::GJPARCNuFluxPassThroughInfo * jparc_flux_info = 0;
+  flux::GNuMIFluxPassThroughInfo *    gnumi_flux_info = 0;
+  TBranch * brFluxInfo = ghep_tree->GetBranch("flux");
+  if(brFluxInfo) {
+    TObjArray * leafarr = brFluxInfo->GetListOfLeaves();
+    TIter iter(leafarr);
+    TLeaf * leaf = 0;
+    while((leaf = (TLeaf*)iter.Next())) {
+      string ltypename = leaf->GetTypeName();
+      if(ltypename == "genie::flux::GJPARCNuFluxPassThroughInfo") {
+        brFluxInfo->SetAddress(&jparc_flux_info);
+        LOG("gevdump", pNOTICE) 
+          << "Found JPARC neutrino flux pass-though info";
+      }
+      else
+      if(ltypename == "genie::flux::GNuMIFluxPassThroughInfo") {
+        brFluxInfo->SetAddress(&gnumi_flux_info);
+        LOG("gevdump", pNOTICE) 
+          << "Found NuMI neutrino flux pass-though info";
+      }
+    }//leaf
+  }//flux branch
+#endif
+
+
+  //
+  // event loop
+  //
+
+  Long64_t n1,n2;
+  GetEventRange(nev,n1,n2);
+  for(Long64_t i = n1; i <= n2; i++) {
+    ghep_tree->GetEntry(i);
+
+    // retrieve GHEP event record abd print it out.
+    NtpMCRecHeader rec_header = mcrec->hdr;
+    EventRecord &  event = *(mcrec->event);
+    LOG("gevdump", pNOTICE) 
+       << " ** Event: " << rec_header.ievent 
+       << event;
+
+    // print info from additional tree branches that might be present
+    // if the event file was created by GENIE's gevpick app.
+    if(have_gevpick_branches) {
+     LOG("gevdump", pNOTICE) 
+        << "\n Above event was originally event: " << orig_evtnum
+        << "\n in event file: " << orig_filename->GetString().Data()
+        << "\n\n";
+    }
+
+    // print info from additional JPARC or NuMI flux pass-through branches
+    // that might be present of the event file was created by GENIE's
+    // specialized event generation applications for T2K or NuMI-expts.
+#ifdef __GENIE_FLUX_DRIVERS_ENABLED__
+    if(jparc_flux_info) {
+      LOG("gevdump", pNOTICE) 
+        << "Associated JPARC flux pass-through info for above event:"
+        << *jparc_flux_info;
+    }
+    if(gnumi_flux_info) {
+      LOG("gevdump", pNOTICE) 
+        << "Associated NuMI flux pass-through info for above event:"
+        << *gnumi_flux_info;
+    }
+#endif
+
+    mcrec->Clear();
+  }
+
+  // clean-up
 
   file.Close();
 
@@ -96,98 +199,77 @@ int main(int argc, char ** argv)
   return 0;
 }
 //___________________________________________________________________
-void Print1(TTree * tree) 
+void GetEventRange(Long64_t nev, Long64_t & n1, Long64_t & n2)
 {
-  int nev = (int) tree->GetEntries();
-  if(gOptNEvt < 0 || gOptNEvt >= nev) return;
-
-  NtpMCEventRecord * mcrec = 0;
-  tree->SetBranchAddress("gmcrec", &mcrec);
-
-  tree->GetEntry(gOptNEvt);
-
-  NtpMCRecHeader rec_header = mcrec->hdr;
-  EventRecord &  event      = *(mcrec->event);
-
-  LOG("gevdump", pNOTICE) << rec_header;
-  LOG("gevdump", pNOTICE) << event;
-
-  mcrec->Clear();
-}
-//___________________________________________________________________
-void PrintN(TTree * tree) 
-{
-  NtpMCEventRecord * mcrec = 0;
-  tree->SetBranchAddress("gmcrec", &mcrec);
-
-  int nev = (gOptNEvt > 0) ?
-        TMath::Min(gOptNEvt, (int)tree->GetEntries()) :
-        (int) tree->GetEntries();
-
-  //-- event loop
-  for(int i = 0; i < nev; i++) {
-    tree->GetEntry(i);
-
-    NtpMCRecHeader rec_header = mcrec->hdr;
-    EventRecord &  event      = *(mcrec->event);
-
-    LOG("gevdump", pNOTICE) << rec_header;
-    LOG("gevdump", pNOTICE) << event;
-
-    mcrec->Clear();
+  if(gOptNEvtL == -1 && gOptNEvtH == -1) {
+    // read all events
+    n1=0;
+    n2=nev-1;
+  }
+  else {
+    // read a range of events
+    n1 = TMath::Max((Long64_t)0,  gOptNEvtL);
+    n2 = TMath::Min(nev-1,        gOptNEvtH);
+    if(n2-n1 <0) {
+      LOG("gevdump", pFATAL) << "Invalid event range";
+      PrintSyntax();
+      gAbortingInErr = true;
+      exit(1);
+    } 
   }
 }
 //___________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
 {
-  LOG("gevdump", pINFO) << "*** Parsing commad line arguments";
+  LOG("gevdump", pINFO) << "*** Parsing command line arguments";
+
+  CmdLnArgParser parser(argc,argv);
 
   // get GENIE event sample
-  try {
+  if ( parser.OptionExists('f') ) {
     LOG("gevdump", pINFO) << "Reading event sample filename";
-    gOptInpFilename = utils::clap::CmdLineArgAsString(argc,argv,'f');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gevdump", pFATAL) 
-        << "Unspecified input filename - Exiting";
-      PrintSyntax();
-      exit(1);
-    }
+    gOptInpFilename = parser.ArgAsString('f');
+  } else {
+    LOG("gevdump", pFATAL) 
+       << "Unspecified input filename - Exiting";
+    PrintSyntax();
+    gAbortingInErr = true;
+    exit(1);
   }
 
   // number of events:
-  try {    
+  if ( parser.OptionExists('n') ) {
     LOG("gevdump", pINFO) << "Reading number of events to analyze";
-    gOptNEvt = genie::utils::clap::CmdLineArgAsInt(argc,argv,'n');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gevdump", pINFO)
-        << "Unspecified number of events to analyze - Use all";
-      gOptNEvt = -1;
+    string nev =  parser.ArgAsString('n');
+    if (nev.find(",") != string::npos) {
+      vector<long> vecn = parser.ArgAsLongTokens('n',",");
+      if(vecn.size()!=2) {
+         LOG("gevdump", pFATAL) << "Invalid syntax";
+         PrintSyntax();
+         gAbortingInErr = true;
+         exit(1);
+      }
+      // read a range of events
+      gOptNEvtL = vecn[0];
+      gOptNEvtH = vecn[1];       
+    } else {
+      // read single event
+      gOptNEvtL = parser.ArgAsLong('n');
+      gOptNEvtH = gOptNEvtL;
     }
+  } else {
+    LOG("gevdump", pINFO)
+      << "Unspecified number of events to analyze - Use all";
+    gOptNEvtL = -1;
+    gOptNEvtH = -1;
   }
 
-  gOptPrint1 = genie::utils::clap::CmdLineArgAsBool(argc,argv,'o');  
 }
 //_________________________________________________________________________________
 void PrintSyntax(void)
 {
   LOG("gevdump", pNOTICE)
     << "\n\n" << "Syntax:" << "\n"
-    << "   gevdump -f sample.root [-n nev] [-o] \n";
+    << "   gevdump -f sample.root [-n n1[,n2]] [-o] \n";
 }
 //_________________________________________________________________________________
-bool CheckRootFilename(string filename)
-{
-  if(filename.size() == 0) return false;
-    
-  bool is_accessible = ! (gSystem->AccessPathName(filename.c_str()));
-  if (!is_accessible) {
-   LOG("gevdump", pERROR)  
-       << "The input ROOT file [" << filename << "] is not accessible";
-   return false;
-  }
-  return true;
-}
-//_________________________________________________________________________________
-

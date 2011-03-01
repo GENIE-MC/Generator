@@ -100,8 +100,7 @@
 #include "PDG/PDGLibrary.h"
 #include "Utils/XSecSplineList.h"
 #include "Utils/StringUtils.h"
-#include "Utils/CmdLineArgParserUtils.h"
-#include "Utils/CmdLineArgParserException.h"
+#include "Utils/CmdLnArgParser.h"
 
 using std::string;
 using std::vector;
@@ -559,10 +558,11 @@ void SaveGraphsToRootFile(void)
     else if (proc.IsNuElectronElastic()) { title << "ve";    }
     else                                 { continue;         }
 
-    if      (proc.IsWeakCC()) { title << "_cc"; }
-    else if (proc.IsWeakNC()) { title << "_nc"; }
-    else if (proc.IsEM()    ) { title << "_em"; }
-    else                      { continue;       }
+    if      (proc.IsWeakCC())  { title << "_cc";      }
+    else if (proc.IsWeakNC())  { title << "_nc";      }
+    else if (proc.IsWeakMix()) { title << "_ccncmix"; }
+    else if (proc.IsEM()    )  { title << "_em";      }
+    else                       { continue;            }
 
     if(tgt.HitNucIsSet()) {
       int hitnuc = tgt.HitNucPdg();
@@ -1154,65 +1154,64 @@ void SaveNtupleToRootFile(void)
 //____________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
 {
-  LOG("gspl2root", pINFO) << "Parsing commad line arguments";
+  LOG("gspl2root", pINFO) << "Parsing command line arguments";
 
-  //input XML file name:
-  try {
+  CmdLnArgParser parser(argc,argv);
+
+  // input XML file name:
+  if( parser.OptionExists('f') ) {
     LOG("gspl2root", pINFO) << "Reading input XML filename";
-    gOptXMLFilename = genie::utils::clap::CmdLineArgAsString(argc,argv,'f');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gspl2root", pFATAL) << "Unspecified input XML file!";
-      PrintSyntax();
-      exit(1);
-    }
+    gOptXMLFilename = parser.ArgAsString('f');
+  } else {
+    LOG("gspl2root", pFATAL) << "Unspecified input XML file!";
+    PrintSyntax();
+    exit(1);
   }
+
   // probe PDG code:
-  try {
+  if( parser.OptionExists('p') ) {
     LOG("gspl2root", pINFO) << "Reading probe PDG code";
-    gOptProbePdgCode = genie::utils::clap::CmdLineArgAsInt(argc,argv,'p');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gspl2root", pFATAL) 
-         << "Unspecified probe PDG code - Exiting";
-      PrintSyntax();
-      exit(1);
-    }
+    gOptProbePdgCode = parser.ArgAsInt('p');
+  } else {
+    LOG("gspl2root", pFATAL) 
+       << "Unspecified probe PDG code - Exiting";
+    PrintSyntax();
+    exit(1);
   }
+
   // target PDG code:
-  try {
+  if( parser.OptionExists('t') ) {
     LOG("gspl2root", pINFO) << "Reading target PDG code";
-    gOptTgtPdgCode = genie::utils::clap::CmdLineArgAsInt(argc,argv,'t');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gspl2root", pFATAL) << "Unspecified target PDG code - Exiting";
-      PrintSyntax();
-      exit(1);
-    }
+    gOptTgtPdgCode = parser.ArgAsInt('t');
+  } else {
+    LOG("gspl2root", pFATAL) 
+      << "Unspecified target PDG code - Exiting";
+    PrintSyntax();
+    exit(1);
   } 
+
   // max neutrino energy
-  try {
+  if( parser.OptionExists('e') ) {
     LOG("gspl2root", pINFO) << "Reading neutrino energy";
-    gOptNuEnergy = genie::utils::clap::CmdLineArgAsDouble(argc,argv,'e');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gspl2root", pDEBUG)  << "Unspecified Emax - Setting to 100 GeV";
-      gOptNuEnergy = 100;
-    }
+    gOptNuEnergy = parser.ArgAsDouble('e');
+  } else {
+    LOG("gspl2root", pDEBUG)  
+       << "Unspecified Emax - Setting to 100 GeV";
+    gOptNuEnergy = 100;
   }
+
   // output ROOT file name:
-  try {
+  if( parser.OptionExists('o') ) {
     LOG("gspl2root", pINFO) << "Reading output ROOT filename";
-    gOptROOTFilename = genie::utils::clap::CmdLineArgAsString(argc,argv,'o');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gspl2root", pDEBUG)  
+    gOptROOTFilename = parser.ArgAsString('o');
+  } else {
+    LOG("gspl2root", pDEBUG)  
        << "Unspecified output ROOT file. Using default: gxsec.root";
-      gOptROOTFilename = "gxsec.root";
-    }
+    gOptROOTFilename = "gxsec.root";
   }
+
   //write-out a PS file with plots
-  gWriteOutPlots = genie::utils::clap::CmdLineArgAsBool(argc,argv,'w');
+  gWriteOutPlots = parser.OptionExists('w');
 
   gEmin  = kEmin;
   gEmax  = gOptNuEnergy;

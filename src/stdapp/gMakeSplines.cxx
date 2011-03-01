@@ -60,8 +60,7 @@
 #include "PDG/PDGCodeList.h"
 #include "Utils/StringUtils.h"
 #include "Utils/XSecSplineList.h"
-#include "Utils/CmdLineArgParserUtils.h"
-#include "Utils/CmdLineArgParserException.h"
+#include "Utils/CmdLnArgParser.h"
 
 #ifdef __GENIE_GEOM_DRIVERS_ENABLED__
 #include "Geo/ROOTGeomAnalyzer.h"
@@ -153,83 +152,71 @@ int main(int argc, char ** argv)
 //____________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
 {
-  LOG("gmkspl", pINFO) << "Parsing commad line arguments";
+  LOG("gmkspl", pINFO) << "Parsing command line arguments";
+
+  CmdLnArgParser parser(argc,argv);
 
   //-- Optional arguments
 
-  //output XML file name:
-  try {
+  // output XML file name:
+  if( parser.OptionExists('o') ) {
     LOG("gmkspl", pINFO) << "Reading output filename";
-    gOptXMLFilename = genie::utils::clap::CmdLineArgAsString(argc,argv,'o');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gmkspl", pINFO) << "Unspecified filename - Using default";
-      gOptXMLFilename = kDefOptXMLFilename;
-    }
+    gOptXMLFilename = parser.ArgAsString('o');
+  } else {
+    LOG("gmkspl", pINFO) << "Unspecified filename - Using default";
+    gOptXMLFilename = kDefOptXMLFilename;
   }
 
-  //number of knots:
-  try {
+  // number of knots:
+  if( parser.OptionExists('n') ) {
     LOG("gmkspl", pINFO) << "Reading number of knots/spline";
-    gOptNKnots = genie::utils::clap::CmdLineArgAsInt(argc,argv,'n');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gmkspl", pINFO)
-            << "Unspecified number of knots - Using default";
-      gOptNKnots = -1;
-    }
+    gOptNKnots = parser.ArgAsInt('n');
+  } else {
+    LOG("gmkspl", pINFO)
+      << "Unspecified number of knots - Using default";
+    gOptNKnots = -1;
   }
 
-  //max spline energy (if < max of validity range)
-  try {
+  // max spline energy (if < max of validity range)
+  if( parser.OptionExists('e') ) {
     LOG("gmkspl", pINFO) << "Reading maximum spline energy";
-    gOptMaxE = genie::utils::clap::CmdLineArgAsDouble(argc,argv,'e');
-
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gmkspl", pINFO) 
-             << "Unspecified maximum spline energy - Using default";
-      gOptMaxE = -1;
-    }
+    gOptMaxE = parser.ArgAsDouble('e');
+  } else {
+    LOG("gmkspl", pINFO) 
+       << "Unspecified maximum spline energy - Using default";
+    gOptMaxE = -1;
   }
 
   //-- Required arguments
 
-  //comma-separated neutrino PDG code list:
-
-  try {
-    LOG("gmkspl", pINFO) << "Reading neutrino PDG codes from command line";
-    gOptNuPdgCodeList = genie::utils::clap::CmdLineArgAsString(argc,argv,'p');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gmkspl", pFATAL) << "Unspecified neutrino PDG code list - Exiting";
-      PrintSyntax();
-      exit(1);
-    }
+  // comma-separated neutrino PDG code list:
+  if( parser.OptionExists('p') ) {
+    LOG("gmkspl", pINFO) << "Reading neutrino PDG codes";
+    gOptNuPdgCodeList = parser.ArgAsString('p');
+  } else {
+    LOG("gmkspl", pFATAL) 
+       << "Unspecified neutrino PDG code list - Exiting";
+    PrintSyntax();
+    exit(1);
   }
 
-  //comma-separated target PDG code list or input geometry file:
-
+  // comma-separated target PDG code list or input geometry file:
   bool tgt_cmd = true;
-  try {
-    LOG("gmkspl", pINFO) << "Reading target nuclei PDG codes from command line";
-    gOptTgtPdgCodeList = genie::utils::clap::CmdLineArgAsString(argc,argv,'t');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gmkspl", pINFO) << "No code list specified from the command line";
-      tgt_cmd = false;
-    }
+  if( parser.OptionExists('t') ) {
+    LOG("gmkspl", pINFO) << "Reading target nuclei PDG codes";
+    gOptTgtPdgCodeList = parser.ArgAsString('t');
+  } else {
+    LOG("gmkspl", pINFO) << "No code list specified from the command line";
+    tgt_cmd = false;
   }
 
   bool tgt_geom = true;
-  try {
-    LOG("gmkspl", pINFO) << "Reading ROOT/GEANT geometry filename";
-    gOptGeomFilename = genie::utils::clap::CmdLineArgAsString(argc,argv,'f');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gmkspl", pINFO) << "No geometry file was specified";
-      tgt_cmd = false;
-    }
+  if( parser.OptionExists('f') ) {
+    LOG("gmkspl", pINFO) << "Reading ROOT geometry filename";
+    gOptGeomFilename = parser.ArgAsString('f');
+  } else {
+    LOG("gmkspl", pINFO) << "No geometry file was specified";
+    tgt_cmd = false;
   }
 
   bool both =  tgt_geom &&  tgt_cmd;

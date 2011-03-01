@@ -1,4 +1,4 @@
-//____________________________________________________________________________
+//_____________________________________________________________________________________________
 /*!
 
 \program gntpc
@@ -7,7 +7,7 @@
          plain text, XML or bare-ROOT formats.
 
          Syntax:
-           gntpc -i input_file [-o output_file] -f format [-n nev] [-v vrs]
+           gntpc -i input_file [-o output_file] -f format [-n nev] [-v vrs] [-c]
 
          Options :
 
@@ -19,28 +19,35 @@
            -v output format version, if multiple versions are supported
               (optional, default: use latest version of each format)
 
+           -c copy MC job metadata (gconfig and genv TFolders) from the input GHEP file.
+
            -f is a string that specifies the output file format. 
 
-	      [Generic formats]
+	      >> Generic formats
+
                * `gst': 
                     The 'definite' GENIE summary tree format (gst).
    	       * `gxml': 
                      GENIE XML event format 
+   	       * `ghep_mock_data': 
+                     Output file has the same format as the input file (GHEP) but
+                     all information other than final state particles is hidden
    	       * `rootracker': 
                      A bare-ROOT STDHEP-like GENIE event tree.
+   	       * `rootracker_mock_data': 
+                     As the `rootracker' format but hiddes all information
+                     except the final state particles.
 
-	      [Experiment-specific formats]
+	      >> Experiment-specific formats
+
+   	       * `t2k_rootracker':
+                     A variance of the `rootracker' format used by the nd280, INGRID and 2km. 
+                     Includes, in addition, JPARC flux pass-through info.
    	       * `numi_rootracker':
                      A variance of the `rootracker' format for the NuMI expts.
-                     Includes full information about the generated neutrino event 
-                     and pass-through NuMI flux info.
-   	       * `t2k_rootracker':
-                     A variance of the `rootracker' format used by the nd280, 
-                     INGRID and 2km MC. Includes full information about the 
-                     generated neutrino event and pass-through JPARC flux info.
+                     Includes, in addition, NuMI flux pass-through info.
    	       * `t2k_tracker': 
-                     A tracker-type format with tweaks required by the SuperK
-                     detector MC (SKDETSIM):
+                     A tracker-type format with tweaks required by the SuperK MC (SKDETSIM):
                         - Converting K0, \bar{K0} -> KO_{long}, K0_{short}
                         - Emulating 'NEUT' reaction codes
                         - Appropriate $track ordering for SKDETSIM
@@ -50,28 +57,33 @@
                           one used at the near detectors and can be used for 
                           global systematic studies.
 
-	      [GENIE test / cross-generator comparison formats]
+	      >> GENIE test / cross-generator comparison formats
+
    	       * `ghad': 
 	             NEUGEN-style text-based format for hadronization studies
    	       * `ginuke': 
-	             INTRANUKE summary ntuple for intranuclear-rescattering studies
+	             A summary ntuple for intranuclear-rescattering studies using simulated
+                     hadron-nucleus samples
 
-	      [Other (depreciated) formats]
+	      >> Other (depreciated) formats
+
    	       * `nuance_tracker': 
    		     NUANCE-style tracker text-based format 
 
            -o specifies the output filename. 
               If not specified a the default filename is constructed by the 
               input base name and an extension depending on the file format: 
-               `gst'             -> *.gst.root
-               `rootracker'      -> *.gtrac.root
-               `gxml'            -> *.gxml 
-               `t2k_tracker'     -> *.gtrac.dat
-               `t2k_rootracker'  -> *.gtrac.root
-               `numi_rootracker' -> *.gtrac.root
-               `ghad'            -> *.ghad.dat
-               `ginuke'          -> *.ginuke.root
-               `nuance_tracker'  -> *.gtrac_legacy.dat
+               `gst'                  -> *.gst.root
+               `gxml'                 -> *.gxml 
+               `ghep_mock_data'       -> *.mockd.ghep.root
+               `rootracker'           -> *.gtrac.root
+               `rootracker_mock_data' -> *.mockd.gtrac.root
+               `t2k_rootracker'       -> *.gtrac.root
+               `numi_rootracker'      -> *.gtrac.root
+               `t2k_tracker'          -> *.gtrac.dat
+               `nuance_tracker'       -> *.gtrac_legacy.dat
+               `ghad'                 -> *.ghad.dat
+               `ginuke'               -> *.ginuke.root
 		
          Examples:
            (1)  shell% gntpc -i myfile.ghep.root -f t2k_rootracker
@@ -89,7 +101,7 @@
          For the full text of the license visit http://copyright.genie-mc.org
          or see $GENIE/LICENSE
 */
-//____________________________________________________________________________
+//_____________________________________________________________________________________________
 
 #include <cassert>
 #include <string>
@@ -105,6 +117,7 @@
 #include <TSystem.h>
 #include <TFile.h>
 #include <TTree.h>
+#include <TFolder.h>
 #include <TBits.h>
 #include <TObjString.h>
 #include <TMath.h>
@@ -119,13 +132,13 @@
 #include "Ntuple/NtpMCFormat.h"
 #include "Ntuple/NtpMCTreeHeader.h"
 #include "Ntuple/NtpMCEventRecord.h"
+#include "Ntuple/NtpWriter.h"
 #include "Numerical/RandomGen.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
 #include "PDG/PDGLibrary.h"
-#include "Utils/CmdLineArgParserUtils.h"
-#include "Utils/CmdLineArgParserException.h"
+#include "Utils/CmdLnArgParser.h"
 #include "Utils/SystemUtils.h"
 #include "Utils/T2KEvGenMetaData.h"
 
@@ -151,9 +164,10 @@ using namespace genie::constants;
 
 //func prototypes
 void   ConvertToGST              (void);
+void   ConvertToGXML             (void);
+void   ConvertToGHepMock         (void);
 void   ConvertToGTracker         (void);
 void   ConvertToGRooTracker      (void);
-void   ConvertToGXML             (void);
 void   ConvertToGHad             (void);
 void   ConvertToGINuke           (void);
 void   GetCommandLineArgs        (int argc, char ** argv);
@@ -166,22 +180,25 @@ bool   CheckRootFilename         (string filename);
 typedef enum EGNtpcFmt {
   kConvFmt_undef = 0,
   kConvFmt_gst,
-  kConvFmt_rootracker,
   kConvFmt_gxml,
+  kConvFmt_ghep_mock_data,
+  kConvFmt_rootracker,
+  kConvFmt_rootracker_mock_data,
   kConvFmt_t2k_rootracker,
-  kConvFmt_t2k_tracker,
   kConvFmt_numi_rootracker,
+  kConvFmt_t2k_tracker,
   kConvFmt_nuance_tracker,
   kConvFmt_ghad,
   kConvFmt_ginuke
 } GNtpcFmt_t;
 
 //input options (from command line arguments):
-string     gOptInpFileName;   ///< input file name
-string     gOptOutFileName;   ///< output file name
-GNtpcFmt_t gOptOutFileFormat; ///< output file format id
-int        gOptVersion;       ///< output file format version
-Long64_t   gOptN;             ///< number of events to process
+string     gOptInpFileName;         ///< input file name
+string     gOptOutFileName;         ///< output file name
+GNtpcFmt_t gOptOutFileFormat;       ///< output file format id
+int        gOptVersion;             ///< output file format version
+Long64_t   gOptN;                   ///< number of events to process
+bool       gOptCopyJobMeta = false; ///< copy MC job metadata (gconfig, genv TFolders)
 
 //genie version used to generate the input event file 
 int gFileMajorVrs = -1;
@@ -190,8 +207,7 @@ int gFileRevisVrs = -1;
 
 //consts
 const int kNPmax = 100;
-
-//___________________________________________________________________
+//____________________________________________________________________________________
 int main(int argc, char ** argv)
 {
   //-- get the command line arguments
@@ -199,33 +215,46 @@ int main(int argc, char ** argv)
 
   //-- call the appropriate conversion function
   switch(gOptOutFileFormat) {
+
    case (kConvFmt_gst)  :
+
 	ConvertToGST();        
 	break;  
-   case (kConvFmt_rootracker) :  
-	ConvertToGRooTracker(); 
-	break;
+
    case (kConvFmt_gxml) :  
+
 	ConvertToGXML();         
 	break;
-   case (kConvFmt_t2k_rootracker) :  
+
+   case (kConvFmt_ghep_mock_data) :  
+
+	ConvertToGHepMock();         
+	break;
+
+   case (kConvFmt_rootracker          ) :  
+   case (kConvFmt_rootracker_mock_data) :  
+   case (kConvFmt_t2k_rootracker      ) :  
+   case (kConvFmt_numi_rootracker     ) :  
+
 	ConvertToGRooTracker(); 
 	break;
-   case (kConvFmt_t2k_tracker)  :  
-	ConvertToGTracker();        
-	break;
-   case (kConvFmt_numi_rootracker) :  
-	ConvertToGRooTracker(); 
-	break;
+
+   case (kConvFmt_t2k_tracker   )  :  
    case (kConvFmt_nuance_tracker)  :  
+
 	ConvertToGTracker();        
 	break;
+
    case (kConvFmt_ghad) :  
+
 	ConvertToGHad();         
 	break;
+
    case (kConvFmt_ginuke) :  
+
 	ConvertToGINuke();         
 	break;
+
    default:
      LOG("gntpc", pFATAL)
           << "Invalid output format [" << gOptOutFileFormat << "]";
@@ -235,9 +264,9 @@ int main(int argc, char ** argv)
   }
   return 0;
 }
-//___________________________________________________________________
-// ***** GENIE GHEP EVENT TREE FORMAT -> GENIE SUMMARY NTUPLE *****
-//___________________________________________________________________
+//____________________________________________________________________________________
+// GENIE GHEP EVENT TREE FORMAT -> GENIE SUMMARY NTUPLE 
+//____________________________________________________________________________________
 void ConvertToGST(void)
 {
   //-- some constants
@@ -247,6 +276,7 @@ void ConvertToGST(void)
   //
   int    brIev         = 0;      // Event number 
   int    brNeutrino    = 0;      // Neutrino pdg code
+  int    brFSPrimLept  = 0;      // Final state primary lepton pdg code
   int    brTarget      = 0;      // Nuclear target pdg code (10LZZZAAAI)
   int    brTargetZ     = 0;      // Nuclear target Z (extracted from pdg code above)
   int    brTargetA     = 0;      // Nuclear target A (extracted from pdg code above)
@@ -261,9 +291,9 @@ void ConvertToGST(void)
   bool   brIsDfr       = false;  // Is Diffractive?
   bool   brIsImd       = false;  // Is IMD?
   bool   brIsNuEL      = false;  // Is ve elastic?
-  bool   brIsEM        = false;  // Is Electro-magnetic?
-  bool   brIsCC        = false;  // Is CC?
-  bool   brIsNC        = false;  // Is NC?
+  bool   brIsEM        = false;  // Is EM process?
+  bool   brIsCC        = false;  // Is Weak CC process?
+  bool   brIsNC        = false;  // Is Weak NC process?
   bool   brIsCharmPro  = false;  // Produces charm?
   int    brCodeNeut    = 0;      // The equivalent NEUT reaction code (if any)
   int    brCodeNuance  = 0;      // The equivalent NUANCE reaction code (if any)
@@ -289,7 +319,9 @@ void ConvertToGST(void)
   double brEl          = 0;      // Final state primary lepton energy @ LAB
   double brPxl         = 0;      // Final state primary lepton px @ LAB
   double brPyl         = 0;      // Final state primary lepton py @ LAB
-  double brPzl         = 0;      // Final state primary lepton pz  @ LAB
+  double brPzl         = 0;      // Final state primary lepton pz @ LAB
+  double brPl          = 0;      // Final state primary lepton p  @ LAB
+  double brCosthl      = 0;      // Final state primary lepton cos(theta) wrt to neutrino direction
   int    brNfP         = 0;      // Nu. of final state p's + \bar{p}'s (after intranuclear rescattering)
   int    brNfN         = 0;      // Nu. of final state n's + \bar{n}'s
   int    brNfPip       = 0;      // Nu. of final state pi+'s
@@ -311,11 +343,13 @@ void ConvertToGST(void)
   int    brNiEM        = 0;      // Nu. of `primary' gammas and e-/e+ 
   int    brNiOther     = 0;      // Nu. of other `primary' hadron shower particles
   int    brNf          = 0;      // Nu. of final state particles in hadronic system
-  int    brPdgf[kNPmax];         // Pdg code of k^th final state particle in hadronic system
-  double brEf  [kNPmax];         // Energy   of k^th final state particle in hadronic system @ LAB
-  double brPxf [kNPmax];         // Px       of k^th final state particle in hadronic system @ LAB
-  double brPyf [kNPmax];         // Py       of k^th final state particle in hadronic system @ LAB
-  double brPzf [kNPmax];         // Pz       of k^th final state particle in hadronic system @ LAB
+  int    brPdgf  [kNPmax];       // Pdg code of k^th final state particle in hadronic system
+  double brEf    [kNPmax];       // Energy     of k^th final state particle in hadronic system @ LAB
+  double brPxf   [kNPmax];       // Px         of k^th final state particle in hadronic system @ LAB
+  double brPyf   [kNPmax];       // Py         of k^th final state particle in hadronic system @ LAB
+  double brPzf   [kNPmax];       // Pz         of k^th final state particle in hadronic system @ LAB
+  double brPf    [kNPmax];       // P          of k^th final state particle in hadronic system @ LAB
+  double brCosthf[kNPmax];       // cos(theta) of k^th final state particle in hadronic system @ LAB wrt to neutrino direction
   int    brNi          = 0;      // Nu. of particles in 'primary' hadronic system (before intranuclear rescattering)
   int    brPdgi[kNPmax];         // Pdg code of k^th particle in 'primary' hadronic system 
   int    brResc[kNPmax];         // FSI code of k^th particle in 'primary' hadronic system 
@@ -345,6 +379,7 @@ void ConvertToGST(void)
   //
   s_tree->Branch("iev",           &brIev,           "iev/I"         );
   s_tree->Branch("neu",	          &brNeutrino,      "neu/I"	    );
+  s_tree->Branch("fspl",	  &brFSPrimLept,    "fspl/I"	    );
   s_tree->Branch("tgt",           &brTarget,        "tgt/I"	    );
   s_tree->Branch("Z",             &brTargetZ,       "Z/I"	    );
   s_tree->Branch("A",             &brTargetA,       "A/I"	    );
@@ -388,6 +423,8 @@ void ConvertToGST(void)
   s_tree->Branch("pxl",	          &brPxl,	    "pxl/D"	    );
   s_tree->Branch("pyl",	          &brPyl,	    "pyl/D"	    );
   s_tree->Branch("pzl",	          &brPzl,	    "pzl/D"	    );
+  s_tree->Branch("pl",            &brPl,            "pl/D"          );
+  s_tree->Branch("cthl",          &brCosthl,        "cthl/D"        );
   s_tree->Branch("nfp",	          &brNfP,	    "nfp/I"	    );
   s_tree->Branch("nfn",	          &brNfN,	    "nfn/I"	    );
   s_tree->Branch("nfpip",         &brNfPip,	    "nfpip/I"	    );
@@ -398,14 +435,14 @@ void ConvertToGST(void)
   s_tree->Branch("nfk0",          &brNfK0,	    "nfk0/I"	    );
   s_tree->Branch("nfem",          &brNfEM,	    "nfem/I"	    );
   s_tree->Branch("nfother",       &brNfOther,       "nfother/I"     );
-  s_tree->Branch("nip",	          &brNiP,	    "np/I"	    );
-  s_tree->Branch("nin",	          &brNiN,	    "nn/I"	    );
-  s_tree->Branch("nipip",         &brNiPip,	    "npip/I"	    );
-  s_tree->Branch("nipim",         &brNiPim,	    "npim/I"	    );
-  s_tree->Branch("nipi0",         &brNiPi0,	    "npi0/I"	    );
-  s_tree->Branch("nikp",          &brNiKp,	    "nkp/I"	    );
-  s_tree->Branch("nikm",          &brNiKm,	    "nkm/I"	    );
-  s_tree->Branch("nik0",          &brNiK0,	    "nk0/I"	    );
+  s_tree->Branch("nip",	          &brNiP,	    "nip/I"	    );
+  s_tree->Branch("nin",	          &brNiN,	    "nin/I"	    );
+  s_tree->Branch("nipip",         &brNiPip,	    "nipip/I"	    );
+  s_tree->Branch("nipim",         &brNiPim,	    "nipim/I"	    );
+  s_tree->Branch("nipi0",         &brNiPi0,	    "nipi0/I"	    );
+  s_tree->Branch("nikp",          &brNiKp,	    "nikp/I"	    );
+  s_tree->Branch("nikm",          &brNiKm,	    "nikm/I"	    );
+  s_tree->Branch("nik0",          &brNiK0,	    "nik0/I"	    );
   s_tree->Branch("niem",          &brNiEM,	    "niem/I"	    );
   s_tree->Branch("niother",       &brNiOther,       "niother/I"     );
   s_tree->Branch("ni",	         &brNi,	            "ni/I"	    );
@@ -421,6 +458,8 @@ void ConvertToGST(void)
   s_tree->Branch("pxf",	          brPxf,	    "pxf[nf]/D"     );
   s_tree->Branch("pyf",	          brPyf,	    "pyf[nf]/D"     );
   s_tree->Branch("pzf",	          brPzf,	    "pzf[nf]/D"     );
+  s_tree->Branch("pf",            brPf,             "pf[nf]/D"      );
+  s_tree->Branch("cthf",          brCosthf,         "cthf[nf]/D"    );
   s_tree->Branch("vtxx",         &brVtxX,	    "vtxx/D"        );
   s_tree->Branch("vtxy",         &brVtxY,	    "vtxy/D"        );
   s_tree->Branch("vtxz",         &brVtxZ,	    "vtxz/D"        );
@@ -481,17 +520,19 @@ void ConvertToGST(void)
     // clean-up arrays
     //
     for(int j=0; j<kNPmax; j++) {
-       brPdgi[j] =  0;     
-       brResc[j] = -1;     
-       brEi  [j] =  0;     
-       brPxi [j] =  0;     
-       brPyi [j] =  0;     
-       brPzi [j] =  0;     
-       brPdgf[j] =  0;     
-       brEf  [j] =  0;     
-       brPxf [j] =  0;     
-       brPyf [j] =  0;     
-       brPzf [j] =  0;     
+       brPdgi   [j] =  0;     
+       brResc   [j] = -1;     
+       brEi     [j] =  0;     
+       brPxi    [j] =  0;     
+       brPyi    [j] =  0;     
+       brPzi    [j] =  0;     
+       brPdgf   [j] =  0;     
+       brEf     [j] =  0;     
+       brPxf    [j] =  0;     
+       brPyf    [j] =  0;     
+       brPzf    [j] =  0;     
+       brPf     [j] =  0;     
+       brCosthf [j] =  0;     
     }
 
     // Computing event characteristics
@@ -702,6 +743,7 @@ void ConvertToGST(void)
     //
     brIev        = (int) iev;      
     brNeutrino   = neutrino->Pdg();      
+    brFSPrimLept = fsl->Pdg();
     brTarget     = target->Pdg(); 
     brTargetZ    = tgtZ;
     brTargetA    = tgtA;   
@@ -743,6 +785,8 @@ void ConvertToGST(void)
     brPxl        = k2.Px();      
     brPyl        = k2.Py();      
     brPzl        = k2.Pz();      
+    brPl         = k2.P();
+    brCosthl     = TMath::Cos( k2.Vect().Angle(k1.Vect()) );
 
     // prim had syst
     brNiP        = 0;
@@ -817,13 +861,17 @@ void ConvertToGST(void)
       double hpx  = p->Px();     
       double hpy  = p->Py();     
       double hpz  = p->Pz();     
+      double hp   = TMath::Sqrt(hpx*hpx + hpy*hpy + hpz*hpz);
       double hm   = p->Mass();     
+      double hcth = TMath::Cos( p->P4()->Vect().Angle(k1.Vect()) );
 
-      brPdgf[j] = hpdg;
-      brEf  [j] = hE;
-      brPxf [j] = hpx;
-      brPyf [j] = hpy;
-      brPzf [j] = hpz;
+      brPdgf  [j] = hpdg;
+      brEf    [j] = hE;
+      brPxf   [j] = hpx;
+      brPyf   [j] = hpy;
+      brPzf   [j] = hpz;
+      brPf    [j] = hp;
+      brCosthf[j] = hcth;
 
       if      ( hpdg == kPdgProton      )  { brNfP++;     brCalResp0 += hKE;        }
       else if ( hpdg == kPdgAntiProton  )  { brNfP++;     brCalResp0 += (hE + hm);  }
@@ -867,14 +915,24 @@ void ConvertToGST(void)
 
   } // event loop
 
+
+  // Copy MC job metadata (gconfig and genv TFolders)
+  if(gOptCopyJobMeta) {
+    TFolder * genv    = (TFolder*) fin.Get("genv");
+    TFolder * gconfig = (TFolder*) fin.Get("gconfig");
+    fout.cd();       
+    genv    -> Write("genv");
+    gconfig -> Write("gconfig");
+  }
+
   fin.Close();
 
   fout.Write();
   fout.Close();
 }
-//___________________________________________________________________
-//  ** GENIE GHEP EVENT TREE FORMAT -> GENIE XML EVENT FILE FORMAT **
-//___________________________________________________________________
+//____________________________________________________________________________________
+// GENIE GHEP EVENT TREE FORMAT -> GENIE XML EVENT FILE FORMAT 
+//____________________________________________________________________________________
 void ConvertToGXML(void)
 {
   //-- open the ROOT file and get the TTree & its header
@@ -1018,9 +1076,81 @@ void ConvertToGXML(void)
 
   LOG("gntpc", pINFO) << "\nDone converting GENIE's GHEP ntuple";
 }
-//___________________________________________________________________
-// ******** GENIE GHEP EVENT TREE FORMAT -> TRACKER FORMATS ********
-//___________________________________________________________________
+//____________________________________________________________________________________
+// GENIE GHEP FORMAT -> GHEP MOCK DATA FORMAT
+//____________________________________________________________________________________
+void ConvertToGHepMock(void)
+{
+  //-- open the ROOT file and get the TTree & its header
+  TFile fin(gOptInpFileName.c_str(),"READ");
+  TTree *           tree = 0;
+  NtpMCTreeHeader * thdr = 0;
+  tree = dynamic_cast <TTree *>           ( fin.Get("gtree")  );
+  thdr = dynamic_cast <NtpMCTreeHeader *> ( fin.Get("header") );
+        
+  LOG("gntpc", pINFO) << "Input tree header: " << *thdr;
+   
+  //-- get mc record
+  NtpMCEventRecord * mcrec = 0;
+  tree->SetBranchAddress("gmcrec", &mcrec);
+        
+  //-- figure out how many events to analyze
+  Long64_t nmax = (gOptN<0) ?
+       tree->GetEntries() : TMath::Min(tree->GetEntries(), gOptN);
+  if (nmax<0) {
+    LOG("gntpc", pERROR) << "Number of events = 0";
+    return;
+  }
+  LOG("gntpc", pNOTICE) << "*** Analyzing: " << nmax << " events";
+
+  //-- initialize an Ntuple Writer
+  NtpWriter ntpw(kNFGHEP, thdr->runnu);
+  ntpw.CustomizeFilename(gOptOutFileName);
+  ntpw.Initialize();
+
+  //-- event loop
+  for(Long64_t iev = 0; iev < nmax; iev++) {
+    tree->GetEntry(iev);
+    NtpMCRecHeader rec_header = mcrec->hdr;
+    EventRecord &  event      = *(mcrec->event);
+
+    LOG("gntpc", pINFO) << rec_header;
+    LOG("gntpc", pINFO) << event;
+
+    EventRecord * stripped_event = new EventRecord;
+    Interaction * nullint = new Interaction;
+
+    stripped_event -> AttachSummary (nullint);
+    stripped_event -> SetWeight     (event.Weight());
+    stripped_event -> SetVertex     (*event.Vertex());
+
+    GHepParticle * p = 0;
+    TIter iter(&event);
+    while( (p = (GHepParticle *)iter.Next()) ) {
+       if(!p) continue;
+       GHepStatus_t ist = p->Status();
+       if(ist!=kIStStableFinalState) continue;
+       stripped_event->AddParticle(
+          p->Pdg(), ist, -1,-1,-1,-1, *p->P4(), *p->X4());
+    }//p
+
+    ntpw.AddEventRecord(iev,stripped_event);
+
+    mcrec->Clear();
+  } // event loop
+
+  //-- save the generated MC events
+  ntpw.Save();
+
+  //-- rename the output file
+      
+  fin.Close();
+      
+  LOG("gntpc", pINFO) << "\nDone converting GENIE's GHEP ntuple";
+}
+//____________________________________________________________________________________
+// GENIE GHEP EVENT TREE FORMAT -> TRACKER FORMATS
+//____________________________________________________________________________________
 void ConvertToGTracker(void)
 {
   //-- open the ROOT file and get the TTree & its header
@@ -1036,16 +1166,9 @@ void ConvertToGTracker(void)
   gFileMinorVrs = utils::system::GenieMinorVrsNum(thdr->cvstag.GetString().Data());
   gFileRevisVrs = utils::system::GenieRevisVrsNum(thdr->cvstag.GetString().Data());
 
-/*
-  LOG("gntpc", pINFO) 
-    << "Version (major,minor,revis) = (" 
-    << gFileMajorVrs << ", " << gFileMinorVrs << ", " << gFileRevisVrs << ")";
-*/
-
   //-- get mc record
   NtpMCEventRecord * mcrec = 0;
   tree->SetBranchAddress("gmcrec", &mcrec);
-
 
 #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
   flux::GJPARCNuFluxPassThroughInfo * flux_info = 0;
@@ -1478,9 +1601,9 @@ be agreed with the SKDETSIM maintainers.
 
   LOG("gntpc", pINFO) << "\nDone converting GENIE's GHEP ntuple";
 }
-//___________________________________________________________________
-//  **** GENIE GHEP EVENT TREE FORMAT -> ROOTRACKER FORMATS ****
-//___________________________________________________________________
+//____________________________________________________________________________________
+// GENIE GHEP EVENT TREE FORMAT -> ROOTRACKER FORMATS 
+//____________________________________________________________________________________
 void ConvertToGRooTracker(void)
 {
   //-- define the output rootracker tree branches
@@ -1511,25 +1634,58 @@ void ConvertToGRooTracker(void)
   //
   // >> info available at the t2k rootracker variance only
   //
+  TObjString* brNuFileName = 0;           // flux file name
+  long        brNuFluxEntry;              // entry number from flux file
 
   // neutrino parent info (passed-through from the beam-line MC / quantities in 'jnubeam' units)
-  int         brNuParentPdg;              // Parent hadron pdg code
-  int         brNuParentDecMode;          // Parent hadron decay mode
-  double      brNuParentDecP4 [4];        // Parent hadron 4-momentum at decay 
-  double      brNuParentDecX4 [4];        // Parent hadron 4-position at decay
-  double      brNuParentProP4 [4];        // Parent hadron 4-momentum at production
-  double      brNuParentProX4 [4];        // Parent hadron 4-position at production
-  int         brNuParentProNVtx;          // Parent hadron vtx id
+  int         brNuParentPdg;              // parent hadron pdg code
+  int         brNuParentDecMode;          // parent hadron decay mode
+  double      brNuParentDecP4 [4];        // parent hadron 4-momentum at decay 
+  double      brNuParentDecX4 [4];        // parent hadron 4-position at decay
+  double      brNuParentProP4 [4];        // parent hadron 4-momentum at production
+  double      brNuParentProX4 [4];        // parent hadron 4-position at production
+  int         brNuParentProNVtx;          // parent hadron vtx id
   // variables added since 10a flux compatibility changes
-  long        brNuFluxEntry;              // Entry number from flux file
-  int         brNuIdfd;                   // Detector location id
-  double      brNuCospibm;                // Cosine of the angle between the parent particle direction and the beam direction
-  double      brNuCospi0bm;               // Same as above except at the production of the parent particle 
-  int         brNuGipart;                 // Primary particle ID
-  double      brNuGpos0[3];               // Primary particle starting point
-  double      brNuGvec0[3];               // Primary particle direction at the starting point
-  double      brNuGamom0;                 // Momentum of the primary particle at the starting point
-    
+  int         brNuIdfd;                   // detector location id
+  float       brNuCospibm;                // cosine of the angle between the parent particle direction and the beam direction
+  float       brNuCospi0bm;               // same as above except at the production of the parent particle 
+  int         brNuGipart;                 // primary particle ID
+  float       brNuGpos0[3];               // primary particle starting point
+  float       brNuGvec0[3];               // primary particle direction at the starting point
+  float       brNuGamom0;                 // momentum of the primary particle at the starting point
+  // variables added since 10d and 11a flux compatibility changes
+  float       brNuRnu;                    // neutrino r position at ND5/6 plane
+  float       brNuXnu[2];                 // neutrino (x,y) position at ND5/6 plane
+  // interation history information
+  int         brNuNg;                     // number of parents (number of generations) 
+  int         brNuGpid[flux::fNgmax];     // particle ID of each ancestor particles
+  int         brNuGmec[flux::fNgmax];     // particle production mechanism of each ancestor particle
+  float       brNuGcosbm[flux::fNgmax];   // ancestor particle cos(theta) relative to beam
+  float       brNuGv[flux::fNgmax][3];    // X,Y and Z vertex position of each ancestor particle
+  float       brNuGp[flux::fNgmax][3];    // Px,Px and Pz directional momentum of each ancestor particle
+  // out-of-target secondary interactions
+  int         brNuGmat[flux::fNgmax];     // material in which the particle originates 
+  float       brNuGdistc[flux::fNgmax];   // distance traveled through carbon
+  float       brNuGdistal[flux::fNgmax];  // distance traveled through aluminum
+  float       brNuGdistti[flux::fNgmax];  // distance traveled through titanium
+  float       brNuGdistfe[flux::fNgmax];  // distance traveled through iron
+  
+  float       brNuNorm;                   // normalisation weight (makes no sense to apply this when generating unweighted events) 
+  float       brNuEnusk;                  // "Enu" for SK
+  float       brNuNormsk;                 // "norm" for SK
+  float       brNuAnorm;                  // Norm component from ND acceptance calculation
+  float       brNuVersion;                // Jnubeam version
+  int         brNuNtrig;                  // Number of Triggers in simulation
+  int         brNuTuneid;                 // Parameter set identifier
+  int         brNuPint;                   // Interaction model ID
+  float       brNuBpos[2];                // Beam center position
+  float       brNuBtilt[2];               // Beam Direction
+  float       brNuBrms[2];                // Beam RMS Width
+  float       brNuEmit[2];                // Beam Emittance
+  float       brNuAlpha[2];               // Beam alpha parameter
+  float       brNuHcur[3];                // Horns 1, 2 and 3 Currents 
+  int         brNuRand;                   // Random seed
+  int         brNuRseed[2];                  // Random seed
   // codes for T2K cross-generator comparisons 
   int         brNeutCode;                 // NEUT-like reaction code for the GENIE event
 
@@ -1628,31 +1784,51 @@ void ConvertToGRooTracker(void)
   //-- create the output ROOT tree
   TTree * rootracker_tree = new TTree("gRooTracker","GENIE event tree rootracker format");
 
+  //-- is it a `mock data' variance?
+  bool hide_truth = (gOptOutFileFormat == kConvFmt_rootracker_mock_data);
+
   //-- create the output ROOT tree branches
-  rootracker_tree->Branch("EvtFlags", "TBits",      &brEvtFlags, 32000, 1);           
-  rootracker_tree->Branch("EvtCode",  "TObjString", &brEvtCode,  32000, 1);            
-  rootracker_tree->Branch("EvtNum",          &brEvtNum,          "EvtNum/I");             
-  rootracker_tree->Branch("EvtXSec",         &brEvtXSec,         "EvtXSec/D");            
-  rootracker_tree->Branch("EvtDXSec",        &brEvtDXSec,        "EvtDXSec/D");           
-  rootracker_tree->Branch("EvtWght",         &brEvtWght,         "EvtWght/D");            
-  rootracker_tree->Branch("EvtProb",         &brEvtProb,         "EvtProb/D");            
-  rootracker_tree->Branch("EvtVtx",           brEvtVtx,          "EvtVtx[4]/D");             
-  rootracker_tree->Branch("StdHepN",         &brStdHepN,         "StdHepN/I");              
-  rootracker_tree->Branch("StdHepPdg",        brStdHepPdg,       "StdHepPdg[StdHepN]/I");  
-  rootracker_tree->Branch("StdHepStatus",     brStdHepStatus,    "StdHepStatus[StdHepN]/I"); 
-  rootracker_tree->Branch("StdHepRescat",     brStdHepRescat,    "StdHepRescat[StdHepN]/I"); 
-  rootracker_tree->Branch("StdHepX4",         brStdHepX4,        "StdHepX4[StdHepN][4]/D"); 
-  rootracker_tree->Branch("StdHepP4",         brStdHepP4,        "StdHepP4[StdHepN][4]/D"); 
-  rootracker_tree->Branch("StdHepPolz",       brStdHepPolz,      "StdHepPolz[StdHepN][3]/D"); 
-  rootracker_tree->Branch("StdHepFd",         brStdHepFd,        "StdHepFd[StdHepN]/I"); 
-  rootracker_tree->Branch("StdHepLd",         brStdHepLd,        "StdHepLd[StdHepN]/I"); 
-  rootracker_tree->Branch("StdHepFm",         brStdHepFm,        "StdHepFm[StdHepN]/I"); 
-  rootracker_tree->Branch("StdHepLm",         brStdHepLm,        "StdHepLm[StdHepN]/I"); 
+
+  // branches common to all rootracker(_mock_data) formats
+  if(!hide_truth) {
+    // full version
+    rootracker_tree->Branch("EvtFlags", "TBits",      &brEvtFlags, 32000, 1);           
+    rootracker_tree->Branch("EvtCode",  "TObjString", &brEvtCode,  32000, 1);            
+    rootracker_tree->Branch("EvtNum",          &brEvtNum,          "EvtNum/I");             
+    rootracker_tree->Branch("EvtXSec",         &brEvtXSec,         "EvtXSec/D");            
+    rootracker_tree->Branch("EvtDXSec",        &brEvtDXSec,        "EvtDXSec/D");           
+    rootracker_tree->Branch("EvtWght",         &brEvtWght,         "EvtWght/D");            
+    rootracker_tree->Branch("EvtProb",         &brEvtProb,         "EvtProb/D");            
+    rootracker_tree->Branch("EvtVtx",           brEvtVtx,          "EvtVtx[4]/D");             
+    rootracker_tree->Branch("StdHepN",         &brStdHepN,         "StdHepN/I");              
+    rootracker_tree->Branch("StdHepPdg",        brStdHepPdg,       "StdHepPdg[StdHepN]/I");  
+    rootracker_tree->Branch("StdHepStatus",     brStdHepStatus,    "StdHepStatus[StdHepN]/I"); 
+    rootracker_tree->Branch("StdHepRescat",     brStdHepRescat,    "StdHepRescat[StdHepN]/I"); 
+    rootracker_tree->Branch("StdHepX4",         brStdHepX4,        "StdHepX4[StdHepN][4]/D"); 
+    rootracker_tree->Branch("StdHepP4",         brStdHepP4,        "StdHepP4[StdHepN][4]/D"); 
+    rootracker_tree->Branch("StdHepPolz",       brStdHepPolz,      "StdHepPolz[StdHepN][3]/D"); 
+    rootracker_tree->Branch("StdHepFd",         brStdHepFd,        "StdHepFd[StdHepN]/I"); 
+    rootracker_tree->Branch("StdHepLd",         brStdHepLd,        "StdHepLd[StdHepN]/I"); 
+    rootracker_tree->Branch("StdHepFm",         brStdHepFm,        "StdHepFm[StdHepN]/I"); 
+    rootracker_tree->Branch("StdHepLm",         brStdHepLm,        "StdHepLm[StdHepN]/I"); 
+  } else {
+    // for mock_data variances
+    rootracker_tree->Branch("EvtNum",          &brEvtNum,          "EvtNum/I");             
+    rootracker_tree->Branch("EvtWght",         &brEvtWght,         "EvtWght/D");            
+    rootracker_tree->Branch("EvtVtx",           brEvtVtx,          "EvtVtx[4]/D");             
+    rootracker_tree->Branch("StdHepN",         &brStdHepN,         "StdHepN/I");              
+    rootracker_tree->Branch("StdHepPdg",        brStdHepPdg,       "StdHepPdg[StdHepN]/I");  
+    rootracker_tree->Branch("StdHepX4",         brStdHepX4,        "StdHepX4[StdHepN][4]/D"); 
+    rootracker_tree->Branch("StdHepP4",         brStdHepP4,        "StdHepP4[StdHepN][4]/D"); 
+  }
 
   // extra branches of the t2k rootracker variance
   if(gOptOutFileFormat == kConvFmt_t2k_rootracker) 
   {
+    // NEUT-like reaction code
+    rootracker_tree->Branch("G2NeutEvtCode",   &brNeutCode,        "G2NeutEvtCode/I");   
     // JNUBEAM pass-through info
+    rootracker_tree->Branch("NuFileName", "TObjString", &brNuFileName, 32000, 1); 
     rootracker_tree->Branch("NuParentPdg",     &brNuParentPdg,     "NuParentPdg/I");       
     rootracker_tree->Branch("NuParentDecMode", &brNuParentDecMode, "NuParentDecMode/I");   
     rootracker_tree->Branch("NuParentDecP4",    brNuParentDecP4,   "NuParentDecP4[4]/D");     
@@ -1661,17 +1837,46 @@ void ConvertToGRooTracker(void)
     rootracker_tree->Branch("NuParentProX4",    brNuParentProX4,   "NuParentProX4[4]/D");     
     rootracker_tree->Branch("NuParentProNVtx", &brNuParentProNVtx, "NuParentProNVtx/I");   
     // Branches added since JNUBEAM '10a' compatibility changes
-    rootracker_tree->Branch("NuFluxEntry", &brNuFluxEntry, "NuFluxEntry/I");
-    rootracker_tree->Branch("NuIdfd", &brNuIdfd, "NuIdfd/I");
-    rootracker_tree->Branch("NuCospibm", &brNuCospibm, "NuCospibm/D");
-    rootracker_tree->Branch("NuCospi0bm", &brNuCospi0bm, "NuCospi0bm/D");
-    rootracker_tree->Branch("NuGipart", &brNuGipart, "NuGipart/I");
-    rootracker_tree->Branch("NuGpos0", brNuGpos0, "NuGpos0[3]/D");
-    rootracker_tree->Branch("NuGvec0", brNuGvec0, "NuGvec0[3]/D");
-    rootracker_tree->Branch("NuGamom0", &brNuGamom0, "NuGamom0/D");
+    rootracker_tree->Branch("NuFluxEntry",     &brNuFluxEntry,     "NuFluxEntry/L");
+    rootracker_tree->Branch("NuIdfd",          &brNuIdfd,          "NuIdfd/I");
+    rootracker_tree->Branch("NuCospibm",       &brNuCospibm,       "NuCospibm/F");
+    rootracker_tree->Branch("NuCospi0bm",      &brNuCospi0bm,      "NuCospi0bm/F");
+    rootracker_tree->Branch("NuGipart",        &brNuGipart,        "NuGipart/I");
+    rootracker_tree->Branch("NuGpos0",          brNuGpos0,         "NuGpos0[3]/F");
+    rootracker_tree->Branch("NuGvec0",          brNuGvec0,         "NuGvec0[3]/F");
+    rootracker_tree->Branch("NuGamom0",        &brNuGamom0,        "NuGamom0/F");
+    // Branches added since JNUBEAM '10d' compatibility changes
+    rootracker_tree->Branch("NuXnu",        brNuXnu, "NuXnu[2]/F");
+    rootracker_tree->Branch("NuRnu",       &brNuRnu,      "NuRnu/F");
+    rootracker_tree->Branch("NuNg",        &brNuNg,       "NuNg/I");
+    rootracker_tree->Branch("NuGpid",       brNuGpid,     "NuGpid[NuNg]/I");
+    rootracker_tree->Branch("NuGmec",       brNuGmec,     "NuGmec[NuNg]/I");
+    rootracker_tree->Branch("NuGv",         brNuGv,       "NuGv[NuNg][3]/F");
+    rootracker_tree->Branch("NuGp",         brNuGp,       "NuGp[NuNg][3]/F");
+    rootracker_tree->Branch("NuGcosbm",     brNuGcosbm,   "NuGcosbm[NuNg]/F");
+    rootracker_tree->Branch("NuGmat",       brNuGmat,     "NuGmat[NuNg]/I");
+    rootracker_tree->Branch("NuGdistc",     brNuGdistc,   "NuGdistc[NuNg]/F");
+    rootracker_tree->Branch("NuGdistal",    brNuGdistal,  "NuGdistal[NuNg]/F");
+    rootracker_tree->Branch("NuGdistti",    brNuGdistti,  "NuGdistti[NuNg]/F");
+    rootracker_tree->Branch("NuGdistfe",    brNuGdistfe,  "NuGdistfe[NuNg]/F");
+    rootracker_tree->Branch("NuNorm",      &brNuNorm,     "NuNorm/F");
+    rootracker_tree->Branch("NuEnusk",     &brNuEnusk,    "NuEnusk/F");
+    rootracker_tree->Branch("NuNormsk",    &brNuNormsk,   "NuNormsk/F");
+    rootracker_tree->Branch("NuAnorm",     &brNuAnorm,    "NuAnorm/F");
+    rootracker_tree->Branch("NuVersion",   &brNuVersion,  "NuVersion/F");
+    rootracker_tree->Branch("NuNtrig",     &brNuNtrig,    "NuNtrig/I");
+    rootracker_tree->Branch("NuTuneid",    &brNuTuneid,   "NuTuneid/I");
+    rootracker_tree->Branch("NuPint",      &brNuPint,     "NuPint/I");
+    rootracker_tree->Branch("NuBpos",       brNuBpos,     "NuBpos[2]/F");
+    rootracker_tree->Branch("NuBtilt",      brNuBtilt,    "NuBtilt[2]/F");
+    rootracker_tree->Branch("NuBrms",       brNuBrms,     "NuBrms[2]/F");
+    rootracker_tree->Branch("NuEmit",       brNuEmit,     "NuEmit[2]/F");
+    rootracker_tree->Branch("NuAlpha",      brNuAlpha,    "NuAlpha[2]/F");
+    rootracker_tree->Branch("NuHcur",       brNuHcur,     "NuHcur[3]/F");
+    rootracker_tree->Branch("NuRand",      &brNuRand,     "NuRand/I");
+// Remove the following as when dealing with combined flux files it makes no sense
+//    rootracker_tree->Branch("NuRseed",      brNuRseed,    "NuRseed[2]/I");
 
-    // NEUT-like reaction code
-    rootracker_tree->Branch("G2NeutEvtCode",   &brNeutCode,        "G2NeutEvtCode/I");   
   }
 
   // extra branches of the numi rootracker variance
@@ -1823,8 +2028,9 @@ void ConvertToGRooTracker(void)
     //
     // clear output tree branches
     //
-
+    if(brEvtFlags) delete brEvtFlags;
     brEvtFlags  = 0;
+    if(brEvtCode) delete brEvtCode;
     brEvtCode   = 0;
     brEvtNum    = 0;    
     brEvtXSec   = 0;
@@ -1834,7 +2040,7 @@ void ConvertToGRooTracker(void)
     for(int k=0; k<4; k++) { 
       brEvtVtx[k] = 0;
     }
-    brStdHepN = event.GetEntries(); 
+    brStdHepN = 0; 
     for(int i=0; i<kNPmax; i++) {
        brStdHepPdg   [i] =  0;  
        brStdHepStatus[i] = -1;  
@@ -1862,15 +2068,48 @@ void ConvertToGRooTracker(void)
     brNuParentProNVtx = 0;     
     brNeutCode = 0;     
     brNuFluxEntry = -1;
-    brNuIdfd = 0;
-    brNuCospibm = -999.999;
-    brNuCospi0bm = -999.999;
+    brNuIdfd = -999999;
+    brNuCospibm = -999999.;
+    brNuCospi0bm = -999999.;
     brNuGipart = -1;
-    brNuGamom0 = -999.999;   
+    brNuGamom0 = -999999.;   
     for(int k=0; k< 3; k++){
-      brNuGvec0[k] = 0.;
-      brNuGpos0[k] = -999.999;
+      brNuGvec0[k] = -999999.;
+      brNuGpos0[k] = -999999.;
     }    
+    // variables added since 10d flux compatibility changes
+    for(int k=0; k<2; k++) {
+      brNuXnu[k] = brNuBpos[k] = brNuBtilt[k] = brNuBrms[k] = brNuEmit[k] = brNuAlpha[k] = -999999.; 
+      brNuRseed[k] = -999999;
+    }
+    for(int k=0; k<3; k++) brNuHcur[k] = -999999.; 
+    for(int np = 0; np < flux::fNgmax; np++){
+        for(int  k=0; k<3; k++){
+          brNuGv[np][k] = -999999.;
+          brNuGp[np][k] = -999999.;
+        }
+      brNuGpid[np] = -999999;
+      brNuGmec[np] = -999999;
+      brNuGmat[np] = -999999;
+      brNuGcosbm[np]  = -999999.;
+      brNuGdistc[np]  = -999999.;
+      brNuGdistal[np] = -999999.;
+      brNuGdistti[np] = -999999.;
+      brNuGdistfe[np] = -999999.;
+    }  
+    brNuNg     = -999999;
+    brNuRnu    = -999999.;
+    brNuNorm   = -999999.;
+    brNuEnusk  = -999999.;
+    brNuNormsk = -999999.;
+    brNuAnorm  = -999999.;
+    brNuVersion= -999999.;
+    brNuNtrig  = -999999;
+    brNuTuneid = -999999;
+    brNuPint   = -999999;
+    brNuRand = -999999;
+    if(brNuFileName) delete brNuFileName;
+    brNuFileName = 0;
 
     //
     // copy current event info to output tree
@@ -1888,13 +2127,15 @@ void ConvertToGRooTracker(void)
     brEvtVtx[2] = event.Vertex()->Z();    
     brEvtVtx[3] = event.Vertex()->T();    
 
-    brStdHepN = event.GetEntries(); 
-
     int iparticle=0;
     GHepParticle * p = 0;
     TIter event_iter(&event);
     while ( (p = dynamic_cast<GHepParticle *>(event_iter.Next())) ) {
         assert(p);
+
+        // for mock_data variances write out only stable final state particles
+        if(hide_truth && p->Status() != kIStStableFinalState) continue;
+
         brStdHepPdg   [iparticle] = p->Pdg(); 
         brStdHepStatus[iparticle] = (int) p->Status(); 
         brStdHepRescat[iparticle] = p->RescatterCode(); 
@@ -1917,60 +2158,112 @@ void ConvertToGRooTracker(void)
         brStdHepLm    [iparticle] = p->LastMother(); 
         iparticle++;
     }
+    brStdHepN = iparticle; 
+
+    //
+    // fill in additional info for the t2k_rootracker format
+    //
+    if(gOptOutFileFormat == kConvFmt_t2k_rootracker) {
+
+      // map GENIE event to NEUT reaction codes
+      brNeutCode = utils::ghep::NeutReactionCode(&event);
 
 #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
-     PDGLibrary * pdglib = PDGLibrary::Instance();
+      // Copy flux info if this is the t2k rootracker variance.
+      // The flux may not be available, eg if events were generated using plain flux 
+      // histograms and not the JNUBEAM simulation's output flux ntuples.
+      PDGLibrary * pdglib = PDGLibrary::Instance();
+      if(jnubeam_flux_info) {
+        brNuParentPdg       = pdg::GeantToPdg(jnubeam_flux_info->ppid);
+        brNuParentDecMode   = jnubeam_flux_info->mode;
 
-    // Copy flux info if this is the t2k rootracker variance.
-    // The flux may not be available, eg if events were generated using plain flux 
-    // histograms and not the JNUBEAM simulation's output flux ntuples.
-    if(gOptOutFileFormat == kConvFmt_t2k_rootracker) {
-     if(jnubeam_flux_info) {
-       brNuParentPdg       = pdg::GeantToPdg(jnubeam_flux_info->ppid);
-       brNuParentDecMode   = jnubeam_flux_info->mode;
-
-       brNuParentDecP4 [0] = jnubeam_flux_info->ppi * jnubeam_flux_info->npi[0]; // px
-       brNuParentDecP4 [1] = jnubeam_flux_info->ppi * jnubeam_flux_info->npi[1]; // py
-       brNuParentDecP4 [2] = jnubeam_flux_info->ppi * jnubeam_flux_info->npi[2]; // px
-       brNuParentDecP4 [3] = TMath::Sqrt(
+        brNuParentDecP4 [0] = jnubeam_flux_info->ppi * jnubeam_flux_info->npi[0]; // px
+        brNuParentDecP4 [1] = jnubeam_flux_info->ppi * jnubeam_flux_info->npi[1]; // py
+        brNuParentDecP4 [2] = jnubeam_flux_info->ppi * jnubeam_flux_info->npi[2]; // px
+        brNuParentDecP4 [3] = TMath::Sqrt(
                                  TMath::Power(pdglib->Find(brNuParentPdg)->Mass(), 2.)
                                + TMath::Power(jnubeam_flux_info->ppi, 2.)
                               ); // E
-       brNuParentDecX4 [0] = jnubeam_flux_info->xpi[0]; // x
-       brNuParentDecX4 [1] = jnubeam_flux_info->xpi[1]; // y       
-       brNuParentDecX4 [2] = jnubeam_flux_info->xpi[2]; // x   
-       brNuParentDecX4 [3] = 0;                 // t
+        brNuParentDecX4 [0] = jnubeam_flux_info->xpi[0]; // x
+        brNuParentDecX4 [1] = jnubeam_flux_info->xpi[1]; // y       
+        brNuParentDecX4 [2] = jnubeam_flux_info->xpi[2]; // x   
+        brNuParentDecX4 [3] = 0;                 // t
 
-       brNuParentProP4 [0] = jnubeam_flux_info->ppi0 * jnubeam_flux_info->npi0[0]; // px
-       brNuParentProP4 [1] = jnubeam_flux_info->ppi0 * jnubeam_flux_info->npi0[1]; // py
-       brNuParentProP4 [2] = jnubeam_flux_info->ppi0 * jnubeam_flux_info->npi0[2]; // px
-       brNuParentProP4 [3] = TMath::Sqrt(
+        brNuParentProP4 [0] = jnubeam_flux_info->ppi0 * jnubeam_flux_info->npi0[0]; // px
+        brNuParentProP4 [1] = jnubeam_flux_info->ppi0 * jnubeam_flux_info->npi0[1]; // py
+        brNuParentProP4 [2] = jnubeam_flux_info->ppi0 * jnubeam_flux_info->npi0[2]; // px
+        brNuParentProP4 [3] = TMath::Sqrt(
                                 TMath::Power(pdglib->Find(brNuParentPdg)->Mass(), 2.)
                               + TMath::Power(jnubeam_flux_info->ppi0, 2.)
                               ); // E
-       brNuParentProX4 [0] = jnubeam_flux_info->xpi0[0]; // x
-       brNuParentProX4 [1] = jnubeam_flux_info->xpi0[1]; // y       
-       brNuParentProX4 [2] = jnubeam_flux_info->xpi0[2]; // x   
-       brNuParentProX4 [3] = 0;                // t
+        brNuParentProX4 [0] = jnubeam_flux_info->xpi0[0]; // x
+        brNuParentProX4 [1] = jnubeam_flux_info->xpi0[1]; // y       
+        brNuParentProX4 [2] = jnubeam_flux_info->xpi0[2]; // x   
+        brNuParentProX4 [3] = 0;                // t
 
-       brNuParentProNVtx   = jnubeam_flux_info->nvtx0;
+        brNuParentProNVtx   = jnubeam_flux_info->nvtx0;
 
-       // Copy info added post JNUBEAM '10a' compatibility changes 
-       brNuFluxEntry = jnubeam_flux_info->fluxentry;
-       brNuIdfd = jnubeam_flux_info->idfd;
-       brNuCospibm = jnubeam_flux_info->cospibm;
-       brNuCospi0bm = jnubeam_flux_info->cospi0bm;
-       brNuGipart = jnubeam_flux_info->gipart;
-       brNuGamom0 = jnubeam_flux_info->gamom0;
-       for(int k=0; k<3; k++){
-         brNuGpos0[k] = (double) jnubeam_flux_info->gpos0[k];
-         brNuGvec0[k] = (double) jnubeam_flux_info->gvec0[k];
-       }
-     }
-    }
+        // Copy info added post JNUBEAM '10a' compatibility changes 
+        brNuFluxEntry = jnubeam_flux_info->fluxentry;
+        brNuIdfd = jnubeam_flux_info->idfd;
+        brNuCospibm = jnubeam_flux_info->cospibm;
+        brNuCospi0bm = jnubeam_flux_info->cospi0bm;
+        brNuGipart = jnubeam_flux_info->gipart;
+        brNuGamom0 = jnubeam_flux_info->gamom0;
+        for(int k=0; k<3; k++){
+            brNuGpos0[k] = (double) jnubeam_flux_info->gpos0[k];
+            brNuGvec0[k] = (double) jnubeam_flux_info->gvec0[k];
+        }
+        // Copy info added post JNUBEAM '10d' compatibility changes 
+        brNuXnu[0] = (double) jnubeam_flux_info->xnu;
+        brNuXnu[1] = (double) jnubeam_flux_info->ynu;
+        brNuRnu    = (double) jnubeam_flux_info->rnu; 
+        for(int k=0; k<2; k++){
+          brNuBpos[k] = (double) jnubeam_flux_info->bpos[k];
+          brNuBtilt[k] = (double) jnubeam_flux_info->btilt[k];
+          brNuBrms[k] = (double) jnubeam_flux_info->brms[k];
+          brNuEmit[k] = (double) jnubeam_flux_info->emit[k];
+          brNuAlpha[k] = (double) jnubeam_flux_info->alpha[k];
+          brNuRseed[k]  = jnubeam_flux_info->rseed[k];
+        } 
+        for(int k=0; k<3; k++) brNuHcur[k] = jnubeam_flux_info->hcur[k]; 
+        for(int np = 0; np < flux::fNgmax; np++){
+          brNuGv[np][0] = jnubeam_flux_info->gvx[np];
+          brNuGv[np][1] = jnubeam_flux_info->gvy[np];
+          brNuGv[np][2] = jnubeam_flux_info->gvz[np];
+          brNuGp[np][0] = jnubeam_flux_info->gpx[np];
+          brNuGp[np][1] = jnubeam_flux_info->gpy[np];
+          brNuGp[np][2] = jnubeam_flux_info->gpz[np];
+          brNuGpid[np]  = jnubeam_flux_info->gpid[np];
+          brNuGmec[np]  = jnubeam_flux_info->gmec[np];
+          brNuGcosbm[np]  = jnubeam_flux_info->gcosbm[np];
+          brNuGmat[np]    = jnubeam_flux_info->gmat[np];
+          brNuGdistc[np]  = jnubeam_flux_info->gdistc[np];
+          brNuGdistal[np] = jnubeam_flux_info->gdistal[np];
+          brNuGdistti[np] = jnubeam_flux_info->gdistti[np];
+          brNuGdistfe[np] = jnubeam_flux_info->gdistfe[np];
+        }  
+        brNuNg     = jnubeam_flux_info->ng;
+        brNuNorm   = jnubeam_flux_info->norm;
+        brNuEnusk  = jnubeam_flux_info->Enusk;
+        brNuNormsk = jnubeam_flux_info->normsk;
+        brNuAnorm  = jnubeam_flux_info->anorm;
+        brNuVersion= jnubeam_flux_info->version;
+        brNuNtrig  = jnubeam_flux_info->ntrig;
+        brNuTuneid = jnubeam_flux_info->tuneid;
+        brNuPint   = jnubeam_flux_info->pint;
+        brNuRand   = jnubeam_flux_info->rand;
+        brNuFileName = new TObjString(jnubeam_flux_info->fluxfilename.c_str()); 
+      }//jnubeam_flux_info
+#endif
+    }//kConvFmt_t2k_rootracker
 
-    // Copy flux info if this is the numi rootracker variance.
+    //
+    // fill in additional info for the numi_rootracker format
+    //
     if(gOptOutFileFormat == kConvFmt_numi_rootracker) {
+#ifdef __GENIE_FLUX_DRIVERS_ENABLED__
+     // Copy flux info if this is the numi rootracker variance.
      if(gnumi_flux_info) {
        brNumiFluxRun      = gnumi_flux_info->run;
        brNumiFluxEvtno    = gnumi_flux_info->evtno;
@@ -2034,14 +2327,11 @@ void ConvertToGRooTracker(void)
        brNumiFluxBeampx   = gnumi_flux_info->beampx;
        brNumiFluxBeampy   = gnumi_flux_info->beampy;
        brNumiFluxBeampz   = gnumi_flux_info->beampz;
-     }
-    }
-
+     } // gnumi_flux_info
 #endif
+    } // kConvFmt_numi_rootracker
 
-    // map GENIE event to NEUT reaction codes
-    brNeutCode = utils::ghep::NeutReactionCode(&event);
-
+    // fill tree
     rootracker_tree->Fill();
     mcrec->Clear();
 
@@ -2051,6 +2341,15 @@ void ConvertToGRooTracker(void)
   double pot = gtree->GetWeight();
   rootracker_tree->SetWeight(pot);
 
+  // Copy MC job metadata (gconfig and genv TFolders)
+  if(gOptCopyJobMeta) {
+    TFolder * genv    = (TFolder*) fin.Get("genv");
+    TFolder * gconfig = (TFolder*) fin.Get("gconfig");    
+    fout.cd();
+    genv    -> Write("genv");
+    gconfig -> Write("gconfig");
+  }
+
   fin.Close();
 
   fout.Write();
@@ -2058,9 +2357,9 @@ void ConvertToGRooTracker(void)
 
   LOG("gntpc", pINFO) << "\nDone converting GENIE's GHEP ntuple";
 }
-//___________________________________________________________________
-// * GENIE GHEP EVENT TREE -> NEUGEN-style format for AGKY studies *
-//___________________________________________________________________
+//____________________________________________________________________________________
+// GENIE GHEP EVENT TREE -> NEUGEN-style format for AGKY studies 
+//____________________________________________________________________________________
 void ConvertToGHad(void)
 {
 // Neugen-style text format for the AGKY hadronization model studies
@@ -2303,28 +2602,79 @@ void ConvertToGHad(void)
 
   LOG("gntpc", pINFO) << "\nDone converting GENIE's GHEP ntuple";
 }
-//___________________________________________________________________
-// * GENIE GHEP EVENT TREE -> Summary tree for INTRANUKE studies *
-//___________________________________________________________________
+//____________________________________________________________________________________
+// GENIE GHEP EVENT TREE -> Summary tree for INTRANUKE studies 
+//____________________________________________________________________________________
 void ConvertToGINuke(void)
 {
+  //-- output tree branch variables
+  //
+  int    brIEv        = 0;  // Event number
+  int    brProbe      = 0;  // Incident hadron code
+  int    brTarget     = 0;  // Nuclear target pdg code (10LZZZAAAI)
+  double brKE         = 0;  // Probe kinetic energy
+  double brE          = 0;  // Probe energy
+  double brP          = 0;  // Probe momentum
+  int    brTgtA       = 0;  // Target A (mass   number)
+  int    brTgtZ       = 0;  // Target Z (atomic number)
+  double brVtxX       = 0;  // "Vertex x" (initial placement of h /in h+A events/ on the nuclear boundary)
+  double brVtxY       = 0;  // "Vertex y"
+  double brVtxZ       = 0;  // "Vertex z"
+  int    brProbeFSI   = 0;  // Rescattering code for incident hadron
+  double brDist       = 0;  // Distance travelled by h before interacting (if at all before escaping)
+  int    brNh         = 0;  // Number of final state hadrons
+  int    brPdgh  [kNPmax];  // Pdg code of i^th final state hadron
+  double brEh    [kNPmax];  // Energy   of i^th final state hadron
+  double brPh    [kNPmax];  // P        of i^th final state hadron
+  double brPxh   [kNPmax];  // Px       of i^th final state hadron
+  double brPyh   [kNPmax];  // Py       of i^th final state hadron
+  double brPzh   [kNPmax];  // Pz       of i^th final state hadron
+  double brCosth [kNPmax];  // Cos(th)  of i^th final state hadron
+  double brMh    [kNPmax];  // Mass     of i^th final state hadron
+  int    brNp         = 0;  // Number of final state p
+  int    brNn         = 0;  // Number of final state n
+  int    brNpip       = 0;  // Number of final state pi+
+  int    brNpim       = 0;  // Number of final state pi-
+  int    brNpi0       = 0;  // Number of final state pi0
+
   //-- open output file & create output summary tree & create the tree branches
   //
   LOG("gntpc", pNOTICE)
        << "*** Saving summary tree to: " << gOptOutFileName;
   TFile fout(gOptOutFileName.c_str(),"recreate");
-  
-  TTree * s_tree = new TTree("ginuke","GENIE INuke Summary Tree");
-  assert(s_tree);
 
-  //-- define summary ntuple
-  //
+  TTree * tEvtTree = new TTree("ginuke","GENIE INuke Summary Tree");
+  assert(tEvtTree);
 
+  //-- create tree branches
   //
-  // ... 
-  // ... add code here
-  // ... 
-  //
+  tEvtTree->Branch("iev",       &brIEv,          "iev/I"       );
+  tEvtTree->Branch("probe",     &brProbe,        "probe/I"     );
+  tEvtTree->Branch("tgt" ,      &brTarget,       "tgt/I"       );
+  tEvtTree->Branch("ke",        &brKE,           "ke/D"        );
+  tEvtTree->Branch("e",         &brE,            "e/D"         );
+  tEvtTree->Branch("p",         &brP,            "p/D"         );
+  tEvtTree->Branch("A",         &brTgtA,         "A/I"         );
+  tEvtTree->Branch("Z",         &brTgtZ,         "Z/I"         );
+  tEvtTree->Branch("vtxx",      &brVtxX,         "vtxx/D"      );
+  tEvtTree->Branch("vtxy",      &brVtxY,         "vtxy/D"      );
+  tEvtTree->Branch("vtxz",      &brVtxZ,         "vtxz/D"      );
+  tEvtTree->Branch("probe_fsi", &brProbeFSI,     "probe_fsi/I" );
+  tEvtTree->Branch("dist",      &brDist,         "dist/D"      );
+  tEvtTree->Branch("nh",        &brNh,           "nh/I"        );
+  tEvtTree->Branch("pdgh",      brPdgh,          "pdgh[nh]/I " );
+  tEvtTree->Branch("Eh",        brEh,            "Eh[nh]/D"    );
+  tEvtTree->Branch("ph",        brPh,            "ph[nh]/D"    );
+  tEvtTree->Branch("pxh",       brPxh,           "pxh[nh]/D"   );
+  tEvtTree->Branch("pyh",       brPyh,           "pyh[nh]/D"   );
+  tEvtTree->Branch("pzh",       brPzh,           "pzh[nh]/D"   );
+  tEvtTree->Branch("cth",       brCosth,         "cth[nh]/D"   );
+  tEvtTree->Branch("mh",        brMh,            "mh[nh]/D"    );
+  tEvtTree->Branch("np",        &brNp,           "np/I"        );
+  tEvtTree->Branch("nn",        &brNn,           "nn/I"        );
+  tEvtTree->Branch("npip",      &brNpip,         "npip/I"      );
+  tEvtTree->Branch("npim",      &brNpim,         "npim/I"      );
+  tEvtTree->Branch("npi0",      &brNpi0,         "npi0/I"      );
 
   //-- open the ROOT file and get the TTree & its header
   TFile fin(gOptInpFileName.c_str(),"READ");
@@ -2345,9 +2695,9 @@ void ConvertToGINuke(void)
     LOG("gntpc", pERROR) << "Null MC record";
     return;
   }
-  
+
   //-- figure out how many events to analyze
-  Long64_t nmax = (gOptN<0) ? 
+  Long64_t nmax = (gOptN<0) ?
        er_tree->GetEntries() : TMath::Min( er_tree->GetEntries(), gOptN );
   if (nmax<0) {
     LOG("gntpc", pERROR) << "Number of events = 0";
@@ -2356,80 +2706,156 @@ void ConvertToGINuke(void)
   LOG("gntpc", pNOTICE) << "*** Analyzing: " << nmax << " events";
 
   for(Long64_t iev = 0; iev < nmax; iev++) {
-
+    brIEv = iev;
     er_tree->GetEntry(iev);
-
     NtpMCRecHeader rec_header = mcrec->hdr;
     EventRecord &  event      = *(mcrec->event);
 
     LOG("gntpc", pINFO) << rec_header;
     LOG("gntpc", pINFO) << event;
 
-
     // analyze current event and fill the summary ntuple
 
+    // clean-up arrays
     //
-    // ...
-    // ... add code here
-    //
-    // ...
+    for(int j=0; j<kNPmax; j++) {
+       brPdgh[j] = 0;
+       brEh  [j] = 0;
+       brPxh [j] = 0;
+       brPyh [j] = 0;
+       brPzh [j] = 0;
+       brMh  [j] = 0;
+    }
 
+    //
+    // convert the current event
+    //
+
+    GHepParticle * probe  = event.Particle(0);
+    GHepParticle * target = event.Particle(1);
+    assert(probe && target);
+
+    brProbe    = probe  -> Pdg();
+    brTarget   = target -> Pdg();
+    brKE       = probe  -> KinE();
+    brE        = probe  -> E();
+    brP        = probe  -> P4()->Vect().Mag();
+    brTgtA     = pdg::IonPdgCodeToA(target->Pdg()); 
+    brTgtZ     = pdg::IonPdgCodeToZ(target->Pdg());
+    brVtxX     = probe  -> Vx();
+    brVtxY     = probe  -> Vy();
+    brVtxZ     = probe  -> Vz();
+    brProbeFSI = probe  -> RescatterCode(); 
+
+    GHepParticle * rescattered_hadron  = event.Particle(probe->FirstDaughter());
+    assert(rescattered_hadron);
+    if(rescattered_hadron->Status() == kIStStableFinalState) {
+        brDist = -1; // hadron escaped nucleus before interacting;
+    }
+    else {
+      double x  = rescattered_hadron->Vx();
+      double y  = rescattered_hadron->Vy();
+      double z  = rescattered_hadron->Vz();
+      double d2 = TMath::Power(brVtxX-x,2) +
+                  TMath::Power(brVtxY-y,2) +
+                  TMath::Power(brVtxZ-z,2);
+      brDist = TMath::Sqrt(d2);
+    }
+
+    brNp       = 0;
+    brNn       = 0;
+    brNpip     = 0;
+    brNpim     = 0;
+    brNpi0     = 0;
+
+    int i=0;
+    GHepParticle * p = 0;
+    TIter event_iter(&event);
+    while ( (p = dynamic_cast<GHepParticle *>(event_iter.Next())) ) {
+       if(pdg::IsPseudoParticle(p->Pdg())) continue;
+       if(p->Status() != kIStStableFinalState) continue;
+
+       brPdgh[i] = p->Pdg();
+       brEh  [i] = p->E();
+       brPxh [i] = p->Px();
+       brPyh [i] = p->Py();
+       brPzh [i] = p->Pz();
+       brPh  [i] =
+         TMath::Sqrt(brPxh[i]*brPxh[i]+brPyh[i]*brPyh[i]
+                     +brPzh[i]*brPzh[i]);
+       brCosth[i] = brPzh[i]/brPh[i];
+       brMh  [i] = p->Mass();
+
+       if ( p->Pdg() == kPdgProton  ) brNp++;
+       if ( p->Pdg() == kPdgNeutron ) brNn++;
+       if ( p->Pdg() == kPdgPiP     ) brNpip++;
+       if ( p->Pdg() == kPdgPiM     ) brNpim++;
+       if ( p->Pdg() == kPdgPi0     ) brNpi0++;
+
+       i++;
+    }
+    brNh = i;
+
+    // fill the summary tree
+    tEvtTree->Fill();
 
     mcrec->Clear();
 
   } // event loop
 
   fin.Close();
-    
+
   fout.Write();
   fout.Close();
-       
+
   LOG("gntpc", pINFO) << "\nDone converting GENIE's GHEP ntuple";
 }
-//___________________________________________________________________
-//            FUNCTIONS FOR PARSING CMD-LINE ARGUMENTS 
-//___________________________________________________________________
+//____________________________________________________________________________________
+// FUNCTIONS FOR PARSING CMD-LINE ARGUMENTS 
+//____________________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
 {
-  //get input ROOT file (containing a GENIE GHEP event tree)
-  try {
+  CmdLnArgParser parser(argc,argv);
+
+  // get input ROOT file (containing a GENIE GHEP event tree)
+  if( parser.OptionExists('i') ) {
     LOG("gntpc", pINFO) << "Reading input filename";
-    gOptInpFileName = utils::clap::CmdLineArgAsString(argc,argv,'i');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gntpc", pFATAL)
-               << "Unspecified input filename - Exiting";
-      PrintSyntax();
-      gAbortingInErr = true;
-      exit(1);
-    }
+    gOptInpFileName = parser.ArgAsString('i');
+  } else {
+    LOG("gntpc", pFATAL)
+       << "Unspecified input filename - Exiting";
+    PrintSyntax();
+    gAbortingInErr = true;
+    exit(1);
   }
 
-  //check input GENIE ROOT file
+  // check input GENIE ROOT file
   bool inpok = !(gSystem->AccessPathName(gOptInpFileName.c_str()));
   if (!inpok) {
     LOG("gntpc", pFATAL)
-           << "The input ROOT file ["
-                       << gOptInpFileName << "] is not accessible";
+        << "The input ROOT file ["
+        << gOptInpFileName << "] is not accessible";
     gAbortingInErr = true;
     exit(2);
   }
 
-  //get output file format
-  try {
+  // get output file format
+  if( parser.OptionExists('f') ) {
     LOG("gntpc", pINFO) << "Reading output file format";
-    string fmt = utils::clap::CmdLineArgAsString(argc,argv,'f');
+    string fmt = parser.ArgAsString('f');
 
-         if (fmt == "gst")             { gOptOutFileFormat = kConvFmt_gst;             }
-    else if (fmt == "gxml")            { gOptOutFileFormat = kConvFmt_gxml;            }
-    else if (fmt == "rootracker")      { gOptOutFileFormat = kConvFmt_rootracker;      }
-    else if (fmt == "t2k_rootracker")  { gOptOutFileFormat = kConvFmt_t2k_rootracker;  }
-    else if (fmt == "t2k_tracker")     { gOptOutFileFormat = kConvFmt_t2k_tracker;     }
-    else if (fmt == "numi_rootracker") { gOptOutFileFormat = kConvFmt_numi_rootracker; }
-    else if (fmt == "nuance_tracker" ) { gOptOutFileFormat = kConvFmt_nuance_tracker;  }
-    else if (fmt == "ghad")            { gOptOutFileFormat = kConvFmt_ghad;            }
-    else if (fmt == "ginuke")          { gOptOutFileFormat = kConvFmt_ginuke;          }
-    else                               { gOptOutFileFormat = kConvFmt_undef;           }
+         if (fmt == "gst")                   { gOptOutFileFormat = kConvFmt_gst;                   }
+    else if (fmt == "gxml")                  { gOptOutFileFormat = kConvFmt_gxml;                  }
+    else if (fmt == "ghep_mock_data")        { gOptOutFileFormat = kConvFmt_ghep_mock_data;        }
+    else if (fmt == "rootracker")            { gOptOutFileFormat = kConvFmt_rootracker;            }
+    else if (fmt == "rootracker_mock_data")  { gOptOutFileFormat = kConvFmt_rootracker_mock_data;  }
+    else if (fmt == "t2k_rootracker")        { gOptOutFileFormat = kConvFmt_t2k_rootracker;        }
+    else if (fmt == "numi_rootracker")       { gOptOutFileFormat = kConvFmt_numi_rootracker;       }
+    else if (fmt == "t2k_tracker")           { gOptOutFileFormat = kConvFmt_t2k_tracker;           }
+    else if (fmt == "nuance_tracker" )       { gOptOutFileFormat = kConvFmt_nuance_tracker;        }
+    else if (fmt == "ghad")                  { gOptOutFileFormat = kConvFmt_ghad;                  }
+    else if (fmt == "ginuke")                { gOptOutFileFormat = kConvFmt_ginuke;                }
+    else                                     { gOptOutFileFormat = kConvFmt_undef;                 }
 
     if(gOptOutFileFormat == kConvFmt_undef) {
       LOG("gntpc", pFATAL) << "Unknown output file format (" << fmt << ")";
@@ -2437,68 +2863,65 @@ void GetCommandLineArgs(int argc, char ** argv)
       exit(3);
     }
 
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gntpc", pFATAL) << "Unspecified output file format";
-      gAbortingInErr = true;
-      exit(4);
-    }
+  } else {
+    LOG("gntpc", pFATAL) << "Unspecified output file format";
+    gAbortingInErr = true;
+    exit(4);
   }
 
-  //get output file name 
-  try {
+  // get output file name 
+  if( parser.OptionExists('o') ) {
     LOG("gntpc", pINFO) << "Reading output filename";
-    gOptOutFileName = utils::clap::CmdLineArgAsString(argc,argv,'o');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gntpc", pINFO)
-                << "Unspecified output filename - Using default";
-      gOptOutFileName = DefaultOutputFile();
-    }
+    gOptOutFileName = parser.ArgAsString('o');
+  } else {
+    LOG("gntpc", pINFO)
+       << "Unspecified output filename - Using default";
+    gOptOutFileName = DefaultOutputFile();
   }
 
-  //get number of events to convert
-  try {
+  // get number of events to convert
+  if( parser.OptionExists('n') ) {
     LOG("gntpc", pINFO) << "Reading number of events to analyze";
-    gOptN = genie::utils::clap::CmdLineArgAsInt(argc,argv,'n');
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gntpc", pINFO)
-          << "Unspecified number of events to analyze - Use all";
-      gOptN = -1;
-    }
+    gOptN = parser.ArgAsInt('n');
+  } else {
+    LOG("gntpc", pINFO)
+       << "Unspecified number of events to analyze - Use all";
+    gOptN = -1;
   }
 
-  //get format version number
-  try {
+  // get format version number
+  if( parser.OptionExists('v') ) {
     LOG("gntpc", pINFO) << "Reading format version number";
-    gOptVersion = genie::utils::clap::CmdLineArgAsInt(argc,argv,'v');
+    gOptVersion = parser.ArgAsInt('v');
     LOG("gntpc", pINFO)
        << "Using version number: " << gOptVersion;
-  } catch(exceptions::CmdLineArgParserException e) {
-    if(!e.ArgumentFound()) {
-      LOG("gntpc", pINFO)
-          << "Unspecified version number - Use latest";
-      gOptVersion = LatestFormatVersionNumber();
-      LOG("gntpc", pINFO)
-          << "Latest version number: " << gOptVersion;
-    }
+  } else {
+    LOG("gntpc", pINFO)
+       << "Unspecified version number - Use latest";
+    gOptVersion = LatestFormatVersionNumber();
+    LOG("gntpc", pINFO)
+       << "Latest version number: " << gOptVersion;
   }
+
+  // check whether to copy MC job metadata (only if output file is in ROOT format)
+  gOptCopyJobMeta = parser.OptionExists('c');
 }
-//___________________________________________________________________
+//____________________________________________________________________________________
 string DefaultOutputFile(void)
 {
   // filename extension - depending on file format
   string ext="";
-  if      (gOptOutFileFormat == kConvFmt_gst            ) { ext = "gst.root";         }
-  else if (gOptOutFileFormat == kConvFmt_rootracker     ) { ext = "gtrac.root";       }
-  else if (gOptOutFileFormat == kConvFmt_gxml           ) { ext = "gxml";             }
-  else if (gOptOutFileFormat == kConvFmt_t2k_rootracker ) { ext = "gtrac.root";       }
-  else if (gOptOutFileFormat == kConvFmt_t2k_tracker    ) { ext = "gtrac.dat";        }
-  else if (gOptOutFileFormat == kConvFmt_numi_rootracker) { ext = "gtrac.root";       }
-  else if (gOptOutFileFormat == kConvFmt_nuance_tracker ) { ext = "gtrac_legacy.dat"; }
-  else if (gOptOutFileFormat == kConvFmt_ghad           ) { ext = "ghad.dat";         }
-  else if (gOptOutFileFormat == kConvFmt_ginuke         ) { ext = "ginuke.root";      }
+  if      (gOptOutFileFormat == kConvFmt_gst                  ) { ext = "gst.root";         }
+  else if (gOptOutFileFormat == kConvFmt_gxml                 ) { ext = "gxml";             }
+  else if (gOptOutFileFormat == kConvFmt_ghep_mock_data       ) { ext = "mockd.ghep.root";  }
+  else if (gOptOutFileFormat == kConvFmt_rootracker           ) { ext = "gtrac.root";       }
+  else if (gOptOutFileFormat == kConvFmt_rootracker_mock_data ) { ext = "mockd.gtrac.root"; }
+  else if (gOptOutFileFormat == kConvFmt_t2k_rootracker       ) { ext = "gtrac.root";       }
+  else if (gOptOutFileFormat == kConvFmt_numi_rootracker      ) { ext = "gtrac.root";       }
+  else if (gOptOutFileFormat == kConvFmt_t2k_tracker          ) { ext = "gtrac.dat";        }
+  else if (gOptOutFileFormat == kConvFmt_nuance_tracker       ) { ext = "gtrac_legacy.dat"; }
+  else if (gOptOutFileFormat == kConvFmt_ghad                 ) { ext = "ghad.dat";         }
+  else if (gOptOutFileFormat == kConvFmt_ginuke               ) { ext = "ginuke.root";      }
 
   string inpname = gOptInpFileName;
   unsigned int L = inpname.length();
@@ -2520,22 +2943,24 @@ string DefaultOutputFile(void)
 
   return gSystem->BaseName(name.str().c_str());
 }
-//___________________________________________________________________
+//____________________________________________________________________________________
 int LatestFormatVersionNumber(void)
 {
-  if      (gOptOutFileFormat == kConvFmt_gst            ) return 1;
-  else if (gOptOutFileFormat == kConvFmt_rootracker     ) return 1;
-  else if (gOptOutFileFormat == kConvFmt_gxml           ) return 1;
-  else if (gOptOutFileFormat == kConvFmt_t2k_rootracker ) return 1;
-  else if (gOptOutFileFormat == kConvFmt_t2k_tracker    ) return 2;
-  else if (gOptOutFileFormat == kConvFmt_numi_rootracker) return 1;
-  else if (gOptOutFileFormat == kConvFmt_nuance_tracker ) return 1;
-  else if (gOptOutFileFormat == kConvFmt_ghad           ) return 1;
-  else if (gOptOutFileFormat == kConvFmt_ginuke         ) return 1;
+  if      (gOptOutFileFormat == kConvFmt_gst                  ) return 1;
+  else if (gOptOutFileFormat == kConvFmt_gxml                 ) return 1;
+  else if (gOptOutFileFormat == kConvFmt_ghep_mock_data       ) return 1;
+  else if (gOptOutFileFormat == kConvFmt_rootracker           ) return 1;
+  else if (gOptOutFileFormat == kConvFmt_rootracker_mock_data ) return 1;
+  else if (gOptOutFileFormat == kConvFmt_t2k_rootracker       ) return 1;
+  else if (gOptOutFileFormat == kConvFmt_numi_rootracker      ) return 1;
+  else if (gOptOutFileFormat == kConvFmt_t2k_tracker          ) return 2;
+  else if (gOptOutFileFormat == kConvFmt_nuance_tracker       ) return 1;
+  else if (gOptOutFileFormat == kConvFmt_ghad                 ) return 1;
+  else if (gOptOutFileFormat == kConvFmt_ginuke               ) return 1;
 
   return -1;
 }
-//___________________________________________________________________
+//____________________________________________________________________________________
 void PrintSyntax(void)
 {
   string basedir  = string( gSystem->Getenv("GENIE") );
@@ -2544,4 +2969,4 @@ void PrintSyntax(void)
 
   gSystem->Exec(cmd.c_str());
 }
-//___________________________________________________________________
+//____________________________________________________________________________________

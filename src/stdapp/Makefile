@@ -1,5 +1,5 @@
 #
-# Makefile for Neutrino Generator Test Programs
+# Makefile for GENIE standard apps
 #
 # Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
 # May 02, 2004
@@ -17,14 +17,15 @@ GENIE_LIBS  = $(shell $(GENIE)/src/scripts/setup/genie-config --libs)
 
 LIBRARIES  := $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 
-TGT =    gEvGen		  \
-	 gEvDump          \
-	 ghAEvGen         \
-	 gEvGenGUI	  \
-	 gMakeSplines	  \
-	 gSplineAdd   	  \
-	 gSplineXml2Root  \
-	 gMaxPathLengths  \
+TGT =    gEvGen		  	\
+	 gEvDump          	\
+	 gEvGenHadronNucleus    \
+	 gEvPick	        \
+	 gEvGenGUI	  	\
+	 gMakeSplines	  	\
+	 gSplineAdd   	  	\
+	 gSplineXml2Root  	\
+	 gMaxPathLengths  	\
 	 gNtpConv	  
 
 all: $(TGT)
@@ -42,11 +43,17 @@ gEvDump: FORCE
 	$(LD) $(LDFLAGS) gEvDump.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevdump
 
 
-# ghAgen program generating hadron + nucleus interactions using GENIE's INTRANUKE
+# gevgen_hadron program generating hadron + nucleus interactions using GENIE's INTRANUKE
 #
-ghAEvGen: FORCE
-	$(CXX) $(CXXFLAGS) -c ghAEvGen.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) ghAEvGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/ghAevgen
+gEvGenHadronNucleus: FORCE
+	$(CXX) $(CXXFLAGS) -c gEvGenHadronNucleus.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gEvGenHadronNucleus.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen_hadron
+
+# gevpick event topology cherry-picking program
+#
+gEvPick: FORCE
+	$(CXX) $(CXXFLAGS) -c gEvPick.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gEvPick.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevpick
 
 # A gevgen GUI (in devel)
 #
@@ -102,54 +109,26 @@ clean: FORCE
 	$(RM) *.o *~ core
 	$(RM) $(GENIE_BIN_PATH)/gevgen		
 	$(RM) $(GENIE_BIN_PATH)/gevdump		
-	$(RM) $(GENIE_BIN_PATH)/ghAevgen
+	$(RM) $(GENIE_BIN_PATH)/gevgen_hadron
+	$(RM) $(GENIE_BIN_PATH)/gevpick
 	$(RM) $(GENIE_BIN_PATH)/gevgen_gui
 	$(RM) $(GENIE_BIN_PATH)/gmkspl 	
 	$(RM) $(GENIE_BIN_PATH)/gspladd 	
 	$(RM) $(GENIE_BIN_PATH)/gspl2root		
 	$(RM) $(GENIE_BIN_PATH)/gmxpl		
 	$(RM) $(GENIE_BIN_PATH)/gntpc		
-	$(RM) $(GENIE_BIN_PATH)/gnc2eN  
 
 distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevgen		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevdump		
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/ghAevgen	
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevgen_hadron
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevpick
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevgen_gui
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gmkspl 	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gspladd 	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gspl2root		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gmxpl		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gntpc		
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gnc2eN		
-
-clean--gEvGen: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gevgen
-
-clean--gEvDump: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gevdump
-
-clean--ghAEvGen: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/ghAevgen
-
-clean--gEvGenGUI: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gevgen_gui
-
-clean--gMakeSplines: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gmkspl
-
-clean--gSplineAdd: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gspladd
-
-clean--gSplineXml2Root: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gspl2root
-
-clean--gMaxPathLengths: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gmxpl
-
-clean--gNtpConv: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gntpc
-
 
 FORCE:
 
