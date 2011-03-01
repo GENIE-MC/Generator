@@ -156,6 +156,10 @@
    GetEntryNumber() - current entry # in the TChain.
    GetFileList() - get list of expanded file names used in TChain.
    Also, initialize fFlugg pointer; tweak debug messages and ostream<< op.
+ @ Feb 22, 2011 - JD
+   Implemented dummy versions of the new GFluxI::Clear, GFluxI::Index and 
+   GFluxI::GenerateWeighted methods needed for pre-generation of flux
+   interaction probabilities in GMCJDriver. 
 
 */
 //____________________________________________________________________________
@@ -165,6 +169,7 @@
 #include <vector>
 #include <sstream>
 #include <cassert>
+#include <climits>
 
 #include "libxml/xmlmemory.h"
 #include "libxml/parser.h"
@@ -411,13 +416,18 @@ bool GNuMIFlux::GenerateNext_weighted(void)
   // initialization via GNuMIFlux::SetFluxParticles(const PDGCodeList &)
 
   if ( ! fPdgCList->ExistsInPDGCodeList(fCurEntry->fgPdgC) ) {
-     LOG("Flux", pWARN)
-          << "Unknown decay mode or decay mode producing an undeclared"
-          << " neutrino species: "
-          << fCurEntry->ntype 
-          << " (pcodes=" << fCurEntry->pcodes << ")"
-          << "\nDeclared list of neutrino species: " << *fPdgCList;
-     //exit(123);
+     /// user might modify list via SetFluxParticles() in order to reject certain
+     /// flavors, even if they're found in the file.  So don't make a big fuss.
+     /// Spit out a single message and then stop reporting that flavor as problematic.
+     int badpdg = fCurEntry->fgPdgC;
+     if ( ! fPdgCListRej->ExistsInPDGCodeList(badpdg) ) {
+       fPdgCListRej->push_back(badpdg);
+       LOG("Flux", pWARN)
+         << "Encountered neutrino specie (" << badpdg 
+         << " pcodes=" << fCurEntry->pcodes << ")"
+         << " that wasn't in SetFluxParticles() list, "
+         << "\nDeclared list of neutrino species: " << *fPdgCList;
+     }
      return false;	
   }
 
@@ -1107,6 +1117,23 @@ void GNuMIFlux::PrintCurrent(void)
   LOG("Flux", pNOTICE) << "CurrentEntry:" << *fCurEntry;
 }
 //___________________________________________________________________________
+void GNuMIFlux::Clear(Option_t * opt)
+{
+// Dummy clear method needed to conform to GFluxI interface 
+//
+  LOG("Flux", pERROR) <<
+      "No Clear(Option_t * opt) method implemented for opt: "<< opt;
+}
+//___________________________________________________________________________
+void GNuMIFlux::GenerateWeighted(bool gen_weighted)
+{
+// Dummy implementation needed to conform to GFluxI interface
+//
+  LOG("Flux", pERROR) <<
+      "No GenerateWeighted(bool gen_weighted) method implemented for " <<
+      "gen_weighted: " << gen_weighted;
+}
+//___________________________________________________________________________
 void GNuMIFlux::Initialize(void)
 {
   LOG("Flux", pNOTICE) << "Initializing GNuMIFlux driver";
@@ -1114,7 +1141,8 @@ void GNuMIFlux::Initialize(void)
   fMaxEv           =  0;
   fEnd             =  false;
   fPdgCList        = new PDGCodeList;
-  fCurEntry    = new GNuMIFluxPassThroughInfo;
+  fPdgCListRej     = new PDGCodeList;
+  fCurEntry        = new GNuMIFluxPassThroughInfo;
 
   fNuFluxTree      =  0;
   fG3NuMI          =  0;
@@ -1195,12 +1223,13 @@ void GNuMIFlux::CleanUp(void)
 {
   LOG("Flux", pNOTICE) << "Cleaning up...";
 
-  if (fPdgCList) delete fPdgCList;
-  if (fCurEntry) delete fCurEntry;
+  if (fPdgCList)    delete fPdgCList;
+  if (fPdgCListRej) delete fPdgCListRej;
+  if (fCurEntry)    delete fCurEntry;
 
-  if ( fG3NuMI ) delete fG3NuMI;
-  if ( fG4NuMI ) delete fG4NuMI;
-  if ( fFlugg  ) delete fFlugg;
+  if ( fG3NuMI )    delete fG3NuMI;
+  if ( fG4NuMI )    delete fG4NuMI;
+  if ( fFlugg  )    delete fFlugg;
 
   LOG("Flux", pNOTICE)
     << " flux file cycles: " << fICycle << " of " << fNCycles 
@@ -1217,20 +1246,31 @@ void GNuMIFlux::AddFile(TTree* thetree, string fname)
   // first/last "evtno" are the proton # of the first/last proton
   // that generated a neutrino ... not necessarily true first/last #
   // estimate we're probably not off by more than 100 ...
+  // !Important change
+  // Some files (due to some intermediate flugg issues) list evtno==0
+  // when it isn't really true, we need to scan nearby values in case the
+  // last entry is one of these (otherwise file contributes 0 POTs).  
+  // Also assume quantization of 500 (instead of 100).
   Int_t evtno = 0;
   TBranch* br_evtno = 0;
   thetree->SetBranchAddress("evtno",&evtno, &br_evtno);
-  thetree->GetEntry(0);
-  Int_t evt_1 = evtno;
-  Int_t est_1 = (TMath::FloorNint(evt_1/100.))*100 + 1;
-  thetree->GetEntry(nentries-1);
-  Int_t evt_N = evtno;
-  Int_t est_N = (TMath::FloorNint((evt_N-1)/100.)+1)*100;
+  Int_t evt_1 = 0x7FFFFFFF;
+  Int_t evt_N = 1;
+  for (int j=0; j<50; ++j) {
+    thetree->GetEntry(j);
+    if (evtno != 0) evt_1 = TMath::Min(evtno,evt_1);
+    thetree->GetEntry(nentries-1 -j );
+    if (evtno != 0) evt_N = TMath::Max(evtno,evt_N);
+  }
+  const Int_t    nquant = 500;  // 100
+  const Double_t rquant = nquant;
+  Int_t est_1 = (TMath::FloorNint(evt_1/rquant))*nquant + 1;
+  Int_t est_N = (TMath::FloorNint((evt_N-1)/rquant)+1)*nquant;
   ULong64_t npots = est_N - est_1 + 1;
-
   LOG("Flux",pNOTICE) //INFO)
     << fNuFluxTreeName << "->AddFile() of " << nentries << " entries ["
-    << evt_1 << ":" << evt_N << "(" <<  est_1 << ":" << est_N << ")=" 
+    << evt_1 << ":" << evt_N << "%" << nquant 
+    << "(" <<  est_1 << ":" << est_N << ")=" 
     << npots <<" POTs] in {" << fNuFluxGen << "} file: " << fname;
   fNuTot    += nentries;
   fFilePOTs += npots;
@@ -2272,8 +2312,11 @@ void GNuMIFlux::PrintConfig()
   
   std::ostringstream s;
   PDGCodeList::const_iterator itr = fPdgCList->begin();
-  for ( ; itr != fPdgCList->end(); ++itr)
-    s << (*itr) << " ";
+  for ( ; itr != fPdgCList->end(); ++itr) s << (*itr) << " ";
+  s << "[rejected: ";
+  itr = fPdgCListRej->begin();
+  for ( ; itr != fPdgCListRej->end(); ++itr) s << (*itr) << " ";
+  s << " ] ";
 
   std::ostringstream flistout;
   std::vector<std::string> flist = GetFileList();

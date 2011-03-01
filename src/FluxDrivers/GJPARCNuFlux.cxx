@@ -74,10 +74,35 @@
    the job if go through a whole flux cycle without finding a detector location
    matching that specified by user. This avoids potential infinite number of
    cycles.
+ @ Feb 4, 2011 - JD
+   Made compatible with 11a version of jnubeam flux. Still compatable with older
+   versions. Now set the data members of the pass-through class directly as the
+   branch addresses of the input tree to reduce amount of duplicated code. 
+ @ Feb 22, 2011 - JD
+   Added functionality to start looping over input flux file from a random 
+   offset. This is to avoid any potential biases when processing very large 
+   flux files and always starting from the same position. The default is to
+   apply a random offset but this can be switched off using the 
+   GJPARCNuFlux::DisableOffset() method.
+ @ Feb 22, 2011 - JD
+   Implemented the new GFluxI::Clear, GFluxI::Index and GFluxI::GenerateWeighted
+   methods needed so that can be used with the new pre-generation of flux 
+   interaction probabilities methods added to GMCJDriver. 
+ @ Feb 24, 2011 - JD
+   Updated list of expected decay modes for the JNuBeam flux neutrinos for >10a
+   flux mc. The decay mode is used to infer the neutrino pdg and previously we
+   were just skipping them if we didn't recognise the mode - now the job aborts
+   as this can lead to unphysical results.
+ @ Feb 26, 2011 - JD
+   Now check that there is at least one entry with matching flux location (idfd)
+   at the LoadBeamSimData stage. Previously were only checking this after a 
+   cycle of calling GenerateNext. This stops case where if only looping over a 
+   single cycle the user was not warned that there were no flux location matches. 
 */
 //____________________________________________________________________________
 
 #include <cstdlib>
+#include <iostream>
 
 #include <TFile.h>
 #include <TTree.h>
@@ -85,6 +110,7 @@
 
 #include "Conventions/Units.h"
 #include "Conventions/GBuild.h"
+#include "Conventions/Controls.h"
 #include "FluxDrivers/GJPARCNuFlux.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
@@ -94,7 +120,8 @@
 #include "Utils/PrintUtils.h"
 
 using std::endl;
-
+using std::cout;
+using std::endl;
 using namespace genie;
 using namespace genie::flux;
 
@@ -118,7 +145,7 @@ bool GJPARCNuFlux::GenerateNext(void)
   RandomGen * rnd = RandomGen::Instance();
   while(1) {
      // Check for end of flux ntuple
-     bool end = this->End();        
+     bool end = this->End();
      if(end) return false;
 
      // Get next weighted flux ntuple entry
@@ -127,25 +154,28 @@ bool GJPARCNuFlux::GenerateNext(void)
 
      if(fNCycles==0) {
        LOG("Flux", pNOTICE) 
-          << "Got flux entry: " << fIEntry 
+          << "Got flux entry: " << this->Index()
           << " - Cycle: "<< fICycle << "/ infinite"; 
      } else {
        LOG("Flux", pNOTICE) 
-          << "Got flux entry: "<< fIEntry 
+          << "Got flux entry: "<< this->Index() 
           << " - Cycle: "<< fICycle << "/"<< fNCycles; 
      }
 
-     // Get fractional weight & decide whether to accept curr flux neutrino
-     double f = this->Weight() / fMaxWeight;
+     // If de-weighting get fractional weight & decide whether to accept curr flux neutrino
+     double f = 1.0;
+     if(fGenerateWeighted == false) f = this->Weight();
      LOG("Flux", pNOTICE) 
         << "Curr flux neutrino fractional weight = " << f;
-     if(f > 1.) {
+     if(f > (1.+controls::kASmallNum)) {
        LOG("Flux", pERROR) 
            << "** Fractional weight = " << f << " > 1 !!";
      }
      double r = (f < 1.) ? rnd->RndFlux().Rndm() : 0;
      bool accept = (r<f);
-     if(accept) return true;
+     if(accept) {
+       return true;
+     }
 
      LOG("Flux", pNOTICE) 
        << "** Rejecting current flux neutrino based on the flux weight only";
@@ -168,8 +198,9 @@ bool GJPARCNuFlux::GenerateNext_weighted(void)
      return false;	
   }
 
-  // Read next flux ntuple entry
-  if(fIEntry >= fNEntries) {
+  // Read next flux ntuple entry. Use fEntriesThisCycle to keep track of when
+  // in new cycle as fIEntry can now have an offset
+  if(fEntriesThisCycle >= fNEntries) {
      // Exit if have not found neutrino at specified location for whole cycle
      if(fNDetLocIdFound == 0){
        LOG("Flux", pFATAL)
@@ -178,25 +209,41 @@ bool GJPARCNuFlux::GenerateNext_weighted(void)
        exit(1);
      }
      fNDetLocIdFound = 0; // reset the counter
+     fICycle++;
+     fIEntry=fOffset;
+     fEntriesThisCycle = 0;
      // Run out of entries @ the current cycle.
      // Check whether more (or infinite) number of cycles is requested
-     if(fICycle < fNCycles || fNCycles == 0 ) {
-        fICycle++;
-        fIEntry=0;
-     } else {
-        LOG("Flux", pWARN) 
+     if(fICycle >= fNCycles && fNCycles != 0){
+        LOG("Flux", pWARN)
             << "No more entries in input flux neutrino ntuple";
-        return false;	
+        return false;
      }
   }
 
-  fNuFluxTree->GetEntry(fIEntry);
-  fIEntry++;
+  // In addition to getting info to generate event the following also
+  // updates pass-through info (= info on the flux neutrino parent particle 
+  // that may be stored at an extra branch of the output event tree -alongside 
+  // with the generated event branch- for use further upstream in the t2k 
+  // analysis chain -eg for beam reweighting etc-)
+  bool found_entry = fNuFluxTree->GetEntry(fIEntry) > 0;
+  assert(found_entry);
+  fLoadedNeutrino = true;
+  fEntriesThisCycle++;
+  fIEntry = (fIEntry+1) % fNEntries;
+  if(fNuFluxSumTree) fNuFluxSumTree->GetEntry(0); // get entry 0 as only 1 entry in tree
+  // check for negative flux weights 
+  if(fPassThroughInfo->norm + controls::kASmallNum < 0.0){ 
+    LOG("Flux", pERROR) << "Negative flux weight! Will set weight to 0.0";
+    fPassThroughInfo->norm  = 0.0;
+  } 
+  // remember to update fNorm as no longer set to fNuFluxTree branch address
+  fNorm = (double) fPassThroughInfo->norm;
 
-  // For 'near detector' flux ntuples make sure that the current entry
+  // for 'near detector' flux ntuples make sure that the current entry
   // corresponds to a flux neutrino at the specified detector location
   if(fIsNDLoc           /* nd */  && 
-     fDetLocId!=fLfIdfd /* doesn't match specified detector location*/) {
+     fDetLocId!=fPassThroughInfo->idfd /* doesn't match specified detector location*/) {
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
         LOG("Flux", pNOTICE) 
           << "Current flux neutrino not at specified detector location";
@@ -212,8 +259,9 @@ bool GJPARCNuFlux::GenerateNext_weighted(void)
   // count the number of times we have neutrinos at specified detector location
   fNDetLocIdFound += 1;
 
+
   // update the sum of weights & number of neutrinos
-  fSumWeight += this->Weight();
+  fSumWeight += this->Weight() * fMaxWeight; // Weight returns fNorm/fMaxWeight
   fNNeutrinos++;
 
   // Convert the current parent paticle decay mode into a neutrino pdg code
@@ -232,11 +280,33 @@ bool GJPARCNuFlux::GenerateNext_weighted(void)
   //  41      nue_bar from K- (Ke3) 
   //  42      nue_bar from K0L(Ke3) 
   //  43      nue_bar from Mu-      
-
-  if(fLfMode >= 11 && fLfMode <= 13) fgPdgC = kPdgNuMu;
-  if(fLfMode >= 21 && fLfMode <= 23) fgPdgC = kPdgAntiNuMu;
-  if(fLfMode >= 31 && fLfMode <= 33) fgPdgC = kPdgNuE;
-  if(fLfMode >= 41 && fLfMode <= 43) fgPdgC = kPdgAntiNuE;
+  // Since JNuBeam flux version >= 10a the following modes also expected
+  //  14      numu from K+(3)
+  //  15      numu from K0(3)
+  //  24      numu_bar from K-(3)
+  //  25      numu_bar from K0(3)
+  //  34      nue from pi+     
+  //  44      nue_bar from pi-  
+  // In general expect more modes following the rule:
+  //  11->19 --> numu
+  //  21->29 --> numu_bar
+  //  31->39 --> nue
+  //  41->49 --> nuebar
+  // This is based on example given at:
+  //  http://jnusrv01.kek.jp/internal/t2k/nubeam/flux/efill.kumac 
+ 
+  if(fPassThroughInfo->mode >= 11 && fPassThroughInfo->mode <= 19) fgPdgC = kPdgNuMu;
+  else if(fPassThroughInfo->mode >= 21 && fPassThroughInfo->mode <= 29) fgPdgC = kPdgAntiNuMu;
+  else if(fPassThroughInfo->mode >= 31 && fPassThroughInfo->mode <= 39) fgPdgC = kPdgNuE;
+  else if(fPassThroughInfo->mode >= 41 && fPassThroughInfo->mode <= 49) fgPdgC = kPdgAntiNuE;
+  else {
+    // If here then trying to process a neutrino from an unknown decay mode.
+    // Rather than just skipping this flux neutrino the job is aborted to avoid
+    // unphysical results. 
+    LOG("Flux", pFATAL) << "Unexpected decay mode: "<< fPassThroughInfo->mode <<
+                           "  --> unable to infer neutrino pdg! Aborting job!";
+    exit(1);  
+  }
 
   // Check neutrino pdg against declared list of neutrino species declared
   // by the current instance of the JPARC neutrino flux driver.
@@ -261,31 +331,31 @@ bool GJPARCNuFlux::GenerateNext_weighted(void)
   // Make sure that the appropriate maximum flux neutrino energy was set at 
   // initialization via GJPARCNuFlux::SetMaxEnergy(double Ev)
 
-  if(fLfEnu > fMaxEv) {
+  if(fPassThroughInfo->Enu > fMaxEv) {
      LOG("Flux", pWARN) 
           << "Flux neutrino energy exceeds declared maximum neutrino energy";
      LOG("Flux", pWARN) 
-          << "Ev = " << fLfEnu << "(> Ev{max} = " << fMaxEv << ")";
+          << "Ev = " << fPassThroughInfo->Enu << "(> Ev{max} = " << fMaxEv << ")";
   }
   
   // Set the current flux neutrino 4-momentum & 4-position
 
-  double pxnu = fLfEnu * fLfNnu[0];
-  double pynu = fLfEnu * fLfNnu[1];
-  double pznu = fLfEnu * fLfNnu[2];
-  double Enu  = fLfEnu;
+  double pxnu = fPassThroughInfo->Enu * fPassThroughInfo->nnu[0];
+  double pynu = fPassThroughInfo->Enu * fPassThroughInfo->nnu[1];
+  double pznu = fPassThroughInfo->Enu * fPassThroughInfo->nnu[2];
+  double Enu  = fPassThroughInfo->Enu;
   fgP4.SetPxPyPzE (pxnu, pynu, pznu, Enu);
 
   if(fIsNDLoc) {
     double cm2m = units::cm / units::m;
-    double xnu  = cm2m * fLfXnu;
-    double ynu  = cm2m * fLfYnu;
+    double xnu  = cm2m * fPassThroughInfo->xnu;
+    double ynu  = cm2m * fPassThroughInfo->ynu;
     double znu  = 0;
 
     // projected 4-position (from z=0) back to a configurable plane 
     // position (fZ0) upstream of the detector face.
-    xnu += (fZ0/fLfNnu[2])*fLfNnu[0]; 
-    ynu += (fZ0/fLfNnu[2])*fLfNnu[1];
+    xnu += (fZ0/fPassThroughInfo->nnu[2])*fPassThroughInfo->nnu[0]; 
+    ynu += (fZ0/fPassThroughInfo->nnu[2])*fPassThroughInfo->nnu[1];
     znu = fZ0;
 
     fgX4.SetXYZT (xnu,  ynu,  znu,  0.);
@@ -301,30 +371,13 @@ bool GJPARCNuFlux::GenerateNext_weighted(void)
         << "\n p4: " << utils::print::P4AsShortString(&fgP4)
         << "\n x4: " << utils::print::X4AsString(&fgX4);
 #endif
-  // Update pass-through info (= info on the flux neutrino parent particle 
-  // that may be stored at an extra branch of the output event tree -alongside 
-  // with the generated event branch- for use further upstream in the t2k 
-  // analysis chain -eg for beam reweighting etc-)
-  fPassThroughInfo -> fluxentry= fIEntry-1; // Offset required so that start at 0 
-  fPassThroughInfo -> ppid     = fLfPpid; 
-  fPassThroughInfo -> mode     = fLfMode; 
-  fPassThroughInfo -> ppi      = fLfPpi; 
-  fPassThroughInfo -> ppi0     = fLfPpi0;  
-  fPassThroughInfo -> nvtx0    = (int) fLfNVtx0;
-  fPassThroughInfo -> cospibm  = fLfCospibm;
-  fPassThroughInfo -> cospi0bm = fLfCospi0bm;
-  fPassThroughInfo -> idfd     = fLfIdfd;
-  fPassThroughInfo -> gamom0 = fLfGamom0;
-  fPassThroughInfo -> gipart = (int) fLfGipart;
-  for(int i = 0; i < 3; i++){
-    fPassThroughInfo -> xpi[i]   = fLfXpi[i];
-    fPassThroughInfo -> npi[i]   = fLfNpi[i];
-    fPassThroughInfo -> xpi0[i]  = fLfXpi0[i];
-    fPassThroughInfo -> npi0[i]  = fLfNpi0[i];
-    fPassThroughInfo -> gpos0[i] = fLfGpos0[i];
-    fPassThroughInfo -> gvec0[i] = fLfGvec0[i];
-  }
-
+  // Update flux pass through info not set as branch addresses of flux ntuples
+  fPassThroughInfo->fluxentry = this->Index();
+  std::string filename = fNuFluxFile->GetName();
+  std::string::size_type start_pos = filename.rfind("/");
+  if (start_pos == std::string::npos) start_pos = 0; else ++start_pos;
+  std::string basename(filename,start_pos);
+  fPassThroughInfo->fluxfilename = basename + ":" + fNuFluxTree->GetName();
   return true;
 }
 //___________________________________________________________________________
@@ -367,6 +420,20 @@ double GJPARCNuFlux::POT_curravg(void)
   double cnt1c = (double)fNNeutrinosTot1c;
   double pot  = (cnt/cnt1c) * this->POT_1cycle();
   return pot;
+}
+//___________________________________________________________________________
+long int GJPARCNuFlux::Index(void)
+{ 
+// Return the current flux entry index. If GenerateNext has not yet been 
+// called then return -1. 
+//
+  if(fLoadedNeutrino){
+    // subtract 1 as fIEntry was incremented since call to TTree::GetEntry
+    // and deal with special case where fIEntry-1 is last entry in cycle 
+    return fIEntry == 0 ? fNEntries - 1 : fIEntry-1;
+  }
+  // return -1 if no neutrino loaded since last call to this->ResetCurrent()
+  return -1;
 }
 //___________________________________________________________________________
 void GJPARCNuFlux::LoadBeamSimData(string filename, string detector_location)
@@ -430,59 +497,109 @@ void GJPARCNuFlux::LoadBeamSimData(string filename, string detector_location)
 
   // try to get all the branches that we know about and only set address if
   // they exist
-  if( (fBrNorm = fNuFluxTree->GetBranch("norm" )) ) fBrNorm->SetAddress(&fLfNorm);
-  else LOG("Flux", pFATAL)
-        <<"Cannot find flux branch: norm";
-  if( (fBrEnu  = fNuFluxTree->GetBranch("Enu"  )) ) fBrEnu->SetAddress(&fLfEnu);
-  else LOG("Flux", pFATAL)
-        <<"Cannot find flux branch: Enu";  
-  if( (fBrPpid = fNuFluxTree->GetBranch("ppid" )) ) fBrPpid->SetAddress(&fLfPpid);
-  else LOG("Flux", pFATAL)
-        <<"Cannot find flux branch: ppid"; 
-  if( (fBrMode = fNuFluxTree->GetBranch("mode" )) ) fBrMode->SetAddress(&fLfMode);
-  else LOG("Flux", pFATAL)
-        <<"Cannot find flux branch: mode"; 
-  if( (fBrRnu  = fNuFluxTree->GetBranch("rnu"  )) ) fBrRnu->SetAddress(&fLfRnu);
-  else if(fIsNDLoc) LOG("Flux", pFATAL)
-        <<"Cannot find flux branch: rnu"; 
-  if( (fBrXnu  = fNuFluxTree->GetBranch("xnu"  )) ) fBrXnu->SetAddress(&fLfXnu);
-  else if(fIsNDLoc) LOG("Flux", pFATAL)
-        <<"Cannot find flux branch: xnu"; 
-  if( (fBrYnu  = fNuFluxTree->GetBranch("ynu"  )) ) fBrYnu->SetAddress(&fLfYnu);
-  else if(fIsNDLoc) LOG("Flux", pFATAL)
-        <<"Cannot find flux branch: ynu"; 
-  if( (fBrNnu  = fNuFluxTree->GetBranch("nnu"  )) ) fBrNnu->SetAddress(fLfNnu);
-  else if(fIsNDLoc) LOG("Flux", pFATAL)
-        <<"Cannot find flux branch: nnu"; 
-  if( (fBrIdfd = fNuFluxTree->GetBranch("idfd" )) ) fBrIdfd->SetAddress(&fLfIdfd);
-  else if(fIsNDLoc) LOG("Flux", pFATAL)
-        <<"Cannot find flux branch: idfd"; 
+  bool missing_critical = false;
+  TBranch * fBr = 0;
+  GJPARCNuFluxPassThroughInfo * info = fPassThroughInfo;
+  if( (fBr = fNuFluxTree->GetBranch("norm")) ) fBr->SetAddress(&info->norm);
+  else { 
+    LOG("Flux", pFATAL) <<"Cannot find flux branch: norm";
+    missing_critical = true;
+  }
+  if( (fBr = fNuFluxTree->GetBranch("Enu")) ) fBr->SetAddress(&info->Enu);
+  else {
+    LOG("Flux", pFATAL) <<"Cannot find flux branch: Enu";  
+    missing_critical = true;
+  }
+  if( (fBr = fNuFluxTree->GetBranch("ppid")) ) fBr->SetAddress(&info->ppid);
+  else {
+    LOG("Flux", pFATAL) <<"Cannot find flux branch: ppid"; 
+    missing_critical = true;
+  }
+  if( (fBr = fNuFluxTree->GetBranch("mode")) ) fBr->SetAddress(&info->mode);
+  else { 
+    LOG("Flux", pFATAL) <<"Cannot find flux branch: mode";
+    missing_critical = true;
+  }
+  if( (fBr = fNuFluxTree->GetBranch("rnu")) ) fBr->SetAddress(&info->rnu);
+  else if(fIsNDLoc){ // Only required for ND location
+    LOG("Flux", pFATAL) <<"Cannot find flux branch: rnu";
+    missing_critical = true;
+  } 
+  if( (fBr = fNuFluxTree->GetBranch("xnu")) ) fBr->SetAddress(&info->xnu);
+  else if(fIsNDLoc){ // Only required for ND location
+    LOG("Flux", pFATAL) <<"Cannot find flux branch: xnu"; 
+    missing_critical = true;
+  }
+  if( (fBr = fNuFluxTree->GetBranch("ynu")) ) fBr->SetAddress(&info->ynu);
+  else if(fIsNDLoc) { // Only required for ND location
+    LOG("Flux", pFATAL) <<"Cannot find flux branch: ynu"; 
+    missing_critical = true;
+  }
+  if( (fBr = fNuFluxTree->GetBranch("nnu")) ) fBr->SetAddress(info->nnu);
+  else if(fIsNDLoc){ // Only required for ND location
+    LOG("Flux", pFATAL) <<"Cannot find flux branch: nnu";
+    missing_critical = true;
+  }
+  if( (fBr = fNuFluxTree->GetBranch("idfd")) ) fBr->SetAddress(&info->idfd);
+  else if(fIsNDLoc){ // Only required for ND location
+    LOG("Flux", pFATAL) <<"Cannot find flux branch: idfd"; 
+    missing_critical = true;
+  }
   // check that have found essential branches
-  if((fBrEnu && fBrPpid && fBrMode &&  
-     ((fBrRnu && fBrXnu && fBrYnu && fBrNnu && fBrIdfd) || !fIsNDLoc))==false){
+  if(missing_critical){
     LOG("Flux", pFATAL)
      << "Unable to find critical information in the flux ntuple! Initialization failed!";
     exit(1);
   }
-  if( (fBrPpi      = fNuFluxTree->GetBranch("ppi"     )) ) fBrPpi->SetAddress(&fLfPpi);
-  if( (fBrXpi      = fNuFluxTree->GetBranch("xpi"     )) ) fBrXpi->SetAddress(fLfXpi);
-  if( (fBrNpi      = fNuFluxTree->GetBranch("npi"     )) ) fBrNpi->SetAddress(fLfNpi);
-  if( (fBrPpi0     = fNuFluxTree->GetBranch("ppi0"    )) ) fBrPpi0->SetAddress(&fLfPpi0);
-  if( (fBrXpi0     = fNuFluxTree->GetBranch("xpi0"    )) ) fBrXpi0->SetAddress(fLfXpi0);
-  if( (fBrNpi0     = fNuFluxTree->GetBranch("npi0"    )) ) fBrNpi0->SetAddress(fLfNpi0);
-  if( (fBrNVtx0    = fNuFluxTree->GetBranch("nvtx0"   )) ) fBrNVtx0->SetAddress(&fLfNVtx0);
-  if( (fBrCospibm  = fNuFluxTree->GetBranch("cospibm" )) ) fBrCospibm->SetAddress(&fLfCospibm);
-  if( (fBrCospi0bm = fNuFluxTree->GetBranch("cospi0bm")) ) fBrCospi0bm->SetAddress(&fLfCospi0bm);
-  if( (fBrGamom0   = fNuFluxTree->GetBranch("gamom0"  )) ) fBrGamom0->SetAddress(&fLfGamom0);
-  if( (fBrGipart   = fNuFluxTree->GetBranch("gipart"  )) ) fBrGipart->SetAddress(&fLfGipart);
-  if( (fBrGvec0    = fNuFluxTree->GetBranch("gvec0"   )) ) fBrGvec0->SetAddress(fLfGvec0);
-  if( (fBrGpos0    = fNuFluxTree->GetBranch("gpos0"   )) ) fBrGpos0->SetAddress(fLfGpos0);
-
-  // deduce if have 07a or 10a flux files. Not used in any logic and is just for record
-  fFluxVersion = "10a";
-  if(fNuFluxTree -> GetBranch("gamom0") == NULL) fFluxVersion = "07a";
-  LOG("Flux", pNOTICE)
-      << "Have flux version: " <<  fFluxVersion.c_str();
+  if( (fBr = fNuFluxTree->GetBranch("ppi"))     ) fBr->SetAddress(&info->ppi);
+  if( (fBr = fNuFluxTree->GetBranch("xpi"))     ) fBr->SetAddress(info->xpi);
+  if( (fBr = fNuFluxTree->GetBranch("npi"))     ) fBr->SetAddress(info->npi);
+  if( (fBr = fNuFluxTree->GetBranch("ppi0"))    ) fBr->SetAddress(&info->ppi0);
+  if( (fBr = fNuFluxTree->GetBranch("xpi0"))    ) fBr->SetAddress(info->xpi0);
+  if( (fBr = fNuFluxTree->GetBranch("npi0"))    ) fBr->SetAddress(info->npi0);
+  if( (fBr = fNuFluxTree->GetBranch("nvtx0"))   ) fBr->SetAddress(&info->nvtx0);
+  // Following branches only present since flux version 10a
+  if( (fBr = fNuFluxTree->GetBranch("cospibm")) ) fBr->SetAddress(&info->cospibm);
+  if( (fBr = fNuFluxTree->GetBranch("cospi0bm"))) fBr->SetAddress(&info->cospi0bm);
+  if( (fBr = fNuFluxTree->GetBranch("gamom0"))  ) fBr->SetAddress(&info->gamom0);
+  if( (fBr = fNuFluxTree->GetBranch("gipart"))  ) fBr->SetAddress(&info->gipart);
+  if( (fBr = fNuFluxTree->GetBranch("gvec0"))   ) fBr->SetAddress(info->gvec0);
+  if( (fBr = fNuFluxTree->GetBranch("gpos0"))   ) fBr->SetAddress(info->gpos0);
+  // Following branches only present since flux vesion 10d
+  if( (fBr = fNuFluxTree->GetBranch("ng"))      ) fBr->SetAddress(&info->ng);
+  if( (fBr = fNuFluxTree->GetBranch("gpid"))    ) fBr->SetAddress(info->gpid);
+  if( (fBr = fNuFluxTree->GetBranch("gmec"))    ) fBr->SetAddress(info->gmec);
+  if( (fBr = fNuFluxTree->GetBranch("gvx"))     ) fBr->SetAddress(info->gvx);
+  if( (fBr = fNuFluxTree->GetBranch("gvy"))     ) fBr->SetAddress(info->gvy);
+  if( (fBr = fNuFluxTree->GetBranch("gvz"))     ) fBr->SetAddress(info->gvz);
+  if( (fBr = fNuFluxTree->GetBranch("gpx"))     ) fBr->SetAddress(info->gpx);
+  if( (fBr = fNuFluxTree->GetBranch("gpy"))     ) fBr->SetAddress(info->gpy);
+  if( (fBr = fNuFluxTree->GetBranch("gpz"))     ) fBr->SetAddress(info->gpz);
+  if( (fBr = fNuFluxTree->GetBranch("gmat"))    ) fBr->SetAddress(info->gmat);
+  if( (fBr = fNuFluxTree->GetBranch("gdistc"))  ) fBr->SetAddress(info->gdistc);
+  if( (fBr = fNuFluxTree->GetBranch("gdistal")) ) fBr->SetAddress(&info->gdistal);
+  if( (fBr = fNuFluxTree->GetBranch("gdistti")) ) fBr->SetAddress(&info->gdistti);
+  if( (fBr = fNuFluxTree->GetBranch("gdistfe")) ) fBr->SetAddress(&info->gdistfe);
+  if( (fBr = fNuFluxTree->GetBranch("gcosbm"))  ) fBr->SetAddress(info->gcosbm);
+  if( (fBr = fNuFluxTree->GetBranch("Enusk"))   ) fBr->SetAddress(&info->Enusk);
+  if( (fBr = fNuFluxTree->GetBranch("normsk"))  ) fBr->SetAddress(&info->normsk);
+  if( (fBr = fNuFluxTree->GetBranch("anorm"))   ) fBr->SetAddress(&info->anorm);
+   
+  // Look for the flux file summary info tree (only expected for > 10a flux versions) 
+  if((fNuFluxSumTree = (TTree*) fNuFluxFile->Get("h1000"))){
+    if( (fBr = fNuFluxSumTree->GetBranch("version"))) fBr->SetAddress(&info->version);
+    if( (fBr = fNuFluxSumTree->GetBranch("ntrig"))  ) fBr->SetAddress(&info->ntrig);
+    if( (fBr = fNuFluxSumTree->GetBranch("tuneid")) ) fBr->SetAddress(&info->tuneid);
+    if( (fBr = fNuFluxSumTree->GetBranch("pint"))   ) fBr->SetAddress(&info->pint);
+    if( (fBr = fNuFluxSumTree->GetBranch("bpos"))   ) fBr->SetAddress(info->bpos);
+    if( (fBr = fNuFluxSumTree->GetBranch("btilt"))  ) fBr->SetAddress(info->btilt);
+    if( (fBr = fNuFluxSumTree->GetBranch("brms"))   ) fBr->SetAddress(info->brms);
+    if( (fBr = fNuFluxSumTree->GetBranch("emit"))   ) fBr->SetAddress(info->emit);
+    if( (fBr = fNuFluxSumTree->GetBranch("alpha"))  ) fBr->SetAddress(info->alpha);
+    if( (fBr = fNuFluxSumTree->GetBranch("hcur"))   ) fBr->SetAddress(info->hcur);
+    if( (fBr = fNuFluxSumTree->GetBranch("rand"))   ) fBr->SetAddress(&info->rand);
+    if( (fBr = fNuFluxSumTree->GetBranch("rseed"))  ) fBr->SetAddress(info->rseed);
+  }
 
   // current ntuple cycle # (flux ntuples may be recycled)
   fICycle = 1;
@@ -492,15 +609,32 @@ void GJPARCNuFlux::LoadBeamSimData(string filename, string detector_location)
   // method using TTree::GetV1() seg faulted for more than ~1.5E6 entries
   fSumWeightTot1c  = 0;
   fNNeutrinosTot1c = 0;
+  fNDetLocIdFound = 0;
   for(int ientry = 0; ientry < fNEntries; ientry++) {
      fNuFluxTree->GetEntry(ientry);
+     // check for negative flux weights
+     if(fPassThroughInfo->norm + controls::kASmallNum < 0.0){ 
+       LOG("Flux", pERROR) << "Negative flux weight! Will set weight to 0.0";
+       fPassThroughInfo->norm  = 0.0;
+     } 
+     fNorm = (double) fPassThroughInfo->norm;
      // update maximum weight
-     fMaxWeight = TMath::Max(fMaxWeight, (double) fLfNorm); 
+     fMaxWeight = TMath::Max(fMaxWeight, (double) fPassThroughInfo->norm); 
      // compare detector location (see GenerateNext_weighted() for details)
-     if(fIsNDLoc && fDetLocId!=fLfIdfd) continue;
-     fSumWeightTot1c += this->Weight();
+     if(fIsNDLoc && fDetLocId!=fPassThroughInfo->idfd) continue;
+     fSumWeightTot1c += fNorm;
      fNNeutrinosTot1c++;
+     fNDetLocIdFound++;
   }
+  // Exit if have not found neutrino at specified location for whole cycle
+  if(fNDetLocIdFound == 0){
+    LOG("Flux", pFATAL)
+     << "The input jnubeam flux ntuple contains no entries for detector id "
+     << fDetLocId << ". Terminating job!";
+    exit(1); 
+  }
+  fNDetLocIdFound = 0; // reset the counter
+
   LOG("Flux", pNOTICE) << "Maximum flux weight = " << fMaxWeight;  
   if(fMaxWeight <=0 ) {
       LOG("Flux", pFATAL) << "Non-positive maximum flux weight!";
@@ -510,6 +644,10 @@ void GJPARCNuFlux::LoadBeamSimData(string filename, string detector_location)
   LOG("Flux", pINFO)
     << "Totals / cycle: #neutrinos = " << fNNeutrinosTot1c 
     << ", Sum{Weights} = " << fSumWeightTot1c;
+
+  if(fUseRandomOffset){
+    this->RandomOffset();  // Random start point when looping over ntuple
+  }
 }
 //___________________________________________________________________________
 void GJPARCNuFlux::SetFluxParticles(const PDGCodeList & particles)
@@ -561,6 +699,51 @@ void GJPARCNuFlux::SetNumOfCycles(int n)
   fNCycles = TMath::Max(0, n);
 }
 //___________________________________________________________________________
+void GJPARCNuFlux::GenerateWeighted(bool gen_weighted)
+{
+// Ignore the flux weights when getting next flux neutrino. Always set to
+// true for unweighted event generation but need option to switch off when
+// using pre-calculated interaction probabilities for each flux ray to speed
+// up event generation.
+  fGenerateWeighted = gen_weighted;
+}
+//___________________________________________________________________________
+void GJPARCNuFlux::RandomOffset()
+{
+// Choose a random number between 0-->fNEntries to set as start point for 
+// looping over flux ntuple. May be necessary when looping over very large 
+// flux files as always starting fromthe same point may introduce biases 
+// (inversely proportional to number of cycles). This method resets the 
+// starting value for fIEntry so must be called before any call to GenerateNext
+// is made.
+//
+  double ran_frac = RandomGen::Instance()->RndFlux().Rndm();
+  long int offset = (long int) floor(ran_frac * fNEntries); 
+  LOG("Flux", pERROR) << "Setting flux driver to start looping over entries "
+                      << "with offset of "<< offset;
+  fIEntry = fOffset = offset;
+}
+//___________________________________________________________________________
+void GJPARCNuFlux::Clear(Option_t * opt)
+{
+// If opt = "CycleHistory" then:
+// Reset all counters and state variables from any previous cycles. This 
+// should be called if, for instance, before event generation this flux
+// driver had been used for pre-calculating interaction probabilities. Does
+// not reset initial state variables such as flux particle types, POTs etc... 
+//
+  if(std::strcmp(opt, "CycleHistory") == 0){
+    // Reset so that generate de-weighted events
+    this->GenerateWeighted(false);
+    // Reset cycle counters
+    fICycle          = 0;
+    fSumWeight       = 0;
+    fNNeutrinos      = 0;
+    fIEntry          = fOffset;
+    fEntriesThisCycle = 0;
+  }
+}
+//___________________________________________________________________________
 void GJPARCNuFlux::Initialize(void)
 {
   LOG("Flux", pNOTICE) << "Initializing GJPARCNuFlux driver";
@@ -570,8 +753,8 @@ void GJPARCNuFlux::Initialize(void)
   fPassThroughInfo = new GJPARCNuFluxPassThroughInfo;
 
   fNuFluxFile      = 0;
-  fFluxVersion     = "";
   fNuFluxTree      = 0;
+  fNuFluxSumTree   = 0;
   fDetLoc          = "";
   fDetLocId        = 0;
   fNDetLocIdFound  = 0;
@@ -580,6 +763,9 @@ void GJPARCNuFlux::Initialize(void)
 
   fNEntries        = 0;
   fIEntry          = 0;
+  fEntriesThisCycle= 0;
+  fOffset          = 0;
+  fNorm            = 0.;
   fMaxWeight       = 0;
   fFilePOT         = 0;
   fZ0              = 0;
@@ -589,30 +775,9 @@ void GJPARCNuFlux::Initialize(void)
   fNNeutrinos      = 0;
   fSumWeightTot1c  = 0;
   fNNeutrinosTot1c = 0;
-
-  fBrNorm          = 0;
-  fBrIdfd          = 0;
-  fBrEnu           = 0;
-  fBrRnu           = 0;
-  fBrXnu           = 0;
-  fBrYnu           = 0;
-  fBrNnu           = 0;
-  fBrPpid          = 0;
-  fBrMode          = 0;
-  fBrPpi           = 0;
-  fBrXpi           = 0;
-  fBrNpi           = 0;
-  fBrCospibm       = 0;      
-  fBrPpi0          = 0;
-  fBrXpi0          = 0;
-  fBrNpi0          = 0;
-  fBrCospi0bm      = 0;
-  fBrNVtx0         = 0;
-  fBrGipart        = 0;
-  fBrGpos0         = 0;
-  fBrGvec0         = 0;
-  fBrGamom0        = 0;
-
+  fGenerateWeighted= false;
+  fUseRandomOffset = true;
+  fLoadedNeutrino   = false;
 
   this->SetDefaults();
   this->ResetCurrent();
@@ -650,34 +815,13 @@ void GJPARCNuFlux::ResetCurrent(void)
 // reset running values of neutrino pdg-code, 4-position & 4-momentum
 // and the input ntuple leaves
 
+  fLoadedNeutrino = false;
+
   fgPdgC = 0;
   fgP4.SetPxPyPzE (0.,0.,0.,0.);
   fgX4.SetXYZT    (0.,0.,0.,0.);
 
-  fLfEnu      = 0;  
-  fLfPpid     = 0;          
-  fLfMode     = 0;          
-  fLfPpi      = 0;          
-  fLfNorm     = 0;          
-  fLfCospibm  = 0;       
-  fLfNVtx0    = 0;       
-  fLfPpi0     = 0;          
-  fLfIdfd     = 0;
-  fLfRnu      = 0;    
-  fLfXnu      = 0;    
-  fLfYnu      = 0;          
-  fLfCospi0bm = 0;       
-  fLfGipart   = 0;
-  fLfGamom0   = 0;
-  for(int i=0; i<3; i++){
-    fLfNnu[i] = 0.;       
-    fLfXpi[i] = -999.999;      
-    fLfNpi[i] = 0.;        
-    fLfXpi0[i] = -999.999;    
-    fLfNpi0[i] = 0.;    
-    fLfGpos0[i] = -999.999;    
-    fLfGvec0[i] = 0.;
-  }    
+  fPassThroughInfo->Reset();
 }
 //___________________________________________________________________________
 void GJPARCNuFlux::CleanUp(void)
@@ -719,21 +863,7 @@ int GJPARCNuFlux::DLocName2Id(string name)
 GJPARCNuFluxPassThroughInfo::GJPARCNuFluxPassThroughInfo() :
 TObject()
 {
-  fluxentry = -1;
-  ppid      = 0;
-  mode      = 0;
-  ppi       = 0.;
-  ppi0      = 0.;
-  nvtx0     = 0;
-  cospibm   = 0.; 
-  cospi0bm  = 0.; 
-  idfd      = 0;
-  gamom0    = 0.;
-  gipart    = -1;
-  for(int i = 0; i<3; i++){ 
-    xpi[i] = xpi0[i] = gpos0[i] = -999.999;
-    npi[i]  = npi0[i] = gvec0[i] = 0.;
-  }
+  this->Reset();
 }
 //___________________________________________________________________________
 GJPARCNuFluxPassThroughInfo::GJPARCNuFluxPassThroughInfo(
@@ -741,6 +871,8 @@ GJPARCNuFluxPassThroughInfo::GJPARCNuFluxPassThroughInfo(
 TObject()
 {
   fluxentry  = info.fluxentry;
+  fluxfilename  = info.fluxfilename;
+  Enu        = info.Enu;
   ppid       = info.ppid;
   mode       = info.mode;
   ppi        = info.ppi;
@@ -751,7 +883,11 @@ TObject()
   idfd       = info.idfd;
   gamom0     = info.gamom0;
   gipart     = info.gipart;
+  xnu        = info.xnu;
+  ynu        = info.ynu;
+  rnu        = info.rnu;
   for(int i = 0; i<3; i++){
+    nnu[i] = info.nnu[i];
     xpi[i] = info.xpi[i];
     xpi0[i] = info.xpi0[i];
     gpos0[i] = info.gpos0[i];
@@ -759,7 +895,104 @@ TObject()
     npi0[i] = info.npi0[i];
     gvec0[i] = info.gvec0[i];
   }
-
+  ng = info.ng;
+  for(int ip = 0; ip<fNgmax; ip++){
+    gpid[ip] = info.gpid[ip];
+    gmec[ip] = info.gmec[ip];
+    gcosbm[ip] = info.gcosbm[ip];
+    gvx[ip] = info.gvx[ip];
+    gvy[ip] = info.gvy[ip];
+    gvz[ip] = info.gvz[ip];
+    gpx[ip] = info.gpx[ip]; 
+    gpy[ip] = info.gpy[ip]; 
+    gpz[ip] = info.gpz[ip]; 
+    gmat[ip] = info.gmat[ip];
+    gdistc[ip] = info.gdistc[ip];
+    gdistal[ip] = info.gdistal[ip];
+    gdistti[ip] = info.gdistti[ip];
+    gdistfe[ip] = info.gdistfe[ip]; 
+  }
+  norm = info.norm;
+  Enusk = info.Enusk;
+  normsk = info.normsk;
+  anorm = info.anorm;
+  version = info.version;
+  ntrig = info.ntrig;
+  tuneid = info.tuneid;
+  pint = info.pint;
+  rand = info.rand;
+  for(int i = 0; i < 2; i++){
+    bpos[i] = info.bpos[i];
+    btilt[i] = info.btilt[i];
+    brms[i] = info.brms[i];
+    emit[i] = info.emit[i];
+    alpha[i] = info.alpha[i];
+    rseed[i] = info.rseed[i];
+  }
+  for(int i = 0; i < 3; i++) hcur[i] = info.hcur[i]; 
+}
+//___________________________________________________________________________
+void GJPARCNuFluxPassThroughInfo::Reset(){
+  fluxentry= -1;
+  fluxfilename = "Not-set";
+  Enu      = 0;
+  ppid     = 0;
+  mode     = 0;
+  ppi      = 0.;
+  norm     = 0;
+  cospibm  = 0.;
+  nvtx0    = 0;
+  ppi0     = 0.;
+  idfd     = 0;
+  rnu      = -999999.;
+  xnu      = -999999.;
+  ynu      = -999999.;
+  cospi0bm = -999999.;
+  gipart   = -1;
+  gamom0   = 0.;
+  for(int i=0; i<3; i++){
+    nnu[i] = 0.;
+    xpi[i] = -999999.;
+    npi[i] = 0.;
+    xpi0[i] = -999999.;
+    npi0[i] = 0.;
+    gpos0[i] = -999999.;
+    gvec0[i] = 0.;
+  }
+  ng = -1;
+  for(int ip = 0; ip<fNgmax; ip++){
+    gpid[ip] = -999999; 
+    gmec[ip] = -999999;
+    gcosbm[ip] = -999999.;
+    gvx[ip] = -999999.;
+    gvy[ip] = -999999.;
+    gvz[ip] = -999999.;
+    gpx[ip] = -999999.; 
+    gpy[ip] = -999999.; 
+    gpz[ip] = -999999.;
+    gmat[ip] = -999999;
+    gdistc[ip] = -999999.;
+    gdistal[ip] = -999999.;
+    gdistti[ip] = -999999.;
+    gdistfe[ip] = -999999.; 
+  }
+  Enusk = -999999.;
+  normsk = -999999.; 
+  anorm = -999999.;
+  version = -999999.;
+  ntrig = -999999;
+  tuneid = -999999; 
+  pint = -999999;
+  rand = -999999;
+  for(int i = 0; i < 2; i++){
+    bpos[i] = -999999.;
+    btilt[i] = -999999.;
+    brms[i] = -999999.;
+    emit[i] = -999999.;
+    alpha[i] = -999999.; 
+    rseed[i] = -999999;
+  }
+  for(int i = 0; i < 3; i++) hcur[i] = -999999.;
 }
 //___________________________________________________________________________
 namespace genie {
@@ -768,7 +1001,10 @@ namespace flux  {
     ostream & stream, const genie::flux::GJPARCNuFluxPassThroughInfo & info) 
     {
       stream << "\n idfd       = " << info.idfd
+             << "\n norm       = " << info.norm
              << "\n flux entry = " << info.fluxentry
+             << "\n flux file  = " << info.fluxfilename
+             << "\n Enu        = " << info.Enu
              << "\n geant code = " << info.ppid
              << "\n (pdg code) = " << pdg::GeantToPdg(info.ppid)   
              << "\n decay mode = " << info.mode
@@ -793,6 +1029,7 @@ namespace flux  {
                  << info.npi0[2]  << ")"
              << "\n cospibm = " << info.cospibm
              << "\n cospi0bm = " << info.cospi0bm
+             << "\n Plus additional info if flux version is later than 07a" 
              << endl;
 
     return stream;

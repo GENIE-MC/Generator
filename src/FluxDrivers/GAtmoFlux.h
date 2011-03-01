@@ -14,7 +14,15 @@
           generated neutrino direction (theta,phi). The size of the area of 
           that plane, where flux neutrinos are generated, is determined by the 
           transverse radius Rt. You can tweak Rl, Rt to match the size of your 
-          detector.
+          detector. 
+          Initially, neutrino coordinates are generated in a default detector 
+          coordinate system (Topocentric Horizontal Coordinate -THZ-):
+             +z: Points towards the local zenith.
+             +x: On same plane as local meridian, pointing south.
+             +y: As needed to make a right-handed coordinate system.
+             origin: detector centre
+          Alternative user-defined topocentric systems can
+          be defined by specifying the appropriate rotation from THZ.
           The driver allows minimum and maximum energy cuts.
           Also it provides the options to generate wither unweighted or weighted 
           flux neutrinos (the latter giving smoother distributions at the tails).
@@ -37,6 +45,7 @@
 #include <map>
 
 #include <TLorentzVector.h>
+#include <TRotation.h>
 
 #include "EVGDrivers/GFluxI.h"
 
@@ -62,14 +71,18 @@ public :
   virtual const TLorentzVector & Momentum      (void) { return fgP4;       }
   virtual const TLorentzVector & Position      (void) { return fgX4;       }
   virtual bool                   End           (void) { return false;      }
+  virtual long int               Index         (void) { return -1;         }
+  virtual void                   Clear            (Option_t * opt);
+  virtual void                   GenerateWeighted (bool gen_weighted);
 
   // methods specific to the atmospheric flux drivers
-  void ForceMinEnergy     (double emin);
-  void ForceMaxEnergy     (double emax);
-  void GenerateWeighted   (bool gen_weighted);
-  void SetRadii           (double Rlongitudinal, double Rtransverse);
-  void SetFluxFile        (int neutrino_pdg, string filename);
-  bool LoadFluxData       (void);
+  long int NFluxNeutrinos     (void) const; ///< Number of flux nu's generated. Not the same as the number of nu's thrown towards the geometry (if there are cuts).
+  void     ForceMinEnergy     (double emin);
+  void     ForceMaxEnergy     (double emax);
+  void     SetRadii           (double Rlongitudinal, double Rtransverse);
+  void     SetUserCoordSystem (TRotation & rotation); ///< Rotation: Topocentric Horizontal -> User-defined Topocentric Coord System.
+  void     SetFluxFile        (int neutrino_pdg, string filename);
+  bool     LoadFluxData       (void);
 
 protected:
 
@@ -91,25 +104,28 @@ protected:
   virtual bool FillFluxHisto2D   (TH2D * h2, string filename) = 0;
 
   // protected data members
-  double           fMaxEv;            ///< (input) maximum energy (in input flux files)
-  PDGCodeList *    fPdgCList;         ///< (input) list of neutrino pdg-codes
-  int              fgPdgC;            ///< (current) generated nu pdg-code
-  TLorentzVector   fgP4;              ///< (current) generated nu 4-momentum
-  TLorentzVector   fgX4;              ///< (current) generated nu 4-position
-  double           fWeight;           ///< (current) generated nu weight
-  double           fMaxEvCut;         ///< (config) user-defined maximum energy cut
-  double           fMinEvCut;         ///< (config) user-defined minimum energy cut
-  map<int, string> fFluxFile;         ///< (config) input flux file for each neutrino species
-  double           fRl;               ///< (config) flux neutrino generation surface: longitudinal radius
-  double           fRt;               ///< (config) flux neutrino generation surface: transverse radius
-  unsigned int     fNumCosThetaBins;  ///< (config) number of cos(theta) bins in input flux data files
-  unsigned int     fNumEnergyBins;    ///< (config) number of energy bins in input flux data files
-  double *         fCosThetaBins;     ///< (config) cos(theta) bins in input flux data files
-  double *         fEnergyBins;       ///< (config) energy bins in input flux data files
-  bool             fGenWeighted;      ///< (config) generate a weighted or unweighted flux?
+  double           fMaxEv;            ///< maximum energy (in input flux files)
+  PDGCodeList *    fPdgCList;         ///< input list of neutrino pdg-codes
+  int              fgPdgC;            ///< current generated nu pdg-code
+  TLorentzVector   fgP4;              ///< current generated nu 4-momentum
+  TLorentzVector   fgX4;              ///< current generated nu 4-position
+  double           fWeight;           ///< current generated nu weight
+  long int         fNNeutrinos;       ///< number of flux neutrinos thrown so far
+  double           fMaxEvCut;         ///< user-defined cut: maximum energy 
+  double           fMinEvCut;         ///< user-defined cut: minimum energy 
+  map<int, string> fFluxFile;         ///< input flux file for each neutrino species
+  double           fRl;               ///< defining flux neutrino generation surface: longitudinal radius
+  double           fRt;               ///< defining flux neutrino generation surface: transverse radius
+  TRotation        fRotTHz2User;      ///< coord. system rotation: THZ -> Topocentric user-defined
+  unsigned int     fNumCosThetaBins;  ///< number of cos(theta) bins in input flux data files
+  unsigned int     fNumEnergyBins;    ///< number of energy bins in input flux data files
+  double *         fCosThetaBins;     ///< cos(theta) bins in input flux data files
+  double *         fEnergyBins;       ///< energy bins in input flux data files
+  bool             fGenWeighted;      ///< generate a weighted or unweighted flux?
   map<int, TH2D*>  fFlux2D;           ///< flux = f(Ev,cos8) for each neutrino species
   TH2D *           fFluxSum2D;        ///< flux = f(Ev,cos8) summed over neutrino species
   double           fFluxSum2DIntg;    ///< fFluxSum2D integral 
+
 };
 
 } // flux namespace

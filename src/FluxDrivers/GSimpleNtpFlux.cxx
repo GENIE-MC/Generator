@@ -9,6 +9,11 @@
 
  For the class documentation see the corresponding header file.
 
+ @ Feb 22, 2011 - JD
+   Implemented dummy versions of the new GFluxI::Clear, GFluxI::Index and 
+   GFluxI::GenerateWeighted methods needed for pre-generation of flux
+   interaction probabilities in GMCJDriver.
+
 */
 //____________________________________________________________________________
 
@@ -47,8 +52,9 @@ using std::endl;
 #include "TRegexp.h"
 #include "TString.h"
 
-/// RWH!!! until it is debugged
-#define __GENIE_LOW_LEVEL_MESG_ENABLED__
+//#define __GENIE_LOW_LEVEL_MESG_ENABLED__
+// next line won't work for NOvA: ROOT's Error() != DefaultErrorHandler
+//#define USE_INDEX_FOR_META 
 
 using namespace genie;
 using namespace genie::flux;
@@ -60,7 +66,7 @@ ClassImp(GSimpleNtpAux)
 ClassImp(GSimpleNtpMeta)
 
 // static storage
-  UInt_t genie::flux::GSimpleNtpMeta::mxfileprint = UINT_MAX;
+UInt_t genie::flux::GSimpleNtpMeta::mxfileprint = UINT_MAX;
 
 //____________________________________________________________________________
 GSimpleNtpFlux::GSimpleNtpFlux()
@@ -182,10 +188,32 @@ bool GSimpleNtpFlux::GenerateNext_weighted(void)
     UInt_t metakey = fCurEntry->metakey;
     if ( fAllFilesMeta && ( fCurMeta->metakey != metakey ) ) {
       UInt_t oldkey = fCurMeta->metakey;
+#ifdef USE_INDEX_FOR_META
       int nbmeta = fNuMetaTree->GetEntryWithIndex(metakey);
+#else
+      // unordered indices makes ROOT call Error() which might,
+      // if not DefaultErrorHandler, be fatal.
+      // so find the right one by a simple linear search.
+      // not a large burden since it only happens infrequently and
+      // the list is normally quite short.
+      int nmeta = fNuMetaTree->GetEntries();
+      int nbmeta = 0;
+      for (int imeta = 0; imeta < nmeta; ++imeta ) {
+        nbmeta = fNuMetaTree->GetEntry(imeta);
+        if ( fCurMeta->metakey == metakey ) break;
+      }
+      // next condition should never happen
+      if ( fCurMeta->metakey != metakey ) {
+        fCurMeta = 0; // didn't find it!?
+        LOG("Flux",pERROR) << "Failed to find right metakey=" << metakey
+                           << " (was " << oldkey << ") out of " << nmeta 
+                           << " entries";
+      }
+#endif
       LOG("Flux",pDEBUG) << "Get meta " << metakey 
                          << " (was " << oldkey << ") "
-                         << fCurMeta->metakey << " nb " << nbmeta;
+                         << fCurMeta->metakey 
+                         << " nb " << nbytes << " " << nbmeta;
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
       LOG("Flux",pDEBUG) << "Get meta " << *fCurMeta; 
 #endif
@@ -211,14 +239,20 @@ bool GSimpleNtpFlux::GenerateNext_weighted(void)
     // initialization via GSimpleNtpFlux::SetFluxParticles(const PDGCodeList &)
 
     if ( ! fPdgCList->ExistsInPDGCodeList(fCurEntry->pdg) ) {
-      LOG("Flux", pWARN)
-        << "Unknown decay mode or decay mode producing an undeclared"
-        << " neutrino species: "
-        << fCurEntry->pdg 
-        << "\nDeclared list of neutrino species: " << *fPdgCList;
-      assert(0);
+      /// user might modify list via SetFluxParticles() in order to reject certain
+      /// flavors, even if they're found in the file.  So don't make a big fuss.
+      /// Spit out a single message and then stop reporting that flavor as problematic.
+      int badpdg = fCurEntry->pdg;
+      if ( ! fPdgCListRej->ExistsInPDGCodeList(badpdg) ) {
+        fPdgCListRej->push_back(badpdg);
+        LOG("Flux", pWARN)
+          << "Encountered neutrino specie (" << badpdg 
+          << ") that wasn't in SetFluxParticles() list, "
+          << "\nDeclared list of neutrino species: " << *fPdgCList;
+      }
       return false;	
     }
+
   }
 
   // Update the curr neutrino p4/x4 lorentz vector
@@ -455,8 +489,10 @@ void GSimpleNtpFlux::ProcessMeta(void)
 
   if ( fAllFilesMeta ) {
     fNuMetaTree->SetBranchAddress("meta",&fCurMeta);
+#ifdef USE_INDEX_FOR_META
     int nindices = fNuMetaTree->BuildIndex("metakey"); // key used to tie entries to meta data
     LOG("Flux", pDEBUG) << "ProcessMeta() BuildIndex nindices " << nindices;
+#endif
     int nmeta = fNuMetaTree->GetEntries();
     for (int imeta = 0; imeta < nmeta; ++imeta ) {
       fNuMetaTree->GetEntry(imeta);
@@ -565,6 +601,23 @@ void GSimpleNtpFlux::PrintCurrent(void)
   LOG("Flux", pNOTICE) << "CurrentEntry:" << *fCurEntry;
 }
 //___________________________________________________________________________
+void GSimpleNtpFlux::Clear(Option_t * opt)
+{
+// Dummy clear method needed to conform to GFluxI interface 
+//
+  LOG("Flux", pERROR) <<
+      "No Clear(Option_t * opt) method implemented for opt: "<< opt;
+}
+//___________________________________________________________________________
+void GSimpleNtpFlux::GenerateWeighted(bool gen_weighted)
+{
+// Dummy implementation needed to conform to GFluxI interface
+//
+  LOG("Flux", pERROR) <<
+      "No GenerateWeighted(bool gen_weighted) method implemented for " <<
+      "gen_weighted: " << gen_weighted;
+}
+//___________________________________________________________________________
 void GSimpleNtpFlux::Initialize(void)
 {
   LOG("Flux", pINFO) << "Initializing GSimpleNtpFlux driver";
@@ -572,6 +625,7 @@ void GSimpleNtpFlux::Initialize(void)
   fMaxEv           =  0;
   fEnd             =  false;
   fPdgCList        = new PDGCodeList;
+  fPdgCListRej     = new PDGCodeList;
   fCurEntry        = new GSimpleNtpEntry;
   fCurNuMI         = new GSimpleNtpNuMI;
   fCurAux          = new GSimpleNtpAux;
@@ -638,14 +692,15 @@ void GSimpleNtpFlux::CleanUp(void)
 {
   LOG("Flux", pINFO) << "Cleaning up...";
 
-  if (fPdgCList) delete fPdgCList;
-  if (fCurEntry) delete fCurEntry;
-  if (fCurNuMI)  delete fCurNuMI;
-  if (fCurAux)   delete fCurAux;
-  if (fCurMeta)  delete fCurMeta;
+  if (fPdgCList)    delete fPdgCList;
+  if (fPdgCListRej) delete fPdgCListRej;
+  if (fCurEntry)    delete fCurEntry;
+  if (fCurNuMI)     delete fCurNuMI;
+  if (fCurAux)      delete fCurAux;
+  if (fCurMeta)     delete fCurMeta;
 
-  if (fNuFluxTree) delete fNuFluxTree;
-  if (fNuMetaTree) delete fNuMetaTree;
+  if (fNuFluxTree)  delete fNuFluxTree;
+  if (fNuMetaTree)  delete fNuMetaTree;
 
   LOG("Flux", pNOTICE)
     << " flux file cycles: " << fICycle << " of " << fNCycles 
@@ -723,13 +778,18 @@ GSimpleNtpNuMI::GSimpleNtpNuMI() { Reset(); }
 
 void GSimpleNtpNuMI::Reset()
 { 
-  tpx     = 0.;
-  tpy     = 0.;
-  tpz     = 0.;
-  tptype  =  0;
-  run     = -1;
-  evtno   = -1;
-  entryno = -1;
+  tpx      = 0.;
+  tpy      = 0.;
+  tpz      = 0.;
+  vx       = 0.;
+  vy       = 0.;
+  vz       = 0.;
+  ndecay   =  0;
+  ppmedium =  0;
+  tptype   =  0;
+  run      = -1;
+  evtno    = -1;
+  entryno  = -1;
 }
 
 void GSimpleNtpNuMI::Print(const Option_t* /* opt */ ) const
@@ -846,7 +906,10 @@ ostream & operator << (ostream & stream,
          << " evtno " << numi.evtno
          << " entryno " << numi.entryno
          << "\n   tptype " << numi.tptype
-         << " tp [" << numi.tpx << "," << numi.tpy << "," << numi.tpz << "]";
+         << " tp[xyz] [" << numi.tpx << "," << numi.tpy << "," << numi.tpz << "]"
+         << "\n   ndecay " << numi.ndecay << " ppmedium " << numi.ppmedium
+         << "\n   v[xyz] [" << numi.vx << "," << numi.vy << "," << numi.vz << "]"
+    ;
   return stream;
 }
 
@@ -921,8 +984,11 @@ void GSimpleNtpFlux::PrintConfig()
   
   std::ostringstream s;
   PDGCodeList::const_iterator itr = fPdgCList->begin();
-  for ( ; itr != fPdgCList->end(); ++itr)
-    s << (*itr) << " ";
+  for ( ; itr != fPdgCList->end(); ++itr) s << (*itr) << " ";
+  s << "[rejected: ";
+  itr = fPdgCListRej->begin();
+  for ( ; itr != fPdgCListRej->end(); ++itr) s << (*itr) << " ";
+  s << " ] ";
 
   std::ostringstream flistout;
   std::vector<std::string> flist = GetFileList();
