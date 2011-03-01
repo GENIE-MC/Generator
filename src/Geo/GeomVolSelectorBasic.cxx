@@ -18,6 +18,7 @@
 */
 //____________________________________________________________________________
 
+#include "Messenger/Messenger.h"
 #include "Geo/GeomVolSelectorBasic.h"
 #include "Geo/PathSegmentList.h"
 #include "Utils/StringUtils.h"
@@ -67,6 +68,15 @@ void GeomVolSelectorBasic::SetPathSelection(string pathstr)
 #endif
   }
 }
+
+//___________________________________________________________________________
+// nothing special needs to be done at the beginning or end of a new PathSegmentList
+void GeomVolSelectorBasic::BeginPSList(const PathSegmentList* /* untrimmed */ ) const 
+{ ; }
+
+void GeomVolSelectorBasic::EndPSList() const 
+{ ; }
+
 //___________________________________________________________________________
 void GeomVolSelectorBasic::TrimSegment(PathSegment& ps) const
 {

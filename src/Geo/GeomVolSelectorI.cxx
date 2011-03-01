@@ -27,8 +27,7 @@
 */
 //____________________________________________________________________________
 
-//#include "EVGDrivers/GeomVolSelectorI.h"
-//rwh -- for now during test phase
+#include "Messenger/Messenger.h"
 #include "Geo/GeomVolSelectorI.h"
 #include "Geo/PathSegmentList.h"
 
@@ -57,7 +56,10 @@ GeomVolSelectorI::~GeomVolSelectorI()
 PathSegmentList* 
 GeomVolSelectorI::GenerateTrimmedList(const PathSegmentList* untrimmed) const
 {
+  this->BeginPSList(untrimmed);
+
   PathSegmentList* trimmed = new PathSegmentList();
+  trimmed->SetStartInfo(untrimmed->GetStartPos(),untrimmed->GetDirection());
 
   const genie::geometry::PathSegmentList::PathSegmentV_t& segments = 
     untrimmed->GetPathSegmentV();
@@ -71,6 +73,8 @@ GeomVolSelectorI::GenerateTrimmedList(const PathSegmentList* untrimmed) const
     // now put (adjusted) entry on trimmed list
     trimmed->AddSegment(ps);
   }
+
+  this->EndPSList();
 
   return trimmed;
 }

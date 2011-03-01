@@ -122,11 +122,15 @@ public :
  ~PathSegmentList();
 
   void    SetDoCrossCheck (bool doit = true) { fDoCrossCheck = doit; }
+  void    SetPrintVerbose (bool doit = true) { fPrintVerbose = doit; }
   void    SetAllToZero    (void);
   void    SetStartInfo    (const TVector3& pos = TVector3(0,0,1e37), 
                            const TVector3& dir = TVector3(0,0,0)     );
   bool    IsSameStart     (const TVector3& pos, const TVector3& dir) const;
   void    AddSegment      (const PathSegment& ps) { fSegmentList.push_back(ps); }
+
+  const TVector3& GetDirection() const { return fDirection; }
+  const TVector3& GetStartPos() const  { return fStartPos; }
 
   typedef std::list<PathSegment> PathSegmentV_t;
   typedef PathSegmentV_t::const_iterator PathSegVCItr_t;
@@ -166,6 +170,7 @@ public :
   MaterialMap_t    fMatStepSum;
 
   bool             fDoCrossCheck;
+  bool             fPrintVerbose;
 
 };
 
