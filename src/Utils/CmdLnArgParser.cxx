@@ -12,7 +12,14 @@
  Important revisions after version 2.0.0 :
  @ Jul 23, 2010 - CA
    First added in v2.7.1. Adapted from previous code to parse cmd line args.
-
+ 
+ @ Feb 17, 2011 - JD
+   Fixed bug in ArgAsString so that it returns a NULL string if there is no 
+   argument provided (as may be the case for a simple switch which can 
+   optionally have an argument, like -S [filename] for save a file and if 
+   supplied call it filename). Previously if no value was provided the there 
+   was a chance that we return a ptr to an old bit of memory filled with the 
+   argument from the last call to this function. 
 */
 //____________________________________________________________________________
 
@@ -43,6 +50,7 @@ char * CmdLnArgParser::Arg(char op)
 {
   bool    set       = false;
   char *  argument  = new char[1024];
+  strcpy(argument, "");
 
   int     argc      = fArgc;
   char ** argv      = fArgv;
