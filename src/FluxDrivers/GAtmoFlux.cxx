@@ -30,6 +30,9 @@
    Implemented dummy versions of the new GFluxI::Clear and GFluxI::Index as 
    these methods needed for pre-generation of flux interaction probabilities 
    in GMCJDriver.
+@ Feb 03, 2011 - TF
+   Bug fixed: events are now generated randomly and uniformly on a disc with 
+   R = R_{transverse}
 */
 //____________________________________________________________________________
 
@@ -212,16 +215,17 @@ bool GAtmoFlux::GenerateNext_1try(void)
   // would point towards the origin.
   // Displace the position randomly on the surface that is
   // perpendicular to the selected point P(xo,yo,zo) on the sphere
-  TVector3 vec(x,y,z);              // vector towards selected point
-  TVector3 dvec = vec.Orthogonal(); // orthogonal vector
+  TVector3 vec(x,y,z);               // vector towards selected point
+  TVector3 dvec1 = vec.Orthogonal(); // orthogonal vector
+  TVector3 dvec2 = dvec1;            // second orthogonal vector
+  dvec2.Rotate(-kPi/2.0,vec);        // rotate second vector by 90deg, now forming a new orthogonal cartesian coordinate system
   double psi = 2.*kPi* rnd->RndFlux().Rndm(); // rndm angle [0,2pi]
-  double Rt  = fRt* rnd->RndFlux().Rndm();    // rndm norm  [0,Rtransverse]
-  dvec.Rotate(psi,vec); // rotate around original vector
-  dvec.SetMag(Rt);      // set new norm
-  // displace the original vector 
-  x += dvec.X();
-  y += dvec.Y();
-  z += dvec.Z();
+  double random = rnd->RndFlux().Rndm();      // rndm number  [0,1]
+  dvec1.SetMag(TMath::Sqrt(random)*fRt*TMath::Cos(psi));
+  dvec2.SetMag(TMath::Sqrt(random)*fRt*TMath::Sin(psi));
+  x += dvec1.X() + dvec2.X();
+  y += dvec1.Y() + dvec2.Y();
+  z += dvec1.Z() + dvec2.Z();
 
   // Set the neutrino momentum and position 4-vectors with values
   // calculated at previous steps.
