@@ -26,6 +26,8 @@
 
 #include <TH1D.h>
 #include <TLorentzVector.h>
+#include <TFile.h>
+#include <TTree.h>
 
 #include "EVGDrivers/PathLengthList.h"
 #include "PDG/PDGCodeList.h"
@@ -54,7 +56,11 @@ public :
   void UseMaxPathLengths           (string xml_filename);
   void KeepOnThrowingFluxNeutrinos (bool keep_on);
   void ForceSingleProbScale        (void);
-  void Configure                   (void);
+  void PreSelectEvents             (bool preselect = true);
+  bool PreCalcFluxProbabilities    (void);
+  bool LoadFluxProbabilities       (string filename);
+  void SaveFluxProbabilities       (string outfilename);
+  void Configure                   (bool calc_prob_scales = true);
 
   // generate single neutrino event for input flux & geometry
   EventRecord * GenerateEvent (void);
@@ -90,6 +96,7 @@ private:
   void          GenerateVertexPosition          (void);
   void          ComputeEventProbability         (void);
   double        InteractionProbability          (double xsec, double pl, int A);
+  double        PreGenFluxInteractionProbability(void);
 
   // private data members:
   GEVGPool *      fGPool;              ///< A pool of GEVGDrivers properly configured event generation drivers / one per init state
@@ -113,6 +120,15 @@ private:
   bool            fUseLogE;            ///< [config] build splines = f(logE) (rather than f(E)) ?
   bool            fKeepThrowingFluxNu; ///< [config] keep firing flux neutrinos till one of them interacts
   bool            fGenerateUnweighted; ///< [config] force single probability scale?
+  bool            fPreSelect;          ///< [config] set whether to pre-select events using max interaction paths 
+  TFile*          fFluxIntProbFile;    ///< [input] pre-generated flux interaction probability file
+  TTree*          fFluxIntTree;        ///< [computed-or-loaded] pre-computed flux interaction probabilities (expected tree name is "gFlxIntProbs")
+  double          fBrFluxIntProb;      ///< flux interaction probability (set to branch:"FluxIntProb")
+  int             fBrFluxIndex;        ///< corresponding entry in flux input tree (set to address of branch:"FluxEntry")
+  double          fBrFluxEnu;          ///< corresponding flux P4 (set to address of branch:"FluxP4") 
+  double          fBrFluxWeight;       ///< corresponding flux weight (set to address of branch: "FluxWeight") 
+  string          fFluxIntFileName;    ///< whether to save pre-generated flux tree for use in later jobs
+  string          fFluxIntTreeName;    ///< name for tree holding flux probabilities 
 };
 
 }      // genie namespace
