@@ -50,6 +50,9 @@
 
 using namespace genie;
 using namespace genie::rew;
+   
+const int GReWeightNuXSecDIS::kModeABCV12u;
+const int GReWeightNuXSecDIS::kModeABCV12uShape;
 
 //_______________________________________________________________________________________
 GReWeightNuXSecDIS::GReWeightNuXSecDIS() 

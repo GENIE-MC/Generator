@@ -18,6 +18,9 @@
    First included in v2.5.1.
  @ Mar 09, 2010 - JD
    Protect against negative hadron fate cross section
+ @ Feb 09, 2011 - JD
+   Remove condition that require a non-zero tweak dial when calling SetCurTwkDial
+   as this can lead to old tweak dial value being used inadvertently.
 */
 //____________________________________________________________________________
 
@@ -161,11 +164,6 @@ void GReWeightINukeParams::Fates::Reconfigure()
 //___________________________________________________________________________
 void GReWeightINukeParams::Fates::SetCurTwkDial(GSyst_t syst, double val)
 {
-  // check size of tweaking dial
-// JIMFIX - removed following line as it meant that sometimes got situation
-// where old tweaking dial values were being used instead of a value of 0.0.  
-//  if(TMath::Abs(val) < controls::kASmallNum) return;
-
   // check type of systematic 
   if(!this->IsHandled(syst)) return;
 
@@ -502,9 +500,6 @@ void GReWeightINukeParams::MFP::Reset(void)
 //___________________________________________________________________________ 
 void GReWeightINukeParams::MFP::SetCurTwkDial(double val) 
 {
-  // check size of tweaking dial
-  if(TMath::Abs(val) < controls::kASmallNum) return;
-
   fTwkDial    = val;
   fIsIncluded = true;
 }
