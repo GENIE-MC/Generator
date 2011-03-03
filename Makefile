@@ -37,9 +37,9 @@ BUILD_TARGETS =    print-make-info \
 		   doxygen-doc \
 		   generator-test-exe \
 		   generator-std-exe \
-		   minos-support-softw \
+		   numi-support-softw \
 		   t2k-support-softw \
-		   ino-support-softw \
+		   atmo-support-softw \
 		   reweight-support-softw \
   		   install-scripts
 INSTALL_TARGETS =  print-makeinstall-info \
@@ -323,12 +323,12 @@ else
 	@echo "** Test applications were not enabled! Skipping..."
 endif
 
-minos-support-softw: FORCE
+numi-support-softw: FORCE
 	@echo " "
-	@echo "** Building MINOS-specific support software..."
-ifeq ($(strip $(GOPT_ENABLE_MINOS)),YES)
+	@echo "** Building NuMI expt-specific support software..."
+ifeq ($(strip $(GOPT_ENABLE_NUMI)),YES)
 	@echo "* Building MINOS-specific GENIE tools"
-	cd ${GENIE}/src/support/minos/EventServer/;\
+	cd ${GENIE}/src/support/numi/EvGen/;\
 	make all; \
 	cd ${GENIE}
 else
@@ -349,12 +349,12 @@ else
 	@echo "Not enabled! Skipping..."
 endif
 
-ino-support-softw: FORCE
+atmo-support-softw: FORCE
 	@echo " "
-	@echo "** Building INO-specific support software..."
-ifeq ($(strip $(GOPT_ENABLE_INO)),YES)
-	@echo "* Building INO-specific GENIE tools"
-	cd ${GENIE}/src/support/ino/EvGen/;\
+	@echo "** Building atmospheric neutrino support software..."
+ifeq ($(strip $(GOPT_ENABLE_ATMO)),YES)
+	@echo "* Building atmospheric neutrino GENIE tools"
+	cd ${GENIE}/src/support/atmo/EvGen/;\
 	make all; \
 	cd ${GENIE}
 else
@@ -638,10 +638,10 @@ clean-files: FORCE
 	cd VLE;                           make clean; cd ..; \
 	cd VHE;                           make clean; cd ..; \
 	cd stdapp;                        make clean; cd ..; \
-	cd support/minos/EventServer/;    make clean; cd ../../../; \
+	cd support/numi/EvGen/;           make clean; cd ../../../; \
 	cd support/t2k/EvGen/;            make clean; cd ../../../; \
 	cd support/t2k/SKNorm/;           make clean; cd ../../../; \
-	cd support/ino/EvGen/;            make clean; cd ../../../; \
+	cd support/atmo/EvGen/;           make clean; cd ../../../; \
 	cd support/rwght/;                make clean; cd ../../; \
 	cd test;                          make clean; cd ..; \
 	cd scripts;	                  make clean; \
@@ -715,10 +715,10 @@ distclean: FORCE
 	cd VLE;                            make distclean; cd ..; \
 	cd VHE;                            make distclean; cd ..; \
 	cd stdapp;                         make distclean; cd ..; \
-	cd support/minos/EventServer/;     make distclean; cd ../../../; \
+	cd support/numi/EvGen/;            make distclean; cd ../../../; \
 	cd support/t2k/EvGen/;             make distclean; cd ../../../; \
 	cd support/t2k/SKNorm/;            make distclean; cd ../../../; \
-	cd support/ino/EvGen/;             make distclean; cd ../../../; \
+	cd support/atmo/EvGen/;            make distclean; cd ../../../; \
 	cd support/rwght/;                 make distclean; cd ../../../; \
 	cd test;                           make distclean; cd ..; \
 	cd scripts;	                   make distclean; \
