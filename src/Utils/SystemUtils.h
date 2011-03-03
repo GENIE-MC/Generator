@@ -37,6 +37,8 @@ namespace system
   int GenieMinorVrsNum (string tag);
   int GenieRevisVrsNum (string tag);
 
+  bool FileExists(string filename);
+
 } // system namespace
 } // utils  namespace
 } // genie  namespace
