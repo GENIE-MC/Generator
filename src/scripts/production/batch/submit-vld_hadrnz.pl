@@ -146,7 +146,7 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
   
        # PBS case
        if($batch_system eq 'PBS') {
-           $batch_script = $fntemplate.pbs";
+           $batch_script = "$fntemplate.pbs";
            open(PBS, ">$batch_script") or die("Can not create the PBS batch script");
            print PBS "#!/bin/bash \n";
            print PBS "#PBS -N hdzvld-$curr_subrunnu \n";
