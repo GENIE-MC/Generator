@@ -68,6 +68,7 @@ public :
   // info needed for computing the generated sample normalization
   double   GlobProbScale  (void) const { return fGlobPmax;                  }
   long int NFluxNeutrinos (void) const { return (long int) fNFluxNeutrinos; }
+  map<int, double> SumFluxIntProbs(void) const { return fSumFluxIntProbs;   }
 
   // input flux and geometry drivers
   const GFluxI &        FluxDriver      (void) const { return *fFluxDriver;   }
@@ -127,8 +128,10 @@ private:
   int             fBrFluxIndex;        ///< corresponding entry in flux input tree (set to address of branch:"FluxEntry")
   double          fBrFluxEnu;          ///< corresponding flux P4 (set to address of branch:"FluxP4") 
   double          fBrFluxWeight;       ///< corresponding flux weight (set to address of branch: "FluxWeight") 
+  int             fBrFluxPDG;          ///< corresponding flux pdg code (set to address of branch: "FluxPDG") 
   string          fFluxIntFileName;    ///< whether to save pre-generated flux tree for use in later jobs
   string          fFluxIntTreeName;    ///< name for tree holding flux probabilities 
+  map<int, double> fSumFluxIntProbs;   ///< map where the key is flux pdg code and the value is sum of fBrFluxWeight * fBrFluxIntProb for all these flux neutrinos 
 };
 
 }      // genie namespace

@@ -70,6 +70,13 @@
    increases (between factor of 5 and ~300) for event generation over complex
    detector geometries and with realistic flux drivers. See 
    src/support/t2k/EvGen/gT2KEvGen.cxx for an example of how to use.
+ @ Mar, 7, 2011 - JD
+   Store sum totals of the flux interaction probabilities for various neutrino 
+   type in a map relating pdg code to total interaction probability. Also add
+   public getter method so that this can be used in applications to work out
+   expected event rates. See gT2KEvGen.cxx for an example of how to do this. 
+   Also save the PDG code for each entry in the flux interaction probabilities 
+   tree. 
    
 */
 //____________________________________________________________________________
@@ -200,6 +207,9 @@ bool GMCJDriver::PreCalcFluxProbabilities(void)
  
   bool save_to_file = fFluxIntProbFile == 0 && fFluxIntFileName.size()>0;
 
+  // Clear map storing sum(fBrFluxWeight*fBrFluxIntProb) for each neutrino pdg
+  fSumFluxIntProbs.clear();
+
   // check if already loaded flux interaction probs using LoadFluxProbTree
   if(fFluxIntTree){
     LOG("GMCJDriver", pNOTICE) << 
@@ -225,6 +235,7 @@ bool GMCJDriver::PreCalcFluxProbabilities(void)
     fFluxIntTree->Branch("FluxIntProb", &fBrFluxIntProb, "FluxIntProb/D");
     fFluxIntTree->Branch("FluxEnu", &fBrFluxEnu, "FluxEnu/D"); 
     fFluxIntTree->Branch("FluxWeight", &fBrFluxWeight, "FluxWeight/D"); 
+    fFluxIntTree->Branch("FluxPDG", &fBrFluxPDG, "FluxPDG/I"); 
     fFluxIntTree->SetDirectory(0);  
  
     fFluxDriver->GenerateWeighted(true);
@@ -261,6 +272,7 @@ bool GMCJDriver::PreCalcFluxProbabilities(void)
       fBrFluxIndex   = fFluxDriver->Index();
       fBrFluxEnu     = fFluxDriver->Momentum().E();
       fBrFluxWeight  = fFluxDriver->Weight();
+      fBrFluxPDG     = fFluxDriver->PdgCode();
       fFluxIntTree->Fill();
 
       // store the first index so know when have cycled exactly once
@@ -287,11 +299,19 @@ bool GMCJDriver::PreCalcFluxProbabilities(void)
     double safety_factor = 1.01;
     for(int i = 0; i< fFluxIntTree->GetEntries(); i++){
       fFluxIntTree->GetEntry(i);
+      // Check have non-negative probabilities
+      assert(fBrFluxIntProb+controls::kASmallNum > 0.0);
+      assert(fBrFluxWeight+controls::kASmallNum > 0.0);
+      // Update the global maximum
       fGlobPmax = TMath::Max(fGlobPmax, fBrFluxIntProb*safety_factor); 
+      // Update the sum of fBrFluxIntProb*fBrFluxWeight for different species
+      if(fSumFluxIntProbs.find(fBrFluxPDG) == fSumFluxIntProbs.end()){
+        fSumFluxIntProbs[fBrFluxPDG] = 0.0;
+      }
+      fSumFluxIntProbs[fBrFluxPDG] += fBrFluxIntProb * fBrFluxWeight;
     }
     LOG("GMCJDriver", pNOTICE) <<
-        "Updated global probability scale to fGlobPmax = "<< fGlobPmax;
- 
+        "Updated global probability scale to fGlobPmax = "<< fGlobPmax; 
 
     if(save_to_file){
       LOG("GMCJDriver", pNOTICE) <<
@@ -346,6 +366,8 @@ bool GMCJDriver::LoadFluxProbabilities(string filename)
       bool set_addresses = 
         fFluxIntTree->SetBranchAddress("FluxIntProb", &fBrFluxIntProb) >= 0 &&
         fFluxIntTree->SetBranchAddress("FluxIndex", &fBrFluxIndex) >= 0 &&
+        fFluxIntTree->SetBranchAddress("FluxPDG", &fBrFluxPDG) >= 0 &&
+        fFluxIntTree->SetBranchAddress("FluxWeight", &fBrFluxWeight) >= 0 &&
         fFluxIntTree->SetBranchAddress("FluxEnu", &fBrFluxEnu) >= 0; 
       if(set_addresses){ 
         // Finally check that can use them
@@ -455,6 +477,8 @@ void GMCJDriver::InitJob(void)
   fBrFluxIndex        = -1;
   fBrFluxEnu          = -1.;       
   fBrFluxWeight       = -1.;
+  fBrFluxPDG          = 0;
+  fSumFluxIntProbs.clear();
 
   // Throw as many flux neutrinos as necessary till one has interacted
   // so that GenerateEvent() never  returns NULL (except when in error)
@@ -1213,8 +1237,8 @@ double GMCJDriver::PreGenFluxInteractionProbability()
   bool found_entry = fFluxIntTree->GetEntryWithIndex(fFluxDriver->Index()) > 0;
   bool enu_match = false;
   if(found_entry){
-    assert(fBrFluxEnu > controls::kASmallNum); // protect against zero division
-    double rel_err = (fBrFluxEnu-fFluxDriver->Momentum().E())/fBrFluxEnu;
+    double rel_err = fBrFluxEnu-fFluxDriver->Momentum().E();
+    if(fBrFluxEnu > controls::kASmallNum) rel_err /= fBrFluxEnu;
     enu_match = TMath::Abs(rel_err)<controls::kASmallNum;
     if(enu_match == false){
       LOG("GMCJDriver", pERROR) << 
