@@ -368,7 +368,9 @@
    for details. 
  @ Feb 22, 2011 - JD
    Added option to start looping over flux file using a random start entry.
- 
+ @ Mar 7, 2011 - JD 
+   Output expected number of events per cycle and per POT after initialisation. 
+
 */
 //_________________________________________________________________________________________
 #include <cassert>
@@ -623,6 +625,33 @@ int main(int argc, char ** argv)
     if(success){
       LOG("gT2Kevgen", pNOTICE) 
        << "Successfully calculated/loaded flux interaction probabilities!"; 
+      // Print out a list of expected number of events per POT and per cycle
+      // based on the pre-generated flux interaction probabilities
+      map<int, double> sum_probs = mcj_driver->SumFluxIntProbs();
+      map<int, double>::const_iterator sum_probs_it = sum_probs.begin();
+      double ntot_per_pot = 0.0;
+      double ntot_per_cycle = 0.0;
+      double pscale = mcj_driver->GlobProbScale();
+      double pot_1cycle = jparc_flux_driver->POT_1cycle();
+      LOG("T2KProdInfo", pNOTICE) << 
+          "Expected event rates based on flux interaction probabilities:";
+      for(; sum_probs_it != sum_probs.end(); sum_probs_it++){
+        double sum_probs = sum_probs_it->second;
+        double nevts_per_cycle = sum_probs / pscale;  // take into account rescale 
+        double nevts_per_pot = sum_probs/pot_1cycle;  // == (sum_probs*pscale)/(pot_1cycle*pscale) 
+        ntot_per_pot += nevts_per_pot;
+        ntot_per_cycle += nevts_per_cycle;
+        LOG("T2KProdInfo", pNOTICE) << 
+            "     PDG "<< sum_probs_it->first << ": " << nevts_per_cycle << 
+            " Events/Cycle, "<< nevts_per_pot << " Events/POT"; 
+      }
+      LOG("T2KProdInfo", pNOTICE) << "      -----------"; 
+      LOG("T2KProdInfo", pNOTICE) << 
+          "     All neutrino species: " << ntot_per_cycle << 
+          " Events/Cycle, "<< ntot_per_pot << " Events/POT"; 
+      LOG("T2KProdInfo", pNOTICE) << 
+          "N.B. This assumes input flux file corresponds to "<< pot_1cycle <<
+          "POT, ensure this is correct if using these numbers!"; 
     }
     else {
       LOG("gT2Kevgen", pFATAL) 
