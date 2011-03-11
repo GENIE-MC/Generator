@@ -77,7 +77,12 @@
    expected event rates. See gT2KEvGen.cxx for an example of how to do this. 
    Also save the PDG code for each entry in the flux interaction probabilities 
    tree. 
-   
+ @ Mar, 11, 2011 - JD 
+   Set the directory of fFluxIntTree to the output file fFluxIntProbFile if
+   saving it later. This is so that it is incrementally saved and fixes bug
+   where getting std::bad_alloc when trying to Write large trees 
+   fFluxIntProbFile.   
+ 
 */
 //____________________________________________________________________________
 
@@ -236,7 +241,8 @@ bool GMCJDriver::PreCalcFluxProbabilities(void)
     fFluxIntTree->Branch("FluxEnu", &fBrFluxEnu, "FluxEnu/D"); 
     fFluxIntTree->Branch("FluxWeight", &fBrFluxWeight, "FluxWeight/D"); 
     fFluxIntTree->Branch("FluxPDG", &fBrFluxPDG, "FluxPDG/I"); 
-    fFluxIntTree->SetDirectory(0);  
+    // Associate to file otherwise get std::bad_alloc when writing large trees 
+    if(save_to_file) fFluxIntTree->SetDirectory(fFluxIntProbFile); 
  
     fFluxDriver->GenerateWeighted(true);
   
