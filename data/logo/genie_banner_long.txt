@@ -1,65 +1,66 @@
-************************************************************************************************
-************************************************************************************************
-**                                                                                            **
-**       mu-                                           @@@@@@  @@@@@@  @    @  @  @@@@@@      **
-**          \                                          @       @       @@   @  @  @           **
-**           \                                         @   @   @@@@@   @ @  @  @  @@@@@@      **
-**            \                   ______ ===> jet      @   @   @       @  @ @  @  @           **
-**             \       W+       u/                     @@@@@@  @@@@@@  @    @  @  @@@@@@      **
-**              \_ _ _ _ _ _ _ _/                                                             **
-**              /               \         @                                                   **
-**             /                d\______ @@@            NEUTRINO MONTE CARLO GENERATOR        **
-**            /                         @@@@@                                                 **
-**           /           u  ____________@@@@@                       v2.7.1                    **
-**          /     jet <===               @@@@@@@                                              **
-**         /             u  ____________@@@@@                                                 **
-**       nu_mu                          @@@@@              http://www.genie-mc.org            ** 
-**                                       @@@                                                  **
-**                                        @  p                                                **
-**                                                                                            **
-**                                                                                            **
-** Luis Alvarez-Ruso [1], Costas Andreopoulos (*) [11], Omar Benhar [10], Flavio Cavanna [7], **
-**      James Dobson [5], Steve Dytman [9], Hugh Gallagher [13], Pawel Guzowski [5],          **
-**  Robert Hatcher [4], Yoshinari Hayato [6], Anselmo Meregaglia [3,12], Aaron Meyer [9],     **
-** Donna Naples [9], Geoff Pearce [11], Corey Reed [8], Andre Rubbia [3], Mike Whalley [2]    **
-**                                                                                            **
-**                                  (The GENIE Collaboration)                                 **
-**                                                                                            **
-**                               (1) Coimbra University, Portugal                             **
-**                                  (2) Durham University, UK                                 **
-**                                 (3) ETH Zurich, Switzerland                                **
-**                       (4) Fermi National Accelerator Laboratory, USA                       **
-**                              (5) Imperial College London, UK                               **
-**                 (6) Kamioka Observatory, ICRR, University of Tokyo, Japan                  **
-**                          (7) L'Aquila University and INFN, Italy                           **
-**                                (8) NIKHEF, The Netherlands                                 **
-**                               (9) Pittsburgh University, USA                               **
-**                       (10) Rome Sapienza University and INFN, Italy                        **
-**    (11) Rutherford Appleton Laboratory / Science and Technology Facilities Council, UK     **
-**                                (12) Strasbourg IPHC, France                                **
-**                                 (13) Tufts University, USA                                 **
-**                                                                                            **
-**                                                                                            **
-** (*) Corresponding Author: Dr. Costas Andreopoulos                                          **
-**     address: Rutherford Appleton Laboratory / Science and Technology Facilities Council    **
-**              Harwell Science & Innovation Campus Oxfordshire OX11 0QX, United Kingdom      **
-**     e-mail : costas.andreopoulos \at stfc.ac.uk >                                          **
-**     tel    : +44-(0)1235-445091                                                            **
-**     fax    : +44-(0)1235-446733                                                            **
-**                                                                                            **
-**                                                                                            **
-** (c) 2003-2010 GENIE Collaboration                                                          **
-**                                                                                            **
-** This program is free software: you can redistribute it and/or modify it under the terms    **
-** of the GNU General Public License as published by the Free Software Foundation, either     **
-** version 3 of the License, or any later version.                                            **
-** This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;  **
-** without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  ** 
-** See the GNU General Public License for more details.                                       **
-** You should have received a copy of the GNU General Public License along with this program. **  
-** If not, see <http://www.gnu.org/licenses/>.                                                **
-**                                                                                            **
-************************************************************************************************
-************************************************************************************************
+******************************************************************************************************
+******************************************************************************************************
+**                                                                                                  **
+**       mu-                                              @@@@@@  @@@@@@  @    @  @  @@@@@@         **
+**          \                                             @       @       @@   @  @  @              **
+**           \                                            @   @   @@@@@   @ @  @  @  @@@@@@         **
+**            \                   ______ ===> jet         @   @   @       @  @ @  @  @              **
+**             \       W+       u/                        @@@@@@  @@@@@@  @    @  @  @@@@@@         **
+**              \_ _ _ _ _ _ _ _/                                                                   **
+**              /               \         @                                                         **
+**             /                d\______ @@@               NEUTRINO MONTE CARLO GENERATOR           **
+**            /                         @@@@@                                                       **
+**           /           u  ____________@@@@@                          v2.7.1                       **
+**          /     jet <===               @@@@@@@                                                    **
+**         /             u  ____________@@@@@                                                       **
+**       nu_mu                          @@@@@                 http://www.genie-mc.org               ** 
+**                                       @@@                                                        **
+**                                        @  p                                                      **
+**                                                                                                  **
+**                                                                                                  **
+**    Luis Alvarez-Ruso [14], Costas Andreopoulos (*) [11], Omar Benhar [10], Flavio Cavanna [6],   **
+** Thomas Dealtry [8], James Dobson [4], Steve Dytman [9], Hugh Gallagher [13], Pawel Guzowski [4], **
+**      Robert Hatcher [3], Yoshinari Hayato [6], Anselmo Meregaglia [2,12], Aaron Meyer [9],       **
+**     Donna Naples [9], Geoff Pearce [11], Corey Reed [8], Andre Rubbia [2], Mike Whalley [1]      **
+**                                                                                                  **
+**                                      (The GENIE Collaboration)                                   **
+**                                                                                                  **
+**                                     (1) Durham University, UK                                    **
+**                                    (2) ETH Zurich, Switzerland                                   **
+**                          (3) Fermi National Accelerator Laboratory, USA                          **
+**                                 (4) Imperial College London, UK                                  **
+**                    (5) Kamioka Observatory, ICRR, University of Tokyo, Japan                     **
+**                             (6) L'Aquila University and INFN, Italy                              **
+**                                   (7) NIKHEF, The Netherlands                                    **
+**                                    (8) Oxford University, UK                                     **
+**                                  (9) Pittsburgh University, USA                                  **
+**                          (10) Rome Sapienza University and INFN, Italy                           **
+**       (11) Rutherford Appleton Laboratory / Science and Technology Facilities Council, UK        **
+**                                   (12) Strasbourg IPHC, France                                   **
+**                                    (13) Tufts University, USA                                    **
+**                                  (14) Valencia University, Spain                                 **
+**                                                                                                  **
+**                                                                                                  **
+** (*) Corresponding Author: Dr. Costas Andreopoulos                                                **
+**     address: Rutherford Appleton Laboratory / Science and Technology Facilities Council          **
+**              Harwell Science & Innovation Campus Oxfordshire OX11 0QX, United Kingdom            **
+**     e-mail : costas.andreopoulos \at stfc.ac.uk >                                                **
+**     tel    : +44-(0)1235-445091                                                                  **
+**     fax    : +44-(0)1235-446733                                                                  **
+**                                                                                                  **
+**                                                                                                  **
+** (c) 2003-2011 GENIE Collaboration                                                                **
+**                                                                                                  **
+** This program is free software: you can redistribute it and/or modify it under the terms of       ** 
+** the GNU General Public License as published by the Free Software Foundation, either version 3 of ** 
+** the License, or any later version.                                                               **
+** This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;        **
+** without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.        ** 
+** See the GNU General Public License for more details.                                             **
+** You should have received a copy of the GNU General Public License along with this program.       **  
+** If not, see <http://www.gnu.org/licenses/>.                                                      **
+**                                                                                                  **
+******************************************************************************************************
+******************************************************************************************************
 
 
