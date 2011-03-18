@@ -53,13 +53,15 @@ void generate_sk_flux_histograms(
   TH1D * numu_flux    = new TH1D("numu_flux",    "numu flux at SuperK",    nbins, Emin, Emax);
   TH1D * numubar_flux = new TH1D("numubar_flux", "numubar flux at SuperK", nbins, Emin, Emax);
   TH1D * nue_flux     = new TH1D("nue_flux",     "nue flux at SuperK",     nbins, Emin, Emax);
+  TH1D * nuebar_flux  = new TH1D("nuebar_flux",  "nuebar flux at SuperK",  nbins, Emin, Emax);
 
   //
   // fill histograms
   //
-  chain.Draw("Enu>>numu_flux",    "norm*(mode==11 || mode==12 || mode==13)", "goff");
-  chain.Draw("Enu>>numubar_flux", "norm*(mode==21 || mode==22 || mode==23)", "goff");
-  chain.Draw("Enu>>nue_flux",     "norm*(mode==31 || mode==32 || mode==33)", "goff");
+  chain.Draw("Enu>>numu_flux",    "norm*(mode>=11 && mode<=19)", "goff");
+  chain.Draw("Enu>>numubar_flux", "norm*(mode>=21 && mode<=29)", "goff");
+  chain.Draw("Enu>>nue_flux",     "norm*(mode>=31 && mode<=39)", "goff");
+  chain.Draw("Enu>>nuebar_flux",  "norm*(mode>=41 && mode<=49)", "goff");
 
   //
   // save histograms
@@ -68,5 +70,6 @@ void generate_sk_flux_histograms(
   numu_flux    -> Write ("numu_flux"   );
   numubar_flux -> Write ("numubar_flux");
   nue_flux     -> Write ("nue_flux"    );
+  nuebar_flux  -> Write ("nuebar_flux" );
   f.Close();
 }
