@@ -7,8 +7,8 @@
 # Options:
 #    --version         : GENIE version
 #    --run             : 1,2,3,...
-#    --neutrino        : numu, numubar, nue, nuesig
-#   [--flux-version]   : JNUBEAM flux version, <07a, 10a, 10c, ...>, default: 10c
+#    --neutrino        : numu, numubar, nue, nuebar, nuesig
+#   [--flux-version]   : JNUBEAM flux version, <07a, 10a, 10c, 11a...>, default: 11a
 #   [--flux-config]    : JNUBEAM config, <nominal, yshift2mm,...>, default: nominal
 #   [--flux-hist-file] : JNUBEAM flux histogram file, default: sk_flux_histograms.root
 #   [--arch]           : <SL4_32bit, SL5_64bit>, default: SL5_64bit
@@ -65,7 +65,7 @@ $cycle          = "01"                         unless defined $cycle;
 $batch_system   = "PBS"                        unless defined $batch_system;
 $queue          = "prod"                       unless defined $queue;
 $softw_topdir   = "/opt/ppd/t2k/GENIE"         unless defined $softw_topdir;
-$flux_version   = "10"                         unless defined $flux_version;
+$flux_version   = "11a"                        unless defined $flux_version;
 $flux_config    = "nominal"                    unless defined $flux_config;
 $flux_hist_file = "sk_flux_histograms.root"    unless defined $flux_hist_file;
 $nevents        = "2000";   
@@ -82,23 +82,23 @@ $file_prefix    = "genie_sk";
 %mcseed_base    = ( 'numu'    => '183221029',
                     'numubar' => '283221029',
                     'nue'     => '383221029',
+                    'nuebar'  => '383221029',
                     'nuesig'  => '483221029' );
 %mcrun_base     = ( 'numu'    => '10000000',
                     'numubar' => '10000000',
                     'nue'     => '10000000',
+                    'nuebar'  => '10000000',
                     'nuesig'  => '10000000' );
 %nu_pdg_code    = ( 'numu'    =>  '14',
                     'numubar' => '-14',
                     'nue'     =>  '12',
+                    'nuebar'  => '-12',
                     'nuesig'  =>  '12' );
 %flux_hist_name = ( 'numu'    => 'numu_flux',
                     'numubar' => 'numubar_flux',
                     'nue'     => 'nue_flux',
+                    'nuebar'  => 'nuebar_flux',
                     'nuesig'  => 'numu_flux' );
-#%flux_hist_name = ( 'numu'    => 'h100',
-#                    'numubar' => 'h200',
-#                    'nue'     => 'h300',
-#                    'nuesig'  => 'h100' );
 
 die("** Aborting [Can not find GENIE setup script: ..... $genie_setup]") 
 unless -e $genie_setup;
