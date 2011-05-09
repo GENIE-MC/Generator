@@ -1,4 +1,3 @@
-{
 // Absolute normalization of SuperK event samples
 //
 // N = Integral{
@@ -35,22 +34,36 @@
 //      Ptot ~ (2*sigma(H1)+sigma(O16))/18 =>
 //      Ptot ~ sigma(H20)/A(H20)
 //
+//
+//
+// Inputs:
+//
+//  - xsecfile:
+//      Neutrino - water cross section file.
+//      The output of $GENIE/src/support/t2k/SKNorm/gSKXSecTable.cxx (gSKxsect executable)
+//  - skfluxfile :
+//      Input neutrino flux file.
+//      The output of $GENIE/src/scripts/production/misc/generate_sk_flux_histograms.C
+//  - IF :
+//      Number of POTs per flux simulation file used for filling-in the flux histograms (typically 1E+21 POT)
+//  - NF :
+//      Number of flux files used  filling-in the flux histograms 
+//
 
-  // output of $GENIE/src/scripts/production/misc/generate_sk_flux_histograms.C
-  const char * skfluxfile = "./sk_flux_histograms.root";
+void sk_sample_norm_abs
+(
+  const char * xsecfile,      // Neutrino - water cross section file
+  const char * skfluxfile,    // Input neutrino flux file.
+  double       IF  = 1E+21,   // Number of POTs per flux file
+  int          NF  = 500      // Number of flux files used
+)
 
-  // output of $GENIE/src/support/t2k/SKNorm/gSKXSecTable.cxx (gSKxsect executable)
-  const char xsecfile = "./genie_sk_xsec_table.dat";
-
+{
   // consts
-
   double Mfv = 2.25E+10; // want final event numbers shown for this ficucial mass (gr)
   double I0  = 1E+21;    // want final event numbers shown for this POT exposure
-
   double Na  = 6.023E+23;
   double A   = 18;      // gr
-  double IF  = 1E+21;   // number of POTs per flux file
-  int    NF  = 100;     // number of flux files used
 
   // binning in xsection and flux files
 
@@ -62,26 +75,30 @@
   // load genie cross sections for water
 
   TTree xsec_water;
-  xsec_water.ReadFile("genie_sk_xsec_table.dat", "E/D:xsec_numu/D:xsec_numubar/D:xsec_nue/D:xsec_nuebar/D");
+  xsec_water.ReadFile(xsecfile, "E/D:xsec_numu/D:xsec_numubar/D:xsec_nue/D:xsec_nuebar/D");
   TH1D * xnumu    = new TH1D("xnumu",    "", nE, Emin, Emax);
   TH1D * xnumubar = new TH1D("xnumubar", "", nE, Emin, Emax);
   TH1D * xnue     = new TH1D("xnue",     "", nE, Emin, Emax);
+  TH1D * xnuebar  = new TH1D("xnuebar",  "", nE, Emin, Emax);
   xsec_water.Draw("E>>xnumu",    "xsec_numu",    "goff");
   xsec_water.Draw("E>>xnumubar", "xsec_numubar", "goff");
   xsec_water.Draw("E>>xnue",     "xsec_nue",     "goff");
+  xsec_water.Draw("E>>xnuebar",  "xsec_nuebar",  "goff");
 
   // load SuperK flux histograms
 
   TFile * flux = new TFile(skfluxfile, "read");
   TH1D * fnumu    = (TH1D*) flux->Get("numu_flux");
   TH1D * fnumubar = (TH1D*) flux->Get("numubar_flux");
-  TH1D * fnue     = (TH1D*) flux->Get("nue_flux");  // instrinsic beam nue
+  TH1D * fnue     = (TH1D*) flux->Get("nue_flux");     // instrinsic beam nue
+  TH1D * fnuebar  = (TH1D*) flux->Get("nuebar_flux");  // ...
 
   // integrate flux x cross section and apply exposure / fiducial mass and dimensional factors
 
   double Nnumu    = 0;
   double Nnumubar = 0;
   double Nnue     = 0;
+  double Nnuebar  = 0;
   double Nnuesig  = 0; // numu->nue
 
   for(int i=1; i<=fnumu->GetNbinsX(); i++) {
@@ -93,6 +110,8 @@
     double flux_numubar = fnumubar -> GetBinContent (fnumubar -> FindBin(E));
     double xsec_nue     = xnue     -> GetBinContent (xnue     -> FindBin(E));
     double flux_nue     = fnue     -> GetBinContent (fnue     -> FindBin(E));
+    double xsec_nuebar  = xnuebar  -> GetBinContent (xnuebar  -> FindBin(E));
+    double flux_nuebar  = fnuebar  -> GetBinContent (fnuebar  -> FindBin(E));
 
     cout << "E = " << E << " GeV";
     cout << " - numu   : sigma(H20) = " << xsec_numu    << " x1E-38 cm2, flux(@SK) = " << flux_numu    
@@ -101,10 +120,13 @@
          << " /" << dE << " GeV /" << (NF*IF) << " POT /cm2" << endl;
     cout << " - nue    : sigma(H20) = " << xsec_nue     << " x1E-38 cm2, flux(@SK) = "  << flux_nue    
          << " /" << dE << " GeV /" << (NF*IF) << " POT /cm2" << endl;
+    cout << " - nuebar : sigma(H20) = " << xsec_nuebar  << " x1E-38 cm2, flux(@SK) = "  << flux_nuebar
+         << " /" << dE << " GeV /" << (NF*IF) << " POT /cm2" << endl;
 
     Nnumu    += ( flux_numu    * xsec_numu    );
     Nnumubar += ( flux_numubar * xsec_numubar );
     Nnue     += ( flux_nue     * xsec_nue     );
+    Nnuebar  += ( flux_nuebar  * xsec_nuebar  );
     Nnuesig  += ( flux_numu    * xsec_nue     ); // 100% numu->nue 
   }
 
@@ -113,6 +135,7 @@
   Nnumu    *= f;
   Nnumubar *= f;
   Nnue     *= f;
+  Nnuebar  *= f;
   Nnuesig  *= f;
 
   // print-out results
@@ -126,6 +149,7 @@
   cout << "numu                    | " << Nnumu    << endl; 
   cout << "numubar                 | " << Nnumubar << endl;
   cout << "nue(bkg)                | " << Nnue     << endl;
+  cout << "nuebar(bkg)             | " << Nnuebar  << endl;
   cout << "nue(sig,100% numu->nue) | " << Nnuesig  << endl;
   cout << "---------------------------------------------------------------------------" << endl;
   cout << endl;
