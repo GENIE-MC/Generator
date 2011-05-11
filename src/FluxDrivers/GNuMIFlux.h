@@ -224,6 +224,8 @@ public :
   //
   // configuration of GNuMIFlux
   //
+  void      SetXMLFile(string xmlbasename="GNuMIFlux.xml") { fXMLbasename = xmlbasename; }  ///< set the name of the file that hold XML config param_sets
+  std::string GetXMLFile() const { return fXMLbasename; }  ///< return the name of the file that hold XML config param_sets
   void      LoadBeamSimData(string filename, string det_loc);     ///< load a gnumi root flux ntuple and config
   bool      LoadConfig(string cfg);                               ///< load a named configuration
   void      SetFluxParticles(const PDGCodeList & particles);      ///< specify list of flux neutrino species
@@ -324,6 +326,7 @@ private:
   PDGCodeList *  fPdgCListRej;    ///< list of neutrino pdg-codes seen but rejected
   bool           fEnd;            ///< end condition reached
 
+  string    fXMLbasename;         ///< XML filename for config data
   string    fNuFluxFilePattern;   ///< wildcarded path
   string    fNuFluxTreeName;      ///< Tree name "h10" (g3) or "nudata" (g4)
   TChain*   fNuFluxTree;          ///< TTree in g3numi or g4numi // REF ONLY!

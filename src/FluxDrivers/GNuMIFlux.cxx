@@ -1208,6 +1208,8 @@ void GNuMIFlux::SetDefaults(void)
   this->SetUpstreamZ     (-3.4e38); // way upstream ==> use flux window
   this->SetNumOfCycles   (0);
   this->SetEntryReuse    (1);
+
+  this->SetXMLFile();
 }
 //___________________________________________________________________________
 void GNuMIFlux::ResetCurrent(void)
@@ -1256,6 +1258,8 @@ void GNuMIFlux::AddFile(TTree* thetree, string fname)
   thetree->SetBranchAddress("evtno",&evtno, &br_evtno);
   Int_t evt_1 = 0x7FFFFFFF;
   Int_t evt_N = 1;
+#define OLDGUESS
+#ifdef OLDGUESS
   for (int j=0; j<50; ++j) {
     thetree->GetEntry(j);
     if (evtno != 0) evt_1 = TMath::Min(evtno,evt_1);
@@ -1264,6 +1268,22 @@ void GNuMIFlux::AddFile(TTree* thetree, string fname)
   }
   const Int_t    nquant = 500;  // 100
   const Double_t rquant = nquant;
+#else
+  for (int j=0; j<50; ++j) {
+    thetree->GetEntry(j);
+    if (evtno != 0) evt_1 = TMath::Min(evtno,evt_1);
+    std::cout << "[" << j << "] evtno=" << evtno << " evt_1=" << evt_1 << std::endl;
+  }
+  for (int j=0; j<50; ++j) {
+    thetree->GetEntry(nentries-1 -j );
+    if (evtno != 0) evt_N = TMath::Max(evtno,evt_N);
+    std::cout << "[" << (nentries-1-j) << "] evtno=" << evtno << " evt_N=" << evt_N << std::endl;
+  }
+
+  Int_t    nquant = 500;
+  Double_t rquant = nquant;
+#endif
+
   Int_t est_1 = (TMath::FloorNint(evt_1/rquant))*nquant + 1;
   Int_t est_N = (TMath::FloorNint((evt_N-1)/rquant)+1)*nquant;
   ULong64_t npots = est_N - est_1 + 1;
@@ -2301,6 +2321,10 @@ xypartials& xypartials::GetStaticInstance()
 
 bool GNuMIFlux::LoadConfig(string cfg)
 {
+  const char* altxml = gSystem->Getenv("GNUMIFLUXXML");
+  if ( altxml ) {
+    SetXMLFile(altxml);
+  }
   genie::flux::GNuMIFluxXMLHelper helper(this);
   return helper.LoadConfig(cfg);
 }
@@ -2322,6 +2346,41 @@ void GNuMIFlux::PrintConfig()
   std::vector<std::string> flist = GetFileList();
   for (size_t i = 0; i < flist.size(); ++i)
     flistout << "\n [" << std::setw(3) << i << "] " << flist[i];
+
+  TLorentzVector usr0(0,0,0,0);
+  TLorentzVector usr0asbeam;
+  User2BeamPos(usr0,usr0asbeam);
+
+  const int w=10, p=6;
+  std::ostringstream beamrot_str, beamrotinv_str;
+  beamrot_str 
+    << "fBeamRot: " << std::setprecision(p) << "\n"
+    << "  [ " 
+    << std::setw(w) << fBeamRot.XX() << " "
+    << std::setw(w) << fBeamRot.XY() << " "
+    << std::setw(w) << fBeamRot.XZ() << " ]\n"
+    << "  [ " 
+    << std::setw(w) << fBeamRot.YX() << " "
+    << std::setw(w) << fBeamRot.YY() << " "
+    << std::setw(w) << fBeamRot.YZ() << " ]\n"
+    << "  [ " 
+    << std::setw(w) << fBeamRot.ZX() << " "
+    << std::setw(w) << fBeamRot.ZY() << " "
+    << std::setw(w) << fBeamRot.ZZ() << " ]";
+  beamrotinv_str 
+    << "fBeamRotInv: " << std::setprecision(p) << "\n"
+    << "  [ " 
+    << std::setw(w) << fBeamRotInv.XX() << " "
+    << std::setw(w) << fBeamRotInv.XY() << " "
+    << std::setw(w) << fBeamRotInv.XZ() << " ]\n"
+    << "  [ " 
+    << std::setw(w) << fBeamRotInv.YX() << " "
+    << std::setw(w) << fBeamRotInv.YY() << " "
+    << std::setw(w) << fBeamRotInv.YZ() << " ]\n"
+    << "  [ " 
+    << std::setw(w) << fBeamRotInv.ZX() << " "
+    << std::setw(w) << fBeamRotInv.ZY() << " "
+    << std::setw(w) << fBeamRotInv.ZZ() << " ]";
 
   LOG("Flux", pNOTICE)
     << "GNuMIFlux Config:"
@@ -2357,9 +2416,11 @@ void GNuMIFlux::PrintConfig()
     << "\n  dir2 " << utils::print::X4AsString(&fFluxWindowDir2) << " len " << fFluxWindowLen2
     << "\n User Beam Origin: "
     << "\n  base " << utils::print::X4AsString(&fBeamZero)
-    << "\n BeamRot/BeamRotInv ... not yet implemented"
+    << "\n " << beamrot_str.str() << " "
+    << "\n Detector Origin (beam coord): "
+    << "\n  base " << utils::print::X4AsString(&usr0asbeam)
+    << "\n " << beamrotinv_str.str() << " "
     << "\n UseFluxAtDetCenter " << fUseFluxAtDetCenter;
-  
 
 }
 
@@ -2426,7 +2487,7 @@ std::vector<long int> GNuMIFluxXMLHelper::GetIntVector(std::string str)
 
 bool GNuMIFluxXMLHelper::LoadConfig(string cfg)
 {
-  string fname = utils::xml::GetXMLFilePath("GNuMIFlux.xml");
+  string fname = utils::xml::GetXMLFilePath(fGNuMI->GetXMLFile());
 
   bool is_accessible = ! (gSystem->AccessPathName(fname.c_str()));
   if (!is_accessible) {
@@ -2698,7 +2759,7 @@ void GNuMIFluxXMLHelper::ParseEnuMax(std::string str)
 
 void GNuMIFluxXMLHelper::ParseRotSeries(xmlDocPtr& xml_doc, xmlNodePtr& xml_pset)
 {
-  fBeamRot = TRotation(); // reset matrix
+  TRotation fTempRot; // reset matrix
 
   xmlNodePtr xml_child = xml_pset->xmlChildrenNode;
   for ( ; xml_child != NULL ; xml_child = xml_child->next ) {
@@ -2725,9 +2786,9 @@ void GNuMIFluxXMLHelper::ParseRotSeries(xmlDocPtr& xml_doc, xmlNodePtr& xml_pset
         SLOG("GNuMIFlux", pINFO)
           << " rotate " << rot << " radians around " << axis << " axis";
 
-      if      ( axis[0] == 'x' || axis[0] == 'X' ) fBeamRot.RotateX(rot);
-      else if ( axis[0] == 'y' || axis[0] == 'Y' ) fBeamRot.RotateY(rot);
-      else if ( axis[0] == 'z' || axis[0] == 'Z' ) fBeamRot.RotateZ(rot);
+      if      ( axis[0] == 'x' || axis[0] == 'X' ) fTempRot.RotateX(rot);
+      else if ( axis[0] == 'y' || axis[0] == 'Y' ) fTempRot.RotateY(rot);
+      else if ( axis[0] == 'z' || axis[0] == 'Z' ) fTempRot.RotateZ(rot);
       else {
         SLOG("GNuMIFlux", pINFO)
           << " no " << axis << " to rotate around";
@@ -2738,6 +2799,8 @@ void GNuMIFluxXMLHelper::ParseRotSeries(xmlDocPtr& xml_doc, xmlNodePtr& xml_pset
         << " found <" << name << "> within <beamdir type=\"series\">";
     }
   }
+  // TRotation rotates objects not frames, so we want the inverse
+  fBeamRot = fTempRot.Inverse();
   xmlFree(xml_child);  
 }
 
