@@ -76,18 +76,18 @@
 
     <!-- rotation matrix set by 3 pairs of (theta,phi) for each axis, ala G3 -->
     <beamdir type="thetaphi3" units="deg">  
-      ( 90,        0 )  ( 93.3402156, 90 ) ( -3.3402156, 270 ) 
+      ( 90,        0 )  ( 86.65978462612, 90 ) ( 3.34021537388, 270 ) 
     </beamdir>
 
     <!-- rotation matrix set by 3 direction vectors, ala G4 -->
     <beamdir type="newxyz"> 
-     [ 1  0            0            ]
-     [ 0  0.9983011558 0.0582647435 ]
-     [ 0 -0.0582647435 0.9983011668 ]
+     [ 1  0               0              ]
+     [ 0  0.998301167046  0.058264739543 ]
+     [ 0 -0.058264739543  0.998301167046 ]
     </beamdir>
 
     <!-- position of beam origin in user coords -->
-    <beampos> 1.4828, 60.683, -1034.7244 </beampos>
+    <beampos> 1.4828, 60.629225, -1034.72755 </beampos>
 
     <!-- position in ( user coords ) = ( beam coords ) -->
     <!-- convenient for MINOS because it is how the survey is reported -->
@@ -170,44 +170,6 @@
   ****************************************************************************
   -->
 
-  <param_set name="NOvA-IPND">
-    <!-- verbosity of XML parsing -->
-    <verbose>0</verbose>
-
-    <!-- setting user units should be first -->
-    <units> m </units>
-
-    <!-- beamdir must come before beam zero position -->
-    <!-- direction of the beam in the user coordinate system -->
-    <!-- beam goes down 3 degrees in the coordinate system of the IPND -->
-    <!-- rotation matrix created by sequence of rotations -->
-    <beamdir type="series"> 
-       <rotation axis="x" units="rad"> -0.0583497 </rotation>
-    </beamdir>
-
-    <!-- position of beam -->
-    <!-- this is a translation from ( user coords ) to ( beam coords ) -->
-    <!-- basically a statement of the origin in the detector coordinate system
-         has the corresponding value in the beam coordinate system -->
-    <!-- XML config must have already set the rotation matrix -->
-    <!-- IPND in MINOS service building -->
-    <beampos> ( 0.0, 0.0, 0.0 ) = ( 13.81, 97.42, 913.34 ) </beampos>
- 
-    <!-- define flux window in detector coords -->
-    <!-- need 3 positions to define a rectoid -->
-    <!-- not yet support beam coords, 
-         but if/when must have already specified transform -->
-    <!-- make this window big enough to cover the ipnd, also offset it from 
-         the origin towards the beam in x and y -->
-    <window>
-      <point coord="det">  1.320,   1.970, 0.0 </point>
-      <point coord="det">  1.320,  -5.000, 0.0 </point>
-      <point coord="det"> -1.750,   1.970, 0.0 </point>
-    </window>
-
-    <enumax> 35. 1.05 </enumax> <!--first number is estimated max energy, second is
-                                    scale factor to multiply max scan energy by -->
-  </param_set>
 
   <param_set name="NOvA-NDOS">
     <!-- verbosity of XML parsing -->
@@ -221,7 +183,7 @@
     <!-- beam goes down 3 degrees in the coordinate system of the IPND -->
     <!-- rotation matrix created by sequence of rotations -->
     <beamdir type="series"> 
-       <rotation axis="x" units="rad"> -0.0583497 </rotation>
+       <rotation axis="x" units="rad"> -0.0582977560 </rotation>
     </beamdir>
 
     <!-- position of beam -->
@@ -229,8 +191,8 @@
     <!-- basically a statement of the origin in the detector coordinate system
          has the corresponding value in the beam coordinate system -->
     <!-- XML config must have already set the rotation matrix -->
-    <!-- IPND in shed -->
-    <beampos> ( 0.0, 0.0, 0.0 ) = ( 13.81, 93.72, 849.83 ) </beampos>
+    <!-- NDOS from NOvA-doc-5485-v9 -->
+    <beampos> ( 0.0, 0.0, 0.0 ) = ( -0.29, 92.21, 841.76 ) </beampos>
  
     <!-- define flux window in detector coords -->
     <!-- need 3 positions to define a rectoid -->
@@ -259,23 +221,23 @@
     <!-- direction of the beam in the user coordinate system -->
     <!-- beam goes down 3 degrees in the coordinate system of the ND -->
     <!-- rotation matrix created by sequence of rotations -->
-    <beamdir type="series"> 
-       <rotation axis="x" units="rad"> -0.0583497 </rotation>
+    <!-- ND in alcove, values from Denis Perevalov as of 2011-04-19 -->
+    <beamdir type="newxyz"> 
+       [  0.99989376325     0               -0.014576083806  ]
+       [ -0.00084079591837  0.99833493499   -0.057677124125  ]
+       [  0.014551813679    0.057683252207   0.99822887513   ] 
     </beamdir>
 
     <!-- position of beam -->
-    <!-- this is a translation from ( user coords ) to ( beam coords ) -->
-    <!-- basically a statement of the origin in the detector coordinate system
-         has the corresponding value in the beam coordinate system -->
     <!-- XML config must have already set the rotation matrix -->
-    <!-- ND in alcove -->
-    <beampos> ( 0.0, 0.0, 0.0 ) = ( 11.415, -3.45218, 994.625 ) </beampos>
+    <!-- ND in alcove, values from Denis Perevalov as of 2011-04-19 -->
+    <beampos> ( 3.08553 60.82926 -992.8701 ) </beampos>
  
     <!-- define flux window in detector coords -->
     <!-- need 3 positions to define a rectoid -->
     <!-- not yet support beam coords, 
          but if/when must have already specified transform -->
-    <!-- make this window big enough to cover the ipnd, also offset it from 
+    <!-- make this window big enough to cover the nd, also offset it from 
          the origin towards the beam in x and y -->
     <window>
       <point coord="det">  5.000,  -1.970, -5. </point>
@@ -304,7 +266,7 @@
     <!-- basically a statement of the origin in the detector coordinate system
          has the corresponding value in the beam coordinate system -->
     <!-- XML config must have already set the rotation matrix -->
-    <!-- FD, values from Mark Messier -->
+    <!-- FD, values from Mark Messier (via Brian Rebel) -->
     <beampos> ( 0.0, 0.0, 0.0 ) = ( 11129.00, -4.164, 810551.00 ) </beampos>
 
     <!-- define flux window in detector coords -->
@@ -404,7 +366,7 @@
     <!-- beam goes up 3 degrees in the coordinate system of the FD -->
     <!-- rotation matrix created by sequence of rotations -->
     <beamdir type="series"> 
-       <rotation axis="x" units="rad"> 0.0583497 </rotation>
+       <rotation axis="x" units="rad"> -0.0583497 </rotation>
     </beamdir>
 
     <!-- position of beam -->
@@ -475,8 +437,8 @@
     </beamdir>
 
     <!-- position of beam origin in user coords -->
-    <beampos> 0.5628,  60.6798,  -1023.3643 </beampos>	
-			
+    <beampos> 0.5628,  60.6798,  -1023.3643 </beampos>
+
     <!-- position in ( user coords ) = ( beam coords ) -->
     <!-- convenient for MINOS because it is how the survey is reported -->
     <!-- XML config must have already set the rotation matrix
