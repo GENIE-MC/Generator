@@ -103,6 +103,7 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <cassert>
 
 #include <TFile.h>
 #include <TTree.h>
