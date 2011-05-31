@@ -256,6 +256,42 @@
 
     <!-- beamdir must come before beam zero position -->
     <!-- direction of the beam in the user coordinate system -->
+    <!-- FD values from Denis Perevalov as of 2011-05-18 -->
+    <!-- beam goes up 3 degrees in the coordinate system of the FD -->
+    <beamdir type="newxyz"> 
+       [ 0.99989376325     0              -0.014576083806 ]
+       [ 0.00084079591837  0.99833493499   0.057677124125 ]
+       [ 0.014551813679   -0.057683252207  0.99822887513  ] 
+    </beamdir>
+
+    <!-- this is a translation from ( user coords ) to ( beam coords ) -->
+    <!-- basically a statement of the origin in the detector coordinate system
+         has the corresponding value in the beam coordinate system -->
+    <!-- XML config must have already set the rotation matrix -->
+    <beampos> ( 686.841613827855 -42602.54118512  -809517.55316212 ) </beampos>
+
+    <!-- define flux window in detector coords -->
+    <!-- need 3 positions to define a rectoid -->
+    <!-- not yet support beam coords, 
+         but if/when must have already specified transform -->
+    <!-- make this window big enough to cover the ipnd, also offset it from 
+         the origin towards the beam in x and y -->
+    <window>
+      <point coord="det">   7.8235,  -7.8235, 0.0 </point>
+      <point coord="det">  -7.8235,  -7.8235, 0.0 </point>
+      <point coord="det">  -7.8235,   7.8235, 0.0 </point>
+    </window>
+  </param_set>
+
+  <param_set name="NOvA-FD-old">
+    <!-- verbosity of XML parsing -->
+    <verbose>99</verbose>
+
+    <!-- setting user units should be first -->
+    <units> m </units>
+
+    <!-- beamdir must come before beam zero position -->
+    <!-- direction of the beam in the user coordinate system -->
     <!-- beam goes up 3 degrees in the coordinate system of the FD -->
     <!-- rotation matrix created by sequence of rotations -->
     <beamdir type="series"> 
@@ -312,6 +348,59 @@
       <point coord="det"> -1.320, -1.970, 0.0 </point>
     </window>
   </param_set>
+
+
+  <param_set name="NOvA-NDOS-BNB">
+    <!-- verbosity of XML parsing -->
+    <verbose>0</verbose>
+
+    <!-- setting user units should be first -->
+    <units> m </units>
+
+    <!-- beamdir must come before beam zero position -->
+    <!-- direction of the beam in the user coordinate system -->
+   
+    <!-- OLD ROTATION (didn't account for rotation of frame vs. object)
+    <beamdir type="series"> 
+       <rotation axis="x" units="deg"> 0.7153 </rotation>
+       <rotation axis="y" units="deg"> -21.5099 </rotation>
+    </beamdir>
+    -->
+    <beamdir type="series"> 
+       <rotation axis="y" units="deg"> 21.5099 </rotation>
+       <rotation axis="x" units="deg"> -0.7153 </rotation>
+    </beamdir>
+
+
+    <!-- position of beam -->
+    <!-- this is a translation from ( user coords ) to ( beam coords ) -->
+    <!-- basically a statement of the origin in the detector coordinate system
+         has the corresponding value in the beam coordinate system -->
+    <!-- XML config must have already set the rotation matrix -->
+    <!-- IPND in shed -->
+    <beampos> ( 0.0, 0.0, 0.0 ) = ( 13.88, 8.01, 641.4 ) </beampos>
+ 
+    <!-- define flux window in detector coords -->
+    <!-- need 3 positions to define a rectoid -->
+    <!-- not yet support beam coords, 
+         but if/when must have already specified transform -->
+    <!-- make this window big enough to cover the ipnd, also offset it from 
+         the origin towards the beam in x and y -->
+    <window>
+      <point coord="det">  14.5, -3.0, -7.  </point>
+      <point coord="det">  14.5,  3.0, -7.  </point>
+      <point coord="det">  -4.5, -3.0, -7.  </point>
+    </window>
+
+    <enumax> 10. 1.05 </enumax> <!-- first number is estimated max energy, second is
+                                    scale factor to multiply max scan energy by -->
+  </param_set>
+
+  <param_set name="BNB-NDOS">
+    <!-- an alternative (old) name for this set -->
+    <using_param_set> NOvA-NDOS-BNB </using_param_set>
+  </param_set>
+
 
 <!--
   ****************************************************************************
