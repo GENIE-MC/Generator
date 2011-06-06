@@ -595,7 +595,11 @@
     <!-- position in ( user coords ) = ( beam coords ) -->
     <!-- convenient for MINOS because it is how the survey is reported -->
     <!-- XML config must have already set the rotation matrix -->
-    <beampos> ( 0.25, 0.25747, 0.0 ) = ( 0, 0, 1037.98837 ) </beampos>
+    <!-- 
+      argoneut (      0,      0,   0 ) is at minos (1.409,-0.193,-1.021) 
+      minos    ( 1.4828, 0.2385, 0.0 ) is at beam  (    0,     0, 1036.48837 )
+    -->
+    <beampos> ( 0.0738, 0.4315, 1.021 ) = ( 0, 0, 1036.48837 ) </beampos>
 
     <!-- define flux window in detector coords -->
     <!-- need 3 positions to define a rectoid -->
@@ -607,9 +611,9 @@
          but if/when must have already specified transform -->
     <!-- this window is square to the beam but at angle in user coords -->
     <window>
-      <point coord="det"> -4.358, -2.903, -0.1835 </point>
-      <point coord="det">  4.796, -2.903, -0.1835 </point>
-      <point coord="det"> -4.358, 10.377,  0.5923 </point>
+      <point coord="det"> -1.5, -1.43919, -1.0857   </point>
+      <point coord="det">  1.5, -1.43919, -1.0857   </point>
+      <point coord="det"> -1.5,  1.55572, -0.910904 </point>
     </window>
 
     <!--
