@@ -23,12 +23,12 @@ using namespace std;
 void generate_sk_flux_histograms(
 
    string flux_dir    = "./", 
-   string file_prefix = "nu.sk_horn250ka.", 
+   string file_prefix = "nu.sk_flukain.", 
    string file_suffix = ".root", 
-   int    min_run     = 1, 
-   int    max_run     = 100,
+   int    min_run     = 0, 
+   int    max_run     = 499,
    double Emin        = 0.,    /* GeV */
-   double Emax        = 15.,   /* GeV */
+   double Emax        = 30.,   /* GeV */
    double Ebinsz      = 0.05   /* GeV */  )
 
 {
