@@ -1266,7 +1266,13 @@ void GNuMIFlux::AddFile(TTree* thetree, string fname)
     thetree->GetEntry(nentries-1 -j );
     if (evtno != 0) evt_N = TMath::Max(evtno,evt_N);
   }
-  const Int_t    nquant = 500;  // 100
+  // looks like low counts are due to "evtno" not including
+  // protons that miss the actual target (hit baffle, etc)
+  // this will vary with beam conditions parameters
+  // so we should round way up, those generating flugg files
+  // aren't going to quantize less than 1000
+  // though 500 would probably be okay, 100 would not.
+  const Int_t    nquant = 1000; // 500;  // 100
   const Double_t rquant = nquant;
 #else
   for (int j=0; j<50; ++j) {
