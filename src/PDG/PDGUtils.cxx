@@ -379,13 +379,23 @@ int genie::pdg::GeantToPdg(int geant_code)
   if(geant_code == 21) return kPdgSigmaM;       //  3112 / Sigma-
   if(geant_code == 29) return kPdgAntiSigmaP;   // -3112 / \bar{Sigma+}
   if(geant_code == 28) return kPdgAntiSigma0;   // -3212 / \bar{Sigma0}
-  if(geant_code == 27) return kPdgAntiSigmaM;   // -3112 / \barSigma-}
+  if(geant_code == 27) return kPdgAntiSigmaM;   // -3112 / \bar{Sigma-}
   if(geant_code == 22) return kPdgXi0;          //  3322 / Xi0
   if(geant_code == 23) return kPdgXiM;          //  3312 / Xi-
   if(geant_code == 30) return kPdgAntiXi0;      // -3322 / \bar{Xi0}
   if(geant_code == 31) return kPdgAntiXiP;      // -3312 / \bar{Xi+}
   if(geant_code == 24) return kPdgOmegaM;       //  3334 / Omega-
   if(geant_code == 32) return kPdgAntiOmegaP;   // -3334 / \bar{Omega+}
+
+  // some rare Geant3 codes that don't really need definitions in PDGCodes.h
+  const int kPdgDeuteron = 1000010020; // pdg::IonPdgCode(2,1);
+  const int kPdgTritium  = 1000010030; // pdg::IonPdgCode(3,1);
+  const int kPdgAlpha    = 1000020040; // pdg::IonPdgCode(4,2);
+  const int kPdgHe3      = 1000020030; // pdg::IonPdgCode(3,2);
+  if(geant_code == 45) return kPdgDeuteron;
+  if(geant_code == 46) return kPdgTritium;
+  if(geant_code == 47) return kPdgAlpha;
+  if(geant_code == 49) return kPdgHe3;
 
   LOG("PDG", pWARN)
         << "Can not convert geant code: " << geant_code << " to PDG";
