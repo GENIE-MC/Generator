@@ -98,6 +98,9 @@
    at the LoadBeamSimData stage. Previously were only checking this after a 
    cycle of calling GenerateNext. This stops case where if only looping over a 
    single cycle the user was not warned that there were no flux location matches. 
+ @ Jul 05, 2011 - TD
+   Code used to match nd detector locations 1-10. Now match detector locations
+   up to 51. Change made in preparation for the new sand muon flux (nd13).
 */
 //____________________________________________________________________________
 
@@ -846,16 +849,12 @@ int GJPARCNuFlux::DLocName2Id(string name)
 // ...
 
   if(name == "sk"  ) return  -1;
-  if(name == "nd1" ) return   1;
-  if(name == "nd2" ) return   2;
-  if(name == "nd3" ) return   3;
-  if(name == "nd4" ) return   4;
-  if(name == "nd5" ) return   5;
-  if(name == "nd6" ) return   6;
-  if(name == "nd7" ) return   7;
-  if(name == "nd8" ) return   8;
-  if(name == "nd9" ) return   9;
-  if(name == "nd10") return  10;
+
+  TString temp;
+  for (int i=1; i<51; i++) {
+    temp.Form("nd%d",i);
+    if(name == temp.Data()) return i;
+  }
 
   return 0;
 }
