@@ -23,6 +23,5 @@ WeinbergAngle            double   Yes        Weinberg angle              GPL: We
      <param type="alg" name="ElasticFormFactorsModel"> genie::DipoleELFormFactorsModel/Default </param>
   </param_set>
 
-DipoleELFF
 </alg_conf>
 
