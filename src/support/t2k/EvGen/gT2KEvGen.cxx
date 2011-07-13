@@ -22,7 +22,7 @@
                       -g geometry 
                      [-p pot_normalization_of_flux_file] 
                      [-t top_volume_name_at_geom || -t +Vol1-Vol2...] 
-                     [-P] [pre_gen_prob_file_name] 
+                     [-P pre_gen_prob_file_name] 
                      [-S] [output_name]
                      [-m max_path_lengths_xml_file]
                      [-L length_units_at_geom] 
@@ -88,7 +88,7 @@
               character is a `-', GENIE will keep all volumes except the ones
               explicitly turned off (feature contributed by J.Holeczek).
 
-           -P [pre_gen_prob_file] 
+           -P pre_gen_prob_file
               Use exact interaction probabilities for the input flux file 
               instead of estimating them using the max path lengths method. For
               complex geometries this will dramatically speed up event 
@@ -608,7 +608,10 @@ int main(int argc, char ** argv)
       // default output name is ${FLUFILENAME}.${TOPVOL}.flxprobs.root 
       string basename = gOptFluxFile.substr(gOptFluxFile.rfind("/")+1);
       string name = basename.substr(0, basename.rfind("."));
-      name += "."+gOptRootGeomTopVol+".flxprobs.root";
+      if(gOptRootGeomTopVol.length()>0)
+	name += "."+gOptRootGeomTopVol+".flxprobs.root";
+      else
+	name += ".master.flxprobs.root";
       // if specified override with cmd line option
       if(gOptSaveFluxProbsFileName.size()>0) name = gOptSaveFluxProbsFileName;
       // Tell the driver save pre-generated probabilities to an output file
@@ -1139,9 +1142,9 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   // using pre-calculated flux interaction probabilities
   if( parser.OptionExists('P') ){
-    gOptUseFluxProbs = true;
     gOptFluxProbFileName = parser.ArgAsString('P');
     if(gOptFluxProbFileName.length() > 0){
+      gOptUseFluxProbs = true;
       bool accessible =
               !(gSystem->AccessPathName(gOptFluxProbFileName.c_str()));
       if(!accessible){
@@ -1150,6 +1153,12 @@ void GetCommandLineArgs(int argc, char ** argv)
         PrintSyntax();
         exit(1);
       }
+    }
+    else {
+      LOG("gT2Kevgen", pFATAL)
+	<< "No flux interaction probabilites were specified - exiting";
+      PrintSyntax();
+      exit(1);
     }
   } 
 
@@ -1367,7 +1376,7 @@ void PrintSyntax(void)
    << "\n            -g geometry"
    << "\n           [-p pot_normalization_of_flux_file]"
    << "\n           [-t top_volume_name_at_geom]"
-   << "\n           [-P] [pre_gen_prob_file]" 
+   << "\n           [-P pre_gen_prob_file]" 
    << "\n           [-S] [output_name]"
    << "\n           [-m max_path_lengths_xml_file]"
    << "\n           [-L length_units_at_geom]"
