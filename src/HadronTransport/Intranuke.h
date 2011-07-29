@@ -14,12 +14,14 @@
           NeuGEN MC by R.Edgecock, G.F.Pearce, W.A.Mann, R.Merenyi and others.
 
 \author   Steve Dytman <dytman+@pitt.edu>, Pittsburgh University
+          Aaron Meyer <asm58@pitt.edu>, Pittsburgh University
+	  Alex Bell, Pittsburgh University
           Hugh Gallagher <gallag@minos.phy.tufts.edu>, Tufts University
           Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk> STFC, Rutherford Lab
 
 \created  September 20, 2005
 
-\cpright  Copyright (c) 2003-2011, GENIE Neutrino MC Generator Collaboration
+\cpright  Copyright (c) 2003-2010, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
@@ -30,9 +32,12 @@
 
 #include <TGenPhaseSpace.h>
 
+
+#include "Algorithm/AlgFactory.h"
 #include "EVGCore/EventRecordVisitorI.h"
 #include "HadronTransport/INukeMode.h"
 #include "HadronTransport/INukeHadroFates.h"
+#include "Nuclear/NuclearModelI.h"
 
 class TLorentzVector;
 class TVector3;
@@ -42,6 +47,8 @@ namespace genie {
 class GHepParticle;
 class INukeHadroData;
 class PDGCodeList;
+class HNIntranuke;
+class HAIntranuke;
 
 class Intranuke : public EventRecordVisitorI {
 
@@ -49,23 +56,24 @@ friend class IntranukeTester;
 
 public :
   Intranuke();
-  Intranuke(string config);
+  Intranuke(string name);
+  Intranuke(string name, string config);
  ~Intranuke();
 
   //-- implement the EventRecordVisitorI interface
-  void ProcessEventRecord(GHepRecord * event_rec) const;
+  virtual void ProcessEventRecord(GHepRecord * event_rec) const=0;
 
   //-- override the Algorithm::Configure methods to load configuration
-  //   data to private data members
+  //   data to protected data members
   void Configure (const Registry & config);
   void Configure (string param_set);
 
-private:
+protected:
 
-  //-- private methods:
+  //-- protected methods:
 
   // methods for loading configuration
-  void LoadConfig (void);
+  virtual void LoadConfig (void)=0;
 
   // general methods for the cascade mc structure
   void   TransportHadrons   (GHepRecord * ev) const;
@@ -74,32 +82,18 @@ private:
   bool   CanRescatter       (const GHepParticle* p) const;
   bool   IsInNucleus        (const GHepParticle* p) const;
   void   SetNuclearRadius   (const GHepParticle* p) const;
-  void   StepParticle       (GHepParticle * p, double dr) const;
-  void   SimHadroProc       (GHepRecord* ev, GHepParticle* p) const;
   double GenerateStep       (GHepRecord* ev, GHepParticle* p) const;
-  double MeanFreePath       (GHepRecord* ev, GHepParticle* p) const;
 
-  // methods specific to intranuke HA-mode
-  INukeFateHA_t HadronFateHA    (const GHepParticle* p) const;
-  double        FateWeight      (int pdgc, INukeFateHA_t fate) const;
-  void          SimHadroProcHA  (GHepRecord* ev, GHepParticle* p) const;
-  void          Inelastic       (GHepRecord* ev, GHepParticle* p, INukeFateHA_t fate) const;
-  void          PiSlam          (GHepRecord* ev, GHepParticle* p, INukeFateHA_t fate) const;
-  void          PnSlam          (GHepRecord* ev, GHepParticle* p, INukeFateHA_t fate) const;
-  double        PiBounce        (void) const;
-  double        PnBounce        (void) const;
-  double        Degrade         (double ke) const;
-
-  // methods specific to intranuke HN-mode
-  void          SimHadroProcHN  (GHepRecord* ev, GHepParticle* p) const;
-
-  // general phase space decay method
-  bool PhaseSpaceDecay (GHepRecord* ev, GHepParticle* p, const PDGCodeList & pdgv) const;
+  // virtual functions for individual modes
+  virtual void SimulateHadronicFinalState(GHepRecord* ev, GHepParticle* p) const = 0;
+  virtual bool HandleCompoundNucleus(GHepRecord* ev, GHepParticle* p, int mom) const = 0;
 
   //-- utility objects & params
   mutable double         fNuclRadius;
   mutable TGenPhaseSpace fGenPhaseSpace; ///< a phase space generator
   INukeHadroData *       fHadroData;     ///< a collection of h+N,h+A data & calculations
+  AlgFactory *           fAlgf;          ///< algorithm factory instance
+  const NuclearModelI *  fNuclmodel;     ///< nuclear model used to generate fermi momentum
   mutable int            fRemnA;         ///< remnant nucleus A
   mutable int            fRemnZ;         ///< remnant nucleus Z
   mutable TLorentzVector fRemnP4;        ///< P4 of remnant system
@@ -113,6 +107,16 @@ private:
   double       fDelRPion;     ///< factor by which Pion Compton wavelength gets multiplied to become nuclear size enhancement 
   double       fDelRNucleon;  ///< factor by which Nucleon Compton wavelength gets multiplied to become nuclear size enhancement 
   double       fHadStep;      ///< step size for intranuclear hadron transport
+  double       fNucAbsFac;    ///< absorption xsec correction factor (hN Mode)
+  double       fNucCEXFac;    ///< charge exchange xsec correction factor (hN Mode)
+  double       fEPreEq;       ///< threshold for pre-equilibrium reaction
+  double       fFermiFac;     ///< testing parameter to modify fermi momentum
+  double       fDeltaMass;
+  double       fFreeStep;     ///< produced particle free stem, in fm
+  double       fFermiMomentum;     ///< whether or not particle collision is pauli blocked
+  bool         fDoFermi;      ///< whether or not to do fermi mom. 
+  bool         fDoMassDiff;   ///< whether or not to do mass diff. mode
+  bool         fDoCompoundNucleus; ///< whether or not to do compound nucleus considerations
 };
 
 }      // genie namespace

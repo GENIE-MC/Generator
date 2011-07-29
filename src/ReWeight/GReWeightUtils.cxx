@@ -1,6 +1,6 @@
 //____________________________________________________________________________ 
 /*
- Copyright (c) 2003-2011, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2010, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -18,6 +18,8 @@
    GENIE reweighting tool.
  @ Dec 17, 2010 - JD
    Added method to calculate weight for a modified formation zone. 
+ @ Jul 29, 2011 - SD,AM
+   Update INUKE fates. Mean free path is now function of Z too.   
 
 */
 //____________________________________________________________________________
@@ -42,18 +44,19 @@ using namespace genie::rew;
 
 //____________________________________________________________________________
 double genie::utils::rew::MeanFreePathWeight(
-  int pdgc, const TLorentzVector & x4, const TLorentzVector & p4, double A,
+  int pdgc, const TLorentzVector & x4, const TLorentzVector & p4, 
+  double A, double Z,
   double mfp_scale_factor, bool interacted,
   double nRpi, double nRnuc, double NR, double R0)
 {
    // Get the nominal survival probability
    double pdef = utils::intranuke::ProbSurvival(
-      pdgc,x4,p4,A,1.,nRpi,nRnuc,NR,R0);
+      pdgc,x4,p4,A,Z,1.,nRpi,nRnuc,NR,R0);
    if(pdef<=0) return 1.;
 
    // Get the survival probability for the tweaked mean free path
    double ptwk = utils::intranuke::ProbSurvival(
-      pdgc,x4,p4,A,mfp_scale_factor,nRpi,nRnuc,NR,R0);
+      pdgc,x4,p4,A,Z,mfp_scale_factor,nRpi,nRnuc,NR,R0);
    if(ptwk<=0) return 1.;
 
    // Calculate weight
@@ -159,20 +162,14 @@ double genie::utils::rew::FateFraction(
     case (genie::rew::kINukeTwkDial_FrAbs_pi) :
     {  
       fate_frac = 0.; 
-      fate_frac += hd->Frac(kPdgPiP, kIHAFtAbsNP,   ke);
-      fate_frac += hd->Frac(kPdgPiP, kIHAFtAbsPP,   ke);
-      fate_frac += hd->Frac(kPdgPiP, kIHAFtAbsNPP,  ke);
-      fate_frac += hd->Frac(kPdgPiP, kIHAFtAbsNNP,  ke);
-      fate_frac += hd->Frac(kPdgPiP, kIHAFtAbs2N2P, ke);
-    //fate_frac += hd->Frac(kPdgPiP, kIHAFtAbs2N3P, ke);
+      fate_frac += hd->Frac(kPdgPiP, kIHAFtAbs,     ke);
     }
     break;
 
     case (genie::rew::kINukeTwkDial_FrPiProd_pi) :
     {
       fate_frac = 0.; 
-    //fate_frac += hd->Frac(kPdgPiP, kIHAFtNPip,    ke);
-      fate_frac += hd->Frac(kPdgPiP, kIHAFtNPipPi0, ke);
+      fate_frac += hd->Frac(kPdgPiP, kIHAFtPiProd,  ke);
     }
     break;
  
@@ -201,20 +198,14 @@ double genie::utils::rew::FateFraction(
     case (genie::rew::kINukeTwkDial_FrAbs_N) :
     {
       fate_frac = 0.; 
-      fate_frac += hd->Frac(kPdgProton, kIHAFtAbsNP,   ke);
-      fate_frac += hd->Frac(kPdgProton, kIHAFtAbsPP,   ke);
-      fate_frac += hd->Frac(kPdgProton, kIHAFtAbsNPP,  ke);
-      fate_frac += hd->Frac(kPdgProton, kIHAFtAbsNNP,  ke);
-    //fate_frac += hd->Frac(kPdgProton, kIHAFtAbs2N2P, ke);
-      fate_frac += hd->Frac(kPdgProton, kIHAFtAbs2N3P, ke);
+      fate_frac += hd->Frac(kPdgProton, kIHAFtAbs,    ke);
     }
     break;
 
     case (genie::rew::kINukeTwkDial_FrPiProd_N) :
     {
       fate_frac = 0.; 
-      fate_frac += hd->Frac(kPdgProton, kIHAFtNPip,    ke);
-      fate_frac += hd->Frac(kPdgProton, kIHAFtNPipPi0, ke);
+      fate_frac += hd->Frac(kPdgProton, kIHAFtPiProd,  ke);
     }   
     break;
 

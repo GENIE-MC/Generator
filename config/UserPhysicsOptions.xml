@@ -475,9 +475,9 @@ STFC, Rutherford Appleton Laboratory
   Use the HadronTransportEnable option to toggle intranuclear rescattering on/off. 
   -->
   <param type="bool" name="HadronTransp-Enable"> true </param>
-  <param type="alg"  name="HadronTransp-Model">  genie::Intranuke/Default  </param>
+  <param type="alg"  name="HadronTransp-Model">  genie::HAIntranuke/Default  </param>
 
- <!-- 	
+ <!--
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   INTRANUKE-specific parameters:
   - Mode options are: hA, hN
@@ -486,8 +486,19 @@ STFC, Rutherford Appleton Laboratory
   <param type="string" name="INUKE-Mode">            hA    </param>
   <param type="double" name="INUKE-NucRemovalE">     0.008 </param>
   <param type="double" name="INUKE-HadStep">         0.05  </param>
-  <param type="double" name="INUKE-DelRPion">        0.5   </param>
-  <param type="double" name="INUKE-DelRNucleon">     1.0   </param>
+  <param type="double" name="HAINUKE-DelRPion">      0.5   </param>
+  <param type="double" name="HAINUKE-DelRNucleon">   1.0   </param>
+  <param type="double" name="HNINUKE-DelRPion">      0.2   </param>
+  <param type="double" name="HNINUKE-DelRNucleon">   0.2   </param>
+  <param type="double" name="INUKE-NucAbsFac">         1.5   </param>
+  <param type="double" name="INUKE-NucCEXFac">         0.35  </param>
+  <param type="double" name="INUKE-Energy_Pre_Eq">     0.075 </param>
+  <param type="double" name="INUKE-FermiFac">          1.0   </param>
+  <param type="double" name="INUKE-DeltaMass">         40.1  </param>
+  <param type="double" name="INUKE-FreeStep">          1.0   </param>
+  <param type="double" name="INUKE-FermiMomentum">     0.250 </param>
+  <param type="bool"   name="INUKE-DoFermi">           true  </param>
+  <param type="bool"   name="INUKE-DoCompoundNucleus"> true  </param>
 
  <!-- 	
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

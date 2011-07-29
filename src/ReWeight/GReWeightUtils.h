@@ -34,7 +34,8 @@ namespace rew   {
 
   // Returns a weight to account for a change in hadron mean free path
   double MeanFreePathWeight(
-    int pdgc, const TLorentzVector & x4, const TLorentzVector & p4, double A,
+    int pdgc, const TLorentzVector & x4, const TLorentzVector & p4, 
+    double A, double Z,
     double mfp_scale_factor, bool interacted,
     double nRpi=0.5, double nRnuc=1.0, double NR=3, double R0=1.4);
   double MeanFreePathWeight(

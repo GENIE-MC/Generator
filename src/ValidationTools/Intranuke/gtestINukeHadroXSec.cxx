@@ -16,7 +16,7 @@
 
 \created July 26, 2010
 
-\cpright Copyright (c) 2003-2011, GENIE Neutrino MC Generator Collaboration
+\cpright Copyright (c) 2003-2010, GENIE Neutrino MC Generator Collaboration
          All rights reserved.
          For the licensing terms see $GENIE/USER_LICENSE.
 */
@@ -96,64 +96,71 @@ int main(int argc, char ** argv)
   }
 
   // event sample info (to be extracted from 1st event)
+  int    nev        = 0;
   int    probe_pdg  = 0;
   int    target_pdg = 0;
+  int    displayno  = 100;
   double kin_energy = 0.;
 
   //
   // open the input ROOT file and get the event tree
   //
 
-  TTree *           tree = 0;
-  NtpMCTreeHeader * thdr = 0;
+  TTree *           tree   = 0;
+  TTree *           ginuke = 0;
+  NtpMCTreeHeader * thdr   = 0;
 
   TFile file(gOptInpFilename.c_str(),"READ");
 
-  tree = dynamic_cast <TTree *>           ( file.Get("gtree")  );
-  thdr = dynamic_cast <NtpMCTreeHeader *> ( file.Get("header") );
+  tree   = dynamic_cast <TTree *>           ( file.Get("gtree")  );
+  ginuke = dynamic_cast <TTree *>           ( file.Get("ginuke") );
+  thdr   = dynamic_cast <NtpMCTreeHeader *> ( file.Get("header") );
 
-  if(!tree) {
+  /*if(!tree) {
     LOG("gtestINukeHadroXSec", pERROR) 
          << "No event tree found in input file!";
     return 1;
-  }
+    }*/
 
-  NtpMCEventRecord * mcrec = 0;
-  tree->SetBranchAddress("gmcrec", &mcrec);
+  if (tree) {
 
-  int nev = (int) tree->GetEntries();
-  LOG("gtestINukeHadroXSec", pNOTICE) 
-     << "Processing " << nev << " events";
+    NtpMCEventRecord * mcrec = 0;
+    tree->SetBranchAddress("gmcrec", &mcrec);
 
-  //
-  // event loop
-  //
+    //    int nev = (int) tree->GetEntries();
+    nev = (int) tree->GetEntries();
+    LOG("gtestINukeHadroXSec", pNOTICE) 
+      << "Processing " << nev << " events";
 
-  for(int ievent = 0; ievent < nev; ievent++) {
+    //
+    // event loop
+    //
 
-    // get next tree entry
-    tree->GetEntry(ievent);
+    for(int ievent = 0; ievent < nev; ievent++) {
 
-    // get the corresponding GENIE event
-    EventRecord & event = *(mcrec->event);
+      // get next tree entry
+      tree->GetEntry(ievent);
 
-    // extract info for the event sample
-    if(ievent==0) {
-       kin_energy = event.Particle(0)->KinE();
-       probe_pdg  = event.Particle(0)->Pdg();
-       target_pdg = event.Particle(1)->Pdg();
-    }
+      // get the corresponding GENIE event
+      EventRecord & event = *(mcrec->event);
 
-    // analyze
-    const GHepRecord * grec = dynamic_cast<const GHepRecord *> (&event);
-    INukeFateHA_t fate = utils::intranuke::FindhAFate(grec);
-    if(ievent<100) {
-       LOG("gtestINukeHadroXSec", pNOTICE) 
+      // extract info for the event sample
+      if(ievent==0) {
+	kin_energy = event.Particle(0)->KinE();
+	probe_pdg  = event.Particle(0)->Pdg();
+	target_pdg = event.Particle(1)->Pdg();
+      }
+
+      // analyze
+      const GHepRecord * grec = dynamic_cast<const GHepRecord *> (&event);
+      INukeFateHA_t fate = utils::intranuke::FindhAFate(grec);
+      if(ievent<displayno) {
+	LOG("gtestINukeHadroXSec", pNOTICE) 
           << "fate = " << INukeHadroFates::AsString(fate);
-    }
+      }
 
-    // We don't want the specific fate data, just the main (9) fate types
-    switch (fate){
+      // We don't want the specific fate data, just the main (9) fate types
+      switch (fate){
       case 0:   countfate[0]++; break;
       case 1:   countfate[1]++; break;
       case 2:   countfate[2]++; break;
@@ -165,16 +172,98 @@ int main(int argc, char ** argv)
       default:  
 	if (7<=fate && fate<=12) countfate[7]++;
 	else {
-         LOG("gtestINukeHadroXSec", pWARN) 
-            << "Undefined fate from FindhAFate() : " << fate;
+	  LOG("gtestINukeHadroXSec", pWARN) 
+             << "Undefined fate from FindhAFate() : " << fate;
         }
 	break;
+      }
+
+      // clear current mc event record
+      mcrec->Clear();
+
+    } // end event loop 
+  } // end if (tree)
+  else if ( ginuke ) {
+    // possibly a ginuke file
+
+    LOG("gtestINukeHadroXSec", pNOTICE) 
+      << "Found ginuke type file";
+
+    nev = (int) ginuke->GetEntries();
+    LOG("gtestINukeHadroXSec", pNOTICE) 
+      << "Processing " << nev << " events";
+
+    int     kmax    = 250;
+    int     index   = 0;
+    int     numh    = 0;
+    int     numpip  = 0;
+    int     numpi0  = 0;
+    int     numpim  = 0;
+    int     pdg_had[kmax];
+    double  E_had  [kmax];
+    double  energy  = 0.0;
+
+    ginuke->SetBranchAddress("ke",   &kin_energy);
+    ginuke->SetBranchAddress("probe",&probe_pdg );
+    ginuke->SetBranchAddress("tgt",  &target_pdg);
+    ginuke->SetBranchAddress("nh",   &numh      );
+    ginuke->SetBranchAddress("npip", &numpip    );
+    ginuke->SetBranchAddress("npi0", &numpi0    );
+    ginuke->SetBranchAddress("npim", &numpim    );
+    ginuke->SetBranchAddress("pdgh", &pdg_had   );
+    ginuke->SetBranchAddress("Eh",   &E_had     );
+    ginuke->SetBranchAddress("e",    &energy    );
+
+
+    for(int ievent = 0; ievent < nev; ievent++) {
+
+      // get next tree entry
+      ginuke->GetEntry(ievent);
+
+      // Determine fates (as defined in Intranuke/INukeUtils.cxx/ utils::intranuke::FindhAFate())
+           if (energy==E_had[0] && numh==1) // No interaction
+	{ index=1; }
+      else if (energy!=E_had[0] && numh==1) // Elastic
+	{ index=3; }
+      else if ( pdg::IsPion(probe_pdg) && numpip+numpi0+numpim==0) // Absorption
+	{ index=5; }
+      else if ( (pdg::IsNucleon(probe_pdg) && numpip+numpi0+numpim==0 && numh>2 )
+		|| (probe_pdg==kPdgGamma && energy!=E_had[0] && numpip+numpi0+numpim==0)) // Knock-out
+	{ index=6; }
+      else if ( numpip+numpi0+numpim> (pdg::IsPion(probe_pdg) ? 1 : 0) ) // Pion production
+	{ index=7; }
+      else if ( numh==2 ) // Inelastic or Charge Exchange
+	{
+	  if ( (pdg::IsPion(probe_pdg) && ( probe_pdg==pdg_had[0] || probe_pdg==pdg_had[1] ))
+	       || pdg::IsNucleon(probe_pdg) ) index=4;
+	  else index=2;
+	}
+      else //Double Charge Exchange or Undefined
+	{
+	  bool undef = true;
+	  if ( pdg::IsPion(probe_pdg) )
+	    {
+	      for (int iter = 0; iter < numh; iter++)
+		{
+		  if      (probe_pdg==211 && pdg_had[iter]==-211) { index=8; undef=false; }
+		  else if (probe_pdg==-211 && pdg_had[iter]==211) { index=8; undef=false; }
+		}
+	    }
+	  if (undef) { index=0; }
+	}
+      countfate[index]++;
+      if (ievent<displayno) {
+	LOG("gtestINukeHadroXSec", pNOTICE) 
+          << "fate = " << INukeHadroFates::AsString(fatetype[index]);
+      } 
+
     }
-
-    // clear current mc event record
-    mcrec->Clear();
-
-  } // end event loop 
+  } // end if (ginuke)
+  else {
+    LOG("gtestINukeHadroXSec", pERROR) 
+         << "Could not read input file!";
+    return 1;
+  }
   
   //
   // output section
@@ -259,10 +348,29 @@ int main(int argc, char ** argv)
 
   if(gOptWriteOutput) 
   {
+    ifstream test_file;
+    bool file_exists=false;
+    test_file.open(gOptOutputFilename.c_str(), std::ifstream::in);
+    file_exists=test_file.is_open();
+    test_file.close();
     ofstream xsec_file; 
     xsec_file.open(gOptOutputFilename.c_str(), std::ios::app);
+    if (!file_exists)
+      {
+	xsec_file << "#KE" << "\t" << "Undef" << "\t"
+		  << "sig" << "\t" << "CEx"   << "\t"
+		  << "sig" << "\t" << "Elas"  << "\t"
+		  << "sig" << "\t" << "Inelas"<< "\t"
+		  << "sig" << "\t" << "Abs"   << "\t"
+		  << "sig" << "\t" << "KO"    << "\t"
+		  << "sig" << "\t" << "PiPro" << "\t"
+		  << "sig" << "\t" << "DCEx"  << "\t"
+		  << "sig" << "\t" << "Reac"  << "\t"
+		  << "sig" << "\t" << "Tot"   << "\t" << "sig" << endl;
+      }
     xsec_file << kin_energy;
     for(int k=0; k<nfates; k++) {
+      if (k==1) continue;
        xsec_file << "\t" << sigma[k] << "\t" << sigma_err[k];
     }
     xsec_file << "\t" << sigtot_noelas << "\t" << sigtoterr_noelas;

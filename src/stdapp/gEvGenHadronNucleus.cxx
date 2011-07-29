@@ -6,11 +6,11 @@
 \brief   Generates hadron + nucleus interactions using GENIE's INTRANUKE
 	 Similar to NEUGEN's pitest (S.Dytman & H.Gallagher)
 
-         Synopsis:
+         Syntax :
            gevgen_hadron [-n nev] -p probe -t tgt [-r run#] -k KE 
                     [-f flux] [-o prefix] [-m mode]
 
-         Options:
+         Options :
            [] Denotes an optional argument
            -n Specifies the number of events to generate (default: 10000)
            -p Specifies the incoming hadron PDG code 
@@ -42,7 +42,7 @@
 
          (3) Generate 100k pi^{+}+Fe56 events with the pi^{+} kinetic energy
              distributed as f(KE) = 1/KE in the [165 MeV, 1200 MeV] range:
-             % gevgen_hadron -n 100000 -p 211 -t 1000260560 -k 0.165,1.200 -f '1/x'
+             % ghAevgen -n gevgen_hadron -p 211 -t 1000260560 -k 0.165,1.200 -f '1/x'
 
 \authors  Steve Dytman, Minsuk Kim and Aaron Meyer 
           University of Pittsburgh
@@ -54,7 +54,7 @@
 
 \created May 1, 2007
 
-\cpright Copyright (c) 2003-2011, GENIE Neutrino MC Generator Collaboration
+\cpright Copyright (c) 2003-2010, GENIE Neutrino MC Generator Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
          or see $GENIE/LICENSE
 */
@@ -88,8 +88,13 @@
 #include "Utils/StringUtils.h"
 #include "Utils/CmdLnArgParser.h"
 
+#include "HadronTransport/INukeHadroFates.h"
+#include "HadronTransport/INukeUtils.h"
+
 using namespace genie;
 using namespace genie::controls;
+
+using namespace genie::utils::intranuke;
 
 // Function prototypes
 void                        GetCommandLineArgs    (int argc, char ** argv);
@@ -102,9 +107,8 @@ void                        PrintSyntax           (void);
 // Default options 
 int     kDefOptNevents      = 10000;   // n-events to generate
 Long_t  kDefOptRunNu        = 0;       // default run number
-string  kDefOptEvFilePrefix = "gntp";  // default output file prefix
+string  kDefOptEvFilePrefix = "gntp.inuke";  // default output file prefix
 string  kDefOptMode         = "hA";    // default mode
-
 
 // User-specified options:
 string gOptMode;             // mode variable
@@ -157,16 +161,16 @@ int main(int argc, char ** argv)
       intranuke->ProcessEventRecord(evrec);
   
       // print n first generated events (then continue printing out 
-      // with debug priority level)
-      if(ievent > 100) { LOG("gevgen_hadron", pDEBUG ) << *evrec; }
-      else             { LOG("gevgen_hadron", pNOTICE) << *evrec; }
-  
+      // with debug priority level) 
+      if(ievent < 100) { LOG("gevgen_hadron", pNOTICE ) << *evrec; }
+      else             { LOG("gevgen_hadron", pDEBUG)   << *evrec; }
+      
       // add event at the output ntuple
       ntpw.AddEventRecord(ievent, evrec);
       
       // refresh the mc job monitor
       mcjmonitor.Update(ievent,evrec);
-      
+
       ievent++;
       delete evrec;
       
@@ -192,10 +196,10 @@ const EventRecordVisitorI * GetIntranuke(void)
   string sconfig = "";
 
   // comment-out this block after Aaron's and Steve's intranuke upgrade
-  sname   = "genie::Intranuke"; 
-  sconfig = "hA";  
+  //  sname   = "genie::Intranuke"; 
+  //  sconfig = "hA";  
 
-/*
+
   // uncomment this block after Aaron's and Steve's intranuke upgrade
   
   if(gOptMode.compare("hA")==0) {
@@ -212,7 +216,6 @@ const EventRecordVisitorI * GetIntranuke(void)
     gAbortingInErr = true;
     exit(1);
   }
-*/
 
   AlgFactory * algf = AlgFactory::Instance();
   const EventRecordVisitorI * intranuke = 
@@ -381,6 +384,15 @@ void GetCommandLineArgs(int argc, char ** argv)
     PrintSyntax();
     gAbortingInErr = true;
     exit(1);
+  }
+
+  // target PDG code:
+  if( parser.OptionExists('m') ) {
+    LOG("gevgen_hadron", pINFO) << "Reading mode";
+    gOptMode = parser.ArgAsString('m');
+  } else {
+    LOG("gevgen_hadron", pFATAL) << "Unspecified mode - Using default";
+    gOptMode = kDefOptMode;
   }
 
   // flux functional form or flux file

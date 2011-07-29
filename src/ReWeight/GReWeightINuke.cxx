@@ -16,10 +16,13 @@
  @ Sep 10, 2009 - CA
    Was adapted from Jim's and Costas' T2K-specific GENIE reweighting code.
    First included in v2.5.1.
+ @ Jul 29, 2011 - SD,AM
+   Mean free path is now function of Z too.
 
 */
 //____________________________________________________________________________
-
+#define _T2KRW_REWEIGHT_INUKE_DEBUG_NTP_
+#define _G_REWEIGHT_INUKE_DEBUG_NTP_
 #include <cassert>
 
 #include <TMath.h>
@@ -115,7 +118,9 @@ double GReWeightINuke::CalcWeight(const EventRecord & event)
   GHepParticle * tgt = event.TargetNucleus();
   if (!tgt) return 1.0;
   double A = tgt->A();
+  double Z = tgt->Z();
   if (A<=1) return 1.0;
+  if (Z<=1) return 1.0;
 
   double event_weight  = 1.0;
 
@@ -166,14 +171,15 @@ double GReWeightINuke::CalcWeight(const EventRecord & event)
      if(calc_w_mfp)
      {
         double mfp_scale_factor = fINukeRwParams.MeanFreePathParams(pdgc)->ScaleFactor();
-        w_mfp = utils::rew::MeanFreePathWeight(pdgc,x4,p4,A,mfp_scale_factor,interacted);
+        w_mfp = utils::rew::MeanFreePathWeight(pdgc,x4,p4,A,Z,mfp_scale_factor,interacted);
 
         // Debug info
 #ifdef _T2KRW_REWEIGHT_INUKE_DEBUG_NTP_
         double d        = utils::intranuke::Dist2Exit(x4,p4,A);
         double d_mfp    = utils::intranuke::Dist2ExitMFP(pdgc,x4,p4,A);
-        double Eh       = event.StdHepP4[i][kGStdHepIdxE];
-        double iflag    = (interacted) ? 1 : -1;
+        //double Eh       = event.StdHepP4[i][kGStdHepIdxE];
+        double Eh       = 0.;
+	double iflag    = (interacted) ? 1 : -1;
         fTestNtp->Fill(pdgc, Eh, mfp_scale_factor, d, d_mfp, hadron_fate, iflag);
 #endif
      } // calculate mfp weight?
@@ -190,6 +196,11 @@ double GReWeightINuke::CalcWeight(const EventRecord & event)
 
      // Calculate the current hadron weight
      double hadron_weight = w_mfp * w_fate;
+
+     LOG("ReW", pWARN) 
+        << "Hadron pdg = " << pdgc 
+       << ", fate: " << INukeHadroFates::AsString(hadron_fate)
+<< ", w_mfp: "<<w_mfp<<", w_fate: "<<w_fate;
 
      // Update the current event weight
      event_weight *= hadron_weight;

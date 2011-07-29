@@ -21,7 +21,7 @@
 #include <TNtuple.h>
 
 #include "Messenger/Messenger.h"
-#include "Numerical/BLI2DUnifGrid.h"
+#include "Numerical/BLI2D.h"
 #include "Numerical/RandomGen.h"
 
 using namespace genie;
