@@ -1,0 +1,3 @@
+0,240,0,.45,Jul_15_10_pip_O_240_hA_2_7_1.ginuke.root,(Eh-.14)*1000,pdgh==211&&cth>=.4&&cth<=.6,.2,GENIE 2.7.1,ingram-pip-O-240-60.dat,(xsec/1000.):E:err1/1000,,,Ingram Data (60 deg),240 MeV #pi+ 16O #rightarrow #pi+ X,Jul_13_10_pip_O_240_hA_neut.ginuke.root,GENIE 2.6.0
+0,240,0,.45,Jul_15_10_pip_O_240_hA_2_7_1.ginuke.root,(Eh-.14)*1000,pdgh==211&&cth>=-0.74&&cth<=-0.54,.2,GENIE 2.7.1,ingram-pip-O-240-130.dat,(xsec/1000.):E:err1/1000,,,Ingram Data (130 deg),240 MeV #pi+ 16O #rightarrow #pi+ X,Jul_13_10_pip_O_240_hA_neut.ginuke.root,GENIE 2.6.0
+

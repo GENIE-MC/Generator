@@ -12,7 +12,7 @@
 
 \created  November 1, 2005
 
-\cpright  Copyright (c) 2003-2011, GENIE Neutrino MC Generator Collaboration
+\cpright  Copyright (c) 2003-2008, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE 
 */
@@ -35,7 +35,8 @@ typedef enum EINukeFateHN_t {
    kIHNFtCEx,       // cex
    kIHNFtElas,      // elas
    kIHNFtInelas,    // inelas
-   kIHNFtAbs        // abs 
+   kIHNFtAbs,       // abs 
+   kIHNFtNoInteraction
 
 } INukeFateHN_t;   
 
@@ -43,18 +44,20 @@ typedef enum EINukeFateHN_t {
 //
 typedef enum EINukeFateHA_t {
 
-   kIHAFtUndefined = 0, 
-   kIHAFtCEx,       // cex
-   kIHAFtElas,      // elas
-   kIHAFtInelas,    // inelas
-   kIHAFtAbsNP,     // abs np
-   kIHAFtAbsPP,     // abs pp
-   kIHAFtAbsNPP,    // abs npp
-   kIHAFtAbsNNP,    // abs nnp
-   kIHAFtAbs2N2P,   // abs 2n2p
-   kIHAFtAbs2N3P,   // abs 2n3p
-   kIHAFtNPip,      // pi production : n pi+
-   kIHAFtNPipPi0    // pi production : n pi+ pi0
+   kIHAFtUndefined = 0,
+   kIHAFtNoInteraction,  // no interaction 
+   kIHAFtCEx,            // cex
+   kIHAFtElas,           // elas
+   kIHAFtInelas,         // inelas
+   kIHAFtAbs,            // abs
+   kIHAFtKo, 	         // knock out
+   kIHAFtPiProd,         // pi production
+   kIHAFtNPip,           // pi production : n pi+
+   kIHAFtNPipPi0,        // pi production : n pi+ pi0
+   kIHAFtInclPip,        // pi production : inclusive pi+
+   kIHAFtInclPim,        // pi production : inclusive pi-
+   kIHAFtInclPi0,        // pi production : inclusive pi0 
+   kIHAFtDCEx            // dcex
 
 } INukeFateHA_t;   
 
@@ -69,6 +72,7 @@ public:
       case kIHNFtElas      : return "HN-mode / elas";   break;
       case kIHNFtInelas    : return "HN-mode / inelas"; break;
       case kIHNFtAbs       : return "HN-mode / abs";    break;
+      case kIHNFtNoInteraction : return "HN-mode / no interaction"; break;
       default              : break; 
      }
      return "** Undefined HN-mode fate **"; 
@@ -77,20 +81,40 @@ public:
   static string AsString(INukeFateHA_t fate) {
      switch (fate) {
       case kIHAFtUndefined : return "** Undefined HA-mode fate **"; break;
-      case kIHAFtCEx       : return "HA-mode / cex";          break;
-      case kIHAFtElas      : return "HA-mode / elas";         break;
-      case kIHAFtInelas    : return "HA-mode / inelas";       break;
-      case kIHAFtAbsNP     : return "HA-mode / abs pn";       break;
-      case kIHAFtAbsPP     : return "HA-mode / abs pp";       break;
-      case kIHAFtAbsNPP    : return "HA-mode / abs npp";      break;
-      case kIHAFtAbsNNP    : return "HA-mode / abs nnp";      break;
-      case kIHAFtAbs2N2P   : return "HA-mode / abs 2n2p";     break;
-      case kIHAFtAbs2N3P   : return "HA-mode / abs 2n3p";     break;
-      case kIHAFtNPip      : return "HA-mode / abs npi+";     break;
-      case kIHAFtNPipPi0   : return "HA-mode / abs npi+pi0";  break;
+      case kIHAFtNoInteraction : return "HA-mode / no interaction"; break;
+      case kIHAFtCEx       : return "HA-mode / cex";            break;
+      case kIHAFtElas      : return "HA-mode / elas";           break;
+      case kIHAFtInelas    : return "HA-mode / inelas";         break;
+      case kIHAFtAbs       : return "HA-mode / abs";            break;
+      case kIHAFtKo        : return "HA-mode / knock-out";      break; 
+      case kIHAFtPiProd    : return "HA-mode / pi-production" ; break;
+      case kIHAFtNPip      : return "HA-mode / pi-prod npi+";   break;
+      case kIHAFtNPipPi0   : return "HA-mode / pi-prod npi+pi0";break;
+      case kIHAFtInclPip   : return "HA-mode / pi-prod incl pi+";   break;
+      case kIHAFtInclPim   : return "HA-mode / pi-prod incl pi-";   break;
+      case kIHAFtInclPi0   : return "HA-mode / pi-prod incl pi0";   break;
+      case kIHAFtDCEx      : return "HA-mode / dcex";           break;
       default              : break;
      }
      return "** Undefined HA-mode fate **"; 
+  }
+  //__________________________________________________________________________
+  static string AsSimpleString(INukeFateHA_t fate) {
+     switch (fate) {
+      case kIHAFtUndefined : return "undefined"; break;
+      case kIHAFtNoInteraction : return "no interaction"; break;
+      case kIHAFtCEx       : return "cex";            break;
+      case kIHAFtElas      : return "elas";           break;
+      case kIHAFtInelas    : return "inelas";         break;
+      case kIHAFtAbs       : return "abs";            break;
+      case kIHAFtKo        : return "knock out";      break; 
+      case kIHAFtPiProd    : return "pi prod";          break;
+      case kIHAFtNPip      : return "pi prod npip";     break;
+      case kIHAFtNPipPi0   : return "pi prod npip pi0"; break;
+      case kIHAFtDCEx      : return "dcex";             break;
+      default              : break;
+     }
+     return "undefined"; 
   }
   //__________________________________________________________________________
 };

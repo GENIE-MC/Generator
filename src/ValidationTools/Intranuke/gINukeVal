@@ -1,0 +1,806 @@
+#!/bin/bash
+# GINukeVal
+# genie Intranuke Data Analysis
+# Author Alex Bell Aug/2008.
+# Script to take gtestIntranuke's ntple output and use
+#   root to make plots and analyze the data.
+
+# inputs are format file and 3 kinds of data
+# - format file has file names of 2 GENIE .ginuke.root files for comparison with 
+#   published data, cuts to use for the MC data, plot parameters, and name
+#   of the file of cross section data.  User should copy the format file to
+#   the working directory and modify to accept appropriate input MC data.
+# - input data files must be processed as gntpc -f ginuke -i ....
+# - cross section file is ascii in colums of energy (MeV), xs (mb/sr/MeV),
+#   and xs error.
+
+# Note that this script can either take output 
+#   from gtestIntranuke (thus calling gntpc) or it can
+#   take input from gntpc directly.   disabled??
+
+# Notes for Alex:
+#  - need a way to suppress gntpc output
+#  - consider having gntpc check also check to see if
+#    the file is already there...thus we won't run gntpc
+#    more than once for the same source file during a 
+#    single call to this script
+
+e_units="MeV"
+
+function usage
+{
+	echo "Syntax: gINukeVal -f format_file [-i input_dir] [-d data_dir] [-g format_dir] [-o output_dir] [-s]"
+	echo ""
+	echo " -f format_file :: format table file, with internal format"
+	echo "                :: as defined below"
+	echo ""
+	echo " -i input_dir   :: location of output from gtestIntranuke,"
+	echo "                :: or gntpc"
+	echo "                :: -> default is the calling directory"
+	echo ""
+	echo " -d data_dir    :: location of published data"
+	echo "                :: -> default is the GENIE data directory"
+	echo ""
+	echo " -g format_dir    :: location of comparison data"
+	echo "                :: -> default is the GENIE Validation tools directory"
+	echo ""
+        echo " -o output_dir  :: location to place output"
+	echo "                :: -> default is the calling directory"
+	echo ""
+	echo " -s             :: assume all files are ginuke root files"
+	echo "                :: and draw all on the same pad"
+	echo ""
+	echo ""
+}
+
+function error_exit ()
+{
+	echo "Error executing script: $1" 1>&2
+	echo "" 1>&2
+	usage
+	exit 1
+}
+
+tmpfname="temptransientfile.C"
+
+if [ -f $tmpfname ]; then
+	error_exit "Temporary filename created by script exists in current directory: $tmpfname"
+fi
+
+function pr ()
+{
+	echo $1 >> $tmpfname
+}
+
+format_f=""
+input_dir=""
+data_dir="${GENIE}/data/intranuke_validation"
+format_dir=""
+output_dir=""
+do_stack=false
+
+while [ "$1" != "" ]; do
+	case $1 in 
+		--help)		usage
+				exit
+				;;
+		-f)		shift 
+				format_f=$1
+				;;
+		-i)		shift
+				input_dir=$1
+				;;
+		-d)		shift
+				data_dir=$1
+				;;
+		-g)		shift
+				format_dir=$1
+				;;
+		-o)		shift
+				output_dir=$1
+				;;
+	        -s)             do_stack=true
+		                ;;
+		*)		usage
+				exit
+				;;
+	esac
+	shift
+done
+
+if [ ! -f ${format_dir}${format_f} ] || [ "${format_dir}${format_f}" = "" ]; then
+	error_exit "Format file does not exist!"
+fi
+
+if [ ! -e $input_dir ]; then
+	echo "Input dir $input_dir does not exist, using current directory"
+	input_dir=""
+fi
+
+if [ ! -e ${data_dir} ]; then
+	echo "Data dir $data_dir does not exist, using default directory"
+	data_dir="${GENIE}/data/intranuke/validation/"
+elif [ $data_dir = "." ]; then
+	data_dir="./"
+fi
+
+if [ ! -e $format_dir ]; then
+	echo "Data dir $format_dir does not exist, using default directory"
+	format_dir="${GENIE}/src/ValidationTools/Intranuke/"
+elif [ $format_dir = "." ]; then
+	format_dir="./"
+fi
+
+if [ ! -e $output_dir ]; then
+	echo "Output dir $Output_dir does not exist, using current directory"
+	output_dir=""
+fi
+
+pr "{"
+pr "gStyle->SetErrorX(0);";
+pr "Double_t size = 0;"
+pr "Int_t num = 0;"
+pr "Int_t target = 0;"
+pr "Int_t A = 0;"
+pr "Double_t factor = 0;"
+pr "TH1F* htemp = 0;"
+pr "Stat_t* errors = 0;"
+pr "Stat_t err = 0;"
+pr "Double_t efactor = 0.;"
+pr "char sf[50];"
+pr "Int_t n = 0;"
+pr "Double_t bufe = 0.;"
+pr "Double_t bufxs = 0.;"
+pr "Double_t bufer = 0.;"
+pr "typedef struct {Double_t x,y,z;} POINT;"
+pr "POINT point;"
+
+num_recs=`awk "END { print NR }" ${format_dir}${format_f}`
+
+i=1
+logx=0
+logy=0
+
+# handle using intranuke input???
+
+if $do_stack; then
+         xl=`awk -F, "{ if($i==NR) { print \\\$1 } }" ${format_dir}${format_f}`
+         xu=`awk -F, "{ if($i==NR) { print \\\$2 } }" ${format_dir}${format_f}`
+         yl=`awk -F, "{ if($i==NR) { print \\\$3 } }" ${format_dir}${format_f}`
+         yu=`awk -F, "{ if($i==NR) { print \\\$4 } }" ${format_dir}${format_f}`
+       file=`awk -F, "{ if($i==NR) { print \\\$5 } }" ${format_dir}${format_f}`
+       cols=`awk -F, "{ if($i==NR) { print \\\$6 } }" ${format_dir}${format_f}`
+        cut=`awk -F, "{ if($i==NR) { print \\\$7 } }" ${format_dir}${format_f}`
+       dcth=`awk -F, "{ if($i==NR) { print \\\$8 } }" ${format_dir}${format_f}`
+      title=`awk -F, "{ if($i==NR) { print \\\$9 } }" ${format_dir}${format_f}`
+     factor=`awk -F, "{ if($i==NR) { print \\\$(10) } }" ${format_dir}${format_f}`
+     mtitle=`awk -F, "{ if($i==NR) { print \\\$(11) } }" ${format_dir}${format_f}`
+#      data=`awk -F, "{ if($i==NR) { print \\\$(10) } }" ${format_dir}${format_f}`
+#     cols2=`awk -F, "{ if($i==NR) { print \\\$(11) } }" ${format_dir}${format_f}`
+#      cut2=`awk -F, "{ if($i==NR) { print \\\$(12) } }" ${format_dir}${format_f}`
+#     dcth2=`awk -F, "{ if($i==NR) { print \\\$(13) } }" ${format_dir}${format_f}`
+#    title2=`awk -F, "{ if($i==NR) { print \\\$(14) } }" ${format_dir}${format_f}`
+#    mtitle=`awk -F, "{ if($i==NR) { print \\\$(15) } }" ${format_dir}${format_f}`
+
+    if [ ! "$input_dir" = "" ]; then
+	file="${input_dir}/${file}"
+    fi
+
+#    if [ ! "$data_dir" = "" ]; then
+#	data="${data_dir}/${data}"
+#    fi
+
+    if [ "$xl" = "" ] || [ "$xu" = "" ] || [ "$yl" = "" ] || [ "$yu" = "" ]; then
+	echo "#$i| Need to specify domain and range, exiting."
+	exit
+    fi
+
+    logx=`awk "BEGIN { if($xu < $xl) { print 1 } else { print 0 } }"`
+    logy=`awk "BEGIN { if($yu < $yl) { print 1 } else { print 0 } }"`
+
+# check to see if main input file exists
+
+    if [ ! -f $file ] || [ "$file" = "" ];  then
+	echo "#$i| Input file $file does not exist, exiting."
+	exit
+    fi
+
+# check to see if it is the proper type
+
+    if echo $file | grep -q "\.ginuke\.root\>"; then
+	true
+    else
+	echo "#$i| Input file is of the wrong type, exiting."
+	exit
+    fi
+
+# some error handling
+
+    if [ "$factor" = "" ]; then
+	factor="2"
+    fi
+
+    if [ "$cols" = "" ]; then
+	echo "#$i| You must specify columns to display, exiting."
+	exit
+    fi
+
+    if [ "$title" = "" ]; then
+	title="Generic Title"
+    fi
+
+    if [ "$mtitle" = "" ]; then
+	mtitle="Graph Title"
+    fi
+
+    inuke_files=1
+    data_files=0
+
+########################################################
+# process the first part of the record
+
+    pr "TFile* file$i = new TFile(\"${file}\");"
+    pr "TTree* tree$i = file${i}->Get(\"ginuke\");"
+    pr "TCanvas* can1 = new TCanvas(\"can1\",\"${mtitle}\");"
+    pr "TMultiGraph* mg = new TMultiGraph(\"mg\",\"${mtitle}\");"
+    pr "can1->cd();"
+    if [ "$logx" = "1" ]; then
+	pr "gPad->SetLogx();"
+	xu=`expr 0 -  $xu`
+    fi
+    if [ "$logy" = "1" ]; then
+	pr "gPad->SetLogy();"
+	yu=`expr 0 - $yu`
+    fi
+    pr "tree${i}->Draw(\"${cols}\",\"${cut}\");"
+    pr "htemp = (TH1F*) gPad->GetPrimitive(\"htemp\");"
+    pr "TH1F* dhist${i} = (TH1F*) htemp->Clone(\"dhist${i}\");"
+    pr "size = dhist${i}->GetBinWidth(1);"
+    pr "num = tree${i}->GetEntries();"
+    pr "tree${i}->SetBranchAddress(\"tgt\",&target);"
+    pr "tree${i}->GetEntry(1);"
+    pr "A = (target/10) - (target/10000)*1000;"
+#    pr "factor = TMath::Power(3*1.4*TMath::Power(A,(1.0/3.0)),2)*10.0/(2*size*num*${dcth});"
+    pr "factor = TMath::Power(3*1.4*TMath::Power(A,(1.0/3.0)),2)/(2*10*size*num*${dcth});"
+    pr "dhist${i}->Sumw2();"
+    pr "efactor=1;"
+    pr "sprintf(sf,\"${title} x%.2f\", efactor);"
+    pr "dhist${i}->Scale(factor*efactor);"
+    pr "dhist${i}->SetTitle(\"${mtitle}\");"
+    pr "dhist${i}->SetMarkerColor(1+${i}%8);"
+    pr "dhist${i}->SetLineColor(1+${i}%8);"
+#    pr "hist${i}->SetMarkerStyle(21);"
+    pr "dhist${i}->SetLineStyle(1);"
+    pr "dhist${i}->SetStats(kFALSE);"
+    pr "dhist${i}->GetXaxis()->SetTitle(\"Energy [${e_units}]\");"
+    pr "dhist${i}->GetYaxis()->SetTitle(\"#frac{d#sigma}{d#OmegadE} [#frac{mb}{sr#upoint${e_units}}]\");"
+    pr "dhist${i}->GetYaxis()->SetTitleOffset(1.35);"
+    pr "dhist${i}->GetXaxis()->SetRangeUser(${xl},${xu});"
+    pr "dhist${i}->GetYaxis()->SetRangeUser(${yl},${yu});"
+    pr "TGraphErrors* hist${i} = new TGraphErrors(dhist${i});"
+    pr "delete dhist${i};"
+    pr "TLegend* leg1 = new TLegend(0,0,1,1,\"${mtitle} Legend\");"
+    pr "leg1->AddEntry(hist${i},sf,\"L\");"
+    pr "mg->Add(hist${i},\"LZ\");"
+
+    i=`expr $i + 1`
+
+    while [ $i -le $num_recs ]
+      do
+
+       file=`awk -F, "{ if($i==NR) { print \\\$1 } }" ${format_dir}${format_f}`
+       cols=`awk -F, "{ if($i==NR) { print \\\$2 } }" ${format_dir}${format_f}`
+        cut=`awk -F, "{ if($i==NR) { print \\\$3 } }" ${format_dir}${format_f}`
+       dcth=`awk -F, "{ if($i==NR) { print \\\$4 } }" ${format_dir}${format_f}`
+      title=`awk -F, "{ if($i==NR) { print \\\$5 } }" ${format_dir}${format_f}`
+#     factor=`awk -F, "{ if($i==NR) { print \\\$10 } }" ${format_dir}${format_f}`
+#      data=`awk -F, "{ if($i==NR) { print \\\$(10) } }" ${format_dir}${format_f}`
+#     cols2=`awk -F, "{ if($i==NR) { print \\\$(11) } }" ${format_dir}${format_f}`
+#      cut2=`awk -F, "{ if($i==NR) { print \\\$(12) } }" ${format_dir}${format_f}`
+#     dcth2=`awk -F, "{ if($i==NR) { print \\\$(13) } }" ${format_dir}${format_f}`
+#    title2=`awk -F, "{ if($i==NR) { print \\\$(14) } }" ${format_dir}${format_f}`
+#    mtitle=`awk -F, "{ if($i==NR) { print \\\$(15) } }" ${format_dir}${format_f}`
+
+     if [ ! "$input_dir" = "" ]; then
+	 file="${input_dir}/${file}"
+     fi
+
+#    if [ ! "$data_dir" = "" ]; then
+#	data="${data_dir}/${data}"
+#    fi
+
+# check to see if main input file exists
+
+     if [ ! -f ${file} ] || [ "$file" = "" ];  then
+	 echo "#$i| Input file $file does not exist, skipping to next record."
+	 i=`expr $i + 1`
+	 continue
+     fi
+
+# check to see if it is the proper type
+
+     if echo $file | grep -q "\.ginuke\.root\>"; then
+	 d_type="inuke_data"
+     else
+	 d_type="txt_data"
+     fi
+
+# some error handling
+
+     if [ "$cols" = "" ]; then
+	 echo "#$i| You must specify columns to display, exiting."
+	 exit
+     fi
+
+     if [ "$title" = "" ]; then
+	 title="Generic Title"
+     fi
+
+     if [ "$mtitle" = "" ]; then
+	 mtitle="Graph Title"
+     fi
+
+########################################################
+# process the loop part of the record
+
+# ---> for text-type data
+     if [ "$d_type" = "txt_data" ]; then
+
+	 data_files=`expr $data_files + 1`
+
+	 pr "TTree* ttree${i} = new TTree(\"ttree${i}\",\"${title}\");"
+	 pr "TTree* tree${i} = new TTree(\"tree${i}\",\"${title}\");"
+	 pr "tree${i}->SetMarkerColor(1);"
+	 pr "tree${i}->SetMarkerStyle(20);"
+         pr "tree${i}->Branch(\"data\",&point,\"E/D:xsec:err1\");"
+	 pr "ttree${i}->ReadFile(\"${file}\",\"E/D:xsec:err1\");"
+	 pr "ttree${i}->SetBranchAddress(\"E\",&bufe);"
+	 pr "ttree${i}->SetBranchAddress(\"xsec\",&bufxs);"
+	 pr "ttree${i}->SetBranchAddress(\"err1\",&bufer);"
+	 pr "efactor=efactor*${factor};"
+	 pr "for(int i=0;i<ttree${i}->GetEntries();i++) {"
+         pr "  ttree${i}->GetEntry(i);"
+	 pr "  point.x = bufe;"
+         pr "  point.y = bufxs*efactor;"
+         pr "  point.z = bufer*efactor;"
+	 pr "  tree${i}->Fill();"
+	 pr "}"
+	 pr "tree${i}->Draw(\"${cols}\",\"${cut}\",\"goff\");"
+	 pr "TGraphErrors* data${data_files} = new TGraphErrors(tree${i}->GetSelectedRows(),tree${i}->GetV2(), tree${i}->GetV1(),0,tree${i}->GetV3());"
+	 pr "sprintf(sf,\"${title} x%.2f\",efactor);"
+	 pr "data${data_files}->SetTitle(\"${mtitle}\");"
+	 pr "data${data_files}->SetLineStyle(1);"
+	 pr "data${data_files}->SetLineColor(1+${data_files}%8);"
+	 pr "data${data_files}->SetMarkerColor(1+${data_files}%8);"
+	 pr "data${data_files}->SetMarkerStyle(20);"
+	 pr "leg1->AddEntry(data${data_files},sf,\"P\");"
+	 pr "mg->Add(data${data_files},\"P\");"
+
+	 i=`expr $i + 1`
+     fi 
+
+     if [ "$d_type" = "inuke_data" ]; then
+
+	 inuke_files=`expr $inuke_files + 1`
+
+	 pr "TFile* file$i = new TFile(\"${file}\");"
+	 pr "TTree* tree$i = file${i}->Get(\"ginuke\");"
+	 pr "tree${i}->Draw(\"${cols}\",\"${cut}\");"
+	 pr "htemp = (TH1F*) gPad->GetPrimitive(\"htemp\");"
+	 pr "TH1F* dhist${inuke_files} = (TH1F*) htemp->Clone(\"dhist${inuke_files}\");"
+	 pr "size = dhist${inuke_files}->GetBinWidth(1);"
+	 pr "num = tree${i}->GetEntries();"
+	 pr "tree${i}->SetBranchAddress(\"tgt\",&target);"
+	 pr "tree${i}->GetEntry(1);"
+	 pr "A = (target/10) - (target/10000)*1000;"
+#	 pr "factor = TMath::Power(3*1.4*TMath::Power(A,(1.0/3.0)),2)*10.0/(2*size*num*${dcth});"
+	 pr "factor = TMath::Power(3*1.4*TMath::Power(A,(1.0/3.0)),2)/(2*9*size*num*${dcth});"
+	 pr "dhist${inuke_files}->Sumw2();"
+	 pr "efactor=efactor*${factor};"
+	 pr "sprintf(sf,\"${title} x%.2f\",efactor);"
+	 pr "dhist${inuke_files}->Scale(factor*efactor);"
+	 pr "dhist${inuke_files}->SetTitle(\"${mtitle}\");"
+	 pr "dhist${inuke_files}->SetLineColor(1+${inuke_files}%8);"
+	 pr "dhist${inuke_files}->SetMarkerColor(1+${inuke_files}%8);"
+#	 pr "hist${inuke_files}->SetMarkerStyle(21);"
+	 pr "dhist${inuke_files}->SetLineStyle(1);"
+	 pr "dhist${inuke_files}->SetStats(kFALSE);"
+	 pr "TGraphErrors* hist${inuke_files} = new TGraphErrors(dhist${inuke_files});"
+	 pr "delete dhist${inuke_files};"
+	 pr "leg1->AddEntry(hist${inuke_files},sf,\"L\");"
+	 pr "mg->Add(hist${inuke_files},\"LZ\");"
+
+	 i=`expr $i + 1`
+     fi
+
+    done
+
+#    pr "hf1->Draw();"
+    
+#    pr "hist1->Draw(\"L\");"
+
+#    i="2"
+#    while [ $i -le $inuke_files ]
+#      do
+#      pr "hist${i}->Draw(\"L same\");"
+#      i=`expr $i + 1`
+#      done
+
+#    i="1"
+#    while [ $i -le $data_files ]
+#      do
+#      pr "data${i}->Draw(\"P same\");"
+#      i=`expr $i + 1`
+#      done
+
+    pr "can1->Clear();"
+    pr "mg->Draw(\"A\");"
+    pr "can1->Update();"
+
+    pr "mg->GetXaxis()->SetTitle(\"Energy [${e_units}]\");"
+    pr "mg->GetXaxis()->CenterTitle();"
+    pr "mg->GetYaxis()->CenterTitle();"
+    pr "mg->GetYaxis()->SetTitle(\"#frac{d#sigma}{d#OmegadE} [#frac{mb}{sr#upoint${e_units}}]\");"
+    pr "mg->GetYaxis()->SetLabelSize(.03);"
+    pr "mg->GetYaxis()->SetTitleOffset(1);"
+    pr "mg->GetXaxis()->SetRangeUser(${xl},${xu});"
+    pr "mg->GetYaxis()->SetRangeUser(${yl},${yu});"   
+    
+    pr "can1->Draw();"
+
+    pr "TCanvas* can2 = new TCanvas(\"can2\",\"${mtitle} Legend\");"
+    pr "can2->cd();"
+    pr "leg1->Draw();"
+
+    pr "}"
+
+    root -l $tmpfname
+
+    if ! rm $tmpfname; then
+	echo "Could not remove temporary file ${tmpfname}; remove manually"
+    else
+	echo "Removed temporary file ${tmpfname}"
+    fi
+
+    exit
+fi
+
+while [ $i -le $num_recs ]
+do
+
+     xl=`awk -F, "{ if($i==NR) { print \\\$1 } }" ${format_dir}${format_f}`
+     xu=`awk -F, "{ if($i==NR) { print \\\$2 } }" ${format_dir}${format_f}`
+     yl=`awk -F, "{ if($i==NR) { print \\\$3 } }" ${format_dir}${format_f}`
+     yu=`awk -F, "{ if($i==NR) { print \\\$4 } }" ${format_dir}${format_f}`
+   file=`awk -F, "{ if($i==NR) { print \\\$5 } }" ${format_dir}${format_f}`
+   cols=`awk -F, "{ if($i==NR) { print \\\$6 } }" ${format_dir}${format_f}`
+    cut=`awk -F, "{ if($i==NR) { print \\\$7 } }" ${format_dir}${format_f}`
+   dcth=`awk -F, "{ if($i==NR) { print \\\$8 } }" ${format_dir}${format_f}`
+  title=`awk -F, "{ if($i==NR) { print \\\$9 } }" ${format_dir}${format_f}`
+   data=`awk -F, "{ if($i==NR) { print \\\$(10) } }" ${format_dir}${format_f}`
+  cols2=`awk -F, "{ if($i==NR) { print \\\$(11) } }" ${format_dir}${format_f}`
+   cut2=`awk -F, "{ if($i==NR) { print \\\$(12) } }" ${format_dir}${format_f}`
+  dcth2=`awk -F, "{ if($i==NR) { print \\\$(13) } }" ${format_dir}${format_f}`
+ title2=`awk -F, "{ if($i==NR) { print \\\$(14) } }" ${format_dir}${format_f}`
+ mtitle=`awk -F, "{ if($i==NR) { print \\\$(15) } }" ${format_dir}${format_f}`
+  file3=`awk -F, "{ if($i==NR) { print \\\$(16) } }" ${format_dir}${format_f}`
+ title3=`awk -F, "{ if($i==NR) { print \\\$(17) } }" ${format_dir}${format_f}`
+
+if [ ! "$input_dir" = "" ]; then
+	file="${input_dir}/${file}"
+fi
+
+if [ ! "$data_dir" = "" ]; then
+	data="${data_dir}/${data}"
+fi
+
+if [ "$xl" = "" ] || [ "$xu" = "" ] || [ "$yl" = "" ] || [ "$yu" = "" ]; then
+	echo "#$i| Need to specify domain and range, skipping to next record"
+	i=`expr $i + 1`
+	continue
+fi
+
+logx=`awk "BEGIN { if($xu < $xl) { print 1 } else { print 0 } }"`
+logy=`awk "BEGIN { if($yu < $yl) { print 1 } else { print 0 } }"`
+
+# check to see if main input file exists
+
+if [ ! -f $file ] || [ "$file" = "" ];  then
+	echo "#$i| Input file $file does not exist, skipping to next record"
+	i=`expr $i + 1`
+	continue
+fi
+
+########################################################
+# check whether it is ginuke or gst
+
+i_type="no_type"
+	
+
+if echo $file | grep -q "\.ginuke\.root\>"; then
+	i_type="ginuke"
+else
+	if echo $file | grep -q "\.gst\.root\>"; then
+		i_type="gst"
+	fi	
+fi
+########################################################
+# some error handling
+
+if [ "$factor" = "" ]; then
+	factor="1"
+fi
+
+if [ "$cols" = "" ]; then
+	echo "#$i| You must specify columns to display, skipping to next record"
+	i=`expr $i + 1`
+	continue
+fi
+
+if [ "$title" = "" ]; then
+	title="Generic Title"
+fi
+
+if [ "$mtitle" = "" ]; then
+	mtitle="Graph Title"
+fi
+
+########################################################
+# process the first part of the record
+
+pr "TFile* file$i = new TFile(\"${file}\");"
+if [ "$i_type" = "ginuke" ]; then
+	pr "TTree* tree$i = file${i}->Get(\"ginuke\");"
+else
+	if [ "$i_type" = "gst" ]; then
+		pr "TTree* tree$i = file${i}->Get(\"gst\");"
+	fi
+fi
+pr "TCanvas* can$i = new TCanvas(\"can${i}\",\"${mtitle}\");"
+pr "can${i}->cd();"
+if [ "$logx" = "1" ]; then
+	pr "gPad->SetLogx();"
+	xu=`expr 0 -  $xu`
+fi
+if [ "$logy" = "1" ]; then
+	pr "gPad->SetLogy();"
+	yu=`expr 0 - $yu`
+fi
+pr "tree${i}->Draw(\"${cols}\",\"${cut}\");"
+pr "htemp = (TH1F*) gPad->GetPrimitive(\"htemp\");"
+pr "bool work${i} = true;"
+pr "if (htemp == 0) {"
+pr "work${i}=false;"
+pr "} else {"
+pr "TH1F* hist${i} = (TH1F*) htemp->Clone(\"hist${i}\");"
+pr "size = hist${i}->GetBinWidth(1);"
+pr "num = tree${i}->GetEntries();"
+pr "tree${i}->SetBranchAddress(\"tgt\",&target);"
+pr "tree${i}->GetEntry(1);"
+pr "A = (target/10) - (target/10000)*1000;"
+pr "factor = TMath::Power(3*1.4*TMath::Power(A,(1.0/3.0)),2)*10.0/(2*size*num*${dcth});"
+pr "hist${i}->Sumw2();"
+pr "hist${i}->Scale(factor);"
+pr "hist${i}->SetMarkerColor(2);"
+pr "hist${i}->SetMarkerStyle(20);"
+pr "hist${i}->SetLineStyle(2);"
+pr "hist${i}->SetLineColor(2);"
+#pr "TH1F* hf$i = (TH1F*) can${i}->DrawFrame($xl,$yl,$xu,$yu);"
+#pr "hf${i}->SetTitle(\"${mtitle}\");"
+#pr "hf${i}->GetXaxis()->SetTitle(\"Energy [${e_units}]\");"
+#pr "hf${i}->GetYaxis()->SetTitle(\"#frac{d#sigma}{d#OmegadE} [#frac{mb}{sr#upoint${e_units}}]\");"
+#pr "hf${i}->GetYaxis()->SetTitleOffset(1.35);"
+pr "TLegend* leg${i} = new TLegend(.6,.8,1,1,\"\");"
+pr "leg${i}->AddEntry(hist${i},\"${title}\",\"P\");"
+pr "}"
+
+#####################################################################
+#####################################################################
+
+# process extra record
+
+pr "TFile* xfile$i = new TFile(\"${file3}\");"
+if [ "$i_type" = "ginuke" ]; then
+	pr "TTree* xtree$i = xfile${i}->Get(\"ginuke\");"
+else
+	if [ "$i_type" = "gst" ]; then
+		pr "TTree* xtree$i = xfile${i}->Get(\"gst\");"
+	fi
+fi
+pr "xtree${i}->Draw(\"${cols}\",\"${cut}\");"
+pr "htemp = (TH1F*) gPad->GetPrimitive(\"htemp\");"
+pr "bool xwork${i} = true;"
+pr "if (htemp == 0) {"
+pr "xwork${i}=false;"
+pr "} else {"
+pr "TH1F* xhist${i} = (TH1F*) htemp->Clone(\"xhist${i}\");"
+#pr "TH1F* xhist${i} = (TH1F*) hist${i};"
+#pr "TH1F* xhist${i} = (TH1F*) hist${i}->Clone(\"xhist${i}\");"
+#pr "xhist${i}->Scale(1./factor);"
+pr "size = xhist${i}->GetBinWidth(1);"
+pr "num = xtree${i}->GetEntries();"
+pr "xtree${i}->SetBranchAddress(\"tgt\",&target);"
+pr "xtree${i}->GetEntry(1);"
+pr "A = (target/10) - (target/10000)*1000;"
+pr "factor = TMath::Power(3*1.4*TMath::Power(A,(1.0/3.0)),2)*10.0/(2*size*num*${dcth});"
+pr "xhist${i}->Sumw2();"
+pr "xhist${i}->Scale(factor);"
+pr "xhist${i}->SetMarkerColor(3);"
+pr "xhist${i}->SetMarkerStyle(21);"
+pr "xhist${i}->SetLineStyle(2);"
+pr "xhist${i}->SetLineColor(3);"
+pr "TH1F* hf$i = (TH1F*) can${i}->DrawFrame($xl,$yl,$xu,$yu);"
+pr "hf${i}->SetTitle(\"${mtitle}\");"
+pr "hf${i}->GetXaxis()->SetTitle(\"Energy [${e_units}]\");"
+pr "hf${i}->GetYaxis()->SetTitle(\"#frac{d#sigma}{d#OmegadE} [#frac{mb}{sr#upoint${e_units}}]\");"
+pr "hf${i}->GetYaxis()->SetTitleOffset(1.35);"
+pr "leg${i}->AddEntry(xhist${i},\"${title3}\",\"P\");"
+pr "}"
+
+#####################################################################
+#####################################################################
+
+
+# check to see if data file exists and, if it does,
+# check to see if it is another ginuke file, a gst file,
+# or a simple text file. We'll assume files 
+# containing experimental data will be ".dat" or simply 
+# NOT ".root"
+
+d_type="no_data"
+
+if [ ! "$data" = "" ] && [ -f $data ]; then
+	if echo $data | grep -q "\.ginuke\.root\>"; then
+		# it's a gntpc output file, handle accordingly
+		d_type="ginuke_data"
+	else
+		if echo $data | grep -q "\.gst\.root\>"; then
+			# it's an intranuke output file
+			d_type="gst_data" 
+		else
+			# it's just regular text data (we hope)
+			d_type="txt_data"
+		fi
+	fi
+else
+	if [ ! "${data_dir}${data}" = "" ] && [ ! -f $data ]; then
+		echo "#$i| Data file $data does not exist, skipping to next record"
+		i=`expr $i + 1`
+		continue
+	fi 
+fi
+
+
+########################################################
+# begin processing the data part of the record
+
+# ---> for text-type data
+if [ "$d_type" = "txt_data" ]; then
+	# some error handling
+
+	if [ "$cols2" = "" ]; then
+		echo "#$i| You must specify columns to display, skipping to next record"
+		i=`expr $i + 1`
+		continue
+	fi
+
+	if [ "$title2" = "" ]; then
+		title2="Generic_data_$i"
+	fi
+
+	# do the processing
+
+	pr "TTree* dtree${i} = new TTree(\"dtree${i}\",\"${title2}\");"
+	pr "dtree${i}->SetMarkerColor(1);"
+	pr "dtree${i}->SetMarkerStyle(20);"
+	pr "dtree${i}->ReadFile(\"${data}\",\"E/D:xsec:err1\");"
+#	pr "dtree${i}->Draw(\"${cols2}>>htp\",\"${cut2}\",\"same\");"
+	pr "dtree${i}->Draw(\"${cols2}\",\"${cut2}\",\"goff\");"
+	pr "TGraphErrors* data${i} = new TGraphErrors(dtree${i}->GetSelectedRows(),dtree${i}->GetV2(), dtree${i}->GetV1(),0,dtree${i}->GetV3());"
+	pr "data${i}->SetLineStyle(0);"
+	pr "data${i}->SetMarkerColor(1);"
+	pr "data${i}->SetMarkerStyle(20);"
+#	pr "TH2F* dhist${i} = (TH2F*)gDirectory->Get(\"htp\");"
+#	pr "dtree${i}->SetBranchAddress(\"err1\",&err);"
+#	pr "errors = new Stat_t[dtree${i}->GetEntries()];"
+#	pr "for(int i=0; i<dtree${i}->GetEntries();i++) {"
+#	pr "dtree${i}->GetEntry(i);"
+#	pr "errors[i] = err; }"
+#	pr "dhist${i}->SetError(errors);"
+#	pr "delete [] errors;"
+#	pr "errors = 0;"
+#	pr "err = 0;"
+	pr "leg${i}->AddEntry(data${i},\"${title2}\",\"P\");"
+fi 
+
+# ---> for ginuke-type tree data
+if [ "$d_type" = "ginuke_data" ]; then
+	# some error handling
+
+	if [ "$cols2" = "" ]; then
+		echo "#$i| You must specify columns to display, skipping to next record"
+		i=`expr $i + 1`
+		continue
+	fi
+
+	if [ "$title2" = "" ]; then
+		title2="Generic_data_$i"
+	fi
+
+	# do the processing
+
+	pr "TFile* dfile${i} = new TFile(\"${data}\");"
+	pr "TTree* dtree${i} = dfile${i}->Get(\"ginuke\");"
+	pr "dtree${i}->Draw(\"${cols2}\",\"${cut2}\",\"same\");"
+	pr "htemp = (TH1F*)gPad->GetPrimitive(\"htemp\");"
+	pr "TH1F* data${i} = (TH1F*)htemp->Clone(\"data${i}\");"
+	pr "size = data${i}->GetBinWidth(1);"
+	pr "num = dtree${i}->GetEntries();"
+	pr "dtree${i}->SetBranchAddress(\"tgt\",&target);"
+	pr "dtree${i}->GetEntry(1);"
+	pr "A = (target/10) - (target/10000)*1000;"
+	pr "factor = TMath::Power(3*1.4*TMath::Power(A,(1.0/3.0)),2)*10.0 / (2*size*num*${dcth2});"
+	pr "data${i}->Scale(factor);"
+	pr "data${i}->SetLineStyle(0);"
+	pr "data${i}->SetMarkerColor(1);"
+	pr "data${i}->SetMarkerStyle(20);"
+	pr "leg${i}->AddEntry(data${i},\"${title2}\",\"P\");"
+fi
+
+# ---> for gst-type tree data
+if [ "$d_type" = "gst_data" ]; then
+	# some error handling
+
+	if [ "$cols2" = "" ]; then
+		echo "#$i| You must specify columns to display, skipping to next record"
+		i=`expr $i + 1`
+		continue
+	fi
+
+	if [ "$title2" = "" ]; then
+		title2="Generic_data_$i"
+	fi
+
+	# do the processing
+
+
+	pr "TFile* dfile${i} = new TFile(\"${data}\");"
+	pr "TTree* dtree${i} = dfile${i}->Get(\"gst\");"
+	pr "dtree${i}->Draw(\"${cols2}\",\"${cut2}\",\"same\");"
+	pr "htemp = (TH1F*)gPad->GetPrimitive(\"htemp\");"
+	pr "TH1F* data${i} = (TH1F*)htemp->Clone(\"data${i}\");"
+	pr "size = data${i}->GetBinWidth(1);"
+	pr "num = dtree${i}->GetEntries();"
+	pr "dtree${i}->SetBranchAddress(\"tgt\",&target);"
+	pr "dtree${i}->GetEntry(1);"
+	pr "A = (target/10) - (target/10000)*1000;"
+	pr "factor = TMath::Power(3*1.4*TMath::Power(A,(1.0/3.0)),2)*10.0 / (2*size*num*${dcth2});"
+	pr "data${i}->Scale(factor);"
+	pr "data${i}->SetLineStyle(0);"
+	pr "data${i}->SetMarkerColor(1);"
+	pr "data${i}->SetMarkerStyle(20);"
+	pr "leg${i}->AddEntry(data${i},\"${title2}\",\"P\");"
+fi
+
+pr "hf${i}->Draw();"
+pr "if (work${i}) hist${i}->Draw(\"e1 psame\");"
+pr "if (xwork${i}) xhist${i}->Draw(\"e1 psame\");"
+pr "data${i}->Draw(\"p same\");"
+#pr "dhist${i}->Draw(\"psame\");"
+pr "leg${i}->Draw();"
+pr "can${i}->SaveAs(\"temp${i}.eps\");"
+
+i=`expr $i + 1`
+
+done
+
+pr "}"
+
+root -l $tmpfname
+
+if ! rm $tmpfname; then
+	echo "Could not remove temporary file ${tmpfname}; remove manually"
+else
+	echo "Removed temporary file ${tmpfname}"
+fi
+    

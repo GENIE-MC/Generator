@@ -1,0 +1,5 @@
+0,700,0.01,1,Jan_31_09_p_C12_.800.4.ginuke.root,(Eh-.94)*1000,pdgh==2112&&cth>=.98&&cth<=.995,.015,GENIE 19amian-pn-c-800-7p5.dat,xsec:E,,,Amian pn Data (7.5 deg),p C #rightarrow n X Tp=800 MeV
+0,700,0.01,1,Jan_31_09_p_C12_.800.4.ginuke.root,(Eh-.94)*1000,pdgh==2112&&cth>=.82&&cth<=.92,.1,GENIE 19,amian-pn-c-800-30.dat,xsec:E,,,Amian pn Data (30 deg,p C #rightarrow n X Tp=800 MeV
+0,700,0.01,1,Jan_31_09_p_C12_.800.4.ginuke.root,(Eh-.94)*1000,pdgh==2112&&cth>=.45&&cth<=.55,.1,GENIE 19,amian-pn-c-800-60.dat,xsec:E,,,Amian pn Data (60 deg),p C #rightarrow n X Tp=800 MeV
+0,700,0.01,1,Jan_31_09_p_C12_.800.4.ginuke.root,(Eh-.94)*1000,pdgh==2112&&cth>=-.55&&cth<=-.45,.1,GENIE 19,amian-pn-c-800-120.dat,xsec:E,,,Amian pn Data (120 deg,p C #rightarrow n X Tp=800 MeV
+0,700,0.01,1,Jan_31_09_p_C12_.800.4.ginuke.root,(Eh-.94)*1000,pdgh==2112&&cth>=-.92&&cth<=-.82,.1,GENIE 19,amian-pn-c-800-150.dat,xsec:E,,,Amian pn Data (150 #deg),p C #rightarrow n X Tp=800 MeV

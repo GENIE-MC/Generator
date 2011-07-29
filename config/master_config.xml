@@ -6,7 +6,8 @@
    <config alg="genie::EventGenerator">              EventGenerator.xml              </config>
    <config alg="genie::FermiMover">                  FermiMover.xml                  </config>
    <config alg="genie::HadronTransporter">           HadronTransporter.xml           </config>
-   <config alg="genie::Intranuke">                   Intranuke.xml                   </config>
+   <config alg="genie::HAIntranuke">                 HAIntranuke.xml                 </config>
+   <config alg="genie::HNIntranuke">                 HNIntranuke.xml                 </config>
    <config alg="genie::UnstableParticleDecayer">     UnstableParticleDecayer.xml     </config>
    <config alg="genie::PauliBlocker">                PauliBlocker.xml                </config>
    <config alg="genie::NucDeExcitationSim">          NucDeExcitationSim.xml          </config>

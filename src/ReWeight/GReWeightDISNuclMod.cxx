@@ -73,7 +73,7 @@ void GReWeightDISNuclMod::Reconfigure(void)
   
 }
 //_______________________________________________________________________________________
-double GReWeightDISNuclMod::CalcWeight(const EventRecord & event) 
+double GReWeightDISNuclMod::CalcWeight(const EventRecord & /*event*/) 
 { 
   return 1.;
 }

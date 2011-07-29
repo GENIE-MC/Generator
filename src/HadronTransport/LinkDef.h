@@ -11,5 +11,7 @@
 #pragma link C++ class genie::INukeDeltaPropg;
 //#pragma link C++ class genie::INukePhotoPropg;
 #pragma link C++ class genie::Intranuke;
+#pragma link C++ class genie::HAIntranuke;
+#pragma link C++ class genie::HNIntranuke;
 
 #endif

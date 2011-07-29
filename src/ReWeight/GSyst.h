@@ -10,7 +10,7 @@
 
 \created  Aug 1, 2009
 
-\cpright  Copyright (c) 2003-2011, GENIE Neutrino MC Generator Collaboration
+\cpright  Copyright (c) 2003-2010, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
@@ -450,36 +450,24 @@ public:
   //
   if(pdg::IsPion(pdgc)) {
      switch (fate) {
-      case kIHAFtUndefined : return kNullSystematic;                  break;
+      case kIHAFtUndefined : return kNullSystematic;            break;
       case kIHAFtCEx       : return kINukeTwkDial_FrCEx_pi;     break;
       case kIHAFtElas      : return kINukeTwkDial_FrElas_pi;    break;
       case kIHAFtInelas    : return kINukeTwkDial_FrInel_pi;    break;
-      case kIHAFtAbsNP     : return kINukeTwkDial_FrAbs_pi;     break;
-      case kIHAFtAbsPP     : return kINukeTwkDial_FrAbs_pi;     break;
-      case kIHAFtAbsNPP    : return kINukeTwkDial_FrAbs_pi;     break;
-      case kIHAFtAbsNNP    : return kINukeTwkDial_FrAbs_pi;     break;
-      case kIHAFtAbs2N2P   : return kINukeTwkDial_FrAbs_pi;     break;
-      case kIHAFtAbs2N3P   : return kINukeTwkDial_FrAbs_pi;     break;
-      case kIHAFtNPip      : return kINukeTwkDial_FrPiProd_pi;  break;
-      case kIHAFtNPipPi0   : return kINukeTwkDial_FrPiProd_pi;  break;
-      default              : return kNullSystematic;                  break;
+      case kIHAFtAbs       : return kINukeTwkDial_FrAbs_pi;     break;
+      case kIHAFtPiProd    : return kINukeTwkDial_FrPiProd_pi;  break;
+      default              : return kNullSystematic;            break;
      }
   } else
   if(pdg::IsNucleon(pdgc)) {
      switch (fate) {
-      case kIHAFtUndefined : return kNullSystematic;                 break;
+      case kIHAFtUndefined : return kNullSystematic;           break;
       case kIHAFtCEx       : return kINukeTwkDial_FrCEx_N;     break;
       case kIHAFtElas      : return kINukeTwkDial_FrElas_N;    break;
       case kIHAFtInelas    : return kINukeTwkDial_FrInel_N;    break;
-      case kIHAFtAbsNP     : return kINukeTwkDial_FrAbs_N;     break;
-      case kIHAFtAbsPP     : return kINukeTwkDial_FrAbs_N;     break;
-      case kIHAFtAbsNPP    : return kINukeTwkDial_FrAbs_N;     break;
-      case kIHAFtAbsNNP    : return kINukeTwkDial_FrAbs_N;     break;
-      case kIHAFtAbs2N2P   : return kINukeTwkDial_FrAbs_N;     break;
-      case kIHAFtAbs2N3P   : return kINukeTwkDial_FrAbs_N;     break;
-      case kIHAFtNPip      : return kINukeTwkDial_FrPiProd_N;  break;
-      case kIHAFtNPipPi0   : return kINukeTwkDial_FrPiProd_N;  break;
-      default              : return kNullSystematic;                 break;
+      case kIHAFtAbs       : return kINukeTwkDial_FrAbs_N;     break;
+      case kIHAFtPiProd    : return kINukeTwkDial_FrPiProd_N;  break;
+      default              : return kNullSystematic;           break;
      }
   }
   return kNullSystematic;

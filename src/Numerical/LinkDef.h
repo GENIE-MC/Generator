@@ -23,7 +23,9 @@
 #pragma link C++ class genie::VegasMCIntegrator;
 #pragma link C++ class genie::MiserMCIntegrator;
 #pragma link C++ class genie::Spline;
+#pragma link C++ class genie::BLI2DGrid;
 #pragma link C++ class genie::BLI2DUnifGrid;
+#pragma link C++ class genie::BLI2DNonUnifGrid;
 #pragma link C++ class genie::RandomGen;
 
 #endif
