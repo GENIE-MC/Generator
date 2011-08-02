@@ -1253,6 +1253,12 @@ void GNuMIFlux::AddFile(TTree* thetree, string fname)
   // when it isn't really true, we need to scan nearby values in case the
   // last entry is one of these (otherwise file contributes 0 POTs).  
   // Also assume quantization of 500 (instead of 100).
+
+  thetree->SetMakeClass(1); // need full ntuple decomposition for
+  // the SetBranchAddress to work on g4numi ntuples.  Works fine
+  // without it on gnumi (geant3) and flugg ntuples [each with their
+  // own slight differences] but shouldn't harm them either.
+
   Int_t evtno = 0;
   TBranch* br_evtno = 0;
   thetree->SetBranchAddress("evtno",&evtno, &br_evtno);
@@ -1286,7 +1292,7 @@ void GNuMIFlux::AddFile(TTree* thetree, string fname)
     std::cout << "[" << (nentries-1-j) << "] evtno=" << evtno << " evt_N=" << evt_N << std::endl;
   }
 
-  Int_t    nquant = 500;
+  Int_t    nquant = 1000; // 500;
   Double_t rquant = nquant;
 #endif
 
