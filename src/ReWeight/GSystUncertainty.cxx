@@ -81,8 +81,10 @@ double GSystUncertainty::OneSigmaErr(GSyst_t s, int sign) const
 void GSystUncertainty::SetUncertainty(
    GSyst_t s, double plus_err, double minus_err)
 {
-  fOneSigPlusErrMap.insert( map<GSyst_t,double>::value_type(s, plus_err ) );
-  fOneSigMnusErrMap.insert( map<GSyst_t,double>::value_type(s, minus_err) );
+  //fOneSigPlusErrMap.insert( map<GSyst_t,double>::value_type(s, plus_err ) );
+  //fOneSigMnusErrMap.insert( map<GSyst_t,double>::value_type(s, minus_err) );
+  fOneSigPlusErrMap[s] = plus_err;
+  fOneSigMnusErrMap[s] =  minus_err;
 }
 //____________________________________________________________________________
 void GSystUncertainty::SetDefaults(void)
