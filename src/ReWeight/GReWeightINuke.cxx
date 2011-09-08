@@ -155,9 +155,10 @@ double GReWeightINuke::CalcWeight(const EventRecord & event)
      INukeFateHA_t hadron_fate = (interacted) ?
           (INukeFateHA_t) p->RescatterCode() : kIHAFtUndefined;
     
-     LOG("ReW", pINFO) 
-        << "Hadron pdg = " << pdgc 
-       << ", fate: " << INukeHadroFates::AsString(hadron_fate);
+     LOG("ReW", pDEBUG) 
+        << "Reweighting hadron: PDG code = " << pdgc 
+        << ", Fate id = "  << hadron_fate 
+        << " (" << INukeHadroFates::AsString(hadron_fate) << ")";
 
      // Init current hadron weights
      double w_mfp  = 1.0;
@@ -197,10 +198,12 @@ double GReWeightINuke::CalcWeight(const EventRecord & event)
      // Calculate the current hadron weight
      double hadron_weight = w_mfp * w_fate;
 
-     LOG("ReW", pWARN) 
-        << "Hadron pdg = " << pdgc 
-       << ", fate: " << INukeHadroFates::AsString(hadron_fate)
-<< ", w_mfp: "<<w_mfp<<", w_fate: "<<w_fate;
+     LOG("ReW", pNOTICE) 
+        << "Reweighted hadron: PDG code = " << pdgc 
+        << ", Fate id = "  << hadron_fate 
+        << " (" << INukeHadroFates::AsString(hadron_fate) << ") >"
+        << " w_mfp = "  << w_mfp
+        <<", w_fate = " <<w_fate;
 
      // Update the current event weight
      event_weight *= hadron_weight;
