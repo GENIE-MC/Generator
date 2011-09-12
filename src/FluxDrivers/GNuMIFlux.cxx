@@ -246,9 +246,9 @@ namespace genie {
       GNuMIFlux*  fGNuMI;
 
       // derived offsets/rotations
-      TVector3    fBeamPos;
-      TRotation   fBeamRot;
-      TVector3    fFluxWindowPt[3];
+      TVector3    fBeamPosXML;
+      TRotation   fBeamRotXML;
+      TVector3    fFluxWindowPtXML[3];
     };
   }
 }
@@ -1007,6 +1007,11 @@ void GNuMIFlux::SetFluxWindow(TVector3 p0, TVector3 p1, TVector3 p2)
   fFluxWindowLen1 = fFluxWindowDir1.Mag();
   fFluxWindowLen2 = fFluxWindowDir2.Mag();
 
+  double dot = fFluxWindowDir1.Dot(fFluxWindowDir2);
+  if ( TMath::Abs(dot) > 1.0e-8 ) 
+    LOG("Flux",pWARN) << "Dot product between window direction vectors was "
+                      << dot << "; please check for orthoganality";
+  
   LOG("Flux",pNOTICE) << "about to CalcEffPOTsPerNu";
   this->CalcEffPOTsPerNu();
 }
@@ -1917,6 +1922,7 @@ int GNuMIFluxPassThroughInfo::CalcEnuWgt(const TLorentzVector& xyz,
   bool debug = false;
   if (debug) {
     std::cout << std::setprecision(15);
+    std::cout << "xyz (" << xpos << "," << ypos << "," << zpos << ")" << std::endl;
     std::cout << "ptype " << this->ptype << " m " << parent_mass 
               << " p " << parentp << " e " << parent_energy << " gamma " << gamma
               << " beta " << beta_mag << std::endl;
@@ -1927,6 +1933,9 @@ int GNuMIFluxPassThroughInfo::CalcEnuWgt(const TLorentzVector& xyz,
   }
 
 #ifdef  GNUMI_TEST_XY_WGT
+  gpartials.xdet          = xpos;
+  gpartials.ydet          = ypos;
+  gpartials.zdet          = zpos;
   gpartials.parent_mass   = parent_mass;
   gpartials.parentp       = parentp;
   gpartials.parent_energy = parent_energy;
@@ -2288,6 +2297,8 @@ namespace flux {
   ostream & operator << (ostream & stream, const genie::flux::xypartials & xyp )
   {
     stream << "GNuMIFlux xypartials " << std::endl;
+    stream << "  xyzdet (" << xyp.xdet << "," << xyp.ydet << "," 
+           << xyp.zdet << ")" << std::endl;
     stream << "  parent: mass=" << xyp.parent_mass << " p=" << xyp.parentp 
            << " e=" << xyp.parent_energy << " gamma=" << xyp.gamma 
            << " beta_mag=" << xyp.beta_mag << std::endl;
@@ -2592,7 +2603,11 @@ void GNuMIFluxXMLHelper::ParseParamSet(xmlDocPtr& xml_doc, xmlNodePtr& xml_pset)
 
     } else if ( pname == "using_param_set" ) {
       SLOG("GNuMIFlux", pWARN) << "start using_param_set: \"" << pval << "\"";
-      this->LoadParamSet(xml_doc,pval); // recurse
+      bool found = this->LoadParamSet(xml_doc,pval); // recurse
+      if ( ! found ) {
+        SLOG("GNuMIFlux", pFATAL) << "using_param_set: \"" << pval << "\" NOT FOUND";
+        assert(found);
+      }
       SLOG("GNuMIFlux", pWARN) << "done using_param_set: \"" << pval << "\"";
     } else if ( pname == "units" ) {
       double scale = genie::utils::units::UnitFromString(pval);
@@ -2601,11 +2616,11 @@ void GNuMIFluxXMLHelper::ParseParamSet(xmlDocPtr& xml_doc, xmlNodePtr& xml_pset)
 
     } else if ( pname == "beamdir" ) {
       ParseBeamDir(xml_doc,xml_child);
-      fGNuMI->SetBeamRotation(fBeamRot);
+      fGNuMI->SetBeamRotation(fBeamRotXML);
 
     } else if ( pname == "beampos" ) {
       ParseBeamPos(pval);
-      fGNuMI->SetBeamCenter(fBeamPos);
+      fGNuMI->SetBeamCenter(fBeamPosXML);
 
     } else if ( pname == "window" ) {
       ParseWindowSeries(xml_doc,xml_child);
@@ -2615,7 +2630,9 @@ void GNuMIFluxXMLHelper::ParseParamSet(xmlDocPtr& xml_doc, xmlNodePtr& xml_pset)
       //          << " [1] " << utils::print::X4AsString(new TLorentzVector(fFluxWindowPt[1],0)) << std::endl
       //          << " [2] " << utils::print::X4AsString(new TLorentzVector(fFluxWindowPt[2],0)) << std::endl;
 
-      fGNuMI->SetFluxWindow(fFluxWindowPt[0],fFluxWindowPt[1],fFluxWindowPt[2]);
+      fGNuMI->SetFluxWindow(fFluxWindowPtXML[0],
+                            fFluxWindowPtXML[1],
+                            fFluxWindowPtXML[2]);
 
     } else if ( pname == "enumax" ) {
       ParseEnuMax(pval);
@@ -2647,7 +2664,7 @@ void GNuMIFluxXMLHelper::ParseParamSet(xmlDocPtr& xml_doc, xmlNodePtr& xml_pset)
 
 void GNuMIFluxXMLHelper::ParseBeamDir(xmlDocPtr& xml_doc, xmlNodePtr& xml_beamdir)
 {
-  fBeamRot.SetToIdentity(); // start fresh
+  fBeamRotXML.SetToIdentity(); // start fresh
 
   string dirtype = 
     utils::str::TrimSpaces(
@@ -2667,10 +2684,12 @@ void GNuMIFluxXMLHelper::ParseBeamDir(xmlDocPtr& xml_doc, xmlNodePtr& xml_beamdi
     string units = 
       utils::str::TrimSpaces(utils::xml::GetAttribute(xml_beamdir,"units"));
     if ( thetaphi3.size() == 6 ) {
+      TRotation fTempRot;
       TVector3 newX = AnglesToAxis(thetaphi3[0],thetaphi3[1],units);
       TVector3 newY = AnglesToAxis(thetaphi3[2],thetaphi3[3],units);
       TVector3 newZ = AnglesToAxis(thetaphi3[4],thetaphi3[5],units);
-      fBeamRot.RotateAxes(newX,newY,newZ);
+      fTempRot.RotateAxes(newX,newY,newZ);
+      fBeamRotXML = fTempRot;  //.Inverse();
     } else {
       SLOG("GNuMIFlux", pWARN)
         << " type=\"" << dirtype << "\" within <beamdir> needs 6 values";
@@ -2680,10 +2699,12 @@ void GNuMIFluxXMLHelper::ParseBeamDir(xmlDocPtr& xml_doc, xmlNodePtr& xml_beamdi
     // G4 style new axis values
     std::vector<double> newdir = GetDoubleVector(pval);
     if ( newdir.size() == 9 ) {
+      TRotation fTempRot;
       TVector3 newX = TVector3(newdir[0],newdir[1],newdir[2]).Unit();
       TVector3 newY = TVector3(newdir[3],newdir[4],newdir[5]).Unit();
       TVector3 newZ = TVector3(newdir[6],newdir[7],newdir[8]).Unit();
-      fBeamRot.RotateAxes(newX,newY,newZ);
+      fTempRot.RotateAxes(newX,newY,newZ);
+      fBeamRotXML = fTempRot.Inverse(); // weirdly necessary: frame vs. obj rot
     } else {
       SLOG("GNuMIFlux", pWARN)
         << " type=\"" << dirtype << "\" within <beamdir> needs 9 values";
@@ -2697,19 +2718,19 @@ void GNuMIFluxXMLHelper::ParseBeamDir(xmlDocPtr& xml_doc, xmlNodePtr& xml_beamdi
 
   if ( fVerbose > 1 ) {
     int w=10, p=6;
-    std::cout << " fBeamRot: " << std::setprecision(p) << std::endl;
+    std::cout << " fBeamRotXML: " << std::setprecision(p) << std::endl;
     std::cout << " [ " 
-              << std::setw(w) << fBeamRot.XX() << " "
-              << std::setw(w) << fBeamRot.XY() << " "
-              << std::setw(w) << fBeamRot.XZ() << endl
+              << std::setw(w) << fBeamRotXML.XX() << " "
+              << std::setw(w) << fBeamRotXML.XY() << " "
+              << std::setw(w) << fBeamRotXML.XZ() << endl
               << "   " 
-              << std::setw(w) << fBeamRot.YX() << " "
-              << std::setw(w) << fBeamRot.YY() << " "
-              << std::setw(w) << fBeamRot.YZ() << endl
+              << std::setw(w) << fBeamRotXML.YX() << " "
+              << std::setw(w) << fBeamRotXML.YY() << " "
+              << std::setw(w) << fBeamRotXML.YZ() << endl
               << "   " 
-              << std::setw(w) << fBeamRot.ZX() << " "
-              << std::setw(w) << fBeamRot.ZY() << " "
-              << std::setw(w) << fBeamRot.ZZ() << " ] " << std::endl;
+              << std::setw(w) << fBeamRotXML.ZX() << " "
+              << std::setw(w) << fBeamRotXML.ZY() << " "
+              << std::setw(w) << fBeamRotXML.ZZ() << " ] " << std::endl;
     std::cout << std::endl;
   }
 
@@ -2719,13 +2740,13 @@ void GNuMIFluxXMLHelper::ParseBeamPos(std::string str)
 {
   std::vector<double> xyz = GetDoubleVector(str);
   if ( xyz.size() == 3 ) {
-    fBeamPos = TVector3(xyz[0],xyz[1],xyz[2]);
+    fBeamPosXML = TVector3(xyz[0],xyz[1],xyz[2]);
   } else if ( xyz.size() == 6 ) {
     // should check for '=' between triplets but we won't be so pedantic
     // ( userx, usery, userz ) = ( beamx, beamy, beamz )
     TVector3 userpos(xyz[0],xyz[1],xyz[2]);
     TVector3 beampos(xyz[3],xyz[4],xyz[5]);
-    fBeamPos = userpos - fBeamRot*beampos;
+    fBeamPosXML = userpos - fBeamRotXML*beampos;
   } else {
     SLOG("GNuMIFlux", pWARN)
       << "Unable to parse " << xyz.size() << " values in <beampos>";
@@ -2733,10 +2754,10 @@ void GNuMIFluxXMLHelper::ParseBeamPos(std::string str)
    }
   if ( fVerbose > 1 ) {
     int w=16, p=10;
-    std::cout << " fBeamPos: [ " << std::setprecision(p) 
-              << std::setw(w) << fBeamPos.X() << " , "
-              << std::setw(w) << fBeamPos.Y() << " , "
-              << std::setw(w) << fBeamPos.Z() << " ] "
+    std::cout << " fBeamPosXML: [ " << std::setprecision(p) 
+              << std::setw(w) << fBeamPosXML.X() << " , "
+              << std::setw(w) << fBeamPosXML.Y() << " , "
+              << std::setw(w) << fBeamPosXML.Z() << " ] "
               << std::endl;
   }
 }
@@ -2812,7 +2833,7 @@ void GNuMIFluxXMLHelper::ParseRotSeries(xmlDocPtr& xml_doc, xmlNodePtr& xml_pset
     }
   }
   // TRotation rotates objects not frames, so we want the inverse
-  fBeamRot = fTempRot.Inverse();
+  fBeamRotXML = fTempRot.Inverse();
   xmlFree(xml_child);  
 }
 
@@ -2853,7 +2874,7 @@ void GNuMIFluxXMLHelper::ParseWindowSeries(xmlDocPtr& xml_doc, xmlNodePtr& xml_p
                     << std::setw(w) << pt.Z() << " ] "
                     << std::endl;
         }
-        fFluxWindowPt[ientry] = pt;  // save the point
+        fFluxWindowPtXML[ientry] = pt;  // save the point
       } else {
         SLOG("GNuMIFlux", pWARN)
           << " <window><point> ientry " << ientry << " out of range (0-2)";
