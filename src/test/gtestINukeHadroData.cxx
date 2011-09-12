@@ -26,6 +26,12 @@
 \cpright Copyright (c) 2003-2010, GENIE Neutrino MC Generator Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
          or see $GENIE/LICENSE
+
+Important Revisions:
+@ Aug 17, 2010 - AM, SD
+Update to print out xs for p and n separately to match what is used in
+propagation.  Add photon and kaon xs ouputs.
+
 */
 //____________________________________________________________________________
 
@@ -39,8 +45,7 @@
 #include "Messenger/Messenger.h"
 #include "Numerical/Spline.h"
 #include "PDG/PDGCodes.h"
-#include "Utils/CmdLineArgParserUtils.h"
-#include "Utils/CmdLineArgParserException.h"
+#include "Utils/CmdLnArgParser.h"
 
 #include <TSystem.h>
 #include <TFile.h>
@@ -62,16 +67,15 @@ int main(int argc, char ** argv)
 {
   double ke = -1; // input hadron kinetic energy
   bool save_data=true;
-  
-  try {
-    string ske = genie::utils::clap::CmdLineArgAsString(argc,argv,'e');
-    ke = atof(ske.c_str());
-  } catch(exceptions::CmdLineArgParserException e) {
-  }
 
-  try {
-    save_data = genie::utils::clap::CmdLineArgAsBool(argc,argv,'d');
-  } catch(exceptions::CmdLineArgParserException e2) {
+  CmdLnArgParser parser(argc,argv);
+
+  // neutrino energy
+  if( parser.OptionExists('e') ) {
+    LOG("testINukeHadroData", pINFO) << "Reading Event Energy";
+    ke = parser.ArgAsLong('e');
+  } else {
+    LOG("testINukeHadroData", pINFO) << "Unspecified energy, write to file";
   }
 
   if(ke<0) {
