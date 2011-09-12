@@ -393,6 +393,7 @@ public:
   void Print(const Option_t* opt = "") const;
   static xypartials& GetStaticInstance(); // copy used by CalcEnuWgt()
   // actual data
+  double xdet, ydet, zdet;
   double parent_mass, parentp, parent_energy;
   double gamma, beta_mag, enuzr, rad;
   double costh_pardet, theta_pardet, emrat, eneu;
