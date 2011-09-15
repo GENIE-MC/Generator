@@ -137,8 +137,8 @@ RayIntercept FidCylinder::InterceptUncapped(const TVector3& start, const TVector
       intercept.fIsHit   = true;  // inside is considered a hit
       intercept.fSurfIn  = 0;
       intercept.fSurfOut = 0;
-      return intercept;
     }
+    return intercept;
   }
   // ray is not parallel
   if ( len != 1.0 ) n.SetMag(1.);  // normalize if it isn't already
