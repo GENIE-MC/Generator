@@ -92,6 +92,7 @@ public :
   virtual string        TopVolName        (void) const { return fTopVolumeName;     }
   virtual TGeoManager * GetGeometry       (void) const { return fGeometry;          }
   virtual bool          GetKeepSegPath    (void) const { return fKeepSegPath;       }
+  virtual const PathLengthList& GetMaxPathLengths(void) const { return *fCurrMaxPathLengthList; } // call only after ComputeMaxPathLengths() has been called 
 
   /// access to geometry coordinate/unit transforms for validation/test purposes
 
