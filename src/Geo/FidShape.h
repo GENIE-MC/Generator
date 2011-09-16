@@ -114,10 +114,11 @@ class FidCylinder : public FidShape {
              const PlaneParam& cap1, const PlaneParam& cap2) 
    : fCylBase(base), fCylAxis(axis), fCylRadius(radius), fCylCap1(cap1), fCylCap2(cap2) { ; }
  RayIntercept Intercept(const TVector3& start, const TVector3& dir) const;
+ RayIntercept InterceptUncapped(const TVector3& start, const TVector3& dir) const;
  void         ConvertMaster2Top(const ROOTGeomAnalyzer* rgeom);
  void         Print(ostream& stream) const;
  protected:
- RayIntercept InterceptUncapped(const TVector3& start, const TVector3& dir) const;
+
  TVector3    fCylBase;   /// base point on cylinder axis
  TVector3    fCylAxis;   /// direction cosines of cylinder axis
  Double_t    fCylRadius; /// radius of cylinder

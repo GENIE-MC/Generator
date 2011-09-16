@@ -168,30 +168,31 @@ RayIntercept FidCylinder::Intercept(const TVector3& start, const TVector3& dir) 
 
   RayIntercept intercept = InterceptUncapped(start,dir);  // find where ray hits the infinite cylinder
   // trim this down by applying the end caps
-  if ( intercept.fIsHit ) {
-    if ( fCylCap1.IsValid() ) {
-      Double_t vd1 = fCylCap1.Vd(dir);
-      Double_t vn1 = fCylCap1.Vn(start);
-      if ( vd1 != 0.0 ) {
-        Double_t t1 = -vn1 / vd1;
-        if ( vd1 < 0.0 && t1 > intercept.fDistIn  ) 
-          { intercept.fDistIn  = t1;  intercept.fSurfIn  = 1; }
-        if ( vd1 > 0.0 && t1 < intercept.fDistOut ) 
-          { intercept.fDistOut = t1;  intercept.fSurfOut = 1; }
-      }
-    }
-    if ( fCylCap2.IsValid() ) {
-      Double_t vd2 = fCylCap2.Vd(dir);
-      Double_t vn2 = fCylCap2.Vn(start);
-      if ( vd2 != 0.0 ) {
-        Double_t t2 = -vn2 / vd2;
-        if ( vd2 < 0.0 && t2 > intercept.fDistIn  ) 
-          { intercept.fDistIn  = t2;  intercept.fSurfIn  = 2; }
-        if ( vd2 > 0.0 && t2 < intercept.fDistOut ) 
-          { intercept.fDistOut = t2;  intercept.fSurfOut = 2; }
+  if ( ! intercept.fIsHit ) return intercept;
+  for ( int icap=1; icap <= 2; ++icap ) {
+    const PlaneParam& cap = (icap==1) ? fCylCap1 : fCylCap2;
+    if ( ! cap.IsValid() ) continue;
+    Double_t vd = cap.Vd(dir);
+    Double_t vn = cap.Vn(start);
+    //std::cout << "FidCyl::Intercept cap " << icap 
+    //          << " vd " << vd << " vn " << vn;
+    if ( vd == 0.0 ) { // parallel to surface, is it on the right side?
+      //std::cout << " vd=0, vn " << ((vn>0)?"wrong":"right") << "side " << std::endl;
+      if ( vn > 0 ) { intercept.fIsHit = false; break; } // wrong side
+    } else {
+      Double_t t = -vn / vd;
+      //std::cout << " t " << t << " in/out "
+      //          << intercept.fDistIn << "/" << intercept.fDistOut << std::endl;
+      if ( vd < 0.0 ) { // t is the entering point
+        if ( t > intercept.fDistIn  ) 
+          { intercept.fDistIn  = t;  intercept.fSurfIn  = 1; }
+      } else { // t is the exiting point
+        if ( t < intercept.fDistOut ) 
+          { intercept.fDistOut = t;  intercept.fSurfOut = 1; }
       }
     }
   }
+  if ( intercept.fDistIn > intercept.fDistOut ) intercept.fIsHit = false;
   return intercept;
 }
 
