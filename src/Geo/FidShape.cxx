@@ -91,9 +91,7 @@ RayIntercept FidSphere::Intercept(const TVector3& start, const TVector3& dir) co
   Double_t lhc = TMath::Sqrt(lhc2);
 
   intercept.fDistIn  = tca - lhc;
-  if ( intercept.fDistIn >= 0.0 ) intercept.fSurfIn  = 1;    // we hit
-  else                            intercept.fDistIn  = 0.0;  // started inside
-
+  intercept.fSurfIn  = 1;
   intercept.fDistOut = tca + lhc;
   intercept.fSurfOut = 1;
 
