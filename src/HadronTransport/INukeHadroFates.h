@@ -32,11 +32,11 @@ namespace genie {
 typedef enum EINukeFateHN_t {
 
    kIHNFtUndefined = 0, 
+   kIHNFtNoInteraction,
    kIHNFtCEx,       // cex
    kIHNFtElas,      // elas
    kIHNFtInelas,    // inelas
-   kIHNFtAbs,       // abs 
-   kIHNFtNoInteraction
+   kIHNFtAbs       // abs 
 
 } INukeFateHN_t;   
 
