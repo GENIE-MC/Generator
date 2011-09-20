@@ -183,8 +183,8 @@ void INukeHadroData::LoadCrossSections(void)
   string datafile_NN   = data_dir + "/tot_xsec/intranuke-xsections-NN.dat";
   string datafile_pipN = data_dir + "/tot_xsec/intranuke-xsections-pi+N.dat";
   string datafile_pi0N = data_dir + "/tot_xsec/intranuke-xsections-pi0N.dat";
-  string datafile_NA   = data_dir + "/tot_xsec/intranuke-xsections-NA.dat";
-  string datafile_piA  = data_dir + "/tot_xsec/intranuke-xsections-piA.dat";
+  string datafile_NA   = data_dir + "/tot_xsec/intranuke-fractions-NA.dat";
+  string datafile_piA  = data_dir + "/tot_xsec/intranuke-fractions-piA.dat";
   string datafile_gamN = data_dir + "/tot_xsec/intranuke-xsections-gamN.dat";
   string datafile_kN   = data_dir + "/tot_xsec/intranuke-xsections-kaonN.dat";
 
@@ -1023,7 +1023,7 @@ double INukeHadroData::XSec(
   return 0;  
 }
 //____________________________________________________________________________
-double INukeHadroData::XSec(int hpdgc, INukeFateHA_t fate, double ke) const
+double INukeHadroData::Frac(int hpdgc, INukeFateHA_t fate, double ke) const
 {
 // return the x-section for the input fate for the particle with the input pdg 
 // code at the input kinetic energy
@@ -1227,6 +1227,9 @@ double INukeHadroData::XSec(int hpdgc, INukeFateHN_t fate, double ke, int targA,
 
   return 0;
 }
+
+/*
+
 //____________________________________________________________________________
 double INukeHadroData::Frac(int hpdgc, INukeFateHA_t fate, double ke) const
 {
@@ -1237,7 +1240,7 @@ double INukeHadroData::Frac(int hpdgc, INukeFateHA_t fate, double ke) const
   ke = TMath::Min(fMaxKinEnergyHA, ke);
 
   // get x-section
-  double xsec = this->XSec(hpdgc,fate,ke);
+  double xsec = this->XSecc(hpdgc,fate,ke);
 
   // get max x-section
   double xsec_tot = 0;
@@ -1252,6 +1255,9 @@ double INukeHadroData::Frac(int hpdgc, INukeFateHA_t fate, double ke) const
   return frac;
 }
 //____________________________________________________________________________
+
+*/
+
 double INukeHadroData::Frac(int hpdgc, INukeFateHN_t fate, double ke, int targA, int targZ) const
 {
 // return the x-section fraction for the input fate for the particle with the 
