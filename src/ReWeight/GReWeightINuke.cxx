@@ -18,12 +18,18 @@
    First included in v2.5.1.
  @ Jul 29, 2011 - SD,AM
    Mean free path is now function of Z too.
+ @ Sep 20, 2011 - CA
+   Determine 'no interaction' by looking-up the FSI code set by INTRANUKE.
+   INTRANUKE now sets a value in all cases rather than leaving it unset for
+   particles which escape the target nucleus.
 
 */
 //____________________________________________________________________________
-#define _T2KRW_REWEIGHT_INUKE_DEBUG_NTP_
-#define _G_REWEIGHT_INUKE_DEBUG_NTP_
+
+//#define _G_REWEIGHT_INUKE_DEBUG_NTP_
+
 #include <cassert>
+#include <cstdlib>
 
 #include <TMath.h>
 #include <TNtuple.h>
@@ -146,19 +152,22 @@ double GReWeightINuke::CalcWeight(const EventRecord & event)
         continue; 
      }
 
+     // Determine the interaction type for current hadron in nucleus, if any
+     int fsi_code = p->RescatterCode();
+     LOG("ReW", pDEBUG) 
+        << "Reweighting hadron: PDG code = " << pdgc 
+        << ", FSI code = "  << fsi_code 
+        << " (" << INukeHadroFates::AsString((INukeFateHA_t)fsi_code) << ")";
+     if(fsi_code == -1 || fsi_code == (int)kIHAFtUndefined) {
+       LOG("ReW", pFATAL) << "INTRANUKE didn't set a valid rescattering code!";
+       exit(1);
+     }
+     bool escaped    = (fsi_code == (int)kIHAFtNoInteraction);
+     bool interacted = !escaped;
+
      // Get 4-momentum and 4-position
      TLorentzVector x4 (p->Vx(), p->Vy(), p->Vz(), 0.    );
      TLorentzVector p4 (p->Px(), p->Py(), p->Pz(), p->E());
-
-     // Determine the interaction type for current hadron in nucleus, if any
-     bool interacted = (p->RescatterCode() != -1);
-     INukeFateHA_t hadron_fate = (interacted) ?
-          (INukeFateHA_t) p->RescatterCode() : kIHAFtUndefined;
-    
-     LOG("ReW", pDEBUG) 
-        << "Reweighting hadron: PDG code = " << pdgc 
-        << ", Fate id = "  << hadron_fate 
-        << " (" << INukeHadroFates::AsString(hadron_fate) << ")";
 
      // Init current hadron weights
      double w_mfp  = 1.0;
@@ -175,12 +184,12 @@ double GReWeightINuke::CalcWeight(const EventRecord & event)
         w_mfp = utils::rew::MeanFreePathWeight(pdgc,x4,p4,A,Z,mfp_scale_factor,interacted);
 
         // Debug info
-#ifdef _T2KRW_REWEIGHT_INUKE_DEBUG_NTP_
+#ifdef _G_REWEIGHT_INUKE_DEBUG_NTP_
         double d        = utils::intranuke::Dist2Exit(x4,p4,A);
         double d_mfp    = utils::intranuke::Dist2ExitMFP(pdgc,x4,p4,A);
         double Eh       = p->E();
 	double iflag    = (interacted) ? 1 : -1;
-        fTestNtp->Fill(pdgc, Eh, mfp_scale_factor, d, d_mfp, hadron_fate, iflag);
+        fTestNtp->Fill(pdgc, Eh, mfp_scale_factor, d, d_mfp, fsi_code, iflag);
 #endif
      } // calculate mfp weight?
 
@@ -190,7 +199,7 @@ double GReWeightINuke::CalcWeight(const EventRecord & event)
         // JIMTODO - Need to deal with normalisation properly
         double fate_fraction_scale_factor = 
              fINukeRwParams.FateParams(pdgc)->ScaleFactor(
-                  GSyst::INukeFate2GSyst(hadron_fate,pdgc), p4);
+                  GSyst::INukeFate2GSyst((INukeFateHA_t)fsi_code,pdgc), p4);
         w_fate = fate_fraction_scale_factor;
      } 
 
@@ -199,8 +208,8 @@ double GReWeightINuke::CalcWeight(const EventRecord & event)
 
      LOG("ReW", pNOTICE) 
         << "Reweighted hadron: PDG code = " << pdgc 
-        << ", Fate id = "  << hadron_fate 
-        << " (" << INukeHadroFates::AsString(hadron_fate) << ") >"
+        << ", FSI code = "  << fsi_code 
+        << " (" << INukeHadroFates::AsString((INukeFateHA_t)fsi_code) << ") >"
         << " w_mfp = "  << w_mfp
         <<", w_fate = " << w_fate;
 
