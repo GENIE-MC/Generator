@@ -21,6 +21,8 @@
  @ Feb 09, 2011 - JD
    Remove condition that require a non-zero tweak dial when calling SetCurTwkDial
    as this can lead to old tweak dial value being used inadvertently.
+ @ Sep 20, 2011 - CA
+   Improved readibility of GReWeightINukeParams::Fates::CurTwkDial()
 */
 //____________________________________________________________________________
 
@@ -213,17 +215,18 @@ double GReWeightINukeParams::Fates::CurTwkDial(GSyst_t syst, double KE) const
   // maintain unitarity.
   // JIMTODO - need to properly reference/explain this formulae
 
+  LOG("ReW", pNOTICE) << "Computing cushion term...";
   if(KE < 0.) {
-    LOG("ReW", pWARN)  << "The cushion term depends on kinetic energy!";
-    LOG("ReW", pERROR) << "Unspecified kinetic energy!";
+    LOG("ReW", pERROR) << "Negative kinetic energy! (KE = " << KE << ")";
+    LOG("ReW", pERROR) << "Can not calculate the (energy-dependent) value of the cushion term.";
     return 0.;
   }
 
   GSystUncertainty * uncert = GSystUncertainty::Instance();
 
-  double total_fraction_nocushion = 0.;
-  double sum_non_cushion_fractions = 0.;
-  double sum_error_non_cushion_fractions =0.;
+  double sum_frac_nocushion   = 0.;
+  double sum_frac_cushion     = 0.;
+  double sum_frac_err_cushion = 0.;
 
   map<GSyst_t, double>::const_iterator iter = fSystListMap.begin();  
   for( ; iter != fSystListMap.end(); ++iter)
@@ -231,28 +234,46 @@ double GReWeightINukeParams::Fates::CurTwkDial(GSyst_t syst, double KE) const
      GSyst_t curr_syst       = iter->first;
      double  curr_twk_dial   = iter->second;
      bool    curr_is_cushion = this->IsCushionTerm(curr_syst);
-     if(!curr_is_cushion){
-       double fractional_error    = uncert->OneSigmaErr(curr_syst);
-       double fate_fraction_scale = 1. + curr_twk_dial * fractional_error;
 
-       total_fraction_nocushion += 
-          genie::utils::rew::FateFraction(curr_syst, KE, fate_fraction_scale);
+     double  fractional_frac_err = uncert->OneSigmaErr(curr_syst); // fate fraction % error
+
+     LOG("ReW", pINFO) 
+         << " - Systematic: " << GSyst::AsString(curr_syst) 
+         << " (assumed fractional err = " << fractional_frac_err
+         << ") => dial = " << curr_twk_dial << ", cushion? = " << curr_is_cushion;
+
+     if(!curr_is_cushion)
+     {
+       double frac_scale = 1. + curr_twk_dial * fractional_frac_err;
+       double curr_frac  = genie::utils::rew::FateFraction(curr_syst, KE, frac_scale);
+       sum_frac_nocushion += curr_frac; 
+       LOG("ReW", pDEBUG) 
+          << "Current Sum{fate_fraction}_{no_cushion} = " << sum_frac_nocushion
+          << " (contrib. from current fate = " << curr_frac << ")";
      }// no cushion
-     else {
-       double fractional_error    = uncert->OneSigmaErr(curr_syst);
-       double fate_fraction_scale = 1.; //+ curr_twk_dial * fractional_error;
-       double default_fate_fraction = genie::utils::rew::FateFraction(curr_syst, KE, fate_fraction_scale);
-       double error_on_default_fate_fraction = fractional_error*default_fate_fraction;
-       sum_non_cushion_fractions += default_fate_fraction;
-       sum_error_non_cushion_fractions += error_on_default_fate_fraction;
+     else 
+     {
+       double curr_frac     = genie::utils::rew::FateFraction(curr_syst, KE, 1.);
+       double curr_frac_err = fractional_frac_err * curr_frac;
+       sum_frac_cushion     += curr_frac;
+       sum_frac_err_cushion += curr_frac_err;
+
+       LOG("ReW", pDEBUG) 
+           << "Current Sum{fate_fraction}_{cushion} = " << sum_frac_cushion
+          << " (contrib. from current fate = " << curr_frac << ")";
+       LOG("ReW", pDEBUG) 
+           << "Current Sum{fate_fraction_error}_{cushion} = " << sum_frac_err_cushion
+          << " (contrib. from current fate = " << curr_frac_err << ")";
      } // is cushion
   } // systs loop
 
-  double twk_dial = ( (1.0- total_fraction_nocushion) - sum_non_cushion_fractions)/sum_error_non_cushion_fractions;
+  double twk_dial = ( (1.-sum_frac_nocushion) - sum_frac_cushion ) / sum_frac_err_cushion;
 
   // This is a temporary measure to ensure that we are not tweaking any of the parameters in such a way
   // that would require a negative cross section. This issue needs to be resolved.
   assert( (twk_dial*uncert->OneSigmaErr(syst)) > -1.0 );
+
+  LOG("ReW", pINFO) << "Tweaking dial = " << twk_dial;
 
   return twk_dial;
 }
