@@ -178,8 +178,7 @@ double GReWeightINuke::CalcWeight(const EventRecord & event)
 #ifdef _T2KRW_REWEIGHT_INUKE_DEBUG_NTP_
         double d        = utils::intranuke::Dist2Exit(x4,p4,A);
         double d_mfp    = utils::intranuke::Dist2ExitMFP(pdgc,x4,p4,A);
-        //double Eh       = event.StdHepP4[i][kGStdHepIdxE];
-        double Eh       = 0.;
+        double Eh       = p->E();
 	double iflag    = (interacted) ? 1 : -1;
         fTestNtp->Fill(pdgc, Eh, mfp_scale_factor, d, d_mfp, hadron_fate, iflag);
 #endif
@@ -203,7 +202,7 @@ double GReWeightINuke::CalcWeight(const EventRecord & event)
         << ", Fate id = "  << hadron_fate 
         << " (" << INukeHadroFates::AsString(hadron_fate) << ") >"
         << " w_mfp = "  << w_mfp
-        <<", w_fate = " <<w_fate;
+        <<", w_fate = " << w_fate;
 
      // Update the current event weight
      event_weight *= hadron_weight;
