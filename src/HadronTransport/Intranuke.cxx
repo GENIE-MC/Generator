@@ -58,6 +58,7 @@
 #include "GHEP/GHepParticle.h"
 #include "HadronTransport/Intranuke.h"
 #include "HadronTransport/INukeHadroData.h"
+#include "HadronTransport/INukeHadroFates.h"
 #include "HadronTransport/INukeUtils.h"
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
@@ -307,8 +308,9 @@ void Intranuke::TransportHadrons(GHepRecord * evrec) const
         // the exits the nucleus without interacting - Done with it! 
         LOG("Intranuke", pNOTICE) 
           << "*** Hadron escaped the nucleus! Done with it.";
-      sp->SetStatus(kIStStableFinalState);
-      evrec->AddParticle(*sp);
+	sp->SetStatus(kIStStableFinalState);
+	evrec->AddParticle(*sp);
+	evrec->Particle(sp->FirstMother())->SetRescatterCode(1);
     }
     delete sp;
 
