@@ -132,9 +132,11 @@ double GReWeightINuke::CalcWeight(const EventRecord & event)
 
   // Loop over stdhep entries and only calculate weights for particles. 
   // All particles that are not hadrons generated inside the nucleus are given weights of 1.0
+  int ip=-1;
   GHepParticle * p = 0;
   TIter event_iter(&event);
   while ( (p = dynamic_cast<GHepParticle *>(event_iter.Next())) ) {
+     ip++;
 
      // Skip particles not rescattered by the actual hadron transport code      
      int  pdgc       = p->Pdg();
@@ -159,7 +161,9 @@ double GReWeightINuke::CalcWeight(const EventRecord & event)
         << ", FSI code = "  << fsi_code 
         << " (" << INukeHadroFates::AsString((INukeFateHA_t)fsi_code) << ")";
      if(fsi_code == -1 || fsi_code == (int)kIHAFtUndefined) {
-       LOG("ReW", pFATAL) << "INTRANUKE didn't set a valid rescattering code!";
+       LOG("ReW", pFATAL) << "INTRANUKE didn't set a valid rescattering code for event in position: " << ip;
+       LOG("ReW", pFATAL) << "Here is the problematic event:";
+       LOG("ReW", pFATAL) << event;
        exit(1);
      }
      bool escaped    = (fsi_code == (int)kIHAFtNoInteraction);
