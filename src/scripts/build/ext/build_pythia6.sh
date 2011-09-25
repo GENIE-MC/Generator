@@ -8,18 +8,20 @@
 # files from the downloaded source, but uses definitions embedded in this
 # script. Should work on both Linux and Mac OS X.
 #
-# Usage:  ./build_pythia6 [version] [--dummies=bestry|remove|keep] [--refetch] [gfortran|g77|g95]
+# Usage:  ./build_pythia6 [version] [--dummies=bestry|remove|keep] \
+#                [--refetch] [gfortran|g77|g95] [-m32]
 #
-# where [version] takes a form like "6.4.12", "6412" or "6_412" w/ or
+# where [version] takes a form like "6.4.24", "6424" or "6_424" w/ or
 # without an optional leading "v".  It will created a subdirectory named 
-# "v6_412" so it is probably wise to run this in a directory named "pythia6"
+# "v6_424" so it is probably wise to run this in a directory named "pythia6"
 # or some such.  The --dummies=XYZZY controls whether the dummy PDFSET,
-# STRUCTM and STRUCTP routines are removed.
+# STRUCTM and STRUCTP routines are removed.  The -m32 forces a 32-bit
+# build.
 #
 # Creates directory structure:
 #
 # pythia6/                       - start in this directory
-#         v6_412/                - created subdirectory
+#         v6_424/                - created subdirectory
 #                download/       - code downloaded from remote locations
 #                inc/            - include files for selected common blocks
 #                                  (hardcoded! not from downloaded source)
@@ -56,14 +58,17 @@
 #    2008-01-05:  fix "keep" option to actually keep dummy stubs.
 #    2009-04-09:  choose fortran compiler, if cmd line specified use that
 #                 otherwise first of gfortran or g77 found
+#    2010-12-29:  addition of -m32 option; default v6_422
+#    2011-01-13:  default v6_424; clean up comments
 #
 ############################################################################
 #
-version=6.4.12
+version=6.4.24
 doclean=0
 dummyaction="besttry"
 refetch=0
 whichftn="unknown"
+m32flag=""
 while [ $# -gt 0 ] ; do
   case $1 in
   *clean*)
@@ -87,6 +92,8 @@ while [ $# -gt 0 ] ; do
      whichftn="gfortran" ;;
   *g95*)
      whichftn="g95" ;;
+  *m32*)
+     m32flag="-m32" ;;
   *)
      version=$1 ;;
   esac
@@ -399,14 +406,14 @@ UNAME = \$(shell uname)
 ifeq "\$(UNAME)" "Linux"
     AR=ar
     F77=$FORT
-    FFLAG= -O -fno-second-underscore -fPIC
-    CPP = gcc -E
+    FFLAG= -O -fno-second-underscore -fPIC $m32flag
+    CPP = gcc -E 
     CPPFLG= -C -P
 endif
 ifeq "\$(UNAME)" "Darwin"
     AR=ar
     F77=$FORT
-    FFLAG= -O -fno-second-underscore -fPIC 
+    FFLAG= -O -fno-second-underscore -fPIC $m32flag
     CPP = cc -E
     CPPFLG= -C -P
 endif
@@ -507,26 +514,26 @@ tar xzvf ${toppath}/download/pythia6.tar.gz pythia6/pythia6_common_address.c
 mv pythia6/* .
 rmdir pythia6
 echo 'void MAIN__() {}' > main.c
-gcc -c -fPIC main.c
-gcc -c -fPIC pythia6_common_address.c
-$FORT -c -fPIC -fno-second-underscore tpythia6_called_from_cc.F
+gcc -c -fPIC $m32flag main.c
+gcc -c -fPIC $m32flag pythia6_common_address.c
+$FORT -c -fPIC -fno-second-underscore $m32flag tpythia6_called_from_cc.F
 
 cd ${toppath}/lib
 
 arch=`uname`
 if [ ${arch} == "Linux" ] ; then
-  $FORT -shared -Wl,-soname,libPythia6.so -o libPythia6.so \
+  $FORT $m32flag -shared -Wl,-soname,libPythia6.so -o libPythia6.so \
     ${toppath}/tpythia6_build/*.o ${toppath}/src/*.o ${CERNLINK}
 fi
 if [ ${arch} == "Darwin" ] ; then
   macosx_minor=`sw_vers | sed -n 's/ProductVersion://p' | cut -d . -f 2`
-  gcc -dynamiclib -flat_namespace -single_module -undefined dynamic_lookup \
+  gcc $m32flag -dynamiclib -flat_namespace -single_module -undefined dynamic_lookup \
       -install_name ${toppath}/lib/libPythia6.dylib -o libPythia6.dylib \
       ${toppath}/tpythia6_build/*.o ${toppath}/src/*.o ${CERNLINK}
   if [ $macosx_minor -ge 4 ]; then
      ln -sf libPythia6.dylib libPythia6.so
   else
-     gcc -bundle -flat_namespace -undefined dynamic_lookup -o libPythia6.so \
+     gcc $m32flag -bundle -flat_namespace -undefined dynamic_lookup -o libPythia6.so \
       ${toppath}/tpythia6_build/*.o ${toppath}/src/*.o ${CERNLINK}
   fi
 fi
