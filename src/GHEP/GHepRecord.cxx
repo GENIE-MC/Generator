@@ -27,6 +27,8 @@
    Adding special ctor for ROOT I/O purposes so as to avoid memory leak due to
    memory allocated in the default ctor when objects of this class are read by 
    the ROOT Streamer.
+ @ Sep 26, 2011 - CA
+   Demote a few messages from `warning' to `notice'.
 
 */
 //____________________________________________________________________________
@@ -125,18 +127,17 @@ GHepParticle * GHepRecord::Particle(int position) const
 // Returns the GHepParticle from the specified position of the event record.
 
   if( position >=0 && position < this->GetEntries() ) {
-
      GHepParticle * particle = (GHepParticle *) (*this)[position];
      if(particle) return particle;
   }
-  LOG("GHEP", pWARN)
-        << "No GHepParticle found with: (pos = "
-                              << position << ") - Returning NULL";
+  LOG("GHEP", pNOTICE)
+    << "No particle found with: (pos = " << position << ")";
+
   return 0;
 }
 //___________________________________________________________________________
 GHepParticle * GHepRecord::FindParticle(
-                               int pdg, GHepStatus_t status, int start) const
+    int pdg, GHepStatus_t status, int start) const
 {
 // Returns the first GHepParticle with the input pdg-code and status
 // starting from the specified position of the event record.
@@ -146,14 +147,16 @@ GHepParticle * GHepRecord::FindParticle(
      GHepParticle * p = (GHepParticle *) (*this)[i];
      if(p->Status() == status && p->Pdg() == pdg) return p;
   }
-  LOG("GHEP", pWARN)
-        << "No GHepParticle found with: (pos >= " << start
-        << ", pdg = " << pdg << ", ist = " << status << ") - Returning NULL";
+
+  LOG("GHEP", pNOTICE)
+    << "No particle found with: (pos >= " << start
+    << ", pdg = " << pdg << ", ist = " << status << ")";
+
   return 0;
 }
 //___________________________________________________________________________
 int GHepRecord::ParticlePosition(
-                               int pdg, GHepStatus_t status, int start) const
+   int pdg, GHepStatus_t status, int start) const
 {
 // Returns the position of the first GHepParticle with the input pdg-code
 // and status starting from the specified position of the event record.
@@ -163,7 +166,10 @@ int GHepRecord::ParticlePosition(
      GHepParticle * p = (GHepParticle *) (*this)[i];
      if(p->Status() == status && p->Pdg() == pdg) return i;
   }
-  LOG("GHEP", pWARN) << "Returning invalid GHEP entry position";
+
+  LOG("GHEP", pNOTICE)
+    << "No particle found with: (pos >= " << start
+    << ", pdg = " << pdg << ", ist = " << status << ")";
 
   return -1;
 }
@@ -178,7 +184,10 @@ int GHepRecord::ParticlePosition(GHepParticle * particle, int start) const
      GHepParticle * p = (GHepParticle *) (*this)[i];
      if( p->Compare(particle) ) return i;
   }
-  LOG("GHEP", pWARN) << "Returning invalid GHEP entry position";
+
+  LOG("GHEP", pNOTICE)
+    << "No particle found with pos >= " << start
+    << " matching particle: " << *particle;
 
   return -1;
 }
