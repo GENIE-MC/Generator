@@ -31,6 +31,8 @@
    spot the fatal mesg immediately.
  @ Feb 25, 2010 - CA
    Exit immediately if the file pointed to by GSPLOAD isn't accessible.
+ @ Sep 26, 2010 - CA
+   Demote a few messages.
 */
 //____________________________________________________________________________
 
@@ -158,7 +160,7 @@ void XSecSplineList::CreateSpline(const XSecAlgorithmI * alg,
   double E   [nknots];
 
   SLOG("XSecSplLst", pNOTICE)
-             << "Creating cross section spline using the algorithm: " << *alg;
+     << "Creating cross section spline using the algorithm: " << *alg;
 
   string key = this->BuildSplineKey(alg,interaction);
 
@@ -315,7 +317,7 @@ XmlParserStatus_t XSecSplineList::LoadFromXml(string filename, bool keep)
             int       depth = xmlTextReaderDepth    (reader);
 
             if(depth==0 && type==kNodeTypeStartElement) {
-               LOG("XSecSplLst", pINFO) << "Root element = " << name;
+               LOG("XSecSplLst", pDEBUG) << "Root element = " << name;
                if(xmlStrcmp(name, (const xmlChar *) "genie_xsec_spline_list")) {
                    LOG("XSecSplLst", pERROR)
                      << "\nXML doc. has invalid root element! [filename: " << filename << "]";
@@ -331,8 +333,8 @@ XmlParserStatus_t XSecSplineList::LoadFromXml(string filename, bool keep)
                else this->SetLogE(false);
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-               LOG("XSecSplLst", pINFO) << "Vrs   = " << svrs;
-               LOG("XSecSplLst", pINFO) << "InLog = " << sinlog;
+               LOG("XSecSplLst", pDEBUG) << "Vrs   = " << svrs;
+               LOG("XSecSplLst", pDEBUG) << "InLog = " << sinlog;
 #endif
                xmlFree(xvrs);
                xmlFree(xinlog);
@@ -346,7 +348,7 @@ XmlParserStatus_t XSecSplineList::LoadFromXml(string filename, bool keep)
                string snkn     = utils::str::TrimSpaces((const char *)xnkn);
 
                spline_name = sname;
-               SLOG("XSecSplLst", pNOTICE) << "Loading spline: " << spline_name;
+               SLOG("XSecSplLst", pINFO) << "Loading spline: " << spline_name;
 
                nknots = atoi( snkn.c_str() );
                iknot=0;
@@ -368,9 +370,9 @@ XmlParserStatus_t XSecSplineList::LoadFromXml(string filename, bool keep)
             }
             if( (!xmlStrcmp(name, (const xmlChar *) "spline")) && type==kNodeTypeEndElement) {
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-               LOG("XSecSplLst", pNOTICE) << "Done with current spline";
+               LOG("XSecSplLst", pINFO) << "Done with current spline";
                for(int i=0; i<nknots; i++) {
-                  LOG("XSecSplLst", pNOTICE) << "xsec[E = " << E[i] << "] = " << xsec[i];
+                  LOG("XSecSplLst", pINFO) << "xsec[E = " << E[i] << "] = " << xsec[i];
                }
 #endif
                // done looping over knots - build the spline
