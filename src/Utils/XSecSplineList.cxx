@@ -291,9 +291,10 @@ XmlParserStatus_t XSecSplineList::LoadFromXml(string filename, bool keep)
 //! before loading the splines.
 
   SLOG("XSecSplLst", pNOTICE) << "Loading splines from: " << filename;
-  SLOG("XSecSplLst", pNOTICE)
-          << "Option to keep existing splines is switched "
-                                         << ( (keep) ? "ON" : "OFF" );
+  SLOG("XSecSplLst", pINFO)
+        << "Option to keep pre-existing splines is switched "
+        << ( (keep) ? "ON" : "OFF" );
+
   if(!keep) fSplineMap.clear();
 
   const int kNodeTypeStartElement = 1;
@@ -413,9 +414,10 @@ XmlParserStatus_t XSecSplineList::LoadFromXml(string filename, bool keep)
 //! before loading the splines.
 
   SLOG("XSecSplLst", pNOTICE) << "Loading splines from: " << filename;
-  SLOG("XSecSplLst", pNOTICE)
-          << "Option to keep existing splines is switched "
-                                         << ( (keep) ? "ON" : "OFF" );
+  SLOG("XSecSplLst", pINFO)
+     << "Option to keep pre-existing splines is switched "
+     << ( (keep) ? "ON" : "OFF" );
+
   if(!keep) fSplineMap.clear();
 
   xmlDocPtr xml_doc = xmlParseFile(filename.c_str() );
