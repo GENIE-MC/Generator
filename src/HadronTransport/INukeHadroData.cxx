@@ -1067,6 +1067,8 @@ double INukeHadroData::Frac(int hpdgc, INukeFateHA_t fate, double ke) const
    else if (fate == kIHAFtElas   ) return TMath::Max(0., fFracPipA_Elas    -> Evaluate (ke));
    else if (fate == kIHAFtInelas ) return TMath::Max(0., fFracPipA_Inel    -> Evaluate (ke));
    else if (fate == kIHAFtAbs    ) return TMath::Max(0., fFracPipA_Abs     -> Evaluate (ke));
+	//   else if (fate == kIHAFtPiProd ) return TMath::Max(0., fFracPipA_Pipro   -> Evaluate (ke));
+   else if (fate == kIHAFtPiProd ) return TMath::Max(0., fFracPipA_NPipPi0 -> Evaluate (ke));
    else if (fate == kIHAFtNPipPi0) return TMath::Max(0., fFracPipA_NPipPi0 -> Evaluate (ke));
    else {
      LOG("INukeData", pWARN) 
@@ -1080,6 +1082,8 @@ double INukeHadroData::Frac(int hpdgc, INukeFateHA_t fate, double ke) const
    else if (fate == kIHAFtElas   ) return TMath::Max(0., fFracPimA_Elas    -> Evaluate (ke));
    else if (fate == kIHAFtInelas ) return TMath::Max(0., fFracPimA_Inel    -> Evaluate (ke));
    else if (fate == kIHAFtAbs    ) return TMath::Max(0., fFracPimA_Abs     -> Evaluate (ke));
+   //   else if (fate == kIHAFtPiProd ) return TMath::Max(0., fFracPimA_Pipro   -> Evaluate (ke));
+   else if (fate == kIHAFtPiProd ) return TMath::Max(0., fFracPimA_NPipPi0 -> Evaluate (ke));
    else if (fate == kIHAFtNPipPi0) return TMath::Max(0., fFracPimA_NPipPi0 -> Evaluate (ke));
    else {
      LOG("INukeData", pWARN) 
@@ -1093,6 +1097,8 @@ double INukeHadroData::Frac(int hpdgc, INukeFateHA_t fate, double ke) const
    else if (fate == kIHAFtElas   ) return TMath::Max(0., fFracPi0A_Elas    -> Evaluate (ke));
    else if (fate == kIHAFtInelas ) return TMath::Max(0., fFracPi0A_Inel    -> Evaluate (ke));
    else if (fate == kIHAFtAbs    ) return TMath::Max(0., fFracPi0A_Abs     -> Evaluate (ke));
+	//   else if (fate == kIHAFtPiProd ) return TMath::Max(0., fFracPi0A_Pipro   -> Evaluate (ke));
+   else if (fate == kIHAFtPiProd ) return TMath::Max(0., fFracPi0A_NPipPi0 -> Evaluate (ke));
    else if (fate == kIHAFtNPipPi0) return TMath::Max(0., fFracPi0A_NPipPi0 -> Evaluate (ke));
    else {
      LOG("INukeData", pWARN) 
