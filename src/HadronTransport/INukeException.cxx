@@ -48,12 +48,12 @@ INukeException::~INukeException()
 //___________________________________________________________________________
 void INukeException::Init(void)
 {
-  fReason     = "";
+  fReason = "";
 }
 //___________________________________________________________________________
 void INukeException::Copy(const INukeException & exc)
 {
-  fReason     = exc.fReason;
+  fReason = exc.fReason;
 }
 //___________________________________________________________________________
 void INukeException::Print(ostream & stream) const
