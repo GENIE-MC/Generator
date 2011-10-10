@@ -52,6 +52,7 @@
 #include "GHEP/GHepStatus.h"
 #include "GHEP/GHepRecord.h"
 #include "GHEP/GHepParticle.h"
+#include "HadronTransport/INukeException.h"
 #include "HadronTransport/Intranuke.h"
 #include "HadronTransport/HAIntranuke.h"
 #include "HadronTransport/INukeHadroData.h"
@@ -140,30 +141,37 @@ void HAIntranuke::SimulateHadronicFinalState(GHepRecord* ev, GHepParticle* p) co
      return;     
   }
 
-  // select a fate for the input particle
-  INukeFateHA_t fate = this->HadronFateHA(p);
+  try
+    {
+      // select a fate for the input particle
+      INukeFateHA_t fate = this->HadronFateHA(p);
 
-  // store the fate
-  ev->Particle(p->FirstMother())->SetRescatterCode((int)fate);
+      // store the fate
+      ev->Particle(p->FirstMother())->SetRescatterCode((int)fate);
 
-  if(fate == kIHAFtUndefined) {
-     LOG("HAIntranuke", pERROR) << "** Couldn't select a fate";
-     p->SetStatus(kIStStableFinalState);
-     ev->AddParticle(*p);
-     return;     
-  }
-  LOG("HAIntranuke", pNOTICE)
-    << "Selected " << p->Name() << " fate: " << INukeHadroFates::AsString(fate);
+      if(fate == kIHAFtUndefined) {
+	LOG("HAIntranuke", pERROR) << "** Couldn't select a fate";
+	p->SetStatus(kIStStableFinalState);
+	ev->AddParticle(*p);
+	return;     
+      }
+      LOG("HAIntranuke", pNOTICE)
+	<< "Selected " << p->Name() << " fate: " << INukeHadroFates::AsString(fate);
 
-  // get the reaction products for the selected fate
-  if (fate == kIHAFtElas) this->ElasHA(ev,p,fate);
-  else if (fate == kIHAFtInelas  || fate == kIHAFtCEx) this->InelasticHA(ev,p,fate);
-  else if (fate == kIHAFtAbs     ||
-           fate == kIHAFtPiProd  || 
-           fate == kIHAFtNPip    ||
-           fate == kIHAFtNPipPi0) {
-    this->Inelastic(ev,p,fate);
-  }
+      // get the reaction products for the selected fate
+      if (fate == kIHAFtElas) this->ElasHA(ev,p,fate);
+      else if (fate == kIHAFtInelas  || fate == kIHAFtCEx) this->InelasticHA(ev,p,fate);
+      else if (fate == kIHAFtAbs     ||
+	       fate == kIHAFtPiProd  || 
+	       fate == kIHAFtNPip    ||
+	       fate == kIHAFtNPipPi0) {
+	this->Inelastic(ev,p,fate);
+      }
+    }
+  catch(INukeException exception)
+    {
+      this->SimulateHadronicFinalState(evrec,sp);
+    }
 }
 //___________________________________________________________________________
 INukeFateHA_t HAIntranuke::HadronFateHA(const GHepParticle * p) const
