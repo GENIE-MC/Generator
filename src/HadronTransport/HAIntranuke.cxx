@@ -39,6 +39,7 @@
 
 #include <cstdlib>
 #include <sstream>
+#include <exception>
 
 #include <TMath.h>
 
@@ -168,9 +169,9 @@ void HAIntranuke::SimulateHadronicFinalState(GHepRecord* ev, GHepParticle* p) co
 	this->Inelastic(ev,p,fate);
       }
     }
-  catch(INukeException exception)
+  catch(exceptions::INukeException exception)
     {
-      this->SimulateHadronicFinalState(evrec,sp);
+      this->SimulateHadronicFinalState(ev,p);
     }
 }
 //___________________________________________________________________________

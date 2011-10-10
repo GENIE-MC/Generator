@@ -32,19 +32,16 @@ using std::ostream;
 namespace genie {
 namespace exceptions {
 
-class Interaction;
-
 class INukeException {
 
 public :
-
   INukeException();
   INukeException(const INukeException & exception);
-  ~INukeException();
+ ~INukeException();
 
-  void   SetReason  (string reason) { fReason     = reason;          }
+  void SetReason(string reason) { fReason = reason; }
 
-  string ShowReason  (void) const { return fReason;     }
+  string ShowReason(void) const { return fReason; }
 
   void Init  (void);
   void Copy  (const INukeException & exception);
