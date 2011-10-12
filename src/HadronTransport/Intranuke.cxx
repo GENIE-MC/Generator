@@ -304,6 +304,7 @@ void Intranuke::TransportHadrons(GHepRecord * evrec) const
           << "*** Nothing left to interact with, escaping.";
 	sp->SetStatus(kIStStableFinalState);
 	evrec->AddParticle(*sp);
+	evrec->Particle(sp->FirstMother())->SetRescatterCode(1);
     } else {
         // the exits the nucleus without interacting - Done with it! 
         LOG("Intranuke", pNOTICE) 
