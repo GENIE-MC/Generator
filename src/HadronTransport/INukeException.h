@@ -3,14 +3,17 @@
 
 \class   genie::exceptions::INukeException
 
-\brief   An exception thrown by SimulateHadronState for kinematics problems
+\brief   An exception thrown by SimulateHadronState for kinematics problems.
+         TwoBodyCollision/Kinematics used a lot, has various failure modes.
+         When failure occurs in HAIntranuke, rechoose the fate.
 
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          STFC, Rutherford Appleton Laboratory
-         Steve Dytman
-         
 
-\created September 27, 2005
+         Steve Dytman <dytman \at pitt.edu>
+	 Univ. of Pittsburgh         
+
+\created October 10, 2011
 
 \cpright Copyright (c) 2003-2011, GENIE Neutrino MC Generator Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
