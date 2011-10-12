@@ -154,7 +154,7 @@ int genie::utils::ghep::NeutReactionCode(const GHepRecord * event)
               << ", pi+ = " << npip << ", pi- = " << npim << ", pi0 = " << npi0 
               << ", eta = " << neta 
               << ", K+ = " << nKp << ", K- = " << nKm << ", K0 = " << nK0 
-              << ", Labda's = " << nlambda
+              << ", Lambda's = " << nlambda
               << ", gamma's = " << ngamma;
               
      int nnuc = np + nn;
@@ -185,7 +185,7 @@ int genie::utils::ghep::NeutReactionCode(const GHepRecord * event)
      else if (is_nu    && is_cc && is_n && np==1 && nn==0 && npip==0 && npim==0 && npi0==1 && neKL==0) evtype =  12;
      else if (is_nu    && is_cc && is_n && np==0 && nn==1 && npip==1 && npim==0 && npi0==0 && neKL==0) evtype =  13;
            
-     // nubar CC
+     // nu NC
      else if (is_nu    && is_nc && is_n && np==0 && nn==1 && npip==0 && npim==0 && npi0==1 && neKL==0) evtype =  31;
      else if (is_nu    && is_nc && is_p && np==1 && nn==0 && npip==0 && npim==0 && npi0==1 && neKL==0) evtype =  32;
      else if (is_nu    && is_nc && is_n && np==1 && nn==0 && npip==0 && npim==1 && npi0==0 && neKL==0) evtype =  33;
