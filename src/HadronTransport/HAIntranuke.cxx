@@ -32,8 +32,11 @@
    Major overhaul of the function of each interaction type. Absorption fates
    changed to allow more than 6 particles at a time (up to 85 now). PiPro fates
    now allow the pion to rescatter inside the nucleus, will be changed at a
-   later date. HAIntranuke class is now defined as derived from virtual class
+   later date. HAIntranuke class is now defined as derived from virtual class.
    Intranuke.
+ @ Oct 10, 2011 - SD
+   Changes to keep reweighting alive.  Add exception hadnling in ElasHA, InelasticHA,
+   and Inelastic.
 */
 //____________________________________________________________________________
 
@@ -172,6 +175,10 @@ void HAIntranuke::SimulateHadronicFinalState(GHepRecord* ev, GHepParticle* p) co
   catch(exceptions::INukeException exception)
     {
       this->SimulateHadronicFinalState(ev,p);
+       LOG("HAIntranuke", pWARN) 
+         << "retry call to SimulateHadronicFinalState ";
+       LOG("HAIntranuke", pWARN) << exception;
+
     }
 }
 //___________________________________________________________________________
@@ -404,7 +411,7 @@ void HAIntranuke::ElasHA(
     }
 
   // check remnants
-  if(fRemnA<0 || fRemnZ<0) 
+  if(fRemnA<0 || fRemnZ<0) // best to stop it hear and not try again.
     {
       LOG("HAIntranuke", pWARN) << "Invalid Nucleus! : (A,Z) = ("<<fRemnA<<','<<fRemnZ<<')';
       p->SetStatus(kIStStableFinalState);
@@ -436,9 +443,9 @@ void HAIntranuke::ElasHA(
   if (!utils::intranuke::TwoBodyKinematics(Mp,Mt,t4PpL,t4PtL,t4P3L,t4P4L,C3CM,fRemnP4))
     {
       LOG("HAIntranuke",pWARN) << "ElasHA() failed";
-      p->SetStatus(kIStStableFinalState);
-      ev->AddParticle(*p);
-      return;
+      exceptions::INukeException exception;
+      exception.SetReason("TwoBodyKinematics failed in ElasHA, details later");
+      throw exception;
     }
 
   // Update probe particle
@@ -522,7 +529,7 @@ void HAIntranuke::InelasticHA(
     }
 
   // check remnants
-  if ( fRemnA < 1 )
+  if ( fRemnA < 1 )    //we've blown nucleus apart, no need to retry anything - exit
     {
       LOG("HAIntranuke",pWARN) << "InelasticHA() failed : not enough nucleons";
       p->SetStatus(kIStStableFinalState);
@@ -536,7 +543,7 @@ void HAIntranuke::InelasticHA(
       LOG("HAIntranuke",pWARN) << "InelasticHA() failed : too few protons in nucleus";
       p->SetStatus(kIStStableFinalState);
       ev->AddParticle(*p);
-      return;
+      return;         // another extreme case, best strategy is to exit and go to next event
     }
 
   GHepParticle * t = new GHepParticle(*p);
@@ -569,8 +576,9 @@ void HAIntranuke::InelasticHA(
                   // momentum doesn't have to be in right direction, only magnitude
   double C3CM = fHadroData->IntBounce(cl,tcode,scode,h_fate);
   delete cl;
-  if (C3CM<-1.) 
+  if (C3CM<-1.)   // hope this doesn't occur too often - unphysical but we just pass it on
     {
+      LOG("HAIntranuke", pWARN) << "unphysical angle chosen in InelasicHA";
       p->SetStatus(kIStStableFinalState);
       ev->AddParticle(*p);
       delete t;
@@ -586,7 +594,9 @@ void HAIntranuke::InelasticHA(
     LOG("HAIntranuke", pDEBUG) << "Nucleus : (A,Z) = ("<<fRemnA<<','<<fRemnZ<<')';
   } else
   {
-    ev->AddParticle(*p);
+    exceptions::INukeException exception;
+    exception.SetReason("TwoBodyCollison failed, details later");
+    throw exception;
   }
 
   delete t;
@@ -645,18 +655,20 @@ void HAIntranuke::Inelastic(
 	  ev->AddParticle(*s1);
 	  ev->AddParticle(*s2);
 	  ev->AddParticle(*s3);
+
+	  delete s1;
+	  delete s2;
+	  delete s3;
+	  return;
 	}
       else
 	{
 	  LOG("HAIntranuke", pWARN) << "Error: could not create pion production final state";
-	  p->SetStatus(kIStStableFinalState);
-	  ev->AddParticle(*p);
+	  exceptions::INukeException exception;
+	  exception.SetReason("PionProduction kinematics failed, details later");
+	  throw exception;
 	}
 
-      delete s1;
-      delete s2;
-      delete s3;
-      return;
 
     }
   else if (fate==kIHAFtAbs)
@@ -779,7 +791,7 @@ void HAIntranuke::Inelastic(
 	  double C3CM = fHadroData->IntBounce(p,t1code,scode,fate_hN);
 	  if (C3CM<-1.) 
 	    {
-	      //LOG("HAIntranuke", pWARN) << "Inelastic() failed: IntBounce returned bad angle";
+	      LOG("HAIntranuke", pWARN) << "Inelastic() failed: IntBounce returned bad angle";
 	      p->SetStatus(kIStStableFinalState);
 	      ev->AddParticle(*p);
 	      return;
@@ -826,10 +838,11 @@ void HAIntranuke::Inelastic(
 	    }
 	  else
 	    {
-	      LOG("HAIntranuke", pWARN) << "Inelastic() failed";
-	      p->SetStatus(kIStStableFinalState);
-	      ev->AddParticle(*p);
-	      return;
+	      LOG("HAIntranuke", pWARN) << "Inelastic() failed calling TwoBodyCollision";
+	      exceptions::INukeException exception;
+	      exception.SetReason("PionProduction kinematics through TwoBodyCollision failed, details later");
+	      throw exception;
+
 	    }
 
 	} // end pi d -> N N
@@ -894,9 +907,9 @@ void HAIntranuke::Inelastic(
 	    LOG("HAIntranuke", pWARN) << "--> Gam_ns = " << gam_ns;
 	    LOG("HAIntranuke", pWARN) << "--> A = " << fRemnA << ", Z = " << fRemnZ << ", Energy = " << ke;
 #endif
-	    p->SetStatus(kIStStableFinalState);
-	    ev->AddParticle(*p);
-	    return;
+	    exceptions::INukeException exception;
+	    exception.SetReason("Absorption choice of # of p,n failed, details later");
+	    throw exception;
 	  }
 
 	  // Box-Muller transform
@@ -941,9 +954,9 @@ void HAIntranuke::Inelastic(
 		      LOG("HAIntranuke", pWARN) << "--> N_s0 = " << ns0 << ", Sig_ns = " << Sig_ns;
 		      LOG("HAIntranuke", pWARN) << "--> A = " << fRemnA << ", Z = " << fRemnZ << ", Energy = " << ke;
 #endif
-		      p->SetStatus(kIStStableFinalState);
-		      ev->AddParticle(*p);
-		      return;
+		      exceptions::INukeException exception;
+		      exception.SetReason("Random number generator for choice of #p,n final state failed, details later");
+		      throw exception;
 		    }
 
 		  // calculate exponential random variable
@@ -1186,6 +1199,9 @@ void HAIntranuke::Inelastic(
 	      if ( pdgc==kPdgProton || pdgc==kPdgPiP )     fRemnZ--;
 	      if ( pdgc==kPdgPiM )                         fRemnZ++;
 	      if ( pdg::IsNeutronOrProton (pdgc) )         fRemnA--;	  
+	      exceptions::INukeException exception;
+	      exception.SetReason("Phase space generation of absorption final state failed, details later");
+	      throw exception;
 	    }
 	}
 	} // end multi-nucleon FS
