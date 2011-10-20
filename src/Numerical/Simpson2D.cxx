@@ -107,13 +107,13 @@ double Simpson2D::Integrate(GSFunc & gsfunc) const
     int idim=-1;
     if(fFastDensityIncrease) {
       // increase the grid density fast - all dimensions simultaneously
-      np = (unsigned int) TMath::Power(2,n) + 1;
+      np = (unsigned int) TMath::Power(2,(int)n) + 1;
       n++;
       fmap.IncreaseGridDensity(np);
     } else {
       // increase the grid density slowly - 1 dimension at a time...
       if(iter%ndim==0) {
-        np = (unsigned int) TMath::Power(2,n) + 1;
+        np = (unsigned int) TMath::Power(2,(int)n) + 1;
         n++;
         idim = 0;
       }
