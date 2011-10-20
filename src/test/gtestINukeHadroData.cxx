@@ -786,36 +786,36 @@ void SaveSplinesToRootFile(void)
   inukd -> XSecGamN_Tot     () -> SaveAsROOT(filename, "gamN_tot",  false);
   
   // Write out hA mode hadron x-section splines
-  inukd -> XSecPA_Tot       () -> SaveAsROOT(filename, "pA_tot",       false);
-  inukd -> XSecPA_Elas      () -> SaveAsROOT(filename, "pA_elas",      false);
-  inukd -> XSecPA_Inel      () -> SaveAsROOT(filename, "pA_inel",      false);
-  inukd -> XSecPA_CEx       () -> SaveAsROOT(filename, "pA_cex",       false);
-  inukd -> XSecPA_Abs       () -> SaveAsROOT(filename, "pA_abs",       false);
-  inukd -> XSecPA_Pipro     () -> SaveAsROOT(filename, "pA_pipro",     false);
-  inukd -> XSecNA_Tot       () -> SaveAsROOT(filename, "nA_tot",       false);
-  inukd -> XSecNA_Elas      () -> SaveAsROOT(filename, "nA_elas",      false);
-  inukd -> XSecNA_Inel      () -> SaveAsROOT(filename, "nA_inel",      false);
-  inukd -> XSecNA_CEx       () -> SaveAsROOT(filename, "nA_cex",       false);
-  inukd -> XSecNA_Abs       () -> SaveAsROOT(filename, "nA_abs",       false);
-  inukd -> XSecNA_Pipro     () -> SaveAsROOT(filename, "nA_pipro",     false);
-  inukd -> XSecPipA_Tot     () -> SaveAsROOT(filename, "pipA_tot",     false);
-  inukd -> XSecPipA_Elas    () -> SaveAsROOT(filename, "pipA_elas",    false);
-  inukd -> XSecPipA_Inel    () -> SaveAsROOT(filename, "pipA_inel",    false);
-  inukd -> XSecPipA_CEx     () -> SaveAsROOT(filename, "pipA_cex",     false);
-  inukd -> XSecPipA_Abs     () -> SaveAsROOT(filename, "pipA_abs",     false);  
-  inukd -> XSecPipA_NPipPi0 () -> SaveAsROOT(filename, "pipA_npippi0", false);
-  inukd -> XSecPimA_Tot     () -> SaveAsROOT(filename, "pimA_tot",     false);
-  inukd -> XSecPimA_Elas    () -> SaveAsROOT(filename, "pimA_elas",    false);
-  inukd -> XSecPimA_Inel    () -> SaveAsROOT(filename, "pimA_inel",    false);
-  inukd -> XSecPimA_CEx     () -> SaveAsROOT(filename, "pimA_cex",     false);
-  inukd -> XSecPimA_Abs     () -> SaveAsROOT(filename, "pimA_abs",     false);
-  inukd -> XSecPimA_NPipPi0 () -> SaveAsROOT(filename, "pimA_npippi0", false);
-  inukd -> XSecPi0A_Tot     () -> SaveAsROOT(filename, "pi0A_tot",     false);
-  inukd -> XSecPi0A_Elas    () -> SaveAsROOT(filename, "pi0A_elas",    false);
-  inukd -> XSecPi0A_Inel    () -> SaveAsROOT(filename, "pi0A_inel",    false);
-  inukd -> XSecPi0A_CEx     () -> SaveAsROOT(filename, "pi0A_cex",     false);
-  inukd -> XSecPi0A_Abs     () -> SaveAsROOT(filename, "pi0A_abs",     false);
-  inukd -> XSecPi0A_NPipPi0 () -> SaveAsROOT(filename, "pi0A_npippi0", false);
+  inukd -> FracPA_Tot       () -> SaveAsROOT(filename, "pA_tot",       false);
+  inukd -> FracPA_Elas      () -> SaveAsROOT(filename, "pA_elas",      false);
+  inukd -> FracPA_Inel      () -> SaveAsROOT(filename, "pA_inel",      false);
+  inukd -> FracPA_CEx       () -> SaveAsROOT(filename, "pA_cex",       false);
+  inukd -> FracPA_Abs       () -> SaveAsROOT(filename, "pA_abs",       false);
+  inukd -> FracPA_Pipro     () -> SaveAsROOT(filename, "pA_pipro",     false);
+  inukd -> FracNA_Tot       () -> SaveAsROOT(filename, "nA_tot",       false);
+  inukd -> FracNA_Elas      () -> SaveAsROOT(filename, "nA_elas",      false);
+  inukd -> FracNA_Inel      () -> SaveAsROOT(filename, "nA_inel",      false);
+  inukd -> FracNA_CEx       () -> SaveAsROOT(filename, "nA_cex",       false);
+  inukd -> FracNA_Abs       () -> SaveAsROOT(filename, "nA_abs",       false);
+  inukd -> FracNA_Pipro     () -> SaveAsROOT(filename, "nA_pipro",     false);
+  inukd -> FracPipA_Tot     () -> SaveAsROOT(filename, "pipA_tot",     false);
+  inukd -> FracPipA_Elas    () -> SaveAsROOT(filename, "pipA_elas",    false);
+  inukd -> FracPipA_Inel    () -> SaveAsROOT(filename, "pipA_inel",    false);
+  inukd -> FracPipA_CEx     () -> SaveAsROOT(filename, "pipA_cex",     false);
+  inukd -> FracPipA_Abs     () -> SaveAsROOT(filename, "pipA_abs",     false);  
+  inukd -> FracPipA_NPipPi0 () -> SaveAsROOT(filename, "pipA_npippi0", false);
+  inukd -> FracPimA_Tot     () -> SaveAsROOT(filename, "pimA_tot",     false);
+  inukd -> FracPimA_Elas    () -> SaveAsROOT(filename, "pimA_elas",    false);
+  inukd -> FracPimA_Inel    () -> SaveAsROOT(filename, "pimA_inel",    false);
+  inukd -> FracPimA_CEx     () -> SaveAsROOT(filename, "pimA_cex",     false);
+  inukd -> FracPimA_Abs     () -> SaveAsROOT(filename, "pimA_abs",     false);
+  inukd -> FracPimA_NPipPi0 () -> SaveAsROOT(filename, "pimA_npippi0", false);
+  inukd -> FracPi0A_Tot     () -> SaveAsROOT(filename, "pi0A_tot",     false);
+  inukd -> FracPi0A_Elas    () -> SaveAsROOT(filename, "pi0A_elas",    false);
+  inukd -> FracPi0A_Inel    () -> SaveAsROOT(filename, "pi0A_inel",    false);
+  inukd -> FracPi0A_CEx     () -> SaveAsROOT(filename, "pi0A_cex",     false);
+  inukd -> FracPi0A_Abs     () -> SaveAsROOT(filename, "pi0A_abs",     false);
+  inukd -> FracPi0A_NPipPi0 () -> SaveAsROOT(filename, "pi0A_npippi0", false);
 
 
   // Write out hN mode x-section TGraph2D objects
@@ -876,36 +876,36 @@ void PrintOutForInputKE(double ke)
      << "\n XSec[pi0p/abs]    (K=" << ke << " MeV) = " << inukd -> XSecPi0p_Abs     () -> Evaluate(ke) << " mbarn"
      << "\n"
      << "\n hA mode x-sections:"
-     << "\n XSec[pA/tot]      (K=" << ke << " MeV) = " << inukd -> XSecPA_Tot       () -> Evaluate(ke) << " mbarn"
-     << "\n XSec[pA/elas]     (K=" << ke << " MeV) = " << inukd -> XSecPA_Elas      () -> Evaluate(ke) << " mbarn"
-     << "\n XSec[pA/inel]     (K=" << ke << " MeV) = " << inukd -> XSecPA_Inel      () -> Evaluate(ke) << " mbarn"
-     << "\n XSec[pA/cex]      (K=" << ke << " MeV) = " << inukd -> XSecPA_CEx       () -> Evaluate(ke) << " mbarn"
-     << "\n XSec[pA/abs]      (K=" << ke << " MeV) = " << inukd -> XSecPA_Abs       () -> Evaluate(ke) << " mbarn"
-     << "\n XSec[pA/pipro]    (K=" << ke << " MeV) = " << inukd -> XSecPA_Pipro     () -> Evaluate(ke) << " mbarn"
-     << "\n XSec[nA/tot]      (K=" << ke << " MeV) = " << inukd -> XSecNA_Tot       () -> Evaluate(ke) << " mbarn"
-     << "\n XSec[nA/elas]     (K=" << ke << " MeV) = " << inukd -> XSecNA_Elas      () -> Evaluate(ke) << " mbarn"
-     << "\n XSec[nA/inel]     (K=" << ke << " MeV) = " << inukd -> XSecNA_Inel      () -> Evaluate(ke) << " mbarn"
-     << "\n XSec[nA/reac]     (K=" << ke << " MeV) = " << inukd -> XSecNA_CEx       () -> Evaluate(ke) << " mbarn"
-     << "\n XSec[nA/abs]      (K=" << ke << " MeV) = " << inukd -> XSecNA_Abs       () -> Evaluate(ke) << " mbarn"
-     << "\n XSec[nA/pipro]    (K=" << ke << " MeV) = " << inukd -> XSecNA_Pipro     () -> Evaluate(ke) << " mbarn"
-     << "\n XSec[pipA/tot]    (K=" << ke << " MeV) = " << inukd -> XSecPipA_Tot     () -> Evaluate(ke) << " mbarn"
-     << "\n XSec[pipA/elas]   (K=" << ke << " MeV) = " << inukd -> XSecPipA_Elas    () -> Evaluate(ke) << " mbarn"
-     << "\n XSec[pipA/inel]   (K=" << ke << " MeV) = " << inukd -> XSecPipA_Inel    () -> Evaluate(ke) << " mbarn"
-     << "\n XSec[pipA/cex]    (K=" << ke << " MeV) = " << inukd -> XSecPipA_CEx     () -> Evaluate(ke) << " mbarn"
-     << "\n XSec[pipA/abs]    (K=" << ke << " MeV) = " << inukd -> XSecPipA_Abs     () -> Evaluate(ke) << " mbarn"
-     << "\n XSec[pipA/npippi0](K=" << ke << " MeV) = " << inukd -> XSecPipA_NPipPi0 () -> Evaluate(ke) << " mbarn"
-     << "\n XSec[pimA/tot]    (K=" << ke << " MeV) = " << inukd -> XSecPimA_Tot     () -> Evaluate(ke) << " mbarn"
-     << "\n XSec[pimA/elas]   (K=" << ke << " MeV) = " << inukd -> XSecPimA_Elas    () -> Evaluate(ke) << " mbarn"
-     << "\n XSec[pimA/inel]   (K=" << ke << " MeV) = " << inukd -> XSecPimA_Inel    () -> Evaluate(ke) << " mbarn"
-     << "\n XSec[pimA/cex]    (K=" << ke << " MeV) = " << inukd -> XSecPimA_CEx     () -> Evaluate(ke) << " mbarn"
-     << "\n XSec[pimA/abs]    (K=" << ke << " MeV) = " << inukd -> XSecPimA_Abs     () -> Evaluate(ke) << " mbarn"
-     << "\n XSec[pimA/npippi0](K=" << ke << " MeV) = " << inukd -> XSecPimA_NPipPi0 () -> Evaluate(ke) << " mbarn"
-     << "\n XSec[pi0A/tot]    (K=" << ke << " MeV) = " << inukd -> XSecPi0A_Tot     () -> Evaluate(ke) << " mbarn"
-     << "\n XSec[pi0A/elas]   (K=" << ke << " MeV) = " << inukd -> XSecPi0A_Elas    () -> Evaluate(ke) << " mbarn"
-     << "\n XSec[pi0A/inel]   (K=" << ke << " MeV) = " << inukd -> XSecPi0A_Inel    () -> Evaluate(ke) << " mbarn"
-     << "\n XSec[pi0A/cex]    (K=" << ke << " MeV) = " << inukd -> XSecPi0A_CEx     () -> Evaluate(ke) << " mbarn"
-     << "\n XSec[pi0A/abs]    (K=" << ke << " MeV) = " << inukd -> XSecPi0A_Abs     () -> Evaluate(ke) << " mbarn"
-     << "\n XSec[pi0A/npippi0](K=" << ke << " MeV) = " << inukd -> XSecPi0A_NPipPi0 () -> Evaluate(ke) << " mbarn";
+     << "\n Frac[pA/tot]      (K=" << ke << " MeV) = " << inukd -> FracPA_Tot       () -> Evaluate(ke) << " mbarn"
+     << "\n Frac[pA/elas]     (K=" << ke << " MeV) = " << inukd -> FracPA_Elas      () -> Evaluate(ke) << " mbarn"
+     << "\n Frac[pA/inel]     (K=" << ke << " MeV) = " << inukd -> FracPA_Inel      () -> Evaluate(ke) << " mbarn"
+     << "\n Frac[pA/cex]      (K=" << ke << " MeV) = " << inukd -> FracPA_CEx       () -> Evaluate(ke) << " mbarn"
+     << "\n Frac[pA/abs]      (K=" << ke << " MeV) = " << inukd -> FracPA_Abs       () -> Evaluate(ke) << " mbarn"
+     << "\n Frac[pA/pipro]    (K=" << ke << " MeV) = " << inukd -> FracPA_Pipro     () -> Evaluate(ke) << " mbarn"
+     << "\n Frac[nA/tot]      (K=" << ke << " MeV) = " << inukd -> FracNA_Tot       () -> Evaluate(ke) << " mbarn"
+     << "\n Frac[nA/elas]     (K=" << ke << " MeV) = " << inukd -> FracNA_Elas      () -> Evaluate(ke) << " mbarn"
+     << "\n Frac[nA/inel]     (K=" << ke << " MeV) = " << inukd -> FracNA_Inel      () -> Evaluate(ke) << " mbarn"
+     << "\n Frac[nA/reac]     (K=" << ke << " MeV) = " << inukd -> FracNA_CEx       () -> Evaluate(ke) << " mbarn"
+     << "\n Frac[nA/abs]      (K=" << ke << " MeV) = " << inukd -> FracNA_Abs       () -> Evaluate(ke) << " mbarn"
+     << "\n Frac[nA/pipro]    (K=" << ke << " MeV) = " << inukd -> FracNA_Pipro     () -> Evaluate(ke) << " mbarn"
+     << "\n Frac[pipA/tot]    (K=" << ke << " MeV) = " << inukd -> FracPipA_Tot     () -> Evaluate(ke) << " mbarn"
+     << "\n Frac[pipA/elas]   (K=" << ke << " MeV) = " << inukd -> FracPipA_Elas    () -> Evaluate(ke) << " mbarn"
+     << "\n Frac[pipA/inel]   (K=" << ke << " MeV) = " << inukd -> FracPipA_Inel    () -> Evaluate(ke) << " mbarn"
+     << "\n Frac[pipA/cex]    (K=" << ke << " MeV) = " << inukd -> FracPipA_CEx     () -> Evaluate(ke) << " mbarn"
+     << "\n Frac[pipA/abs]    (K=" << ke << " MeV) = " << inukd -> FracPipA_Abs     () -> Evaluate(ke) << " mbarn"
+     << "\n Frac[pipA/npippi0](K=" << ke << " MeV) = " << inukd -> FracPipA_NPipPi0 () -> Evaluate(ke) << " mbarn"
+     << "\n Frac[pimA/tot]    (K=" << ke << " MeV) = " << inukd -> FracPimA_Tot     () -> Evaluate(ke) << " mbarn"
+     << "\n Frac[pimA/elas]   (K=" << ke << " MeV) = " << inukd -> FracPimA_Elas    () -> Evaluate(ke) << " mbarn"
+     << "\n Frac[pimA/inel]   (K=" << ke << " MeV) = " << inukd -> FracPimA_Inel    () -> Evaluate(ke) << " mbarn"
+     << "\n Frac[pimA/cex]    (K=" << ke << " MeV) = " << inukd -> FracPimA_CEx     () -> Evaluate(ke) << " mbarn"
+     << "\n Frac[pimA/abs]    (K=" << ke << " MeV) = " << inukd -> FracPimA_Abs     () -> Evaluate(ke) << " mbarn"
+     << "\n Frac[pimA/npippi0](K=" << ke << " MeV) = " << inukd -> FracPimA_NPipPi0 () -> Evaluate(ke) << " mbarn"
+     << "\n Frac[pi0A/tot]    (K=" << ke << " MeV) = " << inukd -> FracPi0A_Tot     () -> Evaluate(ke) << " mbarn"
+     << "\n Frac[pi0A/elas]   (K=" << ke << " MeV) = " << inukd -> FracPi0A_Elas    () -> Evaluate(ke) << " mbarn"
+     << "\n Frac[pi0A/inel]   (K=" << ke << " MeV) = " << inukd -> FracPi0A_Inel    () -> Evaluate(ke) << " mbarn"
+     << "\n Frac[pi0A/cex]    (K=" << ke << " MeV) = " << inukd -> FracPi0A_CEx     () -> Evaluate(ke) << " mbarn"
+     << "\n Frac[pi0A/abs]    (K=" << ke << " MeV) = " << inukd -> FracPi0A_Abs     () -> Evaluate(ke) << " mbarn"
+     << "\n Frac[pi0A/npippi0](K=" << ke << " MeV) = " << inukd -> FracPi0A_NPipPi0 () -> Evaluate(ke) << " mbarn";
 }
 //____________________________________________________________________________
 
