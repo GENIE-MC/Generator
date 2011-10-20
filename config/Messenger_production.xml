@@ -80,7 +80,10 @@
   <priority msgstream="IntLst">              WARN   </priority>
   <priority msgstream="Interaction">         WARN   </priority>
   <priority msgstream="Intranuke">           WARN   </priority>
+  <priority msgstream="HAIntranuke">         WARN   </priority>
+  <priority msgstream="HNIntranuke">         WARN   </priority>
   <priority msgstream="INukeData">           WARN   </priority>
+  <priority msgstream="INukeUtils">          WARN   </priority>
   <priority msgstream="ISApp">               WARN   </priority>
   <priority msgstream="IntGenMap">           WARN   </priority>
   <priority msgstream="KNOHad">              WARN   </priority> 
@@ -125,6 +128,7 @@
   <priority msgstream="RSHAmpl">             WARN   </priority>
   <priority msgstream="Registry">            WARN   </priority>
   <priority msgstream="ReW">                 WARN   </priority>
+  <priority msgstream="RewScan1">            WARN   </priority>
   <priority msgstream="RESHadronicVtx">      WARN   </priority>
   <priority msgstream="RESKinematics">       WARN   </priority>
   <priority msgstream="RESSelector">         WARN   </priority>
