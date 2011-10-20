@@ -95,7 +95,7 @@ int main(int argc, char ** argv)
     evt_num        = i;
     hadron_pdgcode = incoming_hadron->Pdg();
     hadron_energy  = incoming_hadron->P4()->Energy();
-    hadron_fate    = (int) utils::intranuke::ReconstructHadronFateHA(&event,0,true); 
+    hadron_fate    = (int) utils::intranuke::FindhAFate(&event); 
 
     LOG("test", pNOTICE) 
     << "Event: " << i << ", Hadron code = " << hadron_pdgcode 
