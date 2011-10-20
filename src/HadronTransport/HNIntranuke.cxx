@@ -218,6 +218,7 @@ INukeFateHN_t HNIntranuke::HadronFateHN(const GHepParticle * p) const
 	                            * fHadroData->Frac(pdgc, kIHNFtAbs,     ke, fRemnA, fRemnZ);
              	frac_cex     *= fNucCEXFac;    // scaling factors
 		frac_abs     *= fNucAbsFac;
+		frac_elas    *= fNucQEFac;
 		if(pdgc==kPdgPi0) frac_abs*= 0.665;  //isospin factor
 
        LOG("HNIntranuke", pINFO) 
@@ -677,6 +678,9 @@ void HNIntranuke::ElasHN(
 
   if (pass==true)
   {
+    //  give each of the particles a free step
+    utils::intranuke::StepParticle(p,fFreeStep,fNuclRadius);
+    utils::intranuke::StepParticle(t,fFreeStep,fNuclRadius);
     ev->AddParticle(*p);
     ev->AddParticle(*t);
   } else
@@ -831,10 +835,14 @@ bool HNIntranuke::HandleCompoundNucleus(GHepRecord* ev, GHepParticle* p, int mom
   // handle compound nucleus option
   // -- Call the PreEquilibrium function
   if( fDoCompoundNucleus && IsInNucleus(p) && pdg::IsNeutronOrProton(p->Pdg())) 
-    {
-      if((p->KinE() < fEPreEq))
+    {  // random number generator
+  RandomGen * rnd = RandomGen::Instance();
+
+  double rpreeq = rnd->RndFsi().Rndm();   // sdytman test
+ 
+      if((p->KinE() < fEPreEq) )
 	{
-	  if(fRemnA>5)
+	  if(fRemnA>5&&rpreeq<0.12)
             {
               GHepParticle * sp = new GHepParticle(*p);
               sp->SetFirstMother(mom);
@@ -888,6 +896,7 @@ void HNIntranuke::LoadConfig(void)
   fDelRNucleon   = fConfig->GetDoubleDef ("DelRNucleon",  gc->GetDouble("HNINUKE-DelRNucleon"));    
   fHadStep       = fConfig->GetDoubleDef ("HadStep",      gc->GetDouble("INUKE-HadStep"));        // fm
   fNucAbsFac     = fConfig->GetDoubleDef ("NucAbsFac",    gc->GetDouble("INUKE-NucAbsFac"));
+  fNucQEFac      = fConfig->GetDoubleDef ("NucQEFac",     gc->GetDouble("INUKE-NucQEFac"));
   fNucCEXFac     = fConfig->GetDoubleDef ("NucCEXFac",    gc->GetDouble("INUKE-NucCEXFac"));
   fEPreEq        = fConfig->GetDoubleDef ("EPreEq",       gc->GetDouble("INUKE-Energy_Pre_Eq"));
   fFermiFac      = fConfig->GetDoubleDef ("FermiFac",     gc->GetDouble("INUKE-FermiFac"));
@@ -906,6 +915,7 @@ void HNIntranuke::LoadConfig(void)
   LOG("Intranuke", pWARN) << "DelRNucleon = " << fDelRNucleon;
   LOG("Intranuke", pWARN) << "HadStep     = " << fHadStep << " fermi";
   LOG("Intranuke", pWARN) << "NucAbsFac   = " << fNucAbsFac;
+  LOG("Intranuke", pWARN) << "NucQEFac    = " << fNucQEFac;
   LOG("Intranuke", pWARN) << "NucCEXFac   = " << fNucCEXFac;
   LOG("Intranuke", pWARN) << "EPreEq      = " << fEPreEq;
   LOG("Intranuke", pWARN) << "FermiFac    = " << fFermiFac;
