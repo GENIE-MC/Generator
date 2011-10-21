@@ -60,7 +60,6 @@ public :
   void ProcessEventRecord(GHepRecord * event_rec) const;
 
 private:
-  //-- private methods:
 
   void LoadConfig (void);
 
@@ -73,6 +72,10 @@ private:
   void          InelasticHN	  (GHepRecord* ev, GHepParticle* p) const;
   void          GammaInelasticHN  (GHepRecord* ev, GHepParticle* p, INukeFateHN_t fate) const; 
   bool          HandleCompoundNucleus(GHepRecord* ev, GHepParticle* p, int mom) const;           
+
+  // data members specific to intranuke HN-mode
+  double fNucQEFac;
+
 };
 
 }      // genie namespace
