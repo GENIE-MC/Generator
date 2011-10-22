@@ -42,10 +42,6 @@ class PDGCodeList;
 namespace utils {
 namespace intranuke
 {
-  //! Reconstruct the INTRANUKE/hA model fate for the hadron at position i
-  INukeFateHA_t ReconstructHadronFateHA (
-    GHepRecord * event, int i, bool hA_mode=false); 
-
   //! Hadron survival probability
   double ProbSurvival(
     int pdgc, const TLorentzVector & x4, const TLorentzVector & p4, double A,
