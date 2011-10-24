@@ -588,6 +588,14 @@ void HAIntranuke::InelasticHA(
   if ( utils::intranuke::TwoBodyCollision(ev,pcode,tcode,scode,s2code,C3CM,
 					   p,t,fRemnA,fRemnZ,fRemnP4,fMode) )
   {
+    double P3L = TMath::Sqrt(p->Px()*p->Px() + p->Py()*p->Py() + p->Pz()*p->Pz());
+    double P4L = TMath::Sqrt(t->Px()*t->Px() + t->Py()*t->Py() + t->Pz()*t->Pz());
+    double E3L = p->KinE();
+    double E4L = t->KinE();
+  LOG("InelasticHA",pNOTICE)
+    << "TwoBodyKinematics: C3CM = " << C3CM << "\n" << "P3 = " 
+    << P3L << "   " << E3L << "\n" << "             P4 = " 
+    << P4L << "   " << E4L ;
     ev->AddParticle(*p);
     ev->AddParticle(*t);
 
@@ -595,7 +603,7 @@ void HAIntranuke::InelasticHA(
   } else
   {
     exceptions::INukeException exception;
-    exception.SetReason("TwoBodyCollison failed, details later");
+    exception.SetReason("TwoBodyCollison failed, details in messages above");
     throw exception;
   }
 
@@ -840,7 +848,7 @@ void HAIntranuke::Inelastic(
 	    {
 	      LOG("HAIntranuke", pWARN) << "Inelastic() failed calling TwoBodyCollision";
 	      exceptions::INukeException exception;
-	      exception.SetReason("PionProduction kinematics through TwoBodyCollision failed, details later");
+	      exception.SetReason("Pion absorption kinematics through TwoBodyCollision failed");
 	      throw exception;
 
 	    }
@@ -987,8 +995,8 @@ void HAIntranuke::Inelastic(
 	    else */ 
 	       if (np < 0 || nn < 0 )                 {iter++; continue;}
           else if (np + nn < 2. )                     {iter++; continue;}
-          else if (  ((np==fRemnZ       +((pdg::IsProton (pdgc)||pdgc==kPdgPiP)?1:0)-(pdgc==kPdgPiM?1:0))
-                    &&(nn==fRemnA-fRemnZ+((pdg::IsNeutron(pdgc)||pdgc==kPdgPiM)?1:0)-(pdgc==kPdgPiP?1:0)) ) && np+nn<3. )
+          else if (  ((np<=fRemnZ       +((pdg::IsProton (pdgc)||pdgc==kPdgPiP)?1:0)-(pdgc==kPdgPiM?1:0))
+		      || (nn<=fRemnA-fRemnZ+((pdg::IsNeutron(pdgc)||pdgc==kPdgPiM)?1:0)-(pdgc==kPdgPiP?1:0)) ) )//&& np+nn<3. )
                                                       {iter++; continue;}
           else if (np > fRemnZ        + ((pdg::IsProton(pdgc) ||pdgc==kPdgPiP)?1:0)
 		               - (pdgc==kPdgPiM?1:0)) {iter++; continue;}
