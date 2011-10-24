@@ -35,7 +35,8 @@ propagation.  Add photon and kaon xs ouputs.
 */
 //____________________________________________________________________________
 
-#include <math.h>
+#include <cmath>
+#include <cstdlib>
 #include <sstream>
 #include <string>
 #include <fstream>
