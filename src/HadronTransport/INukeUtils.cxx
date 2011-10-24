@@ -827,13 +827,27 @@ bool genie::utils::intranuke::TwoBodyCollision(
   TLorentzVector t4P3L, t4P4L;
   if (!TwoBodyKinematics(M3,M4,t4P1L,t4P2L,t4P3L,t4P4L,C3CM,RemnP4,bindE))
     {
-      p->SetStatus(kIStHadronInTheNucleus);
-      return false;
+      P3L = t4P3L.Vect().Mag();
+      P4L = t4P4L.Vect().Mag();
+      E3L = t4P3L.E();
+      E4L = t4P4L.E();
+
+      LOG("TwoBodyCollision",pNOTICE)
+	<< "TwoBodyKinematics fails: C3CM, P3 = " << C3CM << "  " 
+	<< P3L << "   " << E3L << "\n" << "             P4 = " 
+	<< P4L << "   " << E4L ;
+      return false;     //covers all possiblities for now
     }
 
   // error checking
   P3L = t4P3L.Vect().Mag();
   P4L = t4P4L.Vect().Mag();
+  E3L = t4P3L.E();
+  E4L = t4P4L.E();
+  LOG("TwoBodyCollision",pNOTICE)
+    << "TwoBodyKinematics: C3CM, P3 = " << C3CM << "  " 
+    << P3L << "   " << E3L << "\n" << "             P4 = " 
+    << P4L << "   " << E4L ;
 
   // handle very low momentum particles
   if(!(TMath::Finite(P3L)) || P3L<.001)
@@ -857,7 +871,7 @@ bool genie::utils::intranuke::TwoBodyCollision(
       E4L = TMath::Sqrt(P4L*P4L + M4*M4);
     }
 
-  /*// pauli blocking
+  /*// pauli blocking  turn off for now to better match data
   //  if(P3L<fFermiMomentum && pdg::IsNeutronOrProton(scode) ||
   //     P4L<fFermiMomentum && pdg::IsNeutronOrProton(s2code) )
   if(P3L<.25 && pdg::IsNeutronOrProton(scode) ||
@@ -971,7 +985,7 @@ bool genie::utils::intranuke::TwoBodyKinematics(
 	  LOG("Intranuke",pWARN) <<"E1L, E2L, M3, M4 : "<< E1L <<", "<< E2L <<", "<< M3 <<", "<< M4;
 	  t4P3L.SetPxPyPzE(0,0,0,0);
 	  t4P4L.SetPxPyPzE(0,0,0,0);
-	  return false;		  
+	  return false;
 	  }
     }
 
@@ -1000,20 +1014,24 @@ bool genie::utils::intranuke::TwoBodyKinematics(
   E2CM = gm*E2L - gm*beta*P2zL;
   tP2zCM = gm*P2zL*tbetadir - gm*tbeta*E2L;
   Et = E1CM + E2CM;
-  /*LOG("Intranuke",pWARN) <<"M1   "<<t4P1L.M()<<  ", M2    "<<t4P2L.M();
+//-------
+/*
+  LOG("Intranuke",pWARN) <<"M1   "<<t4P1L.M()<<  ", M2    "<<t4P2L.M();
   LOG("Intranuke",pWARN) <<"E1L  "<<E1L<< ", E1CM  "<<E1CM;
   LOG("Intranuke",pWARN) <<"P1zL "<<P1zL<<", P1zCM "<<tP1zCM.Mag()<<", P1tL "<<P1tL;
   LOG("Intranuke",pWARN) <<"E2L  "<<E2L<< ", E2CM  "<<E2CM;
   LOG("Intranuke",pWARN) <<"P2zL "<<P2zL<<", P2zCM "<<tP2zCM.Mag()<<", P2tL "<<P2tL;
-  LOG("Intranuke",pWARN) <<"C3CM "<<C3CM;*/
+  LOG("Intranuke",pWARN) <<"C3CM "<<C3CM;
+*/
+//-------
   E3CM = (Et*Et + M3*M3 - M4*M4) / (2.0 * Et);
 
   // check to see if decay is viable
   if(E3CM*E3CM - M3*M3<0 || E3CM<0 || Et<0)
   {
     if (Et<0) LOG("Intranuke",pWARN) <<"TwoBodyKinematics Failed: Total energy is negative";
-    if (E3CM<M3) LOG("Intranuke",pWARN) <<"TwoBodyKinematics Failed: Particle3 CM energy is too small";
-    if (E3CM*E3CM - M3*M3<0) LOG("Intranuke",pWARN) <<"TwoBodyKinematics Failed: Particle3 CM momentum is nonreal";
+    if (E3CM<M3) LOG("Intranuke",pWARN) <<"TwoBodyKinematics Failed: Scattered Particle 3 CM energy is too small";
+    if (E3CM*E3CM - M3*M3<0) LOG("Intranuke",pWARN) <<"TwoBodyKinematics Failed: Scattered Particle 3 CM momentum is nonreal";
     t4P3L.SetPxPyPzE(0,0,0,0);
     t4P4L.SetPxPyPzE(0,0,0,0);
     return false;
@@ -1027,13 +1045,14 @@ bool genie::utils::intranuke::TwoBodyKinematics(
   P3L = TMath::Sqrt(P3zL*P3zL + P3tL*P3tL);
   E3L = TMath::Sqrt(P3L*P3L + M3*M3);
 
-  // -------
-  /*double E4CM = Et-E3CM;
+  //-------
+  /*  
+  double E4CM = Et-E3CM;
   double P4zL = gm*beta*E4CM - gm*P3CM*C3CM;
   double P4tL = -1.*P3tL;
   double P4L = TMath::Sqrt(P4zL*P4zL + P4tL*P4tL);
   double E4L = TMath::Sqrt(P4L*P4L + M4*M4);
-
+ 
   LOG("Intranuke",pWARN) <<"E3L   "<<E3L<< ", E3CM "<<E3CM;
   LOG("Intranuke",pWARN) <<"P3zL  "<<P3zL<<", P3tL "<<P3tL;
   LOG("Intranuke",pWARN) <<"C3L   "<<P3zL/P3L;
@@ -1041,13 +1060,14 @@ bool genie::utils::intranuke::TwoBodyKinematics(
   LOG("Intranuke",pWARN) <<"E4L   "<<E4L<< ", E4CM "<<E4CM;
   LOG("Intranuke",pWARN) <<"P4zL  "<<P4zL<<", P4tL "<<P4tL;
   LOG("Intranuke",pWARN) <<"P4L   "<<P4L;
-  LOG("Intranuke",pWARN) <<"C4L   "<<P4zL/P4L;*/
+  LOG("Intranuke",pWARN) <<"C4L   "<<P4zL/P4L;
+  */
   // -------
 
   // handle very low momentum particles
   if(!(TMath::Finite(P3L)) || P3L<.001)
     {
-      LOG("Intranuke",pWARN)
+      LOG("Intranuke",pNOTICE)
 	<< "Particle 3 momentum small or non-finite: " << P3L
 	<< "\n" << "--> Assigning .001 as new momentum";
       P3tL = 0;
@@ -1179,11 +1199,8 @@ bool genie::utils::intranuke::ThreeBodyKinematics(
   EiCM = Et - E3CM;
   if(E3CM*E3CM - M3*M3<0)
   {
-    p->SetStatus(kIStHadronInTheNucleus);
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-    LOG("INukeUtils",pWARN) << "Error, Nonreal Momentum";
-#endif
-    ev->AddParticle(*p);
+    LOG("INukeUtils",pWARN)
+      << "PionProduction P3 has non-real momentun - cancel this fate"; 
     return false;
   }
   P3CM = TMath::Sqrt(E3CM*E3CM - M3*M3);
@@ -1275,11 +1292,8 @@ bool genie::utils::intranuke::ThreeBodyKinematics(
   // pauli blocking
   if(P3L < FermiMomentum || ( pdg::IsNeutronOrProton(s2->Pdg()) && P4L < FermiMomentum ) )
   {
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-    LOG("INukeUtils",pWARN) << "InelasticHN failed: Pauli blocking";
-#endif
-    p->SetStatus(kIStHadronInTheNucleus);
-    ev->AddParticle(*p);
+    LOG("INukeUtils",pWARN)
+      << "PionProduction fails because of Pauli blocking - cancel this fate"; 
     return false;
   }
 
