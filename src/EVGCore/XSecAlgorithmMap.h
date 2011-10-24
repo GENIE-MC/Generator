@@ -32,6 +32,7 @@ using std::ostream;
 namespace genie {
 
 class XSecAlgorithmI;
+class Interaction;
 class InteractionList;
 class InitialState;
 class EventGeneratorList;
