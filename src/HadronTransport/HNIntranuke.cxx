@@ -53,6 +53,7 @@
 #include "GHEP/GHepParticle.h"
 #include "HadronTransport/Intranuke.h"
 #include "HadronTransport/HNIntranuke.h"
+#include "HadronTransport/INukeException.h"
 #include "HadronTransport/INukeHadroData.h"
 #include "HadronTransport/INukeUtils.h"
 #include "Interaction/Interaction.h"
@@ -138,53 +139,62 @@ void HNIntranuke::SimulateHadronicFinalState(GHepRecord* ev, GHepParticle* p) co
       LOG("HNIntranuke", pERROR) << "** Cannot handle particle: " << p->Name();
       return;
     }
-  
-  // select a fate for the input particle
-  INukeFateHN_t fate = this->HadronFateHN(p);
-
-  // store the fate
-  ev->Particle(p->FirstMother())->SetRescatterCode((int)fate);
-
-  if(fate == kIHNFtUndefined)
+  try
     {
-      LOG("HNIntranuke", pERROR) << "** Couldn't select a fate";
-      LOG("HNIntranuke", pERROR) << "** Num Protons: " << fRemnZ 
-				 << ",  Num Neutrons: "<<(fRemnA-fRemnZ);
-      LOG("HNIntranuke", pERROR) << "** Particle: " << "\n" << (*p);
-      //LOG("HNIntranuke", pERROR) << "** Event Record: " << "\n" << (*ev);
-      //p->SetStatus(kIStUndefined);
-      p->SetStatus(kIStStableFinalState);
-      ev->AddParticle(*p);
-      return;
-    }
+      // select a fate for the input particle
+      INukeFateHN_t fate = this->HadronFateHN(p);
 
-  LOG("HNIntranuke", pNOTICE)
-    << "Selected " << p->Name() << " fate: " << INukeHadroFates::AsString(fate);
+      // store the fate
+      ev->Particle(p->FirstMother())->SetRescatterCode((int)fate);
 
-  // handle the reaction
-  if(fate == kIHNFtCEx || fate == kIHNFtElas)
-    {
-      this->ElasHN(ev,p,fate);
-    }
-  else if(fate == kIHNFtAbs)                         {this-> AbsorbHN(ev,p,fate);}
-  else if(fate == kIHNFtInelas && pdgc != kPdgGamma) 
-  {
+      if(fate == kIHNFtUndefined)
+	{
+	  LOG("HNIntranuke", pERROR) << "** Couldn't select a fate";
+	  LOG("HNIntranuke", pERROR) << "** Num Protons: " << fRemnZ 
+				     << ",  Num Neutrons: "<<(fRemnA-fRemnZ);
+	  LOG("HNIntranuke", pERROR) << "** Particle: " << "\n" << (*p);
+	  //LOG("HNIntranuke", pERROR) << "** Event Record: " << "\n" << (*ev);
+	  //p->SetStatus(kIStUndefined);
+	  p->SetStatus(kIStStableFinalState);
+	  ev->AddParticle(*p);
+	  return;
+	}
+
+      LOG("HNIntranuke", pNOTICE)
+	<< "Selected " << p->Name() << " fate: " << INukeHadroFates::AsString(fate);
+
+      // handle the reaction
+      if(fate == kIHNFtCEx || fate == kIHNFtElas)
+	{
+	  this->ElasHN(ev,p,fate);
+	}
+      else if(fate == kIHNFtAbs)                         {this-> AbsorbHN(ev,p,fate);}
+      else if(fate == kIHNFtInelas && pdgc != kPdgGamma) 
+	{
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("HNIntranuke", pDEBUG)
-    << "Invoking InelasticHN() for a : " << p->Name()
-    << " whose fate is : " << INukeHadroFates::AsString(fate);
+	  LOG("HNIntranuke", pDEBUG)
+	    << "Invoking InelasticHN() for a : " << p->Name()
+	    << " whose fate is : " << INukeHadroFates::AsString(fate);
 #endif
 
-    this-> InelasticHN(ev,p);
-  }
-  else if(fate == kIHNFtInelas && pdgc == kPdgGamma) {this-> GammaInelasticHN(ev,p,fate);}
-  else if(fate == kIHNFtNoInteraction)
-    {
-      p->SetStatus(kIStStableFinalState);
-      ev->AddParticle(*p);
-      return;
+	  this-> InelasticHN(ev,p);
+	}
+      else if(fate == kIHNFtInelas && pdgc == kPdgGamma) {this-> GammaInelasticHN(ev,p,fate);}
+      else if(fate == kIHNFtNoInteraction)
+	{
+	  p->SetStatus(kIStStableFinalState);
+	  ev->AddParticle(*p);
+	  return;
+	}
     }
+  catch(exceptions::INukeException exception)
+    {
+      this->SimulateHadronicFinalState(ev,p);
+       LOG("HNIntranuke", pWARN) 
+         << "retry call to SimulateHadronicFinalState ";
+       LOG("HNIntranuke", pWARN) << exception;
 
+    }
 }
 //___________________________________________________________________________
 INukeFateHN_t HNIntranuke::HadronFateHN(const GHepParticle * p) const
@@ -716,6 +726,9 @@ void HNIntranuke::InelasticHN(GHepRecord* ev, GHepParticle* p) const
   else
     {
       LOG("HNIntranuke", pWARN) << "Error: could not create pion production final state";
+      exceptions::INukeException exception;
+      exception.SetReason("PionProduction in hN failed, details above");
+      throw exception;
     }
 
   delete s1;
