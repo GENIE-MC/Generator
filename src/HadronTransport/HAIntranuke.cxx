@@ -385,7 +385,7 @@ double HAIntranuke::PnBounce(void) const
 
   theta *= dintor;
 
-  LOG("HAIntranuke", pINFO)
+  LOG("HAIntranuke", pNOTICE)
      << "Generated N+A elastic scattering angle = " << theta << " radians";
 
   return theta;
@@ -444,7 +444,7 @@ void HAIntranuke::ElasHA(
     {
       LOG("HAIntranuke",pWARN) << "ElasHA() failed";
       exceptions::INukeException exception;
-      exception.SetReason("TwoBodyKinematics failed in ElasHA, details later");
+      exception.SetReason("TwoBodyKinematics failed in ElasHA, details above");
       throw exception;
     }
 
@@ -592,9 +592,9 @@ void HAIntranuke::InelasticHA(
     double P4L = TMath::Sqrt(t->Px()*t->Px() + t->Py()*t->Py() + t->Pz()*t->Pz());
     double E3L = p->KinE();
     double E4L = t->KinE();
-  LOG("InelasticHA",pNOTICE)
+  LOG("InelasticHA",pINFO)
     << "TwoBodyKinematics: C3CM = " << C3CM << "\n" << "P3 = " 
-    << P3L << "   " << E3L << "\n" << "             P4 = " 
+    << P3L << "   " << E3L << "             P4 = " 
     << P4L << "   " << E4L ;
     ev->AddParticle(*p);
     ev->AddParticle(*t);
@@ -603,7 +603,7 @@ void HAIntranuke::InelasticHA(
   } else
   {
     exceptions::INukeException exception;
-    exception.SetReason("TwoBodyCollison failed, details in messages above");
+    exception.SetReason("TwoBodyCollison failed in hA simulation, details in messages above");
     throw exception;
   }
 
@@ -673,7 +673,7 @@ void HAIntranuke::Inelastic(
 	{
 	  LOG("HAIntranuke", pWARN) << "Error: could not create pion production final state";
 	  exceptions::INukeException exception;
-	  exception.SetReason("PionProduction kinematics failed, details later");
+	  exception.SetReason("PionProduction kinematics failed, details above");
 	  throw exception;
 	}
 
@@ -691,8 +691,9 @@ void HAIntranuke::Inelastic(
       if (fRemnA<2)
       {
 	  LOG("HAIntranuke", pWARN) << "Error: could not create absorption final state: too few particles";
-	  p->SetStatus(kIStStableFinalState);
-	  ev->AddParticle(*p);
+	  exceptions::INukeException exception;
+	  exception.SetReason("PionAbsorption in hA failed, not enough nucleons");
+	  throw exception;
       }
       if (fRemnZ<1 && pdgc==kPdgPiM)
       {
@@ -846,9 +847,9 @@ void HAIntranuke::Inelastic(
 	    }
 	  else
 	    {
-	      LOG("HAIntranuke", pWARN) << "Inelastic() failed calling TwoBodyCollision";
+	      LOG("HAIntranuke", pWARN) << "Inelastic in hA failed calling TwoBodyKineamtics";
 	      exceptions::INukeException exception;
-	      exception.SetReason("Pion absorption kinematics through TwoBodyCollision failed");
+	      exception.SetReason("Pion absorption kinematics through TwoBodyKinematics failed");
 	      throw exception;
 
 	    }
@@ -916,7 +917,7 @@ void HAIntranuke::Inelastic(
 	    LOG("HAIntranuke", pWARN) << "--> A = " << fRemnA << ", Z = " << fRemnZ << ", Energy = " << ke;
 #endif
 	    exceptions::INukeException exception;
-	    exception.SetReason("Absorption choice of # of p,n failed, details later");
+	    exception.SetReason("Absorption choice of # of p,n failed, details above");
 	    throw exception;
 	  }
 
@@ -963,7 +964,7 @@ void HAIntranuke::Inelastic(
 		      LOG("HAIntranuke", pWARN) << "--> A = " << fRemnA << ", Z = " << fRemnZ << ", Energy = " << ke;
 #endif
 		      exceptions::INukeException exception;
-		      exception.SetReason("Random number generator for choice of #p,n final state failed, details later");
+		      exception.SetReason("Random number generator for choice of #p,n final state failed, details above");
 		      throw exception;
 		    }
 
@@ -1208,7 +1209,7 @@ void HAIntranuke::Inelastic(
 	      if ( pdgc==kPdgPiM )                         fRemnZ++;
 	      if ( pdg::IsNeutronOrProton (pdgc) )         fRemnA--;	  
 	      exceptions::INukeException exception;
-	      exception.SetReason("Phase space generation of absorption final state failed, details later");
+	      exception.SetReason("Phase space generation of absorption final state failed, details above");
 	      throw exception;
 	    }
 	}
