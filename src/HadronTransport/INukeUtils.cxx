@@ -1015,14 +1015,14 @@ bool genie::utils::intranuke::TwoBodyKinematics(
   tP2zCM = gm*P2zL*tbetadir - gm*tbeta*E2L;
   Et = E1CM + E2CM;
 //-------
-/*
-  LOG("Intranuke",pWARN) <<"M1   "<<t4P1L.M()<<  ", M2    "<<t4P2L.M();
-  LOG("Intranuke",pWARN) <<"E1L  "<<E1L<< ", E1CM  "<<E1CM;
-  LOG("Intranuke",pWARN) <<"P1zL "<<P1zL<<", P1zCM "<<tP1zCM.Mag()<<", P1tL "<<P1tL;
-  LOG("Intranuke",pWARN) <<"E2L  "<<E2L<< ", E2CM  "<<E2CM;
-  LOG("Intranuke",pWARN) <<"P2zL "<<P2zL<<", P2zCM "<<tP2zCM.Mag()<<", P2tL "<<P2tL;
-  LOG("Intranuke",pWARN) <<"C3CM "<<C3CM;
-*/
+
+  LOG("Intranuke",pINFO) <<"M1   "<<t4P1L.M()<<  ", M2    "<<t4P2L.M();
+  LOG("Intranuke",pINFO) <<"E1L  "<<E1L<< ", E1CM  "<<E1CM;
+  LOG("Intranuke",pINFO) <<"P1zL "<<P1zL<<", P1zCM "<<tP1zCM.Mag()<<", P1tL "<<P1tL;
+  LOG("Intranuke",pINFO) <<"E2L  "<<E2L<< ", E2CM  "<<E2CM;
+  LOG("Intranuke",pINFO) <<"P2zL "<<P2zL<<", P2zCM "<<tP2zCM.Mag()<<", P2tL "<<P2tL;
+  LOG("Intranuke",pINFO) <<"C3CM "<<C3CM;
+
 //-------
   E3CM = (Et*Et + M3*M3 - M4*M4) / (2.0 * Et);
 
@@ -1046,22 +1046,29 @@ bool genie::utils::intranuke::TwoBodyKinematics(
   E3L = TMath::Sqrt(P3L*P3L + M3*M3);
 
   //-------
-  /*  
+
   double E4CM = Et-E3CM;
   double P4zL = gm*beta*E4CM - gm*P3CM*C3CM;
   double P4tL = -1.*P3tL;
   double P4L = TMath::Sqrt(P4zL*P4zL + P4tL*P4tL);
   double E4L = TMath::Sqrt(P4L*P4L + M4*M4);
  
-  LOG("Intranuke",pWARN) <<"E3L   "<<E3L<< ", E3CM "<<E3CM;
-  LOG("Intranuke",pWARN) <<"P3zL  "<<P3zL<<", P3tL "<<P3tL;
-  LOG("Intranuke",pWARN) <<"C3L   "<<P3zL/P3L;
-  LOG("Intranuke",pWARN) <<"Check:";
-  LOG("Intranuke",pWARN) <<"E4L   "<<E4L<< ", E4CM "<<E4CM;
-  LOG("Intranuke",pWARN) <<"P4zL  "<<P4zL<<", P4tL "<<P4tL;
-  LOG("Intranuke",pWARN) <<"P4L   "<<P4L;
-  LOG("Intranuke",pWARN) <<"C4L   "<<P4zL/P4L;
-  */
+  LOG("Intranuke",pINFO) <<"M3   "<< M3 <<  ", M4    "<< M4;
+  LOG("Intranuke",pINFO) <<"E3L   "<<E3L<< ", E3CM "<<E3CM;
+  LOG("Intranuke",pINFO) <<"P3zL  "<<P3zL<<", P3tL "<<P3tL;
+  LOG("Intranuke",pINFO) <<"C3L   "<<P3zL/P3L;
+  LOG("Intranuke",pINFO) <<"Check:";
+  LOG("Intranuke",pINFO) <<"E4L   "<<E4L<< ", E4CM "<<E4CM;
+  LOG("Intranuke",pINFO) <<"P4zL  "<<P4zL<<", P4tL "<<P4tL;
+  LOG("Intranuke",pINFO) <<"P4L   "<<P4L;
+  LOG("Intranuke",pINFO) <<"C4L   "<<P4zL/P4L;
+
+  double echeck = E1L + E2L - (E3L + E4L);
+  double pzcheck = P1zL+ P2zL - (P3zL + P4zL);
+  double ptcheck = P1tL+ P2tL - (P3tL + P4tL);
+  
+  LOG("Intranuke",pINFO) <<"Check 4-momentum conservation -  Energy  "<<echeck<<", z momentum "<<pzcheck << ",    transverse momentum  " << ptcheck ;
+
   // -------
 
   // handle very low momentum particles
