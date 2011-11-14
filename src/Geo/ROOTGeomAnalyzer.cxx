@@ -127,6 +127,7 @@ using namespace genie::controls;
 //#define RWH_DEBUG
 //#define RWH_DEBUG_2
 //#define RWH_COUNTVOLS
+
 #ifdef RWH_COUNTVOLS
 // keep some statistics about how many volumes traversed for each box face
 long int mxsegments = 0; //rwh
@@ -351,7 +352,7 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
     double wgt = ( mat ) ? this->GetWeight(mat,tgtpdg) : 0;
     wgtmap[mat] = wgt;
 #ifdef RWH_DEBUG
-    if ( ( fDebugFlags & 0x01 ) ) {
+    if ( ( fDebugFlags & 0x02 ) ) {
       LOG("GROOTGeom", pINFO)
         << " wgtmap[" << mat->GetName() << "] pdg " << tgtpdg << " wgt " << Form("%.6f",wgt);
     }
@@ -370,7 +371,7 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
     double wgtstep = trimmed_step * wgtmap[mat];
     double beyond = walked + wgtstep;
 #ifdef RWH_DEBUG
-    if ( ( fDebugFlags & 0x01 ) ) {
+    if ( ( fDebugFlags & 0x04 ) ) {
       LOG("GROOTGeom", pINFO)
         << " beyond " << beyond << " genwgt_dist " << genwgt_dist
         << " trimmed_step " << trimmed_step << " wgtstep " << wgtstep;
@@ -379,7 +380,7 @@ const TVector3 & ROOTGeomAnalyzer::GenerateVertex(
     if ( beyond > genwgt_dist ) {
       // the end of this segment is beyond our generation point
 #ifdef RWH_DEBUG
-      if ( ( fDebugFlags & 0x01 ) ) {
+      if ( ( fDebugFlags & 0x08 ) ) {
         LOG("GROOTGeom", pINFO)
           << "Choose vertex pos walked=" << walked 
           << " beyond=" << beyond 
@@ -1495,7 +1496,7 @@ void ROOTGeomAnalyzer::SwimOnce(const TVector3 & r0, const TVector3 & udir)
 
         ps_curr.SetExit(fGeometry->GetCurrentPoint());
         ps_curr.SetStep(step);
-        if ( ( fDebugFlags & 0x04 ) ) {
+        if ( ( fDebugFlags & 0x10 ) ) {
           // In genera don't add the path segments from the start point to
           // the top volume (here for debug purposes)
           // Clear out the step range even if we keep it
@@ -1550,7 +1551,7 @@ void ROOTGeomAnalyzer::SwimOnce(const TVector3 & r0, const TVector3 & udir)
 #endif
 
 #ifdef RWH_DEBUG_2
-  if ( ( fDebugFlags & 0x02 ) ) {
+  if ( ( fDebugFlags & 0x20 ) ) {
     fCurrPathSegmentList->SetDoCrossCheck(true);       //RWH
     LOG("GROOTGeom", pNOTICE) << "Before trimming" << *fCurrPathSegmentList;
     double mxddist = 0, mxdstep = 0;
@@ -1573,7 +1574,7 @@ void ROOTGeomAnalyzer::SwimOnce(const TVector3 & r0, const TVector3 & udir)
 #ifdef RWH_DEBUG_2
   if ( fGeomVolSelector) { 
     // after FillMatStepSum() so one can see the summed mass
-    if ( ( fDebugFlags & 0x02 ) ) {
+    if ( ( fDebugFlags & 0x40 ) ) {
       fCurrPathSegmentList->SetPrintVerbose(true);
       LOG("GROOTGeom", pNOTICE) << "After  trimming" << *fCurrPathSegmentList;
       fCurrPathSegmentList->SetPrintVerbose(false);
