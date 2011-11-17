@@ -40,6 +40,10 @@
    Split Intranuke class into two separate classes, one for each interaction mode.
    Intranuke.cxx now only contains methods common to both classes and associated
    with the stepping of the hadrons through the nucleus and with configuration.
+ @ Nov, 2011 - CA
+   Tweaked the way TransportHadrons() looks-up the nuclear environment so that
+   it works for the nucleon decay mode as well.
+
 */
 //____________________________________________________________________________
 
@@ -53,6 +57,7 @@
 #include "Conventions/GBuild.h"
 #include "Conventions/Constants.h"
 #include "Conventions/Controls.h"
+#include "Conventions/GMode.h"
 #include "GHEP/GHepStatus.h"
 #include "GHEP/GHepRecord.h"
 #include "GHEP/GHepParticle.h"
@@ -137,7 +142,7 @@ void Intranuke::GenerateVertex(GHepRecord * evrec) const
   
   LOG("Intranuke", pNOTICE) 
      << "Generated vtx @ R = " << vtx.Mag() << " fm / " 
-                                            << print::Vec3AsString(&vtx);
+     << print::Vec3AsString(&vtx);
 
   TObjArrayIter piter(evrec);
   GHepParticle * p = 0;
@@ -210,37 +215,45 @@ void Intranuke::TransportHadrons(GHepRecord * evrec) const
 {
 // transport all hadrons outside the nucleus
 
-  //  Keep track of the remnant nucleus A,Z  
+  int inucl = -1;
+  fRemnA = -1;
+  fRemnZ = -1;
+
   //  Get 'nuclear environment' at the begginning of hadron transport 
-  int iremn=-1;
-  fRemnA=-1;
-  fRemnZ=-1;
-  if(fInTestMode) {
-     // in hadron+nucleus mode get the particle at the 2nd GHEP row 
-     GHepParticle * nucltgt = evrec->Particle(1);
-     assert(nucltgt);
-     iremn = 1;
-     fRemnA = nucltgt->A();
-     fRemnZ = nucltgt->Z();
-  } else {
-     // in neutrino+nucleus mode get the daughter of the initial
-     // state nucleus that is a nucleus itself
-     GHepParticle * nucltgt = evrec->Particle(1);
-     assert(nucltgt);
-     for(int i=nucltgt->FirstDaughter(); i<=nucltgt->LastDaughter(); i++) {
-       if(i<0) continue;
-       if(pdg::IsIon(evrec->Particle(i)->Pdg())) {
-          fRemnA = evrec->Particle(i)->A();
-          fRemnZ = evrec->Particle(i)->Z();
-          iremn  = i;
-       }
-     }
+  //  and keep track of the remnant nucleus A,Z  
+
+  GEvGenMode_t genie_mode = evrec->EventGenerationMode();
+  if(genie_mode == kGMdHadronNucleus ||
+     genie_mode == kGMdPhotonNucleus)
+  {
+     inucl = evrec->TargetNucleusPosition();
   }
-  const TLorentzVector & premn4 = *(evrec->Particle(iremn)->P4());
-  fRemnP4 = premn4; 
+  else
+  if(genie_mode == kGMdLeptonNucleus || 
+     genie_mode == kGMdNucleonDecay) 
+  {
+     inucl = evrec->RemnantNucleusPosition();
+  }
+
+  LOG("Intranuke", pNOTICE) 
+     << "Propagating hadrons within nucleus found in position = " << inucl;
+  GHepParticle * nucl = evrec->Particle(inucl);
+  if(!nucl) {
+    LOG("Intranuke", pERROR) 
+       << "No nucleus found in position = " << inucl;
+    LOG("Intranuke", pERROR) 
+       << *evrec;
+    return;
+  }
+  
+  fRemnA = nucl->A();
+  fRemnZ = nucl->Z();
 
   LOG("Intranuke", pNOTICE)
-        << "Remnant nucleus (A,Z) = (" << fRemnA << ", " << fRemnZ << ")";
+      << "Nucleus (A,Z) = (" << fRemnA << ", " << fRemnZ << ")";
+
+  const TLorentzVector & p4nucl = *(nucl->P4());
+  fRemnP4 = p4nucl; 
 
   // Loop over GHEP and run intranuclear rescattering on handled particles
   TObjArrayIter piter(evrec);
@@ -324,15 +337,13 @@ void Intranuke::TransportHadrons(GHepRecord * evrec) const
   // 4p not  put explicitly into the simulated particles
   TLorentzVector v4(0.,0.,0.,0.);
   GHepParticle remnant_nucleus(
-    kPdgHadronicBlob, kIStFinalStateNuclearRemnant, 
-    iremn,-1,-1,-1, fRemnP4, v4);
-//     kPdgHadronicBlob, kIStStableFinalState, iremn,-1,-1,-1, fRemnP4, v4);
+    kPdgHadronicBlob, kIStFinalStateNuclearRemnant, inucl,-1,-1,-1, fRemnP4, v4);
   evrec->AddParticle(remnant_nucleus);
   // Mark the initial remnant nucleus as an intermediate state 
   // Don't do that in the test mode sinc ethe initial remnant nucleus and
   // the initial nucleus coincide.
   if(!fInTestMode) {
-     evrec->Particle(iremn)->SetStatus(kIStIntermediateState);
+     evrec->Particle(inucl)->SetStatus(kIStIntermediateState);
   }
 }
 //___________________________________________________________________________
