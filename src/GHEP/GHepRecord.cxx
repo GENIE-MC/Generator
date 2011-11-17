@@ -29,6 +29,8 @@
    the ROOT Streamer.
  @ Sep 26, 2011 - CA
    Demote a few messages from `warning' to `notice'.
+ @ Nov 17, 2011 - CA
+   Added `GEvGenMode_t EventGenerationMode(void) const'
 
 */
 //____________________________________________________________________________
@@ -48,6 +50,7 @@
 #include "GHEP/GHepRecord.h"
 #include "GHEP/GHepStatus.h"
 #include "GHEP/GHepFlags.h"
+#include "GHEP/GHepUtils.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGUtils.h"
 #include "PDG/PDGCodes.h"
@@ -227,6 +230,67 @@ vector<int> * GHepRecord::GetStableDescendants(int position) const
   return descendants;
 }
 //___________________________________________________________________________
+GEvGenMode_t GHepRecord::EventGenerationMode(void) const
+{
+  GHepParticle * p0 = this->Particle(0);
+  if(!p0) return kGMdUnknown;
+  GHepParticle * p1 = this->Particle(1);
+  if(!p1) return kGMdUnknown;
+
+  int p0pdg = p0->Pdg();
+  GHepStatus_t p0st = p0->Status();
+  int p1pdg = p1->Pdg();
+  GHepStatus_t p1st = p1->Status();
+
+  // In lepton+nucleon/nucleus mode, the 1st entry in the event record
+  // is a charged or neutral lepton with status code = kIStInitialState
+  if( pdg::IsLepton(p0pdg) && p0st == kIStInitialState )
+  {
+    return kGMdLeptonNucleus;
+  }
+
+  // In hadron+nucleon/nucleus mode, the 1st entry in the event record
+  // is a hadron with status code = kIStInitialState and the 2nd entry
+  // is a nucleon or nucleus with status code = kIStInitialState
+  if( pdg::IsHadron(p0pdg) && p0st == kIStInitialState )
+  {   
+    if( (pdg::IsIon(p1pdg) || pdg::IsNucleon(p1pdg)) && p1st == kIStInitialState)
+    {
+       return kGMdHadronNucleus;
+    }
+  }
+
+  // As above, with a photon as a probe
+  if( p0pdg == kPdgGamma && p0st == kIStInitialState )
+  {   
+    if( (pdg::IsIon(p1pdg) || pdg::IsNucleon(p1pdg)) && p1st == kIStInitialState)
+    {
+       return kGMdPhotonNucleus;
+    }
+  }
+      
+  // In nucleon decay mode, 
+  // - [if the decayed nucleon was a bound one] the 1st entry in the event
+  //   record is a nucleus with status code = kIStInitialState and the
+  //   2nd entry is a nucleon with code = kIStDecayedState
+  // - [if the decayed nucleon was a free one] the first entry in the event
+  //   record is a nucleon with status code = kIStInitialState and it has a
+  //   single daughter which is a nucleon with status code = kIStDecayedState.
+         
+  if( pdg::IsIon(p0pdg)     && p0st == kIStInitialState &&
+      pdg::IsNucleon(p1pdg) && p1st == kIStDecayedState)
+  {
+     return kGMdNucleonDecay;
+  }
+  if( pdg::IsNucleon(p0pdg) && p0st == kIStInitialState &&
+      pdg::IsNucleon(p1pdg) && p1st == kIStDecayedState)
+  {
+     return kGMdNucleonDecay;
+  }
+         
+  return kGMdUnknown;
+}
+//___________________________________________________________________________
 GHepParticle * GHepRecord::Probe(void) const
 {
 // Returns the GHepParticle representing the probe (neutrino, e,...).
@@ -238,8 +302,8 @@ GHepParticle * GHepRecord::Probe(void) const
 //___________________________________________________________________________
 GHepParticle * GHepRecord::TargetNucleus(void) const
 {
-// Returns the GHepParticle representing the target nucleus, or 0 if it does
-// not exist.
+// Returns the GHepParticle representing the target / initial state nucleus, 
+// or 0 if it does not exist.
 
   int ipos = this->TargetNucleusPosition();
   if(ipos>-1) return this->Particle(ipos);
@@ -248,8 +312,8 @@ GHepParticle * GHepRecord::TargetNucleus(void) const
 //___________________________________________________________________________
 GHepParticle * GHepRecord::RemnantNucleus(void) const
 {
-// Returns the GHepParticle representing the remnant nucleus, or 0 if it does
-// not exist.
+// Returns the GHepParticle representing the remnant nucleus, 
+// or 0 if it does not exist.
 
   int ipos = this->RemnantNucleusPosition();
   if(ipos>-1) return this->Particle(ipos);
@@ -300,7 +364,15 @@ int GHepRecord::ProbePosition(void) const
 // Returns the GHEP position of the GHepParticle representing the probe 
 // (neutrino, e,...).
 
-  return 0; // The probe is *always* at slot 0.
+  // The probe is *always* at slot 0.
+  GEvGenMode_t mode = this->EventGenerationMode();
+  if(mode == kGMdLeptonNucleus || 
+     mode == kGMdHadronNucleus ||
+     mode == kGMdPhotonNucleus) 
+  {
+    return 0;
+  }
+  return -1; 
 }
 //___________________________________________________________________________
 int GHepRecord::TargetNucleusPosition(void) const
@@ -308,11 +380,23 @@ int GHepRecord::TargetNucleusPosition(void) const
 // Returns the GHEP position of the GHepParticle representing the target 
 // nucleus - or -1 if the interaction takes place at a free nucleon.
 
-  GHepParticle * p = this->Particle(1); // If exists, it will be at slot 1
-  if(!p) return -1;
+  GEvGenMode_t mode = this->EventGenerationMode();
 
-  int pdgc = p->Pdg();
-  if(pdg::IsIon(pdgc) && p->Status()==kIStInitialState) return 1; 
+  if(mode == kGMdLeptonNucleus || 
+     mode == kGMdHadronNucleus ||
+     mode == kGMdPhotonNucleus) 
+  {
+     GHepParticle * p = this->Particle(1); // If exists, it will be at slot 1
+     if(!p) return -1;
+     int pdgc = p->Pdg();
+     if(pdg::IsIon(pdgc) && p->Status()==kIStInitialState) return 1; 
+  }
+  if(mode == kGMdNucleonDecay) {
+     GHepParticle * p = this->Particle(0); // If exists, it will be at slot 0
+     if(!p) return -1;
+     int pdgc = p->Pdg();
+     if(pdg::IsIon(pdgc) && p->Status()==kIStInitialState) return 0; 
+  }
 
   return -1;
 }

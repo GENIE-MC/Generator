@@ -25,6 +25,7 @@
 #include <TClonesArray.h>
 #include <TBits.h>
 
+#include "Conventions/GMode.h"
 #include "Interaction/Interaction.h" 
 #include "GHEP/GHepStatus.h"
 
@@ -47,18 +48,17 @@ public :
   GHepRecord(TRootIOCtor*);
   virtual ~GHepRecord();
 
-  //-- methods to attach / get summary information
+  // Methods to attach / get summary information
 
   virtual Interaction * Summary       (void) const;
   virtual void          AttachSummary (Interaction * interaction);
 
-  //-- provide a simplified wrapper of the 'new with placement'
-  //   TClonesArray object insertion method
-
-  //   ALWAYS use these methods to insert new particles as they check
-  //   for the compactness of the daughter lists.
-  //   Note that the record might be automatically re-arranged as the
-  //   result of your GHepParticle insertion
+  // Provide a simplified wrapper of the 'new with placement'
+  // TClonesArray object insertion method
+  // ALWAYS use these methods to insert new particles as they check
+  // for the compactness of the daughter lists.
+  // Note that the record might be automatically re-arranged as the
+  // result of your GHepParticle insertion
 
   virtual void AddParticle (const GHepParticle & p);
   virtual void AddParticle (int pdg, GHepStatus_t ist,
@@ -69,7 +69,7 @@ public :
                            double px, double py, double pz, double E,
                                     double x, double y, double z, double t);
 
-  //-- methods to search the GHEP (STDHEP-like) record
+  // Methods to search the GHEP record
 
   virtual GHepParticle * Particle     (int position) const;
   virtual GHepParticle * FindParticle (int pdg, GHepStatus_t ist, int start) const;
@@ -79,7 +79,12 @@ public :
 
   virtual vector<int> * GetStableDescendants(int position) const;
 
-  //-- easy access methods for the most frequently used GHEP entries
+  // Return the mode (lepton+nucleon/nucleus, hadron+nucleon/nucleus, nucleon
+  // decay etc...) by looking at the event entries
+
+  GEvGenMode_t EventGenerationMode(void) const;
+
+  // Easy access methods for the most frequently used GHEP entries
 
   virtual GHepParticle * Probe                            (void) const;
   virtual GHepParticle * TargetNucleus                    (void) const;
@@ -96,17 +101,17 @@ public :
   virtual int            FinalStatePrimaryLeptonPosition  (void) const;
   virtual int            FinalStateHadronicSystemPosition (void) const; 
 
-  //-- number of GHepParticle occurences in GHEP
+  // Number of GHepParticle occurences in GHEP
 
   virtual unsigned int NEntries (int pdg, GHepStatus_t ist, int start=0) const;
   virtual unsigned int NEntries (int pdg, int start=0) const;
 
-  //-- methods to switch on/off and ask for event record flags
+  // Methods to switch on/off and ask for event record flags
 
   virtual TBits * EventFlags   (void) const { return fEventFlags; }
   virtual bool    IsUnphysical (void) const { return (fEventFlags->CountBits()>0); }
 
-  //-- methods to set/get the event weight and cross sections
+  // Methods to set/get the event weight and cross sections
 
   virtual double Weight         (void) const  { return fWeight;   }
   virtual double Probability    (void) const  { return fProb;     }
@@ -117,14 +122,14 @@ public :
   virtual void   SetXSec        (double xsec) { fXSec     = (xsec>0) ? xsec : 0.; }
   virtual void   SetDiffXSec    (double xsec) { fDiffXSec = (xsec>0) ? xsec : 0.; }
 
-  //-- set/get event vertex in detector coordinate system
+  // Set/get event vertex in detector coordinate system
 
   virtual TLorentzVector * Vertex (void) const { return fVtx; }
 
   virtual void SetVertex (double x, double y, double z, double t);
   virtual void SetVertex (const TLorentzVector & vtx);
 
-  //-- common record operations
+  // Common event record operations
 
   virtual void Copy        (const GHepRecord & record);
   virtual void Clear       (Option_t * opt="");
@@ -132,10 +137,9 @@ public :
   virtual void CompactifyDaughterLists     (void);
   virtual void RemoveIntermediateParticles (void);
 
-  //-- methods & operators to print the record
+  // Methods & operators to print the record
 
   void Print (ostream & stream) const;
-
   friend ostream & operator << (ostream & stream, const GHepRecord & event);
 
 protected:
@@ -168,7 +172,7 @@ protected:
 
 private:
 
-ClassDef(GHepRecord, 1)
+ClassDef(GHepRecord, 2)
 
 };
 
