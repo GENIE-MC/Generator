@@ -97,6 +97,7 @@
   <priority msgstream="MuELoss">             WARN   </priority>
   <priority msgstream="MultProb">            WARN   </priority>
   <priority msgstream="NucDeEx">             WARN   </priority>
+  <priority msgstream="NucleonDecay">        WARN   </priority>
   <priority msgstream="NucleonP">            WARN   </priority>
   <priority msgstream="Nuclear">             WARN   </priority>
   <priority msgstream="Numerical">           WARN   </priority>
@@ -153,7 +154,8 @@
   <priority msgstream="XSecSplLst">          WARN   </priority>
 
   <priority msgstream="gevgen">              WARN   </priority>
-  <priority msgstream="ghAevgen">            WARN   </priority>
+  <priority msgstream="gevgen_ndcy">         WARN   </priority>
+  <priority msgstream="gevgen_hadron">       WARN   </priority>
   <priority msgstream="gT2Kevgen">           WARN   </priority>
   <priority msgstream="gvldtest">            WARN   </priority>
   <priority msgstream="gntpc">               WARN   </priority>
