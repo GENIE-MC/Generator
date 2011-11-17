@@ -240,13 +240,18 @@ int SelectInitState(void)
      cprob.insert(map<int, double>::value_type(pdg_code, sum_prob));
   }
 
+  assert(sum_prob > 0.);
+
   RandomGen * rnd = RandomGen::Instance();
   double r = sum_prob * rnd->RndEvg().Rndm();
 
   for(iter = cprob.begin(); iter != cprob.end(); ++iter) {
      int pdg_code = iter->first;
      double prob  = iter->second;
-     if(r < prob) return pdg_code;
+     if(r < prob) {
+       LOG("gevgen_ndcy", pNOTICE) << "Selected initial state = " << pdg_code;
+       return pdg_code;
+     }
   }  
 
   LOG("gevgen_ndcy", pFATAL) << "Couldn't select an initial state...";
