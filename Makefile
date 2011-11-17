@@ -30,6 +30,7 @@ BUILD_TARGETS =    print-make-info \
 		   vhe-extension \
 		   flux-drivers \
 		   geom-drivers \
+		   nucleon-decay \
 		   reweight \
 		   viewer \
 		   mueloss \
@@ -41,6 +42,7 @@ BUILD_TARGETS =    print-make-info \
 		   t2k-support-softw \
 		   numi-support-softw \
 		   atmo-support-softw \
+		   nucleon-decay-support-softw \
 		   reweight-support-softw \
 		   install-scripts
 INSTALL_TARGETS =  print-makeinstall-info \
@@ -84,6 +86,19 @@ utils: FORCE
 	cd PDG;            make; cd ..; \
 	cd Utils;          make; \
 	cd ${GENIE}
+
+nucleon-decay:
+	@echo " "
+	@echo "** Building nucleon decay library..."
+ifeq ($(strip $(GOPT_ENABLE_NUCLEON_DECAY)),YES)
+	cd ${GENIE}/src;\
+	cd NucleonDecay; \
+	make; \
+	cd ${GENIE}
+else
+	@echo " "
+	@echo "** Nucleon decay was not enabled. Skipping..."
+endif
 
 reweight:
 	@echo " "
@@ -314,27 +329,6 @@ else
 	@echo "Not enabled! Skipping..."
 endif
 
-#lbne-support-softw: FORCE
-#	@echo " "
-#	@echo "** Building LBNE-specific support software..."
-#ifeq ($(strip $(GOPT_ENABLE_LBNE)),YES)
-#	cd ${GENIE}/src/support/lbne/EvGen/;\
-#	make all; \
-#	cd ${GENIE}
-#else
-#	@echo "Not enabled! Skipping..."
-#endif
-
-#ino-support-softw: FORCE
-#	@echo " "
-#	@echo "** Building INO-specific support software..."
-#ifeq ($(strip $(GOPT_ENABLE_INO)),YES)
-#	cd ${GENIE}/src/support/ino/EvGen/;\
-#	make all; \
-#	cd ${GENIE}
-#else
-#	@echo "Not enabled! Skipping..."
-#endif
 
 atmo-support-softw: FORCE
 	@echo " "
@@ -345,6 +339,17 @@ ifeq ($(strip $(GOPT_ENABLE_ATMO)),YES)
 	cd ${GENIE}
 else
 	@echo "Not enabled! Skipping..."
+endif
+
+nucleon-decay-support-softw: FORCE
+	@echo " "
+	@echo "** Building nucleon decay applications ..."
+ifeq ($(strip $(GOPT_ENABLE_NUCLEON_DECAY)),YES)
+	cd ${GENIE}/src/support/ndcy/EvGen;\
+	make all; \
+	cd ${GENIE}
+else
+	@echo "Nucleon decay not enabled! Skipping..."
 endif
 
 reweight-support-softw: FORCE
@@ -439,6 +444,7 @@ make-install-dirs: FORCE
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/NuE
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/NuGamma
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Nuclear
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/NucleonDecay
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Numerical
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/PDF
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/PDG
@@ -488,6 +494,7 @@ copy-install-files: FORCE
 	cd Messenger;              make install; cd ..; \
 	cd MuELoss;                make install; cd ..; \
 	cd Nuclear;                make install; cd ..; \
+	cd NucleonDecay;           make install; cd ..; \
 	cd Ntuple;                 make install; cd ..; \
 	cd NuE;                    make install; cd ..; \
 	cd NuGamma;                make install; cd ..; \
@@ -538,6 +545,7 @@ purge: FORCE
 	cd Messenger;                     make purge; cd ..; \
 	cd MuELoss;                       make purge; cd ..; \
 	cd Nuclear;                       make purge; cd ..; \
+	cd NucleonDecay;                  make purge; cd ..; \
 	cd Ntuple;                        make purge; cd ..; \
 	cd NuGamma;                       make purge; cd ..; \
 	cd NuE;                           make purge; cd ..; \
@@ -596,6 +604,7 @@ clean-files: FORCE
 	cd Messenger;                     make clean; cd ..; \
 	cd MuELoss;                       make clean; cd ..; \
 	cd Nuclear;                       make clean; cd ..; \
+	cd NucleonDecay;                  make clean; cd ..; \
 	cd Ntuple;                        make clean; cd ..; \
 	cd NuGamma;                       make clean; cd ..; \
 	cd NuE;                           make clean; cd ..; \
@@ -625,6 +634,7 @@ clean-files: FORCE
 	cd support/t2k/SKNorm/;           make clean; cd ../../../; \
 	cd support/numi/EvGen/;           make clean; cd ../../../; \
 	cd support/atmo/EvGen/;           make clean; cd ../../../; \
+	cd support/ndcy/EvGen/;           make clean; cd ../../../; \
 	cd support/rwght/;                make clean; cd ../../; \
 	cd test;                          make clean; cd ..; \
 	cd scripts;                       make clean; cd ..;\
@@ -675,6 +685,7 @@ distclean: FORCE
 	cd Messenger;                      make distclean; cd ..; \
 	cd MuELoss;                        make distclean; cd ..; \
 	cd Nuclear;                        make distclean; cd ..; \
+	cd NucleonDecay;                   make distclean; cd ..; \
 	cd Ntuple;                         make distclean; cd ..; \
 	cd NuGamma;                        make distclean; cd ..; \
 	cd NuE;                            make distclean; cd ..; \
@@ -704,6 +715,7 @@ distclean: FORCE
 	cd support/t2k/SKNorm/;            make distclean; cd ../../../; \
 	cd support/numi/EvGen/;            make distclean; cd ../../../; \
 	cd support/atmo/EvGen/;            make distclean; cd ../../../; \
+	cd support/ndcy/EvGen/;            make distclean; cd ../../../; \
 	cd support/rwght/;                 make distclean; cd ../../../; \
 	cd test;                           make distclean; cd ..; \
 	cd scripts;                        make distclean; \
