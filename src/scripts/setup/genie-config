@@ -44,6 +44,9 @@ fi
 if test "$GOPT_ENABLE_RWGHT" = "YES"; then
   libs="$libs -lGReWeight"
 fi
+if test "$GOPT_ENABLE_NUCLEON_DECAY" = "YES"; then
+  libs="$libs -lGNucleonDecay"
+fi
 
 ### GENIE validation tools;
 vldlibs=""
