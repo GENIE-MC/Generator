@@ -11,8 +11,9 @@
 
  Important revisions after version 2.0.0 :
 
- @ Sep 19, 2007 - CA
-   Added == operator and Compare() method
+ @ Nov 17, 2011 - CA
+   Added decay mode ID needed by the nucleon decay generator.
+   Removed unused == operator and Compare() method.
 */
 //____________________________________________________________________________
 
@@ -107,6 +108,11 @@ void XclsTag::SetResonance(Resonance_t res)
   fResonance = res;
 }
 //___________________________________________________________________________
+void XclsTag::SetDecayMode(int decay_mode)
+{
+  fDecayMode = decay_mode;
+}
+//___________________________________________________________________________
 void XclsTag::Reset(void)
 {
   fIsCharmEvent     = false;
@@ -117,6 +123,7 @@ void XclsTag::Reset(void)
   fNPiPlus          = 0;
   fNPiMinus         = 0;
   fResonance        = kNoResonance;
+  fDecayMode        = -1;
 }
 //___________________________________________________________________________
 void XclsTag::Copy(const XclsTag & xcls)
@@ -129,8 +136,10 @@ void XclsTag::Copy(const XclsTag & xcls)
   fNPiPlus          = xcls.fNPiPlus;
   fNPiMinus         = xcls.fNPiMinus;
   fResonance        = xcls.fResonance;
+  fDecayMode        = xcls.fDecayMode;
 }
 //___________________________________________________________________________
+/*
 bool XclsTag::Compare(const XclsTag & xcls) const
 {
   return (
@@ -141,9 +150,10 @@ bool XclsTag::Compare(const XclsTag & xcls) const
      fNPi0             == xcls.fNPi0              &&
      fNPiPlus          == xcls.fNPiPlus           &&
      fNPiMinus         == xcls.fNPiMinus          &&
-     fResonance        == xcls.fResonance
+     fResonance        == xcls.fResonance         &&
+     fResonance        == xcls.fResonance         &&
   );
-}
+}*/
 //___________________________________________________________________________
 string XclsTag::AsString(void) const
 {
@@ -173,6 +183,10 @@ string XclsTag::AsString(void) const
   if(this->KnownResonance()) {
     if(need_separator) tag << ";";
     tag << "res:" << fResonance;
+  }
+
+  if(fDecayMode != -1) {
+    tag << "dec:" << fDecayMode;
   }
 
   return tag.str();
@@ -216,10 +230,10 @@ void XclsTag::Print(ostream & stream) const
   stream << endl;
 }
 //___________________________________________________________________________
-bool XclsTag::operator == (const XclsTag & xcls) const
-{
-  return this->Compare(xcls);
-}
+//bool XclsTag::operator == (const XclsTag & xcls) const
+//{
+//  return this->Compare(xcls);
+//}
 //___________________________________________________________________________
 XclsTag & XclsTag::operator = (const XclsTag & xcls)
 {

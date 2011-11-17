@@ -56,7 +56,7 @@ public:
   Interaction(TRootIOCtor*);
  ~Interaction();
 
-  //-- Methods accessing aggregate/owned objects holding interaction information
+  // Methods accessing aggregate/owned objects holding interaction information
   const InitialState & InitState     (void) const { return *fInitialState; }
   const ProcessInfo &  ProcInfo      (void) const { return *fProcInfo;     }
   const Kinematics &   Kine          (void) const { return *fKinematics;   }
@@ -68,32 +68,30 @@ public:
   XclsTag *            ExclTagPtr    (void) const { return fExclusiveTag;  }
   KPhaseSpace *        PhaseSpacePtr (void) const { return fKinePhSp;      }
 
-  //-- Methods to set interaction's properties
+  // Methods to set interaction's properties
   void SetInitState (const InitialState & init);
   void SetProcInfo  (const ProcessInfo &  proc);
   void SetKine      (const Kinematics &   kine);
   void SetExclTag   (const XclsTag &      xcls);
 
-  //-- Get the final state primary lepton and recoil nucleon (if) uniquely
-  //   determined for the specified interaction
+  // Get the final state primary lepton and recoil nucleon (if) uniquely
+  // determined for the specified interaction
   int            FSPrimLeptonPdg  (void) const; ///< final state primary lepton pdg
   int            RecoilNucleonPdg (void) const; ///< recoil nucleon pdg
   TParticlePDG * FSPrimLepton     (void) const; ///< final state primaru lepton
   TParticlePDG * RecoilNucleon    (void) const; ///< recoil nucleon 
 
-  //-- Copy, reset, print itself and build string code
+  // Copy, reset, print itself and build string code
   void   Reset    (void);
   void   Copy     (const Interaction & i);
-  bool   Compare  (const Interaction & i) const;
   string AsString (void) const;
   void   Print    (ostream & stream) const;
 
-  //-- Overloaded operators
-  bool             operator == (const Interaction & i) const;             ///< compare
+  // Overloaded operators
   Interaction &    operator =  (const Interaction & i);                   ///< copy
   friend ostream & operator << (ostream & stream, const Interaction & i); ///< print
 
-  //-- Use the "Named Constructor" C++ idiom for fast creation of typical interactions
+  // Use the "Named Constructor" C++ idiom for fast creation of typical interactions
   static Interaction * DISCC     (int tgt, int nuc, int probe, double E=0);
   static Interaction * DISCC     (int tgt, int nuc, int qrk, bool sea, int probe, double E=0);
   static Interaction * DISCC     (int tgt, int nuc, int probe, const TLorentzVector & p4probe);
@@ -134,24 +132,25 @@ public:
   static Interaction * MECNC     (int tgt, int probe, const TLorentzVector & p4probe);
   static Interaction * GLR       (int tgt, double E=0);
   static Interaction * GLR       (int tgt, const TLorentzVector & p4probe);
+  static Interaction * NDecay    (int tgt, int decay_mode=-1);
 
 private:
 
-  //-- Methods for Interaction initialization and clean up
+  // Methods for Interaction initialization and clean up
   void Init    (void);
   void CleanUp (void);
 
-  //-- Utility method for "named ctor"
+  // Utility method for "named ctor"
   static Interaction * Create(int tgt, int probe, ScatteringType_t st, InteractionType_t it);
 
-  //-- Private data members
+  // Private data members
   InitialState * fInitialState;  ///< Initial State info
   ProcessInfo *  fProcInfo;      ///< Process info (scattering, weak current,...)
   Kinematics *   fKinematics;    ///< kinematical variables
   XclsTag *      fExclusiveTag;  ///< Additional info for exclusive channels
   KPhaseSpace *  fKinePhSp;      ///< Kinematic phase space
   
-ClassDef(Interaction,1)
+ClassDef(Interaction,2)
 };
 
 }      // genie namespace

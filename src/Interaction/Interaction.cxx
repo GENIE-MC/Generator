@@ -41,6 +41,8 @@
    Adding special ctor for ROOT I/O purposes so as to avoid memory leak due to
    memory allocated in the default ctor when objects of this class are read by 
    the ROOT Streamer. 
+ @ Nov 17, 2011 - CA
+   Added NDecay() named ctor. Removed unused Compare() method and operator.
 
 */
 //____________________________________________________________________________
@@ -274,19 +276,6 @@ string Interaction::AsString(void) const
   return interaction.str();
 }
 //___________________________________________________________________________
-bool Interaction::Compare(const Interaction & interaction) const
-{
-  const InitialState & init_state = *fInitialState;
-  const ProcessInfo  & proc_info  = *fProcInfo;
-  const XclsTag      & excl_tag   = *fExclusiveTag;
-
-  return (
-       init_state == interaction.InitState() &&
-       proc_info  == interaction.ProcInfo()  &&
-       excl_tag   == interaction.ExclTag() 
-  );
-}
-//___________________________________________________________________________
 void Interaction::Print(ostream & stream) const
 {
   const string line(110, '-');
@@ -305,11 +294,6 @@ void Interaction::Print(ostream & stream) const
   stream << line << endl;
 }
 //___________________________________________________________________________
-bool Interaction::operator == (const Interaction & i) const
-{
-  return this->Compare(i);
-}
-//___________________________________________________________________________ 
 Interaction & Interaction::operator = (const Interaction & interaction)
 {
   this->Copy(interaction);
@@ -813,6 +797,14 @@ Interaction * Interaction::GLR(int tgt, const TLorentzVector & p4probe)
   init_state->SetProbeP4(p4probe);
   init_state->TgtPtr()->SetHitNucPdg(0);
 
+  return interaction;
+}
+//___________________________________________________________________________
+Interaction * Interaction::NDecay(int tgt, int decay_mode)
+{
+  Interaction * interaction = 
+     Interaction::Create(tgt, 0, kScNull, kIntNDecay);
+  interaction->ExclTagPtr()->SetDecayMode(decay_mode);
   return interaction;
 }
 //___________________________________________________________________________
