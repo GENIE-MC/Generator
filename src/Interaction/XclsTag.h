@@ -38,7 +38,7 @@ public:
   XclsTag(const XclsTag & xcls);
  ~XclsTag();
 
-  //-- Getting exclusive intermediate and/or final state information
+  // Getting exclusive intermediate and/or final state information
   bool IsCharmEvent     (void) const { return fIsCharmEvent;     }
   bool IsInclusiveCharm (void) const;
   int  CharmHadronPdg   (void) const { return fCharmedHadronPdg; }
@@ -51,8 +51,9 @@ public:
   int  NPions           (void) const { return fNPi0 + fNPiPlus + fNPiMinus; }
   bool KnownResonance   (void) const { return (fResonance != kNoResonance); }
   Resonance_t Resonance (void) const { return fResonance; }
+  int  DecayMode        (void) const { return fDecayMode; }
 
-  //-- setting exclusive final state information
+  // Ssetting exclusive final state information
   void SetCharm       (int charm_pdgc = 0);
   void SetNPions      (int npi_plus, int npi_0, int npi_minus);
   void SetNNucleons   (int np, int nn);
@@ -62,21 +63,20 @@ public:
   void ResetNPions    (void);
   void ResetNNucleons (void);
   void SetResonance   (Resonance_t res);
+  void SetDecayMode   (int decay_mode);
 
-  //-- Copy, reset, print itself and build string code
+  // Copy, reset, print itself and build string code
   void   Reset    (void);                          ///< reset object
   void   Copy     (const XclsTag & xcls);          ///< copy input XclsTag object
-  bool   Compare  (const XclsTag & xcls) const;    ///< is it the same?
   string AsString (void) const;                    ///< pack into a string code
   void   Print    (ostream & stream) const;        ///< print
 
-  bool             operator == (const XclsTag & xcls) const;            ///< compare
   XclsTag &        operator =  (const XclsTag & xcls);                  ///< copy
   friend ostream & operator << (ostream& stream, const XclsTag & xcls); ///< print
 
 private:
 
-  //-- Private data members
+  // Private data members
   bool        fIsCharmEvent;     ///< true if we have charm production
   int         fCharmedHadronPdg; ///< charmed hadron pdg-code
   int         fNProtons;         ///< # of p's in the f/s hadronic system
@@ -85,8 +85,9 @@ private:
   int         fNPiPlus;          ///< # of pi^+'s in the f/s hadronic system
   int         fNPiMinus;         ///< # of pi^-'s in the f/s hadronic system
   Resonance_t fResonance;        ///< baryon resonance excited by probe
+  int         fDecayMode;
 
-ClassDef(XclsTag,1)
+ClassDef(XclsTag,2)
 };
 
 }      // namespace
