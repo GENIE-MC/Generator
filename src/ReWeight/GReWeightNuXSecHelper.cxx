@@ -72,12 +72,6 @@ void GReWeightNuXSecHelper::HandleInitState(const InitialState & is)
   }
 }
 //___________________________________________________________________________
-void GReWeightNuXSecHelper::DontReweight(const Interaction & interaction)
-{
-  Interaction * in = new Interaction(interaction);
-  fNoRewProc.push_back(in);
-}
-//___________________________________________________________________________
 void GReWeightNuXSecHelper::DiffCrossSecType(
         ScatteringType_t sct, KinePhaseSpace_t kps)
 {
@@ -93,17 +87,6 @@ double GReWeightNuXSecHelper::NewWeight(
   Interaction & interaction = * event.Summary();
 
   //LOG("ReW", pDEBUG) << "Computing new weight for: \n" << interaction;
-
-  // Reweight that process? (user can exclude specific processes)
-  InteractionList::const_iterator iiter = fNoRewProc.begin();
-  for( ; iiter != fNoRewProc.end(); ++iiter) {
-    const Interaction & norewint = **iiter;
-    if(interaction == norewint) {
-       LOG("ReW", pDEBUG) 
-        << "Skipping reweighting was requested for the current interaction";
-       return 1.;  
-    }
-  }
 
   // Find the event generation driver that handles the given initial state
   const InitialState & init_state = interaction.InitState();

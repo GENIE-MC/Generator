@@ -20,7 +20,6 @@
 
 #include "Conventions/KinePhaseSpace.h"
 #include "Interaction/ScatteringType.h"
-#include "EVGCore/InteractionList.h"
 #include "EVGDrivers/GEVGPool.h"
 
 using std::map;
@@ -39,7 +38,6 @@ public :
 
   void   HandleInitState  (const InitialState & init_state);            
   void   DiffCrossSecType (ScatteringType_t sct, KinePhaseSpace_t kps); 
-  void   DontReweight     (const Interaction & interaction);            
   double NewWeight        (const EventRecord & event, bool shape_only = false);
 
 private:
@@ -48,7 +46,6 @@ private:
 
    GEVGPool                                fGPool;             ///<
    map<ScatteringType_t, KinePhaseSpace_t> fCrossSecModelPhSp; ///<
-   InteractionList                         fNoRewProc;         ///<
 };
 
 }      // rew   namespace
