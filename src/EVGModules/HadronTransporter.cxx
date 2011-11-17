@@ -12,6 +12,8 @@
  Important revisions after version 2.0.0 :
  @ Sep 15, 2009 - CA
    IsFake() is no longer available in GHepParticle.Use pdg::IsPseudoParticle() 
+ @ Nov 17, 2011 - CA
+   Removed unused GenerateVertex() method. This is handled by another module.
 
 */
 //____________________________________________________________________________
@@ -70,7 +72,6 @@ void HadronTransporter::ProcessEventRecord(GHepRecord * evrec) const
   if(!fEnabled) {
     LOG("HadTransp", pNOTICE) 
              << "*** Intranuclear rescattering has been turned off";
-    this->GenerateVertex(evrec);
     this->TransportInTransparentNuc(evrec);
     return;
   }
@@ -78,43 +79,6 @@ void HadronTransporter::ProcessEventRecord(GHepRecord * evrec) const
   // Use the specified intrsnuclear rescattering model
   LOG("HadTransp", pINFO)  << "Calling the selected hadron transport MC";
   fHadTranspModel->ProcessEventRecord(evrec);
-}
-//___________________________________________________________________________
-void HadronTransporter::GenerateVertex(GHepRecord * evrec) const
-{
-// Generate a vtx and set it to all GHEP physical particles.
-// This vtx generation method is used for the transparent nucleus case (i.e.
-// no intreanuclear rescattering).
-// The vtx is generated using const probablity per unit volume within a 
-// sphere of radius R (nuclear radius)
-
-  GHepParticle * nucltgt = evrec->TargetNucleus();
-  assert(nucltgt);
-
-  RandomGen * rnd = RandomGen::Instance();
-  TVector3 vtx(0.,0.,0.);
-
-  int    A  = nucltgt->A();
-  double Ro = nuclear::Radius(A); //fm
-
-  // Use const probability per unit volume within the sphere
-  // (don't do the silly mistake to generate vertices uniformly in R)
-  //
-  while(vtx.Mag() > Ro) {
-    vtx.SetX(-Ro + 2*Ro * rnd->RndFsi().Rndm());
-    vtx.SetY(-Ro + 2*Ro * rnd->RndFsi().Rndm());
-    vtx.SetZ(-Ro + 2*Ro * rnd->RndFsi().Rndm());
-  }
-
-  LOG("HadTransp", pINFO) << "Vtx (in fm) = " << print::Vec3AsString(&vtx);
-
-  TObjArrayIter piter(evrec);
-  GHepParticle * p = 0;
-  while( (p = (GHepParticle *) piter.Next()) )
-  {
-    if(pdg::IsPseudoParticle(p->Pdg())) continue;
-    p->SetPosition(vtx.x(), vtx.y(), vtx.z(), 0.);
-  }
 }
 //___________________________________________________________________________
 void HadronTransporter::TransportInTransparentNuc(GHepRecord * evrec) const

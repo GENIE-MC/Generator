@@ -32,18 +32,17 @@ public :
   HadronTransporter(string config);
  ~HadronTransporter();
 
-  //-- implement the EventRecordVisitorI interface
+  // implement the EventRecordVisitorI interface
   void ProcessEventRecord(GHepRecord * event_rec) const;
 
-  //-- override the Algorithm::Configure methods to load configuration
-  //   data to private data members
+  // override the Algorithm::Configure methods to load configuration
+  // data to private data members
   void Configure (const Registry & config);
   void Configure (string param_set);
 
 private:
   void  LoadConfig                (void);
   void  TransportInTransparentNuc (GHepRecord * ev) const;
-  void  GenerateVertex            (GHepRecord * ev) const;
 
   bool  fEnabled;                              ///< hadron transport enabled?
   const EventRecordVisitorI * fHadTranspModel; ///< hadron transport MC to use
@@ -51,4 +50,4 @@ private:
 };
 
 }      // genie namespace
-#endif // _INTRANUKE_H_
+#endif // _HADRON_TRANSPORTER_H_
