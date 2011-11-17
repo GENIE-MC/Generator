@@ -97,6 +97,7 @@
   <priority msgstream="MuELoss">             NOTICE </priority>
   <priority msgstream="MultProb">            INFO   </priority>
   <priority msgstream="NucDeEx">             NOTICE </priority>
+  <priority msgstream="NucleonDecay">        NOTICE </priority>
   <priority msgstream="NucleonP">            INFO   </priority>
   <priority msgstream="Nuclear">             NOTICE </priority>
   <priority msgstream="Numerical">           INFO   </priority>
@@ -153,6 +154,8 @@
   <priority msgstream="XSecSplLst">          NOTICE </priority>
 
   <priority msgstream="gevgen">              INFO   </priority>
+  <priority msgstream="gevgen_ndcy">         INFO   </priority>
+  <priority msgstream="gevgen_hadron">       INFO   </priority>
   <priority msgstream="gvldtest">            INFO   </priority>
   <priority msgstream="gntpc">               INFO   </priority>
   <priority msgstream="gmkspl">              INFO   </priority>

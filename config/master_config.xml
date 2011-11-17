@@ -2,7 +2,7 @@
 
 <genie_config>
 
-   <!-- ****** CONFIGURATION FOR EVEBT GENERATION MODULES ****** -->
+   <!-- ****** CONFIGURATION FOR EVENT GENERATION MODULES ****** -->
    <config alg="genie::EventGenerator">              EventGenerator.xml              </config>
    <config alg="genie::FermiMover">                  FermiMover.xml                  </config>
    <config alg="genie::HadronTransporter">           HadronTransporter.xml           </config>
@@ -39,20 +39,22 @@
    <config alg="genie::AMNuGammaGenerator">          AMNuGammaGenerator.xml          </config>
    <config alg="genie::MECGenerator">                MECGenerator.xml                </config>
    <config alg="genie::GLRESGenerator">              GLRESGenerator.xml              </config>
+   <config alg="genie::NucleonDecayPrimaryVtxGenerator"> NucleonDecayPrimaryVtxGenerator.xml </config>
 
    <!-- ****** CONFIGURATION FOR LIST-GENERATORS ****** -->
-   <config alg="genie::QELInteractionListGenerator">       QELInteractionListGenerator.xml       </config>
-   <config alg="genie::RSPPInteractionListGenerator">      RSPPInteractionListGenerator.xml      </config>
-   <config alg="genie::RESInteractionListGenerator">       RESInteractionListGenerator.xml       </config>
-   <config alg="genie::DISInteractionListGenerator">       DISInteractionListGenerator.xml       </config>
-   <config alg="genie::NuEInteractionListGenerator">       NuEInteractionListGenerator.xml       </config>
-   <config alg="genie::COHInteractionListGenerator">       COHInteractionListGenerator.xml       </config>
-   <config alg="genie::AMNuGammaInteractionListGenerator"> AMNuGammaInteractionListGenerator.xml </config>
-   <config alg="genie::MECInteractionListGenerator">       MECInteractionListGenerator.xml       </config>
-   <config alg="genie::GLRESInteractionListGenerator">     GLRESInteractionListGenerator.xml     </config>
-   <config alg="genie::DFRInteractionListGenerator">       DFRInteractionListGenerator.xml       </config>
-   <config alg="genie::InteractionListAssembler">          InteractionListAssembler.xml          </config>
-   <config alg="genie::EventGeneratorListAssembler">       EventGeneratorListAssembler.xml       </config>
+   <config alg="genie::QELInteractionListGenerator">           QELInteractionListGenerator.xml       </config>
+   <config alg="genie::RSPPInteractionListGenerator">          RSPPInteractionListGenerator.xml      </config>
+   <config alg="genie::RESInteractionListGenerator">           RESInteractionListGenerator.xml       </config>
+   <config alg="genie::DISInteractionListGenerator">           DISInteractionListGenerator.xml       </config>
+   <config alg="genie::NuEInteractionListGenerator">           NuEInteractionListGenerator.xml       </config>
+   <config alg="genie::COHInteractionListGenerator">           COHInteractionListGenerator.xml       </config>
+   <config alg="genie::AMNuGammaInteractionListGenerator">     AMNuGammaInteractionListGenerator.xml </config>
+   <config alg="genie::MECInteractionListGenerator">           MECInteractionListGenerator.xml       </config>
+   <config alg="genie::GLRESInteractionListGenerator">         GLRESInteractionListGenerator.xml     </config>
+   <config alg="genie::DFRInteractionListGenerator">           DFRInteractionListGenerator.xml       </config>
+   <config alg="genie::DummyInteractionListGenerator">         Default.xml                           </config>
+   <config alg="genie::InteractionListAssembler">              InteractionListAssembler.xml          </config>
+   <config alg="genie::EventGeneratorListAssembler">           EventGeneratorListAssembler.xml       </config>
 
    <!--  ****** CONFIGURATION FOR INTERACTION SELECTORS ****** -->
    <config alg="genie::PhysInteractionSelector">     PhysInteractionSelector.xml     </config>
@@ -128,6 +130,7 @@
    <config alg="genie::MECPXSec">                    MECPXSec.xml                    </config>
    <config alg="genie::RosenbluthPXSec">             RosenbluthPXSec.xml             </config>
    <config alg="genie::StrumiaVissaniIBDPXSec">      StrumiaVissaniIBDPXSec.xml      </config>
+   <config alg="genie::DummyPXSec">                  Default.xml                     </config>
 
    <!--  ****** CONFIGURATION FOR NUCLEAR ENV. ALGORITHMS ****** -->
    <config alg="genie::NuclearModelMap">             NuclearModelMap.xml             </config>
