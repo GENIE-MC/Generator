@@ -38,6 +38,7 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "    t2k               Enable T2K-specific event generation / analysis tools    default: disabled \n";
   print "    numi              Enable NuMI-specific event generation / analysis tools   default: disabled \n";
   print "    atmo              Enable atmospheric neutrino event generation tools       default: disabled (Replaces older INO- and LBNE-specific apps)\n";
+  print "    nucleon-decay     Enable nucleon decay event generation tools              default: disabled \n";
   print "    rwght             Enable event reweighting tools                           default: disabled \n";
   print "\n options for 3rd party software, prefix with --with- (eg --with-lhapdf-lib=/some/path/)\n\n";
   print "    optimiz-level     Compiler optimization        any of O,O2,O3,OO,Os / default: O2 \n";
@@ -137,6 +138,7 @@ my $gopt_enable_evserv           = "NO";
 my $gopt_enable_t2k              = "NO";
 my $gopt_enable_numi             = "NO";
 my $gopt_enable_atmo             = "NO";
+my $gopt_enable_nucleon_decay     = "NO";
 my $gopt_enable_rwght            = "NO";
 
 # Check configure's command line arguments for non-default values
@@ -161,6 +163,7 @@ if(($match = grep(/--enable-event-server/i,     @ARGV)) > 0) { $gopt_enable_evse
 if(($match = grep(/--enable-t2k/i,              @ARGV)) > 0) { $gopt_enable_t2k              = "YES"; }
 if(($match = grep(/--enable-numi/i,             @ARGV)) > 0) { $gopt_enable_numi             = "YES"; }
 if(($match = grep(/--enable-atmo/i,             @ARGV)) > 0) { $gopt_enable_atmo             = "YES"; }
+if(($match = grep(/--enable-nucleon-decay/i,    @ARGV)) > 0) { $gopt_enable_nucleon_decay    = "YES"; }
 if(($match = grep(/--enable-rwght/i,            @ARGV)) > 0) { $gopt_enable_rwght            = "YES"; }
 
 my $gopt_with_cxx_debug_flag="";
@@ -501,6 +504,7 @@ print MKCONF "GOPT_ENABLE_EVENT_SERVER=$gopt_enable_evserv\n";
 print MKCONF "GOPT_ENABLE_T2K=$gopt_enable_t2k\n";
 print MKCONF "GOPT_ENABLE_NUMI=$gopt_enable_numi\n";
 print MKCONF "GOPT_ENABLE_ATMO=$gopt_enable_atmo\n";
+print MKCONF "GOPT_ENABLE_NUCLEON_DECAY=$gopt_enable_nucleon_decay\n";
 print MKCONF "GOPT_ENABLE_RWGHT=$gopt_enable_rwght\n";
 print MKCONF "GOPT_WITH_CXX_DEBUG_FLAG=$gopt_with_cxx_debug_flag\n";
 print MKCONF "GOPT_WITH_CXX_OPTIMIZ_FLAG=-$gopt_with_cxx_optimiz_flag\n";
