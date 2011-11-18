@@ -35,13 +35,13 @@
 #include "GHEP/GHepParticle.h"
 #include "Messenger/Messenger.h"
 #include "Utils/NuclearUtils.h"
-#include "Viewer/MCTruthDisplay.h"
+#include "support/masterclass/MCTruthDisplay.h"
 
 using std::ostringstream;
 
 using namespace genie;
 using namespace genie::utils;
-using namespace genie::gview;
+using namespace genie::masterclass;
 
 //______________________________________________________________________________
 MCTruthDisplay::MCTruthDisplay(TRootEmbeddedCanvas * ec, TGTextEdit * gtx) :
@@ -60,7 +60,7 @@ void MCTruthDisplay::DrawDiagram(EventRecord * event)
 {
    if(!fEmbeddedCanvas) return;
 
-   LOG("gviewer", pINFO) << "Drawing input event diagram";
+   LOG("MasterClass", pINFO) << "Drawing input event diagram";
 
    fEmbeddedCanvas->GetCanvas()->cd();
    fEmbeddedCanvas->GetCanvas()->Clear();

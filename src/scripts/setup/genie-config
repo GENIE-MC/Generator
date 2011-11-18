@@ -35,9 +35,6 @@ fi
 if test "$GOPT_ENABLE_VHE_EXTENSION" = "YES"; then
   libs="$libs -lGVHE"
 fi
-if test "$GOPT_ENABLE_VIEWER" = "YES"; then
-  libs="$libs -lGViewer"
-fi
 if test "$GOPT_ENABLE_MUELOSS" = "YES"; then
   libs="$libs -lGMuELoss"
 fi

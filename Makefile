@@ -32,7 +32,6 @@ BUILD_TARGETS =    print-make-info \
 		   geom-drivers \
 		   nucleon-decay \
 		   reweight \
-		   viewer \
 		   mueloss \
 		   vld-tools \
 		   doxygen-doc \
@@ -44,6 +43,7 @@ BUILD_TARGETS =    print-make-info \
 		   atmo-support-softw \
 		   nucleon-decay-support-softw \
 		   reweight-support-softw \
+		   masterclass-support-softw \
 		   install-scripts
 INSTALL_TARGETS =  print-makeinstall-info \
 		   check-previous-installation \
@@ -205,18 +205,6 @@ else
 	@echo "** Building geometry-drivers was not enabled. Skipping..."
 endif
 
-viewer: FORCE
-ifeq ($(strip $(GOPT_ENABLE_VIEWER)),YES)
-	@echo " "
-	@echo "** Buidling viewer..."
-	cd ${GENIE}/src/Viewer; \
-	make; \
-	cd ${GENIE}
-else
-	@echo " "
-	@echo "** Viewer was not enabled. Skipping..."
-endif
-
 mueloss: FORCE
 ifeq ($(strip $(GOPT_ENABLE_MUELOSS)),YES)
 	@echo " "
@@ -363,6 +351,17 @@ else
 	@echo "Event reweighting not enabled! Skipping..."
 endif
 
+masterclass-support-softw: FORCE
+	@echo " "
+	@echo "** Building neutrino masterclass application ..."
+ifeq ($(strip $(GOPT_ENABLE_MASTERCLASS)),YES)
+	cd ${GENIE}/src/support/masterclass/;\
+	make all; \
+	cd ${GENIE}
+else
+	@echo "Masterclass app not enabled! Skipping..."
+endif
+
 install-scripts: FORCE
 	@echo " "
 	@echo "** Installing scripts..."
@@ -376,7 +375,6 @@ all-libs: base-framework \
 	  event-generation-modules \
 	  flux-drivers \
 	  geom-drivers \
-	  viewer \
 	  mueloss 
 
 save-build-env: FORCE
@@ -459,7 +457,6 @@ make-install-dirs: FORCE
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/VHE
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/ValidationTools/
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/ValidationTools/NuVld/
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/Viewer
 
 copy-install-files: FORCE
 	@echo " "
@@ -511,7 +508,6 @@ copy-install-files: FORCE
 	cd VLE;                    make install; cd ..; \
 	cd VHE;                    make install; cd ..; \
 	cd ValidationTools/NuVld;  make install; cd ../../; \
-	cd Viewer;                 make install; \
 	cd ${GENIE}
 
 purge: FORCE
@@ -568,7 +564,6 @@ purge: FORCE
 	cd ValidationTools/Hadronization; make purge; cd ../../; \
 	cd ValidationTools/Merenyi;       make purge; cd ../../; \
 	cd ValidationTools/eA;            make purge; cd ../../; \
-	cd Viewer;                        make purge; \
 	cd ${GENIE}
 
 clean: clean-files clean-dir clean-etc
@@ -625,7 +620,6 @@ clean-files: FORCE
 	cd ValidationTools/Hadronization; make clean; cd ../../; \
 	cd ValidationTools/Merenyi;       make clean; cd ../../; \
 	cd ValidationTools/eA;            make clean; cd ../../; \
-	cd Viewer;                        make clean; cd ..; \
 	cd VLE;                           make clean; cd ..; \
 	cd VHE;                           make clean; cd ..; \
 	cd stdapp;                        make clean; cd ..; \
@@ -636,6 +630,7 @@ clean-files: FORCE
 	cd support/atmo/EvGen/;           make clean; cd ../../../; \
 	cd support/ndcy/EvGen/;           make clean; cd ../../../; \
 	cd support/rwght/;                make clean; cd ../../; \
+	cd support/masterclass/;          make clean; cd ../../; \
 	cd test;                          make clean; cd ..; \
 	cd scripts;                       make clean; cd ..;\
 	cd $(GENIE);\
@@ -706,7 +701,6 @@ distclean: FORCE
 	cd ValidationTools/Hadronization;  make distclean; cd ../../; \
 	cd ValidationTools/Merenyi;        make distclean; cd ../../; \
 	cd ValidationTools/eA;             make distclean; cd ../../; \
-	cd Viewer;                         make distclean; cd ..; \
 	cd VLE;                            make distclean; cd ..; \
 	cd VHE;                            make distclean; cd ..; \
 	cd stdapp;                         make distclean; cd ..; \
@@ -716,7 +710,8 @@ distclean: FORCE
 	cd support/numi/EvGen/;            make distclean; cd ../../../; \
 	cd support/atmo/EvGen/;            make distclean; cd ../../../; \
 	cd support/ndcy/EvGen/;            make distclean; cd ../../../; \
-	cd support/rwght/;                 make distclean; cd ../../../; \
+	cd support/rwght/;                 make distclean; cd ../../; \
+	cd support/masterclass/;           make distclean; cd ../../; \
 	cd test;                           make distclean; cd ..; \
 	cd scripts;                        make distclean; \
 	cd ${GENIE}

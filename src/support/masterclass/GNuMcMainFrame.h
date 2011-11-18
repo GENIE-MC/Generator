@@ -1,9 +1,9 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::GViewerMainFrame
+\class    genie::GNuMcMainFrame
 
-\brief    GENIE Viewer Main Frame
+\brief    GENIE Neutrino Masterclass app main frame
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           STFC, Rutherford Appleton Laboratory
@@ -16,8 +16,8 @@
 */
 //____________________________________________________________________________
 
-#ifndef _GVIEWER_MAIN_FRAME_H_
-#define _GVIEWER_MAIN_FRAME_H_
+#ifndef _G_NUMC_MAIN_FRAME_H_
+#define _G_NUMC_MAIN_FRAME_H_
 
 #include <string>
 
@@ -25,7 +25,7 @@
 #include <TGFrame.h>
 #include <TGButton.h>
 #include <RQ_OBJECT.h>
-
+/*
 class TApplication;
 class TVirtualX;
 class TSystem;
@@ -50,23 +50,47 @@ class TGraphAsymmErrors;
 class TRootEmbeddedCanvas;
 class TFile;
 class TTree;
+*/
+
+//class TApplication;
+#include <TVirtualX.h>
+#include <TSystem.h>
+#include <TGListBox.h>
+#include <TGComboBox.h>
+#include <TGClient.h>
+#include <TGIcon.h>
+#include <TGLabel.h>
+#include <TGNumberEntry.h>
+#include <TGTextEntry.h>
+#include <TGMsgBox.h>
+#include <TGMenu.h>
+#include <TGCanvas.h>
+#include <TGTab.h>
+#include <TGFileDialog.h>
+#include <TGTextEdit.h>
+#include <TGStatusBar.h>
+#include <TGProgressBar.h>
+#include <TGColorSelect.h>
+#include <TCanvas.h>
+#include <TGraphAsymmErrors.h>
+#include <TRootEmbeddedCanvas.h>
+#include <TFile.h>
+#include <TTree.h>
+
+#include "EVGCore/EventRecord.h"
+#include "Ntuple/NtpMCEventRecord.h"
+#include "support/masterclass/MCTruthDisplay.h"
 
 using std::string;
 
 namespace genie {
+namespace masterclass {
 
-class EventRecord;
-class NtpMCEventRecord;
-
-namespace gview {
-
-class MCTruthDisplay;
-
-class GViewerMainFrame : public TGMainFrame {
+class GNuMcMainFrame : public TGMainFrame {
 
 public:
-   GViewerMainFrame(const TGWindow * p, UInt_t w, UInt_t h);
-   virtual ~GViewerMainFrame();
+   GNuMcMainFrame(const TGWindow * p, UInt_t w, UInt_t h);
+   virtual ~GNuMcMainFrame();
 
    void Close     (void) { gApplication->Terminate(0); }
    void Exit      (void) { Close();                    }
@@ -76,7 +100,7 @@ public:
 
 private:
 
-   void Init(void);
+   void           Init                     (void);
    void           BuildHelpers             (void);
    void           BuildGUI                 (const TGWindow * p, UInt_t w, UInt_t h);
    void           BuildMainFrames          (void);
@@ -122,11 +146,11 @@ private:
    Long64_t           fNuOfEvents;
    Long64_t           fCurrEventNu;
 
-   ClassDef(GViewerMainFrame, 0)
+   ClassDef(GNuMcMainFrame, 1)
 };
 
-}  // gview namespace
+}  // masterclass namespace
 }  // genie namespace
 
-#endif  // _GVIEWER_MAIN_FRAME_H_
+#endif  // _G_NUMC_MAIN_FRAME_H_
 
