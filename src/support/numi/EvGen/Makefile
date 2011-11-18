@@ -16,22 +16,24 @@ include $(GENIE)/src/make/Make.include
 GENIE_LIBS  = $(shell $(GENIE)/src/scripts/setup/genie-config --libs)
 LIBRARIES  := $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 
-TGT = gNuMIevgen
+TGT = gevgen_numi
 
 all: $(TGT)
 
-gNuMIevgen: FORCE
+gevgen_numi: FORCE
 	$(CXX) $(CXXFLAGS) -c gNuMIExptEvGen.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) gNuMIExptEvGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gNuMIevgen
+	$(LD) $(LDFLAGS) gNuMIExptEvGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen_numi
+	@echo "For historical purposes, add symbolic link to the NuMI event generation app"
+	ln -sf $(GENIE_BIN_PATH)/gevgen_numi $(GENIE_BIN_PATH)/gNuMIevgen
 
 purge: FORCE
 	$(RM) *.o *~ core 
 
 clean: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gNuMIevgen $(GENIE_BIN_PATH)/gNuMIevgen
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gevgen_numi $(GENIE_BIN_PATH)/gNuMIevgen
 
 distclean: FORCE
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gNuMIevgen $(GENIE_BIN_INSTALLATION_PATH)/gNuMIevgen
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevgen_numi
 
 FORCE:
 
