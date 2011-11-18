@@ -9,11 +9,12 @@
 
          gevgen_ndcy [-h] 
                      [-r run#] 
+                      -n n_of_events
                       -m decay_mode
 	              -g geometry
-                     [-L length_units_at_geom] 
-                     [-D density_units_at_geom]
-                     [-n n_of_events] 
+                     [-L geometry_length_units] 
+                     [-D geometry_density_units]
+                     [-t geometry_top_volume_name]
                      [-o output_event_file_prefix]
 
          *** Options :
@@ -23,6 +24,8 @@
            -h Prints out the gevgen_ndcy syntax and exits
 
            -r Specifies the MC run number [default: 1000]
+
+           -n Specifies how many events to generate.
 
            -m Nucleon decay mode ID.
 
@@ -85,8 +88,6 @@
               except the ones explicitly turned on. Vice versa, if the very first
               character is a `-', GENIE will keep all volumes except the ones
               explicitly turned off (feature contributed by J.Holeczek).
-
-           -n Specifies how many events to generate.
 
            -o Sets the prefix of the output event file. 
               The output filename is built as: 
