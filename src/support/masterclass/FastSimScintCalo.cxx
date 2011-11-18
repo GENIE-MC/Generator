@@ -31,30 +31,30 @@
 #include "EVGCore/EventRecord.h"
 #include "GHEP/GHepParticle.h"
 #include "Messenger/Messenger.h"
-#include "Viewer/FastSimCherenkov.h"
+#include "support/masterclass/FastSimScintCalo.h"
 
 using namespace genie;
-using namespace genie::gview::fastsim;
+using namespace genie::masterclass;
 
 //______________________________________________________________________________
-FastSimCherenkov::FastSimCherenkov() 
+FastSimScintCalo::FastSimScintCalo() 
 {
 
 }
 //______________________________________________________________________________
-FastSimCherenkov::~FastSimCherenkov()
+FastSimScintCalo::~FastSimScintCalo()
 {
 
 }
 //______________________________________________________________________________
-void FastSimCherenkov::SetEmbeddedCanvas(TRootEmbeddedCanvas * ec)
+void FastSimScintCalo::SetEmbeddedCanvas(TRootEmbeddedCanvas * ec)
 {
   fEmbeddedCanvas = ec;
 }
 //______________________________________________________________________________
-void FastSimCherenkov::Draw(EventRecord * /*event*/) 
+void FastSimScintCalo::Draw(EventRecord * /*event*/) 
 {
-   LOG("gviewer", pINFO) << "Drawing input event";
+   LOG("MasterClass", pINFO) << "Drawing input event";
 
    fEmbeddedCanvas->GetCanvas()->cd();
    fEmbeddedCanvas->GetCanvas()->Clear();

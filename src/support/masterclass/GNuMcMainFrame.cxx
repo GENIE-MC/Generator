@@ -11,11 +11,6 @@
 
  Important revisions after version 2.0.0 :
 
- @ Nov 30, 2007 - CA
-   Was renamed GViewerMainFrame from GenieViewer in 2.0.1. Replaced usage of
-   depcreciated/removed GHEP rendering objects. Auto-loading splines at 
-   initialization. More changes to the GUI are required.
-
 */
 //____________________________________________________________________________
 
@@ -59,8 +54,8 @@
 #include "Messenger/Messenger.h"
 #include "Ntuple/NtpMCTreeHeader.h"
 #include "Ntuple/NtpMCEventRecord.h"
-#include "Viewer/GViewerMainFrame.h"
-#include "Viewer/MCTruthDisplay.h"
+#include "support/masterclass/GNuMcMainFrame.h"
+#include "support/masterclass/MCTruthDisplay.h"
 
 using std::ostringstream;
 using std::setprecision;
@@ -68,12 +63,12 @@ using std::string;
 using std::vector;
 
 using namespace genie;
-using namespace genie::gview;
+using namespace genie::masterclass;
 
-ClassImp(GViewerMainFrame)
+ClassImp(GNuMcMainFrame)
 
 //______________________________________________________________________________
-GViewerMainFrame::GViewerMainFrame(const TGWindow * p, UInt_t w, UInt_t h) :
+GNuMcMainFrame::GNuMcMainFrame(const TGWindow * p, UInt_t w, UInt_t h) :
 TGMainFrame(p, w, h)
 {
   this->Init();
@@ -81,7 +76,7 @@ TGMainFrame(p, w, h)
   this->BuildHelpers();
 }
 //______________________________________________________________________________
-void GViewerMainFrame::Init(void)
+void GNuMcMainFrame::Init(void)
 {
    fMain                = 0;
    fImgButtonGroupFrame = 0;
@@ -116,12 +111,12 @@ void GViewerMainFrame::Init(void)
 
 }
 //______________________________________________________________________________
-void GViewerMainFrame::BuildGUI(const TGWindow * p, UInt_t w, UInt_t h)
+void GNuMcMainFrame::BuildGUI(const TGWindow * p, UInt_t w, UInt_t h)
 {
   fMain = new TGMainFrame(p,w,h);
 
   fMain->Connect(
-     "CloseWindow()", "genie::GViewerMainFrame", this, "Close()");
+     "CloseWindow()", "genie::GNuMcMainFrame", this, "Close()");
 
   this->BuildMainFrames();
 
@@ -142,7 +137,7 @@ void GViewerMainFrame::BuildGUI(const TGWindow * p, UInt_t w, UInt_t h)
   fMain->MapWindow();
 }
 //______________________________________________________________________________
-GViewerMainFrame::~GViewerMainFrame()
+GNuMcMainFrame::~GNuMcMainFrame()
 {
   fMain->Cleanup();
   delete fMain;
@@ -150,7 +145,7 @@ GViewerMainFrame::~GViewerMainFrame()
   delete fTruthDisplay;
 }
 //______________________________________________________________________________
-void GViewerMainFrame::BuildMainFrames(void)
+void GNuMcMainFrame::BuildMainFrames(void)
 {
   fMainFrame  = new TGCompositeFrame(fMain,      1, 1, kVerticalFrame  );
   fUpperFrame = new TGCompositeFrame(fMainFrame, 3, 3, kHorizontalFrame);
@@ -161,7 +156,7 @@ void GViewerMainFrame::BuildMainFrames(void)
   fMain      -> AddFrame ( fMainFrame  );
 }
 //______________________________________________________________________________
-TGGroupFrame * GViewerMainFrame::BuildImageButtonFrame(void)
+TGGroupFrame * GNuMcMainFrame::BuildImageButtonFrame(void)
 {
   TGGroupFrame * bf = new TGGroupFrame(
         fUpperFrame, "Viewer Control Buttons", kHorizontalFrame);
@@ -179,9 +174,9 @@ TGGroupFrame * GViewerMainFrame::BuildImageButtonFrame(void)
   fExitButton       -> SetToolTipText( "Exit",             1);
 
   fFileOpenButton  -> Connect(
-     "Clicked()","genie::gview::GViewerMainFrame", this,"FileOpen()");
+     "Clicked()","genie::masterclass::GNuMcMainFrame", this,"FileOpen()");
   fNextEventButton  -> Connect(
-     "Clicked()","genie::gview::GViewerMainFrame", this,"NextEvent()");
+     "Clicked()","genie::masterclass::GNuMcMainFrame", this,"NextEvent()");
 
   bf -> AddFrame( fFileOpenButton   );
   bf -> AddFrame( fNextEventButton  );
@@ -190,7 +185,7 @@ TGGroupFrame * GViewerMainFrame::BuildImageButtonFrame(void)
   return bf;
 }
 //______________________________________________________________________________
-void GViewerMainFrame::BuildTabs(void)
+void GNuMcMainFrame::BuildTabs(void)
 {
   fViewTabWidth  = 780;
   fViewTabHeight = 300;
@@ -209,7 +204,7 @@ void GViewerMainFrame::BuildTabs(void)
   fLowerFrame -> AddFrame ( fViewerTabs, fViewerTabsLayout );
 }
 //______________________________________________________________________________
-void GViewerMainFrame::BuildMCTruthTab(void)
+void GNuMcMainFrame::BuildMCTruthTab(void)
 {
 // Add tab for displaying MC truth
 //
@@ -254,7 +249,7 @@ void GViewerMainFrame::BuildMCTruthTab(void)
   tf       -> AddFrame(fGHepTab, fGHepTabLayout);
 }
 //______________________________________________________________________________
-void GViewerMainFrame::BuildFastSimScintCaloTab (void)
+void GNuMcMainFrame::BuildFastSimScintCaloTab (void)
 {
 // Build tab for displaying fast simulation results of scintillator calorimeter
 // response and for controlling simulation inputs.
@@ -265,7 +260,7 @@ void GViewerMainFrame::BuildFastSimScintCaloTab (void)
 
 }
 //______________________________________________________________________________
-void GViewerMainFrame::BuildFastSimCherenkovTab (void)
+void GNuMcMainFrame::BuildFastSimCherenkovTab (void)
 {
 // Build tab for displaying fast simulation results of Cherenkov detector 
 // response and for controlling simulation inputs.
@@ -276,7 +271,7 @@ void GViewerMainFrame::BuildFastSimCherenkovTab (void)
 
 }
 //______________________________________________________________________________
-void GViewerMainFrame::BuildStatusBar(void)
+void GNuMcMainFrame::BuildStatusBar(void)
 {
   Int_t parts[] = { 60, 20, 20 };
   fStatusBar = new TGStatusBar(fMain, 50, 10, kHorizontalFrame);
@@ -290,22 +285,22 @@ void GViewerMainFrame::BuildStatusBar(void)
   fMain->AddFrame(fStatusBar, fStatusBarLayout);
 }
 //______________________________________________________________________________
-const char * GViewerMainFrame::Icon(const char * name)
+const char * GNuMcMainFrame::Icon(const char * name)
 {
   ostringstream pic;
   pic  << gSystem->Getenv("GENIE") << "/data/icons/" << name << ".xpm";
 
-  LOG("gviewer", pINFO) << "Loading icon: " << pic.str();
+  LOG("MasterClass", pINFO) << "Loading icon: " << pic.str();
 
   return pic.str().c_str();
 }
 //______________________________________________________________________________
-void GViewerMainFrame::BuildHelpers(void)
+void GNuMcMainFrame::BuildHelpers(void)
 {
   fTruthDisplay = new MCTruthDisplay(fEmbeddedCanvas,fGHep);
 }
 //______________________________________________________________________________
-void GViewerMainFrame::FileOpen(void)
+void GNuMcMainFrame::FileOpen(void)
 {
   fStatusBar->SetText( "Asking for event file name...", 0);
 
@@ -338,20 +333,20 @@ void GViewerMainFrame::FileOpen(void)
      fGHepTree = 
          dynamic_cast <TTree *> (fEventFile->Get("gtree"));
      if(!fGHepTree) {
-        LOG("gviewer", pFATAL) 
+        LOG("MasterClass", pFATAL) 
             << "No GHEP event tree in input file: " << fEventFilename;
         gAbortingInErr=true;
         exit(1);
      }
      fCurrEventNu = 0;
      fNuOfEvents  = fGHepTree->GetEntries();
-     LOG("gviewer", pNOTICE)  
+     LOG("MasterClass", pNOTICE)  
        << "Input GHEP event tree has " << fNuOfEvents 
        << ((fNuOfEvents==1) ? " entry." : " entries.");
 
      NtpMCTreeHeader * thdr = 
          dynamic_cast <NtpMCTreeHeader *> ( fEventFile->Get("header") );
-     LOG("gviewer", pNOTICE) 
+     LOG("MasterClass", pNOTICE) 
          << "Input tree header: " << *thdr;
 
      fGHepTree->SetBranchAddress("gmcrec", &fMCRecord);
@@ -359,7 +354,7 @@ void GViewerMainFrame::FileOpen(void)
   }
 }
 //______________________________________________________________________________
-void GViewerMainFrame::NextEvent(void)
+void GNuMcMainFrame::NextEvent(void)
 {
   if(fCurrEventNu >= fNuOfEvents-1) {
 	exit(1);
@@ -373,7 +368,7 @@ void GViewerMainFrame::NextEvent(void)
   this->ShowEvent(event);
 }
 //______________________________________________________________________________
-void GViewerMainFrame::ShowEvent(EventRecord * event)
+void GNuMcMainFrame::ShowEvent(EventRecord * event)
 {
   fTruthDisplay->DrawDiagram(event);
   fTruthDisplay->PrintEventRecord(event);

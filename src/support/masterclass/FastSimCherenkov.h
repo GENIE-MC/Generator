@@ -1,9 +1,9 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::gview::fastsim::FastSimScintCalo
+\class    genie::masterclass::FastSimCherenkov
 
-\brief    Fast simulation of the response of a scintillator calorimeter.
+\brief    Fast simulation of the response of a Cherenkov detector
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           STFC, Rutherford Appleton Laboratory
@@ -13,33 +13,29 @@
 */
 //____________________________________________________________________________
 
-#ifndef _SCINT_CALO_SIM_H_
-#define _SCINT_CALO_SIM_H_
+#ifndef _CHERENKOV_MC_H_
+#define _CHERENKOV_MC_H_
 
-class TRootEmbeddedCanvas;
+#include <TRootEmbeddedCanvas.h>
 
 namespace genie {
 
  class EventRecord;
 
- namespace gview {
-  namespace fastsim {
+ namespace masterclass {
 
-    class FastSimScintCalo {
+    class FastSimCherenkov {
     public:
-      FastSimScintCalo();
-     ~FastSimScintCalo();
+      FastSimCherenkov();
+     ~FastSimCherenkov();
       void SetEmbeddedCanvas (TRootEmbeddedCanvas * ec);
-  //  void SetNumOfScintLayers()
-  //  void SetNumOfScintStripsPerLayer()
       void Draw              (EventRecord * event);
     private:
       TRootEmbeddedCanvas * fEmbeddedCanvas;
     };
 
-  }  // fastsim namespace
- }  // gview namespace
+ }  // masterclass namespace
 }  // genie namespace
 
-#endif  // _SCINT_CALO_SIM_H_
+#endif  // _CHERENKOV_MC_H_	
 

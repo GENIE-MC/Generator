@@ -21,7 +21,6 @@ TGT =    gEvGen		  	\
 	 gEvDump          	\
 	 gEvGenHadronNucleus    \
 	 gEvPick	        \
-	 gEvGenGUI	  	\
 	 gMakeSplines	  	\
 	 gSplineAdd   	  	\
 	 gSplineXml2Root  	\
@@ -54,16 +53,6 @@ gEvGenHadronNucleus: FORCE
 gEvPick: FORCE
 	$(CXX) $(CXXFLAGS) -c gEvPick.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) gEvPick.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevpick
-
-# A gevgen GUI (in devel)
-#
-gEvGenGUI: FORCE
-ifeq ($(strip $(GOPT_ENABLE_VIEWER)),YES)
-	$(CXX) $(CXXFLAGS) -c gEvGenGUI.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) gEvGenGUI.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen_gui
-else
-	@echo "You need to enable the Viewer package to build the gevgen_gui utility"
-endif
 
 # gmkspl x-section spline building utility
 #
@@ -111,7 +100,6 @@ clean: FORCE
 	$(RM) $(GENIE_BIN_PATH)/gevdump		
 	$(RM) $(GENIE_BIN_PATH)/gevgen_hadron
 	$(RM) $(GENIE_BIN_PATH)/gevpick
-	$(RM) $(GENIE_BIN_PATH)/gevgen_gui
 	$(RM) $(GENIE_BIN_PATH)/gmkspl 	
 	$(RM) $(GENIE_BIN_PATH)/gspladd 	
 	$(RM) $(GENIE_BIN_PATH)/gspl2root		
@@ -123,7 +111,6 @@ distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevdump		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevgen_hadron
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevpick
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevgen_gui
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gmkspl 	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gspladd 	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gspl2root		

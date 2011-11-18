@@ -1,9 +1,9 @@
 //____________________________________________________________________________
 /*!
 
-\program gevgen_gui
+\program gnumc
 
-\brief   
+\brief   GENIE Neutrino Masterclass App
 
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          STFC, Rutherford Appleton Laboratory
@@ -20,18 +20,16 @@
 #include <TApplication.h>
 #include <TGClient.h>
 
-#include "Viewer/GViewerMainFrame.h"
+#include "support/masterclass/GNuMcMainFrame.h"
 
 using namespace genie;
-using namespace genie::gview;
+using namespace genie::masterclass;
 
 int main(int argc, char ** argv)
 {
-  TApplication ggui("GENIE", &argc, argv);
-
-  GViewerMainFrame gvmf(gClient->GetRoot(), 700, 350);
+  TApplication ggui("GENIE - Neutrino Masterclass App", &argc, argv);
+  GNuMcMainFrame gvmf(gClient->GetRoot(), 700, 350);
   ggui.Run();
-
   return 0;
 }
 

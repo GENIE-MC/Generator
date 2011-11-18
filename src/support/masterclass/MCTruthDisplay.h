@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::gview::MCTruthDisplay
+\class    genie::masterclass::MCTruthDisplay
 
 \brief    Display MC truth info
 
@@ -16,14 +16,13 @@
 #ifndef _MC_TRUTH_DISPLAY_H_
 #define _MC_TRUTH_DISPLAY_H_
 
-class TRootEmbeddedCanvas;
-class TGTextEdit;
+#include <TRootEmbeddedCanvas.h>
+#include <TGTextEdit.h>
+
+#include "EVGCore/EventRecord.h"
 
 namespace genie {
-
- class EventRecord;
-
- namespace gview {
+ namespace masterclass {
 
    class MCTruthDisplay {
    public:
@@ -36,7 +35,7 @@ namespace genie {
      TGTextEdit *          fGTxt;
    };
 
- } // gview namespace
+ } // masterclass namespace
 } // genie namespace
 
 #endif  // _MC_TRUTH_DISPLAY_H_
