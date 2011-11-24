@@ -5,14 +5,17 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - Sep 22, 2008
+         STFC, Rutherford Appleton Laboratory               
+
+         Steve Dytman <dytman+ \at pitt.edu>
+         Pittsburgh University
 
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
  @ Sep 22, 2008 - CA
-   This event generation modules was first added in version 2.5.1 as part of
-   the new event generation thread handling MEC interactions. 
+   Skeleton was first added in version 2.5.1
+ @ Nov 24, 2010 - CA
 
 */
 //____________________________________________________________________________
@@ -32,10 +35,12 @@
 #include "Messenger/Messenger.h"
 #include "MEC/MECGenerator.h"
 #include "Numerical/RandomGen.h"
+#include "Nuclear/NuclearModelI.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
 #include "PDG/PDGLibrary.h"
 #include "Utils/KineUtils.h"
+#include "Utils/PrintUtils.h"
 
 using namespace genie;
 using namespace genie::utils;
@@ -60,36 +65,188 @@ MECGenerator::~MECGenerator()
 
 }
 //___________________________________________________________________________
-void MECGenerator::ProcessEventRecord(GHepRecord * evrec) const
+void MECGenerator::ProcessEventRecord(GHepRecord * event) const
 {
-  this -> SelectKinematics    (evrec);
-  this -> AddNucleonCluster   (evrec);
-  this -> AddTargetRemnant    (evrec);
-  this -> AddFinalStateLepton (evrec);
-  this -> DecayNucleonCluster (evrec);
+  this -> AddNucleonCluster     (event);
+  this -> AddTargetRemnant      (event);
+  this -> GenerateFermiMomentum (event);
+  this -> SelectKinematics      (event);
+  this -> AddFinalStateLepton   (event);
+  this -> RecoilNucleonCluster  (event);
+  this -> DecayNucleonCluster   (event);
 
-  LOG("MEC", pNOTICE) << *evrec;
+  LOG("MEC", pNOTICE) << *event;
 }
 //___________________________________________________________________________
-void MECGenerator::SelectKinematics(GHepRecord * evrec) const
+void MECGenerator::AddNucleonCluster(GHepRecord * event) const
 {
+// Add a p+p, p+n or n+n nucleon cluster as the "hit" object.
+// Using built-in probabilities for each nucleon cluster.
+// The function checks that there is a sufficient number of neutrons and
+// protons in the hit nucleus for the selected nucleon cluster.
+//
+  const int nc = 3;
+  int    clusters [nc] = { kPdgClusterNN, kPdgClusterNP, kPdgClusterPP };
+  double prob     [nc] = { 0.25,          0.50,          0.25          };
+
+  GHepParticle * target_nucleus = event->TargetNucleus();
+  assert(target_nucleus);
+  int Z = target_nucleus->Z();
+  int A = target_nucleus->A();
+  int np = Z;
+  int nn = A-Z;
+
+  // select di-nucleon
+  bool selected    = false;
+  int  cluster_pdg = 0;
+  RandomGen * rnd = RandomGen::Instance();
+  while(!selected) {
+     double prob_gen = rnd->RndGen().Rndm();
+     double prob_sum = 0;
+     for(int ic = 0; ic < nc; ic++) {
+        prob_sum += prob[ic];
+        if(prob_gen < prob_sum) {
+           cluster_pdg = clusters[ic];
+           break;
+        }
+     }
+     // allow selected?
+     if ( cluster_pdg==kPdgClusterNN && nn>=2          ) selected=true;
+     if ( cluster_pdg==kPdgClusterNP && nn>=1 && np>=1 ) selected=true;
+     if ( cluster_pdg==kPdgClusterPP && np>=2          ) selected=true;
+  }
+
+  // vtx position in the nucleus
+  GHepParticle * neutrino = event->Probe();
+  assert(neutrino);
+  const TLorentzVector v4(*neutrino->X4());
+
+  // di-nucleon 4-momentum
+  double mc = PDGLibrary::Instance()->Find(cluster_pdg)->Mass();
+  const TLorentzVector p4(0.,0.,0., mc); 
+
+  // mother particle
+  int momidx = event->TargetNucleusPosition();
+
+  // add to the event record
+  LOG("MEC", pINFO) 
+    << "Adding nucleon cluster [pdgc = " << cluster_pdg << "]";
+
+  event->AddParticle(
+     cluster_pdg, kIStNucleonTarget, momidx,-1,-1,-1, p4, v4);
+}
+//___________________________________________________________________________
+void MECGenerator::AddTargetRemnant(GHepRecord * event) const
+{
+// Add the remnant nucleus (= initial nucleus - nucleon cluster) in the
+// event record.
+
+  GHepParticle * target  = event->TargetNucleus();
+  GHepParticle * cluster = event->Particle(2);
+
+  int Z = target->Z();
+  int A = target->A();
+
+  if(cluster->Pdg() == kPdgClusterNN) { A-=2; ;     }
+  if(cluster->Pdg() == kPdgClusterNP) { A-=2; Z-=1; }
+  if(cluster->Pdg() == kPdgClusterPP) { A-=2; Z-=2; }
+
+  int ipdgc = pdg::IonPdgCode(A, Z);
+
+  const TLorentzVector & p4cluster = *(cluster->P4());
+  const TLorentzVector & p4tgt     = *(target ->P4());
+
+  const TLorentzVector p4 = p4tgt - p4cluster;
+  const TLorentzVector v4(0.,0.,0., 0.);
+
+  int momidx = event->TargetNucleusPosition();
+  event->AddParticle(ipdgc,kIStStableFinalState, momidx,-1,-1,-1, p4,v4);  
+}
+//___________________________________________________________________________
+void MECGenerator::GenerateFermiMomentum(GHepRecord * event) const
+{
+// Generate the initial state di-nucleon cluster 4-momentum.
+// Draw Fermi momenta for each of the two nucleons.
+// Sum the two Fermi momenta to calculate the di-nucleon momentum.
+// For simplicity, keep the di-nucleon cluster on the mass shell.
+//
+  GHepParticle * target_nucleus = event->TargetNucleus();
+  assert(target_nucleus);
+  GHepParticle * nucleon_cluster = event->Particle(2);
+  assert(nucleon_cluster);
+  GHepParticle * remnant_nucleus = event->RemnantNucleus();
+  assert(remnant_nucleus);
+       
+  // generate a Fermi momentum for each nucleon
+
+  Target tgt(target_nucleus->Pdg());
+  PDGCodeList pdgv = this->NucleonClusterConstituents(nucleon_cluster->Pdg());
+  assert(pdgv.size()==2);
+  tgt.SetHitNucPdg(pdgv[0]);
+  fNuclModel->GenerateNucleon(tgt);
+  TVector3 p3a = fNuclModel->Momentum3();
+  tgt.SetHitNucPdg(pdgv[1]);
+  fNuclModel->GenerateNucleon(tgt);
+  TVector3 p3b = fNuclModel->Momentum3();
+    
+  LOG("FermiMover", pINFO)
+     << "1st nucleon (code = " << pdgv[0] << ") generated momentum: ("
+     << p3a.Px() << ", " << p3a.Py() << ", " << p3a.Pz() << "), "
+     << "|p| = " << p3a.Mag();
+  LOG("FermiMover", pINFO)
+     << "2nd nucleon (code = " << pdgv[1] << ") generated momentum: ("
+     << p3b.Px() << ", " << p3b.Py() << ", " << p3b.Pz() << "), "
+     << "|p| = " << p3b.Mag();
+
+  // calcute nucleon cluster momentum
+
+  TVector3 p3 = p3a + p3b;
+    
+  LOG("FermiMover", pINFO)
+     << "di-nucleon cluster momentum: ("
+     << p3.Px() << ", " << p3.Py() << ", " << p3.Pz() << "), "
+     << "|p| = " << p3.Mag();
+
+  // target (initial) nucleus and nucleon cluster mass
+
+  double Mi  = PDGLibrary::Instance()->Find(target_nucleus->Pdg() )-> Mass(); // initial nucleus mass
+  double M2n = PDGLibrary::Instance()->Find(nucleon_cluster->Pdg())-> Mass(); // nucleon cluster mass
+
+  // nucleon cluster energy
+
+  double EN = TMath::Sqrt(p3.Mag2() + M2n*M2n);
+
+  // calculate & set the remnant nucleus and nucleon cluster 4-momenta
+
+  TLorentzVector p4nclust   (   p3.Px(),    p3.Py(),    p3.Pz(),  EN   );
+  TLorentzVector p4remnant   (-1*p3.Px(), -1*p3.Py(), -1*p3.Pz(), Mi-EN);
+       
+  nucleon_cluster->SetMomentum(p4nclust);
+  remnant_nucleus->SetMomentum(p4remnant);
+} 
+//___________________________________________________________________________ 
+void MECGenerator::SelectKinematics(GHepRecord * event) const
+{
+// Select interaction kinematics using the rejection method.
+//
+
   // Access cross section algorithm for running thread
   RunningThreadInfo * rtinfo = RunningThreadInfo::Instance();
   const EventGeneratorI * evg = rtinfo->RunningThread();
   fXSecModel = evg->CrossSectionAlg();
 
-  Interaction * interaction = evrec->Summary();
+  Interaction * interaction = event->Summary();
 
-  // Random num generator
-  RandomGen * rnd = RandomGen::Instance();
-
-  // Hardcode bogus limits for the time-being
+  // **** NOTE / TODO:
+  // **** Hardcode bogus limits for the time-being
+  // **** Should be able to get limits via Interaction::KPhaseSpace
   double Q2min =  0.01;
   double Q2max = 10.00;
   double Wmin  =  0.50;
   double Wmax  =  1.50;
 
-  // Scan for maximum differential cross section at current energy
+  // Scan phase-space for the maximum differential cross section 
+  // at the current neutrino energy
   const int nq=30;
   const int nw=20;
   double dQ2 = (Q2max-Q2min) / (nq-1);
@@ -107,7 +264,8 @@ void MECGenerator::SelectKinematics(GHepRecord * evrec) const
   }
   LOG("MEC", pNOTICE) << "xsec_max = " << xsec_max;
 
-  // Select kinematics
+  // Select kinematics 
+  RandomGen * rnd = RandomGen::Instance();
   unsigned int iter = 0;
   bool accept = false;
   while(1) {
@@ -116,7 +274,7 @@ void MECGenerator::SelectKinematics(GHepRecord * evrec) const
         LOG("MEC", pWARN)
            << "Couldn't select a valid W, Q^2 pair after " 
            << iter << " iterations";
-        evrec->EventFlags()->SetBitNumber(kKineGenErr, true);
+        event->EventFlags()->SetBitNumber(kKineGenErr, true);
         genie::exceptions::EVGThreadException exception;
         exception.SetReason("Couldn't select kinematics");
         exception.SwitchOnFastForward();
@@ -137,14 +295,24 @@ void MECGenerator::SelectKinematics(GHepRecord * evrec) const
      double J = 1; // jacobean
      accept = (t < J*xsec);
 
+     // **** NOTE / TODO:
+     // **** Forcing a characteristic set of kinematical variables for test purposes.
+     // **** Remove once the differential cross section model is implemented
+     gQ2 = 1.2;
+     gW  = 2.5;
+     accept = true;
+
      // If the generated kinematics are accepted, finish-up module's job
      if(accept) {
         LOG("MEC", pINFO) << "Selected: Q^2 = " << gQ2 << ", W = " << gW;
 
+        double Ev = this->EnuAtNucleonClusterRestFrame(event);
+
         double gx = 0;
         double gy = 0;
-        double E  = evrec->Probe()->E();
-        kinematics::WQ2toXY(E,kNucleonMass,gW,gQ2,gx,gy);
+        kinematics::WQ2toXY(Ev,2*kNucleonMass,gW,gQ2,gx,gy);
+
+        LOG("MEC", pINFO) << "x = " << gx << ", y = " << gy;
 
         // lock selected kinematics & clear running values
         interaction->KinePtr()->SetQ2(gQ2, true);
@@ -158,9 +326,15 @@ void MECGenerator::SelectKinematics(GHepRecord * evrec) const
   }//iter
 }
 //___________________________________________________________________________
-void MECGenerator::AddFinalStateLepton(GHepRecord * evrec) const
+void MECGenerator::AddFinalStateLepton(GHepRecord * event) const
 {
-  Interaction * interaction = evrec->Summary();
+// **** NOTE / TODO:
+// **** Something is broken here --> Odd lepton kinematics.
+
+// Add the final-state primary lepton in the event record.
+// Compute its 4-momentum based on the selected interaction kinematics.
+//
+  Interaction * interaction = event->Summary();
   const InitialState & init_state = interaction->InitState();
 
   // Look-up selected kinematics
@@ -168,7 +342,8 @@ void MECGenerator::AddFinalStateLepton(GHepRecord * evrec) const
   double y  = interaction->Kine().y(true);
 
   // Auxiliary params
-  double Ev  = init_state.ProbeE(kRfLab);
+  double Ev = this->EnuAtNucleonClusterRestFrame(event);
+
   double ml  = interaction->FSPrimLepton()->Mass();
   double ml2 = TMath::Power(ml,2);
 
@@ -179,7 +354,7 @@ void MECGenerator::AddFinalStateLepton(GHepRecord * evrec) const
   double plt = TMath::Sqrt(TMath::Max(0.,El*El-plp*plp-ml2)); // p(-|)
 
   LOG("MEC", pNOTICE)
-          << "fsl: E = " << El << ", |p//| = " << plp << "[pT] = " << plt;
+          << "fsl: E = " << El << ", |p//| = " << plp << ", |pT| = " << plt;
 
   // Randomize transverse components
   RandomGen * rnd = RandomGen::Instance();
@@ -188,7 +363,7 @@ void MECGenerator::AddFinalStateLepton(GHepRecord * evrec) const
   double plty = plt * TMath::Sin(phi);
 
   // Take a unit vector along the neutrino direction
-  TVector3 unit_nudir = evrec->Probe()->P4()->Vect().Unit();
+  TVector3 unit_nudir = event->Probe()->P4()->Vect().Unit();
 
   // Rotate lepton momentum vector from the reference frame (x'y'z') where 
   // {z':(neutrino direction), z'x':(theta plane)} to the LAB
@@ -198,106 +373,216 @@ void MECGenerator::AddFinalStateLepton(GHepRecord * evrec) const
   // Lepton 4-momentum in LAB
   TLorentzVector p4l(p3l,El);
 
-  // Figure out the Final State Lepton PDG Code
+  // Figure out the final-state primary lepton PDG code
   int pdgc = interaction->FSPrimLepton()->PdgCode();
 
   // Lepton 4-position (= interacton vtx)
-  TLorentzVector v4(*evrec->Probe()->X4());
+  TLorentzVector v4(*event->Probe()->X4());
 
-  evrec->AddParticle(pdgc, kIStStableFinalState, -1, 0, -1, -1, p4l, v4);
+  int momidx = event->ProbePosition();
+  event->AddParticle(
+    pdgc, kIStStableFinalState, momidx, -1, -1, -1, p4l, v4);
 }
 //___________________________________________________________________________
-void MECGenerator::AddNucleonCluster(GHepRecord * evrec) const
+void MECGenerator::RecoilNucleonCluster(GHepRecord * event) const 
 {
-  const int nc = 3;
+  // get di-nucleon cluster 4-momentum
+  GHepParticle * nucleon_cluster = event->Particle(2);
+  assert(nucleon_cluster);
+  TLorentzVector p4cluster(*nucleon_cluster->GetP4());
 
-  int    clusters [nc] = { kPdgClusterNN, kPdgClusterNP, kPdgClusterPP };
-  double prob     [nc] = { 0.25,          0.50,          0.25          };
+  // get neutrino 4-momentum
+  GHepParticle * neutrino = event->Probe();
+  assert(neutrino);
+  TLorentzVector p4v(*neutrino->P4());
 
-  GHepParticle * target = evrec->TargetNucleus();
-  int Z = target->Z();
-  int A = target->A();
-  int np = Z;
-  int nn = A-Z;
+  // get final state primary lepton 4-momentum
+  GHepParticle * fsl = event->FinalStatePrimaryLepton();
+  assert(fsl);
+  TLorentzVector p4l(*fsl->P4());
 
-  RandomGen * rnd = RandomGen::Instance();
+  // calculate 4-momentum transfer
+  TLorentzVector q = p4v - p4l;
 
-  bool selected = false;
-  int  cluster  = 0;
+  // calculate recoil nucleon cluster 4-momentum
+  TLorentzVector p4cluster_recoil = p4cluster + q;
 
-  while(!selected) {
-     double prob_gen = rnd->RndGen().Rndm();
-     double prob_sum = 0;
-     for(int ic = 0; ic < nc; ic++) {
-        prob_sum += prob[ic];
-        if(prob_gen < prob_sum) {
-           cluster = clusters[ic];
-           break;
-        }
-     }
-     if ( cluster==kPdgClusterNN && nn>=2          ) selected=true;
-     if ( cluster==kPdgClusterNP && nn>=1 && np>=1 ) selected=true;
-     if ( cluster==kPdgClusterPP && np>=2          ) selected=true;
+  // vtx
+  TLorentzVector v4(*neutrino->X4());
+
+  // add to the event record
+  event->AddParticle(
+    nucleon_cluster->Pdg(), kIStDecayedState, 
+    2, -1, -1, -1, p4cluster_recoil, v4);
+}
+//___________________________________________________________________________ 
+void MECGenerator::DecayNucleonCluster(GHepRecord * event) const 
+{
+// Perform a phase-space decay of the nucleon cluster and add its decay
+// products in the event record
+//
+  LOG("MEC", pINFO) << "Decaying nucleon cluster...";
+
+  // get di-nucleon cluster
+  int nucleon_cluster_id = 5;
+  GHepParticle * nucleon_cluster = event->Particle(nucleon_cluster_id);
+  assert(nucleon_cluster);
+
+  // get decay products
+  PDGCodeList pdgv = this->NucleonClusterConstituents(nucleon_cluster->Pdg());
+  LOG("MEC", pINFO) << "Decay product IDs: " << pdgv;
+
+  // Get the decay product masses
+  vector<int>::const_iterator pdg_iter;
+  int i = 0;
+  double * mass = new double[pdgv.size()];
+  double   sum  = 0;
+  for(pdg_iter = pdgv.begin(); pdg_iter != pdgv.end(); ++pdg_iter) {
+    int pdgc = *pdg_iter;
+    double m = PDGLibrary::Instance()->Find(pdgc)->Mass();
+    mass[i++] = m;
+    sum += m;
   }
 
-  double mc = PDGLibrary::Instance()->Find(cluster)->Mass();
+  LOG("MEC", pINFO) 
+    << "Performing a phase space decay to "
+    << pdgv.size() << " particles / total mass = " << sum;
 
-  const TLorentzVector p4(0.,0.,0., mc);
-  const TLorentzVector v4(0.,0.,0., 0.);
+  TLorentzVector * p4d = nucleon_cluster->GetP4();
+  TLorentzVector * v4d = nucleon_cluster->GetX4();
 
-  LOG("MEC", pINFO) << "Adding nucleon cluster [pdgc = " << cluster << "]";
+  LOG("MEC", pINFO) 
+    << "Decaying system p4 = " << utils::print::P4AsString(p4d);
 
-  evrec->AddParticle(cluster, kIStNucleonTarget, -1, -1, -1, -1, p4, v4);
+  // Set the decay
+  bool permitted = fPhaseSpaceGenerator.SetDecay(*p4d, pdgv.size(), mass);
+  if(!permitted) {
+     LOG("MEC", pERROR) 
+       << " *** Phase space decay is not permitted \n"
+       << " Total particle mass = " << sum << "\n"
+       << " Decaying system p4 = " << utils::print::P4AsString(p4d);
+     // clean-up 
+     delete [] mass;
+     delete p4d;
+     delete v4d; 
+     // throw exception
+     genie::exceptions::EVGThreadException exception;
+     exception.SetReason("Decay not permitted kinematically");
+     exception.SwitchOnFastForward();
+     throw exception;
+  }
+
+  // Get the maximum weight
+  double wmax = -1;
+  for(int i=0; i<200; i++) {
+     double w = fPhaseSpaceGenerator.Generate();   
+     wmax = TMath::Max(wmax,w);
+  }
+  assert(wmax>0);
+  wmax *= 2;
+
+  LOG("MEC", pNOTICE) 
+     << "Max phase space gen. weight = " << wmax;
+
+  RandomGen * rnd = RandomGen::Instance();
+  bool accept_decay=false;
+  unsigned int itry=0;
+  while(!accept_decay) 
+  {
+     itry++;
+
+     if(itry > controls::kMaxUnweightDecayIterations) {
+       // report, clean-up and return
+       LOG("MEC", pWARN) 
+           << "Couldn't generate an unweighted phase space decay after " 
+           << itry << " attempts";
+       // clean up
+       delete [] mass;
+       delete p4d;
+       delete v4d;
+       // throw exception
+       genie::exceptions::EVGThreadException exception;
+       exception.SetReason("Couldn't select decay after N attempts");
+       exception.SwitchOnFastForward();
+       throw exception;
+     }
+     double w  = fPhaseSpaceGenerator.Generate();   
+     if(w > wmax) {
+        LOG("MEC", pWARN) 
+           << "Decay weight = " << w << " > max decay weight = " << wmax;
+     }
+     double gw = wmax * rnd->RndDec().Rndm();
+     accept_decay = (gw<=w);
+
+     LOG("MEC", pINFO) 
+        << "Decay weight = " << w << " / R = " << gw 
+        << " - accepted: " << accept_decay;
+
+  } //!accept_decay
+
+  // Insert the decay products in the event record
+  TLorentzVector v4(*v4d); 
+  GHepStatus_t ist = kIStHadronInTheNucleus;
+  int idp = 0;
+  for(pdg_iter = pdgv.begin(); pdg_iter != pdgv.end(); ++pdg_iter) {
+     int pdgc = *pdg_iter;
+     TLorentzVector * p4fin = fPhaseSpaceGenerator.GetDecay(idp);
+     event->AddParticle(pdgc, ist, nucleon_cluster_id,-1,-1,-1, *p4fin, v4);
+     idp++;
+  }
+
+  // Clean-up
+  delete [] mass;
+  delete p4d;
+  delete v4d;
 }
 //___________________________________________________________________________
-void MECGenerator::AddTargetRemnant(GHepRecord * evrec) const
+PDGCodeList MECGenerator::NucleonClusterConstituents(int pdgc) const
 {
-  GHepParticle * target  = evrec->TargetNucleus();
-  GHepParticle * cluster = evrec->Particle(2);
+  bool allowdup = true;
+  PDGCodeList pdgv(allowdup);
 
-  int Z = target->Z();
-  int A = target->A();
-
-  if(cluster->Pdg() == kPdgClusterNN) { A-=2; ;     }
-  if(cluster->Pdg() == kPdgClusterNP) { A-=2; Z-=1; }
-  if(cluster->Pdg() == kPdgClusterPP) { A-=2; Z-=2; }
-
-  int ipdgc = pdg::IonPdgCode(A, Z);
-
-  const TLorentzVector & p4cluster = *(cluster->P4());
-  const TLorentzVector & p4tgt     = *(target ->P4());
-
-  const TLorentzVector p4 = p4tgt - p4cluster;
-  const TLorentzVector v4(0.,0.,0., 0.);
-
-  int mom = evrec->TargetNucleusPosition();
-  evrec->AddParticle(ipdgc,kIStStableFinalState, mom,-1,-1,-1, p4,v4);  
+  if(pdgc == kPdgClusterNN) { 
+     pdgv.push_back(kPdgNeutron);
+     pdgv.push_back(kPdgNeutron);
+  }
+  else
+  if(pdgc == kPdgClusterNP) { 
+     pdgv.push_back(kPdgNeutron);
+     pdgv.push_back(kPdgProton);
+  }
+  else
+  if(pdgc == kPdgClusterPP) { 
+     pdgv.push_back(kPdgProton);
+     pdgv.push_back(kPdgProton);
+  }
+  else 
+  {
+     LOG("MEC", pERROR) 
+        << "Unknown di-nucleon cluster PDG code (" << pdgc << ")";
+  }
+ 
+  return pdgv;
 }
 //___________________________________________________________________________
-void MECGenerator::DecayNucleonCluster(GHepRecord * evrec) const
+double MECGenerator::EnuAtNucleonClusterRestFrame(GHepRecord * event) const
 {
-  int cluster_pos = 2;
+  GHepParticle * neutrino = event->Particle(0);
+  assert(neutrino);
+  TLorentzVector p4v(*neutrino->P4());
 
-  GHepParticle * cluster = evrec->Particle(cluster_pos);
+  GHepParticle * nucleon_cluster = event->Particle(2);
+  assert(nucleon_cluster);
+  double bx = nucleon_cluster->Px() / nucleon_cluster->Energy();
+  double by = nucleon_cluster->Py() / nucleon_cluster->Energy();
+  double bz = nucleon_cluster->Pz() / nucleon_cluster->Energy();
 
-  int nuc1=0, nuc2=0;
+  p4v.Boost(-bx,-by,-bz);
+  double Ev = p4v.Energy();
 
-  if(cluster->Pdg() == kPdgClusterNN) { nuc1=kPdgNeutron; nuc2=kPdgNeutron; }
-  if(cluster->Pdg() == kPdgClusterNP) { nuc1=kPdgNeutron; nuc2=kPdgProton;  }
-  if(cluster->Pdg() == kPdgClusterPP) { nuc1=kPdgProton;  nuc2=kPdgProton;  }
+  LOG("MEC", pINFO) << "Ev at di-nucleon rest frame = " << Ev;
 
-  int mom = cluster_pos;
-
-  double m1 = PDGLibrary::Instance()->Find(nuc1)->Mass();
-  double m2 = PDGLibrary::Instance()->Find(nuc2)->Mass();
-
-  const TLorentzVector p4_1(0.,0., 1., TMath::Sqrt(1.+m1*m1));
-  const TLorentzVector p4_2(0.,0.,-1., TMath::Sqrt(1.+m2*m2));
-
-  const TLorentzVector v4(0.,0.,0.,0.);
-
-  evrec->AddParticle(nuc1, kIStHadronInTheNucleus, mom,-1,-1,-1, p4_1, v4);  
-  evrec->AddParticle(nuc2, kIStHadronInTheNucleus, mom,-1,-1,-1, p4_2, v4);  
+  return Ev;
 }
 //___________________________________________________________________________
 void MECGenerator::Configure(const Registry & config)   
@@ -314,7 +599,11 @@ void MECGenerator::Configure(string config)
 //___________________________________________________________________________
 void MECGenerator::LoadConfig(void)
 {
-
+  fNuclModel = 0;
+      
+  RgKey nuclkey = "NuclearModel";
+  fNuclModel = dynamic_cast<const NuclearModelI *> (this->SubAlg(nuclkey));
+  assert(fNuclModel);
 }
 //___________________________________________________________________________
 
