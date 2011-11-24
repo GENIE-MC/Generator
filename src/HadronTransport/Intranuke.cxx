@@ -219,7 +219,7 @@ void Intranuke::TransportHadrons(GHepRecord * evrec) const
   fRemnA = -1;
   fRemnZ = -1;
 
-  //  Get 'nuclear environment' at the begginning of hadron transport 
+  //  Get 'nuclear environment' at the beginning of hadron transport 
   //  and keep track of the remnant nucleus A,Z  
 
   GEvGenMode_t genie_mode = evrec->EventGenerationMode();
@@ -359,7 +359,7 @@ double Intranuke::GenerateStep(GHepRecord* /*evrec*/, GHepParticle* p) const
      fRemnZ, fDelRPion, fDelRNucleon);
   double d = -1.*L * TMath::Log(rnd->RndFsi().Rndm());
 
-  LOG("Intranuke", pINFO)
+  LOG("Intranuke", pDEBUG)
             << "Mean free path = " << L << " fm / "
                               << "Generated path length = " << d << " fm";
   return d;
