@@ -5,7 +5,7 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - Sep 03, 2008
+         STFC, Rutherford Appleton Laboratory 
 
  For the class documentation see the corresponding header file.
 
@@ -42,17 +42,16 @@ MECInteractionListGenerator::~MECInteractionListGenerator()
 
 }
 //___________________________________________________________________________
-InteractionList * MECInteractionListGenerator::CreateInteractionList(
-                                       const InitialState & init_state) const
+InteractionList * 
+  MECInteractionListGenerator::CreateInteractionList(
+      const InitialState & init_state) const
 {
-  LOG("IntLst", pINFO)
-     << "InitialState = " << init_state.AsString();
+  LOG("IntLst", pINFO) << "InitialState = " << init_state.AsString();
 
-  int nupdg   = init_state.ProbePdg();
-  int tgtpdg  = init_state.Tgt().Pdg();
+  int nupdg  = init_state.ProbePdg();
+  int tgtpdg = init_state.Tgt().Pdg();
 
   const Target & target = init_state.Tgt();
-
   if(target.A() < 4) return 0;
 
   InteractionList * intlist = new InteractionList;

@@ -3,10 +3,13 @@
 
 \class    genie::MECGenerator
 
-\brief    
+\brief    Simulate the primary MEC interaction
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           STFC, Rutherford Appleton Laboratory
+
+          Steve Dytman <dytman+ \at pitt.edu>
+          Pittsburgh University
 
 \created  Sep. 22, 2008
 
@@ -19,11 +22,15 @@
 #ifndef _MEC_GENERATOR_H_
 #define _MEC_GENERATOR_H_
 
+#include <TGenPhaseSpace.h>
+
 #include "EVGCore/EventRecordVisitorI.h"
+#include "PDG/PDGCodeList.h"
 
 namespace genie {
 
 class XSecAlgorithmI;
+class NuclearModelI;
 
 class MECGenerator : public EventRecordVisitorI {
 
@@ -33,7 +40,7 @@ public :
  ~MECGenerator();
 
   // implement the EventRecordVisitorI interface
-  void ProcessEventRecord (GHepRecord * event_rec) const;
+  void ProcessEventRecord (GHepRecord * event) const;
 
   // overload the Algorithm::Configure() methods to load private data
   // members from configuration options
@@ -42,14 +49,20 @@ public :
 
 private:
 
-  void LoadConfig          (void);
-  void AddFinalStateLepton (GHepRecord * event_rec) const;
-  void SelectKinematics    (GHepRecord * event_rec) const;
-  void AddNucleonCluster   (GHepRecord * event_rec) const;
-  void AddTargetRemnant    (GHepRecord * event_rec) const;
-  void DecayNucleonCluster (GHepRecord * event_rec) const;
-
+  void        LoadConfig                  (void);
+  void        AddNucleonCluster           (GHepRecord * event) const;
+  void        AddTargetRemnant            (GHepRecord * event) const;
+  void        GenerateFermiMomentum       (GHepRecord * event) const;
+  void        SelectKinematics            (GHepRecord * event) const;
+  void        AddFinalStateLepton         (GHepRecord * event) const;
+  void        RecoilNucleonCluster        (GHepRecord * event) const;
+  void        DecayNucleonCluster         (GHepRecord * event) const;
+  PDGCodeList NucleonClusterConstituents  (int pdgc)           const;
+  double      EnuAtNucleonClusterRestFrame(GHepRecord * event) const;
+  
   mutable const XSecAlgorithmI * fXSecModel;
+  mutable TGenPhaseSpace         fPhaseSpaceGenerator;
+  const NuclearModelI *          fNuclModel;
 };
 
 }      // genie namespace
