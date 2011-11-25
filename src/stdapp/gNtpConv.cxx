@@ -639,9 +639,9 @@ void ConvertToGST(void)
        << ", x = " << x << ", y = " << y << ", t = " << t;
 
     // Extract more info on the hadronic system
-    // Only for QEL/RES/DIS/COH events
+    // Only for QEL/RES/DIS/COH/MEC events
     //
-    bool study_hadsyst = (is_qel || is_res || is_dis || is_coh);
+    bool study_hadsyst = (is_qel || is_res || is_dis || is_coh || is_mec);
     
     //
     TObjArrayIter piter(&event);
