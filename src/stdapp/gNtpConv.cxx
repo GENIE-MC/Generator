@@ -578,8 +578,9 @@ void ConvertToGST(void)
     bool is_em     = proc_info.IsEM();
     bool is_weakcc = proc_info.IsWeakCC();
     bool is_weaknc = proc_info.IsWeakNC();
+    bool is_mec    = proc_info.IsMEC();
 
-    if(!hitnucl) { assert(is_coh || is_imd || is_nuel); }
+    if(!hitnucl) { assert(is_coh || is_imd || is_nuel || is_mec); }
   
     // hit quark 
     // set only for DIS events
