@@ -57,7 +57,7 @@ double MECPXSec::XSec(
   double Q2 = kinematics.Q2();
 
   double Wdep  = TMath::Gaus(W, fMass, fWidth);
-  double Q2dep = TMath::Power(1-Q2/fMq2d, -1.5);
+  double Q2dep = TMath::Power(1+Q2/fMq2d, -1.5);
   double norm  = 1.0;
   double xsec  = norm * Wdep * Q2dep;
 
@@ -87,6 +87,7 @@ double MECPXSec::Integral(const Interaction * interaction) const
   double norm = (E>fEc) ? fNorm*A : 0;
   return norm;
 }
+
 //____________________________________________________________________________
 bool MECPXSec::ValidProcess(const Interaction * interaction) const
 {
@@ -112,8 +113,8 @@ void MECPXSec::Configure(string config)
 //____________________________________________________________________________
 void MECPXSec::LoadConfig(void)
 {
-  fMq2d   = 1.5; // GeV
-  fMass   = 1.1; // GeV
+  fMq2d   = 0.5; // GeV
+  fMass   = 2.1; // GeV
   fWidth  = 0.3; // GeV
   fEc     = 0.4; // GeV
   fNorm   = 0.2 * (1E-38 * units::cm2);;
