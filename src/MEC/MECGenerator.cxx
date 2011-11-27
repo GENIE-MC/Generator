@@ -87,7 +87,10 @@ void MECGenerator::AddNucleonCluster(GHepRecord * event) const
 //
   const int nc = 3;
   int    clusters [nc] = { kPdgClusterNN, kPdgClusterNP, kPdgClusterPP };
-  double prob     [nc] = { 0.25,          0.50,          0.25          };
+  double prob     [nc] = { 0.12,          0.88,          0.12          };
+  int nupdg = event->Probe()->Pdg();
+  if (pdg::IsNeutrino(nupdg)) prob[0]=0.;
+  if (pdg::IsAntiNeutrino(nupdg)) prob[2]=0.;
 
   GHepParticle * target_nucleus = event->TargetNucleus();
   assert(target_nucleus);
@@ -241,9 +244,9 @@ void MECGenerator::SelectKinematics(GHepRecord * event) const
   // **** Hardcode bogus limits for the time-being
   // **** Should be able to get limits via Interaction::KPhaseSpace
   double Q2min =  0.01;
-  double Q2max = 10.00;
-  double Wmin  =  0.50;
-  double Wmax  =  1.50;
+  double Q2max =  8.00;
+  double Wmin  =  1.88;
+  double Wmax  =  4.50;
 
   // Scan phase-space for the maximum differential cross section 
   // at the current neutrino energy
@@ -298,9 +301,9 @@ void MECGenerator::SelectKinematics(GHepRecord * event) const
      // **** NOTE / TODO:
      // **** Forcing a characteristic set of kinematical variables for test purposes.
      // **** Remove once the differential cross section model is implemented
-     gQ2 = 1.2;
-     gW  = 2.5;
-     accept = true;
+     //     gQ2 = 1.2;
+     //     gW  = 2.5;
+     //     accept = true;
 
      // If the generated kinematics are accepted, finish-up module's job
      if(accept) {
