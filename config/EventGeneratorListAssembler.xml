@@ -78,15 +78,15 @@ Generator-%d                alg     No
      <param type="alg" name="Generator-0">  genie::EventGenerator/GLRES        </param>
   </param_set>
 
-  <param_set name="CCQE+MEC"> 
+  <param_set name="CCQE+CCMEC"> 
      <param type="int" name="NGenerators">  2                                  </param>
-     <param type="alg" name="Generator-0">  genie::EventGenerator/MEC          </param>
+     <param type="alg" name="Generator-0">  genie::EventGenerator/MEC-CC       </param>
      <param type="alg" name="Generator-1">  genie::EventGenerator/QEL-CC       </param>
   </param_set>
 
-  <param_set name="MEC"> 
+  <param_set name="CCMEC"> 
      <param type="int" name="NGenerators">  1                                  </param>
-     <param type="alg" name="Generator-0">  genie::EventGenerator/MEC          </param>
+     <param type="alg" name="Generator-0">  genie::EventGenerator/MEC-CC       </param>
   </param_set>
 
   <param_set name="DFR"> 
