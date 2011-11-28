@@ -235,6 +235,8 @@ ifeq ($(strip $(GOPT_ENABLE_VALIDATION_TOOLS)),YES)
 	make; \
 	cd ${GENIE}/src/ValidationTools/eA; \
 	make; \
+	cd ${GENIE}/src/ValidationTools/Intranuke; \
+	make; \
 	cd ${GENIE}
 else
 	@echo " "
