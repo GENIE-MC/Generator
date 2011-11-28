@@ -32,8 +32,21 @@ public :
   MECInteractionListGenerator(string config);
  ~MECInteractionListGenerator();
 
-  //-- implement the InteractionListGeneratorI interface
+  // implement the InteractionListGeneratorI interface
   InteractionList * CreateInteractionList(const InitialState & init) const;
+
+  // overload the Algorithm::Configure() methods to load private data
+  // members from configuration options
+  void Configure(const Registry & config);
+  void Configure(string config);
+
+private:
+
+  void LoadConfigData(void);
+
+  bool fIsCC;
+  bool fIsNC;
+  bool fIsEM;
 };
 
 }      // genie namespace
