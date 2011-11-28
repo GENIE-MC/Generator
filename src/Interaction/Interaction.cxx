@@ -43,7 +43,10 @@
    the ROOT Streamer. 
  @ Nov 17, 2011 - CA
    Added NDecay() named ctor. Removed unused Compare() method and operator.
-
+ @ Nov 24, 2011 - CA
+   Tweaked RecoilNucleonPdg() so that it works with MEC wgere the hit object
+   is a nucleon-cluster and not a single nucleon. The MEC named ctors now 
+   have an argument for specifying the hit nucleon cluster PDG.
 */
 //____________________________________________________________________________
 
@@ -206,14 +209,32 @@ int Interaction::RecoilNucleonPdg(void) const
   int struck_nuc = target.HitNucPdg();
 
   if(fProcInfo->IsQuasiElastic() || fProcInfo->IsInverseBetaDecay()) {
-    bool struck_is_nuc = pdg::IsNeutronOrProton(struck_nuc);
+    bool struck_is_nuc = pdg::IsNucleon(struck_nuc);
     bool is_weak = fProcInfo->IsWeak();
     bool is_em   = fProcInfo->IsEM();
     assert(struck_is_nuc && (is_weak || is_em));
-    if(fProcInfo->IsWeakCC()) 
+    if(fProcInfo->IsWeakCC()) {
        recoil_nuc = pdg::SwitchProtonNeutron(struck_nuc); // CC
-    else 
+    } else {
        recoil_nuc = struck_nuc; // NC, EM
+    }
+  }
+
+  if(fProcInfo->IsMEC()) {
+    bool struck_is_2nuc_cluster = pdg::Is2NucleonCluster(struck_nuc);
+    bool is_weak = fProcInfo->IsWeak();
+    bool is_em   = fProcInfo->IsEM();
+    assert(struck_is_2nuc_cluster && (is_weak || is_em));
+    if(fProcInfo->IsWeakCC()) {
+       bool isnu = pdg::IsNeutrino(fInitialState->ProbePdg());
+       // nucleon cluster charge should be incremented by +1 for 
+       // neutrino CC and by -1 for antineutrino CC
+       int dQ = (isnu) ? +1 : -1;
+       recoil_nuc = pdg::ModifyNucleonCluster(struck_nuc,dQ); // CC
+    }
+    else {
+       recoil_nuc = struck_nuc; // NC, EM
+    }
   }
 
   LOG("Interaction", pDEBUG) << "Recoil nucleon PDG = " << recoil_nuc;
@@ -730,48 +751,52 @@ Interaction * Interaction::AMNuGamma(
   return interaction;
 }
 //___________________________________________________________________________
-Interaction * Interaction::MECCC(int tgt, int probe, double E)
+Interaction * Interaction::MECCC(int tgt, int ncluster, int probe, double E)
 {
   Interaction * interaction = 
      Interaction::Create(tgt, probe, kScMEC, kIntWeakCC);
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeE(E);
+  init_state->TgtPtr()->SetHitNucPdg(ncluster);
 
   return interaction;
 }
 //___________________________________________________________________________
 Interaction * Interaction::MECCC(
-   int tgt, int probe, const TLorentzVector & p4probe)
+   int tgt, int ncluster, int probe, const TLorentzVector & p4probe)
 {
   Interaction * interaction = 
      Interaction::Create(tgt, probe, kScMEC, kIntWeakCC);
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeP4(p4probe);
+  init_state->TgtPtr()->SetHitNucPdg(ncluster);
 
   return interaction;
 }
 //___________________________________________________________________________
-Interaction * Interaction::MECNC(int tgt, int probe, double E)
+Interaction * Interaction::MECNC(int tgt, int ncluster, int probe, double E)
 {
   Interaction * interaction = 
      Interaction::Create(tgt, probe, kScMEC, kIntWeakNC);
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeE(E);
+  init_state->TgtPtr()->SetHitNucPdg(ncluster);
 
   return interaction;
 }
 //___________________________________________________________________________
 Interaction * Interaction::MECNC(
-   int tgt, int probe, const TLorentzVector & p4probe)
+   int tgt, int ncluster, int probe, const TLorentzVector & p4probe)
 {
   Interaction * interaction = 
      Interaction::Create(tgt, probe, kScMEC, kIntWeakNC);
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeP4(p4probe);
+  init_state->TgtPtr()->SetHitNucPdg(ncluster);
 
   return interaction;
 }
