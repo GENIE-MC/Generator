@@ -5,11 +5,14 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - May 05, 2009
+         STFC, Rutherford Appleton Laboratory 
 
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
+ @ Nov 28, 2010 - CA
+   Integrated cross section for CCMEC is taken to be a fraction of the 
+   CCQE cross section for the given neutrino energy and nucleus.
 
 */
 //____________________________________________________________________________
@@ -20,6 +23,8 @@
 #include "Conventions/Units.h"
 #include "Messenger/Messenger.h"
 #include "MEC/MECPXSec.h"
+#include "PDG/PDGCodes.h"
+#include "PDG/PDGUtils.h"
 #include "Utils/KineUtils.h"
 
 using namespace genie;
@@ -58,8 +63,7 @@ double MECPXSec::XSec(
 
   double Wdep  = TMath::Gaus(W, fMass, fWidth);
   double Q2dep = TMath::Power(1+Q2/fMq2d, -1.5);
-  double norm  = 1.0;
-  double xsec  = norm * Wdep * Q2dep;
+  double xsec  = Wdep * Q2dep;
 
   // The algorithm computes d^2xsec/dWdQ2
   // Check whether variable tranformation is needed
@@ -78,16 +82,47 @@ double MECPXSec::XSec(
 //____________________________________________________________________________
 double MECPXSec::Integral(const Interaction * interaction) const
 {
-  const InitialState & init_state = interaction -> InitState();  
-  const Target & target = init_state.Tgt();
+// Calculate the CCMEC cross section as a fraction of the CCQE cross section
+// for the given nuclear target at the given energy.
+// Alternative strategy is to calculate the MEC cross section as the difference
+// of CCQE cross section for two different M_A values (eg ~1.3 GeV and ~1.0 GeV)
+// Include hit-object combinatorial factor? Would yield different A-dependence
+// for MEC and QE.
+//
 
-  double E  = init_state.ProbeE(kRfHitNucRest);
-  int    A  = target.A();
+  Interaction in(*interaction);
 
-  double norm = (E>fEc) ? fNorm*A : 0;
-  return norm;
+  bool iscc  = in.ProcInfo().IsWeakCC();
+  int  nupdg = in.InitState().ProbePdg();
+
+  if(iscc) {
+
+     // gross combinatorial factor (number of 2-nucleon targets over number
+     // of 1-nucleon targets) : (A-1)/2
+     double combfact = (in.InitState().Tgt().A()-1)/2.;
+
+     // neutrino CC: calculate the CCQE cross section resetting the
+     // hit nucleon cluster to neutron
+     double xsec = 0;
+     if(pdg::IsNeutrino(nupdg)) {
+         in.InitStatePtr()->TgtPtr()->SetHitNucPdg(kPdgNeutron);
+         xsec = fXSecAlgCCQE->Integral(&in);
+         xsec *= fFracCCQE;
+     }
+     // anti-neutrino CC: calculate the CCQE cross section resetting the
+     // hit nucleon cluster to proton
+     else
+     if(pdg::IsAntiNeutrino(nupdg)) {
+         in.InitStatePtr()->TgtPtr()->SetHitNucPdg(kPdgProton);
+         xsec = fXSecAlgCCQE->Integral(&in);
+     }
+
+     xsec *= (combfact*fFracCCQE);
+     return xsec;
+  }
+
+  return 0;
 }
-
 //____________________________________________________________________________
 bool MECPXSec::ValidProcess(const Interaction * interaction) const
 {
@@ -113,11 +148,18 @@ void MECPXSec::Configure(string config)
 //____________________________________________________________________________
 void MECPXSec::LoadConfig(void)
 {
+  fXSecAlgCCQE = 0;
+
   fMq2d   = 0.5; // GeV
   fMass   = 2.1; // GeV
   fWidth  = 0.3; // GeV
   fEc     = 0.4; // GeV
-  fNorm   = 0.2 * (1E-38 * units::cm2);;
+  fFracCCQE = 0.1;
+
+  // Get the specified CCQE cross section model
+  fXSecAlgCCQE = 
+     dynamic_cast<const XSecAlgorithmI *> (this->SubAlg("CCQEXSecModel"));
+  assert(fXSecAlgCCQE);
 }
 //____________________________________________________________________________
 
