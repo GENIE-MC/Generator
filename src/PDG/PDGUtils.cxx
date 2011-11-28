@@ -18,6 +18,9 @@
    Added IsLepton()
  @ Oct 08, 2009 - CA
    Added IsNegChargedLepton(), IsPosChargedLepton()
+ @ Nov 28, 2011 - CA
+   Added `int ModifyNucleonCluster(int pdgc, int dQ)' to get the recoil
+   nucleon cluster PDG for MEC.
 
 */
 //____________________________________________________________________________
@@ -321,6 +324,34 @@ int genie::pdg::SwitchProtonNeutron(int pdgc)
 
   if (IsProton(pdgc)) return kPdgNeutron;
   else                return kPdgProton;
+}
+//____________________________________________________________________________
+int genie::pdg::ModifyNucleonCluster(int pdgc, int dQ)
+{
+  assert(pdg::Is2NucleonCluster(pdgc));
+
+  if(pdgc == kPdgClusterNN) {
+    if      (dQ ==  0) { return kPdgClusterNN; }
+    else if (dQ == +1) { return kPdgClusterNP; }
+    else if (dQ == +2) { return kPdgClusterPP; }
+    else               { return 0;             }
+  }
+  else
+  if(pdgc == kPdgClusterNP) {
+    if      (dQ == -1) { return kPdgClusterNN; }
+    else if (dQ ==  0) { return kPdgClusterNP; }
+    else if (dQ == +1) { return kPdgClusterPP; }
+    else               { return 0;             }
+  }
+  else
+  if(pdgc == kPdgClusterPP) {
+    if      (dQ == -2) { return kPdgClusterNN; }
+    else if (dQ == -1) { return kPdgClusterNP; }
+    else if (dQ ==  0) { return kPdgClusterPP; }
+    else               { return 0;             }
+  }
+
+  return 0;
 }
 //____________________________________________________________________________
 bool genie::pdg::IsHadron(int pdgc)
