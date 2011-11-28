@@ -32,24 +32,29 @@ public:
   MECPXSec(string config);
   virtual ~MECPXSec();
 
-  //-- XSecAlgorithmI interface implementation
+  // XSecAlgorithmI interface implementation
   double XSec            (const Interaction * i, KinePhaseSpace_t k) const;
   double Integral        (const Interaction * i) const;
   bool   ValidProcess    (const Interaction * i) const;
 
-  //-- override the Algorithm::Configure methods to load configuration
-  //   data to private data members
+  // override the Algorithm::Configure methods to load configuration
+  // data to private data members
   void Configure (const Registry & config);
   void Configure (string param_set);
 
 private:
+
   void LoadConfig (void);
 
-  double fMq2d;   ///< toy model param: `mass' in dipole (Q2 - dependence) form factor (GeV)
-  double fMass;   ///< toy model param: peak  of W distribution (GeV)
-  double fWidth;  ///< toy model param: width of W distribution (GeV)
-  double fEc;     ///< toy model param: low energy cutoff (GeV) 
-  double fNorm;   ///< toy model param: MEC rate / nucleon (in 1E-38cm^2)
+  double fMq2d;       ///< toy model param: `mass' in dipole (Q2 - dependence) form factor (GeV)
+  double fMass;       ///< toy model param: peak  of W distribution (GeV)
+  double fWidth;      ///< toy model param: width of W distribution (GeV)
+  double fEc;         ///< toy model param: low energy cutoff (GeV) 
+
+  double fFracCCQE;   ///< toy model param: MEC cross section is taken to be this fraction of CCQE cross section
+
+  const XSecAlgorithmI * fXSecAlgCCQE; ///< cross section algorithm for CCQE
+
 };
 
 }       // genie namespace
