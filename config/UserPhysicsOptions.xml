@@ -626,7 +626,7 @@ STFC, Rutherford Appleton Laboratory
   <param type="alg" name="XSecModel@genie::EventGenerator/AM-NUGAMMA">   genie::H3AMNuGammaPXSec/Default         </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/DFR-CC">       genie::ReinDFRPXSec/Default             </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/DFR-NC">       genie::ReinDFRPXSec/Default             </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/MEC">          genie::MECPXSec/Default                 </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/MEC-CC">       genie::MECPXSec/Default                 </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/GLRES">        genie::GLRESPXSec/Default               </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/NucleonDecay"> genie::DummyPXSec/Default               </param>
 
