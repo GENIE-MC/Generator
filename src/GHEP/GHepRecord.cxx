@@ -31,7 +31,8 @@
    Demote a few messages from `warning' to `notice'.
  @ Nov 17, 2011 - CA
    Added `GEvGenMode_t EventGenerationMode(void) const'
-
+ @ Nov 28, 2011 - CA
+   HitNucleon() can return a hit nucleon cluster too, as needed for MEC.
 */
 //____________________________________________________________________________
 
@@ -438,7 +439,8 @@ int GHepRecord::HitNucleonPosition(void) const
   GHepParticle * p = this->Particle(ipos);
   if(!p) return -1;
 
-  bool isN = pdg::IsNeutronOrProton(p->Pdg());
+//  bool isN = pdg::IsNeutronOrProton(p->Pdg());
+  bool isN = pdg::IsNucleon(p->Pdg()) || pdg::Is2NucleonCluster(p->Pdg()); 
   if(isN && p->Status()==ist) return ipos; 
 
   return -1;
