@@ -15,8 +15,8 @@
  Important revisions after version 2.0.0 :
  @ Sep 22, 2008 - CA
    Skeleton was first added in version 2.5.1
- @ Nov 24, 2010 - CA
-
+ @ Nov 24-30, 2010 - CA
+   Major development leading to the first complete version of the generator.
 */
 //____________________________________________________________________________
 
@@ -67,8 +67,7 @@ MECGenerator::~MECGenerator()
 //___________________________________________________________________________
 void MECGenerator::ProcessEventRecord(GHepRecord * event) const
 {
-  this -> AddNucleonCluster     (event);
-  this -> AddTargetRemnant      (event);
+  this -> AddTargetRemnant      (event); /// shortly, this will be handled by the InitialStateAppender module
   this -> GenerateFermiMomentum (event);
   this -> SelectKinematics      (event);
   this -> AddFinalStateLepton   (event);
@@ -78,74 +77,13 @@ void MECGenerator::ProcessEventRecord(GHepRecord * event) const
   LOG("MEC", pNOTICE) << *event;
 }
 //___________________________________________________________________________
-void MECGenerator::AddNucleonCluster(GHepRecord * event) const
-{
-// Add a p+p, p+n or n+n nucleon cluster as the "hit" object.
-// Using built-in probabilities for each nucleon cluster.
-// The function checks that there is a sufficient number of neutrons and
-// protons in the hit nucleus for the selected nucleon cluster.
-//
-  const int nc = 3;
-  int    clusters [nc] = { kPdgClusterNN, kPdgClusterNP, kPdgClusterPP };
-  double prob     [nc] = { 0.12,          0.88,          0.12          };
-  int nupdg = event->Probe()->Pdg();
-  if (pdg::IsNeutrino(nupdg)) prob[0]=0.;
-  if (pdg::IsAntiNeutrino(nupdg)) prob[2]=0.;
-
-  GHepParticle * target_nucleus = event->TargetNucleus();
-  assert(target_nucleus);
-  int Z = target_nucleus->Z();
-  int A = target_nucleus->A();
-  int np = Z;
-  int nn = A-Z;
-
-  // select di-nucleon
-  bool selected    = false;
-  int  cluster_pdg = 0;
-  RandomGen * rnd = RandomGen::Instance();
-  while(!selected) {
-     double prob_gen = rnd->RndGen().Rndm();
-     double prob_sum = 0;
-     for(int ic = 0; ic < nc; ic++) {
-        prob_sum += prob[ic];
-        if(prob_gen < prob_sum) {
-           cluster_pdg = clusters[ic];
-           break;
-        }
-     }
-     // allow selected?
-     if ( cluster_pdg==kPdgClusterNN && nn>=2          ) selected=true;
-     if ( cluster_pdg==kPdgClusterNP && nn>=1 && np>=1 ) selected=true;
-     if ( cluster_pdg==kPdgClusterPP && np>=2          ) selected=true;
-  }
-
-  // vtx position in the nucleus
-  GHepParticle * neutrino = event->Probe();
-  assert(neutrino);
-  const TLorentzVector v4(*neutrino->X4());
-
-  // di-nucleon 4-momentum
-  double mc = PDGLibrary::Instance()->Find(cluster_pdg)->Mass();
-  const TLorentzVector p4(0.,0.,0., mc); 
-
-  // mother particle
-  int momidx = event->TargetNucleusPosition();
-
-  // add to the event record
-  LOG("MEC", pINFO) 
-    << "Adding nucleon cluster [pdgc = " << cluster_pdg << "]";
-
-  event->AddParticle(
-     cluster_pdg, kIStNucleonTarget, momidx,-1,-1,-1, p4, v4);
-}
-//___________________________________________________________________________
 void MECGenerator::AddTargetRemnant(GHepRecord * event) const
 {
 // Add the remnant nucleus (= initial nucleus - nucleon cluster) in the
 // event record.
 
   GHepParticle * target  = event->TargetNucleus();
-  GHepParticle * cluster = event->Particle(2);
+  GHepParticle * cluster = event->HitNucleon();
 
   int Z = target->Z();
   int A = target->A();
@@ -175,7 +113,7 @@ void MECGenerator::GenerateFermiMomentum(GHepRecord * event) const
 //
   GHepParticle * target_nucleus = event->TargetNucleus();
   assert(target_nucleus);
-  GHepParticle * nucleon_cluster = event->Particle(2);
+  GHepParticle * nucleon_cluster = event->HitNucleon();
   assert(nucleon_cluster);
   GHepParticle * remnant_nucleus = event->RemnantNucleus();
   assert(remnant_nucleus);
@@ -389,17 +327,17 @@ void MECGenerator::AddFinalStateLepton(GHepRecord * event) const
 //___________________________________________________________________________
 void MECGenerator::RecoilNucleonCluster(GHepRecord * event) const 
 {
-  // get di-nucleon cluster 4-momentum
-  GHepParticle * nucleon_cluster = event->Particle(2);
+  // get di-nucleon cluster & its 4-momentum
+  GHepParticle * nucleon_cluster = event->HitNucleon();
   assert(nucleon_cluster);
   TLorentzVector p4cluster(*nucleon_cluster->GetP4());
 
-  // get neutrino 4-momentum
+  // get neutrino & its 4-momentum
   GHepParticle * neutrino = event->Probe();
   assert(neutrino);
   TLorentzVector p4v(*neutrino->P4());
 
-  // get final state primary lepton 4-momentum
+  // get final state primary lepton & its 4-momentum
   GHepParticle * fsl = event->FinalStatePrimaryLepton();
   assert(fsl);
   TLorentzVector p4l(*fsl->P4());
@@ -410,12 +348,17 @@ void MECGenerator::RecoilNucleonCluster(GHepRecord * event) const
   // calculate recoil nucleon cluster 4-momentum
   TLorentzVector p4cluster_recoil = p4cluster + q;
 
-  // vtx
+  // work-out recoil nucleon cluster code
+  LOG("MEC", pINFO) << "Interaction summary";
+  LOG("MEC", pINFO) << *event->Summary();
+  int recoil_nucleon_cluster_pdg = event->Summary()->RecoilNucleonPdg();
+
+  // vtx position in nucleus coord system
   TLorentzVector v4(*neutrino->X4());
 
   // add to the event record
   event->AddParticle(
-    nucleon_cluster->Pdg(), kIStDecayedState, 
+    recoil_nucleon_cluster_pdg, kIStDecayedState, 
     2, -1, -1, -1, p4cluster_recoil, v4);
 }
 //___________________________________________________________________________ 
@@ -574,7 +517,7 @@ double MECGenerator::EnuAtNucleonClusterRestFrame(GHepRecord * event) const
   assert(neutrino);
   TLorentzVector p4v(*neutrino->P4());
 
-  GHepParticle * nucleon_cluster = event->Particle(2);
+  GHepParticle * nucleon_cluster = event->HitNucleon();
   assert(nucleon_cluster);
   double bx = nucleon_cluster->Px() / nucleon_cluster->Energy();
   double by = nucleon_cluster->Py() / nucleon_cluster->Energy();
