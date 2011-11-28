@@ -25,6 +25,8 @@
    coherent vector meson production.
  @ Sep 19, 2009 - CR
    Add threshold and kinematical limits for inverse beta decay.
+ @ Nov 28, 2011 - CA
+   Add threshold for MEC.
 
 */
 //____________________________________________________________________________
@@ -134,7 +136,13 @@ double KPhaseSpace::Threshold(void) const
     return 0;
   }
   if(pi.IsMEC()) {
-    return 0;
+    assert(tgt.HitNucIsSet());
+    double Mn   = tgt.HitNucP4Ptr()->M();
+    double Mn2  = TMath::Power(Mn,2);
+    double Wmin = fInteraction->RecoilNucleon()->Mass(); // mass of the recoil nucleon cluster 
+    double smin = TMath::Power(Wmin+ml,2.);
+    double Ethr = 0.5*(smin-Mn2)/Mn;
+    return TMath::Max(0.,Ethr);
   }
 
   SLOG("KPhaseSpace", pERROR) 
