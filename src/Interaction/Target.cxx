@@ -16,6 +16,8 @@
    Adding special ctor for ROOT I/O purposes so as to avoid memory leak due to
    memory allocated in the default ctor when objects of this class are read by 
    the ROOT Streamer. 
+ @ Nov 28, 2011 - CA
+   Now a nucleon-cluster ID is an accepted option for SetHitNucPdg().
 
 */
 //____________________________________________________________________________
@@ -137,8 +139,12 @@ void Target::Copy(const Target & tgt)
      fHitSeaQrk = tgt.fHitSeaQrk; // struck quark is from sea?
      (*fHitNucP4) = (*tgt.fHitNucP4);
 
-     this->ForceNucleusValidity(); // look it up at the isotopes chart
-     this->ForceHitNucValidity();  // must be p or n
+     // look-up the nucleus in the isotopes chart
+     this->ForceNucleusValidity(); 
+
+     // make sure the hit nucleus constituent object is either 
+     // a nucleon (p or n) or a di-nucleon cluster (p+p, p+n, n+n) 
+     this->ForceHitNucValidity();  
   }
 }
 //___________________________________________________________________________
@@ -167,7 +173,7 @@ void Target::SetId(int Z, int A)
 void Target::SetHitNucPdg(int nucl_pdgc)
 {
   fHitNucPDG = nucl_pdgc;
-  bool is_valid = this->ForceHitNucValidity();  // must be p or n
+  bool is_valid = this->ForceHitNucValidity();  // p, n or a di-nucleon
 
   // If it is a valid struck nucleon pdg code, initialize its 4P:
   // at-rest + on-mass-shell
@@ -338,9 +344,11 @@ bool Target::ForceHitNucValidity(void)
 {
 // resets the struck nucleon pdg-code if it is found not to be a valid one
 
-  bool valid = pdg::IsProton(fHitNucPDG)  || 
-               pdg::IsNeutron(fHitNucPDG) || 
-               fHitNucPDG==0; /* not set */
+  bool valid = 
+      pdg::IsNucleon(fHitNucPDG)          || 
+      pdg::Is2NucleonCluster (fHitNucPDG) || 
+      (fHitNucPDG==0); /* not set */
+
   return valid;
 }
 //___________________________________________________________________________
