@@ -61,16 +61,20 @@ double MECPXSec::XSec(
   double W  = kinematics.W();
   double Q2 = kinematics.Q2();
 
+  //
+  // HERE: Do a check whether W,Q2 is allowed. Return 0 otherwise.
+  // 
+
+  // Calculate d^2xsec/dWdQ2
   double Wdep  = TMath::Gaus(W, fMass, fWidth);
   double Q2dep = TMath::Power(1+Q2/fMq2d, -1.5);
   double xsec  = Wdep * Q2dep;
 
-  // The algorithm computes d^2xsec/dWdQ2
   // Check whether variable tranformation is needed
   if(kps!=kPSWQ2fE) {
     double J = utils::kinematics::Jacobian(interaction,kPSWQ2fE,kps);
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-    LOG("QMEC", pDEBUG)
+    LOG("MEC", pDEBUG)
      << "Jacobian for transformation to: " 
                   << KinePhaseSpace::AsString(kps) << ", J = " << J;
 #endif
@@ -90,34 +94,45 @@ double MECPXSec::Integral(const Interaction * interaction) const
 // for MEC and QE.
 //
 
-  Interaction in(*interaction);
+  bool   iscc   = interaction->ProcInfo().IsWeakCC();
 
-  bool iscc  = in.ProcInfo().IsWeakCC();
-  int  nupdg = in.InitState().ProbePdg();
+  int    nupdg  = interaction->InitState().ProbePdg();
+  int    tgtpdg = interaction->InitState().Tgt().Pdg();
+  double E      = interaction->InitState().ProbeE(kRfLab);
 
   if(iscc) {
 
-     // gross combinatorial factor (number of 2-nucleon targets over number
-     // of 1-nucleon targets) : (A-1)/2
-     double combfact = (in.InitState().Tgt().A()-1)/2.;
-
+     int nucpdg = 0;
      // neutrino CC: calculate the CCQE cross section resetting the
      // hit nucleon cluster to neutron
-     double xsec = 0;
-     if(pdg::IsNeutrino(nupdg)) {
-         in.InitStatePtr()->TgtPtr()->SetHitNucPdg(kPdgNeutron);
-         xsec = fXSecAlgCCQE->Integral(&in);
-         xsec *= fFracCCQE;
+     if(pdg::IsNeutrino(nupdg)) { 
+         nucpdg = kPdgNeutron; 
      }
      // anti-neutrino CC: calculate the CCQE cross section resetting the
      // hit nucleon cluster to proton
      else
      if(pdg::IsAntiNeutrino(nupdg)) {
-         in.InitStatePtr()->TgtPtr()->SetHitNucPdg(kPdgProton);
-         xsec = fXSecAlgCCQE->Integral(&in);
+         nucpdg = kPdgProton;
+     }
+     else {
+         exit(1);
      }
 
-     xsec *= (combfact*fFracCCQE);
+     // Create a tmp QE process
+     Interaction * in = Interaction::QELCC(tgtpdg,nucpdg,nupdg,E);
+
+     // Calculate cross section for the QE process
+     double xsec = fXSecAlgCCQE->Integral(in);
+
+     // Use tunable fraction
+     xsec *= fFracCCQE;
+
+     // Use gross combinatorial factor (number of 2-nucleon targets over number
+     // of 1-nucleon targets) : (A-1)/2
+     double combfact = (in->InitState().Tgt().A()-1)/2.;
+     xsec *= combfact;
+
+     delete in;
      return xsec;
   }
 

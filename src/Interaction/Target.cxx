@@ -279,7 +279,11 @@ bool Target::IsParticle(void) const
 //___________________________________________________________________________
 bool Target::HitNucIsSet(void) const
 {
-  return pdg::IsNeutronOrProton(fHitNucPDG);
+  bool ok =
+     pdg::IsNucleon(fHitNucPDG)          ||
+     pdg::Is2NucleonCluster (fHitNucPDG);
+
+  return ok;
 }
 //___________________________________________________________________________
 bool Target::HitQrkIsSet(void) const
