@@ -157,13 +157,17 @@ void MECGenerator::GenerateFermiMomentum(GHepRecord * event) const
 
   double EN = TMath::Sqrt(p3.Mag2() + M2n*M2n);
 
-  // calculate & set the remnant nucleus and nucleon cluster 4-momenta
+  // set the remnant nucleus and nucleon cluster 4-momenta at GHEP record
 
   TLorentzVector p4nclust   (   p3.Px(),    p3.Py(),    p3.Pz(),  EN   );
   TLorentzVector p4remnant   (-1*p3.Px(), -1*p3.Py(), -1*p3.Pz(), Mi-EN);
        
   nucleon_cluster->SetMomentum(p4nclust);
   remnant_nucleus->SetMomentum(p4remnant);
+
+  // set the nucleon cluster 4-momentum at the interaction summary 
+
+  event->Summary()->InitStatePtr()->TgtPtr()->SetHitNucP4(p4nclust);
 } 
 //___________________________________________________________________________ 
 void MECGenerator::SelectKinematics(GHepRecord * event) const
@@ -177,6 +181,7 @@ void MECGenerator::SelectKinematics(GHepRecord * event) const
   fXSecModel = evg->CrossSectionAlg();
 
   Interaction * interaction = event->Summary();
+  double Ev = interaction->InitState().ProbeE(kRfHitNucRest);
 
   // **** NOTE / TODO:
   // **** Hardcode bogus limits for the time-being
@@ -203,7 +208,7 @@ void MECGenerator::SelectKinematics(GHepRecord * event) const
       xsec_max = TMath::Max(xsec, xsec_max);
     }
   }
-  LOG("MEC", pNOTICE) << "xsec_max = " << xsec_max;
+  LOG("MEC", pNOTICE) << "xsec_max (E = " << Ev << " GeV) = " << xsec_max;
 
   // Select kinematics 
   RandomGen * rnd = RandomGen::Instance();
@@ -244,15 +249,10 @@ void MECGenerator::SelectKinematics(GHepRecord * event) const
      // If the generated kinematics are accepted, finish-up module's job
      if(accept) {
         LOG("MEC", pINFO) << "Selected: Q^2 = " << gQ2 << ", W = " << gW;
-
-        double Ev = this->EnuAtNucleonClusterRestFrame(event);
-
         double gx = 0;
         double gy = 0;
         kinematics::WQ2toXY(Ev,2*kNucleonMass,gW,gQ2,gx,gy);
-
         LOG("MEC", pINFO) << "x = " << gx << ", y = " << gy;
-
         // lock selected kinematics & clear running values
         interaction->KinePtr()->SetQ2(gQ2, true);
         interaction->KinePtr()->SetW (gW,  true);
@@ -271,15 +271,14 @@ void MECGenerator::AddFinalStateLepton(GHepRecord * event) const
 // Compute its 4-momentum based on the selected interaction kinematics.
 //
   Interaction * interaction = event->Summary();
-  const InitialState & init_state = interaction->InitState();
+  // const InitialState & init_state = interaction->InitState();
 
   // Look-up selected kinematics
   double Q2 = interaction->Kine().Q2(true);
   double y  = interaction->Kine().y(true);
 
   // Auxiliary params
-  double Ev = this->EnuAtNucleonClusterRestFrame(event);
-
+  double Ev  = interaction->InitState().ProbeE(kRfHitNucRest);
   double ml  = interaction->FSPrimLepton()->Mass();
   double ml2 = TMath::Power(ml,2);
 
@@ -504,26 +503,6 @@ PDGCodeList MECGenerator::NucleonClusterConstituents(int pdgc) const
   }
  
   return pdgv;
-}
-//___________________________________________________________________________
-double MECGenerator::EnuAtNucleonClusterRestFrame(GHepRecord * event) const
-{
-  GHepParticle * neutrino = event->Particle(0);
-  assert(neutrino);
-  TLorentzVector p4v(*neutrino->P4());
-
-  GHepParticle * nucleon_cluster = event->HitNucleon();
-  assert(nucleon_cluster);
-  double bx = nucleon_cluster->Px() / nucleon_cluster->Energy();
-  double by = nucleon_cluster->Py() / nucleon_cluster->Energy();
-  double bz = nucleon_cluster->Pz() / nucleon_cluster->Energy();
-
-  p4v.Boost(-bx,-by,-bz);
-  double Ev = p4v.Energy();
-
-  LOG("MEC", pINFO) << "Ev at di-nucleon rest frame = " << Ev;
-
-  return Ev;
 }
 //___________________________________________________________________________
 void MECGenerator::Configure(const Registry & config)   
