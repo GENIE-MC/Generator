@@ -236,9 +236,7 @@ void MECGenerator::SelectKinematics(GHepRecord * event) const
      double J = 1; // jacobean
      accept = (t < J*xsec);
 
-     // **** NOTE / TODO:
-     // **** Forcing a characteristic set of kinematical variables for test purposes.
-     // **** Remove once the differential cross section model is implemented
+     //     way to force specific kinmatics
      //     gQ2 = 1.2;
      //     gW  = 2.5;
      //     accept = true;
@@ -269,9 +267,6 @@ void MECGenerator::SelectKinematics(GHepRecord * event) const
 //___________________________________________________________________________
 void MECGenerator::AddFinalStateLepton(GHepRecord * event) const
 {
-// **** NOTE / TODO:
-// **** Something is broken here --> Odd lepton kinematics.
-
 // Add the final-state primary lepton in the event record.
 // Compute its 4-momentum based on the selected interaction kinematics.
 //
