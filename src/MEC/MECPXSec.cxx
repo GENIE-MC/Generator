@@ -67,12 +67,12 @@ double MECPXSec::XSec(
   double Q2 = kinematics.Q2();
 
   //
-  // HERE: Do a check whether W,Q2 is allowed. Return 0 otherwise.
+  // Do a check whether W,Q2 is allowed. Return 0 otherwise.
   // 
-/*
-  double Ev  = interaction->Probe()->Energy();
-  GHepParticle * nucleon_cluster = event->HitNucleon();
-  double M2n = PDGLibrary::Instance()->Find(nucleon_cluster->Pdg())-> Mass(); // nucleon cluster mass  
+  double Ev = interaction->InitState().ProbeE(kRfHitNucRest);
+  //  GHepParticle * nucleon_cluster = interaction->HitNucleon();
+  //  double M2n = PDGLibrary::Instance()->Find(nucleon_cluster->Pdg())-> Mass(); // nucleon cluster mass  
+  double M2n = 1.88;
   double ml  = interaction->FSPrimLepton()->Mass();
   Range1D_t Wlim = genie::utils::kinematics::InelWLim(Ev, M2n, ml);
   if(W < Wlim.min || W > Wlim.max)
@@ -84,7 +84,7 @@ double MECPXSec::XSec(
     {double xsec = 0.;
       return xsec;
     }
-*/
+
   // Calculate d^2xsec/dWdQ2
   double Wdep  = TMath::Gaus(W, fMass, fWidth);
   double Q2dep = TMath::Power(1+Q2/fMq2d, -1.5);
