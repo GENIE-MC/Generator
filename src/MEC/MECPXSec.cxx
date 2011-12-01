@@ -7,6 +7,9 @@
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          STFC, Rutherford Appleton Laboratory 
 
+         Steve Dytman <dytman+ \at pitt.edu>
+         Pittsburgh University
+
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
@@ -21,10 +24,12 @@
 
 #include "Conventions/GBuild.h"
 #include "Conventions/Units.h"
+#include "GHEP/GHepParticle.h"
 #include "Messenger/Messenger.h"
 #include "MEC/MECPXSec.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
+#include "PDG/PDGLibrary.h"
 #include "Utils/KineUtils.h"
 
 using namespace genie;
@@ -64,7 +69,20 @@ double MECPXSec::XSec(
   //
   // HERE: Do a check whether W,Q2 is allowed. Return 0 otherwise.
   // 
-
+  double Ev  = interaction->Probe()->Energy();
+  GHepParticle * nucleon_cluster = event->HitNucleon();
+  double M2n = PDGLibrary::Instance()->Find(nucleon_cluster->Pdg())-> Mass(); // nucleon cluster mass  
+  double ml  = interaction->FSPrimLepton()->Mass();
+  Range1D_t Wlim = genie::utils::kinematics::InelWLim(Ev, M2n, ml);
+  if(W < Wlim.min || W > Wlim.max)
+    {double xsec = 0.;
+      return xsec;
+    }
+  Range1D_t Q2lim = genie::utils::kinematics::InelQ2Lim_W (Ev, M2n, W, ml, 0.);
+  if(Q2 < Q2lim.min || Q2 > Q2lim.max)
+    {double xsec = 0.;
+      return xsec;
+    }
   // Calculate d^2xsec/dWdQ2
   double Wdep  = TMath::Gaus(W, fMass, fWidth);
   double Q2dep = TMath::Power(1+Q2/fMq2d, -1.5);
