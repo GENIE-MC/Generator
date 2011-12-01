@@ -58,7 +58,6 @@ private:
   void        RecoilNucleonCluster        (GHepRecord * event) const;
   void        DecayNucleonCluster         (GHepRecord * event) const;
   PDGCodeList NucleonClusterConstituents  (int pdgc)           const;
-  double      EnuAtNucleonClusterRestFrame(GHepRecord * event) const;
   
   mutable const XSecAlgorithmI * fXSecModel;
   mutable TGenPhaseSpace         fPhaseSpaceGenerator;

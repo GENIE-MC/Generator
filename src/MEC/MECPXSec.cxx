@@ -69,6 +69,7 @@ double MECPXSec::XSec(
   //
   // HERE: Do a check whether W,Q2 is allowed. Return 0 otherwise.
   // 
+/*
   double Ev  = interaction->Probe()->Energy();
   GHepParticle * nucleon_cluster = event->HitNucleon();
   double M2n = PDGLibrary::Instance()->Find(nucleon_cluster->Pdg())-> Mass(); // nucleon cluster mass  
@@ -83,6 +84,7 @@ double MECPXSec::XSec(
     {double xsec = 0.;
       return xsec;
     }
+*/
   // Calculate d^2xsec/dWdQ2
   double Wdep  = TMath::Gaus(W, fMass, fWidth);
   double Q2dep = TMath::Power(1+Q2/fMq2d, -1.5);
