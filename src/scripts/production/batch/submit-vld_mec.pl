@@ -133,7 +133,7 @@ $nev_per_subrun = 50000;
   '12601' =>   '',
   '18080' =>   '-f $flux_dir/t2ksk.root[numu_flux]',
   '28081' =>   '-f $flux_dir/t2ksk.root[numubar_flux]',
-  '19090' =>   '-f $flux_dir/x'
+  '19090' =>   '-f $flux_dir/miniboone-numu.data'
 );
 
 # make the jobs directory
