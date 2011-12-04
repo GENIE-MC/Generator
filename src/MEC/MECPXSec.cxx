@@ -53,7 +53,7 @@ MECPXSec::~MECPXSec()
 }
 //____________________________________________________________________________
 double MECPXSec::XSec(
-          const Interaction * interaction, KinePhaseSpace_t kps) const
+		      const Interaction * interaction, KinePhaseSpace_t kps) const
 {
 
 // We have no clue what the meson exchange current contribution is.
@@ -65,6 +65,7 @@ double MECPXSec::XSec(
   const Kinematics &   kinematics = interaction -> Kine();
   double W  = kinematics.W();
   double Q2 = kinematics.Q2();
+  //  LOG("MEC", pINFO) << "W, Q2 trial= " << W << "  " << Q2 ;
 
   //
   // Do a check whether W,Q2 is allowed. Return 0 otherwise.
@@ -75,16 +76,18 @@ double MECPXSec::XSec(
   double M2n = 1.88;
   double ml  = interaction->FSPrimLepton()->Mass();
   Range1D_t Wlim = genie::utils::kinematics::InelWLim(Ev, M2n, ml);
+  //  LOG("MEC", pINFO) << "Ev, ml, M2n = " << Ev << "  " << ml << "  " << M2n;
+  //  LOG("MEC", pINFO) << "Wlim= " << Wlim.min << "  " <<Wlim.max ;
   if(W < Wlim.min || W > Wlim.max)
     {double xsec = 0.;
       return xsec;
-    }
-  Range1D_t Q2lim = genie::utils::kinematics::InelQ2Lim_W (Ev, M2n, W, ml, 0.);
+    } 
+  Range1D_t Q2lim = genie::utils::kinematics::InelQ2Lim_W (Ev, M2n, ml, W, 0.);
+  //  LOG("MEC", pINFO) << "Q2lim= " << Q2lim.min << "  " <<Q2lim.max ;
   if(Q2 < Q2lim.min || Q2 > Q2lim.max)
     {double xsec = 0.;
       return xsec;
     }
-
   // Calculate d^2xsec/dWdQ2
   double Wdep  = TMath::Gaus(W, fMass, fWidth);
   double Q2dep = TMath::Power(1+Q2/fMq2d, -1.5);
@@ -149,7 +152,8 @@ double MECPXSec::Integral(const Interaction * interaction) const
 
      // Use gross combinatorial factor (number of 2-nucleon targets over number
      // of 1-nucleon targets) : (A-1)/2
-     double combfact = (in->InitState().Tgt().A()-1)/2.;
+     //     double combfact = (in->InitState().Tgt().A()-1)/2.;
+     double combfact=2.;
      xsec *= combfact;
 
      delete in;
