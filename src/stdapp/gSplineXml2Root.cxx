@@ -549,6 +549,7 @@ void SaveGraphsToRootFile(void)
     ostringstream title;
    
     if      (proc.IsQuasiElastic()     ) { title << "qel";   }
+    else if (proc.IsMEC()              ) { title << "mec";   }
     else if (proc.IsResonant()         ) { title << "res";   }
     else if (proc.IsDeepInelastic()    ) { title << "dis";   }
     else if (proc.IsDiffractive()      ) { title << "dfr";   }
@@ -568,6 +569,18 @@ void SaveGraphsToRootFile(void)
       int hitnuc = tgt.HitNucPdg();
       if      ( pdg::IsProton (hitnuc) ) { title << "_p"; }
       else if ( pdg::IsNeutron(hitnuc) ) { title << "_n"; }
+      else if ( pdg::Is2NucleonCluster(hitnuc) ) 
+      {
+        if      (hitnuc == kPdgClusterNN) { title << "_nn"; }
+        else if (hitnuc == kPdgClusterNP) { title << "_np"; }
+        else if (hitnuc == kPdgClusterPP) { title << "_pp"; }
+        else {
+           LOG("gspl2root", pWARN) << "Can't handle hit 2-nucleon cluster PDG = " << hitnuc;
+        }
+      }
+      else {
+        LOG("gspl2root", pWARN) << "Can't handle hit nucleon PDG = " << hitnuc;
+      }
 
       if(tgt.HitQrkIsSet()) {
         int  qrkpdg = tgt.HitQrkPdg();
@@ -613,7 +626,7 @@ void SaveGraphsToRootFile(void)
 
 
   //
-  // totals for neutrino scattering
+  // totals for (anti-)neutrino scattering
   //
 
   bool is_neutrino = pdg::IsNeutralLepton(gOptProbePdgCode);
@@ -803,6 +816,44 @@ void SaveGraphsToRootFile(void)
     gr_disncn_charm->SetName("dis_nc_n_charm");
     gr_disncn_charm->SetTitle("GENIE cross section graph");
     topdir->Add(gr_disncn_charm);
+
+    //
+    // add-up all mec channels
+    //
+
+    double * xsmeccc = new double[kNSplineP];
+    double * xsmecnc = new double[kNSplineP];
+    for(int i=0; i<kNSplineP; i++) {
+       xsmeccc[i] = 0;
+       xsmecnc[i] = 0;
+    }
+
+    for(ilistiter = ilist->begin(); ilistiter != ilist->end(); ++ilistiter) {    
+       const Interaction * interaction = *ilistiter;
+       const ProcessInfo &  proc = interaction->ProcInfo();
+
+       const Spline * spl = evg_driver.XSecSpline(interaction);
+ 
+       if (proc.IsMEC() && proc.IsWeakCC()) {
+         for(int i=0; i<kNSplineP; i++) { 
+             xsmeccc[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2)); 
+         }
+       }
+       if (proc.IsMEC() && proc.IsWeakNC()) {
+         for(int i=0; i<kNSplineP; i++) { 
+             xsmecnc[i] += (spl->Evaluate(e[i]) * (1E+38/units::cm2)); 
+         }
+       }
+    }
+
+    TGraph * gr_meccc = new TGraph(kNSplineP, e, xsmeccc);
+    gr_meccc->SetName("mec_cc");
+    gr_meccc->SetTitle("GENIE cross section graph");
+    topdir->Add(gr_meccc);
+    TGraph * gr_mecnc = new TGraph(kNSplineP, e, xsmecnc);
+    gr_mecnc->SetName("mec_nc");
+    gr_mecnc->SetTitle("GENIE cross section graph");
+    topdir->Add(gr_mecnc);
 
     //
     // total cross sections
