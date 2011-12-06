@@ -71,9 +71,9 @@ double MECPXSec::XSec(
   // Do a check whether W,Q2 is allowed. Return 0 otherwise.
   // 
   double Ev = interaction->InitState().ProbeE(kRfHitNucRest);
-  //  GHepParticle * nucleon_cluster = interaction->HitNucleon();
-  //  double M2n = PDGLibrary::Instance()->Find(nucleon_cluster->Pdg())-> Mass(); // nucleon cluster mass  
-  double M2n = 1.88;
+  int nucleon_cluster_pdg = interaction->InitState().Tgt().HitNucPdg();
+  double M2n = PDGLibrary::Instance()->Find(nucleon_cluster_pdg)-> Mass(); // nucleon cluster mass  
+  //  double M2n = 1.88;
   double ml  = interaction->FSPrimLepton()->Mass();
   Range1D_t Wlim = genie::utils::kinematics::InelWLim(Ev, M2n, ml);
   //  LOG("MEC", pINFO) << "Ev, ml, M2n = " << Ev << "  " << ml << "  " << M2n;
@@ -122,6 +122,7 @@ double MECPXSec::Integral(const Interaction * interaction) const
   int    nupdg  = interaction->InitState().ProbePdg();
   int    tgtpdg = interaction->InitState().Tgt().Pdg();
   double E      = interaction->InitState().ProbeE(kRfLab);
+  int nucleon_cluster_pdg = interaction->InitState().Tgt().HitNucPdg();
 
   if(iscc) {
 
@@ -148,13 +149,19 @@ double MECPXSec::Integral(const Interaction * interaction) const
      double xsec = fXSecAlgCCQE->Integral(in);
 
      // Use tunable fraction
-     xsec *= fFracCCQE;
+     double fFracCCQE_cluster=0.;
+     if(pdg::IsNeutrino(nupdg) && nucleon_cluster_pdg==2000000200) fFracCCQE_cluster= .8;  //n+n
+     if(pdg::IsNeutrino(nupdg) && nucleon_cluster_pdg==2000000201) fFracCCQE_cluster= .2;  //n+p
+     if(pdg::IsAntiNeutrino(nupdg) && nucleon_cluster_pdg==2000000201) fFracCCQE_cluster= .8;   //n+p
+     if(pdg::IsAntiNeutrino(nupdg) && nucleon_cluster_pdg==2000000202) fFracCCQE_cluster= .2;   //p+p
+
+
+     xsec *= fFracCCQE*fFracCCQE_cluster;
 
      // Use gross combinatorial factor (number of 2-nucleon targets over number
      // of 1-nucleon targets) : (A-1)/2
      //     double combfact = (in->InitState().Tgt().A()-1)/2.;
-     double combfact=2.;
-     xsec *= combfact;
+     //     xsec *= combfact;
 
      delete in;
      return xsec;
@@ -193,7 +200,8 @@ void MECPXSec::LoadConfig(void)
   fMass   = 2.1; // GeV
   fWidth  = 0.3; // GeV
   fEc     = 0.4; // GeV
-  fFracCCQE = 0.1;
+  fFracCCQE = 0.15;   //  this is the overall fraction of CCQE xsec that will go to CCMEC xsec
+                      //  at first, this is energy independent
 
   // Get the specified CCQE cross section model
   fXSecAlgCCQE = 
