@@ -473,6 +473,10 @@ STFC, Rutherford Appleton Laboratory
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Intranuclear rescattering 
   Use the HadronTransportEnable option to toggle intranuclear rescattering on/off. 
+  Also, set the preferred hadron transport model. 
+  Options include:
+   - genie::HAIntranuke/Default
+   - genie::HNIntranuke/Default
   -->
   <param type="bool" name="HadronTransp-Enable"> true </param>
   <param type="alg"  name="HadronTransp-Model">  genie::HAIntranuke/Default  </param>
@@ -480,9 +484,9 @@ STFC, Rutherford Appleton Laboratory
  <!-- 	
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   INTRANUKE-specific parameters:
-  - Mode options are: hA, hN
-  - NucRemovalE is the binding E to subtract from cascade nucleons (in GeV)
-  - typical values for pion, nucleon DelR are 0.5, 0.7 (hA) and 0.2, 0.2 (hN)
+   - Mode options are: hA, hN
+   - NucRemovalE is the binding E to subtract from cascade nucleons (in GeV)
+   - typical values for pion, nucleon DelR are 0.5, 0.7 (hA) and 0.2, 0.2 (hN)
   -->
   <param type="double" name="INUKE-NucRemovalE">       0.00  </param>
   <param type="double" name="INUKE-HadStep">           0.05  </param>
