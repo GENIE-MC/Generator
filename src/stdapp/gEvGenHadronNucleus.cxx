@@ -192,24 +192,17 @@ const EventRecordVisitorI * GetIntranuke(void)
 {
 // get the requested INTRANUKE module
 
-  string sname   = "";
-  string sconfig = "";
-
-  // comment-out this block after Aaron's and Steve's intranuke upgrade
-  //  sname   = "genie::Intranuke"; 
-  //  sconfig = "hA";  
-
-
-  // uncomment this block after Aaron's and Steve's intranuke upgrade
+  string sname = "";
+  string sconf = "";
   
   if(gOptMode.compare("hA")==0) {
-     sname   = "genie::HAIntranuke"; 
-     sconfig = "hA";
+     sname = "genie::HAIntranuke"; 
+     sconf = "Default";
   }
   else 
   if(gOptMode.compare("hN")==0) {
-     sname   = "genie::HNIntranuke"; 
-     sconfig = "hN";
+     sname = "genie::HNIntranuke"; 
+     sconf = "Default";
   }
   else {
     LOG("gevgen_hadron", pFATAL) << "Invalid Intranuke mode - Exiting";
@@ -219,10 +212,9 @@ const EventRecordVisitorI * GetIntranuke(void)
 
   AlgFactory * algf = AlgFactory::Instance();
   const EventRecordVisitorI * intranuke = 
-            dynamic_cast<const EventRecordVisitorI *> (
-                     algf->GetAlgorithm(sname,sconfig + "-TestMode"));
-
+   dynamic_cast<const EventRecordVisitorI *> (algf->GetAlgorithm(sname,sconf));
   assert(intranuke);
+
   return intranuke;
 }
 //____________________________________________________________________________
