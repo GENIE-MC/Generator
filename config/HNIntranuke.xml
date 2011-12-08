@@ -26,13 +26,5 @@ DelRNucleon         double  Yes   mult. factor for nucleon de-Broglie wavelength
   <param_set name="Default"> 
   </param_set>
 
-  <param_set name="hN-TestMode"> 
-      <param type="bool" name="test-mode"> true </param>
-  </param_set>
-
-  <param_set name="hN"> 
-      <param type="string" name="mode"> hN </param>
-  </param_set>
-
 </alg_conf>
 
