@@ -104,21 +104,10 @@ HAIntranuke::~HAIntranuke()
 //___________________________________________________________________________
 void HAIntranuke::ProcessEventRecord(GHepRecord * evrec) const
 {
-  LOG("HAIntranuke", pNOTICE) << "************ Running HA MODE INTRANUKE ************";
+  LOG("HAIntranuke", pNOTICE) 
+     << "************ Running HA MODE INTRANUKE ************";
 
-  // Return if the neutrino was not scatterred off a nuclear target
-  GHepParticle * nucltgt = evrec->TargetNucleus();
-  if (!nucltgt) {
-    LOG("HAIntranuke", pINFO) << "No nuclear target found - INTRANUKE exits";
-    return;
-  }
-  this->SetNuclearRadius(nucltgt);
-
-  // Generate and set a vertex in the nucleus coordinate system
-  this->GenerateVertex(evrec);
-
-  // Transport all particles outside the nucleus and exit
-  this->TransportHadrons(evrec);
+  Intranuke::ProcessEventRecord(evrec);
 
   LOG("HAIntranuke", pINFO) << "Done with this event";
 }
@@ -586,7 +575,7 @@ void HAIntranuke::InelasticHA(
     }
 
   if ( utils::intranuke::TwoBodyCollision(ev,pcode,tcode,scode,s2code,C3CM,
-					   p,t,fRemnA,fRemnZ,fRemnP4,fMode) )
+					   p,t,fRemnA,fRemnZ,fRemnP4,kIMdHA) )
   {
     double P3L = TMath::Sqrt(p->Px()*p->Px() + p->Py()*p->Py() + p->Pz()*p->Pz());
     double P4L = TMath::Sqrt(t->Px()*t->Px() + t->Py()*t->Py() + t->Pz()*t->Pz());
@@ -1137,11 +1126,11 @@ void HAIntranuke::Inelastic(
 		}
 		}*/
 
-	  utils::intranuke::PhaseSpaceDecay(ev,cl,*listar[0],fRemnP4,fNucRmvE,fMode);
-	  utils::intranuke::PhaseSpaceDecay(ev,p1,*listar[1],fRemnP4,fNucRmvE,fMode);
-	  utils::intranuke::PhaseSpaceDecay(ev,p2,*listar[2],fRemnP4,fNucRmvE,fMode);
-	  utils::intranuke::PhaseSpaceDecay(ev,p3,*listar[3],fRemnP4,fNucRmvE,fMode);
-	  utils::intranuke::PhaseSpaceDecay(ev,p4,*listar[4],fRemnP4,fNucRmvE,fMode);
+	  utils::intranuke::PhaseSpaceDecay(ev,cl,*listar[0],fRemnP4,fNucRmvE,kIMdHA);
+	  utils::intranuke::PhaseSpaceDecay(ev,p1,*listar[1],fRemnP4,fNucRmvE,kIMdHA);
+	  utils::intranuke::PhaseSpaceDecay(ev,p2,*listar[2],fRemnP4,fNucRmvE,kIMdHA);
+	  utils::intranuke::PhaseSpaceDecay(ev,p3,*listar[3],fRemnP4,fNucRmvE,kIMdHA);
+	  utils::intranuke::PhaseSpaceDecay(ev,p4,*listar[4],fRemnP4,fNucRmvE,kIMdHA);
 	  //LOG("HAIntranuke", pDEBUG)<<"All phase space decays okay";
 
 	  delete cl;
@@ -1197,7 +1186,7 @@ void HAIntranuke::Inelastic(
 	  LOG("HAIntranuke", pDEBUG)
 	    << "Remnant nucleus (A,Z) = (" << fRemnA << ", " << fRemnZ << ")";
 	  
-	  bool success = utils::intranuke::PhaseSpaceDecay(ev,p,list,fRemnP4,fNucRmvE,fMode);
+	  bool success = utils::intranuke::PhaseSpaceDecay(ev,p,list,fRemnP4,fNucRmvE,kIMdHA);
 	  if (!success)
 	    {
 	      // recover
@@ -1230,13 +1219,12 @@ bool HAIntranuke::HandleCompoundNucleus(
   return false;
 }
 //___________________________________________________________________________
-//___________________________________________________________________________
 void HAIntranuke::LoadConfig(void)
 {
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();
 
-  //-- load hadronic cross sections
+  // load hadronic cross sections
   fHadroData = INukeHadroData::Instance();
 
   // fermi momentum setup
@@ -1244,13 +1232,7 @@ void HAIntranuke::LoadConfig(void)
   fNuclmodel = dynamic_cast<const NuclearModelI *>
     (fAlgf->GetAlgorithm("genie::FGMBodekRitchie","Default"));
 
-  //-- intranuke mode (h+N or h+A)
-  fMode = kIMdHA;
-
-  //-- in test mode? (def:no)
-  fInTestMode = fConfig->GetBoolDef ("test-mode", false);
-
-  //-- other intranuke config params
+  // other intranuke config params
   fR0            = fConfig->GetDoubleDef ("R0",           gc->GetDouble("NUCL-R0"));           // fm
   fNR            = fConfig->GetDoubleDef ("NR",           gc->GetDouble("NUCL-NR"));           
   fNucRmvE       = fConfig->GetDoubleDef ("NucRmvE",      gc->GetDouble("INUKE-NucRemovalE")); // GeV
@@ -1267,20 +1249,21 @@ void HAIntranuke::LoadConfig(void)
   fFreeStep      = fConfig->GetDoubleDef ("FreeStep",     gc->GetDouble("INUKE-FreeStep"));
   fDoCompoundNucleus = fConfig->GetBoolDef ("DoCompoundNucleus", gc->GetBool("INUKE-DoCompoundNucleus"));
 
-  //-- report
-  LOG("Intranuke", pINFO) << "mode        = " << INukeMode::AsString(fMode);
-  LOG("Intranuke", pINFO) << "R0          = " << fR0 << " fermi";
-  LOG("Intranuke", pINFO) << "NR          = " << fNR;
-  LOG("Intranuke", pINFO) << "DelRPion    = " << fDelRPion;
-  LOG("Intranuke", pINFO) << "DelRNucleon = " << fDelRNucleon;
-  LOG("Intranuke", pINFO) << "HadStep     = " << fHadStep << " fermi";
-  LOG("Intranuke", pINFO) << "NucAbsFac   = " << fNucAbsFac;
-  LOG("Intranuke", pINFO) << "NucCEXFac   = " << fNucCEXFac;
-  LOG("Intranuke", pINFO) << "EPreEq      = " << fEPreEq;
-  LOG("Intranuke", pINFO) << "FermiFac    = " << fFermiFac;
-  LOG("Intranuke", pINFO) << "DeltaMass   = " << fDeltaMass;
-  LOG("Intranuke", pINFO) << "FreeStep    = " << fFreeStep;  // free step in fm
-  LOG("Intranuke", pINFO) << "FermiMomtm  = " << fFermiMomentum;
-  LOG("Intranuke", pINFO) << "DoFermi?    = " << ((fDoFermi)?(true):(false));
-  LOG("Intranuke", pINFO) << "DoCmpndNuc? = " << ((fDoCompoundNucleus)?(true):(false));
+  // report
+  LOG("HAIntranuke", pINFO) << "Settings for INTRANUKE mode: " << INukeMode::AsString(kIMdHA);
+  LOG("HAIntranuke", pINFO) << "R0          = " << fR0 << " fermi";
+  LOG("HAIntranuke", pINFO) << "NR          = " << fNR;
+  LOG("HAIntranuke", pINFO) << "DelRPion    = " << fDelRPion;
+  LOG("HAIntranuke", pINFO) << "DelRNucleon = " << fDelRNucleon;
+  LOG("HAIntranuke", pINFO) << "HadStep     = " << fHadStep << " fermi";
+  LOG("HAIntranuke", pINFO) << "NucAbsFac   = " << fNucAbsFac;
+  LOG("HAIntranuke", pINFO) << "NucCEXFac   = " << fNucCEXFac;
+  LOG("HAIntranuke", pINFO) << "EPreEq      = " << fEPreEq;
+  LOG("HAIntranuke", pINFO) << "FermiFac    = " << fFermiFac;
+  LOG("HAIntranuke", pINFO) << "DeltaMass   = " << fDeltaMass;
+  LOG("HAIntranuke", pINFO) << "FreeStep    = " << fFreeStep;  // free step in fm
+  LOG("HAIntranuke", pINFO) << "FermiMomtm  = " << fFermiMomentum;
+  LOG("HAIntranuke", pINFO) << "DoFermi?    = " << ((fDoFermi)?(true):(false));
+  LOG("HAIntranuke", pINFO) << "DoCmpndNuc? = " << ((fDoCompoundNucleus)?(true):(false));
 }
+//___________________________________________________________________________

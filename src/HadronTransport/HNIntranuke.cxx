@@ -99,21 +99,10 @@ HNIntranuke::~HNIntranuke()
 //___________________________________________________________________________
 void HNIntranuke::ProcessEventRecord(GHepRecord * evrec) const
 {
-  LOG("HNIntranuke", pNOTICE) << "************ Running HN MODE INTRANUKE ************";
+  LOG("HNIntranuke", pNOTICE) 
+     << "************ Running HN MODE INTRANUKE ************";
 
-  // Return if the neutrino was not scatterred off a nuclear target
-  GHepParticle * nucltgt = evrec->TargetNucleus();
-  if (!nucltgt) {
-    LOG("HNIntranuke", pINFO) << "No nuclear target found - INTRANUKE exits";
-    return;
-  }
-  this->SetNuclearRadius(nucltgt);
-
-  // Generate and set a vertex in the nucleus coordinate system
-  this->GenerateVertex(evrec);
-
-  // Transport all particles outside the nucleus and exit
-  this->TransportHadrons(evrec);
+  Intranuke::ProcessEventRecord(evrec);
 
   LOG("HNIntranuke", pINFO) << "Done with this event";
 }
@@ -542,7 +531,7 @@ void HNIntranuke::AbsorbHN(
       LOG("HNIntranuke",pINFO) << "AbsorbHN failed: Pauli blocking";
 #endif
       p->SetStatus(kIStHadronInTheNucleus);
-      utils::intranuke::StepParticle(p,fFreeStep,fNuclRadius);
+      utils::intranuke::StepParticle(p,fFreeStep,fTrackingRadius);
       ev->AddParticle(*p);
       return;
     }
@@ -677,7 +666,7 @@ void HNIntranuke::ElasHN(
     }
 
   bool pass = utils::intranuke::TwoBodyCollision(ev,pcode,tcode,scode,s2code,C3CM,
-						  p,t,fRemnA,fRemnZ,fRemnP4,fMode);
+						  p,t,fRemnA,fRemnZ,fRemnP4,kIMdHN);
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("HNIntranuke",pDEBUG)
@@ -689,8 +678,8 @@ void HNIntranuke::ElasHN(
   if (pass==true)
   {
     //  give each of the particles a free step
-    utils::intranuke::StepParticle(p,fFreeStep,fNuclRadius);
-    utils::intranuke::StepParticle(t,fFreeStep,fNuclRadius);
+    utils::intranuke::StepParticle(p,fFreeStep,fTrackingRadius);
+    utils::intranuke::StepParticle(t,fFreeStep,fTrackingRadius);
     ev->AddParticle(*p);
     ev->AddParticle(*t);
   } else
@@ -818,7 +807,7 @@ void HNIntranuke::GammaInelasticHN(GHepRecord* ev, GHepParticle* p, INukeFateHN_
     }
 
   bool pass = utils::intranuke::TwoBodyCollision(ev,pcode,tcode,scode,s2code,C3CM,
-						  p,t,fRemnA,fRemnZ,fRemnP4,fMode);
+						  p,t,fRemnA,fRemnZ,fRemnP4,kIMdHN);
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("HNIntranuke",pDEBUG)
@@ -860,7 +849,7 @@ bool HNIntranuke::HandleCompoundNucleus(GHepRecord* ev, GHepParticle* p, int mom
               GHepParticle * sp = new GHepParticle(*p);
               sp->SetFirstMother(mom);
 	      utils::intranuke::PreEquilibrium(ev,sp,fRemnA,fRemnZ,fRemnP4,
-					       fDoFermi,fFermiFac,fNuclmodel,fNucRmvE,fMode);
+					       fDoFermi,fFermiFac,fNuclmodel,fNucRmvE,kIMdHN);
               delete sp;
               return true;
             }
@@ -881,13 +870,12 @@ bool HNIntranuke::HandleCompoundNucleus(GHepRecord* ev, GHepParticle* p, int mom
   return false;
 }
 //___________________________________________________________________________
-//___________________________________________________________________________
 void HNIntranuke::LoadConfig(void)
 {
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();
 
-  //-- load hadronic cross sections
+  // load hadronic cross sections
   fHadroData = INukeHadroData::Instance();
 
   // fermi momentum setup
@@ -895,13 +883,7 @@ void HNIntranuke::LoadConfig(void)
   fNuclmodel = dynamic_cast<const NuclearModelI *>
     (fAlgf->GetAlgorithm("genie::FGMBodekRitchie","Default"));
 
-  //-- intranuke mode (h+N or h+A)
-  fMode = kIMdHN;
-
-  //-- in test mode? (def:no)
-  fInTestMode = fConfig->GetBoolDef ("test-mode", false);
-
-  //-- other intranuke config params
+  // other intranuke config params
   fR0            = fConfig->GetDoubleDef ("R0",           gc->GetDouble("NUCL-R0"));              // fm
   fNR            = fConfig->GetDoubleDef ("NR",           gc->GetDouble("NUCL-NR"));           
   fNucRmvE       = fConfig->GetDoubleDef ("NucRmvE",      gc->GetDouble("INUKE-NucRemovalE"));    // GeV
@@ -920,21 +902,22 @@ void HNIntranuke::LoadConfig(void)
   fDoCompoundNucleus = fConfig->GetBoolDef ("DoCompoundNucleus", gc->GetBool("INUKE-DoCompoundNucleus"));
   
 
-  //-- report
-  LOG("Intranuke", pWARN) << "mode        = " << INukeMode::AsString(fMode);
-  LOG("Intranuke", pWARN) << "R0          = " << fR0 << " fermi";
-  LOG("Intranuke", pWARN) << "NR          = " << fNR;
-  LOG("Intranuke", pWARN) << "DelRPion    = " << fDelRPion;
-  LOG("Intranuke", pWARN) << "DelRNucleon = " << fDelRNucleon;
-  LOG("Intranuke", pWARN) << "HadStep     = " << fHadStep << " fermi";
-  LOG("Intranuke", pWARN) << "NucAbsFac   = " << fNucAbsFac;
-  LOG("Intranuke", pWARN) << "NucQEFac    = " << fNucQEFac;
-  LOG("Intranuke", pWARN) << "NucCEXFac   = " << fNucCEXFac;
-  LOG("Intranuke", pWARN) << "EPreEq      = " << fEPreEq;
-  LOG("Intranuke", pWARN) << "FermiFac    = " << fFermiFac;
-  LOG("Intranuke", pWARN) << "DeltaMass   = " << fDeltaMass;
-  LOG("Intranuke", pWARN) << "FreeStep    = " << fFreeStep;  // free step in fm
-  LOG("Intranuke", pWARN) << "FermiMomtm  = " << fFermiMomentum;
-  LOG("Intranuke", pWARN) << "DoFermi?    = " << ((fDoFermi)?(true):(false));
-  LOG("Intranuke", pWARN) << "DoCmpndNuc? = " << ((fDoCompoundNucleus)?(true):(false));
+  // report
+  LOG("HNIntranuke", pINFO) << "Settings for INTRANUKE mode: " << INukeMode::AsString(kIMdHN);
+  LOG("HNIntranuke", pWARN) << "R0          = " << fR0 << " fermi";
+  LOG("HNIntranuke", pWARN) << "NR          = " << fNR;
+  LOG("HNIntranuke", pWARN) << "DelRPion    = " << fDelRPion;
+  LOG("HNIntranuke", pWARN) << "DelRNucleon = " << fDelRNucleon;
+  LOG("HNIntranuke", pWARN) << "HadStep     = " << fHadStep << " fermi";
+  LOG("HNIntranuke", pWARN) << "NucAbsFac   = " << fNucAbsFac;
+  LOG("HNIntranuke", pWARN) << "NucQEFac    = " << fNucQEFac;
+  LOG("HNIntranuke", pWARN) << "NucCEXFac   = " << fNucCEXFac;
+  LOG("HNIntranuke", pWARN) << "EPreEq      = " << fEPreEq;
+  LOG("HNIntranuke", pWARN) << "FermiFac    = " << fFermiFac;
+  LOG("HNIntranuke", pWARN) << "DeltaMass   = " << fDeltaMass;
+  LOG("HNIntranuke", pWARN) << "FreeStep    = " << fFreeStep;  // free step in fm
+  LOG("HNIntranuke", pWARN) << "FermiMomtm  = " << fFermiMomentum;
+  LOG("HNIntranuke", pWARN) << "DoFermi?    = " << ((fDoFermi)?(true):(false));
+  LOG("HNIntranuke", pWARN) << "DoCmpndNuc? = " << ((fDoCompoundNucleus)?(true):(false));
 }
+//___________________________________________________________________________
