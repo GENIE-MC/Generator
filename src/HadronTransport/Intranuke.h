@@ -35,6 +35,7 @@
 
 #include "Algorithm/AlgFactory.h"
 #include "EVGCore/EventRecordVisitorI.h"
+#include "Conventions/GMode.h"
 #include "HadronTransport/INukeMode.h"
 #include "HadronTransport/INukeHadroFates.h"
 #include "Nuclear/NuclearModelI.h"
@@ -60,17 +61,15 @@ public :
   Intranuke(string name, string config);
  ~Intranuke();
 
-  //-- implement the EventRecordVisitorI interface
-  virtual void ProcessEventRecord(GHepRecord * event_rec) const=0;
+  // implement the EventRecordVisitorI interface 
+  virtual void ProcessEventRecord(GHepRecord * event_rec) const;
 
-  //-- override the Algorithm::Configure methods to load configuration
-  //   data to protected data members
+  // override the Algorithm::Configure methods to load configuration
+  // data to protected data members
   void Configure (const Registry & config);
   void Configure (string param_set);
 
 protected:
-
-  //-- protected methods:
 
   // methods for loading configuration
   virtual void LoadConfig (void)=0;
@@ -81,15 +80,15 @@ protected:
   bool   NeedsRescattering  (const GHepParticle* p) const;
   bool   CanRescatter       (const GHepParticle* p) const;
   bool   IsInNucleus        (const GHepParticle* p) const;
-  void   SetNuclearRadius   (const GHepParticle* p) const;
+  void   SetTrackingRadius  (const GHepParticle* p) const;
   double GenerateStep       (GHepRecord* ev, GHepParticle* p) const;
 
   // virtual functions for individual modes
   virtual void SimulateHadronicFinalState(GHepRecord* ev, GHepParticle* p) const = 0;
   virtual bool HandleCompoundNucleus(GHepRecord* ev, GHepParticle* p, int mom) const = 0;
 
-  //-- utility objects & params
-  mutable double         fNuclRadius;
+  // utility objects & params
+  mutable double         fTrackingRadius;///< tracking radius for the nucleus in the current event
   mutable TGenPhaseSpace fGenPhaseSpace; ///< a phase space generator
   INukeHadroData *       fHadroData;     ///< a collection of h+N,h+A data & calculations
   AlgFactory *           fAlgf;          ///< algorithm factory instance
@@ -97,10 +96,9 @@ protected:
   mutable int            fRemnA;         ///< remnant nucleus A
   mutable int            fRemnZ;         ///< remnant nucleus Z
   mutable TLorentzVector fRemnP4;        ///< P4 of remnant system
+  mutable GEvGenMode_t   fGMode;         ///< event generation mode (lepton+A, hadron+A, ...)
 
-  //-- configuration parameters
-  INukeMode_t  fMode;         ///< intranuke mode (h+A, h+N)
-  bool         fInTestMode;   ///<
+  // configuration parameters
   double       fR0;           ///< effective nuclear size param
   double       fNR;           ///< param multiplying the nuclear radius, determining how far to track hadrons beyond the "nuclear boundary"
   double       fNucRmvE;      ///< binding energy to subtract from cascade nucleons

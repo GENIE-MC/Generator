@@ -40,9 +40,14 @@
    Split Intranuke class into two separate classes, one for each interaction mode.
    Intranuke.cxx now only contains methods common to both classes and associated
    with the stepping of the hadrons through the nucleus and with configuration.
- @ Nov, 2011 - CA
+ @ Nov 20, 2011 - CA
    Tweaked the way TransportHadrons() looks-up the nuclear environment so that
    it works for the nucleon decay mode as well.
+ @ Dec 08, 2011 - CA
+   Some minor structural changes. The new GEvGenMode_t is determined at the
+   start of the event processing and is used throughout. fInTestMode flag and
+   special INTRANUKE configs not needed. ProcessEventRecord() was added by 
+   factoring out code from HNIntranuke and HAIntranuke. Some comments added.
 
 */
 //____________________________________________________________________________
@@ -57,7 +62,6 @@
 #include "Conventions/GBuild.h"
 #include "Conventions/Constants.h"
 #include "Conventions/Controls.h"
-#include "Conventions/GMode.h"
 #include "GHEP/GHepStatus.h"
 #include "GHEP/GHepRecord.h"
 #include "GHEP/GHepParticle.h"
@@ -107,12 +111,47 @@ Intranuke::~Intranuke()
 
 }
 //___________________________________________________________________________
+void Intranuke::ProcessEventRecord(GHepRecord * evrec) const
+{
+  // Do not continue if there is no nuclear target
+  GHepParticle * nucltgt = evrec->TargetNucleus();
+  if (!nucltgt) {
+    LOG("HNIntranuke", pINFO) << "No nuclear target found - INTRANUKE exits";
+    return;
+  }
+
+  // Decide tracking radius for the current nucleus (few * R0 * A^1/3)
+  this->SetTrackingRadius(nucltgt);
+
+  // Understand what the event generation mode is (hadron/photon-nucleus,
+  // lepton-nucleus, nucleon decay) from the input event.
+  // The determined mode has an effect on INTRANUKE behaviour (how to lookup
+  // the residual nucleus, whether to set an intranuclear vtx etc) but it
+  // does not affect the INTRANUKE physics.
+  fGMode = evrec->EventGenerationMode();
+
+  // For lepton-nucleus scattering and for nucleon decay intranuclear vtx 
+  // position (in the target nucleus coord system) is set elsewhere.
+  // This method only takes effect in hadron/photon-nucleus interactions.
+  // In this special mode, an interaction vertex is set at the periphery 
+  // of the target nucleus.
+  if(fGMode == kGMdHadronNucleus ||
+     fGMode == kGMdPhotonNucleus)
+  {
+    this->GenerateVertex(evrec);  
+  }
+
+  // Now transport all hadrons outside the tracking radius.
+  // Stepping part is common for both HA and HN.
+  // Once it has been estabished that an interaction takes place then
+  // HA and HN specific code takes over in order to simulate the final state.
+  this->TransportHadrons(evrec);
+}
+//___________________________________________________________________________
 void Intranuke::GenerateVertex(GHepRecord * evrec) const
 {
-// Generate a vtx and set it to all GHEP physical particles
-// This method only takes effect in intranuke's h+A test mode.
-
-  if(!fInTestMode) return;
+// Sets a vertex in the nucleus periphery
+// Called onlt in hadron/photon-nucleus interactions.
 
   GHepParticle * nucltgt = evrec->TargetNucleus();
   assert(nucltgt);
@@ -124,11 +163,11 @@ void Intranuke::GenerateVertex(GHepRecord * evrec) const
   // Assume a hadron beam with uniform intensity across an area, 
   // so we need to choose events uniformly within that area.
   double x=999999., y=999999., epsilon = 0.001;
-  double R2  = TMath::Power(fNuclRadius,2.);
+  double R2  = TMath::Power(fTrackingRadius,2.);
   double rp2 = TMath::Power(x,2.) + TMath::Power(y,2.);
   while(rp2 > R2-epsilon) {
-      x = (fNuclRadius-epsilon) * rnd->RndFsi().Rndm();
-      y = -fNuclRadius + 2*fNuclRadius * rnd->RndFsi().Rndm();
+      x = (fTrackingRadius-epsilon) * rnd->RndFsi().Rndm();
+      y = -fTrackingRadius + 2*fTrackingRadius * rnd->RndFsi().Rndm();
       y -= ((y>0) ? epsilon : -epsilon);
       rp2 = TMath::Power(x,2.) + TMath::Power(y,2.);
   }
@@ -155,19 +194,19 @@ void Intranuke::GenerateVertex(GHepRecord * evrec) const
   }
 }
 //___________________________________________________________________________
-void Intranuke::SetNuclearRadius(const GHepParticle * p) const
+void Intranuke::SetTrackingRadius(const GHepParticle * p) const
 {
   assert(p && pdg::IsIon(p->Pdg()));
   double A = p->A();
-  fNuclRadius = fR0 * TMath::Power(A, 1./3.);
+  fTrackingRadius = fR0 * TMath::Power(A, 1./3.);
 
   // multiply that by some input factor so that hadrons are tracked
   // beyond the nuclear 'boundary' since the nuclear density distribution
   // is not zero there
-  fNuclRadius *= fNR; 
+  fTrackingRadius *= fNR; 
 
   LOG("Intranuke", pNOTICE) 
-               << "Setting nuclear radius to R = " << fNuclRadius;
+      << "Setting tracking radius to R = " << fTrackingRadius;
 }
 //___________________________________________________________________________
 bool Intranuke::NeedsRescattering(const GHepParticle * p) const
@@ -176,11 +215,12 @@ bool Intranuke::NeedsRescattering(const GHepParticle * p) const
 
   assert(p);
 
-  if(fInTestMode) {
-    // in test mode (initial state: hadron+nucleus) rescatter the initial
-    // state hadron
-    return ((p->Status() == kIStInitialState || p->Status() == kIStHadronInTheNucleus)
-	    && !pdg::IsIon(p->Pdg()));
+  if(fGMode == kGMdHadronNucleus ||
+     fGMode == kGMdPhotonNucleus) {
+    // hadron/photon-nucleus scattering propagate the incoming particle
+    return (
+      (p->Status() == kIStInitialState || p->Status() == kIStHadronInTheNucleus)
+       && !pdg::IsIon(p->Pdg()));
   }
   else {
    // attempt to rescatter anything marked as 'hadron in the nucleus'
@@ -208,7 +248,7 @@ bool Intranuke::IsInNucleus(const GHepParticle * p) const
 {
 // check whether the input particle is still within the nucleus
 //
-  return (p->X4()->Vect().Mag() < fNuclRadius + fHadStep);
+  return (p->X4()->Vect().Mag() < fTrackingRadius + fHadStep);
 }
 //___________________________________________________________________________
 void Intranuke::TransportHadrons(GHepRecord * evrec) const
@@ -222,15 +262,14 @@ void Intranuke::TransportHadrons(GHepRecord * evrec) const
   //  Get 'nuclear environment' at the beginning of hadron transport 
   //  and keep track of the remnant nucleus A,Z  
 
-  GEvGenMode_t genie_mode = evrec->EventGenerationMode();
-  if(genie_mode == kGMdHadronNucleus ||
-     genie_mode == kGMdPhotonNucleus)
+  if(fGMode == kGMdHadronNucleus ||
+     fGMode == kGMdPhotonNucleus)
   {
      inucl = evrec->TargetNucleusPosition();
   }
   else
-  if(genie_mode == kGMdLeptonNucleus || 
-     genie_mode == kGMdNucleonDecay) 
+  if(fGMode == kGMdLeptonNucleus || 
+     fGMode == kGMdNucleonDecay) 
   {
      inucl = evrec->RemnantNucleusPosition();
   }
@@ -309,7 +348,7 @@ void Intranuke::TransportHadrons(GHepRecord * evrec) const
         // the particle interacts - simulate the hadronic interaction
       LOG("Intranuke", pNOTICE) 
           << "Particle has interacted at location:  " 
-          << sp->X4()->Vect().Mag() << " / nucl rad= " << fNuclRadius;
+          << sp->X4()->Vect().Mag() << " / nucl rad= " << fTrackingRadius;
 	this->SimulateHadronicFinalState(evrec,sp);
     } else if(has_interacted && fRemnA<=0) {
         // nothing left to interact with!
@@ -340,9 +379,10 @@ void Intranuke::TransportHadrons(GHepRecord * evrec) const
     kPdgHadronicBlob, kIStFinalStateNuclearRemnant, inucl,-1,-1,-1, fRemnP4, v4);
   evrec->AddParticle(remnant_nucleus);
   // Mark the initial remnant nucleus as an intermediate state 
-  // Don't do that in the test mode sinc ethe initial remnant nucleus and
-  // the initial nucleus coincide.
-  if(!fInTestMode) {
+  // Don't do that in the hadron/photon-nucleus scatterig mode since the initial 
+  // remnant nucleus and the target nucleus coincide.
+  if(fGMode != kGMdHadronNucleus &&
+     fGMode != kGMdPhotonNucleus) {
      evrec->Particle(inucl)->SetStatus(kIStIntermediateState);
   }
 }
@@ -365,10 +405,6 @@ double Intranuke::GenerateStep(GHepRecord* /*evrec*/, GHepParticle* p) const
   return d;
 }
 //___________________________________________________________________________
-//___________________________________________________________________________
-// Methods for configuring the INTRANUKE module:
-//___________________________________________________________________________
-//___________________________________________________________________________
 void Intranuke::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
@@ -379,5 +415,5 @@ void Intranuke::Configure(string param_set)
 {
   Algorithm::Configure(param_set);
   this->LoadConfig();
-  }
+}
 //___________________________________________________________________________
