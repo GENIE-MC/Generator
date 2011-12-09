@@ -189,7 +189,7 @@ void MECGenerator::SelectKinematics(GHepRecord * event) const
   double Q2min =  0.01;
   double Q2max =  8.00;
   double Wmin  =  1.88;
-  double Wmax  =  4.50;
+  double Wmax  =  3.00;
 
   // Scan phase-space for the maximum differential cross section 
   // at the current neutrino energy
@@ -241,11 +241,6 @@ void MECGenerator::SelectKinematics(GHepRecord * event) const
      double J = 1; // jacobean
      accept = (t < J*xsec);
 
-     //     way to force specific kinmatics
-     //     gQ2 = 1.2;
-     //     gW  = 2.5;
-     //     accept = true;
-
      // If the generated kinematics are accepted, finish-up module's job
      if(accept) {
         LOG("MEC", pINFO) << "Selected: Q^2 = " << gQ2 << ", W = " << gW;
@@ -279,6 +274,7 @@ void MECGenerator::AddFinalStateLepton(GHepRecord * event) const
 
   // Auxiliary params
   double Ev  = interaction->InitState().ProbeE(kRfHitNucRest);
+  LOG("MEC", pNOTICE) << "neutrino energy = " << Ev;
   double ml  = interaction->FSPrimLepton()->Mass();
   double ml2 = TMath::Power(ml,2);
 
