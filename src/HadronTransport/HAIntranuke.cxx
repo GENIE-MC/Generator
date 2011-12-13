@@ -709,7 +709,7 @@ void HAIntranuke::Inelastic(
 	  double ppcnt = (double) fRemnZ / (double) fRemnA; // % of protons
 
 	  // choose target nucleon
-	  // -- fates weighted by values from Mashnik
+	  // -- fates weighted by values from Engel, Mosel...
 	  if (pdgc==kPdgPiP) { 
             double Prob_pipd_pp=2.*ppcnt*(1.-ppcnt);
             double Prob_pipnn_pn=.083*(1.-ppcnt)*(1.-ppcnt);
@@ -744,7 +744,7 @@ void HAIntranuke::Inelastic(
 	                       t1code=kPdgNeutron;  t2code=kPdgNeutron; 
 	                       scode=kPdgNeutron;   s2code=kPdgNeutron;  }
 	  }
-
+	  LOG("HAIntranuke",pNOTICE) << "choose 2 body absorption, probe, fs = " << pdgc <<"  "<< scode <<"  "<<s2code;
 	  // assign proper masses
 	  //double M1   = pLib->Find(pdgc) ->Mass();
 	  double M2_1 = pLib->Find(t1code)->Mass();
@@ -897,7 +897,7 @@ void HAIntranuke::Inelastic(
       while (not_done)
 	{
 	  // infinite loop check
-	  if (iter>=1000) {
+	  if (iter>=10000) {
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
 	    LOG("HAIntranuke", pWARN) << "Error: could not choose absorption final state";
 	    LOG("HAIntranuke", pWARN) << "--> N_d0 = " << nd0 << ", Sig_nd = " << Sig_nd;
@@ -938,6 +938,7 @@ void HAIntranuke::Inelastic(
 	      // minimum allowed value is 0
 
 	      double max = ns0 + Sig_ns * 20;
+	      if(max>fRemnA) max=fRemnA;
 	      double x1 = 0;
 	      bool not_found = true;
 	      int iter2 = 0;
@@ -945,10 +946,10 @@ void HAIntranuke::Inelastic(
 	      while (not_found)
 		{
 		  // infinite loop check
-		  if (iter2>=1000)
+		  if (iter2>=100)
 		    {
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-		      LOG("HAIntranuke", pWARN) << "Error: stuck in random variable loop, returning";
+		      LOG("HAIntranuke", pWARN) << "Error: stuck in random variable loop for ns, returning";
 		      LOG("HAIntranuke", pWARN) << "--> N_s0 = " << ns0 << ", Sig_ns = " << Sig_ns;
 		      LOG("HAIntranuke", pWARN) << "--> A = " << fRemnA << ", Z = " << fRemnZ << ", Energy = " << ke;
 #endif
@@ -962,16 +963,16 @@ void HAIntranuke::Inelastic(
 		  u2 = rnd->RndFsi().Rndm();
 		  if (u1==0) u1 = rnd->RndFsi().Rndm();
 		  if (u2==0) u2 = rnd->RndFsi().Rndm();
-		  x1 = TMath::Sqrt(-2*TMath::Log(u1))*TMath::Cos(2*kPi*u2);
+		  x1 = TMath::Sqrt(-2*TMath::Log(u1))*TMath::Cos(2*kPi*u2);  
 
 		  ns = ns0 + Sig_ns * x1;
-		       if ( ns>max || ns<0 )                  {iter2++; continue;}
+		  if ( ns>max || ns<0 )                  {iter2++; continue;}
 		  else if ( rnd->RndFsi().Rndm() > (ns/max) ) {iter2++; continue;}
 		  else {
 		    // accept this sum value
 		    not_found=false;
 		  }
-		}
+		} //while(not_found)
 	    }
 
 	  double nd = nd0 + Sig_nd * x2; // difference (p-n) for both types of probe
@@ -979,21 +980,20 @@ void HAIntranuke::Inelastic(
 	  np = int((ns+nd)/2.+.5); // Addition of .5 for rounding correction
 	  nn = int((ns-nd)/2.+.5);
 
-	  LOG("HAIntranuke", pDEBUG) << "ns = "<<ns<<", nd = "<<nd<<", np = "<<np<<", nn = "<<nn;
+	  LOG("HAIntranuke", pNOTICE) << "ns = "<<ns<<", nd = "<<nd<<", np = "<<np<<", nn = "<<nn;
+	  //LOG("HAIntranuke", pNOTICE) << "RemA = "<<fRemnA<<", RemZ = "<<fRemnZ<<", probe = "<<pdgc;
 
 	  /*if ((ns+nd)/2. < 0 || (ns-nd)/2. < 0)  {iter++; continue;}
 	    else */ 
 	       if (np < 0 || nn < 0 )                 {iter++; continue;}
           else if (np + nn < 2. )                     {iter++; continue;}
-          else if (  ((np<=fRemnZ       +((pdg::IsProton (pdgc)||pdgc==kPdgPiP)?1:0)-(pdgc==kPdgPiM?1:0))
-		      || (nn<=fRemnA-fRemnZ+((pdg::IsNeutron(pdgc)||pdgc==kPdgPiM)?1:0)-(pdgc==kPdgPiP?1:0)) ) )//&& np+nn<3. )
-                                                      {iter++; continue;}
           else if (np > fRemnZ        + ((pdg::IsProton(pdgc) ||pdgc==kPdgPiP)?1:0)
 		               - (pdgc==kPdgPiM?1:0)) {iter++; continue;}
           else if (nn > fRemnA-fRemnZ + ((pdg::IsNeutron(pdgc)||pdgc==kPdgPiM)?1:0)
 		               - (pdgc==kPdgPiP?1:0)) {iter++; continue;}
 	  else { 
-	    not_done=false;
+	    not_done=false;   //success
+	    LOG("HAINtranuke",pNOTICE) << "success, iter = " << iter << "  np, nn = " << np << "  " << nn; 
 	    if (np+nn>86) // too many particles, scale down
 	      {
 		double frac = 85./double(np+nn);
@@ -1011,7 +1011,7 @@ void HAIntranuke::Inelastic(
 	    LOG("HAIntranuke", pNOTICE) << "Final state chosen; # protons : " 
 					<< np << ", # neutrons : " << nn;
 	  }
-	}
+	} //while(not_done)
 
       // change remnants to reflect probe
       if ( pdgc==kPdgProton || pdgc==kPdgPiP )     fRemnZ++;
