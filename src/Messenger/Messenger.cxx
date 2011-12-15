@@ -155,7 +155,8 @@ void Messenger::Configure(void)
      vector<string>::const_iterator conf_iter;
      for(conf_iter = conf_xmlv.begin();
                                  conf_iter != conf_xmlv.end(); ++conf_iter) {
-          string conf_xml = *conf_iter;
+          // look in all known XML locations, just like primary file
+          string conf_xml =  utils::xml::GetXMLFilePath(*conf_iter);
           ok = this->SetPrioritiesFromXmlFile(conf_xml);
           if(!ok) {
             SLOG("Messenger", pERROR)
