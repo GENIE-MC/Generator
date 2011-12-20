@@ -148,7 +148,7 @@ TObject()
 }
 //___________________________________________________________________________
 Spline::Spline(const Spline & spline) :
-TObject()
+  TObject(), fInterpolator(0)
 {
   LOG("Spline", pDEBUG) << "Spline copy constructor";
 
@@ -156,7 +156,7 @@ TObject()
 }
 //___________________________________________________________________________
 Spline::Spline(const TSpline3 & spline, int nknots) :
-TObject()
+  TObject(), fInterpolator(0)
 {
   LOG("Spline", pDEBUG)
                     << "Constructing spline from the input TSpline3 object";
