@@ -74,7 +74,6 @@ void MECGenerator::ProcessEventRecord(GHepRecord * event) const
   this -> RecoilNucleonCluster  (event);
   this -> DecayNucleonCluster   (event);
 
-  LOG("MEC", pNOTICE) << *event;
 }
 //___________________________________________________________________________
 void MECGenerator::AddTargetRemnant(GHepRecord * event) const
