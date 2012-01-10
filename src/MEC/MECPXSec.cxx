@@ -13,9 +13,13 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
- @ Nov 28, 2010 - CA
+ @ Nov 28, 2011 - CA
    Integrated cross section for CCMEC is taken to be a fraction of the 
    CCQE cross section for the given neutrino energy and nucleus.
+ @ Dec 9, 2011 - SD
+   Using a simple model now - 2N mass chosen with a Gaussian.
+   Strength is tuned to get agreement with MiniBoone and NOMAD tot xs.
+   Parameters tuned to get best agreement with MiniBoone muon angle/energy dist.
 
 */
 //____________________________________________________________________________
@@ -65,7 +69,7 @@ double MECPXSec::XSec(
   const Kinematics &   kinematics = interaction -> Kine();
   double W  = kinematics.W();
   double Q2 = kinematics.Q2();
-  LOG("MEC", pINFO) << "W, Q2 trial= " << W << "  " << Q2 ;
+  //  LOG("MEC", pINFO) << "W, Q2 trial= " << W << "  " << Q2 ;
 
   //
   // Do a check whether W,Q2 is allowed. Return 0 otherwise.
@@ -73,10 +77,9 @@ double MECPXSec::XSec(
   double Ev = interaction->InitState().ProbeE(kRfHitNucRest);  // kRfLab
   int nucleon_cluster_pdg = interaction->InitState().Tgt().HitNucPdg();
   double M2n = PDGLibrary::Instance()->Find(nucleon_cluster_pdg)-> Mass(); // nucleon cluster mass  
-  //  double M2n = 1.88;
   double ml  = interaction->FSPrimLepton()->Mass();
   Range1D_t Wlim = genie::utils::kinematics::InelWLim(Ev, M2n, ml);
-  LOG("MEC", pINFO) << "Ev, ml, M2n = " << Ev << "  " << ml << "  " << M2n;
+  //  LOG("MEC", pINFO) << "Ev, ml, M2n = " << Ev << "  " << ml << "  " << M2n;
   //  LOG("MEC", pINFO) << "Wlim= " << Wlim.min << "  " <<Wlim.max ;
   if(W < Wlim.min || W > Wlim.max)
     {double xsec = 0.;
@@ -93,7 +96,7 @@ double MECPXSec::XSec(
   double x = 0.;
   double y = 0.;
   genie::utils::kinematics::WQ2toXY(Ev,M2n,W,Q2,x,y);
-  LOG("MEC", pINFO) << "x = " << x << ", y = " << y;
+  //  LOG("MEC", pINFO) << "x = " << x << ", y = " << y;
   double Tmu = (1.-y)*Ev;
 
   // Calculate d^2xsec/dWdQ2
