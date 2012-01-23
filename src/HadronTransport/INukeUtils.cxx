@@ -42,8 +42,10 @@
 #include "Conventions/Controls.h"
 #include "Conventions/Units.h"
 #include "Conventions/GBuild.h"
+#include "EVGCore/EVGThreadException.h"
 #include "GHEP/GHepRecord.h"
 #include "GHEP/GHepParticle.h"
+#include "HadronTransport/INukeException.h"
 #include "HadronTransport/INukeUtils.h"
 #include "HadronTransport/INukeHadroData.h"
 #include "Messenger/Messenger.h"
@@ -136,7 +138,8 @@ double genie::utils::intranuke::MeanFreePath(
     { sigtot = fHadroData -> XSecPn_Tot()   -> Evaluate(ke)*ppcnt;
       sigtot+= fHadroData -> XSecNn_Tot()   -> Evaluate(ke)*(1-ppcnt);}
   else if (pdgc == kPdgKP)
-      sigtot = fHadroData -> XSecKpN_Tot()  -> Evaluate(ke);
+    { sigtot = fHadroData -> XSecKpN_Tot()  -> Evaluate(ke);
+      sigtot*=4.;}
   else if (pdgc == kPdgGamma)
     { sigtot = fHadroData -> XSecGamp_fs()  -> Evaluate(ke)*ppcnt;
       sigtot+= fHadroData -> XSecGamn_fs()  -> Evaluate(ke)*(1-ppcnt);}
@@ -349,12 +352,16 @@ INukeFateHA_t genie::utils::intranuke::FindhAFate(const GHepRecord * evrec)
   }
   else
   {
-    if(p_pdg==kPdgPiP || p_pdg==kPdgPiM || p_pdg==kPdgPi0)
+    if(p_pdg==kPdgPiP || p_pdg==kPdgPiM || p_pdg==kPdgPi0
+       || p_pdg==kPdgKP|| p_pdg==kPdgKM|| p_pdg==kPdgK0)
     {
       int fs_pdg, fs_ind;
       if     (num[2]==1) { fs_pdg=kPdgPiP; fs_ind=2; }
       else if(num[3]==1) { fs_pdg=kPdgPiM; fs_ind=3; }
-      else               { fs_pdg=kPdgPi0; fs_ind=4; }
+      else if(num[4]==1) { fs_pdg=kPdgPi0; fs_ind=4; }
+      else if(num[5]==1) { fs_pdg=kPdgKP; fs_ind=5; }
+      else if(num[6]==1) { fs_pdg=kPdgKM; fs_ind=6; }
+      else               { fs_pdg=kPdgK0; fs_ind=7; }
  
       if(p_pdg==fs_pdg)
       {
@@ -366,8 +373,18 @@ INukeFateHA_t genie::utils::intranuke::FindhAFate(const GHepRecord * evrec)
       {
         return kIHAFtCEx;
       }
+      else if(((p_pdg==kPdgKP || p_pdg==kPdgKM) && fs_ind==7) ||
+              ((fs_ind==5 || fs_ind==6) && p_pdg==kPdgK0))
+      {
+        return kIHAFtCEx;
+      }
       else if((p_pdg==kPdgPiP && fs_ind==3) ||
               (p_pdg==kPdgPiM &&fs_ind==2))
+      {
+        return kIHAFtDCEx;
+      }
+      else if((p_pdg==kPdgKP && fs_ind==6) ||
+              (p_pdg==kPdgKM &&fs_ind==5))
       {
         return kIHAFtDCEx;
       }
@@ -1207,7 +1224,12 @@ bool genie::utils::intranuke::ThreeBodyKinematics(
   if(E3CM*E3CM - M3*M3<0)
   {
     LOG("INukeUtils",pWARN)
-      << "PionProduction P3 has non-real momentun - cancel this fate"; 
+      << "PionProduction P3 has non-real momentum - cancel this fate";
+    LOG("INukeUtils",pWARN) << "Energy, masses of 3 fs particales:"
+      << E3CM << "  " << M3 << "  " << "  " << M4 << "  " << M5; 
+    exceptions::INukeException exception;
+    exception.SetReason("PionProduction particle 3 has non-real momentum");
+    throw exception;
     return false;
   }
   P3CM = TMath::Sqrt(E3CM*E3CM - M3*M3);
@@ -1301,6 +1323,9 @@ bool genie::utils::intranuke::ThreeBodyKinematics(
   {
     LOG("INukeUtils",pWARN)
       << "PionProduction fails because of Pauli blocking - cancel this fate"; 
+    exceptions::INukeException exception;
+    exception.SetReason("PionProduction final state not determined");
+    throw exception;
     return false;
   }
 
@@ -1320,7 +1345,20 @@ bool genie::utils::intranuke::ThreeBodyKinematics(
   s1->SetMomentum(TLorentzVector(tP3L,E3L));
   s2->SetMomentum(TLorentzVector(tP4L,E4L));
   s3->SetMomentum(TLorentzVector(tP5L,E5L));
-
+  int mode = kIMdHA;
+  LOG ("INukeUtils",pWARN) << "in Pi Prod, mode =  " << mode; 
+  if (mode==kIMdHN)
+    {
+      s1->SetStatus(kIStHadronInTheNucleus);
+      s2->SetStatus(kIStHadronInTheNucleus);
+      s3->SetStatus(kIStHadronInTheNucleus);
+    }
+  else
+    {
+      s1->SetStatus(kIStStableFinalState);
+      s2->SetStatus(kIStStableFinalState);
+      s3->SetStatus(kIStStableFinalState);
+    } 
   return true;
 }
 //___________________________________________________________________________
@@ -1407,7 +1445,10 @@ bool genie::utils::intranuke::PionProduction(
      case kPdgPiM:  xsecp = totpimp; xsecn = totpipp; break;
      default:
        LOG("INukeUtils",pWARN) << "InelasticHN cannot handle probe: "
-			      << PDGLibrary::Instance()->Find(p1code)->GetName();
+			       << PDGLibrary::Instance()->Find(p1code)->GetName();
+       exceptions::INukeException exception;
+       exception.SetReason("PionProduction final state not determined");
+       throw exception;
        return false;
        break;
      }
@@ -1489,7 +1530,10 @@ bool genie::utils::intranuke::PionProduction(
        }
      else // unhandled
        {
-	 LOG("INukeUtils",pWARN) << "Final state unable to be determined";
+	 LOG("INukeUtils",pWARN) << "Pi production final state unable to be determined, picode, ptarg = " <<PDGLibrary::Instance()->Find(p1code)->GetName() << "  " << PDGLibrary::Instance()->Find(ptarg)->GetName();
+	 exceptions::INukeException exception;
+	 exception.SetReason("PionProduction final state not determined");
+	 throw exception;
 	 return false;
        }
 
@@ -1511,8 +1555,9 @@ bool genie::utils::intranuke::PionProduction(
 
       if ((etapp2ppPi0<=0.)&&(etapp2pnPip<=0.)&&(etapn2nnPip<=0.)&&(etapn2ppPim<=0.)) { // below threshold
 	LOG("INukeUtils",pWARN) << "PionProduction() called below threshold energy";
-	p->SetStatus(kIStHadronInTheNucleus);
-	ev->AddParticle(*p);
+	exceptions::INukeException exception;
+	exception.SetReason("PionProduction final state not possible - below threshold");
+	throw exception;
 	return false; }
 
       // calculate cross sections
@@ -1618,6 +1663,9 @@ bool genie::utils::intranuke::PionProduction(
    if ( RemnA < 1 )
      {
        LOG("INukeUtils",pWARN) << "PionProduction() failed : no nucleons to produce pions";
+       exceptions::INukeException exception;
+       exception.SetReason("PionProduction fails - too few neucleons available");
+       throw exception;
        return false;
      }
    else if ( RemnZ + ((pcode==kPdgProton || pcode==kPdgPiP)?1:0) - ((pcode==kPdgPiM)?1:0)
@@ -1626,6 +1674,9 @@ bool genie::utils::intranuke::PionProduction(
 	     + ((p5code==kPdgProton || p5code==kPdgPiP)?1:0) - ((p5code==kPdgPiM)?1:0) )
      {
        LOG("INukeUtils",pWARN) << "PionProduction() failed : too few protons in nucleus";
+       exceptions::INukeException exception;
+       exception.SetReason("PionProduction fails - too few protons available");
+       throw exception;
        return false;
      }
 
@@ -1655,7 +1706,12 @@ bool genie::utils::intranuke::PionProduction(
        RemnP4 -= *s1->P4() + *s2->P4() + *s3->P4() - *p->P4();
        return true;
      }
-   else return false;
+   else {
+     exceptions::INukeException exception;
+     exception.SetReason("PionProduction final state not determined");
+     throw exception;
+     return false;
+   }
 }
 //___________________________________________________________________________
 double genie::utils::intranuke::CalculateEta(double Minc, double nrg, double Mtarg,
