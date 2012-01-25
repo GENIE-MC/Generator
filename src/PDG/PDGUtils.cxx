@@ -298,6 +298,11 @@ bool genie::pdg::IsPion(int pdgc)
   return (pdgc == kPdgPiP || pdgc == kPdgPi0 || pdgc == kPdgPiM);
 }
 //____________________________________________________________________________
+bool genie::pdg::IsKaon(int pdgc)
+{
+  return (pdgc == kPdgKP || pdgc == kPdgK0 || pdgc == kPdgKM);
+}
+//____________________________________________________________________________
 bool genie::pdg::IsProton(int pdgc)
 {
   return (pdgc == kPdgProton);
