@@ -97,6 +97,7 @@ INukeHadroData::~INukeHadroData()
   // K+N x-section splines (elastic only)
   delete fXSecKpn_Elas;
   delete fXSecKpp_Elas;
+  delete fXSecKpN_Abs;
   delete fXSecKpN_Tot;
 
   // gamma x-section splines (inelastic only)
@@ -185,6 +186,7 @@ void INukeHadroData::LoadCrossSections(void)
   string datafile_pi0N = data_dir + "/tot_xsec/intranuke-xsections-pi0N.dat";
   string datafile_NA   = data_dir + "/tot_xsec/intranuke-fractions-NA.dat";
   string datafile_piA  = data_dir + "/tot_xsec/intranuke-fractions-piA.dat";
+  string datafile_KA   = data_dir + "/tot_xsec/intranuke-fractions-KA.dat";
   string datafile_gamN = data_dir + "/tot_xsec/intranuke-xsections-gamN.dat";
   string datafile_kN   = data_dir + "/tot_xsec/intranuke-xsections-kaonN.dat";
 
@@ -195,6 +197,7 @@ void INukeHadroData::LoadCrossSections(void)
   assert( ! gSystem->AccessPathName(datafile_pi0N.c_str()) );
   assert( ! gSystem->AccessPathName(datafile_NA.  c_str()) );
   assert( ! gSystem->AccessPathName(datafile_piA. c_str()) );
+  assert( ! gSystem->AccessPathName(datafile_KA. c_str())  );
   assert( ! gSystem->AccessPathName(datafile_gamN.c_str())  );
   assert( ! gSystem->AccessPathName(datafile_kN.  c_str())  );
 
@@ -207,6 +210,7 @@ void INukeHadroData::LoadCrossSections(void)
   TTree data_pi0N;
   TTree data_NA;
   TTree data_piA;
+  TTree data_KA;
   TTree data_gamN; 
   TTree data_kN;
 
@@ -223,13 +227,16 @@ void INukeHadroData::LoadCrossSections(void)
   data_gamN.ReadFile(datafile_gamN.c_str(),
     "ke/D:pi0p_tot/D:pipn_tot/D:pimp_tot/D:pi0n_tot/D:gamp_fs/D:gamn_fs/D:gamN_tot/D");
   data_kN.ReadFile(datafile_kN.c_str(),
-    "ke/D:kpn_elas/D:kpp_elas/D:kpN_tot/D");
+		   "ke/D:kpn_elas/D:kpp_elas/D:kp_abs/D:kpN_tot/D");  //????
+  data_KA.ReadFile(datafile_KA.c_str(),
+     "ke/D:KA_tot/D:KA_elas/D:KA_inel/D:KA_abs/D");
 
   LOG("INukeData", pDEBUG)  << "Number of data rows in NN : "   << data_NN.GetEntries();
   LOG("INukeData", pDEBUG)  << "Number of data rows in pipN : " << data_pipN.GetEntries();
   LOG("INukeData", pDEBUG)  << "Number of data rows in pi0N : " << data_pi0N.GetEntries();
   LOG("INukeData", pDEBUG)  << "Number of data rows in NA  : "  << data_NA.GetEntries();
   LOG("INukeData", pDEBUG)  << "Number of data rows in piA : "  << data_piA.GetEntries();
+  LOG("INukeData", pDEBUG)  << "Number of data rows in KA : "   << data_KA.GetEntries();
   LOG("INukeData", pDEBUG)  << "Number of data rows in gamN : " << data_gamN.GetEntries(); 
   LOG("INukeData", pDEBUG)  << "Number of data rows in kN  : "  << data_kN.GetEntries();
 
@@ -273,6 +280,7 @@ void INukeHadroData::LoadCrossSections(void)
    // K+N x-section splines  
   fXSecKpn_Elas   = new Spline(&data_kN,  "ke:kpn_elas");
   fXSecKpp_Elas   = new Spline(&data_kN,  "ke:kpp_elas");
+  fXSecKpN_Abs    = new Spline(&data_kN,  "ke:kp_abs");
   fXSecKpN_Tot    = new Spline(&data_kN,  "ke:kpN_tot");
 
   // gamma x-section splines  
@@ -313,7 +321,11 @@ void INukeHadroData::LoadCrossSections(void)
   fFracPi0A_CEx     = new Spline(&data_piA, "ke:piA_cex");    
   fFracPi0A_Abs     = new Spline(&data_piA, "ke:piA_np+piA_pp+piA_npp+piA_nnp+piA_2n2p");
   fFracPi0A_NPipPi0 = new Spline(&data_piA, "ke:piA_npippi0");
-
+  // K+A x-section fraction splines
+  fFracKA_Tot      = new Spline(&data_KA, "ke:KA_tot");
+  fFracKA_Elas     = new Spline(&data_KA, "ke:KA_elas");
+  fFracKA_Inel     = new Spline(&data_KA, "ke:KA_inel");   
+  fFracKA_Abs      = new Spline(&data_KA, "ke:KA_abs");
   //
   // hN stuff
   //
@@ -988,6 +1000,7 @@ double INukeHadroData::XSec(
         ke_eval = TMath::Max(ke_eval,  50.);
         return fhN2dXSecPiN_Abs->Evaluate(ke_eval, costh_eval);
      }
+    if(hpdgc==kPdgKP) return 1.;  //isotropic since no data ???
   }
 
   else if(fate == kIHNFtInelas) {
@@ -1105,13 +1118,14 @@ double INukeHadroData::Frac(int hpdgc, INukeFateHA_t fate, double ke) const
         << "Pi0's don't have this fate: " << INukeHadroFates::AsString(fate);
        return 0;
    }
-
   } else if (hpdgc == kPdgKP) {
    /* handle K+ */
-        if (fate == kIHAFtElas   ) return TMath::Max(0., fFracKpA_Elas    -> Evaluate (ke));
-   else {
-     LOG("INukeData", pWARN) 
-        << "K+'s don't have this fate: " << INukeHadroFates::AsString(fate);
+  if (fate == kIHAFtInelas ) return TMath::Max(0., fFracKA_Inel    -> Evaluate (ke));
+  else if (fate == kIHAFtAbs    ) return TMath::Max(0., fFracKA_Abs     -> Evaluate (ke));
+  //  else if (fate == kIHAFtElas   ) return TMath::Max(0., fFracKA_Elas    -> Evaluate (ke));
+  else {
+    LOG("INukeData", pWARN) 
+      << "K+'s don't have this fate: " << INukeHadroFates::AsString(fate);
        return 0;
    }
   }
