@@ -288,6 +288,7 @@ void ConvertToGST(void)
   bool   brIsRes       = false;  // Is RES?
   bool   brIsDis       = false;  // Is DIS?
   bool   brIsCoh       = false;  // Is Coherent?
+  bool   brIsMec       = false;  // Is MEC?
   bool   brIsDfr       = false;  // Is Diffractive?
   bool   brIsImd       = false;  // Is IMD?
   bool   brIsNuEL      = false;  // Is ve elastic?
@@ -388,6 +389,7 @@ void ConvertToGST(void)
   s_tree->Branch("resid",         &brResId,	    "resid/I"	    );
   s_tree->Branch("sea",	          &brFromSea,       "sea/O"	    );
   s_tree->Branch("qel",	          &brIsQel,	    "qel/O"	    );
+  s_tree->Branch("mec",	          &brIsMec,	    "mec/O"	    );
   s_tree->Branch("res",	          &brIsRes,	    "res/O"	    );
   s_tree->Branch("dis",	          &brIsDis,	    "dis/O"	    );
   s_tree->Branch("coh",           &brIsCoh,         "coh/O"	    );
@@ -634,6 +636,14 @@ void ConvertToGST(void)
     double W  = (hitnucl) ? TMath::Sqrt(W2)  : -1; 
     double t  = 0;
 
+    if(is_mec){
+      v = q.Energy();
+      x = 0.5*Q2/(M*v);
+      y = v/k1.Energy();
+      W2 = M*M + 2*M*v - Q2;
+      W = TMath::Sqrt(W2);
+    }
+
     LOG("gntpc", pDEBUG) 
        << "[Calc] Q2 = " << Q2 << ", W = " << W 
        << ", x = " << x << ", y = " << y << ", t = " << t;
@@ -760,6 +770,7 @@ void ConvertToGST(void)
     brIsImd      = is_imd;  
     brIsNuEL     = is_nuel;  
     brIsEM       = is_em;  
+    brIsMec      = is_mec;
     brIsCC       = is_weakcc;  
     brIsNC       = is_weaknc;  
     brIsCharmPro = charm;
