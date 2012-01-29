@@ -1,0 +1,8 @@
+# Provided and maintained by Steve Dytman
+# this file has info based on K+A reactions in carbon
+# data is limited to Friedman (reac and total) and Bugg (total).
+# KE     KA tot   KA elas   KA inel    KA abs 
+   1.      1.0      .5        .1        .4
+ 100.      1.0      .4        .2        .4
+ 400.      1.0      .2        .4        .4
+2000.      1.0      .1        .4        .5
