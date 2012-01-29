@@ -94,6 +94,7 @@ public:
   const Spline * XSecNn_Reac      (void) const { return fXSecNn_Reac;      }
   const Spline * XSecKpn_Elas     (void) const { return fXSecKpn_Elas;     }
   const Spline * XSecKpp_Elas     (void) const { return fXSecKpp_Elas;     }
+  const Spline * XSecKpN_Abs      (void) const { return fXSecKpN_Abs;      }
   const Spline * XSecKpN_Tot      (void) const { return fXSecKpN_Tot;      }
   const Spline * XSecGamp_fs      (void) const { return fXSecGamp_fs;      }  
   const Spline * XSecGamn_fs      (void) const { return fXSecGamn_fs;      }
@@ -131,6 +132,10 @@ public:
   const Spline * FracPi0A_CEx     (void) const { return fFracPi0A_CEx;     }
   const Spline * FracPi0A_Abs     (void) const { return fFracPi0A_Abs;     }
   const Spline * FracPi0A_NPipPi0 (void) const { return fFracPi0A_NPipPi0; }
+  const Spline * FracKA_Tot       (void) const { return fFracKA_Tot;       }
+  const Spline * FracKA_Elas      (void) const { return fFracKA_Elas;      }
+  const Spline * FracKA_Inel      (void) const { return fFracKA_Inel;      }
+  const Spline * FracKA_Abs       (void) const { return fFracKA_Abs;       }
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   // hN mode TGraph2D XSec objects
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -208,6 +213,7 @@ private:
   Spline * fXSecNn_Reac;       ///<
   Spline * fXSecKpn_Elas;      ///< K+N x-section splines
   Spline * fXSecKpp_Elas;      ///<
+  Spline * fXSecKpN_Abs;        ///<
   Spline * fXSecKpN_Tot;       ///<
   Spline * fFracPA_Tot;        ///< N+A x-section splines
   Spline * fFracPA_Elas;       ///<
@@ -241,8 +247,10 @@ private:
   Spline * fFracPi0A_CEx;      ///<
   Spline * fFracPi0A_Abs;      ///<
   Spline * fFracPi0A_NPipPi0;  ///<
-  Spline * fFracKpA_Tot;       ///< K+A x-section splines
-  Spline * fFracKpA_Elas;      ///<
+  Spline * fFracKA_Tot;        ///< K+A x-section splines
+  Spline * fFracKA_Elas;       ///<
+  Spline * fFracKA_Inel;       ///<
+  Spline * fFracKA_Abs;        ///<
   Spline * fXSecGamp_fs;       ///< gamma A x-section splines
   Spline * fXSecGamn_fs;       ///<
   Spline * fXSecGamN_Tot;      ///<
