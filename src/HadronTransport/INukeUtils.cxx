@@ -139,7 +139,7 @@ double genie::utils::intranuke::MeanFreePath(
       sigtot+= fHadroData -> XSecNn_Tot()   -> Evaluate(ke)*(1-ppcnt);}
   else if (pdgc == kPdgKP)
     { sigtot = fHadroData -> XSecKpN_Tot()  -> Evaluate(ke);
-      sigtot*=4.;}
+      sigtot*=1.2;}
   else if (pdgc == kPdgGamma)
     { sigtot = fHadroData -> XSecGamp_fs()  -> Evaluate(ke)*ppcnt;
       sigtot+= fHadroData -> XSecGamn_fs()  -> Evaluate(ke)*(1-ppcnt);}
@@ -350,6 +350,10 @@ INukeFateHA_t genie::utils::intranuke::FindhAFate(const GHepRecord * evrec)
     else if(num[0]==3 && num[1]==2) return kIHAFtAbs;
     else return kIHAFtAbs;
   }
+  else if(num_k<((p_pdg==kPdgKP || p_pdg==kPdgKM || p_pdg==kPdgK0)?(1):(0)))
+  {
+    return kIHAFtAbs;
+  }  
   else
   {
     if(p_pdg==kPdgPiP || p_pdg==kPdgPiM || p_pdg==kPdgPi0
