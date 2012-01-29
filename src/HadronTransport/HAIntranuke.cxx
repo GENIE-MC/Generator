@@ -1,4 +1,3 @@
-
 //____________________________________________________________________________
 /*
  Copyright (c) 2003-2010, GENIE Neutrino MC Generator Collaboration
@@ -37,6 +36,8 @@
  @ Oct 10, 2011 - SD
    Changes to keep reweighting alive.  Add exception hadnling in ElasHA, InelasticHA,
    and Inelastic.
+ @ Jan 24, 2012 - SD
+   Add option of doing K+.  
 */
 //____________________________________________________________________________
 
@@ -126,7 +127,7 @@ void HAIntranuke::SimulateHadronicFinalState(GHepRecord* ev, GHepParticle* p) co
   int  pdgc = p->Pdg();
   bool is_gamma   = (pdgc==kPdgGamma);						  
   bool is_pion    = (pdgc==kPdgPiP || pdgc==kPdgPiM || pdgc==kPdgPi0);
-  bool is_kaon    = (pdgc==kPdgKP);
+  bool is_kaon    = (pdgc==kPdgKP || pdgc==kPdgKM);
   bool is_baryon  = (pdgc==kPdgProton || pdgc==kPdgNeutron);
   bool is_handled = (is_baryon || is_pion || is_kaon || is_gamma); 
   if(!is_handled) {
@@ -269,6 +270,24 @@ INukeFateHA_t HAIntranuke::HadronFateHA(const GHepParticle * p) const
        LOG("HAIntranuke", pWARN) 
          << "No selection after going through all fates! "
                         << "Total fraction = " << tf << " (r = " << r << ")";
+    }
+    // handle kaons
+    else if (pdgc==kPdgKP || pdgc==kPdgKM) {
+       double frac_inel     = fHadroData->Frac(pdgc, kIHAFtInelas,  ke);
+       double frac_abs      = fHadroData->Frac(pdgc, kIHAFtAbs,     ke);
+       LOG("HAIntranuke", pDEBUG) 
+          << "\n frac{" << INukeHadroFates::AsString(kIHAFtInelas)  << "} = " << frac_inel
+	  << "\n frac{" << INukeHadroFates::AsString(kIHAFtAbs)     << "} = " << frac_abs;
+       // compute total fraction (can be <1 if fates have been switched off)
+       double tf =  frac_inel     +  
+	 frac_abs;
+      double r = tf * rnd->RndFsi().Rndm();
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+       LOG("HAIntranuke", pDEBUG) << "r = " << r << " (max = " << tf << ")";
+#endif
+       double cf=0; // current fraction
+       if(r < (cf += frac_inel    )) return kIHAFtInelas;  // inelas
+       if(r < (cf += frac_abs     )) return kIHAFtAbs;     // abs
     }
   }//iterations
 
@@ -513,6 +532,7 @@ void HAIntranuke::InelasticHA(
   else
     {
       tcode = (rnd->RndFsi().Rndm()<=ppcnt)?(kPdgProton):(kPdgNeutron);
+      //      if(pcode == kPdgKP || pcode == kPdgKM) tcode = kPdgProton;
       scode = pcode;
       s2code = tcode;
     }
@@ -668,7 +688,9 @@ void HAIntranuke::Inelastic(
 
 
     }
-  else if (fate==kIHAFtAbs)
+  else if (fate==kIHAFtAbs)   
+//  tuned for pions - mixture of 2-body and many-body
+//   use same for kaons as there is no guidance
     {
       // Instances for reference
       PDGLibrary * pLib = PDGLibrary::Instance();
@@ -684,15 +706,15 @@ void HAIntranuke::Inelastic(
 	  exception.SetReason("PionAbsorption in hA failed, not enough nucleons");
 	  throw exception;
       }
-      if (fRemnZ<1 && pdgc==kPdgPiM)
+      if (fRemnZ<1 && (pdgc==kPdgPiM || pdgc==kPdgKM))
       {
-	  LOG("HAIntranuke", pWARN) << "Error: could not create absorption final state: Pi- cannot be absorbed by only neutrons";
+	  LOG("HAIntranuke", pWARN) << "Error: could not create absorption final state: Pi- or K- cannot be absorbed by only neutrons";
 	  p->SetStatus(kIStStableFinalState);
 	  ev->AddParticle(*p);
       }
-      if (fRemnA-fRemnZ<1 && pdgc==kPdgPiP)
+      if (fRemnA-fRemnZ<1 && (pdgc==kPdgPiP || pdgc==kPdgKP))
       {
-	  LOG("HAIntranuke", pWARN) << "Error: could not create absorption final state: Pi+ cannot be absorbed by only protons";
+	  LOG("HAIntranuke", pWARN) << "Error: could not create absorption final state: Pi+ or K+ cannot be absorbed by only protons";
 	  p->SetStatus(kIStStableFinalState);
 	  ev->AddParticle(*p);
       }
@@ -701,7 +723,7 @@ void HAIntranuke::Inelastic(
       //
       // added 03/21/11 - Aaron Meyer
       //
-      if (pdg::IsPion(pdgc) && rnd->RndFsi().Rndm()<1.14*(.903-0.00189*fRemnA)*(1.35-0.00467*ke))
+      if ((pdg::IsPion(pdgc) || pdg::IsKaon(pdgc)) && rnd->RndFsi().Rndm()<1.14*(.903-0.00189*fRemnA)*(1.35-0.00467*ke))
 	{  // pi d -> N N, probability determined empirically with McKeown data
 
 	  INukeFateHN_t fate_hN=kIHNFtAbs;
@@ -710,7 +732,7 @@ void HAIntranuke::Inelastic(
 
 	  // choose target nucleon
 	  // -- fates weighted by values from Engel, Mosel...
-	  if (pdgc==kPdgPiP) { 
+	  if (pdgc==kPdgPiP || pdgc==kPdgKP) { 
             double Prob_pipd_pp=2.*ppcnt*(1.-ppcnt);
             double Prob_pipnn_pn=.083*(1.-ppcnt)*(1.-ppcnt);
 	    if (rnd->RndFsi().Rndm()*(Prob_pipd_pp+Prob_pipnn_pn)<Prob_pipd_pp){
@@ -720,7 +742,7 @@ void HAIntranuke::Inelastic(
 	                       t1code=kPdgNeutron; t2code=kPdgNeutron; 
 	                       scode=kPdgProton;   s2code=kPdgNeutron;}
 	  }
-	  if (pdgc==kPdgPiM) { 
+	  if (pdgc==kPdgPiM || pdgc==kPdgKM) { 
             double Prob_pimd_nn=2.*ppcnt*(1.-ppcnt);
             double Prob_pimpp_pn=.083*ppcnt*ppcnt;
 	    if (rnd->RndFsi().Rndm()*(Prob_pimd_nn+Prob_pimpp_pn)<Prob_pimd_nn){
@@ -802,8 +824,8 @@ void HAIntranuke::Inelastic(
 	  //double bindE=0.0; 
 	  if (utils::intranuke::TwoBodyKinematics(M3,M4,t4P1L,t4P2L,t4P3L,t4P4L,C3CM,fRemnP4,bindE))
 	    {
-	      if (pdgc==kPdgPiP) fRemnZ++;
-	      if (pdgc==kPdgPiM) fRemnZ--;
+	      if (pdgc==kPdgPiP || pdgc==kPdgKP) fRemnZ++;
+	      if (pdgc==kPdgPiM || pdgc==kPdgKM) fRemnZ--;
 	      if (t1code==kPdgProton) fRemnZ--;
 	      if (t2code==kPdgProton) fRemnZ--;
 	      fRemnA-=2;
@@ -872,7 +894,7 @@ void HAIntranuke::Inelastic(
 	  gam_ns = c1 * TMath::Exp(c2*fRemnA) + c3;
 	  //gam_ns = 10.;
 	}
-      else if ( pdgc==kPdgPiP || pdgc==kPdgPi0 || pdgc==kPdgPiM ) //pion probe
+      else if ( pdgc==kPdgPiP || pdgc==kPdgPi0 || pdgc==kPdgPiM || pdgc==kPdgKP || pdgc==kPdgKM) //pion or kaon probe
 	{
 	  ns0 = .0001*(1.+ke/250.) * (fRemnA-50)*(fRemnA-50) + 8;
 	  nd0 = (1.+ke/250.) - ((fRemnA/200.)*(1. + 2.*ke/250.));
@@ -928,7 +950,7 @@ void HAIntranuke::Inelastic(
 	    {
 	      ns = -TMath::Log(rnd->RndFsi().Rndm())/gam_ns; // exponential random variable
 	    }	  
-	  else if ( pdgc==kPdgPiP || pdgc==kPdgPi0 || pdgc==kPdgPiM ) //pion probe
+	  else if ( pdgc==kPdgPiP || pdgc==kPdgPi0 || pdgc==kPdgPiM|| pdgc==kPdgKP|| pdgc==kPdgKM ) //pion probe
 	    {
 	      // Pion fit for sum takes for xs*exp((xs-x0)^2 / 2*sig_xs0)
 	      // Find random variable by first finding gaussian random variable
@@ -987,10 +1009,10 @@ void HAIntranuke::Inelastic(
 	    else */ 
 	       if (np < 0 || nn < 0 )                 {iter++; continue;}
           else if (np + nn < 2. )                     {iter++; continue;}
-          else if (np > fRemnZ        + ((pdg::IsProton(pdgc) ||pdgc==kPdgPiP)?1:0)
-		               - (pdgc==kPdgPiM?1:0)) {iter++; continue;}
+          else if (np > fRemnZ + ((pdg::IsProton(pdgc) || pdgc==kPdgPiP || pdgc==kPdgKP)?1:0)
+		   - ((pdgc==kPdgPiM || pdgc==kPdgKM)?1:0)) {iter++; continue;}
           else if (nn > fRemnA-fRemnZ + ((pdg::IsNeutron(pdgc)||pdgc==kPdgPiM)?1:0)
-		               - (pdgc==kPdgPiP?1:0)) {iter++; continue;}
+		   - ((pdgc==kPdgPiP || pdgc==kPdgKP)?1:0)) {iter++; continue;}
 	  else { 
 	    not_done=false;   //success
 	    LOG("HAINtranuke",pNOTICE) << "success, iter = " << iter << "  np, nn = " << np << "  " << nn; 
@@ -1001,8 +1023,8 @@ void HAIntranuke::Inelastic(
 		nn = int(nn*frac);
 	      }
 
-	    if (  (np==fRemnZ       +((pdg::IsProton (pdgc)||pdgc==kPdgPiP)?1:0)-(pdgc==kPdgPiM?1:0))
-		&&(nn==fRemnA-fRemnZ+((pdg::IsNeutron(pdgc)||pdgc==kPdgPiM)?1:0)-(pdgc==kPdgPiP?1:0)) )
+	    if (  (np==fRemnZ       +((pdg::IsProton (pdgc)||pdgc==kPdgPiP|| pdgc==kPdgKP)?1:0)-(pdgc==kPdgPiM?1:0))
+		&&(nn==fRemnA-fRemnZ+((pdg::IsNeutron(pdgc)||pdgc==kPdgPiM|| pdgc==kPdgKM)?1:0)-(pdgc==kPdgPiP?1:0)) )
 	      { // leave at least one nucleon in the nucleus to prevent excess momentum
 		if (rnd->RndFsi().Rndm()<np/(double)(np+nn)) np--;
 		else nn--;
@@ -1014,8 +1036,8 @@ void HAIntranuke::Inelastic(
 	} //while(not_done)
 
       // change remnants to reflect probe
-      if ( pdgc==kPdgProton || pdgc==kPdgPiP )     fRemnZ++;
-      if ( pdgc==kPdgPiM )                         fRemnZ--;
+      if ( pdgc==kPdgProton || pdgc==kPdgPiP|| pdgc==kPdgKP )     fRemnZ++;
+      if ( pdgc==kPdgPiM || pdgc==kPdgKM)                         fRemnZ--;
       if ( pdg::IsNeutronOrProton (pdgc) )         fRemnA++;
 
       // PhaseSpaceDecay forbids anything over 18 particles
