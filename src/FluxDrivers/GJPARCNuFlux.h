@@ -35,6 +35,7 @@
 
 class TFile;
 class TTree;
+class TChain;
 class TBranch;
 
 using std::string;
@@ -111,7 +112,10 @@ private:
 
   TFile *   fNuFluxFile;       ///< input flux file
   TTree *   fNuFluxTree;       ///< input flux ntuple
+  TChain *  fNuFluxChain;      ///< input flux ntuple
   TTree *   fNuFluxSumTree;    ///< input summary ntuple for flux file. This tree is only present for later flux versions > 10a
+  TChain *  fNuFluxSumChain;   ///< input summary ntuple for flux file. This tree is only present for later flux versions > 10a
+  bool      fNuFluxUsingTree;  ///< are we using a TTree or a TChain to view the input flux file?
   string    fDetLoc;           ///< input detector location ('sk','nd1','nd2',...)
   int       fDetLocId;         ///< input detector location id (fDetLoc -> jnubeam idfd)
   int       fNDetLocIdFound;   ///< per cycle keep track of the number of fDetLocId are found - if this is zero will exit job 

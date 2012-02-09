@@ -101,6 +101,10 @@
  @ Jul 05, 2011 - TD
    Code used to match nd detector locations 1-10. Now match detector locations
    up to 51. Change made in preparation for the new sand muon flux (nd13).
+ @ Feb 09, 2012 - TD
+   Added ability to TChain flux files together. This is so when doing vector
+   producion, we can sample all the input flux files, even if the equivalent
+   hadd'ed flux file is too large.
 */
 //____________________________________________________________________________
 
@@ -110,6 +114,8 @@
 
 #include <TFile.h>
 #include <TTree.h>
+#include <TChain.h>
+#include <TString.h>
 #include <TSystem.h>
 
 #include "Conventions/Units.h"
@@ -122,6 +128,7 @@
 #include "PDG/PDGCodeList.h"
 #include "Utils/MathUtils.h"
 #include "Utils/PrintUtils.h"
+#include "Utils/StringUtils.h"
 
 using std::endl;
 using std::cout;
@@ -196,7 +203,7 @@ bool GJPARCNuFlux::GenerateNext_weighted(void)
   this->ResetCurrent();
 
   // Check whether a jnubeam flux ntuple has been loaded
-  if(!fNuFluxTree) {
+  if( (!fNuFluxTree && fNuFluxUsingTree) || (!fNuFluxChain && !fNuFluxUsingTree) ) {
      LOG("Flux", pWARN)
           << "The flux driver has not been properly configured";
      return false;	
@@ -230,12 +237,24 @@ bool GJPARCNuFlux::GenerateNext_weighted(void)
   // that may be stored at an extra branch of the output event tree -alongside 
   // with the generated event branch- for use further upstream in the t2k 
   // analysis chain -eg for beam reweighting etc-)
-  bool found_entry = fNuFluxTree->GetEntry(fIEntry) > 0;
+  bool found_entry;
+  if (fNuFluxUsingTree)
+    found_entry = fNuFluxTree->GetEntry(fIEntry) > 0;
+  else
+    found_entry = fNuFluxChain->GetEntry(fIEntry) > 0;
   assert(found_entry);
   fLoadedNeutrino = true;
   fEntriesThisCycle++;
   fIEntry = (fIEntry+1) % fNEntries;
-  if(fNuFluxSumTree) fNuFluxSumTree->GetEntry(0); // get entry 0 as only 1 entry in tree
+
+  if (fNuFluxUsingTree) {
+    if(fNuFluxSumTree) fNuFluxSumTree->GetEntry(0); // get entry 0 as only 1 entry in tree
+  }
+  else {
+    // get entry corresponding to current tree number in the chain, as only 1 entry in each tree
+    if(fNuFluxSumChain) fNuFluxSumChain->GetEntry(fNuFluxChain->GetTreeNumber());
+  }
+
   // check for negative flux weights 
   if(fPassThroughInfo->norm + controls::kASmallNum < 0.0){ 
     LOG("Flux", pERROR) << "Negative flux weight! Will set weight to 0.0";
@@ -249,10 +268,10 @@ bool GJPARCNuFlux::GenerateNext_weighted(void)
   if(fIsNDLoc           /* nd */  && 
      fDetLocId!=fPassThroughInfo->idfd /* doesn't match specified detector location*/) {
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-        LOG("Flux", pNOTICE) 
+        LOG("Flux", pNOTICE)
           << "Current flux neutrino not at specified detector location";
 #endif
-        return false;		
+        return false;
   }
 
 
@@ -321,11 +340,11 @@ bool GJPARCNuFlux::GenerateNext_weighted(void)
 
   if( ! fPdgCList->ExistsInPDGCodeList(fgPdgC) ) {
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-     LOG("Flux", pNOTICE) 
+     LOG("Flux", pNOTICE)
        << "Current flux neutrino "
        << "not at the list of neutrinos to be considered at this job.";
 #endif
-     return false;	
+     return false;
   }
 
   // Check current neutrino energy against the maximum flux neutrino energy declared
@@ -336,7 +355,7 @@ bool GJPARCNuFlux::GenerateNext_weighted(void)
   // initialization via GJPARCNuFlux::SetMaxEnergy(double Ev)
 
   if(fPassThroughInfo->Enu > fMaxEv) {
-     LOG("Flux", pWARN) 
+     LOG("Flux", pWARN)
           << "Flux neutrino energy exceeds declared maximum neutrino energy";
      LOG("Flux", pWARN) 
           << "Ev = " << fPassThroughInfo->Enu << "(> Ev{max} = " << fMaxEv << ")";
@@ -369,19 +388,30 @@ bool GJPARCNuFlux::GenerateNext_weighted(void)
   }
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("Flux", pINFO) 
+  LOG("Flux", pINFO)
 	<< "Generated neutrino: "
 	<< "\n pdg-code: " << fgPdgC
         << "\n p4: " << utils::print::P4AsShortString(&fgP4)
         << "\n x4: " << utils::print::X4AsString(&fgX4);
 #endif
   // Update flux pass through info not set as branch addresses of flux ntuples
-  fPassThroughInfo->fluxentry = this->Index();
-  std::string filename = fNuFluxFile->GetName();
+  if(fNuFluxUsingTree)
+    fPassThroughInfo->fluxentry = this->Index();
+  else
+    fPassThroughInfo->fluxentry = fNuFluxChain->GetTree()->GetReadEntry();
+
+  std::string filename;
+  if(fNuFluxUsingTree)
+    filename = fNuFluxFile->GetName();
+  else
+    filename = fNuFluxChain->GetFile()->GetName();
   std::string::size_type start_pos = filename.rfind("/");
   if (start_pos == std::string::npos) start_pos = 0; else ++start_pos;
   std::string basename(filename,start_pos);
-  fPassThroughInfo->fluxfilename = basename + ":" + fNuFluxTree->GetName();
+  if(fNuFluxUsingTree)
+    fPassThroughInfo->fluxfilename = basename + ":" + fNuFluxTree->GetName();
+  else
+    fPassThroughInfo->fluxfilename = basename + ":" + fNuFluxChain->GetName();
   return true;
 }
 //___________________________________________________________________________
@@ -389,7 +419,7 @@ double GJPARCNuFlux::POT_1cycle(void)
 {
 // Compute number of flux POTs / flux ntuple cycle
 //
-  if(!fNuFluxTree) {
+  if( (!fNuFluxTree && fNuFluxUsingTree) || (!fNuFluxChain && !fNuFluxUsingTree) ) {
      LOG("Flux", pWARN)
           << "The flux driver has not been properly configured";
      return 0;	
@@ -410,7 +440,7 @@ double GJPARCNuFlux::POT_curravg(void)
 // On complete cycles, that POT number should be exact.
 // Within cycles that is only an average number 
 
-  if(!fNuFluxTree) {
+  if( (!fNuFluxTree && fNuFluxUsingTree) || (!fNuFluxChain && !fNuFluxUsingTree) ) {
      LOG("Flux", pWARN)
           << "The flux driver has not been properly configured";
      return 0;	
@@ -452,11 +482,50 @@ void GJPARCNuFlux::LoadBeamSimData(string filename, string detector_location)
   LOG("Flux", pNOTICE) 
         << "Detector location: " << detector_location;
 
-  bool is_accessible = ! (gSystem->AccessPathName( filename.c_str() ));
-  if (!is_accessible) {
-    LOG("Flux", pFATAL)
-     << "The input jnubeam flux file doesn't exist! Initialization failed!";
-    exit(1);
+  //check to see if its a single flux file (/dir/root_filename.0.root)
+  // or a sequence of files to be tchained (e.g. /dir/root_filename@0@100)
+  fNuFluxUsingTree = true;
+  if (filename.find('@') != string::npos)
+    fNuFluxUsingTree = false;
+
+  vector<string> filenamev = utils::str::Split(filename,"@");
+  string fileroot;
+  int firstfile, lastfile;
+
+  if (!fNuFluxUsingTree) {
+    if (filenamev.size() != 3) {
+      LOG("Flux", pFATAL)
+	<< "Flux filename should be specfied as either:\n"
+	<< "\t For a single input file:  /dir/root_filename.#.root\n"
+	<< "\t For multiple input files: /dir/root_filename@#@#";
+      exit(1);
+    }
+    fileroot = filenamev[0];
+    firstfile = atoi(filenamev[1].c_str());
+    lastfile = atoi(filenamev[2].c_str());
+  }
+
+  if (fNuFluxUsingTree) {
+    bool is_accessible = ! (gSystem->AccessPathName( filename.c_str() ));
+    if (!is_accessible) {
+      LOG("Flux", pFATAL)
+	<< "The input jnubeam flux file doesn't exist! Initialization failed!";
+      exit(1);
+    }
+  }
+  else {
+    bool please_exit = false;
+    for (int i = firstfile; i < lastfile+1; i++) {
+      bool is_accessible = ! (gSystem->AccessPathName( Form("%s.%i.root",fileroot.c_str(),i) ));
+      if (!is_accessible) {
+	LOG("Flux", pFATAL)
+	  << "The input jnubeam flux file " << Form("%s.%i.root",fileroot.c_str(),i) 
+	  << "doesn't exist! Initialization failed!";
+	please_exit = true;
+      }
+    }
+    if(please_exit)
+      exit(1);
   }
 
   fDetLoc   = detector_location;   
@@ -471,80 +540,122 @@ void GJPARCNuFlux::LoadBeamSimData(string filename, string detector_location)
   fIsFDLoc = (fDetLocId==-1);
   fIsNDLoc = (fDetLocId>0);
 
-  fNuFluxFile = new TFile(filename.c_str(), "read");
-  if(fNuFluxFile) {
-    // nd treename can be h3002 or h3001 depending on fluxfile version
+
+  if (!fNuFluxUsingTree) {
     string ntuple_name = (fIsNDLoc) ? "h3002" : "h2000";
-    fNuFluxTree = (TTree*) fNuFluxFile->Get(ntuple_name.c_str());
-    if(!fNuFluxTree && fIsNDLoc){
+    fNuFluxChain = new TChain(ntuple_name.c_str());
+    int result = fNuFluxChain->Add( Form("%s.%i.root",fileroot.c_str(),firstfile), 0);
+    if (result != 1 && fIsNDLoc) {
+      LOG("Flux", pINFO)
+	<< "Could not find tree h3002 in file " << Form("%s.%i.root",fileroot.c_str(),firstfile)
+	<< " Trying tree h3001";
+      delete fNuFluxChain;
       ntuple_name = "h3001";
-      fNuFluxTree = (TTree*) fNuFluxFile->Get(ntuple_name.c_str());
+      fNuFluxChain = new TChain(ntuple_name.c_str());
+      result = fNuFluxChain->Add( Form("%s.%i.root",fileroot.c_str(),firstfile), 0);
     }
-    LOG("Flux", pINFO)   
-     << "Getting flux tree: " << ntuple_name;
-    if(!fNuFluxTree) {
-      LOG("Flux", pERROR) 
-        << "** Couldn't get flux tree: " << ntuple_name;
+    if (result != 1) {
+      LOG("Flux", pERROR)
+	<< "** Couldn't get flux tree: " << ntuple_name;
       return;
     }
-  } else {
-    LOG("Flux", pERROR) << "** Couldn't open: " << filename;
-    return;
+    
+    for (int i = firstfile+1; i < lastfile+1; i++) {
+      result = fNuFluxChain->Add( Form("%s.%i.root",fileroot.c_str(),i), 0 );
+      if (result == 0)
+	LOG("Flux", pERROR)
+	  << "** Couldn't get flux tree " << ntuple_name << " in file " << Form("%s.%i.root",fileroot.c_str(),i);
+    fNEntries = fNuFluxChain->GetEntries();
+    }
+  }
+  
+  else {
+    fNuFluxFile = new TFile(filename.c_str(), "read");
+    if(fNuFluxFile) {
+      // nd treename can be h3002 or h3001 depending on fluxfile version
+      string ntuple_name = (fIsNDLoc) ? "h3002" : "h2000";
+      fNuFluxTree = (TTree*) fNuFluxFile->Get(ntuple_name.c_str());
+      if(!fNuFluxTree && fIsNDLoc){
+	ntuple_name = "h3001";
+	fNuFluxTree = (TTree*) fNuFluxFile->Get(ntuple_name.c_str());
+      }
+      LOG("Flux", pINFO)   
+	<< "Getting flux tree: " << ntuple_name;
+      if(!fNuFluxTree) {
+	LOG("Flux", pERROR) 
+	  << "** Couldn't get flux tree: " << ntuple_name;
+	return;
+      }
+    } else {
+      LOG("Flux", pERROR) << "** Couldn't open: " << filename;
+      return;
+    }
+    
+    fNEntries = fNuFluxTree->GetEntries();
   }
 
-  fNEntries = fNuFluxTree->GetEntries();
   LOG("Flux", pNOTICE) 
-      << "Loaded flux tree contains " <<  fNEntries << " entries";
-
+    << "Loaded flux tree contains " <<  fNEntries << " entries";
+  
   LOG("Flux", pDEBUG) 
-      << "Getting tree branches & setting leaf addresses";
+    << "Getting tree branches & setting leaf addresses";
 
   // try to get all the branches that we know about and only set address if
   // they exist
   bool missing_critical = false;
   TBranch * fBr = 0;
   GJPARCNuFluxPassThroughInfo * info = fPassThroughInfo;
-  if( (fBr = fNuFluxTree->GetBranch("norm")) ) fBr->SetAddress(&info->norm);
+
+  if( fNuFluxUsingTree && (fBr = fNuFluxTree->GetBranch("norm")) ) fBr->SetAddress(&info->norm);
+  else if( (fBr = fNuFluxChain->GetBranch("norm")) ) fNuFluxChain->SetBranchAddress("norm",&info->norm);
   else { 
     LOG("Flux", pFATAL) <<"Cannot find flux branch: norm";
     missing_critical = true;
   }
-  if( (fBr = fNuFluxTree->GetBranch("Enu")) ) fBr->SetAddress(&info->Enu);
+  if( fNuFluxUsingTree && (fBr = fNuFluxTree->GetBranch("Enu")) ) fBr->SetAddress(&info->Enu);
+  else if( (fBr = fNuFluxChain->GetBranch("Enu")) ) fNuFluxChain->SetBranchAddress("Enu",&info->Enu);
   else {
     LOG("Flux", pFATAL) <<"Cannot find flux branch: Enu";  
     missing_critical = true;
   }
-  if( (fBr = fNuFluxTree->GetBranch("ppid")) ) fBr->SetAddress(&info->ppid);
+  if( fNuFluxUsingTree && (fBr = fNuFluxTree->GetBranch("ppid")) ) fBr->SetAddress(&info->ppid);
+  else if( (fBr = fNuFluxChain->GetBranch("ppid")) ) fNuFluxChain->SetBranchAddress("ppid",&info->ppid);
   else {
     LOG("Flux", pFATAL) <<"Cannot find flux branch: ppid"; 
     missing_critical = true;
   }
-  if( (fBr = fNuFluxTree->GetBranch("mode")) ) fBr->SetAddress(&info->mode);
+  if( fNuFluxUsingTree && (fBr = fNuFluxTree->GetBranch("mode")) ) fBr->SetAddress(&info->mode);
+  else if( (fBr = fNuFluxChain->GetBranch("mode")) ) fNuFluxChain->SetBranchAddress("mode",&info->mode);
   else { 
     LOG("Flux", pFATAL) <<"Cannot find flux branch: mode";
     missing_critical = true;
   }
-  if( (fBr = fNuFluxTree->GetBranch("rnu")) ) fBr->SetAddress(&info->rnu);
+  if( fNuFluxUsingTree && (fBr = fNuFluxTree->GetBranch("rnu")) ) fBr->SetAddress(&info->rnu);
+  else if( (fBr = fNuFluxChain->GetBranch("rnu")) ) fNuFluxChain->SetBranchAddress("rnu",&info->rnu);
   else if(fIsNDLoc){ // Only required for ND location
     LOG("Flux", pFATAL) <<"Cannot find flux branch: rnu";
     missing_critical = true;
   } 
-  if( (fBr = fNuFluxTree->GetBranch("xnu")) ) fBr->SetAddress(&info->xnu);
+  if( fNuFluxUsingTree && (fBr = fNuFluxTree->GetBranch("xnu")) ) fBr->SetAddress(&info->xnu);
+  else if( (fBr = fNuFluxChain->GetBranch("xnu")) ) fNuFluxChain->SetBranchAddress("xnu",&info->xnu);
   else if(fIsNDLoc){ // Only required for ND location
     LOG("Flux", pFATAL) <<"Cannot find flux branch: xnu"; 
     missing_critical = true;
   }
-  if( (fBr = fNuFluxTree->GetBranch("ynu")) ) fBr->SetAddress(&info->ynu);
+  if( fNuFluxUsingTree && (fBr = fNuFluxTree->GetBranch("ynu")) ) fBr->SetAddress(&info->ynu);
+  else if( (fBr = fNuFluxChain->GetBranch("ynu")) ) fNuFluxChain->SetBranchAddress("ynu",&info->ynu);
   else if(fIsNDLoc) { // Only required for ND location
     LOG("Flux", pFATAL) <<"Cannot find flux branch: ynu"; 
     missing_critical = true;
   }
-  if( (fBr = fNuFluxTree->GetBranch("nnu")) ) fBr->SetAddress(info->nnu);
+  if( fNuFluxUsingTree && (fBr = fNuFluxTree->GetBranch("nnu")) ) fBr->SetAddress(info->nnu);
+  else if( (fBr = fNuFluxChain->GetBranch("nnu")) ) fNuFluxChain->SetBranchAddress("nnu",info->nnu);
   else if(fIsNDLoc){ // Only required for ND location
     LOG("Flux", pFATAL) <<"Cannot find flux branch: nnu";
     missing_critical = true;
   }
-  if( (fBr = fNuFluxTree->GetBranch("idfd")) ) fBr->SetAddress(&info->idfd);
+  if( fNuFluxUsingTree && (fBr = fNuFluxTree->GetBranch("idfd")) ) fBr->SetAddress(&info->idfd);
+  else if( (fBr = fNuFluxChain->GetBranch("idfd")) ) fNuFluxChain->SetBranchAddress("idfd",&info->idfd);
   else if(fIsNDLoc){ // Only required for ND location
     LOG("Flux", pFATAL) <<"Cannot find flux branch: idfd"; 
     missing_critical = true;
@@ -555,42 +666,73 @@ void GJPARCNuFlux::LoadBeamSimData(string filename, string detector_location)
      << "Unable to find critical information in the flux ntuple! Initialization failed!";
     exit(1);
   }
-  if( (fBr = fNuFluxTree->GetBranch("ppi"))     ) fBr->SetAddress(&info->ppi);
-  if( (fBr = fNuFluxTree->GetBranch("xpi"))     ) fBr->SetAddress(info->xpi);
-  if( (fBr = fNuFluxTree->GetBranch("npi"))     ) fBr->SetAddress(info->npi);
-  if( (fBr = fNuFluxTree->GetBranch("ppi0"))    ) fBr->SetAddress(&info->ppi0);
-  if( (fBr = fNuFluxTree->GetBranch("xpi0"))    ) fBr->SetAddress(info->xpi0);
-  if( (fBr = fNuFluxTree->GetBranch("npi0"))    ) fBr->SetAddress(info->npi0);
-  if( (fBr = fNuFluxTree->GetBranch("nvtx0"))   ) fBr->SetAddress(&info->nvtx0);
+  if( fNuFluxUsingTree && (fBr = fNuFluxTree->GetBranch("ppi"))     ) fBr->SetAddress(&info->ppi);
+  else if( (fBr = fNuFluxChain->GetBranch("ppi"))     ) fNuFluxChain->SetBranchAddress("ppi",&info->ppi);
+  if( fNuFluxUsingTree && (fBr = fNuFluxTree->GetBranch("xpi"))     ) fBr->SetAddress(info->xpi);
+  else if( (fBr = fNuFluxChain->GetBranch("xpi"))     ) fNuFluxChain->SetBranchAddress("xpi",info->xpi);
+  if( fNuFluxUsingTree && (fBr = fNuFluxTree->GetBranch("npi"))     ) fBr->SetAddress(info->npi);
+  else if( (fBr = fNuFluxChain->GetBranch("npi"))     ) fNuFluxChain->SetBranchAddress("npi",info->npi);
+  if( fNuFluxUsingTree && (fBr = fNuFluxTree->GetBranch("ppi0"))    ) fBr->SetAddress(&info->ppi0);
+  else if( (fBr = fNuFluxChain->GetBranch("ppi0"))    ) fNuFluxChain->SetBranchAddress("ppi0",&info->ppi0);
+  if( fNuFluxUsingTree && (fBr = fNuFluxTree->GetBranch("xpi0"))    ) fBr->SetAddress(info->xpi0);
+  else if( (fBr = fNuFluxChain->GetBranch("xpi0"))    ) fNuFluxChain->SetBranchAddress("xpi0",info->xpi0);
+  if( fNuFluxUsingTree && (fBr = fNuFluxTree->GetBranch("npi0"))    ) fBr->SetAddress(info->npi0);
+  else if( (fBr = fNuFluxChain->GetBranch("npi0"))    ) fNuFluxChain->SetBranchAddress("npi0",info->npi0);
+  if( fNuFluxUsingTree && (fBr = fNuFluxTree->GetBranch("nvtx0"))   ) fBr->SetAddress(&info->nvtx0);
+  else if( (fBr = fNuFluxChain->GetBranch("nvtx0"))   ) fNuFluxChain->SetBranchAddress("nvtx0",&info->nvtx0);
   // Following branches only present since flux version 10a
-  if( (fBr = fNuFluxTree->GetBranch("cospibm")) ) fBr->SetAddress(&info->cospibm);
-  if( (fBr = fNuFluxTree->GetBranch("cospi0bm"))) fBr->SetAddress(&info->cospi0bm);
-  if( (fBr = fNuFluxTree->GetBranch("gamom0"))  ) fBr->SetAddress(&info->gamom0);
-  if( (fBr = fNuFluxTree->GetBranch("gipart"))  ) fBr->SetAddress(&info->gipart);
-  if( (fBr = fNuFluxTree->GetBranch("gvec0"))   ) fBr->SetAddress(info->gvec0);
-  if( (fBr = fNuFluxTree->GetBranch("gpos0"))   ) fBr->SetAddress(info->gpos0);
+  if( fNuFluxUsingTree && (fBr = fNuFluxTree->GetBranch("cospibm")) ) fBr->SetAddress(&info->cospibm);
+  else if( (fBr = fNuFluxChain->GetBranch("cospibm")) ) fNuFluxChain->SetBranchAddress("cospibm",&info->cospibm);
+  if( fNuFluxUsingTree && (fBr = fNuFluxTree->GetBranch("cospi0bm"))) fBr->SetAddress(&info->cospi0bm);
+  else if( (fBr = fNuFluxChain->GetBranch("cospi0bm"))) fNuFluxChain->SetBranchAddress("cospi0bm",&info->cospi0bm);
+  if( fNuFluxUsingTree && (fBr = fNuFluxTree->GetBranch("gamom0"))  ) fBr->SetAddress(&info->gamom0);
+  else if( (fBr = fNuFluxChain->GetBranch("gamom0"))  ) fNuFluxChain->SetBranchAddress("gamom0",&info->gamom0);
+  if( fNuFluxUsingTree && (fBr = fNuFluxTree->GetBranch("gipart"))  ) fBr->SetAddress(&info->gipart);
+  else if( (fBr = fNuFluxChain->GetBranch("gipart"))  ) fNuFluxChain->SetBranchAddress("gipart",&info->gipart);
+  if( fNuFluxUsingTree && (fBr = fNuFluxTree->GetBranch("gvec0"))   ) fBr->SetAddress(info->gvec0);
+  else if( (fBr = fNuFluxChain->GetBranch("gvec0"))   ) fNuFluxChain->SetBranchAddress("gvec0",info->gvec0);
+  if( fNuFluxUsingTree && (fBr = fNuFluxTree->GetBranch("gpos0"))   ) fBr->SetAddress(info->gpos0);
+  else if( (fBr = fNuFluxChain->GetBranch("gpos0"))   ) fNuFluxChain->SetBranchAddress("gpos0",info->gpos0);
   // Following branches only present since flux vesion 10d
-  if( (fBr = fNuFluxTree->GetBranch("ng"))      ) fBr->SetAddress(&info->ng);
-  if( (fBr = fNuFluxTree->GetBranch("gpid"))    ) fBr->SetAddress(info->gpid);
-  if( (fBr = fNuFluxTree->GetBranch("gmec"))    ) fBr->SetAddress(info->gmec);
-  if( (fBr = fNuFluxTree->GetBranch("gvx"))     ) fBr->SetAddress(info->gvx);
-  if( (fBr = fNuFluxTree->GetBranch("gvy"))     ) fBr->SetAddress(info->gvy);
-  if( (fBr = fNuFluxTree->GetBranch("gvz"))     ) fBr->SetAddress(info->gvz);
-  if( (fBr = fNuFluxTree->GetBranch("gpx"))     ) fBr->SetAddress(info->gpx);
-  if( (fBr = fNuFluxTree->GetBranch("gpy"))     ) fBr->SetAddress(info->gpy);
-  if( (fBr = fNuFluxTree->GetBranch("gpz"))     ) fBr->SetAddress(info->gpz);
-  if( (fBr = fNuFluxTree->GetBranch("gmat"))    ) fBr->SetAddress(info->gmat);
-  if( (fBr = fNuFluxTree->GetBranch("gdistc"))  ) fBr->SetAddress(info->gdistc);
-  if( (fBr = fNuFluxTree->GetBranch("gdistal")) ) fBr->SetAddress(&info->gdistal);
-  if( (fBr = fNuFluxTree->GetBranch("gdistti")) ) fBr->SetAddress(&info->gdistti);
-  if( (fBr = fNuFluxTree->GetBranch("gdistfe")) ) fBr->SetAddress(&info->gdistfe);
-  if( (fBr = fNuFluxTree->GetBranch("gcosbm"))  ) fBr->SetAddress(info->gcosbm);
-  if( (fBr = fNuFluxTree->GetBranch("Enusk"))   ) fBr->SetAddress(&info->Enusk);
-  if( (fBr = fNuFluxTree->GetBranch("normsk"))  ) fBr->SetAddress(&info->normsk);
-  if( (fBr = fNuFluxTree->GetBranch("anorm"))   ) fBr->SetAddress(&info->anorm);
-   
+  if( fNuFluxUsingTree && (fBr = fNuFluxTree->GetBranch("ng"))      ) fBr->SetAddress(&info->ng);
+  else if( (fBr = fNuFluxChain->GetBranch("ng"))      ) fNuFluxChain->SetBranchAddress("ng",&info->ng);
+  if( fNuFluxUsingTree && (fBr = fNuFluxTree->GetBranch("gpid"))    ) fBr->SetAddress(info->gpid);
+  else if( (fBr = fNuFluxChain->GetBranch("gpid"))    ) fNuFluxChain->SetBranchAddress("gpid",info->gpid);
+  if( fNuFluxUsingTree && (fBr = fNuFluxTree->GetBranch("gmec"))    ) fBr->SetAddress(info->gmec);
+  else if( (fBr = fNuFluxChain->GetBranch("gmec"))    ) fNuFluxChain->SetBranchAddress("gmec",info->gmec);
+  if( fNuFluxUsingTree && (fBr = fNuFluxTree->GetBranch("gvx"))     ) fBr->SetAddress(info->gvx);
+  else if( (fBr = fNuFluxChain->GetBranch("gvx"))     ) fNuFluxChain->SetBranchAddress("gvx",info->gvx);
+  if( fNuFluxUsingTree && (fBr = fNuFluxTree->GetBranch("gvy"))     ) fBr->SetAddress(info->gvy);
+  else if( (fBr = fNuFluxChain->GetBranch("gvy"))     ) fNuFluxChain->SetBranchAddress("gvy",info->gvy);
+  if( fNuFluxUsingTree && (fBr = fNuFluxTree->GetBranch("gvz"))     ) fBr->SetAddress(info->gvz);
+  else if( (fBr = fNuFluxChain->GetBranch("gvz"))     ) fNuFluxChain->SetBranchAddress("gvz",info->gvz);
+  if( fNuFluxUsingTree && (fBr = fNuFluxTree->GetBranch("gpx"))     ) fBr->SetAddress(info->gpx);
+  else if( (fBr = fNuFluxChain->GetBranch("gpx"))     ) fNuFluxChain->SetBranchAddress("gpx",info->gpx);
+  if( fNuFluxUsingTree && (fBr = fNuFluxTree->GetBranch("gpy"))     ) fBr->SetAddress(info->gpy);
+  else if( (fBr = fNuFluxChain->GetBranch("gpy"))     ) fNuFluxChain->SetBranchAddress("gpy",info->gpy);
+  if( fNuFluxUsingTree && (fBr = fNuFluxTree->GetBranch("gpz"))     ) fBr->SetAddress(info->gpz);
+  else if( (fBr = fNuFluxChain->GetBranch("gpz"))     ) fNuFluxChain->SetBranchAddress("gpz",info->gpz);
+  if( fNuFluxUsingTree && (fBr = fNuFluxTree->GetBranch("gmat"))    ) fBr->SetAddress(info->gmat);
+  else if( (fBr = fNuFluxChain->GetBranch("gmat"))    ) fNuFluxChain->SetBranchAddress("gmat",info->gmat);
+  if( fNuFluxUsingTree && (fBr = fNuFluxTree->GetBranch("gdistc"))  ) fBr->SetAddress(info->gdistc);
+  else if( (fBr = fNuFluxChain->GetBranch("gdistc"))  ) fNuFluxChain->SetBranchAddress("gdistc",info->gdistc);
+  if( fNuFluxUsingTree && (fBr = fNuFluxTree->GetBranch("gdistal")) ) fBr->SetAddress(&info->gdistal);
+  else if( (fBr = fNuFluxChain->GetBranch("gdistal")) ) fNuFluxChain->SetBranchAddress("gdistal",&info->gdistal);
+  if( fNuFluxUsingTree && (fBr = fNuFluxTree->GetBranch("gdistti")) ) fBr->SetAddress(&info->gdistti);
+  else if( (fBr = fNuFluxChain->GetBranch("gdistti")) ) fNuFluxChain->SetBranchAddress("gdistti",&info->gdistti);
+  if( fNuFluxUsingTree && (fBr = fNuFluxTree->GetBranch("gdistfe")) ) fBr->SetAddress(&info->gdistfe);
+  else if( (fBr = fNuFluxChain->GetBranch("gdistfe")) ) fNuFluxChain->SetBranchAddress("gdistfe",&info->gdistfe);
+  if( fNuFluxUsingTree && (fBr = fNuFluxTree->GetBranch("gcosbm"))  ) fBr->SetAddress(info->gcosbm);
+  else if( (fBr = fNuFluxChain->GetBranch("gcosbm"))  ) fNuFluxChain->SetBranchAddress("gcosbm",info->gcosbm);
+  if( fNuFluxUsingTree && (fBr = fNuFluxTree->GetBranch("Enusk"))   ) fBr->SetAddress(&info->Enusk);
+  else if( (fBr = fNuFluxChain->GetBranch("Enusk"))   ) fNuFluxChain->SetBranchAddress("Enusk",&info->Enusk);
+  if( fNuFluxUsingTree && (fBr = fNuFluxTree->GetBranch("normsk"))  ) fBr->SetAddress(&info->normsk);
+  else if( (fBr = fNuFluxChain->GetBranch("normsk"))  ) fNuFluxChain->SetBranchAddress("normsk",&info->normsk);
+  if( fNuFluxUsingTree && (fBr = fNuFluxTree->GetBranch("anorm"))   ) fBr->SetAddress(&info->anorm);
+  else if( (fBr = fNuFluxChain->GetBranch("anorm"))   ) fNuFluxChain->SetBranchAddress("anorm",&info->anorm);
+
   // Look for the flux file summary info tree (only expected for > 10a flux versions) 
-  if((fNuFluxSumTree = (TTree*) fNuFluxFile->Get("h1000"))){
+  if( fNuFluxUsingTree && (fNuFluxSumTree = (TTree*) fNuFluxFile->Get("h1000")) ){
     if( (fBr = fNuFluxSumTree->GetBranch("version"))) fBr->SetAddress(&info->version);
     if( (fBr = fNuFluxSumTree->GetBranch("ntrig"))  ) fBr->SetAddress(&info->ntrig);
     if( (fBr = fNuFluxSumTree->GetBranch("tuneid")) ) fBr->SetAddress(&info->tuneid);
@@ -605,6 +747,29 @@ void GJPARCNuFlux::LoadBeamSimData(string filename, string detector_location)
     if( (fBr = fNuFluxSumTree->GetBranch("rseed"))  ) fBr->SetAddress(info->rseed);
   }
 
+  // Look for the flux file summary info tree (only expected for > 10a flux versions) 
+  if ( !fNuFluxUsingTree ) {
+    fNuFluxSumChain = new TChain("h1000");
+    int result = fNuFluxSumChain->Add( Form("%s.%i.root",fileroot.c_str(),firstfile), 0 );
+    if (result==1) {
+      for (int i = firstfile+1; i < lastfile+1; i++) {
+	result = fNuFluxSumChain->Add( Form("%s.%i.root",fileroot.c_str(),i), 0 );
+      }
+      if( (fBr = fNuFluxSumChain->GetBranch("version"))) fNuFluxSumChain->SetBranchAddress("version",&info->version);
+      if( (fBr = fNuFluxSumChain->GetBranch("ntrig"))  ) fNuFluxSumChain->SetBranchAddress("ntrig",&info->ntrig);
+      if( (fBr = fNuFluxSumChain->GetBranch("tuneid")) ) fNuFluxSumChain->SetBranchAddress("tuneid",&info->tuneid);
+      if( (fBr = fNuFluxSumChain->GetBranch("pint"))   ) fNuFluxSumChain->SetBranchAddress("pint",&info->pint);
+      if( (fBr = fNuFluxSumChain->GetBranch("bpos"))   ) fNuFluxSumChain->SetBranchAddress("bpos",info->bpos);
+      if( (fBr = fNuFluxSumChain->GetBranch("btilt"))  ) fNuFluxSumChain->SetBranchAddress("btilt",info->btilt);
+      if( (fBr = fNuFluxSumChain->GetBranch("brms"))   ) fNuFluxSumChain->SetBranchAddress("brms",info->brms);
+      if( (fBr = fNuFluxSumChain->GetBranch("emit"))   ) fNuFluxSumChain->SetBranchAddress("emit",info->emit);
+      if( (fBr = fNuFluxSumChain->GetBranch("alpha"))  ) fNuFluxSumChain->SetBranchAddress("alpha",info->alpha);
+      if( (fBr = fNuFluxSumChain->GetBranch("hcur"))   ) fNuFluxSumChain->SetBranchAddress("hcur",info->hcur);
+      if( (fBr = fNuFluxSumChain->GetBranch("rand"))   ) fNuFluxSumChain->SetBranchAddress("rand",&info->rand);
+      if( (fBr = fNuFluxSumChain->GetBranch("rseed"))  ) fNuFluxSumChain->SetBranchAddress("rseed",info->rseed);
+    }
+  }
+
   // current ntuple cycle # (flux ntuples may be recycled)
   fICycle = 1;
 
@@ -615,7 +780,10 @@ void GJPARCNuFlux::LoadBeamSimData(string filename, string detector_location)
   fNNeutrinosTot1c = 0;
   fNDetLocIdFound = 0;
   for(int ientry = 0; ientry < fNEntries; ientry++) {
-     fNuFluxTree->GetEntry(ientry);
+     if (fNuFluxUsingTree)
+       fNuFluxTree->GetEntry(ientry);
+     else
+       fNuFluxChain->GetEntry(ientry);
      // check for negative flux weights
      if(fPassThroughInfo->norm + controls::kASmallNum < 0.0){ 
        LOG("Flux", pERROR) << "Negative flux weight! Will set weight to 0.0";
@@ -758,7 +926,10 @@ void GJPARCNuFlux::Initialize(void)
 
   fNuFluxFile      = 0;
   fNuFluxTree      = 0;
+  fNuFluxChain     = 0;
   fNuFluxSumTree   = 0;
+  fNuFluxSumChain  = 0;
+  fNuFluxUsingTree = true;
   fDetLoc          = "";
   fDetLocId        = 0;
   fNDetLocIdFound  = 0;
