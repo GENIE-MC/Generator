@@ -155,7 +155,7 @@
                   - The original HBOOK JNUBAM ntuples need to be converted to a ROOT 
                     format using the h2root ROOT utility.   
                   - The detector location can be any of 'sk' or the near detector
-                    positions 'nd1',...,'nd6' simulated in JNUBEAM.
+                    positions 'nd1',...,'nd6','nd13' simulated in JNUBEAM.
                     See the above JNUBEAM web page for more info.
                   - The neutrino codes are the PDG ones.
                   - The (comma separated) list of neutrino codes is optional. 
@@ -189,7 +189,26 @@
                     type:
                        '-f /path/flux.root,nd5,12'
 
-              2 > A set of histograms stored in a ROOT file.
+              2 > A list of JNUBEAM beam simulation output files and the detector location.
+                  The general sytax is:
+                      -f /full/path/flux_file_prefix@first_file_number@last_file_number,detector_location(,list_of_neutrino_codes)
+
+		  [Notes] 
+		  - The ".root" is assumed.
+		  - All the files in the series between flux_file_prefix.first_file_number.root
+		    and flux_file_prefix.last_file_number.root should exist.
+		  - It is important that you set the -p option correctly. See note below.
+		  - Also see notes from option 1.
+		  [Examples]
+                  - To use the SuperK flux ntuples from the files: flux.0.root, flux.1.root, flux.2.root, flux.3.root 
+                    type:
+                       '-f /path/flux.@0@3,sk'
+                  - To use the nd280 flux ntuple [near detector position 'nd5' 
+                    in the JNUBEAM flux simulation] from the files in the series
+		    flux.0.root file to flux.100.root, considering only nu_e, type:
+                       '-f /path/flux.@0@100,nd5,12'
+
+              3 > A set of histograms stored in a ROOT file.
                   The general syntax is:
                       -f /path/histogram_file.root,neutrino_code[histo_name],...
 
@@ -231,7 +250,13 @@
                1E+21 POT/cm2 for the far detector]
               That will be used to interpret the flux weights & calculate the actual 
               POT normalization for the generated event sample.
-
+	      [Note]
+	      - If you are using the multiple JNUBEAM flux file entry method it is
+	        very important that you set this. It should be set to the total POT
+		of all input flux files. 
+	      [Examples]
+	      - If you have 10 standard JNUBEAM files use '-p 10E+21'
+	      
            -c Specifies how many times to cycle a JNUBEAM flux ntuple.
               Due to the large rejection factor when generating unweighted events
               in the full energy range (approximately ~500 flux neutrinos will be 
