@@ -1,13 +1,13 @@
 //________________________________________________________________________________________
 /*!
 
-\program gupmugen
+\program gevgen_upmu
 
 \brief   A GENIE upgoing muon event generation application.
 
          *** Synopsis :
 
-           gupmugen    [-h] 
+           gevgen_upmu [-h] 
                        [-r run#] 
                         -f flux
                         -n n_of_events
@@ -20,7 +20,7 @@
            -h Prints out the syntax and exits
 
            -r Specifies the MC run number 
-              [default: 100000000]
+              [default: 1000]
 
            -f Specifies the input flux files
               The general syntax is: `-f simulation:/path/file.data[neutrino_code],...'
@@ -49,7 +49,7 @@
 	       sdave_numu07.dat FLUKA flux file (files in /data/flx/), and a detector of
 	       side length 50m.
 
-               % gupmugen -r 999210 -n 100000 -d 50000
+               % gevgen_upmu -r 999210 -n 100000 -d 50000
                        -f FLUKA:/data/flx/sdave_numu07.dat[14]
 
       
@@ -60,7 +60,10 @@
 \created April 15, 2011
 
 \author  Jen Truby <jen.truby \at sky.com>
-         Oxford University
+         Oxford University - STFC, Rutherford Appleton Laboratory summer student
+
+         Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+         STFC, Rutherford Appleton Laboratory
 
 \cpright Copyright (c) 2003-2011, GENIE Neutrino MC Generator Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
@@ -75,12 +78,11 @@
 #include <vector>
 #include <sstream>
 #include <map>
-#include <iostream.h>
 
 #include <TRotation.h>
 #include <TH1D.h>
 #include <TH3D.h>
-#include <TNtupleD.h>
+#include <TTree.h>
 #include <TLorentzVector.h>
 
 #include "Algorithm/Algorithm.h"
@@ -115,18 +117,15 @@ using namespace genie;
 using namespace genie::flux;
 using namespace genie::constants;
 
-void            GetCommandLineArgs (int argc, char ** argv);
-void            PrintSyntax        (void);
-GFluxI *        GetFlux            (void);
-
-TVector3        GetDetectorVertex  (double CosTheta, double Enu);
-double          GetCrossSection    (int nu_code, double Enu, double Emu);
-TH3D *          Make3DProbHist     (int nu_code);
-TH1D *          MakeEmuHistEmpty   (void);
-TH1D *          GetEmuHist         (double Enu, double CosTheta, const TH3D* hist3D, TH1D* h1);
-double          GetRandomEmu       (const TH1D* hist1D);
-double          ProbabilityEmu     (int nu_code, double Enu, double Emu);
-void            GenerateUpNu       (GFluxI * flux_driver);
+void       GetCommandLineArgs     (int argc, char ** argv);
+void       PrintSyntax            (void);
+GFluxI *   GetFlux                (void);
+void       GenerateUpNu           (GFluxI * flux_driver);
+TH3D *     BuildEmuEnuCosThetaPdf (int nu_code);
+TH1D *     GetEmuPdf              (double Enu, double costheta, const TH3D* pdf3d);
+TVector3   GetDetectorVertex      (double CosTheta, double Enu);
+double     GetCrossSection        (int nu_code, double Enu, double Emu);
+double     ProbabilityEmu         (int nu_code, double Enu, double Emu);
 
 // User-specified options:
 //
@@ -136,150 +135,155 @@ map<int,string> gOptFluxFiles;                 // neutrino pdg code -> flux file
 int             gOptNev = -1;                  // exposure - in terms of number of events
 double          gOptDetectorSide;              // detector side length, in mm.
 
-// constants
-const double NA = 6.0221415e+23; // avogadro's number.
-const double a = 2e+6; // a = 2 MeV / (g cm-2)
-const double e = 500e+9; // e = 500 GeV
+// Constants
+const double a = 2e+6;           // a = 2 MeV / (g cm-2)
+const double e = 500e+9;         // e = 500 GeV
 
 // Defaults:
 //
-double          kDefOptDetectorSide = 1e+5;     // side length of detector, 100m (in mm)
+double kDefOptDetectorSide = 1e+5;     // side length of detector, 100m (in mm)
 
 //________________________________________________________________________________________
 int main(int argc, char** argv)
 {
   // Parse command line arguments
-  GetCommandLineArgs(argc,argv); // Changed by JEN!!
+  GetCommandLineArgs(argc,argv); 
 
-  // get flux driver
+  // Get requested flux driver
   GFluxI * flux_driver = GetFlux();
 
-  // make 3D histograms for nu_code = 14 and -14, containing the probability of a
-  // neutrino of energy Ev producing a muon of energy Emu.
-  TH3D * h3numu = Make3DProbHist(kPdgNuMu);
-  TH3D * h3anumu = Make3DProbHist(kPdgAntiNuMu);
+  // Create output tree to store generated up-going muons
+  TTree * ntupmuflux = new TTree("ntupmuflux","GENIE Upgoing Muon Event Tree");
+  // Tree branches
+  int    brIev        = 0;      // Event number 
+  int    brNuCode     = 0;      // Neutrino PDG code
+  double brEmu        = 0;      // Muon energy (GeV)
+  double brEnu        = 0;      // Neutrino energy (GeV)
+  double brCosTheta   = 0;      // Neutrino cos(zenith angle), muon assumed to be collinear
+  double brWghtFlxNu  = 0;      // Weight associated with the current flux neutrino
+  double brWghtEmuPdf = 0;      // Weight associated with the Emu pdf for current Enu, costheta bins
+  double brVx         = 0;      // Muon x (m) - intersection with box surrounding the detector volume
+  double brVy         = 0;      // Muon y (m) - intersection with box surrounding the detector volume
+  double brVz         = 0;      // Muon z (m) - intersection with box surrounding the detector volume
+  double brXSec       = 0;      //
+  ntupmuflux->Branch("iev",          &brIev,         "iev/I"         );
+  ntupmuflux->Branch("nu_code",      &brNuCode,      "nu_code/I"     );
+  ntupmuflux->Branch("Emu",          &brEmu,         "Emu/D"         );
+  ntupmuflux->Branch("Enu",          &brEnu,         "Enu/D"         );
+  ntupmuflux->Branch("costheta",     &brCosTheta,    "costheta/D"    );
+  ntupmuflux->Branch("wght_fluxnu",  &brWghtFlxNu,   "wght_fluxnu/D" );
+  ntupmuflux->Branch("wght_emupdf",  &brWghtEmuPdf,  "wght_emupdf/D" );
+  ntupmuflux->Branch("vx",           &brVx,          "vx/D"          );
+  ntupmuflux->Branch("vy",           &brVy,          "vy/D"          );
+  ntupmuflux->Branch("vz",           &brVz,          "vz/D"          );
+  ntupmuflux->Branch("xsec",         &brXSec,        "xsec/D"        );
 
-  // Save the 3D histogram
-  TFile file0("./hist3D.root","recreate");
-  h3numu->Write("hist3D");
-  file0.Close();
+  // Build 3-D pdfs describing the the probability of a muon neutrino (or anti-neutrino)
+  // of energy Enu and zenith angle costheta producing a mu- (or mu+) of energy E_mu 
+  TH3D * pdf3d_numu    = BuildEmuEnuCosThetaPdf (kPdgNuMu    );
+  TH3D * pdf3d_numubar = BuildEmuEnuCosThetaPdf (kPdgAntiNuMu);
 
-  // make 1D histograms for nu_code =14, -14 - empty histograms to be filled by
-  // a slice of Emu probabilities for a given Enu, CosTheta
-  TH1D * h1numu = MakeEmuHistEmpty();
-  TH1D * h1anumu = MakeEmuHistEmpty();
+  // Up-going muon event loop
+  for(brIev = 0; brIev < gOptNev; brIev++) {
 
-  // create ntuple to store values in.
-  TNtupleD * UpMuFluxEv = new TNtupleD("UpMuFluxEv","","ievent/D:Emu:Enu:CosTheta:nu_code:flxwght:muwght:vx:vy:vz:xsec");
-
-  // event loop
-  for(int iev = 0; iev < gOptNev; iev++) {
-
-    // loop until upgoing nu is generated.
+    // Loop until upgoing nu is generated.
     GenerateUpNu(flux_driver);
 
-    // Get Enu, CosTheta and weight for the generated neutrino
-    const TLorentzVector & p4 = flux_driver->Momentum();
-    int nu_code = flux_driver->PdgCode();
-    double Enu = p4.E();
-    double CosTheta = -p4.Pz() / p4.Vect().Mag();
-    double FluxWeight = flux_driver->Weight();
+    // Get neutrino code, Enu, costheta and weight for the generated neutrino
+    brNuCode    = flux_driver->PdgCode();
+    brEnu       = flux_driver->Momentum().E();
+    brCosTheta  = -1. * flux_driver->Momentum().Pz() / flux_driver->Momentum().Vect().Mag();
+    brWghtFlxNu = flux_driver->Weight();
 
-    LOG("gupmugen", pNOTICE) 
-        << "Generated neutrino: code = " << nu_code
-        << ", Ev = " << Enu << "GeV"
-        << ", cos(theta) = " << CosTheta 
-        << ", weight = " << FluxWeight; 
+    LOG("gevgen_upmu", pNOTICE) 
+        << "Generated flux neutrino: code = " << brNuCode
+        << ", Ev = " << brEnu << " GeV"
+        << ", cos(theta) = " << brCosTheta 
+        << ", weight = " << brWghtFlxNu; 
 
+    // Get Emu pdf my slicing the 3-D Enu,Emu,costheta pdf.
+    TH3D * pdf3d  = (brNuCode == kPdgNuMu) ? pdf3d_numu : pdf3d_numubar;
+    TH1D * pdfEmu = GetEmuPdf(brEnu,brCosTheta,pdf3d);
 
-    // fill the 1D histogram with a slice from the 3D histogram for Enu, Costheta.
-    // then  get a random Emu from the 1D histogram, and get the weight for that Emu.
-    double Emu = 0;
-    double MuWeight = 0;
-
-    if(nu_code ==kPdgNuMu){
-      h1numu = GetEmuHist(Enu, CosTheta, h3numu, h1numu);
-      MuWeight = h1numu->Integral("width");
-      Emu = GetRandomEmu(h1numu);
-    }
-    else {
-      h1anumu = GetEmuHist(Enu, CosTheta, h3anumu, h1anumu);
-      MuWeight = h1anumu->Integral("width");
-      Emu = GetRandomEmu(h1anumu);
-    } 
-    
+    // Get a random Emu from the pdf, and get the weight for that Emu.
+    brEmu        = pdfEmu->GetRandom();
+    brWghtEmuPdf = pdfEmu->Integral("width");
+    LOG("gevgen_upmu", pNOTICE) 
+        << "Selected muon has energy Emu = " << brEmu 
+        << " and Emu pdg weight = " << brWghtEmuPdf;
 
     // Randomly select the point at which the neutrino crosses the detector.
     // assumes a simple cube detector of side length gOptDetectorSide.
-    TVector3 Vertex = GetDetectorVertex(CosTheta,Enu);
-    double vx = Vertex.X();
-    double vy = Vertex.Y();
-    double vz = Vertex.Z();
+    TVector3 Vertex = GetDetectorVertex(brCosTheta,brEnu);
+    brVx = Vertex.X();
+    brVy = Vertex.Y();
+    brVz = Vertex.Z();
 
-    LOG("gupmugen", pNOTICE) 
-      << "Generated up-going muon: Emu = " << Emu << " GeV"
-      << "/n at vertex: " << vx << ", " << vy << ", " << vz;
+    LOG("gevgen_upmu", pNOTICE) 
+      << "Generated muon position: (" << brVx << ", " << brVy << ", " << brVz << ") m";
     
     // Save the cross section for the interaction generated.
-    double xsec = GetCrossSection(nu_code, Enu, Emu);
+    brXSec = GetCrossSection(brNuCode, brEnu, brEmu);
 
     // save all relevant values to the ntuple
-    UpMuFluxEv->Fill(iev,Emu,Enu,CosTheta,nu_code,FluxWeight,MuWeight,vx,vy,vz,xsec);
+    ntupmuflux->Fill();
 
+    // Clean-up
+    delete pdfEmu;
   }
 
-  // Save the ntuple!
-  TFile file("./UpMuFluxNtuple.root","recreate");
-  UpMuFluxEv->Write("UpMuFlux");
-  file.Close();
+  // Save the muon ntuple and calculate 3-D pdfs
+  TFile outf( Form("./genie.%d.upmu.root",gOptRunNu), "recreate");
+  ntupmuflux    -> Write("ntupmu");
+  pdf3d_numu    -> Write("pdf3d_numu");
+  pdf3d_numubar -> Write("pdf3d_numubar");
+  outf.Close();
 
-  // clean-up
+  // Clean-up
   delete flux_driver;
 
   return 0;
 }
 //________________________________________________________________________________________
-
-TVector3 GetDetectorVertex(double CosTheta, double Enu)
+TVector3 GetDetectorVertex(double costheta, double Enu)
 {
-
-  // Find the point at which the muon crosses the detector. Returns 0,0,0 if the muon misses.
-  // Detector is a cube of side length l (=gOptDetectorSide).
+// Find the point at which the muon crosses the detector. Returns 0,0,0 if the muon misses.
+// Detector is a cube of side length l (=gOptDetectorSide).
 
   // Get a RandomGen instance
   RandomGen * rnd = RandomGen::Instance();
 
   // Generate random phi.
-  double Phi = 2.*kPi* rnd->RndFlux().Rndm();
+  double phi = 2.*kPi* rnd->RndFlux().Rndm();
 
   // Set distance at which incoming muon is considered
-  double Rad = 0.87*gOptDetectorSide;
+  double rad = 0.87*gOptDetectorSide;
 
   // Set transverse radius of a circle
-  double RadTrans = 0.87*gOptDetectorSide;
+  double rad_trans = 0.87*gOptDetectorSide;
 
   // Get necessary trig
-  double SinTheta = TMath::Sqrt(1-CosTheta*CosTheta);
-  double CosPhi = TMath::Cos(Phi);
-  double SinPhi = TMath::Sin(Phi);
+  double sintheta = TMath::Sqrt(1-costheta*costheta);
+  double cosphi   = TMath::Cos(phi);
+  double sinphi   = TMath::Sin(phi);
 
   // Compute the muon position at distance Rad.
-  double z = Rad * CosTheta;
-  double y = Rad * SinTheta * CosPhi;
-  double x = Rad * SinTheta * SinPhi;
+  double z = rad * costheta;
+  double y = rad * sintheta * cosphi;
+  double x = rad * sintheta * sinphi;
 
-  // Displace muon randomly on a circular surface of radius RadTrans, 
-  // perpendicular to a sphere radius Rad at that position [x,y,z].
+  // Displace muon randomly on a circular surface of radius rad_trans, 
+  // perpendicular to a sphere radius rad at that position [x,y,z].
   TVector3 vec(x,y,z);                // vector towards selected point
   TVector3 dvec1 = vec.Orthogonal();  // orthogonal vector
   TVector3 dvec2 = dvec1;             // second orthogonal vector
   dvec2.Rotate(-kPi/2.0,vec);         // rotate second vector by 90deg -> Cartesian coords
 
-  // Select a random point on the transverse surface, within radius RadTrans
-  double Psi = 2 * kPi * rnd->RndFlux().Rndm();      // rndm angle [0,2pi]
+  // Select a random point on the transverse surface, within radius rad_trans
+  double psi = 2 * kPi * rnd->RndFlux().Rndm();      // rndm angle [0,2pi]
   double random = rnd->RndFlux().Rndm();             // rndm number [0,1]
-  dvec1.SetMag(TMath::Sqrt(random)*RadTrans*TMath::Cos(Psi));
-  dvec2.SetMag(TMath::Sqrt(random)*RadTrans*TMath::Sin(Psi));
+  dvec1.SetMag(TMath::Sqrt(random)*rad_trans*TMath::Cos(psi));
+  dvec2.SetMag(TMath::Sqrt(random)*rad_trans*TMath::Sin(psi));
   x += dvec1.X() + dvec2.X();    // x-coord of a point the muon passes through
   y += dvec1.Y() + dvec2.Y();    // y-coord of a point the muon passes through
   z += dvec1.Z() + dvec2.Z();    // z-coord of a point the muon passes through
@@ -287,9 +291,9 @@ TVector3 GetDetectorVertex(double CosTheta, double Enu)
   // Find out if the muon passes through any side of the detector.
 
   // Get momentum vector
-  double pz = Enu * CosTheta;
-  double py = Enu * SinTheta * SinPhi;
-  double px = Enu * SinTheta * CosPhi;
+  double pz = Enu * costheta;
+  double py = Enu * sintheta * sinphi;
+  double px = Enu * sintheta * cosphi;
   TVector3 p3(-px,-py,-pz);
 
   // Set up other vectors needed for line-box intersection.
@@ -371,119 +375,48 @@ TVector3 GetDetectorVertex(double CosTheta, double Enu)
 //________________________________________________________________________________________
 void GenerateUpNu(GFluxI * flux_driver)
 {
-  // Generate a Neutrino. Keep generating neutrinos until an upgoing one is generated.
+// Generate a Neutrino. Keep generating neutrinos until an upgoing one is generated.
 
-  while (1){
-
+  while (1)
+  {
+    LOG("gevgen_upmu", pINFO) << "Pulling next neurtino from the flux driver...";
     flux_driver->GenerateNext();
-    cout << "generated next" << endl;
 
     int nu_code = flux_driver->PdgCode();
 
     const TLorentzVector & p4 = flux_driver->Momentum();
-    //double CosTheta = p4.Pz() / p4.Vect().Mag(); // test with Pz the wrong way! i.e. selecting downgoing
-    double CosTheta = -p4.Pz() / p4.Vect().Mag();
+    double costheta = -p4.Pz() / p4.Vect().Mag();
 
-    bool keep = (CosTheta<0) && (nu_code==kPdgNuMu || nu_code==kPdgAntiNuMu);
+    bool keep = (costheta<0) && (nu_code==kPdgNuMu || nu_code==kPdgAntiNuMu);
     if(keep) return;
   }
 }
 //________________________________________________________________________________________
-double GetRandomEmu(const TH1D* hist1D)
-{
-
-  // Get a random value of Emu from the 1D histogram containing a slice of constant
-  // Ev and CosTheta from the 3D histogram of probabilities of interaction.
-
-  double Emu = hist1D->GetRandom();
-  return Emu;
-
-}
-//________________________________________________________________________________________
-TH1D* GetEmuHist(double Enu, double CosTheta, const TH3D* hist3D, TH1D* h1)
-{
- 
-  // Get a 1D slice of constant Ev, CosTheta from the 3D histogram of probabilities.
-
-  // Reset the bin, i.e. remove all contents.
-  h1->Reset("C");
- 
-  //Find appropriate bins for Enu and CosTheta.
-  int EnuBin = hist3D->GetYaxis()->FindBin(Enu);
-  int CosThetaBin = hist3D->GetZaxis()->FindBin(CosTheta);
-
-
-  // For those Enu and costheta bins, make a new hist from hist3D.
-  for (int i=1; i< h1->GetNbinsX(); i++)
-    {
-      int EmuBin = i;
-
-      h1->SetBinContent(EmuBin, hist3D->GetBinContent(EmuBin,EnuBin,CosThetaBin));
-    }
-  
-  //h1->Draw();
-  return h1;
-
-}
-//________________________________________________________________________________________
-TH1D* MakeEmuHistEmpty(void)
-{
-
-  // Make an empty 1D histogram ready to fill with the probability of getting each value
-  // of Emu for a given Enu, CosTheta
-
-  // Bin convention for Emu, consistent with BGLRS
-  const double Emumin            = 0.1;
-  const int    nEmubinsPerDecade = 10;
-  const int    nEmubins      =31;
-
-  // Set up an array of Emu bins.
-  Double_t MinLogEmu = log(Emumin);
-  Double_t MaxLogEmu = log(10*Emumin);
-  Double_t LogBinWidthEmu = ((MaxLogEmu-MinLogEmu)/nEmubinsPerDecade);
-  Double_t EmuBinEdges[nEmubins+2];
-  for (int i=0; i<=nEmubins+1; i++)
-    {
-      EmuBinEdges[i] = exp(MinLogEmu + i*LogBinWidthEmu);
-    }
-
-  // Create empty 1D histogram.
-  TH1D *h1 = new TH1D("hist1D","",nEmubins,EmuBinEdges);
-
-  return h1;
-}
-//________________________________________________________________________________________
 double ProbabilityEmu(int nu_code, double Enu, double Emu)
 {
-
-  // Calculate the probability of an incoming neutrino of energy Enu
-  // generating a muon of energy Emu.
-
+// Calculate the probability of an incoming neutrino of energy Enu
+// generating a muon of energy Emu.
   double dxsec_dxdy = GetCrossSection(nu_code,Enu,Emu);
-
-  double Int = e * NA * dxsec_dxdy / (a * (1 + Emu/e));
-
+  double Int = e * constants::kNA * dxsec_dxdy / (a * (1 + Emu/e));
   return Int;
-
 }
 //________________________________________________________________________________________
-TH3D* Make3DProbHist(int nu_code)
+TH3D* BuildEmuEnuCosThetaPdf(int nu_code)
 {
-
 // Set up a 3D histogram, with axes Emu, Enu, CosTheta.
 // Bin convention is defined at the start.
 // Content of each bin is given by the probability of getting a muon
-// of energy Emu from a neutrino of energy Enu.
+// of energy Emu from a neutrino of energy Enu and zenith ange costheta
 
   // Bin convention for Enu, consistent with BGLRS
   const double Enumin            = 0.1;
   const int    nEnubinsPerDecade = 10;
-  const int    nEnubins      =31;
+  const int    nEnubins          = 31;
 
   // Bin convention for Emu, consistent with BGLRS
   const double Emumin            = 0.1;
   const int    nEmubinsPerDecade = 10;
-  const int    nEmubins      =31;
+  const int    nEmubins          = 31;
 
   // Bin convention for CosTheta, consistent with BGLRS
   const double costheta_min = -1;
@@ -539,29 +472,44 @@ TH3D* Make3DProbHist(int nu_code)
 	    }
 	}
     }
-
-
   return h3;
+}
+//________________________________________________________________________________________
+TH1D * GetEmuPdf(double Enu, double costheta, const TH3D* pdf3d)
+{
+  // Build 1-D Emu pdf
+  int Emu_nbins = pdf3d->GetXaxis()->GetNbins();
+  const double * Emu_bins = pdf3d->GetXaxis()->GetXbins()->GetArray();
+  TH1D * pdf_Emu = new TH1D("pdf_Emu","",Emu_nbins,Emu_bins);
+  pdf_Emu->SetDirectory(0);
 
+  // Find appropriate bins for Enu and CosTheta.
+  int Enu_bin      = pdf3d->GetYaxis()->FindBin(Enu);
+  int costheta_bin = pdf3d->GetZaxis()->FindBin(costheta);
+
+  // For those Enu and costheta bins, build Emu pdf
+  for (int Emu_bin = 1; Emu_bin < pdf_Emu->GetNbinsX(); Emu_bin++) {
+    pdf_Emu->SetBinContent(Emu_bin, pdf3d->GetBinContent(Emu_bin,Enu_bin,costheta_bin));
+  }
+  
+  return pdf_Emu;
 }
 //________________________________________________________________________________________
 double GetCrossSection(int nu_code, double Enu, double Emu)
 {
+// Get the interaction cross section for a neutrino of energy Enu
+// to produce a muon of energy Emu.
 
-  // Get the interaction cross section for a neutrino of energy Enu
-  // to produce a muon of energy Emu.
-
-  //cout << "Enu: " << Enu << " and Emu: " << Emu << endl;
   double dxsec_dxdy = 0;
 
   if ( Emu >= Enu ) {
     dxsec_dxdy = 0;
   }
   else {
-  // get the algorithm factory & config pool
+    // get the algorithm factory & config pool
     AlgFactory * algf = AlgFactory::Instance();
 
-  // instantiate some algorithms
+    // instantiate some algorithms
     AlgId id("genie::QPMDISPXSec","Default");
     Algorithm * alg = algf->AdoptAlgorithm(id);
     XSecAlgorithmI * xsecalg = dynamic_cast<XSecAlgorithmI*>(alg);
@@ -569,7 +517,7 @@ double GetCrossSection(int nu_code, double Enu, double Emu)
     Interaction * vp = Interaction::DISCC(kPdgTgtFreeP, kPdgProton,  nu_code, Enu);
     Interaction * vn = Interaction::DISCC(kPdgTgtFreeN, kPdgNeutron, nu_code, Enu);
 
-  // Integrate over x [0,1] and y [0,1-Emu/Enu], 100 steps for each.
+    // Integrate over x [0,1] and y [0,1-Emu/Enu], 100 steps for each.
     double ymax = 1 - Emu/Enu;
 
     double dy   = ymax/10;
@@ -601,7 +549,6 @@ double GetCrossSection(int nu_code, double Enu, double Emu)
     delete vn;
   }
 
-  //cout << "cross section " << dxsec_dxdy << endl;
   return dxsec_dxdy;
 }
 //________________________________________________________________________________________
@@ -621,7 +568,7 @@ GFluxI* GetFlux(void)
      GBartolAtmoFlux * bartol_flux = new GBartolAtmoFlux;
      atmo_flux_driver = dynamic_cast<GAtmoFlux *>(bartol_flux);
   } else {
-     LOG("gupmugen", pFATAL) << "Uknonwn flux simulation: " << gOptFluxSim;
+     LOG("gevgen_upmu", pFATAL) << "Uknonwn flux simulation: " << gOptFluxSim;
      gAbortingInErr = true;
      exit(1);
   }
@@ -644,8 +591,8 @@ GFluxI* GetFlux(void)
   flux_driver = dynamic_cast<GFluxI *>(atmo_flux_driver);
 
 #else
-  LOG("gupmugen", pFATAL) << "You need to enable the GENIE flux drivers first!";
-  LOG("gupmugen", pFATAL) << "Use --enable-flux-drivers at the configuration step.";
+  LOG("gevgen_upmu", pFATAL) << "You need to enable the GENIE flux drivers first!";
+  LOG("gevgen_upmu", pFATAL) << "Use --enable-flux-drivers at the configuration step.";
   gAbortingInErr = true;
   exit(1);
 #endif
@@ -657,7 +604,7 @@ void GetCommandLineArgs(int argc, char ** argv) // JEN!!
 {
 // Get the command line arguments
 
-  LOG("gupmugen", pNOTICE) << "Parsing command line arguments";
+  LOG("gevgen_upmu", pNOTICE) << "Parsing command line arguments";
 
   CmdLnArgParser parser(argc,argv);
 
@@ -672,11 +619,11 @@ void GetCommandLineArgs(int argc, char ** argv) // JEN!!
   // *** run number
   //
   if( parser.OptionExists('r') ) {
-    LOG("gupmugen", pDEBUG) << "Reading MC run number";
+    LOG("gevgen_upmu", pDEBUG) << "Reading MC run number";
     gOptRunNu = parser.ArgAsLong('r');
   } else {
-    LOG("gupmugen", pDEBUG) << "Unspecified run number - Using default";
-    gOptRunNu = 100000000;
+    LOG("gevgen_upmu", pDEBUG) << "Unspecified run number - Using default";
+    gOptRunNu = 1000;
   } //-r
 
 
@@ -688,13 +635,13 @@ void GetCommandLineArgs(int argc, char ** argv) // JEN!!
   // in number of events
   bool have_required_statistics = false;
   if( parser.OptionExists('n') ) {
-    LOG("gupmugen", pDEBUG) 
+    LOG("gevgen_upmu", pDEBUG) 
         << "Reading number of events to generate";
     gOptNev = parser.ArgAsInt('n');
     have_required_statistics = true;
   }//-n
   if(!have_required_statistics) {
-    LOG("gupmugen", pFATAL) 
+    LOG("gevgen_upmu", pFATAL) 
        << "You must request exposure either in terms of number of events"
        << "\nUse the -n option";
     PrintSyntax();
@@ -708,11 +655,11 @@ void GetCommandLineArgs(int argc, char ** argv) // JEN!!
   //
 
   if( parser.OptionExists('d') ) {
-    LOG("gupmugen", pDEBUG)
+    LOG("gevgen_upmu", pDEBUG)
       << "Reading detector side length";
     gOptDetectorSide = parser.ArgAsDouble('d');
   } else {
-    LOG("gupmugen", pDEBUG)
+    LOG("gevgen_upmu", pDEBUG)
       << "Unspecified detector side length - Using default";
     gOptDetectorSide = kDefOptDetectorSide;
   }//-d
@@ -727,14 +674,14 @@ void GetCommandLineArgs(int argc, char ** argv) // JEN!!
   // simulation:/path/file.data[neutrino_code],/path/file.data[neutrino_code],...
   //
   if( parser.OptionExists('f') ) {
-    LOG("gupmugen", pDEBUG) << "Getting input flux files";
+    LOG("gevgen_upmu", pDEBUG) << "Getting input flux files";
     string flux = parser.ArgAsString('f');
 
     // get flux simulation info (FLUKA,BGLRS) so as to instantiate the
     // appropriate flux driver
     string::size_type jsimend = flux.find_first_of(":",0);
     if(jsimend==string::npos) {
-       LOG("gupmugen", pFATAL) 
+       LOG("gevgen_upmu", pFATAL) 
            << "You need to specify the flux file source"; 
        PrintSyntax();
        gAbortingInErr = true;
@@ -745,7 +692,7 @@ void GetCommandLineArgs(int argc, char ** argv) // JEN!!
        gOptFluxSim[i] = toupper(gOptFluxSim[i]);
     }
     if((gOptFluxSim != "FLUKA") && (gOptFluxSim != "BGLRS")) {
-        LOG("gupmugen", pFATAL) 
+        LOG("gevgen_upmu", pFATAL) 
              << "The flux file source needs to be one of <FLUKA,BGLRS>"; 
         PrintSyntax();
         gAbortingInErr = true;
@@ -762,7 +709,7 @@ void GetCommandLineArgs(int argc, char ** argv) // JEN!!
        if (open_bracket ==string::npos || 
            close_bracket==string::npos) 
        {
-           LOG("gupmugen", pFATAL) 
+           LOG("gevgen_upmu", pFATAL) 
               << "You made an error in specifying the flux info"; 
            PrintSyntax();
            gAbortingInErr = true;
@@ -778,7 +725,7 @@ void GetCommandLineArgs(int argc, char ** argv) // JEN!!
           map<int,string>::value_type(atoi(neutrino_pdg.c_str()), flux_filename));
     }
     if(gOptFluxFiles.size() == 0) {
-       LOG("gupmugen", pFATAL) 
+       LOG("gevgen_upmu", pFATAL) 
           << "You must specify at least one flux file!"; 
        PrintSyntax();
        gAbortingInErr = true;
@@ -786,7 +733,7 @@ void GetCommandLineArgs(int argc, char ** argv) // JEN!!
     }
 
   } else {
-    LOG("gupmugen", pFATAL) << "No flux info was specified! Use the -f option.";
+    LOG("gevgen_upmu", pFATAL) << "No flux info was specified! Use the -f option.";
     PrintSyntax();
     gAbortingInErr = true;
     exit(1);
@@ -814,7 +761,7 @@ void GetCommandLineArgs(int argc, char ** argv) // JEN!!
   ostringstream expinfo;
   if(gOptNev > 0)            { expinfo << gOptNev            << " events";   } 
 
-  LOG("gupmugen", pNOTICE) 
+  LOG("gevgen_upmu", pNOTICE) 
      << "\n"
      << "\n ****** MC Job (" << gOptRunNu << ") Settings ****** "
      << "\n @@ Flux"
@@ -827,13 +774,13 @@ void GetCommandLineArgs(int argc, char ** argv) // JEN!!
 //________________________________________________________________________________________
 void PrintSyntax(void)
 {
-  LOG("gupmugen", pFATAL) 
+  LOG("gevgen_upmu", pFATAL) 
    << "\n **Syntax**"
-   << "\n gupmugen [-h]"
-   << "\n           [-r run#]"
-   << "\n            -f simulation:flux_file[neutrino_code],..."
-   << "\n            -n n_of_events,"
-   << "\n           [-d detector side length (mm)]"
+   << "\n gevgen_upmu [-h]"
+   << "\n             [-r run#]"
+   << "\n              -f simulation:flux_file[neutrino_code],..."
+   << "\n              -n n_of_events,"
+   << "\n             [-d detector side length (mm)]"
    << "\n"
    << " Please also read the detailed documentation at http://www.genie-mc.org"
    << "\n";
