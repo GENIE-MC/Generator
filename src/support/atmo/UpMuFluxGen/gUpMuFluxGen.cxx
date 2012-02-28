@@ -11,7 +11,8 @@
                        [-r run#] 
                         -f flux
                         -n n_of_events
-			-d detector side length
+			-d detector_bounding_box_size
+                        -g rock_composition
 
          *** Options :
 
@@ -40,12 +41,19 @@
                      
            -n Specifies how many events to generate.
 
-	   -d Specifies detector side length in mm - if not set use default 100m (100000mm)
+	   -d Specifies side length (in mm) of the detector bounding box.
+              [default 100m (100000mm)]
 
+           -g rock composition << NOT IMPLEMENTED YET >>
+ 
+             Rock composition should be implemented in terms of materials defined in
+             src/MuELoss/MuELMaterial.h and their weight fraction
+
+             eg like -g 'silicon[0.30],calcium[0.29],iron[0.02],...'
 
          *** Examples:
 
-           (1) Generate 100k events (run number 999210)for nu_mu only, using the 
+           (1) Generate 100k events (run number 999210) for nu_mu only, using the 
 	       sdave_numu07.dat FLUKA flux file (files in /data/flx/), and a detector of
 	       side length 50m.
 
@@ -162,9 +170,9 @@ int main(int argc, char** argv)
   double brCosTheta   = 0;      // Neutrino cos(zenith angle), muon assumed to be collinear
   double brWghtFlxNu  = 0;      // Weight associated with the current flux neutrino
   double brWghtEmuPdf = 0;      // Weight associated with the Emu pdf for current Enu, costheta bins
-  double brVx         = 0;      // Muon x (m) - intersection with box surrounding the detector volume
-  double brVy         = 0;      // Muon y (m) - intersection with box surrounding the detector volume
-  double brVz         = 0;      // Muon z (m) - intersection with box surrounding the detector volume
+  double brVx         = 0;      // Muon x (mm) - intersection with box surrounding the detector volume
+  double brVy         = 0;      // Muon y (mm) - intersection with box surrounding the detector volume
+  double brVz         = 0;      // Muon z (mm) - intersection with box surrounding the detector volume
   double brXSec       = 0;      //
   ntupmuflux->Branch("iev",          &brIev,         "iev/I"         );
   ntupmuflux->Branch("nu_code",      &brNuCode,      "nu_code/I"     );
