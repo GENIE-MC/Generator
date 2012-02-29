@@ -309,6 +309,7 @@ void ConvertToGST(void)
   double brKineT       = 0;      // Experimental-like energy transfer to nucleus at COH events 
   double brKineQ2      = 0;      // Experimental-like momentum transfer Q^2; neglects fermi momentum / off-shellness
   double brKineW       = 0;      // Experimental-like hadronic invariant mass W; neglects fermi momentum / off-shellness 
+  double brEvRF        = 0;      // Neutrino energy @ the rest-frame of the hit-object (eg nucleon for CCQE, e- for ve- elastic,...)
   double brEv          = 0;      // Neutrino energy @ LAB
   double brPxv         = 0;      // Neutrino px @ LAB
   double brPyv         = 0;      // Neutrino py @ LAB
@@ -364,7 +365,7 @@ void ConvertToGST(void)
   double brVtxT;                 // Vertex t in detector coord system (SI)
   double brCalResp0;             // Approximate calorimetric response to the hadronic system computed as sum of
 				 //  - (kinetic energy) for pi+, pi-, p, n 
-                                 //  - (energy + mass)  for antiproton, antineutron
+                                 //  - (energy + 2*mass) for antiproton, antineutron
                                  //  - ((e/h) * energy)   for pi0, gamma, e-, e+, where e/h is set to 1.3
                                  //  - (kinetic energy) for other particles
 
@@ -413,6 +414,7 @@ void ConvertToGST(void)
   s_tree->Branch("t",	          &brKineT,	    "t/D"	    );
   s_tree->Branch("Q2",	          &brKineQ2,        "Q2/D"	    );
   s_tree->Branch("W",	          &brKineW,	    "W/D"	    );
+  s_tree->Branch("EvRF",	  &brEvRF,	    "EvRF/D"	    );
   s_tree->Branch("Ev",	          &brEv,	    "Ev/D"	    );
   s_tree->Branch("pxv",	          &brPxv,	    "pxv/D"	    );
   s_tree->Branch("pyv",	          &brPyv,	    "pyv/D"	    );
@@ -555,8 +557,8 @@ void ConvertToGST(void)
        tgtZ = pdg::IonPdgCodeToZ(target->Pdg());
        tgtA = pdg::IonPdgCodeToA(target->Pdg());
     } 
-    if(target->Pdg() == kPdgProton ) { tgtZ = 1; tgtA = 1; }    
-    if(target->Pdg() == kPdgNeutron) { tgtZ = 0; tgtA = 1; }    
+    if(target->Pdg() == kPdgProton   ) { tgtZ = 1; tgtA = 1; }    
+    if(target->Pdg() == kPdgNeutron  ) { tgtZ = 0; tgtA = 1; }    
   
     //summary info
     const Interaction * interaction = event.Summary();
@@ -582,7 +584,7 @@ void ConvertToGST(void)
     bool is_weaknc = proc_info.IsWeakNC();
     bool is_mec    = proc_info.IsMEC();
 
-    if(!hitnucl) { assert(is_coh || is_imd || is_nuel || is_mec); }
+    if(!hitnucl) { assert(is_coh || is_imd || is_nuel); }
   
     // hit quark 
     // set only for DIS events
@@ -636,13 +638,19 @@ void ConvertToGST(void)
     double W  = (hitnucl) ? TMath::Sqrt(W2)  : -1; 
     double t  = 0;
 
-    if(is_mec){
-      v = q.Energy();
-      x = 0.5*Q2/(M*v);
-      y = v/k1.Energy();
-      W2 = M*M + 2*M*v - Q2;
-      W = TMath::Sqrt(W2);
+    // Get v 4-p at hit nucleon rest-frame
+    TLorentzVector k1_rf = k1;         
+    if(hitnucl) {
+       k1_rf.Boost(-1.*p1.BoostVector());
     }
+
+//    if(is_mec){
+//      v = q.Energy();
+//      x = 0.5*Q2/(M*v);
+//      y = v/k1.Energy();
+//      W2 = M*M + 2*M*v - Q2;
+//      W = TMath::Sqrt(W2);
+//    }
 
     LOG("gntpc", pDEBUG) 
        << "[Calc] Q2 = " << Q2 << ", W = " << W 
@@ -785,6 +793,7 @@ void ConvertToGST(void)
     brKineT      = t;      
     brKineQ2     = Q2;      
     brKineW      = W;      
+    brEvRF       = k1_rf.Energy();      
     brEv         = k1.Energy();      
     brPxv        = k1.Px();  
     brPyv        = k1.Py();  
@@ -886,9 +895,9 @@ void ConvertToGST(void)
       brCosthf[j] = hcth;
 
       if      ( hpdg == kPdgProton      )  { brNfP++;     brCalResp0 += hKE;        }
-      else if ( hpdg == kPdgAntiProton  )  { brNfP++;     brCalResp0 += (hE + hm);  }
+      else if ( hpdg == kPdgAntiProton  )  { brNfP++;     brCalResp0 += (hE + 2*hm);}
       else if ( hpdg == kPdgNeutron     )  { brNfN++;     brCalResp0 += hKE;        }
-      else if ( hpdg == kPdgAntiNeutron )  { brNfN++;     brCalResp0 += (hE + hm);  }
+      else if ( hpdg == kPdgAntiNeutron )  { brNfN++;     brCalResp0 += (hE + 2*hm);}
       else if ( hpdg == kPdgPiP         )  { brNfPip++;   brCalResp0 += hKE;        }
       else if ( hpdg == kPdgPiM         )  { brNfPim++;   brCalResp0 += hKE;        }
       else if ( hpdg == kPdgPi0         )  { brNfPi0++;   brCalResp0 += (e_h * hE); }
