@@ -269,10 +269,10 @@ int main(int argc, char ** argv)
 //____________________________________________________________________________________
 void ConvertToGST(void)
 {
-  //-- some constants
+  // Some constants
   const double e_h = 1.3; // typical e/h ratio used for computing mean `calorimetric response'
 
-  //-- define branch variables
+  // Define branch variables
   //
   int    brIev         = 0;      // Event number 
   int    brNeutrino    = 0;      // Neutrino pdg code
@@ -363,13 +363,14 @@ void ConvertToGST(void)
   double brVtxY;                 // Vertex y in detector coord system (SI)
   double brVtxZ;                 // Vertex z in detector coord system (SI)
   double brVtxT;                 // Vertex t in detector coord system (SI)
+  double brSumKEf;               // Sum of kinetic energies of all final state particles
   double brCalResp0;             // Approximate calorimetric response to the hadronic system computed as sum of
 				 //  - (kinetic energy) for pi+, pi-, p, n 
                                  //  - (energy + 2*mass) for antiproton, antineutron
                                  //  - ((e/h) * energy)   for pi0, gamma, e-, e+, where e/h is set to 1.3
                                  //  - (kinetic energy) for other particles
 
-  //-- open output file & create output summary tree & create the tree branches
+  // Open output file & create output summary tree & create the tree branches
   //
   LOG("gntpc", pNOTICE) 
        << "*** Saving summary tree to: " << gOptOutFileName;
@@ -377,7 +378,7 @@ void ConvertToGST(void)
 
   TTree * s_tree = new TTree("gst","GENIE Summary Event Tree");
 
-  //-- create tree branches
+  // Create tree branches
   //
   s_tree->Branch("iev",           &brIev,           "iev/I"         );
   s_tree->Branch("neu",	          &brNeutrino,      "neu/I"	    );
@@ -468,9 +469,10 @@ void ConvertToGST(void)
   s_tree->Branch("vtxy",         &brVtxY,	    "vtxy/D"        );
   s_tree->Branch("vtxz",         &brVtxZ,	    "vtxz/D"        );
   s_tree->Branch("vtxt",         &brVtxT,	    "vtxt/D"        );
+  s_tree->Branch("sumKEf",       &brSumKEf,	    "sumKEf/D"      );
   s_tree->Branch("calresp0",     &brCalResp0,	    "calresp0/D"    );
 
-  //-- open the ROOT file and get the TTree & its header
+  // Open the ROOT file and get the TTree & its header
   TFile fin(gOptInpFileName.c_str(),"READ");
   TTree *           er_tree = 0;
   NtpMCTreeHeader * thdr    = 0;
@@ -482,16 +484,15 @@ void ConvertToGST(void)
   }
   LOG("gntpc", pINFO) << "Input tree header: " << *thdr;
 
-  //-- get the mc record
+  // Get the mc record
   NtpMCEventRecord * mcrec = 0;
   er_tree->SetBranchAddress("gmcrec", &mcrec);
-
   if (!mcrec) {
     LOG("gntpc", pERROR) << "Null MC record";
     return;
   }
   
-  //-- figure out how many events to analyze
+  // Figure out how many events to analyze
   Long64_t nmax = (gOptN<0) ? 
        er_tree->GetEntries() : TMath::Min( er_tree->GetEntries(), gOptN );
   if (nmax<0) {
@@ -503,8 +504,8 @@ void ConvertToGST(void)
 
   TLorentzVector pdummy(0,0,0,0);
 
+  // Event loop
   for(Long64_t iev = 0; iev < nmax; iev++) {
-
     er_tree->GetEntry(iev);
 
     NtpMCRecHeader rec_header = mcrec->hdr;
@@ -513,7 +514,7 @@ void ConvertToGST(void)
     LOG("gntpc", pINFO) << rec_header;
     LOG("gntpc", pINFO) << event;
 
-    // go further only if the event is physical
+    // Go further only if the event is physical
     bool is_unphysical = event.IsUnphysical();
     if(is_unphysical) {
       LOG("gntpc", pINFO) << "Skipping unphysical event";
@@ -521,7 +522,7 @@ void ConvertToGST(void)
       continue;
     }
 
-    // clean-up arrays
+    // Clean-up arrays
     //
     for(int j=0; j<kNPmax; j++) {
        brPdgi   [j] =  0;     
@@ -560,7 +561,7 @@ void ConvertToGST(void)
     if(target->Pdg() == kPdgProton   ) { tgtZ = 1; tgtA = 1; }    
     if(target->Pdg() == kPdgNeutron  ) { tgtZ = 0; tgtA = 1; }    
   
-    //summary info
+    // Summary info
     const Interaction * interaction = event.Summary();
     const InitialState & init_state = interaction->InitState();
     const ProcessInfo &  proc_info  = interaction->ProcInfo();
@@ -568,10 +569,10 @@ void ConvertToGST(void)
     const XclsTag &      xcls       = interaction->ExclTag();
     const Target &       tgt        = init_state.Tgt();
 
-    //vertex in detector coord system
+    // Vertex in detector coord system
     TLorentzVector * vtx = event.Vertex();
 
-    //process id
+    // Process id
     bool is_qel    = proc_info.IsQuasiElastic();
     bool is_res    = proc_info.IsResonant();
     bool is_dis    = proc_info.IsDeepInelastic();
@@ -586,23 +587,22 @@ void ConvertToGST(void)
 
     if(!hitnucl) { assert(is_coh || is_imd || is_nuel); }
   
-    // hit quark 
-    // set only for DIS events
+    // Hit quark - set only for DIS events
     int  qrk  = (is_dis) ? tgt.HitQrkPdg() : 0;     
     bool seaq = (is_dis) ? tgt.HitSeaQrk() : false; 
 
-    // resonance id ($GENIE/src/BaryonResonance/BaryonResonance.h)
+    // Resonance id ($GENIE/src/BaryonResonance/BaryonResonance.h) -
     // set only for resonance neutrinoproduction
     int resid = (is_res) ? xcls.Resonance() : -99;
 
     // (qel or dis) charm production?
     bool charm = xcls.IsCharmEvent();
 
-    // get neut and nuance equivalent reaction codes (if any)
+    // Get NEUT and NUANCE equivalent reaction codes (if any)
     brCodeNeut    = utils::ghep::NeutReactionCode(&event);
     brCodeNuance  = utils::ghep::NuanceReactionCode(&event);
 
-    //weight
+    // Get event weight
     double weight = event.Weight();
 
     // Access kinematical params _exactly_ as they were selected internally
@@ -809,7 +809,7 @@ void ConvertToGST(void)
     brPl         = k2.P();
     brCosthl     = TMath::Cos( k2.Vect().Angle(k1.Vect()) );
 
-    // prim had syst
+    // Primary hadronic system (from primary neutrino interaction, before FSI)
     brNiP        = 0;
     brNiN        = 0;    
     brNiPip      = 0;    
@@ -857,7 +857,7 @@ void ConvertToGST(void)
      << ", N(gamma,e-,e+):" << brNiEM
      << ", N(etc):"         << brNiOther << "\n";
 
-    // f/s had syst
+    // Final state (visible) hadronic system
     brNfP        = 0;
     brNfN        = 0;    
     brNfPip      = 0;    
@@ -869,6 +869,7 @@ void ConvertToGST(void)
     brNfEM       = 0;  
     brNfOther    = 0;  
 
+    brSumKEf     = fsl->KinE();
     brCalResp0   = 0;
 
     brNf = final_had_syst.size();
@@ -893,6 +894,8 @@ void ConvertToGST(void)
       brPzf   [j] = hpz;
       brPf    [j] = hp;
       brCosthf[j] = hcth;
+
+      brSumKEf += hKE;
 
       if      ( hpdg == kPdgProton      )  { brNfP++;     brCalResp0 += hKE;        }
       else if ( hpdg == kPdgAntiProton  )  { brNfP++;     brCalResp0 += (hE + 2*hm);}
