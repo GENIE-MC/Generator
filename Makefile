@@ -326,6 +326,8 @@ atmo-support-softw: FORCE
 ifeq ($(strip $(GOPT_ENABLE_ATMO)),YES)
 	cd ${GENIE}/src/support/atmo/EvGen/;\
 	make all; \
+	cd ${GENIE}/src/support/atmo/UpMuFluxGen/;\
+	make all; \
 	cd ${GENIE}
 else
 	@echo "Not enabled! Skipping..."
@@ -630,6 +632,7 @@ clean-files: FORCE
 	cd support/t2k/SKNorm/;           make clean; cd ../../../; \
 	cd support/numi/EvGen/;           make clean; cd ../../../; \
 	cd support/atmo/EvGen/;           make clean; cd ../../../; \
+	cd support/atmo/UpMuFluxGen/;     make clean; cd ../../../; \
 	cd support/ndcy/EvGen/;           make clean; cd ../../../; \
 	cd support/rwght/;                make clean; cd ../../; \
 	cd support/masterclass/;          make clean; cd ../../; \
@@ -711,6 +714,7 @@ distclean: FORCE
 	cd support/t2k/SKNorm/;            make distclean; cd ../../../; \
 	cd support/numi/EvGen/;            make distclean; cd ../../../; \
 	cd support/atmo/EvGen/;            make distclean; cd ../../../; \
+	cd support/atmo/UpMuFluxGen/;      make distclean; cd ../../../; \
 	cd support/ndcy/EvGen/;            make distclean; cd ../../../; \
 	cd support/rwght/;                 make distclean; cd ../../; \
 	cd support/masterclass/;           make distclean; cd ../../; \
