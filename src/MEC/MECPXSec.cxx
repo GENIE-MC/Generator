@@ -130,7 +130,9 @@ double MECPXSec::Integral(const Interaction * interaction) const
 // for MEC and QE.
 //
 
-  bool   iscc   = interaction->ProcInfo().IsWeakCC();
+  bool iscc = interaction->ProcInfo().IsWeakCC();
+  bool isnc = interaction->ProcInfo().IsWeakNC();
+  bool isem = interaction->ProcInfo().IsEM();
 
   int    nupdg  = interaction->InitState().ProbePdg();
   int    tgtpdg = interaction->InitState().Tgt().Pdg();
@@ -188,6 +190,10 @@ double MECPXSec::Integral(const Interaction * interaction) const
 
      delete in;
      return xsec;
+  }
+
+  else if(isnc || isem) {
+     return 1.;
   }
 
   return 0;

@@ -47,6 +47,9 @@
    Tweaked RecoilNucleonPdg() so that it works with MEC wgere the hit object
    is a nucleon-cluster and not a single nucleon. The MEC named ctors now 
    have an argument for specifying the hit nucleon cluster PDG.
+ @ Feb 29, 2012 - CA
+   Add MECNC() and MECEM().
+
 */
 //____________________________________________________________________________
 
@@ -793,6 +796,31 @@ Interaction * Interaction::MECNC(
 {
   Interaction * interaction = 
      Interaction::Create(tgt, probe, kScMEC, kIntWeakNC);
+
+  InitialState * init_state = interaction->InitStatePtr();
+  init_state->SetProbeP4(p4probe);
+  init_state->TgtPtr()->SetHitNucPdg(ncluster);
+
+  return interaction;
+}
+//___________________________________________________________________________
+Interaction * Interaction::MECEM(int tgt, int ncluster, int probe, double E)
+{
+  Interaction * interaction = 
+     Interaction::Create(tgt, probe, kScMEC, kIntEM);
+
+  InitialState * init_state = interaction->InitStatePtr();
+  init_state->SetProbeE(E);
+  init_state->TgtPtr()->SetHitNucPdg(ncluster);
+
+  return interaction;
+}
+//___________________________________________________________________________
+Interaction * Interaction::MECEM(
+   int tgt, int ncluster, int probe, const TLorentzVector & p4probe)
+{
+  Interaction * interaction = 
+     Interaction::Create(tgt, probe, kScMEC, kIntEM);
 
   InitialState * init_state = interaction->InitStatePtr();
   init_state->SetProbeP4(p4probe);
