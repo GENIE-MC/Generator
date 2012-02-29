@@ -130,6 +130,8 @@ public:
   static Interaction * MECCC     (int tgt, int nuccluster, int probe, const TLorentzVector & p4probe);
   static Interaction * MECNC     (int tgt, int nuccluster, int probe, double E=0);
   static Interaction * MECNC     (int tgt, int nuccluster, int probe, const TLorentzVector & p4probe);
+  static Interaction * MECEM     (int tgt, int nuccluster, int probe, double E=0);
+  static Interaction * MECEM     (int tgt, int nuccluster, int probe, const TLorentzVector & p4probe);
   static Interaction * GLR       (int tgt, double E=0);
   static Interaction * GLR       (int tgt, const TLorentzVector & p4probe);
   static Interaction * NDecay    (int tgt, int decay_mode=-1);

@@ -63,13 +63,8 @@ InteractionList *
 
   for(int ic = 0; ic < nc; ic++) {
      int ncpdg = nucleon_cluster[ic];
-     // check whether current nucleon cluster is allowed (charge conservation)
-     bool allowed = false;
-     if(fIsEM || fIsNC) {
-       allowed = true;
-     }
-     else
      if(fIsCC) {
+       bool allowed = false;
        if(pdg::IsNeutrino(nupdg)) {
          // neutrino CC => final state primary lepton is -1
          // therefore the nucleon-cluster charge needs to be incremented by +1.
@@ -85,12 +80,27 @@ InteractionList *
             allowed = true;
          }
        }
-     }
-     if(allowed) {
+       if(allowed) {
+         Interaction * interaction = 
+             Interaction::MECCC(tgtpdg,ncpdg,nupdg,0);
+         intlist->push_back(interaction);
+       }
+     }//CC?
+
+     else
+     if(fIsNC) {
        Interaction * interaction = 
-           Interaction::MECCC(tgtpdg,ncpdg,nupdg,0);
+           Interaction::MECNC(tgtpdg,ncpdg,nupdg,0);
        intlist->push_back(interaction);
-     }
+     }//NC?
+
+     else
+     if(fIsEM) {
+       Interaction * interaction = 
+           Interaction::MECEM(tgtpdg,ncpdg,nupdg,0);
+       intlist->push_back(interaction);
+     }//EM?
+
   }
 
   return intlist;
