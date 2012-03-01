@@ -124,17 +124,23 @@ bool GFlukaAtmo3DFlux::FillFluxHisto2D(TH2D * histo, string filename)
      return false;
   }
 
+  int    ibin;
   double energy, costheta, flux;
   char   j1, j2;
 
-  const int kNLines = kGFlk3DNumCosThetaBins * kGFlk3DNumLogEvBins;
-  int iline = 0;
-  while (++iline<=kNLines) {
+  double scale = 1.0; // 1.0 [m^2], OR 1.0e-4 [cm^2]
+
+  while ( !flux_stream.eof() ) {
+    flux = 0.0;
     flux_stream >> energy >> j1 >> costheta >> j2 >> flux;
-    LOG("Flux", pINFO)
-      << "Flux[Ev = " << energy 
-      << ", cos8 = " << costheta << "] = " << flux;
-    histo->Fill( (Axis_t)energy, (Axis_t)costheta, (Stat_t)flux);
+    if( flux>0.0 ){
+      LOG("Flux", pINFO)
+        << "Flux[Ev = " << energy 
+        << ", cos8 = " << costheta << "] = " << flux;
+      // note: reversing the Fluka sign convention for zenith angle
+      ibin = histo->FindBin( (Axis_t)energy, (Axis_t)(-costheta) );   
+      histo->SetBinContent( ibin, (Stat_t)(scale*flux) );
+    }
   }
   return true;
 }

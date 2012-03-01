@@ -33,6 +33,10 @@
 @ Feb 03, 2011 - TF
    Bug fixed: events are now generated randomly and uniformly on a disc with 
    R = R_{transverse}
+@ Feb 23, 2012 - AB
+   Bug fixed: events were being generated according to the differential flux
+   in each energy bin, dPhi/dE, rather than the total flux, Phi, in each bin.
+   This has now been fixed.
 */
 //____________________________________________________________________________
 
@@ -58,7 +62,7 @@ using namespace genie::constants;
 //____________________________________________________________________________
 GAtmoFlux::GAtmoFlux()
 {
-
+  fInitialized = 0;
 }
 //___________________________________________________________________________
 GAtmoFlux::~GAtmoFlux()
@@ -95,6 +99,9 @@ bool GAtmoFlux::GenerateNext(void)
 //___________________________________________________________________________
 bool GAtmoFlux::GenerateNext_1try(void)
 {
+  // Must have run intitialization
+  assert(fInitialized);
+
   // Reset previously generated neutrino code / 4-p / 4-x
   this->ResetSelection();
 
@@ -115,12 +122,15 @@ bool GAtmoFlux::GenerateNext_1try(void)
      // generate weighted flux
      //
 
-     double log10emin = TMath::Log10(fEnergyBins[0]);
-     double log10emax = TMath::Log10(fEnergyBins[fNumEnergyBins]);
-     double dlog10e   = log10emax - log10emin;
-     Ev       = TMath::Power(10., log10emin + dlog10e * rnd->RndFlux().Rndm());
+     // generate events according to a power law spectrum,
+     // then weight events by flux and inverse power law
+     // (note: cannot use index alpha=1)
+     double alpha = fSpectralIndex; 
 
-     costheta = -1+2*rnd->RndFlux().Rndm();
+     double emin = TMath::Power(fEnergyBins[0],1.0-alpha);
+     double emax = TMath::Power(fEnergyBins[fNumEnergyBins],1.0-alpha);
+     Ev          = TMath::Power(emin+(emax-emin)*rnd->RndFlux().Rndm(),1.0/(1.0-alpha));
+     costheta    = -1+2*rnd->RndFlux().Rndm();
 
      unsigned int nnu = fPdgCList->size();
      unsigned int inu = rnd->RndFlux().Integer(nnu);
@@ -130,34 +140,20 @@ bool GAtmoFlux::GenerateNext_1try(void)
         LOG("Flux", pINFO) << "E < Emin";
 	return false;
      }
+ 
+     double flux = GetFlux( nu_pdg, Ev, costheta );
 
-     // calculate weight
-     map<int,TH2D*>::iterator iter = fFlux2D.find(nu_pdg);
-     if(iter == fFlux2D.end()) {
-        LOG("Flux", pERROR) << "Can't find flux histogram for selected neutrino";
+     if(flux<=0) {
+        LOG("Flux", pINFO) << "Flux <= 0";
 	return false;
      }
-     TH2D* flux_histo = iter->second;
-     if(!flux_histo) {
-        LOG("Flux", pERROR) << "Null flux histogram!";
-	return false;
-     }
-     int E_bin        = flux_histo->GetXaxis()->FindBin(Ev);
-     int costheta_bin = flux_histo->GetYaxis()->FindBin(costheta);
-     double flux      = flux_histo->GetBinContent(E_bin, costheta_bin);
-   //double dE        = flux_histo->GetXaxis()->GetBinWidth(E_bin);
-   //double dcostheta = flux_histo->GetYaxis()->GetBinWidth(costheta_bin);
-   //if(fFluxSum2DIntg <= 0) {
-   //   LOG("Flux", pERROR) << "Null flux integral!";
-   //   return false;
-   //}
-   //weight = flux*dE*dcostheta / fFluxSum2DIntg;
-     weight = flux;
+
+     weight = flux*TMath::Power(Ev,alpha);
   } 
   else {
 
      //
-     // generate un-weighted flux
+     // generate nominal flux
      //
 
      Axis_t ax = 0, ay = 0;
@@ -185,16 +181,22 @@ bool GAtmoFlux::GenerateNext_1try(void)
   double py = -1.* Ev * sintheta * cosphi;
   double px = -1.* Ev * sintheta * sinphi;
 
-  // Compute the neutrino position (on the flux generation surface)
+  // Default vertex is at the origin
+  double z = 0.0;
+  double y = 0.0;
+  double x = 0.0;
+
+  // Shift the neutrino position onto the flux generation surface.
   // The position is computed at the surface of a sphere with R=fRl
   // at the topocentric horizontal (THZ) coordinate system.
-  double z = fRl * costheta;
-  double y = fRl * sintheta * cosphi;
-  double x = fRl * sintheta * sinphi;
+  if( fRl>0.0 ){
+    z += fRl * costheta;
+    y += fRl * sintheta * cosphi;
+    x += fRl * sintheta * sinphi;
+  }
 
   // Apply user-defined rotation from THZ -> user-defined topocentric 
   // coordinate system.
-
   if( !fRotTHz2User.IsIdentity() )
   {
     TVector3 tx3(x, y, z );
@@ -209,23 +211,26 @@ bool GAtmoFlux::GenerateNext_1try(void)
     px = tp3.X();
     py = tp3.Y();
     pz = tp3.Z();
- }
+  }
 
   // If the position is left as is, then all generated neutrinos
   // would point towards the origin.
   // Displace the position randomly on the surface that is
   // perpendicular to the selected point P(xo,yo,zo) on the sphere
-  TVector3 vec(x,y,z);               // vector towards selected point
-  TVector3 dvec1 = vec.Orthogonal(); // orthogonal vector
-  TVector3 dvec2 = dvec1;            // second orthogonal vector
-  dvec2.Rotate(-kPi/2.0,vec);        // rotate second vector by 90deg, now forming a new orthogonal cartesian coordinate system
-  double psi = 2.*kPi* rnd->RndFlux().Rndm(); // rndm angle [0,2pi]
-  double random = rnd->RndFlux().Rndm();      // rndm number  [0,1]
-  dvec1.SetMag(TMath::Sqrt(random)*fRt*TMath::Cos(psi));
-  dvec2.SetMag(TMath::Sqrt(random)*fRt*TMath::Sin(psi));
-  x += dvec1.X() + dvec2.X();
-  y += dvec1.Y() + dvec2.Y();
-  z += dvec1.Z() + dvec2.Z();
+  if( fRt>0.0 ){
+    TVector3 vec(x,y,z);               // vector towards selected point
+    TVector3 dvec1 = vec.Orthogonal(); // orthogonal vector
+    TVector3 dvec2 = dvec1;            // second orthogonal vector
+    dvec2.Rotate(-kPi/2.0,vec);        // rotate second vector by 90deg, 
+                                       // now forming a new orthogonal cartesian coordinate system
+    double psi = 2.*kPi* rnd->RndFlux().Rndm(); // rndm angle [0,2pi]
+    double random = rnd->RndFlux().Rndm();      // rndm number  [0,1]
+    dvec1.SetMag(TMath::Sqrt(random)*fRt*TMath::Cos(psi));
+    dvec2.SetMag(TMath::Sqrt(random)*fRt*TMath::Sin(psi));
+    x += dvec1.X() + dvec2.X();
+    y += dvec1.Y() + dvec2.Y();
+    z += dvec1.Z() + dvec2.Z();
+  }
 
   // Set the neutrino momentum and position 4-vectors with values
   // calculated at previous steps.
@@ -274,6 +279,18 @@ void GAtmoFlux::GenerateWeighted(bool gen_weighted)
   fGenWeighted = gen_weighted;
 }
 //___________________________________________________________________________
+void GAtmoFlux:: SetSpectralIndex(double index)
+{
+  if( index != 1.0 ){
+    fSpectralIndex = index;
+  }
+  else {
+    LOG("Flux", pWARN) << "Warning: cannot use a spectral index of unity";
+  }
+
+  LOG("Flux", pNOTICE) << "Using Spectral Index = " << index;
+}
+//___________________________________________________________________________
 void GAtmoFlux::SetUserCoordSystem(TRotation & rotation)
 {
   fRotTHz2User = rotation;
@@ -281,8 +298,7 @@ void GAtmoFlux::SetUserCoordSystem(TRotation & rotation)
 //___________________________________________________________________________
 void GAtmoFlux::Initialize(void)
 {
-  LOG("Flux", pNOTICE) 
-    << "Initializing atmospheric flux driver";
+  LOG("Flux", pNOTICE) << "Initializing atmospheric flux driver";
 
   bool allow_dup = false;
   fPdgCList = new PDGCodeList(allow_dup);
@@ -300,14 +316,22 @@ void GAtmoFlux::Initialize(void)
   // Default option is to generate unweighted flux neutrinos
   // (flux = f(E,costheta) will be used as PDFs)
   // User can enable option to generate weighted neutrinos
-  // (neutrinos will be generated uniformly over costheta, logE and
-  // the input flux = f(E,costheta) will be used for calculating a weight).
+  // (neutrinos will be generated uniformly over costheta, 
+  // and using a power law function in neutrino energy.
+  // The input flux = f(E,costheta) will be used for calculating a weight).
   // Using a weighted flux avoids statistical fluctuations at high energies.
+  fSpectralIndex = 2.0;
+
+  // weighting switched off by default
   this->GenerateWeighted(false);
 
   // Default: No min/max energy cut
   this->ForceMinEnergy(0.);
   this->ForceMaxEnergy(9999999999.);
+
+  // Default radii
+  fRl = 0.0;
+  fRt = 0.0;
 
   // Default detector coord system: Topocentric Horizontal Coordinate system
   fRotTHz2User.SetToIdentity(); 
@@ -317,6 +341,9 @@ void GAtmoFlux::Initialize(void)
 
   // Reset number of neutrinos thrown so far
   fNNeutrinos = 0;
+
+  // Done!
+  fInitialized = 1;
 }
 //___________________________________________________________________________
 void GAtmoFlux::ResetSelection(void)
@@ -331,6 +358,16 @@ void GAtmoFlux::ResetSelection(void)
 void GAtmoFlux::CleanUp(void)
 {
   LOG("Flux", pNOTICE) << "Cleaning up...";
+
+  map<int,TH2D*>::iterator rawiter = fFluxRaw2D.begin();
+  for( ; rawiter != fFluxRaw2D.end(); ++rawiter) {
+    TH2D * flux_histogram = rawiter->second;
+    if(flux_histogram) {
+       delete flux_histogram;
+       flux_histogram = 0;
+    }
+  }
+  fFluxRaw2D.clear();
 
   map<int,TH2D*>::iterator iter = fFlux2D.begin();
   for( ; iter != fFlux2D.end(); ++iter) {
@@ -358,14 +395,19 @@ void GAtmoFlux::SetRadii(double Rlongitudinal, double Rtransverse)
   fRt = Rtransverse;
 }
 //___________________________________________________________________________
-void GAtmoFlux::SetFluxFile(int nu_pdg, string filename)
+void GAtmoFlux::AddFluxFile(int nu_pdg, string filename)
 {
   if ( pdg::IsNeutrino(nu_pdg) || pdg::IsAntiNeutrino(nu_pdg) ) {
-    fFluxFile.insert(map<int,string>::value_type(nu_pdg,filename));
+    fFluxFlavour.push_back(nu_pdg); fFluxFile.push_back(filename);
   } else {
     LOG ("Flux", pWARN) 
      << "Input particle code: " << nu_pdg << " not a neutrino!";
   }
+}
+//___________________________________________________________________________
+void GAtmoFlux::SetFluxFile(int nu_pdg, string filename)
+{
+  return AddFluxFile( nu_pdg, filename );
 }
 //___________________________________________________________________________
 bool GAtmoFlux::LoadFluxData(void)
@@ -377,33 +419,94 @@ bool GAtmoFlux::LoadFluxData(void)
   fPdgCList->clear();
 
   bool loading_status = true;
-  map<int,string>::iterator file_iter = fFluxFile.begin();
-  for ( ; file_iter != fFluxFile.end(); ++file_iter) {
-    int    nu_pdg    = file_iter->first;
-    string filename  = file_iter->second;
+
+  for( unsigned int n=0; n<fFluxFlavour.size(); n++ ){
+    int nu_pdg      = fFluxFlavour.at(n);
+    string filename = fFluxFile.at(n);
     string pname = PDGLibrary::Instance()->Find(nu_pdg)->GetName();
 
     LOG("Flux", pNOTICE)
         << "Loading data for: " << pname;
+  
+    TH2D* hist = 0;
 
-    TH2D * hst = this->CreateFluxHisto2D(pname.c_str(), pname.c_str());
+    std::map<int,TH2D*>::iterator myMapEntry = fFluxRaw2D.find(nu_pdg);
 
-    bool loaded = this->FillFluxHisto2D(hst, filename);
-    if(loaded) {
-       fPdgCList->push_back(nu_pdg);
-       fFlux2D.insert(map<int,TH2D*>::value_type(nu_pdg, hst));
+    if( myMapEntry != fFluxRaw2D.end() ){
+      hist = myMapEntry->second;
     }
+    
+    if( hist==0 ){
+      hist = this->CreateFluxHisto2D(pname.c_str(), pname.c_str());
+      fFluxRaw2D.insert( map<int,TH2D*>::value_type(nu_pdg,hist) );
+    }
+
+    bool loaded = this->FillFluxHisto2D(hist, filename);
+
     loading_status = loading_status && loaded;
   }
+
   if(loading_status) {
-     LOG("Flux", pNOTICE)
+
+    map<int,TH2D*>::iterator hist_iter = fFluxRaw2D.begin();
+    for ( ; hist_iter != fFluxRaw2D.end(); ++hist_iter) {
+      int   nu_pdg = hist_iter->first;
+      TH2D* hist   = hist_iter->second;
+
+      TH2D* hnorm = this->CreateNormalisedFluxHisto2D( hist );
+      fFlux2D.insert( map<int,TH2D*>::value_type(nu_pdg,hnorm) );
+      fPdgCList->push_back(nu_pdg);
+    }
+
+    LOG("Flux", pNOTICE)
           << "Atmospheric neutrino flux simulation data loaded!";
-     this->AddAllFluxes();
-     return true;
+    this->AddAllFluxes();
+    return true;
   }
+
   LOG("Flux", pERROR)
     << "Error loading atmospheric neutrino flux simulation data";
   return false;
+}
+//___________________________________________________________________________
+TH2D* GAtmoFlux::CreateNormalisedFluxHisto2D(TH2D* h2)
+{
+  // sanity check
+  if( h2==0 ) return 0;
+  
+  // make new histogram name
+  TString histname = h2->GetName();
+  histname.Append("_IntegratedFlux");  
+
+  // make new histogram
+  TH2D* hIntegratedFlux2D = (TH2D*)(h2->Clone(histname.Data()));
+  hIntegratedFlux2D->Reset();
+
+  // integrate flux in each bin
+  Double_t dN_dEdS = 0.0;
+  Double_t dS = 0.0;
+  Double_t dE = 0.0;
+  Double_t dN = 0.0;
+
+  for( Int_t nx=0; nx<h2->GetXaxis()->GetNbins(); nx++ ){ // x-axis: energy
+    for( Int_t ny=0; ny<h2->GetYaxis()->GetNbins(); ny++ ){ // y-axis: angle
+      dN_dEdS = h2->GetBinContent(nx+1,ny+1);
+
+      dE = h2->GetXaxis()->GetBinUpEdge(nx+1)
+          - h2->GetXaxis()->GetBinLowEdge(nx+1);
+
+      dS = 2.0*TMath::Pi()
+         * ( h2->GetYaxis()->GetBinUpEdge(ny+1)
+            - h2->GetYaxis()->GetBinLowEdge(ny+1) );
+
+      dN = dN_dEdS*dE*dS;
+
+      hIntegratedFlux2D->SetBinContent(nx+1,ny+1,dN);
+    }
+  }
+
+  // return integrated flux
+  return hIntegratedFlux2D; 
 }
 //___________________________________________________________________________
 void GAtmoFlux::ZeroFluxHisto2D(TH2D * histo)
@@ -434,7 +537,7 @@ void GAtmoFlux::AddAllFluxes(void)
     fFluxSum2D->Add(flux_histogram);
   }
 
-  fFluxSum2DIntg = fFluxSum2D->Integral("width");
+  fFluxSum2DIntg = fFluxSum2D->Integral();
 }
 //___________________________________________________________________________
 TH2D * GAtmoFlux::CreateFluxHisto2D(string name, string title)
@@ -492,6 +595,87 @@ int GAtmoFlux::SelectNeutrino(double Ev, double costheta)
 
   return -1;
 }
-//___________________________________________________________________________
 
+//___________________________________________________________________________
+TH2D* GAtmoFlux::GetFluxHistogram(int flavour)
+{
+  TH2D* histogram = 0;
+
+  std::map<int,TH2D*>::iterator myMapEntry = fFluxRaw2D.find(flavour);
+
+  if( myMapEntry != fFluxRaw2D.end() ){
+    histogram = myMapEntry->second;
+  }
+
+  return histogram;
+} 
+
+//___________________________________________________________________________
+double GAtmoFlux::GetFlux(int flavour)
+{
+  TH2D* hFlux2D = (TH2D*)(GetFluxHistogram(flavour));
+
+  if( hFlux2D==0 ) return 0.0;
+
+  Double_t Flux = 0.0;
+  Double_t dN_dEdS = 0.0;
+  Double_t dS = 0.0;
+  Double_t dE = 0.0;
+  
+  for( Int_t nx=0; nx<hFlux2D->GetXaxis()->GetNbins(); nx++ ){ // x-axis: energy
+    for( Int_t ny=0; ny<hFlux2D->GetYaxis()->GetNbins(); ny++ ){ // y-axis: angle
+      dN_dEdS = hFlux2D->GetBinContent(nx+1,ny+1);
+
+      dE = hFlux2D->GetXaxis()->GetBinUpEdge(nx+1)
+          - hFlux2D->GetXaxis()->GetBinLowEdge(nx+1);
+
+      dS = 2.0*TMath::Pi()
+         * ( hFlux2D->GetYaxis()->GetBinUpEdge(ny+1)
+           - hFlux2D->GetYaxis()->GetBinLowEdge(ny+1) );
+
+      Flux += dN_dEdS*dE*dS;
+    }
+  }
+
+  return Flux;
+}
+
+//___________________________________________________________________________
+double GAtmoFlux::GetFlux(int flavour, double energy)
+{
+  TH2D* hFlux2D = (TH2D*)(GetFluxHistogram(flavour));
+
+  if( hFlux2D==0 ) return 0.0;
+
+  Int_t nE = hFlux2D->GetXaxis()->FindBin(energy); 
+
+  Double_t Flux = 0.0;
+  Double_t dN_dEdS = 0.0;
+  Double_t dS = 0.0;
+  
+  for( Int_t ny=0; ny<hFlux2D->GetYaxis()->GetNbins(); ny++ ){ // y-axis: angle
+    dN_dEdS = hFlux2D->GetBinContent(nE,ny+1);
+
+    dS = 2.0*TMath::Pi()
+       * ( hFlux2D->GetYaxis()->GetBinUpEdge(ny+1)
+         - hFlux2D->GetYaxis()->GetBinLowEdge(ny+1) );
+
+    Flux += dN_dEdS*dS;
+  }
+
+  return Flux;
+}
+
+//___________________________________________________________________________
+double GAtmoFlux::GetFlux(int flavour, double energy, double angle)
+{
+  TH2D* hFlux2D = (TH2D*)(GetFluxHistogram(flavour));
+
+  if( hFlux2D==0 ) return 0.0; 
+
+  Int_t nE = hFlux2D->GetXaxis()->FindBin(energy);
+  Int_t nA = hFlux2D->GetYaxis()->FindBin(angle);
+  
+  return hFlux2D->GetBinContent(nE,nA);
+}
 

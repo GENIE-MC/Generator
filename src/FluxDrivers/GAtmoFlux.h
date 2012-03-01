@@ -43,6 +43,7 @@
 
 #include <string>
 #include <map>
+#include <vector>
 
 #include <TLorentzVector.h>
 #include <TRotation.h>
@@ -53,6 +54,7 @@ class TH2D;
 
 using std::string;
 using std::map;
+using std::vector;
 
 namespace genie {
 namespace flux  {
@@ -75,14 +77,27 @@ public :
   virtual void                   Clear            (Option_t * opt);
   virtual void                   GenerateWeighted (bool gen_weighted);
 
+  // get neutrino energy/direction of generated events
+  double Enu        (void) { return fgP4.Energy(); }
+  double Energy     (void) { return fgP4.Energy(); }
+  double CosTheta   (void) { return -fgP4.Pz()/fgP4.Energy(); }
+  double CosZenith  (void) { return -fgP4.Pz()/fgP4.Energy(); }
+
   // methods specific to the atmospheric flux drivers
   long int NFluxNeutrinos     (void) const; ///< Number of flux nu's generated. Not the same as the number of nu's thrown towards the geometry (if there are cuts).
   void     ForceMinEnergy     (double emin);
   void     ForceMaxEnergy     (double emax);
+  void     SetSpectralIndex   (double index); 
   void     SetRadii           (double Rlongitudinal, double Rtransverse);
   void     SetUserCoordSystem (TRotation & rotation); ///< Rotation: Topocentric Horizontal -> User-defined Topocentric Coord System.
   void     SetFluxFile        (int neutrino_pdg, string filename);
+  void     AddFluxFile        (int neutrino_pdg, string filename);
   bool     LoadFluxData       (void);
+
+  TH2D*    GetFluxHistogram   (int flavour);
+  double   GetFlux            (int flavour);
+  double   GetFlux            (int flavour, double energy);
+  double   GetFlux            (int flavour, double energy, double angle);
 
 protected:
 
@@ -100,6 +115,9 @@ protected:
   void    AddAllFluxes      (void);
   int     SelectNeutrino    (double Ev, double costheta);
   
+  // normalise flux files
+  TH2D* CreateNormalisedFluxHisto2D( TH2D* h2 );
+
   // pure virtual protected methods; to be implemented by concrete flux drivers
   virtual bool FillFluxHisto2D   (TH2D * h2, string filename) = 0;
 
@@ -112,8 +130,7 @@ protected:
   double           fWeight;           ///< current generated nu weight
   long int         fNNeutrinos;       ///< number of flux neutrinos thrown so far
   double           fMaxEvCut;         ///< user-defined cut: maximum energy 
-  double           fMinEvCut;         ///< user-defined cut: minimum energy 
-  map<int, string> fFluxFile;         ///< input flux file for each neutrino species
+  double           fMinEvCut;         ///< user-defined cut: minimum energy  
   double           fRl;               ///< defining flux neutrino generation surface: longitudinal radius
   double           fRt;               ///< defining flux neutrino generation surface: transverse radius
   TRotation        fRotTHz2User;      ///< coord. system rotation: THZ -> Topocentric user-defined
@@ -122,10 +139,17 @@ protected:
   double *         fCosThetaBins;     ///< cos(theta) bins in input flux data files
   double *         fEnergyBins;       ///< energy bins in input flux data files
   bool             fGenWeighted;      ///< generate a weighted or unweighted flux?
-  map<int, TH2D*>  fFlux2D;           ///< flux = f(Ev,cos8) for each neutrino species
+  double           fSpectralIndex;    ///< power law function used for weighted flux
+  bool             fInitialized;      ///< flag to check that initialization is run
+
   TH2D *           fFluxSum2D;        ///< flux = f(Ev,cos8) summed over neutrino species
   double           fFluxSum2DIntg;    ///< fFluxSum2D integral 
 
+  map<int, TH2D*>  fFlux2D;           ///< flux = f(Ev,cos8) for each neutrino species
+  map<int, TH2D*>  fFluxRaw2D;        ///< flux = f(Ev,cos8) for each neutrino species
+
+  vector<int>      fFluxFlavour;      ///< input flux file for each neutrino species
+  vector<string>   fFluxFile;         ///< input flux file for each neutrino species
 };
 
 } // flux namespace

@@ -48,12 +48,14 @@ namespace genie {
 namespace flux  {
 
 // Number of cos(zenith) and energy bins in flux simulation
-const unsigned int kBGLRS3DNumCosThetaBins       = 40;
-const double       kBGLRS3DCosThetaMin           = -1.0;
-const double       kBGLRS3DCosThetaMax           =  1.0;
-const unsigned int kBGLRS3DNumLogEvBins          = 61;
-const unsigned int kBGLRS3DNumLogEvBinsPerDecade = 20;
-const double       kBGLRS3DEvMin                 = 10.0; // GeV
+const unsigned int kBGLRS3DNumCosThetaBins           = 20;
+const double       kBGLRS3DCosThetaMin               = -1.0;
+const double       kBGLRS3DCosThetaMax               =  1.0;
+const unsigned int kBGLRS3DNumLogEvBinsLow           = 40;
+const unsigned int kBGLRS3DNumLogEvBinsPerDecadeLow  = 20;
+const unsigned int kBGLRS3DNumLogEvBinsHigh          = 30;
+const unsigned int kBGLRS3DNumLogEvBinsPerDecadeHigh = 10;
+const double       kBGLRS3DEvMin                     = 0.1; // GeV
 
 class GBartolAtmoFlux: public GAtmoFlux {
 
