@@ -29,6 +29,9 @@
  @ Oct 20, 2009 - CA
    Modified HadronShowerCharge() to take into account the probe charge (so as
    to conserve charge in charged lepton scattering)
+ @ Mar 28, 2012 - CA
+   Commented-out option to use 'legacy KNO data' (used in neugrn and in 
+   GENIE/neugen comparisons circa 2007) instead of the Levy parameterization.
 
 */
 //____________________________________________________________________________
@@ -57,7 +60,7 @@
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
-#include "Numerical/Spline.h"
+//#include "Numerical/Spline.h"
 #include "PDG/PDGLibrary.h"
 #include "PDG/PDGCodeList.h"
 #include "PDG/PDGCodes.h"
@@ -76,7 +79,7 @@ HadronizationModelBase("genie::KNOHadronization")
 {
   fBaryonXFpdf  = 0;
   fBaryonPT2pdf = 0;
-  fKNO          = 0;
+//fKNO          = 0;
 }
 //____________________________________________________________________________
 KNOHadronization::KNOHadronization(string config) :
@@ -84,14 +87,14 @@ HadronizationModelBase("genie::KNOHadronization", config)
 {
   fBaryonXFpdf  = 0;
   fBaryonPT2pdf = 0;
-  fKNO          = 0;
+//fKNO          = 0;
 }
 //____________________________________________________________________________
 KNOHadronization::~KNOHadronization()
 {
   if (fBaryonXFpdf ) delete fBaryonXFpdf;
   if (fBaryonPT2pdf) delete fBaryonPT2pdf;
-  if (fKNO         ) delete fKNO;
+//if (fKNO         ) delete fKNO;
 }
 //____________________________________________________________________________
 // HadronizationModelI interface implementation:
@@ -438,9 +441,6 @@ void KNOHadronization::LoadConfig(void)
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();
 
-  // Delete the KNO spline from previous configuration of this instance
-  if(fKNO) delete fKNO;
-
   // Force decays of unstable hadronization products?
   fForceDecays  = fConfig->GetBoolDef("ForceDecays", false);
 
@@ -507,9 +507,12 @@ void KNOHadronization::LoadConfig(void)
   fBaryonPT2pdf = new TF1("fBaryonPT2pdf", 
                    "exp(-0.214-6.625*x)",0,0.6);  
 
+/*
   // load legacy KNO spline
   fUseLegacyKNOSpline = fConfig->GetBoolDef("UseLegacyKNOSpl", false);
 
+  // Delete the KNO spline from previous configuration of this instance
+  if(fKNO) delete fKNO;
 
   if(fUseLegacyKNOSpline) {
      assert(gSystem->Getenv("GENIE"));
@@ -520,6 +523,7 @@ void KNOHadronization::LoadConfig(void)
      LOG("KNOHad", pNOTICE) << "Loading KNO data from: " << knodata;
      fKNO = new Spline(knodata);
   }
+*/
 
   // Load parameters determining the average charged hadron multiplicity
   fAvp  = fConfig->GetDoubleDef("Alpha-vp",  gc->GetDouble("KNO-Alpha-vp") );
@@ -589,10 +593,12 @@ double KNOHadronization::KNO(int probe_pdg, int nuc_pdg, double z) const
 {
 // Computes <n>P(n) for the input reduced multiplicity z=n/<n>
 
+/*
   if(fUseLegacyKNOSpline) {
      bool inrange = z > fKNO->XMin() && z < fKNO->XMax();
      return (inrange) ? fKNO->Evaluate(z) : 0.;
   }
+*/
 
   bool is_p     = pdg::IsProton           (nuc_pdg);
   bool is_n     = pdg::IsNeutron          (nuc_pdg);
