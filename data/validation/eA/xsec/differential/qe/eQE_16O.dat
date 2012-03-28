@@ -1,11 +1,13 @@
+# 
 # Quasielastic Electron Nucleus Scattering Archive
 # O. Benhar, D. Day and I. Sick, Rev. Mod. Phys. 80, 189-224, 2008
 # Source: http://faculty.virginia.edu/qes-archive/
 # Target: 16O
 # 
-# Z  A   E      Theta  v     xsec        error  citation
-#        (GeV)  (deg)  GeV)  (nb/sr/GeV)                
-#   8  16  0.7000   32.0    0.0131   1.110e+04  1.414e+03  Anghinolfi:1996vm 
+# Z  A   E      Theta     v      xsec        error    citation
+#        (GeV)  (deg)    (GeV)  (nb/sr/GeV)                   
+# 
+  8  16  0.7000   32.0    0.0131   1.110e+04  1.414e+03  Anghinolfi:1996vm 
   8  16  0.7000   32.0    0.0639   3.926e+04  2.946e+03  Anghinolfi:1996vm 
   8  16  0.7000   32.0    0.1132   5.246e+04  3.417e+03  Anghinolfi:1996vm 
   8  16  0.7000   32.0    0.1632   2.230e+04  2.356e+03  Anghinolfi:1996vm 

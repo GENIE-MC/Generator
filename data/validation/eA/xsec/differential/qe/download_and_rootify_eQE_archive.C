@@ -62,14 +62,15 @@ int download_and_rootify_eQE_archive(bool rootify=true)
     // create header
     ofstream header;
     header.open("tmp.header");
+    header << "# " << endl;;
     header << "# Quasielastic Electron Nucleus Scattering Archive" << endl;
     header << "# O. Benhar, D. Day and I. Sick, Rev. Mod. Phys. 80, 189-224, 2008" << endl;
     header << "# Source: http://faculty.virginia.edu/qes-archive/" << endl;
     header << "# Target: " << target[i] << endl;
     header << "# " << endl;
-    header << "# Z  A   E      Theta  v     xsec        error  citation" << endl;
-    header << "#        (GeV)  (deg)  GeV)  (nb/sr/GeV)                " << endl;
-    header << "# ";
+    header << "# Z  A   E      Theta     v      xsec        error    citation" << endl;
+    header << "#        (GeV)  (deg)    (GeV)  (nb/sr/GeV)                   " << endl;
+    header << "# " << endl;;
     header.close();
 
     // download data

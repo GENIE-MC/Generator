@@ -1,11 +1,13 @@
+# 
 # Quasielastic Electron Nucleus Scattering Archive
 # O. Benhar, D. Day and I. Sick, Rev. Mod. Phys. 80, 189-224, 2008
 # Source: http://faculty.virginia.edu/qes-archive/
 # Target: 197Au
 # 
-# Z  A   E      Theta  v     xsec        error  citation
-#        (GeV)  (deg)  GeV)  (nb/sr/GeV)                
-#  79 197  2.0150   35.51    0.5504   2.629e+03  3.316e+01 Arrington:1995hs 
+# Z  A   E      Theta     v      xsec        error    citation
+#        (GeV)  (deg)    (GeV)  (nb/sr/GeV)                   
+# 
+ 79 197  2.0150   35.51    0.5504   2.629e+03  3.316e+01 Arrington:1995hs 
  79 197  2.0150   35.51    0.5601   2.808e+03  2.869e+01 Arrington:1995hs 
  79 197  2.0150   35.51    0.5712   3.106e+03  2.939e+01 Arrington:1995hs 
  79 197  2.0150   35.51    0.5823   3.408e+03  3.069e+01 Arrington:1995hs 
