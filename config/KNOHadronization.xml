@@ -21,7 +21,6 @@ LevyC-vp                      double  Yes   Levy function param c for vp        
 LevyC-vn                      double  Yes   Levy function param c for vn                  KNO-LevyC-vn
 LevyC-vbp                     double  Yes   Levy function param c for vbp                 KNO-LevyC-vbp
 LevyC-vbn                     double  Yes   Levy function param c for vbn                 KNO-LevyC-vbn
-UseLegacyKNOSpl               bool    Yes   Uses the legacy KNO instead of the Levy func  false
 ForceNeugenMultLimit          bool    Yes   force neugen upper multiplicity limit (10)    false
 Wcut                          double  Yes   W cut in DIS/RES join scheme                  Wcut
 R-vp-CC-m2                    double  Yes   scaling factor, vp  CC, multiplicity=2        DIS-HMultWgt-vp-CC-m2
