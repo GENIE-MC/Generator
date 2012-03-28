@@ -46,7 +46,7 @@ fDataDir(data_file_directory)
   //if there was no input directory, then use default location
   if(fDataDir.size()==0) {
     string genie_dir = gSystem->Getenv("GENIE");
-    fDataDir = genie_dir + "/data/hadronization/";
+    fDataDir = genie_dir + "/data/validation/vA/hadronics/bubble_chambers/";
   }
 }
 //____________________________________________________________________________
@@ -72,10 +72,10 @@ void HadPlotter::ShowPlots()
   // Charged hadron multiplicity
   // .........................................................................
 
-  TGraphErrors *prd27_47_f4_p = MakeGraph("prd27_47_fig4_vp.dat");
-  TGraphErrors *prd27_47_f4_n = MakeGraph("prd27_47_fig4_vn.dat");
-  TGraphErrors *npb181_385_fig1_nch_W = MakeGraph("npb181_385_fig1_nch_W.dat");
-  TGraphErrors *zpc24_119_vn = MakeGraph("zpc24_119_vn.dat");
+  TGraphErrors * prd27_47_f4_p         = MakeGraph("charged_hadron_multiplicity/prd27_47_fig4_vp.dat");
+  TGraphErrors * prd27_47_f4_n         = MakeGraph("charged_hadron_multiplicity/prd27_47_fig4_vn.dat");
+  TGraphErrors * npb181_385_fig1_nch_W = MakeGraph("charged_hadron_multiplicity/npb181_385_fig1_nch_W.dat");
+  TGraphErrors * zpc24_119_vn          = MakeGraph("charged_hadron_multiplicity/zpc24_119_vn.dat");
   TCanvas *cMulCh = new TCanvas("cMulCh","cMulCh",800,350);
   cMulCh->Divide(2,1);
   DrawFrame(cMulCh,1,1,300,0,10,"","W^{2}(GeV^{2}/c^{4})","<n_{ch}>",true,false);
@@ -122,8 +122,8 @@ void HadPlotter::ShowPlots()
   // Dispersion (D_)
   // .........................................................................
 
-  TGraphErrors *prd27_47_fig5_D_n_vp = MakeGraph("prd27_47_fig5_D_n_vp.dat");
-  TGraphErrors *prd27_47_fig5_D_n_vn = MakeGraph("prd27_47_fig5_D_n_vn.dat");
+  TGraphErrors *prd27_47_fig5_D_n_vp = MakeGraph("charged_hadron_dispersion/prd27_47_fig5_D_n_vp.dat");
+  TGraphErrors *prd27_47_fig5_D_n_vn = MakeGraph("charged_hadron_dispersion/prd27_47_fig5_D_n_vn.dat");
   TCanvas *cDispCh = new TCanvas("cDispCh","cDispCh",800,350);
   cDispCh->Divide(2,1);
   DrawFrame(cDispCh,1,0,4,0,2,"","<n_{-}>","D_{-}",false,false);
@@ -150,8 +150,8 @@ void HadPlotter::ShowPlots()
   // D/<n_{ch}>
   // .........................................................................
 
-  TGraphErrors *prd27_47_fig5_D_W_vp = MakeGraph("prd27_47_fig5_D_W_vp.dat");
-  TGraphErrors *prd27_47_fig5_D_W_vn = MakeGraph("prd27_47_fig5_D_W_vn.dat");
+  TGraphErrors *prd27_47_fig5_D_W_vp = MakeGraph("charged_hadron_dispersion/prd27_47_fig5_D_W_vp.dat");
+  TGraphErrors *prd27_47_fig5_D_W_vn = MakeGraph("charged_hadron_dispersion/prd27_47_fig5_D_W_vn.dat");
   DrawFrame(cDispCh,2,1,1000,0,0.8,"","W^{2}(GeV^{2}/c^{4})","D/<n_{ch}>",true,false);
   DrawGraph(prd27_47_fig5_D_W_vp,24,1,0.8);
   DrawGraph(prd27_47_fig5_D_W_vn,20,1,0.8);
@@ -190,42 +190,42 @@ void HadPlotter::ShowPlots()
       hadPlots[i].kno[4][j]->SetMarkerStyle(29);
     }
   }
-  TGraphErrors *vn_1_3 = MakeGraph("prd27_47_fig6_vn_1_3.dat");
-  TGraphErrors *vn_3_5 = MakeGraph("prd27_47_fig6_vn_3_5.dat");
-  TGraphErrors *vn_5_7 = MakeGraph("prd27_47_fig6_vn_5_7.dat");
-  TGraphErrors *vn_7_10 = MakeGraph("prd27_47_fig6_vn_7_10.dat");
-  TGraphErrors *vn_10_15 = MakeGraph("prd27_47_fig6_vn_10_15.dat");
-  TGraphErrors *vn_kno = MakeGraph("prd27_47_fig6_vn.dat");
+  TGraphErrors *vn_1_3   = MakeGraph("kno/prd27_47_fig6_vn_1_3.dat");
+  TGraphErrors *vn_3_5   = MakeGraph("kno/prd27_47_fig6_vn_3_5.dat");
+  TGraphErrors *vn_5_7   = MakeGraph("kno/prd27_47_fig6_vn_5_7.dat");
+  TGraphErrors *vn_7_10  = MakeGraph("kno/prd27_47_fig6_vn_7_10.dat");
+  TGraphErrors *vn_10_15 = MakeGraph("kno/prd27_47_fig6_vn_10_15.dat");
+  TGraphErrors *vn_kno   = MakeGraph("kno/prd27_47_fig6_vn.dat");
   
-  vn_1_3->SetMarkerStyle(24);
-  vn_3_5->SetMarkerStyle(25);
-  vn_5_7->SetMarkerStyle(26);
-  vn_7_10->SetMarkerStyle(27);
+  vn_1_3  ->SetMarkerStyle(24);
+  vn_3_5  ->SetMarkerStyle(25);
+  vn_5_7  ->SetMarkerStyle(26);
+  vn_7_10 ->SetMarkerStyle(27);
   vn_10_15->SetMarkerStyle(30);
 
-  vn_1_3->SetMarkerSize(0.8);
-  vn_3_5->SetMarkerSize(0.8);
-  vn_5_7->SetMarkerSize(0.8);
-  vn_7_10->SetMarkerSize(0.8);
+  vn_1_3  ->SetMarkerSize(0.8);
+  vn_3_5  ->SetMarkerSize(0.8);
+  vn_5_7  ->SetMarkerSize(0.8);
+  vn_7_10 ->SetMarkerSize(0.8);
   vn_10_15->SetMarkerSize(0.8);
 
-  TGraphErrors *vp_1_3 = MakeGraph("prd27_47_fig6_vp_1_3.dat");
-  TGraphErrors *vp_3_5 = MakeGraph("prd27_47_fig6_vp_3_5.dat");
-  TGraphErrors *vp_5_7 = MakeGraph("prd27_47_fig6_vp_5_7.dat");
-  TGraphErrors *vp_7_10 = MakeGraph("prd27_47_fig6_vp_7_10.dat");
-  TGraphErrors *vp_10_15 = MakeGraph("prd27_47_fig6_vp_10_15.dat");
-  TGraphErrors *vp_kno = MakeGraph("prd27_47_fig6_vp.dat");
+  TGraphErrors *vp_1_3   = MakeGraph("kno/prd27_47_fig6_vp_1_3.dat");
+  TGraphErrors *vp_3_5   = MakeGraph("kno/prd27_47_fig6_vp_3_5.dat");
+  TGraphErrors *vp_5_7   = MakeGraph("kno/prd27_47_fig6_vp_5_7.dat");
+  TGraphErrors *vp_7_10  = MakeGraph("kno/prd27_47_fig6_vp_7_10.dat");
+  TGraphErrors *vp_10_15 = MakeGraph("kno/prd27_47_fig6_vp_10_15.dat");
+  TGraphErrors *vp_kno   = MakeGraph("kno/prd27_47_fig6_vp.dat");
 
-  vp_1_3->SetMarkerStyle(24);
-  vp_3_5->SetMarkerStyle(25);
-  vp_5_7->SetMarkerStyle(26);
-  vp_7_10->SetMarkerStyle(27);
+  vp_1_3  ->SetMarkerStyle(24);
+  vp_3_5  ->SetMarkerStyle(25);
+  vp_5_7  ->SetMarkerStyle(26);
+  vp_7_10 ->SetMarkerStyle(27);
   vp_10_15->SetMarkerStyle(30);
 
-  vp_1_3->SetMarkerSize(0.8);
-  vp_3_5->SetMarkerSize(0.8);
-  vp_5_7->SetMarkerSize(0.8);
-  vp_7_10->SetMarkerSize(0.8);
+  vp_1_3  ->SetMarkerSize(0.8);
+  vp_3_5  ->SetMarkerSize(0.8);
+  vp_5_7  ->SetMarkerSize(0.8);
+  vp_7_10 ->SetMarkerSize(0.8);
   vp_10_15->SetMarkerSize(0.8);
 
   TF1 *levy = new TF1("fLevy","2*TMath::Exp(-[0])*pow([0],[0]*x+1)/TMath::Gamma([0]*x+1)",0,3);
@@ -298,9 +298,9 @@ void HadPlotter::ShowPlots()
   // Pi0 multiplicity
   // .........................................................................
 
-  TGraphErrors *sn41_963_fig2 = MakeGraph("sn41_963_fig2_vA.dat");
-  TGraphErrors *npb223_269_fig8 = MakeGraph("npb223_269_fig8_vp.dat");
-  TGraphErrors *zpc40_231_fig13_pi0 = MakeGraph("zpc40_231_fig13_pi0.dat");
+  TGraphErrors *sn41_963_fig2       = MakeGraph("pi0_multiplicity/sn41_963_fig2_vA.dat");
+  TGraphErrors *npb223_269_fig8     = MakeGraph("pi0_multiplicity/npb223_269_fig8_vp.dat");
+  TGraphErrors *zpc40_231_fig13_pi0 = MakeGraph("pi0_multiplicity/zpc40_231_fig13_pi0.dat");
   TCanvas *cMulPi0 = new TCanvas("cMulPi0","cMulPi0",800,350);
   cMulPi0->Divide(2,1);
   DrawFrame(cMulPi0,1,1,1000,0,4,"","W^{2}(GeV^{2}/c^{4})","<n_{#pi^{0}}>",true,false);
@@ -329,7 +329,7 @@ void HadPlotter::ShowPlots()
   // Pi0 dispersion (D_pi0)
   // .........................................................................
 
-  TGraphErrors *sn41_963_fig4_vA = MakeGraph("sn41_963_fig4_vA.dat");
+  TGraphErrors *sn41_963_fig4_vA = MakeGraph("pi0_dispersion/sn41_963_fig4_vA.dat");
   DrawFrame(cMulPi0,2,0,3,0,2,"","<n_{#pi^{0}}>","D_{#pi^{0}}",false,false);
   DrawGraph(sn41_963_fig4_vA,20,1,0.8);
   for (unsigned i = 0; i<hadPlots.size(); i++){
@@ -352,16 +352,16 @@ void HadPlotter::ShowPlots()
   // <npi0> <nch-> correlation
   // .........................................................................
 
-  TGraphErrors *npb223_269_fig9_vp_3_4 = MakeGraph("npb223_269_fig9_vp_3_4.dat");
-  TGraphErrors *npb223_269_fig9_vp_4_5 = MakeGraph("npb223_269_fig9_vp_4_5.dat");
-  TGraphErrors *npb223_269_fig9_vp_5_7 = MakeGraph("npb223_269_fig9_vp_5_7.dat");
-  TGraphErrors *npb223_269_fig9_vp_7_10 = MakeGraph("npb223_269_fig9_vp_7_10.dat");
-  TGraphErrors *npb223_269_fig9_vp_10_14 = MakeGraph("npb223_269_fig9_vp_10_14.dat");
+  TGraphErrors *npb223_269_fig9_vp_3_4   = MakeGraph("multiplicity_correlation/npb223_269_fig9_vp_3_4.dat");
+  TGraphErrors *npb223_269_fig9_vp_4_5   = MakeGraph("multiplicity_correlation/npb223_269_fig9_vp_4_5.dat");
+  TGraphErrors *npb223_269_fig9_vp_5_7   = MakeGraph("multiplicity_correlation/npb223_269_fig9_vp_5_7.dat");
+  TGraphErrors *npb223_269_fig9_vp_7_10  = MakeGraph("multiplicity_correlation/npb223_269_fig9_vp_7_10.dat");
+  TGraphErrors *npb223_269_fig9_vp_10_14 = MakeGraph("multiplicity_correlation/npb223_269_fig9_vp_10_14.dat");
 
-  npb223_269_fig9_vp_3_4->SetMarkerStyle(24);
-  npb223_269_fig9_vp_4_5->SetMarkerStyle(24);
-  npb223_269_fig9_vp_5_7->SetMarkerStyle(24);
-  npb223_269_fig9_vp_7_10->SetMarkerStyle(24);
+  npb223_269_fig9_vp_3_4  ->SetMarkerStyle(24);
+  npb223_269_fig9_vp_4_5  ->SetMarkerStyle(24);
+  npb223_269_fig9_vp_5_7  ->SetMarkerStyle(24);
+  npb223_269_fig9_vp_7_10 ->SetMarkerStyle(24);
   npb223_269_fig9_vp_10_14->SetMarkerStyle(24);
 
   TCanvas *cCorr_Pi0_Ch = new TCanvas("cCorr_Pi0_Ch","cCorr_Pi0_Ch",800,500);
@@ -465,19 +465,19 @@ void HadPlotter::ShowPlots()
   // Normalised topological cross sections
   // .........................................................................
 
-  TGraphErrors *prd27_47_fig3_vp_2 = MakeGraph("prd27_47_fig3_vp_2.dat");
-  TGraphErrors *prd27_47_fig3_vp_4 = MakeGraph("prd27_47_fig3_vp_4.dat");
-  TGraphErrors *prd27_47_fig3_vp_6 = MakeGraph("prd27_47_fig3_vp_6.dat");
-  TGraphErrors *prd27_47_fig3_vp_8 = MakeGraph("prd27_47_fig3_vp_8.dat");
-  TGraphErrors *prd27_47_fig3_vp_10 = MakeGraph("prd27_47_fig3_vp_10.dat");
-  TGraphErrors *prd27_47_fig3_vp_12 = MakeGraph("prd27_47_fig3_vp_12.dat");
+  TGraphErrors *prd27_47_fig3_vp_2  = MakeGraph("normalised_topological_xsec/prd27_47_fig3_vp_2.dat");
+  TGraphErrors *prd27_47_fig3_vp_4  = MakeGraph("normalised_topological_xsec/prd27_47_fig3_vp_4.dat");
+  TGraphErrors *prd27_47_fig3_vp_6  = MakeGraph("normalised_topological_xsec/prd27_47_fig3_vp_6.dat");
+  TGraphErrors *prd27_47_fig3_vp_8  = MakeGraph("normalised_topological_xsec/prd27_47_fig3_vp_8.dat");
+  TGraphErrors *prd27_47_fig3_vp_10 = MakeGraph("normalised_topological_xsec/prd27_47_fig3_vp_10.dat");
+  TGraphErrors *prd27_47_fig3_vp_12 = MakeGraph("normalised_topological_xsec/prd27_47_fig3_vp_12.dat");
 
-  TGraphErrors *prd27_47_fig3_vn_1 = MakeGraph("prd27_47_fig3_vn_1.dat");
-  TGraphErrors *prd27_47_fig3_vn_3 = MakeGraph("prd27_47_fig3_vn_3.dat");
-  TGraphErrors *prd27_47_fig3_vn_5 = MakeGraph("prd27_47_fig3_vn_5.dat");
-  TGraphErrors *prd27_47_fig3_vn_7 = MakeGraph("prd27_47_fig3_vn_7.dat");
-  TGraphErrors *prd27_47_fig3_vn_9 = MakeGraph("prd27_47_fig3_vn_9.dat");
-  TGraphErrors *prd27_47_fig3_vn_11 = MakeGraph("prd27_47_fig3_vn_11.dat");
+  TGraphErrors *prd27_47_fig3_vn_1  = MakeGraph("normalised_topological_xsec/prd27_47_fig3_vn_1.dat");
+  TGraphErrors *prd27_47_fig3_vn_3  = MakeGraph("normalised_topological_xsec/prd27_47_fig3_vn_3.dat");
+  TGraphErrors *prd27_47_fig3_vn_5  = MakeGraph("normalised_topological_xsec/prd27_47_fig3_vn_5.dat");
+  TGraphErrors *prd27_47_fig3_vn_7  = MakeGraph("normalised_topological_xsec/prd27_47_fig3_vn_7.dat");
+  TGraphErrors *prd27_47_fig3_vn_9  = MakeGraph("normalised_topological_xsec/prd27_47_fig3_vn_9.dat");
+  TGraphErrors *prd27_47_fig3_vn_11 = MakeGraph("normalised_topological_xsec/prd27_47_fig3_vn_11.dat");
 
   TCanvas *cTopo = new TCanvas("cTopo","cTopo",900,400);
   cTopo->Divide(2,1);
@@ -549,16 +549,16 @@ void HadPlotter::ShowPlots()
   // F/B multiplicity
   // .........................................................................
 
-  TGraphErrors *prd27_47_fig7_vp_tar = MakeGraph("prd27_47_fig7_vp_tar.dat");
-  TGraphErrors *prd27_47_fig7_vn_tar = MakeGraph("prd27_47_fig7_vn_tar.dat");
-  TGraphErrors *prd27_47_fig7_vp_cur = MakeGraph("prd27_47_fig7_vp_cur.dat");
-  TGraphErrors *prd27_47_fig7_vn_cur = MakeGraph("prd27_47_fig7_vn_cur.dat");
-  TGraphErrors *npb223_269_nF_W = MakeGraph("npb223_269_nF_W.dat");
-  TGraphErrors *npb223_269_nB_W = MakeGraph("npb223_269_nB_W.dat");
-  TGraphErrors *zpc24_119_fig4_vp_F = MakeGraph("zpc24_119_fig4_vp_F.dat");
-  TGraphErrors *zpc24_119_fig4_vp_B = MakeGraph("zpc24_119_fig4_vp_B.dat");
-  TGraphErrors *zpc24_119_fig4_vn_F = MakeGraph("zpc24_119_fig4_vn_F.dat");
-  TGraphErrors *zpc24_119_fig4_vn_B = MakeGraph("zpc24_119_fig4_vn_B.dat");
+  TGraphErrors *prd27_47_fig7_vp_tar = MakeGraph("forward_backward_multiplicity/prd27_47_fig7_vp_tar.dat");
+  TGraphErrors *prd27_47_fig7_vn_tar = MakeGraph("forward_backward_multiplicity/prd27_47_fig7_vn_tar.dat");
+  TGraphErrors *prd27_47_fig7_vp_cur = MakeGraph("forward_backward_multiplicity/prd27_47_fig7_vp_cur.dat");
+  TGraphErrors *prd27_47_fig7_vn_cur = MakeGraph("forward_backward_multiplicity/prd27_47_fig7_vn_cur.dat");
+  TGraphErrors *npb223_269_nF_W      = MakeGraph("forward_backward_multiplicity/npb223_269_nF_W.dat");
+  TGraphErrors *npb223_269_nB_W      = MakeGraph("forward_backward_multiplicity/npb223_269_nB_W.dat");
+  TGraphErrors *zpc24_119_fig4_vp_F  = MakeGraph("forward_backward_multiplicity/zpc24_119_fig4_vp_F.dat");
+  TGraphErrors *zpc24_119_fig4_vp_B  = MakeGraph("forward_backward_multiplicity/zpc24_119_fig4_vp_B.dat");
+  TGraphErrors *zpc24_119_fig4_vn_F  = MakeGraph("forward_backward_multiplicity/zpc24_119_fig4_vn_F.dat");
+  TGraphErrors *zpc24_119_fig4_vn_B  = MakeGraph("forward_backward_multiplicity/zpc24_119_fig4_vn_B.dat");
 
   TCanvas *cMulFB = new TCanvas("cMulFB","cMulFB",800,500);
   cMulFB->Divide(2,2,0,0);
@@ -649,8 +649,8 @@ void HadPlotter::ShowPlots()
   // xF distribution
   // .........................................................................
 
-  TGraphErrors *npb214_369_fig7_pip = MakeGraph("npb214_369_fig7_pip.dat");
-  TGraphErrors *npb214_369_fig7_pim = MakeGraph("npb214_369_fig7_pim.dat");
+  TGraphErrors *npb214_369_fig7_pip = MakeGraph("xF_distribution/npb214_369_fig7_pip.dat");
+  TGraphErrors *npb214_369_fig7_pim = MakeGraph("xF_distribution/npb214_369_fig7_pim.dat");
   TCanvas *cXF = new TCanvas("cXF","cXF",800,400);
   cXF->Divide(2,1);
   DrawFrame(cXF, 1, -1, 1, 0.01, 10, "","X_{F}", "(1/N_{ev})dN^{#pi}/dX_{F}", false, true);
@@ -688,8 +688,8 @@ void HadPlotter::ShowPlots()
   // z distribution
   // .........................................................................
 
-  TGraphErrors *zpc24_119_fig8_vd_pos = MakeGraph("zpc24_119_fig8_vd_pos.dat");
-  TGraphErrors *zpc24_119_fig8_vd_neg = MakeGraph("zpc24_119_fig8_vd_neg.dat");
+  TGraphErrors *zpc24_119_fig8_vd_pos = MakeGraph("z_distribution/zpc24_119_fig8_vd_pos.dat");
+  TGraphErrors *zpc24_119_fig8_vd_neg = MakeGraph("z_distribution/zpc24_119_fig8_vd_neg.dat");
   TCanvas *cZ = new TCanvas("cZ","cZ",800,400);
   cZ->Divide(2,1);
   DrawFrame(cZ, 1, 0, 1, 0.001, 40, "","z", "D^{+}(z)", false, true);
@@ -738,10 +738,10 @@ void HadPlotter::ShowPlots()
   // pT distribution
   // .........................................................................
 
-  TGraphErrors *prd19_1_fig11_xf1 = MakeGraph("prd19_1_fig11_xf1.dat");
-  TGraphErrors *prd19_1_fig11_xf2 = MakeGraph("prd19_1_fig11_xf2.dat");
-  TGraphErrors *prd19_1_fig11_xf3 = MakeGraph("prd19_1_fig11_xf3.dat");
-  TGraphErrors *prd19_1_fig11_xf4 = MakeGraph("prd19_1_fig11_xf4.dat");
+  TGraphErrors *prd19_1_fig11_xf1 = MakeGraph("pT2_distribution/prd19_1_fig11_xf1.dat");
+  TGraphErrors *prd19_1_fig11_xf2 = MakeGraph("pT2_distribution/prd19_1_fig11_xf2.dat");
+  TGraphErrors *prd19_1_fig11_xf3 = MakeGraph("pT2_distribution/prd19_1_fig11_xf3.dat");
+  TGraphErrors *prd19_1_fig11_xf4 = MakeGraph("pT2_distribution/prd19_1_fig11_xf4.dat");
   TCanvas *cPt = new TCanvas("cPt","cPt",800,800);
   cPt->Divide(2,2);
   DrawFrame(cPt,1,0,1.2,0.01,30,"0<X_{F}<0.1","P_{T}^{2}[(GeV/c)^{2}]","h^{#pm}Tracks/Event/(GeV/c)^2",false,true);
@@ -789,8 +789,8 @@ void HadPlotter::ShowPlots()
   // pT2 vs W2
   // .........................................................................
 
-  TGraphErrors *zpc27_239_fig3_vD_F = MakeGraph("zpc27_239_fig3_vD_F.dat");
-  TGraphErrors *zpc27_239_fig3_vD_B = MakeGraph("zpc27_239_fig3_vD_B.dat");
+  TGraphErrors *zpc27_239_fig3_vD_F = MakeGraph("pT2_vs_W2/zpc27_239_fig3_vD_F.dat");
+  TGraphErrors *zpc27_239_fig3_vD_B = MakeGraph("pT2_vs_W2/zpc27_239_fig3_vD_B.dat");
   TCanvas *cPt_W2 = new TCanvas("cPt_W2","cPt_W2",800,400);
   cPt_W2->Divide(2,1);
   DrawFrame(cPt_W2,1,1,300,0,1,"","W^{2}(GeV^{2}/c^{4})","<P_{T}^{2}>(GeV/c)^{2}",true,false);
@@ -839,8 +839,8 @@ void HadPlotter::ShowPlots()
   // pt2 vs xf
   // .........................................................................
 
-  TGraphErrors *zpc27_239_fig6_vp_loW = MakeGraph("zpc27_239_fig6_vp_loW.dat");
-  TGraphErrors *zpc27_239_fig6_vn_loW = MakeGraph("zpc27_239_fig6_vn_loW.dat");
+  TGraphErrors *zpc27_239_fig6_vp_loW = MakeGraph("pT2_vs_xF/zpc27_239_fig6_vp_loW.dat");
+  TGraphErrors *zpc27_239_fig6_vn_loW = MakeGraph("pT2_vs_xF/zpc27_239_fig6_vn_loW.dat");
   TCanvas *cPt2_xf = new TCanvas("cPt2_xf","cPt2_xf",800,400);
   cPt2_xf->Divide(2,1);
   DrawFrame(cPt2_xf,1,-1,1,0,0.8,"","X_{F}","<P_{T}^{2}>(GeV/c)^{2}",false,false);
@@ -885,7 +885,7 @@ void HadPlotter::ShowPlots()
   // Charged hadron multiplicity
   // .........................................................................
 
-  TGraphErrors *prd25_624_fig5 = MakeGraph("prd25_624_fig5.dat");
+  TGraphErrors *prd25_624_fig5 = MakeGraph("charged_hadron_multiplicity/prd25_624_fig5.dat");
   TCanvas *cMulCh_nubar = new TCanvas("cMulCh_nubar","cMulCh_nubar",600,400);
   DrawFrame(cMulCh_nubar,0,1,300,0,10,"","W^{2}(GeV^{2}/c^{4})","<n_{ch}>",true,false);
   DrawGraph(prd25_624_fig5,24,1,0.8);
@@ -908,7 +908,7 @@ void HadPlotter::ShowPlots()
   // Dispersion (D_)
   // .........................................................................
 
-  TGraphErrors *prd25_624_fig8 = MakeGraph("prd25_624_fig8.dat");
+  TGraphErrors *prd25_624_fig8 = MakeGraph("charged_hadron_dispersion/prd25_624_fig8.dat");
   TCanvas *cDispCh_nubar = new TCanvas("cDispCh_nubar","cDispCh_nubar",600,400);
   DrawFrame(cDispCh_nubar,0,0,4,0,2,"","<n_{-}>","D_{-}",false,false);
   DrawGraph(prd25_624_fig8,24,1,0.8);
@@ -931,12 +931,12 @@ void HadPlotter::ShowPlots()
   // Normalised topological cross sections
   // .........................................................................
 
-  TGraphErrors *prd25_624_0 = MakeGraph("prd25_624_0.dat");
-  TGraphErrors *prd25_624_2 = MakeGraph("prd25_624_2.dat");
-  TGraphErrors *prd25_624_4 = MakeGraph("prd25_624_4.dat");
-  TGraphErrors *prd25_624_6 = MakeGraph("prd25_624_6.dat");
-  TGraphErrors *prd25_624_8 = MakeGraph("prd25_624_8.dat");
-  TGraphErrors *prd25_624_10 = MakeGraph("prd25_624_10.dat");
+  TGraphErrors *prd25_624_0  = MakeGraph("normalised_topological_xsec/prd25_624_0.dat");
+  TGraphErrors *prd25_624_2  = MakeGraph("normalised_topological_xsec/prd25_624_2.dat");
+  TGraphErrors *prd25_624_4  = MakeGraph("normalised_topological_xsec/prd25_624_4.dat");
+  TGraphErrors *prd25_624_6  = MakeGraph("normalised_topological_xsec/prd25_624_6.dat");
+  TGraphErrors *prd25_624_8  = MakeGraph("normalised_topological_xsec/prd25_624_8.dat");
+  TGraphErrors *prd25_624_10 = MakeGraph("normalised_topological_xsec/prd25_624_10.dat");
   TCanvas *cTopo_nubar = new TCanvas("cTopo_nubar","cTopo_nubar",600,370);
   DrawFrame(cTopo_nubar,0,1,1000,1e-4,10,"","W^{2}(GeV^{2}/c^{4})","P(n_{ch})",true,true);
   DrawGraph(prd25_624_0,20,1,0.7);
@@ -973,9 +973,9 @@ void HadPlotter::ShowPlots()
   // Pi0 multiplicity
   // .........................................................................
 
-  TGraphErrors *nc51a_539_fig4 = MakeGraph("nc51a_539_fig4.dat");
-  TGraphErrors *npb223_269_fig8b = MakeGraph("npb223_269_fig8b.dat");
-  TGraphErrors *zpc40_231_fig13_nubar = MakeGraph("zpc40_231_fig13_nubar.dat");
+  TGraphErrors *nc51a_539_fig4        = MakeGraph("pi0_multiplicity/nc51a_539_fig4.dat");
+  TGraphErrors *npb223_269_fig8b      = MakeGraph("pi0_multiplicity/npb223_269_fig8b.dat");
+  TGraphErrors *zpc40_231_fig13_nubar = MakeGraph("pi0_multiplicity/zpc40_231_fig13_nubar.dat");
   TCanvas *cMulPi0_nubar = new TCanvas("cMulPi0_nubar","cMulPi0_nubar");
   DrawFrame(cMulPi0_nubar,0,1,1000,0,4,"","W^{2}(GeV^{2}/c^{4})","<n_{#pi^{0}}>",true,false);
   //DrawGraph(sn41_963_fig2,20,1,0.8);
@@ -1004,8 +1004,8 @@ void HadPlotter::ShowPlots()
   // F/B multiplicity
   // .........................................................................
 
-  TGraphErrors *prd24_1071_fig21a = MakeGraph("prd24_1071_fig21a.dat");
-  TGraphErrors *prd24_1071_fig21b = MakeGraph("prd24_1071_fig21b.dat");
+  TGraphErrors *prd24_1071_fig21a = MakeGraph("forward_backward_multiplicity/prd24_1071_fig21a.dat");
+  TGraphErrors *prd24_1071_fig21b = MakeGraph("forward_backward_multiplicity/prd24_1071_fig21b.dat");
   TCanvas *cMulFB_nubar = new TCanvas("cMulFB_nubar","cMulFB_nubar",800,400);
   cMulFB_nubar->Divide(2,1);
   DrawFrame(cMulFB_nubar, 1, 1, 300, 0, 5, "","W^{2}(GeV^{2}/c^{4})", "<n_{ch}>", true, false);
@@ -1048,14 +1048,14 @@ void HadPlotter::ShowPlots()
   // xf distribution
   // .........................................................................
 
-  TGraphErrors *prd24_1071_fig8a = MakeGraph("prd24_1071_fig8a.dat");
-  //TGraphErrors *prd24_1071_fig8b = MakeGraph("prd24_1071_fig8b.dat");
-  TGraphErrors *prd24_1071_fig9a = MakeGraph("prd24_1071_fig9a.dat");
-  //TGraphErrors *prd24_1071_fig9b = MakeGraph("prd24_1071_fig9b.dat");
-  TGraphErrors *prd24_1071_fig8a_hi = MakeGraph("prd24_1071_fig8a_hi.dat");
-  //TGraphErrors *prd24_1071_fig8b_hi = MakeGraph("prd24_1071_fig8b_hi.dat");
-  TGraphErrors *prd24_1071_fig9a_hi = MakeGraph("prd24_1071_fig9a_hi.dat");
-  //TGraphErrors *prd24_1071_fig9b_hi = MakeGraph("prd24_1071_fig9b_hi.dat");
+  TGraphErrors *prd24_1071_fig8a    = MakeGraph("xF_distribution/prd24_1071_fig8a.dat");
+//TGraphErrors *prd24_1071_fig8b    = MakeGraph("xF_distribution/prd24_1071_fig8b.dat");
+  TGraphErrors *prd24_1071_fig9a    = MakeGraph("xF_distribution/prd24_1071_fig9a.dat");
+//TGraphErrors *prd24_1071_fig9b    = MakeGraph("xF_distribution/prd24_1071_fig9b.dat");
+  TGraphErrors *prd24_1071_fig8a_hi = MakeGraph("xF_distribution/prd24_1071_fig8a_hi.dat");
+//TGraphErrors *prd24_1071_fig8b_hi = MakeGraph("xF_distribution/prd24_1071_fig8b_hi.dat");
+  TGraphErrors *prd24_1071_fig9a_hi = MakeGraph("xF_distribution/prd24_1071_fig9a_hi.dat");
+//TGraphErrors *prd24_1071_fig9b_hi = MakeGraph("xF_distribution/prd24_1071_fig9b_hi.dat");
   TCanvas *cXf_nubar = new TCanvas("cXf_nubar","cXf_nubar",800,800);
   cXf_nubar->Divide(2,2);
   DrawFrame(cXf_nubar,1,-1,1,0,.5,"","X_{F}=2P_{L}/W","F(X_{F})",false,false);
@@ -1114,10 +1114,10 @@ void HadPlotter::ShowPlots()
   lXf1_nubar->Draw();
 
   //Nucl.Phys.B214:369,1983
-  TGraphErrors *npb214_369_fig5c = MakeGraph("npb214_369_fig5c.dat");
-  TGraphErrors *npb214_369_fig5d = MakeGraph("npb214_369_fig5d.dat");
-  TGraphErrors *zpc24_119_fig6g = MakeGraph("zpc24_119_fig6g.dat");
-  TGraphErrors *zpc24_119_fig6c = MakeGraph("zpc24_119_fig6c.dat");
+  TGraphErrors *npb214_369_fig5c = MakeGraph("xF_distribution/npb214_369_fig5c.dat");
+  TGraphErrors *npb214_369_fig5d = MakeGraph("xF_distribution/npb214_369_fig5d.dat");
+  TGraphErrors *zpc24_119_fig6g  = MakeGraph("xF_distribution/zpc24_119_fig6g.dat");
+  TGraphErrors *zpc24_119_fig6c  = MakeGraph("xF_distribution/zpc24_119_fig6c.dat");
   TCanvas *cXf2_nubar = new TCanvas("cXf2_nubar","cXf2_nubar",800,400);
   cXf2_nubar->Divide(2,1);
   DrawFrame(cXf2_nubar,1,-1,1,0,.3,"","X_{F}=2P_{L}/W","F(X_{F})",false,false);
@@ -1153,12 +1153,12 @@ void HadPlotter::ShowPlots()
   piminus->Draw();
 
   // .........................................................................
-  // z from anti-nu
+  // z distribution
   // .........................................................................
 
-  TGraphErrors *prd17_fig14_E1 = MakeGraph("prd17_fig14_E1.dat");
-  TGraphErrors *prd17_fig14_E2 = MakeGraph("prd17_fig14_E2.dat");
-  TGraphErrors *prd17_fig14_E3 = MakeGraph("prd17_fig14_E3.dat");
+  TGraphErrors *prd17_fig14_E1 = MakeGraph("z_distribution/prd17_fig14_E1.dat");
+  TGraphErrors *prd17_fig14_E2 = MakeGraph("z_distribution/prd17_fig14_E2.dat");
+  TGraphErrors *prd17_fig14_E3 = MakeGraph("z_distribution/prd17_fig14_E3.dat");
   TCanvas *cZ_nubar = new TCanvas("cZ_nubar","cZ_nubar",600,600);
   DrawFrame(cZ_nubar,0,0,1,0.1,100,"","z","(1/N_{E})dN_{E}/dZ",false,true);
   DrawGraph(prd17_fig14_E1,20,1);
@@ -1194,9 +1194,9 @@ void HadPlotter::ShowPlots()
   // pT vs W
   // .........................................................................
 
-  TGraphErrors *prd24_1071_fig37a = MakeGraph("prd24_1071_fig37a.dat");
-  TGraphErrors *prd24_1071_fig37b = MakeGraph("prd24_1071_fig37b.dat");
-  TGraphErrors *prd24_1071_fig37c = MakeGraph("prd24_1071_fig37c.dat");
+  TGraphErrors *prd24_1071_fig37a = MakeGraph("pT2_vs_W2/prd24_1071_fig37a.dat");
+  TGraphErrors *prd24_1071_fig37b = MakeGraph("pT2_vs_W2/prd24_1071_fig37b.dat");
+  TGraphErrors *prd24_1071_fig37c = MakeGraph("pT2_vs_W2/prd24_1071_fig37c.dat");
   TCanvas *cPt_W_nubar = new TCanvas("cPt_W_nubar","cPt_W_nubar",900,300);
   cPt_W_nubar->Divide(3,1);
   DrawFrame(cPt_W_nubar,1,1,10,0,0.6,"","W(GeV/c^{2})","<P_{T}>(GeV/c)",false,false);
