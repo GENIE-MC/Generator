@@ -1,11 +1,13 @@
+# 
 # Quasielastic Electron Nucleus Scattering Archive
 # O. Benhar, D. Day and I. Sick, Rev. Mod. Phys. 80, 189-224, 2008
 # Source: http://faculty.virginia.edu/qes-archive/
 # Target: 40Ca
 # 
-# Z  A   E      Theta  v     xsec        error  citation
-#        (GeV)  (deg)  GeV)  (nb/sr/GeV)                
-#  20  40   0.120  90.000  0.0075  2.163e+05  1.443e+04 Meziani:1984is 
+# Z  A   E      Theta     v      xsec        error    citation
+#        (GeV)  (deg)    (GeV)  (nb/sr/GeV)                   
+# 
+ 20  40   0.120  90.000  0.0075  2.163e+05  1.443e+04 Meziani:1984is 
  20  40   0.120  90.000  0.0125  9.209e+04  8.187e+03 Meziani:1984is 
  20  40   0.120  90.000  0.0175  1.384e+05  1.041e+04 Meziani:1984is 
  20  40   0.120  90.000  0.0225  1.236e+05  1.038e+04 Meziani:1984is 

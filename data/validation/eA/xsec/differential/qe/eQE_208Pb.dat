@@ -1,11 +1,13 @@
+# 
 # Quasielastic Electron Nucleus Scattering Archive
 # O. Benhar, D. Day and I. Sick, Rev. Mod. Phys. 80, 189-224, 2008
 # Source: http://faculty.virginia.edu/qes-archive/
 # Target: 208Pb
 # 
-# Z  A   E      Theta  v     xsec        error  citation
-#        (GeV)  (deg)  GeV)  (nb/sr/GeV)                
-#  82 208   0.140  60.000  0.0025  1.613e+06  4.566e+05 Zghiche:1993xg 
+# Z  A   E      Theta     v      xsec        error    citation
+#        (GeV)  (deg)    (GeV)  (nb/sr/GeV)                   
+# 
+ 82 208   0.140  60.000  0.0025  1.613e+06  4.566e+05 Zghiche:1993xg 
  82 208   0.140  60.000  0.0075  7.022e+07  2.520e+06 Zghiche:1993xg 
  82 208   0.140  60.000  0.0125  4.394e+06  2.800e+05 Zghiche:1993xg 
  82 208   0.140  60.000  0.0175  3.138e+06  2.301e+05 Zghiche:1993xg 
