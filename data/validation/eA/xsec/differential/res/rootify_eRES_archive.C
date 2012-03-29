@@ -44,32 +44,36 @@ int rootify_eRES_archive(void)
     "eRES_2H_SLAC_e8920.data",
     "eRES_2H_SLAC_ne11.data"
   };
-  double pct_xsec_syst_err_to_add[nfiles] = 
+  // For some data files, the quoted xsec error includes both statistical and systematic uncertainties.
+  // But for some data files, the quoted xsec error includes only statistical uncertainties and the
+  // systematic uncertainty is quoted separately. This % systematic uncertainty is listed below and is
+  // added to the statistical uncertainty.
+  double pct_xsec_err_to_add[nfiles] = 
   {
     0.000, // eRES_1H_JLab_e00_002.data
     0.000, // eRES_1H_JLab_e94_110.data
     0.000, // eRES_1H_JLab_ioanna.data
-    0.000, // eRES_1H_SLAC_e133.data
+    5.000, // eRES_1H_SLAC_e133.data
     0.000, // eRES_1H_SLAC_e140.data
-    0.000, // eRES_1H_SLAC_e140x.data
-    0.000, // eRES_1H_SLAC_e49a10.data
-    0.000, // eRES_1H_SLAC_e49a6.data
-    0.000, // eRES_1H_SLAC_e49b.data
-    0.000, // eRES_1H_SLAC_e61.data
-    0.000, // eRES_1H_SLAC_e87.data
-    0.000, // eRES_1H_SLAC_e891.data
-    0.000, // eRES_1H_SLAC_e8920.data
+    5.000, // eRES_1H_SLAC_e140x.data
+    5.000, // eRES_1H_SLAC_e49a10.data
+    5.000, // eRES_1H_SLAC_e49a6.data
+    5.000, // eRES_1H_SLAC_e49b.data
+    5.000, // eRES_1H_SLAC_e61.data
+    5.000, // eRES_1H_SLAC_e87.data
+    5.000, // eRES_1H_SLAC_e891.data
+    5.000, // eRES_1H_SLAC_e8920.data
     0.000, // eRES_1H_SLAC_ne11.data
-    0.000, // eRES_1H_SLAC_onen1haf.data
+    5.000, // eRES_1H_SLAC_onen1haf.data
     0.000, // eRES_2H_JLab_ioanna.data
-    0.000, // eRES_2H_SLAC_e133.data
-    0.000, // eRES_2H_SLAC_e140x.data
-    0.000, // eRES_2H_SLAC_e49a10.data
-    0.000, // eRES_2H_SLAC_e49a6.data
-    0.000, // eRES_2H_SLAC_e49b.data
-    0.000, // eRES_2H_SLAC_e61.data
-    0.000, // eRES_2H_SLAC_e891.data
-    0.000, // eRES_2H_SLAC_e8920.data
+    5.000, // eRES_2H_SLAC_e133.data
+    5.000, // eRES_2H_SLAC_e140x.data
+    5.000, // eRES_2H_SLAC_e49a10.data
+    5.000, // eRES_2H_SLAC_e49a6.data
+    5.000, // eRES_2H_SLAC_e49b.data
+    5.000, // eRES_2H_SLAC_e61.data
+    5.000, // eRES_2H_SLAC_e891.data
+    5.000, // eRES_2H_SLAC_e8920.data
     0.000  // eRES_2H_SLAC_ne11.data
   };
   double whitlow_norm[nfiles] = 
@@ -81,23 +85,23 @@ int rootify_eRES_archive(void)
     1.000, // eRES_1H_SLAC_e140.data
     1.000, // eRES_1H_SLAC_e140x.data
     1.000, // eRES_1H_SLAC_e49a10.data
-    1.000, // eRES_1H_SLAC_e49a6.data
-    1.000, // eRES_1H_SLAC_e49b.data
-    1.000, // eRES_1H_SLAC_e61.data
-    1.000, // eRES_1H_SLAC_e87.data
-    1.000, // eRES_1H_SLAC_e891.data
-    1.000, // eRES_1H_SLAC_e8920.data
+    1.012, // eRES_1H_SLAC_e49a6.data
+    0.981, // eRES_1H_SLAC_e49b.data
+    1.011, // eRES_1H_SLAC_e61.data
+    0.982, // eRES_1H_SLAC_e87.data
+    0.989, // eRES_1H_SLAC_e891.data
+    0.953, // eRES_1H_SLAC_e8920.data
     1.000, // eRES_1H_SLAC_ne11.data
     1.000, // eRES_1H_SLAC_onen1haf.data
     1.000, // eRES_2H_JLab_ioanna.data
     1.000, // eRES_2H_SLAC_e133.data
     1.000, // eRES_2H_SLAC_e140x.data
     1.000, // eRES_2H_SLAC_e49a10.data
-    1.000, // eRES_2H_SLAC_e49a6.data
-    1.000, // eRES_2H_SLAC_e49b.data
-    1.000, // eRES_2H_SLAC_e61.data
-    1.000, // eRES_2H_SLAC_e891.data
-    1.000, // eRES_2H_SLAC_e8920.data
+    1.001, // eRES_2H_SLAC_e49a6.data
+    0.981, // eRES_2H_SLAC_e49b.data
+    1.033, // eRES_2H_SLAC_e61.data
+    0.985, // eRES_2H_SLAC_e891.data
+    0.949, // eRES_2H_SLAC_e8920.data
     1.000  // eRES_2H_SLAC_ne11.data
   };
   string expt_name[nfiles] = 
@@ -132,6 +136,8 @@ int rootify_eRES_archive(void)
   //
   // Read all data and save to ROOT tree
   //
+
+  // define output tree
   char *  expt     = "";  // experiment
   int     Z        = 0;   // atomic mass number
   int     A        = 0;   // target mass number
@@ -143,10 +149,10 @@ int rootify_eRES_archive(void)
   double  v        = 0.0; // energy loss v, GeV
   double  epsilon  = 0.0; // 
   double  gamma    = 0.0; // 
-  double  x        = 0.0; // 
+  double  x        = 0.0; // bjorken x
   double  wnorm    = 0.0; // Whitlow norm
   double  xsec     = 0.0; // cross section, nb/sr/GeV
-  double  xsec_err = 0.0; // random;
+  double  xsec_err = 0.0; // cross section uncertainty, nb/sr/GeV
 
   TFile outfile("eRES.root", "RECREATE");
   TTree restree("resnt", "Resonance Electron Nucleus Scattering Archive");
@@ -166,6 +172,11 @@ int rootify_eRES_archive(void)
   restree.Branch ("xsec",     &xsec,     "xsec/D"    );
   restree.Branch ("xsec_err", &xsec_err, "xsec_err/D");
 
+  // temp vars
+  double xsec_err_to_add = 0;
+  double xsec_err_quoted = 0;
+
+  // loop over files
   for(int i = 0; i < nfiles; i++) {
      // open the input data file
      ifstream infile(filename[i].c_str());
@@ -191,12 +202,17 @@ int rootify_eRES_archive(void)
 	    cout << "Skipping header line..." << endl;
 #endif
           } else {
-   	    infile >> E >> Ep >> theta >> Q2 >> W2 >> v >> epsilon >> gamma >> x >> xsec >> xsec_err;
+   	    infile >> E >> Ep >> theta >> Q2 >> W2 >> v >> epsilon >> gamma >> x >> xsec >> xsec_err_quoted;
             if(infile.eof()) break;            
             // add systematic error by hand if not included in the number quoted in the file
-            xsec_err *= (1. + pct_xsec_syst_err_to_add[i]/100.);
+            if(pct_xsec_err_to_add[i] > 0) {
+              xsec_err_to_add = xsec * pct_xsec_err_to_add[i]/100.;
+              xsec_err = TMath::Sqrt(xsec_err_quoted*xsec_err_quoted + xsec_err_to_add*xsec_err_to_add);
+            } else {
+              xsec_err = xsec_err_quoted;
+            }
 #ifdef _show_debug_mesg_
-	    cout << "Sigma(eRES; " << expt << " ; "
+	    cout << "Sigma(eRES; " << expt << "; "
                  << "Z = "         << Z 
                  << ", A = "       << A 
                  << ", E = "       << E     << " GeV"
