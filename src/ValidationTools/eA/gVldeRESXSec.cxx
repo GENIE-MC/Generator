@@ -3,7 +3,7 @@
 
 \program gvld_e_res_xsec
 
-\brief   Compares GENIE with electron scattering data in the resonance region.
+\brief   Compares GENIE with resonance electro-production cross-section data.
 
          The data come from the JLab Hall C archive maintained at:
          https://hallcweb.jlab.org/resdata/database/
@@ -18,7 +18,8 @@
 
            [] Denotes an optional argument.
 
-           -m Specify GENIE resonance electro-production cross-section model
+           -m Specify GENIE resonance electro-production cross-section model.
+              If not set, only data -no GENIE predictions- will be displayed.
            -d Full path to the electron scattering archive.
               By default, will pick the one at:
               $GENIE/data/validation/eA/xsec/differential/res/eRES.root
@@ -547,7 +548,7 @@ void Init(void)
   gC->SetGridy();
 
   // output postscript file
-  gPS = new TPostScript("genie_eres_vs_data.ps", 111);
+  gPS = new TPostScript("eRES.genie_vs_data.ps", 111);
 
   // cover page
   AddCoverPage();
@@ -560,7 +561,7 @@ void AddCoverPage(void)
   gC->Range(0,0,100,100);
   TPavesText hdr(10,40,90,70,3,"tr");
   hdr.AddText(" ");
-  hdr.AddText("GENIE Resonance Electro-Production vs Data");
+  hdr.AddText("Resonance Electro-Production: GENIE vs data");
   hdr.AddText(" ");
   hdr.Draw();
   gC->Update();
