@@ -5,29 +5,27 @@
 
 \brief   Compares GENIE with electron scattering data in the resonance region.
 
-         The data (currently 9531 data points) from E133, E140, E140x, E49A10
-         E49A6, E49B, E61, E87, E891, E8920, JLAB, NE11 and ONEN1HAF stored at 
-         GENIE's MySQL dbase originate from S.Wood's online dbase.
+         The data come from the JLab Hall C archive maintained at:
+         https://hallcweb.jlab.org/resdata/database/
+         A local copy may be found in:
+         $GENIE/data/validation/eA/xsec/differential/res/
+         The archive contains ~12k data points.
 
          Syntax:
-           gvld_e_res_xsec 
-                [-h host] [-u user] [-p passwd] [-m model]
+           gvld_e_res_xsec -m model [-d data_archive_location]
 
          Options:
 
            [] Denotes an optional argument.
 
-           -h NuVld MySQL URL (eg mysql://localhost/NuScat).
-           -u NuVld MySQL username.
-           -p NuVld MySQL password.
-           -m GENIE model
+           -m Specify GENIE resonance electro-production cross-section model
+           -d Full path to the electron scattering archive.
+              By default, will pick the one at:
+              $GENIE/data/validation/eA/xsec/differential/res/eRES.root
 
          Example:
 
-            % gvld_e_res_xsec -u costas \
-                              -p &^@7287 \
-                              -h mysql://localhost/NuScat
-                              -m genie::ReinSeghalRESPXSec/Default
+            % gvld_e_res_xsec -m genie::ReinSeghalRESPXSec/Default
 
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          STFC, Rutherford Appleton Laboratory
@@ -49,6 +47,7 @@
 #include <TFile.h>
 #include <TDirectory.h>
 #include <TGraph.h>
+#include <TGraphErrors.h>
 #include <TPostScript.h>
 #include <TLatex.h>
 #include <TH1D.h>
@@ -63,7 +62,7 @@
 #include "Base/XSecAlgorithmI.h"
 #include "BaryonResonance/BaryonResonance.h"
 #include "BaryonResonance/BaryonResUtils.h"
-#include "Conventions/GBuild.h"
+//#include "Conventions/GBuild.h"
 #include "Conventions/Constants.h"
 #include "Conventions/Units.h"
 #include "Messenger/Messenger.h"
@@ -71,827 +70,406 @@
 #include "PDG/PDGCodes.h"
 #include "Utils/CmdLnArgParser.h"
 #include "Utils/StringUtils.h"
+#include "Utils/SystemUtils.h"
 #include "Utils/Style.h"
-#include "ValidationTools/NuVld/DBI.h"
-#include "ValidationTools/NuVld/DBStatus.h"
 
 using std::ostringstream;
 using std::string;
 
 using namespace genie;
-using namespace genie::nuvld;
 using namespace genie::constants;
+
+//_________________________________________________________________________________
+// Utility class to hold info on plotted datasets
+class eResDataSetDescription_t
+{
+public:
+  eResDataSetDescription_t(
+     int tgtpdg, string expt, double E, double theta, bool show) :
+    fTgtPdg (tgtpdg), 
+    fExpt   (expt), 
+    fE      (E), 
+    fTheta  (theta),
+    fShow   (show)
+  {   
+  }
+  eResDataSetDescription_t() 
+  {   
+  }
+  int    TgtPdg   (void) const { return fTgtPdg; }
+  int    TgtZ     (void) const { return pdg::IonPdgCodeToZ(fTgtPdg); }
+  int    TgtA     (void) const { return pdg::IonPdgCodeToA(fTgtPdg); }
+  string TgtName  (void) const { 
+    // all data are either in Hydrogen or Deuterium
+    if(fTgtPdg == 1000010010) return "Hydrogen";
+    if(fTgtPdg == 1000010020) return "Deuterium";
+    return "Other";
+  }
+  string Expt     (void) const { return fExpt; }
+  double E        (void) const { return fE; }
+  double Theta    (void) const { return fTheta; }
+  bool   Show     (void) const { return fShow; }
+  string LabelTeX (void) const { 
+    ostringstream label;
+    label << fExpt << " (" << this->TgtName() << "), ";
+    label << "E = " << fE << " GeV, ";
+    label << "#theta = " << fTheta << "^{o}";
+    return label.str();
+  }
+private:
+  int    fTgtPdg;  //
+  string fExpt;    //
+  double fE;       //
+  double fTheta;   //
+  bool   fShow;    //
+};
+//_________________________________________________________________________________
 
 /* 
 ..............................................................................
-ELECTRON SCATTERING CROSS SECTION DATA IN THE RESONANCE REGION
+ELECTRON-NUCLEUS RESONANCE SCATTERING DATASET DESCRIPTIONS
 ..............................................................................
 */
-const int    kElXSecDataSets = 152;
-const char * kElXSecDataSetLabel[kElXSecDataSets] = 
-{
-/*   0 */ "JLAB     (Hydrogen),  E =  2.445 GeV, #theta = 20.0^{o}",
-/*   1 */ "JLAB     (Hydrogen),  E =  2.445 GeV, #theta = 30.0^{o}",
-/*   2 */ "JLAB     (Hydrogen),  E =  2.445 GeV, #theta = 38.5^{o}",
-/*   3 */ "JLAB     (Hydrogen),  E =  2.445 GeV, #theta = 70.0^{o}",
-/*   4 */ "JLAB     (Hydrogen),  E =  3.245 GeV, #theta = 27.0^{o}",
-/*   5 */ "JLAB     (Hydrogen),  E =  4.045 GeV, #theta = 48.0^{o}",
-/*   6 */ "JLAB     (Hydrogen),  E =  4.054 GeV, #theta = 24.0^{o}",
-/*   7 */ "JLAB     (Hydrogen),  E =  4.054 GeV, #theta = 30.0^{o}",
-/*   8 */ "JLAB     (Hydrogen),  E =  4.054 GeV, #theta = 40.0^{o}",
-/*   9 */ "JLAB     (Deuterium), E =  2.445 GeV, #theta = 20.0^{o}",
-/*  10 */ "JLAB     (Deuterium), E =  2.445 GeV, #theta = 30.0^{o}",
-/*  11 */ "JLAB     (Deuterium), E =  2.445 GeV, #theta = 70.0^{o}",
-/*  12 */ "JLAB     (Deuterium), E =  3.245 GeV, #theta = 27.0^{o}",
-/*  13 */ "JLAB     (Deuterium), E =  4.045 GeV, #theta = 30.0^{o}",
-/*  14 */ "JLAB     (Deuterium), E =  4.045 GeV, #theta = 40.0^{o}",
-/*  15 */ "JLAB     (Deuterium), E =  4.045 GeV, #theta = 48.0^{o}",
-/*  16 */ "JLAB     (Deuterium), E =  4.054 GeV, #theta = 24.0^{o}",
-/*  17 */ "NE11     (Hydrogen),  E =  5.507 GeV, #theta = 15.1^{o}",
-/*  18 */ "NE11     (Hydrogen),  E =  5.507 GeV, #theta = 19.0^{o}",
-/*  19 */ "NE11     (Hydrogen),  E =  5.507 GeV, #theta = 22.8^{o}",
-/*  20 */ "NE11     (Hydrogen),  E =  5.507 GeV, #theta = 26.8^{o}",
-/*  21 */ "NE11     (Hydrogen),  E =  9.800 GeV, #theta = 13.2^{o}",
-/*  22 */ "NE11     (Hydrogen),  E =  9.800 GeV, #theta = 15.4^{o}",
-/*  23 */ "NE11     (Hydrogen),  E =  9.800 GeV, #theta = 17.5^{o}",
-/*  24 */ "NE11     (Hydrogen),  E =  9.800 GeV, #theta = 19.8^{o}",
-/*  25 */ "NE11     (Deuterium), E =  5.507 GeV, #theta = 15.1^{o}",
-/*  26 */ "NE11     (Deuterium), E =  5.507 GeV, #theta = 19.0^{o}",
-/*  27 */ "NE11     (Deuterium), E =  5.507 GeV, #theta = 22.8^{o}",
-/*  28 */ "NE11     (Deuterium), E =  5.507 GeV, #theta = 26.8^{o}",
-/*  29 */ "E133     (Hydrogen),  E =  9.772 GeV, #theta = 10.0^{o}",
-/*  30 */ "E133     (Hydrogen),  E = 12.604 GeV, #theta = 10.0^{o}",
-/*  31 */ "E133     (Hydrogen),  E = 15.740 GeV, #theta = 10.0^{o}",
-/*  32 */ "E133     (Hydrogen),  E = 18.520 GeV, #theta = 10.0^{o}",
-/*  33 */ "E133     (Hydrogen),  E = 20.998 GeV, #theta = 10.0^{o}",
-/*  34 */ "E133     (Deuterium), E =  9.766 GeV, #theta = 10.0^{o}",
-/*  35 */ "E133     (Deuterium), E = 12.603 GeV, #theta = 10.0^{o}",
-/*  36 */ "E133     (Deuterium), E = 15.725 GeV, #theta = 10.0^{o}",
-/*  37 */ "E133     (Deuterium), E = 17.301 GeV, #theta = 10.0^{o}",
-/*  38 */ "E133     (Deuterium), E = 18.498 GeV, #theta = 10.0^{o}",
-/*  39 */ "E133     (Deuterium), E = 20.998 GeV, #theta = 10.0^{o}",
-/*  40 */ "E140x    (Hydrogen),  E =  1.997 GeV, #theta = 46.2^{o}",
-/*  41 */ "E140x    (Hydrogen),  E =  3.301 GeV, #theta = 50.0^{o}",
-/*  42 */ "E140x    (Hydrogen),  E =  4.014 GeV, #theta = 50.7^{o}",
-/*  43 */ "E140x    (Hydrogen),  E =  4.951 GeV, #theta = 56.0^{o}",
-/*  44 */ "E140x    (Hydrogen),  E =  5.600 GeV, #theta = 58.0^{o}",
-/*  45 */ "E140x    (Hydrogen),  E =  6.453 GeV, #theta = 59.5^{o}",
-/*  46 */ "E140x    (Deuterium), E =  3.301 GeV, #theta = 50.0^{o}",
-/*  47 */ "E140x    (Deuterium), E =  4.014 GeV, #theta = 50.7^{o}",
-/*  48 */ "E140x    (Deuterium), E =  4.951 GeV, #theta = 56.0^{o}",
-/*  49 */ "E140x    (Deuterium), E =  5.600 GeV, #theta = 58.0^{o}",
-/*  50 */ "E140x    (Deuterium), E =  6.453 GeV, #theta = 59.5^{o}",
-/*  51 */ "E49A6    (Hydrogen),  E =  4.511 GeV, #theta =  6.0^{o}",
-/*  52 */ "E49A6    (Hydrogen),  E =  7.014 GeV, #theta =  6.0^{o}",
-/*  53 */ "E49A6    (Hydrogen),  E = 10.027 GeV, #theta =  6.0^{o}",
-/*  54 */ "E49A6    (Hydrogen),  E = 13.549 GeV, #theta =  6.0^{o}",
-/*  55 */ "E49A6    (Hydrogen),  E = 16.075 GeV, #theta =  6.0^{o}",
-/*  56 */ "E49A6    (Hydrogen),  E = 19.544 GeV, #theta =  6.0^{o}",
-/*  57 */ "E49A6    (Deuterium), E =  4.511 GeV, #theta =  6.0^{o}",
-/*  58 */ "E49A6    (Deuterium), E =  7.014 GeV, #theta =  6.0^{o}",
-/*  59 */ "E49A6    (Deuterium), E = 10.027 GeV, #theta =  6.0^{o}",
-/*  60 */ "E49A6    (Deuterium), E = 13.549 GeV, #theta =  6.0^{o}",
-/*  61 */ "E49A6    (Deuterium), E = 16.075 GeV, #theta =  6.0^{o}",
-/*  62 */ "E49A6    (Deuterium), E = 19.544 GeV, #theta =  6.0^{o}",
-/*  63 */ "E49A10   (Hydrogen),  E =  4.892 GeV, #theta = 10.0^{o}",
-/*  64 */ "E49A10   (Hydrogen),  E =  7.019 GeV, #theta = 10.0^{o}",
-/*  65 */ "E49A10   (Hydrogen),  E =  9.022 GeV, #theta = 10.0^{o}",
-/*  66 */ "E49A10   (Hydrogen),  E = 10.998 GeV, #theta = 10.0^{o}",
-/*  67 */ "E49A10   (Hydrogen),  E = 13.545 GeV, #theta = 10.0^{o}",
-/*  68 */ "E49A10   (Hydrogen),  E = 15.204 GeV, #theta = 10.0^{o}",
-/*  69 */ "E49A10   (Hydrogen),  E = 17.706 GeV, #theta = 10.0^{o}",
-/*  70 */ "E49A10   (Hydrogen),  E = 19.350 GeV, #theta = 10.0^{o}",
-/*  71 */ "E49A10   (Deuterium), E =  4.892 GeV, #theta = 10.0^{o}",
-/*  72 */ "E49A10   (Deuterium), E =  7.019 GeV, #theta = 10.0^{o}",
-/*  73 */ "E49A10   (Deuterium), E =  9.022 GeV, #theta = 10.0^{o}",
-/*  74 */ "E49A10   (Deuterium), E = 10.998 GeV, #theta = 10.0^{o}",
-/*  75 */ "E49A10   (Deuterium), E = 13.545 GeV, #theta = 10.0^{o}",
-/*  76 */ "E49A10   (Deuterium), E = 15.204 GeV, #theta = 10.0^{o}",
-/*  77 */ "E49A10   (Deuterium), E = 17.706 GeV, #theta = 10.0^{o}",
-/*  78 */ "E49A10   (Deuterium), E = 19.350 GeV, #theta = 10.0^{o}",
-/*  79 */ "E49B     (Hydrogen),  E =  4.502 GeV, #theta = 34.0^{o}",
-/*  80 */ "E49B     (Hydrogen),  E =  4.504 GeV, #theta = 18.0^{o}",
-/*  81 */ "E49B     (Hydrogen),  E =  4.506 GeV, #theta = 26.0^{o}",
-/*  82 */ "E49B     (Hydrogen),  E =  5.808 GeV, #theta = 34.0^{o}",
-/*  83 */ "E49B     (Hydrogen),  E =  6.509 GeV, #theta = 18.0^{o}",
-/*  84 */ "E49B     (Hydrogen),  E =  6.711 GeV, #theta = 26.0^{o}",
-/*  85 */ "E49B     (Hydrogen),  E =  7.912 GeV, #theta = 34.0^{o}",
-/*  86 */ "E49B     (Hydrogen),  E =  8.614 GeV, #theta = 18.0^{o}",
-/*  87 */ "E49B     (Deuterium), E =  4.502 GeV, #theta = 34.0^{o}",
-/*  88 */ "E49B     (Deuterium), E =  4.504 GeV, #theta = 18.0^{o}",
-/*  89 */ "E49B     (Deuterium), E =  4.506 GeV, #theta = 26.0^{o}",
-/*  90 */ "E49B     (Deuterium), E =  5.808 GeV, #theta = 34.0^{o}",
-/*  91 */ "E49B     (Deuterium), E =  6.509 GeV, #theta = 18.0^{o}",
-/*  92 */ "E49B     (Deuterium), E =  6.711 GeV, #theta = 26.0^{o}",
-/*  93 */ "E49B     (Deuterium), E =  7.912 GeV, #theta = 34.0^{o}",
-/*  94 */ "E49B     (Deuterium), E =  8.614 GeV, #theta = 18.0^{o}",
-/*  95 */ "E61      (Hydrogen),  E =  4.499 GeV, #theta =  4.0^{o}",
-/*  96 */ "E61      (Hydrogen),  E =  7.000 GeV, #theta =  4.0^{o}",
-/*  97 */ "E61      (Hydrogen),  E =  9.993 GeV, #theta =  4.0^{o}",
-/*  98 */ "E61      (Hydrogen),  E = 13.000 GeV, #theta =  4.0^{o}",
-/*  99 */ "E61      (Hydrogen),  E = 16.000 GeV, #theta =  4.0^{o}",
-/* 100 */ "E61      (Hydrogen),  E = 18.010 GeV, #theta =  4.0^{o}",
-/* 101 */ "E61      (Hydrogen),  E = 20.005 GeV, #theta =  4.0^{o}",
-/* 102 */ "E61      (Deuterium), E =  4.499 GeV, #theta =  4.0^{o}",
-/* 103 */ "E61      (Deuterium), E =  6.999 GeV, #theta =  4.0^{o}",
-/* 104 */ "E61      (Deuterium), E =  9.993 GeV, #theta =  4.0^{o}",
-/* 105 */ "E61      (Deuterium), E = 12.987 GeV, #theta =  4.0^{o}",
-/* 106 */ "E61      (Deuterium), E = 16.000 GeV, #theta =  4.0^{o}",
-/* 107 */ "E61      (Deuterium), E = 18.010 GeV, #theta =  4.0^{o}",
-/* 108 */ "E61      (Deuterium), E = 20.005 GeV, #theta =  4.0^{o}",
-/* 109 */ "E891     (Hydrogen),  E =  6.500 GeV, #theta = 60.0^{o}",
-/* 110 */ "E891     (Hydrogen),  E =  7.000 GeV, #theta = 50.0^{o}",
-/* 111 */ "E891     (Hydrogen),  E = 10.400 GeV, #theta = 60.0^{o}",
-/* 112 */ "E891     (Hydrogen),  E = 13.290 GeV, #theta = 60.0^{o}",
-/* 113 */ "E891     (Hydrogen),  E = 16.002 GeV, #theta = 60.0^{o}",
-/* 114 */ "E891     (Hydrogen),  E = 19.505 GeV, #theta = 60.0^{o}",
-/* 115 */ "E891     (Deuterium), E =  6.500 GeV, #theta = 60.0^{o}",
-/* 116 */ "E891     (Deuterium), E =  7.000 GeV, #theta = 50.0^{o}",
-/* 117 */ "E891     (Deuterium), E = 10.400 GeV, #theta = 60.0^{o}",
-/* 118 */ "E891     (Deuterium), E = 13.290 GeV, #theta = 60.0^{o}",
-/* 119 */ "E891     (Deuterium), E = 16.002 GeV, #theta = 60.0^{o}",
-/* 120 */ "E891     (Deuterium), E = 19.505 GeV, #theta = 60.0^{o}",
-/* 121 */ "E8920    (Hydrogen),  E =  6.500 GeV, #theta = 18.0^{o}",
-/* 122 */ "E8920    (Hydrogen),  E =  7.000 GeV, #theta =  6.0^{o}",
-/* 123 */ "E8920    (Hydrogen),  E = 10.400 GeV, #theta = 18.0^{o}",
-/* 124 */ "E8920    (Hydrogen),  E = 13.300 GeV, #theta = 18.0^{o}",
-/* 125 */ "E8920    (Hydrogen),  E = 13.500 GeV, #theta =  6.0^{o}",
-/* 126 */ "E8920    (Hydrogen),  E = 16.000 GeV, #theta = 18.0^{o}",
-/* 127 */ "E8920    (Hydrogen),  E = 16.000 GeV, #theta = 15.0^{o}",
-/* 128 */ "E8920    (Hydrogen),  E = 16.000 GeV, #theta =  6.0^{o}",
-/* 129 */ "E8920    (Hydrogen),  E = 19.500 GeV, #theta = 20.6^{o}",
-/* 130 */ "E8920    (Hydrogen),  E = 19.500 GeV, #theta = 18.0^{o}",
-/* 131 */ "E8920    (Hydrogen),  E = 19.500 GeV, #theta =  6.0^{o}",
-/* 132 */ "E8920    (Deuterium), E =  6.500 GeV, #theta = 18.0^{o}",
-/* 133 */ "E8920    (Deuterium), E =  7.000 GeV, #theta =  6.0^{o}",
-/* 134 */ "E8920    (Deuterium), E = 10.400 GeV, #theta = 18.0^{o}",
-/* 135 */ "E8920    (Deuterium), E = 13.300 GeV, #theta = 18.0^{o}",
-/* 136 */ "E8920    (Deuterium), E = 13.500 GeV, #theta =  6.0^{o}",
-/* 137 */ "E8920    (Deuterium), E = 16.000 GeV, #theta = 18.0^{o}",
-/* 138 */ "E8920    (Deuterium), E = 16.000 GeV, #theta = 15.0^{o}",
-/* 139 */ "E8920    (Deuterium), E = 16.000 GeV, #theta =  6.0^{o}",
-/* 140 */ "E8920    (Deuterium), E = 19.500 GeV, #theta = 20.6^{o}",
-/* 141 */ "E8920    (Deuterium), E = 19.500 GeV, #theta = 18.0^{o}",
-/* 142 */ "E8920    (Deuterium), E = 19.500 GeV, #theta =  6.0^{o}",
-/* 143 */ "ONEN1HAF (Hydrogen),  E =  5.000 GeV, #theta =  1.5^{o}",
-/* 144 */ "ONEN1HAF (Hydrogen),  E =  7.103 GeV, #theta =  1.5^{o}",
-/* 145 */ "ONEN1HAF (Hydrogen),  E =  9.301 GeV, #theta =  1.5^{o}",
-/* 146 */ "ONEN1HAF (Hydrogen),  E = 11.799 GeV, #theta =  1.5^{o}",
-/* 147 */ "ONEN1HAF (Hydrogen),  E = 13.805 GeV, #theta =  1.5^{o}",
-/* 148 */ "ONEN1HAF (Hydrogen),  E = 15.604 GeV, #theta =  1.5^{o}",
-/* 149 */ "ONEN1HAF (Hydrogen),  E = 17.298 GeV, #theta =  1.5^{o}",
-/* 150 */ "ONEN1HAF (Hydrogen),  E = 18.703 GeV, #theta =  1.5^{o}",
-/* 151 */ "ONEN1HAF (Hydrogen),  E = 19.995 GeV, #theta =  1.5^{o}"
-};
-const char * kElXSecKeyList[kElXSecDataSets] = {
-/*   0 */ "JLAB,0",
-/*   1 */ "JLAB,0",
-/*   2 */ "JLAB,0",
-/*   3 */ "JLAB,0",
-/*   4 */ "JLAB,0",
-/*   5 */ "JLAB,0",
-/*   6 */ "JLAB,0",
-/*   7 */ "JLAB,0",
-/*   8 */ "JLAB,0",
-/*   9 */ "JLAB,1",
-/*  10 */ "JLAB,1",
-/*  11 */ "JLAB,1",
-/*  12 */ "JLAB,1",
-/*  13 */ "JLAB,1",
-/*  14 */ "JLAB,1",
-/*  15 */ "JLAB,1",
-/*  16 */ "JLAB,1",
-/*  17 */ "NE11,0",
-/*  18 */ "NE11,0",
-/*  19 */ "NE11,0",
-/*  20 */ "NE11,0",
-/*  21 */ "NE11,0",
-/*  22 */ "NE11,0",
-/*  23 */ "NE11,0",
-/*  24 */ "NE11,0",
-/*  25 */ "NE11,1",
-/*  26 */ "NE11,1",
-/*  27 */ "NE11,1",
-/*  28 */ "NE11,1",
-/*  29 */ "E133,0",
-/*  30 */ "E133,0",
-/*  31 */ "E133,0",
-/*  32 */ "E133,0",
-/*  33 */ "E133,0",
-/*  34 */ "E133,1",
-/*  35 */ "E133,1",
-/*  36 */ "E133,1",
-/*  37 */ "E133,1",
-/*  38 */ "E133,1",
-/*  39 */ "E133,1",
-/*  40 */ "E140x,0",
-/*  41 */ "E140x,0",
-/*  42 */ "E140x,0",
-/*  43 */ "E140x,0",
-/*  44 */ "E140x,0",
-/*  45 */ "E140x,0",
-/*  46 */ "E140x,1",
-/*  47 */ "E140x,1",
-/*  48 */ "E140x,1",
-/*  49 */ "E140x,1",
-/*  50 */ "E140x,1",
-/*  51 */ "E49A6,0",
-/*  52 */ "E49A6,0",
-/*  53 */ "E49A6,0",
-/*  54 */ "E49A6,0",
-/*  55 */ "E49A6,0",
-/*  56 */ "E49A6,0",
-/*  57 */ "E49A6,1",
-/*  58 */ "E49A6,1",
-/*  59 */ "E49A6,1",
-/*  60 */ "E49A6,1",
-/*  61 */ "E49A6,1",
-/*  62 */ "E49A6,1",
-/*  63 */ "E49A10,0",
-/*  64 */ "E49A10,0",
-/*  65 */ "E49A10,0",
-/*  66 */ "E49A10,0",
-/*  67 */ "E49A10,0",
-/*  68 */ "E49A10,0",
-/*  69 */ "E49A10,0",
-/*  70 */ "E49A10,0",
-/*  71 */ "E49A10,1",
-/*  72 */ "E49A10,1",
-/*  73 */ "E49A10,1",
-/*  74 */ "E49A10,1",
-/*  75 */ "E49A10,1",
-/*  76 */ "E49A10,1",
-/*  77 */ "E49A10,1",
-/*  78 */ "E49A10,1",
-/*  79 */ "E49B,0",
-/*  80 */ "E49B,0",
-/*  81 */ "E49B,0",
-/*  82 */ "E49B,0",
-/*  83 */ "E49B,0",
-/*  84 */ "E49B,0",
-/*  85 */ "E49B,0",
-/*  86 */ "E49B,0",
-/*  87 */ "E49B,1",
-/*  88 */ "E49B,1",
-/*  89 */ "E49B,1",
-/*  90 */ "E49B,1",
-/*  91 */ "E49B,1",
-/*  92 */ "E49B,1",
-/*  93 */ "E49B,1",
-/*  94 */ "E49B,1",
-/*  95 */ "E61,0",
-/*  96 */ "E61,0",
-/*  97 */ "E61,0",
-/*  98 */ "E61,0",
-/*  99 */ "E61,0",
-/* 100 */ "E61,0",
-/* 101 */ "E61,0",
-/* 102 */ "E61,1",
-/* 103 */ "E61,1",
-/* 104 */ "E61,1",
-/* 105 */ "E61,1",
-/* 106 */ "E61,1",
-/* 107 */ "E61,1",
-/* 108 */ "E61,1",
-/* 109 */ "E891,0",
-/* 110 */ "E891,0",
-/* 111 */ "E891,0",
-/* 112 */ "E891,0",
-/* 113 */ "E891,0",
-/* 114 */ "E891,0",
-/* 115 */ "E891,1",
-/* 116 */ "E891,1",
-/* 117 */ "E891,1",
-/* 118 */ "E891,1",
-/* 119 */ "E891,1",
-/* 120 */ "E891,1",
-/* 121 */ "E8920,0",
-/* 122 */ "E8920,0",
-/* 123 */ "E8920,0",
-/* 124 */ "E8920,0",
-/* 125 */ "E8920,0",
-/* 126 */ "E8920,0",
-/* 127 */ "E8920,0",
-/* 128 */ "E8920,0",
-/* 129 */ "E8920,0",
-/* 130 */ "E8920,0",
-/* 131 */ "E8920,0",
-/* 132 */ "E8920,1",
-/* 133 */ "E8920,1",
-/* 134 */ "E8920,1",
-/* 135 */ "E8920,1",
-/* 136 */ "E8920,1",
-/* 137 */ "E8920,1",
-/* 138 */ "E8920,1",
-/* 139 */ "E8920,1",
-/* 140 */ "E8920,1",
-/* 141 */ "E8920,1",
-/* 142 */ "E8920,1",
-/* 143 */ "ONEN1HAF,0",
-/* 144 */ "ONEN1HAF,0",
-/* 145 */ "ONEN1HAF,0",
-/* 146 */ "ONEN1HAF,0",
-/* 147 */ "ONEN1HAF,0",
-/* 148 */ "ONEN1HAF,0",
-/* 149 */ "ONEN1HAF,0",
-/* 150 */ "ONEN1HAF,0",
-/* 151 */ "ONEN1HAF,0"
-};
-float kElXSecEnergy[kElXSecDataSets] = {
-/*   0 */   2.445,
-/*   1 */   2.445,
-/*   2 */   2.445,
-/*   3 */   2.445,
-/*   4 */   3.245,
-/*   5 */   4.045,
-/*   6 */   4.054,
-/*   7 */   4.054,
-/*   8 */   4.054,
-/*   9 */   2.445,
-/*  10 */   2.445,
-/*  11 */   2.445,
-/*  12 */   3.245,
-/*  13 */   4.045,
-/*  14 */   4.045,
-/*  15 */   4.045,
-/*  16 */   4.054,
-/*  17 */   5.507,
-/*  18 */   5.507,
-/*  19 */   5.507,
-/*  20 */   5.507,
-/*  21 */   9.800,
-/*  22 */   9.800,
-/*  23 */   9.800,
-/*  24 */   9.800,
-/*  25 */   5.507,
-/*  26 */   5.507,
-/*  27 */   5.507,
-/*  28 */   5.507,
-/*  29 */   9.772,
-/*  30 */  12.604,
-/*  31 */  15.740,
-/*  32 */  18.520,
-/*  33 */  20.998,
-/*  34 */   9.766,
-/*  35 */  12.603,
-/*  36 */  15.725,
-/*  37 */  17.301,
-/*  38 */  18.498,
-/*  39 */  20.998,
-/*  40 */   1.997,
-/*  41 */   3.301,
-/*  42 */   4.014,
-/*  43 */   4.951,
-/*  44 */   5.600,
-/*  45 */   6.453,
-/*  46 */   3.301,
-/*  47 */   4.014,
-/*  48 */   4.951,
-/*  49 */   5.600,
-/*  50 */   6.453,
-/*  51 */   4.511,
-/*  52 */   7.014,
-/*  53 */  10.027,
-/*  54 */  13.549,
-/*  55 */  16.075,
-/*  56 */  19.544,
-/*  57 */   4.511,
-/*  58 */   7.014,
-/*  59 */  10.027,
-/*  60 */  13.549,
-/*  61 */  16.075,
-/*  62 */  19.544,
-/*  63 */   4.892,
-/*  64 */   7.019,
-/*  65 */   9.022,
-/*  66 */  10.998,
-/*  67 */  13.545,
-/*  68 */  15.204,
-/*  69 */  17.706,
-/*  70 */  19.350,
-/*  71 */   4.892,
-/*  72 */   7.019,
-/*  73 */   9.022,
-/*  74 */  10.998,
-/*  75 */  13.545,
-/*  76 */  15.204,
-/*  77 */  17.706,
-/*  78 */  19.350,
-/*  79 */   4.502,
-/*  80 */   4.504,
-/*  81 */   4.506,
-/*  82 */   5.808,
-/*  83 */   6.509,
-/*  84 */   6.711,
-/*  85 */   7.912,
-/*  86 */   8.614,
-/*  87 */   4.502,
-/*  88 */   4.504,
-/*  89 */   4.506,
-/*  90 */   5.808,
-/*  91 */   6.509,
-/*  92 */   6.711,
-/*  93 */   7.912,
-/*  94 */   8.614,
-/*  95 */   4.499,
-/*  96 */   7.000,
-/*  97 */   9.993,
-/*  98 */  13.000,
-/*  99 */  16.000,
-/* 100 */  18.010,
-/* 101 */  20.005,
-/* 102 */   4.499,
-/* 103 */   6.999,
-/* 104 */   9.993,
-/* 105 */  12.987,
-/* 106 */  16.000,
-/* 107 */  18.010,
-/* 108 */  20.005,
-/* 109 */   6.500,
-/* 110 */   7.000,
-/* 111 */  10.400,
-/* 112 */  13.290,
-/* 113 */  16.002,
-/* 114 */  19.505,
-/* 115 */   6.500,
-/* 116 */   7.000,
-/* 117 */  10.400,
-/* 118 */  13.290,
-/* 119 */  16.002,
-/* 120 */  19.505,
-/* 121 */   6.500,
-/* 122 */   7.000,
-/* 123 */  10.400,
-/* 124 */  13.300,
-/* 125 */  13.500,
-/* 126 */  16.000,
-/* 127 */  16.000,
-/* 128 */  16.000,
-/* 129 */  19.500,
-/* 130 */  19.500,
-/* 131 */  19.500,
-/* 132 */   6.500,
-/* 133 */   7.000,
-/* 134 */  10.400,
-/* 135 */  13.300,
-/* 136 */  13.500,
-/* 137 */  16.000,
-/* 138 */  16.000,
-/* 139 */  16.000,
-/* 140 */  19.500,
-/* 141 */  19.500,
-/* 142 */  19.500,
-/* 143 */   5.000,
-/* 144 */   7.103,
-/* 145 */   9.301,
-/* 146 */  11.799,
-/* 147 */  13.805,
-/* 148 */  15.604,
-/* 149 */  17.298,
-/* 150 */  18.703,
-/* 151 */  19.995
-};
-float kElXSecTheta[kElXSecDataSets] = {
-/*   0 */  20.000,
-/*   1 */  30.000,
-/*   2 */  38.500,
-/*   3 */  70.010,
-/*   4 */  26.980,
-/*   5 */  47.990,
-/*   6 */  24.030,
-/*   7 */  30.000,
-/*   8 */  39.990,
-/*   9 */  20.000,
-/*  10 */  30.000,
-/*  11 */  70.010,
-/*  12 */  26.980,
-/*  13 */  30.000,
-/*  14 */  39.990,
-/*  15 */  48.000,
-/*  16 */  24.030,
-/*  17 */  15.146,
-/*  18 */  18.981,
-/*  19 */  22.805,
-/*  20 */  26.823,
-/*  21 */  13.248,
-/*  22 */  15.367,
-/*  23 */  17.516,
-/*  24 */  19.753,
-/*  25 */  15.146,
-/*  26 */  18.981,
-/*  27 */  22.805,
-/*  28 */  26.823,
-/*  29 */  10.000, 
-/*  30 */  10.000,
-/*  31 */  10.000,
-/*  32 */  10.000,
-/*  33 */  10.000,
-/*  34 */  10.000,
-/*  35 */  10.000,
-/*  36 */  10.000,
-/*  37 */  10.000,
-/*  38 */  10.000,
-/*  39 */  10.000,
-/*  40 */  46.160,
-/*  41 */  50.000,
-/*  42 */  50.700,
-/*  43 */  56.010,
-/*  44 */  58.000,
-/*  45 */  59.510,
-/*  46 */  50.000,
-/*  47 */  50.700,
-/*  48 */  56.010,
-/*  49 */  58.000,
-/*  50 */  59.510,
-/*  51 */   5.988,
-/*  52 */   5.988,
-/*  53 */   5.988,
-/*  54 */   5.988,
-/*  55 */   5.988,
-/*  56 */   5.988,
-/*  57 */   5.988,
-/*  58 */   5.988,
-/*  59 */   5.988,
-/*  60 */   5.988,
-/*  61 */   5.988,
-/*  62 */   5.988,
-/*  63 */  10.000,
-/*  64 */  10.000,
-/*  65 */  10.000,
-/*  66 */  10.000,
-/*  67 */  10.000,
-/*  68 */  10.000,
-/*  69 */  10.000,
-/*  70 */  10.000,
-/*  71 */  10.000,
-/*  72 */  10.000,
-/*  73 */  10.000,
-/*  74 */  10.000,
-/*  75 */  10.000,
-/*  76 */  10.000,
-/*  77 */  10.000,
-/*  78 */  10.000,
-/*  79 */  34.009,
-/*  80 */  18.020,
-/*  81 */  26.015,
-/*  82 */  34.009,
-/*  83 */  18.020,
-/*  84 */  26.015,
-/*  85 */  34.009,
-/*  86 */  18.020,
-/*  87 */  34.009,
-/*  88 */  18.020,
-/*  89 */  26.015,
-/*  90 */  34.009,
-/*  91 */  18.020,
-/*  92 */  26.015,
-/*  93 */  34.009,
-/*  94 */  18.020,
-/*  95 */   4.000,
-/*  96 */   4.000,
-/*  97 */   4.000,
-/*  98 */   4.000,
-/*  99 */   4.000,
-/* 100 */   4.000,
-/* 101 */   4.000,
-/* 102 */   4.000,
-/* 103 */   4.000,
-/* 104 */   4.000,
-/* 105 */   4.000,
-/* 106 */   4.000,
-/* 107 */   4.000,
-/* 108 */   4.000,
-/* 109 */  59.999,
-/* 110 */  49.998,
-/* 111 */  60.000,
-/* 112 */  60.000,
-/* 113 */  59.999,
-/* 114 */  60.000,
-/* 115 */  59.999,
-/* 116 */  49.998,
-/* 117 */  60.000,
-/* 118 */  60.000,
-/* 119 */  59.999,
-/* 120 */  60.000,
-/* 121 */  18.000,
-/* 122 */   6.000,
-/* 123 */  18.000,
-/* 124 */  18.000,
-/* 125 */   6.000,
-/* 126 */  18.000,
-/* 127 */  15.000,
-/* 128 */   6.000,
-/* 129 */  20.600,
-/* 130 */  18.000,
-/* 131 */   6.000,
-/* 132 */  18.000,
-/* 133 */   6.000,
-/* 134 */  18.000,
-/* 135 */  18.000,
-/* 136 */   6.000,
-/* 137 */  18.000,
-/* 138 */  15.000,
-/* 139 */   6.000,
-/* 140 */  20.600,
-/* 141 */  18.000,
-/* 142 */   6.000,
-/* 143 */   1.482,
-/* 144 */   1.482,
-/* 145 */   1.482,
-/* 146 */   1.482,
-/* 147 */   1.482,
-/* 148 */   1.482,
-/* 149 */   1.482,
-/* 150 */   1.482,
-/* 151 */   1.482
-};
-int kElXSecTarget[kElXSecDataSets] = {
-/*   0 */ 1000010010,           
-/*   1 */ 1000010010,
-/*   2 */ 1000010010,
-/*   3 */ 1000010010,
-/*   4 */ 1000010010,
-/*   5 */ 1000010010,
-/*   6 */ 1000010010,
-/*   7 */ 1000010010,
-/*   8 */ 1000010010,
-/*   9 */ 1000020010,
-/*  10 */ 1000020010,
-/*  11 */ 1000020010,
-/*  12 */ 1000020010,
-/*  13 */ 1000020010,
-/*  14 */ 1000020010,
-/*  15 */ 1000020010,
-/*  16 */ 1000020010,
-/*  17 */ 1000010010,
-/*  18 */ 1000010010,
-/*  19 */ 1000010010,
-/*  20 */ 1000010010,
-/*  21 */ 1000010010,
-/*  22 */ 1000010010,
-/*  23 */ 1000010010,
-/*  24 */ 1000010010,
-/*  25 */ 1000020010,
-/*  26 */ 1000020010,
-/*  27 */ 1000020010,
-/*  28 */ 1000020010,
-/*  29 */ 1000010010,
-/*  30 */ 1000010010,
-/*  31 */ 1000010010,
-/*  32 */ 1000010010,
-/*  33 */ 1000010010,
-/*  34 */ 1000020010,
-/*  35 */ 1000020010,
-/*  36 */ 1000020010,
-/*  37 */ 1000020010,
-/*  38 */ 1000020010,
-/*  39 */ 1000020010,
-/*  40 */ 1000010010, 
-/*  41 */ 1000010010, 
-/*  42 */ 1000010010, 
-/*  43 */ 1000010010, 
-/*  44 */ 1000010010, 
-/*  45 */ 1000010010, 
-/*  46 */ 1000020010,
-/*  47 */ 1000020010,
-/*  48 */ 1000020010,
-/*  49 */ 1000020010,
-/*  50 */ 1000020010,
-/*  51 */ 1000010010,
-/*  52 */ 1000010010,
-/*  53 */ 1000010010,
-/*  54 */ 1000010010,
-/*  55 */ 1000010010,
-/*  56 */ 1000010010,
-/*  57 */ 1000020010,
-/*  58 */ 1000020010,
-/*  59 */ 1000020010,
-/*  60 */ 1000020010,
-/*  61 */ 1000020010,
-/*  62 */ 1000020010,
-/*  63 */ 1000010010,
-/*  64 */ 1000010010,
-/*  65 */ 1000010010,
-/*  66 */ 1000010010,
-/*  67 */ 1000010010,
-/*  68 */ 1000010010,
-/*  69 */ 1000010010,
-/*  70 */ 1000010010,
-/*  71 */ 1000020010,
-/*  72 */ 1000020010,
-/*  73 */ 1000020010,
-/*  74 */ 1000020010,
-/*  75 */ 1000020010,
-/*  76 */ 1000020010,
-/*  77 */ 1000020010,
-/*  78 */ 1000020010,
-/*  79 */ 1000010010,
-/*  80 */ 1000010010,
-/*  81 */ 1000010010,
-/*  82 */ 1000010010,
-/*  83 */ 1000010010,
-/*  84 */ 1000010010,
-/*  85 */ 1000010010,
-/*  86 */ 1000010010,
-/*  87 */ 1000020010,
-/*  88 */ 1000020010,
-/*  89 */ 1000020010,
-/*  90 */ 1000020010,
-/*  91 */ 1000020010,
-/*  92 */ 1000020010,
-/*  93 */ 1000020010,
-/*  94 */ 1000020010,
-/*  95 */ 1000010010, 
-/*  96 */ 1000010010, 
-/*  97 */ 1000010010, 
-/*  98 */ 1000010010, 
-/*  99 */ 1000010010, 
-/* 100 */ 1000010010, 
-/* 101 */ 1000010010, 
-/* 102 */ 1000020010,
-/* 103 */ 1000020010,
-/* 104 */ 1000020010,
-/* 105 */ 1000020010,
-/* 106 */ 1000020010,
-/* 107 */ 1000020010,
-/* 108 */ 1000020010,
-/* 109 */ 1000010010,
-/* 110 */ 1000010010,
-/* 111 */ 1000010010,
-/* 112 */ 1000010010,
-/* 113 */ 1000010010,
-/* 114 */ 1000010010,
-/* 115 */ 1000020010,
-/* 116 */ 1000020010,
-/* 117 */ 1000020010,
-/* 118 */ 1000020010,
-/* 119 */ 1000020010,
-/* 120 */ 1000020010,
-/* 121 */ 1000010010,
-/* 122 */ 1000010010,
-/* 123 */ 1000010010,
-/* 124 */ 1000010010,
-/* 125 */ 1000010010,
-/* 126 */ 1000010010,
-/* 127 */ 1000010010,
-/* 128 */ 1000010010,
-/* 129 */ 1000010010,
-/* 130 */ 1000010010,
-/* 131 */ 1000010010,
-/* 132 */ 1000020010,
-/* 133 */ 1000020010,
-/* 134 */ 1000020010,
-/* 135 */ 1000020010,
-/* 136 */ 1000020010,
-/* 137 */ 1000020010,
-/* 138 */ 1000020010,
-/* 139 */ 1000020010,
-/* 140 */ 1000020010,
-/* 141 */ 1000020010,
-/* 142 */ 1000020010,
-/* 143 */ 1000010010,
-/* 144 */ 1000010010,
-/* 145 */ 1000010010,
-/* 146 */ 1000010010,
-/* 147 */ 1000010010,
-/* 148 */ 1000010010,
-/* 149 */ 1000010010,
-/* 150 */ 1000010010,
-/* 151 */ 1000010010
-};
+const int kNumOfDataSets = 286;
 
-typedef DBQueryString                 DBQ;
-typedef DBTable<DBElDiffXSecTableRow> DBT;
+eResDataSetDescription_t * kDataSet[kNumOfDataSets] =
+{
+   new eResDataSetDescription_t(1000010010, "jlab_e00_002",   2.2375,  33.130, true), // 0
+   new eResDataSetDescription_t(1000010010, "jlab_e00_002",   2.2375,  41.320, true), // 1
+   new eResDataSetDescription_t(1000010010, "jlab_e00_002",   2.2375,  50.610, true), // 2
+   new eResDataSetDescription_t(1000010010, "jlab_e00_002",   3.0440,  12.005, true), // 3
+   new eResDataSetDescription_t(1000010010, "jlab_e00_002",   3.0440,  19.830, true), // 4
+   new eResDataSetDescription_t(1000010010, "jlab_e00_002",   3.0440,  22.710, true), // 5
+   new eResDataSetDescription_t(1000010010, "jlab_e00_002",   3.0440,  24.900, true), // 6
+   new eResDataSetDescription_t(1000010010, "jlab_e00_002",   3.0440,  32.300, true), // 7
+   new eResDataSetDescription_t(1000010010, "jlab_e00_002",   3.0440,  36.190, true), // 8
+   new eResDataSetDescription_t(1000010010, "jlab_e00_002",   4.4125,  13.510, true), // 9
+   new eResDataSetDescription_t(1000010010, "jlab_e00_002",   4.4125,  11.210, true), // 10
+   new eResDataSetDescription_t(1000010010, "jlab_e00_002",   4.4125,  16.500, true), // 11
+   new eResDataSetDescription_t(1000010010, "jlab_e00_002",   5.5005,  11.210, true), // 12
+
+   new eResDataSetDescription_t(1000010010, "jlab_e94_110",   1.150,   47.950, true), // 13
+   new eResDataSetDescription_t(1000010010, "jlab_e94_110",   1.150,   59.970, true), // 14
+   new eResDataSetDescription_t(1000010010, "jlab_e94_110",   1.884,   33.930, true), // 15
+   new eResDataSetDescription_t(1000010010, "jlab_e94_110",   1.884,   47.940, true), // 16
+   new eResDataSetDescription_t(1000010010, "jlab_e94_110",   2.238,   21.950, true), // 17
+   new eResDataSetDescription_t(1000010010, "jlab_e94_110",   2.238,   31.930, true), // 18
+   new eResDataSetDescription_t(1000010010, "jlab_e94_110",   2.238,   42.950, true), // 19
+   new eResDataSetDescription_t(1000010010, "jlab_e94_110",   2.238,   58.950, true), // 20
+   new eResDataSetDescription_t(1000010010, "jlab_e94_110",   2.238,   79.950, true), // 21
+   new eResDataSetDescription_t(1000010010, "jlab_e94_110",   3.118,   12.450, true), // 22
+   new eResDataSetDescription_t(1000010010, "jlab_e94_110",   3.118,   15.950, true), // 23
+   new eResDataSetDescription_t(1000010010, "jlab_e94_110",   3.118,   19.440, true), // 24
+   new eResDataSetDescription_t(1000010010, "jlab_e94_110",   3.118,   22.950, true), // 25
+   new eResDataSetDescription_t(1000010010, "jlab_e94_110",   3.118,   32.950, true), // 26
+   new eResDataSetDescription_t(1000010010, "jlab_e94_110",   3.118,   40.950, true), // 27
+   new eResDataSetDescription_t(1000010010, "jlab_e94_110",   3.118,   49.950, true), // 28
+   new eResDataSetDescription_t(1000010010, "jlab_e94_110",   3.118,   61.950, true), // 29
+   new eResDataSetDescription_t(1000010010, "jlab_e94_110",   3.118,   77.950, true), // 30
+   new eResDataSetDescription_t(1000010010, "jlab_e94_110",   4.110,   38.950, true), // 31
+   new eResDataSetDescription_t(1000010010, "jlab_e94_110",   4.412,   38.940, true), // 32
+   new eResDataSetDescription_t(1000010010, "jlab_e94_110",   4.412,   44.960, true), // 33
+   new eResDataSetDescription_t(1000010010, "jlab_e94_110",   4.412,   50.950, true), // 34
+   new eResDataSetDescription_t(1000010010, "jlab_e94_110",   5.498,   12.970, true), // 35
+   new eResDataSetDescription_t(1000010010, "jlab_e94_110",   5.498,   15.460, true), // 36
+   new eResDataSetDescription_t(1000010010, "jlab_e94_110",   5.498,   17.940, true), // 37
+   new eResDataSetDescription_t(1000010010, "jlab_e94_110",   5.498,   20.450, true), // 38
+   new eResDataSetDescription_t(1000010010, "jlab_e94_110",   5.498,   22.950, true), // 39
+   new eResDataSetDescription_t(1000010010, "jlab_e94_110",   5.498,   25.450, true), // 40
+   new eResDataSetDescription_t(1000010010, "jlab_e94_110",   5.498,   27.950, true), // 41
+   new eResDataSetDescription_t(1000010010, "jlab_e94_110",   5.498,   30.450, true), // 42
+   new eResDataSetDescription_t(1000010010, "jlab_e94_110",   5.498,   32.970, true), // 43
+   new eResDataSetDescription_t(1000010010, "jlab_e94_110",   5.498,   35.460, true), // 44
+
+   new eResDataSetDescription_t(1000010010, "jlab_ioanna",    2.445,   20.000, true), // 45
+   new eResDataSetDescription_t(1000010010, "jlab_ioanna",    2.445,   30.000, true), // 46
+   new eResDataSetDescription_t(1000010010, "jlab_ioanna",    2.445,   38.500, true), // 47
+   new eResDataSetDescription_t(1000010010, "jlab_ioanna",    2.445,   70.010, true), // 48
+   new eResDataSetDescription_t(1000010010, "jlab_ioanna",    3.245,   26.980, true), // 49
+   new eResDataSetDescription_t(1000010010, "jlab_ioanna",    4.045,   47.990, true), // 50
+   new eResDataSetDescription_t(1000010010, "jlab_ioanna",    4.054,   24.030, true), // 51
+   new eResDataSetDescription_t(1000010010, "jlab_ioanna",    4.054,   30.000, true), // 52
+   new eResDataSetDescription_t(1000010010, "jlab_ioanna",    4.054,   39.990, true), // 53
+
+   new eResDataSetDescription_t(1000010010, "slac_e133",      9.772,   10.000, true), // 54
+   new eResDataSetDescription_t(1000010010, "slac_e133",     12.604,   10.000, true), // 55
+   new eResDataSetDescription_t(1000010010, "slac_e133",     15.740,   10.000, true), // 56
+   new eResDataSetDescription_t(1000010010, "slac_e133",     18.520,   10.000, true), // 57
+   new eResDataSetDescription_t(1000010010, "slac_e133",     20.998,   10.000, true), // 58
+
+   new eResDataSetDescription_t(1000010010, "slac_e140",      4.502,   34.009, true), // 59
+   new eResDataSetDescription_t(1000010010, "slac_e140",      4.504,   18.020, true), // 60
+   new eResDataSetDescription_t(1000010010, "slac_e140",      4.506,   26.015, true), // 61
+   new eResDataSetDescription_t(1000010010, "slac_e140",      5.808,   34.009, true), // 62
+   new eResDataSetDescription_t(1000010010, "slac_e140",      6.500,   59.999, true), // 63
+   new eResDataSetDescription_t(1000010010, "slac_e140",      6.500,   18.000, true), // 64
+   new eResDataSetDescription_t(1000010010, "slac_e140",      6.509,   18.020, true), // 65
+   new eResDataSetDescription_t(1000010010, "slac_e140",      6.711,   26.015, true), // 66
+   new eResDataSetDescription_t(1000010010, "slac_e140",      7.000,   49.998, true), // 67
+   new eResDataSetDescription_t(1000010010, "slac_e140",      7.019,   10.000, true), // 68
+   new eResDataSetDescription_t(1000010010, "slac_e140",      7.912,   34.009, true), // 69
+   new eResDataSetDescription_t(1000010010, "slac_e140",      8.614,   18.020, true), // 70
+   new eResDataSetDescription_t(1000010010, "slac_e140",      8.700,   25.993, true), // 71
+   new eResDataSetDescription_t(1000010010, "slac_e140",      8.713,   26.015, true), // 72
+   new eResDataSetDescription_t(1000010010, "slac_e140",      9.022,   10.000, true), // 73
+   new eResDataSetDescription_t(1000010010, "slac_e140",      9.999,   14.991, true), // 74
+   new eResDataSetDescription_t(1000010010, "slac_e140",      9.999,   33.992, true), // 75
+   new eResDataSetDescription_t(1000010010, "slac_e140",     10.014,   34.009, true), // 76
+   new eResDataSetDescription_t(1000010010, "slac_e140",     10.027,    5.988, true), // 77
+   new eResDataSetDescription_t(1000010010, "slac_e140",     10.392,   18.020, true), // 78
+   new eResDataSetDescription_t(1000010010, "slac_e140",     10.400,   60.000, true), // 79
+   new eResDataSetDescription_t(1000010010, "slac_e140",     10.400,   18.000, true), // 80
+   new eResDataSetDescription_t(1000010010, "slac_e140",     10.998,   10.000, true), // 81
+   new eResDataSetDescription_t(1000010010, "slac_e140",     11.884,   25.993, true), // 82
+   new eResDataSetDescription_t(1000010010, "slac_e140",     11.900,   26.015, true), // 83
+   new eResDataSetDescription_t(1000010010, "slac_e140",     12.497,   14.991, true), // 84
+   new eResDataSetDescription_t(1000010010, "slac_e140",     12.498,   18.996, true), // 85
+   new eResDataSetDescription_t(1000010010, "slac_e140",     13.000,    4.000, true), // 86
+   new eResDataSetDescription_t(1000010010, "slac_e140",     13.290,   60.000, true), // 87
+   new eResDataSetDescription_t(1000010010, "slac_e140",     13.300,   15.000, true), // 88
+   new eResDataSetDescription_t(1000010010, "slac_e140",     13.300,   18.000, true), // 89
+   new eResDataSetDescription_t(1000010010, "slac_e140",     13.320,   18.020, true), // 90
+   new eResDataSetDescription_t(1000010010, "slac_e140",     13.500,    6.000, true), // 91
+   new eResDataSetDescription_t(1000010010, "slac_e140",     13.545,   10.000, true), // 92
+   new eResDataSetDescription_t(1000010010, "slac_e140",     13.549,    5.988, true), // 93
+   new eResDataSetDescription_t(1000010010, "slac_e140",     15.004,   14.991, true), // 94
+   new eResDataSetDescription_t(1000010010, "slac_e140",     15.004,   18.996, true), // 95
+   new eResDataSetDescription_t(1000010010, "slac_e140",     15.005,   25.993, true), // 96
+   new eResDataSetDescription_t(1000010010, "slac_e140",     15.022,   26.015, true), // 97
+   new eResDataSetDescription_t(1000010010, "slac_e140",     15.204,   10.000, true), // 98
+   new eResDataSetDescription_t(1000010010, "slac_e140",     16.000,    4.000, true), // 99
+   new eResDataSetDescription_t(1000010010, "slac_e140",     16.000,    6.000, true), // 100
+   new eResDataSetDescription_t(1000010010, "slac_e140",     16.000,   15.000, true), // 101
+   new eResDataSetDescription_t(1000010010, "slac_e140",     16.000,   18.000, true), // 102
+   new eResDataSetDescription_t(1000010010, "slac_e140",     16.075,    5.988, true), // 103
+   new eResDataSetDescription_t(1000010010, "slac_e140",     17.706,   10.000, true), // 104
+   new eResDataSetDescription_t(1000010010, "slac_e140",     18.010,    4.000, true), // 105
+   new eResDataSetDescription_t(1000010010, "slac_e140",     18.018,   18.996, true), // 106
+   new eResDataSetDescription_t(1000010010, "slac_e140",     18.018,   25.993, true), // 107
+   new eResDataSetDescription_t(1000010010, "slac_e140",     19.350,   10.000, true), // 108
+   new eResDataSetDescription_t(1000010010, "slac_e140",     19.500,    6.000, true), // 109
+   new eResDataSetDescription_t(1000010010, "slac_e140",     19.500,   10.000, true), // 110
+   new eResDataSetDescription_t(1000010010, "slac_e140",     19.500,   15.000, true), // 111
+   new eResDataSetDescription_t(1000010010, "slac_e140",     19.500,   18.000, true), // 112
+   new eResDataSetDescription_t(1000010010, "slac_e140",     19.500,   20.600, true), // 113
+   new eResDataSetDescription_t(1000010010, "slac_e140",     19.544,    5.988, true), // 114
+   new eResDataSetDescription_t(1000010010, "slac_e140",     20.001,   18.996, true), // 115
+   new eResDataSetDescription_t(1000010010, "slac_e140",     20.005,    4.000, true), // 116
+
+   new eResDataSetDescription_t(1000010010, "slac_e140x",     1.997,   46.160, true), // 117
+   new eResDataSetDescription_t(1000010010, "slac_e140x",     3.301,   50.000, true), // 118
+   new eResDataSetDescription_t(1000010010, "slac_e140x",     4.014,   50.700, true), // 119
+   new eResDataSetDescription_t(1000010010, "slac_e140x",     4.951,   56.010, true), // 120
+   new eResDataSetDescription_t(1000010010, "slac_e140x",     5.600,   58.000, true), // 121
+   new eResDataSetDescription_t(1000010010, "slac_e140x",     6.453,   59.510, true), // 122
+
+   new eResDataSetDescription_t(1000010010, "slac_e49a10",    4.892,   10.000, true), // 123
+   new eResDataSetDescription_t(1000010010, "slac_e49a10",    7.019,   10.000, true), // 124
+   new eResDataSetDescription_t(1000010010, "slac_e49a10",    9.022,   10.000, true), // 125
+   new eResDataSetDescription_t(1000010010, "slac_e49a10",   10.998,   10.000, true), // 126
+   new eResDataSetDescription_t(1000010010, "slac_e49a10",   13.545,   10.000, true), // 127
+   new eResDataSetDescription_t(1000010010, "slac_e49a10",   15.204,   10.000, true), // 128
+   new eResDataSetDescription_t(1000010010, "slac_e49a10",   17.706,   10.000, true), // 129
+   new eResDataSetDescription_t(1000010010, "slac_e49a10",   19.350,   10.000, true), // 130
+
+   new eResDataSetDescription_t(1000010010, "slac_e49a6",     4.511,    5.988, true), // 131
+   new eResDataSetDescription_t(1000010010, "slac_e49a6",     7.014,    5.988, true), // 132
+   new eResDataSetDescription_t(1000010010, "slac_e49a6",    10.027,    5.988, true), // 133
+   new eResDataSetDescription_t(1000010010, "slac_e49a6",    13.549,    5.988, true), // 134
+   new eResDataSetDescription_t(1000010010, "slac_e49a6",    16.075,    5.988, true), // 135
+   new eResDataSetDescription_t(1000010010, "slac_e49a6",    19.544,    5.988, true), // 136
+
+   new eResDataSetDescription_t(1000010010, "slac_e49b",      4.502,   34.009, true), // 137
+   new eResDataSetDescription_t(1000010010, "slac_e49b",      4.504,   18.020, true), // 138
+   new eResDataSetDescription_t(1000010010, "slac_e49b",      4.506,   26.015, true), // 139
+   new eResDataSetDescription_t(1000010010, "slac_e49b",      5.808,   34.009, true), // 140
+   new eResDataSetDescription_t(1000010010, "slac_e49b",      6.509,   18.020, true), // 141
+   new eResDataSetDescription_t(1000010010, "slac_e49b",      6.711,   26.015, true), // 142
+   new eResDataSetDescription_t(1000010010, "slac_e49b",      7.912,   34.009, true), // 143
+   new eResDataSetDescription_t(1000010010, "slac_e49b",      8.614,   18.020, true), // 144
+   new eResDataSetDescription_t(1000010010, "slac_e49b",      8.713,   26.015, true), // 145
+   new eResDataSetDescription_t(1000010010, "slac_e49b",     10.014,   34.009, true), // 146
+   new eResDataSetDescription_t(1000010010, "slac_e49b",     10.392,   18.020, true), // 147
+   new eResDataSetDescription_t(1000010010, "slac_e49b",     11.900,   26.015, true), // 148
+   new eResDataSetDescription_t(1000010010, "slac_e49b",     12.518,   18.020, true), // 149
+   new eResDataSetDescription_t(1000010010, "slac_e49b",     12.518,   34.009, true), // 150
+   new eResDataSetDescription_t(1000010010, "slac_e49b",     13.320,   18.020, true), // 151
+   new eResDataSetDescription_t(1000010010, "slac_e49b",     15.022,   26.015, true), // 152
+   new eResDataSetDescription_t(1000010010, "slac_e49b",     17.027,   18.020, true), // 153
+
+   new eResDataSetDescription_t(1000010010, "slac_e61",       4.499,    4.000, true), // 154
+   new eResDataSetDescription_t(1000010010, "slac_e61",       7.000,    4.000, true), // 155
+   new eResDataSetDescription_t(1000010010, "slac_e61",       9.993,    4.000, true), // 156
+   new eResDataSetDescription_t(1000010010, "slac_e61",      13.000,    4.000, true), // 157
+   new eResDataSetDescription_t(1000010010, "slac_e61",      16.000,    4.000, true), // 158
+   new eResDataSetDescription_t(1000010010, "slac_e61",      18.010,    4.000, true), // 159
+   new eResDataSetDescription_t(1000010010, "slac_e61",      20.005,    4.000, true), // 160
+
+   new eResDataSetDescription_t(1000010010, "slac_e87",       4.500,   25.994, true), // 161
+   new eResDataSetDescription_t(1000010010, "slac_e87",       4.501,   33.993, true), // 162
+   new eResDataSetDescription_t(1000010010, "slac_e87",       6.700,   25.994, true), // 163
+   new eResDataSetDescription_t(1000010010, "slac_e87",       8.700,   25.994, true), // 164
+   new eResDataSetDescription_t(1000010010, "slac_e87",       9.999,   14.991, true), // 165
+   new eResDataSetDescription_t(1000010010, "slac_e87",       9.999,   33.993, true), // 166
+   new eResDataSetDescription_t(1000010010, "slac_e87",      11.883,   25.994, true), // 167
+   new eResDataSetDescription_t(1000010010, "slac_e87",      12.497,   14.991, true), // 168
+   new eResDataSetDescription_t(1000010010, "slac_e87",      12.498,   18.997, true), // 169
+   new eResDataSetDescription_t(1000010010, "slac_e87",      15.004,   14.991, true), // 170
+   new eResDataSetDescription_t(1000010010, "slac_e87",      15.004,   18.997, true), // 171
+   new eResDataSetDescription_t(1000010010, "slac_e87",      15.005,   25.994, true), // 172
+   new eResDataSetDescription_t(1000010010, "slac_e87",      18.018,   18.997, true), // 173
+   new eResDataSetDescription_t(1000010010, "slac_e87",      18.018,   25.994, true), // 174
+   new eResDataSetDescription_t(1000010010, "slac_e87",      20.001,   18.997, true), // 175
+
+   new eResDataSetDescription_t(1000010010, "slac_e891",      6.500,   59.999, true), // 176
+   new eResDataSetDescription_t(1000010010, "slac_e891",      7.000,   49.998, true), // 177
+   new eResDataSetDescription_t(1000010010, "slac_e891",     10.400,   60.000, true), // 178
+   new eResDataSetDescription_t(1000010010, "slac_e891",     13.290,   60.000, true), // 179
+   new eResDataSetDescription_t(1000010010, "slac_e891",     16.002,   59.999, true), // 180
+   new eResDataSetDescription_t(1000010010, "slac_e891",     19.505,   60.000, true), // 181
+
+   new eResDataSetDescription_t(1000010010, "slac_e8920",     6.500,   18.000, true), // 182
+   new eResDataSetDescription_t(1000010010, "slac_e8920",     7.000,    6.000, true), // 183
+   new eResDataSetDescription_t(1000010010, "slac_e8920",    10.400,   18.000, true), // 184
+   new eResDataSetDescription_t(1000010010, "slac_e8920",    13.300,   15.000, true), // 185
+   new eResDataSetDescription_t(1000010010, "slac_e8920",    13.300,   18.000, true), // 186
+   new eResDataSetDescription_t(1000010010, "slac_e8920",    13.500,    6.000, true), // 187
+   new eResDataSetDescription_t(1000010010, "slac_e8920",    16.000,    6.000, true), // 188
+   new eResDataSetDescription_t(1000010010, "slac_e8920",    16.000,   15.000, true), // 189
+   new eResDataSetDescription_t(1000010010, "slac_e8920",    16.000,   18.000, true), // 190
+   new eResDataSetDescription_t(1000010010, "slac_e8920",    19.500,    6.000, true), // 191
+   new eResDataSetDescription_t(1000010010, "slac_e8920",    19.500,   10.000, true), // 192
+   new eResDataSetDescription_t(1000010010, "slac_e8920",    19.500,   15.000, true), // 193
+   new eResDataSetDescription_t(1000010010, "slac_e8920",    19.500,   18.000, true), // 194
+   new eResDataSetDescription_t(1000010010, "slac_e8920",    19.500,   20.600, true), // 195
+
+   new eResDataSetDescription_t(1000010010, "slac_ne11",      5.507,   15.146, true), // 196
+   new eResDataSetDescription_t(1000010010, "slac_ne11",      5.507,   18.981, true), // 197
+   new eResDataSetDescription_t(1000010010, "slac_ne11",      5.507,   22.805, true), // 198
+   new eResDataSetDescription_t(1000010010, "slac_ne11",      5.507,   26.823, true), // 199
+   new eResDataSetDescription_t(1000010010, "slac_ne11",      9.800,   13.248, true), // 200
+   new eResDataSetDescription_t(1000010010, "slac_ne11",      9.800,   15.367, true), // 201
+   new eResDataSetDescription_t(1000010010, "slac_ne11",      9.800,   17.516, true), // 202
+   new eResDataSetDescription_t(1000010010, "slac_ne11",      9.800,   19.753, true), // 203
+
+   new eResDataSetDescription_t(1000010010, "slac_onen1haf",  5.000,    1.482, true), // 204
+   new eResDataSetDescription_t(1000010010, "slac_onen1haf",  7.103,    1.482, true), // 205
+   new eResDataSetDescription_t(1000010010, "slac_onen1haf",  9.301,    1.482, true), // 206
+   new eResDataSetDescription_t(1000010010, "slac_onen1haf", 11.799,    1.482, true), // 207
+   new eResDataSetDescription_t(1000010010, "slac_onen1haf", 13.805,    1.482, true), // 208
+   new eResDataSetDescription_t(1000010010, "slac_onen1haf", 15.604,    1.482, true), // 209
+   new eResDataSetDescription_t(1000010010, "slac_onen1haf", 17.298,    1.482, true), // 210
+   new eResDataSetDescription_t(1000010010, "slac_onen1haf", 18.703,    1.482, true), // 211
+   new eResDataSetDescription_t(1000010010, "slac_onen1haf", 19.995,    1.482, true), // 212
+
+   new eResDataSetDescription_t(1000010020, "jlab_ioanna",    2.445,   20.000, true), // 213
+   new eResDataSetDescription_t(1000010020, "jlab_ioanna",    2.445,   30.000, true), // 214
+   new eResDataSetDescription_t(1000010020, "jlab_ioanna",    2.445,   70.010, true), // 215
+   new eResDataSetDescription_t(1000010020, "jlab_ioanna",    3.245,   26.980, true), // 216
+   new eResDataSetDescription_t(1000010020, "jlab_ioanna",    4.045,   30.000, true), // 217
+   new eResDataSetDescription_t(1000010020, "jlab_ioanna",    4.045,   39.990, true), // 218
+   new eResDataSetDescription_t(1000010020, "jlab_ioanna",    4.045,   48.000, true), // 219
+   new eResDataSetDescription_t(1000010020, "jlab_ioanna",    4.054,   24.030, true), // 220
+
+   new eResDataSetDescription_t(1000010020, "slac_e140x",     3.301,   50.000, true), // 221
+   new eResDataSetDescription_t(1000010020, "slac_e140x",     4.014,   50.700, true), // 222
+   new eResDataSetDescription_t(1000010020, "slac_e140x",     4.951,   56.010, true), // 223
+   new eResDataSetDescription_t(1000010020, "slac_e140x",     5.600,   58.000, true), // 224
+   new eResDataSetDescription_t(1000010020, "slac_e140x",     6.453,   59.510, true), // 225
+
+   new eResDataSetDescription_t(1000010020, "slac_e49a10",    4.892,   10.000, true), // 226
+   new eResDataSetDescription_t(1000010020, "slac_e49a10",    7.019,   10.000, true), // 227
+   new eResDataSetDescription_t(1000010020, "slac_e49a10",    9.022,   10.000, true), // 228
+   new eResDataSetDescription_t(1000010020, "slac_e49a10",   10.998,   10.000, true), // 229
+   new eResDataSetDescription_t(1000010020, "slac_e49a10",   13.545,   10.000, true), // 230
+   new eResDataSetDescription_t(1000010020, "slac_e49a10",   15.204,   10.000, true), // 231
+   new eResDataSetDescription_t(1000010020, "slac_e49a10",   17.706,   10.000, true), // 232
+   new eResDataSetDescription_t(1000010020, "slac_e49a10",   19.350,   10.000, true), // 233
+
+   new eResDataSetDescription_t(1000010020, "slac_e49a6",     4.511,    5.988, true), // 234
+   new eResDataSetDescription_t(1000010020, "slac_e49a6",     7.014,    5.988, true), // 235
+   new eResDataSetDescription_t(1000010020, "slac_e49a6",    10.027,    5.988, true), // 236
+   new eResDataSetDescription_t(1000010020, "slac_e49a6",    13.549,    5.988, true), // 237
+   new eResDataSetDescription_t(1000010020, "slac_e49a6",    16.075,    5.988, true), // 238
+   new eResDataSetDescription_t(1000010020, "slac_e49a6",    19.544,    5.988, true), // 239
+
+   new eResDataSetDescription_t(1000010020, "slac_e49b",      4.502,   34.009, true), // 240
+   new eResDataSetDescription_t(1000010020, "slac_e49b",      4.504,   18.020, true), // 241
+   new eResDataSetDescription_t(1000010020, "slac_e49b",      4.506,   26.015, true), // 242
+   new eResDataSetDescription_t(1000010020, "slac_e49b",      5.808,   34.009, true), // 243
+   new eResDataSetDescription_t(1000010020, "slac_e49b",      6.509,   18.020, true), // 244
+   new eResDataSetDescription_t(1000010020, "slac_e49b",      6.711,   26.015, true), // 245
+   new eResDataSetDescription_t(1000010020, "slac_e49b",      7.912,   34.009, true), // 246
+   new eResDataSetDescription_t(1000010020, "slac_e49b",      8.614,   18.020, true), // 247
+   new eResDataSetDescription_t(1000010020, "slac_e49b",      8.713,   26.015, true), // 248
+   new eResDataSetDescription_t(1000010020, "slac_e49b",     10.014,   34.009, true), // 249
+   new eResDataSetDescription_t(1000010020, "slac_e49b",     10.392,   18.020, true), // 250
+   new eResDataSetDescription_t(1000010020, "slac_e49b",     11.900,   26.015, true), // 251
+   new eResDataSetDescription_t(1000010020, "slac_e49b",     12.518,   34.009, true), // 252
+   new eResDataSetDescription_t(1000010020, "slac_e49b",     13.320,   18.020, true), // 253
+   new eResDataSetDescription_t(1000010020, "slac_e49b",     15.022,   26.015, true), // 254
+   new eResDataSetDescription_t(1000010020, "slac_e49b",     17.027,   18.020, true), // 255
+
+   new eResDataSetDescription_t(1000010020, "slac_e61",       4.499,    4.000, true), // 256
+   new eResDataSetDescription_t(1000010020, "slac_e61",       6.999,    4.000, true), // 257
+   new eResDataSetDescription_t(1000010020, "slac_e61",       9.993,    4.000, true), // 258
+   new eResDataSetDescription_t(1000010020, "slac_e61",      12.987,    4.000, true), // 259
+   new eResDataSetDescription_t(1000010020, "slac_e61",      16.000,    4.000, true), // 260
+   new eResDataSetDescription_t(1000010020, "slac_e61",      18.010,    4.000, true), // 261
+   new eResDataSetDescription_t(1000010020, "slac_e61",      20.005,    4.000, true), // 262
+
+   new eResDataSetDescription_t(1000010020, "slac_e891",      6.500,   59.999, true), // 263
+   new eResDataSetDescription_t(1000010020, "slac_e891",      7.000,   49.998, true), // 264
+   new eResDataSetDescription_t(1000010020, "slac_e891",     10.400,   60.000, true), // 265
+   new eResDataSetDescription_t(1000010020, "slac_e891",     13.290,   60.000, true), // 266
+   new eResDataSetDescription_t(1000010020, "slac_e891",     16.002,   59.999, true), // 267
+   new eResDataSetDescription_t(1000010020, "slac_e891",     19.505,   60.000, true), // 268
+
+   new eResDataSetDescription_t(1000010020, "slac_e8920",     6.500,   18.000, true), // 269
+   new eResDataSetDescription_t(1000010020, "slac_e8920",     7.000,    6.000, true), // 270
+   new eResDataSetDescription_t(1000010020, "slac_e8920",    10.400,   18.000, true), // 271
+   new eResDataSetDescription_t(1000010020, "slac_e8920",    13.300,   15.000, true), // 272
+   new eResDataSetDescription_t(1000010020, "slac_e8920",    13.300,   18.000, true), // 273
+   new eResDataSetDescription_t(1000010020, "slac_e8920",    13.500,    6.000, true), // 274
+   new eResDataSetDescription_t(1000010020, "slac_e8920",    16.000,    6.000, true), // 275
+   new eResDataSetDescription_t(1000010020, "slac_e8920",    16.000,   15.000, true), // 276
+   new eResDataSetDescription_t(1000010020, "slac_e8920",    16.000,   18.000, true), // 277
+   new eResDataSetDescription_t(1000010020, "slac_e8920",    19.500,    6.000, true), // 278
+   new eResDataSetDescription_t(1000010020, "slac_e8920",    19.500,    5.000, true), // 279
+   new eResDataSetDescription_t(1000010020, "slac_e8920",    19.500,   18.000, true), // 280
+   new eResDataSetDescription_t(1000010020, "slac_e8920",    19.500,   20.600, true), // 281
+
+   new eResDataSetDescription_t(1000010020, "slac_ne11",      5.507,   15.146, true), // 282
+   new eResDataSetDescription_t(1000010020, "slac_ne11",      5.507,   18.981, true), // 283
+   new eResDataSetDescription_t(1000010020, "slac_ne11",      5.507,   22.805, true), // 284
+   new eResDataSetDescription_t(1000010020, "slac_ne11",      5.507,   26.823, true)  // 285
+};
 
 // function prototypes
-void     Init               (void);
-void     Plot               (void);
-void     End                (void);
-void     AddCoverPage       (void);
-bool     Connect            (void);
-DBQ      FormQuery          (const char * key_list, float energy, float theta);
-DBT *    Data               (int iset);
-TGraph * Model              (int iset, int imodel);
-void     Draw               (int iset);
-void     GetCommandLineArgs (int argc, char ** argv);
-void     PrintSyntax        (void);
+void           Init               (void);
+void           Plot               (void);
+void           End                (void);
+void           AddCoverPage       (void);
+TGraphErrors * Data               (int iset);
+TGraph *       Model              (int iset, int imodel);
+void           Draw               (int iset);
+void           GetCommandLineArgs (int argc, char ** argv);
+void           PrintSyntax        (void);
 
 // command-line arguments
-string gOptDbURL;
-string gOptDbUser;
-string gOptDbPasswd;
-string gOptGModelName;
-string gOptGModelConf;
+string gOptGModelName   = "";
+string gOptGModelConf   = "";
+string gOptDataFilename = "";
 
 // dbase information
-const char * kDefDbURL = "mysql://localhost/NuScat";  
+const char * kDefDataFile = "data/validation/eA/xsec/differential/res/eRES.root";  
 
 // globals
-bool            gCmpWithData  = true;
-DBI *           gDBI          = 0;
-TPostScript *   gPS           = 0;
-TCanvas *       gC            = 0;
-bool            gShowModel    = false;
+TFile *        gResDataFile  = 0;
+TTree *        gResDataTree  = 0;
+TPostScript *  gPS           = 0;
+TCanvas *      gC            = 0;
+bool           gShowModel    = false;
 
 // consts
 
@@ -928,25 +506,35 @@ int main(int argc, char ** argv)
 //_________________________________________________________________________________
 void Plot(void)
 {
-#ifdef __GENIE_MYSQL_ENABLED__
-
-  // connect to the NuValidator MySQL dbase
-  bool ok = Connect();
-  if(!ok) {
-    return;
-  }
- 
   // loop over data sets
-  for(int iset = 0; iset < kElXSecDataSets; iset++) 
+  for(int iset = 0; iset < kNumOfDataSets; iset++) 
   {
+    if(!kDataSet[iset]->Show()) continue;
+    LOG("gvldtest", pNOTICE) 
+      << "Producing plots for: " << kDataSet[iset]->LabelTeX();
     Draw(iset);
   }
-#endif
 }
 //_________________________________________________________________________________
 void Init(void)
 {
-  LOG("vldtest", pNOTICE) << "Initializing...";
+  LOG("gvldtest", pNOTICE) << "Initializing...";
+
+  // get TTree with electron-scattering data
+  if( ! utils::system::FileExists(gOptDataFilename) ) {
+      LOG("gvldtest", pFATAL) 
+         << "Can not find file: " << gOptDataFilename;
+      gAbortingInErr = true;
+      exit(1);
+  }
+  gResDataFile = new TFile(gOptDataFilename.c_str(),"read");  
+  gResDataTree = (TTree *) gResDataFile->Get("resnt");
+  if(!gResDataTree) {
+      LOG("gvldtest", pFATAL) 
+         << "Can not find TTree `resnt' in file: " << gOptDataFilename;
+      gAbortingInErr = true;
+      exit(1);
+  }
 
   // genie style
   utils::style::SetDefaultStyle();
@@ -980,12 +568,14 @@ void AddCoverPage(void)
 //_________________________________________________________________________________
 void End(void)
 {
-  LOG("vldtest", pNOTICE) << "Cleaning up...";
+  LOG("gvldtest", pNOTICE) << "Cleaning up...";
 
   gPS->Close();
 
   delete gC;
   delete gPS;
+
+  gResDataFile->Close();
 }
 //_________________________________________________________________________________
 // Corresponding GENIE prediction for the `iset' data set 
@@ -994,7 +584,7 @@ TGraph * Model(int iset, int imodel)
 {
   if(!gShowModel) return 0;
 
-  LOG("vldtest", pNOTICE) 
+  LOG("gvldtest", pNOTICE) 
     << "Getting GENIE prediction (model ID = " 
     << imodel << ", data set ID = " << iset << ")";
 
@@ -1004,21 +594,20 @@ TGraph * Model(int iset, int imodel)
           algf->GetAlgorithm(gOptGModelName, gOptGModelConf));
   if(!xsec_alg) return 0;
 
-  double M     = kNucleonMass;
-  double M2    = M*M;
+  double M  = kNucleonMass;
+  double M2 = M*M;
 
-  double E     = (double) kElXSecEnergy[iset];
-  double theta = (double) kElXSecTheta [iset];
+  double E     = kDataSet[iset]->E();
+  double theta = kDataSet[iset]->Theta();
   double costh = TMath::Cos(2*kPi*theta/360.);
 
-  LOG("vldtest", pNOTICE) 
-     << " ** E = " << E << ", theta = " << theta 
-     << " (cos(theta) = " << costh << ")";
+  LOG("gvldtest", pINFO) 
+     << " E = " << E 
+     << ", theta = " << theta << " (cos(theta) = " << costh << ")";
 
-
-  int target_pdgc = kElXSecTarget[iset];
-  int Z = pdg::IonPdgCodeToZ(target_pdgc);
-  int A = pdg::IonPdgCodeToA(target_pdgc);
+  //int target_pdgc = kDataSet[iset]->TgtPdg();
+  int Z = kDataSet[iset]->TgtZ();
+  int A = kDataSet[iset]->TgtA();
   int N = A-Z;
   bool   tgt_has_p = (Z>0);
   bool   tgt_has_n = (N>0);
@@ -1029,29 +618,36 @@ TGraph * Model(int iset, int imodel)
   Interaction * en_res = 0;
 
   if(tgt_has_p) {
-     ep_res = Interaction::RESEM(1000010010, kPdgProton, kPdgElectron, E);
+     ep_res = Interaction::RESEM(1000010010, kPdgProton,  kPdgElectron, E);
   }
   if(tgt_has_n) {
-     en_res = Interaction::RESEM(1000000010, kPdgProton, kPdgElectron, E);
+     en_res = Interaction::RESEM(1000010010, kPdgNeutron, kPdgElectron, E);
   }
 
-  const int n = 150;
+  const int n = 500;
   double d2sig_dEpdOmega_array[n];
   double W2_array[n];
 
-  double Epmin = 0.;
+  double Epmin = 0.01;
   double Epmax = E;
   double dEp = (Epmax-Epmin)/(n-1);
 
+  int nn0 = 0; // non-zero xsec values
+
   for(int i=0; i<n; i++) {
-
      double Ep = Epmin + i*dEp;
-
-     LOG("vldtest", pNOTICE) << " ** Ep = " << Ep;
-
      double Q2 = 2*E*Ep*(1-costh);
      double W2 = M2 + 2*M*(E-Ep)-Q2;
      double W  = TMath::Sqrt( TMath::Max(0.,W2) );
+
+     if(W2 <= 0) {
+        LOG("gvldtest", pDEBUG) 
+          << "Ep = " << Ep << ", Q2 = " << Q2 << ", W2 = " << W2
+          << "... Skipping point";
+        d2sig_dEpdOmega_array[i] = 0.;
+        W2_array[i] = 0.;
+        continue;
+     }
 
      if(tgt_has_p) {
        ep_res->KinePtr()->SetW (W);
@@ -1072,24 +668,22 @@ TGraph * Model(int iset, int imodel)
         if(tgt_has_p) {
           ep_res->ExclTagPtr()->SetResonance(kResId[ires]);
           d2sig_dWdQ2_res_p = xsec_alg->XSec(ep_res,kPSWQ2fE) / units::nb;
-
           d2sig_dWdQ2_res_p = TMath::Max(0., d2sig_dWdQ2_res_p);
-
-          LOG("vldtest", pNOTICE) 
-              << "d2xsec_dWdQ2(ep;" << utils::res::AsString(kResId[ires])
-              << "; E=" << E << ", W=" << W << ", Q2=" << Q2 << ") = "
-              << d2sig_dWdQ2_res_p << " nbarn/GeV^3";
+          LOG("gvldtest", pINFO) 
+             << "d2xsec_dWdQ2(ep; " << utils::res::AsString(kResId[ires])
+             << "; E = " << E << " GeV, W = " << W << " GeV, Q2 = " << Q2 << " GeV^2"
+             << "; Ep = " << Ep << " GeV, theta = " << theta << " deg) = " 
+             << d2sig_dWdQ2_res_p << " nbarn/GeV^3";
         }
         if(tgt_has_n) {
           en_res->ExclTagPtr()->SetResonance(kResId[ires]);
           d2sig_dWdQ2_res_n = xsec_alg->XSec(en_res,kPSWQ2fE) / units::nb;
-
           d2sig_dWdQ2_res_n = TMath::Max(0., d2sig_dWdQ2_res_n);
-
-          LOG("vldtest", pNOTICE) 
-              << "d2xsec_dWdQ2(en;" << utils::res::AsString(kResId[ires])
-              << "; E=" << E << ", W=" << W << ", Q2=" << Q2 << ") = "
-              << d2sig_dWdQ2_res_p << " nbarn/GeV^3";
+          LOG("gvldtest", pINFO) 
+             << "d2xsec_dWdQ2(en; " << utils::res::AsString(kResId[ires])
+             << "; E = " << E << " GeV, W = " << W << " GeV, Q2 = " << Q2 << " GeV^2"
+             << "; Ep = " << Ep << " GeV, theta = " << theta << " deg) = " 
+             << d2sig_dWdQ2_res_n << " nbarn/GeV^3";
         }
 
         d2sig_dWdQ2 += (frac_p*d2sig_dWdQ2_res_p + frac_n*d2sig_dWdQ2_res_n);
@@ -1100,83 +694,89 @@ TGraph * Model(int iset, int imodel)
      double d2sig_dEpdOmega = jacobian * d2sig_dWdQ2;
 
      if(TMath::IsNaN(d2sig_dEpdOmega)) {
-        LOG("vldtest", pWARN) << "Got a NaN!";
+        LOG("gvldtest", pWARN) << "Got a NaN!";
         d2sig_dEpdOmega = 0;
      }
+
+     if(d2sig_dEpdOmega>0) nn0++;
 
      d2sig_dEpdOmega_array[i] = TMath::Max(0., d2sig_dEpdOmega);
      W2_array[i] = W2;
   }
 
-
   if(tgt_has_p) { delete ep_res; }
   if(tgt_has_n) { delete en_res; }
+
+  LOG("gvldtest", pNOTICE) << "Computed " << nn0 << " non-zero xsec values";
   
   TGraph * gr = new TGraph(n,W2_array,d2sig_dEpdOmega_array);
 
   return gr;
 }
 //_________________________________________________________________________________
-// Download cross section data from NuVld MySQL dbase 
-//.................................................................................
-bool Connect(void)
+TGraphErrors * Data(int iset)
 {
-  if(!gCmpWithData) return true;
+  const double dE      = 1.0E-3;
+  const double dtheta  = 2.5E-2;
 
-  // Get a data-base interface
-  TSQLServer * sql_server = TSQLServer::Connect(
-      gOptDbURL.c_str(),gOptDbUser.c_str(),gOptDbPasswd.c_str());
+  double E     = kDataSet[iset]->E();
+  double theta = kDataSet[iset]->Theta();
 
-  if(!sql_server) return false;
-  if(!sql_server->IsConnected()) return false;
+  int Z = kDataSet[iset]->TgtZ();
+  int A = kDataSet[iset]->TgtA();
 
-  gDBI = new DBI(sql_server);
-  return true;
-}
-//_________________________________________________________________________________
-DBQ FormQuery(const char * key_list, float energy, float theta)
-{
-// forms a DBQueryString for extracting neutrino cross section data from the input 
-// key-list and for the input energy range
-//  
-  ostringstream query_string;
+  const char * selection = 
+    Form("E > %f && E < %f && theta > %f && theta < %f && Z == %d && A == %d",
+         E     - dE,
+         E     + dE,
+         theta - dtheta,
+         theta + dtheta,
+         Z,A);
+
+  gResDataTree->Draw("W2:xsec:xsec_err", selection, "goff");
   
-  query_string 
-    << "KEY-LIST:" << key_list
-    << "$CUTS:E_min=" << energy-0.001 << ";E_max=" << energy+0.001 
-    << ";Theta_min=" << theta-0.001 << ";Theta_max=" << theta+0.001 
-    << "$DRAW_OPT:none$DB-TYPE:eN-Diff-XSec";
-  
-  DBQ query(query_string.str());
-  
-  return query;
-}
-//_________________________________________________________________________________
-DBT * Data(int iset)
-{
-  if(!gCmpWithData) return 0;
+  int n = gResDataTree->GetSelectedRows();
 
-  DBT * dbtable = new DBT;
+  LOG("gvldtest", pNOTICE) 
+    << "Found " << n << " data points in the xsec archive";
 
-  const char * keylist = kElXSecKeyList[iset];
-  float        energy  = kElXSecEnergy [iset];
-  float        theta   = kElXSecTheta  [iset];
+  if(n == 0) return 0; // return null graph
 
-  DBQ query = FormQuery(keylist, energy, theta);
-  assert( gDBI->FillTable(dbtable, query) == eDbu_OK );
+  // Data returned by TTree::Draw() are not necessarily ordered in W
+  // Do the ordering here before building the graph
+  int    *  idx = new int   [n];
+  double *  xv  = new double[n];
+  double *  yv  = new double[n];
+  double *  dyv = new double[n];
 
-  return dbtable;
+  TMath::Sort(n,gResDataTree->GetV1(),idx,false);
+
+  for(int i=0; i<n; i++) {
+     int ii = idx[i];
+     xv [i] = (gResDataTree->GetV1())[ii];
+     yv [i] = (gResDataTree->GetV2())[ii];
+     dyv[i] = (gResDataTree->GetV3())[ii];
+  }
+
+  TGraphErrors * gr = new TGraphErrors(n,xv,yv,0,dyv);
+
+  delete [] idx;
+  delete [] xv;
+  delete [] yv;
+  delete [] dyv;
+
+  return gr;
 }
 //_________________________________________________________________________________
 void Draw(int iset)
 {
   // get all measurements for the current channel from the NuValidator MySQL dbase
-  DBT * dbtable = Data(iset);
+  TGraphErrors * data = Data(iset);
 
   // get the corresponding GENIE model prediction
   TGraph * model = Model(iset,0);
 
-  if(!model && !dbtable) return;
+  if(!model && !data) return;
 
   int plots_per_page = kNCx * kNCy;
   int iplot = 1 + iset % plots_per_page;
@@ -1200,12 +800,11 @@ void Draw(int iset)
   TH1F * hframe = 0;
   bool have_frame = false;
 
-  if(dbtable) {
-    TGraphAsymmErrors * graph = dbtable->GetGraph("err","W2");
-    xmin  = ( graph->GetX() )[TMath::LocMin(graph->GetN(),graph->GetX())];
-    xmax  = ( graph->GetX() )[TMath::LocMax(graph->GetN(),graph->GetX())];
-    ymin  = ( graph->GetY() )[TMath::LocMin(graph->GetN(),graph->GetY())];
-    ymax  = ( graph->GetY() )[TMath::LocMax(graph->GetN(),graph->GetY())];
+  if(data) {
+    xmin  = ( data->GetX() )[TMath::LocMin(data->GetN(),data->GetX())];
+    xmax  = ( data->GetX() )[TMath::LocMax(data->GetN(),data->GetX())];
+    ymin  = ( data->GetY() )[TMath::LocMin(data->GetN(),data->GetY())];
+    ymax  = ( data->GetY() )[TMath::LocMax(data->GetN(),data->GetY())];
     xmin  = TMath::Max(xmin, 0.5); // some data go very low 
     if(model) {
        ymin  = TMath::Min(
@@ -1213,16 +812,12 @@ void Draw(int iset)
        ymax  = TMath::Max(
         ymax, ( model->GetY() )[TMath::LocMax(model->GetN(),model->GetY())]);
     }
-    hframe = (TH1F*) gC->GetPad(1)->DrawFrame(
+    hframe = (TH1F*) gC->GetPad(iplot)->DrawFrame(
         scale_xmin*xmin, scale_ymin*ymin, scale_xmax*xmax, scale_ymax*ymax);
     have_frame = true;
-
-    MultiGraph * mgraph = dbtable->GetMultiGraph("err","W2");
-    for(unsigned int igraph = 0; igraph < mgraph->NGraphs(); igraph++) {
-       utils::style::Format(mgraph->GetGraph(igraph), 1,1,1,1,8,0.8);
-       mgraph->GetGraph(igraph)->Draw("P");
-    }
-  }//dbtable?
+    utils::style::Format(data, 1,1,1,1,8,0.8);
+    data->Draw("P");
+  }//data?
 
   if(model) {
     if(!have_frame) {
@@ -1230,7 +825,7 @@ void Draw(int iset)
        xmax  = ( model->GetX() )[TMath::LocMax(model->GetN(),model->GetX())];
        ymin  = ( model->GetY() )[TMath::LocMin(model->GetN(),model->GetY())];
        ymax  = ( model->GetY() )[TMath::LocMax(model->GetN(),model->GetY())];
-       hframe = (TH1F*) gC->GetPad(1)->DrawFrame(
+       hframe = (TH1F*) gC->GetPad(iplot)->DrawFrame(
          scale_xmin*xmin, scale_ymin*ymin, scale_xmax*xmax, scale_ymax*ymax);
     }
     utils::style::Format(model, 1,1,1,1,1,1);
@@ -1267,7 +862,7 @@ void Draw(int iset)
   // title
   TLatex * title = new TLatex(
      scale_xmin*xmin + 0.2*(scale_xmax*xmax-scale_xmin*xmin),
-    1.01*scale_ymax*ymax,kElXSecDataSetLabel[iset]);
+    1.01*scale_ymax*ymax,kDataSet[iset]->LabelTeX().c_str());
   title->SetTextSize(0.027);
   title->Draw();
 
@@ -1283,7 +878,23 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   CmdLnArgParser parser(argc,argv);
 
-  gCmpWithData = true;
+  // get the name and configu
+  if(parser.OptionExists('d')){
+     string filename = parser.ArgAsString('d');
+     gOptDataFilename = filename;
+  } else {
+     if(gSystem->Getenv("GENIE")) {
+        string base_dir = string( gSystem->Getenv("GENIE") );
+        string filename = base_dir + kDefDataFile;
+        gOptDataFilename = filename;
+     } else { 
+        LOG("gvldtest", pFATAL) 
+          << "\n Please make sure that $GENIE is defined, or use the -d option"
+          << "\n You didn't specify a data file and I can not pick the default one either";
+        gAbortingInErr = true;
+        exit(1);
+     }
+  }
 
   // get the name and configuration for the GENIE model to be tested
   if(parser.OptionExists('m')){
@@ -1296,36 +907,12 @@ void GetCommandLineArgs(int argc, char ** argv)
   } else {
      gShowModel = false;
   }
-
-
-  // get DB URL
-  if(parser.OptionExists('h')) {
-     gOptDbURL = parser.ArgAsString('h');
-  } else {
-     gOptDbURL = kDefDbURL;
-  }
-
-  // get DB username
-  if(parser.OptionExists('u')) {
-     gOptDbUser = parser.ArgAsString('u');
-  } else {
-     gCmpWithData = false;
-  }
-
-  // get DB passwd
-  if(parser.OptionExists('p')) {
-     gOptDbPasswd = parser.ArgAsString('p');
-  } else {
-     gCmpWithData = false;
-  }
-
 }
 //_________________________________________________________________________________
 void PrintSyntax(void)
 {
   LOG("gvldtest", pNOTICE)
     << "\n\n" << "Syntax:" << "\n"
-    << "   gvld_nuxsec_vs_world_data [-h host] [-u user] [-p passwd] [-m model]\n";
+    << "  gvld_e_res_xsec -m model [-d data_archive_location]\n";
 }
 //_________________________________________________________________________________
-
