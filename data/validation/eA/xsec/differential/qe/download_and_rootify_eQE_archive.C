@@ -1,5 +1,5 @@
 //
-// Download e- QE Scattering Archive maintained by Donald Day 
+// Download e- QE Scattering Archive maintained by Donal Day 
 // and (optionally) save data in a ROOT tree.
 //
 // The script uses wget to download the data.
@@ -20,7 +20,7 @@ string kDonaldDayBaseURL = "http://faculty.virginia.edu/qes-archive/";
 
 int download_and_rootify_eQE_archive(bool rootify=true)
 {
-  const int ntargets = 11;
+  const int ntargets = 13;
 
   const char * remote_filename[ntargets] = 
   {
@@ -28,27 +28,31 @@ int download_and_rootify_eQE_archive(bool rootify=true)
     "3H/3H.dat",     // tritium
     "3He/3He.dat",   // 3He
     "4He/4He.dat",   // 4He
-    "C12/C12.dat",   // 12C
+    "C12/12C.dat",   // 12C
     "O16/O16.dat",   // 16O
     "Al/27Al.dat",   // 27Al
     "Ca40/40Ca.dat", // 40Ca
+    "Ca48/Ca48.dat", // 48Ca
     "Fe/56Fe.dat",   // 56Fe
     "Au/197Au.dat",  // 197Au
-    "Pb/208Pb.dat"   // 208Pb
+    "Pb/208Pb.dat",  // 208Pb
+    "U238/238U.dat"  // 238U
   };
   const char * target[ntargets] = 
   {
-    "2H",    // deuterium
-    "3H",    // tritium
-    "3He",   // 3He
-    "4He",   // 4He
-    "12C",   // 12C
-    "16O",   // 16O
-    "27Al",  // 27Al
-    "40Ca",  // 40Ca
-    "56Fe",  // 56Fe
-    "197Au", // 197Au
-    "208Pb"  // 208Pb
+    "2H",   
+    "3H",   
+    "3He",  
+    "4He",  
+    "12C",  
+    "16O",  
+    "27Al", 
+    "40Ca", 
+    "48Ca", 
+    "56Fe", 
+    "197Au",
+    "208Pb",
+    "238U"
   };
 
   //
