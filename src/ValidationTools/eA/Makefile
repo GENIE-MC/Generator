@@ -13,10 +13,11 @@ include $(GENIE)/src/make/Make.include
 
 # Add extra libraries needed for these executables
 GENIE_LIBS   = $(shell $(GENIE)/src/scripts/setup/genie-config --libs)
-VLDTOOL_LIBS = $(shell $(GENIE)/src/scripts/setup/genie-config --vldlibs)
-LIBRARIES   := $(GENIE_LIBS) $(VLDTOOL_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
+#VLDTOOL_LIBS = $(shell $(GENIE)/src/scripts/setup/genie-config --vldlibs)
+LIBRARIES   := $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 
-all: gVldeQELXSec gVldeRESXSec
+all: 	gVldeQELXSec \
+	gVldeRESXSec
 
 #
 # Program comparing GENIE electron cross sections in the resonance region 
