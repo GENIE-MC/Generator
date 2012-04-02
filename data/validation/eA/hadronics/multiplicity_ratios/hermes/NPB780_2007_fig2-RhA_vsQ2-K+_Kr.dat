@@ -3,16 +3,16 @@
 # Source     : The HERMES Collaboration, Nuclear Physics B 780 (2007) 1-27, Fig. 2 (middle right, green markers)
 # Digitizer  : Athans Chatzikoutelis, Lancaster Univ.
 #
-# Q2        RhA      RhA+dRhA    RhA-dRhA
+# Q2        RhA      RhA+dRhA    RhA-dRhA    Z    A   Hadron  Citation
 # (GeV^2)
-  1.24      0.89     0.91        0.86
-  1.74      0.89     0.91        0.86
-  2.45      0.91     0.93        0.88
-  3.46      0.92     0.94        0.89
-  4.46      0.95     0.98        0.91
-  5.46      0.92     0.96        0.88
-  6.76      0.88     0.91        0.84
-  9.45      0.80     0.84        0.76
+  1.24      0.89     0.91        0.86       36   84   321     Airapetian:2007vu   
+  1.74      0.89     0.91        0.86       36   84   321     Airapetian:2007vu
+  2.45      0.91     0.93        0.88       36   84   321     Airapetian:2007vu
+  3.46      0.92     0.94        0.89       36   84   321     Airapetian:2007vu
+  4.46      0.95     0.98        0.91       36   84   321     Airapetian:2007vu
+  5.46      0.92     0.96        0.88       36   84   321     Airapetian:2007vu
+  6.76      0.88     0.91        0.84       36   84   321     Airapetian:2007vu
+  9.45      0.80     0.84        0.76       36   84   321     Airapetian:2007vu
 														
 														
 														
