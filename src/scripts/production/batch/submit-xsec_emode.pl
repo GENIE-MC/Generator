@@ -16,7 +16,7 @@
 #   [--use-valgrind] : default: off
 #   [--batch-system] : <PBS, LSF>, default: PBS
 #   [--queue]        : default: prod
-#   [--softw-topdir] : default: /opt/ppd/t2k/GENIE
+#   [--softw-topdir] : default: /opt/ppd/t2k/softw/GENIE
 #
 # Notes:
 #   * Use GENIE gspladd utility to merge the job outputs
@@ -46,13 +46,13 @@ foreach (@ARGV) {
 die("** Aborting [Undefined GENIE version. Use the --version option]")
 unless defined $genie_version;
 
-$use_valgrind   = 0                       unless defined $use_valgrind;
-$arch           = "SL5_64bit"             unless defined $arch;
-$production     = "$genie_version"        unless defined $production;
-$cycle          = "01"                    unless defined $cycle;
-$batch_system   = "PBS"                   unless defined $batch_system;
-$queue          = "prod"                  unless defined $queue;
-$softw_topdir   = "/opt/ppd/t2k/GENIE"    unless defined $softw_topdir;
+$use_valgrind   = 0                          unless defined $use_valgrind;
+$arch           = "SL5_64bit"                unless defined $arch;
+$production     = "$genie_version"           unless defined $production;
+$cycle          = "01"                       unless defined $cycle;
+$batch_system   = "PBS"                      unless defined $batch_system;
+$queue          = "prod"                     unless defined $queue;
+$softw_topdir   = "/opt/ppd/t2k/softw/GENIE" unless defined $softw_topdir;
 $genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
 $jobs_dir       = "$softw_topdir/scratch/xsec\_elec-$production\_$cycle/";
 

@@ -15,7 +15,7 @@
 #   [--use-valgrind] : default: off
 #   [--batch-system] : <PBS, LSF>, default: PBS
 #   [--queue]        : default: prod
-#   [--softw-topdir] : default: /opt/ppd/t2k/GENIE
+#   [--softw-topdir] : default: /opt/ppd/t2k/softw/GENIE
 #
 # Examples:
 #   shell% perl submit-xsec_freenuc.pl --version v2.6.0 --xsplset chm 
@@ -59,7 +59,7 @@ $production     = "$genie_version"              unless defined $production;
 $cycle          = "01"                          unless defined $cycle;
 $batch_system   = "PBS"                         unless defined $batch_system;
 $queue          = "prod"                        unless defined $queue;
-$softw_topdir   = "/opt/ppd/t2k/GENIE"          unless defined $softw_topdir;
+$softw_topdir   = "/opt/ppd/t2k/softw/GENIE"    unless defined $softw_topdir;
 $genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
 $jobs_dir       = "$softw_topdir/scratch/xsec\_free-$production\_$cycle/";
 

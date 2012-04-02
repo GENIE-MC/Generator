@@ -17,7 +17,7 @@
 #   [--use-valgrind]     : default: off
 #   [--batch-system]     : <PBS, LSF>, default: PBS
 #   [--queue]            : default: prod
-#   [--softw-topdir]     : default: /opt/ppd/t2k/GENIE
+#   [--softw-topdir]     : default: /opt/ppd/t2k/softw/GENIE
 #
 # Example:
 #   shell$ perl submit-evg_sk_fntp.pl --flux-run 180 --version v2.4.0 --production mdc0 --cycle 01
@@ -62,7 +62,7 @@ $production        = "$genie_version"           unless defined $production;
 $cycle             = "01"                       unless defined $cycle;
 $batch_system      = "PBS"                      unless defined $batch_system;
 $queue             = "prod"                     unless defined $queue;
-$softw_topdir      = "/opt/ppd/t2k/GENIE"       unless defined $softw_topdir;
+$softw_topdir      = "/opt/ppd/t2k/softw/GENIE" unless defined $softw_topdir;
 $flux_version      = "10c"                      unless defined $flux_version;
 $flux_config       = "nominal"                  unless defined $flux_config;
 $flux_file_prefix  = "nu.sk_horn250ka."         unless defined $flux_file_prefix;

@@ -18,7 +18,7 @@
 #   [--use-valgrind]     : default: off
 #   [--batch-system]     : <PBS, LSF>, default: PBS
 #   [--queue]            : default: prod
-#   [--softw-topdir]     : default: /opt/ppd/t2k/GENIE
+#   [--softw-topdir]     : default: /opt/ppd/t2k/softw/GENIE
 #
 # Example:
 #   shell$ perl submit-evg_nd280.pl --flux-run 180 --version v2.4.0 --production mdc0 --cycle 01
@@ -57,17 +57,17 @@ unless defined $flux_run;
 die("** Aborting [Undefined GENIE version. Use the --version option]")
 unless defined $genie_version;
 
-$use_valgrind      = 0                         unless defined $use_valgrind;
-$arch              = "SL5_64bit"               unless defined $arch;
-$production        = "$genie_version"          unless defined $production;
-$cycle             = "01"                      unless defined $cycle;
-$batch_system      = "PBS"                     unless defined $batch_system;
-$queue             = "prod"                    unless defined $queue;
-$softw_topdir      = "/opt/ppd/t2k/GENIE"      unless defined $softw_topdir;
-$flux_version      = "10c"                     unless defined $flux_version;
-$flux_config       = "nominal"                 unless defined $flux_config;
-$flux_file_prefix  = "nu.nd."                  unless defined $flux_file_prefix;
-$flux_file_suffix  = ".root"                   unless defined $flux_file_suffix;
+$use_valgrind      = 0                          unless defined $use_valgrind;
+$arch              = "SL5_64bit"                unless defined $arch;
+$production        = "$genie_version"           unless defined $production;
+$cycle             = "01"                       unless defined $cycle;
+$batch_system      = "PBS"                      unless defined $batch_system;
+$queue             = "prod"                     unless defined $queue;
+$softw_topdir      = "/opt/ppd/t2k/softw/GENIE" unless defined $softw_topdir;
+$flux_version      = "10c"                      unless defined $flux_version;
+$flux_config       = "nominal"                  unless defined $flux_config;
+$flux_file_prefix  = "nu.nd."                   unless defined $flux_file_prefix;
+$flux_file_suffix  = ".root"                    unless defined $flux_file_suffix;
 $job_pot           = "1E+18";
 $mcrun_base        = 10000000;
 $mcseed_base       = 210921029;

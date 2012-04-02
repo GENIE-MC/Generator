@@ -22,7 +22,7 @@
 #   [--use-valgrind] : Use valgrind? default: off
 #   [--batch-system] : Batch system <PBS, LSF, none>, default: PBS
 #   [--queue]        : Batch queue, default: prod
-#   [--softw-topdir] : Top lever dir for GENIE softw. installation, default: /opt/ppd/t2k/GENIE
+#   [--softw-topdir] : Top lever dir for GENIE softw. installation, default: /opt/ppd/t2k/softw/GENIE
 #
 # Examples:
 #
@@ -124,7 +124,7 @@ $production     = "$model_enum\_$genie_version"           unless defined $produc
 $cycle          = "01"                                    unless defined $cycle;
 $batch_system   = "PBS"                                   unless defined $batch_system;
 $queue          = "prod"                                  unless defined $queue;
-$softw_topdir   = "/opt/ppd/t2k/GENIE"                    unless defined $softw_topdir;
+$softw_topdir   = "/opt/ppd/t2k/softw/GENIE"              unless defined $softw_topdir;
 $time_limit     = "60:00:00";
 $genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
 $jobs_dir       = "$softw_topdir/scratch/vld\_inuke-$production\_$cycle";
