@@ -17,7 +17,16 @@ GENIE_LIBS   = $(shell $(GENIE)/src/scripts/setup/genie-config --libs)
 LIBRARIES   := $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 
 all: 	gVldeQELXSec \
-	gVldeRESXSec
+	gVldeRESXSec \
+	gVldeHadroAtten
+
+#
+# Program comparing GENIE quasi-elastic electron cross sections 
+# against data from D.Day's online dbase.
+#
+gVldeQELXSec: FORCE
+	$(CXX) $(CXXFLAGS) -c gVldeQELXSec.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gVldeQELXSec.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gvld_e_qel_xsec
 
 #
 # Program comparing GENIE electron cross sections in the resonance region 
@@ -28,12 +37,12 @@ gVldeRESXSec: FORCE
 	$(LD) $(LDFLAGS) gVldeRESXSec.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gvld_e_res_xsec
 
 #
-# Program comparing GENIE quasi-elastic electron cross sections 
-# against data from D.Day's online dbase.
+# Program comparing GENIE electron-nucleus samples with data on hadron attenuation
+# from HERMES and JUPITER
 #
-gVldeQELXSec: FORCE
-	$(CXX) $(CXXFLAGS) -c gVldeQELXSec.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) gVldeQELXSec.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gvld_e_qel_xsec
+gVldeHadroAtten: FORCE
+	$(CXX) $(CXXFLAGS) -c gVldeHadroAtten.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gVldeHadroAtten.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gvld_e_hadro_atten
 
 
 purge: FORCE
@@ -41,12 +50,14 @@ purge: FORCE
 
 clean: FORCE
 	$(RM) *.o *~ core 
-	$(RM) $(GENIE_BIN_PATH)/gvld_e_res_xsec
 	$(RM) $(GENIE_BIN_PATH)/gvld_e_qel_xsec
+	$(RM) $(GENIE_BIN_PATH)/gvld_e_res_xsec
+	$(RM) $(GENIE_BIN_PATH)/gvld_e_hadro_atten
 
 distclean: FORCE
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gvld_e_res_xsec
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gvld_e_qel_xsec
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gvld_e_res_xsec
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gvld_e_hadro_atten
 
 FORCE:
 
