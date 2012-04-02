@@ -17,7 +17,7 @@
 #   [--use-valgrind]   : default: off
 #   [--batch-system]   : <PBS, LSF>, default: PBS
 #   [--queue]          : default: prod
-#   [--softw-topdir]   : default: /opt/ppd/t2k/GENIE
+#   [--softw-topdir]   : default: /opt/ppd/t2k/softw/GENIE
 #
 # Example:
 #   shell& perl submit-evg_sk_fhst.pl --run 180 --neutrino numubar --version v2.5.1
@@ -64,7 +64,7 @@ $production     = "$genie_version"             unless defined $production;
 $cycle          = "01"                         unless defined $cycle;
 $batch_system   = "PBS"                        unless defined $batch_system;
 $queue          = "prod"                       unless defined $queue;
-$softw_topdir   = "/opt/ppd/t2k/GENIE"         unless defined $softw_topdir;
+$softw_topdir   = "/opt/ppd/t2k/softw/GENIE"   unless defined $softw_topdir;
 $flux_version   = "11a"                        unless defined $flux_version;
 $flux_config    = "nominal"                    unless defined $flux_config;
 $flux_hist_file = "sk_flux_histograms.root"    unless defined $flux_hist_file;
