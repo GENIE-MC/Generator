@@ -623,7 +623,7 @@ TGraph * Model(int iset, int imodel)
   }
   if(tgt_has_n) {
      en_res = Interaction::RESEM(1000010010, kPdgNeutron, kPdgElectron, E);
-  }
+  } //is this right kPdgNeutron???  SAD
 
   const int n = 500;
   double d2sig_dEpdOmega_array[n];
