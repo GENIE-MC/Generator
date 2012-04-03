@@ -1,4 +1,4 @@
-#Expt            Dataset  Citation (SPIRES)      #Points  Neutrino    Target            Process {f/s}             Comment  
+# Expt          Dataset  Citation (SPIRES)      #Points  Neutrino    Target            Process {f/s}             Comment  
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------
 ANL_12FT        0        Campbell:1973wg         6        numu        1H                CC 1pi+ {mu- p pi+}         	  
 ANL_12FT        1        Mann:1973pr	         7        numu        2H                CC QE                         
