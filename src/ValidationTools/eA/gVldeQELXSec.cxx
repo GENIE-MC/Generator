@@ -1174,7 +1174,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   } else {
      if(gSystem->Getenv("GENIE")) {
         string base_dir = string( gSystem->Getenv("GENIE") );
-        string filename = base_dir + kDefDataFile;
+        string filename = base_dir + "/" + kDefDataFile;
         gOptDataFilename = filename;
      } else { 
         LOG("gvldtest", pFATAL) 
