@@ -622,8 +622,8 @@ TGraph * Model(int iset, int imodel)
      ep_res = Interaction::RESEM(1000010010, kPdgProton,  kPdgElectron, E);
   }
   if(tgt_has_n) {
-     en_res = Interaction::RESEM(1000010010, kPdgNeutron, kPdgElectron, E);
-  } //is this right kPdgNeutron???  SAD
+     en_res = Interaction::RESEM(1000000010, kPdgNeutron, kPdgElectron, E);
+  } 
 
   const int n = 500;
   double d2sig_dEpdOmega_array[n];
@@ -886,7 +886,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   } else {
      if(gSystem->Getenv("GENIE")) {
         string base_dir = string( gSystem->Getenv("GENIE") );
-        string filename = base_dir + kDefDataFile;
+        string filename = base_dir + "/" + kDefDataFile;
         gOptDataFilename = filename;
      } else { 
         LOG("gvldtest", pFATAL) 
