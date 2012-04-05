@@ -156,7 +156,7 @@
   <priority msgstream="gevgen">              INFO   </priority>
   <priority msgstream="gevgen_ndcy">         INFO   </priority>
   <priority msgstream="gevgen_hadron">       INFO   </priority>
-  <priority msgstream="gvldtest">            INFO   </priority>
+  <priority msgstream="gvldtest">            NOTICE </priority>
   <priority msgstream="gntpc">               INFO   </priority>
   <priority msgstream="gmkspl">              INFO   </priority>
   <priority msgstream="gT2Kevgen">           INFO   </priority>
