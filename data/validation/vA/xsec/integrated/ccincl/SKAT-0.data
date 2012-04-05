@@ -1,0 +1,17 @@
+# 
+# GENIE neutrino-nucleus cross-section data archive
+# 
+# Experiment : SKAT
+# Dataset ID : 0
+# Citation   : Baranov:1978sx      
+# Process    : numu CC inclusive	 
+# 
+# Energy is given in GeV and cross-section is given in 1E-38*cm2/GeV/nucleon
+# The quoted cross-section error includes only statistical uncertainty.
+# 
+# E         Emin      Emax      XSec      +dXSec    -dXSec      
+# 
+  4.0000    3.0000    5.0000    2.7200    0.2800    0.2800
+  7.0000    5.0000    9.0000    4.9000    0.6300    0.6300
+ 12.0000    9.0000   16.0000   10.3200    1.5600    1.5600
+ 23.0000   16.0000   30.0000   16.1000    3.4500    3.4500

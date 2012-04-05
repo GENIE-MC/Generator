@@ -1,0 +1,21 @@
+# 
+# GENIE neutrino-nucleus cross-section data archive
+# 
+# Experiment : SERP_A1
+# Dataset ID : 1
+# Citation   : Belikov:1983kg      
+# Process    : numu CC QE		 
+# 
+# Energy is given in GeV and cross-section is given in 1E-38*cm2/GeV/nucleon
+# The quoted cross-section error includes both statistical and systematic uncertainties.
+# 
+# E         Emin      Emax      XSec      +dXSec    -dXSec      
+# 
+  3.5000    3.0000    4.0000    0.7500    0.1204    0.1204
+  4.5000    4.0000    5.0000    0.8700    0.1273    0.1273
+  5.5000    5.0000    6.0000    0.8200    0.1204    0.1204
+  6.5000    6.0000    7.0000    0.8000    0.1442    0.1442
+  7.5000    7.0000    8.0000    0.7600    0.1526    0.1526
+  9.0000    8.0000   10.0000    0.7400    0.1221    0.1221
+ 12.5000   10.0000   15.0000    0.9900    0.1720    0.1720
+ 20.0000   15.0000   25.0000    0.8300    0.1612    0.1612

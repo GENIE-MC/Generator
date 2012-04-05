@@ -1,0 +1,17 @@
+# 
+# GENIE neutrino-nucleus cross-section data archive
+# 
+# Experiment : CHARM
+# Dataset ID : 6
+# Citation   : Vilain:1993sf       
+# Process    : numu CC coherent pi+  
+# 
+# Energy is given in GeV and cross-section is given in 1E-38*cm2/GeV/nucleus
+# The quoted cross-section error includes only statistical uncertainty.
+# 
+# E         Emin      Emax      XSec      +dXSec    -dXSec      
+# 
+ 13.7000    3.0000   24.0000    1.1400    0.3300    0.3300
+ 28.8000   24.0000   36.0000    1.5500    0.4400    0.4400
+ 46.6000   36.0000   66.0000    2.0000    0.5700    0.5700
+ 90.6000   66.0000  300.0000    2.7400    0.8800    0.8800
