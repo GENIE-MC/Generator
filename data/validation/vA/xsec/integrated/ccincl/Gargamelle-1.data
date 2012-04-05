@@ -1,0 +1,14 @@
+# 
+# GENIE neutrino-nucleus cross-section data archive
+# 
+# Experiment : Gargamelle
+# Dataset ID : 1
+# Citation   : Eichten:1973cs      
+# Process    : numubar CC inclusive	 
+# 
+# Energy is given in GeV and cross-section is given in 1E-38*cm2/GeV/nucleon
+# The quoted cross-section error includes both statistical and systematic uncertainties.
+# 
+# E         Emin      Emax      XSec      +dXSec    -dXSec      
+# 
+  6.0000    2.0000   10.0000    1.6200    0.1897    0.1897

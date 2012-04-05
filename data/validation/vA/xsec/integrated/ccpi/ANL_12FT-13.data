@@ -1,0 +1,18 @@
+# 
+# GENIE neutrino-nucleus cross-section data archive
+# 
+# Experiment : ANL_12FT
+# Dataset ID : 13
+# Citation   : Day:1984nf	      
+# Process    : numu CC pi+pi+	 
+# 
+# Energy is given in GeV and cross-section is given in 1E-38*cm2/GeV/nucleon
+# The quoted cross-section error includes only statistical uncertainty.
+# 
+# E         Emin      Emax      XSec      +dXSec    -dXSec      
+# 
+  1.2500    1.1000    1.4000    0.0193    0.0106    0.0106
+  1.7000    1.4000    2.0000    0.0870    0.0311    0.0311
+  2.3000    2.0000    2.6000    0.3500    0.1310    0.1310
+  3.0000    2.6000    3.4000    0.6900    0.2860    0.2860
+  4.4750    3.4000    5.5500    0.2670    0.1370    0.1370

@@ -1,0 +1,18 @@
+# 
+# GENIE neutrino-nucleus cross-section data archive
+# 
+# Experiment : Gargamelle
+# Dataset ID : 13
+# Citation   : Morfin:1981kg       
+# Process    : numubar CC inclusive	 
+# 
+# Energy is given in GeV and cross-section is given in 1E-38*cm2/GeV/nucleon
+# The quoted cross-section error includes only statistical uncertainty.
+# 
+# E         Emin      Emax      XSec      +dXSec    -dXSec      
+# 
+ 17.5000    0.0000    0.0000    5.6000    0.5600    0.5600
+ 22.5000    0.0000    0.0000    6.5250    0.9450    0.9450
+ 27.5000    0.0000    0.0000    7.4250    1.1550    1.1550
+ 35.0000    0.0000    0.0000   11.5500    1.4700    1.4700
+ 45.0000    0.0000    0.0000   11.7000    1.4400    1.4400

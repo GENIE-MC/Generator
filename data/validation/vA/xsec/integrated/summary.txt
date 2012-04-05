@@ -1,104 +1,111 @@
-# Expt          Dataset  Citation (SPIRES)      #Points  Neutrino    Target            Process {f/s}             Comment  
-#---------------------------------------------------------------------------------------------------------------------------------------------------------------
-ANL_12FT        0        Campbell:1973wg         6        numu        1H                CC 1pi+ {mu- p pi+}         	  
-ANL_12FT        1        Mann:1973pr	         7        numu        2H                CC QE                         
-ANL_12FT        2        Barish:1976bj	         1        numu        1H,2H             CC Inclusive                   
-ANL_12FT        3        Barish:1977qk	         8        numu        1H,2H             CC QE                          
-ANL_12FT        4        Barish:1978pj	         2        numu        1H,2H             CC Inclusive                   
-ANL_12FT        5        Barish:1978pj	         7        numu        1H,2H             CC 1pi+ {mu- p pi+}           
-ANL_12FT        6        Barish:1978pj	         4        numu        1H,2H             CC 1pi0 {mu- p pi0}            
-ANL_12FT        7        Barish:1978pj	         5        numu        1H,2H             CC 1pi+ {mu- n pi+}         	
-ANL_12FT        8        Radecky:1981fn	         8        numu        1H,2H             CC 1pi+ {mu- p pi+}            
-ANL_12FT        9        Radecky:1981fn	         5        numu        1H,2H             CC 1pi0 {mu- p pi0}            
-ANL_12FT       10        Radecky:1981fn	         5        numu        1H,2H             CC 1pi+ {mu- n pi+}         	
-ANL_12FT       11        Day:1984nf	         5        numu        2H                CC pi+pi- {mu- p pi+ pi-}     
-ANL_12FT       12        Day:1984nf	         5        numu        2H                CC pi+pi0 {mu- p pi+ pi0}   	 
-ANL_12FT       13        Day:1984nf	         5        numu        2H                CC pi+pi+ {mu- n pi+ pi+}      
-AachenPadova    0        Faissner:1983ng         1        numu        27Al              CC Coherent pi0             	
-BEBC            0        Bosetti:1977nd	         4        numu        1H,10Ne           CC Inclusive                	
-BEBC            1        Bosetti:1977nd	         3        numubar     1H,10Ne           CC Inclusive                	
-BEBC            2        Colley:1979rt	         3        numu        1H,10Ne           CC Inclusive                   
-BEBC            3        Colley:1979rt	         1        numubar     1H,10Ne           CC Inclusive                   
-BEBC            4        Allen:1980ti	         7        numu        1H                CC 1pi+ {mu- p pi+}            
-BEBC            5        Bosetti:1981ip	         6        numu        1H,10Ne           CC Inclusive                   
-BEBC            6        Bosetti:1981ip	         6        numubar     1H,10Ne           CC Inclusive                	
-BEBC            7        Parker:1983yi	         1        numubar     1H,10Ne           CC Inclusive                	
-BEBC            8        Parker:1983yi	         1        numu        1H,10Ne           CC Inclusive                	  
-BEBC            9        Allen:1985ti	         5        numu        1H                CC 1pi+ {mu- p pi+}            
-BEBC           10        Marage:1986cy	         4        numubar     1H,10Ne           CC Coherent pi-                
-BEBC           11        Allport:1988cq	         2        numu        1H,10Ne           CC Coherent pi+             	    
-BEBC           12        Allasia:1990uy	         6        numu        2H                CC QE                          
-BEBC           13        Allasia:1990uy	         6        numu        2H                CC 1pi+ {mu- p pi+}            
-BEBC           14        Allasia:1990uy	         6        numu        2H                CC 1pi0 {mu- X pi0}            
-BNL_7FT         0        Baltay:1980pr	         2        numu        1H,10Ne           CC Inclusive                  
-BNL_7FT         1        Fanourakis:1980si       1        numubar     1H                CC Inclusive                	
-BNL_7FT         2        Fanourakis:1980si       1        numubar     1H                CC QE                       	
-BNL_7FT         3        Baker:1981su	         4        numu        2H                CC QE                         
-BNL_7FT         4        Baker:1982ty	        13        numu        2H                CC Inclusive                   
-BNL_7FT         5        Kitagaki:1986ct         8        numu        2H                CC 1pi- {mu- p pi-}         	
-BNL_7FT         6        Kitagaki:1986ct         9        numu        2H                CC 1pi0 {mu- p pi0}         	 
-BNL_7FT         7        Kitagaki:1986ct         9        numu        2H                CC 1pi+ {mu- n pi+}         	 
-BNL_7FT         8        Kitagaki:1986ct        10        numu        2H                CC pi+pi- {mu- p pi+ pi-}   	
-CCFR            0        Auchincloss:1990tu      9        numu        56Fe              CC Inclusive                	 
-CCFR            1        Auchincloss:1990tu      2        numubar     56Fe              CC Inclusive                	 
-CCFR            2        Seligman:1997fe        17        numu        56Fe              CC Inclusive                	
-CCFR            3        Seligman:1997fe        17        numubar     56Fe              CC Inclusive                	
-CCFRR           0        MacFarlane:1983ax      15        numu        56Fe              CC Inclusive                	 
-CDHS            0        Berge:1987zw	         6        numu        56Fe              CC Inclusive                	
-CDHS            1        Berge:1987zw	         6        numubar     56Fe              CC Inclusive                	
-CHARM           0        Jonker:1980vf	         1        numu        Marble (CaCO3)    CC Inclusive                	
-CHARM           1        Jonker:1980vf	         1        numubar     Marble (CaCO3)    CC Inclusive                   
-CHARM           2        Bergsma:1985qy	         1        numu        Marble (CaCO3)    NC Coherent pi0             	 
-CHARM           3        Bergsma:1985qy	         1        numubar     Marble (CaCO3)    NC Coherent pi0             	
-CHARM           4        Allaby:1987bb	         1        numu        Marble (CaCO3)    CC Inclusive                   
-CHARM           5        Allaby:1987bb	         1        numubar     Marble (CaCO3)    CC Inclusive                   
-CHARM           6        Vilain:1993sf	         4        numu        Glass             CC Coherent pi+                
-CHARM           7        Vilain:1993sf	         4        numubar     Glass             CC Coherent pi-             	
-FNAL_15FT       0        Bell:1978qu	         5        numu        1H                CC 1pi+ {mu- p pi+}         	  
-FNAL_15FT       1        Kitagaki:1982dx         6        numu        2H                CC Inclusive                	   
-FNAL_15FT       2        Baker:1982jf	         5        numu        1H,10Ne           CC Inclusive                	 
-FNAL_15FT       3        Kitagaki:1983px         2        numu        2H                CC QE                       	  
-FNAL_15FT       4        Taylor:1983qj	         5        numubar     2H,10Ne           CC Inclusive                	  
-FNAL_15FT       5        Asratian:1984ir         7        numubar     2H,10Ne           CC Inclusive                	
-FNAL_15FT       6        Aderholz:1988cs         1        numu        10Ne              CC Coherent pi+             	  
-FNAL_15FT       7        Aderholz:1988cs         1        numubar     10Ne              CC Coherent pi-             	 
-FNAL_15FT       8        Willocq:1992fv	         1        numu        10Ne              CC Coherent pi+             	  
-FNAL_15FT       9        Willocq:1992fv	         2        numubar     10Ne              CC Coherent pi-             	    
-FNAL_15FT      10        Barish:1979ny	         1        numubar     1H                CC 1pi- {mu+ p pi-}         	
-Gargamelle      0        Eichten:1973cs	         1        numu        Propane-Freon     CC Inclusive                	
-Gargamelle      1        Eichten:1973cs	         1        numubar     Propane-Freon     CC Inclusive                	
-Gargamelle      2        Bonetti:1977cs	        13        numu        Propane-Freon     CC QE                       	 
-Gargamelle      3        Bonetti:1977cs	        10        numubar     Propane-Freon     CC QE                       	   
-Gargamelle      4        Lerche:1978cp	         5        numu        Propane-Freon     CC 1pi+ {mu- p pi+}         	
-Gargamelle      5        Armenise:1979zg        11        numubar     Propane-Freon     CC QE                       	 
-Gargamelle      6        Bolognese:1979gf        6        numubar     Propane-Freon     CC 1pi- {mu+ n pi-}         	  
-Gargamelle      7        Bolognese:1979gf        5        numubar     Propane-Freon     CC 1pi- {mu+ n pi-}         	   
-Gargamelle      8        Bolognese:1979gf        6        numubar     Propane-Freon     CC 1pi- {mu+ X pi-}         	 
-Gargamelle      9        Bolognese:1979gf        5        numubar     Propane-Freon     CC 1pi- {mu+ X pi-}         	  
-Gargamelle     10        Ciampolillo:1979wp      2        numu        Propane-Freon     CC Inclusive                	    
-Gargamelle     11        Erriquez:1979nb         1        numubar     Propane-Freon     CC Inclusive                	 
-Gargamelle     12        Morfin:1981kg	         5        numu        Propane-Freon     CC Inclusive                   
-Gargamelle     13        Morfin:1981kg	         5        numubar     Propane-Freon     CC Inclusive                	
-Gargamelle     14        Isiksal:1984vh	         1        numu        Propane-Freon     NC Coherent pi0             	
-Gargamelle     15        Isiksal:1984vh	         1        numubar     Propane-Freon     NC Coherent pi0                
-IHEP_ITEP       0        Asratian:1978rt         1        numu        56Fe              CC Inclusive                   
-IHEP_ITEP       1        Asratian:1978rt         1        numubar     56Fe              CC Inclusive                	 
-IHEP_ITEP       2        Mukhin:1979bd	         4        numu        56Fe              CC Inclusive                	 
-IHEP_ITEP       3        Mukhin:1979bd	         4        numubar     56Fe              CC Inclusive                	  
-IHEP_JINR       0        Anikeev:1995dj	         9        numu        27Al              CC Inclusive                	
-IHEP_JINR       1        Anikeev:1995dj	         8        numubar     27Al              CC Inclusive                	 
-SERP_A1         0        Belikov:1981ut	         6        numu        27Al              CC QE                       	  
-SERP_A1         1        Belikov:1983kg	         8        numu        27Al              CC QE                       	 
-SERP_A1         2        Belikov:1983kg	         8        numubar     27Al              CC QE                       	   
-SKAT            0        Baranov:1978sx	         4        numu        Heavy Freon       CC Inclusive                	  
-SKAT            1        Grabosch:1985mt         1        numu        Heavy Freon       CC Coherent pi+             	  
-SKAT            2        Grabosch:1985mt         1        numubar     Heavy Freon       CC Coherent pi-             	    
-SKAT            3        Grabosch:1985mt         1        numu        Heavy Freon       NC Coherent pi0             	   
-SKAT            4        Ammosov:1988xb	         5        numu        Heavy Freon       CC 1pi+ {mu- p pi+}         	   
-SKAT            5        Grabosch:1988gw         5        numu        Heavy Freon       CC 1pi+ {mu- p pi+}         	   
-SKAT            6        Grabosch:1988gw         6        numu        Heavy Freon       CC 1pi0 {mu- p pi0}         	    
-SKAT            7        Grabosch:1988gw         5        numu        Heavy Freon       CC 1pi+ {mu- n pi+}         	   
-SKAT            8        Brunner:1989kw	         8        numu        Heavy Freon       CC QE                       	  
-SKAT            9        Brunner:1989kw	         7        numubar     Heavy Freon       CC QE                       	   
-LSND            0        Auerbach:2002iy                  numu        12C               CC QE                       	  
-     
+#
+# Expt : Experiment name
+# ID   : Dataset ID
+# NP   : Number of points in dataset
+# Syst : % error added in quadrature to the quoted cross-section error which, for most datasets, doesn't include systematic uncertainties.
+# Nu   : Neutrino PDG code
+#
+# Expt           ID        Citation              NP   Syst  Nu   Target            Process           Other comments
+#
+  ANL_12FT        0        Campbell:1973wg       6    15    14   1H                CC 1pi+           f/s: {mu- p pi+}         	  
+  ANL_12FT        1        Mann:1973pr	         7    15    14   2H                CC QE                         
+  ANL_12FT        2        Barish:1976bj         1    15    14   1H,2H             CC inclusive                   
+  ANL_12FT        3        Barish:1977qk         8    15    14   1H,2H             CC QE                          
+  ANL_12FT        4        Barish:1978pj         2    15    14   1H,2H             CC inclusive                   
+  ANL_12FT        5        Barish:1978pj         7    15    14   1H,2H             CC 1pi+           f/s: {mu- p pi+}           
+  ANL_12FT        6        Barish:1978pj         4    15    14   1H,2H             CC 1pi0           f/s: {mu- p pi0}            
+  ANL_12FT        7        Barish:1978pj         5    15    14   1H,2H             CC 1pi+           f/s: {mu- n pi+}         	
+  ANL_12FT        8        Radecky:1981fn        8    15    14   1H,2H             CC 1pi+           f/s: {mu- p pi+}            
+  ANL_12FT        9        Radecky:1981fn        5    15    14   1H,2H             CC 1pi0           f/s: {mu- p pi0}            
+  ANL_12FT       10        Radecky:1981fn        5    15    14   1H,2H             CC 1pi+           f/s: {mu- n pi+}         	
+  ANL_12FT       11        Day:1984nf	         5    15    14   2H                CC pi+pi-         f/s: {mu- p pi+ pi-}     
+  ANL_12FT       12        Day:1984nf	         5    15    14   2H                CC pi+pi0         f/s: {mu- p pi+ pi0}   	 
+  ANL_12FT       13        Day:1984nf	         5    15    14   2H                CC pi+pi+         f/s: {mu- n pi+ pi+}      
+  AachenPadova    0        Faissner:1983ng       1    15    14   27Al              NC coherent pi0             	
+  BEBC            0        Bosetti:1977nd	 4    15    14   1H,10Ne           CC inclusive                	
+  BEBC            1        Bosetti:1977nd	 3    15   -14   1H,10Ne           CC inclusive               
+  BEBC            2        Colley:1979rt	 3    15    14   1H,10Ne           CC inclusive                   
+  BEBC            3        Colley:1979rt	 1    15   -14   1H,10Ne           CC inclusive                   
+  BEBC            4        Allen:1980ti	         7    15    14   1H                CC 1pi+           f/s: {mu- p pi+}            
+  BEBC            5        Bosetti:1981ip	 6     0    14   1H,10Ne           CC inclusive                   
+  BEBC            6        Bosetti:1981ip	 6     0   -14   1H,10Ne           CC inclusive                	
+  BEBC            7        Parker:1983yi         1    15   -14   1H,10Ne           CC inclusive                	
+  BEBC            8        Parker:1983yi	 1    15    14   1H,10Ne           CC inclusive                	  
+  BEBC            9        Allen:1985ti	         5    15    14   1H                CC 1pi+           f/s: {mu- p pi+}            
+  BEBC           10        Marage:1986cy         4    15   -14   1H,10Ne           CC coherent pi-                
+  BEBC           11        Allport:1988cq        2    15    14   1H,10Ne           CC coherent pi+             	    
+  BEBC           12        Allasia:1990uy        6    15    14   2H                CC QE                          
+  BEBC           13        Allasia:1990uy        6    15    14   2H                CC 1pi+           f/s: {mu- p pi+}            
+  BEBC           14        Allasia:1990uy        6    15    14   2H                CC 1pi0           f/s: {mu- X pi0}            
+  BNL_7FT         0        Baltay:1980pr         2    15    14   1H,10Ne           CC inclusive                  
+  BNL_7FT         1        Fanourakis:1980si     1    15   -14   1H                CC inclusive                	
+  BNL_7FT         2        Fanourakis:1980si     1    15   -14   1H                CC QE                       	
+  BNL_7FT         3        Baker:1981su	         4    15    14   2H                CC QE                         
+  BNL_7FT         4        Baker:1982ty	        13    15    14   2H                CC inclusive                   
+  BNL_7FT         5        Kitagaki:1986ct       8    15    14   2H                CC 1pi-           f/s: {mu- p pi-}         	
+  BNL_7FT         6        Kitagaki:1986ct       9    15    14   2H                CC 1pi0           f/s: {mu- p pi0}         	 
+  BNL_7FT         7        Kitagaki:1986ct       9    15    14   2H                CC 1pi+           f/s: {mu- n pi+}         	 
+  BNL_7FT         8        Kitagaki:1986ct      10    15    14   2H                CC pi+pi-         f/s: {mu- p pi+ pi-}   	
+  CCFR            0        Auchincloss:1990tu    9     0    14   56Fe              CC inclusive                	 
+  CCFR            1        Auchincloss:1990tu    2     0   -14   56Fe              CC inclusive                	 
+  CCFR            2        Seligman:1997fe      17    15    14   56Fe              CC inclusive                	
+  CCFR            3        Seligman:1997fe      17    15   -14   56Fe              CC inclusive                	
+  CCFRR           0        MacFarlane:1983ax    15     0    14   56Fe              CC inclusive                	 
+  CDHS            0        Berge:1987zw	         6     0    14   56Fe              CC inclusive                	
+  CDHS            1        Berge:1987zw	         6     0   -14   56Fe              CC inclusive      
+# Marble is CaCO3          	
+  CHARM           0        Jonker:1980vf         1     0    14   Marble            CC inclusive      
+  CHARM           1        Jonker:1980vf         1     0   -14   Marble            CC inclusive      
+  CHARM           2        Bergsma:1985qy        1    15    14   Marble            NC coherent pi0   
+  CHARM           3        Bergsma:1985qy        1    15   -14   Marble            NC coherent pi0   
+  CHARM           4        Allaby:1987bb         1     0    14   Marble            CC inclusive      
+  CHARM           5        Allaby:1987bb         1     0   -14   Marble            CC inclusive      
+  CHARM           6        Vilain:1993sf         4    15    14   Glass             CC coherent pi+                
+  CHARM           7        Vilain:1993sf         4    15   -14   Glass             CC coherent pi-             	
+  FNAL_15FT       0        Bell:1978qu	         5    15    14   1H                CC 1pi+           f/s: {mu- p pi+}         	  
+  FNAL_15FT       1        Kitagaki:1982dx       6    15    14   2H                CC inclusive                	   
+  FNAL_15FT       2        Baker:1982jf	         5     7    14   1H,10Ne           CC inclusive                	 
+  FNAL_15FT       3        Kitagaki:1983px       2    15    14   2H                CC QE                       	  
+  FNAL_15FT       4        Taylor:1983qj         5    15   -14   2H,10Ne           CC inclusive                	
+  FNAL_15FT       5        Asratian:1984ir       7    15   -14   2H,10Ne           CC inclusive                
+  FNAL_15FT       6        Aderholz:1988cs       1    15    14   10Ne              CC coherent pi+             	  
+  FNAL_15FT       7        Aderholz:1988cs       1    15   -14   10Ne              CC coherent pi-             	 
+  FNAL_15FT       8        Willocq:1992fv        1    15    14   10Ne              CC coherent pi+             	  
+  FNAL_15FT       9        Willocq:1992fv        2    15   -14   10Ne              CC coherent pi-             	    
+  FNAL_15FT      10        Barish:1979ny         1    15   -14   1H                CC 1pi-           f/s: {mu+ p pi-}         	
+  Gargamelle      0        Eichten:1973cs        1     0    14   Propane-Freon     CC inclusive                	
+  Gargamelle      1        Eichten:1973cs        1     0   -14   Propane-Freon     CC inclusive                	
+  Gargamelle      2        Bonetti:1977cs       13    15    14   Propane-Freon     CC QE                       	 
+  Gargamelle      3        Bonetti:1977cs       10    15   -14   Propane-Freon     CC QE                       	   
+  Gargamelle      4        Lerche:1978cp         5     0    14   Propane-Freon     CC 1pi+           f/s: {mu- p pi+}         	
+  Gargamelle      5        Armenise:1979zg      11    15   -14   Propane-Freon     CC QE                       	 
+  Gargamelle      6        Bolognese:1979gf      6    15   -14   Propane-Freon     CC 1pi-           f/s: {mu+ n pi-}         	  
+  Gargamelle      7        Bolognese:1979gf      5    15   -14   Propane-Freon     CC 1pi-           f/s: {mu+ n pi-}         	   
+  Gargamelle      8        Bolognese:1979gf      6    15   -14   Propane-Freon     CC 1pi-           f/s: {mu+ X pi-}         	 
+  Gargamelle      9        Bolognese:1979gf      5    15   -14   Propane-Freon     CC 1pi-           f/s: {mu+ X pi-}         	  
+  Gargamelle     10        Ciampolillo:1979wp    2    15    14   Propane-Freon     CC inclusive                	    
+  Gargamelle     11        Erriquez:1979nb       1    15   -14   Propane-Freon     CC inclusive                	 
+  Gargamelle     12        Morfin:1981kg         5    15    14   Propane-Freon     CC inclusive                   
+  Gargamelle     13        Morfin:1981kg         5    15   -14   Propane-Freon     CC inclusive                	
+  Gargamelle     14        Isiksal:1984vh        1    15    14   Propane-Freon     NC coherent pi0             	
+  Gargamelle     15        Isiksal:1984vh        1    15   -14   Propane-Freon     NC coherent pi0                
+  IHEP_ITEP       0        Asratian:1978rt       1     0    14   56Fe              CC inclusive                   
+  IHEP_ITEP       1        Asratian:1978rt       1     0   -14   56Fe              CC inclusive                	 
+  IHEP_ITEP       2        Mukhin:1979bd         4     0    14   56Fe              CC inclusive                	 
+  IHEP_ITEP       3        Mukhin:1979bd         4     0   -14   56Fe              CC inclusive                	  
+  IHEP_JINR       0        Anikeev:1995dj        9     0    14   27Al              CC inclusive                	
+  IHEP_JINR       1        Anikeev:1995dj        8     0   -14   27Al              CC inclusive                	 
+  SERP_A1         0        Belikov:1981ut        6     0    14   27Al              CC QE                       	  
+  SERP_A1         1        Belikov:1983kg        8     0    14   27Al              CC QE                       	 
+  SERP_A1         2        Belikov:1983kg        8     0   -14   27Al              CC QE                       	   
+  SKAT            0        Baranov:1978sx        4    15    14   Freon             CC inclusive                	  
+  SKAT            1        Grabosch:1985mt       1    15    14   Freon             CC coherent pi+             	  
+  SKAT            2        Grabosch:1985mt       1    15   -14   Freon             CC coherent pi-             	    
+  SKAT            3        Grabosch:1985mt       1    15    14   Freon             NC coherent pi0             	   
+  SKAT            4        Ammosov:1988xb        5    15    14   Freon             CC 1pi+           f/s: {mu- p pi+}         	   
+  SKAT            5        Grabosch:1988gw       5    15    14   Freon             CC 1pi+           f/s: {mu- p pi+}         	   
+  SKAT            6        Grabosch:1988gw       6    15    14   Freon             CC 1pi0           f/s: {mu- p pi0}         	    
+  SKAT            7        Grabosch:1988gw       5    15    14   Freon             CC 1pi+           f/s: {mu- n pi+}         	   
+  SKAT            8        Brunner:1989kw        8    15    14   Freon             CC QE                       	  
+  SKAT            9        Brunner:1989kw        7    15   -14   Freon             CC QE                       	   
+  LSND            0        Auerbach:2002iy       1     0    14   12C               CC QE                       	 
