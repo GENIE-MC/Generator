@@ -7,15 +7,14 @@
 
          Syntax:
            gvld_nuxsec_vs_world_data 
-                [-h host] [-u user] [-p passwd] [-g genie_inputs]
+                  [-d data_archive] [-g genie_inputs]
 
          Options:
 
            [] Denotes an optional argument.
 
-           -h NuVld MySQL URL (eg mysql://localhost/NuScat).
-           -u NuVld MySQL username.
-           -p NuVld MySQL password.
+           -d
+
            -g An XML file with GENIE inputs (cross sections and event  samples
               for decomposing the inclusive cross section to exclusive cross 
               sections). Multiple models can be included in that file, each 
@@ -67,14 +66,6 @@
              The script has been developed for the RAL/Tier2 farm. 
              Modify it accordingly for your own system.
              
-         Example:
-
-           shell$ gvld_nuxsec_vs_world_data \
-                      -h mysql://localhost/NuScat \
-                      -u costas \
-                      -p ^%@^!%@!*&@^
-		      -g ./inputs.xml
-
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          STFC, Rutherford Appleton Laboratory
 
@@ -94,7 +85,9 @@
 #include <TSystem.h>
 #include <TFile.h>
 #include <TDirectory.h>
+#include <TTree.h>
 #include <TGraph.h>
+#include <TGraphAsymmErrors.h>
 #include <TPostScript.h>
 #include <TH1D.h>
 #include <TMath.h>
@@ -105,178 +98,534 @@
 #include <TLegend.h>
 #include <TChain.h>
 
-#include "Conventions/GBuild.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGUtils.h"
 #include "PDG/PDGCodes.h"
 #include "Utils/CmdLnArgParser.h"
 #include "Utils/StringUtils.h"
+#include "Utils/SystemUtils.h"
 #include "Utils/VldTestInputs.h"
 #include "Utils/Style.h"
-#include "ValidationTools/NuVld/DBI.h"
-#include "ValidationTools/NuVld/DBStatus.h"
 
 using std::ostringstream;
 using std::string;
 
 using namespace genie;
-using namespace genie::nuvld;
 using namespace genie::utils::vld;
+
+//____________________________________________________________________________
+//
+// The following section defines recipes for extracting GENIE cross-sections
+// from the inputs. Every recipe should inherit from a nuXSecCalc functor and
+// implement the () operator below which returns a cross-section = f(E) graph.
+//
+class nuXSecCalc
+{
+public:
+  virtual ~nuXSecCalc() {}
+
+  virtual TGraph * operator()
+    (TFile *  /* genie_xsec_file */, 
+     TChain * /* genie_event_tree */, 
+     double   /* Emin */, 
+     double   /* Emax */, 
+     int      /* n */, 
+     bool     /* inlogE */) 
+    { 
+      return 0; 
+    }
+
+protected:
+  nuXSecCalc() {}
+};
+
+//............................................................................
+//
+// Extracting cross-section for an exclusive f/s from an event sample as
+// the fraction of events with that f/s times the inclusive cross-section.
+//
+class nuXSecFromEventSample: public nuXSecCalc
+{
+public:
+  nuXSecFromEventSample(
+    string xsec_dir, string incl_xsec_spline, string incl_selection, string selection) :
+      nuXSecCalc(),
+      fXSecDir          (xsec_dir),           
+      fInclXSecSpline   (incl_xsec_spline),   
+      fInclEvtSelection (incl_selection),
+      fEvtSelection     (selection)
+  {
+  }
+ ~nuXSecFromEventSample() 
+  { 
+  }
+
+  TGraph * operator()
+    (TFile * genie_xsec_file, TChain * genie_event_tree, 
+     double Emin, double Emax, int n, bool inlogE)
+  {
+    if(!genie_xsec_file ) return 0;
+    if(!genie_event_tree) return 0;
+
+    TDirectory * xsec_dir  = (TDirectory *) genie_xsec_file->Get(fXSecDir.c_str());
+    if(!xsec_dir) return 0;
+
+    TGraph * incl_xsec_spline = (TGraph*) xsec_dir->Get(fInclXSecSpline.c_str());
+    if(!incl_xsec_spline) return 0;
+
+    TH1D * h     = 0;
+    TH1D * hincl = 0;
+    if(inlogE) {
+       h     = new TH1D("h",     "", n, TMath::Log10(Emin), TMath::Log10(Emax));
+       hincl = new TH1D("hincl", "", n, TMath::Log10(Emin), TMath::Log10(Emax)); 
+       genie_event_tree->Draw("log10(Ev)>>h",     fEvtSelection.c_str(),     "goff");
+       genie_event_tree->Draw("log10(Ev)>>hincl", fInclEvtSelection.c_str(), "goff");
+    } else { 
+       h     = new TH1D("h",     "", n, Emin, Emax);
+       hincl = new TH1D("hincl", "", n, Emin, Emax); 
+       genie_event_tree->Draw("Ev>>h",     fEvtSelection.c_str(),     "goff");
+       genie_event_tree->Draw("Ev>>hincl", fInclEvtSelection.c_str(), "goff");
+    }
+    h->Divide(hincl);
+
+    double * energy_array = new double [n];
+    double * xsec_array   = new double [n];
+
+    for(int i = 0; i < n; i++) {
+      int ibin = i+1;
+      double energy = (inlogE) ? 
+         TMath::Power(10., h->GetBinCenter(ibin)) : h->GetBinCenter(ibin);
+      double event_fraction = h->GetBinContent(ibin);
+      double incl_xsec =  incl_xsec_spline->Eval(energy);
+      double xsec = event_fraction * incl_xsec;
+
+      energy_array[i] = energy;
+      xsec_array[i]   = xsec;
+    }
+    TGraph * model = new TGraph(n,energy_array,xsec_array);
+    delete [] energy_array;
+    delete [] xsec_array;
+    return model;
+  }
+
+private:
+  string fXSecDir;          
+  string fInclXSecSpline;   
+  string fInclEvtSelection; 
+  string fEvtSelection;     
+};
+//
+//............................................................................
+//
+// Get cross-section directly from the input cross-section spline file
+//
+class nuXSecDirectlyFromXSecFile: public nuXSecCalc
+{
+public:
+  nuXSecDirectlyFromXSecFile(
+    string xsec_dir, string xsec_spline):
+      nuXSecCalc(),
+      fXSecDir    (xsec_dir),           
+      fXSecSpline (xsec_spline)
+  {
+  }
+ ~nuXSecDirectlyFromXSecFile() 
+  { 
+  }
+
+  TGraph * operator()
+    (TFile * genie_xsec_file, TChain * /*genie_event_tree*/, 
+     double Emin, double Emax, int n, bool inlogE)
+  {
+    if(!genie_xsec_file) return 0;
+
+    TDirectory * xsec_dir  = (TDirectory *) genie_xsec_file->Get(fXSecDir.c_str());
+    if(!xsec_dir) return 0;
+
+    TGraph * xsec_spline = (TGraph*) xsec_dir->Get(fXSecSpline.c_str());
+    if(!xsec_spline) return 0;
+
+    double * energy_array = new double[n];
+    double * xsec_array   = new double[n];
+
+    for(int i = 0; i < n; i++) {
+      double energy = (inlogE) ? 
+	TMath::Power(10., TMath::Log10(Emin) + i * TMath::Log10(Emax-Emin)/(n-1)) : 
+        Emin + i*(Emax-Emin)/(n-1);
+      double xsec = xsec_spline->Eval(energy);
+
+      energy_array[i] = energy;
+      xsec_array[i] = xsec;
+    }
+
+    TGraph * model = new TGraph(n,energy_array,xsec_array);
+    delete [] energy_array;
+    delete [] xsec_array;
+    return model;
+  }
+
+private:
+  string fXSecDir;          
+  string fXSecSpline;   
+};
+//
+//............................................................................
+//
+// Get cross-section by combining two cross-section splines taken directly 
+// from the input cross-section file.
+// This is usefull when, for example, we need to calculate the cross-section
+// for an isoscalar target by averaging the vp and vn cross-sections
+//
+class nuXSecCombineSplinesFromXSecFile: public nuXSecCalc
+{
+public:
+  nuXSecCombineSplinesFromXSecFile(
+      double factor_1, string xsec_dir_1, string xsec_spline_1,
+      double factor_2, string xsec_dir_2, string xsec_spline_2) :
+      nuXSecCalc(),
+       fFactor1     (factor_1),
+       fXSecDir1    (xsec_dir_1),           
+       fXSecSpline1 (xsec_spline_1),
+       fFactor2     (factor_2),
+       fXSecDir2    (xsec_dir_2),           
+       fXSecSpline2 (xsec_spline_2)
+  {
+  }
+ ~nuXSecCombineSplinesFromXSecFile() 
+  { 
+  }
+
+  TGraph * operator()
+    (TFile * genie_xsec_file, TChain * /*genie_event_tree*/, 
+     double Emin, double Emax, int n, bool inlogE)
+  {
+    if(!genie_xsec_file) return 0;
+
+    TDirectory * xsec_dir_1  = (TDirectory *) genie_xsec_file->Get(fXSecDir1.c_str());
+    if(!xsec_dir_1) return 0;
+    TGraph * xsec_spline_1 = (TGraph*) xsec_dir_1->Get(fXSecSpline1.c_str());
+    if(!xsec_spline_1) return 0;
+
+    TDirectory * xsec_dir_2  = (TDirectory *) genie_xsec_file->Get(fXSecDir2.c_str());
+    if(!xsec_dir_2) return 0;
+    TGraph * xsec_spline_2 = (TGraph*) xsec_dir_1->Get(fXSecSpline2.c_str());
+    if(!xsec_spline_2) return 0;
+
+    double f_1 = fFactor1;
+    double f_2 = fFactor2;
+
+    double * energy_array = new double[n];
+    double * xsec_array   = new double[n];
+
+    for(int i = 0; i < n; i++) {
+      double energy = (inlogE) ? 
+	TMath::Power(10., TMath::Log10(Emin) + i * TMath::Log10(Emax-Emin)/(n-1)) : 
+        Emin + i*(Emax-Emin)/(n-1);     
+      double xsec_1 = xsec_spline_1->Eval(energy);
+      double xsec_2 = xsec_spline_2->Eval(energy);
+      double xsec = f_1*xsec_1 + f_2*xsec_2;
+      energy_array[i] = energy;
+      xsec_array[i] = xsec;
+    }
+
+    TGraph * model = new TGraph(n,energy_array,xsec_array);
+    delete [] energy_array;
+    delete [] xsec_array;
+    return model;
+  }
+
+private:
+  double fFactor1;
+  string fXSecDir1;          
+  string fXSecSpline1;   
+  double fFactor2;
+  string fXSecDir2;          
+  string fXSecSpline2;   
+};
+//____________________________________________________________________________
+
+//
+// The following utility class holds all info needed to:
+// - extract experimental data from the archive 
+// - extracted a GENIE cross-section prediction from the program inputs
+// - format the generated comparison plot
+//
+class nuXSecComparison_t
+{
+public:
+  nuXSecComparison_t(
+    string label, string dataset_keys, nuXSecCalc * xsec_calc,
+    double Emin,  double Emax, bool in_logx, bool in_logy,  bool scale_with_E = false
+    ) :
+    fLabel       (label),
+    fDataSetKeys (dataset_keys),
+    fXSecCalc    (xsec_calc),   
+    fEmin        (Emin),
+    fEmax        (Emax),
+    fInLogX      (in_logx),
+    fInLogY      (in_logy),
+    fScaleWithE  (scale_with_E)
+  {
+  }
+ ~nuXSecComparison_t()
+  {
+  }
+  string      Label       (void) const { return fLabel;         }
+  string      DataSetKeys (void) const { return fDataSetKeys;   }
+  nuXSecCalc* XSecCalc    (void) const { return fXSecCalc;      }
+  double      Emin        (void) const { return fEmin;          }
+  double      Emax        (void) const { return fEmax;          }
+  bool        InLogX      (void) const { return fInLogX;        }
+  bool        InLogY      (void) const { return fInLogY;        }
+  bool        ScaleWithrE (void) const { return fScaleWithE;    }
+
+private:
+  string      fLabel;            // (Roo)TeX label for data/MC comparison plot 
+  string      fDataSetKeys;      // Semicolon-separated list of keys for all datasets included in comparison 
+  nuXSecCalc* fXSecCalc;         // Cross-section calculator
+  double      fEmin;             // Minimum energy plotted 
+  double      fEmax;             // Maximum energy plotted 
+  bool        fInLogX;           // Decide whether to show the x axis in linear or log scale 
+  bool        fInLogY;           // Decide whether to show the y axis in linear or log scale 
+  bool        fScaleWithE;       // Decide whether to plot sigma or sigma/E 
+};
+
 
 /* 
 ..............................................................................
-NEUTRINO CROSS SECTION DATA
-..............................................................................
-ID   DESCRIPTION
- 0   nu_mu      CC QE     [all data]
- 1   nu_mu      CC QE     [data on light targets]
- 2   nu_mu      CC QE     [data on heavy targets]
- 3   nu_mu_bar  CC QE     [all data]
- 4   nu_mu_bar  CC QE     [data on light targets]
- 5   nu_mu_bar  CC QE     [data on heavy targets]
- 6   nu_mu      CC 1pi    [v + p -> mu- + p + pi+, all data]
- 7   nu_mu      CC TOT    [E>10]
- 8   nu_mu_bar  CC TOT    [E>10]
- 9   nu_mu      CC 2pi    [v + n -> l + p + pi+ + pi-, all data]
-10   nu_mu      CC 2pi    [v + p -> l + p + pi+ + pi0, all data]
-11   nu_mu      CC 2pi    [v + p -> l + n + pi+ + pi+, all data]
-12   numu       NC COH pi [A = 20] 
-13   numu       CC COH pi [A = 20] 
-14   nu_mu_bar  CC COH pi [A = 20] 
-15   numu       NC COH pi [A = 27]
-16   numu       NC COH pi [A = 30] 
-17   numu       CC COH pi [A = 30] 
-18   nu_mu_bar  CC COH pi [A = 30] 
+NEUTRINO CROSS-SECTION DATASETS & 
+INFO ON HOW TO EXTRACT THE CORRESPONDING PREDICTION FROM THE GENIE INPUTS
 ..............................................................................
 */
-const int    kNuXSecDataSets = 19;
-const char * kNuXSecDataSetLabel[kNuXSecDataSets] = {
-/* 0 */ "#nu_{#mu} CC QE [all data]          ",
-/* 1 */ "#nu_{#mu} CC QE [light target data] ",
-/* 2 */ "#nu_{#mu} CC QE [heavy target data] ",
-/* 3 */ "#bar{#nu_{#mu}} CC QE [all data]          ",
-/* 4 */ "#bar{#nu_{#mu}} CC QE [light target data] ",
-/* 5 */ "#bar{#nu_{#mu}} CC QE [heavy target data] ",
-/* 6 */ "#nu_{#mu} CC 1pi (#nu_{#mu} p -> #mu^{-} p #pi^{+}) ",
-/* 7 */ "#nu_{#mu} CC TOT [E>10 GeV data]             ",
-/* 8 */ "#bar{#nu_{#mu}} CC TOT [E>10 GeV data]             ",
-/* 9 */ "#nu_{#mu} CC 2pi (#nu_{#mu} n -> #mu^{-} p #pi^{+} #pi^{-})",
-/*10 */ "#nu_{#mu} CC 2pi (#nu_{#mu} p -> #mu^{-} p #pi^{+} #pi^{0})",
-/*11 */ "#nu_{#mu} CC 2pi (#nu_{#mu} p -> #mu^{-} n #pi^{+} #pi^{+})",
-/*12 */ "#nu_{#mu} NC COH pi (A = 20)", 
-/*13 */ "#nu_{#mu} CC COH pi (A = 20)",
-/*14 */ "#bar{#nu_{#mu}} CC COH pi (A = 20)",
-/*15 */ "#nu_{#mu} NC COH pi (A = 27)",
-/*16 */ "#nu_{#mu} NC COH pi (A = 30)",
-/*17 */ "#nu_{#mu} CC COH pi (A = 30)",
-/*18 */ "#bar{#nu_{#mu}} CC COH pi (A = 30)"
-};
-const char * kNuXSecKeyList[kNuXSecDataSets] = {
-/* 0 */ "ANL_12FT,1;ANL_12FT,3;BEBC,12;BNL_7FT,3;FNAL_15FT,3;Gargamelle,2;SERP_A1,0;SERP_A1,1;SKAT,8",
-/* 1 */ "ANL_12FT,1;ANL_12FT,3;BEBC,12;BNL_7FT,3;FNAL_15FT,3",
-/* 2 */ "Gargamelle,2;SERP_A1,0;SERP_A1,1;SKAT,8",
-/* 3 */ "BNL_7FT,2;Gargamelle,3;Gargamelle,5;SERP_A1,2;SKAT,9",
-/* 4 */ "BNL_7FT,2",
-/* 5 */ "Gargamelle,3;Gargamelle,5;SERP_A1,2;SKAT,9",
-/* 6 */ "ANL_12FT,0;ANL_12FT,5;ANL_12FT,8;BEBC,4;BEBC,9;BEBC,13;BNL_7FT,5;FNAL_15FT,0;Gargamelle,4;SKAT,4;SKAT,5",
-/* 7 */ "ANL_12FT,2;ANL_12FT,4;BEBC,0;BEBC,2;BEBC,5;BEBC,8;BNL_7FT,0;BNL_7FT,4;CCFR,2;CCFRR,0;CHARM,0;CHARM,4;FNAL_15FT,1;FNAL_15FT,2;Gargamelle,0;Gargamelle,10;Gargamelle,12;IHEP_ITEP,0;IHEP_ITEP,2;IHEP_JINR,0;SKAT,0",
-/* 8 */ "BEBC,1;BEBC,3;BEBC,6;BEBC,7;BNL_7FT,1;CCFR,3;CHARM,1;CHARM,5;FNAL_15FT,4;FNAL_15FT,5;Gargamelle,1;Gargamelle,11;Gargamelle,13;IHEP_ITEP,1;IHEP_ITEP,3;IHEP_JINR,1",
-/* 9 */ "ANL_12FT,11;BNL_7FT,8",
-/*10 */ "ANL_12FT,12",
-/*11 */ "ANL_12FT,13",
-/*12 */ "CHARM,2",
-/*13 */ "BEBC,11;CHARM,6;FNAL_15FT,8",
-/*14 */ "BEBC,10;CHARM,7;FNAL_15FT,7",
-/*15 */ "AachenPadova,0",
-/*16 */ "Gargamelle,14;SKAT,3",
-/*17 */ "SKAT,1",
-/*18 */ "SKAT,2"
-};
-float kNuXSecERange[kNuXSecDataSets][2] = {
-/* 0 */ { 0.1,  30.0},
-/* 1 */ { 0.1,  30.0},
-/* 2 */ { 0.1,  30.0},
-/* 3 */ { 0.1,  30.0},
-/* 4 */ { 0.1,  30.0},
-/* 5 */ { 0.1,  30.0},
-/* 6 */ { 0.1,  30.0},
-/* 7 */ {10.0, 120.0},
-/* 8 */ {10.0, 120.0},
-/* 9 */ { 1.0, 120.0},
-/*10 */ { 1.0, 120.0},
-/*11 */ { 1.0, 120.0},
-/*12 */ { 1.0, 150.0},
-/*13 */ { 1.0, 150.0},
-/*14 */ { 1.0, 150.0},
-/*15 */ { 1.0, 150.0},
-/*16 */ { 1.0, 150.0},
-/*17 */ { 1.0, 150.0},
-/*18 */ { 1.0, 150.0}
-};
-int kNuXSecLogXY[kNuXSecDataSets][2] = {
-/* 0 */ { 1, 1 },
-/* 1 */ { 1, 1 },
-/* 2 */ { 1, 1 },
-/* 3 */ { 1, 1 },
-/* 4 */ { 1, 1 },
-/* 5 */ { 1, 1 },
-/* 6 */ { 1, 1 },
-/* 7 */ { 1, 1 },
-/* 8 */ { 1, 1 },
-/* 9 */ { 1, 1 },
-/*10 */ { 1, 1 },
-/*11 */ { 1, 1 },
-/*12 */ { 0, 0 },
-/*13 */ { 0, 0 },
-/*14 */ { 0, 0 },
-/*15 */ { 0, 0 },
-/*16 */ { 0, 0 },
-/*17 */ { 0, 0 },
-/*18 */ { 0, 0 }
-};
 
-typedef DBQueryString             DBQ;
-typedef DBTable<DBNuXSecTableRow> DBT;
+const int kNumOfComparisons = 19;
+
+nuXSecComparison_t * kComparison[kNumOfComparisons] = {
+
+  // nu_mu CC QE [all data]
+  new nuXSecComparison_t(
+    "#nu_{#mu} CC QE [all data]",
+    "ANL_12FT,1;ANL_12FT,3;BEBC,12;BNL_7FT,3;FNAL_15FT,3;Gargamelle,2;SERP_A1,0;SERP_A1,1;SKAT,8",
+     new nuXSecDirectlyFromXSecFile("nu_mu_n", "qel_cc_n"),
+     0.1, 30.0, 
+     true, true
+  ),
+  // nu_mu CC QE [data on light targets]
+  new nuXSecComparison_t(
+    "#nu_{#mu} CC QE [light target data]",
+    "ANL_12FT,1;ANL_12FT,3;BEBC,12;BNL_7FT,3;FNAL_15FT,3",
+     new nuXSecDirectlyFromXSecFile("nu_mu_n", "qel_cc_n"),
+     0.1, 30.0, 
+     true, true
+  ),
+  // nu_mu CC QE [data on heavy targets]
+  new nuXSecComparison_t(
+    "#nu_{#mu} CC QE [heavy target data]",
+    "Gargamelle,2;SERP_A1,0;SERP_A1,1;SKAT,8",
+     new nuXSecDirectlyFromXSecFile("nu_mu_n", "qel_cc_n"),
+     0.1, 30.0, 
+     true, true
+  ),
+  // nu_mu_bar CC QE [all data]
+  new nuXSecComparison_t(
+    "#bar{#nu_{#mu}} CC QE [all data]",
+    "BNL_7FT,2;Gargamelle,3;Gargamelle,5;SERP_A1,2;SKAT,9",
+     new nuXSecDirectlyFromXSecFile("nu_mu_bar_H1", "qel_cc_p"),
+     0.1, 30.0, 
+     true, true
+  ),
+  // nu_mu_bar CC QE [data on light targets]
+  new nuXSecComparison_t(
+    "#bar{#nu_{#mu}} CC QE [light target data]",
+    "BNL_7FT,2",
+     new nuXSecDirectlyFromXSecFile("nu_mu_bar_H1", "qel_cc_p"),
+     0.1, 30.0, 
+     true, true
+  ),
+  // nu_mu_bar CC QE [data on heavy targets]
+  new nuXSecComparison_t(
+    "#bar{#nu_{#mu}} CC QE [heavy target data]",
+    "Gargamelle,3;Gargamelle,5;SERP_A1,2;SKAT,9",
+     new nuXSecDirectlyFromXSecFile("nu_mu_bar_H1", "qel_cc_p"),
+     0.1, 30.0, 
+     true, true
+  ),
+  // nu_mu + p -> mu- + p + pi+ [all data]
+  new nuXSecComparison_t(
+    "#nu_{#mu} CC 1pi (#nu_{#mu} p -> #mu^{-} p #pi^{+})",
+    "ANL_12FT,0;ANL_12FT,5;ANL_12FT,8;BEBC,4;BEBC,9;BEBC,13;BNL_7FT,5;FNAL_15FT,0;Gargamelle,4;SKAT,4;SKAT,5",
+    new nuXSecFromEventSample(
+         "nu_mu_H1","tot_cc",
+         "cc&&neu==14&&Z==1&&A==1",
+         "cc&&neu==14&&Z==1&&A==1&&nfpim==0&&nfpi0==0&&nfpip==1&&nfp==1&&nfn==0"
+     ),
+     0.1, 30.0, 
+     true, true
+  ),
+  // nu_mu CC inclusive [ E>10 ]
+  new nuXSecComparison_t(
+    "#nu_{#mu} CC TOT [E>10 GeV data]",
+    "ANL_12FT,2;ANL_12FT,4;BEBC,0;BEBC,2;BEBC,5;BEBC,8;BNL_7FT,0;BNL_7FT,4;CCFR,2;CCFRR,0;CHARM,0;CHARM,4;FNAL_15FT,1;FNAL_15FT,2;Gargamelle,0;Gargamelle,10;Gargamelle,12;IHEP_ITEP,0;IHEP_ITEP,2;IHEP_JINR,0;SKAT,0",
+     new nuXSecCombineSplinesFromXSecFile(0.5,"nu_mu_n","tot_cc_n",0.5,"nu_mu_H1","tot_cc_p"),
+     10.0, 120.0, 
+     true, true
+  ),
+  // nu_mu_bar CC inclusive [ E>10 ]
+  new nuXSecComparison_t(
+    "#bar{#nu_{#mu}} CC TOT [E>10 GeV data]",
+    "BEBC,1;BEBC,3;BEBC,6;BEBC,7;BNL_7FT,1;CCFR,3;CHARM,1;CHARM,5;FNAL_15FT,4;FNAL_15FT,5;Gargamelle,1;Gargamelle,11;Gargamelle,13;IHEP_ITEP,1;IHEP_ITEP,3;IHEP_JINR,1",
+     new nuXSecCombineSplinesFromXSecFile(0.5,"nu_mu_bar_n","tot_cc_n",0.5,"nu_mu_bar_H1","tot_cc_p"),
+     10.0, 120.0, 
+     true, true
+  ),
+  // nu_mu + n -> mu- + p + pi+ + pi- [all data]
+  new nuXSecComparison_t(
+    "#nu_{#mu} CC 2pi (#nu_{#mu} n -> #mu^{-} p #pi^{+} #pi^{-})",
+    "ANL_12FT,11;BNL_7FT,8",
+     new nuXSecFromEventSample(
+         "nu_mu_n", "tot_cc",
+         "cc&&neu==14&&Z==1&&A==1",
+         "cc&&neu==14&&Z==1&&A==1&&nfpim==1&&nfpi0==0&&nfpip==1&&nfp==1&&nfn==0"
+     ),
+     1.0, 120.0, 
+     true, true
+  ),
+  // nu_mu  + p -> mu- + p + pi+ + pi0 [all data]
+  new nuXSecComparison_t(
+    "#nu_{#mu} CC 2pi (#nu_{#mu} p -> #mu^{-} p #pi^{+} #pi^{0})",
+    "ANL_12FT,12",
+     new nuXSecFromEventSample(
+          "nu_mu_H1", "tot_cc",
+          "cc&&neu==14&&Z==1&&A==1",
+          "cc&&neu==14&&Z==1&&A==1&&nfpim==0&&nfpi0==1&&nfpip==1&&nfp==1&&nfn==0"
+     ),
+     1.0, 120.0, 
+     true, true
+  ),
+  // nu_mu + p -> mu- + n + pi+ + pi+ [all data]
+  new nuXSecComparison_t(
+    "#nu_{#mu} CC 2pi (#nu_{#mu} p -> #mu^{-} n #pi^{+} #pi^{+})",
+    "ANL_12FT,13",
+     new nuXSecFromEventSample(
+         "nu_mu_H1", "tot_cc",
+         "cc&&neu==14&&Z==1&&A==1",
+         "cc&&neu==14&&Z==1&&A==1&&nfpim==0&&nfpi0==0&&nfpip==2&&nfp==0&&nfn==1"
+     ),
+     1.0, 120.0, 
+     true, true
+  ),
+  // numu NC COH pi [A = 20] 
+  new nuXSecComparison_t(
+     "#nu_{#mu} NC COH pi (A = 20)", 
+     "CHARM,2",
+      new nuXSecDirectlyFromXSecFile("nu_mu_Ne20", "coh_nc"),
+      1.0, 150.0, 
+      false, false
+  ),
+  // numu CC COH pi [A = 20]
+  new nuXSecComparison_t(
+    "#nu_{#mu} CC COH pi (A = 20)",
+    "BEBC,11;CHARM,6;FNAL_15FT,8",
+     new nuXSecDirectlyFromXSecFile("nu_mu_Ne20", "coh_cc"), 
+     1.0, 150.0, 
+     false, false
+  ),
+  // nu_mu_bar  CC COH pi [A = 20]
+  new nuXSecComparison_t(
+    "#bar{#nu_{#mu}} CC COH pi (A = 20)",
+    "BEBC,10;CHARM,7;FNAL_15FT,7",
+     new nuXSecDirectlyFromXSecFile("nu_mu_bar_Ne20", "coh_cc"),
+     1.0, 150.0, false, false
+  ),
+  // numu NC COH pi [A = 27]
+  new nuXSecComparison_t(
+    "#nu_{#mu} NC COH pi (A = 27)",
+    "AachenPadova,0",
+     new nuXSecDirectlyFromXSecFile("nu_mu_Al27", "coh_nc"),
+     1.0, 150.0, false, false
+  ),
+  // numu NC COH pi [A = 30]
+  new nuXSecComparison_t(
+    "#nu_{#mu} NC COH pi (A = 30)",
+    "Gargamelle,14;SKAT,3",
+     new nuXSecDirectlyFromXSecFile("nu_mu_Si30", "coh_nc"),
+     1.0, 150.0, false, false
+  ),
+  // numu CC COH pi [A = 30] 
+  new nuXSecComparison_t(
+    "#nu_{#mu} CC COH pi (A = 30)",
+    "SKAT,1",
+     new nuXSecDirectlyFromXSecFile("nu_mu_Si30", "coh_cc"),
+     1.0, 150.0, false, false
+  ),
+  // nu_mu_bar  CC COH pi [A = 30]
+  new nuXSecComparison_t(
+    "#bar{#nu_{#mu}} CC COH pi (A = 30)",
+    "SKAT,2",
+     new nuXSecDirectlyFromXSecFile("nu_mu_bar_Si30", "coh_cc"),
+     1.0, 150.0, 
+     false, false
+     )
+};
 
 // function prototypes
 void     Init               (void);
-void     Plot               (void);
 void     End                (void);
 void     AddCoverPage       (void);
-bool     Connect            (void);
-DBQ      FormQuery          (const char * key_list, float emin,  float emax);
-DBT *    Data               (int iset);
-TGraph * Model              (int iset, int imodel);
-void     Draw               (int iset);
+
+vector<TGraphAsymmErrors *> Data  (int icomparison);
+vector<TGraph *>            Models(int icomparison);
+TGraph *                    Model (int icomparison, int imodel);
+
+void     Draw               (int icomparison);
 TH1F *   DrawFrame          (TGraph * gr0, TGraph * gr1);
 TH1F *   DrawFrame          (double xmin, double xmax, double ymin, double yman);
 void     Format             (TGraph* gr, int lcol, int lsty, int lwid, int mcol, int msty, double msiz);
+
 void     GetCommandLineArgs (int argc, char ** argv);
 void     PrintSyntax        (void);
 
 // command-line arguments
-string         gOptDbURL;
-string         gOptDbUser;
-string         gOptDbPasswd;
 VldTestInputs  gOptGenieInputs;
+string         gOptDataFilename = "";
 
 // dbase information
-const char * kDefDbURL = "mysql://localhost/NuScat";  
+const char * kDefDataFile = "data/validation/vA/xsec/integrated/nuXSec.root";  
 
 // globals
-bool            gCmpWithData  = true;
-DBI *           gDBI          = 0;
-TPostScript *   gPS           = 0;
-TCanvas *       gC            = 0;
-TLegend *       gLS           = 0;
+TFile *         gNuXSecDataFile  = 0;
+TTree *         gNuXSecDataTree  = 0;
+TPostScript *   gPS              = 0;
+TCanvas *       gC               = 0;
+TLegend *       gLS              = 0;
+bool            gShowModel       = false;
 
-// model line styles
-const int kNMaxNumModels = 5;
-const int kLStyle    [kNMaxNumModels] = { 
-   1,       2,        3,        5,            6 
+//
+// Data-point & GENIE-prediction styles
+//
+
+const int kNMaxModels   =  3;
+const int kNMaxDataSets = 25; // max number of datasets in single plot
+
+const int kModelLineStyle [kNMaxModels] = 
+{ 
+  kSolid, kDashed, kDotted
 }; 
-string    kLStyleTxt [kNMaxNumModels] = { 
-  "solid", "dashed", "dotted", "dot-dashed", "dot-dot-dashed" 
+const int kDataPointStyle[kNMaxDataSets] = 
+{ 
+  20,      20,    20,       20,    20,
+  21,      21,    21,       21,    21,
+  24,      24,    24,       24,    24,
+  25,      25,    25,       25,    25,
+  29,      29,    29,       29,    29
+};
+const int kDataPointColor[kNMaxDataSets] = 
+{
+  kBlack,  kRed,  kGreen+1, kBlue, kMagenta+1, 
+  kBlack,  kRed,  kGreen+1, kBlue, kMagenta+1, 
+  kBlack,  kRed,  kGreen+1, kBlue, kMagenta+1, 
+  kBlack,  kRed,  kGreen+1, kBlue, kMagenta+1, 
+  kBlack,  kRed,  kGreen+1, kBlue, kMagenta+1
 };
 
 //_________________________________________________________________________________
@@ -287,35 +636,45 @@ int main(int argc, char ** argv)
   utils::style::SetDefaultStyle();
 
   Init();
-  Plot();
+
+  // loop over specified comparisons and generate plots
+  for(int i = 0; i < kNumOfComparisons; i++) 
+  {
+    LOG("gvldtest", pNOTICE) 
+      << "Perforing data/MC comparison: " << kComparison[i]->Label();
+    Draw(i);
+  }
+
   End();
 
-  LOG("gvldtest", pINFO)  << "Done!";
+  LOG("gvldtest", pNOTICE)  << "Done!";
   return 0;
-}
-//_________________________________________________________________________________
-void Plot(void)
-{
-#ifdef __GENIE_MYSQL_ENABLED__
-
-  // connect to the NuValidator MySQL dbase
-  bool ok = Connect();
-  if(!ok) {
-    return;
-  }
- 
-  // loop over data sets
-  for(int iset = 0; iset < kNuXSecDataSets; iset++) 
-  {
-    Draw(iset);
-  }
-#endif
 }
 //_________________________________________________________________________________
 void Init(void)
 {
-  LOG("vldtest", pNOTICE) << "Initializing...";;
+  LOG("vldtest", pNOTICE) << "Initializing...";
 
+  // get TTree with electron-scattering data
+  if( ! utils::system::FileExists(gOptDataFilename) ) {
+      LOG("gvldtest", pFATAL) 
+         << "Can not find file: " << gOptDataFilename;
+      gAbortingInErr = true;
+      exit(1);
+  }
+  gNuXSecDataFile = new TFile(gOptDataFilename.c_str(),"read");  
+  gNuXSecDataTree = (TTree *) gNuXSecDataFile->Get("nuxsnt");
+  if(!gNuXSecDataTree) {
+      LOG("gvldtest", pFATAL) 
+         << "Can not find TTree `nuxsnt' in file: " << gOptDataFilename;
+      gAbortingInErr = true;
+      exit(1);
+  }
+
+  // genie style
+  utils::style::SetDefaultStyle();
+
+  // canvas
   gC = new TCanvas("c","",20,20,500,650);
   gC->SetBorderMode(0);
   gC->SetFillColor(0);
@@ -326,9 +685,10 @@ void Init(void)
   gLS -> SetFillColor(0);
   gLS -> SetBorderSize(1);
 
-  // output file
+  // output postscript file
   gPS = new TPostScript("genie_nuxec_vs_data.ps", 111);
 
+  // cover page
   AddCoverPage();
 
   gC->SetLogx();
@@ -345,12 +705,11 @@ void AddCoverPage(void)
   hdr.AddText("GENIE Neutrino Cross Section Comparisons with World Data");
   hdr.AddText(" ");
   hdr.AddText(" ");
-  for(int imodel=0; imodel< gOptGenieInputs.NModels(); imodel++) {
-    ostringstream stream;
-    stream << "model tag: " << gOptGenieInputs.ModelTag(imodel)
-           << " (" << kLStyleTxt[imodel] << " line)";
-    hdr.AddText(stream.str().c_str());
-  }
+  // for(int imodel=0; imodel< gOptGenieInputs.NModels(); imodel++) {
+  //  ostringstream stream;
+  //  stream << "model tag: " << gOptGenieInputs.ModelTag(imodel)
+  //  hdr.AddText(stream.str().c_str());
+  // }
   hdr.AddText(" ");
   hdr.Draw();
   gC->Update();
@@ -369,11 +728,26 @@ void End(void)
 //_________________________________________________________________________________
 // Corresponding GENIE prediction for the `iset' data set 
 //.................................................................................
-TGraph * Model(int iset, int imodel)
+vector<TGraph *> Models(int icomparison)
 {
+  vector<TGraph*> models;
+  for(int imodel=0; imodel< gOptGenieInputs.NModels(); imodel++) {
+    TGraph * gr = Model(icomparison,imodel);
+    gr->SetTitle(gOptGenieInputs.ModelTag(imodel).c_str());
+    int lsty = kModelLineStyle[imodel];     
+    utils::style::Format(gr,kBlack,lsty,2,1,1,1);
+    models.push_back(gr);
+  }
+  return models;
+}
+//_________________________________________________________________________________
+TGraph * Model(int icomparison, int imodel)
+{
+  if(!gShowModel) return 0;
+
   LOG("vldtest", pNOTICE) 
     << "Getting GENIE prediction (model ID = " 
-    << imodel << ", data set ID = " << iset << ")";
+    << imodel << ", comparison ID = " << icomparison << ")";
 
   TFile * xsec_file = gOptGenieInputs.XSecFile(imodel);
   if(!xsec_file) {
@@ -386,352 +760,95 @@ TGraph * Model(int iset, int imodel)
   if(!event_chain) {
      LOG("vldtest", pNOTICE) 
         << "No corresponding event chain.";
+    if(!event_chain) return 0;
   }
 
-  switch(iset) {
+  const int n = 100;
+  double emin = kComparison[icomparison]->Emin();
+  double emax = kComparison[icomparison]->Emax();
 
-    // nu_mu CC QE 
-    case (0) :
-    case (1) :
-    case (2) :
-    {
-       TDirectory * dir  = (TDirectory *) xsec_file->Get("nu_mu_n");
-       if(!dir) return 0;
-       TGraph * model = (TGraph*) dir->Get("qel_cc_n");
-       return model;
-       break;
-    }
+  nuXSecCalc & calc = *kComparison[icomparison]->XSecCalc();
+  TGraph * model = calc(xsec_file, event_chain, n, emin, emax, true);
+  return model;
+}
+//_________________________________________________________________________________
+vector<TGraphAsymmErrors *> Data(int icomparison)
+{
+  string keys = kComparison[icomparison]->DataSetKeys();
 
-    // nu_mu_bar CC QE   
-    case (3) :
-    case (4) :
-    case (5) :
-    {
-       TDirectory * dir  = (TDirectory *)xsec_file->Get("nu_mu_bar_H1");
-       if(!dir) return 0;
-       TGraph * model = (TGraph*) dir->Get("qel_cc_p");
-       return model;
-       break;
-    }
+  vector<string> keyv = utils::str::Split(keys,";");
+  unsigned int ndatasets = keyv.size();
 
-    // nu_mu CC 1pi [v + p -> mu- + p + pi+]
-    case (6) :
-    {
-      LOG("vldtest", pNOTICE)     << "Getting GENIE nu_mu CC 1pi [v + p -> mu- + p + pi+] prediction" ;
+  vector<TGraphAsymmErrors *> data(ndatasets);
 
-      TDirectory * dir  = (TDirectory *) xsec_file->Get("nu_mu_H1");
-      if(!dir) return 0;
-      TGraph * tot_cc = (TGraph*) dir->Get("tot_cc");
-      if(!tot_cc) return 0;
+  const int buffer_size = 100;
 
-      if(!event_chain) return 0;
-      const int n = 100;
-      double emin = 0.010;
-      double emax = 100.0;
-      TH1D * hcc    = new TH1D("hcc",   "",n, TMath::Log10(emin), TMath::Log10(emax)); // log binning
-      TH1D * hcc1pi = new TH1D("hcc1pi","",n, TMath::Log10(emin), TMath::Log10(emax));
-      event_chain->Draw("log10(Ev)>>hcc",    "cc&&neu==14&&Z==1&&A==1", "goff");
-      event_chain->Draw("log10(Ev)>>hcc1pi", "cc&&neu==14&&Z==1&&A==1&&nfpim==0&&nfpi0==0&&nfpip==1&&nfp==1&&nfn==0", "goff");
-      hcc1pi->Divide(hcc);
+  char   dataset  [buffer_size];
+  char   citation [buffer_size];
+  double E;
+  double Emin;
+  double Emax;
+  double xsec;
+  double xsec_err_p;
+  double xsec_err_m;
 
-      double e[n], sig[n];
-      for(int i = 0; i < hcc1pi->GetNbinsX(); i++) {
-         int ibin = i+1;
-         e  [i] = TMath::Power(10., hcc1pi->GetBinCenter(ibin));
-         sig[i] = hcc1pi->GetBinContent(ibin) * tot_cc->Eval(e[i]);
+  gNuXSecDataTree->SetBranchAddress ("dataset",    (void*)dataset  );
+  gNuXSecDataTree->SetBranchAddress ("citation",   (void*)citation );
+  gNuXSecDataTree->SetBranchAddress ("E",          &E              );
+  gNuXSecDataTree->SetBranchAddress ("Emin",       &Emin           );
+  gNuXSecDataTree->SetBranchAddress ("Emax",       &Emax           );
+  gNuXSecDataTree->SetBranchAddress ("xsec",       &xsec           );
+  gNuXSecDataTree->SetBranchAddress ("xsec_err_p", &xsec_err_p     );
+  gNuXSecDataTree->SetBranchAddress ("xsec_err_m", &xsec_err_m     );
 
-         LOG("vldtest", pNOTICE) << "E = " << e[i] << "GeV , sig = " << sig[i] << " x1E-38 cm^2";
+  for(unsigned int idataset = 0; idataset < ndatasets; idataset++) {
 
-      }
-      TGraph * model = new TGraph(n,e,sig);
-      return model;
-      break;
-    }
-
-    // nu_mu CC TOT (isoscalar target)
-    case (7) :
-    {
-       TDirectory * dir_n  = (TDirectory *) xsec_file->Get("nu_mu_n");
-       if(!dir_n) return 0;
-       TGraph * model_n = (TGraph*) dir_n->Get("tot_cc_n");
-       TDirectory * dir_p  = (TDirectory *) xsec_file->Get("nu_mu_H1");
-       if(!dir_p) return 0;
-       TGraph * model_p = (TGraph*) dir_p->Get("tot_cc_p");
-       const int n = 1000;
-       double e[n], sig[n];
-       for(int i=0; i<n; i++) {
-         e  [i] = 5 + i*0.1;
-         sig[i] = 0.5*(model_n->Eval(e[i]) + model_p->Eval(e[i]));
-       }
-       TGraph * model = new TGraph(n,e,sig);
-       return model;
-       break;
-    }
-
-    // nu_mu_bar CC TOT (isoscalar target)
-    case (8) :
-    {
-       TDirectory * dir_n  = (TDirectory *) xsec_file->Get("nu_mu_bar_n");
-       if(!dir_n) return 0;
-       TGraph * model_n = (TGraph*) dir_n->Get("tot_cc_n");
-       TDirectory * dir_p  = (TDirectory *) xsec_file->Get("nu_mu_bar_H1");
-       if(!dir_p) return 0;
-       TGraph * model_p = (TGraph*) dir_p->Get("tot_cc_p");
-       const int n = 1000;
-       double e[n], sig[n];
-       for(int i=0; i<n; i++) {
-         e  [i] = 5 + i*0.1;
-         sig[i] = 0.5*(model_n->Eval(e[i]) + model_p->Eval(e[i]));
-       }
-       TGraph * model = new TGraph(n,e,sig);
-       return model;
-       break;
-    }
-
-    // nu_mu CC 2pi [v + n -> l + p + pi+ + pi-]
-    case (9) :
-    {
-      LOG("vldtest", pNOTICE) << "Getting GENIE nu_mu CC 2pi [v + n -> l + p + pi+ + pi-] prediction" ;
-
-      TDirectory * dir  = (TDirectory *) xsec_file->Get("nu_mu_n");
-      if(!dir) return 0;
-      TGraph * tot_cc = (TGraph*) dir->Get("tot_cc");
-      if(!tot_cc) return 0;
-
-      if(!event_chain) return 0;
-      const int n = 100;
-      double emin = 0.010;
-      double emax = 100.0;
-      TH1D * hcc    = new TH1D("hcc",   "",n, TMath::Log10(emin), TMath::Log10(emax)); // log binning
-      TH1D * hcc2pi = new TH1D("hcc2pi","",n, TMath::Log10(emin), TMath::Log10(emax));
-      event_chain->Draw("log10(Ev)>>hcc",    "cc&&neu==14&&Z==1&&A==1", "goff");
-      event_chain->Draw("log10(Ev)>>hcc2pi", "cc&&neu==14&&Z==1&&A==1&&nfpim==1&&nfpi0==0&&nfpip==1&&nfp==1&&nfn==0", "goff");
-      hcc2pi->Divide(hcc);
-
-      double e[n], sig[n];
-      for(int i = 0; i < hcc2pi->GetNbinsX(); i++) {
-         int ibin = i+1;
-         e  [i] = TMath::Power(10., hcc2pi->GetBinCenter(ibin));
-         sig[i] = hcc2pi->GetBinContent(ibin) * tot_cc->Eval(e[i]);
-
-         LOG("vldtest", pNOTICE) << "E = " << e[i] << "GeV , sig = " << sig[i] << " x1E-38 cm^2";
-
-      }
-      TGraph * model = new TGraph(n,e,sig);
-      return model;
-      break;
-    }
-
-    // nu_mu CC 2pi [v + p -> l + p + pi+ + pi0]
-    case (10) :
-    {
-      LOG("vldtest", pNOTICE) << "Getting GENIE nu_mu CC 2pi [v + p -> l + p + pi+ + pi0] prediction" ;
-
-      TDirectory * dir  = (TDirectory *) xsec_file->Get("nu_mu_H1");
-      if(!dir) return 0;
-      TGraph * tot_cc = (TGraph*) dir->Get("tot_cc");
-      if(!tot_cc) return 0;
-
-      if(!event_chain) return 0;
-      const int n = 100;
-      double emin = 0.010;
-      double emax = 100.0;
-      TH1D * hcc    = new TH1D("hcc",   "",n, TMath::Log10(emin), TMath::Log10(emax)); // log binning
-      TH1D * hcc2pi = new TH1D("hcc2pi","",n, TMath::Log10(emin), TMath::Log10(emax));
-      event_chain->Draw("log10(Ev)>>hcc",    "cc&&neu==14&&Z==1&&A==1", "goff");
-      event_chain->Draw("log10(Ev)>>hcc2pi", "cc&&neu==14&&Z==1&&A==1&&nfpim==0&&nfpi0==1&&nfpip==1&&nfp==1&&nfn==0", "goff");
-      hcc2pi->Divide(hcc);
-
-      double e[n], sig[n];
-      for(int i = 0; i < hcc2pi->GetNbinsX(); i++) {
-         int ibin = i+1;
-         e  [i] = TMath::Power(10., hcc2pi->GetBinCenter(ibin));
-         sig[i] = hcc2pi->GetBinContent(ibin) * tot_cc->Eval(e[i]);
-
-         LOG("vldtest", pNOTICE) << "E = " << e[i] << "GeV , sig = " << sig[i] << " x1E-38 cm^2";
-
-      }
-      TGraph * model = new TGraph(n,e,sig);
-      return model;
-      break;
-    }
-
-    // nu_mu CC 2pi [v + p -> l + n + pi+ + pi+]
-    case (11) :
-    {
-      LOG("vldtest", pNOTICE) << "Getting GENIE nu_mu CC 2pi [v + p -> l + n + pi+ + pi+] prediction" ;
-
-      TDirectory * dir  = (TDirectory *) xsec_file->Get("nu_mu_H1");
-      if(!dir) return 0;
-      TGraph * tot_cc = (TGraph*) dir->Get("tot_cc");
-      if(!tot_cc) return 0;
-
-      if(!event_chain) return 0;
-      const int n = 100;
-      double emin = 0.010;
-      double emax = 100.0;
-      TH1D * hcc    = new TH1D("hcc",   "",n, TMath::Log10(emin), TMath::Log10(emax)); // log binning
-      TH1D * hcc2pi = new TH1D("hcc2pi","",n, TMath::Log10(emin), TMath::Log10(emax));
-      event_chain->Draw("log10(Ev)>>hcc",    "cc&&neu==14&&Z==1&&A==1", "goff");
-      event_chain->Draw("log10(Ev)>>hcc2pi", "cc&&neu==14&&Z==1&&A==1&&nfpim==0&&nfpi0==0&&nfpip==2&&nfp==0&&nfn==1", "goff");
-      hcc2pi->Divide(hcc);
-
-      double e[n], sig[n];
-      for(int i = 0; i < hcc2pi->GetNbinsX(); i++) {
-         int ibin = i+1;
-         e  [i] = TMath::Power(10., hcc2pi->GetBinCenter(ibin));
-         sig[i] = hcc2pi->GetBinContent(ibin) * tot_cc->Eval(e[i]);
-
-         LOG("vldtest", pNOTICE) << "E = " << e[i] << "GeV , sig = " << sig[i] << " x1E-38 cm^2";
-
-      }
-      TGraph * model = new TGraph(n,e,sig);
-      return model;
-      break;
-    }
-
-    // numu NC COH pi [A = 20] 
-    case (12) :
-    {
-       TDirectory * dir  = (TDirectory *)xsec_file->Get("nu_mu_Ne20");
-       if(!dir) return 0;
-       TGraph * model = (TGraph*) dir->Get("coh_nc");
-       return model;
-       break;
-    }
-
-    // numu CC COH pi [A = 20] 
-    case (13) :
-    {
-       TDirectory * dir  = (TDirectory *)xsec_file->Get("nu_mu_Ne20");
-       if(!dir) return 0;
-       TGraph * model = (TGraph*) dir->Get("coh_cc");
-       return model;
-       break;
-    }
-
-    // nu_mu_bar  CC COH pi [A = 20] 
-    case (14) :
-    {
-       TDirectory * dir  = (TDirectory *)xsec_file->Get("nu_mu_bar_Ne20");
-       if(!dir) return 0;
-       TGraph * model = (TGraph*) dir->Get("coh_cc");
-       return model;
-       break;
-    }
-
-    // numu NC COH pi [A = 27]
-    case (15) :
-    {
-       TDirectory * dir  = (TDirectory *)xsec_file->Get("nu_mu_Al27");
-       if(!dir) return 0;
-       TGraph * model = (TGraph*) dir->Get("coh_nc");
-       return model;
-       break;
-    }
-
-    // numu NC COH pi [A = 30] 
-    case (16) :
-    {
-       TDirectory * dir  = (TDirectory *)xsec_file->Get("nu_mu_Si30");
-       if(!dir) return 0;
-       TGraph * model = (TGraph*) dir->Get("coh_nc");
-       return model;
-       break;
-    }
-
-    // numu CC COH pi [A = 30] 
-    case (17) :
-    {
-       TDirectory * dir  = (TDirectory *)xsec_file->Get("nu_mu_Si30");
-       if(!dir) return 0;
-       TGraph * model = (TGraph*) dir->Get("coh_cc");
-       return model;
-       break;
-    }
-
-    // nu_mu_bar CC COH pi [A = 30] 
-    case (18) :
-    {
-       TDirectory * dir  = (TDirectory *)xsec_file->Get("nu_mu_bar_Si30");
-       if(!dir) return 0;
-       TGraph * model = (TGraph*) dir->Get("coh_cc");
-       return model;
-       break;
-    }
-
-    default:
-    {
-       break;
-    }
+    gNuXSecDataTree->Draw("E", Form("dataset==\"%s\"",keyv[idataset].c_str()), "goff");
+    int npoints = gNuXSecDataTree->GetSelectedRows();
+    double *  x    = new double[npoints];
+    double *  dxl  = new double[npoints];
+    double *  dxh  = new double[npoints];
+    double *  y    = new double[npoints];
+    double *  dyl  = new double[npoints];
+    double *  dyh  = new double[npoints];
+    string label = "";
+    int ipoint=0;
+    for(int i = 0; i < gNuXSecDataTree->GetEntries(); i++) {
+      gNuXSecDataTree->GetEntry(i);
+      if(strcmp(dataset,keyv[idataset].c_str()) == 0) {
+        if(ipoint==0) {
+          label = Form("%s [%s]", dataset, citation);
+        }
+        x   [ipoint] = E;
+        dxl [ipoint] = (Emin > 0) ? TMath::Max(0., E-Emin) : 0.;
+        dxh [ipoint] = (Emin > 0) ? TMath::Max(0., Emax-E) : 0.;
+	y   [ipoint] = xsec;
+	dyl [ipoint] = xsec_err_m;
+	dyh [ipoint] = xsec_err_p;
+	ipoint++;
+      } 
+    }//i
+    TGraphAsymmErrors * gr = new TGraphAsymmErrors(npoints,x,y,dxl,dxh,dyl,dyh);
+    int sty = kDataPointStyle[idataset];
+    int col = kDataPointColor[idataset];
+    utils::style::Format(gr,col, kSolid, 1, col, sty, 1.5);
+    gr->SetTitle(label.c_str());
+    data.push_back(gr);
   }
-  return 0;
+
+  return data;
 }
 //_________________________________________________________________________________
-// Download cross section data from NuVld MySQL dbase 
-//.................................................................................
-bool Connect(void)
-{
-  if(!gCmpWithData) return true;
-
-  // Get a data-base interface
-  TSQLServer * sql_server = TSQLServer::Connect(
-      gOptDbURL.c_str(),gOptDbUser.c_str(),gOptDbPasswd.c_str());
-
-  if(!sql_server) return false;
-  if(!sql_server->IsConnected()) return false;
-
-  gDBI = new DBI(sql_server);
-  return true;
-}
-//_________________________________________________________________________________
-DBQ FormQuery(const char * key_list, float emin, float emax)
-{
-// forms a DBQueryString for extracting neutrino cross section data from the input 
-// key-list and for the input energy range
-//  
-  ostringstream query_string;
-  
-  query_string 
-    << "KEY-LIST:" << key_list
-    << "$CUTS:Emin=" << emin << ";Emax=" << emax << "$DRAW_OPT:none$DB-TYPE:vN-XSec";
-  
-  DBQ query(query_string.str());
-  
-  return query;
-}
-//_________________________________________________________________________________
-DBT * Data(int iset)
-{
-  if(!gCmpWithData) return 0;
-
-  DBT * dbtable = new DBT;
-
-  const char * keylist = kNuXSecKeyList[iset];
-  float        e_min   = kNuXSecERange[iset][0];
-  float        e_max   = kNuXSecERange[iset][1];
-
-  DBQ query = FormQuery(keylist, e_min, e_max);
-  assert( gDBI->FillTable(dbtable, query) == eDbu_OK );
-
-  return dbtable;
-}
-//_________________________________________________________________________________
-void Draw(int iset)
+void Draw(int icomparison)
 {
   // get all measurements for the current channel from the NuValidator MySQL dbase
-  DBT * dbtable = Data(iset);
+  vector<TGraphAsymmErrors *> data = Data(icomparison);
 
   // get the corresponding GENIE model prediction
-  vector<TGraph*> models;
-  for(int imodel=0; imodel< gOptGenieInputs.NModels(); imodel++) {
-       models.push_back(Model(iset,imodel));
-  }
+  vector<TGraph *> models = Models(icomparison);
 
-  if(models.size()==0 && !dbtable) return;
-
+  // add a new page in the output ps file
   gPS->NewPage();
-
   gC->Clear();
   gC->Divide(2,1);
   gC->GetPad(1)->SetPad("mplots_pad","",0.01,0.25,0.99,0.99);
@@ -742,65 +859,52 @@ void Draw(int iset)
   gC->GetPad(2)->SetBorderMode(0);
   gC->GetPad(1)->cd();
   gC->GetPad(1)->SetBorderMode(0);
-  gC->GetPad(1)->SetLogx( kNuXSecLogXY[iset][0] );
-  gC->GetPad(1)->SetLogy( kNuXSecLogXY[iset][1] );
+  gC->GetPad(1)->SetLogx( kComparison[icomparison]->InLogX() );
+  gC->GetPad(1)->SetLogy( kComparison[icomparison]->InLogY() );
 
-  gLS->SetHeader(kNuXSecDataSetLabel[iset]);
+  // set header
+  gLS->SetHeader( kComparison[icomparison]->Label().c_str() );
+  gLS->SetLineStyle(0);
 
+  // create frame from the data point range
+  TH1F * hframe = 0;
+  double xmin =  9999999;
+  double xmax = -9999999;
+  double ymin =  9999999;
+  double ymax = -9999999;
+  for(int i = 0; i< data.size(); i++) {
+    if(!data[i]) continue;
+    xmin  = TMath::Min(xmin, (data[i]->GetX())[TMath::LocMin(data[i]->GetN(),data[i]->GetX())]);
+    xmax  = TMath::Max(xmax, (data[i]->GetX())[TMath::LocMax(data[i]->GetN(),data[i]->GetX())]);
+    ymin  = TMath::Min(ymin, (data[i]->GetY())[TMath::LocMin(data[i]->GetN(),data[i]->GetY())]);
+    ymax  = TMath::Max(ymax, (data[i]->GetY())[TMath::LocMax(data[i]->GetN(),data[i]->GetY())] );
+  }
+  hframe = (TH1F*) gC->GetPad(1)->DrawFrame(0.5*xmin, 0.4*ymin, 1.2*xmax, 2.0*ymax);
+  hframe->GetXaxis()->SetTitle("E_{#nu} (GeV)");
+  hframe->GetYaxis()->SetTitle("#sigma_{#nu} (1E-38 cm^{2})");
+  hframe->Draw();
+  
+  // add legend
   TLegend * legend = new TLegend(0.01, 0.01, 0.99, 0.99);
+  legend->SetLineStyle(0);
   legend->SetFillColor(0);
   legend->SetTextSize(0.08);
 
-  TH1F * hframe = 0;
-  bool have_frame = false;
-
-  // have data points to plot?
-  if(dbtable) {
-    TGraphAsymmErrors * graph = dbtable->GetGraph("all-noE");
-
-    // create frame from the data point range
-    double xmin  = ( graph->GetX() )[TMath::LocMin(graph->GetN(),graph->GetX())];
-    double xmax  = ( graph->GetX() )[TMath::LocMax(graph->GetN(),graph->GetX())];
-    double ymin  = ( graph->GetY() )[TMath::LocMin(graph->GetN(),graph->GetY())];
-    double ymax  = ( graph->GetY() )[TMath::LocMax(graph->GetN(),graph->GetY())];
-    hframe = (TH1F*) gC->GetPad(1)->DrawFrame(0.5*xmin, 0.4*ymin, 1.2*xmax, 2.0*ymax);
-    hframe->Draw();
-    have_frame = true;
-
-    //
-    // draw current data set
-    //
-    MultiGraph * mgraph = dbtable->GetMultiGraph("all-noE");
-    for(unsigned int igraph = 0; igraph < mgraph->NGraphs(); igraph++) {
-       mgraph->GetGraph(igraph)->Draw("P");
-    }
-    mgraph->FillLegend("LP", legend);
-  }//dbtable?
+  // draw current data set
+  for(int i = 0; i< data.size(); i++) {
+    if(!data[i]) continue;
+    data[i]->Draw("P");
+    legend->AddEntry(data[i], data[i]->GetTitle(), "P");
+  }  
 
   // have model prediction to plot?
   if(models.size()>0) {
-     if(!have_frame) {
-        // the data points have not been plotted
-        // create a frame from this graph range
-        double xmin  = ( models[0]->GetX() )[TMath::LocMin(models[0]->GetN(),models[0]->GetX())];
-        double xmax  = ( models[0]->GetX() )[TMath::LocMax(models[0]->GetN(),models[0]->GetX())];
-        double ymin  = ( models[0]->GetY() )[TMath::LocMin(models[0]->GetN(),models[0]->GetY())];
-        double ymax  = ( models[0]->GetY() )[TMath::LocMax(models[0]->GetN(),models[0]->GetY())];
-        hframe = (TH1F*) gC->GetPad(1)->DrawFrame(0.5*xmin, 0.4*ymin, 1.2*xmax, 2.0*ymax);
-        hframe->Draw();
-     }
      for(int imodel=0; imodel<gOptGenieInputs.NModels(); imodel++) {
-       TGraph * plot = models[imodel];
-       if(plot) {
-         int lsty = kLStyle[imodel];     
-         utils::style::Format(plot,1,lsty,2,1,1,1);
-         plot->Draw("L");
-       }
+       if(!models[imodel]) continue;
+       models[imodel]->Draw("L");
+       legend->AddEntry(models[imodel], models[imodel]->GetTitle(), "L");
      }
   }//model?
-
-  hframe->GetXaxis()->SetTitle("E_{#nu} (GeV)");
-  hframe->GetYaxis()->SetTitle("#sigma_{#nu} (1E-38 cm^{2})");
 
   gLS->Draw();
 
@@ -809,10 +913,6 @@ void Draw(int iset)
 
   gC->GetPad(2)->Update();
   gC->Update();
-
-  if(dbtable) {
-    delete dbtable;
-  }
 
  //gC->SaveAs(Form("gxs%d.eps",iset));
 
@@ -872,7 +972,26 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   CmdLnArgParser parser(argc,argv);
 
+  // get data archive
+  if(parser.OptionExists('d')){
+     string filename = parser.ArgAsString('d');
+     gOptDataFilename = filename;
+  } else {
+     if(gSystem->Getenv("GENIE")) {
+        string base_dir = string( gSystem->Getenv("GENIE") );
+        string filename = base_dir + "/" + kDefDataFile;
+        gOptDataFilename = filename;
+     } else { 
+        LOG("gvldtest", pFATAL) 
+          << "\n Please make sure that $GENIE is defined, or use the -d option"
+          << "\n You didn't specify a data file and I can not pick the default one either";
+        gAbortingInErr = true;
+        exit(1);
+     }
+  }
+
   // get GENIE inputs
+  gShowModel = false;
   if( parser.OptionExists('g') ) {
      string inputs = parser.ArgAsString('g');
      bool ok = gOptGenieInputs.LoadFromFile(inputs);
@@ -880,29 +999,7 @@ void GetCommandLineArgs(int argc, char ** argv)
         LOG("gvldtest", pFATAL) << "Could not read: " << inputs;
         exit(1);
      }
-  }
-
-  gCmpWithData = true;
-
-  // get DB URL
-  if( parser.OptionExists('h') ) {
-     gOptDbURL = parser.ArgAsString('h');
-  } else {
-     gOptDbURL = kDefDbURL;
-  }
-
-  // get DB username
-  if( parser.OptionExists('u') ) {
-     gOptDbUser = parser.ArgAsString('u');
-  } else {
-     gCmpWithData = false;
-  }
-
-  // get DB passwd
-  if( parser.OptionExists('p') ) {
-     gOptDbPasswd = parser.ArgAsString('p');
-  } else {
-     gCmpWithData = false;
+     gShowModel = true;
   }
 
 }
@@ -911,7 +1008,7 @@ void PrintSyntax(void)
 {
   LOG("gvldtest", pNOTICE)
     << "\n\n" << "Syntax:" << "\n"
-    << "   gvld_nuxsec_vs_world_data [-h host] [-u user] [-p passwd] -f files\n";
+    << "   gvld_nuxsec_vs_world_data -g genie_inputs [-d data_archive]\n";
 }
 //_________________________________________________________________________________
 
