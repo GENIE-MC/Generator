@@ -1,5 +1,5 @@
 #
-# GENIE basic validation tools makefile
+# GENIE Makefile for ValidationTools/NeutrinoCrossSections
 #
 # Author: Costas Andreopoulos
 #
@@ -13,34 +13,18 @@ include $(GENIE)/src/make/Make.include
 
 # Add extra libraries needed for these executables
 GENIE_LIBS   = $(shell $(GENIE)/src/scripts/setup/genie-config --libs)
-VLDTOOL_LIBS = $(shell $(GENIE)/src/scripts/setup/genie-config --vldlibs)
-LIBRARIES   := $(GENIE_LIBS) $(VLDTOOL_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
+LIBRARIES   := $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
+#VLDTOOL_LIBS = $(shell $(GENIE)/src/scripts/setup/genie-config --vldlibs)
+#LIBRARIES   := $(GENIE_LIBS) $(VLDTOOL_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 
-all: gVldNuXSecVsWorldData \
-     gVldStructFuncVsWorldData \
-     gVldStructFuncSumRuleTest
-
+all: gVldNuXSecVsWorldData 
 
 #
-# Program comparing GENIE neutrino cross sections against the world data
+# Program comparing GENIE neutrino cross-sections against the world data
 #
 gVldNuXSecVsWorldData: FORCE
 	$(CXX) $(CXXFLAGS) -c gVldNuXSecVsWorldData.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) gVldNuXSecVsWorldData.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gvld_nuxsec_vs_world_data
-
-#
-# Program comparing GENIE structure functions against the world data
-#
-gVldStructFuncVsWorldData: FORCE
-	$(CXX) $(CXXFLAGS) -c gVldStructFuncVsWorldData.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) gVldStructFuncVsWorldData.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gvld_sf_vs_world_data
-
-#
-# Sum rule checks
-#
-gVldStructFuncSumRuleTest: FORCE
-	$(CXX) $(CXXFLAGS) -c gVldStructFuncSumRuleTest.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) gVldStructFuncSumRuleTest.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gvld_sf_sum_rule_test
 
 purge: FORCE
 	$(RM) *.o *~ core 
@@ -48,13 +32,9 @@ purge: FORCE
 clean: FORCE
 	$(RM) *.o *~ core 
 	$(RM) $(GENIE_BIN_PATH)/gvld_nuxsec_vs_world_data
-	$(RM) $(GENIE_BIN_PATH)/gvld_sf_vs_world_data
-	$(RM) $(GENIE_BIN_PATH)/gvld_sf_sum_rule_test
 
 distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gvld_nuxsec_vs_world_data
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gvld_sf_vs_world_data
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gvld_sf_sum_rule_test
 
 FORCE:
 
