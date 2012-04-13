@@ -87,6 +87,14 @@ InteractionList * QELInteractionListGenerator::CreateInteractionListCC(
   bool     hasP    = (target->Z() > 0);
   bool     hasN    = (target->N() > 0);
 
+  if(!isnu && !isnubar) {
+     LOG("IntLst", pWARN)
+       << "Can not handle probe! Returning NULL InteractionList "
+       << "for init-state: " << init_state.AsString();
+     delete intlist;
+     return 0;
+  }
+
   if (isnu && hasN) {
      target->SetHitNucPdg(kPdgNeutron);
      intlist->push_back(interaction);
@@ -96,7 +104,7 @@ InteractionList * QELInteractionListGenerator::CreateInteractionListCC(
      intlist->push_back(interaction);
 
   } else {
-     LOG("IntLst", pWARN)
+     LOG("IntLst", pINFO)
        << "Returning NULL InteractionList for init-state: "
        << init_state.AsString();
      delete interaction;
@@ -147,7 +155,7 @@ InteractionList * QELInteractionListGenerator::CreateInteractionListNC(
   }
 
   if(intlist->size() == 0) {
-     LOG("IntLst", pERROR)
+     LOG("IntLst", pINFO)
        << "Returning NULL InteractionList for init-state: "
        << init_state.AsString();
      delete intlist;
@@ -203,7 +211,7 @@ InteractionList *
   int  nupdg = init_state.ProbePdg();
   bool isnu = pdg::IsNeutrino(nupdg);
   if(!isnu) {
-     LOG("IntLst", pERROR)
+     LOG("IntLst", pINFO)
        << "Returning NULL InteractionList for init-state: "
        << init_state.AsString();
      return 0;
