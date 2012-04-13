@@ -54,24 +54,29 @@ InteractionList * COHInteractionListGenerator::CreateInteractionList(
   if      (fIsCC) inttype = kIntWeakCC;
   else if (fIsNC) inttype = kIntWeakNC;
   else {
+     // shouldn't happen... warn
      LOG("IntLst", pWARN)
        << "Unknown InteractionType! Returning NULL InteractionList "
-                         << "for init-state: " << init_state.AsString();
+       << "for init-state: " << init_state.AsString();
      return 0;
   }
 
-  int nupdg = init_state.ProbePdg();
-  if( !pdg::IsNeutrino(nupdg) && !pdg::IsAntiNeutrino(nupdg) ) {
+  int probe_pdg = init_state.ProbePdg();
+  bool isnu = pdg::IsNeutrino(probe_pdg) || pdg::IsAntiNeutrino(probe_pdg); 
+  if( !isnu) {
+     // shouldn't happen... warn
      LOG("IntLst", pWARN)
        << "Can not handle probe! Returning NULL InteractionList "
-                         << "for init-state: " << init_state.AsString();
+       << "for init-state: " << init_state.AsString();
      return 0;
   }
   const Target & target = init_state.Tgt();
   if(!target.IsNucleus()) {
-     LOG("IntLst", pWARN)
+     // happens as this code is also indiscriminately both for free-nucleon and 
+     // nuclear targets - don't warn
+     LOG("IntLst", pINFO)
        << "Not a nuclear target! Returning NULL InteractionList "
-                         << "for init-state: " << init_state.AsString();
+       << "for init-state: " << init_state.AsString();
      return 0;
   }
 
@@ -81,7 +86,7 @@ InteractionList * COHInteractionListGenerator::CreateInteractionList(
   Interaction * interaction = new Interaction(init_state, proc_info);
 
   if(fIsCC) {
-    if(pdg::IsNeutrino(nupdg)) {
+    if(pdg::IsNeutrino(probe_pdg)) {
         // v A -> l- A pi+
         interaction->ExclTagPtr()->SetNPions(1,0,0);  
     } else 	{

@@ -194,12 +194,12 @@ void GEVGDriver::Configure(const InitialState & is)
   this -> BuildInteractionGeneratorMap ();
   this -> BuildInteractionSelector     ();
 
-  LOG("GEVGDriver", pNOTICE) << "Done configuring GEVGDriver! \n";
+  LOG("GEVGDriver", pINFO) << "Done configuring GEVGDriver! \n";
 }
 //___________________________________________________________________________
 void GEVGDriver::BuildInitialState(const InitialState & init_state)
 {
-  LOG("GEVGDriver", pNOTICE) << "Setting the initial state...";
+  LOG("GEVGDriver", pINFO) << "Setting the initial state...";
 
   if(fInitState) delete fInitState;
   fInitState = new InitialState(init_state);
@@ -212,12 +212,12 @@ void GEVGDriver::BuildGeneratorList(void)
 //! figure out which list of event generators to use from the $GEVGL
 //! environmental variable (use "Default") if the variable is not set.
 
-  LOG("GEVGDriver", pNOTICE) << "Building the event generator list...";
+  LOG("GEVGDriver", pINFO) << "Building the event generator list...";
 
   string evgl = (gSystem->Getenv("GEVGL") ?
-                               gSystem->Getenv("GEVGL") : "Default");
+      gSystem->Getenv("GEVGL") : "Default");
   LOG("GEVGDriver", pNOTICE)
-                       << "Specified Event Generator List = " << evgl;
+      << "Specified Event Generator List = " << evgl;
 
   EventGeneratorListAssembler evglist_assembler(evgl.c_str());
   fEvGenList = evglist_assembler.AssembleGeneratorList();
@@ -228,7 +228,7 @@ void GEVGDriver::BuildInteractionGeneratorMap(void)
 //! figure out which list of event generators to use from the $GEVGL
 //! environmental variable (use "Default") if the variable is not set.
 
-  LOG("GEVGDriver", pNOTICE)
+  LOG("GEVGDriver", pINFO)
          << "Building the interaction -> generator associations...";
 
   fIntGenMap = new InteractionGeneratorMap;
@@ -237,14 +237,14 @@ void GEVGDriver::BuildInteractionGeneratorMap(void)
 
   string mesgh = "Interaction -> Generator assignments for Initial State: ";
 
-  LOG("GEVGDriver", pINFO)
+  LOG("GEVGDriver", pDEBUG)
     << utils::print::PrintFramedMesg(mesgh + fInitState->AsString(), 0, '-')
     << *fIntGenMap;
 }
 //___________________________________________________________________________
 void GEVGDriver::BuildInteractionSelector(void)
 {
-  LOG("GEVGDriver", pNOTICE) << "Building the interaction selector...";
+  LOG("GEVGDriver", pINFO) << "Building the interaction selector...";
 
   AlgFactory * algf = AlgFactory::Instance();
 
