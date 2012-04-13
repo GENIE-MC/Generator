@@ -55,9 +55,9 @@
 #include <TAxis.h>
 #include <Riostream.h>
 
-#include "ValidationTools/Merenyi/MerenyiNuEvent.h"
-#include "ValidationTools/Merenyi/MerenyiAnalysisD2.h"
-#include "ValidationTools/Merenyi/MerenyiAnalysisNe.h"
+#include "validation/Merenyi/MerenyiNuEvent.h"
+#include "validation/Merenyi/MerenyiAnalysisD2.h"
+#include "validation/Merenyi/MerenyiAnalysisNe.h"
 
 using namespace std;
 using namespace genie;

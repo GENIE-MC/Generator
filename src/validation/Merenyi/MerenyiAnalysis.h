@@ -20,7 +20,7 @@
 
 #include <fstream>
 
-#include "ValidationTools/Merenyi/MerenyiNuEvent.h"
+#include "validation/Merenyi/MerenyiNuEvent.h"
 
 using namespace std;
 
