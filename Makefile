@@ -221,21 +221,19 @@ vld-tools: FORCE
 ifeq ($(strip $(GOPT_ENABLE_VALIDATION_TOOLS)),YES)
 	@echo " "
 	@echo "** Building GENIE validation tools..."
-	cd ${GENIE}/src/ValidationTools/NuVld; \
+	cd ${GENIE}/src/validation/Basic; \
 	make; \
-	cd ${GENIE}/src/ValidationTools/NuVld/app; \
+	cd ${GENIE}/src/validation/NuXSec; \
 	make; \
-	cd ${GENIE}/src/ValidationTools/Basic; \
+	cd ${GENIE}/src/validation/StructFunc; \
 	make; \
-	cd ${GENIE}/src/ValidationTools/CrossSections; \
+	cd ${GENIE}/src/validation/Hadronization; \
 	make; \
-	cd ${GENIE}/src/ValidationTools/Hadronization; \
+	cd ${GENIE}/src/validation/Intranuke; \
 	make; \
-	cd ${GENIE}/src/ValidationTools/Merenyi; \
+	cd ${GENIE}/src/validation/Merenyi; \
 	make; \
-	cd ${GENIE}/src/ValidationTools/eA; \
-	make; \
-	cd ${GENIE}/src/ValidationTools/Intranuke; \
+	cd ${GENIE}/src/validation/eA; \
 	make; \
 	cd ${GENIE}
 else
@@ -459,8 +457,6 @@ make-install-dirs: FORCE
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Utils
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/VLE
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/VHE
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/ValidationTools/
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/ValidationTools/NuVld/
 
 copy-install-files: FORCE
 	@echo " "
@@ -511,7 +507,6 @@ copy-install-files: FORCE
 	cd Utils;                  make install; cd ..; \
 	cd VLE;                    make install; cd ..; \
 	cd VHE;                    make install; cd ..; \
-	cd ValidationTools/NuVld;  make install; cd ../../; \
 	cd ${GENIE}
 
 purge: FORCE
@@ -561,13 +556,12 @@ purge: FORCE
 	cd Utils;                         make purge; cd ..; \
 	cd VLE;                           make purge; cd ..; \
 	cd VHE;                           make purge; cd ..; \
-	cd ValidationTools/NuVld;         make purge; cd ../../; \
-	cd ValidationTools/NuVld/app;     make purge; cd ../../../; \
-	cd ValidationTools/Basic;         make purge; cd ../../; \
-	cd ValidationTools/CrossSections; make purge; cd ../../; \
-	cd ValidationTools/Hadronization; make purge; cd ../../; \
-	cd ValidationTools/Merenyi;       make purge; cd ../../; \
-	cd ValidationTools/eA;            make purge; cd ../../; \
+	cd validation/Basic;              make purge; cd ../../; \
+	cd validation/NuXSec;             make purge; cd ../../; \
+	cd validation/StructFunc;         make purge; cd ../../; \
+	cd validation/Hadronization;      make purge; cd ../../; \
+	cd validation/Merenyi;            make purge; cd ../../; \
+	cd validation/eA;                 make purge; cd ../../; \
 	cd ${GENIE}
 
 clean: clean-files clean-dir clean-etc
@@ -617,13 +611,12 @@ clean-files: FORCE
 	cd ReinSeghal;                    make clean; cd ..; \
 	cd ReWeight;                      make clean; cd ..; \
 	cd Utils;                         make clean; cd ..; \
-	cd ValidationTools/NuVld;         make clean; cd ../../; \
-	cd ValidationTools/NuVld/app;     make clean; cd ../../../; \
-	cd ValidationTools/Basic;         make clean; cd ../../; \
-	cd ValidationTools/CrossSections; make clean; cd ../../; \
-	cd ValidationTools/Hadronization; make clean; cd ../../; \
-	cd ValidationTools/Merenyi;       make clean; cd ../../; \
-	cd ValidationTools/eA;            make clean; cd ../../; \
+	cd validation/Basic;              make clean; cd ../../; \
+	cd validation/NuXSec;             make clean; cd ../../; \
+	cd validation/StructFunc;         make clean; cd ../../; \
+	cd validation/Hadronization;      make clean; cd ../../; \
+	cd validation/Merenyi;            make clean; cd ../../; \
+	cd validation/eA;                 make clean; cd ../../; \
 	cd VLE;                           make clean; cd ..; \
 	cd VHE;                           make clean; cd ..; \
 	cd stdapp;                        make clean; cd ..; \
@@ -699,13 +692,12 @@ distclean: FORCE
 	cd ReinSeghal;                     make distclean; cd ..; \
 	cd ReWeight;                       make distclean; cd ..; \
 	cd Utils;                          make distclean; cd ..; \
-	cd ValidationTools/NuVld;          make distclean; cd ../../; \
-	cd ValidationTools/NuVld/app;      make distclean; cd ../../../; \
-	cd ValidationTools/Basic;          make distclean; cd ../../; \
-	cd ValidationTools/CrossSections;  make distclean; cd ../../; \
-	cd ValidationTools/Hadronization;  make distclean; cd ../../; \
-	cd ValidationTools/Merenyi;        make distclean; cd ../../; \
-	cd ValidationTools/eA;             make distclean; cd ../../; \
+	cd validation/Basic;               make distclean; cd ../../; \
+	cd validation/NuXSec;              make distclean; cd ../../; \
+	cd validation/StructFunc;          make distclean; cd ../../; \
+	cd validation/Hadronization;       make distclean; cd ../../; \
+	cd validation/Merenyi;             make distclean; cd ../../; \
+	cd validation/eA;                  make distclean; cd ../../; \
 	cd VLE;                            make distclean; cd ..; \
 	cd VHE;                            make distclean; cd ..; \
 	cd stdapp;                         make distclean; cd ..; \

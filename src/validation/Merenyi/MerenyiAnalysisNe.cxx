@@ -17,7 +17,7 @@
 
 #include <iostream>
 
-#include "ValidationTools/Merenyi/MerenyiAnalysisNe.h"
+#include "validation/Merenyi/MerenyiAnalysisNe.h"
 
 using namespace genie;
 using namespace genie::vld_merenyi;

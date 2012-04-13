@@ -18,7 +18,7 @@
 #ifndef _MERENYI_ANALYSIS_D2_H_
 #define _MERENYI_ANALYSIS_D2_H_
 
-#include "ValidationTools/Merenyi/MerenyiAnalysis.h"
+#include "validation/Merenyi/MerenyiAnalysis.h"
 
 namespace genie       {
 namespace vld_merenyi {

@@ -17,7 +17,7 @@
 
 #include <iostream>
 
-#include "ValidationTools/Merenyi/MerenyiNuEvent.h"
+#include "validation/Merenyi/MerenyiNuEvent.h"
 
 using namespace genie;
 using namespace genie::vld_merenyi;
