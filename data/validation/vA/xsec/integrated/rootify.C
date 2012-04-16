@@ -39,11 +39,12 @@ int rootify(void)
   TFile outfile("nuXSec.root", "RECREATE");
 
   // define output ROOT n-tuple
-  char   dataset  [buffer_size];
-  char   citation [buffer_size];
-  char   process  [buffer_size];
-  char   target   [buffer_size];
-  char   comments [buffer_size];
+  char   dataset         [buffer_size];
+  char   citation_spires [buffer_size];
+  char   citation        [buffer_size];
+  char   process         [buffer_size];
+  char   target          [buffer_size];
+  char   comments        [buffer_size];
   int    nu_pdg;
   double E;
   double Emin;
@@ -54,18 +55,19 @@ int rootify(void)
 
   TTree outtree("nuxsnt", "World Neutrino-Nucleus Cross-Section Data");
 
-  outtree.Branch ("dataset",    (void*)dataset,  "dataset/C",   buffer_size);
-  outtree.Branch ("citation",   (void*)citation, "citation/C",  buffer_size);
-  outtree.Branch ("process",    (void*)process,  "process/C",   buffer_size);
-  outtree.Branch ("target",     (void*)target,   "target/C",    buffer_size);
-  outtree.Branch ("comments",   (void*)comments, "comments/C",  buffer_size);
-  outtree.Branch ("nu_pdg",     &nu_pdg,         "nu_pdg/I"    );
-  outtree.Branch ("E",          &E,              "E/D"         );
-  outtree.Branch ("Emin",       &Emin,           "Emin/D"      );
-  outtree.Branch ("Emax",       &Emax,           "Emax/D"      );
-  outtree.Branch ("xsec",       &xsec,           "xsec/D"      );
-  outtree.Branch ("xsec_err_p", &xsec_err_p,     "xsec_err_p/D");
-  outtree.Branch ("xsec_err_m", &xsec_err_m,     "xsec_err_m/D");
+  outtree.Branch ("dataset",         (void*)dataset,         "dataset/C",          buffer_size);
+  outtree.Branch ("citation_spires", (void*)citation_spires, "citation_spires/C",  buffer_size);
+  outtree.Branch ("citation",        (void*)citation,        "citation/C",         buffer_size);
+  outtree.Branch ("process",         (void*)process,         "process/C",          buffer_size);
+  outtree.Branch ("target",          (void*)target,          "target/C",           buffer_size);
+  outtree.Branch ("comments",        (void*)comments,        "comments/C",         buffer_size);
+  outtree.Branch ("nu_pdg",          &nu_pdg,                "nu_pdg/I"    );
+  outtree.Branch ("E",               &E,                     "E/D"         );
+  outtree.Branch ("Emin",            &Emin,                  "Emin/D"      );
+  outtree.Branch ("Emax",            &Emax,                  "Emax/D"      );
+  outtree.Branch ("xsec",            &xsec,                  "xsec/D"      );
+  outtree.Branch ("xsec_err_p",      &xsec_err_p,            "xsec_err_p/D");
+  outtree.Branch ("xsec_err_m",      &xsec_err_m,            "xsec_err_m/D");
   
   // loop over summary file entries
   while(1) {
@@ -82,7 +84,8 @@ int rootify(void)
          double syst_err;
   	 summary_file.getline(temp, buffer_size, '|'); expt = trim_spaces(temp);
    	 summary_file.getline(temp, buffer_size, '|'); id   = atoi(temp);
-	 summary_file.getline(temp, buffer_size, '|'); strcpy(citation, trim_spaces(temp));
+	 summary_file.getline(temp, buffer_size, '|'); strcpy(citation_spires, trim_spaces(temp));
+	 summary_file.getline(temp, buffer_size, '|'); strcpy(citation,        trim_spaces(temp));
    	 summary_file.getline(temp, buffer_size, '|'); np       = atoi(temp);
    	 summary_file.getline(temp, buffer_size, '|'); syst_err = atof(temp);
    	 summary_file.getline(temp, buffer_size, '|'); nu_pdg   = atoi(temp);
@@ -117,7 +120,7 @@ int rootify(void)
          string data_filename = Form("%s/%s-%d.data", directory.c_str(), expt.c_str(), id);
 
          // print-out summary info for current dataset
-         cout << "\n* Dataset: " << dataset << " [" << citation << "]"
+         cout << "\n* Dataset: " << dataset << " [" << citation_spires << " : " << citation << "]"
               << " - Neutrino: " << nu_pdg << ", target: " << target 
               << ", process: " << process << ", comments: " << comments
               << "\n  Reading " << np << " data-points from: " << data_filename 
