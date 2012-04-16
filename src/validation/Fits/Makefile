@@ -1,5 +1,5 @@
 #
-# GENIE basic validation tools makefile
+# GENIE Makefile for fitting apps
 #
 # Author: Costas Andreopoulos
 #
@@ -15,18 +15,17 @@ include $(GENIE)/src/make/Make.include
 # Add extra libraries needed for these executables
 #
 GENIE_LIBS   = $(shell $(GENIE)/src/scripts/setup/genie-config --libs)
-LDTOOL_LIBS  = $(shell $(GENIE)/src/scripts/setup/genie-config --vldlibs)
-LIBRARIES   := $(GENIE_LIBS) $(LDTOOL_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
+LIBRARIES   := $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 
-all: 	gRijkFit \
+all: 	gTuneRijk \
 	gMaQELFit \
-	gDISNormFit
+	gTuneDISNorm
 
 # 
 #
-gRijkFit: FORCE
-	$(CXX) $(CXXFLAGS) -c gRijkFit.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) gRijkFit.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtune_rijk
+gTuneRijk: FORCE
+	$(CXX) $(CXXFLAGS) -c gTuneRijk.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gTuneRijk.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtune_rijk
 
 #
 #
@@ -36,9 +35,9 @@ gMaQELFit: FORCE
 
 #
 #
-gDISNormFit: FORCE
-	$(CXX) $(CXXFLAGS) -c gDISNormFit.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) gDISNormFit.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtune_disnorm
+gTuneDISNorm: FORCE
+	$(CXX) $(CXXFLAGS) -c gTuneDISNorm.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gTuneDISNorm.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtune_dis_norm
 
 purge: FORCE
 	$(RM) *.o *~ core 
@@ -47,12 +46,12 @@ clean: FORCE
 	$(RM) *.o *~ core 
 	$(RM) $(GENIE_BIN_PATH)/gtune_rijk
 	$(RM) $(GENIE_BIN_PATH)/gtune_maqel
-	$(RM) $(GENIE_BIN_PATH)/gtune_disnorm
+	$(RM) $(GENIE_BIN_PATH)/gtune_dis_norm
 
 distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtune_rijk
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtune_maqel
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtune_disnorm
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtune_dis_norm
 
 FORCE:
 
