@@ -21,7 +21,6 @@
 #pragma link C++ namespace genie::utils::gsl;
 #pragma link C++ namespace genie::utils::system;
 #pragma link C++ namespace genie::utils::style;
-#pragma link C++ namespace genie::utils::vld;
 
 #pragma link C++ class genie::Cache;
 #pragma link C++ class genie::CacheBranchI;
@@ -34,7 +33,7 @@
 #pragma link C++ class genie::Range1D_t;
 #pragma link C++ class genie::Range1F_t;
 #pragma link C++ class genie::Range1I_t;
-#pragma link C++ class genie::utils::vld::VldTestInputs;
+#pragma link C++ class genie::GSimFiles;
 #pragma link C++ class genie::utils::T2KEvGenMetaData;
 
 #endif

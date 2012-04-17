@@ -22,71 +22,66 @@
 #include "libxml/xmlreader.h"
 
 #include "Messenger/Messenger.h"
-#include "Utils/VldTestInputs.h"
+#include "Utils/GSimFiles.h"
 #include "Utils/StringUtils.h"
 
 using std::endl;
 
 using namespace genie;
-using namespace genie::utils::vld;
 
 //____________________________________________________________________________
 namespace genie {
- namespace utils {
-  namespace vld {
-    ostream & operator << (ostream & stream, const VldTestInputs & inp)
-    {
-      inp.Print(stream);
-      return stream;
-    }
+  ostream & operator << (ostream & stream, const GSimFiles & f)
+  {
+    f.Print(stream);
+    return stream;
   }
- }
 }
 //____________________________________________________________________________
-VldTestInputs::VldTestInputs(bool chain, const int nmaxmodels)
+GSimFiles::GSimFiles(bool chain, const int nmaxmodels)
 {
   fDoChain = chain;
   this->Init(nmaxmodels);
 }
 //____________________________________________________________________________
-VldTestInputs::~VldTestInputs(void)
+GSimFiles::~GSimFiles(void)
 {
   this->CleanUp();
 }
 //____________________________________________________________________________
-int VldTestInputs::NModels(void) const
+int GSimFiles::NModels(void) const
 {
   return fNModels;
 }
 //____________________________________________________________________________
-string VldTestInputs::ModelTag(int imodel) const
+string GSimFiles::ModelTag(int imodel) const
 {
   return (*fModelTag)[imodel];
 }
 //____________________________________________________________________________
-TFile*  VldTestInputs::XSecFile(int imodel) const
+TFile* GSimFiles::XSecFile(int imodel) const
 {
   return (*fXSecFile)[imodel];
 }
 //____________________________________________________________________________
-string VldTestInputs::XSecFileName(int imodel) const
+string GSimFiles::XSecFileName(int imodel) const
 {
   return (*fXSecFileName)[imodel];
 }
 //____________________________________________________________________________
-TChain* VldTestInputs::EvtChain(int imodel) const
+TChain* GSimFiles::EvtChain(int imodel) const
 {
   return (*fEvtChain)[imodel];
 }
 //____________________________________________________________________________
-vector<string> & VldTestInputs::EvtFileNames(int imodel) const
+vector<string> & GSimFiles::EvtFileNames(int imodel) const
 {
   return (*fEvtFileNames)[imodel];
 }
 //____________________________________________________________________________
-bool VldTestInputs::LoadFromFile(string xmlfile)
+bool GSimFiles::LoadFromFile(string xmlfile)
 {
-  LOG("VldTestInputs", pNOTICE) << "Loading: " << xmlfile;
+  LOG("GSimFiles", pNOTICE) << "Loading: " << xmlfile;
 
   vector<string>  &          model_tag      = *fModelTag;
   vector<TFile*>  &          xsec_file      = *fXSecFile;
@@ -122,9 +117,9 @@ bool VldTestInputs::LoadFromFile(string xmlfile)
        bool end_element   = (type==kNodeTypeEndElement);
 
        if(depth==0 && start_element) {
-         LOG("VldTestInputs", pDEBUG) << "Root element = " << name;
-         if(xmlStrcmp(name, (const xmlChar *) "vld_inputs")) {
-           LOG("VldTestInputs", pERROR)
+         LOG("GSimFiles", pDEBUG) << "Root element = " << name;
+         if(xmlStrcmp(name, (const xmlChar *) "genie_simulation_outputs")) {
+           LOG("GSimFiles", pERROR)
              << "\nXML doc. has invalid root element! [filename: " 
              << xmlfile << "]";
            return false;
@@ -135,13 +130,13 @@ bool VldTestInputs::LoadFromFile(string xmlfile)
          xmlChar * xname = xmlTextReaderGetAttribute(reader,(const xmlChar*)"name");
          string sname    = utils::str::TrimSpaces((const char *)xname);
          model_tag[imodel] = sname;
-         LOG("VldTestInputs", pNOTICE) 
+         LOG("GSimFiles", pNOTICE) 
             << "Adding files for model ID: " 
             << imodel << " (" << model_tag[imodel] << ")";
          xmlFree(xname);
        }
        if( (!xmlStrcmp(name, (const xmlChar *) "model")) && end_element) {
-         LOG("VldTestInputs", pNOTICE) 
+         LOG("GSimFiles", pNOTICE) 
             << "Done adding files for model ID: " << imodel;
          imodel++;
        }
@@ -169,9 +164,9 @@ bool VldTestInputs::LoadFromFile(string xmlfile)
             if(!have_ghep_files) { have_ghep_files = true; }
          } 
          if(have_gst_files && have_ghep_files) {
-            LOG("VldTestInputs", pFATAL) 
-               << "Oops! You shouldn't mix GHEP and GST event files in VldTestInputs";
-            LOG("VldTestInputs", pFATAL) 
+            LOG("GSimFiles", pFATAL) 
+               << "Oops! You shouldn't mix GHEP and GST event files in GSimFiles";
+            LOG("GSimFiles", pFATAL) 
                << "Please correct XML file: " << xmlfile;
             gAbortingInErr = true;;
             exit(1);
@@ -184,7 +179,7 @@ bool VldTestInputs::LoadFromFile(string xmlfile)
        if( (!xmlStrcmp(name, (const xmlChar *) "#text")) && depth==3) {
          string filename = utils::str::TrimSpaces((const char *)value);
          if(is_evt_file) {
-           LOG("VldTestInputs", pNOTICE) 
+           LOG("GSimFiles", pNOTICE) 
                 << " * Adding event file: " << filename;
            // chain the event trees, if requested
            if(fDoChain) {
@@ -201,7 +196,7 @@ bool VldTestInputs::LoadFromFile(string xmlfile)
            evt_filenames[imodel].push_back(filename);
          }
          if(is_xsec_file) {
-           LOG("VldTestInputs", pNOTICE) 
+           LOG("GSimFiles", pNOTICE) 
                 << " * Adding cross section file: " << filename;
            xsec_file    [imodel] = new TFile(filename.c_str(), "read");
            xsec_filename[imodel] = filename;
@@ -227,7 +222,7 @@ bool VldTestInputs::LoadFromFile(string xmlfile)
   return true;
 }
 //____________________________________________________________________________
-void VldTestInputs::Print(ostream & stream) const
+void GSimFiles::Print(ostream & stream) const
 {
   stream << endl;
   for(int imodel=0; imodel < this->NModels(); imodel++) {
@@ -244,7 +239,7 @@ void VldTestInputs::Print(ostream & stream) const
   }
 }
 //____________________________________________________________________________
-void VldTestInputs::Init(const int nmaxmodels)
+void GSimFiles::Init(const int nmaxmodels)
 {
   fNModels      = 0;
   fModelTag     = new vector<string>          (nmaxmodels);
@@ -260,7 +255,7 @@ void VldTestInputs::Init(const int nmaxmodels)
   }
 }
 //____________________________________________________________________________
-void VldTestInputs::CleanUp(void)
+void GSimFiles::CleanUp(void)
 {
 
 }
