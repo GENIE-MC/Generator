@@ -49,7 +49,7 @@ public:
   double       Emax        (void) const { return fEmax;          }
   bool         InLogX      (void) const { return fInLogX;        }
   bool         InLogY      (void) const { return fInLogY;        }
-  bool         ScaleWithrE (void) const { return fScaleWithE;    }
+  bool         ScaleWithE  (void) const { return fScaleWithE;    }
 
 private:
 

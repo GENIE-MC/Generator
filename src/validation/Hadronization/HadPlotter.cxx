@@ -29,7 +29,7 @@
 #include <TProfile.h>
 #include <Riostream.h>
 
-#include "ValidationTools/Hadronization/HadPlotter.h"
+#include "validation/Hadronization/HadPlotter.h"
 #include "Messenger/Messenger.h"
 
 using namespace std;

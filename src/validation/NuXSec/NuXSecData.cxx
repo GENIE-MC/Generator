@@ -63,8 +63,8 @@ bool NuXSecData::Read(string data_archive_file_name)
   return true;
 }
 //____________________________________________________________________________
-vector<TGraphAsymmErrors *> 
-  NuXSecData::Data(string keys, double Emin, double Emax)
+vector<TGraphAsymmErrors *> NuXSecData::Retrieve(
+  string keys, double Emin, double Emax, bool scale_with_E)
 {
   vector<string> keyv = utils::str::Split(keys,";");
   unsigned int ndatasets = keyv.size();
@@ -73,8 +73,14 @@ vector<TGraphAsymmErrors *>
 
   for(unsigned int idataset = 0; idataset < ndatasets; idataset++) {
 
-    fNuXSecDataTree->Draw("E", Form("dataset==\"%s\"",keyv[idataset].c_str()), "goff");
+    const char * selection = 
+      Form("dataset==\"%s\" && (E>=%f) && (E<=%f)",keyv[idataset].c_str(),Emin,Emax);
+    fNuXSecDataTree->Draw("E", selection, "goff");
     int npoints = fNuXSecDataTree->GetSelectedRows();
+      LOG("NuXSecData", pNOTICE) 
+         << "Selection: " << selection << " retrieved " << npoints << " data points";
+    if(npoints==0) continue;
+
     double *  x    = new double[npoints];
     double *  dxl  = new double[npoints];
     double *  dxh  = new double[npoints];
@@ -89,12 +95,21 @@ vector<TGraphAsymmErrors *>
         if(ipoint==0) {
           label = Form("%s [%s]", fDataset, fCitation);
         }
+        bool keep = false;
+        if(fE >= Emin && fE <= Emax) keep = true;
+        if(!keep) continue;
         x   [ipoint] = fE;
         dxl [ipoint] = (fEmin > 0) ? TMath::Max(0., fE-fEmin) : 0.;
         dxh [ipoint] = (fEmin > 0) ? TMath::Max(0., fEmax-fE) : 0.;
 	y   [ipoint] = fXSec;
 	dyl [ipoint] = fXSecErrM;
 	dyh [ipoint] = fXSecErrP;
+        if(scale_with_E) {
+         assert(fE>0);
+	  y   [ipoint] /= fE;
+	  dyl [ipoint] /= fE;
+ 	  dyh [ipoint] /= fE;
+        }
 	ipoint++;
       } 
     }//i

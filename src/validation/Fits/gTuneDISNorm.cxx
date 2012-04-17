@@ -12,6 +12,16 @@
 
          where
 
+           -d Location of the neutrino cross-section data archive.
+              By default, the program will look-up the one located in:
+              $GENIE/data/validation/vA/xsec/integrated/
+
+           -g An XML file with GENIE inputs.
+              They are files with calculated cross-sections and event samples
+              used for decomposing the inclusive cross-section to various
+              exclusive cross-sections.
+              For info on the XML file format see the GSimFiles class documentation.
+
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          STFC, Rutherford Appleton Laboratory
 
@@ -33,6 +43,7 @@
 #include <TGraphAsymmErrors.h>
 #include <TMinuit.h>
 #include <TMath.h>
+#include <TCanvas.h>
 
 #include "Messenger/Messenger.h"
 #include "PDG/PDGCodes.h"
@@ -40,14 +51,13 @@
 #include "Utils/StringUtils.h"
 #include "Utils/SystemUtils.h"
 #include "Utils/Style.h"
-#include "Utils/VldTestInputs.h"
+#include "Utils/GSimFiles.h"
 
 using std::vector;
 using std::string;
 
 using namespace genie;
 using namespace genie::utils;
-using namespace genie::utils::vld;
 
 const int kNModes = 2;
 
@@ -69,8 +79,8 @@ void Save               (string filename);
 void ReadData           (void);
 
 // command-line arguments
-VldTestInputs  gOptGenieInputs;
-string         gOptDataFilename = "";
+GSimFiles gOptGenieInputs;
+string    gOptDataFilename = "";
 double         gOptEmax;
 double         gOptEmin;
 
@@ -113,7 +123,7 @@ public:
     return xsec_incl_tweaked;
   }
 
-  void BuildDefaults(const VldTestInputs & inp)
+  void BuildDefaults(const GSimFiles & inp)
   {
     TFile * genie_xsec_file = inp.XSecFile(0);
     if(!genie_xsec_file) return;
@@ -344,7 +354,7 @@ void DoTheFit(void)
 
   float        value [np] = {  1.00     };
   float        min   [np] = {  0.50     };
-  float        max   [np] = {  2.00     };
+  float        max   [np] = { 10.00     };
   float        step  [np] = {  0.01     };
   const char * pname [np] = { "DISNorm" };
 
@@ -460,12 +470,13 @@ void Save(string filename)
     }
   }
 
+  // save nominal and best-fit MC
+  TGraph * gr_xsec_bestfit[kNModes];
+  TGraph * gr_xsec_nominal[kNModes];
   const int n = 100;
   const double dE = (gOptEmax - gOptEmin)/(n-1);
-
   double E[n];
   for(int i=0; i<n; i++) { E[i] =  gOptEmin + i * dE; }
-
   double xsec_nominal[kNModes][n];
   double xsec_bestfit[kNModes][n];
   for(int imode=0; imode<kNModes; imode++) {
@@ -475,10 +486,30 @@ void Save(string filename)
      }
   }
   for(int imode=0; imode<kNModes; imode++) {
-    TGraph * gr_xsec_nominal = new TGraph(n,E,xsec_nominal[imode]);
-    gr_xsec_nominal->Write(Form("mc_nominal_%d",imode));
-    TGraph * gr_xsec_bestfit = new TGraph(n,E,xsec_bestfit[imode]);
-    gr_xsec_bestfit->Write(Form("mc_bestfit_%d",imode));
+    gr_xsec_bestfit[imode] = new TGraph(n,E,xsec_bestfit[imode]);
+    gr_xsec_bestfit[imode]->Write(Form("mc_bestfit_%d",imode));
+    gr_xsec_bestfit[imode]->SetLineStyle(kSolid);
+    gr_xsec_bestfit[imode]->SetLineWidth(2);
+    gr_xsec_nominal[imode] = new TGraph(n,E,xsec_nominal[imode]);
+    gr_xsec_nominal[imode]->SetLineStyle(kDashed);
+    gr_xsec_nominal[imode]->SetLineWidth(2);
+    gr_xsec_nominal[imode]->Write(Form("mc_nominal_%d",imode));
+  }
+
+  // save nominal and best-fit MC
+  TCanvas * c[kNModes];
+  for(int imode=0; imode<kNModes; imode++) {
+    c[imode] = new TCanvas(Form("c_%d",imode), "", 10,10,400,400);
+    TGraph * bestfit = gr_xsec_bestfit[imode];
+    TGraph * nominal = gr_xsec_nominal[imode];
+    bestfit->Draw("al");
+    nominal->Draw("l");
+    unsigned int ndatasets = gData[imode].size();
+    for(unsigned int idataset = 0; idataset < ndatasets; idataset++) {
+       TGraphAsymmErrors * data = gData[imode][idataset];
+       data->Draw("P");
+    }
+    c[imode]->Write();
   }
 
 

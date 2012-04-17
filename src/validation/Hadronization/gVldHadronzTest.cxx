@@ -15,29 +15,9 @@
           -f Output plot format (0: eps, 1: gif) [default: gif]          
           -g An input XML file for specifying a GHEP event list for each
              model to be considered in the hadronization benchmark test.
+             For info on the XML file format see the GSimFiles class documentation.
 
-             The input file should look like:
-
-             <?xml version="1.0" encoding="ISO-8859-1"?>
-             <vld_inputs>
-               <model name="a_model_name">
-                 <evt_file format="ghep"> /model_1/evtfile0.root </evt_file>
-                 <evt_file format="ghep"> /model_1/evtfile1.root </evt_file>
-                 <evt_file format="ghep"> /model_1/evtfile2.root </evt_file>
-                 ...
-               </model>
-
-               <model name="another_model_name">
-                 <evt_file format="ghep"> /model_2/evtfile0.root </evt_file>
-                 <evt_file format="ghep"> /model_2/evtfile1.root </evt_file>
-                 <evt_file format="ghep"> /model_2/evtfile2.root </evt_file>
-                 ...
-               </model>
-               ...
-             </vld_inputs>
-
-
-\author  Tingjun Yang 
+\author  Tingjun Yang, Hugh Gallagher, Pauli Kehayias, Costas Andreopoulos 
 
 \created March 1, 2009
 
@@ -56,15 +36,14 @@
 #include "Messenger/Messenger.h"
 #include "Utils/StringUtils.h"
 #include "Utils/Style.h"
-#include "Utils/VldTestInputs.h"
+#include "Utils/GSimFiles.h"
 #include "Utils/CmdLnArgParser.h"
-#include "ValidationTools/Hadronization/HadPlots.h"
-#include "ValidationTools/Hadronization/HadPlotter.h"
+#include "validation/Hadronization/HadPlots.h"
+#include "validation/Hadronization/HadPlotter.h"
 
 using namespace std;
 using namespace genie;
 using namespace genie::utils;
-using namespace genie::utils::vld;
 using namespace genie::vld_hadronization;
 
 // prototypes
@@ -77,7 +56,7 @@ void PrintSyntax           (void);
 
 // globals & user inputs
 vector<HadPlots *> gHP;
-VldTestInputs      gOptGenieInputs(false,10);;
+GSimFiles          gOptGenieInputs(false,10);
 int                gFmt = 1;
 
 //____________________________________________________________________________
@@ -90,7 +69,7 @@ int main(int argc, char ** argv)
   Plot();
   End();
 
-  LOG("vldtest", pNOTICE) << "Done!";
+  LOG("gvldtest", pNOTICE) << "Done!";
 
   return 0;
 }
@@ -106,7 +85,7 @@ void LoadFilesAndBookPlots(void)
     string model_name = gOptGenieInputs.ModelTag(imodel);
     vector<string> & event_filenames = gOptGenieInputs.EvtFileNames(imodel);
 
-      LOG("vldtest", pNOTICE)
+      LOG("gvldtest", pNOTICE)
             << "Booking plots for model: " << model_name;
 
       HadPlots * hadplot = new HadPlots(model_name);
@@ -116,7 +95,7 @@ void LoadFilesAndBookPlots(void)
       for( ; file_iter != event_filenames.end(); ++file_iter) {
         
         if(nfiles==kMaxFiles)  {
-          LOG("vldtest",pFATAL) 
+          LOG("gvldtest",pFATAL) 
               << "Number of Input Files greater than Maximum: " << 
               kMaxFiles;
           gAbortingInErr=true;
@@ -124,7 +103,7 @@ void LoadFilesAndBookPlots(void)
         }
 
          string filename = *file_iter;
-         LOG("vldtest", pNOTICE)
+         LOG("gvldtest", pNOTICE)
             << " Loading data from file:.....: " << filename;
          hadplot->LoadData(filename);
          nfiles++;
@@ -216,6 +195,6 @@ void PrintSyntax(void)
 {
   LOG("vldtest", pNOTICE)
     << "\n\n" << "Syntax:" << "\n"
-    << " gvld_hadronz_test -g genie_inputs.xml\n [-f format]";
+    << " gvld_hadronz_test -g genie_inputs.xml [-f format] \n";
 }
 //____________________________________________________________________________
