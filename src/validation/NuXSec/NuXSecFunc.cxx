@@ -43,7 +43,7 @@ NuXSecFromEventSample::~NuXSecFromEventSample()
 //............................................................................
 TGraph * NuXSecFromEventSample::operator()
     (TFile * genie_xsec_file, TChain * genie_event_tree, 
-     double Emin, double Emax, int n, bool inlogE)
+     double Emin, double Emax, int n, bool scale_with_E)
 {
   if(!genie_xsec_file ) return 0;
   if(!genie_event_tree) return 0;
@@ -57,7 +57,7 @@ TGraph * NuXSecFromEventSample::operator()
   TH1D * hincl = 0;
   LOG("gvldtest", pNOTICE)   << "Emin = " << Emin << ", Emax = " << Emax;
 
-  inlogE = false;
+  bool inlogE = false;
   if(inlogE) {
      h     = new TH1D("h",     "", n, TMath::Log10(Emin), TMath::Log10(Emax));
      hincl = new TH1D("hincl", "", n, TMath::Log10(Emin), TMath::Log10(Emax)); 
@@ -75,9 +75,6 @@ TGraph * NuXSecFromEventSample::operator()
         << "Selection: " << fInclEvtSelection 
         << " retrieved " << genie_event_tree->GetSelectedRows() << " entries";
   }
-  for(int ibin = 1; ibin <= n; ibin++) {
-    LOG("gvldtest", pNOTICE) << " *** frac " << ibin << " : " << h->GetBinContent(ibin);
-  }
   h->Divide(hincl);
 
   double * energy_array = new double [n];
@@ -90,6 +87,11 @@ TGraph * NuXSecFromEventSample::operator()
     double event_fraction = h->GetBinContent(ibin);
     double incl_xsec =  incl_xsec_spline->Eval(energy);
     double xsec = event_fraction * incl_xsec;
+  
+    if(scale_with_E) {
+      assert(energy>0);
+      xsec /= energy;
+    }
 
     LOG("gvldtest", pNOTICE)  
         << "xsec(E=" << energy << " GeV) = " << xsec 
@@ -120,7 +122,7 @@ NuXSecDirectlyFromXSecFile::~NuXSecDirectlyFromXSecFile()
 //............................................................................
 TGraph * NuXSecDirectlyFromXSecFile::operator()
   (TFile * genie_xsec_file, TChain * /*genie_event_tree*/, 
-   double Emin, double Emax, int n, bool inlogE)
+   double Emin, double Emax, int n, bool scale_with_E)
 {
   if(!genie_xsec_file) return 0;
 
@@ -133,12 +135,16 @@ TGraph * NuXSecDirectlyFromXSecFile::operator()
   double * energy_array = new double[n];
   double * xsec_array   = new double[n];
 
+  bool inlogE = true;
   for(int i = 0; i < n; i++) {
     double energy = (inlogE) ? 
       TMath::Power(10., TMath::Log10(Emin) + i * TMath::Log10(Emax-Emin)/(n-1)) : 
          Emin + i*(Emax-Emin)/(n-1);
     double xsec = xsec_spline->Eval(energy);
-
+    if(scale_with_E) {
+      assert(energy>0);
+      xsec /= energy;
+    }
     energy_array[i] = energy;
     xsec_array[i] = xsec;
   }
@@ -170,7 +176,7 @@ NuXSecCombineSplinesFromXSecFile::~NuXSecCombineSplinesFromXSecFile()
 //............................................................................
 TGraph * NuXSecCombineSplinesFromXSecFile::operator()
   (TFile * genie_xsec_file, TChain * /*genie_event_tree*/, 
-   double Emin, double Emax, int n, bool inlogE)
+   double Emin, double Emax, int n, bool scale_with_E)
 {
   if(!genie_xsec_file) return 0;
 
@@ -190,6 +196,7 @@ TGraph * NuXSecCombineSplinesFromXSecFile::operator()
   double * energy_array = new double[n];
   double * xsec_array   = new double[n];
 
+  bool inlogE = true;
   for(int i = 0; i < n; i++) {
     double energy = (inlogE) ? 
        TMath::Power(10., TMath::Log10(Emin) + i * TMath::Log10(Emax-Emin)/(n-1)) : 
@@ -197,6 +204,10 @@ TGraph * NuXSecCombineSplinesFromXSecFile::operator()
     double xsec_1 = xsec_spline_1->Eval(energy);
     double xsec_2 = xsec_spline_2->Eval(energy);
     double xsec = f_1*xsec_1 + f_2*xsec_2;
+    if(scale_with_E) {
+      assert(energy>0);
+      xsec /= energy;
+    }
     energy_array[i] = energy;
     xsec_array[i] = xsec;
   }

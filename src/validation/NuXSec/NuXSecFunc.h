@@ -46,7 +46,7 @@ public:
      double   /* Emin */, 
      double   /* Emax */, 
      int      /* n */, 
-     bool     /* inlogE */) 
+     bool     /* scale_with_E */) 
     { 
       return 0; 
     }
@@ -68,7 +68,7 @@ public:
     string xsec_dir, string incl_xsec_spline, string incl_selection, string selection);
  ~NuXSecFromEventSample();
 
-  TGraph * operator() (TFile * genie_xsec_file, TChain * genie_event_tree, double Emin, double Emax, int n, bool inlogE);
+  TGraph * operator() (TFile * genie_xsec_file, TChain * genie_event_tree, double Emin, double Emax, int n, bool scale_with_E);
 
 private:
   string fXSecDir;          
@@ -90,7 +90,7 @@ public:
   NuXSecDirectlyFromXSecFile(string xsec_dir, string xsec_spline);
  ~NuXSecDirectlyFromXSecFile();
 
-  TGraph * operator() (TFile * genie_xsec_file, TChain * /*genie_event_tree*/, double Emin, double Emax, int n, bool inlogE);
+  TGraph * operator() (TFile * genie_xsec_file, TChain * /*genie_event_tree*/, double Emin, double Emax, int n, bool scale_with_E);
 
 private:
   string fXSecDir;          
@@ -112,7 +112,7 @@ public:
       double factor_2, string xsec_dir_2, string xsec_spline_2);
  ~NuXSecCombineSplinesFromXSecFile();
 
-  TGraph * operator() (TFile * genie_xsec_file, TChain * /*genie_event_tree*/, double Emin, double Emax, int n, bool inlogE);
+  TGraph * operator() (TFile * genie_xsec_file, TChain * /*genie_event_tree*/, double Emin, double Emax, int n, bool scale_with_E);
 
 private:
   double fFactor1;

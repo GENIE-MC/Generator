@@ -21,7 +21,7 @@
 #include <vector>
 #include <string>
 
-#include "ValidationTools/Hadronization/HadPlots.h"
+#include "validation/Hadronization/HadPlots.h"
 
 class TH2D;
 class TGraph;

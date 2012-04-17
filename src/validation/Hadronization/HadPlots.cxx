@@ -30,7 +30,7 @@
 #include "Ntuple/NtpMCTreeHeader.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGCodes.h"
-#include "ValidationTools/Hadronization/HadPlots.h"
+#include "validation/Hadronization/HadPlots.h"
 
 using namespace genie;
 using namespace genie::vld_hadronization;

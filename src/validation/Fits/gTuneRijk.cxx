@@ -1,4 +1,4 @@
-//____________________________________________________________________________
+//______________________________________________________________________________________________
 /*!
 
 \program gtune_rijk
@@ -16,7 +16,17 @@
 
 \syntax  gtune_rijk  [-g genie_inputs] [-d data_archive]
 
-         where ...
+         where 
+
+           -d Location of the neutrino cross-section data archive.
+              By default, the program will look-up the one located in:
+              $GENIE/data/validation/vA/xsec/integrated/
+
+           -g An XML file with GENIE inputs.
+              They are files with calculated cross-sections and event samples
+              used for decomposing the inclusive cross-section to various
+              exclusive cross-sections.
+              For info on the XML file format see the GSimFiles class documentation.
                       
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          STFC, Rutherford Appleton Laboratory
@@ -30,7 +40,7 @@
          For the full text of the license visit http://copyright.genie-mc.org
          or see $GENIE/LICENSE
 */
-//____________________________________________________________________________
+//______________________________________________________________________________________________
 
 #include <cassert>
 #include <cstdlib>
@@ -52,7 +62,7 @@
 #include "Utils/StringUtils.h"
 #include "Utils/SystemUtils.h"
 #include "Utils/Style.h"
-#include "Utils/VldTestInputs.h"
+#include "Utils/GSimFiles.h"
 
 using std::map;
 using std::vector;
@@ -61,7 +71,6 @@ using std::ostringstream;
 
 using namespace genie;
 using namespace genie::utils;
-using namespace genie::utils::vld;
 using namespace genie::constants;
 
 // datasets included in the fit for each mode
@@ -100,8 +109,8 @@ void Save               (string filename);
 void ReadData           (void);
 
 // command-line arguments
-VldTestInputs  gOptGenieInputs;
-string         gOptDataFilename = "";
+GSimFiles gOptGenieInputs;
+string    gOptDataFilename = "";
 
 // default data archive
 string kDefDataFile = "data/validation/vA/xsec/integrated/nuXSec.root";  
