@@ -27,15 +27,43 @@ gVldNuXSec: FORCE
 	$(CXX) $(CXXFLAGS) -c $(VLD_NUXSEC_SOURCES) $(INCLUDES)
 	$(LD) $(LDFLAGS) $(VLD_NUXSEC_OBJECTS) $(LIBRARIES) -o $(GENIE_BIN_PATH)/gvld_nu_xsec
 
+#
+# Program tuning the GENIE non-resonance backgrounds
+#
+gTuneRijk: FORCE
+	$(CXX) $(CXXFLAGS) -c gTuneRijk.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gTuneRijk.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtune_rijk
+
+#
+# Program tuning the GENIE DIS normalization factor
+#
+gTuneDISNorm: FORCE
+	$(CXX) $(CXXFLAGS) -c gTuneDISNorm.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gTuneDISNorm.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtune_dis_norm
+
+#
+# Program fitting Ma_{CCQE}
+#
+gTuneMaQE: FORCE
+	$(CXX) $(CXXFLAGS) -c gTuneMaQE.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gTuneMaQE.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtune_ma_qe
+
+
 purge: FORCE
 	$(RM) *.o *~ core 
 
 clean: FORCE
 	$(RM) *.o *~ core 
 	$(RM) $(GENIE_BIN_PATH)/gvld_nu_xsec
+	$(RM) $(GENIE_BIN_PATH)/gtune_rijk
+	$(RM) $(GENIE_BIN_PATH)/gtune_dis_norm
+	$(RM) $(GENIE_BIN_PATH)/gtune_ma_qe
 
 distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gvld_nu_xsec
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtune_rijk
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtune_dis_norm
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtune_ma_qe
 
 FORCE:
 
