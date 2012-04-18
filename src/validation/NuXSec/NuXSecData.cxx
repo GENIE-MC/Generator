@@ -34,7 +34,7 @@ NuXSecData::~NuXSecData()
   this->CleanUp();
 }
 //____________________________________________________________________________
-bool NuXSecData::Read(string data_archive_file_name)
+bool NuXSecData::OpenArchive(string data_archive_file_name)
 {
   // get TTree with neutrino scattering data
   if( ! utils::system::FileExists(data_archive_file_name) ) {
@@ -69,7 +69,8 @@ vector<TGraphAsymmErrors *> NuXSecData::Retrieve(
   vector<string> keyv = utils::str::Split(keys,";");
   unsigned int ndatasets = keyv.size();
 
-  vector<TGraphAsymmErrors *> data(ndatasets);
+//  vector<TGraphAsymmErrors *> data(ndatasets);
+  vector<TGraphAsymmErrors *> data;
 
   for(unsigned int idataset = 0; idataset < ndatasets; idataset++) {
 

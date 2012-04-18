@@ -59,7 +59,7 @@ public:
   NuXSecData();
  ~NuXSecData();
 
-  bool Read(string data_archive_file_name);
+  bool OpenArchive(string data_archive_file_name);
 
   vector<TGraphAsymmErrors *> 
      Retrieve(string keys, double Emin=0., double Emax=200., bool scale_with_E=false);
