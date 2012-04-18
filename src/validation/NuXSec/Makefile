@@ -18,8 +18,11 @@ LIBRARIES   := $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 VLD_NUXSEC_SOURCES   := NuXSecData.cxx NuXSecFunc.cxx NuXSecComparison.cxx gVldNuXSec.cxx
 VLD_NUXSEC_OBJECTS    = $(addsuffix .$(ObjSuf), $(basename $(VLD_NUXSEC_SOURCES)))
 
-TUNE_DISNORM_SOURCES := NuXSecData.cxx NuXSecFunc.cxx gTuneDISNorm.cxx
+TUNE_DISNORM_SOURCES := NuXSecData.cxx gTuneDISNorm.cxx
 TUNE_DISNORM_OBJECTS  = $(addsuffix .$(ObjSuf), $(basename $(TUNE_DISNORM_SOURCES)))
+
+TUNE_RIJK_SOURCES := NuXSecData.cxx gTuneRijk.cxx
+TUNE_RIJK_OBJECTS  = $(addsuffix .$(ObjSuf), $(basename $(TUNE_RIJK_SOURCES)))
 
 all: 	gVldNuXSec \
 	gTuneDISNorm
@@ -35,8 +38,8 @@ gVldNuXSec: FORCE
 # Program tuning the GENIE non-resonance backgrounds
 #
 gTuneRijk: FORCE
-	$(CXX) $(CXXFLAGS) -c gTuneRijk.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) gTuneRijk.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtune_rijk
+	$(CXX) $(CXXFLAGS) -c $(TUNE_RIJK_SOURCES) $(INCLUDES)
+	$(LD) $(LDFLAGS) $(TUNE_RIJK_OBJECTS) $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtune_rijk
 
 #
 # Program tuning the GENIE DIS normalization factor

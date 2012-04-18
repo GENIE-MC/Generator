@@ -46,7 +46,6 @@
 #include <TFile.h>
 #include <TTree.h>
 #include <TGraphAsymmErrors.h>
-//#include <TMinuit.h>
 #include <TVirtualFitter.h>
 #include <TMath.h>
 #include <TCanvas.h>
@@ -60,7 +59,6 @@
 #include "Utils/GSimFiles.h"
 
 #include "validation/NuXSec/NuXSecData.h"
-#include "validation/NuXSec/NuXSecFunc.h"
 
 using std::vector;
 using std::string;
@@ -68,16 +66,29 @@ using std::string;
 using namespace genie;
 using namespace genie::mc_vs_data;
 
+//
+// Constants
+//
+
+// default data archive
+string kDefDataFile = "data/validation/vA/xsec/integrated/nuXSec.root";  
+
+// default energy range
+const double kEmin =  20.0; // GeV
+const double kEmax = 120.0; // GeV
+
+// Number of modes included in the fit
 const int kNModes = 2;
 
 //
-// datasets used in fit
+// Datasets used in fit for each mode
 //
 const char * kDataSets[kNModes] = 
 {
-/* mode 0 : nu_mu+N CC inclusive */ 
+// mode 0 : nu_mu+N CC inclusive 
 "ANL_12FT,2;ANL_12FT,4;BEBC,0;BEBC,2;BEBC,5;BEBC,8;BNL_7FT,0;BNL_7FT,4;CCFR,2;CCFRR,0;CHARM,0;CHARM,4;FNAL_15FT,1;FNAL_15FT,2;Gargamelle,0;Gargamelle,10;Gargamelle,12;IHEP_ITEP,0;IHEP_ITEP,2;IHEP_JINR,0;SKAT,0",
-/* mode 1 : nu_mu_bar+N CC inclusive */ 
+
+// mode 1 : nu_mu_bar+N CC inclusive 
 "BEBC,1;BEBC,3;BEBC,6;BEBC,7;BNL_7FT,1;CCFR,3;CHARM,1;CHARM,5;FNAL_15FT,4;FNAL_15FT,5;Gargamelle,1;Gargamelle,11;Gargamelle,13;IHEP_ITEP,1;IHEP_ITEP,3;IHEP_JINR,1"
 };
 
@@ -153,12 +164,18 @@ private:
   TGraph * fXSecIncl [kNModes];
 };
 
-// func prototypes
+//
+// Func prototypes
+//
 void GetCommandLineArgs (int argc, char ** argv);
 void Init               (void);
 void DoTheFit           (void);
 void FitFunc            (Int_t &, Double_t *, Double_t &f, Double_t *par, Int_t iflag);
 void Save               (string filename);
+
+//
+// Globals
+//
 
 // command-line arguments
 string gOptDataFilename  = ""; // -d
@@ -166,14 +183,8 @@ string gOptGenieFileList = ""; // -g
 double gOptEmin = -1;          //
 double gOptEmax = -1;          //
 
-// default data archive
-string kDefDataFile = "data/validation/vA/xsec/integrated/nuXSec.root";  
-
-// default energy range
-const double kEmin =  20.0; // GeV
-const double kEmax = 120.0; // GeV
-
-// nominal value of fit parameter, as used in GENIE simulation
+// nominal value of fit parameter, as used in GENIE simulation,
+// and best-fit value
 double gDISNormNominal = -1;
 double gDISNormBestFit = -1;
 
@@ -234,7 +245,7 @@ void Init(void)
   Registry * params = AlgConfigPool::Instance()->GlobalParameterList();
   gDISNormNominal = params->GetDouble("DIS-XSecScale");
   gDISNormBestFit = gDISNormNominal; // init
-  LOG("gtune", pFATAL) 
+  LOG("gtune", pNOTICE) 
     << "Nominal DIS norm. value used in simulation: " << gDISNormNominal;
 
   // Configure cross-section functor
@@ -412,7 +423,7 @@ void Save(string filename)
        data->Write(Form("dataset_%d_%d",imode,idataset));
     }
   }
-  // generate nominal and best-fit MC
+  // save nominal and best-fit MC
   for(int imode=0; imode<kNModes; imode++) {
     gr_xsec_bestfit[imode]->Write(Form("mc_bestfit_%d",imode));
     gr_xsec_nominal[imode]->Write(Form("mc_nominal_%d",imode));
@@ -447,6 +458,7 @@ void GetCommandLineArgs(int argc, char ** argv)
         exit(1);
      }
   }
+
   // get GENIE inputs
   if( parser.OptionExists('g') ) {
      gOptGenieFileList = parser.ArgAsString('g');
