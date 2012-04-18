@@ -83,7 +83,7 @@ using namespace genie::mc_vs_data;
 // This section specifies how exactly to construct all comparisons
 //
 
-const int kNumOfComparisons = 21;
+const int kNumOfComparisons = 23;
 
 NuXSecComparison * kComparison[kNumOfComparisons] = {
 
@@ -93,7 +93,7 @@ NuXSecComparison * kComparison[kNumOfComparisons] = {
     "ANL_12FT,2;ANL_12FT,4;BEBC,0;BEBC,2;BEBC,5;BEBC,8;BNL_7FT,0;BNL_7FT,4;CCFR,2;CCFRR,0;CHARM,0;CHARM,4;FNAL_15FT,1;FNAL_15FT,2;Gargamelle,0;Gargamelle,10;Gargamelle,12;IHEP_ITEP,0;IHEP_ITEP,2;IHEP_JINR,0;SKAT,0",
      new NuXSecCombineSplinesFromXSecFile(0.5,"nu_mu_n","tot_cc_n",0.5,"nu_mu_H1","tot_cc_p"),
      0.1, 120.0, 
-     true, true
+     true, true, false
   ),
   // nu_mu_bar CC inclusive
   new NuXSecComparison(
@@ -101,7 +101,7 @@ NuXSecComparison * kComparison[kNumOfComparisons] = {
     "BEBC,1;BEBC,3;BEBC,6;BEBC,7;BNL_7FT,1;CCFR,3;CHARM,1;CHARM,5;FNAL_15FT,4;FNAL_15FT,5;Gargamelle,1;Gargamelle,11;Gargamelle,13;IHEP_ITEP,1;IHEP_ITEP,3;IHEP_JINR,1",
      new NuXSecCombineSplinesFromXSecFile(0.5,"nu_mu_bar_n","tot_cc_n",0.5,"nu_mu_bar_H1","tot_cc_p"),
      0.1, 120.0, 
-     true, true
+     true, true, false
   ),
 
   // nu_mu CC inclusive, high-energy data only
@@ -110,7 +110,7 @@ NuXSecComparison * kComparison[kNumOfComparisons] = {
     "ANL_12FT,2;ANL_12FT,4;BEBC,0;BEBC,2;BEBC,5;BEBC,8;BNL_7FT,0;BNL_7FT,4;CCFR,2;CCFRR,0;CHARM,0;CHARM,4;FNAL_15FT,1;FNAL_15FT,2;Gargamelle,0;Gargamelle,10;Gargamelle,12;IHEP_ITEP,0;IHEP_ITEP,2;IHEP_JINR,0;SKAT,0",
      new NuXSecCombineSplinesFromXSecFile(0.5,"nu_mu_n","tot_cc_n",0.5,"nu_mu_H1","tot_cc_p"),
      20, 120.0, 
-    true, true, true
+     true, false, true
   ),
   // nu_mu_bar CC inclusive, high-energy data only
   new NuXSecComparison(
@@ -118,7 +118,7 @@ NuXSecComparison * kComparison[kNumOfComparisons] = {
     "BEBC,1;BEBC,3;BEBC,6;BEBC,7;BNL_7FT,1;CCFR,3;CHARM,1;CHARM,5;FNAL_15FT,4;FNAL_15FT,5;Gargamelle,1;Gargamelle,11;Gargamelle,13;IHEP_ITEP,1;IHEP_ITEP,3;IHEP_JINR,1",
      new NuXSecCombineSplinesFromXSecFile(0.5,"nu_mu_bar_n","tot_cc_n",0.5,"nu_mu_bar_H1","tot_cc_p"),
      20, 120.0, 
-    true, true, true
+    true, false, true
   ),
 
   // nu_mu CC QE, all data
@@ -127,7 +127,7 @@ NuXSecComparison * kComparison[kNumOfComparisons] = {
     "ANL_12FT,1;ANL_12FT,3;BEBC,12;BNL_7FT,3;FNAL_15FT,3;Gargamelle,2;SERP_A1,0;SERP_A1,1;SKAT,8",
      new NuXSecDirectlyFromXSecFile("nu_mu_n", "qel_cc_n"),
      0.1, 30.0, 
-     true, true
+     true, false, false
   ),
   // nu_mu CC QE, light target data only
   new NuXSecComparison(
@@ -135,7 +135,7 @@ NuXSecComparison * kComparison[kNumOfComparisons] = {
     "ANL_12FT,1;ANL_12FT,3;BEBC,12;BNL_7FT,3;FNAL_15FT,3",
      new NuXSecDirectlyFromXSecFile("nu_mu_n", "qel_cc_n"),
      0.1, 30.0, 
-     true, true
+     true, false, false
   ),
   // nu_mu CC QE, heavy target data only
   new NuXSecComparison(
@@ -143,7 +143,7 @@ NuXSecComparison * kComparison[kNumOfComparisons] = {
     "Gargamelle,2;SERP_A1,0;SERP_A1,1;SKAT,8",
      new NuXSecDirectlyFromXSecFile("nu_mu_n", "qel_cc_n"),
      0.1, 30.0, 
-     true, true
+     true, false, false
   ),
   // nu_mu_bar CC QE, all data
   new NuXSecComparison(
@@ -151,7 +151,7 @@ NuXSecComparison * kComparison[kNumOfComparisons] = {
     "BNL_7FT,2;Gargamelle,3;Gargamelle,5;SERP_A1,2;SKAT,9",
      new NuXSecDirectlyFromXSecFile("nu_mu_bar_H1", "qel_cc_p"),
      0.1, 30.0, 
-     true, true
+     true, false, false
   ),
   // nu_mu_bar CC QE, light target data only
   new NuXSecComparison(
@@ -159,7 +159,7 @@ NuXSecComparison * kComparison[kNumOfComparisons] = {
     "BNL_7FT,2",
      new NuXSecDirectlyFromXSecFile("nu_mu_bar_H1", "qel_cc_p"),
      0.1, 30.0, 
-     true, true
+     true, false, false
   ),
   // nu_mu_bar CC QE, heavy target data only
   new NuXSecComparison(
@@ -167,7 +167,7 @@ NuXSecComparison * kComparison[kNumOfComparisons] = {
     "Gargamelle,3;Gargamelle,5;SERP_A1,2;SKAT,9",
      new NuXSecDirectlyFromXSecFile("nu_mu_bar_H1", "qel_cc_p"),
      0.1, 30.0, 
-     true, true
+     true, false, false
   ),
   // nu_mu + p -> mu- + p + pi+ 
   new NuXSecComparison(
@@ -179,31 +179,31 @@ NuXSecComparison * kComparison[kNumOfComparisons] = {
          "cc&&neu==14&&Z==1&&A==1&&nfpim==0&&nfpi0==0&&nfpip==1&&nfp==1&&nfn==0"
      ),
      0.1, 30.0, 
-     true, true
+     true, false, false
   ),
-  // nu_mu + n -> mu- + p + pi+ + pi-
+  // nu_mu + n -> mu- + n + pi+
   new NuXSecComparison(
-    "#nu_{#mu} CC#pi^{+}#pi^{-} (#nu_{#mu} n -> #mu^{-} p #pi^{+} #pi^{-})",
-    "ANL_12FT,11;BNL_7FT,8",
-     new NuXSecFromEventSample(
-         "nu_mu_n", "tot_cc",
-         "cc&&neu==14&&Z==1&&A==1",
-         "cc&&neu==14&&Z==1&&A==1&&nfpim==1&&nfpi0==0&&nfpip==1&&nfp==1&&nfn==0"
+    "#nu_{#mu} CC1#pi^{+} (#nu_{#mu} n #rightarrow #mu^{-} n #pi^{+})",
+    "ANL_12FT,7;ANL_12FT,10;BNL_7FT,7;SKAT,7",
+    new NuXSecFromEventSample(
+         "nu_mu_n","tot_cc",
+         "cc&&neu==14&&Z==0&&A==1",
+         "cc&&neu==14&&Z==0&&A==1&&nfpim==0&&nfpi0==0&&nfpip==1&&nfp==0&&nfn==1"
      ),
-     1.0, 120.0, 
-     true, true
+     0.1, 30.0, 
+     true, false, false
   ),
-  // nu_mu  + p -> mu- + p + pi+ + pi0
+  // nu_mu + n -> mu- + p + pi0
   new NuXSecComparison(
-    "#nu_{#mu} CC#pi^{+}#pi^{0} (#nu_{#mu} p #rightarrow #mu^{-} p #pi^{+} #pi^{0})",
-    "ANL_12FT,12",
-     new NuXSecFromEventSample(
-          "nu_mu_H1", "tot_cc",
-          "cc&&neu==14&&Z==1&&A==1",
-          "cc&&neu==14&&Z==1&&A==1&&nfpim==0&&nfpi0==1&&nfpip==1&&nfp==1&&nfn==0"
+    "#nu_{#mu} CC1#pi^{0} (#nu_{#mu} n #rightarrow #mu^{-} p #pi^{0})",
+    "ANL_12FT,6;ANL_12FT,9;BNL_7FT,6;SKAT,6",
+    new NuXSecFromEventSample(
+         "nu_mu_n","tot_cc",
+         "cc&&neu==14&&Z==0&&A==1",
+         "cc&&neu==14&&Z==0&&A==1&&nfpim==0&&nfpi0==1&&nfpip==0&&nfp==1&&nfn==0"
      ),
-     1.0, 120.0, 
-     true, true
+     0.1, 30.0, 
+     true, false, false
   ),
   // nu_mu + p -> mu- + n + pi+ + pi+
   new NuXSecComparison(
@@ -215,7 +215,31 @@ NuXSecComparison * kComparison[kNumOfComparisons] = {
          "cc&&neu==14&&Z==1&&A==1&&nfpim==0&&nfpi0==0&&nfpip==2&&nfp==0&&nfn==1"
      ),
      1.0, 120.0, 
-     true, true
+     true, false, false
+  ),
+  // nu_mu + p -> mu- + p + pi+ + pi0
+  new NuXSecComparison(
+    "#nu_{#mu} CC#pi^{+}#pi^{0} (#nu_{#mu} p #rightarrow #mu^{-} p #pi^{+} #pi^{0})",
+    "ANL_12FT,12",
+     new NuXSecFromEventSample(
+          "nu_mu_H1", "tot_cc",
+          "cc&&neu==14&&Z==1&&A==1",
+          "cc&&neu==14&&Z==1&&A==1&&nfpim==0&&nfpi0==1&&nfpip==1&&nfp==1&&nfn==0"
+     ),
+     1.0, 120.0, 
+     true, false, false
+  ),
+  // nu_mu + n -> mu- + p + pi+ + pi-
+  new NuXSecComparison(
+    "#nu_{#mu} CC#pi^{+}#pi^{-} (#nu_{#mu} n -> #mu^{-} p #pi^{+} #pi^{-})",
+    "ANL_12FT,11;BNL_7FT,8",
+     new NuXSecFromEventSample(
+         "nu_mu_n", "tot_cc",
+         "cc&&neu==14&&Z==0&&A==1",
+         "cc&&neu==14&&Z==0&&A==1&&nfpim==1&&nfpi0==0&&nfpip==1&&nfp==1&&nfn==0"
+     ),
+     1.0, 120.0, 
+     true, false, false
   ),
   // numu NC coherent pi, A = 20
   new NuXSecComparison(
@@ -223,7 +247,7 @@ NuXSecComparison * kComparison[kNumOfComparisons] = {
      "CHARM,2",
       new NuXSecDirectlyFromXSecFile("nu_mu_Ne20", "coh_nc"),
       1.0, 150.0, 
-      false, false
+      false, false, false
   ),
   // numu CC coherent pi, A = 20
   new NuXSecComparison(
@@ -231,35 +255,39 @@ NuXSecComparison * kComparison[kNumOfComparisons] = {
     "BEBC,11;CHARM,6;FNAL_15FT,8",
      new NuXSecDirectlyFromXSecFile("nu_mu_Ne20", "coh_cc"), 
      1.0, 150.0, 
-     false, false
+     false, false, false
   ),
   // nu_mu_bar CC coherent pi, A = 20
   new NuXSecComparison(
     "#bar{#nu_{#mu}} CC coherent #pi (^{20}Ne)",
     "BEBC,10;CHARM,7;FNAL_15FT,7",
      new NuXSecDirectlyFromXSecFile("nu_mu_bar_Ne20", "coh_cc"),
-     1.0, 150.0, false, false
+     1.0, 150.0, 
+     false, false, false
   ),
   // numu NC coherent pi, A = 27
   new NuXSecComparison(
     "#nu_{#mu} NC coherent #pi (^{27}Al)",
     "AachenPadova,0",
      new NuXSecDirectlyFromXSecFile("nu_mu_Al27", "coh_nc"),
-     1.0, 150.0, false, false
+     1.0, 150.0, 
+     false, false, false
   ),
   // numu NC coherent pi, A = 30
   new NuXSecComparison(
     "#nu_{#mu} NC coherent #pi (^{30}Si)",
     "Gargamelle,14;SKAT,3",
      new NuXSecDirectlyFromXSecFile("nu_mu_Si30", "coh_nc"),
-     1.0, 150.0, false, false
+     1.0, 150.0, 
+     false, false, false
   ),
   // numu CC coherent pi, A = 30
   new NuXSecComparison(
     "#nu_{#mu} CC coherent #pi (^{30}Si)",
     "SKAT,1",
      new NuXSecDirectlyFromXSecFile("nu_mu_Si30", "coh_cc"),
-     1.0, 150.0, false, false
+     1.0, 150.0, 
+     false, false, false
   ),
   // nu_mu_bar CC coherent pi, A = 30
   new NuXSecComparison(
@@ -267,7 +295,7 @@ NuXSecComparison * kComparison[kNumOfComparisons] = {
     "SKAT,2",
      new NuXSecDirectlyFromXSecFile("nu_mu_bar_Si30", "coh_cc"),
      1.0, 150.0, 
-     false, false
+     false, false, false
   )
 };
 
@@ -380,8 +408,8 @@ void Init(void)
   // cover page
   AddCoverPage();
 
-  gC->SetLogx();
-  gC->SetLogy();
+//  gC->SetLogx();
+//  gC->SetLogy();
 }
 //_________________________________________________________________________________
 void AddCoverPage(void)
@@ -422,6 +450,8 @@ void Draw(int icomparison)
   double emin         = kComparison[icomparison]->Emin();
   double emax         = kComparison[icomparison]->Emax();
   bool   scale        = kComparison[icomparison]->ScaleWithE();
+  bool   inlogx       = kComparison[icomparison]->InLogX();
+  bool   inlogy       = kComparison[icomparison]->InLogY();
 
   // get all measurements for the current channel
   vector<TGraphAsymmErrors *> data = gNuXSecData.Retrieve(dataset_keys,emin,emax,scale);
@@ -451,8 +481,8 @@ void Draw(int icomparison)
   gC->GetPad(2)->SetBorderMode(0);
   gC->GetPad(1)->cd();
   gC->GetPad(1)->SetBorderMode(0);
-  gC->GetPad(1)->SetLogx( kComparison[icomparison]->InLogX() );
-  gC->GetPad(1)->SetLogy( kComparison[icomparison]->InLogY() );
+  gC->GetPad(1)->SetLogx(inlogx);
+  gC->GetPad(1)->SetLogy(inlogy);
 
   // set header
   gLS->SetHeader( kComparison[icomparison]->Label().c_str() );
@@ -471,9 +501,14 @@ void Draw(int icomparison)
     ymin  = TMath::Min(ymin, (data[i]->GetY())[TMath::LocMin(data[i]->GetN(),data[i]->GetY())]);
     ymax  = TMath::Max(ymax, (data[i]->GetY())[TMath::LocMax(data[i]->GetN(),data[i]->GetY())] );
   }
-  hframe = (TH1F*) gC->GetPad(1)->DrawFrame(0.5*xmin, 0.4*ymin, 1.2*xmax, 2.0*ymax);
+  double ymax_scale = (inlogy) ? 2. : 1.4;
+  hframe = (TH1F*) gC->GetPad(1)->DrawFrame(0.5*xmin, 0.4*ymin, 1.2*xmax, ymax_scale*ymax);
   hframe->GetXaxis()->SetTitle("E_{#nu} (GeV)");
-  hframe->GetYaxis()->SetTitle("#sigma_{#nu} (1E-38 cm^{2})");
+  if(scale) {
+    hframe->GetYaxis()->SetTitle("#sigma_{#nu}/E_{#nu} (1E-38 cm^{2}/GeV^{2})");
+  } else {
+    hframe->GetYaxis()->SetTitle("#sigma_{#nu} (1E-38 cm^{2}/GeV)");
+  }
   hframe->Draw();
   
   // add legend
