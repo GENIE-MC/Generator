@@ -4,8 +4,13 @@
 \program gtune_dis_norm
 
 \brief   Cross-section tuning utility: 
-         Fits DIS scale factor to high energy neutrino and anti-neutrino cross 
-         section data.
+         Fits DIS scale factor to high-energy neutrino and anti-neutrino 
+         cross-section data.
+
+         The nominal cross-section is extracted from the input files and 
+         then reweighted. For the DIS norm fit we don't need to use 
+         event-by-event reweighting. Only the GENIE cross-section file
+         needs to be input.
 
 \syntax  gtune_dis_norm 
              [-g genie_inputs] [-d data_archive] [--emin E1] [--emax E2]
@@ -41,33 +46,111 @@
 #include <TFile.h>
 #include <TTree.h>
 #include <TGraphAsymmErrors.h>
-#include <TMinuit.h>
+//#include <TMinuit.h>
+#include <TVirtualFitter.h>
 #include <TMath.h>
 #include <TCanvas.h>
 
+#include "Algorithm/AlgConfigPool.h"
 #include "Messenger/Messenger.h"
-#include "PDG/PDGCodes.h"
+#include "Registry/Registry.h"
 #include "Utils/CmdLnArgParser.h"
-#include "Utils/StringUtils.h"
 #include "Utils/SystemUtils.h"
 #include "Utils/Style.h"
 #include "Utils/GSimFiles.h"
+
+#include "validation/NuXSec/NuXSecData.h"
+#include "validation/NuXSec/NuXSecFunc.h"
 
 using std::vector;
 using std::string;
 
 using namespace genie;
-using namespace genie::utils;
+using namespace genie::mc_vs_data;
 
 const int kNModes = 2;
 
+//
+// datasets used in fit
+//
 const char * kDataSets[kNModes] = 
 {
 /* mode 0 : nu_mu+N CC inclusive */ 
 "ANL_12FT,2;ANL_12FT,4;BEBC,0;BEBC,2;BEBC,5;BEBC,8;BNL_7FT,0;BNL_7FT,4;CCFR,2;CCFRR,0;CHARM,0;CHARM,4;FNAL_15FT,1;FNAL_15FT,2;Gargamelle,0;Gargamelle,10;Gargamelle,12;IHEP_ITEP,0;IHEP_ITEP,2;IHEP_JINR,0;SKAT,0",
-
 /* mode 1 : nu_mu_bar+N CC inclusive */ 
 "BEBC,1;BEBC,3;BEBC,6;BEBC,7;BNL_7FT,1;CCFR,3;CHARM,1;CHARM,5;FNAL_15FT,4;FNAL_15FT,5;Gargamelle,1;Gargamelle,11;Gargamelle,13;IHEP_ITEP,1;IHEP_ITEP,3;IHEP_JINR,1"
+};
+
+//
+// GENIE cross-section functor used in fit.
+//
+class InclXSecFunc
+{
+public:
+   InclXSecFunc() {}
+  ~InclXSecFunc() {}
+
+  void Init(GSimFiles & genie_inputs, double Emin, double Emax, double dis_norm_nominal) 
+   {
+      const int ngraphs = 4;
+      string directory       [ngraphs] = { "nu_mu_n",  "nu_mu_H1", "nu_mu_bar_n", "nu_mu_bar_H1" };
+      string graph_xsec_incl [ngraphs] = { "tot_cc_n", "tot_cc_p", "tot_cc_n",    "tot_cc_p"     };
+      string graph_xsec_dis  [ngraphs] = { "dis_cc_n", "dis_cc_p", "dis_cc_n",    "dis_cc_p"     };
+      int    mode            [ngraphs] = {  0,          0,          1,             1             };        
+      TFile * genie_xsec_file = genie_inputs.XSecFile(0);
+      assert(genie_xsec_file);
+      const int n = 100;
+      const double dE = (Emax - Emin)/(n-1);
+      double E[n];   
+      double xsec_incl[kNModes][n];
+      double xsec_dis [kNModes][n];
+      for(int i=0; i<n; i++) { E[i] =  Emin + i * dE; }	
+      for(int imode = 0; imode < kNModes; imode++) {
+         for(int i=0; i<n; i++) { 
+            xsec_incl[imode][i] = 0;
+            xsec_dis [imode][i] = 0;
+         }
+      }	
+      for(int igr = 0; igr < ngraphs; igr++) {
+         int imode = mode[igr];
+         TDirectory * dir = (TDirectory *) genie_xsec_file->Get(directory[igr].c_str());
+         assert(dir);
+         TGraph * gr_incl = (TGraph *) dir->Get(graph_xsec_incl[igr].c_str());
+         assert(gr_incl);
+         for(int i=0; i<n; i++) { xsec_incl[imode][i] += (0.5 * gr_incl->Eval(E[i])); }
+         TGraph * gr_dis  = (TGraph *) dir->Get(graph_xsec_dis[igr].c_str());
+         assert(gr_dis);
+         for(int i=0; i<n; i++) { xsec_dis[imode][i]  += (0.5 * gr_dis->Eval(E[i]));  }
+      }
+      for(int imode = 0; imode < kNModes; imode++) {
+         fXSecIncl [imode] = new TGraph(n,E,xsec_incl[imode]);
+         fXSecDIS  [imode] = new TGraph(n,E,xsec_dis [imode]);
+      }
+
+      fDISNormNominal = dis_norm_nominal;
+      assert(fDISNormNominal > 0.);
+   }
+
+  double operator() (int imode, double E, double dis_norm)
+  {
+    if(imode < 0 || imode >= kNModes) return 0;
+    if(!fXSecDIS[imode] || !fXSecIncl[imode]) return 0;
+    double wght_dis           = dis_norm / fDISNormNominal;
+    double xsec_dis_nominal   = fXSecDIS [imode] -> Eval(E);
+    double xsec_incl_nominal  = fXSecIncl[imode] -> Eval(E);
+    double xsec_nodis_nominal = xsec_incl_nominal - xsec_dis_nominal;
+    double xsec_incl_tweaked  = xsec_nodis_nominal + wght_dis * xsec_dis_nominal;
+    LOG("gtune", pDEBUG)
+      << "xsec_incl (E = " << E << " GeV, norm = " << dis_norm << ") : " 
+      << xsec_incl_nominal << " --> " << xsec_incl_tweaked << " 1E-38 cm^2/GeV/nucleon"; 
+    assert(xsec_incl_tweaked > 0);
+    return xsec_incl_tweaked;
+  }    
+
+private:
+  double   fDISNormNominal;
+  TGraph * fXSecDIS  [kNModes];
+  TGraph * fXSecIncl [kNModes];
 };
 
 // func prototypes
@@ -76,139 +159,27 @@ void Init               (void);
 void DoTheFit           (void);
 void FitFunc            (Int_t &, Double_t *, Double_t &f, Double_t *par, Int_t iflag);
 void Save               (string filename);
-void ReadData           (void);
 
 // command-line arguments
-GSimFiles gOptGenieInputs;
-string    gOptDataFilename = "";
-double         gOptEmax;
-double         gOptEmin;
+string gOptDataFilename  = ""; // -d
+string gOptGenieFileList = ""; // -g
+double gOptEmin = -1;          //
+double gOptEmax = -1;          //
 
 // default data archive
 string kDefDataFile = "data/validation/vA/xsec/integrated/nuXSec.root";  
 
 // default energy range
-const double kEmin = 10.0; // GeV
-const double kEmax = 90.0; // GeV
+const double kEmin =  20.0; // GeV
+const double kEmax = 120.0; // GeV
 
-// simple functor which uses the program inputs to return the GENIE cross-section (inclusive (anti)neutrino 
-// cross-section for an isoscalar target) needed for fitting the specified datasets.
-class GNuXSec
-{
-public:
-  GNuXSec() 
-  {
-    fBuiltDefaults = false;
-    for(int imode = 0; imode < kNModes; imode++) {
-      fXSecIncl [imode] = 0;
-      fXSecDIS  [imode] = 0;
-    }
-  }
- ~GNuXSec() 
-  {
-    for(int imode = 0; imode < kNModes; imode++) {
-      if (fXSecIncl [imode]) delete fXSecIncl [imode];
-      if (fXSecDIS  [imode]) delete fXSecDIS  [imode];
-    }
-  }
+// nominal value of fit parameter, as used in GENIE simulation
+double gDISNormNominal = -1;
+double gDISNormBestFit = -1;
 
-  double operator() (double Ev, int imode, double dis_norm)
-  { 
-    if(imode < 0 || imode >= kNModes) return 0;
-    if(!fBuiltDefaults) return 0;
-    double xsec_dis_nominal   = fXSecDIS [imode] -> Eval(Ev);
-    double xsec_incl_nominal  = fXSecIncl[imode] -> Eval(Ev);
-    double xsec_nodis_nominal = xsec_incl_nominal - xsec_dis_nominal;
-    double xsec_incl_tweaked  = xsec_nodis_nominal + dis_norm * xsec_dis_nominal;
-    return xsec_incl_tweaked;
-  }
-
-  void BuildDefaults(const GSimFiles & inp)
-  {
-    TFile * genie_xsec_file = inp.XSecFile(0);
-    if(!genie_xsec_file) return;
-
-    //TChain * genie_event_tree = inp.EvtChain(0);
-    //if(!genie_event_tree) return;
-
-    const int n = 200;
-    const double dE = (gOptEmax - gOptEmin)/(n-1);
-
-    double E[n];    
-    double xsec_incl[kNModes][n];
-    double xsec_dis [kNModes][n];
-
-    for(int i=0; i<n; i++) { E[i] =  gOptEmin + i * dE; }
-
-    for(int imode = 0; imode < kNModes; imode++) {
-        for(int i=0; i<n; i++) { 
-           xsec_incl[imode][i] = 0;
-           xsec_dis [imode][i] = 0;
-        }
-    }
-
-    const int ngraphs = 4;
-    string directory       [ngraphs] = { "nu_mu_n",  "nu_mu_H1", "nu_mu_bar_n", "nu_mu_bar_H1" };
-    string graph_xsec_incl [ngraphs] = { "tot_cc_n", "tot_cc_p", "tot_cc_n",    "tot_cc_p"     };
-    string graph_xsec_dis  [ngraphs] = { "dis_cc_n", "dis_cc_p", "dis_cc_n",    "dis_cc_p"     };
-    int    mode            [ngraphs] = {  0,          0,          1,             1             };        
-
-    for(int igr = 0; igr < ngraphs; igr++) {
-      int imode = mode[igr];
-      TDirectory * dir = (TDirectory *) genie_xsec_file->Get(directory[igr].c_str());
-      if(!dir) return;
-      TGraph * gr = 0;
-      gr = (TGraph *) dir->Get(graph_xsec_incl[igr].c_str());
-      if(!gr) return;
-      for(int i=0; i<n; i++) { xsec_incl[imode][i] = 0.5 * gr->Eval(E[i]); }
-      gr = (TGraph *) dir->Get(graph_xsec_dis[igr].c_str());
-      if(!gr) return;
-      for(int i=0; i<n; i++) { xsec_dis[imode][i]  = 0.5 * gr->Eval(E[i]); }
-    }
-
-    for(int imode = 0; imode < kNModes; imode++) {
-      fXSecIncl [imode] = new TGraph(n,E,xsec_incl[imode]);
-      fXSecDIS  [imode] = new TGraph(n,E,xsec_dis [imode]);
-    }
-
-    fBuiltDefaults = true;
-  }
-
-private:
-  bool     fBuiltDefaults;
-  TGraph * fXSecIncl [kNModes];
-  TGraph * fXSecDIS  [kNModes];
-};
-
-
-
-// globals
-TFile *  gNuXSecDataFile  = 0;
-TTree *  gNuXSecDataTree  = 0;
-GNuXSec  gNuXSecFunc;
-vector<TGraphAsymmErrors *> gData[kNModes];
-
-//vector<int>                 gEnabledDataSets;
-
-const int kNMaxDataSets = 25; // max number of datasets in single plot
-
-const int kDataPointStyle[kNMaxDataSets] = 
-{ 
-  20,      20,    20,       20,    20,
-  21,      21,    21,       21,    21,
-  24,      24,    24,       24,    24,
-  25,      25,    25,       25,    25,
-  29,      29,    29,       29,    29
-};
-const int kDataPointColor[kNMaxDataSets] = 
-{
-  kBlack,  kRed,  kGreen+1, kBlue, kMagenta+1, 
-  kBlack,  kRed,  kGreen+1, kBlue, kMagenta+1, 
-  kBlack,  kRed,  kGreen+1, kBlue, kMagenta+1, 
-  kBlack,  kRed,  kGreen+1, kBlue, kMagenta+1, 
-  kBlack,  kRed,  kGreen+1, kBlue, kMagenta+1
-};
-
+// data and xsec function used in fit
+vector<TGraphAsymmErrors *> gXSecData[kNModes];
+InclXSecFunc                gXSecFunc;
 
 //____________________________________________________________________________
 int main(int argc, char ** argv)
@@ -229,158 +200,95 @@ void Init(void)
 {
   LOG("gtune", pNOTICE) << "Initializing...";
 
+  // Set GENIE style
   utils::style::SetDefaultStyle();
 
-  // get TTree with neutrino scattering cross-section data
-  if( ! utils::system::FileExists(gOptDataFilename) ) {
-      LOG("gtune", pFATAL) 
-         << "Can not find file: " << gOptDataFilename;
+  // Read data archive & retrieve/store specified datasets
+  NuXSecData data_reader;
+  bool ok = data_reader.OpenArchive(gOptDataFilename);
+  if(!ok) {
+      LOG("gvldtest", pFATAL) 
+         << "Could not open the neutrino cross-section data archive";
       gAbortingInErr = true;
       exit(1);
   }
-  gNuXSecDataFile = new TFile(gOptDataFilename.c_str(),"read");  
-  gNuXSecDataTree = (TTree *) gNuXSecDataFile->Get("nuxsnt");
-  if(!gNuXSecDataTree) {
-      LOG("gtune", pFATAL) 
-         << "Can not find TTree `nuxsnt' in file: " << gOptDataFilename;
-      gAbortingInErr = true;
-      exit(1);
-  }
-
-  // read the specified data-sets from the input tree
-  ReadData();
-
-  // configure cross-section functor
-  gNuXSecFunc.BuildDefaults(gOptGenieInputs);
-
-  /*
-  string datasets = GetArgument(argc, argv, "-d");
-  vector<string> dsvec = str::Split(datasets,",");
-  vector<string>::const_iterator it = dsvec.begin();
-  for( ; it != dsvec.end(); ++it) { 
-    gEnabledDataSets.push_back( atoi(it->c_str()) );
-  }
-  */
-
-}
-//____________________________________________________________________________
-void ReadData(void)
-{
-  LOG("gtune", pNOTICE) 
-    << "Getting specified cross-section data from the data archive";
-
-  const int buffer_size = 100;
-
-  char   dataset  [buffer_size];
-  char   citation [buffer_size];
-  double E;
-  double Emin;
-  double Emax;
-  double xsec;
-  double xsec_err_p;
-  double xsec_err_m;
-
-  gNuXSecDataTree->SetBranchAddress ("dataset",    (void*)dataset  );
-  gNuXSecDataTree->SetBranchAddress ("citation",   (void*)citation );
-  gNuXSecDataTree->SetBranchAddress ("E",          &E              );
-  gNuXSecDataTree->SetBranchAddress ("Emin",       &Emin           );
-  gNuXSecDataTree->SetBranchAddress ("Emax",       &Emax           );
-  gNuXSecDataTree->SetBranchAddress ("xsec",       &xsec           );
-  gNuXSecDataTree->SetBranchAddress ("xsec_err_p", &xsec_err_p     );
-  gNuXSecDataTree->SetBranchAddress ("xsec_err_m", &xsec_err_m     );
-
-  // loop over modes
   for(int imode = 0; imode < kNModes; imode++) {
+    string datasets = kDataSets[imode];
+    gXSecData[imode] = data_reader.Retrieve(datasets);
+  }
+ 
+  // Read GENIE inputs
+  GSimFiles genie_inputs;
+  ok = genie_inputs.LoadFromFile(gOptGenieFileList);
+  if(!ok) {
+     LOG("gtune", pFATAL) 
+         << "Could not read GENIE inputs specified in XML file: " 
+         << gOptGenieFileList;
+     gAbortingInErr = true;
+     exit(1);
+  }
 
-    LOG("gtune", pNOTICE) << "Getting datasets for mode ID: " << imode;
+  // Get nominal value of fit parameter, as used in GENIE simulation.
+  // Obvious caveat here: Assuming that the user runs this program using the exact same
+  // configuration used when the GENIE inputs were produced.
+  Registry * params = AlgConfigPool::Instance()->GlobalParameterList();
+  gDISNormNominal = params->GetDouble("DIS-XSecScale");
+  gDISNormBestFit = gDISNormNominal; // init
+  LOG("gtune", pFATAL) 
+    << "Nominal DIS norm. value used in simulation: " << gDISNormNominal;
 
-    string keys = kDataSets[imode];
-    vector<string> keyv = utils::str::Split(keys,";");
-    unsigned int ndatasets = keyv.size();
+  // Configure cross-section functor
+  gXSecFunc.Init(genie_inputs,gOptEmin,gOptEmax,gDISNormNominal);
 
-    // loop over datasets for current mode
-    for(unsigned int idataset = 0; idataset < ndatasets; idataset++) {
-      gNuXSecDataTree->Draw("E", Form("dataset==\"%s\"",keyv[idataset].c_str()), "goff");
-      int npoints = gNuXSecDataTree->GetSelectedRows();
-      double *  x    = new double[npoints];
-      double *  dxl  = new double[npoints];
-      double *  dxh  = new double[npoints];
-      double *  y    = new double[npoints];
-      double *  dyl  = new double[npoints];
-      double *  dyh  = new double[npoints];
-      string label = "";
-      int ipoint=0;
-      for(int i = 0; i < gNuXSecDataTree->GetEntries(); i++) {
-        gNuXSecDataTree->GetEntry(i);
-        if(strcmp(dataset,keyv[idataset].c_str()) == 0) {
-          if(ipoint==0) {
-            label = Form("%s [%s]", dataset, citation);
-          }
-          x   [ipoint] = E;
-          dxl [ipoint] = (Emin > 0) ? TMath::Max(0., E-Emin) : 0.;
-          dxh [ipoint] = (Emin > 0) ? TMath::Max(0., Emax-E) : 0.;
-          y   [ipoint] = xsec;
-          dyl [ipoint] = xsec_err_m;
-          dyh [ipoint] = xsec_err_p;
-          ipoint++;
-        } 
-      }//i
-      TGraphAsymmErrors * gr = new TGraphAsymmErrors(npoints,x,y,dxl,dxh,dyl,dyh);
-      int sty = kDataPointStyle[idataset];
-      int col = kDataPointColor[idataset];
-      utils::style::Format(gr,col, kSolid, 1, col, sty, 1.5);
-      gr->SetTitle(label.c_str());
-      gData[imode].push_back(gr);
-
-      LOG("gtune", pNOTICE) 
-        << "Done getting data-points for dataset: " << label;
-
-    }//idataset
-  }//imode
 }
 //____________________________________________________________________________
 void DoTheFit(void)
 {
-  // Initialize MINUIT
-  //
-  const int np = 1;
-  TMinuit * minuit = new TMinuit(np);
+  const int nparams = 1;
 
-  double arglist[10];
-  int ierrflg = 0;
+  float        nominal [nparams] = {  1.00     };
+  float        min     [nparams] = {  0.50     };
+  float        max     [nparams] = {  2.00     };
+  float        step    [nparams] = {  0.001    };
+  const char * name    [nparams] = { "DISNorm" };
 
-  arglist[0] = 1;
-  minuit->mnexcm("SET ERR",arglist,1,ierrflg);
+  TVirtualFitter::SetDefaultFitter("Minuit");
+  TVirtualFitter * fitter = TVirtualFitter::Fitter(0,nparams);
 
-  float        value [np] = {  1.00     };
-  float        min   [np] = {  0.50     };
-  float        max   [np] = { 10.00     };
-  float        step  [np] = {  0.01     };
-  const char * pname [np] = { "DISNorm" };
+  double arglist[100];
+  arglist[0] = -1;
+  fitter->ExecuteCommand("SET PRINT",arglist,1);
 
-  for(int i=0; i<np; i++) {
+  for(int i=0; i<nparams; i++) {
     LOG("gtune", pNOTICE)
         << "** Setting fit param " << i
-          << " (" << pname[i] << ") value = " << value[i]
+          << " (" << name[i] << ") nominal = " << nominal[i]
              << ", range = [" << min[i] << ", " << max[i] <<"]";
 
-    minuit->mnparm(
-       i, pname[i], value[i], step[i], min[i], max[i], ierrflg);
+    fitter->SetParameter(i, name[i], nominal[i], step[i], min[i], max[i]);
   }
 
-  minuit->SetFCN(FitFunc);
+  fitter->SetFCN(FitFunc);
 
   // MINUIT minimization step
-  ierrflg    = 0;
-  arglist[0] = 500;
-  arglist[1] = 1.;
-  minuit->mnexcm("MIGRAD",arglist,2,ierrflg);
+  arglist[0] = 500;   // num of func calls
+  arglist[1] = 0.01;  // tolerance
+  fitter->ExecuteCommand("MIGRAD",arglist,2);
+
+  // Get fit status code 
+  double ha(0.);      //minuit dummy vars
+  double edm, errdef; //minuit dummy vars
+  int nvpar, nparx;   //minuit dummy vars
+  int status_code = fitter->GetStats(ha,edm,errdef,nvpar,nparx);
+  LOG("gtune", pNOTICE)
+    << "Minuit status code = " << status_code;
+
+  // Get best-fit value
+  gDISNormBestFit = fitter->GetParameter(0);
 
   // Print results
-  Double_t amin,edm,errdef;
-  Int_t nvpar,nparx,icstat;
-  minuit->mnstat(amin,edm,errdef,nvpar,nparx,icstat);
-  minuit->mnprin(3,amin);
+  double amin = 0;
+  fitter->PrintResults(3,amin);
 }
 //____________________________________________________________________________
 void FitFunc (
@@ -398,17 +306,11 @@ void FitFunc (
   // loop over all modes included in the fit
   for(int imode = 0; imode < kNModes; imode++) {
 
-    /*    // include current data set?
-    vector<int>::const_iterator it =
-        find(gEnabledDataSets.begin(), gEnabledDataSets.end(), imode);
-    bool skip = (it==gEnabledDataSets.end());
-    if(skip) continue;
-    */
     // loop over graphs in current data-set (one graph per experiment/publication in this data set)
-    unsigned int ndatasets = gData[imode].size();
+    unsigned int ndatasets = gXSecData[imode].size();
     for(unsigned int idataset = 0; idataset < ndatasets; idataset++) {
 
-       TGraphAsymmErrors * data = gData[imode][idataset];
+       TGraphAsymmErrors * data = gXSecData[imode][idataset];
        assert(data);
 
        LOG("gtune", pNOTICE) 
@@ -425,11 +327,11 @@ void FitFunc (
           if(in_fit_range) {
             double xsec_data     = data->GetY()[ip];    
             double xsec_data_err = data->GetErrorY(ip); 
-            double xsec_model    = gNuXSecFunc(E,imode,dis_norm);
+            double xsec_model    = gXSecFunc(imode,E,dis_norm);
             double delta = (xsec_data>0) ? (xsec_data - xsec_model) / xsec_data_err : 0.;
             chisq += delta*delta;
 
-            LOG("gtune", pNOTICE)
+            LOG("gtune", pINFO)
                << " > pnt " << ip+1 << "/" << np 
                << " @ E = " << E << " GeV : "
                << "Data = "  << xsec_data << " +/- " << xsec_data_err << " x1E-38 cm^2/GeV/nucleon, "
@@ -438,7 +340,7 @@ void FitFunc (
 
 	  } else {
 
-            LOG("gtune", pNOTICE)
+            LOG("gtune", pINFO)
                << " > pnt " << ip+1 << "/" << np 
                << " @ E = " << E << " GeV : ** not in fit range **";
           }
@@ -460,17 +362,7 @@ void Save(string filename)
   TFile out(filename.c_str(), "recreate");
   out.cd();
 
-  // save fitted data-sets
-  for(int imode=0; imode<kNModes; imode++) {
-    unsigned int ndatasets = gData[imode].size();
-    for(unsigned int idataset = 0; idataset < ndatasets; idataset++) {
-       TGraphAsymmErrors * data = gData[imode][idataset];
-       assert(data);
-       data->Write(Form("dataset_%d_%d",imode,idataset));
-    }
-  }
-
-  // save nominal and best-fit MC
+  // generate xsec prediction for nominal and best-fit param values
   TGraph * gr_xsec_bestfit[kNModes];
   TGraph * gr_xsec_nominal[kNModes];
   const int n = 100;
@@ -481,22 +373,20 @@ void Save(string filename)
   double xsec_bestfit[kNModes][n];
   for(int imode=0; imode<kNModes; imode++) {
      for(int i=0; i<n; i++) { 
-       xsec_nominal[imode][i] = gNuXSecFunc(E[i],imode,1);
-       xsec_bestfit[imode][i] = gNuXSecFunc(E[i],imode,2);
+       xsec_nominal[imode][i] = gXSecFunc(imode,E[i],gDISNormNominal);
+       xsec_bestfit[imode][i] = gXSecFunc(imode,E[i],gDISNormBestFit);
      }
   }
   for(int imode=0; imode<kNModes; imode++) {
     gr_xsec_bestfit[imode] = new TGraph(n,E,xsec_bestfit[imode]);
-    gr_xsec_bestfit[imode]->Write(Form("mc_bestfit_%d",imode));
     gr_xsec_bestfit[imode]->SetLineStyle(kSolid);
     gr_xsec_bestfit[imode]->SetLineWidth(2);
     gr_xsec_nominal[imode] = new TGraph(n,E,xsec_nominal[imode]);
     gr_xsec_nominal[imode]->SetLineStyle(kDashed);
     gr_xsec_nominal[imode]->SetLineWidth(2);
-    gr_xsec_nominal[imode]->Write(Form("mc_nominal_%d",imode));
   }
 
-  // save nominal and best-fit MC
+  // plot nominal and best-fit MC & datasets
   TCanvas * c[kNModes];
   for(int imode=0; imode<kNModes; imode++) {
     c[imode] = new TCanvas(Form("c_%d",imode), "", 10,10,400,400);
@@ -504,14 +394,29 @@ void Save(string filename)
     TGraph * nominal = gr_xsec_nominal[imode];
     bestfit->Draw("al");
     nominal->Draw("l");
-    unsigned int ndatasets = gData[imode].size();
+    unsigned int ndatasets = gXSecData[imode].size();
     for(unsigned int idataset = 0; idataset < ndatasets; idataset++) {
-       TGraphAsymmErrors * data = gData[imode][idataset];
+       TGraphAsymmErrors * data = gXSecData[imode][idataset];
        data->Draw("P");
     }
+    c[imode]->Update();
     c[imode]->Write();
   }
 
+  // save fitted data-sets
+  for(int imode=0; imode<kNModes; imode++) {
+    unsigned int ndatasets = gXSecData[imode].size();
+    for(unsigned int idataset = 0; idataset < ndatasets; idataset++) {
+       TGraphAsymmErrors * data = gXSecData[imode][idataset];
+       assert(data);
+       data->Write(Form("dataset_%d_%d",imode,idataset));
+    }
+  }
+  // generate nominal and best-fit MC
+  for(int imode=0; imode<kNModes; imode++) {
+    gr_xsec_bestfit[imode]->Write(Form("mc_bestfit_%d",imode));
+    gr_xsec_nominal[imode]->Write(Form("mc_nominal_%d",imode));
+  }
 
   // write-out fitted params / errors  
   // ...
@@ -544,13 +449,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   }
   // get GENIE inputs
   if( parser.OptionExists('g') ) {
-     string inputs = parser.ArgAsString('g');
-     bool ok = gOptGenieInputs.LoadFromFile(inputs);
-     if(!ok) {
-        LOG("gtune", pFATAL) << "Could not read: " << inputs;
-        gAbortingInErr = true;
-        exit(1);
-     }
+     gOptGenieFileList = parser.ArgAsString('g');
   } else {
     LOG("gtune", pFATAL) 
        << "Please specify GENIE inputs using the -g option";
@@ -562,3 +461,4 @@ void GetCommandLineArgs(int argc, char ** argv)
   gOptEmin = kEmin;
 }
 //____________________________________________________________________________
+

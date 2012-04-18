@@ -42,10 +42,12 @@ NuXSecFromEventSample::~NuXSecFromEventSample()
 }
 //............................................................................
 TGraph * NuXSecFromEventSample::operator()
-    (TFile * genie_xsec_file, TChain * genie_event_tree, 
-     double Emin, double Emax, int n, bool scale_with_E)
+  (int imodel, double Emin, double Emax, int n, bool scale_with_E)
 {
-  if(!genie_xsec_file ) return 0;
+  if(!fGenieInputs) return 0;
+  TFile * genie_xsec_file = fGenieInputs->XSecFile(imodel);
+  if(!genie_xsec_file) return 0;
+  TChain * genie_event_tree = fGenieInputs->EvtChain(imodel);
   if(!genie_event_tree) return 0;
 
   TDirectory * xsec_dir  = (TDirectory *) genie_xsec_file->Get(fXSecDir.c_str());
@@ -121,9 +123,11 @@ NuXSecDirectlyFromXSecFile::~NuXSecDirectlyFromXSecFile()
 }
 //............................................................................
 TGraph * NuXSecDirectlyFromXSecFile::operator()
-  (TFile * genie_xsec_file, TChain * /*genie_event_tree*/, 
-   double Emin, double Emax, int n, bool scale_with_E)
+  (int imodel, double Emin, double Emax, int n, bool scale_with_E)
 {
+  if(!fGenieInputs) return 0;
+
+  TFile * genie_xsec_file = fGenieInputs->XSecFile(imodel);
   if(!genie_xsec_file) return 0;
 
   TDirectory * xsec_dir  = (TDirectory *) genie_xsec_file->Get(fXSecDir.c_str());
@@ -175,9 +179,11 @@ NuXSecCombineSplinesFromXSecFile::~NuXSecCombineSplinesFromXSecFile()
 }
 //............................................................................
 TGraph * NuXSecCombineSplinesFromXSecFile::operator()
-  (TFile * genie_xsec_file, TChain * /*genie_event_tree*/, 
-   double Emin, double Emax, int n, bool scale_with_E)
+  (int imodel, double Emin, double Emax, int n, bool scale_with_E)
 {
+  if(!fGenieInputs) return 0;
+
+  TFile * genie_xsec_file = fGenieInputs->XSecFile(imodel);
   if(!genie_xsec_file) return 0;
 
   TDirectory * xsec_dir_1  = (TDirectory *) genie_xsec_file->Get(fXSecDir1.c_str());

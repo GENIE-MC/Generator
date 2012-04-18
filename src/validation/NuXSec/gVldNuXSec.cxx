@@ -275,20 +275,16 @@ NuXSecComparison * kComparison[kNumOfComparisons] = {
 void     Init               (void);
 void     End                (void);
 void     AddCoverPage       (void);
-
-vector<TGraphAsymmErrors *> Data  (int icomparison);
-vector<TGraph *>            Models(int icomparison);
-
 void     Draw               (int icomparison);
 TH1F *   DrawFrame          (TGraph * gr0, TGraph * gr1);
 TH1F *   DrawFrame          (double xmin, double xmax, double ymin, double yman);
-
 void     GetCommandLineArgs (int argc, char ** argv);
 void     PrintSyntax        (void);
 
 // command-line arguments
 GSimFiles gOptGenieInputs;
-string    gOptDataFilename = "";
+string gOptDataFilename = "";  // -d
+string gOptGenieFileList = ""; // -g
 
 // default data archive
 const char * kDefDataFile = "data/validation/vA/xsec/integrated/nuXSec.root";  
@@ -316,8 +312,6 @@ int main(int argc, char ** argv)
 {
   GetCommandLineArgs (argc,argv);
 
-  utils::style::SetDefaultStyle();
-
   Init();
 
   // loop over specified comparisons and generate plots
@@ -338,16 +332,36 @@ void Init(void)
 {
   LOG("gvldtest", pNOTICE) << "Initializing...";
 
-  bool read_data = gNuXSecData.Read(gOptDataFilename);
-  if(!read_data) {
+  // Set GENIE style
+  utils::style::SetDefaultStyle();
+
+  // Open data archive
+  bool ok = gNuXSecData.OpenArchive(gOptDataFilename);
+  if(!ok) {
       LOG("gvldtest", pFATAL) 
-         << "Could not read data from the neutrino cross-section data archive";
+         << "Could not open the neutrino cross-section data archive: "
+         << gOptDataFilename;
       gAbortingInErr = true;
       exit(1);
   }
 
-  // genie style
-  utils::style::SetDefaultStyle();
+  // Read GENIE inputs
+  if(gShowModel) {
+     ok = gOptGenieInputs.LoadFromFile(gOptGenieFileList);
+     if(!ok) {
+        LOG("gvldtest", pFATAL) 
+         << "Could not read GENIE inputs specified in XML file: " 
+         << gOptGenieFileList;
+        gAbortingInErr = true;
+        exit(1);
+     }
+
+     // init functors
+     for(int icomparison = 0; icomparison < kNumOfComparisons; icomparison++) {
+        NuXSecFunc * xsec_func = kComparison[icomparison]->XSecFunc();
+        xsec_func->Init(&gOptGenieInputs);
+     }
+  }
 
   // canvas
   gC = new TCanvas("c","",20,20,500,650);
@@ -401,51 +415,6 @@ void End(void)
   delete gPS;
 }
 //_________________________________________________________________________________
-// Corresponding GENIE prediction for the `iset' data set 
-//.................................................................................
-vector<TGraph *> Models(int icomparison)
-{
-  vector<TGraph*> models;
-
-  if(!gShowModel) return models;
-
-  const int n = 50;
-  double emin  = kComparison[icomparison]->Emin();
-  double emax  = kComparison[icomparison]->Emax();
-  bool   scale = kComparison[icomparison]->ScaleWithE();
-
-  for(int imodel=0; imodel< gOptGenieInputs.NModels(); imodel++) {
-
-    LOG("gvldtest", pNOTICE) 
-       << "Getting GENIE prediction ( comparison ID = " 
-       << icomparison << ", model ID = " << imodel << ")";
-
-    TFile * xsec_file = gOptGenieInputs.XSecFile(imodel);
-    if(!xsec_file) {
-      LOG("gvldtest", pNOTICE) 
-        << "No input cross-section file for model: "
-         << gOptGenieInputs.ModelTag(imodel);
-      continue;
-    }
-    TChain * event_chain = gOptGenieInputs.EvtChain(imodel);
-    if(!event_chain) {
-      LOG("gvldtest", pNOTICE) 
-         << "No input event chain for model: " 
-         << gOptGenieInputs.ModelTag(imodel);
-      continue;
-    }
-
-    NuXSecFunc & xsec_func = *kComparison[icomparison]->XSecFunc();
-    TGraph * model = xsec_func(xsec_file, event_chain, emin, emax, n, scale);
-    model->SetTitle(gOptGenieInputs.ModelTag(imodel).c_str());
-    int lsty = kModelLineStyle[imodel];     
-    utils::style::Format(model,kBlack,lsty,2,1,1,1);
-    models.push_back(model);
-  }
-
-  return models;
-}
-//_________________________________________________________________________________
 void Draw(int icomparison)
 {
   // info on current comparison
@@ -458,7 +427,17 @@ void Draw(int icomparison)
   vector<TGraphAsymmErrors *> data = gNuXSecData.Retrieve(dataset_keys,emin,emax,scale);
 
   // get the corresponding GENIE model prediction
-  vector<TGraph *> models = Models(icomparison);
+  vector<TGraph *> models;
+  if(gShowModel) {
+    for(int imodel=0; imodel< gOptGenieInputs.NModels(); imodel++) {
+      NuXSecFunc & xsec_func = *kComparison[icomparison]->XSecFunc();
+      TGraph * model = xsec_func(imodel, emin, emax, 50, scale);
+      model->SetTitle(gOptGenieInputs.ModelTag(imodel).c_str());
+      int lsty = kModelLineStyle[imodel];     
+      utils::style::Format(model,kBlack,lsty,2,1,1,1);
+      models.push_back(model);
+    }
+  }
 
   // add a new page in the output ps file
   gPS->NewPage();
@@ -606,12 +585,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   // get GENIE inputs
   gShowModel = false;
   if( parser.OptionExists('g') ) {
-     string inputs = parser.ArgAsString('g');
-     bool ok = gOptGenieInputs.LoadFromFile(inputs);
-     if(!ok) {
-        LOG("gvldtest", pFATAL) << "Could not read: " << inputs;
-        exit(1);
-     }
+     gOptGenieFileList = parser.ArgAsString('g');
      gShowModel = true;
   }
 

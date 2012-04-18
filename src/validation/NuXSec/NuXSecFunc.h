@@ -1,11 +1,13 @@
+
+
 //____________________________________________________________________________
 /*!
 
 \class    genie::mc_vs_data::NuXSecFunc
 
-\brief    A set of functors used in cross-section validation/tuning programs.
+\brief    A set of functors used in gvld_nu_xsec app
           Each functor contains a recipe for extracting a cross-secion out
-          of ...
+          of the GENIE simulation inputs.
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           STFC, Rutherford Appleton Laboratory
@@ -22,10 +24,8 @@
 #define _NU_XSEC_FUNCTIONS_H_
 
 #include <string>
+#include "Utils/GSimFiles.h"
 
-#include <TFile.h>
-#include <TTree.h>
-#include <TChain.h>
 #include <TGraph.h>
 
 using std::string;
@@ -41,18 +41,21 @@ public:
   virtual ~NuXSecFunc() {}
 
   virtual TGraph * operator()
-    (TFile *  /* genie_xsec_file */, 
-     TChain * /* genie_event_tree */, 
-     double   /* Emin */, 
-     double   /* Emax */, 
-     int      /* n */, 
-     bool     /* scale_with_E */) 
+    (int         /* imodel */,
+     double      /* Emin */, 
+     double      /* Emax */, 
+     int         /* n */, 
+     bool        /* scale_with_E */) 
     { 
       return 0; 
     }
 
+  void Init(GSimFiles * genie_inputs) { fGenieInputs = genie_inputs; }
+
 protected:
-  NuXSecFunc() {}
+  NuXSecFunc() { fGenieInputs = 0; }
+
+  GSimFiles * fGenieInputs;
 };
 
 //............................................................................
@@ -68,7 +71,8 @@ public:
     string xsec_dir, string incl_xsec_spline, string incl_selection, string selection);
  ~NuXSecFromEventSample();
 
-  TGraph * operator() (TFile * genie_xsec_file, TChain * genie_event_tree, double Emin, double Emax, int n, bool scale_with_E);
+  TGraph * operator() (
+    int imodel, double Emin, double Emax, int n, bool scale_with_E);
 
 private:
   string fXSecDir;          
@@ -90,7 +94,8 @@ public:
   NuXSecDirectlyFromXSecFile(string xsec_dir, string xsec_spline);
  ~NuXSecDirectlyFromXSecFile();
 
-  TGraph * operator() (TFile * genie_xsec_file, TChain * /*genie_event_tree*/, double Emin, double Emax, int n, bool scale_with_E);
+  TGraph * operator() (
+    int imodel, double Emin, double Emax, int n, bool scale_with_E);
 
 private:
   string fXSecDir;          
@@ -112,7 +117,8 @@ public:
       double factor_2, string xsec_dir_2, string xsec_spline_2);
  ~NuXSecCombineSplinesFromXSecFile();
 
-  TGraph * operator() (TFile * genie_xsec_file, TChain * /*genie_event_tree*/, double Emin, double Emax, int n, bool scale_with_E);
+  TGraph * operator() (
+     int imodel, double Emin, double Emax, int n, bool scale_with_E);
 
 private:
   double fFactor1;

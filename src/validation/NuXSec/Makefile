@@ -18,7 +18,11 @@ LIBRARIES   := $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 VLD_NUXSEC_SOURCES   := NuXSecData.cxx NuXSecFunc.cxx NuXSecComparison.cxx gVldNuXSec.cxx
 VLD_NUXSEC_OBJECTS    = $(addsuffix .$(ObjSuf), $(basename $(VLD_NUXSEC_SOURCES)))
 
-all: gVldNuXSec
+TUNE_DISNORM_SOURCES := NuXSecData.cxx NuXSecFunc.cxx gTuneDISNorm.cxx
+TUNE_DISNORM_OBJECTS  = $(addsuffix .$(ObjSuf), $(basename $(TUNE_DISNORM_SOURCES)))
+
+all: 	gVldNuXSec \
+	gTuneDISNorm
 
 #
 # Program comparing GENIE neutrino cross-sections against the world data
@@ -38,8 +42,8 @@ gTuneRijk: FORCE
 # Program tuning the GENIE DIS normalization factor
 #
 gTuneDISNorm: FORCE
-	$(CXX) $(CXXFLAGS) -c gTuneDISNorm.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) gTuneDISNorm.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtune_dis_norm
+	$(CXX) $(CXXFLAGS) -c $(TUNE_DISNORM_SOURCES) $(INCLUDES)
+	$(LD) $(LDFLAGS) $(TUNE_DISNORM_OBJECTS) $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtune_dis_norm
 
 #
 # Program fitting Ma_{CCQE}
