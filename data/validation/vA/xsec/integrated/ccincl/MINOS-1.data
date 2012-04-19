@@ -1,0 +1,24 @@
+# 
+# GENIE neutrino-nucleus cross-section data archive
+# 
+# Experiment : MINOS
+# Dataset ID : 1
+# Citation   : Adamson:2009ju      
+# Process    : numubar CC inclusive	 
+# 
+# Energy is given in GeV and cross-section is given in 1E-38*cm2/GeV/nucleon
+# The quoted cross-section error includes statistical and systematic uncertainty.
+# 
+# E         Emin      Emax      XSec      +dXSec    -dXSec      
+# 
+  6.0700    5.0000    7.0000    1.8514    0.1760    0.1760    
+  7.9900    7.0000    9.0000    2.3970    0.1758    0.1758  
+ 10.4300    9.0000   12.0000    3.1603    0.1982    0.1982
+ 13.4200   12.0000   15.0000    4.2139    0.2147    0.2147 
+ 16.4100   15.0000   18.0000    4.9886    0.1969    0.1969 
+ 19.8200   18.0000   22.0000    6.2631    0.2577    0.2577 
+ 23.8200   22.0000   26.0000    7.6224    0.2620    0.2620
+ 27.8400   26.0000   30.0000    9.2429    0.4176    0.4176
+ 32.7200   30.0000   36.0000   10.6340    0.5235    0.5235
+ 38.7400   36.0000   42.0000   13.6365    0.9298    0.9298
+ 45.6100   42.0000   50.0000   14.7776    1.2315    1.2315

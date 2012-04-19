@@ -110,3 +110,5 @@
   SKAT          |  8 | Brunner:1989kw     | Bruner et al., Zeit.Phys.C45:551 (1990)	  |  8 |  15  |  14 | Freon	    | CC QE	       |		 
   SKAT          |  9 | Brunner:1989kw     | Bruner et al., Zeit.Phys.C45:551 (1990)	  |  7 |  15  | -14 | Freon	    | CC QE	       |		  
   LSND          |  0 | Auerbach:2002iy    | Auerbach et al., Phys.Rev.C66 (2002)	  |  1 |   0  |  14 | 12C	    | CC QE	       |		
+  MINOS         |  0 | Adamson:2009ju     | Adamson et al., Phys.Rev.D81:072002 (2010)    | 13 |   0  |  14 | 56Fe          | CC inclusive     |
+  MINOS         |  1 | Adamson:2009ju     | Adamson et al., Phys.Rev.D81:072002 (2010)    | 13 |   0  | -14 | 56Fe          | CC inclusive     |
