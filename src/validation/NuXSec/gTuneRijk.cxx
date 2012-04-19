@@ -47,17 +47,18 @@
 #include <cassert>
 #include <cstdlib>
 #include <sstream>
-#include <algorithm>
 #include <string>
 #include <vector>
-#include <map>
 
 #include <TSystem.h>
 #include <TFile.h>
-#include <TCanvas.h>
 #include <TTree.h>
 #include <TGraphAsymmErrors.h>
 #include <TVirtualFitter.h>
+#include <TPostScript.h>
+#include <TCanvas.h>
+#include <TPavesText.h>
+#include <TLegend.h>
 #include <TMath.h>
 
 #include "Algorithm/AlgConfigPool.h"
@@ -69,7 +70,6 @@
 #include "Utils/GSimFiles.h"
 #include "validation/NuXSec/NuXSecData.h"
 
-using std::map;
 using std::vector;
 using std::string;
 using std::ostringstream;
@@ -112,24 +112,29 @@ const char * kDataSets[kNModes] =
 {
 // mode 0: nu_mu CC inclusive 
 "ANL_12FT,2;ANL_12FT,4;BEBC,0;BEBC,2;BEBC,5;BEBC,8;BNL_7FT,0;BNL_7FT,4;CCFR,2;CCFRR,0;CHARM,0;CHARM,4;FNAL_15FT,1;FNAL_15FT,2;Gargamelle,0;Gargamelle,10;Gargamelle,12;IHEP_ITEP,0;IHEP_ITEP,2;IHEP_JINR,0;SKAT,0;MINOS,0",
-
 // mode 1: nu_mu p -> mu- p pi+ 
 "ANL_12FT,0;ANL_12FT,5;ANL_12FT,8;BEBC,4;BEBC,9;BEBC,13;BNL_7FT,5;FNAL_15FT,0;Gargamelle,4;SKAT,4;SKAT,5",
-
 // mode 2: nu_mu n -> mu- n pi+ 
 "ANL_12FT,7;ANL_12FT,10;BNL_7FT,7;SKAT,7",
-
 // mode 3: nu_mu n -> mu- p pi0 
 "ANL_12FT,6;ANL_12FT,9;BNL_7FT,6;SKAT,6",
-
 // mode 4: nu_mu p -> mu- n pi+ pi+ 
 "ANL_12FT,13",
-
 // mode 5: nu_mu p -> mu- p pi+ pi0 
 "ANL_12FT,12",
-
 // mode 6: nu_mu n -> mu- p pi+ pi- 
 "ANL_12FT,11;BNL_7FT,8"
+};
+
+const char * kLabel[kNModes] = 
+{
+  "#nu_{#mu} CC inclusive", // mode 0
+  "#nu_{#mu} p #rightarrow #mu^{-} p #pi^{+}", // mode 1
+  "#nu_{#mu} n #rightarrow #mu^{-} n #pi^{+}", // mode 2
+  "#nu_{#mu} n #rightarrow #mu^{-} p #pi^{0}", // mode 3
+  "#nu_{#mu} p #rightarrow #mu^{-} n #pi^{+} #pi^{+}", // mode 4
+  "#nu_{#mu} p #rightarrow #mu^{-} p #pi^{+} #pi^{0}", // mode 5
+  "#nu_{#mu} n #rightarrow #mu^{-} p #pi^{+} #pi^{-}"  // mode 6
 };
 
 //
@@ -257,8 +262,8 @@ public:
                << "xsec_res = " << xsec_res 
                << ", xsec_nonres = " << xsec_nonres;
 	     */
-             hexclres    -> SetBinContent(iEbin,iWbin,xsec_res);
-             hexclnonres -> SetBinContent(iEbin,iWbin,xsec_nonres);
+             hexclres    -> SetBinContent(iEbin,iWbin,xsec_res/kNW);
+             hexclnonres -> SetBinContent(iEbin,iWbin,xsec_nonres/kNW);
           }//iW
         }//iE
         fXSecRes   [iexclmode] = hexclres;
@@ -336,11 +341,12 @@ XSecFunc                    gXSecFunc;
 //
 // func prototypes
 //
-void GetCommandLineArgs (int argc, char ** argv);
-void Init               (void);
-void DoTheFit           (void);
-void FitFunc            (Int_t &, Double_t *, Double_t &f, Double_t *par, Int_t iflag);
-void Save               (string filename);
+void   GetCommandLineArgs (int argc, char ** argv);
+void   Init               (void);
+void   DoTheFit           (void);
+void   FitFunc            (Int_t &, Double_t *, Double_t &f, Double_t *par, Int_t iflag);
+double Chisq              (double R[kNFitParams]);
+void   Save               (string filename);
 
 //____________________________________________________________________________
 int main(int argc, char ** argv)
@@ -350,7 +356,7 @@ int main(int argc, char ** argv)
   GetCommandLineArgs (argc,argv);
   Init();
   DoTheFit();
-  Save("rijk_tune.root");
+  Save("rijk_tune");
 
   LOG("gtune", pNOTICE) << "Done!";
 
@@ -374,7 +380,7 @@ void Init(void)
   }
   for(int imode = 0; imode < kNModes; imode++) {
     string datasets = kDataSets[imode];
-    gXSecData[imode] = data_reader.Retrieve(datasets);
+    gXSecData[imode] = data_reader.Retrieve(datasets,kEmin,kEmax);
   }
 
   // Read GENIE inputs
@@ -415,7 +421,7 @@ void DoTheFit(void)
   float        min  [kNFitParams] = { 0.00,       0.00,       0.00,       0.00       };
   float        max  [kNFitParams] = { 2.00,       2.00,       2.00,       2.00       };
   float        step [kNFitParams] = { 0.05,       0.05,       0.05,       0.05       };
-  const char * name [kNFitParams] = { "vpCC1pi",  "RvnCC1pi", "RvpCC2pi", "RvnCC2pi" };
+  const char * name [kNFitParams] = { "RvpCC1pi", "RvnCC1pi", "RvpCC2pi", "RvnCC2pi" };
 
   TVirtualFitter::SetDefaultFitter("Minuit");
   TVirtualFitter * fitter = TVirtualFitter::Fitter(0,kNFitParams);
@@ -461,14 +467,20 @@ void DoTheFit(void)
 void FitFunc (
         Int_t &, Double_t *, Double_t &f, Double_t *par, Int_t /*iflag*/)
 {
-// the MINUIT fit function
+// MINUIT fit function with signature expected by TVirtualFitter::SetFCN()
 
+  f = Chisq(par);
+}
+//____________________________________________________________________________
+double Chisq(double * par)
+{
   double chisq = 0;
 
   // loop over all modes included in the fit
   for(int imode = 0; imode < kNModes; imode++) {
 
-    // loop over graphs in current data-set (one graph per experiment/publication in this data set)
+    // loop over graphs in current data-set 
+    // (one graph per experiment/publication in this data set)
     unsigned int ndatasets = gXSecData[imode].size();
     for(unsigned int idataset = 0; idataset < ndatasets; idataset++) {
 
@@ -511,17 +523,17 @@ void FitFunc (
     } // graph
   } // data set
 
-  f = chisq;
+  return chisq;
 }
 //____________________________________________________________________________
 void Save(string filename)
 {
-// write-out fit results
+// Write-out fit results
 
-  TFile out(filename.c_str(), "recreate");
-  out.cd();
+  // Set GENIE style
+  utils::style::SetDefaultStyle();
 
-  // generate xsec prediction for nominal and best-fit param values
+  // Generate xsec prediction for nominal and best-fit param values
   TGraph * gr_xsec_bestfit[kNModes];
   TGraph * gr_xsec_nominal[kNModes];
   const int n = 100;
@@ -538,31 +550,90 @@ void Save(string filename)
   }
   for(int imode=0; imode<kNModes; imode++) {
     gr_xsec_bestfit[imode] = new TGraph(n,E,xsec_bestfit[imode]);
-    gr_xsec_bestfit[imode]->SetLineStyle(kSolid);
-    gr_xsec_bestfit[imode]->SetLineWidth(2);
     gr_xsec_nominal[imode] = new TGraph(n,E,xsec_nominal[imode]);
-    gr_xsec_nominal[imode]->SetLineStyle(kDashed);
-    gr_xsec_nominal[imode]->SetLineWidth(2);
   }
 
-  // plot nominal and best-fit MC & datasets
-  TCanvas * c[kNModes];
+  // Save data, nominal and best-fit MC and chisq plots in a ps file
+  TCanvas * c = new TCanvas("c","",20,20,500,650);
+  c->SetBorderMode(0);
+  c->SetFillColor(0);
+  TPostScript * ps = new TPostScript(Form("%s.ps",filename.c_str()), 111);
+  ps->NewPage();
+  c->Range(0,0,100,100);
+  TPavesText hdr(10,40,90,70,3,"tr");
+  hdr.AddText(" ");
+  hdr.AddText("GENIE R_{ijk} tune");
+  hdr.AddText(" ");
+  hdr.AddText(" ");
+  hdr.Draw();
+  c->Update();
   for(int imode=0; imode<kNModes; imode++) {
-    c[imode] = new TCanvas(Form("c_%d",imode), "", 10,10,400,400);
+     ps->NewPage();
+     c->Clear();
+     c->Divide(2,1);
+     c->GetPad(1)->SetPad("mplots_pad","",0.01,0.35,0.99,0.99);
+     c->GetPad(2)->SetPad("legend_pad","",0.01,0.01,0.99,0.34);
+     c->GetPad(1)->SetFillColor(0);
+     c->GetPad(1)->SetBorderMode(0);
+     c->GetPad(2)->SetFillColor(0);
+     c->GetPad(2)->SetBorderMode(0);
+     c->GetPad(1)->cd();
+     c->GetPad(1)->SetBorderMode(0);
+     TH1F * hframe = 0;
+     double xmin =  9999999;
+     double xmax = -9999999;
+     double ymin =  9999999;
+     double ymax = -9999999;
+     unsigned int ndatasets = gXSecData[imode].size();
+     for(unsigned int idataset = 0; idataset < ndatasets; idataset++) {
+       TGraphAsymmErrors * data = gXSecData[imode][idataset];
+       if(!data) continue;
+       xmin  = TMath::Min(xmin, (data->GetX())[TMath::LocMin(data->GetN(),data->GetX())]);
+       xmax  = TMath::Max(xmax, (data->GetX())[TMath::LocMax(data->GetN(),data->GetX())]);
+       ymin  = TMath::Min(ymin, (data->GetY())[TMath::LocMin(data->GetN(),data->GetY())]);
+       ymax  = TMath::Max(ymax, (data->GetY())[TMath::LocMax(data->GetN(),data->GetY())]);
+     }
+     hframe = (TH1F*) c->GetPad(1)->DrawFrame(0.8*xmin, 0.4*ymin, 1.2*xmax, 1.2*ymax);
+     hframe->GetXaxis()->SetTitle("E_{#nu} (GeV)");
+     hframe->GetYaxis()->SetTitle("#sigma_{#nu}/E_{#nu} (1E-38 cm^{2}/GeV^{2})");
+     hframe->Draw();
+     for(unsigned int idataset = 0; idataset < ndatasets; idataset++) {
+       TGraphAsymmErrors * data = gXSecData[imode][idataset];
+       if(!data) continue;
+       data->Draw("P");
+     }
     TGraph * bestfit = gr_xsec_bestfit[imode];
     TGraph * nominal = gr_xsec_nominal[imode];
-    bestfit->Draw("al");
+    bestfit->SetLineStyle(kSolid);
+    bestfit->SetLineWidth(2);
+    nominal->SetLineStyle(kDashed);
+    nominal->SetLineWidth(2);
+    nominal->SetLineColor(kRed);
+    bestfit->Draw("l");
     nominal->Draw("l");
-    unsigned int ndatasets = gXSecData[imode].size();
-    for(unsigned int idataset = 0; idataset < ndatasets; idataset++) {
+     c->GetPad(1)->Update();
+     c->GetPad(2)->cd();
+     TLegend * legend = new TLegend(0.01, 0.01, 0.99, 0.99);
+     legend->SetLineStyle(0);
+     legend->SetFillColor(0);
+     legend->SetTextSize(0.06);
+     legend->SetHeader(kLabel[imode]);
+     legend->AddEntry(bestfit, "GENIE best-fit", "L");
+     legend->AddEntry(nominal, "GENIE nominal",  "L");
+     for(unsigned int idataset = 0; idataset < ndatasets; idataset++) {
        TGraphAsymmErrors * data = gXSecData[imode][idataset];
-       data->Draw("P");
-    }
-    c[imode]->Update();
-    c[imode]->Write();
+       if(!data) continue;
+       legend->AddEntry(data, data->GetTitle(), "LP");
+     }
+     legend->SetTextSize(0.05);
+     legend->Draw();
+     c->GetPad(2)->Update();
   }
+  ps->Close();
 
-  // save fitted data-sets
+  // Save data, nominal and best-fit MC and chisq graphs in a root file
+  TFile out(Form("%s.root",filename.c_str()), "recreate");
+  out.cd();
   for(int imode=0; imode<kNModes; imode++) {
     unsigned int ndatasets = gXSecData[imode].size();
     for(unsigned int idataset = 0; idataset < ndatasets; idataset++) {
@@ -571,16 +642,13 @@ void Save(string filename)
        data->Write(Form("dataset_%d_%d",imode,idataset));
     }
   }
-  // save nominal and best-fit MC
   for(int imode=0; imode<kNModes; imode++) {
     gr_xsec_bestfit[imode]->Write(Form("mc_bestfit_%d",imode));
     gr_xsec_nominal[imode]->Write(Form("mc_nominal_%d",imode));
   }
-
   // write-out fitted param values and covariance matrix
   // ...
-
-  out.Close();
+  out.Close();   
 }
 //____________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
