@@ -86,10 +86,10 @@ const int kNModes = 2;
 const char * kDataSets[kNModes] = 
 {
 // mode 0 : nu_mu+N CC inclusive 
-"ANL_12FT,2;ANL_12FT,4;BEBC,0;BEBC,2;BEBC,5;BEBC,8;BNL_7FT,0;BNL_7FT,4;CCFR,2;CCFRR,0;CHARM,0;CHARM,4;FNAL_15FT,1;FNAL_15FT,2;Gargamelle,0;Gargamelle,10;Gargamelle,12;IHEP_ITEP,0;IHEP_ITEP,2;IHEP_JINR,0;SKAT,0",
+"ANL_12FT,2;ANL_12FT,4;BEBC,0;BEBC,2;BEBC,5;BEBC,8;BNL_7FT,0;BNL_7FT,4;CCFR,2;CCFRR,0;CHARM,0;CHARM,4;FNAL_15FT,1;FNAL_15FT,2;Gargamelle,0;Gargamelle,10;Gargamelle,12;IHEP_ITEP,0;IHEP_ITEP,2;IHEP_JINR,0;SKAT,0;MINOS,0",
 
 // mode 1 : nu_mu_bar+N CC inclusive 
-"BEBC,1;BEBC,3;BEBC,6;BEBC,7;BNL_7FT,1;CCFR,3;CHARM,1;CHARM,5;FNAL_15FT,4;FNAL_15FT,5;Gargamelle,1;Gargamelle,11;Gargamelle,13;IHEP_ITEP,1;IHEP_ITEP,3;IHEP_JINR,1"
+"BEBC,1;BEBC,3;BEBC,6;BEBC,7;BNL_7FT,1;CCFR,3;CHARM,1;CHARM,5;FNAL_15FT,4;FNAL_15FT,5;Gargamelle,1;Gargamelle,11;Gargamelle,13;IHEP_ITEP,1;IHEP_ITEP,3;IHEP_JINR,1;MINOS,1"
 };
 
 //
@@ -167,11 +167,12 @@ private:
 //
 // Func prototypes
 //
-void GetCommandLineArgs (int argc, char ** argv);
-void Init               (void);
-void DoTheFit           (void);
-void FitFunc            (Int_t &, Double_t *, Double_t &f, Double_t *par, Int_t iflag);
-void Save               (string filename);
+void   GetCommandLineArgs (int argc, char ** argv);
+void   Init               (void);
+void   DoTheFit           (void);
+void   FitFunc            (Int_t &, Double_t *, Double_t &f, Double_t *par, Int_t iflag);
+double Chisq              (double dis_norm);
+void   Save               (string filename);
 
 //
 // Globals
@@ -305,10 +306,14 @@ void DoTheFit(void)
 void FitFunc (
    Int_t &, Double_t *, Double_t &f, Double_t *par, Int_t /*iflag*/)
 {
-// the MINUIT fit function
+// MINUIT fit function with signature expected by TVirtualFitter::SetFCN()
 
-  double dis_norm = par[0];
-
+  double dis_norm = par[0];  
+  f = Chisq(dis_norm);
+}
+//____________________________________________________________________________
+double Chisq(double dis_norm)
+{
   LOG("gtune", pDEBUG) 
       << "DIS cross-section normalization factor set to " << dis_norm;
  
@@ -360,10 +365,10 @@ void FitFunc (
     } // graph
   } // data set
 
-  f = chisq;
-
   LOG("gtune", pNOTICE) 
      << "Chisq (DIS norm = " <<  dis_norm << ") = " << chisq;
+
+  return chisq;
 }
 //____________________________________________________________________________
 void Save(string filename)
@@ -393,6 +398,7 @@ void Save(string filename)
     gr_xsec_bestfit[imode]->SetLineStyle(kSolid);
     gr_xsec_bestfit[imode]->SetLineWidth(2);
     gr_xsec_nominal[imode] = new TGraph(n,E,xsec_nominal[imode]);
+    gr_xsec_nominal[imode]->SetLineColor(kRed);
     gr_xsec_nominal[imode]->SetLineStyle(kDashed);
     gr_xsec_nominal[imode]->SetLineWidth(2);
   }
@@ -428,6 +434,20 @@ void Save(string filename)
     gr_xsec_bestfit[imode]->Write(Form("mc_bestfit_%d",imode));
     gr_xsec_nominal[imode]->Write(Form("mc_nominal_%d",imode));
   }
+
+  // save chisq vs dis_norm
+  const int npv = 100;
+  const double disnorm_min  = 0.75;
+  const double disnorm_max  = 1.25;
+  const double disnorm_step = (disnorm_max - disnorm_min)/(npv-1);
+  double disnorm[npv];
+  double chisq  [npv];
+  for(int ipv=0; ipv<npv; ipv++) {
+    disnorm[ipv] = disnorm_min + ipv * disnorm_step;
+    chisq  [ipv] = Chisq(disnorm[ipv]);
+  }
+  TGraph * gr_chisq = new TGraph(npv,disnorm,chisq);
+  gr_chisq->Write("chisq");
 
   // write-out fitted params / errors  
   // ...

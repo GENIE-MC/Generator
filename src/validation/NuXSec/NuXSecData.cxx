@@ -117,7 +117,7 @@ vector<TGraphAsymmErrors *> NuXSecData::Retrieve(
     TGraphAsymmErrors * gr = new TGraphAsymmErrors(npoints,x,y,dxl,dxh,dyl,dyh);
     int sty = kDataPointStyle[idataset];
     int col = kDataPointColor[idataset];
-    utils::style::Format(gr,col, kSolid, 1, col, sty, 1.5);
+    utils::style::Format(gr,col, kSolid, 1, col, sty, 1.2);
     gr->SetTitle(label.c_str());
     data.push_back(gr);
   }

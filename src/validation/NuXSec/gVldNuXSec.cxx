@@ -83,14 +83,14 @@ using namespace genie::mc_vs_data;
 // This section specifies how exactly to construct all comparisons
 //
 
-const int kNumOfComparisons = 23;
+const int kNumOfComparisons = 25;
 
 NuXSecComparison * kComparison[kNumOfComparisons] = {
 
   // nu_mu CC inclusive,
   new NuXSecComparison(
     "#nu_{#mu} CC inclusive",
-    "ANL_12FT,2;ANL_12FT,4;BEBC,0;BEBC,2;BEBC,5;BEBC,8;BNL_7FT,0;BNL_7FT,4;CCFR,2;CCFRR,0;CHARM,0;CHARM,4;FNAL_15FT,1;FNAL_15FT,2;Gargamelle,0;Gargamelle,10;Gargamelle,12;IHEP_ITEP,0;IHEP_ITEP,2;IHEP_JINR,0;SKAT,0",
+    "ANL_12FT,2;ANL_12FT,4;BEBC,0;BEBC,2;BEBC,5;BEBC,8;BNL_7FT,0;BNL_7FT,4;CCFR,2;CCFRR,0;CHARM,0;CHARM,4;FNAL_15FT,1;FNAL_15FT,2;Gargamelle,0;Gargamelle,10;Gargamelle,12;IHEP_ITEP,0;IHEP_ITEP,2;IHEP_JINR,0;SKAT,0;MINOS,0",
      new NuXSecCombineSplinesFromXSecFile(0.5,"nu_mu_n","tot_cc_n",0.5,"nu_mu_H1","tot_cc_p"),
      0.1, 120.0, 
      true, true, false
@@ -98,29 +98,43 @@ NuXSecComparison * kComparison[kNumOfComparisons] = {
   // nu_mu_bar CC inclusive
   new NuXSecComparison(
     "#bar{#nu_{#mu}} CC inclusive",
-    "BEBC,1;BEBC,3;BEBC,6;BEBC,7;BNL_7FT,1;CCFR,3;CHARM,1;CHARM,5;FNAL_15FT,4;FNAL_15FT,5;Gargamelle,1;Gargamelle,11;Gargamelle,13;IHEP_ITEP,1;IHEP_ITEP,3;IHEP_JINR,1",
+    "BEBC,1;BEBC,3;BEBC,6;BEBC,7;BNL_7FT,1;CCFR,3;CHARM,1;CHARM,5;FNAL_15FT,4;FNAL_15FT,5;Gargamelle,1;Gargamelle,11;Gargamelle,13;IHEP_ITEP,1;IHEP_ITEP,3;IHEP_JINR,1;MINOS,1",
      new NuXSecCombineSplinesFromXSecFile(0.5,"nu_mu_bar_n","tot_cc_n",0.5,"nu_mu_bar_H1","tot_cc_p"),
      0.1, 120.0, 
      true, true, false
   ),
-
   // nu_mu CC inclusive, high-energy data only
   new NuXSecComparison(
     "#nu_{#mu} CC inclusive, high-energy data only",
-    "ANL_12FT,2;ANL_12FT,4;BEBC,0;BEBC,2;BEBC,5;BEBC,8;BNL_7FT,0;BNL_7FT,4;CCFR,2;CCFRR,0;CHARM,0;CHARM,4;FNAL_15FT,1;FNAL_15FT,2;Gargamelle,0;Gargamelle,10;Gargamelle,12;IHEP_ITEP,0;IHEP_ITEP,2;IHEP_JINR,0;SKAT,0",
+    "ANL_12FT,2;ANL_12FT,4;BEBC,0;BEBC,2;BEBC,5;BEBC,8;BNL_7FT,0;BNL_7FT,4;CCFR,2;CCFRR,0;CHARM,0;CHARM,4;FNAL_15FT,1;FNAL_15FT,2;Gargamelle,0;Gargamelle,10;Gargamelle,12;IHEP_ITEP,0;IHEP_ITEP,2;IHEP_JINR,0;SKAT,0;MINOS,0",
      new NuXSecCombineSplinesFromXSecFile(0.5,"nu_mu_n","tot_cc_n",0.5,"nu_mu_H1","tot_cc_p"),
      20, 120.0, 
-     true, false, true
+     false, false, true
   ),
   // nu_mu_bar CC inclusive, high-energy data only
   new NuXSecComparison(
     "#bar{#nu_{#mu}} CC inclusive, high-energy data only",
-    "BEBC,1;BEBC,3;BEBC,6;BEBC,7;BNL_7FT,1;CCFR,3;CHARM,1;CHARM,5;FNAL_15FT,4;FNAL_15FT,5;Gargamelle,1;Gargamelle,11;Gargamelle,13;IHEP_ITEP,1;IHEP_ITEP,3;IHEP_JINR,1",
+    "BEBC,1;BEBC,3;BEBC,6;BEBC,7;BNL_7FT,1;CCFR,3;CHARM,1;CHARM,5;FNAL_15FT,4;FNAL_15FT,5;Gargamelle,1;Gargamelle,11;Gargamelle,13;IHEP_ITEP,1;IHEP_ITEP,3;IHEP_JINR,1;MINOS,1",
      new NuXSecCombineSplinesFromXSecFile(0.5,"nu_mu_bar_n","tot_cc_n",0.5,"nu_mu_bar_H1","tot_cc_p"),
      20, 120.0, 
-    true, false, true
+    false, false, true
   ),
-
+  // nu_mu CC inclusive, MINOS data only
+  new NuXSecComparison(
+    "#nu_{#mu} CC inclusive, MINOS data only",
+    "MINOS,0",
+     new NuXSecCombineSplinesFromXSecFile(0.5,"nu_mu_n","tot_cc_n",0.5,"nu_mu_H1","tot_cc_p"),
+     1.0, 60.0, 
+     false, false, true
+  ),
+  // nu_mu_bar CC inclusive, MINOS data only
+  new NuXSecComparison(
+    "#bar{#nu_{#mu}} CC inclusive, MINOS data only",
+    "MINOS,1",
+     new NuXSecCombineSplinesFromXSecFile(0.5,"nu_mu_bar_n","tot_cc_n",0.5,"nu_mu_bar_H1","tot_cc_p"),
+     1.0, 60.0, 
+    false, false, true
+  ),
   // nu_mu CC QE, all data
   new NuXSecComparison(
     "#nu_{#mu} CCQE, all data",
