@@ -2,7 +2,7 @@
 # Create XML file list expected by GENIE validation programs
 #
 # Syntax:
-#    % perl mkvldfilelist.pl <options>
+#    % perl mkgsimfile.pl <options>
 #
 # Options:
 #    --dir    : file math
