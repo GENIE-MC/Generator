@@ -25,7 +25,8 @@ TUNE_RIJK_SOURCES := NuXSecData.cxx gTuneRijk.cxx
 TUNE_RIJK_OBJECTS  = $(addsuffix .$(ObjSuf), $(basename $(TUNE_RIJK_SOURCES)))
 
 all: 	gVldNuXSec \
-	gTuneDISNorm
+	gTuneDISNorm \
+	gTuneRijk
 
 #
 # Program comparing GENIE neutrino cross-sections against the world data
@@ -51,10 +52,10 @@ gTuneDISNorm: FORCE
 #
 # Program fitting Ma_{CCQE}
 #
-gTuneMaQE: FORCE
-	$(CXX) $(CXXFLAGS) -c gTuneMaQE.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) gTuneMaQE.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtune_ma_qe
-
+#gTuneMaQE: FORCE
+#	$(CXX) $(CXXFLAGS) -c gTuneMaQE.cxx $(INCLUDES)
+#	$(LD) $(LDFLAGS) gTuneMaQE.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtune_ma_qe
+#
 
 purge: FORCE
 	$(RM) *.o *~ core 
@@ -64,13 +65,13 @@ clean: FORCE
 	$(RM) $(GENIE_BIN_PATH)/gvld_nu_xsec
 	$(RM) $(GENIE_BIN_PATH)/gtune_rijk
 	$(RM) $(GENIE_BIN_PATH)/gtune_dis_norm
-	$(RM) $(GENIE_BIN_PATH)/gtune_ma_qe
+#	$(RM) $(GENIE_BIN_PATH)/gtune_ma_qe
 
 distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gvld_nu_xsec
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtune_rijk
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtune_dis_norm
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtune_ma_qe
+#	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtune_ma_qe
 
 FORCE:
 

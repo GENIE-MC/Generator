@@ -47,8 +47,11 @@
 #include <TTree.h>
 #include <TGraphAsymmErrors.h>
 #include <TVirtualFitter.h>
-#include <TMath.h>
+#include <TPostScript.h>
 #include <TCanvas.h>
+#include <TPavesText.h>
+#include <TLegend.h>
+#include <TMath.h>
 
 #include "Algorithm/AlgConfigPool.h"
 #include "Messenger/Messenger.h"
@@ -75,7 +78,7 @@ string kDefDataFile = "data/validation/vA/xsec/integrated/nuXSec.root";
 
 // default energy range
 const double kEmin =  20.0; // GeV
-const double kEmax = 120.0; // GeV
+const double kEmax = 150.0; // GeV
 
 // Number of modes included in the fit
 const int kNModes = 2;
@@ -86,10 +89,22 @@ const int kNModes = 2;
 const char * kDataSets[kNModes] = 
 {
 // mode 0 : nu_mu+N CC inclusive 
+"ANL_12FT,4;BEBC,8;BNL_7FT,4;CCFR,2;CCFRR,0;CHARM,4;FNAL_15FT,2;Gargamelle,12;IHEP_ITEP,0;IHEP_ITEP,2;IHEP_JINR,0;SKAT,0;MINOS,0",
+/*
 "ANL_12FT,2;ANL_12FT,4;BEBC,0;BEBC,2;BEBC,5;BEBC,8;BNL_7FT,0;BNL_7FT,4;CCFR,2;CCFRR,0;CHARM,0;CHARM,4;FNAL_15FT,1;FNAL_15FT,2;Gargamelle,0;Gargamelle,10;Gargamelle,12;IHEP_ITEP,0;IHEP_ITEP,2;IHEP_JINR,0;SKAT,0;MINOS,0",
+*/
 
 // mode 1 : nu_mu_bar+N CC inclusive 
-"BEBC,1;BEBC,3;BEBC,6;BEBC,7;BNL_7FT,1;CCFR,3;CHARM,1;CHARM,5;FNAL_15FT,4;FNAL_15FT,5;Gargamelle,1;Gargamelle,11;Gargamelle,13;IHEP_ITEP,1;IHEP_ITEP,3;IHEP_JINR,1;MINOS,1"
+"BEBC,7;BNL_7FT,1;CCFR,3;CHARM,5;FNAL_15FT,5;Gargamelle,13;IHEP_ITEP,3;IHEP_JINR,1;MINOS,1",
+/*
+"BEBC,1;BEBC,3;BEBC,6;BEBC,7;BNL_7FT,1;CCFR,3;CHARM,1;CHARM,5;FNAL_15FT,4;FNAL_15FT,5;Gargamelle,1;Gargamelle,11;Gargamelle,13;IHEP_ITEP,1;IHEP_ITEP,3;IHEP_JINR,1;MINOS,1",
+*/
+};
+
+const char * kLabel[kNModes] = 
+{
+  "#nu_{#mu} CC inclusive",
+  "#bar{#nu_{#mu}} CC inclusive"
 };
 
 //
@@ -144,6 +159,7 @@ public:
 
   double operator() (int imode, double E, double dis_norm)
   {
+    if(E <= 0) return 0;
     if(imode < 0 || imode >= kNModes) return 0;
     if(!fXSecDIS[imode] || !fXSecIncl[imode]) return 0;
     double wght_dis           = dis_norm / fDISNormNominal;
@@ -155,6 +171,7 @@ public:
       << "xsec_incl (E = " << E << " GeV, norm = " << dis_norm << ") : " 
       << xsec_incl_nominal << " --> " << xsec_incl_tweaked << " 1E-38 cm^2/GeV/nucleon"; 
     assert(xsec_incl_tweaked > 0);
+    xsec_incl_tweaked /= E; // actually return sigma/E
     return xsec_incl_tweaked;
   }    
 
@@ -201,7 +218,7 @@ int main(int argc, char ** argv)
   GetCommandLineArgs (argc,argv);
   Init();
   DoTheFit();
-  Save("dis_norm_tune.root");
+  Save("dis_norm_tune");
 
   LOG("gtune", pNOTICE) << "Done!";
 
@@ -226,7 +243,7 @@ void Init(void)
   }
   for(int imode = 0; imode < kNModes; imode++) {
     string datasets = kDataSets[imode];
-    gXSecData[imode] = data_reader.Retrieve(datasets);
+    gXSecData[imode] = data_reader.Retrieve(datasets,gOptEmin,gOptEmax,true);
   }
  
   // Read GENIE inputs
@@ -375,10 +392,10 @@ void Save(string filename)
 {
 // write-out fit results
 
-  TFile out(filename.c_str(), "recreate");
-  out.cd();
+  // Set GENIE style
+  utils::style::SetDefaultStyle();
 
-  // generate xsec prediction for nominal and best-fit param values
+  // Generate xsec prediction for nominal and best-fit param values
   TGraph * gr_xsec_bestfit[kNModes];
   TGraph * gr_xsec_nominal[kNModes];
   const int n = 100;
@@ -395,47 +412,9 @@ void Save(string filename)
   }
   for(int imode=0; imode<kNModes; imode++) {
     gr_xsec_bestfit[imode] = new TGraph(n,E,xsec_bestfit[imode]);
-    gr_xsec_bestfit[imode]->SetLineStyle(kSolid);
-    gr_xsec_bestfit[imode]->SetLineWidth(2);
     gr_xsec_nominal[imode] = new TGraph(n,E,xsec_nominal[imode]);
-    gr_xsec_nominal[imode]->SetLineColor(kRed);
-    gr_xsec_nominal[imode]->SetLineStyle(kDashed);
-    gr_xsec_nominal[imode]->SetLineWidth(2);
   }
-
-  // plot nominal and best-fit MC & datasets
-  TCanvas * c[kNModes];
-  for(int imode=0; imode<kNModes; imode++) {
-    c[imode] = new TCanvas(Form("c_%d",imode), "", 10,10,400,400);
-    TGraph * bestfit = gr_xsec_bestfit[imode];
-    TGraph * nominal = gr_xsec_nominal[imode];
-    bestfit->Draw("al");
-    nominal->Draw("l");
-    unsigned int ndatasets = gXSecData[imode].size();
-    for(unsigned int idataset = 0; idataset < ndatasets; idataset++) {
-       TGraphAsymmErrors * data = gXSecData[imode][idataset];
-       data->Draw("P");
-    }
-    c[imode]->Update();
-    c[imode]->Write();
-  }
-
-  // save fitted data-sets
-  for(int imode=0; imode<kNModes; imode++) {
-    unsigned int ndatasets = gXSecData[imode].size();
-    for(unsigned int idataset = 0; idataset < ndatasets; idataset++) {
-       TGraphAsymmErrors * data = gXSecData[imode][idataset];
-       assert(data);
-       data->Write(Form("dataset_%d_%d",imode,idataset));
-    }
-  }
-  // save nominal and best-fit MC
-  for(int imode=0; imode<kNModes; imode++) {
-    gr_xsec_bestfit[imode]->Write(Form("mc_bestfit_%d",imode));
-    gr_xsec_nominal[imode]->Write(Form("mc_nominal_%d",imode));
-  }
-
-  // save chisq vs dis_norm
+  // Generate chisq vs dis_norm plot
   const int npv = 100;
   const double disnorm_min  = 0.75;
   const double disnorm_max  = 1.25;
@@ -447,11 +426,105 @@ void Save(string filename)
     chisq  [ipv] = Chisq(disnorm[ipv]);
   }
   TGraph * gr_chisq = new TGraph(npv,disnorm,chisq);
+
+  // Save data, nominal and best-fit MC and chisq plots in a ps file
+  TCanvas * c = new TCanvas("c","",20,20,500,650);
+  c->SetBorderMode(0);
+  c->SetFillColor(0);
+  TPostScript * ps = new TPostScript(Form("%s.ps",filename.c_str()), 111);
+  ps->NewPage();
+  c->Range(0,0,100,100);
+  TPavesText hdr(10,40,90,70,3,"tr");
+  hdr.AddText(" ");
+  hdr.AddText("GENIE dis_norm tune");
+  hdr.AddText(" ");
+  hdr.AddText(" ");
+  hdr.Draw();
+  c->Update();
+  for(int imode=0; imode<kNModes; imode++) {
+     ps->NewPage();
+     c->Clear();
+     c->Divide(2,1);
+     c->GetPad(1)->SetPad("mplots_pad","",0.01,0.35,0.99,0.99);
+     c->GetPad(2)->SetPad("legend_pad","",0.01,0.01,0.99,0.34);
+     c->GetPad(1)->SetFillColor(0);
+     c->GetPad(1)->SetBorderMode(0);
+     c->GetPad(2)->SetFillColor(0);
+     c->GetPad(2)->SetBorderMode(0);
+     c->GetPad(1)->cd();
+     c->GetPad(1)->SetBorderMode(0);
+     TH1F * hframe = 0;
+     double xmin =  9999999;
+     double xmax = -9999999;
+     double ymin =  9999999;
+     double ymax = -9999999;
+     unsigned int ndatasets = gXSecData[imode].size();
+     for(unsigned int idataset = 0; idataset < ndatasets; idataset++) {
+       TGraphAsymmErrors * data = gXSecData[imode][idataset];
+       if(!data) continue;
+       xmin  = TMath::Min(xmin, (data->GetX())[TMath::LocMin(data->GetN(),data->GetX())]);
+       xmax  = TMath::Max(xmax, (data->GetX())[TMath::LocMax(data->GetN(),data->GetX())]);
+       ymin  = TMath::Min(ymin, (data->GetY())[TMath::LocMin(data->GetN(),data->GetY())]);
+       ymax  = TMath::Max(ymax, (data->GetY())[TMath::LocMax(data->GetN(),data->GetY())]);
+     }
+     hframe = (TH1F*) c->GetPad(1)->DrawFrame(0.8*xmin, 0.4*ymin, 1.2*xmax, 1.2*ymax);
+     hframe->GetXaxis()->SetTitle("E_{#nu} (GeV)");
+     hframe->GetYaxis()->SetTitle("#sigma_{#nu}/E_{#nu} (1E-38 cm^{2}/GeV^{2})");
+     hframe->Draw();
+     for(unsigned int idataset = 0; idataset < ndatasets; idataset++) {
+       TGraphAsymmErrors * data = gXSecData[imode][idataset];
+       if(!data) continue;
+       data->Draw("P");
+     }
+     TGraph * bestfit = gr_xsec_bestfit[imode];
+     TGraph * nominal = gr_xsec_nominal[imode];
+     bestfit->SetLineStyle(kSolid);
+     bestfit->SetLineWidth(2);
+     nominal->SetLineColor(kRed);
+     nominal->SetLineStyle(kDashed);
+     nominal->SetLineWidth(2);
+     bestfit->Draw("l");
+     nominal->Draw("l");
+     c->GetPad(1)->SetLogx(1);
+     c->GetPad(1)->Update();
+     c->GetPad(2)->cd();
+     TLegend * legend = new TLegend(0.01, 0.01, 0.99, 0.99);
+     legend->SetLineStyle(0);
+     legend->SetFillColor(0);
+     legend->SetTextSize(0.06);
+     legend->SetHeader(kLabel[imode]);
+     legend->AddEntry(bestfit, "GENIE best-fit", "L");
+     legend->AddEntry(nominal, "GENIE nominal",  "L");
+     for(unsigned int idataset = 0; idataset < ndatasets; idataset++) {
+       TGraphAsymmErrors * data = gXSecData[imode][idataset];
+       if(!data) continue;
+       legend->AddEntry(data, data->GetTitle(), "LP");
+     }
+     legend->SetTextSize(0.05);
+     legend->Draw();
+     c->GetPad(2)->Update();
+  }
+  //ps->NewPage();
+  c->Clear();
+  gr_chisq->Draw("alp");
+  ps->Close();
+
+  // Save data, nominal and best-fit MC and chisq graphs in a root file
+  TFile out(Form("%s.root",filename.c_str()), "recreate");
+  out.cd();
+  for(int imode=0; imode<kNModes; imode++) {
+    unsigned int ndatasets = gXSecData[imode].size();
+    for(unsigned int idataset = 0; idataset < ndatasets; idataset++) {
+       TGraphAsymmErrors * data = gXSecData[imode][idataset];
+       assert(data);
+       data->Write(Form("dataset_%d_%d",imode,idataset));
+    }
+  }
+  for(int imode=0; imode<kNModes; imode++) {
+    gr_xsec_bestfit[imode]->Write(Form("mc_bestfit_%d",imode));
+    gr_xsec_nominal[imode]->Write(Form("mc_nominal_%d",imode));
+  }
   gr_chisq->Write("chisq");
-
-  // write-out fitted params / errors  
-  // ...
-
   out.Close();
 }
 //____________________________________________________________________________

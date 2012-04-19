@@ -245,7 +245,7 @@ NuXSecComparison * kComparison[kNumOfComparisons] = {
   ),
   // nu_mu + n -> mu- + p + pi+ + pi-
   new NuXSecComparison(
-    "#nu_{#mu} CC#pi^{+}#pi^{-} (#nu_{#mu} n -> #mu^{-} p #pi^{+} #pi^{-})",
+    "#nu_{#mu} CC#pi^{+}#pi^{-} (#nu_{#mu} n #rightarrow #mu^{-} p #pi^{+} #pi^{-})",
     "ANL_12FT,11;BNL_7FT,8",
      new NuXSecFromEventSample(
          "nu_mu_n", "tot_cc",
