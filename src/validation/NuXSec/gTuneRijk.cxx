@@ -91,11 +91,11 @@ typedef enum {
 string kDefDataFile = "data/validation/vA/xsec/integrated/nuXSec.root";  
 
 // energy and W range
-const int    kNE   =  50; 
+const int    kNE   =  20; 
 const double kEmin =  0.1;  // GeV
 const double kEmax = 10.0;  // GeV
 const int    kNW   =  50; 
-const double kWmin =  0.1;  // GeV
+const double kWmin =  0.8;  // GeV
 const double kWmax =  5.0;  // GeV
 
 // Wcut parameter for the RES/DIS joining algorithm
@@ -111,7 +111,7 @@ const int kNExclusiveModes = 6;
 const char * kDataSets[kNModes] = 
 {
 // mode 0: nu_mu CC inclusive 
-"ANL_12FT,2;ANL_12FT,4;BEBC,0;BEBC,2;BEBC,5;BEBC,8;BNL_7FT,0;BNL_7FT,4;CCFR,2;CCFRR,0;CHARM,0;CHARM,4;FNAL_15FT,1;FNAL_15FT,2;Gargamelle,0;Gargamelle,10;Gargamelle,12;IHEP_ITEP,0;IHEP_ITEP,2;IHEP_JINR,0;SKAT,0",
+"ANL_12FT,2;ANL_12FT,4;BEBC,0;BEBC,2;BEBC,5;BEBC,8;BNL_7FT,0;BNL_7FT,4;CCFR,2;CCFRR,0;CHARM,0;CHARM,4;FNAL_15FT,1;FNAL_15FT,2;Gargamelle,0;Gargamelle,10;Gargamelle,12;IHEP_ITEP,0;IHEP_ITEP,2;IHEP_JINR,0;SKAT,0;MINOS,0",
 
 // mode 1: nu_mu p -> mu- p pi+ 
 "ANL_12FT,0;ANL_12FT,5;ANL_12FT,8;BEBC,4;BEBC,9;BEBC,13;BNL_7FT,5;FNAL_15FT,0;Gargamelle,4;SKAT,4;SKAT,5",
@@ -201,12 +201,12 @@ public:
         "cc&&res&&neu==14&&Z==0&&A==1&&nfpim==1&&nfpi0==0&&nfpip==1&&nfp==1&&nfn==0"  // nu_mu n -> mu- p pi+ pi- 
     };
     string evt_selection_nonres [kNExclusiveModes] = { 
-        "cc&&!res&&neu==14&&Z==1&&A==1&&nfpim==0&&nfpi0==0&&nfpip==1&&nfp==1&&nfn==0", // nu_mu p -> mu- p pi+
-        "cc&&!res&&neu==14&&Z==0&&A==1&&nfpim==0&&nfpi0==0&&nfpip==1&&nfp==0&&nfn==1", // nu_mu n -> mu- n pi+ 
-	"cc&&!res&&neu==14&&Z==0&&A==1&&nfpim==0&&nfpi0==1&&nfpip==0&&nfp==1&&nfn==0", // nu_mu n -> mu- p pi0
-        "cc&&!res&&neu==14&&Z==1&&A==1&&nfpim==0&&nfpi0==0&&nfpip==2&&nfp==0&&nfn==1", // nu_mu p -> mu- n pi+ pi+ 
-        "cc&&!res&&neu==14&&Z==1&&A==1&&nfpim==0&&nfpi0==1&&nfpip==1&&nfp==1&&nfn==0", // nu_mu p -> mu- p pi+ pi0 
-        "cc&&!res&&neu==14&&Z==0&&A==1&&nfpim==1&&nfpi0==0&&nfpip==1&&nfp==1&&nfn==0"  // nu_mu n -> mu- p pi+ pi- 
+        "cc&&dis&&neu==14&&Z==1&&A==1&&nfpim==0&&nfpi0==0&&nfpip==1&&nfp==1&&nfn==0", // nu_mu p -> mu- p pi+
+        "cc&&dis&&neu==14&&Z==0&&A==1&&nfpim==0&&nfpi0==0&&nfpip==1&&nfp==0&&nfn==1", // nu_mu n -> mu- n pi+ 
+	"cc&&dis&&neu==14&&Z==0&&A==1&&nfpim==0&&nfpi0==1&&nfpip==0&&nfp==1&&nfn==0", // nu_mu n -> mu- p pi0
+        "cc&&dis&&neu==14&&Z==1&&A==1&&nfpim==0&&nfpi0==0&&nfpip==2&&nfp==0&&nfn==1", // nu_mu p -> mu- n pi+ pi+ 
+        "cc&&dis&&neu==14&&Z==1&&A==1&&nfpim==0&&nfpi0==1&&nfpip==1&&nfp==1&&nfn==0", // nu_mu p -> mu- p pi+ pi0 
+        "cc&&dis&&neu==14&&Z==0&&A==1&&nfpim==1&&nfpi0==0&&nfpip==1&&nfp==1&&nfn==0"  // nu_mu n -> mu- p pi+ pi- 
     };
     string evt_selection_incl [kNExclusiveModes] = { 
         "cc&&neu==14&&Z==1&&A==1", 
@@ -229,27 +229,34 @@ public:
     for(int imode = 1; imode < kNModes; imode++) {
         LOG("gtune", pNOTICE) << "Building nominal dxsec/dW for mode: " << imode;
         int iexclmode = imode - 1;
-        TH2D * hincl       = new TH2D("hincl", "", kNE,kEmin,kEmax,kNW,kWmin,kWmax);
-        TH2D * hexclres    = new TH2D(Form("dxsecdW_res_mode%d",   imode),"",kNE,kEmin,kEmax,kNW,kWmin,kWmax);
-        TH2D * hexclnonres = new TH2D(Form("dxsecdW_nonres_mode%d",imode),"",kNE,kEmin,kEmax,kNW,kWmin,kWmax);
+        TH2D * hincl       = new TH2D("hincl",      "", kNE,kEmin,kEmax,kNW,kWmin,kWmax);
+        TH2D * hexclres    = new TH2D("hexclres",   "", kNE,kEmin,kEmax,kNW,kWmin,kWmax);
+        TH2D * hexclnonres = new TH2D("hexclnonres","", kNE,kEmin,kEmax,kNW,kWmin,kWmax);
 	genie_event_tree->Draw("Ws:Ev>>hincl",       evt_selection_incl  [iexclmode].c_str(), "goff");
 	LOG("gtune", pNOTICE) << "Selection: " <<  evt_selection_incl  [iexclmode] << ", entries = " << genie_event_tree->GetSelectedRows();
         genie_event_tree->Draw("Ws:Ev>>hexclres",    evt_selection_res   [iexclmode].c_str(), "goff");
 	LOG("gtune", pNOTICE) << "Selection: " <<  evt_selection_res  [iexclmode] << ", entries = " << genie_event_tree->GetSelectedRows();
         genie_event_tree->Draw("Ws:Ev>>hexclnonres", evt_selection_nonres[iexclmode].c_str(), "goff");
 	LOG("gtune", pNOTICE) << "Selection: " <<  evt_selection_nonres  [iexclmode] << ", entries = " << genie_event_tree->GetSelectedRows();
-        hexclres    -> Divide (hincl);
-        hexclnonres -> Divide (hincl);
         for(int iE = 0; iE<kNE; iE++) { 
 	  int iEbin = iE+1;
           double energy    = hincl->GetXaxis()->GetBinCenter(iEbin);
           double xsec_incl = gr_xsec_incl[iexclmode]->Eval(energy);
+          LOG("gtune", pNOTICE) 
+	    << "xsec incl (E = " << energy << " GeV) = " << xsec_incl; 
           for(int iW = 0; iW<kNW; iW++) { 
 	     int iWbin = iW+1;
-             double evt_frac_res    = hexclres    -> GetBinContent(iEbin,iWbin);
-             double evt_frac_nonres = hexclnonres -> GetBinContent(iEbin,iWbin);
-             double xsec_res        = xsec_incl * evt_frac_res;
-             double xsec_nonres     = xsec_incl * evt_frac_nonres;
+             double nevt        = hincl       -> GetBinContent(iEbin,iWbin);
+             double nevt_res    = hexclres    -> GetBinContent(iEbin,iWbin);
+             double nevt_nonres = hexclnonres -> GetBinContent(iEbin,iWbin);
+             double xsec_res     = (nevt >0 ) ? xsec_incl * nevt_res    / nevt : 0.;
+             double xsec_nonres  = (nevt >0 ) ? xsec_incl * nevt_nonres / nevt : 0.;
+	     /*
+             LOG("gtune", pNOTICE) 
+               << "- Mode = " << imode << ", E bin = " << iEbin << ", W bin = " << iWbin << " : "
+               << "xsec_res = " << xsec_res 
+               << ", xsec_nonres = " << xsec_nonres;
+	     */
              hexclres    -> SetBinContent(iEbin,iWbin,xsec_res);
              hexclnonres -> SetBinContent(iEbin,iWbin,xsec_nonres);
           }//iW
@@ -288,6 +295,13 @@ public:
          double dxsec_nonres = fXSecNonRes[iexclmode]->GetBinContent(e_bin,w_bin);
          double wght_nonres  = (W < kWcut) ? wght_idx[iexclmode] : 1.;
          double dxsec = dxsec_res + wght_nonres * dxsec_nonres;
+	 /*
+         LOG("gtune", pNOTICE) 
+	   << "xsec(mode = " << imode << ", E = " << E << " GeV, W = " << W << ") : " 
+           << "res (nominal) = " << dxsec_res
+           << " x1E-38 cm^2/GeV, nonres (nominal) = " << dxsec_nonres
+           << " x1E-38 cm^2/GeV, wght_nonres = " << wght_nonres;
+	 */
          xsec += dxsec;
       }//w
       return xsec;
@@ -385,13 +399,11 @@ void Init(void)
   for(int ip = 0; ip < kNFitParams; ip++) {
     gRBestFit[ip] = gRNominal[ip]; // init
   }
-  /*
   LOG("gtune", pNOTICE)
-    << "\nNominal R(vp;CC;1pi) value used in simulation: " << gRvpCC1piNominal
-    << "\nNominal R(vn;CC;1pi) value used in simulation: " << gRvnCC1piNominal
-    << "\nNominal R(vp;CC;2pi) value used in simulation: " << gRvpCC2piNominal
-    << "\nNominal R(vn;CC;2pi) value used in simulation: " << gRvnCC2piNominal;
-  */
+    << "\nNominal R(vp;CC;1pi) value used in simulation: " << gRNominal[kRvpCC1pi]
+    << "\nNominal R(vn;CC;1pi) value used in simulation: " << gRNominal[kRvnCC1pi]
+    << "\nNominal R(vp;CC;2pi) value used in simulation: " << gRNominal[kRvpCC2pi]
+    << "\nNominal R(vn;CC;2pi) value used in simulation: " << gRNominal[kRvnCC2pi];
 
   // Configure cross-section functor
   gXSecFunc.Init(genie_inputs, gRNominal);
