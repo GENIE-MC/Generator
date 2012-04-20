@@ -48,7 +48,9 @@
    is a nucleon-cluster and not a single nucleon. The MEC named ctors now 
    have an argument for specifying the hit nucleon cluster PDG.
  @ Feb 29, 2012 - CA
-   Add MECNC() and MECEM().
+   Added MECNC() and MECEM().
+ @ Apr 20, 2012 - CA
+   Added DISEM().
 
 */
 //____________________________________________________________________________
@@ -430,6 +432,56 @@ Interaction * Interaction::DISNC(
    const TLorentzVector & p4probe)
 {
   Interaction * interaction = Interaction::DISNC(target,hitnuc,probe,p4probe);
+
+  Target * tgt = interaction->InitStatePtr()->TgtPtr();
+  tgt -> SetHitQrkPdg (hitqrk);
+  tgt -> SetHitSeaQrk (fromsea);
+
+  return interaction;
+}
+//___________________________________________________________________________
+Interaction * Interaction::DISEM(int target, int hitnuc, int probe, double E)
+{
+  Interaction * interaction = 
+             Interaction::Create(target,probe,kScDeepInelastic, kIntEM);
+
+  InitialState * init_state = interaction->InitStatePtr();
+  init_state->SetProbeE(E);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
+
+  return interaction;
+}
+//___________________________________________________________________________
+Interaction * Interaction::DISEM(
+   int target, int hitnuc, int hitqrk, bool fromsea, int probe, double E)
+{
+  Interaction* interaction = Interaction::DISEM(target,hitnuc,probe,E);
+
+  Target * tgt = interaction->InitStatePtr()->TgtPtr();
+  tgt -> SetHitQrkPdg (hitqrk);
+  tgt -> SetHitSeaQrk (fromsea);
+
+  return interaction;
+}
+//___________________________________________________________________________
+Interaction * Interaction::DISEM(
+   int target, int hitnuc, int probe, const TLorentzVector & p4probe)
+{
+  Interaction * interaction = 
+     Interaction::Create(target,probe,kScDeepInelastic, kIntEM);
+
+  InitialState * init_state = interaction->InitStatePtr();
+  init_state->SetProbeP4(p4probe);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
+
+  return interaction;
+}
+//___________________________________________________________________________
+Interaction * Interaction::DISEM(
+   int target, int hitnuc, int hitqrk, bool fromsea, int probe, 
+   const TLorentzVector & p4probe)
+{
+  Interaction * interaction = Interaction::DISEM(target,hitnuc,probe,p4probe);
 
   Target * tgt = interaction->InitStatePtr()->TgtPtr();
   tgt -> SetHitQrkPdg (hitqrk);
