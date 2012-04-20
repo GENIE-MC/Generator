@@ -39,6 +39,8 @@ namespace system
 
   bool FileExists(string filename);
 
+  string LocalTimeAsString(string format);
+
 } // system namespace
 } // utils  namespace
 } // genie  namespace
