@@ -12,6 +12,8 @@
  Important revisions after version 2.0.0 :
  @ Oct 08, 2009 - CA
    That file was added in 2.5.1
+ @ Apr 20, 2012 - CA
+   Added LocalTimeAsString(string format) to tag validation program outputs.	
 
 */
 //____________________________________________________________________________
@@ -19,6 +21,7 @@
 #include <cstdlib>
 #include <sys/types.h>
 #include <dirent.h>
+#include <ctime>
 
 #include <TSystem.h>
 
@@ -89,6 +92,56 @@ bool genie::utils::system::FileExists(string filename)
   if (is_accessible) return true;
     
   return false;
+}
+//___________________________________________________________________________
+string genie::utils::system::LocalTimeAsString(string format)
+{
+  time_t now = time(0);
+  tm* local_time = localtime(&now);
+
+  int yr  = local_time->tm_year + 1900;
+  int mon = local_time->tm_mon + 1;
+  int day = local_time->tm_mday;
+  int hr  = local_time->tm_hour + 1;
+  int min = local_time->tm_min;
+  int sec = local_time->tm_sec;
+
+  // daylight saving
+  if(local_time->tm_isdst > 0) 
+  { 
+    if(hr > 0) {
+       hr--;
+    }
+    else
+    if(hr == 0) {
+       hr = 23;
+       if(day > 1) {
+          day--;
+       }
+       else {
+          mon--;
+          if(mon == 1 || mon == 3 || mon ==  5 || 
+             mon == 7 || mon == 8 || mon == 10 || mon == 12) 
+          {
+             day = 31;
+          }
+          else 
+          if(mon == 2)
+          {
+             day = 28;
+          }
+          else 
+          {
+             day = 30;
+          }
+       }
+    }
+  }
+
+  string local_time_as_string = 
+        Form(format.c_str(),yr,mon,day,hr,min,sec);
+
+  return local_time_as_string;
 }
 //___________________________________________________________________________
 
