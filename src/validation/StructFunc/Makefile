@@ -17,7 +17,7 @@ LIBRARIES   := $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 #VLDTOOL_LIBS = $(shell $(GENIE)/src/scripts/setup/genie-config --vldlibs)
 #LIBRARIES   := $(GENIE_LIBS) $(VLDTOOL_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 
-#all: gVldStructFuncVsWorldData \
+#all: gVldStructFunc \
 #     gVldStructFuncSumRuleTest
 
 all: 
@@ -25,9 +25,9 @@ all:
 #
 # Program comparing GENIE structure functions against the world data
 #
-gVldStructFuncVsWorldData: FORCE
-	$(CXX) $(CXXFLAGS) -c gVldStructFuncVsWorldData.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) gVldStructFuncVsWorldData.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gvld_sf_vs_world_data
+gVldStructFunc: FORCE
+	$(CXX) $(CXXFLAGS) -c gVldStructFunc.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gVldStructFunc.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gvld_sf
 
 #
 # Sum rule checks
@@ -41,11 +41,11 @@ purge: FORCE
 
 clean: FORCE
 	$(RM) *.o *~ core 
-	$(RM) $(GENIE_BIN_PATH)/gvld_sf_vs_world_data
+	$(RM) $(GENIE_BIN_PATH)/gvld_sf
 	$(RM) $(GENIE_BIN_PATH)/gvld_sf_sum_rule_test
 
 distclean: FORCE
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gvld_sf_vs_world_data
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gvld_sf
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gvld_sf_sum_rule_test
 
 FORCE:
