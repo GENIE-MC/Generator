@@ -91,12 +91,12 @@ typedef enum {
 string kDefDataFile = "data/validation/vA/xsec/integrated/nuXSec.root";  
 
 // energy and W range
-const int    kNE   =  20; 
+const int    kNE   =  50; 
 const double kEmin =  0.1;  // GeV
 const double kEmax = 10.0;  // GeV
-const int    kNW   =  50; 
+const int    kNW   = 100; 
 const double kWmin =  0.8;  // GeV
-const double kWmax =  5.0;  // GeV
+const double kWmax =  3.0;  // GeV
 
 // Wcut parameter for the RES/DIS joining algorithm
 const double kWcut  = 1.7;  // GeV
@@ -276,6 +276,14 @@ public:
   {
     double wght[kNFitParams];
     for(int ip = 0; ip < kNFitParams; ip++) { wght[ip] = R[ip]/fRNominal[ip]; }
+
+    LOG("gtune", pNOTICE)
+      << "Reweightng: "
+      << "\n vp;CC;1pi = " << wght[kRvpCC1pi]
+      << "\n vn;CC;1pi = " << wght[kRvnCC1pi]
+      << "\n vp;CC;2pi = " << wght[kRvpCC2pi]
+      << "\n vn;CC;2pi = " << wght[kRvnCC2pi];
+
 
     // CC inclusive
     if(imode == 0) {
@@ -474,6 +482,13 @@ void FitFunc (
 //____________________________________________________________________________
 double Chisq(double * par)
 {
+  LOG("gtune", pNOTICE)
+    << "Setting: "
+    << "\n R(vp;CC;1pi) = " << par[kRvpCC1pi]
+    << "\n R(vn;CC;1pi) = " << par[kRvnCC1pi]
+    << "\n R(vp;CC;2pi) = " << par[kRvpCC2pi]
+    << "\n R(vn;CC;2pi) = " << par[kRvnCC2pi];
+
   double chisq = 0;
 
   // loop over all modes included in the fit
@@ -487,7 +502,7 @@ double Chisq(double * par)
        TGraphAsymmErrors * data = gXSecData[imode][idataset];
        assert(data);
 
-       LOG("gtune", pNOTICE) 
+       LOG("gtune", pDEBUG) 
 	 << " Mode: " << imode << ", Dataset : " << idataset+1 << "/" << ndatasets 
          << " [" <<  data->GetTitle() << "]";
 
@@ -505,7 +520,7 @@ double Chisq(double * par)
             double delta = (xsec_data>0) ? (xsec_data - xsec_model) / xsec_data_err : 0.;
             chisq += delta*delta;
 
-            LOG("gtune", pNOTICE)
+            LOG("gtune", pDEBUG)
                << " > pnt " << ip+1 << "/" << np 
                << " @ E = " << E << " GeV : "
                << "Data = "  << xsec_data << " +/- " << xsec_data_err << " x1E-38 cm^2/GeV/nucleon, "
@@ -514,7 +529,7 @@ double Chisq(double * par)
 
 	  } else {
 
-            LOG("gtune", pNOTICE)
+            LOG("gtune", pDEBUG)
                << " > pnt " << ip+1 << "/" << np 
                << " @ E = " << E << " GeV : ** not in fit range **";
           }
@@ -522,6 +537,8 @@ double Chisq(double * par)
        } // graph points
     } // graph
   } // data set
+
+  LOG("gtune", pNOTICE) << "Chisq = " << chisq;
 
   return chisq;
 }
@@ -595,7 +612,7 @@ void Save(string filename)
      }
      hframe = (TH1F*) c->GetPad(1)->DrawFrame(0.8*xmin, 0.4*ymin, 1.2*xmax, 1.2*ymax);
      hframe->GetXaxis()->SetTitle("E_{#nu} (GeV)");
-     hframe->GetYaxis()->SetTitle("#sigma_{#nu}/E_{#nu} (1E-38 cm^{2}/GeV^{2})");
+     hframe->GetYaxis()->SetTitle("#sigma_{#nu} (1E-38 cm^{2}/GeV/nucleon)");
      hframe->Draw();
      for(unsigned int idataset = 0; idataset < ndatasets; idataset++) {
        TGraphAsymmErrors * data = gXSecData[imode][idataset];
