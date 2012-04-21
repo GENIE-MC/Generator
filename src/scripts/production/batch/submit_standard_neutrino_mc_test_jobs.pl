@@ -1,12 +1,12 @@
 #!/usr/bin/perl
 
 #---------------------------------------------------------------------------------------------------------------------
-# Submit standard vA event generation jobs for GENIE release validation
+# Submit standard neutrino event generation jobs for GENIE release validation
 # The outputs can be compared with outputs from past releases using GENIE's gvld_sample_comp utility.
 # Sanity checks can be performed using GENIE's gvld_sample_scan utility.
 #
 # Syntax:
-#   shell% perl submit-vld_vA.pl <options>
+#   shell% perl submit_standard_neutrino_mc_test_jobs.pl <options>
 #
 # Options:
 #    --version       : GENIE version number
@@ -21,9 +21,12 @@
 #   [--softw-topdir] : default: /opt/ppd/t2k/softw/GENIE
 #
 # Examples:
-#   shell% perl submit-vld_vA.pl --production 2.5.1_prelease_tests --cycle 01 --version v2.5.1 --run 1001
-#   shell% perl submit-vld_vA.pl --production 2.5.1_prelease_tests --cycle 01 --version v2.5.1 --run 1000,1001,9203
-#   shell% perl submit-vld_vA.pl --production 2.5.1_prelease_tests --cycle 01 --version v2.5.1 --run all
+#   shell% perl submit_standard_neutrino_mc_test_jobs.pl \
+#               --production 2.5.1_prelease_tests --cycle 01 --version v2.5.1 --run 1001
+#   shell% perl submit_standard_neutrino_mc_test_jobs.pl \
+#                --production 2.5.1_prelease_tests --cycle 01 --version v2.5.1 --run 1000,1001,9203
+#   shell% perl submit_standard_neutrino_mc_test_jobs.pl \
+#                --production 2.5.1_prelease_tests --cycle 01 --version v2.5.1 --run all
 #
 # Tested at the RAL/PPD Tier2 PBS batch farm.
 #
@@ -91,7 +94,7 @@ $softw_topdir    = "/opt/ppd/t2k/softw/GENIE" unless defined $softw_topdir;
 $ref_sample_path = 0                          unless defined $ref_sample_path;
 $genie_setup     = "$softw_topdir/builds/$arch/$genie_version-setup";
 $jobs_dir        = "$softw_topdir/scratch/vld\_vA-$production\_$cycle";
-$xspl_file       = "$softw_topdir/data/job_inputs/xspl/gxspl-vldsamples-$genie_version.xml";
+$xspl_file       = "$softw_topdir/data/job_inputs/xspl/gxspl-vA-$genie_version.xml";
 $mcseed          = 210921029;
 
 %nevents_hash = ( 

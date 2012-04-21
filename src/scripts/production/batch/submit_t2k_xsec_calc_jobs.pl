@@ -5,7 +5,7 @@
 # nuclear targets in the T2K detector geometries.
 #
 # Syntax:
-#   shell% perl submit-xsec_t2k.pl <options>
+#   shell% perl submit_t2k_xsec_calc_jobs.pl <options>
 #
 # Options:
 #    --version       : GENIE version number
@@ -54,7 +54,7 @@ $queue          = "prod"                     unless defined $queue;
 $softw_topdir   = "/opt/ppd/t2k/softw/GENIE" unless defined $softw_topdir;
 $genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
 $jobs_dir       = "$softw_topdir/scratch/xsec\_t2k-$production\_$cycle/";
-$freenucsplines = "$softw_topdir/data/job_inputs/xspl/gxspl-freenuc-$genie_version.xml";
+$freenucsplines = "$softw_topdir/data/job_inputs/xspl/gxspl-vN-$genie_version.xml";
 
 $nkots     = 200;
 $emax      =  35;

@@ -2,10 +2,10 @@
 
 #---------------------------------------------------------------------------------------------------------------------
 # Submit jobs to generate all data needed for validating GENIE's cross section model 
-# The generated data can be fed into GENIE's gvld_nuxsec_vs_world_data utility.
+# The generated data can be fed into GENIE's gvld_nu_xsec validation app
 #
 # Syntax:
-#   perl submit-vld_xsec.pl <options>
+#   perl submit_neutrino_xsec_validation_mc_jobs.pl <options>
 #
 # Options:
 #    --version       : GENIE version number
@@ -28,7 +28,7 @@
 # EVENT SAMPLES:
 # The following samples will be submitted.
 # The output GHEP event trees will be analyzed and converted to GST summary trees.
-# The gvld_nuxsec_vs_world_data utility uses the samples to decompose the inclusive cross section
+# The validation apps use the samples to decompose the inclusive cross section
 # to cross section for various exclusive channels
 #......................................................................
 # run number      |  init state      | energy   | processes
@@ -94,7 +94,7 @@ $softw_topdir   = "/opt/ppd/t2k/softw/GENIE" unless defined $softw_topdir;
 $time_limit     = "60:00:00";
 $genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
 $jobs_dir       = "$softw_topdir/scratch/vld\_xsec-$production\_$cycle";
-$xspl_file      = "$softw_topdir/data/job_inputs/xspl/gxspl-vldsamples-$genie_version.xml";
+$xspl_file      = "$softw_topdir/data/job_inputs/xspl/gxspl-vA-$genie_version.xml";
 $mcseed         = 210921029;
 $nev_per_subrun = 100000;
 

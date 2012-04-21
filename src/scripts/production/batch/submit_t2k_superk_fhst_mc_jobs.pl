@@ -1,8 +1,8 @@
-#------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------
 # Submit a GENIE/SK event generation job using a histogram-based neutrino flux description
 #
 # Syntax:
-#   shell% perl submit-evg_sk_fhst.pl <options>
+#   shell% perl submit_t2k_superk_fhst_mc_jobs.pl <options>
 #
 # Options:
 #    --version         : GENIE version
@@ -20,13 +20,13 @@
 #   [--softw-topdir]   : default: /opt/ppd/t2k/softw/GENIE
 #
 # Example:
-#   shell& perl submit-evg_sk_fhst.pl --run 180 --neutrino numubar --version v2.5.1
+#   shell& perl submit_t2k_superk_fhst_mc_jobs.pl --run 180 --neutrino numubar --version v2.5.1
 #
 # Tested at the RAL/PPD Tier2 PBS batch farm.
 #
 # Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
 # STFC, Rutherford Appleton Lab
-#------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------
 
 #!/usr/bin/perl
 

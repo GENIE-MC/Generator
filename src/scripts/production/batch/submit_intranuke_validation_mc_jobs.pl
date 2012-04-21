@@ -4,7 +4,7 @@
 # Submit jobs to generate data needed for validating GENIE's hadron transport model
 #
 # Syntax:
-#   perl submit-vld_inuke.pl <options>
+#   perl submit_intranuke_validation_mc_jobs.pl <options>
 #
 # Options:
 #    --version       : GENIE version number
@@ -27,23 +27,27 @@
 # Examples:
 #
 # (1) Submit (in an LSF farm) 10-subruns (100k events each) of run 4000600597, using GENIE v2.7.1:
-#     % perl submit-vld_inuke.pl --version v2.7.1 --nsubruns 10 --batch-system LSF --run 4000600597
+#     % perl submit_intranuke_validation_mc_jobs.pl --version v2.7.1 \
+#                     --nsubruns 10 --batch-system LSF --run 4000600597
 #
 # (2) Submit (in an LSF farm) 10-subruns (100k events each) of runs 4000600597,1002600870 and 1000800240,
 #     using GENIE v2.7.1:
-#     % perl submit-vld_inuke.pl --version v2.7.1 --nsubruns 10 \
-#                --batch-system LSF --run 4000600597,1002600870,1000800240
+#     % perl submit_intranuke_validation_mc_jobs.pl --version v2.7.1 
+#                --nsubruns 10 --batch-system LSF --run 4000600597,1002600870,1000800240
 #
 # (3) Submit (in an LSF farm) 10-subruns (100k events each) of *all* runs, using GENIE v2.7.1:
-#     % perl submit-vld_inuke.pl --version v2.7.1 --nsubruns 10 --batch-system LSF --run all
+#     % perl submit_intranuke_validation_mc_jobs.pl --version v2.7.1 \
+#                 --nsubruns 10 --batch-system LSF --run all
 #
 # (4) Submit (in an LSF farm) 10-subruns (100k events each) of all runs used for comparisons with the
 #     `iwamoto' data, using GENIE v2.7.1:
-#     % perl submit-vld_inuke.pl --version v2.7.1 --nsubruns 10 --batch-system LSF --run iwamoto
+#     % perl submit_intranuke_validation_mc_jobs.pl --version v2.7.1 \
+#                 --nsubruns 10 --batch-system LSF --run iwamoto
 #
 # (5) Submit (in an LSF farm) 10-subruns (100k events each) of all runs with a pi+ or pi- probe,
 #     using GENIE v2.7.1:
-#     % perl submit-vld_inuke.pl --version v2.7.1 --nsubruns 10 --batch-system LSF --run piplus,piminus
+#     % perl submit_intranuke_validation_mc_jobs.pl --version v2.7.1 \
+#                 --nsubruns 10 --batch-system LSF --run piplus,piminus
 #
 #
 # Tested at the RAL/PPD Tier2 PBS batch farm.

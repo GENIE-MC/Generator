@@ -4,7 +4,7 @@
 # Submit jobs to generate data needed for validating GENIE (e,e') differential cross-section modelling.
 #
 # Syntax:
-#   perl submit-vld_e_semi_incl_xsec.pl <options>
+#   perl submit_eA_xsec_validation_mc_jobs.pl <options>
 #
 # Options:
 #    --version       : GENIE version number
@@ -73,8 +73,8 @@ $queue          = "prod"                                  unless defined $queue;
 $softw_topdir   = "/opt/ppd/t2k/softw/GENIE"              unless defined $softw_topdir;
 $time_limit     = "60:00:00";
 $genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
-$jobs_dir       = "$softw_topdir/scratch/vld\_e\_semi\_incl-$production\_$cycle";
-$xspl_file      = "$softw_topdir/data/job_inputs/xspl/gxspl-emode-$genie_version.xml";
+$jobs_dir       = "$softw_topdir/scratch/eA-$production\_$cycle";
+$xspl_file      = "$softw_topdir/data/job_inputs/xspl/gxspl-eA-$genie_version.xml";
 $mcseed         = 210921029;
 $nev_per_subrun = 100000;
 

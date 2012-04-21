@@ -1,10 +1,11 @@
 #!/usr/bin/perl
 
 #-----------------------------------------------------------------------------
-# Submit jobs for calculating GENIE free-nucleon cross section splines.
+# Submit jobs for calculating GENIE free-nucleon cross-section splines
+# which can then be re-used for calculating nuclear cross-sections
 #
 # Syntax:
-#   shell% perl submit-xsec_freenuc.pl <options>
+#   shell% perl submit_vN_xsec_calc_jobs.pl <options>
 #
 # Options:
 #    --version       : genie version number
@@ -18,9 +19,9 @@
 #   [--softw-topdir] : default: /opt/ppd/t2k/softw/GENIE
 #
 # Examples:
-#   shell% perl submit-xsec_freenuc.pl --version v2.6.0 --xsplset chm 
-#   shell% perl submit-xsec_freenuc.pl --version v2.6.0 --xsplset chm,nue,qel
-#   shell% perl submit-xsec_freenuc.pl --version v2.6.0 --xsplset all 
+#   shell% perl submit_vN_xsec_calc_jobs.pl --version v2.6.0 --xsplset chm 
+#   shell% perl submit_vN_xsec_calc_jobs.pl --version v2.6.0 --xsplset chm,nue,qel
+#   shell% perl submit_vN_xsec_calc_jobs.pl --version v2.6.0 --xsplset all 
 #
 # Notes:
 #   * Use GENIE gspladd utility to merge the job outputs
@@ -61,7 +62,7 @@ $batch_system   = "PBS"                         unless defined $batch_system;
 $queue          = "prod"                        unless defined $queue;
 $softw_topdir   = "/opt/ppd/t2k/softw/GENIE"    unless defined $softw_topdir;
 $genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
-$jobs_dir       = "$softw_topdir/scratch/xsec\_free-$production\_$cycle/";
+$jobs_dir       = "$softw_topdir/scratch/xsec\_vN-$production\_$cycle/";
 
 $nkots = 500;
 $emax  = 200;
