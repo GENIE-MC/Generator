@@ -32,7 +32,7 @@
 
            -s Info on which datasets to plot. 
               By default, will pick the one at:
-              $GENIE/data/validation/eA/xsec/differential/res/eRES_datasets.txt
+              $GENIE/data/validation/eA/xsec/differential/res/datasets.txt
 
          Example:
 
@@ -146,7 +146,7 @@ private:
 
 // defaults
 const char * kDefDataArchiveFilename = "data/validation/eA/xsec/differential/res/eRES.root";  
-const char * kDefDataSetsFilename    = "data/validation/eA/xsec/differential/res/eRES_datasets.txt";  
+const char * kDefDataSetsFilename    = "data/validation/eA/xsec/differential/res/datasets.txt";  
 
 // plot config
 const int kNCx = 2; // number of columns in TCanvas::Divide()
@@ -193,7 +193,6 @@ vector<eResDataSetDescription *> gDataSets; // list of plotted datasets
 
 void             Init               (void);
 void             End                (void);
-void             AddCoverPage       (void);
 TGraphErrors *   Data               (unsigned int iset);
 vector<TGraph *> Model              (unsigned int iset, unsigned int imodel);
 void             Draw               (unsigned int iset);
@@ -263,13 +262,13 @@ void Init(void)
       // skip header lines staring with #
       if(summary_file.peek() == '#') {
          summary_file.ignore(1000, '\n');
-         //cerr << "ignore comment line..." << endl;
        } else {
          int    target = 0;
          string expt   = "";
 	 double E      = 0;
          double theta  = 0;
          summary_file >> target >> expt >> E >> theta;
+         summary_file.ignore(1000, '\n');
          if(summary_file.eof()) break;            
 
          LOG("gvldtest", pDEBUG) 
@@ -282,6 +281,9 @@ void Init(void)
        }
   }
   summary_file.close();
+  LOG("gvldtest", pNOTICE)
+     << "Read "  << gDataSets.size() << " datasets";
+
 
   //
   // Get cross-section models
@@ -308,25 +310,19 @@ void Init(void)
             algf->GetAlgorithm(model_name, model_conf));
   }
 
-  // plot canvas
+  // Create plot canvas
   gC = new TCanvas("c","",20,20,500,650);
   gC->SetBorderMode(0);
   gC->SetFillColor(0);
   gC->SetGridx();
   gC->SetGridy();
 
-  // output postscript file
+  // Create output postscript file
   string localtime = utils::system::LocalTimeAsString("%d.%d.%d_%d.%d.%d"); 
   string filename  = Form("genie-e_res_data_comp-%s.ps",localtime.c_str());
   gPS = new TPostScript(filename.c_str(), 111);
 
-  // cover page
-  AddCoverPage();
-}
-//_________________________________________________________________________________
-void AddCoverPage(void)
-{
-  // header
+  // Add cover page
   gPS->NewPage();
   gC->Range(0,0,100,100);
   TPavesText hdr(10,40,90,70,3,"tr");
