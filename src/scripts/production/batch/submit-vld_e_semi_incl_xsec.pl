@@ -1,16 +1,14 @@
 #!/usr/bin/perl
 
 #-----------------------------------------------------------------------------------------------------------
-# Submit jobs to generate data needed for validating GENIE's nuclear modelling
-# giving empashis on comparisons with eletron QE scattering data.
-# The generated data can be fed into GENIE's `gvld_e_qel_xsec' utility.
+# Submit jobs to generate data needed for validating GENIE (e,e') differential cross-section modelling.
 #
 # Syntax:
-#   perl submit-vld_nuclmod.pl <options>
+#   perl submit-vld_e_semi_incl_xsec.pl <options>
 #
 # Options:
 #    --version       : GENIE version number
-#    --run           : runs to submit (eg --run 1060680 / --run 1060680,1062000 / -run all)
+#    --run           : runs to submit (eg --run 100601200200 / --run 100601200200,100801600680 / --run all / --run 12C)
 #   [--model-enum]   : physics model enumeration, default: 0
 #   [--nsubruns]     : number of subruns per run, default: 1
 #   [--arch]         : <SL4_32bit, SL5_64bit>, default: SL5_64bit
@@ -30,24 +28,14 @@
 # Imperial College London
 #-----------------------------------------------------------------------------------------------------------
 #
-# EVENT SAMPLES:
+# Run number key: IZZZAAAEEEEEMxx
 #
-# Run number key: ITTEEEEMxx
-#
-# I    : probe  (1:e-)
-# TT   : target (01:H1, 02:D2, 06:C12, 08:O16, 26:Fe56)
-# EEEE : energy used in MeV (eg 0680->0.68GeV, 2015->2.015GeV etc) 
-# M    : physics model enumeration, 0-9
-# xx   : sub-run ID, 00-99, 50k events each
-#
-#.................................................................
-# run number   |  init state      | energy   | GEVGL             | 
-#              |                  | (GeV)    | setting           |
-#.................................................................
-# 1060680Mxx   | e-    + C12      | 0.680    | EM                | 
-# 1061501Mxx   | e-    + C12      | 1.501    | EM                | 
-# 1062000Mxx   | e-    + C12      | 2.000    | EM                | 
-#.................................................................
+# I     : probe  (1:e-, 2:e+)
+# ZZZ   : target Z (eg, 001:H1, 026:Fe56)
+# AAA   : target A (eg: 056:Fe56, 238:U)
+# EEEEE : energy used in MeV (eg 00680->0.68GeV, 02015->2.015GeV etc) 
+# M     : physics model enumeration, 0-9
+# xx    : sub-run ID, 00-99, 100k events each
 #
 
 use File::Path;
@@ -57,7 +45,7 @@ use File::Path;
 $iarg=0;
 foreach (@ARGV) {
   if($_ eq '--nsubruns')      { $nsubruns      = $ARGV[$iarg+1]; }
-  if($_ eq '--run')           { $runnu         = $ARGV[$iarg+1]; }
+  if($_ eq '--run')           { $run           = $ARGV[$iarg+1]; }
   if($_ eq '--model-enum')    { $model_enum    = $ARGV[$iarg+1]; }
   if($_ eq '--version')       { $genie_version = $ARGV[$iarg+1]; }
   if($_ eq '--arch')          { $arch          = $ARGV[$iarg+1]; }
@@ -72,7 +60,7 @@ foreach (@ARGV) {
 die("** Aborting [Undefined GENIE version. Use the --version option]")
 unless defined $genie_version;
 die("** Aborting [You need to specify which runs to submit. Use the --run option]")
-unless defined $runnu;
+unless defined $run;
 
 $model_enum     = "0"                                     unless defined $model_enum;
 $nsubruns       = 1                                       unless defined $nsubruns;
@@ -88,34 +76,91 @@ $genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
 $jobs_dir       = "$softw_topdir/scratch/vld\_nuclmod-$production\_$cycle";
 $xspl_file      = "$softw_topdir/data/job_inputs/xspl/gxspl-emode-$genie_version.xml";
 $mcseed         = 210921029;
-$nev_per_subrun = 50000;
+$nev_per_subrun = 100000;
 
-# inputs for event generation jobs
-%evg_pdg_hash = ( 
-  '1060680' =>   '11',
-  '1061501' =>   '11',
-  '1062000' =>   '11'
+# standard runs outlined
+@std_runnu = 
+(
+# 2D
+#  ...
+#  ...
+# 3H
+#  ...
+#  ...
+# 3He
+#  ...
+#  ...
+# 4He
+#  ...
+#  ...
+# 12C
+  100601200160,  # (e-,e-')12C,  0.160 GeV
+  100601200200,  # (e-,e-')12C,  0.200 GeV
+  100601200240,  # (e-,e-')12C,  0.240 GeV
+  100601200280,  # (e-,e-')12C,  0.280 GeV
+  100601200320,  # (e-,e-')12C,  0.320 GeV
+  100601200361,  # (e-,e-')12C,  0.361 GeV
+  100601200400,  # (e-,e-')12C,  0.400 GeV
+  100601200440,  # (e-,e-')12C,  0.440 GeV
+  100601200480,  # (e-,e-')12C,  0.480 GeV
+  100601200500,  # (e-,e-')12C,  0.500 GeV
+  100601200519,  # (e-,e-')12C,  0.519 GeV
+  100601200560,  # (e-,e-')12C,  0.560 GeV
+  100601200620,  # (e-,e-')12C,  0.620 GeV
+  100601200680,  # (e-,e-')12C,  0.680 GeV
+  100601200730,  # (e-,e-')12C,  0.730 GeV
+  100601200961,  # (e-,e-')12C,  0.961 GeV
+  100601201108,  # (e-,e-')12C,  1.108 GeV
+  100601201300,  # (e-,e-')12C,  1.300 GeV
+  100601201500,  # (e-,e-')12C,  1.500 GeV
+  100601201650,  # (e-,e-')12C,  1.650 GeV
+  100601201930,  # (e-,e-')12C,  1.930 GeV
+  100601202000,  # (e-,e-')12C,  2.000 GeV
+  100601202015,  # (e-,e-')12C,  2.015 GeV
+  100601202020,  # (e-,e-')12C,  2.020 GeV
+  100601202130,  # (e-,e-')12C,  2.130 GeV
+  100601202500,  # (e-,e-')12C,  2.500 GeV
+  100601202700,  # (e-,e-')12C,  2.700 GeV
+  100601203188,  # (e-,e-')12C,  3.188 GeV
+  100601203595,  # (e-,e-')12C,  3.595 GeV
+  100601203605,  # (e-,e-')12C,  3.605 GeV
+  100601204045,  # (e-,e-')12C,  4.045 GeV
+  100601204212,  # (e-,e-')12C,  4.212 GeV
+  100601205120   # (e-,e-')12C,  5.120 GeV
+# 16O
+#  ...
+#  ...
+# 27Al
+#  ...
+#  ...
+# 40Ca
+#  ...
+#  ...
+# 48Ca
+#  ...
+#  ...
+# 56Fe
+#  ...
+#  ...
+# 197Au
+#  ...
+#  ...
+# 208Pb
+#  ...
+#  ...
+# 238U
+#  ...
+#  ...
 );
-%evg_tgtpdg_hash = ( 
-  '1060680' =>   '1000060120',
-  '1061501' =>   '1000060120',
-  '1062000' =>   '1000060120'
-);
-%evg_energy_hash = ( 
-  '1060680' =>   '0.680',
-  '1061501' =>   '1.501',
-  '1062000' =>   '2.000'
-);
-%evg_gevgl_hash = ( 
-  '1060680' =>   'EM',
-  '1061501' =>   'EM',
-  '1062000' =>   'EM'
-);
-%evg_fluxopt_hash = ( 
-  '1060680' =>   '',
-  '1061501' =>   '',
-  '1062000' =>   ''
-);
+
+@runnu = ();
+if($run eq "all") {  
+  push(@runnu, @std_runnu);  
+}
+else {  
+  my @a = split(',', $run); 
+  push(@runnu, @a);  
+}
 
 # make the jobs directory
 #
@@ -126,32 +171,33 @@ mkpath ($jobs_dir, {verbose => 1, mode=>0777});
 #
 
 # run loop
-for my $curr_runnu (keys %evg_gevgl_hash)  {
-
- # check whether to commit current run 
- if($runnu=~m/$curr_runnu/ || $runnu eq "all") {
-
+foreach($runnu) {
+    my $curr_runnu = $_;
     print "** submitting event generation run: $curr_runnu \n";
 
-    #
-    # get runnu-dependent info
-    #
-    $probe   = $evg_pdg_hash     {$curr_runnu};
-    $tgt     = $evg_tgtpdg_hash  {$curr_runnu};
-    $en      = $evg_energy_hash  {$curr_runnu};
-    $gevgl   = $evg_gevgl_hash   {$curr_runnu};
-    $fluxopt = $evg_fluxopt_hash {$curr_runnu};
+foreach($runnu) {
+    # match probe,Z,A,E from current run
+    my ($m_probe, $m_Z, $m_A, $m_E) = $curr_runnu =~ /([0-9]{1})([0-9]{3})([0-9]{3})([0-9]{5})/;
+
+    # convert to GENIE-expected probe and target PDG codes and energy
+    $tgt_pdg = 1000000000 + $m_Z*10000 + $m_A*10;
+    $E = $m_E/1000.;
+
+    if    ($m_probe == 1) { $probe_pdg =  11; }
+    elsif ($m_probe == 2) { $probe_pdg = -11; }
+    else                  { die; }
 
     # submit subruns
     for($isubrun = 0; $isubrun < $nsubruns; $isubrun++) {
 
-       # Run number key: ITTEEEEMxx
+       # Run number key: IZZZAAAEEEEEMxx
        $curr_subrunnu = 1000 * $curr_runnu + 100 * $model_enum + $isubrun;
+
        $grep_pipe     = "grep -B 20 -A 30 -i \"warn\\|error\\|fatal\"";
        $fntemplate    = "$jobs_dir/nucl-$curr_subrunnu";
        $curr_seed     = $mcseed + $isubrun;
        $valgrind_cmd  = "valgrind --tool=memcheck --error-limit=no --leak-check=yes --show-reachable=yes";
-       $evgen_cmd     = "gevgen -n $nev_per_subrun -s -e $en -p $probe -t $tgt -r $curr_subrunnu $fluxopt | $grep_pipe &> $fntemplate.evgen.log";
+       $evgen_cmd     = "gevgen -n $nev_per_subrun -s -e $E -p $probe_pdg -t $tgt_pdg -r $curr_subrunnu | $grep_pipe &> $fntemplate.evgen.log";
        $conv_cmd      = "gntpc -f gst -i gntp.$curr_subrunnu.ghep.root | $grep_pipe &> $fntemplate.conv.log";
 
        print "@@ exec: $evgen_cmd \n";
@@ -172,7 +218,7 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
           print PBS "source $genie_setup \n"; 
           print PBS "cd $jobs_dir \n";
           print PBS "export GSPLOAD=$xspl_file \n";
-          print PBS "export GEVGL=$gevgl \n";
+          print PBS "export GEVGL=EM \n";
           print PBS "export GSEED=$curr_seed \n";
           print PBS "$evgen_cmd \n";
           print PBS "$conv_cmd \n";
@@ -203,6 +249,5 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
 
     } # loop over subruns
 
- } #checking whether to submit current run
 } # loop over runs
 
