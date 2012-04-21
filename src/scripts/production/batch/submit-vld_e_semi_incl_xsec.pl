@@ -73,25 +73,32 @@ $queue          = "prod"                                  unless defined $queue;
 $softw_topdir   = "/opt/ppd/t2k/softw/GENIE"              unless defined $softw_topdir;
 $time_limit     = "60:00:00";
 $genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
-$jobs_dir       = "$softw_topdir/scratch/vld\_nuclmod-$production\_$cycle";
+$jobs_dir       = "$softw_topdir/scratch/vld\_e\_semi\_incl-$production\_$cycle";
 $xspl_file      = "$softw_topdir/data/job_inputs/xspl/gxspl-emode-$genie_version.xml";
 $mcseed         = 210921029;
 $nev_per_subrun = 100000;
 
-# standard runs outlined
+#
+# MC runs required for generating predictions for all datasets described
+# data/validation/eA/xsec/differential/qe/datasets.txt
+#
 @std_runnu = 
 (
 # 2D
 #  ...
+#  ... to be added
 #  ...
 # 3H
 #  ...
+#  ... to be added
 #  ...
 # 3He
 #  ...
+#  ... to be added
 #  ...
 # 4He
 #  ...
+#  ... to be added
 #  ...
 # 12C
   100601200160,  # (e-,e-')12C,  0.160 GeV
@@ -129,27 +136,35 @@ $nev_per_subrun = 100000;
   100601205120   # (e-,e-')12C,  5.120 GeV
 # 16O
 #  ...
+#  ... to be added
 #  ...
 # 27Al
 #  ...
+#  ... to be added
 #  ...
 # 40Ca
 #  ...
+#  ... to be added
 #  ...
 # 48Ca
 #  ...
+#  ... to be added
 #  ...
 # 56Fe
 #  ...
+#  ... to be added
 #  ...
 # 197Au
 #  ...
+#  ... to be added
 #  ...
 # 208Pb
 #  ...
+#  ... to be added
 #  ...
 # 238U
 #  ...
+#  ... to be added
 #  ...
 );
 
@@ -171,11 +186,10 @@ mkpath ($jobs_dir, {verbose => 1, mode=>0777});
 #
 
 # run loop
-foreach($runnu) {
+foreach(@runnu) {
     my $curr_runnu = $_;
     print "** submitting event generation run: $curr_runnu \n";
 
-foreach($runnu) {
     # match probe,Z,A,E from current run
     my ($m_probe, $m_Z, $m_A, $m_E) = $curr_runnu =~ /([0-9]{1})([0-9]{3})([0-9]{3})([0-9]{5})/;
 
