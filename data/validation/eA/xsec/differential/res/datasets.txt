@@ -1,11 +1,11 @@
 #
-# This is the list of datasets downloaded from the
-# Resonance Electron-Nucleus Scattering Archive maintained by JLAB
+# List of datasets downloaded from the
+# Resonance Electron-Nucleus Scattering Archive maintained by JLAB.
 #
-# The GENIE `gvld_e_res_xsec' validation app reads this summary 
-# to determine which data/MC comparisons to perform.
-# Lines beginning with # are ignored so one can comment-out
-# certain data/MC comparisons
+# This list is read by the GENIE `gvld_e_res_xsec' validation app 
+# and it determines which data/MC comparisons are performed.
+# Lines beginning with # are ignored so one can comment-out certain 
+# data/MC comparisons.
 #
 # ------------------------------------------------------------------
 # Target      Experiment      Ee(GeV)  Theta (deg)
