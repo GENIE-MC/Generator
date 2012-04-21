@@ -6,7 +6,7 @@
 # scattering data.
 #
 # Syntax:
-#   shell% perl submit-xsec_emode.pl <options>
+#   shell% perl submit_eA_xsec_calc_jobs.pl <options>
 #
 # Options:
 #    --version       : GENIE version number
@@ -54,7 +54,7 @@ $batch_system   = "PBS"                      unless defined $batch_system;
 $queue          = "prod"                     unless defined $queue;
 $softw_topdir   = "/opt/ppd/t2k/softw/GENIE" unless defined $softw_topdir;
 $genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
-$jobs_dir       = "$softw_topdir/scratch/xsec\_elec-$production\_$cycle/";
+$jobs_dir       = "$softw_topdir/scratch/xsec\_eA-$production\_$cycle/";
 
 $nkots     = 200;
 $emax      =  35;

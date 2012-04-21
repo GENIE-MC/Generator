@@ -1,11 +1,13 @@
 #!/usr/bin/perl
 
 #------------------------------------------------------------------------------------------
-# Submit jobs for calculating GENIE cross section splines for all nuclear targets 
+# Submit jobs for calculating GENIE cross-section splines for all nuclear targets 
 # and at the energy range required for generating the GENIE release validation samples.
+# Note that other scripts are available for generating cross-section splines for the 
+# larger array of nuclear targets found in detector geometry descriptions of given expts.
 #
 # Syntax:
-#   shell% perl submit-xsec_vldsamples.pl <options>
+#   shell% perl submit_vA_xsec_calc_jobs.pl <options>
 #
 # Options:
 #    --version       : GENIE version number
@@ -53,8 +55,8 @@ $batch_system   = "PBS"                      unless defined $batch_system;
 $queue          = "prod"                     unless defined $queue;
 $softw_topdir   = "/opt/ppd/t2k/softw/GENIE" unless defined $softw_topdir;
 $genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
-$jobs_dir       = "$softw_topdir/scratch/xsec\_vldsamples-$production\_$cycle/";
-$freenucsplines = "$softw_topdir/data/job_inputs/xspl/gxspl-freenuc-$genie_version.xml";
+$jobs_dir       = "$softw_topdir/scratch/xsec\_vA-$production\_$cycle/";
+$freenucsplines = "$softw_topdir/data/job_inputs/xspl/gxspl-vN-$genie_version.xml";
 
 $nkots     = 1000;
 $emax      =  150;

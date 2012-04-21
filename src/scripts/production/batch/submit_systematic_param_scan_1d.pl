@@ -4,7 +4,7 @@
 # Script to submit jobs used for evaluating neutrino interaction systematics.
 #
 # Syntax:
-#   perl submit-systematics-1d_scan.pl <options>
+#   perl submit_systematic_param_scan_1d.pl <options>
 #
 # Options:
 #    --version         : GENIE version number.
