@@ -50,8 +50,10 @@
 # The file will contain the following folders (TDirectories):
 # - nu_mu_n
 # - nu_mu_H1
-# - nu_mubar_n
-# - nu_mubar_H1
+# - nu_mu_bar_n
+# - nu_mu_bar_H1
+# - nu_mu_C12
+# - nu_mu_bar_C12
 # - nu_mu_Ne20
 # - nu_mu_bar_Ne20
 # - nu_mu_Al27
@@ -141,7 +143,9 @@ $nev_per_subrun = 100000;
   '6' =>  '-14',
   '7' =>   '14',
   '8' =>   '14',
-  '9' =>  '-14'
+  '9' =>  '-14',
+ '10' =>   '14',
+ '11' =>  '-14'
 );
 %xsec_tgtpdg_hash = ( 
   '1' =>  '1000000010',
@@ -152,7 +156,9 @@ $nev_per_subrun = 100000;
   '6' =>  '1000100200', # Ne20
   '7' =>  '1000130270', # Al27
   '8' =>  '1000140300', # Si30, proxy for freon (average A=30), used for coherent pi production plots only
-  '9' =>  '1000140300'  # Si30, proxy for freon (average A=30), used for coherent pi production plots only
+  '9' =>  '1000140300', # Si30, proxy for freon (average A=30), used for coherent pi production plots only
+ '10' =>  '1000060120', # C12
+ '11' =>  '1000060120'  # C12
 );
 
 # make the jobs directory
