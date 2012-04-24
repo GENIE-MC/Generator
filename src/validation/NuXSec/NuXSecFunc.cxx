@@ -111,10 +111,11 @@ TGraph * NuXSecFromEventSample::operator()
 }
 //____________________________________________________________________________
 NuXSecDirectlyFromXSecFile::NuXSecDirectlyFromXSecFile(
-    string xsec_dir, string xsec_spline) :
+    string xsec_dir, string xsec_spline, double scale_factor) :
 NuXSecFunc(),
-fXSecDir    (xsec_dir),           
-fXSecSpline (xsec_spline)
+fXSecDir     (xsec_dir),           
+fXSecSpline  (xsec_spline),
+fScaleFactor (scale_factor)
 {
 }
 //............................................................................
@@ -142,15 +143,17 @@ TGraph * NuXSecDirectlyFromXSecFile::operator()
   bool inlogE = true;
   for(int i = 0; i < n; i++) {
     double energy = (inlogE) ? 
-      TMath::Power(10., TMath::Log10(Emin) + i * TMath::Log10(Emax-Emin)/(n-1)) : 
+      TMath::Power(10., TMath::Log10(Emin) + i * (TMath::Log10(Emax)-TMath::Log10(Emin))/(n-1)) : 
          Emin + i*(Emax-Emin)/(n-1);
     double xsec = xsec_spline->Eval(energy);
     if(scale_with_E) {
       assert(energy>0);
       xsec /= energy;
     }
+    xsec *= fScaleFactor;
+
     energy_array[i] = energy;
-    xsec_array[i] = xsec;
+    xsec_array[i]   = xsec;
   }
 
   TGraph * model = new TGraph(n,energy_array,xsec_array);
@@ -205,7 +208,7 @@ TGraph * NuXSecCombineSplinesFromXSecFile::operator()
   bool inlogE = true;
   for(int i = 0; i < n; i++) {
     double energy = (inlogE) ? 
-       TMath::Power(10., TMath::Log10(Emin) + i * TMath::Log10(Emax-Emin)/(n-1)) : 
+       TMath::Power(10., TMath::Log10(Emin) + i * (TMath::Log10(Emax)-TMath::Log10(Emin))/(n-1)) : 
        Emin + i*(Emax-Emin)/(n-1);     
     double xsec_1 = xsec_spline_1->Eval(energy);
     double xsec_2 = xsec_spline_2->Eval(energy);

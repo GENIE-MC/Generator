@@ -91,7 +91,7 @@ private:
 class NuXSecDirectlyFromXSecFile: public NuXSecFunc
 {
 public:
-  NuXSecDirectlyFromXSecFile(string xsec_dir, string xsec_spline);
+  NuXSecDirectlyFromXSecFile(string xsec_dir, string xsec_spline, double scale=1.);
  ~NuXSecDirectlyFromXSecFile();
 
   TGraph * operator() (
@@ -100,6 +100,7 @@ public:
 private:
   string fXSecDir;          
   string fXSecSpline;   
+  double fScaleFactor;   
 };
 
 //
