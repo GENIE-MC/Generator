@@ -1,0 +1,25 @@
+# 
+# GENIE neutrino-nucleus cross-section data archive
+# 
+# Experiment : NOMAD
+# Dataset ID : 2
+# Citation   : Lyubushkin:2008pe
+# Process    : numu CC QE	 
+# 
+# Energy is given in GeV and cross-section is given in 1E-38*cm2/GeV/nucleon
+# The quoted cross-section error includes statistical and systematic uncertainty.
+# The cross-section is the one for a free-nucleon target and is computed from
+# the NOMAD,0 dataset applying a nuclear correction according to the Smith-Moniz model. 
+#
+# E         Emin      Emax      XSec      +dXSec    -dXSec      
+# 
+  4.7000    3.0000    6.0000    1.0570    0.1568    0.1568
+  7.7000    6.0000    9.0000    1.0010    0.1132    0.1132
+ 10.5000    9.0000   12.0000    1.0770    0.1031    0.1031
+ 13.5000   12.0000   15.0000    0.9130    0.0961    0.0961
+ 17.8000   15.0000   21.0000    0.8960    0.0830    0.0830
+ 23.8000   21.0000   27.0000    1.0530    0.0930    0.0930
+ 29.8000   27.0000   33.0000    0.9430    0.1027    0.1027
+ 35.8000   33.0000   39.0000    1.0300    0.1232    0.1232
+ 45.3000   39.0000   54.0000    0.9510    0.1075    0.1075
+ 71.7000   54.0000  100.0000    0.9670    0.1132    0.1132
