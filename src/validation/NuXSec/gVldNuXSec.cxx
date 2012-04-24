@@ -67,6 +67,7 @@
 #include "Messenger/Messenger.h"
 #include "Utils/CmdLnArgParser.h"
 #include "Utils/GSimFiles.h"
+#include "Utils/SystemUtils.h"
 #include "Utils/Style.h"
 
 #include "validation/NuXSec/NuXSecData.h"
@@ -80,20 +81,25 @@ using namespace genie;
 using namespace genie::mc_vs_data;
 
 //
-// This section specifies how exactly to construct all comparisons
+// Constants
 //
 
-const int kNumOfComparisons = 25;
+// default data archive
+const char * kDefDataFile = "data/validation/vA/xsec/integrated/nuXSec.root";  
 
-NuXSecComparison * kComparison[kNumOfComparisons] = {
+// number of comparisons
+const int kNumOfComparisons = 31;
 
+// specify how exactly to construct all comparisons
+NuXSecComparison * kComparison[kNumOfComparisons] = 
+{
   // nu_mu CC inclusive,
   new NuXSecComparison(
     "#nu_{#mu} CC inclusive",
     "ANL_12FT,2;ANL_12FT,4;BEBC,0;BEBC,2;BEBC,5;BEBC,8;BNL_7FT,0;BNL_7FT,4;CCFR,2;CCFRR,0;CHARM,0;CHARM,4;FNAL_15FT,1;FNAL_15FT,2;Gargamelle,0;Gargamelle,10;Gargamelle,12;IHEP_ITEP,0;IHEP_ITEP,2;IHEP_JINR,0;SKAT,0;MINOS,0",
      new NuXSecCombineSplinesFromXSecFile(0.5,"nu_mu_n","tot_cc_n",0.5,"nu_mu_H1","tot_cc_p"),
      0.1, 120.0, 
-     true, true, false
+     false, false, false
   ),
   // nu_mu_bar CC inclusive
   new NuXSecComparison(
@@ -101,7 +107,23 @@ NuXSecComparison * kComparison[kNumOfComparisons] = {
     "BEBC,1;BEBC,3;BEBC,6;BEBC,7;BNL_7FT,1;CCFR,3;CHARM,1;CHARM,5;FNAL_15FT,4;FNAL_15FT,5;Gargamelle,1;Gargamelle,11;Gargamelle,13;IHEP_ITEP,1;IHEP_ITEP,3;IHEP_JINR,1;MINOS,1",
      new NuXSecCombineSplinesFromXSecFile(0.5,"nu_mu_bar_n","tot_cc_n",0.5,"nu_mu_bar_H1","tot_cc_p"),
      0.1, 120.0, 
-     true, true, false
+     false, false, false
+  ),
+  // nu_mu CC inclusive, low/medium-energy data only
+  new NuXSecComparison(
+    "#nu_{#mu} CC inclusive, low/medium-energy data only",
+    "ANL_12FT,2;ANL_12FT,4;BEBC,0;BEBC,2;BEBC,5;BEBC,8;BNL_7FT,0;BNL_7FT,4;CCFR,2;CCFRR,0;CHARM,0;CHARM,4;FNAL_15FT,1;FNAL_15FT,2;Gargamelle,0;Gargamelle,10;Gargamelle,12;IHEP_ITEP,0;IHEP_ITEP,2;IHEP_JINR,0;SKAT,0;MINOS,0",
+     new NuXSecCombineSplinesFromXSecFile(0.5,"nu_mu_n","tot_cc_n",0.5,"nu_mu_H1","tot_cc_p"),
+     0.1, 20.0, 
+     false, false, false
+  ),
+  // nu_mu_bar CC inclusive, low/medium-energy data only
+  new NuXSecComparison(
+    "#bar{#nu_{#mu}} CC inclusive, low/medium-energy data only",
+    "BEBC,1;BEBC,3;BEBC,6;BEBC,7;BNL_7FT,1;CCFR,3;CHARM,1;CHARM,5;FNAL_15FT,4;FNAL_15FT,5;Gargamelle,1;Gargamelle,11;Gargamelle,13;IHEP_ITEP,1;IHEP_ITEP,3;IHEP_JINR,1;MINOS,1",
+     new NuXSecCombineSplinesFromXSecFile(0.5,"nu_mu_bar_n","tot_cc_n",0.5,"nu_mu_bar_H1","tot_cc_p"),
+     0.1, 20.0, 
+    false, false, false
   ),
   // nu_mu CC inclusive, high-energy data only
   new NuXSecComparison(
@@ -138,49 +160,81 @@ NuXSecComparison * kComparison[kNumOfComparisons] = {
   // nu_mu CC QE, all data
   new NuXSecComparison(
     "#nu_{#mu} CCQE, all data",
-    "ANL_12FT,1;ANL_12FT,3;BEBC,12;BNL_7FT,3;FNAL_15FT,3;Gargamelle,2;SERP_A1,0;SERP_A1,1;SKAT,8",
+    "ANL_12FT,1;ANL_12FT,3;BEBC,12;BNL_7FT,3;FNAL_15FT,3;Gargamelle,2;SERP_A1,0;SERP_A1,1;SKAT,8;NOMAD,2",
      new NuXSecDirectlyFromXSecFile("nu_mu_n", "qel_cc_n"),
      0.1, 30.0, 
      true, false, false
   ),
-  // nu_mu CC QE, light target data only
+  // nu_mu CC QE, deuterium data only
   new NuXSecComparison(
-    "#nu_{#mu} CCQE, light target data",
+    "#nu_{#mu} CCQE, deuterium data",
     "ANL_12FT,1;ANL_12FT,3;BEBC,12;BNL_7FT,3;FNAL_15FT,3",
      new NuXSecDirectlyFromXSecFile("nu_mu_n", "qel_cc_n"),
      0.1, 30.0, 
      true, false, false
   ),
-  // nu_mu CC QE, heavy target data only
+  // nu_mu CC QE, data on heavier targets
   new NuXSecComparison(
     "#nu_{#mu} CCQE, heavy target data",
-    "Gargamelle,2;SERP_A1,0;SERP_A1,1;SKAT,8",
+    "Gargamelle,2;SERP_A1,0;SERP_A1,1;SKAT,8;NOMAD,2",
      new NuXSecDirectlyFromXSecFile("nu_mu_n", "qel_cc_n"),
      0.1, 30.0, 
+     true, false, false
+  ),
+  // nu_mu CC QE, NOMAD, nuclear cross-section
+  new NuXSecComparison(
+    "#nu_{#mu} CCQE, NOMAD, ^{12}C cross-section per neutron (no nuclear correction)",
+    "NOMAD,0",
+     new NuXSecDirectlyFromXSecFile("nu_mu_C12", "qel_cc_n", 1./6.),
+     2.0, 100.0, 
+     true, false, false
+  ),
+  // nu_mu CC QE, NOMAD, free-nucleon cross-section
+  new NuXSecComparison(
+    "#nu_{#mu} CCQE, NOMAD, free-nucleon cross-section (incl. Smith-Moniz correction)",
+    "NOMAD,2",
+     new NuXSecDirectlyFromXSecFile("nu_mu_n", "qel_cc_n"),
+     2.0, 100.0, 
      true, false, false
   ),
   // nu_mu_bar CC QE, all data
   new NuXSecComparison(
     "#bar{#nu_{#mu}} CCQE, all data",
-    "BNL_7FT,2;Gargamelle,3;Gargamelle,5;SERP_A1,2;SKAT,9",
+    "BNL_7FT,2;Gargamelle,3;Gargamelle,5;SERP_A1,2;SKAT,9;NOMAD,3",
      new NuXSecDirectlyFromXSecFile("nu_mu_bar_H1", "qel_cc_p"),
      0.1, 30.0, 
      true, false, false
   ),
-  // nu_mu_bar CC QE, light target data only
+  // nu_mu_bar CC QE, deuterium data only
   new NuXSecComparison(
-    "#bar{#nu_{#mu}} CCQE, light target data",
+    "#bar{#nu_{#mu}} CCQE, deuterium data",
     "BNL_7FT,2",
      new NuXSecDirectlyFromXSecFile("nu_mu_bar_H1", "qel_cc_p"),
      0.1, 30.0, 
      true, false, false
   ),
-  // nu_mu_bar CC QE, heavy target data only
+  // nu_mu_bar CC QE, data on heavier targets
   new NuXSecComparison(
     "#bar{#nu_{#mu}} CCQE, heavy target data",
-    "Gargamelle,3;Gargamelle,5;SERP_A1,2;SKAT,9",
+    "Gargamelle,3;Gargamelle,5;SERP_A1,2;SKAT,9;NOMAD,3",
      new NuXSecDirectlyFromXSecFile("nu_mu_bar_H1", "qel_cc_p"),
      0.1, 30.0, 
+     true, false, false
+  ),
+  // nu_mu_bar CC QE, NOMAD, nuclear cross-section
+  new NuXSecComparison(
+    "#bar{#nu_{#mu}} CCQE, NOMAD, ^{12}C cross-section per proton (no nuclear correction)",
+    "NOMAD,1",
+     new NuXSecDirectlyFromXSecFile("nu_mu_bar_C12", "qel_cc_p", 1./6.),
+     2.0, 100.0, 
+     true, false, false
+  ),
+  // nu_mu_bar CC QE, NOMAD, free-nucleon cross-section
+  new NuXSecComparison(
+    "#bar{#nu_{#mu}} CCQE, NOMAD, free-nucleon cross-section (incl. Smith-Moniz correction)",
+    "NOMAD,3",
+     new NuXSecDirectlyFromXSecFile("nu_mu_bar_H1", "qel_cc_p"),
+     2.0, 100.0, 
      true, false, false
   ),
   // nu_mu + p -> mu- + p + pi+ 
@@ -313,25 +367,22 @@ NuXSecComparison * kComparison[kNumOfComparisons] = {
   )
 };
 
-// function prototypes
-void     Init               (void);
-void     End                (void);
-void     AddCoverPage       (void);
-void     Draw               (int icomparison);
-TH1F *   DrawFrame          (TGraph * gr0, TGraph * gr1);
-TH1F *   DrawFrame          (double xmin, double xmax, double ymin, double yman);
-void     GetCommandLineArgs (int argc, char ** argv);
-void     PrintSyntax        (void);
+// styles
+const int kNMaxModels = 3;
+const int kModelLineStyle [kNMaxModels] = 
+{ 
+  kSolid, kDashed, kDotted
+};
+
+//
+// globals
+//
 
 // command-line arguments
 GSimFiles gOptGenieInputs;
 string gOptDataFilename = "";  // -d
 string gOptGenieFileList = ""; // -g
 
-// default data archive
-const char * kDefDataFile = "data/validation/vA/xsec/integrated/nuXSec.root";  
-
-// globals
 NuXSecData    gNuXSecData;
 TPostScript * gPS              = 0;
 TCanvas *     gC               = 0;
@@ -339,15 +390,16 @@ TLegend *     gLS              = 0;
 bool          gShowModel       = false;
 
 //
-// Data-point & GENIE-prediction styles
+// function prototypes
 //
 
-const int kNMaxModels   =  3;
-
-const int kModelLineStyle [kNMaxModels] = 
-{ 
-  kSolid, kDashed, kDotted
-};
+void     Init               (void);
+void     End                (void);
+void     Draw               (int icomparison);
+TH1F *   DrawFrame          (TGraph * gr0, TGraph * gr1);
+TH1F *   DrawFrame          (double xmin, double xmax, double ymin, double yman);
+void     GetCommandLineArgs (int argc, char ** argv);
+void     PrintSyntax        (void);
 
 //_________________________________________________________________________________
 int main(int argc, char ** argv)
@@ -405,7 +457,7 @@ void Init(void)
      }
   }
 
-  // canvas
+  // Create plot canvas
   gC = new TCanvas("c","",20,20,500,650);
   gC->SetBorderMode(0);
   gC->SetFillColor(0);
@@ -416,31 +468,31 @@ void Init(void)
   gLS -> SetFillColor(0);
   gLS -> SetBorderSize(1);
 
-  // output postscript file
-  gPS = new TPostScript("genie_nuxec_vs_data.ps", 111);
+  // Get local time to tag outputs
+  string lt_short = utils::system::LocalTimeAsString("%d.%d.%d_%d.%d.%d"); 
+  string lt_long  = utils::system::LocalTimeAsString("%d/%d/%d %2d:%2d:%2d"); 
 
-  // cover page
-  AddCoverPage();
+  // Create output postscript file
+  string filename  = Form("genie-world_nu_xsec_data_comp-%s.ps",lt_short.c_str());
+  gPS = new TPostScript(filename.c_str(), 111);
 
-//  gC->SetLogx();
-//  gC->SetLogy();
-}
-//_________________________________________________________________________________
-void AddCoverPage(void)
-{
-  // header
+  // Add cover page
   gPS->NewPage();
   gC->Range(0,0,100,100);
   TPavesText hdr(10,40,90,70,3,"tr");
   hdr.AddText(" ");
-  hdr.AddText("GENIE Neutrino Cross-Section Comparisons with World Data");
+  hdr.AddText("GENIE comparison with world neutrino cross-section data");
   hdr.AddText(" ");
   hdr.AddText(" ");
-  // for(int imodel=0; imodel< gOptGenieInputs.NModels(); imodel++) {
-  //  ostringstream stream;
-  //  stream << "model tag: " << gOptGenieInputs.ModelTag(imodel)
-  //  hdr.AddText(stream.str().c_str());
-  // }
+  hdr.AddText(" ");
+  hdr.AddText("Models included in the comparison: ");
+  for(int imodel=0; imodel< gOptGenieInputs.NModels(); imodel++) {
+     hdr.AddText(Form("%d : %s", imodel, gOptGenieInputs.ModelTag(imodel).c_str()));
+  }
+  hdr.AddText(" ");
+  hdr.AddText(" ");
+  hdr.AddText(" ");
+  hdr.AddText(lt_long.c_str());
   hdr.AddText(" ");
   hdr.Draw();
   gC->Update();
@@ -466,6 +518,10 @@ void Draw(int icomparison)
   bool   scale        = kComparison[icomparison]->ScaleWithE();
   bool   inlogx       = kComparison[icomparison]->InLogX();
   bool   inlogy       = kComparison[icomparison]->InLogY();
+
+  LOG("gvldtest", pNOTICE) 
+      << "\n Dataset keys: " << dataset_keys 
+      << "\n Energy range: [" << emin << ", " << emax << "] GeV";
 
   // get all measurements for the current channel
   vector<TGraphAsymmErrors *> data = gNuXSecData.Retrieve(dataset_keys,emin,emax,scale);
