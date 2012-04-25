@@ -14,27 +14,29 @@ include $(GENIE)/src/make/Make.include
 # Add extra libraries needed for these executables
 GENIE_LIBS   = $(shell $(GENIE)/src/scripts/setup/genie-config --libs)
 LIBRARIES   := $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
-#VLDTOOL_LIBS = $(shell $(GENIE)/src/scripts/setup/genie-config --vldlibs)
-#LIBRARIES   := $(GENIE_LIBS) $(VLDTOOL_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 
-#all: gVldStructFunc \
-#     gVldStructFuncSumRuleTest
+VLD_SF_SOURCES   := StructFunc.cxx gVldStructFunc.cxx
+VLD_SF_OBJECTS    = $(addsuffix .$(ObjSuf), $(basename $(VLD_SF_SOURCES)))
 
-all: 
+VLD_SUMRULE_SOURCES   := StructFunc.cxx gVldStructFuncSumRuleTest.cxx
+VLD_SUMRULE_OBJECTS    = $(addsuffix .$(ObjSuf), $(basename $(VLD_SUMRULE_SOURCES)))
+
+all: gVldStructFunc \
+     gVldStructFuncSumRuleTest
 
 #
 # Program comparing GENIE structure functions against the world data
 #
 gVldStructFunc: FORCE
-	$(CXX) $(CXXFLAGS) -c gVldStructFunc.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) gVldStructFunc.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gvld_sf
+	$(CXX) $(CXXFLAGS) -c $(VLD_SF_SOURCES) $(INCLUDES)
+	$(LD) $(LDFLAGS) $(VLD_SF_OBJECTS) $(LIBRARIES) -o $(GENIE_BIN_PATH)/gvld_sf
 
 #
 # Sum rule checks
 #
 gVldStructFuncSumRuleTest: FORCE
-	$(CXX) $(CXXFLAGS) -c gVldStructFuncSumRuleTest.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) gVldStructFuncSumRuleTest.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gvld_sf_sum_rule_test
+	$(CXX) $(CXXFLAGS) -c $(VLD_SUMRULE_SOURCES) $(INCLUDES)
+	$(LD) $(LDFLAGS) $(VLD_SUMRULE_OBJECTS) $(LIBRARIES) -o $(GENIE_BIN_PATH)/gvld_sf_sum_rule_test
 
 purge: FORCE
 	$(RM) *.o *~ core 

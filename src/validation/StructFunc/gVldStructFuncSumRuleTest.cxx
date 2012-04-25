@@ -3,9 +3,12 @@
 
 \program gvld_sf_sum_rule_test
 
-\brief   Check sum rules
+\brief   Structure function sum rule test
 
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+         STFC, Rutherford Appleton Laboratory
+
+         Jelena Ilic <jelena.ilic \at stfc.ac.uk>
          STFC, Rutherford Appleton Laboratory
 
 \created May 30, 2009
