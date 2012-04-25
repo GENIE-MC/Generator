@@ -1,21 +1,38 @@
 //____________________________________________________________________________
 /*!
 
-\program gvld_sf_vs_world_data
+\program gvld_sf
 
-\brief   A GENIE utility that generates structure function comparison plots
+\brief   Compares GENIE F2 and xF3 structure-function models with data.
 
          Syntax:
-           gvld_sf_vs_world_data [-h host] [-u user] [-p passwd] [-g inputs]
+           gvld_sf 
+                [-r model_for_resonance_xsec]
+                [-c model_for_dis_continuum_xsec]
+                [-d data_archive] 
 
          Options:
            [] Denotes an optional argument.
-           -h NuVld MySQL URL (eg mysql://localhost/NuScat)
-           -u NuVld MySQL username 
-           -p NuVld MySQL password
-           -g GENIE inputs
+
+          -r Specify GENIE resonance cross-section model.
+          -c Specify GENIE DIS cross-section model.
+
+          -d Location of the neutrino cross-section data archive.
+             By default, the program will look-up the one located in:
+             $GENIE/data/validation/sf/??
+
+         Example:
+
+            % gvld_sf
+                  -r genie::ReinSeghalRESPXSec/Default
+                  -c genie::QPMDISPXSec/Default
+
+
 		      
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+         STFC, Rutherford Appleton Laboratory
+
+         Jelena Ilic <jelena.ilic \at stfc.ac.uk>
          STFC, Rutherford Appleton Laboratory
 
 \created June 06, 2008 
@@ -26,402 +43,247 @@
 */
 //____________________________________________________________________________
 
+#include <cstdlib>
 #include <cassert>
+#include <fstream>
 #include <sstream>
 #include <string>
+#include <vector>
 
 #include <TSystem.h>
 #include <TFile.h>
 #include <TDirectory.h>
 #include <TGraph.h>
+#include <TGraphErrors.h>
 #include <TPostScript.h>
+#include <TLatex.h>
 #include <TH1D.h>
 #include <TMath.h>
 #include <TCanvas.h>
 #include <TPavesText.h>
 #include <TText.h>
-#include <TStyle.h>
 #include <TLegend.h>
+#include <TBox.h>
 
+#include "Algorithm/AlgFactory.h"
+#include "Base/XSecAlgorithmI.h"
+#include "Conventions/Constants.h"
+#include "Conventions/Units.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGUtils.h"
 #include "PDG/PDGCodes.h"
 #include "Utils/CmdLnArgParser.h"
-#include "ValidationTools/NuVld/DBI.h"
-#include "ValidationTools/NuVld/DBStatus.h"
+#include "Utils/StringUtils.h"
+#include "Utils/SystemUtils.h"
+#include "Utils/Style.h"
+#include "validation/StructFunc/StructFunc.h"
 
 using std::ostringstream;
+using std::ifstream;
 using std::string;
+using std::vector;
 
 using namespace genie;
-using namespace genie::nuvld;
+using namespace genie::constants;
+using namespace genie::mc_vs_data;
 
-/*
-..............................................................................
-STRUCTURE FUNCTION DATA
-..............................................................................
-ID   DESCRIPTION
-0    neutrino F2 ....... [all, x = 0.007]
-1    neutrino F2 ....... [all, x = 0.013]
-2    neutrino F2 ....... [all, x = 0.015]
-3    neutrino F2 ....... [all, x = 0.018]
-4    neutrino F2 ....... [all, x = 0.025]
-5    neutrino F2 ....... [all, x = 0.035]
-6    neutrino F2 ....... [all, x = 0.045]
-7    neutrino F2 ....... [all, x = 0.050]
-8    neutrino F2 ....... [all, x = 0.070]
-9    neutrino F2 ....... [all, x = 0.080]
-10   neutrino F2 ....... [all, x = 0.090]
-11   neutrino F2 ....... [all, x = 0.110]
-12   neutrino F2 ....... [all, x = 0.125]
-13   neutrino F2 ....... [all, x = 0.140]
-14   neutrino F2 ....... [all, x = 0.175]
-15   neutrino F2 ....... [all, x = 0.180]
-16   neutrino F2 ....... [all, x = 0.225]
-17   neutrino F2 ....... [all, x = 0.275]
-18   neutrino F2 ....... [all, x = 0.350]
-19   neutrino F2 ....... [all, x = 0.450]
-20   neutrino F2 ....... [all, x = 0.550]
-21   neutrino F2 ....... [all, x = 0.650]
-22   neutrino F2 ....... [all, x = 0.750]
-23   charged lepton F2.. [all, x = 0.049-0.051]
-24   xF3................ [all, x = 0.049-0.051]
-..............................................................................
-*/
-const int   kSFDataSets = 25;
-const float kSFQ2min  = 1;
-const float kSFQ2max  = 400;
-const int   kSFRawDis = 2;
+//.................................................................................
+// Utility class to hold info on data/MC comparisons
+//
+class SFCompInfo
+{
+public:
+  SFCompInfo(string label, string datasets) :
+   fLabel       (label),
+   fDataSetKeys (datasets)
+  { 
+  }
+ ~SFCompInfo() { }
 
-const char * kSFDataSetLabel[kSFDataSets] = {
-/* 0  */ "neutrino F2  (all/Fe56, x = 0.007)",
-/* 1  */ "neutrino F2  (all/Fe56, x = 0.013)",
-/* 2  */ "neutrino F2  (all/Fe56, x = 0.015)",
-/* 3  */ "neutrino F2  (all/Fe56, x = 0.018)",
-/* 4  */ "neutrino F2  (all/Fe56, x = 0.025)",
-/* 5  */ "neutrino F2  (all/Fe56, x = 0.035)",
-/* 6  */ "neutrino F2  (all/Fe56, x = 0.045)",
-/* 7  */ "neutrino F2  (all/Fe56, x = 0.050)",
-/* 8  */ "neutrino F2  (all/Fe56, x = 0.070)",
-/* 9  */ "neutrino F2  (all/Fe56, x = 0.080)",
-/* 10 */ "neutrino F2  (all/Fe56, x = 0.090)",
-/* 11 */ "neutrino F2  (all/Fe56, x = 0.110)",
-/* 12 */ "neutrino F2  (all/Fe56, x = 0.125)",
-/* 13 */ "neutrino F2  (all/Fe56, x = 0.140)",
-/* 14 */ "neutrino F2  (all/Fe56, x = 0.175)",
-/* 15 */ "neutrino F2  (all/Fe56, x = 0.180)",
-/* 16 */ "neutrino F2  (all/Fe56, x = 0.225)",
-/* 17 */ "neutrino F2  (all/Fe56, x = 0.275)",
-/* 18 */ "neutrino F2  (all/Fe56, x = 0.350)",
-/* 19 */ "neutrino F2  (all/Fe56, x = 0.450)",
-/* 20 */ "neutrino F2  (all/Fe56, x = 0.550)",
-/* 21 */ "neutrino F2  (all/Fe56, x = 0.650)",
-/* 22 */ "neutrino F2  (all/Fe56, x = 0.750)",
-/* 23 */ "charged lepton F2 (all, x = 0.049-0.051) ",
-/* 24 */ "xF3 (all, x = 0.049-0.051) "
-};
+  string Label       (void) const { return fLabel;         }
+  string DataSetKeys (void) const { return fDataSetKeys;   }
 
-const char * kSFKeyList[kSFDataSets] = {
-/* 0  */ "CCFR,0;CDHS,0;NUTEV,0",
-/* 1  */ "CCFR,0;CDHS,0;NUTEV,0",
-/* 2  */ "CCFR,0;CDHS,0;NUTEV,0",
-/* 3  */ "CCFR,0;CDHS,0;NUTEV,0",
-/* 4  */ "CCFR,0;CDHS,0;NUTEV,0",
-/* 5  */ "CCFR,0;CDHS,0;NUTEV,0",
-/* 6  */ "CCFR,0;CDHS,0;NUTEV,0",
-/* 7  */ "CCFR,0;CDHS,0;NUTEV,0",
-/* 8  */ "CCFR,0;CDHS,0;NUTEV,0",
-/* 9  */ "CCFR,0;CDHS,0;NUTEV,0",
-/* 10 */ "CCFR,0;CDHS,0;NUTEV,0",
-/* 11 */ "CCFR,0;CDHS,0;NUTEV,0",
-/* 12 */ "CCFR,0;CDHS,0;NUTEV,0",
-/* 13 */ "CCFR,0;CDHS,0;NUTEV,0",
-/* 14 */ "CCFR,0;CDHS,0;NUTEV,0",
-/* 15 */ "CCFR,0;CDHS,0;NUTEV,0",
-/* 16 */ "CCFR,0;CDHS,0;NUTEV,0",
-/* 17 */ "CCFR,0;CDHS,0;NUTEV,0",
-/* 18 */ "CCFR,0;CDHS,0;NUTEV,0",
-/* 19 */ "CCFR,0;CDHS,0;NUTEV,0",
-/* 20 */ "CCFR,0;CDHS,0;NUTEV,0",
-/* 21 */ "CCFR,0;CDHS,0;NUTEV,0",
-/* 22 */ "CCFR,0;CDHS,0;NUTEV,0",
-/* 23 */ "BCDMS,0;EMC,0;NMC,0;SLAC,0",
-/* 24 */ "CCFR,1;CDHS,1;NUTEV,1;WA59,1"
-};
-float kSFx[kSFDataSets] = {
-/* 0  */ 0.007,
-/* 1  */ 0.013,
-/* 2  */ 0.015,
-/* 3  */ 0.018,
-/* 4  */ 0.025,
-/* 5  */ 0.035,
-/* 6  */ 0.045,
-/* 7  */ 0.050,
-/* 8  */ 0.070,
-/* 9  */ 0.080,
-/* 10 */ 0.090,
-/* 11 */ 0.110,
-/* 12 */ 0.125,
-/* 13 */ 0.140,
-/* 14 */ 0.175,
-/* 15 */ 0.180,
-/* 16 */ 0.225,
-/* 17 */ 0.275,
-/* 18 */ 0.350,
-/* 19 */ 0.450,
-/* 20 */ 0.550,
-/* 21 */ 0.650,
-/* 22 */ 0.750,
-/* 23 */ 0.050,
-/* 24 */ 0.050
-};
-int kSFA[kSFDataSets] = {
-/* 0  */ 56,
-/* 1  */ 56,
-/* 2  */ 56,
-/* 3  */ 56,
-/* 4  */ 56,
-/* 5  */ 56,
-/* 6  */ 56,
-/* 7  */ 56,
-/* 8  */ 56,
-/* 9  */ 56,
-/* 10 */ 56,
-/* 11 */ 56,
-/* 12 */ 56,
-/* 13 */ 56,
-/* 14 */ 56,
-/* 15 */ 56,
-/* 16 */ 56,
-/* 17 */ 56,
-/* 18 */ 56,
-/* 19 */ 56,
-/* 20 */ 56,
-/* 21 */ 56,
-/* 22 */ 56,
-/* 23 */ 56,
-/* 24 */ 56
-};
-float kSFScale[kSFDataSets] = {
-/* 0  */ 1.0,
-/* 1  */ 1.0,
-/* 2  */ 1.0,
-/* 3  */ 1.0,
-/* 4  */ 1.0,
-/* 5  */ 1.0,
-/* 6  */ 1.0,
-/* 7  */ 1.0,
-/* 8  */ 1.0,
-/* 9  */ 1.0,
-/* 10 */ 1.0,
-/* 11 */ 1.0,
-/* 12 */ 1.0,
-/* 13 */ 1.0,
-/* 14 */ 1.0,
-/* 15 */ 1.0,
-/* 16 */ 1.0,
-/* 17 */ 1.0,
-/* 18 */ 1.0,
-/* 19 */ 1.0,
-/* 20 */ 1.0,
-/* 21 */ 1.0,
-/* 22 */ 1.0,
-/* 23 */ 1.0,
-/* 24 */ 1.0
-};
+private:
 
-typedef DBQueryString         DBQ;
-typedef DBTable<DBSFTableRow> DBT;
+  string fLabel;
+  string fDataSetKeys;
+};
+//.................................................................................
+
+//
+// constants
+//
+
+// defaults
+const char * kDefDataArchiveFilename = "data/validation/vA/sf/SF.root";  
+const char * kDefDataSetsFilename    = "data/validation/vA/sf/datasets.txt";  
+
+//
+// globals
+//
+
+string gOptDataArchiveFilename = ""; // -d command-line argument
+string gOptDataSetsFilename    = ""; // -s command-line argument
+string gOptRESModelName        = ""; // -r command-line argument
+string gOptDISModelName        = ""; // -c command-line argument
+
+TFile *        gSFDataFile  = 0;
+TTree *        gSFDataTree  = 0;
+TPostScript *  gPS          = 0;
+TCanvas *      gC           = 0;
+
+const XSecAlgorithmI * gRESXSecModel = 0; // resonance cross-section model
+const XSecAlgorithmI * gDISXSecModel = 0; // DIS cross-section model
+
+vector<SFCompInfo *> gComparisons; // info on which comparisons to perform
+
+StructFunc gStructFuncCalc; // utility class extracting structure functions from the cross-section model
 
 // function prototypes
 void     Init               (void);
-void     Plot               (void);
 void     End                (void);
-void     AddCoverPage       (void);
-bool     Connect            (void);
-DBQ      FormQuery          (const char * key_list, float Q2min, float Q2max, float xmin, float xmax);
-DBT *    Data               (int iset);
-void     Draw               (int iset);
+void     Draw               (unsigned int icomp);
 TH1F *   DrawFrame          (TGraph * gr0, TGraph * gr1, TCanvas * c);
-void     Format             (TGraph* gr, int lcol, int lsty, int lwid, int mcol, int msty, double msiz);
-void     Draw               (TGraph* gr, const char * opt);
 void     GetCommandLineArgs (int argc, char ** argv);
 void     PrintSyntax        (void);
 
-// command-line arguments
-string gOptDbURL;
-string gOptDbUser;
-string gOptDbPasswd;
-
-// default command line arguments
-const char * kDefDbURL = "mysql://localhost/NuScat";  
-
-// globals
-bool            gCmpWithData  = true;
-DBI *           gDBI          = 0;
-TPostScript *   gPS           = 0;
-TCanvas *       gC            = 0;
-TLegend *       gLS           = 0;
+vector<TGraph *>       Model(unsigned int icomp, unsigned int imodel);
+vector<TGraphErrors *> Data (unsigned int icomp);
 
 //_________________________________________________________________________________
 int main(int argc, char ** argv)
 {
-  GetCommandLineArgs (argc,argv);
+ GetCommandLineArgs (argc,argv);
 
   Init();
-  Plot();
+
+  // loop over data sets and plot data and corresponding GENIE predictions
+  for(unsigned int icomp = 0; icomp < gComparisons.size(); icomp++) 
+  {
+    LOG("gvldtest", pNOTICE) 
+      << "Producing plots for: " << gComparisons[icomp]->Label();
+    Draw(icomp);
+  }
+
   End();
 
   LOG("gvldtest", pINFO)  << "Done!";
   return 0;
 }
 //_________________________________________________________________________________
-void Plot(void)
-{
-#ifdef __GENIE_MYSQL_ENABLED__
-
-  // connect to the NuValidator MySQL dbase
-  bool ok = Connect();
-  if(!ok) {
-    return;
-  }
- 
-  // loop over data sets
-  for(int iset = 0; iset < kSFDataSets; iset++) 
-  {
-    Draw(iset);
-  }
-#endif
-}
-//_________________________________________________________________________________
 void Init(void)
 {
-  LOG("vldtest", pNOTICE) << "Initializing...";;
+  LOG("gvldtest", pNOTICE) << "Initializing...";
 
+  // Set GENIE style
+  utils::style::SetDefaultStyle();
+
+  //
+  // Get TTree with structure-function data
+  //
+  if( ! utils::system::FileExists(gOptDataArchiveFilename) ) {
+      LOG("gvldtest", pFATAL) 
+         << "Can not find file: " << gOptDataArchiveFilename;
+      gAbortingInErr = true;
+      exit(1);
+  }
+  gSFDataFile = new TFile(gOptDataArchiveFilename.c_str(),"read");  
+  gSFDataTree = (TTree *) gSFDataFile->Get("sfnt");
+  if(!gSFDataTree) {
+      LOG("gvldtest", pFATAL) 
+         << "Can not find TTree `sfnt' in file: " << gOptDataArchiveFilename;
+      gAbortingInErr = true;
+      exit(1);
+  }
+
+  //
+  // Get cross-section models
+  //
+  AlgFactory * algf = AlgFactory::Instance();
+  gRESXSecModel = 0;
+  if(gOptRESModelName != "none"){
+     vector<string> modelv = utils::str::Split(gOptRESModelName,"/");
+     assert(modelv.size()==2);
+     string model_name = modelv[0];
+     string model_conf = modelv[1];
+     gRESXSecModel =
+        dynamic_cast<const XSecAlgorithmI *> (
+            algf->GetAlgorithm(model_name, model_conf));
+  }
+  gDISXSecModel = 0;
+  if(gOptDISModelName != "none"){
+     vector<string> modelv = utils::str::Split(gOptDISModelName,"/");
+     assert(modelv.size()==2);
+     string model_name = modelv[0];
+     string model_conf = modelv[1];
+     gDISXSecModel =
+        dynamic_cast<const XSecAlgorithmI *> (
+            algf->GetAlgorithm(model_name, model_conf));
+  }
+
+  gStructFuncCalc.SetResonanceXSecModel (gRESXSecModel);
+  gStructFuncCalc.SetDISXSecModel       (gDISXSecModel);
+  gStructFuncCalc.SetDISCharmXSecModel  (0);
+
+  // Create plot canvas
   gC = new TCanvas("c","",20,20,500,650);
   gC->SetBorderMode(0);
   gC->SetFillColor(0);
   gC->SetGridx();
   gC->SetGridy();
 
-  gLS = new TLegend(0.15,0.92,0.85,0.98);
-  gLS -> SetFillColor(0);
-  gLS -> SetBorderSize(1);
+ // Create output postscript file
+  string localtime = utils::system::LocalTimeAsString("%d.%d.%d_%d.%d.%d"); 
+  string filename  = Form("genie-sf_data_comp-%s.ps",localtime.c_str());
+  gPS = new TPostScript(filename.c_str(), 111);
 
-  // output file
-  gPS = new TPostScript("genie_sf_vs_data.ps", 111);
-
-  AddCoverPage();
-
-  gC->SetLogx();
-  gC->SetLogy();
-}
-//_________________________________________________________________________________
-void AddCoverPage(void)
-{
-  // header
+  // Add cover page
   gPS->NewPage();
   gC->Range(0,0,100,100);
   TPavesText hdr(10,40,90,70,3,"tr");
   hdr.AddText(" ");
-  hdr.AddText("GENIE Structure Function Comparisons with World Data");
+  hdr.AddText("GENIE comparison with F2, xF3 structure function data");
   hdr.AddText(" ");
-/*
-  hdr.AddText(" ");
-  for(int imodel=0; imodel< gOptGenieInputs.NModels(); imodel++) {
-    ostringstream stream;
-    stream << "model tag: " << gOptGenieInputs.ModelTag(imodel)
-           << "(" << kLStyleTxt[imodel] << ")";
-    hdr.AddText(stream.str().c_str());
-  }
-  hdr.AddText(" ");
-*/
   hdr.Draw();
   gC->Update();
 }
 //_________________________________________________________________________________
 void End(void)
 {
-  LOG("vldtest", pNOTICE) << "Cleaning up...";
+  LOG("gvldtest", pNOTICE) << "Cleaning up...";
 
   gPS->Close();
 
   delete gC;
-  delete gLS;
   delete gPS;
+
+  gSFDataFile->Close();
 }
 //_________________________________________________________________________________
-// Corresponding GENIE prediction for the `iset' data set 
-//.................................................................................
-TGraph * Model(int /*iset*/, int /*imodel*/)
+vector<TGraph *> Model(unsigned int icomp, unsigned int imodel)
 {
-  return 0;
+  vector<TGraph *> models;
+
+  return models;
 }
 //_________________________________________________________________________________
-// Download cross section data from NuVld MySQL dbase 
-//.................................................................................
-bool Connect(void)
+vector<TGraphErrors *> Data(unsigned int icomp)
 {
-  if(!gCmpWithData) return true;
+  vector<TGraphErrors *> data;
 
-  // Get a data-base interface
-  TSQLServer * sql_server = TSQLServer::Connect(
-      gOptDbURL.c_str(),gOptDbUser.c_str(),gOptDbPasswd.c_str());
-
-  if(!sql_server) return false;
-  if(!sql_server->IsConnected()) return false;
-
-  gDBI = new DBI(sql_server);
-  return true;
+  return data;
 }
 //_________________________________________________________________________________
-DBQ FormQuery(
-    const char * key_list, float Q2min, float Q2max, float xmin, float xmax)
+void Draw(unsigned int icomp)
 {
-// forms a DBQueryString for extracting structure function data from the input 
-// key-list and for the Q2 range
+  bool inlogy = false; // log y scale? Eventually get it from SFCompInfo 
 
-  ostringstream query_string;
-
-  query_string << "KEY-LIST:" << key_list;
-  query_string << "$CUTS:Q2min=" << Q2min << ";Q2max=" << Q2max
-               << ";xmin=" << xmin << ";xmax=" << xmax
-               << "$DRAW_OPT:none$DB-TYPE:SF";
-
-  DBQ query(query_string.str());
-
-  return query;
-}
-//_________________________________________________________________________________
-DBT * Data(int iset)
-{
-  DBT * dbtable = new DBT;
-
-  const char * keylist = kSFKeyList[iset];
-  float        xmin    = kSFx[iset] - 0.001;
-  float        xmax    = kSFx[iset] + 0.001;
-
-  DBQ query = FormQuery(keylist, kSFQ2min, kSFQ2max, xmin, xmax);
-  
-  assert( gDBI->FillTable(dbtable, query) == eDbu_OK );
-
-  return dbtable;
-}
-//_________________________________________________________________________________
-void Draw(int iset)
-{
   // get all measurements for the current channel from the NuValidator MySQL dbase
-  DBT * dbtable = Data(iset);
+  vector<TGraphErrors *> data = Data(icomp);
+  if(data.size() == 0) return;
 
   // get the corresponding GENIE model prediction
-  vector<TGraph*> models;
-/*
-  for(int imodel=0; imodel< gOptGenieInputs.NModels(); imodel++) {
-       models.push_back(Model(iset,imodel));
-  }
-*/
-
-  if(models.size()==0 && !dbtable) return;
+  vector<TGraph*> models = Model(icomp,0);
 
   gPS->NewPage();
 
@@ -438,161 +300,99 @@ void Draw(int iset)
   gC->GetPad(1)->SetLogx(1);
   gC->GetPad(1)->SetLogy(1);
 
-  gLS->SetHeader(kSFDataSetLabel[iset]);
-
-  TLegend * legend = new TLegend(0.01, 0.01, 0.99, 0.99);
-  legend->SetFillColor(0);
-  legend->SetTextSize(0.08);
-
   TH1F * hframe = 0;
-  bool have_frame = false;
+  double xmin =  9999999;
+  double xmax = -9999999;
+  double ymin =  9999999;
+  double ymax = -9999999;
+  for(unsigned int i = 0; i< data.size(); i++) {
+    if(!data[i]) continue;
+    xmin  = TMath::Min(xmin, (data[i]->GetX())[TMath::LocMin(data[i]->GetN(),data[i]->GetX())]);
+    xmax  = TMath::Max(xmax, (data[i]->GetX())[TMath::LocMax(data[i]->GetN(),data[i]->GetX())]);
+    ymin  = TMath::Min(ymin, (data[i]->GetY())[TMath::LocMin(data[i]->GetN(),data[i]->GetY())]);
+    ymax  = TMath::Max(ymax, (data[i]->GetY())[TMath::LocMax(data[i]->GetN(),data[i]->GetY())] );
+  }
+  double ymax_scale = (inlogy) ? 2. : 1.4;
+  hframe = (TH1F*) gC->GetPad(1)->DrawFrame(0.5*xmin, 0.4*ymin, 1.2*xmax, ymax_scale*ymax);
+  hframe->GetXaxis()->SetTitle("???");
+  hframe->GetYaxis()->SetTitle("???");
+  hframe->Draw();
 
- // have data points to plot?
-  if(dbtable) {
-    TGraphAsymmErrors * graph = dbtable->GetGraph("err","Q2");
+  // add legend
+  TLegend * legend = new TLegend(0.01, 0.01, 0.99, 0.99);
+  legend->SetLineStyle(0);
+  legend->SetFillColor(0);
+  legend->SetTextSize(0.06);
 
-    // create frame from the data point range
-    double xmin  = ( graph->GetX() )[TMath::LocMin(graph->GetN(),graph->GetX())];
-    double xmax  = ( graph->GetX() )[TMath::LocMax(graph->GetN(),graph->GetX())];
-    double ymin  = ( graph->GetY() )[TMath::LocMin(graph->GetN(),graph->GetY())];
-    double ymax  = ( graph->GetY() )[TMath::LocMax(graph->GetN(),graph->GetY())];
-    hframe = (TH1F*) gC->GetPad(1)->DrawFrame(0.5*xmin, 0.4*ymin, 1.2*xmax, 2.0*ymax);
-    hframe->Draw();
-    have_frame = true;
-
-    //
-    // draw current data set
-    //
-    MultiGraph * mgraph = dbtable->GetMultiGraph("err","Q2");
-    for(unsigned int igraph = 0; igraph < mgraph->NGraphs(); igraph++) {
-       mgraph->GetGraph(igraph)->Draw("P");
-    }
-    mgraph->FillLegend("LP", legend);
-  }//dbtable?
+  // draw current data set
+  for(unsigned int i = 0; i< data.size(); i++) {
+    if(!data[i]) continue;
+    data[i]->Draw("P");
+    legend->AddEntry(data[i], data[i]->GetTitle(), "LP");
+  }  
 
   // have model prediction to plot?
-/*
-  if(models.size()>0) {
-     if(!have_frame) {
-        // the data points have not been plotted
-        // create a frame from this graph range
-        double xmin  = ( models[0]->GetX() )[TMath::LocMin(models[0]->GetN(),models[0]->GetX())];
-        double xmax  = ( models[0]->GetX() )[TMath::LocMax(models[0]->GetN(),models[0]->GetX())];
-        double ymin  = ( models[0]->GetY() )[TMath::LocMin(models[0]->GetN(),models[0]->GetY())];
-        double ymax  = ( models[0]->GetY() )[TMath::LocMax(models[0]->GetN(),models[0]->GetY())];
-        hframe = (TH1F*) gC->GetPad(1)->DrawFrame(0.5*xmin, 0.4*ymin, 1.2*xmax, 2.0*ymax);
-        hframe->Draw();
-     }
-     for(int imodel=0; imodel<gOptGenieInputs.NModels(); imodel++) {
-       TGraph * plot = models[imodel];
-       if(plot) {
-         int lsty = kLStyle[imodel];     
-         Format(plot,1,lsty,2,1,1,1);
-         plot->Draw("L");
-       }
-     }
-  }//model?
-*/
-
-/*
-  hframe->GetXaxis()->SetTitle("E_{#nu} (GeV)");
-  hframe->GetYaxis()->SetTitle("#sigma_{#nu} (1E-38 cm^{2})");
-*/
-  gLS->Draw();
+  // just one for the time-being - superimposing different models will be added asap
+  if(models.size() == 1) {
+       models[0]->Draw("L");
+       legend->AddEntry(models[0], "GENIE", "L"); 
+  }
 
   gC->GetPad(2)->cd();
   legend->Draw();
 
   gC->GetPad(2)->Update();
   gC->Update();
-
-  if(dbtable) {
-    delete dbtable;
-  }
 }
 //_________________________________________________________________________________
-// Formatting
-//.................................................................................
-TH1F* DrawFrame(TGraph * gr0, TGraph * gr1, TCanvas * c)
-{
-  TAxis * x0 = gr0 -> GetXaxis();
-  TAxis * y0 = gr0 -> GetYaxis();
-  double xmin = x0 -> GetXmin();
-  double xmax = x0 -> GetXmax();
-  double ymin = y0 -> GetXmin();
-  double ymax = y0 -> GetXmax();
-  if(gr1) {
-     TAxis * x1 = gr1 -> GetXaxis();
-     TAxis * y1 = gr1 -> GetYaxis();
-     xmin = TMath::Min(xmin, x1 -> GetXmin());
-     xmax = TMath::Max(xmax, x1 -> GetXmax());
-     ymin = TMath::Min(ymin, y1 -> GetXmin());
-     ymax = TMath::Max(ymax, y1 -> GetXmax());
-  }
-  xmin *= 0.5;
-  xmax *= 1.5;
-  ymin *= 0.5;
-  ymax *= 1.5;
-  xmin = TMath::Max(0.1, xmin);
-  
-  TH1F * hf = (TH1F*) c->DrawFrame(xmin, ymin, xmax, ymax);
-  hf->GetXaxis()->SetTitle("E (GeV)");
-  hf->GetYaxis()->SetTitle("#sigma (10^{-38} cm^{2})");
-  hf->GetYaxis()->SetTitleSize(0.03);
-  hf->GetYaxis()->SetTitleOffset(1.3);
-  hf->GetXaxis()->SetLabelSize(0.03);
-  hf->GetYaxis()->SetLabelSize(0.03);
-  return hf;
-}
-//_________________________________________________________________________________
-void Format(
-    TGraph* gr, int lcol, int lsty, int lwid, int mcol, int msty, double msiz)
-{
-  if(!gr) return;
-
-  if (lcol >= 0) gr -> SetLineColor   (lcol);
-  if (lsty >= 0) gr -> SetLineStyle   (lsty);
-  if (lwid >= 0) gr -> SetLineWidth   (lwid);
-
-  if (mcol >= 0) gr -> SetMarkerColor (mcol);
-  if (msty >= 0) gr -> SetMarkerStyle (msty);
-  if (msiz >= 0) gr -> SetMarkerSize  (msiz);
-}
-//_________________________________________________________________________________
-void Draw(TGraph* gr, const char * opt)
-{
-  if(!gr) return;
-  gr->Draw(opt);
-}
-//_________________________________________________________________________________
-// Parsing command-line arguments, check/form filenames, etc
-//.................................................................................
 void GetCommandLineArgs(int argc, char ** argv)
 {
+  LOG("gvldtest", pNOTICE) << "*** Parsing command line arguments";
+
   CmdLnArgParser parser(argc,argv);
 
-  gCmpWithData = true;
-
-  // get DB URL
-  if( parser.OptionExists('h') ) {
-     gOptDbURL = parser.ArgAsString('h');
+  if(parser.OptionExists('d')){
+     string filename = parser.ArgAsString('d');
+     gOptDataArchiveFilename = filename;
   } else {
-     gOptDbURL = kDefDbURL;
+     if(gSystem->Getenv("GENIE")) {
+        string base_dir = string( gSystem->Getenv("GENIE") );
+        string filename = base_dir + "/" + kDefDataArchiveFilename;
+        gOptDataArchiveFilename = filename;
+     } else { 
+        LOG("gvldtest", pFATAL) 
+          << "\n Please make sure that $GENIE is defined, or use the -d option"
+          << "\n You didn't specify a data file and I can not pick the default one either";
+        gAbortingInErr = true;
+        exit(1);
+     }
   }
 
-  // get DB username
-  if( parser.OptionExists('u') ) {
-     gOptDbUser = parser.ArgAsString('u');
+  if(parser.OptionExists('s')){
+     string filename = parser.ArgAsString('s');
+     gOptDataSetsFilename = filename;
   } else {
-     gCmpWithData = false;
+     if(gSystem->Getenv("GENIE")) {
+        string base_dir = string( gSystem->Getenv("GENIE") );
+        string filename = base_dir + "/" + kDefDataSetsFilename;
+        gOptDataSetsFilename = filename;
+     } else { 
+        LOG("gvldtest", pFATAL) 
+          << "\n Please make sure that $GENIE is defined, or use the -s option"
+          << "\n You didn't specify a data file and I can not pick the default one either";
+        gAbortingInErr = true;
+        exit(1);
+     }
   }
 
-  // get DB passwd
-  if( parser.OptionExists('p') ) {
-     gOptDbPasswd = parser.ArgAsString('p');
-  } else {
-     gCmpWithData = false;
+  // Get GENIE model names to be used
+  if(parser.OptionExists('r')){
+     gOptRESModelName = parser.ArgAsString('r');
+  }   
+  if(parser.OptionExists('c')){
+     gOptDISModelName = parser.ArgAsString('c');
   }
+
 }
 //_________________________________________________________________________________
 void PrintSyntax(void)
