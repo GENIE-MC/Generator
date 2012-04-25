@@ -494,6 +494,9 @@ vector<TGraph *> Model(unsigned int iset, unsigned int imodel)
         double d2sigDIS_dWdQ2_n = 0.;
         if(tgt_has_p) {
            // Note: Not setting quark ID
+           // If the quark ID is set, the code returns (eg for neutrino CC) the vq->lq' cross-section.
+           // But if a quark ID is not specified then the code loops over all relevant
+           // valence and sea quark species and returns (eg for neutrino CC) the vN->lX cross-section.
            Interaction * ep_dis = 
                Interaction::DISEM(1000010010, kPdgProton,  kPdgElectron, E); 
            ep_dis->KinePtr()->SetW (W);

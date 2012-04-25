@@ -179,14 +179,15 @@ string kLStyleTxt[kNMaxNumModels] =
 
 string gOptDataArchiveFilename = ""; // -d command-line argument
 string gOptDataSetsFilename    = ""; // -s command-line argument
-
-GSimFiles gOptGenieInputs;
+string gOptGenieFileList       = ""; // -g command-line argument
 
 TFile *        gQEDataFile  = 0;
 TTree *        gQEDataTree  = 0;
 TPostScript *  gPS          = 0;
 TCanvas *      gC           = 0;
 bool           gShowModel   = false;
+
+GSimFiles gGenieInputs;
 
 vector<eQEDataSetDescription *> gDataSets; // list of plotted datasets
 
@@ -287,7 +288,17 @@ void Init(void)
   LOG("gvldtest", pNOTICE) 
      << "Read "  << gDataSets.size() << " datasets";
 
-
+  // Read GENIE inputs
+  if(gShowModel) {
+    bool ok = gGenieInputs.LoadFromFile(gOptGenieFileList);
+    if(!ok) {
+       LOG("gtune", pFATAL)
+         << "Could not read GENIE inputs specified in XML file: "
+         << gOptGenieFileList;
+       gAbortingInErr = true;
+       exit(1);
+    }
+  }
 
   // Create plot canvas
   gC = new TCanvas("c","",20,20,500,650);
@@ -334,19 +345,16 @@ TGraph * Model(int iset, int imodel)
     << "Getting GENIE prediction (model ID = " 
     << imodel << ", data set ID = " << iset << ")";
 
-  return 0;
-/*
-
-  TFile * xsec_file = gOptGenieInputs.XSecFile(imodel);
+  TFile * xsec_file = gGenieInputs.XSecFile(imodel);
   if(!xsec_file) {
-     LOG("vldtest", pWARN)
+     LOG("gvldtest", pWARN)
         << "No corresponding cross section file";
      return 0;
   }
 
-  TChain * event_chain = gOptGenieInputs.EvtChain(imodel);
+  TChain * event_chain = gGenieInputs.EvtChain(imodel);
   if(!event_chain) {
-     LOG("vldtest", pWARN)
+     LOG("gvldtest", pWARN)
         << "No corresponding event chain.";
      return 0;
   }
@@ -363,7 +371,8 @@ TGraph * Model(int iset, int imodel)
   double costheta = TMath::Cos(kPi*theta/180.);
 
   // total cross section
-  TGraph * xsec_em_gr = 0; // get it from the input xsec_file
+  TDirectory * dir = (TDirectory*)xsec_file->Get("e-_C12");
+  TGraph * xsec_em_gr = (TGraph*)dir->Get("tot_em");
   if(!xsec_em_gr) {
      LOG("vldtest", pWARN)
         << "Null E/M cross section graph";
@@ -400,12 +409,14 @@ TGraph * Model(int iset, int imodel)
   // estimate d^2 sigma / dE' dOmega at the current incoming lepton energy E0
   //
 
-  char cut[500];
-  Form(cut,"em&&(fabs(Ev-%d)<%d)", E, dE);
+  const char * selection = Form("em&&(abs(Ev-%f)<%f)", E, dE);
 
-  event_chain->Draw("((pxv*pxl+pyv*pyl+pzv*pzl)/(Ev*El)):El>>h2EpOmega", cut, "GOFF");
+  LOG("vldtest", pNOTICE) << "Selection: " << selection;
 
-  double integral = h2EpOmega->Integral("width");
+  event_chain->Draw("((pxv*pxl+pyv*pyl+pzv*pzl)/(Ev*El)):El>>h2EpOmega", selection, "GOFF");
+
+  LOG("vldtest", pNOTICE) << "Selected " << event_chain->GetSelectedRows();
+  double integral = h2EpOmega->Integral();
   if(integral <= 0) {
      LOG("vldtest", pWARN)
         << "Non-positive d^2N / dEp dOmega integral";
@@ -414,6 +425,7 @@ TGraph * Model(int iset, int imodel)
   double normalization = 2*kPi*xsec_em/integral;
      
   h2EpOmega->Scale(normalization); // units: 1E-38 cm^2 / GeV /sterad
+//  h2EpOmega->Scale(0.005); //
   
   //
   // now pick a slice at selected theta and return
@@ -445,7 +457,6 @@ TGraph * Model(int iset, int imodel)
   delete [] y;
     
   return gr;
-*/
 }
 //_________________________________________________________________________________
 TGraphErrors * Data(int iset)
@@ -657,19 +668,12 @@ void GetCommandLineArgs(int argc, char ** argv)
   }
 
   // get GENIE inputs
-  gShowModel = true;
-  if(parser.OptionExists('g')) {
-     string inputs = parser.ArgAsString('g');
-     bool ok = gOptGenieInputs.LoadFromFile(inputs);
-     if(!ok) {
-        LOG("gvldtest", pFATAL)
-           << "Could not read validation program inputs: " << inputs;
-        gAbortingInErr = true;
-        exit(1);
-     }
-  } else {
-    gShowModel = false;
-  }
+  gShowModel = false;
+  if( parser.OptionExists('g') ) {
+     gOptGenieFileList = parser.ArgAsString('g');
+     gShowModel = true;
+  } 
+
 }
 //_________________________________________________________________________________
 void PrintSyntax(void)
