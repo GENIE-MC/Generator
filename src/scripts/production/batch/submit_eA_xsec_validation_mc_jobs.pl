@@ -262,7 +262,7 @@ foreach(@runnu) {
        $curr_subrunnu = 1000 * $curr_runnu + 100 * $model_enum + $isubrun;
 
        $grep_pipe     = "grep -B 20 -A 30 -i \"warn\\|error\\|fatal\"";
-       $fntemplate    = "$jobs_dir/nucl-$curr_subrunnu";
+       $fntemplate    = "$jobs_dir/eA-$curr_subrunnu";
        $curr_seed     = $mcseed + $isubrun;
        $valgrind_cmd  = "valgrind --tool=memcheck --error-limit=no --leak-check=yes --show-reachable=yes";
        $evgen_cmd     = "gevgen -n $nev_per_subrun -s -e $E -p $probe_pdg -t $tgt_pdg -r $curr_subrunnu | $grep_pipe &> $fntemplate.evgen.log";
