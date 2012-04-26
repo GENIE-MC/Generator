@@ -647,20 +647,31 @@ void Draw(unsigned int iset)
   double xmin =  9999999999, scale_xmin = 0.50;
   double xmax = -9999999999, scale_xmax = 1.05;
   double ymin =  9999999999, scale_ymin = 0.40;
-  double ymax = -9999999999, scale_ymax = 1.20;
-
+  double ymax = -9999999999, scale_ymax = 1.30;
+  // get W2 and d2sigma/dEdOmega range in the the data
   xmin  = ( data->GetX() )[TMath::LocMin(data->GetN(),data->GetX())];
   xmax  = ( data->GetX() )[TMath::LocMax(data->GetN(),data->GetX())];
   ymin  = ( data->GetY() )[TMath::LocMin(data->GetN(),data->GetY())];
   ymax  = ( data->GetY() )[TMath::LocMax(data->GetN(),data->GetY())];
   xmin  = TMath::Max(xmin, 0.5); // some data go very low 
+  // take also into account the d2sigma/dEdOmega range in the the models
+  // (for the W2 range of the dataset) just in case data and MC are not that similar...
   for(unsigned int imode=0; imode < model.size(); imode++) {
     TGraph * mm = model[imode];
     if(mm) {
-       ymin = TMath::Min(ymin, (mm->GetY())[TMath::LocMin(mm->GetN(),mm->GetY())]);
-       ymax = TMath::Max(ymax, (mm->GetY())[TMath::LocMax(mm->GetN(),mm->GetY())]);
-    }
-  }
+      for(int k=0; k<mm->GetN(); k++) {
+         double x = (mm->GetX())[k];
+         if(x < xmin || x > xmax) continue;
+         ymin = TMath::Min(ymin, (mm->GetY())[k]);
+         ymax = TMath::Max(ymax, (mm->GetY())[k]);
+      }//k
+    }//mm
+  }//imode
+  LOG("gvldtest", pDEBUG) 
+    << "Plot range:" 
+    << "W^{2} = [" << xmin << ", " << xmax << "] GeV^{2}, "
+    << "d^{2}#sigma / d#Omega dE = [" << ymin << ", " << ymax << "]  nb/sr/GeV";
+
   hframe = (TH1F*) gC->GetPad(iplot)->DrawFrame(
         scale_xmin*xmin, scale_ymin*ymin, scale_xmax*xmax, scale_ymax*ymax);
   hframe->Draw();
