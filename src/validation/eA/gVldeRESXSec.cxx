@@ -610,6 +610,7 @@ TGraphErrors * Data(unsigned int iset)
   }
 
   TGraphErrors * gr = new TGraphErrors(n,xv,yv,0,dyv);
+  utils::style::Format(gr, 1,1,1,1,8,0.4);
 
   delete [] idx;
   delete [] xv;
@@ -643,44 +644,36 @@ void Draw(unsigned int iset)
   gC -> GetPad(iplot) -> cd();
 
   TH1F * hframe = 0;
-  bool have_frame = false;
+  double xmin =  9999999999, scale_xmin = 0.50;
+  double xmax = -9999999999, scale_xmax = 1.05;
+  double ymin =  9999999999, scale_ymin = 0.40;
+  double ymax = -9999999999, scale_ymax = 1.20;
 
-  double xmin = 0.0, scale_xmin = 0.50;
-  double xmax = 0.0, scale_xmax = 1.05;
-  double ymin = 0.0, scale_ymin = 0.40;
-  double ymax = 0.0, scale_ymax = 1.20;
-
-  if(data) {
-    xmin  = ( data->GetX() )[TMath::LocMin(data->GetN(),data->GetX())];
-    xmax  = ( data->GetX() )[TMath::LocMax(data->GetN(),data->GetX())];
-    ymin  = ( data->GetY() )[TMath::LocMin(data->GetN(),data->GetY())];
-    ymax  = ( data->GetY() )[TMath::LocMax(data->GetN(),data->GetY())];
-    xmin  = TMath::Max(xmin, 0.5); // some data go very low 
-    for(unsigned int imode=0; imode < model.size(); imode++) {
-      TGraph * mm = model[imode];
-      if(mm) {
-         ymin  = TMath::Min(
-           ymin, ( mm->GetY() )[TMath::LocMin(mm->GetN(),mm->GetY())]);
-         ymax  = TMath::Max(
-           ymax, ( mm->GetY() )[TMath::LocMax(mm->GetN(),mm->GetY())]);
-      }
+  xmin  = ( data->GetX() )[TMath::LocMin(data->GetN(),data->GetX())];
+  xmax  = ( data->GetX() )[TMath::LocMax(data->GetN(),data->GetX())];
+  ymin  = ( data->GetY() )[TMath::LocMin(data->GetN(),data->GetY())];
+  ymax  = ( data->GetY() )[TMath::LocMax(data->GetN(),data->GetY())];
+  xmin  = TMath::Max(xmin, 0.5); // some data go very low 
+  for(unsigned int imode=0; imode < model.size(); imode++) {
+    TGraph * mm = model[imode];
+    if(mm) {
+       ymin = TMath::Min(ymin, (mm->GetY())[TMath::LocMin(mm->GetN(),mm->GetY())]);
+       ymax = TMath::Max(ymax, (mm->GetY())[TMath::LocMax(mm->GetN(),mm->GetY())]);
     }
-    hframe = (TH1F*) gC->GetPad(iplot)->DrawFrame(
+  }
+  hframe = (TH1F*) gC->GetPad(iplot)->DrawFrame(
         scale_xmin*xmin, scale_ymin*ymin, scale_xmax*xmax, scale_ymax*ymax);
-    have_frame = true;
-    utils::style::Format(data, 1,1,1,1,8,0.8);
-    data->Draw("P");
-  }//data?
+  hframe->Draw();
+  hframe->GetXaxis()->SetTitle("W^{2} (GeV^{2})");
+  hframe->GetYaxis()->SetTitle("d^{2}#sigma / d#Omega dE (nb/sr/GeV)");
 
+  // draw data and GENIE models
+  data->Draw("P");
   for(unsigned int imode=0; imode < model.size(); imode++) {
     TGraph * mm = model[imode];
     if(!mm) continue;
     mm->Draw("L");
   }
-
-  //hframe->Draw();
-  hframe->GetXaxis()->SetTitle("W^{2} (GeV^{2})");
-  hframe->GetYaxis()->SetTitle("d^{2}#sigma / d#Omega dE (nb/sr/GeV)");
 
   // add legend
   TLegend * legend = new TLegend(0.20, 0.75, 0.50, 0.85);
