@@ -81,6 +81,7 @@
 #include "Messenger/Messenger.h"
 #include "PDG/PDGUtils.h"
 #include "PDG/PDGCodes.h"
+#include "PDG/PDGLibrary.h"
 #include "Utils/CmdLnArgParser.h"
 #include "Utils/GSimFiles.h"
 #include "Utils/SystemUtils.h"
@@ -139,7 +140,7 @@ public:
     label << this->TgtName() << "(e,e^{'}) ";
     label << "E = " << fE << " GeV, ";
     label << "#theta = " << fTheta << "^{o}";
-    label << " [" << fCitation << "]";
+    //label << " [" << fCitation << "]";
     return label.str();
   }
 private:
@@ -195,13 +196,13 @@ vector<eQEDataSetDescription *> gDataSets; // list of plotted datasets
 // function prototypes
 //
 
-void           Init               (void);
-void           End                (void);
-TGraphErrors * Data               (int iset);
-TGraph *       Model              (int iset, int imodel);
-void           Draw               (int iset);
-void           GetCommandLineArgs (int argc, char ** argv);
-void           PrintSyntax        (void);
+void             Init               (void);
+void             End                (void);
+TGraphErrors *   Data               (int iset);
+vector<TGraph *> Model              (int iset, int imodel);
+void             Draw               (int iset);
+void             GetCommandLineArgs (int argc, char ** argv);
+void             PrintSyntax        (void);
 
 
 //_________________________________________________________________________________
@@ -335,11 +336,13 @@ void End(void)
   gQEDataFile->Close();
 }
 //_________________________________________________________________________________
-TGraph * Model(int iset, int imodel)
+vector<TGraph *> Model(int iset, int imodel)
 {
 // Corresponding GENIE prediction for the `iset' data set 
 
-  if(!gShowModel) return 0;
+  vector<TGraph *> model;
+
+  if(!gShowModel) return model;
 
   LOG("gvldtest", pNOTICE) 
     << "Getting GENIE prediction (model ID = " 
@@ -347,116 +350,117 @@ TGraph * Model(int iset, int imodel)
 
   TFile * xsec_file = gGenieInputs.XSecFile(imodel);
   if(!xsec_file) {
-     LOG("gvldtest", pWARN)
+     LOG("gvldtest", pFATAL)
         << "No corresponding cross section file";
-     return 0;
+     exit(1);
   }
-
   TChain * event_chain = gGenieInputs.EvtChain(imodel);
   if(!event_chain) {
-     LOG("gvldtest", pWARN)
+     LOG("gvldtest", pFATAL)
         << "No corresponding event chain.";
-     return 0;
+     exit(1);
   }
   
-  // electron energy and scattering angle
-
+  int    Z     = gDataSets[iset]->TgtZ();
+  int    A     = gDataSets[iset]->TgtA();
   double E     = gDataSets[iset]->E();
   double theta = gDataSets[iset]->Theta();
-
-  int Z = gDataSets[iset]->TgtZ();
-  int A = gDataSets[iset]->TgtA();
-
-  double dE       = 0.01; // GeV
   double costheta = TMath::Cos(kPi*theta/180.);
 
-  // total cross section
-  TDirectory * dir = (TDirectory*)xsec_file->Get("e-_C12");
-  TGraph * xsec_em_gr = (TGraph*)dir->Get("tot_em");
+  double Emin        = E - 0.001;
+  double Emax        = E + 0.001;
+  double costhetamin = costheta - 0.03;
+  double costhetamax = costheta + 0.03;
+  costhetamin = TMath::Max(-1.0, costhetamin);
+  costhetamax = TMath::Min( 1.0, costhetamax);
+
+  // get total cross section
+  PDGLibrary * pdglib = PDGLibrary::Instance();
+  int tgtpdg = pdg::IonPdgCode(A,Z);
+  const char * tgtname = pdglib->Find(tgtpdg)->GetName();
+  const char * dirname = Form("e-_%s",tgtname);
+  const char * xsec_spline_name = "tot_em";
+  TDirectory * dir = (TDirectory*)xsec_file->Get(dirname);
+  TGraph * xsec_em_gr = (TGraph*)dir->Get(xsec_spline_name);
   if(!xsec_em_gr) {
-     LOG("vldtest", pWARN)
+     LOG("vldtest", pFATAL)
         << "Null E/M cross section graph";
-     return 0;
+     exit(1);
   }
-  double xsec_em = xsec_em_gr->Eval(E);
+  double xsec_em = xsec_em_gr->Eval(E); 
+  xsec_em *= (1E-38  * units::cm2 / units::nb); // convert to nbarn
   if(xsec_em <= 0) {
-     LOG("vldtest", pWARN)
-        << "Null E/M cross section graph";
-     return 0;
+     LOG("vldtest", pFATAL)
+        << "Non-positive E/M cross-section";
+     exit(1);
   }
-  
-  //
-  // book histograms
-  //
+  LOG("gvldtest", pNOTICE)
+    << "e- + " << tgtname << " total cross-section (E = " << E << " GeV) = " 
+    << xsec_em << " nbarn";
 
-  // E', final state primary lepton energy
-  double Ep_min   = 0;
-  double Ep_max   = E;
-  double Ep_bin   = 0.01;
-  double Ep_nbins = (Ep_max-Ep_min)/Ep_bin;
-
-  // theta, scattering angle
-  double costh_min   = -1;
-  double costh_max   =  1;
-  double costh_bin   =  0.01;
-  double costh_nbins = (costh_max-costh_min)/costh_bin;
-   
-  TH2D * h2EpOmega =
-     new TH2D("h2EpOmega",  "N=N(E',Omega)|{fixed:E}",
-         Ep_nbins, Ep_min, Ep_max, costh_nbins, costh_min, costh_max);
-     
-  //
-  // estimate d^2 sigma / dE' dOmega at the current incoming lepton energy E0
-  //
-
-  const char * selection = Form("em&&(abs(Ev-%f)<%f)", E, dE);
-
-  LOG("vldtest", pNOTICE) << "Selection: " << selection;
-
-  event_chain->Draw("((pxv*pxl+pyv*pyl+pzv*pzl)/(Ev*El)):El>>h2EpOmega", selection, "GOFF");
-
-  LOG("vldtest", pNOTICE) << "Selected " << event_chain->GetSelectedRows();
-  double integral = h2EpOmega->Integral();
-  if(integral <= 0) {
-     LOG("vldtest", pWARN)
-        << "Non-positive d^2N / dEp dOmega integral";
-     return 0;
+  event_chain->Draw("1", Form("(Ev>=%f)&&(Ev<%f)&&(Z==%d)&&(A==%d)&&(em)",Emin,Emax,Z,A), "GOFF");
+  double nentries_all = event_chain->GetSelectedRows();
+  LOG("gvldtest", pNOTICE)
+    << "Selected " << nentries_all << " MC events for E = " << E << " GeV"; 
+  if(nentries_all <= 0.)  {
+    return model;
   }
-  double normalization = 2*kPi*xsec_em/integral;
-     
-  h2EpOmega->Scale(normalization); // units: 1E-38 cm^2 / GeV /sterad
-//  h2EpOmega->Scale(0.005); //
-  
-  //
-  // now pick a slice at selected theta and return
-  // d^2 sigma / dE' dOmega (fixed: E, theta) = f(v = E-E')
-  // in the same units as the expt data (nbar/GeV/sterad)
-  //
 
-  int N = Ep_nbins;
-  
-  double * x = new double[N]; // v
-  double * y = new double[N]; // d^2 sigma / dE' dOmega
-  
-  int costheta_bin = h2EpOmega->GetYaxis()->FindBin(costheta);
-  
-  for(int i = 0; i < h2EpOmega->GetNbinsX(); i++) {
-    int Ep_bin = i+1;
-    double Ep  = h2EpOmega->GetXaxis()->GetBinCenter(Ep_bin);
+  const int nbins = 40;
 
-    double v      = E - Ep;
-    double d2xsec = h2EpOmega->GetBinContent(Ep_bin, costheta_bin);
-  
-    x[i] = v;
-    y[i] = d2xsec;
-  }
-     
-  TGraph * gr = new TGraph(N,x,y);
+  double dv = E/nbins;
+  double dcostheta = costhetamax-costhetamin;
 
-  delete [] x;
-  delete [] y;
-    
-  return gr;
+  double scale = xsec_em / (2*kPi*nentries_all*dv*dcostheta);
+  LOG("gvldtest", pNOTICE)
+     << "Scaling factor: " << scale;
+
+  const int ngraphs = 5;
+
+  const char * select_events_in_costheta_bin[ngraphs] = {
+       Form("(Ev>=%f)&&(Ev<%f)&&(cthl>=%f)&&(cthl<%f)&&(Z==%d)&&(A==%d)&&(em)", 
+            Emin, Emax, costhetamin, costhetamax, Z, A),
+       Form("(Ev>=%f)&&(Ev<%f)&&(cthl>=%f)&&(cthl<%f)&&(Z==%d)&&(A==%d)&&(em&&qel)", 
+            Emin, Emax, costhetamin, costhetamax, Z, A),
+       Form("(Ev>=%f)&&(Ev<%f)&&(cthl>=%f)&&(cthl<%f)&&(Z==%d)&&(A==%d)&&(em&&mec)",
+            Emin, Emax, costhetamin, costhetamax, Z, A),
+       Form("(Ev>=%f)&&(Ev<%f)&&(cthl>=%f)&&(cthl<%f)&&(Z==%d)&&(A==%d)&&(em&&res)", 
+            Emin, Emax, costhetamin, costhetamax, Z, A),
+       Form("(Ev>=%f)&&(Ev<%f)&&(cthl>=%f)&&(cthl<%f)&&(Z==%d)&&(A==%d)&&(em&&(!qel&&!mec&&!res))", 
+            Emin, Emax, costhetamin, costhetamax, Z, A)
+  };
+
+  const char * label[ngraphs] = {
+      "Total", "Quasi-elastic", "Meson Exchange", "Resonance", "Other" 
+  };
+  int color[ngraphs] = { kBlack, kBlue,  kBlue,   kRed,   kGreen };
+  int style[ngraphs] = { kSolid, kSolid, kDashed, kSolid, kSolid };
+  int width[ngraphs] = { 2,      1,      2,       1,      1      };
+
+  for(int igr = 0; igr < ngraphs; igr++) {
+      TH1D * v_distribution = new TH1D("v_distribution","",nbins,0,E);
+      event_chain->Draw("Ev-El>>v_distribution", select_events_in_costheta_bin[igr], "goff");
+      double nentries = event_chain->GetSelectedRows();
+      LOG("gvldtest", pNOTICE)
+          << "Selected " << nentries << " " << label[igr] << " events for E = " << E << " GeV"
+          << " in costheta range [" << costhetamin << ", " << costhetamax << ")";     
+      v_distribution->Scale(scale);
+      double * v = new double[nbins]; 
+      double * d2sigma_dEpdOmega = new double[nbins]; 
+      for(int i=0; i<nbins; i++) {
+         v[i] = v_distribution->GetBinCenter(i+1);
+         d2sigma_dEpdOmega[i] = v_distribution->GetBinContent(i+1);
+      }
+      TGraph * gr = new TGraph(nbins,v,d2sigma_dEpdOmega);
+      gr->SetTitle(label[igr]);
+      utils::style::Format(gr, color[igr], style[igr], width[igr], 1,1,1);
+      model.push_back(gr);
+      delete [] v;
+      delete [] d2sigma_dEpdOmega;
+      delete v_distribution;
+  }//igr
+
+  return model;
 }
 //_________________________________________________________________________________
 TGraphErrors * Data(int iset)
@@ -464,11 +468,11 @@ TGraphErrors * Data(int iset)
   const double dE      = 2.0E-3;
   const double dtheta  = 2.5E-2;
 
-  double E     = gDataSets[iset]->E();
-  double theta = gDataSets[iset]->Theta();
-
-  int Z = gDataSets[iset]->TgtZ();
-  int A = gDataSets[iset]->TgtA();
+  int    Z        = gDataSets[iset]->TgtZ();
+  int    A        = gDataSets[iset]->TgtA();
+  double E        = gDataSets[iset]->E();
+  double theta    = gDataSets[iset]->Theta();
+  string citation = gDataSets[iset]->Citation();
 
   const char * selection = 
     Form("E > %f && E < %f && theta > %f && theta < %f && Z == %d && A == %d",
@@ -504,6 +508,8 @@ TGraphErrors * Data(int iset)
   }
 
   TGraphErrors * gr = new TGraphErrors(n,xv,yv,0,dyv);
+  gr->SetTitle(citation.c_str());
+  utils::style::Format(gr, 1,1,1,1,8,0.8);
 
   delete [] idx;
   delete [] xv;
@@ -517,11 +523,10 @@ void Draw(int iset)
 {
   // get all measurements for the current channel from the NuValidator MySQL dbase
   TGraphErrors * data = Data(iset);
+  if(!data) return;
 
   // get the corresponding GENIE model prediction
-  TGraph * model = Model(iset,0);
-
-  if(!model && !data) return;
+  vector<TGraph *> model = Model(iset,0);
 
   int plots_per_page = kNCx * kNCy;
   int iplot = 1 + iset % plots_per_page;
@@ -537,46 +542,32 @@ void Draw(int iset)
   gC -> GetPad(iplot) -> SetBorderMode(0);
   gC -> GetPad(iplot) -> cd();
 
+  //
+  // draw frame
+  //
+
+  TH1F * hframe = 0;
+
   double xmin = 0.0, scale_xmin = 0.5;
   double xmax = 0.0, scale_xmax = 1.2;
   double ymin = 0.0, scale_ymin = 0.4;
   double ymax = 0.0, scale_ymax = 1.2;
 
-  TH1F * hframe = 0;
-  bool have_frame = false;
-
-  if(data) {
-    xmin  = ( data->GetX() )[TMath::LocMin(data->GetN(),data->GetX())];
-    xmax  = ( data->GetX() )[TMath::LocMax(data->GetN(),data->GetX())];
-    ymin  = ( data->GetY() )[TMath::LocMin(data->GetN(),data->GetY())];
-    ymax  = ( data->GetY() )[TMath::LocMax(data->GetN(),data->GetY())];
-    if(model) {
-       ymin  = TMath::Min(
-        ymin, ( model->GetY() )[TMath::LocMin(model->GetN(),model->GetY())]);
-       ymax  = TMath::Max(
-        ymax, ( model->GetY() )[TMath::LocMax(model->GetN(),model->GetY())]);
-    }
-    hframe = (TH1F*) gC->GetPad(iplot)->DrawFrame(
-        scale_xmin*xmin, scale_ymin*ymin, scale_xmax*xmax, scale_ymax*ymax);
-    have_frame = true;
-    utils::style::Format(data, 1,1,1,1,8,0.8);
-    data->Draw("P");
-  }//data?
-
-  if(model) {
-    if(!have_frame) {
-       xmin  = ( model->GetX() )[TMath::LocMin(model->GetN(),model->GetX())];
-       xmax  = ( model->GetX() )[TMath::LocMax(model->GetN(),model->GetX())];
-       ymin  = ( model->GetY() )[TMath::LocMin(model->GetN(),model->GetY())];
-       ymax  = ( model->GetY() )[TMath::LocMax(model->GetN(),model->GetY())];
-       hframe = (TH1F*) gC->GetPad(iplot)->DrawFrame(
-         scale_xmin*xmin, scale_ymin*ymin, scale_xmax*xmax, scale_ymax*ymax);
-    }
-    utils::style::Format(model, 1,1,1,1,1,1);
-    model->Draw("L");
+  xmin  = ( data->GetX() )[TMath::LocMin(data->GetN(),data->GetX())];
+  xmax  = ( data->GetX() )[TMath::LocMax(data->GetN(),data->GetX())];
+  ymin  = ( data->GetY() )[TMath::LocMin(data->GetN(),data->GetY())];
+  ymax  = ( data->GetY() )[TMath::LocMax(data->GetN(),data->GetY())];
+ 
+  for(unsigned int ic = 0; ic < model.size(); ic++) 
+  {  
+     ymin = TMath::Min(ymin, 
+        (model[ic]->GetY())[TMath::LocMin(model[ic]->GetN(),model[ic]->GetY())]);
+     ymax = TMath::Max(ymax, 
+        (model[ic]->GetY())[TMath::LocMax(model[ic]->GetN(),model[ic]->GetY())]);
   }
+  hframe = (TH1F*) gC->GetPad(iplot)->DrawFrame(
+        scale_xmin*xmin, scale_ymin*ymin, scale_xmax*xmax, scale_ymax*ymax);
 
-  //hframe->Draw();
   hframe->GetXaxis()->SetTitle("#nu = E-E^{'} (GeV)");
   hframe->GetYaxis()->SetTitle("d^{2}#sigma / d#Omega dE (nb/sr/GeV)");
   hframe->GetXaxis()->SetLabelFont(62);
@@ -586,33 +577,25 @@ void Draw(int iset)
   hframe->GetXaxis()->SetTitleSize(0.04);
   hframe->GetYaxis()->SetTitleSize(0.04);
   hframe->GetYaxis()->SetTitleOffset(1.65);
+  hframe->Draw();
+ 
+  //
+  // draw expt data and GENIE predictions & add legend
+  //
+  TLegend * legend = new TLegend(0.55, 0.70, 0.85, 0.88);
+  legend->SetLineStyle(0);
+  legend->SetFillColor(0);
+  legend->SetFillStyle(0);
+  legend->SetTextSize(0.04);
 
-/*
-  // scaling region
-  TBox * scaling_region = 0;
-  if(kDrawHatchcedScalingRegion) {
-    double W2c = kWcut*kWcut;
-    if(W2c > scale_xmin*xmin && W2c < scale_xmax*xmax) {
-       scaling_region = new TBox(
-           W2c, scale_ymin*ymin, scale_xmax*xmax, scale_ymax*ymax);
-       scaling_region->SetFillColor(kRed);
-       scaling_region->SetFillStyle(3005);
-       scaling_region->Draw();
-    }
+  data->Draw("P");
+  legend->AddEntry(data,data->GetTitle(),"P");
+  for(unsigned int ic = 0; ic < model.size(); ic++) 
+  {  
+    model[ic]->Draw("L");
+    legend->AddEntry(model[ic],model[ic]->GetTitle(),"L");
   }
-*/
-
-/*
-  // some data show the elastic peak - mark the are to avoid confusion
-  if(xmin < 1) {
-    double Wm2 = 1.21; // between the QE and Delta peaks
-    TBox * qe_peak = new TBox(
-       scale_xmin*xmin, scale_ymin*ymin, Wm2, scale_ymax*ymax);
-     qe_peak->SetFillColor(kBlue);
-     qe_peak->SetFillStyle(3005);
-     qe_peak->Draw();
-  }
-*/
+  legend->Draw();
 
   // title
   TLatex * title = new TLatex(
