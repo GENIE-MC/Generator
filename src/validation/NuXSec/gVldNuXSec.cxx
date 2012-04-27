@@ -469,11 +469,11 @@ void Init(void)
   gLS -> SetBorderSize(1);
 
   // Get local time to tag outputs
-  string lt_short = utils::system::LocalTimeAsString("%d.%d.%d_%d.%d.%d"); 
-  string lt_long  = utils::system::LocalTimeAsString("%d/%d/%d %2d:%2d:%2d"); 
+  string lt_for_filename   = utils::system::LocalTimeAsString("%02d.%02d.%02d_%02d.%02d.%02d"); 
+  string lt_for_cover_page = utils::system::LocalTimeAsString("%02d/%02d/%02d %02d:%02d:%02d"); 
 
   // Create output postscript file
-  string filename  = Form("genie-world_nu_xsec_data_comp-%s.ps",lt_short.c_str());
+  string filename  = Form("genie-world_nu_xsec_data_comp-%s.ps",lt_for_filename.c_str());
   gPS = new TPostScript(filename.c_str(), 111);
 
   // Add cover page
@@ -492,7 +492,7 @@ void Init(void)
   hdr.AddText(" ");
   hdr.AddText(" ");
   hdr.AddText(" ");
-  hdr.AddText(lt_long.c_str());
+  hdr.AddText(lt_for_cover_page.c_str());
   hdr.AddText(" ");
   hdr.Draw();
   gC->Update();
