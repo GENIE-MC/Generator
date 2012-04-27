@@ -29,7 +29,7 @@ class TProfile;
 using namespace std;
 
 namespace genie {
-namespace vld_hadronization {
+namespace mc_vs_data {
 
 const int kMaxFiles=40; 
 
@@ -120,7 +120,7 @@ private:
 
 };
 
-} //vld_hadronization
+} //mc_vs_data
 } //genie
 
 #endif

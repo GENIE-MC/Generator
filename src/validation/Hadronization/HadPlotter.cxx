@@ -19,28 +19,30 @@
 #include <iostream>
 
 #include <TSystem.h>
-#include <TCanvas.h>
 #include <TF1.h>
 #include <TGraph.h>
 #include <TGraphErrors.h>
 #include <TH2D.h>
-#include <TLatex.h>
-#include <TLegend.h>
 #include <TProfile.h>
+#include <TCanvas.h>
+#include <TPavesText.h>
+#include <TLegend.h>
+#include <TLatex.h>
 #include <Riostream.h>
 
-#include "validation/Hadronization/HadPlotter.h"
+#include "Utils/SystemUtils.h"
 #include "Messenger/Messenger.h"
+#include "validation/Hadronization/HadPlotter.h"
 
 using namespace std;
 using namespace genie;
-using namespace genie::vld_hadronization;
+using namespace genie::mc_vs_data;
 
 const int mccolors[7] = {2,4,3,1,6,7,5};
 
 //____________________________________________________________________________
-HadPlotter::HadPlotter(bool in_eps, string data_file_directory) :
-fInEps(in_eps),
+HadPlotter::HadPlotter(string output_format, string data_file_directory) :
+fOutFormat(output_format),
 fDataDir(data_file_directory)
 {
   //if there was no input directory, then use default location
@@ -1244,6 +1246,74 @@ void HadPlotter::ShowPlots()
   // Save the plots
   //
 
+  if(fOutFormat == "ps") {
+     // Get local time to tag outputs
+     string lt_for_filename   = utils::system::LocalTimeAsString("%d.%d.%d_%2d.%2d.%2d"); 
+     string lt_for_cover_page = utils::system::LocalTimeAsString("%d/%d/%d %2d:%2d:%2d"); 
+     // filename
+     string filename  = Form("genie-hadronization_data_comp-%s.ps",lt_for_filename.c_str());
+     // add header page
+     TCanvas cfront("cfront","",10,10,300,300);
+     cfront.Range(0,0,100,100);
+     TPavesText hdr(10,40,90,70,3,"tr");
+     hdr.AddText(" ");
+     hdr.AddText("GENIE comparison with data on neutrino-induced hadronization");
+     hdr.AddText(" ");
+     hdr.AddText(" ");
+     hdr.AddText(lt_for_cover_page.c_str());
+     hdr.AddText(" ");
+     hdr.Draw();
+     cfront.Update();
+     cfront.Print(Form("%s(",filename.c_str()));
+     // add data/MC comparisons
+     cMulCh        -> Print (filename.c_str());
+     cDispCh       -> Print (filename.c_str());
+     cKNO          -> Print (filename.c_str());
+     cMulPi0       -> Print (filename.c_str());
+     cCorr_Pi0_Ch  -> Print (filename.c_str());
+     cTopo         -> Print (filename.c_str());
+     cMulFB        -> Print (filename.c_str());
+     cXF           -> Print (filename.c_str());
+     cZ            -> Print (filename.c_str());
+     cPt_W2        -> Print (filename.c_str());
+     cPt2_xf       -> Print (filename.c_str());
+     cMulCh_nubar  -> Print (filename.c_str());
+     cDispCh_nubar -> Print (filename.c_str());
+     cTopo_nubar   -> Print (filename.c_str());
+     cMulPi0_nubar -> Print (filename.c_str());
+     cMulFB_nubar  -> Print (filename.c_str());
+     cXf_nubar     -> Print (filename.c_str());
+     cXf2_nubar    -> Print (filename.c_str());
+     cZ_nubar      -> Print (filename.c_str());
+     cPt_W_nubar   -> Print (Form("%s)",filename.c_str()));
+  }
+  else 
+  if (fOutFormat == "eps" || fOutFormat == "gif" || fOutFormat == "root") {
+     cMulCh        -> Print ( Form("cMulCh.%s",        fOutFormat.c_str()));
+     cDispCh       -> Print ( Form("cDispCh.%s",       fOutFormat.c_str()));
+     cKNO          -> Print ( Form("cKNO.%s",          fOutFormat.c_str()));
+     cMulPi0       -> Print ( Form("cMulPi0.%s",       fOutFormat.c_str()));
+     cCorr_Pi0_Ch  -> Print ( Form("cCorr_Pi0_Ch.%s",  fOutFormat.c_str()));
+     cTopo         -> Print ( Form("cTopo.%s",         fOutFormat.c_str()));
+     cMulFB        -> Print ( Form("cMulFB.%s",        fOutFormat.c_str()));
+     cXF           -> Print ( Form("cXF.%s",           fOutFormat.c_str()));
+     cZ            -> Print ( Form("cZ.%s",            fOutFormat.c_str()));
+     cPt_W2        -> Print ( Form("cPt_W2.%s",        fOutFormat.c_str()));
+     cPt2_xf       -> Print ( Form("cPt2_xf.%s",       fOutFormat.c_str()));
+     cMulCh_nubar  -> Print ( Form("cMulCh_nubar.%s",  fOutFormat.c_str()));
+     cDispCh_nubar -> Print ( Form("cDispCh_nubar.%s", fOutFormat.c_str()));
+     cTopo_nubar   -> Print ( Form("cTopo_nubar.%s",   fOutFormat.c_str()));
+     cMulPi0_nubar -> Print ( Form("cMulPi0_nubar.%s", fOutFormat.c_str()));
+     cMulFB_nubar  -> Print ( Form("cMulFB_nubar.%s",  fOutFormat.c_str()));
+     cXf_nubar     -> Print ( Form("cXf_nubar.%s",     fOutFormat.c_str()));
+     cXf2_nubar    -> Print ( Form("cXf2_nubar.%s",    fOutFormat.c_str()));
+     cZ_nubar      -> Print ( Form("cZ_nubar.%s",      fOutFormat.c_str()));
+     cPt_W_nubar   -> Print ( Form("cPt_W_nubar.%s",   fOutFormat.c_str()));
+  }
+  else {
+    LOG("gvldtest", pERROR) << "Can't handle output format: " << fOutFormat;
+  }
+  /*
   cMulCh        -> Print ( ((fInEps) ? "cMulCh.eps"        : "cMulCh.gif"        ));
   cDispCh       -> Print ( ((fInEps) ? "cDispCh.eps"       : "cDispCh.gif"       ));
   cKNO          -> Print ( ((fInEps) ? "cKNO.eps"          : "cKNO.gif"          ));
@@ -1264,6 +1334,7 @@ void HadPlotter::ShowPlots()
   cXf2_nubar    -> Print ( ((fInEps) ? "cXf2_nubar.eps"    : "cXf2_nubar.gif"    ));
   cZ_nubar      -> Print ( ((fInEps) ? "cZ_nubar.eps"      : "cZ_nubar.gif"      ));
   cPt_W_nubar   -> Print ( ((fInEps) ? "cPt_W_nubar.eps"   : "cPt_W_nubar.gif"   ));
+  */
 }
 //____________________________________________________________________________
 TGraphErrors* HadPlotter::MakeGraph(string file)
@@ -1272,7 +1343,7 @@ TGraphErrors* HadPlotter::MakeGraph(string file)
 
   bool file_exists = !(gSystem->AccessPathName(filename.c_str()));
   if(!file_exists) {
-    LOG("VldHadro", pERROR) << "Can not find file: " << filename;
+    LOG("gvldtest", pERROR) << "Can not find file: " << filename;
     return 0;
   }
 
