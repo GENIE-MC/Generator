@@ -31,12 +31,12 @@ class TLegend;
 using namespace std;
 
 namespace genie {
-namespace vld_hadronization {
+namespace mc_vs_data {
 
 class HadPlotter {
       
 public:
-  HadPlotter(bool in_eps=true, string data_file_directory = "");
+  HadPlotter(string output_format, string data_file_directory = "");
  ~HadPlotter();
 
   void AddPlots  (HadPlots hp);
@@ -53,11 +53,11 @@ private:
 
   vector<HadPlots> hadPlots;
 
-  bool   fInEps;   ///< save plots in eps or gif?
-  string fDataDir; ///< top level dir for data files
+  string fOutFormat; ///< save all plots in single ps file, or save them independently in eps or gif format?
+  string fDataDir;   ///< top level dir for data files
 };
 
-} // vld_hadronization
+} // mc_vs_data
 } // genie
 
 #endif

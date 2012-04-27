@@ -12,7 +12,10 @@
 
           [] Denotes an optional argument.
           
-          -f Output plot format (0: eps, 1: gif) [default: gif]          
+          -f Output plot format (either `ps', `eps', `gif' or `root').
+             If `ps' is selected, all plots are saved in a single document.
+             If `eps', `gif' or `root' is selected, then each canvas is 
+             stored separately. Default: `ps'.
           -g An input XML file for specifying a GHEP event list for each
              model to be considered in the hadronization benchmark test.
              For info on the XML file format see the GSimFiles class documentation.
@@ -44,7 +47,7 @@
 using namespace std;
 using namespace genie;
 using namespace genie::utils;
-using namespace genie::vld_hadronization;
+using namespace genie::mc_vs_data;
 
 // prototypes
 void LoadFilesAndBookPlots (void);
@@ -57,7 +60,7 @@ void PrintSyntax           (void);
 // globals & user inputs
 vector<HadPlots *> gHP;
 GSimFiles          gOptGenieInputs(false,10);
-int                gFmt = 1;
+string             gFmt = "ps";
 
 //____________________________________________________________________________
 int main(int argc, char ** argv)
@@ -126,8 +129,7 @@ void Analyze(void)
 void Plot(void)
 {
   // plot all bubble chamber data and start superimposing model predictions
-  bool in_eps = (gFmt==0);
-  HadPlotter plotter(in_eps);
+  HadPlotter plotter(gFmt);
   vector<HadPlots *>::iterator hpvit = gHP.begin();
   for( ; hpvit != gHP.end(); ++hpvit) {
     HadPlots * curr_model = *hpvit;
@@ -175,10 +177,9 @@ void GetCommandLineArgs(int argc, char** argv)
 
   // output plot format
   if(parser.OptionExists('f')) {
-     int format = parser.ArgAsInt('f');
-     if(format==0 || format==1) {
-       gFmt=format;
-     }
+    gFmt = parser.ArgAsString('f');
+  } else {
+    gFmt = "ps";
   }
 
   if(gOptGenieInputs.NModels()==0) {
