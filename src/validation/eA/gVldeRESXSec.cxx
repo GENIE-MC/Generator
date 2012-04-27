@@ -317,9 +317,13 @@ void Init(void)
   gC->SetGridx();
   gC->SetGridy();
 
+  // Get local time to tag outputs
+  string lt_for_filename   = utils::system::LocalTimeAsString("%02d.%02d.%02d_%02d.%02d.%02d");
+  string lt_for_cover_page = utils::system::LocalTimeAsString("%02d/%02d/%02d %02d:%02d:%02d");
+
+
   // Create output postscript file
-  string localtime = utils::system::LocalTimeAsString("%d.%d.%d_%d.%d.%d"); 
-  string filename  = Form("genie-e_res_data_comp-%s.ps",localtime.c_str());
+  string filename  = Form("genie-e_res_data_comp-%s.ps",lt_for_filename.c_str());
   gPS = new TPostScript(filename.c_str(), 111);
 
   // Add cover page
@@ -327,7 +331,12 @@ void Init(void)
   gC->Range(0,0,100,100);
   TPavesText hdr(10,40,90,70,3,"tr");
   hdr.AddText(" ");
+  hdr.AddText(" ");
   hdr.AddText("GENIE comparison with (e,e') data on 1H and 2D in the resonance region");
+  hdr.AddText(" ");
+  hdr.AddText(" ");
+  hdr.AddText(" ");
+  hdr.AddText(lt_for_cover_page.c_str());
   hdr.AddText(" ");
   hdr.Draw();
   gC->Update();

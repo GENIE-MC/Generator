@@ -308,9 +308,12 @@ void Init(void)
   gC->SetGridx();
   gC->SetGridy();
 
+ // Get local time to tag outputs
+  string lt_for_filename   = utils::system::LocalTimeAsString("%02d.%02d.%02d_%02d.%02d.%02d");
+  string lt_for_cover_page = utils::system::LocalTimeAsString("%02d/%02d/%02d %02d:%02d:%02d");
+
   // Create output postscript file
-  string localtime = utils::system::LocalTimeAsString("%d.%d.%d_%d.%d.%d");
-  string filename  = Form("genie-e_qe_data_comp-%s.ps",localtime.c_str());
+  string filename  = Form("genie-e_qe_data_comp-%s.ps",lt_for_filename.c_str());
   gPS = new TPostScript(filename.c_str(), 111);
 
   // Add cover page
@@ -319,6 +322,11 @@ void Init(void)
   TPavesText hdr(10,40,90,70,3,"tr");
   hdr.AddText(" ");
   hdr.AddText("GENIE comparison with e QE data");
+  hdr.AddText(" ");
+  hdr.AddText(" ");
+  hdr.AddText(" ");
+  hdr.AddText(" ");
+  hdr.AddText(lt_for_cover_page.c_str());
   hdr.AddText(" ");
   hdr.Draw();
   gC->Update();

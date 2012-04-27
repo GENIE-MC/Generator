@@ -80,10 +80,10 @@ using namespace genie::utils;
 
 //____________________________________________________________________________
 // Utility class to hold info on plotted datasets
-class eHadroMultiplicityRatioDataSetDescription_t 
+class eHadroMultiplicityRatioDataSetDescription
 { 
 public:
-  eHadroMultiplicityRatioDataSetDescription_t(
+  eHadroMultiplicityRatioDataSetDescription(
      double E, int hpdg, int tgtpdg, 
      string citation, 
      double v_min  =  0,  double v_max  = 99999999,  /* define cuts if necessary */
@@ -103,7 +103,7 @@ public:
     fShow      (show)
   {
   }
-  eHadroMultiplicityRatioDataSetDescription_t()
+  eHadroMultiplicityRatioDataSetDescription()
   {
   }
   int    TgtPdg   (void) const { return fTgtPdg; }
@@ -164,35 +164,33 @@ DATA
 */
 const int kNumOfDataSets = 12;
 
-eHadroMultiplicityRatioDataSetDescription_t * kDataSet[kNumOfDataSets] = 
+eHadroMultiplicityRatioDataSetDescription * kDataSet[kNumOfDataSets] = 
 {
   // HERMES, 4He
-  new eHadroMultiplicityRatioDataSetDescription_t(27.6, kPdgPiP,    1000020040, "Airapetian:2007vu", 6.0, 999999., 0.2, 1.0, 0.0, 1.0, true),
-  new eHadroMultiplicityRatioDataSetDescription_t(27.6, kPdgKP,     1000020040, "Airapetian:2007vu", 6.0, 999999., 0.2, 1.0, 0.0, 1.0, true),
-  new eHadroMultiplicityRatioDataSetDescription_t(27.6, kPdgProton, 1000020040, "Airapetian:2007vu", 6.0, 999999., 0.2, 1.0, 0.0, 1.0, true),
+  new eHadroMultiplicityRatioDataSetDescription(27.6, kPdgPiP,    1000020040, "Airapetian:2007vu", 6.0, 999999., 0.2, 1.0, 0.0, 1.0, true),
+  new eHadroMultiplicityRatioDataSetDescription(27.6, kPdgKP,     1000020040, "Airapetian:2007vu", 6.0, 999999., 0.2, 1.0, 0.0, 1.0, true),
+  new eHadroMultiplicityRatioDataSetDescription(27.6, kPdgProton, 1000020040, "Airapetian:2007vu", 6.0, 999999., 0.2, 1.0, 0.0, 1.0, true),
 
   // HERMES, 20Ne
-  new eHadroMultiplicityRatioDataSetDescription_t(27.6, kPdgPiP,    1000100200, "Airapetian:2007vu", 6.0, 999999., 0.2, 1.0, 0.0, 1.0, true),
-  new eHadroMultiplicityRatioDataSetDescription_t(27.6, kPdgKP,     1000100200, "Airapetian:2007vu", 6.0, 999999., 0.2, 1.0, 0.0, 1.0, true),
-  new eHadroMultiplicityRatioDataSetDescription_t(27.6, kPdgProton, 1000100200, "Airapetian:2007vu", 6.0, 999999., 0.2, 1.0, 0.0, 1.0, true),
+  new eHadroMultiplicityRatioDataSetDescription(27.6, kPdgPiP,    1000100200, "Airapetian:2007vu", 6.0, 999999., 0.2, 1.0, 0.0, 1.0, true),
+  new eHadroMultiplicityRatioDataSetDescription(27.6, kPdgKP,     1000100200, "Airapetian:2007vu", 6.0, 999999., 0.2, 1.0, 0.0, 1.0, true),
+  new eHadroMultiplicityRatioDataSetDescription(27.6, kPdgProton, 1000100200, "Airapetian:2007vu", 6.0, 999999., 0.2, 1.0, 0.0, 1.0, true),
 
   // HERMES, 84Kr
-  new eHadroMultiplicityRatioDataSetDescription_t(27.6, kPdgPiP,    1000360840, "Airapetian:2007vu", 6.0, 999999., 0.2, 1.0, 0.0, 1.0, true),
-  new eHadroMultiplicityRatioDataSetDescription_t(27.6, kPdgKP,     1000360840, "Airapetian:2007vu", 6.0, 999999., 0.2, 1.0, 0.0, 1.0, true),
-  new eHadroMultiplicityRatioDataSetDescription_t(27.6, kPdgProton, 1000360840, "Airapetian:2007vu", 6.0, 999999., 0.2, 1.0, 0.0, 1.0, true),
+  new eHadroMultiplicityRatioDataSetDescription(27.6, kPdgPiP,    1000360840, "Airapetian:2007vu", 6.0, 999999., 0.2, 1.0, 0.0, 1.0, true),
+  new eHadroMultiplicityRatioDataSetDescription(27.6, kPdgKP,     1000360840, "Airapetian:2007vu", 6.0, 999999., 0.2, 1.0, 0.0, 1.0, true),
+  new eHadroMultiplicityRatioDataSetDescription(27.6, kPdgProton, 1000360840, "Airapetian:2007vu", 6.0, 999999., 0.2, 1.0, 0.0, 1.0, true),
 
   // HERMES, 132Xe
-  new eHadroMultiplicityRatioDataSetDescription_t(27.6, kPdgPiP,    1000541320, "Airapetian:2007vu", 6.0, 999999., 0.2, 1.0, 0.0, 1.0, true),
-  new eHadroMultiplicityRatioDataSetDescription_t(27.6, kPdgKP,     1000541320, "Airapetian:2007vu", 6.0, 999999., 0.2, 1.0, 0.0, 1.0, true),
-  new eHadroMultiplicityRatioDataSetDescription_t(27.6, kPdgProton, 1000541320, "Airapetian:2007vu", 6.0, 999999., 0.2, 1.0, 0.0, 1.0, true)
+  new eHadroMultiplicityRatioDataSetDescription(27.6, kPdgPiP,    1000541320, "Airapetian:2007vu", 6.0, 999999., 0.2, 1.0, 0.0, 1.0, true),
+  new eHadroMultiplicityRatioDataSetDescription(27.6, kPdgKP,     1000541320, "Airapetian:2007vu", 6.0, 999999., 0.2, 1.0, 0.0, 1.0, true),
+  new eHadroMultiplicityRatioDataSetDescription(27.6, kPdgProton, 1000541320, "Airapetian:2007vu", 6.0, 999999., 0.2, 1.0, 0.0, 1.0, true)
 };
 
 
 // function prototypes
 void               Init               (void);
-void               Run                (void);
 void               End                (void);
-void               AddCoverPage       (void);
 TGraphAsymmErrors* Data               (int iset);
 TH1D *             Model              (int iset, int imodel);
 void               Draw               (int iset);
@@ -215,8 +213,8 @@ bool          gShowModel = false;
 
 // plotting consts
 
-const int kNCx = 1; // number of columns in TCanvas::Divide()
-const int kNCy = 1; // number of rows    in TCanvas::Divide()
+const int kNCx = 2; // number of columns in TCanvas::Divide()
+const int kNCy = 2; // number of rows    in TCanvas::Divide()
 
 // model line styles
 const int kNMaxNumModels = 5;
@@ -233,27 +231,26 @@ int main(int argc, char ** argv)
   GetCommandLineArgs (argc,argv);
 
   Init();
-  Run ();
+
+  for(int iset = 0; iset < kNumOfDataSets; iset++) 
+  {
+    Draw(iset);
+  }
+
   End ();
   
   LOG("gvldtest", pINFO)  << "Done!";
   return 0;
 }
 //_________________________________________________________________________________
-void Run(void)
-{
-  // loop over data sets
-  for(int iset = 0; iset < kNumOfDataSets; iset++) 
-  {
-    Draw(iset);
-  }
-}
-//_________________________________________________________________________________
 void Init(void)
 {
   LOG("gvldtest", pNOTICE) << "Initializing...";;
 
-  // get TTree with electron-scattering data
+  // Set GENIE style
+  utils::style::SetDefaultStyle();
+
+  // Get TTree with hadron multiplicity ratio data
   if( ! utils::system::FileExists(gOptDataFilename) ) {
       LOG("gvldtest", pFATAL)
          << "Can not find file: " << gOptDataFilename;
@@ -269,31 +266,29 @@ void Init(void)
       exit(1);
   }
 
-  utils::style::SetDefaultStyle();
-
+  // Create plot canvas
   gC = new TCanvas("c","",20,20,500,650);
   gC->SetBorderMode(0);
   gC->SetFillColor(0);
   gC->SetGridx();
   gC->SetGridy();
 
-  // output file
-  gPS = new TPostScript("eRh.genie_vs_data.ps", 111);
+  // Get local time to tag outputs
+  string lt_for_filename   = utils::system::LocalTimeAsString("%02d.%02d.%02d_%02d.%02d.%02d");
+  string lt_for_cover_page = utils::system::LocalTimeAsString("%02d/%02d/%02d %02d:%02d:%02d");
 
-  AddCoverPage();
+  // Create output ps file
+  string filename  = Form("genie-hadron_multiplicity_ratio_data_comp-%s.ps",lt_for_filename.c_str());
+  gPS = new TPostScript(filename.c_str(), 111);
 
-  gC->SetLogx();
-  gC->SetLogy();
-}
-//_________________________________________________________________________________
-void AddCoverPage(void)
-{
-  // header
+  // Add cover page
   gPS->NewPage();
   gC->Range(0,0,100,100);
   TPavesText hdr(10,40,90,70,3,"tr");
   hdr.AddText(" ");
-  hdr.AddText("Comparisons with of GENIE with hadron multiplicity ratio data from eA->eX");
+  hdr.AddText(" ");
+  hdr.AddText("GENIE comparison with hadron multiplicity ratio data from eA->eX");
+  hdr.AddText(" ");
   hdr.AddText(" ");
   hdr.AddText(" ");
   for(int imodel=0; imodel< gOptGenieInputs.NModels(); imodel++) {
@@ -303,8 +298,17 @@ void AddCoverPage(void)
     hdr.AddText(stream.str().c_str());
   }
   hdr.AddText(" ");
+  hdr.AddText(" ");
+  hdr.AddText(" ");
+  hdr.AddText(" ");
+  hdr.AddText(" ");
+  hdr.AddText(lt_for_cover_page.c_str());
   hdr.Draw();
   gC->Update();
+
+  gC->SetLogx();
+  gC->SetLogy();
+
 }
 //_________________________________________________________________________________
 void End(void)
@@ -319,8 +323,6 @@ void End(void)
   gRhDataFile->Close();
 }
 //_________________________________________________________________________________
-// Corresponding GENIE prediction for the `iset' data set 
-//.................................................................................
 TH1D* Model(int iset, int imodel)
 {
   if(!gShowModel) return 0;
@@ -431,7 +433,7 @@ TGraphAsymmErrors * Data(int iset)
 
   TGraphAsymmErrors * gr = new TGraphAsymmErrors(n,xv,yv,0,0,dypv,dymv);
 
-  utils::style::Format(gr, kBlack, kSolid, 1, kBlack, 20, 1.5);
+  utils::style::Format(gr, kBlack, kSolid, 1, kBlack, 20, 0.75);
 
   delete [] xv;
   delete [] yv;
@@ -522,8 +524,6 @@ void Draw(int iset)
   gC->Update();
 }
 //_________________________________________________________________________________
-// Parsing command-line arguments, check/form filenames, etc
-//.................................................................................
 void GetCommandLineArgs(int argc, char ** argv)
 {
   LOG("gvldtest", pNOTICE) << "*** Parsing command line arguments";
