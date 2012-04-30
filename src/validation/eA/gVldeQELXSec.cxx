@@ -556,22 +556,29 @@ void Draw(int iset)
 
   TH1F * hframe = 0;
 
-  double xmin = 0.0, scale_xmin = 0.5;
-  double xmax = 0.0, scale_xmax = 1.2;
-  double ymin = 0.0, scale_ymin = 0.4;
-  double ymax = 0.0, scale_ymax = 1.2;
+  double xmin =  99999999.9, scale_xmin = 0.8;
+  double xmax = -99999999.9, scale_xmax = 1.2;
+  double ymin =  99999999.9, scale_ymin = 0.4;
+  double ymax = -99999999.9, scale_ymax = 1.2;
 
   xmin  = ( data->GetX() )[TMath::LocMin(data->GetN(),data->GetX())];
   xmax  = ( data->GetX() )[TMath::LocMax(data->GetN(),data->GetX())];
   ymin  = ( data->GetY() )[TMath::LocMin(data->GetN(),data->GetY())];
   ymax  = ( data->GetY() )[TMath::LocMax(data->GetN(),data->GetY())];
  
+  // take also into account the d2sigma/dEdOmega range in the the models
+  // (for the v=E-E' range of the dataset) just in case data and MC are not that similar...
   for(unsigned int ic = 0; ic < model.size(); ic++) 
   {  
-     ymin = TMath::Min(ymin, 
-        (model[ic]->GetY())[TMath::LocMin(model[ic]->GetN(),model[ic]->GetY())]);
-     ymax = TMath::Max(ymax, 
-        (model[ic]->GetY())[TMath::LocMax(model[ic]->GetN(),model[ic]->GetY())]);
+     TGraph * mm = model[ic];
+     if(mm) {
+       for(int k=0; k<mm->GetN(); k++) {
+          double x = (mm->GetX())[k];
+          if(x < xmin || x > xmax) continue;
+          ymin = TMath::Min(ymin, (mm->GetY())[k]);
+          ymax = TMath::Max(ymax, (mm->GetY())[k]);
+       }
+     }
   }
   hframe = (TH1F*) gC->GetPad(iplot)->DrawFrame(
         scale_xmin*xmin, scale_ymin*ymin, scale_xmax*xmax, scale_ymax*ymax);
