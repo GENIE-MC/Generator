@@ -466,7 +466,7 @@ void Init(void)
 
   gLS = new TLegend(0.15,0.92,0.85,0.98);
   gLS -> SetFillColor(0);
-  gLS -> SetBorderSize(1);
+  gLS -> SetBorderSize(0);
 
   // Get local time to tag outputs
   string lt_for_filename   = utils::system::LocalTimeAsString("%02d.%02d.%02d_%02d.%02d.%02d"); 
@@ -556,7 +556,6 @@ void Draw(int icomparison)
 
   // set header
   gLS->SetHeader( kComparison[icomparison]->Label().c_str() );
-  gLS->SetLineStyle(0);
 
   // create frame from the data point range
   TH1F * hframe = 0;
@@ -570,6 +569,16 @@ void Draw(int icomparison)
     xmax  = TMath::Max(xmax, (data[i]->GetX())[TMath::LocMax(data[i]->GetN(),data[i]->GetX())]);
     ymin  = TMath::Min(ymin, (data[i]->GetY())[TMath::LocMin(data[i]->GetN(),data[i]->GetY())]);
     ymax  = TMath::Max(ymax, (data[i]->GetY())[TMath::LocMax(data[i]->GetN(),data[i]->GetY())] );
+  }
+  for(unsigned int imodel = 0; imodel < models.size(); imodel++) {
+    TGraph * mm = models[imodel];
+    if(!mm) continue;
+    for(int k=0; k<mm->GetN(); k++) {
+         double x = (mm->GetX())[k];
+         if(x < xmin || x > xmax) continue;
+         ymin = TMath::Min(ymin, (mm->GetY())[k]);
+         ymax = TMath::Max(ymax, (mm->GetY())[k]);
+     }
   }
   double ymax_scale = (inlogy) ? 2. : 1.4;
   hframe = (TH1F*) gC->GetPad(1)->DrawFrame(0.5*xmin, 0.4*ymin, 1.2*xmax, ymax_scale*ymax);
@@ -595,13 +604,11 @@ void Draw(int icomparison)
   }  
 
   // have model prediction to plot?
-  if(models.size()>0) {
-     for(int imodel=0; imodel<gOptGenieInputs.NModels(); imodel++) {
-       if(!models[imodel]) continue;
-       models[imodel]->Draw("L");
-       legend->AddEntry(models[imodel], models[imodel]->GetTitle(), "L");
-     }
-  }//model?
+  for(unsigned int imodel = 0; imodel < models.size(); imodel++) {
+    if(!models[imodel]) continue;
+    models[imodel]->Draw("L");
+    legend->AddEntry(models[imodel], models[imodel]->GetTitle(), "L");
+  }
 
   gLS->Draw();
 
