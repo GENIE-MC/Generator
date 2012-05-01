@@ -11,7 +11,8 @@
  Important revisions after version 2.0.0 :
  @ Nov 30, 2009 - CA
    Was first added in v2.5.1
-
+ @ May 01, 2012 - CA
+   Pick-up data from new location ($GENIE/data/evgen/nucl/)
 */
 //____________________________________________________________________________
 
@@ -75,9 +76,11 @@ void NuclearData::Load(void)
 {
   fNuclSupprD2 = 0;
 
-  string data_dir = string(gSystem->Getenv("GENIE")) + string("/data/nucl");
+  string data_dir = 
+     string(gSystem->Getenv("GENIE")) + 
+     string("/data/evgen/nucl");
   LOG("NuclData", pINFO)  
-      << "Loading nuclear data from: " << data_dir;
+     << "Loading nuclear data from: " << data_dir;
 
   // Load D2 nuclear suppression factor
 
