@@ -14,6 +14,8 @@
    Was first added in v2.5.1
  @ Sep 29, 2009 - CA
    Add FormFactors nested class & re-organize code
+ @ May 01, 2012 - CA
+   Pick data from new location ($GENIE/data/evgen/gibuu/)
 */
 //____________________________________________________________________________
 
@@ -124,7 +126,8 @@ void GiBUUData::FormFactors::LoadTables(void)
     }//i   
   }//r 
 
-  string data_dir = string(gSystem->Getenv("GENIE")) + string("/data/gibuu");
+  string data_dir = string(gSystem->Getenv("GENIE")) + 
+                    string("/data/evgen/gibuu");
 
   LOG("GiBUUData", pNOTICE) << "Loading GiBUU data from: " << data_dir;
 
