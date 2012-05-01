@@ -15,6 +15,8 @@
  Important revisions after version 2.0.0 :
  @ May 30, 2008 - CA, JD
    This class was first added in version 2.3.1
+ @ May 01, 2012 - CA, JD
+   Pick data from new location ($GENIE/data/evgen/catalogues/iso/)
 */
 //____________________________________________________________________________
 
@@ -117,7 +119,7 @@ bool NaturalIsotopes::LoadTable(void)
 {
   // get the natural isotopes table filename
   string filename = string(gSystem->Getenv("GENIE")) + 
-                    string("/data/nucl/natural-isotopes.data");
+                    string("/data/evgen/catalogues/iso/natural-isotopes.data");
 
   LOG("NatIsotop", pINFO)  
     << "Loading natural occurring isotope table from file: " << filename;
