@@ -23,6 +23,9 @@
    splines.Outdated splines were removed. Function IntBounce implemented to calculate
    a CM scattering angle for given probe, target, product, and fate. AngleAndProduct
    similar to IntBounce, but also determines the target nucleon.
+ @ May 01, 2012 - CA
+   Pick data from $GENIE/data/evgen/intranuke/
+
 */
 //____________________________________________________________________________
 
@@ -170,11 +173,11 @@ void INukeHadroData::LoadCrossSections(void)
 {
 // Loads hadronic x-section data
 
-  //-- Get the directory with the SAID hadron cross section data (search for
-  //   $GINUKEHADRONDATA or use default: $GENIE/data/hadron_xsec)
+  //-- Get the top-level directory with input hadron cross-section data
+  //   (search for $GINUKEHADRONDATA or use default location)
   string data_dir = (gSystem->Getenv("GINUKEHADRONDATA")) ?
              string(gSystem->Getenv("GINUKEHADRONDATA")) :
-             string(gSystem->Getenv("GENIE")) + string("/data/intranuke");
+             string(gSystem->Getenv("GENIE")) + string("/data/evgen/intranuke");
 
   LOG("INukeData", pINFO)  
       << "Loading INTRANUKE hadron data from: " << data_dir;
