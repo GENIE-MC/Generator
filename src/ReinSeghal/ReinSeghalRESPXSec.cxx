@@ -17,6 +17,8 @@
    BaryonResParams, and BreitWignerI, BaryonResDataSetI implementations are
    now redundant. Get resonance parameters from BaryonResUtils and use the
    Breit-Weigner functions from utils::bwfunc.
+ @ May 01, 2012 - CA
+   Pick nutau/nutaubar scaling factors from new location.
 
 */
 //____________________________________________________________________________
@@ -434,12 +436,12 @@ void ReinSeghalRESPXSec::LoadConfig(void)
      assert(gSystem->Getenv("GENIE"));
      string base = gSystem->Getenv("GENIE");
 
-     string filename = base + "/data/etc/rs-res-xsec-scaling-nutau.dat";
+     string filename = base + "/data/evgen/rein_sehgal/res/nutau_xsec_scaling_factors.dat";
      LOG("ReinSeghalRes", pNOTICE) 
                 << "Loading nu_tau xsec reduction spline from: " << filename;
      fNuTauRdSpl = new Spline(filename);
 
-     filename = base + "/data/etc/rs-res-xsec-scaling-nutaubar.dat";
+     filename = base + "/data/evgen/rein_sehgal/res/nutaubar_xsec_scaling_factors.dat";
      LOG("ReinSeghalRes", pNOTICE) 
            << "Loading bar{nu_tau} xsec reduction spline from: " << filename;
      fNuTauBarRdSpl = new Spline(filename);
