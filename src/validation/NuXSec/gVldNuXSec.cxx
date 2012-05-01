@@ -88,7 +88,7 @@ using namespace genie::mc_vs_data;
 const char * kDefDataFile = "data/validation/vA/xsec/integrated/nuXSec.root";  
 
 // number of comparisons
-const int kNumOfComparisons = 31;
+const int kNumOfComparisons = 32;
 
 // specify how exactly to construct all comparisons
 NuXSecComparison * kComparison[kNumOfComparisons] = 
@@ -96,7 +96,7 @@ NuXSecComparison * kComparison[kNumOfComparisons] =
   // nu_mu CC inclusive,
   new NuXSecComparison(
     "#nu_{#mu} CC inclusive",
-    "ANL_12FT,2;ANL_12FT,4;BEBC,0;BEBC,2;BEBC,5;BEBC,8;BNL_7FT,0;BNL_7FT,4;CCFR,2;CCFRR,0;CHARM,0;CHARM,4;FNAL_15FT,1;FNAL_15FT,2;Gargamelle,0;Gargamelle,10;Gargamelle,12;IHEP_ITEP,0;IHEP_ITEP,2;IHEP_JINR,0;SKAT,0;MINOS,0",
+    "ANL_12FT,2;ANL_12FT,4;BEBC,0;BEBC,2;BEBC,5;BEBC,8;BNL_7FT,0;BNL_7FT,4;CCFR,2;CCFRR,0;CHARM,0;CHARM,4;FNAL_15FT,1;FNAL_15FT,2;Gargamelle,0;Gargamelle,10;Gargamelle,12;IHEP_ITEP,0;IHEP_ITEP,2;IHEP_JINR,0;SKAT,0;MINOS,0;SciBooNE,0",
      new NuXSecCombineSplinesFromXSecFile(0.5,"nu_mu_n","tot_cc_n",0.5,"nu_mu_H1","tot_cc_p"),
      0.1, 120.0, 
      false, false, false
@@ -112,7 +112,7 @@ NuXSecComparison * kComparison[kNumOfComparisons] =
   // nu_mu CC inclusive, low/medium-energy data only
   new NuXSecComparison(
     "#nu_{#mu} CC inclusive, low/medium-energy data only",
-    "ANL_12FT,2;ANL_12FT,4;BEBC,0;BEBC,2;BEBC,5;BEBC,8;BNL_7FT,0;BNL_7FT,4;CCFR,2;CCFRR,0;CHARM,0;CHARM,4;FNAL_15FT,1;FNAL_15FT,2;Gargamelle,0;Gargamelle,10;Gargamelle,12;IHEP_ITEP,0;IHEP_ITEP,2;IHEP_JINR,0;SKAT,0;MINOS,0",
+    "ANL_12FT,2;ANL_12FT,4;BEBC,0;BEBC,2;BEBC,5;BEBC,8;BNL_7FT,0;BNL_7FT,4;CCFR,2;CCFRR,0;CHARM,0;CHARM,4;FNAL_15FT,1;FNAL_15FT,2;Gargamelle,0;Gargamelle,10;Gargamelle,12;IHEP_ITEP,0;IHEP_ITEP,2;IHEP_JINR,0;SKAT,0;MINOS,0;SciBooNE,0",
      new NuXSecCombineSplinesFromXSecFile(0.5,"nu_mu_n","tot_cc_n",0.5,"nu_mu_H1","tot_cc_p"),
      0.1, 20.0, 
      false, false, false
@@ -156,6 +156,14 @@ NuXSecComparison * kComparison[kNumOfComparisons] =
      new NuXSecCombineSplinesFromXSecFile(0.5,"nu_mu_bar_n","tot_cc_n",0.5,"nu_mu_bar_H1","tot_cc_p"),
      1.0, 60.0, 
     false, false, true
+  ),
+  // nu_mu CC inclusive, SciBooNE data only
+  new NuXSecComparison(
+    "#nu_{#mu} CC inclusive, SciBooNE data only",
+    "SciBooNE,0",
+     new NuXSecCombineSplinesFromXSecFile(0.5,"nu_mu_n","tot_cc_n",0.5,"nu_mu_H1","tot_cc_p"),
+     0.1, 6.0, 
+     false, false, false
   ),
   // nu_mu CC QE, all data
   new NuXSecComparison(
