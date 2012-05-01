@@ -140,12 +140,16 @@ TGraph * NuXSecDirectlyFromXSecFile::operator()
   double * energy_array = new double[n];
   double * xsec_array   = new double[n];
 
+  LOG("gvldtest", pNOTICE)   << "Emin = " << Emin << ", Emax = " << Emax;
+
   bool inlogE = true;
   for(int i = 0; i < n; i++) {
     double energy = (inlogE) ? 
       TMath::Power(10., TMath::Log10(Emin) + i * (TMath::Log10(Emax)-TMath::Log10(Emin))/(n-1)) : 
          Emin + i*(Emax-Emin)/(n-1);
     double xsec = xsec_spline->Eval(energy);
+    LOG("gvldtest", pNOTICE)  
+      << "xsec (E = " << energy << " GeV) = " << xsec << " 1E-38cm^2";
     if(scale_with_E) {
       assert(energy>0);
       xsec /= energy;
