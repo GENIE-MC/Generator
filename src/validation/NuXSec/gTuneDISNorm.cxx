@@ -52,6 +52,7 @@
 #include <TPavesText.h>
 #include <TLegend.h>
 #include <TMath.h>
+#include <TLateX.h>
 
 #include "Algorithm/AlgConfigPool.h"
 #include "Messenger/Messenger.h"
@@ -421,9 +422,14 @@ void Save(string filename)
   const double disnorm_step = (disnorm_max - disnorm_min)/(npv-1);
   double disnorm[npv];
   double chisq  [npv];
+  double chisq_min = 9999999999;
   for(int ipv=0; ipv<npv; ipv++) {
     disnorm[ipv] = disnorm_min + ipv * disnorm_step;
     chisq  [ipv] = Chisq(disnorm[ipv]);
+    chisq_min = TMath::Min(chisq_min,chisq[ipv]);
+  }
+  for(int ipv=0; ipv<npv; ipv++) {
+    chisq  [ipv] -= chisq_min;
   }
   TGraph * gr_chisq = new TGraph(npv,disnorm,chisq);
 
@@ -503,11 +509,31 @@ void Save(string filename)
      legend->SetTextSize(0.05);
      legend->Draw();
      c->GetPad(2)->Update();
+     c->Update();
   }
-  //ps->NewPage();
-  c->Clear();
-  gr_chisq->Draw("alp");
-  ps->Close();
+  {
+     ps->NewPage();
+     c->Clear();
+     TH1F * hframe = 0;
+     double xmin =  9999999;
+     double xmax = -9999999;
+     double ymin =  9999999;
+     double ymax = -9999999;
+     xmin  = TMath::Min(xmin, (gr_chisq->GetX())[TMath::LocMin(gr_chisq->GetN(),gr_chisq->GetX())]);
+     xmax  = TMath::Max(xmax, (gr_chisq->GetX())[TMath::LocMax(gr_chisq->GetN(),gr_chisq->GetX())]);
+     ymin  = TMath::Min(ymin, (gr_chisq->GetY())[TMath::LocMin(gr_chisq->GetN(),gr_chisq->GetY())]);
+     ymax  = TMath::Max(ymax, (gr_chisq->GetY())[TMath::LocMax(gr_chisq->GetN(),gr_chisq->GetY())]);
+     hframe = (TH1F*) c->DrawFrame(0.8*xmin, 0.4*ymin, 1.2*xmax, 1.2*ymax);
+     hframe->GetXaxis()->SetTitle("DIS normalization");
+     hframe->GetYaxis()->SetTitle("#Delta#chi^{2}");
+     hframe->Draw("same");
+     TLatex bestfit_info;
+     bestfit_info.SetTextColor(kRed);
+     bestfit_info.SetTextSize(0.03);
+     bestfit_info.DrawLatex(0.9*xmin,1.1*ymax,Form("Best-fit DIS normalization scale = %f",gDISNormBestFit));
+     gr_chisq->Draw("l");
+     ps->Close();
+  }
 
   // Save data, nominal and best-fit MC and chisq graphs in a root file
   TFile out(Form("%s.root",filename.c_str()), "recreate");
