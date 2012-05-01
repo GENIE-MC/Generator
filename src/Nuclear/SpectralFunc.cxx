@@ -10,7 +10,8 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
-
+ @ May 01, 2012 - CA
+   Pick spectral function data from $GENIE/data/evgen/nucl/spectral_functions
 */
 //____________________________________________________________________________
 
@@ -145,7 +146,8 @@ void SpectralFunc::LoadConfig(void)
   LOG("SpectralFunc", pDEBUG) << "Loading Benhar et al. spectral functions";
 
   string data_dir =
-        string(gSystem->Getenv("GENIE")) + string("/data/spectral_functions/");
+        string(gSystem->Getenv("GENIE")) + 
+        string("/data/evgen/nucl/spectral_functions/");
   string c12file  = data_dir + "benhar-sf-12c.data";
   string fe56file = data_dir + "benhar-sf-56fe.data";
 
