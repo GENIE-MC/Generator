@@ -5,12 +5,13 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - May 06, 2004
+         STFC, Rutherford Appleton Laboratory 
 
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
-
+ @ 01/05/12 - CA
+   Pick data from new location ($GENIE/data/catalogues/pdg/)
 */
 //____________________________________________________________________________
 
@@ -74,7 +75,7 @@ bool PDGLibrary::LoadDBase(void)
 
   if(gSystem->Getenv("GENIE")) {
     string base_dir = string( gSystem->Getenv("GENIE") );
-    string path = base_dir + string("/data/pdg/genie_pdg_table.txt");
+    string path = base_dir + string("/data/evgen/catalogues/pdg/genie_pdg_table.txt");
 
     if ( ! (gSystem->AccessPathName(path.c_str()) ) ) {
         LOG("PDG", pINFO) << "Load PDG data from: " << path;
