@@ -40,6 +40,8 @@ namespace genie {
 namespace mc_vs_data {
 
 //____________________________________________________________________________
+// ABC for neutrino cross-section functions used in data/MC comparisons
+// performed by code in validation/NuXSec package.
 class NuXSecFunc
 {
 public:
