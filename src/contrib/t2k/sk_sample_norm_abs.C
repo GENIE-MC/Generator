@@ -48,7 +48,7 @@
 \inputs
          - xsecfile:
               Neutrino - water cross section file.
-              The output of $GENIE/src/support/t2k/SKNorm/gSKXSecTable.cxx (gSKxsect executable)
+              The output of  $GENIE/src/contrib/t2k/make_sk_xsec_table.C
          - skfluxfile :
               Input neutrino flux file.
               The output of $GENIE/src/scripts/production/misc/generate_sk_flux_histograms.C
@@ -56,7 +56,7 @@
               Number of POTs per flux simulation file used for filling-in the flux histograms 
               (typically 1E+21 POT)
          - NF :
-              Number of flux files used  filling-in the flux histograms 
+              Number of flux files used filling-in the flux histograms 
 
 
 \author  Costas Andreopoulos <costas.andreopoulos@stfc.ac.uk>
