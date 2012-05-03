@@ -299,8 +299,6 @@ t2k-support-softw: FORCE
 ifeq ($(strip $(GOPT_ENABLE_T2K)),YES)
 	cd ${GENIE}/src/support/t2k/EvGen/;\
 	make all; \
-	cd ${GENIE}/src/support/t2k/SKNorm/;\
-	make all; \
 	cd ${GENIE}
 else
 	@echo "Not enabled! Skipping..."
@@ -622,7 +620,6 @@ clean-files: FORCE
 	cd stdapp;                        make clean; cd ..; \
 	cd support/evserv/;               make clean; cd ../../; \
 	cd support/t2k/EvGen/;            make clean; cd ../../../; \
-	cd support/t2k/SKNorm/;           make clean; cd ../../../; \
 	cd support/numi/EvGen/;           make clean; cd ../../../; \
 	cd support/atmo/EvGen/;           make clean; cd ../../../; \
 	cd support/atmo/UpMuFluxGen/;     make clean; cd ../../../; \
@@ -703,7 +700,6 @@ distclean: FORCE
 	cd stdapp;                         make distclean; cd ..; \
 	cd support/evserv/;                make distclean; cd ../../; \
 	cd support/t2k/EvGen/;             make distclean; cd ../../../; \
-	cd support/t2k/SKNorm/;            make distclean; cd ../../../; \
 	cd support/numi/EvGen/;            make distclean; cd ../../../; \
 	cd support/atmo/EvGen/;            make distclean; cd ../../../; \
 	cd support/atmo/UpMuFluxGen/;      make distclean; cd ../../../; \
