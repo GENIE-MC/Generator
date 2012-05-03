@@ -14,8 +14,8 @@
   gSystem->Load("libTree");
 
   // libxml2 and log4cpp libs
-  gSystem->Load("libxml2.so");
-  gSystem->Load("liblog4cpp.so");
+  gSystem->Load("libxml2");
+  gSystem->Load("liblog4cpp");
 
   //
   // GENIE libs
