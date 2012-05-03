@@ -1,54 +1,75 @@
-// Absolute normalization of SuperK event samples
-//
-// N = Integral{
-//      (d3Flux / dE dS dI) * sig(E) * (Na/A) * rho*L * dE*dS*dI}
-//   = Integral{
-//      (d3Flux / dE dS dI) * sig(E) * (Na/A) * dE*dM*dI}
-// where
-//   (d3Flux / dE dS dI): numu flux per energy bin, per unit area, per POT 
-//   sigma(E): total numu cross section on water
-//   Na: Avogadro's number
-//   A: mass number for water 
-//   rho: water density 
-//   L: path length
-//   M: mass
-//   I: beam intensity (POT)
-//
-// SK flux is given in #neutrinos per 0.05 GeV per cm2 per 1E+21 POTs
-// Input water cross sections are given in 1E-38 cm2
-//
-// N = 6.023E+23 x 1E-38 x (Mfv/A) x Ebinsz x Sum_{i} { F_{i} * sig_{i} }
-//
-// where 
-//  N  : expected number of events for NF x 1E+21 POT
-//  Mfv: fiducial volume mass
-//  NF : number of 1E+21 POT worth of flux files chained together to produce the flux histogram
-//  Ebinsz: energy bin size (0.05 GeV)
-//  F_{i): flux in bin i (in number of flux neutrinos / Ebinsz / (NF x 1E+21 POT))
-//  sig_{i}: cross section evaluated at centre of bin i (1E-38 cm^2)
-//
-// notes:
-//  Ptot = P(H1) + P(O16) = sigma(H1)*w(H1)*rho/A(H1) + sigma(O16)*w(O16)*rho/A(O16)
-//  rho: water density and w: mass contribution, w(H1)=2/18, w(O16)=16/18
-//  So: Ptot ~ sigma(H1) * (2/18) + sigma(O16) * (16/18) / 16 =>
-//      Ptot ~ (2*sigma(H1)+sigma(O16))/18 =>
-//      Ptot ~ sigma(H20)/A(H20)
-//
-//
-//
-// Inputs:
-//
-//  - xsecfile:
-//      Neutrino - water cross section file.
-//      The output of $GENIE/src/support/t2k/SKNorm/gSKXSecTable.cxx (gSKxsect executable)
-//  - skfluxfile :
-//      Input neutrino flux file.
-//      The output of $GENIE/src/scripts/production/misc/generate_sk_flux_histograms.C
-//  - IF :
-//      Number of POTs per flux simulation file used for filling-in the flux histograms (typically 1E+21 POT)
-//  - NF :
-//      Number of flux files used  filling-in the flux histograms 
-//
+//________________________________________________________________________________________
+/*!
+
+\macro   sk_sample_norm_abs.C
+
+\brief   Calculate absolute normalization of SuperK event samples.
+         
+\details The program calculates the number of events of each flavour per 1E+21 POT
+         per 22.5 kton water fiducial.
+
+         N = Integral{
+              (d3Flux / dE dS dI) * sig(E) * (Na/A) * rho*L * dE*dS*dI}
+           = Integral{
+              (d3Flux / dE dS dI) * sig(E) * (Na/A) * dE*dM*dI} (1)
+
+         where
+          - (d3Flux / dE dS dI): numu flux per energy bin, per unit area, per POT 
+          - sigma(E): total numu cross section on water
+          - Na: Avogadro's number
+          - A: mass number for water 
+          - rho: water density 
+          - L: path length
+          - M: mass
+          - I: beam intensity (POT)
+  
+         The SuperK flux is given in #neutrinos per 0.05 GeV per cm2 per 1E+21 POTs.
+         Input water cross sections are given in 1E-38 cm2.
+         Equation (1) becomes
+
+         N = 6.023E+23 x 1E-38 x (Mfv/A) x Ebinsz x Sum_{i} { F_{i} * sig_{i} }
+  
+         where 
+         - N  : expected number of events for NF x 1E+21 POT
+         - Mfv: fiducial volume mass
+         - NF : number of 1E+21 POT worth of flux files chained together to produce 
+                the flux histograms
+         - Ebinsz: energy bin size (0.05 GeV)
+         - F_{i): flux in bin i (in number of flux neutrinos / Ebinsz / (NF x 1E+21 POT))
+         - sig_{i}: cross section evaluated at centre of bin i (1E-38 cm^2)
+  
+         Notes:
+         Ptot = P(H1) + P(O16) = sigma(H1)*w(H1)*rho/A(H1) + sigma(O16)*w(O16)*rho/A(O16)
+         rho: water density and w: mass contribution, w(H1)=2/18, w(O16)=16/18
+         So: Ptot ~ sigma(H1) * (2/18) + sigma(O16) * (16/18) / 16 =>
+             Ptot ~ (2*sigma(H1)+sigma(O16))/18 =>
+             Ptot ~ sigma(H20)/A(H20)
+
+\inputs
+         - xsecfile:
+              Neutrino - water cross section file.
+              The output of $GENIE/src/support/t2k/SKNorm/gSKXSecTable.cxx (gSKxsect executable)
+         - skfluxfile :
+              Input neutrino flux file.
+              The output of $GENIE/src/scripts/production/misc/generate_sk_flux_histograms.C
+         - IF :
+              Number of POTs per flux simulation file used for filling-in the flux histograms 
+              (typically 1E+21 POT)
+         - NF :
+              Number of flux files used  filling-in the flux histograms 
+
+
+\author  Costas Andreopoulos <costas.andreopoulos@stfc.ac.uk>
+         STFC, Rutherford Appleton Laboratory
+
+\created Nov 24, 2008
+
+\cpright Copyright (c) 2003-2011, GENIE Neutrino MC Generator Collaboration
+         For the full text of the license visit http://copyright.genie-mc.org
+         or see $GENIE/LICENSE
+*/
+//_________________________________________________________________________________________
+
 
 void sk_sample_norm_abs
 (

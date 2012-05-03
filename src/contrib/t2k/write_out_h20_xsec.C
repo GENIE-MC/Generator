@@ -1,6 +1,6 @@
 //
-// read the output of $GENIE/src/support/t2k/SKNorm/gSKXSecTable.cxx (gSKxsect executable)
-// used by SuperK for MC job normalization, and convert to ROOT format
+// read the output of make_sk_xsec_table.C used by SuperK for MC job normalization, 
+// and convert to ROOT format
 //
 
 {

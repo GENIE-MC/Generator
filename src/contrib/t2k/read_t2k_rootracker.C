@@ -1,15 +1,25 @@
-//
-// Test macro to read a GENIE event tree in the t2k_rootracker format
-// and print-out the neutrino event and flux pass-through info
-//
-// To run:
-//   shell% root
-//   root[0] .L read_t2k_rootracker.C++
-//   root[1] read_t2k_rootracker("./your_rootracker_file.root");
-//
-// Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-// STFC, Rutherford Appleton Laboratory
-//
+//________________________________________________________________________________________
+/*!
+
+\macro   read_t2k_rootracker.C
+
+\brief   Test macro to read a GENIE event tree in the t2k_rootracker format
+         and print-out the neutrino event and flux pass-through info.
+
+\usage   shell% root
+         root[0] .L read_t2k_rootracker.C++
+         root[1] read_t2k_rootracker("./your_rootracker_file.root");
+
+\author  Costas Andreopoulos <costas.andreopoulos@stfc.ac.uk>
+         STFC, Rutherford Appleton Laboratory
+
+\created Nov 24, 2008
+
+\cpright Copyright (c) 2003-2011, GENIE Neutrino MC Generator Collaboration
+         For the full text of the license visit http://copyright.genie-mc.org
+         or see $GENIE/LICENSE
+*/
+//_________________________________________________________________________________________
 
 #include <iostream>
 

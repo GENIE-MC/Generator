@@ -1,16 +1,26 @@
-//
-// Macro to read a GENIE event tree in the t2k_rootracker format and calculate the NEUT reaction code.
-// Note: GENIE event files in t2k_rootracker format for versions >= v2.5.1 already include the 
-// neut reaction code as a separate tree branch
-//
-// To run:
-//   shell% root
-//   root[0] .L neut_code_from_rootracker.C++
-//   root[1] neut_code_from_rootracker("./your_rootracker_file.root");
-//
-// Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-// STFC, Rutherford Appleton Laboratory
-//
+//________________________________________________________________________________________
+/*!
+
+\macro   neut_code_from_rootracker.C
+
+\brief   Macro to read a GENIE event tree in the t2k_rootracker format and calculate the 
+         NEUT reaction code. Note that GENIE event files in t2k_rootracker format for 
+         versions >= v2.5.1 already include the neut reaction code as a separate tree branch.
+
+\usage   shell% root
+         root[0] .L neut_code_from_rootracker.C++
+         root[1] neut_code_from_rootracker("./your_rootracker_file.root");
+
+\author  Costas Andreopoulos <costas.andreopoulos@stfc.ac.uk>
+         STFC, Rutherford Appleton Laboratory
+
+\created Nov 24, 2008
+
+\cpright Copyright (c) 2003-2011, GENIE Neutrino MC Generator Collaboration
+         For the full text of the license visit http://copyright.genie-mc.org
+         or see $GENIE/LICENSE
+*/
+//_________________________________________________________________________________________
 
 #include <cassert>
 #include <iostream>
