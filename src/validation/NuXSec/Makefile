@@ -32,8 +32,13 @@ all: 	gVldNuXSec \
 # Program comparing GENIE neutrino cross-sections against the world data
 #
 gVldNuXSec: FORCE
+ifeq ($(strip $(GOPT_ENABLE_RWGHT)),YES)
 	$(CXX) $(CXXFLAGS) -c $(VLD_NUXSEC_SOURCES) $(INCLUDES)
 	$(LD) $(LDFLAGS) $(VLD_NUXSEC_OBJECTS) $(LIBRARIES) -o $(GENIE_BIN_PATH)/gvld_nu_xsec
+else
+	@echo " "
+	@echo "** Building gvld_nu_xsec requires the event reweighting library. Skipping..."
+endif
 
 #
 # Program tuning the GENIE non-resonance backgrounds

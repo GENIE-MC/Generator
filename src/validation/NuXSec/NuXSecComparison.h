@@ -37,11 +37,13 @@ class NuXSecComparison
 {
 public:
   NuXSecComparison(
-    string label, string dataset_keys, NuXSecFunc * xsec_func,
+    string id, string label, 
+    string dataset_keys, NuXSecFunc * xsec_func,
     double Emin,  double Emax, 
     bool in_logx, bool in_logy,  bool scale_with_E = false);
  ~NuXSecComparison();
 
+  string       ID          (void) const { return fID;            }
   string       Label       (void) const { return fLabel;         }
   string       DataSetKeys (void) const { return fDataSetKeys;   }
   NuXSecFunc * XSecFunc    (void) const { return fXSecFunc;      }
@@ -53,6 +55,7 @@ public:
 
 private:
 
+  string       fID;               // A data/MC comparison ID
   string       fLabel;            // (Roo)TeX label for data/MC comparison plot 
   string       fDataSetKeys;      // Semicolon-separated list of keys for all datasets included in comparison 
   NuXSecFunc * fXSecFunc;         // Cross-section calculator
