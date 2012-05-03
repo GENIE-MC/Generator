@@ -21,10 +21,11 @@ using namespace genie::mc_vs_data;
 
 //____________________________________________________________________________
 NuXSecComparison::NuXSecComparison(
-    string label, string dataset_keys, NuXSecFunc * xsec_func,
+    string id, string label, string dataset_keys, NuXSecFunc * xsec_func,
     double Emin,  double Emax, 
     bool in_logx, bool in_logy,  bool scale_with_E
 ) :
+fID          (id),
 fLabel       (label),
 fDataSetKeys (dataset_keys),
 fXSecFunc    (xsec_func),   

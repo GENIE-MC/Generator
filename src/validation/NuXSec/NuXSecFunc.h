@@ -1,5 +1,3 @@
-
-
 //____________________________________________________________________________
 /*!
 
@@ -24,112 +22,137 @@
 #define _NU_XSEC_FUNCTIONS_H_
 
 #include <string>
-#include "Utils/GSimFiles.h"
+#include <vector>
 
-#include <TGraph.h>
+#include <TGraphAsymmErrors.h>
+
+#include "EVGCore/EventRecord.h"
+#include "Utils/GSimFiles.h"
+#include "ReWeight/GReWeight.h"
+#include "ReWeight/GSyst.h"
 
 using std::string;
+using std::vector;
+
+using namespace genie::rew;
 
 namespace genie {
 namespace mc_vs_data {
 
-// Base functor class
-//
+//____________________________________________________________________________
 class NuXSecFunc
 {
 public:
   virtual ~NuXSecFunc() {}
 
-  virtual TGraph * operator()
-    (int         /* imodel */,
-     double      /* Emin */, 
-     double      /* Emax */, 
-     int         /* n */, 
-     bool        /* scale_with_E */) 
+  virtual TGraphAsymmErrors * ExtractFromEventSample(
+     int         /* imodel        */,
+     double      /* Emin          */, 
+     double      /* Emax          */, 
+     int         /* npoints       */, 
+     bool        /* inlogE        */, 
+     bool        /* scale_with_E  */,
+     bool        /* incl_err_band */) 
     { 
       return 0; 
     }
 
   void Init(GSimFiles * genie_inputs) { fGenieInputs = genie_inputs; }
 
-protected:
-  NuXSecFunc() { fGenieInputs = 0; }
+  static string BuildXSecDirectoryName(int nupdg, int tgtpdg);
 
+protected:
+
+  NuXSecFunc() { fGenieInputs = 0; }
   GSimFiles * fGenieInputs;
 };
-
-//............................................................................
-// Extracting cross-section for an exclusive f/s from an event sample as
-// the fraction of events with that f/s times the inclusive cross-section.
-// This is a powerfull method that allows one to calculate any cross-section
-// for any f/s state as a function of any kinematical parameter.
+//____________________________________________________________________________
+// Building cross-section for mode X from a generated event sample treating 
+// the generator as a black-box. The cross-section sig_{X}(E) is calculated
+// as sig_{X}(E) = sig_{CC}(E) * (Nev_{X}(E) / Nev_{CC}(E)).
+// The error envelope is calculated using event-reweighting and considering
+// the nuisance params defined in each concrete realization of XSecForModeX.
 //
-class NuXSecFromEventSample: public NuXSecFunc
+class XSecForModeX: public NuXSecFunc
 {
 public:
-  NuXSecFromEventSample(
-    string xsec_dir, string incl_xsec_spline, string incl_selection, string selection);
- ~NuXSecFromEventSample();
-
-  TGraph * operator() (
-    int imodel, double Emin, double Emax, int n, bool scale_with_E);
-
-private:
-  string fXSecDir;          
-  string fInclXSecSpline;   
-  string fInclEvtSelection; 
-  string fEvtSelection;     
-};
-
-//
-//............................................................................
-// Get cross-section directly from the input cross-section spline file.
-// This is a straightforward method but there is only a limited number of
-// cases where it is applicable. For almost all exclusive inelastic reactions
-// one needs to use the nuXSecFromEventSample functor.
-//
-class NuXSecDirectlyFromXSecFile: public NuXSecFunc
-{
-public:
-  NuXSecDirectlyFromXSecFile(string xsec_dir, string xsec_spline, double scale=1.);
- ~NuXSecDirectlyFromXSecFile();
-
-  TGraph * operator() (
-    int imodel, double Emin, double Emax, int n, bool scale_with_E);
-
-private:
-  string fXSecDir;          
-  string fXSecSpline;   
-  double fScaleFactor;   
-};
-
-//
-//............................................................................
-// Get cross-section by combining two cross-section splines taken directly 
-// from the input cross-section file.
-// This is usefull when, for example, we need to calculate the cross-section
-// for an isoscalar target by averaging the vp and vn cross-sections
-//
-class NuXSecCombineSplinesFromXSecFile: public NuXSecFunc
-{
-public:
-  NuXSecCombineSplinesFromXSecFile(
-      double factor_1, string xsec_dir_1, string xsec_spline_1,
-      double factor_2, string xsec_dir_2, string xsec_spline_2);
- ~NuXSecCombineSplinesFromXSecFile();
-
-  TGraph * operator() (
-     int imodel, double Emin, double Emax, int n, bool scale_with_E);
-
-private:
-  double fFactor1;
-  string fXSecDir1;          
-  string fXSecSpline1;   
-  double fFactor2;
-  string fXSecDir2;          
-  string fXSecSpline2;   
+  XSecForModeX();
+  virtual ~XSecForModeX();
+  virtual TGraphAsymmErrors * ExtractFromEventSample(
+     int imodel, double Emin, double Emax, 
+     int n, bool inlogE, bool scale_with_E, bool incl_err_band);
+  virtual bool IsCC    (EventRecord & /*event*/) { return false; }
+  virtual bool IsModeX (EventRecord & /*event*/) { return false; }
+protected:
+  vector<GSyst_t> fNuisanceParams;    ///<
+  GReWeight       fRew;               ///<
+  string          fXSecDirectoryName; ///<
+  string          fModeXSplineName;   ///<
+  double          fXSecScaleFactor;   ///<
 };
 //____________________________________________________________________________
+class CCQEXSec: public XSecForModeX
+{
+public:
+  CCQEXSec(int nupdg, int tgtpdg, int hitnucpdg, double xsec_scale=1.);
+ ~CCQEXSec();
+  bool IsCC    (EventRecord & event);
+  bool IsModeX (EventRecord & event);
+private:
+  int fNuPdg;
+  int fTgtPdg;
+  int fHitNucPdg;
+  int fNTgtNuc;
+};
+//____________________________________________________________________________
+class CCPionXSec: public XSecForModeX
+{
+public:
+  CCPionXSec(
+     int nupdg, int tgtpdg, int hitnucpdg, 
+     int pip, int npi0, int npim, int np, int nn, double xsec_scale=1.);
+ ~CCPionXSec();
+  bool IsCC    (EventRecord & event);
+  bool IsModeX (EventRecord & event);
+private:
+  int fNuPdg;
+  int fTgtPdg;
+  int fHitNucPdg;
+  int fNpip;
+  int fNpi0; 
+  int fNpim; 
+  int fNp;
+  int fNn;
+};
+//____________________________________________________________________________
+class CohPionXSec: public XSecForModeX
+{
+public:
+  CohPionXSec(int nupdg, int tgtpdg, int pipdg, double xsec_scale=1.);
+ ~CohPionXSec();
+  bool IsCC    (EventRecord & event);
+  bool IsModeX (EventRecord & event);
+private:
+  int fNuPdg;
+  int fTgtPdg;
+  int fPiPdg;
+};
+//____________________________________________________________________________
+class CCIsoInclXSec: public NuXSecFunc
+{
+public:
+  CCIsoInclXSec(int nupdg);
+ ~CCIsoInclXSec();
+  TGraphAsymmErrors * ExtractFromEventSample(
+     int imodel, double Emin, double Emax, 
+     int n, bool inlogE, bool scale_with_E, bool incl_err_band);
+private:
+  vector<GSyst_t> fNuisanceParams;    ///<
+  GReWeight       fRew;               ///<
+  int fNuPdg;
+};
+//____________________________________________________________________________
+
 
 } // mc_vs_data namespace
 } // genie namepace
