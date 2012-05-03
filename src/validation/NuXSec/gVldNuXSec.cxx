@@ -370,7 +370,8 @@ bool      gOptShowErrBands  = false;  // -e
 string    gOptComparison    = "";     // -c, if unset will generate all data/MC comparisons
 
 NuXSecData    gNuXSecData;
-TPostScript * gPS              = 0;
+TPostScript * gOutPS           = 0;
+TFile *       gOutRF           = 0;
 TCanvas *     gC               = 0;
 TLegend *     gLS              = 0;
 bool          gShowModel       = false;
@@ -463,12 +464,16 @@ void Init(void)
   string lt_for_filename   = utils::system::LocalTimeAsString("%02d.%02d.%02d_%02d.%02d.%02d"); 
   string lt_for_cover_page = utils::system::LocalTimeAsString("%02d/%02d/%02d %02d:%02d:%02d"); 
 
+  // Create output ROOT file
+  string root_filename  = Form("genie-world_nu_xsec_data_comp-%s.root",lt_for_filename.c_str());
+  gOutRF = new TFile(root_filename.c_str(), "recreate");
+
   // Create output postscript file
-  string filename  = Form("genie-world_nu_xsec_data_comp-%s.ps",lt_for_filename.c_str());
-  gPS = new TPostScript(filename.c_str(), 111);
+  string ps_filename  = Form("genie-world_nu_xsec_data_comp-%s.ps",lt_for_filename.c_str());
+  gOutPS = new TPostScript(ps_filename.c_str(), 111);
 
   // Add cover page
-  gPS->NewPage();
+  gOutPS->NewPage();
   gC->Range(0,0,100,100);
   TPavesText hdr(10,40,90,70,3,"tr");
   hdr.AddText(" ");
@@ -493,11 +498,13 @@ void End(void)
 {
   LOG("gvldtest", pNOTICE) << "Cleaning up...";
 
-  gPS->Close();
+  gOutPS->Close();
+  gOutRF->Close();
 
   delete gC;
   delete gLS;
-  delete gPS;
+  delete gOutPS;
+  delete gOutRF;
 }
 //_________________________________________________________________________________
 void Draw(int icomparison)
@@ -540,7 +547,7 @@ void Draw(int icomparison)
   }
 
   // add a new page in the output ps file
-  gPS->NewPage();
+  gOutPS->NewPage();
   gC->Clear();
   gC->Divide(2,1);
   gC->GetPad(1)->SetPad("mplots_pad","",0.01,0.25,0.99,0.99);
@@ -626,6 +633,17 @@ void Draw(int icomparison)
 
  //gC->SaveAs(Form("gxs%d.eps",iset));
 
+  // Save to output ROOT file
+  gOutRF->cd();
+  gC->Write(Form("canvas_%d",icomparison));
+  for(unsigned int i = 0; i< data.size(); i++) {
+    if(!data[i]) continue;
+    data[i]->Write(Form("data_%d_%d",icomparison,i));
+  }
+  for(unsigned int imodel = 0; imodel < models.size(); imodel++) {
+    if(!models[imodel]) continue;
+    models[imodel]->Write(Form("model_%d_%d",icomparison,imodel));
+  }
 }
 //_________________________________________________________________________________
 // Formatting
