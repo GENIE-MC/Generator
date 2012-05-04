@@ -85,6 +85,7 @@ public:
      int n, bool inlogE, bool scale_with_E, bool incl_err_band);
   virtual bool IsCC    (EventRecord & /*event*/) { return false; }
   virtual bool IsModeX (EventRecord & /*event*/) { return false; }
+  virtual bool SkipTree(EventRecord & /*event*/) { return false; }
 protected:
   vector<GSyst_t> fNuisanceParams;    ///<
   GReWeight       fRew;               ///<
@@ -100,6 +101,7 @@ public:
  ~CCQEXSec();
   bool IsCC    (EventRecord & event);
   bool IsModeX (EventRecord & event);
+  bool SkipTree(EventRecord & event);
 private:
   int fNuPdg;
   int fTgtPdg;
@@ -116,6 +118,7 @@ public:
  ~CCPionXSec();
   bool IsCC    (EventRecord & event);
   bool IsModeX (EventRecord & event);
+  bool SkipTree(EventRecord & event);
 private:
   int fNuPdg;
   int fTgtPdg;
@@ -134,6 +137,7 @@ public:
  ~CohPionXSec();
   bool IsCC    (EventRecord & event);
   bool IsModeX (EventRecord & event);
+  bool SkipTree(EventRecord & event);
 private:
   int fNuPdg;
   int fTgtPdg;
@@ -148,6 +152,7 @@ public:
   TGraphAsymmErrors * ExtractFromEventSample(
      int imodel, double Emin, double Emax, 
      int n, bool inlogE, bool scale_with_E, bool incl_err_band);
+  bool SkipTree(EventRecord & event);
 private:
   vector<GSyst_t> fNuisanceParams;    ///<
   GReWeight       fRew;               ///<
