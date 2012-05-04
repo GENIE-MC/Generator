@@ -29,7 +29,8 @@
              
            -e Include error-bands in the GENIE predictions (note that this is slow) 
 
-           -c Use this option to generate only one of the data/MC comparisons defined below.              
+           -c Use this option to generate only one of the data/MC comparisons defined below.   
+              The comparison ID is the first string input in NuXSecComparison ctor (see below).
               By default, all data/MC comparisons will be generated.
                
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>

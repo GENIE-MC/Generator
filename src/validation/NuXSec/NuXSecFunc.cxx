@@ -152,11 +152,27 @@ TGraphAsymmErrors * XSecForModeX::ExtractFromEventSample(
   // Fill in nominal event fractions
   // If I am going to show pre-tabulated cross-section calculations and not 
   // cross-section computed from the input sample, then this is only needed
-  // if I am going to show error envelopes
-  if(!modex_xsec_spline && incl_err_band) {
+  // if I am going to show error envelopes.
+  if(!modex_xsec_spline || incl_err_band) {
+    int curr_tree_num = -1;
     for(Long64_t iev = 0; iev < nmax; iev++) {
-      genie_event_tree->GetEntry(iev);
+      genie_event_tree->GetEntry(iev); 
       EventRecord & event = *(mcrec->event);
+      // Generated event files used as inputs in the validation programs
+      // correspond to given neutrino+target initial states.
+      // If the current file in the chain doesn't correspond to a desired 
+      // initial state (as determined by looking at the first event in the file)
+      // then skip this file althogether to save processing time.
+      int tree_num = genie_event_tree->GetTreeNumber();
+      if(curr_tree_num != tree_num) {
+         curr_tree_num = tree_num;
+         bool skip = this->SkipTree(event);
+         if(skip) {
+           LOG("gvldtest", pNOTICE) << "Skipping tree # : " << tree_num;
+           iev += (genie_event_tree->GetTree()->GetEntries() - 1);
+           continue;
+         }//skip?
+      }//new tree in chain
       GHepParticle * neutrino = event.Probe();
       assert(neutrino);
       double E = neutrino->P4()->E();
@@ -176,9 +192,20 @@ TGraphAsymmErrors * XSecForModeX::ExtractFromEventSample(
        for(unsigned int itwk = 0; itwk < kntwk; itwk++) {
           systlist.Set(fNuisanceParams[isyst], twk[itwk]);
           fRew.Reconfigure();
+          int curr_tree_num = -1;
           for(Long64_t iev = 0; iev < nmax; iev++) {
               genie_event_tree->GetEntry(iev);
               EventRecord & event = *(mcrec->event);
+              int tree_num = genie_event_tree->GetTreeNumber();
+              if(curr_tree_num != tree_num) {
+                curr_tree_num = tree_num;
+                 bool skip = this->SkipTree(event);
+                 if(skip) {           
+                   LOG("gvldtest", pNOTICE) << "Skipping tree # : " << tree_num;
+                   iev += (genie_event_tree->GetTree()->GetEntries() - 1);
+                   continue;
+                 }//skip?
+              }//new tree in chain
               if(this->IsModeX(event)) {
                  GHepParticle * neutrino = event.Probe();
                  assert(neutrino);
@@ -346,6 +373,24 @@ bool CCQEXSec::IsModeX(EventRecord & event)
   }
   return true;
 }
+//.............................................................................
+bool CCQEXSec::SkipTree(EventRecord & event)
+{
+  GHepParticle * neutrino = event.Probe();
+  if(neutrino->Pdg() != fNuPdg) return true;
+  GHepParticle * target = event.Particle(1); 
+  int tgtpdg = target->Pdg();
+  // For free-nucleon targets, the usual nucleon pdg codes are used,
+  // not the ion codes 1000010010 and 1000000010.
+  // In this case, compare with the specified hit nucleon code.
+  if(tgtpdg == kPdgNeutron || tgtpdg == kPdgProton) {
+    if(tgtpdg != fHitNucPdg) return true;
+  }
+  else {
+    if(tgtpdg != fTgtPdg) return true;
+  }
+  return false;
+}
 //____________________________________________________________________________
 CCPionXSec::CCPionXSec(
  int nupdg, int tgtpdg, int hitnucpdg, 
@@ -464,6 +509,21 @@ bool CCPionXSec::IsModeX(EventRecord & event)
   bool accept = (npip==fNpip && npi0==fNpi0 && npim==fNpim && np==fNp && nn==fNn);
   return accept;
 }
+//.............................................................................
+bool CCPionXSec::SkipTree(EventRecord & event)
+{
+  GHepParticle * neutrino = event.Probe();
+  if(neutrino->Pdg() != fNuPdg) return true;
+  GHepParticle * target = event.Particle(1); 
+  int tgtpdg = target->Pdg();
+  if(tgtpdg == kPdgNeutron || tgtpdg == kPdgProton) {
+    if(tgtpdg != fHitNucPdg) return true;
+  }
+  else {
+    if(tgtpdg != fTgtPdg) return true;
+  }
+  return false;
+}
 //____________________________________________________________________________
 CohPionXSec::CohPionXSec(int nupdg, int tgtpdg, int pipdg, double xsec_scale) :
 XSecForModeX(),
@@ -525,6 +585,17 @@ bool CohPionXSec::IsModeX(EventRecord & event)
   if(!allowed_mode) return false;
 
   return true;
+}
+//.............................................................................
+bool CohPionXSec::SkipTree(EventRecord & event)
+{
+  GHepParticle * neutrino = event.Probe();
+  if(neutrino->Pdg() != fNuPdg) return true;
+  GHepParticle * target = event.Particle(1); 
+  int tgtpdg = target->Pdg();
+  if(tgtpdg == kPdgNeutron || tgtpdg == kPdgProton) return true;
+  if(tgtpdg != fTgtPdg) return true;
+  return false;
 }
 //____________________________________________________________________________
 CCIsoInclXSec::CCIsoInclXSec(int nupdg) :
@@ -650,9 +721,20 @@ TGraphAsymmErrors * CCIsoInclXSec::ExtractFromEventSample(
   }
 
   if(incl_err_band) {
+     int curr_tree_num = -1;
      for(Long64_t iev = 0; iev < nmax; iev++) {
        genie_event_tree->GetEntry(iev);
        EventRecord & event = *(mcrec->event);
+       int tree_num = genie_event_tree->GetTreeNumber();
+       if(curr_tree_num != tree_num) {
+          curr_tree_num = tree_num;
+          bool skip = this->SkipTree(event);
+          if(skip) {
+            LOG("gvldtest", pNOTICE) << "Skipping tree # : " << tree_num;
+            iev += (genie_event_tree->GetTree()->GetEntries() - 1);
+            continue;
+          }//skip?
+       }//new tree in chain
        Interaction * in = event.Summary();
        if(!in->ProcInfo().IsWeakCC()) continue;
        GHepParticle * neutrino = event.Probe();
@@ -670,9 +752,20 @@ TGraphAsymmErrors * CCIsoInclXSec::ExtractFromEventSample(
        for(unsigned int itwk = 0; itwk < kntwk; itwk++) {
           systlist.Set(fNuisanceParams[isyst], twk[itwk]);
           fRew.Reconfigure();
+          curr_tree_num = -1;
           for(Long64_t iev = 0; iev < nmax; iev++) {
               genie_event_tree->GetEntry(iev);
               EventRecord & event = *(mcrec->event);
+              int tree_num = genie_event_tree->GetTreeNumber();
+              if(curr_tree_num != tree_num) {
+                 curr_tree_num = tree_num;
+                 bool skip = this->SkipTree(event);
+                 if(skip) {
+                   LOG("gvldtest", pNOTICE) << "Skipping tree # : " << tree_num;
+                   iev += (genie_event_tree->GetTree()->GetEntries() - 1);
+                   continue;
+                 }//skip?
+              }//new tree in chain
               Interaction * in = event.Summary();
               if(!in->ProcInfo().IsWeakCC()) continue;
               GHepParticle * neutrino = event.Probe();
@@ -763,5 +856,15 @@ TGraphAsymmErrors * CCIsoInclXSec::ExtractFromEventSample(
   delete [] xsec_array_errm;
 
   return model;
+}
+//.............................................................................
+bool CCIsoInclXSec::SkipTree(EventRecord & event)
+{
+  GHepParticle * neutrino = event.Probe();
+  if(neutrino->Pdg() != fNuPdg) return true;
+  GHepParticle * target = event.Particle(1); 
+  int tgtpdg = target->Pdg();
+  if(!pdg::IsNucleon(tgtpdg)) return true;
+  return false;
 }
 //____________________________________________________________________________
