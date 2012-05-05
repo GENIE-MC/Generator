@@ -1,0 +1,58 @@
+# 
+# We compare F2 and xF3 data and calculations as function of Q2 for fixed values of x_{Bjorken}.
+# This file summarises all possible plots based on the unique values of x_{Bjorken} in the GENIE 
+# structure-function data archive. Each line below corresponds to a data/MC comparison plot generated
+# by the `gvld_sf' app. To skip performing certain comparisons, comment-out the corresponding lines 
+# (using # at the beginning of the line)
+#
+#-------------------------------------------------------------------
+# Fi    x_Bjorken   Lepton   Target       Dataset
+#                   PDG      PDG          Keys
+#-------------------------------------------------------------------
+#
+  F2    0.0075      14       1000010020   CCFR,0    
+  F2    0.0125      14       1000010020   CCFR,0    
+  F2    0.0150      14       1000010020   CDHSW,0;NUTEV,0
+  F2    0.0175      14       1000010020   CCFR,0    
+  F2    0.0250      14       1000010020   CCFR,0    
+  F2    0.0350      14       1000010020   CCFR,0    
+  F2    0.0450      14       1000010020   CDHSW,0;NUTEV,0
+  F2    0.0500      14       1000010020   CCFR,0    
+  F2    0.0700      14       1000010020   CCFR,0    
+  F2    0.0800      14       1000010020   CDHSW,0;NUTEV,0
+  F2    0.0900      14       1000010020   CCFR,0    
+  F2    0.1100      14       1000010020   CCFR,0    
+  F2    0.1250      14       1000010020   CDHSW,0;NUTEV,0
+  F2    0.1400      14       1000010020   CCFR,0    
+  F2    0.1750      14       1000010020   CDHSW,0;NUTEV,0 
+  F2    0.1800      14       1000010020   CCFR,0    
+  F2    0.2250      14       1000010020   CCFR,0;CDHSW,0;NUTEV,0    
+  F2    0.2750      14       1000010020   CCFR,0;CDHSW,0;NUTEV,0    
+  F2    0.3500      14       1000010020   CCFR,0;CDHSW,0;NUTEV,0    
+  F2    0.4500      14       1000010020   CCFR,0;CDHSW,0;NUTEV,0    
+  F2    0.5500      14       1000010020   CCFR,0;CDHSW,0;NUTEV,0    
+  F2    0.6500      14       1000010020   CCFR,0;CDHSW,0;NUTEV,0    
+  F2    0.7500      14       1000010020   CCFR,0;NUTEV,0    
+  xF3   0.0075      14       1000010020   CCFR,1    
+  xF3   0.0125      14       1000010020   CCFR,1    
+  xF3   0.0150      14       1000010020   CDHSW,1;NUTEV,1
+  xF3   0.0175      14       1000010020   CCFR,1    
+  xF3   0.0250      14       1000010020   CCFR,1    
+  xF3   0.0350      14       1000010020   CCFR,1    
+  xF3   0.0450      14       1000010020   CDHSW,1;NUTEV,1
+  xF3   0.0500      14       1000010020   CCFR,1    
+  xF3   0.0700      14       1000010020   CCFR,1    
+  xF3   0.0800      14       1000010020   CDHSW,1;NUTEV,1
+  xF3   0.0900      14       1000010020   CCFR,1    
+  xF3   0.1100      14       1000010020   CCFR,1    
+  xF3   0.1250      14       1000010020   CDHSW,1;NUTEV,1
+  xF3   0.1400      14       1000010020   CCFR,1    
+  xF3   0.1750      14       1000010020   CDHSW,1;NUTEV,1 
+  xF3   0.1800      14       1000010020   CCFR,1    
+  xF3   0.2250      14       1000010020   CCFR,1;CDHSW,1;NUTEV,1    
+  xF3   0.2750      14       1000010020   CCFR,1;CDHSW,1;NUTEV,1    
+  xF3   0.3500      14       1000010020   CCFR,1;CDHSW,1;NUTEV,1    
+  xF3   0.4500      14       1000010020   CCFR,1;CDHSW,1;NUTEV,1    
+  xF3   0.5500      14       1000010020   CCFR,1;CDHSW,1;NUTEV,1    
+  xF3   0.6500      14       1000010020   CCFR,1;CDHSW,1;NUTEV,1    
+  xF3   0.7500      14       1000010020   CCFR,1;NUTEV,1    
