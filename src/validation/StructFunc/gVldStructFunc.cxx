@@ -26,8 +26,6 @@
             % gvld_sf
                   -r genie::ReinSeghalRESPXSec/Default
                   -c genie::QPMDISPXSec/Default
-
-
 		      
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          STFC, Rutherford Appleton Laboratory
@@ -93,20 +91,47 @@ using namespace genie::mc_vs_data;
 class SFCompInfo
 {
 public:
-  SFCompInfo(string label, string datasets) :
-   fLabel       (label),
-   fDataSetKeys (datasets)
-  { 
-  }
- ~SFCompInfo() { }
+  SFCompInfo(
+    string fi, string datasets, double x, double Q2min, double Q2max, 
+    int lepton_pdg, int target_pdg, double scale) :
+   fFi(fi),
+   fDataSetKeys(datasets),
+   fxBj(x),
+   fQ2min(Q2min),
+   fQ2max(Q2max),
+   fLeptonPDG(lepton_pdg),
+   fTargetPDG(target_pdg),
+   fScale(scale)
+   { 
+   }
+  ~SFCompInfo() 
+   { 
+   }
 
-  string Label       (void) const { return fLabel;         }
-  string DataSetKeys (void) const { return fDataSetKeys;   }
+   string Fi          (void) const { return fFi;          }
+   string DataSetKeys (void) const { return fDataSetKeys; }
+   double xBjorken    (void) const { return fxBj;         }
+   double Q2Min       (void) const { return fQ2min;       }
+   double Q2Max       (void) const { return fQ2max;       }
+   double Scale       (void) const { return fScale;       }
+   int    LeptonPDG   (void) const { return fLeptonPDG;   }
+   int    TargetPDG   (void) const { return fTargetPDG;   }
+
+   string Label (void) const 
+   { 
+      return Form("x_{Bj} = %.4f", fxBj);
+   }
 
 private:
-
-  string fLabel;
+  string fFi;
   string fDataSetKeys;
+  double fxBj;
+  double fQ2min;
+  double fQ2max;
+  int    fLeptonPDG;
+  int    fTargetPDG;
+  double fScale;
+
 };
 //.................................................................................
 
@@ -115,15 +140,48 @@ private:
 //
 
 // defaults
-const char * kDefDataArchiveFilename = "data/validation/vA/sf/SF.root";  
-const char * kDefDataSetsFilename    = "data/validation/vA/sf/datasets.txt";  
+const char * kDefDataArchiveFilename = "data/validation/vA/sf/structFunc.root";  
+const char * kDefCompInfoFilename    = "data/validation/vA/sf/comparisons_xbj.txt";  
+
+const double kQ2min =   0.1; // GeV^2
+const double kQ2max = 150.0; // GeV^2
+
+// plot config
+const int kNCx = 2; // number of columns in TCanvas::Divide()
+const int kNCy = 2; // number of rows    in TCanvas::Divide()
+
+const int kNMaxDataSets = 20; // max number of datasets in single plot
+
+const int kDataPointStyle[kNMaxDataSets] = 
+{ 
+  20,    20,       20,    20,
+  21,    21,       21,    21,
+  24,    24,       24,    24,
+  25,    25,       25,    25,
+  29,    29,       29,    29
+};
+const int kDataPointColor[kNMaxDataSets] = 
+{
+  kRed,  kGreen+1, kBlue, kMagenta+1, 
+  kRed,  kGreen+1, kBlue, kMagenta+1, 
+  kRed,  kGreen+1, kBlue, kMagenta+1, 
+  kRed,  kGreen+1, kBlue, kMagenta+1, 
+  kRed,  kGreen+1, kBlue, kMagenta+1
+};
+
+const int kNumOfSummaryPlotColors = 5;
+
+const int SummaryPlotColor[kNumOfSummaryPlotColors] =
+{
+  kBlack, kRed, kGreen+1, kBlue, kMagenta+1
+};
 
 //
 // globals
 //
 
 string gOptDataArchiveFilename = ""; // -d command-line argument
-string gOptDataSetsFilename    = ""; // -s command-line argument
+string gOptCompInfoFilename    = ""; // -s command-line argument
 string gOptRESModelName        = ""; // -r command-line argument
 string gOptDISModelName        = ""; // -c command-line argument
 
@@ -134,39 +192,27 @@ TCanvas *      gC           = 0;
 
 const XSecAlgorithmI * gRESXSecModel = 0; // resonance cross-section model
 const XSecAlgorithmI * gDISXSecModel = 0; // DIS cross-section model
-
-vector<SFCompInfo *> gComparisons; // info on which comparisons to perform
-
-StructFunc gStructFuncCalc; // utility class extracting structure functions from the cross-section model
+vector<SFCompInfo *>   gComparisons;      // info on which comparisons to perform
+StructFunc             gStructFuncCalc;   // utility class extracting structure functions from the cross-section model
 
 // function prototypes
 void     Init               (void);
 void     End                (void);
-void     Draw               (unsigned int icomp);
+void     Draw               (void);
 TH1F *   DrawFrame          (TGraph * gr0, TGraph * gr1, TCanvas * c);
 void     GetCommandLineArgs (int argc, char ** argv);
 void     PrintSyntax        (void);
 
-vector<TGraph *>       Model(unsigned int icomp, unsigned int imodel);
-vector<TGraphErrors *> Data (unsigned int icomp);
+TGraph *               Model(unsigned int icomp, unsigned int imodel, double scale = 1.0);
+vector<TGraphErrors *> Data (unsigned int icomp, double scale = 1.0);
 
 //_________________________________________________________________________________
 int main(int argc, char ** argv)
 {
- GetCommandLineArgs (argc,argv);
-
+  GetCommandLineArgs (argc,argv);
   Init();
-
-  // loop over data sets and plot data and corresponding GENIE predictions
-  for(unsigned int icomp = 0; icomp < gComparisons.size(); icomp++) 
-  {
-    LOG("gvldtest", pNOTICE) 
-      << "Producing plots for: " << gComparisons[icomp]->Label();
-    Draw(icomp);
-  }
-
+  Draw();
   End();
-
   LOG("gvldtest", pINFO)  << "Done!";
   return 0;
 }
@@ -182,16 +228,16 @@ void Init(void)
   // Get TTree with structure-function data
   //
   if( ! utils::system::FileExists(gOptDataArchiveFilename) ) {
-      LOG("gvldtest", pFATAL) 
-         << "Can not find file: " << gOptDataArchiveFilename;
-      gAbortingInErr = true;
-      exit(1);
+     LOG("gvldtest", pFATAL) 
+       << "Can not find file: " << gOptDataArchiveFilename;
+     gAbortingInErr = true;
+     exit(1);
   }
   gSFDataFile = new TFile(gOptDataArchiveFilename.c_str(),"read");  
   gSFDataTree = (TTree *) gSFDataFile->Get("sfnt");
   if(!gSFDataTree) {
       LOG("gvldtest", pFATAL) 
-         << "Can not find TTree `sfnt' in file: " << gOptDataArchiveFilename;
+        << "Can not find TTree `sfnt' in file: " << gOptDataArchiveFilename;
       gAbortingInErr = true;
       exit(1);
   }
@@ -202,28 +248,59 @@ void Init(void)
   AlgFactory * algf = AlgFactory::Instance();
   gRESXSecModel = 0;
   if(gOptRESModelName != "none"){
-     vector<string> modelv = utils::str::Split(gOptRESModelName,"/");
-     assert(modelv.size()==2);
-     string model_name = modelv[0];
-     string model_conf = modelv[1];
-     gRESXSecModel =
-        dynamic_cast<const XSecAlgorithmI *> (
-            algf->GetAlgorithm(model_name, model_conf));
+      vector<string> modelv = utils::str::Split(gOptRESModelName,"/");
+      assert(modelv.size()==2);
+      string model_name = modelv[0];
+      string model_conf = modelv[1];
+      gRESXSecModel =dynamic_cast<const XSecAlgorithmI *> (
+         algf->GetAlgorithm(model_name, model_conf));
   }
   gDISXSecModel = 0;
   if(gOptDISModelName != "none"){
-     vector<string> modelv = utils::str::Split(gOptDISModelName,"/");
-     assert(modelv.size()==2);
-     string model_name = modelv[0];
-     string model_conf = modelv[1];
-     gDISXSecModel =
-        dynamic_cast<const XSecAlgorithmI *> (
-            algf->GetAlgorithm(model_name, model_conf));
+       vector<string> modelv = utils::str::Split(gOptDISModelName,"/");
+       assert(modelv.size()==2);
+       string model_name = modelv[0];
+       string model_conf = modelv[1];
+       gDISXSecModel = dynamic_cast<const XSecAlgorithmI *> (
+          algf->GetAlgorithm(model_name, model_conf));
   }
 
   gStructFuncCalc.SetResonanceXSecModel (gRESXSecModel);
   gStructFuncCalc.SetDISXSecModel       (gDISXSecModel);
   gStructFuncCalc.SetDISCharmXSecModel  (0);
+
+  //
+  // Read info on comparisons to perform
+  //
+  LOG("gvldtest", pNOTICE) 
+        << "Reading dataset summary info from: " << gOptCompInfoFilename;
+  ifstream summary_file(gOptCompInfoFilename.c_str());
+  if (!summary_file.good() ) {
+       LOG("gvldtest", pFATAL) 
+          << "Can't open data summary file: " << gOptCompInfoFilename;
+       gAbortingInErr = true;
+       exit(1);
+  }
+  while(1) {
+      // skip header lines staring with #
+      if(summary_file.peek() == '#') {
+          summary_file.ignore(1000, '\n');
+      } else {
+          string Fi="", datasets="";
+          double xbj = 0.;
+          int lpdg=0, tpdg=0;
+          summary_file >> Fi >> xbj >> lpdg >> tpdg >> datasets;
+          summary_file.ignore(1000, '\n');
+          if(summary_file.eof()) break;            
+          SFCompInfo * comparison = 
+              new SFCompInfo(Fi, datasets, xbj, kQ2min, kQ2max, lpdg, tpdg, 1.);
+          gComparisons.push_back(comparison);
+      }//new non# line
+  }//end of summary file
+  summary_file.close();
+
+  LOG("gvldtest", pNOTICE) 
+      << "Read "  << gComparisons.size() << " datasets";
 
   // Create plot canvas
   gC = new TCanvas("c","",20,20,500,650);
@@ -232,9 +309,12 @@ void Init(void)
   gC->SetGridx();
   gC->SetGridy();
 
- // Create output postscript file
-  string localtime = utils::system::LocalTimeAsString("%d.%d.%d_%d.%d.%d"); 
-  string filename  = Form("genie-sf_data_comp-%s.ps",localtime.c_str());
+  // Get local time to tag outputs
+  string lt_for_filename   = utils::system::LocalTimeAsString("%02d.%02d.%02d_%02d.%02d.%02d");
+  string lt_for_cover_page = utils::system::LocalTimeAsString("%02d/%02d/%02d %02d:%02d:%02d");
+
+  // Create output postscript file
+  string filename  = Form("genie-structfunc_data_comp-%s.ps",lt_for_filename.c_str());
   gPS = new TPostScript(filename.c_str(), 111);
 
   // Add cover page
@@ -243,6 +323,11 @@ void Init(void)
   TPavesText hdr(10,40,90,70,3,"tr");
   hdr.AddText(" ");
   hdr.AddText("GENIE comparison with F2, xF3 structure function data");
+  hdr.AddText(" ");
+  hdr.AddText(" ");
+  hdr.AddText(" ");
+  hdr.AddText(" ");
+  hdr.AddText(lt_for_cover_page.c_str());
   hdr.AddText(" ");
   hdr.Draw();
   gC->Update();
@@ -260,89 +345,341 @@ void End(void)
   gSFDataFile->Close();
 }
 //_________________________________________________________________________________
-vector<TGraph *> Model(unsigned int icomp, unsigned int imodel)
+TGraph * Model(unsigned int icomp, unsigned int imodel, double scale)
 {
-  vector<TGraph *> models;
+  LOG("gvldtest", pNOTICE) 
+      << "Getting GENIE prediction (comparison ID = " 
+      << icomp << ", model ID = " << imodel << ")";
 
-  return models;
+  int    lepton_pdg = gComparisons[icomp]->LeptonPDG();
+  int    target_pdg = gComparisons[icomp]->TargetPDG();
+  double xBj        = gComparisons[icomp]->xBjorken();
+  double Q2min      = gComparisons[icomp]->Q2Min();
+  double Q2max      = gComparisons[icomp]->Q2Max();
+  string Fi         = gComparisons[icomp]->Fi();
+
+  LOG("gvldtest", pNOTICE) 
+      << "lepton = " << lepton_pdg << " + target = " << target_pdg << ", " 
+      << Fi << " for x_{Bj} = " << xBj 
+      << " and Q2 in " << Q2min << " to " << Q2max << " GeV^2 range";
+
+  const int knQ2 = 250;
+  const double logQ2min = TMath::Log10(Q2min);
+  const double logQ2max = TMath::Log10(Q2max);
+  const double dlogQ2   = (logQ2max-logQ2min)/(knQ2-1);
+
+  double * Q2_array = new double[knQ2]; 
+  double * Fi_array = new double[knQ2]; 
+
+  for (int i = 0; i < knQ2; i++) 
+  {
+    double Q2  = TMath::Power(10., logQ2min + i * dlogQ2);
+    double F1  = 0.;
+    double F2  = 0.;
+    double xF3 = 0.;
+    gStructFuncCalc.ExtractF1F2xF3(xBj, Q2, lepton_pdg, target_pdg, F1, F2, xF3);
+    F1  = TMath::Max(0., F1 );
+    F2  = TMath::Max(0., F2 );
+    xF3 = TMath::Max(0., xF3);
+    LOG("gvldtest", pNOTICE) 
+       << "x_Bj = " << xBj << ", Q2 = " << Q2 << " GeV^2 : "
+       << "F1 = " << F1 << ", F2 = " << F2 << ", xF3 = " << xF3;
+    Q2_array[i] = Q2;
+    Fi_array[i] = 0.;
+    if(Fi == "F2" ) Fi_array[i] = scale * F2;
+    if(Fi == "xF3") Fi_array[i] = scale * xF3;
+  }
+
+  TGraph * grFi = new TGraph(knQ2,Q2_array,Fi_array);
+  grFi->SetLineColor(kBlack);
+  grFi->SetLineStyle(kSolid);
+  grFi->SetLineWidth(1);
+
+  delete [] Q2_array;
+  delete [] Fi_array;
+
+  return grFi;
 }
 //_________________________________________________________________________________
-vector<TGraphErrors *> Data(unsigned int icomp)
+vector<TGraphErrors *> Data(unsigned int icomp, double scale)
 {
-  vector<TGraphErrors *> data;
+  LOG("gvldtest", pNOTICE) 
+      << "Retrieving expt data (comparison ID = " << icomp << ")";
 
+  double epsilon = 1E-5;
+
+//int    lpdg  = gComparisons[icomp]->LeptonPDG();
+//int    tpdg  = gComparisons[icomp]->TargetPDG();
+  double xBj   = gComparisons[icomp]->xBjorken();
+//double Q2min = gComparisons[icomp]->Q2Min();
+//double Q2max = gComparisons[icomp]->Q2Max();
+  string Fi    = gComparisons[icomp]->Fi();
+  string keys  = gComparisons[icomp]->DataSetKeys();
+
+  vector<string> keyv = utils::str::Split(keys,";");
+  unsigned int ndatasets = keyv.size();
+
+  vector<TGraphErrors *> data(ndatasets);
+
+  for(unsigned int idataset = 0; idataset < ndatasets; idataset++) {
+
+      const char * selection = Form("(x>%f) && (x<%f) && (Ftype==\"%s\") && (dataset==\"%s\")",
+           xBj-epsilon, xBj+epsilon, Fi.c_str(), keyv[idataset].c_str());
+
+      gSFDataTree->Draw("Q2:F:dFp", selection, "goff");
+      int np = gSFDataTree->GetSelectedRows();
+      LOG("gvldtest", pNOTICE) 
+          << "Found " << np << " points in the data archive";
+
+      // Data returned by TTree::Draw() are not necessarily ordered in W
+      // Do the ordering here before building the graph
+      int    *  idx = new int   [np];
+      double *  xv  = new double[np];
+      double *  yv  = new double[np];
+      double *  dyv = new double[np];
+      TMath::Sort(np,gSFDataTree->GetV1(),idx,false);
+      for(int i = 0; i < np; i++) {
+         int ii = idx[i];
+         xv [i] = (gSFDataTree->GetV1())[ii];
+         yv [i] = (gSFDataTree->GetV2())[ii] * scale;
+         dyv[i] = (gSFDataTree->GetV3())[ii] * scale;
+      }
+
+      TGraphErrors * gr = new TGraphErrors(np,xv,yv,0,dyv);
+      int sty = kDataPointStyle[idataset];
+      int col = kDataPointColor[idataset];
+      utils::style::Format(gr,col,kSolid,1,col,sty,0.7);
+      string title = keyv[idataset].substr(0, keyv[idataset].find_first_of(","));
+      gr->SetTitle(title.c_str());
+      data.push_back(gr);
+
+      delete [] idx;
+      delete [] xv;
+      delete [] yv;
+      delete [] dyv;
+  }
   return data;
 }
 //_________________________________________________________________________________
-void Draw(unsigned int icomp)
+void Draw(void)
 {
-  bool inlogy = false; // log y scale? Eventually get it from SFCompInfo 
+  //
+  // Draw summary plots first, with all F2 (xF3) datasets and GENIE predictions 
+  // shown on the same plot.
+  //
 
-  // get all measurements for the current channel from the NuValidator MySQL dbase
-  vector<TGraphErrors *> data = Data(icomp);
-  if(data.size() == 0) return;
+  // > F2
+  {
+    gPS-> NewPage();
+    gC -> SetFillColor(0);
+    gC -> SetBorderMode(0);
+    gC -> SetLogx(1);
+    gC -> SetLogy(1);
 
-  // get the corresponding GENIE model prediction
-  vector<TGraph*> models = Model(icomp,0);
+    TH1F * hframe = 0;
+    double xmin =  kQ2min;
+    double xmax =  kQ2max*12;
+    double ymin =  1E-2;
+    double ymax =  2E+3;
+    hframe = (TH1F*) gC->DrawFrame(xmin, ymin, xmax, ymax);
+    hframe->GetXaxis()->SetTitle("Q^{2} (GeV^{2})");
+    hframe->GetYaxis()->SetTitle("F2");
 
-  gPS->NewPage();
-
-  gC->Clear();
-  gC->Divide(2,1);
-  gC->GetPad(1)->SetPad("mplots_pad","",0.01,0.25,0.99,0.99);
-  gC->GetPad(2)->SetPad("legend_pad","",0.01,0.01,0.99,0.24);
-  gC->GetPad(1)->SetFillColor(0);
-  gC->GetPad(1)->SetBorderMode(0);
-  gC->GetPad(2)->SetFillColor(0);
-  gC->GetPad(2)->SetBorderMode(0);
-  gC->GetPad(1)->cd();
-  gC->GetPad(1)->SetBorderMode(0);
-  gC->GetPad(1)->SetLogx(1);
-  gC->GetPad(1)->SetLogy(1);
-
-  TH1F * hframe = 0;
-  double xmin =  9999999;
-  double xmax = -9999999;
-  double ymin =  9999999;
-  double ymax = -9999999;
-  for(unsigned int i = 0; i< data.size(); i++) {
-    if(!data[i]) continue;
-    xmin  = TMath::Min(xmin, (data[i]->GetX())[TMath::LocMin(data[i]->GetN(),data[i]->GetX())]);
-    xmax  = TMath::Max(xmax, (data[i]->GetX())[TMath::LocMax(data[i]->GetN(),data[i]->GetX())]);
-    ymin  = TMath::Min(ymin, (data[i]->GetY())[TMath::LocMin(data[i]->GetN(),data[i]->GetY())]);
-    ymax  = TMath::Max(ymax, (data[i]->GetY())[TMath::LocMax(data[i]->GetN(),data[i]->GetY())] );
+    // loop over data sets and plot data and corresponding GENIE predictions
+    for(unsigned int icomp = 0; icomp < gComparisons.size(); icomp++) 
+    {
+      LOG("gvldtest", pNOTICE) 
+         << "Producing plots for: " << gComparisons[icomp]->Label();
+      int color = SummaryPlotColor[(icomp%kNumOfSummaryPlotColors)];
+      double xBj = gComparisons[icomp]->xBjorken();
+      string Fi  = gComparisons[icomp]->Fi();
+      if(Fi != "F2") continue;
+      double scale = 1.0;
+      if(xBj > 0.000 && xBj <= 0.008) scale = 500.0;
+      if(xBj > 0.008 && xBj <= 0.013) scale = 350.0;
+      if(xBj > 0.013 && xBj <= 0.016) scale = 250.0;
+      if(xBj > 0.016 && xBj <= 0.020) scale = 150.0;
+      if(xBj > 0.020 && xBj <= 0.030) scale = 100.0;
+      if(xBj > 0.030 && xBj <= 0.040) scale =  60.0;
+      if(xBj > 0.040 && xBj <= 0.049) scale =  40.0;
+      if(xBj > 0.049 && xBj <= 0.060) scale =  30.0;
+      if(xBj > 0.060 && xBj <= 0.075) scale =  20.0;
+      if(xBj > 0.075 && xBj <= 0.085) scale =  15.0;
+      if(xBj > 0.085 && xBj <= 0.095) scale =  10.0;
+      if(xBj > 0.095 && xBj <= 0.115) scale =   6.0;
+      if(xBj > 0.115 && xBj <= 0.130) scale =   4.0;
+      if(xBj > 0.130 && xBj <= 0.150) scale =   3.0;
+      if(xBj > 0.150 && xBj <= 0.177) scale =   2.0;
+      if(xBj > 0.177 && xBj <= 0.182) scale =   1.6;
+      if(xBj > 0.182 && xBj <= 0.190) scale =   1.3;
+      if(xBj > 0.190 && xBj <= 0.230) scale =   1.1;
+      // Get expt data from GENIE archive
+      vector<TGraphErrors *> data = Data(icomp,scale);
+      if(data.size() == 0) continue;
+      // Get the corresponding GENIE model prediction
+      TGraph* model = Model(icomp,0,scale);
+      for(unsigned int i = 0; i< data.size(); i++) {
+         if(!data[i]) continue;
+         data[i]->SetMarkerColor(color);
+         data[i]->SetLineColor(color);
+         data[i]->Draw("P");
+       //legend->AddEntry(data[i], data[i]->GetTitle(), "P");
+      }  
+      if(model) {
+         model->SetLineColor(color);
+         model->Draw("L");
+       //legend->AddEntry(model, "GENIE", "L"); 
+         int n = model->GetN();
+         double xl = (model->GetX())[n-1];
+         double yl = (model->GetY())[n-1];
+         TLatex * t = new TLatex();
+         t->SetTextColor(color);
+         t->SetTextFont(42);
+         t->SetTextSize(0.02);
+         t->DrawLatex(xl+25,yl,Form("x=%.4f, F2 #times %.1f",xBj,scale));
+      }
+    }
+    gC->Update();
   }
-  double ymax_scale = (inlogy) ? 2. : 1.4;
-  hframe = (TH1F*) gC->GetPad(1)->DrawFrame(0.5*xmin, 0.4*ymin, 1.2*xmax, ymax_scale*ymax);
-  hframe->GetXaxis()->SetTitle("???");
-  hframe->GetYaxis()->SetTitle("???");
-  hframe->Draw();
 
-  // add legend
-  TLegend * legend = new TLegend(0.01, 0.01, 0.99, 0.99);
-  legend->SetLineStyle(0);
-  legend->SetFillColor(0);
-  legend->SetTextSize(0.06);
-
-  // draw current data set
-  for(unsigned int i = 0; i< data.size(); i++) {
-    if(!data[i]) continue;
-    data[i]->Draw("P");
-    legend->AddEntry(data[i], data[i]->GetTitle(), "LP");
-  }  
-
-  // have model prediction to plot?
-  // just one for the time-being - superimposing different models will be added asap
-  if(models.size() == 1) {
-       models[0]->Draw("L");
-       legend->AddEntry(models[0], "GENIE", "L"); 
+  // > xF3
+  {
+    gPS-> NewPage();
+    gC -> SetFillColor(0);
+    gC -> SetBorderMode(0);
+    gC -> SetLogx(1);
+    gC -> SetLogy(1);
+    TH1F * hframe = 0;
+    double xmin =  kQ2min;
+    double xmax =  kQ2max*12;
+    double ymin =  1E-2;
+    double ymax =  2E+4;
+    hframe = (TH1F*) gC->DrawFrame(xmin, ymin, xmax, ymax);
+    hframe->GetXaxis()->SetTitle("Q^{2} (GeV^{2})");
+    hframe->GetYaxis()->SetTitle("xF3");
+    // loop over data sets and plot data and corresponding GENIE predictions
+    for(unsigned int icomp = 0; icomp < gComparisons.size(); icomp++) 
+    {
+      LOG("gvldtest", pNOTICE) 
+         << "Producing plots for: " << gComparisons[icomp]->Label();
+      int color = SummaryPlotColor[(icomp%kNumOfSummaryPlotColors)];
+      double xBj = gComparisons[icomp]->xBjorken();
+      string Fi  = gComparisons[icomp]->Fi();
+      if(Fi != "xF3") continue;
+      double scale = 1.0;
+      if(xBj > 0.000 && xBj <= 0.008) scale = 20000.0;
+      if(xBj > 0.008 && xBj <= 0.013) scale =  6000.0;
+      if(xBj > 0.013 && xBj <= 0.016) scale =  3500.0;
+      if(xBj > 0.016 && xBj <= 0.020) scale =  1500.0;
+      if(xBj > 0.020 && xBj <= 0.030) scale =  1000.0;
+      if(xBj > 0.030 && xBj <= 0.040) scale =   600.0;
+      if(xBj > 0.040 && xBj <= 0.049) scale =   400.0;
+      if(xBj > 0.049 && xBj <= 0.060) scale =   300.0;
+      if(xBj > 0.060 && xBj <= 0.075) scale =   200.0;
+      if(xBj > 0.075 && xBj <= 0.085) scale =   150.0;
+      if(xBj > 0.085 && xBj <= 0.095) scale =   100.0;
+      if(xBj > 0.095 && xBj <= 0.115) scale =    50.0;
+      if(xBj > 0.115 && xBj <= 0.130) scale =    22.0;
+      if(xBj > 0.130 && xBj <= 0.150) scale =    10.0;
+      if(xBj > 0.150 && xBj <= 0.177) scale =     5.0;
+      if(xBj > 0.177 && xBj <= 0.182) scale =     3.0;
+      if(xBj > 0.182 && xBj <= 0.230) scale =     1.8;
+      if(xBj > 0.230 && xBj <= 0.280) scale =     1.2;
+      // Get expt data from GENIE archive
+      vector<TGraphErrors *> data = Data(icomp,scale);
+      if(data.size() == 0) continue;
+      // Get the corresponding GENIE model prediction
+      TGraph* model = Model(icomp,0,scale);
+      for(unsigned int i = 0; i< data.size(); i++) {
+         if(!data[i]) continue;
+         data[i]->SetMarkerColor(color);
+         data[i]->SetLineColor(color);
+         data[i]->Draw("P");
+       //legend->AddEntry(data[i], data[i]->GetTitle(), "P");
+      }  
+      if(model) {
+         model->SetLineColor(color);
+         model->Draw("L");
+       //legend->AddEntry(model, "GENIE", "L"); 
+         int n = model->GetN();
+         double xl = (model->GetX())[n-1];
+         double yl = (model->GetY())[n-1];
+         TLatex * t = new TLatex();
+         t->SetTextColor(color);
+         t->SetTextFont(42);
+         t->SetTextSize(0.02);
+         t->DrawLatex(xl+25,yl,Form("x=%.4f, xF3 #times %.1f",xBj,scale));
+      }
+    }
+    gC->Update();
   }
 
-  gC->GetPad(2)->cd();
-  legend->Draw();
+  //
+  // Now also show each comparison on a separate plot
+  //
+  for(unsigned int icomp = 0; icomp < gComparisons.size(); icomp++) 
+  {
+    LOG("gvldtest", pNOTICE) 
+        << "Producing plots for: " << gComparisons[icomp]->Label();
+    double xBj = gComparisons[icomp]->xBjorken();
+    string Fi  = gComparisons[icomp]->Fi();
+    // Get expt data from GENIE archive
+    vector<TGraphErrors *> data = Data(icomp);
+    if(data.size() == 0) return;
+    // Get the corresponding GENIE model prediction
+    TGraph* model = Model(icomp,0);
+    // Create new ps page if needed and get pad
+    int plots_per_page = kNCx * kNCy;
+    int iplot = 1 + icomp % plots_per_page;
+    if(iplot == 1) {
+       gPS-> NewPage();
+       gC -> Clear();
+       gC -> Divide(kNCx,kNCy);
+    }
+    gC -> GetPad(iplot) -> Range(0,0,100,100);
+    gC -> GetPad(iplot) -> SetFillColor(0);
+    gC -> GetPad(iplot) -> SetBorderMode(0);
+    gC -> GetPad(iplot) -> SetLogx(1);
+    gC -> GetPad(iplot) -> SetLogy(1);
+    gC -> GetPad(iplot) -> cd();
+    // Draw frame
+    TH1F * hframe = 0;
+    double xmin =  9999999;
+    double xmax = -9999999;
+    double ymin =  9999999;
+    double ymax = -9999999;
+    for(unsigned int i = 0; i< data.size(); i++) {
+       if(!data[i]) continue;
+       xmin  = TMath::Min(xmin, (data[i]->GetX())[TMath::LocMin(data[i]->GetN(),data[i]->GetX())]);
+       xmax  = TMath::Max(xmax, (data[i]->GetX())[TMath::LocMax(data[i]->GetN(),data[i]->GetX())]);
+       ymin  = TMath::Min(ymin, (data[i]->GetY())[TMath::LocMin(data[i]->GetN(),data[i]->GetY())]);
+       ymax  = TMath::Max(ymax, (data[i]->GetY())[TMath::LocMax(data[i]->GetN(),data[i]->GetY())] );
+    }
+    hframe = (TH1F*) gC->GetPad(iplot)->DrawFrame(0.5*xmin, 0.3*ymin, 1.5*xmax, 5.0*ymax);
+    hframe->GetXaxis()->SetTitle("Q^{2} (GeV^{2})");
+    hframe->GetYaxis()->SetTitle(Fi.c_str());
+    hframe->Draw();
+    // Draw data set & GENIE model and add legend
+    TLegend * legend = new TLegend(0.20, 0.65, 0.55, 0.90);
+    legend->SetLineStyle(0);
+    legend->SetFillStyle(0);
+    legend->SetTextFont(42);
+    legend->SetTextSize(0.025);
+    legend->SetHeader(Form("x_{Bj}=%.4f",xBj));
+    for(unsigned int i = 0; i< data.size(); i++) {
+       if(!data[i]) continue;
+       data[i]->Draw("P");
+       legend->AddEntry(data[i], data[i]->GetTitle(), "P");
+    }  
+    if(model) {
+       model->Draw("L");
+       legend->AddEntry(model, "GENIE", "L"); 
+    }
+    legend->Draw();
+    gC->GetPad(iplot)->Update();
+    gC->Update();
+  }
 
-  gC->GetPad(2)->Update();
-  gC->Update();
 }
 //_________________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
@@ -370,12 +707,12 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   if(parser.OptionExists('s')){
      string filename = parser.ArgAsString('s');
-     gOptDataSetsFilename = filename;
+     gOptCompInfoFilename = filename;
   } else {
      if(gSystem->Getenv("GENIE")) {
         string base_dir = string( gSystem->Getenv("GENIE") );
-        string filename = base_dir + "/" + kDefDataSetsFilename;
-        gOptDataSetsFilename = filename;
+        string filename = base_dir + "/" + kDefCompInfoFilename;
+        gOptCompInfoFilename = filename;
      } else { 
         LOG("gvldtest", pFATAL) 
           << "\n Please make sure that $GENIE is defined, or use the -s option"
