@@ -221,7 +221,9 @@ vld-tools: FORCE
 ifeq ($(strip $(GOPT_ENABLE_VALIDATION_TOOLS)),YES)
 	@echo " "
 	@echo "** Building GENIE validation tools..."
-	cd ${GENIE}/src/validation/Basic; \
+	cd ${GENIE}/src/validation/EvScan; \
+	make; \
+	cd ${GENIE}/src/validation/MCx; \
 	make; \
 	cd ${GENIE}/src/validation/NuXSec; \
 	make; \
@@ -554,7 +556,8 @@ purge: FORCE
 	cd Utils;                         make purge; cd ..; \
 	cd VLE;                           make purge; cd ..; \
 	cd VHE;                           make purge; cd ..; \
-	cd validation/Basic;              make purge; cd ../../; \
+	cd validation/EvScan;             make purge; cd ../../; \
+	cd validation/MCx;                make purge; cd ../../; \
 	cd validation/NuXSec;             make purge; cd ../../; \
 	cd validation/StructFunc;         make purge; cd ../../; \
 	cd validation/Hadronization;      make purge; cd ../../; \
@@ -609,7 +612,8 @@ clean-files: FORCE
 	cd ReinSeghal;                    make clean; cd ..; \
 	cd ReWeight;                      make clean; cd ..; \
 	cd Utils;                         make clean; cd ..; \
-	cd validation/Basic;              make clean; cd ../../; \
+	cd validation/EvScan;             make clean; cd ../../; \
+	cd validation/MCx;                make clean; cd ../../; \
 	cd validation/NuXSec;             make clean; cd ../../; \
 	cd validation/StructFunc;         make clean; cd ../../; \
 	cd validation/Hadronization;      make clean; cd ../../; \
@@ -689,7 +693,8 @@ distclean: FORCE
 	cd ReinSeghal;                     make distclean; cd ..; \
 	cd ReWeight;                       make distclean; cd ..; \
 	cd Utils;                          make distclean; cd ..; \
-	cd validation/Basic;               make distclean; cd ../../; \
+	cd validation/EvScan;              make distclean; cd ../../; \
+	cd validation/MCx;                 make distclean; cd ../../; \
 	cd validation/NuXSec;              make distclean; cd ../../; \
 	cd validation/StructFunc;          make distclean; cd ../../; \
 	cd validation/Hadronization;       make distclean; cd ../../; \
