@@ -49,8 +49,10 @@ CmdLnArgParser::~CmdLnArgParser()
 //____________________________________________________________________________
 char * CmdLnArgParser::Arg(char op)
 {
+  const int buf_size = 2048;
+
   bool    set       = false;
-  char *  argument  = new char[1024];
+  char *  argument  = new char[buf_size];
   strcpy(argument, "");
 
   int     argc      = fArgc;
@@ -199,8 +201,9 @@ vector<long> CmdLnArgParser::ArgAsLongTokens(char op, string delimeter)
 //____________________________________________________________________________
 char * CmdLnArgParser::Arg(string op)
 {
-  bool    set       = false;
-  char *  argument  = new char[1024];
+  const int buf_size = 2048;
+  bool    set        = false;
+  char *  argument   = new char[buf_size];
   strcpy(argument, "");
 
   int     argc      = fArgc;
@@ -212,7 +215,9 @@ char * CmdLnArgParser::Arg(string op)
     LOG("CLAP", pDEBUG) << "Current argc = " << argc;
 
     if (argv[1][0] == '-' && argv[1][1] == '-') {      
-      char * op_cur =  strndup(argv[1]+2,strlen(argv[1]));
+      //char * op_cur = strndup(argv[1]+2,strlen(argv[1]));
+      char op_cur[buf_size];
+      strcpy(op_cur,&argv[1][2]);
       LOG("CLAP", pDEBUG) 
         << "Got string following '--' : " << op_cur;
       if (strcmp(op.c_str(),op_cur)==0) {
@@ -250,6 +255,7 @@ char * CmdLnArgParser::Arg(string op)
 //____________________________________________________________________________
 bool CmdLnArgParser::OptionExists(string op)
 {
+  const int buf_size = 2048;
   bool set = false;
 
   int     argc = fArgc;
@@ -257,7 +263,9 @@ bool CmdLnArgParser::OptionExists(string op)
 
   while(argc>1) {
     if(argv[1][0] == '-' && argv[1][1] == '-') {
-        char * op_cur =  strndup(argv[1]+2,strlen(argv[1]));
+        //char * op_cur =  strndup(argv[1]+2,strlen(argv[1]));
+        char op_cur[buf_size];
+        strcpy(op_cur,&argv[1][2]);
         if (strcmp(op.c_str(),op_cur)==0) set = true;
     }
     argc--;
