@@ -33,8 +33,11 @@ public:
   CmdLnArgParser(int argc, char **argv);
  ~CmdLnArgParser();
 
-  bool    OptionExists (char opt); ///< was option set?
-  char *  Arg          (char opt); ///< return argument following -`opt'
+  // Methods to check the existence of single character switches (eg -f, -s)
+  // and retrieve the command-line argument following the switch
+
+  bool    OptionExists (char opt);   ///< was option set?
+  char *  Arg          (char opt);   ///< return argument following -`opt'
 
   string         ArgAsString       (char opt);
   vector<string> ArgAsStringTokens (char opt, string delimeter);
@@ -44,6 +47,11 @@ public:
   vector<int>    ArgAsIntTokens    (char opt, string delimeter);
   long           ArgAsLong         (char opt);
   vector<long>   ArgAsLongTokens   (char opt, string delimeter);
+
+  // As above, but supporting multi-character switches (eg --with-x-file )
+
+  bool    OptionExists (string opt); ///< was option set?
+  char *  Arg          (string opt); ///< return argument following --`opt'
 
 private:
 
