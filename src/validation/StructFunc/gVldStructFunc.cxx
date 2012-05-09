@@ -7,26 +7,39 @@
 
          Syntax:
            gvld_sf 
-                [-r model_for_resonance_xsec]
-                [-c model_for_dis_continuum_xsec]
                 [-d data_archive] 
+                [-s list_of_data_mc_comparisons]
+                [--resonance-xsec-model genie::model_name/model_config]
+                [--dis-xsec-model       genie::model_name/model_config]
+                [--dis-charm-xsec-model genie::model_name/model_config]
 
          Options:
            [] Denotes an optional argument.
 
-          -r Specify GENIE resonance cross-section model.
-          -c Specify GENIE DIS cross-section model.
+           -d Location of the neutrino cross-section data archive.
+              By default, the program will look-up the one located in:
+              $GENIE/data/validation/vA/sf/structFunc.root
 
-          -d Location of the neutrino cross-section data archive.
-             By default, the program will look-up the one located in:
-             $GENIE/data/validation/sf/??
+           -s List of data/MC comparisons to perform.
+              By default, the program will look-up the one located in:
+              $GENIE/data/validation/vA/sf/comparisons_xbj.txt
+
+           --resonance-xsec-model
+              Specify GENIE resonance cross-section model.
+
+           --dis-xsec-model
+              Specify GENIE DIS cross-section model.
+
+           --dis-charm-xsec-model
+              Specify GENIE DIS charm production cross-section model.
 
          Example:
 
-            % gvld_sf
-                  -r genie::ReinSeghalRESPXSec/Default
-                  -c genie::QPMDISPXSec/Default
-		      
+            % gvld_sf \
+                --resonance-xsec-model genie::ReinSeghalRESPXSec/Default \
+                --dis-xsec-model genie::QPMDISPXSec/Default \
+		--dis-charm-xsec-model genie::AivazisCharmPXSecLO/CC-Default
+
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          STFC, Rutherford Appleton Laboratory
 
@@ -182,16 +195,18 @@ const int SummaryPlotColor[kNumOfSummaryPlotColors] =
 
 string gOptDataArchiveFilename = ""; // -d command-line argument
 string gOptCompInfoFilename    = ""; // -s command-line argument
-string gOptRESModelName        = ""; // -r command-line argument
-string gOptDISModelName        = ""; // -c command-line argument
+string gOptRESModelName        = ""; // --resonance-xsec-model command-line argument
+string gOptDISModelName        = ""; // --dis-xsec-model command-line argument
+string gOptDISCharmModelName   = ""; // --dis-charm-xsec-model command-line argument
 
 TFile *        gSFDataFile  = 0;
 TTree *        gSFDataTree  = 0;
 TPostScript *  gPS          = 0;
 TCanvas *      gC           = 0;
 
-const XSecAlgorithmI * gRESXSecModel = 0; // resonance cross-section model
-const XSecAlgorithmI * gDISXSecModel = 0; // DIS cross-section model
+const XSecAlgorithmI * gRESXSecModel      = 0; // resonance cross-section model
+const XSecAlgorithmI * gDISXSecModel      = 0; // DIS cross-section model
+const XSecAlgorithmI * gDISCharmXSecModel = 0; // DIS cross-section model (charm production)
 vector<SFCompInfo *>   gComparisons;      // info on which comparisons to perform
 StructFunc             gStructFuncCalc;   // utility class extracting structure functions from the cross-section model
 
@@ -264,10 +279,19 @@ void Init(void)
        gDISXSecModel = dynamic_cast<const XSecAlgorithmI *> (
           algf->GetAlgorithm(model_name, model_conf));
   }
+  gDISCharmXSecModel = 0;
+  if(gOptDISCharmModelName != "none"){
+       vector<string> modelv = utils::str::Split(gOptDISCharmModelName,"/");
+       assert(modelv.size()==2);
+       string model_name = modelv[0];
+       string model_conf = modelv[1];
+       gDISCharmXSecModel = dynamic_cast<const XSecAlgorithmI *> (
+          algf->GetAlgorithm(model_name, model_conf));
+  }
 
   gStructFuncCalc.SetResonanceXSecModel (gRESXSecModel);
   gStructFuncCalc.SetDISXSecModel       (gDISXSecModel);
-  gStructFuncCalc.SetDISCharmXSecModel  (0);
+  gStructFuncCalc.SetDISCharmXSecModel  (gDISCharmXSecModel);
 
   //
   // Read info on comparisons to perform
@@ -723,11 +747,14 @@ void GetCommandLineArgs(int argc, char ** argv)
   }
 
   // Get GENIE model names to be used
-  if(parser.OptionExists('r')){
-     gOptRESModelName = parser.ArgAsString('r');
+  if(parser.OptionExists("resonance-xsec-model")){
+     gOptRESModelName = parser.Arg("resonance-xsec-model");
   }   
-  if(parser.OptionExists('c')){
-     gOptDISModelName = parser.ArgAsString('c');
+  if(parser.OptionExists("dis-xsec-model")){
+     gOptDISModelName = parser.Arg("dis-xsec-model");
+  }
+  if(parser.OptionExists("dis-charm-xsec-model")){
+     gOptDISCharmModelName = parser.Arg("dis-charm-xsec-model");
   }
 
 }
