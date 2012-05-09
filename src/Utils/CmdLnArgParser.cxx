@@ -11,8 +11,7 @@
 
  Important revisions after version 2.0.0 :
  @ Jul 23, 2010 - CA
-   First added in v2.7.1. Adapted from previous code to parse cmd line args.
- 
+   First added in v2.7.1. Adapted from previous code to parse cmd line args. 
  @ Feb 17, 2011 - JD
    Fixed bug in ArgAsString so that it returns a NULL string if there is no 
    argument provided (as may be the case for a simple switch which can 
@@ -20,6 +19,8 @@
    supplied call it filename). Previously if no value was provided the there 
    was a chance that we return a ptr to an old bit of memory filled with the 
    argument from the last call to this function. 
+ @ May 09, 2012 - CA
+   Add basic support for multi-character switches.
 */
 //____________________________________________________________________________
 
@@ -194,5 +195,75 @@ vector<long> CmdLnArgParser::ArgAsLongTokens(char op, string delimeter)
     tokens.push_back(atol(arg.c_str()));
   }
   return tokens;
+}
+//____________________________________________________________________________
+char * CmdLnArgParser::Arg(string op)
+{
+  bool    set       = false;
+  char *  argument  = new char[1024];
+  strcpy(argument, "");
+
+  int     argc      = fArgc;
+  char ** argv      = fArgv;
+
+  while(argc>2)
+  {
+    LOG("CLAP", pDEBUG) << "Getting next argument in argument-list";
+    LOG("CLAP", pDEBUG) << "Current argc = " << argc;
+
+    if (argv[1][0] == '-' && argv[1][1] == '-') {      
+      char * op_cur =  strndup(argv[1]+2,strlen(argv[1]));
+      LOG("CLAP", pDEBUG) 
+        << "Got string following '--' : " << op_cur;
+      if (strcmp(op.c_str(),op_cur)==0) {
+  	 LOG("CLAP", pDEBUG) << "Input option: " << op << " was matched";
+
+         if (strlen(&argv[2][0]) ) {
+            strcpy(argument,&argv[2][0]);
+            set = true;
+            LOG("CLAP", pINFO) 
+               << "Set opt = [" << op << "] to val = [" << argument << "]";
+
+         } else if( (argc>2) && 
+                    !(argv[2][0]=='-' &&argv[2][1]=='-' && isalpha(argv[2][2])) ) {
+            LOG("CLAP", pDEBUG) 
+              << "argc>2 and next arg not a '--' followed by an alpha char";
+
+            argc--;
+            argv++;
+            strcpy(argument,&argv[1][0]);
+            set = true;
+            LOG("CLAP", pINFO) 
+               << "Set opt = [" << op << "] to val = [" << argument << "]";
+         }
+      }
+    }
+    argc--;
+    argv++;
+    if(argc>2) {
+      LOG("CLAP", pDEBUG) << "Next argv[1][0] = " << argv[1][0];
+    }
+  }
+
+  return argument;
+}
+//____________________________________________________________________________
+bool CmdLnArgParser::OptionExists(string op)
+{
+  bool set = false;
+
+  int     argc = fArgc;
+  char ** argv = fArgv;
+
+  while(argc>1) {
+    if(argv[1][0] == '-' && argv[1][1] == '-') {
+        char * op_cur =  strndup(argv[1]+2,strlen(argv[1]));
+        if (strcmp(op.c_str(),op_cur)==0) set = true;
+    }
+    argc--;
+    argv++;
+  }
+
+  return set;
 }
 //____________________________________________________________________________
