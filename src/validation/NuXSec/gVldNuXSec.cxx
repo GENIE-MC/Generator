@@ -89,7 +89,7 @@ using namespace genie::mc_vs_data;
 const char * kDefDataFile = "data/validation/vA/xsec/integrated/nuXSec.root";  
 
 // number of comparisons
-const int kNumOfComparisons = 32;
+const int kNumOfComparisons = 34;
 
 // specify how exactly to construct all comparisons
 NuXSecComparison * kComparison[kNumOfComparisons] = 
@@ -165,6 +165,14 @@ NuXSecComparison * kComparison[kNumOfComparisons] =
     "SciBooNE,0",
      new CCIsoInclXSec(kPdgNuMu),
      0.1, 6.0, false, false, false
+  ),
+  // r = nu_mu_bar CC inclusive / nu_mu_cc inclusive, MINOS data only
+  new NuXSecComparison(
+    "r_minos", 
+    "#bar{#nu_{#mu}} CC inclusive / #nu_{#mu} CC inclusive, MINOS data only",
+    "MINOS,2",
+     0,
+     1.0, 60.0, false, false, false
   ),
   // nu_mu CC QE, all data
   new NuXSecComparison(
@@ -293,6 +301,14 @@ NuXSecComparison * kComparison[kNumOfComparisons] =
     "ANL_12FT,11;BNL_7FT,8",
      new CCPionXSec(kPdgNuMu,kPdgTgtFreeN,kPdgNeutron,1,0,1,1,0),
      1.0, 120.0, true, false, false
+  ),
+  // nu_mu CC pi0 / nu_mu CC QE
+  new NuXSecComparison(
+    "numuCCpi0_numuCCQE_k2k",
+    "#nu_{#mu} CC#pi^{0} / #nu_{#mu} CCQE, K2K data only",
+    "K2K,0",
+     0,
+     0.1, 6.0, false, false, false
   ),
   // numu NC coherent pi, A = 20
   new NuXSecComparison(
@@ -533,17 +549,20 @@ void Draw(int icomparison)
       // error envelopes for the GENIE model and I was also asked to superimpose multiple
       // models, then I will show the error bands only for the first model
       bool show_err_band = (imodel==0) ? gOptShowErrBands : false;
-      NuXSecFunc & xsec_func = *kComparison[icomparison]->XSecFunc();
-      TGraphAsymmErrors * model = xsec_func.ExtractFromEventSample(
+      bool have_func = (kComparison[icomparison]->XSecFunc() != 0);
+      if(have_func) {
+        NuXSecFunc & xsec_func = *kComparison[icomparison]->XSecFunc();
+        TGraphAsymmErrors * model = xsec_func.ExtractFromEventSample(
                  imodel, emin, emax, 30, inlogx, scale, show_err_band);
-      model->SetTitle(gOptGenieInputs.ModelTag(imodel).c_str());
-      int lsty = kModelLineStyle[imodel];     
-      utils::style::Format(model,kBlack,lsty,2,1,1,1);
-      if(show_err_band) {
-         model->SetFillColor(6);
-         model->SetFillStyle(3005);
-      }
-      models.push_back(model);
+        model->SetTitle(gOptGenieInputs.ModelTag(imodel).c_str());
+        int lsty = kModelLineStyle[imodel];     
+        utils::style::Format(model,kBlack,lsty,2,1,1,1);
+        if(show_err_band) {
+           model->SetFillColor(6);
+           model->SetFillStyle(3005);
+        }
+        models.push_back(model);
+      }//
     }
   }
 
@@ -591,10 +610,19 @@ void Draw(int icomparison)
   double ymax_scale = (inlogy) ? 2. : 1.4;
   hframe = (TH1F*) gC->GetPad(1)->DrawFrame(0.5*xmin, 0.4*ymin, 1.2*xmax, ymax_scale*ymax);
   hframe->GetXaxis()->SetTitle("E_{#nu} (GeV)");
-  if(scale) {
-    hframe->GetYaxis()->SetTitle("#sigma_{#nu}/E_{#nu} (1E-38 cm^{2}/GeV^{2})");
+  bool is_ratio = (kComparison[icomparison]->Label().find("/") != string::npos);
+  if(is_ratio) {
+    if(scale) {
+      hframe->GetYaxis()->SetTitle("R (GeV^{-2})");
+    } else {
+      hframe->GetYaxis()->SetTitle("R (GeV^{-1})");
+    }
   } else {
-    hframe->GetYaxis()->SetTitle("#sigma_{#nu} (1E-38 cm^{2}/GeV)");
+    if(scale) {
+      hframe->GetYaxis()->SetTitle("#sigma_{#nu}/E_{#nu} (1E-38 cm^{2}/GeV^{2})");
+    } else {
+      hframe->GetYaxis()->SetTitle("#sigma_{#nu} (1E-38 cm^{2}/GeV)");
+    }
   }
   hframe->Draw();
   

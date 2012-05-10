@@ -72,15 +72,15 @@ private:
   TFile * fNuXSecDataFile;
   TTree * fNuXSecDataTree;
 
-  // tree brancges
+  // tree branches
   char   fDataset  [buffer_size];
   char   fCitation [buffer_size];
   double fE;
   double fEmin;
   double fEmax;
-  double fXSec;
-  double fXSecErrP;
-  double fXSecErrM;
+  double fXSecDatum;
+  double fXSecDatumErrP;
+  double fXSecDatumErrM;
 };
 
 } // mc_vs_data namespace
