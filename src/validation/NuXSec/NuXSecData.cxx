@@ -51,14 +51,14 @@ bool NuXSecData::OpenArchive(string data_archive_file_name)
   }
 
   // set branch addresses 
-  fNuXSecDataTree->SetBranchAddress ("dataset",    (void*)fDataset  );
-  fNuXSecDataTree->SetBranchAddress ("citation",   (void*)fCitation );
-  fNuXSecDataTree->SetBranchAddress ("E",          &fE              );
-  fNuXSecDataTree->SetBranchAddress ("Emin",       &fEmin           );
-  fNuXSecDataTree->SetBranchAddress ("Emax",       &fEmax           );
-  fNuXSecDataTree->SetBranchAddress ("xsec",       &fXSec           );
-  fNuXSecDataTree->SetBranchAddress ("xsec_err_p", &fXSecErrP       );
-  fNuXSecDataTree->SetBranchAddress ("xsec_err_m", &fXSecErrM       );
+  fNuXSecDataTree->SetBranchAddress ("dataset",    (void*)fDataset        );
+  fNuXSecDataTree->SetBranchAddress ("citation",   (void*)fCitation       );
+  fNuXSecDataTree->SetBranchAddress ("E",                &fE              );
+  fNuXSecDataTree->SetBranchAddress ("Emin",             &fEmin           );
+  fNuXSecDataTree->SetBranchAddress ("Emax",             &fEmax           );
+  fNuXSecDataTree->SetBranchAddress ("xsec_datum",       &fXSecDatum      );
+  fNuXSecDataTree->SetBranchAddress ("xsec_datum_err_p", &fXSecDatumErrP  );
+  fNuXSecDataTree->SetBranchAddress ("xsec_datum_err_m", &fXSecDatumErrM  );
 
   return true;
 }
@@ -102,9 +102,9 @@ vector<TGraphAsymmErrors *> NuXSecData::Retrieve(
         x   [ipoint] = fE;
         dxl [ipoint] = (fEmin > 0) ? TMath::Max(0., fE-fEmin) : 0.;
         dxh [ipoint] = (fEmin > 0) ? TMath::Max(0., fEmax-fE) : 0.;
-	y   [ipoint] = fXSec;
-	dyl [ipoint] = fXSecErrM;
-	dyh [ipoint] = fXSecErrP;
+	y   [ipoint] = fXSecDatum;
+	dyl [ipoint] = fXSecDatumErrM;
+	dyh [ipoint] = fXSecDatumErrP;
         if(scale_with_E) {
          assert(fE>0);
 	  y   [ipoint] /= fE;
@@ -129,17 +129,6 @@ void NuXSecData::Init(void)
 {
   fNuXSecDataFile = 0;
   fNuXSecDataTree = 0;
-/*
-  // tree brancges
-  char   fDataset  [buffer_size];
-  char   fCitation [buffer_size];
-  double fE;
-  double fEmin;
-  double fEmax;
-  double fXSec;
-  double fXSecErrP;
-  double fXSecErrM;
-*/
 }
 //____________________________________________________________________________
 void NuXSecData::CleanUp(void)
