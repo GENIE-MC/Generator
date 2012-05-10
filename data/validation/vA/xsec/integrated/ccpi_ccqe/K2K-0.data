@@ -1,0 +1,17 @@
+# 
+# GENIE neutrino-nucleus cross-section data archive
+# 
+# Experiment  : K2K
+# Dataset ID  : 0
+# Citation    : Mariani:2010ez
+# Measurement : numu CC pi0 / numu CC QE	 
+# 
+# Energy is given in GeV.
+# The quoted cross-section error includes statistical and systematic uncertainty.
+# 
+# E         Emin      Emax      R        +dR       -dR
+# 
+  1.00      0.00      1.50      0.155     0.040     0.040
+  1.75      1.50      2.00      0.577     0.072     0.072
+  2.25      2.00      2.50      0.861     0.146     0.146
+  3.00      2.50      3.75      1.627     0.172     0.172

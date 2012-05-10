@@ -42,32 +42,28 @@ int rootify(void)
   char   dataset         [buffer_size];
   char   citation_spires [buffer_size];
   char   citation        [buffer_size];
-  char   process         [buffer_size];
-  char   target          [buffer_size];
+  char   measurement     [buffer_size];
   char   comments        [buffer_size];
-  int    nu_pdg;
   double E;
   double Emin;
   double Emax;
-  double xsec;
-  double xsec_err_p;
-  double xsec_err_m;
+  double xsec_datum; // absolute cross-section or cross-section ratio
+  double xsec_datum_err_p;
+  double xsec_datum_err_m;
 
   TTree outtree("nuxsnt", "World Neutrino-Nucleus Cross-Section Data");
 
-  outtree.Branch ("dataset",         (void*)dataset,         "dataset/C",          buffer_size);
-  outtree.Branch ("citation_spires", (void*)citation_spires, "citation_spires/C",  buffer_size);
-  outtree.Branch ("citation",        (void*)citation,        "citation/C",         buffer_size);
-  outtree.Branch ("process",         (void*)process,         "process/C",          buffer_size);
-  outtree.Branch ("target",          (void*)target,          "target/C",           buffer_size);
-  outtree.Branch ("comments",        (void*)comments,        "comments/C",         buffer_size);
-  outtree.Branch ("nu_pdg",          &nu_pdg,                "nu_pdg/I"    );
-  outtree.Branch ("E",               &E,                     "E/D"         );
-  outtree.Branch ("Emin",            &Emin,                  "Emin/D"      );
-  outtree.Branch ("Emax",            &Emax,                  "Emax/D"      );
-  outtree.Branch ("xsec",            &xsec,                  "xsec/D"      );
-  outtree.Branch ("xsec_err_p",      &xsec_err_p,            "xsec_err_p/D");
-  outtree.Branch ("xsec_err_m",      &xsec_err_m,            "xsec_err_m/D");
+  outtree.Branch ("dataset",           (void*)dataset,         "dataset/C",          buffer_size);
+  outtree.Branch ("citation_spires",   (void*)citation_spires, "citation_spires/C",  buffer_size);
+  outtree.Branch ("citation",          (void*)citation,        "citation/C",         buffer_size);
+  outtree.Branch ("measurement",       (void*)measurement,     "measurement/C",      buffer_size);
+  outtree.Branch ("comments",          (void*)comments,        "comments/C",         buffer_size);
+  outtree.Branch ("E",                 &E,                     "E/D"                );
+  outtree.Branch ("Emin",              &Emin,                  "Emin/D"             );
+  outtree.Branch ("Emax",              &Emax,                  "Emax/D"             );
+  outtree.Branch ("xsec_datum",        &xsec_datum,            "xsec_datum/D"       );
+  outtree.Branch ("xsec_datum_err_p",  &xsec_datum_err_p,      "xsec_datum_err_p/D" );
+  outtree.Branch ("xsec_datum_err_m",  &xsec_datum_err_m,      "xsec_datum_err_m/D" );
   
   // loop over summary file entries
   while(1) {
@@ -88,42 +84,40 @@ int rootify(void)
 	 summary_file.getline(temp, buffer_size, '|'); strcpy(citation,        trim_spaces(temp));
    	 summary_file.getline(temp, buffer_size, '|'); np       = atoi(temp);
    	 summary_file.getline(temp, buffer_size, '|'); syst_err = atof(temp);
-   	 summary_file.getline(temp, buffer_size, '|'); nu_pdg   = atoi(temp);
-   	 summary_file.getline(temp, buffer_size, '|'); strcpy(target,   trim_spaces(temp));
-    	 summary_file.getline(temp, buffer_size, '|'); strcpy(process,  trim_spaces(temp));
-    	 summary_file.getline(temp, buffer_size,'\n'); strcpy(comments, trim_spaces(temp));
+    	 summary_file.getline(temp, buffer_size, '|'); strcpy(measurement, trim_spaces(temp));
+    	 summary_file.getline(temp, buffer_size,'\n'); strcpy(comments,    trim_spaces(temp));
          if(summary_file.eof()) break;            
 
          // form dataset key
 	 strcpy(dataset, Form("%s,%d", expt.c_str(), id));
 
          // work-out data file directory & form filename
-         bool isCC  = (string(process).find("CC")        != string::npos);
-         bool isNC  = (string(process).find("NC")        != string::npos);
-         bool isQE  = (string(process).find("QE")        != string::npos);
-         bool isCoh = (string(process).find("coherent")  != string::npos);
-         bool isPi  = (string(process).find("pi")        != string::npos);
-         bool isInc = (string(process).find("inclusive") != string::npos);
          string directory = "";
-         if      (isCC && isCoh) directory = "cccoh";
-         else if (isNC && isCoh) directory = "nccoh";
-         else if (isCC && isPi ) directory = "ccpi";
-         else if (isNC && isPi ) directory = "ncpi";
-         else if (isCC && isQE ) directory = "ccqe";
-         else if (isNC && isQE ) directory = "ncel";
-         else if (isCC && isInc) directory = "ccincl";
-         else if (isNC && isInc) directory = "ncincl";
+         if      ( string(measurement).find("numu CC pi0 / numu CC QE")                 != string::npos ) directory = "ccpi_ccqe";
+         else if ( string(measurement).find("numubar CC inclusive / numu CC inclusive") != string::npos ) directory = "ccr";
+         else if ( string(measurement).find("CC inclusive")                             != string::npos ) directory = "ccincl";
+         else if ( string(measurement).find("CC QE")                                    != string::npos ) directory = "ccqe";
+         else if ( string(measurement).find("CC 1pi+")                                  != string::npos ) directory = "ccpi";
+         else if ( string(measurement).find("CC 1pi-")                                  != string::npos ) directory = "ccpi";
+         else if ( string(measurement).find("CC 1pi0")                                  != string::npos ) directory = "ccpi";
+         else if ( string(measurement).find("CC pi+pi-")                                != string::npos ) directory = "ccpi";
+         else if ( string(measurement).find("CC pi+pi0")                                != string::npos ) directory = "ccpi";
+         else if ( string(measurement).find("CC pi+pi+")                                != string::npos ) directory = "ccpi";
+         else if ( string(measurement).find("CC coherent pi+")                          != string::npos ) directory = "cccoh";
+         else if ( string(measurement).find("CC coherent pi-")                          != string::npos ) directory = "cccoh";
+         else if ( string(measurement).find("NC coherent pi0")                          != string::npos ) directory = "nccoh";
          else {
-           cerr << "Don't know where to find data file for dataset: " << dataset << endl;
-           return 1;
+            cerr << "Don't know where to find data file for dataset: " << dataset << endl;
+            return 1;
          }
+
          string data_filename = Form("%s/%s-%d.data", directory.c_str(), expt.c_str(), id);
 
          // print-out summary info for current dataset
          cout << "\n* Dataset: " << dataset << " [" << citation_spires << " : " << citation << "]"
-              << " - Neutrino: " << nu_pdg << ", target: " << target 
-              << ", process: " << process << ", comments: " << comments
-              << "\n  Reading " << np << " data-points from: " << data_filename 
+              << "\n Measurement: " << measurement 
+              << "\n Comments: " << comments
+              << "\n Reading " << np << " data-points from: " << data_filename 
               << " (and adding " << syst_err << "% systematic error by hand...)"
               << endl;
 
@@ -140,26 +134,36 @@ int rootify(void)
             data_file.ignore(1000, '\n');
             //cerr << "ignore comment line..." << endl;
           } else {
-            double xsec_err_quoted_p;
-            double xsec_err_quoted_m;
-  	    data_file >> E >> Emin >> Emax >> xsec >> xsec_err_quoted_p >> xsec_err_quoted_m;
+            double xsec_datum_err_quoted_p;
+            double xsec_datum_err_quoted_m;
+  	    data_file >> E >> Emin >> Emax >> xsec_datum >> xsec_datum_err_quoted_p >> xsec_datum_err_quoted_m;
             if(data_file.eof()) break;            
 
             // add gross systematic error by hand if not included in the number quoted in the file
             if(syst_err > 0) { // this is the % err assigned to the current dataset
-              double xsec_err_to_add = xsec * syst_err/100.;
-              xsec_err_p = TMath::Sqrt(xsec_err_quoted_p*xsec_err_quoted_p + xsec_err_to_add*xsec_err_to_add);
-              xsec_err_m = TMath::Sqrt(xsec_err_quoted_m*xsec_err_quoted_m + xsec_err_to_add*xsec_err_to_add);
+              double xsec_datum_err_to_add = xsec_datum * syst_err/100.;
+              xsec_datum_err_p = TMath::Sqrt(xsec_datum_err_quoted_p*xsec_datum_err_quoted_p + xsec_datum_err_to_add*xsec_datum_err_to_add);
+              xsec_datum_err_m = TMath::Sqrt(xsec_datum_err_quoted_m*xsec_datum_err_quoted_m + xsec_datum_err_to_add*xsec_datum_err_to_add);
             } else {
-              xsec_err_p = xsec_err_quoted_p;
-              xsec_err_m = xsec_err_quoted_m;
+              xsec_datum_err_p = xsec_datum_err_quoted_p;
+              xsec_datum_err_m = xsec_datum_err_quoted_m;
             }
 #ifdef _show_debug_mesg_
             // print-out data point
-  	    cout << "   - xsec (E = " << E << ", E bin = [" << Emin << ", " << Emax << "] GeV) = " 
-                 << xsec << "+ " << xsec_err_p << "- " << xsec_err_m
-                 << ( (isCoh) ? " 1E-38*cm2/GeV/nucleus" : " 1E-38*cm2/GeV/nucleon" ) 
-                 << endl;
+            bool isRatio   = ( string(measurement).find("/")        != string::npos );
+            bool isCohXSec = ( string(measurement).find("coherent") != string::npos );
+            if(isRatio) { cout << "  - R";    }
+            else        { cout << "  - xsec"; }
+  	    cout << "(E = " << E 
+                 << "; [" << Emin << ", " << Emax << "] GeV) = " 
+                 << xsec_datum 
+                 << " +" << xsec_datum_err_p 
+                 << " -" << xsec_datum_err_m;
+            if(!isRatio) {
+               if(isCohXSec) { cout << " 1E-38*cm2/GeV/nucleus"; }
+               else          { cout << " 1E-38*cm2/GeV/nucleon"; }
+            } 
+            cout << endl;
 #endif
 
             // add data point in output tree
