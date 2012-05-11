@@ -225,7 +225,7 @@ NuXSecComparison * kComparison[kNumOfComparisons] =
   // nu_mu CC QE, all data on 12C nuclear cross-section
   new NuXSecComparison(
     "numuCCQE_all_12C_nuclear", 
-    "#nu_{#mu} CCQE, MiniBooNE, ^{12}C cross-section per neutron (no nuclear correction)",
+    "#nu_{#mu} CCQE, ^{12}C cross-section per neutron (no nuclear correction)",
     "LSND,0;MiniBooNE,0;NOMAD,0",
      new CCQEXSec(kPdgNuMu,kPdgTgtC12,kPdgNeutron,1./6.),
      0.05, 100.0, true, false, false
@@ -478,7 +478,9 @@ void Init(void)
      // init functors
      for(int icomparison = 0; icomparison < kNumOfComparisons; icomparison++) {
         NuXSecFunc * xsec_func = kComparison[icomparison]->XSecFunc();
-        xsec_func->Init(&gOptGenieInputs);
+        if(xsec_func){
+           xsec_func->Init(&gOptGenieInputs);
+        }
      }
   }
 
