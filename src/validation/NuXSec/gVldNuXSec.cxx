@@ -89,7 +89,7 @@ using namespace genie::mc_vs_data;
 const char * kDefDataFile = "data/validation/vA/xsec/integrated/nuXSec.root";  
 
 // number of comparisons
-const int kNumOfComparisons = 34;
+const int kNumOfComparisons = 36;
 
 // specify how exactly to construct all comparisons
 NuXSecComparison * kComparison[kNumOfComparisons] = 
@@ -198,6 +198,14 @@ NuXSecComparison * kComparison[kNumOfComparisons] =
      new CCQEXSec(kPdgNuMu,kPdgTgtFreeN,kPdgNeutron),
      0.1, 30.0, true, false, false
   ),
+  // nu_mu CC QE, NOMAD, free-nucleon cross-section
+  new NuXSecComparison(
+    "numuCCQE_nomad_nucleon", 
+    "#nu_{#mu} CCQE, NOMAD, free-nucleon cross-section (incl. Smith-Moniz correction)",
+    "NOMAD,2",
+     new CCQEXSec(kPdgNuMu,kPdgTgtFreeN,kPdgNeutron),
+     2.0, 100.0, true, false, false
+  ),
   // nu_mu CC QE, NOMAD, nuclear cross-section
   new NuXSecComparison(
     "numuCCQE_nomad_nuclear", 
@@ -206,13 +214,21 @@ NuXSecComparison * kComparison[kNumOfComparisons] =
      new CCQEXSec(kPdgNuMu,kPdgTgtC12,kPdgNeutron,1./6.),
      2.0, 100.0, true, false, false
   ),
-  // nu_mu CC QE, NOMAD, free-nucleon cross-section
+  // nu_mu CC QE, MiniBooNE, nuclear cross-section
   new NuXSecComparison(
-    "numuCCQE_nomad_nucleon", 
-    "#nu_{#mu} CCQE, NOMAD, free-nucleon cross-section (incl. Smith-Moniz correction)",
-    "NOMAD,2",
-     new CCQEXSec(kPdgNuMu,kPdgTgtFreeN,kPdgNeutron),
-     2.0, 100.0, true, false, false
+    "numuCCQE_miniboone_nuclear", 
+    "#nu_{#mu} CCQE, MiniBooNE, ^{12}C cross-section per neutron (no nuclear correction)",
+    "MiniBooNE,0",
+     new CCQEXSec(kPdgNuMu,kPdgTgtC12,kPdgNeutron,1./6.),
+     0.3, 3.0, false, false, false
+  ),
+  // nu_mu CC QE, all data on 12C nuclear cross-section
+  new NuXSecComparison(
+    "numuCCQE_all_12C_nuclear", 
+    "#nu_{#mu} CCQE, MiniBooNE, ^{12}C cross-section per neutron (no nuclear correction)",
+    "LSND,0;MiniBooNE,0;NOMAD,0",
+     new CCQEXSec(kPdgNuMu,kPdgTgtC12,kPdgNeutron,1./6.),
+     0.05, 100.0, true, false, false
   ),
   // nu_mu_bar CC QE, all data
   new NuXSecComparison(
@@ -238,20 +254,20 @@ NuXSecComparison * kComparison[kNumOfComparisons] =
      new CCQEXSec(kPdgAntiNuMu,kPdgTgtFreeP,kPdgProton),
      0.1, 30.0, true, false, false
   ),
-  // nu_mu_bar CC QE, NOMAD, nuclear cross-section
-  new NuXSecComparison(
-    "numubarCCQE_nomad_nuclear", 
-    "#bar{#nu_{#mu}} CCQE, NOMAD, ^{12}C cross-section per proton (no nuclear correction)",
-    "NOMAD,1",
-    new CCQEXSec(kPdgAntiNuMu,kPdgTgtC12,kPdgProton,1./6.),
-     2.0, 100.0, true, false, false
-  ),
   // nu_mu_bar CC QE, NOMAD, free-nucleon cross-section
   new NuXSecComparison(
     "numubarCCQE_nomad_nucleon", 
     "#bar{#nu_{#mu}} CCQE, NOMAD, free-nucleon cross-section (incl. Smith-Moniz correction)",
     "NOMAD,3",
      new CCQEXSec(kPdgAntiNuMu,kPdgTgtFreeP,kPdgProton),
+     2.0, 100.0, true, false, false
+  ),
+  // nu_mu_bar CC QE, NOMAD, nuclear cross-section
+  new NuXSecComparison(
+    "numubarCCQE_nomad_nuclear", 
+    "#bar{#nu_{#mu}} CCQE, NOMAD, ^{12}C cross-section per proton (no nuclear correction)",
+    "NOMAD,1",
+    new CCQEXSec(kPdgAntiNuMu,kPdgTgtC12,kPdgProton,1./6.),
      2.0, 100.0, true, false, false
   ),
   // nu_mu + p -> mu- + p + pi+ 
