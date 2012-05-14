@@ -409,6 +409,8 @@ TCanvas *     gC               = 0;
 TLegend *     gLS              = 0;
 bool          gShowModel       = false;
 
+vector< vector<TGraphAsymmErrors *> > gMCPredictions(kNumOfComparisons);
+
 //
 // function prototypes
 //
@@ -544,6 +546,8 @@ void End(void)
 //_________________________________________________________________________________
 void Draw(int icomparison)
 {
+  const int n = 30;
+
   // info on current comparison
   string dataset_keys = kComparison[icomparison]->DataSetKeys();
   double emin         = kComparison[icomparison]->Emin();
@@ -556,33 +560,125 @@ void Draw(int icomparison)
       << "\n Dataset keys: " << dataset_keys 
       << "\n Energy range: [" << emin << ", " << emax << "] GeV";
 
-  // get all measurements for the current channel
+  // Get all measurements for the current channel
   vector<TGraphAsymmErrors *> data = gNuXSecData.Retrieve(dataset_keys,emin,emax,scale);
 
-  // get the corresponding GENIE model prediction
+  // Get the corresponding GENIE model prediction
   vector<TGraphAsymmErrors *> models;
   if(gShowModel) {
-    for(int imodel=0; imodel< gOptGenieInputs.NModels(); imodel++) {
-      // to avoid generating exceptionally busy plots, if I was asked to generate
-      // error envelopes for the GENIE model and I was also asked to superimpose multiple
-      // models, then I will show the error bands only for the first model
-      bool show_err_band = (imodel==0) ? gOptShowErrBands : false;
-      bool have_func = (kComparison[icomparison]->XSecFunc() != 0);
-      if(have_func) {
-        NuXSecFunc & xsec_func = *kComparison[icomparison]->XSecFunc();
-        TGraphAsymmErrors * model = xsec_func.ExtractFromEventSample(
-                 imodel, emin, emax, 30, inlogx, scale, show_err_band);
-        model->SetTitle(gOptGenieInputs.ModelTag(imodel).c_str());
-        int lsty = kModelLineStyle[imodel];     
-        utils::style::Format(model,kBlack,lsty,2,1,1,1);
-        if(show_err_band) {
-           model->SetFillColor(6);
-           model->SetFillStyle(3005);
+    // check whether I could re-use the MC prediction from a previous data/MC comparison, 
+    // since generating the MC predictions, especially if I generate error bands too, takes time.
+    int jcomparison = -1;
+    bool show_all_comparisons = (gOptComparison.size()==0);
+    if(show_all_comparisons) {
+      for(int j=icomparison-1; j>=0; j--) {
+        if(kComparison[icomparison]->SameMCPrediction(kComparison[j])) 
+        {
+          jcomparison = j;
+          break;
         }
-        models.push_back(model);
-      }//
+      }
     }
-  }
+    bool can_recycle_mc = (jcomparison >= 0);
+    if(!can_recycle_mc) {
+      // can not recycle previous MC prediction so go ahead and calculate what is needed
+      for(int imodel=0; imodel< gOptGenieInputs.NModels(); imodel++) {
+        // to avoid generating exceptionally busy plots, if I was asked to generate
+        // error envelopes for the GENIE model and I was also asked to superimpose multiple
+        // models, then I will show the error bands only for the first model
+        bool show_err_band = (imodel==0) ? gOptShowErrBands : false;
+        bool have_func = (kComparison[icomparison]->XSecFunc() != 0);
+        if(have_func) {
+          NuXSecFunc & xsec_func = *kComparison[icomparison]->XSecFunc();
+          TGraphAsymmErrors * model = xsec_func.ExtractFromEventSample(
+                 imodel, emin, emax, n, inlogx, scale, show_err_band);
+          model->SetTitle(gOptGenieInputs.ModelTag(imodel).c_str());
+          int lsty = kModelLineStyle[imodel];     
+          utils::style::Format(model,kBlack,lsty,2,1,1,1);
+          if(show_err_band) {
+             model->SetFillColor(6);
+             model->SetFillStyle(3005);
+          }
+          models.push_back(model);
+        }//have_func?
+      }//imodel
+    }//can not recycle
+    else 
+    {
+       LOG("gvldtest", pNOTICE) 
+           << "\n Can re-use MC prediction from data/MC comparison: " 
+           << kComparison[jcomparison]->ID();
+       for(int imodel=0; imodel< gOptGenieInputs.NModels(); imodel++) {
+          double xmin = (inlogx) ? TMath::Log10(emin) : emin;
+          double xmax = (inlogx) ? TMath::Log10(emax) : emax;
+          double dx   = (xmax-xmin)/(n-1);
+          double * energy_array    = new double [n];
+          double * xsec_array      = new double [n];
+          double * xsec_array_errp = new double [n];
+          double * xsec_array_errm = new double [n];
+          TGraphAsymmErrors * source_model = gMCPredictions[jcomparison][imodel];
+          bool source_graph_scaled = kComparison[jcomparison]->ScaleWithE();
+          for(int i = 0; i < n; i++) {
+            double energy = (inlogx) ? TMath::Power(10., xmin+i*dx) : xmin+i*dx;
+            assert(energy>0.);
+            double xsec = source_model->Eval(energy);
+            if(source_graph_scaled) { xsec *= energy; }
+            Long64_t k = TMath::BinarySearch(n,source_model->GetX(),energy);
+            double xsec_errp = 0;
+            double xsec_errm = 0;
+            if(k < n-1) {
+                double yh1 = source_model->GetEYhigh()[k]; 
+                double yh2 = source_model->GetEYhigh()[k+1]; 
+                double yl1 = source_model->GetEYlow()[k]; 
+                double yl2 = source_model->GetEYlow()[k+1]; 
+                double x1  = source_model->GetX()[k];
+                double x2  = source_model->GetX()[k+1];
+                if(source_graph_scaled) {
+                    yh1 *= x1;
+                    yh2 *= x2;
+                    yl1 *= x1;
+                    yl2 *= x2;
+                }
+                double slp = (yh2-yh1)/(x2-x1);
+                double slm = (yl2-yl1)/(x2-x1);
+                xsec_errp = yh1 + slp * (energy - x1);
+                xsec_errm = yl1 + slm * (energy - x1);
+            } else {
+                double yh = source_model->GetEYhigh()[k]; 
+                double yl = source_model->GetEYlow()[k]; 
+                double x  = source_model->GetX()[k];
+                if(source_graph_scaled) {
+                    yh *= x;
+                    yl *= x;
+                }
+                xsec_errp = yh;
+                xsec_errm = yl;
+            }
+            energy_array[i]    = energy;
+            xsec_array[i]      = (scale) ? xsec/energy      : xsec;
+            xsec_array_errp[i] = (scale) ? xsec_errp/energy : xsec_errp;
+            xsec_array_errm[i] = (scale) ? xsec_errm/energy : xsec_errm;
+          }//i
+          TGraphAsymmErrors * model = new TGraphAsymmErrors(
+               n,energy_array,xsec_array,0,0,xsec_array_errp,xsec_array_errm);
+          model->SetTitle(gOptGenieInputs.ModelTag(imodel).c_str());
+          int lsty = kModelLineStyle[imodel];     
+          utils::style::Format(model,kBlack,lsty,2,1,1,1);
+          bool show_err_band = (imodel==0) ? gOptShowErrBands : false;
+          if(show_err_band) {
+             model->SetFillColor(6);
+             model->SetFillStyle(3005);
+          }
+          models.push_back(model);
+          delete [] energy_array;
+          delete [] xsec_array;
+          delete [] xsec_array_errp;
+          delete [] xsec_array_errm;
+      }//imodel
+    }//recycle
+  }//gShowModels
+  gMCPredictions[icomparison]=models;
+
 
   // add a new page in the output ps file
   gOutPS->NewPage();

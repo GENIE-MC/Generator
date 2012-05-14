@@ -55,11 +55,20 @@ public:
      bool        /* inlogE        */, 
      bool        /* scale_with_E  */,
      bool        /* incl_err_band */) 
-    { 
-      return 0; 
-    }
+  { 
+    return 0; 
+  }
 
-  void Init(GSimFiles * genie_inputs) { fGenieInputs = genie_inputs; }
+  // unique name for each cross-section function
+  virtual string Name(void) const 
+  { 
+    return ""; 
+  }
+  // initialize
+  void Init(GSimFiles * genie_inputs) 
+  { 
+    fGenieInputs = genie_inputs; 
+  }
 
   static string BuildXSecDirectoryName(int nupdg, int tgtpdg);
 
@@ -102,11 +111,11 @@ public:
   bool IsCC    (EventRecord & event);
   bool IsModeX (EventRecord & event);
   bool SkipTree(EventRecord & event);
+  string Name (void) const;
 private:
   int fNuPdg;
   int fTgtPdg;
   int fHitNucPdg;
-  int fNTgtNuc;
 };
 //____________________________________________________________________________
 class CCPionXSec: public XSecForModeX
@@ -119,6 +128,7 @@ public:
   bool IsCC    (EventRecord & event);
   bool IsModeX (EventRecord & event);
   bool SkipTree(EventRecord & event);
+  string Name (void) const;
 private:
   int fNuPdg;
   int fTgtPdg;
@@ -138,6 +148,7 @@ public:
   bool IsCC    (EventRecord & event);
   bool IsModeX (EventRecord & event);
   bool SkipTree(EventRecord & event);
+  string Name (void) const;
 private:
   int fNuPdg;
   int fTgtPdg;
@@ -153,6 +164,7 @@ public:
      int imodel, double Emin, double Emax, 
      int n, bool inlogE, bool scale_with_E, bool incl_err_band);
   bool SkipTree(EventRecord & event);
+  string Name (void) const;
 private:
   vector<GSyst_t> fNuisanceParams;    ///<
   GReWeight       fRew;               ///<

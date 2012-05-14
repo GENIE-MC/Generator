@@ -53,6 +53,8 @@ public:
   bool         InLogY      (void) const { return fInLogY;        }
   bool         ScaleWithE  (void) const { return fScaleWithE;    }
 
+  bool SameMCPrediction(const NuXSecComparison * c);
+
 private:
 
   string       fID;               // A data/MC comparison ID

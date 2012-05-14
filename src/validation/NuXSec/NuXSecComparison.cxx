@@ -43,4 +43,22 @@ NuXSecComparison::~NuXSecComparison()
 
 }
 //____________________________________________________________________________
+bool NuXSecComparison::SameMCPrediction(const NuXSecComparison * comp)
+{
+  if(!comp) return false;
+
+  if(!comp->XSecFunc()) return false;
+  if(!this->XSecFunc()) return false;
+
+  bool same_func = 
+     (this->XSecFunc()->Name() == comp->XSecFunc()->Name());
+  if(!same_func) return false;
+
+  bool wider_range =
+     (comp->Emin() <= this->Emin() && comp->Emax() >= this->Emax());
+  if(!wider_range) return false;
+
+  return true;
+}
+//____________________________________________________________________________
 

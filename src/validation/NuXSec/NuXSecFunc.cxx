@@ -333,6 +333,12 @@ CCQEXSec::~CCQEXSec()
 
 }
 //.............................................................................
+string CCQEXSec::Name(void) const 
+{ 
+  return Form("CCQE;nu=%d;tgt=%d;hitnuc=%d;scale=%.4f",
+               fNuPdg,fTgtPdg,fHitNucPdg,fXSecScaleFactor);
+}
+//.............................................................................
 bool CCQEXSec::IsCC(EventRecord & event)
 {
   Interaction * in = event.Summary();
@@ -458,6 +464,13 @@ CCPionXSec::~CCPionXSec()
 
 }
 //.............................................................................
+string CCPionXSec::Name(void) const 
+{ 
+  return Form(
+   "CCpi;nu=%d;tgt=%d;hitnuc=%d;fspi=%d,%d,%d;fsnuc:%d,%d;scale=%.4f",
+    fNuPdg,fTgtPdg,fHitNucPdg,fNpip,fNpi0,fNpim,fNp,fNn,fXSecScaleFactor);
+}
+//.............................................................................
 bool CCPionXSec::IsCC(EventRecord & event)
 {
   Interaction * in = event.Summary();
@@ -555,6 +568,12 @@ CohPionXSec::~CohPionXSec()
 
 }
 //.............................................................................
+string CohPionXSec::Name(void) const 
+{
+  return Form("COHpi;nu=%d;tgt=%d;pi=%d;scale=%.4f",
+               fNuPdg,fTgtPdg,fPiPdg,fXSecScaleFactor);
+}
+//.............................................................................
 bool CohPionXSec::IsCC(EventRecord & event)
 {
   Interaction * in = event.Summary();
@@ -641,6 +660,11 @@ fNuPdg(nupdg)
 CCIsoInclXSec::~CCIsoInclXSec()
 {
 
+}
+//.............................................................................
+string CCIsoInclXSec::Name(void) const 
+{
+  return Form("CCIsoIncl;nu=%d",fNuPdg);
 }
 //.............................................................................
 TGraphAsymmErrors * CCIsoInclXSec::ExtractFromEventSample(
