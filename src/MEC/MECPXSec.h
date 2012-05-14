@@ -51,9 +51,11 @@ private:
   double fWidth;      ///< toy model param: width of W distribution (GeV)
   double fEc;         ///< toy model param: low energy cutoff (GeV) 
 
-  double fFracCCQElo;   ///< toy model param: MEC cross section is taken to be this fraction of CCQE cross section at Miniboone energies (0 at NOMAD energies)
+  double fFracCCQElo;   ///< empirical model param: MEC cross section is taken to be this fraction of CCQE cross section at Miniboone energies (0 at NOMAD energies)
+  double fFracEMQE;   ///< empirical model param: MEC cross section is taken to be this fraction of Rosenbluth xs
 
   const XSecAlgorithmI * fXSecAlgCCQE; ///< cross section algorithm for CCQE
+  const XSecAlgorithmI * fXSecAlgEMQE; ///< cross section algorithm for EMQE
 
 };
 
