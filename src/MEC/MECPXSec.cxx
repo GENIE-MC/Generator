@@ -20,7 +20,10 @@
    Using a simple model now - 2N mass chosen with a Gaussian.
    Strength is tuned to get agreement with MiniBoone and NOMAD tot xs.
    Parameters tuned to get best agreement with MiniBoone muon angle/energy dist.
-
+ @ May 14, 2012 - SD
+   Changed empirical model to have correct Q2 behavior.  Shape is
+   now Q2*Gaussian*dipole form factor.
+   Add (e,e') MEC, start development to make them dependent on same model.
 */
 //____________________________________________________________________________
 
@@ -60,8 +63,8 @@ double MECPXSec::XSec(
 		      const Interaction * interaction, KinePhaseSpace_t kps) const
 {
 
-// We have no clue what the meson exchange current contribution is.
-// This is a toy model and is not used in default event generation.
+// meson exchange current contribution depends a lot on QE model.
+// This is an empirical model in development, not used in default event generation.
 
 //  if(! this -> ValidProcess    (interaction) ) return 0.;
 //  if(! this -> ValidKinematics (interaction) ) return 0.;
@@ -101,7 +104,7 @@ double MECPXSec::XSec(
 
   // Calculate d^2xsec/dWdQ2
   double Wdep  = TMath::Gaus(W, fMass, fWidth);
-  double Q2dep = TMath::Power(1+Q2/fMq2d, -2.);
+  double Q2dep = Q2*TMath::Power(1+Q2/fMq2d, -2.);
   double nudep = TMath::Power(Tmu,2.5);
   //  LOG("MEC", pINFO) << "Tmu = " << Tmu << ", nudep = " << nudep;
   double xsec  = Wdep * Q2dep;// * nudep;
@@ -138,6 +141,8 @@ double MECPXSec::Integral(const Interaction * interaction) const
   int    tgtpdg = interaction->InitState().Tgt().Pdg();
   double E      = interaction->InitState().ProbeE(kRfLab);
   int nucleon_cluster_pdg = interaction->InitState().Tgt().HitNucPdg();
+  double Z=interaction->InitState().Tgt().Z();
+  double N=interaction->InitState().Tgt().A()-Z;
 
   if(iscc) {
 
@@ -192,8 +197,32 @@ double MECPXSec::Integral(const Interaction * interaction) const
      return xsec;
   }
 
-  else if(isnc || isem) {
+  else if(isnc) {
      return 1.;
+  }     
+  else if(isem) {
+    int nucpdg = kPdgProton;
+    // Create a tmp QE process
+    Interaction * inp = Interaction::QELEM(tgtpdg,nucpdg,nupdg,E);
+    nucpdg = kPdgNeutron;
+    // Create a tmp QE process
+    Interaction * inn = Interaction::QELEM(tgtpdg,nucpdg,nupdg,E);
+    
+    // Calculate cross section for the QE process - avg of p and n - best for isoscalar nuclei
+    double xsec = 0.5*(Z*fXSecAlgEMQE->Integral(inp) + N*fXSecAlgEMQE->Integral(inn));
+    
+    // Use tunable fraction 
+    // FFracEMQE is fraction of QE going to MEC
+    // fFracEMQE_cluster is fraction of MEC going to each NN pair
+    double fFracEMQE=0.2;
+    double fFracEMQE_cluster=0.;
+    if(nucleon_cluster_pdg==2000000200) fFracEMQE_cluster= .1;  //n+n
+    if(nucleon_cluster_pdg==2000000201) fFracEMQE_cluster= .8;  //n+p
+    if(nucleon_cluster_pdg==2000000202) fFracEMQE_cluster= .1;  //p+p
+    xsec *= fFracEMQE*fFracEMQE_cluster;
+    delete inn;
+    delete inp;
+    return xsec;
   }
 
   return 0;
@@ -224,10 +253,11 @@ void MECPXSec::Configure(string config)
 void MECPXSec::LoadConfig(void)
 {
   fXSecAlgCCQE = 0;
+  fXSecAlgEMQE = 0;
 
   fMq2d   = 0.8; // GeV
   fMass   = 1.9; // GeV
-  fWidth  = 0.4; // GeV
+  fWidth  = 0.6; // GeV
   fFracCCQElo = 0.45; //fraction of CCQE xsec at Miniboone energies to CCMEC xsec
                       //  at first, this is energy independent
 
@@ -235,6 +265,9 @@ void MECPXSec::LoadConfig(void)
   fXSecAlgCCQE = 
      dynamic_cast<const XSecAlgorithmI *> (this->SubAlg("CCQEXSecModel"));
   assert(fXSecAlgCCQE);
+  fXSecAlgEMQE = 
+     dynamic_cast<const XSecAlgorithmI *> (this->SubAlg("EMQEXSecModel"));
+  assert(fXSecAlgEMQE);
 }
 //____________________________________________________________________________
 
