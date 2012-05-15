@@ -89,7 +89,7 @@ using namespace genie::mc_vs_data;
 const char * kDefDataFile = "data/validation/vA/xsec/integrated/nuXSec.root";  
 
 // number of comparisons
-const int kNumOfComparisons = 36;
+const int kNumOfComparisons = 39;
 
 // specify how exactly to construct all comparisons
 NuXSecComparison * kComparison[kNumOfComparisons] = 
@@ -171,7 +171,7 @@ NuXSecComparison * kComparison[kNumOfComparisons] =
     "r_minos", 
     "#bar{#nu_{#mu}} CC inclusive / #nu_{#mu} CC inclusive, MINOS data only",
     "MINOS,2",
-     0,
+     new r(),
      1.0, 60.0, false, false, false
   ),
   // nu_mu CC QE, all data
@@ -323,7 +323,7 @@ NuXSecComparison * kComparison[kNumOfComparisons] =
     "numuCCpi0_numuCCQE_k2k",
     "#nu_{#mu} CC#pi^{0} / #nu_{#mu} CCQE, K2K data only",
     "K2K,0",
-     0,
+     new CCpi0_CCQE(kPdgNuMu,1000060120),
      0.1, 6.0, false, false, false
   ),
   // numu NC coherent pi, A = 20
@@ -332,7 +332,7 @@ NuXSecComparison * kComparison[kNumOfComparisons] =
     "#nu_{#mu} NC coherent #pi^{0} (^{20}Ne)", 
     "CHARM,2",
      new CohPionXSec(kPdgNuMu, 1000100200, kPdgPi0),
-     1.0, 150.0, false, false, false
+     1.0, 50.0, true, false, false
   ),
   // numu CC coherent pi, A = 20
   new NuXSecComparison(
@@ -340,7 +340,7 @@ NuXSecComparison * kComparison[kNumOfComparisons] =
     "#nu_{#mu} CC coherent #pi^{+} (^{20}Ne)",
     "BEBC,11;CHARM,6;FNAL_15FT,8",
      new CohPionXSec(kPdgNuMu, 1000100200, kPdgPiP),
-     1.0, 150.0, false, false, false
+     5.0, 150.0, true, false, false
   ),
   // nu_mu_bar CC coherent pi, A = 20
   new NuXSecComparison(
@@ -348,7 +348,7 @@ NuXSecComparison * kComparison[kNumOfComparisons] =
     "#bar{#nu_{#mu}} CC coherent #pi^{-} (^{20}Ne)",
     "BEBC,10;CHARM,7;FNAL_15FT,7",
      new CohPionXSec(kPdgAntiNuMu, 1000100200, kPdgPiM),
-     1.0, 150.0, false, false, false
+     5.0, 150.0, true, false, false
   ),
   // numu NC coherent pi, A = 27
   new NuXSecComparison(
@@ -356,7 +356,7 @@ NuXSecComparison * kComparison[kNumOfComparisons] =
     "#nu_{#mu} NC coherent #pi^{0} (^{27}Al)",
     "AachenPadova,0",
      new CohPionXSec(kPdgNuMu, 1000130270, kPdgPi0),
-     1.0, 150.0, false, false, false
+     1.0, 3.0, true, false, false
   ),
   // numu NC coherent pi, A = 30
   new NuXSecComparison(
@@ -364,7 +364,7 @@ NuXSecComparison * kComparison[kNumOfComparisons] =
     "#nu_{#mu} NC coherent #pi^{0} (^{30}Si)",
     "Gargamelle,14;SKAT,3",
      new CohPionXSec(kPdgNuMu, 1000140300, kPdgPi0),
-     1.0, 150.0, false, false, false
+     1.0, 10.0, true, false, false
   ),
   // numu CC coherent pi, A = 30
   new NuXSecComparison(
@@ -372,7 +372,7 @@ NuXSecComparison * kComparison[kNumOfComparisons] =
     "#nu_{#mu} CC coherent #pi^{+} (^{30}Si)",
     "SKAT,1",
      new CohPionXSec(kPdgNuMu, 1000140300, kPdgPiP),
-     1.0, 150.0, false, false, false
+     1.0, 10.0, true, false, false
   ),
   // nu_mu_bar CC coherent pi, A = 30
   new NuXSecComparison(
@@ -380,8 +380,32 @@ NuXSecComparison * kComparison[kNumOfComparisons] =
     "#bar{#nu_{#mu}} CC coherent #pi^{-} (^{30}Si)",
     "SKAT,2",
      new CohPionXSec(kPdgAntiNuMu, 1000140300, kPdgPiM),
-     1.0, 150.0, false, false, false
-  ) 
+     1.0, 10.0, true, false, false
+  ), 
+  // nu_mu CC mu-mu- / numu CC inclusive (averaged world-data)
+  new NuXSecComparison(
+    "numuCC_dilepton_ratio_worldavg",
+    "#nu_{#mu} CC #mu^{-}#mu^{+} / #nu_{#mu} CC (averaged world-data)",
+    "LMM_WorldAverage,0",
+     0,
+     1.0, 600.0, true, false, false
+  ), 
+  // nu_mu_bar CC mu-mu- / numubar CC inclusive (averaged world-data)
+  new NuXSecComparison(
+    "numubarCC_dilepton_ratio_worldavg",
+    "#bar{#nu_{#mu}} CC #mu^{-}#mu^{+} / #bar{#nu_{#mu}} CC (averaged world-data)",
+    "LMM_WorldAverage,1",
+     0,
+     1.0, 600.0, true, false, false
+  ), 
+  // nu_mu CC charm / numu CC inclusive (averaged world-data)
+  new NuXSecComparison(
+    "numuCC_charm_ratio_worldavg",
+    "#nu_{#mu} CC charm / #nu_{#mu} CC (averaged world-data)",
+    "LMM_WorldAverage,2",
+     0,
+     1.0, 600.0, true, false, false
+  )
 };
 
 // styles
@@ -702,7 +726,8 @@ void Draw(int icomparison)
   TH1F * hframe = 0;
   double xmin =  9999999;
   double xmax = -9999999;
-  double ymin =  9999999;
+//  double ymin =  9999999;
+  double ymin =  0;
   double ymax = -9999999;
   for(unsigned int i = 0; i< data.size(); i++) {
     if(!data[i]) continue;

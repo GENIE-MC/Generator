@@ -94,7 +94,7 @@ public:
      int n, bool inlogE, bool scale_with_E, bool incl_err_band);
   virtual bool IsCC    (EventRecord & /*event*/) { return false; }
   virtual bool IsModeX (EventRecord & /*event*/) { return false; }
-  virtual bool SkipTree(EventRecord & /*event*/) { return false; }
+  virtual bool UseTree (EventRecord & /*event*/) { return false; }
 protected:
   vector<GSyst_t> fNuisanceParams;    ///<
   GReWeight       fRew;               ///<
@@ -110,7 +110,7 @@ public:
  ~CCQEXSec();
   bool IsCC    (EventRecord & event);
   bool IsModeX (EventRecord & event);
-  bool SkipTree(EventRecord & event);
+  bool UseTree (EventRecord & event);
   string Name (void) const;
 private:
   int fNuPdg;
@@ -127,7 +127,7 @@ public:
  ~CCPionXSec();
   bool IsCC    (EventRecord & event);
   bool IsModeX (EventRecord & event);
-  bool SkipTree(EventRecord & event);
+  bool UseTree (EventRecord & event);
   string Name (void) const;
 private:
   int fNuPdg;
@@ -147,7 +147,7 @@ public:
  ~CohPionXSec();
   bool IsCC    (EventRecord & event);
   bool IsModeX (EventRecord & event);
-  bool SkipTree(EventRecord & event);
+  bool UseTree (EventRecord & event);
   string Name (void) const;
 private:
   int fNuPdg;
@@ -155,6 +155,49 @@ private:
   int fPiPdg;
 };
 //____________________________________________________________________________
+// Building cross-section ratio for modes X and Y from a generated event sample 
+// treating the generator as a black-box. The cross-section ratio R (E) = 
+// sig_{X}(E) / sig_{Y}(E) is calculated from the ratio of generated number
+// of events in each energy bin.
+// The error envelope is calculated using event-reweighting and considering
+// the nuisance params defined in each concrete realization of XSecForModeX.
+//
+class XSecRatioForModesXY: public NuXSecFunc
+{
+public:
+  XSecRatioForModesXY();
+  virtual ~XSecRatioForModesXY();
+  virtual TGraphAsymmErrors * ExtractFromEventSample(
+     int imodel, double Emin, double Emax, 
+     int n, bool inlogE, bool scale_with_E, bool incl_err_band);
+//  virtual bool IsCC    (EventRecord & /*event*/) { return false; }
+  virtual bool IsModeX (EventRecord & /*event*/) { return false; }
+  virtual bool IsModeY (EventRecord & /*event*/) { return false; }
+  virtual bool UseTree (EventRecord & /*event*/) { return false; }
+protected:
+  vector<GSyst_t> fNuisanceParams;    ///<
+  GReWeight       fRew;               ///<
+//  string          fXSecDirectoryName; ///<
+//  string          fModeXSplineName;   ///<
+//  string          fModeYSplineName;   ///<
+//  double          fXSecScaleFactor;   ///<
+};
+//____________________________________________________________________________
+class CCpi0_CCQE: public XSecRatioForModesXY
+{
+public:
+  CCpi0_CCQE(int nupdg, int tgtpdg);
+ ~CCpi0_CCQE();
+  bool IsModeX (EventRecord & event);
+  bool IsModeY (EventRecord & event);
+  bool UseTree (EventRecord & event);
+  string Name (void) const;
+private:
+  int fNuPdg;
+  int fTgtPdg;
+};
+//____________________________________________________________________________
+// Inclusive cross-section for scattering off an isoscalar target (n+p)/2
 class CCIsoInclXSec: public NuXSecFunc
 {
 public:
@@ -163,12 +206,29 @@ public:
   TGraphAsymmErrors * ExtractFromEventSample(
      int imodel, double Emin, double Emax, 
      int n, bool inlogE, bool scale_with_E, bool incl_err_band);
-  bool SkipTree(EventRecord & event);
+  bool UseTree(EventRecord & event);
   string Name (void) const;
 private:
   vector<GSyst_t> fNuisanceParams;    ///<
   GReWeight       fRew;               ///<
   int fNuPdg;
+};
+//____________________________________________________________________________
+// Ratio of numubar to numu inclusive cross-section for scattering off an 
+// isoscalar target 
+class r: public NuXSecFunc
+{
+public:
+  r();
+ ~r();
+  TGraphAsymmErrors * ExtractFromEventSample(
+     int imodel, double Emin, double Emax, 
+     int n, bool inlogE, bool scale_with_E, bool incl_err_band);
+  bool UseTree(EventRecord & event);
+  string Name (void) const;
+private:
+  vector<GSyst_t> fNuisanceParams;    ///<
+  GReWeight       fRew;               ///<
 };
 //____________________________________________________________________________
 
