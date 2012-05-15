@@ -124,9 +124,11 @@
 #
 #
 # @@ Cross-section ratios
-# --------------|----|--------------------|-----------------------------------------------|----|------|--------------------------------------------|---------------------------
-# Expt          | ID | Citation (SPIRES)  | Citation                                      | NP | Syst | Measured cross-section ratio               | Comments
-# --------------|----|--------------------|-----------------------------------------------|----|------|--------------------------------------------|---------------------------
-  K2K           |  0 | Mariani:2010ez     | Mariani et al., Phys.Rev.D83:054023 (2011)    |  4 |   0  | numu CC pi0 / numu CC QE                   | 12C
-  MINOS         |  2 | Adamson:2009ju     | Adamson et al., Phys.Rev.D81:072002 (2010)    | 13 |   0  | numubar CC inclusive / numu CC inclusive   | 56Fe 	 
-
+# -----------------|----|--------------------|-----------------------------------------------|----|------|--------------------------------------------|---------------------------
+# Expt             | ID | Citation (SPIRES)  | Citation                                      | NP | Syst | Measured cross-section ratio               | Comments
+# -----------------|----|--------------------|-----------------------------------------------|----|------|--------------------------------------------|---------------------------
+  K2K              |  0 | Mariani:2010ez     | Mariani et al., Phys.Rev.D83:054023 (2011)    |  4 |   0  | numu CC pi0 / numu CC QE                   | 12C
+  MINOS            |  2 | Adamson:2009ju     | Adamson et al., Phys.Rev.D81:072002 (2010)    | 13 |   0  | numubar CC inclusive / numu CC inclusive   | 56Fe 	 
+  LMM_WorldAverage |  0 | De Lellis:2002mf   | De Lellis et al., J.Phys.G28:713 (2002)       | 33 |   0  | numu CC mu+mu- / numu CC inclusive         |
+  LMM_WorldAverage |  1 | De Lellis:2002mf   | De Lellis et al., J.Phys.G28:713 (2002)       | 32 |   0  | numubar CC mu+mu- / numubar CC inclusive   |
+  LMM_WorldAverage |  2 | De Lellis:2002mf   | De Lellis et al., J.Phys.G28:713 (2002)       | 33 |   0  | numu CC charm / numu CC inclusive          |
