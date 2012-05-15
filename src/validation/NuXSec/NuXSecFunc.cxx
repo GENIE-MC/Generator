@@ -108,7 +108,7 @@ TGraphAsymmErrors * XSecForModeX::ExtractFromEventSample(
   TGraph * modex_xsec_spline = 0;
   if(fModeXSplineName.size()>0) {
     modex_xsec_spline = (TGraph*) xsec_dir->Get(fModeXSplineName.c_str());
-    if(!incl_xsec_spline) {
+    if(!modex_xsec_spline) {
        LOG("gvldtest", pERROR) 
 	 << "Can't find cross-section spline: " << fModeXSplineName;
        return 0;
@@ -166,7 +166,7 @@ TGraphAsymmErrors * XSecForModeX::ExtractFromEventSample(
       int tree_num = genie_event_tree->GetTreeNumber();
       if(curr_tree_num != tree_num) {
          curr_tree_num = tree_num;
-         bool skip = this->SkipTree(event);
+         bool skip = !this->UseTree(event);
          if(skip) {
            LOG("gvldtest", pNOTICE) << "Skipping tree # : " << tree_num;
            iev += (genie_event_tree->GetTree()->GetEntries() - 1);
@@ -199,7 +199,7 @@ TGraphAsymmErrors * XSecForModeX::ExtractFromEventSample(
               int tree_num = genie_event_tree->GetTreeNumber();
               if(curr_tree_num != tree_num) {
                 curr_tree_num = tree_num;
-                 bool skip = this->SkipTree(event);
+                 bool skip = !this->UseTree(event);
                  if(skip) {           
                    LOG("gvldtest", pNOTICE) << "Skipping tree # : " << tree_num;
                    iev += (genie_event_tree->GetTree()->GetEntries() - 1);
@@ -380,20 +380,22 @@ bool CCQEXSec::IsModeX(EventRecord & event)
   return true;
 }
 //.............................................................................
-bool CCQEXSec::SkipTree(EventRecord & event)
+bool CCQEXSec::UseTree(EventRecord & event)
 {
   GHepParticle * neutrino = event.Probe();
-  if(neutrino->Pdg() != fNuPdg) return true;
+  if(neutrino->Pdg() != fNuPdg) return false;
+
   GHepParticle * target = event.Particle(1); 
   int tgtpdg = target->Pdg();
-  // For free-nucleon targets, the usual nucleon pdg codes are used,
-  // not the ion codes 1000010010 and 1000000010.
-  // In this case, compare with the specified hit nucleon code.
-  if(tgtpdg == kPdgNeutron || tgtpdg == kPdgProton) {
-    if(tgtpdg != fHitNucPdg) return true;
+  if(pdg::IonPdgCodeToA(fTgtPdg) > 1) {
+    if(tgtpdg == fTgtPdg) return true;
   }
-  else {
-    if(tgtpdg != fTgtPdg) return true;
+  else
+  if(pdg::IonPdgCodeToA(fTgtPdg) == 1) {
+    bool match =
+       (tgtpdg == kPdgProton  && fTgtPdg == kPdgTgtFreeP) ||
+       (tgtpdg == kPdgNeutron && fTgtPdg == kPdgTgtFreeN);
+    if(match) return true;
   }
   return false;
 }
@@ -523,17 +525,22 @@ bool CCPionXSec::IsModeX(EventRecord & event)
   return accept;
 }
 //.............................................................................
-bool CCPionXSec::SkipTree(EventRecord & event)
+bool CCPionXSec::UseTree(EventRecord & event)
 {
   GHepParticle * neutrino = event.Probe();
-  if(neutrino->Pdg() != fNuPdg) return true;
-  GHepParticle * target = event.Particle(1); 
+  if(neutrino->Pdg() != fNuPdg) return false;
+
+  GHepParticle * target = event.Particle(1);
   int tgtpdg = target->Pdg();
-  if(tgtpdg == kPdgNeutron || tgtpdg == kPdgProton) {
-    if(tgtpdg != fHitNucPdg) return true;
+  if(pdg::IonPdgCodeToA(fTgtPdg) > 1) {
+    if(tgtpdg == fTgtPdg) return true; 
   }
-  else {
-    if(tgtpdg != fTgtPdg) return true;
+  else
+  if(pdg::IonPdgCodeToA(fTgtPdg) == 1) {
+    bool match =
+       (tgtpdg == kPdgProton  && fTgtPdg == kPdgTgtFreeP) ||
+       (tgtpdg == kPdgNeutron && fTgtPdg == kPdgTgtFreeN);
+    if(match) return true;
   }
   return false;
 }
@@ -606,15 +613,339 @@ bool CohPionXSec::IsModeX(EventRecord & event)
   return true;
 }
 //.............................................................................
-bool CohPionXSec::SkipTree(EventRecord & event)
+bool CohPionXSec::UseTree(EventRecord & event)
 {
   GHepParticle * neutrino = event.Probe();
-  if(neutrino->Pdg() != fNuPdg) return true;
+  if(neutrino->Pdg() != fNuPdg) return false;
+
+  GHepParticle * target = event.Particle(1);
+  int tgtpdg = target->Pdg();
+  if(tgtpdg == kPdgNeutron || tgtpdg == kPdgProton) return false;
+  
+  if(tgtpdg == fTgtPdg) return true; 
+
+  return false;
+}
+//____________________________________________________________________________
+XSecRatioForModesXY::XSecRatioForModesXY() :
+NuXSecFunc()
+{
+  fNuisanceParams.clear();
+}
+//____________________________________________________________________________
+XSecRatioForModesXY::~XSecRatioForModesXY()
+{
+
+}
+//.............................................................................
+TGraphAsymmErrors * XSecRatioForModesXY::ExtractFromEventSample(
+     int imodel, double Emin, double Emax,
+     int n, bool inlogE, bool scale_with_E, bool incl_err_band)
+{
+  if(!fGenieInputs) return 0;
+  TChain * genie_event_tree = fGenieInputs->EvtChain(imodel);
+  if(!genie_event_tree) return 0;
+
+  // Set event tree branch address
+  genie_event_tree->SetBranchStatus("gmcrec", 1);   
+  Long64_t nmax = genie_event_tree->GetEntries();
+  if (nmax<0) {
+     LOG("gvldtest", pERROR) << "Number of events = 0";
+     return 0;
+  }
+  LOG("gvldtest", pNOTICE) 
+    << "Found " << nmax << " entries in the event tree";
+  NtpMCEventRecord * mcrec = 0;
+  genie_event_tree->SetBranchAddress("gmcrec", &mcrec);   
+  if (!mcrec) {
+     LOG("gvldtest", pERROR) << "Null MC record";
+     return 0;
+  }
+
+  // Book histograms for nominal and systematically varied event fractions
+  const unsigned int knsyst_max = 10;
+  const unsigned int kntwk = 2;
+  const double twk[kntwk] = { +1., -1. };
+  double xmin = (inlogE) ? TMath::Log10(Emin) : Emin;
+  double xmax = (inlogE) ? TMath::Log10(Emax) : Emax;
+  TH1D * hmx   = new TH1D("hmx",   "", n, xmin, xmax);
+  TH1D * hmy   = new TH1D("hmy",   "", n, xmin, xmax);
+  TH1D * hmxtwk[knsyst_max][kntwk];
+  TH1D * hmytwk[knsyst_max][kntwk];
+  for(unsigned int isyst = 0; isyst < knsyst_max; isyst++) {    
+    for(unsigned int itwk = 0; itwk < kntwk; itwk++) {
+       hmxtwk[isyst][itwk] = 0;
+       hmytwk[isyst][itwk] = 0;
+       if(isyst < fNuisanceParams.size()) {
+          hmxtwk[isyst][itwk] = new TH1D( Form("hmx_%d_%d",isyst,itwk), "", n, xmin, xmax);
+          hmytwk[isyst][itwk] = new TH1D( Form("hmy_%d_%d",isyst,itwk), "", n, xmin, xmax);
+       }       
+    }
+  }
+
+  // Fill in nominal event fractions
+  int curr_tree_num = -1;
+  for(Long64_t iev = 0; iev < nmax; iev++) {
+      genie_event_tree->GetEntry(iev); 
+      EventRecord & event = *(mcrec->event);
+      // Generated event files used as inputs in the validation programs
+      // correspond to given neutrino+target initial states.
+      // If the current file in the chain doesn't correspond to a desired 
+      // initial state (as determined by looking at the first event in the file)
+      // then skip this file althogether to save processing time.
+      int tree_num = genie_event_tree->GetTreeNumber();
+      if(curr_tree_num != tree_num) {
+         curr_tree_num = tree_num;
+         bool skip = !this->UseTree(event);
+         if(skip) {
+           LOG("gvldtest", pNOTICE) << "Skipping tree # : " << tree_num;
+           iev += (genie_event_tree->GetTree()->GetEntries() - 1);
+           continue;
+         }//skip?
+      }//new tree in chain
+      GHepParticle * neutrino = event.Probe();
+      assert(neutrino);
+      double E = neutrino->P4()->E();
+      double x = (inlogE) ? TMath::Log10(E) : E;
+      if(this->IsModeX (event)) { hmx  ->Fill(x); }
+      if(this->IsModeY (event)) { hmy  ->Fill(x); }
+  }
+  hmx->Divide(hmy);
+  hmx->Smooth(2);
+
+  // Include uncertainties if requested
+  if(incl_err_band) {
+     GSystSet & systlist = fRew.Systematics();
+     for(unsigned int isyst = 0; isyst < fNuisanceParams.size(); isyst++) {
+       systlist.Init(fNuisanceParams[isyst]);
+       for(unsigned int itwk = 0; itwk < kntwk; itwk++) {
+          systlist.Set(fNuisanceParams[isyst], twk[itwk]);
+          fRew.Reconfigure();
+          int curr_tree_num = -1;
+          for(Long64_t iev = 0; iev < nmax; iev++) {
+              genie_event_tree->GetEntry(iev);
+              EventRecord & event = *(mcrec->event);
+              int tree_num = genie_event_tree->GetTreeNumber();
+              if(curr_tree_num != tree_num) {
+                curr_tree_num = tree_num;
+                 bool skip = !this->UseTree(event);
+                 if(skip) {           
+                   LOG("gvldtest", pNOTICE) << "Skipping tree # : " << tree_num;
+                   iev += (genie_event_tree->GetTree()->GetEntries() - 1);
+                   continue;
+                 }//skip?
+              }//new tree in chain
+              if(this->IsModeX(event)) {
+                 GHepParticle * neutrino = event.Probe();
+                 assert(neutrino);
+                 double E = neutrino->P4()->E();
+                 double x = (inlogE) ? TMath::Log10(E) : E;
+                 double wght = fRew.CalcWeight(event);
+                 hmxtwk[isyst][itwk]->Fill(x, wght);
+              }//X?
+              if(this->IsModeY(event)) {
+                 GHepParticle * neutrino = event.Probe();
+                 assert(neutrino);
+                 double E = neutrino->P4()->E();
+                 double x = (inlogE) ? TMath::Log10(E) : E;
+                 double wght = fRew.CalcWeight(event);
+                 hmytwk[isyst][itwk]->Fill(x, wght);
+              }//X?
+          }//iev
+          hmxtwk[isyst][itwk]->Divide(hmytwk[isyst][itwk]);
+          hmxtwk[isyst][itwk]->Smooth(2);
+          systlist.Set(fNuisanceParams[isyst], 0.);//reset
+          fRew.Reconfigure();
+       }//itwk
+     }//isyst
+  }//incl_err_band?
+
+  // Calculate cross-section ratio = f(E) and corresponding uncertainty.
+  // Sources of uncertainty are taken to be uncorellated.
+  double * energy_array = new double [n];
+  double * R_array      = new double [n];
+  double * R_array_errp = new double [n];
+  double * R_array_errm = new double [n];
+  for(int i = 0; i < n; i++) {
+    int ibin = i+1;
+    double energy = (inlogE) ? 
+       TMath::Power(10., hmx->GetBinCenter(ibin)) : hmx->GetBinCenter(ibin);
+    assert(energy>0.);
+    double R = hmx->GetBinContent(ibin);
+    double R_errp = 0;
+    double R_errm = 0;
+    if(incl_err_band) {
+       double R_errp_s[knsyst_max];
+       double R_errm_s[knsyst_max];
+       for(unsigned int isyst = 0; isyst < fNuisanceParams.size(); isyst++) {
+          R_errp_s[isyst] = 0;
+          R_errm_s[isyst] = 0;
+          double Rmax = -999999;
+          double Rmin =  999999;
+          for(unsigned int itwk = 0; itwk < kntwk; itwk++) {
+            Rmax = TMath::Max(Rmax, hmxtwk[isyst][itwk]->GetBinContent(ibin));
+            Rmin = TMath::Min(Rmin, hmxtwk[isyst][itwk]->GetBinContent(ibin));
+          }
+          R_errp_s[isyst] = TMath::Max(0., Rmax-R);
+          R_errm_s[isyst] = TMath::Max(0., R-Rmin);
+          R_errp += TMath::Power(R_errp_s[isyst],2.);
+          R_errm += TMath::Power(R_errm_s[isyst],2.);
+       }//isyst
+       R_errp = TMath::Sqrt(R_errp);
+       R_errm = TMath::Sqrt(R_errm);       
+    }//incl_err_band?
+    // apply scaling factor, typically to normalize nuclear cross-section
+    // to number of nucleons as expt cross-sections are typically quoted as such.
+    LOG("gvldtest", pNOTICE)  
+        << "R (E = " << energy << " GeV) = " << R 
+        << " +" << ((R>0) ? 100*R_errp/R : 0) << "% "
+        << " -" << ((R>0) ? 100*R_errm/R : 0) << "% ";    
+    energy_array[i] = energy;
+    R_array[i]      = (scale_with_E) ? R/energy       : R;
+    R_array_errp[i] = (scale_with_E) ? R_errp/energy  : R_errp;
+    R_array_errm[i] = (scale_with_E) ? R_errm/energy  : R_errm;
+  }
+
+  // Build cross-section graph
+  TGraphAsymmErrors * model = new TGraphAsymmErrors(
+     n,energy_array,R_array,0,0,R_array_errp,R_array_errm);
+ 
+  // Clean-up
+  delete hmx;
+  delete hmy;
+  for(unsigned int isyst = 0; isyst < knsyst_max; isyst++) {
+    for(unsigned int itwk = 0; itwk < kntwk; itwk++) {
+       if(hmxtwk[isyst][itwk]) { delete hmxtwk[isyst][itwk]; }
+       if(hmytwk[isyst][itwk]) { delete hmytwk[isyst][itwk]; }
+    }
+  }
+  delete [] energy_array;
+  delete [] R_array;
+  delete [] R_array_errp;
+  delete [] R_array_errm;
+
+  return model;
+}
+//____________________________________________________________________________
+CCpi0_CCQE::CCpi0_CCQE(int nupdg, int tgtpdg) :
+XSecRatioForModesXY(),
+fNuPdg  (nupdg),
+fTgtPdg (tgtpdg)
+{
+  // List of nuisance params considered for CCpi0/CCQE cross-section
+
+  fNuisanceParams.push_back(kXSecTwkDial_MaCCQE);
+  if(pdg::IonPdgCodeToA(tgtpdg) > 2) {
+     fNuisanceParams.push_back(kSystNucl_CCQEPauliSupViaKF);
+  }
+  fNuisanceParams.push_back(kXSecTwkDial_MaCCRES);
+//fNuisanceParams.push_back(kXSecTwkDial_AhtBY);
+//fNuisanceParams.push_back(kXSecTwkDial_BhtBY);
+//fNuisanceParams.push_back(kXSecTwkDial_CV1uBY);
+//fNuisanceParams.push_back(kXSecTwkDial_CV2uBY);
+  fNuisanceParams.push_back(kXSecTwkDial_RvpCC1pi);
+  fNuisanceParams.push_back(kXSecTwkDial_RvpCC2pi);
+  fNuisanceParams.push_back(kXSecTwkDial_RvnCC1pi);
+  fNuisanceParams.push_back(kXSecTwkDial_RvnCC2pi);
+
+  // Add weight calculation engines
+  fRew.AdoptWghtCalc( "xsec_ccqe",       new GReWeightNuXSecCCQE      );
+  fRew.AdoptWghtCalc( "nuclear_qe",      new GReWeightFGM             );
+  fRew.AdoptWghtCalc( "xsec_ccres",      new GReWeightNuXSecCCRES     );
+  fRew.AdoptWghtCalc( "xsec_nonresbkg",  new GReWeightNonResonanceBkg );
+//fRew.AdoptWghtCalc( "xsec_dis",        new GReWeightNuXSecDIS       );
+
+  // Fine-tuning reweighting engines
+  GReWeightNuXSecCCQE * rwccqe =      
+    dynamic_cast<GReWeightNuXSecCCQE *> (fRew.WghtCalc("xsec_ccqe"));  
+  rwccqe->SetMode(GReWeightNuXSecCCQE::kModeMa);
+  GReWeightNuXSecCCRES * rwccres = 
+      dynamic_cast<GReWeightNuXSecCCRES *> (fRew.WghtCalc("xsec_ccres"));  
+  rwccres->SetMode(GReWeightNuXSecCCRES::kModeMaMv);
+}
+//.............................................................................
+CCpi0_CCQE::~CCpi0_CCQE()
+{
+}
+//.............................................................................
+bool CCpi0_CCQE::IsModeX (EventRecord & event)
+{
+  Interaction * in = event.Summary();
+  if(!in->ProcInfo().IsWeakCC()) return false;
+  GHepParticle * neutrino = event.Probe();
+  if(neutrino->Pdg() != fNuPdg) return false;
   GHepParticle * target = event.Particle(1); 
   int tgtpdg = target->Pdg();
-  if(tgtpdg == kPdgNeutron || tgtpdg == kPdgProton) return true;
-  if(tgtpdg != fTgtPdg) return true;
+  if(tgtpdg == kPdgNeutron) {
+    if(fTgtPdg != 1000000010) return false;
+  }
+  else if(tgtpdg == kPdgProton) {
+    if(fTgtPdg != 1000010010) return false;
+  }
+  else {
+    if(tgtpdg != fTgtPdg) return false;
+  }
+
+  bool has_pi0 = false;
+  TObjArrayIter piter(&event);
+  GHepParticle * p = 0;
+  while ((p = (GHepParticle *) piter.Next())) {
+    if(p->Status() != kIStStableFinalState) continue;
+    if(p->Pdg() == kPdgPi0) {
+       has_pi0 = true;
+       break;
+    }
+  }
+  if(!has_pi0) return false;
+
+  return true;
+}
+//.............................................................................
+bool CCpi0_CCQE::IsModeY (EventRecord & event)
+{
+  Interaction * in = event.Summary();
+  if(!in->ProcInfo().IsWeakCC()) return false;
+  if(!in->ProcInfo().IsQuasiElastic()) return false;
+  GHepParticle * neutrino = event.Probe();
+  if(neutrino->Pdg() != fNuPdg) return false;
+  GHepParticle * target = event.Particle(1); 
+  int tgtpdg = target->Pdg();
+  if(tgtpdg == kPdgNeutron) {
+    if(fTgtPdg != 1000000010) return false;
+  }
+  else if(tgtpdg == kPdgProton) {
+    if(fTgtPdg != 1000010010) return false;
+  }
+  else {
+    if(tgtpdg != fTgtPdg) return false;
+  }
+
+  return true;
+}
+//.............................................................................
+bool CCpi0_CCQE::UseTree(EventRecord & event)
+{
+  GHepParticle * neutrino = event.Probe();
+  if(neutrino->Pdg() != fNuPdg) return false;
+
+  GHepParticle * target = event.Particle(1);
+  int tgtpdg = target->Pdg();
+  if(pdg::IonPdgCodeToA(fTgtPdg) > 1) {
+    if(tgtpdg == fTgtPdg) return true; 
+  }
+  else
+  if(pdg::IonPdgCodeToA(fTgtPdg) == 1) {
+    bool match =
+       (tgtpdg == kPdgProton  && fTgtPdg == kPdgTgtFreeP) ||
+       (tgtpdg == kPdgNeutron && fTgtPdg == kPdgTgtFreeN);
+    if(match) return true;
+  }
   return false;
+}
+//.............................................................................
+string CCpi0_CCQE::Name (void) const
+{
+  return Form("CCpi0/CCQE;nu=%d;tgt=%d",fNuPdg,fTgtPdg);
 }
 //____________________________________________________________________________
 CCIsoInclXSec::CCIsoInclXSec(int nupdg) :
@@ -752,7 +1083,7 @@ TGraphAsymmErrors * CCIsoInclXSec::ExtractFromEventSample(
        int tree_num = genie_event_tree->GetTreeNumber();
        if(curr_tree_num != tree_num) {
           curr_tree_num = tree_num;
-          bool skip = this->SkipTree(event);
+          bool skip = !this->UseTree(event);
           if(skip) {
             LOG("gvldtest", pNOTICE) << "Skipping tree # : " << tree_num;
             iev += (genie_event_tree->GetTree()->GetEntries() - 1);
@@ -783,7 +1114,7 @@ TGraphAsymmErrors * CCIsoInclXSec::ExtractFromEventSample(
               int tree_num = genie_event_tree->GetTreeNumber();
               if(curr_tree_num != tree_num) {
                  curr_tree_num = tree_num;
-                 bool skip = this->SkipTree(event);
+                 bool skip = !this->UseTree(event);
                  if(skip) {
                    LOG("gvldtest", pNOTICE) << "Skipping tree # : " << tree_num;
                    iev += (genie_event_tree->GetTree()->GetEntries() - 1);
@@ -882,13 +1213,341 @@ TGraphAsymmErrors * CCIsoInclXSec::ExtractFromEventSample(
   return model;
 }
 //.............................................................................
-bool CCIsoInclXSec::SkipTree(EventRecord & event)
+bool CCIsoInclXSec::UseTree(EventRecord & event)
 {
   GHepParticle * neutrino = event.Probe();
-  if(neutrino->Pdg() != fNuPdg) return true;
+  if(neutrino->Pdg() != fNuPdg) return false;
   GHepParticle * target = event.Particle(1); 
   int tgtpdg = target->Pdg();
-  if(!pdg::IsNucleon(tgtpdg)) return true;
-  return false;
+  if(!pdg::IsNucleon(tgtpdg)) return false;
+  return true;
+}
+//____________________________________________________________________________
+r::r() :
+NuXSecFunc()
+{
+  // List of nuisance params considered for CCQE cross-section
+  fNuisanceParams.push_back(kXSecTwkDial_MaCCQE);
+  fNuisanceParams.push_back(kXSecTwkDial_MaCCRES);
+//fNuisanceParams.push_back(kXSecTwkDial_AhtBY);
+//fNuisanceParams.push_back(kXSecTwkDial_BhtBY);
+//fNuisanceParams.push_back(kXSecTwkDial_CV1uBY);
+//fNuisanceParams.push_back(kXSecTwkDial_CV2uBY);
+  fNuisanceParams.push_back(kXSecTwkDial_RvpCC1pi);
+  fNuisanceParams.push_back(kXSecTwkDial_RvpCC2pi);
+  fNuisanceParams.push_back(kXSecTwkDial_RvnCC1pi);
+  fNuisanceParams.push_back(kXSecTwkDial_RvnCC2pi);
+  fNuisanceParams.push_back(kXSecTwkDial_RvbarpCC1pi);
+  fNuisanceParams.push_back(kXSecTwkDial_RvbarpCC2pi);
+  fNuisanceParams.push_back(kXSecTwkDial_RvbarnCC1pi);
+  fNuisanceParams.push_back(kXSecTwkDial_RvbarnCC2pi);
+
+  // Add weight calculation engines
+  fRew.AdoptWghtCalc( "xsec_ccqe",       new GReWeightNuXSecCCQE      );
+  fRew.AdoptWghtCalc( "xsec_ccres",      new GReWeightNuXSecCCRES     );
+  fRew.AdoptWghtCalc( "xsec_nonresbkg",  new GReWeightNonResonanceBkg );
+//fRew.AdoptWghtCalc( "xsec_dis",        new GReWeightNuXSecDIS       );
+
+  // Fine-tune weight calculation engines
+  GReWeightNuXSecCCQE * rwccqe = 
+      dynamic_cast<GReWeightNuXSecCCQE *> (fRew.WghtCalc("xsec_ccqe"));  
+  rwccqe->SetMode(GReWeightNuXSecCCQE::kModeMa);
+  GReWeightNuXSecCCRES * rwccres = 
+      dynamic_cast<GReWeightNuXSecCCRES *> (fRew.WghtCalc("xsec_ccres"));  
+  rwccres->SetMode(GReWeightNuXSecCCRES::kModeMaMv);
+
+}
+//.............................................................................
+r::~r()
+{
+
+}
+//.............................................................................
+string r::Name(void) const 
+{
+  return "r";
+}
+//.............................................................................
+TGraphAsymmErrors * r::ExtractFromEventSample(
+     int imodel, double Emin, double Emax,
+     int n, bool inlogE, bool /*scale_with_E*/, bool incl_err_band)
+{
+  if(!fGenieInputs) return 0;
+  TFile * genie_xsec_file = fGenieInputs->XSecFile(imodel);
+  if(!genie_xsec_file) return 0;
+  TChain * genie_event_tree = fGenieInputs->EvtChain(imodel);
+  if(!genie_event_tree) return 0;
+
+  // Get xsec directory and retrieve inclusive CC xsec
+  string xsec_dir_name_vp    = BuildXSecDirectoryName(kPdgNuMu,     kPdgTgtFreeP);
+  string xsec_dir_name_vn    = BuildXSecDirectoryName(kPdgNuMu,     kPdgTgtFreeN);
+  string xsec_dir_name_vbarp = BuildXSecDirectoryName(kPdgAntiNuMu, kPdgTgtFreeP);
+  string xsec_dir_name_vbarn = BuildXSecDirectoryName(kPdgAntiNuMu, kPdgTgtFreeN);
+
+  TDirectory * xsec_dir_vp = 
+      (TDirectory *) genie_xsec_file->Get(xsec_dir_name_vp.c_str());
+  if(!xsec_dir_vp) {
+     LOG("gvldtest", pERROR) 
+        << "Can't find cross-section directory: " << xsec_dir_name_vp;
+     return 0;
+  }
+  TGraph * cc_incl_xsec_vp = (TGraph*) xsec_dir_vp->Get("tot_cc");
+  if(!cc_incl_xsec_vp) {
+     LOG("gvldtest", pERROR) 
+        << "Can't find inclusive CC cross-section calculation";
+     return 0;
+  }
+  TDirectory * xsec_dir_vn = 
+      (TDirectory *) genie_xsec_file->Get(xsec_dir_name_vn.c_str());
+  if(!xsec_dir_vn) {
+     LOG("gvldtest", pERROR) 
+        << "Can't find cross-section directory: " << xsec_dir_name_vn;
+     return 0;
+  }
+  TGraph * cc_incl_xsec_vn = (TGraph*) xsec_dir_vn->Get("tot_cc");
+  if(!cc_incl_xsec_vn) {
+     LOG("gvldtest", pERROR) 
+        << "Can't find inclusive CC cross-section calculation";
+     return 0;
+  }
+
+
+  TDirectory * xsec_dir_vbarp = 
+      (TDirectory *) genie_xsec_file->Get(xsec_dir_name_vbarp.c_str());
+  if(!xsec_dir_vbarp) {
+     LOG("gvldtest", pERROR) 
+        << "Can't find cross-section directory: " << xsec_dir_name_vbarp;
+     return 0;
+  }
+  TGraph * cc_incl_xsec_vbarp = (TGraph*) xsec_dir_vbarp->Get("tot_cc");
+  if(!cc_incl_xsec_vbarp) {
+     LOG("gvldtest", pERROR) 
+        << "Can't find inclusive CC cross-section calculation";
+     return 0;
+  }
+  TDirectory * xsec_dir_vbarn = 
+      (TDirectory *) genie_xsec_file->Get(xsec_dir_name_vbarn.c_str());
+  if(!xsec_dir_vbarn) {
+     LOG("gvldtest", pERROR) 
+        << "Can't find cross-section directory: " << xsec_dir_name_vbarn;
+     return 0;
+  }
+  TGraph * cc_incl_xsec_vbarn = (TGraph*) xsec_dir_vbarn->Get("tot_cc");
+  if(!cc_incl_xsec_vbarn) {
+     LOG("gvldtest", pERROR) 
+        << "Can't find inclusive CC cross-section calculation";
+     return 0;
+  }
+
+  // Set event tree branch address
+  genie_event_tree->SetBranchStatus("gmcrec", 1);   
+  Long64_t nmax = genie_event_tree->GetEntries();
+  if (nmax<0) {
+     LOG("gvldtest", pERROR) << "Number of events = 0";
+     return 0;
+  }
+  LOG("gvldtest", pNOTICE) 
+    << "Found " << nmax << " entries in the event tree";
+  NtpMCEventRecord * mcrec = 0;
+  genie_event_tree->SetBranchAddress("gmcrec", &mcrec);   
+  if (!mcrec) {
+     LOG("gvldtest", pERROR) << "Null MC record";
+     return 0;
+  }
+
+  // Book histograms
+  const unsigned int knsyst_max = 10;
+  const unsigned int kntwk = 2;
+  const double twk[kntwk] = { +1., -1. };
+  double xmin = (inlogE) ? TMath::Log10(Emin) : Emin;
+  double xmax = (inlogE) ? TMath::Log10(Emax) : Emax;
+  TH1D * hnom_ccvp    =  new TH1D("hnom_ccvp",    "", n, xmin, xmax);
+  TH1D * hnom_ccvn    =  new TH1D("hnom_ccvn",    "", n, xmin, xmax);
+  TH1D * hnom_ccvbarp =  new TH1D("hnom_ccvbarp", "", n, xmin, xmax);
+  TH1D * hnom_ccvbarn =  new TH1D("hnom_ccvbarn", "", n, xmin, xmax);
+  TH1D * htwk_ccvp   [knsyst_max][kntwk];
+  TH1D * htwk_ccvn   [knsyst_max][kntwk];
+  TH1D * htwk_ccvbarp[knsyst_max][kntwk];
+  TH1D * htwk_ccvbarn[knsyst_max][kntwk];
+  for(unsigned int isyst = 0; isyst < knsyst_max; isyst++) {    
+    for(unsigned int itwk = 0; itwk < kntwk; itwk++) {
+       htwk_ccvp   [isyst][itwk] = 0;
+       htwk_ccvn   [isyst][itwk] = 0;
+       htwk_ccvbarp[isyst][itwk] = 0;
+       htwk_ccvbarn[isyst][itwk] = 0;
+       if(isyst < fNuisanceParams.size()) {
+          htwk_ccvp   [isyst][itwk] = new TH1D( Form("htwk_ccvp_%d_%d",isyst,itwk),    "", n, xmin, xmax);
+          htwk_ccvn   [isyst][itwk] = new TH1D( Form("htwk_ccvn_%d_%d",isyst,itwk),    "", n, xmin, xmax);
+          htwk_ccvbarp[isyst][itwk] = new TH1D( Form("htwk_ccvbarp_%d_%d",isyst,itwk), "", n, xmin, xmax);
+          htwk_ccvbarn[isyst][itwk] = new TH1D( Form("htwk_ccvbarn_%d_%d",isyst,itwk), "", n, xmin, xmax);
+       }       
+    }
+  }
+
+  if(incl_err_band) {
+     int curr_tree_num = -1;
+     for(Long64_t iev = 0; iev < nmax; iev++) {
+       genie_event_tree->GetEntry(iev);
+       EventRecord & event = *(mcrec->event);
+       int tree_num = genie_event_tree->GetTreeNumber();
+       if(curr_tree_num != tree_num) {
+          curr_tree_num = tree_num;
+          bool skip = !this->UseTree(event);
+          if(skip) {
+            LOG("gvldtest", pNOTICE) << "Skipping tree # : " << tree_num;
+            iev += (genie_event_tree->GetTree()->GetEntries() - 1);
+            continue;
+          }//skip?
+       }//new tree in chain
+       Interaction * in = event.Summary();
+       if(!in->ProcInfo().IsWeakCC()) continue;
+       GHepParticle * neutrino = event.Probe();
+       int nupdg = neutrino->Pdg();
+       if(nupdg != kPdgNuMu && nupdg != kPdgAntiNuMu) continue;
+       double E = neutrino->P4()->E();
+       double x = (inlogE) ? TMath::Log10(E) : E;
+       GHepParticle * target = event.Particle(1); 
+       int tgtpdg = target->Pdg();
+       if(tgtpdg == kPdgProton  && nupdg == kPdgNuMu    ) { hnom_ccvp    -> Fill(x); }
+       if(tgtpdg == kPdgNeutron && nupdg == kPdgNuMu    ) { hnom_ccvn    -> Fill(x); }
+       if(tgtpdg == kPdgProton  && nupdg == kPdgAntiNuMu) { hnom_ccvbarp -> Fill(x); }
+       if(tgtpdg == kPdgNeutron && nupdg == kPdgAntiNuMu) { hnom_ccvbarn -> Fill(x); }
+     }//iev
+     GSystSet & systlist = fRew.Systematics();
+     for(unsigned int isyst = 0; isyst < fNuisanceParams.size(); isyst++) {
+       systlist.Init(fNuisanceParams[isyst]);
+       for(unsigned int itwk = 0; itwk < kntwk; itwk++) {
+          systlist.Set(fNuisanceParams[isyst], twk[itwk]);
+          fRew.Reconfigure();
+          curr_tree_num = -1;
+          for(Long64_t iev = 0; iev < nmax; iev++) {
+              genie_event_tree->GetEntry(iev);
+              EventRecord & event = *(mcrec->event);
+              int tree_num = genie_event_tree->GetTreeNumber();
+              if(curr_tree_num != tree_num) {
+                 curr_tree_num = tree_num;
+                 bool skip = !this->UseTree(event);
+                 if(skip) {
+                   LOG("gvldtest", pNOTICE) << "Skipping tree # : " << tree_num;
+                   iev += (genie_event_tree->GetTree()->GetEntries() - 1);
+                   continue;
+                 }//skip?
+              }//new tree in chain
+              Interaction * in = event.Summary();
+              if(!in->ProcInfo().IsWeakCC()) continue;
+              GHepParticle * neutrino = event.Probe();
+              int nupdg = neutrino->Pdg();
+              if(nupdg != kPdgNuMu && nupdg != kPdgAntiNuMu) continue;
+              GHepParticle * target = event.Particle(1); 
+              int tgtpdg = target->Pdg();
+              if(tgtpdg==kPdgProton || tgtpdg==kPdgNeutron) {
+                 double E = neutrino->P4()->E();
+                 double x = (inlogE) ? TMath::Log10(E) : E;
+                 double wght = fRew.CalcWeight(event);              
+                 if(tgtpdg == kPdgProton  && nupdg == kPdgNuMu    ) { htwk_ccvp   [isyst][itwk]->Fill(x,wght); }
+                 if(tgtpdg == kPdgNeutron && nupdg == kPdgNuMu    ) { htwk_ccvn   [isyst][itwk]->Fill(x,wght); }
+                 if(tgtpdg == kPdgProton  && nupdg == kPdgAntiNuMu) { htwk_ccvbarp[isyst][itwk]->Fill(x,wght); }
+                 if(tgtpdg == kPdgNeutron && nupdg == kPdgAntiNuMu) { htwk_ccvbarn[isyst][itwk]->Fill(x,wght); }
+              }
+          }//iev
+          htwk_ccvp   [isyst][itwk]->Divide(hnom_ccvp);
+          htwk_ccvn   [isyst][itwk]->Divide(hnom_ccvn);
+          htwk_ccvbarp[isyst][itwk]->Divide(hnom_ccvbarp);
+          htwk_ccvbarn[isyst][itwk]->Divide(hnom_ccvbarn);
+          systlist.Set(fNuisanceParams[isyst], 0.);//reset
+          fRew.Reconfigure();
+       }//itwk
+     }//isyst
+  }//incl_err_band?
+
+  // Calculate cross-section = f(E) and corresponding uncertainty.
+  // Sources of uncertainty are taken to be uncorellated (even Rijk params for neutrinos and anti-neutrinos) 
+  // but they are 100% correlated between the nu+p, nu+n, nubar+p, nubar+n components of r
+  double * energy_array = new double [n];
+  double * r_array      = new double [n];
+  double * r_array_errp = new double [n];
+  double * r_array_errm = new double [n];
+  for(int i = 0; i < n; i++) {
+    int ibin = i+1;
+    double energy = (inlogE) ? 
+       TMath::Power(10., hnom_ccvp->GetBinCenter(ibin)) : 
+       hnom_ccvp->GetBinCenter(ibin);
+    assert(energy>0.);
+    double xsec_nu    = 0.5 * (cc_incl_xsec_vp   ->Eval(energy) + cc_incl_xsec_vn   ->Eval(energy));
+    double xsec_nubar = 0.5 * (cc_incl_xsec_vbarp->Eval(energy) + cc_incl_xsec_vbarn->Eval(energy));
+    double r = (xsec_nu>0) ? xsec_nubar/xsec_nu : 0;
+    double r_errp = 0;
+    double r_errm = 0;
+    if(incl_err_band) {
+       double r_errp_s[knsyst_max];
+       double r_errm_s[knsyst_max];
+       for(unsigned int isyst = 0; isyst < fNuisanceParams.size(); isyst++) {
+          double r_max = -99999;
+          double r_min = +99999;
+          for(unsigned int itwk = 0; itwk < kntwk; itwk++) {
+            double xsec_nu_curr = 0.5 * (
+                    cc_incl_xsec_vp->Eval(energy) * htwk_ccvp[isyst][itwk]->GetBinContent(ibin) + 
+                    cc_incl_xsec_vn->Eval(energy) * htwk_ccvn[isyst][itwk]->GetBinContent(ibin)
+            );
+            double xsec_nubar_curr = 0.5 * (
+                    cc_incl_xsec_vbarp->Eval(energy) * htwk_ccvbarp[isyst][itwk]->GetBinContent(ibin) + 
+                    cc_incl_xsec_vbarn->Eval(energy) * htwk_ccvbarn[isyst][itwk]->GetBinContent(ibin)
+            );
+            double r_curr = (xsec_nu_curr>0) ? xsec_nubar_curr/xsec_nu_curr : 0;
+            r_max = TMath::Max(r_max, r_curr);
+            r_min = TMath::Min(r_min, r_curr);
+          }
+          r_errp_s[isyst] = TMath::Max(0., r_max-r);
+          r_errm_s[isyst] = TMath::Max(0., r-r_min);
+          r_errp += TMath::Power(r_errp_s[isyst],2.);
+          r_errm += TMath::Power(r_errm_s[isyst],2.);
+       }//isyst
+       r_errp = TMath::Sqrt(r_errp);
+       r_errm = TMath::Sqrt(r_errm);       
+    }//incl_err_band?
+    LOG("gvldtest", pNOTICE)  
+        << "r (E = " << energy << " GeV) = " << r 
+        << "+ " << ((r>0) ? 100*r_errp/r : 0) << "% "
+        << "- " << ((r>0) ? 100*r_errm/r : 0) << "% ";
+    energy_array[i] = energy;
+    r_array[i]      = r;
+    r_array_errp[i] = r_errp;
+    r_array_errm[i] = r_errm;
+  }
+
+  // Build cross-section graph
+  TGraphAsymmErrors * model = new TGraphAsymmErrors(
+     n,energy_array,r_array,0,0,r_array_errp, r_array_errm);
+
+  // Clean-up
+  delete hnom_ccvp;
+  delete hnom_ccvn;
+  delete hnom_ccvbarp;
+  delete hnom_ccvbarn;
+  for(unsigned int isyst = 0; isyst < knsyst_max; isyst++) {
+    for(unsigned int itwk = 0; itwk < kntwk; itwk++) {
+      if (htwk_ccvp   [isyst][itwk]) delete htwk_ccvp   [isyst][itwk];
+      if (htwk_ccvn   [isyst][itwk]) delete htwk_ccvn   [isyst][itwk];
+      if (htwk_ccvbarp[isyst][itwk]) delete htwk_ccvbarp[isyst][itwk];
+      if (htwk_ccvbarn[isyst][itwk]) delete htwk_ccvbarn[isyst][itwk];
+    }
+  }
+  delete [] energy_array;
+  delete [] r_array;
+  delete [] r_array_errp;
+  delete [] r_array_errm;
+
+  return model;
+}
+//.............................................................................
+bool r::UseTree(EventRecord & event)
+{
+  GHepParticle * neutrino = event.Probe();
+  int nupdg = neutrino->Pdg();
+  if( nupdg != kPdgNuMu && nupdg != kPdgAntiNuMu) return false;
+  GHepParticle * target = event.Particle(1); 
+  int tgtpdg = target->Pdg();
+  if(!pdg::IsNucleon(tgtpdg)) return false;
+  return true;
 }
 //____________________________________________________________________________
