@@ -72,7 +72,7 @@ double MECPXSec::XSec(
   const Kinematics &   kinematics = interaction -> Kine();
   double W  = kinematics.W();
   double Q2 = kinematics.Q2();
-  //  LOG("MEC", pINFO) << "W, Q2 trial= " << W << "  " << Q2 ;
+  //LOG("MEC", pINFO) << "W, Q2 trial= " << W << "  " << Q2 ;
 
   //
   // Do a check whether W,Q2 is allowed. Return 0 otherwise.
@@ -82,14 +82,14 @@ double MECPXSec::XSec(
   double M2n = PDGLibrary::Instance()->Find(nucleon_cluster_pdg)-> Mass(); // nucleon cluster mass  
   double ml  = interaction->FSPrimLepton()->Mass();
   Range1D_t Wlim = genie::utils::kinematics::InelWLim(Ev, M2n, ml);
-  //  LOG("MEC", pINFO) << "Ev, ml, M2n = " << Ev << "  " << ml << "  " << M2n;
-  //  LOG("MEC", pINFO) << "Wlim= " << Wlim.min << "  " <<Wlim.max ;
+  //LOG("MEC", pINFO) << "Ev, ml, M2n = " << Ev << "  " << ml << "  " << M2n;
+  //LOG("MEC", pINFO) << "Wlim= " << Wlim.min << "  " <<Wlim.max ;
   if(W < Wlim.min || W > Wlim.max)
     {double xsec = 0.;
       return xsec;
     } 
   Range1D_t Q2lim = genie::utils::kinematics::InelQ2Lim_W (Ev, M2n, ml, W, 0.);
-  //  LOG("MEC", pINFO) << "Q2lim= " << Q2lim.min << "  " <<Q2lim.max ;
+  //LOG("MEC", pINFO) << "Q2lim= " << Q2lim.min << "  " <<Q2lim.max ;
   if(Q2 < Q2lim.min || Q2 > Q2lim.max)
     {double xsec = 0.;
       return xsec;
@@ -104,11 +104,11 @@ double MECPXSec::XSec(
 
   // Calculate d^2xsec/dWdQ2
   double Wdep  = TMath::Gaus(W, fMass, fWidth);
-  double Q2dep = Q2*TMath::Power(1+Q2/fMq2d, -2.);
+  double Q2dep = Q2*TMath::Power((1+Q2/fMq2d),-12.);
   double nudep = TMath::Power(Tmu,2.5);
   //  LOG("MEC", pINFO) << "Tmu = " << Tmu << ", nudep = " << nudep;
   double xsec  = Wdep * Q2dep;// * nudep;
-
+  LOG("MEC", pINFO) << "xsec = " << xsec << ", Q2 = " << Q2 << ", W = " << W;
   // Check whether variable tranformation is needed
   if(kps!=kPSWQ2fE) {
     double J = utils::kinematics::Jacobian(interaction,kPSWQ2fE,kps);
@@ -214,7 +214,6 @@ double MECPXSec::Integral(const Interaction * interaction) const
     // Use tunable fraction 
     // FFracEMQE is fraction of QE going to MEC
     // fFracEMQE_cluster is fraction of MEC going to each NN pair
-    double fFracEMQE=0.2;
     double fFracEMQE_cluster=0.;
     if(nucleon_cluster_pdg==2000000200) fFracEMQE_cluster= .1;  //n+n
     if(nucleon_cluster_pdg==2000000201) fFracEMQE_cluster= .8;  //n+p
@@ -255,11 +254,12 @@ void MECPXSec::LoadConfig(void)
   fXSecAlgCCQE = 0;
   fXSecAlgEMQE = 0;
 
-  fMq2d   = 0.8; // GeV
-  fMass   = 1.9; // GeV
-  fWidth  = 0.6; // GeV
+  fMq2d   = 0.4; // GeV
+  fMass   = 2.1; // GeV
+  fWidth  = 0.05; // GeV
   fFracCCQElo = 0.45; //fraction of CCQE xsec at Miniboone energies to CCMEC xsec
                       //  at first, this is energy independent
+  fFracEMQE=0.05;  //fraction of 0.5*(ep+en) Rosenbluth xsec going to (e,e') MEC
 
   // Get the specified CCQE cross section model
   fXSecAlgCCQE = 
