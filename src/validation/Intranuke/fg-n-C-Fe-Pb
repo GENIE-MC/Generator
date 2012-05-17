@@ -1,0 +1,216 @@
+# plotting file for neutron total and reaction cross section data
+# nC, nFe, nPb
+# includes data for GEANT comparison
+# Apr 12 
+#
+# REACTION - neutron + Fe
+#
+[RECORD]
+  0,2000,0,1200
+  XS
+  n Fe - #sigma reac
+  n-fe-geant-reac
+  1
+[EXPERIMENTAL]
+  geant-n-Fe-reac.dat
+  E:fenxs:sfenxs
+  GEANT calc
+  E:fenxs:sfenxs/1000.:sfenxs
+[EXPERIMENTAL]
+  schim-n-fe-reac.dat
+  E:fe56nxs:sfe56nxs
+  Schimmerling data
+  E:fe56nxs:sfe56nxs/1000:sfe56nxs
+[EXPERIMENTAL]
+  ibaraki-n-Fe-nonelas.dat
+  E:fe56nxs:sfe56nxs
+  Ibaraki data
+  E:fe56nxs*1000:sfe56nxs:sfe56nxs*1000
+[EXPERIMENTAL]
+  voss-n-cu-nonelas.dat
+  E:d1:fe56nxs:sfe56nxs:d2
+  Voss data (Cu)
+  E:fe56nxs*1000:sfe56nxs:sfe56nxs*1000
+#
+# REACTION - neutron + C
+#
+[RECORD]
+  0,2000,0,650
+  XS
+  n C - #sigma reac
+  n-c-geant-reac
+  1
+[EXPERIMENTAL]
+  geant-n-C-reac.dat
+  E:c12ntxs:sc12ntxs
+  GEANT calc
+  E:c12ntxs:sc12ntxs/1000.:sc12ntxs
+[EXPERIMENTAL]
+  schim-n-c-reac.dat
+  E:c12nxs:sc12nxs
+  Schimmerling data
+  E:c12nxs:sc12nxs/1000:sc12nxs
+[EXPERIMENTAL]
+  ibaraki-n-C-nonelas.dat
+  E:c12nxs:sc12nxs
+  Ibaraki data
+  E:c12nxs*1000:sc12nxs:sc12nxs*1000
+[EXPERIMENTAL]
+  voss-n-C-nonelas.dat
+  E:d1:c12nxs:sc12nxs
+  Voss data
+  E:c12nxs*1000:sc12nxs:sc12nxs*1000
+[EXPERIMENTAL]
+  zanelli-n-C-reac.dat
+  E:c12nxs:sc12nxs
+  Zanelli + others data
+  E:c12nxs:sc12nxs/1000:sc12nxs
+#
+# REACTION - neutron + Pb
+#
+[RECORD]
+  0,2000,0,2800
+  XS
+  n Pb - #sigma reac
+  n-pb-geant-reac
+  1
+[EXPERIMENTAL]
+  geant-n-Pb-reac.dat
+  E:pbnxs:spbnxs
+  GEANT calc
+  E:pbnxs:spbnxs/1000.:spbnxs
+[EXPERIMENTAL]
+  schimmerling-n-pb-reac.dat
+  E:pbnxs:spbnxs
+  Schimmerling data
+  E:pbnxs:spbnxs/1000:spbnxs
+[EXPERIMENTAL]
+  voss-n-pb-reac.dat
+  E:d1:pbnxs:spbnxs
+  Voss data 
+  E:pbnxs*1000:spbnxs:spbnxs*1000
+#
+# REACTION - proton + Pb
+#
+[RECORD]
+  0,2000,0,2800
+  XS
+  p Pb - #sigma reac
+  p-pb-geant-reac
+  1
+[EXPERIMENTAL]
+  geant-p-Pb-reac.dat
+  E:pbnxs:spbnxs
+  GEANT calc
+  E:pbnxs:spbnxs/1000.:spbnxs
+[EXPERIMENTAL]
+  renberg-p-pb-reac.dat
+  E:pbpxs:spbpxs
+  Renberg data
+  E:pbpxs:spbpxs/1000:spbpxs
+[EXPERIMENTAL]
+  auce-p-pb-reac.dat
+  E:pbnxs:spbnxs
+  Auce data
+  E:pbnxs:spbnxs/1000.:spbnxs
+[EXPERIMENTAL]
+  dietrich-p-pb-reac.dat
+  E:pbnxs:spbnxs
+  Dietrich data
+  E:pbnxs*1000:spbnxs:spbnxs*1000
+[EXPERIMENTAL]
+  kirkby-p-Pb-reac.dat
+  E:pbnxs:spbnxs
+  Kirkby, Turner data
+  E:pbnxs:spbnxs/1000.:spbnxs
+#
+# REACTION - neutron + C
+#
+[RECORD]
+  0,250,0,650
+  XS
+  n C - #sigma reac
+  n-c-geant-lowe-reac
+  1
+[EXPERIMENTAL]
+  geant-n-C-reac.dat
+  E:c12ntxs:sc12ntxs
+  GEANT calc
+  E:c12ntxs:sc12ntxs/1000.:sc12ntxs
+[EXPERIMENTAL]
+  schim-n-c-reac.dat
+  E:c12nxs:sc12nxs
+  Schimmerling data
+  E:c12nxs:sc12nxs/1000:sc12nxs
+[EXPERIMENTAL]
+  ibaraki-n-C-nonelas.dat
+  E:c12nxs:sc12nxs
+  Ibaraki data
+  E:c12nxs*1000:sc12nxs:sc12nxs*1000
+[EXPERIMENTAL]
+  voss-n-C-nonelas.dat
+  E:d1:c12nxs:sc12nxs
+  Voss data
+  E:c12nxs*1000:sc12nxs:sc12nxs*1000
+[EXPERIMENTAL]
+  zanelli-n-C-reac.dat
+  E:c12nxs:sc12nxs
+  Zanelli + others data
+  E:c12nxs:sc12nxs/1000:sc12nxs
+#
+# TOTAL - neutron + C
+#
+[RECORD]
+  0,1200,0,1500
+  XS
+  n C - #sigma total
+  n-c-geant-tot
+  1
+[EXPERIMENTAL]
+  geant-n-C-tot.dat
+  E:fenxs:sfenxs
+  GEANT calc
+  E:fenxs:sfenxs/1000.:sfenxs
+[EXPERIMENTAL]
+  abfalterer-n-C-tot.dat
+  E:fe56nxs:sfe56nxs
+  Abfalterer data
+  E:fe56nxs*1000.:sfe56nxs:sfe56nxs*1000.
+#
+# TOTAL - neutron + Fe
+#
+[RECORD]
+  0,1200,0,4000
+  XS
+  n Fe - #sigma total
+  n-fe-geant-tot
+  1
+[EXPERIMENTAL]
+  geant-n-Fe-tot.dat
+  E:fenxs:sfenxs
+  GEANT calc
+  E:fenxs:sfenxs/1000.:sfenxs
+[EXPERIMENTAL]
+  abfalterer-n-Fe-tot.dat
+  E:fe56nxs:sfe56nxs
+  Abfalterer data
+  E:fe56nxs*1000.:sfe56nxs:sfe56nxs*1000.
+#
+# TOTAL - neutron + Pb
+#
+[RECORD]
+  0,1200,0,8000
+  XS
+  n Pb - #sigma total
+  n-pb-geant-tot
+  1
+[EXPERIMENTAL]
+  geant-n-Pb-tot.dat
+  E:pbnxs:spbnxs
+  GEANT calc
+  E:pbnxs:spbnxs/1000.:spbnxs
+[EXPERIMENTAL]
+  abfalterer-n-Pb-tot.dat
+  E:pbnxs:spbnxs
+  Abfalterer data
+  E:pbnxs*1000.:spbnxs:spbnxs*1000.
