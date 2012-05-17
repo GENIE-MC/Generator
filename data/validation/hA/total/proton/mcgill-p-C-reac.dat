@@ -1,0 +1,20 @@
+# Measurementys of the Proton Total Reaction Cross Section For Light Nuclei Between 20 and 48 MeV.
+#W.F.MCGILL,R.E.CARLSON,T.H.SHORT,J.M.CAMERON, J.REGINALD RICHARDSON,I.SLAUS,W.T.H.VAN OERS,J.W.VERBA, D.J.MARGAZIOTIS,P.DOHERTY)
+#(J,PR/C,10,2237,74)
+#EN         DATA       ERR-T      MISC       MISC-ERR   
+#MEV        MB         MB         MB         MB
+47.7       341.       7.         345.       4.
+46.1       344.       8.         362.       6.
+44.6       351.       8.         357.       4.
+43.        356.       9.         364.       5.
+39.5       361.       8.         384.       5.
+35.2       365.       12.        391.       7.
+34.4       378.       9.         418.       5.
+33.        381.       9.         430.       6.
+31.        399.       11.        437.       6.
+29.8       413.       11.        456.       6.
+27.9       405.       11.        484.       6.
+26.1       432.       11.        514.       7.
+24.7       432.       12.        504.       7.
+23.2       452.       13.        540.       6.
+

@@ -1,0 +1,13 @@
+#P.U.RENBERG
+#Reaction Cross Sections For Protons in the Energy Range 220-570 MeV.
+#proton + Pb - reac
+#EN         DATA       ERR-T   
+#MEV        MB         MB      
+549.       1732.      48.      
+549.       1781.      46.      
+460.       1770.      47.      
+460.       1789.      46.      
+341.       1703.      47.      
+341.       1719.      47.      
+226.       1737.      47.      
+226.       1767.      48.      
