@@ -1,0 +1,8 @@
+# pi- total xs   (data for H,D,6Li,C,Al, S, Ca, Cu, Zr, Sn, Pb) 
+# Gelderloos Phys Rev C 62, 024612 (2000)
+# include data and elas opt model errors (x2 typical)
+# KE MeV  sigC (mb) err    sig Cu    err    sigPb     err
+410        341       25     1334      98     3390     282       
+464        314       23     1248      98     3178     240
+492        290       21     1246      83     3229     344
+

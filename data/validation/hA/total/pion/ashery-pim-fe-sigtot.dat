@@ -1,0 +1,5 @@
+# pim Fe total xs data
+# Ashery, et al   Phys Rev C 23, 2173 (1981)
+# KE (MeV)     cex (mb)    err   elas     err     inel     err    abs   err   reac     err    tot   err
+   125          80         40     822      82     398      130    648   70    1126     115    1948   80
+   165          70         35     823      82     304      136    671   80    1045     115    1868   80

@@ -1,0 +1,6 @@
+# pim C total xs data
+# Ashery, et al   Phys Rev C 23, 2173 (1981)
+# KE (MeV)       cex (mb)    err   elas     err     inel     err    abs   err   reac     err    tot   err
+   125           46         20     244      24      176      37     207   30    429      28     673    14
+   165           45         20     242      24      193      37     204   33    442      26     684    9
+

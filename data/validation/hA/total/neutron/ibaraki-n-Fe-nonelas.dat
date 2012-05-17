@@ -1,0 +1,10 @@
+#Ibaraki - n Fe nonelastic 
+#source: NNDC,  Jour. Nucl. Sci. Tech. Suppl. 2, 405 (2002)
+#EN-MIN      DATA       DATA-ERR   
+#MEV         B          B
+45         1.158      0.071
+50         1.134      0.071
+55         0.956      0.071
+60         0.917      0.077
+65         0.9        0.093
+75         0.827      0.042
