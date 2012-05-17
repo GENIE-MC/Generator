@@ -1,0 +1,7 @@
+# Menet Phys Rev C4,1114, 1971
+# proton 56Fe total reaction xs
+#EN         DATA       DATA-ERR
+#MEV        MB         MB
+       40.0       991.        43.
+       60.8       899.        32.
+

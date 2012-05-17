@@ -1,0 +1,12 @@
+# (J,NSTS,2,(1),269,2002) Jour. of Nuclear Science and Technology Suppl., Vol.2, Issue.1, p.269 (2002)  Japan
+#F.S.Dietrich,E.P.Hartouni,S.C.Johnson,G.J.Schmid, R.Soltz,W.P.Abfalterer,R.C.Haight,L.S.Waters, A.L.Hanson,R.W.Finlay,G.S.Blanpied
+#Proton reaction cross sections measured in the BNL/AGS E943 experiment.
+#EN         DATA       DATA-ERR   
+#MEV        B          B
+539.8      0.239      0.00815
+812.2      0.261      0.00815
+1101.      0.274      0.00815
+1386.      0.275      0.00737
+1669.      0.268      0.00815
+2665.      0.27       0.00815
+3508.      0.272      0.00815

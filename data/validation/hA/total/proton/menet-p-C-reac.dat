@@ -1,0 +1,9 @@
+#Menet Phy Rev C4,1114 (1971)
+# proton carbon total reac xs
+#EN         DATA       DATA-ERR
+#MEV        MB         MB
+       30.0       447.        20.
+       40.0       371.        11.
+       49.5       345.        13.
+       60.8       310.        13.
+

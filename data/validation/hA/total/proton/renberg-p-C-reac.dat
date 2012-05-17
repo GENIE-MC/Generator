@@ -1,0 +1,9 @@
+#Reaction Cross Sections For Protons in the Energy Range 220-570 MeV.
+#P.U.RENBERG,D.F.MEASDAY,M.PEPIN,P.SCHWALLER,B.FAVIER,C.RICHARD-SERRE)
+# (J,NP/A,183,81,72)  Journ.: Nuclear Physics, Section A, Vol.183, p.81 (1972)  Netherlands
+#EN         DATA       2DATA    
+#MEV        MB          MB
+552.       240.        20.
+464.       236.        20.
+343.       221.        20.
+231.       217.        20..  

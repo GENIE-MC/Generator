@@ -1,0 +1,14 @@
+# Phys Rev C71 064606 (2005)  
+# Reaction cross sections for protons on 12C, 40Ca,  90Zr, and 208Pb at energies between 80 and 180 MeV
+#A.Auce
+# last pt is from Ingamarsson et al, Nucl Phys A 653 341 (1999)
+# proton + 12C
+#EN         DATA       ERR-S      
+#MEV        MB         MB
+81.        279.       10.
+100.       275.       21.
+119.       237.       7.
+141.       222.       5.
+158.       212.       4.
+180.       211.       3.
+65.5       295.5      7.7
