@@ -1,0 +1,19 @@
+#Zanellli Phys Rev C23,1015 (1981)
+#n C reac
+# get total xs from Auman Phys Rev C5, 1 (1972)
+#EN         DATA       DATA-ERR   TOT      TOT-ERR
+#MEV        MB         MB         MB         MB
+ 40.3       356.       28.        1118.      1.3
+ 50.4       344.       28.         938.      3.0
+#Hansen Washington preprint 1968
+ 15.3   554   30   
+#Meulders Phys Rev C1, 1326 (1970)
+#EN         EN-RSL     DATA
+#MEV        MEV        B
+## 1.7270E+01 5.6000E-01 5.0000E-01
+## 1.8250E+01 3.4000E-01 5.0000E-01
+## 1.9880E+01 2.1000E-01 5.0000E-01
+# MacGregor Phys Rev 111, 1155 (1958)
+ 21.0   490  40. 
+ 25.5   440  40. 
+ 29.2   450  40. 

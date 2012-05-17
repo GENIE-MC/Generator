@@ -1,0 +1,8 @@
+# pi- total reaction xs   (data for H,D,6Li,C,Al, S, Ca, Cu, Zr, Sn, Pb) 
+# Gelderloos Phys Rev C 62 024612(2000)
+# include data and elas opt model errors (x2 typical)
+# KE MeV  sigC (mb) err    sig Cu    err      sigPb     err
+410       255       19      827       50     1922      131       
+464       240       17      825       50     1888      127
+492       224       15      847       50     2005      274
+

@@ -1,0 +1,10 @@
+#Neutron inelastic cross sections between 55 and 140 MeV (carbon) 
+# source : NNDC
+# (J,PRS/A,236,52,1956)  Journ.: Proc. Royal Society (London), Series A, Vol.236, p.52 (1956)  UK
+# R.G.P.Voss,R.Wilson)
+#EN         EN-ERR     DATA       ERR-T      ERR-S      ERR-1      MISC1      
+#MEV        MEV        B          B          PER-CENT   PER-CENT   PER-CENT
+55.        2.         0.276      .0254        1.95       9.         27.
+81.        2.         0.202      .0202        4.65       9.         29.3
+105.       3.         0.234      .0077        1.44       3.         6.6
+140.       4.         0.221      .0100        1.5        4.         0.5

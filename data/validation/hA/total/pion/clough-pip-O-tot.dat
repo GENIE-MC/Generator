@@ -1,0 +1,10 @@
+#total cross sections for light nuclei
+# pi+ O
+#Clough et al. Nucl Phys B76, 15 1974
+#KE(Mev) sig(mb)  err
+89      674.3  37.1
+115     749.1  11.7
+128     783.1  17.1
+156     818.2  15.2
+187     772.6  15.2
+229     688.9  11.2
