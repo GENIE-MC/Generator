@@ -1,0 +1,17 @@
+# 
+# GENIE neutrino-nucleus cross-section data archive
+# 
+# Experiment : FNAL_15FT
+# Dataset ID : 11
+# Citation   : Ballagh:1981yh
+# Process    : numu CC mu-e+ / numu CC  
+# 
+# Energy is given in GeV.
+# 
+# E         Emin      Emax      R         +dR      -dR
+# 
+ 15.0       0.1       30.0      0.0021    0.0065   0.0011
+ 45.0      30.0       60.0      0.0071    0.0019   0.0019
+ 80.0      60.0      100.0      0.0071    0.0019   0.0019
+135.0     100.0      170.0      0.0078    0.0024   0.0024
+225.0     170.0      280.0      0.0095    0.0036   0.0036
