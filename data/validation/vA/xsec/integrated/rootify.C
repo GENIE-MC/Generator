@@ -95,8 +95,12 @@ int rootify(void)
          string directory = "";
          if      ( string(measurement).find("numu CC pi0 / numu CC QE")                 != string::npos ) directory = "ccpi_ccqe";
          else if ( string(measurement).find("numubar CC inclusive / numu CC inclusive") != string::npos ) directory = "ccr";
-         else if ( string(measurement).find("numu CC mu+mu- / numu CC inclusive")       != string::npos ) directory = "ccchm";
+         else if ( string(measurement).find("numu CC mu-mu+ / numu CC inclusive")       != string::npos ) directory = "ccchm";
+         else if ( string(measurement).find("numu CC mu-e+ / numu CC inclusive")        != string::npos ) directory = "ccchm";
+         else if ( string(measurement).find("numu CC mu-l+ / numu CC inclusive")        != string::npos ) directory = "ccchm";
          else if ( string(measurement).find("numubar CC mu+mu- / numubar CC inclusive") != string::npos ) directory = "ccchm";
+         else if ( string(measurement).find("numubar CC mu+e- / numubar CC inclusive")  != string::npos ) directory = "ccchm";
+         else if ( string(measurement).find("numubar CC mu+l- / numubar CC inclusive")  != string::npos ) directory = "ccchm";
          else if ( string(measurement).find("numu CC charm / numu CC inclusive")        != string::npos ) directory = "ccchm";
          else if ( string(measurement).find("CC inclusive")                             != string::npos ) directory = "ccincl";
          else if ( string(measurement).find("CC QE")                                    != string::npos ) directory = "ccqe";

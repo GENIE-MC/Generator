@@ -1,0 +1,18 @@
+# 
+# GENIE neutrino-nucleus cross-section data archive
+# 
+# Experiment : NOMAD
+# Dataset ID : 4
+# Citation   : Astier:2000us
+# Process    : numu CC mu+mu- / numu CC  
+# 
+# Energy is given in GeV.
+# 
+# E         Emin      Emax      R         +dR      -dR
+# 
+ 10.0       0.001     20.0      0.0023    0.0011   0.0011
+ 30.0      20.0       40.0      0.0036    0.0011   0.0011
+ 55.0      40.0       70.0      0.0047    0.0014   0.0014
+ 85.0      70.0      100.0      0.0061    0.0015   0.0015
+135.0     100.0      200.0      0.0068    0.0017   0.0017
+235.0     200.0      300.0      0.0053    0.0039   0.0039

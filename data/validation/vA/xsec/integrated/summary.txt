@@ -124,11 +124,17 @@
 #
 #
 # @@ Cross-section ratios
-# -----------------|----|--------------------|-----------------------------------------------|----|------|--------------------------------------------|---------------------------
-# Expt             | ID | Citation (SPIRES)  | Citation                                      | NP | Syst | Measured cross-section ratio               | Comments
-# -----------------|----|--------------------|-----------------------------------------------|----|------|--------------------------------------------|---------------------------
-  K2K              |  0 | Mariani:2010ez     | Mariani et al., Phys.Rev.D83:054023 (2011)    |  4 |   0  | numu CC pi0 / numu CC QE                   | 12C
-  MINOS            |  2 | Adamson:2009ju     | Adamson et al., Phys.Rev.D81:072002 (2010)    | 13 |   0  | numubar CC inclusive / numu CC inclusive   | 56Fe 	 
-  LMM_WorldAverage |  0 | De Lellis:2002mf   | De Lellis et al., J.Phys.G28:713 (2002)       | 33 |   0  | numu CC mu+mu- / numu CC inclusive         |
-  LMM_WorldAverage |  1 | De Lellis:2002mf   | De Lellis et al., J.Phys.G28:713 (2002)       | 32 |   0  | numubar CC mu+mu- / numubar CC inclusive   |
-  LMM_WorldAverage |  2 | De Lellis:2002mf   | De Lellis et al., J.Phys.G28:713 (2002)       | 33 |   0  | numu CC charm / numu CC inclusive          |
+# -----------------|----|--------------------|------------------------------------------------|----|------|--------------------------------------------|---------------------------
+# Expt             | ID | Citation (SPIRES)  | Citation                                       | NP | Syst | Measured cross-section ratio               | Comments
+# -----------------|----|--------------------|------------------------------------------------|----|------|--------------------------------------------|---------------------------
+  K2K              |  0 | Mariani:2010ez     | Mariani et al., Phys.Rev.D83:054023 (2011)     |  4 |   0  | numu CC pi0 / numu CC QE                   | 12C
+  MINOS            |  2 | Adamson:2009ju     | Adamson et al., Phys.Rev.D81:072002 (2010)     | 13 |   0  | numubar CC inclusive / numu CC inclusive   | 56Fe 	 
+  CDHS             |  2 | Abramowicz:1982zr  | Abramowicz et al., Z.Phys.C15:19 (1982)        | 10 |   0  | numu CC mu-mu+ / numu CC inclusive         | p_mu-, p_mu+ > 5 GeV, Evis > 20 GeV
+  FNAL_15FT        | 11 | Ballagh:1981yh     | Ballagh et al., Phys.Rev.D24:7 (1981)          |  5 |   0  | numu CC mu-e+ / numu CC inclusive          | p_e+ > 0.3 GeV/c, p_mu- > 4 GeV
+  NOMAD            |  4 | Astier:2000us      | Astier et al., Phys.Lett.B486:35 (2000)        |  6 |   0  | numu CC mu-mu+ / numu CC inclusive         | xvis < 1, Q2vis > 1 GeV^2, p_mu+, p_mu- > 4.5 GeV
+  CCFR             |  4 | Rabinowitz:1993xx  | Rabinowitz et al., Phys.Rev.Lett.70:134 (1993) | 10 |   0  | numu CC mu-mu+ / numu CC inclusive         | E744 and E770 data combined, Ehad > 10GeV, p_mu- > 9 GeV, p_mu+ > 5 GeV
+  CCFR             |  5 | Foudas:1989rk      | Foudas et al., Phys.Rev.Lett.64:1207 (1990)    |  9 |   0  | numu CC mu-mu+ / numu CC inclusive         | E744 data only, p_mu-,p_mu+ > 9 GeV, theta_mu-,theta_mu+ < 250 mrad
+  Gargamelle       | 16 | Haatuft:1983it     | Haatuft et al., Nucl.Phys.B222:365 (1983)      |  3 |   0  | numu CC mu-e+ / numu CC inclusive          | p_e > 0.3 GeV/c, p_mu > 4.5 GeV/c
+  LMM_WorldAverage |  0 | De Lellis:2002mf   | De Lellis et al., J.Phys.G28:713 (2002)        | 33 |   0  | numu CC mu-l+ / numu CC inclusive          |
+  LMM_WorldAverage |  1 | De Lellis:2002mf   | De Lellis et al., J.Phys.G28:713 (2002)        | 32 |   0  | numubar CC mu+l- / numubar CC inclusive    |
+  LMM_WorldAverage |  2 | De Lellis:2002mf   | De Lellis et al., J.Phys.G28:713 (2002)        | 33 |   0  | numu CC charm / numu CC inclusive          |

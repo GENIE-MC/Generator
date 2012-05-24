@@ -1,0 +1,15 @@
+# 
+# GENIE neutrino-nucleus cross-section data archive
+# 
+# Experiment : CCFR
+# Dataset ID : 5
+# Citation   : Armenise:1979gw
+# Process    : numu CC mu-e+ / numu CC  
+# 
+# Energy is given in GeV.
+# 
+# E         Emin      Emax      R         +dR      -dR
+# 
+ 20.0      10.0       30.0      0.0028    0.0014   0.0016
+ 50.0      30.0       70.0      0.0043    0.0012   0.0012
+110.0      70.0      150.0      0.0065    0.0032   0.0030
