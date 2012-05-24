@@ -89,7 +89,7 @@ using namespace genie::mc_vs_data;
 const char * kDefDataFile = "data/validation/vA/xsec/integrated/nuXSec.root";  
 
 // number of comparisons
-const int kNumOfComparisons = 39;
+const int kNumOfComparisons = 45;
 
 // specify how exactly to construct all comparisons
 NuXSecComparison * kComparison[kNumOfComparisons] = 
@@ -382,18 +382,18 @@ NuXSecComparison * kComparison[kNumOfComparisons] =
      new CohPionXSec(kPdgAntiNuMu, 1000140300, kPdgPiM),
      1.0, 10.0, true, false, false
   ), 
-  // nu_mu CC mu-mu- / numu CC inclusive (averaged world-data)
+  // nu_mu CC mu-l+ / numu CC inclusive (averaged world-data)
   new NuXSecComparison(
     "numuCC_dilepton_ratio_worldavg",
-    "#nu_{#mu} CC #mu^{-}#mu^{+} / #nu_{#mu} CC (averaged world-data)",
+    "#nu_{#mu} CC #mu^{-}l^{+} / #nu_{#mu} CC (averaged world-data)",
     "LMM_WorldAverage,0",
      0,
      1.0, 600.0, true, false, false
   ), 
-  // nu_mu_bar CC mu-mu- / numubar CC inclusive (averaged world-data)
+  // nu_mu_bar CC mu+l- / numubar CC inclusive (averaged world-data)
   new NuXSecComparison(
     "numubarCC_dilepton_ratio_worldavg",
-    "#bar{#nu_{#mu}} CC #mu^{-}#mu^{+} / #bar{#nu_{#mu}} CC (averaged world-data)",
+    "#bar{#nu_{#mu}} CC #mu^{+}l^{-} / #bar{#nu_{#mu}} CC (averaged world-data)",
     "LMM_WorldAverage,1",
      0,
      1.0, 600.0, true, false, false
@@ -405,7 +405,55 @@ NuXSecComparison * kComparison[kNumOfComparisons] =
     "LMM_WorldAverage,2",
      0,
      1.0, 600.0, true, false, false
-  )
+  ),
+  // nu_mu CC mu-mu+ / numu CC inclusive (CDHS data with analysis-specific cuts)
+  new NuXSecComparison(
+    "numuCC_dilepton_cdhs",
+    "#nu_{#mu} CC #mu^{-}#mu^{+} / #nu_{#mu} CC (p_{#mu^{-}},p_{#mu^{+}} > 5 GeV; E_{vis} > 20 GeV)",
+    "CDHS,2",
+     0,
+     1.0, 300.0, true, false, false
+  ), 
+  // nu_mu CC mu-mu+ / numu CC inclusive (NOMAD data with analysis-specific cuts)
+  new NuXSecComparison(
+    "numuCC_dilepton_nomad",
+    "#nu_{#mu} CC #mu^{-}#mu^{+} / #nu_{#mu} CC (x_{vis} < 1; Q^{2}_{vis} > 1 GeV^{2}; p_{#mu^{-}},p_{#mu^{+}} > 5 GeV)",
+    "NOMAD,4",
+     0,
+     1.0, 300.0, true, false, false
+  ), 
+  // nu_mu CC mu-mu+ / numu CC inclusive (CCFR, E744+E770 combined data with analysis-specific cuts)
+  new NuXSecComparison(
+    "numuCC_dilepton_e744_e770",
+    "#nu_{#mu} CC #mu^{-}#mu^{+} / #nu_{#mu} CC (E_{had} > 10 GeV; p_{#mu^{-}} > 9 GeV; p_{#mu^{+}} > 5 GeV)",
+    "CCFR,4",
+     0,
+     1.0, 450.0, true, false, false
+  ), 
+  // nu_mu CC mu-mu+ / numu CC inclusive (CCFR, E744-only data with analysis-specific cuts)
+  new NuXSecComparison(
+    "numuCC_dilepton_e744",
+    "#nu_{#mu} CC #mu^{-}#mu^{+} / #nu_{#mu} CC (p_{#mu^{-}},p_{#mu^{+}} > 9 GeV; #theta_{#mu^{-}},#theta_{#mu^{+}} < 250 mrad)",
+    "CCFR,5",
+     0,
+     1.0, 600.0, true, false, false
+  ), 
+  // nu_mu CC mu-e+ / numu CC inclusive (FNAL_15FT data with analysis-specific cuts)
+  new NuXSecComparison(
+    "numuCC_dilepton_fnal15ft",
+    "#nu_{#mu} CC #mu^{-}e^{+} / #nu_{#mu} CC (p_{#mu^{-}} > 4 GeV; p_{e^{+}} > 0.3 GeV)",
+    "FNAL_15FT,11",
+     0,
+     1.0, 300.0, true, false, false
+  ), 
+  // nu_mu CC mu-e+ / numu CC inclusive (Gargamelle data with analysis-specific cuts)
+  new NuXSecComparison(
+    "numuCC_dilepton_gargamelle",
+    "#nu_{#mu} CC #mu^{-}e^{+} / #nu_{#mu} CC (p_{#mu^{-}} > 4.5 GeV; p_{e^{+}} > 0.3 GeV)",
+    "Gargamelle,16",
+     0,
+     1.0, 150.0, true, false, false
+  ) 
 };
 
 // styles
