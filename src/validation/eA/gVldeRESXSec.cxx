@@ -13,18 +13,15 @@
 
          Syntax:
            gvld_e_res_xsec 
-                -r model_for_resonance_xsec
-                -c model_for_dis_continuum_xsec
-               [-d data_archive]
-               [-s datasets_to_plot]
+               [-d                             data_archive]
+               [-s                             datasets_to_plot]
+                --resonance-xsec-model         genie_model_name
+                --non-resonance-bkg-xsec-model genie_model_name
+               [--fit-params                   list_of_fit_params]
 
          Options:
 
            [] Denotes an optional argument.
-
-           -r Specify GENIE resonance electro-production cross-section model.
-
-           -c Specify GENIE electron DIS cross-section model.
 
            -d Full path to the electron cross-section data archive.
               By default, will pick the one at:
@@ -34,10 +31,29 @@
               By default, will pick the one at:
               $GENIE/data/validation/eA/xsec/differential/res/datasets.txt
 
+           --resonance-xsec-model 
+             Specify GENIE resonance electro-production cross-section model.
+
+           --non-resonance-bkg-xsec-model 
+             Specify GENIE electron DIS cross-section model.
+
+           --fit-params
+             Specify resonance cross-section model fit params.
+             This is an optional argument. Don't specify a fit parameter list 
+             if you only want to see a comparison of data with the nominal model.
+             If a fit is performed, both the nominal and best-fit predictions are shown.
+             An arbitrary number of fit parameters can be specified.
+             The parameters must be present in the cross-section algorithm configuration.
+             For each parameter, specify the name, the nominal/initial value, the minimum
+             value, the maximum value and the step size in a comma separated list.
+             Repeat for other fit parameters using a `:' to separate between them.
+             For example:
+		--fit-params norm,1.0,0.8,1.2,0.01:Mv,0.840,0.6,1.0,0.01
+ 
          Example:
 
             % gvld_e_res_xsec 
-                  -r genie::ReinSeghalRESPXSec/Default
+                  --resonance-xsec-model genie::ReinSeghalRESPXSec/Default
                   -c genie::QPMDISPXSec/Default
 
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
@@ -72,8 +88,10 @@
 #include <TText.h>
 #include <TLegend.h>
 #include <TBox.h>
+#include <TVirtualFitter.h>
 
 #include "Algorithm/AlgFactory.h"
+#include "Algorithm/AlgConfigPool.h"
 #include "Base/XSecAlgorithmI.h"
 #include "BaryonResonance/BaryonResonance.h"
 #include "BaryonResonance/BaryonResUtils.h"
@@ -82,6 +100,7 @@
 #include "Messenger/Messenger.h"
 #include "PDG/PDGUtils.h"
 #include "PDG/PDGCodes.h"
+#include "Registry/Registry.h"
 #include "Utils/CmdLnArgParser.h"
 #include "Utils/KineUtils.h"
 #include "Utils/StringUtils.h"
@@ -172,20 +191,32 @@ const double kWcut = 1.7; // Wcut from UserPhysicsOptions.xml
 // globals
 //
 
-string gOptDataArchiveFilename = ""; // -d command-line argument
-string gOptDataSetsFilename    = ""; // -s command-line argument
-string gOptRESModelName        = ""; // -r command-line argument
-string gOptDISModelName        = ""; // -c command-line argument
+string gOptDataArchiveFilename = ""; // -d argument
+string gOptDataSetsFilename    = ""; // -s argument
+string gOptRESModelName        = ""; // --resonance-xsec-model argument
+string gOptDISModelName        = ""; // --non-resonance-bkg-xsec-model argument
+string gOptFitParams           = ""; // --fit-params argument
 
 TFile *        gResDataFile  = 0;
 TTree *        gResDataTree  = 0;
 TPostScript *  gPS           = 0;
 TCanvas *      gC            = 0;
 
-const XSecAlgorithmI * gRESXSecModel = 0;
-const XSecAlgorithmI * gDISXSecModel = 0;
+XSecAlgorithmI * gRESXSecModel = 0; // resonance cross-section model
+XSecAlgorithmI * gDISXSecModel = 0; // non-resonance bkg cross-section model
 
 vector<eResDataSetDescription *> gDataSets; // list of plotted datasets
+
+bool gOptFitEnabled = false;
+
+Registry * fNominalResonanceParams = 0; // nominal configuration of resonance xsec model
+Registry * fBestFitResonanceParams = 0; // best-fit configuration of resonance xsec model
+
+vector<string> gFitParamName; // specified names of fit params
+vector<double> gFitParamNom;  // specified nominal/initial values of fit params
+vector<double> gFitParamMin;  // specified min values of fit params
+vector<double> gFitParamMax;  // specified max values of fit params
+vector<double> gFitParamStep; // specified step size of fit params
 
 //
 // function prototypes
@@ -196,9 +227,11 @@ void             End                (void);
 TGraphErrors *   Data               (unsigned int iset);
 vector<TGraph *> Model              (unsigned int iset, unsigned int imodel);
 void             Draw               (unsigned int iset);
+void             DoTheFit           (void);
+void             FitFunc            (Int_t &, Double_t *, Double_t &f, Double_t *par, Int_t iflag);
+double           Chisquare          (double *par);
 void             GetCommandLineArgs (int argc, char ** argv);
 void             PrintSyntax        (void);
-
 
 //_________________________________________________________________________________
 int main(int argc, char ** argv)
@@ -207,7 +240,13 @@ int main(int argc, char ** argv)
 
   Init();
 
-  // loop over data sets and plot data and corresponding GENIE predictions
+  // Fit resonance data, if fit params were specified in the command line
+  if(gOptFitEnabled) {
+     DoTheFit();
+  }
+
+  // Loop over data sets and plot data and corresponding GENIE predictions.
+  // If a fit was enabled, plot both the nominal and best-fit predictions.
   for(unsigned int iset = 0; iset < gDataSets.size(); iset++) 
   {
     LOG("gvldtest", pNOTICE) 
@@ -284,9 +323,8 @@ void Init(void)
   LOG("gvldtest", pNOTICE)
      << "Read "  << gDataSets.size() << " datasets";
 
-
   //
-  // Get cross-section models
+  // Get specified cross-section models
   //
   AlgFactory * algf = AlgFactory::Instance();
   gRESXSecModel = 0;
@@ -296,8 +334,8 @@ void Init(void)
      string model_name = modelv[0];
      string model_conf = modelv[1];
      gRESXSecModel =
-        dynamic_cast<const XSecAlgorithmI *> (
-            algf->GetAlgorithm(model_name, model_conf));
+        dynamic_cast<XSecAlgorithmI *> (
+            algf->AdoptAlgorithm(model_name, model_conf));
   }
   gDISXSecModel = 0;
   if(gOptDISModelName != "none"){
@@ -306,8 +344,32 @@ void Init(void)
      string model_name = modelv[0];
      string model_conf = modelv[1];
      gDISXSecModel =
-        dynamic_cast<const XSecAlgorithmI *> (
-            algf->GetAlgorithm(model_name, model_conf));
+        dynamic_cast<XSecAlgorithmI *> (
+            algf->AdoptAlgorithm(model_name, model_conf));
+  }
+
+  //
+  if(gOptFitEnabled) {
+     assert(gRESXSecModel);
+     gRESXSecModel->AdoptSubstructure(); 
+     // print configuration of resonce model
+     const Registry & r = gRESXSecModel->GetConfig();
+     LOG("gvldtest", pNOTICE) << "Resonance model configuration: \n" << r;
+     // find which parameters to fit
+     vector<string> fitparams = utils::str::Split(gOptFitParams,":");
+     assert(fitparams.size() >= 1);
+     vector<string>::iterator iter = fitparams.begin();
+     for( ; iter != fitparams.end(); ++iter) {
+        string fp = *iter;
+        vector<string> fptokens = utils::str::Split(fp,",");
+        assert(fptokens.size() == 5);
+        gFitParamName.push_back(fptokens[0]);
+        gFitParamNom. push_back(atof(fptokens[1].c_str()));
+        gFitParamMin. push_back(atof(fptokens[2].c_str()));
+        gFitParamMax. push_back(atof(fptokens[3].c_str()));
+        gFitParamStep.push_back(atof(fptokens[4].c_str()));
+        LOG("gvldtest", pNOTICE) << "Fit parameter " << fptokens[0] << " was added";
+     }
   }
 
   // Create plot canvas
@@ -320,7 +382,6 @@ void Init(void)
   // Get local time to tag outputs
   string lt_for_filename   = utils::system::LocalTimeAsString("%02d.%02d.%02d_%02d.%02d.%02d");
   string lt_for_cover_page = utils::system::LocalTimeAsString("%02d/%02d/%02d %02d:%02d:%02d");
-
 
   // Create output postscript file
   string filename  = Form("genie-e_res_data_comp-%s.ps",lt_for_filename.c_str());
@@ -554,20 +615,47 @@ vector<TGraph *> Model(unsigned int iset, unsigned int imodel)
   // Create graphs & store them in array
   if(calc_tot) {
      TGraph * gr = new TGraph(n,W2_array,d2sigTOT_dEpdOmega_array);
+     const char * title = 0;
+     int lstyle = kSolid;
+     if(gOptFitEnabled) {
+       if      (imodel==0) { title = "Total (Best-fit)"; }
+       else if (imodel==1) { title = "Total (Nominal)"; lstyle = kDashed; }
+     } else {
+       title = "Total";
+     }
      gr->SetLineColor(kBlack);
-     gr->SetTitle("Total");
+     gr->SetLineStyle(lstyle);
+     gr->SetTitle(title);
      model.push_back(gr);
   }
   if(calc_res) {
      TGraph * gr = new TGraph(n,W2_array,d2sigRES_dEpdOmega_array);
+     const char * title = 0;
+     int lstyle = kSolid;
+     if(gOptFitEnabled) {
+       if      (imodel==0) { title = "Resonance (Best-fit)"; }
+       else if (imodel==1) { title = "Resonance (Nominal)"; lstyle = kDashed; }
+     } else {
+       title = "Resonance";
+     }
      gr->SetLineColor(kRed);
-     gr->SetTitle("Resonance");
+     gr->SetLineStyle(lstyle);
+     gr->SetTitle(title);
      model.push_back(gr);
   }
   if(calc_dis) {
      TGraph * gr = new TGraph(n,W2_array,d2sigDIS_dEpdOmega_array);
+     const char * title = 0;
+     int lstyle = kSolid;
+     if(gOptFitEnabled) {
+       if      (imodel==0) { title = "Non-resonance bkg / DIS (Best-fit)"; }
+       else if (imodel==1) { title = "Non-resonance bkg / DIS (Nominal)"; lstyle = kDashed; }
+     } else {
+       title = "Non-resonance bkg / DIS";
+     }
      gr->SetLineColor(kBlue);
-     gr->SetTitle("Non-resonance bkg / DIS");
+     gr->SetLineStyle(lstyle);
+     gr->SetTitle(title);
      model.push_back(gr);
   }
   
@@ -636,7 +724,15 @@ void Draw(unsigned int iset)
   if(!data) return;
 
   // get the corresponding GENIE model prediction
-  vector<TGraph *> model = Model(iset,0);
+  vector< vector<TGraph *> > model(2);
+  if(gOptFitEnabled) {
+    gRESXSecModel->Configure(*fBestFitResonanceParams); 
+    model[0] = Model(iset,0);
+    gRESXSecModel->Configure(*fNominalResonanceParams); 
+    model[1] = Model(iset,1);
+  } else {
+    model[0] = Model(iset,0);
+  }
 
   int plots_per_page = kNCx * kNCy;
   int iplot = 1 + iset % plots_per_page;
@@ -665,17 +761,19 @@ void Draw(unsigned int iset)
   xmin  = TMath::Max(xmin, 0.5); // some data go very low 
   // take also into account the d2sigma/dEdOmega range in the the models
   // (for the W2 range of the dataset) just in case data and MC are not that similar...
-  for(unsigned int imode=0; imode < model.size(); imode++) {
-    TGraph * mm = model[imode];
-    if(mm) {
-      for(int k=0; k<mm->GetN(); k++) {
-         double x = (mm->GetX())[k];
-         if(x < xmin || x > xmax) continue;
-         ymin = TMath::Min(ymin, (mm->GetY())[k]);
-         ymax = TMath::Max(ymax, (mm->GetY())[k]);
-      }//k
-    }//mm
-  }//imode
+  for(unsigned int imodel=0; imodel < model.size(); imodel++) {
+    for(unsigned int imode=0; imode < model[imodel].size(); imode++) {
+      TGraph * mm = model[imodel][imode];
+      if(mm) {
+        for(int k=0; k<mm->GetN(); k++) {
+          double x = (mm->GetX())[k];
+          if(x < xmin || x > xmax) continue;
+          ymin = TMath::Min(ymin, (mm->GetY())[k]);
+          ymax = TMath::Max(ymax, (mm->GetY())[k]);
+        }//k
+      }//mm
+    }//imode
+  }//imodel
   LOG("gvldtest", pDEBUG) 
     << "Plot range:" 
     << "W^{2} = [" << xmin << ", " << xmax << "] GeV^{2}, "
@@ -689,22 +787,27 @@ void Draw(unsigned int iset)
 
   // draw data and GENIE models
   data->Draw("P");
-  for(unsigned int imode=0; imode < model.size(); imode++) {
-    TGraph * mm = model[imode];
-    if(!mm) continue;
-    mm->Draw("L");
+  for(unsigned int imodel=0; imodel < model.size(); imodel++) {
+    for(unsigned int imode=0; imode < model[imodel].size(); imode++) {
+       TGraph * mm = model[imodel][imode];
+       if(!mm) continue;
+       mm->Draw("L");
+    }
   }
 
   // add legend
-  TLegend * legend = new TLegend(0.20, 0.75, 0.50, 0.85);
+  double lymin = (gOptFitEnabled) ? 0.65 : 0.75;
+  TLegend * legend = new TLegend(0.20, lymin, 0.50, 0.85);
   legend->SetLineStyle(0);
   legend->SetFillStyle(0);
   legend->SetTextSize(0.025);
   legend->SetHeader("GENIE");
-  for(unsigned int imode=0; imode < model.size(); imode++) {
-    TGraph * mm = model[imode];
-    if(!mm) continue;
-    legend->AddEntry(mm,mm->GetTitle(),"L");
+  for(unsigned int imodel=0; imodel < model.size(); imodel++) {
+    for(unsigned int imode=0; imode < model[imodel].size(); imode++) {
+       TGraph * mm = model[imodel][imode];
+       if(!mm) continue;
+       legend->AddEntry(mm,mm->GetTitle(),"L");
+    }
   }
   legend->Draw();
 
@@ -743,6 +846,129 @@ void Draw(unsigned int iset)
 
   gC->GetPad(iplot)->Update();
   gC->Update();
+}
+//_________________________________________________________________________________
+void DoTheFit(void)
+{
+  if(!gOptFitEnabled) return;
+
+  // Store nominal params
+  fNominalResonanceParams = new Registry(gRESXSecModel->GetConfig());
+
+  // Find number of fit params and get a fitter
+  const unsigned int nfitparams = gFitParamName.size();
+
+  TVirtualFitter::SetDefaultFitter("Minuit");
+  TVirtualFitter * fitter = TVirtualFitter::Fitter(0,nfitparams);
+      
+  double arglist[100];
+  arglist[0] = -1;
+  fitter->ExecuteCommand("SET PRINT",arglist,1);
+
+  // Set parameters
+  for(unsigned int i = 0; i < nfitparams; i++) 
+  {
+    string name    = gFitParamName[i];
+    double nominal = gFitParamNom [i];
+    double min     = gFitParamMin [i];
+    double max     = gFitParamMax [i];
+    double step    = gFitParamStep[i];
+
+    LOG("gtune", pNOTICE)
+        << "** Setting fit param " << i
+          << " (" << name << ") initial value = " << nominal
+             << ", range = [" << min << ", " << max <<"]";
+
+    fitter->SetParameter(i, name.c_str(), nominal, step, min, max);
+  }
+  fitter->SetFCN(FitFunc);
+
+  // MINUIT minimization step
+  arglist[0] = 500;   // num of func calls
+  arglist[1] = 0.01;  // tolerance
+  fitter->ExecuteCommand("MIGRAD",arglist,2);
+
+  // Get fit status code
+  double ha(0.);      //minuit dummy vars
+  double edm, errdef; //minuit dummy vars
+  int nvpar, nparx;   //minuit dummy vars
+  int status_code = fitter->GetStats(ha,edm,errdef,nvpar,nparx);
+  LOG("gtune", pNOTICE)
+    << "Minuit status code = " << status_code;
+
+  // Get and store best-fit values
+  fBestFitResonanceParams = new Registry(gRESXSecModel->GetConfig());
+
+  // Print results
+  double amin = 0;
+  fitter->PrintResults(3,amin);
+
+}
+//_________________________________________________________________________________
+void FitFunc (
+        Int_t &, Double_t *, Double_t &f, Double_t *par, Int_t /*iflag*/)
+{
+// MINUIT fit function with signature expected by TVirtualFitter::SetFCN()
+
+  f = Chisquare(par);
+}
+//_________________________________________________________________________________
+double Chisquare(double *par)
+{
+  //
+  // Reconfigure resonance cross-section algorithm
+  //
+  Registry r(gRESXSecModel->GetConfig());
+  r.UnLock();
+  const unsigned int nfitparams = gFitParamName.size();
+  for(unsigned int i = 0; i < nfitparams; i++) {
+    string pname  = gFitParamName[i];
+    double pvalue = par[i];
+    r.Set(pname,pvalue);
+  }
+  gRESXSecModel->Configure(r);
+  LOG("gvldtest", pNOTICE) 
+      << "Computing \\chi^{2} using RES xsec config: " << r;
+
+  //
+  // Compute chisq using updated model
+  //
+  double chisq = 0;
+
+  // loop over data sets 
+  for(unsigned int iset = 0; iset < gDataSets.size(); iset++) 
+  {
+    LOG("gvldtest", pINFO) 
+      << "Including dataset: " << gDataSets[iset]->LabelTeX();
+
+    // get the data
+    TGraphErrors * data = Data(iset);
+    if(!data) continue;
+
+    // get the corresponding GENIE model prediction
+    vector<TGraph *> model = Model(iset,0);
+
+    // loop over data points and calculate contribution to chisq
+    for(int ipoint = 0; ipoint < data->GetN(); ipoint++) {
+        double xd     = data->GetX() [ipoint];
+	if(xd>2) continue;
+        double yd     = data->GetY() [ipoint];
+        double yd_err = data->GetEY()[ipoint];
+        double ym     = model[0]->Eval(xd);
+        chisq += TMath::Power((yd-ym)/yd_err, 2.);
+    }
+    delete data;
+    for(unsigned int i=0; i<model.size(); i++) {
+	delete model[i];
+        model[i]=0;
+    }
+    model.clear();
+
+  }//iset
+
+  LOG("gvldtest", pNOTICE) << "Chisq = " << chisq;
+
+  return chisq;
 }
 //_________________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
@@ -786,13 +1012,17 @@ void GetCommandLineArgs(int argc, char ** argv)
   }
 
   // Get GENIE model names to be used
-  if(parser.OptionExists('r')){
-     gOptRESModelName = parser.ArgAsString('r');
+  if(parser.OptionExists("resonance-xsec-model")){
+     gOptRESModelName = parser.Arg("resonance-xsec-model");
   }   
-  if(parser.OptionExists('c')){
-     gOptDISModelName = parser.ArgAsString('c');
+  if(parser.OptionExists("non-resonance-bkg-xsec-model")){
+     gOptDISModelName = parser.Arg("non-resonance-bkg-xsec-model");
   }
 
+  if(parser.OptionExists("fit-params")) {
+     gOptFitEnabled = true;
+     gOptFitParams = parser.Arg("fit-params");
+  }
 }
 //_________________________________________________________________________________
 void PrintSyntax(void)
@@ -801,8 +1031,9 @@ void PrintSyntax(void)
     << "\n\n" << "Syntax:" 
     << "\n"
     << " gvld_e_res_xsec \n"
-    << "       -r model_for_resonance_xsec \n"
-    << "       -c model_for_dis_continuum_xsec \n"
+    << "       --resonance-xsec-model         genie_model \n"
+    << "       --non-resonance-bkg-xsec-model genie_model \n"
+    << "      [--fit-params parameters_to_fit_for_if_any] \n"
     << "      [-d data_archive] \n"
     << "      [-s datasets_to_plot] \n";
 }
