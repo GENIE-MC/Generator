@@ -18,6 +18,8 @@
                 --resonance-xsec-model         genie_model_name
                 --non-resonance-bkg-xsec-model genie_model_name
                [--fit-params                   list_of_fit_params]
+               [--fit-W2min                    W2min]
+               [--fit-W2max                    W2max]
 
          Options:
 
@@ -49,6 +51,12 @@
              Repeat for other fit parameters using a `:' to separate between them.
              For example:
 		--fit-params norm,1.0,0.8,1.2,0.01:Mv,0.840,0.6,1.0,0.01
+
+           --fit-W2min and 
+           --fit-W2max
+             Specify the W^2 range included in the fit.
+             The default W^2 range is 1 GeV^2 to 2 GeV^2 (range including
+             the Delta(1232) resonance).
  
          Example:
 
@@ -191,11 +199,13 @@ const double kWcut = 1.7; // Wcut from UserPhysicsOptions.xml
 // globals
 //
 
-string gOptDataArchiveFilename = ""; // -d argument
-string gOptDataSetsFilename    = ""; // -s argument
-string gOptRESModelName        = ""; // --resonance-xsec-model argument
-string gOptDISModelName        = ""; // --non-resonance-bkg-xsec-model argument
-string gOptFitParams           = ""; // --fit-params argument
+string gOptDataArchiveFilename = "";  // -d argument
+string gOptDataSetsFilename    = "";  // -s argument
+string gOptRESModelName        = "";  // --resonance-xsec-model argument
+string gOptDISModelName        = "";  // --non-resonance-bkg-xsec-model argument
+string gOptFitParams           = "";  // --fit-params argument
+double gOptW2min               = 1.0; // --fit-W2min argument
+double gOptW2max               = 2.0; // --fit-W2max argument
 
 TFile *        gResDataFile  = 0;
 TTree *        gResDataTree  = 0;
@@ -884,6 +894,11 @@ void DoTheFit(void)
   fitter->SetFCN(FitFunc);
 
   // MINUIT minimization step
+
+  LOG("gtune", pNOTICE)
+        << "** Running fitter considering data-points in the W^2 range = [" 
+        << gOptW2min << ", " << gOptW2min << "] GeV^2";
+
   arglist[0] = 500;   // num of func calls
   arglist[1] = 0.01;  // tolerance
   fitter->ExecuteCommand("MIGRAD",arglist,2);
@@ -950,8 +965,10 @@ double Chisquare(double *par)
 
     // loop over data points and calculate contribution to chisq
     for(int ipoint = 0; ipoint < data->GetN(); ipoint++) {
-        double xd     = data->GetX() [ipoint];
-	if(xd>2) continue;
+        double xd = data->GetX() [ipoint]; // W^2
+        // consider only the data points in the specified W^2 range
+	if(xd < gOptW2min) continue;        
+	if(xd > gOptW2max) continue;
         double yd     = data->GetY() [ipoint];
         double yd_err = data->GetEY()[ipoint];
         double ym     = model[0]->Eval(xd);
@@ -1023,6 +1040,17 @@ void GetCommandLineArgs(int argc, char ** argv)
      gOptFitEnabled = true;
      gOptFitParams = parser.Arg("fit-params");
   }
+
+  if(parser.OptionExists("fit-W2min")) {
+     string sW2 = parser.Arg("fit-W2min");
+     gOptW2min = atof(sW2.c_str());
+  }
+
+  if(parser.OptionExists("fit-W2max")) {
+     string sW2 = parser.Arg("fit-W2max");
+     gOptW2max = atof(sW2.c_str());
+  }
+
 }
 //_________________________________________________________________________________
 void PrintSyntax(void)
