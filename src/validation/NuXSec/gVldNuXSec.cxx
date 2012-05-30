@@ -188,7 +188,7 @@ NuXSecComparison * kComparison[kNumOfComparisons] =
     "#nu_{#mu} CCQE, deuterium data",
     "ANL_12FT,1;ANL_12FT,3;BEBC,12;BNL_7FT,3;FNAL_15FT,3",
      new CCQEXSec(kPdgNuMu,kPdgTgtFreeN,kPdgNeutron),
-     0.1, 30.0, true, false, false
+     0.1, 10.0, true, false, false
   ),
   // nu_mu CC QE, data on heavier targets
   new NuXSecComparison(
@@ -681,20 +681,31 @@ void Draw(int icomparison)
            << "\n Can re-use MC prediction from data/MC comparison: " 
            << kComparison[jcomparison]->ID();
        for(int imodel=0; imodel< gOptGenieInputs.NModels(); imodel++) {
+          // Get energy range and step for current comparison
           double xmin = (inlogx) ? TMath::Log10(emin) : emin;
           double xmax = (inlogx) ? TMath::Log10(emax) : emax;
           double dx   = (xmax-xmin)/(n-1);
+          // Declare energy, cross-section and cross-section error arrays
           double * energy_array    = new double [n];
           double * xsec_array      = new double [n];
           double * xsec_array_errp = new double [n];
           double * xsec_array_errm = new double [n];
+          // Get source prediction (prediction from previous data/MC comparison) 
+          // which is to be reused in current comparison
           TGraphAsymmErrors * source_model = gMCPredictions[jcomparison][imodel];
+          // Check whether result to be recycled is xsec or xsec/E as this might
+          // need to change for current data/MC comparison
           bool source_graph_scaled = kComparison[jcomparison]->ScaleWithE();
+          // Loop over n points within the specified energy range
           for(int i = 0; i < n; i++) {
             double energy = (inlogx) ? TMath::Power(10., xmin+i*dx) : xmin+i*dx;
             assert(energy>0.);
+            // Retrieve value from source model
             double xsec = source_model->Eval(energy);
             if(source_graph_scaled) { xsec *= energy; }
+            // Retrieve cross-section error from source model.
+            // Since model error was not necessarily evaluated in the same energy points 
+            // interpolate the +/- cross-section errors in the current energy
             Long64_t k = TMath::BinarySearch(n,source_model->GetX(),energy);
             double xsec_errp = 0;
             double xsec_errm = 0;
@@ -732,7 +743,7 @@ void Draw(int icomparison)
             xsec_array_errm[i] = (scale) ? xsec_errm/energy : xsec_errm;
           }//i
           TGraphAsymmErrors * model = new TGraphAsymmErrors(
-               n,energy_array,xsec_array,0,0,xsec_array_errp,xsec_array_errm);
+               n,energy_array,xsec_array,0,0,xsec_array_errm,xsec_array_errp);
           model->SetTitle(gOptGenieInputs.ModelTag(imodel).c_str());
           int lsty = kModelLineStyle[imodel];     
           utils::style::Format(model,kBlack,lsty,2,1,1,1);
@@ -750,7 +761,6 @@ void Draw(int icomparison)
     }//recycle
   }//gShowModels
   gMCPredictions[icomparison]=models;
-
 
   // add a new page in the output ps file
   gOutPS->NewPage();
@@ -831,7 +841,7 @@ void Draw(int icomparison)
     if(!models[imodel]) continue;
     bool show_err_band = (imodel==0) ? gOptShowErrBands : false;
     if(show_err_band) {
-       models[imodel]->Draw("c4");
+       models[imodel]->Draw("c3");
        legend->AddEntry(models[imodel], models[imodel]->GetTitle(), "LF");
     } else {
        models[imodel]->Draw("c");
