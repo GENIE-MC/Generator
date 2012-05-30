@@ -217,9 +217,10 @@ TGraphAsymmErrors * XSecForModeX::ExtractFromEventSample(
           }//iev
           hmxtwk[isyst][itwk]->Divide(hincl);
           hmxtwk[isyst][itwk]->Smooth(2);
-          systlist.Set(fNuisanceParams[isyst], 0.);//reset
-          fRew.Reconfigure();
        }//itwk
+       systlist.Set(fNuisanceParams[isyst], 0.);//reset
+       fRew.Reconfigure();
+       systlist.Remove(fNuisanceParams[isyst]);
      }//isyst
   }//incl_err_band?
 
@@ -282,7 +283,7 @@ TGraphAsymmErrors * XSecForModeX::ExtractFromEventSample(
 
   // Build cross-section graph
   TGraphAsymmErrors * model = new TGraphAsymmErrors(
-     n,energy_array,xsec_array,0,0,xsec_array_errp, xsec_array_errm);
+     n,energy_array,xsec_array,0,0,xsec_array_errm, xsec_array_errp);
  
   // Clean-up
   delete hmx;
@@ -364,6 +365,7 @@ bool CCQEXSec::IsModeX(EventRecord & event)
   Interaction * in = event.Summary();
   if(!in->ProcInfo().IsWeakCC()) return false;
   if(!in->ProcInfo().IsQuasiElastic()) return false;
+  if(in->ExclTag().IsCharmEvent()) return false; // skip charm QE
   GHepParticle * neutrino = event.Probe();
   if(neutrino->Pdg() != fNuPdg) return false;
   GHepParticle * target = event.Particle(1); 
@@ -808,7 +810,7 @@ TGraphAsymmErrors * XSecRatioForModesXY::ExtractFromEventSample(
 
   // Build cross-section graph
   TGraphAsymmErrors * model = new TGraphAsymmErrors(
-     n,energy_array,R_array,0,0,R_array_errp,R_array_errm);
+     n,energy_array,R_array,0,0,R_array_errm,R_array_errp);
  
   // Clean-up
   delete hmx;
@@ -1194,7 +1196,7 @@ TGraphAsymmErrors * CCIsoInclXSec::ExtractFromEventSample(
 
   // Build cross-section graph
   TGraphAsymmErrors * model = new TGraphAsymmErrors(
-     n,energy_array,xsec_array,0,0,xsec_array_errp, xsec_array_errm);
+     n,energy_array,xsec_array,0,0,xsec_array_errm, xsec_array_errp);
 
   // Clean-up
   delete hnom_ccvp;
@@ -1517,7 +1519,7 @@ TGraphAsymmErrors * r::ExtractFromEventSample(
 
   // Build cross-section graph
   TGraphAsymmErrors * model = new TGraphAsymmErrors(
-     n,energy_array,r_array,0,0,r_array_errp, r_array_errm);
+     n,energy_array,r_array,0,0,r_array_errm, r_array_errp);
 
   // Clean-up
   delete hnom_ccvp;
