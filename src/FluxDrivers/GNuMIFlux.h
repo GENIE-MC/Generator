@@ -388,7 +388,7 @@ class xypartials {
    friend ostream & operator << (ostream & stream, const xypartials & info);
 public:
   xypartials() { ; }
-  void ReadStream(ifstream& myfile);
+  void ReadStream(std::ifstream& myfile);
   int  Compare(const xypartials& other) const;
   void Print(const Option_t* opt = "") const;
   static xypartials& GetStaticInstance(); // copy used by CalcEnuWgt()
