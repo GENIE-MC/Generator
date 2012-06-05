@@ -132,7 +132,7 @@ bool NaturalIsotopes::LoadTable(void)
 
   // load the natural isotopes .txt file
   string input_buf;
-  ifstream input(filename.c_str());  
+  std::ifstream input(filename.c_str());  
   if (input.is_open()){
     
     //skip first 8 lines (comments)
