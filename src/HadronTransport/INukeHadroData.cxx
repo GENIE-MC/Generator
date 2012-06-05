@@ -852,7 +852,7 @@ void INukeHadroData::ReadhNFile(
   double * costh_array, double * xsec_array, int cols)
 {
   // open 
-  ifstream hN_stream(filename.c_str(), ios::in);
+  std::ifstream hN_stream(filename.c_str(), ios::in);
   if(!hN_stream.good()) {
       LOG("INukeData", pERROR) 
           << "Error reading INTRANUKE/hN data from: " << filename;
