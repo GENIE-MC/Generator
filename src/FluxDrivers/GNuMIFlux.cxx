@@ -2197,7 +2197,7 @@ int gnumi2pdg(int igeant)
   }
 }
 
-void xypartials::ReadStream(ifstream& myfile)
+void xypartials::ReadStream(std::ifstream& myfile)
 {
   myfile >> parent_mass >> parentp >> parent_energy;
   myfile >> gamma >> beta_mag >> enuzr >> rad;
