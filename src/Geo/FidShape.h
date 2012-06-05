@@ -91,7 +91,7 @@ class FidShape {
   /// derived classes must implement the ConvertMaster2Top() method
   /// which transforms the shape specification from master coordinates to "top vol"
   virtual void ConvertMaster2Top(const ROOTGeomAnalyzer* rgeom) = 0;
-  virtual void Print(ostream& stream) const = 0;
+  virtual void Print(std::ostream& stream) const = 0;
   friend std::ostream& operator<< (std::ostream& stream, 
                               const genie::geometry::FidShape& shape);
 
