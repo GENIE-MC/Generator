@@ -64,7 +64,7 @@ void PlaneParam::ConvertMaster2Top(const ROOTGeomAnalyzer* rgeom)
 }
 
 //___________________________________________________________________________
-void PlaneParam::Print(ostream& stream) const
+void PlaneParam::Print(std::ostream& stream) const
 {
   stream << "PlaneParam=[" << a << "," << b << "," << c << "," << d << "]"; 
 }
@@ -105,7 +105,7 @@ void FidSphere::ConvertMaster2Top(const ROOTGeomAnalyzer* rgeom)
 }
 
 //___________________________________________________________________________
-void FidSphere::Print(ostream& stream) const
+void FidSphere::Print(std::ostream& stream) const
 {
   stream << "FidSphere @ ["
          << fCenter.X() << ","
@@ -204,7 +204,7 @@ void FidCylinder::ConvertMaster2Top(const ROOTGeomAnalyzer* rgeom)
 }
 
 //___________________________________________________________________________
-void FidCylinder::Print(ostream& stream) const
+void FidCylinder::Print(std::ostream& stream) const
 {
   stream << "FidCylinder @ ["
          << fCylBase.X() << ","
@@ -304,7 +304,7 @@ void FidPolyhedron::ConvertMaster2Top(const ROOTGeomAnalyzer* rgeom)
     aplane.ConvertMaster2Top(rgeom);
   }
 }
-void FidPolyhedron::Print(ostream& stream) const
+void FidPolyhedron::Print(std::ostream& stream) const
 {
   size_t nfaces = fPolyFaces.size();
   stream << "FidPolyhedron n=" << nfaces;
