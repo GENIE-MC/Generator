@@ -33,6 +33,7 @@ class TSQLServer;
 class TGraph;
 
 using std::string;
+using std::ostream;
 using std::ofstream;
 
 namespace genie {
