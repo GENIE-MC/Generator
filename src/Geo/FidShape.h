@@ -73,7 +73,7 @@ class PlaneParam {
     { return raycos.Px()*a + raycos.Py()*b + raycos.Pz()*c; }
   Bool_t   IsValid() const { return (a != 0 || b != 0 || c != 0 ); }
   void     ConvertMaster2Top(const ROOTGeomAnalyzer* rgeom);
-  void     Print(ostream& stream) const;
+  void     Print(std::ostream& stream) const;
   friend std::ostream& operator<< (std::ostream& stream, 
                                    const genie::geometry::PlaneParam& pparam);
 
@@ -92,7 +92,7 @@ class FidShape {
   /// which transforms the shape specification from master coordinates to "top vol"
   virtual void ConvertMaster2Top(const ROOTGeomAnalyzer* rgeom) = 0;
   virtual void Print(ostream& stream) const = 0;
-  friend ostream& operator<< (ostream& stream, 
+  friend std::ostream& operator<< (std::ostream& stream, 
                               const genie::geometry::FidShape& shape);
 
 };
@@ -102,7 +102,7 @@ class FidSphere : public FidShape {
  FidSphere(const TVector3& center, Double_t radius) : fCenter(center), fSRadius(radius) { ; }
  RayIntercept Intercept(const TVector3& start, const TVector3& dir) const;
  void         ConvertMaster2Top(const ROOTGeomAnalyzer* rgeom);
- void         Print(ostream& stream) const;
+ void         Print(std::ostream& stream) const;
  protected:
  TVector3    fCenter;   /// center of the sphere
  Double_t    fSRadius;  /// radius of the sphere
@@ -116,7 +116,7 @@ class FidCylinder : public FidShape {
  RayIntercept Intercept(const TVector3& start, const TVector3& dir) const;
  RayIntercept InterceptUncapped(const TVector3& start, const TVector3& dir) const;
  void         ConvertMaster2Top(const ROOTGeomAnalyzer* rgeom);
- void         Print(ostream& stream) const;
+ void         Print(std::ostream& stream) const;
  protected:
 
  TVector3    fCylBase;   /// base point on cylinder axis
@@ -134,7 +134,7 @@ class FidPolyhedron : public FidShape {
  void clear() { fPolyFaces.clear(); }
  RayIntercept Intercept(const TVector3& start, const TVector3& dir) const;
  void         ConvertMaster2Top(const ROOTGeomAnalyzer* rgeom);
- void         Print(ostream& stream) const;
+ void         Print(std::ostream& stream) const;
  protected:
  std::vector<PlaneParam> fPolyFaces;  /// the collection of planar equations for the faces
 };
