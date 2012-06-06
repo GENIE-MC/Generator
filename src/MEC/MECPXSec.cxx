@@ -29,6 +29,8 @@
 
 #include <TMath.h>
 
+#include "Conventions/Constants.h"
+#include "Conventions/Controls.h"
 #include "Conventions/GBuild.h"
 #include "Conventions/Units.h"
 #include "GHEP/GHepParticle.h"
@@ -40,6 +42,8 @@
 #include "Utils/KineUtils.h"
 
 using namespace genie;
+using namespace genie::constants;
+using namespace genie::controls;
 
 //____________________________________________________________________________
 MECPXSec::MECPXSec() :
@@ -68,6 +72,9 @@ double MECPXSec::XSec(
 
 //  if(! this -> ValidProcess    (interaction) ) return 0.;
 //  if(! this -> ValidKinematics (interaction) ) return 0.;
+  bool iscc = interaction->ProcInfo().IsWeakCC();
+  bool isnc = interaction->ProcInfo().IsWeakNC();
+  bool isem = interaction->ProcInfo().IsEM();
 
   const Kinematics &   kinematics = interaction -> Kine();
   double W  = kinematics.W();
@@ -80,6 +87,7 @@ double MECPXSec::XSec(
   double Ev = interaction->InitState().ProbeE(kRfHitNucRest);  // kRfLab
   int nucleon_cluster_pdg = interaction->InitState().Tgt().HitNucPdg();
   double M2n = PDGLibrary::Instance()->Find(nucleon_cluster_pdg)-> Mass(); // nucleon cluster mass  
+  double M2n2 = M2n*M2n;
   double ml  = interaction->FSPrimLepton()->Mass();
   Range1D_t Wlim = genie::utils::kinematics::InelWLim(Ev, M2n, ml);
   //LOG("MEC", pINFO) << "Ev, ml, M2n = " << Ev << "  " << ml << "  " << M2n;
@@ -88,7 +96,8 @@ double MECPXSec::XSec(
     {double xsec = 0.;
       return xsec;
     } 
-  Range1D_t Q2lim = genie::utils::kinematics::InelQ2Lim_W (Ev, M2n, ml, W, 0.);
+  //use proper Q2 limit from Controls.h
+  Range1D_t Q2lim = genie::utils::kinematics::InelQ2Lim_W (Ev, M2n, ml, W, kMinQ2Limit);
   //LOG("MEC", pINFO) << "Q2lim= " << Q2lim.min << "  " <<Q2lim.max ;
   if(Q2 < Q2lim.min || Q2 > Q2lim.max)
     {double xsec = 0.;
@@ -102,13 +111,52 @@ double MECPXSec::XSec(
   //  LOG("MEC", pINFO) << "x = " << x << ", y = " << y;
   double Tmu = (1.-y)*Ev;
 
-  // Calculate d^2xsec/dWdQ2
+  // Calculate d^2xsec/dWdQ2 - first form factor which is common to both
   double Wdep  = TMath::Gaus(W, fMass, fWidth);
-  double Q2dep = Q2*TMath::Power((1+Q2/fMq2d),-12.);
-  double nudep = TMath::Power(Tmu,2.5);
+  double Q2dep = Q2*TMath::Power((1+Q2/fMq2d),-8.);
+  //  double nudep = TMath::Power(Tmu,2.5);
   //  LOG("MEC", pINFO) << "Tmu = " << Tmu << ", nudep = " << nudep;
-  double xsec  = Wdep * Q2dep;// * nudep;
-  LOG("MEC", pINFO) << "xsec = " << xsec << ", Q2 = " << Q2 << ", W = " << W;
+  double FF2  = Wdep * Q2dep;// * nudep;
+  //LOG("MEC", pINFO) << "form factor = " << FF2 << ", Q2 = " << Q2 << ", W = " << W;
+
+// using formulas in Bodek and Budd for (e,e') inclusive cross section
+  double xsec = 1.;
+  if(isem)  {   
+      // Calculate scattering angle
+  //
+  // Q^2 = 4 * E^2 * sin^2 (theta/2) / ( 1 + 2 * (E/M) * sin^2(theta/2) ) =>
+  // sin^2 (theta/2) = MQ^2 / (4ME^2 - 2EQ^2)
+
+    double E = Ev;
+    double E2 = E*E;
+    double sin2_halftheta = M2n*Q2 / (4*M2n*E2 - 2*E*Q2);
+    //    double sin4_halftheta = TMath::Power(sin2_halftheta, 2.);
+    double cos2_halftheta = 1.-sin2_halftheta;
+    //    double cos_halftheta  = TMath::Sqrt(cos2_halftheta);
+    double tan2_halftheta = sin2_halftheta/cos2_halftheta;
+    double Q4 = Q2*Q2;
+
+  // Calculate tau and the virtual photon polarization (epsilon)
+  double tau     = Q2/(4*M2n2);
+  //  double epsilon = 1. / (1. + 2.*(tau/x))*tan2_halftheta); //different than RosenbluthPXSec.cxx
+
+  // Calculate the scattered lepton energy 
+  double Ep  = E / (1. + 2.*(E/M2n)*sin2_halftheta);
+  double Ep2 = Ep*Ep;
+
+  //calculate cross section - d2sig/dOmega dE for purely transverse process
+  xsec = 4*kAem2*Ep2*cos2_halftheta/Q4 * FF2 * (tau/(1+tau) +2*tau*tan2_halftheta);  
+    }
+  // use BB formula which seems to be same as Llewlyn-Smith
+  // note B term is only difference between nu and antinu, so both same here
+  else if(isnc||iscc){  
+    double tau     = Q2/(4*M2n2);
+    double tau2 = tau*tau;
+    double smufac = 4*M2n*Ev - Q2 - ml*ml;
+    double A = (ml*ml+Q2)/M2n2 * (tau*(1+tau) - tau2*(1-tau)+4*tau2)/TMath::Power(1+tau,2.) * FF2;
+    double C = tau/4/(1+tau) * FF2;
+    xsec = A + smufac*smufac*C;   // CC or NC case - Llewelyn-Smith for transverse vector process.
+  }
   // Check whether variable tranformation is needed
   if(kps!=kPSWQ2fE) {
     double J = utils::kinematics::Jacobian(interaction,kPSWQ2fE,kps);
@@ -255,8 +303,8 @@ void MECPXSec::LoadConfig(void)
   fXSecAlgEMQE = 0;
 
   fMq2d   = 0.4; // GeV
-  fMass   = 2.1; // GeV
-  fWidth  = 0.05; // GeV
+  fMass   = 2.1; // GeV   2.1
+  fWidth  = 0.05; // GeV  .05
   fFracCCQElo = 0.45; //fraction of CCQE xsec at Miniboone energies to CCMEC xsec
                       //  at first, this is energy independent
   fFracEMQE=0.05;  //fraction of 0.5*(ep+en) Rosenbluth xsec going to (e,e') MEC
