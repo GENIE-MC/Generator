@@ -28,7 +28,11 @@
 #include <iostream>
 #include <iomanip>
 
-#include "../../Conventions/Units.h"
+#include "Conventions/Units.h"
+
+#include "PDG/PDGCodes.h"
+#include "PDG/PDGUtils.h"
+#include "PDG/PDGLibrary.h"
 
 // #define _debug_
 
@@ -38,12 +42,17 @@ using namespace genie;
 Int_t set_top_volume(string name);
 void  get_mass      (double length_unit, double density_unit);
 
+string gFileName;
+
 //____________________________________________________________________________
 void get_target_mass ( 
   string geometry_file, string topvolname = "", 
   double length_unit=units::cm, double density_unit=units::g_cm3, 
   Bool_t checkoverlaps = kFALSE)
 {
+  PDGLibrary* pdglib = PDGLibrary::Instance(); // get message out of the way
+
+   gFileName = geometry_file;
    // import geometry
    TGeoManager *tgeo = new TGeoManager("TGeo","TGeo");
    tgeo->Import( geometry_file.c_str() );
@@ -192,13 +201,31 @@ void get_mass(Double_t length_unit, Double_t density_unit)
 
    Double_t ldou_MinimumVolume = 1e-20;
 
+   cout << endl
+        << " Geometry: \"" <<  gFileName << "\"" << endl
+        << " TopVolume: \"" << topvol->GetName() << "\"" 
+        << endl;
+
    cout <<endl << "materials:" << endl;
-   cout << setw(6) << "index"
-             << setw(15) << "name"
-             << setprecision(6) 
-             << setw(20) << "volume (m^3)"
-             << setw(20) << "mass (kg)"
-             <<  endl;
+   cout << setw(5) << "index"
+        << setw(15) << "name"
+        << setprecision(6) 
+        << setw(14) << "volume (m^3)"
+        << setw(14) << "mass (kg)"
+        << setw(14) << "mass (%)"
+        <<  endl;
+
+   double total_mass_materials = 0;
+   for( Int_t i=0; i<gGeoManager->GetListOfMaterials()->GetEntries(); i++ )
+   {
+     Int_t    idx     = gGeoManager->GetMaterial(i)->GetIndex();
+     Double_t density = gGeoManager->GetMaterial(i)->GetDensity() * density_unit_to_SI;
+     Double_t mass_material = density * volume[idx];
+     if ( volume[idx] > ldou_MinimumVolume ) {
+       total_mass_materials += mass_material;
+     }
+   }
+
 
    for( Int_t i=0; i<gGeoManager->GetListOfMaterials()->GetEntries(); i++ )
    {
@@ -208,11 +235,12 @@ void get_mass(Double_t length_unit, Double_t density_unit)
       mass[idx] = density * volume[idx];
 
       if( volume[idx] > ldou_MinimumVolume ) {
-        cout << setw(6) << i 
+        cout << setw(5) << i 
              << setw(15) << gGeoManager->GetMaterial(i)->GetName() 
              << setprecision(6) 
-             << setw(20) << volume[idx] 
-             << setw(20) << mass[idx] 
+             << setw(14) << volume[idx] 
+             << setw(14) << mass[idx] 
+             << setw(14) << mass[idx]*100./total_mass_materials
              <<  endl;
       }
    }
@@ -221,26 +249,42 @@ void get_mass(Double_t length_unit, Double_t density_unit)
    //
    // print out mass contribution for each nuclear target
    //
+   PDGLibrary* pdglib = PDGLibrary::Instance();
 
    cout <<endl << "isotopes:" << endl;
-   cout << setw(6) << "Z" 
-             << setw(6) << "A"
-             << setw(14) << "PDG isotope"
-             << setprecision(6)
-             << setw(20) << "volume (m^3)"
-             << setw(20) << "mass (kg)"
-             <<  endl;
+   cout << setw(4) << "Z" 
+        << setw(4) << "A"
+        << setw(14) << "PDG isotope"
+        << setw(5) << "     "
+        << setprecision(6)
+        << setw(14) << "volume (m^3)"
+        << setw(14) << "mass (kg)"
+        << setw(10) << "mass (%)"
+        <<  endl;
+
+   double total_mass_isotopes = 0;
+   for( Int_t i=0; i<lcin_Z; i++ ) {
+     for( Int_t j=0; j<lcin_A; j++ ) {
+       if( larr_VolumeIsotopes[ i ][ j ] > ldou_MinimumVolume ) {
+         total_mass_isotopes += larr_MassIsotopes[ i ][ j ];
+       }
+     }
+   }
+
    for( Int_t i=0; i<lcin_Z; i++ )
    {
       for( Int_t j=0; j<lcin_A; j++ )
       {
          if( larr_VolumeIsotopes[ i ][ j ] > ldou_MinimumVolume ) {
-              cout << setw(6) << i
-             << setw(6)<< j
-             << setw(14) << 1000000000 + i*10000 + j*10
+           int pdgcode = 1000000000 + i*10000 + j*10;
+              cout << setw(4) << i
+             << setw(4)<< j
+             << setw(14) << pdgcode
+             << setw(5) << pdglib->Find(pdgcode)->GetName()
              << setprecision(6) 
-             << setw(20) << larr_VolumeIsotopes[ i ][ j ]
-             << setw(20) << larr_MassIsotopes[ i ][ j ] 
+             << setw(14) << larr_VolumeIsotopes[ i ][ j ]
+             << setw(14) << larr_MassIsotopes[ i ][ j ] 
+             << setw(10) << larr_MassIsotopes[ i ][ j ]*100.0/total_mass_isotopes
              <<  endl;
          }
          else if ( larr_VolumeIsotopes[ i ][ j ] < -ldou_MinimumVolume ) {
@@ -248,6 +292,9 @@ void get_mass(Double_t length_unit, Double_t density_unit)
          }
       }
    }
+
+   cout << endl << " mass totals: " << total_mass_materials << " " << total_mass_isotopes 
+        << endl << endl;
 
    delete [] volume;
    delete [] mass;
