@@ -121,6 +121,7 @@ bool GSimpleNtpFlux::GenerateNext(void)
          << "** Fractional weight = " << f 
          << " > 1 !! Bump fMaxWeight estimate to " << fMaxWeight
          << GetCurrentEntry();
+       std::cout << std::flush;
      }
      double r = (f < 1.) ? rnd->RndFlux().Rndm() : 0;
      bool accept = ( r < f );
@@ -349,7 +350,7 @@ double GSimpleNtpFlux::UsedPOTs(void) const
 }
 
 //___________________________________________________________________________
-void GSimpleNtpFlux::LoadBeamSimData(string filename, string /* config */ )
+void GSimpleNtpFlux::LoadBeamSimData(string filename, string config )
 {
 // Loads a beam simulation root file into the GSimpleNtpFlux driver.
 
@@ -464,6 +465,10 @@ void GSimpleNtpFlux::LoadBeamSimData(string filename, string /* config */ )
   RandomGen* rnd = RandomGen::Instance();
   fIUse   =  9999999;
   fIEntry = rnd->RndFlux().Integer(fNEntries) - 1;
+  if ( config.find("no-offset-index") != string::npos ) {
+    LOG("Flux",pINFO) << "Config saw \"no-offset-index\"";  
+    fIEntry = -1;
+  }
   LOG("Flux",pINFO) << "Start with entry fIEntry=" << fIEntry;  
 
   // don't count things we used to estimate max weight
