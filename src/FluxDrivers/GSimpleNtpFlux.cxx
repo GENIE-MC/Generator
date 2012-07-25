@@ -1016,9 +1016,9 @@ void GSimpleNtpFlux::PrintConfig()
     << " times, in " << fICycle << "/" << fNCycles << " cycles"
     << "\n SumWeight " << fSumWeight << " for " << fNNeutrinos << " neutrinos"
     << "\n EffPOTsPerNu " << fEffPOTsPerNu << " AccumPOTs " << fAccumPOTs
-    << "\n GenWeighted \"" << (fGenWeighted?"true":"false")
-    << " AlreadyUnwgt \"" << (fAlreadyUnwgt?"true":"false")
-    << " AllFilesMeta \"" << (fAllFilesMeta?"true":"false");
+    << "\n GenWeighted \"" << (fGenWeighted?"true":"false") << "\""
+    << " AlreadyUnwgt \"" << (fAlreadyUnwgt?"true":"false") << "\""
+    << " AllFilesMeta \"" << (fAllFilesMeta?"true":"false") << "\"";
 
 }
 
