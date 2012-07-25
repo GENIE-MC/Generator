@@ -190,7 +190,7 @@ public :
   const TLorentzVector & Momentum      (void) { return  fP4;  }
   const TLorentzVector & Position      (void) { return  fX4;  }
   bool                   End           (void) { return  fEnd;                 }
-  long int               Index         (void) { return fIEntry;               }
+  long int               Index         (void) { return  fIEntry;              }
   void                   Clear            (Option_t * opt);
   void                   GenerateWeighted (bool gen_weighted);
 
