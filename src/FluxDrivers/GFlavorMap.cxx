@@ -48,7 +48,9 @@ void GFlavorMap::Config(std::string config)
   LOG_BEGIN("FluxBlender", pINFO) 
     << "GFlavorMap::Config \"" << config << "\"" << LOG_END;
   
-  if ( config.find("swap") == 0 || config.find("map") == 0 ) {
+  if ( config.find("swap") == 0 || 
+       config.find("map")  == 0 || 
+       config.find("genie::flux::GFlavorMap") ) {
     ParseMapString(config);
   } else if ( config.find("fixedfrac") == 0 ) {
     ParseFixedfracString(config);
@@ -72,6 +74,7 @@ void GFlavorMap::ParseMapString(std::string config)
   for (unsigned int jtok = 0; jtok < tokens.size(); ++jtok ) {
     string tok1 = tokens[jtok];
     if ( tok1 == "swap" || tok1 == "map" ) continue;
+    if ( tok1 == "genie::flux::GFlavorMap" ) continue;
     // should have the form  <int>:<int>
     vector<string> pair = genie::utils::str::Split(tok1,":");
     if ( pair.size() != 2 ) {
