@@ -125,7 +125,7 @@ private:
 #define FLAVORMIXREG( _name ) \
   genie::flux::GFlavorMixerI* _name ## _ctor_function () { return new _name; } \
   static bool _name ## _creator_registered =                            \
-    GFlavorMixerFactory::Instance().RegisterCreator(# _name,       \
+    genie::flux::GFlavorMixerFactory::Instance().RegisterCreator(# _name, \
                                         & _name ## _ctor_function,        \
                                         & _name ## _creator_registered ); 
 
@@ -133,7 +133,7 @@ private:
 namespace _ns { \
   genie::flux::GFlavorMixerI* _name ## _ctor_function () { return new _fqname; }   \
   static bool _name ## _creator_registered =                                \
-    GFlavorMixerFactory::Instance().RegisterCreator(# _fqname,         \
+    genie::flux::GFlavorMixerFactory::Instance().RegisterCreator(# _fqname, \
                                         & _fqname ## _ctor_function,          \
                                         & _fqname ## _creator_registered );}
 
@@ -142,7 +142,7 @@ namespace _nsa { \
  namespace _nsb { \
   genie::flux::GFlavorMixerI* _name ## _ctor_function () { return new _fqname; }   \
   static bool _name ## _creator_registered =                                \
-    GFlavorMixerFactory::Instance().RegisterCreator(# _fqname,         \
+    genie::flux::GFlavorMixerFactory::Instance().RegisterCreator(# _fqname, \
                                         & _fqname ## _ctor_function,          \
                                         & _fqname ## _creator_registered );}}
 #endif
