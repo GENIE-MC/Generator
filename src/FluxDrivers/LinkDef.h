@@ -32,4 +32,10 @@
 
 #pragma link C++ class genie::flux::GSimpleNtpFlux;
 
+#pragma link C++ class genie::flux::GFluxBlender;
+
+#pragma link C++ class genie::flux::GFlavorMixerI;
+#pragma link C++ class genie::flux::GFlavorMixerFactory;
+#pragma link C++ class genie::flux::GFlavorMap;
+
 #endif

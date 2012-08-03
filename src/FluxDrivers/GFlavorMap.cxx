@@ -15,6 +15,10 @@
 #include <cstdlib>
 
 #include "FluxDrivers/GFlavorMap.h"
+#include "FluxDrivers/GFlavorMixerFactory.h"
+// self register with the factory
+FLAVORMIXREG4(genie,flux,GFlavorMap,genie::flux::GFlavorMap)
+
 #include "Messenger/Messenger.h"
 #define  LOG_BEGIN(a,b)   LOG(a,b)
 #define  LOG_END ""
