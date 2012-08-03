@@ -55,11 +55,11 @@ GFlavorMixerFactory::GetFlavorMixer(const std::string& name)
   if ( fFunctionMap.end() != itr ) { 
     // found an appropriate entry in the list
     GFlavorMixerICtorFuncPtr_t foo = itr->second;  // this is the function
-    p = (*foo)();  // use function to create the physics process
+    p = (*foo)();  // use function to create the GFlavorMixerI
   }
   if ( ! p ) {
     LOG("Flux",pWARN) << "### GFlavorMixerFactory WARNING: "
-                      << "PhysicsProcess " << name << " is not known";
+                      << "GFlavorMixerI " << name << " is not known";
   }
   return p;
 }
