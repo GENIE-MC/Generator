@@ -52,7 +52,7 @@
 #include <TPavesText.h>
 #include <TLegend.h>
 #include <TMath.h>
-#include <TLateX.h>
+#include <TLatex.h>
 
 #include "Algorithm/AlgConfigPool.h"
 #include "Messenger/Messenger.h"
