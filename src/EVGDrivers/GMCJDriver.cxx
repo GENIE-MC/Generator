@@ -641,6 +641,10 @@ void GMCJDriver::BootstrapXSecSplineSummation(void)
              << "**** Summing xsec splines for init-state = " << init_state;
 
     Range1D_t rE = evgdriver->ValidEnergyRange();
+    if (fEmax>rE.max || fEmax<rE.min)
+      LOG("GMCJDriver",pFATAL)
+        << " rE (validEnergyRange) [" << rE.min << "," << rE.max << "] "
+        << " fEmax " << fEmax;
     assert(fEmax<rE.max && fEmax>rE.min);
 
     // decide the energy range for the sum spline - extend the spline a little
