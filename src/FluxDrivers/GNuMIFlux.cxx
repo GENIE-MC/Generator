@@ -601,98 +601,134 @@ double GNuMIFlux::POT_curr(void) {
   // now that that it means what I mean by UsedPOTs().
   return UsedPOTs(); 
 }
+
 //___________________________________________________________________________
-void GNuMIFlux::LoadBeamSimData(string filename, string det_loc)
+void GNuMIFlux::LoadBeamSimData(string filename, string config )
+{
+// Loads a beam simulation root file into the GNuMIFlux driver.
+  std::vector<std::string> filevec;
+  filevec.push_back(filename);
+  LoadBeamSimData(filevec,config); // call the one that takes a vector
+}
+
+//___________________________________________________________________________
+void GNuMIFlux::LoadBeamSimData(std::set<string> fileset, string config )
+{
+// Loads a beam simulation root file into the GNuMIFlux driver.
+  // have a set<> want a vector<>
+  std::vector<std::string> filevec;
+  std::copy(fileset.begin(),fileset.end(),std::back_inserter(filevec));
+  LoadBeamSimData(filevec,config); // call the one that takes a vector
+}
+
+//___________________________________________________________________________
+void GNuMIFlux::LoadBeamSimData(std::vector<string> patterns, string config )
 {
 // Loads in a gnumi beam simulation root file (converted from hbook format)
 // into the GNuMIFlux driver.
 
-  bool found_cfg = this->LoadConfig(det_loc);
+  bool found_cfg = this->LoadConfig(config);
   if ( ! found_cfg ) {
     LOG("Flux", pFATAL) 
-      << "LoadBeamSimData could not find XML config \"" << det_loc << "\"\n";
+      << "LoadBeamSimData could not find XML config \"" << config << "\"\n";
     exit(1);
   }
 
-  fNuFluxFilePattern = filename;
-  LOG("Flux", pNOTICE)
-        << "Loading gnumi flux tree from ROOT file(s): " << filename;
+  fNuFluxFilePatterns = patterns;
+  std::vector<int> nfiles_from_pattern;
 
-  // !WILDCARD only works for file name ... NOT directory
-  string dirname = gSystem->UnixPathName(gSystem->WorkingDirectory());
-  size_t slashpos = filename.find_last_of("/");
-  size_t fbegin;
-  if ( slashpos != std::string::npos ) {
-    dirname = filename.substr(0,slashpos);
-    LOG("Flux", pINFO) << "Look for flux using directory " << dirname;
-    fbegin = slashpos + 1;
-  } else { fbegin = 0; }
+  // create a (sorted) set of file names
+  // this also helps ensure that the same file isn't listed multiple times
+  std::set<std::string> fnames;
 
-  void* dirp = gSystem->OpenDirectory(gSystem->ExpandPathName(dirname.c_str()));
-    // create a (sortable) vector of file names
-  std::vector<std::string> fnames;
-  if ( dirp ) {
-    std::string basename = 
-      filename.substr(fbegin,filename.size()-fbegin);
-    TRegexp re(basename.c_str(),kTRUE);
-    const char* onefile;
-    while ( ( onefile = gSystem->GetDirEntry(dirp) ) ) {
-      TString afile = onefile;
-      if ( afile=="." || afile==".." ) continue;
-      if ( basename!=afile && afile.Index(re) == kNPOS ) continue;
-      std::string fullname = dirname + "/" + afile.Data();
-      fnames.push_back(fullname);
-    }
-    gSystem->FreeDirectory(dirp);
-    // sort the list
-    std::sort(fnames.begin(),fnames.end());
+  LOG("Flux", pINFO) << "LoadBeamSimData was passed " << patterns.size()
+                     << " patterns";
 
-    for (unsigned int indx=0; indx < fnames.size(); ++indx) {
-      //std::cout << "  [" << std::setw(3) << indx << "]  \"" 
-      //          << fnames[indx] << "\"" << std::endl;
-      bool isok = ! (gSystem->AccessPathName(fnames[indx].c_str()));
-      if ( isok ) {
-        // open the file to see what it contains
-        // h10    => g3numi _or_ flugg
-        // nudata => g4numi
-        // for now distinguish between g3numi/flugg using file name
-        TFile tf(fnames[indx].c_str());
-        int isflugg = ( fnames[indx].find("flugg") != string::npos ) ? 1 : 0;
-        const std::string tnames[] = { "h10", "nudata" };
-        const std::string gnames[] = { "g3numi","g4numi","flugg","g4flugg"};
-        for (int j = 0; j < 2 ; ++j ) { 
-          TTree* atree = (TTree*)tf.Get(tnames[j].c_str());
-          if ( atree ) {
-            const std::string tname_this = tnames[j];
-            const std::string gname_this = gnames[j+2*isflugg];
-            // create chain if none exists
-            if ( ! fNuFluxTree ) {
-              this->SetTreeName(tname_this);
-              fNuFluxTree = new TChain(fNuFluxTreeName.c_str());
-              fNuFluxGen = gname_this;
-              // here we should scan for estimated POTs/file
-              // also maybe the check on max weight
-            }
-            // sanity check for mixing g3/g4/flugg files
-            if ( fNuFluxTreeName !=  tname_this ||
-                 fNuFluxGen      !=  gname_this    ) {
-              LOG("Flux", pFATAL) 
-                << "Inconsistent flux file types\n"
-                << "The input gnumi flux file \"" << fnames[indx] 
-                << "\"\ncontains a '" << tname_this << "' " << gname_this
-                << "numi ntuple " 
-                << "but a '" << fNuFluxTreeName << "' " << fNuFluxGen
-                << " numi ntuple has alread been seen in the chain";
-              exit(1);
-            } // sanity mix/match g3/g4
-            // add the file to the chain
-            this->AddFile(atree,fnames[indx]);
-          } // found a tree
-        } // loop over either g3 or g4
-        tf.Close();
+  for (size_t ipatt = 0; ipatt < patterns.size(); ++ipatt ) {
+    string pattern = patterns[ipatt];
+    nfiles_from_pattern.push_back(0);
+
+    LOG("Flux", pNOTICE)
+      << "Loading gnumi flux tree from ROOT file pattern ["
+      << std::setw(3) << ipatt << "] \"" << pattern << "\"";
+
+    // !WILDCARD only works for file name ... NOT directory
+    string dirname = gSystem->UnixPathName(gSystem->WorkingDirectory());
+    size_t slashpos = pattern.find_last_of("/");
+    size_t fbegin;
+    if ( slashpos != std::string::npos ) {
+      dirname = pattern.substr(0,slashpos);
+      LOG("Flux", pINFO) << "Look for flux using directory " << dirname;
+      fbegin = slashpos + 1;
+    } else { fbegin = 0; }
+
+    void* dirp = gSystem->OpenDirectory(gSystem->ExpandPathName(dirname.c_str()));
+    if ( dirp ) {
+      std::string basename = 
+      pattern.substr(fbegin,pattern.size()-fbegin);
+      TRegexp re(basename.c_str(),kTRUE);
+      const char* onefile;
+      while ( ( onefile = gSystem->GetDirEntry(dirp) ) ) {
+        TString afile = onefile;
+        if ( afile=="." || afile==".." ) continue;
+        if ( basename!=afile && afile.Index(re) == kNPOS ) continue;
+        std::string fullname = dirname + "/" + afile.Data();
+        fnames.insert(fullname);
+        nfiles_from_pattern[ipatt]++;
       }
-    } // loop over sorted file names
-  } // legal directory
+      gSystem->FreeDirectory(dirp);
+    } // legal directory
+  } // loop over patterns
+
+  size_t indx = 0;
+  std::set<string>::const_iterator sitr = fnames.begin();
+  for ( ; sitr != fnames.end(); ++sitr, ++indx ) {
+    string filename = *sitr;
+    //std::cout << "  [" << std::setw(3) << indx << "]  \"" 
+    //          << filename << "\"" << std::endl;
+    bool isok = ! (gSystem->AccessPathName(filename.c_str()));
+    if ( isok ) {
+      // open the file to see what it contains
+      // h10    => g3numi _or_ flugg
+      // nudata => g4numi
+      // for now distinguish between g3numi/flugg using file name
+      TFile tf(filename.c_str());
+      int isflugg = ( filename.find("flugg") != string::npos ) ? 1 : 0;
+      const std::string tnames[] = { "h10", "nudata" };
+      const std::string gnames[] = { "g3numi","g4numi","flugg","g4flugg"};
+      for (int j = 0; j < 2 ; ++j ) { 
+        TTree* atree = (TTree*)tf.Get(tnames[j].c_str());
+        if ( atree ) {
+          const std::string tname_this = tnames[j];
+          const std::string gname_this = gnames[j+2*isflugg];
+          // create chain if none exists
+          if ( ! fNuFluxTree ) {
+            this->SetTreeName(tname_this);
+            fNuFluxTree = new TChain(fNuFluxTreeName.c_str());
+            fNuFluxGen = gname_this;
+            // here we should scan for estimated POTs/file
+            // also maybe the check on max weight
+          }
+          // sanity check for mixing g3/g4/flugg files
+          if ( fNuFluxTreeName !=  tname_this ||
+               fNuFluxGen      !=  gname_this    ) {
+            LOG("Flux", pFATAL) 
+              << "Inconsistent flux file types\n"
+              << "The input gnumi flux file \"" << filename 
+              << "\"\ncontains a '" << tname_this << "' " << gname_this
+              << "numi ntuple " 
+              << "but a '" << fNuFluxTreeName << "' " << fNuFluxGen
+              << " numi ntuple has alread been seen in the chain";
+            exit(1);
+          } // sanity mix/match g3/g4
+            // add the file to the chain
+          this->AddFile(atree,filename);
+        } // found a tree
+      } // loop over either g3 or g4
+      tf.Close();
+    } // loop over tree type
+  } // loop over sorted file names
+
   if ( fNuFluxTreeName == "" ) {
     LOG("Flux", pFATAL)
      << "The input gnumi flux file doesn't exist! Initialization failed!";
@@ -702,34 +738,34 @@ void GNuMIFlux::LoadBeamSimData(string filename, string det_loc)
   if ( fNuFluxGen == "g4numi" ) fG4NuMI = new g4numi(fNuFluxTree);
   if ( fNuFluxGen == "flugg"  ) fFlugg  = new flugg(fNuFluxTree);
 
-#ifdef OLD_STUFF
-  bool is_accessible = ! (gSystem->AccessPathName( filename.c_str() ));
-  if (!is_accessible) {
-    LOG("Flux", pFATAL)
-     << "The input gnumi flux file doesn't exist! Initialization failed!";
-    exit(1);
-  }
-
-  fNuFluxFile = new TFile(filename.c_str(), "read");
-  if (fNuFluxFile) {
-      LOG("Flux", pINFO) << "Getting flux tree: " << fNuFluxTreeName;
-      fNuFluxTree = (TTree*) fNuFluxFile->Get(fNuFluxTreeName.c_str());
-      if (!fNuFluxTree) {
-          LOG("Flux", pERROR)
-             << "** Couldn't get flux tree: " << fNuFluxTreeName;
-          return;
-      }
-  } else {
-      LOG("Flux", pERROR) << "** Couldn't open: " << filename;
-      return;
-  }
-#endif
-
   // this will open all files and read header!!
   fNEntries = fNuFluxTree->GetEntries();
 
-  LOG("Flux", pNOTICE)
+  if ( fNEntries == 0 ) {
+    LOG("Flux", pERROR)
+      << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
+    LOG("Flux", pERROR)
       << "Loaded flux tree contains " <<  fNEntries << " entries";
+    LOG("Flux", pERROR)
+      << "Was passed the file patterns: ";
+    for (size_t ipatt = 0; ipatt < patterns.size(); ++ipatt ) {
+      string pattern = patterns[ipatt];
+      LOG("Flux", pERROR)
+        << "  [" << std::setw(3) << ipatt <<"] " << pattern;
+    }
+    LOG("Flux", pERROR)
+      << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
+  } else {
+    LOG("Flux", pNOTICE)
+      << "Loaded flux tree contains " <<  fNEntries << " entries"
+      << " from " << fnames.size() << " unique files";
+    for (size_t ipatt = 0; ipatt < patterns.size(); ++ipatt ) {
+      string pattern = patterns[ipatt];
+      LOG("Flux", pINFO)
+        << " pattern: " << pattern << " yielded "
+        << nfiles_from_pattern[ipatt] << " files";
+    }
+  }
 
   // we have a file we can work with
   if (!fDetLocIsSet) {
@@ -2365,6 +2401,10 @@ void GNuMIFlux::PrintConfig()
   for ( ; itr != fPdgCListRej->end(); ++itr) s << (*itr) << " ";
   s << " ] ";
 
+  std::ostringstream fpattout;
+  for (size_t i = 0; i < fNuFluxFilePatterns.size(); ++i)
+    fpattout << "\n [" << std::setw(3) << i << "] " << fNuFluxFilePatterns[i];
+
   std::ostringstream flistout;
   std::vector<std::string> flist = GetFileList();
   for (size_t i = 0; i < flist.size(); ++i)
@@ -2415,9 +2455,10 @@ void GNuMIFlux::PrintConfig()
     << "/" << fNuFluxGen << " "
     << "(" << fNuFluxTreeName << "), " << fNEntries << " entries" 
     << " (FilePOTs " << fFilePOTs << ") "
-    <<  "in " << fNFiles << " files like: "
-    << "\n " << fNuFluxFilePattern
+    <<  "in " << fNFiles << " files: "
     << flistout.str()
+    << "\n from file patterns:"
+    << fpattout.str()
     << "\n wgt max=" << fMaxWeight << " fudge=" << fMaxWgtFudge << " using "
     << fMaxWgtEntries << " entries"
     << "\n Z0 pushback " << fZ0

@@ -19,10 +19,10 @@
 
 #include <cstdlib>
 #include <fstream>
-#include <vector>
 #include <sstream>
 #include <cassert>
 #include <limits.h>
+#include <algorithm>
 
 #include <TFile.h>
 #include <TChain.h>
@@ -353,69 +353,123 @@ double GSimpleNtpFlux::UsedPOTs(void) const
 void GSimpleNtpFlux::LoadBeamSimData(string filename, string config )
 {
 // Loads a beam simulation root file into the GSimpleNtpFlux driver.
+  std::vector<std::string> filevec;
+  filevec.push_back(filename);
+  LoadBeamSimData(filevec,config); // call the one that takes a vector
+}
 
-  fNuFluxFilePattern = filename;
-  LOG("Flux", pNOTICE)
-        << "Loading flux tree from ROOT file(s): " << filename;
+//___________________________________________________________________________
+void GSimpleNtpFlux::LoadBeamSimData(std::set<string> fileset, string config )
+{
+// Loads a beam simulation root file into the GSimpleNtpFlux driver.
+  // have a set<> want a vector<>
+  std::vector<std::string> filevec;
+  std::copy(fileset.begin(),fileset.end(),std::back_inserter(filevec));
+  LoadBeamSimData(filevec,config); // call the one that takes a vector
+}
 
-  // !WILDCARD only works for file name ... NOT directory
-  string dirname = gSystem->UnixPathName(gSystem->WorkingDirectory());
-  size_t slashpos = filename.find_last_of("/");
-  size_t fbegin;
-  if ( slashpos != std::string::npos ) {
-    dirname = filename.substr(0,slashpos);
-    LOG("Flux", pINFO) << "Look for flux using directory " << dirname;
-    fbegin = slashpos + 1;
-  } else { fbegin = 0; }
+//___________________________________________________________________________
+void GSimpleNtpFlux::LoadBeamSimData(std::vector<string> patterns, string config )
+{
+// Loads a beam simulation root file into the GSimpleNtpFlux driver.
 
-  void* dirp = gSystem->OpenDirectory(gSystem->ExpandPathName(dirname.c_str()));
-    // create a (sortable) vector of file names
-  std::vector<std::string> fnames;
-  if ( dirp ) {
-    std::string basename = 
-      filename.substr(fbegin,filename.size()-fbegin);
-    TRegexp re(basename.c_str(),kTRUE);
-    const char* onefile;
-    while ( ( onefile = gSystem->GetDirEntry(dirp) ) ) {
-      TString afile = onefile;
-      if ( afile=="." || afile==".." ) continue;
-      if ( basename!=afile && afile.Index(re) == kNPOS ) continue;
-      std::string fullname = dirname + "/" + afile.Data();
-      fnames.push_back(fullname);
-    }
-    gSystem->FreeDirectory(dirp);
-    // sort the list
-    std::sort(fnames.begin(),fnames.end());
+  fNuFluxFilePatterns = patterns;
+  std::vector<int> nfiles_from_pattern;
 
-    for (unsigned int indx=0; indx < fnames.size(); ++indx) {
-      //std::cout << "  [" << std::setw(3) << indx << "]  \"" 
-      //          << fnames[indx] << "\"" << std::endl;
-      bool isok = ! (gSystem->AccessPathName(fnames[indx].c_str()));
-      if ( isok ) {
-        // open the file to see what it contains
-        LOG("Flux", pINFO) << "Load file " <<  fnames[indx];
+  // create a (sorted) set of file names
+  // this also helps ensure that the same file isn't listed multiple times
+  std::set<std::string> fnames;
 
-        string filename = fnames[indx];
-        TFile tf(filename.c_str());
-        TTree* etree = (TTree*)tf.Get("flux");
-        if ( etree ) {
-          TTree* mtree = (TTree*)tf.Get("meta");
-          // add the file to the chain
-          LOG("Flux", pDEBUG) << "AddFile " << filename
-                              << " etree " << etree << " meta " << mtree;
-          this->AddFile(etree,mtree,filename);
+  LOG("Flux", pINFO) << "LoadBeamSimData was passed " << patterns.size()
+                       << " patterns";
 
-        } // found a GSimpleNtpEntry "flux" tree
-        tf.Close();
+  for (size_t ipatt = 0; ipatt < patterns.size(); ++ipatt ) {
+    string pattern = patterns[ipatt];
+    nfiles_from_pattern.push_back(0);
+    LOG("Flux", pINFO)
+        << "Loading flux tree from ROOT file pattern [" 
+        << std::setw(3) << ipatt << "] \"" << pattern << "\"";
+
+    // !WILDCARD only works for file name ... NOT directory
+    string dirname = gSystem->UnixPathName(gSystem->WorkingDirectory());
+    size_t slashpos = pattern.find_last_of("/");
+    size_t fbegin;
+    if ( slashpos != std::string::npos ) {
+      dirname = pattern.substr(0,slashpos);
+      LOG("Flux", pDEBUG) << "Look for flux using directory " << dirname;
+      fbegin = slashpos + 1;
+    } else { fbegin = 0; }
+
+    void* dirp = gSystem->OpenDirectory(gSystem->ExpandPathName(dirname.c_str()));
+    if ( dirp ) {
+      std::string basename = 
+        pattern.substr(fbegin,pattern.size()-fbegin);
+      TRegexp re(basename.c_str(),kTRUE);
+      const char* onefile;
+      while ( ( onefile = gSystem->GetDirEntry(dirp) ) ) {
+        TString afile = onefile;
+        if ( afile=="." || afile==".." ) continue;
+        if ( basename!=afile && afile.Index(re) == kNPOS ) continue;
+        std::string fullname = dirname + "/" + afile.Data();
+        fnames.insert(fullname);
+        nfiles_from_pattern[ipatt]++;
       }
-    } // loop over sorted file names
-  } // legal directory
+      gSystem->FreeDirectory(dirp);
+    } // legal directory
+  } // loop over patterns
+
+  size_t indx = 0;
+  std::set<string>::const_iterator sitr = fnames.begin();
+  for ( ; sitr != fnames.end(); ++sitr, ++indx) {
+    string filename = *sitr;
+    //std::cout << "  [" << std::setw(3) << indx << "]  \"" 
+    //          << filename << "\"" << std::endl;
+    bool isok = ! (gSystem->AccessPathName(filename.c_str()));
+    if ( ! isok ) continue;
+    // open the file to see what it contains
+    LOG("Flux", pINFO) << "Load file " <<  filename;
+    
+    TFile tf(filename.c_str());
+    TTree* etree = (TTree*)tf.Get("flux");
+    if ( etree ) {
+      TTree* mtree = (TTree*)tf.Get("meta");
+      // add the file to the chain
+      LOG("Flux", pDEBUG) << "AddFile " << filename
+                          << " etree " << etree << " meta " << mtree;
+      this->AddFile(etree,mtree,filename);
+      
+    } // found a GSimpleNtpEntry "flux" tree
+    tf.Close();
+  } // loop over sorted file names
 
   // this will open all files and read headers!!
   fNEntries = fNuFluxTree->GetEntries();
 
-  LOG("Flux", pINFO)
+  if ( fNEntries == 0 ) {
+    LOG("Flux", pERROR)
+      << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
+    LOG("Flux", pERROR)
       << "Loaded flux tree contains " <<  fNEntries << " entries";
+    LOG("Flux", pERROR)
+      << "Was passed the file patterns: ";
+    for (size_t ipatt = 0; ipatt < patterns.size(); ++ipatt ) {
+      string pattern = patterns[ipatt];
+      LOG("Flux", pERROR)
+        << "  [" << std::setw(3) << ipatt <<"] " << pattern;
+    }
+    LOG("Flux", pERROR)
+      << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
+  } else {
+    LOG("Flux", pNOTICE)
+      << "Loaded flux tree contains " <<  fNEntries << " entries"
+      << " from " << fnames.size() << " unique files";
+    for (size_t ipatt = 0; ipatt < patterns.size(); ++ipatt ) {
+      string pattern = patterns[ipatt];
+      LOG("Flux", pINFO)
+        << " pattern: " << pattern << " yielded " 
+        << nfiles_from_pattern[ipatt] << " files";
+    }
+  }
 
   int sba_status[3] = { -999, -999, -999 };
   // "entry" branch isn't optional ... contains the neutrino info
@@ -645,7 +699,7 @@ void GSimpleNtpFlux::Initialize(void)
   fNuFluxTree      = new TChain("flux");
   fNuMetaTree      = new TChain("meta");
 
-  fNuFluxFilePattern = "";
+  //fNuFluxFilePatterns = "";
   fNuFluxBranchRequest = "entry,numi,aux";  // all branches
 
   fNFiles          =  0;
@@ -1001,6 +1055,10 @@ void GSimpleNtpFlux::PrintConfig()
   for ( ; itr != fPdgCListRej->end(); ++itr) s << (*itr) << " ";
   s << " ] ";
 
+  std::ostringstream fpattout;
+  for (size_t i = 0; i < fNuFluxFilePatterns.size(); ++i)
+    fpattout << "\n [" << std::setw(3) << i << "] " << fNuFluxFilePatterns[i];
+
   std::ostringstream flistout;
   std::vector<std::string> flist = GetFileList();
   for (size_t i = 0; i < flist.size(); ++i)
@@ -1010,12 +1068,12 @@ void GSimpleNtpFlux::PrintConfig()
     << "GSimpleNtpFlux Config:"
     << "\n Enu_max " << fMaxEv 
     << "\n pdg-codes: " << s.str() << "\n "
-    << "\"flux\" " << fNEntries << " entries" 
+    << "\"flux\" " << fNEntries << " entries, " 
     << "\"meta\" " << fNFiles << " entries" 
-    << " (FilePOTs " << fFilePOTs << ") "
-    <<  "in files like: "
-    << "\n " << fNuFluxFilePattern
+    << " (FilePOTs " << fFilePOTs << ") in files:"
     << flistout.str()
+    <<  "\n from file patterns: "
+    << fpattout.str()
     << "\n wgt max=" << fMaxWeight 
     << "\n Z0 pushback " << fZ0
     << "\n used entry " << fIEntry << " " << fIUse << "/" << fNUse

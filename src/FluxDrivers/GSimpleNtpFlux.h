@@ -22,6 +22,7 @@
 #include <string>
 #include <iostream>
 #include <vector>
+#include <set>
 
 #include <TVector3.h>
 #include <TLorentzVector.h>
@@ -234,7 +235,10 @@ public :
   // configuration of GSimpleNtpFlux
   //
 
-  void      LoadBeamSimData(string filename, string det_loc);     ///< load a root flux ntuple and config
+  void      LoadBeamSimData(std::vector<string> filenames, string det_loc);     ///< load root flux ntuple files and config
+  void      LoadBeamSimData(std::set<string>    filenames, string det_loc);     ///< load root flux ntuple files and config
+  void      LoadBeamSimData(string filename, string det_loc);     ///< older (obsolete) single file version
+
   void      SetRequestedBranchList(string blist="entry,numi,aux") { fNuFluxBranchRequest = blist; }
 
   void      SetFluxParticles(const PDGCodeList & particles);      ///< specify list of flux neutrino species
@@ -272,7 +276,7 @@ private:
   PDGCodeList *  fPdgCListRej;    ///< list of neutrino pdg-codes seen but rejected
   bool           fEnd;            ///< end condition reached
 
-  string    fNuFluxFilePattern;   ///< wildcarded path
+  std::vector<string> fNuFluxFilePatterns;  ///< (potentially wildcarded) path(s)
   string    fNuFluxBranchRequest; ///< list of requested branches "entry,numi,au"
   TChain*   fNuFluxTree;          ///< TTree // REF ONLY
   TChain*   fNuMetaTree;          ///< TTree // REF ONLY
