@@ -7,7 +7,7 @@
          splines into a ROOT format.
 
          Syntax :
-           gspl2root -f xml_file -p nu -t tgt [-e emax] [-o root_file] [-w]
+           gspl2root -f xml_file -p nu -t tgt [-e emax] [-o root_file] [-w] [-k]
 
          Options :
            []  denotes an optional argument
@@ -17,6 +17,7 @@
            -e  the maximum energy (in generated plots -- use it to zoom at low E)
            -o  output ROOT file name
            -w  write out plots in a postscipt file
+           -k  keep spline knot points  (not yet implemented)
 
                Note 1: these graphs can be used to instantiate splines in bare 
                root sessions -- effectively, they provide you with cross section 
@@ -96,6 +97,7 @@
 #include "Messenger/Messenger.h"
 #include "Numerical/Spline.h"
 #include "PDG/PDGCodes.h"
+#include "PDG/PDGCodeList.h"
 #include "PDG/PDGUtils.h"
 #include "PDG/PDGLibrary.h"
 #include "Utils/XSecSplineList.h"
@@ -117,20 +119,24 @@ void       SaveGraphsToRootFile (void);
 void       SaveNtupleToRootFile (void);
 void       GetCommandLineArgs   (int argc, char ** argv);
 void       PrintSyntax          (void);
+PDGCodeList GetPDGCodeListFromString(std::string s);
 
 //User-specified options:
 string gOptXMLFilename;  // input XML filename
 string gOptROOTFilename; // output ROOT filename
 double gOptNuEnergy;     // Ev(max)
-int    gOptProbePdgCode; // probe PDG code
+PDGCodeList gOptProbePdgList;  // list of probe PDG codes
+PDGCodeList gOptTgtPdgList;    // list of target PDG codes
+int    gOptProbePdgCode; // probe PDG code (currently being processed)
 int    gOptTgtPdgCode;   // target PDG code
 bool   gWriteOutPlots;   // write out a postscript file with plots
+//bool   gKeepSplineKnots; // use spline abscissa points rather than equi-spaced
 
 //Globals & constants
 double gEmin;
 double gEmax;
-const int    kNP       = 300;
-const int    kNSplineP = 1000;
+int    kNP       = 300;
+int    kNSplineP = 1000;
 const int    kPsType   = 111;  // ps type: portrait
 const double kEmin     = 0.01; // minimum energy in plots (GeV)
 
@@ -143,12 +149,21 @@ int main(int argc, char ** argv)
   //-- load the x-section splines xml file specified by the user
   LoadSplines();
 
-  //-- save the cross section plots in a postscript file
-  SaveToPsFile();
+  for (unsigned int indx_p = 0; indx_p < gOptProbePdgList.size(); ++indx_p ) {
+    for (unsigned int indx_t = 0; indx_t < gOptTgtPdgList.size(); ++indx_t ) {
 
-  //-- save the cross section graphs at a root file
-  //   (these graphs can then be used to create splines
-  SaveGraphsToRootFile();
+      gOptProbePdgCode = gOptProbePdgList[indx_p];
+      gOptTgtPdgCode   = gOptTgtPdgList[indx_t];
+
+      //-- save the cross section plots in a postscript file
+      SaveToPsFile();
+
+      //-- save the cross section graphs at a root file
+      //   (these graphs can then be used to create splines
+      SaveGraphsToRootFile();
+
+    }
+  }
 
   return 0;
 }
@@ -619,7 +634,8 @@ void SaveGraphsToRootFile(void)
 
     TGraph * gr = new TGraph(kNSplineP, e, xs);
     gr->SetName(title.str().c_str());
-    gr->SetTitle("GENIE cross section graph");
+    //gr->SetTitle("GENIE cross section graph");
+    gr->SetTitle(spl->GetName());
 
     topdir->Add(gr);
   }
@@ -1222,7 +1238,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   // probe PDG code:
   if( parser.OptionExists('p') ) {
     LOG("gspl2root", pINFO) << "Reading probe PDG code";
-    gOptProbePdgCode = parser.ArgAsInt('p');
+    gOptProbePdgList = GetPDGCodeListFromString(parser.ArgAsString('p'));
   } else {
     LOG("gspl2root", pFATAL) 
        << "Unspecified probe PDG code - Exiting";
@@ -1233,7 +1249,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   // target PDG code:
   if( parser.OptionExists('t') ) {
     LOG("gspl2root", pINFO) << "Reading target PDG code";
-    gOptTgtPdgCode = parser.ArgAsInt('t');
+    gOptTgtPdgList = GetPDGCodeListFromString(parser.ArgAsString('t'));
   } else {
     LOG("gspl2root", pFATAL) 
       << "Unspecified target PDG code - Exiting";
@@ -1261,8 +1277,12 @@ void GetCommandLineArgs(int argc, char ** argv)
     gOptROOTFilename = "gxsec.root";
   }
 
-  //write-out a PS file with plots
+  // write-out a PS file with plots
   gWriteOutPlots = parser.OptionExists('w');
+
+  // use same abscissa points as splines
+  //not yet//gKeepSplineKnots = parser.OptionExists('k');
+
 
   gEmin  = kEmin;
   gEmax  = gOptNuEnergy;
@@ -1274,6 +1294,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   LOG("gspl2root", pINFO) << "  Probe PDG code  = " << gOptProbePdgCode;
   LOG("gspl2root", pINFO) << "  Target PDG code = " << gOptTgtPdgCode;
   LOG("gspl2root", pINFO) << "  Max neutrino E  = " << gOptNuEnergy;
+  //not yet//LOG("gspl2root", pINFO) << "  Keep spline knots  = " << (gKeepSplineKnots?"true":"false");
 }
 //____________________________________________________________________________
 void PrintSyntax(void)
@@ -1282,5 +1303,20 @@ void PrintSyntax(void)
       << "\n\n" << "Syntax:" << "\n"
       << "   gspl2root -f xml_file -p probe_pdg -t target_pdg"
       << " [-e emax] [-o output_root_file] [-w]";
+  //not yet//  << " [-e emax] [-o output_root_file] [-w] [-k]";
+}
+//____________________________________________________________________________
+PDGCodeList GetPDGCodeListFromString(std::string s)
+{  
+  vector<string> isvec = utils::str::Split(s,",");
+
+  // fill in the PDG code list
+  PDGCodeList list;
+  vector<string>::const_iterator iter;
+  for(iter = isvec.begin(); iter != isvec.end(); ++iter) {
+    list.push_back( atoi(iter->c_str()) );
+  }
+  return list;
+
 }
 //____________________________________________________________________________
