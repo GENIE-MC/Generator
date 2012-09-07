@@ -23,9 +23,10 @@
 #ifndef _GNUMI_NEUTRINO_FLUX_H_
 #define _GNUMI_NEUTRINO_FLUX_H_
 
-#include <vector>
 #include <string>
 #include <iostream>
+#include <vector>
+#include <set>
 
 #include <TVector3.h>
 #include <TLorentzVector.h>
@@ -226,7 +227,11 @@ public :
   //
   void      SetXMLFile(string xmlbasename="GNuMIFlux.xml") { fXMLbasename = xmlbasename; }  ///< set the name of the file that hold XML config param_sets
   std::string GetXMLFile() const { return fXMLbasename; }  ///< return the name of the file that hold XML config param_sets
-  void      LoadBeamSimData(string filename, string det_loc);     ///< load a gnumi root flux ntuple and config
+
+  void      LoadBeamSimData(std::vector<string> filenames, string det_loc);     ///< load root flux ntuple files and config
+  void      LoadBeamSimData(std::set<string>    filenames, string det_loc);     ///< load root flux ntuple files and config
+  void      LoadBeamSimData(string filename, string det_loc);     ///< older (obsolete) single file version
+
   bool      LoadConfig(string cfg);                               ///< load a named configuration
   void      SetFluxParticles(const PDGCodeList & particles);      ///< specify list of flux neutrino species
   void      SetMaxEnergy(double Ev);                              ///< specify maximum flx neutrino energy
@@ -327,7 +332,7 @@ private:
   bool           fEnd;            ///< end condition reached
 
   string    fXMLbasename;         ///< XML filename for config data
-  string    fNuFluxFilePattern;   ///< wildcarded path
+  std::vector<string> fNuFluxFilePatterns;   ///< (potentially wildcarded) path(s)
   string    fNuFluxTreeName;      ///< Tree name "h10" (g3) or "nudata" (g4)
   TChain*   fNuFluxTree;          ///< TTree in g3numi or g4numi // REF ONLY!
   string    fNuFluxGen;           ///< "g3numi" "g4numi" or "flugg"
