@@ -276,6 +276,8 @@ void PathLengthList::SaveAsXml(string filename) const
   LOG("PathL", pINFO)
           << "Saving PathLengthList as XML in file: " << filename;
 
+  PDGLibrary * pdglib = PDGLibrary::Instance();
+
   ofstream outxml(filename.c_str());
   if(!outxml.is_open()) {
     LOG("PathL", pERROR) << "Couldn't create file = " << filename;
@@ -295,10 +297,15 @@ void PathLengthList::SaveAsXml(string filename) const
     int    pdgc = pl_iter->first;
     double pl   = pl_iter->second; // path length
 
-    outxml << "   <path_length pdgc=\"" << pdgc << "\">"
-                                 << pl << "</path_length>" << endl;
+    TParticlePDG * p = pdglib->Find(pdgc);
+
+    outxml << "   <path_length pdgc=\"" << pdgc << "\"> "
+           << setfill(' ') << setw(10) << pl << " </path_length>";
+    if ( p ) outxml << " <!-- [" << setfill(' ')
+                    << setw(5) << p->GetName() << "] -->";
+    outxml << endl;
   }
-  outxml << "</path_length_list>";
+  outxml << endl << "</path_length_list>";
   outxml << endl;
 
   outxml.close();
