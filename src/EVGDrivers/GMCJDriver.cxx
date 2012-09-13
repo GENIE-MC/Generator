@@ -173,7 +173,7 @@ bool GMCJDriver::UseMaxPathLengths(string xml_filename)
     LOG("GMCJDriver", pWARN)
       << "UseMaxPathLengths could not find file: \"" << xml_filename << "\"";
   }
-  return fuseExtMaxPl;
+  return fUseExtMaxPl;
 
 }
 //___________________________________________________________________________
