@@ -53,7 +53,7 @@ public :
   void UseFluxDriver               (GFluxI * flux);
   void UseGeomAnalyzer             (GeomAnalyzerI * geom);
   void UseSplines                  (bool useLogE = true);
-  void UseMaxPathLengths           (string xml_filename);
+  bool UseMaxPathLengths           (string xml_filename);
   void KeepOnThrowingFluxNeutrinos (bool keep_on);
   void ForceSingleProbScale        (void);
   void PreSelectEvents             (bool preselect = true);
