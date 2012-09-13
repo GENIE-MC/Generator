@@ -116,10 +116,16 @@ bool GFluxBlender::GenerateNext(void)
 //____________________________________________________________________________
 void GFluxBlender::Clear(Option_t * opt)
 {
-// Dummy clear method needed to conform to GFluxI interface 
+// Clear method needed to conform to GFluxI interface 
 //
-  LOG("FluxBlender", pERROR) <<
-      "No Clear(Option_t * opt) method implemented for opt: "<< opt;
+  fRealGFluxI->Clear(opt);
+}
+//____________________________________________________________________________
+long int GFluxBlender::Index(void)
+{
+// Index method needed to conform to GFluxI interface 
+//
+  return fRealGFluxI->Index();
 }
 //____________________________________________________________________________
 void GFluxBlender::GenerateWeighted(bool gen_weighted)
