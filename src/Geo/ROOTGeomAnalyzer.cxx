@@ -1048,7 +1048,19 @@ void ROOTGeomAnalyzer::MaxPathLengthsFluxMethod(void)
   int iparticle = 0;
   PathLengthList::const_iterator pl_iter;
 
-  while (iparticle < this->ScannerNParticles()) {
+  const int nparticles = abs(this->ScannerNParticles());
+
+  // if # scanner particles is negative, this signals that the user
+  // desires to force rays to have the maximum energy (useful if the
+  // volume considered changes size with neutrino energy)
+  bool rescale_e = (this->ScannerNParticles() < 0 );
+  double emax = fFlux->MaxEnergy();
+  if ( rescale_e ) {
+    LOG("GROOTGeom", pNOTICE)
+      << "max path lengths with FLUX method forcing Enu=" << emax;
+  }
+
+  while (iparticle < nparticles ) {
 
     bool ok = fFlux->GenerateNext();
     if (!ok) {
@@ -1056,8 +1068,12 @@ void ROOTGeomAnalyzer::MaxPathLengthsFluxMethod(void)
        continue;
     }
 
-    const TLorentzVector & nup4  = fFlux -> Momentum ();
-    const TLorentzVector & nux4  = fFlux -> Position ();
+    TLorentzVector   nup4  = fFlux->Momentum();
+    if ( rescale_e ) {
+      double ecurr = nup4.E();
+      if ( ecurr > 0 ) nup4 *= (emax/ecurr);
+    }
+    const TLorentzVector & nux4  = fFlux->Position();
 
     //LOG("GMCJDriver", pNOTICE)
     //   << "\n [-] Generated flux neutrino: "
@@ -1066,7 +1082,7 @@ void ROOTGeomAnalyzer::MaxPathLengthsFluxMethod(void)
 
     const PathLengthList & pl = this->ComputePathLengths(nux4, nup4);
 
-    bool enters = false;  // rwh: how is this ever set to false?
+    bool enters = false;
 
     for (pl_iter = pl.begin(); pl_iter != pl.end(); ++pl_iter) {
        int    pdgc       = pl_iter->first;
