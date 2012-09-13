@@ -62,7 +62,7 @@ namespace flux {
     const TLorentzVector & Momentum      (void) { return fRealGFluxI->Momentum(); } ///< returns the flux neutrino 4-momentum 
     const TLorentzVector & Position      (void) { return fRealGFluxI->Position(); } ///< returns the flux neutrino 4-position (note: expect SI rather than physical units)
     bool                   End           (void) { return fRealGFluxI->End(); }  ///< true if no more flux nu's can be thrown (eg reaching end of beam sim ntuples)
-    long int               Index         (void) { return -1; }
+    long int               Index            (void);
     void                   Clear            (Option_t * opt);
     void                   GenerateWeighted (bool gen_weighted);
 
