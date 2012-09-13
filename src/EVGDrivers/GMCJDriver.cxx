@@ -156,7 +156,7 @@ void GMCJDriver::UseSplines(bool useLogE)
   fUseLogE    = useLogE;
 }
 //___________________________________________________________________________
-void GMCJDriver::UseMaxPathLengths(string xml_filename)
+bool GMCJDriver::UseMaxPathLengths(string xml_filename)
 {
 // If you supply the maximum path lengths for all materials in your geometry
 // (eg for ROOT/GEANT geometries they can be computed running GENIE's gmxpl 
@@ -167,8 +167,14 @@ void GMCJDriver::UseMaxPathLengths(string xml_filename)
 
   bool is_accessible = !(gSystem->AccessPathName(fMaxPlXmlFilename.c_str()));
 
-  if (!is_accessible) fUseExtMaxPl = false;
-  else                fUseExtMaxPl = true;
+  if ( is_accessible ) fUseExtMaxPl = true;
+  else {
+    fUseExtMaxPl = false;
+    LOG("GMCJDriver", pWARN)
+      << "UseMaxPathLengths could not find file: \"" << xml_filename << "\"";
+  }
+  return fuseExtMaxPl;
+
 }
 //___________________________________________________________________________
 void GMCJDriver::KeepOnThrowingFluxNeutrinos(bool keep_on)
@@ -889,6 +895,25 @@ EventRecord * GMCJDriver::GenerateEvent1Try(void)
   if(Pno<0.) {
       LOG("GMCJDriver", pFATAL) 
          << "Negative no interactin probability! (P = " << 100*Pno << " %)";
+
+      // print info about what caused the problem
+      int                    nupdg = fFluxDriver -> PdgCode  ();
+      const TLorentzVector & nup4  = fFluxDriver -> Momentum ();
+      const TLorentzVector & nux4  = fFluxDriver -> Position ();
+
+      LOG("GMCJDriver", pWARN)
+        << "\n [-] Problematic neutrino: "
+        << "\n  |----o PDG-code   : " << nupdg
+        << "\n  |----o 4-momentum : " << utils::print::P4AsString(&nup4)
+        << "\n  |----o 4-position : " << utils::print::X4AsString(&nux4)
+        << "\n Emax : " << fEmax;
+
+      LOG("GMCJDriver", pWARN)
+        << "\n Problematic path lengths:" << fCurPathLengths;
+
+      LOG("GMCJDriver", pWARN)
+        << "\n Maximum path lengths:" << fMaxPathLengths;
+
       exit(1);
   }
   if(R>=1-Pno) {
