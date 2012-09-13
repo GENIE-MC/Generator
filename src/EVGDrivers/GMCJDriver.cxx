@@ -544,7 +544,8 @@ void GMCJDriver::GetMaxPathLengthList(void)
 {
   if(fUseExtMaxPl) {
      LOG("GMCJDriver", pNOTICE)
-       << "Loading external max path-length list for input geometry";
+       << "Loading external max path-length list for input geometry from "
+       << fMaxPlXmlFilename;
      fMaxPathLengths.LoadFromXml(fMaxPlXmlFilename);
 
   } else {
