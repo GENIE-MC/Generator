@@ -1160,19 +1160,23 @@ void GNuMIFlux::PrintCurrent(void)
 //___________________________________________________________________________
 void GNuMIFlux::Clear(Option_t * opt)
 {
-// Dummy clear method needed to conform to GFluxI interface 
-//
-  LOG("Flux", pERROR) <<
-      "No Clear(Option_t * opt) method implemented for opt: "<< opt;
+  // Clear the driver state
+  //
+  LOG("Flux", pWARN) << "GSimpleNtpFlux::Clear(" << opt << ") called";
+  // do it in all cases, but EVGDriver/GMCJDriver will pass "CycleHistory"
+
+  fICycle     = 0;
+
+  fSumWeight  = 0;
+  fNNeutrinos = 0;
+  fAccumPOTs  = 0;
 }
 //___________________________________________________________________________
 void GNuMIFlux::GenerateWeighted(bool gen_weighted)
 {
-// Dummy implementation needed to conform to GFluxI interface
-//
-  LOG("Flux", pERROR) <<
-      "No GenerateWeighted(bool gen_weighted) method implemented for " <<
-      "gen_weighted: " << gen_weighted;
+  // Set whether to generate weighted rays
+  //
+  fGenWeighted = gen_weighted;
 }
 //___________________________________________________________________________
 void GNuMIFlux::Initialize(void)
