@@ -667,8 +667,7 @@ void GSimpleNtpFlux::Clear(Option_t * opt)
   LOG("Flux", pWARN) << "GSimpleNtpFlux::Clear(" << opt << ") called";
   // do it in all cases, but EVGDriver/GMCJDriver will pass "CycleHistory"
 
-  fIEntry = -1;
-  fIUse   =  9999999;
+  fICycle     = 0;
 
   fSumWeight  = 0;
   fNNeutrinos = 0;
