@@ -91,6 +91,7 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   //  (the physically allowed W's, unless an external cut is imposed)
   const KPhaseSpace & kps = interaction->PhaseSpace();
   Range1D_t W = kps.Limits(kKVW);
+  if(W.max>1.7) W.max=1.7;
 //assert(W.min>=0. && W.min<W.max);
 
   if(W.max <=0 || W.min>=W.max) {
@@ -151,14 +152,18 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
        // > charged lepton scattering
        if(is_em) {
+         gW  = W.min + dW  * rnd->RndKine().Rndm();
          Range1D_t Q2 = kps.Q2Lim_W();
 	 double Q2min      = Q2.min + kASmallNum;
-	 double Q2max      = Q2.max - kASmallNum;         
-         double log10Q2min = TMath::Log10(Q2min);
-         double log10Q2max = TMath::Log10(Q2max);
-         double dlog10Q2   = log10Q2max - log10Q2min;
-         gQ2 = TMath::Power(10., log10Q2min + rnd->RndKine().Rndm() * dlog10Q2);
-         gW  = W.min + dW  * rnd->RndKine().Rndm();
+	 double Q2max      = Q2.max - kASmallNum;
+
+
+	 //         double log10Q2min = TMath::Log10(Q2min);
+	 //         double log10Q2max = TMath::Log10(Q2max);
+	 //         double dlog10Q2   = log10Q2max - log10Q2min;
+         gQ2 = Q2min + rnd->RndKine().Rndm() * (Q2max-Q2min);
+	 //         gQ2 = TMath::Power(10., log10Q2min + rnd->RndKine().Rndm() * dlog10Q2);
+
        }
 
        // > neutrino scattering
@@ -232,7 +237,8 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
           this->AssertXSecLimits(interaction, xsec, xsec_max);
           double t  = xsec_max * rnd->RndKine().Rndm();
           accept = (t < xsec);
-        }
+	  LOG("RESKinematics", pINFO) << "xsec = " << xsec << ", ran*max = " << t << ", accept= " << accept;
+      }
         // > neutrino scattering (using importance sampling envelope)
         else {
           double max = fEnvelope->Eval(gQD2, gW);
