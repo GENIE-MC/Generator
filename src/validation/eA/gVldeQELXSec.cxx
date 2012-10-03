@@ -60,6 +60,11 @@
 
 \created Oct 16, 2009 
 
+Important revisions after version 2.0.0 :
+ @ Sep 27, 2012 - we have 2 places for data, program now can access either
+         make beam energy range a little larger to use more datasets
+         make angle and nu settings correct for wide range of ep data
+ 
 \cpright Copyright (c) 2003-2011, GENIE Neutrino MC Generator Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
          or see $GENIE/LICENSE
@@ -270,9 +275,10 @@ void Init(void)
   }
   gQEDataFile = new TFile(gOptDataArchiveFilename.c_str(),"read");  
   gQEDataTree = (TTree *) gQEDataFile->Get("qent");
+  if(!gQEDataTree)  gQEDataTree = (TTree *) gQEDataFile->Get("resnt");
   if(!gQEDataTree) {
       LOG("gvldtest", pFATAL) 
-         << "Can not find TTree `qent' in file: " << gOptDataArchiveFilename;
+         << "Can not find TTree `qent' or `resent' in file: " << gOptDataArchiveFilename;
       gAbortingInErr = true;
       exit(1);
   }
@@ -463,12 +469,20 @@ vector<TGraph *> Model(int iset, int imodel)
   double theta = gDataSets[iset]->Theta();
   double costheta = TMath::Cos(kPi*theta/180.);
 
-  double Emin        = E - 0.001;
-  double Emax        = E + 0.001;
-  double costhetamin = costheta - 0.03;
-  double costhetamax = costheta + 0.03;
+  double Emin        = E - 0.02;
+  double Emax        = E + 0.02;
+  double dcos = .03;
+  if (costheta>0.98) dcos = .005;
+  if (costheta>0.99) dcos = .001;
+  double costhetamin = costheta - dcos;
+  double costhetamax = costheta + dcos; //.03
   costhetamin = TMath::Max(-1.0, costhetamin);
   costhetamax = TMath::Min( 1.0, costhetamax);
+  if (costhetamax>1.0) {
+     LOG("vldtest", pFATAL)
+        << "costhetamax>1 for plot- unphysical range ";
+     exit(1);
+  }
 
   // get total cross section
   PDGLibrary * pdglib = PDGLibrary::Instance();
@@ -502,7 +516,9 @@ vector<TGraph *> Model(int iset, int imodel)
     return model;
   }
 
-  const int nbins = 40;
+  int nbins = 60;
+  if (E>4) nbins = 100;
+  if (E>8) nbins = 200;
 
   double dv = E/nbins;
   double dcostheta = costhetamax-costhetamin;
