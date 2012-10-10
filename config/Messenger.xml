@@ -81,6 +81,7 @@
   <priority msgstream="Interaction">         NOTICE </priority>
   <priority msgstream="Intranuke">           NOTICE </priority>
   <priority msgstream="HAIntranuke">         NOTICE </priority>
+  <priority msgstream="TwoBodyCollision">    NOTICE </priority>
   <priority msgstream="HNIntranuke">         NOTICE </priority>
   <priority msgstream="INukeData">           NOTICE </priority>
   <priority msgstream="INukeUtils">          NOTICE </priority>
