@@ -283,7 +283,7 @@ void ConvertToGST(void)
   int    brHitNuc      = 0;      // Hit nucleon pdg code      (not set for COH,IMD and NuEL events)
   int    brHitQrk      = 0;      // Hit quark pdg code        (set for DIS events only)
   bool   brFromSea     = false;  // Hit quark is from sea     (set for DIS events only)
-  bool   brResId       = 0;      // Produced baryon resonance (set for resonance events only)
+  int    brResId       = 0;      // Produced baryon resonance (set for resonance events only)
   bool   brIsQel       = false;  // Is QEL?
   bool   brIsRes       = false;  // Is RES?
   bool   brIsDis       = false;  // Is DIS?
