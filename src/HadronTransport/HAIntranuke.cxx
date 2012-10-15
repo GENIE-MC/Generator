@@ -601,7 +601,7 @@ void HAIntranuke::InelasticHA(
     double P4L = TMath::Sqrt(t->Px()*t->Px() + t->Py()*t->Py() + t->Pz()*t->Pz());
     double E3L = p->KinE();
     double E4L = t->KinE();
-  LOG("InelasticHA",pINFO)
+  LOG("HAIntranuke",pINFO)
     << "TwoBodyKinematics: C3CM = " << C3CM << "\n" << "P3 = " 
     << P3L << "   " << E3L << "             P4 = " 
     << P4L << "   " << E4L ;
@@ -1015,7 +1015,7 @@ void HAIntranuke::Inelastic(
 		   - ((pdgc==kPdgPiP || pdgc==kPdgKP)?1:0)) {iter++; continue;}
 	  else { 
 	    not_done=false;   //success
-	    LOG("HAINtranuke",pNOTICE) << "success, iter = " << iter << "  np, nn = " << np << "  " << nn; 
+	    LOG("HAIntranuke",pNOTICE) << "success, iter = " << iter << "  np, nn = " << np << "  " << nn; 
 	    if (np+nn>86) // too many particles, scale down
 	      {
 		double frac = 85./double(np+nn);
