@@ -223,7 +223,7 @@ void GeomVolSelectorFiducial::MakeBox(Double_t* xyzmin, Double_t* xyzmax)
   double boxXYZmin[3], boxXYZmax[3];
   for ( int j = 0; j < 3; ++j ) {
     boxXYZmin[j] = TMath::Min(xyzmin[j],xyzmax[j]);
-    boxXYZmax[j] = TMath::Max(xyzmax[j],xyzmax[j]);
+    boxXYZmax[j] = TMath::Max(xyzmin[j],xyzmax[j]);
   }
 
   FidPolyhedron* poly = new FidPolyhedron();
