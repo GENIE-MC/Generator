@@ -73,6 +73,7 @@ void GFlavorMap::ParseMapString(std::string config)
   vector<string> tokens = genie::utils::str::Split(config," ");
   for (unsigned int jtok = 0; jtok < tokens.size(); ++jtok ) {
     string tok1 = tokens[jtok];
+    if ( tok1 == "" ) continue;
     if ( tok1 == "swap" || tok1 == "map" ) continue;
     if ( tok1 == "genie::flux::GFlavorMap" ) continue;
     // should have the form  <int>:<int>
