@@ -91,7 +91,7 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   //  (the physically allowed W's, unless an external cut is imposed)
   const KPhaseSpace & kps = interaction->PhaseSpace();
   Range1D_t W = kps.Limits(kKVW);
-  if(W.max>1.7) W.max=1.7;
+  //costas says this is bad  if(W.max>1.7) W.max=1.7;
 //assert(W.min>=0. && W.min<W.max);
 
   if(W.max <=0 || W.min>=W.max) {
@@ -105,6 +105,8 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
   const InitialState & init_state = interaction -> InitState();
   double E = init_state.ProbeE(kRfHitNucRest);
+  //  double M = init_state.Tgt().HitNucP4().M();
+  //  double ml  = interaction->FSPrimLepton()->Mass();
 
   //-- For the subsequent kinematic selection with the rejection method:
   //   Calculate the max differential cross section or retrieve it from the
@@ -153,16 +155,12 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
        // > charged lepton scattering
        if(is_em) {
          gW  = W.min + dW  * rnd->RndKine().Rndm();
-         Range1D_t Q2 = kps.Q2Lim_W();
+	 Range1D_t Q2 = kps.Q2Lim_W();
+	 //	 Range1D_t Q2 = genie::utils::kinematics::InelQ2Lim_W(E, M, ml, gW, kMinQ2Limit);
+	 LOG("RESKinematics", pINFO) << "Q2.lim = " << Q2.min << "  " << Q2.max;
 	 double Q2min      = Q2.min + kASmallNum;
 	 double Q2max      = Q2.max - kASmallNum;
-
-
-	 //         double log10Q2min = TMath::Log10(Q2min);
-	 //         double log10Q2max = TMath::Log10(Q2max);
-	 //         double dlog10Q2   = log10Q2max - log10Q2min;
          gQ2 = Q2min + rnd->RndKine().Rndm() * (Q2max-Q2min);
-	 //         gQ2 = TMath::Power(10., log10Q2min + rnd->RndKine().Rndm() * dlog10Q2);
 
        }
 
@@ -218,7 +216,7 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
          // QD2 -> Q2
          gQ2 = utils::kinematics::QD2toQ2(gQD2);
-        } // charged lepton or neutrino scattering?
+       } // charged lepton or neutrino scattering?
      } // uniformly over phase space?
 
      LOG("RESKinematics", pINFO) << "Trying: W = " << gW << ", Q2 = " << gQ2;
