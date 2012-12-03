@@ -1076,9 +1076,15 @@ void HAIntranuke::Inelastic(
 	  double neutM = pLib->Find(kPdgNeutron)->Mass();
 	  double probM = pLib->Find(pdgc)   ->Mass();
 	  TVector3 pP3 = p->P4()->Vect() * (1./5.);
-	  double protE = TMath::Sqrt(pP3.Mag2() + protM*protM);
-	  double neutE = TMath::Sqrt(pP3.Mag2() + neutM*neutM);
-	  double probE = TMath::Sqrt(pP3.Mag2() + probM*probM);
+	  //
+	  // give all KE, mom to interemediate nucleon (necessarily offshell)
+	  //
+	  double protKE = p->P4()->E() -protM;
+	  double neutKE = p->P4()->E() -neutM;
+	  double probKE = p->P4()->E() -probM;
+	  double protE = protM + protKE * (1./5.);
+	  double neutE = neutM + neutKE * (1./5.);
+	  double probE = probM + probKE * (1./5.);
 
 	  TLorentzVector protP4(pP3,protE);
 	  TLorentzVector neutP4(pP3,neutE);
