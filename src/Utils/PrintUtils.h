@@ -41,6 +41,7 @@ namespace print
   string BoolAsIOString  (bool b);
   string BoolAsYNString  (bool b);
   void   PrintBanner     (void);
+  void   PrintBanner     (string filename, UInt_t wait_msec);
   string PrintFramedMesg (string mesg, unsigned int nl=1, const char f='*');
 
 }      // print namespace
