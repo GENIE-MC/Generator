@@ -22,6 +22,7 @@
 #include <TLorentzVector.h>
 #include <TProfile.h>
 #include <TTree.h>
+#include <TMath.h>
 
 #include "EVGCore/EventRecord.h"
 #include "GHEP/GHepParticle.h"
@@ -256,7 +257,7 @@ void HadPlots::Analyze()
     double nneg[nw] = {0.0}; //mean no. of negative particles
     double errnneg[nw] = {0.0};
     
-    double Dneg[nw] = {0.0}; //dispersion D_=sqrt(<n_**2>-<n_>**2) 
+    double Dneg[nw] = {0.0}; //dispersion D_=TMath::Sqrt(<n_**2>-<n_>**2) 
     
     
     double D[nw] = {0.0};    //dispersion of charged hadrons
@@ -377,7 +378,7 @@ void HadPlots::Analyze()
       double y  = v*M/(k1*p1);      // Inelasticity, y = q*P1/k1*P1
       double W2 = M*M + 2*M*v - Q2; // Hadronic Invariant mass ^ 2
       double W  = TMath::Sqrt(W2);
-      //double Phs = sqrt(pow(p2.Px(),2)+pow(p2.Py(),2)+pow(p2.Pz(),2));
+      //double Phs = TMath::Sqrt(TMath::Power((double)p2.Px(),2)+TMath::Power((double)p2.Py(),2)+TMath::Power((double)p2.Pz(),2));
       v+=M;  //measured v
 
       //LOG("VldHadro", pINFO) 
@@ -454,14 +455,14 @@ void HadPlots::Analyze()
       aW2[ipos] += weight*W2;
 
       nch[ipos] += weight*(ncharged);
-      errnch[ipos] += weight*pow(ncharged,2);
+      errnch[ipos] += weight*TMath::Power((double)ncharged,2);
       nchpi[ipos] += weight*(npip+npim);
       nneg[ipos] += weight*(nnegative);
-      errnneg[ipos] += weight*pow(nnegative,2);
+      errnneg[ipos] += weight*TMath::Power((double)nnegative,2);
       nv[ipos] += weight;
       nv2[ipos] += weight*weight;
       npizero[ipos] += weight*npi0;
-      errnpi0[ipos] += weight*pow(npi0,2);
+      errnpi0[ipos] += weight*TMath::Power((double)npi0,2);
       //prepare for KNO
       int nchtot = ncharged;
       //if (nchtot%2!=0) cout<<"Warning: nch = "<<nchtot<<endl;
@@ -543,15 +544,15 @@ void HadPlots::Analyze()
     for (int i = 0; i<nw; i++){
       if (nv[i]){
 	nch[i]   /= nv[i];
-	D[i]      = sqrt(errnch[i]/nv[i]-pow(nch[i],2));
-	errnch[i] = D[i]/sqrt(nv2[i]);
+	D[i]      = TMath::Sqrt(errnch[i]/nv[i]-TMath::Power((double)nch[i],2));
+	errnch[i] = D[i]/TMath::Sqrt(nv2[i]);
 	nchpi[i] /= nv[i]*2; //1/2*(<pi+>+<pi->)
 	nneg[i]  /= nv[i];
-	Dneg[i]   = sqrt(errnneg[i]/nv[i]-pow(nneg[i],2));
-	errnneg[i]= Dneg[i]/sqrt(nv2[i]);
+	Dneg[i]   = TMath::Sqrt(errnneg[i]/nv[i]-TMath::Power((double)nneg[i],2));
+	errnneg[i]= Dneg[i]/TMath::Sqrt(nv2[i]);
 	npizero[i]  /= nv[i];
-	Dnpi0[i]  = sqrt(errnpi0[i]/nv[i]-pow(npizero[i],2));
-	errnpi0[i]= Dnpi0[i]/sqrt(nv2[i]);
+	Dnpi0[i]  = TMath::Sqrt(errnpi0[i]/nv[i]-TMath::Power((double)npizero[i],2));
+	errnpi0[i]= Dnpi0[i]/TMath::Sqrt(nv2[i]);
 	D_nch[i]  = D[i]/nch[i];
 	aW2[i]   /=nv[i];
 	for (int j = 0; j<13; j++){
@@ -611,9 +612,9 @@ void HadPlots::Analyze()
       double y  = v*M/(k1*p1);      // Inelasticity, y = q*P1/k1*P1
       double W2 = M*M + 2*M*v - Q2; // Hadronic Invariant mass ^ 2
       double W  = TMath::Sqrt(W2);
-      double Phs = sqrt(pow(p2.Px(),2)+pow(p2.Py(),2)+pow(p2.Pz(),2));
+      double Phs = TMath::Sqrt(TMath::Power((double)p2.Px(),2)+TMath::Power((double)p2.Py(),2)+TMath::Power((double)p2.Pz(),2));
       double beta = Phs/p2.E();
-      double gamma = p2.E()/sqrt(pow(p2.E(),2)-pow(Phs,2));
+      double gamma = p2.E()/TMath::Sqrt(TMath::Power((double)p2.E(),2)-TMath::Power((double)Phs,2));
       v+=M;  //measured v
 
       int np = 0;
@@ -787,7 +788,7 @@ void HadPlots::Analyze()
       
       if (cut5){
 	cut5_nv[ipos] += weight;
-	aW[ipos] += weight*sqrt(W2);
+	aW[ipos] += weight*TMath::Sqrt(W2);
       }
 
       if (cut5a){
@@ -834,9 +835,9 @@ void HadPlots::Analyze()
 //	}	
 	if (charge[ipar]>0) hadcharge = 1;
 	if (charge[ipar]<0) hadcharge = -1;
-	double ptot = sqrt(pow(px[ipar],2)+pow(py[ipar],2)+pow(pz[ipar],2));
+	double ptot = TMath::Sqrt(TMath::Power((double)px[ipar],2)+TMath::Power((double)py[ipar],2)+TMath::Power((double)pz[ipar],2));
 	double Pz = (px[ipar]*p2.Px()+py[ipar]*p2.Py()+pz[ipar]*p2.Pz())/Phs;
-	double pt = sqrt(pow(ptot,2)-pow(Pz,2)); 
+	double pt = TMath::Sqrt(TMath::Power((double)ptot,2)-TMath::Power((double)Pz,2)); 
 	double Ecm = gamma*(eng[ipar]-beta*Pz);
 	Pz = gamma*(Pz-beta*eng[ipar]); //Lorentz boost
 	double xf = 2*Pz/W;
@@ -845,7 +846,7 @@ void HadPlots::Analyze()
 	double z_uncor = z;
 	if (abs(pid[ipar])==2212&&ptot>1){ //proton mis-identified as pion for momenta above 1GeV
 	  double Pz_uncor = (px[ipar]*p2.Px()+py[ipar]*p2.Py()+pz[ipar]*p2.Pz())/Phs;
-	  double eng_uncor = sqrt(pow(ptot,2)+pow(0.1396,2));
+	  double eng_uncor = TMath::Sqrt(TMath::Power((double)ptot,2)+TMath::Power(0.1396,2));
 	  Pz_uncor = gamma*(Pz_uncor-beta*eng_uncor); //Lorentz boost
 	  xf_uncor = 2*Pz_uncor/W;
 	  z_uncor  = eng_uncor/v;

@@ -74,8 +74,8 @@ protected:
   int      numTossed;
 
   void findPiMom(TParticle pion);
-  virtual void checkCandP(MerenyiNuEvent& myEvent) {}  //check for candidate proton
-  virtual void classifyHadrons(MerenyiNuEvent& myEvent) {}
+  virtual void checkCandP(MerenyiNuEvent& /*myEvent*/) {}  //check for candidate proton
+  virtual void classifyHadrons(MerenyiNuEvent& /*myEvent*/) {}
 
 private:
 

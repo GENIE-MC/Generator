@@ -118,13 +118,27 @@ LOG_LIBRARIES := -L$(LOG_LIB_DIR) -llog4cpp
 
 FORT_LIBRARIES =
 
-ifeq ($(strip $(ARCH)),linux) 
+ifeq ($(strip $(ARCH)),linux)
+have_g2c := $(wildcard /usr/lib/libg2c.so)
+ifneq ($(strip $(have_g2c)),)
 FORT_LIBRARIES = -L/usr/lib -lg2c
 endif
+have_gfortran := $(wildcard /usr/lib/libgfortran.so)
+ifneq ($(strip $(have_gfortran)),)
+FORT_LIBRARIES := $(FORT_LIBRARIES) -lgfortran
+endif
+endif # linux
 
-ifeq ($(strip $(ARCH)),linuxx8664gcc) 
+ifeq ($(strip $(ARCH)),linuxx8664gcc)
+have_g2c := $(wildcard /usr/lib64/libg2c.so)
+ifneq ($(strip $(have_g2c)),)
 FORT_LIBRARIES = -L/usr/lib64 -lg2c
 endif
+have_gfortran := $(wildcard /usr/lib64/libgfortran.so)
+ifneq ($(strip $(have_gfortran)),)
+FORT_LIBRARIES := $(FORT_LIBRARIES) -lgfortran
+endif
+endif # linuxx8664gcc
 
 ifeq ($(strip $(ARCH)),macosx) 
 FORT_LIBRARIES = /usr/local/lib/libgfortran.dylib 
@@ -410,7 +424,7 @@ CXXFLAGS      = -Wall -fPIC \
 ifeq ($(strip $(GCC_GE_4_1_0)), YES) 
   CXXFLAGS += -Wno-strict-aliasing -ffriend-injection
 endif
-LDFLAGS       = -g
+LDFLAGS       = -g -Wl,--no-as-needed
 SOFLAGS       = -shared
 DllSuf       := so
 DllLinkSuf   := 
@@ -437,7 +451,7 @@ CXXFLAGS      = -Wall -fPIC \
 ifeq ($(strip $(GCC_GE_4_1_0)), YES) 
   CXXFLAGS += -Wno-strict-aliasing -ffriend-injection
 endif
-LDFLAGS       = -g
+LDFLAGS       = -g -Wl,--no-as-needed
 SOFLAGS       = -shared
 DllSuf       := so
 DllLinkSuf   := 
