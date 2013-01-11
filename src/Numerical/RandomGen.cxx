@@ -45,8 +45,6 @@ RandomGen::RandomGen()
     LOG("Rndm", pINFO) << "Env. var. $GSEED is not set. Using default seed";
     fCurrSeed = kDefaultRandSeed; // default seed number
   }
-  LOG("Rndm", pINFO)
-            << "Starting Random Number Generators with seed = " << fCurrSeed;
 
   this->InitRandomGenerators(fCurrSeed);
 }
@@ -70,6 +68,9 @@ RandomGen * RandomGen::Instance()
 //____________________________________________________________________________
 void RandomGen::SetSeed(long int seed)
 {
+  LOG("Rndm", pNOTICE)
+     << "Setting random number seed: " << seed;
+
   // Set the seed number for all internal GENIE random number generators
   this->RndKine ().SetSeed(seed);
   this->RndHadro().SetSeed(seed);
@@ -107,8 +108,11 @@ void RandomGen::SetSeed(long int seed)
 //____________________________________________________________________________
 void RandomGen::InitRandomGenerators(long int seed)
 {
-  fRandom3 = new TRandom3();
+  LOG("Rndm", pNOTICE)
+     << "Initializing random number generators "
+     << "(a default seed number used at initialization)";
 
+  fRandom3 = new TRandom3();
   this->SetSeed(seed);
 }
 //____________________________________________________________________________
