@@ -53,6 +53,11 @@ public:
   bool    OptionExists (string opt); ///< was option set?
   char *  Arg          (string opt); ///< return argument following --`opt'
 
+  string         ArgAsString       (string opt);
+  double         ArgAsDouble       (string opt);
+  int            ArgAsInt          (string opt);
+  long           ArgAsLong         (string opt);
+
 private:
 
   int    fArgc;

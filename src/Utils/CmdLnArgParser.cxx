@@ -21,6 +21,10 @@
    argument from the last call to this function. 
  @ May 09, 2012 - CA
    Add basic support for multi-character switches.
+ @ Jan 11, 2013 - CA
+   Added ArgAsString(), ArgAsDouble(), ArgAsInt(), ArgAsLong() for 
+   multi-character switches
+
 */
 //____________________________________________________________________________
 
@@ -273,5 +277,41 @@ bool CmdLnArgParser::OptionExists(string op)
   }
 
   return set;
+}
+//____________________________________________________________________________
+string CmdLnArgParser::ArgAsString(string op)
+{
+  char * argument = this->Arg(op);
+  string value = string(argument);
+  delete [] argument;
+
+  return value;
+}
+//____________________________________________________________________________
+double CmdLnArgParser::ArgAsDouble(string op)
+{
+  char * argument = this->Arg(op);
+  double value = atof(argument);
+  delete [] argument;
+
+  return value;
+}
+//____________________________________________________________________________
+int CmdLnArgParser::ArgAsInt(string op)
+{
+  char * argument = this->Arg(op);
+  int value = atoi(argument);
+  delete [] argument;
+
+  return value;
+}
+//____________________________________________________________________________
+long CmdLnArgParser::ArgAsLong(string op)
+{
+  char * argument = this->Arg(op);
+  long value = atol(argument);
+  delete [] argument;
+
+  return value;
 }
 //____________________________________________________________________________
