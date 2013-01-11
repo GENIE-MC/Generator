@@ -3,46 +3,46 @@
 
 \program gevgen
 
-\brief   A 'generic' GENIE v+A event generation driver (gevgen)
+\brief   A simple 'generic' GENIE v+A event generation driver (gevgen).
 
-	 This generic event generation driver can handle:
+	 It handles:
  	 a) event generation for a fixed init state (v+A) at fixed energy, or
          b) event generation for simple fluxes (specified either via some
             functional form, tabular text file or a ROOT histogram) and for 
             simple 'geometries' (a target mix with its corresponding weights)
 
-         For more complex event generation cases using realistic / detailed 
-         neutrino flux simulations and detector geometries see, for example, 
-         the GENIE event generation driver for T2K (gT2Kevgen) at
-         $GENIE/src/support/t2k/EvGen/gT2Kevgen.cxx
-	 Use that as a template for your own experiment-specific case.
+         For more complex event generation cases, for specific experiments, 
+         using the outputs of detailed neutrino flux simulations and realistic 
+         detector geometry descriptions see in $GENIE/src/support/.
 
          Syntax :
-           gevgen [-h] -n nev [-s] -e E -p nupdg -t tgtpdg [-r run#] [-f flux] [-w]
+           gevgen [-h] -n nev -e E -p nupdg -t tgtpdg [-r run#] 
+                  [-f flux] [-w] [--seed] [--cross-sections]
 
          Options :
            [] Denotes an optional argument.
-           -h Prints-out help on using gevgen and exits.
-           -n Specifies the number of events to generate.
-           -r Specifies the MC run number.
-           -s Turns on cross section spline generation at job initialization.
-              ** Always use that option **
-              Not using the cross section splines will slow down the event
-              generation considerably. Since building the splines is a 
-              considerable overhead we recommend building them in advance
-              (see gmkspl utility) and loading via the $GSPLOAD env. variable.
-           -e Specifies the neutrino energy.
+           -h 
+              Prints-out help on using gevgen and exits.
+           -n 
+              Specifies the number of events to generate.
+           -r 
+              Specifies the MC run number.
+           -e 
+              Specifies the neutrino energy.
 	      If what follows the -e option is a comma separated pair of values
               it will be interpreted as an energy range for the flux specified
               via the -f option (see below).
-           -p Specifies the neutrino PDG code.
-           -t Specifies the target PDG code (pdg format: 10LZZZAAAI) _or_ a target
+           -p 
+              Specifies the neutrino PDG code.
+           -t 
+              Specifies the target PDG code (pdg format: 10LZZZAAAI) _or_ a target
               mix (pdg codes with corresponding weights) typed as a comma-separated 
               list of pdg codes with the corresponding weight fractions in brackets, 
               eg code1[fraction1],code2[fraction2],... 
               For example, to use a target mix of 95% O16 and 5% H type: 
               `-t 1000080160[0.95],1000010010[0.05]'.
-           -f Specifies the neutrino flux spectrum.
+           -f 
+              Specifies the neutrino flux spectrum.
               It can be any of:
 	      -- A function:
                  eg ` -f x*x+4*exp(-x)' 
@@ -51,14 +51,19 @@
                  energy,flux (see $GENIE/data/flux/ for few examples). 
               -- A 1-D ROOT histogram (TH1D):
                  The general syntax is `-f /full/path/file.root,object_name'
-           -w Forces generation of weighted events.
+           -w 
+              Forces generation of weighted events.
               This option is relevant only if a neutrino flux is specified.
               Note that 'weighted' refers to the selection of the primary
               flux neutrino + target that were forced to interact. A weighting
               scheme for the generated kinematics of individual processes can
               still be in effect if enabled..
               ** Only use that option if you understand what it means **
- 
+           --seed
+              Random number seed.
+           --cross-sections
+              File-name (incl. full path) of an XML file with pre-computed
+              cross-section splines
 
 	***  See the User Manual for more details and examples. ***
 
@@ -105,6 +110,8 @@
 #include "PDG/PDGUtils.h"
 #include "Utils/XSecSplineList.h"
 #include "Utils/StringUtils.h"
+#include "Utils/PrintUtils.h"
+#include "Utils/SystemUtils.h"
 #include "Utils/CmdLnArgParser.h"
 
 #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
@@ -125,6 +132,7 @@ using namespace genie;
 using namespace genie::controls;
 
 void GetCommandLineArgs (int argc, char ** argv);
+void Initialize         (void);
 void PrintSyntax        (void);
 
 #ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX_OR_TGTMIX__
@@ -144,7 +152,6 @@ Long_t        kDefOptRunNu     = 0;       // default run number
 
 //User-specified options:
 int             gOptNevents;      // n-events to generate
-bool            gOptBuildSplines; // spline building option
 double          gOptNuEnergy;     // neutrino E, or min neutrino energy in spectrum
 double          gOptNuEnergyRange;// energy range in input spectrum
 int             gOptNuPdgCode;    // neutrino PDG code
@@ -153,19 +160,19 @@ Long_t          gOptRunNu;        // run number
 string          gOptFlux;         //
 bool            gOptWeighted;     // 
 bool            gOptUsingFluxOrTgtMix = false;
+long int        gOptRanSeed;      // random number seed
+string          gOptXSecSplines;  // cross-section splines
 
 //____________________________________________________________________________
 int main(int argc, char ** argv)
 {
-  //-- parse command line arguments
+  // Parse command line arguments
   GetCommandLineArgs(argc,argv);
-  
-  //-- Autoload splines (from the XML file pointed at the $GSPLOAD env. var.,
-  //   if the env. var. has been set)
-  XSecSplineList * xspl = XSecSplineList::Instance();
-  xspl->AutoLoad();
 
-  //-- Generate neutrino events
+  // Set seed, cross-section spline file etc
+  Initialize();
+
+  // Generate neutrino events
   //
   if(gOptUsingFluxOrTgtMix) {
 #ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX_OR_TGTMIX__
@@ -176,10 +183,48 @@ int main(int argc, char ** argv)
     << "\n   you need to add the following config options at your GENIE installation:" 
     << "\n   --enable-flux-drivers  --enable-geom-drivers \n" ;
 #endif
-  } else 
-	GenerateEventsAtFixedInitState();
-
+  } else {
+     GenerateEventsAtFixedInitState();
+  }
   return 0;
+}
+//____________________________________________________________________________
+void Initialize(void)
+{
+  // Set random number seed, if a value was set  
+  if(gOptRanSeed > 0) {
+    RandomGen::Instance()->SetSeed(gOptRanSeed);
+  }
+
+  // Load cross-section splines
+  if(utils::system::FileExists(gOptXSecSplines)) {
+    XSecSplineList * xspl = XSecSplineList::Instance();
+    XmlParserStatus_t status = xspl->LoadFromXml(gOptXSecSplines);
+    if(status != kXmlOK) {
+      LOG("gevgen", pFATAL) 
+         << "Problem reading file: " << gOptXSecSplines;
+       gAbortingInErr = true;
+       exit(1);
+    }
+  } else {
+    if(gOptXSecSplines.size() > 0) {
+       LOG("gevgen", pFATAL) 
+          << "Input cross-section file [" 
+          << gOptXSecSplines << "] does not exist!";
+       gAbortingInErr = true;
+       exit(1);
+     } else {
+       LOG("gevgen", pWARN) << "No cross-section file was specified in gevgen inputs";
+       LOG("gevgen", pWARN) << "If none is loaded, event generation might be inefficient";
+     }
+  }
+
+/*
+  // Autoload splines (from the XML file pointed at the $GSPLOAD env. var.,
+  // if the env. var. has been set)
+  XSecSplineList * xspl = XSecSplineList::Instance();
+  xspl->AutoLoad();
+*/
 }
 //____________________________________________________________________________
 void GenerateEventsAtFixedInitState(void)
@@ -196,10 +241,12 @@ void GenerateEventsAtFixedInitState(void)
   GEVGDriver evg_driver;
   evg_driver.Configure(init_state);
 
+/*
   //-- If splines are used, then create any spline that is needed but is not
   //   already loaded (can built them all here if no spline at all is loaded)
   if(gOptBuildSplines) 
 	evg_driver.CreateSplines();
+*/
 
   //-- initialize an Ntuple Writer
   NtpWriter ntpw(kDefOptNtpFormat, gOptRunNu);
@@ -475,7 +522,7 @@ void GetCommandLineArgs(int argc, char ** argv)
     gOptRunNu = kDefOptRunNu;
   }
 
-  // flux functional form
+  // flux functional form:
   bool using_flux = false;
   if( parser.OptionExists('f') ) {
     LOG("gevgen", pINFO) << "Reading flux function";
@@ -483,13 +530,20 @@ void GetCommandLineArgs(int argc, char ** argv)
     using_flux = true;
   }
 
+/*
   // spline building option
   gOptBuildSplines = parser.OptionExists('s');
+*/
+  if(parser.OptionExists('s')) {
+    LOG("gevgen", pWARN) 
+      << "-s option no longer available. Please read the revised code documentation";
+    gAbortingInErr = true;
+    exit(1);
+  }
+
 
   // generate weighted events option (only relevant if using a flux)
   gOptWeighted = parser.OptionExists('w');
-
-  //-- Required arguments
 
   // neutrino energy:
   if( parser.OptionExists('e') ) {
@@ -571,33 +625,79 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   gOptUsingFluxOrTgtMix = using_flux || using_tgtmix;
 
+  // random number seed:
+  if( parser.OptionExists("seed") ) {
+    LOG("gevgen", pINFO) << "Reading random number seed";
+    gOptRanSeed = parser.ArgAsLong("seed");
+  } else {
+    LOG("gevgen", pINFO) << "Unspecified random number seed - Using default";
+    gOptRanSeed = -1;
+  }
+
+  if( parser.OptionExists("cross-sections") ) {
+    LOG("gevgen", pINFO) << "Reading cross-section file";
+    gOptXSecSplines = parser.ArgAsString("cross-sections");
+  } else {
+    LOG("gevgen", pINFO) << "Unspecified cross=section file";
+    gOptXSecSplines = "";
+  }
+
+  //
   // print-out the command line options
   //
-  LOG("gevgen", pINFO) << "MC Run Number              = " << gOptRunNu;
-  LOG("gevgen", pINFO) << "Number of events requested = " << gOptNevents;
-  LOG("gevgen", pINFO) << "Building splines at init.  = " << gOptBuildSplines; 
-  LOG("gevgen", pINFO) << "Flux                       = " << gOptFlux;
-  LOG("gevgen", pINFO) << "Generate weighted events?  = " << gOptWeighted;
-  LOG("gevgen", pINFO) << "Neutrino PDG code          = " << gOptNuPdgCode;
+  LOG("gevgen", pNOTICE) 
+     << "\n\n" 
+     << utils::print::PrintFramedMesg("gevgen job configuration");
+  LOG("gevgen", pNOTICE) 
+     << "MC Run Number: " << gOptRunNu;
+  if(gOptRanSeed != -1) {
+     LOG("gevgen", pNOTICE) 
+       << "Random number seed: " << gOptRanSeed;
+  } else {
+     LOG("gevgen", pNOTICE) 
+       << "Random number seed was not set, using default";
+  }
+  LOG("gevgen", pNOTICE) 
+       << "Number of events requested: " << gOptNevents;
+  if(gOptXSecSplines.size() > 0) {
+     LOG("gevgen", pNOTICE) 
+       << "Using cross-section splines read from: " << gOptXSecSplines;
+  } else {
+     LOG("gevgen", pNOTICE) 
+       << "No input cross-section spline file";
+  }
+  LOG("gevgen", pNOTICE) 
+       << "Flux: " << gOptFlux;
+  LOG("gevgen", pNOTICE) 
+       << "Generate weighted events? " << gOptWeighted;
   if(gOptNuEnergyRange>0) {
-     LOG("gevgen", pINFO) << "Neutrino energy            = [" 
+     LOG("gevgen", pNOTICE) 
+        << "Neutrino energy: [" 
         << gOptNuEnergy << ", " << gOptNuEnergy+gOptNuEnergyRange << "]";
   } else {
-     LOG("gevgen", pINFO) << "Neutrino energy            = " << gOptNuEnergy;
+     LOG("gevgen", pNOTICE) 
+        << "Neutrino energy: " << gOptNuEnergy;
   }
+  LOG("gevgen", pNOTICE) 
+      << "Neutrino code (PDG): " << gOptNuPdgCode;
+  LOG("gevgen", pNOTICE) 
+      << "Target code (PDG) & weight fraction (in case of multiple targets): ";
   map<int,double>::const_iterator iter;
   for(iter = gOptTgtMix.begin(); iter != gOptTgtMix.end(); ++iter) {
       int    tgtpdgc = iter->first;
       double wgt     = iter->second;
-      LOG("gevgen", pINFO) 
-          << "Target mix - element = " <<  tgtpdgc << ", wgt = " << wgt;
+      LOG("gevgen", pNOTICE) 
+          << " >> " <<  tgtpdgc << " (weight fraction = " << wgt << ")";
   }
+  LOG("gevgen", pNOTICE) << "\n\n";
+
 }
 //____________________________________________________________________________
 void PrintSyntax(void)
 {
   LOG("gevgen", pNOTICE)
     << "\n\n" << "Syntax:" << "\n"
-    << "   gevgen [-h] -n nev [-s] -e energy -p nupdg -t tgtmix [-f flux] [-w]\n";
+    << "   gevgen [-h] -n nev [-s] -e energy -p nupdg -t tgtmix "
+    << " [-r run#] [-f flux] [-w] [--seed] [--cross-section-splines]\n";
 }
 //____________________________________________________________________________
