@@ -134,7 +134,7 @@
   <priority msgstream="RESHadronicVtx">      INFO   </priority>
   <priority msgstream="RESKinematics">       INFO   </priority>
   <priority msgstream="RESSelector">         NOTICE </priority>
-  <priority msgstream="Rndm">                INFO   </priority>
+  <priority msgstream="Rndm">                NOTICE </priority>
   <priority msgstream="Rosenbluth">          NOTICE </priority>
   <priority msgstream="StrumiaVissani">      NOTICE </priority>
   <priority msgstream="SpectralFunc1">       NOTICE </priority>
