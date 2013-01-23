@@ -618,6 +618,7 @@ void GetCommandLineArgs(int argc, char ** argv)
     gOptRanSeed = -1;
   }
 
+  // input cross-section file
   if( parser.OptionExists("cross-sections") ) {
     LOG("gevgen", pINFO) << "Reading cross-section file";
     gOptInpXSecFile = parser.ArgAsString("cross-sections");
