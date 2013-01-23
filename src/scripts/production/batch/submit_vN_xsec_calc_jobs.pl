@@ -214,7 +214,6 @@ for my $curr_xsplset (keys %OUTXML)  {
         print PBS "#PBS -e $fntemplate.pbserr.log \n";
         print PBS "source $genie_setup \n";
         print PBS "cd $jobs_dir \n";
-        print PBS "unset GSPLOAD \n";
         print PBS "export GEVGL=$gevgl \n";
         print PBS "$cmd \n";
         close(PBS);
@@ -231,7 +230,6 @@ for my $curr_xsplset (keys %OUTXML)  {
         print LSF "#BSUB-e $fntemplate.lsferr.log \n";
         print LSF "source $genie_setup \n";
         print LSF "cd $jobs_dir \n";
-        print LSF "unset GSPLOAD \n";
         print LSF "export GEVGL=$gevgl \n";
         print LSF "$cmd \n";
         close(LSF);

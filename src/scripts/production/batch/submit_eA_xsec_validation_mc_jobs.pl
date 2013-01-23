@@ -265,7 +265,7 @@ foreach(@runnu) {
        $fntemplate    = "$jobs_dir/eA-$curr_subrunnu";
        $curr_seed     = $mcseed + $isubrun;
        $valgrind_cmd  = "valgrind --tool=memcheck --error-limit=no --leak-check=yes --show-reachable=yes";
-       $evgen_cmd     = "gevgen -n $nev_per_subrun -s -e $E -p $probe_pdg -t $tgt_pdg -r $curr_subrunnu | $grep_pipe &> $fntemplate.evgen.log";
+       $evgen_cmd     = "gevgen -n $nev_per_subrun -e $E -p $probe_pdg -t $tgt_pdg -r $curr_subrunnu --seed $curr_seed --cross-sections $xspl_file | $grep_pipe &> $fntemplate.evgen.log";
        $conv_cmd      = "gntpc -f gst -i gntp.$curr_subrunnu.ghep.root | $grep_pipe &> $fntemplate.conv.log";
 
        print "@@ exec: $evgen_cmd \n";
@@ -285,9 +285,7 @@ foreach(@runnu) {
           print PBS "#PBS -e $fntemplate.pbserr.log \n";
           print PBS "source $genie_setup \n"; 
           print PBS "cd $jobs_dir \n";
-          print PBS "export GSPLOAD=$xspl_file \n";
           print PBS "export GEVGL=EM \n";
-          print PBS "export GSEED=$curr_seed \n";
           print PBS "$evgen_cmd \n";
           print PBS "$conv_cmd \n";
           close(PBS);
@@ -306,9 +304,7 @@ foreach(@runnu) {
           print LSF "#BSUB-e $fntemplate.lsferr.log \n";
           print LSF "source $genie_setup \n"; 
           print LSF "cd $jobs_dir \n";
-          print LSF "export GSPLOAD=$xspl_file \n";
           print LSF "export GEVGL=$gevgl \n";
-          print LSF "export GSEED=$curr_seed \n";
           print LSF "$evgen_cmd \n";
           print LSF "$conv_cmd \n";
           close(LSF);

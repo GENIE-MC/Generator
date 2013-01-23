@@ -231,7 +231,7 @@ for my $curr_runnu (keys %gevgl_hash)  {
     $fntemplate    = "$jobs_dir/job_vA-$curr_runnu";
     $grep_pipe     = "grep -B 20 -A 30 -i \"warn\\|error\\|fatal\"";
     $valgrind_cmd  = "valgrind --tool=memcheck --error-limit=no --leak-check=yes --show-reachable=yes";
-    $evgen_cmd     = "gevgen -n $nev -s -e $en -p $nu -t $tgt -r $curr_runnu | $grep_pipe &> $fntemplate.evgen.log";
+    $evgen_cmd     = "gevgen -n $nev -e $en -p $nu -t $tgt -r $curr_runnu --seed $mcseed --cross-sections $xspl_file | $grep_pipe &> $fntemplate.evgen.log";
     $conv_cmd      = "gntpc -f gst -i gntp.$curr_runnu.ghep.root | $grep_pipe &> $fntemplate.conv.log";
     $comp_cmd      = "gvld_sample_comp -f gntp.$curr_runnu.gst.root -r $ref_sample_path/gntp.$curr_runnu.gst.root | $grep_pipe &> $fntemplate.comp.log";
 
@@ -250,9 +250,7 @@ for my $curr_runnu (keys %gevgl_hash)  {
         print PBS "#PBS -e $fntemplate.pbserr.log \n";
         print PBS "source $genie_setup \n"; 
         print PBS "cd $jobs_dir \n";
-        print PBS "export GSPLOAD=$xspl_file \n";
         print PBS "export GEVGL=$gevgl \n";
-        print PBS "export GSEED=$mcseed  \n";
         print PBS "$evgen_cmd \n";
         print PBS "$conv_cmd \n";
         if(-d $ref_sample_path) {
@@ -272,9 +270,7 @@ for my $curr_runnu (keys %gevgl_hash)  {
         print LSF "#BSUB-e $fntemplate.lsferr.log \n";
         print LSF "source $genie_setup \n"; 
         print LSF "cd $jobs_dir \n";
-        print LSF "export GSPLOAD=$xspl_file \n";
         print LSF "export GEVGL=$gevgl \n";
-        print LSF "export GSEED=$mcseed  \n";
         print LSF "$evgen_cmd \n";
         print LSF "$conv_cmd \n";
         if(-d $ref_sample_path) {
