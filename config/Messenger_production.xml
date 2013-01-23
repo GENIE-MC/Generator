@@ -156,8 +156,11 @@
 
   <priority msgstream="gevgen">              WARN   </priority>
   <priority msgstream="gevgen_ndcy">         WARN   </priority>
+  <priority msgstream="gevgen_atmo">         WARN   </priority>
+  <priority msgstream="gevgen_upmu">         WARN   </priority>
+  <priority msgstream="gevgen_t2k">          WARN   </priority>
+  <priority msgstream="gevgen_numi">         WARN   </priority>
   <priority msgstream="gevgen_hadron">       WARN   </priority>
-  <priority msgstream="gT2Kevgen">           WARN   </priority>
   <priority msgstream="gvldtest">            WARN   </priority>
   <priority msgstream="gntpc">               WARN   </priority>
   <priority msgstream="gmkspl">              WARN   </priority>
