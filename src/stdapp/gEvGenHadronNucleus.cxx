@@ -8,15 +8,20 @@
 
          Syntax :
            gevgen_hadron [-n nev] -p probe -t tgt [-r run#] -k KE 
-                    [-f flux] [-o prefix] [-m mode]
+                    [-f flux] [-o prefix] [-m mode] [--seed random_number_seed]
 
          Options :
            [] Denotes an optional argument
-           -n Specifies the number of events to generate (default: 10000)
-           -p Specifies the incoming hadron PDG code 
-           -t Specifies the nuclear target PDG code (10LZZZAAAI)
-           -r Specifies the MC run number (default: 0)
-           -k Specifies the incoming hadron's kinetic energy (in GeV).
+           -n 
+              Specifies the number of events to generate (default: 10000)
+           -p 
+              Specifies the incoming hadron PDG code 
+           -t 
+              Specifies the nuclear target PDG code (10LZZZAAAI)
+           -r 
+              Specifies the MC run number (default: 0)
+           -k 
+              Specifies the incoming hadron's kinetic energy (in GeV).
               The same option can be use to specify a kinetic energy range as
 	      a comma-separated set of numbers (eg 0.1,1.2).
               If no flux is specified then the hadrons will be fired with a 
@@ -24,12 +29,17 @@
 	      If a kinetic energy spectrum is supplied then the hadrons will be
               fired with a kinetic energy following the input spectrum within 
               the specified range.
-           -f Specifies the incoming hadron's kinetic energy spectrum - 
+           -f 
+              Specifies the incoming hadron's kinetic energy spectrum - 
               it can be either a function, eg 'x*x+4*exp(-x)' or a text file 
               containing 2 columns corresponding to (kinetic energy {GeV}, 'flux').
-           -o output filename prefix
-           -m INTRANUKE mode <hA, hN> (default: hA)
-	      
+           -o 
+              Output filename prefix
+           -m 
+              INTRANUKE mode <hA, hN> (default: hA)
+	   --seed   
+              Random number seed.
+
          Examples:
 
          (1) Generate 100k pi^{+}+Fe56 events with a pi^{+} kinetic energy 
@@ -111,42 +121,48 @@ string  kDefOptEvFilePrefix = "gntp.inuke";  // default output file prefix
 string  kDefOptMode         = "hA";    // default mode
 
 // User-specified options:
-string gOptMode;             // mode variable
-Long_t gOptRunNu;            // run number
-int    gOptNevents;          // n-events to generate
-int    gOptProbePdgCode;     // probe  PDG code
-int    gOptTgtPdgCode;       // target PDG code
-double gOptProbeKE;          // incoming hadron kinetic enegy (GeV) - for monoenergetic probes
-double gOptProbeKEmin;       // incoming hadron kinetic enegy (GeV) - if using flux
-double gOptProbeKEmax;       // incoming hadron kinetic enegy (GeV) - if using flux
-string gOptFlux;             // input flux (function or flux file)
-string gOptEvFilePrefix;     // event file prefix
-bool   gOptUsingFlux=false;  // using kinetic energy distribution?
+string   gOptMode;             // mode variable
+Long_t   gOptRunNu;            // run number
+int      gOptNevents;          // n-events to generate
+int      gOptProbePdgCode;     // probe  PDG code
+int      gOptTgtPdgCode;       // target PDG code
+double   gOptProbeKE;          // incoming hadron kinetic enegy (GeV) - for monoenergetic probes
+double   gOptProbeKEmin;       // incoming hadron kinetic enegy (GeV) - if using flux
+double   gOptProbeKEmax;       // incoming hadron kinetic enegy (GeV) - if using flux
+string   gOptFlux;             // input flux (function or flux file)
+string   gOptEvFilePrefix;     // event file prefix
+bool     gOptUsingFlux=false;  // using kinetic energy distribution?
+long int gOptRanSeed ;         // random number seed
 
 TH1D * gSpectrum  = 0;
 
 //____________________________________________________________________________
 int main(int argc, char ** argv)
 {
-  // parse command line arguments
+  // Parse command line arguments
   GetCommandLineArgs(argc,argv);
 
-  // build the incident hadron kinetic energy spectrum, if required
+  // Set random number seed, if a value was set
+  if(gOptRanSeed > 0) {
+    RandomGen::Instance()->SetSeed(gOptRanSeed);
+  }
+
+  // Build the incident hadron kinetic energy spectrum, if required
   BuildSpectrum();
 
-  // get the specified INTRANUKE model
+  // Get the specified INTRANUKE model
   const EventRecordVisitorI * intranuke = GetIntranuke();
 
-  // initialize an Ntuple Writer to save GHEP records into a ROOT tree
+  // Initialize an Ntuple Writer to save GHEP records into a ROOT tree
   NtpWriter ntpw(kNFGHEP, gOptRunNu);
   ntpw.CustomizeFilenamePrefix(gOptEvFilePrefix);
   ntpw.Initialize();
 
-  // create an MC job monitor
+  // Create an MC job monitor
   GMCJMonitor mcjmonitor(gOptRunNu);
 
   //
-  // generate events 
+  // Generate events 
   //
 
   int ievent = 0;
@@ -176,10 +192,10 @@ int main(int argc, char ** argv)
       
   } // end loop events
   
-  //-- save the generated MC events
+  // Save the generated MC events
   ntpw.Save();
 
-  //-- clean-up
+  // Clean-up
   if(gSpectrum) {
     delete gSpectrum;
     gSpectrum = 0;
@@ -337,7 +353,7 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   CmdLnArgParser parser(argc,argv);
 
-  // number of events:
+  // number of events
   if( parser.OptionExists('n') ) {
     LOG("gevgen_hadron", pINFO) << "Reading number of events to generate";
     gOptNevents = parser.ArgAsInt('n');
@@ -347,7 +363,7 @@ void GetCommandLineArgs(int argc, char ** argv)
     gOptNevents = kDefOptNevents;
   }
 
-  // run number:
+  // run number
   if( parser.OptionExists('r') ) {
     LOG("gevgen_hadron", pINFO) << "Reading MC run number";
     gOptRunNu = parser.ArgAsLong('r');
@@ -356,7 +372,7 @@ void GetCommandLineArgs(int argc, char ** argv)
     gOptRunNu = kDefOptRunNu;
   }
 
-  // incoming hadron PDG code:
+  // incoming hadron PDG code
   if( parser.OptionExists('p') ) {
     LOG("gevgen_hadron", pINFO) << "Reading rescattering particle PDG code";
     gOptProbePdgCode = parser.ArgAsInt('p');
@@ -367,7 +383,7 @@ void GetCommandLineArgs(int argc, char ** argv)
     exit(1);
   }
 
-  // target PDG code:
+  // target PDG code
   if( parser.OptionExists('t') ) {
     LOG("gevgen_hadron", pINFO) << "Reading target PDG code";
     gOptTgtPdgCode = parser.ArgAsInt('t');
@@ -378,7 +394,7 @@ void GetCommandLineArgs(int argc, char ** argv)
     exit(1);
   }
 
-  // target PDG code:
+  // target PDG code
   if( parser.OptionExists('m') ) {
     LOG("gevgen_hadron", pINFO) << "Reading mode";
     gOptMode = parser.ArgAsString('m');
@@ -394,7 +410,7 @@ void GetCommandLineArgs(int argc, char ** argv)
     gOptUsingFlux = true;
   }
 
-  // incoming hadron kinetic energy (or kinetic energy range, if using flux):
+  // incoming hadron kinetic energy (or kinetic energy range, if using flux)
   if( parser.OptionExists('k') ) {
     LOG("gevgen_hadron", pINFO) << "Reading probe kinetic energy";
     string ke = parser.ArgAsString('k');
@@ -453,7 +469,17 @@ void GetCommandLineArgs(int argc, char ** argv)
     gOptMode = kDefOptMode;
   }
 
+  // random number seed
+  if( parser.OptionExists("seed") ) {
+    LOG("gevgen_hadron", pINFO) << "Reading random number seed";
+    gOptRanSeed = parser.ArgAsLong("seed");
+  } else {
+    LOG("gevgen_hadron", pINFO) << "Unspecified random number seed - Using default";
+    gOptRanSeed = -1;
+  }
+
   LOG("gevgen_hadron", pINFO) << "MC Run Number      = " << gOptRunNu;
+  LOG("gevgen_hadron", pINFO) << "Random number seed = " << gOptRanSeed;
   LOG("gevgen_hadron", pINFO) << "Mode               = " << gOptMode;
   LOG("gevgen_hadron", pINFO) << "Number of events   = " << gOptNevents;
   LOG("gevgen_hadron", pINFO) << "Probe PDG code     = " << gOptProbePdgCode;
@@ -479,7 +505,7 @@ void PrintSyntax(void)
     << "\n\n" 
     << "Syntax:" << "\n"
     << "   gevgen_hadron [-n nev] -p hadron_pdg -t tgt_pdg [-r run] "
-    << "                  -k KE [-f flux] [-m mode]"
+    << "                  -k KE [-f flux] [-m mode] [--seed random_number_seed]"
     << "\n";
 }
 //____________________________________________________________________________
