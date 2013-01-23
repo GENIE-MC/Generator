@@ -20,18 +20,21 @@
                         -e exposure_in_kton_x_yrs >
                         -E min_energy,max_energy
                        [-o output_event_file_prefix]
+                       [--seed random_number_seed]
+                        --cross-sections input_cross_section_file
 
          *** Options :
 
            [] Denotes an optional argument.
            <> Denotes a set of arguments out of which only one can be set.
 
-           -h Prints out the syntax and exits
-
-           -r Specifies the MC run number 
+           -h 
+              Prints out the syntax and exits
+           -r 
+              Specifies the MC run number 
               [default: 100000000]
-
-           -f Specifies the input flux files
+           -f 
+              Specifies the input flux files
               The general syntax is: `-f simulation:/path/file.data[neutrino_code],...'
               [Notes] 
                - The `simulation' string can be either `FLUKA' or `BGLRS' (so that
@@ -46,19 +49,14 @@
                  flux neutrino species you want to consider, 
                  eg. '-f FLUKA:~/data/sdave_numu07.dat[14],~/data/sdave_nue07.dat[12]'
                  eg. '-f BGLRS:~/data/flux10_271003_z.kam_nue[12]'
-
-           -g Input 'geometry'.
+           -g 
+              Input 'geometry'.
               This option can be used to specify any of:
-
               1 > A ROOT file containing a ROOT/GEANT geometry description
-                  [Note]
-                  - This is the standard option for generating events in the
-                    nd280, 2km and INGRID detectors.
                   [Examples]
                   - To use the master volume from the ROOT geometry stored
                     in the nd280-geom.root file, type:
                     '-g /some/path/nd280-geom.root'
-
               2 > A mix of target materials, each with its corresponding weight,
                   typed as a comma-separated list of nuclear pdg codes (in the
                   std PDG2006 convention: 10LZZZAAAI) with the weight fractions
@@ -66,16 +64,13 @@
                   If that option is used (no detailed input geometry description)
                   then the interaction vertices are distributed in the detector
                   by the detector MC.
-                  [Note]
-                  - This is the standard option for generating events in the
-                    SuperK detector.
                   [Examples]
-                  - To use a target mix of 95% O16 and 5% H type:
-                    '-g 1000080160[0.95],1000010010[0.05]'
+                  - To use a target mix of 89% O16 and 11% H, type:
+                    '-g 1000080160[0.89],1000010010[0.11]'
                   - To use a target which is 100% C12, type:
                     '-g 1000060120'
-
-           -R Input rotation matrix for transforming the flux neutrino coordinates
+           -R 
+              Input rotation matrix for transforming the flux neutrino coordinates
               from the default Topocentric Horizontal (see GENIE manual) coordinate
               system to the user-defined topocentric coordinate system. 
               The rotation is specified by the 3 Euler angles (phi, theta, psi).
@@ -100,19 +95,17 @@
                  Y-convention, type: `-R Y:3.14,1.28,1.0'
               3. To set the Euler angles phi=3.14, theta=1.28, psi=1.0 using the
                  Y-convention, and then use the inverse rotation matrix, type:
-                 `-R Y^-1:3.14,1.28,1.0'              
-              
-           -L Input geometry length units, eg 'm', 'cm', 'mm', ...
+                 `-R Y^-1:3.14,1.28,1.0'                            
+           -L 
+              Input geometry length units, eg 'm', 'cm', 'mm', ...
               [default: 'mm']
-
-           -D Input geometry density units, eg 'g_cm3', 'clhep_def_density_unit',...
+           -D 
+              Input geometry density units, eg 'g_cm3', 'clhep_def_density_unit',...
               [default: 'g_cm3']
-
-           -t Input 'top volume' for event generation -
+           -t 
+              Input 'top volume' for event generation -
               can be used to force event generation in given sub-detector
-
               [default: the 'master volume' of the input geometry]
-
               You can also use the -t option to switch generation on/off at
               multiple volumes as, for example, in:
               `-t +Vol1-Vol2+Vol3-Vol4',
@@ -126,22 +119,26 @@
               except the ones explicitly turned on. Vice versa, if the very first
               character is a `-', GENIE will keep all volumes except the ones
               explicitly turned off (feature contributed by J.Holeczek).
-
-           -n Specifies how many events to generate.
-
-           -e Specifies requested exposure in terms of kton*yrs.
-
-           -E Specifies the neutrino energy in GeV. 
+           -n 
+              Specifies how many events to generate.
+           -e 
+              Specifies requested exposure in terms of kton*yrs.
+           -E 
+              Specifies the neutrino energy in GeV. 
               Must be a comma-separated pair of numbers, eg `-E 0.3,70'
               [default: 0.5,50]
-
-           -o Sets the prefix of the output event file. 
+           -o 
+              Sets the prefix of the output event file. 
               The output filename is built as: 
               [prefix].[run_number].[event_tree_format].[file_format]
               The default output filename is: 
               gntp.[run_number].ghep.root
               This cmd line arguments lets you override 'gntp'
-
+           --seed
+              Random number seed.
+           --cross-sections
+              Name (incl. full path) of an XML file with pre-computed
+              cross-section values used for constructing splines.
 
          *** Examples:
 
@@ -150,12 +147,13 @@
                nu_mu and the sdave_nue07.dat file for nu_e (files in /data/flx/).
                Use the detector geometry in the /data/geo/SuperK.root file, where the 
                geometry length and density units are m and kgr/m^3. Generate events over 
-               the entire geometry volume.
+               the entire geometry volume. Pre-computed cross-section data are loaded 
+               from /data/xsec.xml.
 
                % gevgen_atmo -r 999210 -n 100000 -E 1,10
                        -f FLUKA:/data/flx/sdave_numu07.dat[14],/data/flx/sdave_nue07.dat[12] 
                        -g /data/geo/SuperK.root -L "m" -D "kg_m3"
-
+                       --cross-sections /data/xsec.xml
 
            (2) Like above but, instead of generating events in a realistic detector
                geometry, use a simple target mix (88.79% O16 + 11.21% H, i.e. `water')
@@ -163,13 +161,10 @@
                % gevgen_atmo -r 999210 -n 100000 -E 1,10
                        -f /data/flux/sdave_numu07.dat[14],/data/flux/sdave_nue07.dat[12] 
                        -g 1000080160[0.8879],1000010010[0.1121]
-
+                       --cross-sections /data/xsec.xml
 
 		... to add more
 
-        
-         You can further control the GENIE behaviour by setting its standard 
-         environmental variables.
          Please read the GENIE User Manual for more information.
 
 \created August 20, 2010
@@ -210,6 +205,7 @@
 #include "Messenger/Messenger.h"
 #include "Ntuple/NtpWriter.h"
 #include "Ntuple/NtpMCFormat.h"
+#include "Numerical/RandomGen.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGLibrary.h"
 #include "Utils/XSecSplineList.h"
@@ -217,6 +213,7 @@
 #include "Utils/SystemUtils.h"
 #include "Utils/UnitUtils.h"
 #include "Utils/CmdLnArgParser.h"
+#include "Utils/PrintUtils.h"
 
 #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
 #include "FluxDrivers/GFlukaAtmo3DFlux.h"
@@ -260,6 +257,8 @@ double          gOptEvMin;                     // minimum neutrino energy
 double          gOptEvMax;                     // maximum neutrino energy
 string          gOptEvFilePrefix;              // event file prefix
 TRotation       gOptRot;                       // coordinate rotation matrix: topocentric horizontal -> user-defined topocentric system
+long int        gOptRanSeed;                   // random number seed
+string          gOptInpXSecFile;               // cross-section splines
 
 // Defaults:
 //
@@ -267,8 +266,8 @@ NtpMCFormat_t   kDefOptNtpFormat    = kNFGHEP; // def event tree format
 string          kDefOptEvFilePrefix = "gntp";  // def output prefix (override with -o)
 string          kDefOptGeomLUnits   = "mm";    // def geom length units (override with -L)
 string          kDefOptGeomDUnits   = "g_cm3"; // def geom density units (override with -D)
-double          kDefOptEvMin =  0.5;           // min neutrino energy (override with -E)
-double          kDefOptEvMax = 50.0;           // max neutrino energy (override with -E)
+double          kDefOptEvMin        =  0.5;    // min neutrino energy (override with -E)
+double          kDefOptEvMax        = 50.0;    // max neutrino energy (override with -E)
 
 //________________________________________________________________________________________
 int main(int argc, char** argv)
@@ -276,9 +275,36 @@ int main(int argc, char** argv)
   // Parse command line arguments
   GetCommandLineArgs(argc,argv);
 
-  // Autoload splines (from the XML file pointed at the $GSPLOAD env. var.,
-  // if the env. var. has been set)
-  XSecSplineList::Instance()->AutoLoad();
+  // Set random number seed, if a value was set
+  if(gOptRanSeed > 0) {
+    RandomGen::Instance()->SetSeed(gOptRanSeed);
+  }
+
+  // Load cross-section splines
+  if(utils::system::FileExists(gOptInpXSecFile)) {
+    XSecSplineList * xspl = XSecSplineList::Instance();
+    XmlParserStatus_t status = xspl->LoadFromXml(gOptInpXSecFile);
+    if(status != kXmlOK) {
+      LOG("gevgen_atmo", pFATAL)
+         << "Problem reading file: " << gOptInpXSecFile;
+       gAbortingInErr = true;
+       exit(1);
+    }
+  } else {
+    if(gOptInpXSecFile.size() > 0) {
+       LOG("gevgen_atmo", pFATAL)
+          << "Input cross-section file ["
+          << gOptInpXSecFile << "] does not exist!";
+       gAbortingInErr = true;
+       exit(1);
+     } else {
+       LOG("gevgen_atmo", pFATAL) << "No cross-section file was specified in gevgen inputs";
+       LOG("gevgen_atmo", pFATAL) << "This is mandatory as, otherwise, event generation will be inefficient";
+       LOG("gevgen_atmo", pFATAL) << "Use the --cross-sections option";
+       gAbortingInErr = true;
+       exit(1);
+     }
+  }
 
   // get flux driver
   GFluxI * flux_driver = GetFlux();
@@ -788,6 +814,30 @@ void GetCommandLineArgs(int argc, char ** argv)
   }
 
   //
+  // *** random number seed
+  //
+  if( parser.OptionExists("seed") ) {
+    LOG("gevgen_atmo", pINFO) << "Reading random number seed";
+    gOptRanSeed = parser.ArgAsLong("seed");
+  } else {
+    LOG("gevgen_atmo", pINFO) << "Unspecified random number seed - Using default";
+    gOptRanSeed = -1;
+  }
+
+  //
+  // *** input cross-section file
+  //
+  if( parser.OptionExists("cross-sections") ) {
+    LOG("gevgen_atmo", pINFO) << "Reading cross-section file";
+    gOptInpXSecFile = parser.ArgAsString("cross-sections");
+  } else {
+    LOG("gevgen_atmo", pINFO) << "Unspecified cross-section file";
+    gOptInpXSecFile = "";
+  }
+
+
+
+  //
   // print-out summary
   //
 
@@ -838,9 +888,15 @@ void GetCommandLineArgs(int argc, char ** argv)
   rotation << "\t| " <<  gOptRot.YX() << "  " << gOptRot.YY() << "  " << gOptRot.YZ() << " |\n";
   rotation << "\t| " <<  gOptRot.ZX() << "  " << gOptRot.ZY() << "  " << gOptRot.ZZ() << " |\n";
 
+  LOG("gevgen_atmo", pNOTICE)
+     << "\n\n"
+     << utils::print::PrintFramedMesg("gevgen_atmo job configuration");
+
   LOG("gevgen_atmo", pNOTICE) 
      << "\n"
-     << "\n ****** MC Job (" << gOptRunNu << ") Settings ****** "
+     << "\n @@ Run number: " << gOptRunNu 
+     << "\n @@ Random number seed: " << gOptRanSeed
+     << "\n @@ Using cross-section file: " << gOptInpXSecFile
      << "\n @@ Geometry"
      << "\n\t" << gminfo.str()
      << "\n @@ Flux"
@@ -883,6 +939,8 @@ void PrintSyntax(void)
    << "\n            -e exposure_in_kton_x_yrs>"
    << "\n            -E min_energy,max_energy"
    << "\n           [-o output_event_file_prefix]"
+   << "\n           [--seed random_number_seed]"
+   << "\n            --cross-sections input_cross_section_file"
    << "\n"
    << " Please also read the detailed documentation at http://www.genie-mc.org"
    << "\n";

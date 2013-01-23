@@ -16,19 +16,20 @@
                      [-D geometry_density_units]
                      [-t geometry_top_volume_name]
                      [-o output_event_file_prefix]
+                     [--seed random_number_seed]
 
          *** Options :
 
            [] Denotes an optional argument
 
-           -h Prints out the gevgen_ndcy syntax and exits
-
-           -r Specifies the MC run number [default: 1000]
-
-           -n Specifies how many events to generate.
-
-           -m Nucleon decay mode ID.
-
+           -h 
+              Prints out the gevgen_ndcy syntax and exits.
+           -r 
+              Specifies the MC run number [default: 1000].
+           -n  
+              Specifies how many events to generate.
+           -m 
+              Nucleon decay mode ID:
              ---------------------------------------------------------
               ID |   Decay Mode                     |   Current Limit 
                  |                                  |   (1E+34 yrs)
@@ -46,9 +47,9 @@
               10 |   p --> \bar{\nu}} + K^{+}       |   0.4
              ---------------------------------------------------------
 
-           -g Input 'geometry'.
+           -g 
+              Input 'geometry'.
               This option can be used to specify any of:
-
               1 > A ROOT file containing a ROOT/GEANT geometry description
                   [Examples] 
                   - To use the master volume from the ROOT geometry stored 
@@ -64,17 +65,16 @@
                   [Examples] 
                   - To use a target mix of 88.9% O16 and 11.1% Hydrogen type:
                     '-g 1000080160[0.889],1000010010[0.111]'
-
-           -L Input geometry length units, eg 'm', 'cm', 'mm', ...
+           -L 
+              Input geometry length units, eg 'm', 'cm', 'mm', ...
               [default: 'mm']
-
-           -D Input geometry density units, eg 'g_cm3', 'clhep_def_density_unit',... 
+           -D 
+              Input geometry density units, eg 'g_cm3', 'clhep_def_density_unit',... 
               [default: 'g_cm3']
-
-           -t Input 'top volume' for event generation.
+           -t 
+              Input 'top volume' for event generation.
               The option be used to force event generation in given sub-detector.
               [default: the 'master volume' of the input geometry]
-
               You can also use the -t option to switch generation on/off at
               multiple volumes as, for example, in:
               `-t +Vol1-Vol2+Vol3-Vol4',
@@ -88,13 +88,15 @@
               except the ones explicitly turned on. Vice versa, if the very first
               character is a `-', GENIE will keep all volumes except the ones
               explicitly turned off (feature contributed by J.Holeczek).
-
-           -o Sets the prefix of the output event file. 
+           -o 
+              Sets the prefix of the output event file. 
               The output filename is built as: 
               [prefix].[run_number].[event_tree_format].[file_format]
               The default output filename is: 
               gntp.[run_number].ghep.root
               This cmd line arguments lets you override 'gntp'
+           --seed
+              Random number seed.
 
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          STFC, Rutherford Appleton Laboratory
@@ -132,6 +134,7 @@
 #include "Utils/StringUtils.h"
 #include "Utils/UnitUtils.h"
 #include "Utils/CmdLnArgParser.h"
+#include "Utils/PrintUtils.h"
 
 using std::string;
 using std::vector;
@@ -162,12 +165,18 @@ string             gOptRootGeom;                           // input ROOT file wi
 string             gOptRootGeomTopVol = "";                // input geometry top event generation volume 
 double             gOptGeomLUnits = 0;                     // input geometry length units 
 double             gOptGeomDUnits = 0;                     // input geometry density units 
+long int           gOptRanSeed = -1;                       // random number seed
 
 //_________________________________________________________________________________________
 int main(int argc, char ** argv)
 {
   // Parse command line arguments
   GetCommandLineArgs(argc,argv);
+
+  // Set random number seed, if a value was set
+  if(gOptRanSeed > 0) {
+    RandomGen::Instance()->SetSeed(gOptRanSeed);
+  }
 
   // Initialize an Ntuple Writer to save GHEP records into a TTree
   NtpWriter ntpw(kDefOptNtpFormat, gOptRunNu);
@@ -444,6 +453,16 @@ void GetCommandLineArgs(int argc, char ** argv)
     gOptEvFilePrefix = kDefOptEvFilePrefix;
   } //-o
 
+
+  // random number seed
+  if( parser.OptionExists("seed") ) {
+    LOG("gevgen_ndcy", pINFO) << "Reading random number seed";
+    gOptRanSeed = parser.ArgAsLong("seed");
+  } else {
+    LOG("gevgen_ndcy", pINFO) << "Unspecified random number seed - Using default";
+    gOptRanSeed = -1;
+  }
+
   //
   // >>> print the command line options
   //
@@ -471,11 +490,16 @@ void GetCommandLineArgs(int argc, char ** argv)
     }
   }
 
+  LOG("gevgen_ndcy", pNOTICE)
+     << "\n\n"
+     << utils::print::PrintFramedMesg("gevgen_ndcy job configuration");
+
   LOG("gevgen_ndcy", pNOTICE) 
-     << "\n MC Job (" << gOptRunNu << ") Settings: "
-     << "\n - Decay channel $ " << utils::nucleon_decay::AsString(gOptDecayMode)
-     << "\n - Geometry      $ " << gminfo.str()
-     << "\n - Statistics    $ " << gOptNev << " events";
+     << "\n @@ Run number: " << gOptRunNu
+     << "\n @@ Random number seed: " << gOptRanSeed
+     << "\n @@ Decay channel $ " << utils::nucleon_decay::AsString(gOptDecayMode)
+     << "\n @@ Geometry      $ " << gminfo.str()
+     << "\n @@ Statistics    $ " << gOptNev << " events";
 
   //
   // Temporary warnings...
@@ -503,6 +527,7 @@ void PrintSyntax(void)
    << "\n             [-D density_units_at_geom]"
    << "\n              -n n_of_events "
    << "\n             [-o output_event_file_prefix]"
+   << "\n             [--seed random_number_seed]"
    << "\n"
    << " Please also read the detailed documentation at http://www.genie-mc.org"
    << " or look at the source code: $GENIE/src/support/ndcy/EvGen/gNucleonDecayEvGen.cxx"

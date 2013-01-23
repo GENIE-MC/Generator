@@ -17,12 +17,15 @@
            -t n_twk_diall_values
           [-p neutrino_codes] 
           [-o output_weights_file]
+          [--seed random_number_seed]
 
          where 
          [] is an optional argument.
 
-         -f Specifies a GHEP input file.
-         -n Specifies an event range.
+         -f 
+            Specifies a GHEP input file.
+         -n 
+            Specifies an event range.
             Examples:
             - Type `-n 50,2350' to process all 2301 events from 50 up to 2350.
               Note: Both 50 and 2350 are included.
@@ -30,19 +33,25 @@
               from event number 0 up to event number 999.
             This is an optional argument. 
             By default GENIE will process all events.
-         -t Specified the number of tweak dial values between -1 and 1 
+         -t 
+            Specified the number of tweak dial values between -1 and 1 
             (must be odd so as to include al -1, 0 and 1 / if it is an even
              number it will be incremented by 1)
-         -s Specifies the systematic param to tweak.
+         -s 
+            Specifies the systematic param to tweak.
             See $GENIE/src/ReWeight/GSyst.h for a list of parameters and
             their corresponding label, which is what should be input here.
-         -p If set, grwght1scan reweights *only* the specified neutrino 
+         -p 
+            If set, grwght1scan reweights *only* the specified neutrino 
             species. The input is a comma separated list of PDG codes.
             This is an optional argument. 
             By default GENIE will reweight all neutrino species.
-         -o Specifies the filename of the output weight file.
+         -o 
+            Specifies the filename of the output weight file.
             This is an optional argument. 
             By default filename is weights_<name_of_systematic_param>.root.
+         --seed
+            Random number seed.
 
 \author  Jim Dobson
          Imperial College London
@@ -73,6 +82,7 @@
 #include "Ntuple/NtpMCTreeHeader.h"
 #include "Ntuple/NtpMCEventRecord.h"
 #include "Messenger/Messenger.h"
+#include "Numerical/RandomGen.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGCodeList.h"
 #include "ReWeight/GReWeightI.h"
@@ -112,24 +122,25 @@ Long64_t    gOptNEvt2;       ///< range of events to process (2nd input, if any)
 GSyst_t     gOptSyst;        ///< input systematic param
 int         gOptInpNTwk;     ///< # of tweaking dial values between [-1,1]
 PDGCodeList gOptNu(false);   ///< neutrinos to consider
+long int     gOptRanSeed;    ///< random number seed
 
 //___________________________________________________________________
 int main(int argc, char ** argv)
 {
   GetCommandLineArgs (argc, argv);
 
-  // Get the input event sample
+  // Set random number seed, if a value was set
+  if(gOptRanSeed > 0) {
+    RandomGen::Instance()->SetSeed(gOptRanSeed);
+  }
 
+  // Get the input event sample
   TTree *           tree = 0;
   NtpMCTreeHeader * thdr = 0;
-
   TFile file(gOptInpFilename.c_str(),"READ");
   tree = dynamic_cast <TTree *>           ( file.Get("gtree")  );
   thdr = dynamic_cast <NtpMCTreeHeader *> ( file.Get("header") );
-
-  LOG("RewScan1", pNOTICE) 
-    << "Input tree header: " << *thdr;
-
+  LOG("RewScan1", pNOTICE) << "Input tree header: " << *thdr;
   if(!tree){
     LOG("RewScan1", pFATAL) 
       << "Can't find a GHEP tree in input file: "<< file.GetName();
@@ -137,7 +148,6 @@ int main(int argc, char ** argv)
     PrintSyntax();
     exit(1);
   }
-
   NtpMCEventRecord * mcrec = 0;
   tree->SetBranchAddress("gmcrec", &mcrec);
 
@@ -171,6 +181,7 @@ int main(int argc, char ** argv)
     << "\n - Number of tweak dial values in [-1,1] : " << gOptInpNTwk
     << "\n - Neutrino species to reweight : " << gOptNu
     << "\n - Output weights to be saved in : " << gOptOutFilename 
+    << "\n - Specified random number seed : " << gOptRanSeed
     << "\n\n";
 
 
@@ -460,6 +471,16 @@ void GetCommandLineArgs(int argc, char ** argv)
     gOptNu.push_back (kPdgNuTau    );
     gOptNu.push_back (kPdgAntiNuTau);
   }
+
+  // random number seed
+  if( parser.OptionExists("seed") ) {
+    LOG("RewScan1", pINFO) << "Reading random number seed";
+    gOptRanSeed = parser.ArgAsLong("seed");
+  } else {
+    LOG("RewScan1", pINFO) << "Unspecified random number seed - Using default";
+    gOptRanSeed = -1;
+  }
+
 }
 //_________________________________________________________________________________
 void GetEventRange(Long64_t nev_in_file, Long64_t & nfirst, Long64_t & nlast)
@@ -502,7 +523,8 @@ void PrintSyntax(void)
      << "     -s systematic           \n"
      << "     -t n_twk_diall_values   \n"
      << "    [-p neutrino_codes]      \n"
-     << "    [-o output_weights_file] \n\n\n"
+     << "    [-o output_weights_file] \n"
+     << "    [--seed random_number_seed] \n\n\n"
      << " See the GENIE Physics and User manual for more details";      
 }
 //_________________________________________________________________________________

@@ -13,17 +13,20 @@
                         -n n_of_events
 			-d detector_bounding_box_size
                         -g rock_composition
+                       [--seed random_number_seed]
+                        --cross-sections input_cross_section_file
 
          *** Options :
 
            [] Denotes an optional argument.
 
-           -h Prints out the syntax and exits
-
-           -r Specifies the MC run number 
+           -h 
+              Prints out the syntax and exits.
+           -r 
+              Specifies the MC run number 
               [default: 1000]
-
-           -f Specifies the input flux files
+           -f 
+              Specifies the input flux files
               The general syntax is: `-f simulation:/path/file.data[neutrino_code],...'
               [Notes] 
                - The `simulation' string can be either `FLUKA' or `BGLRS' (so that
@@ -37,19 +40,23 @@
                  repeated multiple times (separated by commas), once for each 
                  flux neutrino species you want to consider, 
                  eg. '-f FLUKA:~/data/sdave_numu07.dat[14],~/data/sdave_nue07.dat[12]'
-                 eg. '-f BGLRS:~/data/flux10_271003_z.kam_nue[12]'
-                     
-           -n Specifies how many events to generate.
-
-	   -d Specifies side length (in mm) of the detector bounding box.
+                 eg. '-f BGLRS:~/data/flux10_271003_z.kam_nue[12]'                     
+           -n 
+              Specifies how many events to generate.
+	   -d 
+              Specifies side length (in mm) of the detector bounding box.
               [default 100m (100000mm)]
+           -g 
+              rock composition << NOT IMPLEMENTED YET >>
+              Rock composition should be implemented in terms of materials defined in
+              src/MuELoss/MuELMaterial.h and their weight fraction
+              eg like -g 'silicon[0.30],calcium[0.29],iron[0.02],...'
+           --seed
+              Random number seed.
+           --cross-sections
+              Name (incl. full path) of an XML file with pre-computed
+              cross-section values used for constructing splines.
 
-           -g rock composition << NOT IMPLEMENTED YET >>
- 
-             Rock composition should be implemented in terms of materials defined in
-             src/MuELoss/MuELMaterial.h and their weight fraction
-
-             eg like -g 'silicon[0.30],calcium[0.29],iron[0.02],...'
 
          *** Examples:
 
@@ -105,8 +112,10 @@
 #include "Messenger/Messenger.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGLibrary.h"
+#include "Utils/XSecSplineList.h"
 #include "Utils/StringUtils.h"
 #include "Utils/SystemUtils.h"
+#include "Utils/PrintUtils.h"
 #include "Utils/UnitUtils.h"
 #include "Utils/KineUtils.h"
 #include "Utils/CmdLnArgParser.h"
@@ -142,6 +151,8 @@ string          gOptFluxSim;                   // flux simulation (FLUKA or BGLR
 map<int,string> gOptFluxFiles;                 // neutrino pdg code -> flux file map
 int             gOptNev = -1;                  // exposure - in terms of number of events
 double          gOptDetectorSide;              // detector side length, in mm.
+long int        gOptRanSeed;                   // random number seed
+string          gOptInpXSecFile;               // cross-section splines
 
 // Constants
 const double a = 2e+6;           // a = 2 MeV / (g cm-2)
@@ -156,6 +167,38 @@ int main(int argc, char** argv)
 {
   // Parse command line arguments
   GetCommandLineArgs(argc,argv); 
+
+  // Set random number seed, if a value was set
+  if(gOptRanSeed > 0) {
+    RandomGen::Instance()->SetSeed(gOptRanSeed);
+  }
+
+  // Load cross-section splines
+  if(utils::system::FileExists(gOptInpXSecFile)) {
+    XSecSplineList * xspl = XSecSplineList::Instance();
+    XmlParserStatus_t status = xspl->LoadFromXml(gOptInpXSecFile);
+    if(status != kXmlOK) {
+      LOG("gevgen_upmu", pFATAL)
+         << "Problem reading file: " << gOptInpXSecFile;
+       gAbortingInErr = true;
+       exit(1);
+    }
+  } else {
+    if(gOptInpXSecFile.size() > 0) {
+       LOG("gevgen_upmu", pFATAL)
+          << "Input cross-section file ["
+          << gOptInpXSecFile << "] does not exist!";
+       gAbortingInErr = true;
+       exit(1);
+     } else {
+       LOG("gevgen_upmu", pFATAL) << "No cross-section file was specified in gevgen inputs";
+       LOG("gevgen_upmu", pFATAL) << "This is mandatory as, otherwise, event generation will be inefficient";
+       LOG("gevgen_upmu", pFATAL) << "Use the --cross-sections option";
+       gAbortingInErr = true;
+       exit(1);
+     }
+  }
+
 
   // Get requested flux driver
   GFluxI * flux_driver = GetFlux();
@@ -241,7 +284,10 @@ int main(int argc, char** argv)
   }
 
   // Save the muon ntuple and calculate 3-D pdfs
-  TFile outf( Form("./genie.%d.upmu.root",gOptRunNu), "recreate");
+
+  ostringstream outfname;
+  outfname << "./genie." << gOptRunNu << ".upmu.root";
+  TFile outf(outfname.str().c_str(), "recreate");
   ntupmuflux    -> Write("ntupmu");
   pdf3d_numu    -> Write("pdf3d_numu");
   pdf3d_numubar -> Write("pdf3d_numubar");
@@ -608,7 +654,7 @@ GFluxI* GetFlux(void)
   return flux_driver;
 }
 //________________________________________________________________________________________
-void GetCommandLineArgs(int argc, char ** argv) // JEN!!
+void GetCommandLineArgs(int argc, char ** argv) 
 {
 // Get the command line arguments
 
@@ -619,8 +665,8 @@ void GetCommandLineArgs(int argc, char ** argv) // JEN!!
   // help?
   bool help = parser.OptionExists('h');
   if(help) {
-    PrintSyntax(); // JEN!!
-      exit(0);
+    PrintSyntax(); 
+    exit(0);
   }
 
   //
@@ -633,8 +679,6 @@ void GetCommandLineArgs(int argc, char ** argv) // JEN!!
     LOG("gevgen_upmu", pDEBUG) << "Unspecified run number - Using default";
     gOptRunNu = 1000;
   } //-r
-
-
 
   //
   // *** exposure
@@ -657,7 +701,6 @@ void GetCommandLineArgs(int argc, char ** argv) // JEN!!
     exit(1);
   }
 
-
   //
   // *** detector side length
   //
@@ -671,8 +714,6 @@ void GetCommandLineArgs(int argc, char ** argv) // JEN!!
       << "Unspecified detector side length - Using default";
     gOptDetectorSide = kDefOptDetectorSide;
   }//-d
-
-
 
   //
   // *** flux files
@@ -748,6 +789,29 @@ void GetCommandLineArgs(int argc, char ** argv) // JEN!!
   }
 
   //
+  // *** random number seed
+  //
+  if( parser.OptionExists("seed") ) {
+    LOG("gevgen_upmu", pINFO) << "Reading random number seed";
+    gOptRanSeed = parser.ArgAsLong("seed");
+  } else {
+    LOG("gevgen_upmu", pINFO) << "Unspecified random number seed - Using default";
+    gOptRanSeed = -1;
+  }
+
+  //
+  // *** input cross-section file
+  //
+  if( parser.OptionExists("cross-sections") ) {
+    LOG("gevgen_upmu", pINFO) << "Reading cross-section file";
+    gOptInpXSecFile = parser.ArgAsString("cross-sections");
+  } else {
+    LOG("gevgen_upmu", pINFO) << "Unspecified cross-section file";
+    gOptInpXSecFile = "";
+  }
+
+
+  //
   // print-out summary
   //
   
@@ -767,17 +831,22 @@ void GetCommandLineArgs(int argc, char ** argv) // JEN!!
   }
 
   ostringstream expinfo;
-  if(gOptNev > 0)            { expinfo << gOptNev            << " events";   } 
+  if(gOptNev > 0) { expinfo << gOptNev << " events";   } 
+
+  LOG("gevgen_atmo", pNOTICE)
+     << "\n\n"
+     << utils::print::PrintFramedMesg("gevgen_upmu job configuration");
 
   LOG("gevgen_upmu", pNOTICE) 
      << "\n"
-     << "\n ****** MC Job (" << gOptRunNu << ") Settings ****** "
+     << "\n @@ Run number: " << gOptRunNu
+     << "\n @@ Random number seed: " << gOptRanSeed
+     << "\n @@ Using cross-section file: " << gOptInpXSecFile
      << "\n @@ Flux"
      << "\n\t" << fluxinfo.str()
      << "\n @@ Exposure" 
      << "\n\t" << expinfo.str()
      << "\n\n";
-
 }
 //________________________________________________________________________________________
 void PrintSyntax(void)
@@ -789,6 +858,8 @@ void PrintSyntax(void)
    << "\n              -f simulation:flux_file[neutrino_code],..."
    << "\n              -n n_of_events,"
    << "\n             [-d detector side length (mm)]"
+   << "\n             [--seed random_number_seed]"
+   << "\n              --cross-sections input_cross_section_file"
    << "\n"
    << " Please also read the detailed documentation at http://www.genie-mc.org"
    << "\n";

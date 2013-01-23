@@ -1,7 +1,7 @@
 //________________________________________________________________________________________
 /*!
 
-\program gT2Kevgen
+\program gevgen_t2k
 
 \brief   A GENIE event generation driver 'customized' for T2K.
 
@@ -16,34 +16,36 @@
 
          *** Synopsis :
 
-           gT2Kevgen [-h] 
-                     [-r run#] 
-                      -f flux 
-                      -g geometry 
-                     [-p pot_normalization_of_flux_file] 
-                     [-t top_volume_name_at_geom || -t +Vol1-Vol2...] 
-                     [-P pre_gen_prob_file_name] 
-                     [-S] [output_name]
-                     [-m max_path_lengths_xml_file]
-                     [-L length_units_at_geom] 
-                     [-D density_units_at_geom]
-                     [-n n_of_events] 
-                     [-c flux_cycles] 
-                     [-e, -E exposure_in_POTs]
-		     [-o output_event_file_prefix]
-		     [-R]
+           gevgen_t2k [-h] 
+                      [-r run#] 
+                       -f flux 
+                       -g geometry 
+                      [-p pot_normalization_of_flux_file] 
+                      [-t top_volume_name_at_geom || -t +Vol1-Vol2...] 
+                      [-P pre_gen_prob_file_name] 
+                      [-S] [output_name]
+                      [-m max_path_lengths_xml_file]
+                      [-L length_units_at_geom] 
+                      [-D density_units_at_geom]
+                      [-n n_of_events] 
+                      [-c flux_cycles] 
+                      [-e, -E exposure_in_POTs]
+		      [-o output_event_file_prefix]
+		      [-R]
+                      [--seed random_number_seed]
+                       --cross-sections input_cross_section_file
 
          *** Options :
 
            [] Denotes an optional argument
 
-           -h Prints out the gT2Kevgen syntax and exits
-
-           -r Specifies the MC run number [default: 1000]
-
-           -g Input 'geometry'.
+           -h 
+              Prints out the gevgen_t2k syntax and exits.
+           -r 
+              Specifies the MC run number [default: 1000].
+           -g 
+              Input 'geometry'.
               This option can be used to specify any of:
-
               1 > A ROOT file containing a ROOT/GEANT geometry description
                   [Note] 
                   - This is the standard option for generating events in the
@@ -52,7 +54,6 @@
 		  - To use the master volume from the ROOT geometry stored 
                     in the nd280-geom.root file, type:
                     '-g /some/path/nd280-geom.root'
-
               2 > A mix of target materials, each with its corresponding weight,
                   typed as a comma-separated list of nuclear PDG codes (in the
                   std PDG2006 convention: 10LZZZAAAI) with the weight fractions
@@ -68,12 +69,10 @@
                     '-g 1000080160[0.95],1000010010[0.05]'
 		  - To use a target which is 100% C12, type:
                     '-g 1000060120'
-
-           -t Input 'top volume' for event generation - 
-              can be used to force event generation in given sub-detector
-
+           -t 
+              Input 'top volume' for event generation - 
+              can be used to force event generation in given sub-detector.
               [default: the 'master volume' of the input geometry]
-
               You can also use the -t option to switch generation on/off at
               multiple volumes as, for example, in:
               `-t +Vol1-Vol2+Vol3-Vol4',
@@ -87,22 +86,18 @@
               except the ones explicitly turned on. Vice versa, if the very first 
               character is a `-', GENIE will keep all volumes except the ones
               explicitly turned off (feature contributed by J.Holeczek).
-
-           -P pre_gen_prob_file
-              Use exact interaction probabilities for the input flux file 
-              instead of estimating them using the max path lengths method. For
-              complex geometries this will dramatically speed up event 
-              generation! If this option is chosen then no max path length file
-              needs to be provided. 
+           -P 
+              Use exact interaction probabilities (stored in the file specified
+              via this option) corresponding to the flux file input in this job.
+              For complex geometries this will dramatically speed up event generation! 
+              If this option is chosen then no max path length file needs to be provided. 
               Instead of calculating the interaction probabilities on the fly
               per job you can pre-generate them using a dedicated job (see the
-              -S option) and tell the event generator to use them by setting 
-              the optional [pre_gen_prob_file] value. This is advised when 
-              processing flux files with more than ~100k entries as the time to 
-              pre-calculate the interaction probabilities becomes comparable to 
-              the event generation time. For smaller flux files there is less 
-              book-keeping if just calculate them per job and on the fly.  
-
+              -S option) and tell the event generator to use them via the -P option. 
+              This is advised when processing flux files with more than ~100k entries 
+              as the time to pre-calculate the interaction probabilities becomes 
+              comparable to the event generation time. For smaller flux files there is 
+              less book-keeping if you just calculate them per job and on the fly.  
            -S [output_name]
               Pre-generate flux interaction probabilities and save to root 
               output file for use with future event generation jobs. With this
@@ -119,36 +114,30 @@
               Introducing multiple functionality to the executable is not 
               desirable but is less error prone than duplicating a lot of the
               functionality in a separate application. 
-
-	   -m An XML file (generated by gmxpl) with the max (density weighted) 
+	   -m 
+              An XML file (generated by gmxpl) with the max (density weighted) 
               path-lengths for each target material in the input ROOT geometry.              
               If no file is input, then the geometry will be scanned at MC job 
               initialization to determine those max path lengths. 
               Supplying this file can speed-up the MC job initialization. 
-
-           -L Input geometry length units, eg 'm', 'cm', 'mm', ...
+           -L 
+              Input geometry length units, eg 'm', 'cm', 'mm', ...
               [default: 'mm']
               Note that typically: 
                - nd280m uses: 'mm'
-               - ingrid uses: ? 
-               - 2km    uses: ?
-               - SK     uses: -
-
-           -D Input geometry density units, eg 'g_cm3', 'clhep_def_density_unit',... 
+               - ...
+           -D 
+              Input geometry density units, eg 'g_cm3', 'clhep_def_density_unit',... 
               [default: 'g_cm3']
               Note that typically: 
                - nd280m uses: 'clhep_def_density_unit'
-               - ingrid uses: ? 
-               - 2km    uses: ?
-               - SK     uses: -
-
-           -f Input 'neutrino flux'.
+               - ...
+           -f 
+              Input 'neutrino flux'.
               This option can be used to specify any of:
-
               1 > A JNUBEAM beam simulation output file and the detector location.
                   The general sytax is:
                       -f /full/path/flux_file.root,detector_location(,list_of_neutrino_codes)
-
                   [Notes] 
                   - For more information on the flux ntuples, see (T2K internal):  
                     http://jnusrv01.kek.jp/internal/t2k/nubeam/flux/
@@ -188,11 +177,9 @@
                   - To do the same as above, but considering only nu_e
                     type:
                        '-f /path/flux.root,nd5,12'
-
               2 > A list of JNUBEAM beam simulation output files and the detector location.
                   The general sytax is:
                       -f /full/path/flux_file_prefix@first_file_number@last_file_number,detector_location(,list_of_neutrino_codes)
-
 		  [Notes] 
 		  - The ".root" is assumed.
 		  - All the files in the series between flux_file_prefix.first_file_number.root
@@ -207,11 +194,9 @@
                     in the JNUBEAM flux simulation] from the files in the series
 		    flux.0.root file to flux.100.root, considering only nu_e, type:
                        '-f /path/flux.@0@100,nd5,12'
-
               3 > A set of histograms stored in a ROOT file.
                   The general syntax is:
                       -f /path/histogram_file.root,neutrino_code[histo_name],...
-
                   [Notes] 
                   - The neutrino codes are the PDG ones.
                   - The 'neutrino_code[histogram_name]' part of the option can be 
@@ -242,9 +227,9 @@
                     histogram 'h301' (representing the nu_e_bar flux) from the
                     flux.root file in /path/ 
                     type:
-                      '-f /path/flux.root,14[h100],12[h300],-12[h301]
-                  
-           -p POT normalization of the input flux file.
+                      '-f /path/flux.root,14[h100],12[h300],-12[h301]                  
+           -p 
+              POT normalization of the input flux file.
               [default: The 'standard' JNUBEAM flux ntuple normalization of 
                1E+21 POT/detector for the near detectors and
                1E+21 POT/cm2 for the far detector]
@@ -255,9 +240,9 @@
 	        very important that you set this. It should be set to the total POT
 		of all input flux files. 
 	      [Examples]
-	      - If you have 10 standard JNUBEAM files use '-p 10E+21'
-	      
-           -c Specifies how many times to cycle a JNUBEAM flux ntuple.
+	      - If you have 10 standard JNUBEAM files use '-p 10E+21'	      
+           -c 
+              Specifies how many times to cycle a JNUBEAM flux ntuple.
               Due to the large rejection factor when generating unweighted events
               in the full energy range (approximately ~500 flux neutrinos will be 
               rejected before getting an interaction in nd280), an option is
@@ -265,51 +250,60 @@
               That option can be used to boost the generated statistics without
               requiring enormous flux files.
               See also 'Note on exposure / statistics' below.
-
-           -e Specifies how many POTs to generate.
-              If that option is set, gT2Kevgen will work out how many times it has
+           -e 
+              Specifies how many POTs to generate.
+              If that option is set, gevgen_t2k will work out how many times it has
               to cycle through the input flux ntuple in order to accumulate the
               requested statistics. The program will stop at the earliest complete
               flux ntuple cycle after accumulating the required statistics, so the
               actual statistics will 'slightly' overshoot that number.
               See also 'Note on exposure / statistics' below.
-
-           -E Specifies how many POTs to generate.
+           -E 
+              Specifies how many POTs to generate.
               That option is similar to -e but the program will stop immediatelly 
               after the requested POT has been accumulated. That reduces the
               generated POT overshoot of the requested POT, but the POT calculation
               may not be as exact as with -e.
               See also 'Note on exposure / statistics' below.
+           -n 
+             Specifies how many events to generate.
 
-           -n Specifies how many events to generate.
-
-             [Note on exposure / statistics] 
+             --------------------------
+             [Note on setting the exposure / statistics] 
               All -c, -e (-E) and -n options can be used to set the exposure.
               - If the input flux is a JNUBEAM ntuple then any of these options can
                 be used (only one at a time). 
                 If no option is set, then the program will automatically set '-c 1'
               - If the input flux is described with histograms then only the -n
                 option is available.
+             --------------------------
 
-           -o Sets the prefix of the output event file. 
+           -o 
+              Sets the prefix of the output event file. 
               The output filename is built as: 
               [prefix].[run_number].[event_tree_format].[file_format]
               The default output filename is: 
               gntp.[run_number].ghep.root
               This cmd line arguments lets you override 'gntp'
- 
-           -R Tell the flux driver to start looping over the flux ntuples with a 
+           -R 
+              Tell the flux driver to start looping over the flux ntuples with a 
               random offset. May be necessary to avoid biases introduced by always 
               starting at the same point when using very large flux input files.
+           --seed
+              Random number seed.
+           --cross-sections
+              Name (incl. full path) of an XML file with pre-computed
+              cross-section values used for constructing splines.
 
          *** Examples:
         
-         (1) shell% gT2Kevgen 
+         (1) shell% gevgen_t2k
                        -r 1001 
                        -f /data/t2k/flux/07a/jnubeam001.root,nd5
                        -g /data/t2k/geom/nd280.root 
                        -L mm -D clhep_def_density_unit
                        -e 5E+17
+                       --cross-sections /data/t2k/xsec/xsec.xml
 
              Generate events (run number 1001) using the JNUBEAM flux ntuple in
              /data/t2k/flux/07a/jnubeam001.root & picking up the flux entries for
@@ -318,42 +312,47 @@
              use it thinking that the geometry length unit is 'mm' and the density
              unit is 'clhep_def_density_unit' (g_cm3 / 0.62415185185E+19)
              The job will stop on the first complete flux ntuple cycle after 
-             generating 5E+17 POT.
+             generating 5E+17 POT. Pre-computed cross-sections for all relevant
+             initial states are loaded from /data/t2k/xsec/xsec.xml.
 
-         (2) shell% gT2Kevgen 
+         (2) shell% gevgen_t2k
                        -r 1001 
                        -f /data/t2k/flux/07a/jnubeam001.root,nd5
                        -g /data/t2k/geom/nd280.root 
                        -L mm -D clhep_def_density_unit
                        -c 100
+                       --cross-sections /data/t2k/xsec/xsec.xml
 
              As before, but now the job will stop after 100 flux ntuple cycles -
              whatever POT & number of events that may correspond to.
 
-         (3) shell% gT2Kevgen 
+         (3) shell% gevgen_t2k 
                        -r 1001 
                        -f /data/t2k/flux/07a/jnubeam001.root,nd5
                        -g /data/t2k/geom/nd280.root
                        -L mm -D clhep_def_density_unit
                        -n 100000
+                       --cross-sections /data/t2k/xsec/xsec.xml
 
              As before, but now the job will stop after generating 100000 events -
              whatever POT & number of flux ntuple cycles that may correspond to.
 
-         (4) shell% gT2Kevgen 
+         (4) shell% gevgen_t2k 
                        -r 1001 
                        -f /data/t2k/flux/07a/jnubeam001.root,nd5,-12,12
                        -g /data/t2k/geom/nd280.root
                        -L mm -D clhep_def_density_unit
                        -n 100000
+                       --cross-sections /data/t2k/xsec/xsec.xml
 
              As before, but now the job will consider flux nu_e and nu_e_bar only!
 
-         (5) shell% gT2Kevgen 
+         (5) shell% gevgen_t2k 
                       -r 1001 
                       -f /data/t2k/flux/07a/jnubeam001.root,sk
                       -g 1000080160[0.95],1000010010[0.05]
                       -n 50000
+                       --cross-sections /data/t2k/xsec/xsec.xml
 
              Generate events (run number 1001) using the JNUBEAM flux ntuple in
              /data/t2k/flux/07a/jnubeam001.root & picking up the flux entries for
@@ -361,11 +360,12 @@
              detailed detector geometry description but just (95% O16 + 5% H)
              target mix. The job will stop after generating 50000 events.
 
-         (6) shell% gT2Kevgen 
+         (6) shell% gevgen_t2k 
                        -r 1001 
                        -f /data/t2k/flux/hst/flux.root,12[h100],-12[h101],14[h200]
                        -g 1000080160[0.95],1000010010[0.05]
                        -n 50000
+                       --cross-sections /data/t2k/xsec/xsec.xml
 
              As before, but in this case the flux description is not based on a JNUBEAM
              ntuple but a set of histograms at the /data/t2k/flux/hst/flux.root file:
@@ -373,8 +373,6 @@
              will be used for the nu_e_bar flux, and 'h200' for the nu_mu flux.
 
 
-         You can further control the GENIE behaviour by setting its standard 
-         environmental variables.
          Please read the GENIE User Manual for more information.
 
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
@@ -385,19 +383,9 @@
 \cpright Copyright (c) 2003-2011, GENIE Neutrino MC Generator Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
          or see $GENIE/LICENSE
-
- @ Feb 22, 2011 - JD
-   Added functionality to use pre-calculated interaction probabilities for flux neutrinos
-   instead of using maximum path lengths for preselection. This can result in dramatic
-   speed increases for event generation over complex geometries. See the -P and -S options
-   for details. 
- @ Feb 22, 2011 - JD
-   Added option to start looping over flux file using a random start entry.
- @ Mar 7, 2011 - JD 
-   Output expected number of events per cycle and per POT after initialisation. 
-
 */
 //_________________________________________________________________________________________
+
 #include <cassert>
 #include <cstdlib>
 #include <string>
@@ -426,11 +414,14 @@
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGCodeList.h"
 #include "Ntuple/NtpMCFormat.h"
+#include "Numerical/RandomGen.h"
 #include "Utils/XSecSplineList.h"
 #include "Utils/StringUtils.h"
 #include "Utils/UnitUtils.h"
 #include "Utils/CmdLnArgParser.h"
 #include "Utils/T2KEvGenMetaData.h"
+#include "Utils/SystemUtils.h"
+#include "Utils/PrintUtils.h"
 
 #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
 #include "FluxDrivers/GJPARCNuFlux.h"
@@ -487,17 +478,46 @@ bool            gOptSaveFluxProbsFile = false; // special mode: no events genera
 string          gOptFluxProbFileName;          // filename for file containg flux probs 
 string          gOptSaveFluxProbsFileName;     // output filename for pre-generated flux probabilities
 bool            gOptRandomFluxOffset = false;  // start looping over flux file from random start entry
+long int        gOptRanSeed;                   // random number seed
+string          gOptInpXSecFile;               // cross-section splines
+
 //____________________________________________________________________________
 int main(int argc, char ** argv)
 {
   // Parse command line arguments
   GetCommandLineArgs(argc,argv);
-  
-  // Autoload splines (from the XML file pointed at the $GSPLOAD env. var.,
-  // if the env. var. has been set)
-  //XSecSplineList * xspl = XSecSplineList::Instance();
-  //xspl->AutoLoad();
 
+  // Set random number seed, if a value was set
+  if(gOptRanSeed > 0) {
+    RandomGen::Instance()->SetSeed(gOptRanSeed);
+  }
+
+  // Load cross-section splines
+  if(utils::system::FileExists(gOptInpXSecFile)) {
+    XSecSplineList * xspl = XSecSplineList::Instance();
+    XmlParserStatus_t status = xspl->LoadFromXml(gOptInpXSecFile);
+    if(status != kXmlOK) {
+      LOG("gevgen_t2k", pFATAL)
+         << "Problem reading file: " << gOptInpXSecFile;
+       gAbortingInErr = true;
+       exit(1);
+    }
+  } else {
+    if(gOptInpXSecFile.size() > 0) {
+       LOG("gevgen_t2k", pFATAL)
+          << "Input cross-section file ["
+          << gOptInpXSecFile << "] does not exist!";
+       gAbortingInErr = true;
+       exit(1);
+     } else {
+       LOG("gevgen_t2k", pFATAL) << "No cross-section file was specified in gevgen inputs";
+       LOG("gevgen_t2k", pFATAL) << "This is mandatory as, otherwise, event generation will be inefficient";
+       LOG("gevgen_t2k", pFATAL) << "Use the --cross-sections option";
+       gAbortingInErr = true;
+       exit(1);
+     }
+  }
+  
   // *************************************************************************
   // * Create / configure the geometry driver 
   // *************************************************************************
@@ -526,7 +546,7 @@ int main(int argc, char ** argv)
     rgeom -> SetTopVolName   (gOptRootGeomTopVol);
     topvol = rgeom->GetGeometry()->GetTopVolume();
     if(!topvol) {
-      LOG("gT2Kevgen", pFATAL) << "Null top ROOT geometry volume!";
+      LOG("gevgen_t2k", pFATAL) << "Null top ROOT geometry volume!";
       exit(1);
     }
     // switch on/off volumes as requested
@@ -651,7 +671,7 @@ int main(int argc, char ** argv)
     else success = mcj_driver->PreCalcFluxProbabilities();
 
     if(success){
-      LOG("gT2Kevgen", pNOTICE) 
+      LOG("gevgen_t2k", pNOTICE) 
        << "Successfully calculated/loaded flux interaction probabilities!"; 
       // Print out a list of expected number of events per POT and per cycle
       // based on the pre-generated flux interaction probabilities
@@ -682,14 +702,14 @@ int main(int argc, char ** argv)
           "POT, ensure this is correct if using these numbers!"; 
     }
     else {
-      LOG("gT2Kevgen", pFATAL) 
+      LOG("gevgen_t2k", pFATAL) 
        << "Failed to calculated/loaded flux interaction probabilities!";
       return 1;
     }
  
     // Exit now if just pre-generating interaction probabilities
     if(gOptSaveFluxProbsFile){
-      LOG("gT2Kevgen", pNOTICE) 
+      LOG("gevgen_t2k", pNOTICE) 
        << "Will not generate events - just pre-calculating flux interaction"
        << "probabilities"; 
       return 0;
@@ -709,9 +729,9 @@ int main(int argc, char ** argv)
       double pot_1c  = fpot_1c / psc;                   // actual POT / cycle
       int    ncycles = (int) TMath::Max(1., TMath::Ceil(gOptPOT/pot_1c));   
 
-      LOG("gT2Kevgen", pNOTICE) 
+      LOG("gevgen_t2k", pNOTICE) 
          << " *** POT/cycle:  " << pot_1c;
-      LOG("gT2Kevgen", pNOTICE) 
+      LOG("gevgen_t2k", pNOTICE) 
          << " *** Requested POT will be accumulated in: " 
          << ncycles << " flux ntuple cycles";
 
@@ -757,7 +777,7 @@ int main(int argc, char ** argv)
   int ievent = 0;
   while (1) 
   {
-     LOG("gT2Kevgen", pNOTICE) 
+     LOG("gevgen_t2k", pNOTICE) 
           << " *** Generating event............ " << ievent;
 
      // In case the required statistics was expressed as 'number of events'
@@ -783,16 +803,16 @@ int main(int argc, char ** argv)
      // Check whether a null event was returned due to the flux driver reaching
      // the end of the input flux ntuple - exit the event generation loop
      if(!event && jparc_flux_driver->End()) {
-	LOG("gT2Kevgen", pNOTICE) 
+	LOG("gevgen_t2k", pNOTICE) 
           << "** The JPARC flux driver read all the input flux ntuple entries";
 	break;
      }
      if(!event) {
-  	 LOG("gT2Kevgen", pERROR) 
+  	 LOG("gevgen_t2k", pERROR) 
              << "Got a null generated neutino event! Retrying ...";
          continue;
      }
-     LOG("gT2Kevgen", pINFO)  
+     LOG("gevgen_t2k", pINFO)  
          << "Generated event: " << *event;
 
      // A valid event was generated: extract flux info (parent decay/prod
@@ -803,7 +823,7 @@ int main(int argc, char ** argv)
      if(!gOptUsingHistFlux) {
         flux_info = new flux::GJPARCNuFluxPassThroughInfo(
             jparc_flux_driver->PassThroughInfo());
-        LOG("gT2Kevgen", pINFO) 
+        LOG("gevgen_t2k", pINFO) 
           << "Pass-through flux info associated with generated event: " 
           << *flux_info;
      }
@@ -816,7 +836,7 @@ int main(int argc, char ** argv)
      ievent++;
   } //1
 
-  LOG("gT2Kevgen", pNOTICE) 
+  LOG("gevgen_t2k", pNOTICE) 
     << "The GENIE MC job is done generaing events - Cleaning up & exiting...";
 
   // *************************************************************************
@@ -838,7 +858,7 @@ int main(int argc, char ** argv)
     long int nflx     = jparc_flux_driver -> NFluxNeutrinos();
     long int nev      = ievent;
 
-    LOG("gT2Kevgen", pNOTICE) 
+    LOG("gevgen_t2k", pNOTICE) 
         << "\n >> Actual JNUBEAM flux file normalization:  " << fpot 
             << " POT * " << ((gOptDetectorLocation == "sk") ? "cm^2" : "det")
         << "\n >> Interaction probability scaling factor:  " << psc
@@ -888,7 +908,7 @@ int main(int argc, char ** argv)
   }
   gOptFluxHst.clear();
 
-  LOG("gT2Kevgen", pNOTICE) << "Done!";
+  LOG("gevgen_t2k", pNOTICE) << "Done!";
 
   return 0;
 }
@@ -899,7 +919,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   // >>> get the command line arguments
   //
 
-  LOG("gT2Kevgen", pNOTICE) << "Parsing command line arguments";
+  LOG("gevgen_t2k", pNOTICE) << "Parsing command line arguments";
 
   CmdLnArgParser parser(argc,argv);
 
@@ -912,10 +932,10 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   // run number:
   if( parser.OptionExists('r') ) {
-    LOG("gT2Kevgen", pDEBUG) << "Reading MC run number";
+    LOG("gevgen_t2k", pDEBUG) << "Reading MC run number";
     gOptRunNu = parser.ArgAsLong('r');
   } else {
-    LOG("gT2Kevgen", pDEBUG) << "Unspecified run number - Using default";
+    LOG("gevgen_t2k", pDEBUG) << "Unspecified run number - Using default";
     gOptRunNu = 0;
   } //-r
 
@@ -926,7 +946,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   string geom = "";
   string lunits, dunits;
   if( parser.OptionExists('g') ) {
-    LOG("gT2Kevgen", pDEBUG) << "Getting input geometry";
+    LOG("gevgen_t2k", pDEBUG) << "Getting input geometry";
     geom = parser.ArgAsString('g');
 
     // is it a ROOT file that contains a ROOT geometry?
@@ -937,7 +957,7 @@ void GetCommandLineArgs(int argc, char ** argv)
       gOptUsingRootGeom = true;
     }                 
   } else {
-      LOG("gT2Kevgen", pFATAL) 
+      LOG("gevgen_t2k", pFATAL) 
         << "No geometry option specified - Exiting";
       PrintSyntax();
       exit(1);
@@ -948,20 +968,20 @@ void GetCommandLineArgs(int argc, char ** argv)
 
      // legth units:
      if( parser.OptionExists('L') ) {
-        LOG("gT2Kevgen", pDEBUG) 
+        LOG("gevgen_t2k", pDEBUG) 
            << "Checking for input geometry length units";
         lunits = parser.ArgAsString('L');
      } else {
-        LOG("gT2Kevgen", pDEBUG) << "Using default geometry length units";
+        LOG("gevgen_t2k", pDEBUG) << "Using default geometry length units";
         lunits = kDefOptGeomLUnits;
      } // -L
      // density units:
      if( parser.OptionExists('D') ) {
-        LOG("gT2Kevgen", pDEBUG) 
+        LOG("gevgen_t2k", pDEBUG) 
            << "Checking for input geometry density units";
         dunits = parser.ArgAsString('D');
      } else {
-        LOG("gT2Kevgen", pDEBUG) << "Using default geometry density units";
+        LOG("gevgen_t2k", pDEBUG) << "Using default geometry density units";
         dunits = kDefOptGeomDUnits;
      } // -D 
      gOptGeomLUnits = genie::utils::units::UnitFromString(lunits);
@@ -970,21 +990,21 @@ void GetCommandLineArgs(int argc, char ** argv)
      // check whether an event generation volume name has been 
      // specified -- default is the 'top volume'
      if( parser.OptionExists('t') ) {
-        LOG("gT2Kevgen", pDEBUG) << "Checking for input volume name";
+        LOG("gevgen_t2k", pDEBUG) << "Checking for input volume name";
         gOptRootGeomTopVol = parser.ArgAsString('t');
      } else {
-        LOG("gT2Kevgen", pDEBUG) << "Using the <master volume>";
+        LOG("gevgen_t2k", pDEBUG) << "Using the <master volume>";
      } // -t 
 
      // check whether an XML file with the maximum (density weighted)
      // path lengths for each detector material is specified -
      // otherwise will compute the max path lengths at job init
      if( parser.OptionExists('m') ) {
-        LOG("gT2Kevgen", pDEBUG) 
+        LOG("gevgen_t2k", pDEBUG) 
               << "Checking for maximum path lengths XML file";
         gOptExtMaxPlXml = parser.ArgAsString('m');
      } else {
-        LOG("gT2Kevgen", pDEBUG) 
+        LOG("gevgen_t2k", pDEBUG) 
            << "Will compute the maximum path lengths at job init";
         gOptExtMaxPlXml = "";
      } // -m
@@ -1011,7 +1031,7 @@ void GetCommandLineArgs(int argc, char ** argv)
          if (open_bracket ==string::npos || 
              close_bracket==string::npos) 
          {
-             LOG("gT2Kevgen", pFATAL) 
+             LOG("gevgen_t2k", pFATAL) 
                 << "You made an error in specifying the target mix"; 
              PrintSyntax();
              exit(1);
@@ -1022,7 +1042,7 @@ void GetCommandLineArgs(int argc, char ** argv)
 	 string::size_type jend = close_bracket;
          int    pdg = atoi(tgt_with_wgt.substr(ibeg,iend-ibeg).c_str());
          double wgt = atof(tgt_with_wgt.substr(jbeg,jend-jbeg).c_str());
-         LOG("gT2Kevgen", pDEBUG) 
+         LOG("gevgen_t2k", pDEBUG) 
             << "Adding to target mix: pdg = " << pdg << ", wgt = " << wgt;
          gOptTgtMix.insert(map<int, double>::value_type(pdg, wgt));
 
@@ -1035,7 +1055,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   // 
 
   if( parser.OptionExists('f') ) {
-    LOG("gT2Kevgen", pDEBUG) << "Getting input flux";
+    LOG("gevgen_t2k", pDEBUG) << "Getting input flux";
     string flux = parser.ArgAsString('f');
     gOptUsingHistFlux = (flux.find("[") != string::npos);
 
@@ -1047,7 +1067,7 @@ void GetCommandLineArgs(int argc, char ** argv)
         //
         vector<string> fluxv = utils::str::Split(flux,",");
         if(fluxv.size()<2) {
-           LOG("gT2Kevgen", pFATAL) 
+           LOG("gevgen_t2k", pFATAL) 
              << "You need to specify both a flux ntuple ROOT file " 
              << " _AND_ a detector location";
            PrintSyntax();
@@ -1071,7 +1091,7 @@ void GetCommandLineArgs(int argc, char ** argv)
         //
         vector<string> fluxv = utils::str::Split(flux,",");      
         if(fluxv.size()<2) {
-           LOG("gT2Kevgen", pFATAL) 
+           LOG("gevgen_t2k", pFATAL) 
              << "You need to specify both a flux ntuple ROOT file " 
              << " _AND_ a detector location";
            PrintSyntax();
@@ -1081,7 +1101,7 @@ void GetCommandLineArgs(int argc, char ** argv)
         bool accessible_flux_file = 
                !(gSystem->AccessPathName(gOptFluxFile.c_str()));
         if (!accessible_flux_file) {
-            LOG("gT2Kevgen", pFATAL) 
+            LOG("gevgen_t2k", pFATAL) 
               << "Can not access flux file: " << gOptFluxFile;
             PrintSyntax();
             exit(1);
@@ -1095,7 +1115,7 @@ void GetCommandLineArgs(int argc, char ** argv)
             if (open_bracket ==string::npos || 
                 close_bracket==string::npos) 
             {
-                LOG("gT2Kevgen", pFATAL) 
+                LOG("gevgen_t2k", pFATAL) 
                    << "You made an error in specifying the flux histograms"; 
                 PrintSyntax();
                 exit(1);
@@ -1109,7 +1129,7 @@ void GetCommandLineArgs(int argc, char ** argv)
             // access specified histogram from the input root file
             TH1D * ihst = (TH1D*) flux_file.Get(histo.c_str()); 
             if(!ihst) {
-                LOG("gT2Kevgen", pFATAL) 
+                LOG("gevgen_t2k", pFATAL) 
                   << "Can not find histogram: " << histo 
                   << " in flux file: " << gOptFluxFile;
                 PrintSyntax();
@@ -1133,18 +1153,18 @@ void GetCommandLineArgs(int argc, char ** argv)
             // convert neutrino name -> pdg code
             int pdg = atoi(nutype.c_str());
             if(!pdg::IsNeutrino(pdg) && !pdg::IsAntiNeutrino(pdg)) {
-                LOG("gT2Kevgen", pFATAL) 
+                LOG("gevgen_t2k", pFATAL) 
                     << "Unknown neutrino type: " << nutype; 
                 PrintSyntax();
                 exit(1);
             }
             // store flux neutrino code / energy spectrum
-            LOG("gT2Kevgen", pDEBUG) 
+            LOG("gevgen_t2k", pDEBUG) 
               << "Adding energy spectrum for flux neutrino: pdg = " << pdg;
             gOptFluxHst.insert(map<int, TH1D*>::value_type(pdg, spectrum));
         }//inu
         if(gOptFluxHst.size()<1) {
-           LOG("gT2Kevgen", pFATAL) 
+           LOG("gevgen_t2k", pFATAL) 
                << "You have not specified any flux histogram!";
            PrintSyntax();
            exit(1);
@@ -1153,7 +1173,7 @@ void GetCommandLineArgs(int argc, char ** argv)
     } // flux from histograms or from JNUBEAM ntuples?
 
   } else {
-      LOG("gT2Kevgen", pFATAL) << "No flux info was specified - Exiting";
+      LOG("gevgen_t2k", pFATAL) << "No flux info was specified - Exiting";
       PrintSyntax();
       exit(1);
   }
@@ -1173,14 +1193,14 @@ void GetCommandLineArgs(int argc, char ** argv)
       bool accessible =
               !(gSystem->AccessPathName(gOptFluxProbFileName.c_str()));
       if(!accessible){
-        LOG("gT2Kevgen", pFATAL)
+        LOG("gevgen_t2k", pFATAL)
           << "Can not access pre-calculated flux probabilities file: " << gOptFluxProbFileName;
         PrintSyntax();
         exit(1);
       }
     }
     else {
-      LOG("gT2Kevgen", pFATAL)
+      LOG("gevgen_t2k", pFATAL)
 	<< "No flux interaction probabilites were specified - exiting";
       PrintSyntax();
       exit(1);
@@ -1195,14 +1215,14 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   // cannot save and run at the same time
   if(gOptUseFluxProbs && gOptSaveFluxProbsFile){
-    LOG("gT2Kevgen", pFATAL)  
+    LOG("gevgen_t2k", pFATAL)  
      << "Cannot specify both the -P and -S options at the same time!";
     exit(1); 
   }
 
   // only makes sense to be setting these options for a realistic flux 
   if(gOptUsingHistFlux && (gOptUseFluxProbs || gOptSaveFluxProbsFile)){
-    LOG("gT2Kevgen", pFATAL)  
+    LOG("gevgen_t2k", pFATAL)  
      << "Using pre-calculated flux interaction probabilities only makes "
      << "sense when using JNUBEAM flux option!";
     exit(1); 
@@ -1211,31 +1231,31 @@ void GetCommandLineArgs(int argc, char ** argv)
   // flux file POT normalization
   // only relevant when using the JNUBEAM flux ntuples
   if( parser.OptionExists('p') ) {
-    LOG("gT2Kevgen", pDEBUG)  << "Reading flux file normalization";
+    LOG("gevgen_t2k", pDEBUG)  << "Reading flux file normalization";
     gOptFluxNorm = parser.ArgAsDouble('p');
   } else {
-    LOG("gT2Kevgen", pDEBUG)
+    LOG("gevgen_t2k", pDEBUG)
         << "Setting standard normalization for JNUBEAM flux ntuples";
     gOptFluxNorm = kDefOptFluxNorm;
   } //-p
 
   // number of times to cycle through the JNUBEAM flux ntuple contents
   if( parser.OptionExists('c') ) {
-    LOG("gT2Kevgen", pDEBUG) << "Reading number of flux ntuple cycles";
+    LOG("gevgen_t2k", pDEBUG) << "Reading number of flux ntuple cycles";
     gOptFluxNCycles = parser.ArgAsInt('c');
   } else {
-    LOG("gT2Kevgen", pDEBUG)
+    LOG("gevgen_t2k", pDEBUG)
         << "Setting standard number of cycles for JNUBEAM flux ntuples";
     gOptFluxNCycles = -1;
   } //-c
 
   // limit on max number of events that can be generated
   if( parser.OptionExists('n') ) {
-    LOG("gT2Kevgen", pDEBUG) 
+    LOG("gevgen_t2k", pDEBUG) 
         << "Reading limit on number of events to generate";
     gOptNev = parser.ArgAsInt('n');
   } else {
-    LOG("gT2Kevgen", pDEBUG)
+    LOG("gevgen_t2k", pDEBUG)
       << "Will keep on generating events till the flux driver stops";
     gOptNev = -1;
   } //-n
@@ -1250,22 +1270,41 @@ void GetCommandLineArgs(int argc, char ** argv)
   }
   gOptExitAtEndOfFullFluxCycles = pot_exit;
   if( parser.OptionExists(pot_args) ) {
-    LOG("gT2Kevgen", pDEBUG)  << "Reading requested exposure in POT";
+    LOG("gevgen_t2k", pDEBUG)  << "Reading requested exposure in POT";
     gOptPOT = parser.ArgAsDouble(pot_args);
   } else {
-    LOG("gT2Kevgen", pDEBUG) << "No POT exposure was requested";
+    LOG("gevgen_t2k", pDEBUG) << "No POT exposure was requested";
     gOptPOT = -1;
   } //-e, -E
 
   // event file prefix
   if( parser.OptionExists('o') ) {
-    LOG("gT2Kevgen", pDEBUG) << "Reading the event filename prefix";
+    LOG("gevgen_t2k", pDEBUG) << "Reading the event filename prefix";
     gOptEvFilePrefix = parser.ArgAsString('o');
   } else {
-    LOG("gT2Kevgen", pDEBUG)
+    LOG("gevgen_t2k", pDEBUG)
       << "Will set the default event filename prefix";
     gOptEvFilePrefix = kDefOptEvFilePrefix;
   } //-o
+
+
+  // random number seed
+  if( parser.OptionExists("seed") ) {
+    LOG("gevgen_t2k", pINFO) << "Reading random number seed";
+    gOptRanSeed = parser.ArgAsLong("seed");
+  } else {
+    LOG("gevgen_t2k", pINFO) << "Unspecified random number seed - Using default";
+    gOptRanSeed = -1;
+  }
+
+  // input cross-section file
+  if( parser.OptionExists("cross-sections") ) {
+    LOG("gevgen_t2k", pINFO) << "Reading cross-section file";
+    gOptInpXSecFile = parser.ArgAsString("cross-sections");
+  } else {
+    LOG("gevgen_t2k", pINFO) << "Unspecified cross-section file";
+    gOptInpXSecFile = "";
+  }
 
   //
   // >>> perform 'sanity' checks on command line arguments
@@ -1283,15 +1322,15 @@ void GetCommandLineArgs(int argc, char ** argv)
     if(gOptFluxNCycles > 0) nset++;
     if(gOptNev         > 0) nset++;
     if(nset==0) {
-       LOG("gT2Kevgen", pWARN) 
+       LOG("gevgen_t2k", pWARN) 
         << "** To use a JNUBEAM flux ntuple you need to specify an exposure, "
         << "either via the -c, -e or -n options";
-       LOG("gT2Kevgen", pWARN) 
-        << "** gT2Kevgen automatically sets the exposure via '-c 1'";
+       LOG("gevgen_t2k", pWARN) 
+        << "** gevgen_t2k automatically sets the exposure via '-c 1'";
        gOptFluxNCycles = 1;
     } 
     if(nset>1) {
-       LOG("gT2Kevgen", pFATAL) 
+       LOG("gevgen_t2k", pFATAL) 
          << "You can not specify more than one of the -c, -e or -n options";
        PrintSyntax();
        exit(1);
@@ -1301,7 +1340,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   // only way to control exposure is via a number of events
   if(gOptUsingHistFlux) {
      if(gOptNev < 0) {
-       LOG("gT2Kevgen", pFATAL) 
+       LOG("gevgen_t2k", pFATAL) 
          << "If you're using flux from histograms you need to specify the -n option";
        PrintSyntax();
        exit(1);
@@ -1312,7 +1351,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   // in the target mix to compute POT & the calculation can be easily done offline)
   if(!gOptUsingRootGeom) {
     if(gOptPOT > 0) {
-       LOG("gT2Kevgen", pFATAL) 
+       LOG("gevgen_t2k", pFATAL) 
          << "You may not use the -e, -E options "
          << "without a detailed detector geometry description input";
        exit(1);
@@ -1384,8 +1423,14 @@ void GetCommandLineArgs(int argc, char ** argv)
   if(gOptNev > 0) 
       exposure << "Number of events = " << gOptNev;
 
-  LOG("gT2Kevgen", pNOTICE) 
-     << "\n MC Job (" << gOptRunNu << ") Settings: "
+  LOG("gevgen_t2k", pNOTICE)
+     << "\n\n"
+     << utils::print::PrintFramedMesg("T2K event generation job configuration");
+
+  LOG("gevgen_t2k", pNOTICE) 
+     << "\n -  Run number: " << gOptRunNu
+     << "\n -  Random number seed: " << gOptRanSeed
+     << "\n - Using cross-section file: " << gOptInpXSecFile
      << "\n - Flux     @ " << fluxinfo.str()
      << "\n - Geometry @ " << gminfo.str()
      << "\n - Exposure @ " << exposure.str();
@@ -1393,9 +1438,9 @@ void GetCommandLineArgs(int argc, char ** argv)
 //____________________________________________________________________________
 void PrintSyntax(void)
 {
-  LOG("gT2Kevgen", pFATAL) 
+  LOG("gevgen_t2k", pFATAL) 
    << "\n **Syntax**"
-   << "\n gT2Kevgen [-h] "
+   << "\n gevgen_t2k [-h] "
    << "\n           [-r run#]"
    << "\n            -f flux"
    << "\n            -g geometry"
@@ -1411,6 +1456,8 @@ void PrintSyntax(void)
    << "\n           [-e, -E exposure_in_POTs]"
    << "\n           [-o output_event_file_prefix]"
    << "\n           [-R]"
+   << "\n           [--seed random_number_seed]"
+   << "\n            --cross-sections input_cross_section_file"
    << "\n"
    << " Please also read the detailed documentation at http://www.genie-mc.org"
    << " or look at the source code: $GENIE/src/support/t2k/EvGen/gT2KEvGen.cxx"
