@@ -18,7 +18,7 @@ oooooo   oooooo     oooo       .o.       ooooooooo.   ooooo      ooo ooooo ooooo
 
  If you prefer to use a version with validated physics content, please see http://releases.genie-mc.org
 
-
+                            Site managers, please don't remove this notice!
 
 
  GENIE will continue running in 15 seconds...
