@@ -109,9 +109,9 @@ $fntemplate    = "$job_dir/nd280job-$mcrun";
 $ghep_file     = "$file_prefix.$production\_$cycle.$mcrun.ghep.root";
 $grep_pipe     = "grep -B 50 -A 30 -i \"warn\\|error\\|fatal\" ";
 $valgrind_cmd  = "valgrind --tool=memcheck --error-limit=no --leak-check=yes --show-reachable=yes";
-$evgen_cmd     = "gT2Kevgen -g $geom_file -f $flux_file,$flux_det_loc -r $mcrun -L $geom_lunits -D $geom_dunits -E $job_pot | $grep_pipe &> $fntemplate.evgen.log";
+$evgen_cmd     = "gevgen_t2k -g $geom_file -f $flux_file,$flux_det_loc -r $mcrun --seed $mcseed -L $geom_lunits -D $geom_dunits -E $job_pot --cross-sections $xspl_file | $grep_pipe &> $fntemplate.evgen.log";
 $frenm_cmd     = "mv gntp.$mcrun.ghep.root $ghep_file";
-$fconv_cmd     = "gntpc -f t2k_rootracker -i $ghep_file | $grep_pipe &> $fntemplate.conv.log";
+$fconv_cmd     = "gntpc -f t2k_rootracker -i $ghep_file --seed $mcseed | $grep_pipe &> $fntemplate.conv.log";
 
 print "@@@ exec: $evgen_cmd \n";
 
@@ -130,9 +130,7 @@ if($batch_system eq 'PBS') {
   print PBS "#PBS -e $fntemplate.pbserr.log \n";
   print PBS "source $genie_setup \n";
   print PBS "cd $job_dir \n";
-  print PBS "export GSPLOAD=$xspl_file \n";
   print PBS "unset GEVGL \n";
-  print PBS "export GSEED=$mcseed \n";
   print PBS "$evgen_cmd \n";
   print PBS "$frenm_cmd \n";
   print PBS "$fconv_cmd \n";
@@ -152,9 +150,7 @@ if($batch_system eq 'LSF') {
   print LSF "#BSUB-e $fntemplate.lsferr.log \n";
   print LSF "source $genie_setup \n";
   print LSF "cd $job_dir \n";
-  print LSF "export GSPLOAD=$xspl_file \n";
   print LSF "unset GEVGL \n";
-  print LSF "export GSEED=$mcseed \n";
   print LSF "$evgen_cmd \n";
   print LSF "$frenm_cmd \n";
   print LSF "$fconv_cmd \n";

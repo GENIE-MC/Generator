@@ -170,7 +170,7 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
        $fntemplate    = "$jobs_dir/hadroatten-$curr_subrunnu";
        $grep_pipe     = "grep -B 20 -A 30 -i \"warn\\|error\\|fatal\"";
        $valgrind_cmd  = "valgrind --tool=memcheck --error-limit=no --leak-check=yes --show-reachable=yes";
-       $evgen_cmd     = "gevgen -n $nev_per_subrun -s -e $en -p $probe -t $tgt -r $curr_subrunnu $fluxopt | $grep_pipe &> $fntemplate.evgen.log";
+       $evgen_cmd     = "gevgen -n $nev_per_subrun -e $en -p $probe -t $tgt $fluxopt -r $curr_subrunnu --seed $curr_seed --cross-sections $xspl_file | $grep_pipe &> $fntemplate.evgen.log";
        $conv_cmd      = "gntpc -f gst -i gntp.$curr_subrunnu.ghep.root";
 
        print "@@ exec: $evgen_cmd \n";
@@ -190,9 +190,7 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
            print PBS "#PBS -e $fntemplate.pbserr.log \n";
            print PBS "source $genie_setup \n"; 
            print PBS "cd $jobs_dir \n";
-           print PBS "export GSPLOAD=$xspl_file \n";
            print PBS "export GEVGL=$gevgl \n";
-           print PBS "export GSEED=$curr_seed \n";
            print PBS "$evgen_cmd \n";
            print PBS "$conv_cmd \n";
            close(PBS);
@@ -211,9 +209,7 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
            print LSF "#BSUB-e $fntemplate.lsferr.log \n";
            print LSF "source $genie_setup \n"; 
            print LSF "cd $jobs_dir \n";
-           print LSF "export GSPLOAD=$xspl_file \n";
            print LSF "export GEVGL=$gevgl \n";
-           print LSF "export GSEED=$curr_seed \n";
            print LSF "$evgen_cmd \n";
            print LSF "$conv_cmd \n";
            close(LSF);

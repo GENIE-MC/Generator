@@ -367,7 +367,7 @@ for my $curr_runnu (keys %evg_probepdg_hash)  {
        $curr_seed     = $mcseed + $isubrun;
        $valgrind_cmd  = "valgrind --tool=memcheck --error-limit=no --leak-check=yes --show-reachable=yes";
        $gntp_prefix   = "gntp.$inuke_model";
-       $evgen_cmd     = "gevgen_hadron -n $nev_per_subrun -m $inuke_model -k $ke -p $probe -t $tgt -r $curr_subrunnu -o $gntp_prefix";
+       $evgen_cmd     = "gevgen_hadron -n $nev_per_subrun -m $inuke_model -k $ke -p $probe -t $tgt -r $curr_subrunnu --seed $curr_seed -o $gntp_prefix";
        $conv_cmd      = "gntpc -f ginuke -i $gntp_prefix.$curr_subrunnu.ghep.root";
 
        $evgen_cmd = "$evgen_cmd | $grep_pipe &> $fntemplate.evgen.log";
@@ -391,7 +391,6 @@ for my $curr_runnu (keys %evg_probepdg_hash)  {
           print PBS "#PBS -e $fntemplate.pbserr.log \n";
           print PBS "source $genie_setup \n"; 
           print PBS "cd $jobs_dir \n";
-          print PBS "export GSEED=$curr_seed \n";
           print PBS "$evgen_cmd \n";
           print PBS "$conv_cmd \n";
           close(PBS);
@@ -410,7 +409,6 @@ for my $curr_runnu (keys %evg_probepdg_hash)  {
           print LSF "#BSUB-e $fntemplate.lsferr.log \n";
           print LSF "source $genie_setup \n"; 
           print LSF "cd $jobs_dir \n";
-          print LSF "export GSEED=$curr_seed \n";
           print LSF "$evgen_cmd \n";
           print LSF "$conv_cmd \n";
           close(LSF);
@@ -419,7 +417,7 @@ for my $curr_runnu (keys %evg_probepdg_hash)  {
 
        # no batch system, run jobs interactively
        if($batch_system eq 'none') {
-          system("source $genie_setup; cd $jobs_dir; export GSEED=$curr_seed; $evgen_cmd; $conv_cmd");
+          system("source $genie_setup; cd $jobs_dir; $evgen_cmd; $conv_cmd");
        } # interactive mode
 
     } # loop over subruns

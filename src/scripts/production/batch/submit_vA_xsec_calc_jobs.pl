@@ -81,7 +81,7 @@ mkpath ($jobs_dir, {verbose => 1, mode=>0777});
 while( my ($tgt_name, $tgt_code) = each %targets ) {
 
     $fntemplate = "$jobs_dir/job_$tgt_name";
-    $cmd = "gmkspl -p $neutrinos -t $tgt_code -n $nkots -e $emax -o gxspl_$tgt_name.xml &> $fntemplate.mkspl.log";
+    $cmd = "gmkspl -p $neutrinos -t $tgt_code -n $nkots -e $emax --input-cross-sections $freenucsplines --output-cross-sections gxspl_$tgt_name.xml &> $fntemplate.mkspl.log";
     print "@@ exec: $cmd \n";
 
     #
@@ -98,7 +98,6 @@ while( my ($tgt_name, $tgt_code) = each %targets ) {
         print PBS "#PBS -e $fntemplate.pbserr.log \n";
 	print PBS "source $genie_setup \n";
 	print PBS "cd $jobs_dir \n";
-	print PBS "export GSPLOAD=$freenucsplines\n";
 	print PBS "$cmd \n";
         close(PBS);
 	`qsub -q $queue $batch_script`;
@@ -114,7 +113,6 @@ while( my ($tgt_name, $tgt_code) = each %targets ) {
         print LSF "#BSUB-e $fntemplate.lsferr.log \n";
 	print LSF "source $genie_setup \n";
 	print LSF "cd $jobs_dir \n";
-	print LSF "export GSPLOAD=$freenucsplines\n";
 	print LSF "$cmd \n";
         close(LSF);
 	`bsub < $batch_script`;
