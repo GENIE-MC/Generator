@@ -239,6 +239,15 @@ bool GSimpleNtpFlux::GenerateNext_weighted(void)
     // Make sure that the appropriate list of flux neutrino species was set at
     // initialization via GSimpleNtpFlux::SetFluxParticles(const PDGCodeList &)
 
+    // update the # POTs, sum of weights & number of neutrinos 
+    // do this HERE (before rejecting flavors that users might be weeding out)
+    // in order to keep the POT accounting correct.  This allows one to get
+    // the right normalization for generating only events from the intrinsic
+    // nu_e entries.
+    fAccumPOTs += fEffPOTsPerNu;
+    fSumWeight += this->Weight();
+    fNNeutrinos++;
+
     if ( ! fPdgCList->ExistsInPDGCodeList(fCurEntry->pdg) ) {
       /// user might modify list via SetFluxParticles() in order to reject certain
       /// flavors, even if they're found in the file.  So don't make a big fuss.
@@ -291,11 +300,6 @@ bool GSimpleNtpFlux::GenerateNext_weighted(void)
     assert(0);
   }
 
-  // update the # POTs, sum of weights & number of neutrinos 
-  fAccumPOTs += fEffPOTsPerNu;
-  fSumWeight += this->Weight();
-  fNNeutrinos++;
-
   return true;
 }
 //___________________________________________________________________________
@@ -320,7 +324,15 @@ void GSimpleNtpFlux::MoveToZ0(double z0usr)
   }
 
   double scale = (z0usr - fX4.Z()) / pzusr; 
+  //LOG("Flux",pDEBUG) 
+  //  << "MoveToZ0: before x4=(" << fX4.X() << "," << fX4.Y() << "," << fX4.Z()
+  //  << ") z0=" << z0usr << " pzusr=" << pzusr
+  //  << " p4=(" << fP4.Px() << "," << fP4.Py() << "," << fP4.Pz() << ")";
   fX4 += (scale*fP4);
+  //LOG("Flux",pDEBUG)
+  //  << "MoveToZ0: after (" << fX4.X() << "," << fX4.Y() << "," << fX4.Z()
+  //  << ")";
+
   // this scaling works for distances, but not the time component
   fX4.SetT(0);
 
