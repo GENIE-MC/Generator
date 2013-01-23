@@ -7,24 +7,25 @@
          plain text, XML or bare-ROOT formats.
 
          Syntax:
-           gntpc -i input_file [-o output_file] -f format [-n nev] [-v vrs] [-c]
+           gntpc -i input_file [-o output_file] -f format [-n nev] [-v vrs] [-c] [--seed]
 
          Options :
 
            [] denotes an optional argument
 
-           -n number of events to convert 
+           -n 
+              Number of events to convert 
               (optional, default: convert all events)
-
-           -v output format version, if multiple versions are supported
+           -v 
+              Output format version, if multiple versions are supported
               (optional, default: use latest version of each format)
-
-           -c copy MC job metadata (gconfig and genv TFolders) from the input GHEP file.
-
-           -f is a string that specifies the output file format. 
-
-	      >> Generic formats
-
+           -c 
+              Copy MC job metadata (gconfig and genv TFolders) from the input GHEP file.
+           -f 
+              A string that specifies the output file format. 
+              >>
+	      >> Generic formats:
+              >>
                * `gst': 
                     The 'definite' GENIE summary tree format (gst).
    	       * `gxml': 
@@ -37,9 +38,9 @@
    	       * `rootracker_mock_data': 
                      As the `rootracker' format but hiddes all information
                      except the final state particles.
-
-	      >> Experiment-specific formats
-
+              >>
+	      >> Experiment-specific formats:
+              >>
    	       * `t2k_rootracker':
                      A variance of the `rootracker' format used by the nd280, INGRID and 2km. 
                      Includes, in addition, JPARC flux pass-through info.
@@ -56,21 +57,21 @@
                           propaged by SKDETSIM to the DSTs, is identical with the 
                           one used at the near detectors and can be used for 
                           global systematic studies.
-
-	      >> GENIE test / cross-generator comparison formats
-
+              >>
+	      >> GENIE test / cross-generator comparison formats:
+              >>
    	       * `ghad': 
 	             NEUGEN-style text-based format for hadronization studies
    	       * `ginuke': 
 	             A summary ntuple for intranuclear-rescattering studies using simulated
                      hadron-nucleus samples
-
-	      >> Other (depreciated) formats
-
+              >>
+	      >> Other (depreciated) formats:
+              >>
    	       * `nuance_tracker': 
    		     NUANCE-style tracker text-based format 
-
-           -o specifies the output filename. 
+           -o  
+              Specifies the output filename. 
               If not specified a the default filename is constructed by the 
               input base name and an extension depending on the file format: 
                `gst'                  -> *.gst.root
@@ -84,6 +85,8 @@
                `nuance_tracker'       -> *.gtrac_legacy.dat
                `ghad'                 -> *.ghad.dat
                `ginuke'               -> *.ginuke.root
+           --seed
+              Random number seed.
 		
          Examples:
            (1)  shell% gntpc -i myfile.ghep.root -f t2k_rootracker
@@ -199,6 +202,7 @@ GNtpcFmt_t gOptOutFileFormat;       ///< output file format id
 int        gOptVersion;             ///< output file format version
 Long64_t   gOptN;                   ///< number of events to process
 bool       gOptCopyJobMeta = false; ///< copy MC job metadata (gconfig, genv TFolders)
+long int   gOptRanSeed;             ///< random number seed
 
 //genie version used to generate the input event file 
 int gFileMajorVrs = -1;
@@ -210,10 +214,15 @@ const int kNPmax = 100;
 //____________________________________________________________________________________
 int main(int argc, char ** argv)
 {
-  //-- get the command line arguments
+  // Get the command line arguments
   GetCommandLineArgs(argc, argv);
 
-  //-- call the appropriate conversion function
+  // Set random number seed, if a value was set
+  if(gOptRanSeed > 0) {
+    RandomGen::Instance()->SetSeed(gOptRanSeed);
+  }
+
+  // Call the appropriate conversion function
   switch(gOptOutFileFormat) {
 
    case (kConvFmt_gst)  :
@@ -2929,6 +2938,23 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   // check whether to copy MC job metadata (only if output file is in ROOT format)
   gOptCopyJobMeta = parser.OptionExists('c');
+
+  // random number seed
+  if( parser.OptionExists("seed") ) {
+    LOG("gntpc", pINFO) << "Reading random number seed";
+    gOptRanSeed = parser.ArgAsLong("seed");
+  } else {
+    LOG("gntpc", pINFO) << "Unspecified random number seed - Using default";
+    gOptRanSeed = -1;
+  }
+
+  LOG("gntpc", pNOTICE) << "Input filename  = " << gOptInpFileName;
+  LOG("gntpc", pNOTICE) << "Output filename = " << gOptOutFileName;
+  LOG("gntpc", pNOTICE) << "Conversion to format = " << gOptRanSeed 
+                        << ", vrs = " << gOptVersion;
+  LOG("gntpc", pNOTICE) << "Number of events to be converted = " << gOptN;
+  LOG("gntpc", pNOTICE) << "Copy metadata? = " << ((gOptCopyJobMeta) ? "Yes" : "No");
+  LOG("gntpc", pNOTICE) << "Random number seed = " << gOptRanSeed;
 }
 //____________________________________________________________________________________
 string DefaultOutputFile(void)

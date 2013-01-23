@@ -20,15 +20,25 @@
          Syntax :
            gmxpl -f geom_file [-L length_units] [-D density_units] 
                  [-t top_vol_name] [-o output_xml_file] [-n np] [-r nr]
+                 [-seed random_number_seed]
 
          Options :
-           -f  a ROOT file containing a ROOT/GEANT geometry description
-           -L  geometry length units       [ default: mm ]
-           -D  geometry density units      [ default: gr/cm3 ]
-           -t  top volume name             [ default: "" ]
-           -n  n scanning points / surface [ default: see geom driver's defaults ]
-           -r  n scanning rays / point     [ default: see geom driver's defaults ]
-           -o  output XML filename         [ default: maxpl.xml ]
+           -f  
+              A ROOT file containing a ROOT/GEANT geometry description
+           -L  
+               Geometry length units [ default: mm ]
+           -D  
+               Geometry density units [ default: gr/cm3 ]
+           -t  
+               Top volume name [ default: "" ]
+           -n  
+               Number of  scanning points / surface [ default: see geom driver's defaults ]
+           -r  
+               Number of scanning rays / point [ default: see geom driver's defaults ]
+           -o  
+               Name of output XML file [ default: maxpl.xml ]
+           --seed 
+               Random number seed.
 
          Example:
 
@@ -62,39 +72,47 @@
 #include "EVGDrivers/PathLengthList.h"
 #include "Geo/ROOTGeomAnalyzer.h"
 #include "Messenger/Messenger.h"
+#include "Numerical/RandomGen.h"
 #include "Utils/CmdLnArgParser.h"
 #include "Utils/UnitUtils.h"
+#include "Utils/PrintUtils.h"
 
 using std::string;
 
 using namespace genie;
 using namespace genie::geometry;
 
-//Prototypes:
+// Prototypes:
 void GetCommandLineArgs (int argc, char ** argv);
 void PrintSyntax        (void);
 
-//Defaults for optional options:
+// Defaults for optional options:
 string kDefOptXMLFilename  = "maxpl.xml"; // default output xml filename
 string kDefOptGeomLUnits   = "mm";        // default geometry length units
 string kDefOptGeomDUnits   = "g_cm3";     // default geometry density units
 
-//User-specified options:
-string gOptGeomFilename    = "";          // input geometry file
-string gOptXMLFilename     = "";          // input xml filename
-string gOptRootGeomTopVol  = "";          // input root geometry top vol name
-double gOptGeomLUnits      = 0;           // input geometry length units
-double gOptGeomDUnits      = 0;           // input geometry density units
-int    gOptNPoints         = -1;          // input number of points / surf
-int    gOptNRays           = -1;          // input number of rays / point
+// User-specified options:
+string    gOptGeomFilename    = "";          // input geometry file
+string    gOptXMLFilename     = "";          // input xml filename
+string    gOptRootGeomTopVol  = "";          // input root geometry top vol name
+double    gOptGeomLUnits      = 0;           // input geometry length units
+double    gOptGeomDUnits      = 0;           // input geometry density units
+int       gOptNPoints         = -1;          // input number of points / surf
+int       gOptNRays           = -1;          // input number of rays / point
+long int  gOptRanSeed         = -1;          // random number seed
 
 //____________________________________________________________________________
 int main(int argc, char ** argv)
 {
-  //-- parse command line arguments
+  // Parse command line arguments
   GetCommandLineArgs(argc,argv);
 
-  //-- create the geometry driver
+  // Set random number seed, if a value was set
+  if(gOptRanSeed > 0) {
+    RandomGen::Instance()->SetSeed(gOptRanSeed);
+  }
+
+  // Create the geometry driver
   LOG("gmxpl", pINFO)
      << "Creating/configuring a ROOT geom. driver";
 
@@ -103,24 +121,25 @@ int main(int argc, char ** argv)
   geom -> SetDensityUnits      (gOptGeomDUnits);
   geom -> SetWeightWithDensity (true);
 
-  //-- set the top volume name
+  // Set the top volume name
   geom -> SetTopVolName        (gOptRootGeomTopVol);
   geom -> SetWeightWithDensity (true);
 
   if(gOptNPoints > 0) geom->SetScannerNPoints(gOptNPoints);
   if(gOptNRays   > 0) geom->SetScannerNRays  (gOptNRays);
 
-  //-- compute the maximum path lengths
+  // Compute the maximum path lengths
   LOG("gmxpl", pINFO)
-            << "Asking input GeomAnalyzerI for the max path-lengths";
+      << "Asking input GeomAnalyzerI for the max path-lengths";
   const PathLengthList & plmax = geom->ComputeMaxPathLengths();
 
-  //-- print & save the maximum path lengths in XML format
+  // Print & save the maximum path lengths in XML format
   LOG("gmxpl", pINFO)
-            << "Maximum path lengths: " << plmax;
+      << "Maximum path lengths: " << plmax;
   plmax.SaveAsXml(gOptXMLFilename);
 
   delete geom;
+
   return 0;
 }
 //____________________________________________________________________________
@@ -130,7 +149,7 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   CmdLnArgParser parser(argc,argv);
 
-  // output XML file name:
+  // output XML file name
   if( parser.OptionExists('o') ) {
     LOG("gmxpl", pDEBUG) << "Reading output filename";
     gOptXMLFilename = parser.ArgAsString('o');
@@ -140,7 +159,7 @@ void GetCommandLineArgs(int argc, char ** argv)
     gOptXMLFilename = kDefOptXMLFilename;
   } // -o
 
-  // legth & density units:
+  // legth & density units
   string lunits, dunits;
   if( parser.OptionExists('L') ) {
     LOG("gmxpl", pDEBUG) << "Checking for input geometry length units";
@@ -159,7 +178,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   gOptGeomLUnits = genie::utils::units::UnitFromString(lunits);
   gOptGeomDUnits = genie::utils::units::UnitFromString(dunits);
 
-  // root geometry top volume name:
+  // root geometry top volume name
   if( parser.OptionExists('t') ) {
     LOG("gmxpl", pDEBUG) 
        << "Reading root geometry top volume name";
@@ -190,7 +209,7 @@ void GetCommandLineArgs(int argc, char ** argv)
       << "Unspecified number of rays - Using driver's default";
   } //-r
 
-  // input geometry file:
+  // input geometry file
   if( parser.OptionExists('f') ) {
     LOG("gmxpl", pDEBUG) 
        << "Reading ROOT/GEANT geometry filename";
@@ -202,14 +221,27 @@ void GetCommandLineArgs(int argc, char ** argv)
     exit(1);
   } //-f
 
+  // random number seed
+  if( parser.OptionExists("seed") ) {
+    LOG("gmxpl", pINFO) << "Reading random number seed";
+    gOptRanSeed = parser.ArgAsLong("seed");
+  } else {
+    LOG("gmxpl", pINFO) << "Unspecified random number seed - Using default";
+    gOptRanSeed = -1;
+  }
+
   // print the command line arguments
-  LOG("gmxpl", pINFO) << "Command line arguments:";
-  LOG("gmxpl", pINFO) << "Input ROOT geometry     = " << gOptGeomFilename;
-  LOG("gmxpl", pINFO) << "Output XML file         = " << gOptXMLFilename;
-  LOG("gmxpl", pINFO) << "Geometry length units   = " << gOptGeomLUnits;
-  LOG("gmxpl", pINFO) << "Geometry density units  = " << gOptGeomDUnits;
-  LOG("gmxpl", pINFO) << "Scanner points/surface  = " << gOptNPoints;
-  LOG("gmxpl", pINFO) << "Scanner rays/point      = " << gOptNRays;
+  LOG("gmxpl", pNOTICE)
+     << "\n\n"
+     << utils::print::PrintFramedMesg("gmxpl job inputs");
+  LOG("gmxpl", pINFO) << "Command line arguments";
+  LOG("gmxpl", pINFO) << "Input ROOT geometry     : " << gOptGeomFilename;
+  LOG("gmxpl", pINFO) << "Output XML file         : " << gOptXMLFilename;
+  LOG("gmxpl", pINFO) << "Geometry length units   : " << gOptGeomLUnits;
+  LOG("gmxpl", pINFO) << "Geometry density units  : " << gOptGeomDUnits;
+  LOG("gmxpl", pINFO) << "Scanner points/surface  : " << gOptNPoints;
+  LOG("gmxpl", pINFO) << "Scanner rays/point      : " << gOptNRays;
+  LOG("gmxpl", pINFO) << "Random number seed      : " << gOptRanSeed;
 }
 //____________________________________________________________________________
 void PrintSyntax(void)
@@ -221,6 +253,7 @@ void PrintSyntax(void)
       << " [-L length_units]"
       << " [-D density_units]" 
       << " [-t top_volume_name]"
-      << " [-o output_xml_file]";
+      << " [-o output_xml_file]"
+      << " [-seed random_number_seed]";
 }
 //____________________________________________________________________________

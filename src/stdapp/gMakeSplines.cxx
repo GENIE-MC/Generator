@@ -10,27 +10,40 @@
          command line or extracted from the input ROOT/GEANT geometry.
 
          Syntax :
-           gmkspl -p nupdg <-t tgtpdg, -f geomfile> [-o output_xml_file]
-                  [-n nknots] [-e max_energy]
+           gmkspl -p nupdg <-t target_pdg_codes, -f geometry_file> 
+                  <-o | --output-cross-sections> output_xml_xsec_file
+                  [-n nknots] [-e max_energy] [--seed random_number_seed] 
+                  [--input-cross-sections input_xml_xsec_file]
          Note :
            [] marks optional arguments.
            <> marks a list of arguments out of which only one can be 
               selected at any given time.
 
          Options :
-           -p  A comma separated list of nu PDG codes.
-           -t  A comma separated list of tgt PDG codes. 
+           -p  
+               A comma separated list of nu PDG codes.
+           -t  
+               A comma separated list of tgt PDG codes. 
                PDG code format: 10LZZZAAAI
-           -f  A ROOT file containing a ROOT/GEANT geometry description.
-           -o  Output XML filename.
+           -f  
+               A ROOT file containing a ROOT/GEANT geometry description.
+           -o, --output-cross-sections  
+               Name of output XML file containing computed cross-section data.
                Default: `xsec_splines.xml'.
-           -n  Number of knots per spline.
+           -n  
+               Number of knots per spline.
                Default: 15 knots per decade of energy range with a minimum 
                of 30 knots totally.
-           -e  Maximum energy in spline.
+           -e  
+               Maximum energy in spline.
                Default: The max energy in the validity range of the spline 
                generating thread.
-
+           --seed
+              Random number seed.
+           --input-cross-sections
+              Name (incl. full path) of an XML file with pre-computed
+              free-nucleon cross-section values. If loaded, it can speed-up
+              cross-section calculation for nuclear targets.
 
         ***  See the User Manual for more details and examples. ***
 
@@ -57,10 +70,12 @@
 #include "EVGDrivers/GEVGDriver.h"
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
+#include "Numerical/RandomGen.h"
 #include "PDG/PDGCodeList.h"
 #include "Utils/StringUtils.h"
 #include "Utils/XSecSplineList.h"
 #include "Utils/CmdLnArgParser.h"
+#include "Utils/SystemUtils.h"
 
 #ifdef __GENIE_GEOM_DRIVERS_ENABLED__
 #include "Geo/ROOTGeomAnalyzer.h"
@@ -75,34 +90,56 @@ using namespace genie;
 using namespace genie::geometry;
 #endif
 
-//Prototypes:
+// Prototypes:
 void          GetCommandLineArgs (int argc, char ** argv);
 void          PrintSyntax        (void);
 PDGCodeList * GetNeutrinoCodes   (void);
 PDGCodeList * GetTargetCodes     (void);
 
-//Defaults for optional options:
-string kDefOptXMLFilename = "xsec_splines.xml";
-
-//User-specified options:
-string gOptNuPdgCodeList  = "";
-string gOptTgtPdgCodeList = "";
-string gOptGeomFilename   = "";
-string gOptXMLFilename    = "";
-int    gOptNKnots         = -1;
-double gOptMaxE           = -1.;
+// User-specified options:
+string   gOptNuPdgCodeList  = "";
+string   gOptTgtPdgCodeList = "";
+string   gOptGeomFilename   = "";
+int      gOptNKnots         = -1;
+double   gOptMaxE           = -1.;
+long int gOptRanSeed        = -1;   // random number seed
+string   gOptInpXSecFile    = "";   // input cross-section file
+string   gOptOutXSecFile    = "";   // output cross-section file
 
 //____________________________________________________________________________
 int main(int argc, char ** argv)
 {
-  //-- parse command line arguments
+  // Parse command line arguments
   GetCommandLineArgs(argc,argv);
 
-  //-- get spline list 
-  //  (& autoload splines specified in $GSPLOAD in case free nucleon cross
-  //   sections are recycled for nuclear targets))
-  XSecSplineList * spline_list = XSecSplineList::Instance();
-  spline_list->AutoLoad();
+  // Set random number seed, if a value was set
+  if(gOptRanSeed > 0) {
+    RandomGen::Instance()->SetSeed(gOptRanSeed);
+  }
+
+  // Load input cross-sections, if any 
+  XSecSplineList * xspl = XSecSplineList::Instance();
+  if(utils::system::FileExists(gOptInpXSecFile)) {
+    XmlParserStatus_t status = xspl->LoadFromXml(gOptInpXSecFile);
+    if(status != kXmlOK) {
+      LOG("gmkspl", pFATAL)
+         << "Problem reading file: " << gOptInpXSecFile;
+       gAbortingInErr = true;
+       exit(1);
+    }
+  } else {
+    if(gOptInpXSecFile.size() > 0) {
+       LOG("gmkspl", pFATAL)
+          << "Input cross-section file ["
+          << gOptInpXSecFile << "] does not exist!";
+       gAbortingInErr = true;
+       exit(1);
+     } else {
+       LOG("gmkspl", pDEBUG) << "No cross-section file was specified in gmkspl inputs";
+     }
+  }
+
+  // Get list of neutrinos and nuclear targets
 
   PDGCodeList * neutrinos = GetNeutrinoCodes();
   PDGCodeList * targets   = GetTargetCodes();
@@ -121,28 +158,25 @@ int main(int argc, char ** argv)
   LOG("gmkspl", pINFO) << "Neutrinos: " << *neutrinos;
   LOG("gmkspl", pINFO) << "Targets: "   << *targets;
 
-  //-- loop over all possible input init states and ask the GEVGDriver
-  //   to build splines for all the interactions that its loaded list
-  //   of event generators can generate.
+  // Loop over all possible input init states and ask the GEVGDriver
+  // to build splines for all the interactions that its loaded list
+  // of event generators can generate.
 
   PDGCodeList::const_iterator nuiter;
   PDGCodeList::const_iterator tgtiter;
-
   for(nuiter = neutrinos->begin(); nuiter != neutrinos->end(); ++nuiter) {
     for(tgtiter = targets->begin(); tgtiter != targets->end(); ++tgtiter) {
-
       int nupdgc  = *nuiter;
       int tgtpdgc = *tgtiter;
       InitialState init_state(tgtpdgc, nupdgc);
-
       GEVGDriver driver;
       driver.Configure(init_state);
       driver.CreateSplines(gOptNKnots, gOptMaxE);
     }
   }
 
-  //-- save the splines at the requested XML file
-  spline_list->SaveAsXml(gOptXMLFilename);
+  // Save the splines at the requested XML file
+  xspl->SaveAsXml(gOptOutXSecFile);
 
   delete neutrinos;
   delete targets;
@@ -156,18 +190,23 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   CmdLnArgParser parser(argc,argv);
 
-  //-- Optional arguments
-
-  // output XML file name:
-  if( parser.OptionExists('o') ) {
+  // output XML file name
+  if( parser.OptionExists('o') || 
+      parser.OptionExists("output-cross-sections") ) 
+  {
     LOG("gmkspl", pINFO) << "Reading output filename";
-    gOptXMLFilename = parser.ArgAsString('o');
+    if( parser.OptionExists('o') ) { 
+      gOptOutXSecFile = parser.ArgAsString('o'); 
+    }
+    else { 
+      gOptOutXSecFile = parser.ArgAsString("output-cross-sections"); 
+    }
   } else {
     LOG("gmkspl", pINFO) << "Unspecified filename - Using default";
-    gOptXMLFilename = kDefOptXMLFilename;
+    gOptOutXSecFile = "xsec_splines.xml";
   }
 
-  // number of knots:
+  // number of knots
   if( parser.OptionExists('n') ) {
     LOG("gmkspl", pINFO) << "Reading number of knots/spline";
     gOptNKnots = parser.ArgAsInt('n');
@@ -187,9 +226,7 @@ void GetCommandLineArgs(int argc, char ** argv)
     gOptMaxE = -1;
   }
 
-  //-- Required arguments
-
-  // comma-separated neutrino PDG code list:
+  // comma-separated neutrino PDG code list
   if( parser.OptionExists('p') ) {
     LOG("gmkspl", pINFO) << "Reading neutrino PDG codes";
     gOptNuPdgCodeList = parser.ArgAsString('p');
@@ -200,7 +237,7 @@ void GetCommandLineArgs(int argc, char ** argv)
     exit(1);
   }
 
-  // comma-separated target PDG code list or input geometry file:
+  // comma-separated target PDG code list or input geometry file
   bool tgt_cmd = true;
   if( parser.OptionExists('t') ) {
     LOG("gmkspl", pINFO) << "Reading target nuclei PDG codes";
@@ -221,14 +258,12 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   bool both =  tgt_geom &&  tgt_cmd;
   bool none = !tgt_geom && !tgt_cmd;
-
   if(none) {
     LOG("gmkspl", pFATAL) 
           << "No geom file or cmd line target list was specified - Exiting";
     PrintSyntax();
     exit(1);
   }
-
   if(both) {
     LOG("gmkspl", pFATAL) 
        << "You specified both a geom file and a cmd line target list "
@@ -237,19 +272,42 @@ void GetCommandLineArgs(int argc, char ** argv)
     exit(1);
   }
 
+  // random number seed
+  if( parser.OptionExists("seed") ) {
+    LOG("gmkspl", pINFO) << "Reading random number seed";
+    gOptRanSeed = parser.ArgAsLong("seed");
+  } else {
+    LOG("gmkspl", pINFO) << "Unspecified random number seed - Using default";
+    gOptRanSeed = -1;
+  }
+
+  // input cross-section file
+  if( parser.OptionExists("input-cross-sections") ) {
+    LOG("gmkspl", pINFO) << "Reading cross-section file";
+    gOptInpXSecFile = parser.ArgAsString("input-cross-sections");
+  } else {
+    LOG("gmkspl", pINFO) << "Unspecified input cross-section file";
+    gOptInpXSecFile = "";
+  }
+
+
   //-- print the options you got from command line arguments
-  LOG("gmkspl", pINFO) << "Neutrino PDG codes  = " << gOptNuPdgCodeList;
-  LOG("gmkspl", pINFO) << "Target PDG codes    = " << gOptTgtPdgCodeList;
-  LOG("gmkspl", pINFO) << "Input ROOT geometry = " << gOptGeomFilename;
-  LOG("gmkspl", pINFO) << "Output XML file     = " << gOptXMLFilename;
+  LOG("gmkspl", pINFO) << "Neutrino PDG codes        : " << gOptNuPdgCodeList;
+  LOG("gmkspl", pINFO) << "Target PDG codes          : " << gOptTgtPdgCodeList;
+  LOG("gmkspl", pINFO) << "Input ROOT geometry       : " << gOptGeomFilename;
+  LOG("gmkspl", pINFO) << "Output cross-section file : " << gOptOutXSecFile;
+  LOG("gmkspl", pINFO) << "Input cross-section file  : " << gOptInpXSecFile;
+  LOG("gmkspl", pINFO) << "Random number seed        : " << gOptRanSeed;
 }
 //____________________________________________________________________________
 void PrintSyntax(void)
 {
   LOG("gmkspl", pNOTICE)
     << "\n\n" << "Syntax:" << "\n"
-    << "   gmkspl -p nupdg <-t tgtpdg, -f geomfile> [-o output_xml]"
-    << " [-n nknots] [-e max_energy]";
+    << "   gmkspl -p nupdg <-t tgtpdg, -f geomfile> "
+    << " <-o | --output-cross-section> xsec_xml_file_name"
+    << " [-n nknots] [-e max_energy] [--seed seed_number]"
+    << " [--input-cross-section xsec_xml_file_name]";
 }
 //____________________________________________________________________________
 PDGCodeList * GetNeutrinoCodes(void)

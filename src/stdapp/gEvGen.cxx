@@ -16,8 +16,9 @@
          detector geometry descriptions see in $GENIE/src/support/.
 
          Syntax :
-           gevgen [-h] -n nev -e E -p nupdg -t tgtpdg [-r run#] 
-                  [-f flux] [-w] [--seed] [--cross-sections]
+           gevgen [-h] -n nev -e E -p neutrino_pdg -t target_pdg [-r run#] 
+                  [-f flux] [-w] [--seed random_number_seed] 
+                  --cross-sections input_cross_section_file
 
          Options :
            [] Denotes an optional argument.
@@ -62,8 +63,8 @@
            --seed
               Random number seed.
            --cross-sections
-              File-name (incl. full path) of an XML file with pre-computed
-              cross-section splines
+              Name (incl. full path) of an XML file with pre-computed
+              cross-section values used for constructing splines.
 
 	***  See the User Manual for more details and examples. ***
 
@@ -161,7 +162,7 @@ string          gOptFlux;         //
 bool            gOptWeighted;     // 
 bool            gOptUsingFluxOrTgtMix = false;
 long int        gOptRanSeed;      // random number seed
-string          gOptXSecSplines;  // cross-section splines
+string          gOptInpXSecFile;  // cross-section splines
 
 //____________________________________________________________________________
 int main(int argc, char ** argv)
@@ -197,20 +198,20 @@ void Initialize(void)
   }
 
   // Load cross-section splines
-  if(utils::system::FileExists(gOptXSecSplines)) {
+  if(utils::system::FileExists(gOptInpXSecFile)) {
     XSecSplineList * xspl = XSecSplineList::Instance();
-    XmlParserStatus_t status = xspl->LoadFromXml(gOptXSecSplines);
+    XmlParserStatus_t status = xspl->LoadFromXml(gOptInpXSecFile);
     if(status != kXmlOK) {
       LOG("gevgen", pFATAL) 
-         << "Problem reading file: " << gOptXSecSplines;
+         << "Problem reading file: " << gOptInpXSecFile;
        gAbortingInErr = true;
        exit(1);
     }
   } else {
-    if(gOptXSecSplines.size() > 0) {
+    if(gOptInpXSecFile.size() > 0) {
        LOG("gevgen", pFATAL) 
           << "Input cross-section file [" 
-          << gOptXSecSplines << "] does not exist!";
+          << gOptInpXSecFile << "] does not exist!";
        gAbortingInErr = true;
        exit(1);
      } else {
@@ -219,12 +220,6 @@ void Initialize(void)
      }
   }
 
-/*
-  // Autoload splines (from the XML file pointed at the $GSPLOAD env. var.,
-  // if the env. var. has been set)
-  XSecSplineList * xspl = XSecSplineList::Instance();
-  xspl->AutoLoad();
-*/
 }
 //____________________________________________________________________________
 void GenerateEventsAtFixedInitState(void)
@@ -234,32 +229,25 @@ void GenerateEventsAtFixedInitState(void)
   double Ev    = gOptNuEnergy;
   TLorentzVector nu_p4(0.,0.,Ev,Ev); // px,py,pz,E (GeV)
 
-  //-- Create init state
+  // Create init state
   InitialState init_state(target, neutrino);
 
-  //-- Create/config event generation driver 
+  // Create/config event generation driver 
   GEVGDriver evg_driver;
   evg_driver.Configure(init_state);
 
-/*
-  //-- If splines are used, then create any spline that is needed but is not
-  //   already loaded (can built them all here if no spline at all is loaded)
-  if(gOptBuildSplines) 
-	evg_driver.CreateSplines();
-*/
-
-  //-- initialize an Ntuple Writer
+  // Initialize an Ntuple Writer
   NtpWriter ntpw(kDefOptNtpFormat, gOptRunNu);
   ntpw.Initialize();
 
-  //-- create an MC Job Monitor
+  // Create an MC Job Monitor
   GMCJMonitor mcjmonitor(gOptRunNu);
 
   LOG("gevgen", pNOTICE) 
     << "\n ** Will generate " << gOptNevents << " events for \n" 
     << init_state << " at Ev = " << Ev << " GeV";
 
-  //-- generate events / print the GHEP record / add it to the ntuple
+  // Generate events / print the GHEP record / add it to the ntuple
   int ievent = 0;
   while (ievent < gOptNevents) {
      LOG("gevgen", pNOTICE) 
@@ -284,7 +272,7 @@ void GenerateEventsAtFixedInitState(void)
      delete event;
   }
 
-  //-- save the generated MC events
+  // Save the generated MC events
   ntpw.Save();
 }
 //____________________________________________________________________________
@@ -293,11 +281,11 @@ void GenerateEventsAtFixedInitState(void)
 //............................................................................
 void GenerateEventsUsingFluxOrTgtMix(void)
 {
-  //-- get flux and geom drivers
+  // Get flux and geom drivers
   GFluxI *        flux_driver = FluxDriver();
   GeomAnalyzerI * geom_driver = GeomDriver();
 
-  //-- create the monte carlo job driver
+  // Create the monte carlo job driver
   GMCJDriver * mcj_driver = new GMCJDriver;
   mcj_driver->UseFluxDriver(flux_driver);
   mcj_driver->UseGeomAnalyzer(geom_driver);
@@ -306,14 +294,14 @@ void GenerateEventsUsingFluxOrTgtMix(void)
   if(!gOptWeighted) 
 	mcj_driver->ForceSingleProbScale();
 
-  //-- initialize an Ntuple Writer to save GHEP records into a TTree
+  // Initialize an Ntuple Writer to save GHEP records into a TTree
   NtpWriter ntpw(kDefOptNtpFormat, gOptRunNu);
   ntpw.Initialize();
 
-  //-- create an MC Job Monitor
+  // Create an MC Job Monitor
   GMCJMonitor mcjmonitor(gOptRunNu);
 
-  //-- generate events / print the GHEP record / add it to the ntuple
+  // Generate events / print the GHEP record / add it to the ntuple
   int ievent = 0;
   while ( ievent < gOptNevents) {
 
@@ -331,7 +319,7 @@ void GenerateEventsUsingFluxOrTgtMix(void)
      delete event;
   }
 
-  //-- save the generated MC events
+  // Save the generated MC events
   ntpw.Save();
 
   delete flux_driver;
@@ -503,7 +491,7 @@ void GetCommandLineArgs(int argc, char ** argv)
       exit(0);
   }
 
-  // number of events:
+  // number of events
   if( parser.OptionExists('n') ) {
     LOG("gevgen", pINFO) << "Reading number of events to generate";
     gOptNevents = parser.ArgAsInt('n');
@@ -513,7 +501,7 @@ void GetCommandLineArgs(int argc, char ** argv)
     gOptNevents = kDefOptNevents;
   }
 
-  // run number:
+  // run number
   if( parser.OptionExists('r') ) {
     LOG("gevgen", pINFO) << "Reading MC run number";
     gOptRunNu = parser.ArgAsLong('r');
@@ -522,7 +510,7 @@ void GetCommandLineArgs(int argc, char ** argv)
     gOptRunNu = kDefOptRunNu;
   }
 
-  // flux functional form:
+  // flux functional form
   bool using_flux = false;
   if( parser.OptionExists('f') ) {
     LOG("gevgen", pINFO) << "Reading flux function";
@@ -530,10 +518,6 @@ void GetCommandLineArgs(int argc, char ** argv)
     using_flux = true;
   }
 
-/*
-  // spline building option
-  gOptBuildSplines = parser.OptionExists('s');
-*/
   if(parser.OptionExists('s')) {
     LOG("gevgen", pWARN) 
       << "-s option no longer available. Please read the revised code documentation";
@@ -545,7 +529,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   // generate weighted events option (only relevant if using a flux)
   gOptWeighted = parser.OptionExists('w');
 
-  // neutrino energy:
+  // neutrino energy
   if( parser.OptionExists('e') ) {
     LOG("gevgen", pINFO) << "Reading neutrino energy";
     string nue = parser.ArgAsString('e');
@@ -577,7 +561,7 @@ void GetCommandLineArgs(int argc, char ** argv)
     exit(1);
   }
 
-  // neutrino PDG code:
+  // neutrino PDG code
   if( parser.OptionExists('p') ) {
     LOG("gevgen", pINFO) << "Reading neutrino PDG code";
     gOptNuPdgCode = parser.ArgAsInt('p');
@@ -587,7 +571,7 @@ void GetCommandLineArgs(int argc, char ** argv)
     exit(1);
   }
 
-  // target mix (their PDG codes with their corresponding weights):
+  // target mix (their PDG codes with their corresponding weights)
   bool using_tgtmix = false;
   if( parser.OptionExists('t') ) {
     LOG("gevgen", pINFO) << "Reading target mix";
@@ -625,7 +609,7 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   gOptUsingFluxOrTgtMix = using_flux || using_tgtmix;
 
-  // random number seed:
+  // random number seed
   if( parser.OptionExists("seed") ) {
     LOG("gevgen", pINFO) << "Reading random number seed";
     gOptRanSeed = parser.ArgAsLong("seed");
@@ -636,10 +620,10 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   if( parser.OptionExists("cross-sections") ) {
     LOG("gevgen", pINFO) << "Reading cross-section file";
-    gOptXSecSplines = parser.ArgAsString("cross-sections");
+    gOptInpXSecFile = parser.ArgAsString("cross-sections");
   } else {
-    LOG("gevgen", pINFO) << "Unspecified cross=section file";
-    gOptXSecSplines = "";
+    LOG("gevgen", pINFO) << "Unspecified cross-section file";
+    gOptInpXSecFile = "";
   }
 
   //
@@ -659,9 +643,9 @@ void GetCommandLineArgs(int argc, char ** argv)
   }
   LOG("gevgen", pNOTICE) 
        << "Number of events requested: " << gOptNevents;
-  if(gOptXSecSplines.size() > 0) {
+  if(gOptInpXSecFile.size() > 0) {
      LOG("gevgen", pNOTICE) 
-       << "Using cross-section splines read from: " << gOptXSecSplines;
+       << "Using cross-section splines read from: " << gOptInpXSecFile;
   } else {
      LOG("gevgen", pNOTICE) 
        << "No input cross-section spline file";
@@ -697,7 +681,8 @@ void PrintSyntax(void)
 {
   LOG("gevgen", pNOTICE)
     << "\n\n" << "Syntax:" << "\n"
-    << "   gevgen [-h] -n nev [-s] -e energy -p nupdg -t tgtmix "
-    << " [-r run#] [-f flux] [-w] [--seed] [--cross-section-splines]\n";
+    << "   gevgen [-h] -n nev -e energy -p neutrino -t target "
+    << " [-r run#] [-f flux] [-w] [--seed random_number_seed]"
+    << " --cross-sections input_cross_section_file\n";
 }
 //____________________________________________________________________________
