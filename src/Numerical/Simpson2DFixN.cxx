@@ -81,7 +81,7 @@ double Simpson2DFixN::Integrate(GSFunc & gsfunc) const
     
     for(unsigned int j=1; j<fNBinsD1-1; j++) {
         r[1] = (fSpacingD1 == kGSpLoge) ? 
-                     TMath::Exp(ymin+j*dy) : ymin + i*dy;
+                     TMath::Exp(ymin+j*dy) : ymin + j*dy;
 
         sum1d[i] += (this->J(r) * gsfunc(r) * (j%2 + 1));
     }//j
