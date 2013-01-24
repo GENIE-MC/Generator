@@ -133,7 +133,6 @@ using namespace genie;
 using namespace genie::controls;
 
 void GetCommandLineArgs (int argc, char ** argv);
-void Initialize         (void);
 void PrintSyntax        (void);
 
 #ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX_OR_TGTMIX__
@@ -170,34 +169,14 @@ int main(int argc, char ** argv)
   // Parse command line arguments
   GetCommandLineArgs(argc,argv);
 
-  // Set seed, cross-section spline file etc
-  Initialize();
-
-  // Generate neutrino events
-  //
-  if(gOptUsingFluxOrTgtMix) {
-#ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX_OR_TGTMIX__
-	GenerateEventsUsingFluxOrTgtMix();
-#else
-  LOG("gevgen", pERROR) 
-    << "\n   To be able to generate neutrino events from a flux and/or a target mix" 
-    << "\n   you need to add the following config options at your GENIE installation:" 
-    << "\n   --enable-flux-drivers  --enable-geom-drivers \n" ;
-#endif
-  } else {
-     GenerateEventsAtFixedInitState();
-  }
-  return 0;
-}
-//____________________________________________________________________________
-void Initialize(void)
-{
   // Set random number seed, if a value was set  
   if(gOptRanSeed > 0) {
     RandomGen::Instance()->SetSeed(gOptRanSeed);
   }
 
   // Load cross-section splines
+  XSecSplineList * xspl = XSecSplineList::Instance();
+  xspl->AutoLoad(); // display warning for usage $GSPLOAD no longer supported
   if(utils::system::FileExists(gOptInpXSecFile)) {
     XSecSplineList * xspl = XSecSplineList::Instance();
     XmlParserStatus_t status = xspl->LoadFromXml(gOptInpXSecFile);
@@ -220,6 +199,23 @@ void Initialize(void)
      }
   }
 
+  //
+  // Generate neutrino events
+  //
+
+  if(gOptUsingFluxOrTgtMix) {
+#ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX_OR_TGTMIX__
+	GenerateEventsUsingFluxOrTgtMix();
+#else
+  LOG("gevgen", pERROR) 
+    << "\n   To be able to generate neutrino events from a flux and/or a target mix" 
+    << "\n   you need to add the following config options at your GENIE installation:" 
+    << "\n   --enable-flux-drivers  --enable-geom-drivers \n" ;
+#endif
+  } else {
+     GenerateEventsAtFixedInitState();
+  }
+  return 0;
 }
 //____________________________________________________________________________
 void GenerateEventsAtFixedInitState(void)
