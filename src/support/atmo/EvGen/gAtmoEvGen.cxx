@@ -281,8 +281,9 @@ int main(int argc, char** argv)
   }
 
   // Load cross-section splines
+  XSecSplineList * xspl = XSecSplineList::Instance();
+  xspl->AutoLoad(); // display warning for usage $GSPLOAD no longer supported
   if(utils::system::FileExists(gOptInpXSecFile)) {
-    XSecSplineList * xspl = XSecSplineList::Instance();
     XmlParserStatus_t status = xspl->LoadFromXml(gOptInpXSecFile);
     if(status != kXmlOK) {
       LOG("gevgen_atmo", pFATAL)
