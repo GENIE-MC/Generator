@@ -5,11 +5,13 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - September 22, 2004
+         STFC, Rutherford Appleton Laboratory
 
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
+ @ Jan 24, 2013 - CA
+   No longer uses the $GSEED variable for setting the random number seed.
 
 */
 //____________________________________________________________________________
@@ -34,8 +36,9 @@ RandomGen::RandomGen()
 {
   LOG("Rndm", pINFO) << "RandomGen late initialization";
 
+  fInitalized = false;
   fInstance = 0;
-
+/*
   // try to get this job's random number seed from the environment
   const char * seed = gSystem->Getenv("GSEED");
   if(seed) {
@@ -45,8 +48,23 @@ RandomGen::RandomGen()
     LOG("Rndm", pINFO) << "Env. var. $GSEED is not set. Using default seed";
     fCurrSeed = kDefaultRandSeed; // default seed number
   }
-
   this->InitRandomGenerators(fCurrSeed);
+*/
+
+  if ( gSystem->Getenv("GSEED") ) {
+    LOG("Rndm", pFATAL) 
+      << "\n\n"
+      << "The random number seed is no longer set via the $GSEED variable.\n"
+      << "Please use the --seed option implemented in all GENIE apps or, if you access RandomGen \n"
+      << "directly in your user code, use RandomGen::SetSeed(long int seed).\n\n";
+    gAbortingInErr = true;
+    exit(1);
+  }
+
+  fCurrSeed = kDefaultRandSeed; // a default seed number is set a init
+  this->InitRandomGenerators(fCurrSeed);
+
+  fInitalized = true;
 }
 //____________________________________________________________________________
 RandomGen::~RandomGen()
@@ -69,7 +87,11 @@ RandomGen * RandomGen::Instance()
 void RandomGen::SetSeed(long int seed)
 {
   LOG("Rndm", pNOTICE)
-     << "Setting random number seed: " << seed;
+     << "Setting"
+     << ((fInitalized) ? " " : " default ")
+     << "random number seed" 
+     << ((fInitalized) ? ": " : " at random number generator initialization: ")
+     << seed;
 
   // Set the seed number for all internal GENIE random number generators
   this->RndKine ().SetSeed(seed);
@@ -108,10 +130,6 @@ void RandomGen::SetSeed(long int seed)
 //____________________________________________________________________________
 void RandomGen::InitRandomGenerators(long int seed)
 {
-  LOG("Rndm", pNOTICE)
-     << "Initializing random number generators "
-     << "(a default seed number used at initialization)";
-
   fRandom3 = new TRandom3();
   this->SetSeed(seed);
 }
