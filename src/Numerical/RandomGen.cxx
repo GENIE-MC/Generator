@@ -54,9 +54,12 @@ RandomGen::RandomGen()
   if ( gSystem->Getenv("GSEED") ) {
     LOG("Rndm", pFATAL) 
       << "\n\n"
+      << "************************************************************************************** \n"
       << "The random number seed is no longer set via the $GSEED variable.\n"
       << "Please use the --seed option implemented in all GENIE apps or, if you access RandomGen \n"
-      << "directly in your user code, use RandomGen::SetSeed(long int seed).\n\n";
+      << "directly in your user code, use RandomGen::SetSeed(long int seed).\n"
+      << "Unset $GSEED to continue running GENIE. \n"
+      << "************************************************************************************** \n";
     gAbortingInErr = true;
     exit(1);
   }
