@@ -91,8 +91,9 @@ private:
 
   static RandomGen * fInstance;
 
-  TRandom3 * fRandom3;   ///< Mersenne Twistor
-  long int   fCurrSeed;  ///< MC job seed number
+  TRandom3 * fRandom3;    ///< Mersenne Twistor
+  long int   fCurrSeed;   ///< random number generator seed number
+  bool       fInitalized; ///< done initializing singleton?
 
   void InitRandomGenerators(long int seed);
 
