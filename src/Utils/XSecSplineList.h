@@ -43,7 +43,7 @@ public:
 
   static XSecSplineList * Instance();
 
-  //-- query the existence, access or create a spline
+  // Query the existence, access or create a spline
   bool           SplineExists (const XSecAlgorithmI * alg, const Interaction * i) const;
   bool           SplineExists (string spline_key) const;
   const Spline * GetSpline    (const XSecAlgorithmI * alg, const Interaction * i) const;
@@ -54,31 +54,31 @@ public:
   const int  NSplines (void) const { return fSplineMap.size();        }
   const bool IsEmpty  (void) const { return (fSplineMap.size() == 0); }
 
-  //-- set XSecSplineList options
+  // Set XSecSplineList options
   void   SetLogE   (bool   on); ///< set opt to build splines as f(E) or as f(logE)
   void   SetNKnots (int    nk); ///< set default number of knots for building the spline
   void   SetMinE   (double Ev); ///< set default minimum energy for xsec splines
   void   SetMaxE   (double Ev); ///< set default maximum energy for xsec splines
 
-  //-- read XSecSplineList options
+  // Read XSecSplineList options
   bool   UseLogE     (void) const { return fUseLogE;     }
   int    NKnots      (void) const { return fNKnots;      }
   double Emin        (void) const { return fEmin;        }
   double Emax        (void) const { return fEmax;        }
 
-  //-- save/load to/from XML file
+  // Save/load to/from XML file
   void               SaveAsXml   (string filename) const;
   XmlParserStatus_t  LoadFromXml (string filename, bool keep = false);
 
-  //-- autosave/autoload
+  // Autosave/autoload
   bool AutoLoad (void);
   void AutoSave (void);
 
-  //-- methods for building / getting keys
+  // Methods for building / getting keys
   string BuildSplineKey(const XSecAlgorithmI * alg, const Interaction * i) const;
   const vector<string> * GetSplineKeys(void) const;
 
-  //-- print available splines
+  // Print available splines
   void   Print (ostream & stream) const;
   friend ostream & operator << (ostream & stream, const XSecSplineList & xsl);
 
