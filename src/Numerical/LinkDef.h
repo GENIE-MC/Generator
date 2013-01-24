@@ -6,6 +6,15 @@
 
 #pragma link C++ namespace genie;
 
+#pragma link C++ class genie::RandomGen;
+#pragma link C++ class genie::Spline;
+#pragma link C++ class genie::BLI2DGrid;
+#pragma link C++ class genie::BLI2DUnifGrid;
+#pragma link C++ class genie::BLI2DNonUnifGrid;
+
+//
+// to be replaced with GSL/MathMore equivalents
+//
 #pragma link C++ class genie::GridSpacing;
 #pragma link C++ class genie::GridDimension;
 #pragma link C++ class genie::UnifGridDimension;
@@ -18,11 +27,5 @@
 #pragma link C++ class genie::Simpson1D;
 #pragma link C++ class genie::Simpson2D;
 #pragma link C++ class genie::Simpson2DFixN;
-#pragma link C++ class genie::SimMCIntegrator;
-#pragma link C++ class genie::Spline;
-#pragma link C++ class genie::BLI2DGrid;
-#pragma link C++ class genie::BLI2DUnifGrid;
-#pragma link C++ class genie::BLI2DNonUnifGrid;
-#pragma link C++ class genie::RandomGen;
 
 #endif
