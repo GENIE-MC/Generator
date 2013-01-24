@@ -33,6 +33,9 @@
    Exit immediately if the file pointed to by GSPLOAD isn't accessible.
  @ Sep 26, 2010 - CA
    Demote a few messages.
+ @ Jan 24, 2013 - CA
+   Use of variables $GSPLOAD and $GSPSAVE is no longer supported.
+
 */
 //____________________________________________________________________________
 
@@ -125,7 +128,7 @@ bool XSecSplineList::SplineExists(string key) const
 
   bool exists = (fSplineMap.count(key) == 1);
   SLOG("XSecSplLst", pDEBUG)
-               << "Spline found?...." << utils::print::BoolAsYNString(exists);
+    << "Spline found?...." << utils::print::BoolAsYNString(exists);
   return exists;
 }
 //____________________________________________________________________________
@@ -559,6 +562,9 @@ string XSecSplineList::BuildSplineKey(
 //____________________________________________________________________________
 bool XSecSplineList::AutoLoad(void)
 {
+/*
+<disabled 24/01/13>
+
 // Checks the $GSPLOAD env. variable and if found set reads the cross splines
 // from the XML file it points to.
 // Returns true if $GSPLOAD was set and splines were read / false otherwise.
@@ -586,6 +592,23 @@ bool XSecSplineList::AutoLoad(void)
   SLOG("XSecSplLst", pNOTICE)
       << "$GSPLOAD was not defined! No cross section splines will be loaded";
   return false;
+*/
+
+  if( gSystem->Getenv("GSPLOAD") ) {
+     LOG("XSecSplLst", pFATAL)
+      << "\n\n"
+      << "********************************************************************************************** \n"
+      << "The pre-computed cross-section data file can no longer be specified via the $GSPLOAD variable. \n"
+      << "Please use the command-line option (typically --cross-sections) implemented in all GENIE apps \n"
+      << "or, if in your user code you access XSecSplineList directly, use the \n"
+      << "`XmlParserStatus_t XSecSplineList::LoadFromXml(string filename, bool keep)' method. \n"
+      << "Unset $GSPLOAD to continue running GENIE. \n"
+      << "********************************************************************************************** \n";
+    gAbortingInErr = true;
+    exit(1);
+  }
+
+  return true;
 }
 //____________________________________________________________________________
 const vector<string> * XSecSplineList::GetSplineKeys(void) const
@@ -603,6 +626,9 @@ const vector<string> * XSecSplineList::GetSplineKeys(void) const
 //____________________________________________________________________________
 void XSecSplineList::AutoSave(void)
 {
+/*
+<disabled 24/01/13>
+
 // Checks whether the $GSPSAVE env. variable and if found set it saves the
 // cross section splines at the XML file this variable points to.
 // You do not need to invoke this method (just set the env. variable). The
@@ -613,6 +639,13 @@ void XSecSplineList::AutoSave(void)
      cout << "Saving cross section splines to file: " << xmlfile << endl;
      this->SaveAsXml(xmlfile);
   }
+*/
+
+  if( gSystem->Getenv("GSPSAVE") ) {
+     LOG("XSecSplLst", pWARN)
+      << "Use of the $GSPSAVE environmental variable is no longer supported";
+  }
+
 }
 //____________________________________________________________________________
 void XSecSplineList::Print(ostream & stream) const
