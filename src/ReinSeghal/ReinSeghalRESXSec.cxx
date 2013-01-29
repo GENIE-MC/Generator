@@ -12,11 +12,12 @@
  Important revisions after version 2.0.0 :
  @ Sep 07, 2009 - CA
    Integrated with GNU Numerical Library (GSL) via ROOT's MathMore library.
-
+ @ Jan 29, 2013 - CA
+   Don't look-up depreciated $GDISABLECACHING environmental variable.
+   Use the RunEnv singleton instead.
 */
 //____________________________________________________________________________
 
-#include <TSystem.h>
 #include <TMath.h>
 #include <Math/IFunction.h>
 #include <Math/IntegratorMultiDim.h>
@@ -35,6 +36,7 @@
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
 #include "ReinSeghal/ReinSeghalRESXSec.h"
+#include "Utils/RunEnv.h"
 #include "Utils/MathUtils.h"
 #include "Utils/KineUtils.h"
 #include "Utils/Cache.h"
@@ -126,7 +128,8 @@ double ReinSeghalRESXSec::Integrate(
   // If yes, store free nucleon cross sections at a cache branch and use those
   // at any subsequent call.
   //
-  if(!gSystem->Getenv("GDISABLECACHING")) {
+  bool cache_enabled = RunEnv::Instance()->CacheEnabled();
+  if(cache_enabled) {
      Cache * cache = Cache::Instance();
      string key = this->CacheBranchName(res, it, nu_pdgc, nucleon_pdgc);
      LOG("ReinSeghalResT", pINFO) 
