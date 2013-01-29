@@ -24,6 +24,9 @@
    external configuration.
  @ Nov 25, 2010 - CA
    Allow asymmetric errors
+ @ Jan 29, 2013 - CA
+   In SetSystematic() add protection against using systematic params which are
+   inconsistent with the current reweighting mode [reported by Rik Gran].
 */
 //____________________________________________________________________________
 
@@ -104,6 +107,8 @@ bool GReWeightNuXSecCCQE::IsHandled(GSyst_t syst)
 //_______________________________________________________________________________________
 void GReWeightNuXSecCCQE::SetSystematic(GSyst_t syst, double twk_dial)
 {
+  if(!this->IsHandled(syst)) return;
+
   switch(syst) {
     case ( kXSecTwkDial_NormCCQE ) :
       fNormTwkDial = twk_dial;
