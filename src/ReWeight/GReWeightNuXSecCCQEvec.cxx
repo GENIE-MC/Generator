@@ -75,6 +75,8 @@ bool GReWeightNuXSecCCQEvec::IsHandled(GSyst_t syst)
 //_______________________________________________________________________________________
 void GReWeightNuXSecCCQEvec::SetSystematic(GSyst_t syst, double twk_dial)
 {
+  if(!this->IsHandled(syst)) return;
+
   switch(syst) {
     case ( kXSecTwkDial_VecFFCCQEshape ) : 
        fFFTwkDial = twk_dial;

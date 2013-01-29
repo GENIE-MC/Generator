@@ -61,6 +61,8 @@ bool GReWeightNuXSecNC::IsHandled(GSyst_t syst)
 //_______________________________________________________________________________________
 void GReWeightNuXSecNC::SetSystematic(GSyst_t syst, double twk_dial)
 {
+  if(!this->IsHandled(syst)) return;
+
    switch(syst) {
      case ( kXSecTwkDial_NC ) : 
        fNCTwkDial = twk_dial;
