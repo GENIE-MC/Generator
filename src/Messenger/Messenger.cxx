@@ -144,7 +144,7 @@ void Messenger::Configure(void)
 
   //-- checkout the GMSGCONF conf for additional messenger configuration files
   string gmsgconf = (gSystem->Getenv("GMSGCONF") ?
-                                            gSystem->Getenv("GMSGCONF") : "");
+                     gSystem->Getenv("GMSGCONF") : "");
   SLOG("Messenger", pINFO) << "$GMSGCONF env.var = " << gmsgconf;
 
   if(gmsgconf.size()>0) {
@@ -165,7 +165,7 @@ void Messenger::Configure(void)
      }
   } else {
     SLOG("Messenger", pINFO)
-                  << "No additional messenger config XML file was specified";
+       << "No additional messenger config XML file was specified";
   }
 }
 //____________________________________________________________________________
@@ -173,8 +173,8 @@ bool Messenger::SetPrioritiesFromXmlFile(string filename)
 {
 // Reads the XML config file and sets the priority levels
 //
-  SLOG("Messenger", pINFO)
-            << "Reading msg stream priorities from XML file: " << filename;
+  SLOG("Messenger", pNOTICE)
+    << "Reading msg stream priorities from XML file: " << filename;
   xmlDocPtr xml_doc = xmlParseFile(filename.c_str());
 
   if(xml_doc==NULL) {
@@ -210,12 +210,11 @@ bool Messenger::SetPrioritiesFromXmlFile(string filename)
          string priority =
                 utils::xml::TrimSpaces( xmlNodeListGetString(
                                xml_doc, xml_msgp->xmlChildrenNode, 1));
-         SLOG("Messenger", pINFO)
-                  << "Setting priority level: " << setfill('.')
-                          << setw(24) << msgstream << " --> " << priority;
-
          log4cpp::Priority::Value pv = this->PriorityFromString(priority);
          this->SetPriorityLevel(msgstream.c_str(), pv);
+         SLOG("Messenger", pINFO)
+                  << "Set priority level: " << setfill('.')
+                          << setw(24) << msgstream << " --> " << priority;
      }
      xml_msgp = xml_msgp->next;
   }
