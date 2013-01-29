@@ -31,6 +31,7 @@
 
 #include "EVGCore/EventRecord.h"
 #include "Messenger/Messenger.h"
+#include "Utils/RunEnv.h"
 #include "ReWeight/GReWeight.h"
 
 using std::vector;
@@ -41,7 +42,8 @@ using namespace genie::rew;
 //____________________________________________________________________________
 GReWeight::GReWeight()
 {
-
+  // Disable cacheing as it may interfere with event reweighting
+  RunEnv::Instance()->EnableCache(false);
 }
 //____________________________________________________________________________
 GReWeight::~GReWeight()
