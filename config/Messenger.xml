@@ -22,6 +22,7 @@
     one found last is used
    -->
 
+  <priority msgstream="Messenger">           NOTICE </priority>
   <priority msgstream="AhrensNCEL">          WARN   </priority>
   <priority msgstream="AlgFactory">          INFO   </priority>
   <priority msgstream="Algorithm">           WARN   </priority>
@@ -94,7 +95,6 @@
   <priority msgstream="LwlynSmith">          NOTICE </priority>
   <priority msgstream="Math">                NOTICE </priority>
   <priority msgstream="MEC">                 INFO   </priority>
-  <priority msgstream="Messenger">           INFO   </priority>
   <priority msgstream="MuELoss">             NOTICE </priority>
   <priority msgstream="MultProb">            INFO   </priority>
   <priority msgstream="NucDeEx">             NOTICE </priority>
@@ -151,13 +151,13 @@
   <priority msgstream="XSecAlgMap">          NOTICE </priority>
   <priority msgstream="XSecSplLst">          NOTICE </priority>
 
-  <priority msgstream="gevgen">              INFO   </priority>
-  <priority msgstream="gevgen_ndcy">         INFO   </priority>
-  <priority msgstream="gevgen_atmo">         INFO   </priority>
-  <priority msgstream="gevgen_upmu">         INFO   </priority>
-  <priority msgstream="gevgen_t2k">          INFO   </priority>
-  <priority msgstream="gevgen_numi">         INFO   </priority>
-  <priority msgstream="gevgen_hadron">       INFO   </priority>
+  <priority msgstream="gevgen">              NOTICE </priority>
+  <priority msgstream="gevgen_ndcy">         NOTICE </priority>
+  <priority msgstream="gevgen_atmo">         NOTICE </priority>
+  <priority msgstream="gevgen_upmu">         NOTICE </priority>
+  <priority msgstream="gevgen_t2k">          NOTICE </priority>
+  <priority msgstream="gevgen_numi">         NOTICE </priority>
+  <priority msgstream="gevgen_hadron">       NOTICE </priority>
   <priority msgstream="gvldtest">            NOTICE </priority>
   <priority msgstream="gtune">               INFO </priority>
   <priority msgstream="gntpc">               INFO   </priority>
