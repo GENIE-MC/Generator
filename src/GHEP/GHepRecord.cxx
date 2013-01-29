@@ -33,6 +33,8 @@
    Added `GEvGenMode_t EventGenerationMode(void) const'
  @ Nov 28, 2011 - CA
    HitNucleon() can return a hit nucleon cluster too, as needed for MEC.
+ @ Jan 29, 2013 - CA
+   Demote a few messages from `notice' to `info'.
 */
 //____________________________________________________________________________
 
@@ -134,7 +136,7 @@ GHepParticle * GHepRecord::Particle(int position) const
      GHepParticle * particle = (GHepParticle *) (*this)[position];
      if(particle) return particle;
   }
-  LOG("GHEP", pNOTICE)
+  LOG("GHEP", pINFO)
     << "No particle found with: (pos = " << position << ")";
 
   return 0;
@@ -152,7 +154,7 @@ GHepParticle * GHepRecord::FindParticle(
      if(p->Status() == status && p->Pdg() == pdg) return p;
   }
 
-  LOG("GHEP", pNOTICE)
+  LOG("GHEP", pINFO)
     << "No particle found with: (pos >= " << start
     << ", pdg = " << pdg << ", ist = " << status << ")";
 
@@ -171,7 +173,7 @@ int GHepRecord::ParticlePosition(
      if(p->Status() == status && p->Pdg() == pdg) return i;
   }
 
-  LOG("GHEP", pNOTICE)
+  LOG("GHEP", pINFO)
     << "No particle found with: (pos >= " << start
     << ", pdg = " << pdg << ", ist = " << status << ")";
 
@@ -189,7 +191,7 @@ int GHepRecord::ParticlePosition(GHepParticle * particle, int start) const
      if( p->Compare(particle) ) return i;
   }
 
-  LOG("GHEP", pNOTICE)
+  LOG("GHEP", pINFO)
     << "No particle found with pos >= " << start
     << " matching particle: " << *particle;
 
@@ -645,7 +647,7 @@ void GHepRecord::RemoveIntermediateParticles(void)
        p->SetLastMother(-1);
     } else {
        LOG("GHEP", pNOTICE) 
-                   << "Removing: " << p->Name() << " from slot: " << i;
+           << "Removing: " << p->Name() << " from slot: " << i;
        this->RemoveAt(i);
     }
     i++;
