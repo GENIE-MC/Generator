@@ -65,7 +65,7 @@
   <priority msgstream="GMCJob">              INFO   </priority>
   <priority msgstream="GMCJMonitor">         WARN   </priority>
   <priority msgstream="GROOTGeom">           NOTICE </priority>
-  <priority msgstream="GHEP">                NOTICE </priority>
+  <priority msgstream="GHEP">                WARN   </priority>
   <priority msgstream="GHepParticle">        INFO   </priority>
   <priority msgstream="GuiUtils">            INFO   </priority>
   <priority msgstream="GridDim">             WARN   </priority>
