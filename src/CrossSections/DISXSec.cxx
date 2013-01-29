@@ -22,11 +22,14 @@
    problems when users override the physical limits raising the minimum Q2 
    (for computational efficiency in certain cases; depending on the detector 
    acceptance).
+ @ Jan 29, 2013 - CA
+   Don't look-up depreciated $GDISABLECACHING environmental variable.
+   Use the RunEnv singleton instead.
+
 */
 //____________________________________________________________________________
 
 #include <TMath.h>
-#include <TSystem.h>
 #include <Math/IFunction.h>
 #include <Math/IntegratorMultiDim.h>
 
@@ -42,6 +45,7 @@
 #include "Numerical/IntegratorI.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
+#include "Utils/RunEnv.h"
 #include "Utils/MathUtils.h"
 #include "Utils/Range1.h"
 #include "Utils/Cache.h"
@@ -121,7 +125,8 @@ double DISXSec::Integrate(
   // If yes, store free nucleon cross sections at a cache branch and use those 
   // at any subsequent call.
   //
-  if(!gSystem->Getenv("GDISABLECACHING")) {
+  bool cache_enabled = RunEnv::Instance()->CacheEnabled();
+  if(cache_enabled) {
      Cache * cache = Cache::Instance();
      Interaction * interaction = new Interaction(*in);
      string key = this->CacheBranchName(model,interaction);
