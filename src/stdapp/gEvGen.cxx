@@ -109,6 +109,7 @@
 #include "Numerical/Spline.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
+#include "Utils/RunEnv.h"
 #include "Utils/XSecSplineList.h"
 #include "Utils/StringUtils.h"
 #include "Utils/PrintUtils.h"
@@ -198,6 +199,9 @@ int main(int argc, char ** argv)
        LOG("gevgen", pWARN) << "If none is loaded, event generation might be inefficient";
      }
   }
+
+  // Enable cache to improve CPU efficiency
+  RunEnv::Instance()->EnableCache(true);
 
   //
   // Generate neutrino events

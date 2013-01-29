@@ -72,6 +72,7 @@
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
 #include "PDG/PDGCodeList.h"
+#include "Utils/RunEnv.h"
 #include "Utils/StringUtils.h"
 #include "Utils/XSecSplineList.h"
 #include "Utils/CmdLnArgParser.h"
@@ -138,6 +139,9 @@ int main(int argc, char ** argv)
        LOG("gmkspl", pDEBUG) << "No cross-section file was specified in gmkspl inputs";
      }
   }
+
+  // Enable cache to improve CPU efficiency
+  RunEnv::Instance()->EnableCache(true);
 
   // Get list of neutrinos and nuclear targets
 
