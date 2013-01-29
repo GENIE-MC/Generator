@@ -15,13 +15,15 @@
    Renamed QPMDISPXSec from DISPartonModelPXSec following code reorganization.
  @ Oct 11, 2009 - CA
    Implemented ValidProcess()
+ @ Jan 29, 2013 - CA
+   Don't look-up depreciated $GDISABLECACHING environmental variable.
+   Use the RunEnv singleton instead.
 
 */
 //____________________________________________________________________________
 
 #include <sstream>
 
-#include <TSystem.h>
 #include <TMath.h>
 #include <TH1D.h>
 
@@ -39,6 +41,7 @@
 #include "PartonModel/QPMDISPXSec.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
+#include "Utils/RunEnv.h"
 #include "Utils/MathUtils.h"
 #include "Utils/KineUtils.h"
 #include "Utils/Range1.h"
@@ -398,8 +401,10 @@ void QPMDISPXSec::LoadConfig(void)
   // precomputing (for all W's) & caching these factors might not be efficient.
   // Here we provide the option to turn the caching off (default: on)
 
+  bool cache_enabled = RunEnv::Instance()->CacheEnabled();
+
   fUseCache = fConfig->GetBoolDef("UseCache", true);
-  fUseCache = fUseCache && !(gSystem->Getenv("GDISABLECACHING"));
+  fUseCache = fUseCache && cache_enabled;
 
   // Since this method would be called every time the current algorithm is 
   // reconfigured at run-time, remove all the data cached by this algorithm
