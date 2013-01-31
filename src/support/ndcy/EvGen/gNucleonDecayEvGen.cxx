@@ -17,6 +17,9 @@
                      [-t geometry_top_volume_name]
                      [-o output_event_file_prefix]
                      [--seed random_number_seed]
+                     [--message-thresholds xml_file]
+                     [--event-record-print-level level]
+                     [--mc-job-status-refresh-rate  rate]
 
          *** Options :
 
@@ -133,8 +136,10 @@
 #include "PDG/PDGLibrary.h"
 #include "Utils/StringUtils.h"
 #include "Utils/UnitUtils.h"
-#include "Utils/CmdLnArgParser.h"
 #include "Utils/PrintUtils.h"
+#include "Utils/AppInit.h"
+#include "Utils/RunOpt.h"
+#include "Utils/CmdLnArgParser.h"
 
 using std::string;
 using std::vector;
@@ -173,10 +178,9 @@ int main(int argc, char ** argv)
   // Parse command line arguments
   GetCommandLineArgs(argc,argv);
 
-  // Set random number seed, if a value was set
-  if(gOptRanSeed > 0) {
-    RandomGen::Instance()->SetSeed(gOptRanSeed);
-  }
+  // Init messenger and random number seed
+  utils::app_init::MesgThresholds(RunOpt::Instance()->MesgThresholdFiles());
+  utils::app_init::RandGen(gOptRanSeed);
 
   // Initialize an Ntuple Writer to save GHEP records into a TTree
   NtpWriter ntpw(kDefOptNtpFormat, gOptRunNu);
@@ -185,6 +189,10 @@ int main(int argc, char ** argv)
 
   // Create a MC job monitor for a periodically updated status file
   GMCJMonitor mcjmonitor(gOptRunNu);
+  mcjmonitor.SetRefreshRate(RunOpt::Instance()->MCJobStatusRefreshRate());
+
+  // Set GHEP print level
+  GHepRecord::SetPrintLevel(RunOpt::Instance()->EventRecordPrintLevel());
 
   // Get the nucleon decay generator
   const EventRecordVisitorI * mcgen = NucleonDecayGenerator();
@@ -286,11 +294,12 @@ const EventRecordVisitorI * NucleonDecayGenerator(void)
 //_________________________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
 {
-  //
-  // >>> get the command line arguments
-  //
+  LOG("gevgen_ndcy", pINFO) << "Parsing command line arguments";
 
-  LOG("gevgen_ndcy", pNOTICE) << "Parsing command line arguments";
+  // Common run options. 
+  RunOpt::Instance()->ReadFromCommandLine(argc,argv);
+
+  // Parse run options for this app
 
   CmdLnArgParser parser(argc,argv);
 
@@ -528,6 +537,9 @@ void PrintSyntax(void)
    << "\n              -n n_of_events "
    << "\n             [-o output_event_file_prefix]"
    << "\n             [--seed random_number_seed]"
+   << "\n             [--message-thresholds xml_file]"
+   << "\n             [--event-record-print-level level]"
+   << "\n             [--mc-job-status-refresh-rate  rate]"
    << "\n"
    << " Please also read the detailed documentation at http://www.genie-mc.org"
    << " or look at the source code: $GENIE/src/support/ndcy/EvGen/gNucleonDecayEvGen.cxx"
