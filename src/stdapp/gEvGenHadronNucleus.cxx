@@ -8,7 +8,11 @@
 
          Syntax :
            gevgen_hadron [-n nev] -p probe -t tgt [-r run#] -k KE 
-                    [-f flux] [-o prefix] [-m mode] [--seed random_number_seed]
+                         [-f flux] [-o prefix] [-m mode] 
+                         [--seed random_number_seed]
+                         [--message-thresholds xml_file]          
+                         [--event-record-print-level level]
+                         [--mc-job-status-refresh-rate  rate]
 
          Options :
            [] Denotes an optional argument
@@ -39,6 +43,16 @@
               INTRANUKE mode <hA, hN> (default: hA)
 	   --seed   
               Random number seed.
+           --message-thresholds
+              Allows users to customize the message stream thresholds.
+              The thresholds are specified using an XML file.
+              See $GENIE/config/Messenger.xml for the XML schema.
+              Multiple files, delimited with a `:' can be specified.
+           --event-record-print-level
+              Allows users to set the level of information shown when the event
+              record is printed in the screen. See GHepRecord::Print().
+           --mc-job-status-refresh-rate
+              Allows users to customize the refresh rate of the status file.
 
          Examples:
 
@@ -95,7 +109,10 @@
 #include "Numerical/Spline.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGLibrary.h"
+#include "Utils/AppInit.h"
 #include "Utils/StringUtils.h"
+#include "Utils/PrintUtils.h"
+#include "Utils/RunOpt.h"
 #include "Utils/CmdLnArgParser.h"
 
 #include "HadronTransport/INukeHadroFates.h"
@@ -142,10 +159,11 @@ int main(int argc, char ** argv)
   // Parse command line arguments
   GetCommandLineArgs(argc,argv);
 
-  // Set random number seed, if a value was set
-  if(gOptRanSeed > 0) {
-    RandomGen::Instance()->SetSeed(gOptRanSeed);
-  }
+  // Init random number generator generator with user-specified seed number,
+  // set user-specified mesg thresholds, set user-specified GHEP print-level
+  utils::app_init::MesgThresholds(RunOpt::Instance()->MesgThresholdFiles());
+  utils::app_init::RandGen(gOptRanSeed);
+  GHepRecord::SetPrintLevel(RunOpt::Instance()->EventRecordPrintLevel());
 
   // Build the incident hadron kinetic energy spectrum, if required
   BuildSpectrum();
@@ -349,7 +367,12 @@ void BuildSpectrum(void)
 //____________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
 {
-  LOG("gevgen_hadron", pNOTICE) << "Parsing command line arguments";
+  LOG("gevgen_hadron", pINFO) << "Parsing command line arguments";
+
+  // Common run options. 
+  RunOpt::Instance()->ReadFromCommandLine(argc,argv);
+
+  // Parse run options for this app
 
   CmdLnArgParser parser(argc,argv);
 
@@ -478,25 +501,33 @@ void GetCommandLineArgs(int argc, char ** argv)
     gOptRanSeed = -1;
   }
 
-  LOG("gevgen_hadron", pINFO) << "MC Run Number      = " << gOptRunNu;
-  LOG("gevgen_hadron", pINFO) << "Random number seed = " << gOptRanSeed;
-  LOG("gevgen_hadron", pINFO) << "Mode               = " << gOptMode;
-  LOG("gevgen_hadron", pINFO) << "Number of events   = " << gOptNevents;
-  LOG("gevgen_hadron", pINFO) << "Probe PDG code     = " << gOptProbePdgCode;
-  LOG("gevgen_hadron", pINFO) << "Target PDG code    = " << gOptTgtPdgCode;
+
+  LOG("gevgen_hadron", pNOTICE)
+     << "\n"
+     << utils::print::PrintFramedMesg("gevgen_hadron job configuration");
+
+  LOG("gevgen_hadron", pNOTICE) << "MC Run Number      = " << gOptRunNu;
+  LOG("gevgen_hadron", pNOTICE) << "Random number seed = " << gOptRanSeed;
+  LOG("gevgen_hadron", pNOTICE) << "Mode               = " << gOptMode;
+  LOG("gevgen_hadron", pNOTICE) << "Number of events   = " << gOptNevents;
+  LOG("gevgen_hadron", pNOTICE) << "Probe PDG code     = " << gOptProbePdgCode;
+  LOG("gevgen_hadron", pNOTICE) << "Target PDG code    = " << gOptTgtPdgCode;
   if(gOptProbeKEmin<0 && gOptProbeKEmax<0) {
-    LOG("gevgen_hadron", pINFO) 
+    LOG("gevgen_hadron", pNOTICE) 
         << "Hadron input KE    = " << gOptProbeKE;
   } else {
-    LOG("gevgen_hadron", pINFO) 
+    LOG("gevgen_hadron", pNOTICE) 
         << "Hadron input KE range = [" 
         << gOptProbeKEmin << ", " << gOptProbeKEmax << "]";
   }
   if(gOptUsingFlux) {
-    LOG("gevgen_hadron", pINFO) 
+    LOG("gevgen_hadron", pNOTICE) 
         << "Input flux            = " 
         << gOptFlux;
   }
+
+  LOG("gevgen_hadron", pNOTICE) << "\n";
+  LOG("gevgen_hadron", pNOTICE) << *RunOpt::Instance();
 }
 //____________________________________________________________________________
 void PrintSyntax(void)
@@ -504,8 +535,12 @@ void PrintSyntax(void)
   LOG("gevgen_hadron", pNOTICE)
     << "\n\n" 
     << "Syntax:" << "\n"
-    << "   gevgen_hadron [-n nev] -p hadron_pdg -t tgt_pdg [-r run] "
-    << "                  -k KE [-f flux] [-m mode] [--seed random_number_seed]"
+    << "   gevgen_hadron [-r run] [-n nev] -p hadron_pdg -t tgt_pdg -k KE [-m mode] "
+    << "                 [-f flux] "
+    << "                 [--seed random_number_seed]"
+    << "                 [--message-thresholds xml_file]"
+    << "                 [--event-record-print-level level]"
+    << "                 [--mc-job-status-refresh-rate rate]"
     << "\n";
 }
 //____________________________________________________________________________

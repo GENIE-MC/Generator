@@ -7,7 +7,11 @@
          plain text, XML or bare-ROOT formats.
 
          Syntax:
-           gntpc -i input_file [-o output_file] -f format [-n nev] [-v vrs] [-c] [--seed]
+           gntpc -i input_file [-o output_file] -f format [-n nev] [-v vrs] [-c] 
+                 [--seed random_number_seed]
+                 [--message-thresholds xml_file]
+                 [--event-record-print-level level]
+
 
          Options :
 
@@ -87,6 +91,14 @@
                `ginuke'               -> *.ginuke.root
            --seed
               Random number seed.
+         --message-thresholds
+              Allows users to customize the message stream thresholds.
+              The thresholds are specified using an XML file.
+              See $GENIE/config/Messenger.xml for the XML schema.
+              Multiple files, delimited with a `:' can be specified.
+           --event-record-print-level
+              Allows users to set the level of information shown when the event
+              record is printed in the screen. See GHepRecord::Print().
 		
          Examples:
            (1)  shell% gntpc -i myfile.ghep.root -f t2k_rootracker
@@ -141,6 +153,8 @@
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
 #include "PDG/PDGLibrary.h"
+#include "Utils/AppInit.h"
+#include "Utils/RunOpt.h"
 #include "Utils/CmdLnArgParser.h"
 #include "Utils/SystemUtils.h"
 #include "Utils/T2KEvGenMetaData.h"
@@ -214,13 +228,12 @@ const int kNPmax = 100;
 //____________________________________________________________________________________
 int main(int argc, char ** argv)
 {
-  // Get the command line arguments
   GetCommandLineArgs(argc, argv);
 
-  // Set random number seed, if a value was set
-  if(gOptRanSeed > 0) {
-    RandomGen::Instance()->SetSeed(gOptRanSeed);
-  }
+  utils::app_init::MesgThresholds(RunOpt::Instance()->MesgThresholdFiles());
+  utils::app_init::RandGen(gOptRanSeed);
+
+  GHepRecord::SetPrintLevel(RunOpt::Instance()->EventRecordPrintLevel());
 
   // Call the appropriate conversion function
   switch(gOptOutFileFormat) {
@@ -2848,6 +2861,11 @@ void ConvertToGINuke(void)
 //____________________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
 {
+  // Common run options. 
+  RunOpt::Instance()->ReadFromCommandLine(argc,argv);
+
+  // Parse run options for this app
+
   CmdLnArgParser parser(argc,argv);
 
   // get input ROOT file (containing a GENIE GHEP event tree)
@@ -2955,6 +2973,8 @@ void GetCommandLineArgs(int argc, char ** argv)
   LOG("gntpc", pNOTICE) << "Number of events to be converted = " << gOptN;
   LOG("gntpc", pNOTICE) << "Copy metadata? = " << ((gOptCopyJobMeta) ? "Yes" : "No");
   LOG("gntpc", pNOTICE) << "Random number seed = " << gOptRanSeed;
+
+  LOG("gntpc", pNOTICE) << *RunOpt::Instance();
 }
 //____________________________________________________________________________________
 string DefaultOutputFile(void)

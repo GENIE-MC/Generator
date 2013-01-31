@@ -21,6 +21,7 @@
            gmxpl -f geom_file [-L length_units] [-D density_units] 
                  [-t top_vol_name] [-o output_xml_file] [-n np] [-r nr]
                  [-seed random_number_seed]
+                 [--message-thresholds xml_file]
 
          Options :
            -f  
@@ -39,6 +40,11 @@
                Name of output XML file [ default: maxpl.xml ]
            --seed 
                Random number seed.
+          --message-thresholds
+              Allows users to customize the message stream thresholds.
+              The thresholds are specified using an XML file.
+              See $GENIE/config/Messenger.xml for the XML schema.
+              Multiple files, delimited with a `:' can be specified.
 
          Example:
 
@@ -76,6 +82,8 @@
 #include "Utils/CmdLnArgParser.h"
 #include "Utils/UnitUtils.h"
 #include "Utils/PrintUtils.h"
+#include "Utils/AppInit.h"
+#include "Utils/RunOpt.h"
 
 using std::string;
 
@@ -104,13 +112,10 @@ long int  gOptRanSeed         = -1;          // random number seed
 //____________________________________________________________________________
 int main(int argc, char ** argv)
 {
-  // Parse command line arguments
   GetCommandLineArgs(argc,argv);
 
-  // Set random number seed, if a value was set
-  if(gOptRanSeed > 0) {
-    RandomGen::Instance()->SetSeed(gOptRanSeed);
-  }
+  utils::app_init::RandGen(gOptRanSeed);
+  utils::app_init::MesgThresholds(RunOpt::Instance()->MesgThresholdFiles());
 
   // Create the geometry driver
   LOG("gmxpl", pINFO)
@@ -146,6 +151,11 @@ int main(int argc, char ** argv)
 void GetCommandLineArgs(int argc, char ** argv)
 {
   LOG("gmxpl", pINFO) << "Parsing command line arguments";
+
+  // Common run options. 
+  RunOpt::Instance()->ReadFromCommandLine(argc,argv);
+
+  // Parse run options for this app
 
   CmdLnArgParser parser(argc,argv);
 
@@ -232,16 +242,19 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   // print the command line arguments
   LOG("gmxpl", pNOTICE)
-     << "\n\n"
+     << "\n"
      << utils::print::PrintFramedMesg("gmxpl job inputs");
-  LOG("gmxpl", pINFO) << "Command line arguments";
-  LOG("gmxpl", pINFO) << "Input ROOT geometry     : " << gOptGeomFilename;
-  LOG("gmxpl", pINFO) << "Output XML file         : " << gOptXMLFilename;
-  LOG("gmxpl", pINFO) << "Geometry length units   : " << gOptGeomLUnits;
-  LOG("gmxpl", pINFO) << "Geometry density units  : " << gOptGeomDUnits;
-  LOG("gmxpl", pINFO) << "Scanner points/surface  : " << gOptNPoints;
-  LOG("gmxpl", pINFO) << "Scanner rays/point      : " << gOptNRays;
-  LOG("gmxpl", pINFO) << "Random number seed      : " << gOptRanSeed;
+  LOG("gmxpl", pNOTICE) << "Command line arguments";
+  LOG("gmxpl", pNOTICE) << "Input ROOT geometry     : " << gOptGeomFilename;
+  LOG("gmxpl", pNOTICE) << "Output XML file         : " << gOptXMLFilename;
+  LOG("gmxpl", pNOTICE) << "Geometry length units   : " << gOptGeomLUnits;
+  LOG("gmxpl", pNOTICE) << "Geometry density units  : " << gOptGeomDUnits;
+  LOG("gmxpl", pNOTICE) << "Scanner points/surface  : " << gOptNPoints;
+  LOG("gmxpl", pNOTICE) << "Scanner rays/point      : " << gOptNRays;
+  LOG("gmxpl", pNOTICE) << "Random number seed      : " << gOptRanSeed;
+
+  LOG("gmxpl", pNOTICE) << "\n";
+  LOG("gmxpl", pNOTICE) << *RunOpt::Instance();
 }
 //____________________________________________________________________________
 void PrintSyntax(void)
@@ -254,6 +267,8 @@ void PrintSyntax(void)
       << " [-D density_units]" 
       << " [-t top_volume_name]"
       << " [-o output_xml_file]"
-      << " [-seed random_number_seed]";
+      << " [-seed random_number_seed]"
+      << " [--message-thresholds xml_file]\n";
+
 }
 //____________________________________________________________________________

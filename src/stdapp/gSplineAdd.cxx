@@ -7,14 +7,23 @@
 
          Syntax :
            gspladd -f file_list -d directory_list -o output.xml
+                   [--message-thresholds xml_file]
 
          Options :
-           -f A list of input xml cross-section files. If more than one then 
+           -f 
+              A list of input xml cross-section files. If more than one then 
               separate using commas.
-           -d A list of input directories where to look for xml cross section
+           -d 
+              A list of input directories where to look for xml cross section
               files. If more than one then separate using commas.
-           -o output xml file
- 
+           -o 
+              output xml file
+           --message-thresholds
+              Allows users to customize the message stream thresholds.
+              The thresholds are specified using an XML file.
+              See $GENIE/config/Messenger.xml for the XML schema.
+              Multiple files, delimited with a `:' can be specified.
+
          Notes :
            There must be at least 2 files for the merges to work
 
@@ -52,6 +61,8 @@
 #include "Base/XSecAlgorithmI.h"
 #include "Conventions/XmlParserStatus.h"
 #include "Messenger/Messenger.h"
+#include "Utils/RunOpt.h"
+#include "Utils/AppInit.h"
 #include "Utils/XSecSplineList.h"
 #include "Utils/StringUtils.h"
 #include "Utils/SystemUtils.h"
@@ -77,6 +88,8 @@ vector<string> gAllFiles;  ///< list of all input files
 int main(int argc, char ** argv)
 {
   GetCommandLineArgs(argc,argv);
+
+  utils::app_init::MesgThresholds(RunOpt::Instance()->MesgThresholdFiles());
   
   XSecSplineList * xspl = XSecSplineList::Instance();
 
@@ -130,6 +143,11 @@ void GetCommandLineArgs(int argc, char ** argv)
 {
   LOG("gspladd", pNOTICE) << "Parsing command line arguments";
 
+  // Common run options. 
+  RunOpt::Instance()->ReadFromCommandLine(argc,argv);
+
+  // Parse run options for this app
+
   CmdLnArgParser parser(argc,argv);
 
   if( parser.OptionExists('f') ) {
@@ -177,6 +195,8 @@ void PrintSyntax(void)
 {
   LOG("gspladd", pNOTICE)
     << "\n\n" << "Syntax:" << "\n"
-    << "   gspladd  -f file_list -d directory_list  -o output.xml\n";
+    << "   gspladd  -f file_list -d directory_list  -o output.xml\n"
+    << "            [--message-thresholds xml_file]\n";
+
 }
 //____________________________________________________________________________

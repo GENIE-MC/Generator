@@ -16,9 +16,22 @@
          detector geometry descriptions see in $GENIE/src/support/.
 
          Syntax :
-           gevgen [-h] -n nev -e E -p neutrino_pdg -t target_pdg [-r run#] 
-                  [-f flux] [-w] [--seed random_number_seed] 
-                  --cross-sections input_cross_section_file
+           gevgen [-h] 
+                  [-r run#] 
+                   -n nev 
+                   -e energy (or energy range) 
+                   -p neutrino_pdg 
+                   -t target_pdg 
+                  [-f flux_description] 
+                  [-w] 
+                  [--seed random_number_seed] 
+                  [--cross-sections xml_file]
+                  [--event-generator-list list_name]
+                  [--message-thresholds xml_file]          
+                  [--unphysical-event-mask mask]
+                  [--event-record-print-level level]
+                  [--mc-job-status-refresh-rate  rate]
+                  [--cache-file root_file]
 
          Options :
            [] Denotes an optional argument.
@@ -65,6 +78,26 @@
            --cross-sections
               Name (incl. full path) of an XML file with pre-computed
               cross-section values used for constructing splines.
+           --event-generator-list            
+              List of event generators to load in event generation drivers.
+              [default: "Default"].
+           --message-thresholds           
+              Allows users to customize the message stream thresholds.
+              The thresholds are specified using an XML file.
+              See $GENIE/config/Messenger.xml for the XML schema.
+              Multiple files, delimited with a `:' can be specified.
+           --unphysical-event-mask       
+              Allows users to specify a 16-bit mask to allow certain types of
+              unphysical events to be written in the output file.
+              [default: all unphysical events are rejected]
+           --event-record-print-level
+              Allows users to set the level of information shown when the event
+              record is printed in the screen. See GHepRecord::Print().              
+           --mc-job-status-refresh-rate   
+              Allows users to customize the refresh rate of the status file.
+           --cache-file                  
+              Allows users to specify a cache file so that the cache can be
+              re-used in subsequent MC jobs.
 
 	***  See the User Manual for more details and examples. ***
 
@@ -109,7 +142,8 @@
 #include "Numerical/Spline.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
-#include "Utils/RunEnv.h"
+#include "Utils/AppInit.h"
+#include "Utils/RunOpt.h"
 #include "Utils/XSecSplineList.h"
 #include "Utils/StringUtils.h"
 #include "Utils/PrintUtils.h"
@@ -134,6 +168,7 @@ using namespace genie;
 using namespace genie::controls;
 
 void GetCommandLineArgs (int argc, char ** argv);
+void Initialize         (void);
 void PrintSyntax        (void);
 
 #ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX_OR_TGTMIX__
@@ -167,41 +202,8 @@ string          gOptInpXSecFile;  // cross-section splines
 //____________________________________________________________________________
 int main(int argc, char ** argv)
 {
-  // Parse command line arguments
   GetCommandLineArgs(argc,argv);
-
-  // Set random number seed, if a value was set  
-  if(gOptRanSeed > 0) {
-    RandomGen::Instance()->SetSeed(gOptRanSeed);
-  }
-
-  // Load cross-section splines
-  XSecSplineList * xspl = XSecSplineList::Instance();
-  xspl->AutoLoad(); // display warning for usage $GSPLOAD no longer supported
-  if(utils::system::FileExists(gOptInpXSecFile)) {
-    XSecSplineList * xspl = XSecSplineList::Instance();
-    XmlParserStatus_t status = xspl->LoadFromXml(gOptInpXSecFile);
-    if(status != kXmlOK) {
-      LOG("gevgen", pFATAL) 
-         << "Problem reading file: " << gOptInpXSecFile;
-       gAbortingInErr = true;
-       exit(1);
-    }
-  } else {
-    if(gOptInpXSecFile.size() > 0) {
-       LOG("gevgen", pFATAL) 
-          << "Input cross-section file [" 
-          << gOptInpXSecFile << "] does not exist!";
-       gAbortingInErr = true;
-       exit(1);
-     } else {
-       LOG("gevgen", pWARN) << "No cross-section file was specified in gevgen inputs";
-       LOG("gevgen", pWARN) << "If none is loaded, event generation might be inefficient";
-     }
-  }
-
-  // Enable cache to improve CPU efficiency
-  RunEnv::Instance()->EnableCache(true);
+  Initialize();
 
   //
   // Generate neutrino events
@@ -222,6 +224,19 @@ int main(int argc, char ** argv)
   return 0;
 }
 //____________________________________________________________________________
+void Initialize()
+{
+  // Initialization of random number generators, cross-section table, 
+  // messenger thresholds, cache file
+  utils::app_init::MesgThresholds(RunOpt::Instance()->MesgThresholdFiles());
+  utils::app_init::CacheFile(RunOpt::Instance()->CacheFile());
+  utils::app_init::RandGen(gOptRanSeed);
+  utils::app_init::XSecTable(gOptInpXSecFile, false);
+
+  // Set GHEP print level
+  GHepRecord::SetPrintLevel(RunOpt::Instance()->EventRecordPrintLevel());
+}
+//____________________________________________________________________________
 void GenerateEventsAtFixedInitState(void)
 {
   int neutrino = gOptNuPdgCode;
@@ -234,6 +249,7 @@ void GenerateEventsAtFixedInitState(void)
 
   // Create/config event generation driver 
   GEVGDriver evg_driver;
+  evg_driver.SetEventGeneratorList(RunOpt::Instance()->EventGeneratorList());
   evg_driver.Configure(init_state);
 
   // Initialize an Ntuple Writer
@@ -242,6 +258,7 @@ void GenerateEventsAtFixedInitState(void)
 
   // Create an MC Job Monitor
   GMCJMonitor mcjmonitor(gOptRunNu);
+  mcjmonitor.SetRefreshRate(RunOpt::Instance()->MCJobStatusRefreshRate());
 
   LOG("gevgen", pNOTICE) 
     << "\n ** Will generate " << gOptNevents << " events for \n" 
@@ -262,7 +279,7 @@ void GenerateEventsAtFixedInitState(void)
         continue;
      }
 
-     LOG("gevgen", pINFO) 
+     LOG("gevgen", pNOTICE) 
 	<< "Generated Event GHEP Record: " << *event;
 
      // add event at the output ntuple, refresh the mc job monitor & clean up
@@ -287,6 +304,7 @@ void GenerateEventsUsingFluxOrTgtMix(void)
 
   // Create the monte carlo job driver
   GMCJDriver * mcj_driver = new GMCJDriver;
+  mcj_driver->SetEventGeneratorList(RunOpt::Instance()->EventGeneratorList());
   mcj_driver->UseFluxDriver(flux_driver);
   mcj_driver->UseGeomAnalyzer(geom_driver);
   mcj_driver->Configure();
@@ -300,6 +318,7 @@ void GenerateEventsUsingFluxOrTgtMix(void)
 
   // Create an MC Job Monitor
   GMCJMonitor mcjmonitor(gOptRunNu);
+  mcjmonitor.SetRefreshRate(RunOpt::Instance()->MCJobStatusRefreshRate());
 
   // Generate events / print the GHEP record / add it to the ntuple
   int ievent = 0;
@@ -310,7 +329,7 @@ void GenerateEventsUsingFluxOrTgtMix(void)
      // generate a single event for neutrinos coming from the specified flux
      EventRecord * event = mcj_driver->GenerateEvent();
 
-     LOG("gevgen", pINFO) << "Generated Event GHEP Record: " << *event;
+     LOG("gevgen", pNOTICE) << "Generated Event GHEP Record: " << *event;
 
      // add event at the output ntuple, refresh the mc job monitor & clean-up
      ntpw.AddEventRecord(ievent, event);
@@ -480,7 +499,13 @@ GFluxI * TH1FluxDriver(void)
 //____________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
 {
-  LOG("gevgen", pNOTICE) << "Parsing command line arguments";
+  LOG("gevgen", pINFO) << "Parsing command line arguments";
+
+  // Common run options. Set defaults and read.
+  RunOpt::Instance()->EnableBareXSecPreCalc(true);
+  RunOpt::Instance()->ReadFromCommandLine(argc,argv);
+
+  // Parse run options for this app
 
   CmdLnArgParser parser(argc,argv);
 
@@ -631,7 +656,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   // print-out the command line options
   //
   LOG("gevgen", pNOTICE) 
-     << "\n\n" 
+     << "\n" 
      << utils::print::PrintFramedMesg("gevgen job configuration");
   LOG("gevgen", pNOTICE) 
      << "MC Run Number: " << gOptRunNu;
@@ -674,7 +699,9 @@ void GetCommandLineArgs(int argc, char ** argv)
       LOG("gevgen", pNOTICE) 
           << " >> " <<  tgtpdgc << " (weight fraction = " << wgt << ")";
   }
-  LOG("gevgen", pNOTICE) << "\n\n";
+  LOG("gevgen", pNOTICE) << "\n";
+
+  LOG("gevgen", pNOTICE) << *RunOpt::Instance();
 
 }
 //____________________________________________________________________________
@@ -682,8 +709,22 @@ void PrintSyntax(void)
 {
   LOG("gevgen", pNOTICE)
     << "\n\n" << "Syntax:" << "\n"
-    << "   gevgen [-h] -n nev -e energy -p neutrino -t target "
-    << " [-r run#] [-f flux] [-w] [--seed random_number_seed]"
-    << " --cross-sections input_cross_section_file\n";
+    << "\n      gevgen [-h]"
+    << "\n              [-r run#]"
+    << "\n               -n nev"
+    << "\n               -e energy (or energy range) "
+    << "\n               -p neutrino_pdg" 
+    << "\n               -t target_pdg "
+    << "\n              [-f flux_description]"
+    << "\n              [-w]"
+    << "\n              [--seed random_number_seed]"
+    << "\n              [--cross-sections xml_file]"
+    << "\n              [--event-generator-list list_name]"
+    << "\n              [--message-thresholds xml_file]"
+    << "\n              [--unphysical-event-mask mask]"
+    << "\n              [--event-record-print-level level]"
+    << "\n              [--mc-job-status-refresh-rate  rate]"
+    << "\n              [--cache-file root_file]"
+    << "\n";
 }
 //____________________________________________________________________________
