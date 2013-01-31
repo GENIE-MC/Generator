@@ -35,6 +35,7 @@ using std::ostream;
 namespace genie {
 
 class XSecAlgorithmI;
+class Interaction;
 class Spline;
 
 class XSecSplineList {
