@@ -1440,6 +1440,8 @@ void GetCommandLineArgs(int argc, char ** argv)
      << "\n - Flux     @ " << fluxinfo.str()
      << "\n - Geometry @ " << gminfo.str()
      << "\n - Exposure @ " << exposure.str();
+
+  LOG("gevgen_t2k", pNOTICE) << *RunOpt::Instance();
 }
 //____________________________________________________________________________
 void PrintSyntax(void)
