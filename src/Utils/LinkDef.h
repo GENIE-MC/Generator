@@ -6,6 +6,7 @@
 
 #pragma link C++ namespace genie;
 #pragma link C++ namespace genie::utils;
+#pragma link C++ namespace genie::utils::app_init;
 #pragma link C++ namespace genie::utils::gui;
 #pragma link C++ namespace genie::utils::print;
 #pragma link C++ namespace genie::utils::str;
@@ -22,7 +23,7 @@
 #pragma link C++ namespace genie::utils::system;
 #pragma link C++ namespace genie::utils::style;
 
-#pragma link C++ class genie::RunEnv;
+#pragma link C++ class genie::RunOpt;
 #pragma link C++ class genie::Cache;
 #pragma link C++ class genie::CacheBranchI;
 #pragma link C++ class genie::CacheBranchNtp;

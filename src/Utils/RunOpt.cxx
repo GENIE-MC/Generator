@@ -1,0 +1,127 @@
+//____________________________________________________________________________
+/*
+ Copyright (c) 2003-2011, GENIE Neutrino MC Generator Collaboration
+ For the full text of the license visit http://copyright.genie-mc.org
+ or see $GENIE/LICENSE
+
+ Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+         STFC, Rutherford Appleton Laboratory 
+
+ For the class documentation see the corresponding header file.
+
+ Important revisions after version 2.0.0 :
+ @ Jan 29, 2013 - CA
+   Added in preparartion for v2.8.0, when use of env. vars was phased out.
+
+*/
+//____________________________________________________________________________
+
+#include <iostream>
+
+#include <TMath.h>
+#include <TBits.h>
+
+#include "Utils/CmdLnArgParser.h"
+#include "Utils/RunOpt.h"
+
+using std::cout;
+using std::endl;
+
+namespace genie {
+
+//____________________________________________________________________________
+ostream & operator << (ostream & stream, const RunOpt & opt)
+{
+  opt.Print(stream);
+  return stream;
+}
+//____________________________________________________________________________
+RunOpt * RunOpt::fInstance = 0;
+//____________________________________________________________________________
+RunOpt::RunOpt()
+{
+  fInstance = 0;
+
+  this->Init();
+}
+//____________________________________________________________________________
+RunOpt::~RunOpt()
+{
+  fInstance = 0;
+}
+//____________________________________________________________________________
+RunOpt * RunOpt::Instance()
+{
+  if(fInstance == 0) {
+    static RunOpt::Cleaner cleaner;
+    cleaner.DummyMethodAndSilentCompiler();
+    fInstance = new RunOpt;
+  }
+  return fInstance;
+}
+//____________________________________________________________________________
+void RunOpt::Init(void)
+{
+  fEnableBareXSecPreCalc = true;
+  fCacheFile = "";
+  fMesgThresholds = "";
+  fUnphysEventMask = new TBits(16);
+  fUnphysEventMask->ResetAllBits(false);
+  fMCJobStatusRefreshRate = 20;
+  fEventRecordPrintLevel = 3;
+  fEventGeneratorList = "Default";
+}
+//____________________________________________________________________________
+void RunOpt::ReadFromCommandLine(int argc, char ** argv)
+{
+  CmdLnArgParser parser(argc,argv);
+
+  if( parser.OptionExists("enable-bare-xsec-pre-calc") ) {
+    fEnableBareXSecPreCalc = true;
+  } else 
+  if( parser.OptionExists("disable-bare-xsec-pre-calc") ) {
+    fEnableBareXSecPreCalc = false;
+  }
+
+  if( parser.OptionExists("cache-file") ) {
+    fCacheFile = parser.ArgAsString("cache-file");
+  }
+
+  if( parser.OptionExists("message-thresholds") ) {
+    fMesgThresholds = parser.ArgAsString("message-thresholds");
+  }
+
+  if( parser.OptionExists("event-record-print-level") ) {
+    fEventRecordPrintLevel = parser.ArgAsInt("event-record-print-level");
+  }
+
+  if( parser.OptionExists("mc-job-status-refresh-rate") ) {
+    fMCJobStatusRefreshRate = TMath::Max(
+        1, parser.ArgAsInt("mc-job-status-refresh-rate"));
+  }
+
+  if( parser.OptionExists("event-generator-list") ) {
+    fEventGeneratorList = parser.ArgAsString("event-generator-list");
+  }
+
+}
+//____________________________________________________________________________
+void RunOpt::Print(ostream & stream) const
+{
+  stream << "Global running options:";
+  stream << "\n Event generator list: " << fEventGeneratorList;
+  stream << "\n User-specified message thresholds : " << fMesgThresholds;
+  stream << "\n Cache file : " << fCacheFile;
+//  stream << "\n Unphysical event mask : " << fUnphysEventMask->Print();
+  stream << "\n Event record print level : " << fEventRecordPrintLevel;
+  stream << "\n MC job status file refresh rate: " << fMCJobStatusRefreshRate;
+  stream << "\n Pre-calculate all free-nucleon cross-sections? : " 
+         << ((fEnableBareXSecPreCalc) ? "Yes" : "No");
+
+  stream << "\n";
+}
+//___________________________________________________________________________
+
+} // genie namespace
+
+
