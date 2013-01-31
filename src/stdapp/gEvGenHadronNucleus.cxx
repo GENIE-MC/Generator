@@ -47,7 +47,6 @@
               Allows users to customize the message stream thresholds.
               The thresholds are specified using an XML file.
               See $GENIE/config/Messenger.xml for the XML schema.
-              Multiple files, delimited with a `:' can be specified.
            --event-record-print-level
               Allows users to set the level of information shown when the event
               record is printed in the screen. See GHepRecord::Print().
