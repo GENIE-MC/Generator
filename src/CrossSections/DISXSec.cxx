@@ -24,7 +24,7 @@
    acceptance).
  @ Jan 29, 2013 - CA
    Don't look-up depreciated $GDISABLECACHING environmental variable.
-   Use the RunEnv singleton instead.
+   Use the RunOpt singleton instead.
 
 */
 //____________________________________________________________________________
@@ -45,7 +45,7 @@
 #include "Numerical/IntegratorI.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
-#include "Utils/RunEnv.h"
+#include "Utils/RunOpt.h"
 #include "Utils/MathUtils.h"
 #include "Utils/Range1.h"
 #include "Utils/Cache.h"
@@ -125,8 +125,8 @@ double DISXSec::Integrate(
   // If yes, store free nucleon cross sections at a cache branch and use those 
   // at any subsequent call.
   //
-  bool cache_enabled = RunEnv::Instance()->CacheEnabled();
-  if(cache_enabled) {
+  bool precalc_bare_xsec = RunOpt::Instance()->BareXSecPreCalc();
+  if(precalc_bare_xsec) {
      Cache * cache = Cache::Instance();
      Interaction * interaction = new Interaction(*in);
      string key = this->CacheBranchName(model,interaction);
