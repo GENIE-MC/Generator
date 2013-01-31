@@ -5,13 +5,15 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - July 13, 2005
+         STFC, Rutherford Appleton Laboratory
 
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
  @ Jun 23, 2008 - CA
    fCpuTime wasn't initialized.
+ @ Jan 30, 2013 - CA
+   Added SetRefreshRate(int rate)
 
 */
 //____________________________________________________________________________
@@ -46,6 +48,11 @@ fRunNu(runnu)
 GMCJMonitor::~GMCJMonitor()
 {
 
+}
+//____________________________________________________________________________
+void GMCJMonitor::SetRefreshRate(int rate) 
+{ 
+  fRefreshRate = TMath::Max(1,rate); 
 }
 //____________________________________________________________________________
 void GMCJMonitor::Update(int iev, const EventRecord * event)
