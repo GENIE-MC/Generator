@@ -22,7 +22,6 @@
               Allows users to customize the message stream thresholds.
               The thresholds are specified using an XML file.
               See $GENIE/config/Messenger.xml for the XML schema.
-              Multiple files, delimited with a `:' can be specified.
 
          Notes :
            There must be at least 2 files for the merges to work
