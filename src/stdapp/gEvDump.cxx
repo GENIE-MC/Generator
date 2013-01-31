@@ -6,12 +6,17 @@
 \brief   A GENIE utility printing-out GHEP event trees.
 
          Syntax:
-           shell$ gevdump -f filename [-n n1[,n2]] 
+           shell$ gevdump -f filename [-n n1[,n2]] [--event-record-print-level]
 
          [] denotes an optional argument
 
-         -f Specifies a GENIE GHEP/ROOT event file.
-         -n Specifies range of events to print-out (default: all)
+         -f 
+            Specifies a GENIE GHEP/ROOT event file.
+         -n 
+            Specifies range of events to print-out (default: all)
+         --event-record-print-level
+            Allows users to set the level of information shown when the event
+            record is printed in the screen. See GHepRecord::Print().
 
          Examples:
 
@@ -48,6 +53,7 @@
 #include "Ntuple/NtpMCEventRecord.h"
 #include "Messenger/Messenger.h"
 #include "Utils/CmdLnArgParser.h"
+#include "Utils/RunOpt.h"
 
 #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
 #include "FluxDrivers/GJPARCNuFlux.h"
@@ -69,6 +75,9 @@ string   gOptInpFilename;
 int main(int argc, char ** argv)
 {
   GetCommandLineArgs (argc, argv);
+
+  // set print level
+  GHepRecord::SetPrintLevel(RunOpt::Instance()->EventRecordPrintLevel());
 
   //
   // open the ROOT file and get the TTree & its header
@@ -223,6 +232,11 @@ void GetCommandLineArgs(int argc, char ** argv)
 {
   LOG("gevdump", pINFO) << "*** Parsing command line arguments";
 
+  // Common run options.
+  RunOpt::Instance()->ReadFromCommandLine(argc,argv);
+
+  // Parse run options for this app
+
   CmdLnArgParser parser(argc,argv);
 
   // get GENIE event sample
@@ -270,6 +284,6 @@ void PrintSyntax(void)
 {
   LOG("gevdump", pNOTICE)
     << "\n\n" << "Syntax:" << "\n"
-    << "   gevdump -f sample.root [-n n1[,n2]] [-o] \n";
+    << "   gevdump -f sample.root [-n n1[,n2]] [--event-record-print-level]\n";
 }
 //_________________________________________________________________________________

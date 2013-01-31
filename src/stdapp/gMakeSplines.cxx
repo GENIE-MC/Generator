@@ -13,7 +13,10 @@
            gmkspl -p nupdg <-t target_pdg_codes, -f geometry_file> 
                   <-o | --output-cross-sections> output_xml_xsec_file
                   [-n nknots] [-e max_energy] [--seed random_number_seed] 
-                  [--input-cross-sections input_xml_xsec_file]
+                  [--input-cross-sections xml_file]
+                  [--event-generator-list list_name]
+                  [--message-thresholds xml_file]
+
          Note :
            [] marks optional arguments.
            <> marks a list of arguments out of which only one can be 
@@ -44,6 +47,14 @@
               Name (incl. full path) of an XML file with pre-computed
               free-nucleon cross-section values. If loaded, it can speed-up
               cross-section calculation for nuclear targets.
+          --event-generator-list
+              List of event generators to load in event generation drivers.
+              [default: "Default"].
+           --message-thresholds
+              Allows users to customize the message stream thresholds.
+              The thresholds are specified using an XML file.
+              See $GENIE/config/Messenger.xml for the XML schema.
+              Multiple files, delimited with a `:' can be specified.
 
         ***  See the User Manual for more details and examples. ***
 
@@ -72,11 +83,13 @@
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
 #include "PDG/PDGCodeList.h"
-#include "Utils/RunEnv.h"
+#include "Utils/RunOpt.h"
+#include "Utils/AppInit.h"
 #include "Utils/StringUtils.h"
+//#include "Utils/SystemUtils.h"
+#include "Utils/PrintUtils.h"
 #include "Utils/XSecSplineList.h"
 #include "Utils/CmdLnArgParser.h"
-#include "Utils/SystemUtils.h"
 
 #ifdef __GENIE_GEOM_DRIVERS_ENABLED__
 #include "Geo/ROOTGeomAnalyzer.h"
@@ -113,35 +126,10 @@ int main(int argc, char ** argv)
   // Parse command line arguments
   GetCommandLineArgs(argc,argv);
 
-  // Set random number seed, if a value was set
-  if(gOptRanSeed > 0) {
-    RandomGen::Instance()->SetSeed(gOptRanSeed);
-  }
-
-  // Load input cross-sections, if any 
-  XSecSplineList * xspl = XSecSplineList::Instance();
-  if(utils::system::FileExists(gOptInpXSecFile)) {
-    XmlParserStatus_t status = xspl->LoadFromXml(gOptInpXSecFile);
-    if(status != kXmlOK) {
-      LOG("gmkspl", pFATAL)
-         << "Problem reading file: " << gOptInpXSecFile;
-       gAbortingInErr = true;
-       exit(1);
-    }
-  } else {
-    if(gOptInpXSecFile.size() > 0) {
-       LOG("gmkspl", pFATAL)
-          << "Input cross-section file ["
-          << gOptInpXSecFile << "] does not exist!";
-       gAbortingInErr = true;
-       exit(1);
-     } else {
-       LOG("gmkspl", pDEBUG) << "No cross-section file was specified in gmkspl inputs";
-     }
-  }
-
-  // Enable cache to improve CPU efficiency
-  RunEnv::Instance()->EnableCache(true);
+  // Init
+  utils::app_init::MesgThresholds(RunOpt::Instance()->MesgThresholdFiles());
+  utils::app_init::RandGen(gOptRanSeed);
+  utils::app_init::XSecTable(gOptInpXSecFile, false);
 
   // Get list of neutrinos and nuclear targets
 
@@ -174,12 +162,14 @@ int main(int argc, char ** argv)
       int tgtpdgc = *tgtiter;
       InitialState init_state(tgtpdgc, nupdgc);
       GEVGDriver driver;
+      driver.SetEventGeneratorList(RunOpt::Instance()->EventGeneratorList());
       driver.Configure(init_state);
       driver.CreateSplines(gOptNKnots, gOptMaxE);
     }
   }
 
   // Save the splines at the requested XML file
+  XSecSplineList * xspl = XSecSplineList::Instance();
   xspl->SaveAsXml(gOptOutXSecFile);
 
   delete neutrinos;
@@ -191,6 +181,12 @@ int main(int argc, char ** argv)
 void GetCommandLineArgs(int argc, char ** argv)
 {
   LOG("gmkspl", pINFO) << "Parsing command line arguments";
+
+  // Common run options. Set defaults and read.
+  RunOpt::Instance()->EnableBareXSecPreCalc(true);
+  RunOpt::Instance()->ReadFromCommandLine(argc,argv);
+
+  // Parse run options for this app
 
   CmdLnArgParser parser(argc,argv);
 
@@ -294,14 +290,21 @@ void GetCommandLineArgs(int argc, char ** argv)
     gOptInpXSecFile = "";
   }
 
+  //
+  // print the command-line options 
+  //
+  LOG("gmkspl", pNOTICE)
+     << "\n"
+     << utils::print::PrintFramedMesg("gmkspl job configuration")
+     << "\n Neutrino PDG codes : " << gOptNuPdgCodeList
+     << "\n Target PDG codes : " << gOptTgtPdgCodeList
+     << "\n Input ROOT geometry : " << gOptGeomFilename
+     << "\n Output cross-section file : " << gOptOutXSecFile
+     << "\n Input cross-section file : " << gOptInpXSecFile
+     << "\n Random number seed : " << gOptRanSeed
+     << "\n";
 
-  //-- print the options you got from command line arguments
-  LOG("gmkspl", pINFO) << "Neutrino PDG codes        : " << gOptNuPdgCodeList;
-  LOG("gmkspl", pINFO) << "Target PDG codes          : " << gOptTgtPdgCodeList;
-  LOG("gmkspl", pINFO) << "Input ROOT geometry       : " << gOptGeomFilename;
-  LOG("gmkspl", pINFO) << "Output cross-section file : " << gOptOutXSecFile;
-  LOG("gmkspl", pINFO) << "Input cross-section file  : " << gOptInpXSecFile;
-  LOG("gmkspl", pINFO) << "Random number seed        : " << gOptRanSeed;
+  LOG("gmkspl", pNOTICE) << *RunOpt::Instance();
 }
 //____________________________________________________________________________
 void PrintSyntax(void)
@@ -310,8 +313,11 @@ void PrintSyntax(void)
     << "\n\n" << "Syntax:" << "\n"
     << "   gmkspl -p nupdg <-t tgtpdg, -f geomfile> "
     << " <-o | --output-cross-section> xsec_xml_file_name"
-    << " [-n nknots] [-e max_energy] [--seed seed_number]"
-    << " [--input-cross-section xsec_xml_file_name]";
+    << " [-n nknots] [-e max_energy] "
+    << " [--seed seed_number]"
+    << " [--input-cross-section xml_file]"
+    << " [--event-generator-list list_name]"
+    << " [--message-thresholds xml_file]\n\n";
 }
 //____________________________________________________________________________
 PDGCodeList * GetNeutrinoCodes(void)

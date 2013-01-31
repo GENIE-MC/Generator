@@ -8,24 +8,27 @@
 
          Syntax :
            gspl2root -f xml_file -p nu -t tgt [-e emax] [-o root_file] [-w] [-k]
+                     [--message-thresholds xml_file]
 
          Options :
            []  denotes an optional argument
-           -f  the input XML file containing the cross section spline data
-           -p  the neutrino pdg code
-           -t  the target pdg code (format: 10LZZZAAAI)
-           -e  the maximum energy (in generated plots -- use it to zoom at low E)
-           -o  output ROOT file name
-           -w  write out plots in a postscipt file
-           -k  keep spline knot points  (not yet implemented)
 
-               Note 1: these graphs can be used to instantiate splines in bare 
-               root sessions -- effectively, they provide you with cross section 
-               functions --.
-               Note 2: the input ROOT file will not be recreated if it already 
-               exists. The graphs are saved in a TDirectory named after the 
-               neutrino+target names. That allows you to save all graphs in a 
-               single root file (with multiple directories)
+           -f  
+              the input XML file containing the cross section spline data
+           -p  
+              the neutrino pdg code
+           -t  
+              the target pdg code (format: 10LZZZAAAI)
+           -e  
+              the maximum energy (in generated plots -- use it to zoom at low E)
+           -o  
+              output ROOT file name
+           -w  
+              write out plots in a postscipt file
+           -k  
+              keep spline knot points  (not yet implemented).
+           --message-thresholds
+              Allows users to customize the message stream thresholds.
 
          Example:
 
@@ -100,6 +103,8 @@
 #include "PDG/PDGCodeList.h"
 #include "PDG/PDGUtils.h"
 #include "PDG/PDGLibrary.h"
+#include "Utils/AppInit.h"
+#include "Utils/RunOpt.h"
 #include "Utils/XSecSplineList.h"
 #include "Utils/StringUtils.h"
 #include "Utils/CmdLnArgParser.h"
@@ -143,25 +148,21 @@ const double kEmin     = 0.01; // minimum energy in plots (GeV)
 //____________________________________________________________________________
 int main(int argc, char ** argv)
 {
-  //-- parse command line arguments
   GetCommandLineArgs(argc,argv);
 
-  //-- load the x-section splines xml file specified by the user
+  utils::app_init::MesgThresholds(RunOpt::Instance()->MesgThresholdFiles());
+
+  // load the x-section splines xml file specified by the user
   LoadSplines();
 
   for (unsigned int indx_p = 0; indx_p < gOptProbePdgList.size(); ++indx_p ) {
     for (unsigned int indx_t = 0; indx_t < gOptTgtPdgList.size(); ++indx_t ) {
-
       gOptProbePdgCode = gOptProbePdgList[indx_p];
       gOptTgtPdgCode   = gOptTgtPdgList[indx_t];
-
-      //-- save the cross section plots in a postscript file
+      // save the cross section plots in a postscript file
       SaveToPsFile();
-
-      //-- save the cross section graphs at a root file
-      //   (these graphs can then be used to create splines
+      // save the cross section graphs at a root file
       SaveGraphsToRootFile();
-
     }
   }
 
@@ -1223,6 +1224,11 @@ void GetCommandLineArgs(int argc, char ** argv)
 {
   LOG("gspl2root", pINFO) << "Parsing command line arguments";
 
+  // Common run options. Set defaults and read.
+  RunOpt::Instance()->ReadFromCommandLine(argc,argv);
+
+  // Parse run options for this app
+
   CmdLnArgParser parser(argc,argv);
 
   // input XML file name:
@@ -1302,8 +1308,8 @@ void PrintSyntax(void)
   LOG("gspl2root", pNOTICE)
       << "\n\n" << "Syntax:" << "\n"
       << "   gspl2root -f xml_file -p probe_pdg -t target_pdg"
-      << " [-e emax] [-o output_root_file] [-w]";
-  //not yet//  << " [-e emax] [-o output_root_file] [-w] [-k]";
+      << "            [-e emax] [-o output_root_file] [-w]\n"
+      << "            [--message-thresholds xml_file]\n";
 }
 //____________________________________________________________________________
 PDGCodeList GetPDGCodeListFromString(std::string s)

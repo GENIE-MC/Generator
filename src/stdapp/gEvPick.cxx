@@ -33,16 +33,20 @@
            Each such NC1pi0 source contributes differently to the pion momentum distribution.
 
          Synopsis:
-           gevpick -i list_of_input_files -t topology [-o output_file]
+           gevpick -i list_of_input_files -t topology  
+                   [-o output_file]
+                   [--message-thresholds xmfile]
+                   [--event-record-print-level level]
 
          Options:
 
            [] denotes an optional argument
 
-           -i Specify input file(s).
+           -i 
+              Specify input file(s).
               Wildcards accepted, eg `-i "/data/genie/t2k/gntp.*.ghep.root"'
-
-           -t Specify event topology to cherry-pick.
+           -t 
+              Specify event topology to cherry-pick.
               The input topology can be any of
                 - all 
                     all (basically merges all files into one)
@@ -67,11 +71,18 @@
                 - cc_hyperon         
                     any (anti)neutrino CC with at least one hyperon 
                     (\Sigma^{+,0,-}, \Lambda^{0}, \Xi^{0,-}, \Omega^{-}) in final state
-
                 - <can add more / please send request to costas.andreopoulos \at stfc.ac.uk>
-
-           -o Specify output filename.
+           -o 
+              Specify output filename.
               (optional, default: gntp.<topology>.ghep.root)
+          --message-thresholds
+              Allows users to customize the message stream thresholds.
+              The thresholds are specified using an XML file.
+              See $GENIE/config/Messenger.xml for the XML schema.
+              Multiple files, delimited with a `:' can be specified.
+          --event-record-print-level
+              Allows users to set the level of information shown when the event
+              record is printed in the screen. See GHepRecord::Print().
 
          Examples:
 
@@ -115,8 +126,10 @@
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
 #include "PDG/PDGLibrary.h"
+#include "Utils/AppInit.h"
 #include "Utils/CmdLnArgParser.h"
 #include "Utils/SystemUtils.h"
+#include "Utils/RunOpt.h"
 
 using std::string;
 using std::ostringstream;
@@ -155,7 +168,12 @@ GPickTopo_t gPickedTopology;   ///< output file format id
 int main(int argc, char ** argv)
 {
   GetCommandLineArgs(argc, argv);
+
+  utils::app_init::MesgThresholds(RunOpt::Instance()->MesgThresholdFiles());
+  GHepRecord::SetPrintLevel(RunOpt::Instance()->EventRecordPrintLevel());
+
   RunCherryPicker();
+
   return 0;
 }
 //____________________________________________________________________________________
@@ -366,6 +384,11 @@ bool AcceptEvent(const EventRecord & event)
 //____________________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
 {
+  // Common run options. Set defaults and read.
+  RunOpt::Instance()->ReadFromCommandLine(argc,argv);
+
+  // Parse run options for this app
+
   CmdLnArgParser parser(argc,argv);
 
   // get input ROOT file (containing a GENIE GHEP event tree)
