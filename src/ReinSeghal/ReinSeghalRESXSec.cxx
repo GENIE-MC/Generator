@@ -14,7 +14,7 @@
    Integrated with GNU Numerical Library (GSL) via ROOT's MathMore library.
  @ Jan 29, 2013 - CA
    Don't look-up depreciated $GDISABLECACHING environmental variable.
-   Use the RunEnv singleton instead.
+   Use the RunOpt singleton instead.
 */
 //____________________________________________________________________________
 
@@ -36,7 +36,7 @@
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
 #include "ReinSeghal/ReinSeghalRESXSec.h"
-#include "Utils/RunEnv.h"
+#include "Utils/RunOpt.h"
 #include "Utils/MathUtils.h"
 #include "Utils/KineUtils.h"
 #include "Utils/Cache.h"
@@ -128,8 +128,8 @@ double ReinSeghalRESXSec::Integrate(
   // If yes, store free nucleon cross sections at a cache branch and use those
   // at any subsequent call.
   //
-  bool cache_enabled = RunEnv::Instance()->CacheEnabled();
-  if(cache_enabled) {
+  bool bare_xsec_pre_calc = RunOpt::Instance()->BareXSecPreCalc();
+  if(bare_xsec_pre_calc) {
      Cache * cache = Cache::Instance();
      string key = this->CacheBranchName(res, it, nu_pdgc, nucleon_pdgc);
      LOG("ReinSeghalResT", pINFO) 
