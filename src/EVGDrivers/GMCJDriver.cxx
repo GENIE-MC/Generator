@@ -82,7 +82,8 @@
    saving it later. This is so that it is incrementally saved and fixes bug
    where getting std::bad_alloc when trying to Write large trees 
    fFluxIntProbFile.   
- 
+ @ Jan 31, 2013 - CA
+   Added SetEventGeneratorList(string listname). $GEVGL var no longer in use.
 */
 //____________________________________________________________________________
 
@@ -138,6 +139,11 @@ GMCJDriver::~GMCJDriver()
 
   if(fFluxIntTree) delete fFluxIntTree;
   if(fFluxIntProbFile) delete fFluxIntProbFile;
+}
+//___________________________________________________________________________
+void GMCJDriver::SetEventGeneratorList(string listname)
+{
+  fEventGenList = listname;
 }
 //___________________________________________________________________________
 void GMCJDriver::UseFluxDriver(GFluxI * flux_driver)
@@ -462,6 +468,8 @@ void GMCJDriver::Configure(bool calc_prob_scales)
 //___________________________________________________________________________
 void GMCJDriver::InitJob(void)
 {
+  fEventGenList       = "Default";  // <-- set of event generators to be loaded by this driver
+
   fFluxDriver         = 0;     // <-- flux driver
   fGeomAnalyzer       = 0;     // <-- geometry driver
   fGPool              = 0;     // <-- pool of GEVGDriver event generation drivers
@@ -594,6 +602,7 @@ void GMCJDriver::PopulateEventGenDriverPool(void)
      GEVGDriver * evgdriver = new GEVGDriver;
      evgdriver->Configure(init_state);
      evgdriver->UseSplines(); // check if all splines needed are loaded
+     evgdriver->SetEventGeneratorList(fEventGenList); // specify list of generators
 
      LOG("GMCJDriver", pDEBUG) << "Adding new GEVGDriver object to GEVGPool";
      fGPool->insert( GEVGPool::value_type(init_state.AsString(), evgdriver) );

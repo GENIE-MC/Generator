@@ -3,15 +3,13 @@
 
 \class   genie::GEVGDriver
 
-\brief   Minimal interface object for generating neutrino interactions for
-         a given initial state.
-
-         If you need to generate events for a given neutrino flux and detector 
-         geometry (and therefore for a multitude of possible initial states) 
-         then use the GMCJDriver.
-         It is worth noting that GEVGDriver is the piece of code that puts the
-         actual event generation framework into motion, and GMCDriver itself
-         assembles a list of GEVGDrivers (1 / possible initial state).
+\brief   GENIE Event Generation Driver.
+         A minimalist user interface object for generating neutrino interactions.
+         Each such object is configured for a given initial state and it drives all
+         relevant GENIE neutrino interaction physics simulation code for that state.
+         To set-up MC jobs involving a multitude of possible initial states,
+         including arbitrarily complex neutrino flux and detector geometry 
+         descriptions, see the GMCJDriver object.
 
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          STFC, Rutherford Appleton Laboratory
@@ -55,45 +53,47 @@ class GEVGDriver {
 
 public :
   GEVGDriver();
-  ~GEVGDriver();
+ ~GEVGDriver();
 
-  //-- Set driver options before calling Configure()
-  void UseSplines       (void);
+  // Driver options 
+  // Set before calling Configure()
+  void UseSplines (void);
+  void SetEventGeneratorList(string listname);
 
-  //-- Configure the driver
+  // Configure the driver
   void Configure (int nu_pdgc, int Z, int A);
   void Configure (const InitialState & init_state);
 
-  //-- Generate single event
+  // Generate single event
   EventRecord * GenerateEvent (const TLorentzVector & nu4p);
 
-  //-- Get the list of all interactions that can be simulated for the specified 
-  //   initial state (depends on which event generation threads were loaded into
-  //   the event generation driver driver)
+  // Get the list of all interactions that can be simulated for the specified 
+  // initial state (depends on which event generation threads were loaded into
+  // the event generation driver driver)
   const InteractionList * Interactions(void) const;
 
-  //-- Get event generator thread list
+  // Get event generator thread list
   const EventGeneratorList * EventGenerators (void) const { return fEvGenList; }
 
-  //-- Get the event generator that is responsible for generating the input event
+  // Get the event generator that is responsible for generating the input event
   const EventGeneratorI * FindGenerator(const Interaction * interaction) const;
 
-  //-- Cross section splines for input interaction and for the sum of all
-  //   simulated interactions for the specified initial state
+  // Cross section splines for input interaction and for the sum of all
+  // simulated interactions for the specified initial state
   const Spline * XSecSumSpline       (void) const { return fXSecSumSpl; }
   const Spline * XSecSpline          (const Interaction * interaction) const;
 
-  //-- Instruct the driver to create all the splines it needs
+  // Instruct the driver to create all the splines it needs
   void CreateSplines (int nknots=-1, double emax=-1, bool inLogE=true);
 
-  //-- Methods used for building the 'total' cross section spline
+  // Methods used for building the 'total' cross section spline
   double XSecSum             (const TLorentzVector & nup4);
   void   CreateXSecSumSpline (int nk, double Emin, double Emax, bool inlogE=true);
 
-  //-- Get validity range (combined validity range of loaded evg threads)
+  // Get validity range (combined validity range of loaded evg threads)
   Range1D_t ValidEnergyRange (void) const;
 
-  //-- Reset, Print etc
+  // Reset, Print etc
   void Reset (void);
   void Print (ostream & stream) const;
 
@@ -101,7 +101,7 @@ public :
 
 private:
 
-  //-- Private initialization, configuration & input validation methods
+  // Private initialization, configuration & input validation methods
   void Init                         (void);
   void CleanUp                      (void);
   void BuildInitialState            (const InitialState & init_state);
@@ -110,7 +110,7 @@ private:
   void BuildInteractionSelector     (void);
   void AssertIsValidInitState       (void) const;
 
-  //-- Private data members
+  // Private data members
   InitialState *            fInitState;       ///< initial state information for driver instance
   EventRecord *             fCurrentRecord;   ///< ptr to the event record being processed
   EventGeneratorList *      fEvGenList;       ///< all Event Generators available at this job
@@ -120,6 +120,7 @@ private:
   bool                      fUseSplines;      ///< controls whether xsecs are computed or interpolated
   Spline *                  fXSecSumSpl;      ///< sum{xsec(all interactions | this init state)}
   unsigned int              fNRecLevel;       ///< recursive mode depth counter
+  string                    fEventGenList;    ///< list of event generators loaded by this driver (what used to be the $GEVGL setting)
 };
 
 }      // genie namespace

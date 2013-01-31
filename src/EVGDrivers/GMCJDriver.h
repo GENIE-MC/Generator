@@ -50,6 +50,7 @@ public :
  ~GMCJDriver();
 
   // configure MC job
+  void SetEventGeneratorList       (string listname);
   void UseFluxDriver               (GFluxI * flux);
   void UseGeomAnalyzer             (GeomAnalyzerI * geom);
   void UseSplines                  (bool useLogE = true);
@@ -115,6 +116,7 @@ private:
   double          fNFluxNeutrinos;     ///< [current] number of flux nuetrinos fired by the flux driver so far 
   map<int,TH1D*>  fPmax;               ///< [computed at init] interaction probability scale /neutrino /energy for given geometry
   double          fGlobPmax;           ///< [computed at init] global interaction probability scale for given flux & geometry
+  string          fEventGenList;       ///< [config] list of event generators loaded by this driver (what used to be the $GEVGL setting)
   string          fMaxPlXmlFilename;   ///< [config] input file with max density-weighted path lengths for all materials
   bool            fUseExtMaxPl;        ///< [config] using external max path length estimate?
   bool            fUseSplines;         ///< [config] compute all needed & not-loaded splines at init

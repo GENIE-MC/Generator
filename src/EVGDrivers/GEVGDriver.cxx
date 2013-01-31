@@ -36,6 +36,8 @@
    Simplify the code cheecking whether to pass-though unphysical events.
  @ Sep 26, 2011 - CA
    Demote a few mesgs.
+ @ Jan 31, 2013 - CA
+   Added SetEventGeneratorList(string listname). $GEVGL var no longer in use.
 */
 //____________________________________________________________________________
 
@@ -113,6 +115,9 @@ void GEVGDriver::Init(void)
   // cross section by running their corresponding XSecAlgorithm or by 
   // evaluating their corresponding xsec spline
   fUseSplines = false;
+
+  // set of event generators to be loaded by this driver
+  fEventGenList = "Default";
 
   // 'depth' counter when entering a recursive mode to re-generate a failed/
   // unphysical event - the driver is not allowed to go into arbitrarily large
@@ -199,7 +204,7 @@ void GEVGDriver::Configure(const InitialState & is)
 //___________________________________________________________________________
 void GEVGDriver::BuildInitialState(const InitialState & init_state)
 {
-  LOG("GEVGDriver", pINFO) << "Setting the initial state...";
+  LOG("GEVGDriver", pINFO) << "Setting the initial state";
 
   if(fInitState) delete fInitState;
   fInitState = new InitialState(init_state);
@@ -209,24 +214,21 @@ void GEVGDriver::BuildInitialState(const InitialState & init_state)
 //___________________________________________________________________________
 void GEVGDriver::BuildGeneratorList(void)
 {
-//! figure out which list of event generators to use from the $GEVGL
-//! environmental variable (use "Default") if the variable is not set.
+//! Load event generators.
+//! The list of event generators is named by fEventGenList.
 
-  LOG("GEVGDriver", pINFO) << "Building the event generator list...";
+  LOG("GEVGDriver", pNOTICE) 
+    << "Building the event generator list (specified list name: " 
+    << fEventGenList << ")";
 
-  string evgl = (gSystem->Getenv("GEVGL") ?
-      gSystem->Getenv("GEVGL") : "Default");
-  LOG("GEVGDriver", pNOTICE)
-      << "Specified Event Generator List = " << evgl;
-
-  EventGeneratorListAssembler evglist_assembler(evgl.c_str());
+  EventGeneratorListAssembler evglist_assembler(fEventGenList.c_str());
   fEvGenList = evglist_assembler.AssembleGeneratorList();
 }
 //___________________________________________________________________________
 void GEVGDriver::BuildInteractionGeneratorMap(void)
 {
-//! figure out which list of event generators to use from the $GEVGL
-//! environmental variable (use "Default") if the variable is not set.
+//! Map each possible interaction, for the given initial state, to one
+//! of the generators loaded up
 
   LOG("GEVGDriver", pINFO)
          << "Building the interaction -> generator associations...";
@@ -376,8 +378,13 @@ const InteractionList * GEVGDriver::Interactions(void) const
   return &ilst;
 }
 //___________________________________________________________________________
-const EventGeneratorI * GEVGDriver::FindGenerator(
-                                  const Interaction * interaction) const
+void GEVGDriver::SetEventGeneratorList(string listname)
+{
+  fEventGenList = listname;
+}
+//___________________________________________________________________________
+const EventGeneratorI * 
+  GEVGDriver::FindGenerator(const Interaction * interaction) const
 {
   if(!interaction) {
     LOG("GEVGDriver", pWARN) << "Null interaction!!";
