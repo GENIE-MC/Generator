@@ -14,7 +14,8 @@
 			-d detector_bounding_box_size
                         -g rock_composition
                        [--seed random_number_seed]
-                        --cross-sections input_cross_section_file
+                        --cross-sections xml_file
+                       [--message-thresholds xml_file]
 
          *** Options :
 
@@ -56,7 +57,10 @@
            --cross-sections
               Name (incl. full path) of an XML file with pre-computed
               cross-section values used for constructing splines.
-
+           --message-thresholds
+              Allows users to customize the message stream thresholds.
+              The thresholds are specified using an XML file.
+              See $GENIE/config/Messenger.xml for the XML schema.
 
          *** Examples:
 
@@ -118,6 +122,8 @@
 #include "Utils/PrintUtils.h"
 #include "Utils/UnitUtils.h"
 #include "Utils/KineUtils.h"
+#include "Utils/AppInit.h"
+#include "Utils/RunOpt.h"
 #include "Utils/CmdLnArgParser.h"
 
 #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
@@ -168,37 +174,10 @@ int main(int argc, char** argv)
   // Parse command line arguments
   GetCommandLineArgs(argc,argv); 
 
-  // Set random number seed, if a value was set
-  if(gOptRanSeed > 0) {
-    RandomGen::Instance()->SetSeed(gOptRanSeed);
-  }
-
-  // Load cross-section splines
-  XSecSplineList * xspl = XSecSplineList::Instance();
-  xspl->AutoLoad(); // display warning for usage $GSPLOAD no longer supported
-  if(utils::system::FileExists(gOptInpXSecFile)) {
-    XmlParserStatus_t status = xspl->LoadFromXml(gOptInpXSecFile);
-    if(status != kXmlOK) {
-      LOG("gevgen_upmu", pFATAL)
-         << "Problem reading file: " << gOptInpXSecFile;
-       gAbortingInErr = true;
-       exit(1);
-    }
-  } else {
-    if(gOptInpXSecFile.size() > 0) {
-       LOG("gevgen_upmu", pFATAL)
-          << "Input cross-section file ["
-          << gOptInpXSecFile << "] does not exist!";
-       gAbortingInErr = true;
-       exit(1);
-     } else {
-       LOG("gevgen_upmu", pFATAL) << "No cross-section file was specified in gevgen inputs";
-       LOG("gevgen_upmu", pFATAL) << "This is mandatory as, otherwise, event generation will be inefficient";
-       LOG("gevgen_upmu", pFATAL) << "Use the --cross-sections option";
-       gAbortingInErr = true;
-       exit(1);
-     }
-  }
+  // Init
+  utils::app_init::MesgThresholds(RunOpt::Instance()->MesgThresholdFiles());
+  utils::app_init::RandGen(gOptRanSeed);
+  utils::app_init::XSecTable(gOptInpXSecFile, true);
 
 
   // Get requested flux driver
@@ -659,7 +638,12 @@ void GetCommandLineArgs(int argc, char ** argv)
 {
 // Get the command line arguments
 
-  LOG("gevgen_upmu", pNOTICE) << "Parsing command line arguments";
+  LOG("gevgen_upmu", pINFO) << "Parsing command line arguments";
+
+  // Common run options. Set defaults and read.
+  RunOpt::Instance()->ReadFromCommandLine(argc,argv);
+
+  // Parse run options for this app
 
   CmdLnArgParser parser(argc,argv);
 
@@ -860,7 +844,8 @@ void PrintSyntax(void)
    << "\n              -n n_of_events,"
    << "\n             [-d detector side length (mm)]"
    << "\n             [--seed random_number_seed]"
-   << "\n              --cross-sections input_cross_section_file"
+   << "\n              --cross-sections xml_file"
+   << "\n            [--message-thresholds xml_file]"
    << "\n"
    << " Please also read the detailed documentation at http://www.genie-mc.org"
    << "\n";
