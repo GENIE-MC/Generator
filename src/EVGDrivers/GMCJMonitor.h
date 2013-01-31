@@ -30,11 +30,11 @@ class EventRecord;
 class GMCJMonitor {
 
 public :
-
   GMCJMonitor(Long_t runnu);
-  ~GMCJMonitor();
+ ~GMCJMonitor();
 
-  void Update(int iev, const EventRecord * event);
+  void SetRefreshRate (int rate);
+  void Update (int iev, const EventRecord * event);
 
 private:
 
