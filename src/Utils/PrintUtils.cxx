@@ -135,28 +135,6 @@ void genie::utils::print::PrintBanner(void)
       base_dir + 
       string("/data/logo/genie_banner_long.txt");
   PrintBanner(main_banner, 1000);
-/*
-  ifstream banner(filename.c_str(), ios::in);
-
-  if( banner.is_open() ) {
-      banner.seekg(0, ios::end);
-
-      int    length = banner.tellg();
-      char * buffer = new char[length];
-
-      banner.seekg(0, ios::beg);
-      banner.read(buffer, length);
-
-      //cout << "\n\n" << buffer << "\n" << endl;
-      cout << "\n\n";
-      cout.write(buffer,length);
-      cout << "\n" << endl;
-
-      delete [] buffer;
-
-      gSystem->Sleep(1000); // watch the banner for 1 sec
-  }
-*/
 }
 //___________________________________________________________________________
 void genie::utils::print::PrintBanner(string filename, UInt_t wait_msec)
