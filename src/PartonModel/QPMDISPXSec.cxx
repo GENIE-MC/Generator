@@ -17,7 +17,7 @@
    Implemented ValidProcess()
  @ Jan 29, 2013 - CA
    Don't look-up depreciated $GDISABLECACHING environmental variable.
-   Use the RunEnv singleton instead.
+   Use the RunOpt singleton instead.
 
 */
 //____________________________________________________________________________
@@ -41,7 +41,7 @@
 #include "PartonModel/QPMDISPXSec.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
-#include "Utils/RunEnv.h"
+#include "Utils/RunOpt.h"
 #include "Utils/MathUtils.h"
 #include "Utils/KineUtils.h"
 #include "Utils/Range1.h"
@@ -399,9 +399,9 @@ void QPMDISPXSec::LoadConfig(void)
   // these suppression factors.
   // Depending on the way this algorithm is used during event reweighting,
   // precomputing (for all W's) & caching these factors might not be efficient.
-  // Here we provide the option to turn the caching off (default: on)
+  // Here we provide the option to turn the caching off at run-time (default: on)
 
-  bool cache_enabled = RunEnv::Instance()->CacheEnabled();
+  bool cache_enabled = RunOpt::Instance()->BareXSecPreCalc();
 
   fUseCache = fConfig->GetBoolDef("UseCache", true);
   fUseCache = fUseCache && cache_enabled;
