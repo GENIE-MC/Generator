@@ -137,6 +137,9 @@ public :
   virtual void CompactifyDaughterLists     (void);
   virtual void RemoveIntermediateParticles (void);
 
+  // Set print level
+  static void SetPrintLevel(int print_level);
+
   // Methods & operators to print the record
 
   void Print (ostream & stream) const;
@@ -158,6 +161,8 @@ protected:
   double fProb;           ///< event probability (given flux neutrino && exp setup)
   double fXSec;           ///< cross section for selected event
   double fDiffXSec;       ///< differential cross section for selected event kinematics
+
+  static int fPrintLevel; //!  Print-level flag, see GHepRecord::Print()
 
   // Utility methods
   void InitRecord  (void);
