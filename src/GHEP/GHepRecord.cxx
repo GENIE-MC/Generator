@@ -35,6 +35,9 @@
    HitNucleon() can return a hit nucleon cluster too, as needed for MEC.
  @ Jan 29, 2013 - CA
    Demote a few messages from `notice' to `info'.
+ @ Jan 31, 2013 - CA
+   Added static SetPrintLevel(int print_level) and corresponding static
+   data member. $GHEPPRINTLEVEL env var is no longer used.
 */
 //____________________________________________________________________________
 
@@ -68,6 +71,8 @@ using std::ios;
 using namespace genie;
 
 ClassImp(GHepRecord)
+
+int GHepRecord::fPrintLevel = 3;
 
 //___________________________________________________________________________
 namespace genie {
@@ -977,9 +982,14 @@ void GHepRecord::Copy(const GHepRecord & record)
   fDiffXSec = record.fDiffXSec;
 }
 //___________________________________________________________________________
+void GHepRecord::SetPrintLevel(int print_level) 
+{ 
+  fPrintLevel = print_level; 
+}
+//___________________________________________________________________________
 void GHepRecord::Print(ostream & stream) const
 {
-  // Check $GHEPPRINTLEVEL for the preferred GHEP printout detail level
+  // Print levels:
   //  0 -> prints particle list
   //  1 -> prints particle list + event flags
   //  2 -> prints particle list + event flags + wght/xsec
@@ -989,28 +999,25 @@ void GHepRecord::Print(ostream & stream) const
   // 12 -> as in level 2 but showing particle positions too
   // 13 -> as in level 3 but showing particle positions too
 
-  int  printlevel = 1;
-  bool showpos    = false; 
-  if( gSystem->Getenv("GHEPPRINTLEVEL") ) {
-     printlevel = atoi( gSystem->Getenv("GHEPPRINTLEVEL") );
+   bool accept_input_print_level = 
+       (fPrintLevel >= 0 && fPrintLevel <= 3) ||
+       (fPrintLevel >=10 && fPrintLevel <=13);
+   
+  int printlevel = (accept_input_print_level) ? fPrintLevel : 3;
+  int printlevel_orig = printlevel;
 
-     bool accept = (printlevel>= 0 && printlevel<= 3) ||
-                   (printlevel>=10 && printlevel<=13);
-     if(accept) {
-       if(printlevel>=10) {
-          printlevel-=10;
-          showpos=true;
-       }
-     }
+  bool showpos = false; 
+  if(printlevel >= 10) {
+     printlevel-=10;
+     showpos=true;
   }
-
-  // start printing the record
-
+  
   stream << "\n\n|";
   stream << setfill('-') << setw(115) << "|";
 
-  stream << "\n|GENIE GHEP Event Record [shown using $GHEPPRINTLEVEL = "
-         << printlevel << "]" << setfill(' ') << setw(58) << "|";
+  stream << "\n|GENIE GHEP Event Record [print level: "
+         << setfill(' ') << setw(3) << printlevel_orig << "]" 
+         << setfill(' ') << setw(73) << "|";
 
   stream << "\n|";
   stream << setfill('-') << setw(115) << "|";
