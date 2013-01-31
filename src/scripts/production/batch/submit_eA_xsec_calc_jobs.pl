@@ -88,10 +88,11 @@ mkpath ($jobs_dir, {verbose => 1, mode=>0777});
 #
 while( my ($tgt_name, $tgt_code) = each %targets ) {
 
-    $fntemplate    = "$jobs_dir/job_$tgt_name";
-    $grep_pipe     = "grep -B 100 -A 30 -i \"warn\\|error\\|fatal\"";
-    $cmd  = "gmkspl -p $probes -t $tgt_code -n $nkots -e $emax -o gxspl_emode_$tgt_name.xml | $grep_pipe &> $fntemplate.mkspl.log";
-    print "@@ exec: $cmd \n";
+    $fntemplate  = "$jobs_dir/job_$tgt_name";
+    $grep_pipe   = "grep -B 100 -A 30 -i \"warn\\|error\\|fatal\"";
+    $gmkspl_opt  = "-p $probes -t $tgt_code -n $nkots -e $emax -o gxspl_emode_$tgt_name.xml --event-generator-list EM";
+    $gmkspl_cmd  = "gmkspl $gmkspl_opt | $grep_pipe &> $fntemplate.mkspl.log";
+    print "@@ exec: $gmkspl_cmd \n";
 
     # PBS case
     if($batch_system eq 'PBS') {
@@ -103,8 +104,7 @@ while( my ($tgt_name, $tgt_code) = each %targets ) {
         print PBS "#PBS -e $fntemplate.pbserr.log \n";
 	print PBS "source $genie_setup \n";
 	print PBS "cd $jobs_dir \n";
-	print PBS "export GEVGL=EM \n";
-	print PBS "$cmd \n";
+	print PBS "$gmkspl_cmd \n";
         close(PBS);
 	`qsub -q $queue $batch_script`;
     } #PBS
@@ -120,8 +120,7 @@ while( my ($tgt_name, $tgt_code) = each %targets ) {
         print LSF "#BSUB-e $fntemplate.lsferr.log \n";
 	print LSF "source $genie_setup \n";
 	print LSF "cd $jobs_dir \n";
-	print LSF "export GEVGL=EM \n";
-	print LSF "$cmd \n";
+	print LSF "$gmkspl_cmd \n";
         close(LSF);
 	`bsub < $batch_script`;
     } #LSF

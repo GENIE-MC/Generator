@@ -36,17 +36,17 @@
 # xxx :  sub-run ID, 000-999, 50k events each
 #
 #.............................................................................................
-# run number     |  init state                   | GEVGL         | flux
-#                |                               | setting       |
+# run number     |  init state                   | event generator | flux
+#                |                               | list            |
 #.............................................................................................
 #
 # ...
-# 10601Mxxx      | numu     + 12C                | CCMEC+CCQE    | 1 GeV monoenergetic
-# 10801Mxxx      | numu     + 16O                | CCMEC+CCQE    | 1 GeV monoenergetic
-# 12601Mxxx      | numu     + 56Fe               | CCMEC+CCQE    | 1 GeV monoenergetic
-# 18080Mxxx      | numu     + H2O                | CCMEC+CCQE    | T2K/SK numu
-# 28081Mxxx      | numubar  + H2O                | CCMEC+CCQE    | T2K/SK numubar
-# 19090Mxxx      | numu     + MiniBooNE tgt mix  | CCMEC+CCQE    | MiniBooNE numu
+# 10601Mxxx      | numu     + 12C                | CCMEC+CCQE      | 1 GeV monoenergetic
+# 10801Mxxx      | numu     + 16O                | CCMEC+CCQE      | 1 GeV monoenergetic
+# 12601Mxxx      | numu     + 56Fe               | CCMEC+CCQE      | 1 GeV monoenergetic
+# 18080Mxxx      | numu     + H2O                | CCMEC+CCQE      | T2K/SK numu
+# 28081Mxxx      | numubar  + H2O                | CCMEC+CCQE      | T2K/SK numubar
+# 19090Mxxx      | numu     + MiniBooNE tgt mix  | CCMEC+CCQE      | MiniBooNE numu
 # ...
 #
 #.............................................................................................
@@ -170,7 +170,7 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
        $fntemplate    = "$jobs_dir/mec-$curr_subrunnu";
        $grep_pipe     = "grep -B 20 -A 30 -i \"warn\\|error\\|fatal\"";
        $valgrind_cmd  = "valgrind --tool=memcheck --error-limit=no --leak-check=yes --show-reachable=yes";
-       $evgen_cmd     = "gevgen -n $nev_per_subrun -e $en -p $probe -t $tgt $fluxopt -r $curr_subrunnu --seed $curr_seed | $grep_pipe &> $fntemplate.evgen.log";
+       $evgen_cmd     = "gevgen -n $nev_per_subrun -e $en -p $probe -t $tgt $fluxopt -r $curr_subrunnu --seed $curr_seed --event-generator-list $gevgl | $grep_pipe &> $fntemplate.evgen.log";
        $conv_cmd      = "gntpc -f gst -i gntp.$curr_subrunnu.ghep.root";
 
        print "@@ exec: $evgen_cmd \n";
@@ -190,7 +190,6 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
            print PBS "#PBS -e $fntemplate.pbserr.log \n";
            print PBS "source $genie_setup \n"; 
            print PBS "cd $jobs_dir \n";
-           print PBS "export GEVGL=$gevgl \n";
            print PBS "$evgen_cmd \n";
            print PBS "$conv_cmd \n";
            close(PBS);
@@ -209,7 +208,6 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
            print LSF "#BSUB-e $fntemplate.lsferr.log \n";
            print LSF "source $genie_setup \n"; 
            print LSF "cd $jobs_dir \n";
-           print LSF "export GEVGL=$gevgl \n";
            print LSF "$evgen_cmd \n";
            print LSF "$conv_cmd \n";
            close(LSF);
