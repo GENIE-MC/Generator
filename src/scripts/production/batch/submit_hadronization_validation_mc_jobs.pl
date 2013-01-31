@@ -26,8 +26,8 @@
 #
 # EVENT SAMPLES:
 #...................................................................................
-# run number      |  init state      | energy   | GEVGL              | flux
-#                 |                  | (GeV)    | setting            |
+# run number      |  init state      | energy   | event generator    | flux
+#                 |                  | (GeV)    | list               |
 #...................................................................................
 #
 # 1000xx          | numu    + n      | 0.5-80.  | HadronizationTest  | 1/E
@@ -136,7 +136,8 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
        $fntemplate    = "$jobs_dir/hdzvld-$curr_subrunnu";
        $grep_pipe     = "grep -B 20 -A 30 -i \"warn\\|error\\|fatal\"";
        $valgrind_cmd  = "valgrind --tool=memcheck --error-limit=no --leak-check=yes --show-reachable=yes";
-       $evgen_cmd     = "gevgen -n $nev_per_subrun -e $en -p $nu -t $tgt $fluxopt -r $curr_subrunnu --seed $curr_seed --cross-sections $xspl_file | $grep_pipe &> $fntemplate.evgen.log";
+       $evgen_opt     = "-n $nev_per_subrun -e $en -p $nu -t $tgt $fluxopt -r $curr_subrunnu --seed $curr_seed --cross-sections $xspl_file --event-generator-list $gevgl";
+       $evgen_cmd     = "gevgen $evgen_opt | $grep_pipe &> $fntemplate.evgen.log";
 
        print "@@ exec: $evgen_cmd \n";
 
@@ -155,7 +156,6 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
            print PBS "#PBS -e $fntemplate.pbserr.log \n";
            print PBS "source $genie_setup \n"; 
            print PBS "cd $jobs_dir \n";
-           print PBS "export GEVGL=$gevgl \n";
            print PBS "$evgen_cmd \n";
            close(PBS);
            `qsub -q $queue $batch_script`;
@@ -173,7 +173,6 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
            print LSF "#BSUB-e $fntemplate.lsferr.log \n";
            print LSF "source $genie_setup \n"; 
            print LSF "cd $jobs_dir \n";
-           print LSF "export GEVGL=$gevgl \n";
            print LSF "$evgen_cmd \n";
            close(LSF);
            `bsub < $batch_script`;

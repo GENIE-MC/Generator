@@ -198,7 +198,8 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
        $curr_seed     = $mcseed + $isubrun + $offset;
        $grep_pipe     = "grep -B 100 -A 30 -i \"warn\\|error\\|fatal\"";
        $valgrind_cmd  = "valgrind --tool=memcheck --error-limit=no --leak-check=yes --show-reachable=yes";
-       $evgen_cmd     = "gevgen -n $nev_per_subrun -e $en -p $nu -t $tgt $fluxopt -r $curr_subrunnu --seed $curr_seed --cross-sections $xspl_file | $grep_pipe &> $fntemplate.evgen.log";
+       $evgen_opt     = "-n $nev_per_subrun -e $en -p $nu -t $tgt $fluxopt -r $curr_subrunnu --seed $curr_seed --cross-sections $xspl_file --event-generator-list $gevgl";
+       $evgen_cmd     = "gevgen $evgen_opt | $grep_pipe &> $fntemplate.evgen.log";
        $conv_cmd      = "gntpc -f gst -i gntp.$curr_subrunnu.ghep.root | $grep_pipe &> $fntemplate.conv.log";
 
        print "@@ exec: $evgen_cmd \n";
@@ -217,7 +218,6 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
            print PBS "#PBS -e $fntemplate.pbserr.log \n";
            print PBS "source $genie_setup \n"; 
            print PBS "cd $jobs_dir \n";
-           print PBS "export GEVGL=$gevgl \n";
            print PBS "$evgen_cmd \n";
            print PBS "$conv_cmd \n";
            close(PBS);
@@ -235,7 +235,6 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
            print LSF "#BSUB-e $fntemplate.lsferr.log \n";
            print LSF "source $genie_setup \n"; 
            print LSF "cd $jobs_dir \n";
-           print LSF "export GEVGL=$gevgl \n";
            print LSF "$evgen_cmd \n";
            print LSF "$conv_cmd \n";
            close(LSF);
@@ -270,7 +269,6 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
       print PBS "#PBS -o $fntemplate.pbsout.log \n";
       print PBS "#PBS -e $fntemplate.pbserr.log \n";
       print PBS "source $genie_setup \n"; 
-      print PBS "unset GEVGL \n"; 
       print PBS "cd $jobs_dir \n";
       print PBS "$gspl2root_cmd \n";
       close(PBS);
@@ -287,7 +285,6 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
       print LSF "#BSUB-o $fntemplate.lsfout.log \n";
       print LSF "#BSUB-e $fntemplate.lsferr.log \n";
       print LSF "source $genie_setup \n"; 
-      print LSF "unset GEVGL \n"; 
       print LSF "cd $jobs_dir \n";
       print LSF "$gspl2root_cmd \n";
       close(LSF);

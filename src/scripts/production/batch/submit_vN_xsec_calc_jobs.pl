@@ -197,9 +197,10 @@ for my $curr_xsplset (keys %OUTXML)  {
     $fntemplate    = "$jobs_dir/job-$curr_xsplset"; 
     $grep_pipe     = "grep -B 100 -A 30 -i \"warn\\|error\\|fatal\"";
     $valgrind_cmd  = "valgrind --tool=memcheck --error-limit=no --leak-check=yes --show-reachable=yes";
-    $cmd           = "gmkspl -p $nu -t $tgt -n $nkots -e $emax -o $outxml | $grep_pipe &> $fntemplate.mkspl.log";
+    $gmkspl_opt    = "-p $nu -t $tgt -n $nkots -e $emax -o $outxml --event-generator-list $gevgl";
+    $gmkspl_cmd    = "gmkspl $gmkspl_opt | $grep_pipe &> $fntemplate.mkspl.log";
 
-    print "@@ exec: $cmd \n";
+    print "@@ exec: $gmkspl_cmd \n";
 
     #
     # submit
@@ -214,8 +215,7 @@ for my $curr_xsplset (keys %OUTXML)  {
         print PBS "#PBS -e $fntemplate.pbserr.log \n";
         print PBS "source $genie_setup \n";
         print PBS "cd $jobs_dir \n";
-        print PBS "export GEVGL=$gevgl \n";
-        print PBS "$cmd \n";
+        print PBS "$gmkspl_cmd \n";
         close(PBS);
         `qsub -q $queue $batch_script`;
     } #PBS
@@ -230,8 +230,7 @@ for my $curr_xsplset (keys %OUTXML)  {
         print LSF "#BSUB-e $fntemplate.lsferr.log \n";
         print LSF "source $genie_setup \n";
         print LSF "cd $jobs_dir \n";
-        print LSF "export GEVGL=$gevgl \n";
-        print LSF "$cmd \n";
+        print LSF "$gmkspl_cmd \n";
         close(LSF);
         `bsub < $batch_script`;
     } #LSF
