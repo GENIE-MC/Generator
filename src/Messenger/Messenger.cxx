@@ -23,6 +23,10 @@
    Use the GetXMLFilePath() to search the potential XML config file locations
    and return the first actual file that can be found. Adapt code to use the
    utils::xml namespace.
+ @ Jan 31, 2013 - CA
+   The $GMSGCONF var is no longer used. Instead, call 
+   Messenger::SetPrioritiesFromXmlFile(string filename) explicitly.
+
 */
 //____________________________________________________________________________
 
@@ -109,7 +113,7 @@ log4cpp::Category & Messenger::operator () (const char * stream)
 }
 //____________________________________________________________________________
 void Messenger::SetPriorityLevel(
-                       const char * stream, log4cpp::Priority::Value priority)
+   const char * stream, log4cpp::Priority::Value priority)
 {
   log4cpp::Category & MSG = log4cpp::Category::getInstance(stream);
 
@@ -120,90 +124,72 @@ void Messenger::Configure(void)
 {
 // The Configure() method will look for priority level xml config files, read
 // the priority levels and set them.
-// By default, first it will look for the $GENIE/config/messenger.xml file.
-// Then it will look any messenger configuration xml file defined in the
-// GMSGCONF env variable. This variable can contain more than one XML files
-// (that should be delimited with a ';'). The full path for each file should
-// be given. See the $GENIE/config/messenger.xml for the XML schema.
-// The later each file is, the higher priority it has - eg. if the same stream
-// is listed twice with conflicting priority then the one found last is used.
+// By default, first it will look for the $GENIE/config/Messenger.xml file.
+// Look at this file for the  XML schema.
 
-  bool ok = false;
-
-  string filename = gSystem->Getenv("GPRODMODE") ? 
-                    "Messenger_production.xml" : "Messenger.xml";
-
-  string msg_config_file = utils::xml::GetXMLFilePath(filename);
+  string msg_config_file = utils::xml::GetXMLFilePath("Messenger.xml");
 
   // parse & set the default priority levels
-  ok = this->SetPrioritiesFromXmlFile(msg_config_file);
+  bool ok = this->SetPrioritiesFromXmlFile(msg_config_file);
   if(!ok) {
     SLOG("Messenger", pERROR)
-           << "Priority levels from: " << msg_config_file << " were not set!";
+      << "Priority levels from: " << msg_config_file << " were not set!";
   }
 
-  //-- checkout the GMSGCONF conf for additional messenger configuration files
-  string gmsgconf = (gSystem->Getenv("GMSGCONF") ?
-                     gSystem->Getenv("GMSGCONF") : "");
-  SLOG("Messenger", pINFO) << "$GMSGCONF env.var = " << gmsgconf;
-
-  if(gmsgconf.size()>0) {
-     //-- check for multiple files delimited with a ":"
-     vector<string> conf_xmlv = utils::str::Split(gmsgconf, ":");
-
-     //-- loop over messenger config files -- parse & set priorities
-     vector<string>::const_iterator conf_iter;
-     for(conf_iter = conf_xmlv.begin();
-                                 conf_iter != conf_xmlv.end(); ++conf_iter) {
-          // look in all known XML locations, just like primary file
-          string conf_xml =  utils::xml::GetXMLFilePath(*conf_iter);
-          ok = this->SetPrioritiesFromXmlFile(conf_xml);
-          if(!ok) {
-            SLOG("Messenger", pERROR)
-                << "Priority levels from: " << conf_xml << " were not set!";
-            }
-     }
-  } else {
-    SLOG("Messenger", pINFO)
-       << "No additional messenger config XML file was specified";
-  }
 }
 //____________________________________________________________________________
-bool Messenger::SetPrioritiesFromXmlFile(string filename)
+bool Messenger::SetPrioritiesFromXmlFile(string filenames)
 {
-// Reads the XML config file and sets the priority levels
+// Reads input XML config file and sets the priority levels.
+// The input can be a colection of XML files, delimited with a ":".
+// The full path for each file should be given.
+// In case of multiple files, all files are read.
+// The later each file is, the higher priority it has (if the same mesg 
+// stream is listed twice with conflicting priority, the last one is used.).
 //
-  SLOG("Messenger", pNOTICE)
-    << "Reading msg stream priorities from XML file: " << filename;
-  xmlDocPtr xml_doc = xmlParseFile(filename.c_str());
 
-  if(xml_doc==NULL) {
-    SLOG("Messenger", pERROR)
+  if(filenames.size()==0) return false;
+
+  vector<string> filename_vec = utils::str::Split(filenames, ":");
+  if(filename_vec.size() == 0) return false;
+
+  vector<string>::const_iterator filename_iter;
+  for(filename_iter  = filename_vec.begin();
+      filename_iter != filename_vec.end(); ++filename_iter) 
+  {
+     // look in all known XML locations, just like primary file
+     string filename = utils::xml::GetXMLFilePath(*filename_iter);
+
+    SLOG("Messenger", pNOTICE)
+      << "Reading msg stream priorities from XML file: " << filename;
+
+    xmlDocPtr xml_doc = xmlParseFile(filename.c_str());
+    if(xml_doc==NULL) {
+       SLOG("Messenger", pERROR)
            << "XML file could not be parsed! [file: " << filename << "]";
-    return false;
-  }
+       return false;
+    }
 
-  xmlNodePtr xml_root = xmlDocGetRootElement(xml_doc);
+    xmlNodePtr xml_root = xmlDocGetRootElement(xml_doc);
+    if(xml_root==NULL) {
+       SLOG("Messenger", pERROR)
+           << "XML doc. has null root element! [file: " << filename << "]";
+       return false;
+    }
 
-  if(xml_root==NULL) {
-    SLOG("Messenger", pERROR)
-         << "XML doc. has null root element! [file: " << filename << "]";
-    return false;
-  }
+    if( xmlStrcmp(xml_root->name, (const xmlChar *) "messenger_config") ) {
+       SLOG("Messenger", pERROR)
+         << "XML doc. has invalid root element! [file: " << filename << "]";
+       return false;
+    }
 
-  if( xmlStrcmp(xml_root->name, (const xmlChar *) "messenger_config") ) {
-    SLOG("Messenger", pERROR)
-      << "XML doc. has invalid root element! [file: " << filename << "]";
-    return false;
-  }
+    xmlNodePtr xml_msgp = xml_root->xmlChildrenNode; // <priority>'s
 
-  xmlNodePtr xml_msgp = xml_root->xmlChildrenNode; // <priority>'s
+    // loop over all xml tree nodes that are children of the <spline> node
+    while (xml_msgp != NULL) {
 
-  // loop over all xml tree nodes that are children of the <spline> node
-  while (xml_msgp != NULL) {
-
-     // enter everytime you find a <priority> tag
-     if( (!xmlStrcmp(xml_msgp->name, (const xmlChar *) "priority")) ) {
+      // enter everytime you find a <priority> tag
+      if( (!xmlStrcmp(xml_msgp->name, (const xmlChar *) "priority")) ) {
 
          string msgstream = utils::str::TrimSpaces(
                   utils::xml::GetAttribute(xml_msgp, "msgstream"));
@@ -215,10 +201,13 @@ bool Messenger::SetPrioritiesFromXmlFile(string filename)
          SLOG("Messenger", pINFO)
                   << "Set priority level: " << setfill('.')
                           << setw(24) << msgstream << " --> " << priority;
-     }
-     xml_msgp = xml_msgp->next;
-  }
-  xmlFree(xml_msgp);
+      }
+      xml_msgp = xml_msgp->next;
+    }//xml_msgp != NULL
+
+    xmlFree(xml_msgp);
+
+  }//filename_iter
 
   return true;
 }
