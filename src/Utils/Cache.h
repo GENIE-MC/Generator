@@ -39,6 +39,9 @@ public:
 
   static Cache * Instance(void);
 
+  //! cache file
+  void OpenCacheFile (string filename);
+
   //! finding/adding cache branches
   CacheBranchI * FindCacheBranch (string key);
   void           AddCacheBranch  (string key, CacheBranchI * branch);
@@ -55,10 +58,9 @@ public:
 
 private:
 
-  //! auto-load/save
-  void AutoLoad      (void);
-  void AutoSave      (void);
-  void OpenCacheFile (void);
+  //! load/save
+  void Load (void);
+  void Save (void);
 
   //! singleton instance
   static Cache * fInstance;

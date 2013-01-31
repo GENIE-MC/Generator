@@ -5,12 +5,15 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - November 26, 2004
+         STFC, Rutherford Appleton Laboratory
 
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
-
+ @ Jan 24, 2013 - CA
+   Cache is not autoloaded and use of variables $GCACHEFILE is no longer
+   supported. Instead, call Cache::OpenCacheFile(string filename) explicitly.
+   Now cached data are stored in the top-level 'directory'.
 */
 //____________________________________________________________________________
 
@@ -50,8 +53,8 @@ Cache::Cache()
 //____________________________________________________________________________
 Cache::~Cache()
 {
-  cout << "Cache singleton dtor: AutoSaving" << endl;
-  this->AutoSave();
+  cout << "Cache singleton dtor: saving cache" << endl;
+  this->Save();
 
   cout << "Cache singleton dtor: Deleting all cache branches" << endl;
   if(fCacheMap) {
@@ -82,7 +85,6 @@ Cache * Cache::Instance()
     fInstance = new Cache;
 
     fInstance->fCacheMap = new map<string, CacheBranchI * >;
-    fInstance->AutoLoad();
   }
   return fInstance;
 }
@@ -140,58 +142,35 @@ void Cache::RmMatchedCacheBranches(string key_substring)
 
 }
 //____________________________________________________________________________
-void Cache::AutoLoad(void)
+void Cache::Load(void)
 {
-  LOG("Cache", pNOTICE) << "AutoLoading Cache";
-
-  this->OpenCacheFile();
+  LOG("Cache", pNOTICE) << "Loading cache";
 
   if(!fCacheFile) return;
-
-  TDirectory * cache = (TDirectory *) fCacheFile->Get("cache");
-  if(!cache) {
-   LOG("Cache", pNOTICE) << "Loaded cache is empty!";
-   return;
-  }
-  cache->cd();
-
-  TList * keys = (TList*) cache->Get("key_list");
+  TList * keys = (TList*) fCacheFile->Get("key_list");
   TIter kiter(keys);
   TObjString * keyobj = 0;
-
   int ib=0;
   while ((keyobj = (TObjString *)kiter.Next())) {
-
     string key = string(keyobj->GetString().Data());
-
     ostringstream bname;
     bname << "buffer_" << ib++;
-
-    CacheBranchI * buffer = (CacheBranchI*) cache->Get(bname.str().c_str());
+    CacheBranchI * buffer = (CacheBranchI*) fCacheFile->Get(bname.str().c_str());
     if(buffer) {
      fCacheMap->insert( map<string, CacheBranchI *>::value_type(key,buffer) );
     }
   }
-
   LOG("Cache", pNOTICE) << "Cache loaded...";
   LOG("Cache", pNOTICE) << *this;
 }
 //____________________________________________________________________________
-void Cache::AutoSave(void)
+void Cache::Save(void)
 {
   if(!fCacheFile) {
     cout << " no cache file is open!" << endl;
     return;
   }
-
   fCacheFile->cd();
-
-  TDirectory * cache = dynamic_cast<TDirectory *> (fCacheFile->Get("cache"));
-  if(!cache) {
-    cache = new TDirectory("cache", "GENIE Cache");
-    cache->Write("cache");
-  }
-  cache->cd();
 
   int ib=0;
   TList * keys = new TList;
@@ -203,10 +182,8 @@ void Cache::AutoSave(void)
     CacheBranchI * branch = citer->second;
     if(branch) {
       cout << " saving cache buffer: " << key << endl;
-
       ostringstream bname;
       bname << "buffer_" << ib++;
-
       keys->Add(new TObjString(key.c_str()));
       branch->Write(bname.str().c_str(), TObject::kOverwrite);
     }
@@ -217,26 +194,27 @@ void Cache::AutoSave(void)
   delete keys;
 }
 //____________________________________________________________________________
-void Cache::OpenCacheFile(void)
+void Cache::OpenCacheFile(string filename)
 {
-  fCacheFile = 0;
+  if(filename.size() == 0) return;
 
-  if(!gSystem->Getenv("GCACHEFILE") ) {
-    LOG("Cache", pWARN)
-     << "$GCACHEFILE was not set. Cache buffer loading/saving is disabled";
-    return;
+  if(fCacheFile) {
+    if(fCacheFile->IsOpen()) {
+       delete fCacheFile;
+       fCacheFile = 0;
+    }
   }
 
-  string file = gSystem->Getenv("GCACHEFILE");
-  LOG("Cache", pNOTICE) << "$GCACHEFILE env.var = " << file;
+  LOG("Cache", pNOTICE) << "Using cache file: " << filename;
 
-  fCacheFile = new TFile(file.c_str(),"update");
-
+  fCacheFile = new TFile(filename.c_str(),"update");
   if(!fCacheFile->IsOpen()) {
      delete fCacheFile;
      fCacheFile = 0;
-     LOG("Cache", pWARN) << "Could not open cache file: " << file;
+     LOG("Cache", pWARN) << "Could not open cache file: " << filename;
   }
+
+  this->Load();
 }
 //____________________________________________________________________________
 void Cache::Print(ostream & stream) const
