@@ -33,7 +33,12 @@
 		      [-o output_event_file_prefix]
 		      [-R]
                       [--seed random_number_seed]
-                       --cross-sections input_cross_section_file
+                       --cross-sections xml_file
+                      [--message-thresholds xml_file]
+                      [--unphysical-event-mask mask]
+                      [--event-record-print-level level]
+                      [--mc-job-status-refresh-rate  rate]
+                      [--cache-file root_file]
 
          *** Options :
 
@@ -294,6 +299,22 @@
            --cross-sections
               Name (incl. full path) of an XML file with pre-computed
               cross-section values used for constructing splines.
+           --message-thresholds
+              Allows users to customize the message stream thresholds.
+              The thresholds are specified using an XML file.
+              See $GENIE/config/Messenger.xml for the XML schema.
+           --unphysical-event-mask
+              Allows users to specify a 16-bit mask to allow certain types of
+              unphysical events to be written in the output file.
+              [default: all unphysical events are rejected]
+           --event-record-print-level
+              Allows users to set the level of information shown when the event
+              record is printed in the screen. See GHepRecord::Print().
+           --mc-job-status-refresh-rate
+              Allows users to customize the refresh rate of the status file.
+           --cache-file
+              Allows users to specify a cache file so that the cache can be
+              re-used in subsequent MC jobs.
 
          *** Examples:
         
@@ -418,6 +439,8 @@
 #include "Utils/XSecSplineList.h"
 #include "Utils/StringUtils.h"
 #include "Utils/UnitUtils.h"
+#include "Utils/AppInit.h"
+#include "Utils/RunOpt.h"
 #include "Utils/CmdLnArgParser.h"
 #include "Utils/T2KEvGenMetaData.h"
 #include "Utils/SystemUtils.h"
@@ -487,37 +510,15 @@ int main(int argc, char ** argv)
   // Parse command line arguments
   GetCommandLineArgs(argc,argv);
 
-  // Set random number seed, if a value was set
-  if(gOptRanSeed > 0) {
-    RandomGen::Instance()->SetSeed(gOptRanSeed);
-  }
+  // Initialization of random number generators, cross-section table,
+  // messenger thresholds, cache file
+  utils::app_init::MesgThresholds(RunOpt::Instance()->MesgThresholdFiles());
+  utils::app_init::CacheFile(RunOpt::Instance()->CacheFile());
+  utils::app_init::RandGen(gOptRanSeed);
+  utils::app_init::XSecTable(gOptInpXSecFile, true);
 
-  // Load cross-section splines
-  XSecSplineList * xspl = XSecSplineList::Instance();
-  xspl->AutoLoad(); // display warning for usage $GSPLOAD no longer supported
-  if(utils::system::FileExists(gOptInpXSecFile)) {
-    XmlParserStatus_t status = xspl->LoadFromXml(gOptInpXSecFile);
-    if(status != kXmlOK) {
-      LOG("gevgen_t2k", pFATAL)
-         << "Problem reading file: " << gOptInpXSecFile;
-       gAbortingInErr = true;
-       exit(1);
-    }
-  } else {
-    if(gOptInpXSecFile.size() > 0) {
-       LOG("gevgen_t2k", pFATAL)
-          << "Input cross-section file ["
-          << gOptInpXSecFile << "] does not exist!";
-       gAbortingInErr = true;
-       exit(1);
-     } else {
-       LOG("gevgen_t2k", pFATAL) << "No cross-section file was specified in gevgen inputs";
-       LOG("gevgen_t2k", pFATAL) << "This is mandatory as, otherwise, event generation will be inefficient";
-       LOG("gevgen_t2k", pFATAL) << "Use the --cross-sections option";
-       gAbortingInErr = true;
-       exit(1);
-     }
-  }
+  // Set GHEP print level
+  GHepRecord::SetPrintLevel(RunOpt::Instance()->EventRecordPrintLevel());
   
   // *************************************************************************
   // * Create / configure the geometry driver 
@@ -631,6 +632,7 @@ int main(int argc, char ** argv)
   // * Create/configure the event generation driver 
   // *************************************************************************
   GMCJDriver * mcj_driver = new GMCJDriver;
+  mcj_driver->SetEventGeneratorList(RunOpt::Instance()->EventGeneratorList());
   mcj_driver->UseFluxDriver(flux_driver);    
   mcj_driver->UseGeomAnalyzer(geom_driver);        
   mcj_driver->UseMaxPathLengths(gOptExtMaxPlXml);  
@@ -770,6 +772,7 @@ int main(int argc, char ** argv)
 
   // Create a MC job monitor for a periodically updated status file
   GMCJMonitor mcjmonitor(gOptRunNu);
+  mcjmonitor.SetRefreshRate(RunOpt::Instance()->MCJobStatusRefreshRate());
 
   // *************************************************************************
   // * Event generation loop
@@ -916,11 +919,13 @@ int main(int argc, char ** argv)
 //____________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
 {
-  //
-  // >>> get the command line arguments
-  //
+  LOG("gevgen_t2k", pINFO) << "Parsing command line arguments";
 
-  LOG("gevgen_t2k", pNOTICE) << "Parsing command line arguments";
+  // Common run options. Set defaults and read.
+  RunOpt::Instance()->EnableBareXSecPreCalc(true);
+  RunOpt::Instance()->ReadFromCommandLine(argc,argv);
+
+  // Parse run options for this app
 
   CmdLnArgParser parser(argc,argv);
 
@@ -1458,7 +1463,13 @@ void PrintSyntax(void)
    << "\n           [-o output_event_file_prefix]"
    << "\n           [-R]"
    << "\n           [--seed random_number_seed]"
-   << "\n            --cross-sections input_cross_section_file"
+   << "\n            --cross-sections xml_file"
+   << "\n           [--event-generator-list list_name]"
+   << "\n           [--message-thresholds xml_file]"
+   << "\n           [--unphysical-event-mask mask]"
+   << "\n           [--event-record-print-level level]"
+   << "\n           [--mc-job-status-refresh-rate  rate]"
+   << "\n           [--cache-file root_file]"
    << "\n"
    << " Please also read the detailed documentation at http://www.genie-mc.org"
    << " or look at the source code: $GENIE/src/support/t2k/EvGen/gT2KEvGen.cxx"
