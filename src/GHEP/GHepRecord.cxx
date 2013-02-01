@@ -1172,7 +1172,7 @@ void GHepRecord::Print(ostream & stream) const
     stream << setfill(' ') << setw(17) << "FLAGS:   | "
            << "UnPhys: " << setfill(' ') << setw(5) 
            << utils::print::BoolAsIOString(this->IsUnphysical()) << " |"
-           << " ErrBits[" << fEventFlags->GetNbits() << "->0]:" 
+           << " ErrBits[" << fEventFlags->GetNbits()-1 << "->0]:" 
            << *fEventFlags << " |" 
            << " 1stSet: " << setfill(' ') << setw(38) 
            << ( this->IsUnphysical() ? 
