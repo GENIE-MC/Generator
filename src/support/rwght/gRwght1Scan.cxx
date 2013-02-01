@@ -18,6 +18,8 @@
           [-p neutrino_codes] 
           [-o output_weights_file]
           [--seed random_number_seed]
+          [--message-thresholds xml_file]
+          [--event-record-print-level level]
 
          where 
          [] is an optional argument.
@@ -52,6 +54,10 @@
             By default filename is weights_<name_of_systematic_param>.root.
          --seed
             Random number seed.
+         --message-thresholds
+            Allows users to customize the message stream thresholds.
+            The thresholds are specified using an XML file.
+            See $GENIE/config/Messenger.xml for the XML schema.
 
 \author  Jim Dobson
          Imperial College London
@@ -103,6 +109,8 @@
 #include "ReWeight/GReWeightNuXSecCCQEvec.h"
 #include "ReWeight/GReWeightNuXSecNCRES.h"  
 #include "ReWeight/GReWeightNuXSecDIS.h"    
+#include "Utils/AppInit.h"
+#include "Utils/RunOpt.h"
 #include "Utils/CmdLnArgParser.h"
 
 using std::string;
@@ -122,17 +130,16 @@ Long64_t    gOptNEvt2;       ///< range of events to process (2nd input, if any)
 GSyst_t     gOptSyst;        ///< input systematic param
 int         gOptInpNTwk;     ///< # of tweaking dial values between [-1,1]
 PDGCodeList gOptNu(false);   ///< neutrinos to consider
-long int     gOptRanSeed;    ///< random number seed
+long int    gOptRanSeed;    ///< random number seed
 
 //___________________________________________________________________
 int main(int argc, char ** argv)
 {
   GetCommandLineArgs (argc, argv);
 
-  // Set random number seed, if a value was set
-  if(gOptRanSeed > 0) {
-    RandomGen::Instance()->SetSeed(gOptRanSeed);
-  }
+  utils::app_init::MesgThresholds(RunOpt::Instance()->MesgThresholdFiles());
+  utils::app_init::RandGen(gOptRanSeed);
+  GHepRecord::SetPrintLevel(RunOpt::Instance()->EventRecordPrintLevel());
 
   // Get the input event sample
   TTree *           tree = 0;
@@ -140,9 +147,9 @@ int main(int argc, char ** argv)
   TFile file(gOptInpFilename.c_str(),"READ");
   tree = dynamic_cast <TTree *>           ( file.Get("gtree")  );
   thdr = dynamic_cast <NtpMCTreeHeader *> ( file.Get("header") );
-  LOG("RewScan1", pNOTICE) << "Input tree header: " << *thdr;
+  LOG("grwght1scan", pNOTICE) << "Input tree header: " << *thdr;
   if(!tree){
-    LOG("RewScan1", pFATAL) 
+    LOG("grwght1scan", pFATAL) 
       << "Can't find a GHEP tree in input file: "<< file.GetName();
     gAbortingInErr = true;
     PrintSyntax();
@@ -171,7 +178,7 @@ int main(int argc, char ** argv)
   // Summarize
   //
 
-  LOG("RewScan1", pNOTICE) 
+  LOG("grwght1scan", pNOTICE) 
     << "\n"
     << "\n** grwght1scan: Will start processing events promptly."
     << "\nHere is a summary of inputs: "
@@ -251,7 +258,7 @@ int main(int argc, char ** argv)
 
      // Set non-default values and re-configure.    
      double twk_dial = twk_dial_min + ith_dial * twk_dial_step;  
-     LOG("RewScan1", pNOTICE) 
+     LOG("grwght1scan", pNOTICE) 
        << "Reconfiguring systematic: " << GSyst::AsString(gOptSyst)
        << " - Setting tweaking dial to: " << twk_dial;
      syst.Set(gOptSyst, twk_dial);
@@ -263,7 +270,7 @@ int main(int argc, char ** argv)
           // Get next event
           tree->GetEntry(iev);
           EventRecord & event = *(mcrec->event);
-          LOG("RewScan1", pDEBUG) << event;
+          LOG("grwght1scan", pDEBUG) << event;
 
           // Reset arrays
           int idx = iev - nfirst;
@@ -281,12 +288,12 @@ int main(int argc, char ** argv)
           }
 
           // Print/store
-          LOG("RewScan1", pDEBUG) 
+          LOG("grwght1scan", pDEBUG) 
               << "Overall weight = " << wght;
           weights[idx][ith_dial] = wght;
 
           if(iev%100 == 0) {
-              LOG("RewScan1", pNOTICE) 
+              LOG("grwght1scan", pNOTICE) 
                  << "***** Currently at event number: "<< iev;
            }
 
@@ -318,7 +325,7 @@ int main(int argc, char ** argv)
     int idx = iev - nfirst;
     branch_eventnum = iev; 
     for(int ith_dial = 0; ith_dial < n_points; ith_dial++){  
-        LOG("RewScan1", pDEBUG)
+        LOG("grwght1scan", pDEBUG)
           << "Filling tree with wght = " << weights[idx][ith_dial] 
           << ", twk dial = "<< twkdials[idx][ith_dial];
        branch_weight_array   -> AddAt (weights [idx][ith_dial], ith_dial);
@@ -333,24 +340,31 @@ int main(int argc, char ** argv)
   wght_tree = 0; 
   wght_file->Close();
 
-  LOG("RewScan1", pNOTICE)  << "Done!";
+  LOG("grwght1scan", pNOTICE)  << "Done!";
 
   return 0;
 }
 //___________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
 {
-  LOG("RewScan1", pINFO) 
+  LOG("grwght1scan", pINFO) 
      << "*** Parsing command line arguments";
+
+  LOG("grwght1scan", pINFO) << "Parsing command line arguments";
+
+  // Common run options. Set defaults and read.
+  RunOpt::Instance()->ReadFromCommandLine(argc,argv);
+
+  // Parse run options for this app
 
   CmdLnArgParser parser(argc,argv);
 
   // get GENIE event sample
   if(parser.OptionExists('f')) {
-    LOG("RewScan1", pINFO) << "Reading event sample filename";
+    LOG("grwght1scan", pINFO) << "Reading event sample filename";
     gOptInpFilename = parser.ArgAsString('f');
   } else {
-    LOG("RewScan1", pFATAL) 
+    LOG("grwght1scan", pFATAL) 
         << "Unspecified input filename - Exiting";
     gAbortingInErr = true;
     PrintSyntax();
@@ -360,12 +374,12 @@ void GetCommandLineArgs(int argc, char ** argv)
   // range of event numbers to process
   if ( parser.OptionExists('n') ) {
     //
-    LOG("gevdump", pINFO) << "Reading number of events to analyze";
+    LOG("grwght1scan", pINFO) << "Reading number of events to analyze";
     string nev =  parser.ArgAsString('n');
     if (nev.find(",") != string::npos) {
       vector<long> vecn = parser.ArgAsLongTokens('n',",");
       if(vecn.size()!=2) {
-         LOG("gevdump", pFATAL) << "Invalid syntax";
+         LOG("grwght1scan", pFATAL) << "Invalid syntax";
          gAbortingInErr = true;
          PrintSyntax();
          exit(1);
@@ -381,17 +395,17 @@ void GetCommandLineArgs(int argc, char ** argv)
       gOptNEvt2 = parser.ArgAsLong('n');
     }  
   } else {
-    LOG("gevdump", pINFO)
+    LOG("grwght1scan", pINFO)
       << "Unspecified number of events to analyze - Use all";
     gOptNEvt1 = -1;
     gOptNEvt2 = -1;
   }
-  LOG("RewScan1", pDEBUG) 
+  LOG("grwght1scan", pDEBUG) 
     << "Input event range: " << gOptNEvt1 << ", " << gOptNEvt2;
 
   // get the number of tweak dials to scan
   if(parser.OptionExists('t')) {
-    LOG("RewScan1", pINFO) 
+    LOG("grwght1scan", pINFO) 
        << "Reading number of tweak dial values";
     gOptInpNTwk = parser.ArgAsInt('t');
     if(gOptInpNTwk % 2 == 0)
@@ -400,14 +414,14 @@ void GetCommandLineArgs(int argc, char ** argv)
     }
     if(gOptInpNTwk < 3)
     { 
-      LOG("RewScan1", pFATAL)
+      LOG("grwght1scan", pFATAL)
 	 << "Specified number of tweak dial is too low, min value is 3 - Exiting";
       gAbortingInErr = true;
       PrintSyntax();
       exit(1);
     } 
   } else {
-     LOG("RewScan1", pFATAL) 
+     LOG("grwght1scan", pFATAL) 
        << "Unspecified number of tweak dials - Exiting";
      gAbortingInErr = true;
      PrintSyntax();
@@ -416,18 +430,18 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   // get the systematics
   if(parser.OptionExists('s')) {
-   LOG("RewScan1", pINFO) 
+   LOG("grwght1scan", pINFO) 
       << "Reading input systematic parameter";
    string systematic = parser.ArgAsString('s');
    gOptSyst = GSyst::FromString(systematic);
    if(gOptSyst == kNullSystematic) {
-      LOG("RewScan1", pFATAL) << "Unknown systematic: " << systematic;
+      LOG("grwght1scan", pFATAL) << "Unknown systematic: " << systematic;
       gAbortingInErr = true;
       PrintSyntax();
       exit(1);
    }
   } else {
-    LOG("RewScan1", pFATAL) 
+    LOG("grwght1scan", pFATAL) 
        << "You need to specify a systematic param using -s";
     gAbortingInErr = true;
     PrintSyntax();
@@ -436,10 +450,10 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   // output weight file
   if(parser.OptionExists('o')) {
-    LOG("RewScan1", pINFO) << "Reading requested output filename";
+    LOG("grwght1scan", pINFO) << "Reading requested output filename";
     gOptOutFilename = parser.ArgAsString('o');
   } else {
-    LOG("RewScan1", pINFO) << "Setting default output filename";
+    LOG("grwght1scan", pINFO) << "Setting default output filename";
     ostringstream nm;
     nm << "weights_" << GSyst::AsString(gOptSyst) << ".root";
     gOptOutFilename = nm.str();
@@ -447,11 +461,11 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   // which species to reweight?
   if(parser.OptionExists('p')) {
-   LOG("RewScan1", pINFO) 
+   LOG("grwght1scan", pINFO) 
       << "Reading input list of neutrino codes";
    vector<int> vecpdg = parser.ArgAsIntTokens('p',",");
    if(vecpdg.size()==0) {
-      LOG("RewScan1", pFATAL) 
+      LOG("grwght1scan", pFATAL) 
          << "Empty list of neutrino codes!?";
       gAbortingInErr = true;
       PrintSyntax();
@@ -462,7 +476,7 @@ void GetCommandLineArgs(int argc, char ** argv)
      gOptNu.push_back(*it);
    }
   } else {
-    LOG("RewScan1", pINFO) 
+    LOG("grwght1scan", pINFO) 
        << "Considering all neutrino species";
     gOptNu.push_back (kPdgNuE      );
     gOptNu.push_back (kPdgAntiNuE  );
@@ -474,10 +488,10 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   // random number seed
   if( parser.OptionExists("seed") ) {
-    LOG("RewScan1", pINFO) << "Reading random number seed";
+    LOG("grwght1scan", pINFO) << "Reading random number seed";
     gOptRanSeed = parser.ArgAsLong("seed");
   } else {
-    LOG("RewScan1", pINFO) << "Unspecified random number seed - Using default";
+    LOG("grwght1scan", pINFO) << "Unspecified random number seed - Using default";
     gOptRanSeed = -1;
   }
 
@@ -515,7 +529,7 @@ void GetEventRange(Long64_t nev_in_file, Long64_t & nfirst, Long64_t & nlast)
 //_________________________________________________________________________________
 void PrintSyntax(void)
 {
-  LOG("RewScan1", pFATAL)
+  LOG("grwght1scan", pFATAL)
      << "\n\n"
      << "grwght1scan                  \n"
      << "     -f input_event_file     \n"
@@ -524,7 +538,9 @@ void PrintSyntax(void)
      << "     -t n_twk_diall_values   \n"
      << "    [-p neutrino_codes]      \n"
      << "    [-o output_weights_file] \n"
-     << "    [--seed random_number_seed] \n\n\n"
+     << "    [--seed random_number_seed] \n"
+     << "    [--message-thresholds xml_file]\n"
+     << "    [--event-record-print-level level]\n\n\n"
      << " See the GENIE Physics and User manual for more details";      
 }
 //_________________________________________________________________________________
