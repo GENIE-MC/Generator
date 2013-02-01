@@ -109,7 +109,9 @@ public :
   // Methods to switch on/off and ask for event record flags
 
   virtual TBits * EventFlags   (void) const { return fEventFlags; }
+  virtual TBits * EventMask    (void) const { return fEventMask; }
   virtual bool    IsUnphysical (void) const { return (fEventFlags->CountBits()>0); }
+  virtual bool    Accept       (void) const;
 
   // Methods to set/get the event weight and cross sections
 
@@ -137,6 +139,9 @@ public :
   virtual void CompactifyDaughterLists     (void);
   virtual void RemoveIntermediateParticles (void);
 
+  // Set mask
+  void SetUnphysEventMask(const TBits & mask);
+
   // Set print level
   static void SetPrintLevel(int print_level);
 
@@ -154,7 +159,8 @@ protected:
   TLorentzVector * fVtx;  ///< vertex in the detector coordinate system
 
   // Flags for the generated event
-  TBits * fEventFlags;    ///< event flags
+  TBits * fEventFlags;    ///< event flags indicating various pathologies or an unphysical event
+  TBits * fEventMask;     ///< an input bit-field mask allowing one to ignore bits set in fEventFlags
 
   // Misc info associated with the generated event
   double fWeight;         ///< event weight
@@ -162,7 +168,7 @@ protected:
   double fXSec;           ///< cross section for selected event
   double fDiffXSec;       ///< differential cross section for selected event kinematics
 
-  static int fPrintLevel; //!  Print-level flag, see GHepRecord::Print()
+  static int     fPrintLevel; //! print-level flag, see GHepRecord::Print()
 
   // Utility methods
   void InitRecord  (void);
