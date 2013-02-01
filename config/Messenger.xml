@@ -129,8 +129,7 @@
   <priority msgstream="ReinSeghalSpp">       NOTICE </priority>
   <priority msgstream="RSHAmpl">             WARN   </priority>
   <priority msgstream="Registry">            WARN   </priority>
-  <priority msgstream="ReW">                 WARN   </priority>
-  <priority msgstream="RewScan1">            WARN   </priority>
+  <priority msgstream="ReW">                 INFO   </priority>
   <priority msgstream="RESHadronicVtx">      NOTICE </priority>
   <priority msgstream="RESKinematics">       WARN   </priority>
   <priority msgstream="RESSelector">         NOTICE </priority>
@@ -159,7 +158,8 @@
   <priority msgstream="gevgen_numi">         NOTICE </priority>
   <priority msgstream="gevgen_hadron">       NOTICE </priority>
   <priority msgstream="gvldtest">            NOTICE </priority>
-  <priority msgstream="gtune">               INFO </priority>
+  <priority msgstream="grwght1scan">         INFO   </priority>
+  <priority msgstream="gtune">               INFO   </priority>
   <priority msgstream="gntpc">               INFO   </priority>
   <priority msgstream="gmkspl">              INFO   </priority>
 
