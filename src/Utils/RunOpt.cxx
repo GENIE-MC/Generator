@@ -21,6 +21,7 @@
 #include <TMath.h>
 #include <TBits.h>
 
+#include "GHEP/GHepFlags.h"
 #include "Utils/CmdLnArgParser.h"
 #include "Utils/RunOpt.h"
 
@@ -65,8 +66,8 @@ void RunOpt::Init(void)
   fEnableBareXSecPreCalc = true;
   fCacheFile = "";
   fMesgThresholds = "";
-  fUnphysEventMask = new TBits(16);
-  fUnphysEventMask->ResetAllBits(false);
+  fUnphysEventMask = new TBits(GHepFlags::NFlags());
+  fUnphysEventMask->ResetAllBits(true);
   fMCJobStatusRefreshRate = 20;
   fEventRecordPrintLevel = 3;
   fEventGeneratorList = "Default";
@@ -104,6 +105,18 @@ void RunOpt::ReadFromCommandLine(int argc, char ** argv)
     fEventGeneratorList = parser.ArgAsString("event-generator-list");
   }
 
+  if( parser.OptionExists("unphysical-event-mask") ) {
+    const char * bitfield = 
+       parser.ArgAsString("unphysical-event-mask").c_str();
+    unsigned int n = GHepFlags::NFlags();
+    unsigned int i = 0;
+    while(i < n) {
+        bool flag = (bitfield[i]=='1');
+        fUnphysEventMask->SetBitNumber(n-1-i,flag);
+        i++;
+     }//i
+  }
+
 }
 //____________________________________________________________________________
 void RunOpt::Print(ostream & stream) const
@@ -112,7 +125,8 @@ void RunOpt::Print(ostream & stream) const
   stream << "\n Event generator list: " << fEventGeneratorList;
   stream << "\n User-specified message thresholds : " << fMesgThresholds;
   stream << "\n Cache file : " << fCacheFile;
-//  stream << "\n Unphysical event mask : " << fUnphysEventMask->Print();
+  stream << "\n Unphysical event mask (bits: "
+         << GHepFlags::NFlags()-1 << " -> 0) : " << *fUnphysEventMask;
   stream << "\n Event record print level : " << fEventRecordPrintLevel;
   stream << "\n MC job status file refresh rate: " << fMCJobStatusRefreshRate;
   stream << "\n Pre-calculate all free-nucleon cross-sections? : " 
