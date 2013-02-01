@@ -76,6 +76,7 @@ AlgConfigPool::~AlgConfigPool()
 // Don't clutter output if exiting in err.
 
   if(!gAbortingInErr) {
+/*
     cout << "AlgConfigPool singleton dtor: "
          << "Printing out the main physics parameter list used at this job" 
          << endl;
@@ -84,7 +85,7 @@ AlgConfigPool::~AlgConfigPool()
          << " XML config files)" << endl;
     const Registry * gc = this->GlobalParameterList();
     cout << *gc;
-
+*/
     cout << "AlgConfigPool singleton dtor: "
          << "Deleting all owned algorithm configurations" << endl;
   }
