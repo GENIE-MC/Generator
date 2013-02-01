@@ -84,6 +84,10 @@
    fFluxIntProbFile.   
  @ Jan 31, 2013 - CA
    Added SetEventGeneratorList(string listname). $GEVGL var no longer in use.
+ @ Feb 01, 2013 - CA
+   The GUNPHYSMASK env. var is no longer used. Added SetUnphysEventMask(const 
+   TBits &). Input is propagated accordingly.
+
 */
 //____________________________________________________________________________
 
@@ -126,6 +130,7 @@ GMCJDriver::GMCJDriver()
 //___________________________________________________________________________
 GMCJDriver::~GMCJDriver()
 {
+  if(fUnphysEventMask) delete fUnphysEventMask;
   if (fGPool) delete fGPool;
 
   map<int,TH1D*>::iterator pmax_iter = fPmax.begin();
@@ -144,6 +149,15 @@ GMCJDriver::~GMCJDriver()
 void GMCJDriver::SetEventGeneratorList(string listname)
 {
   fEventGenList = listname;
+}
+//___________________________________________________________________________
+void GMCJDriver::SetUnphysEventMask(const TBits & mask)
+{
+  *fUnphysEventMask = mask;
+
+  LOG("GMCJDriver", pNOTICE)
+    << "Setting unphysical event mask (bits: " << GHepFlags::NFlags() - 1
+    << " -> 0) : " << *fUnphysEventMask;
 }
 //___________________________________________________________________________
 void GMCJDriver::UseFluxDriver(GFluxI * flux_driver)
@@ -469,6 +483,12 @@ void GMCJDriver::Configure(bool calc_prob_scales)
 void GMCJDriver::InitJob(void)
 {
   fEventGenList       = "Default";  // <-- set of event generators to be loaded by this driver
+
+  fUnphysEventMask = new TBits(GHepFlags::NFlags()); //<-- unphysical event mask
+  //fUnphysEventMask->ResetAllBits(true);
+  for(unsigned int i = 0; i < GHepFlags::NFlags(); i++) {
+   fUnphysEventMask->SetBitNumber(i, true);
+  }
 
   fFluxDriver         = 0;     // <-- flux driver
   fGeomAnalyzer       = 0;     // <-- geometry driver
@@ -1174,6 +1194,9 @@ void GMCJDriver::GenerateEventKinematics(void)
        << "No GEVGDriver object for init state: " << init_state.AsString();
      exit(1);
   }
+
+  // propagate current unphysical event mask 
+  evgdriver->SetUnphysEventMask(*fUnphysEventMask);
 
   // Ask the GEVGDriver object to select and generate an interaction for
   // the selected initial state & neutrino 4-momentum
