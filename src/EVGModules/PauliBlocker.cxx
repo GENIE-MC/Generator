@@ -5,7 +5,7 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - October 08, 2004
+         STFC, Rutherford Appleton Laboratory 
 
  For the class documentation see the corresponding header file.
 
@@ -88,8 +88,8 @@ void PauliBlocker::ProcessEventRecord(GHepRecord * evrec) const
   // if it is blocked, set & thow an exception
   if(is_blocked) {
      LOG("PauliBlock", pNOTICE)
-        << "\n The generated event is Pauli-blocked: "
-                       << " |p| = " << p << " < Fermi-Momentum = " << kf;
+        << " *** The generated event is Pauli-blocked ("
+        << "|p_{nucleon}| = " << p << " GeV < Fermi momentum = " << kf << " GeV) ***";
 
      evrec->EventFlags()->SetBitNumber(kPauliBlock, true);
      genie::exceptions::EVGThreadException exception;
