@@ -143,8 +143,9 @@ void PDGCodeList::Print(ostream & stream) const
       stream << " |---o ** ERR: no particle with PDG code: " << pdg_code;
     } else {
       string name = p->GetName();
-      stream << " |---o code: " << pdg_code
-                       << " [" << setfill(' ') << setw(5) << name << "]";
+      stream << " |---o " 
+             << setfill(' ') << setw(15) << name 
+             << " (PDG code = " << pdg_code << ")";
     }
     if( (--nc) > 0) stream << endl;
   }
