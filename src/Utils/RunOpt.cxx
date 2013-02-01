@@ -67,8 +67,11 @@ void RunOpt::Init(void)
   fCacheFile = "";
   fMesgThresholds = "";
   fUnphysEventMask = new TBits(GHepFlags::NFlags());
-  fUnphysEventMask->ResetAllBits(true);
-  fMCJobStatusRefreshRate = 20;
+//fUnphysEventMask->ResetAllBits(true);
+  for(unsigned int i = 0; i < GHepFlags::NFlags(); i++) {
+   fUnphysEventMask->SetBitNumber(i, true);
+  }
+  fMCJobStatusRefreshRate = 50;
   fEventRecordPrintLevel = 3;
   fEventGeneratorList = "Default";
 }
