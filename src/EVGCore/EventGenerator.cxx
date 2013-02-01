@@ -13,7 +13,9 @@
  @ Mar 05, 2010 - CA
    User options regarding whether to pass-through unphysical events take
    precedence over processing instructions read from caught exception.
-
+ @ Feb 01, 2013 - CA
+   The GUNPHYSMASK env. var is no longer used. The bit-field mask is stored
+   in the GHEP record and GHepRecord::Accept() is now checked.
 */
 //____________________________________________________________________________
 
@@ -93,13 +95,13 @@ void EventGenerator::ProcessEventRecord(GHepRecord * event_rec) const
   string mesgh = "Event generation thread: " + this->Id().Key() + 
                  " -> Running module: ";
 
-  //-- Loop over the event record processing steps
+  //-- Loop over the event record processing modules
   int istep=0;
   vector<const EventRecordVisitorI *>::const_iterator miter;
 
   for(miter = fEVGModuleVec->begin();
-                               miter != fEVGModuleVec->end(); ++miter){
-
+      miter != fEVGModuleVec->end(); ++miter)
+  {
     const EventRecordVisitorI * visitor = *miter; // generation module
 
     string mesg = mesgh + visitor->Id().Key();
@@ -134,28 +136,21 @@ void EventGenerator::ProcessEventRecord(GHepRecord * event_rec) const
 
       //
       // What should I do with this exception?
-      // Check whether the user wants to get this unphysical event anyway by
-      // comparing the event err bits against the GUNPHYSMASK env.var.
-      // If not, follow instructions coming with the instruction:
+      // Check whether the user wants to get this unphysical event anyway
+      // If not, follow instructions coming with the expection thrown:
       // Either step back to a particular processing step and try re-generating
       // the event or pass it through
       //
 
       // check whether user wants this type of unphysical events passed through
-      if( event_rec->IsUnphysical() ) {
-         TBits evflags = *(event_rec->EventFlags());
-         TBits mask    = *(fFiltUnphysMask);
-         TBits matched = evflags & mask;
-/*
-         LOG("EventGenerator", pDEBUG) << "event flags: " << evflags;
-         LOG("EventGenerator", pDEBUG) << "mask       : " << mask;
-         LOG("EventGenerator", pDEBUG) << "matched    : " << matched;
-*/
-         bool pass_through  = (matched.CountBits()>0);
-         if(pass_through) {
-           LOG("EventGenerator", pINFO) << "Passing-through unphysical event";
-           break;
-         }
+      bool accept = event_rec->Accept();
+      if(accept) {
+        LOG("EventGenerator", pWARN)
+          << "An unphysical event was generated and was accepted by the user";
+        break;
+      } else {
+        LOG("EventGenerator", pWARN)
+          << "An unphysical event was generated and was rejected";
       }
 
       // now, follow instructions contained in the exception itself
@@ -171,7 +166,7 @@ void EventGenerator::ProcessEventRecord(GHepRecord * event_rec) const
 
            int rstep = exception.ReturnStep();
            LOG("EventGenerator", pNOTICE)
-                                   << "Return at processing step " << rstep;
+               << "Return at processing step " << rstep;
            advance(miter, rstep-istep-1);
            istep = rstep;
 
