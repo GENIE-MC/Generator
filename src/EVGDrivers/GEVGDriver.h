@@ -55,10 +55,12 @@ public :
   GEVGDriver();
  ~GEVGDriver();
 
-  // Driver options 
-  // Set before calling Configure()
+  // Driver options:
+  // - Set before calling Configure()
   void UseSplines (void);
   void SetEventGeneratorList(string listname);
+  // - Set before GenerateEvent()
+  void SetUnphysEventMask(const TBits & mask);
 
   // Configure the driver
   void Configure (int nu_pdgc, int Z, int A);
@@ -116,7 +118,7 @@ private:
   EventGeneratorList *      fEvGenList;       ///< all Event Generators available at this job
   InteractionSelectorI *    fIntSelector;     ///< interaction selector
   InteractionGeneratorMap * fIntGenMap;       ///< interaction -> generator assosiative container
-  TBits *                   fFiltUnphysMask;  ///< controls whether unphysical events are returned
+  TBits *                   fUnphysEventMask; ///< controls whether unphysical events are returned
   bool                      fUseSplines;      ///< controls whether xsecs are computed or interpolated
   Spline *                  fXSecSumSpl;      ///< sum{xsec(all interactions | this init state)}
   unsigned int              fNRecLevel;       ///< recursive mode depth counter

@@ -38,6 +38,9 @@
    Demote a few mesgs.
  @ Jan 31, 2013 - CA
    Added SetEventGeneratorList(string listname). $GEVGL var no longer in use.
+ @ Feb 01, 2013 - CA
+   The GUNPHYSMASK env. var is no longer used. Added SetUnphysEventMask(const 
+   TBits &). Input is propagated accordingly.
 */
 //____________________________________________________________________________
 
@@ -137,39 +140,28 @@ void GEVGDriver::Init(void)
   fXSecSumSpl = 0;
 
   // Default driver behaviour is to filter out unphysical events
-  // If needed, set the fFiltUnphysMask bitfield to get pre-selected types of 
+  // If needed, set the fUnphysEventMask bitfield to get pre-selected types of 
   // unphysical events (just set to 1 the bit you want ignored from the check).
-  // You can do so by setting the GUNPHYSMASK env.var) but be warned that the 
-  // event record for unphysical events might be incomplete depending on the 
-  // processing step that event generation was stopped.
-
-  fFiltUnphysMask = new TBits(GHepFlags::NFlags());
-  fFiltUnphysMask->ResetAllBits(false); 
-
-  if (gSystem->Getenv("GUNPHYSMASK")) {
-     unsigned int i=0;
-     const char * bitfield = gSystem->Getenv("GUNPHYSMASK");
-
-     while(bitfield[i]) {
-        bool flag = (bitfield[i]=='1');
-
-        if(i<GHepFlags::NFlags()) fFiltUnphysMask->SetBitNumber(i,flag);
-        i++;
-     }
+  // Be warned that the event record for unphysical events might be incomplete 
+  // depending on the processing step that event generation was stopped.
+  fUnphysEventMask = new TBits(GHepFlags::NFlags());
+  //fUnphysEventMask->ResetAllBits(true); 
+  for(unsigned int i = 0; i < GHepFlags::NFlags(); i++) {
+   fUnphysEventMask->SetBitNumber(i, true);
   }
   LOG("GEVGDriver", pNOTICE) 
-    << "Initializing unphysical event mask (" << GHepFlags::NFlags() 
-    << "->0) = " << *fFiltUnphysMask;
+    << "Initializing unphysical event mask (bits: " << GHepFlags::NFlags()-1
+    << " -> 0) : " << *fUnphysEventMask;
 }
 //___________________________________________________________________________
 void GEVGDriver::CleanUp(void)
 {
+  if (fUnphysEventMask)  delete fUnphysEventMask;
   if (fInitState)        delete fInitState;
   if (fEvGenList)        delete fEvGenList;
   if (fIntSelector)      delete fIntSelector;
   if (fIntGenMap)        delete fIntGenMap;
   if (fXSecSumSpl)       delete fXSecSumSpl;
-  if (fFiltUnphysMask)   delete fFiltUnphysMask;
 }
 //___________________________________________________________________________
 void GEVGDriver::Reset(void)
@@ -255,6 +247,15 @@ void GEVGDriver::BuildInteractionSelector(void)
         algf->AdoptAlgorithm("genie::PhysInteractionSelector","Default"));
 }
 //___________________________________________________________________________
+void GEVGDriver::SetUnphysEventMask(const TBits & mask)
+{
+  *fUnphysEventMask = mask;
+
+  LOG("GEVGDriver", pNOTICE) 
+    << "Setting unphysical event mask (bits: " << GHepFlags::NFlags() - 1
+    << " -> 0) : " << *fUnphysEventMask;
+}
+//___________________________________________________________________________
 EventRecord * GEVGDriver::GenerateEvent(const TLorentzVector & nu4p)
 {
   //-- Build initial state information from inputs
@@ -312,43 +313,40 @@ EventRecord * GEVGDriver::GenerateEvent(const TLorentzVector & nu4p)
   LOG("GEVGDriver", pNOTICE) 
          << utils::print::PrintFramedMesg(mesg,1,'=');
 
+  fCurrentRecord->SetUnphysEventMask(*fUnphysEventMask);
   evgen->ProcessEventRecord(fCurrentRecord);
 
-  //-- Check whether the generated event flags. The default behaviour is
-  //   to filter out unphysical events and enter in recursive mode to 
-  //   regenerate them.
-  //   If an unphysical event mask has been set, apply it to the event
-  //   flags and allow the requested classes of unphysical events to be 
-  //   returned
+  //-- Check the generated event flags. The default behaviour is
+  //   to reject an unphysical event and enter in recursive mode 
+  //   and try to regenerate it. If an unphysical event mask has 
+  //   been set, error conditions may be ignored so that the
+  //   requested classes of unphysical events can be passed-through.
 
   bool unphys = fCurrentRecord->IsUnphysical();
   if(!unphys) {
-       LOG("GEVGDriver", pINFO) << "Returning the current event!";
-       fNRecLevel = 0;     
-       return fCurrentRecord; // The client 'adopts' the event record
-
+     LOG("GEVGDriver", pINFO) << "Returning the current event!";
+     fNRecLevel = 0;     
+     return fCurrentRecord; // The client 'adopts' the event record
   } else {
-     LOG("GEVGDriver", pWARN) << "I generated an unphysical event!";
-
-     TBits evflags = *(fCurrentRecord->EventFlags());
-     TBits mask    = *(fFiltUnphysMask);
-     TBits matched = evflags & mask;
-
-     bool pass_through  = (matched.CountBits()>0);
-     if(pass_through) {
-       LOG("GEVGDriver", pNOTICE) 
-          << "Passing through the current unphysical event!";
+     LOG("GEVGDriver", pWARN) << "An unphysical event was generated...";
+     // Check whether the user wants to ignore the err
+     bool accept = fCurrentRecord->Accept();
+     if(accept) {
+       LOG("GEVGDriver", pWARN) 
+          << "The generated unphysical event is accepted by the user";
        fNRecLevel = 0;     
        return fCurrentRecord; // The client 'adopts' the event record
 
      } else {
-       LOG("GEVGDriver", pWARN) << "I am filtering out the current event!";
+       LOG("GEVGDriver", pWARN) 
+          << "The generated unphysical event is rejected";
        delete fCurrentRecord;
        fCurrentRecord = 0;
        fNRecLevel++; // increase the nested level counter
 
        if(fNRecLevel<=kRecursiveModeMaxDepth) {
-          LOG("GEVGDriver", pWARN) << "Attempting to regenerate the event.";
+          LOG("GEVGDriver", pWARN) 
+            << "Attempting to regenerate the event...";
           return this->GenerateEvent(nu4p);
        } else {
           LOG("GEVGDriver", pERROR)
@@ -733,7 +731,7 @@ void GEVGDriver::Print(ostream & stream) const
   stream << "\n  |---o Using cross section splines is turned "
                                 << utils::print::BoolAsIOString(fUseSplines);
   stream << "\n  |---o Unphysical event filter mask ("
-         << GHepFlags::NFlags() << "->0) = " << *fFiltUnphysMask;
+         << GHepFlags::NFlags() << "->0) = " << *fUnphysEventMask;
 
   stream << "\n *********************************************************\n";
 }
