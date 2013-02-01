@@ -130,7 +130,6 @@
   <priority msgstream="RSHAmpl">             WARN   </priority>
   <priority msgstream="Registry">            WARN   </priority>
   <priority msgstream="ReW">                 WARN   </priority>
-  <priority msgstream="RewScan1">            WARN   </priority>
   <priority msgstream="RESHadronicVtx">      WARN   </priority>
   <priority msgstream="RESKinematics">       WARN   </priority>
   <priority msgstream="RESSelector">         WARN   </priority>
@@ -159,6 +158,7 @@
   <priority msgstream="gevgen_numi">         WARN   </priority>
   <priority msgstream="gevgen_hadron">       WARN   </priority>
   <priority msgstream="gvldtest">            WARN   </priority>
+  <priority msgstream="grwght1scan">         WARN   </priority>
   <priority msgstream="gntpc">               WARN   </priority>
   <priority msgstream="gmkspl">              WARN   </priority>
 
