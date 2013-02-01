@@ -249,6 +249,7 @@ void GenerateEventsAtFixedInitState(void)
   // Create/config event generation driver 
   GEVGDriver evg_driver;
   evg_driver.SetEventGeneratorList(RunOpt::Instance()->EventGeneratorList());
+  evg_driver.SetUnphysEventMask(*RunOpt::Instance()->UnphysEventMask());
   evg_driver.Configure(init_state);
 
   // Initialize an Ntuple Writer
@@ -304,6 +305,7 @@ void GenerateEventsUsingFluxOrTgtMix(void)
   // Create the monte carlo job driver
   GMCJDriver * mcj_driver = new GMCJDriver;
   mcj_driver->SetEventGeneratorList(RunOpt::Instance()->EventGeneratorList());
+  mcj_driver->SetUnphysEventMask(*RunOpt::Instance()->UnphysEventMask());
   mcj_driver->UseFluxDriver(flux_driver);
   mcj_driver->UseGeomAnalyzer(geom_driver);
   mcj_driver->Configure();
