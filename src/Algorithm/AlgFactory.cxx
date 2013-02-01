@@ -66,7 +66,7 @@ AlgFactory::~AlgFactory()
     Algorithm * alg = alg_iter->second;
     if(alg) {
       if(!gAbortingInErr) {
-         cout << "- Deleting algorithm: " << alg->Id() << endl;
+        //cout << "- Deleting algorithm: " << alg->Id() << endl;
       }
       delete alg;
       alg = 0;
