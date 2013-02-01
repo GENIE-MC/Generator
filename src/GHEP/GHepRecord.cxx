@@ -38,6 +38,11 @@
  @ Jan 31, 2013 - CA
    Added static SetPrintLevel(int print_level) and corresponding static
    data member. $GHEPPRINTLEVEL env var is no longer used.
+ @ Feb 01, 2013 - CA
+   The GUNPHYSMASK env. var is no longer used. Added a private data member to
+   store the bit-field mask in the GHEP record. Added GHepRecord::Accept() and
+   GHepRecord::SetUnphysEventMask(). Tweaks in Print().
+
 */
 //____________________________________________________________________________
 
@@ -107,6 +112,7 @@ TClonesArray("genie::GHepParticle"),
 fInteraction(0),
 fVtx(0), 
 fEventFlags(0), 
+fEventMask(0),
 fWeight(0.),
 fProb(0.),
 fXSec(0.),
@@ -910,7 +916,19 @@ void GHepRecord::InitRecord(void)
   fXSec        = 0.;
   fDiffXSec    = 0.;
   fVtx         = new TLorentzVector(0,0,0,0);
+
   fEventFlags  = new TBits(GHepFlags::NFlags());
+  fEventFlags -> ResetAllBits(false);
+
+  fEventMask   = new TBits(GHepFlags::NFlags());
+//fEventMask  -> ResetAllBits(true);
+  for(unsigned int i = 0; i < GHepFlags::NFlags(); i++) {
+   fEventMask->SetBitNumber(i, true);
+  }
+
+  LOG("GHEP", pINFO)
+    << "Initialised unphysical event mask (bits: " << GHepFlags::NFlags() - 1
+    << " -> 0) : " << *fEventMask;
 
   this->SetOwner(true);
 }
@@ -943,6 +961,9 @@ void GHepRecord::Clear(Option_t * opt)
   if(fEventFlags) delete fEventFlags;
   fEventFlags=0;
 
+  if(fEventMask) delete fEventMask;
+  fEventMask=0;
+
   TClonesArray::Clear(opt);
 
 //  if (fInteraction) delete fInteraction;
@@ -968,8 +989,9 @@ void GHepRecord::Copy(const GHepRecord & record)
   // copy summary
   fInteraction = new Interaction( *record.fInteraction );
 
-  // copy flags
+  // copy flags & mask
   *fEventFlags = *(record.EventFlags());
+  *fEventMask  = *(record.EventMask());
 
   // copy vtx position
   TLorentzVector * v = record.Vertex();
@@ -980,6 +1002,24 @@ void GHepRecord::Copy(const GHepRecord & record)
   fProb     = record.fProb;
   fXSec     = record.fXSec;
   fDiffXSec = record.fDiffXSec;
+}
+//___________________________________________________________________________
+void GHepRecord::SetUnphysEventMask(const TBits & mask)
+{
+ *fEventMask = mask;
+
+  LOG("GHEP", pINFO)
+    << "Setting unphysical event mask (bits: " << GHepFlags::NFlags() - 1
+    << " -> 0) : " << *fEventMask;
+}
+//___________________________________________________________________________
+bool GHepRecord::Accept(void) const
+{
+  TBits flags = *fEventFlags;
+  TBits mask  = *fEventMask;
+  TBits bitwiseand = flags & mask;
+  bool accept = (bitwiseand.CountBits() == 0);
+  return accept;
 }
 //___________________________________________________________________________
 void GHepRecord::SetPrintLevel(int print_level) 
@@ -1128,10 +1168,10 @@ void GHepRecord::Print(ostream & stream) const
 
   // Print SUMS
   stream << "\n| ";
-  stream << setfill(' ') << setw(17) << "Fin-Init:| "
-         << setfill(' ') << setw(6)  << "    | "
-         << setfill(' ') << setw(18) << "    | "
-         << setfill(' ') << setw(12) << "        | "
+  stream << setfill(' ') << setw(17) << "Fin-Init:  "
+         << setfill(' ') << setw(6)  << "      "
+         << setfill(' ') << setw(18) << "      "
+         << setfill(' ') << setw(12) << "          "
          << setfill(' ') << setw(12) << "          | ";
   stream << setiosflags(ios::fixed)  << setprecision(3);
   stream << setfill(' ') << setw(7)  << sum_px  << " | ";
@@ -1148,7 +1188,7 @@ void GHepRecord::Print(ostream & stream) const
   GHepParticle * probe = this->Probe();
   if(probe){
     stream << "\n| ";
-    stream << setfill(' ') << setw(17) << "Vertex:  | ";
+    stream << setfill(' ') << setw(17) << "Vertex:    ";
     stream << setfill(' ') << setw(11)
                        << ((probe) ? probe->Name() : "unknown probe") << " @ (";
 
@@ -1169,15 +1209,20 @@ void GHepRecord::Print(ostream & stream) const
 
   if(printlevel>=1) {
     stream << "\n| ";
-    stream << setfill(' ') << setw(17) << "FLAGS:   | "
-           << "UnPhys: " << setfill(' ') << setw(5) 
-           << utils::print::BoolAsIOString(this->IsUnphysical()) << " |"
-           << " ErrBits[" << fEventFlags->GetNbits()-1 << "->0]:" 
-           << *fEventFlags << " |" 
-           << " 1stSet: " << setfill(' ') << setw(38) 
+    stream << "Error flag [bits:" << fEventFlags->GetNbits()-1 << "->0] : " 
+           << *fEventFlags << "  |  " 
+           << "1st set: " << setfill(' ') << setw(56) 
            << ( this->IsUnphysical() ? 
                  GHepFlags::Describe(GHepFlag_t(fEventFlags->FirstSetBit())) : 
-                 "none") << "| ";
+                 "none") << " | ";
+    stream << "\n| ";
+    stream << "Error mask [bits:" << fEventMask->GetNbits()-1 << "->0] : " 
+           << *fEventMask << "  |  " 
+           << "Is unphysical: " << setfill(' ') << setw(5) 
+           << utils::print::BoolAsYNString(this->IsUnphysical()) << " |   "
+           << "Accepted: " << setfill(' ') << setw(5) 
+           << utils::print::BoolAsYNString(this->Accept()) 
+           << "                          |";
     stream << "\n|";
     stream << setfill('-') << setw(115) << "|";
   }
@@ -1186,14 +1231,17 @@ void GHepRecord::Print(ostream & stream) const
     stream << "\n| ";
     stream << setiosflags(ios::scientific) << setprecision(5);
 
-    stream << setfill(' ') << setw(17) << "XSC/WGT: | "
-           << setfill(' ') << setw(17) << "XSec[Event] = "
-           << fXSec/units::cm2 << " cm^2  |"
-           << setfill(' ') << setw(17) << " XSec[Kinematics] = "
-           << fDiffXSec/units::cm2 << " cm^2/{K}  |"
-           << setfill(' ') << setw(17) << " Weight = "
+    stream << "sig(Ev) = " 
+           << setfill(' ') << setw(17) << fXSec/units::cm2 
+           << " cm^2  |"
+           << " dsig(Ev;{K_s})/dK = "
+           << setfill(' ') << setw(17) << fDiffXSec/units::cm2 
+           << " cm^2/{K}  |"
+           << " Weight = "
+           << setfill(' ') << setw(17) 
            << setiosflags(ios::fixed) << setprecision(5)
-           << fWeight   << " |";
+           << fWeight   
+           << " |";
 
     stream << "\n|";
     stream << setfill('-') << setw(115) << "|";
