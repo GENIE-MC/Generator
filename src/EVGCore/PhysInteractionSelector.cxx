@@ -23,6 +23,7 @@
 #include <vector>
 #include <sstream>
 #include <cstdlib>
+#include <iomanip>
 
 #include <TMath.h>
 #include <TLorentzVector.h>
@@ -41,6 +42,10 @@
 #include "Utils/PrintUtils.h"
 
 using std::vector;
+using std::endl;
+using std::setw;
+using std::setprecision;
+using std::setfill;
 using std::ostringstream;
 using namespace genie;
 using namespace genie::units;
@@ -98,6 +103,14 @@ EventRecord * PhysInteractionSelector::SelectInteraction
   unsigned int i=0;
   InteractionList::const_iterator intliter = ilst.begin(); 
 
+  ostringstream xsec_table_printout;
+
+  xsec_table_printout 
+      << " |"  << setfill('-') << setw(112) << "|" << endl     
+      << " | " << setfill(' ') << setw(80) << "interaction"
+      << " | cross-section (1E-38*cm^2) |" << endl
+      << " |"  << setfill('-') << setw(112) << "|" << endl;
+
   for( ; intliter != ilst.end(); ++intliter) {
 
      Interaction * interaction = new Interaction(**intliter);
@@ -135,15 +148,27 @@ EventRecord * PhysInteractionSelector::SelectInteraction
            xsec = xsec_alg->Integral(interaction);
      }
      TMath::Max(0., xsec);
-     BLOG("IntSel", pNOTICE)
+/*
+     LOG("IntSel", pNOTICE)
        << interaction->AsString() 
        << " --> xsec " << (eval ? "[**interp**]" : "[**calc**]") 
        << " = " << xsec/cm2 << " cm^2";
+*/
+     xsec_table_printout 
+           << " | " << setfill(' ') << setw(80) << interaction->AsString()
+           << " | " << setfill(' ') << setw(26) << xsec/(1E-38*cm2)
+           << " | " << endl;
 
      xseclist[i++] = xsec;
      delete interaction;
 
   } // loop over interaction that can be generated
+
+  xsec_table_printout
+      << " |"  << setfill('-') << setw(112) << "|" << endl;
+
+  LOG("IntSel", pNOTICE)
+    << "\n" << xsec_table_printout.str();
 
   // select an interaction
 
@@ -179,7 +204,7 @@ EventRecord * PhysInteractionSelector::SelectInteraction
        assert(xsec>0);
 
        LOG("IntSel", pNOTICE)
-                << "\nSelected interaction: " << *selected_interaction;
+         << "Selected interaction: " << selected_interaction->AsString();
 
        // bootstrap the event record
        EventRecord * evrec = new EventRecord;
