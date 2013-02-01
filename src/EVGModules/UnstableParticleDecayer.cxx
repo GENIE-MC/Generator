@@ -106,18 +106,18 @@ void UnstableParticleDecayer::ProcessEventRecord(GHepRecord * evrec) const
 
   while( (p = (GHepParticle *) piter.Next()) ) {
 
-     LOG("ParticleDecayer", pNOTICE) << "Checking: " << p->Name();
+     LOG("ParticleDecayer", pINFO) << "Checking: " << p->Name();
 
      if( this->ToBeDecayed(p) ) {
-        LOG("ParticleDecayer", pNOTICE)
-                   << "Decaying unstable particle: " << p->Name();
+        LOG("ParticleDecayer", pINFO)
+           << "Decaying unstable particle: " << p->Name();
 
         //-- find the first decayer to handle the current particle
         dec_iter = fDecayers->begin();
         fCurrDecayer=0;
         for( ; dec_iter != fDecayers->end(); ++dec_iter) {
           const DecayModelI * decayer = *dec_iter;
-          LOG("ParticleDecayer", pNOTICE)
+          LOG("ParticleDecayer", pINFO)
                  << "Requesting decay from " << decayer->Id().Key();
           if(decayer->IsHandled(p->Pdg())) {
             fCurrDecayer = decayer;
@@ -165,7 +165,7 @@ void UnstableParticleDecayer::ProcessEventRecord(GHepRecord * evrec) const
 
   } // loop over particles
 
-  LOG("ParticleDecayer", pNOTICE) 
+  LOG("ParticleDecayer", pINFO) 
           << "Done finding unstable particles & decaying them!";
 }
 //___________________________________________________________________________
@@ -344,7 +344,7 @@ void UnstableParticleDecayer::LoadConfig(void)
     int pdgc = atoi(kv[1].c_str());
     TParticlePDG * p = PDGLibrary::Instance()->Find(pdgc);
     if(decay) {
-       LOG("ParticleDecayer", pNOTICE) 
+       LOG("ParticleDecayer", pDEBUG) 
             << "Configured to decay " <<  p->GetName();
        fParticlesToDecay.push_back(pdgc);
        vector <const DecayModelI *>::iterator diter = fDecayers->begin();
@@ -354,8 +354,9 @@ void UnstableParticleDecayer::LoadConfig(void)
        }// decayer
     }
     else {
-       LOG("ParticleDecayer", pNOTICE) 
+       LOG("ParticleDecayer", pDEBUG) 
             << "Configured to inhibit decays for  " <<  p->GetName();
+       fParticlesNotToDecay.push_back(pdgc);
        vector <const DecayModelI *>::iterator diter = fDecayers->begin();
        for ( ; diter != fDecayers->end(); ++diter) {
            const DecayModelI * decayer = *diter;
@@ -378,7 +379,7 @@ void UnstableParticleDecayer::LoadConfig(void)
       int dc   = atoi(utils::str::FilterString("Channel=", kv[1]).c_str());
       TParticlePDG * p = PDGLibrary::Instance()->Find(pdgc);
       if(!p) continue;
-      LOG("ParticleDecayer", pNOTICE) 
+      LOG("ParticleDecayer", pINFO) 
          << "Configured to inhibit " <<  p->GetName() 
          << "'s decay channel " << dc;
       vector <const DecayModelI *>::iterator diter = fDecayers->begin();
@@ -389,5 +390,16 @@ void UnstableParticleDecayer::LoadConfig(void)
     }//val[key]=true?
   }//key iterator
 
+
+  sort(fParticlesToDecay.begin(),    fParticlesToDecay.end());
+  sort(fParticlesNotToDecay.begin(), fParticlesNotToDecay.end());
+
+  // Print-out for only one of the two instances of this module
+  if(!fRunBefHadroTransp) {
+    LOG("ParticleDecayer", pNOTICE) 
+       << "\nConfigured to decay: " << fParticlesToDecay
+       << "\nConfigured to inhibit decays of: " << fParticlesNotToDecay
+       << "\n";
+  }
 }
 //___________________________________________________________________________

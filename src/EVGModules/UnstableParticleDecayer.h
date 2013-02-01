@@ -60,10 +60,11 @@ private:
   void  CopyToEventRecord (TClonesArray * dp, GHepRecord * ev, GHepParticle * p,
                            int mother_pos, bool in_nucleus) const;
 
-  bool                           fRunBefHadroTransp; ///< is invoked before or after hadron transport?
-  PDGCodeList                    fParticlesToDecay;  ///< list of particles to be decayed
-  vector <const DecayModelI *> * fDecayers;          ///< list of all specified decayers
-  mutable const DecayModelI *    fCurrDecayer;       ///< current selected decayer
+  bool                           fRunBefHadroTransp;   ///< is invoked before or after hadron transport?
+  PDGCodeList                    fParticlesToDecay;    ///< list of particles to be decayed
+  PDGCodeList                    fParticlesNotToDecay; ///< list of particles for which decay is inhibited
+  vector <const DecayModelI *> * fDecayers;            ///< list of all specified decayers
+  mutable const DecayModelI *    fCurrDecayer;         ///< current selected decayer
 
   //double fMaxLifetime; ///< define "unstable" particle
 };
