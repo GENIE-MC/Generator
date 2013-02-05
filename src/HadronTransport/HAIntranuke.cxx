@@ -34,7 +34,7 @@
    later date. HAIntranuke class is now defined as derived from virtual class.
    Intranuke.
  @ Oct 10, 2011 - SD
-   Changes to keep reweighting alive.  Add exception hadnling in ElasHA, InelasticHA,
+   Changes to keep reweighting alive.  Add exception handling in ElasHA, InelasticHA,
    and Inelastic.
  @ Jan 24, 2012 - SD
    Add option of doing K+.  
@@ -165,9 +165,9 @@ void HAIntranuke::SimulateHadronicFinalState(GHepRecord* ev, GHepParticle* p) co
   catch(exceptions::INukeException exception)
     {
       this->SimulateHadronicFinalState(ev,p);
-       LOG("HAIntranuke", pWARN) 
+       LOG("HAIntranuke", pNOTICE) 
          << "retry call to SimulateHadronicFinalState ";
-       LOG("HAIntranuke", pWARN) << exception;
+       LOG("HAIntranuke", pNOTICE) << exception;
 
     }
 }
@@ -419,7 +419,7 @@ void HAIntranuke::ElasHA(
     }
 
   // check remnants
-  if(fRemnA<0 || fRemnZ<0) // best to stop it hear and not try again.
+  if(fRemnA<0 || fRemnZ<0) // best to stop it here and not try again.
     {
       LOG("HAIntranuke", pWARN) << "Invalid Nucleus! : (A,Z) = ("<<fRemnA<<','<<fRemnZ<<')';
       p->SetStatus(kIStStableFinalState);
@@ -450,7 +450,7 @@ void HAIntranuke::ElasHA(
 
   if (!utils::intranuke::TwoBodyKinematics(Mp,Mt,t4PpL,t4PtL,t4P3L,t4P4L,C3CM,fRemnP4))
     {
-      LOG("HAIntranuke",pWARN) << "ElasHA() failed";
+      LOG("HAIntranuke",pNOTICE) << "ElasHA() failed";
       exceptions::INukeException exception;
       exception.SetReason("TwoBodyKinematics failed in ElasHA, details above");
       throw exception;
@@ -540,7 +540,7 @@ void HAIntranuke::InelasticHA(
   // check remnants
   if ( fRemnA < 1 )    //we've blown nucleus apart, no need to retry anything - exit
     {
-      LOG("HAIntranuke",pWARN) << "InelasticHA() failed : not enough nucleons";
+      LOG("HAIntranuke",pNOTICE) << "InelasticHA() stops : not enough nucleons";
       p->SetStatus(kIStStableFinalState);
       ev->AddParticle(*p);
       return;
@@ -587,7 +587,7 @@ void HAIntranuke::InelasticHA(
   delete cl;
   if (C3CM<-1.)   // hope this doesn't occur too often - unphysical but we just pass it on
     {
-      LOG("HAIntranuke", pWARN) << "unphysical angle chosen in InelasicHA";
+      LOG("HAIntranuke", pWARN) << "unphysical angle chosen in InelasicHA - put particle outside nucleus";
       p->SetStatus(kIStStableFinalState);
       ev->AddParticle(*p);
       delete t;
@@ -600,6 +600,11 @@ void HAIntranuke::InelasticHA(
     double P3L = TMath::Sqrt(p->Px()*p->Px() + p->Py()*p->Py() + p->Pz()*p->Pz());
     double P4L = TMath::Sqrt(t->Px()*t->Px() + t->Py()*t->Py() + t->Pz()*t->Pz());
     double E3L = p->KinE();
+    if (E3L>ev->Probe()->KinE())  {
+    exceptions::INukeException exception;
+    exception.SetReason("TwoBodyCollison gives KE> probe KE in hA simulation, details in messages above");
+    throw exception;
+    }
     double E4L = t->KinE();
   LOG("HAIntranuke",pINFO)
     << "TwoBodyKinematics: C3CM = " << C3CM << "\n" << "P3 = " 
@@ -629,8 +634,17 @@ void HAIntranuke::Inelastic(
   //
   // Nucleons -> Reaction approximated by exponential decay in p+n (sum) space,
   //   gaussian in p-n (difference) space
+  //   -fit to hN simulations p C, Fe, Pb at 200, 800 MeV
+  //   -get n from isospin, np-nn smaller by 2
   // Pions    -> Reaction approximated with a modified gaussian in p+n space,
   //   normal gaussian in p-n space
+  //   -based on fits to multiplicity distributions of hN model
+  //   for pi+ C, Fe, Pb at 250, 500 MeV
+  //   -fit sum and diff of nn, np to Gaussian
+  //   -get pi0 from isospin, np-nn smaller by 2
+  //   -get pi- from isospin, np-nn smaller by 4
+  //   -add 2-body absorption to better match McKeown data
+  // Kaons    -> no guidance, use same code as pions.
   //
   // Normally distributed random number generated using Box-Muller transformation
   //
@@ -680,7 +694,7 @@ void HAIntranuke::Inelastic(
 	}
       else
 	{
-	  LOG("HAIntranuke", pWARN) << "Error: could not create pion production final state";
+	  LOG("HAIntranuke", pNOTICE) << "Error: could not create pion production final state";
 	  exceptions::INukeException exception;
 	  exception.SetReason("PionProduction kinematics failed, details above");
 	  throw exception;
@@ -701,22 +715,24 @@ void HAIntranuke::Inelastic(
 
       if (fRemnA<2)
       {
-	  LOG("HAIntranuke", pWARN) << "Error: could not create absorption final state: too few particles";
+	  LOG("HAIntranuke", pWARN) << "could not create absorption final state: too few particles - look for another final state";
 	  exceptions::INukeException exception;
 	  exception.SetReason("PionAbsorption in hA failed, not enough nucleons");
 	  throw exception;
       }
       if (fRemnZ<1 && (pdgc==kPdgPiM || pdgc==kPdgKM))
       {
-	  LOG("HAIntranuke", pWARN) << "Error: could not create absorption final state: Pi- or K- cannot be absorbed by only neutrons";
-	  p->SetStatus(kIStStableFinalState);
-	  ev->AddParticle(*p);
+	  LOG("HAIntranuke", pWARN) << "could not create absorption final state: Pi- or K- cannot be absorbed by only neutrons -look for another final state";
+	  exceptions::INukeException exception;
+	  exception.SetReason("PionAbsorption in hA failed, not enough nucleons");
+	  throw exception;
       }
       if (fRemnA-fRemnZ<1 && (pdgc==kPdgPiP || pdgc==kPdgKP))
       {
-	  LOG("HAIntranuke", pWARN) << "Error: could not create absorption final state: Pi+ or K+ cannot be absorbed by only protons";
-	  p->SetStatus(kIStStableFinalState);
-	  ev->AddParticle(*p);
+	  LOG("HAIntranuke", pWARN) << "stop propagation - could not create absorption final state: Pi+ or K+ cannot be absorbed by only protons";
+	  exceptions::INukeException exception;
+	  exception.SetReason("PionAbsorption in hA failed, not enough nucleons");
+	  throw exception;
       }
 
       // for now, empirical split between multi-nucleon absorption and pi d -> N N
@@ -811,9 +827,10 @@ void HAIntranuke::Inelastic(
 	  double C3CM = fHadroData->IntBounce(p,t1code,scode,fate_hN);
 	  if (C3CM<-1.) 
 	    {
-	      LOG("HAIntranuke", pWARN) << "Inelastic() failed: IntBounce returned bad angle";
-	      p->SetStatus(kIStStableFinalState);
-	      ev->AddParticle(*p);
+	      LOG("HAIntranuke", pWARN) << "Inelastic() failed: IntBounce returned bad angle try for another final state";
+	      exceptions::INukeException exception;
+	      exception.SetReason("PionAbsorption in hA failed, not enough nucleons");
+	      throw exception;
 	      return;
 	    }
 
@@ -858,7 +875,7 @@ void HAIntranuke::Inelastic(
 	    }
 	  else
 	    {
-	      LOG("HAIntranuke", pWARN) << "Inelastic in hA failed calling TwoBodyKineamtics";
+	      LOG("HAIntranuke", pNOTICE) << "Inelastic in hA failed calling TwoBodyKineamtics";
 	      exceptions::INukeException exception;
 	      exception.SetReason("Pion absorption kinematics through TwoBodyKinematics failed");
 	      throw exception;
@@ -904,6 +921,9 @@ void HAIntranuke::Inelastic(
       else
 	{
 	  LOG("HAIntranuke", pWARN) << "Inelastic() cannot handle absorption reaction for " << p->Name();
+	  exceptions::INukeException exception;
+	  exception.SetReason("Failure in HA Pion Abs - unusual - try again");
+	  throw exception;
 	  return;
 	}
 
@@ -920,17 +940,16 @@ void HAIntranuke::Inelastic(
 	{
 	  // infinite loop check
 	  if (iter>=10000) {
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-	    LOG("HAIntranuke", pWARN) << "Error: could not choose absorption final state";
-	    LOG("HAIntranuke", pWARN) << "--> N_d0 = " << nd0 << ", Sig_nd = " << Sig_nd;
-	    LOG("HAIntranuke", pWARN) << "--> N_s0 = " << ns0 << ", Sig_ns = " << Sig_ns;
-	    LOG("HAIntranuke", pWARN) << "--> Gam_ns = " << gam_ns;
-	    LOG("HAIntranuke", pWARN) << "--> A = " << fRemnA << ", Z = " << fRemnZ << ", Energy = " << ke;
-#endif
+	    LOG("HAIntranuke", pNOTICE) << "Error: could not choose absorption final state";
+	    LOG("HAIntranuke", pNOTICE) << "--> N_d0 = " << nd0 << ", Sig_nd = " << Sig_nd;
+	    LOG("HAIntranuke", pNOTICE) << "--> N_s0 = " << ns0 << ", Sig_ns = " << Sig_ns;
+	    LOG("HAIntranuke", pNOTICE) << "--> Gam_ns = " << gam_ns;
+	    LOG("HAIntranuke", pNOTICE) << "--> A = " << fRemnA << ", Z = " << fRemnZ << ", Energy = " << ke;
 	    exceptions::INukeException exception;
 	    exception.SetReason("Absorption choice of # of p,n failed, details above");
 	    throw exception;
 	  }
+	  //here??
 
 	  // Box-Muller transform
 	  // Takes two uniform distribution random variables on (0,1]
@@ -970,13 +989,12 @@ void HAIntranuke::Inelastic(
 		  // infinite loop check
 		  if (iter2>=100)
 		    {
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-		      LOG("HAIntranuke", pWARN) << "Error: stuck in random variable loop for ns, returning";
-		      LOG("HAIntranuke", pWARN) << "--> N_s0 = " << ns0 << ", Sig_ns = " << Sig_ns;
-		      LOG("HAIntranuke", pWARN) << "--> A = " << fRemnA << ", Z = " << fRemnZ << ", Energy = " << ke;
-#endif
+		      LOG("HAIntranuke", pNOTICE) << "Error: stuck in random variable loop for ns";
+		      LOG("HAIntranuke", pNOTICE) << "--> N_s0 = " << ns0 << ", Sig_ns = " << Sig_ns;
+		      LOG("HAIntranuke", pNOTICE) << "--> A = " << fRemnA << ", Z = " << fRemnZ << ", Energy = " << ke;
+
 		      exceptions::INukeException exception;
-		      exception.SetReason("Random number generator for choice of #p,n final state failed, details above");
+		      exception.SetReason("Random number generator for choice of #p,n final state failed, details above - unusual - get another fate");
 		      throw exception;
 		    }
 
@@ -995,7 +1013,7 @@ void HAIntranuke::Inelastic(
 		    not_found=false;
 		  }
 		} //while(not_found)
-	    }
+	    }//else pion or kaon 
 
 	  double nd = nd0 + Sig_nd * x2; // difference (p-n) for both types of probe
 
@@ -1009,6 +1027,7 @@ void HAIntranuke::Inelastic(
 	    else */ 
 	       if (np < 0 || nn < 0 )                 {iter++; continue;}
           else if (np + nn < 2. )                     {iter++; continue;}
+          else if ((np + nn == 2.) &&  pdg::IsNeutronOrProton (pdgc))                     {iter++; continue;}
           else if (np > fRemnZ + ((pdg::IsProton(pdgc) || pdgc==kPdgPiP || pdgc==kPdgKP)?1:0)
 		   - ((pdgc==kPdgPiM || pdgc==kPdgKM)?1:0)) {iter++; continue;}
           else if (nn > fRemnA-fRemnZ + ((pdg::IsNeutron(pdgc)||pdgc==kPdgPiM)?1:0)
