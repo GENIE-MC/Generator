@@ -159,8 +159,11 @@ double genie::utils::intranuke::MeanFreePath(
      return -1;
   }
 
-  //LOG("INukeUtils", pWARN) <<"Mean Free path at r="<<rnow<<" : "<<lamda<<", density "<<rho;
-
+/*
+  LOG("INukeUtils", pDEBUG) 
+     << "sig_total = " << sigtot << " fm^2, rho = " << rho 
+     << " fm^-3  => mfp = " << lamda << " fm.";
+*/
   return lamda;
 }
 //____________________________________________________________________________
@@ -237,7 +240,15 @@ double genie::utils::intranuke::ProbSurvival(
 
    TVector3 dr3 = p4.Vect().Unit();  // unit vector along its direction
    TLorentzVector dr4(dr3,0);
-     
+
+   LOG("INukeUtils", pDEBUG) 
+     << "Calculating survival probability for hadron with PDG code = " << pdgc
+     << " and momentum = " << p4.P() << " GeV";
+   LOG("INukeUtils", pDEBUG) 
+     << "mfp scale = " << mfp_scale_factor 
+     << ", nRpi = " << nRpi << ", nRnuc = " << nRnuc << ", NR = " << NR
+     << ", R0 = " << R0 << " fm";
+
    TLorentzVector x4_curr(x4); // current position
 
    while(1) {
@@ -248,14 +259,23 @@ double genie::utils::intranuke::ProbSurvival(
      rnow = x4_curr.Vect().Mag();
      double mfp = 
        genie::utils::intranuke::MeanFreePath(pdgc,x4_curr,p4,A,Z,nRpi,nRnuc);
-     mfp *= mfp_scale_factor;
+     double mfp_twk = mfp * mfp_scale_factor;
 
-     double dprob = (mfp>0) ? TMath::Exp(-step/mfp) : 0.;
+     double dprob = (mfp_twk>0) ? TMath::Exp(-step/mfp_twk) : 0.;
      prob*=dprob;
+/*
+     LOG("INukeUtils", pDEBUG) 
+       << "+ step size = " << step << " fm, |r| = " << rnow << " fm, "
+       << "mfp = " << mfp_twk << "fm (nominal mfp = " << mfp << " fm): "
+       << "dPsurv = " << dprob << ", current Psurv = " << prob;
+*/
    }
+
+   LOG("INukeUtils", pDEBUG) << "Psurv = " << prob;
 
    return prob;
 }
+//____________________________________________________________________________
 INukeFateHA_t genie::utils::intranuke::FindhAFate(const GHepRecord * evrec)
 {
   // Determine the fate of an hA event
