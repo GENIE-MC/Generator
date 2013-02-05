@@ -893,7 +893,7 @@ bool genie::utils::intranuke::TwoBodyCollision(
   // handle very low momentum particles
   if(!(TMath::Finite(P3L)) || P3L<.001)
     {
-      LOG("Intranuke",pWARN)
+      LOG("Intranuke",pINFO)
 	<< "Particle 3 momentum small or non-finite: " << P3L
 	<< "\n" << "--> Assigning .001 as new momentum";
       P3tL = 0;
@@ -903,7 +903,7 @@ bool genie::utils::intranuke::TwoBodyCollision(
     }
   if(!(TMath::Finite(P4L)) || P4L<.001)
     {
-      LOG("Intranuke",pWARN)
+      LOG("Intranuke",pINFO)
 	<< "Particle 4 momentum small or non-finite: " << P4L
 	<< "\n" << "--> Assigning .001 as new momentum";
       P4tL = 0;
@@ -918,7 +918,7 @@ bool genie::utils::intranuke::TwoBodyCollision(
   if(P3L<.25 && pdg::IsNeutronOrProton(scode) ||
      P4L<.25 && pdg::IsNeutronOrProton(s2code) )
     {
-      LOG("Intranuke",pWARN)<< "TwoBodyCollision failed: Pauli blocking";
+      LOG("Intranuke",pNOTICE)<< "TwoBodyCollision failed: Pauli blocking";
       p->SetStatus(kIStHadronInTheNucleus);
       RemnP4 -= TLorentzVector(0,0,0,bindE);
       return false;
@@ -1022,8 +1022,8 @@ bool genie::utils::intranuke::TwoBodyKinematics(
 
       if (E1L+E2L < M3+M4) 
 	{
-	  LOG("Intranuke",pWARN) <<"TwoBodyKinematics Failed: Forbidden by binding energy";
-	  LOG("Intranuke",pWARN) <<"E1L, E2L, M3, M4 : "<< E1L <<", "<< E2L <<", "<< M3 <<", "<< M4;
+	  LOG("Intranuke",pNOTICE) <<"TwoBodyKinematics Failed: Forbidden by binding energy";
+	  LOG("Intranuke",pNOTICE) <<"E1L, E2L, M3, M4 : "<< E1L <<", "<< E2L <<", "<< M3 <<", "<< M4;
 	  t4P3L.SetPxPyPzE(0,0,0,0);
 	  t4P4L.SetPxPyPzE(0,0,0,0);
 	  return false;
@@ -1070,9 +1070,9 @@ bool genie::utils::intranuke::TwoBodyKinematics(
   // check to see if decay is viable
   if(E3CM*E3CM - M3*M3<0 || E3CM<0 || Et<0)
   {
-    if (Et<0) LOG("Intranuke",pWARN) <<"TwoBodyKinematics Failed: Total energy is negative";
-    if (E3CM<M3) LOG("Intranuke",pWARN) <<"TwoBodyKinematics Failed: Scattered Particle 3 CM energy is too small";
-    if (E3CM*E3CM - M3*M3<0) LOG("Intranuke",pWARN) <<"TwoBodyKinematics Failed: Scattered Particle 3 CM momentum is nonreal";
+    if (Et<0) LOG("Intranuke",pNOTICE) <<"TwoBodyKinematics Failed: Total energy is negative";
+    if (E3CM<M3) LOG("Intranuke",pNOTICE) <<"TwoBodyKinematics Failed: Scattered Particle 3 CM energy is too small";
+    if (E3CM*E3CM - M3*M3<0) LOG("Intranuke",pNOTICE) <<"TwoBodyKinematics Failed: Scattered Particle 3 CM momentum is nonreal";
     t4P3L.SetPxPyPzE(0,0,0,0);
     t4P4L.SetPxPyPzE(0,0,0,0);
     return false;
@@ -1115,7 +1115,7 @@ bool genie::utils::intranuke::TwoBodyKinematics(
   // handle very low momentum particles
   if(!(TMath::Finite(P3L)) || P3L<.001)
     {
-      LOG("Intranuke",pNOTICE)
+      LOG("Intranuke",pINFO)
 	<< "Particle 3 momentum small or non-finite: " << P3L
 	<< "\n" << "--> Assigning .001 as new momentum";
       P3tL = 0;
@@ -1135,15 +1135,15 @@ bool genie::utils::intranuke::TwoBodyKinematics(
 
   t4P4L = t4P1buf + t4P2buf - t4P3L;
   t4P4L-= TLorentzVector(0,0,0,bindE);
-  /*LOG("Intranuke",pWARN) <<"GENIE:";
-  LOG("Intranuke",pWARN) <<"E4L   "<<t4P4L.E();
-  LOG("Intranuke",pWARN) <<"P4zL  "<<t4P4L.Vect()*tbetadir<<", P4tL "<<-1.*TMath::Sqrt(t4P4L.Vect().Mag2()-TMath::Power(t4P4L.Vect()*tbetadir,2.));
-  LOG("Intranuke",pWARN) <<"P4L   "<<t4P4L.Vect().Mag();
-  LOG("Intranuke",pWARN) <<"C4L   "<<t4P4L.Vect()*tbetadir/t4P4L.Vect().Mag();  */
+  /*LOG("Intranuke",pINFO) <<"GENIE:";
+  LOG("Intranuke",pINFO) <<"E4L   "<<t4P4L.E();
+  LOG("Intranuke",pINFO) <<"P4zL  "<<t4P4L.Vect()*tbetadir<<", P4tL "<<-1.*TMath::Sqrt(t4P4L.Vect().Mag2()-TMath::Power(t4P4L.Vect()*tbetadir,2.));
+  LOG("Intranuke",pINFO) <<"P4L   "<<t4P4L.Vect().Mag();
+  LOG("Intranuke",pINFO) <<"C4L   "<<t4P4L.Vect()*tbetadir/t4P4L.Vect().Mag();  */
 
   if(t4P4L.Mag2()<0 || t4P4L.E()<0)
   {
-    LOG("Intranuke",pWARN)<<"TwoBodyKinematics Failed: Target mass or energy is negative";
+    LOG("Intranuke",pNOTICE)<<"TwoBodyKinematics Failed: Target mass or energy is negative";
     t4P3L.SetPxPyPzE(0,0,0,0);
     t4P4L.SetPxPyPzE(0,0,0,0);
     return false;
@@ -1247,9 +1247,9 @@ bool genie::utils::intranuke::ThreeBodyKinematics(
   EiCM = Et - E3CM;
   if(E3CM*E3CM - M3*M3<0)
   {
-    LOG("INukeUtils",pWARN)
+    LOG("INukeUtils",pNOTICE)
       << "PionProduction P3 has non-real momentum - cancel this fate";
-    LOG("INukeUtils",pWARN) << "Energy, masses of 3 fs particales:"
+    LOG("INukeUtils",pNOTICE) << "Energy, masses of 3 fs particales:"
       << E3CM << "  " << M3 << "  " << "  " << M4 << "  " << M5; 
     exceptions::INukeException exception;
     exception.SetReason("PionProduction particle 3 has non-real momentum");
@@ -1276,7 +1276,7 @@ bool genie::utils::intranuke::ThreeBodyKinematics(
   // handle very low momentum particles
   if(!(TMath::Finite(P3L)) || P3L < .001)
     {
-      LOG("INukeUtils",pWARN)
+      LOG("INukeUtils",pINFO)
 	<< "Particle 3 " << M3 << " momentum small or non-finite: " << P3L
 	<< "\n" << "--> Assigning .001 as new momentum";
       P3tL = 0;
@@ -1318,7 +1318,7 @@ bool genie::utils::intranuke::ThreeBodyKinematics(
   // handle very low momentum particles
   if(!(TMath::Finite(P4L)) || P4L < .001)
     {
-      LOG("INukeUtils",pWARN)
+      LOG("INukeUtils",pINFO)
 	<< "Particle 4 " << M4 << " momentum small or non-finite: " << P4L
 	<< "\n" << "--> Assigning .001 as new momentum";
       P4tL = 0;
@@ -1328,7 +1328,7 @@ bool genie::utils::intranuke::ThreeBodyKinematics(
     }
   if(!(TMath::Finite(P5L)) || P5L < .001)
     {
-      LOG("INukeUtils",pWARN)
+      LOG("INukeUtils",pINFO)
 	<< "Particle 5 " << M5 << " momentum small or non-finite: " << P5L
 	<< "\n" << "--> Assigning .001 as new momentum";
       P5tL = 0;
@@ -1345,7 +1345,7 @@ bool genie::utils::intranuke::ThreeBodyKinematics(
   // pauli blocking
   if(P3L < FermiMomentum || ( pdg::IsNeutronOrProton(s2->Pdg()) && P4L < FermiMomentum ) )
   {
-    LOG("INukeUtils",pWARN)
+    LOG("INukeUtils",pNOTICE)
       << "PionProduction fails because of Pauli blocking - cancel this fate"; 
     exceptions::INukeException exception;
     exception.SetReason("PionProduction final state not determined");
@@ -1370,7 +1370,7 @@ bool genie::utils::intranuke::ThreeBodyKinematics(
   s2->SetMomentum(TLorentzVector(tP4L,E4L));
   s3->SetMomentum(TLorentzVector(tP5L,E5L));
   int mode = kIMdHA;
-  LOG ("INukeUtils",pWARN) << "in Pi Prod, mode =  " << mode; 
+  LOG ("INukeUtils",pDEBUG) << "in Pi Prod, mode =  " << mode; 
   if (mode==kIMdHN)
     {
       s1->SetStatus(kIStHadronInTheNucleus);
@@ -1457,7 +1457,7 @@ bool genie::utils::intranuke::PionProduction(
      double totpipp = xsec2pipn + xsecpippi0p;
 
      if (totpimp<=0 && totpipp<=0) {
-       LOG("INukeUtils",pWARN) << "InelasticHN called below threshold energy";
+       LOG("INukeUtils",pNOTICE) << "InelasticHN called below threshold energy";
        p->SetStatus(kIStHadronInTheNucleus);
        ev->AddParticle(*p);
        return false;}
@@ -1578,7 +1578,7 @@ bool genie::utils::intranuke::PionProduction(
 	utils::intranuke::CalculateEta(pMass,tote,nMass,pMass+pMass,pLib->Find(211)->Mass());
 
       if ((etapp2ppPi0<=0.)&&(etapp2pnPip<=0.)&&(etapn2nnPip<=0.)&&(etapn2ppPim<=0.)) { // below threshold
-	LOG("INukeUtils",pWARN) << "PionProduction() called below threshold energy";
+	LOG("INukeUtils",pNOTICE) << "PionProduction() called below threshold energy";
 	exceptions::INukeException exception;
 	exception.SetReason("PionProduction final state not possible - below threshold");
 	throw exception;
@@ -1686,10 +1686,7 @@ bool genie::utils::intranuke::PionProduction(
    // determine if reaction is allowed
    if ( RemnA < 1 )
      {
-       LOG("INukeUtils",pWARN) << "PionProduction() failed : no nucleons to produce pions";
-       exceptions::INukeException exception;
-       exception.SetReason("PionProduction fails - too few neucleons available");
-       throw exception;
+       LOG("INukeUtils",pNOTICE) << "PionProduction() failed : no nucleons to produce pions";
        return false;
      }
    else if ( RemnZ + ((pcode==kPdgProton || pcode==kPdgPiP)?1:0) - ((pcode==kPdgPiM)?1:0)
@@ -1697,7 +1694,7 @@ bool genie::utils::intranuke::PionProduction(
 	     + ((p4code==kPdgProton || p4code==kPdgPiP)?1:0) - ((p4code==kPdgPiM)?1:0)
 	     + ((p5code==kPdgProton || p5code==kPdgPiP)?1:0) - ((p5code==kPdgPiM)?1:0) )
      {
-       LOG("INukeUtils",pWARN) << "PionProduction() failed : too few protons in nucleus";
+       LOG("INukeUtils",pNOTICE) << "PionProduction() failed : too few protons in nucleus";
        exceptions::INukeException exception;
        exception.SetReason("PionProduction fails - too few protons available");
        throw exception;
@@ -1748,7 +1745,7 @@ double genie::utils::intranuke::CalculateEta(double Minc, double nrg, double Mta
   //  approximated by taking two ejected nucleons to be one particle of the same mass
   //For pion cross sections, in utils::intranuke::PionProduction
 
-  // LOG("Intranuke",pWARN) << "Input values: "<<Minc<<' '<<nrg<<' '<<Mtarg<<' '<<Mtwopart<<' '<<Mpi;
+  //LOG("Intranuke",pDEBUG) << "Input values: "<<Minc<<' '<<nrg<<' '<<Mtarg<<' '<<Mtwopart<<' '<<Mpi;
   double Scm = Minc*Minc + Mtarg*Mtarg + 2*Mtarg*nrg;
   double eta = 0;
   eta= TMath::Power(Scm,2) + TMath::Power(Mtwopart,4) + TMath::Power(Mpi,4);
