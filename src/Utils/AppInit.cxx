@@ -16,6 +16,9 @@
 */
 //____________________________________________________________________________
 
+// for exit()
+#include <cstdlib>
+
 //#include "Conventions/XmlParserStatus.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
