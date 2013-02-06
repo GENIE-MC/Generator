@@ -182,16 +182,21 @@ void GEVGDriver::Configure(const InitialState & is)
 {
   InitialState init_state(is.TgtPdg(), is.ProbePdg()); // filter any other init state info
 
-  string mesgh = "Configuring a GEVGDriver object for init-state = ";
+  ostringstream mesg;
+  mesg << "Configuring event generation driver for initial state: `"
+       << init_state.AsString()
+       << "' using event generator list: `" 
+       << fEventGenList << "'.";
+
   LOG("GEVGDriver", pNOTICE) 
-    << utils::print::PrintFramedMesg(mesgh + init_state.AsString(), 0, '*');
+        << utils::print::PrintFramedMesg(mesg.str(), 0, '*');
 
   this -> BuildInitialState            (init_state);
   this -> BuildGeneratorList           ();
   this -> BuildInteractionGeneratorMap ();
   this -> BuildInteractionSelector     ();
 
-  LOG("GEVGDriver", pINFO) << "Done configuring GEVGDriver! \n";
+  LOG("GEVGDriver", pINFO) << "Done configuring. \n";
 }
 //___________________________________________________________________________
 void GEVGDriver::BuildInitialState(const InitialState & init_state)
@@ -209,7 +214,7 @@ void GEVGDriver::BuildGeneratorList(void)
 //! Load event generators.
 //! The list of event generators is named by fEventGenList.
 
-  LOG("GEVGDriver", pNOTICE) 
+  LOG("GEVGDriver", pINFO) 
     << "Building the event generator list (specified list name: " 
     << fEventGenList << ")";
 
@@ -378,6 +383,9 @@ const InteractionList * GEVGDriver::Interactions(void) const
 //___________________________________________________________________________
 void GEVGDriver::SetEventGeneratorList(string listname)
 {
+  LOG("GEVGDriver", pNOTICE) 
+       << "Setting event generator list: " << listname;
+
   fEventGenList = listname;
 }
 //___________________________________________________________________________
@@ -581,9 +589,21 @@ void GEVGDriver::UseSplines(void)
        fUseSplines = fUseSplines && spl_exists;
 
        if(!spl_exists) {
+          if(!xsec_alg) {
+            LOG("GEVGDriver", pWARN) 
+              << "Null cross-section algorithm! Can not load cross-section spline.";
+            return;              
+          }
+          if(!interaction) {
+            LOG("GEVGDriver", pWARN) 
+              << "Null interaction! Can not load cross-section spline.";
+            return;              
+          }
           LOG("GEVGDriver", pWARN)
-             << "*** At least a spline doesn't exist. "
-                               << "Reverting back to not using splines";
+             << "*** At least a spline (algorithm: "
+             << xsec_alg->Id().Key() << ", interaction: "
+             << interaction->AsString() << " doesn't exist. "
+             << "Reverting back to not using splines";
           return;
        }
      } // loop over interaction list
