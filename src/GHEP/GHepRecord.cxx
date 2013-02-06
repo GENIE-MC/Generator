@@ -42,7 +42,10 @@
    The GUNPHYSMASK env. var is no longer used. Added a private data member to
    store the bit-field mask in the GHEP record. Added GHepRecord::Accept() and
    GHepRecord::SetUnphysEventMask(). Tweaks in Print().
-
+ @ Feb 06, 2013 - CA
+   Added KinePhaseSpace_t fDiffXSecPhSp prov data members to specify which
+   differential cross-section value is stored in fDiffXSec. Added method to 
+   set it and tweaked Print() accordingly.
 */
 //____________________________________________________________________________
 
@@ -718,56 +721,6 @@ void GHepRecord::CompactifyDaughterLists(void)
      //  }
 }
 //___________________________________________________________________________
-/*
-void GHepRecord::CompactifyDaughterLists(void)
-{
-  int n     = this->GetEntries();
-  int start = this->FirstNonInitStateEntry();
-
-  for(int i=0; i<n; i++) {
-     bool compact = this->HasCompactDaughterList(i);
-     if(!compact) {
-        int ndau = 0;     // number of daughters
-        int dau1 = start; // 1st daughter position
-        int k=start+1;
-        for(; k<n; k++) {
-            GHepParticle * pk = this->Particle(k);
-            if(pk->FirstMother() == i) {
-                 ndau++;
-                 while(start<n) {                 
-	            GHepParticle * ps = this->Particle(start);
-                    if(ps->FirstMother() == i) {
-                        start++;
-                    } else break;
-                 }
-                 this->SwapParticles(start,k);
-
-                 int ikd = this->Particle(k)->FirstDaughter();
-                 if(ikd>0) {
-                    if(this->Particle(ikd)->FirstMother() >= ikd) {
-                 	this->SwapParticles(k, ikd);
-                    }
-                 }
-                 start++;
-            }
-        }
-        if(ndau>0) {
-          this->Particle(i)->SetFirstDaughter(dau1);
-          this->Particle(i)->SetLastDaughter(dau1+ndau);
-        } else {
-          this->Particle(i)->SetFirstDaughter(-1);
-          this->Particle(i)->SetLastDaughter(-1);
-        }
-     } //!compact
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-     LOG("GHEP", pINFO)
-        << "Done ompactifying daughter-list for particle at slot: " << i;
-#endif
-  }
-  this->FinalizeDaughterLists();
-}
-*/
-//___________________________________________________________________________
 bool GHepRecord::HasCompactDaughterList(int pos)
 {
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
@@ -910,12 +863,13 @@ void GHepRecord::InitRecord(void)
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("GHEP", pDEBUG) << "Initializing GHepRecord";
 #endif
-  fInteraction = 0;
-  fWeight      = 1.;
-  fProb        = 1.;
-  fXSec        = 0.;
-  fDiffXSec    = 0.;
-  fVtx         = new TLorentzVector(0,0,0,0);
+  fInteraction  = 0;
+  fWeight       = 1.;
+  fProb         = 1.;
+  fXSec         = 0.;
+  fDiffXSec     = 0.;
+  fDiffXSecPhSp = kPSNull;
+  fVtx          = new TLorentzVector(0,0,0,0);
 
   fEventFlags  = new TBits(GHepFlags::NFlags());
   fEventFlags -> ResetAllBits(false);
@@ -998,10 +952,11 @@ void GHepRecord::Copy(const GHepRecord & record)
   fVtx->SetXYZT(v->X(),v->Y(),v->Z(),v->T());
 
   // copy weights & xsecs
-  fWeight   = record.fWeight;
-  fProb     = record.fProb;
-  fXSec     = record.fXSec;
-  fDiffXSec = record.fDiffXSec;
+  fWeight       = record.fWeight;
+  fProb         = record.fProb;
+  fXSec         = record.fXSec;
+  fDiffXSec     = record.fDiffXSec;
+  fDiffXSecPhSp = record.fDiffXSecPhSp;
 }
 //___________________________________________________________________________
 void GHepRecord::SetUnphysEventMask(const TBits & mask)
@@ -1233,12 +1188,29 @@ void GHepRecord::Print(ostream & stream) const
 
     stream << "sig(Ev) = " 
            << setfill(' ') << setw(17) << fXSec/units::cm2 
-           << " cm^2  |"
-           << " dsig(Ev;{K_s})/dK = "
-           << setfill(' ') << setw(17) << fDiffXSec/units::cm2 
-           << " cm^2/{K}  |"
-           << " Weight = "
-           << setfill(' ') << setw(17) 
+           << " cm^2  |";
+
+    switch(fDiffXSecPhSp) {
+      case ( kPSyfE   ) :                                                                           
+        stream << " dsig(y;E)/dy =          " << setfill(' ') << setw(13) << fDiffXSec/units::cm2 << " cm^2       |";
+        break;
+      case ( kPSxyfE  ) :
+        stream << " d2sig(x,y;E)/dxdy =     " << setfill(' ') << setw(13) << fDiffXSec/units::cm2 << " cm^2       |";
+        break;
+      case ( kPSxytfE ) :
+        stream << " d3sig(x,y,t;E)/dxdydt = " << setfill(' ') << setw(13) << fDiffXSec/units::cm2 << " cm^2/GeV^2 |";
+        break;
+      case ( kPSQ2fE  ) :
+        stream << " dsig(Q2;E)/dQ2 =        " << setfill(' ') << setw(13) << fDiffXSec/units::cm2 << " cm^2/GeV^2 |";
+        break;
+      case ( kPSWQ2fE ) :
+        stream << " d2sig(W,Q2;E)/dWdQ2 =   " << setfill(' ') << setw(13) << fDiffXSec/units::cm2 << " cm^2/GeV^3 |";
+        break;
+      default :
+        stream << " dsig(Ev;{K_s})/dK   =   " << setfill(' ') << setw(13) << fDiffXSec/units::cm2 << " cm^2/{K}   |";
+    }
+    stream << " Weight = "
+           << setfill(' ') << setw(16) 
            << setiosflags(ios::fixed) << setprecision(5)
            << fWeight   
            << " |";
