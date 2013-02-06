@@ -87,6 +87,10 @@
  @ Feb 01, 2013 - CA
    The GUNPHYSMASK env. var is no longer used. Added SetUnphysEventMask(const 
    TBits &). Input is propagated accordingly.
+ @ Feb 06, 2013 - CA
+   Fix small problem introduced with recent changes. 
+   In PopulateEventGenDriverPool() calls to GEVGDriver::SetEventGeneratorList()
+   and GEVGDriver::Configure() were reversed. Problem reported by W.Huelsnitz.
 
 */
 //____________________________________________________________________________
@@ -148,6 +152,9 @@ GMCJDriver::~GMCJDriver()
 //___________________________________________________________________________
 void GMCJDriver::SetEventGeneratorList(string listname)
 {
+  LOG("GMCJDriver", pNOTICE)
+       << "Setting event generator list: " << listname;
+
   fEventGenList = listname;
 }
 //___________________________________________________________________________
@@ -620,9 +627,9 @@ void GMCJDriver::PopulateEventGenDriverPool(void)
        << init_state.AsString() << " ----\n\n";
 
      GEVGDriver * evgdriver = new GEVGDriver;
+     evgdriver->SetEventGeneratorList(fEventGenList); // specify list of generators
      evgdriver->Configure(init_state);
      evgdriver->UseSplines(); // check if all splines needed are loaded
-     evgdriver->SetEventGeneratorList(fEventGenList); // specify list of generators
 
      LOG("GMCJDriver", pDEBUG) << "Adding new GEVGDriver object to GEVGPool";
      fGPool->insert( GEVGPool::value_type(init_state.AsString(), evgdriver) );
