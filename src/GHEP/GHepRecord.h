@@ -26,6 +26,7 @@
 #include <TBits.h>
 
 #include "Conventions/GMode.h"
+#include "Conventions/KinePhaseSpace.h"
 #include "Interaction/Interaction.h" 
 #include "GHEP/GHepStatus.h"
 
@@ -122,7 +123,10 @@ public :
   virtual void   SetWeight      (double wght) { fWeight   = (wght>0) ? wght : 0.; }
   virtual void   SetProbability (double prob) { fProb     = (prob>0) ? prob : 0.; }
   virtual void   SetXSec        (double xsec) { fXSec     = (xsec>0) ? xsec : 0.; }
-  virtual void   SetDiffXSec    (double xsec) { fDiffXSec = (xsec>0) ? xsec : 0.; }
+  virtual void   SetDiffXSec    (double xsec, KinePhaseSpace_t ps) 
+  { fDiffXSecPhSp = ps; 
+    fDiffXSec = (xsec>0) ? xsec : 0.; 
+  }
 
   // Set/get event vertex in detector coordinate system
 
@@ -158,17 +162,16 @@ protected:
   // Vertex position
   TLorentzVector * fVtx;  ///< vertex in the detector coordinate system
 
-  // Flags for the generated event
+  // Flags (and user-specified mask) for the generated event
   TBits * fEventFlags;    ///< event flags indicating various pathologies or an unphysical event
   TBits * fEventMask;     ///< an input bit-field mask allowing one to ignore bits set in fEventFlags
 
-  // Misc info associated with the generated event
-  double fWeight;         ///< event weight
-  double fProb;           ///< event probability (given flux neutrino && exp setup)
-  double fXSec;           ///< cross section for selected event
-  double fDiffXSec;       ///< differential cross section for selected event kinematics
-
-  static int     fPrintLevel; //! print-level flag, see GHepRecord::Print()
+  // Event weight, probability and cross-sections
+  double           fWeight;         ///< event weight
+  double           fProb;           ///< event probability (for given flux neutrino and density-weighted path-length for target element)
+  double           fXSec;           ///< cross section for selected event
+  double           fDiffXSec;       ///< differential cross section for selected event kinematics
+  KinePhaseSpace_t fDiffXSecPhSp;   ///< specifies which differential cross-section (dsig/dQ2, dsig/dQ2dW, dsig/dxdy,...)
 
   // Utility methods
   void InitRecord  (void);
@@ -180,6 +183,9 @@ protected:
   virtual void SwapParticles          (int i, int j);
   virtual void FinalizeDaughterLists  (void);
   virtual int  FirstNonInitStateEntry (void);
+
+  //
+  static int fPrintLevel; //! print-level flag, see GHepRecord::Print()
 
 private:
 
