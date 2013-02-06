@@ -19,6 +19,10 @@
    For charged lepton scattering do a more brute force kinematical selection
    and do not use the importance sampling envelope used for v scattering
    (was very inefficient)
+ @ Feb 06, 2013 - CA
+   When the value of the differential cross-section for the selected kinematics
+   is set to the event, set the corresponding KinePhaseSpace_t value too.
+
 */
 //____________________________________________________________________________
 
@@ -272,7 +276,7 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         kinematics::WQ2toXY(E,M,gW,gQ2,gx,gy);
 
         // set the cross section for the selected kinematics
-        evrec->SetDiffXSec(xsec);
+        evrec->SetDiffXSec(xsec,kPSWQ2fE);
 
         // for uniform kinematics, compute an event weight as
         // wght = (phase space volume)*(differential xsec)/(event total xsec)

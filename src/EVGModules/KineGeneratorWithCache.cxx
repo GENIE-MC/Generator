@@ -5,13 +5,16 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - December 15, 2004
+         STFC, Rutherford Appleton Laboratory 
 
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
  @ Jun 25, 2008 - CA
    Using the new CacheBranchFx which avoids a significant memory leak.
+ @ Feb 06, 2013 - CA
+   When the value of the differential cross-section for the selected kinematics
+   is set to the event, set the corresponding KinePhaseSpace_t value too.
 
 */
 //____________________________________________________________________________
@@ -87,7 +90,7 @@ double KineGeneratorWithCache::MaxXSec(GHepRecord * event_rec) const
   LOG("Kinematics", pNOTICE)
             << "Can not generate event kinematics {K} (max_xsec({K};E)<=0)";
   // xsec for selected kinematics = 0
-  event_rec->SetDiffXSec(0);
+  event_rec->SetDiffXSec(0,kPSNull);
   // switch on error flag 
   event_rec->EventFlags()->SetBitNumber(kKineGenErr, true);
   // reset 'trust' bits

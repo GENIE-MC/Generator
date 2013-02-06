@@ -12,6 +12,9 @@
  Important revisions after version 2.0.0 :
  @ Feb 15, 2009 - CA
    This class was first added in version 2.5.1.
+ @ Feb 06, 2013 - CA
+   When the value of the differential cross-section for the selected kinematics
+   is set to the event, set the corresponding KinePhaseSpace_t value too.
 
 */
 //____________________________________________________________________________
@@ -207,7 +210,7 @@ void DFRKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
                 << "Selected x,y => W = " << gW << ", Q2 = " << gQ2;
 
          // set the cross section for the selected kinematics
-         evrec->SetDiffXSec(xsec*TMath::Exp(-b*gt));
+         evrec->SetDiffXSec(xsec*TMath::Exp(-b*gt), kPSxytfE);
 
          // lock selected kinematics & clear running values
          interaction->KinePtr()->SetW (gW,  true);
