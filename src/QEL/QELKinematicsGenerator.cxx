@@ -14,6 +14,9 @@
    Moved into the new QEL package from its previous location (EVGModules)
  @ Mar 05, 2010 - CA
    Added a temprorary SpectralFuncExperimentalCode() 
+ @ Feb 06, 2013 - CA
+   When the value of the differential cross-section for the selected kinematics
+   is set to the event, set the corresponding KinePhaseSpace_t value too.
 
 */
 //____________________________________________________________________________
@@ -201,7 +204,7 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         kinematics::WQ2toXY(E,M,gW,gQ2,gx,gy);
 
         // set the cross section for the selected kinematics
-        evrec->SetDiffXSec(xsec);
+        evrec->SetDiffXSec(xsec,kPSQ2fE);
 
         // for uniform kinematics, compute an event weight as
         // wght = (phase space volume)*(differential xsec)/(event total xsec)
@@ -398,7 +401,7 @@ void QELKinematicsGenerator::SpectralFuncExperimentalCode(
 //        interaction->ResetBit(kIAssumeFreeNucleon);
 
         // set the cross section for the selected kinematics
-        evrec->SetDiffXSec(xsec);
+        evrec->SetDiffXSec(xsec,kPSQ2fE);
 
         // for uniform kinematics, compute an event weight as
         // wght = (phase space volume)*(differential xsec)/(event total xsec)

@@ -5,13 +5,16 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - July 13, 2005
+         STFC, Rutherford Appleton Laboratory 
 
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
  @ Feb 09, 2009 - CA
    Moved into the NuE package from its previous location (EVGModules package)
+ @ Feb 06, 2013 - CA
+   When the value of the differential cross-section for the selected kinematics
+   is set to the event, set the corresponding KinePhaseSpace_t value too.
 
 */
 //____________________________________________________________________________
@@ -123,7 +126,7 @@ void NuEKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         LOG("NuEKinematics", pINFO) << "Selected: y = " << y;
 
         // set the cross section for the selected kinematics
-        evrec->SetDiffXSec(xsec);
+        evrec->SetDiffXSec(xsec,kPSyfE);
 
         // for uniform kinematics, compute an event weight as
         // wght = (phase space volume)*(differential xsec)/(event total xsec)
