@@ -23,7 +23,9 @@
    Moved into the new DIS package from its previous location (EVGModules).
  @ Sep 15, 2009 - CA
    IsNucleus() is no longer available in GHepParticle. Use pdg::IsIon().
-
+ @ Feb 08, 2013 - CA
+   Use the formation zone code from PhysUtils (also used by reweighting) 
+   rather than having own implementation here
 */
 //____________________________________________________________________________
 
@@ -51,6 +53,7 @@
 #include "PDG/PDGUtils.h"
 #include "Utils/FragmRecUtils.h"
 #include "Utils/PrintUtils.h"
+#include "Utils/PhysUtils.h"
 
 using namespace genie;
 using namespace genie::controls;
@@ -236,19 +239,12 @@ void DISHadronicSystemGenerator::SimulateFormationZone(
 
     if(!apply_formation_zone) continue;
 
-    //-- Compute the formation zone
+    LOG("DISHadronicVtx", pINFO)
+      << "Applying formation-zone to " << p->Name();
 
-    TVector3 p3  = p->P4()->Vect();      // hadron's: p (px,py,pz)
-    double   m   = p->Mass();            //           m
-    double   m2  = m*m;                  //           m^2
-    double   P   = p->P4()->P();         //           |p|
-    double   Pt  = p3.Pt(p3hadr);        //           pT
-    double   Pt2 = Pt*Pt;                //           pT^2
-    double   fz  = P*fct0*m/(m2+fK*Pt2); //           formation zone, in fm
-
-    LOG("DISHadronicVtx", pNOTICE)
-      << p->Name() << ": |P| = " << P << " GeV, Pt = " << Pt
-                                << " GeV, Formation Zone = " << fz << " fm";
+    double m = p->Mass();  
+    const TLorentzVector & p4 = *(p->P4());
+    double fz = phys::FormationZone(m,p4,p3hadr,fct0,fK);
 
     //-- Apply the formation zone step
 
