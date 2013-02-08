@@ -61,6 +61,7 @@ namespace rew   {
    double fR0;  ///<
    double fct0; ///<
    double fK;   ///<
+
  };
 
 } // rew

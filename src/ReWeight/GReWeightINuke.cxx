@@ -26,7 +26,7 @@
 */
 //____________________________________________________________________________
 
-//#define _G_REWEIGHT_INUKE_DEBUG_NTP_
+#define _G_REWEIGHT_INUKE_DEBUG_NTP_
 
 #include <cassert>
 #include <cstdlib>
@@ -59,17 +59,21 @@ GReWeightINuke::GReWeightINuke() :
 GReWeightI()
 {
 #ifdef _G_REWEIGHT_INUKE_DEBUG_NTP_
-  fTestNtp = new TNtuple("testntp","","pdg:E:tweakDial:d:dmfp:fate:interact");
+  fTestFile = new TFile("./intranuke_reweight_test.root","recreate");
+  fTestNtp  = new TNtuple("testntp","","pdg:E:tweakDial:d:dmfp:fate:interact");
 #endif
 }
 //_______________________________________________________________________________________
 GReWeightINuke::~GReWeightINuke()
 {
 #ifdef _G_REWEIGHT_INUKE_DEBUG_NTP_
-  TFile f("./inuke_reweight_test.root","recreate");
+  assert(fTestFile);
+  assert(fTestNtp);
+  fTestFile->cd();
   fTestNtp->Write();
-  f.Close();
-  delete fTestNtp;
+  fTestFile->Close();
+  delete fTestFile;
+  //delete fTestNtp;
 #endif
 }
 //_______________________________________________________________________________________
@@ -103,7 +107,7 @@ bool GReWeightINuke::IsHandled(GSyst_t syst)
 void GReWeightINuke::SetSystematic(GSyst_t syst, double val)
 {
   if(this->IsHandled(syst)) {
-     fINukeRwParams.SetCurTwkDial(syst, val);
+     fINukeRwParams.SetTwkDial(syst, val);
   }
 }
 //_______________________________________________________________________________________
@@ -157,8 +161,9 @@ double GReWeightINuke::CalcWeight(const EventRecord & event)
      // Determine the interaction type for current hadron in nucleus, if any
      int fsi_code = p->RescatterCode();
      LOG("ReW", pDEBUG) 
-        << "Reweighting hadron: PDG code = " << pdgc 
-        << ", FSI code = "  << fsi_code 
+        << "Attempting to reweight hadron at position = " << ip 
+        << " with PDG code = " << pdgc 
+        << " and FSI code = "  << fsi_code 
         << " (" << INukeHadroFates::AsString((INukeFateHA_t)fsi_code) << ")";
      if(fsi_code == -1 || fsi_code == (int)kIHAFtUndefined) {
        LOG("ReW", pFATAL) << "INTRANUKE didn't set a valid rescattering code for event in position: " << ip;
@@ -180,7 +185,7 @@ double GReWeightINuke::CalcWeight(const EventRecord & event)
      // Check which weights need to be calculated (only if relevant params were tweaked)
      bool calc_w_mfp  = fINukeRwParams.MeanFreePathParams(pdgc)->IsTweaked();
      bool calc_w_fate = fINukeRwParams.FateParams(pdgc)->IsTweaked();
-       
+
      // Compute weight to account for changes in the total rescattering probability
      if(calc_w_mfp)
      {
@@ -200,7 +205,6 @@ double GReWeightINuke::CalcWeight(const EventRecord & event)
      // Compute weight to account for changes in relative fractions of reaction channels
      if(calc_w_fate && interacted)
      {    
-        // JIMTODO - Need to deal with normalisation properly
         double fate_fraction_scale_factor = 
              fINukeRwParams.FateParams(pdgc)->ScaleFactor(
                   GSyst::INukeFate2GSyst((INukeFateHA_t)fsi_code,pdgc), p4);
@@ -211,9 +215,10 @@ double GReWeightINuke::CalcWeight(const EventRecord & event)
      double hadron_weight = w_mfp * w_fate;
 
      LOG("ReW", pNOTICE) 
-        << "Reweighted hadron: PDG code = " << pdgc 
+        << "Reweighted hadron at position = " << ip
+        << " with PDG code = " << pdgc 
         << ", FSI code = "  << fsi_code 
-        << " (" << INukeHadroFates::AsString((INukeFateHA_t)fsi_code) << ") >"
+        << " (" << INukeHadroFates::AsString((INukeFateHA_t)fsi_code) << ") :"
         << " w_mfp = "  << w_mfp
         <<", w_fate = " << w_fate;
 

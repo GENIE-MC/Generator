@@ -41,8 +41,9 @@
 using namespace genie::rew;
 using namespace genie;
 
-class TLorentzVector;
+class TFile;
 class TNtuple;
+class TLorentzVector;
 
 namespace genie {
 namespace rew   {
@@ -64,6 +65,7 @@ namespace rew   {
  private:
 
    GReWeightINukeParams fINukeRwParams;
+   TFile *              fTestFile;
    TNtuple *            fTestNtp;
  };
 

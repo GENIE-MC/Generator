@@ -58,7 +58,7 @@ namespace rew   {
    void    Reset              (void);                   ///<
    void    Reconfigure        (void);                   ///<
    double  ChisqPenalty       (void) const;             ///<
-   void    SetCurTwkDial      (GSyst_t s, double val);  ///<
+   void    SetTwkDial         (GSyst_t s, double val);  ///<
 
    //.........................................................................
    //
@@ -72,33 +72,27 @@ namespace rew   {
     ~Fates();
 
      double ScaleFactor   (GSyst_t s, const TLorentzVector & p4) const; ///< see next
-     double ScaleFactor   (GSyst_t s, double KE=-1.) const; ///< fate fraction scale factor = 1 + twk_dial * fractional_err
-     double CurTwkDial    (GSyst_t s, double KE=-1.) const; ///< current tweaking dial
-     bool   IsIncluded    (GSyst_t s) const;                ///< is included?
-     bool   IsCushionTerm (GSyst_t s) const;                ///< is it a cushion term?
-     bool   IsTweaked     (GSyst_t s) const;                ///< is included & tweaked to non-def value?
-     bool   IsTweaked     (void) const;                     ///< is any param tweaked
-     void   Reset         (void);                           ///<
-     void   Reconfigure   (void);                           ///<
-     double ChisqPenalty  (void) const;                     ///<
-     void   SetCurTwkDial (GSyst_t s, double val);          ///< 
+     double ScaleFactor   (GSyst_t s, double KE=-1.) const;             ///< fate fraction scale factor = 1 + twk_dial * fractional_err
+     bool   IsIncluded    (GSyst_t s) const;                            ///< is included?
+     bool   IsCushionTerm (GSyst_t s) const;                            ///< is it a cushion term?
+     bool   IsTweaked     (GSyst_t s) const;                            ///< is included & tweaked to non-def value?
+     bool   IsTweaked     (void) const;                                 ///< is any param tweaked
+     void   Reset         (void);                                       ///<
+     void   Reconfigure   (void);                                       ///<
+     double ChisqPenalty  (void) const;                                 ///<
+     void   SetTwkDial    (GSyst_t s, double val);                      ///< 
 
    private:    
 
      bool   IsHandled       (GSyst_t s) const;
      void   AddCushionTerms (void);
-     bool   CheckUnitarity  (int n_points = 400);
+     double ActualTwkDial   (GSyst_t s, double KE=-1.) const;  ///< actual tweaking dial for input systematic at input kinetic energy
 
-     HadronType_t         fHadType;       ///<
-     int                  fNSysts;        ///<
-     int                  fNCushionTerms; ///<
-     double               fCushAvgChisq;  ///<
-     map<GSyst_t, double> fSystListMap;   ///< List of systematics included. 
-     map<GSyst_t, bool>   fIsCushionMap;  ///< cushion term flag
-
-     //JIMTODO - need to add bool fChi2AvgUpToDate which is set to false if 
-     //SetTwkDial is called and is set to true if CheckFatesUnity is called. 
-     //Also add conditional to GetAverageChi2 
+     HadronType_t         fHadType;           ///<
+     map<GSyst_t, double> fSystValuesUser;    ///< List of systematics included & values set by the user
+     mutable 
+     map<GSyst_t, double> fSystValuesActual;  ///< List of systematics included & values actually used (user values limited to physical range)
+     map<GSyst_t, bool>   fIsCushion;         ///< cushion term flag
 
    }; // Fates nested class
 
@@ -115,12 +109,12 @@ namespace rew   {
     ~MFP();
 
      double ScaleFactor   (void) const;  ///< mean free path scale factor = 1 + twk_dial * fractional_err
-     double CurTwkDial    (void) const;  ///< current value of mfp tweak dial
+     double TwkDial       (void) const;  ///< current value of mfp tweak dial
      bool   IsIncluded    (void) const;  ///<
      bool   IsTweaked     (void) const;  ///<
      double ChisqPenalty  (void) const;  ///<
      void   Reset         (void);        ///<
-     void   SetCurTwkDial (double val);  ///<
+     void   SetTwkDial    (double val);  ///<
 
    private:    
      HadronType_t fHadType;     ///<
