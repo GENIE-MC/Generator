@@ -259,7 +259,7 @@ int main(int argc, char ** argv)
      // Set non-default values and re-configure.    
      double twk_dial = twk_dial_min + ith_dial * twk_dial_step;  
      LOG("grwght1scan", pNOTICE) 
-       << "Reconfiguring systematic: " << GSyst::AsString(gOptSyst)
+       << "\n\nReconfiguring systematic: " << GSyst::AsString(gOptSyst)
        << " - Setting tweaking dial to: " << twk_dial;
      syst.Set(gOptSyst, twk_dial);
      rw.Reconfigure();
@@ -267,10 +267,15 @@ int main(int argc, char ** argv)
      // Event loop
      for(int iev = nfirst; iev <= nlast; iev++) {
 
+          if(iev%100 == 0) {
+              LOG("grwght1scan", pNOTICE) 
+                 << "***** Currently at event number: "<< iev;
+          }
+
           // Get next event
           tree->GetEntry(iev);
           EventRecord & event = *(mcrec->event);
-          LOG("grwght1scan", pDEBUG) << event;
+          LOG("grwght1scan", pINFO) << "Event: " << iev << "\n" << event;
 
           // Reset arrays
           int idx = iev - nfirst;
@@ -292,13 +297,8 @@ int main(int argc, char ** argv)
               << "Overall weight = " << wght;
           weights[idx][ith_dial] = wght;
 
-          if(iev%100 == 0) {
-              LOG("grwght1scan", pNOTICE) 
-                 << "***** Currently at event number: "<< iev;
-           }
-
-           // Clean-up
-           mcrec->Clear();
+          // Clean-up
+          mcrec->Clear();
 
       } // evt loop
   } // twk_dial loop
