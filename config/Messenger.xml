@@ -39,7 +39,7 @@
   <priority msgstream="CFracTab">            INFO   </priority>
   <priority msgstream="COHXSec">             NOTICE </priority>
   <priority msgstream="CLAP">                NOTICE </priority>
-  <priority msgstream="COHHadronicVtx">      NOTICE </priority>
+  <priority msgstream="COHHadronicVtx">      WARN   </priority>
   <priority msgstream="COHKinematics">       WARN   </priority>
   <priority msgstream="DFRHadronicVtx">      DEBUG  </priority>
   <priority msgstream="DFRKinematics">       DEBUG  </priority>
@@ -48,7 +48,7 @@
   <priority msgstream="DISXSec">             NOTICE </priority> 
   <priority msgstream="DISCharmXSec">        INFO   </priority>
   <priority msgstream="DISPXSec">            NOTICE </priority>
-  <priority msgstream="DISHadronicVtx">      NOTICE </priority>
+  <priority msgstream="DISHadronicVtx">      WARN   </priority>
   <priority msgstream="DISKinematics">       WARN   </priority>
   <priority msgstream="EventGenerator">      WARN   </priority> 
   <priority msgstream="Elastic">             INFO   </priority>
@@ -73,8 +73,8 @@
   <priority msgstream="GXSecFunc">           WARN   </priority>
   <priority msgstream="GLRES">               WARN   </priority>
   <priority msgstream="HadTransp">           WARN   </priority>
-  <priority msgstream="HadronicVtx">         NOTICE </priority>
-  <priority msgstream="HybridHad">           INFO   </priority>
+  <priority msgstream="HadronicVtx">         WARN   </priority>
+  <priority msgstream="HybridHad">           WARN   </priority>
   <priority msgstream="IBD">                 NOTICE </priority>
   <priority msgstream="IMDXSec">             NOTICE </priority>
   <priority msgstream="IntSel">              NOTICE </priority>
@@ -88,7 +88,7 @@
   <priority msgstream="INukeUtils">          NOTICE </priority>
   <priority msgstream="ISApp">               WARN   </priority>
   <priority msgstream="IntGenMap">           WARN   </priority>
-  <priority msgstream="KNOHad">              NOTICE </priority> 
+  <priority msgstream="KNOHad">              WARN   </priority> 
   <priority msgstream="KineLimits">          INFO   </priority>
   <priority msgstream="Kinematics">          NOTICE </priority>
   <priority msgstream="LeptonicVertex">      WARN   </priority>
@@ -112,12 +112,13 @@
   <priority msgstream="ParticleDecayer">     NOTICE </priority>
   <priority msgstream="PaschLal">            INFO   </priority>
   <priority msgstream="PythiaDec">           NOTICE </priority>
-  <priority msgstream="PythiaHad">           NOTICE </priority>
+  <priority msgstream="PythiaHad">           WARN   </priority>
   <priority msgstream="PDG">                 INFO   </priority>
   <priority msgstream="PathL">               NOTICE </priority>
+  <priority msgstream="PhysUtil">            WARN   </priority>
   <priority msgstream="QELXSec">             NOTICE </priority>
   <priority msgstream="QELCharmXSec">        NOTICE </priority>
-  <priority msgstream="QELHadronicVtx">      NOTICE </priority>
+  <priority msgstream="QELHadronicVtx">      WARN   </priority>
   <priority msgstream="QELKinematics">       WARN   </priority>
   <priority msgstream="RESXSec">             INFO   </priority>
   <priority msgstream="RESPXSec">            WARN   </priority>
@@ -129,8 +130,8 @@
   <priority msgstream="ReinSeghalSpp">       NOTICE </priority>
   <priority msgstream="RSHAmpl">             WARN   </priority>
   <priority msgstream="Registry">            WARN   </priority>
-  <priority msgstream="ReW">                 INFO   </priority>
-  <priority msgstream="RESHadronicVtx">      NOTICE </priority>
+  <priority msgstream="ReW">                 NOTICE </priority>
+  <priority msgstream="RESHadronicVtx">      WARN   </priority>
   <priority msgstream="RESKinematics">       WARN   </priority>
   <priority msgstream="RESSelector">         NOTICE </priority>
   <priority msgstream="Rndm">                NOTICE </priority>

@@ -116,6 +116,7 @@
   <priority msgstream="PythiaHad">           WARN   </priority>
   <priority msgstream="PDG">                 WARN   </priority>
   <priority msgstream="PathL">               WARN   </priority>
+  <priority msgstream="PhysUtil">            WARN   </priority>
   <priority msgstream="QELXSec">             WARN   </priority>
   <priority msgstream="QELCharmXSec">        WARN   </priority>
   <priority msgstream="QELHadronicVtx">      WARN   </priority>

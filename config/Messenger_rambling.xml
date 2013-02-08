@@ -85,7 +85,7 @@
   <priority msgstream="TwoBodyCollision">    NOTICE </priority>
   <priority msgstream="HNIntranuke">         NOTICE </priority>
   <priority msgstream="INukeData">           NOTICE </priority>
-  <priority msgstream="INukeUtils">          NOTICE </priority>
+  <priority msgstream="INukeUtils">          NOTICE </priority> <!-- notice-->
   <priority msgstream="ISApp">               INFO   </priority>
   <priority msgstream="IntGenMap">           WARN   </priority>
   <priority msgstream="KNOHad">              NOTICE </priority> 
@@ -115,6 +115,7 @@
   <priority msgstream="PythiaHad">           NOTICE </priority>
   <priority msgstream="PDG">                 INFO   </priority>
   <priority msgstream="PathL">               NOTICE </priority>
+  <priority msgstream="PhysUtil">            NOTICE </priority>
   <priority msgstream="QELXSec">             NOTICE </priority>
   <priority msgstream="QELCharmXSec">        NOTICE </priority>
   <priority msgstream="QELHadronicVtx">      INFO   </priority>
@@ -157,7 +158,7 @@
   <priority msgstream="gevgen_t2k">          NOTICE </priority>
   <priority msgstream="gevgen_numi">         NOTICE </priority>
   <priority msgstream="gevgen_hadron">       NOTICE </priority>
-  <priority msgstream="grwght1scan">         DEBUG  </priority>
+  <priority msgstream="grwght1scan">         INFO   </priority>
   <priority msgstream="gvldtest">            NOTICE </priority>
   <priority msgstream="gtune">               INFO   </priority>
   <priority msgstream="gntpc">               INFO   </priority>
