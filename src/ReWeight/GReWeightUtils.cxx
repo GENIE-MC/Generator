@@ -20,7 +20,8 @@
    Added method to calculate weight for a modified formation zone. 
  @ Jul 29, 2011 - SD,AM
    Update INUKE fates. Mean free path is now function of Z too.   
-
+ @ Feb 08, 2013 - CA
+   Adjust formation zone reweighting. Mean free path is function of Z too.
 */
 //____________________________________________________________________________
 
@@ -29,6 +30,7 @@
 #include <TMath.h>
 
 #include "Conventions/Units.h"
+#include "Conventions/Controls.h"
 #include "GHEP/GHepParticle.h"
 #include "HadronTransport/INukeHadroData.h"
 #include "HadronTransport/INukeHadroFates.h"
@@ -41,6 +43,7 @@
 
 using namespace genie;
 using namespace genie::rew;
+using namespace genie::controls;
 
 //____________________________________________________________________________
 double genie::utils::rew::MeanFreePathWeight(
@@ -49,52 +52,67 @@ double genie::utils::rew::MeanFreePathWeight(
   double mfp_scale_factor, bool interacted,
   double nRpi, double nRnuc, double NR, double R0)
 {
+   LOG("ReW", pINFO)  
+     << "Calculating mean free path weight: "
+     << "A = " << A << ", Z = " << Z << ", mfp_scale = " << mfp_scale_factor
+     << ", interacted = " << interacted;
+   LOG("ReW", pDEBUG)  
+     << "nR_pion = " << nRpi << ", nR_nucleon = " << nRnuc 
+     << ", NR = " << NR << ", R0 = " << R0;
+
    // Get the nominal survival probability
    double pdef = utils::intranuke::ProbSurvival(
       pdgc,x4,p4,A,Z,1.,nRpi,nRnuc,NR,R0);
+   LOG("ReW", pINFO)  << "Probability(default mfp) = " << pdef;      
    if(pdef<=0) return 1.;
 
    // Get the survival probability for the tweaked mean free path
    double ptwk = utils::intranuke::ProbSurvival(
       pdgc,x4,p4,A,Z,mfp_scale_factor,nRpi,nRnuc,NR,R0);
+   LOG("ReW", pINFO)  << "Probability(tweaked mfp) = " << ptwk;      
    if(ptwk<=0) return 1.;
 
    // Calculate weight
    double w_mfp = utils::rew::MeanFreePathWeight(pdef, ptwk, interacted);
+   LOG("ReW", pINFO)  << "Mean free path weight = " << w_mfp;     
    return w_mfp;
 }
 //____________________________________________________________________________
 double genie::utils::rew::FZoneWeight(
   int pdgc, const TLorentzVector & vtx, const TLorentzVector & x4, 
-  const TLorentzVector & p4, double A, double fz_scale_factor, bool interacted,
+  const TLorentzVector & p4, double A, double Z, 
+  double fz_scale_factor, bool interacted,
   double nRpi, double nRnuc, double NR, double R0)
 {
    // Calculate hadron start assuming tweaked formation zone
    TLorentzVector fz    = x4 - vtx;
    TLorentzVector fztwk = fz_scale_factor*fz;
-   TLorentzVector x4twk    = x4 + fztwk - fz;
+   TLorentzVector x4twk = x4 + fztwk - fz;
 
-   LOG("ReW", pDEBUG)  << "FZone = "<< fz.Vect().Mag();
+   LOG("ReW", pDEBUG)  << "Formation zone = "<< fz.Vect().Mag() << " fm";
 
    // Get nominal survival probability.
    double pdef = utils::intranuke::ProbSurvival(
-      pdgc,x4,p4,A,1.,nRpi,nRnuc,NR,R0);
-   LOG("ReW", pDEBUG)  << "PDef = "<< pdef;
+      pdgc,x4,p4,A,Z,1.,nRpi,nRnuc,NR,R0);
+   LOG("ReW", pDEBUG)  << "Survival probability (nominal) = "<< pdef;
    if(pdef<=0) return 1.; 
    if(pdef>=1.){
-     LOG("ReW", pERROR) <<  "Default formation zone takes hadron outside "
-                        <<  "nucleus so cannot reweight!" ;
+     LOG("ReW", pERROR) 
+         <<  "Default formation zone takes hadron outside "
+         <<  "nucleus so cannot reweight!" ;
      return 1.;
    }
 
    // Get tweaked survival probability.
    double ptwk = utils::intranuke::ProbSurvival(
-      pdgc,x4twk,p4,A,1.,nRpi,nRnuc,NR,R0);
+      pdgc,x4twk,p4,A,Z,1.,nRpi,nRnuc,NR,R0);
    if(ptwk<=0) return 1.;
+   LOG("ReW", pDEBUG)  << "Survival probability (tweaked) = "<< ptwk;
 
-   LOG("ReW", pDEBUG)  << "PTwk = "<< ptwk;
    // Calculate weight
    double w_fz = utils::rew::MeanFreePathWeight(pdef, ptwk, interacted);
+   LOG("ReW", pDEBUG)  
+       << "Particle weight for formation zone tweak = "<< ptwk;
    return w_fz;  
 }
 //____________________________________________________________________________
@@ -218,6 +236,19 @@ double genie::utils::rew::FateFraction(
   fate_frac *= frac_scale_factor;
                  
   return fate_frac;
+}
+//____________________________________________________________________________
+double genie::utils::rew::WhichFateFractionScaleFactor(
+    genie::rew::GSyst_t syst, double kinE, double fate_frac)
+{  
+  double fate_frac_nominal = FateFraction(syst,kinE,1.);
+
+  if(TMath::Abs(fate_frac-fate_frac_nominal) < kASmallNum) return 0;
+
+  if(fate_frac_nominal <= 0) { return -99999; }
+
+  double scale = TMath::Max(0.,fate_frac)/fate_frac_nominal;
+  return scale;
 }
 //____________________________________________________________________________
 bool genie::utils::rew::HadronizedByAGKY(const EventRecord & event)

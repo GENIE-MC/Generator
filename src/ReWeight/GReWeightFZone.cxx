@@ -14,7 +14,9 @@
    Skeleton first included in v2.5.1.
  @ Dec 17, 2010 - JD
    First implementation of FZone reweighting.
-
+ @ Feb 08, 2013 - CA
+   Mean free path is function of Z too. Make sure it is passed on.
+   Use new INTRANUKE FSI flags.	Use formation zone code from PhysUtils.
 */
 //____________________________________________________________________________
 
@@ -29,9 +31,12 @@
 #include "ReWeight/GReWeightFZone.h"
 #include "ReWeight/GReWeightUtils.h"
 #include "ReWeight/GSystUncertainty.h"
+#include "Utils/PrintUtils.h"
+#include "Utils/PhysUtils.h"
 
 using namespace genie;
 using namespace genie::rew;
+using namespace genie::utils;
 
 //_______________________________________________________________________________________
 GReWeightFZone::GReWeightFZone() :
@@ -89,11 +94,17 @@ double GReWeightFZone::CalcWeight(const EventRecord & event)
   GHepParticle * tgt = event.TargetNucleus();
   if (!tgt) return 1.;
   double A = tgt->A();
+  double Z = tgt->Z();
   if (A<=1) return 1.;
+  if (Z<=1) return 1.0;
+
 
   // Skip event if was not DIS scattering.
   bool is_dis = event.Summary()->ProcInfo().IsDeepInelastic();
-  if(!is_dis) return 1.;
+  if(!is_dis) {
+    LOG("ReW", pDEBUG) << "Not a DIS event";
+    return 1.;
+  }
 
   //
   // Calculate event weight.
@@ -101,30 +112,24 @@ double GReWeightFZone::CalcWeight(const EventRecord & event)
 
   double event_weight = 1.;
 
-  // nuclear radius for particle tracking purposes
-  //double R = (fNR * fR0 * TMath::Power(A, 1./3.))/units::fm;
-
-  // Get the event vtx needed to infer the formation zone.
-  GHepParticle * hitnucl = event.HitNucleon();
-  if(!hitnucl){ 
-    LOG("ReW", pINFO)  << "Cannot calculate formation zone as target not a hit nucleon!"; 
-    return 1.;
-  }
-
   // hadronic system 4-/3-momentum
   TLorentzVector p4hadr = utils::rew::Hadronic4pLAB(event);
   TVector3 p3hadr = p4hadr.Vect();
 
-  TLorentzVector * vtx = hitnucl->X4();
+  // vertex
+  assert(event.HitNucleon());
+  const TLorentzVector & vtx = *(event.HitNucleon()->X4());
 
   // formation zone: fractional 1sigma err
   GSystUncertainty * uncertainty = GSystUncertainty::Instance();
   double fracerr = uncertainty->OneSigmaErr(kHadrNuclTwkDial_FormZone);
 
   // Loop over particles calculate weights for all primary hadrons inside the nucleus.
+  int ip=-1;
   GHepParticle * p = 0;
   TIter event_iter(&event);
   while ( (p = dynamic_cast<GHepParticle *>(event_iter.Next())) ) {
+      ip++;
 
      // Skip particles with code other than 'hadron in the nucleus'
      GHepStatus_t ist  = p->Status();
@@ -132,50 +137,56 @@ double GReWeightFZone::CalcWeight(const EventRecord & event)
      {
         continue;
      }
-     // JIMTODO - Skip if is not a hadron - I am not sure why the above conditional would not catch this out - need to investigate.
-     int            pdgc  = p->Pdg();       // hadron pdg code
+     // JIMTODO - Skip if is not a hadron 
+     // I am not sure why the above conditional would not catch this out - need to investigate.
+     int pdgc = p->Pdg();   // hadron pdg code
      if (pdg::IsHadron(pdgc) == false) 
      {
         continue;
      } 
+
+     // Determine whether it interacted or not
+     int fsi_code = p->RescatterCode();
+     if(fsi_code == -1 || fsi_code == (int)kIHAFtUndefined) {
+       LOG("ReW", pFATAL) << "INTRANUKE didn't set a valid rescattering code for event in position: " << ip;
+       LOG("ReW", pFATAL) << "Here is the problematic event:";
+       LOG("ReW", pFATAL) << event;
+       exit(1);
+     }
+     bool escaped    = (fsi_code == (int)kIHAFtNoInteraction);
+     bool interacted = !escaped;
+
+     LOG("ReW", pDEBUG)
+        << "Attempting to reweight hadron at position = " << ip
+        << " with PDG code = " << pdgc
+        << ". The hadron "
+        << ((interacted) ? "re-interacted" : "did not re-interact");
      
      // Default formation zone
-     // Calculation below copied from the actual generation code.
-     // Could also get default formation zone as the distance between the actual
-     // vertex and the current position.
-     TVector3 p3  = p->P4()->Vect();      // hadron's: p (px,py,pz)
-     double   m   = p->Mass();            //           m
-     double   m2  = m*m;                  //           m^2
-     double   P   = p->P4()->P();         //           |p|
-     double   Pt  = p3.Pt(p3hadr);        //           pT
-     double   Pt2 = Pt*Pt;                //           pT^2
-
-     LOG("ReW", pDEBUG)  << "FZone: m2 = "<< m2 << ", fK = "<< fK << ", Pt2 = "<< Pt2;
-
-     double fz_def = P*fct0*m/(m2+fK*Pt2) / units::fm; 
-
-     // Tweaked formation zone
-     bool interacted = (p->RescatterCode() != -1);
+     double m = p->Mass();
+     TLorentzVector * p4  = p->P4(); 
+     double fz_def = phys::FormationZone(m,*p4,p3hadr,fct0,fK);
 
      double fz_scale_factor  = (1 + fFZoneTwkDial * fracerr);
-     LOG("ReW", pDEBUG)  << "Using fzone scale factor = "<< fz_scale_factor;
      double fz_twk  = fz_def * fz_scale_factor;
      fz_twk = TMath::Max(0.,fz_twk);
-     LOG("ReW", pDEBUG)  << "FZone: "<< fz_def << ", FZone tweaked: "<< fz_twk;
 
-     // hadron's: (px,py,pz,E)
-     TLorentzVector * p4  = p->P4(); 
-     TVector3 fz_vect = p4->Vect(); fz_vect.SetMag(fz_def);
-     TLorentzVector fz_4vect(fz_vect, 0.0);
-     TLorentzVector x4 = (*vtx) + fz_4vect;  
-     LOG("ReW", pDEBUG)  << "Vtx positions (X,Y,Z,T): "<< 
-         vtx->X() << ", "<< vtx->Y() << ", "<<vtx->Z() << ", "<< vtx->T();
-     LOG("ReW", pDEBUG)  << "Hadron position (X,Y,Z,T): "<< 
-           x4.X() << ", "<< x4.Y() << ", "<<x4.Z() << ", "<< x4.T();
+     LOG("ReW", pDEBUG)  
+        << "Formation zone = " << fz_def << " fm (nominal), "
+        << fz_twk << " fm (tweaked) - scale factor = " << fz_scale_factor;
+
+     // Calculate hadron's position at the end of the formation zone step
+     TVector3 step3v = p4->Vect(); 
+     step3v.SetMag(fz_def);
+     TLorentzVector step4v(step3v, 0.);
+
+     TLorentzVector x4 = vtx + step4v;  
+     LOG("ReW", pDEBUG)  << "Vtx position: "<< print::X4AsString(&vtx);
+     LOG("ReW", pDEBUG)  << "Hadron position: "<< print::X4AsString(&x4);
  
      // Calculate particle weight
      double hadron_weight = genie::utils::rew::FZoneWeight(
-        pdgc, *vtx, x4, *p4, A, fz_scale_factor, interacted);
+        pdgc, vtx, x4, *p4, A, Z, fz_scale_factor, interacted);
 
      // Update event weight
      event_weight *= hadron_weight;
@@ -194,9 +205,9 @@ void GReWeightFZone::Init(void)
 {
   fFZoneTwkDial = 0.;
 
-  this->SetR0  (1.3 * units::fm);
+  this->SetR0  (1.3);//fm
   this->SetNR  (3.);
-  this->SetCT0 (0.342 * units::fm);
+  this->SetCT0 (0.342);//fm
   this->SetK   (0.);
 }
 //_______________________________________________________________________________________
