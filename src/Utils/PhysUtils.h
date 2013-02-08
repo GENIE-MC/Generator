@@ -19,11 +19,16 @@
 #ifndef _PHYS_UTILS_H_
 #define _PHYS_UTILS_H_
 
+#include <TLorentzVector.h>
+
 namespace genie {
 namespace utils {
 
 namespace phys
 {
+  // Formation zone in fm
+  double FormationZone(
+     double m, const TLorentzVector & p, const TVector3 & p3hadr, double ct0 /*in fm*/, double K);
 
   // Longitudinal to transverse cross section ratio (R) parametrizations
   double R99118   (double x, double Q2); ///< PRL 98, 142301, 2007

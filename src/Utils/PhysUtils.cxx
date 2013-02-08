@@ -13,14 +13,40 @@
  @ Jan 22, 2008 - CA
    That file was added in 2.3.1 - Copied Whitlow R from NuclearUtils and
    added R99118 which was adapted from fortran code sent by V.Tvaskis
-
+ @ Feb 08, 2013 - CA
+   Add here the formation zone code so that it can be easily shared between
+   the event generation and event reweighting code.
 */
 //____________________________________________________________________________
 
 #include <TMath.h>
+#include <TVector3.h>
 
 #include "Utils/PhysUtils.h"
+#include "Messenger/Messenger.h"
 
+//___________________________________________________________________________
+double  genie::utils::phys::FormationZone(
+   double m, const TLorentzVector & p4, 
+   const TVector3 & p3hadr, double ct0 /*in fm*/, double K)
+{
+// m -> hadon mass (on-shell)
+// p -> hadron momentum 4-vector (Lab)
+// p3hadr -> hadronic-system momentum 3-vector (Lab)
+
+  TVector3 p3  = p4.Vect();            // hadron's: p (px,py,pz)
+  double   m2  = m*m;                  //           m^2
+  double   P   = p4.P();               //           |p|
+  double   Pt  = p3.Pt(p3hadr);        //           pT
+  double   Pt2 = Pt*Pt;                //           pT^2
+  double   fz  = P*ct0*m/(m2+K*Pt2);   //           formation zone, in fm
+
+  LOG("PhysUtil", pNOTICE)
+      << "Formation zone(|P| = " << P << " GeV, Pt = " << Pt
+      << " GeV, ct0 = " << ct0 << " fm, K = " << K << ") = " << fz << " fm";
+
+  return fz;
+}
 //___________________________________________________________________________
 double genie::utils::phys::R99118(double x, double Q2)
 {
