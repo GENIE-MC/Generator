@@ -193,7 +193,7 @@ void IBDKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         kinematics::WQ2toXY(E,M,gW,gQ2,gx,gy);
 
         // set the cross section for the selected kinematics
-        evrec->SetDiffXSec(xsec);
+        evrec->SetDiffXSec(xsec,kPSQ2fE);
 
         // for uniform kinematics, compute an event weight as
         // wght = (phase space volume)*(differential xsec)/(event total xsec)
