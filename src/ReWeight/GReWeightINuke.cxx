@@ -26,7 +26,7 @@
 */
 //____________________________________________________________________________
 
-#define _G_REWEIGHT_INUKE_DEBUG_NTP_
+//#define _G_REWEIGHT_INUKE_DEBUG_NTP_
 
 #include <cassert>
 #include <cstdlib>
