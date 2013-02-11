@@ -212,9 +212,9 @@ double GReWeightINukeParams::Fates::ScaleFactor(
 
   LOG("ReW", pNOTICE) 
       << "Systematic " << GSyst::AsString(syst) 
-      << ": 1 sigma fractional err = " << fractional_error
-      << ", tweak dial = " << twk_dial
-      << " => weight = " << fate_fraction_scale;
+      << " (1 sigma frac. err = " << 100*fractional_error
+      << "%, tweak dial = " << twk_dial
+      << "): Weight = " << fate_fraction_scale;
 
   return fate_fraction_scale;
 }
