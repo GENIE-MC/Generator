@@ -276,6 +276,7 @@ double genie::utils::intranuke::ProbSurvival(
    return prob;
 }
 //____________________________________________________________________________
+/*
 INukeFateHA_t genie::utils::intranuke::FindhAFate(const GHepRecord * evrec)
 {
   // Determine the fate of an hA event
@@ -430,26 +431,27 @@ INukeFateHA_t genie::utils::intranuke::FindhAFate(const GHepRecord * evrec)
         
         if(numtype[fs_ind]==p_pdg)
         {
-          /*if(numKE[fs_ind]>=(.8*p_KE))
-          {
-            if(num[0]==1 && num[1]==1) return kIHAFtKo;
-            else if(num[0]==2) return kIHAFtKo;
-	    else return kIHAFtKo;
-          }
-          else*/ return kIHAFtInelas; //fix later
+          //if(numKE[fs_ind]>=(.8*p_KE))
+          //{
+          //  if(num[0]==1 && num[1]==1) return kIHAFtKo;
+          //  else if(num[0]==2) return kIHAFtKo;
+	  //  else return kIHAFtKo;
+          //}
+          //else
+          return kIHAFtInelas; //fix later
         }
         else
         {
-          /*if(numKE[fs_ind]>=(.8*p_KE)) return kIHAFtInelas;
-          else
-          {
-            if(num[fs_ind]==2)
-            {
-              if(num[0]==2) return kIHAFtKo;
-              else return kIHAFtKo;
-            }
-            else return kIHAFtInelas;
-	    }*/
+          //if(numKE[fs_ind]>=(.8*p_KE)) return kIHAFtInelas;
+          //else
+          //{
+          //  if(num[fs_ind]==2)
+          //  {
+          //    if(num[0]==2) return kIHAFtKo;
+          //    else return kIHAFtKo;
+          //  }
+          //  else return kIHAFtInelas;
+	  // }
 	  return kIHAFtInelas; //fix later
         }
       }
@@ -468,7 +470,7 @@ INukeFateHA_t genie::utils::intranuke::FindhAFate(const GHepRecord * evrec)
 
       if (num[5]==1) fs_ind=5;
       else if (num[6]==1) fs_ind=6;
-      else  /*num[7]==1*/ fs_ind=7;
+      else fs_ind=7; // num[7]==1
 
       if(numKE[fs_ind]>=(.8*p_KE)) return kIHAFtElas;
       else return kIHAFtInelas;
@@ -488,6 +490,7 @@ INukeFateHA_t genie::utils::intranuke::FindhAFate(const GHepRecord * evrec)
   LOG("Intranuke",pWARN) << "---> *** Undefined fate! ***" << "\n" << (*evrec);
   return kIHAFtUndefined;
 }
+*/
 //____________________________________________________________________________
 double genie::utils::intranuke::Dist2Exit(
    const TLorentzVector & x4, const TLorentzVector & p4, 
