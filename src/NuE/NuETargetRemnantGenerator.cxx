@@ -5,13 +5,15 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - July 17, 2005
+         STFC, Rutherford Appleton Laboratory
 
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
  @ Feb 09, 2009 - CA
    Moved into the NuE package from its previous location (EVGModules package)
+ @ Feb 12, 2013 - CA (code from Rosen Matev)
+   Handle the IMD annihilation channel.
 
 */
 //____________________________________________________________________________
@@ -84,9 +86,10 @@ void NuETargetRemnantGenerator::AddElectronNeutrino(GHepRecord * evrec) const
   const ProcessInfo & proc_info = evrec->Summary()->ProcInfo();
   int mom  = evrec->HitElectronPosition();
   int pdgc = 0;
-  if      (proc_info.IsWeakNC() || proc_info.IsWeakMix()) pdgc = kPdgElectron;
-  else if (proc_info.IsWeakCC()) pdgc = kPdgNuE;
-  assert(pdgc>0);
+  if      (proc_info.IsNuElectronElastic()) pdgc = evrec->Summary()->InitState().ProbePdg();
+  else if (proc_info.IsInverseMuDecay()) pdgc = kPdgNuE;
+  else if (proc_info.IsIMDAnnihilation()) pdgc = kPdgAntiNuMu;
+  assert(pdgc!=0);
   evrec->AddParticle(
            pdgc,kIStStableFinalState, mom,-1,-1,-1, p4, vtx);
 }

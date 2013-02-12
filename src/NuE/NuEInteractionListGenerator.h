@@ -42,11 +42,13 @@ public :
 
 private:
   InteractionList * IMDInteractionList   (const InitialState & init_state) const;
+  InteractionList * IMDAnnihilationInteractionList (const InitialState & init_state) const;
   InteractionList * NuEELInteractionList (const InitialState & init_state) const;
  
   void LoadConfig (void);
 
   bool fIsIMD;
+  bool fIsIMDAnh;
 };
 
 }      // genie namespace

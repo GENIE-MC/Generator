@@ -5,13 +5,15 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - July 13, 2005
+         STFC, Rutherford Appleton Laboratory 
 
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
  @ Feb 09, 2009 - CA
    Moved into the NuE package from its previous location (EVGModules package)
+ @ Feb 12, 2013 - CA (code from Rosen Matev)
+   Handle the IMD annihilation channel.
 
 */
 //____________________________________________________________________________
@@ -49,6 +51,7 @@ InteractionList * NuEInteractionListGenerator::CreateInteractionList(
   LOG("IntLst", pINFO) << "InitialState = " << init_state.AsString();
 
   if(fIsIMD)  return this -> IMDInteractionList   (init_state);
+  else if(fIsIMDAnh)  return this -> IMDAnnihilationInteractionList (init_state);
   else        return this -> NuEELInteractionList (init_state);
 }
 //___________________________________________________________________________
@@ -71,6 +74,32 @@ InteractionList * NuEInteractionListGenerator::IMDInteractionList(
   init_state.TgtPtr()->SetHitNucPdg(0);
 
   ProcessInfo   proc_info(kScInverseMuDecay, kIntWeakCC);
+  Interaction * interaction = new Interaction(init, proc_info);
+
+  intlist->push_back(interaction);
+
+  return intlist;
+}
+//___________________________________________________________________________
+InteractionList * NuEInteractionListGenerator::IMDAnnihilationInteractionList(
+                                       const InitialState & init_state) const
+{
+// channels:
+// nuebar + e- -> mu- + nu_e [CC] -- 'inverse muon decay annihilation channel'
+
+  if(init_state.ProbePdg() != kPdgAntiNuE) {
+     LOG("IntLst", pDEBUG) 
+          << "Return *null* interaction list (non anti_nu_e probe in IMDAnnihilation thread)";
+     return 0;
+  }
+
+  InteractionList * intlist = new InteractionList;
+
+  // clone init state and de-activate the struck nucleon info
+  InitialState init(init_state);
+  init_state.TgtPtr()->SetHitNucPdg(0);
+
+  ProcessInfo   proc_info(kScIMDAnnihilation, kIntWeakCC);
   Interaction * interaction = new Interaction(init, proc_info);
 
   intlist->push_back(interaction);
@@ -131,6 +160,7 @@ void NuEInteractionListGenerator::Configure(string config)
 void NuEInteractionListGenerator::LoadConfig(void)
 {
   fIsIMD = fConfig->GetBoolDef("is-IMD", false);
+  fIsIMDAnh = fConfig->GetBoolDef("is-IMD-ANH", false);
 }
 //____________________________________________________________________________
 
