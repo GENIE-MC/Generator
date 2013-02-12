@@ -42,7 +42,6 @@ TGT =	gtestAlgorithms 	 \
 	gtestFermiP		 \
 	gtestRewght		 \
 	gtestRegistry		 \
-	gtestRecoINukeHadroFates \
 	gtestInteraction	 \
 	gtestResonances		 \
 	gtestRwMarginalization	 \
@@ -186,10 +185,6 @@ else
 	@echo "You need to enable event reweighting first!"
 endif
 
-gtestRecoINukeHadroFates: FORCE
-	$(CXX) $(CXXFLAGS) -c gtestRecoINukeHadroFates.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) gtestRecoINukeHadroFates.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestRecoINukeHadroFates
-
 gtestKPhaseSpace: FORCE
 	$(CXX) $(CXXFLAGS) -c gtestKPhaseSpace.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) gtestKPhaseSpace.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestKPhaseSpace
@@ -235,7 +230,6 @@ clean: FORCE
 	$(RM) $(GENIE_BIN_PATH)/gtestInteraction	
 	$(RM) $(GENIE_BIN_PATH)/gtestResonances		
 	$(RM) $(GENIE_BIN_PATH)/gtestRwMarginalization	
-	$(RM) $(GENIE_BIN_PATH)/gtestRecoINukeHadroFates		
 	$(RM) $(GENIE_BIN_PATH)/gtestKPhaseSpace	
 ifeq ($(strip $(GOPT_ENABLE_MUELOSS)),YES)
 	$(RM) $(GENIE_BIN_PATH)/gtestMuELoss		
@@ -271,7 +265,6 @@ distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestInteraction	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestResonances		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestRwMarginalization		
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestRecoINukeHadroFates		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestKPhaseSpace	
 ifeq ($(strip $(GOPT_ENABLE_MUELOSS)),YES)
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestMuELoss		
