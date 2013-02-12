@@ -57,9 +57,6 @@ namespace intranuke
   double MeanFreePath_Delta(
     int pdgc, const TLorentzVector & x4, const TLorentzVector & p4, double A);
 
-  //! Determine the resulting fate from the event record
-  //INukeFateHA_t FindhAFate(const GHepRecord * evrec);
-
   //! Distance to exit
   double Dist2Exit(
     const TLorentzVector & x4, const TLorentzVector & p4, 
