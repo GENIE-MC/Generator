@@ -27,7 +27,7 @@
    Add threshold and kinematical limits for inverse beta decay.
  @ Nov 28, 2011 - CA
    Add threshold for MEC.
-@ Feb 12, 2013 - CA (code from Rosen Matev)
+ @ Feb 12, 2013 - CA (code from Rosen Matev)
   Handle the IMD annihilation channel. Add mass_electron^2 term in calculation
   of kinematic limits for neutrino-electron elastic scattering.
 */
