@@ -5,14 +5,15 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - July 13, 2005
+         STFC, Rutherford Appleton Laboratory
 
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
  @ Feb 09, 2009 - CA
    Moved into the NuE package from its previous location (EVGModules package)
-
+ @ Feb 12, 2013 - CA (code from Rosen Matev)
+   Add mass_electron^2 term in kinematical calculation.
 */
 //____________________________________________________________________________
 
@@ -81,7 +82,7 @@ void NuEPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
   
   assert(El2>=ml2);
 
-  double Q2    = 2*(Ev-El)*me;
+  double Q2    = 2*(Ev-El)*me + me*me;
   double costh = (El-0.5*(Q2+ml2)/Ev)/pl;
   double sinth = TMath::Sqrt( TMath::Max(0., 1-TMath::Power(costh,2.)) );
 
@@ -92,7 +93,7 @@ void NuEPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
   if( TMath::Abs(costh)>1 ) {
      LOG("LeptonicVertex", pWARN)
        << "El = " << El << ", Ev = " << Ev << ", cos(theta) = " << costh;
-     if(TMath::Abs(costh)-1<0.3) costh = 1.0; //why?
+     //if(TMath::Abs(costh)-1<0.3) costh = 1.0; //why?
   }
   assert(TMath::Abs(costh)<=1);
 
