@@ -6,6 +6,7 @@
 
 #pragma link C++ namespace genie;
 
+#pragma link C++ class genie::IMDAnnihilationPXSec;
 #pragma link C++ class genie::BardinIMDRadCorPXSec;
 #pragma link C++ class genie::NuElectronPXSec;
 #pragma link C++ class genie::NuEInteractionListGenerator;
