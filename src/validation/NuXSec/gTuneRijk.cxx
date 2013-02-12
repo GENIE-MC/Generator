@@ -4,8 +4,8 @@
 \program gtune_rijk
 
 \brief   Cross-section tuning utility: 
-         Fits GENIE parameters RvpCC1pi, RvnCC1pi, RvpCC2pi and RvnCC2pi 
-         controlling the cross-section in the transition region.
+         Fits GENIE parameters (MaRES,) RvpCC1pi, RvnCC1pi, RvpCC2pi and RvnCC2pi 
+         controlling the cross-section in the Delta and in the transition regions.
 
          The cross-section model is fit simultaneously to integrated cross-section data on:
           - nu_mu N -> mu- X
@@ -16,7 +16,7 @@
           - nu_mu p -> mu- p pi+ pi0 
           - nu_mu n -> mu- p pi+ pi- 
 
-\syntax  gtune_rijk  [-g genie_inputs] [-d data_archive]
+\syntax  gtune_rijk  [-g genie_inputs] [-d data_archive] [--fit-params ]
 
          where 
 
@@ -62,8 +62,17 @@
 #include <TMath.h>
 
 #include "Algorithm/AlgConfigPool.h"
+#include "EVGCore/EventRecord.h"
+#include "GHEP/GHepParticle.h"
 #include "Messenger/Messenger.h"
+#include "Ntuple/NtpMCEventRecord.h"
+#include "PDG/PDGCodes.h"
 #include "Registry/Registry.h"
+#include "ReWeight/GReWeight.h"
+#include "ReWeight/GReWeightI.h"
+#include "ReWeight/GSystSet.h"
+#include "ReWeight/GReWeightNuXSecCCRES.h"
+#include "ReWeight/GReWeightNonResonanceBkg.h"
 #include "Utils/CmdLnArgParser.h"
 #include "Utils/SystemUtils.h"
 #include "Utils/Style.h"
@@ -75,28 +84,31 @@ using std::string;
 using std::ostringstream;
 
 using namespace genie;
+using namespace genie::rew;
 using namespace genie::mc_vs_data;
 
+//
+// Constants
+//
+
+// number and enumeration of fit params
 const int kNFitParams = 4;
 
-typedef enum {
-  kUndef    = -1,
-  kRvpCC1pi =  0,
-  kRvnCC1pi =  1,
-  kRvpCC2pi =  2,
-  kRvnCC2pi =  3
-} RijkParam_t;
+const int kRvpCC1pi = 0;
+const int kRvnCC1pi = 1;
+const int kRvpCC2pi = 2;
+const int kRvnCC2pi = 3;
 
 // default data archive
 string kDefDataFile = "data/validation/vA/xsec/integrated/nuXSec.root";  
 
 // energy and W range
 const int    kNE   =  50; 
-const double kEmin =  0.1;  // GeV
+const double kEmin =  0.4;  // GeV
 const double kEmax = 10.0;  // GeV
-const int    kNW   = 100; 
-const double kWmin =  0.8;  // GeV
-const double kWmax =  3.0;  // GeV
+const int    kNW   =  500; 
+const double kWmin =  0.0;  // GeV
+const double kWmax =  5.0;  // GeV
 
 // Wcut parameter for the RES/DIS joining algorithm
 const double kWcut  = 1.7;  // GeV
@@ -105,9 +117,7 @@ const double kWcut  = 1.7;  // GeV
 const int kNModes = 7;
 const int kNExclusiveModes = 6;
 
-//
 // datasets included in the fit for each mode
-//
 const char * kDataSets[kNModes] = 
 {
 // mode 0: nu_mu CC inclusive 
@@ -126,17 +136,19 @@ const char * kDataSets[kNModes] =
 "ANL_12FT,11;BNL_7FT,8"
 };
 
+// (Roo)TeX label for each mode
 const char * kLabel[kNModes] = 
 {
-  "#nu_{#mu} CC inclusive", // mode 0
-  "#nu_{#mu} p #rightarrow #mu^{-} p #pi^{+}", // mode 1
-  "#nu_{#mu} n #rightarrow #mu^{-} n #pi^{+}", // mode 2
-  "#nu_{#mu} n #rightarrow #mu^{-} p #pi^{0}", // mode 3
-  "#nu_{#mu} p #rightarrow #mu^{-} n #pi^{+} #pi^{+}", // mode 4
-  "#nu_{#mu} p #rightarrow #mu^{-} p #pi^{+} #pi^{0}", // mode 5
-  "#nu_{#mu} n #rightarrow #mu^{-} p #pi^{+} #pi^{-}"  // mode 6
+  "#nu_{#mu} N CC inclusive",                           // mode 0
+  "#nu_{#mu} p #rightarrow #mu^{-} p #pi^{+}" ,         // mode 1
+  "#nu_{#mu} n #rightarrow #mu^{-} n #pi^{+}",          // mode 2
+  "#nu_{#mu} n #rightarrow #mu^{-} p #pi^{0}",          // mode 3
+  "#nu_{#mu} p #rightarrow #mu^{-} n #pi^{+} #pi^{+}",  // mode 4
+  "#nu_{#mu} p #rightarrow #mu^{-} p #pi^{+} #pi^{0}",  // mode 5
+  "#nu_{#mu} n #rightarrow #mu^{-} p #pi^{+} #pi^{-}"   // mode 6
 };
 
+//..............................................................................................
 //
 // GENIE cross-section functor used in fit.
 //
@@ -146,199 +158,182 @@ public:
    XSecFunc() {}
   ~XSecFunc() {}
 
-  void Init(GSimFiles & genie_inputs, double RNom[kNFitParams])
+  void Init(GSimFiles * genie_inputs)
   {
-    for(int iparam = 0; iparam < kNFitParams; iparam++) {
-      fRNominal[iparam] = RNom[iparam];
-    }
+     fInLogE = true;
 
-    TFile * genie_xsec_file = genie_inputs.XSecFile(0);
-    assert(genie_xsec_file);
-    TChain * genie_event_tree = genie_inputs.EvtChain(0);
-    assert(genie_event_tree);
+     const int n = 100;
+     double xmin = (fInLogE) ? TMath::Log10(kEmin) : kEmin;
+     double xmax = (fInLogE) ? TMath::Log10(kEmax) : kEmax;
 
-    const double dE = (kEmax - kEmin)/(kNE-1);
-    double E[kNE];   
-    for(int iE=0; iE<kNE; iE++) { E[iE] =  kEmin + iE * dE; } 
+     //  Get input sample and cross-section calcs
+     assert(genie_inputs);
+     int imodel = 0;
+     fXSecFile = genie_inputs->XSecFile(imodel);
+     assert(fXSecFile);
+     fEventSamples = genie_inputs->EvtChain(imodel);
+     assert(fEventSamples);
 
-    double xsec_numu_n[kNE];
-    double xsec_numu_p[kNE];
-    double xsec_numu_N[kNE];
-    for(int iE=0; iE<kNE; iE++) { 
-      xsec_numu_n[iE] = 0.;
-      xsec_numu_p[iE] = 0.;
-      xsec_numu_N[iE] = 0.;
-    } 
+     // Set event tree branch address
+     fEventSamples->SetBranchStatus("gmcrec", 1);
+     fNev = fEventSamples->GetEntries();
+     if (fNev<0) {
+        LOG("gvldtest", pERROR) << "Number of events = 0";
+        exit(1);
+     }
+     LOG("gvldtest", pNOTICE)
+       << "Found " << fNev << " entries in the event tree";
+     fMCRecord = 0;
+     fEventSamples->SetBranchAddress("gmcrec", &fMCRecord);
+     if (!fMCRecord) {
+        LOG("gvldtest", pERROR) << "Null MC record";
+        exit(1);
+     }
 
-    TDirectory * dir = 0;
-    TGraph * gr = 0;
+     //
+     TDirectory * xsec_dir_vp =
+         (TDirectory *) fXSecFile->Get("nu_mu_H1");
+     if(!xsec_dir_vp) {
+        LOG("gvldtest", pERROR)
+           << "Can't find cross-section directory: `nu_mu_H1'";
+        exit(1);
+     }
+     TGraph * cc_incl_xsec_vp = (TGraph*) xsec_dir_vp->Get("tot_cc");
+     if(!cc_incl_xsec_vp) {
+        LOG("gvldtest", pERROR)
+           << "Can't find inclusive CC cross-section calculation";
+        exit(1);
+     }
+     TDirectory * xsec_dir_vn =
+         (TDirectory *) fXSecFile->Get("nu_mu_n");
+     if(!xsec_dir_vn) {
+        LOG("gvldtest", pERROR)
+           << "Can't find cross-section directory: `nu_mu_n'";
+        exit(1);
+     }
+     TGraph * cc_incl_xsec_vn = (TGraph*) xsec_dir_vn->Get("tot_cc");
+     if(!cc_incl_xsec_vn) {
+        LOG("gvldtest", pERROR)
+           << "Can't find inclusive CC cross-section calculation";
+        exit(1);
+     }
 
-    dir = (TDirectory *) genie_xsec_file->Get("nu_mu_n");
-    assert(dir);
-    gr = (TGraph *) dir->Get("tot_cc_n");
-    assert(gr);
-    for(int iE = 0; iE < kNE; iE++) { 
-      xsec_numu_n[iE] = gr->Eval(E[iE]);
-    }
+     fEvDistr[0] = 0; // not used
+     for(int imode = 1; imode < kNModes; imode++) {
+       fEvDistr[imode] = new TH1D( Form("hEv_%d",imode), "", n, xmin, xmax);
+     }
+     fEvDistrCCvp = new TH1D( "hEv_CCvp", "", n, xmin, xmax);
+     fEvDistrCCvn = new TH1D( "hEv_CCvn", "", n, xmin, xmax);
 
-    dir = (TDirectory *) genie_xsec_file->Get("nu_mu_H1");
-    assert(dir);
-    gr = (TGraph *) dir->Get("tot_cc_p");
-    assert(gr);
-    for(int iE = 0; iE < kNE; iE++) { 
-      xsec_numu_p[iE] = gr->Eval(E[iE]);
-    }
+     // Add weight calculation engines
+     fRew.AdoptWghtCalc( "xsec_ccres",      new GReWeightNuXSecCCRES     );
+     fRew.AdoptWghtCalc( "xsec_nonresbkg",  new GReWeightNonResonanceBkg );
 
-    for(int iE = 0; iE < kNE; iE++) { 
-      xsec_numu_N[iE] = 0.5 * (xsec_numu_n[iE] + xsec_numu_p[iE]);
-    }
+     // Fine-tune weight calculation engines
+     GReWeightNuXSecCCRES * rwccres =
+         dynamic_cast<GReWeightNuXSecCCRES *> (fRew.WghtCalc("xsec_ccres"));
+     rwccres->SetMode(GReWeightNuXSecCCRES::kModeMaMv);
 
-    TGraph * gr_xsec_incl_numu_n = new TGraph(kNE, E, xsec_numu_n);
-    TGraph * gr_xsec_incl_numu_p = new TGraph(kNE, E, xsec_numu_p);
-    TGraph * gr_xsec_incl_numu_N = new TGraph(kNE, E, xsec_numu_N);
-
-    string evt_selection_res [kNExclusiveModes] = { 
-        "cc&&res&&neu==14&&Z==1&&A==1&&nfpim==0&&nfpi0==0&&nfpip==1&&nfp==1&&nfn==0", // nu_mu p -> mu- p pi+
-        "cc&&res&&neu==14&&Z==0&&A==1&&nfpim==0&&nfpi0==0&&nfpip==1&&nfp==0&&nfn==1", // nu_mu n -> mu- n pi+ 
-	"cc&&res&&neu==14&&Z==0&&A==1&&nfpim==0&&nfpi0==1&&nfpip==0&&nfp==1&&nfn==0", // nu_mu n -> mu- p pi0
-        "cc&&res&&neu==14&&Z==1&&A==1&&nfpim==0&&nfpi0==0&&nfpip==2&&nfp==0&&nfn==1", // nu_mu p -> mu- n pi+ pi+ 
-        "cc&&res&&neu==14&&Z==1&&A==1&&nfpim==0&&nfpi0==1&&nfpip==1&&nfp==1&&nfn==0", // nu_mu p -> mu- p pi+ pi0 
-        "cc&&res&&neu==14&&Z==0&&A==1&&nfpim==1&&nfpi0==0&&nfpip==1&&nfp==1&&nfn==0"  // nu_mu n -> mu- p pi+ pi- 
-    };
-    string evt_selection_nonres [kNExclusiveModes] = { 
-        "cc&&dis&&neu==14&&Z==1&&A==1&&nfpim==0&&nfpi0==0&&nfpip==1&&nfp==1&&nfn==0", // nu_mu p -> mu- p pi+
-        "cc&&dis&&neu==14&&Z==0&&A==1&&nfpim==0&&nfpi0==0&&nfpip==1&&nfp==0&&nfn==1", // nu_mu n -> mu- n pi+ 
-	"cc&&dis&&neu==14&&Z==0&&A==1&&nfpim==0&&nfpi0==1&&nfpip==0&&nfp==1&&nfn==0", // nu_mu n -> mu- p pi0
-        "cc&&dis&&neu==14&&Z==1&&A==1&&nfpim==0&&nfpi0==0&&nfpip==2&&nfp==0&&nfn==1", // nu_mu p -> mu- n pi+ pi+ 
-        "cc&&dis&&neu==14&&Z==1&&A==1&&nfpim==0&&nfpi0==1&&nfpip==1&&nfp==1&&nfn==0", // nu_mu p -> mu- p pi+ pi0 
-        "cc&&dis&&neu==14&&Z==0&&A==1&&nfpim==1&&nfpi0==0&&nfpip==1&&nfp==1&&nfn==0"  // nu_mu n -> mu- p pi+ pi- 
-    };
-    string evt_selection_incl [kNExclusiveModes] = { 
-        "cc&&neu==14&&Z==1&&A==1", 
-        "cc&&neu==14&&Z==0&&A==1", 
-	"cc&&neu==14&&Z==0&&A==1", 
-        "cc&&neu==14&&Z==1&&A==1", 
-        "cc&&neu==14&&Z==1&&A==1", 
-        "cc&&neu==14&&Z==0&&A==1"  
-    };
-    TGraph * gr_xsec_incl [kNExclusiveModes] = { 
-        gr_xsec_incl_numu_p,
-        gr_xsec_incl_numu_n,
-        gr_xsec_incl_numu_n,
-        gr_xsec_incl_numu_p,
-        gr_xsec_incl_numu_p,
-        gr_xsec_incl_numu_n
-    };
-
-    // Fit modes 1-6 are exclusive CC 1pi and 2pi cross-sections
-    for(int imode = 1; imode < kNModes; imode++) {
-        LOG("gtune", pNOTICE) << "Building nominal dxsec/dW for mode: " << imode;
-        int iexclmode = imode - 1;
-        TH2D * hincl       = new TH2D("hincl",      "", kNE,kEmin,kEmax,kNW,kWmin,kWmax);
-        TH2D * hexclres    = new TH2D("hexclres",   "", kNE,kEmin,kEmax,kNW,kWmin,kWmax);
-        TH2D * hexclnonres = new TH2D("hexclnonres","", kNE,kEmin,kEmax,kNW,kWmin,kWmax);
-	genie_event_tree->Draw("Ws:Ev>>hincl",       evt_selection_incl  [iexclmode].c_str(), "goff");
-	LOG("gtune", pNOTICE) << "Selection: " <<  evt_selection_incl  [iexclmode] << ", entries = " << genie_event_tree->GetSelectedRows();
-        genie_event_tree->Draw("Ws:Ev>>hexclres",    evt_selection_res   [iexclmode].c_str(), "goff");
-	LOG("gtune", pNOTICE) << "Selection: " <<  evt_selection_res  [iexclmode] << ", entries = " << genie_event_tree->GetSelectedRows();
-        genie_event_tree->Draw("Ws:Ev>>hexclnonres", evt_selection_nonres[iexclmode].c_str(), "goff");
-	LOG("gtune", pNOTICE) << "Selection: " <<  evt_selection_nonres  [iexclmode] << ", entries = " << genie_event_tree->GetSelectedRows();
-        for(int iE = 0; iE<kNE; iE++) { 
-	  int iEbin = iE+1;
-          double energy    = hincl->GetXaxis()->GetBinCenter(iEbin);
-          double xsec_incl = gr_xsec_incl[iexclmode]->Eval(energy);
-          LOG("gtune", pNOTICE) 
-	    << "xsec incl (E = " << energy << " GeV) = " << xsec_incl; 
-          for(int iW = 0; iW<kNW; iW++) { 
-	     int iWbin = iW+1;
-             double nevt        = hincl       -> GetBinContent(iEbin,iWbin);
-             double nevt_res    = hexclres    -> GetBinContent(iEbin,iWbin);
-             double nevt_nonres = hexclnonres -> GetBinContent(iEbin,iWbin);
-             double xsec_res     = (nevt >0 ) ? xsec_incl * nevt_res    / nevt : 0.;
-             double xsec_nonres  = (nevt >0 ) ? xsec_incl * nevt_nonres / nevt : 0.;
-	     /*
-             LOG("gtune", pNOTICE) 
-               << "- Mode = " << imode << ", E bin = " << iEbin << ", W bin = " << iWbin << " : "
-               << "xsec_res = " << xsec_res 
-               << ", xsec_nonres = " << xsec_nonres;
-	     */
-             hexclres    -> SetBinContent(iEbin,iWbin,xsec_res/kNW);
-             hexclnonres -> SetBinContent(iEbin,iWbin,xsec_nonres/kNW);
-          }//iW
-        }//iE
-        fXSecRes   [iexclmode] = hexclres;
-	fXSecNonRes[iexclmode] = hexclnonres;
-    }//imode
-
+     GSystSet & systlist = fRew.Systematics();
+   //systlist.Init(kXSecTwkDial_MaCCRES);
+     systlist.Init(kXSecTwkDial_RvpCC1pi);
+     systlist.Init(kXSecTwkDial_RvpCC2pi);
+     systlist.Init(kXSecTwkDial_RvnCC1pi);
+     systlist.Init(kXSecTwkDial_RvnCC2pi);
   }//init()
 
-  double operator() (int imode, double E, double R[kNFitParams])
+  void Update(double params[kNFitParams])
   {
-    double wght[kNFitParams];
-    for(int ip = 0; ip < kNFitParams; ip++) { wght[ip] = R[ip]/fRNominal[ip]; }
+     GSystSet & systlist = fRew.Systematics();
+     systlist.Set(kXSecTwkDial_RvpCC1pi, params[kRvpCC1pi]); 
+     systlist.Set(kXSecTwkDial_RvpCC2pi, params[kRvpCC2pi]);
+     systlist.Set(kXSecTwkDial_RvnCC1pi, params[kRvnCC1pi]);
+     systlist.Set(kXSecTwkDial_RvnCC2pi, params[kRvnCC2pi]);
+     fRew.Reconfigure();
 
-    LOG("gtune", pNOTICE)
-      << "Reweightng: "
-      << "\n vp;CC;1pi = " << wght[kRvpCC1pi]
-      << "\n vn;CC;1pi = " << wght[kRvnCC1pi]
-      << "\n vp;CC;2pi = " << wght[kRvpCC2pi]
-      << "\n vn;CC;2pi = " << wght[kRvnCC2pi];
+     for(Long64_t iev = 0; iev < fNev; iev++) {
+       fEventSamples->GetEntry(iev);
+       EventRecord & event = *(fMCRecord->event);
+       Interaction * in = event.Summary();
+       if(!in->ProcInfo().IsWeakCC()) continue;
+       GHepParticle * neutrino = event.Probe();
+       if(neutrino->Pdg() != kPdgNuMu) continue;
+       GHepParticle * target = event.Particle(1);
+       int tgtpdg = target->Pdg();
+       double E = neutrino->P4()->E();
+       double x = (fInLogE) ? TMath::Log10(E) : E;
 
+       int npip = 0;
+       int npi0 = 0;
+       int npim = 0;
+       int np   = 0;
+       int nn   = 0;
+       TObjArrayIter piter(&event);
+       GHepParticle * p = 0;
+       while ((p = (GHepParticle *) piter.Next())) {
+          if(p->Status() != kIStStableFinalState) continue;
+          if(p->Pdg() == kPdgPiP    ) npip++;
+          if(p->Pdg() == kPdgPi0    ) npi0++;
+          if(p->Pdg() == kPdgPiM    ) npim++;
+          if(p->Pdg() == kPdgProton ) np++;
+          if(p->Pdg() == kPdgNeutron) nn++;
+       }//p
 
-    // CC inclusive
-    if(imode == 0) {
-      double sum_xsec_excl = 0;
-      for(int jmode = 1; jmode < kNModes; jmode++) {      
-         sum_xsec_excl += (*this)(jmode,E,R);
-      }
-      return sum_xsec_excl;
-    }
+       int imode = -1;
+       if      (tgtpdg == kPdgProton  && npip == 1 && npi0 == 0 && npim == 0 && np == 1 && nn == 0) imode = 1;
+       else if (tgtpdg == kPdgNeutron && npip == 1 && npi0 == 0 && npim == 0 && np == 0 && nn == 1) imode = 2;
+       else if (tgtpdg == kPdgProton  && npip == 0 && npi0 == 1 && npim == 0 && np == 1 && nn == 0) imode = 3;
+       else if (tgtpdg == kPdgNeutron && npip == 2 && npi0 == 0 && npim == 0 && np == 0 && nn == 1) imode = 4;
+       else if (tgtpdg == kPdgProton  && npip == 1 && npi0 == 1 && npim == 0 && np == 1 && nn == 0) imode = 5;
+       else if (tgtpdg == kPdgProton  && npip == 1 && npi0 == 0 && npim == 1 && np == 1 && nn == 0) imode = 6;
+       
+       if(imode != -1) {
+	 fEvDistr[imode]->Fill(x);
+       }
 
-    // One of the exclusive CC 1pi and 2pi channels
-    if(imode >= 1 && imode < kNModes) {
-      int wght_idx[kNExclusiveModes] = { kRvpCC1pi, kRvpCC1pi, kRvnCC1pi, kRvpCC2pi, kRvpCC2pi, kRvnCC2pi };
-      int iexclmode = imode - 1;
-      // Integrate resonance and non-resonance dxsec/dW(E,W) along W for the input energy.
-      // Apply R weighting factors where appropriate
-      double xsec = 0;
-      int e_bin = fXSecRes[iexclmode]->GetXaxis()->FindBin(E);
-      for(int w_bin = 1; w_bin <= fXSecRes[iexclmode]->GetYaxis()->GetNbins(); w_bin++) {
- 	 double W = fXSecRes[iexclmode]->GetYaxis()->GetBinCenter(w_bin);
-         double dxsec_res    = fXSecRes   [iexclmode]->GetBinContent(e_bin,w_bin);
-         double dxsec_nonres = fXSecNonRes[iexclmode]->GetBinContent(e_bin,w_bin);
-         double wght_nonres  = (W < kWcut) ? wght_idx[iexclmode] : 1.;
-         double dxsec = dxsec_res + wght_nonres * dxsec_nonres;
-	 /*
-         LOG("gtune", pNOTICE) 
-	   << "xsec(mode = " << imode << ", E = " << E << " GeV, W = " << W << ") : " 
-           << "res (nominal) = " << dxsec_res
-           << " x1E-38 cm^2/GeV, nonres (nominal) = " << dxsec_nonres
-           << " x1E-38 cm^2/GeV, wght_nonres = " << wght_nonres;
-	 */
-         xsec += dxsec;
-      }//w
-      return xsec;
-    }
+       if      (tgtpdg == kPdgProton ) fEvDistrCCvp -> Fill(x);
+       else if (tgtpdg == kPdgNeutron) fEvDistrCCvn -> Fill(x);
 
-    return 0;
+     }//iev
+
+     fEvDistr[1]->Divide(fEvDistrCCvp);
+     fEvDistr[2]->Divide(fEvDistrCCvn);
+     fEvDistr[3]->Divide(fEvDistrCCvp);
+     fEvDistr[4]->Divide(fEvDistrCCvn);
+     fEvDistr[5]->Divide(fEvDistrCCvp);
+     fEvDistr[6]->Divide(fEvDistrCCvp);
+  }
+
+  double operator() (int imode, double E)
+  {
+     return fCurrentXSec[imode]->Eval(E);
   }
 
 private:
 
-  double fRNominal[kNFitParams]; // nominal non-resonance background params
-
-  TH2D * fXSecRes   [kNExclusiveModes];  // nominal resonance     dxsec/dW = f(Ev,W;mode)
-  TH2D * fXSecNonRes[kNExclusiveModes];  // nominal non-resonance dxsec/dW = f(Ev,W;mode)
-  TH2D * fXSecOthExcl;                   // nominal dxsec/dW = f(Ev,W) for all other exclusive channels not in fit
-  TH2D * fXSecIncl;                      // nominal inclusive dxsec/dW = f(Ev,W)
+  TGraph *           fNominalXSec [kNModes];        ///< xsec = f(E;mode)
+  TGraph *           fCurrentXSec [kNModes];        ///< xsec = f(E;mode)
+  TFile *            fXSecFile;                     ///<
+  TChain *           fEventSamples;                 ///<
+  NtpMCEventRecord * fMCRecord;                     ///<
+  Long64_t           fNev;                          ///<
+  GReWeight          fRew;                          ///<
+  TH1D *             fEvDistr [kNModes];            ///<
+  TH1D *             fEvDistrCCvp;                  ///<
+  TH1D *             fEvDistrCCvn;                  ///<
+  bool               fInLogE;
 };
+//..............................................................................................
+
+//
+// Globals
+//
 
 // command-line arguments
 string gOptDataFilename  = ""; // -d
 string gOptGenieFileList = ""; // -g
 
-// nominal value of fit parameters, as used in GENIE simulation,
-// and best-fit value
+// nominal value of fit parameters, as used in GENIE simulation, and best-fit value
 double gRNominal[kNFitParams];
 double gRBestFit[kNFitParams];
 
@@ -347,8 +342,9 @@ vector<TGraphAsymmErrors *> gXSecData[kNModes];
 XSecFunc                    gXSecFunc;
 
 //
-// func prototypes
+// Function prototypes
 //
+
 void   GetCommandLineArgs (int argc, char ** argv);
 void   Init               (void);
 void   DoTheFit           (void);
@@ -420,7 +416,7 @@ void Init(void)
     << "\nNominal R(vn;CC;2pi) value used in simulation: " << gRNominal[kRvnCC2pi];
 
   // Configure cross-section functor
-  gXSecFunc.Init(genie_inputs, gRNominal);
+  gXSecFunc.Init(&genie_inputs);
 }
 //____________________________________________________________________________
 void DoTheFit(void)
@@ -489,6 +485,9 @@ double Chisq(double * par)
     << "\n R(vp;CC;2pi) = " << par[kRvpCC2pi]
     << "\n R(vn;CC;2pi) = " << par[kRvnCC2pi];
 
+  // update cross-section func with new params
+  gXSecFunc.Update(par);
+
   double chisq = 0;
 
   // loop over all modes included in the fit
@@ -516,7 +515,7 @@ double Chisq(double * par)
           if(in_fit_range) {
             double xsec_data     = data->GetY()[ip];    
             double xsec_data_err = data->GetErrorY(ip); 
-            double xsec_model    = gXSecFunc(E,imode,par);
+            double xsec_model    = gXSecFunc(E,imode);
             double delta = (xsec_data>0) ? (xsec_data - xsec_model) / xsec_data_err : 0.;
             chisq += delta*delta;
 
@@ -558,16 +557,28 @@ void Save(string filename)
   double E[n];
   for(int i=0; i<n; i++) { E[i] = kEmin + i * dE; }
   double xsec_nominal[kNModes][n];
-  double xsec_bestfit[kNModes][n];
+  gXSecFunc.Update(gRNominal);
   for(int imode=0; imode<kNModes; imode++) {
      for(int i=0; i<n; i++) { 
-       xsec_nominal[imode][i] = gXSecFunc(imode,E[i],gRNominal);
-       xsec_bestfit[imode][i] = gXSecFunc(imode,E[i],gRBestFit);
+       xsec_nominal[imode][i] = gXSecFunc(imode,E[i]);
      }
   }
+  double xsec_bestfit[kNModes][n];
+  gXSecFunc.Update(gRBestFit);
+  for(int imode=0; imode<kNModes; imode++) {
+     for(int i=0; i<n; i++) { 
+       xsec_bestfit[imode][i] = gXSecFunc(imode,E[i]);
+     }
+  }
+
   for(int imode=0; imode<kNModes; imode++) {
     gr_xsec_bestfit[imode] = new TGraph(n,E,xsec_bestfit[imode]);
     gr_xsec_nominal[imode] = new TGraph(n,E,xsec_nominal[imode]);
+    gr_xsec_bestfit[imode]->SetLineStyle(kSolid);
+    gr_xsec_bestfit[imode]->SetLineWidth(2);
+    gr_xsec_nominal[imode]->SetLineStyle(kDashed);
+    gr_xsec_nominal[imode]->SetLineWidth(2);
+    gr_xsec_nominal[imode]->SetLineColor(kRed);
   }
 
   // Save data, nominal and best-fit MC and chisq plots in a ps file
@@ -596,11 +607,16 @@ void Save(string filename)
      c->GetPad(2)->SetBorderMode(0);
      c->GetPad(1)->cd();
      c->GetPad(1)->SetBorderMode(0);
+
+     //
+     // Draw frame
+     //
      TH1F * hframe = 0;
      double xmin =  9999999;
      double xmax = -9999999;
      double ymin =  9999999;
      double ymax = -9999999;
+     // Get x,y range from data
      unsigned int ndatasets = gXSecData[imode].size();
      for(unsigned int idataset = 0; idataset < ndatasets; idataset++) {
        TGraphAsymmErrors * data = gXSecData[imode][idataset];
@@ -610,24 +626,37 @@ void Save(string filename)
        ymin  = TMath::Min(ymin, (data->GetY())[TMath::LocMin(data->GetN(),data->GetY())]);
        ymax  = TMath::Max(ymax, (data->GetY())[TMath::LocMax(data->GetN(),data->GetY())]);
      }
+     // Also take into account the y range from the model predictions in the x range of the data
+     TGraph * bestfit = gr_xsec_bestfit[imode];
+     TGraph * nominal = gr_xsec_nominal[imode];
+     if(!bestfit) continue;     
+     if(!nominal) continue;     
+     for(int k = 0; k < bestfit->GetN(); k++) {
+         double x = (bestfit->GetX())[k];
+         if(x < xmin || x > xmax) continue;
+         ymin = TMath::Min(ymin, (bestfit->GetY())[k]);
+         ymax = TMath::Max(ymax, (bestfit->GetY())[k]);
+     }
+     for(int k = 0; k < nominal->GetN(); k++) {
+         double x = (nominal->GetX())[k];
+         if(x < xmin || x > xmax) continue;
+         ymin = TMath::Min(ymin, (nominal->GetY())[k]);
+         ymax = TMath::Max(ymax, (nominal->GetY())[k]);
+     }
      hframe = (TH1F*) c->GetPad(1)->DrawFrame(0.8*xmin, 0.4*ymin, 1.2*xmax, 1.2*ymax);
      hframe->GetXaxis()->SetTitle("E_{#nu} (GeV)");
      hframe->GetYaxis()->SetTitle("#sigma_{#nu} (1E-38 cm^{2}/GeV/nucleon)");
      hframe->Draw();
+     //
+     // Draw data and GENIE predictions and add a legend
+     //
      for(unsigned int idataset = 0; idataset < ndatasets; idataset++) {
        TGraphAsymmErrors * data = gXSecData[imode][idataset];
        if(!data) continue;
        data->Draw("P");
      }
-    TGraph * bestfit = gr_xsec_bestfit[imode];
-    TGraph * nominal = gr_xsec_nominal[imode];
-    bestfit->SetLineStyle(kSolid);
-    bestfit->SetLineWidth(2);
-    nominal->SetLineStyle(kDashed);
-    nominal->SetLineWidth(2);
-    nominal->SetLineColor(kRed);
-    bestfit->Draw("l");
-    nominal->Draw("l");
+     bestfit->Draw("l");
+     nominal->Draw("l");
      c->GetPad(1)->Update();
      c->GetPad(2)->cd();
      TLegend * legend = new TLegend(0.01, 0.01, 0.99, 0.99);
