@@ -76,10 +76,12 @@ void NuEKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   //   If the kinematics are generated uniformly over the allowed phase
   //   space the max xsec is irrelevant
   double xsec_max = (fGenerateUniformly) ? -1 : this->MaxXSec(evrec);
-
+  
   //-- y range
-  double ymin = kMinY; // the xsec algorithm would internally compute the
-  double ymax = kMaxY; // kinematically allowd range, and return 0 if outside
+  const KPhaseSpace & kps = evrec->Summary()->PhaseSpace();
+  Range1D_t yl = kps.Limits(kKVy);
+  double ymin = yl.min;
+  double ymax = yl.max;
   double dy   = ymax-ymin;
 
   double xsec = -1;
@@ -165,8 +167,10 @@ double NuEKinematicsGenerator::ComputeMaxXSec(
   const int N  = 40;
 //const int Nb =  6;
 
-  const double ymin = kMinY;
-  const double ymax = kMaxY;
+  const KPhaseSpace & kps = interaction->PhaseSpace();
+  Range1D_t yl = kps.Limits(kKVy);
+  const double ymin = yl.min;
+  const double ymax = yl.max;
 
   double max_xsec = -1.0;
 
