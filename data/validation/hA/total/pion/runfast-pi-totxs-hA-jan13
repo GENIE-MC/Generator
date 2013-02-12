@@ -1,0 +1,48 @@
+#day=30
+#month=Jun
+#year=10
+
+#ashery
+gScriptINukeTotXSec -f xpip_c_totxs_out_low -p pip -t 1000060120 -min .025 -max .35 -s .025 -n 50000 -m hA
+gScriptINukeTotXSec -f xpim_c_totxs_out_low -p pim -t 1000060120 -min .025 -max .35 -s .025 -n 50000 -m hA
+gScriptINukeTotXSec -f xpip_fe_totxs_out_low -p pip -t 1000260560 -min .025 -max .35 -s .025 -n 50000 -m hA
+gScriptINukeTotXSec -f xpim_fe_totxs_out_low -p pim -t 1000260560 -min .025 -max .35 -s .025 -n 50000 -m hA
+gScriptINukeTotXSec -f xpip_pb_totxs_out_low -p pip -t 1000822080 -min .025 -max .35 -s .025 -n 50000 -m hA
+gScriptINukeTotXSec -f xpim_pb_totxs_out_low -p pim -t 1000822080 -min .025 -max .35 -s .025 -n 50000 -m hA
+
+#allardyce
+gScriptINukeTotXSec -f xpip_c_totxs_out_high -p pip -t 1000060120 -min .4 -max 2.0 -s .2 -n 50000 -m hA
+gScriptINukeTotXSec -f xpim_c_totxs_out_high -p pim -t 1000060120 -min .4 -max 2.0 -s .2 -n 50000 -m hA
+gScriptINukeTotXSec -f xpip_ni_totxs_out_high -p pip -t 1000280580 -min .4 -max 2.0 -s .2 -n 50000 -m hA
+gScriptINukeTotXSec -f xpim_ni_totxs_out_high -p pim -t 1000280580 -min .4 -max 2.0 -s .2 -n 50000 -m hA
+gScriptINukeTotXSec -f xpip_pb_totxs_out_high -p pip -t 1000822080 -min .4 -max 2.0 -s .2 -n 50000 -m hA
+gScriptINukeTotXSec -f xpim_pb_totxs_out_high -p pim -t 1000822080 -min .4 -max 2.0 -s .2 -n 50000 -m hA
+
+#file writing
+cat xpip_c_totxs_out_low > pip_c_totxs_hA-jan13
+cat xpip_fe_totxs_out_low > pip_fe_totxs_hA-jan13
+cat xpip_pb_totxs_out_low > pip_pb_totxs_hA-jan13
+cat xpip_c_totxs_out_high >> pip_c_totxs_hA-jan13
+cat xpip_ni_totxs_out_high >> pip_fe_totxs_hA-jan13
+cat xpip_pb_totxs_out_high >> pip_pb_totxs_hA-jan13
+rm xpip_c_totxs_out_low
+rm xpip_fe_totxs_out_low
+rm xpip_pb_totxs_out_low
+rm xpip_c_totxs_out_high
+rm xpip_fe_totxs_out_high
+rm xpip_pb_totxs_out_high
+
+cat xpim_c_totxs_out_low > pim_c_totxs_hA-jan13
+cat xpim_fe_totxs_out_low > pim_fe_totxs_hA-jan13
+cat xpim_pb_totxs_out_low > pim_pb_totxs_hA-jan13
+cat xpim_c_totxs_out_high >> pim_c_totxs_hA-jan13
+cat xpim_ni_totxs_out_high >> pim_fe_totxs_hA-jan13
+cat xpim_pb_totxs_out_high >> pim_pb_totxs_hA-jan13
+rm xpim_c_totxs_out_low
+rm xpim_fe_totxs_out_low
+rm xpim_pb_totxs_out_low
+rm xpim_c_totxs_out_high
+rm xpim_ni_totxs_out_high
+rm xpim_pb_totxs_out_high
+
+

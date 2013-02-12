@@ -1,0 +1,148 @@
+# plotting file for nucleon total cross section data
+# nC, nFe, pFe
+# includes Schimmerling and Banhof compilation data
+# hAhN comparison - Sep11 - more hN changes
+#
+# REACTION - proton + Fe
+#
+[RECORD]
+  0,2000,0,1200
+  XS
+  p Fe - #sigma reac
+  bauhof-fe-hahncomp-reac_sep11
+  1
+[EXPERIMENTAL]
+  total-rxn-xsec-p-fe.dat
+  E:fe56pxs:sfe56pxs
+  Bauhof compilation data
+  E:fe56pxs:sfe56pxs/1000:sfe56pxs
+[GENIE]
+  p_fe_hA_totxs1
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:d1:d2:pipro:spipro:reac:sreac:tot:stot
+  reac:E*1000
+  1
+  GENIE 2.7.1 hA calculation
+[GENIE]
+  p_fe_hN_totxs-sep11-41
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:d1:d2:pipro:spipro:reac:sreac:tot:stot
+  reac:E*1000
+  1
+  GENIE 2.7.1 hN calculation
+[EXPERIMENTAL]
+  renberg-p-Fe-reac.dat
+  E:fenxs:sfenxs
+  Renberg data
+  E:fenxs:sfenxs/1000.:sfenxs
+[EXPERIMENTAL]
+  dietrich-p-cu-reac.dat
+  E:fe56nxs:sfe56nxs
+  Dietrich data (Cu)
+  E:fe56nxs*1000:sfe56nxs:sfe56nxs*1000
+#
+# REACTION - neutron + Fe
+#
+[RECORD]
+  0,2000,0,1200
+  XS
+  n Fe - #sigma reac
+  schimmerling-n-fe-hahncomp-reac-sep11-41
+  1
+[EXPERIMENTAL]
+  schim-n-fe-reac.dat
+  E:fe56nxs:sfe56nxs
+  Schimmerling data
+  E:fe56nxs:sfe56nxs/1000:sfe56nxs
+[GENIE]
+  n_fe_hA_totxs1
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:d1:d2:pipro:spipro:reac:sreac:tot:stot
+  reac:E*1000
+  1
+  GENIE 2.7.1 hA calculation
+[GENIE]
+  n_fe_hN_totxs-sep11-41
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:d1:d2:pipro:spipro:reac:sreac:tot:stot
+  reac:E*1000
+  1
+  GENIE 2.7.1 hN calculation
+[EXPERIMENTAL]
+  ibaraki-n-Fe-nonelas.dat
+  E:fe56nxs:sfe56nxs
+  Ibaraki data
+  E:fe56nxs*1000:sfe56nxs:sfe56nxs*1000
+[EXPERIMENTAL]
+  voss-n-cu-nonelas.dat
+  E:d1:fe56nxs:sfe56nxs:d2
+  Voss data (Cu)
+  E:fe56nxs*1000:sfe56nxs:sfe56nxs*1000
+#
+# REACTION - neutron + C
+#
+[RECORD]
+  0,2000,0,600
+  XS
+  n C - #sigma reac
+  schimmerling-n-fe-hahncomp-reac-sep11-41
+  1
+[EXPERIMENTAL]
+  schim-n-c-reac.dat
+  E:c12nxs:sc12nxs
+  Schimmerling data
+  E:c12nxs:sc12nxs/1000:sc12nxs
+[GENIE]
+  n_c_hA_totxs1
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:d1:d2:pipro:spipro:reac:sreac:tot:stot
+  reac:E*1000
+  1
+  GENIE 2.7.1 hA calculation
+[GENIE]
+  n_c_hN_totxs-sep11-41
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:d1:d2:pipro:spipro:reac:sreac:tot:stot
+  reac:E*1000
+  1
+  GENIE 2.7.1 hN calculation
+[EXPERIMENTAL]
+  ibaraki-n-C-nonelas.dat
+  E:c12nxs:sc12nxs
+  Ibaraki data
+  E:c12nxs*1000:sc12nxs:sc12nxs*1000
+[EXPERIMENTAL]
+  voss-n-C-nonelas.dat
+  E:d1:c12nxs:sc12nxs
+  Voss data
+  E:c12nxs*1000:sc12nxs:sc12nxs*1000
+#
+# REACTION - proton + C
+#
+[RECORD]
+  0,2000,0,600
+  XS
+  p C - #sigma reac
+  p-c-hahncomp-reac_sep11-41
+  1
+[EXPERIMENTAL]
+  renberg-p-C-reac.dat
+  E:c12pxs:sc12pxs
+  Renberg data
+  E:c12pxs:sc12pxs/1000:sc12pxs
+[GENIE]
+  n_c_hA_totxs1
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:d1:d2:pipro:spipro:reac:sreac:tot:stot
+  reac:E*1000
+  1
+  GENIE 2.7.1 hA calculation
+[GENIE]
+  p_c_hN_totxs-sep11-41
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:d1:d2:pipro:spipro:reac:sreac:tot:stot
+  reac:E*1000
+  1
+  GENIE 2.7.1 hN calculation
+[EXPERIMENTAL]
+  mcgill-p-C-reac.dat
+  E:c12nxs:sc12nxs:d1:d2
+  Mcgill data
+  E:c12nxs:sc12nxs/1000.:sc12nxs
+[EXPERIMENTAL]
+  dietrich-p-C-reac.dat
+  E:c12nxs:sc12nxs
+  Dietrich data
+  E:c12nxs*1000:sc12nxs:sc12nxs*1000

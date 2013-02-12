@@ -1,0 +1,38 @@
+#day=30
+#month=Jun
+#year=10
+
+# do runs for proton-nucleus total cross sections
+gScriptINukeTotXSec -f xp_c_totxs_out_lowest_hA -p p -t 1000060120 -min .005 -max .055 -s .005 -n 20000 -m hA
+gScriptINukeTotXSec -f xp_fe_totxs_out_lowest_hA -p p -t 1000260560 -min .005 -max .055 -s .005 -n 20000 -m hA
+gScriptINukeTotXSec -f xp_pb_totxs_out_lowest_hA -p p -t 1000822080 -min .005 -max .055 -s .005 -n 20000 -m hA
+gScriptINukeTotXSec -f xp_c_totxs_out_low_hA -p p -t 1000060120 -min .05 -max .55 -s .05 -n 20000 -m hA
+gScriptINukeTotXSec -f xp_c_totxs_out_high_hA -p p -t 1000060120 -min .65 -max 2.05 -s .2 -n 20000 -m hA
+gScriptINukeTotXSec -f xp_fe_totxs_out_low_hA -p p -t 1000260560 -min .05 -max .55 -s .05 -n 20000 -m hA
+gScriptINukeTotXSec -f xp_fe_totxs_out_high_hA -p p -t 1000260560 -min .65 -max 2.05 -s .2 -n 20000 -m hA
+gScriptINukeTotXSec -f xp_pb_totxs_out_low_hA -p p -t 1000822080 -min .05 -max .55 -s .05 -n 20000 -m hA
+gScriptINukeTotXSec -f xp_pb_totxs_out_high_hA -p p -t 1000822080 -min .65 -max 2.05 -s .2 -n 20000 -m hA
+
+cat xp_c_totxs_out_lowest_hA > p_c_totxs_hA-jan13
+tail -11 xp_c_totxs_out_low_hA >> p_c_totxs_hA-jan13
+tail -8 xp_c_totxs_out_high_hA >> p_c_totxs_hA-jan13
+
+cat xp_fe_totxs_out_lowest_hA > p_fe_totxs_hA-jan13
+tail -11 xp_fe_totxs_out_low_hA >> p_fe_totxs_hA-jan13
+tail -8 xp_fe_totxs_out_high_hA >> p_fe_totxs_hA-jan13
+
+cat xp_pb_totxs_out_lowest_hA > p_pb_totxs_hA-jan13
+tail -11 xp_pb_totxs_out_low_hA >> p_pb_totxs_hA-jan13
+tail -8 xp_pb_totxs_out_high_hA >> p_pb_totxs_hA-jan13
+
+rm xp_c_totxs_out_lowest_hA
+rm xp_c_totxs_out_low_hA
+rm xp_c_totxs_out_high_hA
+rm xp_fe_totxs_out_lowest_hA
+rm xp_fe_totxs_out_low_hA
+rm xp_fe_totxs_out_high_hA
+rm xp_pb_totxs_out_lowest_hA
+rm xp_pb_totxs_out_low_hA
+rm xp_pb_totxs_out_high_hA
+
+#cd ..

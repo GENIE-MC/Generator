@@ -1,0 +1,12 @@
+# pi+ bismuth total reac xs
+# Ashery, et al - Phys Rev C23, 2173 (1981) 
+# subtract total elas from total xs of Clough et al. Nucl Phys B76, 15 1974, 
+# units are MeV, mb
+# KE reac sig
+85   2980 646
+125  2660 488
+165  2446 424
+205  2270 431
+245  2230 377
+315  1950 369
+  

@@ -1,0 +1,193 @@
+# plotting file for proton-nucleus total reaction cross section data
+# pC, pFe, pFe
+# hAhN comparison - Jan 2013
+#
+# REACTION - proton + C
+#
+[RECORD]
+  0,2000,0,1000
+  XS
+  p C - #sigma reac
+  p-c-reac-hahn-jan13-1
+  1
+[EXPERIMENTAL]
+  renberg-p-C-reac.dat
+  E:c12pxs:sc12pxs
+  Renberg data
+  E:c12pxs:sc12pxs/1000:sc12pxs
+[GENIE]
+  p_c_totxs_hA-jan13
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:d1:d2:pipro:spipro:reac:sreac:tot:stot
+  reac:E*1000
+  1
+  GENIE 2.7.1 hA calculation
+[GENIE]
+  p_c_totxs_hN-jan13
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:d1:d2:pipro:spipro:reac:sreac:tot:stot
+  reac:E*1000
+  1
+  GENIE 2.7.1 hN calculation
+[EXPERIMENTAL]
+  mcgill-p-C-reac.dat
+  E:c12nxs:sc12nxs:d1:d2
+  Mcgill data
+  E:c12nxs:sc12nxs/1000.:sc12nxs
+[EXPERIMENTAL]
+  auce-p-C-reac.dat
+  E:c12nxs:sc12nxs
+  Auce data
+  E:c12nxs:sc12nxs/1000.:sc12nxs
+[EXPERIMENTAL]
+  dietrich-p-C-reac.dat
+  E:c12nxs:sc12nxs
+  Dietrich data
+  E:c12nxs*1000:sc12nxs:sc12nxs*1000
+[EXPERIMENTAL]
+  menet-p-C-reac.dat
+  E:c12pxs:sc12pxs
+  Menet data
+  E:c12pxs:sc12pxs/1000:sc12pxs
+[EXPERIMENTAL]
+  dicello-p-C-reac.dat
+  E:c12pxs:sc12pxs
+  Dicello data
+  E:c12pxs:sc12pxs/1000:sc12pxs
+#
+# REACTION - proton + Fe
+#
+[RECORD]
+  0,2000,0,2000
+  XS
+  p Fe - #sigma reac
+  p-fe-reac-hahn-jan13-1
+  1
+[EXPERIMENTAL]
+  bauhof-p-fe-reac.dat 
+  E:fe56pxs:sfe56pxs
+  Bauhof compilation data
+  E:fe56pxs:sfe56pxs/1000:sfe56pxs
+[GENIE]
+  p_fe_totxs_hA-jan13
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:d1:d2:pipro:spipro:reac:sreac:tot:stot
+  reac:E*1000
+  1
+  GENIE 2.7.1 hA calculation
+[GENIE]
+  p_fe_totxs_hN-jan13
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:d1:d2:pipro:spipro:reac:sreac:tot:stot
+  reac:E*1000
+  1
+  GENIE 2.7.1 hN calculation
+[EXPERIMENTAL]
+  renberg-p-Fe-reac.dat
+  E:fenxs:sfenxs
+  Renberg data
+  E:fenxs:sfenxs/1000.:sfenxs
+[EXPERIMENTAL]
+  auce-p-ni-reac.dat
+  E:fenxs:sfenxs
+  Auce data (Ni)
+  E:fenxs:sfenxs/1000.:sfenxs
+[EXPERIMENTAL]
+  dietrich-p-cu-reac.dat
+  E:fe56nxs:sfe56nxs
+  Dietrich data (Cu)
+  E:fe56nxs*1000:sfe56nxs:sfe56nxs*1000
+[EXPERIMENTAL]
+  menet-p-Fe56-reac.dat
+  E:fenxs:sfenxs
+  Menet data
+  E:fenxs:sfenxs/1000.:sfenxs
+#
+# REACTION - proton + Pb
+#
+[RECORD]
+  0,2000,0,4400
+  XS
+  p Pb - #sigma reac
+  p-pb-reac-hahn-jan13-1
+  1
+[EXPERIMENTAL]
+  renberg-p-pb-reac.dat
+  E:pbpxs:spbpxs
+  Renberg data
+  E:pbpxs:spbpxs/1000:spbpxs
+[GENIE]
+  p_pb_totxs_hA-jan13
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:d1:d2:pipro:spipro:reac:sreac:tot:stot
+  reac:E*1000
+  1
+  GENIE 2.7.1 hA calculation
+[GENIE]
+  p_pb_totxs_hN-jan13
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:d1:d2:pipro:spipro:reac:sreac:tot:stot
+  reac:E*1000
+  1
+  GENIE 2.7.1 hN calculation
+[EXPERIMENTAL]
+  auce-p-pb-reac.dat
+  E:pbnxs:spbnxs
+  Auce data
+  E:pbnxs:spbnxs/1000.:spbnxs
+[EXPERIMENTAL]
+  dietrich-p-pb-reac.dat
+  E:pbnxs:spbnxs
+  Dietrich data
+  E:pbnxs*1000:spbnxs:spbnxs*1000
+[EXPERIMENTAL]
+  menet-p-pb-reac.dat
+  E:pbnxs:spbnxs
+  Menet data
+  E:pbnxs:spbnxs/1000.:spbnxs
+[EXPERIMENTAL]
+  kirkby-p-Pb-reac.dat
+  E:pbnxs:spbnxs
+  Kirkby, Turner data
+  E:pbnxs:spbnxs/1000.:spbnxs
+#
+# REACTION - proton + C (low energy)
+#
+[RECORD]
+  0,250,0,1000
+  XS
+  p C - #sigma reac
+  p-c-reac-hahn-lowe-jan13-1
+  1
+[EXPERIMENTAL]
+  renberg-p-C-reac.dat
+  E:c12pxs:sc12pxs
+  Renberg data
+  E:c12pxs:sc12pxs/1000:sc12pxs
+[GENIE]
+  p_c_totxs_hA-jan13
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:pipro:spipro:dcex:sdcex:reac:sreac:tot:stot
+  reac:E*1000
+  1
+  GENIE 2.7.1 hA calculation
+[GENIE]
+  p_c_totxs_hN-jan13
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:pipro:spipro:decx:sdcex:reac:sreac:tot:stot
+  reac:E*1000
+  1
+  GENIE 2.7.1 hN calculation
+[EXPERIMENTAL]
+  auce-p-C-reac.dat
+  E:c12nxs:sc12nxs
+  Auce data
+  E:c12nxs:sc12nxs/1000.:sc12nxs
+[EXPERIMENTAL]
+  menet-p-C-reac.dat
+  E:c12pxs:sc12pxs
+  Menet data
+  E:c12pxs:sc12pxs/1000:sc12pxs
+[EXPERIMENTAL]
+  dicello-p-C-reac.dat
+  E:c12pxs:sc12pxs
+  Dicello data
+  E:c12pxs:sc12pxs/1000:sc12pxs
+[EXPERIMENTAL]
+  mcgill-p-C-reac.dat
+  E:c12pxs:sc12pxs:d1:d2
+  McGill data
+  E:c12pxs:sc12pxs/1000:sc12pxs
+

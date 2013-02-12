@@ -1,0 +1,230 @@
+# plotting file for nucleon total cross section data - reac and total
+# nC, nFe, nPb
+# hA comparison - 2.6.0 vs. 2.7.1 now - will be old vs. new default
+#
+# REACTION - neutron + C
+#
+[RECORD]
+  0,2000,0,600
+  XS
+  n C - #sigma reac
+  n-c-reac-ha-jan13
+  1
+[EXPERIMENTAL]
+  schimmerling-n-c-reac.dat
+  E:c12nxs:sc12nxs
+  Schimmerling data
+  E:c12nxs:sc12nxs/1000:sc12nxs
+[GENIE]
+  n_c_totxs_hA-jan13
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:d1:d2:pipro:spipro:reac:sreac:tot:stot
+  reac:E*1000
+  1
+  GENIE 2.7.1 hA calculation
+[GENIE]
+  n_c_totxs_v260
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:d1:d2:pipro:spipro:reac:sreac:tot:stot
+  reac:E*1000
+  1
+  GENIE 2.6.0 calculation
+[EXPERIMENTAL]
+  ibaraki-n-c-reac.dat
+  E:c12nxs:sc12nxs
+  Ibaraki data
+  E:c12nxs*1000:sc12nxs:sc12nxs*1000
+[EXPERIMENTAL]
+  voss-n-c-reac.dat
+  E:d1:c12nxs:sc12nxs
+  Voss data
+  E:c12nxs*1000:sc12nxs:sc12nxs*1000
+[EXPERIMENTAL]
+  zanelli-n-C-reac.dat
+  E:c12nxs:sc12nxs
+  Zanelli + others data
+  E:c12nxs:sc12nxs/1000:sc12nxs
+#
+# REACTION - neutron + Fe
+#
+[RECORD]
+  0,2000,0,1800
+  XS
+  n Fe - #sigma reac
+  n-fe-reac-ha-jan13
+  1
+[EXPERIMENTAL]
+  schimmerling-n-fe-reac.dat
+  E:fe56nxs:sfe56nxs
+  Schimmerling data
+  E:fe56nxs:sfe56nxs/1000:sfe56nxs
+[GENIE]
+  n_fe_totxs_hA-jan13
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:d1:d2:pipro:spipro:reac:sreac:tot:stot
+  reac:E*1000
+  1
+  GENIE 2.7.1 hA calculation
+[GENIE]
+  n_fe_totxs_v260
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:d1:d2:pipro:spipro:reac:sreac:tot:stot
+  reac:E*1000
+  1
+  GENIE 2.6.0 calculation
+[EXPERIMENTAL]
+  ibaraki-n-fe-reac.dat
+  E:fe56nxs:sfe56nxs
+  Ibaraki data
+  E:fe56nxs*1000:sfe56nxs:sfe56nxs*1000
+[EXPERIMENTAL]
+  voss-n-cu-reac.dat
+  E:d1:fe56nxs:sfe56nxs:d2
+  Voss data (Cu)
+  E:fe56nxs*1000:sfe56nxs:sfe56nxs*1000
+#
+# REACTION - neutron + Pb
+#
+[RECORD]
+  0,2000,0,3000
+  XS
+  n Pb - #sigma reac
+  n-pb-reac-ha-jan13
+  1
+[EXPERIMENTAL]
+  schimmerling-n-pb-reac.dat
+  E:pbnxs:spbnxs
+  Schimmerling data
+  E:pbnxs:spbnxs/1000:spbnxs
+[GENIE]
+  n_pb_totxs_hA-jan13
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:d1:d2:pipro:spipro:reac:sreac:tot:stot
+  reac:E*1000
+  1
+  GENIE 2.7.1 hA calculation
+[GENIE]
+  n_pb_totxs_v260
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:d1:d2:pipro:spipro:reac:sreac:tot:stot
+  reac:E*1000
+  1
+  GENIE 2.6.0 calculation
+[EXPERIMENTAL]
+  voss-n-pb-reac.dat
+  E:d1:pbnxs:spbnxs
+  Voss data 
+  E:pbnxs*1000:spbnxs:spbnxs*1000
+#
+# REACTION - neutron + C (lower energy)
+#
+[RECORD]
+  0,250,0,800
+  XS
+  n C - #sigma reac
+  n-c-reac-ha-lowe-jan13
+  1
+[EXPERIMENTAL]
+  schimmerling-n-c-reac.dat
+  E:c12nxs:sc12nxs
+  Schimmerling data
+  E:c12nxs:sc12nxs/1000:sc12nxs
+[GENIE]
+  n_c_totxs_hA-jan13
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:d1:d2:pipro:spipro:reac:sreac:tot:stot
+  reac:E*1000
+  1
+  GENIE 2.7.1 hA calculation
+[GENIE]
+  n_c_totxs_v260
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:d1:d2:pipro:spipro:reac:sreac:tot:stot
+  reac:E*1000
+  1
+  GENIE 2.6.0 calculation
+[EXPERIMENTAL]
+  ibaraki-n-c-reac.dat
+  E:c12nxs:sc12nxs
+  Ibaraki data
+  E:c12nxs*1000:sc12nxs:sc12nxs*1000
+[EXPERIMENTAL]
+  voss-n-c-reac.dat
+  E:d1:c12nxs:sc12nxs
+  Voss data
+  E:c12nxs*1000:sc12nxs:sc12nxs*1000
+[EXPERIMENTAL]
+  zanelli-n-C-reac.dat
+  E:c12nxs:sc12nxs
+  Zanelli + others data
+  E:c12nxs:sc12nxs/1000:sc12nxs
+#
+# TOTAL - neutron + C
+#
+[RECORD]
+  0,1000,0,1000
+  XS
+  n C - #sigma tot
+  n-c-tot-ha-jan13
+  1
+[EXPERIMENTAL]
+  abfalterer-n-C-tot.dat
+  E:c12nxs:sc12nxs
+  Abfalterer data
+  E:c12nxs*1000:sc12nxs:sc12nxs*1000
+[GENIE]
+  n_c_totxs_hA-jan13
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:d1:d2:pipro:spipro:reac:sreac:tot:stot
+  tot:E*1000
+  1
+  GENIE 2.7.1 hA calculation
+[GENIE]
+  n_c_totxs_v260
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:d1:d2:pipro:spipro:reac:sreac:tot:stot
+  tot:E*1000
+  1
+  GENIE 2.6.0 calculation
+#
+# TOTAL - neutron + Fe
+#
+[RECORD]
+  0,1000,0,3000
+  XS
+  n Fe - #sigma tot
+  n-fe-tot-ha-jan13
+  1
+[EXPERIMENTAL]
+  abfalterer-n-Fe-tot.dat
+  E:c12nxs:sc12nxs
+  Abfalterer data
+  E:c12nxs*1000:sc12nxs:sc12nxs*1000
+[GENIE]
+  n_fe_totxs_hA-jan13
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:d1:d2:pipro:spipro:reac:sreac:tot:stot
+  tot:E*1000
+  1
+  GENIE 2.7.1 hA calculation
+[GENIE]
+  n_fe_totxs_v260
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:d1:d2:pipro:spipro:reac:sreac:tot:stot
+  tot:E*1000
+  1
+  GENIE 2.6.0 calculation
+#
+# TOTAL - neutron + Pb
+#
+[RECORD]
+  0,1000,0,6000
+  XS
+  n Pb - #sigma tot
+  n-pb-tot-ha-jan13
+  1
+[EXPERIMENTAL]
+  abfalterer-n-Pb-tot.dat
+  E:c12nxs:sc12nxs
+  Abfalterer data
+  E:c12nxs*1000:sc12nxs:sc12nxs*1000
+[GENIE]
+  n_pb_totxs_hA-jan13
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:d1:d2:pipro:spipro:reac:sreac:tot:stot
+  tot:E*1000
+  1
+  GENIE 2.7.1 hA calculation
+[GENIE]
+  n_pb_totxs_v260
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:d1:d2:pipro:spipro:reac:sreac:tot:stot
+  tot:E*1000
+  1
+  GENIE 2.6.0 calculation

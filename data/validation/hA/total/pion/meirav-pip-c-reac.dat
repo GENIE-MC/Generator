@@ -1,0 +1,6 @@
+#pi+ C total reaction xsec
+#Meirav, et al.  Phys Rev C36, 1066 (1983)
+#Tpi (MeV)   sig (mb)   err (mb)
+  50.          150       15
+  65.          201       16
+

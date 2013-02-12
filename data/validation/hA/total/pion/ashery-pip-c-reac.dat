@@ -1,0 +1,11 @@
+# pi+ carbon total reac xs
+# Ashery, et al - Phys Rev C23, 2173 (1981) 
+# subtract total elas from total xs of Clough et al. Nucl Phys B76, 15 1974, 
+# units are MeV, mb
+# KE  reac     sig 
+85   287   21.6
+125  417   24.2
+165  447   23.4
+205  384   24.7
+245  366   21.2
+315  309   15.7
