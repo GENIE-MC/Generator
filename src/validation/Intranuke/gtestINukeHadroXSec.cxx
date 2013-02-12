@@ -56,6 +56,8 @@ using namespace genie;
 void GetCommandLineArgs (int argc, char ** argv);
 void PrintSyntax        (void);
 
+INukeFateHA_t FindhAFate(const GHepRecord * evrec);
+
 // command line options
 string gOptInpFilename = "";    ///< input event file
 bool   gOptWriteOutput = false; ///< write out hadron cross sections
@@ -153,7 +155,7 @@ int main(int argc, char ** argv)
 
       // analyze
       const GHepRecord * grec = dynamic_cast<const GHepRecord *> (&event);
-      INukeFateHA_t fate = utils::intranuke::FindhAFate(grec);
+      INukeFateHA_t fate = FindhAFate(grec);
       if(ievent<displayno) {
 	LOG("gtestINukeHadroXSec", pNOTICE) 
           << "fate = " << INukeHadroFates::AsString(fate);
@@ -379,6 +381,219 @@ int main(int argc, char ** argv)
   }
 
   return 0;
+}
+//____________________________________________________________________________
+INukeFateHA_t FindhAFate(const GHepRecord * evrec)
+{
+  // Determine the fate of an hA event
+  // Works for ghAevgen or gntpc
+  // author:        S. Dytman  -- July 30, 2007
+
+  double p_KE  = evrec->Probe()->KinE();
+  double p_pdg = evrec->Probe()->Pdg();
+
+  // particle codes
+  int numtype[] = {kPdgProton, kPdgNeutron, kPdgPiP, kPdgPiM, kPdgPi0, kPdgKP, kPdgKM, kPdgK0, kPdgGamma};
+  // num of particle for numtype
+  int num[]  = {0,0,0,0,0,0,0,0,0};
+  int num_t  = 0;
+  int num_nu = 0;
+  int num_pi = 0;
+  int num_k  = 0;
+  // max KE for numtype
+  double numKE[] = {0,0,0,0,0,0,0,0,0};
+
+  GHepStatus_t status = kIStUndefined;
+
+  bool hasBlob = false;
+  int numFsPart = 0;
+
+  int index = 0;
+  TObjArrayIter piter(evrec);
+  GHepParticle * p     = 0;
+  GHepParticle * fs    = 0;
+  GHepParticle * probe = evrec->Probe();
+  while((p=(GHepParticle *) piter.Next()))
+  {
+    status=p->Status();
+    if(status==kIStStableFinalState)
+    {
+      switch((int) p->Pdg()) 
+      {
+        case ((int) kPdgProton)  : index = 0; break;
+        case ((int) kPdgNeutron) : index = 1; break;
+        case ((int) kPdgPiP)     : index = 2; break;
+        case ((int) kPdgPiM)     : index = 3; break;
+        case ((int) kPdgPi0)     : index = 4; break;
+        case ((int) kPdgKP)      : index = 5; break;
+        case ((int) kPdgKM)      : index = 6; break;
+        case ((int) kPdgK0)      : index = 7; break;
+        case ((int) kPdgGamma)   : index = 8; break;
+        case (2000000002)        : index = 9; hasBlob=true; break;
+                          default: index = 9; break;
+      }
+
+      if(index!=9)
+      {
+        if(numFsPart==0) fs=p;
+        numFsPart++;
+        num[index]++;
+        if(p->KinE() > numKE[index]) numKE[index] = p->KinE();
+      }
+    }
+  }
+
+  if(numFsPart==1)
+  {
+    double dE  = TMath::Abs( probe-> E() - fs-> E() );
+    double dPz = TMath::Abs( probe->Pz() - fs->Pz() );
+    double dPy = TMath::Abs( probe->Py() - fs->Py() );
+    double dPx = TMath::Abs( probe->Px() - fs->Px() );
+
+    if (dE < 1e-15 && dPz < 1e-15 && dPy < 1e-15 && dPx < 1e-15) return kIHAFtNoInteraction;
+  }
+
+  num_t  = num[0]+num[1]+num[2]+num[3]+num[4]+num[5]+num[6]+num[7];
+  num_nu = num[0]+num[1];
+  num_pi =               num[2]+num[3]+num[4];
+  num_k  =                                    num[5]+num[6]+num[7];
+
+  if(num_pi>((p_pdg==kPdgPiP || p_pdg==kPdgPiM || p_pdg==kPdgPi0)?(1):(0)))
+  {
+    if(num[3]==10 && num[4]==0) return kIHAFtNPip;   //fix later
+    else if(num[4]==10) return kIHAFtNPipPi0;        //fix later
+    else if(num[4]>0) return kIHAFtInclPi0;
+    else if(num[2]>0) return kIHAFtInclPip;
+    else if(num[3]>0) return kIHAFtInclPim;
+    else return kIHAFtPiProd;
+  }
+  else if(num_pi<((p_pdg==kPdgPiP || p_pdg==kPdgPiM || p_pdg==kPdgPi0)?(1):(0)))
+  {
+    if     (num[0]==1 && num[1]==1) return kIHAFtAbs;
+    else if(num[0]==2 && num[1]==0) return kIHAFtAbs;
+    else if(num[0]==2 && num[1]==1) return kIHAFtAbs;
+    else if(num[0]==1 && num[1]==2) return kIHAFtAbs;
+    else if(num[0]==2 && num[1]==2) return kIHAFtAbs;
+    else if(num[0]==3 && num[1]==2) return kIHAFtAbs;
+    else return kIHAFtAbs;
+  }
+  else if(num_k<((p_pdg==kPdgKP || p_pdg==kPdgKM || p_pdg==kPdgK0)?(1):(0)))
+  {
+    return kIHAFtAbs;
+  }  
+  else
+  {
+    if(p_pdg==kPdgPiP || p_pdg==kPdgPiM || p_pdg==kPdgPi0
+       || p_pdg==kPdgKP|| p_pdg==kPdgKM|| p_pdg==kPdgK0)
+    {
+      int fs_pdg, fs_ind;
+      if     (num[2]==1) { fs_pdg=kPdgPiP; fs_ind=2; }
+      else if(num[3]==1) { fs_pdg=kPdgPiM; fs_ind=3; }
+      else if(num[4]==1) { fs_pdg=kPdgPi0; fs_ind=4; }
+      else if(num[5]==1) { fs_pdg=kPdgKP; fs_ind=5; }
+      else if(num[6]==1) { fs_pdg=kPdgKM; fs_ind=6; }
+      else               { fs_pdg=kPdgK0; fs_ind=7; }
+ 
+      if(p_pdg==fs_pdg)
+      {
+	if(num_nu==0) return kIHAFtElas;
+	else return kIHAFtInelas;
+      }
+      else if(((p_pdg==kPdgPiP || p_pdg==kPdgPiM) && fs_ind==4) ||
+              ((fs_ind==2 || fs_ind==3) && p_pdg==kPdgPi0))
+      {
+        return kIHAFtCEx;
+      }
+      else if(((p_pdg==kPdgKP || p_pdg==kPdgKM) && fs_ind==7) ||
+              ((fs_ind==5 || fs_ind==6) && p_pdg==kPdgK0))
+      {
+        return kIHAFtCEx;
+      }
+      else if((p_pdg==kPdgPiP && fs_ind==3) ||
+              (p_pdg==kPdgPiM &&fs_ind==2))
+      {
+        return kIHAFtDCEx;
+      }
+      else if((p_pdg==kPdgKP && fs_ind==6) ||
+              (p_pdg==kPdgKM &&fs_ind==5))
+      {
+        return kIHAFtDCEx;
+      }
+    }
+    else if(p_pdg==kPdgProton || p_pdg==kPdgNeutron)
+    {
+      int fs_ind;
+      if(num[0]>=1) { fs_ind=0; }
+      else          { fs_ind=1; }
+
+      if(num_nu==1)
+      {
+        if(numtype[fs_ind]==p_pdg) return kIHAFtElas;
+        else return kIHAFtUndefined;
+      }
+      else if(num_nu==2)
+      {
+        if(numKE[1]>numKE[0]) { fs_ind=1; }  
+        
+        if(numtype[fs_ind]==p_pdg)
+        {
+          //if(numKE[fs_ind]>=(.8*p_KE))
+          //{
+          //  if(num[0]==1 && num[1]==1) return kIHAFtKo;
+          //  else if(num[0]==2) return kIHAFtKo;
+	  //  else return kIHAFtKo;
+          //}
+          //else
+          return kIHAFtInelas; //fix later
+        }
+        else
+        {
+          //if(numKE[fs_ind]>=(.8*p_KE)) return kIHAFtInelas;
+          //else
+          //{
+          //  if(num[fs_ind]==2)
+          //  {
+          //    if(num[0]==2) return kIHAFtKo;
+          //    else return kIHAFtKo;
+          //  }
+          //  else return kIHAFtInelas;
+	  // }
+	  return kIHAFtInelas; //fix later
+        }
+      }
+      else if(num_nu>2)
+      {
+        if     (num[0]==2 && num[1]==1) return kIHAFtKo;
+        else if(num[0]==1 && num[1]==2) return kIHAFtKo;
+        else if(num[0]==2 && num[1]==2) return kIHAFtKo;
+        else if(num[0]==3 && num[1]==2) return kIHAFtKo;
+        else return kIHAFtKo;
+      }
+    }
+    else if (p_pdg==kPdgKP || p_pdg==kPdgKM || p_pdg==kPdgK0)
+    {
+      int fs_ind;
+
+      if (num[5]==1) fs_ind=5;
+      else if (num[6]==1) fs_ind=6;
+      else fs_ind=7; // num[7]==1
+
+      if(numKE[fs_ind]>=(.8*p_KE)) return kIHAFtElas;
+      else return kIHAFtInelas;
+    }
+    else if (p_pdg==kPdgGamma)
+    {
+      if     (num[0]==2 && num[1]==1) return kIHAFtKo;
+      else if(num[0]==1 && num[1]==2) return kIHAFtKo;
+      else if(num[0]==2 && num[1]==2) return kIHAFtKo;
+      else if(num[0]==3 && num[1]==2) return kIHAFtKo;
+      else if(num_nu < 1)             return kIHAFtUndefined;
+      else                            return kIHAFtKo;
+    }
+  }
+
+  LOG("Intranuke",pWARN) << "---> *** Undefined fate! ***" << "\n" << (*evrec);
+  return kIHAFtUndefined;
 }
 //____________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
