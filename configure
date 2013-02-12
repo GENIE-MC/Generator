@@ -530,7 +530,7 @@ if($#ARGV < 0) { print "(none)" };
 print "\n\n";
 
 if(-e $MKCONF_FILE) {
-  print "The $GENIE/src/make/Make.config file has been succesfully generated! \n";
+  print "The $MKCONF_FILE file has been succesfully generated! \n";
   print "The following config options were set: \n";
 
   open(MKCONFR, "<$MKCONF_FILE") or die("Can not read back the $GENIE/src/make/Make.config!");
@@ -542,9 +542,13 @@ if(-e $MKCONF_FILE) {
     if ($setting=~m/\=/) {print "  $setting\n";} 
   }
 
+  # Copy only the enable/disable options, excluding paths, in a separate file for genie-config.
+  # This is needed for FNAL relocatable releases.
+  system("cat $MKCONF_FILE | grep GOPT_ENABLE_ > $MKCONF_FILE\_no_paths");
+
   print "\n";
   print "*** To continue building GENIE type: gmake ";
-  # warning for SRT users  
+  # Warning for SRT users  
   if(defined $ENV{'SRT_ENV_SET'}) {
     print "(Don't forget to 'srt_setup --unsetup' first)";
   }
