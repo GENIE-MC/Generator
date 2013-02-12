@@ -496,7 +496,8 @@ vector<TGraph *> Model(unsigned int iset, unsigned int imodel)
      W2_array[i] = W2;
 
      // Will calculate  d^2 sigma / dW dQ^2 and then convert to d^2sigma / dE' dOmega
-     double jacobian = (E*Ep)*(M+2*E*(1-costh))/(kPi*W);
+//     double jacobian = (E*Ep)*(M+2*E*(1-costh))/(kPi*W);
+     double jacobian = (E*Ep*M)/(kPi*W);
 
      //
      // Calculate resonance cross-section
