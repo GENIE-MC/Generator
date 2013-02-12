@@ -12,6 +12,8 @@
  Important revisions after version 2.0.0 :
  @ Dec 14, 2009 - CA
    Include the struck e- for Glashow resonance reactions.
+ @ Feb 12, 2013 - CA (code from Rosen Matev)
+   Handle the IMD annihilation channel.
 
 */
 //____________________________________________________________________________
@@ -116,7 +118,8 @@ void InitialStateAppender::AddStruckParticle(GHepRecord * evrec) const
   const InitialState & init_state = interaction->InitState();
   const ProcessInfo & proc_info   = interaction->ProcInfo();
 
-  bool hit_e = proc_info.IsInverseMuDecay()    || 
+  bool hit_e = proc_info.IsInverseMuDecay()    ||
+               proc_info.IsIMDAnnihilation()   ||
                proc_info.IsNuElectronElastic() ||
                proc_info.IsGlashowResonance();
 

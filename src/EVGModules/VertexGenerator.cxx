@@ -19,7 +19,8 @@
  @ Sep 15, 2009 - CA
    IsFake() and IsNucleus() are no longer available in GHepParticle. 
    Use pdg::IsPseudoParticle() and pdg::IsIon().
-
+ @ Feb 12, 2013 - CA (code from Rosen Matev)
+   Handle the IMD annihilation channel.
 */
 //____________________________________________________________________________
 
@@ -85,7 +86,9 @@ void VertexGenerator::ProcessEventRecord(GHepRecord * evrec) const
     Interaction * interaction = evrec->Summary();
     const ProcessInfo & proc_info = interaction->ProcInfo();
     bool is_coh = proc_info.IsCoherent() || proc_info.IsCoherentElas();
-    bool is_ve  = proc_info.IsInverseMuDecay() || proc_info.IsNuElectronElastic();
+    bool is_ve  = proc_info.IsInverseMuDecay() ||
+                  proc_info.IsIMDAnnihilation() ||
+                  proc_info.IsNuElectronElastic();
 
     if(is_coh||is_ve) {
       // ** For COH or ve- set a vertex positon on the nuclear boundary

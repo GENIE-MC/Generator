@@ -5,11 +5,13 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - October 03, 2004
+         STFC, Rutherford Appleton Laboratory 
 
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
+ @ Feb 12, 2013 - CA (code from Rosen Matev)
+   Handle the IMD annihilation channel.
 
 */
 //____________________________________________________________________________
@@ -162,6 +164,7 @@ void PrimaryLeptonGenerator::AddToEventRecord(
   GHepParticle * nucltgt = evrec->TargetNucleus();
 
   bool is_ve = interaction->ProcInfo().IsInverseMuDecay() || 
+               interaction->ProcInfo().IsIMDAnnihilation() || 
                interaction->ProcInfo().IsNuElectronElastic();
 
   bool can_correct = fApplyCoulombCorrection && nucltgt!=0 && !is_ve;
