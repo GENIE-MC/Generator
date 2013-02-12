@@ -5,7 +5,7 @@
 #
 
 ### GENIE config options:
-. $GENIE/src/make/Make.config
+. $GENIE/src/make/Make.config_no_paths
 
 ### GENIE libraries path:
 libdir=$GENIE/lib
