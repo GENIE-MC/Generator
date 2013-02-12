@@ -28,6 +28,8 @@
    Added IsInverseBetaDecay()
  @ Dec 14, 2009 - CA
    Added IsGlashowResonance()
+ @ Feb 12, 2013 - CA (code from Rosen Matev)
+   Added IsIMDAnnihilation()
 */
 //____________________________________________________________________________
 
@@ -111,7 +113,8 @@ bool ProcessInfo::IsCoherentElas(void) const
 bool ProcessInfo::IsElectronScattering(void) const
 {
   return (fScatteringType == kScNuElectronElastic ||
-          fScatteringType == kScInverseMuDecay);
+          fScatteringType == kScInverseMuDecay ||
+          fScatteringType == kScIMDAnnihilation);
 }
 //____________________________________________________________________________
 bool ProcessInfo::IsNuElectronElastic(void) const
@@ -122,6 +125,11 @@ bool ProcessInfo::IsNuElectronElastic(void) const
 bool ProcessInfo::IsInverseMuDecay(void) const
 {
   return (fScatteringType == kScInverseMuDecay);
+}
+//____________________________________________________________________________
+bool ProcessInfo::IsIMDAnnihilation(void) const
+{
+  return (fScatteringType == kScIMDAnnihilation);
 }
 //____________________________________________________________________________
 bool ProcessInfo::IsInverseBetaDecay(void) const
