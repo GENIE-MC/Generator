@@ -5,12 +5,14 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - February 10, 2006
+         STFC, Rutherford Appleton Laboratory
 
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
-
+ @ Feb 12, 2013 - CA (code from Rosen Matev)
+   Tweak kinematics. The final state primary lepton is always the electron.
+   The kinematical variable y has the definition used in Marciano's paper.
 */
 //____________________________________________________________________________
 
@@ -60,10 +62,10 @@ double NuElectronPXSec::XSec(
 
   double Ev = init_state.ProbeE(kRfLab);
   double me = kElectronMass;
-  double s  = 2*me*Ev;
   double y  = kinematics.y();
-  double A  = kGF2*s/kPi;
+  double A  = kGF2*2*me*Ev/kPi;
 
+  y = 1 - me/Ev - y; // FSPL = electron. XSec below are expressed in Marciano's y!
   if(y > 1/(1+0.5*me/Ev)) return 0;
   if(y < 0) return 0;
 
