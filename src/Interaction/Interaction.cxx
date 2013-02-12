@@ -51,7 +51,9 @@
    Added MECNC() and MECEM().
  @ Apr 20, 2012 - CA
    Added DISEM().
-
+ @ Feb 12, 2013 - CA (code from Rosen Matev)
+   In elastic neutrino-electron scattering, always set the electron as the 
+   final state primary lepton. Handle the IMD annihilation channel.
 */
 //____________________________________________________________________________
 
@@ -181,13 +183,20 @@ int Interaction::FSPrimLeptonPdg(void) const
 
   LOG("Interaction", pDEBUG) << "Probe PDG code: " << pdgc;
 
+  if (proc_info.IsNuElectronElastic())
+    return kPdgElectron;
+
   // vN (Weak-NC) or eN (EM)
   if (proc_info.IsWeakNC() || proc_info.IsEM() || proc_info.IsWeakMix()) return pdgc;
 
   // vN (Weak-CC)
   else if (proc_info.IsWeakCC()) {
-     int clpdgc = pdg::Neutrino2ChargedLepton(pdgc);
-     return clpdgc;
+    int clpdgc;
+    if (proc_info.IsIMDAnnihilation())
+      clpdgc = kPdgMuon;
+    else
+      clpdgc = pdg::Neutrino2ChargedLepton(pdgc);
+    return clpdgc;
   }
 
   LOG("Interaction", pWARN)
