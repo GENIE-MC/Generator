@@ -76,6 +76,7 @@
   <priority msgstream="HybridHad">           WARN   </priority>
   <priority msgstream="IBD">                 WARN   </priority>
   <priority msgstream="IMDXSec">             WARN   </priority>
+  <priority msgstream="IMDAnnihilation">     WARN   </priority>
   <priority msgstream="IntSel">              WARN   </priority>
   <priority msgstream="IntLst">              WARN   </priority>
   <priority msgstream="Interaction">         WARN   </priority>
