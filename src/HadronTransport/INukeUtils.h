@@ -45,20 +45,20 @@ namespace intranuke
   //! Hadron survival probability
   double ProbSurvival(
     int pdgc, const TLorentzVector & x4, const TLorentzVector & p4, double A,
-    double Z=0, double mfp_scale_factor=1.0,
+    double Z, double mfp_scale_factor=1.0,
     double nRpi=0.5, double nRnuc=1.0, double NR=3, double R0=1.4);
 
   //! Mean free path (pions, nucleons)
   double MeanFreePath(
     int pdgc, const TLorentzVector & x4, const TLorentzVector & p4, double A,
-    double Z=0, double nRpi=0.5, double nRnuc=1.0);
+    double Z, double nRpi=0.5, double nRnuc=1.0);
  
   //! Mean free path (Delta++ **test**)
   double MeanFreePath_Delta(
     int pdgc, const TLorentzVector & x4, const TLorentzVector & p4, double A);
 
   //! Determine the resulting fate from the event record
-  INukeFateHA_t FindhAFate(const GHepRecord * evrec);
+  //INukeFateHA_t FindhAFate(const GHepRecord * evrec);
 
   //! Distance to exit
   double Dist2Exit(
@@ -68,7 +68,7 @@ namespace intranuke
   //! Distance to exit
   double Dist2ExitMFP(
     int pdgc, const TLorentzVector & x4, const TLorentzVector & p4, 
-    double A, double Z=0, double NR=3, double R0=1.4);
+    double A, double Z, double NR=3, double R0=1.4);
 
   //! Step particle
   void StepParticle(
