@@ -102,6 +102,10 @@ void HNIntranuke::ProcessEventRecord(GHepRecord * evrec) const
   LOG("HNIntranuke", pNOTICE) 
      << "************ Running HN MODE INTRANUKE ************";
 
+  LOG("HNIntranuke", pWARN) 
+     << print::PrintFramedMesg(
+         "Experimental code (INTRANUKE/hN model) - Run at your own risk");
+
   Intranuke::ProcessEventRecord(evrec);
 
   LOG("HNIntranuke", pINFO) << "Done with this event";
