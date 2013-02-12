@@ -60,7 +60,7 @@ GReWeightI()
 {
 #ifdef _G_REWEIGHT_INUKE_DEBUG_NTP_
   fTestFile = new TFile("./intranuke_reweight_test.root","recreate");
-  fTestNtp  = new TNtuple("testntp","","pdg:E:tweakDial:d:dmfp:fate:interact");
+  fTestNtp  = new TNtuple("testntp","","pdg:E:mfp_twk_dial:d:d_mfp:fate:interact:w_mfp:w_fate");
 #endif
 }
 //_______________________________________________________________________________________
@@ -187,19 +187,11 @@ double GReWeightINuke::CalcWeight(const EventRecord & event)
      bool calc_w_fate = fINukeRwParams.FateParams(pdgc)->IsTweaked();
 
      // Compute weight to account for changes in the total rescattering probability
+     double mfp_scale_factor = 1.;
      if(calc_w_mfp)
      {
-        double mfp_scale_factor = fINukeRwParams.MeanFreePathParams(pdgc)->ScaleFactor();
+        mfp_scale_factor = fINukeRwParams.MeanFreePathParams(pdgc)->ScaleFactor();
         w_mfp = utils::rew::MeanFreePathWeight(pdgc,x4,p4,A,Z,mfp_scale_factor,interacted);
-
-        // Debug info
-#ifdef _G_REWEIGHT_INUKE_DEBUG_NTP_
-        double d        = utils::intranuke::Dist2Exit(x4,p4,A);
-        double d_mfp    = utils::intranuke::Dist2ExitMFP(pdgc,x4,p4,A);
-        double Eh       = p->E();
-	double iflag    = (interacted) ? 1 : -1;
-        fTestNtp->Fill(pdgc, Eh, mfp_scale_factor, d, d_mfp, fsi_code, iflag);
-#endif
      } // calculate mfp weight?
 
      // Compute weight to account for changes in relative fractions of reaction channels
@@ -221,6 +213,15 @@ double GReWeightINuke::CalcWeight(const EventRecord & event)
         << " (" << INukeHadroFates::AsString((INukeFateHA_t)fsi_code) << ") :"
         << " w_mfp = "  << w_mfp
         <<", w_fate = " << w_fate;
+
+     // Debug info
+#ifdef _G_REWEIGHT_INUKE_DEBUG_NTP_
+     double d        = utils::intranuke::Dist2Exit(x4,p4,A);
+     double d_mfp    = utils::intranuke::Dist2ExitMFP(pdgc,x4,p4,A,Z);
+     double Eh       = p->E();
+     double iflag    = (interacted) ? 1 : 0;
+     fTestNtp->Fill(pdgc, Eh, mfp_scale_factor, d, d_mfp, fsi_code, iflag, w_mfp, w_fate);
+#endif
 
      // Update the current event weight
      event_weight *= hadron_weight;
