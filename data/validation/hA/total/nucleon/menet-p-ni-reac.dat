@@ -1,0 +1,9 @@
+# Menet Phys Rev C4,1114, 1971
+# proton 58Ni total reaction xs
+#EN         DATA       DATA-ERR
+#MEV        MB         MB
+       30.0      1011.        30.
+       40.0       955.        34.
+       49.5       856.        29.
+       60.8       807.        25.
+

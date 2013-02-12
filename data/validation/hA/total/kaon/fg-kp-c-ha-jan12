@@ -1,0 +1,54 @@
+# plotting file for kaon total cross section data
+# K+C
+# includes Bugg total xs and Friedman (sum of all BNL) reac, tot data 
+# hA only - Jan12
+#
+# REACTION - K+ C - reac
+#
+[RECORD]
+  0,2000,0,500
+  XS
+  K+ C - #sigma reac
+  kp-c-reac-jan13
+  1
+[EXPERIMENTAL]
+  friedman-kp-c-reac.dat
+  E:fe56pxs:sfe56pxs
+  Friedman total reac xs
+  E:fe56pxs:sfe56pxs/1000:sfe56pxs
+[GENIE]
+  kp_c_totxs_hA_jan12
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:d1:d2:pipro:spipro:reac:sreac:tot:stot
+  reac:E*1000
+  1
+  GENIE 2.7.1 hA calculation
+[EXPERIMENTAL]
+  bugg-kp-c-tot.dat
+  E:fenxs:sfenxs
+  Bugg total xs data
+  E:fenxs:sfenxs/1000.:sfenxs
+#
+# REACTION - K+ C - tot
+#
+[RECORD]
+  0,2000,0,500
+  XS
+  K+ C - #sigma_{tot}
+  kp-c-tot-jan13
+  1
+[EXPERIMENTAL]
+  friedman-kp-c-tot.dat
+  E:fe56pxs:sfe56pxs
+  Friedman K+ C total
+  E:fe56pxs:sfe56pxs/1000:sfe56pxs
+[GENIE]
+  kp_c_totxs_hA_jan12
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:d1:d2:pipro:spipro:reac:sreac:tot:stot
+  tot:E*1000
+  1
+  GENIE 2.7.1 hA calculation
+[EXPERIMENTAL]
+  bugg-kp-c-tot.dat
+  E:fenxs:sfenxs
+  Bugg total xs data
+  E:fenxs:sfenxs/1000.:sfenxs

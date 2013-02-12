@@ -1,8 +1,0 @@
-# raw data from Carroll pipm-C (avg and diff pi- - pi+)
-# data for 4He, 6Li, 7Li, 9Be, C, and 32S
-167  473  3  70  6
-202  627  2  68  4
-243  693  2  29  4
-293  661  2  6   4
-332  596  2  9   3
-372  528  2  9   3

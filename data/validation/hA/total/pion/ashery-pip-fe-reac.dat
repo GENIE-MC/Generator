@@ -1,0 +1,11 @@
+# pi+ iron total reac xs
+# Ashery, et al - Phys Rev C23, 2173 (1981) 
+# subtract total elas from total xs of Clough et al. Nucl Phys B76, 15 1974, 
+# units are MeV, mb
+# KE  reac     sig 
+85   1284   100.6
+125  1254   106.3
+165  1154   106.3
+205  1050    99.0
+245   936    99.0
+315   807    92.2

@@ -1,0 +1,10 @@
+#A.Auce
+#Reaction cross sections for protons on 12C, 40Ca, 90Zr, and 208Pb at energies between 80 and 180 MeV
+#PR/C,71,064606,2005)
+#proton + Ni - reac
+#EN         DATA       ERR-S      
+#MEV        MB         MB
+81.        846.       34.
+#A.INGEMARSSON
+#NP/A,653,341,1999
+65.5       904.9      23.5

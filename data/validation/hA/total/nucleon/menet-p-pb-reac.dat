@@ -1,0 +1,11 @@
+# Menet Phys Rev C4,1114, 1971
+# proton Pb208 total reaction xs
+#EN         DATA       DATA-ERR
+#MEV        MB         MB
+       30.0      2117.        90.
+       40.0      2023.       100.
+       49.5      1842.        93.
+       60.8      1993.        95.
+       40.0       991.        43.
+       60.8       899.        32.
+

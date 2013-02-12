@@ -1,0 +1,405 @@
+# plotting file for pion reaction, total cross section data
+# pi+ C, Fe, Bi : pi- C, Fe, Pb
+# hA old vs. new comparison - Jan 13
+#
+# REACTION - pi+ - Carbon
+#
+[RECORD]
+  0,2000,0,600
+  XS
+  #pi+ C - #sigma reac
+  pip-c-totxs-reac-ha-jan13
+  1
+[EXPERIMENTAL]
+  ashery-pip-c-sigtot.dat
+  E:cex:scex:el:sel:inel:sinel:abs:sabs:reac:sreac:tot:stot
+  Ashery data
+  E:reac:sreac/1000:sreac
+[GENIE]
+  pip_c_totxs_hA-jan13
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:pipro:spipro:dcex:sdcex:reac:sreac:tot:stot
+  reac:E*1000
+  1
+  GENIE 2.7.1 hA Calculation
+[GENIE]
+  pip-c-totxs-v260
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:pipro:spipro:dcex:sdcex:reac:sreac:tot:stot
+  reac:E*1000
+  1
+  GENIE 2.6.0 Calculation
+[EXPERIMENTAL]
+ allardyce-pip-reac.dat
+ E:c:sc:ni:sni:pb:spb
+ Allardyce data
+ E*1000:c:sc:sc
+[EXPERIMENTAL]
+  saunders-pip-c-reac.dat
+  E:reac:sreac
+  Saunders data
+  E:reac:sreac/1000:sreac
+[EXPERIMENTAL]
+  meirav-pip-c-reac.dat
+  E:reac:sreac
+  Meirav data
+  E:reac:sreac/1000:sreac
+#
+# TOTAL - pi+ - Carbon
+#
+[RECORD]
+  0,1000,0,1000
+  XS
+  #pi+ C - #sigma tot
+  pip-c-totxs-tot-ha-jan13
+  1
+[EXPERIMENTAL]
+  ashery-pip-c-sigtot.dat
+  E:cex:scex:el:sel:inel:sinel:abs:sabs:reac:sreac:tot:stot
+  Ashery data
+  E:tot:stot/1000:stot
+[GENIE]
+  pip_c_totxs_hA-jan13
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:pipro:spipro:dcex:sdcex:reac:sreac:tot:stot
+  tot:E*1000
+  1
+  GENIE 2.7.1 hA Calculation
+[GENIE]
+  pip-c-totxs-v260
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:pipro:spipro:dcex:sdcex:reac:sreac:tot:stot
+  tot:E*1000
+  1
+  GENIE 2.6.0 Calculation
+[EXPERIMENTAL]
+  clough-pip-A-tot.dat
+  p:E:li6:sli6:li7:sli7:be:sbe:c:sc:o:so
+  Clough data
+  E:c:sc/1000:sc
+[EXPERIMENTAL]
+  saunders-pip-c-tot.dat
+  E:tot:stot
+  Saunders data
+  E:tot:stot/1000:stot
+[EXPERIMENTAL]
+  wilkin-pip-c-tot.dat
+  E:tot:stot
+  Wilkin data
+  E:tot:stot/1000:stot
+#
+# REACTION - pi+ - iron
+#
+[RECORD]
+  0,2000,0,1700
+  XS
+  #pi+ Fe - #sigma reac
+  pip-fe-totxs-reac-ha-jan13
+  1
+[EXPERIMENTAL]
+  ashery-pip-fe-sigtot.dat
+  E:cex:scex:el:sel:inel:sinel:abs:sabs:reac:sreac:tot:stot
+  Ashery data
+  E:reac:sreac/1000:sreac
+[GENIE]
+  pip_fe_totxs_hA-jan13
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:pipro:spipro:dcex:sdcex:reac:sreac:tot:stot
+  reac:E*1000
+  1
+  GENIE 2.7.1 hA Calculation
+[GENIE]
+  pip-fe-totxs-v260
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:pipro:spipro:dcex:sdcex:reac:sreac:tot:stot
+  reac:E*1000
+  1
+  GENIE 2.6.0 Calculation
+[EXPERIMENTAL]
+ allardyce-pip-reac.dat
+ E:c:sc:ni:sni:pb:spb
+ Allardyce data (Ni)
+ E*1000:ni:sni/1000:sni
+#
+# TOTAL - pi+ - iron
+#
+[RECORD]
+  0,600,0,2500
+  XS
+  #pi+ Fe - #sigma tot
+  pip-fe-totxs-tot-ha-jan13
+  1
+[EXPERIMENTAL]
+  ashery-pip-fe-sigtot.dat
+  E:cex:scex:el:sel:inel:sinel:abs:sabs:reac:sreac:tot:stot
+  Ashery data
+  E:tot:stot/1000:stot
+[GENIE]
+  pip_fe_totxs_hA-jan13
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:pipro:spipro:dcex:sdcex:reac:sreac:tot:stot
+  tot:E*1000
+  1
+  GENIE 2.7.1 hA Calculation
+[GENIE]
+  pip-fe-totxs-v260
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:pipro:spipro:dcex:sdcex:reac:sreac:tot:stot
+  tot:E*1000
+  1
+  GENIE 2.6.0 Calculation
+#
+# REACTION - pi+ - lead
+#
+[RECORD]
+  0,2000,0,4000
+  XS
+  #pi+ Pb - #sigma reac
+  pip-pb-totxs-reac-ha-jan13
+  1
+[EXPERIMENTAL]
+  ashery-pip-bi-sigtot.dat
+  E:cex:scex:el:sel:inel:sinel:abs:sabs:reac:sreac:tot:stot
+  Ashery data (Bi)
+  E:reac:reac/1000:sreac
+[GENIE]
+  pip_pb_totxs_hA-jan13
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:pipro:spipro:dcex:sdcex:reac:sreac:tot:stot
+  reac:E*1000
+  1
+  GENIE 2.7.1 hA Calculation
+[GENIE]
+  pip-bi-totxs-v260
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:pipro:spipro:dcex:sdcex:reac:sreac:tot:stot
+  reac:E*1000
+  1
+  GENIE 2.6.0 Calculation
+[EXPERIMENTAL]
+ allardyce-pip-reac.dat
+ E:c:sc:ni:sni:pb:spb
+ Allardyce data 
+ E*1000:pb:spb/1000:spb
+#
+# TOTAL - pi+ - lead
+#
+[RECORD]
+  0,600,0,5500
+  XS
+  #pi+ Pb - #sigma tot
+  pip-pb-totxs-tot-ha-jan13
+  1
+[EXPERIMENTAL]
+  ashery-pip-bi-sigtot.dat
+  E:cex:scex:el:sel:inel:sinel:abs:sabs:reac:sreac:tot:stot
+  Ashery data (Bi)
+  E:tot:stot/1000:stot
+[GENIE]
+  pip_pb_totxs_hA-jan13
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:pipro:spipro:dcex:sdcex:reac:sreac:tot:stot
+  tot:E*1000
+  1
+  GENIE 2.7.1 hA Calculation
+[GENIE]
+  pip-bi-totxs-v260
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:pipro:spipro:dcex:sdcex:reac:sreac:tot:stot
+  tot:E*1000
+  1
+  GENIE 2.6.0 Calculation
+#
+# REACTION - pi- - Carbon
+#
+[RECORD]
+  0,2000,0,600
+  XS
+  #pi- C - #sigma reac
+  pim-c-totxs-reac-ha-jan13
+  1
+[EXPERIMENTAL]
+  ashery-pim-c-sigtot.dat
+  E:cex:scex:el:sel:inel:sinel:sabs:sabs:reac:sreac:tot:stot
+  Ashery data
+  E:reac:sreac/1000:sreac
+[GENIE]
+  pim_c_totxs_hA-jan13
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:pipro:spipro:dcex:sdcex:reac:sreac:tot:stot
+  reac:E*1000
+  1
+  GENIE 2.7.1 hA Calculation
+[GENIE]
+  pim-c-totxs-v260
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:pipro:spipro:dcex:sdcex:reac:sreac:tot:stot
+  reac:E*1000
+  1
+  GENIE 2.6.0 Calculation
+[EXPERIMENTAL]
+  gelderloos-pim-A-reac.dat
+  E:c:sc:cu:scu:pb:spb
+  Gelderloos data (Cu)
+  E:c:sc/1000:sc
+#
+# TOTAL - pi- Carbon
+#
+[RECORD]
+  0,1000,0,800
+  XS
+  #pi- C - #sigma tot
+  pim-c-totxs-tot-ha-jan13
+  1
+[EXPERIMENTAL]
+  ashery-pim-c-sigtot.dat
+  E:cex:scex:el:sel:inel:sinel:sabs:sabs:reac:sreac:tot:stot
+  Ashery data
+  E:tot:stot/1000:stot
+[GENIE]
+  pim_c_totxs_hA-jan13
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:pipro:spipro:dcex:sdcex:reac:sreac:tot:stot
+  tot:E*1000
+  1
+  GENIE 2.7.1 hA Calculation
+[GENIE]
+  pim-c-totxs-v260
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:pipro:spipro:dcex:sdcex:reac:sreac:tot:stot
+  tot:E*1000
+  1
+  GENIE 2.6.0 Calculation
+[EXPERIMENTAL]
+  clough-pim-A-tot.dat
+  p:E:li6:sli6:li7:sli7:be:sbe:c:sc:o:so
+  Clough data
+  E:c:sc/1000:sc
+[EXPERIMENTAL]
+  gelderloos-pim-A-tot.dat
+  E:c:sc:cu:scu:pb:spb
+  Gelderloos data
+  E:c:sc/1000:sc
+[EXPERIMENTAL]
+  wilkin-pim-c-tot.dat
+  E:tot:stot
+  Wilkin data
+  E:tot:stot/1000:stot
+#
+# REACTION - pi- - iron
+#
+[RECORD]
+  0,2000,0,1700
+  XS
+  #pi- Fe - #sigma reac
+  pim-fe-totxs-reac-ha-jan13
+  1
+[EXPERIMENTAL]
+  ashery-pim-fe-sigtot.dat
+  E:cex:scex:el:sel:inel:sinel:abs:sabs:reac:sreac:tot:stot
+  Ashery data
+  E:reac:sreac/1000:sreac
+[GENIE]
+  pim_fe_totxs_hA-jan13
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:pipro:spipro:dcex:sdcex:reac:sreac:tot:stot
+  reac:E*1000
+  1
+  GENIE 2.7.1 hA Calculation
+[GENIE]
+  pim-fe-totxs-v260
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:pipro:spipro:dcex:sdcex:reac:sreac:tot:stot
+  reac:E*1000
+  1
+  GENIE 2.6.0 Calculation
+[EXPERIMENTAL]
+ allardyce-pim-reac.dat
+ E:c:sc:ni:sni:pb:spb
+ Allardyce data (Ni)
+ E*1000:ni:sni/1000:sni
+[EXPERIMENTAL]
+  gelderloos-pim-A-reac.dat
+  E:c:sc:cu:scu:pb:spb
+  Gelderloos data (Cu)
+  E:cu:scu/1000:scu
+#
+# TOTAL - pi- - iron
+#
+[RECORD]
+  0,600,0,2400
+  XS
+  #pi- Fe - #sigma tot
+  pim-fe-totxs-tot-ha-jan13
+  1
+[EXPERIMENTAL]
+  ashery-pim-fe-sigtot.dat
+  E:cex:scex:el:sel:inel:sinel:abs:sabs:reac:sreac:tot:stot
+  Ashery data
+  E:tot:stot/1000:stot
+[GENIE]
+  pim_fe_totxs_hA-jan13
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:pipro:spipro:dcex:sdcex:reac:sreac:tot:stot
+  tot:E*1000
+  1
+  GENIE 2.7.1 hA Calculation
+[GENIE]
+  pim-fe-totxs-v260
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:pipro:spipro:dcex:sdcex:reac:sreac:tot:stot
+  tot:E*1000
+  1
+  GENIE 2.6.0 Calculation
+[EXPERIMENTAL]
+  gelderloos-pim-A-tot.dat
+  E:c:sc:cu:scu:pb:spb
+  Gelderloos data (Cu)
+  E:cu:scu/1000:scu
+#
+# REACTION - pi- Pb
+#
+[RECORD]
+  0,2000,0,4000
+  XS
+  #pi- Pb - #sigma reac
+  pim-pb-totxs-reac-jan13
+  1
+[EXPERIMENTAL]
+  ashery-pim-bi-sigtot.dat
+  E:cex:scex:el:sel:inel:sinel:abs:sabs:reac:sreac:tot:stot
+  Ashery data (Bi)
+  E:reac:sreac/1000:sreac
+[GENIE]
+  pim_pb_totxs_hA-jan13
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:pipro:spipro:dcex:sdcex:reac:sreac:tot:stot
+  reac:E*1000
+  1
+  GENIE 2.7.1 hA Calculation
+[GENIE]
+  pim-bi-totxs-v260
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:pipro:spipro:dcex:sdcex:reac:sreac:tot:stot
+  reac:E*1000
+  1
+  GENIE 2.6.0 Calculation
+[EXPERIMENTAL]
+ allardyce-pim-reac.dat
+ E:c:sc:ni:sni:pb:spb
+ Allardyce data 
+ E*1000:pb:spb/1000:spb
+[EXPERIMENTAL]
+  gelderloos-pim-A-reac.dat
+  E:c:sc:cu:scu:pb:spb
+  Gelderloos data
+  E:pb:spb/1000:spb
+#
+# TOTAL - pi- - Pb
+#
+[RECORD]
+  0,600,0,6000
+  XS
+  #pi- Pb - #sigma tot
+  pim-pb-totxs-tot-ha-jan13
+  1
+[EXPERIMENTAL]
+  ashery-pim-bi-sigtot.dat
+  E:cex:scex:el:sel:inel:sinel:abs:sabs:reac:sreac:tot:stot
+  Ashery data (Bi)
+  E:tot:stot/1000:stot
+[GENIE]
+  pim_pb_totxs_hA-jan13
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:pipro:spipro:dcex:sdcex:reac:sreac:tot:stot
+  tot:E*1000
+  1
+  GENIE 2.7.1 hA Calculation
+[GENIE]
+  pim-bi-totxs-v260
+  E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:pipro:spipro:dcex:sdcex:reac:sreac:tot:stot
+  tot:E*1000
+  1
+  GENIE 2.6.0 Calculation
+[EXPERIMENTAL]
+  gelderloos-pim-A-tot.dat
+  E:c:sc:cu:scu:pb:spb
+  Gelderloos data 
+  E:pb:spb/1000:spb

@@ -1,4 +1,6 @@
-# Allardyce (1973) pi+ A
+# Allardyce et al. pi+ A total reaction xs
+# Nucl. Phys. 209, 1 (1973) - tables
+# units= GeV, mb
 #  KE   C        Ni      Pb
 .584    263 3   741 8   1754 16
 .711    246 3   742 9   1752 16

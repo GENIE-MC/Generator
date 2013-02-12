@@ -1,0 +1,40 @@
+#day=30
+#month=Jun
+#year=10
+
+rm xn*hN
+
+# do runs for neutron-nucleus total cross sections - hN
+gScriptINukeTotXSec -f xn_c_totxs_out_lowest_hN -p n -t 1000060120 -min .005 -max .055 -s .005 -n 20000 -m hN
+gScriptINukeTotXSec -f xn_fe_totxs_out_lowest_hN -p n -t 1000260560 -min .005 -max .055 -s .005 -n 20000 -m hN
+gScriptINukeTotXSec -f xn_pb_totxs_out_lowest_hN -p n -t 1000822080 -min .005 -max .055 -s .005 -n 20000 -m hN
+gScriptINukeTotXSec -f xn_c_totxs_out_low_hN -p n -t 1000060120 -min .05 -max .55 -s .05 -n 20000 -m hN
+gScriptINukeTotXSec -f xn_c_totxs_out_high_hN -p n -t 1000060120 -min .65 -max 2.05 -s .2 -n 20000 -m hN
+gScriptINukeTotXSec -f xn_fe_totxs_out_low_hN -p n -t 1000260560 -min .05 -max .55 -s .05 -n 20000 -m hN
+gScriptINukeTotXSec -f xn_fe_totxs_out_high_hN -p n -t 1000260560 -min .65 -max 2.05 -s .2 -n 20000 -m hN
+gScriptINukeTotXSec -f xn_pb_totxs_out_low_hN -p n -t 1000822080 -min .05 -max .55 -s .05 -n 20000 -m hN
+gScriptINukeTotXSec -f xn_pb_totxs_out_high_hN -p n -t 1000822080 -min .65 -max 2.05 -s .2 -n 20000 -m hN
+
+cat xn_c_totxs_out_lowest_hN > n_c_totxs_hN-jan13
+tail -11 xn_c_totxs_out_low_hN >> n_c_totxs_hN-jan13
+tail -8 xn_c_totxs_out_high_hN >> n_c_totxs_hN-jan13
+
+cat xn_fe_totxs_out_lowest_hN > n_fe_totxs_hN-jan13
+tail -11 xn_fe_totxs_out_low_hN >> n_fe_totxs_hN-jan13
+tail -8 xn_fe_totxs_out_high_hN >> n_fe_totxs_hN-jan13
+
+cat xn_pb_totxs_out_lowest_hN > n_pb_totxs_hN-jan13
+tail -11 xn_pb_totxs_out_low_hN >> n_pb_totxs_hN-jan13
+tail -8 xn_pb_totxs_out_high_hN >> n_pb_totxs_hN-jan13
+
+rm xn_c_totxs_out_lowest_hN
+rm xn_c_totxs_out_low_hN
+rm xn_c_totxs_out_high_hN
+rm xn_fe_totxs_out_lowest_hN
+rm xn_fe_totxs_out_low_hN
+rm xn_fe_totxs_out_high_hN
+rm xn_pb_totxs_out_lowest_hN
+rm xn_pb_totxs_out_low_hN
+rm xn_pb_totxs_out_high_hN
+
+#cd ..

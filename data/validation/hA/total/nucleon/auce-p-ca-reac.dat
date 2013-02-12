@@ -1,0 +1,15 @@
+#A.Auce
+#Reaction cross sections for protons on 12C, 40Ca, 90Zr, and 208Pb at energies between 80 and 180 MeV
+#PR/C,71,064606,2005)
+#proton + Ca - reac
+#EN         DATA       ERR-S      
+#MEV        MB         MB
+81.        660.       25.
+100.       604.       24.
+119.       563.       12.
+141.       536.       8.
+158.       524.       8.
+180.       517.       7.
+#A.INGEMARSSON
+#NP/A,653,341,1999
+65.5       687.5      16.7
