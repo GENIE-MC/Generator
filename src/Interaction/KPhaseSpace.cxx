@@ -27,7 +27,9 @@
    Add threshold and kinematical limits for inverse beta decay.
  @ Nov 28, 2011 - CA
    Add threshold for MEC.
-
+@ Feb 12, 2013 - CA (code from Rosen Matev)
+  Handle the IMD annihilation channel. Add mass_electron^2 term in calculation
+  of kinematic limits for neutrino-electron elastic scattering.
 */
 //____________________________________________________________________________
 
@@ -124,7 +126,7 @@ double KPhaseSpace::Threshold(void) const
     return TMath::Max(0.,Ethr);
   }
 
-  if(pi.IsInverseMuDecay()) {
+  if(pi.IsInverseMuDecay() || pi.IsIMDAnnihilation()) {
     double Ethr = 0.5 * (kMuonMass2-kElectronMass2)/kElectronMass;
     return TMath::Max(0.,Ethr);
   }
@@ -195,6 +197,7 @@ bool KPhaseSpace::IsAboveThreshold(void) const
 
   if (pi.IsCoherent()       || 
       pi.IsInverseMuDecay() || 
+      pi.IsIMDAnnihilation() || 
       pi.IsNuElectronElastic()) 
   {
       E = init_state.ProbeE(kRfLab);
@@ -254,7 +257,7 @@ bool KPhaseSpace::IsAllowed(void) const
   }
 
   //IMD
-  if(pi.IsInverseMuDecay() || pi.IsNuElectronElastic()) {
+  if(pi.IsInverseMuDecay() || pi.IsIMDAnnihilation() || pi.IsNuElectronElastic()) {
     Range1D_t yl = this->YLim();
     double    y  = kine.y();
     bool in_phys = math::IsWithinLimits(y, yl);
@@ -482,9 +485,13 @@ Range1D_t KPhaseSpace::YLim(void) const
     return yl;
   }
   // IMD
-  if(pi.IsInverseMuDecay() || pi.IsNuElectronElastic()) {
-    yl.min =      controls::kASmallNum;
-    yl.max = 1. - controls::kASmallNum;
+  if(pi.IsInverseMuDecay() || pi.IsIMDAnnihilation() || pi.IsNuElectronElastic()) {
+    const InitialState & init_state = fInteraction->InitState();
+    double Ev = init_state.ProbeE(kRfLab);
+    double ml = fInteraction->FSPrimLepton()->Mass();
+    double me = kElectronMass;
+    yl.min = controls::kASmallNum;
+    yl.max = 1 - (ml*ml + me*me)/(2*me*Ev) - controls::kASmallNum;
     return yl;
   }
   bool is_dfr = pi.IsDiffractive();
