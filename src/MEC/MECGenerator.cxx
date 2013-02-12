@@ -67,6 +67,10 @@ MECGenerator::~MECGenerator()
 //___________________________________________________________________________
 void MECGenerator::ProcessEventRecord(GHepRecord * event) const
 {
+  LOG("MEC", pWARN)
+     << print::PrintFramedMesg(
+         "Experimental code (MEC generator) - Run at your own risk");
+
   this -> AddTargetRemnant      (event); /// shortly, this will be handled by the InitialStateAppender module
   this -> GenerateFermiMomentum (event);
   this -> SelectKinematics      (event);
