@@ -66,6 +66,12 @@ int main(int argc, char **argv)
     }
   }
 
+  if(parser.OptionExists("with-long-command-line-option")) {
+    LOG("test", pNOTICE)
+       << "Command line argument following --with-long-command-line-option : " 
+       << parser.Arg("with-long-command-line-option");
+  }
+
   return 0;
 }
 //____________________________________________________________________________
