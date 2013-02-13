@@ -5,7 +5,7 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - November 26, 2004
+         STFC, Rutherford Appleton Laboratory 
 
  For documentation see the corresponding header file.
 
@@ -38,7 +38,7 @@ using namespace genie::constants;
 
 //____________________________________________________________________________
 double genie::utils::kinematics::PhaseSpaceVolume(
-                          const Interaction * const in, KinePhaseSpace_t ps)
+  const Interaction * const in, KinePhaseSpace_t ps)
 {
   double vol = 0;
 
@@ -129,55 +129,60 @@ double genie::utils::kinematics::PhaseSpaceVolume(
 }
 //____________________________________________________________________________
 double genie::utils::kinematics::Jacobian(
-            const Interaction * const i, 
-                              KinePhaseSpace_t fromps, KinePhaseSpace_t tops)
+ const Interaction * const i, KinePhaseSpace_t fromps, KinePhaseSpace_t tops)
 {
-// Returns the Jacobian for the transformation: 
-//                  from_phase_space -> to_phase_space
+// Returns the Jacobian for a kinematical transformation:
+// from_ps (x,y,z,...) -> to_ps (u,v,w,...).
 //
-// dx*dy*dz = J(u,v,w) * du*dv*dw
+// Note on the convention used here:
+// The differential cross-section d^n sigma / dxdydz..., is transformed to
+// d^n sigma / dudvdw... using the Jacobian, computed in this function, as:
+// as d^n sigma / dudvdw... = J * d^n sigma / dxdydz...
+// where:
 //
-//                           | dx/du   dx/dv   dx/dw |
-//            d {x,y,z}      |                       |
-// J(u,v,w) = ---------- =   | dy/du   dy/dv   dy/dw |
-//            d {u,v,w}      |                       |
-//                           | dz/du   dz/dv   dz/dw |
+// dxdxdz... = J * dudvdw...
 //
-
+//                    | dx/du   dx/dv   dx/dw  ... |
+//                    |                            |
+//     d {x,y,z,...}  | dy/du   dy/dv   dy/dw  ... |
+// J = ------------ = |                            |
+//     d {u,v,w,...}  | dz/du   dz/dv   dz/dw  ... |
+//                    |                            |
+//                    |  ...     ...    ...    ... |
+//
   SLOG("KineLimits", pDEBUG) 
        << "Computing Jacobian for transformation: "
-                << KinePhaseSpace::AsString(fromps) << " --> " 
-                                            << KinePhaseSpace::AsString(tops);
+       << KinePhaseSpace::AsString(fromps) << " --> " 
+       << KinePhaseSpace::AsString(tops);
+
   double J=0;
   bool forward;
   const Kinematics & kine = i->Kine();
 
-  // ****** transformation: {Q2}|E -> {lnQ2}|E
+  //
+  // transformation: {Q2}|E -> {lnQ2}|E
+  //
   if ( TransformMatched(fromps,tops,kPSQ2fE,kPSlogQ2fE,forward) )
   {
-    J = kine.Q2();
+    J = 1. / kine.Q2();
   } 
-  // ****** transformation: {Q2}|E -> {QD2}|E
-  else if ( TransformMatched(fromps,tops,kPSQD2fE,kPSQ2fE,forward) ) 
-  {
-    J = TMath::Power(1+kine.Q2()/controls::kMQD2,-2)/controls::kMQD2;
-  } 
-  // ****** transformation: {W,Q2}|E -> {W,QD2}|E
-  else if ( TransformMatched(fromps,tops,kPSWQD2fE,kPSWQ2fE,forward) ) 
-  {
-    J = TMath::Power(1+kine.Q2()/controls::kMQD2,-2)/controls::kMQD2;
-  } 
-  // ****** transformation: {x,y}|E -> {lnx,lny}|E
+  //
+  // transformation: {x,y}|E -> {lnx,lny}|E
+  //
   else if ( TransformMatched(fromps,tops,kPSxyfE,kPSlogxlogyfE,forward) ) 
   {
-    J = kine.x() * kine.y();
+    J = 1. / (kine.x() * kine.y());
   } 
-  // ****** transformation: {W,Q2}|E -> {W,lnQ2}|E
+  //
+  // transformation: {W,Q2}|E -> {W,lnQ2}|E
+  //
   else if ( TransformMatched(fromps,tops,kPSWQ2fE,kPSWlogQ2fE,forward) ) 
   {
-    J = kine.Q2();
+    J = 1. / kine.Q2();
   } 
-  // ****** transformation: {W2,Q2}|E -> {x,y}|E
+  //
+  // transformation: {W2,Q2}|E --> {x,y}|E
+  //
   else if ( TransformMatched(fromps,tops,kPSW2Q2fE,kPSxyfE,forward) ) 
   {
     const InitialState & init_state = i->InitState();
@@ -186,12 +191,9 @@ double genie::utils::kinematics::Jacobian(
     double y  = kine.y();
     J = TMath::Power(2*M*Ev,2) * y;
   } 
-  // ****** transformation: {W2,logQ2}|E -> {x,y}|E
-  else if ( TransformMatched(fromps,tops,kPSW2logQ2fE,kPSxyfE,forward) ) 
-  {
-    J = Jacobian(i,kPSW2Q2fE,kPSxyfE)/kine.Q2();
-  } 
-  // ****** transformation: {W,Q2}|E -> {x,y}|E
+  // 
+  // transformation: {W,Q2}|E -> {x,y}|E
+  //
   else if ( TransformMatched(fromps,tops,kPSWQ2fE,kPSxyfE,forward) ) 
   {
     const InitialState & init_state = i->InitState();
@@ -204,8 +206,8 @@ double genie::utils::kinematics::Jacobian(
   else {
      SLOG("KineLimits", pFATAL) 
        << "*** Can not compute Jacobian for transforming: "
-                     << KinePhaseSpace::AsString(fromps) << " <--> " 
-                                            << KinePhaseSpace::AsString(tops);
+       << KinePhaseSpace::AsString(fromps) << " --> " 
+       << KinePhaseSpace::AsString(tops);
      exit(1);
   }
 
