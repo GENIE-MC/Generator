@@ -152,7 +152,6 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      if(!fGenerateUniformly) {
         this->AssertXSecLimits(interaction, xsec, xsec_max);
         double t = xsec_max * rnd->RndKine().Rndm();
-        //double J = kinematics::Jacobian(interaction,kPSxyfE,kPSlogxlogyfE);
 	double J = 1;
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
