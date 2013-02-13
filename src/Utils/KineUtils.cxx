@@ -126,6 +126,7 @@ double genie::utils::kinematics::PhaseSpaceVolume(
                     << KinePhaseSpace::AsString(ps) << "using \n" << *in;
    return 0;
   }
+  return 0;
 }
 //____________________________________________________________________________
 double genie::utils::kinematics::Jacobian(
@@ -166,13 +167,25 @@ double genie::utils::kinematics::Jacobian(
   {
     J = 1. / kine.Q2();
   } 
+
+  //
+  // transformation: {QD2}|E -> {Q2}|E 
+  //
+  else 
+  if ( TransformMatched(fromps,tops,kPSQD2fE,kPSQ2fE,forward) )
+  {
+    J = TMath::Power(1+kine.Q2()/controls::kMQD2,-2)/controls::kMQD2;
+  } 
+
   //
   // transformation: {x,y}|E -> {lnx,lny}|E
   //
-  else if ( TransformMatched(fromps,tops,kPSxyfE,kPSlogxlogyfE,forward) ) 
+  else 
+  if ( TransformMatched(fromps,tops,kPSxyfE,kPSlogxlogyfE,forward) ) 
   {
     J = 1. / (kine.x() * kine.y());
   } 
+
   //
   // transformation: {W,Q2}|E -> {W,lnQ2}|E
   //
@@ -180,10 +193,21 @@ double genie::utils::kinematics::Jacobian(
   {
     J = 1. / kine.Q2();
   } 
+
+  //
+  // transformation: {W,QD2}|E -> {W,Q2}|E 
+  //
+  else 
+  if ( TransformMatched(fromps,tops,kPSWQD2fE,kPSWQ2fE,forward) )
+  {
+    J = TMath::Power(1+kine.Q2()/controls::kMQD2,-2)/controls::kMQD2;
+  } 
+
   //
   // transformation: {W2,Q2}|E --> {x,y}|E
   //
-  else if ( TransformMatched(fromps,tops,kPSW2Q2fE,kPSxyfE,forward) ) 
+  else 
+  if ( TransformMatched(fromps,tops,kPSW2Q2fE,kPSxyfE,forward) ) 
   {
     const InitialState & init_state = i->InitState();
     double Ev = init_state.ProbeE(kRfHitNucRest);
@@ -191,10 +215,12 @@ double genie::utils::kinematics::Jacobian(
     double y  = kine.y();
     J = TMath::Power(2*M*Ev,2) * y;
   } 
+
   // 
   // transformation: {W,Q2}|E -> {x,y}|E
   //
-  else if ( TransformMatched(fromps,tops,kPSWQ2fE,kPSxyfE,forward) ) 
+  else 
+  if ( TransformMatched(fromps,tops,kPSWQ2fE,kPSxyfE,forward) ) 
   {
     const InitialState & init_state = i->InitState();
     double Ev = init_state.ProbeE(kRfHitNucRest);
@@ -203,6 +229,7 @@ double genie::utils::kinematics::Jacobian(
     double W  = kine.W();
     J = 2*TMath::Power(M*Ev,2) * y/W;
   } 
+
   else {
      SLOG("KineLimits", pFATAL) 
        << "*** Can not compute Jacobian for transforming: "
