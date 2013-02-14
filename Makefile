@@ -37,7 +37,6 @@ BUILD_TARGETS =    print-make-info \
 		   doxygen-doc \
 		   generator-test-exe \
 		   generator-std-exe \
-		   event-server \
 		   t2k-support-softw \
 		   numi-support-softw \
 		   atmo-support-softw \
@@ -282,17 +281,6 @@ ifeq ($(strip $(GOPT_ENABLE_TEST)),YES)
 else
 	@echo " "
 	@echo "** Test applications were not enabled! Skipping..."
-endif
-
-event-server: FORCE
-	@echo " "
-	@echo "** Building event server..."
-ifeq ($(strip $(GOPT_ENABLE_EVENT_SERVER)),YES)
-	cd ${GENIE}/src/support/evserv/;\
-	make all; \
-	cd ${GENIE}
-else
-	@echo "Not enabled! Skipping..."
 endif
 
 t2k-support-softw: FORCE
@@ -622,7 +610,6 @@ clean-files: FORCE
 	cd VLE;                           make clean; cd ..; \
 	cd VHE;                           make clean; cd ..; \
 	cd stdapp;                        make clean; cd ..; \
-	cd support/evserv/;               make clean; cd ../../; \
 	cd support/t2k/EvGen/;            make clean; cd ../../../; \
 	cd support/numi/EvGen/;           make clean; cd ../../../; \
 	cd support/atmo/EvGen/;           make clean; cd ../../../; \
@@ -703,7 +690,6 @@ distclean: FORCE
 	cd VLE;                            make distclean; cd ..; \
 	cd VHE;                            make distclean; cd ..; \
 	cd stdapp;                         make distclean; cd ..; \
-	cd support/evserv/;                make distclean; cd ../../; \
 	cd support/t2k/EvGen/;             make distclean; cd ../../../; \
 	cd support/numi/EvGen/;            make distclean; cd ../../../; \
 	cd support/atmo/EvGen/;            make distclean; cd ../../../; \
