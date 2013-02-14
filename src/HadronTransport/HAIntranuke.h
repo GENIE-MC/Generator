@@ -73,6 +73,8 @@ private:
   double        PiBounce         (void) const;
   double        PnBounce         (void) const;
   bool          HandleCompoundNucleus(GHepRecord* ev, GHepParticle* p, int mom) const;           
+
+  mutable unsigned int fNumIterations;
 };
 
 }      // genie namespace
