@@ -186,10 +186,11 @@ void HAIntranuke::SimulateHadronicFinalStateKinematics(
   catch(exceptions::INukeException exception)
   {
      LOG("HAIntranuke", pNOTICE) 
-	<< "\n *** Failed attempt to generate kinematics for "
+        << exception;
+     LOG("HAIntranuke", pNOTICE)
+	<< "Failed attempt to generate kinematics for "
         << p->Name() << " fate: " << INukeHadroFates::AsString(fate)
-        << "\n *** " << exception
-        << "Retrying...";
+        << " - Retrying...";
      this->SimulateHadronicFinalStateKinematics(ev,p);
   }
 }
