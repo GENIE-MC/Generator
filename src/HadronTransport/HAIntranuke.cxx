@@ -152,6 +152,7 @@ void HAIntranuke::SimulateHadronicFinalState(
      << "Selected "<< p->Name() << " fate: "<< INukeHadroFates::AsString(fate);
 
   // try to generate kinematics - repeat till is done
+  fNumIterations = 0;
   this->SimulateHadronicFinalStateKinematics(ev,p);
 }
 //___________________________________________________________________________
@@ -169,6 +170,8 @@ void HAIntranuke::SimulateHadronicFinalStateKinematics(
   // try to generate kinematics for the selected fate 
   try
   {
+     fNumIterations++;
+
      if (fate == kIHAFtElas)
      { 
         this->ElasHA(ev,p,fate);
@@ -184,14 +187,23 @@ void HAIntranuke::SimulateHadronicFinalStateKinematics(
      }
   }
   catch(exceptions::INukeException exception)
-  {
+  {     
      LOG("HAIntranuke", pNOTICE) 
         << exception;
-     LOG("HAIntranuke", pNOTICE)
-	<< "Failed attempt to generate kinematics for "
-        << p->Name() << " fate: " << INukeHadroFates::AsString(fate)
-        << " - Retrying...";
-     this->SimulateHadronicFinalStateKinematics(ev,p);
+     if(fNumIterations <= 500) {
+        LOG("HAIntranuke", pNOTICE)
+	   << "Failed attempt to generate kinematics for "
+           << p->Name() << " fate: " << INukeHadroFates::AsString(fate)
+           << " - Retrying...";
+        this->SimulateHadronicFinalStateKinematics(ev,p);
+     } else {
+        LOG("HAIntranuke", pNOTICE)
+	   << "Failed attempt to generate kinematics for "
+           << p->Name() << " fate: " << INukeHadroFates::AsString(fate)
+           << " after " << fNumIterations-1 
+           << " attempts. Trying a new fate...";
+        this->SimulateHadronicFinalState(ev,p);
+     }
   }
 }
 //___________________________________________________________________________
@@ -695,19 +707,17 @@ void HAIntranuke::Inelastic(
   PDGCodeList list(allow_dup); // list of final state particles
 
   // only absorption/pipro fates allowed
-  if (fate == kIHAFtPiProd )
-    {
+  if (fate == kIHAFtPiProd) {
 
       GHepParticle* s1 = new GHepParticle(*p);
       GHepParticle* s2 = new GHepParticle(*p);
       GHepParticle* s3 = new GHepParticle(*p);
 
-      if (utils::intranuke::PionProduction(ev,p,s1,s2,s3,fRemnA,fRemnZ,fRemnP4,
-					   fDoFermi,fFermiFac,fFermiMomentum,fNuclmodel))
-	{
+      bool worked = utils::intranuke::PionProduction(
+         ev,p,s1,s2,s3,fRemnA,fRemnZ,fRemnP4, fDoFermi,fFermiFac,fFermiMomentum,fNuclmodel);
 
+      if (worked) {
 	  // set status of particles and conserve charge/baryon number
-
 	  s1->SetStatus(kIStStableFinalState);
 	  //	  if (pdg::IsPion(s2->Pdg())) s2->SetStatus(kIStHadronInTheNucleus);
 	  s2->SetStatus(kIStStableFinalState);
@@ -722,17 +732,15 @@ void HAIntranuke::Inelastic(
 	  delete s2;
 	  delete s3;
 	  return;
-	}
-      else
-	{
-	  LOG("HAIntranuke", pNOTICE) << "Error: could not create pion production final state";
-	  exceptions::INukeException exception;
-	  exception.SetReason("PionProduction kinematics failed, details above");
-	  throw exception;
-	}
+      }
+      else {
+	 LOG("HAIntranuke", pNOTICE) << "Error: could not create pion production final state";
+	 exceptions::INukeException exception;
+	 exception.SetReason("PionProduction kinematics failed");
+	 throw exception;
+      }
+  }
 
-
-    }
   else if (fate==kIHAFtAbs)   
 //  tuned for pions - mixture of 2-body and many-body
 //   use same for kaons as there is no guidance
@@ -1299,6 +1307,8 @@ bool HAIntranuke::HandleCompoundNucleus(
 //___________________________________________________________________________
 void HAIntranuke::LoadConfig(void)
 {
+  fNumIterations = 0;
+
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();
 
