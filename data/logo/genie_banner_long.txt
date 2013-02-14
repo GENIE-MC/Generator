@@ -33,8 +33,7 @@
 **                                                                                                    **
 **                                                                                                    **
 ** (*) Corresponding Author: Dr. Costas Andreopoulos                                                  **
-**     address: Rutherford Appleton Laboratory / Science and Technology Facilities Council            **
-**              Harwell Science & Innovation Campus Oxfordshire OX11 0QX, United Kingdom              **
+**     address: Rutherford Appleton Laboratory, Harwell Oxford Campus, OX11 0QX, United Kingdom       **
 **     e-mail : costas.andreopoulos \at stfc.ac.uk >                                                  **
 **     tel    : +44-(0)1235-445091                                                                    **
 **     fax    : +44-(0)1235-446733                                                                    **
