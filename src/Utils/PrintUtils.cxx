@@ -102,20 +102,20 @@ string genie::utils::print::BoolAsString(bool b)
 //____________________________________________________________________________
 string genie::utils::print::BoolAsTFString(bool b)
 {
-  if(b) return "[true]";
-  else  return "[false]";
+  if(b) return "true";
+  else  return "false";
 }
 //____________________________________________________________________________
 string genie::utils::print::BoolAsIOString(bool b)
 {
-  if(b) return "[ON]";
-  else  return "[OFF]";
+  if(b) return "ON";
+  else  return "OFF";
 }
 //____________________________________________________________________________
 string genie::utils::print::BoolAsYNString(bool b)
 {
-  if(b) return "[YES]";
-  else  return "[NO]";
+  if(b) return "YES";
+  else  return "NO";
 }
 //____________________________________________________________________________
 void genie::utils::print::PrintBanner(void)
