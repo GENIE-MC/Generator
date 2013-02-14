@@ -58,7 +58,6 @@
 #include "GHEP/GHepRecord.h"
 #include "GHEP/GHepParticle.h"
 #include "HadronTransport/INukeException.h"
-#include "HadronTransport/INukeException_inel.h"
 #include "HadronTransport/Intranuke.h"
 #include "HadronTransport/HAIntranuke.h"
 #include "HadronTransport/INukeHadroData.h"
@@ -114,7 +113,8 @@ void HAIntranuke::ProcessEventRecord(GHepRecord * evrec) const
   LOG("HAIntranuke", pINFO) << "Done with this event";
 }
 //___________________________________________________________________________
-void HAIntranuke::SimulateHadronicFinalState(GHepRecord* ev, GHepParticle* p) const
+void HAIntranuke::SimulateHadronicFinalState(
+  GHepRecord* ev, GHepParticle* p) const
 {
 // Simulate a hadron interaction for the input particle p in HA mode
 //
@@ -124,7 +124,7 @@ void HAIntranuke::SimulateHadronicFinalState(GHepRecord* ev, GHepParticle* p) co
      return;
   }
 
-  // check particle id
+  // get particle code and check whether this particle can be handled
   int  pdgc = p->Pdg();
   bool is_gamma   = (pdgc==kPdgGamma);						  
   bool is_pion    = (pdgc==kPdgPiP || pdgc==kPdgPiM || pdgc==kPdgPi0);
@@ -136,48 +136,57 @@ void HAIntranuke::SimulateHadronicFinalState(GHepRecord* ev, GHepParticle* p) co
      return;     
   }
 
+  // select a fate for the input particle
+  INukeFateHA_t fate = this->HadronFateHA(p);
+
+  // store the fate
+  ev->Particle(p->FirstMother())->SetRescatterCode((int)fate);
+
+  if(fate == kIHAFtUndefined) {
+     LOG("HAIntranuke", pERROR) << "** Couldn't select a fate";
+     p->SetStatus(kIStStableFinalState);
+     ev->AddParticle(*p);
+     return;     
+  }
+   LOG("HAIntranuke", pNOTICE)
+      << "Selected fate for " << p->Name() << " : " << INukeHadroFates::AsString(fate);
+
+  // try to generate kinematics
+}
+//___________________________________________________________________________
+void HAIntranuke::SimulateHadronicFinalStateKinematics(
+  GHepRecord* ev, GHepParticle* p) const
+{
+  // get stored fate
+  INukeFateHA_t fate = (INukeFateHA_t) 
+      ev->Particle(p->FirstMother())->RescatterCode();
+
+  // try to generate kinematics for the selected fate 
   try
-    {
-      // select a fate for the input particle
-      INukeFateHA_t fate = this->HadronFateHA(p);
-
-      // store the fate
-      ev->Particle(p->FirstMother())->SetRescatterCode((int)fate);
-
-      if(fate == kIHAFtUndefined) {
-	LOG("HAIntranuke", pERROR) << "** Couldn't select a fate";
-	p->SetStatus(kIStStableFinalState);
-	ev->AddParticle(*p);
-	return;     
-      }
-      LOG("HAIntranuke", pNOTICE)
-	<< "Selected " << p->Name() << " fate: " << INukeHadroFates::AsString(fate);
-
-      // get the reaction products for the selected fate
-      if (fate == kIHAFtElas) this->ElasHA(ev,p,fate);
-      else if (fate == kIHAFtInelas  || fate == kIHAFtCEx) this->InelasticHA(ev,p,fate);
-      else if (fate == kIHAFtAbs     ||
-	       fate == kIHAFtPiProd)
-	{
+  {
+     if (fate == kIHAFtElas)
+     { 
+        this->ElasHA(ev,p,fate);
+     }
+     else 
+     if (fate == kIHAFtInelas || fate == kIHAFtCEx) 
+     {
+        this->InelasticHA(ev,p,fate);
+     }
+     else if (fate == kIHAFtAbs || fate == kIHAFtPiProd)
+     {
 	  this->Inelastic(ev,p,fate);
-	}
-    }
+     }
+  }
   catch(exceptions::INukeException exception)
-    {
-      LOG("HAIntranuke", pNOTICE) 
-	<< "retry call to SimulateHadronicFinalState ";
-      LOG("HAIntranuke", pNOTICE) << exception;
-      this->SimulateHadronicFinalState(ev,p);
-    }
-  
-  catch(exceptions::INukeException_inel exception)
-    {
-      LOG("HAIntranuke", pNOTICE) 
-	<< "retry call to InelasticHA ";
-      LOG("HAIntranuke", pNOTICE) << exception;
-      //      INukeFateHA_t fate = kIHAFtInelas;
-      this->SimulateHadronicFinalState(ev,p); //InelasticHA(ev,p,fate);
-    }
+  {
+     LOG("HAIntranuke", pNOTICE) 
+	<< "\n *** Failed attempt to generate kinematics for "
+        << p->Name() << " fate: " << INukeHadroFates::AsString(fate)
+        << "\n *** " << exception
+        << "Retrying...";
+     this->SimulateHadronicFinalStateKinematics(ev,p);
+  }
 }
 //___________________________________________________________________________
 INukeFateHA_t HAIntranuke::HadronFateHA(const GHepParticle * p) const
@@ -454,7 +463,7 @@ void HAIntranuke::ElasHA(
 
   if (!utils::intranuke::TwoBodyKinematics(Mp,Mt,t4PpL,t4PtL,t4P3L,t4P4L,C3CM,fRemnP4))
     {
-      LOG("HAIntranuke",pNOTICE) << "ElasHA() failed";
+      LOG("HAIntranuke", pNOTICE) << "ElasHA() failed";
       exceptions::INukeException exception;
       exception.SetReason("TwoBodyKinematics failed in ElasHA, details above");
       throw exception;
@@ -622,7 +631,7 @@ void HAIntranuke::InelasticHA(
       << P4L << "   " << E4L << "\n probe KE = " << ev->Probe()->KinE() << "\n";
     if (E3L>ev->Probe()->KinE()||E4L>ev->Probe()->KinE())  
       {
-	exceptions::INukeException_inel exception;
+	exceptions::INukeException exception;
 	exception.SetReason("TwoBodyCollison gives KE> probe KE in hA simulation, details in messages above");
 	throw exception;
       }

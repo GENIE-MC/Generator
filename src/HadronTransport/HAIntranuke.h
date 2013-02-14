@@ -63,9 +63,9 @@ private:
 
   void LoadConfig (void);
 
-  //-- private methods:
-  // methods specific to intranuke HA-mode
-  void          SimulateHadronicFinalState (GHepRecord* ev, GHepParticle* p) const;
+  void  SimulateHadronicFinalState           (GHepRecord* ev, GHepParticle* p) const;
+  void  SimulateHadronicFinalStateKinematics (GHepRecord* ev, GHepParticle* p) const;
+
   INukeFateHA_t HadronFateHA     (const GHepParticle* p) const;
   void          Inelastic        (GHepRecord* ev, GHepParticle* p, INukeFateHA_t fate) const;
   void          ElasHA           (GHepRecord* ev, GHepParticle* p, INukeFateHA_t fate) const;
