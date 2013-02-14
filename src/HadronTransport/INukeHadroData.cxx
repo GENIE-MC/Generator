@@ -128,19 +128,19 @@ INukeHadroData::~INukeHadroData()
   delete fFracPipA_Inel;
   delete fFracPipA_CEx;
   delete fFracPipA_Abs;
-  delete fFracPipA_NPipPi0;
+  delete fFracPipA_PiProd;
   delete fFracPimA_Tot;
   delete fFracPimA_Elas;
   delete fFracPimA_Inel;
   delete fFracPimA_CEx;
   delete fFracPimA_Abs;
-  delete fFracPimA_NPipPi0;
+  delete fFracPimA_PiProd;
   delete fFracPi0A_Tot;
   delete fFracPi0A_Elas;
   delete fFracPi0A_Inel;
   delete fFracPi0A_CEx;
   delete fFracPi0A_Abs;
-  delete fFracPi0A_NPipPi0;
+  delete fFracPi0A_PiProd;
 
   // hN data
   delete fhN2dXSecPP_Elas;
@@ -226,7 +226,7 @@ void INukeHadroData::LoadCrossSections(void)
   data_NA.ReadFile(datafile_NA.c_str(),
      "ke/D:pA_tot/D:pA_elas/D:pA_inel/D:pA_cex/D:pA_abs/D:pA_pipro/D");
   data_piA.ReadFile(datafile_piA.c_str(),
-     "ke/D:piA_tot/D:piA_elas/D:piA_inel/D:piA_cex/D:piA_np/D:piA_pp/D:piA_npp/D:piA_nnp/D:piA_2n2p/D:piA_npippi0/D");
+     "ke/D:piA_tot/D:piA_elas/D:piA_inel/D:piA_cex/D:piA_np/D:piA_pp/D:piA_npp/D:piA_nnp/D:piA_2n2p/D:piA_piprod/D");
   data_gamN.ReadFile(datafile_gamN.c_str(),
     "ke/D:pi0p_tot/D:pipn_tot/D:pimp_tot/D:pi0n_tot/D:gamp_fs/D:gamn_fs/D:gamN_tot/D");
   data_kN.ReadFile(datafile_kN.c_str(),
@@ -311,19 +311,19 @@ void INukeHadroData::LoadCrossSections(void)
   fFracPipA_Inel    = new Spline(&data_piA, "ke:piA_inel");    
   fFracPipA_CEx     = new Spline(&data_piA, "ke:piA_cex");    
   fFracPipA_Abs     = new Spline(&data_piA, "ke:piA_np+piA_pp+piA_npp+piA_nnp+piA_2n2p");
-  fFracPipA_NPipPi0 = new Spline(&data_piA, "ke:piA_npippi0");    
+  fFracPipA_PiProd  = new Spline(&data_piA, "ke:piA_piprod");    
   fFracPimA_Tot     = new Spline(&data_piA, "ke:piA_tot");    
   fFracPimA_Elas    = new Spline(&data_piA, "ke:piA_elas");    
   fFracPimA_Inel    = new Spline(&data_piA, "ke:piA_inel");    
   fFracPimA_CEx     = new Spline(&data_piA, "ke:piA_cex");    
   fFracPimA_Abs     = new Spline(&data_piA, "ke:piA_np+piA_pp+piA_npp+piA_nnp+piA_2n2p");
-  fFracPimA_NPipPi0 = new Spline(&data_piA, "ke:piA_npippi0");    
+  fFracPimA_PiProd  = new Spline(&data_piA, "ke:piA_piprod");    
   fFracPi0A_Tot     = new Spline(&data_piA, "ke:piA_tot");    
   fFracPi0A_Elas    = new Spline(&data_piA, "ke:piA_elas");    
   fFracPi0A_Inel    = new Spline(&data_piA, "ke:piA_inel");    
   fFracPi0A_CEx     = new Spline(&data_piA, "ke:piA_cex");    
   fFracPi0A_Abs     = new Spline(&data_piA, "ke:piA_np+piA_pp+piA_npp+piA_nnp+piA_2n2p");
-  fFracPi0A_NPipPi0 = new Spline(&data_piA, "ke:piA_npippi0");
+  fFracPi0A_PiProd  = new Spline(&data_piA, "ke:piA_piprod");
   // K+A x-section fraction splines
   fFracKA_Tot      = new Spline(&data_KA, "ke:KA_tot");
   fFracKA_Elas     = new Spline(&data_KA, "ke:KA_elas");
@@ -1007,7 +1007,7 @@ double INukeHadroData::XSec(
   }
 
   else if(fate == kIHNFtInelas) {
-    if( hpdgc==kPdgGamma && tgtpdgc==kPdgProton  && nppdgc==kPdgProton  )
+    if( hpdgc==kPdgGamma && tgtpdgc==kPdgProton  &&nppdgc==kPdgProton  )
     {
        ke_eval = TMath::Min(ke_eval, 1199.);
        ke_eval = TMath::Max(ke_eval,  160.);
@@ -1056,7 +1056,6 @@ double INukeHadroData::Frac(int hpdgc, INukeFateHA_t fate, double ke) const
    else if (fate == kIHAFtInelas ) return TMath::Max(0., fFracPA_Inel    -> Evaluate (ke));
    else if (fate == kIHAFtAbs    ) return TMath::Max(0., fFracPA_Abs     -> Evaluate (ke));
    else if (fate == kIHAFtPiProd ) return TMath::Max(0., fFracPA_Pipro   -> Evaluate (ke));
-	//   else if (fate == kIHAFtNPipPi0) return TMath::Max(0., fFracPA_NPipPi0 -> Evaluate (ke));
    else {
      LOG("INukeData", pWARN) 
        << "Protons don't have this fate: " << INukeHadroFates::AsString(fate);
@@ -1070,7 +1069,6 @@ double INukeHadroData::Frac(int hpdgc, INukeFateHA_t fate, double ke) const
    else if (fate == kIHAFtInelas ) return TMath::Max(0., fFracNA_Inel    -> Evaluate (ke));
    else if (fate == kIHAFtAbs    ) return TMath::Max(0., fFracNA_Abs     -> Evaluate (ke));
    else if (fate == kIHAFtPiProd ) return TMath::Max(0., fFracNA_Pipro   -> Evaluate (ke));
-	//   else if (fate == kIHAFtNPipPi0) return TMath::Max(0., fFracNA_NPipPi0 -> Evaluate (ke));
    else {
      LOG("INukeData", pWARN) 
        << "Neutrons don't have this fate: " << INukeHadroFates::AsString(fate);
@@ -1084,8 +1082,8 @@ double INukeHadroData::Frac(int hpdgc, INukeFateHA_t fate, double ke) const
    else if (fate == kIHAFtInelas ) return TMath::Max(0., fFracPipA_Inel    -> Evaluate (ke));
    else if (fate == kIHAFtAbs    ) return TMath::Max(0., fFracPipA_Abs     -> Evaluate (ke));
 	//   else if (fate == kIHAFtPiProd ) return TMath::Max(0., fFracPipA_Pipro   -> Evaluate (ke));
-   else if (fate == kIHAFtPiProd ) return TMath::Max(0., fFracPipA_NPipPi0 -> Evaluate (ke));
-   else if (fate == kIHAFtNPipPi0) return TMath::Max(0., fFracPipA_NPipPi0 -> Evaluate (ke));
+   else if (fate == kIHAFtPiProd ) return TMath::Max(0., fFracPipA_PiProd -> Evaluate (ke));
+   else if (fate == kIHAFtPiProd) return TMath::Max(0., fFracPipA_PiProd -> Evaluate (ke));
    else {
      LOG("INukeData", pWARN) 
          << "Pi+'s don't have this fate: " << INukeHadroFates::AsString(fate);
@@ -1099,8 +1097,8 @@ double INukeHadroData::Frac(int hpdgc, INukeFateHA_t fate, double ke) const
    else if (fate == kIHAFtInelas ) return TMath::Max(0., fFracPimA_Inel    -> Evaluate (ke));
    else if (fate == kIHAFtAbs    ) return TMath::Max(0., fFracPimA_Abs     -> Evaluate (ke));
    //   else if (fate == kIHAFtPiProd ) return TMath::Max(0., fFracPimA_Pipro   -> Evaluate (ke));
-   else if (fate == kIHAFtPiProd ) return TMath::Max(0., fFracPimA_NPipPi0 -> Evaluate (ke));
-   else if (fate == kIHAFtNPipPi0) return TMath::Max(0., fFracPimA_NPipPi0 -> Evaluate (ke));
+   else if (fate == kIHAFtPiProd ) return TMath::Max(0., fFracPimA_PiProd -> Evaluate (ke));
+   else if (fate == kIHAFtPiProd) return TMath::Max(0., fFracPimA_PiProd -> Evaluate (ke));
    else {
      LOG("INukeData", pWARN) 
         << "Pi-'s don't have this fate: " << INukeHadroFates::AsString(fate);
@@ -1114,8 +1112,8 @@ double INukeHadroData::Frac(int hpdgc, INukeFateHA_t fate, double ke) const
    else if (fate == kIHAFtInelas ) return TMath::Max(0., fFracPi0A_Inel    -> Evaluate (ke));
    else if (fate == kIHAFtAbs    ) return TMath::Max(0., fFracPi0A_Abs     -> Evaluate (ke));
 	//   else if (fate == kIHAFtPiProd ) return TMath::Max(0., fFracPi0A_Pipro   -> Evaluate (ke));
-   else if (fate == kIHAFtPiProd ) return TMath::Max(0., fFracPi0A_NPipPi0 -> Evaluate (ke));
-   else if (fate == kIHAFtNPipPi0) return TMath::Max(0., fFracPi0A_NPipPi0 -> Evaluate (ke));
+   else if (fate == kIHAFtPiProd ) return TMath::Max(0., fFracPi0A_PiProd -> Evaluate (ke));
+   else if (fate == kIHAFtPiProd) return TMath::Max(0., fFracPi0A_PiProd -> Evaluate (ke));
    else {
      LOG("INukeData", pWARN) 
         << "Pi0's don't have this fate: " << INukeHadroFates::AsString(fate);
