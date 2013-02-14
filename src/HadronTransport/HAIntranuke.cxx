@@ -149,9 +149,10 @@ void HAIntranuke::SimulateHadronicFinalState(
      return;     
   }
    LOG("HAIntranuke", pNOTICE)
-      << "Selected fate for " << p->Name() << " : " << INukeHadroFates::AsString(fate);
+     << "Selected "<< p->Name() << " fate: "<< INukeHadroFates::AsString(fate);
 
-  // try to generate kinematics
+  // try to generate kinematics - repeat till is done
+  this->SimulateHadronicFinalStateKinematics(ev,p);
 }
 //___________________________________________________________________________
 void HAIntranuke::SimulateHadronicFinalStateKinematics(
@@ -160,6 +161,10 @@ void HAIntranuke::SimulateHadronicFinalStateKinematics(
   // get stored fate
   INukeFateHA_t fate = (INukeFateHA_t) 
       ev->Particle(p->FirstMother())->RescatterCode();
+
+   LOG("HAIntranuke", pINFO)
+     << "Generating kinematics for " << p->Name() 
+     << " fate: "<< INukeHadroFates::AsString(fate);
 
   // try to generate kinematics for the selected fate 
   try
