@@ -58,6 +58,7 @@
 #include "GHEP/GHepRecord.h"
 #include "GHEP/GHepParticle.h"
 #include "HadronTransport/INukeException.h"
+#include "HadronTransport/INukeException_inel.h"
 #include "HadronTransport/Intranuke.h"
 #include "HadronTransport/HAIntranuke.h"
 #include "HadronTransport/INukeHadroData.h"
@@ -156,19 +157,26 @@ void HAIntranuke::SimulateHadronicFinalState(GHepRecord* ev, GHepParticle* p) co
       if (fate == kIHAFtElas) this->ElasHA(ev,p,fate);
       else if (fate == kIHAFtInelas  || fate == kIHAFtCEx) this->InelasticHA(ev,p,fate);
       else if (fate == kIHAFtAbs     ||
-	       fate == kIHAFtPiProd  || 
-	       fate == kIHAFtNPip    ||
-	       fate == kIHAFtNPipPi0) {
-	this->Inelastic(ev,p,fate);
-      }
+	       fate == kIHAFtPiProd)
+	{
+	  this->Inelastic(ev,p,fate);
+	}
     }
   catch(exceptions::INukeException exception)
     {
+      LOG("HAIntranuke", pNOTICE) 
+	<< "retry call to SimulateHadronicFinalState ";
+      LOG("HAIntranuke", pNOTICE) << exception;
       this->SimulateHadronicFinalState(ev,p);
-       LOG("HAIntranuke", pNOTICE) 
-         << "retry call to SimulateHadronicFinalState ";
-       LOG("HAIntranuke", pNOTICE) << exception;
-
+    }
+  
+  catch(exceptions::INukeException_inel exception)
+    {
+      LOG("HAIntranuke", pNOTICE) 
+	<< "retry call to InelasticHA ";
+      LOG("HAIntranuke", pNOTICE) << exception;
+      //      INukeFateHA_t fate = kIHAFtInelas;
+      this->SimulateHadronicFinalState(ev,p); //InelasticHA(ev,p,fate);
     }
 }
 //___________________________________________________________________________
@@ -197,21 +205,21 @@ INukeFateHA_t HAIntranuke::HadronFateHA(const GHepParticle * p) const
        double frac_elas     = fHadroData->Frac(pdgc, kIHAFtElas,    ke);
        double frac_inel     = fHadroData->Frac(pdgc, kIHAFtInelas,  ke);
        double frac_abs      = fHadroData->Frac(pdgc, kIHAFtAbs,     ke);
-       double frac_npippi0  = fHadroData->Frac(pdgc, kIHAFtNPipPi0, ke);
+       double frac_piprod   = fHadroData->Frac(pdgc, kIHAFtPiProd,  ke);
 
        LOG("HAIntranuke", pDEBUG) 
           << "\n frac{" << INukeHadroFates::AsString(kIHAFtCEx)     << "} = " << frac_cex
           << "\n frac{" << INukeHadroFates::AsString(kIHAFtElas)    << "} = " << frac_elas
           << "\n frac{" << INukeHadroFates::AsString(kIHAFtInelas)  << "} = " << frac_inel
 	  << "\n frac{" << INukeHadroFates::AsString(kIHAFtAbs)     << "} = " << frac_abs
-          << "\n frac{" << INukeHadroFates::AsString(kIHAFtNPipPi0) << "} = " << frac_npippi0;
+          << "\n frac{" << INukeHadroFates::AsString(kIHAFtPiProd)  << "} = " << frac_piprod;
           
        // compute total fraction (can be <1 if fates have been switched off)
        double tf = frac_cex      +
                    frac_elas     +
                    frac_inel     +  
 	           frac_abs      +
-                   frac_npippi0;
+                   frac_piprod;
 
        double r = tf * rnd->RndFsi().Rndm();
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
@@ -222,7 +230,7 @@ INukeFateHA_t HAIntranuke::HadronFateHA(const GHepParticle * p) const
        if(r < (cf += frac_elas    )) return kIHAFtElas;    // elas
        if(r < (cf += frac_inel    )) return kIHAFtInelas;  // inelas
        if(r < (cf += frac_abs     )) return kIHAFtAbs;     // abs
-       if(r < (cf += frac_npippi0 )) return kIHAFtNPipPi0; // pi prod: n pi+ pi0
+       if(r < (cf += frac_piprod  )) return kIHAFtPiProd;  // pi prod
 
        LOG("HAIntranuke", pWARN) 
          << "No selection after going through all fates! " 
@@ -237,7 +245,6 @@ INukeFateHA_t HAIntranuke::HadronFateHA(const GHepParticle * p) const
        double frac_inel     = fHadroData->Frac(pdgc, kIHAFtInelas,  ke);
        double frac_abs      = fHadroData->Frac(pdgc, kIHAFtAbs,     ke);
        double frac_pipro    = fHadroData->Frac(pdgc, kIHAFtPiProd, ke);
-       //       double frac_npippi0  = fHadroData->Frac(pdgc, kIHAFtNPipPi0, ke);
 
        LOG("HAIntranuke", pDEBUG) 
           << "\n frac{" << INukeHadroFates::AsString(kIHAFtCEx)     << "} = " << frac_cex
@@ -245,7 +252,6 @@ INukeFateHA_t HAIntranuke::HadronFateHA(const GHepParticle * p) const
           << "\n frac{" << INukeHadroFates::AsString(kIHAFtInelas)  << "} = " << frac_inel
 	  << "\n frac{" << INukeHadroFates::AsString(kIHAFtAbs)     << "} = " << frac_abs
           << "\n frac{" << INukeHadroFates::AsString(kIHAFtPiProd)  << "} = " << frac_pipro;
-	 //          << "\n frac{" << INukeHadroFates::AsString(kIHAFtNPipPi0) << "} = " << frac_npippi0;
 
        // compute total fraction (can be <1 if fates have been switched off)
        double tf = frac_cex      +
@@ -253,7 +259,6 @@ INukeFateHA_t HAIntranuke::HadronFateHA(const GHepParticle * p) const
                    frac_inel     +  
 	           frac_abs      +
 	           frac_pipro;
-	 //     +  frac_npippi0;
 
        double r = tf * rnd->RndFsi().Rndm();
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
@@ -265,7 +270,6 @@ INukeFateHA_t HAIntranuke::HadronFateHA(const GHepParticle * p) const
        if(r < (cf += frac_inel    )) return kIHAFtInelas;  // inelas
        if(r < (cf += frac_abs     )) return kIHAFtAbs;     // abs
        if(r < (cf += frac_pipro   )) return kIHAFtPiProd;  // pi prod 
-       //       if(r < (cf += frac_npippi0 )) return kIHAFtNPipPi0; // pi prod: n pi+ pi0
 
        LOG("HAIntranuke", pWARN) 
          << "No selection after going through all fates! "
@@ -462,7 +466,12 @@ void HAIntranuke::ElasHA(
 
   // Update Remnant nucleus
   fRemnP4 = t4P4L;
-
+  LOG("HAIntranuke",pWARN)
+    << "C3cm = " << C3CM;
+  LOG("HAIntranuke",pWARN)
+    << "|p3| = " << t4P3L.Vect().Mag()   << ", E3 = " << t4P3L.E() << ",Mp = " << Mp;
+  LOG("HAIntranuke",pWARN)
+    << "|p4| = " << fRemnP4.Vect().Mag() << ", E4 = " << fRemnP4.E() << ",Mt = " << Mt;
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("HAIntranuke",pDEBUG)
     << "|p3| = " << t4P3L.Vect().Mag()   << ", E3 = " << t4P3L.E();
@@ -484,6 +493,7 @@ void HAIntranuke::InelasticHA(
     << "InelasticHA() is invoked for a : " << p->Name()
     << " whose fate is : " << INukeHadroFates::AsString(fate);
 #endif
+  LOG("HAIntranuke", pNOTICE) << " probe KE = " << ev->Probe()->KinE() << "\n";
 
   if(fate!=kIHAFtCEx && fate!=kIHAFtInelas)
     {
@@ -592,26 +602,34 @@ void HAIntranuke::InelasticHA(
       ev->AddParticle(*p);
       delete t;
       return;
-    }
-
+    }  
+    double KE1L = p->KinE();
+    double KE2L = t->KinE();
+    LOG("HAIntranuke",pNOTICE)
+      <<  "  KE1L = " << KE1L << "   " << KE1L << "  KE2L = " << KE2L; 
+  GHepParticle * cl1 = new GHepParticle(*p);
+  GHepParticle * cl2 = new GHepParticle(*t);
   if ( utils::intranuke::TwoBodyCollision(ev,pcode,tcode,scode,s2code,C3CM,
-					   p,t,fRemnA,fRemnZ,fRemnP4,kIMdHA) )
+					   cl1,cl2,fRemnA,fRemnZ,fRemnP4,kIMdHA) )
   {
-    double P3L = TMath::Sqrt(p->Px()*p->Px() + p->Py()*p->Py() + p->Pz()*p->Pz());
-    double P4L = TMath::Sqrt(t->Px()*t->Px() + t->Py()*t->Py() + t->Pz()*t->Pz());
-    double E3L = p->KinE();
-    if (E3L>ev->Probe()->KinE())  {
-    exceptions::INukeException exception;
-    exception.SetReason("TwoBodyCollison gives KE> probe KE in hA simulation, details in messages above");
-    throw exception;
-    }
-    double E4L = t->KinE();
-  LOG("HAIntranuke",pINFO)
-    << "TwoBodyKinematics: C3CM = " << C3CM << "\n" << "P3 = " 
-    << P3L << "   " << E3L << "             P4 = " 
-    << P4L << "   " << E4L ;
-    ev->AddParticle(*p);
-    ev->AddParticle(*t);
+    double P3L = TMath::Sqrt(cl1->Px()*cl1->Px() + cl1->Py()*cl1->Py() + cl1->Pz()*cl1->Pz());
+    double P4L = TMath::Sqrt(cl2->Px()*cl2->Px() + cl2->Py()*cl2->Py() + cl2->Pz()*cl2->Pz());
+    double E3L = cl1->KinE();
+    double E4L = cl2->KinE();
+    LOG("HAIntranuke",pNOTICE)
+      << "C3CM = " << C3CM << "\n  P3 = " 
+      << P3L << "   " << E3L << "             P4 = " 
+      << P4L << "   " << E4L << "\n probe KE = " << ev->Probe()->KinE() << "\n";
+    if (E3L>ev->Probe()->KinE()||E4L>ev->Probe()->KinE())  
+      {
+	exceptions::INukeException_inel exception;
+	exception.SetReason("TwoBodyCollison gives KE> probe KE in hA simulation, details in messages above");
+	throw exception;
+      }
+    ev->AddParticle(*cl1);
+    ev->AddParticle(*cl2);
+    delete cl1;
+    delete cl2;
 
     LOG("HAIntranuke", pDEBUG) << "Nucleus : (A,Z) = ("<<fRemnA<<','<<fRemnZ<<')';
   } else
@@ -662,9 +680,7 @@ void HAIntranuke::Inelastic(
   PDGCodeList list(allow_dup); // list of final state particles
 
   // only absorption/pipro fates allowed
-  if (   fate == kIHAFtNPip
-      || fate == kIHAFtNPipPi0
-      || fate == kIHAFtPiProd )
+  if (fate == kIHAFtPiProd )
     {
 
       GHepParticle* s1 = new GHepParticle(*p);
@@ -678,10 +694,10 @@ void HAIntranuke::Inelastic(
 	  // set status of particles and conserve charge/baryon number
 
 	  s1->SetStatus(kIStStableFinalState);
-	  if (pdg::IsPion(s2->Pdg())) s2->SetStatus(kIStHadronInTheNucleus);
-	  else s2->SetStatus(kIStStableFinalState);
-	  if (pdg::IsPion(s3->Pdg())) s3->SetStatus(kIStHadronInTheNucleus);
-	  else s3->SetStatus(kIStStableFinalState);
+	  //	  if (pdg::IsPion(s2->Pdg())) s2->SetStatus(kIStHadronInTheNucleus);
+	  s2->SetStatus(kIStStableFinalState);
+	  //	  if (pdg::IsPion(s3->Pdg())) s3->SetStatus(kIStHadronInTheNucleus);
+	  s3->SetStatus(kIStStableFinalState);
 
 	  ev->AddParticle(*s1);
 	  ev->AddParticle(*s2);
