@@ -119,19 +119,19 @@ public:
   const Spline * FracPipA_Inel    (void) const { return fFracPipA_Inel;    }
   const Spline * FracPipA_CEx     (void) const { return fFracPipA_CEx;     }
   const Spline * FracPipA_Abs     (void) const { return fFracPipA_Abs;     }
-  const Spline * FracPipA_NPipPi0 (void) const { return fFracPipA_NPipPi0; }
+  const Spline * FracPipA_PiProd  (void) const { return fFracPipA_PiProd;  }
   const Spline * FracPimA_Tot     (void) const { return fFracPimA_Tot;     }
   const Spline * FracPimA_Elas    (void) const { return fFracPimA_Elas;    }
   const Spline * FracPimA_Inel    (void) const { return fFracPimA_Inel;    }
   const Spline * FracPimA_CEx     (void) const { return fFracPimA_CEx;     }
   const Spline * FracPimA_Abs     (void) const { return fFracPimA_Abs;     }
-  const Spline * FracPimA_NPipPi0 (void) const { return fFracPimA_NPipPi0; }
+  const Spline * FracPimA_PiProd  (void) const { return fFracPimA_PiProd;  }
   const Spline * FracPi0A_Tot     (void) const { return fFracPi0A_Tot;     }
   const Spline * FracPi0A_Elas    (void) const { return fFracPi0A_Elas;    }
   const Spline * FracPi0A_Inel    (void) const { return fFracPi0A_Inel;    }
   const Spline * FracPi0A_CEx     (void) const { return fFracPi0A_CEx;     }
   const Spline * FracPi0A_Abs     (void) const { return fFracPi0A_Abs;     }
-  const Spline * FracPi0A_NPipPi0 (void) const { return fFracPi0A_NPipPi0; }
+  const Spline * FracPi0A_PiProd  (void) const { return fFracPi0A_PiProd;  }
   const Spline * FracKA_Tot       (void) const { return fFracKA_Tot;       }
   const Spline * FracKA_Elas      (void) const { return fFracKA_Elas;      }
   const Spline * FracKA_Inel      (void) const { return fFracKA_Inel;      }
@@ -221,32 +221,30 @@ private:
   Spline * fFracPA_CEx;        ///<
   Spline * fFracPA_Abs;        ///<
   Spline * fFracPA_Pipro;       ///<
-  //  Spline * fFracPA_NPipPi0;    ///<
   Spline * fFracNA_Tot;        ///<
   Spline * fFracNA_Elas;       ///<
   Spline * fFracNA_Inel;       ///<
   Spline * fFracNA_CEx;        ///<
   Spline * fFracNA_Abs;        ///<
   Spline * fFracNA_Pipro;       ///<
-  //  Spline * fFracNA_NPipPi0;    ///<
   Spline * fFracPipA_Tot;      ///< pi+A x-section splines
   Spline * fFracPipA_Elas;     ///<
   Spline * fFracPipA_Inel;     ///<
   Spline * fFracPipA_CEx;      ///<
   Spline * fFracPipA_Abs;      ///<
-  Spline * fFracPipA_NPipPi0;  ///<
+  Spline * fFracPipA_PiProd;   ///<
   Spline * fFracPimA_Tot;      ///<
   Spline * fFracPimA_Elas;     ///<
   Spline * fFracPimA_Inel;     ///<
   Spline * fFracPimA_CEx;      ///<
   Spline * fFracPimA_Abs;      ///<
-  Spline * fFracPimA_NPipPi0;  ///<
+  Spline * fFracPimA_PiProd;  ///<
   Spline * fFracPi0A_Tot;      ///<
   Spline * fFracPi0A_Elas;     ///<
   Spline * fFracPi0A_Inel;     ///<
   Spline * fFracPi0A_CEx;      ///<
   Spline * fFracPi0A_Abs;      ///<
-  Spline * fFracPi0A_NPipPi0;  ///<
+  Spline * fFracPi0A_PiProd;  ///<
   Spline * fFracKA_Tot;        ///< K+A x-section splines
   Spline * fFracKA_Elas;       ///<
   Spline * fFracKA_Inel;       ///<
