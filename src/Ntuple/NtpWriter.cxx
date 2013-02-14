@@ -66,7 +66,7 @@ NtpWriter::~NtpWriter()
 //____________________________________________________________________________
 void NtpWriter::AddEventRecord(int ievent, const EventRecord * ev_rec)
 {
-  LOG("Ntp", pNOTICE) << "Adding event " << ievent << " to output tree";
+  LOG("Ntp", pINFO) << "Adding event " << ievent << " to output tree";
 
   if(!ev_rec) {
     LOG("Ntp", pERROR) << "NULL input EventRecord!";
