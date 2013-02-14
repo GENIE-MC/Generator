@@ -184,7 +184,7 @@ int main(int argc, char ** argv)
 
   int ievent = 0;
   while (ievent < gOptNevents) {
-      LOG("gevgen_hadron", pINFO) 
+      LOG("gevgen_hadron", pNOTICE) 
          << " *** Generating event............ " << ievent;
       
       // initialize
@@ -195,8 +195,8 @@ int main(int argc, char ** argv)
   
       // print n first generated events (then continue printing out 
       // with debug priority level) 
-      if(ievent < 100) { LOG("gevgen_hadron", pNOTICE ) << *evrec; }
-      else             { LOG("gevgen_hadron", pDEBUG)   << *evrec; }
+      if(ievent < 1000) { LOG("gevgen_hadron", pNOTICE ) << *evrec; }
+      else              { LOG("gevgen_hadron", pDEBUG)   << *evrec; }
       
       // add event at the output ntuple
       ntpw.AddEventRecord(ievent, evrec);
