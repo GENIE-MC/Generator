@@ -688,7 +688,10 @@ void HNIntranuke::ElasHN(
     ev->AddParticle(*t);
   } else
   {
-    ev->AddParticle(*p);
+    LOG("HNIntranuke", pWARN) << "Elastic in hN failed calling TwoBodyCollision";
+    exceptions::INukeException exception;
+    exception.SetReason("PiN scattering kinematics through TwoBodyCollision failed");
+    throw exception;
   }
 
   delete t;
