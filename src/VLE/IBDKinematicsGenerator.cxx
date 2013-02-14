@@ -4,10 +4,9 @@
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
- Author: Corey Reed <cjreed \at nikhef.nl> - October 29, 2009
+ Author: Corey Reed <cjreed \at nikhef.nl> 
          using code from the QELKinematicGenerator written by
          Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - October 03, 2004
 
  For the class documentation see the corresponding header file.
 
@@ -109,12 +108,8 @@ void IBDKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   //-- Try to select a valid Q2 using the rejection method
 
   // kinematical limits
-  //const double Q2min  = Q2.min+kASmallNum;
-  //const double Q2max  = Q2.max-kASmallNum;
   const double Q2min  = Q2.min;
   const double Q2max  = Q2.max;
-  const double QD2min = utils::kinematics::Q2toQD2(Q2min);
-  const double QD2max = utils::kinematics::Q2toQD2(Q2max);
   double xsec   = -1.;
   double gQ2    =  0.;
 
@@ -133,15 +128,8 @@ void IBDKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      }
      
      //-- Generate a Q2 value within the allowed phase space
-     //   In unweighted mode - use transform that takes out the dipole form
-     if(fGenerateUniformly) {
-	gQ2 = Q2min + (Q2max-Q2min) * rnd->RndKine().Rndm();
-     } else {
-	const double gQD2 = QD2min + (QD2max-QD2min) * rnd->RndKine().Rndm();
-	gQ2  = utils::kinematics::QD2toQ2(gQD2);
-     }
+     gQ2 = Q2min + (Q2max-Q2min) * rnd->RndKine().Rndm();
      interaction->KinePtr()->SetQ2(gQ2);
-
      LOG("IBD", pINFO) << "Trying: Q^2 = " << gQ2;
 
      //-- Computing cross section for the current kinematics
@@ -150,14 +138,12 @@ void IBDKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      //-- Decide whether to accept the current kinematics
      if(!fGenerateUniformly) {
         this->AssertXSecLimits(interaction, xsec, xsec_max);
-
         const double t = xsec_max * rnd->RndKine().Rndm();
-        const double J = kinematics::Jacobian(interaction,kPSQ2fE,kPSQD2fE);
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
         LOG("IBD", pDEBUG)
-            << "xsec= " << xsec << ", J= " << J << ", Rnd= " << t;
+            << "dxsec/dQ2 = " << xsec << ", rnd = " << t;
 #endif
-        accept = (t < J*xsec);
+        accept = (t < xsec);
      } else {
         accept = (xsec>0);
      }
