@@ -20,8 +20,8 @@
 */
 //____________________________________________________________________________
 
-#ifndef _INUKE_EXCEPTION_H_
-#define _INUKE_EXCEPTION_H_
+#ifndef _INUKE_EXCEPTION_PIPRO_H_
+#define _INUKE_EXCEPTION_PIPRO_H_
 
 #include <string>
 #include <ostream>
