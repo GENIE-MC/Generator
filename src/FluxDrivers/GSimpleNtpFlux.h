@@ -97,8 +97,15 @@ namespace flux  {
     Double_t   vx;       ///< vertex position of hadron/muon decay
     Double_t   vy;
     Double_t   vz;
+    Double_t   pdpx;     ///< nu parent momentum at time of decay
+    Double_t   pdpy;
+    Double_t   pdpz;
+    Double_t   pppx;     ///< nu parent momentum at production point
+    Double_t   pppy;
+    Double_t   pppz;
 
     Int_t      ndecay;   ///< decay mode
+    Int_t      ptype;    ///< parent type (PDG)
     Int_t      ppmedium; ///< tracking medium where parent was produced
     Int_t      tptype;   ///< parent particle type at target exit
     
@@ -106,7 +113,7 @@ namespace flux  {
     Int_t      evtno;    ///<
     Int_t      entryno;  ///<
     
-    ClassDef(GSimpleNtpNuMI,2)
+    ClassDef(GSimpleNtpNuMI,3)
   };
 
 
