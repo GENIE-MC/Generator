@@ -52,11 +52,15 @@ public :
 
   //
   // set fiducial volume parameter (call only once)
-  // in "top vol" coordinates and units
-  //
+  //   in "top vol" coordinates and units
+  // set minimal (inner (optionally exclusion)) extent 
+  //   before either wall or inclusion extent (which define region 
+  //   where events are always accepted)
   void SetRockBoxMinimal(Double_t* xyzmin, Double_t* xyzmax);
-  void SetMinimumWall(Double_t w) { fMinimumWall = w; }
+  void SetRockBoxInclusion(Double_t* xyzmin, Double_t* xyzmax);
+  void SetMinimumWall(Double_t w);
   void SetDeDx(Double_t dedx) { fDeDx = dedx; }
+  void SetExpandFromInclusion(bool how=false) { fExpandInclusion = how; }
 
   // by default shapes are assumed to be in "top vol" coordinates
   // in the case where they are entered in master coordinates
@@ -68,10 +72,13 @@ protected:
 
   void MakeRockBox() const;
 
-  Double_t  fMinimalXYZMin[3];
-  Double_t  fMinimalXYZMax[3];
-  Double_t  fMinimumWall;    /// minimum distance around (XYZmin,XYZmax)
-  Double_t  fDeDx;           /// how to scale from energy to distance
+  Double_t  fMinimalXYZMin[3];   /// interior box lower corner
+  Double_t  fMinimalXYZMax[3];   /// interior box upper corner
+  Double_t  fMinimumWall;        /// minimum distance around (XYZmin,XYZmax)
+  Double_t  fInclusionXYZMin[3]; /// box within which events are always 
+  Double_t  fInclusionXYZMax[3]; ///   accepted
+  Double_t  fDeDx;               /// how to scale from energy to distance
+  Bool_t    fExpandInclusion;    /// expand from minimal or inclusion box?
 
   mutable FidShape* fRockBoxShape;   /// shape changes for every nu ray
   
