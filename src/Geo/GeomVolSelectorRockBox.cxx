@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2011, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2012, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -25,6 +25,7 @@ using namespace genie::geometry;
 //____________________________________________________________________________
 GeomVolSelectorRockBox::GeomVolSelectorRockBox() 
   : GeomVolSelectorFiducial(), fMinimumWall(0.), fDeDx(1.)
+  , fExpandInclusion(false)
   , fRockBoxShape(0), fROOTGeom(0)
 {
   fName = "RockBox";
@@ -34,6 +35,8 @@ GeomVolSelectorRockBox::GeomVolSelectorRockBox()
   for (int i=0; i<3; ++i) {
     fMinimalXYZMin[i] = 0;
     fMinimalXYZMax[i] = 0;
+    fInclusionXYZMin[i] = 0;
+    fInclusionXYZMax[i] = 0;
   }
 }
 
@@ -136,7 +139,28 @@ void GeomVolSelectorRockBox::SetRockBoxMinimal(Double_t* xyzmin,
     fMinimalXYZMin[j] = TMath::Min(xyzmin[j],xyzmax[j]);
     fMinimalXYZMax[j] = TMath::Max(xyzmax[j],xyzmax[j]);
   }
+  // create the default inner (exclusion) box
+  this->MakeBox(fMinimalXYZMin,fMinimalXYZMax);
+}
+//___________________________________________________________________________
+void GeomVolSelectorRockBox::SetRockBoxInclusion(Double_t* xyzmin,
+                                                 Double_t* xyzmax)
+{
+  // This sets parameters for the inclusion (outer) box
 
+  for ( int j = 0; j < 3; ++j ) {
+    fInclusionXYZMin[j] = TMath::Min(xyzmin[j],xyzmax[j]);
+    fInclusionXYZMax[j] = TMath::Max(xyzmax[j],xyzmax[j]);
+  }
+}
+//___________________________________________________________________________
+void GeomVolSelectorRockBox::SetMinimumWall(Double_t w)
+{ 
+  fMinimumWall = w;
+  for ( int j = 0; j < 3; ++j ) {
+    fInclusionXYZMin[j] = fMinimalXYZMin[j] - fMinimumWall;
+    fInclusionXYZMax[j] = fMinimalXYZMax[j] + fMinimumWall;
+  }
 }
 //___________________________________________________________________________
 void GeomVolSelectorRockBox::MakeRockBox() const
@@ -151,9 +175,21 @@ void GeomVolSelectorRockBox::MakeRockBox() const
     double dircos = fCurrPathSegmentList->GetDirection()[j];
     if ( dircos > 0 ) dmin =  dircos*energy/fDeDx;  // pad upstream
     else              dmax = -dircos*energy/fDeDx;
-    // cout << "MakeRockBox wall " << fMinimumWall << " dm " << dmin << " " << dmax  << " dedx " << fDeDx << endl;
-    boxXYZMin[j] = fMinimalXYZMin[j] - TMath::Max(fMinimumWall,dmin);
-    boxXYZMax[j] = fMinimalXYZMax[j] + TMath::Max(fMinimumWall,dmax);
+
+//#define RWH_DEBUG
+#ifdef RWH_DEBUG
+    cout << "MakeRockBox [" << j << "] wall " << fMinimumWall
+         << " dm " << dmin << " " << dmax   << " dircos " << dircos
+         << " e " << energy << " dedx " << fDeDx << endl;
+#endif
+
+    if ( fExpandInclusion ) {
+      boxXYZMin[j] = fInclusionXYZMin[j] - dmin;
+      boxXYZMax[j] = fInclusionXYZMax[j] + dmax;
+    } else {
+      boxXYZMin[j] = TMath::Min(fMinimalXYZMin[j]-dmin,fInclusionXYZMin[j]);
+      boxXYZMax[j] = TMath::Max(fMinimalXYZMax[j]+dmin,fInclusionXYZMax[j]);
+    }
   }
 
   FidPolyhedron* poly = new FidPolyhedron();
@@ -168,20 +204,44 @@ void GeomVolSelectorRockBox::MakeRockBox() const
   if ( fRockBoxShape ) delete fRockBoxShape;
   fRockBoxShape = poly;
 
-  //cout << "MakeRockBox min [" 
-  //     << boxXYZMin[0] << ","
-  //     << boxXYZMin[1] << ","
-  //     << boxXYZMin[2] << "]" << endl;
-  //cout << "MakeRockBox max [" 
-  //     << boxXYZMax[0] << ","
-  //     << boxXYZMax[1] << ","
-  //     << boxXYZMax[2] << "]" << endl;
-  //cout << "rock before:" << *fRockBoxShape << endl;
+#ifdef RWH_DEBUG
+  static bool first = true;
+  if ( first ) {
+    cout << "MakeRockBox first Minimal min [" 
+         << fMinimalXYZMin[0] << ","
+         << fMinimalXYZMin[1] << ","
+         << fMinimalXYZMin[2] << "]" 
+         << "  max [" 
+         << fMinimalXYZMax[0] << ","
+         << fMinimalXYZMax[1] << ","
+         << fMinimalXYZMax[2] << "]" << endl;
+    cout << "MakeRockBox first Inclusion min [" 
+         << fInclusionXYZMin[0] << ","
+         << fInclusionXYZMin[1] << ","
+         << fInclusionXYZMin[2] << "]" 
+         << "  max [" 
+         << fInclusionXYZMax[0] << ","
+         << fInclusionXYZMax[1] << ","
+         << fInclusionXYZMax[2] << "]" << endl;
+    first = false;
+  }
+  cout << "MakeRockBox this ray using min [" 
+       << boxXYZMin[0] << ","
+       << boxXYZMin[1] << ","
+       << boxXYZMin[2] << "]" 
+       << "  max [" 
+       << boxXYZMax[0] << ","
+       << boxXYZMax[1] << ","
+       << boxXYZMax[2] << "]" << endl;
+  cout << "rock before:" << *fRockBoxShape << endl;
+#endif
 
   if ( fROOTGeom ) fRockBoxShape->ConvertMaster2Top(fROOTGeom);
 
-  //cout << "rock after: " << *fRockBoxShape << endl;
-  //cout << "fid  after: " << *fShape << endl;
+#ifdef RWH_DEBUG
+  cout << "rock after: " << *fRockBoxShape << endl;
+  cout << "fid  after: " << *fShape << endl;
+#endif
 
 }
 
