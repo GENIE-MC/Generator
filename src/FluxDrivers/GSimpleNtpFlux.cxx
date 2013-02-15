@@ -854,13 +854,13 @@ GSimpleNtpNuMI::GSimpleNtpNuMI() { Reset(); }
 
 void GSimpleNtpNuMI::Reset()
 { 
-  tpx      = 0.;
-  tpy      = 0.;
-  tpz      = 0.;
-  vx       = 0.;
-  vy       = 0.;
-  vz       = 0.;
+  tpx  = tpy  = tpz  = 0.;
+  vx   = vy   = vz   = 0.;
+  pdpx = pdpy = pdpz = 0.;
+  pppx = pppy = pppz = 0.;
+  
   ndecay   =  0;
+  ptype    =  0;
   ppmedium =  0;
   tptype   =  0;
   run      = -1;
@@ -981,10 +981,12 @@ ostream & operator << (ostream & stream,
          << "run " << numi.run 
          << " evtno " << numi.evtno
          << " entryno " << numi.entryno
-         << "\n   tptype " << numi.tptype
-         << " tp[xyz] [" << numi.tpx << "," << numi.tpy << "," << numi.tpz << "]"
-         << "\n   ndecay " << numi.ndecay << " ppmedium " << numi.ppmedium
-         << "\n   v[xyz] [" << numi.vx << "," << numi.vy << "," << numi.vz << "]"
+         << "\n   ndecay " << numi.ndecay  << " ptype " << numi.ptype
+         << "\n   tptype " << numi.tptype << " ppmedium " << numi.ppmedium
+         << "\n  tp[xyz] [" << numi.tpx  << "," << numi.tpy  << "," << numi.tpz  << "]"
+         << "\n   v[xyz] [" << numi.vx   << "," << numi.vy   << "," << numi.vz   << "]"
+         << "\n  pd[xyz] [" << numi.pdpx << "," << numi.pdpy << "," << numi.pdpz << "]"
+         << "\n  pp[xyz] [" << numi.pppx << "," << numi.pppy << "," << numi.pppz << "]"
     ;
   return stream;
 }
