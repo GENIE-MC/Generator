@@ -363,7 +363,7 @@ bool GNuMIFlux::GenerateNext_weighted(void)
     if ( fIEntry >= fNEntries ) {
       // Ran out of entries @ the current cycle of this flux file
       // Check whether more (or infinite) number of cycles is requested
-      if (fICycle < fNCycles || fNCycles == 0 ) {
+      if ( fICycle < fNCycles || fNCycles == 0 ) {
         fICycle++;
         fIEntry=0;
       } else {
@@ -371,7 +371,7 @@ bool GNuMIFlux::GenerateNext_weighted(void)
           << "No more entries in input flux neutrino ntuple, cycle "
           << fICycle << " of " << fNCycles;
         fEnd = true;
-        //assert(0);
+        // assert(0);
         return false;	
       }
     }
@@ -469,10 +469,6 @@ bool GNuMIFlux::GenerateNext_weighted(void)
     fCurEntry->CalcEnuWgt(fCurEntry->fgX4,Ev,wgt_xy);
     break;
   }
-  fWeight = fCurEntry->nimpwt * fCurEntry->fgXYWgt;  // full weight
-
-  // update sume of weights
-  fSumWeight += this->Weight();
 
   if (Ev > fMaxEv) {
      LOG("Flux", pWARN)
@@ -486,11 +482,22 @@ bool GNuMIFlux::GenerateNext_weighted(void)
                               fCurEntry->vy,
                               fCurEntry->vz, 0.);
   // don't use TLorentzVector here for Mag() due to - on metric
-  TVector3 dirNu = fCurEntry->fgX4.Vect() - fgX4dkvtx.Vect();
-  double dirnorm = 1.0 / dirNu.Mag();
-  fCurEntry->fgP4.SetPxPyPzE( Ev*dirnorm*dirNu.X(), 
-                              Ev*dirnorm*dirNu.Y(),
-                              Ev*dirnorm*dirNu.Z(), Ev);
+  // normalize direction to 1.0
+  TVector3 dirNu = (fCurEntry->fgX4.Vect() - fgX4dkvtx.Vect()).Unit();
+  fCurEntry->fgP4.SetPxPyPzE( Ev*dirNu.X(), 
+                              Ev*dirNu.Y(),
+                              Ev*dirNu.Z(), Ev);
+
+  // calculate the weight, potentially includes effect from tilted window
+  // must be done *after* neutrino direction is determined
+  fWeight = fCurEntry->nimpwt * fCurEntry->fgXYWgt;  // full weight
+  if ( fApplyTiltWeight ) {
+    double tiltwgt = dirNu.Dot( FluxWindowNormal() );
+    fWeight *= TMath::Abs( tiltwgt );
+  }
+
+  // update sume of weights
+  fSumWeight += this->Weight();
 
   // Set the current flux neutrino 4-position, direction in user coord
   Beam2UserP4(fCurEntry->fgP4,fCurEntry->fgP4User);
@@ -1047,6 +1054,7 @@ void GNuMIFlux::SetFluxWindow(TVector3 p0, TVector3 p1, TVector3 p2)
 
   fFluxWindowLen1 = fFluxWindowDir1.Mag();
   fFluxWindowLen2 = fFluxWindowDir2.Mag();
+  fWindowNormal = fFluxWindowDir1.Vect().Cross(fFluxWindowDir2.Vect()).Unit();
 
   double dot = fFluxWindowDir1.Dot(fFluxWindowDir2);
   if ( TMath::Abs(dot) > 1.0e-8 ) 
@@ -1224,6 +1232,7 @@ void GNuMIFlux::Initialize(void)
   fAccumPOTs       =  0;
 
   fGenWeighted     = false;
+  fApplyTiltWeight = true;
   fUseFluxAtDetCenter = 0;
   fDetLocIsSet        = false;
   // by default assume user length is cm
@@ -2487,6 +2496,7 @@ void GNuMIFlux::PrintConfig()
     << "\n  base " << utils::print::X4AsString(&fFluxWindowBase)
     << "\n  dir1 " << utils::print::X4AsString(&fFluxWindowDir1) << " len " << fFluxWindowLen1
     << "\n  dir2 " << utils::print::X4AsString(&fFluxWindowDir2) << " len " << fFluxWindowLen2
+    << "\n  normal " << utils::print::Vec3AsString(&(fWindowNormal))
     << "\n User Beam Origin: "
     << "\n  base " << utils::print::X4AsString(&fBeamZero)
     << "\n " << beamrot_str.str() << " "
