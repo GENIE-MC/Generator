@@ -14,7 +14,7 @@
 
 \created  Jun 27, 2008
 
-\cpright  Copyright (c) 2003-2011, GENIE Neutrino MC Generator Collaboration
+\cpright  Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
@@ -245,8 +245,11 @@ public :
   void      ScanForMaxWeight(void);                               ///< scan for max flux weight (before generating unweighted flux neutrinos)
   void      SetMaxWgtScan(double fudge = 1.05, long int nentries = 2500000)      ///< configuration when estimating max weight
             { fMaxWgtFudge = fudge; fMaxWgtEntries = nentries; }
-  void      SetMaxEFudge(double fudge = 1.05)                  ///< extra fudge factor in estimating maximum energy
+  void      SetMaxEFudge(double fudge = 1.05)                     ///< extra fudge factor in estimating maximum energy
             { fMaxEFudge = fudge; }
+  void      SetApplyWindowTiltWeight(bool apply = true)           ///< apply wgt due to tilt of flux window relative to beam
+            { fApplyTiltWeight = apply; }
+
 
   // GNuMIFlux uses "cm" as the length unit consistently internally (this is 
   // the length units used by both the g3 and g4 ntuples).  User interactions 
@@ -312,6 +315,8 @@ public :
   void      User2BeamP4 (const TLorentzVector& usrp4,
                                TLorentzVector& beamp4  ) const;
 
+  TVector3  FluxWindowNormal() { return fWindowNormal; }
+
 private:
 
   // Private methods
@@ -361,6 +366,7 @@ private:
   double    fAccumPOTs;           ///< POTs used so far
 
   bool      fGenWeighted;         ///< does GenerateNext() give weights?
+  bool      fApplyTiltWeight;     ///< wgt due to window normal not || beam 
   bool      fDetLocIsSet;         ///< is a flux location (near/far) set?
   int       fUseFluxAtDetCenter;  ///< use flux at near (-1) or far (+1) det center from ntuple?
   
@@ -379,6 +385,7 @@ private:
   TLorentzVector   fFluxWindowDir2; ///< extent for flux window (direction 2)
   double           fFluxWindowLen1;
   double           fFluxWindowLen2;
+  TVector3         fWindowNormal;   ///< normal direction for flux window
 
   TLorentzVector   fgX4dkvtx;       ///< decay 4-position beam coord
 
