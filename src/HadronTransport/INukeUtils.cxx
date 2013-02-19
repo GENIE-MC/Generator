@@ -398,7 +398,7 @@ void genie::utils::intranuke::PreEquilibrium(
 {
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("Intranuke", pDEBUG)
+  LOG("INukeUtils", pDEBUG)
     << "PreEquilibrium() is invoked for a : " << p->Name()
     << " whose kinetic energy is : " << p->KinE();
 #endif
@@ -476,7 +476,7 @@ void genie::utils::intranuke::PreEquilibrium(
      }
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("Intranuke", pDEBUG)
+  LOG("INukeUtils", pDEBUG)
     << "Particle at: " << p_loc;
 #endif
 
@@ -604,7 +604,8 @@ void genie::utils::intranuke::Equilibrium(
     }
 
   // do the phase space decay & save all f/s particles to the record
-  genie::utils::intranuke::PhaseSpaceDecay(ev,p,list,RemnP4,NucRmvE,mode);
+  bool success = genie::utils::intranuke::PhaseSpaceDecay(ev,p,list,RemnP4,NucRmvE,mode);
+  if (success) LOG("INukeUtils",pINFO) << "successful pre-equilibrium interaction";
 
 }
 //___________________________________________________________________________
@@ -660,7 +661,7 @@ bool genie::utils::intranuke::TwoBodyCollision(
       E3L = t4P3L.E();
       E4L = t4P4L.E();
 
-      LOG("INukeUtils",pNOTICE)
+      LOG("TwoBodyCollision",pNOTICE)
 	<< "TwoBodyKinematics fails: C3CM, P3 = " << C3CM << "  " 
 	<< P3L << "   " << E3L << "\n" << "             P4 = " 
 	<< P4L << "   " << E4L ;
@@ -672,8 +673,8 @@ bool genie::utils::intranuke::TwoBodyCollision(
   P4L = t4P4L.Vect().Mag();
   E3L = t4P3L.E();
   E4L = t4P4L.E();
-  LOG("INukeUtils",pNOTICE)
-    << "TwoBodyKinematics: C3CM, P3 = " << C3CM << "  " 
+  LOG("INukeUtils",pINFO)
+    << "C3CM, P3 = " << C3CM << "  " 
     << P3L << "   " << E3L << "\n" << "             P4 = " 
     << P4L << "   " << E4L ;
 
@@ -738,7 +739,7 @@ bool genie::utils::intranuke::TwoBodyCollision(
     p->SetStatus(kIStStableFinalState);
     t->SetStatus(kIStStableFinalState);
   }
-
+  LOG("INukeUtils",pINFO) << "Successful 2 body collision";
   return true;
 
 }
@@ -829,7 +830,7 @@ bool genie::utils::intranuke::TwoBodyKinematics(
   P1zL = P1L*TMath::Cos(theta1);
   P2zL = P2L*TMath::Cos(theta2);
   P1tL = TMath::Sqrt(P1L*P1L - P1zL*P1zL);
-  P2tL = TMath::Sqrt(P2L*P2L - P2zL*P2zL);
+  P2tL = -TMath::Sqrt(P2L*P2L - P2zL*P2zL);
   tVect.SetXYZ(1,0,0);
   if(TMath::Abs((tVect - tbetadir).Mag())<.01) tVect.SetXYZ(0,1,0);
   theta5 = tVect.Angle(tbetadir);
@@ -857,15 +858,9 @@ bool genie::utils::intranuke::TwoBodyKinematics(
   // check to see if decay is viable
   if(E3CM*E3CM - M3*M3<0 || E3CM<0 || Et<0)
   {
-    if (Et<0) {
-       LOG("INukeUtils",pNOTICE) <<"TwoBodyKinematics Failed: Total energy is negative";
-    }
-    if (E3CM<M3) {
-       LOG("INukeUtils",pNOTICE) <<"TwoBodyKinematics Failed: Scattered Particle 3 CM energy is too small";
-    }
-    if (E3CM*E3CM - M3*M3<0) {
-       LOG("INukeUtils",pNOTICE) <<"TwoBodyKinematics Failed: Scattered Particle 3 CM momentum is nonreal";
-    }
+    if (Et<0) LOG("INukeUtils",pNOTICE) <<"TwoBodyKinematics Failed: Total energy is negative";
+    if (E3CM<M3) LOG("INukeUtils",pNOTICE) <<"TwoBodyKinematics Failed: Scattered Particle 3 CM energy is too small";
+    if (E3CM*E3CM - M3*M3<0) LOG("INukeUtils",pNOTICE) <<"TwoBodyKinematics Failed: Scattered Particle 3 CM momentum is nonreal";
     t4P3L.SetPxPyPzE(0,0,0,0);
     t4P4L.SetPxPyPzE(0,0,0,0);
     return false;
@@ -901,8 +896,7 @@ bool genie::utils::intranuke::TwoBodyKinematics(
   double pzcheck = P1zL+ P2zL - (P3zL + P4zL);
   double ptcheck = P1tL+ P2tL - (P3tL + P4tL);
   
-  LOG("INukeUtils",pINFO) 
-      <<"Check 4-momentum conservation -  Energy  "<<echeck<<", z momentum "<<pzcheck << ",    transverse momentum  " << ptcheck ;
+  LOG("INukeUtils",pINFO) <<"Check 4-momentum conservation -  Energy  "<<echeck<<", z momentum "<<pzcheck << ",    transverse momentum  " << ptcheck ;
 
   // -------
 
@@ -929,7 +923,7 @@ bool genie::utils::intranuke::TwoBodyKinematics(
 
   t4P4L = t4P1buf + t4P2buf - t4P3L;
   t4P4L-= TLorentzVector(0,0,0,bindE);
-  /*
+  /*LOG("INukeUtils",pINFO) <<"GENIE:";
   LOG("INukeUtils",pINFO) <<"E4L   "<<t4P4L.E();
   LOG("INukeUtils",pINFO) <<"P4zL  "<<t4P4L.Vect()*tbetadir<<", P4tL "<<-1.*TMath::Sqrt(t4P4L.Vect().Mag2()-TMath::Power(t4P4L.Vect()*tbetadir,2.));
   LOG("INukeUtils",pINFO) <<"P4L   "<<t4P4L.Vect().Mag();
@@ -937,8 +931,7 @@ bool genie::utils::intranuke::TwoBodyKinematics(
 
   if(t4P4L.Mag2()<0 || t4P4L.E()<0)
   {
-    LOG("INukeUtils",pNOTICE)
-      << "TwoBodyKinematics Failed: Target mass or energy is negative";
+    LOG("INukeUtils",pNOTICE)<<"TwoBodyKinematics Failed: Target mass or energy is negative";
     t4P3L.SetPxPyPzE(0,0,0,0);
     t4P4L.SetPxPyPzE(0,0,0,0);
     return false;
@@ -1141,12 +1134,10 @@ bool genie::utils::intranuke::ThreeBodyKinematics(
   if(P3L < FermiMomentum || ( pdg::IsNeutronOrProton(s2->Pdg()) && P4L < FermiMomentum ) )
   {
     LOG("INukeUtils",pNOTICE)
-      << "PionProduction fails because of Pauli blocking - cancel this fate"; 
-/*
+      << "PionProduction fails because of Pauli blocking - retry kinematics"; 
     exceptions::INukeException exception;
     exception.SetReason("PionProduction final state not determined");
     throw exception;
-*/
     return false;
   }
 
@@ -1258,7 +1249,7 @@ bool genie::utils::intranuke::PionProduction(
        p->SetStatus(kIStHadronInTheNucleus);
        ev->AddParticle(*p);
        return false;
-     }
+	}
 
      double xsecp, xsecn;
      switch (p1code) {
@@ -1268,11 +1259,9 @@ bool genie::utils::intranuke::PionProduction(
      default:
        LOG("INukeUtils",pWARN) << "InelasticHN cannot handle probe: "
 			       << PDGLibrary::Instance()->Find(p1code)->GetName();
-/*
        exceptions::INukeException exception;
        exception.SetReason("PionProduction final state not determined");
        throw exception;
-*/
        return false;
        break;
      }
@@ -1379,13 +1368,11 @@ bool genie::utils::intranuke::PionProduction(
 
       if ((etapp2ppPi0<=0.)&&(etapp2pnPip<=0.)&&(etapn2nnPip<=0.)&&(etapn2ppPim<=0.)) { // below threshold
 	LOG("INukeUtils",pNOTICE) << "PionProduction() called below threshold energy";
-/*
 	exceptions::INukeException exception;
 	exception.SetReason("PionProduction final state not possible - below threshold");
 	throw exception;
-*/
 	return false; 
-      }
+	}
 
       // calculate cross sections
       double xsecppPi0=0,xsecpnPiP=0,xsecnnPiP=0,xsecppPiM=0;
@@ -1431,9 +1418,8 @@ bool genie::utils::intranuke::PionProduction(
       case kPdgProton:  xsecp=xsecppPi0+xsecpnPiP; xsecn=xsecppPiM+xsecnnPiP+xsecpnPi0; break;
       case kPdgNeutron: xsecp=xsecppPiM+xsecnnPiP+xsecpnPi0; xsecn=xsecppPi0+xsecpnPiP; break;
       default:
-	LOG("INukeUtils",pWARN) 
-           << "Cannot handle probe: "
-	   << PDGLibrary::Instance()->Find(p1code)->GetName();
+	LOG("INukeUtils",pWARN) << "InelasticHN cannot handle probe: "
+				 << PDGLibrary::Instance()->Find(p1code)->GetName();
 	return false;
 	break;
       }
@@ -1499,11 +1485,9 @@ bool genie::utils::intranuke::PionProduction(
 	     + ((p5code==kPdgProton || p5code==kPdgPiP)?1:0) - ((p5code==kPdgPiM)?1:0) )
      {
        LOG("INukeUtils",pNOTICE) << "PionProduction() failed : too few protons in nucleus";
-/*
        exceptions::INukeException exception;
        exception.SetReason("PionProduction fails - too few protons available");
        throw exception;
-*/
        return false;
      }
 
@@ -1534,12 +1518,9 @@ bool genie::utils::intranuke::PionProduction(
        return true;
      }
    else {
-     LOG("INukeUtils",pNOTICE) << "PionProduction() failed : final state not determined";
-/*
      exceptions::INukeException exception;
      exception.SetReason("PionProduction final state not determined");
      throw exception;
-*/
      return false;
    }
 }
@@ -1649,7 +1630,7 @@ bool genie::utils::intranuke::PhaseSpaceDecay(
   }
   assert(wmax>0);
 
-  LOG("INukeUtils", pNOTICE)
+  LOG("INukeUtils", pINFO)
    << "Max phase space gen. weight @ current hadronic interaction: " << wmax;
 
   // Generate an unweighted decay
