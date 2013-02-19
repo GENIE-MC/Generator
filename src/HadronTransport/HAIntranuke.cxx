@@ -152,7 +152,6 @@ void HAIntranuke::SimulateHadronicFinalState(
      << "Selected "<< p->Name() << " fate: "<< INukeHadroFates::AsString(fate);
 
   // try to generate kinematics - repeat till is done
-  fNumIterations = 0;
   this->SimulateHadronicFinalStateKinematics(ev,p);
 }
 //___________________________________________________________________________
@@ -168,6 +167,7 @@ void HAIntranuke::SimulateHadronicFinalStateKinematics(
      << " fate: "<< INukeHadroFates::AsString(fate);
 
   // try to generate kinematics for the selected fate 
+  int fNumIterations = 0;
   try
   {
      fNumIterations++;
@@ -493,18 +493,12 @@ void HAIntranuke::ElasHA(
 
   // Update Remnant nucleus
   fRemnP4 = t4P4L;
-  LOG("HAIntranuke",pWARN)
+  LOG("HAIntranuke",pINFO)
     << "C3cm = " << C3CM;
-  LOG("HAIntranuke",pWARN)
+  LOG("HAIntranuke",pINFO)
     << "|p3| = " << t4P3L.Vect().Mag()   << ", E3 = " << t4P3L.E() << ",Mp = " << Mp;
-  LOG("HAIntranuke",pWARN)
+  LOG("HAIntranuke",pINFO)
     << "|p4| = " << fRemnP4.Vect().Mag() << ", E4 = " << fRemnP4.E() << ",Mt = " << Mt;
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("HAIntranuke",pDEBUG)
-    << "|p3| = " << t4P3L.Vect().Mag()   << ", E3 = " << t4P3L.E();
-  LOG("HAIntranuke",pDEBUG)
-    << "|p4| = " << fRemnP4.Vect().Mag() << ", E4 = " << fRemnP4.E();
-#endif
 
   ev->AddParticle(*p);
 
@@ -520,7 +514,7 @@ void HAIntranuke::InelasticHA(
     << "InelasticHA() is invoked for a : " << p->Name()
     << " whose fate is : " << INukeHadroFates::AsString(fate);
 #endif
-  LOG("HAIntranuke", pNOTICE) << " probe KE = " << ev->Probe()->KinE() << "\n";
+  LOG("HAIntranuke", pINFO) << " probe KE = " << ev->Probe()->KinE();
 
   if(fate!=kIHAFtCEx && fate!=kIHAFtInelas)
     {
@@ -632,40 +626,42 @@ void HAIntranuke::InelasticHA(
     }  
     double KE1L = p->KinE();
     double KE2L = t->KinE();
-    LOG("HAIntranuke",pNOTICE)
+    LOG("HAIntranuke",pINFO)
       <<  "  KE1L = " << KE1L << "   " << KE1L << "  KE2L = " << KE2L; 
   GHepParticle * cl1 = new GHepParticle(*p);
   GHepParticle * cl2 = new GHepParticle(*t);
-  if ( utils::intranuke::TwoBodyCollision(ev,pcode,tcode,scode,s2code,C3CM,
-					   cl1,cl2,fRemnA,fRemnZ,fRemnP4,kIMdHA) )
-  {
-    double P3L = TMath::Sqrt(cl1->Px()*cl1->Px() + cl1->Py()*cl1->Py() + cl1->Pz()*cl1->Pz());
-    double P4L = TMath::Sqrt(cl2->Px()*cl2->Px() + cl2->Py()*cl2->Py() + cl2->Pz()*cl2->Pz());
-    double E3L = cl1->KinE();
-    double E4L = cl2->KinE();
-    LOG("HAIntranuke",pNOTICE)
-      << "C3CM = " << C3CM << "\n  P3 = " 
-      << P3L << "   " << E3L << "             P4 = " 
-      << P4L << "   " << E4L << "\n probe KE = " << ev->Probe()->KinE() << "\n";
-    if (E3L>ev->Probe()->KinE()||E4L>ev->Probe()->KinE())  
-      {
-	exceptions::INukeException exception;
-	exception.SetReason("TwoBodyCollison gives KE> probe KE in hA simulation, details in messages above");
-	throw exception;
-      }
-    ev->AddParticle(*cl1);
-    ev->AddParticle(*cl2);
-    delete cl1;
-    delete cl2;
+  bool success = utils::intranuke::TwoBodyCollision(ev,pcode,tcode,scode,s2code,C3CM,
+					       cl1,cl2,fRemnA,fRemnZ,fRemnP4,kIMdHA); 
+  if(success)
+    {
+      double P3L = TMath::Sqrt(cl1->Px()*cl1->Px() + cl1->Py()*cl1->Py() + cl1->Pz()*cl1->Pz());
+      double P4L = TMath::Sqrt(cl2->Px()*cl2->Px() + cl2->Py()*cl2->Py() + cl2->Pz()*cl2->Pz());
+      double E3L = cl1->KinE();
+      double E4L = cl2->KinE();
+      LOG ("HAIntranuke",pINFO) << "Successful quasielastic scattering or charge exchange";
+      LOG("HAIntranuke",pINFO)
+	<< "C3CM = " << C3CM << "\n  P3 = " 
+	<< P3L << "   " << E3L << "             P4 = " 
+	<< P4L << "   " << E4L << "\n probe KE = " << ev->Probe()->KinE() << "\n";
+      if (E3L>ev->Probe()->KinE()||E4L>ev->Probe()->KinE())  //is this redundant?
+	{
+	  exceptions::INukeException exception;
+	  exception.SetReason("TwoBodyCollison gives KE> probe KE in hA simulation, details in messages above");
+	  throw exception;
+	}
+      ev->AddParticle(*cl1);
+      ev->AddParticle(*cl2);
+      delete cl1;
+      delete cl2;
 
-    LOG("HAIntranuke", pDEBUG) << "Nucleus : (A,Z) = ("<<fRemnA<<','<<fRemnZ<<')';
-  } else
-  {
-    exceptions::INukeException exception;
-    exception.SetReason("TwoBodyCollison failed in hA simulation, details in messages above");
-    throw exception;
-  }
-
+      LOG("HAIntranuke", pDEBUG) << "Nucleus : (A,Z) = ("<<fRemnA<<','<<fRemnZ<<')';
+    } else
+    {
+      exceptions::INukeException exception;
+      exception.SetReason("TwoBodyCollison failed in hA simulation, details in messages above");
+      throw exception;
+    }
+  
   delete t;
 }
 //___________________________________________________________________________
@@ -713,31 +709,32 @@ void HAIntranuke::Inelastic(
       GHepParticle* s2 = new GHepParticle(*p);
       GHepParticle* s3 = new GHepParticle(*p);
 
-      bool worked = utils::intranuke::PionProduction(
+      bool success = utils::intranuke::PionProduction(
          ev,p,s1,s2,s3,fRemnA,fRemnZ,fRemnP4, fDoFermi,fFermiFac,fFermiMomentum,fNuclmodel);
 
-      if (worked) {
-	  // set status of particles and conserve charge/baryon number
-	  s1->SetStatus(kIStStableFinalState);
-	  //	  if (pdg::IsPion(s2->Pdg())) s2->SetStatus(kIStHadronInTheNucleus);
-	  s2->SetStatus(kIStStableFinalState);
-	  //	  if (pdg::IsPion(s3->Pdg())) s3->SetStatus(kIStHadronInTheNucleus);
-	  s3->SetStatus(kIStStableFinalState);
-
-	  ev->AddParticle(*s1);
-	  ev->AddParticle(*s2);
-	  ev->AddParticle(*s3);
-
-	  delete s1;
-	  delete s2;
-	  delete s3;
-	  return;
+      if (success){
+	LOG ("HAIntranuke",pINFO) << " successful pion production fate";
+	// set status of particles and conserve charge/baryon number
+	s1->SetStatus(kIStStableFinalState);  //should be redundant
+	//	  if (pdg::IsPion(s2->Pdg())) s2->SetStatus(kIStHadronInTheNucleus);
+	s2->SetStatus(kIStStableFinalState);
+	//	  if (pdg::IsPion(s3->Pdg())) s3->SetStatus(kIStHadronInTheNucleus);
+	s3->SetStatus(kIStStableFinalState);
+	
+	ev->AddParticle(*s1);
+	ev->AddParticle(*s2);
+	ev->AddParticle(*s3);
+	
+	delete s1;
+	delete s2;
+	delete s3;
+	return;
       }
       else {
-	 LOG("HAIntranuke", pNOTICE) << "Error: could not create pion production final state";
-	 exceptions::INukeException exception;
-	 exception.SetReason("PionProduction kinematics failed");
-	 throw exception;
+	LOG("HAIntranuke", pNOTICE) << "Error: could not create pion production final state";
+	exceptions::INukeException exception;
+	exception.SetReason("PionProduction kinematics failed - retry kinematics");
+	throw exception;
       }
   }
 
@@ -756,21 +753,21 @@ void HAIntranuke::Inelastic(
       {
 	  LOG("HAIntranuke", pWARN) << "could not create absorption final state: too few particles - look for another final state";
 	  exceptions::INukeException exception;
-	  exception.SetReason("PionAbsorption in hA failed, not enough nucleons");
+	  exception.SetReason("PionAbsorption in hA failed, not enough nucleons - should not happen");
 	  throw exception;
       }
       if (fRemnZ<1 && (pdgc==kPdgPiM || pdgc==kPdgKM))
       {
 	  LOG("HAIntranuke", pWARN) << "could not create absorption final state: Pi- or K- cannot be absorbed by only neutrons -look for another final state";
 	  exceptions::INukeException exception;
-	  exception.SetReason("PionAbsorption in hA failed, not enough nucleons");
+	  exception.SetReason("PionAbsorption in hA failed, not enough nucleons - should not happen");
 	  throw exception;
       }
       if (fRemnA-fRemnZ<1 && (pdgc==kPdgPiP || pdgc==kPdgKP))
       {
-	  LOG("HAIntranuke", pWARN) << "stop propagation - could not create absorption final state: Pi+ or K+ cannot be absorbed by only protons";
+	  LOG("HAIntranuke", pINFO) << "stop propagation - could not create absorption final state: Pi+ or K+ cannot be absorbed by only protons";
 	  exceptions::INukeException exception;
-	  exception.SetReason("PionAbsorption in hA failed, not enough nucleons");
+	  exception.SetReason("PionAbsorption in hA failed, not enough neutrons");
 	  throw exception;
       }
 
@@ -821,7 +818,7 @@ void HAIntranuke::Inelastic(
 	                       t1code=kPdgNeutron;  t2code=kPdgNeutron; 
 	                       scode=kPdgNeutron;   s2code=kPdgNeutron;  }
 	  }
-	  LOG("HAIntranuke",pNOTICE) << "choose 2 body absorption, probe, fs = " << pdgc <<"  "<< scode <<"  "<<s2code;
+	  LOG("HAIntranuke",pINFO) << "choose 2 body absorption, probe, fs = " << pdgc <<"  "<< scode <<"  "<<s2code;
 	  // assign proper masses
 	  //double M1   = pLib->Find(pdgc) ->Mass();
 	  double M2_1 = pLib->Find(t1code)->Mass();
@@ -909,7 +906,7 @@ void HAIntranuke::Inelastic(
 
 	      ev->AddParticle(*t1);
 	      ev->AddParticle(*t2);
-	      
+
 	      return;
 	    }
 	  else
@@ -1033,7 +1030,7 @@ void HAIntranuke::Inelastic(
 		      LOG("HAIntranuke", pNOTICE) << "--> A = " << fRemnA << ", Z = " << fRemnZ << ", Energy = " << ke;
 
 		      exceptions::INukeException exception;
-		      exception.SetReason("Random number generator for choice of #p,n final state failed, details above - unusual - get another fate");
+		      exception.SetReason("Random number generator for choice of #p,n final state failed, details above - unusual - redo kinematics");
 		      throw exception;
 		    }
 
@@ -1059,7 +1056,7 @@ void HAIntranuke::Inelastic(
 	  np = int((ns+nd)/2.+.5); // Addition of .5 for rounding correction
 	  nn = int((ns-nd)/2.+.5);
 
-	  LOG("HAIntranuke", pNOTICE) << "ns = "<<ns<<", nd = "<<nd<<", np = "<<np<<", nn = "<<nn;
+	  LOG("HAIntranuke", pINFO) << "ns = "<<ns<<", nd = "<<nd<<", np = "<<np<<", nn = "<<nn;
 	  //LOG("HAIntranuke", pNOTICE) << "RemA = "<<fRemnA<<", RemZ = "<<fRemnZ<<", probe = "<<pdgc;
 
 	  /*if ((ns+nd)/2. < 0 || (ns-nd)/2. < 0)  {iter++; continue;}
@@ -1073,7 +1070,7 @@ void HAIntranuke::Inelastic(
 		   - ((pdgc==kPdgPiP || pdgc==kPdgKP)?1:0)) {iter++; continue;}
 	  else { 
 	    not_done=false;   //success
-	    LOG("HAIntranuke",pNOTICE) << "success, iter = " << iter << "  np, nn = " << np << "  " << nn; 
+	    LOG("HAIntranuke",pINFO) << "success, iter = " << iter << "  np, nn = " << np << "  " << nn; 
 	    if (np+nn>86) // too many particles, scale down
 	      {
 		double frac = 85./double(np+nn);
@@ -1212,12 +1209,29 @@ void HAIntranuke::Inelastic(
 		}
 		}*/
 
-	  utils::intranuke::PhaseSpaceDecay(ev,cl,*listar[0],fRemnP4,fNucRmvE,kIMdHA);
-	  utils::intranuke::PhaseSpaceDecay(ev,p1,*listar[1],fRemnP4,fNucRmvE,kIMdHA);
-	  utils::intranuke::PhaseSpaceDecay(ev,p2,*listar[2],fRemnP4,fNucRmvE,kIMdHA);
-	  utils::intranuke::PhaseSpaceDecay(ev,p3,*listar[3],fRemnP4,fNucRmvE,kIMdHA);
-	  utils::intranuke::PhaseSpaceDecay(ev,p4,*listar[4],fRemnP4,fNucRmvE,kIMdHA);
-	  //LOG("HAIntranuke", pDEBUG)<<"All phase space decays okay";
+	  bool success1 = utils::intranuke::PhaseSpaceDecay(ev,cl,*listar[0],fRemnP4,fNucRmvE,kIMdHA);
+	  bool success2 = utils::intranuke::PhaseSpaceDecay(ev,p1,*listar[1],fRemnP4,fNucRmvE,kIMdHA);
+	  bool success3 = utils::intranuke::PhaseSpaceDecay(ev,p2,*listar[2],fRemnP4,fNucRmvE,kIMdHA);
+	  bool success4 = utils::intranuke::PhaseSpaceDecay(ev,p3,*listar[3],fRemnP4,fNucRmvE,kIMdHA);
+	  bool success5 = utils::intranuke::PhaseSpaceDecay(ev,p4,*listar[4],fRemnP4,fNucRmvE,kIMdHA);
+	  if(success1 && success2 && success3 && success4 && success5)
+	    {
+	      LOG("HAIntranuke", pINFO)<<"Successful many-body absorption - n>=18";
+	    }
+	  else 
+	    {
+	      // recover - a lot to undo
+	      /*	      p->SetStatus(kIStStableFinalState);
+	      ev->AddParticle(*p);
+	      fRemnA+=np+nn;
+	      fRemnZ+=np;
+	      if ( pdgc==kPdgProton || pdgc==kPdgPiP )     fRemnZ--;
+	      if ( pdgc==kPdgPiM )                         fRemnZ++;
+	      if ( pdg::IsNeutronOrProton (pdgc) )         fRemnA--;	 */ 
+	      exceptions::INukeException exception;
+	      exception.SetReason("Phase space generation of absorption final state failed, details above");
+	      throw exception;
+	    }
 
 	  delete cl;
 	  delete p1;
@@ -1273,20 +1287,23 @@ void HAIntranuke::Inelastic(
 	    << "Remnant nucleus (A,Z) = (" << fRemnA << ", " << fRemnZ << ")";
 	  
 	  bool success = utils::intranuke::PhaseSpaceDecay(ev,p,list,fRemnP4,fNucRmvE,kIMdHA);
-	  if (!success)
+	  if (success)
 	    {
-	      // recover
-	      p->SetStatus(kIStStableFinalState);
-	      ev->AddParticle(*p);
-	      fRemnA+=np+nn;
-	      fRemnZ+=np;
-	      if ( pdgc==kPdgProton || pdgc==kPdgPiP )     fRemnZ--;
-	      if ( pdgc==kPdgPiM )                         fRemnZ++;
-	      if ( pdg::IsNeutronOrProton (pdgc) )         fRemnA--;	  
-	      exceptions::INukeException exception;
-	      exception.SetReason("Phase space generation of absorption final state failed, details above");
-	      throw exception;
+	      LOG ("HAIntranuke",pINFO) << "Successful many-body absorption, n<=18";
 	    }
+	  else {
+	    // recover
+	    p->SetStatus(kIStStableFinalState);
+	    ev->AddParticle(*p);
+	    fRemnA+=np+nn;
+	    fRemnZ+=np;
+	    if ( pdgc==kPdgProton || pdgc==kPdgPiP )     fRemnZ--;
+	    if ( pdgc==kPdgPiM )                         fRemnZ++;
+	    if ( pdg::IsNeutronOrProton (pdgc) )         fRemnA--;	  
+	    exceptions::INukeException exception;
+	    exception.SetReason("Phase space generation of absorption final state failed, details above");
+	    throw exception;
+	  }
 	}
 	} // end multi-nucleon FS
     }
@@ -1307,7 +1324,6 @@ bool HAIntranuke::HandleCompoundNucleus(
 //___________________________________________________________________________
 void HAIntranuke::LoadConfig(void)
 {
-  fNumIterations = 0;
 
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();
@@ -1327,9 +1343,9 @@ void HAIntranuke::LoadConfig(void)
   fDelRPion      = fConfig->GetDoubleDef ("DelRPion",     gc->GetDouble("HAINUKE-DelRPion"));    
   fDelRNucleon   = fConfig->GetDoubleDef ("DelRNucleon",  gc->GetDouble("HAINUKE-DelRNucleon"));    
   fHadStep       = fConfig->GetDoubleDef ("HadStep",      gc->GetDouble("INUKE-HadStep"));     // fm
+  fEPreEq        = fConfig->GetDoubleDef ("EPreEq",       gc->GetDouble("INUKE-Energy_Pre_Eq"));
   fNucAbsFac     = fConfig->GetDoubleDef ("NucAbsFac",    gc->GetDouble("INUKE-NucAbsFac"));
   fNucCEXFac     = fConfig->GetDoubleDef ("NucCEXFac",    gc->GetDouble("INUKE-NucCEXFac"));
-  fEPreEq        = fConfig->GetDoubleDef ("EPreEq",       gc->GetDouble("INUKE-Energy_Pre_Eq"));
   fFermiFac      = fConfig->GetDoubleDef ("FermiFac",     gc->GetDouble("INUKE-FermiFac"));
   fDeltaMass     = fConfig->GetDoubleDef ("DeltaMass",    gc->GetDouble("INUKE-DeltaMass"));
   fFermiMomentum = fConfig->GetDoubleDef ("FermiMomentum",gc->GetDouble("INUKE-FermiMomentum"));
@@ -1344,9 +1360,9 @@ void HAIntranuke::LoadConfig(void)
   LOG("HAIntranuke", pINFO) << "DelRPion    = " << fDelRPion;
   LOG("HAIntranuke", pINFO) << "DelRNucleon = " << fDelRNucleon;
   LOG("HAIntranuke", pINFO) << "HadStep     = " << fHadStep << " fermi";
+  LOG("HAIntranuke", pINFO) << "EPreEq      = " << fHadStep << " fermi";
   LOG("HAIntranuke", pINFO) << "NucAbsFac   = " << fNucAbsFac;
   LOG("HAIntranuke", pINFO) << "NucCEXFac   = " << fNucCEXFac;
-  LOG("HAIntranuke", pINFO) << "EPreEq      = " << fEPreEq;
   LOG("HAIntranuke", pINFO) << "FermiFac    = " << fFermiFac;
   LOG("HAIntranuke", pINFO) << "DeltaMass   = " << fDeltaMass;
   LOG("HAIntranuke", pINFO) << "FreeStep    = " << fFreeStep;  // free step in fm
