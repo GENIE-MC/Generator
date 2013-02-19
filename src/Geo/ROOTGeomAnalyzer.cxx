@@ -205,8 +205,14 @@ const PathLengthList & ROOTGeomAnalyzer::ComputeMaxPathLengths(void)
   fCurrMaxPathLengthList->SetAllToZero();
 
   //-- select maximum path length calculation method
-  if (fFlux) this->MaxPathLengthsFluxMethod();
-  else       this->MaxPathLengthsBoxMethod();
+  if ( fFlux ) {
+    this->MaxPathLengthsFluxMethod();
+    // clear any accumulated exposure accounted generated 
+    // while exploring the geometry
+    fFlux->Clear("CycleHistory");
+  } else {
+    this->MaxPathLengthsBoxMethod();
+  }
 
   return *fCurrMaxPathLengthList;
 }
@@ -1513,7 +1519,7 @@ void ROOTGeomAnalyzer::SwimOnce(const TVector3 & r0, const TVector3 & udir)
         ps_curr.SetExit(fGeometry->GetCurrentPoint());
         ps_curr.SetStep(step);
         if ( ( fDebugFlags & 0x10 ) ) {
-          // In genera don't add the path segments from the start point to
+          // In general don't add the path segments from the start point to
           // the top volume (here for debug purposes)
           // Clear out the step range even if we keep it
           ps_curr.fStepRangeSet.clear();
