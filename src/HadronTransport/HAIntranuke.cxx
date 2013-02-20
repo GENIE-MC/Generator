@@ -1347,7 +1347,6 @@ void HAIntranuke::LoadConfig(void)
   fNucAbsFac     = fConfig->GetDoubleDef ("NucAbsFac",    gc->GetDouble("INUKE-NucAbsFac"));
   fNucCEXFac     = fConfig->GetDoubleDef ("NucCEXFac",    gc->GetDouble("INUKE-NucCEXFac"));
   fFermiFac      = fConfig->GetDoubleDef ("FermiFac",     gc->GetDouble("INUKE-FermiFac"));
-  fDeltaMass     = fConfig->GetDoubleDef ("DeltaMass",    gc->GetDouble("INUKE-DeltaMass"));
   fFermiMomentum = fConfig->GetDoubleDef ("FermiMomentum",gc->GetDouble("INUKE-FermiMomentum"));
   fDoFermi       = fConfig->GetBoolDef   ("DoFermi",      gc->GetBool("INUKE-DoFermi"));
   fFreeStep      = fConfig->GetDoubleDef ("FreeStep",     gc->GetDouble("INUKE-FreeStep"));
@@ -1364,7 +1363,6 @@ void HAIntranuke::LoadConfig(void)
   LOG("HAIntranuke", pINFO) << "NucAbsFac   = " << fNucAbsFac;
   LOG("HAIntranuke", pINFO) << "NucCEXFac   = " << fNucCEXFac;
   LOG("HAIntranuke", pINFO) << "FermiFac    = " << fFermiFac;
-  LOG("HAIntranuke", pINFO) << "DeltaMass   = " << fDeltaMass;
   LOG("HAIntranuke", pINFO) << "FreeStep    = " << fFreeStep;  // free step in fm
   LOG("HAIntranuke", pINFO) << "FermiMomtm  = " << fFermiMomentum;
   LOG("HAIntranuke", pINFO) << "DoFermi?    = " << ((fDoFermi)?(true):(false));
