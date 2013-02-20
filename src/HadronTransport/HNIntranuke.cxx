@@ -902,7 +902,6 @@ void HNIntranuke::LoadConfig(void)
   fNucCEXFac     = fConfig->GetDoubleDef ("NucCEXFac",    gc->GetDouble("INUKE-NucCEXFac"));
   fEPreEq        = fConfig->GetDoubleDef ("EPreEq",       gc->GetDouble("INUKE-Energy_Pre_Eq"));
   fFermiFac      = fConfig->GetDoubleDef ("FermiFac",     gc->GetDouble("INUKE-FermiFac"));
-  fDeltaMass     = fConfig->GetDoubleDef ("DeltaMass",    gc->GetDouble("INUKE-DeltaMass"));
   fFermiMomentum = fConfig->GetDoubleDef ("FermiMomentum",gc->GetDouble("INUKE-FermiMomentum"));
   fDoFermi       = fConfig->GetBoolDef   ("DoFermi",      gc->GetBool("INUKE-DoFermi"));
   fFreeStep      = fConfig->GetDoubleDef ("FreeStep",     gc->GetDouble("INUKE-FreeStep"));
@@ -921,7 +920,6 @@ void HNIntranuke::LoadConfig(void)
   LOG("HNIntranuke", pWARN) << "NucCEXFac   = " << fNucCEXFac;
   LOG("HNIntranuke", pWARN) << "EPreEq      = " << fEPreEq;
   LOG("HNIntranuke", pWARN) << "FermiFac    = " << fFermiFac;
-  LOG("HNIntranuke", pWARN) << "DeltaMass   = " << fDeltaMass;
   LOG("HNIntranuke", pWARN) << "FreeStep    = " << fFreeStep;  // free step in fm
   LOG("HNIntranuke", pWARN) << "FermiMomtm  = " << fFermiMomentum;
   LOG("HNIntranuke", pWARN) << "DoFermi?    = " << ((fDoFermi)?(true):(false));
