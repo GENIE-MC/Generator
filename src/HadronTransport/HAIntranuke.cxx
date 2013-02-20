@@ -1137,8 +1137,8 @@ void HAIntranuke::Inelastic(
 	  double protKE = p->P4()->E() -protM;
 	  double neutKE = p->P4()->E() -neutM;
 	  double probKE = p->P4()->E() -probM;
-	  double protE = protM + protKE * (1./5.);
-	  double neutE = neutM + neutKE * (1./5.);
+	  double protE = protM + probKE * (1./5.);
+	  double neutE = neutM + probKE * (1./5.);
 	  double probE = probM + probKE * (1./5.);
 
 	  TLorentzVector protP4(pP3,protE);
@@ -1293,13 +1293,13 @@ void HAIntranuke::Inelastic(
 	    }
 	  else {
 	    // recover
-	    p->SetStatus(kIStStableFinalState);
+	    /*	    p->SetStatus(kIStStableFinalState);
 	    ev->AddParticle(*p);
 	    fRemnA+=np+nn;
 	    fRemnZ+=np;
 	    if ( pdgc==kPdgProton || pdgc==kPdgPiP )     fRemnZ--;
 	    if ( pdgc==kPdgPiM )                         fRemnZ++;
-	    if ( pdg::IsNeutronOrProton (pdgc) )         fRemnA--;	  
+	    if ( pdg::IsNeutronOrProton (pdgc) )         fRemnA--;	*/  
 	    exceptions::INukeException exception;
 	    exception.SetReason("Phase space generation of absorption final state failed, details above");
 	    throw exception;
