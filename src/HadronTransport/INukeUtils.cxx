@@ -457,7 +457,14 @@ void genie::utils::intranuke::PreEquilibrium(
       }
 
   // do the phase space decay & save all f/s particles to the event record
-  genie::utils::intranuke::PhaseSpaceDecay(ev,p,list,RemnP4,NucRmvE,mode);
+  bool success = genie::utils::intranuke::PhaseSpaceDecay(ev,p,list,RemnP4,NucRmvE,mode);
+  if(success)  LOG("INukeUtils",pINFO) << "Successful phase space decay for pre-equilibrium nucleus FSI event"; 
+  else
+    {
+      exceptions::INukeException exception;
+      exception.SetReason("Phase space generation of pre-equilibrium nucleus final state failed, details above");
+      throw exception;
+    }
 
   int p_loc = 0;
   while(p_loc<ev->GetEntries())
@@ -606,6 +613,12 @@ void genie::utils::intranuke::Equilibrium(
   // do the phase space decay & save all f/s particles to the record
   bool success = genie::utils::intranuke::PhaseSpaceDecay(ev,p,list,RemnP4,NucRmvE,mode);
   if (success) LOG("INukeUtils",pINFO) << "successful pre-equilibrium interaction";
+  else
+    {
+      exceptions::INukeException exception;
+      exception.SetReason("Phase space generation of compound nucleus final state failed, details above");
+      throw exception;
+    }
 
 }
 //___________________________________________________________________________
@@ -1343,7 +1356,7 @@ bool genie::utils::intranuke::PionProduction(
        }
      else // unhandled
        {
-	 LOG("INukeUtils",pWARN) << "Pi production final state unable to be determined, picode, ptarg = " <<PDGLibrary::Instance()->Find(p1code)->GetName() << "  " << PDGLibrary::Instance()->Find(ptarg)->GetName();
+	 LOG("INukeUtils",pNOTICE) << "Pi production final state unable to be determined, picode, ptarg = " <<PDGLibrary::Instance()->Find(p1code)->GetName() << "  " << PDGLibrary::Instance()->Find(ptarg)->GetName();
 	 exceptions::INukeException exception;
 	 exception.SetReason("PionProduction final state not determined");
 	 throw exception;
@@ -1589,16 +1602,20 @@ bool genie::utils::intranuke::PhaseSpaceDecay(
   if(is_nuc) availE -= p->Mass();
   pd->SetE(availE);
 
+  LOG("INukeUtils",pNOTICE) 
+    << "size, mass_sum, availE, pd mass, energy = " << pdgv.size() << "  " 
+    << mass_sum << "  " << p->Mass() << "  " << p->Energy() ;
+
   // compute the 4p transfer to the hadronic blob
   double dE = mass_sum;
   if(is_nuc) dE -= p->Mass();  
   TLorentzVector premnsub(0,0,0,dE);
   RemnP4 -= premnsub;
 
-  LOG("INukeUtils", pINFO)
+  LOG("INukeUtils", pWARN)
     << "Final state = " << state_sstream.str() << " has N = " << pdgv.size() 
     << " particles / total mass = " << mass_sum;
-  LOG("INukeUtils", pINFO)
+  LOG("INukeUtils", pWARN)
     << "Decaying system p4 = " << utils::print::P4AsString(pd);
 
   // Set the decay
@@ -1647,7 +1664,7 @@ bool genie::utils::intranuke::PhaseSpaceDecay(
 
     if(itry>kMaxUnweightDecayIterations) {
        // report, clean-up and return
-       LOG("INukeUtils", pWARN)
+       LOG("INukeUtils", pNOTICE)
              << "Couldn't generate an unweighted phase space decay after "
              << itry << " attempts";
        delete [] mass;
@@ -1659,13 +1676,13 @@ bool genie::utils::intranuke::PhaseSpaceDecay(
     double gw = wmax * rnd->RndFsi().Rndm();
 
     if(w > wmax) {
-       LOG("INukeUtils", pWARN)
+       LOG("INukeUtils", pNOTICE)
            << "Decay weight = " << w << " > max decay weight = " << wmax;
     }
 
-    LOG("INukeUtils", pINFO) << "Decay weight = " << w << " / R = " << gw;
+    LOG("INukeUtils", pNOTICE) << "Decay weight = " << w << " / R = " << gw;
     accept_decay = (gw<=w);
-  }
+  } 
 
   // Insert final state products into the event record
   // - the particles are added as daughters of the decayed state
