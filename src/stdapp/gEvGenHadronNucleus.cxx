@@ -167,6 +167,8 @@ int main(int argc, char ** argv)
   // Build the incident hadron kinetic energy spectrum, if required
   BuildSpectrum();
 
+  LOG("gevgen_hadron",pNOTICE) << "finish setup";
+
   // Get the specified INTRANUKE model
   const EventRecordVisitorI * intranuke = GetIntranuke();
 
@@ -177,6 +179,8 @@ int main(int argc, char ** argv)
 
   // Create an MC job monitor
   GMCJMonitor mcjmonitor(gOptRunNu);
+
+  LOG("gevgen_hadron",pNOTICE) << "ready to generate events";
 
   //
   // Generate events 
@@ -192,11 +196,9 @@ int main(int argc, char ** argv)
 
       // generate full h+A event
       intranuke->ProcessEventRecord(evrec);
-  
-      // print n first generated events (then continue printing out 
-      // with debug priority level) 
-      if(ievent < 1000) { LOG("gevgen_hadron", pNOTICE ) << *evrec; }
-      else              { LOG("gevgen_hadron", pDEBUG)   << *evrec; }
+
+      // print generated events 
+      LOG("gevgen_hadron", pNOTICE ) << *evrec; 
       
       // add event at the output ntuple
       ntpw.AddEventRecord(ievent, evrec);
