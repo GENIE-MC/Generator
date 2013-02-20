@@ -497,8 +497,8 @@ STFC, Rutherford Appleton Laboratory
   <param type="double" name="INUKE-NucAbsFac">         2.0   </param>
   <param type="double" name="INUKE-NucQEFac">          0.5   </param>
   <param type="double" name="INUKE-NucCEXFac">         0.35  </param>
+  <param type="double" name="INUKE-Energy_Pre_Eq">     0.041 </param> 
   <param type="double" name="INUKE-FermiFac">          1.0   </param>
-  <param type="double" name="INUKE-DeltaMass">         40.1  </param>
   <param type="double" name="INUKE-FreeStep">          1.0   </param>
   <param type="double" name="INUKE-FermiMomentum">     0.250 </param>
   <param type="bool"   name="INUKE-DoFermi">           true  </param>
