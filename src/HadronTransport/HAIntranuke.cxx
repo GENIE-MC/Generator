@@ -151,8 +151,9 @@ void HAIntranuke::SimulateHadronicFinalState(
    LOG("HAIntranuke", pNOTICE)
      << "Selected "<< p->Name() << " fate: "<< INukeHadroFates::AsString(fate);
 
-  // try to generate kinematics - repeat till is done
-  this->SimulateHadronicFinalStateKinematics(ev,p);
+  // try to generate kinematics - repeat till is done (should seldom need >2)
+   fNumIterations = 0;
+   this->SimulateHadronicFinalStateKinematics(ev,p);
 }
 //___________________________________________________________________________
 void HAIntranuke::SimulateHadronicFinalStateKinematics(
@@ -167,11 +168,10 @@ void HAIntranuke::SimulateHadronicFinalStateKinematics(
      << " fate: "<< INukeHadroFates::AsString(fate);
 
   // try to generate kinematics for the selected fate 
-  int fNumIterations = 0;
+
   try
   {
      fNumIterations++;
-
      if (fate == kIHAFtElas)
      { 
         this->ElasHA(ev,p,fate);
@@ -189,12 +189,12 @@ void HAIntranuke::SimulateHadronicFinalStateKinematics(
   catch(exceptions::INukeException exception)
   {     
      LOG("HAIntranuke", pNOTICE) 
-        << exception;
+       << exception << "try number " << fNumIterations;
      if(fNumIterations <= 500) {
         LOG("HAIntranuke", pNOTICE)
 	   << "Failed attempt to generate kinematics for "
            << p->Name() << " fate: " << INukeHadroFates::AsString(fate)
-           << " - Retrying...";
+           << " - After " << fNumIterations << " still retrying...";
         this->SimulateHadronicFinalStateKinematics(ev,p);
      } else {
         LOG("HAIntranuke", pNOTICE)
@@ -1134,8 +1134,6 @@ void HAIntranuke::Inelastic(
 	  //
 	  // give all KE, mom to interemediate nucleon (necessarily offshell)
 	  //
-	  double protKE = p->P4()->E() -protM;
-	  double neutKE = p->P4()->E() -neutM;
 	  double probKE = p->P4()->E() -probM;
 	  double protE = protM + probKE * (1./5.);
 	  double neutE = neutM + probKE * (1./5.);
