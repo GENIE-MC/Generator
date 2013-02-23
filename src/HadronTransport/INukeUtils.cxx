@@ -1612,10 +1612,10 @@ bool genie::utils::intranuke::PhaseSpaceDecay(
   TLorentzVector premnsub(0,0,0,dE);
   RemnP4 -= premnsub;
 
-  LOG("INukeUtils", pWARN)
+  LOG("INukeUtils", pINFO)
     << "Final state = " << state_sstream.str() << " has N = " << pdgv.size() 
     << " particles / total mass = " << mass_sum;
-  LOG("INukeUtils", pWARN)
+  LOG("INukeUtils", pINFO)
     << "Decaying system p4 = " << utils::print::P4AsString(pd);
 
   // Set the decay
