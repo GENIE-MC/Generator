@@ -183,9 +183,9 @@ void HNIntranuke::SimulateHadronicFinalState(GHepRecord* ev, GHepParticle* p) co
   catch(exceptions::INukeException exception)
     {
       this->SimulateHadronicFinalState(ev,p);
-       LOG("HNIntranuke", pWARN) 
+       LOG("HNIntranuke", pNOTICE) 
          << "retry call to SimulateHadronicFinalState ";
-       LOG("HNIntranuke", pWARN) << exception;
+       LOG("HNIntranuke", pNOTICE) << exception;
 
     }
 }
@@ -508,7 +508,7 @@ void HNIntranuke::AbsorbHN(
   // may introduce error, so warn if it occurs
   if(!(TMath::Finite(P3L))||P3L<.001)
     {
-      LOG("HNIntranuke",pWARN)
+      LOG("HNIntranuke",pINFO)
         << "Particle 3 " << M3 << " momentum small or non-finite: " << P3L
         << "\n" << "--> Assigning .001 as new momentum";
       P3tL = 0;
@@ -519,7 +519,7 @@ void HNIntranuke::AbsorbHN(
 
   if(!(TMath::Finite(P4L))||P4L<.001)
     {
-      LOG("HNIntranuke",pWARN)
+      LOG("HNIntranuke",pINFO)
         << "Particle 4 " << M4 << " momentum small or non-finite: " << P4L
         << "\n" << "--> Assigning .001 as new momentum";
       P4tL = 0;
@@ -688,9 +688,9 @@ void HNIntranuke::ElasHN(
     ev->AddParticle(*t);
   } else
   {
-    LOG("HNIntranuke", pWARN) << "Elastic in hN failed calling TwoBodyCollision";
+    LOG("HNIntranuke", pINFO) << "Elastic in hN failed calling TwoBodyCollision";
     exceptions::INukeException exception;
-    exception.SetReason("PiN scattering kinematics through TwoBodyCollision failed");
+    exception.SetReason("hN scattering kinematics through TwoBodyCollision failed");
     throw exception;
   }
 
@@ -721,9 +721,9 @@ void HNIntranuke::InelasticHN(GHepRecord* ev, GHepParticle* p) const
     }
   else
     {
-      LOG("HNIntranuke", pWARN) << "Error: could not create pion production final state";
+      LOG("HNIntranuke", pNOTICE) << "Error: could not create pion production final state";
       exceptions::INukeException exception;
-      exception.SetReason("PionProduction in hN failed, details above");
+      exception.SetReason("PionProduction in hN failed");
       throw exception;
     }
 
