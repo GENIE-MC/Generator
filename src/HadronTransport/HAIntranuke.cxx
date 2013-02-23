@@ -188,13 +188,11 @@ void HAIntranuke::SimulateHadronicFinalStateKinematics(
   }
   catch(exceptions::INukeException exception)
   {     
-     LOG("HAIntranuke", pNOTICE) 
-       << exception << "try number " << fNumIterations;
-     if(fNumIterations <= 500) {
+     if(fNumIterations <= 100) {
         LOG("HAIntranuke", pNOTICE)
 	   << "Failed attempt to generate kinematics for "
            << p->Name() << " fate: " << INukeHadroFates::AsString(fate)
-           << " - After " << fNumIterations << " still retrying...";
+           << " - After " << fNumIterations << " tries, still retrying...";
         this->SimulateHadronicFinalStateKinematics(ev,p);
      } else {
         LOG("HAIntranuke", pNOTICE)
@@ -483,7 +481,7 @@ void HAIntranuke::ElasHA(
     {
       LOG("HAIntranuke", pNOTICE) << "ElasHA() failed";
       exceptions::INukeException exception;
-      exception.SetReason("TwoBodyKinematics failed in ElasHA, details above");
+      exception.SetReason("TwoBodyKinematics failed in ElasHA");
       throw exception;
     }
 
@@ -646,7 +644,7 @@ void HAIntranuke::InelasticHA(
       if (E3L>ev->Probe()->KinE()||E4L>ev->Probe()->KinE())  //is this redundant?
 	{
 	  exceptions::INukeException exception;
-	  exception.SetReason("TwoBodyCollison gives KE> probe KE in hA simulation, details in messages above");
+	  exception.SetReason("TwoBodyCollison gives KE> probe KE in hA simulation");
 	  throw exception;
 	}
       ev->AddParticle(*cl1);
@@ -658,7 +656,7 @@ void HAIntranuke::InelasticHA(
     } else
     {
       exceptions::INukeException exception;
-      exception.SetReason("TwoBodyCollison failed in hA simulation, details in messages above");
+      exception.SetReason("TwoBodyCollison failed in hA simulation");
       throw exception;
     }
   
@@ -751,24 +749,24 @@ void HAIntranuke::Inelastic(
 
       if (fRemnA<2)
       {
-	  LOG("HAIntranuke", pWARN) << "could not create absorption final state: too few particles - look for another final state";
-	  exceptions::INukeException exception;
-	  exception.SetReason("PionAbsorption in hA failed, not enough nucleons - should not happen");
-	  throw exception;
+	  LOG("HAIntranuke", pWARN) << "could not create absorption final state: too few particles - stop";
+      p->SetStatus(kIStStableFinalState);
+      ev->AddParticle(*p);
+      return;
       }
       if (fRemnZ<1 && (pdgc==kPdgPiM || pdgc==kPdgKM))
       {
-	  LOG("HAIntranuke", pWARN) << "could not create absorption final state: Pi- or K- cannot be absorbed by only neutrons -look for another final state";
-	  exceptions::INukeException exception;
-	  exception.SetReason("PionAbsorption in hA failed, not enough nucleons - should not happen");
-	  throw exception;
+	LOG("HAIntranuke", pWARN) << "could not create absorption final state: Pi- or K- cannot be absorbed by only neutrons -look for another final state";
+	p->SetStatus(kIStStableFinalState);
+	ev->AddParticle(*p);
+	return;
       }
       if (fRemnA-fRemnZ<1 && (pdgc==kPdgPiP || pdgc==kPdgKP))
       {
-	  LOG("HAIntranuke", pINFO) << "stop propagation - could not create absorption final state: Pi+ or K+ cannot be absorbed by only protons";
-	  exceptions::INukeException exception;
-	  exception.SetReason("PionAbsorption in hA failed, not enough neutrons");
-	  throw exception;
+	LOG("HAIntranuke", pINFO) << "stop propagation - could not create absorption final state: Pi+ or K+ cannot be absorbed by only protons";
+	p->SetStatus(kIStStableFinalState);
+	ev->AddParticle(*p);
+	return;
       }
 
       // for now, empirical split between multi-nucleon absorption and pi d -> N N
@@ -863,9 +861,9 @@ void HAIntranuke::Inelastic(
 	  double C3CM = fHadroData->IntBounce(p,t1code,scode,fate_hN);
 	  if (C3CM<-1.) 
 	    {
-	      LOG("HAIntranuke", pWARN) << "Inelastic() failed: IntBounce returned bad angle try for another final state";
+	      LOG("HAIntranuke", pWARN) << "Inelastic() failed: IntBounce returned bad angle - try again";
 	      exceptions::INukeException exception;
-	      exception.SetReason("PionAbsorption in hA failed, not enough nucleons");
+	      exception.SetReason("unphysical angle for hN scattering");
 	      throw exception;
 	      return;
 	    }
@@ -977,12 +975,12 @@ void HAIntranuke::Inelastic(
 	  // infinite loop check
 	  if (iter>=10000) {
 	    LOG("HAIntranuke", pNOTICE) << "Error: could not choose absorption final state";
-	    LOG("HAIntranuke", pNOTICE) << "--> N_d0 = " << nd0 << ", Sig_nd = " << Sig_nd;
-	    LOG("HAIntranuke", pNOTICE) << "--> N_s0 = " << ns0 << ", Sig_ns = " << Sig_ns;
+	    LOG("HAIntranuke", pNOTICE) << "--> mean diff distr = " << nd0 << ", stand dev = " << Sig_nd;
+	    LOG("HAIntranuke", pNOTICE) << "--> mean sum ditr = " << ns0 << ", Stand dev = " << Sig_ns;
 	    LOG("HAIntranuke", pNOTICE) << "--> Gam_ns = " << gam_ns;
 	    LOG("HAIntranuke", pNOTICE) << "--> A = " << fRemnA << ", Z = " << fRemnZ << ", Energy = " << ke;
 	    exceptions::INukeException exception;
-	    exception.SetReason("Absorption choice of # of p,n failed, details above");
+	    exception.SetReason("Absorption choice of # of p,n failed");
 	    throw exception;
 	  }
 	  //here??
@@ -1011,10 +1009,10 @@ void HAIntranuke::Inelastic(
 	      // Find random variable by first finding gaussian random variable
 	      //   then throwing the value against a linear P.D.F.
 	      //
-	      // max is the maximum value allowed for the random variable (20 std + mean)
+	      // max is the maximum value allowed for the random variable (10 std + mean)
 	      // minimum allowed value is 0
 
-	      double max = ns0 + Sig_ns * 20;
+	      double max = ns0 + Sig_ns * 10;
 	      if(max>fRemnA) max=fRemnA;
 	      double x1 = 0;
 	      bool not_found = true;
@@ -1023,14 +1021,14 @@ void HAIntranuke::Inelastic(
 	      while (not_found)
 		{
 		  // infinite loop check
-		  if (iter2>=100)
+		  if (iter2>=200)
 		    {
 		      LOG("HAIntranuke", pNOTICE) << "Error: stuck in random variable loop for ns";
-		      LOG("HAIntranuke", pNOTICE) << "--> N_s0 = " << ns0 << ", Sig_ns = " << Sig_ns;
+		      LOG("HAIntranuke", pNOTICE) << "--> mean of sum parent distr = " << ns0 << ", Stand dev = " << Sig_ns;
 		      LOG("HAIntranuke", pNOTICE) << "--> A = " << fRemnA << ", Z = " << fRemnZ << ", Energy = " << ke;
 
 		      exceptions::INukeException exception;
-		      exception.SetReason("Random number generator for choice of #p,n final state failed, details above - unusual - redo kinematics");
+		      exception.SetReason("Random number generator for choice of #p,n final state failed - unusual - redo kinematics");
 		      throw exception;
 		    }
 
@@ -1227,7 +1225,7 @@ void HAIntranuke::Inelastic(
 	      if ( pdgc==kPdgPiM )                         fRemnZ++;
 	      if ( pdg::IsNeutronOrProton (pdgc) )         fRemnA--;	 */ 
 	      exceptions::INukeException exception;
-	      exception.SetReason("Phase space generation of absorption final state failed, details above");
+	      exception.SetReason("Phase space generation of absorption final state failed");
 	      throw exception;
 	    }
 
@@ -1299,7 +1297,7 @@ void HAIntranuke::Inelastic(
 	    if ( pdgc==kPdgPiM )                         fRemnZ++;
 	    if ( pdg::IsNeutronOrProton (pdgc) )         fRemnA--;	*/  
 	    exceptions::INukeException exception;
-	    exception.SetReason("Phase space generation of absorption final state failed, details above");
+	    exception.SetReason("Phase space generation of absorption final state failed");
 	    throw exception;
 	  }
 	}
