@@ -1049,7 +1049,7 @@ bool genie::utils::intranuke::ThreeBodyKinematics(
   if(E3CM*E3CM - M3*M3<0)
   {
     LOG("INukeUtils",pNOTICE)
-      << "PionProduction P3 has non-real momentum - cancel this fate";
+      << "PionProduction P3 has non-real momentum - retry kinematics";
     LOG("INukeUtils",pNOTICE) << "Energy, masses of 3 fs particales:"
       << E3CM << "  " << M3 << "  " << "  " << M4 << "  " << M5; 
     exceptions::INukeException exception;
