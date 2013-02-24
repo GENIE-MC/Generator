@@ -188,7 +188,9 @@ void HAIntranuke::SimulateHadronicFinalStateKinematics(
   }
   catch(exceptions::INukeException exception)
   {     
-     if(fNumIterations <= 100) {
+    LOG("HAIntranuke", pNOTICE)  
+	 	        << exception;
+    if(fNumIterations <= 100) {
         LOG("HAIntranuke", pNOTICE)
 	   << "Failed attempt to generate kinematics for "
            << p->Name() << " fate: " << INukeHadroFates::AsString(fate)
@@ -749,14 +751,14 @@ void HAIntranuke::Inelastic(
 
       if (fRemnA<2)
       {
-	  LOG("HAIntranuke", pWARN) << "could not create absorption final state: too few particles - stop";
+	  LOG("HAIntranuke", pNOTICE) << "stop  propagation - could not create absorption final state: too few particles";
       p->SetStatus(kIStStableFinalState);
       ev->AddParticle(*p);
       return;
       }
       if (fRemnZ<1 && (pdgc==kPdgPiM || pdgc==kPdgKM))
       {
-	LOG("HAIntranuke", pWARN) << "could not create absorption final state: Pi- or K- cannot be absorbed by only neutrons -look for another final state";
+	LOG("HAIntranuke", pNOTICE) << "stop propagation - could not create absorption final state: Pi- or K- cannot be absorbed by only neutrons";
 	p->SetStatus(kIStStableFinalState);
 	ev->AddParticle(*p);
 	return;
@@ -944,21 +946,24 @@ void HAIntranuke::Inelastic(
 	  double c3 = 0.064 - ke * 0.00002993;
 	  gam_ns = c1 * TMath::Exp(c2*fRemnA) + c3;
 	  //gam_ns = 10.;
+	  LOG("HAIntranuke", pINFO) << "nucleon absorption";
+	  LOG("HAIntranuke", pINFO) << "--> mean diff distr = " << nd0 << ", stand dev = " << Sig_nd;
+	  LOG("HAIntranuke", pINFO) << "--> mean sum distr = " << ns0 << ", Stand dev = " << Sig_ns;
+	  LOG("HAIntranuke", pINFO) << "--> Gam_ns = " << gam_ns;
 	}
       else if ( pdgc==kPdgPiP || pdgc==kPdgPi0 || pdgc==kPdgPiM || pdgc==kPdgKP || pdgc==kPdgKM) //pion or kaon probe
 	{
-	  ns0 = .0001*(1.+ke/250.) * (fRemnA-50)*(fRemnA-50) + 8;
+	  ns0 = .0001*(1.+ke/250.) * (fRemnA-10)*(fRemnA-10) + 3.5;
 	  nd0 = (1.+ke/250.) - ((fRemnA/200.)*(1. + 2.*ke/250.));
-	  Sig_ns = (10. + 4. * ke/250.)*(1. - TMath::Exp(-0.02*fRemnA));
+	  Sig_ns = (10. + 4. * ke/250.)*TMath::Power(fRemnA/250.,0.9);  //(1. - TMath::Exp(-0.02*fRemnA));
 	  Sig_nd = 4*(1 - TMath::Exp(-0.03*ke));
+	  LOG("HAIntranuke", pINFO) << "pion or kaon absorption";
+	  LOG("HAIntranuke", pINFO) << "--> mean diff distr = " << nd0 << ", stand dev = " << Sig_nd;
+	  LOG("HAIntranuke", pINFO) << "--> mean sum distr = " << ns0 << ", Stand dev = " << Sig_ns;
 	}
       else
 	{
 	  LOG("HAIntranuke", pWARN) << "Inelastic() cannot handle absorption reaction for " << p->Name();
-	  exceptions::INukeException exception;
-	  exception.SetReason("Failure in HA Pion Abs - unusual - try again");
-	  throw exception;
-	  return;
 	}
 
       // account for different isospin
@@ -976,7 +981,7 @@ void HAIntranuke::Inelastic(
 	  if (iter>=10000) {
 	    LOG("HAIntranuke", pNOTICE) << "Error: could not choose absorption final state";
 	    LOG("HAIntranuke", pNOTICE) << "--> mean diff distr = " << nd0 << ", stand dev = " << Sig_nd;
-	    LOG("HAIntranuke", pNOTICE) << "--> mean sum ditr = " << ns0 << ", Stand dev = " << Sig_ns;
+	    LOG("HAIntranuke", pNOTICE) << "--> mean sum distr = " << ns0 << ", Stand dev = " << Sig_ns;
 	    LOG("HAIntranuke", pNOTICE) << "--> Gam_ns = " << gam_ns;
 	    LOG("HAIntranuke", pNOTICE) << "--> A = " << fRemnA << ", Z = " << fRemnZ << ", Energy = " << ke;
 	    exceptions::INukeException exception;
@@ -1130,7 +1135,7 @@ void HAIntranuke::Inelastic(
 	  double probM = pLib->Find(pdgc)   ->Mass();
 	  TVector3 pP3 = p->P4()->Vect() * (1./5.);
 	  //
-	  // give all KE, mom to interemediate nucleon (necessarily offshell)
+	  // give all KE, mom to intermediate nucleon (necessarily offshell)
 	  //
 	  double probKE = p->P4()->E() -probM;
 	  double protE = protM + probKE * (1./5.);
@@ -1172,7 +1177,13 @@ void HAIntranuke::Inelastic(
 	    }
 	  for (int i=0;i<5;i++)
 	    {
-	      LOG("HAIntranuke", pDEBUG) << "List" << i << " size: " << listar[i]->size();
+	      LOG("HAIntranuke", pINFO) << "List" << i << " size: " << listar[i]->size();
+	      if (listar[i]->size() <2)
+		{
+		  exceptions::INukeException exception;
+		  exception.SetReason("too few particles for Phase Space decay - try again");
+		  throw exception;
+		}	  
 	    }
 
 	  // commented out to better fit with absorption reactions
@@ -1216,7 +1227,7 @@ void HAIntranuke::Inelastic(
 	    }
 	  else 
 	    {
-	      // recover - a lot to undo
+	      // recover 
 	      /*	      p->SetStatus(kIStStableFinalState);
 	      ev->AddParticle(*p);
 	      fRemnA+=np+nn;
@@ -1281,7 +1292,13 @@ void HAIntranuke::Inelastic(
 	  
 	  LOG("HAIntranuke", pDEBUG)
 	    << "Remnant nucleus (A,Z) = (" << fRemnA << ", " << fRemnZ << ")";
-	  
+	  LOG("HAIntranuke", pINFO) << " list size: " << np+nn;
+	  if (np+nn <2)
+	    {
+	      exceptions::INukeException exception;
+	      exception.SetReason("too few particles for Phase Space decay - try again");
+	      throw exception;
+	    }
 	  bool success = utils::intranuke::PhaseSpaceDecay(ev,p,list,fRemnP4,fNucRmvE,kIMdHA);
 	  if (success)
 	    {
@@ -1289,7 +1306,7 @@ void HAIntranuke::Inelastic(
 	    }
 	  else {
 	    // recover
-	    /*	    p->SetStatus(kIStStableFinalState);
+	    /*p->SetStatus(kIStStableFinalState);
 	    ev->AddParticle(*p);
 	    fRemnA+=np+nn;
 	    fRemnZ+=np;
