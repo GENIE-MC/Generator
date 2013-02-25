@@ -285,10 +285,10 @@ int main(int argc, char ** argv)
   string probe_name  = pdglib->Find(probe_pdg)->GetName();
   string target_name = pdglib->Find(target_pdg)->GetName();
 
-  LOG("gtestINukeHadroXSec", pINFO) 
+  LOG("gtestINukeHadroXSec", pNOTICE) 
      << " Probe = " << probe_name 
      << ", KE = " << kin_energy << " GeV";
-  LOG("gtestINukeHadroXSec", pINFO) 
+  LOG("gtestINukeHadroXSec", pNOTICE) 
     << " Target = " << target_name 
     << " (Z,A) = (" << Z << ", " << A 
     << "), nuclear radius = " << nuclear_radius 
@@ -311,7 +311,7 @@ int main(int argc, char ** argv)
          sigma_err[k] = fm2tomb * area * TMath::Sqrt(countfate[k])/dnev;
       }
       if(countfate[k]>0) {
-        LOG("gtestINukeHadroXSec", pINFO) 
+        LOG("gtestINukeHadroXSec", pNOTICE) 
             << " --> " << setw(26) << fatestr[k] 
             << ": " << setw(7) << countfate[k] << " events -> " 
             << setw(7) << sigma[k] << " +- " << sigma_err[k] << " (mb)" << '\n';
