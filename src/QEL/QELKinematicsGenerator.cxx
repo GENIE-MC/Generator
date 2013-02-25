@@ -17,7 +17,9 @@
  @ Feb 06, 2013 - CA
    When the value of the differential cross-section for the selected kinematics
    is set to the event, set the corresponding KinePhaseSpace_t value too.
-
+ @ Feb 14, 2013 - CA
+   Temporarily disable the kinematical transformation that takes out the
+   dipole form from the dsigma/dQ2 p.d.f.
 */
 //____________________________________________________________________________
 
@@ -118,8 +120,8 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   // kinematical limits
   double Q2min  = Q2.min+kASmallNum;
   double Q2max  = Q2.max-kASmallNum;
-  double QD2min = utils::kinematics::Q2toQD2(Q2min);
-  double QD2max = utils::kinematics::Q2toQD2(Q2max);
+//double QD2min = utils::kinematics::Q2toQD2(Q2min);
+//double QD2max = utils::kinematics::Q2toQD2(Q2max);
   double xsec   = -1.;
   double gQ2    =  0.;
 
@@ -138,15 +140,17 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      }
 
      //-- Generate a Q2 value within the allowed phase space
-     //   In unweighted mode - use transform that takes out the dipole form
+/*
      if(fGenerateUniformly) {
          gQ2 = Q2min + (Q2max-Q2min) * rnd->RndKine().Rndm();
      } else {
+         // In unweighted mode - use transform that takes out the dipole form
          double gQD2 = QD2min + (QD2max-QD2min) * rnd->RndKine().Rndm();
          gQ2  = utils::kinematics::QD2toQ2(gQD2);
      }
+*/
+     gQ2 = Q2min + (Q2max-Q2min) * rnd->RndKine().Rndm();
      interaction->KinePtr()->SetQ2(gQ2);
-
      LOG("QELKinematics", pINFO) << "Trying: Q^2 = " << gQ2;
 
      //-- Computing cross section for the current kinematics
@@ -157,7 +161,9 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         this->AssertXSecLimits(interaction, xsec, xsec_max);
 
         double t = xsec_max * rnd->RndKine().Rndm();
-        double J = kinematics::Jacobian(interaction,kPSQ2fE,kPSQD2fE);
+     //double J = kinematics::Jacobian(interaction,kPSQ2fE,kPSQD2fE);
+        double J = 1.;
+
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
         LOG("QELKinematics", pDEBUG)
             << "xsec= " << xsec << ", J= " << J << ", Rnd= " << t;
@@ -301,8 +307,6 @@ void QELKinematicsGenerator::SpectralFuncExperimentalCode(
   // kinematical limits
   double Q2min  = Q2.min+kASmallNum;
   double Q2max  = Q2.max-kASmallNum;
-  double QD2min = utils::kinematics::Q2toQD2(Q2min);
-  double QD2max = utils::kinematics::Q2toQD2(Q2max);
   double xsec   = -1.;
   double gQ2    =  0.;
   double gW     =  0.;
@@ -324,15 +328,7 @@ void QELKinematicsGenerator::SpectralFuncExperimentalCode(
      }
 
      //-- Generate a Q2 value within the allowed phase space
-     //   In unweighted mode - use transform that takes out the dipole form
-//     if(fGenerateUniformly) {
-//         gQ2 = Q2min + (Q2max-Q2min) * rnd->RndKine().Rndm();
-//     } else {
-         double gQD2 = QD2min + (QD2max-QD2min) * rnd->RndKine().Rndm();
-         gQ2  = utils::kinematics::QD2toQ2(gQD2);
-//     }
-//     interaction->KinePtr()->SetQ2(gQ2);
-
+     gQ2 = Q2min + (Q2max-Q2min) * rnd->RndKine().Rndm();
      LOG("QELKinematics", pNOTICE) << "Trying: Q^2 = " << gQ2;
 
      // The hadronic inv. mass is equal to the recoil nucleon on-shell mass.
@@ -381,12 +377,11 @@ void QELKinematicsGenerator::SpectralFuncExperimentalCode(
         this->AssertXSecLimits(interaction, xsec, xsec_max);
 
         double t = xsec_max * rnd->RndKine().Rndm();
-        double J = kinematics::Jacobian(interaction,kPSQ2fE,kPSQD2fE);
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
         LOG("QELKinematics", pDEBUG)
-            << "xsec= " << xsec << ", J= " << J << ", Rnd= " << t;
+            << "xsec= " << xsec << ", Rnd= " << t;
 #endif
-        accept = (t < J*xsec);
+        accept = (t < xsec);
 //     } else {
 //        accept = (xsec>0);
 //     }
