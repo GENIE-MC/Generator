@@ -57,7 +57,8 @@
 #  9101  | 100k |  numu    + Fe56  |    2    | COH CC+NC 
 #  9201  | 100k |  nue     + Fe56  |    1    | ve elastic
 #  9202  | 100k |  numu    + Fe56  |    1    | ve elastic
-#  9203  | 100k |  numu    + Fe56  |   20    | IMD
+#  9203  |  50k |  numu    + Fe56  |   20    | IMD
+#  9204  |  50k |  nuebar  + Fe56  |   20    | IMD (annihilation)
 #......................................................................
 #
 
