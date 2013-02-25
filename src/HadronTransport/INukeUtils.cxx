@@ -1689,10 +1689,16 @@ bool genie::utils::intranuke::PhaseSpaceDecay(
   // - the particles are marked as final stable state (in hA mode)
   i=0;
   int mom = ev->ParticlePosition(p);
+  LOG("INukeUtils", pNOTICE) << "mother index = " << mom;
   GHepStatus_t ist = kIStStableFinalState;
   GHepStatus_t ist_pi = kIStHadronInTheNucleus;
 
   TLorentzVector * v4 = p->GetX4();
+
+  double checkpx = p->Px();
+  double checkpy = p->Py();
+  double checkpz = p->Pz();
+  double checkE = p->E();
 
   for(pdg_iter = pdgv.begin(); pdg_iter != pdgv.end(); ++pdg_iter) {
 
@@ -1721,6 +1727,12 @@ bool genie::utils::intranuke::PhaseSpaceDecay(
      double pzn      = scale * p4fin->Pz();
 
      TLorentzVector p4n(pxn,pyn,pzn,En);
+     //     LOG("INukeUtils", pNOTICE) << "Px = " << pxn << " Py = " << pyn
+     //					<< " Pz = " << pzn << " E = " << KE;
+     checkpx -= pxn;
+     checkpy -= pyn;
+     checkpz -= pzn;
+     checkE -= KE;
 
      if (mode==kIMdHA &&
 	 (pdgc==kPdgPiP || pdgc==kPdgPi0 || pdgc==kPdgPiM) )
@@ -1766,6 +1778,9 @@ bool genie::utils::intranuke::PhaseSpaceDecay(
      TLorentzVector premnadd(dpx,dpy,dpz,dE);
      RemnP4 += premnadd;
   }
+  LOG("INukeUtils", pNOTICE) << "check conservation: Px = " << checkpx << " Py = " << checkpy
+			     << " Pz = " << checkpz << " E = " << checkE;
+
   // Clean-up
   delete [] mass;
   delete pd;
