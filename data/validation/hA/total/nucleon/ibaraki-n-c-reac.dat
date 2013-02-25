@@ -1,0 +1,10 @@
+#Ibaraki - n C nonelastic
+#source: NNDC,  Jour. Nucl. Sci. Tech. Suppl. 2, 405 (2002)
+#EN-MIN      DATA       DATA-ERR   
+#MEV         B          B
+45           0.428      0.042
+50           0.385      0.051
+55           0.317      0.029
+60           0.248      0.038
+65           0.331      0.032
+75           0.235      0.026 
