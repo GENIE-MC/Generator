@@ -223,7 +223,7 @@ int gFileMinorVrs = -1;
 int gFileRevisVrs = -1;
 
 //consts
-const int kNPmax = 100;
+const int kNPmax = 250;
 //____________________________________________________________________________________
 int main(int argc, char ** argv)
 {
