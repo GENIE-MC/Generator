@@ -199,11 +199,11 @@ $mcseed          = 210921029;
   '2101' => 'Default',
   '2102' => 'Default',
   '2103' => 'Default',
-  '9001' => 'DIS-CHARM',
-  '9002' => 'QEL-CHARM',
+  '9001' => 'CharmCCDIS',
+  '9002' => 'CharmCCQE',
   '9101' => 'COH',
-  '9201' => 'NUE-EL',
-  '9202' => 'NUE-EL',
+  '9201' => 'NuE',
+  '9202' => 'NuE',
   '9203' => 'IMD'  
 );
 
