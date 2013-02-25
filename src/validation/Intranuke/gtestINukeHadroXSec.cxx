@@ -460,12 +460,13 @@ INukeFateHA_t FindhAFate(const GHepRecord * evrec)
 
   if(num_pi>((p_pdg==kPdgPiP || p_pdg==kPdgPiM || p_pdg==kPdgPi0)?(1):(0)))
   {
-    if(num[3]==10 && num[4]==0) return kIHAFtNPip;   //fix later
+    /*    if(num[3]==10 && num[4]==0) return kIHAFtNPip;   //fix later
     else if(num[4]==10) return kIHAFtNPipPi0;        //fix later
     else if(num[4]>0) return kIHAFtInclPi0;
     else if(num[2]>0) return kIHAFtInclPip;
     else if(num[3]>0) return kIHAFtInclPim;
-    else return kIHAFtPiProd;
+    else */
+    return kIHAFtPiProd;
   }
   else if(num_pi<((p_pdg==kPdgPiP || p_pdg==kPdgPiM || p_pdg==kPdgPi0)?(1):(0)))
   {
