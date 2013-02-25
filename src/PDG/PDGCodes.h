@@ -180,6 +180,7 @@ const int kPdgCoulobtron   = 2000000102; // coulomb energy subtracted from f/s l
 const int kPdgClusterNN    = 2000000200; // a nn cluster within a nucleus
 const int kPdgClusterNP    = 2000000201; // a np cluster within a nucleus
 const int kPdgClusterPP    = 2000000202; // a pp cluster within a nucleus
+const int kPdgDecayNuclCluster    = 2000000300; // nucleon cluster before phase decay 
 
 // PDG codes for PYTHIA/JETSET special particles
 const int kPdgCluster      = 91; 
