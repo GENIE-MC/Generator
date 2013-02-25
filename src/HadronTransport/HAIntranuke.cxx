@@ -925,10 +925,10 @@ void HAIntranuke::Inelastic(
       // declare some parameters for double gaussian and determine values chosen
       // parameters for proton and pi+, others come from isospin transformations
 
-      double ns0=0;
-      double nd0=0; // mean
-      double Sig_ns=0;
-      double Sig_nd=0; // std dev
+	  double ns0=0; // mean - sum of nucleons
+	  double nd0=0; // mean - difference of nucleons
+	  double Sig_ns=0; // std dev - sum
+	  double Sig_nd=0; // std dev - diff
       double gam_ns=0; // exponential decay rate (for nucleons)
 
       if ( pdg::IsNeutronOrProton (pdgc) ) // nucleon probe
@@ -1119,51 +1119,29 @@ void HAIntranuke::Inelastic(
 	  PDGCodeList list4(allow_dup);
 	  PDGCodeList* listar[5] = {&list0, &list1, &list2, &list3, &list4};
 
-	  // find "probe" particles
-	  int np_p = 0; // number of probe protons
-	  for (int i=0;i<4;i++) 
-	    {
-	      if ((np+nn)*rnd->RndFsi().Rndm()<np)
-		{ np_p++; np--; listar[i+1]->push_back(kPdgProton); fRemnZ--; }
-	      else 
-		{ nn--; listar[i+1]->push_back(kPdgNeutron); }
-	      fRemnA--;
-	    }
+	  //set up HadronClusters
+	  // simple for now, each (of 5) hadron cluster has 1/5 of mom and KE
 
-	  double protM = pLib->Find(kPdgProton) ->Mass();
-	  double neutM = pLib->Find(kPdgNeutron)->Mass();
-	  double probM = pLib->Find(pdgc)   ->Mass();
+       	  double probM = pLib->Find(pdgc)   ->Mass();
 	  TVector3 pP3 = p->P4()->Vect() * (1./5.);
-	  //
-	  // give all KE, mom to intermediate nucleon (necessarily offshell)
-	  //
 	  double probKE = p->P4()->E() -probM;
-	  double protE = protM + probKE * (1./5.);
-	  double neutE = neutM + probKE * (1./5.);
-	  double probE = probM + probKE * (1./5.);
-
-	  TLorentzVector protP4(pP3,protE);
-	  TLorentzVector neutP4(pP3,neutE);
-	  TLorentzVector probP4(pP3,probE);
+	  double clusKE = probKE * (1./5.);
+	  TLorentzVector clusP4(pP3,clusKE);   //no mass
 
 	  TLorentzVector X4(*p->X4());
 	  GHepStatus_t ist = kIStDecayedState;
 
-	  GHepParticle * cl = new GHepParticle(*p);
-	  cl->SetStatus(ist);
-	  cl->SetMomentum(probP4);
-	  int mom = cl->FirstMother();
-	  GHepParticle * p1 = new GHepParticle((np_p>0 ? kPdgProton : kPdgNeutron), 
-					       ist, mom,-1,-1,-1,(np_p>0 ? protP4 : neutP4),X4); 
-	  GHepParticle * p2 = new GHepParticle((np_p>1 ? kPdgProton : kPdgNeutron), 
-					       ist, mom,-1,-1,-1,(np_p>1 ? protP4 : neutP4),X4);
-	  GHepParticle * p3 = new GHepParticle((np_p>2 ? kPdgProton : kPdgNeutron), 
-					       ist, mom,-1,-1,-1,(np_p>2 ? protP4 : neutP4),X4);
-	  GHepParticle * p4 = new GHepParticle((np_p>3 ? kPdgProton : kPdgNeutron), 
-					       ist, mom,-1,-1,-1,(np_p>3 ? protP4 : neutP4),X4);
+	  int mom = p->FirstMother();
+
+	  GHepParticle * p0 = new GHepParticle(kPdgDecayNuclCluster,ist, mom,-1,-1,-1,clusP4,X4);
+	  GHepParticle * p1 = new GHepParticle(kPdgDecayNuclCluster,ist, mom,-1,-1,-1,clusP4,X4);
+	  GHepParticle * p2 = new GHepParticle(kPdgDecayNuclCluster,ist, mom,-1,-1,-1,clusP4,X4);
+	  GHepParticle * p3 = new GHepParticle(kPdgDecayNuclCluster,ist, mom,-1,-1,-1,clusP4,X4);
+	  GHepParticle * p4 = new GHepParticle(kPdgDecayNuclCluster,ist, mom,-1,-1,-1,clusP4,X4);
 
 	  // To conserve 4-momenta
-	  fRemnP4 -= probP4 + protP4*np_p + neutP4*(4-np_p) - *p->P4();
+	  //	  fRemnP4 -= probP4 + protP4*np_p + neutP4*(4-np_p) - *p->P4();
+	  fRemnP4 -= 5.*clusP4 - *p->P4();
 
 	  for (int i=0;i<(np+nn);i++)
 	    {
@@ -1216,7 +1194,7 @@ void HAIntranuke::Inelastic(
 		}
 		}*/
 
-	  bool success1 = utils::intranuke::PhaseSpaceDecay(ev,cl,*listar[0],fRemnP4,fNucRmvE,kIMdHA);
+	  bool success1 = utils::intranuke::PhaseSpaceDecay(ev,p0,*listar[0],fRemnP4,fNucRmvE,kIMdHA);
 	  bool success2 = utils::intranuke::PhaseSpaceDecay(ev,p1,*listar[1],fRemnP4,fNucRmvE,kIMdHA);
 	  bool success3 = utils::intranuke::PhaseSpaceDecay(ev,p2,*listar[2],fRemnP4,fNucRmvE,kIMdHA);
 	  bool success4 = utils::intranuke::PhaseSpaceDecay(ev,p3,*listar[3],fRemnP4,fNucRmvE,kIMdHA);
@@ -1227,20 +1205,23 @@ void HAIntranuke::Inelastic(
 	    }
 	  else 
 	    {
-	      // recover 
-	      /*	      p->SetStatus(kIStStableFinalState);
+	      // try to recover 
+	      LOG("HAIntranuke", pWARN) << "PhaseSpace decay fails for HadrCluster- recovery likely incorrect - rethrow event";
+	      p->SetStatus(kIStStableFinalState);
 	      ev->AddParticle(*p);
 	      fRemnA+=np+nn;
 	      fRemnZ+=np;
 	      if ( pdgc==kPdgProton || pdgc==kPdgPiP )     fRemnZ--;
 	      if ( pdgc==kPdgPiM )                         fRemnZ++;
-	      if ( pdg::IsNeutronOrProton (pdgc) )         fRemnA--;	 */ 
-	      exceptions::INukeException exception;
+	      if ( pdg::IsNeutronOrProton (pdgc) )         fRemnA--;	
+		/*	      exceptions::INukeException exception;
 	      exception.SetReason("Phase space generation of absorption final state failed");
 	      throw exception;
+		*/
 	    }
 
-	  delete cl;
+	  //	  delete cl;
+	  delete p0;
 	  delete p1;
 	  delete p2;
 	  delete p3;
@@ -1299,6 +1280,8 @@ void HAIntranuke::Inelastic(
 	      exception.SetReason("too few particles for Phase Space decay - try again");
 	      throw exception;
 	    }
+	  //	  GHepParticle * cl = new GHepParticle(*p);
+	  //	  cl->SetPdgCode(kPdgDecayNuclCluster);
 	  bool success = utils::intranuke::PhaseSpaceDecay(ev,p,list,fRemnP4,fNucRmvE,kIMdHA);
 	  if (success)
 	    {
@@ -1306,13 +1289,13 @@ void HAIntranuke::Inelastic(
 	    }
 	  else {
 	    // recover
-	    /*p->SetStatus(kIStStableFinalState);
+	    p->SetStatus(kIStStableFinalState);
 	    ev->AddParticle(*p);
 	    fRemnA+=np+nn;
 	    fRemnZ+=np;
 	    if ( pdgc==kPdgProton || pdgc==kPdgPiP )     fRemnZ--;
 	    if ( pdgc==kPdgPiM )                         fRemnZ++;
-	    if ( pdg::IsNeutronOrProton (pdgc) )         fRemnA--;	*/  
+	    if ( pdg::IsNeutronOrProton (pdgc) )         fRemnA--;	
 	    exceptions::INukeException exception;
 	    exception.SetReason("Phase space generation of absorption final state failed");
 	    throw exception;
