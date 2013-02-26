@@ -1164,15 +1164,15 @@ void GHepRecord::Print(ostream & stream) const
 
   if(printlevel>=1) {
     stream << "\n| ";
-    stream << "Error flag [bits:" << fEventFlags->GetNbits()-1 << "->0] : " 
-           << *fEventFlags << "  |  " 
+    stream << "Err flag [bits:" << fEventFlags->GetNbits()-1 << "->0] : " 
+           << *fEventFlags << "    |  " 
            << "1st set: " << setfill(' ') << setw(56) 
            << ( this->IsUnphysical() ? 
                  GHepFlags::Describe(GHepFlag_t(fEventFlags->FirstSetBit())) : 
                  "none") << " | ";
     stream << "\n| ";
-    stream << "Error mask [bits:" << fEventMask->GetNbits()-1 << "->0] : " 
-           << *fEventMask << "  |  " 
+    stream << "Err mask [bits:" << fEventMask->GetNbits()-1 << "->0] : " 
+           << *fEventMask << "    |  " 
            << "Is unphysical: " << setfill(' ') << setw(5) 
            << utils::print::BoolAsYNString(this->IsUnphysical()) << " |   "
            << "Accepted: " << setfill(' ') << setw(5) 
