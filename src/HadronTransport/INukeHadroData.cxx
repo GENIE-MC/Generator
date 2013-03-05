@@ -31,7 +31,6 @@
 
 #include <cassert>
 #include <string>
-#include <iostream>
 
 #include <TSystem.h>
 #include <TNtupleD.h>
@@ -49,8 +48,6 @@
 
 using std::ostringstream;
 using std::ios;
-using std::cout;
-using std::endl;
 
 using namespace genie;
 using namespace genie::constants;
@@ -70,11 +67,6 @@ INukeHadroData::INukeHadroData()
 //____________________________________________________________________________
 INukeHadroData::~INukeHadroData()
 {
-  if(!gAbortingInErr) {
-    cout << "INukeHadroData singleton dtor: "
-            << "Deleting all hadron cross section splines" << endl;
-  }
-
   // pi+n/p hA x-section splines
   delete fXSecPipn_Tot;
   delete fXSecPipn_CEx;

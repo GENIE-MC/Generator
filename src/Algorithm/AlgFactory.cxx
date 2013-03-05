@@ -30,7 +30,6 @@
 #include "Algorithm/Algorithm.h"
 #include "Messenger/Messenger.h"
 
-using std::cout;
 using std::endl;
 
 using namespace genie;
@@ -56,18 +55,15 @@ AlgFactory::~AlgFactory()
 // Clean up and report on the concrete algorithms  used in this instance.
 // Don't clutter output if exiting in err.
 
-  if(!gAbortingInErr) {
-    cout << "AlgFactory singleton dtor: "
-         << "Deleting all owned algorithmic objects used at this job" << endl;
-  }
-
   map<string, Algorithm *>::iterator alg_iter;
   for(alg_iter = fAlgPool.begin(); alg_iter != fAlgPool.end(); ++alg_iter) {
     Algorithm * alg = alg_iter->second;
     if(alg) {
+/*
       if(!gAbortingInErr) {
-        //cout << "- Deleting algorithm: " << alg->Id() << endl;
+        cout << "- Deleting algorithm: " << alg->Id() << endl;
       }
+*/
       delete alg;
       alg = 0;
     }
