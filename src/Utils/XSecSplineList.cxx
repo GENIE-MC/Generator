@@ -61,7 +61,6 @@
 #include "Utils/XmlParserUtils.h"
 
 using std::ofstream;
-using std::cout;
 using std::endl;
 
 namespace genie {
@@ -88,9 +87,6 @@ XSecSplineList::~XSecSplineList()
 {
 // Clean up. Don't clutter output if exiting in err.
 
-  if(!gAbortingInErr) {
-    cout << "XSecSplineList singleton dtor: Deleting all splines" << endl;
-  }
   this->AutoSave();
 
   map<string, Spline *>::const_iterator spliter;
@@ -640,11 +636,6 @@ void XSecSplineList::AutoSave(void)
      this->SaveAsXml(xmlfile);
   }
 */
-
-  if( gSystem->Getenv("GSPSAVE") ) {
-     LOG("XSecSplLst", pWARN)
-      << "Use of the $GSPSAVE environmental variable is no longer supported";
-  }
 
 }
 //____________________________________________________________________________

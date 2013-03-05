@@ -19,7 +19,6 @@
 */
 //____________________________________________________________________________
 
-#include <iostream>
 #include <string>
 
 #include "libxml/parser.h"
@@ -34,8 +33,6 @@
 #include "Utils/XmlParserUtils.h"
 
 using std::string;
-using std::cout;
-using std::endl;
 
 using namespace genie;
 
@@ -52,8 +49,6 @@ FermiMomentumTablePool::FermiMomentumTablePool()
 //____________________________________________________________________________
 FermiMomentumTablePool::~FermiMomentumTablePool()
 {
-  cout << "FermiMomentumTablePool singleton dtor: "
-                               << "Deleting all Fermi momenta tables" << endl;
   map<string, FermiMomentumTable *>::iterator titer;
   for(titer = fKFSets.begin(); titer != fKFSets.end(); ++titer) {
     FermiMomentumTable * t = titer->second;

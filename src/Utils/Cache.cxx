@@ -30,7 +30,6 @@
 #include "Utils/CacheBranchI.h"
 
 using std::ostringstream;
-using std::cout;
 using std::endl;
 
 namespace genie {
@@ -53,10 +52,8 @@ Cache::Cache()
 //____________________________________________________________________________
 Cache::~Cache()
 {
-  cout << "Cache singleton dtor: saving cache" << endl;
   this->Save();
 
-  cout << "Cache singleton dtor: Deleting all cache branches" << endl;
   if(fCacheMap) {
     map<string, CacheBranchI * >::iterator citer;
     for(citer = fCacheMap->begin(); citer != fCacheMap->end(); ++citer) {
@@ -167,7 +164,6 @@ void Cache::Load(void)
 void Cache::Save(void)
 {
   if(!fCacheFile) {
-    cout << " no cache file is open!" << endl;
     return;
   }
   fCacheFile->cd();
@@ -181,7 +177,6 @@ void Cache::Save(void)
     string key = citer->first;
     CacheBranchI * branch = citer->second;
     if(branch) {
-      cout << " saving cache buffer: " << key << endl;
       ostringstream bname;
       bname << "buffer_" << ib++;
       keys->Add(new TObjString(key.c_str()));

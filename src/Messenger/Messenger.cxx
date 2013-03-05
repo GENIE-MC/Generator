@@ -65,11 +65,6 @@ Messenger::Messenger()
 //____________________________________________________________________________
 Messenger::~Messenger()
 {
-// Clean up. Don't clutter output if exiting in err.
-
-  if(!gAbortingInErr) {
-     cout << "Messenger singleton dtor" << endl;
-  }
   fInstance = 0;
 }
 //____________________________________________________________________________
