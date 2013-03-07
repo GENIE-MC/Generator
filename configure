@@ -552,7 +552,7 @@ sub auto_detect {
   @search_dir  = ("/usr","/opt","/lib");           # std search paths
   push (@search_dir,"$ENV{'HOME'}") 
                  if defined $ENV{'HOME'};          # add $HOME
-  push (@search_dir,"/WorkApp");                   # add where I add ext apps in my MacBookPro
+  push (@search_dir,"/hep");                       # add where I add ext apps in my mac book air
   push (@search_dir,"$ENV{'RSD_TOP_DIR'}") 
                  if defined $ENV{'RSD_TOP_DIR'};   # add where RSD puts ext supporting libs
 
