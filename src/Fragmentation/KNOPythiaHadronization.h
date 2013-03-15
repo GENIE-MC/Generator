@@ -13,7 +13,7 @@
 
 \created  June 08, 2006
 
-\cpright  Copyright (c) 2003-2011, GENIE Neutrino MC Generator Collaboration
+\cpright  Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
