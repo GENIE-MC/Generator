@@ -41,8 +41,17 @@ print GVRS " * #endif\n";
 print GVRS "*/ \n\n";
 print GVRS "#define GRELCODE(a,b,c) (((a) << 16) + ((b) << 8) + (c)) \n\n";
 print GVRS "#define __GENIE_RELEASE__      \"$release\"\n";
-print GVRS "#define __GENIE_RELEASE_CODE__ GRELCODE($major,$minor,$revis) \n";
-print GVRS "\n#endif\n\n";
+print GVRS "#define __GENIE_RELEASE_CODE__ GRELCODE($major,$minor,$revis) \n\n";
+
+if($major == 999 && $minor == 999 && $revis == 999) {
+  print GVRS "#define __GENIE_DEVEL_VERSION__ \n\n";
+} else {
+  if($minor % 2) {
+     print GVRS "#define __GENIE_RELEASE_CANDIDATE__ \n\n";
+  }
+}
+
+print GVRS "#endif\n\n";
 
 # Close header file
 close(GVRS);
