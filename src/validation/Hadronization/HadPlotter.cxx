@@ -877,8 +877,8 @@ void HadPlotter::ShowPlots()
   // eta multiplicity
   // .........................................................................
 
-  TGraphErrors *eta_all_xf_w = MakeGraph("SKAT/eta_all_xf_w.dat");
-  TGraphErrors *eta_pos_xf_w = MakeGraph("SKAT/eta_pos_xf_w.dat");
+  TGraphErrors *eta_all_xf_w = MakeGraph("eta_multiplicity/eta_all_xf_w.dat");
+  TGraphErrors *eta_pos_xf_w = MakeGraph("eta_multiplicity/eta_pos_xf_w.dat");
 
   TCanvas * cMulEta = new TCanvas("MulEta","MulEta",800,350);
   cMulEta->Divide(2,1);
