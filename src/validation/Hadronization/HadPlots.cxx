@@ -67,19 +67,18 @@ void HadPlots::BookHists()
 
   const int nw = 14;
   const double W2bins[nw+1] = {1,2,3,4,6,8,12,16,23,32,45,63,90,125,225};
-  const double Wbins[nw+1] = {1,2,2.5,3,3.5,4,4.5,5,5.5,6,6.5,7,8,9,10};
-  for (int i = 0; i<kMaxFiles; i++){//loop over interaction types
-    
+  const double Wbins [nw+1] = {1,2,2.5,3,3.5,4,4.5,5,5.5,6,6.5,7,8,9,10};
+
+  for (int i = 0; i<kMaxFiles; i++){
+
     for (int j = 0; j<5; j++){
       kno[j][i] = new TH1D();
       kno[j][i]->SetBins(100,0,4);
     }
-
     for (int j = 0; j<5; j++){
       npi0_nneg[j][i] = new TProfile();
       npi0_nneg[j][i]->SetBins(9,-1.5,7.5);
-    }
-  
+    } 
     for (int j = 0; j<3; j++){
       npi0_nch[j][i] = new TProfile();
       npi0_nch[j][i]->SetBins(19,-1.5,17.5);
@@ -132,7 +131,6 @@ void HadPlots::BookHists()
     z_pos[i]->SetBins(20,0,1);
     z_neg[i]->SetBins(20,0,1);
 
-
     z_E1[i] = new TH1D();
     z_E2[i] = new TH1D();
     z_E3[i] = new TH1D();
@@ -153,7 +151,6 @@ void HadPlots::BookHists()
     z2_pro[i]->SetBins(20,0,1);
     z2_neg[i]->SetBins(20,0,1);
   
-
     pt2_xf1[i] = new TH1D();
     pt2_xf2[i] = new TH1D();
     pt2_xf3[i] = new TH1D();
@@ -184,6 +181,11 @@ void HadPlots::BookHists()
     pt2_xf_hiW[i] = new TProfile();
     pt2_xf_loW[i]->SetBins(20,-1,1);
     pt2_xf_hiW[i]->SetBins(20,-1,1);
+
+    neta_W[i] = new TProfile();
+    neta_W[i] -> SetBins(40,0,10);
+    neta_W_F[i] = new TProfile();
+    neta_W_F[i] -> SetBins(40,0,10);
   }
 }
 //____________________________________________________________________________
@@ -199,20 +201,17 @@ void HadPlots::Analyze()
 
   BookHists();
 
-  for (unsigned imc = 0; imc < mcFiles.size(); imc++){//loop over mc files
+  // Loop over mc files
+  for (unsigned imc = 0; imc < mcFiles.size(); imc++){
     LOG("gvldtest", pDEBUG) << "*** Trying File Number " << imc ;
     TFile fin(mcFiles[imc].c_str(),"READ");
     TTree * er_tree = 0;
-    NtpMCTreeHeader *thdr = 0;
     er_tree = dynamic_cast <TTree *>( fin.Get("gtree")  );
-    thdr    = dynamic_cast <NtpMCTreeHeader *>( fin.Get("header") );
     if (!er_tree) {
       LOG("gvldtest", pERROR) 
          << "Null input GHEP event tree found in file: " << mcFiles[imc];
       return;
     }
-
-    //-- get the mc record
     NtpMCEventRecord * mcrec = 0;
     er_tree->SetBranchAddress("gmcrec", &mcrec);   
     if (!mcrec) {
@@ -231,53 +230,38 @@ void HadPlots::Analyze()
     int im = -1; //interaction type, 0:vp, 1:vn, 2:vbarp, 3:vbarn
 
     const int nw = 14;
-    double gerrx[100] ={0.0};
-    double W2lo[nw]={1,2,3,4,6,8,12,16,23,32,45,63,90,125};
-    double W2hi[nw]={2,3,4,6,8,12,16,23,32,45,63,90,125,225};
+    double gerrx[100] = {0.0};
+    double W2lo[nw] = { 1, 2, 3, 4, 6,  8, 12, 16, 23, 32, 45, 63,  90, 125 };
+    double W2hi[nw] = { 2, 3, 4, 6, 8, 12, 16, 23, 32, 45, 63, 90, 125, 225 };
     
-    double aW2[nw]={0.0};
-    double aW[nw] = {0.0};
+    double aW2[nw] = {0.0};
+    double aW[nw]  = {0.0};
     
-    double nch[nw] = {0.0}; //no. of charge particles
-    double errnch[nw] = {0.0};
-    
-    double nchpi[nw] = {0.0}; //no. of charge pions
-    
-    double nv[nw] = {0}; //no. of neutrino interactions
-    double nv2[nw] = {0};
-    
+    double nch[nw]      = {0.0};   // no. of charge particles
+    double errnch[nw]   = {0.0};    
+    double nchpi[nw]    = {0.0};   // no. of charge pions    
+    double nv[nw]       = {0};     // no. of neutrino interactions
+    double nv2[nw]      = {0};    
     double pnch[13][nw] = {{0.}};
-    double pnchnv[nw] = {0.};
-    
-    double nneg[nw] = {0.0}; //mean no. of negative particles
-    double errnneg[nw] = {0.0};
-    
-    double Dneg[nw] = {0.0}; //dispersion D_=sqrt(<n_**2>-<n_>**2) 
-    
-    
-    double D[nw] = {0.0};    //dispersion of charged hadrons
-    
-    
-    double D_nch[nw] = {0.0}; //D/<n_ch> 
-    
-    
-    double nchkno[5] = {0.0};  //calculate <n>
-    double nkno[5] = {0.0};
-    
-    
+    double pnchnv[nw]   = {0.};    
+    double nneg[nw]     = {0.0};   // mean no. of negative particles
+    double errnneg[nw]  = {0.0};    
+    double Dneg[nw]     = {0.0};   // dispersion D_=sqrt(<n_**2>-<n_>**2)         
+    double D[nw]        = {0.0};   // dispersion of charged hadrons        
+    double D_nch[nw]    = {0.0};   // D/<n_ch>         
+    double nchkno[5]    = {0.0};   // calculate <n>
+    double nkno[5]      = {0.0};        
     //pi0 distributions
-    double npizero[nw] = {0.0}; //no. of pi0's
-    double errnpi0[nw] = {0.0}; 
-    double Dnpi0[nw] = {0.0};
-    
+    double npizero[nw]  = {0.0};   // no. of pi0's
+    double errnpi0[nw]  = {0.0}; 
+    double Dnpi0[nw]    = {0.0};    
     //F/B multiplicity
-    double nchf[nw] = {0.0}; //no. of forward charge particles
-    double nchb[nw] = {0.0}; //no. of backward charge particles
-    
-    double nposf[nw] = {0.0};
-    double nnegf[nw] = {0.0};
-    double nposb[nw] = {0.0};
-    double nnegb[nw] = {0.0};
+    double nchf[nw]     = {0.0};   // no. of forward charged particles
+    double nchb[nw]     = {0.0};   // no. of backward charged particles    
+    double nposf[nw]    = {0.0};
+    double nnegf[nw]    = {0.0};
+    double nposb[nw]    = {0.0};
+    double nnegb[nw]    = {0.0};
     
     double cut1_nv = 0;
     double cut2_nv = 0;
@@ -292,27 +276,21 @@ void HadPlots::Analyze()
     double cut5e_nv = 0;
     double cut5f_nv = 0;
     double cut5g_nv = 0;
-    
-    //  double a[4] = {0.4,-0.2,0.02,0.8};
-    //  double b[4] = {1.42,1.42,1.28,0.95};
-    //  double c[4] = {7.93,5.22,5.22,7.93};
-    //  double d = 6.625;
-    
+        
     //reweight to nubar spectrum
     double nubarw_data[10] = {44.5,303.7,458,463.1,446.6,316.3,272.9,169.3,325.3,60.3};
     double nubarw_mc[10] = {0.};
 
-    //first loop
-    for(Long64_t iev = 0; iev < nmax; iev++) {//loop over all events
+    for(Long64_t iev = 0; iev < nmax; iev++) {
       
-      //LOG("gvldtest", pNOTICE) << "*** Analyzing event: " << iev;
+      LOG("gvldtest", pDEBUG) << "*** Analyzing event: " << iev;
 
       er_tree->GetEntry(iev);
 
       NtpMCRecHeader rec_header = mcrec->hdr;
       EventRecord &  event      = *(mcrec->event);
       
-      //LOG("gvldtest", pINFO) << event;
+      LOG("gvldtest", pDEBUG) << event;
       
       // go further only if the event is physical
       bool is_unphysical = event.IsUnphysical();
@@ -322,7 +300,7 @@ void HadPlots::Analyze()
 	continue;
       }
 
-      //input particles and primary lepton
+      // input particles and primary lepton
       GHepParticle * neutrino = event.Probe();
       assert(neutrino);
       GHepParticle * target = event.Particle(1); 
@@ -333,26 +311,22 @@ void HadPlots::Analyze()
       GHepParticle * fsh = event.Particle(3);
       assert(fsh);
       GHepParticle * hitnucl = event.HitNucleon();
-      if (!hitnucl) continue; //
+      if (!hitnucl) continue; 
 
       // find the interaction type
-      if (neutrino->Pdg() == kPdgNuMu){
-	if (target->Pdg() == kPdgProton){
-	  im = 0;
-	}
-	else if (target->Pdg() == kPdgNeutron){
-	  im = 1;
-	}
+      if (neutrino->Pdg() == kPdgNuMu)
+      {
+	if      (target->Pdg() == kPdgProton ) { im = 0; }
+	else if (target->Pdg() == kPdgNeutron) { im = 1; }
       }
-      else if (neutrino->Pdg() == kPdgAntiNuMu){
-	if (target->Pdg() == kPdgProton){
-	  im = 2;
-	}
-	else if (target->Pdg() == kPdgNeutron){
-	  im = 3;
-	}
+      else 
+      if (neutrino->Pdg() == kPdgAntiNuMu)
+      {
+	if      (target->Pdg() == kPdgProton ) { im = 2; }
+	else if (target->Pdg() == kPdgNeutron) { im = 3; }
       }
-      if (im<0){
+      if (im<0)
+      {
 	LOG("gvldtest", pERROR) 
            << "Unexpected interaction: neutrino = " << neutrino->Pdg()
            << " target = " << target->Pdg();
@@ -377,23 +351,25 @@ void HadPlots::Analyze()
       LOG("gvldtest", pDEBUG) 
         << "Q2 = " << Q2 << ", W = " << W << ", y = " << y << ", v = " << v;
 
-      int np = 0;
-      int nn = 0;
-      int npip = 0;
-      int npim = 0;
-      int npi0 = 0;
-      int nkp = 0;
-      int nkm = 0;
-      int nk0 = 0;
-      int npbar = 0;
-      int ncharged = 0;
+      int np        = 0;
+      int nn        = 0;
+      int npip      = 0;
+      int npim      = 0;
+      int npi0      = 0;
+      int nkp       = 0;
+      int nkm       = 0;
+      int nk0       = 0;
+      int npbar     = 0;
+      int ncharged  = 0;
       int npositive = 0;
       int nnegative = 0;
+      int neta      = 0;
 
       GHepParticle * p = 0;
       TIter event_iter(&event);
       
       while((p=dynamic_cast<GHepParticle *>(event_iter.Next()))){
+	if (p->Pdg() == kPdgEta) neta++;
 	if (p->Status() == kIStStableFinalState && p->Pdg()!=kPdgMuon && p->Pdg()!=kPdgAntiMuon) {
 	  if (p->Pdg() == kPdgProton)     np++;
 	  if (p->Pdg() == kPdgNeutron)    nn++;
@@ -405,7 +381,7 @@ void HadPlots::Analyze()
 	  if (p->Pdg() == kPdgK0)         nk0++;
 	  if (p->Pdg() == kPdgAntiProton) npbar++;
 	  if (p->Charge()){
-	    ncharged ++;
+	    ncharged++;
 	    if (p->Charge()>0){
 	      npositive++;
 	    }
@@ -447,13 +423,13 @@ void HadPlots::Analyze()
 
       aW2[ipos] += weight*W2;
 
-      nch[ipos] += weight*(ncharged);
-      errnch[ipos] += weight*pow((double)ncharged,2);
-      nchpi[ipos] += weight*(npip+npim);
-      nneg[ipos] += weight*(nnegative);
+      nch[ipos]     += weight*(ncharged);
+      errnch[ipos]  += weight*pow((double)ncharged,2);
+      nchpi[ipos]   += weight*(npip+npim);
+      nneg[ipos]    += weight*(nnegative);
       errnneg[ipos] += weight*pow((double)nnegative,2);
-      nv[ipos] += weight;
-      nv2[ipos] += weight*weight;
+      nv[ipos]      += weight;
+      nv2[ipos]     += weight*weight;
       npizero[ipos] += weight*npi0;
       errnpi0[ipos] += weight*pow((double)npi0,2);
       //prepare for KNO
@@ -464,35 +440,28 @@ void HadPlots::Analyze()
 	pnch[nchtot][ipos]+=weight;
       }
 
-//    if (im==0&&(ncharged)>2&&W2<3){
-//	LOG("gvldtest",pINFO) << event;
-//    }
-      if (im==1&&ncharged%2==0){
-//	LOG("gvldtest",pINFO) << event;
-      }
       if (W<2){
 	nchkno[0] += weight*(ncharged);
-	nkno[0] += weight;
+	nkno[0]   += weight;
       }
       else if (W<3){
 	nchkno[1] += weight*(ncharged);
-	nkno[1] += weight;
+	nkno[1]   += weight;
       }
       else if (W<4){
 	nchkno[2] += weight*(ncharged);
-	nkno[2] += weight;
+	nkno[2]   += weight;
       }
       else if (W<5){
 	nchkno[3] += weight*(ncharged);
-	nkno[3] += weight;
+	nkno[3]   += weight;
       }
       else {
 	nchkno[4] += weight*(ncharged);
-	nkno[4] += weight;
+	nkno[4]   += weight;
       }
-      //cout<<"check point 1"<<endl;
+
       //<pi0> <n-> correlation
-      //LOG("gvldtest",pINFO) <<"check point 1 ";
       if (W>3&&W<=4){
 	npi0_nneg[0][imc]->Fill(nnegative,npi0,weight);
       }
@@ -508,18 +477,14 @@ void HadPlots::Analyze()
       else if (W>10&&W<=14){
 	npi0_nneg[4][imc]->Fill(nnegative,npi0,weight);
       }	
-      //npi0_nm[imc]->Fill(nnegative,npi0,weight);
-      //LOG("gvldtest",pINFO) <<"check point 2 ";
+
       if (W<4){
-	//LOG("gvldtest",pINFO) <<imc<<" "<<npi0_nm_lo[imc]<<" "<<nnegative<<" "<<npi0<<" "<<weight;
 	npi0_nm_lo[imc]->Fill(nnegative,npi0,weight);
       }
       else if (W>4){
 	npi0_nm_hi[imc]->Fill(nnegative,npi0,weight);
       }
       
-      //LOG("gvldtest",pINFO) <<"check point 3 ";
-
       if (W<4){
 	npi0_nch[0][imc]->Fill(ncharged,npi0,weight);
       }
@@ -529,10 +494,9 @@ void HadPlots::Analyze()
       else if (W<15){
 	npi0_nch[2][imc]->Fill(ncharged,npi0,weight);
       }
-    }
+      
+    }//end of first loop
     
-    //LOG("gvldtest",pINFO)<<"finish 1st loop";
-
     for (int i = 0; i<nw; i++){
       if (nv[i]){
 	nch[i]   /= nv[i];
@@ -559,10 +523,10 @@ void HadPlots::Analyze()
     }
 
     //second loop
-    for(Long64_t iev = 0; iev < nmax; iev++){//loop over all events
+    for(Long64_t iev = 0; iev < nmax; iev++){
       
       er_tree->GetEntry(iev);
-
+      
       NtpMCRecHeader rec_header = mcrec->hdr;
       EventRecord &  event      = *(mcrec->event);
 
@@ -600,7 +564,7 @@ void HadPlots::Analyze()
       TLorentzVector q  = k1-k2; 
       double v  = (q*p1)/M;         // v (E transfer in hit nucleon rest frame)
       double Q2 = -1 * q.M2();      // momemtum transfer
-      double x  = 0.5*Q2/(M*v);     //Bjorken x
+      double x  = 0.5*Q2/(M*v);     // Bjorken x
       double y  = v*M/(k1*p1);      // Inelasticity, y = q*P1/k1*P1
       double W2 = M*M + 2*M*v - Q2; // Hadronic Invariant mass ^ 2
       double W  = TMath::Sqrt(W2);
@@ -621,6 +585,7 @@ void HadPlots::Analyze()
       int ncharged = 0;
       int npositive = 0;
       int nnegative = 0;
+      int neta = 0;
 
       vector<int> pid;
       vector<double> px;
@@ -631,8 +596,10 @@ void HadPlots::Analyze()
       vector<double> charge;
       GHepParticle * p = 0;
       TIter event_iter(&event);
-      
+    
       while((p=dynamic_cast<GHepParticle *>(event_iter.Next()))){
+
+        if (p->Pdg() == kPdgEta)        neta++;
 	if (p->Status() == kIStStableFinalState && p->Pdg()!=kPdgMuon && p->Pdg()!=kPdgAntiMuon) {
 	  if (p->Pdg() == kPdgProton)     np++;
 	  if (p->Pdg() == kPdgNeutron)    nn++;
@@ -643,8 +610,9 @@ void HadPlots::Analyze()
 	  if (p->Pdg() == kPdgKM)         nkm++;
 	  if (p->Pdg() == kPdgK0)         nk0++;
 	  if (p->Pdg() == kPdgAntiProton) npbar++;
+
 	  if (p->Charge()){
-	    ncharged ++;
+	    ncharged++;
 	    if (p->Charge()>0){
 	      npositive++;
 	    }
@@ -664,23 +632,20 @@ void HadPlots::Analyze()
       
       double weight = 1.;
       
-//      if (im==0&&W<2)
-//	LOG("gvldtest",pINFO)<<ncharged<<" "<<nchkno[0];
-
       if (W<2){
-	kno[0][im]->Fill((ncharged)/nchkno[0],weight);
+	kno[0][imc]->Fill((ncharged)/nchkno[0],weight);
       }
       else if (W<3){
-	kno[1][im]->Fill((ncharged)/nchkno[1],weight);
+	kno[1][imc]->Fill((ncharged)/nchkno[1],weight);
       }
       else if (W<4){
-	kno[2][im]->Fill((ncharged)/nchkno[2],weight);
+	kno[2][imc]->Fill((ncharged)/nchkno[2],weight);
       }
       else if (W<5){
-	kno[3][im]->Fill((ncharged)/nchkno[3],weight);
+	kno[3][imc]->Fill((ncharged)/nchkno[3],weight);
       }
       else {
-	kno[4][im]->Fill((ncharged)/nchkno[4],weight);
+	kno[4][imc]->Fill((ncharged)/nchkno[4],weight);
       }
 
       int ipos = -1;
@@ -750,7 +715,7 @@ void HadPlots::Analyze()
       if (ip_nubar!=-1&&cut6){
 	if (nubarw_mc[ip_nubar]>0) {
 	  if (neutrino->Pdg()==kPdgAntiNuMu) wei_nubarp = weight*nubarw_data[ip_nubar]/nubarw_mc[ip_nubar];
-	  npi0_nm[im]->Fill(nnegative,npi0,wei_nubarp);
+	  npi0_nm[imc]->Fill(nnegative,npi0,wei_nubarp);
 	}
       }
       
@@ -815,16 +780,6 @@ void HadPlots::Analyze()
       
       for (unsigned ipar = 0; ipar<pid.size(); ipar++){//loop through hadrons
 	int hadcharge = 0;
-//	if (pid[ipar]==2212||//proton
-//	    pid[ipar]==211||//pi+
-//	    pid[ipar]==321){//K+
-//	  hadcharge = 1;
-//	}
-//	else if (pid[ipar]==-2212||//antiproton
-//		 pid[ipar]==-211||//pi-
-//		 pid[ipar]==-321){//K-
-//	  hadcharge = -1;
-//	}	
 	if (charge[ipar]>0) hadcharge = 1;
 	if (charge[ipar]<0) hadcharge = -1;
 	double ptot = sqrt(pow(px[ipar],2)+pow(py[ipar],2)+pow(pz[ipar],2));
@@ -1011,6 +966,16 @@ void HadPlots::Analyze()
 	}
       }//loop through hadrons
       
+      //test lower E 
+      
+      neta_W[imc]->Fill(W,neta);
+      if(nhch_f){
+	neta_W_F[imc]->Fill(W,neta);
+      }
+      /* else{
+	LOG("gvldtest", pERROR) 
+	  << "nhch_f =  " << nhch_f;
+	  }*/
       if (cut3){
 	if(nhch_f2){
 	  meanpt2_f/=nhch_f2;
@@ -1122,13 +1087,13 @@ void HadPlots::Analyze()
 		       (Fxf_neg2_hi[imc]->GetXaxis()->GetXmax()-Fxf_neg2_hi[imc]->GetXaxis()->GetXmin())/cut5g_nv);
     
     nch_w[imc] = new TGraphErrors(nw-1,aW2,nch,gerrx,gerrx);
+    nchpi_w[imc] = new TGraph(nw-1,aW2,nchpi);
     
     D_nneg[imc] = new TGraph(nw-1,nneg,Dneg);
     
     D_W2[imc] = new TGraph(nw-1,aW2,D_nch);
     
     npi0_w[imc] = new TGraphErrors(nw-1,aW2,npizero,gerrx,errnpi0);
-    nchpi_w[imc] = new TGraph(nw-1,aW2,nchpi);
     
     D_npi0[imc] = new TGraph(nw-1,npizero,Dnpi0);
     
@@ -1136,7 +1101,7 @@ void HadPlots::Analyze()
       pnch_w2[i][imc] = new TGraph(nw-1,aW2,pnch[i]);
     }
 
-    //.....................KNO distributions..........................
+    // KNO distributions
     for (int i = 0; i<5; i++){
       kno[i][imc]->Sumw2();
       kno[i][imc]->Scale(1/kno[i][imc]->Integral());
@@ -1145,30 +1110,25 @@ void HadPlots::Analyze()
       kno[i][imc]->SetMarkerSize(0.8);
       kno[i][imc]->SetLineColor(2);
       kno[i][imc]->SetStats(0);
-    }
-    
+    }    
     kno[0][imc]->SetMarkerStyle(20);
     kno[1][imc]->SetMarkerStyle(21);
     kno[2][imc]->SetMarkerStyle(22);
     kno[3][imc]->SetMarkerStyle(23);
-    kno[4][imc]->SetMarkerStyle(29);
-    
-    
-    
-  //.................F/B multiplicity.........................
-    nch_w_f[imc] = new TGraph(nw-1,aW2,nchf);
-    nch_w_b[imc] = new TGraph(nw-1,aW2,nchb);
-    
-    npos_w_f[imc] = new TGraph(nw-2,aW,nposf);
-    nneg_w_f[imc] = new TGraph(nw-2,aW,nnegf);
-    npos_w_b[imc] = new TGraph(nw-2,aW,nposb);
-    nneg_w_b[imc] = new TGraph(nw-2,aW,nnegb);
-    
+    kno[4][imc]->SetMarkerStyle(29);        
+
+    nch_w_f[imc]   = new TGraph(nw-1,aW2,nchf);
+    nch_w_b[imc]   = new TGraph(nw-1,aW2,nchb);    
+    npos_w_f[imc]  = new TGraph(nw-2,aW,nposf);
+    nneg_w_f[imc]  = new TGraph(nw-2,aW,nnegf);
+    npos_w_b[imc]  = new TGraph(nw-2,aW,nposb);
+    nneg_w_b[imc]  = new TGraph(nw-2,aW,nnegb);    
     npos_w2_f[imc] = new TGraph(nw-2,aW2,nposf);
     nneg_w2_f[imc] = new TGraph(nw-2,aW2,nnegf);
     npos_w2_b[imc] = new TGraph(nw-2,aW2,nposb);
     nneg_w2_b[imc] = new TGraph(nw-2,aW2,nnegb);
-    
+
   }//loop over all mc files
   
 }
+//____________________________________________________________________________
