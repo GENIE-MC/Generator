@@ -750,7 +750,6 @@ void SaveSplinesToRootFile(void)
   // root [3] pi0N_tot->Draw("same");
   //
   
-  // Write out hN mode hadron x-section splines
   inukd -> XSecPn_Tot       () -> SaveAsROOT(filename, "pn_tot",    true);
   inukd -> XSecPn_Elas      () -> SaveAsROOT(filename, "pn_elas",   false);
   inukd -> XSecPn_Reac      () -> SaveAsROOT(filename, "pn_reac",   false);
@@ -786,7 +785,6 @@ void SaveSplinesToRootFile(void)
   inukd -> XSecGamn_fs      () -> SaveAsROOT(filename, "gamn_fs",   false);
   inukd -> XSecGamN_Tot     () -> SaveAsROOT(filename, "gamN_tot",  false);
   
-  // Write out hA mode hadron x-section splines
   inukd -> FracPA_Tot       () -> SaveAsROOT(filename, "pA_tot",       false);
   inukd -> FracPA_Elas      () -> SaveAsROOT(filename, "pA_elas",      false);
   inukd -> FracPA_Inel      () -> SaveAsROOT(filename, "pA_inel",      false);
@@ -804,37 +802,16 @@ void SaveSplinesToRootFile(void)
   inukd -> FracPipA_Inel    () -> SaveAsROOT(filename, "pipA_inel",    false);
   inukd -> FracPipA_CEx     () -> SaveAsROOT(filename, "pipA_cex",     false);
   inukd -> FracPipA_Abs     () -> SaveAsROOT(filename, "pipA_abs",     false);  
-  inukd -> FracPipA_NPipPi0 () -> SaveAsROOT(filename, "pipA_npippi0", false);
   inukd -> FracPimA_Tot     () -> SaveAsROOT(filename, "pimA_tot",     false);
   inukd -> FracPimA_Elas    () -> SaveAsROOT(filename, "pimA_elas",    false);
   inukd -> FracPimA_Inel    () -> SaveAsROOT(filename, "pimA_inel",    false);
   inukd -> FracPimA_CEx     () -> SaveAsROOT(filename, "pimA_cex",     false);
   inukd -> FracPimA_Abs     () -> SaveAsROOT(filename, "pimA_abs",     false);
-  inukd -> FracPimA_NPipPi0 () -> SaveAsROOT(filename, "pimA_npippi0", false);
   inukd -> FracPi0A_Tot     () -> SaveAsROOT(filename, "pi0A_tot",     false);
   inukd -> FracPi0A_Elas    () -> SaveAsROOT(filename, "pi0A_elas",    false);
   inukd -> FracPi0A_Inel    () -> SaveAsROOT(filename, "pi0A_inel",    false);
   inukd -> FracPi0A_CEx     () -> SaveAsROOT(filename, "pi0A_cex",     false);
   inukd -> FracPi0A_Abs     () -> SaveAsROOT(filename, "pi0A_abs",     false);
-  inukd -> FracPi0A_NPipPi0 () -> SaveAsROOT(filename, "pi0A_npippi0", false);
-
-
-  // Write out hN mode x-section TGraph2D objects
-  TFile f(filename.c_str(), "UPDATE");
-  /*
-  // No longer TGraph2D type
-  inukd -> hN2dXSecPP_Elas   () -> Write("d_pp_elas"  );
-  inukd -> hN2dXSecNP_Elas   () -> Write("d_np_elas"  );
-  inukd -> hN2dXSecKpN_Elas  () -> Write("d_kpN_elas" );
-  inukd -> hN2dXSecKpP_Elas  () -> Write("d_kpP_elas" );
-  inukd -> hN2dXSecPipN_Elas () -> Write("d_pipN_elas");
-  inukd -> hN2dXSecPi0N_Elas () -> Write("d_pi0N_elas");
-  inukd -> hN2dXSecPimN_Elas () -> Write("d_pimN_elas");
-  inukd -> hN2dXSecPiN_CEx   () -> Write("d_piN_cex"  );
-  inukd -> hN2dXSecPiN_Abs   () -> Write("d_piN_abs"  );
-  */
-  f.Close();
-
 }
 //____________________________________________________________________________
 void PrintOutForInputKE(double ke)
@@ -894,19 +871,16 @@ void PrintOutForInputKE(double ke)
      << "\n Frac[pipA/inel]   (K=" << ke << " MeV) = " << inukd -> FracPipA_Inel    () -> Evaluate(ke) << " mbarn"
      << "\n Frac[pipA/cex]    (K=" << ke << " MeV) = " << inukd -> FracPipA_CEx     () -> Evaluate(ke) << " mbarn"
      << "\n Frac[pipA/abs]    (K=" << ke << " MeV) = " << inukd -> FracPipA_Abs     () -> Evaluate(ke) << " mbarn"
-     << "\n Frac[pipA/npippi0](K=" << ke << " MeV) = " << inukd -> FracPipA_NPipPi0 () -> Evaluate(ke) << " mbarn"
      << "\n Frac[pimA/tot]    (K=" << ke << " MeV) = " << inukd -> FracPimA_Tot     () -> Evaluate(ke) << " mbarn"
      << "\n Frac[pimA/elas]   (K=" << ke << " MeV) = " << inukd -> FracPimA_Elas    () -> Evaluate(ke) << " mbarn"
      << "\n Frac[pimA/inel]   (K=" << ke << " MeV) = " << inukd -> FracPimA_Inel    () -> Evaluate(ke) << " mbarn"
      << "\n Frac[pimA/cex]    (K=" << ke << " MeV) = " << inukd -> FracPimA_CEx     () -> Evaluate(ke) << " mbarn"
      << "\n Frac[pimA/abs]    (K=" << ke << " MeV) = " << inukd -> FracPimA_Abs     () -> Evaluate(ke) << " mbarn"
-     << "\n Frac[pimA/npippi0](K=" << ke << " MeV) = " << inukd -> FracPimA_NPipPi0 () -> Evaluate(ke) << " mbarn"
      << "\n Frac[pi0A/tot]    (K=" << ke << " MeV) = " << inukd -> FracPi0A_Tot     () -> Evaluate(ke) << " mbarn"
      << "\n Frac[pi0A/elas]   (K=" << ke << " MeV) = " << inukd -> FracPi0A_Elas    () -> Evaluate(ke) << " mbarn"
      << "\n Frac[pi0A/inel]   (K=" << ke << " MeV) = " << inukd -> FracPi0A_Inel    () -> Evaluate(ke) << " mbarn"
      << "\n Frac[pi0A/cex]    (K=" << ke << " MeV) = " << inukd -> FracPi0A_CEx     () -> Evaluate(ke) << " mbarn"
-     << "\n Frac[pi0A/abs]    (K=" << ke << " MeV) = " << inukd -> FracPi0A_Abs     () -> Evaluate(ke) << " mbarn"
-     << "\n Frac[pi0A/npippi0](K=" << ke << " MeV) = " << inukd -> FracPi0A_NPipPi0 () -> Evaluate(ke) << " mbarn";
+     << "\n Frac[pi0A/abs]    (K=" << ke << " MeV) = " << inukd -> FracPi0A_Abs     () -> Evaluate(ke) << " mbarn";
 }
 //____________________________________________________________________________
 
