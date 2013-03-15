@@ -124,11 +124,18 @@ void genie::utils::print::PrintBanner(void)
 
   string base_dir = string(gSystem->Getenv("GENIE"));
 
-#if __GENIE_RELEASE_CODE__ == GRELCODE(999,999,999)
-  string warn_banner = 
+#ifdef __GENIE_DEVEL_VERSION__
+  string warn_dev_banner = 
       base_dir + 
-      string("/data/logo/experimental_version_warning.txt");
-  PrintBanner(warn_banner, 15000);
+      string("/data/logo/warning_development_version.txt");
+  PrintBanner(warn_dev_banner, 15000);
+#endif
+
+#ifdef __GENIE_RELEASE_CANDIDATE__ 
+  string warn_rc_banner = 
+      base_dir + 
+      string("/data/logo/warning_release_candidate.txt");
+  PrintBanner(warn_rc_banner, 15000);
 #endif
 
   string main_banner = 
