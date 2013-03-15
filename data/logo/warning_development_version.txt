@@ -11,7 +11,7 @@ oooooo   oooooo     oooo       .o.       ooooooooo.   ooooo      ooo ooooo ooooo
 
 ********************************************************************************************************
 
-                               THIS VERSION OF GENIE IS UNDER DEVELOPMENT.
+                                THIS IS A DEVELOPMENT VERSION OF GENIE.
                       IT HAS *NOT* BEEN FULLY VALIDATED AND IT HAS EXPERIMENTAL FEATURES.
 
                                    USE THIS VERSION AT YOUR OWN RISK.
