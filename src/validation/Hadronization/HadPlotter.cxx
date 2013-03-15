@@ -66,33 +66,42 @@ void HadPlotter::ShowPlots()
 {  
   TH2D * htemp = 0;
 
-  //
-  // *** Neutrino plots
-  // 
+  const int inun    = 0;
+  const int inup    = 1;
+  const int inubarn = 2;
+  const int inubarp = 3;
 
+  //
+  // Neutrino plots
+  // =========================================================================
+  
   // .........................................................................
-  // Charged hadron multiplicity
+  // Average charged hadron multiplicity vs W^2
   // .........................................................................
 
   TGraphErrors * prd27_47_f4_p         = MakeGraph("charged_hadron_multiplicity/prd27_47_fig4_vp.dat");
   TGraphErrors * prd27_47_f4_n         = MakeGraph("charged_hadron_multiplicity/prd27_47_fig4_vn.dat");
   TGraphErrors * npb181_385_fig1_nch_W = MakeGraph("charged_hadron_multiplicity/npb181_385_fig1_nch_W.dat");
   TGraphErrors * zpc24_119_vn          = MakeGraph("charged_hadron_multiplicity/zpc24_119_vn.dat");
+
   TCanvas *cMulCh = new TCanvas("cMulCh","cMulCh",800,350);
   cMulCh->Divide(2,1);
+
+  // vp CC
   DrawFrame(cMulCh,1,1,300,0,10,"","W^{2}(GeV^{2}/c^{4})","<n_{ch}>",true,false);
   DrawGraph(prd27_47_f4_p,20,1,0.8);
   DrawGraph(npb181_385_fig1_nch_W,24,1,0.8);
   for (unsigned i = 0; i<hadPlots.size(); i++){
-    DrawGraph(hadPlots[i].nch_w[0],24,mccolors[i],0.8,"c");
+    DrawGraph(hadPlots[i].nch_w[inup],24,mccolors[i],0.8,"c");
   }
   TLegend *lMulCh1 = new TLegend(0.2,0.6,0.5,0.85);
   SetLegend(lMulCh1);
   lMulCh1->AddEntry(prd27_47_f4_p,"15' #nuD_{2} (1983)","p");
   lMulCh1->AddEntry(npb181_385_fig1_nch_W,"BEBC #nuH_{2} (1981)","p");
-  for (unsigned i = 0; i<hadPlots.size(); i++){
+  for (unsigned i = 0; i<hadPlots.size(); i++)
+  {
     string name = hadPlots[i].modelName;
-    lMulCh1->AddEntry(hadPlots[i].nch_w[0],name.c_str(),"l");
+    lMulCh1->AddEntry(hadPlots[i].nch_w[inup],name.c_str(),"l");
   }
   lMulCh1->Draw();
   TLatex *tMulCh1 = new TLatex(0.7,0.3,"#nup#rightarrow#mu^{-}X^{++}");
@@ -100,11 +109,12 @@ void HadPlotter::ShowPlots()
   tMulCh1->SetTextSize(0.06);
   tMulCh1->Draw();
 
+  // vn CC
   DrawFrame(cMulCh,2,1,300,0,10,"","W^{2}(GeV^{2}/c^{4})","<n_{ch}>",true,false);
   DrawGraph(prd27_47_f4_n,20,1,0.8);
   DrawGraph(zpc24_119_vn,24,1,0.8);
   for (unsigned i = 0; i<hadPlots.size(); i++){
-    DrawGraph(hadPlots[i].nch_w[1],24,mccolors[i],0.8,"c");
+    DrawGraph(hadPlots[i].nch_w[inun],24,mccolors[i],0.8,"c");
   }
   TLegend *lMulCh2 = new TLegend(0.2,0.6,0.5,0.85);
   SetLegend(lMulCh2);
@@ -112,7 +122,7 @@ void HadPlotter::ShowPlots()
   lMulCh2->AddEntry(zpc24_119_vn,"BEBC #nuD_{2} (1984)","p");
   for (unsigned i = 0; i<hadPlots.size(); i++){
     string name = hadPlots[i].modelName;
-    lMulCh2->AddEntry(hadPlots[i].nch_w[1],name.c_str(),"l");
+    lMulCh2->AddEntry(hadPlots[i].nch_w[inun],name.c_str(),"l");
   }
   lMulCh2->Draw();
   TLatex *tMulCh2 = new TLatex(0.7,0.3,"#nun#rightarrow#mu^{-}X^{+}");
@@ -121,30 +131,33 @@ void HadPlotter::ShowPlots()
   tMulCh2->SetTextSize(0.06);
 
   // .........................................................................
-  // Dispersion (D_)
+  // Dispersion (D_) vs <n->
   // .........................................................................
 
   TGraphErrors *prd27_47_fig5_D_n_vp = MakeGraph("charged_hadron_dispersion/prd27_47_fig5_D_n_vp.dat");
   TGraphErrors *prd27_47_fig5_D_n_vn = MakeGraph("charged_hadron_dispersion/prd27_47_fig5_D_n_vn.dat");
+
   TCanvas *cDispCh = new TCanvas("cDispCh","cDispCh",800,350);
   cDispCh->Divide(2,1);
+
   DrawFrame(cDispCh,1,0,4,0,2,"","<n_{-}>","D_{-}",false,false);
   DrawGraph(prd27_47_fig5_D_n_vp,24,1,0.8);
   DrawGraph(prd27_47_fig5_D_n_vn,20,1,0.8);
   for (unsigned i = 0; i<hadPlots.size(); i++){
-    DrawGraph(hadPlots[i].D_nneg[0],24,mccolors[i],0.8,"c");
+    DrawGraph(hadPlots[i].D_nneg[inup],24,mccolors[i],0.8,"c");
     hadPlots[i].D_nneg[1]->SetLineStyle(2);
-    DrawGraph(hadPlots[i].D_nneg[1],20,mccolors[i],0.8,"c");
+    DrawGraph(hadPlots[i].D_nneg[inun],20,mccolors[i],0.8,"c");
   }
+
   TLegend *lDispCh1 = new TLegend(0.5,0.25,0.9,0.45);
   SetLegend(lDispCh1);
   lDispCh1->AddEntry(prd27_47_fig5_D_n_vp,"#nup 15' #nuD_{2} (1983)","p");
   lDispCh1->AddEntry(prd27_47_fig5_D_n_vn,"#nun 15' #nuD_{2} (1983)","p");
   for (unsigned i = 0; i<hadPlots.size(); i++){
     string name = "#nup "+hadPlots[i].modelName;
-    lDispCh1->AddEntry(hadPlots[i].D_nneg[0],name.c_str(),"l");
+    lDispCh1->AddEntry(hadPlots[i].D_nneg[inup],name.c_str(),"l");
     name = "#nun "+hadPlots[i].modelName;
-    lDispCh1->AddEntry(hadPlots[i].D_nneg[1],name.c_str(),"l");
+    lDispCh1->AddEntry(hadPlots[i].D_nneg[inun],name.c_str(),"l");
   }
   lDispCh1->Draw();
 
@@ -154,23 +167,25 @@ void HadPlotter::ShowPlots()
 
   TGraphErrors *prd27_47_fig5_D_W_vp = MakeGraph("charged_hadron_dispersion/prd27_47_fig5_D_W_vp.dat");
   TGraphErrors *prd27_47_fig5_D_W_vn = MakeGraph("charged_hadron_dispersion/prd27_47_fig5_D_W_vn.dat");
+
   DrawFrame(cDispCh,2,1,1000,0,0.8,"","W^{2}(GeV^{2}/c^{4})","D/<n_{ch}>",true,false);
   DrawGraph(prd27_47_fig5_D_W_vp,24,1,0.8);
   DrawGraph(prd27_47_fig5_D_W_vn,20,1,0.8);
   for (unsigned i = 0; i<hadPlots.size(); i++){
-    DrawGraph(hadPlots[i].D_W2[0],24,mccolors[i],0.8,"c");
+    DrawGraph(hadPlots[i].D_W2[inup],24,mccolors[i],0.8,"c");
     hadPlots[i].D_W2[1]->SetLineStyle(2);
-    DrawGraph(hadPlots[i].D_W2[1],20,mccolors[i],0.8,"c");
+    DrawGraph(hadPlots[i].D_W2[inun],20,mccolors[i],0.8,"c");
   }
+
   TLegend *lDispCh2 = new TLegend(0.5,0.25,0.9,0.45);
   SetLegend(lDispCh2);
   lDispCh2->AddEntry(prd27_47_fig5_D_W_vp,"#nup 15' #nuD_{2} (1983","p");
   lDispCh2->AddEntry(prd27_47_fig5_D_W_vn,"#nun 15' #nuD_{2} (1983)","p");
   for (unsigned i = 0; i<hadPlots.size(); i++){
     string name = "#nup "+hadPlots[i].modelName;
-    lDispCh2->AddEntry(hadPlots[i].D_W2[0],name.c_str(),"l");
+    lDispCh2->AddEntry(hadPlots[i].D_W2[inup],name.c_str(),"l");
     name = "#nun "+hadPlots[i].modelName;
-    lDispCh2->AddEntry(hadPlots[i].D_W2[1],name.c_str(),"l");
+    lDispCh2->AddEntry(hadPlots[i].D_W2[inun],name.c_str(),"l");
   }
   lDispCh2->Draw();
 
@@ -251,7 +266,6 @@ void HadPlotter::ShowPlots()
   levy->SetLineWidth(1);
   levy->SetLineColor(1);
   levy->DrawCopy("same");
-  std::cout<<"#nup c="<<levy->GetParameter(0)<<"+/-"<<levy->GetParError(0)<<endl;
 
   TLegend *lKNO1 = new TLegend(0.65,0.55,0.95,0.9);
   SetLegend(lKNO1);
@@ -279,7 +293,6 @@ void HadPlotter::ShowPlots()
   vn_10_15->Draw("p");
   vn_kno->Fit("fLevy","Q");
   levy->DrawCopy("same");
-  std::cout<<"#nun c="<<levy->GetParameter(0)<<"+/-"<<levy->GetParError(0)<<endl;
   TLegend *lKNO2 = new TLegend(0.65,0.55,0.95,0.9);
   SetLegend(lKNO2);
   lKNO2->SetHeader(hadPlots[0].modelName.c_str());
@@ -297,23 +310,28 @@ void HadPlotter::ShowPlots()
   tKNO2->Draw();
 
   // .........................................................................
-  // Pi0 multiplicity
+  // Average pi0 multiplicity (<npi0>) vs W^2
   // .........................................................................
 
   TGraphErrors *sn41_963_fig2       = MakeGraph("pi0_multiplicity/sn41_963_fig2_vA.dat");
   TGraphErrors *npb223_269_fig8     = MakeGraph("pi0_multiplicity/npb223_269_fig8_vp.dat");
   TGraphErrors *zpc40_231_fig13_pi0 = MakeGraph("pi0_multiplicity/zpc40_231_fig13_pi0.dat");
+
   TCanvas *cMulPi0 = new TCanvas("cMulPi0","cMulPi0",800,350);
   cMulPi0->Divide(2,1);
+
   DrawFrame(cMulPi0,1,1,1000,0,4,"","W^{2}(GeV^{2}/c^{4})","<n_{#pi^{0}}>",true,false);
-  DrawGraph(sn41_963_fig2,20,1,0.8);
-  DrawGraph(npb223_269_fig8,26,1,0.8);
-  DrawGraph(zpc40_231_fig13_pi0,27,1,0.8);
+
+  DrawGraph(sn41_963_fig2,       20,1,0.8);
+  DrawGraph(npb223_269_fig8,     26,1,0.8);
+  DrawGraph(zpc40_231_fig13_pi0, 27,1,0.8);
+
   for (unsigned i = 0; i<hadPlots.size(); i++){
-    DrawGraph(hadPlots[i].npi0_w[0],24,mccolors[i],0.8,"c");
+    DrawGraph(hadPlots[i].npi0_w[inup],24,mccolors[i],0.8,"c");
     hadPlots[i].npi0_w[1]->SetLineStyle(2);
-    DrawGraph(hadPlots[i].npi0_w[1],20,mccolors[i],0.8,"c");
+    DrawGraph(hadPlots[i].npi0_w[inun],20,mccolors[i],0.8,"c");
   }
+
   TLegend *lMulPi0_1 = new TLegend(0.6,0.25,0.95,0.55);
   SetLegend(lMulPi0_1);
   lMulPi0_1->AddEntry(sn41_963_fig2,"#nuA SKAT #nuFreon","p");
@@ -321,32 +339,35 @@ void HadPlotter::ShowPlots()
   lMulPi0_1->AddEntry(zpc40_231_fig13_pi0,"#nuneon BEBC","p");
   for (unsigned i = 0; i<hadPlots.size(); i++){
     string name = "#nup "+hadPlots[i].modelName;
-    lMulPi0_1->AddEntry(hadPlots[i].npi0_w[0],name.c_str(),"l");
+    lMulPi0_1->AddEntry(hadPlots[i].npi0_w[inup],name.c_str(),"l");
     name = "#nun "+hadPlots[i].modelName;
-    lMulPi0_1->AddEntry(hadPlots[i].npi0_w[1],name.c_str(),"l");
+    lMulPi0_1->AddEntry(hadPlots[i].npi0_w[inun],name.c_str(),"l");
   }
   lMulPi0_1->Draw();
 
   // .........................................................................
-  // Pi0 dispersion (D_pi0)
+  // pi0 dispersion (D_pi0) vs <npi0>
   // .........................................................................
 
   TGraphErrors *sn41_963_fig4_vA = MakeGraph("pi0_dispersion/sn41_963_fig4_vA.dat");
+
   DrawFrame(cMulPi0,2,0,3,0,2,"","<n_{#pi^{0}}>","D_{#pi^{0}}",false,false);
   DrawGraph(sn41_963_fig4_vA,20,1,0.8);
+
   for (unsigned i = 0; i<hadPlots.size(); i++){
-    DrawGraph(hadPlots[i].D_npi0[0],24,mccolors[i],0.8,"l");
+    DrawGraph(hadPlots[i].D_npi0[inup],24,mccolors[i],0.8,"l");
     hadPlots[i].D_npi0[1]->SetLineStyle(2);
-    DrawGraph(hadPlots[i].D_npi0[1],20,mccolors[i],0.8,"l");
+    DrawGraph(hadPlots[i].D_npi0[inun],20,mccolors[i],0.8,"l");
   }
+
   TLegend *lMulPi0_2 = new TLegend(0.6,0.25,0.95,0.6);
   SetLegend(lMulPi0_2);
   lMulPi0_2->AddEntry(sn41_963_fig4_vA,"#nuA SKAT #nuFreon","p");
   for (unsigned i = 0; i<hadPlots.size(); i++){
     string name = "#nup "+hadPlots[i].modelName;
-    lMulPi0_2->AddEntry(hadPlots[i].D_npi0[0],name.c_str(),"l");
+    lMulPi0_2->AddEntry(hadPlots[i].D_npi0[inup],name.c_str(),"l");
     name = "#nun "+hadPlots[i].modelName;
-    lMulPi0_2->AddEntry(hadPlots[i].D_npi0[1],name.c_str(),"l");
+    lMulPi0_2->AddEntry(hadPlots[i].D_npi0[inun],name.c_str(),"l");
   }
   lMulPi0_2->Draw();
 
@@ -377,7 +398,7 @@ void HadPlotter::ShowPlots()
   htemp->GetYaxis()->SetTitleOffset(0.8);
   DrawGraph(npb223_269_fig9_vp_3_4,24,1,0.8);
   for (unsigned i = 0; i<hadPlots.size(); i++){
-    TH1D *h0 = hadPlots[i].npi0_nneg[0][0]->ProjectionX(Form("h0_%d",i));
+    TH1D *h0 = hadPlots[i].npi0_nneg[0][inup]->ProjectionX(Form("h0_%d",i));
     TGraph *gr0 = new TGraph(4);
     for (int j = 0; j<4; j++){
       gr0->SetPoint(j,h0->GetBinCenter(j+2),h0->GetBinContent(j+2));
@@ -391,8 +412,8 @@ void HadPlotter::ShowPlots()
   lCorr_Pi0_Ch->AddEntry(npb223_269_fig9_vp_3_4,"#nup BEBC #nuH_{2}","p");
   for (unsigned i = 0; i<hadPlots.size(); i++){
     string name = "#nup "+hadPlots[i].modelName;
-    hadPlots[i].npi0_nneg[0][0]->SetLineColor(mccolors[i]);
-    lCorr_Pi0_Ch->AddEntry(hadPlots[i].npi0_nneg[0][0],name.c_str(),"l");
+    hadPlots[i].npi0_nneg[0][inup]->SetLineColor(mccolors[i]);
+    lCorr_Pi0_Ch->AddEntry(hadPlots[i].npi0_nneg[0][inup],name.c_str(),"l");
     lCorr_Pi0_Ch->Draw();
   }
   TLatex *tCorr_Pi0_Ch1 = new TLatex(4,1,"(a) 3<W<4GeV/c^{2}");
@@ -408,7 +429,7 @@ void HadPlotter::ShowPlots()
   htemp->GetYaxis()->SetLabelSize(0);
   DrawGraph(npb223_269_fig9_vp_4_5,24,1,0.8);
   for (unsigned i = 0; i<hadPlots.size(); i++){
-    TH1D *h1 = hadPlots[i].npi0_nneg[1][0]->ProjectionX(Form("h1_%d",i));
+    TH1D *h1 = hadPlots[i].npi0_nneg[1][inup]->ProjectionX(Form("h1_%d",i));
     TGraph *gr1 = new TGraph(4);
     for (int j = 0; j<4; j++){
       gr1->SetPoint(j,h1->GetBinCenter(j+2),h1->GetBinContent(j+2));
@@ -428,7 +449,7 @@ void HadPlotter::ShowPlots()
   DrawFrame(cCorr_Pi0_Ch,3,-0.2,6.5,-0.2,4.8,"","n_{-}","<n_{#pi^{0}}>",false,false);
   DrawGraph(npb223_269_fig9_vp_5_7,24,1,0.8);
   for (unsigned i = 0; i<hadPlots.size(); i++){
-    TH1D *h2 = hadPlots[i].npi0_nneg[2][0]->ProjectionX(Form("h2_%d",i));
+    TH1D *h2 = hadPlots[i].npi0_nneg[2][inup]->ProjectionX(Form("h2_%d",i));
     TGraph *gr2 = new TGraph(4);
     for (int j = 0; j<5; j++){
       gr2->SetPoint(j,h2->GetBinCenter(j+2),h2->GetBinContent(j+2));
@@ -449,7 +470,7 @@ void HadPlotter::ShowPlots()
   htemp->GetYaxis()->SetLabelSize(0);
   DrawGraph(npb223_269_fig9_vp_7_10,24,1,0.8);
   for (unsigned i = 0; i<hadPlots.size(); i++){
-    TH1D *h3 = hadPlots[i].npi0_nneg[3][0]->ProjectionX(Form("h3_%d",i));
+    TH1D *h3 = hadPlots[i].npi0_nneg[3][inup]->ProjectionX(Form("h3_%d",i));
     TGraph *gr3 = new TGraph(4);
     for (int j = 0; j<6; j++){
       gr3->SetPoint(j,h3->GetBinCenter(j+2),h3->GetBinContent(j+2));
@@ -483,13 +504,16 @@ void HadPlotter::ShowPlots()
 
   TCanvas *cTopo = new TCanvas("cTopo","cTopo",900,400);
   cTopo->Divide(2,1);
+
   DrawFrame(cTopo,1,1,1000,1e-4,10,"#nup","W^{2}(GeV^{2}/c^{4})","P(n_{ch})",true,true);
-  DrawGraph(prd27_47_fig3_vp_2,20,1,0.7);
-  DrawGraph(prd27_47_fig3_vp_4,20,2,0.7);
-  DrawGraph(prd27_47_fig3_vp_6,20,3,0.7);
-  DrawGraph(prd27_47_fig3_vp_8,20,4,0.7);
-  DrawGraph(prd27_47_fig3_vp_10,20,7,0.7);
-  DrawGraph(prd27_47_fig3_vp_12,20,6,0.7);
+
+  DrawGraph(prd27_47_fig3_vp_2,  20, 1, 0.7);
+  DrawGraph(prd27_47_fig3_vp_4,  20, 2, 0.7);
+  DrawGraph(prd27_47_fig3_vp_6,  20, 3, 0.7);
+  DrawGraph(prd27_47_fig3_vp_8,  20, 4, 0.7);
+  DrawGraph(prd27_47_fig3_vp_10, 20, 7, 0.7);
+  DrawGraph(prd27_47_fig3_vp_12, 20, 6, 0.7);
+
   for (unsigned i = 0; i<hadPlots.size(); i++){
     hadPlots[i].pnch_w2[2][0]->SetLineStyle(i+1);
     hadPlots[i].pnch_w2[4][0]->SetLineStyle(i+1);
@@ -497,31 +521,33 @@ void HadPlotter::ShowPlots()
     hadPlots[i].pnch_w2[8][0]->SetLineStyle(i+1);
     hadPlots[i].pnch_w2[10][0]->SetLineStyle(i+1);
     hadPlots[i].pnch_w2[12][0]->SetLineStyle(i+1);
-    DrawGraph(hadPlots[i].pnch_w2[2][0],20,1,0.8,"c");
-    DrawGraph(hadPlots[i].pnch_w2[4][0],20,2,0.8,"c");
-    DrawGraph(hadPlots[i].pnch_w2[6][0],20,3,0.8,"c");
-    DrawGraph(hadPlots[i].pnch_w2[8][0],20,4,0.8,"c");
-    DrawGraph(hadPlots[i].pnch_w2[10][0],20,7,0.8,"c");
-    DrawGraph(hadPlots[i].pnch_w2[12][0],20,6,0.8,"c");
+    DrawGraph(hadPlots[i].pnch_w2[2][inup], 20, 1, 0.8, "c");
+    DrawGraph(hadPlots[i].pnch_w2[4][inup], 20, 2, 0.8, "c");
+    DrawGraph(hadPlots[i].pnch_w2[6][inup], 20, 3, 0.8, "c");
+    DrawGraph(hadPlots[i].pnch_w2[8][inup], 20, 4, 0.8, "c");
+    DrawGraph(hadPlots[i].pnch_w2[10][inup],20, 7, 0.8, "c");
+    DrawGraph(hadPlots[i].pnch_w2[12][inup],20, 6, 0.8, "c");
   }
   TLegend *lTopo1 = new TLegend(0.78,0.45,1,0.85);
   SetLegend(lTopo1);
   lTopo1->SetHeader("#nup 15' #nuD_{2}");
-  lTopo1->AddEntry(prd27_47_fig3_vp_2,"n = 2","p");
-  lTopo1->AddEntry(prd27_47_fig3_vp_4,"n = 4","p");
-  lTopo1->AddEntry(prd27_47_fig3_vp_6,"n = 6","p");
-  lTopo1->AddEntry(prd27_47_fig3_vp_8,"n = 8","p");
-  lTopo1->AddEntry(prd27_47_fig3_vp_10,"n = 10","p");
-  lTopo1->AddEntry(prd27_47_fig3_vp_12,"n = 12","p");
+  lTopo1->AddEntry(prd27_47_fig3_vp_2,  "n = 2",  "p");
+  lTopo1->AddEntry(prd27_47_fig3_vp_4,  "n = 4",  "p");
+  lTopo1->AddEntry(prd27_47_fig3_vp_6,  "n = 6",  "p");
+  lTopo1->AddEntry(prd27_47_fig3_vp_8,  "n = 8",  "p");
+  lTopo1->AddEntry(prd27_47_fig3_vp_10, "n = 10", "p");
+  lTopo1->AddEntry(prd27_47_fig3_vp_12, "n = 12", "p");
   lTopo1->Draw();
 
   DrawFrame(cTopo,2,1,1000,1e-4,10,"#nup","W^{2}(GeV^{2}/c^{4})","P(n_{ch})",true,true);
-  DrawGraph(prd27_47_fig3_vn_1,20,1,0.7);
-  DrawGraph(prd27_47_fig3_vn_3,20,2,0.7);
-  DrawGraph(prd27_47_fig3_vn_5,20,3,0.7);
-  DrawGraph(prd27_47_fig3_vn_7,20,4,0.7);
-  DrawGraph(prd27_47_fig3_vn_9,20,7,0.7);
-  DrawGraph(prd27_47_fig3_vn_11,20,6,0.7);
+
+  DrawGraph(prd27_47_fig3_vn_1,  20, 1, 0.7);
+  DrawGraph(prd27_47_fig3_vn_3,  20, 2, 0.7);
+  DrawGraph(prd27_47_fig3_vn_5,  20, 3, 0.7);
+  DrawGraph(prd27_47_fig3_vn_7,  20, 4, 0.7);
+  DrawGraph(prd27_47_fig3_vn_9,  20, 7, 0.7);
+  DrawGraph(prd27_47_fig3_vn_11, 20, 6, 0.7);
+
   for (unsigned i = 0; i<hadPlots.size(); i++){
     hadPlots[i].pnch_w2[1][1]->SetLineStyle(i+1);
     hadPlots[i].pnch_w2[3][1]->SetLineStyle(i+1);
@@ -529,22 +555,22 @@ void HadPlotter::ShowPlots()
     hadPlots[i].pnch_w2[7][1]->SetLineStyle(i+1);
     hadPlots[i].pnch_w2[9][1]->SetLineStyle(i+1);
     hadPlots[i].pnch_w2[11][1]->SetLineStyle(i+1);
-    DrawGraph(hadPlots[i].pnch_w2[1][1],20,1,0.8,"c");
-    DrawGraph(hadPlots[i].pnch_w2[3][1],20,2,0.8,"c");
-    DrawGraph(hadPlots[i].pnch_w2[5][1],20,3,0.8,"c");
-    DrawGraph(hadPlots[i].pnch_w2[7][1],20,4,0.8,"c");
-    DrawGraph(hadPlots[i].pnch_w2[9][1],20,7,0.8,"c");
-    DrawGraph(hadPlots[i].pnch_w2[11][1],20,6,0.8,"c");
+    DrawGraph(hadPlots[i].pnch_w2[1][inun],  20, 1, 0.8, "c");
+    DrawGraph(hadPlots[i].pnch_w2[3][inun],  20, 2, 0.8, "c");
+    DrawGraph(hadPlots[i].pnch_w2[5][inun],  20, 3, 0.8, "c");
+    DrawGraph(hadPlots[i].pnch_w2[7][inun],  20, 4, 0.8, "c");
+    DrawGraph(hadPlots[i].pnch_w2[9][inun],  20, 7, 0.8, "c");
+    DrawGraph(hadPlots[i].pnch_w2[11][inun], 20, 6, 0.8, "c");
   }
   TLegend *lTopo2 = new TLegend(0.78,0.45,1,0.85);
   SetLegend(lTopo2);
   lTopo2->SetHeader("#nun 15' #nuD_{2}");
-  lTopo2->AddEntry(prd27_47_fig3_vn_1,"n = 1","p");
-  lTopo2->AddEntry(prd27_47_fig3_vn_3,"n = 3","p");
-  lTopo2->AddEntry(prd27_47_fig3_vn_5,"n = 5","p");
-  lTopo2->AddEntry(prd27_47_fig3_vn_7,"n = 7","p");
-  lTopo2->AddEntry(prd27_47_fig3_vn_9,"n = 9","p");
-  lTopo2->AddEntry(prd27_47_fig3_vn_11,"n = 11","p");
+  lTopo2->AddEntry(prd27_47_fig3_vn_1,  "n = 1",  "p");
+  lTopo2->AddEntry(prd27_47_fig3_vn_3,  "n = 3",  "p");
+  lTopo2->AddEntry(prd27_47_fig3_vn_5,  "n = 5",  "p");
+  lTopo2->AddEntry(prd27_47_fig3_vn_7,  "n = 7",  "p");
+  lTopo2->AddEntry(prd27_47_fig3_vn_9,  "n = 9",  "p");
+  lTopo2->AddEntry(prd27_47_fig3_vn_11, "n = 11", "p");
   lTopo2->Draw();
 
   // .........................................................................
@@ -571,25 +597,28 @@ void HadPlotter::ShowPlots()
   htemp = DrawFrame(cMulFB, 1, 1, 300, -0.2, 5.5, "","W^{2}(GeV^{2}/c^{4})", "<n_{ch}>", true, false);
   htemp->GetYaxis()->SetTitleSize(0.07);
   htemp->GetYaxis()->SetTitleOffset(0.8);
+
+  DrawGraph(prd27_47_fig7_vp_cur, 27, 1, 0.8);
+  DrawGraph(npb223_269_nF_W,      24, 1, 0.8);
+  DrawGraph(zpc24_119_fig4_vp_F,  20, 1, 0.8);
   for (unsigned i = 0; i<hadPlots.size(); i++){
-    DrawGraph(hadPlots[i].nch_w_f[0],24,mccolors[i],0.8,"c");
+    DrawGraph(hadPlots[i].nch_w_f[inup],24,mccolors[i],0.8,"c");
   }
-  DrawGraph(prd27_47_fig7_vp_cur,27,1,0.8);
-  DrawGraph(npb223_269_nF_W,24,1,0.8);
-  DrawGraph(zpc24_119_fig4_vp_F,20,1,0.8);
+
   TLegend *lMulFB_1 = new TLegend(0.65,0.05,0.85,0.35);
   SetLegend(lMulFB_1);
-  lMulFB_1->AddEntry(npb223_269_nF_W,"BEBC #nuH_{2}","p");
-  lMulFB_1->AddEntry(zpc24_119_fig4_vp_F,"BEBC #nuD_{2}","p");
-  lMulFB_1->AddEntry(prd27_47_fig7_vp_cur,"15' #nuD_{2}","p");
+  lMulFB_1->AddEntry(npb223_269_nF_W,     "BEBC #nuH_{2}","p");
+  lMulFB_1->AddEntry(zpc24_119_fig4_vp_F, "BEBC #nuD_{2}","p");
+  lMulFB_1->AddEntry(prd27_47_fig7_vp_cur,"15' #nuD_{2}", "p");
   for (unsigned i = 0; i<hadPlots.size(); i++){
     string name = hadPlots[i].modelName;
-    lMulFB_1->AddEntry(hadPlots[i].nch_w_f[0],name.c_str(),"l");
-    lMulFB_1->Draw();
+    lMulFB_1->AddEntry(hadPlots[i].nch_w_f[inup],name.c_str(),"l");
   }
+  lMulFB_1->Draw();
   TLatex *tMulFB_1 = new TLatex(3,4,"(a) #nup forward");
   tMulFB_1->SetTextSize(0.085);
   tMulFB_1->Draw();
+
   cMulFB->cd(2);
   //gPad->SetTopMargin(0);
   gPad->SetBottomMargin(0);
@@ -599,37 +628,42 @@ void HadPlotter::ShowPlots()
   gPad->SetTicky(2);
   htemp = DrawFrame(cMulFB, 2, 1, 300, -0.2, 5.5, "","W^{2}(GeV^{2}/c^{4})", "", true, false);
   htemp->GetYaxis()->SetLabelSize(0);
+
+  DrawGraph(prd27_47_fig7_vp_tar, 27, 1, 0.8);
+  DrawGraph(npb223_269_nB_W,      24, 1, 0.8);
+  DrawGraph(zpc24_119_fig4_vp_B,  20, 1, 0.8);
   for (unsigned i = 0; i<hadPlots.size(); i++){
-    DrawGraph(hadPlots[i].nch_w_b[0],24,mccolors[i],0.8,"c");
+    DrawGraph(hadPlots[i].nch_w_b[inup],24,mccolors[i],0.8,"c");
   }
-  DrawGraph(prd27_47_fig7_vp_tar,27,1,0.8);
-  DrawGraph(npb223_269_nB_W,24,1,0.8);
-  DrawGraph(zpc24_119_fig4_vp_B,20,1,0.8);
   lMulFB_1->Draw();
   TLatex *tMulFB_2 = new TLatex(3,4,"(b) #nup backward");
   tMulFB_2->SetTextSize(0.085);
   tMulFB_2->Draw();
+
   cMulFB->cd(3);
   gPad->SetTopMargin(0);
   gPad->SetRightMargin(0);
+
   DrawFrame(cMulFB, 3, 1, 300, -0.2, 5.5, "","W^{2}(GeV^{2}/c^{4})", "<n_{ch}>", true, false);
+
+  DrawGraph(prd27_47_fig7_vn_cur, 27, 1, 0.8);
+  DrawGraph(zpc24_119_fig4_vn_F,  20, 1, 0.8);
   for (unsigned i = 0; i<hadPlots.size(); i++){
-    DrawGraph(hadPlots[i].nch_w_f[1],24,mccolors[i],0.8,"c");
+    DrawGraph(hadPlots[i].nch_w_f[inun],24,mccolors[i],0.8,"c");
   }
-  DrawGraph(prd27_47_fig7_vn_cur,27,1,0.8);
-  DrawGraph(zpc24_119_fig4_vn_F,20,1,0.8);
   TLegend *lMulFB_3 = new TLegend(0.65,0.25,0.85,0.45);
   SetLegend(lMulFB_3);
-  lMulFB_3->AddEntry(zpc24_119_fig4_vn_F,"BEBC #nuD_{2}","p");
-  lMulFB_3->AddEntry(prd27_47_fig7_vn_cur,"15' #nuD_{2}","p");
+  lMulFB_3->AddEntry(zpc24_119_fig4_vn_F, "BEBC #nuD_{2}","p");
+  lMulFB_3->AddEntry(prd27_47_fig7_vn_cur,"15' #nuD_{2}", "p");
   for (unsigned i = 0; i<hadPlots.size(); i++){
     string name = hadPlots[i].modelName;
-    lMulFB_3->AddEntry(hadPlots[i].nch_w_f[1],name.c_str(),"l");
+    lMulFB_3->AddEntry(hadPlots[i].nch_w_f[inun],name.c_str(),"l");
   }
   lMulFB_3->Draw();
   TLatex *tMulFB_3 = new TLatex(3,4,"(c) #nun forward");
   tMulFB_3->SetTextSize(0.07);
   tMulFB_3->Draw();
+
   cMulFB->cd(4);
   gPad->SetTopMargin(0);
   gPad->SetLeftMargin(0);
@@ -637,18 +671,19 @@ void HadPlotter::ShowPlots()
   gPad->SetTicky(2);
   htemp = DrawFrame(cMulFB, 4, 1, 300, -0.2, 5.5, "","W^{2}(GeV^{2}/c^{4})", "", true, false);
   htemp->GetYaxis()->SetLabelSize(0);
+
+  DrawGraph(prd27_47_fig7_vn_tar, 27, 1, 0.8);
+  DrawGraph(zpc24_119_fig4_vn_B,  20, 1, 0.8); 
   for (unsigned i = 0; i<hadPlots.size(); i++){
-    DrawGraph(hadPlots[i].nch_w_b[1],20,mccolors[i],0.8,"c");
+    DrawGraph(hadPlots[i].nch_w_b[inun],20,mccolors[i],0.8,"c");
   }
-  DrawGraph(prd27_47_fig7_vn_tar,27,1,0.8);
-  DrawGraph(zpc24_119_fig4_vn_B,20,1,0.8);
   lMulFB_3->Draw();
   TLatex *tMulFB_4 = new TLatex(3,4,"(d) #nun backward");
   tMulFB_4->SetTextSize(0.07);
   tMulFB_4->Draw();
   
   // .........................................................................
-  // xF distribution
+  // xF distribution for pi+, pi-
   // .........................................................................
 
   TGraphErrors *npb214_369_fig7_pip = MakeGraph("xF_distribution/npb214_369_fig7_pip.dat");
@@ -658,9 +693,9 @@ void HadPlotter::ShowPlots()
   DrawFrame(cXF, 1, -1, 1, 0.01, 10, "","X_{F}", "(1/N_{ev})dN^{#pi}/dX_{F}", false, true);
   DrawGraph(npb214_369_fig7_pip,20,1,0.8);
   for (unsigned i = 0; i<hadPlots.size(); i++){
-    hadPlots[i].xf_pip[0]->SetLineColor(mccolors[i]);
-    hadPlots[i].xf_pip[0]->SetMarkerStyle(1);
-    hadPlots[i].xf_pip[0]->Draw("hist c same");
+    hadPlots[i].xf_pip[inup]->SetLineColor(mccolors[i]);
+    hadPlots[i].xf_pip[inup]->SetMarkerStyle(1);
+    hadPlots[i].xf_pip[inup]->Draw("hist c same");
   }
   TLegend *lXF = new TLegend(0.45,0.25,0.75,0.45);
   SetLegend(lXF);
@@ -668,7 +703,7 @@ void HadPlotter::ShowPlots()
   lXF->AddEntry(npb214_369_fig7_pip, "#nup, BEBC #nuH_{2}","p");
   for (unsigned i = 0; i<hadPlots.size(); i++){
     string name = hadPlots[i].modelName;
-    lXF->AddEntry(hadPlots[i].xf_pip[0],name.c_str(),"l");
+    lXF->AddEntry(hadPlots[i].xf_pip[inup],name.c_str(),"l");
   }
   lXF->Draw();
   TLatex *txf1 = new TLatex(-0.9,5,"#pi^{+} from #nup");
@@ -677,9 +712,9 @@ void HadPlotter::ShowPlots()
   DrawFrame(cXF, 2, -1, 1, 0.01, 10, "","X_{F}", "(1/N_{ev})dN^{#pi}/dX_{F}", false, true);
   DrawGraph(npb214_369_fig7_pim,20,1,0.8);
   for (unsigned i = 0; i<hadPlots.size(); i++){
-    hadPlots[i].xf_pim[0]->SetLineColor(mccolors[i]);
-    hadPlots[i].xf_pim[0]->SetMarkerStyle(1);
-    hadPlots[i].xf_pim[0]->Draw("hist c same");
+    hadPlots[i].xf_pim[inup]->SetLineColor(mccolors[i]);
+    hadPlots[i].xf_pim[inup]->SetMarkerStyle(1);
+    hadPlots[i].xf_pim[inup]->Draw("hist c same");
   }
   TLatex *txf2 = new TLatex(-0.9,5,"#pi^{-} from #nup");
   txf2->SetTextSize(0.06);
@@ -687,32 +722,35 @@ void HadPlotter::ShowPlots()
   lXF->Draw();
 
   // .........................................................................
-  // z distribution
+  // z distribution for positive and negative hadrons
   // .........................................................................
 
   TGraphErrors *zpc24_119_fig8_vd_pos = MakeGraph("z_distribution/zpc24_119_fig8_vd_pos.dat");
   TGraphErrors *zpc24_119_fig8_vd_neg = MakeGraph("z_distribution/zpc24_119_fig8_vd_neg.dat");
+
   TCanvas *cZ = new TCanvas("cZ","cZ",800,400);
   cZ->Divide(2,1);
+
   DrawFrame(cZ, 1, 0, 1, 0.001, 40, "","z", "D^{+}(z)", false, true);
   DrawGraph(zpc24_119_fig8_vd_pos,20,1,0.8);
   for (unsigned i = 0; i<hadPlots.size(); i++){
-    hadPlots[i].z_pos[0]->SetLineColor(mccolors[i]);
-    hadPlots[i].z_pos[0]->SetMarkerStyle(1);
-    hadPlots[i].z_pos[0]->Draw("hist c same");
-    hadPlots[i].z_pos[1]->SetLineColor(mccolors[i]);
-    hadPlots[i].z_pos[1]->SetLineStyle(2);
-    hadPlots[i].z_pos[1]->SetMarkerStyle(1);
-    hadPlots[i].z_pos[1]->Draw("hist c same");
+    hadPlots[i].z_pos[inup]->SetLineColor(mccolors[i]);
+    hadPlots[i].z_pos[inup]->SetMarkerStyle(1);
+    hadPlots[i].z_pos[inup]->Draw("hist c same");
+    hadPlots[i].z_pos[inun]->SetLineColor(mccolors[i]);
+    hadPlots[i].z_pos[inun]->SetLineStyle(2);
+    hadPlots[i].z_pos[inun]->SetMarkerStyle(1);
+    hadPlots[i].z_pos[inun]->Draw("hist c same");
   }
+
   TLegend *leg_z = new TLegend(0.2,0.25,0.55,0.45);
   SetLegend(leg_z);
   leg_z->AddEntry(zpc24_119_fig8_vd_pos,"#nuD_{2} BEBC","p");
   for (unsigned i = 0; i<hadPlots.size(); i++){
     string name = "#nup "+hadPlots[i].modelName;
-    leg_z->AddEntry(hadPlots[i].z_pos[0],name.c_str(),"l");
+    leg_z->AddEntry(hadPlots[i].z_pos[inup],name.c_str(),"l");
     name = "#nun "+hadPlots[i].modelName;
-    leg_z->AddEntry(hadPlots[i].z_pos[1],name.c_str(),"l");
+    leg_z->AddEntry(hadPlots[i].z_pos[inun],name.c_str(),"l");
   }
   leg_z->Draw();
   TLatex *tz1 = new TLatex(0.6,10,"h^{+}");
@@ -721,151 +759,108 @@ void HadPlotter::ShowPlots()
   DrawFrame(cZ, 2, 0, 1, 0.001, 40, "","z", "D^{-}(z)", false, true);
   DrawGraph(zpc24_119_fig8_vd_neg,20,1,0.8);
   for (unsigned i = 0; i<hadPlots.size(); i++){
-    hadPlots[i].z_neg[0]->SetLineColor(mccolors[i]);
-    hadPlots[i].z_neg[0]->SetMarkerStyle(1);
-    hadPlots[i].z_neg[0]->Draw("hist c same");
-    hadPlots[i].z_neg[1]->SetLineColor(mccolors[i]);
-    hadPlots[i].z_neg[1]->SetLineStyle(2);
-    hadPlots[i].z_neg[1]->SetMarkerStyle(1);
-    hadPlots[i].z_neg[1]->Draw("hist c same");
+    hadPlots[i].z_neg[inup]->SetLineColor(mccolors[i]);
+    hadPlots[i].z_neg[inup]->SetMarkerStyle(1);
+    hadPlots[i].z_neg[inup]->Draw("hist c same");
+    hadPlots[i].z_neg[inun]->SetLineColor(mccolors[i]);
+    hadPlots[i].z_neg[inun]->SetLineStyle(2);
+    hadPlots[i].z_neg[inun]->SetMarkerStyle(1);
+    hadPlots[i].z_neg[inun]->Draw("hist c same");
   }
   leg_z->Draw();
   TLatex *tz2 = new TLatex(0.6,10,"h^{-}");
   tz2->SetTextSize(0.06);
   tz2->Draw();
 
-  /*
-
   // .........................................................................
-  // pT distribution
-  // .........................................................................
-
-  TGraphErrors *prd19_1_fig11_xf1 = MakeGraph("pT2_distribution/prd19_1_fig11_xf1.dat");
-  TGraphErrors *prd19_1_fig11_xf2 = MakeGraph("pT2_distribution/prd19_1_fig11_xf2.dat");
-  TGraphErrors *prd19_1_fig11_xf3 = MakeGraph("pT2_distribution/prd19_1_fig11_xf3.dat");
-  TGraphErrors *prd19_1_fig11_xf4 = MakeGraph("pT2_distribution/prd19_1_fig11_xf4.dat");
-  TCanvas *cPt = new TCanvas("cPt","cPt",800,800);
-  cPt->Divide(2,2);
-  DrawFrame(cPt,1,0,1.2,0.01,30,"0<X_{F}<0.1","P_{T}^{2}[(GeV/c)^{2}]","h^{#pm}Tracks/Event/(GeV/c)^2",false,true);
-  DrawGraph(prd19_1_fig11_xf1,20,1,0.7);
-  for (unsigned i = 0; i<hadPlots.size(); i++){
-    hadPlots[i].pt2_xf1[0]->SetLineColor(mccolors[i]);
-    hadPlots[i].pt2_xf1[0]->SetMarkerStyle(1);
-    hadPlots[i].pt2_xf1[0]->Draw("hist c same");
-  }
-  TLegend *leg_pt = new TLegend(0.45,0.5,0.85,0.7);
-  SetLegend(leg_pt);
-  leg_pt->AddEntry(prd19_1_fig11_xf1,"#nup 15'#nuH_{2}, W>4GeV","l");
-  for (unsigned i = 0; i<hadPlots.size(); i++){
-    string name = "#nup "+hadPlots[i].modelName;
-    leg_pt->AddEntry(hadPlots[i].pt2_xf1[0],name.c_str(),"l");
-  }
-  leg_pt->Draw();
-
-  DrawFrame(cPt,2,0,1.2,0.01,30,"0.1<X_{F}<0.3","P_{T}^{2}[(GeV/c)^{2}]","h^{#pm}Tracks/Event/(GeV/c)^2",false,true);
-  DrawGraph(prd19_1_fig11_xf2,20,1,0.7);
-  for (unsigned i = 0; i<hadPlots.size(); i++){
-    hadPlots[i].pt2_xf2[0]->SetLineColor(mccolors[i]);
-    hadPlots[i].pt2_xf2[0]->SetMarkerStyle(1);
-    hadPlots[i].pt2_xf2[0]->Draw("hist c same");
-  }
-
-  DrawFrame(cPt,3,0,1.2,0.01,30,"0.3<X_{F}<0.6","P_{T}^{2}[(GeV/c)^{2}]","h^{#pm}Tracks/Event/(GeV/c)^2",false,true);
-  DrawGraph(prd19_1_fig11_xf3,20,1,0.7);
-  for (unsigned i = 0; i<hadPlots.size(); i++){
-    hadPlots[i].pt2_xf3[0]->SetLineColor(mccolors[i]);
-    hadPlots[i].pt2_xf3[0]->SetMarkerStyle(1);
-    hadPlots[i].pt2_xf3[0]->Draw("hist c same");
-  }
-
-  DrawFrame(cPt,4,0,1.2,0.001,3,"0.6<X_{F}<1.0","P_{T}^{2}[(GeV/c)^{2}]","h^{#pm}Tracks/Event/(GeV/c)^2",false,true);
-  DrawGraph(prd19_1_fig11_xf4,20,1,0.7);
-  for (unsigned i = 0; i<hadPlots.size(); i++){
-    hadPlots[i].pt2_xf4[0]->SetLineColor(mccolors[i]);
-    hadPlots[i].pt2_xf4[0]->SetMarkerStyle(1);
-    hadPlots[i].pt2_xf4[0]->Draw("hist c same");
-  }
-  */
-
-  // .........................................................................
-  // pT2 vs W2
+  // <pT2> vs W2, forward & backward
   // .........................................................................
 
   TGraphErrors *zpc27_239_fig3_vD_F = MakeGraph("pT2_vs_W2/zpc27_239_fig3_vD_F.dat");
   TGraphErrors *zpc27_239_fig3_vD_B = MakeGraph("pT2_vs_W2/zpc27_239_fig3_vD_B.dat");
+
   TCanvas *cPt_W2 = new TCanvas("cPt_W2","cPt_W2",800,400);
   cPt_W2->Divide(2,1);
+
   DrawFrame(cPt_W2,1,1,300,0,1,"","W^{2}(GeV^{2}/c^{4})","<P_{T}^{2}>(GeV/c)^{2}",true,false);
+
   DrawGraph(zpc27_239_fig3_vD_F,20,1);
   for (unsigned i = 0; i<hadPlots.size(); i++){
-    hadPlots[i].pt2_W2_F[0]->SetLineColor(mccolors[i]);
-    hadPlots[i].pt2_W2_F[0]->Draw("hist c same");
-    hadPlots[i].pt2_W2_F[1]->SetLineColor(mccolors[i]);
-    hadPlots[i].pt2_W2_F[1]->SetLineStyle(2);
-    hadPlots[i].pt2_W2_F[1]->Draw("hist c same");
+    hadPlots[i].pt2_W2_F[inup]->SetLineColor(mccolors[i]);
+    hadPlots[i].pt2_W2_F[inup]->Draw("hist c same");
+    hadPlots[i].pt2_W2_F[inun]->SetLineColor(mccolors[i]);
+    hadPlots[i].pt2_W2_F[inun]->SetLineStyle(2);
+    hadPlots[i].pt2_W2_F[inun]->Draw("hist c same");
   }
+
   TLegend *leg_pt2_w2_F = new TLegend(0.2,0.6,0.6,0.85);
   SetLegend(leg_pt2_w2_F);
   leg_pt2_w2_F->SetHeader("X_{F}>0.3");
   leg_pt2_w2_F->AddEntry(zpc27_239_fig3_vD_F,"#nuD_{2}BEBC","p");
   for (unsigned i = 0; i<hadPlots.size(); i++){
     string name = "#nup "+hadPlots[i].modelName;
-    leg_pt2_w2_F->AddEntry(hadPlots[i].pt2_W2_F[0],name.c_str(),"l");
+    leg_pt2_w2_F->AddEntry(hadPlots[i].pt2_W2_F[inup],name.c_str(),"l");
     name = "#nun "+hadPlots[i].modelName;
-    leg_pt2_w2_F->AddEntry(hadPlots[i].pt2_W2_F[1],name.c_str(),"l");
+    leg_pt2_w2_F->AddEntry(hadPlots[i].pt2_W2_F[inun],name.c_str(),"l");
   }
   leg_pt2_w2_F->Draw();
   
   DrawFrame(cPt_W2,2,1,300,0,1,"","W^{2}(GeV^{2}/c^{4})","<P_{T}^{2}>(GeV/c)^{2}",true,false);  
+
   DrawGraph(zpc27_239_fig3_vD_B,20,1);
   for (unsigned i = 0; i<hadPlots.size(); i++){
-    hadPlots[i].pt2_W2_B[0]->SetLineColor(mccolors[i]);
-    hadPlots[i].pt2_W2_B[0]->Draw("hist c same");
-    hadPlots[i].pt2_W2_B[1]->SetLineColor(mccolors[i]);
-    hadPlots[i].pt2_W2_B[1]->SetLineStyle(2);
-    hadPlots[i].pt2_W2_B[1]->Draw("hist c same");
+    hadPlots[i].pt2_W2_B[inup]->SetLineColor(mccolors[i]);
+    hadPlots[i].pt2_W2_B[inup]->Draw("hist c same");
+    hadPlots[i].pt2_W2_B[inun]->SetLineColor(mccolors[i]);
+    hadPlots[i].pt2_W2_B[inun]->SetLineStyle(2);
+    hadPlots[i].pt2_W2_B[inun]->Draw("hist c same");
   }
+
   TLegend *leg_pt2_w2_B = new TLegend(0.2,0.6,0.6,0.85);
   SetLegend(leg_pt2_w2_B);
   leg_pt2_w2_B->SetHeader("X_{F}<0.3");
   leg_pt2_w2_B->AddEntry(zpc27_239_fig3_vD_B,"#nuD_{2} BEBC","p");
   for (unsigned i = 0; i<hadPlots.size(); i++){
     string name = "#nup "+hadPlots[i].modelName;
-    leg_pt2_w2_B->AddEntry(hadPlots[i].pt2_W2_B[0],name.c_str(),"l");
+    leg_pt2_w2_B->AddEntry(hadPlots[i].pt2_W2_B[inup],name.c_str(),"l");
     name = "#nun "+hadPlots[i].modelName;
-    leg_pt2_w2_B->AddEntry(hadPlots[i].pt2_W2_B[1],name.c_str(),"l");
+    leg_pt2_w2_B->AddEntry(hadPlots[i].pt2_W2_B[inun],name.c_str(),"l");
   }
   leg_pt2_w2_B->Draw();
 
   // .........................................................................
-  // pt2 vs xf
+  // <pT2> vs xF 
   // .........................................................................
 
   TGraphErrors *zpc27_239_fig6_vp_loW = MakeGraph("pT2_vs_xF/zpc27_239_fig6_vp_loW.dat");
   TGraphErrors *zpc27_239_fig6_vn_loW = MakeGraph("pT2_vs_xF/zpc27_239_fig6_vn_loW.dat");
+
   TCanvas *cPt2_xf = new TCanvas("cPt2_xf","cPt2_xf",800,400);
   cPt2_xf->Divide(2,1);
+
   DrawFrame(cPt2_xf,1,-1,1,0,0.8,"","X_{F}","<P_{T}^{2}>(GeV/c)^{2}",false,false);
+
   DrawGraph(zpc27_239_fig6_vp_loW,20,1);
   for (unsigned i = 0; i<hadPlots.size(); i++){
-    hadPlots[i].pt2_xf_loW[0]->SetLineColor(mccolors[i]);
-    hadPlots[i].pt2_xf_loW[0]->Draw("hist c same");
+    hadPlots[i].pt2_xf_loW[inup]->SetLineColor(mccolors[i]);
+    hadPlots[i].pt2_xf_loW[inup]->Draw("hist c same");
   }
+
   TLegend *leg_pt2_xf_p = new TLegend(0.3,0.6,0.8,0.85);
   SetLegend(leg_pt2_xf_p);
   leg_pt2_xf_p->SetHeader("#nup, 9<W^{2}<25GeV^{2}");
   leg_pt2_xf_p->AddEntry(zpc27_239_fig6_vp_loW,"BEBC #nuD_{2}","p");
   for (unsigned i = 0; i<hadPlots.size(); i++){
     string name = hadPlots[i].modelName;
-    leg_pt2_xf_p->AddEntry(hadPlots[i].pt2_xf_loW[0],name.c_str(),"l");
+    leg_pt2_xf_p->AddEntry(hadPlots[i].pt2_xf_loW[inup],name.c_str(),"l");
   }
   leg_pt2_xf_p->Draw();
 
   DrawFrame(cPt2_xf,2,-1,1,0,0.8,"","X_{F}","<P_{T}^{2}>(GeV/c)^{2}",false,false);
   DrawGraph(zpc27_239_fig6_vn_loW,20,1);
   for (unsigned i = 0; i<hadPlots.size(); i++){
-    hadPlots[i].pt2_xf_loW[1]->SetLineColor(mccolors[i]);
-    hadPlots[i].pt2_xf_loW[1]->Draw("hist c same");
+    hadPlots[i].pt2_xf_loW[inun]->SetLineColor(mccolors[i]);
+    hadPlots[i].pt2_xf_loW[inun]->Draw("hist c same");
   }
   TLegend *leg_pt2_xf_n = new TLegend(0.3,0.6,0.8,0.85);
   SetLegend(leg_pt2_xf_n);
@@ -873,33 +868,92 @@ void HadPlotter::ShowPlots()
   leg_pt2_xf_n->AddEntry(zpc27_239_fig6_vn_loW,"BEBC #nuD_{2}","p");
   for (unsigned i = 0; i<hadPlots.size(); i++){
     string name = hadPlots[i].modelName;
-    leg_pt2_xf_n->AddEntry(hadPlots[i].pt2_xf_loW[1],name.c_str(),"l");
+    leg_pt2_xf_n->AddEntry(hadPlots[i].pt2_xf_loW[inun],name.c_str(),"l");
   }
   leg_pt2_xf_n->Draw();
 
 
-  //
-  // *** Anti-neutrino plots
-  // 
+  // .........................................................................
+  // eta multiplicity
+  // .........................................................................
 
+  TGraphErrors *eta_all_xf_w = MakeGraph("SKAT/eta_all_xf_w.dat");
+  TGraphErrors *eta_pos_xf_w = MakeGraph("SKAT/eta_pos_xf_w.dat");
+
+  TCanvas * cMulEta = new TCanvas("MulEta","MulEta",800,350);
+  cMulEta->Divide(2,1);
+
+  DrawFrame(cMulEta,1,1,6,0,0.5,"","W(GeV)","<n_{#eta}>",false,false);
+
+  DrawGraph(eta_all_xf_w,20,1,0.8);
+  for(unsigned i = 0; i<hadPlots.size();i++){
+    TProfile * teta = hadPlots[i].neta_W[inup];
+    teta->SetLineColor(mccolors[i]);
+    teta->SetMarkerColor(mccolors[i]);
+    teta->Draw("l sames");
+  }
+
+  TLegend *lMulEta = new TLegend(0.6,0.6,1.0,0.9);
+  SetLegend(lMulEta);
+  lMulEta->AddEntry(eta_all_xf_w,"SKAT","p");
+  for (unsigned i = 0; i<hadPlots.size(); i++){
+    string name = "#nup "+hadPlots[i].modelName;
+    hadPlots[i].neta_W[inup]->SetLineColor(mccolors[i]);
+    lMulEta->AddEntry(hadPlots[i].neta_W[inup],name.c_str(),"l");
+    lMulEta->Draw();
+  }
+  lMulEta->Draw();
+
+  DrawFrame(cMulEta,2,1,6,0,0.3,"","W(GeV)","<n_{#eta}>",false,false);
+  DrawGraph(eta_pos_xf_w,20,1,0.8);
+  for(unsigned i = 0; i< hadPlots.size(); i++){
+    TProfile * teta_F = hadPlots[i].neta_W_F[inup];
+    teta_F->SetLineColor(mccolors[i]);
+    teta_F->SetMarkerColor(mccolors[i]);
+    teta_F->Draw("l sames");
+  }
+  TLegend *lMulEta_1 = new TLegend(0.6,0.6,1.0,0.90);
+  SetLegend(lMulEta_1);
+  lMulEta_1->AddEntry(eta_pos_xf_w,"SKAT","p");
+  for(unsigned i = 0; i< hadPlots.size(); i++){
+    string name = "#nup "+hadPlots[i].modelName;
+    hadPlots[i].neta_W_F[inup]->SetLineColor(mccolors[i]);
+    lMulEta_1->AddEntry(hadPlots[i].neta_W_F[inup],name.c_str(),"l");
+    lMulEta_1->Draw();
+  }
+  lMulEta_1->Draw();
+  TLatex *tMulEta_1 = new TLatex(0.8,0.3,"x_{F}>0");
+  tMulEta_1->SetNDC();
+  tMulEta_1->SetTextSize(0.08);
+  tMulEta_1->Draw();
+
+  
+  //
+  // Anti-neutrino plots
+  // =========================================================================
+  // 
 
   // .........................................................................
   // Charged hadron multiplicity
   // .........................................................................
 
   TGraphErrors *prd25_624_fig5 = MakeGraph("charged_hadron_multiplicity/prd25_624_fig5.dat");
+
   TCanvas *cMulCh_nubar = new TCanvas("cMulCh_nubar","cMulCh_nubar",600,400);
+
   DrawFrame(cMulCh_nubar,0,1,300,0,10,"","W^{2}(GeV^{2}/c^{4})","<n_{ch}>",true,false);
+
   DrawGraph(prd25_624_fig5,24,1,0.8);
   for (unsigned i = 0; i<hadPlots.size(); i++){
-    DrawGraph(hadPlots[i].nch_w[2],24,mccolors[i],0.8,"c");
+    DrawGraph(hadPlots[i].nch_w[inubarp],24,mccolors[i],0.8,"c");
   }
+
   TLegend *lMulCh_nubar = new TLegend(0.65,0.25,0.8,0.45);
   SetLegend(lMulCh_nubar);
   lMulCh_nubar->AddEntry(prd25_624_fig5,"15' #bar{#nu}H_{2}","p");
   for (unsigned i = 0; i<hadPlots.size(); i++){
     string name = hadPlots[i].modelName;
-    lMulCh_nubar->AddEntry(hadPlots[i].nch_w[2],name.c_str(),"l");
+    lMulCh_nubar->AddEntry(hadPlots[i].nch_w[inubarp],name.c_str(),"l");
   }
   lMulCh_nubar->Draw();
   TLatex *tMulCh_nubar = new TLatex(3,7,"#bar{#nu}p#rightarrow#mu^{+}X^{0}");
@@ -911,18 +965,22 @@ void HadPlotter::ShowPlots()
   // .........................................................................
 
   TGraphErrors *prd25_624_fig8 = MakeGraph("charged_hadron_dispersion/prd25_624_fig8.dat");
+
   TCanvas *cDispCh_nubar = new TCanvas("cDispCh_nubar","cDispCh_nubar",600,400);
+
   DrawFrame(cDispCh_nubar,0,0,4,0,2,"","<n_{-}>","D_{-}",false,false);
+
   DrawGraph(prd25_624_fig8,24,1,0.8);
   for (unsigned i = 0; i<hadPlots.size(); i++){
-    DrawGraph(hadPlots[i].D_nneg[2],24,mccolors[i],0.8,"c");
+    DrawGraph(hadPlots[i].D_nneg[inubarp],24,mccolors[i],0.8,"c");
   }
+
   TLegend *lDispCh_nubar = new TLegend(0.75,0.25,0.95,0.4);
   SetLegend(lDispCh_nubar);
   lDispCh_nubar->AddEntry(prd25_624_fig8,"15' #bar{#nu}H_{2}","p");
   for (unsigned i = 0; i<hadPlots.size(); i++){
     string name = hadPlots[i].modelName;
-    lDispCh_nubar->AddEntry(hadPlots[i].D_nneg[2],name.c_str(),"l");
+    lDispCh_nubar->AddEntry(hadPlots[i].D_nneg[inubarp],name.c_str(),"l");
   }
   lDispCh_nubar->Draw();
   TLatex *tDispCh_nubar = new TLatex(0.5,1.4,"#bar{#nu}p#rightarrow#mu^{+}X^{0}");
@@ -939,88 +997,100 @@ void HadPlotter::ShowPlots()
   TGraphErrors *prd25_624_6  = MakeGraph("normalised_topological_xsec/prd25_624_6.dat");
   TGraphErrors *prd25_624_8  = MakeGraph("normalised_topological_xsec/prd25_624_8.dat");
   TGraphErrors *prd25_624_10 = MakeGraph("normalised_topological_xsec/prd25_624_10.dat");
+
   TCanvas *cTopo_nubar = new TCanvas("cTopo_nubar","cTopo_nubar",600,370);
+
   DrawFrame(cTopo_nubar,0,1,1000,1e-4,10,"","W^{2}(GeV^{2}/c^{4})","P(n_{ch})",true,true);
-  DrawGraph(prd25_624_0,20,1,0.7);
-  DrawGraph(prd25_624_2,20,2,0.7);
-  DrawGraph(prd25_624_4,20,3,0.7);
-  DrawGraph(prd25_624_6,20,4,0.7);
-  DrawGraph(prd25_624_8,20,7,0.7);
-  DrawGraph(prd25_624_10,20,6,0.7);
+
+  DrawGraph(prd25_624_0,  20, 1, 0.7);
+  DrawGraph(prd25_624_2,  20, 2, 0.7);
+  DrawGraph(prd25_624_4,  20, 3, 0.7);
+  DrawGraph(prd25_624_6,  20, 4, 0.7);
+  DrawGraph(prd25_624_8,  20, 7, 0.7);
+  DrawGraph(prd25_624_10, 20, 6, 0.7);
+
   for (unsigned i = 0; i<hadPlots.size(); i++){
-    hadPlots[i].pnch_w2[0][2]->SetLineStyle(i+1);
-    hadPlots[i].pnch_w2[2][2]->SetLineStyle(i+1);
-    hadPlots[i].pnch_w2[4][2]->SetLineStyle(i+1);
-    hadPlots[i].pnch_w2[6][2]->SetLineStyle(i+1);
-    hadPlots[i].pnch_w2[8][2]->SetLineStyle(i+1);
-    hadPlots[i].pnch_w2[10][2]->SetLineStyle(i+1);
-    DrawGraph(hadPlots[i].pnch_w2[0][2],20,1,0.8,"c");
-    DrawGraph(hadPlots[i].pnch_w2[2][2],20,2,0.8,"c");
-    DrawGraph(hadPlots[i].pnch_w2[4][2],20,3,0.8,"c");
-    DrawGraph(hadPlots[i].pnch_w2[6][2],20,4,0.8,"c");
-    DrawGraph(hadPlots[i].pnch_w2[8][2],20,7,0.8,"c");
-    DrawGraph(hadPlots[i].pnch_w2[10][2],20,6,0.8,"c");
+    hadPlots[i].pnch_w2[0][inubarp]->SetLineStyle(i+1);
+    hadPlots[i].pnch_w2[2][inubarp]->SetLineStyle(i+1);
+    hadPlots[i].pnch_w2[4][inubarp]->SetLineStyle(i+1);
+    hadPlots[i].pnch_w2[6][inubarp]->SetLineStyle(i+1);
+    hadPlots[i].pnch_w2[8][inubarp]->SetLineStyle(i+1);
+    hadPlots[i].pnch_w2[10][inubarp]->SetLineStyle(i+1);
+    DrawGraph(hadPlots[i].pnch_w2[0][inubarp],  20, 1, 0.8, "c");
+    DrawGraph(hadPlots[i].pnch_w2[2][inubarp],  20, 2, 0.8, "c");
+    DrawGraph(hadPlots[i].pnch_w2[4][inubarp],  20, 3, 0.8, "c");
+    DrawGraph(hadPlots[i].pnch_w2[6][inubarp],  20, 4, 0.8, "c");
+    DrawGraph(hadPlots[i].pnch_w2[8][inubarp],  20, 7, 0.8, "c");
+    DrawGraph(hadPlots[i].pnch_w2[10][inubarp], 20, 6, 0.8, "c");
   }
   TLegend *lTopo_nubar = new TLegend(0.7,0.45,0.95,0.85);
   SetLegend(lTopo_nubar);
-  lTopo_nubar->AddEntry(prd25_624_0,"n = 0, 15' #bar{#nu}H_{2}(MC)","p");
-  lTopo_nubar->AddEntry(prd25_624_2,"n = 2, 15' #bar{#nu}H_{2}","p");
-  lTopo_nubar->AddEntry(prd25_624_4,"n = 4, 15' #bar{#nu}H_{2}","p");
-  lTopo_nubar->AddEntry(prd25_624_6,"n = 6, 15' #bar{#nu}H_{2}","p");
-  lTopo_nubar->AddEntry(prd25_624_8,"n = 8, 15' #bar{#nu}H_{2}","p");
-  lTopo_nubar->AddEntry(prd25_624_10,"n = 10, 15' #bar{#nu}H_{2}","p");
+  lTopo_nubar->AddEntry(prd25_624_0,  "n =  0, 15' #bar{#nu}H_{2}", "p");
+  lTopo_nubar->AddEntry(prd25_624_2,  "n =  2, 15' #bar{#nu}H_{2}", "p");
+  lTopo_nubar->AddEntry(prd25_624_4,  "n =  4, 15' #bar{#nu}H_{2}", "p");
+  lTopo_nubar->AddEntry(prd25_624_6,  "n =  6, 15' #bar{#nu}H_{2}", "p");
+  lTopo_nubar->AddEntry(prd25_624_8,  "n =  8, 15' #bar{#nu}H_{2}", "p");
+  lTopo_nubar->AddEntry(prd25_624_10, "n = 10, 15' #bar{#nu}H_{2}", "p");
   lTopo_nubar->Draw();
 
   // .........................................................................
-  // Pi0 multiplicity
+  // Average pi0 multiplicity vs W^2
   // .........................................................................
 
   TGraphErrors *nc51a_539_fig4        = MakeGraph("pi0_multiplicity/nc51a_539_fig4.dat");
   TGraphErrors *npb223_269_fig8b      = MakeGraph("pi0_multiplicity/npb223_269_fig8b.dat");
   TGraphErrors *zpc40_231_fig13_nubar = MakeGraph("pi0_multiplicity/zpc40_231_fig13_nubar.dat");
+
   TCanvas *cMulPi0_nubar = new TCanvas("cMulPi0_nubar","cMulPi0_nubar");
+
   DrawFrame(cMulPi0_nubar,0,1,1000,0,4,"","W^{2}(GeV^{2}/c^{4})","<n_{#pi^{0}}>",true,false);
-  //DrawGraph(sn41_963_fig2,20,1,0.8);
-  DrawGraph(nc51a_539_fig4,24,1,0.8);
-  DrawGraph(npb223_269_fig8b,26,1,0.8);
-  DrawGraph(zpc40_231_fig13_nubar,20,1,0.8);
+
+  DrawGraph(nc51a_539_fig4,        24, 1, 0.8);
+  DrawGraph(npb223_269_fig8b,      26, 1, 0.8);
+  DrawGraph(zpc40_231_fig13_nubar, 20, 1, 0.8);
+
   for (unsigned i = 0; i<hadPlots.size(); i++){
-    DrawGraph(hadPlots[i].npi0_w[2],24,mccolors[i],0.8,"c");
+    DrawGraph(hadPlots[i].npi0_w[inubarp],24,mccolors[i],0.8,"c");
     hadPlots[i].npi0_w[3]->SetLineStyle(2);
-    DrawGraph(hadPlots[i].npi0_w[3],24,mccolors[i],0.8,"c");
+    DrawGraph(hadPlots[i].npi0_w[inubarn],24,mccolors[i],0.8,"c");
   }
+
   TLegend *lMulPi0_nubar = new TLegend(0.7,0.25,0.95,0.55);
   SetLegend(lMulPi0_nubar);
-  lMulPi0_nubar->AddEntry(nc51a_539_fig4,"FNAL 15' #bar{#nu}neon+H_{2}","p");
-  lMulPi0_nubar->AddEntry(zpc40_231_fig13_nubar,"BEBC #bar{#nu}neon+H_{2}","p");
-  lMulPi0_nubar->AddEntry(npb223_269_fig8b,"BEBC #bar{#nu}H_{2}","p");
+  lMulPi0_nubar->AddEntry(nc51a_539_fig4,       "FNAL 15' #bar{#nu} Ne+H_{2}", "p");
+  lMulPi0_nubar->AddEntry(zpc40_231_fig13_nubar,"BEBC #bar{#nu} Ne+H_{2}",     "p");
+  lMulPi0_nubar->AddEntry(npb223_269_fig8b,     "BEBC #bar{#nu}H_{2}",         "p");
   for (unsigned i = 0; i<hadPlots.size(); i++){
     string name = "#bar{#nu}p "+hadPlots[i].modelName;
-    lMulPi0_nubar->AddEntry(hadPlots[i].npi0_w[2],name.c_str(),"l");
+    lMulPi0_nubar->AddEntry(hadPlots[i].npi0_w[inubarp],name.c_str(),"l");
     name = "#bar{#nu}n "+hadPlots[i].modelName;
-    lMulPi0_nubar->AddEntry(hadPlots[i].npi0_w[3],name.c_str(),"l");
+    lMulPi0_nubar->AddEntry(hadPlots[i].npi0_w[inubarn],name.c_str(),"l");
   }
   lMulPi0_nubar->Draw();
   
   // .........................................................................
-  // F/B multiplicity
+  // F/B multiplicity, nubar+p
   // .........................................................................
 
   TGraphErrors *prd24_1071_fig21a = MakeGraph("forward_backward_multiplicity/prd24_1071_fig21a.dat");
   TGraphErrors *prd24_1071_fig21b = MakeGraph("forward_backward_multiplicity/prd24_1071_fig21b.dat");
+
   TCanvas *cMulFB_nubar = new TCanvas("cMulFB_nubar","cMulFB_nubar",800,400);
   cMulFB_nubar->Divide(2,1);
+
   DrawFrame(cMulFB_nubar, 1, 1, 300, 0, 5, "","W^{2}(GeV^{2}/c^{4})", "<n_{ch}>", true, false);
+
   DrawGraph(prd24_1071_fig21a,24,1,0.8);
   for (unsigned i = 0; i<hadPlots.size(); i++){
-    DrawGraph(hadPlots[i].nch_w_f[2],24,mccolors[i],0.8,"c");
+    DrawGraph(hadPlots[i].nch_w_f[inubarp],24,mccolors[i],0.8,"c");
   }
+
   TLegend *lMulFB1_nubar = new TLegend(0.2,0.7,0.5,0.85);
   SetLegend(lMulFB1_nubar);
   lMulFB1_nubar->AddEntry(prd24_1071_fig21a,"15' #nuH_{2}","p");
   for (unsigned i = 0; i<hadPlots.size(); i++){
     string name = hadPlots[i].modelName;
-    lMulFB1_nubar->AddEntry(hadPlots[i].nch_w_f[2],name.c_str(),"l");
+    lMulFB1_nubar->AddEntry(hadPlots[i].nch_w_f[inubarp],name.c_str(),"l");
   }
   lMulFB1_nubar->Draw();
   TLatex *tMulFB1_nubar = new TLatex(0.6,0.3,"#bar{#nu}p forward");
@@ -1029,16 +1099,18 @@ void HadPlotter::ShowPlots()
   tMulFB1_nubar->Draw();
 
   DrawFrame(cMulFB_nubar, 2, 1, 300, 0, 5, "","W^{2}(GeV^{2}/c^{4})", "<n_{ch}>", true, false);
+
   DrawGraph(prd24_1071_fig21b,24,1,0.8);
   for (unsigned i = 0; i<hadPlots.size(); i++){
-    DrawGraph(hadPlots[i].nch_w_b[2],24,mccolors[i],0.8,"c");
+    DrawGraph(hadPlots[i].nch_w_b[inubarp],24,mccolors[i],0.8,"c");
   }
+
   TLegend *lMulFB2_nubar = new TLegend(0.2,0.7,0.5,0.85);
   SetLegend(lMulFB2_nubar);
   lMulFB2_nubar->AddEntry(prd24_1071_fig21a,"15' #bar{#nu}H_{2}","p");
   for (unsigned i = 0; i<hadPlots.size(); i++){
     string name = hadPlots[i].modelName;
-    lMulFB2_nubar->AddEntry(hadPlots[i].nch_w_b[2],name.c_str(),"l");
+    lMulFB2_nubar->AddEntry(hadPlots[i].nch_w_b[inubarp],name.c_str(),"l");
   }
   lMulFB2_nubar->Draw();
   TLatex *tMulFB2_nubar = new TLatex(0.6,0.3,"#bar{#nu}p backward");
@@ -1047,7 +1119,7 @@ void HadPlotter::ShowPlots()
   tMulFB2_nubar->Draw();
 
   // .........................................................................
-  // xf distribution
+  // xF distribution. positive/negative hadrons, various W bins
   // .........................................................................
 
   TGraphErrors *prd24_1071_fig8a    = MakeGraph("xF_distribution/prd24_1071_fig8a.dat");
@@ -1058,14 +1130,18 @@ void HadPlotter::ShowPlots()
 //TGraphErrors *prd24_1071_fig8b_hi = MakeGraph("xF_distribution/prd24_1071_fig8b_hi.dat");
   TGraphErrors *prd24_1071_fig9a_hi = MakeGraph("xF_distribution/prd24_1071_fig9a_hi.dat");
 //TGraphErrors *prd24_1071_fig9b_hi = MakeGraph("xF_distribution/prd24_1071_fig9b_hi.dat");
+
   TCanvas *cXf_nubar = new TCanvas("cXf_nubar","cXf_nubar",800,800);
   cXf_nubar->Divide(2,2);
+
   DrawFrame(cXf_nubar,1,-1,1,0,.5,"","X_{F}=2P_{L}/W","F(X_{F})",false,false);
+
   DrawGraph(prd24_1071_fig8a,20,1,0.7);
   for (unsigned i = 0; i<hadPlots.size(); i++){
-    hadPlots[i].Fxf_pos1[2]->SetLineColor(mccolors[i]);
-    hadPlots[i].Fxf_pos1[2]->Draw("hist c same");
+    hadPlots[i].Fxf_pos1[inubarp]->SetLineColor(mccolors[i]);
+    hadPlots[i].Fxf_pos1[inubarp]->Draw("hist c same");
   }
+
   TLatex *tXf1_nubar = new TLatex(-0.8,0.45,"2<W<4GeV,Q^{2}<45(GeV/c)^{2}");
   tXf1_nubar->SetTextSize(0.05);
   tXf1_nubar->Draw();
@@ -1077,15 +1153,15 @@ void HadPlotter::ShowPlots()
   lXf1_nubar->AddEntry(prd24_1071_fig8a,"15' #bar{#nu}H_{2}","p");
   for (unsigned i = 0; i<hadPlots.size(); i++){
     string name = hadPlots[i].modelName;
-    lXf1_nubar->AddEntry(hadPlots[i].Fxf_pos1[2],name.c_str(),"l");
+    lXf1_nubar->AddEntry(hadPlots[i].Fxf_pos1[inubarp],name.c_str(),"l");
   }
   lXf1_nubar->Draw();
 
   DrawFrame(cXf_nubar,2,-1,1,0,.5,"","X_{F}=2P_{L}/W","F(X_{F})",false,false);
   DrawGraph(prd24_1071_fig9a,20,1,0.7);
   for (unsigned i = 0; i<hadPlots.size(); i++){
-    hadPlots[i].Fxf_neg1[2]->SetLineColor(mccolors[i]);
-    hadPlots[i].Fxf_neg1[2]->Draw("hist c same");
+    hadPlots[i].Fxf_neg1[inubarp]->SetLineColor(mccolors[i]);
+    hadPlots[i].Fxf_neg1[inubarp]->Draw("hist c same");
   }
   tXf1_nubar->Draw();
   TLatex *tXf3_nubar = new TLatex(-0.8,0.4,"Negative Hadrons");
@@ -1096,8 +1172,8 @@ void HadPlotter::ShowPlots()
   DrawFrame(cXf_nubar,3,-1,1,0,0.5,"","X_{F}=2P_{L}/W","F(X_{F})",false,false);
   DrawGraph(prd24_1071_fig8a_hi,20,1,0.7);
   for (unsigned i = 0; i<hadPlots.size(); i++){
-    hadPlots[i].Fxf_pos1_hi[2]->SetLineColor(mccolors[i]);
-    hadPlots[i].Fxf_pos1_hi[2]->Draw("hist c same");
+    hadPlots[i].Fxf_pos1_hi[inubarp]->SetLineColor(mccolors[i]);
+    hadPlots[i].Fxf_pos1_hi[inubarp]->Draw("hist c same");
   }
   TLatex *tXf4_nubar = new TLatex(-0.8,0.45,"4<W<10GeV,Q^{2}<45(GeV/c)^{2}");
   tXf4_nubar->SetTextSize(0.05);
@@ -1108,34 +1184,43 @@ void HadPlotter::ShowPlots()
   DrawFrame(cXf_nubar,4,-1,1,0,0.5,"","X_{F}=2P_{L}/W","F(X_{F})",false,false);
   DrawGraph(prd24_1071_fig9a_hi,20,1,0.7);
   for (unsigned i = 0; i<hadPlots.size(); i++){
-    hadPlots[i].Fxf_neg1_hi[2]->SetLineColor(mccolors[i]);
-    hadPlots[i].Fxf_neg1_hi[2]->Draw("hist c same");
+    hadPlots[i].Fxf_neg1_hi[inubarp]->SetLineColor(mccolors[i]);
+    hadPlots[i].Fxf_neg1_hi[inubarp]->Draw("hist c same");
   }
   tXf4_nubar->Draw();
   tXf3_nubar->Draw();
   lXf1_nubar->Draw();
+
+  // .........................................................................
+  // xF distribution, pi+/pi-
+  // .........................................................................
 
   //Nucl.Phys.B214:369,1983
   TGraphErrors *npb214_369_fig5c = MakeGraph("xF_distribution/npb214_369_fig5c.dat");
   TGraphErrors *npb214_369_fig5d = MakeGraph("xF_distribution/npb214_369_fig5d.dat");
   TGraphErrors *zpc24_119_fig6g  = MakeGraph("xF_distribution/zpc24_119_fig6g.dat");
   TGraphErrors *zpc24_119_fig6c  = MakeGraph("xF_distribution/zpc24_119_fig6c.dat");
+
   TCanvas *cXf2_nubar = new TCanvas("cXf2_nubar","cXf2_nubar",800,400);
   cXf2_nubar->Divide(2,1);
+
   DrawFrame(cXf2_nubar,1,-1,1,0,.3,"","X_{F}=2P_{L}/W","F(X_{F})",false,false);
-  DrawGraph(npb214_369_fig5c,20,1,0.7);
-  DrawGraph(zpc24_119_fig6g,24,1,0.7);
+
+  DrawGraph(npb214_369_fig5c, 20, 1, 0.7);
+  DrawGraph(zpc24_119_fig6g,  24, 1, 0.7);
+
   for (unsigned i = 0; i<hadPlots.size(); i++){
-    hadPlots[i].fxf_pip[2]->SetLineColor(mccolors[i]);
-    hadPlots[i].fxf_pip[2]->Draw("hist c same");
+    hadPlots[i].fxf_pip[inubarp]->SetLineColor(mccolors[i]);
+    hadPlots[i].fxf_pip[inubarp]->Draw("hist c same");
   }
+
   TLegend *lXf2_nubar = new TLegend(0.18,0.7,0.47,0.9);
   SetLegend(lXf2_nubar);
   lXf2_nubar->AddEntry(npb214_369_fig5c,"WA21,BEBC #bar{#nu}H_{2}","p");
-  lXf2_nubar->AddEntry(zpc24_119_fig6g,"WA25,BEBC #bar{#nu}D_{2}","p");
+  lXf2_nubar->AddEntry(zpc24_119_fig6g, "WA25,BEBC #bar{#nu}D_{2}","p");
   for (unsigned i = 0; i<hadPlots.size(); i++){
     string name = hadPlots[i].modelName;
-    lXf2_nubar->AddEntry(hadPlots[0].fxf_pip[2],name.c_str(),"l");
+    lXf2_nubar->AddEntry(hadPlots[0].fxf_pip[inubarp],name.c_str(),"l");
   }
   lXf2_nubar->Draw();
   TLatex *piplus = new TLatex(0.4,0.25,"#pi^{+}");
@@ -1143,11 +1228,13 @@ void HadPlotter::ShowPlots()
   piplus->Draw();
 
   DrawFrame(cXf2_nubar,2,-1,1,0,.3,"","X_{F}=2P_{L}/W","F(X_{F})",false,false);
-  DrawGraph(npb214_369_fig5d,20,1,0.7);
-  DrawGraph(zpc24_119_fig6c,24,1,0.7);
+
+  DrawGraph(npb214_369_fig5d, 20, 1, 0.7);
+  DrawGraph(zpc24_119_fig6c,  24, 1, 0.7);
+
   for (unsigned i = 0; i<hadPlots.size(); i++){
-    hadPlots[i].fxf_pim[2]->SetLineColor(mccolors[i]);
-    hadPlots[i].fxf_pim[2]->Draw("hist c same");
+    hadPlots[i].fxf_pim[inubarp]->SetLineColor(mccolors[i]);
+    hadPlots[i].fxf_pim[inubarp]->Draw("hist c same");
   }
   lXf2_nubar->Draw();
   TLatex *piminus = new TLatex(0.4,0.25,"#pi^{-}");
@@ -1155,64 +1242,73 @@ void HadPlotter::ShowPlots()
   piminus->Draw();
 
   // .........................................................................
-  // z distribution
+  // z distribution, various energy ranges
   // .........................................................................
 
   TGraphErrors *prd17_fig14_E1 = MakeGraph("z_distribution/prd17_fig14_E1.dat");
   TGraphErrors *prd17_fig14_E2 = MakeGraph("z_distribution/prd17_fig14_E2.dat");
   TGraphErrors *prd17_fig14_E3 = MakeGraph("z_distribution/prd17_fig14_E3.dat");
+
   TCanvas *cZ_nubar = new TCanvas("cZ_nubar","cZ_nubar",600,600);
+
   DrawFrame(cZ_nubar,0,0,1,0.1,100,"","z","(1/N_{E})dN_{E}/dZ",false,true);
-  DrawGraph(prd17_fig14_E1,20,1);
-  DrawGraph(prd17_fig14_E2,24,2);
-  DrawGraph(prd17_fig14_E3,25,4);
+
+  DrawGraph(prd17_fig14_E1, 20, 1);
+  DrawGraph(prd17_fig14_E2, 24, 2);
+  DrawGraph(prd17_fig14_E3, 25, 4);
+
   for (unsigned i = 0; i<hadPlots.size(); i++){
-    hadPlots[i].z_E1[2]->SetLineStyle(i+1);
-    hadPlots[i].z_E2[2]->SetLineStyle(i+1);
-    hadPlots[i].z_E3[2]->SetLineStyle(i+1);
-    hadPlots[i].z_E1[2]->SetLineColor(1);
-    hadPlots[i].z_E2[2]->SetLineColor(2);
-    hadPlots[i].z_E3[2]->SetLineColor(4);
-    hadPlots[i].z_E1[2]->Draw("hist c same");
-    hadPlots[i].z_E2[2]->Draw("hist c same");
-    hadPlots[i].z_E3[2]->Draw("hist c same");
+    hadPlots[i].z_E1[inubarp]->SetLineStyle(i+1);
+    hadPlots[i].z_E2[inubarp]->SetLineStyle(i+1);
+    hadPlots[i].z_E3[inubarp]->SetLineStyle(i+1);
+    hadPlots[i].z_E1[inubarp]->SetLineColor(1);
+    hadPlots[i].z_E2[inubarp]->SetLineColor(2);
+    hadPlots[i].z_E3[inubarp]->SetLineColor(4);
+    hadPlots[i].z_E1[inubarp]->Draw("hist c same");
+    hadPlots[i].z_E2[inubarp]->Draw("hist c same");
+    hadPlots[i].z_E3[inubarp]->Draw("hist c same");
   }
+
   TLegend *leg_z_nubar = new TLegend(0.4,0.6,0.85,0.85);
   SetLegend(leg_z_nubar);
-  leg_z_nubar->AddEntry(prd17_fig14_E1,"#bar{#nu}p, 15'#bar{#nu}H_{2} E_{#nu}<15GeV","p");
+  leg_z_nubar->AddEntry(prd17_fig14_E1,"#bar{#nu}p, 15'#bar{#nu}H_{2} E_{#nu}<15GeV",   "p");
   leg_z_nubar->AddEntry(prd17_fig14_E2,"#bar{#nu}p, 15'#bar{#nu}H_{2} 15<E_{#nu}<30GeV","p");
-  leg_z_nubar->AddEntry(prd17_fig14_E3,"#bar{#nu}p, 15'#bar{#nu}H_{2} E_{#nu}>30GeV","p");
+  leg_z_nubar->AddEntry(prd17_fig14_E3,"#bar{#nu}p, 15'#bar{#nu}H_{2} E_{#nu}>30GeV",   "p");
   for (unsigned i = 0; i<hadPlots.size(); i++){
     string name = hadPlots[i].modelName+", E_{#nu}<15GeV";
-    leg_z_nubar->AddEntry(hadPlots[i].z_E1[2],name.c_str(),"l");
+    leg_z_nubar->AddEntry(hadPlots[i].z_E1[inubarp],name.c_str(),"l");
     name = hadPlots[i].modelName+", 15<E_{#nu}<30GeV";
-    leg_z_nubar->AddEntry(hadPlots[i].z_E2[2],name.c_str(),"l");
+    leg_z_nubar->AddEntry(hadPlots[i].z_E2[inubarp],name.c_str(),"l");
     name = hadPlots[i].modelName+", E_{#nu}>30GeV";
-    leg_z_nubar->AddEntry(hadPlots[i].z_E3[2],name.c_str(),"l");
+    leg_z_nubar->AddEntry(hadPlots[i].z_E3[inubarp],name.c_str(),"l");
   }
   leg_z_nubar->Draw();
 
   // .........................................................................
-  // pT vs W
+  // <pT> vs W, forward/backward/all
   // .........................................................................
 
   TGraphErrors *prd24_1071_fig37a = MakeGraph("pT2_vs_W2/prd24_1071_fig37a.dat");
   TGraphErrors *prd24_1071_fig37b = MakeGraph("pT2_vs_W2/prd24_1071_fig37b.dat");
   TGraphErrors *prd24_1071_fig37c = MakeGraph("pT2_vs_W2/prd24_1071_fig37c.dat");
+
   TCanvas *cPt_W_nubar = new TCanvas("cPt_W_nubar","cPt_W_nubar",900,300);
   cPt_W_nubar->Divide(3,1);
+
   DrawFrame(cPt_W_nubar,1,1,10,0,0.6,"","W(GeV/c^{2})","<P_{T}>(GeV/c)",false,false);
+
   DrawGraph(prd24_1071_fig37a,20,1);
   for (unsigned i = 0; i<hadPlots.size(); i++){
-    hadPlots[i].pt_W_F[2]->SetLineColor(mccolors[i]);
-    hadPlots[i].pt_W_F[2]->Draw("hist c same");
+    hadPlots[i].pt_W_F[inubarp]->SetLineColor(mccolors[i]);
+    hadPlots[i].pt_W_F[inubarp]->Draw("hist c same");
   }
+
   TLegend *leg_pt_w = new TLegend(0.5,0.3,0.8,0.5);
   SetLegend(leg_pt_w);
   leg_pt_w->AddEntry(prd24_1071_fig37a,"#bar{#nu}p 15' #bar{#nu}D_{2}","p");
   for (unsigned i = 0; i<hadPlots.size(); i++){
     string name = hadPlots[i].modelName;
-    leg_pt_w->AddEntry(hadPlots[i].pt_W_F[2],name.c_str(),"l");
+    leg_pt_w->AddEntry(hadPlots[i].pt_W_F[inubarp],name.c_str(),"l");
   }
   leg_pt_w->Draw();
   TLatex *tptw1 = new TLatex(3,0.5,"x_{F}>0");
@@ -1222,8 +1318,8 @@ void HadPlotter::ShowPlots()
   DrawFrame(cPt_W_nubar,2,1,10,0,0.6,"","W(GeV/c^{2})","<P_{T}>(GeV/c)",false,false);
   DrawGraph(prd24_1071_fig37b,20,1);
   for (unsigned i = 0; i<hadPlots.size(); i++){
-    hadPlots[i].pt_W_B[2]->SetLineColor(mccolors[i]);
-    hadPlots[i].pt_W_B[2]->Draw("hist c same");
+    hadPlots[i].pt_W_B[inubarp]->SetLineColor(mccolors[i]);
+    hadPlots[i].pt_W_B[inubarp]->Draw("hist c same");
   }
   leg_pt_w->Draw();
   TLatex *tptw2 = new TLatex(3,0.5,"x_{F}<0");
@@ -1233,14 +1329,13 @@ void HadPlotter::ShowPlots()
   DrawFrame(cPt_W_nubar,3,1,10,0,0.6,"","W(GeV/c^{2})","<P_{T}>(GeV/c)",false,false);
   DrawGraph(prd24_1071_fig37c,20,1);
   for (unsigned i = 0; i<hadPlots.size(); i++){
-    hadPlots[i].pt_W[2]->SetLineColor(mccolors[i]);
-    hadPlots[i].pt_W[2]->Draw("hist c same");
+    hadPlots[i].pt_W[inubarp]->SetLineColor(mccolors[i]);
+    hadPlots[i].pt_W[inubarp]->Draw("hist c same");
   }
   leg_pt_w->Draw();
   TLatex *tptw3 = new TLatex(3,0.5,"All x_{F}");
   tptw3->SetTextSize(0.08);
   tptw3->Draw();
-
 
   //
   // Save the plots
@@ -1250,6 +1345,7 @@ void HadPlotter::ShowPlots()
      // Get local time to tag outputs
      string lt_for_filename   = utils::system::LocalTimeAsString("%d.%d.%d_%2d.%2d.%2d"); 
      string lt_for_cover_page = utils::system::LocalTimeAsString("%d/%d/%d %2d:%2d:%2d"); 
+
      // filename
      string filename  = Form("genie-hadronization_data_comp-%s.ps",lt_for_filename.c_str());
      // add header page
@@ -1277,6 +1373,7 @@ void HadPlotter::ShowPlots()
      cZ            -> Print (filename.c_str());
      cPt_W2        -> Print (filename.c_str());
      cPt2_xf       -> Print (filename.c_str());
+     cMulEta       -> Print (filename.c_str());
      cMulCh_nubar  -> Print (filename.c_str());
      cDispCh_nubar -> Print (filename.c_str());
      cTopo_nubar   -> Print (filename.c_str());
@@ -1300,6 +1397,7 @@ void HadPlotter::ShowPlots()
      cZ            -> Print ( Form("cZ.%s",            fOutFormat.c_str()));
      cPt_W2        -> Print ( Form("cPt_W2.%s",        fOutFormat.c_str()));
      cPt2_xf       -> Print ( Form("cPt2_xf.%s",       fOutFormat.c_str()));
+     cMulEta       -> Print ( Form("cMulEta.%s",       fOutFormat.c_str()));
      cMulCh_nubar  -> Print ( Form("cMulCh_nubar.%s",  fOutFormat.c_str()));
      cDispCh_nubar -> Print ( Form("cDispCh_nubar.%s", fOutFormat.c_str()));
      cTopo_nubar   -> Print ( Form("cTopo_nubar.%s",   fOutFormat.c_str()));
