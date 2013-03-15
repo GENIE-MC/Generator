@@ -1,0 +1,25 @@
+********************************************************************************************************
+
+oooooo   oooooo     oooo       .o.       ooooooooo.   ooooo      ooo ooooo ooooo      ooo   .oooooo.    
+ `888.    `888.     .8'       .888.      `888   `Y88. `888b.     `8' `888' `888b.     `8'  d8P'  `Y8b   
+  `888.   .8888.   .8'       .8"888.      888   .d88'  8 `88b.    8   888   8 `88b.    8  888           
+   `888  .8'`888. .8'       .8' `888.     888ooo88P'   8   `88b.  8   888   8   `88b.  8  888           
+    `888.8'  `888.8'       .88ooo8888.    888`88b.     8     `88b.8   888   8     `88b.8  888     ooooo 
+     `888'    `888'       .8'     `888.   888  `88b.   8       `888   888   8       `888  `88.    .88'  
+      `8'      `8'       o88o     o8888o o888o  o888o o8o        `8  o888o o8o        `8   `Y8bood8P'   
+                                                                                                        
+
+********************************************************************************************************
+
+                                   THIS IS A GENIE RELEASE CANDIDATE.
+                      IT HAS *NOT* BEEN FULLY VALIDATED AND IT HAS EXPERIMENTAL FEATURES.
+
+                                   USE THIS VERSION AT YOUR OWN RISK.
+
+ If you prefer to use a version with validated physics content, please see http://releases.genie-mc.org
+
+                            Site managers, please don't remove this notice!
+
+
+ GENIE will continue running in 15 seconds...
+
