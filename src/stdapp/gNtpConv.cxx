@@ -312,6 +312,7 @@ void ConvertToGST(void)
   bool   brIsMec       = false;  // Is MEC?
   bool   brIsDfr       = false;  // Is Diffractive?
   bool   brIsImd       = false;  // Is IMD?
+  bool   brIsImdAnh    = false;  // Is IMD annihilation?
   bool   brIsNuEL      = false;  // Is ve elastic?
   bool   brIsEM        = false;  // Is EM process?
   bool   brIsCC        = false;  // Is Weak CC process?
@@ -418,6 +419,7 @@ void ConvertToGST(void)
   s_tree->Branch("coh",           &brIsCoh,         "coh/O"	    );
   s_tree->Branch("dfr",           &brIsDfr,         "dfr/O"	    );
   s_tree->Branch("imd",	          &brIsImd,	    "imd/O"	    );
+  s_tree->Branch("imdanh",        &brIsImdAnh,	    "imdanh/O"	    );
   s_tree->Branch("nuel",          &brIsNuEL,        "nuel/O"	    );
   s_tree->Branch("em",	          &brIsEM,	    "em/O"	    );
   s_tree->Branch("cc",	          &brIsCC,	    "cc/O"	    );
@@ -600,13 +602,14 @@ void ConvertToGST(void)
     bool is_coh    = proc_info.IsCoherent();
     bool is_dfr    = proc_info.IsDiffractive();
     bool is_imd    = proc_info.IsInverseMuDecay();
+    bool is_imdanh = proc_info.IsIMDAnnihilation();
     bool is_nuel   = proc_info.IsNuElectronElastic();
     bool is_em     = proc_info.IsEM();
     bool is_weakcc = proc_info.IsWeakCC();
     bool is_weaknc = proc_info.IsWeakNC();
     bool is_mec    = proc_info.IsMEC();
 
-    if(!hitnucl) { assert(is_coh || is_imd || is_nuel); }
+    if(!hitnucl) { assert(is_coh || is_imd || is_imdanh || is_nuel); }
   
     // Hit quark - set only for DIS events
     int  qrk  = (is_dis) ? tgt.HitQrkPdg() : 0;     
