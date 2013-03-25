@@ -460,6 +460,7 @@ void SaveToPsFile(void)
   for(ilistiter = ilist->begin(); ilistiter != ilist->end(); ++ilistiter) {    
     const Interaction * interaction = *ilistiter;
     if(interaction->ProcInfo().IsInverseMuDecay() ||
+       interaction->ProcInfo().IsIMDAnnihilation() ||
        interaction->ProcInfo().IsNuElectronElastic()) {
         gr[i]->Draw("LP");
         TString spltitle(interaction->AsString());
@@ -572,6 +573,7 @@ void SaveGraphsToRootFile(void)
     else if (proc.IsCoherent()         ) { title << "coh";   }
     else if (proc.IsCoherentElas()     ) { title << "cohel"; }
     else if (proc.IsInverseMuDecay()   ) { title << "imd";   }
+    else if (proc.IsIMDAnnihilation()  ) { title << "imdanh";}
     else if (proc.IsNuElectronElastic()) { title << "ve";    }
     else                                 { continue;         }
 
