@@ -1,0 +1,138 @@
+[RECORD]
+  0,558,0,8
+  Energy
+  p Fe #rightarrow p X Tp=558 MeV
+  beck-p-fe-558-p-10-hahn-mar13
+  4
+[EXPERIMENTAL]
+  beck-p-fe-558-p-10.dat
+  xsec:E:err1
+  558 MeV Beck Fe data (10 deg)
+[GENIE]
+  Mar_12_13_p_Fe_558_v280_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=.975&&cth<=0.995
+  .02
+  2.8.0 hA GENIE results
+[GENIE]
+  Mar_12_13_p_Fe_558_v280_hN.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=.975&&cth<=.995
+  .02
+  2.8.0 hN GENIE results
+
+[RECORD]
+  0,558,0,8
+  Energy
+  p Fe #rightarrow p X Tp=558 MeV
+  beck-p-fe-558-p-20-hahn-mar13
+  4
+[EXPERIMENTAL]
+  beck-p-fe-558-p-20.dat
+  xsec:E:err1
+  558 MeV Beck Fe data (20 deg)
+[GENIE]
+  Mar_12_13_p_Fe_558_v280_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=.921&&cth<=0.956
+  .035
+  2.8.0 hA GENIE results
+[GENIE]
+  Mar_12_13_p_Fe_558_v280_hN.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=.921&&cth<=.956
+  .035
+  2.8.0 hN GENIE results
+
+[RECORD]
+  0,558,0,2
+  Energy
+  p Fe #rightarrow p X Tp=558 MeV
+  beck-p-fe-558-p-30-hahn-mar13
+  4
+[EXPERIMENTAL]
+  beck-p-fe-558-p-30.dat
+  xsec:E:err1
+  558 MeV Beck Fe data (30 deg)
+[GENIE]
+  Mar_12_13_p_Fe_558_v280_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=.839&&cth<=.891
+  .052
+  2.8.0 hA GENIE results
+[GENIE]
+  Mar_12_13_p_Fe_558_v280_hN.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=.839&&cth<=.891
+  .052
+  2.8.0 hN GENIE results
+
+[RECORD]
+  0,558,0,2
+  Energy
+  p Fe #rightarrow p X Tp=558 MeV
+  beck-p-fe-558-p-40-hahn-mar13
+  4
+[EXPERIMENTAL]
+  beck-p-fe-558-p-40.dat
+  xsec:E:err1
+  558 MeV Beck Fe data (40 deg)
+[GENIE]
+  Mar_12_13_p_Fe_558_v280_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=.731&&cth<=.799
+  .068
+  2.8.0 hA GENIE results
+[GENIE]
+  Mar_12_13_p_Fe_558_v280_hN.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=.731&&cth<=.799
+  .068
+  2.8.0 hN GENIE results
+
+[RECORD]
+  0,558,0,1.5
+  Energy
+  p Fe #rightarrow p X Tp=558 MeV
+  beck-p-fe-558-p-50-hahn-mar13
+  4
+[EXPERIMENTAL]
+  beck-p-fe-558-p-50.dat
+  xsec:E:err1
+  558 MeV Beck Fe data (50 deg)
+[GENIE]
+  Mar_12_13_p_Fe_558_v280_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=.602&&cth<=.682
+  .08
+  2.8.0 hA GENIE results
+[GENIE]
+  Mar_12_13_p_Fe_558_v280_hN.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=.602&&cth<=.682
+  .08
+  2.8.0 hN GENIE results
+
+[RECORD]
+  0,558,0,1.5
+  Energy
+  p Fe #rightarrow p X Tp=558 MeV
+  beck-p-fe-558-p-60-hahn-mar13
+  4
+[EXPERIMENTAL]
+  beck-p-fe-558-p-60.dat
+  xsec:E:err1
+  558 MeV Beck Fe data (60 deg)
+[GENIE]
+  Mar_12_13_p_Fe_558_v280_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=.454&&cth<=.545
+  .091
+  2.8.0 hA GENIE results
+[GENIE]
+  Mar_12_13_p_Fe_558_v280_hN.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=.454&&cth<=.545
+  .091
+  2.8.0 hN GENIE results
+

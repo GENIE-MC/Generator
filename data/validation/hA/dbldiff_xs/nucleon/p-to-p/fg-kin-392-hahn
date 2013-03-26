@@ -1,0 +1,161 @@
+[RECORD]
+  0,400,0,2
+  Energy
+  p C #rightarrow p X Tp=392 MeV
+  kin-p-c-392-p-20-hahn-mar13
+  4
+[EXPERIMENTAL]
+  kin-p-c-392-p-20.dat
+  xsec:E:err1
+  392 MeV Kin C Data (20 deg)
+[GENIE]
+  Mar_11_13_p_C_392_v280_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=.921&&cth<=0.956
+  .035
+  2.8.0 hA GENIE results
+[GENIE]
+  Mar_11_13_p_C_392_v280_hN.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=.921&&cth<=.956
+  .035
+  2.8.0 hN GENIE results
+
+[RECORD]
+  0,400,0,2
+  Energy
+  p C #rightarrow p X Tp=392 MeV
+  kin-p-c-392-p-25-hahn-mar13
+  4
+[EXPERIMENTAL]
+  kin-p-c-392-p-25.dat
+  xsec:E:err1
+  392 MeV Kin C Data (25 deg)
+[GENIE]
+  Mar_11_13_p_C_392_v280_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=.891&&cth<=.921
+  .03
+  2.8.0 hA GENIE results
+[GENIE]
+  Mar_11_13_p_C_392_v280_hN.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=.891&&cth<=.921
+  .03
+  2.8.0 hN GENIE results
+
+[RECORD]
+  0,400,0,2
+  Energy
+  p C #rightarrow p X Tp=392 MeV
+  kin-p-c-392-p-40-hahn-mar13
+  4
+[EXPERIMENTAL]
+  kin-p-c-392-p-40.dat
+  xsec:E:err1
+  392 MeV Kin C Data (40 deg)
+[GENIE]
+  Mar_11_13_p_C_392_v280_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=.731&&cth<=.799
+  .068
+  2.8.0 hA GENIE results
+[GENIE]
+  Mar_11_13_p_C_392_v280_hN.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=.731&&cth<=.799
+  .068
+  2.8.0 hN GENIE results
+
+[RECORD]
+  0,400,0,1.5
+  Energy
+  p C #rightarrow p X Tp=392 MeV
+  kin-p-c-392-p-50-hahn-mar13
+  4
+[EXPERIMENTAL]
+  kin-p-c-392-p-50.dat
+  xsec:E:err1
+  392 MeV Kin C Data (50 deg)
+[GENIE]
+  Mar_11_13_p_C_392_v280_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=.602&&cth<=.682
+  .08
+  2.8.0 hA GENIE results
+[GENIE]
+  Mar_11_13_p_C_392_v280_hN.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=.602&&cth<=.682
+  .08
+  2.8.0 hN GENIE results
+
+[RECORD]
+  0,400,0,1
+  Energy
+  p C #rightarrow p X Tp=392 MeV
+  kin-p-c-392-p-75-hahn-mar13
+  4
+[EXPERIMENTAL]
+  kin-p-c-392-p-75.dat
+  xsec:E:err1
+  392 MeV Kin C Data (75 deg)
+[GENIE]
+  Mar_11_13_p_C_392_v280_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=.208&&cth<=.309
+  .101
+  2.8.0 hA GENIE results
+[GENIE]
+  Mar_11_13_p_C_392_v280_hN.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=.208&&cth<=.309
+  .101
+  2.8.0 hN GENIE results
+
+[RECORD]
+  0,400,0,1
+  Energy
+  p C #rightarrow p X Tp=392 MeV
+  kin-p-c-392-p-90-hahn-mar13
+  4
+[EXPERIMENTAL]
+  kin-p-c-392-p-90.dat
+  xsec:E:err1
+  392 MeV Kin C Data (90 deg)
+[GENIE]
+  Mar_11_13_p_C_392_v280_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=-.052&&cth<=.052
+  .104
+  2.8.0 hA GENIE results
+[GENIE]
+  Mar_11_13_p_C_392_v280_hN.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=-.052&&cth<=.052
+  .104
+  2.8.0 hN GENIE results
+
+
+[RECORD]
+  0,400,0,1
+  Energy
+  p C #rightarrow p X Tp=392 MeV
+  kin-p-c-392-p-105-hahn-mar13
+  4
+[EXPERIMENTAL]
+  kin-p-c-392-p-105.dat
+  xsec:E:err1
+  392 MeV Kin C Data (105 deg)
+[GENIE]
+  Mar_11_13_p_C_392_v280_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=-.309&&cth<=-.208
+  .101
+  2.8.0 hA GENIE results
+[GENIE]
+  Mar_11_13_p_C_392_v280_hN.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=-.309&&cth<=-.208
+  .101
+  2.8.0 hN GENIE results

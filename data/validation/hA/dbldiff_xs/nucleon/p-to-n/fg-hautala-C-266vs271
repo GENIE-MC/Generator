@@ -1,0 +1,92 @@
+[RECORD]
+  0,210,0,1.5
+  Energy
+  197 MeV p C #rightarrow n X (13 deg)
+  hautala-p-C-197-n-13-266vs271
+  4
+[EXPERIMENTAL]
+  hautala-p-C-197-n-13.dat
+  xsec:E:err1
+  197 MeV Hautala p C Data (13 deg)
+[GENIE]
+  Feb_21_13_p_C_197_v271_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2112&&cth>=.969&&cth<=.979
+  .01
+  2.7.1 GENIE hA results
+[GENIE]
+  Feb_21_13_p_C_197_v266_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2112&&cth>=.969&&cth<=.979
+  .01
+  2.6.6 GENIE hA results
+
+[RECORD]
+  0,210,0,1.5
+  Energy
+  197 MeV p C #rightarrow n X (24 deg)
+  hautala-p-C-197-n-24-266vs271
+  4
+[EXPERIMENTAL]
+  hautala-p-C-197-n-24.dat
+  xsec:E:err1
+  197 MeV Hautala p C Data (24 deg)
+[GENIE]
+  Feb_21_13_p_C_197_v271_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2112&&cth>=.904&&cth<=.924
+  .02
+  2.7.1 GENIE hA results
+[GENIE]
+  Feb_21_13_p_C_197_v266_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2112&&cth>=.904&&cth<=.924
+  .02
+  2.6.6 GENIE hA results
+
+[RECORD]
+  0,210,0,1.5
+  Energy
+  197 MeV p C #rightarrow n X (37 deg)
+  hautala-p-C-197-n-37-266vs271
+  2
+[EXPERIMENTAL]
+  hautala-p-C-197-n-37.dat
+  xsec:E:err1
+  197 MeV Hautala p C Data (37 deg)
+[GENIE]
+  Feb_21_13_p_C_197_v271_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2112&&cth>=.769&&cth<=.829
+  .06
+  2.7.1 GENIE hA results
+[GENIE]
+  Feb_21_13_p_C_197_v266_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2112&&cth>=.769&&cth<=.829
+  .06
+  2.6.6 GENIE hA results
+
+[RECORD]
+  0,210,0,1.5
+  Energy
+  197 MeV p C #rightarrow n X (48 deg)
+  hautala-p-C-197-n-48-266vs271
+  2
+[EXPERIMENTAL]
+  hautala-p-C-197-n-48.dat
+  xsec:E:err1
+  197 MeV Hautala p C Data (48 deg)
+[GENIE]
+  Feb_21_13_p_C_197_v271_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2112&&cth>=.619&&cth<=.719
+  .1
+  2.7.1 GENIE hA results
+[GENIE]
+  Feb_21_13_p_C_197_v266_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2112&&cth>=.619&&cth<=.719
+  .1
+  2.6.6 GENIE hA results
+

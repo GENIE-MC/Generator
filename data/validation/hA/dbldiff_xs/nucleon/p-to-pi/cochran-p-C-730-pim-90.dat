@@ -1,0 +1,12 @@
+#Cross section for pim from c (Cochran)
+#Phy.Rev.D 1973 V6,#11
+#90 degrees
+#E     sig        err
+#MeV   mb/sr/MeV  mb/sr/MeV
+30.    3.370e-03  5.400e-04
+52.    3.800e-03  3.300e-04
+79.    3.060e-03  2.400e-04
+105.   2.170e-03  1.800e-04
+155.   7.600e-04  6.000e-05
+205.   2.000e-04  2.000e-05
+255.   5.000e-05  1.000e-05

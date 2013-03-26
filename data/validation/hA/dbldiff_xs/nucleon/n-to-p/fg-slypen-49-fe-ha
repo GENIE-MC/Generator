@@ -1,0 +1,97 @@
+[RECORD]
+  0,50,0.0,15
+  Energy
+  n Fe #rightarrow p X Tn=49 MeV
+  slypen-ha-49-fe-10
+  4
+[EXPERIMENTAL]
+  slypen-n-p-fe-49-10.dat
+  xsec:E:err1
+  49 MeV Slypen Fe Data (10 deg)
+[GENIE]
+  Jul_04_12_n_Fe_49_v271_hA.ginuke.root
+  (Eh-.938)*1000
+  pdgh==2212&&cth>=.9744&&cth<=.9925
+  .0182
+  GENIE 2.7.1 hA results
+[RECORD]
+  0,50,0.0,12
+  Energy
+  n Fe #rightarrow p X Tn=49 MeV
+  slypen-ha-49-fe-30
+  4
+[EXPERIMENTAL]
+  slypen-n-p-fe-49-30.dat
+  xsec:E:err1
+  49 MeV Slypen Fe Data (30 deg)
+[GENIE]
+  Jul_04_12_n_Fe_49_v271_hA.ginuke.root
+  (Eh-.938)*1000
+  pdgh==2212&&cth>=.8387&&cth<=.8988
+  .0601
+  GENIE 2.7.1 hA results
+[RECORD]
+  0,50,0.0,10
+  Energy
+  n Fe #rightarrow p X Tn=49 MeV
+  slypen-ha-49-fe-60
+  4
+[EXPERIMENTAL]
+  slypen-n-p-fe-49-60.dat
+  xsec:E:err1
+  49 MeV Slypen C Data (60 deg)
+[GENIE]
+  Jul_04_12_n_Fe_49_v271_hA.ginuke.root
+  (Eh-.938)*1000
+  pdgh==2212&&cth>=.4226&&cth<=.5736
+  .151
+  GENIE 2.7.1 hA results
+[RECORD]
+  0,50,0.0,8
+  Energy
+  n Fe #rightarrow p X Tn=49 MeV
+  slypen-ha-49-fe-90
+  4
+[EXPERIMENTAL]
+  slypen-n-p-fe-49-90.dat
+  xsec:E:err1
+  50 MeV Slypen Fe Data (90 deg)
+[GENIE]
+  Jul_04_12_n_Fe_49_v271_hA.ginuke.root
+  (Eh-.938)*1000
+  pdgh==2212&&cth>=-.05&&cth<=.05
+  .1
+  GENIE 2.7.1 hA results
+[RECORD]
+  0,50,0.0,4
+  Energy
+  n Fe #rightarrow p X Tn=49 MeV
+  slypen-ha-49-fe-120
+  4
+[EXPERIMENTAL]
+  slypen-n-p-fe-49-120.dat
+  xsec:E:err1
+  49 MeV Slypen Fe Data (120 deg)
+[GENIE]
+  Jul_04_12_n_Fe_49_v271_hA.ginuke.root
+  (Eh-.938)*1000
+  pdgh==2212&&cth>=-.588&&cth<=-.438
+  .149
+  GENIE 2.7.1 hA results
+[RECORD]
+  0,50,0.0,4
+  Energy
+  n Fe #rightarrow p X Tn=49 MeV
+  slypen-ha-49-fe-170
+  4
+[EXPERIMENTAL]
+  slypen-n-p-fe-49-170.dat
+  xsec:E:err1
+  49 MeV Slypen Fe Data (170 deg)
+[GENIE]
+  Jul_04_12_n_Fe_49_v271_hA.ginuke.root
+  (Eh-.938)*1000
+  pdgh==2212&&cth>=-.9962&&cth<=-.9659
+  .0303
+  GENIE 2.7.1 hA results
+

@@ -1,0 +1,162 @@
+[RECORD]
+  0,220,0.0,2
+  Energy
+  #pi+ Pb #rightarrow #pi+ X Tp=220 MeV
+  levenson-pip-pb-220-pip-30-hahn-feb01
+  4
+[EXPERIMENTAL]
+  levenson-pip-pb-220-pip-30.dat
+  xsec:E:err1
+  220 MeV Levenson Pb Data (30 deg)
+[GENIE]
+  Jan_31_13_pip_Pb_220_v271_hA.ginuke.root
+  (Eh-.1395)*1000
+  pdgh==211&&cth>=.848&&cth<=.883
+  .035
+  GENIE 2.7.1 hA results
+[GENIE]
+  Jan_31_13_pip_Pb_220_v271_hN.ginuke.root
+  (Eh-.1395)*1000
+  pdgh==211&&cth>=.848&&cth<=.883
+  .035
+  GENIE 2.7.1 hN results
+
+
+
+[RECORD]
+  0,220,0.0,0.8
+  Energy
+  #pi+ Pb #rightarrow #pi+ X Tp=220 MeV
+  levenson-pip-pb-220-pip-50-hahn-feb01
+  4
+[EXPERIMENTAL]
+  levenson-pip-pb-220-pip-50.dat
+  xsec:E:err1
+  220 MeV Levenson Pb Data (50 deg)
+[GENIE]
+  Jan_31_13_pip_Pb_220_v271_hA.ginuke.root
+  (Eh-.1395)*1000
+  pdgh==211&&cth>=.616&&cth<=.669
+  .053
+  GENIE 2.7.1 hA results
+[GENIE]
+  Jan_31_13_pip_Pb_220_v271_hN.ginuke.root
+  (Eh-.1395)*1000
+  pdgh==211&&cth>=.616&&cth<=.669
+  .053
+  GENIE 2.7.1 hN results
+
+[RECORD]
+  0,220,0.0,0.5
+  Energy
+  #pi+ Pb #rightarrow #pi+ X Tp=220 MeV
+  levenson-pip-pb-220-pip-70-hahn-feb01
+  4
+[EXPERIMENTAL]
+  levenson-pip-pb-220-pip-70.dat
+  xsec:E:err1
+  220 MeV Levenson Pb Data (70 deg)
+[GENIE]
+  Jan_31_13_pip_Pb_220_v271_hA.ginuke.root
+  (Eh-.1395)*1000
+  pdgh==211&&cth>=.309&&cth<=.375
+  .066
+  GENIE 2.7.1 hA results
+[GENIE]
+  Jan_31_13_pip_Pb_220_v271_hN.ginuke.root
+  (Eh-.1395)*1000
+  pdgh==211&&cth>=.309&&cth<=.375
+  .066
+  GENIE 2.7.1 hN results
+
+[RECORD]
+  0,220,0.0,0.8
+  Energy
+  #pi+ Pb #rightarrow #pi+ X Tp=220 MeV
+  levenson-pip-pb-220-pip-90-hahn-feb01
+  4
+[EXPERIMENTAL]
+  levenson-pip-pb-220-pip-90.dat
+  xsec:E:err1
+  220 MeV Levenson Pb Data (90 deg)
+[GENIE]
+  Jan_31_13_pip_Pb_220_v271_hA.ginuke.root
+  (Eh-.1395)*1000
+  pdgh==211&&cth>=-0.0349&&cth<=.0349
+  .0698
+  GENIE 2.7.1 hA results
+[GENIE]
+  Jan_31_13_pip_Pb_220_v271_hN.ginuke.root
+  (Eh-.1395)*1000
+  pdgh==211&&cth>=-0.0349&&cth<=.0349
+  .0698
+  GENIE 2.7.1 hN results
+
+[RECORD]
+  0,220,0.0,1
+  Energy
+  #pi+ Pb #rightarrow #pi+ X Tp=220 MeV
+  levenson-pip-pb-220-pip-110-hahn-feb01
+  4
+[EXPERIMENTAL]
+  levenson-pip-pb-220-pip-110.dat
+  xsec:E:err1
+  220 MeV Levenson Pb Data (110 deg)
+[GENIE]
+  Jan_31_13_pip_Pb_220_v271_hA.ginuke.root
+  (Eh-.1395)*1000
+  pdgh==211&&cth>=-0.375&&cth<=-0.309
+  .066
+  GENIE 2.7.1 hA results
+[GENIE]
+  Jan_31_13_pip_Pb_220_v271_hN.ginuke.root
+  (Eh-.1395)*1000
+  pdgh==211&&cth>=-0.375&&cth<=-0.309
+  .066
+  GENIE 2.7.1 hN results
+
+[RECORD]
+  0,220,0.0,1
+  Energy
+  #pi+ Pb #rightarrow #pi+ X Tp=220 MeV
+  levenson-pip-pb-220-pip-130-hahn-feb01
+  4
+[EXPERIMENTAL]
+  levenson-pip-pb-220-pip-130.dat
+  xsec:E:err1
+  220 MeV Levenson Pb Data (130 deg)
+[GENIE]
+  Jan_31_13_pip_Pb_220_v271_hA.ginuke.root
+  (Eh-.1395)*1000
+  pdgh==211&&cth>=-0.669&&cth<=-0.616
+  .053
+  GENIE 2.7.1 hA results
+[GENIE]
+  Jan_31_13_pip_Pb_220_v271_hN.ginuke.root
+  (Eh-.1395)*1000
+  pdgh==211&&cth>=-0.669&&cth<=-0.616
+  .053
+  GENIE 2.7.1 hN results
+
+[RECORD]
+  0,220,0.0,1.5
+  Energy
+  #pi+ Pb #rightarrow #pi+ X Tp=220 MeV
+  levenson-pip-pb-220-pip-146-hahn-feb01
+  4
+[EXPERIMENTAL]
+  levenson-pip-pb-220-pip-146.dat
+  xsec:E:err1
+  220 MeV Levenson Pb Data (146 deg)
+[GENIE]
+  Jan_31_13_pip_Pb_220_v271_hA.ginuke.root
+  (Eh-.1395)*1000
+  pdgh==211&&cth>=-.848&&cth<=-.809
+  .039
+  GENIE 2.7.1 hA results
+[GENIE]
+  Jan_31_13_pip_Pb_220_v271_hN.ginuke.root
+  (Eh-.1395)*1000
+  pdgh==211&&cth>=-.848&&cth<=-.809
+  .039
+  GENIE 2.7.1 hN results

@@ -1,0 +1,116 @@
+[RECORD]
+  0,170,0.0,0.9
+  Energy
+  #pi+ He #rightarrow #pi+ X T#pi+=160 MeV
+  levenson-pip-he-160-pip-30-hahn-mar01
+  4
+[EXPERIMENTAL]
+  levenson-pip-he-160-pip-30.dat
+  xsec:E:err1
+  160 MeV Levenson He Data (30 deg)
+[GENIE]
+  Feb_28_13_pip_He_160_v280_hA.ginuke.root
+  (Eh-.1395)*1000
+  pdgh==211&&cth>=.788&&cth<=.927
+  .139
+  GENIE 2.8.0 hA results
+[GENIE]
+  Feb_28_13_pip_He_160_v280_hN.ginuke.root
+  (Eh-.1395)*1000
+  pdgh==211&&cth>=.788&&cth<=.927
+  .139
+  GENIE 2.8.0 hN results
+
+
+
+[RECORD]
+  0,170,0.0,0.5
+  Energy
+  #pi+ He #rightarrow #pi+ X T#pi+=160 MeV
+  levenson-pip-he-160-pip-60-hahn-mar01
+  4
+[EXPERIMENTAL]
+  levenson-pip-he-160-pip-60.dat
+  xsec:E:err1
+  160 MeV Levenson He Data (60 deg)
+[GENIE]
+  Feb_28_13_pip_He_160_v280_hA.ginuke.root
+  (Eh-.1395)*1000
+  pdgh==211&&cth>=.375&&cth<=.616
+  .241
+  GENIE 2.8.0 hA results
+[GENIE]
+  Feb_28_13_pip_He_160_v280_hN.ginuke.root
+  (Eh-.1395)*1000
+  pdgh==211&&cth>=.375&&cth<=.616
+  .241
+  GENIE 2.8.0 hN results
+
+[RECORD]
+  0,170,0.0,0.5
+  Energy
+  #pi+ He #rightarrow #pi+ X T#pi+=160 MeV
+  levenson-pip-he-160-pip-90-hahn-mar01
+  4
+[EXPERIMENTAL]
+  levenson-pip-he-160-pip-90.dat
+  xsec:E:err1
+  160 MeV Levenson He Data (90 deg)
+[GENIE]
+  Feb_28_13_pip_He_160_v280_hA.ginuke.root
+  (Eh-.1395)*1000
+  pdgh==211&&cth>=-0.139&&cth<=.139
+  .278
+  GENIE 2.8.0 hA results
+[GENIE]
+  Feb_28_13_pip_He_160_v280_hN.ginuke.root
+  (Eh-.1395)*1000
+  pdgh==211&&cth>=-0.139&&cth<=.139
+  .278
+  GENIE 2.8.0 hN results
+
+[RECORD]
+  0,170,0.0,0.5
+  Energy
+  #pi+ He #rightarrow #pi+ X T#pi+=160 MeV
+  levenson-pip-he-160-pip-120-hahn-mar01
+  4
+[EXPERIMENTAL]
+  levenson-pip-he-160-pip-120.dat
+  xsec:E:err1
+  160 MeV Levenson He Data (120 deg)
+[GENIE]
+  Feb_28_13_pip_He_160_v280_hA.ginuke.root
+  (Eh-.1395)*1000
+  pdgh==211&&cth>=-0.616&&cth<=-0.375
+  .241
+  GENIE 2.8.0 hA results
+[GENIE]
+  Feb_28_13_pip_He_160_v280_hN.ginuke.root
+  (Eh-.1395)*1000
+  pdgh==211&&cth>=-0.616&&cth<=-0.375
+  .241
+  GENIE 2.8.0 hN results
+
+[RECORD]
+  0,170,0.0,0.4
+  Energy
+  #pi+ He #rightarrow #pi+ X T#pi+=160 MeV
+  levenson-pip-he-160-pip-146-hahn-mar01
+  4
+[EXPERIMENTAL]
+  levenson-pip-he-160-pip-146.dat
+  xsec:E:err1
+  160 MeV Levenson He Data (146 deg)
+[GENIE]
+  Feb_28_13_pip_He_160_v280_hA.ginuke.root
+  (Eh-.1395)*1000
+  pdgh==211&&cth>=-.899&&cth<=-.743
+  .156
+  GENIE 2.8.0 hA results
+[GENIE]
+  Feb_28_13_pip_He_160_v280_hN.ginuke.root
+  (Eh-.1395)*1000
+  pdgh==211&&cth>=-.899&&cth<=-.743
+  .156
+  GENIE 2.8.0 hN results

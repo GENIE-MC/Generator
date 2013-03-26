@@ -1,0 +1,11 @@
+#Cross section for pip from be (Cochran)
+#Phy.Rev.D 1973 V6,#11
+#135 degrees
+#E     sig        err
+#MeV   mb/sr/MeV  mb/sr/MeV
+30.    8.210e-03  1.300e-03
+52.    1.063e-02  9.300e-04
+79.    6.700e-03  5.300e-04
+105.   3.410e-03  2.800e-04
+155.   5.400e-04  4.000e-05
+205.   8.000e-05  1.000e-05

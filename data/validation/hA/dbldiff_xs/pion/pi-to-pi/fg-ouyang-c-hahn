@@ -1,0 +1,22 @@
+[RECORD]
+  0,500,0.0,0.12
+  Energy
+  p C #rightarrow p X Tp=500 MeV
+  ouyang-pim-c-500-pi0-30-hahn-mar01
+  4
+[EXPERIMENTAL]
+  ouyang-pim-c-500-pi0-30.dat
+  (xsec*.001):E:(err1*.001)
+  500 MeV Ouyang C Data (30 deg)
+[GENIE]
+  Feb_28_13_pim_C_500_v280_hA.ginuke.root
+  (Eh-.135)*1000
+  pdgh==111&&cth>=.816&&cth<=.916
+  .1
+  GENIE 2.8.0 hA results
+[GENIE]
+  Feb_28_13_pim_C_500_v280_hN.ginuke.root
+  (Eh-.135)*1000
+  pdgh==111&&cth>=.816&&cth<=.916
+  .1
+  GENIE 2.8.0 hN results
