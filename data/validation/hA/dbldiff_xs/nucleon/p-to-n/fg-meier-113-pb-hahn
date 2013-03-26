@@ -1,0 +1,92 @@
+[RECORD]
+  0,120,0,5
+  Energy
+  113 MeV p Pb #rightarrow n X (7.5 deg)
+  meier-p-fe-113-n-7p5-mar13
+  4
+[EXPERIMENTAL]
+  meier-p-pb-113-n-7p5.dat
+  xsec:E:err1
+  113 MeV Meier p Pb Data (7.5 deg)
+[GENIE]
+  Nov_06_11_p_Pb_113_v271_hA.ginuke.root
+  (Eh-.940)*1000
+  pdgh==2112&&cth>=0.986&&cth<=0.996
+  .01
+  2.7.1 GENIE hA results
+[GENIE]
+  Nov_06_11_p_Pb_113_v271_hN.ginuke.root
+  (Eh-.940)*1000
+  pdgh==2112&&cth>=0.986&&cth<=0.996
+  .01
+  2.7.1 GENIE hN results
+
+[RECORD]
+  0,120,0,4
+  Energy
+  113 MeV p Pb #rightarrow n X (30 deg)
+  meier-p-fe-113-n-30-mar13
+  4
+[EXPERIMENTAL]
+  meier-p-pb-113-n-30.dat
+  xsec:E:err1
+  113 MeV Meier p Pb Data (30 deg)
+[GENIE]
+  Nov_06_11_p_Pb_113_v271_hA.ginuke.root
+  (Eh-.940)*1000
+  pdgh==2112&&cth>=0.82&&cth<=0.92
+  .1
+  2.7.1 GENIE hA results
+[GENIE]
+  Nov_06_11_p_Pb_113_v271_hN.ginuke.root
+  (Eh-.940)*1000
+  pdgh==2112&&cth>=0.82&&cth<=0.92
+  .1
+  2.7.1 GENIE hN results
+
+[RECORD]
+  0,120,0,3
+  Energy
+  113 MeV p Pb #rightarrow n X (60 deg)
+  meier-p-fe-113-n-60-mar13
+  4
+[EXPERIMENTAL]
+  meier-p-pb-113-n-60.dat
+  xsec:E:err1
+  113 MeV Meier p Pb Data (60 deg)
+[GENIE]
+  Nov_06_11_p_Pb_113_v271_hA.ginuke.root
+  (Eh-.940)*1000
+  pdgh==2112&&cth>=0.4&&cth<=0.6
+  .2
+  2.7.1 GENIE hA results
+[GENIE]
+  Nov_06_11_p_Pb_113_v271_hN.ginuke.root
+  (Eh-.940)*1000
+  pdgh==2112&&cth>=0.4&&cth<=0.6
+  .2
+  2.7.1 GENIE hN results
+
+[RECORD]
+  0,100,0,1
+  Energy
+  113 MeV p Pb #rightarrow n X (150 deg)
+  meier-p-fe-113-n-150-mar13
+  4
+[EXPERIMENTAL]
+  meier-p-pb-113-n-150.dat
+  xsec:E:err1
+  113 MeV Meier p Pb Data (150 deg)
+[GENIE]
+  Nov_06_11_p_Pb_113_v271_hA.ginuke.root
+  (Eh-.940)*1000
+  pdgh==2112&&cth>=-0.97&&cth<=-0.77
+  .2
+  2.7.1 GENIE hA results
+[GENIE]
+  Nov_06_11_p_Pb_113_v271_hN.ginuke.root
+  (Eh-.940)*1000
+  pdgh==2112&&cth>=-0.97&&cth<=-0.77
+  .2
+  2.7.1 GENIE hN results
+
