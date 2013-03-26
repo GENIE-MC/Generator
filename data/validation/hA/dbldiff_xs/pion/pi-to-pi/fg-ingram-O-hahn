@@ -1,0 +1,92 @@
+[RECORD]
+  0,150,0,.5
+  Energy
+  #pi+ O #rightarrow #pi+ X Tp=114 MeV
+  ingram-pip-O-114-pip-50-hahn
+  4
+[EXPERIMENTAL]
+  ingram-pip-o16-114-50.txt
+  (xsec*.001):E:(err1*.001)
+  114 MeV Ingram O Data (50 deg)
+[GENIE]
+  Feb_22_13_pip_O_114_v271_hA.ginuke.root
+  (Eh-.1396)*1000
+  pdgh==211&&cth>0.54&&cth<=.74
+  .2
+  2.7.1 GENIE hA results
+[GENIE]
+  Feb_22_13_pip_O_114_v271_hN.ginuke.root
+  (Eh-.1396)*1000
+  pdgh==211&&cth>0.54&&cth<=.74
+  .2
+  2.7.1 GENIE hN results
+
+[RECORD]
+  0,150,0,.5
+  Energy
+  #pi+ O #rightarrow #pi+ X Tp=114 MeV
+  ingram-pip-O-114-pip-80-hahn
+  4
+[EXPERIMENTAL]
+  ingram-pip-o16-114-80.txt
+  (xsec*.001):E:(err1*.001)
+  114 MeV Ingram O Data (80 deg)
+[GENIE]
+  Feb_22_13_pip_O_114_v271_hA.ginuke.root
+  (Eh-.1396)*1000
+  pdgh==211&&cth>=.074&&cth<=.274
+  .2
+  2.7.1 GENIE hA results
+[GENIE]
+  Feb_22_13_pip_O_114_v271_hN.ginuke.root
+  (Eh-.1396)*1000
+  pdgh==211&&cth>=.074&&cth<=.274
+  .2
+  2.7.1 GENIE hN results
+
+[RECORD]
+  0,260,0,.5
+  Energy
+  #pi+ O #rightarrow #pi+ X Tp=240 MeV
+  ingram-pip-O-240-pip-60-hahn
+  4
+[EXPERIMENTAL]
+  ingram-pip-o16-240-60.txt
+  (xsec*.001):E:(err1*.001)
+  240 MeV Ingram O Data (60 deg)
+[GENIE]
+  Feb_22_13_pip_O_240_v271_hA.ginuke.root
+  (Eh-.1396)*1000
+  pdgh==211&&cth>=.35&&cth<=.65
+  .3
+  2.7.1 GENIE hA results
+[GENIE]
+  Feb_22_13_pip_O_240_v271_hN.ginuke.root
+  (Eh-.1396)*1000
+  pdgh==211&&cth>=.35&&cth<=.65
+  .3
+  2.7.1 GENIE hN results
+
+[RECORD]
+  0,260,0,.5
+  Energy
+  #pi+ O #rightarrow #pi+ X Tp=240 MeV
+  ingram-pip-O-240-pip-130-hahn
+  4
+[EXPERIMENTAL]
+  ingram-pip-o16-240-130.txt
+  (xsec*.001):E:(err1*.001)
+  240 MeV Ingram O Data (130 deg)
+[GENIE]
+  Feb_22_13_pip_O_240_v271_hA.ginuke.root
+  (Eh-.1396)*1000
+  pdgh==211&&cth>=-0.79&&cth<=-0.49
+  .3
+  2.7.1 GENIE hA results
+[GENIE]
+  Feb_22_13_pip_O_240_v271_hN.ginuke.root
+  (Eh-.1396)*1000
+  pdgh==211&&cth>=-0.79&&cth<=-0.49
+  .3
+  2.7.1 GENIE hN results
+

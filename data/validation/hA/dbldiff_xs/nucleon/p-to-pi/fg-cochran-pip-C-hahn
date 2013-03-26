@@ -1,0 +1,252 @@
+[RECORD]
+  0,350,0.0,0.2
+  Energy
+  730 MeV p C #rightarrow #pi+ X 
+  cochran-p-C-730-pip-15-hahn-mar21
+  10
+[EXPERIMENTAL]
+  cochran-p-C-730-pip-15.dat
+  xsec:E:err1
+  730 MeV Cochran p C Data (15 deg)
+[GENIE]
+  Mar_21_13_p_C_730_v280_hA.ginuke.root
+  (Eh-.140)*1000
+  pdgh==211&&cth>=.956&&cth<=.976
+  .02
+  2.8.0 GENIE hA results
+[GENIE]
+  Mar_21_13_p_C_730_v280_hN.ginuke.root
+  (Eh-.140)*1000
+  pdgh==211&&cth>=.956&&cth<=.976
+  .02
+  2.8.0 GENIE hN results
+
+[RECORD]
+  0,350,0.0,0.2
+  Energy
+  730 MeV p C #rightarrow #pi+ X 
+  cochran-p-C-730-pip-20-hahn-mar21
+  10
+[EXPERIMENTAL]
+  cochran-p-C-730-pip-20.dat
+  xsec:E:err1
+  730 MeV Cochran p C Data (20 deg)
+[GENIE]
+  Mar_21_13_p_C_730_v280_hA.ginuke.root
+  (Eh-.140)*1000
+  pdgh==211&&cth>=.935&&cth<=.955
+  .02
+  2.8.0 GENIE hA results
+[GENIE]
+  Mar_21_13_p_C_730_v280_hN.ginuke.root
+  (Eh-.140)*1000
+  pdgh==211&&cth>=.935&&cth<=.955
+  .02
+  2.8.0 GENIE hN results
+
+[RECORD]
+  0,350,0.0,0.2
+  Energy
+  730 MeV p C #rightarrow #pi+ X 
+  cochran-p-C-730-pip-30-hahn-mar21
+  10
+[EXPERIMENTAL]
+  cochran-p-C-730-pip-30.dat
+  xsec:E:err1
+  730 MeV Cochran p C Data (30 deg)
+[GENIE]
+  Mar_21_13_p_C_730_v280_hA.ginuke.root
+  (Eh-.140)*1000
+  pdgh==211&&cth>=.846&&cth<=.886
+  .04
+  2.8.0 GENIE hA results
+[GENIE]
+  Mar_21_13_p_C_730_v280_hN.ginuke.root
+  (Eh-.140)*1000
+  pdgh==211&&cth>=.846&&cth<=.886
+  .04
+  2.8.0 GENIE hN results
+
+[RECORD]
+  0,350,0.0,0.2
+  Energy
+  730 MeV p C #rightarrow #pi+ X 
+  cochran-p-C-730-pip-45-hahn-mar21
+  10
+[EXPERIMENTAL]
+  cochran-p-C-730-pip-45.dat
+  xsec:E:err1
+  730 MeV Cochran p C Data (45 deg)
+[GENIE]
+  Mar_21_13_p_C_730_v280_hA.ginuke.root
+  (Eh-.140)*1000
+  pdgh==211&&cth>=.657&&cth<=.757
+  .1
+  2.8.0 GENIE hA results
+[GENIE]
+  Mar_21_13_p_C_730_v280_hN.ginuke.root
+  (Eh-.140)*1000
+  pdgh==211&&cth>=.657&&cth<=.757
+  .1
+  2.8.0 GENIE hN results
+
+[RECORD]
+  0,350,0.0,0.1
+  Energy
+  730 MeV p C #rightarrow #pi+ X 
+  cochran-p-C-730-pip-60-hahn-mar21
+  10
+[EXPERIMENTAL]
+  cochran-p-C-730-pip-60.dat
+  xsec:E:err1
+  730 MeV Cochran p C Data (60 deg)
+[GENIE]
+  Mar_21_13_p_C_730_v280_hA.ginuke.root
+  (Eh-.140)*1000
+  pdgh==211&&cth>=.4&&cth<=.6
+  .2
+  2.8.0 GENIE hA results
+[GENIE]
+  Mar_21_13_p_C_730_v280_hN.ginuke.root
+  (Eh-.140)*1000
+  pdgh==211&&cth>=.4&&cth<=.6
+  .2
+  2.8.0 GENIE hN results
+
+[RECORD]
+  0,350,0.0,0.1
+  Energy
+  730 MeV p C #rightarrow #pi+ X 
+  cochran-p-C-730-pip-75-hahn-mar21
+  10
+[EXPERIMENTAL]
+  cochran-p-C-730-pip-75.dat
+  xsec:E:err1
+  730 MeV Cochran p C Data (75 deg)
+[GENIE]
+  Mar_21_13_p_C_730_v280_hA.ginuke.root
+  (Eh-.140)*1000
+  pdgh==211&&cth>=.159&&cth<=.359
+  .2
+  2.8.0 GENIE hA results
+[GENIE]
+  Mar_21_13_p_C_730_v280_hN.ginuke.root
+  (Eh-.140)*1000
+  pdgh==211&&cth>=.159&&cth<=.359
+  .2
+  2.8.0 GENIE hN results
+
+[RECORD]
+  0,350,0.0,0.1
+  Energy
+  730 MeV p C #rightarrow #pi+ X 
+  cochran-p-C-730-pip-90-hahn-mar21
+  10
+[EXPERIMENTAL]
+  cochran-p-C-730-pip-90.dat
+  xsec:E:err1
+  730 MeV Cochran p C Data (90 deg)
+[GENIE]
+  Mar_21_13_p_C_730_v280_hA.ginuke.root
+  (Eh-.140)*1000
+  pdgh==211&&cth>=-.1&&cth<=.1
+  .2
+  2.8.0 GENIE hA results
+[GENIE]
+  Mar_21_13_p_C_730_v280_hN.ginuke.root
+  (Eh-.140)*1000
+  pdgh==211&&cth>=-.1&&cth<=.1
+  .2
+  2.8.0 GENIE hN results
+
+[RECORD]
+  0,350,0.0,0.1
+  Energy
+  730 MeV p C #rightarrow #pi+ X 
+  cochran-p-C-730-pip-105-hahn-mar21
+  10
+[EXPERIMENTAL]
+  cochran-p-C-730-pip-105.dat
+  xsec:E:err1
+  730 MeV Cochran p C Data (105 deg)
+[GENIE]
+  Mar_21_13_p_C_730_v280_hA.ginuke.root
+  (Eh-.140)*1000
+  pdgh==211&&cth>=-.359&&cth<=-.159
+  .2
+  2.8.0 GENIE hA results
+[GENIE]
+  Mar_21_13_p_C_730_v280_hN.ginuke.root
+  (Eh-.140)*1000
+  pdgh==211&&cth>=-.359&&cth<=-.159
+  .2
+  2.8.0 GENIE hN results
+
+[RECORD]
+  0,350,0.0,0.1
+  Energy
+  730 MeV p C #rightarrow #pi+ X 
+  cochran-p-C-730-pip-120-hahn-mar21
+  10
+[EXPERIMENTAL]
+  cochran-p-C-730-pip-120.dat
+  xsec:E:err1
+  730 MeV Cochran p C Data (120 deg)
+[GENIE]
+  Mar_21_13_p_C_730_v280_hA.ginuke.root
+  (Eh-.140)*1000
+  pdgh==211&&cth>=-.6&&cth<=-.4
+  .2
+  2.8.0 GENIE hA results
+[GENIE]
+  Mar_21_13_p_C_730_v280_hN.ginuke.root
+  (Eh-.140)*1000
+  pdgh==211&&cth>=-.6&&cth<=-.4
+  .2
+  2.8.0 GENIE hN results
+
+[RECORD]
+  0,350,0.0,0.1
+  Energy
+  730 MeV p C #rightarrow #pi+ X 
+  cochran-p-C-730-pip-135-hahn-mar21
+  10
+[EXPERIMENTAL]
+  cochran-p-C-730-pip-135.dat
+  xsec:E:err1
+  730 MeV Cochran p C Data (135 deg)
+[GENIE]
+  Mar_21_13_p_C_730_v280_hA.ginuke.root
+  (Eh-.140)*1000
+  pdgh==211&&cth>=-.757&&cth<=-.657
+  .1
+  2.8.0 GENIE hA results
+[GENIE]
+  Mar_21_13_p_C_730_v280_hN.ginuke.root
+  (Eh-.140)*1000
+  pdgh==211&&cth>=-.757&&cth<=-.657
+  .1
+  2.8.0 GENIE hN results
+
+[RECORD]
+  0,350,0.0,0.1
+  Energy
+  730 MeV p C #rightarrow #pi+ X
+  cochran-p-C-730-pip-150-hahn-mar21
+  10
+[EXPERIMENTAL]
+  cochran-p-C-730-pip-150.dat
+  xsec:E:err1
+  730 MeV Cochran p C Data (150 deg)
+[GENIE]
+  Mar_21_13_p_C_730_v280_hA.ginuke.root
+  (Eh-.140)*1000
+  pdgh==211&&cth>=-.886&&cth<=-.846
+  .04
+  2.8.0 GENIE hA results
+[GENIE]
+  Mar_21_13_p_C_730_v280_hN.ginuke.root
+  (Eh-.140)*1000
+  pdgh==211&&cth>=-.886&&cth<=-.846
+  .04
+  2.8.0 GENIE hN results

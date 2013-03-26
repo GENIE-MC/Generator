@@ -1,0 +1,115 @@
+[RECORD]
+  0,800,0.0,3
+  Energy
+  800 MeV p Ca #rightarrow p X
+  mcgill-hn-800-p-ca-5
+  2
+[EXPERIMENTAL]
+  mcgill-pp-ca-800-5.dat
+  xsec:E
+  Mcgill Data (5 deg)
+[GENIE]
+  Mar_08_13_p_Ca_800_hN_v271.ginuke.root
+  (Eh-.938)*1000
+  pdgh==2212&&cth>=.991&&cth<=.999
+  .008
+  GENIE hN 2.7.1 results
+[GENIE]
+  Jul_08_13_p_Ca_800_hN_v271.ginuke.root
+  (Eh-.938)*1000
+  pdgh==2212&&cth>=.991&&cth<=.999
+  .008
+  GENIE hN 2.7.1 results
+
+[RECORD]
+  0,800,0.0,5
+  Energy
+  800 MeV p Ca #rightarrow p X
+  mcgill-hn-800-p-ca-11
+  2
+[EXPERIMENTAL]
+  mcgill-pp-ca-800-11.dat
+  xsec:E:err1
+  Mcgill Data (11 deg)
+[GENIE]
+  Mar_08_13_p_Ca_800_hA_v271.ginuke.root
+  (Eh-.938)*1000
+  pdgh==2212&&cth>=.9766&&cth<=.9866
+  .01
+  GENIE hA 2.7.1 results
+[GENIE]
+  Mar_08_13_p_Ca_800_hN_v271.ginuke.root
+  (Eh-.938)*1000
+  pdgh==2212&&cth>=.9766&&cth<=.9866
+  .01
+  GENIE hN 2.7.1 results
+
+[RECORD]
+  0,800,0.0,3
+  Energy
+  800 MeV p Ca #rightarrow p X
+  mcgill-hn-800-p-ca-15
+  2
+[EXPERIMENTAL]
+  mcgill-pp-ca-800-15.dat
+  xsec:E:err1
+  Mcgill Data (15 deg)
+[GENIE]
+  Mar_08_13_p_Ca_800_hA_v271.ginuke.root
+  (Eh-.938)*1000
+  pdgh==2212&&cth>=.946&&cth<=.986
+  .04
+  GENIE hA 2.7.1 results
+[GENIE]
+  Mar_08_13_p_Ca_800_hN_v271.ginuke.root
+  (Eh-.938)*1000
+  pdgh==2212&&cth>=.946&&cth<=.986
+  .04
+  GENIE hN 2.7.1 results
+
+[RECORD]
+  0,800,0.0,2
+  Energy
+  800 MeV p Ca #rightarrow p X
+  mcgill-hn-800-p-ca-20
+  2
+[EXPERIMENTAL]
+  mcgill-pp-ca-800-20.dat
+  xsec:E:err1
+  Mcgill Data (20 deg)
+[GENIE]
+  Mar_08_13_p_Ca_800_hA_v271.ginuke.root
+  (Eh-.938)*1000
+  pdgh==2212&&cth>=0.92&&cth<=0.96
+  .04
+  GENIE hA 2.7.1 results
+[GENIE]
+  Mar_08_13_p_Ca_800_hN_v271.ginuke.root
+  (Eh-.938)*1000
+  pdgh==2212&&cth>=0.92&&cth<=0.96
+  .04
+  GENIE hN 2.7.1 results
+
+[RECORD]
+  0,800,0.0,1.5
+  Energy
+  800 MeV p Ca #rightarrow p X
+  mcgill-hn-800-p-ca-30
+  2
+[EXPERIMENTAL]
+  mcgill-pp-ca-800-30.dat
+  xsec:E:err1
+  Mcgill Data (30 deg)
+[GENIE]
+  Mar_08_13_p_Ca_800_hA_v271.ginuke.root
+  (Eh-.938)*1000
+  pdgh==2212&&cth>=0.82&&cth<=.92
+  .1
+  GENIE hA 2.7.1 results
+[GENIE]
+  Mar_08_13_p_Ca_800_hN_v271.ginuke.root
+  (Eh-.938)*1000
+  pdgh==2212&&cth>=0.82&&cth<=.92
+  .1
+  GENIE hN 2.7.1 results
+

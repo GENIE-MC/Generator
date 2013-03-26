@@ -1,0 +1,46 @@
+[RECORD]
+  0,500,0,2
+  Energy
+  #pi+ C #rightarrow #pi+ X Tp=500 MeV
+  zumbro-pip-c-500-pip-30-hahn-mar21
+  4
+[EXPERIMENTAL]
+  zumbro-pip-C-500-pip-30.dat
+  xsec:E:err1
+  500 MeV Zumbro C Data (30 deg)
+[GENIE]
+  Feb_22_13_pip_C_500_v271_hA.ginuke.root
+  (Eh-.1396)*1000
+  pdgh==211&&cth>=.816&&cth<=.916
+  .1
+  GENIE 2.7.1 hA results
+[GENIE]
+  Feb_22_13_pip_C_500_v271_hN.ginuke.root
+  (Eh-.1396)*1000
+  pdgh==211&&cth>=.816&&cth<=.916
+  .1
+  GENIE 2.7.1 hN results
+
+
+[RECORD]
+  0,500,0,0.6
+  Energy
+  #pi+ C #rightarrow #pi+ X Tp=500 MeV
+  zumbro-pip-c-500-pip-50-hahn-mar21
+  4
+[EXPERIMENTAL]
+  zumbro-pip-C-500-pip-50.dat
+  xsec:E:err1
+  500 MeV Zumbro C Data (50 deg)
+[GENIE]
+  Feb_22_13_pip_C_500_v271_hA.ginuke.root
+  (Eh-.1396)*1000
+  pdgh==211&&cth>=.593&&cth<=.693
+  .1
+  GENIE 2.7.1 hA results
+[GENIE]
+  Feb_22_13_pip_C_500_v271_hN.ginuke.root
+  (Eh-.1396)*1000
+  pdgh==211&&cth>=.593&&cth<=.693
+  .1
+  GENIE 2.7.1 hN results

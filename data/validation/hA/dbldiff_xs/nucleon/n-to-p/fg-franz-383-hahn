@@ -1,0 +1,114 @@
+[RECORD]
+  0,400,0.0,3
+  Energy
+  n Cu #rightarrow p X Tn=383 MeV
+  franz-hahn-383-cu-54-mar13
+  4
+[EXPERIMENTAL]
+  franz-n-cu-383-p-54.dat
+  xsec:E:err1
+  383 MeV Franz Cu Data (54 deg)
+[GENIE]
+  Mar_18_13_n_Cu_383_v280_hA.ginuke.root
+  (Eh-.938)*1000
+  pdgh==2212&&cth>=.515&&cth<=.656
+  .141
+  GENIE 2.8.0 hA results
+[GENIE]
+  Mar_18_13_n_Cu_383_v280_hN.ginuke.root
+  (Eh-.938)*1000
+  pdgh==2212&&cth>=.515&&cth<=.656
+  .141
+  GENIE 2.8.0 hN results
+
+[RECORD]
+  0,400,0.0,3
+  Energy
+  n Cu #rightarrow p X Tn=383 MeV
+  franz-hahn-383-cu-68-mar13
+  4
+[EXPERIMENTAL]
+  franz-n-cu-383-p-68.dat
+  xsec:E:err1
+  383 MeV Franz Cu Data (68 deg)
+[GENIE]
+  Mar_18_13_n_Cu_383_v280_hA.ginuke.root
+  (Eh-.938)*1000
+  pdgh==2212&&cth>=.292&&cth<=.454
+  .162
+  GENIE 2.8.0 hA results
+[GENIE]
+  Mar_18_13_n_Cu_383_v280_hN.ginuke.root
+  (Eh-.938)*1000
+  pdgh==2212&&cth>=.292&&cth<=.454
+  .162
+  GENIE 2.8.0 hN results
+
+[RECORD]
+  0,400,0.0,3
+  Energy
+  n Cu #rightarrow p X Tn=383 MeV
+  franz-hahn-383-cu-90-mar13
+  4
+[EXPERIMENTAL]
+  franz-n-cu-383-p-90.dat
+  xsec:E:err1
+  383 MeV Franz Cu Data (90 deg)
+[GENIE]
+  Mar_18_13_n_Cu_383_v280_hA.ginuke.root
+  (Eh-.938)*1000
+  pdgh==2212&&cth>=-.05&&cth<=.05
+  .1
+  GENIE 2.8.0 hA results
+[GENIE]
+  Mar_18_13_n_Cu_383_v280_hN.ginuke.root
+  (Eh-.938)*1000
+  pdgh==2212&&cth>=-.05&&cth<=.05
+  .1
+  GENIE 2.8.0 hN results
+
+[RECORD]
+  0,400,0.0,3
+  Energy
+  n Cu #rightarrow p X Tn=383 MeV
+  franz-hahn-383-cu-121-mar13
+  4
+[EXPERIMENTAL]
+  franz-n-cu-383-p-121.dat
+  xsec:E:err1
+  383 MeV Franz Cu Data (121 deg)
+[GENIE]
+  Mar_18_13_n_Cu_383_v280_hA.ginuke.root
+  (Eh-.938)*1000
+  pdgh==2212&&cth>=-.588&&cth<=-.438
+  .149
+  GENIE 2.8.0 hA results
+[GENIE]
+  Mar_18_13_n_Cu_383_v280_hN.ginuke.root
+  (Eh-.938)*1000
+  pdgh==2212&&cth>=-.588&&cth<=-.438
+  .149
+  GENIE 2.8.0 hN results
+
+[RECORD]
+  0,400,0.0,3
+  Energy
+  n Cu #rightarrow p X Tn=383 MeV
+  franz-hahn-383-cu-164-mar13
+  4
+[EXPERIMENTAL]
+  franz-n-cu-383-p-164.dat
+  xsec:E:err1
+  383 MeV Franz Cu Data (164 deg)
+[GENIE]
+  Mar_18_13_n_Cu_383_v280_hA.ginuke.root
+  (Eh-.938)*1000
+  pdgh==2212&&cth>=-.982&&cth<=-.934
+  .048
+  GENIE 2.8.0 hA results
+[GENIE]
+  Mar_18_13_n_Cu_383_v280_hN.ginuke.root
+  (Eh-.938)*1000
+  pdgh==2212&&cth>=-.982&&cth<=-.934
+  .048
+  GENIE 2.8.0 hN results

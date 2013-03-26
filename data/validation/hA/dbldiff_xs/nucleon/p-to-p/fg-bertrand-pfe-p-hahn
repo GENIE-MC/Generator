@@ -1,0 +1,230 @@
+[RECORD]
+  0,65,0,8
+  Energy
+  p Fe #rightarrow p X Tp=65 MeV
+  bertrand-p-fe-65-p-20-mar13
+  4
+[EXPERIMENTAL]
+  bertrand-p-fe-65-p-20.dat
+  xsec:E
+  65 MeV Bertrand Fe Data (20 deg)
+[GENIE]
+  Mar_12_13_p_Fe_65_v280_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=.932&&cth<=0.947
+  .015
+  2.8.0 hA GENIE results
+[GENIE]
+  Mar_12_13_p_Fe_65_v280_hN.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=.932&&cth<=.947
+  .015
+  2.8.0 hN GENIE results
+
+[RECORD]
+  0,65,0,8
+  Energy
+  p Fe #rightarrow p X Tp=65 MeV
+  bertrand-p-fe-65-p-30-mar13
+  4
+[EXPERIMENTAL]
+  bertrand-p-fe-65-p-30.dat
+  xsec:E
+  65 MeV Bertrand Fe Data (30 deg)
+[GENIE]
+  Mar_12_13_p_Fe_65_v280_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=.855&&cth<=0.876
+  .021
+  2.8.0 hA GENIE results
+[GENIE]
+  Mar_12_13_p_Fe_65_v280_hN.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=.855&&cth<=.876
+  .021
+  2.8.0 hN GENIE results
+
+[RECORD]
+  0,65,0,8
+  Energy
+  p Fe #rightarrow p X Tp=65 MeV
+  bertrand-p-fe-65-p-37-mar13
+  4
+[EXPERIMENTAL]
+  bertrand-p-fe-65-p-37.dat
+  xsec:E
+  65 MeV Bertrand Fe Data (37 deg)
+[GENIE]
+  Mar_12_13_p_Fe_65_v280_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=.786&&cth<=.811
+  .025
+  2.8.0 hA GENIE results
+[GENIE]
+  Mar_12_13_p_Fe_65_v280_hN.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=.786&&cth<=.811
+  .025
+  2.8.0 hN GENIE results
+
+[RECORD]
+  0,65,0,8
+  Energy
+  p Fe #rightarrow p X Tp=65 MeV
+  bertrand-p-fe-65-p-45-mar13
+  4
+[EXPERIMENTAL]
+  bertrand-p-fe-65-p-45.dat
+  xsec:E
+  65 MeV Bertrand Fe Data (45 deg)
+[GENIE]
+  Mar_12_13_p_Fe_65_v280_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=.692&&cth<=.722
+  .028
+  2.8.0 hA GENIE results
+[GENIE]
+  Mar_12_13_p_Fe_65_v280_hN.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=.692&&cth<=.722
+  .028
+  2.8.0 hN GENIE results
+
+[RECORD]
+  0,65,0,8
+  Energy
+  p Fe #rightarrow p X Tp=65 MeV
+  bertrand-p-fe-65-p-52-mar13
+  4
+[EXPERIMENTAL]
+  bertrand-p-fe-65-p-52.dat
+  xsec:E
+  65 MeV Bertrand Fe Data (52 deg)
+[GENIE]
+  Mar_12_13_p_Fe_65_v280_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=.599&&cth<=.632
+  .033
+  2.8.0 hA GENIE results
+[GENIE]
+  Mar_12_13_p_Fe_65_v280_hN.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=.599&&cth<=.632
+  .033
+  2.8.0 hN GENIE results
+
+[RECORD]
+  0,65,0,5
+  Energy
+  p Fe #rightarrow p X Tp=65 MeV
+  bertrand-p-fe-65-p-60-mar13
+  4
+[EXPERIMENTAL]
+  bertrand-p-fe-65-p-60.dat
+  xsec:E
+  65 MeV Bertrand Fe Data (60 deg)
+[GENIE]
+  Mar_12_13_p_Fe_65_v280_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=.48&&cth<=.52
+  .04
+  2.8.0 hA GENIE results
+[GENIE]
+  Mar_12_13_p_Fe_65_v280_hN.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=.48&&cth<=.52
+  .04
+  2.8.0 hN GENIE results
+
+[RECORD]
+  0,65,0,5
+  Energy
+  p Fe #rightarrow p X Tp=65 MeV
+  bertrand-p-fe-65-p-75-mar13
+  4
+[EXPERIMENTAL]
+  bertrand-p-fe-65-p-75.dat
+  xsec:E
+  65 MeV Bertrand Fe Data (75 deg)
+[GENIE]
+  Mar_12_13_p_Fe_65_v280_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=.239&&cth<=.279
+  .04
+  2.8.0 hA GENIE results
+[GENIE]
+  Mar_12_13_p_Fe_65_v280_hN.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=.239&&cth<=.279
+  .04
+  2.8.0 hN GENIE results
+
+[RECORD]
+  0,65,0,5
+  Energy
+  p Fe #rightarrow p X Tp=65 MeV
+  bertrand-p-fe-65-p-90-mar13
+  4
+[EXPERIMENTAL]
+  bertrand-p-fe-65-p-90.dat
+  xsec:E
+  65 MeV Bertrand Fe Data (90 deg)
+[GENIE]
+  Mar_12_13_p_Fe_65_v280_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=-.021&&cth<=.021
+  .042
+  2.8.0 hA GENIE results
+[GENIE]
+  Mar_12_13_p_Fe_65_v280_hN.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=-.021&&cth<=.021
+  .042
+  2.8.0 hN GENIE results
+
+
+[RECORD]
+  0,65,0,5
+  Energy
+  p Fe #rightarrow p X Tp=65 MeV
+  bertrand-p-fe-65-p-120-mar13
+  4
+[EXPERIMENTAL]
+  bertrand-p-fe-65-p-120.dat
+  xsec:E
+  65 MeV Bertrand Fe Data (120 deg)
+[GENIE]
+  Mar_12_13_p_Fe_65_v280_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=-.518&&cth<=-.482
+  .036
+  2.8.0 hA GENIE results
+[GENIE]
+  Mar_12_13_p_Fe_65_v280_hN.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=-.518&&cth<=-.482
+  .036
+  2.8.0 hN GENIE results
+
+[RECORD]
+  0,65,0,5
+  Energy
+  p Fe #rightarrow p X Tp=65 MeV
+  bertrand-p-fe-65-p-135-mar13
+  4
+[EXPERIMENTAL]
+  bertrand-p-fe-65-p-135.dat
+  xsec:E
+  65 MeV Bertrand Fe Data (135 deg)
+[GENIE]
+  Mar_12_13_p_Fe_65_v280_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=-.722&&cth<=-.692
+  .028
+  2.8.0 hA GENIE results
+[GENIE]
+  Mar_12_13_p_Fe_65_v280_hN.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=-.722&&cth<=-.692
+  .028
+  2.8.0 hN GENIE results

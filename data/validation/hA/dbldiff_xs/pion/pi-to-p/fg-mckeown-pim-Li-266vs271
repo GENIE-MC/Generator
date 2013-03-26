@@ -1,0 +1,344 @@
+[RECORD]
+  0,110,0.0,2
+  Energy
+  #pi- Li #rightarrow p X Tp=100 MeV
+  mckeown-pim-Li-100-p-30-266vs271-feb21
+  4
+[EXPERIMENTAL]
+  mckeown-pim-Li-100-p-30.dat
+  xsec:E:err1
+  100 MeV Mckeown Li Data (30 deg)
+[GENIE]
+  Feb_15_13_pim_Li_100_v271_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=.806&&cth<=.926
+  .12
+  GENIE 2.7.1 hA results
+[GENIE]
+  Feb_15_13_pim_Li_100_v266_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=.806&&cth<=.926
+  .12
+  GENIE 2.6.6 hA results
+
+[RECORD]
+  0,110,0.0,0.8
+  Energy
+  #pi- Li #rightarrow p X Tp=100 MeV
+  mckeown-pim-Li-100-p-45-266vs271-feb21
+  4
+[EXPERIMENTAL]
+  mckeown-pim-Li-100-p-45.dat
+  xsec:E:err1
+  100 MeV Mckeown Li Data (45 deg)
+[GENIE]
+  Feb_15_13_pim_Li_100_v271_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=.647&&cth<=.767
+  .12
+  GENIE 2.7.1 hA results
+[GENIE]
+  Feb_15_13_pim_Li_100_v266_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=.647&&cth<=.767
+  .12
+  GENIE 2.6.6 hA results
+
+[RECORD]
+  0,110,0.0,0.2
+  Energy
+  #pi- Li #rightarrow p X Tp=100 MeV
+  mckeown-pim-Li-100-p-90-266vs271-feb21
+  4
+[EXPERIMENTAL]
+  mckeown-pim-Li-100-p-90.dat
+  xsec:E:err1
+  100 MeV Mckeown Li Data (90 deg)
+[GENIE]
+  Feb_15_13_pim_Li_100_v271_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=-.060&&cth<=.060
+  .12
+  GENIE 2.7.1 hA results
+[GENIE]
+  Feb_15_13_pim_Li_100_v266_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=-.060&&cth<=.060
+  .12
+  GENIE 2.6.6 hA results
+
+[RECORD]
+  0,110,0.0,0.2
+  Energy
+  #pi- Li #rightarrow p X Tp=100 MeV
+  mckeown-pim-Li-100-p-120-266vs271-feb21
+  4
+[EXPERIMENTAL]
+  mckeown-pim-Li-100-p-120.dat
+  xsec:E:err1
+  100 MeV Mckeown Li Data (120 deg)
+[GENIE]
+  Feb_15_13_pim_Li_100_v271_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=-.560&&cth<=-.440
+  .12
+  GENIE 2.7.1 hA results
+[GENIE]
+  Feb_15_13_pim_Li_100_v266_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=-.560&&cth<=-.440
+  .12
+  GENIE 2.6.6 hA results
+
+[RECORD]
+  0,110,0.0,0.2
+  Energy
+  #pi- Li #rightarrow p X Tp=100 MeV
+  mckeown-pim-Li-100-p-150-266vs271-feb21
+  4
+[EXPERIMENTAL]
+  mckeown-pim-Li-100-p-150.dat
+  xsec:E:err1
+  100 MeV Mckeown Li Data (150 deg)
+[GENIE]
+  Feb_15_13_pim_Li_100_v271_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=-.926&&cth<=-.806
+  .12
+  GENIE 2.7.1 hA results
+[GENIE]
+  Feb_15_13_pim_Li_100_v266_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=-.926&&cth<=-.806
+  .12
+  GENIE 2.6.6 hA results
+
+[RECORD]
+  0,170,0.0,1.5
+  Energy
+  #pi- Li #rightarrow p X Tp=160 MeV
+  mckeown-pim-Li-160-p-30-266vs271-feb21
+  4
+[EXPERIMENTAL]
+  mckeown-pim-Li-160-p-30.dat
+  xsec:E:err1
+  160 MeV Mckeown Li Data (30 deg)
+[GENIE]
+  Feb_15_13_pim_Li_160_v271_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=.806&&cth<=.926
+  .12
+  GENIE 2.7.1 hA results
+[GENIE]
+  Feb_15_13_pim_Li_160_v266_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=.806&&cth<=.926
+  .12
+  GENIE 2.6.6 hA results
+
+[RECORD]
+  0,170,0.0,0.65
+  Energy
+  #pi- Li #rightarrow p X Tp=160 MeV
+  mckeown-pim-Li-160-p-45-266vs271-feb21
+  4
+[EXPERIMENTAL]
+  mckeown-pim-Li-160-p-45.dat
+  xsec:E:err1
+  160 MeV Mckeown Li Data (45 deg)
+[GENIE]
+  Feb_15_13_pim_Li_160_v271_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=.647&&cth<=.767
+  .12
+  GENIE 2.7.1 hA results
+[GENIE]
+  Feb_15_13_pim_Li_160_v266_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=.647&&cth<=.767
+  .12
+  GENIE 2.6.6 hA results
+
+[RECORD]
+  0,170,0.0,0.3
+  Energy
+  #pi- Li #rightarrow p X Tp=160 MeV
+  mckeown-pim-Li-160-p-90-266vs271-feb21
+  4
+[EXPERIMENTAL]
+  mckeown-pim-Li-160-p-90.dat
+  xsec:E:err1
+  160 MeV Mckeown Li Data (90 deg)
+[GENIE]
+  Feb_15_13_pim_Li_160_v271_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=-.060&&cth<=.060
+  .12
+  GENIE 2.7.1 hA results
+[GENIE]
+  Feb_15_13_pim_Li_160_v266_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=-.060&&cth<=.060
+  .12
+  GENIE 2.6.6 hA results
+
+[RECORD]
+  0,170,0.0,0.3
+  Energy
+  #pi- Li #rightarrow p X Tp=160 MeV
+  mckeown-pim-Li-160-p-120-266vs271-feb21
+  4
+[EXPERIMENTAL]
+  mckeown-pim-Li-160-p-120.dat
+  xsec:E:err1
+  160 MeV Mckeown Li Data (120 deg)
+[GENIE]
+  Feb_15_13_pim_Li_160_v271_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=-.560&&cth<=-.440
+  .12
+  GENIE 2.7.1 hA results
+[GENIE]
+  Feb_15_13_pim_Li_160_v266_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=-.560&&cth<=-.440
+  .12
+  GENIE 2.6.6 hA results
+
+[RECORD]
+  0,170,0.0,0.3
+  Energy
+  #pi- Li #rightarrow p X Tp=160 MeV
+  mckeown-pim-Li-160-p-150-266vs271-feb21
+  4
+[EXPERIMENTAL]
+  mckeown-pim-Li-160-p-150.dat
+  xsec:E:err1
+  160 MeV Mckeown Li Data (150 deg)
+[GENIE]
+  Feb_15_13_pim_Li_160_v271_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=-.926&&cth<=-.806
+  .12
+  GENIE 2.7.1 hA results
+[GENIE]
+  Feb_15_13_pim_Li_160_v266_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=-.926&&cth<=-.806
+  .12
+  GENIE 2.6.6 hA results
+
+[RECORD]
+  0,305,0.0,0.9
+  Energy
+  #pi- Li #rightarrow p X Tp=220 MeV
+  mckeown-pim-Li-220-p-30-266vs271-feb21
+  4
+[EXPERIMENTAL]
+  mckeown-pim-Li-220-p-30.dat
+  xsec:E:err1
+  220 MeV Mckeown Li Data (30 deg)
+[GENIE]
+  Feb_15_13_pim_Li_220_v271_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=.806&&cth<=.926
+  .12
+  GENIE 2.7.1 hA results
+[GENIE]
+  Feb_15_13_pim_Li_220_v266_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=.806&&cth<=.926
+  .12
+  GENIE 2.6.6 hA results
+
+[RECORD]
+  0,305,0.0,0.45
+  Energy
+  #pi- Li #rightarrow p X Tp=220 MeV
+  mckeown-pim-Li-220-p-45-266vs271-feb21
+  4
+[EXPERIMENTAL]
+  mckeown-pim-Li-220-p-45.dat
+  xsec:E:err1
+  220 MeV Mckeown Li Data (45 deg)
+[GENIE]
+  Feb_15_13_pim_Li_220_v271_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=.647&&cth<=.767
+  .12
+  GENIE 2.7.1 hA results
+[GENIE]
+  Feb_15_13_pim_Li_220_v266_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=.647&&cth<=.767
+  .12
+  GENIE 2.6.6 hA results
+
+[RECORD]
+  0,305,0.0,0.3
+  Energy
+  #pi- Li #rightarrow p X Tp=220 MeV
+  mckeown-pim-Li-220-p-90-266vs271-feb21
+  4
+[EXPERIMENTAL]
+  mckeown-pim-Li-220-p-90.dat
+  xsec:E:err1
+  220 MeV Mckeown Li Data (90 deg)
+[GENIE]
+  Feb_15_13_pim_Li_220_v271_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=-.060&&cth<=.060
+  .12
+  GENIE 2.7.1 hA results
+[GENIE]
+  Feb_15_13_pim_Li_220_v266_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=-.060&&cth<=.060
+  .12
+  GENIE 2.6.6 hA results
+
+[RECORD]
+  0,305,0.0,0.3
+  Energy
+  #pi- Li #rightarrow p X Tp=220 MeV
+  mckeown-pim-Li-220-p-120-266vs271-feb21
+  4
+[EXPERIMENTAL]
+  mckeown-pim-Li-220-p-120.dat
+  xsec:E:err1
+  220 MeV Mckeown Li Data (120 deg)
+[GENIE]
+  Feb_15_13_pim_Li_220_v271_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=-.560&&cth<=-.440
+  .12
+  GENIE 2.7.1 hA results
+[GENIE]
+  Feb_15_13_pim_Li_220_v266_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=-.560&&cth<=-.440
+  .12
+  GENIE 2.6.6 hA results
+
+[RECORD]
+  0,305,0.0,0.3
+  Energy
+  #pi- Li #rightarrow p X Tp=220 MeV
+  mckeown-pim-Li-220-p-150-266vs271-feb21
+  4
+[EXPERIMENTAL]
+  mckeown-pim-Li-220-p-150.dat
+  xsec:E:err1
+  220 MeV Mckeown Li Data (150 deg)
+[GENIE]
+  Feb_15_13_pim_Li_220_v271_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=-.926&&cth<=-.806
+  .12
+  GENIE 2.7.1 hA results
+[GENIE]
+  Feb_15_13_pim_Li_220_v266_hA.ginuke.root
+  (Eh-.9383)*1000
+  pdgh==2212&&cth>=-.926&&cth<=-.806
+  .12
+  GENIE 2.6.6 hA results
