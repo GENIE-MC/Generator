@@ -15,7 +15,7 @@
 #   [--production]   : default: <version>
 #   [--cycle]        : default: 01
 #   [--use-valgrind] : default: off
-#   [--batch-system] : <PBS, LSF>, default: PBS
+#   [--batch-system] : <PBS, LSF, none>, default: PBS
 #   [--queue]        : default: prod
 #   [--softw-topdir] : default: /opt/ppd/t2k/softw/GENIE
 #
@@ -60,7 +60,7 @@ $freenucsplines = "$softw_topdir/data/job_inputs/xspl/gxspl-vN-$genie_version.xm
 
 $nkots     = 1000;
 $emax      =  150;
-$neutrinos = "12,-12,14,-14";
+$neutrinos = "14,-14";
 %targets = (
 	'C12'   =>  '1000060120',
 	'O16'   =>  '1000080160', 
@@ -119,6 +119,12 @@ while( my ($tgt_name, $tgt_code) = each %targets ) {
         close(LSF);
 	`bsub < $batch_script`;
     } #LSF
+
+    # no batch system, run jobs interactively
+    if($batch_system eq 'none') {
+        system("source $genie_setup; cd $jobs_dir; export GSPLOAD=$freenucsplines; $cmd");
+    } # interactive mode
+
 
 }
 
