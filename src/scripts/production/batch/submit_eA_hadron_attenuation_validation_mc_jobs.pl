@@ -18,7 +18,7 @@
 #   [--production]   : production name, default: <version>
 #   [--cycle]        : cycle in current production, default: 01
 #   [--use-valgrind] : default: off
-#   [--batch-system] : <PBS, LSF>, default: PBS
+#   [--batch-system] : <PBS, LSF, none>, default: PBS
 #   [--queue]        : default: prod
 #   [--softw-topdir] : default: /opt/ppd/t2k/softw/GENIE
 #
@@ -214,6 +214,12 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
            close(LSF);
            `qsub < $batch_script`;
        } #LSF
+
+       # no batch system, run jobs interactively
+       if($batch_system eq 'none') {
+          system("source $genie_setup; cd $jobs_dir; export GSPLOAD=$xspl_file; export GEVGL=$gevgl; export GSEED=$curr_seed; $evgen_cmd; $conv_cmd");
+       } # interactive mode
+
 
     } # loop over subruns
   } #checking whether to submit current run
