@@ -13,7 +13,7 @@
 #   [--production]   : default: <version>
 #   [--cycle]        : default: 01
 #   [--use-valgrind] : default: off
-#   [--batch-system] : <PBS, LSF>, default: PBS
+#   [--batch-system] : <PBS, LSF, none>, default: PBS
 #   [--queue]        : default: prod
 #   [--softw-topdir] : default: /opt/ppd/t2k/softw/GENIE
 #
@@ -152,6 +152,12 @@ while( my ($tgt_name, $tgt_code) = each %targets ) {
         close(LSF);
 	`bsub < $batch_script`;
     } #LSF
+
+    # no batch system, run jobs interactively
+    if($batch_system eq 'none') {
+        system("source $genie_setup; cd $jobs_dir; export GSPLOAD=$freenucsplines; $cmd;");
+    } # interactive mode
+
 
 }
 
