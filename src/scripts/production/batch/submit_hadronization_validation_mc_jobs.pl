@@ -35,7 +35,7 @@
 # 1200xx          | numubar + n      | 0.5-80.  | HadronizationTest  | 1/E
 # 1300xx          | numubar + p      | 0.5-80.  | HadronizationTest  | 1/E
 #
-# xx : Run ID, 01-99, 20k events each
+# xx : Run ID, 01-99, 100k events each
 #...................................................................................
 #
 
@@ -72,7 +72,7 @@ $genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
 $jobs_dir       = "$softw_topdir/scratch/vld\_hadro-$production\_$cycle";
 $xspl_file      = "$softw_topdir/data/job_inputs/xspl/gxspl-vN-$genie_version.xml";
 $mcseed         = 210921029;
-$nev_per_subrun = 20000;
+$nev_per_subrun = 100000;
 
 # inputs for event generation jobs
 %evg_nupdg_hash = ( 
