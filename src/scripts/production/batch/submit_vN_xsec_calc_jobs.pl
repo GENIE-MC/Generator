@@ -14,7 +14,7 @@
 #   [--production]   : default: <version>
 #   [--cycle]        : default: 01
 #   [--use-valgrind] : default: off
-#   [--batch-system] : <PBS, LSF>, default: PBS
+#   [--batch-system] : <PBS, LSF, none>, default: PBS
 #   [--queue]        : default: prod
 #   [--softw-topdir] : default: /opt/ppd/t2k/softw/GENIE
 #
@@ -234,6 +234,12 @@ for my $curr_xsplset (keys %OUTXML)  {
         close(LSF);
         `bsub < $batch_script`;
     } #LSF
+
+    # no batch system, run jobs interactively
+    if($batch_system eq 'none') {
+       system("source $genie_setup; cd $jobs_dir; unset GSPLOAD; export GEVGL=$gevgl; $cmd");
+    } # interactive mode
+
 
   }
 }
