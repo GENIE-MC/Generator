@@ -127,7 +127,7 @@ while( my ($tgt_name, $tgt_code) = each %targets ) {
 
     # no batch system, run jobs interactively
     if($batch_system eq 'none') {
-        system("source $genie_setup; cd $jobs_dir; export GEVGL=EM; $cmd");
+        system("source $genie_setup; cd $jobs_dir; $gmkspl_cmd");
     } # interactive mode
 
 }

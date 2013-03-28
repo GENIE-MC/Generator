@@ -1,0 +1,60 @@
+#
+# Specify all possible initial states for the T2K MC so that all necessary 
+# cross-section splines can be build. Specify the energy range and the number of knots.
+#
+
+# maximum energy (GeV)
+50
+
+# number of knots (logaritmically spaced from threshold to maximum energy)
+400
+
+# list of neutrino PDG codes
+ 12 # nue
+-12 # nuebar
+ 14 # numu
+-14 # numubar
+
+# list of target PDG codes
+1000010020  # H2
+1000050100  # B10
+1000050110  # B11
+1000060120  # C12
+1000060130  # C13
+1000070140  # N14
+1000070150  # N15
+1000080160  # O16
+1000080170  # O17
+1000080180  # O18
+1000090190  # F19
+1000110230  # Na23
+1000130270  # Al27
+1000140280  # Si28
+1000140290  # Si29
+1000140300  # Si30
+1000170350  # Cl35
+1000170370  # Cl37
+1000180360  # Ar36
+1000180380  # Ar38
+1000180400  # Ar40
+1000220460  # Ti46
+1000220470  # Ti47
+1000220480  # Ti48
+1000220490  # Ti49
+1000220500  # Ti50
+1000260540  # Fe54
+1000260560  # Fe56
+1000260570  # Fe57
+1000260580  # Fe58
+1000270590  # Co59  
+1000290630  # Cu63
+1000290650  # Cu65
+1000300640  # Zn64
+1000300660  # Zn66
+1000300670  # Zn67
+1000300680  # Zn68
+1000300700  # Zn70
+1000822040  # Pb204
+1000822060  # Pb206
+1000822070  # Pb207
+1000822080  # Pb208

@@ -11,11 +11,12 @@
 #
 # Options:
 #    --version       : GENIE version number
+#    --config-file   : Text file which specifies the list of initial states
 #   [--arch]         : <SL4_32bit, SL5_64bit>, default: SL5_64bit
 #   [--production]   : default: <version>
 #   [--cycle]        : default: 01
 #   [--use-valgrind] : default: off
-#   [--batch-system] : <PBS, LSF, none>, default: PBS
+#   [--batch-system] : <PBS, LSF>, default: PBS
 #   [--queue]        : default: prod
 #   [--softw-topdir] : default: /opt/ppd/t2k/softw/GENIE
 #
@@ -29,60 +30,104 @@
 #------------------------------------------------------------------------------------------
 
 use File::Path;
+use File::Basename;
 
 # inputs
 #  
 $iarg=0;
 foreach (@ARGV) {
-  if($_ eq '--version')       { $genie_version = $ARGV[$iarg+1]; }
-  if($_ eq '--arch')          { $arch          = $ARGV[$iarg+1]; }
-  if($_ eq '--production')    { $production    = $ARGV[$iarg+1]; }
-  if($_ eq '--cycle')         { $cycle         = $ARGV[$iarg+1]; }
-  if($_ eq '--use-valgrind')  { $use_valgrind  = $ARGV[$iarg+1]; }
-  if($_ eq '--batch-system')  { $batch_system  = $ARGV[$iarg+1]; }
-  if($_ eq '--queue')         { $queue         = $ARGV[$iarg+1]; }
-  if($_ eq '--softw-topdir')  { $softw_topdir  = $ARGV[$iarg+1]; }
+  if($_ eq '--version')        { $genie_version = $ARGV[$iarg+1]; }
+  if($_ eq '--config-file')    { $config_file   = $ARGV[$iarg+1]; }
+  if($_ eq '--arch')           { $arch          = $ARGV[$iarg+1]; }
+  if($_ eq '--production')     { $production    = $ARGV[$iarg+1]; }
+  if($_ eq '--cycle')          { $cycle         = $ARGV[$iarg+1]; }
+  if($_ eq '--use-valgrind')   { $use_valgrind  = $ARGV[$iarg+1]; }
+  if($_ eq '--batch-system')   { $batch_system  = $ARGV[$iarg+1]; }
+  if($_ eq '--queue')          { $queue         = $ARGV[$iarg+1]; }
+  if($_ eq '--softw-topdir')   { $softw_topdir  = $ARGV[$iarg+1]; }
   $iarg++;
 }
 die("** Aborting [Undefined GENIE version. Use the --version option]")
 unless defined $genie_version;
+die("** Aborting [Undefined configuration file. Use the --config-file option. See examples in ?]")
+unless defined $config_file;
 
 $use_valgrind   = 0                          unless defined $use_valgrind;
 $arch           = "SL5_64bit"                unless defined $arch;
-$production     = "$genie_version"           unless defined $production;
+$production     = "routine_validation"       unless defined $production;
 $cycle          = "01"                       unless defined $cycle;
 $batch_system   = "PBS"                      unless defined $batch_system;
 $queue          = "prod"                     unless defined $queue;
 $softw_topdir   = "/opt/ppd/t2k/softw/GENIE" unless defined $softw_topdir;
+
 $genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
-$jobs_dir       = "$softw_topdir/scratch/xsec\_vA-$production\_$cycle/";
+$config         = basename($config_file,".list");
+$jobs_dir       = "$softw_topdir/scratch/$genie_version-$production\_$cycle-xsec\_vA\_$config";
 $freenucsplines = "$softw_topdir/data/job_inputs/xspl/gxspl-vN-$genie_version.xml";
 
-$nkots     = 1000;
-$emax      =  150;
-$neutrinos = "14,-14";
-%targets = (
-	'C12'   =>  '1000060120',
-	'O16'   =>  '1000080160', 
-        'Ne20'  =>  '1000100200',
-        'Al27'  =>  '1000130270',
-        'Si30'  =>  '1000140300',
-	'Ar38'  =>  '1000180380',
-	'Fe56'  =>  '1000260560' 
-           );
+$nknots    =  0;
+$emax      =  0;
+@neutrinos = ();
+@targets   = ();
+
+open (CONFIG, $config_file);
+$i=0;
+while(<CONFIG>)
+{
+   chomp;
+   # skip comment lines starting with # and empty lines that don't contain any number
+   if( substr($_,0,1) ne '#' && m/[0-9]/ ) 
+   { 
+      s/ //g;  # rm empty spaces from $_
+      #print "line = $_\n" ;
+      $value = "";
+      $idx = index($_,"#");
+      if($idx == -1) { $value = $_; }
+      else           { $value = substr($_,0,$idx); }
+
+      if    ($i==0) { $emax   = $value; }
+      elsif ($i==1) { $nknots = $value; }
+      else {
+          if( $value ==  12 || $value ==  14 || $value ==  16 ||
+              $value == -12 || $value == -14 || $value == -16 ) 
+          {
+             push(@neutrinos, $value);
+          }
+          else 
+          {
+             push(@targets, $value);
+          }
+      }
+      $i++;
+   }
+}
+close(CONFIG);
 
 # make the jobs directory
 #
 mkpath ($jobs_dir, {verbose => 1, mode=>0777});
 
+$nu_codes = "";
+$i=0;
+foreach (@neutrinos) 
+{
+    s/ //g;  # rm empty spaces from $_
+    if($i == 0) { $nu_codes = $_; }
+    else        { $nu_codes = $nu_codes . ",$_"; }
+    $i++;
+}
+
 #
 # loop over nuclear targets & submit jobs
 #
-while( my ($tgt_name, $tgt_code) = each %targets ) {
-
-    $fntemplate = "$jobs_dir/job_$tgt_name";
+foreach(@targets) 
+{
+    s/ //g;  # rm empty spaces from $_
+    $tgt_code = $_;
+    $jntemplate = "vAxscalc-$tgt_code";
+    $fntemplate = "$jobs_dir/$jntemplate";
     $grep_pipe  = "grep -B 100 -A 30 -i \"warn\\|error\\|fatal\"";
-    $gmkspl_opt = "-p $neutrinos -t $tgt_code -n $nkots -e $emax --input-cross-sections $freenucsplines --output-cross-sections gxspl_$tgt_name.xml";
+    $gmkspl_opt = "-p $nu_codes -t $_ -n $nknots -e $emax --input-cross-sections $freenucsplines --output-cross-sections gxspl_$tgt_code.xml";
     $gmkspl_cmd = "gmkspl $gmkspl_opt | $grep_pipe &> $fntemplate.mkspl.log";
     print "@@ exec: $gmkspl_cmd \n";
 
@@ -95,7 +140,7 @@ while( my ($tgt_name, $tgt_code) = each %targets ) {
 	$batch_script = "$fntemplate.pbs";
 	open(PBS, ">$batch_script") or die("Can not create the PBS batch script");
 	print PBS "#!/bin/bash \n";
-        print PBS "#PBS -N $tgt_name \n";
+        print PBS "#PBS -N $jntemplate \n";
         print PBS "#PBS -o $fntemplate.pbsout.log \n";
         print PBS "#PBS -e $fntemplate.pbserr.log \n";
 	print PBS "source $genie_setup \n";
@@ -110,7 +155,7 @@ while( my ($tgt_name, $tgt_code) = each %targets ) {
 	$batch_script = "$fntemplate.sh";
 	open(LSF, ">$batch_script") or die("Can not create the LSF batch script");
 	print LSF "#!/bin/bash \n";
-        print LSF "#BSUB-j $tgt_name \n";
+        print LSF "#BSUB-j $jntemplate \n";
         print LSF "#BSUB-o $fntemplate.lsfout.log \n";
         print LSF "#BSUB-e $fntemplate.lsferr.log \n";
 	print LSF "source $genie_setup \n";
@@ -120,11 +165,9 @@ while( my ($tgt_name, $tgt_code) = each %targets ) {
 	`bsub < $batch_script`;
     } #LSF
 
-    # no batch system, run jobs interactively
+    # run interactively
     if($batch_system eq 'none') {
-        system("source $genie_setup; cd $jobs_dir; export GSPLOAD=$freenucsplines; $cmd");
-    } # interactive mode
-
-
+        system("source $genie_setup; cd $jobs_dir; $gmkspl_cmd");
+    }
 }
 
