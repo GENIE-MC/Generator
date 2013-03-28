@@ -11,7 +11,7 @@
 #    --version       : genie version number
 #    --xsplset       : set of splines to generate
 #   [--arch]         : <SL4_32bit, SL5_64bit>, default: SL5_64bit
-#   [--production]   : default: <version>
+#   [--production]   : default: routine_validation
 #   [--cycle]        : default: 01
 #   [--use-valgrind] : default: off
 #   [--batch-system] : <PBS, LSF, none>, default: PBS
