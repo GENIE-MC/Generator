@@ -13,7 +13,7 @@
 #    --version       : GENIE version number
 #    --config-file   : Text file which specifies the list of initial states
 #   [--arch]         : <SL4_32bit, SL5_64bit>, default: SL5_64bit
-#   [--production]   : default: <version>
+#   [--production]   : default: routine_validation
 #   [--cycle]        : default: 01
 #   [--use-valgrind] : default: off
 #   [--batch-system] : <PBS, LSF>, default: PBS

@@ -12,7 +12,7 @@
 #    --version       : GENIE version number
 #    --run           : Comma separated list of run numbers
 #   [--arch]         : <SL4_32bit, SL5_64bit>, default: SL5_64bit
-#   [--production]   : default: <version>
+#   [--production]   : default: routine_validation
 #   [--cycle]        : default: 01
 #   [--ref-samples]  : Path for reference samples, default: no reference samples / no plots will be generated
 #   [--use-valgrind] : default: off

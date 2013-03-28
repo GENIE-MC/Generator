@@ -11,7 +11,7 @@
 #    --version       : GENIE version number
 #   [--nsubruns]     : number of subruns per run, default: 1
 #   [--arch]         : <SL4_32bit, SL5_64bit>, default: SL5_64bit
-#   [--production]   : production name, default: <version>
+#   [--production]   : production name, default: routine_validation
 #   [--cycle]        : cycle in current production, default: 01
 #   [--use-valgrind] : default: off
 #   [--batch-system] : <PBS, LSF>, default: PBS
@@ -62,14 +62,14 @@ unless defined $genie_version;
 $nsubruns       = 1                           unless defined $nsubruns;
 $use_valgrind   = 0                           unless defined $use_valgrind;
 $arch           = "SL5_64bit"                 unless defined $arch;
-$production     = "$genie_version"            unless defined $production;
+$production     = "routine_validation"        unless defined $production;
 $cycle          = "01"                        unless defined $cycle;
 $batch_system   = "PBS"                       unless defined $batch_system;
 $queue          = "prod"                      unless defined $queue;
 $softw_topdir   = "/opt/ppd/t2k/softw/GENIE"  unless defined $softw_topdir;
 $time_limit     = "60:00:00";
 $genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
-$jobs_dir       = "$softw_topdir/scratch/vld\_hadro-$production\_$cycle";
+$jobs_dir       = "$softw_topdir/scratch/$genie_version-$production\_$cycle-hadronization";
 $xspl_file      = "$softw_topdir/data/job_inputs/xspl/gxspl-vN-$genie_version.xml";
 $mcseed         = 210921029;
 $nev_per_subrun = 100000;
@@ -133,7 +133,8 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
 
        $curr_subrunnu = 100 * $curr_runnu + $isubrun;
        $curr_seed     = $mcseed + $isubrun;
-       $fntemplate    = "$jobs_dir/hdzvld-$curr_subrunnu";
+       $jntemplate    = "hadro-$curr_subrunnu";
+       $fntemplate    = "$jobs_dir/$jntemplate";
        $grep_pipe     = "grep -B 20 -A 30 -i \"warn\\|error\\|fatal\"";
        $valgrind_cmd  = "valgrind --tool=memcheck --error-limit=no --leak-check=yes --show-reachable=yes";
        $evgen_opt     = "-n $nev_per_subrun -e $en -p $nu -t $tgt $fluxopt -r $curr_subrunnu --seed $curr_seed --cross-sections $xspl_file --event-generator-list $gevgl";
@@ -150,7 +151,7 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
            $batch_script = "$fntemplate.pbs";
            open(PBS, ">$batch_script") or die("Can not create the PBS batch script");
            print PBS "#!/bin/bash \n";
-           print PBS "#PBS -N hdzvld-$curr_subrunnu \n";
+           print PBS "#PBS -N $jntemplate \n";
            print PBS "#PBS -l cput=$time_limit \n";
            print PBS "#PBS -o $fntemplate.pbsout.log \n";
            print PBS "#PBS -e $fntemplate.pbserr.log \n";
@@ -166,7 +167,7 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
            $batch_script = "$fntemplate.sh";
            open(LSF, ">$batch_script") or die("Can not create the LSF batch script");
            print LSF "#!/bin/bash \n";
-           print PBS "#BSUB-j hdzvld-$curr_subrunnu \n";
+           print PBS "#BSUB-j $jntemplate \n";
            print LSF "#BSUB-q $queue \n";
            print LSF "#BSUB-c $time_limit \n";
            print LSF "#BSUB-o $fntemplate.lsfout.log \n";
