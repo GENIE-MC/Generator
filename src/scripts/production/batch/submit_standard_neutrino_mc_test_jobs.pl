@@ -287,7 +287,7 @@ for my $curr_runnu (keys %gevgl_hash)  {
 
     # no batch system, run jobs interactively
     if($batch_system eq 'none') {
-        system("source $genie_setup; cd $jobs_dir; export GSPLOAD=$xspl_file; export GEVGL=$gevgl; export GSEED=$mcseed; $evgen_cmd; $conv_cmd");
+        system("source $genie_setup; cd $jobs_dir; $evgen_cmd; $conv_cmd");
 	if(-d $ref_sample_path){
 	    system("$comp_cmd");
 	}

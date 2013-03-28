@@ -46,9 +46,10 @@
      |                        |
      |                        |----------- xspl/
      |                                      |
-     |                                      |---------- gxspl-freenuc-<version>.xml    files (for each installed <version>)
-     |                                      |---------- gxspl-t2k-<version>.xml        files (for each installed <version>)
-     |                                      |---------- gxspl-vldsamples-<version>.xml files (for each installed <version>)
+     |                                      |---------- gxspl-vN-<version>.xml  file (for each installed <version>)
+     |                                      |---------- gxspl-vA-<version>.xml  file (for each installed <version>)
+     |                                      |---------- gxspl-t2k-<version>.xml file (for each installed <version>)
+     |                                      |---------- ...
      |    
      |    
      |    

@@ -243,7 +243,7 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
 
        # no batch system, run jobs interactively
        if($batch_system eq 'none') {
-          system("source $genie_setup; cd $jobs_dir; export GSPLOAD=$xspl_file; export GEVGL=$gevgl; export GSEED=$curr_seed; $evgen_cmd; $conv_cmd");
+          system("source $genie_setup; cd $jobs_dir; $evgen_cmd; $conv_cmd");
        } # interactive mode
 
     } # loop over subruns
