@@ -12,6 +12,9 @@
             [-n nev1[,nev2]]
             [--check-energy-momentum-conservation]
             [--check-charge-conservation]
+            [--check-for-num-of-final-state-nucleons-inconsistent-with-target]
+            [--check-for-pseudoparticles-in-final-state]
+            [--check-for-off-the-mass-shell-particles-in-final-state]
 
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          STFC, Rutherford Appleton Laboratory
@@ -41,6 +44,7 @@
 #include "Ntuple/NtpMCEventRecord.h"
 #include "PDG/PDGLibrary.h"
 #include "PDG/PDGCodes.h"
+#include "PDG/PDGUtils.h"
 #include "Messenger/Messenger.h"
 #include "Utils/CmdLnArgParser.h"
 
@@ -61,7 +65,9 @@ bool CheckRootFilename  (string filename);
 
 // checks
 void CheckEnergyMomentumConservation (void);
-void CheckChargeConservation         (void);
+void CheckChargeConservation (void);
+void CheckForPseudoParticlesInFinState (void);
+void CheckForOffMassShellParticlesInFinState (void);
 
 // options
 string   gOptInpFilename = "";
@@ -70,6 +76,8 @@ Long64_t gOptNEvtL = -1;
 Long64_t gOptNEvtH = -1;
 bool     gOptCheckEnergyMomentumConservation = false;
 bool     gOptCheckChargeConservation = false;
+bool     gOptCheckForPseudoParticlesInFinState = false;
+bool     gOptCheckForOffMassShellParticlesInFinState = false;
 
 Long64_t gFirstEventNum = -1;
 Long64_t gLastEventNum  = -1;
@@ -123,29 +131,42 @@ int main(int argc, char ** argv)
      logfile << gOptInpFilename << ".errlog";
      gOptOutFilename = logfile.str();
   }
-  gErrLog.open(gOptOutFilename.c_str());
-  gErrLog << "# ..................................................................................." << endl;
-  gErrLog << "# Error log for event file " << gOptInpFilename << endl;
-  gErrLog << "# ..................................................................................." << endl;
-  gErrLog << "# " << endl;
-
-  if(gOptCheckEnergyMomentumConservation) {
-     CheckEnergyMomentumConservation();
+  if(gOptOutFilename != "none") {
+     gErrLog.open(gOptOutFilename.c_str());
+     gErrLog << "# ..................................................................................." << endl;
+     gErrLog << "# Error log for event file " << gOptInpFilename << endl;
+     gErrLog << "# ..................................................................................." << endl;
+     gErrLog << "# " << endl;
   }
 
-  if(gOptCheckChargeConservation) {
-     CheckChargeConservation();
+  if (gOptCheckEnergyMomentumConservation) {
+	  CheckEnergyMomentumConservation();
+  }
+  if (gOptCheckChargeConservation) {
+          CheckChargeConservation();
+  }
+  if (gOptCheckForPseudoParticlesInFinState) {
+          CheckForPseudoParticlesInFinState();
+  }
+  if (gOptCheckForOffMassShellParticlesInFinState) {
+          CheckForOffMassShellParticlesInFinState();
   }
 
-  gErrLog.close();
+  if(gOptOutFilename != "none") {
+     gErrLog.close();
+  }
 
   return 0;
 }
 //____________________________________________________________________________
 void CheckEnergyMomentumConservation (void)
 {
-  gErrLog << "# Events failing the energy-momentum conservation test:" << endl;
-  gErrLog << "# " << endl;
+  LOG("gvldtest", pNOTICE) << "Checking energy/momentum conservation...";
+
+  if(gErrLog.is_open()) {
+    gErrLog << "# Events failing the energy-momentum conservation test:" << endl;
+    gErrLog << "# " << endl;
+  }
 
   int nerr = 0;
 
@@ -203,21 +224,33 @@ void CheckEnergyMomentumConservation (void)
          << " ** Energy-momentum non-conservation in event: " << i 
          << "\n"
          << event;
-       gErrLog << i << endl;    
+       if(gErrLog.is_open()) {
+           gErrLog << i << endl;    
+       }
        nerr++;
     }
 
   }//i
 
-  if(nerr == 0) {
-    gErrLog << "none" << endl;    
+  if(gErrLog.is_open()) {
+     if(nerr == 0) {
+         gErrLog << "none" << endl;    
+     }
   }
+
+  LOG("gvldtest", pNOTICE) 
+     << "Found " << nerr 
+     << " events failing the energy/momentum conservation test";
 }
 //____________________________________________________________________________
 void CheckChargeConservation(void)
 {
-  gErrLog << "# Events failing the charge conservation test:" << endl;
-  gErrLog << "# " << endl;
+  LOG("gvldtest", pNOTICE) << "Checking charge conservation...";
+
+  if(gErrLog.is_open()) {
+     gErrLog << "# Events failing the charge conservation test:" << endl;
+     gErrLog << "# " << endl;
+  }
 
   int nerr = 0;
 
@@ -268,15 +301,142 @@ void CheckChargeConservation(void)
          << " ** Charge non-conservation in event: " << i 
          << "\n"
          << event;
-       gErrLog << i << endl;    
+       if(gErrLog.is_open()) {
+          gErrLog << i << endl;    
+       }
        nerr++;
     }
 
   }//i
 
-  if(nerr == 0) {
-    gErrLog << "none" << endl;    
+  if(gErrLog.is_open()) {
+     if(nerr == 0) {
+        gErrLog << "none" << endl;    
+     }
   }
+
+  LOG("gvldtest", pNOTICE) 
+     << "Found " << nerr 
+     << " events failing the charge conservation test";
+}
+//____________________________________________________________________________
+void CheckForPseudoParticlesInFinState(void)
+{
+  LOG("gvldtest", pNOTICE) 
+      << "Checking for pseudo-particles appearing in final state...";
+
+  if(gErrLog.is_open()) {
+     gErrLog << "# Events with pseudo-particles in final state:" << endl;
+     gErrLog << "# " << endl;
+  }
+
+  int nerr = 0;
+
+  for(Long64_t i = gFirstEventNum; i <= gLastEventNum; i++) 
+  {
+    gEventTree->GetEntry(i);
+
+    NtpMCRecHeader rec_header = gMCRec->hdr;
+    EventRecord &  event      = *(gMCRec->event);
+
+    LOG("gvldtest", pINFO) << "Checking event.... " << i;
+
+    GHepParticle * p = 0;
+    TIter event_iter(&event);
+    bool ok = true;
+    while ( (p = dynamic_cast<GHepParticle *>(event_iter.Next())) ) {
+
+      GHepStatus_t ist = p->Status();
+      if(ist != kIStStableFinalState) continue;
+      int pdgc = p->Pdg();      
+      if(pdg::IsPseudoParticle(pdgc))
+      {
+        ok = false;
+        break;
+      }      
+    }//p
+
+    if(!ok) {
+       LOG("gvldtest", pERROR) 
+         << " ** Pseudo-particle final state particle in event: " << i 
+         << "\n"
+         << event;
+       if(gErrLog.is_open()) {
+          gErrLog << i << endl;    
+       }
+       nerr++;
+    }
+
+  }//i
+
+  if(gErrLog.is_open()) {
+     if(nerr == 0) {
+        gErrLog << "none" << endl;    
+     }
+  }
+
+  LOG("gvldtest", pNOTICE) 
+     << "Found " << nerr 
+     << " events with pseudo-particles in  final state";
+}
+//____________________________________________________________________________
+void CheckForOffMassShellParticlesInFinState(void)
+{
+  LOG("gvldtest", pNOTICE) 
+      << "Checking for off-mass-shell particles appearing in the final state...";
+
+  if(gErrLog.is_open()) {
+     gErrLog << "# Events with off-mass-shell particles in final state:" << endl;
+     gErrLog << "# " << endl;
+  }
+
+  int nerr = 0;
+
+  for(Long64_t i = gFirstEventNum; i <= gLastEventNum; i++) 
+  {
+    gEventTree->GetEntry(i);
+
+    NtpMCRecHeader rec_header = gMCRec->hdr;
+    EventRecord &  event      = *(gMCRec->event);
+
+    LOG("gvldtest", pINFO) << "Checking event.... " << i;
+
+    GHepParticle * p = 0;
+    TIter event_iter(&event);
+    bool ok = true;
+    while ( (p = dynamic_cast<GHepParticle *>(event_iter.Next())) ) {
+
+      GHepStatus_t ist = p->Status();
+      if(ist != kIStStableFinalState) continue;
+      if(p->IsOffMassShell())
+      {
+        ok = false;
+        break;
+      }      
+    }//p
+
+    if(!ok) {
+       LOG("gvldtest", pERROR) 
+         << " ** Off-mass-shell final state particle in event: " << i 
+         << "\n"
+         << event;
+       if(gErrLog.is_open()) {
+          gErrLog << i << endl;    
+       }
+       nerr++;
+    }
+
+  }//i
+
+  if(gErrLog.is_open()) {
+     if(nerr == 0) {
+        gErrLog << "none" << endl;    
+     }
+  }
+
+  LOG("gvldtest", pNOTICE) 
+     << "Found " << nerr 
+     << " events with off-mass-shell particles in final state";
 }
 //____________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
@@ -334,13 +494,18 @@ void GetCommandLineArgs(int argc, char ** argv)
      parser.OptionExists("check-energy-momentum-conservation");
   gOptCheckChargeConservation =
      parser.OptionExists("check-charge-conservation");
+  gOptCheckForPseudoParticlesInFinState = 
+     parser.OptionExists("check-for-pseudoparticles-in-final-state");
+  gOptCheckForOffMassShellParticlesInFinState = 
+     parser.OptionExists("check-for-off-the-mass-shell-particles-in-final-state");
+  
 }
 //____________________________________________________________________________
 void PrintSyntax(void)
 {
   LOG("gvldtest", pNOTICE)
     << "\n\n" << "Syntax:" << "\n"
-    << "   gvld_sample_scan -f sample.root [-n nev] \n";
+    << "   gvld_sample_scan -f sample.root [-n n1[,n2]] [-o errlog] [check names]\n";
 }
 //_________________________________________________________________________________
 bool CheckRootFilename(string filename)
