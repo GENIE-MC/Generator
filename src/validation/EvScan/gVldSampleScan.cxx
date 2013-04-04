@@ -12,9 +12,11 @@
             [-n nev1[,nev2]]
             [--check-energy-momentum-conservation]
             [--check-charge-conservation]
-            [--check-for-num-of-final-state-nucleons-inconsistent-with-target]
             [--check-for-pseudoparticles-in-final-state]
-            [--check-for-off-the-mass-shell-particles-in-final-state]
+            [--check-for-off-mass-shell-particles-in-final-state]
+            [--check-for-num-of-final-state-nucleons-inconsistent-with-target]
+            [--check-vertex-distribution]
+            [--check-decayer-consistency]
 
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          STFC, Rutherford Appleton Laboratory
@@ -27,6 +29,8 @@
 */
 //____________________________________________________________________________
 
+//#define __debug__
+
 #include <string>
 #include <vector>
 #include <iomanip>
@@ -36,7 +40,10 @@
 #include <TSystem.h>
 #include <TFile.h>
 #include <TTree.h>
+#include <TH1D.h>
+#include <TLorentzVector.h>
 
+#include "Conventions/Constants.h"
 #include "EVGCore/EventRecord.h"
 #include "GHEP/GHepParticle.h"
 #include "Ntuple/NtpMCFormat.h"
@@ -45,7 +52,9 @@
 #include "PDG/PDGLibrary.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
+#include "PDG/PDGCodeList.h"
 #include "Messenger/Messenger.h"
+#include "Utils/NuclearUtils.h"
 #include "Utils/CmdLnArgParser.h"
 
 using std::ostringstream;
@@ -58,6 +67,7 @@ using std::ios;
 using std::endl;
 
 using namespace genie;
+using namespace genie::constants;
 
 void GetCommandLineArgs (int argc, char ** argv);
 void PrintSyntax        (void);
@@ -68,6 +78,9 @@ void CheckEnergyMomentumConservation (void);
 void CheckChargeConservation (void);
 void CheckForPseudoParticlesInFinState (void);
 void CheckForOffMassShellParticlesInFinState (void);
+void CheckForNumFinStateNucleonsInconsistentWithTarget (void);
+void CheckVertexDistribution (void);
+void CheckDecayerConsistency (void);
 
 // options
 string   gOptInpFilename = "";
@@ -78,6 +91,9 @@ bool     gOptCheckEnergyMomentumConservation = false;
 bool     gOptCheckChargeConservation = false;
 bool     gOptCheckForPseudoParticlesInFinState = false;
 bool     gOptCheckForOffMassShellParticlesInFinState = false;
+bool     gOptCheckForNumFinStateNucleonsInconsistentWithTarget = false;
+bool     gOptCheckVertexDistribution = false;
+bool     gOptCheckDecayerConsistency = false;
 
 Long64_t gFirstEventNum = -1;
 Long64_t gLastEventNum  = -1;
@@ -151,6 +167,16 @@ int main(int argc, char ** argv)
   if (gOptCheckForOffMassShellParticlesInFinState) {
           CheckForOffMassShellParticlesInFinState();
   }
+  if (gOptCheckForNumFinStateNucleonsInconsistentWithTarget) {
+          CheckForNumFinStateNucleonsInconsistentWithTarget();
+  }
+  if (gOptCheckVertexDistribution) {
+          CheckVertexDistribution();
+  }
+  if (gOptCheckDecayerConsistency) {
+          CheckDecayerConsistency();
+  }
+
 
   if(gOptOutFilename != "none") {
      gErrLog.close();
@@ -439,6 +465,319 @@ void CheckForOffMassShellParticlesInFinState(void)
      << " events with off-mass-shell particles in final state";
 }
 //____________________________________________________________________________
+void CheckForNumFinStateNucleonsInconsistentWithTarget(void)
+{
+  LOG("gvldtest", pNOTICE) 
+     << "Checking for number of final state nucleons inconsistent with target...";
+
+  if(gErrLog.is_open()) {
+    gErrLog << "# Events with number of final state nucleons inconsistent with target:" << endl;
+    gErrLog << "# " << endl;
+  }
+
+  int nerr = 0;
+
+  for(Long64_t i = gFirstEventNum; i <= gLastEventNum; i++) 
+  {
+    gEventTree->GetEntry(i);
+
+    NtpMCRecHeader rec_header = gMCRec->hdr;
+    EventRecord &  event      = *(gMCRec->event);
+
+    LOG("gvldtest", pINFO) << "Checking event.... " << i;
+
+    // get target nucleus
+    GHepParticle * nucltgt = event.TargetNucleus();
+    if (!nucltgt) {
+      LOG("gvldtest", pINFO)
+           << "Event not in nuclear target - Skipping test...";
+      continue;
+    }
+
+    GHepParticle * p = 0;
+
+    int Z = 0;
+    int N = 0;
+
+    // get number of spectator nucleons 
+    int fd = nucltgt->FirstDaughter();
+    int ld = nucltgt->LastDaughter();
+    for(int d = fd; d <= ld; d++) {
+	p = event.Particle(d);
+        if(!p) continue;
+        int pdgc = p->Pdg();
+        if(pdg::IsIon(pdgc)) {
+            Z = p->Z();
+            N = p->A() - p->Z();
+        }
+    }
+    // add nucleons from the primary interaction
+    TIter event_iter(&event);
+    while ( (p = dynamic_cast<GHepParticle *>(event_iter.Next())) ) {
+      GHepStatus_t ist = p->Status();
+      if(ist != kIStHadronInTheNucleus) continue;
+      int pdgc = p->Pdg();
+      if(pdg::IsProton (pdgc)) { Z++; }
+      if(pdg::IsNeutron(pdgc)) { N++; }
+    }//p
+
+    LOG("gvldtest", pINFO)
+       << "Before intranuclear hadron transport: Z = " << Z << ", N = " << N;
+
+    // count final state nucleons
+    int Zf = 0;
+    int Nf = 0;
+    event_iter.Reset();
+    while ( (p = dynamic_cast<GHepParticle *>(event_iter.Next())) ) {
+      GHepStatus_t ist = p->Status();
+      if(ist != kIStStableFinalState) continue;
+      int pdgc = p->Pdg();
+      if(pdg::IsProton (pdgc)) { Zf++; }
+      if(pdg::IsNeutron(pdgc)) { Nf++; }
+    }
+    LOG("gvldtest", pINFO)
+       << "In the final state: Z = " << Zf << ", N = " << Nf;
+
+    bool ok = (Zf <= Z && Nf <= N);
+    if(!ok) {
+       LOG("gvldtest", pERROR) 
+         << " ** Number of final state nucleons inconsistent with target in event: " << i 
+         << "\n"
+         << event;
+       if(gErrLog.is_open()) {
+           gErrLog << i << endl;    
+       }
+       nerr++;
+    }
+
+  }//i
+
+
+  if(gErrLog.is_open()) {
+     if(nerr == 0) {
+         gErrLog << "none" << endl;    
+     }
+  }
+
+  LOG("gvldtest", pNOTICE) 
+     << "Found " << nerr 
+     << " events with a number of final state nucleons inconsistent with target";
+}
+//____________________________________________________________________________
+void CheckVertexDistribution(void)
+{
+  LOG("gvldtest", pNOTICE) 
+     << "Checking intra-nuclear vertex distribution...";
+
+  if(gErrLog.is_open()) {
+    gErrLog << "# Intranuclear vertex distribution check:" << endl;
+    gErrLog << "# " << endl;
+  }
+
+  TH1D * r_distr_mc       = new TH1D("r_distr_mc","",      150,0,30); //fm
+  TH1D * r_distr_expected = new TH1D("r_distr_expected","",150,0,30); //fm
+
+  int Z = -1;
+  int A = -1;
+
+  // get vertex position distribution
+  for(Long64_t i = gFirstEventNum; i <= gLastEventNum; i++) 
+  {
+    gEventTree->GetEntry(i);
+
+    NtpMCRecHeader rec_header = gMCRec->hdr;
+    EventRecord &  event      = *(gMCRec->event);
+
+    LOG("gvldtest", pINFO) << "Checking event.... " << i;
+
+    // get target nucleus
+    GHepParticle * nucltgt = event.TargetNucleus();
+    if (!nucltgt) {
+      LOG("gvldtest", pINFO)
+           << "Event not in nuclear target - Skipping...";
+      continue;
+    }
+
+    if(Z == -1 && A == -1) {
+       Z = nucltgt->Z();
+       A = nucltgt->A();
+    }
+
+    // this test is run on a MC sample for a given target
+    if(Z != nucltgt->Z() || A != nucltgt->A()) {
+      LOG("gvldtest", pINFO)
+           << "Event not in nuclear target seen first - Skipping...";
+      continue;
+    }
+
+    GHepParticle * probe = event.Particle(0);
+    double r = probe->X4()->Vect().Mag();
+
+    r_distr_mc->Fill(r);
+
+  }//i
+
+  if(A > 1) {
+    // get expected vertex position distribution
+    for(int ir = 1; ir <= r_distr_expected->GetNbinsX(); ir++) {
+      double r = r_distr_expected->GetBinCenter(ir);
+      double rho  = utils::nuclear::Density(r,A);
+      double nexp = 4*kPi*r*r*rho;
+      r_distr_expected->SetBinContent(ir,nexp);
+    }
+
+    // normalize 
+    double N = r_distr_mc->GetEntries();
+    r_distr_expected -> Scale (N / r_distr_expected -> Integral());
+
+    // check consistency
+    double pvalue = r_distr_mc->Chi2Test(r_distr_expected,"WWP");
+    LOG("gvldtest", pNOTICE) << "p-value {\\chi^2 test} = " << pvalue;
+
+    if(gErrLog.is_open()) {
+       if(pvalue < 0.99) {
+         gErrLog << "Problem! p-value = " << pvalue << endl;    
+       } else {
+         gErrLog << "OK! p-value = " << pvalue << endl;    
+       }
+    }
+
+#ifdef __debug__
+    TFile f("./check_vtx.root","recreate");
+    r_distr_mc -> Write();
+    r_distr_expected -> Write();
+    f.Close();
+#endif
+
+  }//A
+  else {
+
+    if(gErrLog.is_open()) {
+      gErrLog << "Can not run test with current sample" << endl;   
+    }
+
+  }
+
+}
+//____________________________________________________________________________
+void CheckDecayerConsistency(void)
+{
+// Check that particles seen in the final state in some events do not appear to 
+// have decayed in other events.
+// This might happen if, for example, particle decay flags which are applied to
+// GENIE events do not get applied to intermediate particles appearing in the
+// PYTHIA hadronization. It might also happen if the decayed particle status is
+// used incorrectly in some modules (eg intranuke).
+//
+  LOG("gvldtest", pNOTICE) 
+     << "Checking decayer consistency...";
+
+  if(gErrLog.is_open()) {
+    gErrLog << "# Decayer consistency check:" << endl;
+    gErrLog << "# " << endl;
+  }
+
+  bool allowdup = false;
+  PDGCodeList final_state_particles(allowdup);
+  PDGCodeList decayed_particles(allowdup);
+
+  for(Long64_t i = gFirstEventNum; i <= gLastEventNum; i++) 
+  {
+    gEventTree->GetEntry(i);
+
+    NtpMCRecHeader rec_header = gMCRec->hdr;
+    EventRecord &  event      = *(gMCRec->event);
+
+    LOG("gvldtest", pINFO) << "Checking event.... " << i;
+
+    GHepParticle * p = 0;
+    TIter event_iter(&event);
+    while ( (p = dynamic_cast<GHepParticle *>(event_iter.Next())) ) {
+      GHepStatus_t ist = p->Status();
+      int pdgc = p->Pdg();
+      if(ist == kIStStableFinalState) { final_state_particles.push_back(pdgc); }
+      if(ist == kIStDecayedState    ) { decayed_particles.push_back(pdgc);     }
+    }//p
+  }//i
+
+  // find particles which appear in both lists
+  PDGCodeList particles_in_both_lists(allowdup);
+
+  PDGCodeList::const_iterator iter;
+  for(iter = final_state_particles.begin(); 
+      iter != final_state_particles.end(); ++iter) 
+  {
+     int pdgc = *iter;
+     if(decayed_particles.ExistsInPDGCodeList(pdgc)) 
+     {
+        particles_in_both_lists.push_back(pdgc);
+     }
+  }
+
+  bool ok = true;
+  ostringstream mesg;
+  if(particles_in_both_lists.size() == 0) {
+    mesg << "OK! No particle seen both in the final state and to have decayed.";
+  } else {
+    ok = false;
+    mesg << "Problem! " << particles_in_both_lists.size() << " particles seen both final state and to have decayed.";
+  }
+ 
+  LOG("gvldtest", pNOTICE) 
+    << mesg.str();
+  LOG("gvldtest", pNOTICE) 
+    << "Particles seen in final state: " << final_state_particles;
+  LOG("gvldtest", pNOTICE) 
+    << "Particles seen to have decayed: " << decayed_particles;
+  LOG("gvldtest", pNOTICE) 
+    << "Particles seen in both lists: " << particles_in_both_lists;
+
+  if(gErrLog.is_open()) {
+     gErrLog << mesg.str() << endl;
+     gErrLog << "Particles seen in final state:" << final_state_particles << endl;
+     gErrLog << "Particles seen to have decayed:" << decayed_particles << endl;
+     gErrLog << "Particles seen in both lists:" << particles_in_both_lists << endl;
+   }
+
+   // find example events
+   if(!ok) {
+      if(gErrLog.is_open()) {
+         gErrLog << "Example events: " << endl;          
+      }
+      for(iter  = particles_in_both_lists.begin(); 
+          iter != particles_in_both_lists.end(); ++iter) 
+      {
+         int pdgc_bothlists = *iter;
+         int iev_decay = -1;
+         int iev_fs    = -1;
+         bool have_example = false;
+         for(Long64_t i = gFirstEventNum; i <= gLastEventNum; i++) 
+         {
+           have_example = (iev_decay != -1 && iev_fs != -1);
+           if(have_example) break;
+
+           gEventTree->GetEntry(i);
+           EventRecord &  event = *(gMCRec->event);
+           GHepParticle * p = 0;
+           TIter event_iter(&event);
+           while ( (p = dynamic_cast<GHepParticle *>(event_iter.Next())) ) {
+              int pdgc = p->Pdg();
+              if(pdgc != pdgc_bothlists) continue;
+              GHepStatus_t ist = p->Status();
+              if(ist == kIStStableFinalState && iev_fs    == -1) { iev_fs    = i; }
+              if(ist == kIStDecayedState     && iev_decay == -1) { iev_decay = i; }
+           }//p
+         }//i
+         if(gErrLog.is_open()) {
+            gErrLog << PDGLibrary::Instance()->Find(pdgc_bothlists)->GetName() 
+                    << ": Decayed in event " << iev_decay 
+                    << ". In final state in event " << iev_fs << endl;
+         }
+      }//pdgc
+   }//!ok
+
+}
+//____________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
 {
   LOG("gvldtest", pNOTICE) << "*** Parsing command line arguments";
@@ -494,11 +833,16 @@ void GetCommandLineArgs(int argc, char ** argv)
      parser.OptionExists("check-energy-momentum-conservation");
   gOptCheckChargeConservation =
      parser.OptionExists("check-charge-conservation");
+  gOptCheckForNumFinStateNucleonsInconsistentWithTarget =
+     parser.OptionExists("check-for-num-of-final-state-nucleons-inconsistent-with-target");
   gOptCheckForPseudoParticlesInFinState = 
      parser.OptionExists("check-for-pseudoparticles-in-final-state");
   gOptCheckForOffMassShellParticlesInFinState = 
-     parser.OptionExists("check-for-off-the-mass-shell-particles-in-final-state");
-  
+     parser.OptionExists("check-for-off-mass-shell-particles-in-final-state");
+  gOptCheckVertexDistribution =
+     parser.OptionExists("check-vertex-distribution");
+  gOptCheckDecayerConsistency =
+     parser.OptionExists("check-decayer-consistency");
 }
 //____________________________________________________________________________
 void PrintSyntax(void)
