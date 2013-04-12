@@ -10,6 +10,9 @@
              -f ghep_event_file 
             [-o output_error_log_file]
             [-n nev1[,nev2]]
+            [--add-event-printout-in-error-log]
+            [--max-num-of-errors-shown n]
+            [--event-record-print-level level]
             [--check-energy-momentum-conservation]
             [--check-charge-conservation]
             [--check-for-pseudoparticles-in-final-state]
@@ -56,6 +59,7 @@
 #include "Messenger/Messenger.h"
 #include "Utils/NuclearUtils.h"
 #include "Utils/CmdLnArgParser.h"
+#include "Utils/RunOpt.h"
 
 using std::ostringstream;
 using std::string;
@@ -87,6 +91,8 @@ string   gOptInpFilename = "";
 string   gOptOutFilename = "";
 Long64_t gOptNEvtL = -1;
 Long64_t gOptNEvtH = -1;
+int      gOptMaxNumErrs = -1; 
+bool     gOptAddEventPrintoutInErrLog = false;
 bool     gOptCheckEnergyMomentumConservation = false;
 bool     gOptCheckChargeConservation = false;
 bool     gOptCheckForPseudoParticlesInFinState = false;
@@ -106,6 +112,9 @@ ofstream           gErrLog;
 int main(int argc, char ** argv)
 {
   GetCommandLineArgs (argc, argv);
+
+  // Set GHEP print level
+  GHepRecord::SetPrintLevel(RunOpt::Instance()->EventRecordPrintLevel());
 
   TFile file(gOptInpFilename.c_str(),"READ");
 
@@ -198,6 +207,8 @@ void CheckEnergyMomentumConservation (void)
 
   for(Long64_t i = gFirstEventNum; i <= gLastEventNum; i++) 
   {
+    if(gOptMaxNumErrs != -1 && nerr >= gOptMaxNumErrs) break;
+
     gEventTree->GetEntry(i);
 
     NtpMCRecHeader rec_header = gMCRec->hdr;
@@ -251,7 +262,10 @@ void CheckEnergyMomentumConservation (void)
          << "\n"
          << event;
        if(gErrLog.is_open()) {
-           gErrLog << i << endl;    
+           gErrLog << i;
+           if(gOptAddEventPrintoutInErrLog) {
+               gErrLog << event;
+           }
        }
        nerr++;
     }
@@ -282,6 +296,8 @@ void CheckChargeConservation(void)
 
   for(Long64_t i = gFirstEventNum; i <= gLastEventNum; i++) 
   {
+    if(gOptMaxNumErrs != -1 && nerr >= gOptMaxNumErrs) break;
+
     gEventTree->GetEntry(i);
 
     NtpMCRecHeader rec_header = gMCRec->hdr;
@@ -329,6 +345,9 @@ void CheckChargeConservation(void)
          << event;
        if(gErrLog.is_open()) {
           gErrLog << i << endl;    
+          if(gOptAddEventPrintoutInErrLog) {
+               gErrLog << event;
+          }
        }
        nerr++;
     }
@@ -360,6 +379,8 @@ void CheckForPseudoParticlesInFinState(void)
 
   for(Long64_t i = gFirstEventNum; i <= gLastEventNum; i++) 
   {
+    if(gOptMaxNumErrs != -1 && nerr >= gOptMaxNumErrs) break;
+
     gEventTree->GetEntry(i);
 
     NtpMCRecHeader rec_header = gMCRec->hdr;
@@ -389,6 +410,9 @@ void CheckForPseudoParticlesInFinState(void)
          << event;
        if(gErrLog.is_open()) {
           gErrLog << i << endl;    
+          if(gOptAddEventPrintoutInErrLog) {
+               gErrLog << event;
+          }
        }
        nerr++;
     }
@@ -420,6 +444,8 @@ void CheckForOffMassShellParticlesInFinState(void)
 
   for(Long64_t i = gFirstEventNum; i <= gLastEventNum; i++) 
   {
+    if(gOptMaxNumErrs != -1 && nerr >= gOptMaxNumErrs) break;
+
     gEventTree->GetEntry(i);
 
     NtpMCRecHeader rec_header = gMCRec->hdr;
@@ -448,6 +474,9 @@ void CheckForOffMassShellParticlesInFinState(void)
          << event;
        if(gErrLog.is_open()) {
           gErrLog << i << endl;    
+          if(gOptAddEventPrintoutInErrLog) {
+               gErrLog << event;
+          }
        }
        nerr++;
     }
@@ -479,6 +508,8 @@ void CheckForNumFinStateNucleonsInconsistentWithTarget(void)
 
   for(Long64_t i = gFirstEventNum; i <= gLastEventNum; i++) 
   {
+    if(gOptMaxNumErrs != -1 && nerr >= gOptMaxNumErrs) break;
+
     gEventTree->GetEntry(i);
 
     NtpMCRecHeader rec_header = gMCRec->hdr;
@@ -546,6 +577,9 @@ void CheckForNumFinStateNucleonsInconsistentWithTarget(void)
          << event;
        if(gErrLog.is_open()) {
            gErrLog << i << endl;    
+           if(gOptAddEventPrintoutInErrLog) {
+               gErrLog << event;
+           }
        }
        nerr++;
     }
@@ -717,10 +751,10 @@ void CheckDecayerConsistency(void)
   bool ok = true;
   ostringstream mesg;
   if(particles_in_both_lists.size() == 0) {
-    mesg << "OK! No particle seen both in the final state and to have decayed.";
+    mesg << "OK.\n" << "No particle seen both in the final state and to have decayed.";
   } else {
     ok = false;
-    mesg << "Problem! " << particles_in_both_lists.size() << " particles seen both final state and to have decayed.";
+    mesg << "Problem!\n" << particles_in_both_lists.size() << " particles seen both final state and to have decayed.";
   }
  
   LOG("gvldtest", pNOTICE) 
@@ -734,15 +768,15 @@ void CheckDecayerConsistency(void)
 
   if(gErrLog.is_open()) {
      gErrLog << mesg.str() << endl;
-     gErrLog << "Particles seen in final state:" << final_state_particles << endl;
-     gErrLog << "Particles seen to have decayed:" << decayed_particles << endl;
-     gErrLog << "Particles seen in both lists:" << particles_in_both_lists << endl;
+     gErrLog << "\nParticles seen in final state:" << final_state_particles << endl;
+     gErrLog << "\nParticles seen to have decayed:" << decayed_particles << endl;
+     gErrLog << "\nParticles seen in both lists:" << particles_in_both_lists << endl;
    }
 
    // find example events
    if(!ok) {
       if(gErrLog.is_open()) {
-         gErrLog << "Example events: " << endl;          
+         gErrLog << "\nExample events: " << endl;          
       }
       for(iter  = particles_in_both_lists.begin(); 
           iter != particles_in_both_lists.end(); ++iter) 
@@ -769,9 +803,19 @@ void CheckDecayerConsistency(void)
            }//p
          }//i
          if(gErrLog.is_open()) {
-            gErrLog << PDGLibrary::Instance()->Find(pdgc_bothlists)->GetName() 
+            gErrLog << ">> " << PDGLibrary::Instance()->Find(pdgc_bothlists)->GetName()
                     << ": Decayed in event " << iev_decay 
-                    << ". In final state in event " << iev_fs << endl;
+                    << ". Seen in final state in event " << iev_fs << "." << endl;
+            if(gOptAddEventPrintoutInErrLog) {
+               gEventTree->GetEntry(iev_decay);
+               EventRecord & event_dec = *(gMCRec->event);
+               gErrLog << "Event " << iev_decay << ":";
+               gErrLog << event_dec;
+               gEventTree->GetEntry(iev_fs);
+               EventRecord & event_fs = *(gMCRec->event);
+               gErrLog << "Event: " << iev_fs << ":";
+               gErrLog << event_fs;
+            }
          }
       }//pdgc
    }//!ok
@@ -781,6 +825,8 @@ void CheckDecayerConsistency(void)
 void GetCommandLineArgs(int argc, char ** argv)
 {
   LOG("gvldtest", pNOTICE) << "*** Parsing command line arguments";
+
+  RunOpt::Instance()->ReadFromCommandLine(argc,argv);
 
   CmdLnArgParser parser(argc,argv);
   
@@ -826,6 +872,14 @@ void GetCommandLineArgs(int argc, char ** argv)
       << "Unspecified number of events to analyze - Use all";
     gOptNEvtL = -1;
     gOptNEvtH = -1;
+  }
+
+  gOptAddEventPrintoutInErrLog =
+     parser.OptionExists("add-event-printout-in-error-log");
+
+  if(parser.OptionExists("max-num-of-errors-shown")) {
+     gOptMaxNumErrs = parser.ArgAsInt("max-num-of-errors-shown");
+     gOptMaxNumErrs = TMath::Max(1,gOptMaxNumErrs);
   }
 
   // checks
