@@ -121,6 +121,13 @@ if($status eq "calculating neutrino-nucleon cross-section splines")
 }
 
 #
+# Compare calculated cross-sections with reference cross-sections and generate report
+#
+
+#...
+#...
+
+#
 # Calculate nuclear cross-sections needed for validation MC runs
 #
 if($status eq "done calculating neutrino-nucleon cross-section splines")
@@ -198,7 +205,7 @@ if($status eq "running standard neutrino MC jobs")
 if($status eq "done running standard neutrino MC jobs") 
 {
   opendir my $dir, "$out_data_dir/mctest/ghep/" or die "Can not open directory: $!";
-  my @files = readdir $dir;
+  my @files = grep { !/^\./ } readdir $dir;
   closedir $dir;
 
   $ijob = 0;
@@ -215,8 +222,9 @@ if($status eq "done running standard neutrino MC jobs")
         "--check-vertex-distribution " .
         "--check-decayer-consistency; " .
         "mv $_.log $out_data_dir/reports/";
-     $cmd = "perl submit.pl --cmd \'$batch_cmd\' --job-name schk-$ijob $std_args";
-     system("$cmd");    
+#     $cmd = "perl $scripts_dir/submit.pl --cmd \'$batch_cmd\' --job-name schk-$ijob $std_args";
+#     system("$cmd");    
+     system("perl $scripts_dir/submit.pl --cmd \'$batch_cmd\' --job-name snchk-$ijob $std_args");
      $ijob++;
   }
 
@@ -229,7 +237,7 @@ if($status eq "done running standard neutrino MC jobs")
 #
 if($status eq "running sanity checks on standard neutrino MC jobs") 
 {
-   $njobs = num_of_jobs_running($user,"schk");
+   $njobs = num_of_jobs_running($user,"snchk");
    if($njobs > 0) {
       exit;
    }
@@ -252,7 +260,7 @@ if($status eq "done running sanity checks on standard neutrino MC jobs")
   if (defined $ref_data_dir)
   {
      opendir my $dir, "$out_data_dir/mctest/ghep/" or die "Can not open directory: $!";
-     my @files = readdir $dir;
+     my @files = grep { !/^\./ } readdir $dir;
      closedir $dir;
 
      $ijob=0;
