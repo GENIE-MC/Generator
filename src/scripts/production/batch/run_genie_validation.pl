@@ -7,7 +7,8 @@
 #
 # Options:
 #    --version       : genie version number
-#   [--user]          : username, used for monitoring job progress, default: candreop
+#   [--user]         : username, used for monitoring job progress, default: candreop
+#   [--reference]    : path to output files from a previous production used for reference
 #   [--arch]         : <SL4_32bit, SL5_64bit>, default: SL5_64bit
 #   [--production]   : default: routine_validation
 #   [--cycle]        : default: 01
@@ -26,6 +27,7 @@ use File::Path;
 foreach (@ARGV) {
   if($_ eq '--version')       { $genie_version = $ARGV[$iarg+1]; }
   if($_ eq '--user')          { $user          = $ARGV[$iarg+1]; }
+  if($_ eq '--reference')     { $ref_data_dir  = $ARGV[$iarg+1]; }
   if($_ eq '--arch')          { $arch          = $ARGV[$iarg+1]; }
   if($_ eq '--production')    { $production    = $ARGV[$iarg+1]; }
   if($_ eq '--cycle')         { $cycle         = $ARGV[$iarg+1]; }
@@ -80,6 +82,7 @@ if($status eq "starting")
   mkpath ("$out_data_dir/hadronization/ghep/",    {verbose => 1, mode=>0777});
   mkpath ("$out_data_dir/intranuke/",             {verbose => 1, mode=>0777});
   mkpath ("$out_data_dir/intranuke/ghep/",        {verbose => 1, mode=>0777});
+  mkpath ("$out_data_dir/reports/",               {verbose => 1, mode=>0777});
   update_status_file($status_file,"done creating directory structure for output data");
   exit;
 }
@@ -179,6 +182,98 @@ if($status eq "running standard neutrino MC jobs")
       exit;
    }
 }
+
+#
+# Scan log files for errors and generate report
+#
+
+# ...
+# ...
+# ...
+
+
+#
+# Run sanity checks on the test MC runs
+#
+if($status eq "done running standard neutrino MC jobs") 
+{
+  opendir my $dir, "$out_data_dir/mctest/ghep/" or die "Can not open directory: $!";
+  my @files = readdir $dir;
+  closedir $dir;
+
+  $ijob = 0;
+  foreach(@files) {
+     $batch_cmd = 
+        "source $genie_setup; " .
+        "gvld_sample_scan -f $out_data_dir/mctest/ghep/$_ -o $_.log " .
+        "--add-event-printout-in-error-log --event-record-print-level 2 --max-num-of-errors-shown 10 " . 
+        "--check-energy-momentum-conservation " .
+        "--check-charge-conservation " .
+        "--check-for-pseudoparticles-in-final-state " .
+        "--check-for-off-mass-shell-particles-in-final-state " .
+        "--check-for-num-of-final-state-nucleons-inconsistent-with-target " .
+        "--check-vertex-distribution " .
+        "--check-decayer-consistency; " .
+        "mv $_.log $out_data_dir/reports/";
+     $cmd = "perl submit.pl --cmd \'$batch_cmd\' --job-name schk-$ijob $std_args";
+     system("$cmd");    
+     $ijob++;
+  }
+
+  update_status_file($status_file,"running sanity checks on standard neutrino MC jobs");
+}
+
+
+#
+# Wait till sanity checks are completed
+#
+if($status eq "running sanity checks on standard neutrino MC jobs") 
+{
+   $njobs = num_of_jobs_running($user,"schk");
+   if($njobs > 0) {
+      exit;
+   }
+   update_status_file($status_file,"done running sanity checks on standard neutrino MC jobs");
+}
+
+#
+# Scan sanity check outputs and generate report
+#
+
+# ...
+# ...
+# ...
+
+#
+# Compare the test MC samples with samples generated with a reference version of GENIE
+#
+if($status eq "done running sanity checks on standard neutrino MC jobs") 
+{
+  if (defined $ref_data_dir)
+  {
+     opendir my $dir, "$out_data_dir/mctest/ghep/" or die "Can not open directory: $!";
+     my @files = readdir $dir;
+     closedir $dir;
+
+     $ijob=0;
+     foreach(@files) {
+        $batch_cmd = 
+           "source $genie_setup; " .
+           "gvld_sample_comp -f $out_data_dir/mctest/ghep/$_ -r $ref_data_dir/mctest/ghep/$_ -o x; " .
+           "mv x $out_data_dir/reports/";
+        $cmd = "perl submit.pl --cmd \'$batch_cmd\' --job-name compmc-$ijob $std_args";
+        system("$cmd");    
+        $ijob++;
+     }
+  }
+  update_status_file($status_file,"comparing standard neutrino MC jobs with reference samples");
+}
+
+#
+#
+#
+
+
 
 
 # ...............................................................
