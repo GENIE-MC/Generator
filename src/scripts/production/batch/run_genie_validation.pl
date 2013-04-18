@@ -1,20 +1,21 @@
 #---------------------------------------------------------------------------------------
 # Automate running of all routine GENIE MC validation tasks.
 #
-# Use cron to run this script every minute or so. It will monitor the progress, submit 
-# jobs as necessary, assemble the data outputs, run the validation checks and summarize 
-# the generator status.
+# Use the cron daemon to run this script every few minutes or so. 
+# It will monitor the progress, submit jobs as necessary, assemble the data outputs, 
+# run the validation checks and summarize the generator status.
 #
 # Options:
-#    --version       : genie version number
-#   [--user]         : username, used for monitoring job progress, default: candreop
-#   [--reference]    : path to output files from a previous production used for reference
-#   [--arch]         : <SL4_32bit, SL5_64bit>, default: SL5_64bit
-#   [--production]   : default: routine_validation
-#   [--cycle]        : default: 01
-#   [--batch-system] : <PBS, LSF>, default: PBS
-#   [--queue]        : default: prod
-#   [--softw-topdir] : default: /opt/ppd/t2k/softw/GENIE
+#    --version          : genie version number
+#   [--user]            : username, used for monitoring job progress, default: candreop
+#   [--ref-data-topdir] : path to output files from a previous production used for reference
+#   [--ref-data-label]  : 
+#   [--arch]            : <SL4_32bit, SL5_64bit>, default: SL5_64bit
+#   [--production]      : default: routine_validation
+#   [--cycle]           : default: 01
+#   [--batch-system]    : <PBS, LSF>, default: PBS
+#   [--queue]           : default: prod
+#   [--softw-topdir]    : default: /opt/ppd/t2k/softw/GENIE
 #
 # Costas Andreopoulos <costas.andreopoulos \st stfc.ac.uk>
 # STFC, Rutherford Appleton Lab
@@ -25,21 +26,23 @@
 use File::Path;
 
 foreach (@ARGV) {
-  if($_ eq '--version')       { $genie_version = $ARGV[$iarg+1]; }
-  if($_ eq '--user')          { $user          = $ARGV[$iarg+1]; }
-  if($_ eq '--reference')     { $ref_data_dir  = $ARGV[$iarg+1]; }
-  if($_ eq '--arch')          { $arch          = $ARGV[$iarg+1]; }
-  if($_ eq '--production')    { $production    = $ARGV[$iarg+1]; }
-  if($_ eq '--cycle')         { $cycle         = $ARGV[$iarg+1]; }
-  if($_ eq '--batch-system')  { $batch_system  = $ARGV[$iarg+1]; }
-  if($_ eq '--queue')         { $queue         = $ARGV[$iarg+1]; }
-  if($_ eq '--softw-topdir')  { $softw_topdir  = $ARGV[$iarg+1]; }
+  if($_ eq '--version')         { $genie_version = $ARGV[$iarg+1]; }
+  if($_ eq '--user')            { $user          = $ARGV[$iarg+1]; }
+  if($_ eq '--ref-data-topdir') { $ref_topdir    = $ARGV[$iarg+1]; }
+  if($_ eq '--ref-data-label')  { $ref_label     = $ARGV[$iarg+1]; }
+  if($_ eq '--arch')            { $arch          = $ARGV[$iarg+1]; }
+  if($_ eq '--production')      { $production    = $ARGV[$iarg+1]; }
+  if($_ eq '--cycle')           { $cycle         = $ARGV[$iarg+1]; }
+  if($_ eq '--batch-system')    { $batch_system  = $ARGV[$iarg+1]; }
+  if($_ eq '--queue')           { $queue         = $ARGV[$iarg+1]; }
+  if($_ eq '--softw-topdir')    { $softw_topdir  = $ARGV[$iarg+1]; }
   $iarg++;
 }
 die("** Aborting [Undefined GENIE version. Use the --version option]")
 unless defined $genie_version;
 
 $user           = "candreop"                    unless defined $user;
+$ref_label      = "reference"                   unless defined $ref_label;
 $arch           = "SL5_64bit"                   unless defined $arch;
 $production     = "routine_validation"          unless defined $production;
 $cycle          = "01"                          unless defined $cycle;
@@ -88,7 +91,9 @@ if($status eq "starting")
 }
 
 #
+# ......................................................................................
 # Calculate neutrino-nucleon cross-section splines 
+# ......................................................................................
 #
 if($status eq "done creating directory structure for output data")
 {
@@ -101,7 +106,9 @@ if($status eq "done creating directory structure for output data")
 }
 
 #
+# ......................................................................................
 # Once all jobs are done, merge all free-nucleon cross-section xml files
+# ......................................................................................
 #
 if($status eq "calculating neutrino-nucleon cross-section splines")
 {
@@ -110,6 +117,7 @@ if($status eq "calculating neutrino-nucleon cross-section splines")
       exit;
    }
    else {
+      print "Merging all XML files... \n";
       $cmd = "source $genie_setup; " .
              "gspladd -d $job_dir/$genie_version-$production\_$cycle-xsec\_vN/ -o gxspl-vN-$genie_version.xml; " .
              "cp gxspl-vN-$genie_version.xml $inp_data_dir/xspl/; " .
@@ -121,16 +129,72 @@ if($status eq "calculating neutrino-nucleon cross-section splines")
 }
 
 #
-# Compare calculated cross-sections with reference cross-sections and generate report
-#
-
-#...
-#...
-
-#
-# Calculate nuclear cross-sections needed for validation MC runs
+# ......................................................................................
+# Convert calculated cross-sections from XML to ROOT format 
+# ......................................................................................
 #
 if($status eq "done calculating neutrino-nucleon cross-section splines")
+{
+   print "Converting all free-nucleon cross-section files from XML to ROOT format... \n";
+   $batch_cmd = "source $genie_setup; " .
+          "gspl2root -p 12,-12,14,-14,16,-16 -t 1000010010,1000000010 -o xsec.root -f $inp_data_dir/xspl/gxspl-vN-$genie_version.xml; " .
+          "cp xsec.root $out_data_dir/xsec/";
+   system("perl $scripts_dir/submit.pl --cmd \'$batch_cmd\' --job-name xsconv $std_args");
+   update_status_file($status_file,"converting neutrino-nucleon cross-section data to ROOT format");
+   exit;
+}
+
+#
+# ......................................................................................
+# Compare calculated cross-sections with reference cross-sections and generate report
+# ......................................................................................
+#
+if($status eq "converting neutrino-nucleon cross-section data to ROOT format")
+{
+   $njobs = num_of_jobs_running($user,"xsconv");
+   if($njobs > 0) {
+      exit;
+   }
+   else {
+     if (defined $ref_topdir)
+     {
+        print "Comparing free-nucleon cross-sections with reference calculation... \n";
+        $batch_cmd = "source $genie_setup; " .
+            "gvld_xsec_comp -f $out_data_dir/xsec/xsec.root,$genie_version -r $ref_topdir/xsec/xsec.root,$ref_label -o xsec.ps; " . 
+            "ps2pdf14 xsec.ps; " .
+            "cp xsec.pdf $out_data_dir/reports/";
+        system("perl $scripts_dir/submit.pl --cmd \'$batch_cmd\' --job-name xscomp $std_args");
+        exit;
+     }
+     update_status_file($status_file,"comparing neutrino-nucleon cross-sections with reference calculations");
+     exit;
+   }
+}
+
+
+#
+# ......................................................................................
+# Check last report and make sure it is OK to continue
+# ......................................................................................
+#
+if($status eq "comparing neutrino-nucleon cross-sections with reference calculations")
+{
+   $njobs = num_of_jobs_running($user,"xscomp");
+   if($njobs > 0) {
+      exit;
+   }
+   else {
+     update_status_file($status_file,"done comparing neutrino-nucleon cross-sections with reference calculations");
+     exit;
+   }
+}
+
+#
+# ......................................................................................
+# Calculate nuclear cross-sections needed for validation MC runs
+# ......................................................................................
+#
+if($status eq "done comparing neutrino-nucleon cross-sections with reference calculations")
 {
   print "Need to produce nuclear cross-section splines \n";
   $cmd = "perl $scripts_dir/submit_vA_xsec_calc_jobs.pl $std_args --config-file $scripts_dir/xsec_splines/genie_test.list";
@@ -141,7 +205,9 @@ if($status eq "done calculating neutrino-nucleon cross-section splines")
 }
 
 #
+# ......................................................................................
 # Once all jobs are done, merge all nuclear cross-section xml files
+# ......................................................................................
 #
 if($status eq "calculating neutrino-nucleus cross-section splines")
 {
@@ -160,7 +226,9 @@ if($status eq "calculating neutrino-nucleus cross-section splines")
 }
 
 #
+# ......................................................................................
 # Submit test MC runs
+# ......................................................................................
 #
 if($status eq "done calculating neutrino-nucleus cross-section splines") 
 {
@@ -173,7 +241,9 @@ if($status eq "done calculating neutrino-nucleus cross-section splines")
 }
 
 #
+# ......................................................................................
 # Once test MC runs are completed, move all data files from the scratch area
+# ......................................................................................
 #
 if($status eq "running standard neutrino MC jobs") 
 {
@@ -191,7 +261,9 @@ if($status eq "running standard neutrino MC jobs")
 }
 
 #
+# ......................................................................................
 # Scan log files for errors and generate report
+# ......................................................................................
 #
 
 # ...
@@ -200,7 +272,9 @@ if($status eq "running standard neutrino MC jobs")
 
 
 #
+# ......................................................................................
 # Run sanity checks on the test MC runs
+# ......................................................................................
 #
 if($status eq "done running standard neutrino MC jobs") 
 {
@@ -222,8 +296,6 @@ if($status eq "done running standard neutrino MC jobs")
         "--check-vertex-distribution " .
         "--check-decayer-consistency; " .
         "mv $_.log $out_data_dir/reports/";
-#     $cmd = "perl $scripts_dir/submit.pl --cmd \'$batch_cmd\' --job-name schk-$ijob $std_args";
-#     system("$cmd");    
      system("perl $scripts_dir/submit.pl --cmd \'$batch_cmd\' --job-name snchk-$ijob $std_args");
      $ijob++;
   }
@@ -233,7 +305,9 @@ if($status eq "done running standard neutrino MC jobs")
 
 
 #
+# ......................................................................................
 # Wait till sanity checks are completed
+# ......................................................................................
 #
 if($status eq "running sanity checks on standard neutrino MC jobs") 
 {
@@ -245,7 +319,9 @@ if($status eq "running sanity checks on standard neutrino MC jobs")
 }
 
 #
+# ......................................................................................
 # Scan sanity check outputs and generate report
+# ......................................................................................
 #
 
 # ...
@@ -253,11 +329,13 @@ if($status eq "running sanity checks on standard neutrino MC jobs")
 # ...
 
 #
+# ......................................................................................
 # Compare the test MC samples with samples generated with a reference version of GENIE
+# ......................................................................................
 #
 if($status eq "done running sanity checks on standard neutrino MC jobs") 
 {
-  if (defined $ref_data_dir)
+  if (defined $ref_topdir)
   {
      opendir my $dir, "$out_data_dir/mctest/ghep/" or die "Can not open directory: $!";
      my @files = grep { !/^\./ } readdir $dir;
@@ -267,7 +345,7 @@ if($status eq "done running sanity checks on standard neutrino MC jobs")
      foreach(@files) {
         $batch_cmd = 
            "source $genie_setup; " .
-           "gvld_sample_comp -f $out_data_dir/mctest/ghep/$_ -r $ref_data_dir/mctest/ghep/$_ -o x; " .
+           "gvld_sample_comp -f $out_data_dir/mctest/ghep/$_ -r $ref_topdir/mctest/ghep/$_ -o x; " .
            "mv x $out_data_dir/reports/";
         $cmd = "perl submit.pl --cmd \'$batch_cmd\' --job-name compmc-$ijob $std_args";
         system("$cmd");    
@@ -278,11 +356,20 @@ if($status eq "done running sanity checks on standard neutrino MC jobs")
 }
 
 #
+# ......................................................................................
+#
+# ......................................................................................
+#
+
+
+
+
+
+
 #
 #
-
-
-
+#
+#
 
 # ...............................................................
 sub num_of_jobs_running 
