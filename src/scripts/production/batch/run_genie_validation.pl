@@ -253,7 +253,7 @@ if($status eq "running standard neutrino MC jobs")
    }
    else {
       $cmd = "mv $job_dir/$genie_version-$production\_$cycle-mctest/*ghep.root $out_data_dir/mctest/ghep/; " .
-             "mv $job_dir/$genie_version-$production\_$cycle-mctest/*gst.root $out_data_dir/mctest/gst/";
+             "mv $job_dir/$genie_version-$production\_$cycle-mctest/*gst.root  $out_data_dir/mctest/gst/";
       system("$cmd");
       update_status_file($status_file,"done running standard neutrino MC jobs");
       exit;
@@ -281,7 +281,6 @@ if($status eq "done running standard neutrino MC jobs")
   opendir my $dir, "$out_data_dir/mctest/ghep/" or die "Can not open directory: $!";
   my @files = grep { !/^\./ } readdir $dir;
   closedir $dir;
-
   $ijob = 0;
   foreach(@files) {
      $batch_cmd = 
@@ -299,14 +298,12 @@ if($status eq "done running standard neutrino MC jobs")
      system("perl $scripts_dir/submit.pl --cmd \'$batch_cmd\' --job-name snchk-$ijob $std_args");
      $ijob++;
   }
-
   update_status_file($status_file,"running sanity checks on standard neutrino MC jobs");
 }
 
-
 #
 # ......................................................................................
-# Wait till sanity checks are completed
+# Scan sanity check outputs and generate report
 # ......................................................................................
 #
 if($status eq "running sanity checks on standard neutrino MC jobs") 
@@ -315,18 +312,13 @@ if($status eq "running sanity checks on standard neutrino MC jobs")
    if($njobs > 0) {
       exit;
    }
+
+   // ...
+   // ...
+   // ...
+
    update_status_file($status_file,"done running sanity checks on standard neutrino MC jobs");
 }
-
-#
-# ......................................................................................
-# Scan sanity check outputs and generate report
-# ......................................................................................
-#
-
-# ...
-# ...
-# ...
 
 #
 # ......................................................................................
@@ -357,7 +349,111 @@ if($status eq "done running sanity checks on standard neutrino MC jobs")
 
 #
 # ......................................................................................
+# Run jobs needed for comparing the cross-section model with data
+# ......................................................................................
 #
+if($status eq "comparing standard neutrino MC jobs with reference samples") 
+{
+   $njobs = num_of_jobs_running($user,"compmc");
+   if($njobs > 0) {
+      exit;
+   }
+   print "Generating MC samples needed for comparing the cross-section model with data \n";
+   $cmd = "perl $scripts_dir/submit_neutrino_xsec_validation_mc_jobs.pl $std_args --nsubruns 1";
+   print "Running $cmd \n";  
+   system("$cmd $arg");
+   update_status_file($status_file,"running MC jobs for cross-section model validation");
+   exit;
+}
+
+#
+# ......................................................................................
+# Once cross-section MC jobs are done, move all data files from the scratch area
+# ......................................................................................
+#
+if($status eq "running MC jobs for cross-section model validation") 
+{
+   $njobs = num_of_jobs_running($user,"xsecvld");
+   if($njobs > 0) {
+      exit;
+   }
+   $cmd = "mv $job_dir/$genie_version-$production\_$cycle-xsec_validation/*ghep.root $out_data_dir/xsec_validation/ghep/; " .
+          "mv $job_dir/$genie_version-$production\_$cycle-xsec_validation/*gst.root  $out_data_dir/xsec_validation/gst/";
+   system("$cmd");
+   update_status_file($status_file,"done running MC jobs for cross-section model validation");
+   exit;
+}
+
+#
+# ......................................................................................
+# Run actual comparisons with cross-section data and compute error envelopes
+# ......................................................................................
+#
+if($status eq "done running MC jobs for cross-section model validation") 
+{
+   //...
+   //...
+   //...
+
+   update_status_file($status_file,"running cross-section model comparisons with data");
+   exit;
+}
+
+#
+# ......................................................................................
+# Run jobs needed for comparing the hadronization model with data
+# ......................................................................................
+#
+
+if($status eq "running cross-section model comparisons with data") 
+{
+   $njobs = num_of_jobs_running($user,"???");
+   if($njobs > 0) {
+      exit;
+   }
+   print "Generating MC samples needed for comparing the hadronization model with data \n";
+   $cmd = "perl $scripts_dir/submit_hadronization_validation_mc_jobs.pl $std_args --nsubruns 1";
+   print "Running $cmd \n";  
+   system("$cmd $arg");
+   update_status_file($status_file,"running MC jobs for hadronization model validation");
+   exit;
+}
+
+#
+# ......................................................................................
+# Once hadronization MC jobs are done, move all data files from the scratch area
+# ......................................................................................
+#
+if($status eq "running MC jobs for hadronization model validation") 
+{
+   $njobs = num_of_jobs_running($user,"hadro");
+   if($njobs > 0) {
+      exit;
+   }
+   $cmd = "mv $job_dir/$genie_version-$production\_$cycle-hadronization/*ghep.root $out_data_dir/hadronization/ghep/";
+   system("$cmd");
+   update_status_file($status_file,"done running MC jobs for hadronization model validation");
+   exit;
+}
+
+#
+# ......................................................................................
+# Run actual comparisons with hadronization data
+# ......................................................................................
+#
+if($status eq "done running MC jobs for hadronization model validation") 
+{
+   //...
+   //...
+   //...
+
+   update_status_file($status_file,"running hadronization model comparisons with data");
+   exit;
+}
+
+#
+# ......................................................................................
+# Run jobs needed for comparing the intranuclear rescattering model with data
 # ......................................................................................
 #
 
