@@ -15,15 +15,15 @@ include $(GENIE)/src/make/Make.include
 GENIE_LIBS   = $(shell $(GENIE)/src/scripts/setup/genie-config --libs)
 LIBRARIES   := $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 
-all:    gVldSampleScan 
+all:    gVldSampleScan gVldRepeatabilityTest
 
-#
-# Utility scanning the input file and checking for conservation law violations,
-# strange/undecayed particles etc
-#
 gVldSampleScan: FORCE
 	$(CXX) $(CXXFLAGS) -c gVldSampleScan.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) gVldSampleScan.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gvld_sample_scan
+
+gVldRepeatabilityTest: FORCE
+	$(CXX) $(CXXFLAGS) -c gVldRepeatabilityTest.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gVldRepeatabilityTest.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gvld_repeatability_test
 
 purge: FORCE
 	$(RM) *.o *~ core 
@@ -31,9 +31,11 @@ purge: FORCE
 clean: FORCE
 	$(RM) *.o *~ core 
 	$(RM) $(GENIE_BIN_PATH)/gvld_sample_scan
+	$(RM) $(GENIE_BIN_PATH)/gvld_repeatability_test
 
 distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gvld_sample_scan
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gvld_repeatability_test
 
 FORCE:
 
