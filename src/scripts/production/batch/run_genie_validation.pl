@@ -469,28 +469,34 @@ if($status eq "done running MC jobs for cross-section model validation")
      system("$cmd_file_list_ref > $out_data_dir/xsec_validation/file_list_ref.xml");
    }
 
+   #
    # Submit a single job to generate all GENIE/data comparisons for the current version
-   $batch_cmd1 = 
+   #
+   $batch_cmd_all = 
       "source $genie_setup; " .
       "gvld_nu_xsec -g $out_data_dir/xsec_validation/file_list.xml -o genie_$genie_version-world_nu_xsec_data_comp-all.ps; " .
       "ps2pdf14 genie_$genie_version-world_nu_xsec_data_comp-all.ps; " .
       "mv genie_$genie_version-world_nu_xsec_data_comp-all.pdf $out_data_dir/reports/";
-   system("perl submit.pl --cmd \'$batch_cmd1\' --job-name xseccmp1 $std_args");
-   
+   system("perl submit.pl --cmd \'$batch_cmd_all\' --job-name xseccmp1 $std_args");
+
+   #   
    # Submit a single job to generate all GENIE/data comparisons for the current and reference versions
+   #
    if (defined $ref_topdir)
    {
-      $batch_cmd2 = 
+      $batch_cmd_all_withref = 
          "source $genie_setup; " .
-         "gvld_nu_xsec -g $out_data_dir/xsec_validation/file_list.xml -o genie_$genie_version-world_nu_xsec_data_comp-all-withref.ps; " .
+         "gvld_nu_xsec -g $out_data_dir/xsec_validation/file_list_ref.xml -o genie_$genie_version-world_nu_xsec_data_comp-all-withref.ps; " .
          "ps2pdf14 genie_$genie_version-world_nu_xsec_data_comp-all-withref.ps; " .
          "mv genie_$genie_version-world_nu_xsec_data_comp-all-withref.pdf $out_data_dir/reports/";
-      system("perl submit.pl --cmd \'$batch_cmd2\' --job-name xseccmp2 $std_args");
+      system("perl submit.pl --cmd \'$batch_cmd_all_withref\' --job-name xseccmp2 $std_args");
    }
 
+   #
    # Submit jobs to generate GENIE/data comparisons for the current version
    # and calculate error envelopes for the GENIE prediction. Because calculating error
-   # envelopes is CPU-intensive submit one job per each GENIE/data comparison
+   # envelopes is CPU-intensive submit one job per each GENIE/data comparison.
+   #
    my @comparisons = ( 
      "numuCC_all", "numubarCC_all", "numuCC_lowE", "numubarCC_lowE", "numuCC_highE", "numubarCC_lowE", 
      "numuCC_minos", "numubarCC_minos", "numuCC_sciboone", "r_minos", 
@@ -529,7 +535,7 @@ if($status eq "done running MC jobs for cross-section model validation")
 #
 if($status eq "running cross-section model comparisons with data") 
 {
-   $njobs = num_of_jobs_running($user,"???");
+   $njobs = num_of_jobs_running($user,"xseccmp");
    if($njobs > 0) {
       exit;
    }
@@ -561,9 +567,41 @@ if($status eq "running MC jobs for hadronization model validation")
 #
 if($status eq "done running MC jobs for hadronization model validation") 
 {
-   #...
-   #...
-   #...
+   #
+   # Create an XML file list containing the generated MC files and the reference MC files, if any.
+   #
+
+   $cmd_file_list = "perl make_genie_sim_file_list.pl $out_data_dir/hadronization/ghep/,$genie_version";
+   system("$cmd_file_list > $out_data_dir/xsec_validation/file_list.xml");
+
+   if (defined $ref_topdir)
+   {
+     $cmd_file_list_ref = $cmd_file_list . " $ref_topdir,ref_label";
+     system("$cmd_file_list_ref > $out_data_dir/hadronization/file_list_ref.xml");
+   }
+
+   #
+   # Submit a single job to generate all GENIE/data comparisons for the current version
+   #
+   $batch_cmd_all = 
+      "source $genie_setup; " .
+      "gvld_hadronz_test -g $out_data_dir/hadronization/file_list.xml -o genie_$genie_version-hadronization_test.ps; " .
+      "ps2pdf14 genie_$genie_version-hadronization_test.ps; " .
+      "mv genie_$genie_version-hadronization_test.pdf $out_data_dir/reports/";
+   system("perl submit.pl --cmd \'$batch_cmd_all\' --job-name hadcmp1 $std_args");
+
+   #   
+   # Submit a single job to generate all GENIE/data comparisons for the current and reference versions
+   #
+   if (defined $ref_topdir)
+   {
+      $batch_cmd_all_withref = 
+         "source $genie_setup; " .
+         "gvld_hadronz_test -g $out_data_dir/hadronization/file_list_ref.xml -o genie_$genie_version-hadronization_test-withref.ps; " .
+         "ps2pdf14 genie_$genie_version-hadronization_test-withref.ps; " .
+         "mv genie_$genie_version-hadronization_test-withref.pdf $out_data_dir/reports/";
+      system("perl submit.pl --cmd \'$batch_cmd_all_withref\' --job-name hadcmp2 $std_args");
+   }
 
    update_status_file($status_file,"running hadronization model comparisons with data");
    exit;
