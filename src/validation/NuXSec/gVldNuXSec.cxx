@@ -136,7 +136,7 @@ NuXSecComparison * kComparison[kNumOfComparisons] =
   ),
   // nu_mu_bar CC inclusive, high-energy data only
   new NuXSecComparison(
-    "numubarCC_lowE", 
+    "numubarCC_highE", 
     "#bar{#nu_{#mu}} CC inclusive, medium/high-energy data only",
     "BEBC,1;BEBC,3;BEBC,6;BEBC,7;BNL_7FT,1;CCFR,3;CHARM,1;CHARM,5;FNAL_15FT,4;FNAL_15FT,5;Gargamelle,1;Gargamelle,11;Gargamelle,13;IHEP_ITEP,1;IHEP_ITEP,3;IHEP_JINR,1;MINOS,1",
      new CCIsoInclXSec(kPdgAntiNuMu),
