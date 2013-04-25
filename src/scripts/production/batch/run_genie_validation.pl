@@ -474,9 +474,10 @@ if($status eq "done running MC jobs for cross-section model validation")
    #
    $batch_cmd_all = 
       "source $genie_setup; " .
-      "gvld_nu_xsec -g $out_data_dir/xsec_validation/file_list.xml -o genie_$genie_version-world_nu_xsec_data_comp-all.ps; " .
+      "gvld_nu_xsec -g $out_data_dir/xsec_validation/file_list.xml -o genie_$genie_version-world_nu_xsec_data_comp-all; " .
       "ps2pdf14 genie_$genie_version-world_nu_xsec_data_comp-all.ps; " .
-      "mv genie_$genie_version-world_nu_xsec_data_comp-all.pdf $out_data_dir/reports/";
+      "mv genie_$genie_version-world_nu_xsec_data_comp-all.pdf  $out_data_dir/reports/; " .
+      "mv genie_$genie_version-world_nu_xsec_data_comp-all.root $out_data_dir/reports/; ";
    system("perl submit.pl --cmd \'$batch_cmd_all\' --job-name xseccmp1 $std_args");
 
    #   
@@ -486,9 +487,10 @@ if($status eq "done running MC jobs for cross-section model validation")
    {
       $batch_cmd_all_withref = 
          "source $genie_setup; " .
-         "gvld_nu_xsec -g $out_data_dir/xsec_validation/file_list_ref.xml -o genie_$genie_version-world_nu_xsec_data_comp-all-withref.ps; " .
+         "gvld_nu_xsec -g $out_data_dir/xsec_validation/file_list_ref.xml -o genie_$genie_version-world_nu_xsec_data_comp-all-withref; " .
          "ps2pdf14 genie_$genie_version-world_nu_xsec_data_comp-all-withref.ps; " .
-         "mv genie_$genie_version-world_nu_xsec_data_comp-all-withref.pdf $out_data_dir/reports/";
+         "mv genie_$genie_version-world_nu_xsec_data_comp-all-withref.pdf  $out_data_dir/reports/";
+         "mv genie_$genie_version-world_nu_xsec_data_comp-all-withref.root $out_data_dir/reports/";
       system("perl submit.pl --cmd \'$batch_cmd_all_withref\' --job-name xseccmp2 $std_args");
    }
 
@@ -498,25 +500,27 @@ if($status eq "done running MC jobs for cross-section model validation")
    # envelopes is CPU-intensive submit one job per each GENIE/data comparison.
    #
    my @comparisons = ( 
-     "numuCC_all", "numubarCC_all", "numuCC_lowE", "numubarCC_lowE", "numuCC_highE", "numubarCC_lowE", 
+     "numuCC_all", "numubarCC_all", 
+     "numuCC_lowE", "numubarCC_lowE", "numuCC_highE", "numubarCC_highE", 
      "numuCC_minos", "numubarCC_minos", "numuCC_sciboone", "r_minos", 
-     "numuCCQE_all", "numuCCQE_deuterium", "numuCCQE_heavy_target", "numuCCQE_nomad_nucleon", "numuCCQE_nomad_nuclear",
-     "numuCCQE_miniboone_nuclear", "numuCCQE_all_12C_nuclear", "numubarCCQE_all", "numubarCCQE_deuterium",
-     "numubarCCQE_heavy_target", "numubarCCQE_nomad_nucleon", "numubarCCQE_nomad_nuclear", 
+     "numuCCQE_all", "numuCCQE_deuterium", "numuCCQE_heavy_target", 
+     "numuCCQE_nomad_nucleon", "numuCCQE_nomad_nuclear", "numuCCQE_miniboone_nuclear", "numuCCQE_all_12C_nuclear", 
+     "numubarCCQE_all", "numubarCCQE_deuterium", "numubarCCQE_heavy_target", 
+     "numubarCCQE_nomad_nucleon", "numubarCCQE_nomad_nuclear", 
      "numuCCppip", "numuCCnpip", "numuCCppi0", "numuCCn2pip",  "numuCCppippi0",  "numuCCppippim", 
-     "numuCCpi0_numuCCQE_k2k", "numuNCcohpi0_Ne20", "numuCCcohpip_Ne20", "numubarCCcohpim_Ne20",
-     "numuNCcohpi0_Al27", "numuNCcohpi0_Si30", "numuCCcohpip_Si30", "numubarCCcohpim_Si30", 
+     "numuCCpi0_numuCCQE_k2k", 
+     "numuNCcohpi0_Ne20", "numuCCcohpip_Ne20", "numubarCCcohpim_Ne20", "numuNCcohpi0_Al27", "numuNCcohpi0_Si30", "numuCCcohpip_Si30", "numubarCCcohpim_Si30", 
      "numuCC_dilepton_ratio_worldavg", "numubarCC_dilepton_ratio_worldavg", "numuCC_charm_ratio_worldavg", 
-     "numuCC_dilepton_cdhs", "numuCC_dilepton_nomad", "numuCC_dilepton_e744_e770", "numuCC_dilepton_e744",
-     "numuCC_dilepton_fnal15ft", "numuCC_dilepton_gargamelle"
+     "numuCC_dilepton_cdhs", "numuCC_dilepton_nomad", "numuCC_dilepton_e744_e770", "numuCC_dilepton_e744", "numuCC_dilepton_fnal15ft", "numuCC_dilepton_gargamelle"
    );
 
    foreach (@comparisons) {
       $batch_cmd = 
          "source $genie_setup; " .
-         "gvld_nu_xsec -g $out_data_dir/xsec_validation/file_list.xml -o genie_$genie_version-world_nu_xsec_data_comp-$_.ps; " .
+         "gvld_nu_xsec -g $out_data_dir/xsec_validation/file_list.xml -o genie_$genie_version-world_nu_xsec_data_comp-$_; " .
          "ps2pdf14 genie_$genie_version-world_nu_xsec_data_comp-$_.ps; " .
-         "mv genie_$genie_version-world_nu_xsec_data_comp-$_.pdf $out_data_dir/reports/";
+         "mv genie_$genie_version-world_nu_xsec_data_comp-$_.pdf  $out_data_dir/reports/";
+         "mv genie_$genie_version-world_nu_xsec_data_comp-$_.root $out_data_dir/reports/";
       system("perl submit.pl --cmd \'$batch_cmd\' --job-name xseccmp-$_ $std_args");
    }
 
