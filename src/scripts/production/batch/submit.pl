@@ -80,7 +80,7 @@ if($batch_system eq 'PBS') {
         print PBS "cd $job_dir \n";
         print PBS "$cmd \n";
         close(PBS);
-#        `qsub -q $queue $batch_script`;
+        `qsub -q $queue $batch_script`;
 } #PBS
 
 # LSF case
