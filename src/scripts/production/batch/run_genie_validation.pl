@@ -110,14 +110,14 @@ if($status eq "done creating directory structure for output data")
 {
   print "Need to produce free-nucleon cross-section splines \n";
   $cmd = "perl $scripts_dir/submit_vN_xsec_calc_jobs.pl $std_args --xsplset all";
-  print "Running $cmd \n";  
+  print "Running: $cmd \n";  
   system("$cmd $arg");
   update_status_file($status_file,"calculating neutrino-nucleon cross-section splines");
   exit;
 }
 
 #
-# Once all jobs are done, merge all free-nucleon cross-section xml files
+# Once all jobs are done, check for errors and merge all free-nucleon cross-section xml files
 #
 if($status eq "calculating neutrino-nucleon cross-section splines")
 {
@@ -125,11 +125,45 @@ if($status eq "calculating neutrino-nucleon cross-section splines")
    if($njobs > 0) {
       exit;
    }
-   print "Merging all XML files... \n";
+   print "No neutrino-nucleon cross-section calculation job still running... \n";
+
+   #
+   # Check log files for errors and make sure there is one output XML file for input PBS script
+   #
+   print "Checking for errors... \n";
+   $nerr = `more $job_dir/$genie_version-$production\_$cycle-xsec\_vN/*log | grep -i error | wc -l`
+         + `more $job_dir/$genie_version-$production\_$cycle-xsec\_vN/*log | grep -i fatal | wc -l`;
+   if($nerr >= 0)
+   {
+      print "I found $nerr errors in the neutrino-nucleon cross-section calculation job log-files. \n";       
+      print "Can not continue with validation runs unless this is sorted out.\n";       
+      exit;
+   }
+   print "Checking the number of output XML files... \n";
+   opendir my $dir, "$job_dir/$genie_version-$production\_$cycle-xsec\_vN/" or die "Can not open directory: $!";
+   my @xmlfiles = grep { /.xml$/ } readdir $dir;
+   my @pbsfiles = grep { /.pbs$/ } readdir $dir;
+   closedir $dir;
+   $num_xmlfiles = @xmlfiles;
+   $num_pbsfiles = @pbsfiles;
+   print "Found $num_xmlfiles XML files and $num_pbsfiles PBS files. \n";
+   if($num_xmlfiles != $num_pbsfiles)   
+   {
+      print "The number of output XML files doesn't match the number of input PBS files. \n";       
+      print "Can not continue with validation runs unless this is sorted out.\n";       
+      exit;
+   }
+
+   #
+   # Merge all XML files to one and copy to standard locations
+   #
+   print "Merging all free nucleon cross-section XML files... \n";
    $cmd = "source $genie_setup; " .
           "gspladd -d $job_dir/$genie_version-$production\_$cycle-xsec\_vN/ -o gxspl-vN-$genie_version.xml; " .
           "cp gxspl-vN-$genie_version.xml $inp_data_dir/xspl/; " .
-          "cp gxspl-vN-$genie_version.xml $out_data_dir/xsec/";
+          "cp gxspl-vN-$genie_version.xml $out_data_dir/xsec/; " .
+          "rm -f gxspl-vN-$genie_version.xml";
+   print "Running: $cmd \n";  
    system("$cmd");
    update_status_file($status_file,"done calculating neutrino-nucleon cross-section splines");
    exit;
@@ -144,7 +178,9 @@ if($status eq "done calculating neutrino-nucleon cross-section splines")
    $batch_cmd = "source $genie_setup; " .
           "gspl2root -p 12,-12,14,-14,16,-16 -t 1000010010,1000000010 -o xsec.root -f $inp_data_dir/xspl/gxspl-vN-$genie_version.xml; " .
           "cp xsec.root $out_data_dir/xsec/";
-   system("perl $scripts_dir/submit.pl --cmd \'$batch_cmd\' --job-name xsconv $std_args");
+   $cmd = "perl $scripts_dir/submit.pl --cmd \'$batch_cmd\' --job-name xsconv $std_args";
+   print "Running: $cmd \n";  
+   system("$cmd");
    update_status_file($status_file,"converting neutrino-nucleon cross-section data to ROOT format");
    exit;
 }
@@ -165,8 +201,9 @@ if($status eq "converting neutrino-nucleon cross-section data to ROOT format")
             "gvld_xsec_comp -f $out_data_dir/xsec/xsec.root,$genie_version -r $ref_topdir/xsec/xsec.root,$ref_label -o xsec.ps; " . 
             "ps2pdf14 xsec.ps; " .
             "cp xsec.pdf $out_data_dir/reports/";
-        system("perl $scripts_dir/submit.pl --cmd \'$batch_cmd\' --job-name xscomp $std_args");
-        exit;
+        $cmd = "perl $scripts_dir/submit.pl --cmd \'$batch_cmd\' --job-name xscomp $std_args";
+        print "Running: $cmd \n";  
+        system("$cmd");
    }
    update_status_file($status_file,"comparing neutrino-nucleon cross-sections with reference calculations");
    exit;
@@ -181,6 +218,7 @@ if($status eq "comparing neutrino-nucleon cross-sections with reference calculat
    if($njobs > 0) {
       exit;
    }
+
 
    # ...
    # ... check report
@@ -218,9 +256,44 @@ if($status eq "calculating neutrino-nucleus cross-section splines")
    if($njobs > 0) {
       exit;
    }
+   print "No neutrino-nucleus cross-section calculation job still running... \n";
+
+   #
+   # Check log files for errors and make sure there is one output XML file for input PBS script
+   #
+   print "Checking for errors... \n";
+   $nerr = `more $job_dir/$genie_version-$production\_$cycle-xsec\_vA\_genie\_test/*log | grep -i error | wc -l`
+         + `more $job_dir/$genie_version-$production\_$cycle-xsec\_vA\_genie\_test/*log | grep -i fatal | wc -l`;
+   if($nerr >= 0)
+   {
+      print "I found $nerr errors in the neutrino-nucleus cross-section calculation job log-files. \n";       
+      print "Can not continue with validation runs unless this is sorted out.\n";       
+      exit;
+   }
+   print "Checking the number of output XML files... \n";
+   opendir my $dir, "$job_dir/$genie_version-$production\_$cycle-xsec\_vA\_genie\_test/" or die "Can not open directory: $!";
+   my @xmlfiles = grep { /.xml$/ } readdir $dir;
+   my @pbsfiles = grep { /.pbs$/ } readdir $dir;
+   closedir $dir;
+   $num_xmlfiles = @xmlfiles;
+   $num_pbsfiles = @pbsfiles;
+   print "Found $num_xmlfiles XML files and $num_pbsfiles PBS files. \n";
+   if($num_xmlfiles != $num_pbsfiles)   
+   {
+      print "The number of output XML files doesn't match the number of input PBS files. \n";       
+      print "Can not continue with validation runs unless this is sorted out.\n";       
+      exit;
+   }
+
+   #
+   # Merge all XML files to one and copy to standard locations
+   #
+   print "Merging all neutrino-nucleus cross-section XML files... \n";
    $cmd = "source $genie_setup; " .
           "gspladd -d $job_dir/$genie_version-$production\_$cycle-xsec\_vA\_genie\_test/ -o gxspl-vA-$genie_version.xml; " .
-          "cp gxspl-vA-$genie_version.xml $inp_data_dir/xspl/";
+          "cp gxspl-vA-$genie_version.xml $inp_data_dir/xspl/; " .
+          "cp gxspl-vA-$genie_version.xml $out_data_dir/xsec/; " .
+          "rm -f gxspl-vA-$genie_version.xml";
    system("$cmd");
    update_status_file($status_file,"done calculating neutrino-nucleus cross-section splines");
    exit;
@@ -684,7 +757,7 @@ sub num_of_jobs_running
         print "Job still running: $_ \n";
      }
    }
-   print "There are $njobs jobs still running.\n";
+   print "Number of jobs still running or on the queue: $njobs \n";
    return $njobs;
 }
 
