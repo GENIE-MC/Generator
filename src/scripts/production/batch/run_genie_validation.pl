@@ -13,7 +13,7 @@
 #   [--arch]            : <SL4_32bit, SL5_64bit>, default: SL5_64bit
 #   [--production]      : default: routine_validation
 #   [--cycle]           : default: 01
-#   [--batch-system]    : <PBS, LSF>, default: PBS
+#   [--batch-system]    : <PBS, LSF>, default: PBS (currently works only for PBS)
 #   [--queue]           : default: prod
 #   [--softw-topdir]    : default: /opt/ppd/t2k/softw/GENIE
 #
@@ -128,7 +128,7 @@ if($status eq "calculating neutrino-nucleon cross-section splines")
    print "No neutrino-nucleon cross-section calculation job still running... \n";
 
    #
-   # Check log files for errors and make sure there is one output XML file for input PBS script
+   # Check log files for errors and make sure there is one output XML file for each input PBS script
    #
    print "Checking for errors... \n";
    $nerr = `more $job_dir/$genie_version-$production\_$cycle-xsec\_vN/*log | grep -i error | wc -l`
@@ -259,7 +259,7 @@ if($status eq "calculating neutrino-nucleus cross-section splines")
    print "No neutrino-nucleus cross-section calculation job still running... \n";
 
    #
-   # Check log files for errors and make sure there is one output XML file for input PBS script
+   # Check log files for errors and make sure there is one output XML file for each input PBS script
    #
    print "Checking for errors... \n";
    $nerr = `more $job_dir/$genie_version-$production\_$cycle-xsec\_vA\_genie\_test/*log | grep -i error | wc -l`
@@ -328,6 +328,34 @@ if($status eq "running standard neutrino MC jobs")
    if($njobs > 0) {
       exit;
    }
+
+   #
+   # Check log files for errors and make sure there is one output ROOT file for each input PBS script
+   #
+   print "Checking for errors... \n";
+   $nerr = `more $job_dir/$genie_version-$production\_$cycle-mctest/*log | grep -i error | wc -l`
+         + `more $job_dir/$genie_version-$production\_$cycle-mctest/*log | grep -i fatal | wc -l`;
+   if($nerr >= 0)
+   {
+      print "I found $nerr errors in the standard neutrino MC job log-files. \n";       
+      print "Can not continue with validation runs unless this is sorted out.\n";       
+      exit;
+   }
+   print "Checking the number of output ROOT/GHEP files... \n";
+   opendir my $dir, "$job_dir/$genie_version-$production\_$cycle-mctest/" or die "Can not open directory: $!";
+   my @evtfiles  = grep { /.ghep.root$/ } readdir $dir;
+   my @pbsfiles  = grep { /.pbs$/       } readdir $dir;
+   closedir $dir;
+   $num_evtfiles = @evtfiles;
+   $num_pbsfiles = @pbsfiles;
+   print "Found $num_evtfiles ROOT/GHEP event files and $num_pbsfiles PBS files. \n";
+   if($num_evtfiles != $num_pbsfiles)   
+   {
+      print "The number of output event files doesn't match the number of input PBS files. \n";       
+      print "Can not continue with validation runs unless this is sorted out.\n";       
+      exit;
+   }
+
    $cmd = "mv $job_dir/$genie_version-$production\_$cycle-mctest/*ghep.root $out_data_dir/mctest/ghep/; " .
           "mv $job_dir/$genie_version-$production\_$cycle-mctest/*gst.root  $out_data_dir/mctest/gst/";
    system("$cmd");
@@ -336,19 +364,11 @@ if($status eq "running standard neutrino MC jobs")
 }
 
 #
-# Scan log files for errors and generate report
-#
-
-# ...
-# ...
-# ...
-
-
-#
 # Run sanity checks on the test MC runs and generate reports
 #
 if($status eq "done running standard neutrino MC jobs") 
 {
+  print "Running sanity checks on the outputs of the the standard neutrino MC jobs ... \n";
   opendir my $dir, "$out_data_dir/mctest/ghep/" or die "Can not open directory: $!";
   my @files = grep { !/^\./ } readdir $dir;
   closedir $dir;
@@ -382,6 +402,8 @@ if($status eq "running sanity checks on standard neutrino MC jobs")
    if($njobs > 0) {
       exit;
    }
+
+   print "Checking results sanity checks on the outputs of the the standard neutrino MC jobs ... \n";
 
    # ...
    # ...
