@@ -1,6 +1,6 @@
 #! /usr/bin/perl -w
 #
-# Creates the $GENIE/src/Conventions/GBuild.h header file
+# Creates the $GENIE/src/Conventions/GVersion.h header file
 #
 # C.Andreopoulos <costas.andreopoulos \at stfc.ac.uk>, Rutherford Lab.
 #
@@ -9,8 +9,7 @@ $GENIE = $ENV{'GENIE'};
 die ("Not even the GENIE environmental variable is defined!") unless defined $GENIE;
 
 # Read version info
-$REL_INFO_FILE = "$GENIE/VERSION";
-open(REL_INFO, "<$REL_INFO_FILE") or die("Can not read the GENIE release information!");
+open(REL_INFO, "<$GENIE/VERSION") or die("Can not read the GENIE release information!");
 @rel_info=<REL_INFO>;
 close(REL_INFO);
 chomp($release = $rel_info[0]);
@@ -21,6 +20,23 @@ $release=~m/(\d+).(\d+).(\d+)/;
 $major = $1;
 $minor = $2;
 $revis = $3;
+
+# Get the SVN revision number 
+$svn_revision = `svn info | grep -i revision`;
+if($? == 0) {
+  # remove any non-digit
+  $svn_revision =~ s/\D+\s+//;
+}
+else {
+  # Couldn't run svn info. 
+  # This may be a user without svn who installs GENIE from a tarball.
+  # Try to extract the revision number from $GENIE/.svn/entries
+  open(SVN_ENTRIES, "<$GENIE/.svn/entries") 
+     or die("Can not read the GENIE SVN revision number!");
+  @svn_entries = <SVN_ENTRIES>;
+  close(SVN_ENTRIES);
+  chomp($svn_revision = $svn_entries[3]); # the rev number seems to be at the 4th line
+} 
 
 # Open header file
 $GVRS_FILE = "$GENIE/src/Conventions/GVersion.h";
@@ -42,6 +58,8 @@ print GVRS "*/ \n\n";
 print GVRS "#define GRELCODE(a,b,c) (((a) << 16) + ((b) << 8) + (c)) \n\n";
 print GVRS "#define __GENIE_RELEASE__      \"$release\"\n";
 print GVRS "#define __GENIE_RELEASE_CODE__ GRELCODE($major,$minor,$revis) \n\n";
+
+print GVRS "#define __GENIE_SVN_REVISION__ $svn_revision \n\n";
 
 if($major == 999 && $minor == 999 && $revis == 999) {
   print GVRS "#define __GENIE_DEVEL_VERSION__ \n\n";
