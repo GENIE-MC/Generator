@@ -2004,7 +2004,13 @@ int GNuMIFluxPassThroughInfo::CalcEnuWgt(const TLorentzVector& xyz,
 #endif
 
   // Get solid angle/4pi for detector element
-  double sangdet = ( kRDET*kRDET / ( (zpos-this->vz)*(zpos-this->vz)))/4.0;
+  // small angle approximation, fixed by Alex Radovic
+  //SAA//double sangdet = ( kRDET*kRDET / ( (zpos-this->vz)*(zpos-this->vz)))/4.0;
+
+  double sanddetcomp = TMath::Sqrt(( (xpos-this->vx)*(xpos-this->vx) ) +
+                                   ( (ypos-this->vy)*(ypos-this->vy) ) +
+                                   ( (zpos-this->vz)*(zpos-this->vz) )   );
+  double sangdet = ( 1.0 - TMath::Cos(TMath::ATan( kRDET / sanddetcomp)))/2.0;
 
   // Weight for solid angle and lorentz boost
   wgt_xy = sangdet * ( emrat * emrat );  // ! the weight ... normally
