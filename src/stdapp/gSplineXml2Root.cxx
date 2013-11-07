@@ -7,8 +7,10 @@
          splines into a ROOT format.
 
          Syntax :
-           gspl2root -f xml_file -p nu -t tgt [-e emax] [-o root_file] [-w] [-k]
+           gspl2root -f xml_file -p nu -t tgt [-e emax] 
+                     [-o root_file] [-w] [-k]
                      [--message-thresholds xml_file]
+                     [--event-generator-list list_name]
 
          Options :
            []  denotes an optional argument
@@ -29,6 +31,9 @@
               keep spline knot points  (not yet implemented).
            --message-thresholds
               Allows users to customize the message stream thresholds.
+           --event-generator-list 
+              List of event generators to load in event generation drivers.
+              [default: "Default"].
 
          Example:
 
@@ -187,6 +192,7 @@ GEVGDriver GetEventGenDriver(void)
   InitialState init_state(gOptTgtPdgCode, gOptProbePdgCode);
            
   GEVGDriver evg_driver;
+  evg_driver.SetEventGeneratorList(RunOpt::Instance()->EventGeneratorList());
   evg_driver.Configure(init_state);
   evg_driver.CreateSplines();
   evg_driver.CreateXSecSumSpline (100, gEmin, gEmax);
