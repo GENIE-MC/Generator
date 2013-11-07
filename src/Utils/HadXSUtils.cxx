@@ -10,6 +10,8 @@
  For documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
+ @ Jul 18, 2013 - Daniel Scully
+ Fixed indexing bug in InelasticPionNucleonXSec and TotalPionNucleonXSec
 
 */
 //____________________________________________________________________________
@@ -34,10 +36,10 @@ double genie::utils::hadxs::InelasticPionNucleonXSec(double Epion)
   if(P<=0) return 0;
 
   double log10P  = TMath::Log10(P);
-  int    N = (int) ((log10P - kInelMinLog10P)/kIneldLog10P);
+  int    N = (int) ((log10P - kInelMinLog10P)/kIneldLog10P) + 1;
 
   double xs=0.;
-  if      (N<1)                  xs = (P/0.1059)*kInelSig[0];
+  if ((log10P - kInelMinLog10P) < 0.0) xs = (P/0.1059)*kInelSig[0];
   else if (N>kInelNDataPoints-2) xs = kInelSig[kInelNDataPoints-1];
   else {
    double log10Pn = kInelMinLog10P +  (N-1) * kIneldLog10P;
@@ -58,10 +60,10 @@ double genie::utils::hadxs::TotalPionNucleonXSec(double Epion)
   if(P<=0) return 0;
 
   double log10P  = TMath::Log10(P);
-  int    N = (int) ((log10P - kTotMinLog10P)/kTotdLog10P);
+  int    N = (int) ((log10P - kInelMinLog10P)/kIneldLog10P) + 1;
 
   double xs=0.;
-  if      (N<1)                  xs = (P/0.1059)*kTotSig[0];
+  if ((log10P - kInelMinLog10P) < 0.0) xs = (P/0.1059)*kTotSig[0];
   else if (N>kInelNDataPoints-2) xs = kTotSig[kInelNDataPoints-1];
   else {
    double log10Pn = kTotMinLog10P +  (N-1) * kTotdLog10P;
