@@ -5,7 +5,7 @@
 #   runs in order to compare resultant x-sec
 #   against expected experimental values
 
-export GSEED="$(date +%s)"
+#export GSEED="$(date +%s)"
 
 PROBE_TYPES=(p n pip pim pi0 kp km 2212 2112 211 -211 111 321 -321)
 
