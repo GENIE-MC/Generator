@@ -16,12 +16,20 @@ genieStyle.C, and rootgINukeVal.C in that directory.
 
 CREATE root ntuple files with hadron-nucleus data.
 - run runfast.pl with perl to produce the root files you need.
-Name convention is Month_day_yr_probe_target_beamenergy_version_model.ginuke.root,
+For ntuple files,name convention is Month_day_yr_probe_target_beamenergy_version_model.ginuke.root,
  e.g. Mar_08_13_p_C_197_v280_hA.ginuke.root for proton carbon at 197 MeV using hA model 
 and GENIE version 2.8.0 on March 8, 2013. This would be produced with
 perl runfast.pl --type root --a hautala --m hA.  The --a option specifies the lead
 author of the data publication and the program knows what to create.  Default is 100k events.
 Program needs to run a setup program for each version, e.g. /usr/GENIE/setup_genie for 2.8.0.
+
+For total cross section files, a text file is created from the ghep files.  
+Order is
+* runfast.pl runs gScriptINukeTotXSec (shell script) which creates ghep files
+at the proper energies.
+* it then runs gtestINukeHadroXSec to create a text file with cross section values.
+* user must use existing format file with rootgINukeVal.C to create the plot.
+Find them in $GENIE/data/validation/hA/total.
 - run intranukeplotter.pl with perl to produce the plots you need.
 Program creates format files for the plots which interface to the plotting
 program rootgINukeVal.C which uses style file genieStyle.C.  If setup is correct, 
