@@ -1,0 +1,1425 @@
+## program to make plots comparing GENIE results with external data for hadron-nucleus.
+## brief directions, see INTRANUKE_PLOT_README.txt file for more detail.
+## FUNCTIONS:
+## This script generates format files based on user-specified experimental data and GENIE simulations.
+## It then uses those format files and data files as inputs to rootgINukeVal_new.C to generate plots, which are saved as ***.png files.
+##
+## required input: simulation file from gevgen_hadron and gntpc - use runfast.pl - and corresponding external data files
+## required options: type, a, dorf 
+##     type - one of ang (differential angular distr), nrg (double differential energy distr), or xsec (total, integ)
+##     a    - specifies first author of the data used for comparison.  See list in INTRANUKE_PLOT_README.txt.
+##     dorf - specifies date in name of GENIE root file, e.g. Jan_01_2013.
+## program searches for genie root ntuple file with these names and external ASCII data file in present directory or
+## in directories specified with rootdir and datadir, respectively. 
+## 
+## output is a .png plot in present directory or that specified with pngdir.
+## Intermediate format file goes to present directory.  This is input to rootgINukeVal.C, its location is
+## set by $rootgdir variable below. 
+##
+## example 1 (in directory where simulation and external data files exist)
+##       perl intranukeplotter.pl --a zumbro --dorf Dec_30_12 
+$rootgdir = '~/00-genie-check';
+$iarg = 0;
+foreach (@ARGV) {
+    if ($_ eq '--type')    { $type       = $ARGV[$iarg+1]; }     ## angular distribution [ang], energy distribution [nrg], or total cross section [xsec]
+    if ($_ eq '--v')       { $vsn[0]     = $ARGV[$iarg+1]; }     ## GENIE version 1
+    if ($_ eq '--v1')      { $vsn[0]     = $ARGV[$iarg+1]; }     ## GENIE version 1
+    if ($_ eq '--v2')      { $vsn[1]     = $ARGV[$iarg+1]; }     ## GENIE version 2
+    if ($_ eq '--v3')      { $vsn[2]     = $ARGV[$iarg+1]; }     ## GENIE version 3
+    if ($_ eq '--m')       { $mdl[0]     = $ARGV[$iarg+1]; }     ## GENIE model 1
+    if ($_ eq '--m1')      { $mdl[0]     = $ARGV[$iarg+1]; }     ## GENIE model 1
+    if ($_ eq '--m2')      { $mdl[1]     = $ARGV[$iarg+1]; }     ## GENIE model 2
+    if ($_ eq '--dorf')    { $dorf[0]    = $ARGV[$iarg+1]; }     ## date of first root (gst) file
+    if ($_ eq '--dorf1')   { $dorf[0]    = $ARGV[$iarg+1]; }     ## date of first root (gst) file
+    if ($_ eq '--dorf2')   { $dorf[1]    = $ARGV[$iarg+1]; }     ## date of second root (gst) file
+    if ($_ eq '--dorf3')   { $dorf[2]    = $ARGV[$iarg+1]; }     ## date of third root (gst) file
+    if ($_ eq '--a')       { $author     = $ARGV[$iarg+1]; }     ## author for group of runs
+    if ($_ eq '--rm')      { $remove     = $ARGV[$iarg+1]; }     ## choose to discard format files after use (enter "yes" as argument; note that format files cannot be removed unless png files are produced)
+    if ($_ eq '--png')     { $png        = $ARGV[$iarg+1]; }     ## choose to turn off png file formation (enter "off" as argument)
+    if ($_ eq '--datadir') { $datadir    = $ARGV[$iarg+1]; }     ## directory to find data files
+    if ($_ eq '--rootdir') { $rootdir    = $ARGV[$iarg+1]; }     ## directory to find root files
+    if ($_ eq '--pngdir')  { $pngdir     = $ARGV[$iarg+1]; }     ## directory to put png files
+    if ($_ eq '--p')       { $probe      = $ARGV[$iarg+1]; }
+    if ($_ eq '--t')       { $tgt        = $ARGV[$iarg+1]; }
+    if ($_ eq '--a')       { $authors[0] = $ARGV[$iarg+1]; }
+    if ($_ eq '--a2')      { $authors[1] = $ARGV[$iarg+1]; }
+    if ($_ eq '--a3')      { $authors[2] = $ARGV[$iarg+1]; }
+    if ($_ eq '--a4')      { $authors[3] = $ARGV[$iarg+1]; }
+    if ($_ eq '--a5')      { $authors[4] = $ARGV[$iarg+1]; }
+    if ($_ eq '--stype')   { $st         = $ARGV[$iarg+1]; }
+    if ($_ eq '--hmax')    { $hmax       = $ARGV[$iarg+1]; }    
+    if ($_ eq '--vmax')    { $vmax       = $ARGV[$iarg+1]; }
+    $iarg++;
+};
+
+check_input();
+set_defaults();
+
+
+### ANGULAR DISTRIBUTION ROUTINE ###
+
+if ($type eq 'ang') {
+
+%group_hash = (  ## link specified author to associated groups
+    'amian' => ['amian'],
+    'baker' => ['baker_c', 'baker_ca'],
+    'beck' => ['beck'],
+    'bertrand' => ['bertrand'],
+    'carman' => ['carman'],
+    'chen' => ['chen'],
+    'cochran' => ['cochran'],
+    'franz' => ['franz'],
+    'hautala' => ['hautala'],
+    'hayashi' => ['hayashi'],
+    'ingram' => ['ingram'],
+    'iwamoto' => ['iwamoto_pim', 'iwamoto_pip'],
+    'kin' => ['kin'],
+    'levenson' => ['levenson_1','levenson_2'],
+    'mcgill' => ['mcgill'],    
+    'mckeown' => ['mckeown','mckeown_2'],
+    'meier' => ['meier', 'meier_al'],
+    'otsu' => ['otsu'],
+    'ouyang' => ['ouyang'],
+    'roy' => ['roy'],
+    'segel' => ['segel'],
+    'slypen' => ['slypen_c', 'slypen_fe'],
+    'stamer' => ['stamer'],
+    'tippawan' => ['tippawan'],
+    'tyren' => ['tyren'],
+    'zumbro' => ['zumbro'],
+);
+@groups = @{$group_hash {$author}};
+
+foreach $group (@groups) {
+if ($group eq "amian") {
+    @p = qw( p );                              ## probes
+    @Tgt = qw( B Be C O Pb );                  ## targets
+    @nrg = ( 597, 800 );                       ## energies
+    @dp = qw( n );                             ## detected particles
+    $bins = 4;                                 ## number of bins
+};
+if ($group eq "baker_c") {
+    @p = qw( p );  
+    @Tgt = qw( C );
+    @nrg = ( 318 );
+    @dp = qw( p );
+    $bins = 4;
+};
+if ($group eq "baker_ca") {
+    @p = qw( p );  
+    @Tgt = qw( Ca );
+    @nrg = ( 320 );
+    @dp = qw( p ); 
+    $bins = 4;
+};
+if ($group eq "beck") {
+    @p = qw( p );  
+    @Tgt = qw( Fe Pb );
+    @nrg = ( 558 );
+    @dp = qw( p );
+    $bins = 4;
+};
+if ($group eq "bertrand") {
+    @p = qw( p );  
+    @Tgt = qw( Fe );
+    @nrg = ( 65 );
+    @dp = qw( p ); 
+    $bins = 4;
+};
+if ($group eq "carman") {
+    @p = qw( p );  
+    @Tgt = qw( C );
+    @nrg = ( 200 );
+    @dp = qw( p );  
+    $bins = 4;
+};
+if ($group eq "chen") {
+    @p = qw( p );  
+    @Tgt = qw( Pb );
+    @nrg = ( 290 );
+    @dp = qw( p ); 
+    $bins = 4;
+};
+if ($group eq "cochran") {
+    @p = qw( p );  
+    @Tgt = qw( Al Be C Cu Pb H );
+    @nrg = ( 730 );
+    @dp = qw( pim pip ); 
+    $bins = 10;
+};
+if ($group eq "franz") {
+    @p = qw( n );  
+    @Tgt = qw( Cu );
+    @nrg = ( 383, 425, 477, 542, 317.4, 347.7 );
+    @dp = qw( p ); 
+    $bins = 4;
+};
+if ($group eq "hautala") {
+    @p = qw( p );  
+    @Tgt = qw( Ca );
+    @nrg = ( 197 );
+    @dp = qw( n ); 
+    $bins = 4;
+};
+if ($group eq "hayashi") {
+    @p = qw( n );  
+    @Tgt = qw( C );
+    @nrg = ( 147 );
+    @dp = qw( p ); 
+    $bins = 4;
+};
+if ($group eq "ingram") {
+    @p = qw( pip );  
+    @Tgt = qw( O );
+    @nrg = ( 114, 163, 240 );
+    @dp = qw( pip );
+    $bins = 2;
+};
+if ($group eq "iwamoto_pim") {
+    @p = qw( pim );  
+    @Tgt = qw( Fe );
+    @nrg = ( 870 );
+    @dp = qw( n );  
+    $bins = 2;
+};
+if ($group eq "iwamoto_pip") {
+    @p = qw( pip );  
+    @Tgt = qw( Fe );
+    @nrg = ( 870, 2100 );
+    @dp = qw( n ); 
+    $bins = 2;
+};
+if ($group eq "kin") {
+    @p = qw( p );  
+    @Tgt = qw( C );
+    @nrg = ( 300, 392 );
+    @dp = qw( p ); 
+    $bins = 4;
+};
+if ($group eq "levenson_1") {
+    @p = qw( pip );  
+    @Tgt = qw( C Pb );
+    @nrg = ( 220 );
+    @dp = qw( pip ); 
+    $bins = 4;
+};
+if ($group eq "levenson_2") {
+    @p = qw( pip );  
+    @Tgt = qw( Ni );
+    @nrg = ( 160, 220 );
+    @dp = qw( pip ); 
+    $bins = 4;
+};
+if ($group eq "mcgill") {
+    @p = qw( p );  
+    @Tgt = qw( C Ca );
+    @nrg = ( 800 );
+    @dp = qw( p );  
+    $bins = 2;
+};
+if ($group eq "mckeown") {
+    @p = qw( pim pip );  
+    @Tgt = qw( C Li Ni Ta He );
+    @nrg = ( 100, 160, 220 );
+    @dp = qw( p );  
+    $bins = 4;
+};
+if ($group eq "mckeown_2") {
+    @p = qw( pim pip );  
+    @Tgt = qw( Al Be );
+    @nrg = ( 100, 220 );
+    @dp = qw( p );  
+    $bins = 4;
+};
+if ($group eq "meier") {
+    @p = qw( p );  
+    @Tgt = qw( C Fe O Pb );
+    @nrg = ( 113 );
+    @dp = qw( n );  
+    $bins = 4;
+};
+if ($group eq "meier_al") {
+    @p = qw( p );  
+    @Tgt = qw( Al );
+    @nrg = ( 256 );
+    @dp = qw( n ); 
+    $bins = 4;
+};
+if ($group eq "otsu") {
+    @p = qw( p );  
+    @Tgt = qw( C );
+    @nrg = ( 392, 400 );
+    @dp = qw( n ); 
+    $bins = 4;
+};
+if ($group eq "ouyang") {
+    @p = qw( pim );  
+    @Tgt = qw( C Bi );
+    @nrg = ( 500 );
+    @dp = qw( pi0 );  
+    $bins = 4;
+};
+if ($group eq "roy") {
+    @p = qw( p );  
+    @Tgt = qw( He Ni Ta );
+    @nrg = ( 500 );
+    @dp = qw( p );  
+    $bins = 4;
+};
+if ($group eq "segel") {
+    @p = qw( p );  
+    @Tgt = qw( C );
+    @nrg = ( 155 );
+    @dp = qw( p ); 
+    $bins = 4;
+};
+if ($group eq "slypen_c") {
+    @p = qw( n );  
+    @Tgt = qw( C );
+    @nrg = ( 26.5, 50, 62.7, 72.8 );
+    @dp = qw( p );  
+    $bins = 4;
+};
+if ($group eq "slypen_fe") {
+    @p = qw( n );  
+    @Tgt = qw( Fe );
+    @nrg = ( 25.5, 49, 62.7 );
+    @dp = qw( p );  
+    $bins = 4;
+};
+if ($group eq "stamer") {
+    @p = qw( p );  
+    @Tgt = qw( Al Pb Zr );
+    @nrg = ( 256, 800 );
+    @dp = qw( n ); 
+    $bins = 2;
+};
+if ($group eq "tippawan") {
+    @p = qw( n );  
+    @Tgt = qw( C );
+    @nrg = ( 95.6 );
+    @dp = qw( p ); 
+    $bins = 4;
+};
+if ($group eq "tyren") {
+    @p = qw( p );  
+    @Tgt = qw( C );
+    @nrg = ( 185 );
+    @dp = qw( p ); 
+    $bins = 4;
+};
+if ($group eq "zumbro") {
+    @p = qw( pip );  
+    @Tgt = qw( C );
+    @nrg = ( 500 );
+    @dp = qw( pip );
+    $bins = 4;
+};
+
+foreach $tgt (@Tgt) {
+    foreach $probe (@p) {
+	foreach $det (@dp) {
+	    set_particles();
+	    set_file_names();
+	    make_format_file();
+	    make_png_files();
+	};
+    };
+};
+};
+};
+
+###############################################################################################################################################################
+###############################################################################################################################################################
+
+### ENERGY DISTRIBUTION ROUTINE ###
+
+if ($type eq 'nrg') {
+
+%group_hash = (  ## link specified author to associated groups
+    'amian' => ['amian'],
+    'baker' => ['baker_c', 'baker_ca'],
+    'beck' => ['beck'],
+    'bertrand' => ['bertrand'],
+    'carman' => ['carman'],
+    'chen' => ['chen'],
+    'cochran' => ['cochran','cochran_h_pim','cochran_h_pip'],
+    'franz' => ['franz'],
+    'hautala' => ['hautala'],
+    'hayashi' => ['hayashi'],
+    'ingram' => ['ingram_114', 'ingram_240'],
+    'iwamoto' => ['iwamoto_870', 'iwamoto_2100'],
+    'kin' => ['kin_300', 'kin_392'],
+    'levenson' => ['levenson_1','levenson_2','levenson_3','levenson_4','levenson_5','levenson_6','levenson_7'],
+    'mcgill' => ['mcgill'],    
+    'mckeown' => ['mckeown'],
+    'meier' => ['meier', 'meier_al'],
+    'otsu' => ['otsu_392', 'otsu_400'],
+    'ouyang' => ['ouyang'],
+    'roy' => ['roy', 'roy_ta'],
+    'segel' => ['segel'],
+    'slypen' => ['slypen_c', 'slypen_c_62.7', 'slypen_fe'],
+    'stamer' => ['stamer'],
+    'tippawan' => ['tippawan'],
+    'tyren' => ['tyren'],
+    'zumbro' => ['zumbro'],
+);
+@groups = @{$group_hash {$author}};
+
+foreach $group ( @groups ) {  
+if ($group eq "amian") {
+    @p = qw( p );                              ## probes
+    @Tgt = qw( B Be C O Pb );                  ## targets
+    @nrg = ( 597, 800 );                       ## energies
+    @dp = qw( n );                             ## detected particles
+    @ang = ( 30, 60, 120, 150 );               ## angles
+    @cthmin = ( .82, .45, -.55, -.92 );        ## min cos(theta) cuts
+    @cthmax = ( .92, .55, -.45, -.82 );        ## max cos(theta) cuts
+    $bins = 4;                                 ## number of bins
+};
+if ($group eq "baker_c") {
+    @p = qw( p );  
+    @Tgt = qw( C );
+    @nrg = ( 318 );
+    @dp = qw( p );
+    @ang = ( 3, 5, 7, 9, 12, 15, 18 );
+    @cthmin = ( .998, .993, .99, .985, .974, .961, .946 );
+    @cthmax = ( .9995, .998, .995, .99, .982, .971, .956 ); 
+    $bins = 4;
+};
+if ($group eq "baker_ca") {
+    @p = qw( p );  
+    @Tgt = qw( Ca );
+    @nrg = ( 320 );
+    @dp = qw( p );
+    @ang = ( 3.5, 5, 7, 9, 10.5, 12, 14, 16, 18, 20, 23 );
+    @cthmin = ( .9975, .993, .99, .985, .981, .974, .966, .957, .946, .935, .911 );
+    @cthmax = ( .999, .998, .995, .99, .986, .982, .974, .965, .956, .945, .931 );  
+    $bins = 4;
+};
+if ($group eq "beck") {
+    @p = qw( p );  
+    @Tgt = qw( Fe Pb );
+    @nrg = ( 558 );
+    @dp = qw( p );
+    @ang = ( 10, 20, 30, 40, 50, 60 );
+    @cthmin = ( .975, .921, .839, .731, .602, .454 );
+    @cthmax = ( .995, .956, .891, .799, .682, .545 );  
+    $bins = 4;
+};
+if ($group eq "bertrand") {
+    @p = qw( p );  
+    @Tgt = qw( Fe );
+    @nrg = ( 65 );
+    @dp = qw( p );
+    @ang = ( 20, 30, 37, 45, 52, 60, 75, 90, 120, 135 );
+    @cthmin = ( .932, .855, .786, .692, .599, .48, .239, -.021, -.518, -.722 );
+    @cthmax = ( .947, .876, .811, .722, .632, .52, .279, .021, -.482, -.692 );  
+    $bins = 4;
+};
+if ($group eq "carman") {
+    @p = qw( p );  
+    @Tgt = qw( C );
+    @nrg = ( 200 );
+    @dp = qw( p );
+    @ang = ( 26.9, 30.3, 33.6 );
+    @cthmin = ( .877, .848, .818 );
+    @cthmax = ( .907, .878, .848 );  
+    $bins = 4;
+};
+if ($group eq "chen") {
+    @p = qw( p );  
+    @Tgt = qw( Pb );
+    @nrg = ( 290 );
+    @dp = qw( p );
+    @ang = ( 10 );
+    @cthmin = ( .97 );
+    @cthmax = ( 1 );  
+    $bins = 4;
+};
+if ($group eq "cochran") {
+    @p = qw( p );  
+    @Tgt = qw( Al Be C Cu Pb );
+    @nrg = ( 730 );
+    @dp = qw( pim pip );
+    @ang = ( 15, 20, 30, 45, 60, 75, 90, 105, 120, 135, 150 );
+    @cthmin = ( .956, .935, .846, .657, .4, .159, -.1, -.359, -.6, -.757, -.886 );
+    @cthmax = ( .976, .955, .886, .757, .6, .359, .1, -.159,-.4, -.657, -.846 ); 
+    $bins = 10;
+};
+if ($group eq "cochran_h_pim") {
+    @p = qw( p );  
+    @Tgt = qw( H );
+    @nrg = ( 730 );
+    @dp = qw( pim );
+    @ang = ( 15, 20, 30, 120, 150 );
+    @cthmin = ( .956, .935, .846, -.6, -.886 );
+    @cthmax = ( .976, .955, .886, -.4, -.846 );  
+    $bins = 10;
+};
+if ($group eq "cochran_h_pip") {
+    @p = qw( p );  
+    @Tgt = qw( H );
+    @nrg = ( 730 );
+    @dp = qw( pip );
+    @ang = ( 15, 20, 30, 45, 60, 75, 90, 105, 120, 135, 150 );
+    @cthmin = ( .956, .935, .846, .657, .4, .159, -.1, -.359, -.6, -.757, -.886 );
+    @cthmax = ( .976, .955, .886, .757, .6, .359, .1, -.159,-.4, -.657, -.846 );  
+    $bins = 10;
+};
+if ($group eq "franz") {
+    @p = qw( n );  
+    @Tgt = qw( Cu );
+    @nrg = ( 383, 425, 477, 542, 317.4, 347.7 );
+    @dp = qw( p );
+    @ang = ( 54, 68, 90, 121, 164 );
+    @cthmin = ( .515, .292, -.05, -.588, -.982 );
+    @cthmax = ( .656, .454, .05, -.438, -.934 ); 
+    $bins = 4;
+};
+if ($group eq "hautala") {
+    @p = qw( p );  
+    @Tgt = qw( C Ca );
+    @nrg = ( 197 );
+    @dp = qw( n );
+    @ang = ( 13, 24, 37, 48 );
+    @cthmin = ( .969, .904, .769, .619 );
+    @cthmax = ( .979, .924, .829, .719 ); 
+    $bins = 4;
+};
+if ($group eq "hayashi") {
+    @p = qw( n );  
+    @Tgt = qw( C );
+    @nrg = ( 147 );
+    @dp = qw( p );
+    @ang = ( 20, 40 );
+    @cthmin = ( .913, .719 );
+    @cthmax = ( .961, .809 );  
+    $bins = 4;
+};
+if ($group eq "ingram_114") {
+    @p = qw( pip );  
+    @Tgt = qw( O );
+    @nrg = ( 114 );
+    @dp = qw( pip );
+    @ang = ( 50, 80 );
+    @cthmin = ( .54, .074 );
+    @cthmax = ( .74, .274 );  
+    $bins = 2;
+};
+if ($group eq "ingram_240") {
+    @p = qw( pip );  
+    @Tgt = qw( O );
+    @nrg = ( 240 );
+    @dp = qw( pip );
+    @ang = ( 60, 130 );
+    @cthmin = ( .35, -.79 );
+    @cthmax = ( .65, -.49 ); 
+    $bins = 2;
+};
+if ($group eq "iwamoto_870") {
+    @p = qw( pim pip );  
+    @Tgt = qw( Fe );
+    @nrg = ( 870 );
+    @dp = qw( n );
+    @ang = ( 15, 30, 60, 90, 120, 150 );
+    @cthmin = ( .946, .82, .4, -.1, -.6, -.97 );
+    @cthmax = ( .986, .92, .6, .1, -.4, -.77);  
+    $bins = 2;
+};
+if ($group eq "iwamoto_2100") {
+    @p = qw( pip );  
+    @Tgt = qw( Fe );
+    @nrg = ( 2100 );
+    @dp = qw( n );
+    @ang = ( 15, 30, 60, 90, 120, 150 );
+    @cthmin = ( .946, .82, .4, -.1, -.6, -.97 );
+    @cthmax = ( .986, .92, .6, .1, -.4, -.77); 
+    $bins = 2;
+};
+if ($group eq "kin_300") {
+    @p = qw( p );  
+    @Tgt = qw( C );
+    @nrg = ( 300 );
+    @dp = qw( p );
+    @ang = ( 20, 30, 40, 50, 60, 75, 90, 105 );
+    @cthmin = ( .921, .839, .731, .602, .454, .208, -.052, -.309 );
+    @cthmax = ( .956, .891, .799, .682, .545, .309, .052, -.208 );  
+    $bins = 4;
+};
+if ($group eq "kin_392") {
+    @p = qw( p );  
+    @Tgt = qw( C );
+    @nrg = ( 392 );
+    @dp = qw( p );
+    @ang = ( 20, 25, 40, 50, 75, 90, 105 );
+    @cthmin = ( .921, .839, .731, .602, .454, .208, -.052, -.309 );
+    @cthmax = ( .956, .891, .799, .682, .545, .309, .052, -.208 ); 
+    $bins = 4;
+};
+if ($group eq "levenson_1") {
+    @p = qw( pip );  
+    @Tgt = qw( C );
+    @nrg = ( 100 );
+    @dp = qw( pip );
+    @ang = ( 30, 50, 70, 90, 110, 130, 146 );
+    @cthmin = ( .788, .530, .208, -.139, -.469, -.743, -.899);
+    @cthmax = ( .927, .743, .469, .139, -.208, -.530, -.743);  
+    $bins = 4;
+};
+if ($group eq "levenson_2") {
+    @p = qw( pip );  
+    @Tgt = qw( C Ni );
+    @nrg = ( 160 );
+    @dp = qw( pip );
+    @ang = ( 30, 50, 70, 90, 110, 130, 146 );
+    @cthmin = ( .788, .530, .208, -.139, -.469, -.743, -.899);
+    @cthmax = ( .927, .743, .469, .139, -.208, -.530, -.743);  
+    $bins = 4;
+};
+if ($group eq "levenson_3") {
+    @p = qw( pip );  
+    @Tgt = qw( C Ni Pb );
+    @nrg = ( 220 );
+    @dp = qw( pip );
+    @ang = ( 30, 50, 70, 90, 110, 130, 146 );
+    @cthmin = ( .788, .530, .208, -.139, -.469, -.743, -.899);
+    @cthmax = ( .927, .743, .469, .139, -.208, -.530, -.743);  
+    $bins = 4;
+};
+if ($group eq "levenson_4") {
+    @p = qw( pip );  
+    @Tgt = qw( C );
+    @nrg = ( 300 );
+    @dp = qw( pip );
+    @ang = ( 30, 60, 90, 120 );
+    @cthmin = ( .788, .375, -.139, -.616 );
+    @cthmax = ( .927, .616, .139, -.375 );  
+    $bins = 4;
+};
+if ($group eq "levenson_5") {
+    @p = qw( pip );  
+    @Tgt = qw( Ni Pb );
+    @nrg = ( 100 );
+    @dp = qw( pip );
+    @ang = ( 50, 70, 90, 110, 130, 146 );
+    @cthmin = ( .530, .208, -.139, -.469, -.743, -.899);
+    @cthmax = ( .743, .469, .139, -.208, -.530, -.743);  
+    $bins = 4;
+};
+if ($group eq "levenson_6") {
+    @p = qw( pip );  
+    @Tgt = qw( Pb );
+    @nrg = ( 160 );
+    @dp = qw( pip );
+    @ang = ( 50, 70, 90, 110, 130, 146 );
+    @cthmin = ( .530, .208, -.139, -.469, -.743, -.899);
+    @cthmax = ( .743, .469, .139, -.208, -.530, -.743);  
+    $bins = 4;
+};
+if ($group eq "levenson_7") {
+    @p = qw( pip );  
+    @Tgt = qw( He );
+    @nrg = ( 100, 160, 220 );
+    @dp = qw( pip );
+    @ang = ( 30, 60, 90, 120, 146 );
+    @cthmin = (.788, .375, -.139, -.616, -.899 );
+    @cthmax = (.927, .616, .139, -.375, -.743 ); 
+    $bins = 4;
+};
+if ($group eq "mcgill") {
+    @p = qw( p );  
+    @Tgt = qw( C Ca );
+    @nrg = ( 800 );
+    @dp = qw( p );
+    @ang = ( 5, 11, 15, 20, 30 );
+    @cthmin = ( .991, .9766, .946, .92, .82 );
+    @cthmax = ( .999, .9866, .986, .96, .92 );  
+    $bins = 2;
+};
+if ($group eq "mckeown") {
+    @p = qw( pim pip );  
+    @Tgt = qw( Al Be C Li Ni Ta );
+    @nrg = ( 100, 160, 220 );
+    @dp = qw( p );
+    @ang = ( 30, 45, 90, 120, 150 );
+    @cthmin = ( .806, .647, -.060, -.560, -.926 );
+    @cthmax = ( .926, .767, .060, -.440, -.806);  
+    $bins = 4;
+};
+if ($group eq "meier") {
+    @p = qw( p );  
+    @Tgt = qw( C Fe O Pb );
+    @nrg = ( 113 );
+    @dp = qw( n );
+    @ang = ( 7.5, 30, 60, 150 );
+    @cthmin = ( .986, .82, .4, -.97 );
+    @cthmax = ( .996, .92, .6, -.77 );  
+    $bins = 4;
+};
+if ($group eq "meier_al") {
+    @p = qw( p );  
+    @Tgt = qw( Al );
+    @nrg = ( 256 );
+    @dp = qw( n );
+    @ang = ( 7.5, 30, 60, 150 );
+    @cthmin = ( .986, .82, .4, -.97 );
+    @cthmax = ( .996, .92, .6, -.77 );  
+    $bins = 4;
+};
+if ($group eq "otsu_392") {
+    @p = qw( p );  
+    @Tgt = qw( C );
+    @nrg = ( 392 );
+    @dp = qw( n );
+    @ang = ( 12, 16, 20, 24, 28 );
+    @cthmin = ( .976, .957, .934, .902, .871 );
+    @cthmax = ( .98, .965, .946, .922, .894 ); 
+    $bins = 4;
+};
+if ($group eq "otsu_400") {
+    @p = qw( p );  
+    @Tgt = qw( C );
+    @nrg = ( 400 );
+    @dp = qw( p );
+    @ang = ( 12, 16, 20, 24, 28 );
+    @cthmin = ( .976, .957, .934, .902, .871 );
+    @cthmax = ( .98, .965, .946, .922, .894 ); 
+    $bins = 4;
+};
+if ($group eq "ouyang") {
+    @p = qw( pim );  
+    @Tgt = qw( C Bi );
+    @nrg = ( 500 );
+    @dp = qw( pi0 );
+    @ang = ( 30 );
+    @cthmin = ( .816 );
+    @cthmax = ( .916 );  
+    $bins = 4;
+};
+if ($group eq "roy") {
+    @p = qw( p );  
+    @Tgt = qw( He Ni );
+    @nrg = ( 500 );
+    @dp = qw( p );
+    @ang = ( 65, 90, 120, 160 );
+    @cthmin = ( .342, -.087, -.574, -.966 );
+    @cthmax = ( .5, .087, -.423, -.906 ); 
+    $bins = 4;
+};
+if ($group eq "roy_ta") {
+    @p = qw( p );  
+    @Tgt = qw( Ta );
+    @nrg = ( 500 );
+    @dp = qw( p );
+    @ang = ( 90, 120, 160 );
+    @cthmin = ( .342, -.087, -.574, -.966 );
+    @cthmax = ( .5, .087, -.423, -.906 ); 
+    $bins = 4;
+};
+if ($group eq "segel") {
+    @p = qw( p );  
+    @Tgt = qw( C );
+    @nrg = ( 155 );
+    @dp = qw( p );
+    @ang = ( 8.3, 11, 13.8, 16.5, 19.2, 22, 24.7, 27.4, 30.2, 32.4, 35.6, 38.3, 41, 43.7, 46.4, 49.1, 51.8, 54.4 );
+    @cthmin = ( .987, .979, .966, .954, .94, .917, .899, .878, .854, .834, .798, .770, .740, .708, .675, .64, .603, .562 );
+    @cthmax = ( .992, .984, .976, .964, .95, .937, .919, .898, .874, .854, .828, .8, .77, .738, .705, .670, .633, .602 );  
+    $bins = 4;
+};
+if ($group eq "slypen_c") {
+    @p = qw( n );  
+    @Tgt = qw( C );
+    @nrg = ( 26.5, 50, 72.8 );
+    @dp = qw( p );
+    @ang = ( 2.5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 177.5 );
+    @cthmin = ( .996, .974, .906, .819, .707, .574, .423, .259, .087, -.087, -.259, -.423, -.574, -.707, -.819, -.906, -.974, -.996, -1 );
+    @cthmax = ( 1, .993, .966, .906, .819, .707, .574, .423, .259, .087, -.087, -.259, -.423, -.574, -.707, -.819, -.906, -.97, -.996 ); 
+    $bins = 4;
+};
+if ($group eq "slypen_c_62.7") {
+    @p = qw( n );  
+    @Tgt = qw( C );
+    @nrg = ( 62.7 );
+    @dp = qw( p );
+    @ang = ( 20, 40, 60, 130 );
+    @cthmin = ( .906, .707, .423, -.707 );
+    @cthmax = ( .966, .819, 974, -.574 );  
+    $bins = 4;
+};
+if ($group eq "slypen_fe") {
+    @p = qw( n );  
+    @Tgt = qw( Fe );
+    @nrg = ( 25.5, 49, 62.7 );
+    @dp = qw( p );
+    @ang = ( 2.5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 177.5 );
+    @cthmin = ( .996, .974, .906, .819, .707, .574, .423, .259, .087, -.087, -.259, -.423, -.574, -.707, -.819, -.906, -.974, -.996, -1 );
+    @cthmax = ( 1, .993, .966, .906, .819, .707, .574, .423, .259, .087, -.087, -.259, -.423, -.574, -.707, -.819, -.906, -.97, -.996 ); 
+    $bins = 4;
+};
+if ($group eq "stamer") {
+    @p = qw( p );  
+    @Tgt = qw( Al Pb Zr );
+    @nrg = ( 256, 800 );
+    @dp = qw( n );
+    @ang = ( 7.5, 30, 60, 120, 150 );
+    @cthmin = ( .98, .82, .45, -.55 , -.92 );
+    @cthmax = ( 1, .92, .55, -.45, -.82 ); 
+    $bins = 2;
+};
+if ($group eq "tippawan") {
+    @p = qw( n );  
+    @Tgt = qw( C );
+    @nrg = ( 95.6 );
+    @dp = qw( p );
+    @ang = ( 20, 40, 60, 80, 100, 120, 140 );
+    @cthmin = ( .9205, .8387, .4226, .1045, -.2419, -.588, -.8192 );
+    @cthmax = (  .9563, .8988, .5736, .2419, -.1045, -.438, -.7077 ); 
+    $bins = 4;
+};
+if ($group eq "tyren") {
+    @p = qw( p );  
+    @Tgt = qw( C );
+    @nrg = ( 185 );
+    @dp = qw( p );
+    @ang = ( 3.2 );
+    @cthmin = ( .996 );
+    @cthmax = ( 1 );  
+    $bins = 4;
+};
+if ($group eq "zumbro") {
+    @p = qw( pip );  
+    @Tgt = qw( C );
+    @nrg = ( 500 );
+    @dp = qw( pip );
+    @ang = ( 30, 50 );
+    @cthmin = ( .82, .59 );
+    @cthmax = ( .92, .69 ); 
+    $bins = 4;
+};
+
+foreach $tgt (@Tgt) {
+    foreach $probe (@p) {
+	foreach $det (@dp) {
+	    foreach $energy (@nrg) {
+		set_particles();
+		set_file_names();
+		make_format_file();
+		make_png_files();
+	    };
+	};
+    };
+};
+};
+};
+
+###############################################################################################################################################################
+###############################################################################################################################################################
+
+### CROSS SECTION ROUTINE ###
+
+if ($type eq 'xsec') {
+
+(@authors) ? ($defaults = 'no') : ($defaults = 'yes');  ## use defaults if user did not define authors
+if ($defaults eq 'yes') {
+    if ($probe eq 'p') {
+	if ($tgt eq 'c') {@authors = qw(mcgill auce dicello dietrich menet)};
+	if ($tgt eq 'pb') {@authors = qw(auce dietrich kirkby menet renberg)};
+	if ($tgt eq 'ca') {@authors = qw(auce)};
+	if ($tgt eq 'fe') {@authors = qw(bauhof menet renberg)};
+	if ($tgt eq 'cu') {@authors = qw(dietrich)};
+	if ($tgt eq 'ni') {@authors = qw(auce menet)};
+    };
+    if ($probe eq 'n') {
+	if ($tgt eq 'cu') {@authors = qw(voss)};
+	if ($tgt eq 'c') {
+	    if ($subtype eq 'total') {@authors = qw(abfalterer mislivec)};
+	    if ($subtype eq 'reac') {@authors = qw(ibaraki mislivec schimmerling voss zanelli)};
+	};
+	if ($tgt eq 'fe') {
+	    if ($subtype eq 'total') {@authors = qw(abfalterer)};
+	    if ($subtype eq 'reac') {@authors = qw(ibaraki schimmerling zanelli)};
+	};
+	if ($tgt eq 'pb') {
+	    if ($subtype eq 'total') {@authors = qw(abfalterer)};
+	    if ($subtype eq 'reac') {@authors = qw(schimmerling voss)};   
+	};
+    };
+    if ($probe eq 'pip') {
+	if ($tgt eq 'al') {
+	    if ($subtype eq 'reac') {
+		@authors = qw(allardyce);
+	    } else {@authors = qw(ashery)};
+	};
+	if ($tgt eq 'bi') {@authors = qw(ashery)};
+	if ($tgt eq 'c') {
+	    if ($subtype eq 'total') {
+		@authors = qw(ashery clough saunders wilkin);
+	    } elsif ($subtype eq 'reac') {
+		@authors = qw(allardyce meirav saunders);
+	    } else {@authors = qw(ashery)};
+	};
+	if ($tgt eq 'fe') {@authors = qw(ashery)};
+	if ($tgt eq 'li') {
+	    if ($subtype eq 'total') {
+		@authors = qw(ashery clough);
+	    } else {@authors = qw(ashery)};
+	};
+	if ($tgt eq 'nb') {@authors = qw(ashery)};
+	if ($tgt eq 'ca') {@authors = qw(allardyce meirav)};
+	if ($tgt eq 'ni' || $tgt eq 'pb' || $tgt eq 'sn') {@authors = qw(allardyce)};
+	if ($tgt eq 'be' || $tgt eq 'li6') {@authors = qw(clough)};
+	if ($tgt eq 'o') {
+	    if ($subtype eq 'total') {
+		@authors = qw(clough);
+	    } elsif ($subtype eq 'reac') {
+		@authors = qw(meirav);
+	    }
+	};
+	if ($tgt eq 'zr') {@authors = qw(meirav)};
+    };
+    if ($probe eq 'pim') {
+	if ($tgt eq 'al') {
+	    if ($subtype eq 'reac') {
+		@authors = qw(allardyce);
+	    } else {@authors = qw(ashery)};
+	};
+	if ($tgt eq 'bi' || $tgt eq 'fe' || $tgt eq 'nb') {@authors = qw(ashery)};
+	if ($tgt eq 'c') {
+	    if ($subtype eq 'total') {
+		@authors = qw(ashery clough gelderloos wilkin);
+	    } elsif ($subtype eq 'reac') {
+		@authors = qw(allardyce gelerloos meirav);
+	    } else {@authors = qw(ashery)};
+	};
+	if ($tgt eq 'li') {
+	    if ($subtype eq 'total') {
+		@authors = qw(ashery clough);
+	    } else {@authors = qw(ashery)};
+	};
+	if ($tgt eq 'ca') {@authors = qw(allardyce meirav)};
+	if ($tgt eq 'ni' || $tgt eq 'sn') {@authors = qw(allardyce)};
+	if ($tgt eq 'pb') {
+	    if ($subtype eq 'reac') {@authors = qw(allardyce gelderloos)};
+	    if ($subtype eq 'total') {@authors = qw(gelderloos)};
+	};
+	if ($tgt eq 'be' || $tgt eq 'li6') {@authors = qw(clough)};
+	if ($tgt eq 'o') {
+	    if ($subtype eq 'total') {@authors = qw(clough)};
+	    if ($subtype eq 'reac') {@authors = qw(meirav)};
+	};
+	if ($tgt eq 'cu') {@authors = qw(gelderloos)};
+	if ($tgt eq 'zr') {@authors = qw(meirav)};
+    };
+    if ($probe eq 'km') {@authors = qw(bugg)};
+    if ($probe eq 'kp') {
+	if ($tgt eq 'c') {
+	    if ($subtype eq 'total') {@authors = qw(bugg friedman)};
+	    if ($subtype eq 'reac') {@authors = qw(friedman)};
+	};
+	if ($tgt eq 'ca') {
+	    if ($subtype eq 'reac') {@authors = qw(friedman)};
+	    if ($subtype eq 'total') {@authors = qw(friedman krauss)};
+	};
+	if ($tgt eq 'si') {@authors = qw(friedman)};
+	if ($tgt eq 'd') {
+	    if ($subtype eq 'reac') {@authors = qw(friedman)};
+	    if ($subtype eq 'total') {@authors = qw(friedman krauss)};
+	};
+    };
+};
+
+set_particles();
+set_file_names();
+make_format_file();
+make_png_files();
+};
+
+
+
+###############################################################################################################################################################
+###############################################################################################################################################################
+
+		
+
+
+### SUBROUTINES ###
+
+## Subroutine to check that input is valid ##
+
+sub check_input {
+    if ($type eq 'xsec') {
+	error_exit("type of cross section") unless defined $st;
+	error_exit("horizontal max") unless defined $hmax;
+	error_exit("vertical max") unless defined $vmax;
+    };
+    if ($type eq 'ang' || $type eq 'nrg') {error_exit("author") unless defined $author};
+    %author_hash = ( 
+        'amian' => '1', 'baker' => '1', 'beck' => '1', 'bertrand' => '1', 'carman' => '1', 'chen' => '1', 'cochran' => '2',
+        'franz' => '1', 'hautala' => '2', 'hayashi' => '1', 'ingram' => '2', 'iwamoto' => '1', 'kin' => '1', 'levenson' => '2',
+        'mcgill' => '1', 'mckeown' => '2', 'meier' => '1', 'otsu' => '1', 'ouyang' => '1', 'roy' => '1', 'segel' => '1', 
+        'slypen' => '1', 'stamer' => '1', 'tippawan' => '1', 'tyren' => '1', 'zumbro' => '1'
+    );
+    $valid_author = $author_hash {$author};
+    if ($type eq 'ang' && $valid_author ne '2') {error_exit("author")};
+    if ($type eq 'nrg' && $valid_author ne '1' && $valid_author ne '2') {error_exit("author")};
+    error_exit("date of root file") unless defined $dorf[0];
+    %author_hash_2 = (
+        'abfalterer' => '3', 'ashery' => '3', 'auce' => '3', 'bauhof' => '3', 'dicello' => '3', 'dietrich' => '3', 'ibaraki' => '3', 'kirkby' => '3', 'mcgill' => '3', 'menet' => '3', 'mislivec' => '3', 'renberg' => '3',
+	'schimmerling' => '3', 'voss' => '3', 'zanelli' => '3', 'bugg' => '3', 'friedman' => '3', 'krauss' => '3', 'allardyce' => '3', 'clough' => '3', 'gelderloos' => '3', 'meirav' => '3', 'saunders' => '3', 'wilkin' => '3'
+    );
+    $valid_author_2 = $author_hash_2 {$author};
+    if ($type eq 'xsec' && $authors[0] && $valid_author_2 ne '3') {error_exit("author")};
+    if ($type ne 'ang' && $type ne 'nrg' && $type ne 'xsec') {error_exit("type")};
+};
+
+## Subroutine to set defaults ##
+
+sub set_defaults {
+    if ($st) {$st = lc($st)};
+    %st_hash = ('r' => 'reac', 'reac' => 'reac', 'reaction' => 'reac', 'rxn' => 'reac', 't' => 'total', 'tot' => 'total', 'total' => 'total', 'cex' => 'cex', 'elas' => 'elas', 'el' => 'elas', 'inel' => 'inelas', 'inelas' => 'inelas', 
+		'abs' => 'abs', 'ko' => 'ko', 'knockout' => 'ko', 'k-o' => 'ko', 'pipro' => 'pipro'); 
+    $subtype = $st_hash{$st};
+    %sbtp_hash = ('reac' => 'reac', 'total' => 'total', 'cex' => 'cex', 'elas' => 'el', 'inelas' => 'inel', 'abs' => 'abs', 'ko' => 'ko', 'pipro' => 'pipro');
+    $sbtp = $sbtp_hash{$subtype};
+    if ($tgt) {$tgt = lc($tgt)}; if ($probe) {$probe = lc($probe)};
+    if ($dorf[0]) {$dorf[0] = ucfirst(lc($dorf[0]))};
+    if ($dorf[1]) {$dorf[1] = ucfirst(lc($dorf[1]))};
+    if ($dorf[2]) {$dorf[2] = ucfirst(lc($dorf[2]))};
+    $author = lc($author); $Author = ucfirst($author);
+    $png = lc($png); $remove = lc($remove);
+    if ($datadir) {$datadir =~ s|/$||};     ## if datadir is defined, remove any trailing slash
+    if ($rootdir) {$rootdir =~ s|/$||};     ## if rootdir is defined, remove any trailing slash
+    if ($pngdir) {$pngdir =~ s|/$||};       ## if pngdir is defined, remove any trailing slash
+    @mdl = qw( ha hn )  unless defined @mdl;  ## assume both hA and hN models if user does not specify
+    @vsn = ( 280 )      unless defined @vsn;  ## assume GENIE version 2.8.0 if user does not specify
+    if ($vsn[0] == 266 || $vsn[1] == 266 || $vsn[2] == 266) {@mdl = qw( hA )};  ## eliminate hN if using v2.6.6
+    if (($vsn[1]) && ($dorf[1] eq '')) {$dorf[1] = $dorf[0]};  ## assume date of second group of root files is same as first if user does not specify
+    if (($vsn[2]) && ($dorf[2] eq '')) {$dorf[2] = $dorf[0]};  ## assume date of third group of root files is same as first if user does not specify
+    $datadir = "." unless defined $datadir;            ## default directory to find data files is present working directory
+    $rootdir = "." unless defined $rootdir;            ## default directory to find root files is pwd
+    $pngdir = "png_files" unless defined $pngdir;      ## default directory to put png files is png_files directory within pwd
+};
+
+## Subroutine to set detected particles ##
+
+sub set_particles {
+    %dp_hash = ('pip' => '211', 'pim' => '-211', 'pi0' => '111', 'p' => '2212', 'n' => '2112', 'kp' => '321', 'km' => '-321', 'k0' => '311', 'ak0' => '-311', 'mup' => '-13', 'mum' => '13');
+    $dppdg = $dp_hash{$det};  ## detected particle pdg code
+    %particle_hash = ('pip' => '#pi+', 'pim' => '#pi-', 'pi0' => '#pi0', 'p' => 'p', 'n' => 'n', 'kp' => 'k+', 'km' => 'k-', 'k0' => 'k0', 'ak0' => 'anti-k0', 'mup' => '#mu+', 'mum' => '#mu-');
+    $detected = $particle_hash{$det};  ## detected particle as written in title
+    $prbpart = $particle_hash{$probe};  ## probe particle as written in title
+    %dpm_hash = ('pip' => '.1396', 'pim' => '.1396', 'pi0' => '.1350', 'p' => '.9383', 'n' => '.9396', 'kp' => '.4937', 'km' => '.4937', 'k0' => '.4976', 'ak0' => '.4976', 'mup' => '.1057', 'mum' => '.1057');
+    $dpm = $dpm_hash{$det};  ## detected particle mass in GeV/c^2
+};
+
+## Subroutine to set names of files ##
+
+sub set_file_names {
+    $tgt = lc($tgt); $Tgt = ucfirst($tgt);
+    $vname1 = "-$vsn[0]";
+    ($vsn[1]) ? ($vname2 = "vs$vsn[1]") : ($vname2 = "");
+    ($vsn[2]) ? ($vname3 = "vs$vsn[2]") : ($vname3 = "");
+    $mdl[0] = lc($mdl[0]);
+    if ($mdl[1]) {$mdl[1] = lc($mdl[1])};
+    if ($type eq 'ang') {$formatfilename = "fg-$author-$probe-$tgt-$det$vname1$vname2$vname3-$mdl[0]$mdl[1]"; $datafile = "$author-$probe-$tgt-$energy-$det-angdist.dat"};
+    if ($type eq 'nrg') {$formatfilename = "fg-$author-$probe-$tgt-$energy-$det$vname1$vname2$vname3-$mdl[0]$mdl[1]"; $datafile = "$author-$probe-$tgt-$energy-$det-$angle.dat"};
+    if ($type eq 'xsec') {$formatfilename = "fg-$probe-$tgt-$subtype$vname1$vname2$vname3-$mdl[0]$mdl[1]"; $datafile = "$author-$probe-$tgt-$subtype.dat"};
+    %iso_hash = ('h' => 'h1', 'd' => 'h2', 'he' => 'he4', 'li' => 'li7', 'li6' => 'li6', 'be' => 'be9', 'b' => 'b11', 'c' => 'c12', 'n' => 'n14', 'o' => 'o16', 'al' => 'al27', 'ca' => 'ca40','fe' => 'fe56', 
+                 'co' => 'co59', 'ni' => 'ni58', 'cu' => 'cu63', 'zr' => 'zr90', 'nb' => 'nb93', 'sn' => 'sn120', 'ta' => 'ta181', 'pb' => 'pb208', 'bi' => 'bi209');
+    $isotope = $iso_hash{$tgt};
+    $datafilename = "$datadir/$datafile";
+    $dataerror = 0 unless defined $dataerror; $rooterror = 0 unless defined $rooterror; 
+    if (!-e $datafilename) {$dataerror++};
+};
+
+## Subroutine to set name of root file ##
+
+sub set_root_file_name {
+    %date_hash = ("$vsn[0]" => "$dorf[0]", "$vsn[1]" => "$dorf[1]", "$vsn[2]" => "$dorf[2]");
+    $date = $date_hash{$v};
+    %mM_hash = ('ha' => 'hA', 'hn' => 'hN');
+    $mM = $mM_hash{$m};
+    if ($type eq 'ang' || $type eq 'nrg') {$rootfile = "$date\_$probe\_$Tgt\_$energy\_v$v\_$mM.ginuke.root"};
+    if ($type eq 'xsec') {$rootfile = "$date\_$probe\_$Tgt\_totxs_v$v\_$mM.txt"};
+    if ($type ne 'xsec' && $author eq 'ingram') {$rootfile = "$date\_$probe\_H2O_$energy\_v$v\_$mM.ginuke.root"};
+    if ($type eq 'xsec' && $author eq 'ingram') {$rootfile = "$date\_$probe\_H2O_totxs_v$v\_$mM.txt"};
+    $rootfilename = "$rootdir/$rootfile";
+    %version_hash = ('280' => '2.8.0', '271' => '2.7.1', '266' => '2.6.6');
+    $version = $version_hash{$v};
+    if (!-e $rootfilename) {$rooterror++};
+};
+
+## Subroutine to set name of png file ##
+
+sub set_outfile_name {
+    if ($type eq 'ang') {$outfile = "$author-$probe-$tgt-$energy-$det-angdist$vname1$vname2$vname3-$mdl[0]$mdl[1]-$dorf[0]"};
+    if ($type eq 'nrg') {$outfile = "$author-$probe-$tgt-$energy-$det-$angle$vname1$vname2$vname3-$mdl[0]$mdl[1]-$dorf[0]"};
+    if ($type eq 'xsec') {$outfile = "$probe-$tgt-$subtype$vname1$vname2$vname3-$mdl[0]$mdl[1]-$dorf[0]"};
+};
+
+## Subroutine to make format file ##
+
+sub make_format_file {
+    clear_values();
+
+    if ($type eq 'ang') {
+	if (-e $formatfilename) {unlink("$formatfilename")};
+	open (File, ">> $formatfilename");
+	foreach $energy (@nrg) {
+	    print File "[RECORD]\n";
+	    set_file_names();
+	    set_domain_and_range();
+	    print File " -1.,1.,0,$max_vert\n";
+	    print File " Angle\n";
+	    print File " $prbpart $Tgt #rightarrow $detected X T$prbpart = $energy MeV\n";
+	    set_outfile_name();
+	    print File " $outfile\n";
+	    print File " $bins\n";
+	    print File "[EXPERIMENTAL]\n";
+	    print File " $datafile\n";
+	    print File " xsec:TMath::Cos(cth*.01745):err1\n";
+	    print File " $energy MeV $Author $Tgt Data (ang dist)\n";
+	    foreach $v (@vsn) {
+		foreach $m (@mdl) {
+		    set_root_file_name();
+		    ## check_for_files();
+		    print File "[GENIE]\n";
+		    print File " $rootfile\n";
+		    print File " cth\n";
+		    print File " pdgh==$dppdg";
+		    if ($author eq 'mckeown' && $Tgt ne 'He') {print File "&&ph>=.27688";}
+		    if ($author eq 'mckeown' && $Tgt eq 'He') {print File "&&ph>=.36913";}
+		    print File "\n 1\n";
+		    %mM_hash = ('ha' => 'hA', 'hn' => 'hN'); $mM = $mM_hash{$m};
+		    print File " GENIE $version $mM results\n";
+		};
+	    };
+	    print File "\n\n";
+	};
+	close (File);
+    };
+
+
+    if ($type eq 'nrg') {
+	if (-e $formatfilename) {unlink("$formatfilename")};
+	open (File, ">> $formatfilename");
+	$i = 0;
+	foreach $angle (@ang) {
+	    print File "[RECORD]\n";
+	    set_file_names();
+	    set_domain_and_range();
+	    print File " $domain,$range\n";
+	    print File " Energy\n";
+	    print File " $prbpart $Tgt #rightarrow $detected X T$prbpart = $energy MeV\n";
+	    set_outfile_name();
+	    print File " $outfile\n";
+	    print File " $bins\n";
+	    print File "[EXPERIMENTAL]\n";
+	    print File " $datafile\n";
+	    print File " xsec:E:err1\n";
+	    print File " $energy MeV $Author $Tgt Data ($angle deg)\n";
+	    foreach $v (@vsn) {
+		foreach $m (@mdl) {
+		    set_root_file_name();
+		    ## check_for_files();
+		    print File "[GENIE]\n";
+		    print File " $rootfile\n";
+		    print File " (Eh-$dpm)*1000\n";
+		    print File " pdgh==$dppdg&&cth>=$cthmin[$i]&&cth<=$cthmax[$i]&&probe_fsi>1\n";
+		    $diff = sprintf('%.4f', ($cthmax[$i] - $cthmin[$i]));
+		    print File " $diff\n";
+		    %mM_hash = ('ha' => 'hA', 'hn' => 'hN'); $mM = $mM_hash{$m};
+		    print File " GENIE $version $mM results\n";
+		};
+	    };
+	    print File "\n\n";
+	    $i++;
+	};
+	close (File);
+    };
+
+    if ($type eq 'xsec') {
+	if (-e $formatfilename) {unlink("$formatfilename")};
+	open (File, ">> $formatfilename");
+	$i = 0;
+	print File "[RECORD]\n";
+	print File " 0,$hmax,0,$vmax\n";
+	print File " XS\n";
+	print File " $prbpart $Tgt - #sigma $subtype\n";
+	set_outfile_name();
+	print File " $outfile\n";
+	print File " 1\n";
+	foreach $author (@authors) {
+	    set_file_names();
+	    if (-e $datafilename) {
+		print File "[EXPERIMENTAL]\n";
+		print File " $datafile\n";
+		print File " E:$isotope\x{006e}xs:s$isotope\x{006e}xs\n";
+		$Author = ucfirst($author);
+		print File " $Author Data\n";
+		print File " E:$isotope\x{006e}xs:s$isotope\x{006e}xs/1000.:s$isotope\x{006e}xs\n";
+	    };
+	};
+	foreach $v (@vsn) {
+	    foreach $m (@mdl) {
+		set_root_file_name();
+		## check_for_files(); ##############################################################
+		print File "[GENIE]\n";
+		print File " $rootfile\n";
+		print File " E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:pipro:spipro:dcex:sdcex:reac:sreac:total:stotal\n";
+		print File " $sbtp:E*1000\n";
+		print File " 1\n";
+		%mM_hash = ('ha' => 'hA', 'hn' => 'hN'); $mM = $mM_hash{$m};
+		print File " GENIE $version $mM results\n";
+	    };
+	};
+    };
+};
+
+## Subroutine to make png files ##
+
+sub make_png_files {
+    ## if ($type eq 'xsec') {$dataerror = 0; $rooterror = 0};
+    if ($png ne 'off' && $dataerror > 0) {print "**Did not make png file** (Missing $dataerror data files.)\n"};
+    if ($png ne 'off' && $dataerror == 0 && $rooterror > 0) {print "**Did not make png file** (Missing at least one root file.)\n"};
+    if (($png ne 'off') && ($dataerror == 0) && ($rooterror == 0)) {  
+	system ("source /usr/GENIE/setup_genie; root -l '$rootgdir/rootgINukeVal.C(\x{0022}$formatfilename\x{0022},\x{0022}$datadir\x{0022},\x{0022}$rootdir\x{0022},\x{0022}$pngdir\x{0022})'");
+	if ($remove eq 'yes') {unlink ("$formatfilename")};
+    };
+};
+    
+
+## Subroutine to check for files ##
+
+sub check_for_files {
+    $dataerror = 0 unless defined $dataerror; $rooterror = 0 unless defined $rooterror; 
+    if (!-e $datafilename) {print "Before: $dataerror   "; $dataerror++; print "After: $dataerror\n"};
+    if (!-e $rootfilename) {$rooterror++};
+};
+
+## Subroutine to clear values before making new format file ##
+
+sub clear_values {
+    undef $dataerror;
+    undef $rooterror;
+};
+
+## Subroutine to set domain and range ##
+
+sub set_domain_and_range {
+    if (-e $datafilename) {
+	load_datafile();
+	find_max_vert();
+	find_max_horiz();
+	find_min_vert();
+	find_mean_vert();
+	determine_scale();
+	$domain = "0,$max_horiz";
+	$range = "$log$min_vert,$max_vert";
+    } else {
+	print "WARNING: Could not find $datafilename to set plot range!\n";
+    };
+};
+
+## Subroutine to find vertical mean in data file ##
+
+sub find_mean_vert {
+    $mean_vert = do { my $sum; $sum += $_ for @array; $sum / @array };  ## add up all the elements then divide by the number of elements
+    $mean_vert =~ s/\s+$//;  ## put it into a nice format
+};
+
+## Subroutine to find vertical maximum in data file ##
+
+sub find_max_vert {
+    $max_vert = $sorted[0];  ## take the first element in the sorted array
+    $max_vert =~ s/\s+$//;  ## put it into a nice format
+    $max2 = $sorted[1];
+    $max2 =~ s/\s+$//;
+    $max3 = $sorted[2];
+    $max3 =~ s/\s+$//;
+};
+
+## Subroutine to find maximum energy in data file ##
+
+sub find_max_horiz {
+    $max_horiz = 1.1 * $e_sorted[0];  ## set horizontal max to 110% of the maximum energy in the datafile
+    $max_horiz =~ s/\s+$//;
+};
+
+## Subroutine to find vertical minimum in data file ##
+
+sub find_min_vert {
+    @sorted_small_first = sort {$a<=>$b} @array;
+    $min_vert = $sorted_small_first[0];
+    $min_vert =~ s/\s+$//; $min_vert =~ s/\.$//; $min_vert = $min_vert * 1;  ## trim empty space, remove trailing period, standardize format
+    ($min_vert > 0) ? ($min_vert = $min_vert) : ($min_vert = 0);  ## if minimum is negative, regard it as 0
+    $min2 = $sorted_small_first[1];
+    $min2 =~ s/\s+$//; $min2 =~ s/\.$//; $min2 = $min2 * 1;  
+    ($min2 > 0) ? ($min2 = $min2) : ($min2 = 0);  
+    $min3 = $sorted_small_first[2];
+    $min3 =~ s/\s+$//; $min3 =~ s/\.$//; $min3 = $min3 * 1;
+    ($min3 > 0) ? ($min3 = $min3) : ($min3 = 0);
+};
+
+## Subroutine to determine scales ##
+
+sub determine_scale {
+    $scale = ""; $mid = ""; $median = ""; $ah3= ""; $ratio = ""; $elem = ""; ## clear variables from previous iterations 
+    find_mean_vert();  ## find the mean value in the data file
+    $elem = @array;  ## assign the number of data points in the data file to a scalar
+    if ($elem > 6) {  ## if there are greater than 6 data points, continue
+	if ($max_vert > 1.5) {  ## if the max in the data is greater than 1.5, continue
+	    $mid = sprintf("%.0f",.5*$elem);
+	    $median = $array[$mid];  ## find the median in the data
+	    $median =~ s/\s+$//;
+	    $ah3 = ($max_vert+$max2+$max3)/3;  ## declare a scalar (ah3) that represents the average of the highest three values in the data file
+	    ($median == 0) ? ($ratio = 0) : ($ratio = $ah3 / $median);  ## find the ratio of ah3 to the median if the median is nonzero
+	    if ($ratio > 13) {  ## if the ratio is greater than 13, set scale to logarithmic
+	        $scale = "logarithmic";
+	    } else { ($max_vert > 10) ? ($scale = "logarithmic") : ($scale = "linear"); };  ## if the ratio is less than 13 but the max is greater than 10, do logarithmic anyway
+        } else {$scale = "linear"};  ## if the maximum value was less than 1.5 set scale to linear
+    } else { ($max_vert > 10) ? ($scale = "logarithmic") : ($scale = "linear"); };  ## if there were fewer than 7 data points but the max is greater than 10, use logarithmic scale
+    if ($type eq 'ang' || $type eq 'xsec') {$scale = "linear"};
+    if ($scale eq "logarithmic") {
+	$log = "-";  ## include key for logarithmic scale
+	$max_vert = 3 * $max_vert;  ## set maximum to triple the max in the data
+	((.5 * $min_vert) > (.0003 * $max_vert)) ? ($min_vert = .5 * $min_vert) : ($min_vert = .0003 * $max_vert);  ## set minimum to 1/2 the min in the data OR 3/10000ths the maximum, whichever is greater
+    };
+    if ($scale eq "linear") {
+	$log = "";  ## do not include logarithmic key
+	$max_vert = 1.25 * $max_vert;  ## set maximum to 125% the max in the data
+	$min_vert = 0;  ## set minimum to 0
+    };
+};
+
+## Subroutine to load a datafile into an array ##
+
+sub load_datafile {
+    local $, = ' ';
+    local $\ = "\n";
+    open (DATAFILE, "$datafilename");
+    open (ARRAY, "> array");
+    open (ARRAY_energies, "> array_energies");
+    while (<DATAFILE>) {
+	($Fld1,$Fld2,$Fld3) = split(' ', $_, -1);
+	if (!/#/) {
+	    print ARRAY $Fld2;  ## load all of the cross sections (2nd field) into a filehandle
+	    print ARRAY_energies $Fld1;  ## load all of the energies (1st field) into a filehandle
+	};
+    };
+    close(DATAFILE);
+    close(ARRAY);
+    close(ARRAY_energies);
+    open(NEWARRAY, "array");
+    @array = <NEWARRAY>;  ## assign cross sections into an array
+    chomp(@array);
+    @sorted = sort {$b<=>$a} @array;  ## sort array numerically with largest values first
+    close(NEWARRAY);
+    unlink(array);
+    open(NEWARRAY_energies, "array_energies");
+    @e_array = <NEWARRAY_energies>;  ## assign energies into an array
+    chomp(@e_array);
+    @e_sorted = sort {$b<=>$a} @e_array;
+    close(NEWARRAY_energies);
+    unlink(array_energies);
+};
+
+## Subroutine for incorrect usage ##
+
+sub error_exit {
+    print "\nThere was a problem with the command line arguments. (Invalid $_[0].) ";
+    print "Would you like to plot angular distributions, energy distributions, or total cross sections?\nEnter 'ang', 'nrg', or 'xsec': ";
+    $answer = <STDIN>; chomp ($answer); $answer = lc($answer);
+    if ($answer ne 'ang' && $answer ne 'nrg' && $answer ne 'xsec') {$understood = 'no'};
+    while ($understood eq 'no') {
+	print "\nAnswer not recognized. Please enter 'ang' for angular distributions, 'nrg' for energy distributions, or 'xsec' for total cross sections: ";
+	$answer = <STDIN>; chomp ($answer); $answer = lc($answer);
+	if ($answer eq 'ang' || $answer eq 'nrg' || $answer eq 'xsec') {$understood = 'yes'};
+    };
+    %hash = ('ang' => 'angular distributions', 'nrg' => 'energy distributions', 'xsec' => 'total cross sections');
+    $choice = $hash{$answer};
+    print "\nYou chose to get $choice. Here's how to do it:\n";
+    if ($answer eq 'ang' || $answer eq 'nrg') {
+	print "\nTo use, type: perl intranukeplotter.pl --paramater your_input --paramater your_input --paramater your_input\n\n";
+	print "Parameters:\n";
+	if ($answer eq 'ang') {print "**  --type    : select angular distributions by entering 'ang' as the argument\n"};
+	if ($answer eq 'nrg') {print "**  --type    : select energy distributions by entering 'nrg' as the argument\n"};
+	print "**  --a       : specifies author; see below for valid author inputs\n";
+	print "    --v       : specifies GENIE version of root file; use no decimals; assumes 280 if not specified\n";
+	print "    --v2      : if using two root files, specifies GENIE version of second file\n";
+	print "    --v3      : if using three root files, specifies GENIE version of third file\n";
+	print "    --m       : specifies first GENIE model; assumes hA if neither model is specified\n";
+	print "    --m2      : specifies second GENIE model; assumes hN if neither model is specified\n";
+	print "**  --dorf    : specifies date of first root file; must match prefix of the root file\n";
+	print "    --dorf2   : if using two root files, specifies date of second root file; assumes same as first root file if not specified\n";
+	print "    --dorf3   : if using three root files, specifies date of third root file; assumes same as first root file if not specified\n";
+	print "    --datadir : specifies directory of data files to be used; assumes present working directory if not specified\n";
+	print "    --rootdir : specifies directory of root files to be used; assumes present working directory if not specified\n";
+	print "    --pngdir  : specifies destination directory of png files; assumes png_files directory within pwd if not specified\n";
+	print "    --rm      : the remove option; enter 'yes' as argument to discard format files after use; only possible if png files are produced\n";
+	print "    --png     : enter 'off' as argument to turn off png file formation (ie, to only make format files)\n";
+	print "** necessary input\n\n";
+	print "Valid Author Inputs:\n";
+	if ($answer eq 'ang') {print "cochran, hautala, ingram, levenson, mckeown\n"};
+	if ($answer eq 'nrg') {
+	    print "amian, baker, beck, bertrand, carman, chen, cochran, franz, hautala, hayashi, ingram, iwamoto, kin,\n";
+	    print "levenson, mcgill, mckeown, meier, otsu, ouyang, roy, segel, slypen, stamer,tippawan, tyren, zumbro\n"};
+	die("\n");
+    };
+    if ($answer eq 'xsec') {
+	print "\nTo use, type: perl intranukeplotter.pl --paramater your_input --paramater your_input --paramater your_input\n\n";
+	print "Parameters:\n";
+	print "**  --type    : select total cross sections by entering 'xsec' as the argument\n";
+	print "**  --stype   : specifies a sub-type; enter 'cex' for charge exchange, 'reac' for reaction, etc.\n";
+        print "**  --p       : specifies a probe; enter 'p' for proton, 'n' for neutron, 'pip' for positive pion, etc.\n";
+	print "**  --t       : specifies a target; enter 'C' for carbon, 'Ca' for calcium, etc.\n";
+	print "**  --hmax    : horizontal max on the plot, in MeV\n";
+	print "**  --vmax    : vertical max on the plot, in millibarns\n";
+	print "    --a       : specifies a specific author's data to be displayed; if no authors are specified, script will find up to five authors for the given reaction\n";
+	print "    --a2      : specifies a second author's data\n"; 
+        print "    --a3      : specifies a third author's data\n";
+	print "    --a4      : specifies a fourth author's data\n";
+        print "    --a5      : specifies a fifth author's data\n";
+	print "    --v       : specifies GENIE version of root file; use no decimals; assumes 280 if not specified\n";
+	print "    --v2      : if using two root files, specifies GENIE version of second file\n";
+	print "    --v3      : if using three root files, specifies GENIE version of third file\n";
+	print "    --m       : specifies first GENIE model; assumes hA if neither model is specified\n";
+	print "    --m2      : specifies second GENIE model; assumes hN if neither model is specified\n";
+	print "**  --dorf    : specifies date of first root file; must match prefix of the root file\n";
+	print "    --dorf2   : if using two root files, specifies date of second root file; assumes same as first root file if not specified\n";
+	print "    --dorf3   : if using three root files, specifies date of third root file; assumes same as first root file if not specified\n";
+	print "    --datadir : specifies directory of data files to be used; assumes present working directory if not specified\n";
+	print "    --rootdir : specifies directory of root files to be used; assumes present working directory if not specified\n";
+	print "    --pngdir  : specifies destination directory of png files; assumes png_files directory within pwd if not specified\n";
+	print "    --rm      : the remove option; enter 'yes' as argument to discard format files after use; only possible if png files are produced\n";
+	print "    --png     : enter 'off' as argument to turn off png file formation (ie, to only make format files)\n";
+	print "** necessary inputs\n";
+        print "Valid Author Inputs:\n";
+	print " Nucleon - abfalterer, auce, bauhof, dicello, dietrich, ibaraki, kirkby, mcgill, menet, mislivec, renberg, schimmerling, voss, zanelli\n";
+	print " Kaon - bugg, friedman, krauss\n";
+	print " Pion - allardyce, ashery, clough, gelderloos, meirav, saunders, wilkin\n";
+	die("\n");
+    };
+};
+
+
+
+
+
+
+
+########################################
+##                                    ##
+##  Notes for using on other systems  ##
+##                                    ##
+########################################
+
+## Script finds rootgINukeVal_new.C in /data/nick/00-genie-check/
+## Script sets up ROOT with /usr/GENIE/setup_genie
+
+
+#### Notes for for future edits
+
+## Add ability to do fractions of an author's work (specify by probe, target, energy)
+## Edit check_for_files routine for tot_xs
