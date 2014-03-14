@@ -507,7 +507,8 @@ void HAIntranuke::ElasHA(
 void HAIntranuke::InelasticHA(
 	GHepRecord* ev, GHepParticle* p, INukeFateHA_t fate) const
 {
-  // scatters particle within nucleus, hA version
+  // charge exch and inelastic - scatters particle within nucleus, hA version
+  // each are treated as quasielastic, particle scatters off single nucleon
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("HAIntranuke", pDEBUG)
@@ -943,13 +944,16 @@ void HAIntranuke::Inelastic(
 
 	  double c1 = 0.041 + ke * 0.0001525;
 	  double c2 = -0.003444 - ke * 0.00002324;
-	  double c3 = 0.064 - ke * 0.00002993;
+//change last factor from 30 to 15 so that gam_ns always larger than 0
+//add check to be certain
+	  double c3 = 0.064 - ke * 0.000015;  
 	  gam_ns = c1 * TMath::Exp(c2*fRemnA) + c3;
+	  if(gam_ns<0.002) gam_ns = 0.002;
 	  //gam_ns = 10.;
 	  LOG("HAIntranuke", pINFO) << "nucleon absorption";
 	  LOG("HAIntranuke", pINFO) << "--> mean diff distr = " << nd0 << ", stand dev = " << Sig_nd;
-	  LOG("HAIntranuke", pINFO) << "--> mean sum distr = " << ns0 << ", Stand dev = " << Sig_ns;
-	  LOG("HAIntranuke", pINFO) << "--> Gam_ns = " << gam_ns;
+	  //	  LOG("HAIntranuke", pINFO) << "--> mean sum distr = " << ns0 << ", Stand dev = " << Sig_ns;
+	  LOG("HAIntranuke", pINFO) << "--> gam_ns = " << gam_ns;
 	}
       else if ( pdgc==kPdgPiP || pdgc==kPdgPi0 || pdgc==kPdgPiM || pdgc==kPdgKP || pdgc==kPdgKM) //pion or kaon probe
 	{
@@ -978,11 +982,11 @@ void HAIntranuke::Inelastic(
       while (not_done)
 	{
 	  // infinite loop check
-	  if (iter>=10000) {
+	  if (iter>=100) {
 	    LOG("HAIntranuke", pNOTICE) << "Error: could not choose absorption final state";
 	    LOG("HAIntranuke", pNOTICE) << "--> mean diff distr = " << nd0 << ", stand dev = " << Sig_nd;
 	    LOG("HAIntranuke", pNOTICE) << "--> mean sum distr = " << ns0 << ", Stand dev = " << Sig_ns;
-	    LOG("HAIntranuke", pNOTICE) << "--> Gam_ns = " << gam_ns;
+	    LOG("HAIntranuke", pNOTICE) << "--> gam_ns = " << gam_ns;
 	    LOG("HAIntranuke", pNOTICE) << "--> A = " << fRemnA << ", Z = " << fRemnZ << ", Energy = " << ke;
 	    exceptions::INukeException exception;
 	    exception.SetReason("Absorption choice of # of p,n failed");
@@ -1026,7 +1030,7 @@ void HAIntranuke::Inelastic(
 	      while (not_found)
 		{
 		  // infinite loop check
-		  if (iter2>=200)
+		  if (iter2>=100)
 		    {
 		      LOG("HAIntranuke", pNOTICE) << "Error: stuck in random variable loop for ns";
 		      LOG("HAIntranuke", pNOTICE) << "--> mean of sum parent distr = " << ns0 << ", Stand dev = " << Sig_ns;
