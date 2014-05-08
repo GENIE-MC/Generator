@@ -83,6 +83,10 @@ void LoadFilesAndBookPlots(void)
   int nfiles = 0;
 
   // loop over models considered at the current validation test
+  
+  int nMods = gOptGenieInputs.NModels();
+  cout << "Number of Models = " << nMods << endl;
+  
   for(int imodel=0; imodel < gOptGenieInputs.NModels(); imodel++) {
 
     string model_name = gOptGenieInputs.ModelTag(imodel);
@@ -115,6 +119,9 @@ void LoadFilesAndBookPlots(void)
       // store
       gHP.push_back(hadplot);
   }
+  
+  return;
+  
 }
 //____________________________________________________________________________
 void Analyze(void)
@@ -124,6 +131,7 @@ void Analyze(void)
     HadPlots * curr_model = *hpvit;
     curr_model->Analyze();
   }
+  return;
 }
 //____________________________________________________________________________
 void Plot(void)
@@ -188,8 +196,13 @@ void GetCommandLineArgs(int argc, char** argv)
     exit(1);
   }
 
-  LOG("gvldtest", pFATAL) << "Input data: ";  
-  LOG("gvldtest", pFATAL) << gOptGenieInputs;
+  // what the hell is this stuff doing here ???
+  //
+  // LOG("gvldtest", pFATAL) << "Input data: ";  
+  // LOG("gvldtest", pFATAL) << gOptGenieInputs;
+  
+  return;
+  
 }
 //____________________________________________________________________________
 void PrintSyntax(void)
