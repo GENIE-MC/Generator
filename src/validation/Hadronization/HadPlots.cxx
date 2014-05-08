@@ -79,52 +79,26 @@ void HadPlots::BookHists()
       npi0_nneg[j][i] = new TProfile();
       npi0_nneg[j][i]->SetBins(9,-1.5,7.5);
     } 
-    for (int j = 0; j<3; j++){
-      npi0_nch[j][i] = new TProfile();
-      npi0_nch[j][i]->SetBins(19,-1.5,17.5);
-    }
-
-    npi0_nm[i] = new TProfile();
-    npi0_nm[i]->SetBins(7,-1.5,5.5);
-    npi0_nm_lo[i] = new TProfile();
-    npi0_nm_lo[i]->SetBins(7,-1.5,5.5);
-    npi0_nm_hi[i] = new TProfile();
-    npi0_nm_hi[i]->SetBins(7,-1.5,5.5);
     
     xf_pip[i] = new TH1D();
     xf_pim[i] = new TH1D();
     xf_pip[i]->SetBins(40,-1,1);
     xf_pim[i]->SetBins(40,-1,1);
+
     fxf_pip[i] = new TH1D();
     fxf_pim[i] = new TH1D();
     fxf_pip[i]->SetBins(40,-1,1);
     fxf_pim[i]->SetBins(40,-1,1);
 
     Fxf_pos1[i] = new TH1D();
-    Fxf_pro1[i] = new TH1D();
-    Fxf_pos_kno1[i] = new TH1D();
-    Fxf_pos2[i] = new TH1D();
     Fxf_neg1[i] = new TH1D();
-    Fxf_neg_kno1[i] = new TH1D();
-    Fxf_neg2[i] = new TH1D();
     Fxf_pos1[i]->SetBins(40,-1,1);
-    Fxf_pro1[i]->SetBins(40,-1,1);
-    Fxf_pos_kno1[i]->SetBins(40,-1,1);
-    Fxf_pos2[i]->SetBins(40,-1,1);
     Fxf_neg1[i]->SetBins(40,-1,1);
-    Fxf_neg_kno1[i]->SetBins(40,-1,1);
-    Fxf_neg2[i]->SetBins(40,-1,1);
 
     Fxf_pos1_hi[i] = new TH1D();
-    Fxf_pro1_hi[i] = new TH1D();
-    Fxf_pos2_hi[i] = new TH1D();
     Fxf_neg1_hi[i] = new TH1D();
-    Fxf_neg2_hi[i] = new TH1D();
     Fxf_pos1_hi[i]->SetBins(40,-1,1);
-    Fxf_pro1_hi[i]->SetBins(40,-1,1);
-    Fxf_pos2_hi[i]->SetBins(40,-1,1);
     Fxf_neg1_hi[i]->SetBins(40,-1,1);
-    Fxf_neg2_hi[i]->SetBins(40,-1,1);
 
     z_pos[i] = new TH1D();
     z_neg[i] = new TH1D();
@@ -138,33 +112,6 @@ void HadPlots::BookHists()
     z_E2[i]->SetBins(20,0,1);
     z_E3[i]->SetBins(20,0,1);
     
-    z1_pos[i] = new TH1D();
-    z1_pro[i] = new TH1D();
-    z1_neg[i] = new TH1D();
-    z1_pos[i]->SetBins(20,0,1);
-    z1_pro[i]->SetBins(20,0,1);
-    z1_neg[i]->SetBins(20,0,1);
-    z2_pos[i] = new TH1D();
-    z2_pro[i] = new TH1D();
-    z2_neg[i] = new TH1D();
-    z2_pos[i]->SetBins(20,0,1);
-    z2_pro[i]->SetBins(20,0,1);
-    z2_neg[i]->SetBins(20,0,1);
-  
-    pt2_xf1[i] = new TH1D();
-    pt2_xf2[i] = new TH1D();
-    pt2_xf3[i] = new TH1D();
-    pt2_xf4[i] = new TH1D();
-    pt2_xf1[i]->SetBins(24,0,1.2);
-    pt2_xf2[i]->SetBins(24,0,1.2);
-    pt2_xf3[i]->SetBins(24,0,1.2);
-    pt2_xf4[i]->SetBins(24,0,1.2);
-
-    pt2_pip[i] = new TH1D();
-    pt2_pim[i] = new TH1D();
-    pt2_pip[i]->SetBins(24,0,1.2);
-    pt2_pim[i]->SetBins(24,0,1.2);
-
     pt2_W2_F[i] = new TProfile();
     pt2_W2_B[i] = new TProfile();
     pt2_W2_F[i]->SetBins(nw-1,W2bins);
@@ -178,9 +125,7 @@ void HadPlots::BookHists()
     pt_W[i]->SetBins(nw,Wbins);
     
     pt2_xf_loW[i] = new TProfile();
-    pt2_xf_hiW[i] = new TProfile();
     pt2_xf_loW[i]->SetBins(20,-1,1);
-    pt2_xf_hiW[i]->SetBins(20,-1,1);
 
     neta_W[i] = new TProfile();
     neta_W[i] -> SetBins(40,0,10);
@@ -278,7 +223,7 @@ void HadPlots::Analyze()
     double cut5g_nv = 0;
         
     //reweight to nubar spectrum
-    double nubarw_data[10] = {44.5,303.7,458,463.1,446.6,316.3,272.9,169.3,325.3,60.3};
+// -->    double nubarw_data[10] = {44.5,303.7,458,463.1,446.6,316.3,272.9,169.3,325.3,60.3};
     double nubarw_mc[10] = {0.};
 
     for(Long64_t iev = 0; iev < nmax; iev++) {
@@ -477,23 +422,6 @@ void HadPlots::Analyze()
       else if (W>10&&W<=14){
 	npi0_nneg[4][imc]->Fill(nnegative,npi0,weight);
       }	
-
-      if (W<4){
-	npi0_nm_lo[imc]->Fill(nnegative,npi0,weight);
-      }
-      else if (W>4){
-	npi0_nm_hi[imc]->Fill(nnegative,npi0,weight);
-      }
-      
-      if (W<4){
-	npi0_nch[0][imc]->Fill(ncharged,npi0,weight);
-      }
-      else if (W<8){
-	npi0_nch[1][imc]->Fill(ncharged,npi0,weight);
-      }
-      else if (W<15){
-	npi0_nch[2][imc]->Fill(ncharged,npi0,weight);
-      }
       
     }//end of first loop
     
@@ -632,6 +560,7 @@ void HadPlots::Analyze()
       
       double weight = 1.;
       
+
       if (W<2){
 	kno[0][imc]->Fill((ncharged)/nchkno[0],weight);
       }
@@ -671,7 +600,6 @@ void HadPlots::Analyze()
       //bool cut3a = W2<50&&Q2>1&&x<0.95&&El>4;
       //bool cut3b = W2>50&&Q2>1&&x<0.95&&El>4;
       bool cut3c = W2>9&&W2<25&&Q2>1&&x<0.95&&El>4;
-      bool cut3d = W2>40&&Q2>1&&x<0.95&&El>4;
       
       //cuts in Phys.Rev.D19,1 (1979)
       bool cut4 = false;
@@ -698,26 +626,7 @@ void HadPlots::Analyze()
       
       
       //cuts in Phys.Rev.D25,624 (1982)
-      bool cut6 = y>=0.1&&y<0.8;
-      //note: experiment did not correct for proton mis-identification
-      double wei_nubarp = 1.;
-      int ip_nubar = -1;
-      if (W>1.0&&W<=1.5) ip_nubar = 0;
-      else if (W>1.5&&W<=2.0) ip_nubar = 1;
-      else if (W>2.0&&W<=2.5) ip_nubar = 2;
-      else if (W>2.5&&W<=3.0) ip_nubar = 3;
-      else if (W>3.0&&W<=3.5) ip_nubar = 4;
-      else if (W>3.5&&W<=4.0) ip_nubar = 5;
-      else if (W>4.0&&W<=4.5) ip_nubar = 6;
-      else if (W>4.5&&W<=5.0) ip_nubar = 7;
-      else if (W>5.0&&W<=7.5) ip_nubar = 8;
-      else if (W>7.5&&W<=10.0) ip_nubar = 9;
-      if (ip_nubar!=-1&&cut6){
-	if (nubarw_mc[ip_nubar]>0) {
-	  if (neutrino->Pdg()==kPdgAntiNuMu) wei_nubarp = weight*nubarw_data[ip_nubar]/nubarw_mc[ip_nubar];
-	  npi0_nm[imc]->Fill(nnegative,npi0,wei_nubarp);
-	}
-      }
+      // --> deleted as part of general cleanup !!!
       
       //count no. of (weighted) events
       if (cut1) {
@@ -855,12 +764,6 @@ void HadPlots::Analyze()
 	  else {
 	    z_E3[imc]->Fill(z_uncor,weight);
 	  }
-//	  if (pid[ipar]==211||pid[ipar]==2212&&pow(eng[ipar],2)-pow(mass[ipar],2)>1){
-//	    pt2_pip[imc]->Fill(pt*pt,weight);
-//	  }
-//	  if (pid[ipar]==-211){
-//	    pt2_pim[imc]->Fill(pt*pt,weight);
-//	  }
 	}
 	  
 	
@@ -877,16 +780,6 @@ void HadPlots::Analyze()
 
 	if (cut3c&&hadcharge){
 	  pt2_xf_loW[imc]->Fill(xf,pt*pt,weight);
-	}
-	if (cut3d&&hadcharge){
-	  pt2_xf_hiW[imc]->Fill(xf,pt*pt,weight);
-	}
-	  
-	if (hadcharge&&cut4){
-	  if (xf_uncor>0.0&&xf_uncor<.1) pt2_xf1[imc]->Fill(pt*pt,weight);
-	  if (xf_uncor>0.1&&xf_uncor<.3) pt2_xf2[imc]->Fill(pt*pt,weight);
-	  if (xf_uncor>0.3&&xf_uncor<.6) pt2_xf3[imc]->Fill(pt*pt,weight);
-	  if (xf_uncor>0.6&&xf_uncor<1.) pt2_xf4[imc]->Fill(pt*pt,weight);
 	}
 
 	if (cut5){
@@ -907,63 +800,27 @@ void HadPlots::Analyze()
 	    }
 	  }
 	}
-	if (cut5a&&xf_uncor>0){
-	  if (hadcharge>0) {
-	    z1_pos[imc]->Fill(z_uncor,weight);
-	    if (abs(pid[ipar])==2212) z1_pro[imc]->Fill(z_uncor,weight);
-	  }
-	  else if (hadcharge<0){
-	    z1_neg[imc]->Fill(z_uncor,weight);
-	  }
-	}
-	if (cut5b&&xf_uncor>=0){
-	  if (hadcharge>0) {
-	    z2_pos[imc]->Fill(z_uncor,weight);
-	    if (abs(pid[ipar])==2212) z2_pro[imc]->Fill(z_uncor,weight);
-	  }
-	  else if (hadcharge<0){
-	    z2_neg[imc]->Fill(z_uncor,weight);
-	  }
-	}
+
 	if (cut5d){
 	  if (hadcharge>0){
 	    Fxf_pos1[imc]->Fill(xf_uncor,weight*Ecm*2/3.1416/W);
-	    if (abs(pid[ipar])==2212) Fxf_pro1[imc]->Fill(xf_uncor,weight*Ecm*2/3.1416/W);
-	    //if (ihadmod==2) Fxf_pos_kno1[imc]->Fill(xf_uncor,weight*Ecm*2/3.1416/W);
-	    //Fxf_pos1[imc]->Fill(xf,weight);
 	  }
 	  if (hadcharge<0){
 	    //if (pid[ipar]==-211){
 	    Fxf_neg1[imc]->Fill(xf_uncor,weight*Ecm*2/3.1416/W);
-	    //if (ihadmod==2) Fxf_neg_kno1[imc]->Fill(xf_uncor,weight*Ecm*2/3.1416/W);
 	    
 	  }
 	}
-	if (cut5e){
-	  if (hadcharge>0){
-	    Fxf_pos2[imc]->Fill(xf_uncor,weight*Ecm*2/3.1416/W);
-	  }
-	  if (hadcharge<0){
-	    Fxf_neg2[imc]->Fill(xf_uncor,weight*Ecm*2/3.1416/W);
-	  }
-	}
+
 	if (cut5f){
 	  if (hadcharge>0){
 	    Fxf_pos1_hi[imc]->Fill(xf_uncor,weight*Ecm*2/3.1416/W);
-	    if (abs(pid[ipar])==2212) Fxf_pro1_hi[imc]->Fill(xf_uncor,weight*Ecm*2/3.1416/W);
 	  }
 	  if (hadcharge<0){
 	    Fxf_neg1_hi[imc]->Fill(xf_uncor,weight*Ecm*2/3.1416/W);
 	  }
 	}
-	if (cut5g){
-	  if (hadcharge>0){
-	    Fxf_pos2_hi[imc]->Fill(xf_uncor,weight*Ecm*2/3.1416/W);
-	  }
-	  if (hadcharge<0){
-	    Fxf_neg2_hi[imc]->Fill(xf_uncor,weight*Ecm*2/3.1416/W);
-	  }
-	}
+
       }//loop through hadrons
       
       //test lower E 
@@ -1033,61 +890,22 @@ void HadPlots::Analyze()
 		 (z_pos[imc]->GetXaxis()->GetXmax()-z_pos[imc]->GetXaxis()->GetXmin())/cut2_nv);
     z_neg[imc]->Scale(z_neg[imc]->GetNbinsX()/
 		 (z_neg[imc]->GetXaxis()->GetXmax()-z_neg[imc]->GetXaxis()->GetXmin())/cut2_nv);
-    z1_pos[imc]->Scale(z1_pos[imc]->GetNbinsX()/
-		  (z1_pos[imc]->GetXaxis()->GetXmax()-z1_pos[imc]->GetXaxis()->GetXmin())/cut5a_nv);
-    z1_pro[imc]->Scale(z1_pro[imc]->GetNbinsX()/
-		  (z1_pro[imc]->GetXaxis()->GetXmax()-z1_pro[imc]->GetXaxis()->GetXmin())/cut5a_nv);
-    z1_neg[imc]->Scale(z1_neg[imc]->GetNbinsX()/
-		  (z1_neg[imc]->GetXaxis()->GetXmax()-z1_neg[imc]->GetXaxis()->GetXmin())/cut5a_nv);
-    z2_pos[imc]->Scale(z2_pos[imc]->GetNbinsX()/
-		  (z2_pos[imc]->GetXaxis()->GetXmax()-z2_pos[imc]->GetXaxis()->GetXmin())/cut5b_nv);
-    z2_pro[imc]->Scale(z2_pro[imc]->GetNbinsX()/
-		  (z2_pro[imc]->GetXaxis()->GetXmax()-z2_pro[imc]->GetXaxis()->GetXmin())/cut5b_nv);
-    z2_neg[imc]->Scale(z2_neg[imc]->GetNbinsX()/
-		  (z2_neg[imc]->GetXaxis()->GetXmax()-z2_neg[imc]->GetXaxis()->GetXmin())/cut5b_nv);
     
     z_E1[imc]->Scale(20./nv_E[0]);
     z_E2[imc]->Scale(20./nv_E[1]);
     z_E3[imc]->Scale(20./nv_E[2]);
     
-    pt2_pip[imc]->Scale(20./(nv_E[0]+nv_E[1]+nv_E[2]));
-    pt2_pim[imc]->Scale(20./(nv_E[0]+nv_E[1]+nv_E[2]));
-    
-    pt2_xf1[imc]->Scale(pt2_xf1[imc]->GetNbinsX()/
-		   (pt2_xf1[imc]->GetXaxis()->GetXmax()-pt2_xf1[imc]->GetXaxis()->GetXmin())/cut4_nv);
-    pt2_xf2[imc]->Scale(pt2_xf2[imc]->GetNbinsX()/
-		   (pt2_xf2[imc]->GetXaxis()->GetXmax()-pt2_xf2[imc]->GetXaxis()->GetXmin())/cut4_nv);
-    pt2_xf3[imc]->Scale(pt2_xf3[imc]->GetNbinsX()/
-		   (pt2_xf3[imc]->GetXaxis()->GetXmax()-pt2_xf3[imc]->GetXaxis()->GetXmin())/cut4_nv);
-    pt2_xf4[imc]->Scale(pt2_xf4[imc]->GetNbinsX()/
-		   (pt2_xf4[imc]->GetXaxis()->GetXmax()-pt2_xf4[imc]->GetXaxis()->GetXmin())/cut4_nv);
     Fxf_pos1[imc]->Scale(Fxf_pos1[imc]->GetNbinsX()/
 		    (Fxf_pos1[imc]->GetXaxis()->GetXmax()-Fxf_pos1[imc]->GetXaxis()->GetXmin())/cut5d_nv);
-    Fxf_pos_kno1[imc]->Scale(Fxf_pos_kno1[imc]->GetNbinsX()/
-			(Fxf_pos_kno1[imc]->GetXaxis()->GetXmax()-Fxf_pos_kno1[imc]->GetXaxis()->GetXmin())/cut5d_nv);
-    Fxf_pro1[imc]->Scale(Fxf_pro1[imc]->GetNbinsX()/
-		    (Fxf_pro1[imc]->GetXaxis()->GetXmax()-Fxf_pro1[imc]->GetXaxis()->GetXmin())/cut5d_nv);
+
     Fxf_neg1[imc]->Scale(Fxf_neg1[imc]->GetNbinsX()/
 		    (Fxf_neg1[imc]->GetXaxis()->GetXmax()-Fxf_neg1[imc]->GetXaxis()->GetXmin())/cut5d_nv);
-    Fxf_neg_kno1[imc]->Scale(Fxf_neg_kno1[imc]->GetNbinsX()/
-			(Fxf_neg_kno1[imc]->GetXaxis()->GetXmax()-Fxf_neg_kno1[imc]->GetXaxis()->GetXmin())/cut5d_nv);
-    Fxf_pos2[imc]->Scale(Fxf_pos2[imc]->GetNbinsX()/
-		    (Fxf_pos2[imc]->GetXaxis()->GetXmax()-Fxf_pos2[imc]->GetXaxis()->GetXmin())/cut5e_nv);
-    Fxf_neg2[imc]->Scale(Fxf_neg2[imc]->GetNbinsX()/
-		    (Fxf_neg2[imc]->GetXaxis()->GetXmax()-Fxf_neg2[imc]->GetXaxis()->GetXmin())/cut5e_nv);
     Fxf_pos1_hi[imc]->Scale(Fxf_pos1_hi[imc]->GetNbinsX()/
 		       (Fxf_pos1_hi[imc]->GetXaxis()->GetXmax()-Fxf_pos1_hi[imc]->GetXaxis()->GetXmin())/cut5f_nv);
-    Fxf_pro1_hi[imc]->Scale(Fxf_pro1_hi[imc]->GetNbinsX()/
-		       (Fxf_pro1_hi[imc]->GetXaxis()->GetXmax()-Fxf_pro1_hi[imc]->GetXaxis()->GetXmin())/cut5f_nv);
     Fxf_neg1_hi[imc]->Scale(Fxf_neg1_hi[imc]->GetNbinsX()/
 		       (Fxf_neg1_hi[imc]->GetXaxis()->GetXmax()-Fxf_neg1_hi[imc]->GetXaxis()->GetXmin())/cut5f_nv);
-    Fxf_pos2_hi[imc]->Scale(Fxf_pos2_hi[imc]->GetNbinsX()/
-		       (Fxf_pos2_hi[imc]->GetXaxis()->GetXmax()-Fxf_pos2_hi[imc]->GetXaxis()->GetXmin())/cut5g_nv);
-    Fxf_neg2_hi[imc]->Scale(Fxf_neg2_hi[imc]->GetNbinsX()/
-		       (Fxf_neg2_hi[imc]->GetXaxis()->GetXmax()-Fxf_neg2_hi[imc]->GetXaxis()->GetXmin())/cut5g_nv);
     
     nch_w[imc] = new TGraphErrors(nw-1,aW2,nch,gerrx,gerrx);
-    nchpi_w[imc] = new TGraph(nw-1,aW2,nchpi);
     
     D_nneg[imc] = new TGraph(nw-1,nneg,Dneg);
     
@@ -1119,14 +937,6 @@ void HadPlots::Analyze()
 
     nch_w_f[imc]   = new TGraph(nw-1,aW2,nchf);
     nch_w_b[imc]   = new TGraph(nw-1,aW2,nchb);    
-    npos_w_f[imc]  = new TGraph(nw-2,aW,nposf);
-    nneg_w_f[imc]  = new TGraph(nw-2,aW,nnegf);
-    npos_w_b[imc]  = new TGraph(nw-2,aW,nposb);
-    nneg_w_b[imc]  = new TGraph(nw-2,aW,nnegb);    
-    npos_w2_f[imc] = new TGraph(nw-2,aW2,nposf);
-    nneg_w2_f[imc] = new TGraph(nw-2,aW2,nnegf);
-    npos_w2_b[imc] = new TGraph(nw-2,aW2,nposb);
-    nneg_w2_b[imc] = new TGraph(nw-2,aW2,nnegb);
 
   }//loop over all mc files
   

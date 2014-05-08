@@ -47,6 +47,7 @@ public:
   string         modelName;                    ///< name for the current model shown on plot legends
 
   TGraphErrors * nch_w[kMaxFiles];             ///< average charged hadon multiplicity, <nch>, vs W^2 (p. 1, 13)
+
   TGraph *       D_nneg[kMaxFiles];            ///< negative hadron dispersion D- vs average multiplicity <n-> (p. 2, 14)
   TGraph *       D_W2[kMaxFiles];              ///< charged hadron dispersion over average multiplicity, D/<nch>, vs W^2 (p. 2)
   TH1D *         kno[5][kMaxFiles];            ///< KNO distributions (p. 3)
@@ -56,8 +57,10 @@ public:
   TGraph *       pnch_w2[13][kMaxFiles];       ///< normalized topological cross section, for various multiplicities (p. 6, 15)
   TGraph *       nch_w_f[kMaxFiles];           ///< charged hadron multiplicity <nch> vs W^2, xF > 0 (p. 7, 17)
   TGraph *       nch_w_b[kMaxFiles];           ///< charged hadron multiplicity <nch> vs W^2, xF < 0 (p. 7, 17)
+
   TH1D *         xf_pip[kMaxFiles];            ///< xF distribution, pi+ (p. 8)
   TH1D *         xf_pim[kMaxFiles];            ///< xF distribution, pi- (p. 8)
+
   TH1D *         z_pos[kMaxFiles];             ///< z distribution, h+ (p. 9)
   TH1D *         z_neg[kMaxFiles];             ///< z distribution, h- (p. 9)
   TProfile *     pt2_W2_F[kMaxFiles];          ///< <pT^2> vs W2, xF > 0.3 (p. 10)
@@ -78,51 +81,6 @@ public:
   TProfile *     pt_W_B[kMaxFiles];            ///< <pT> vs W, xF < 0 (p. 21)
   TProfile *     pt_W[kMaxFiles];              ///< <pT> vs W, all xF (p. 21)
 
-  //
-  // plots filled, but not shown
-  //
-  TProfile *     pt2_xf_hiW[kMaxFiles];        ///< seagull plot, W^2 > 40 GeV^2 (relevant plot at p. 11)
-  TGraph *       nchpi_w[kMaxFiles];           ///< charged pion multiplicity vs W^2
-  TGraph *       npos_w_f[kMaxFiles];
-  TGraph *       nneg_w_f[kMaxFiles];
-  TGraph *       npos_w_b[kMaxFiles];
-  TGraph *       nneg_w_b[kMaxFiles];
-  TGraph *       npos_w2_f[kMaxFiles];
-  TGraph *       nneg_w2_f[kMaxFiles];
-  TGraph *       npos_w2_b[kMaxFiles];
-  TGraph *       nneg_w2_b[kMaxFiles];
-  TProfile *     npi0_nch[3][kMaxFiles];       ///< npi0 vs nch
-  TProfile *     npi0_nm[kMaxFiles];           ///<
-  TProfile *     npi0_nm_lo[kMaxFiles];        ///<
-  TProfile *     npi0_nm_hi[kMaxFiles];        ///<
-  TH1D *         Fxf_pro1[kMaxFiles];
-  TH1D *         Fxf_pos_kno1[kMaxFiles];
-  TH1D *         Fxf_pos2[kMaxFiles];
-  TH1D *         Fxf_neg_kno1[kMaxFiles];
-  TH1D *         Fxf_neg2[kMaxFiles];
-  TH1D *         Fxf_pro1_hi[kMaxFiles];
-  TH1D *         Fxf_pos2_hi[kMaxFiles];
-  TH1D *         Fxf_neg2_hi[kMaxFiles];  
-  TH1D *         z1_pos[kMaxFiles];    
-  TH1D *         z1_pro[kMaxFiles];
-  TH1D *         z1_neg[kMaxFiles];
-  TH1D *         z2_pos[kMaxFiles];
-  TH1D *         z2_pro[kMaxFiles];
-  TH1D *         z2_neg[kMaxFiles];
-  TH1D *         pt2_xf1[kMaxFiles];  
-  TH1D *         pt2_xf2[kMaxFiles];
-  TH1D *         pt2_xf3[kMaxFiles];
-  TH1D *         pt2_xf4[kMaxFiles];
-  TH1D *         pt2_pip[kMaxFiles];
-  TH1D *         pt2_pim[kMaxFiles];
-
-/*
-  //
-  // unused plots: not filled and not shown
-  //
-  TGraphErrors * nk0_w[kMaxFiles];             ///< neutral kaons vs W^2
-  TGraphErrors * nlam_w[kMaxFiles];            ///< lambdas vs W^2
-*/
 
 private:
 
