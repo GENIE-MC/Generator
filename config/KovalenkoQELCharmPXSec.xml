@@ -5,6 +5,9 @@
 <!--
 Configuration for the Kovalenko QEL charm production cross section algorithm.
 
+  July 2, 2014 (HG):  Modified from GRVHO to GRVLO to avoid CERNLIB configuration problems.   Once we no longer
+  support CERNLIB usage we should return to GRVHO.  
+
 Algorithm Configurable Parameters:
 ......................................................................................................
 Name               Type    Optional   Comment                          Default
@@ -21,7 +24,7 @@ Mo                 double  Yes                                         sqrt(0.1)
 -->
 
   <param_set name="Default"> 
-     <param type="alg"  name="PDF-Set">          genie::PDFLIB/GRVHO                  </param>
+     <param type="alg"  name="PDF-Set">          genie::PDFLIB/GRVLO                  </param>
      <param type="alg"  name="Integrator">       genie::Simpson1D/Default-Logarithmic </param>
      <param type="alg"  name="XSec-Integrator">  genie::QELXSec/Default               </param>
   </param_set>
