@@ -1616,7 +1616,7 @@ bool genie::utils::intranuke::PhaseSpaceDecay(
     << "Final state = " << state_sstream.str() << " has N = " << pdgv.size() 
     << " particles / total mass = " << mass_sum;
   LOG("INukeUtils", pINFO)
-    << "Decaying system p4 = " << utils::print::P4AsString(pd);
+    << "Composite system p4 = " << utils::print::P4AsString(pd);
 
   // Set the decay
   TGenPhaseSpace GenPhaseSpace; 
@@ -1635,8 +1635,9 @@ bool genie::utils::intranuke::PhaseSpaceDecay(
   }
 
   // The decay is permitted - add the incident particle at the event record
-  // and mark is as 'decayed state'
-  p->SetStatus(kIStDecayedState);
+  // and mark is as 'Nucleon Cluster Target' (used to be confusing 'Decayed State')
+  p->SetStatus(kIStNucleonClusterTarget);  //kIStDecayedState);
+  p->SetPdgCode(kPdgCompNuclCluster);
   ev->AddParticle(*p);
 
   // Get the maximum weight
