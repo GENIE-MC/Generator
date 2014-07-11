@@ -231,23 +231,47 @@ void FGMBodekRitchie::LoadConfig(void)
   // configuration file or the UserPhysicsOptions file.
   // If none is used use Wapstra's semi-empirical formula.
   //
-  for(int Z=1; Z<140; Z++) {
-    for(int A=Z; A<3*Z; A++) {
-      ostringstream key, gckey;
-      int pdgc = pdg::IonPdgCode(A,Z);
-      gckey << "RFG-NucRemovalE@Pdg=" << pdgc;
-      key   << "NucRemovalE@Pdg="     << pdgc;
-      RgKey gcrgkey = gckey.str();
-      RgKey rgkey   = key.str();
-      if (this->GetConfig().Exists(rgkey) || gc->Exists(gcrgkey)) {
-        double eb = fConfig->GetDoubleDef(rgkey, gc->GetDouble(gcrgkey));
-        eb = TMath::Max(eb, 0.);
-        LOG("BodekRitchie", pINFO)
-          << "Nucleus: " << pdgc << " -> using Eb =  " << eb << " GeV";
-        fNucRmvE.insert(map<int,double>::value_type(Z,eb));
-      }
+  const std::string gckeyStart = "RFG-NucRemovalE@Pdg=";
+  const std::string keyStart = "NucRemovalE@Pdg=";
+
+  RgIMap entries = fConfig->GetItemMap();
+  RgIMap gcEntries = gc->GetItemMap();
+  entries.insert(gcEntries.begin(), gcEntries.end());
+
+  for(RgIMap::const_iterator it = entries.begin(); it != entries.end(); ++it){
+    const std::string& key = it->first;
+    int pdg = 0;
+    int Z = 0;
+    if (0 == key.compare(0, gckeyStart.size(), gckeyStart.c_str())) {
+      pdg = atoi(key.c_str() + gckeyStart.size());
+      Z = pdg::IonPdgCodeToZ(pdg);
+    } 
+    if (0 == key.compare(0, keyStart.size(), keyStart.c_str())) {
+      pdg = atoi(key.c_str() + keyStart.size());
+      Z = pdg::IonPdgCodeToZ(pdg);
+    } 
+    if (0 != pdg && 0 != Z) {
+      ostringstream key_ss, gckey_ss;
+      gckey_ss << gckeyStart << pdg;
+      key_ss << keyStart << pdg;
+      RgKey gcrgkey = gckey_ss.str();
+      RgKey rgkey   = key_ss.str();
+      double eb = fConfig->GetDoubleDef(rgkey, gc->GetDouble(gcrgkey));
+      eb = TMath::Max(eb, 0.);
+      LOG("BodekRitchie", pINFO)
+        << "Nucleus: " << pdg << " -> using Eb =  " << eb << " GeV";
+      fNucRmvE.insert(map<int,double>::value_type(Z,eb));
     }
   }
+
+  LOG("BodekRitchie", pDEBUG)
+    << "Finished LoadConfig";
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+  for (map<int,double>::iterator it = fNucRmvE.begin(); it != fNucRmvE.end(); ++it) {
+    LOG("BodekRitchie", pDEBUG)
+      << "Z = " << (*it).first << "; eb = " << (*it).second;
+  }
+#endif
 }
 //____________________________________________________________________________
 
