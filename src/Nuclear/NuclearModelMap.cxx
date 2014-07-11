@@ -5,7 +5,7 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory 
+         STFC, Rutherford Appleton Laboratory
 
  For the class documentation see the corresponding header file.
 
@@ -45,12 +45,12 @@ NuclearModelI("genie::NuclearModelMap")
 NuclearModelMap::NuclearModelMap(string config) :
 NuclearModelI("genie::NuclearModelMap", config)
 {
-  
+
 }
 //____________________________________________________________________________
 NuclearModelMap::~NuclearModelMap()
 {
- 
+
 }
 //____________________________________________________________________________
 bool NuclearModelMap::GenerateNucleon(const Target & target) const
@@ -105,33 +105,52 @@ void NuclearModelMap::LoadConfig(void)
 
   // load default global model (should work for all nuclei)
   //
-  RgAlg dgmodel = 
-          fConfig->GetAlgDef("NuclearModel", gc->GetAlg("NuclearModel"));
-  LOG("Nuclear", pINFO) 
-          << "Default global nuclear model: " << dgmodel;
-  fDefGlobModel = 
-      dynamic_cast<const NuclearModelI *> (this->SubAlg("NuclearModel"));
+  RgAlg dgmodel =
+    fConfig->GetAlgDef("NuclearModel", gc->GetAlg("NuclearModel"));
+  LOG("Nuclear", pINFO)
+    << "Default global nuclear model: " << dgmodel;
+  fDefGlobModel =
+    dynamic_cast<const NuclearModelI *> (this->SubAlg("NuclearModel"));
   assert(fDefGlobModel);
 
-  // load refined models for specific nuclei
-  for(int Z=1; Z<140; Z++) {
-    for(int A=Z; A<3*Z; A++) {
-      ostringstream key;
-      key << "NuclearModel@Pdg=" << pdg::IonPdgCode(A,Z);
-      RgKey rgkey = key.str();
-      if (this->GetConfig().Exists(rgkey) || gc->Exists(rgkey)) {
-        RgAlg rgmodel = fConfig->GetAlgDef(rgkey, gc->GetAlg(rgkey));
-        LOG("Nuclear", pNOTICE) 
-          << "Nucleus =" << pdg::IonPdgCode(A,Z) 
-                         << " -> refined nuclear model: " << rgmodel;
-        const NuclearModelI * model = 
-              dynamic_cast<const NuclearModelI *> (this->SubAlg(rgkey));
-        assert(model);
-        fRefinedModels.insert(map<int,const NuclearModelI*>::value_type(Z,model));
-      }
+  // We're looking for keys that match this string
+  const std::string keyStart = "NuclearModel@Pdg=";
+  // Looking in both of these registries
+  RgIMap entries = fConfig->GetItemMap();
+  RgIMap gcEntries = gc->GetItemMap();
+  entries.insert(gcEntries.begin(), gcEntries.end());
+
+  for(RgIMap::const_iterator it = entries.begin(); it != entries.end(); ++it){
+    const std::string& key = it->first;
+    // Does it start with the right string?
+    if(key.compare(0, keyStart.size(), keyStart.c_str()) == 0){
+      // The rest is the PDG code
+      const int pdg = atoi(key.c_str()+keyStart.size());
+      const int Z = pdg::IonPdgCodeToZ(pdg);
+      //const int A = pdg::IonPdgCodeToA(pdg);
+
+      RgAlg rgmodel = fConfig->GetAlgDef(key, gc->GetAlg(key));
+      LOG("Nuclear", pNOTICE)
+        << "Nucleus =" << pdg
+        << " -> refined nuclear model: " << rgmodel;
+      const NuclearModelI * model =
+        dynamic_cast<const NuclearModelI *> (this->SubAlg(key));
+      assert(model);
+      fRefinedModels.insert(map<int,const NuclearModelI*>::value_type(Z,model));
     }
   }
+ 
+  LOG("Nuclear", pDEBUG)
+    << "Finished LoadConfig";
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+  for (map<int,const NuclearModelI*>::iterator it = fRefinedModels.begin(); 
+      it != fRefinedModels.end(); ++it) {
+    LOG("Nuclear", pDEBUG)
+      << "Z = " << (*it).first << "; model = " << (*it).second;
+  }
+#endif
 }
+
 //____________________________________________________________________________
 const NuclearModelI * NuclearModelMap::SelectModel(const Target & t) const
 {
