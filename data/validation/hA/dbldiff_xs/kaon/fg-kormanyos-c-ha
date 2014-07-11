@@ -1,0 +1,19 @@
+[RECORD]
+  100,400,0.0,.3
+  Energy
+  K+ C #rightarrow K+ X TK=367 MeV
+  kormanyos-ha-367-c-42n
+  1
+[EXPERIMENTAL]
+ kormanyos-kp-c-367-kp-42.dat
+  xsec/1000:E
+  367 MeV Kormanyos C Data (42 deg)
+[GENIE]
+  Jul_09_14_kp_C_375_hA_v282.ginuke.root
+  (Eh-.4937)*1000
+  pdgh==321&&cth>=.695&&cth<=.788
+  .093
+  GENIE 2.8.2 hA results
+
+
+
