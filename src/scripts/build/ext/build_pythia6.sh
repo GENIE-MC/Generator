@@ -60,10 +60,11 @@
 #                 otherwise first of gfortran or g77 found
 #    2010-12-29:  addition of -m32 option; default v6_422
 #    2011-01-13:  default v6_424; clean up comments
+#    2014-07-14:  default v6_428; http->https
 #
 ############################################################################
 #
-version=6.4.24
+version=6.4.28
 doclean=0
 dummyaction="besttry"
 refetch=0
@@ -337,7 +338,8 @@ elif [ $mt -eq 410 ] ; then
 else
 # new location, .f file is gzipped
   basef=pythia-${major}.${minor}.${tiny}.f
-  location=http://www.hepforge.org/archive/pythia6
+  #location=http://www.hepforge.org/archive/pythia6
+  location=https://www.hepforge.org/archive/pythia6
   gzipped=".gz"
 fi
 # if we don't already have it, fetch the .f file
