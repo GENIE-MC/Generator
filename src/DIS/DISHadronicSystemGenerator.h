@@ -51,10 +51,11 @@ private:
   const HadronizationModelI * fHadronizationModel;
 
   bool   fFilterPreFragmEntries;
-  double fR0;   ///< param controling nuclear size
-  double fNR;   ///< how far beyond the nuclear boundary does the particle tracker goes?
-  double fct0;  ///< formation zone (c * formation time)
-  double fK;    ///< param multiplying pT^2 in formation zone calculation
+  double fR0;          ///< param controling nuclear size
+  double fNR;          ///< how far beyond the nuclear boundary does the particle tracker goes?
+  double fct0pion;     ///< formation zone (c * formation time) - for pions
+  double fct0nucleon;  ///< formation zone (c * formation time) - for nucleons
+  double fK;           ///< param multiplying pT^2 in formation zone calculation
 };
 
 }      // genie namespace
