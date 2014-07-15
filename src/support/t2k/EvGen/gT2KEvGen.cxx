@@ -592,7 +592,12 @@ int main(int argc, char ** argv)
     // before loading the beam sim data set whether to use a random offset when looping
     if(gOptRandomFluxOffset == false) jparc_flux_driver->DisableOffset();
     // specify input JNUBEAM file & detector location
-    jparc_flux_driver->LoadBeamSimData(gOptFluxFile, gOptDetectorLocation); 
+    bool beam_sim_data_success = jparc_flux_driver->LoadBeamSimData(gOptFluxFile, gOptDetectorLocation);
+    if(!beam_sim_data_success) {
+      LOG("gevgen_t2k", pFATAL)
+        << "The flux driver has not been properly configured. Exiting";
+      exit(1);
+    }
     // specify JNUBEAM normalization
     jparc_flux_driver->SetFilePOT(gOptFluxNorm);     
     // specify upstream generation surface

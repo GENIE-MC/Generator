@@ -160,6 +160,9 @@
    Implemented dummy versions of the new GFluxI::Clear, GFluxI::Index and 
    GFluxI::GenerateWeighted methods needed for pre-generation of flux
    interaction probabilities in GMCJDriver. 
+ @ Mar 14, 2014 - TD
+   Prevent an infinite loop in GenerateNext() when the flux driver has not been
+   properly configured by exiting within GenerateNext_weighted().
 
 */
 //____________________________________________________________________________
@@ -343,9 +346,10 @@ bool GNuMIFlux::GenerateNext_weighted(void)
 
   // Check whether a flux ntuple has been loaded
   if ( ! fG3NuMI && ! fG4NuMI && ! fFlugg ) {
-     LOG("Flux", pERROR)
+     LOG("Flux", pFATAL)
           << "The flux driver has not been properly configured";
-     return false;	
+     //return false; //  don't do this - creates an infinite loop!
+     exit(1);	
   }
 
   // Reuse an entry?
@@ -2004,7 +2008,13 @@ int GNuMIFluxPassThroughInfo::CalcEnuWgt(const TLorentzVector& xyz,
 #endif
 
   // Get solid angle/4pi for detector element
-  double sangdet = ( kRDET*kRDET / ( (zpos-this->vz)*(zpos-this->vz)))/4.0;
+  // small angle approximation, fixed by Alex Radovic
+  //SAA//double sangdet = ( kRDET*kRDET / ( (zpos-this->vz)*(zpos-this->vz)))/4.0;
+  
+  double sanddetcomp = TMath::Sqrt(( (xpos-this->vx)*(xpos-this->vx) ) +
+                                   ( (ypos-this->vy)*(ypos-this->vy) ) +
+                                   ( (zpos-this->vz)*(zpos-this->vz) )   );
+  double sangdet = ( 1.0 - TMath::Cos(TMath::ATan( kRDET / sanddetcomp)))/2.0;
 
   // Weight for solid angle and lorentz boost
   wgt_xy = sangdet * ( emrat * emrat );  // ! the weight ... normally

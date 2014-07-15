@@ -13,6 +13,9 @@
    Implemented dummy versions of the new GFluxI::Clear, GFluxI::Index and 
    GFluxI::GenerateWeighted methods needed for pre-generation of flux
    interaction probabilities in GMCJDriver.
+ @ Mar 14, 2014 - TD
+   Prevent an infinite loop in GenerateNext() when the flux driver has not been
+   properly configured by exiting within GenerateNext_weighted().
 
 */
 //____________________________________________________________________________
@@ -152,9 +155,10 @@ bool GSimpleNtpFlux::GenerateNext_weighted(void)
 
   // Check whether a flux ntuple has been loaded
   if ( ! fNuFluxTree ) {
-     LOG("Flux", pERROR)
+     LOG("Flux", pFATAL)
           << "The flux driver has not been properly configured";
-     return false;	
+     // return false; // don't do this - creates an infinite loop!
+     exit(1); 	
   }
 
   // Reuse an entry?
