@@ -27,6 +27,7 @@
 #include "Algorithm/AlgConfigPool.h"
 #include "Conventions/GBuild.h"
 #include "Conventions/Constants.h"
+#include "Conventions/RefFrame.h"
 #include "Messenger/Messenger.h"
 #include "PartonModel/QPMDISStrucFuncBase.h"
 #include "PDF/PDFModelI.h"
@@ -427,10 +428,25 @@ double QPMDISStrucFuncBase::NuclMod(const Interaction * interaction) const
   double f = 1.;
   if(fIncludeNuclMod) {
      const Target & tgt  = interaction->InitState().Tgt();
-     double x = this->ScalingVar(interaction);
+
+//   The x used for computing the DIS Nuclear correction factor should be the 
+//   experimental x, not the rescaled x or off-shell-rest-frame version of x 
+//
+     TLorentzVector * k1 = interaction->InitStatePtr()->GetProbeP4(kRfLab);
+     const TLorentzVector & k2 = interaction->KinePtr()->FSLeptonP4();
+
+     double M  = kNucleonMass;
+     TLorentzVector q  = (*k1)-k2;                     // q=k1-k2, 4-p transfer
+     double Q2 = -1 * q.M2();                       // momemtum transfer
+     double v  = q.Energy();                        // v (E transfer to the nucleus)
+     double x  = 0.5*Q2/(M*v);                      // Bjorken x
      int    A = tgt.A();
      f = utils::nuclear::DISNuclFactor(x,A);
   }
+
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+  LOG("DISSF", pDEBUG) << "Nuclear factor for x of " << x << "  = " << f; 
+#endif
   return f;
 }
 //____________________________________________________________________________
