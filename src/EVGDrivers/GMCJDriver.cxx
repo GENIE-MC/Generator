@@ -88,10 +88,14 @@
    The GUNPHYSMASK env. var is no longer used. Added SetUnphysEventMask(const 
    TBits &). Input is propagated accordingly.
  @ Feb 06, 2013 - CA
-   Fix small problem introduced with recent changes. 
+   Fix small problem introduced with recent changes.
    In PopulateEventGenDriverPool() calls to GEVGDriver::SetEventGeneratorList()
    and GEVGDriver::Configure() were reversed. Problem reported by W.Huelsnitz.
-
+ @ July 15, 2014 - HG
+   Incorporated code provided by Jason Koskinen - IceCube
+   Modified ComputeProbScales to evalulate the cross sections at both the high
+   and low edges of the energy bin when calculating the max interaction 
+   probability.
 */
 //____________________________________________________________________________
 
@@ -733,7 +737,8 @@ void GMCJDriver::ComputeProbScales(void)
 
   // for maximum interaction probability vs E /for given geometry/ I will
   // be using 300 bins up to the maximum energy for the input flux
-  double de   = fEmax/300.;
+  // double de   = fEmax/300.;//djk june 5, 2013
+  double de   = fEmax/300.;//djk june 5, 2013
   double emin = 0.0;
   double emax = fEmax + de;
   int n = 1 + (int) ((emax-emin)/de);
@@ -750,7 +755,9 @@ void GMCJDriver::ComputeProbScales(void)
 
     // loop over energy bins
     for(int ie = 1; ie <= pmax_hst->GetNbinsX(); ie++) {
-       double Ev = pmax_hst->GetBinCenter(ie);
+      double EvLow  = pmax_hst->GetBinCenter(ie) - 0.5*pmax_hst->GetBinWidth(ie); 
+      double EvHigh = pmax_hst->GetBinCenter(ie) + 0.5*pmax_hst->GetBinWidth(ie); 
+      //double Ev = pmax_hst->GetBinCenter(ie);
 
        // loop over targets in input geometry, form initial state and compute
        // the sum of maximum interaction probabilities at the current energy bin
@@ -761,29 +768,41 @@ void GMCJDriver::ComputeProbScales(void)
          InitialState init_state(target_pdgc, neutrino_pdgc);
 
          LOG("GMCJDriver", pDEBUG)
-           << "Computing Pmax for init-state: " 
-           << init_state.AsString() << " at E = " << Ev;
+           << "Computing Pmax for init-state: " << init_state.AsString() << " E from " << EvLow << "-" << EvHigh;
 
          // get the appropriate driver
          GEVGDriver * evgdriver = fGPool->FindDriver(init_state);
 
          // get xsec sum over all modelled processes for given neutrino+target)
-         double sxsec = evgdriver->XSecSumSpline()->Evaluate(Ev); 
+         double sxsecLow  = evgdriver->XSecSumSpline()->Evaluate(EvLow);
+	 double sxsecHigh = evgdriver->XSecSumSpline()->Evaluate(EvHigh);
+
          // get max{path-length x density}
-         double plmax = fMaxPathLengths.PathLength(target_pdgc);  
+         double plmax = fMaxPathLengths.PathLength(target_pdgc);
+
          // compute/store the max interaction probabiity (for given energy)
          int A = pdg::IonPdgCodeToA(target_pdgc);
-         double pmax = this->InteractionProbability(sxsec, plmax, A);
+         double pmaxLow  = this->InteractionProbability(sxsecLow, plmax, A);
+         double pmaxHigh = this->InteractionProbability(sxsecHigh, plmax, A);
+
+	 double pmax = pmaxHigh;
+	 if ( pmaxLow > pmaxHigh){
+	   pmax = pmaxLow;
+	   LOG("GMCJDriver", pWARN)
+	     << "Lower energy neutrinos have a higher probability of interacting than those at higher energy."
+	     << " pmaxLow(E=" << EvLow << ")=" << pmaxLow << " and " << " pmaxHigh(E=" << EvHigh << ")=" << pmaxHigh;
+	 }
+
          pmax_hst->SetBinContent(ie, pmax_hst->GetBinContent(ie) + pmax);
 
          LOG("GMCJDriver", pDEBUG)
-           << "Pmax[" << init_state.AsString() << ", Ev=" << Ev << "] = " << pmax;
+           << "Pmax[" << init_state.AsString() << ", Ev from " << EvLow << "-" << EvHigh << "] = " << pmax;
        } // targets
 
        pmax_hst->SetBinContent(ie, 1.2 * pmax_hst->GetBinContent(ie));
 
        LOG("GMCJDriver", pINFO)
-          << "Pmax[nu=" << neutrino_pdgc << ", Ev=" << Ev << "] = " 
+	 << "Pmax[nu=" << neutrino_pdgc << ", Ev from " << EvLow << "-" << EvHigh << "] = "
           <<  pmax_hst->GetBinContent(ie);
     } // E
 
@@ -882,7 +901,8 @@ EventRecord * GMCJDriver::GenerateEvent1Try(void)
           << 100*Pno << " %";
        if(Pno<0.) {
            LOG("GMCJDriver", pFATAL) 
-             << "Negative no-interaction probability! (P = " << 100*Pno << " %)";
+             << "Negative no-interaction probability! (P = " << 100*Pno << " %)"
+             << " Particle E=" << fFluxDriver->Momentum().E() << " type=" << fFluxDriver->PdgCode() << "Psum=" << Psum;
            gAbortingInErr=true;
            exit(1);
        }
@@ -1136,6 +1156,8 @@ double GMCJDriver::ComputeInteractionProbabilities(bool use_max_path_length)
             xsec = totxsecspl->Evaluate( nup4.Energy() );
         }
         prob = this->InteractionProbability(xsec,pl,A);
+        LOG("GMCJDriver", pDEBUG)
+          << " (xsec, pl, A)=(" << xsec << "," << pl << "," << A << ")";
 
         // scale the interaction probability to the maximum one so as not
         // to have to throw few billions of flux neutrinos before getting
@@ -1151,6 +1173,8 @@ double GMCJDriver::ComputeInteractionProbabilities(bool use_max_path_length)
            pmax = pmax_hst->GetBinContent(ie);
         }
         assert(pmax>0);        
+        LOG("GMCJDriver", pDEBUG)
+          << "Pmax=" << pmax;
         probn = prob/pmax;
      }
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
