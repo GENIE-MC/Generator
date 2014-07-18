@@ -515,8 +515,9 @@ void HAIntranuke::InelasticHA(
     << "InelasticHA() is invoked for a : " << p->Name()
     << " whose fate is : " << INukeHadroFates::AsString(fate);
 #endif
-  LOG("HAIntranuke", pINFO) << " probe KE = " << ev->Probe()->KinE();
-
+  if(ev->Probe() ) {
+    LOG("HAIntranuke", pINFO) << " probe KE = " << ev->Probe()->KinE();
+  }
   if(fate!=kIHAFtCEx && fate!=kIHAFtInelas)
     {
       LOG("HAIntranuke", pWARN)
@@ -642,9 +643,11 @@ void HAIntranuke::InelasticHA(
       LOG ("HAIntranuke",pINFO) << "Successful quasielastic scattering or charge exchange";
       LOG("HAIntranuke",pINFO)
 	<< "C3CM = " << C3CM << "\n  P3 = " 
-	<< P3L << "   " << E3L << "             P4 = " 
+	<< P3L << "   " << E3L << "             P4 = " ;
+  if(ev->Probe() ) { LOG("HAIntranuke",pINFO)
 	<< P4L << "   " << E4L << "\n probe KE = " << ev->Probe()->KinE() << "\n";
-      if (E3L>ev->Probe()->KinE()||E4L>ev->Probe()->KinE())  //is this redundant?
+  }
+  if (ev->Probe() && (E3L>ev->Probe()->KinE()||E4L>ev->Probe()->KinE()))  //is this redundant?
 	{
 	  exceptions::INukeException exception;
 	  exception.SetReason("TwoBodyCollison gives KE> probe KE in hA simulation");
