@@ -127,7 +127,7 @@ void HNIntranuke::SimulateHadronicFinalState(GHepRecord* ev, GHepParticle* p) co
   bool is_kaon    = (pdgc==kPdgKP);
   bool is_baryon  = (pdgc==kPdgProton || pdgc==kPdgNeutron);
   bool is_gamma   = (pdgc==kPdgGamma);										
-  if(!(is_pion || is_baryon  || is_gamma || is_kaon))
+  if(!(is_pion || is_baryon  || is_gamma))
     {
       LOG("HNIntranuke", pERROR) << "** Cannot handle particle: " << p->Name();
       return;
