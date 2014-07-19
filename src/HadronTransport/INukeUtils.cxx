@@ -1596,19 +1596,20 @@ bool genie::utils::intranuke::PhaseSpaceDecay(
   TLorentzVector * pd = p->GetP4(); // incident particle 4p
 
   bool is_nuc = pdg::IsNeutronOrProton(p->Pdg());
-
+  bool is_kaon = p->Pdg()==kPdgKP || p->Pdg()==kPdgKM;
   // update available energy -> init (mass + kinetic) + sum of f/s masses
+  // for pion only.  Probe mass not available for nucleon, kaon
   double availE = pd->Energy() + mass_sum; 
-  if(is_nuc) availE -= p->Mass();
+  if(is_nuc||is_kaon) availE -= p->Mass();
   pd->SetE(availE);
 
   LOG("INukeUtils",pNOTICE) 
     << "size, mass_sum, availE, pd mass, energy = " << pdgv.size() << "  " 
-    << mass_sum << "  " << p->Mass() << "  " << p->Energy() ;
+    << mass_sum << "  " << availE << "  " << p->Mass() << "  " << p->Energy() ;
 
   // compute the 4p transfer to the hadronic blob
   double dE = mass_sum;
-  if(is_nuc) dE -= p->Mass();  
+  if(is_nuc||is_kaon) dE -= p->Mass();  
   TLorentzVector premnsub(0,0,0,dE);
   RemnP4 -= premnsub;
 
