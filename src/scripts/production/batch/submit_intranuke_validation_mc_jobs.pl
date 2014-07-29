@@ -171,7 +171,7 @@ $cycle          = "01"                                    unless defined $cycle;
 $batch_system   = "PBS"                                   unless defined $batch_system;
 $queue          = "prod"                                  unless defined $queue;
 $softw_topdir   = "/opt/ppd/t2k/softw/GENIE"              unless defined $softw_topdir;
-$time_limit     = "60:00:00";
+if($batch_system eq 'PBS') {$time_limit     = "60:00:00"; } else {$time_limit     = "60:00";}
 $genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
 $jobs_dir       = "$softw_topdir/scratch/vld\_inuke-$production\_$cycle";
 $mcseed         = 210921029;
