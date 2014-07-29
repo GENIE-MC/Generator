@@ -71,7 +71,7 @@ $flux_file_suffix  = ".root"                    unless defined $flux_file_suffix
 $job_pot           = "1E+18";
 $mcrun_base        = 10000000;
 $mcseed_base       = 210921029;
-$time_limit        = "30:00:00";
+if($batch_system eq 'PBS') {$time_limit     = "30:00:00"; } else {$time_limit     = "30:00";}
 $genie_setup       = "$softw_topdir/builds/$arch/$genie_version-setup";
 $production_dir    = "$softw_topdir/scratch";
 $inputs_dir        = "$softw_topdir/data/job_inputs";

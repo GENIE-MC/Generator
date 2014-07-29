@@ -69,7 +69,7 @@ $flux_version   = "11a"                        unless defined $flux_version;
 $flux_config    = "nominal"                    unless defined $flux_config;
 $flux_hist_file = "sk_flux_histograms.root"    unless defined $flux_hist_file;
 $nevents        = "2000";   
-$time_limit     = "05:00:00";
+if($batch_system eq 'PBS') {$time_limit     = "05:00:00"; } else {$time_limit     = "05:00";}
 $production_dir = "$softw_topdir/scratch";
 $inputs_dir     = "$softw_topdir/data/job_inputs";
 $genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
