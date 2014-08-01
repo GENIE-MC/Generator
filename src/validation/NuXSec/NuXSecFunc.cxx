@@ -81,11 +81,20 @@ TGraphAsymmErrors * XSecForModeX::ExtractFromEventSample(
      int imodel, double Emin, double Emax,
      int n, bool inlogE, bool scale_with_E, bool incl_err_band)
 {
-  if(!fGenieInputs) return 0;
+  if(!fGenieInputs) {
+     LOG("gvldtest", pERROR) << "No GENIE MC inputs";
+     return 0;
+  }
   TFile * genie_xsec_file = fGenieInputs->XSecFile(imodel);
-  if(!genie_xsec_file) return 0;
+  if(!genie_xsec_file) {
+     LOG("gvldtest", pERROR) << "No input GENIE cross-section file";
+     return 0;
+  }
   TChain * genie_event_tree = fGenieInputs->EvtChain(imodel);
-  if(!genie_event_tree) return 0;
+  if(!genie_event_tree) {
+     LOG("gvldtest", pERROR) << "No input GENIE event tree";
+     return 0;
+  }
 
   // Get xsec directory and retrieve inclusive CC xsec
   TDirectory * xsec_dir = 
@@ -224,6 +233,7 @@ TGraphAsymmErrors * XSecForModeX::ExtractFromEventSample(
      }//isyst
   }//incl_err_band?
 
+
   // Calculate cross-section = f(E) and corresponding uncertainty.
   // Sources of uncertainty are taken to be uncorellated.
   double * energy_array    = new double [n];
@@ -284,6 +294,7 @@ TGraphAsymmErrors * XSecForModeX::ExtractFromEventSample(
   // Build cross-section graph
   TGraphAsymmErrors * model = new TGraphAsymmErrors(
      n,energy_array,xsec_array,0,0,xsec_array_errm, xsec_array_errp);
+  assert(model);
  
   // Clean-up
   delete hmx;
@@ -297,6 +308,8 @@ TGraphAsymmErrors * XSecForModeX::ExtractFromEventSample(
   delete [] xsec_array;
   delete [] xsec_array_errp;
   delete [] xsec_array_errm;
+
+  LOG("gvldtest", pNOTICE) << "Returning model prediction";
 
   return model;
 }
@@ -1004,11 +1017,20 @@ TGraphAsymmErrors * CCIsoInclXSec::ExtractFromEventSample(
      int imodel, double Emin, double Emax,
      int n, bool inlogE, bool scale_with_E, bool incl_err_band)
 {
-  if(!fGenieInputs) return 0;
+  if(!fGenieInputs) {
+     LOG("gvldtest", pERROR) << "No GENIE MC inputs";
+     return 0;
+  }
   TFile * genie_xsec_file = fGenieInputs->XSecFile(imodel);
-  if(!genie_xsec_file) return 0;
+  if(!genie_xsec_file) {
+     LOG("gvldtest", pERROR) << "No input GENIE cross-section file";
+     return 0;
+  }
   TChain * genie_event_tree = fGenieInputs->EvtChain(imodel);
-  if(!genie_event_tree) return 0;
+  if(!genie_event_tree) {
+     LOG("gvldtest", pERROR) << "No input GENIE event tree";
+     return 0;
+  }
 
   // Get xsec directory and retrieve inclusive CC xsec
   string xsec_dir_name_vp = BuildXSecDirectoryName(fNuPdg, kPdgTgtFreeP);
@@ -1211,6 +1233,8 @@ TGraphAsymmErrors * CCIsoInclXSec::ExtractFromEventSample(
   delete [] xsec_array;
   delete [] xsec_array_errp;
   delete [] xsec_array_errm;
+
+  LOG("gvldtest", pNOTICE) << "Returning CC inclusive model prediction";
 
   return model;
 }
