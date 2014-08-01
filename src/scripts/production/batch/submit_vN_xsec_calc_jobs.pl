@@ -181,6 +181,7 @@ $emax  = 500;
 
 # make the jobs directory
 #
+print "@@ Creating job directory: $jobs_dir \n";
 mkpath ($jobs_dir, {verbose => 1, mode=>0777});
 
 for my $curr_xsplset (keys %OUTXML)  {
