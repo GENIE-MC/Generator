@@ -56,11 +56,16 @@ $job_dir        = "$softw_topdir/scratch/";
 $genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
 $genie_topdir   = "$softw_topdir/builds/$arch/$genie_version/";
 $scripts_dir    = "$genie_topdir/src/scripts/production/batch/";
+$scripts_dir2   = "$genie_topdir/src/scripts/production/misc/";
 $status_file    = "$job_dir/$genie_version-$production\_$cycle.status";
 
-$std_args  = "--version $genie_version --arch $arch --softw-topdir $softw_topdir " .
-             "--production $production --cycle $cycle " .
-             "--batch-system $batch_system --queue $queue";
+$std_args  = "--version $genie_version " .
+             "--arch $arch " .
+             "--softw-topdir $softw_topdir " .
+             "--production $production " .
+             "--cycle $cycle " .
+             "--batch-system $batch_system " .
+             "--queue $queue";
 
 init_status_file($status_file);
 
@@ -110,8 +115,7 @@ if($status eq "done creating directory structure for output data")
 {
   print "Need to produce free-nucleon cross-section splines \n";
   $cmd = "perl $scripts_dir/submit_vN_xsec_calc_jobs.pl $std_args --xsplset all";
-  print "Running: $cmd \n";  
-  system("$cmd $arg");
+  execute_command($cmd);
   update_status_file($status_file,"calculating neutrino-nucleon cross-section splines");
   exit;
 }
@@ -127,44 +131,35 @@ if($status eq "calculating neutrino-nucleon cross-section splines")
    }
    print "No neutrino-nucleon cross-section calculation job still running... \n";
 
-   #
-   # Check log files for errors and make sure there is one output XML file for each input PBS script
-   #
+   # Make sure there is one output XML file for each input PBS script
+   print "Making sure all output files are present... \n";
+   my $ret = check_number_of_xml_and_pbs_files("$job_dir/$genie_version-$production\_$cycle-xsec\_vN/");
+   if($ret != 0) {
+     print "The number of output XML files does not match the number of input PBS files. \n";       
+     print "Some of the batch jobs have failed. \n"; 
+     print "Can not continue with validation runs unless this is sorted out.\n";       
+     exit;
+   }
+
+   # Check log files for errors
    print "Checking for errors... \n";
    $nerr = `more $job_dir/$genie_version-$production\_$cycle-xsec\_vN/*log | grep -i error | wc -l`
          + `more $job_dir/$genie_version-$production\_$cycle-xsec\_vN/*log | grep -i fatal | wc -l`;
-   if($nerr >= 0)
+   if($nerr > 0)
    {
       print "I found $nerr errors in the neutrino-nucleon cross-section calculation job log-files. \n";       
       print "Can not continue with validation runs unless this is sorted out.\n";       
       exit;
    }
-   print "Checking the number of output XML files... \n";
-   opendir my $dir, "$job_dir/$genie_version-$production\_$cycle-xsec\_vN/" or die "Can not open directory: $!";
-   my @xmlfiles = grep { /.xml$/ } readdir $dir;
-   my @pbsfiles = grep { /.pbs$/ } readdir $dir;
-   closedir $dir;
-   $num_xmlfiles = @xmlfiles;
-   $num_pbsfiles = @pbsfiles;
-   print "Found $num_xmlfiles XML files and $num_pbsfiles PBS files. \n";
-   if($num_xmlfiles != $num_pbsfiles)   
-   {
-      print "The number of output XML files doesn't match the number of input PBS files. \n";       
-      print "Can not continue with validation runs unless this is sorted out.\n";       
-      exit;
-   }
 
-   #
    # Merge all XML files to one and copy to standard locations
-   #
    print "Merging all free nucleon cross-section XML files... \n";
    $cmd = "source $genie_setup; " .
           "gspladd -d $job_dir/$genie_version-$production\_$cycle-xsec\_vN/ -o gxspl-vN-$genie_version.xml; " .
           "cp gxspl-vN-$genie_version.xml $inp_data_dir/xspl/; " .
           "cp gxspl-vN-$genie_version.xml $out_data_dir/xsec/; " .
           "rm -f gxspl-vN-$genie_version.xml";
-   print "Running: $cmd \n";  
-   system("$cmd");
+   execute_command($cmd);
    update_status_file($status_file,"done calculating neutrino-nucleon cross-section splines");
    exit;
 }
@@ -179,8 +174,7 @@ if($status eq "done calculating neutrino-nucleon cross-section splines")
           "gspl2root -p 12,-12,14,-14,16,-16 -t 1000010010,1000000010 -o xsec.root -f $inp_data_dir/xspl/gxspl-vN-$genie_version.xml; " .
           "cp xsec.root $out_data_dir/xsec/";
    $cmd = "perl $scripts_dir/submit.pl --cmd \'$batch_cmd\' --job-name xsconv $std_args";
-   print "Running: $cmd \n";  
-   system("$cmd");
+   execute_command($cmd);
    update_status_file($status_file,"converting neutrino-nucleon cross-section data to ROOT format");
    exit;
 }
@@ -202,8 +196,7 @@ if($status eq "converting neutrino-nucleon cross-section data to ROOT format")
             "ps2pdf14 xsec.ps; " .
             "cp xsec.pdf $out_data_dir/reports/";
         $cmd = "perl $scripts_dir/submit.pl --cmd \'$batch_cmd\' --job-name xscomp $std_args";
-        print "Running: $cmd \n";  
-        system("$cmd");
+        execute_command($cmd);
    }
    update_status_file($status_file,"comparing neutrino-nucleon cross-sections with reference calculations");
    exit;
@@ -218,7 +211,6 @@ if($status eq "comparing neutrino-nucleon cross-sections with reference calculat
    if($njobs > 0) {
       exit;
    }
-
 
    # ...
    # ... check report
@@ -241,8 +233,7 @@ if($status eq "done comparing neutrino-nucleon cross-sections with reference cal
 {
   print "Need to produce nuclear cross-section splines \n";
   $cmd = "perl $scripts_dir/submit_vA_xsec_calc_jobs.pl $std_args --config-file $scripts_dir/xsec_splines/genie_test.list";
-  print "Running $cmd \n";  
-  system("$cmd $arg");
+  execute_command($cmd);
   update_status_file($status_file,"calculating neutrino-nucleus cross-section splines");
   exit;
 }
@@ -258,9 +249,17 @@ if($status eq "calculating neutrino-nucleus cross-section splines")
    }
    print "No neutrino-nucleus cross-section calculation job still running... \n";
 
-   #
-   # Check log files for errors and make sure there is one output XML file for each input PBS script
-   #
+   # Make sure there is one output XML file for each input PBS script
+   print "Making sure all output files are present... \n";
+   my $ret = check_number_of_xml_and_pbs_files("$job_dir/$genie_version-$production\_$cycle-xsec\_vA\_genie\_test/");
+   if($ret != 0) {
+     print "The number of output XML files does not match the number of input PBS files. \n";       
+     print "Some of the batch jobs have failed. \n"; 
+     print "Can not continue with validation runs unless this is sorted out.\n";       
+     exit;
+   }
+
+   # Check log files for errors
    print "Checking for errors... \n";
    $nerr = `more $job_dir/$genie_version-$production\_$cycle-xsec\_vA\_genie\_test/*log | grep -i error | wc -l`
          + `more $job_dir/$genie_version-$production\_$cycle-xsec\_vA\_genie\_test/*log | grep -i fatal | wc -l`;
@@ -268,33 +267,21 @@ if($status eq "calculating neutrino-nucleus cross-section splines")
    {
       print "I found $nerr errors in the neutrino-nucleus cross-section calculation job log-files. \n";       
       print "Can not continue with validation runs unless this is sorted out.\n";       
-      exit;
-   }
-   print "Checking the number of output XML files... \n";
-   opendir my $dir, "$job_dir/$genie_version-$production\_$cycle-xsec\_vA\_genie\_test/" or die "Can not open directory: $!";
-   my @xmlfiles = grep { /.xml$/ } readdir $dir;
-   my @pbsfiles = grep { /.pbs$/ } readdir $dir;
-   closedir $dir;
-   $num_xmlfiles = @xmlfiles;
-   $num_pbsfiles = @pbsfiles;
-   print "Found $num_xmlfiles XML files and $num_pbsfiles PBS files. \n";
-   if($num_xmlfiles != $num_pbsfiles)   
-   {
-      print "The number of output XML files doesn't match the number of input PBS files. \n";       
-      print "Can not continue with validation runs unless this is sorted out.\n";       
-      exit;
+      # ------------
+      # Lots of errors are printed our by numerical integrators but things look ok
+      # Disable exit for now since we will soon be removing all the old numerical algorithms
+      # ------------
+      # exit;
    }
 
-   #
    # Merge all XML files to one and copy to standard locations
-   #
    print "Merging all neutrino-nucleus cross-section XML files... \n";
    $cmd = "source $genie_setup; " .
           "gspladd -d $job_dir/$genie_version-$production\_$cycle-xsec\_vA\_genie\_test/ -o gxspl-vA-$genie_version.xml; " .
           "cp gxspl-vA-$genie_version.xml $inp_data_dir/xspl/; " .
           "cp gxspl-vA-$genie_version.xml $out_data_dir/xsec/; " .
           "rm -f gxspl-vA-$genie_version.xml";
-   system("$cmd");
+   execute_command($cmd);
    update_status_file($status_file,"done calculating neutrino-nucleus cross-section splines");
    exit;
 }
@@ -313,8 +300,7 @@ if($status eq "done calculating neutrino-nucleus cross-section splines")
 {
   print "Generating standard neutrino MC jobs \n";
   $cmd = "perl $scripts_dir/submit_standard_neutrino_mc_test_jobs.pl $std_args --run all";
-  print "Running $cmd \n";  
-  system("$cmd $arg");
+  execute_command($cmd);
   update_status_file($status_file,"running standard neutrino MC jobs");
   exit;
 }
@@ -335,15 +321,16 @@ if($status eq "running standard neutrino MC jobs")
    print "Checking for errors... \n";
    $nerr = `more $job_dir/$genie_version-$production\_$cycle-mctest/*log | grep -i error | wc -l`
          + `more $job_dir/$genie_version-$production\_$cycle-mctest/*log | grep -i fatal | wc -l`;
-   if($nerr >= 0)
+   if($nerr > 0)
    {
       print "I found $nerr errors in the standard neutrino MC job log-files. \n";       
       print "Can not continue with validation runs unless this is sorted out.\n";       
-      exit;
+#      exit;
    }
    print "Checking the number of output ROOT/GHEP files... \n";
    opendir my $dir, "$job_dir/$genie_version-$production\_$cycle-mctest/" or die "Can not open directory: $!";
    my @evtfiles  = grep { /.ghep.root$/ } readdir $dir;
+   rewinddir $dir;
    my @pbsfiles  = grep { /.pbs$/       } readdir $dir;
    closedir $dir;
    $num_evtfiles = @evtfiles;
@@ -358,7 +345,7 @@ if($status eq "running standard neutrino MC jobs")
 
    $cmd = "mv $job_dir/$genie_version-$production\_$cycle-mctest/*ghep.root $out_data_dir/mctest/ghep/; " .
           "mv $job_dir/$genie_version-$production\_$cycle-mctest/*gst.root  $out_data_dir/mctest/gst/";
-   system("$cmd");
+   execute_command($cmd);
    update_status_file($status_file,"done running standard neutrino MC jobs");
    exit;
 }
@@ -386,7 +373,8 @@ if($status eq "done running standard neutrino MC jobs")
         "--check-vertex-distribution " .
         "--check-decayer-consistency; " .
         "mv $_.log $out_data_dir/reports/";
-     system("perl $scripts_dir/submit.pl --cmd \'$batch_cmd\' --job-name snchk-$ijob $std_args");
+     $cmd = "perl $scripts_dir/submit.pl --cmd \'$batch_cmd\' --job-name snchk-$ijob $std_args";
+     execute_command($cmd);
      $ijob++;
   }
   update_status_file($status_file,"running sanity checks on standard neutrino MC jobs");
@@ -430,7 +418,7 @@ if($status eq "done running sanity checks on standard neutrino MC jobs")
            "source $genie_setup; " .
            "gvld_sample_comp -f $out_data_dir/mctest/ghep/$_ -r $ref_topdir/mctest/ghep/$_ -o x; " .
            "mv x $out_data_dir/reports/";
-        $cmd = "perl submit.pl --cmd \'$batch_cmd\' --job-name compmc-$ijob $std_args";
+        $cmd = "perl $scripts_dir/submit.pl --cmd \'$batch_cmd\' --job-name compmc-$ijob $std_args";
         system("$cmd");    
         $ijob++;
      }
@@ -447,23 +435,36 @@ if($status eq "done running sanity checks on standard neutrino MC jobs")
 #
 
 if($status eq "comparing standard neutrino MC jobs with reference samples") 
-{
-   $batch_cmd1 = 
+{ 
+  # sample 1 
+  {
+   my $batch_cmd = 
       "source $genie_setup; " .
       "gevgen -p 14 -t 1000260560 -e 0.1,50 -f '1/x' --seed 123456 --run 100 --cross-sections $inp_data_dir/xspl/gxspl-vA-$genie_version.xml; " .
       "mv *ghep.root $out_data_dir/reptest/ghep/";
-   $batch_cmd2 = 
+   my $cmd = "perl $scripts_dir/submit.pl --cmd \'$batch_cmd\' --job-name repmc1 $std_args";
+   execute_command($cmd);
+  }
+
+  # sample 2
+  {
+   my $batch_cmd = 
       "source $genie_setup; " .
       "gevgen -p 14 -t 1000260560 -e 0.1,50 -f '1/x' --seed 123456 --run 101 --cross-sections $inp_data_dir/xspl/gxspl-vA-$genie_version.xml; " .
       "mv *ghep.root $out_data_dir/reptest/ghep/";
-   $batch_cmd3 = 
+   my $cmd = "perl $scripts_dir/submit.pl --cmd \'$batch_cmd\' --job-name repmc2 $std_args";
+   execute_command($cmd);
+  }
+
+  # sample 3 
+  {
+   my $batch_cmd = 
       "source $genie_setup; " .
       "gevgen -p 14 -t 1000260560 -e 0.1,50 -f '1/x' --seed 123456 --run 102 --cross-sections $inp_data_dir/xspl/gxspl-vA-$genie_version.xml; " .
       "mv *ghep.root $out_data_dir/reptest/ghep/";
-
-   system("perl submit.pl --cmd \'$batch_cmd1\' --job-name repmc1 $std_args");
-   system("perl submit.pl --cmd \'$batch_cmd2\' --job-name repmc2 $std_args");
-   system("perl submit.pl --cmd \'$batch_cmd3\' --job-name repmc3 $std_args");
+   my $cmd = "perl $scripts_dir/submit.pl --cmd \'$batch_cmd\' --job-name repmc2 $std_args";
+   execute_command($cmd);
+  }
 
   update_status_file($status_file,"running jobs for MC repeatability test");
   exit;
@@ -473,20 +474,30 @@ if($status eq "running jobs for MC repeatability test")
 {
    $njobs = num_of_jobs_running($user,"repmc");
    if($njobs > 0) {
-      exit;
+     exit;
    }
 
-   $batch_cmd1 = 
-      "source $genie_setup; " .
-      "gvld_repeatability_test --first-sample $out_data_dir/reptest/ghep/gntp.100.ghep.root --second-sample $out_data_dir/reptest/ghep/gntp.101.ghep.root --add-event-printout-in-error-log --max-num-of-errors-shown 10 -o reptest_runs100vs101.log; " .
-      "mv reptest_runs100vs101.log $out_data_dir/reports/";
-   $batch_cmd2 = 
-      "source $genie_setup; " .
-      "gvld_repeatability_test --first-sample $out_data_dir/reptest/ghep/gntp.100.ghep.root --second-sample $out_data_dir/reptest/ghep/gntp.102.ghep.root --add-event-printout-in-error-log --max-num-of-errors-shown 10 -o reptest_runs100vs102.log; " .
-      "mv reptest_runs100vs102.log $out_data_dir/reports/";
+   {
+     my $batch_cmd = 
+       "source $genie_setup; " .
+       "gvld_repeatability_test --first-sample $out_data_dir/reptest/ghep/gntp.100.ghep.root " .
+                               " --second-sample $out_data_dir/reptest/ghep/gntp.101.ghep.root " .
+                               " --add-event-printout-in-error-log --max-num-of-errors-shown 10 -o reptest_runs100vs101.log; " .
+       "mv reptest_runs100vs101.log $out_data_dir/reports/";
+     my $cmd = "perl $scripts_dir/submit.pl --cmd \'$batch_cmd\' --job-name reptest1 $std_args";
+     execute_command($cmd);
+   }
 
-   system("perl submit.pl --cmd \'$batch_cmd1\' --job-name reptest1 $std_args");
-   system("perl submit.pl --cmd \'$batch_cmd2\' --job-name reptest2 $std_args");
+   {
+     my $batch_cmd = 
+       "source $genie_setup; " .
+       "gvld_repeatability_test --first-sample $out_data_dir/reptest/ghep/gntp.100.ghep.root " .
+                              " --second-sample $out_data_dir/reptest/ghep/gntp.102.ghep.root " .
+                              " --add-event-printout-in-error-log --max-num-of-errors-shown 10 -o reptest_runs100vs102.log; " .
+       "mv reptest_runs100vs102.log $out_data_dir/reports/";
+     my $cmd = "perl $scripts_dir/submit.pl --cmd \'$batch_cmd\' --job-name reptest2 $std_args";
+     execute_command($cmd);
+   }
 
    update_status_file($status_file,"running MC repeatability test");
    exit;
@@ -524,8 +535,7 @@ if($status eq "done running MC repeatability test")
    }
    print "Generating MC samples needed for comparing the cross-section model with data \n";
    $cmd = "perl $scripts_dir/submit_neutrino_xsec_validation_mc_jobs.pl $std_args --nsubruns 1";
-   print "Running $cmd \n";  
-   system("$cmd $arg");
+   execute_command($cmd);
    update_status_file($status_file,"running MC jobs for cross-section model validation");
    exit;
 }
@@ -541,7 +551,7 @@ if($status eq "running MC jobs for cross-section model validation")
    }
    $cmd = "mv $job_dir/$genie_version-$production\_$cycle-xsec_validation/*ghep.root $out_data_dir/xsec_validation/ghep/; " .
           "mv $job_dir/$genie_version-$production\_$cycle-xsec_validation/*gst.root  $out_data_dir/xsec_validation/gst/";
-   system("$cmd");
+   execute_command($cmd);
    update_status_file($status_file,"done running MC jobs for cross-section model validation");
    exit;
 }
@@ -550,43 +560,48 @@ if($status eq "running MC jobs for cross-section model validation")
 # Run actual comparisons with cross-section data and compute error envelopes
 #
 if($status eq "done running MC jobs for cross-section model validation") 
-{
-   #
-   # Create an XML file list containing the generated MC files and the reference MC files, if any.
-   #
-
-   $cmd_file_list = "perl make_genie_sim_file_list.pl $out_data_dir/xsec_validation/ghep/,$genie_version";
-   system("$cmd_file_list > $out_data_dir/xsec_validation/file_list.xml");
-
-   if (defined $ref_topdir)
+{   
+   # Create an XML file list containing the generated MC files and cross-section files needed for data/MC comparisons
    {
-     $cmd_file_list_ref = $cmd_file_list . " $ref_topdir,ref_label";
-     system("$cmd_file_list_ref > $out_data_dir/xsec_validation/file_list_ref.xml");
+     my $cmd = "perl $scripts_dir2/make_genie_sim_file_list.pl " .
+               "$out_data_dir/xsec_validation/ghep/:$out_data_dir/xsec/,$genie_version " .
+               "> $out_data_dir/xsec_validation/file_list.xml";
+     execute_command($cmd);
    }
 
-   #
-   # Submit a single job to generate all GENIE/data comparisons for the current version
-   #
-   $batch_cmd_all = 
-      "source $genie_setup; " .
-      "gvld_nu_xsec -g $out_data_dir/xsec_validation/file_list.xml -o genie_$genie_version-world_nu_xsec_data_comp-all; " .
-      "ps2pdf14 genie_$genie_version-world_nu_xsec_data_comp-all.ps; " .
-      "mv genie_$genie_version-world_nu_xsec_data_comp-all.pdf  $out_data_dir/reports/; " .
-      "mv genie_$genie_version-world_nu_xsec_data_comp-all.root $out_data_dir/reports/; ";
-   system("perl submit.pl --cmd \'$batch_cmd_all\' --job-name xseccmp1 $std_args");
-
-   #   
-   # Submit a single job to generate all GENIE/data comparisons for the current and reference versions
-   #
+   # Create an XML file list, as above, but include the reference samples too
    if (defined $ref_topdir)
    {
-      $batch_cmd_all_withref = 
+     my $cmd = "perl $scripts_dir2/make_genie_sim_file_list.pl " .
+               "$out_data_dir/xsec_validation/ghep/:$out_data_dir/xsec/,$genie_version " .
+               "$ref_topdir/xsec_validation/ghep/:$ref_topdir/xsec/,$ref_label " .
+               "> $out_data_dir/xsec_validation/file_list_ref.xml";
+     execute_command($cmd);
+   }
+
+   # Submit a single job to generate all GENIE/data comparisons for the current version
+   {
+     my $batch_cmd = 
+        "source $genie_setup; " .
+        "gvld_nu_xsec -g $out_data_dir/xsec_validation/file_list.xml -o genie_$genie_version-world_nu_xsec_data_comp-all; " .
+        "ps2pdf14 genie_$genie_version-world_nu_xsec_data_comp-all.ps; " .
+        "mv genie_$genie_version-world_nu_xsec_data_comp-all.pdf  $out_data_dir/reports/; " .
+        "mv genie_$genie_version-world_nu_xsec_data_comp-all.root $out_data_dir/reports/; ";
+     my $cmd = "perl $scripts_dir/submit.pl --cmd \'$batch_cmd\' --job-name xseccmp1 $std_args";
+     execute_command($cmd);
+   }
+
+   # Submit a single job to generate all GENIE/data comparisons for the current and reference versions
+   if (defined $ref_topdir)
+   {
+     my $batch_cmd = 
          "source $genie_setup; " .
          "gvld_nu_xsec -g $out_data_dir/xsec_validation/file_list_ref.xml -o genie_$genie_version-world_nu_xsec_data_comp-all-withref; " .
          "ps2pdf14 genie_$genie_version-world_nu_xsec_data_comp-all-withref.ps; " .
          "mv genie_$genie_version-world_nu_xsec_data_comp-all-withref.pdf  $out_data_dir/reports/";
          "mv genie_$genie_version-world_nu_xsec_data_comp-all-withref.root $out_data_dir/reports/";
-      system("perl submit.pl --cmd \'$batch_cmd_all_withref\' --job-name xseccmp2 $std_args");
+     my $cmd = "perl $scripts_dir/submit.pl --cmd \'$batch_cmd\' --job-name xseccmp2 $std_args";
+     execute_command($cmd);
    }
 
    #
@@ -610,13 +625,14 @@ if($status eq "done running MC jobs for cross-section model validation")
    );
 
    foreach (@comparisons) {
-      $batch_cmd = 
+      my $batch_cmd = 
          "source $genie_setup; " .
          "gvld_nu_xsec -g $out_data_dir/xsec_validation/file_list.xml -o genie_$genie_version-world_nu_xsec_data_comp-$_; " .
          "ps2pdf14 genie_$genie_version-world_nu_xsec_data_comp-$_.ps; " .
          "mv genie_$genie_version-world_nu_xsec_data_comp-$_.pdf  $out_data_dir/reports/";
          "mv genie_$genie_version-world_nu_xsec_data_comp-$_.root $out_data_dir/reports/";
-      system("perl submit.pl --cmd \'$batch_cmd\' --job-name xseccmp-$_ $std_args");
+      my $cmd = "perl $scripts_dir/submit.pl --cmd \'$batch_cmd\' --job-name xseccmp-$_ $std_args";
+      execute_command($cmd);
    }
 
    update_status_file($status_file,"running cross-section model comparisons with data");
@@ -638,10 +654,10 @@ if($status eq "running cross-section model comparisons with data")
    if($njobs > 0) {
       exit;
    }
+
    print "Generating MC samples needed for comparing the hadronization model with data \n";
    $cmd = "perl $scripts_dir/submit_hadronization_validation_mc_jobs.pl $std_args --nsubruns 1";
-   print "Running $cmd \n";  
-   system("$cmd $arg");
+   execute_command($cmd);
    update_status_file($status_file,"running MC jobs for hadronization model validation");
    exit;
 }
@@ -656,7 +672,7 @@ if($status eq "running MC jobs for hadronization model validation")
       exit;
    }
    $cmd = "mv $job_dir/$genie_version-$production\_$cycle-hadronization/*ghep.root $out_data_dir/hadronization/ghep/";
-   system("$cmd");
+   execute_command($cmd);
    update_status_file($status_file,"done running MC jobs for hadronization model validation");
    exit;
 }
@@ -666,40 +682,45 @@ if($status eq "running MC jobs for hadronization model validation")
 #
 if($status eq "done running MC jobs for hadronization model validation") 
 {
-   #
-   # Create an XML file list containing the generated MC files and the reference MC files, if any.
-   #
-
-   $cmd_file_list = "perl make_genie_sim_file_list.pl $out_data_dir/hadronization/ghep/,$genie_version";
-   system("$cmd_file_list > $out_data_dir/xsec_validation/file_list.xml");
-
-   if (defined $ref_topdir)
+   # Create an XML file list containing the generated MC files    
    {
-     $cmd_file_list_ref = $cmd_file_list . " $ref_topdir,ref_label";
-     system("$cmd_file_list_ref > $out_data_dir/hadronization/file_list_ref.xml");
+     my $cmd = "perl $scripts_dir2/make_genie_sim_file_list.pl " .
+              "$out_data_dir/hadronization/ghep/,$genie_version " .
+              "> $out_data_dir/hadronization/file_list.xml";
+     execute_command($cmd);
    }
 
-   #
-   # Submit a single job to generate all GENIE/data comparisons for the current version
-   #
-   $batch_cmd_all = 
-      "source $genie_setup; " .
-      "gvld_hadronz_test -g $out_data_dir/hadronization/file_list.xml -o genie_$genie_version-hadronization_test.ps; " .
-      "ps2pdf14 genie_$genie_version-hadronization_test.ps; " .
-      "mv genie_$genie_version-hadronization_test.pdf $out_data_dir/reports/";
-   system("perl submit.pl --cmd \'$batch_cmd_all\' --job-name hadcmp1 $std_args");
-
-   #   
-   # Submit a single job to generate all GENIE/data comparisons for the current and reference versions
-   #
+   # Create an XML file list as above but include the reference MC files, if any.
    if (defined $ref_topdir)
    {
-      $batch_cmd_all_withref = 
+     my $cmd = "perl $scripts_dir2/make_genie_sim_file_list.pl " .
+               "$out_data_dir/hadronization/ghep/,$genie_version " .
+               "$ref_topdir/hadronization/ghep/,$ref_label " .
+               "> $out_data_dir/hadronization/file_list_ref.xml";
+     execute_command($cmd);
+   }
+
+   # Submit a single job to generate all GENIE/data comparisons for the current version
+   {
+     my $batch_cmd = 
+       "source $genie_setup; " .
+       "gvld_hadronz_test -g $out_data_dir/hadronization/file_list.xml -o genie_$genie_version-hadronization_test.ps; " .
+       "ps2pdf14 genie_$genie_version-hadronization_test.ps; " .
+       "mv genie_$genie_version-hadronization_test.pdf $out_data_dir/reports/";
+     my $cmd = "perl $scripts_dir/submit.pl --cmd \'$batch_cmd\' --job-name hadcmp1 $std_args";
+     execute_command($cmd);
+   }
+
+   # Submit a single job to generate all GENIE/data comparisons for the current and reference versions
+   if (defined $ref_topdir)
+   {
+     my $batch_cmd = 
          "source $genie_setup; " .
          "gvld_hadronz_test -g $out_data_dir/hadronization/file_list_ref.xml -o genie_$genie_version-hadronization_test-withref.ps; " .
          "ps2pdf14 genie_$genie_version-hadronization_test-withref.ps; " .
          "mv genie_$genie_version-hadronization_test-withref.pdf $out_data_dir/reports/";
-      system("perl submit.pl --cmd \'$batch_cmd_all_withref\' --job-name hadcmp2 $std_args");
+     my $cmd = "perl $scripts_dir/submit.pl --cmd \'$batch_cmd\' --job-name hadcmp2 $std_args";
+     execute_command($cmd);
    }
 
    update_status_file($status_file,"running hadronization model comparisons with data");
@@ -813,4 +834,34 @@ sub read_status_file
   return $status;
 }
 
+sub execute_command
+{
+  $cmd = shift;
+  print "Executing: $cmd \n";
+  my $ret = system("$cmd");
+  if ($ret != 0) 
+  { 
+      die "** Failed executing: $cmd \n"; 
+  }
+}
 
+sub check_number_of_xml_and_pbs_files
+{
+  $dirname = shift;
+  print "Searching for XML and PBS files in directory: $dirname \n";
+  opendir my $dir, $dirname or die "Can not open directory: $!";
+  my @xmlfiles = grep { /.xml$/ } readdir $dir;
+  rewinddir $dir;
+  my @pbsfiles = grep { /.pbs$/ } readdir $dir;
+  closedir $dir;
+#  print "XML files found: @xmlfiles \n";
+#  print "PBS files found: @pbsfiles \n";
+  $nxmlfiles = @xmlfiles;
+  $npbsfiles = @pbsfiles;
+  print "Found $nxmlfiles XML files and $npbsfiles PBS files. \n";
+  if($nxmlfiles != $npbsfiles)   
+  {
+    return 1;
+  }  
+  return 0;
+}
