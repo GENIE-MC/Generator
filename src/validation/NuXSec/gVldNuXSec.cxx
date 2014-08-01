@@ -676,6 +676,7 @@ void Draw(int icomparison)
           NuXSecFunc & xsec_func = *kComparison[icomparison]->XSecFunc();
           TGraphAsymmErrors * model = xsec_func.ExtractFromEventSample(
                  imodel, emin, emax, n, inlogx, scale, show_err_band);
+          assert(model);
           model->SetTitle(gOptGenieInputs.ModelTag(imodel).c_str());
           int lsty = kModelLineStyle[imodel];     
           utils::style::Format(model,kBlack,lsty,2,1,1,1);
