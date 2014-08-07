@@ -1,27 +1,60 @@
-## program to make plots comparing GENIE results with external data for hadron-nucleus.
-## brief directions, see INTRANUKE_PLOT_README.txt file for more detail.
-## FUNCTIONS:
-## This script generates format files based on user-specified experimental data and GENIE simulations.
-## It then uses those format files and data files as inputs to rootgINukeVal_new.C to generate plots, which are saved as ***.png files.
-##
-## required input: simulation file from gevgen_hadron and gntpc - use runfast.pl - and corresponding external data files
-## required options: type, a, dorf 
-##     type - one of ang (differential angular distr), nrg (double differential energy distr), or xsec (total, integ)
-##     a    - specifies first author of the data used for comparison.  See list in INTRANUKE_PLOT_README.txt.
-##     dorf - specifies date in name of GENIE root file, e.g. Jan_01_2013.
-## program searches for genie root ntuple file with these names and external ASCII data file in present directory or
-## in directories specified with rootdir and datadir, respectively. 
-## 
-## output is a .png plot in present directory or that specified with pngdir.
-## Intermediate format file goes to present directory.  This is input to rootgINukeVal.C, its location is
-## set by $rootgdir variable below. 
-##
-## example 1 (in directory where simulation and external data files exist)
-##       perl intranukeplotter.pl --a zumbro --dorf Dec_30_12 
-$rootgdir = '~/00-genie-check';
+###########################################################################################################
+##                                                                                                       ##
+## Title:       intranukeplotter.pl                                                                      ##
+##                                                                                                       ##
+## Author:      Nicholas Geary, University of Pittsburgh (nig22@pitt.edu)                                ##
+##                                                                                                       ##
+## Description: This script generates format files based on user-specified experimental data and GENIE   ##
+##              simulations. It then uses those format files and data files as inputs to rootgINukeVal.C ##
+##              to generate plots, which are saved as png files.                                         ##
+##                                                                                                       ##
+## Use:         To plot angular distributions:                                                           ##
+##                 perl intranukeplotter.pl --type ang --a author --dorf date [--v vsn] [--m mode]       ##
+##                 [--datadir ddir] [--rootdir rdir] [--pngdir pdir] [--rm discard] [--png suppress]     ##
+##                 [--name prepend]                                                                      ##
+##                                                                                                       ##
+##              To plot energy distributions:                                                            ##
+##                 perl intranukeplotter.pl --type nrg --a author --dorf date [--v vsn] [--m mode]       ##
+##                 [--datadir ddir] [--rootdir rdir] [--pngdir pdir] [--rm discard] [--png suppress]     ##
+##                 [--name prepend]                                                                      ##
+##                                                                                                       ##
+##              To plot total cross sections:                                                            ##
+##                 perl intranukeplotter.pl --type totxs --stype fate --p prb --t Tgt --hmax max         ##
+##                 --vmax max --dorf date [--a author] [--v vsn] [--m mode] [--datadir ddir]             ##
+##                 [--rootdir rdir] [--pngdir pdir] [--rm discard] [--png suppress] [--name prepend]     ##
+##                                                                                                       ##
+##              Notes: Compare up to 3 GENIE versions and 2 modes. Use switches --v2, --v3, --m2,        ##
+##                     --dorf2, etc.                                                                     ##
+##                     For total cross sections, script will automatically define authors whose data     ##
+##                     match the specified reaction. Manually defining authors for total cross sections  ##
+##                     turns this feature off.                                                           ##
+##                                                                                                       ##
+##              Currently supported authors:                                                             ##
+##                 Ang: cochran, hautala, ingram, levenson, mckeown                                      ##
+##                 Nrg: amian, baker, beck, bertrand, carman, chen, cochran, franz, hautala, hayashi,    ##
+##                      ingram, iwamoto, kin, levenson, mcgill, mckeown, meier, otsu, ouyang, roy, segel,##
+##                      slypen, stamer,tippawan, tyren, zumbro                                           ##
+##                 Tot:                                                                                  ##
+##                    Nucleon: abfalterer, auce, bauhof, dicello, dietrich, ibaraki, kirkby, mcgill,     ##
+##                             menet, mislivec, renberg, schimmerling, voss, zanelli                     ##
+##                    Kaon:    bugg, friedman, krauss                                                    ##
+##                    Pion:    allardyce, ashery, clough, gelderloos, meirav, saunders, wilkin           ##
+##                                                                                                       ##
+## Input:       ROOT file:  $rootdir/[author]_MMM_DD_YY_prb_tgt_nrg_vsn_mode.ginuke.root                 ##
+##              Data files:                                                                              ##
+##                 Ang: $datadir/author-prb-tgt-nrg-det-angdist.dat                                      ##
+##                 Nrg: $datadir/author-prb-tgt-nrg-det-ang.dat                                          ##
+##                 Tot: $datadir/author-prb-tgt-fate.dat                                                 ##
+##                                                                                                       ##
+## Output:      Ang: $pngdir/author-prb-tgt-nrg-det-angdist-vsn-mode-date.png                            ##
+##              Nrg: $pngdir/author-prb-tgt-nrg-det-ang-vsn-mode-date.png                                ##
+##              Tot: $pngdir/prb-tgt-fate-vsn-mode-date.png                                              ##
+##                                                                                                       ## 
+###########################################################################################################
+
 $iarg = 0;
 foreach (@ARGV) {
-    if ($_ eq '--type')    { $type       = $ARGV[$iarg+1]; }     ## angular distribution [ang], energy distribution [nrg], or total cross section [xsec]
+    if ($_ eq '--type')    { $type       = $ARGV[$iarg+1]; }     ## angular distribution, energy distribution, or total cross section
     if ($_ eq '--v')       { $vsn[0]     = $ARGV[$iarg+1]; }     ## GENIE version 1
     if ($_ eq '--v1')      { $vsn[0]     = $ARGV[$iarg+1]; }     ## GENIE version 1
     if ($_ eq '--v2')      { $vsn[1]     = $ARGV[$iarg+1]; }     ## GENIE version 2
@@ -49,6 +82,9 @@ foreach (@ARGV) {
     if ($_ eq '--stype')   { $st         = $ARGV[$iarg+1]; }
     if ($_ eq '--hmax')    { $hmax       = $ARGV[$iarg+1]; }    
     if ($_ eq '--vmax')    { $vmax       = $ARGV[$iarg+1]; }
+    if ($_ eq '--name')    { $prepend    = $ARGV[$iarg+1]; }
+    if ($_ eq '--rescale') { $rescale    = $ARGV[$iarg+1]; }
+    if ($_ eq '--rmode')   { $rmode      = $ARGV[$iarg+1]; }     ## root mode-- '0' runs 'root -b -q' and '1' runs 'root -l'
     $iarg++;
 };
 
@@ -82,6 +118,7 @@ if ($type eq 'ang') {
     'ouyang' => ['ouyang'],
     'roy' => ['roy'],
     'segel' => ['segel'],
+    'shibata' => ['shibata_p', 'shibata_pip'],
     'slypen' => ['slypen_c', 'slypen_fe'],
     'stamer' => ['stamer'],
     'tippawan' => ['tippawan'],
@@ -170,7 +207,7 @@ if ($group eq "hayashi") {
 };
 if ($group eq "ingram") {
     @p = qw( pip );  
-    @Tgt = qw( O );
+    @Tgt = qw( H2O );
     @nrg = ( 114, 163, 240 );
     @dp = qw( pip );
     $bins = 2;
@@ -273,6 +310,20 @@ if ($group eq "segel") {
     @dp = qw( p ); 
     $bins = 4;
 };
+if ($group eq "shibata_p") {
+    @p = qw( p );
+    @Tgt = qw( Cu );
+    @nrg = ( 747.063, 1732 );
+    @dp = qw( p );
+    $bins = 4;
+}
+if ($group eq "shibata_pip") {
+    @p = qw( pip );
+    @Tgt = qw( Cu );
+    @nrg = ( 1267.37, 2364.32 );
+    @dp = qw( p );
+    $bins = 4;
+}
 if ($group eq "slypen_c") {
     @p = qw( n );  
     @Tgt = qw( C );
@@ -350,6 +401,7 @@ if ($type eq 'nrg') {
     'ingram' => ['ingram_114', 'ingram_240'],
     'iwamoto' => ['iwamoto_870', 'iwamoto_2100'],
     'kin' => ['kin_300', 'kin_392'],
+    'kormanyos' => ['kormanyos'],
     'levenson' => ['levenson_1','levenson_2','levenson_3','levenson_4','levenson_5','levenson_6','levenson_7'],
     'mcgill' => ['mcgill'],    
     'mckeown' => ['mckeown'],
@@ -358,6 +410,7 @@ if ($type eq 'nrg') {
     'ouyang' => ['ouyang'],
     'roy' => ['roy', 'roy_ta'],
     'segel' => ['segel'],
+    'shibata' => ['shibata_p', 'shibata_pip'],
     'slypen' => ['slypen_c', 'slypen_c_62.7', 'slypen_fe'],
     'stamer' => ['stamer'],
     'tippawan' => ['tippawan'],
@@ -499,7 +552,7 @@ if ($group eq "hayashi") {
 };
 if ($group eq "ingram_114") {
     @p = qw( pip );  
-    @Tgt = qw( O );
+    @Tgt = qw( H2O );
     @nrg = ( 114 );
     @dp = qw( pip );
     @ang = ( 50, 80 );
@@ -509,7 +562,7 @@ if ($group eq "ingram_114") {
 };
 if ($group eq "ingram_240") {
     @p = qw( pip );  
-    @Tgt = qw( O );
+    @Tgt = qw( H2O );
     @nrg = ( 240 );
     @dp = qw( pip );
     @ang = ( 60, 130 );
@@ -555,6 +608,16 @@ if ($group eq "kin_392") {
     @ang = ( 20, 25, 40, 50, 75, 90, 105 );
     @cthmin = ( .921, .839, .731, .602, .454, .208, -.052, -.309 );
     @cthmax = ( .956, .891, .799, .682, .545, .309, .052, -.208 ); 
+    $bins = 4;
+};
+if ($group eq "kormanyos") {
+    @p = qw( kp );
+    @Tgt = qw( C );
+    @nrg = ( 367 );
+    @dp = qw( kp );
+    @ang = ( 42 );
+    @cthmin = ( .682 );
+    @cthmax = ( .799 ); 
     $bins = 4;
 };
 if ($group eq "levenson_1") {
@@ -727,6 +790,26 @@ if ($group eq "segel") {
     @cthmax = ( .992, .984, .976, .964, .95, .937, .919, .898, .874, .854, .828, .8, .77, .738, .705, .670, .633, .602 );  
     $bins = 4;
 };
+if ($group eq "shibata_p") {
+    @p = qw( p );
+    @Tgt = qw( Cu );
+    @nrg = ( 747.063, 1732 );
+    @dp = qw( p );
+    @ang = ( 30, 45, 60, 75, 90, 120 );
+    @cthmin = ( .819, .643, .423, .174, -.087, -.574);
+    @cthmax = ( .906, .766, .574, .342, .087, -.423);
+    $bins = 4;
+}
+if ($group eq "shibata_pip") {
+    @p = qw( pip );
+    @Tgt = qw( Cu );
+    @nrg = ( 1267.37, 2364.32 );
+    @dp = qw( p );
+    @ang = ( 30, 45, 60, 75, 90, 120 );
+    @cthmin = ( .819, .643, .423, .174, -.087, -.574);
+    @cthmax = ( .906, .766, .574, .342, .087, -.423);
+    $bins = 4;
+}
 if ($group eq "slypen_c") {
     @p = qw( n );  
     @Tgt = qw( C );
@@ -818,7 +901,7 @@ foreach $tgt (@Tgt) {
 
 ### CROSS SECTION ROUTINE ###
 
-if ($type eq 'xsec') {
+if ($type eq 'totxs') {
 
 (@authors) ? ($defaults = 'no') : ($defaults = 'yes');  ## use defaults if user did not define authors
 if ($defaults eq 'yes') {
@@ -848,7 +931,7 @@ if ($defaults eq 'yes') {
     if ($probe eq 'pip') {
 	if ($tgt eq 'al') {
 	    if ($subtype eq 'reac') {
-		@authors = qw(allardyce);
+		@authors = qw(allardyce ashery);
 	    } else {@authors = qw(ashery)};
 	};
 	if ($tgt eq 'bi') {@authors = qw(ashery)};
@@ -856,7 +939,7 @@ if ($defaults eq 'yes') {
 	    if ($subtype eq 'total') {
 		@authors = qw(ashery clough saunders wilkin);
 	    } elsif ($subtype eq 'reac') {
-		@authors = qw(allardyce meirav saunders);
+		@authors = qw(allardyce ashery meirav saunders);
 	    } else {@authors = qw(ashery)};
 	};
 	if ($tgt eq 'fe') {@authors = qw(ashery)};
@@ -881,7 +964,7 @@ if ($defaults eq 'yes') {
     if ($probe eq 'pim') {
 	if ($tgt eq 'al') {
 	    if ($subtype eq 'reac') {
-		@authors = qw(allardyce);
+		@authors = qw(allardyce ashery);
 	    } else {@authors = qw(ashery)};
 	};
 	if ($tgt eq 'bi' || $tgt eq 'fe' || $tgt eq 'nb') {@authors = qw(ashery)};
@@ -889,7 +972,7 @@ if ($defaults eq 'yes') {
 	    if ($subtype eq 'total') {
 		@authors = qw(ashery clough gelderloos wilkin);
 	    } elsif ($subtype eq 'reac') {
-		@authors = qw(allardyce gelerloos meirav);
+		@authors = qw(allardyce ashery gelderloos meirav);
 	    } else {@authors = qw(ashery)};
 	};
 	if ($tgt eq 'li') {
@@ -948,7 +1031,9 @@ make_png_files();
 ## Subroutine to check that input is valid ##
 
 sub check_input {
-    if ($type eq 'xsec') {
+    $GENIE = $ENV{"GENIE"};
+    if ($GENIE eq '') {error_exit_g();}
+    if ($type eq 'totxs') {
 	error_exit("type of cross section") unless defined $st;
 	error_exit("horizontal max") unless defined $hmax;
 	error_exit("vertical max") unless defined $vmax;
@@ -956,9 +1041,9 @@ sub check_input {
     if ($type eq 'ang' || $type eq 'nrg') {error_exit("author") unless defined $author};
     %author_hash = ( 
         'amian' => '1', 'baker' => '1', 'beck' => '1', 'bertrand' => '1', 'carman' => '1', 'chen' => '1', 'cochran' => '2',
-        'franz' => '1', 'hautala' => '2', 'hayashi' => '1', 'ingram' => '2', 'iwamoto' => '1', 'kin' => '1', 'levenson' => '2',
-        'mcgill' => '1', 'mckeown' => '2', 'meier' => '1', 'otsu' => '1', 'ouyang' => '1', 'roy' => '1', 'segel' => '1', 
-        'slypen' => '1', 'stamer' => '1', 'tippawan' => '1', 'tyren' => '1', 'zumbro' => '1'
+        'franz' => '1', 'hautala' => '2', 'hayashi' => '1', 'ingram' => '2', 'iwamoto' => '1', 'kin' => '1', 'kormanyos' => '1',
+        'levenson' => '2', 'mcgill' => '1', 'mckeown' => '2', 'meier' => '1', 'otsu' => '1', 'ouyang' => '1', 'roy' => '1',
+        'segel' => '1', 'shibata' => '1', 'slypen' => '1', 'stamer' => '1', 'tippawan' => '1', 'tyren' => '1', 'zumbro' => '1'
     );
     $valid_author = $author_hash {$author};
     if ($type eq 'ang' && $valid_author ne '2') {error_exit("author")};
@@ -969,8 +1054,10 @@ sub check_input {
 	'schimmerling' => '3', 'voss' => '3', 'zanelli' => '3', 'bugg' => '3', 'friedman' => '3', 'krauss' => '3', 'allardyce' => '3', 'clough' => '3', 'gelderloos' => '3', 'meirav' => '3', 'saunders' => '3', 'wilkin' => '3'
     );
     $valid_author_2 = $author_hash_2 {$author};
-    if ($type eq 'xsec' && $authors[0] && $valid_author_2 ne '3') {error_exit("author")};
-    if ($type ne 'ang' && $type ne 'nrg' && $type ne 'xsec') {error_exit("type")};
+    if ($type eq 'totxs' && $authors[0] && $valid_author_2 ne '3') {error_exit("author")};
+    if ($type ne 'ang' && $type ne 'nrg' && $type ne 'totxs') {error_exit("type")};
+
+    ($prepend eq 'yes') ? ($a_name = "$author\_") : ($a_name = "");
 };
 
 ## Subroutine to set defaults ##
@@ -992,12 +1079,23 @@ sub set_defaults {
     if ($rootdir) {$rootdir =~ s|/$||};     ## if rootdir is defined, remove any trailing slash
     if ($pngdir) {$pngdir =~ s|/$||};       ## if pngdir is defined, remove any trailing slash
     @mdl = qw( ha hn )  unless defined @mdl;  ## assume both hA and hN models if user does not specify
-    @vsn = ( 280 )      unless defined @vsn;  ## assume GENIE version 2.8.0 if user does not specify
+    if (defined $vsn[0] != 1) {
+	if ($GENIE =~ m/devel/i) {           ## if $GENIE contains "devel" (regardless of case)
+	    @vsn = ('DEVEL');
+	} elsif (!($GENIE =~ m/\d/)) {       ## if $GENIE contains no digits
+	    @vsn = ('280');
+	} else {
+	    @nums = ($GENIE =~ m/(\d+)/g);   ## extract the digits from $GENIE
+	    $v_num = join("",@nums);
+	    @vsn = ("$v_num");
+	}
+    }
+    ## @vsn = ( 280 )      unless defined @vsn;  ## assume GENIE version 2.8.0 if user does not specify
     if ($vsn[0] == 266 || $vsn[1] == 266 || $vsn[2] == 266) {@mdl = qw( hA )};  ## eliminate hN if using v2.6.6
     if (($vsn[1]) && ($dorf[1] eq '')) {$dorf[1] = $dorf[0]};  ## assume date of second group of root files is same as first if user does not specify
     if (($vsn[2]) && ($dorf[2] eq '')) {$dorf[2] = $dorf[0]};  ## assume date of third group of root files is same as first if user does not specify
-    $datadir = "." unless defined $datadir;            ## default directory to find data files is present working directory
-    $rootdir = "." unless defined $rootdir;            ## default directory to find root files is pwd
+    $datadir = "data_files" unless defined $datadir;            ## default directory to find data files is present working directory
+    $rootdir = "root_files" unless defined $rootdir;            ## default directory to find root files is pwd
     $pngdir = "png_files" unless defined $pngdir;      ## default directory to put png files is png_files directory within pwd
 };
 
@@ -1016,7 +1114,8 @@ sub set_particles {
 ## Subroutine to set names of files ##
 
 sub set_file_names {
-    $tgt = lc($tgt); $Tgt = ucfirst($tgt);
+    $tgt = lc($tgt);
+    ($tgt eq 'h2o') ? ($Tgt = 'H2O') : ($Tgt = ucfirst($tgt));
     $vname1 = "-$vsn[0]";
     ($vsn[1]) ? ($vname2 = "vs$vsn[1]") : ($vname2 = "");
     ($vsn[2]) ? ($vname3 = "vs$vsn[2]") : ($vname3 = "");
@@ -1024,7 +1123,7 @@ sub set_file_names {
     if ($mdl[1]) {$mdl[1] = lc($mdl[1])};
     if ($type eq 'ang') {$formatfilename = "fg-$author-$probe-$tgt-$det$vname1$vname2$vname3-$mdl[0]$mdl[1]"; $datafile = "$author-$probe-$tgt-$energy-$det-angdist.dat"};
     if ($type eq 'nrg') {$formatfilename = "fg-$author-$probe-$tgt-$energy-$det$vname1$vname2$vname3-$mdl[0]$mdl[1]"; $datafile = "$author-$probe-$tgt-$energy-$det-$angle.dat"};
-    if ($type eq 'xsec') {$formatfilename = "fg-$probe-$tgt-$subtype$vname1$vname2$vname3-$mdl[0]$mdl[1]"; $datafile = "$author-$probe-$tgt-$subtype.dat"};
+    if ($type eq 'totxs') {$formatfilename = "fg-$probe-$tgt-$subtype$vname1$vname2$vname3-$mdl[0]$mdl[1]"; $datafile = "$author-$probe-$tgt-$subtype.dat"};
     %iso_hash = ('h' => 'h1', 'd' => 'h2', 'he' => 'he4', 'li' => 'li7', 'li6' => 'li6', 'be' => 'be9', 'b' => 'b11', 'c' => 'c12', 'n' => 'n14', 'o' => 'o16', 'al' => 'al27', 'ca' => 'ca40','fe' => 'fe56', 
                  'co' => 'co59', 'ni' => 'ni58', 'cu' => 'cu63', 'zr' => 'zr90', 'nb' => 'nb93', 'sn' => 'sn120', 'ta' => 'ta181', 'pb' => 'pb208', 'bi' => 'bi209');
     $isotope = $iso_hash{$tgt};
@@ -1040,13 +1139,16 @@ sub set_root_file_name {
     $date = $date_hash{$v};
     %mM_hash = ('ha' => 'hA', 'hn' => 'hN');
     $mM = $mM_hash{$m};
-    if ($type eq 'ang' || $type eq 'nrg') {$rootfile = "$date\_$probe\_$Tgt\_$energy\_v$v\_$mM.ginuke.root"};
-    if ($type eq 'xsec') {$rootfile = "$date\_$probe\_$Tgt\_totxs_v$v\_$mM.txt"};
-    if ($type ne 'xsec' && $author eq 'ingram') {$rootfile = "$date\_$probe\_H2O_$energy\_v$v\_$mM.ginuke.root"};
-    if ($type eq 'xsec' && $author eq 'ingram') {$rootfile = "$date\_$probe\_H2O_totxs_v$v\_$mM.txt"};
+    if ($v eq 'DEVEL') {$vee = '';} else {$vee = 'v';}
+    if ($type eq 'ang' || $type eq 'nrg') {$rootfile = "$a_name$date\_$probe\_$Tgt\_$energy\_$vee$v\_$mM.ginuke.root"};
+    if ($type eq 'totxs') {$rootfile = "$a_name$date\_$probe\_$Tgt\_totxs_$vee$v\_$mM.txt"};
     $rootfilename = "$rootdir/$rootfile";
-    %version_hash = ('280' => '2.8.0', '271' => '2.7.1', '266' => '2.6.6');
-    $version = $version_hash{$v};
+    %version_hash = ('282' => '2.8.2', '280' => '2.8.0', '271' => '2.7.1', '266' => '2.6.6', 'DEVEL' => 'DEVEL');
+    if (defined $version_hash{$v}) {
+	$version = $version_hash{$v};
+    } else {
+	$version = $v;
+    }
     if (!-e $rootfilename) {$rooterror++};
 };
 
@@ -1055,7 +1157,7 @@ sub set_root_file_name {
 sub set_outfile_name {
     if ($type eq 'ang') {$outfile = "$author-$probe-$tgt-$energy-$det-angdist$vname1$vname2$vname3-$mdl[0]$mdl[1]-$dorf[0]"};
     if ($type eq 'nrg') {$outfile = "$author-$probe-$tgt-$energy-$det-$angle$vname1$vname2$vname3-$mdl[0]$mdl[1]-$dorf[0]"};
-    if ($type eq 'xsec') {$outfile = "$probe-$tgt-$subtype$vname1$vname2$vname3-$mdl[0]$mdl[1]-$dorf[0]"};
+    if ($type eq 'totxs') {$outfile = "$probe-$tgt-$subtype$vname1$vname2$vname3-$mdl[0]$mdl[1]-$dorf[0]"};
 };
 
 ## Subroutine to make format file ##
@@ -1139,7 +1241,7 @@ sub make_format_file {
 	close (File);
     };
 
-    if ($type eq 'xsec') {
+    if ($type eq 'totxs') {
 	if (-e $formatfilename) {unlink("$formatfilename")};
 	open (File, ">> $formatfilename");
 	$i = 0;
@@ -1180,11 +1282,15 @@ sub make_format_file {
 ## Subroutine to make png files ##
 
 sub make_png_files {
-    ## if ($type eq 'xsec') {$dataerror = 0; $rooterror = 0};
+    ## if ($type eq 'totxs') {$dataerror = 0; $rooterror = 0};
     if ($png ne 'off' && $dataerror > 0) {print "**Did not make png file** (Missing $dataerror data files.)\n"};
     if ($png ne 'off' && $dataerror == 0 && $rooterror > 0) {print "**Did not make png file** (Missing at least one root file.)\n"};
-    if (($png ne 'off') && ($dataerror == 0) && ($rooterror == 0)) {  
-	system ("source /usr/GENIE/setup_genie; root -l '$rootgdir/rootgINukeVal.C(\x{0022}$formatfilename\x{0022},\x{0022}$datadir\x{0022},\x{0022}$rootdir\x{0022},\x{0022}$pngdir\x{0022})'");
+    if (($png ne 'off') && ($dataerror == 0) && ($rooterror == 0)) {
+	if ($rmode == 1) {
+	    system "root -l '$GENIE/src/validation/Intranuke/rootgINukeVal.C(\x{0022}$formatfilename\x{0022},\x{0022}$datadir\x{0022},\x{0022}$rootdir\x{0022},\x{0022}$pngdir\x{0022})'";
+	} else {
+	    system "root -b -q '$GENIE/src/validation/Intranuke/rootgINukeVal.C(\x{0022}$formatfilename\x{0022},\x{0022}$datadir\x{0022},\x{0022}$rootdir\x{0022},\x{0022}$pngdir\x{0022})'";
+	}
 	if ($remove eq 'yes') {unlink ("$formatfilename")};
     };
 };
@@ -1216,6 +1322,7 @@ sub set_domain_and_range {
 	find_mean_vert();
 	determine_scale();
 	$domain = "0,$max_horiz";
+	if ($rescale) {$max_vert *= $rescale;}
 	$range = "$log$min_vert,$max_vert";
     } else {
 	print "WARNING: Could not find $datafilename to set plot range!\n";
@@ -1280,7 +1387,7 @@ sub determine_scale {
 	    } else { ($max_vert > 10) ? ($scale = "logarithmic") : ($scale = "linear"); };  ## if the ratio is less than 13 but the max is greater than 10, do logarithmic anyway
         } else {$scale = "linear"};  ## if the maximum value was less than 1.5 set scale to linear
     } else { ($max_vert > 10) ? ($scale = "logarithmic") : ($scale = "linear"); };  ## if there were fewer than 7 data points but the max is greater than 10, use logarithmic scale
-    if ($type eq 'ang' || $type eq 'xsec') {$scale = "linear"};
+    if ($type eq 'ang' || $type eq 'totxs') {$scale = "linear"};
     if ($scale eq "logarithmic") {
 	$log = "-";  ## include key for logarithmic scale
 	$max_vert = 3 * $max_vert;  ## set maximum to triple the max in the data
@@ -1288,7 +1395,7 @@ sub determine_scale {
     };
     if ($scale eq "linear") {
 	$log = "";  ## do not include logarithmic key
-	$max_vert = 1.25 * $max_vert;  ## set maximum to 125% the max in the data
+	$max_vert = 1.35 * $max_vert;  ## set maximum to 135% the max in the data
 	$min_vert = 0;  ## set minimum to 0
     };
 };
@@ -1329,15 +1436,15 @@ sub load_datafile {
 
 sub error_exit {
     print "\nThere was a problem with the command line arguments. (Invalid $_[0].) ";
-    print "Would you like to plot angular distributions, energy distributions, or total cross sections?\nEnter 'ang', 'nrg', or 'xsec': ";
+    print "Would you like to plot angular distributions, energy distributions, or total cross sections?\nEnter 'ang', 'nrg', or 'totxs': ";
     $answer = <STDIN>; chomp ($answer); $answer = lc($answer);
-    if ($answer ne 'ang' && $answer ne 'nrg' && $answer ne 'xsec') {$understood = 'no'};
+    if ($answer ne 'ang' && $answer ne 'nrg' && $answer ne 'totxs') {$understood = 'no'};
     while ($understood eq 'no') {
-	print "\nAnswer not recognized. Please enter 'ang' for angular distributions, 'nrg' for energy distributions, or 'xsec' for total cross sections: ";
+	print "\nAnswer not recognized. Please enter 'ang' for angular distributions, 'nrg' for energy distributions, or 'totxs' for total cross sections: ";
 	$answer = <STDIN>; chomp ($answer); $answer = lc($answer);
-	if ($answer eq 'ang' || $answer eq 'nrg' || $answer eq 'xsec') {$understood = 'yes'};
+	if ($answer eq 'ang' || $answer eq 'nrg' || $answer eq 'totxs') {$understood = 'yes'};
     };
-    %hash = ('ang' => 'angular distributions', 'nrg' => 'energy distributions', 'xsec' => 'total cross sections');
+    %hash = ('ang' => 'angular distributions', 'nrg' => 'energy distributions', 'totxs' => 'total cross sections');
     $choice = $hash{$answer};
     print "\nYou chose to get $choice. Here's how to do it:\n";
     if ($answer eq 'ang' || $answer eq 'nrg') {
@@ -1346,7 +1453,7 @@ sub error_exit {
 	if ($answer eq 'ang') {print "**  --type    : select angular distributions by entering 'ang' as the argument\n"};
 	if ($answer eq 'nrg') {print "**  --type    : select energy distributions by entering 'nrg' as the argument\n"};
 	print "**  --a       : specifies author; see below for valid author inputs\n";
-	print "    --v       : specifies GENIE version of root file; use no decimals; assumes 280 if not specified\n";
+	print "    --v       : specifies GENIE version of root file; use no decimals; assumes \$GENIE if not specified\n";
 	print "    --v2      : if using two root files, specifies GENIE version of second file\n";
 	print "    --v3      : if using three root files, specifies GENIE version of third file\n";
 	print "    --m       : specifies first GENIE model; assumes hA if neither model is specified\n";
@@ -1359,6 +1466,8 @@ sub error_exit {
 	print "    --pngdir  : specifies destination directory of png files; assumes png_files directory within pwd if not specified\n";
 	print "    --rm      : the remove option; enter 'yes' as argument to discard format files after use; only possible if png files are produced\n";
 	print "    --png     : enter 'off' as argument to turn off png file formation (ie, to only make format files)\n";
+	print "    --name    : enter 'yes' to look for root files with the author's name in the front\n";
+	print "    --rescale : specify a factior by which to multiply the vertical maxima of plots\n";
 	print "** necessary input\n\n";
 	print "Valid Author Inputs:\n";
 	if ($answer eq 'ang') {print "cochran, hautala, ingram, levenson, mckeown\n"};
@@ -1367,10 +1476,10 @@ sub error_exit {
 	    print "levenson, mcgill, mckeown, meier, otsu, ouyang, roy, segel, slypen, stamer,tippawan, tyren, zumbro\n"};
 	die("\n");
     };
-    if ($answer eq 'xsec') {
+    if ($answer eq 'totxs') {
 	print "\nTo use, type: perl intranukeplotter.pl --paramater your_input --paramater your_input --paramater your_input\n\n";
 	print "Parameters:\n";
-	print "**  --type    : select total cross sections by entering 'xsec' as the argument\n";
+	print "**  --type    : select total cross sections by entering 'totxs' as the argument\n";
 	print "**  --stype   : specifies a sub-type; enter 'cex' for charge exchange, 'reac' for reaction, etc.\n";
         print "**  --p       : specifies a probe; enter 'p' for proton, 'n' for neutron, 'pip' for positive pion, etc.\n";
 	print "**  --t       : specifies a target; enter 'C' for carbon, 'Ca' for calcium, etc.\n";
@@ -1394,6 +1503,8 @@ sub error_exit {
 	print "    --pngdir  : specifies destination directory of png files; assumes png_files directory within pwd if not specified\n";
 	print "    --rm      : the remove option; enter 'yes' as argument to discard format files after use; only possible if png files are produced\n";
 	print "    --png     : enter 'off' as argument to turn off png file formation (ie, to only make format files)\n";
+	print "    --name    : enter 'yes' to look for root files with the author's name in the front\n";
+	print "    --rescale : specify a factior by which to multiply the vertical maxima of plots\n";
 	print "** necessary inputs\n";
         print "Valid Author Inputs:\n";
 	print " Nucleon - abfalterer, auce, bauhof, dicello, dietrich, ibaraki, kirkby, mcgill, menet, mislivec, renberg, schimmerling, voss, zanelli\n";
@@ -1403,20 +1514,14 @@ sub error_exit {
     };
 };
 
+sub error_exit_g {
+    die("You must set up GENIE before running this script.\n");
+}
 
 
 
 
 
-
-########################################
-##                                    ##
-##  Notes for using on other systems  ##
-##                                    ##
-########################################
-
-## Script finds rootgINukeVal_new.C in /data/nick/00-genie-check/
-## Script sets up ROOT with /usr/GENIE/setup_genie
 
 
 #### Notes for for future edits
