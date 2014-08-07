@@ -1,9 +1,43 @@
-## FUNCTIONS:
-## This script runs GENIE simulations with the gevgen_hadron command to produce gntp.inuke.***.ghep.root or gntp.***.ghep.root files.
-## It then converts those files using the gntpc command if the user selected 'root' as the type.
-## If the user selected 'xsec' as the type, it instead uses the ***.ghep.root file and the gtestINukeHadroXSec command to produce a text file with cross sections.
+###########################################################################################################
+##                                                                                                       ##
+## Title:       runfast.pl                                                                               ##
+##                                                                                                       ##
+## Author:      Nicholas Geary, University of Pittsburgh (nig22@pitt.edu)                                ##
+##                                                                                                       ##
+## Description: This script runs GENIE simulations with the gevgen_hadron command to produce             ##
+##              gntp.inuke.***.ghep.root or gntp.***.ghep.root files. It then converts those files using ##
+##              the gntpc command if the user selected 'root' as the type. If the user selected 'totxs'  ##
+##              as the type, it instead uses the ***.ghep.root file and the gtestINukeHadroXSec command  ##
+##              to produce a text file with cross sections.                                              ##
+##                                                                                                       ##
+## Use:         To get ***.ginuke.root files to match an author's data:                                  ##
+##                 perl runfast.pl --type root --a author [--n nev] [--r run] [--m mode] [--msg message] ##
+##                 [--rm discard] [--name prepend] [--rootdir rdir]                                      ##
+##                                                                                                       ##
+##              To get ***.ginuke.root files for user-defined reactions:                                 ##
+##                 perl runfast.pl --type root --p probe --k nrg --t target [--n nev] [--r run]          ##
+##                 [--m mode] [--msg message] [--rm discard] [--name prepend] [--rootdir rdir]           ##
+##                                                                                                       ##
+##              To get total cross section text files:                                                   ##
+##                 perl runfast.pl --type totxs --p probe --t target --min min_ke --max max_ke --s step  ##
+##                 [--n nev] [--r run] [--m mode] [--msg message] [--rm discard] [--name prepend]        ##
+##                 [--rootdir rdir]                                                                      ##
+##                                                                                                       ##
+##              Note: Where applicable, script supports up to 2 probes, 6 energies, 6 targets,           ##
+##                    and 2 modes. Use switches --p2, --k2, --k3, etc.                                   ##
+##                                                                                                       ##
+## Input:       (command line arguments only)                                                            ##
+##                                                                                                       ##
+## Output:      $rootdir/[author_]MMM_DD_YY_prb_tgt_nrg_vsn_mode.ginuke.root  and/or                     ##
+##              $rootdir/[author_]MMM_DD_YY_prb_tgt_totxs_vsn_mode.txt                                   ##
+##                                                                                                       ##
+##              Note: $rootdir is $PWD when not specified by the user                                    ##
+##                                                                                                       ##
+###########################################################################################################
 
 
+$GENIE = $ENV{"GENIE"};
+if ($GENIE eq '') {error_exit_g();}
 
 ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);  ## call time function; used to name files and generate initial run number
 my @abbr = qw( Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec );
@@ -20,9 +54,9 @@ foreach (@ARGV) {
     if ($_ eq '--k4')      { $k[3]      = $ARGV[$iarg+1]; } ## kinetic energy 4
     if ($_ eq '--k5')      { $k[4]      = $ARGV[$iarg+1]; } ## kinetic energy 5
     if ($_ eq '--k6')      { $k[5]      = $ARGV[$iarg+1]; } ## kinetic energy 6
-    if ($_ eq '--min')     { $min_ke    = $ARGV[$iarg+1]; }
-    if ($_ eq '--max')     { $max_ke    = $ARGV[$iarg+1]; }
-    if ($_ eq '--s')       { $step_size = $ARGV[$iarg+1]; }
+    if ($_ eq '--min')     { $min_ke    = $ARGV[$iarg+1]; } ## minimum energy
+    if ($_ eq '--max')     { $max_ke    = $ARGV[$iarg+1]; } ## maximum energy
+    if ($_ eq '--s')       { $step_size = $ARGV[$iarg+1]; } ## size of energy intervals
     if ($_ eq '--p')       { $prbpdg[0] = $ARGV[$iarg+1]; } ## probe 1 pdg code (must be defined)
     if ($_ eq '--p1')      { $prbpdg[0] = $ARGV[$iarg+1]; } ## probe 1 pdg code (must be defined)
     if ($_ eq '--p2')      { $prbpdg[1] = $ARGV[$iarg+1]; } ## probe 2 pdg code
@@ -33,15 +67,16 @@ foreach (@ARGV) {
     if ($_ eq '--t3')      { $tgt[2]    = $ARGV[$iarg+1]; } ## target 3
     if ($_ eq '--t4')      { $tgt[3]    = $ARGV[$iarg+1]; } ## target 4
     if ($_ eq '--t5')      { $tgt[4]    = $ARGV[$iarg+1]; } ## target 5
-    if ($_ eq '--t6')      { $tgt[5]    = $ARGV[$iarg+1]; } ## target 5
+    if ($_ eq '--t6')      { $tgt[5]    = $ARGV[$iarg+1]; } ## target 6
     if ($_ eq '--msg')     { $msg       = $ARGV[$iarg+1]; } ## message thresholds
-    if ($_ eq '--v')       { $version   = $ARGV[$iarg+1]; } ## GENIE version
     if ($_ eq '--m')       { $m[0]      = $ARGV[$iarg+1]; } ## GENIE model 1
     if ($_ eq '--m1')      { $m[0]      = $ARGV[$iarg+1]; } ## GENIE model 1
     if ($_ eq '--m2')      { $m[1]      = $ARGV[$iarg+1]; } ## GENIE model 2
     if ($_ eq '--a')       { $author    = $ARGV[$iarg+1]; } ## author for group of runs (will define all necessary parameters)
-    if ($_ eq '--type')    { $type      = $ARGV[$iarg+1]; } ## choose to get a root file or a text file with cross sections
+    if ($_ eq '--type')    { $type      = $ARGV[$iarg+1]; } ## choose to get ROOT files or a text file with total cross sections
     if ($_ eq '--rm')      { $remove    = $ARGV[$iarg+1]; } ## choose to discard gntp files after they're used
+    if ($_ eq '--name')    { $prepend   = $ARGV[$iarg+1]; } ## choose to prepend author's name to ROOT files
+    if ($_ eq '--rootdir') { $rootdir   = $ARGV[$iarg+1]; } ## destination directory for ROOT files
     $iarg++;
 };
 
@@ -96,10 +131,10 @@ if ($tgt[5]) {$tgt[5] = lc($tgt[5]); $tgt[5] = $tgt_input_hash{$tgt[5]}};
 
 $r = 100000 * $sec + 100 * $yday + $yr  unless defined $r;  ## default initial run number
 $type = lc($type);
-if ($type ne 'root' && $type ne 'xsec' && $type ne 'both') {error_exit("type")};
-%xsec_hash = ('root' => 'no', 'xsec' => 'yes', 'both' => 'yes');
-$xsec = $xsec_hash{$type};
-%root_hash = ('root' => 'yes', 'xsec' => 'no', 'both' => 'yes');
+if ($type ne 'root' && $type ne 'totxs' && $type ne 'both') {error_exit("type")};
+%totxs_hash = ('root' => 'no', 'totxs' => 'yes', 'both' => 'yes');
+$totxs = $totxs_hash{$type};
+%root_hash = ('root' => 'yes', 'totxs' => 'no', 'both' => 'yes');
 $root = $root_hash{$type};
 
 if ($author) {
@@ -108,9 +143,10 @@ if ($author) {
 };
 %author_hash = (  ## acceptable author inputs are those listed at top of script
     'amian' => '1', 'baker' => '1', 'beck' => '1', 'bertrand' => '1', 'carman' => '1', 'chen' => '1', 'cochran' => '1',
-    'franz' => '1', 'hautala' => '1', 'hayashi' => '1', 'ingram' => '1', 'iwamoto' => '1', 'kin' => '1', 'levenson' => '1',
-    'mcgill' => '1', 'mckeown' => '1', 'meier' => '1', 'otsu' => '1', 'ouyang' => '1', 'roy' => '1', 'segel' => '1', 
-    'slypen' => '1', 'stamer' => '1', 'tippawan' => '1', 'tyren' => '1', 'zumbro' => '1'
+    'franz' => '1', 'hautala' => '1', 'hayashi' => '1', 'ingram' => '1', 'iwamoto' => '1', 'kin' => '1', 'kormanyos' => '1',
+    'levenson' => '1', 'mcgill' => '1', 'mckeown' => '1', 'meier' => '1', 'otsu' => '1', 'ouyang' => '1', 'roy' => '1',
+    'segel' => '1', 'shibata' => '1', 'slypen' => '1', 'stamer' => '1', 'tippawan' => '1', 'tyren' => '1', 'zumbro' => '1',
+    'mckeown1' => '1', 'mckeown2' => '1', 'mckeown3' => '1', 'mckeown4' => '1', 'mckeown5' => '1', 'mckeown6' => '1'
 );
 $valid_author = $author_hash {$author};
 if ($valid_author ne '1' && $author ne '') { error_exit("author. The author you typed was not recognized") };
@@ -127,7 +163,7 @@ if ($author eq '' && $type eq 'root') {
     error_exit("target") unless defined $tgt[0];  ## exit if author undefined and target undefined
 };
 
-if ($type eq 'xsec' || $type eq 'both') {
+if ($type eq 'totxs' || $type eq 'both') {
     if ($prbpdg[0] ne '2212' && $prbpdg[0] ne '2112' && $prbpdg[0] ne '211' && $prbpdg[0] ne '-211' && $prbpdg[0] ne '111' && $prbpdg[0] ne '311' &&  $prbpdg[0] ne '-311' && $prbpdg[0] ne '321' &&  $prbpdg[0] ne '-321'
         &&  $prbpdg[0] ne '22' &&  $prbpdg[0] ne '13' &&  $prbpdg[0] ne '-13') {error_exit("probe")};
     error_exit("target") unless defined $tgt[0];
@@ -151,14 +187,22 @@ if ($type eq 'xsec' || $type eq 'both') {
     'ingram' => ['ingram'],
     'iwamoto' => ['iwamoto_870', 'iwamoto_2100'],
     'kin' => ['kin'],
+    'kormanyos' => ['kormanyos'],
     'levenson' => ['levenson', 'levenson_c'],
     'mcgill' => ['mcgill'],    
     'mckeown' => ['mckeown'],
+    'mckeown1' => ['mckeown1'],
+    'mckeown2' => ['mckeown2'],
+    'mckeown3' => ['mckeown3'],
+    'mckeown4' => ['mckeown4'],
+    'mckeown5' => ['mckeown5'],
+    'mckeown6' => ['mckeown6'],
     'meier' => ['meier', 'meier_al'],
     'otsu' => ['otsu'],
     'ouyang' => ['ouyang'],
     'roy' => ['roy'],
     'segel' => ['segel'],
+    'shibata' => ['shibata_p', 'shibata_pip'],
     'slypen' => ['slypen_c', 'slypen_fe'],
     'stamer' => ['stamer'],
     'tippawan' => ['tippawan'],
@@ -171,76 +215,100 @@ foreach $group ( @{$group_hash {$author}} ) {
 
 ## AUTHOR PRESETS
 %prbpdg1_hash = (                                 ## probe 1
-    'amian' => '2212',
-    'baker_c' => '2212',
-    'baker_ca' => '2212',
-    'beck' => '2212',
-    'bertrand' => '2212',
-    'carman' => '2212',
-    'chen' => '2212',
-    'cochran' => '2212',
-    'franz' => '2112',
-    'hautala' => '2212',
-    'hayashi' => '2112',
-    'ingram' => '211',
-    'iwamoto_870' => '211',
+    'amian'        => '2212',
+    'baker_c'      => '2212',
+    'baker_ca'     => '2212',
+    'beck'         => '2212',
+    'bertrand'     => '2212',
+    'carman'       => '2212',
+    'chen'         => '2212',
+    'cochran'      => '2212',
+    'franz'        => '2112',
+    'hautala'      => '2212',
+    'hayashi'      => '2112',
+    'ingram'       => '211',
+    'iwamoto_870'  => '211',
     'iwamoto_2100' => '211',
-    'kin' => '2212',
-    'levenson' => '211',
-    'levenson_c' => '211',
-    'mcgill' => '2212',    
-    'mckeown' => '211',
-    'meier' => '2212',
-    'meier_al' => '2212',
-    'otsu' => '2212',
-    'ouyang' => '-211',
-    'roy' => '2212',
-    'segel' => '2212',
-    'slypen_c' => '2112',
-    'slypen_fe' => '2112',
-    'stamer' => '2212',
-    'tippawan' => '2112',
-    'tyren' => '2212',
-    'zumbro' => '211',
+    'kin'          => '2212',
+    'kormanyos'    => '321',
+    'levenson'     => '211',
+    'levenson_c'   => '211',
+    'mcgill'       => '2212',    
+    'mckeown'      => '211',
+    'mckeown1'     => '211',
+    'mckeown2'     => '211',
+    'mckeown3'     => '211',
+    'mckeown4'     => '211',
+    'mckeown5'     => '211',
+    'mckeown6'     => '211',
+    'meier'        => '2212',
+    'meier_al'     => '2212',
+    'otsu'         => '2212',
+    'ouyang'       => '-211',
+    'roy'          => '2212',
+    'segel'        => '2212',
+    'shibata_p'    => '2212',
+    'shibata_pip'  => '211',
+    'slypen_c'     => '2112',
+    'slypen_fe'    => '2112',
+    'stamer'       => '2212',
+    'tippawan'     => '2112',
+    'tyren'        => '2212',
+    'zumbro'       => '211',
 );
 $prbpdg[0] = $prbpdg1_hash {$group};
 %prbpdg2_hash = (                                 ## probe 2
     'iwamoto_870' => '-211',
-    'mckeown' => '-211',
+    'mckeown'     => '-211',
+    'mckeown1'    => '-211',
+    'mckeown2'    => '-211',
+    'mckeown3'    => '-211',
+    'mckeown4'    => '-211',
+    'mckeown5'    => '-211',
+    'mckeown6'    => '-211',
 );
 if ($prbpdg2_hash{$group} ne '') {$prbpdg[1] = $prbpdg2_hash{$group}};
 %target1_hash = (                                 ## target 1
-    'amian' => '5',
-    'baker_c' => '6',
-    'baker_ca' => '20',
-    'beck' => '26',
-    'bertrand' => '26',
-    'carman' => '6',
-    'chen' => '82',
-    'cochran' => '13',
-    'franz' => '29',
-    'hautala' => '6',
-    'hayashi' => '6',
-    'ingram' => '1008',
-    'iwamoto_870' => '26',
+    'amian'        => '5',
+    'baker_c'      => '6',
+    'baker_ca'     => '20',
+    'beck'         => '26',
+    'bertrand'     => '26',
+    'carman'       => '6',
+    'chen'         => '82',
+    'cochran'      => '13',
+    'franz'        => '29',
+    'hautala'      => '6',
+    'hayashi'      => '6',
+    'ingram'       => '1008',
+    'iwamoto_870'  => '26',
     'iwamoto_2100' => '26',
-    'kin' => '6',
-    'levenson' => '2',
-    'levenson_c' => '6',
-    'mcgill' => '6',    
-    'mckeown' => '13',
-    'meier' => '82',
-    'meier_al' => '13',
-    'otsu' => '6',
-    'ouyang' => '6',
-    'roy' => '2',
-    'segel' => '6',
-    'slypen_c' => '6',
-    'slypen_fe' => '26',
-    'stamer' => '13',
-    'tippawan' => '6',
-    'tyren' => '6',
-    'zumbro' => '6',
+    'kin'          => '6',
+    'kormanyos'    => '6',
+    'levenson'     => '2',
+    'levenson_c'   => '6',
+    'mcgill'       => '6',    
+    'mckeown'      => '13',
+    'mckeown1'     => '13',
+    'mckeown2'     => '4',
+    'mckeown3'     => '6',
+    'mckeown4'     => '3',
+    'mckeown5'     => '28',
+    'mckeown6'     => '73',
+    'meier'        => '82',
+    'meier_al'     => '13',
+    'otsu'         => '6',
+    'ouyang'       => '6',
+    'roy'          => '2',
+    'segel'        => '6',
+    'shibata_p'    => '29',
+    'shibata_pip'  => '29',
+    'slypen_c'     => '6',
+    'slypen_fe'    => '26',
+    'stamer'       => '13',
+    'tippawan'     => '6',
+    'tyren'        => '6',
+    'zumbro'       => '6',
 );
 $tgt[0] = $target1_hash {$group};
 %target2_hash = (                                 ## target 2
@@ -301,16 +369,25 @@ if ($target6_hash{$group} ne '') {$tgt[5] = $target6_hash{$group}};
     'iwamoto_870' => '.870',
     'iwamoto_2100' => '2.100',
     'kin' => '.300',
+    'kormanyos' => '.367',
     'levenson' => '.100',
     'levenson_c' => '.100',
     'mcgill' => '.800',    
     'mckeown' => '.100',
+    'mckeown1' => '.100',
+    'mckeown2' => '.100',
+    'mckeown3' => '.100',
+    'mckeown4' => '.100',
+    'mckeown5' => '.100',
+    'mckeown6' => '.100',
     'meier' => '.113',
     'meier_al' => '.256',
     'otsu' => '.392',
     'ouyang' => '.500',
     'roy' => '.500',
     'segel' => '.155',
+    'shibata_p' => '.747063',
+    'shibata_pip' => '1.26737',
     'slypen_c' => '.0265',
     'slypen_fe' => '.0255',
     'stamer' => '.256',
@@ -327,11 +404,18 @@ $k[0] = $k1_hash {$group};
     'levenson' => '.160',
     'levenson_c' => '.160',
     'mckeown' => '.160',
+    'mckeown1' => '.160',
+    'mckeown2' => '.160',
+    'mckeown3' => '.160',
+    'mckeown4' => '.160',
+    'mckeown5' => '.160',
+    'mckeown6' => '.160',
     'otsu' => '.400',
+    'shibata_p' => '1.732',
+    'shibata_pip' => '2.38432',
     'slypen_c' => '.050',
     'slypen_fe' => '.049',
     'stamer' => '.800',
-    'iwamoto_870' => '',
 );
 if ($k2_hash{$group} ne '') {$k[1] = $k2_hash{$group}};
 %k3_hash = (                                      ## beam energy 3
@@ -340,26 +424,28 @@ if ($k2_hash{$group} ne '') {$k[1] = $k2_hash{$group}};
     'levenson' => '.220',
     'levenson_c' => '.220',
     'mckeown' => '.220',
+    'mckeown1' => '.220',
+    'mckeown2' => '.220',
+    'mckeown3' => '.220',
+    'mckeown4' => '.220',
+    'mckeown5' => '.220',
+    'mckeown6' => '.220',
     'slypen_c' => '.0627',
     'slypen_fe' => '.0627',
-    'iwamoto_870' => '',
 );
 if ($k3_hash{$group} ne '') {$k[2] = $k3_hash{$group}};
 %k4_hash = (                                      ## beam energy 4
     'franz' => '.542',
     'levenson_c' => '.300', 
     'slypen_c' => '.0728',
-    'iwamoto_870' => '',
 );
 if ($k4_hash{$group} ne '') {$k[3] = $k4_hash{$group}};
 %k5_hash = (                                      ## beam energy 5
     'franz' => '.3174',
-    'iwamoto_870' => '',
 );
 if ($k5_hash{$group} ne '') {$k[4] = $k5_hash{$group}};
 %k6_hash = (                                      ## beam energy 6
     'franz' => '.3477',
-    'iwamoto_870' => '',
 );
 if ($k6_hash{$group} ne '') {$k[5] = $k6_hash{$group}};
 definitions();  ## call subroutine that defines all parameters that are not group-specific
@@ -381,10 +467,27 @@ clear_values();
 
 sub definitions {
 
-    $msg = 'laconic'                                 unless defined $msg;        ## default message thresholds
-    $version = '280'                                 unless defined $version;    ## default GENIE version
-    if ($version eq '266') {@m = qw(hA)};
-    $n = 100000                                      unless defined $n;          ## default number of events per run      
+    $msg = 'laconic'         unless defined $msg;        ## default message thresholds
+    $n = 2000000             unless defined $n;          ## default number of events per run
+
+    ($prepend eq 'yes') ? ($a_name = "$author\_") : ($a_name = "");
+
+    ## GENIE VERSION
+    if ($GENIE =~ m/devel/i) {           ## if $GENIE contains "devel" (regardless of case)
+	$version = 'DEVEL';
+    } elsif (!($GENIE =~ m/\d/)) {       ## if $GENIE contains no digits
+	$version = 'v280';
+    } else {
+	@nums = ($GENIE =~ m/(\d+)/g);   ## extract the digits from $GENIE
+	$v_num = join("",@nums);
+	$version = "v$v_num";
+    }
+    if ($version eq 'v266') {
+	@m = qw(hA);
+	$prefix = 'gntp';
+    } else {
+	$prefix = 'gntp.inuke';
+    }
 
     ## MESSAGE THRESHOLDS
     %msg_hash = (
@@ -394,20 +497,6 @@ sub definitions {
     );
     $msngr = $msg_hash {$msg};
 
-    ## GENIE VERSION
-    %version_hash = (
-        '280' => '/usr/GENIE/setup_genie',
-        '271' => '/usr/GENIEtrunk271/setup_genie',
-        '266' => '/usr/GENIE_v266/setup_genie',
-    );
-    $genie_version = $version_hash {$version};
-
-    %prefix_hash = (
-        '280' => 'gntp.inuke',
-        '271' => 'gntp.inuke',
-        '266' => 'gntp',
-    );
-    $prefix = $prefix_hash {$version};
 
     ## PROBES
     %prb_hash = (
@@ -483,6 +572,9 @@ sub definitions {
     $Atom = $atom_hash{$target};
     $atom = lc($Atom);
 
+    ## OUTPUT DIRECTORY
+    $rootdir = '.'  unless defined $rootdir;
+    $rootdir =~ s|/$||;
 };
 
 
@@ -497,27 +589,34 @@ sub execute {
 		foreach $nrg (@k) {
 		    $nrgmev = $nrg * 1000;
 		    foreach $mode (@m) {
-			system ("source $genie_version; gevgen_hadron -p $probepdg -t $tcode -n $n -r $r -k $nrg -m $mode $msngr");
-			system ("source $genie_version; gntpc -f ginuke -i $prefix.$r.ghep.root -o $abbr[$mon]\_$day\_$yr\_$probe\_$Atom\_$nrgmev\_v$version\_$mode.ginuke.root $msngr");
-			if ($remove eq 'yes') {unlink ("$prefix.$r.ghep.root")};
+			system ("gevgen_hadron -p $probepdg -t $tcode -n $n -r $r -k $nrg -m $mode $msngr");
+			system ("gntpc -f ginuke -i $prefix.$r.ghep.root -o $rootdir/$a_name$abbr[$mon]\_$day\_$yr\_$probe\_$Atom\_$nrgmev\_$version\_$mode.ginuke.root $msngr");
+			if ($remove eq 'yes') {
+			    unlink ("$prefix.$r.ghep.root", "genie-mcjob-$r.status");
+			} elsif ($rootdir ne '.') {
+			    system ("mv $prefix.$r.ghep.root $rootdir/; mv genie-mcjob-$r.status $rootdir/");
+			}
 			$r++;
 		    };
 		};
 	    };
-	    if ($xsec eq 'yes') {
+	    if ($totxs eq 'yes') {
 		$nrg = $min_ke;
 		$max_ke = $max_ke + .00000001;
 		while ($nrg < $max_ke) {
-		    print "NRG: $nrg\n";
 		    $nrgmev = $nrg * 1000;
 		    foreach $mode (@m) {
 			if (-e gevgen_hadron_xsection.txt) {unlink ("gevgen_hadron_xsection.txt")};
-			system ("source $genie_version; gevgen_hadron -p $probepdg -t $tcode -n $n -r $r -k $nrg -m $mode $msngr");
-			if ($root eq 'yes') {system ("source $genie_version; gntpc -f ginuke -i $prefix.$r.ghep.root -o $abbr[$mon]\_$day\_$yr\_$probe\_$Atom\_$nrgmev\_v$version\_$mode.ginuke.root $msngr")};
-			system ("source $genie_version; gtestINukeHadroXSec -f $prefix.$r.ghep.root -w");
-			system ("gawk '!/#/ {print}' gevgen_hadron_xsection.txt >> $abbr[$mon]\_$day\_$yr\_$probe\_$Atom\_totxs_v$version\_$mode.txt");
+			system ("gevgen_hadron -p $probepdg -t $tcode -n $n -r $r -k $nrg -m $mode $msngr");
+			if ($root eq 'yes') {system ("gntpc -f ginuke -i $prefix.$r.ghep.root -o $rootdir/$a_name$abbr[$mon]\_$day\_$yr\_$probe\_$Atom\_$nrgmev\_$version\_$mode.ginuke.root $msngr")};
+			system ("gtestINukeHadroXSec -f $prefix.$r.ghep.root -w");
+			system ("gawk '!/#/ {print}' gevgen_hadron_xsection.txt >> $rootdir/$a_name$abbr[$mon]\_$day\_$yr\_$probe\_$Atom\_totxs_$version\_$mode.txt");
 			unlink ("gevgen_hadron_xsection.txt");
-			if ($remove eq 'yes') {unlink ("$prefix.$r.ghep.root")};
+			if ($remove eq 'yes') {
+			    unlink ("$prefix.$r.ghep.root", "genie-mcjob-$r.status");
+			} elsif ($rootdir ne '.')  {
+			    system ("mv $prefix.$r.ghep.root $rootdir/; mv genie-mcjob-$r.status $rootdir/");
+			}
 			$r++;
 		    };
 		    $nrg = $nrg + $step_size;
@@ -531,15 +630,15 @@ sub execute {
 ## Subroutine to begin cross section files ##
 
 sub open_files {
-    if ($xsec eq 'yes') {
+    if ($totxs eq 'yes') {
 	foreach $probepdg (@prbpdg) {
 	    foreach $target (@tgt) {
 		foreach $mode (@m) {
 		    definitions();
 		    $do = 'maybe';
-		    (-e "$abbr[$mon]\_$day\_$yr\_$probe\_$Atom\_totxs_v$version\_$mode.txt") ? ($do = 'no') : ($do = 'yes');
+		    (-e "$rootdir/$a_name$abbr[$mon]\_$day\_$yr\_$probe\_$Atom\_totxs_$version\_$mode.txt") ? ($do = 'no') : ($do = 'yes');
 		    if ($do eq 'yes') {
-			open (FILE, "> $abbr[$mon]\_$day\_$yr\_$probe\_$Atom\_totxs_v$version\_$mode.txt");
+			open (FILE, "> $rootdir/$a_name$abbr[$mon]\_$day\_$yr\_$probe\_$Atom\_totxs_$version\_$mode.txt");
 			print FILE "#KE     Undef   sig     CEx     sig     Elas    sig     Inelas  sig     Abs     sig     KO      sig     PiPro   sig     DCEx    sig     Reac    sig     Tot     sig     \n";
 			close(FILE);
 		    };
@@ -554,43 +653,44 @@ sub open_files {
 
 sub error_exit {
     print "\nThere was a problem with the command line arguments. (Invalid $_[0].) ";
-    print "Would you like to get ****.ginuke.root files, text files with total cross sections, or both?\nEnter 'R' for root files, 'XS' for cross section files, or 'B' for both: ";
+    print "Would you like to get ****.ginuke.root files, text files with total cross sections, or both?\nEnter 'R' for root files, 'T' for text total cross section files, or 'B' for both: ";
     $answer = <STDIN>; $answer = uc($answer); chomp ($answer);
-    if ($answer ne 'R' && $answer ne 'XS' && $answer ne 'B') {$understood = 'no'};
+    if ($answer ne 'R' && $answer ne 'T' && $answer ne 'B') {$understood = 'no'};
     while ($understood eq 'no') {
-	print "\nAnswer not recognized. Please enter 'R' for root files, 'XS' for cross section files, or 'B' for both: ";
-	$answer = <STDIN>; chomp ($answer);
-	if ($answer eq 'R' || $answer eq 'XS' || $answer eq 'B') {$understood = 'yes'};
+	print "\nAnswer not recognized. Please enter 'R' for root files, 'T' for text total cross section files, or 'B' for both: ";
+	$answer = <STDIN>; $answer = uc($answer); chomp ($answer);
+	if ($answer eq 'R' || $answer eq 'T' || $answer eq 'B') {$understood = 'yes'};
     };
-    %hash = ('R' => 'root files', 'XS' => 'text files with cross sections', 'B' => 'both root files and total xs text files');
+    %hash = ('R' => 'root files', 'T' => 'text files with total cross sections', 'B' => 'both root files and total xs text files');
     $choice = $hash{$answer};
     print "\nYou chose to get $choice. Here's how to do it:\n";
     if ($answer eq 'R') {
 	print "\nTo use, type: perl runfast.pl --paramater your_input --paramater your_input --paramater your_input\n\n";
 	print "Parameters:\n";
-	print "**  --type  : specifies type of output file; enter 'root' to get ****.ginuke.root files\n";
-	print "++  --a     : specifies author; see below for valid author inputs\n";
-	print "    --v     : specifies GENIE version of root file; use no decimals; assumes 280 if not specified\n";
-	print "    --m     : specifies first GENIE model; assumes hA if neither model is specified\n";
-	print "    --m2    : specifies second GENIE model; assumes hN if neither model is specified\n";
-	print "    --n     : specifies number of events; assumes 100000 if not specified\n";
-	print "**  --p     : specifies probe; letter abbreviation or pdg code is acceptable\n";
-	print "    --p2    : specifies an additional probe\n";
-	print "**  --k     : specifies kinetic energy of probe in units of MeV\n";
-	print "    --k2    : specifies an additional kinetic energy of probe\n";
-	print "    --k3    : specifies a third kinetic energy\n";
-	print "    --k4    : specifies a fourth kinetic energy\n";
-	print "    --k5    : specifies a fifth kinetic energy\n";
-	print "    --k6    : specifies a sixth kinetic energy\n";
-	print "**  --t     : specifies a target; letter symbol or atomic number is acceptable\n";
-	print "    --t2    : specifies an additional target\n";
-	print "    --t3    : specifies a third target\n";
-	print "    --t4    : specifies a fourth target\n";
-	print "    --t5    : specifies a fifth target\n";
-	print "    --t6    : specifies a sixth target\n";
-	print "    --r     : specifies an initial run number; automatically generated if not specified\n";
-	print "    --msg   : specifies message thresholds; choose laconic, normal, or verbose; assumes laconic if not specified\n";
-	print "    --rm    : enter 'yes' to discard gntp files after they've been used\n";
+	print "**  --type   : specifies type of output file; enter 'root' to get ****.ginuke.root files\n";
+	print "++  --a      : specifies author; see below for valid author inputs\n";
+	print "    --m      : specifies first GENIE model; assumes hA if neither model is specified\n";
+	print "    --m2     : specifies second GENIE model; assumes hN if neither model is specified\n";
+	print "    --n      : specifies number of events; assumes 100000 if not specified\n";
+	print "**  --p      : specifies probe; letter abbreviation or pdg code is acceptable\n";
+	print "    --p2     : specifies an additional probe\n";
+	print "**  --k      : specifies kinetic energy of probe in units of MeV\n";
+	print "    --k2     : specifies an additional kinetic energy of probe\n";
+	print "    --k3     : specifies a third kinetic energy\n";
+	print "    --k4     : specifies a fourth kinetic energy\n";
+	print "    --k5     : specifies a fifth kinetic energy\n";
+	print "    --k6     : specifies a sixth kinetic energy\n";
+	print "**  --t      : specifies a target; letter symbol or atomic number is acceptable\n";
+	print "    --t2     : specifies an additional target\n";
+	print "    --t3     : specifies a third target\n";
+	print "    --t4     : specifies a fourth target\n";
+	print "    --t5     : specifies a fifth target\n";
+	print "    --t6     : specifies a sixth target\n";
+	print "    --r      : specifies an initial run number; automatically generated if not specified\n";
+	print "    --msg    : specifies message thresholds; choose laconic, normal, or verbose; assumes laconic if not specified\n";
+	print "    --rm     : enter 'yes' to discard gntp files after they've been used\n";
+	print "    --name   : enter 'yes' to prepend the author's name to the root file\n";
+	print "    --rootdir: specifies the destination directory of the output files\n"; 
 	print "++ automatically defines all probes, energies, and targets\n";
 	print "** necessary inputs\n\n";
 	print "Valid Author Inputs:\n";
@@ -598,58 +698,64 @@ sub error_exit {
 	print "levenson, mcgill, mckeown, meier, otsu, ouyang, roy, segel, slypen, stamer, tippawan, tyren, zumbro\n";
 	die("\n");
     };
-    if ($answer eq 'XS') {
+    if ($answer eq 'T') {
 	print "\nTo use, type: perl runfast.pl --paramater your_input --paramater your_input --paramater your_input\n\n";
 	print "Parameters:\n";
-	print "**  --type  : specifies type of output file; enter 'xsec' to get text files with total cross sections\n";
-	print "    --v     : specifies GENIE version of root file; use no decimals; assumes 280 if not specified\n";
-	print "    --m     : specifies first GENIE model; assumes hA if neither model is specified\n";
-	print "    --m2    : specifies second GENIE model; assumes hN if neither model is specified\n";
-	print "**  --p     : specifies probe; letter abbreviation or pdg code is acceptable\n";
-	print "    --p2    : specifies an additional probe\n";
-	print "**  --t     : specifies a target; letter symbol or atomic number is acceptable\n";
-	print "    --t2    : specifies an additional target\n";
-	print "    --t3    : specifies a third target\n";
-	print "    --t4    : specifies a fourth target\n";
-	print "    --t5    : specifies a fifth target\n";
-	print "    --t6    : specifies a sixth target\n";
-	print "**  --min   : specifies the minimum kinetic energy of probe in units of MeV\n";
-	print "**  --max   : specifies the maximum kinetic energy of probe in units of MeV\n";
-	print "**  --s     : specifies the step size of kinetic energy increments\n";
-	print "    --n     : specifies number of events per step; assumes 100000 if not specified\n";
-	print "    --r     : specifies an initial run number; automatically generated if not specified\n";
-	print "    --msg   : specifies message thresholds; choose laconic, normal, or verbose; assumes laconic if not specified\n";
-	print "    --rm    : enter 'yes' to discard gntp files after they've been used\n";
+	print "**  --type   : specifies type of output file; enter 'totxs' to get text files with total cross sections\n";
+	print "    --m      : specifies first GENIE model; assumes hA if neither model is specified\n";
+	print "    --m2     : specifies second GENIE model; assumes hN if neither model is specified\n";
+	print "**  --p      : specifies probe; letter abbreviation or pdg code is acceptable\n";
+	print "    --p2     : specifies an additional probe\n";
+	print "**  --t      : specifies a target; letter symbol or atomic number is acceptable\n";
+	print "    --t2     : specifies an additional target\n";
+	print "    --t3     : specifies a third target\n";
+	print "    --t4     : specifies a fourth target\n";
+	print "    --t5     : specifies a fifth target\n";
+	print "    --t6     : specifies a sixth target\n";
+	print "**  --min    : specifies the minimum kinetic energy of probe in units of MeV\n";
+	print "**  --max    : specifies the maximum kinetic energy of probe in units of MeV\n";
+	print "**  --s      : specifies the step size of kinetic energy increments\n";
+	print "    --n      : specifies number of events per step; assumes 100000 if not specified\n";
+	print "    --r      : specifies an initial run number; automatically generated if not specified\n";
+	print "    --msg    : specifies message thresholds; choose laconic, normal, or verbose; assumes laconic if not specified\n";
+	print "    --rm     : enter 'yes' to discard gntp files after they've been used\n";
+	print "    --name   : enter 'yes' to prepend the author's name to the cross section text file\n";
+	print "    --rootdir: specifies the destination directory of the output files\n";
 	print "** necessary inputs\n";
 	die("\n");
     };
     if ($answer eq 'B') {
 	print "\nTo use, type: perl runfast.pl --paramater your_input --paramater your_input --paramater your_input\n\n";
 	print "Parameters:\n";
-	print "**  --type  : specifies type of output file; enter 'both' to get root files and total xs text files\n";
-	print "    --v     : specifies GENIE version of root file; use no decimals; assumes 280 if not specified\n";
-	print "    --m     : specifies first GENIE model; assumes hA if neither model is specified\n";
-	print "    --m2    : specifies second GENIE model; assumes hN if neither model is specified\n";
-	print "**  --p     : specifies probe; letter abbreviation or pdg code is acceptable\n";
-	print "    --p2    : specifies an additional probe\n";
-	print "**  --t     : specifies a target; letter symbol or atomic number is acceptable\n";
-	print "    --t2    : specifies an additional target\n";
-	print "    --t3    : specifies a third target\n";
-	print "    --t4    : specifies a fourth target\n";
-	print "    --t5    : specifies a fifth target\n";
-	print "    --t6    : specifies a sixth target\n";
-	print "**  --min   : specifies the minimum kinetic energy of probe in units of MeV\n";
-	print "**  --max   : specifies the maximum kinetic energy of probe in units of MeV\n";
-	print "**  --s     : specifies the step size of kinetic energy increments\n";
-	print "    --n     : specifies number of events per step; assumes 100000 if not specified\n";
-	print "    --r     : specifies an initial run number; automatically generated if not specified\n";
-	print "    --msg   : specifies message thresholds; choose laconic, normal, or verbose; assumes laconic if not specified\n";
-	print "    --rm    : enter 'yes' to discard gntp files after they've been used\n";
+	print "**  --type   : specifies type of output file; enter 'both' to get root files and total xs text files\n";
+	print "    --m      : specifies first GENIE model; assumes hA if neither model is specified\n";
+	print "    --m2     : specifies second GENIE model; assumes hN if neither model is specified\n";
+	print "**  --p      : specifies probe; letter abbreviation or pdg code is acceptable\n";
+	print "    --p2     : specifies an additional probe\n";
+	print "**  --t      : specifies a target; letter symbol or atomic number is acceptable\n";
+	print "    --t2     : specifies an additional target\n";
+	print "    --t3     : specifies a third target\n";
+	print "    --t4     : specifies a fourth target\n";
+	print "    --t5     : specifies a fifth target\n";
+	print "    --t6     : specifies a sixth target\n";
+	print "**  --min    : specifies the minimum kinetic energy of probe in units of MeV\n";
+	print "**  --max    : specifies the maximum kinetic energy of probe in units of MeV\n";
+	print "**  --s      : specifies the step size of kinetic energy increments\n";
+	print "    --n      : specifies number of events per step; assumes 100000 if not specified\n";
+	print "    --r      : specifies an initial run number; automatically generated if not specified\n";
+	print "    --msg    : specifies message thresholds; choose laconic, normal, or verbose; assumes laconic if not specified\n";
+	print "    --rm     : enter 'yes' to discard gntp files after they've been used\n";
+	print "    --name   : enter 'yes' to prepend the author's name to the output files\n";
+	print "    --rootdir: specifies the destination directory of the output files\n";
 	print "** necessary inputs\n";
 	print "Note: Selecting 'both' will give you ****.ginuke.root files at each energy step\n";
 	die("\n");
     };
 };
+
+sub error_exit_g {
+    die("You must set up GENIE before running this script.\n");
+}
 
 ## Subroutine to clear values before doing another group ##
 
