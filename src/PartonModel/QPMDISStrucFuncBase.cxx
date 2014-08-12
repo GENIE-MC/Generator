@@ -19,6 +19,10 @@
    lN->l'X mode to lq->l'q' mode more transparant
  @ Oct 09, 2009 - CA
    Renamed to QPMDISStrucFuncBase from DISStructureFuncModel.
+ @ Aug 12, 2014 - HG 
+   Fix a problem identified by Brian Tice (Minerva)
+   The nuclear modification to the pdf should be calculated in terms 
+   of the experimental x, not the rescaled x. 
 */
 //____________________________________________________________________________
 
@@ -431,16 +435,11 @@ double QPMDISStrucFuncBase::NuclMod(const Interaction * interaction) const
 
 //   The x used for computing the DIS Nuclear correction factor should be the 
 //   experimental x, not the rescaled x or off-shell-rest-frame version of x 
-//
-     TLorentzVector * k1 = interaction->InitStatePtr()->GetProbeP4(kRfLab);
-     const TLorentzVector & k2 = interaction->KinePtr()->FSLeptonP4();
-
-     double M  = kNucleonMass;
-     TLorentzVector q  = (*k1)-k2;                     // q=k1-k2, 4-p transfer
-     double Q2 = -1 * q.M2();                       // momemtum transfer
-     double v  = q.Energy();                        // v (E transfer to the nucleus)
-     double x  = 0.5*Q2/(M*v);                      // Bjorken x
-     int    A = tgt.A();
+//   (i.e. selected x).  Since we do not have access to experimental x at this 
+//   point in the calculation, just use selected x. 
+     const Kinematics & kine  = interaction->Kine();
+     double x  = kine.x();
+     int    A = tgt.A(); 
      f = utils::nuclear::DISNuclFactor(x,A);
   }
 
