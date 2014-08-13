@@ -39,6 +39,31 @@ if no directory information needs to be specified.
 --datadir specifies location of external data files (default = ./)
 --rootdir specifies location of GENIE root files (default = ./)
 --pngdir specifies location of png plot files (default = png_files)
+other switches
+--m mode  choose hN or hA (default)
+--name prepend allows addition to name of plot file 
+--v vsn specifies GENIE version, e.g. 280
+
+## Use:         To plot angular distributions:                                                           ##
+##                 perl intranukeplotter.pl --type ang --a author --dorf date [--v vsn] [--m mode]       ##
+##                 [--datadir ddir] [--rootdir rdir] [--pngdir pdir] [--rm discard] [--png suppress]     ##
+##                 [--name prepend]                                                                      ##
+##                                                                                                       ##
+##              To plot energy distributions:                                                            ##
+##                 perl intranukeplotter.pl --type nrg --a author --dorf date [--v vsn] [--m mode]       ##
+##                 [--datadir ddir] [--rootdir rdir] [--pngdir pdir] [--rm discard] [--png suppress]     ##
+##                 [--name prepend]                                                                      ##
+##                                                                                                       ##
+##              To plot total cross sections:                                                            ##
+##                 perl intranukeplotter.pl --type totxs --stype fate --p prb --t Tgt --hmax max         ##
+##                 --vmax max --dorf date [--a author] [--v vsn] [--m mode] [--datadir ddir]             ##
+##                 [--rootdir rdir] [--pngdir pdir] [--rm discard] [--png suppress] [--name prepend]     ##
+##                                                                                                       ##
+##              Notes: Compare up to 3 GENIE versions and 2 modes. Use switches --v2, --v3, --m2,        ##
+##                     --dorf2, etc.                                                                     ##
+##                     For total cross sections, script will automatically define authors whose data     ##
+##                     match the specified reaction. Manually defining authors for total cross sections  ##
+##                     turns this feature off.                                                           ##
 
 input details are given when input specifications are in error.
 
