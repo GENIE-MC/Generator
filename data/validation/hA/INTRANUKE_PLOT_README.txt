@@ -1,5 +1,6 @@
 Documentation for making Intranuke validation plots.
-S. Dytman  10 November, 2013
+S. Dytman  12 August, 2014
+code written by Nick Geary (Pgh)
 
 - ntuple files are created with gevgen_hadron and gntpc -f ginuke
 - there are many external data files
