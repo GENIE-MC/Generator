@@ -22,7 +22,7 @@
  @ Aug 12, 2014 - HG 
    Fix a problem identified by Brian Tice (Minerva)
    The nuclear modification to the pdf should be calculated in terms 
-   of the experimental x, not the rescaled x. 
+   of the experimental x, not the rescaled x.  The same goes for R(x,Q2).
 */
 //____________________________________________________________________________
 
@@ -454,8 +454,14 @@ double QPMDISStrucFuncBase::R(const Interaction * interaction) const
 // Computes R ( ~ longitudinal structure function FL = R * 2xF1)
 // The scaling variable can be overwritten to include corrections
 
+//   The x used for computing the DIS Nuclear correction factor should be the 
+//   experimental x, not the rescaled x or off-shell-rest-frame version of x 
+//   (i.e. selected x).  Since we do not have access to experimental x at this 
+//   point in the calculation, just use selected x. 
   if(fIncludeR) {
-    double x  = this->ScalingVar(interaction);
+    const Kinematics & kine  = interaction->Kine();
+    double x  = kine.x();
+//    double x  = this->ScalingVar(interaction);
     double Q2 = this->Q2(interaction);
     double R = utils::phys::RWhitlow(x, Q2);
     return R;
