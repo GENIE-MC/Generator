@@ -1009,6 +1009,7 @@ if ($defaults eq 'yes') {
 	    if ($subtype eq 'reac') {@authors = qw(friedman)};
 	    if ($subtype eq 'total') {@authors = qw(friedman krauss)};
 	};
+	if ($tgt eq 'li6') {@authors = qw(friedman)};
     };
 };
 
@@ -1135,8 +1136,7 @@ sub set_file_names {
 ## Subroutine to set name of root file ##
 
 sub set_root_file_name {
-    %date_hash = ("$vsn[0]" => "$dorf[0]", "$vsn[1]" => "$dorf[1]", "$vsn[2]" => "$dorf[2]");
-    $date = $date_hash{$v};
+    $date = $dorf[$_[0]];
     %mM_hash = ('ha' => 'hA', 'hn' => 'hN');
     $mM = $mM_hash{$m};
     if ($v eq 'DEVEL') {$vee = '';} else {$vee = 'v';}
@@ -1163,6 +1163,7 @@ sub set_outfile_name {
 ## Subroutine to make format file ##
 
 sub make_format_file {
+
     clear_values();
 
     if ($type eq 'ang') {
@@ -1182,9 +1183,10 @@ sub make_format_file {
 	    print File " $datafile\n";
 	    print File " xsec:TMath::Cos(cth*.01745):err1\n";
 	    print File " $energy MeV $Author $Tgt Data (ang dist)\n";
-	    foreach $v (@vsn) {
+	    for my $i (0 .. $#vsn) {
+		$v = $vsn[$i];
 		foreach $m (@mdl) {
-		    set_root_file_name();
+		    set_root_file_name($i);
 		    ## check_for_files();
 		    print File "[GENIE]\n";
 		    print File " $rootfile\n";
@@ -1221,9 +1223,10 @@ sub make_format_file {
 	    print File " $datafile\n";
 	    print File " xsec:E:err1\n";
 	    print File " $energy MeV $Author $Tgt Data ($angle deg)\n";
-	    foreach $v (@vsn) {
+	    for my $i (0 .. $#vsn) {
+		$v = $vsn[$i];
 		foreach $m (@mdl) {
-		    set_root_file_name();
+		    set_root_file_name($i);
 		    ## check_for_files();
 		    print File "[GENIE]\n";
 		    print File " $rootfile\n";
@@ -1263,9 +1266,10 @@ sub make_format_file {
 		print File " E:$isotope\x{006e}xs:s$isotope\x{006e}xs/1000.:s$isotope\x{006e}xs\n";
 	    };
 	};
-	foreach $v (@vsn) {
+	for my $i (0 .. $#vsn) {
+	    $v = $vsn[$i];
 	    foreach $m (@mdl) {
-		set_root_file_name();
+		set_root_file_name($i);
 		## check_for_files(); ##############################################################
 		print File "[GENIE]\n";
 		print File " $rootfile\n";
