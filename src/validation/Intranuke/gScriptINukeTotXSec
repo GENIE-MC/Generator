@@ -176,7 +176,7 @@ fi
 
 energy=$min_ke
 while [ "$(echo "scale=6; $energy<=$max_ke"|bc)" = "1" ]; do
-	if gevgen_hadron -n $num_events -p $p_pdg -t $target -k $energy -m $inuke_mode -r 9909; then
+	if gevgen_hadron -n $num_events -p $p_pdg -t $target -k $energy -m $inuke_mode -r 9909 --seed $(date +%s) --message-thresholds Messenger_laconic.xml; then
           if gtestINukeHadroXSec -f gntp.inuke.9909.ghep.root -w; then
 	      echo "Ran gevgen_hadron for $num_events events at $energy GeV in $inuke_mode mode"
           else
