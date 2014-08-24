@@ -12,16 +12,17 @@
 ##                                                                                                       ##
 ## Use:         To get ***.ginuke.root files to match an author's data:                                  ##
 ##                 perl runfast.pl --type root --a author [--n nev] [--r run] [--m mode] [--msg message] ##
-##                 [--rm discard] [--name prepend] [--rootdir rdir]                                      ##
+##                 [--rm discard] [--name prepend] [--rootdir rdir] [--seed seed]                        ##
 ##                                                                                                       ##
 ##              To get ***.ginuke.root files for user-defined reactions:                                 ##
 ##                 perl runfast.pl --type root --p probe --k nrg --t target [--n nev] [--r run]          ##
 ##                 [--m mode] [--msg message] [--rm discard] [--name prepend] [--rootdir rdir]           ##
+##                 [--seed seed]                                                                         ##
 ##                                                                                                       ##
 ##              To get total cross section text files:                                                   ##
 ##                 perl runfast.pl --type totxs --p probe --t target --min min_ke --max max_ke --s step  ##
 ##                 [--n nev] [--r run] [--m mode] [--msg message] [--rm discard] [--name prepend]        ##
-##                 [--rootdir rdir]                                                                      ##
+##                 [--rootdir rdir] [--seed seed]                                                        ##
 ##                                                                                                       ##
 ##              Note: Where applicable, script supports up to 2 probes, 6 energies, 6 targets,           ##
 ##                    and 2 modes. Use switches --p2, --k2, --k3, etc.                                   ##
@@ -46,37 +47,40 @@ $yr = sprintf("%02d", $year % 100);
 
 $iarg = 0;
 foreach (@ARGV) {
-    if ($_ eq '--n')       { $n         = $ARGV[$iarg+1]; } ## number of events per run
-    if ($_ eq '--k')       { $k[0]      = $ARGV[$iarg+1]; } ## kinetic energy 1 (must be defined)
-    if ($_ eq '--k1')      { $k[0]      = $ARGV[$iarg+1]; } ## kinetic energy 1 (must be defined)
-    if ($_ eq '--k2')      { $k[1]      = $ARGV[$iarg+1]; } ## kinetic energy 2
-    if ($_ eq '--k3')      { $k[2]      = $ARGV[$iarg+1]; } ## kinetic energy 3
-    if ($_ eq '--k4')      { $k[3]      = $ARGV[$iarg+1]; } ## kinetic energy 4
-    if ($_ eq '--k5')      { $k[4]      = $ARGV[$iarg+1]; } ## kinetic energy 5
-    if ($_ eq '--k6')      { $k[5]      = $ARGV[$iarg+1]; } ## kinetic energy 6
-    if ($_ eq '--min')     { $min_ke    = $ARGV[$iarg+1]; } ## minimum energy
-    if ($_ eq '--max')     { $max_ke    = $ARGV[$iarg+1]; } ## maximum energy
-    if ($_ eq '--s')       { $step_size = $ARGV[$iarg+1]; } ## size of energy intervals
-    if ($_ eq '--p')       { $prbpdg[0] = $ARGV[$iarg+1]; } ## probe 1 pdg code (must be defined)
-    if ($_ eq '--p1')      { $prbpdg[0] = $ARGV[$iarg+1]; } ## probe 1 pdg code (must be defined)
-    if ($_ eq '--p2')      { $prbpdg[1] = $ARGV[$iarg+1]; } ## probe 2 pdg code
-    if ($_ eq '--r')       { $r         = $ARGV[$iarg+1]; } ## intial run number
-    if ($_ eq '--t')       { $tgt[0]    = $ARGV[$iarg+1]; } ## target 1 (must be defined)
-    if ($_ eq '--t1')      { $tgt[0]    = $ARGV[$iarg+1]; } ## target 1 (must be defined)
-    if ($_ eq '--t2')      { $tgt[1]    = $ARGV[$iarg+1]; } ## target 2
-    if ($_ eq '--t3')      { $tgt[2]    = $ARGV[$iarg+1]; } ## target 3
-    if ($_ eq '--t4')      { $tgt[3]    = $ARGV[$iarg+1]; } ## target 4
-    if ($_ eq '--t5')      { $tgt[4]    = $ARGV[$iarg+1]; } ## target 5
-    if ($_ eq '--t6')      { $tgt[5]    = $ARGV[$iarg+1]; } ## target 6
-    if ($_ eq '--msg')     { $msg       = $ARGV[$iarg+1]; } ## message thresholds
-    if ($_ eq '--m')       { $m[0]      = $ARGV[$iarg+1]; } ## GENIE model 1
-    if ($_ eq '--m1')      { $m[0]      = $ARGV[$iarg+1]; } ## GENIE model 1
-    if ($_ eq '--m2')      { $m[1]      = $ARGV[$iarg+1]; } ## GENIE model 2
-    if ($_ eq '--a')       { $author    = $ARGV[$iarg+1]; } ## author for group of runs (will define all necessary parameters)
-    if ($_ eq '--type')    { $type      = $ARGV[$iarg+1]; } ## choose to get ROOT files or a text file with total cross sections
-    if ($_ eq '--rm')      { $remove    = $ARGV[$iarg+1]; } ## choose to discard gntp files after they're used
-    if ($_ eq '--name')    { $prepend   = $ARGV[$iarg+1]; } ## choose to prepend author's name to ROOT files
-    if ($_ eq '--rootdir') { $rootdir   = $ARGV[$iarg+1]; } ## destination directory for ROOT files
+    if ($_ eq '--n')       { $n          = $ARGV[$iarg+1]; } ## number of events per run
+    if ($_ eq '--k')       { $k[0]       = $ARGV[$iarg+1]; } ## kinetic energy 1 (must be defined)
+    if ($_ eq '--k1')      { $k[0]       = $ARGV[$iarg+1]; } ## kinetic energy 1 (must be defined)
+    if ($_ eq '--k2')      { $k[1]       = $ARGV[$iarg+1]; } ## kinetic energy 2
+    if ($_ eq '--k3')      { $k[2]       = $ARGV[$iarg+1]; } ## kinetic energy 3
+    if ($_ eq '--k4')      { $k[3]       = $ARGV[$iarg+1]; } ## kinetic energy 4
+    if ($_ eq '--k5')      { $k[4]       = $ARGV[$iarg+1]; } ## kinetic energy 5
+    if ($_ eq '--k6')      { $k[5]       = $ARGV[$iarg+1]; } ## kinetic energy 6
+    if ($_ eq '--min')     { $min_ke     = $ARGV[$iarg+1]; } ## minimum energy
+    if ($_ eq '--max')     { $max_ke     = $ARGV[$iarg+1]; } ## maximum energy
+    if ($_ eq '--s')       { $step_size  = $ARGV[$iarg+1]; } ## size of energy intervals
+    if ($_ eq '--p')       { $prbpdg[0]  = $ARGV[$iarg+1]; } ## probe 1 pdg code (must be defined)
+    if ($_ eq '--p1')      { $prbpdg[0]  = $ARGV[$iarg+1]; } ## probe 1 pdg code (must be defined)
+    if ($_ eq '--p2')      { $prbpdg[1]  = $ARGV[$iarg+1]; } ## probe 2 pdg code
+    if ($_ eq '--r')       { $r          = $ARGV[$iarg+1]; } ## intial run number
+    if ($_ eq '--t')       { $tgt[0]     = $ARGV[$iarg+1]; } ## target 1 (must be defined)
+    if ($_ eq '--t1')      { $tgt[0]     = $ARGV[$iarg+1]; } ## target 1 (must be defined)
+    if ($_ eq '--t2')      { $tgt[1]     = $ARGV[$iarg+1]; } ## target 2
+    if ($_ eq '--t3')      { $tgt[2]     = $ARGV[$iarg+1]; } ## target 3
+    if ($_ eq '--t4')      { $tgt[3]     = $ARGV[$iarg+1]; } ## target 4
+    if ($_ eq '--t5')      { $tgt[4]     = $ARGV[$iarg+1]; } ## target 5
+    if ($_ eq '--t6')      { $tgt[5]     = $ARGV[$iarg+1]; } ## target 6
+    if ($_ eq '--msg')     { $msg        = $ARGV[$iarg+1]; } ## message thresholds
+    if ($_ eq '--m')       { $m[0]       = $ARGV[$iarg+1]; } ## GENIE model 1
+    if ($_ eq '--m1')      { $m[0]       = $ARGV[$iarg+1]; } ## GENIE model 1
+    if ($_ eq '--m2')      { $m[1]       = $ARGV[$iarg+1]; } ## GENIE model 2
+    if ($_ eq '--a')       { $author     = $ARGV[$iarg+1]; } ## author for group of runs (will define all necessary parameters)
+    if ($_ eq '--type')    { $type       = $ARGV[$iarg+1]; } ## choose to get ROOT files or a text file with total cross sections
+    if ($_ eq '--rm')      { $remove     = $ARGV[$iarg+1]; } ## choose to discard gntp files after they're used
+    if ($_ eq '--name')    { $prepend    = $ARGV[$iarg+1]; } ## choose to prepend author's name to ROOT files
+    if ($_ eq '--rootdir') { $rootdir    = $ARGV[$iarg+1]; } ## destination directory for ROOT files
+    if ($_ eq '--err')     { $err_system = $ARGV[$iarg+1]; } ## error system ('i' for interactive; defaults to non-interactive)
+    if ($_ eq '--seed')    { $seed       = $ARGV[$iarg+1]; } ## seed
+    if ($_ eq '--el')      { $nrg_list   = $ARGV[$iarg+1]; } ## list of energies
     $iarg++;
 };
 
@@ -110,6 +114,7 @@ if ($prbpdg[1]) {$prbpdg[1] = $prb_input_hash{$prbpdg[1]}};
         'o' => '8', '8' => '8',
 	'h2o' => '1008', '1008' => '1008',  ## adding 1000 to oxygen to make it mean water
         'al' => '13', '13' => '13',
+	'si' => '14', '14' => '14',
         'ca' => '20', '20' => '20',
         'fe' => '26', '26' => '26',
         'co' => '27', '27' => '27',
@@ -145,7 +150,7 @@ if ($author) {
     'amian' => '1', 'baker' => '1', 'beck' => '1', 'bertrand' => '1', 'carman' => '1', 'chen' => '1', 'cochran' => '1',
     'franz' => '1', 'hautala' => '1', 'hayashi' => '1', 'ingram' => '1', 'iwamoto' => '1', 'kin' => '1', 'kormanyos' => '1',
     'levenson' => '1', 'mcgill' => '1', 'mckeown' => '1', 'meier' => '1', 'otsu' => '1', 'ouyang' => '1', 'roy' => '1',
-    'segel' => '1', 'shibata' => '1', 'slypen' => '1', 'stamer' => '1', 'tippawan' => '1', 'tyren' => '1', 'zumbro' => '1',
+    'shibata' => '1', 'slypen' => '1', 'stamer' => '1', 'tippawan' => '1', 'tyren' => '1', 'zumbro' => '1',
     'mckeown1' => '1', 'mckeown2' => '1', 'mckeown3' => '1', 'mckeown4' => '1', 'mckeown5' => '1', 'mckeown6' => '1'
 );
 $valid_author = $author_hash {$author};
@@ -167,9 +172,10 @@ if ($type eq 'totxs' || $type eq 'both') {
     if ($prbpdg[0] ne '2212' && $prbpdg[0] ne '2112' && $prbpdg[0] ne '211' && $prbpdg[0] ne '-211' && $prbpdg[0] ne '111' && $prbpdg[0] ne '311' &&  $prbpdg[0] ne '-311' && $prbpdg[0] ne '321' &&  $prbpdg[0] ne '-321'
         &&  $prbpdg[0] ne '22' &&  $prbpdg[0] ne '13' &&  $prbpdg[0] ne '-13') {error_exit("probe")};
     error_exit("target") unless defined $tgt[0];
-    error_exit("minimum energy") unless defined $min_ke;
-    error_exit("maximum energy") unless defined $max_ke;
-    error_exit("step size") unless defined $step_size;
+    error_exit("minimum energy") unless (defined $min_ke || !($use_steps));
+    error_exit("maximum energy") unless (defined $max_ke || !($use_steps));
+    error_exit("step size") unless (defined $step_size || !($use_steps));
+    error_exit("energies") unless (($type eq 'totxs' && defined $nrg_list) || $use_steps);
 };
     
 
@@ -201,7 +207,6 @@ if ($type eq 'totxs' || $type eq 'both') {
     'otsu' => ['otsu'],
     'ouyang' => ['ouyang'],
     'roy' => ['roy'],
-    'segel' => ['segel'],
     'shibata' => ['shibata_p', 'shibata_pip'],
     'slypen' => ['slypen_c', 'slypen_fe'],
     'stamer' => ['stamer'],
@@ -246,7 +251,6 @@ foreach $group ( @{$group_hash {$author}} ) {
     'otsu'         => '2212',
     'ouyang'       => '-211',
     'roy'          => '2212',
-    'segel'        => '2212',
     'shibata_p'    => '2212',
     'shibata_pip'  => '211',
     'slypen_c'     => '2112',
@@ -300,7 +304,6 @@ if ($prbpdg2_hash{$group} ne '') {$prbpdg[1] = $prbpdg2_hash{$group}};
     'otsu'         => '6',
     'ouyang'       => '6',
     'roy'          => '2',
-    'segel'        => '6',
     'shibata_p'    => '29',
     'shibata_pip'  => '29',
     'slypen_c'     => '6',
@@ -385,7 +388,6 @@ if ($target6_hash{$group} ne '') {$tgt[5] = $target6_hash{$group}};
     'otsu' => '.392',
     'ouyang' => '.500',
     'roy' => '.500',
-    'segel' => '.155',
     'shibata_p' => '.747063',
     'shibata_pip' => '1.26737',
     'slypen_c' => '.0265',
@@ -467,10 +469,15 @@ clear_values();
 
 sub definitions {
 
-    $msg = 'laconic'         unless defined $msg;        ## default message thresholds
-    $n = 2000000             unless defined $n;          ## default number of events per run
+    $msg = 'laconic'         unless defined $msg;          ## default message thresholds
+    $n = 2000000             unless defined $n;            ## default number of events per run
+    $err_system = 'ni'       unless defined $err_system;   ## default error system (non-interactive)
+
+    ($seed) ? ($seed_switch = "--seed $seed") : ($seed_switch = "");
 
     ($prepend eq 'yes') ? ($a_name = "$author\_") : ($a_name = "");
+
+    ($nrg_list) ? ($use_steps = 0) : ($use_steps = 1); 
 
     ## GENIE VERSION
     if ($GENIE =~ m/devel/i) {           ## if $GENIE contains "devel" (regardless of case)
@@ -529,6 +536,7 @@ sub definitions {
         '8' => '1000080160',
         '1008' => '1000080160[.8881],1000010010[.1119]',
         '13' => '1000130270',
+        '14' => '1000140280',
         '20' => '1000200400',
         '26' => '1000260560',
         '27' => '1000270590',
@@ -557,6 +565,7 @@ sub definitions {
         '8' => 'O',
 	'1008' => 'H2O',
         '13' => 'Al',
+        '14' => 'Si',
         '20' => 'Ca',
         '26' => 'Fe',
         '27' => 'Co',
@@ -575,6 +584,11 @@ sub definitions {
     ## OUTPUT DIRECTORY
     $rootdir = '.'  unless defined $rootdir;
     $rootdir =~ s|/$||;
+
+    ## ENERGIES
+    if ($use_steps==0) {
+	@nrg_array = split(',',$nrg_list);
+    }
 };
 
 
@@ -589,7 +603,7 @@ sub execute {
 		foreach $nrg (@k) {
 		    $nrgmev = $nrg * 1000;
 		    foreach $mode (@m) {
-			system ("gevgen_hadron -p $probepdg -t $tcode -n $n -r $r -k $nrg -m $mode $msngr");
+			system ("gevgen_hadron -p $probepdg -t $tcode -n $n -r $r -k $nrg -m $mode $msngr $seed_switch");
 			system ("gntpc -f ginuke -i $prefix.$r.ghep.root -o $rootdir/$a_name$abbr[$mon]\_$day\_$yr\_$probe\_$Atom\_$nrgmev\_$version\_$mode.ginuke.root $msngr");
 			if ($remove eq 'yes') {
 			    unlink ("$prefix.$r.ghep.root", "genie-mcjob-$r.status");
@@ -601,26 +615,47 @@ sub execute {
 		};
 	    };
 	    if ($totxs eq 'yes') {
-		$nrg = $min_ke;
-		$max_ke = $max_ke + .00000001;
-		while ($nrg < $max_ke) {
-		    $nrgmev = $nrg * 1000;
-		    foreach $mode (@m) {
-			if (-e gevgen_hadron_xsection.txt) {unlink ("gevgen_hadron_xsection.txt")};
-			system ("gevgen_hadron -p $probepdg -t $tcode -n $n -r $r -k $nrg -m $mode $msngr");
-			if ($root eq 'yes') {system ("gntpc -f ginuke -i $prefix.$r.ghep.root -o $rootdir/$a_name$abbr[$mon]\_$day\_$yr\_$probe\_$Atom\_$nrgmev\_$version\_$mode.ginuke.root $msngr")};
-			system ("gtestINukeHadroXSec -f $prefix.$r.ghep.root -w");
-			system ("gawk '!/#/ {print}' gevgen_hadron_xsection.txt >> $rootdir/$a_name$abbr[$mon]\_$day\_$yr\_$probe\_$Atom\_totxs_$version\_$mode.txt");
-			unlink ("gevgen_hadron_xsection.txt");
-			if ($remove eq 'yes') {
-			    unlink ("$prefix.$r.ghep.root", "genie-mcjob-$r.status");
-			} elsif ($rootdir ne '.')  {
-			    system ("mv $prefix.$r.ghep.root $rootdir/; mv genie-mcjob-$r.status $rootdir/");
-			}
-			$r++;
+		if ($use_steps==1) {
+		    ## use min. max, and steps
+		    $nrg = $min_ke;
+		    $max_ke = $max_ke + .00000001;
+		    while ($nrg < $max_ke) {
+			$nrgmev = $nrg * 1000;
+			foreach $mode (@m) {
+			    if (-e gevgen_hadron_xsection.txt) {unlink ("gevgen_hadron_xsection.txt")};
+			    system ("gevgen_hadron -p $probepdg -t $tcode -n $n -r $r -k $nrg -m $mode $msngr $seed_switch");
+			    if ($root eq 'yes') {system ("gntpc -f ginuke -i $prefix.$r.ghep.root -o $rootdir/$a_name$abbr[$mon]\_$day\_$yr\_$probe\_$Atom\_$nrgmev\_$version\_$mode.ginuke.root $msngr")};
+			    system ("gtestINukeHadroXSec -f $prefix.$r.ghep.root -w");
+			    system ("gawk '!/#/ {print}' gevgen_hadron_xsection.txt >> $rootdir/$a_name$abbr[$mon]\_$day\_$yr\_$probe\_$Atom\_totxs_$version\_$mode.txt");
+			    unlink ("gevgen_hadron_xsection.txt");
+			    if ($remove eq 'yes') {
+				unlink ("$prefix.$r.ghep.root", "genie-mcjob-$r.status");
+			    } elsif ($rootdir ne '.')  {
+				system ("mv $prefix.$r.ghep.root $rootdir/; mv genie-mcjob-$r.status $rootdir/");
+			    }
+			    $r++;
+			};
+			$nrg = $nrg + $step_size;
 		    };
-		    $nrg = $nrg + $step_size;
-		};
+		} else {
+		    ## use list of energies
+		    foreach $cur_nrg (@nrg_array) {
+		   	foreach $mode (@m) {
+			    if (-e gevgen_hadron_xsection.txt) {unlink ("gevgen_hadron_xsection.txt")};
+			    system ("gevgen_hadron -p $probepdg -t $tcode -n $n -r $r -k $cur_nrg -m $mode $msngr $seed_switch");
+			    if ($root eq 'yes') {system ("gntpc -f ginuke -i $prefix.$r.ghep.root -o $rootdir/$a_name$abbr[$mon]\_$day\_$yr\_$probe\_$Atom\_$cur_nrgmev\_$version\_$mode.ginuke.root $msngr")};
+			    system ("gtestINukeHadroXSec -f $prefix.$r.ghep.root -w");
+			    system ("gawk '!/#/ {print}' gevgen_hadron_xsection.txt >> $rootdir/$a_name$abbr[$mon]\_$day\_$yr\_$probe\_$Atom\_totxs_$version\_$mode.txt");
+			    unlink ("gevgen_hadron_xsection.txt");
+			    if ($remove eq 'yes') {
+			  	unlink ("$prefix.$r.ghep.root", "genie-mcjob-$r.status");
+			    } elsif ($rootdir ne '.')  {
+			  	system ("mv $prefix.$r.ghep.root $rootdir/; mv genie-mcjob-$r.status $rootdir/");
+			    }
+			    $r++;
+		  	}
+		    }
+		}
 	    };
 	};   
     };
@@ -652,6 +687,7 @@ sub open_files {
 ## The incorrect usage subroutine ##
 
 sub error_exit {
+    if ($err_system ne 'i') {die("\nThere was a problem with the command line arguments (invalid $_[0]). \'Die\' signal given");}
     print "\nThere was a problem with the command line arguments. (Invalid $_[0].) ";
     print "Would you like to get ****.ginuke.root files, text files with total cross sections, or both?\nEnter 'R' for root files, 'T' for text total cross section files, or 'B' for both: ";
     $answer = <STDIN>; $answer = uc($answer); chomp ($answer);
@@ -695,7 +731,7 @@ sub error_exit {
 	print "** necessary inputs\n\n";
 	print "Valid Author Inputs:\n";
 	print "amian, baker, beck, bertrand, carman, chen, cochran, franz, hautala, hayashi, ingram, iwamoto, kin,\n";
-	print "levenson, mcgill, mckeown, meier, otsu, ouyang, roy, segel, slypen, stamer, tippawan, tyren, zumbro\n";
+	print "levenson, mcgill, mckeown, meier, otsu, ouyang, roy, slypen, stamer, tippawan, tyren, zumbro\n";
 	die("\n");
     };
     if ($answer eq 'T') {
