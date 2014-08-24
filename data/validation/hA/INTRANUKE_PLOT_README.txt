@@ -1,5 +1,5 @@
 Documentation for making Intranuke validation plots.
-S. Dytman  12 August, 2014
+S. Dytman  24 August, 2014 dytman@pitt.edu
 code written by Nick Geary (Pgh)
 
 - ntuple files are created with gevgen_hadron and gntpc -f ginuke
@@ -12,8 +12,21 @@ CREATE good directory structure.
 - make a directory for root files, one for data files, and one for plot files.
 - suggestion for top directory=genie-out.  Put runfast.pl, intranukeplotter.pl.
 genieStyle.C, and rootgINukeVal.C in that directory.
-- make subdirectories Sim, ExtData, png_files for 3 kinds of file.
-- move external data files into ExtData directory.
+- make subdirectories root_files, data_files, and png_files for 3 kinds of file.
+- move external data files into data_files directory.
+
+Methods are different for total xs, sigma, single differential angular distributions, 
+dsigma/dOmega, and double differential energy distributions, dsig/dOmegadE.
+For angular and energy distr, external data is in 
+$GENIE/data/validation/hA/ang_dist or dbldiff_xs.  Files are labelled
+according to author-probe-target-beam energy-detected particle-angle.dat,
+e.g.mckeown-pim-Ta-100-p-30.dat is data for pi- Ta -> p X with pion beam
+energy of 100 MeV.  Data is proton energy distr at 30 deg in lab.
+Selection for simulation is easiest if you use author switch.  You have 
+capability of making over 800 plots.
+For total cross sections, external data is in
+$GENIE/data/validation/hA/total_xs.  Many authors contribute, so main selection
+is according to probe and target nucleus.
 
 CREATE root ntuple files with hadron-nucleus data.
 - run runfast.pl with perl to produce the root files you need.
@@ -21,7 +34,8 @@ For ntuple files,name convention is Month_day_yr_probe_target_beamenergy_version
  e.g. Mar_08_13_p_C_197_v280_hA.ginuke.root for proton carbon at 197 MeV using hA model 
 and GENIE version 2.8.0 on March 8, 2013. This would be produced with
 perl runfast.pl --type root --a hautala --m hA.  The --a option specifies the lead
-author of the data publication and the program knows what to create.  Default is 100k events.
+author of the data publication and the program knows what to create.  Default is 
+100k events.
 Program needs to run a setup program for each version, e.g. /usr/GENIE/setup_genie for 2.8.0.
 
 For total cross section files, a text file is created from the ghep files.  
@@ -29,8 +43,6 @@ Order is
 * runfast.pl runs gScriptINukeTotXSec (shell script) which creates ghep files
 at the proper energies.
 * it then runs gtestINukeHadroXSec to create a text file with cross section values.
-* user must use existing format file with rootgINukeVal.C to create the plot.
-Find them in $GENIE/data/validation/hA/total.
 - run intranukeplotter.pl with perl to produce the plots you need.
 Program creates format files for the plots which interface to the plotting
 program rootgINukeVal.C which uses style file genieStyle.C.  If setup is correct, 
