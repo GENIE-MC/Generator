@@ -32,7 +32,7 @@
 ##              Currently supported authors:                                                             ##
 ##                 Ang: cochran, hautala, ingram, levenson, mckeown                                      ##
 ##                 Nrg: amian, baker, beck, bertrand, carman, chen, cochran, franz, hautala, hayashi,    ##
-##                      ingram, iwamoto, kin, levenson, mcgill, mckeown, meier, otsu, ouyang, roy, segel,##
+##                      ingram, iwamoto, kin, levenson, mcgill, mckeown, meier, otsu, ouyang, roy,       ##
 ##                      slypen, stamer,tippawan, tyren, zumbro                                           ##
 ##                 Tot:                                                                                  ##
 ##                    Nucleon: abfalterer, auce, bauhof, dicello, dietrich, ibaraki, kirkby, mcgill,     ##
@@ -72,19 +72,20 @@ foreach (@ARGV) {
     if ($_ eq '--datadir') { $datadir    = $ARGV[$iarg+1]; }     ## directory to find data files
     if ($_ eq '--rootdir') { $rootdir    = $ARGV[$iarg+1]; }     ## directory to find root files
     if ($_ eq '--pngdir')  { $pngdir     = $ARGV[$iarg+1]; }     ## directory to put png files
-    if ($_ eq '--p')       { $probe      = $ARGV[$iarg+1]; }
-    if ($_ eq '--t')       { $tgt        = $ARGV[$iarg+1]; }
-    if ($_ eq '--a')       { $authors[0] = $ARGV[$iarg+1]; }
-    if ($_ eq '--a2')      { $authors[1] = $ARGV[$iarg+1]; }
-    if ($_ eq '--a3')      { $authors[2] = $ARGV[$iarg+1]; }
-    if ($_ eq '--a4')      { $authors[3] = $ARGV[$iarg+1]; }
-    if ($_ eq '--a5')      { $authors[4] = $ARGV[$iarg+1]; }
-    if ($_ eq '--stype')   { $st         = $ARGV[$iarg+1]; }
-    if ($_ eq '--hmax')    { $hmax       = $ARGV[$iarg+1]; }    
-    if ($_ eq '--vmax')    { $vmax       = $ARGV[$iarg+1]; }
-    if ($_ eq '--name')    { $prepend    = $ARGV[$iarg+1]; }
-    if ($_ eq '--rescale') { $rescale    = $ARGV[$iarg+1]; }
+    if ($_ eq '--p')       { $probe      = $ARGV[$iarg+1]; }     ## probe
+    if ($_ eq '--t')       { $tgt        = $ARGV[$iarg+1]; }     ## target
+    if ($_ eq '--a')       { $authors[0] = $ARGV[$iarg+1]; }     ## author
+    if ($_ eq '--a2')      { $authors[1] = $ARGV[$iarg+1]; }     ## second author
+    if ($_ eq '--a3')      { $authors[2] = $ARGV[$iarg+1]; }     ## third author
+    if ($_ eq '--a4')      { $authors[3] = $ARGV[$iarg+1]; }     ## fourth author
+    if ($_ eq '--a5')      { $authors[4] = $ARGV[$iarg+1]; }     ## fifth author
+    if ($_ eq '--stype')   { $st         = $ARGV[$iarg+1]; }     ## sub-type (fate)
+    if ($_ eq '--hmax')    { $hmax       = $ARGV[$iarg+1]; }     ## horizontal maximum on plot
+    if ($_ eq '--vmax')    { $vmax       = $ARGV[$iarg+1]; }     ## vertical maximum on plot
+    if ($_ eq '--name')    { $prepend    = $ARGV[$iarg+1]; }     ## option to prepend author's name ('yes' to prepend)
+    if ($_ eq '--rescale') { $rescale    = $ARGV[$iarg+1]; }     ## factor by which to rescale vertical maximum on plot
     if ($_ eq '--rmode')   { $rmode      = $ARGV[$iarg+1]; }     ## root mode-- '0' runs 'root -b -q' and '1' runs 'root -l'
+    if ($_ eq '--err')     { $err_system = $ARGV[$iarg+1]; }     ## error system ('i' for interactive; defaults to non-interactive)
     $iarg++;
 };
 
@@ -117,7 +118,6 @@ if ($type eq 'ang') {
     'otsu' => ['otsu'],
     'ouyang' => ['ouyang'],
     'roy' => ['roy'],
-    'segel' => ['segel'],
     'shibata' => ['shibata_p', 'shibata_pip'],
     'slypen' => ['slypen_c', 'slypen_fe'],
     'stamer' => ['stamer'],
@@ -303,13 +303,6 @@ if ($group eq "roy") {
     @dp = qw( p );  
     $bins = 4;
 };
-if ($group eq "segel") {
-    @p = qw( p );  
-    @Tgt = qw( C );
-    @nrg = ( 155 );
-    @dp = qw( p ); 
-    $bins = 4;
-};
 if ($group eq "shibata_p") {
     @p = qw( p );
     @Tgt = qw( Cu );
@@ -409,7 +402,6 @@ if ($type eq 'nrg') {
     'otsu' => ['otsu_392', 'otsu_400'],
     'ouyang' => ['ouyang'],
     'roy' => ['roy', 'roy_ta'],
-    'segel' => ['segel'],
     'shibata' => ['shibata_p', 'shibata_pip'],
     'slypen' => ['slypen_c', 'slypen_c_62.7', 'slypen_fe'],
     'stamer' => ['stamer'],
@@ -780,16 +772,6 @@ if ($group eq "roy_ta") {
     @cthmax = ( .5, .087, -.423, -.906 ); 
     $bins = 4;
 };
-if ($group eq "segel") {
-    @p = qw( p );  
-    @Tgt = qw( C );
-    @nrg = ( 155 );
-    @dp = qw( p );
-    @ang = ( 8.3, 11, 13.8, 16.5, 19.2, 22, 24.7, 27.4, 30.2, 32.4, 35.6, 38.3, 41, 43.7, 46.4, 49.1, 51.8, 54.4 );
-    @cthmin = ( .987, .979, .966, .954, .94, .917, .899, .878, .854, .834, .798, .770, .740, .708, .675, .64, .603, .562 );
-    @cthmax = ( .992, .984, .976, .964, .95, .937, .919, .898, .874, .854, .828, .8, .77, .738, .705, .670, .633, .602 );  
-    $bins = 4;
-};
 if ($group eq "shibata_p") {
     @p = qw( p );
     @Tgt = qw( Cu );
@@ -899,14 +881,14 @@ foreach $tgt (@Tgt) {
 ###############################################################################################################################################################
 ###############################################################################################################################################################
 
-### CROSS SECTION ROUTINE ###
+### TOTAL CROSS SECTION ROUTINE ###
 
 if ($type eq 'totxs') {
 
 (@authors) ? ($defaults = 'no') : ($defaults = 'yes');  ## use defaults if user did not define authors
 if ($defaults eq 'yes') {
     if ($probe eq 'p') {
-	if ($tgt eq 'c') {@authors = qw(mcgill auce dicello dietrich menet)};
+	if ($tgt eq 'c') {@authors = qw(mcgill auce dicello dietrich menet renberg)};
 	if ($tgt eq 'pb') {@authors = qw(auce dietrich kirkby menet renberg)};
 	if ($tgt eq 'ca') {@authors = qw(auce)};
 	if ($tgt eq 'fe') {@authors = qw(bauhof menet renberg)};
@@ -1044,7 +1026,7 @@ sub check_input {
         'amian' => '1', 'baker' => '1', 'beck' => '1', 'bertrand' => '1', 'carman' => '1', 'chen' => '1', 'cochran' => '2',
         'franz' => '1', 'hautala' => '2', 'hayashi' => '1', 'ingram' => '2', 'iwamoto' => '1', 'kin' => '1', 'kormanyos' => '1',
         'levenson' => '2', 'mcgill' => '1', 'mckeown' => '2', 'meier' => '1', 'otsu' => '1', 'ouyang' => '1', 'roy' => '1',
-        'segel' => '1', 'shibata' => '1', 'slypen' => '1', 'stamer' => '1', 'tippawan' => '1', 'tyren' => '1', 'zumbro' => '1'
+        'shibata' => '1', 'slypen' => '1', 'stamer' => '1', 'tippawan' => '1', 'tyren' => '1', 'zumbro' => '1'
     );
     $valid_author = $author_hash {$author};
     if ($type eq 'ang' && $valid_author ne '2') {error_exit("author")};
@@ -1095,9 +1077,10 @@ sub set_defaults {
     if ($vsn[0] == 266 || $vsn[1] == 266 || $vsn[2] == 266) {@mdl = qw( hA )};  ## eliminate hN if using v2.6.6
     if (($vsn[1]) && ($dorf[1] eq '')) {$dorf[1] = $dorf[0]};  ## assume date of second group of root files is same as first if user does not specify
     if (($vsn[2]) && ($dorf[2] eq '')) {$dorf[2] = $dorf[0]};  ## assume date of third group of root files is same as first if user does not specify
-    $datadir = "data_files" unless defined $datadir;            ## default directory to find data files is present working directory
-    $rootdir = "root_files" unless defined $rootdir;            ## default directory to find root files is pwd
-    $pngdir = "png_files" unless defined $pngdir;      ## default directory to put png files is png_files directory within pwd
+    $datadir = "data_files" unless defined $datadir;           ## default directory to find data files is present working directory
+    $rootdir = "root_files" unless defined $rootdir;           ## default directory to find root files is pwd
+    $pngdir = "png_files"   unless defined $pngdir;            ## default directory to put png files is png_files directory within pwd
+    $err_system = 'ni'      unless defined $err_system;        ## default error system (non-interactive)
 };
 
 ## Subroutine to set detected particles ##
@@ -1439,6 +1422,7 @@ sub load_datafile {
 ## Subroutine for incorrect usage ##
 
 sub error_exit {
+    if ($err_system ne 'i') {die("\nThere was a problem with the command line arguments (invalid $_[0]). \'Die\' signal given");}
     print "\nThere was a problem with the command line arguments. (Invalid $_[0].) ";
     print "Would you like to plot angular distributions, energy distributions, or total cross sections?\nEnter 'ang', 'nrg', or 'totxs': ";
     $answer = <STDIN>; chomp ($answer); $answer = lc($answer);
@@ -1471,13 +1455,13 @@ sub error_exit {
 	print "    --rm      : the remove option; enter 'yes' as argument to discard format files after use; only possible if png files are produced\n";
 	print "    --png     : enter 'off' as argument to turn off png file formation (ie, to only make format files)\n";
 	print "    --name    : enter 'yes' to look for root files with the author's name in the front\n";
-	print "    --rescale : specify a factior by which to multiply the vertical maxima of plots\n";
+	print "    --rescale : specify a factor by which to multiply the vertical maxima of plots\n";
 	print "** necessary input\n\n";
 	print "Valid Author Inputs:\n";
 	if ($answer eq 'ang') {print "cochran, hautala, ingram, levenson, mckeown\n"};
 	if ($answer eq 'nrg') {
 	    print "amian, baker, beck, bertrand, carman, chen, cochran, franz, hautala, hayashi, ingram, iwamoto, kin,\n";
-	    print "levenson, mcgill, mckeown, meier, otsu, ouyang, roy, segel, slypen, stamer,tippawan, tyren, zumbro\n"};
+	    print "levenson, mcgill, mckeown, meier, otsu, ouyang, roy, slypen, stamer,tippawan, tyren, zumbro\n"};
 	die("\n");
     };
     if ($answer eq 'totxs') {
@@ -1508,7 +1492,7 @@ sub error_exit {
 	print "    --rm      : the remove option; enter 'yes' as argument to discard format files after use; only possible if png files are produced\n";
 	print "    --png     : enter 'off' as argument to turn off png file formation (ie, to only make format files)\n";
 	print "    --name    : enter 'yes' to look for root files with the author's name in the front\n";
-	print "    --rescale : specify a factior by which to multiply the vertical maxima of plots\n";
+	print "    --rescale : specify a factor by which to multiply the vertical maxima of plots\n";
 	print "** necessary inputs\n";
         print "Valid Author Inputs:\n";
 	print " Nucleon - abfalterer, auce, bauhof, dicello, dietrich, ibaraki, kirkby, mcgill, menet, mislivec, renberg, schimmerling, voss, zanelli\n";
