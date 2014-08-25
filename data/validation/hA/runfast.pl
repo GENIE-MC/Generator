@@ -625,9 +625,9 @@ sub execute {
 			    if (-e gevgen_hadron_xsection.txt) {unlink ("gevgen_hadron_xsection.txt")};
 			    system ("gevgen_hadron -p $probepdg -t $tcode -n $n -r $r -k $nrg -m $mode $msngr $seed_switch");
 			    if ($root eq 'yes') {system ("gntpc -f ginuke -i $prefix.$r.ghep.root -o $rootdir/$a_name$abbr[$mon]\_$day\_$yr\_$probe\_$Atom\_$nrgmev\_$version\_$mode.ginuke.root $msngr")};
-			    system ("gtestINukeHadroXSec -f $prefix.$r.ghep.root -w");
-			    system ("gawk '!/#/ {print}' gevgen_hadron_xsection.txt >> $rootdir/$a_name$abbr[$mon]\_$day\_$yr\_$probe\_$Atom\_totxs_$version\_$mode.txt");
-			    unlink ("gevgen_hadron_xsection.txt");
+			    system ("gtestINukeHadroXSec -f $prefix.$r.ghep.root -w -o gevgen_hadron_xsection_$r.txt");
+			    system ("gawk '!/#/ {print}' gevgen_hadron_xsection_$r.txt >> $rootdir/$a_name$abbr[$mon]\_$day\_$yr\_$probe\_$Atom\_totxs_$version\_$mode.txt");
+			    unlink ("gevgen_hadron_xsection_$r.txt");
 			    if ($remove eq 'yes') {
 				unlink ("$prefix.$r.ghep.root", "genie-mcjob-$r.status");
 			    } elsif ($rootdir ne '.')  {
@@ -644,9 +644,9 @@ sub execute {
 			    if (-e gevgen_hadron_xsection.txt) {unlink ("gevgen_hadron_xsection.txt")};
 			    system ("gevgen_hadron -p $probepdg -t $tcode -n $n -r $r -k $cur_nrg -m $mode $msngr $seed_switch");
 			    if ($root eq 'yes') {system ("gntpc -f ginuke -i $prefix.$r.ghep.root -o $rootdir/$a_name$abbr[$mon]\_$day\_$yr\_$probe\_$Atom\_$cur_nrgmev\_$version\_$mode.ginuke.root $msngr")};
-			    system ("gtestINukeHadroXSec -f $prefix.$r.ghep.root -w");
-			    system ("gawk '!/#/ {print}' gevgen_hadron_xsection.txt >> $rootdir/$a_name$abbr[$mon]\_$day\_$yr\_$probe\_$Atom\_totxs_$version\_$mode.txt");
-			    unlink ("gevgen_hadron_xsection.txt");
+			    system ("gtestINukeHadroXSec -f $prefix.$r.ghep.root -w -o gevgen_hadron_xsection_$r.txt");
+			    system ("gawk '!/#/ {print}' gevgen_hadron_xsection_$r.txt >> $rootdir/$a_name$abbr[$mon]\_$day\_$yr\_$probe\_$Atom\_totxs_$version\_$mode.txt");
+			    unlink ("gevgen_hadron_xsection_$r.txt");
 			    if ($remove eq 'yes') {
 			  	unlink ("$prefix.$r.ghep.root", "genie-mcjob-$r.status");
 			    } elsif ($rootdir ne '.')  {
