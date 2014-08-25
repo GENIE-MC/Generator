@@ -614,6 +614,10 @@ void GetCommandLineArgs(int argc, char ** argv)
     gAbortingInErr = true;
     exit(1);
   }
+  if( parser.OptionExists('o') ) {
+    LOG("gtestINukeHadroXSec", pINFO) << "Reading output filename";
+    gOptOutputFilename = parser.ArgAsString('o');
+  }
 
   // write-out events?
   gOptWriteOutput =  parser.OptionExists('w');
