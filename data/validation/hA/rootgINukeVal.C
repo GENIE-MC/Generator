@@ -2,7 +2,7 @@
 rootgINukeVal.C
 genie Intranuke Data Analysis
 Author Andrew Seel March 2011
-Improvements by Juan Manfredi summer, 2012
+updated Juan Manfredi July 2012
 
 This program simplifies the production of graphs of energy/angle v. cross section for both GENIE generated events and published cross section data. This ROOT script is an upgrade to gINukeVal (circa 2008) that changes the format file format in order to allow for the graphing of N data files.
 
@@ -130,10 +130,9 @@ DataFile::GetData(){
   if(gType.compare("XS")==0){
     TNtuple newData ("newData","", cols.c_str() );
     newData.ReadFile(name.c_str());
-    cout<<"TNtuple created"<<endl;
+    cout<<"TNtuple created: ";
     dataTuple = (TNtuple*) newData.Clone();
     cout<<name.c_str()<<endl;
-    cout<<dataTuple<<endl;
     success = true;
   }
   else{
@@ -264,6 +263,8 @@ public:
   DataFile* makeDataFile(int which,string dir=".");
   string fetchGTitle(){return mtitle;};
   int numOfType(string type);
+  int gc = 0;  // GENIE counter
+  int dc = 0;  // data counter
 };
 
 FormatFile::FormatFile(string fileName){
@@ -332,6 +333,8 @@ bool FormatFile::process(size_t record){
       curTag = "PROCESS";
       good = true;
       depth = 1;
+      gc = 0;
+      dc = 0;
     }
 
     //If we hit another RECORD tag or the end of the file, we're done
@@ -414,12 +417,17 @@ bool FormatFile::process(size_t record){
       if(xu[0] == '-'){logx = true; xu = xu.substr(1);}
       if(xl[0] == '-'){logx = true; xl = xl.substr(1);}
     }
-      //cout<<"("<<xl<<","<<yl<<"),("<<xu<<","<<yu<<")"<<endl;
   }
   return good;
 }
 
 DataFile* FormatFile::makeDataFile(int which,string dir,string source){
+  int gCols[5] = {2, 3, 4, 6, 7};
+  vector<int> genieColors;
+  for (int g=0; g<5; g++) {genieColors.push_back(gCols[g]);}
+  int dCols[10] = {1, 46, 8, 9, 41, 28, 36, 30, 17, 20};
+  vector<int> dataColors;
+  for (int d=0; d<10; d++) {dataColors.push_back(dCols[d]);}
   int num=0;
   int i=0;
   //Find the position of the desired file in the vectors
@@ -429,15 +437,25 @@ DataFile* FormatFile::makeDataFile(int which,string dir,string source){
   }
   i--;
   dir = dir+"/";
+
+  int c = 1;
+  if (source.compare("GENIE")==0) {
+    c = gCols[gc%5];
+    gc++;
+  } else if (source.compare("EXPERIMENTAL")==0) {
+    c = dCols[dc%10];
+    dc++;
+  }
+
   //Setting some default values
   if(this->type.compare("Angle")==0){
-    DataFile* temp = new DataFile(type,dir,fileNames[i], titles[i],cols[i],cuts[i],1.0,i+1);
+    DataFile* temp = new DataFile(type,dir,fileNames[i], titles[i],cols[i],cuts[i],1.0,c);
   }
   else if(this->type.compare("Momentum")==0||this->type.compare("XS")==0){
-    DataFile* temp = new DataFile(type,dir,fileNames[i], titles[i],cols[i],cuts[i],dcths[i],i+1);
+    DataFile* temp = new DataFile(type,dir,fileNames[i], titles[i],cols[i],cuts[i],dcths[i],c);
   }
   else{
-    DataFile* temp = new DataFile(type,dir,fileNames[i], titles[i],cols[i],cuts[i],dcths[i],i+1);
+    DataFile* temp = new DataFile(type,dir,fileNames[i], titles[i],cols[i],cuts[i],dcths[i],c);
   }
   return temp;
 }
@@ -460,7 +478,7 @@ int rootgINukeVal(char* fFile, char* dataDir = ".", char* ROOTDir = ".",char* sa
   int legendSize; //counting entries in legend
   float TextSize, y1; //adjusted font size and lower bound on legend
   FormatFile format (tFile);
-  TCanvas* cans;
+  TCanvas* theCanvas;
   set_root_env();
   size_t curRecord=1;
   bool doCurrent = false;
@@ -502,8 +520,8 @@ int rootgINukeVal(char* fFile, char* dataDir = ".", char* ROOTDir = ".",char* sa
     //Creating a new canvas and setting some parameters 
     string canName;
     canName.assign(curRecord,'*');
-    cans= new TCanvas(canName.c_str(),format.fetchGTitle().c_str());
-    cans->cd();
+    theCanvas= new TCanvas(canName.c_str(),format.fetchGTitle().c_str());
+    theCanvas->cd();
     TPad* curP = gPad;
     if(format.logx==true){gPad->SetLogx(1);}
     if(format.logy==true){gPad->SetLogy(1);}
@@ -516,7 +534,7 @@ int rootgINukeVal(char* fFile, char* dataDir = ".", char* ROOTDir = ".",char* sa
     //TLegend* leg1 = new TLegend(.6,.8,1,1,"");
 
     //Get the frame, set parameters, redraw frame
-    TH1F* hf1 = (TH1F*) cans->DrawFrame(xl,yl,xu,yu);
+    TH1F* hf1 = (TH1F*) theCanvas->DrawFrame(xl,yl,xu,yu);
     hf1->SetTitle(format.mtitle.c_str());
     if(format.type.compare("Angle")==0){
       hf1->GetXaxis()->SetTitle("cos(#theta)");
@@ -535,6 +553,8 @@ int rootgINukeVal(char* fFile, char* dataDir = ".", char* ROOTDir = ".",char* sa
       hf1->GetYaxis()->SetTitle("#frac{d#sigma}{d#OmegadE} [#frac{mb}{sr#upointMev}]");
     }
     //hf1->GetXaxis()->SetNdivisions(-50202);
+    hf1->GetXaxis()->SetNdivisions(506, kTRUE);
+    hf1->GetYaxis()->SetNdivisions(506, kTRUE);
     hf1->GetYaxis()->CenterTitle();
     hf1->Draw();
 
@@ -542,26 +562,19 @@ int rootgINukeVal(char* fFile, char* dataDir = ".", char* ROOTDir = ".",char* sa
     //Loop over each GINUKE file, scaling and drawing each
     int numRoots = format.numOfType("GENIE");
     int k;
-    int markerStyle=20;
-
  
     for(k=0;k<numRoots;k++){
       DataFile* simData = format.makeDataFile(k,ROOTDir,"GENIE");
       if(format.type.compare("XS")==0){
-        cans->cd();
+        theCanvas->cd();
         //Do things completely differently
         int curCol = simData->color;
         simData->dataTuple->SetMarkerColor(curCol);
-        simData->dataTuple->SetMarkerStyle(markerStyle);
-	markerStyle++;
+        simData->dataTuple->SetMarkerStyle(kFullTriangleUp);
         simData->dataTuple->SetLineStyle(2);//2
         simData->dataTuple->SetLineColor(curCol);
-        cout<<"About to draw tuple"<<endl;
-        //simData->dataTuple->Draw();
-        cout<<simData->cut.c_str()<<endl;
         simData->dataTuple->Draw(simData->cut.c_str(),"","line psame L");
 	leg1->AddEntry(simData->dataTuple,simData->title.c_str(),"P");
-        cout<<"Tuple drawn"<<endl;
       }
       else{
         TCanvas* tempVas = new TCanvas("tempName","No title");
@@ -571,7 +584,7 @@ int rootgINukeVal(char* fFile, char* dataDir = ".", char* ROOTDir = ".",char* sa
         newCut = newCut +"&&"+simData->cols+"<="+format.xu;
         newCut = newCut + "&&"+simData->cols+">"+format.xl;
         simData->dataTree->Draw(simData->cols.c_str(),newCut.c_str(), "L");
-        //tempVas is used in order to not clobber cans's htemp
+        //tempVas is used in order to not clobber theCanvas's htemp
         if(simData->valid()){
 
           //Grab the associated histogram from tempVas, apply scaling factor
@@ -594,8 +607,7 @@ int rootgINukeVal(char* fFile, char* dataDir = ".", char* ROOTDir = ".",char* sa
             hist1->Scale(factor,"width");
             int curCol = simData->color;
             hist1->SetMarkerColor(curCol);
-            hist1->SetMarkerStyle(markerStyle);
-	    markerStyle++;
+            hist1->SetMarkerStyle(kFullCircle);
             hist1->SetLineStyle(2);
             hist1->SetLineColor(curCol);
           }
@@ -603,8 +615,8 @@ int rootgINukeVal(char* fFile, char* dataDir = ".", char* ROOTDir = ".",char* sa
             cout<<"Nothing was found in the cut of "<<simData->filename<<endl;
           }
           if(good){
-            //Draw a copy of histogram to cans on top of any other histograms already there
-            cans->cd();
+            //Draw a copy of histogram to theCanvas on top of any other histograms already there
+            theCanvas->cd();
             //TPad* curP = gPad;
 	    leg1->AddEntry(hist1,simData->title.c_str());
             hist1->DrawCopy("e1 psame");//e1 psame
@@ -618,7 +630,7 @@ int rootgINukeVal(char* fFile, char* dataDir = ".", char* ROOTDir = ".",char* sa
         }
         else{
           cout<<"Something is wrong with data file "<<simData->filename<<endl;
-          cans->cd();
+          theCanvas->cd();
         }
         tempVas->Close();
       }
@@ -626,10 +638,10 @@ int rootgINukeVal(char* fFile, char* dataDir = ".", char* ROOTDir = ".",char* sa
 
     //Draw all of the Experimental files, I'm pretty sure that this will only handle
     // the simple tree type generated from the .txt type data files.
-    cans->cd();
+    theCanvas->cd();
     TPad* curP = gPad;
     int numFiles = format.numOfType("EXPERIMENTAL");
-   
+
     for(j=0;j<numFiles;j++){
       DataFile* experimental = format.makeDataFile(j,dDir,"EXPERIMENTAL");
       TGraphErrors* data1;
@@ -643,9 +655,7 @@ int rootgINukeVal(char* fFile, char* dataDir = ".", char* ROOTDir = ".",char* sa
       }
       data1->SetLineStyle(3);
       data1->SetMarkerColor(experimental->color);
-      data1->SetMarkerStyle(markerStyle);
-      data1->SetMarkerSize(1.5);
-      markerStyle++;
+      data1->SetMarkerStyle(kFullCircle);
       leg1->AddEntry(data1,experimental->title.c_str(),"P");
       data1->Draw("p same");
     }
@@ -662,7 +672,7 @@ int rootgINukeVal(char* fFile, char* dataDir = ".", char* ROOTDir = ".",char* sa
     //Save the record
     string saveName(saveDir);
     saveName = saveName+"/"+format.savename+".png";
-    cans->SaveAs(saveName.c_str());
+    theCanvas->SaveAs(saveName.c_str());
 
     //Try to find the next record
     curRecord++;
