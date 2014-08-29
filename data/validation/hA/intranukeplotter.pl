@@ -10,18 +10,18 @@
 ##                                                                                                       ##
 ## Use:         To plot angular distributions:                                                           ##
 ##                 perl intranukeplotter.pl --type ang --a author --dorf date [--v vsn] [--m mode]       ##
-##                 [--datadir ddir] [--rootdir rdir] [--pngdir pdir] [--rm discard] [--png suppress]     ##
+##                 [--datadir ddir] [--rootdir rdir] [--pngdir pdir] [--rm discard] [--png off]          ##
 ##                 [--name prepend]                                                                      ##
 ##                                                                                                       ##
 ##              To plot energy distributions:                                                            ##
 ##                 perl intranukeplotter.pl --type nrg --a author --dorf date [--v vsn] [--m mode]       ##
-##                 [--datadir ddir] [--rootdir rdir] [--pngdir pdir] [--rm discard] [--png suppress]     ##
+##                 [--datadir ddir] [--rootdir rdir] [--pngdir pdir] [--rm discard] [--png off]          ##
 ##                 [--name prepend]                                                                      ##
 ##                                                                                                       ##
 ##              To plot total cross sections:                                                            ##
 ##                 perl intranukeplotter.pl --type totxs --stype fate --p prb --t Tgt --hmax max         ##
 ##                 --vmax max --dorf date [--a author] [--v vsn] [--m mode] [--datadir ddir]             ##
-##                 [--rootdir rdir] [--pngdir pdir] [--rm discard] [--png suppress] [--name prepend]     ##
+##                 [--rootdir rdir] [--pngdir pdir] [--rm discard] [--png off] [--name prepend]          ##
 ##                                                                                                       ##
 ##              Notes: Compare up to 3 GENIE versions and 2 modes. Use switches --v2, --v3, --m2,        ##
 ##                     --dorf2, etc.                                                                     ##
@@ -32,8 +32,8 @@
 ##              Currently supported authors:                                                             ##
 ##                 Ang: cochran, hautala, ingram, levenson, mckeown                                      ##
 ##                 Nrg: amian, baker, beck, bertrand, carman, chen, cochran, franz, hautala, hayashi,    ##
-##                      ingram, iwamoto, kin, levenson, mcgill, mckeown, meier, otsu, ouyang, roy,       ##
-##                      slypen, stamer,tippawan, tyren, zumbro                                           ##
+##                      ingram, iwamoto, kin, kormanyos, levenson, mcgill, mckeown, meier, otsu, ouyang, ##
+##                      roy, slypen, stamer,tippawan, tyren, zumbro                                      ##
 ##                 Tot:                                                                                  ##
 ##                    Nucleon: abfalterer, auce, bauhof, dicello, dietrich, ibaraki, kirkby, mcgill,     ##
 ##                             menet, mislivec, renberg, schimmerling, voss, zanelli                     ##
@@ -49,6 +49,11 @@
 ## Output:      Ang: $pngdir/author-prb-tgt-nrg-det-angdist-vsn-mode-date.png                            ##
 ##              Nrg: $pngdir/author-prb-tgt-nrg-det-ang-vsn-mode-date.png                                ##
 ##              Tot: $pngdir/prb-tgt-fate-vsn-mode-date.png                                              ##
+##                                                                                                       ##
+## Default file locations:                                                                               ##
+##              ROOT files: ./root_files/                                                                ##
+##              Data files: ./data_files/                                                                ##
+##              Plot files: ./png_files/                                                                 ##
 ##                                                                                                       ## 
 ###########################################################################################################
 
@@ -1170,7 +1175,6 @@ sub make_format_file {
 		$v = $vsn[$i];
 		foreach $m (@mdl) {
 		    set_root_file_name($i);
-		    ## check_for_files();
 		    print File "[GENIE]\n";
 		    print File " $rootfile\n";
 		    print File " cth\n";
@@ -1210,7 +1214,6 @@ sub make_format_file {
 		$v = $vsn[$i];
 		foreach $m (@mdl) {
 		    set_root_file_name($i);
-		    ## check_for_files();
 		    print File "[GENIE]\n";
 		    print File " $rootfile\n";
 		    print File " (Eh-$dpm)*1000\n";
@@ -1253,7 +1256,6 @@ sub make_format_file {
 	    $v = $vsn[$i];
 	    foreach $m (@mdl) {
 		set_root_file_name($i);
-		## check_for_files(); ##############################################################
 		print File "[GENIE]\n";
 		print File " $rootfile\n";
 		print File " E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:pipro:spipro:dcex:sdcex:reac:sreac:total:stotal\n";
@@ -1506,13 +1508,3 @@ sub error_exit_g {
     die("You must set up GENIE before running this script.\n");
 }
 
-
-
-
-
-
-
-#### Notes for for future edits
-
-## Add ability to do fractions of an author's work (specify by probe, target, energy)
-## Edit check_for_files routine for tot_xs
