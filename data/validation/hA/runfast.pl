@@ -10,7 +10,9 @@
 ##              as the type, it instead uses the ***.ghep.root file and the gtestINukeHadroXSec command  ##
 ##              to produce a text file with cross sections.                                              ##
 ##                                                                                                       ##
-## Use:         To get ***.ginuke.root files to match an author's data:                                  ##
+## Use:         [] denotes optional argument                                                             ##
+##                                                                                                       ##
+##              To get ***.ginuke.root files to match an author's data:                                  ##
 ##                 perl runfast.pl --type root --a author [--n nev] [--r run] [--m mode] [--msg message] ##
 ##                 [--rm discard] [--name prepend] [--rootdir rdir] [--seed seed]                        ##
 ##                                                                                                       ##
@@ -21,18 +23,20 @@
 ##                                                                                                       ##
 ##              To get total cross section text files:                                                   ##
 ##                 perl runfast.pl --type totxs --p probe --t target --min min_ke --max max_ke --s step  ##
-##                 [--n nev] [--r run] [--m mode] [--msg message] [--rm discard] [--name prepend]        ##
-##                 [--rootdir rdir] [--seed seed]                                                        ##
+##                 *[--el "ke1,ke2,ke3..."]* [--n nev] [--r run] [--m mode] [--msg message]              ##
+##                 [--rm discard] [--name prepend] [--rootdir rdir] [--seed seed]                        ##
+##                                                                                                       ##
+##              Note: --min, --max, and --step are not necessary if --el (energy list) is used           ##
 ##                                                                                                       ##
 ##              Note: Where applicable, script supports up to 2 probes, 6 energies, 6 targets,           ##
-##                    and 2 modes. Use switches --p2, --k2, --k3, etc.                                   ##
+##                    and 2 modes. Use switches --p2, --k2, --k3, --m2, etc.                             ##
 ##                                                                                                       ##
 ## Input:       (command line arguments only)                                                            ##
 ##                                                                                                       ##
 ## Output:      $rootdir/[author_]MMM_DD_YY_prb_tgt_nrg_vsn_mode.ginuke.root  and/or                     ##
 ##              $rootdir/[author_]MMM_DD_YY_prb_tgt_totxs_vsn_mode.txt                                   ##
 ##                                                                                                       ##
-##              Note: $rootdir is $PWD when not specified by the user                                    ##
+##              Note: $rootdir is ./root_files/ when not specified by the user                           ##
 ##                                                                                                       ##
 ###########################################################################################################
 
@@ -172,10 +176,11 @@ if ($type eq 'totxs' || $type eq 'both') {
     if ($prbpdg[0] ne '2212' && $prbpdg[0] ne '2112' && $prbpdg[0] ne '211' && $prbpdg[0] ne '-211' && $prbpdg[0] ne '111' && $prbpdg[0] ne '311' &&  $prbpdg[0] ne '-311' && $prbpdg[0] ne '321' &&  $prbpdg[0] ne '-321'
         &&  $prbpdg[0] ne '22' &&  $prbpdg[0] ne '13' &&  $prbpdg[0] ne '-13') {error_exit("probe")};
     error_exit("target") unless defined $tgt[0];
+    ($nrg_list) ? ($use_steps = 0) : ($use_steps = 1); 
     error_exit("minimum energy") unless (defined $min_ke || !($use_steps));
     error_exit("maximum energy") unless (defined $max_ke || !($use_steps));
     error_exit("step size") unless (defined $step_size || !($use_steps));
-    error_exit("energies") unless (($type eq 'totxs' && defined $nrg_list) || $use_steps);
+    error_exit("energies") unless (($type eq 'totxs' && (defined $nrg_list) || $use_steps));
 };
     
 
@@ -470,14 +475,12 @@ clear_values();
 sub definitions {
 
     $msg = 'laconic'         unless defined $msg;          ## default message thresholds
-    $n = 2000000             unless defined $n;            ## default number of events per run
+    $n = 100000              unless defined $n;            ## default number of events per run
     $err_system = 'ni'       unless defined $err_system;   ## default error system (non-interactive)
 
     ($seed) ? ($seed_switch = "--seed $seed") : ($seed_switch = "");
 
     ($prepend eq 'yes') ? ($a_name = "$author\_") : ($a_name = "");
-
-    ($nrg_list) ? ($use_steps = 0) : ($use_steps = 1); 
 
     ## GENIE VERSION
     if ($GENIE =~ m/devel/i) {           ## if $GENIE contains "devel" (regardless of case)
@@ -582,7 +585,7 @@ sub definitions {
     $atom = lc($Atom);
 
     ## OUTPUT DIRECTORY
-    $rootdir = '.'  unless defined $rootdir;
+    $rootdir = 'root_files'  unless defined $rootdir;
     $rootdir =~ s|/$||;
 
     ## ENERGIES
