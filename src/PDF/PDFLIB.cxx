@@ -78,7 +78,7 @@ void PDFLIB::Initialize(void) const
     const char * geniepath = gSystem->Getenv("GENIE");
     std::string gpth(geniepath);
     std::string lpth(lhapath);
-    gpth = gpth + "/data/evgen";
+    gpth = gpth + "/data/evgen/pdfs";
     if (gpth != lpth) {
       lhapath_ok = false;
     }
@@ -91,15 +91,14 @@ void PDFLIB::Initialize(void) const
       << "\n"
       << "** LHAPDF won't be able to read-in the PDF data. \n"
       << "** The LHAPATH env. variable is not properly (or at all) defined. \n"
-      << "** Please, set LHAPATH to $GENIE/data/evgen \n"
+      << "** Please, set LHAPATH to $GENIE/data/evgen/pdfs \n"
       << "** See http://projects.hepforge.org/lhapdf/ for more details. \n\n";
     LOG("PDF", pFATAL) 
       << "\n\n"
       << "NOTE: In this version of GENIE, you MUST use the PDFs in\n"
-      << "$GENIE/data/evgen with LHAPDF. You MUST set your LHAPATH\n"
-      << "environemnt variable to $GENIE/data/evgen!\n";
+      << "$GENIE/data/evgen/pdfs with LHAPDF. You MUST set your LHAPATH\n"
+      << "environemnt variable to $GENIE/data/evgen/pdfs!\n";
     gAbortingInErr = true;
-    sleep(5000);
     exit(1);
   }
 
