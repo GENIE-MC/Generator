@@ -1210,10 +1210,10 @@ sub make_format_file {
 	    print File " $datafile\n";
 	    print File " xsec:E:err1\n";
 	    print File " $energy MeV $Author $Tgt Data ($angle deg)\n";
-	    for my $i (0 .. $#vsn) {
-		$v = $vsn[$i];
+	    for my $vsn_index (0 .. $#vsn) {
+		$v = $vsn[$vsn_index];
 		foreach $m (@mdl) {
-		    set_root_file_name($i);
+		    set_root_file_name($vsn_index);
 		    print File "[GENIE]\n";
 		    print File " $rootfile\n";
 		    print File " (Eh-$dpm)*1000\n";
