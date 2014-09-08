@@ -15,8 +15,7 @@ MAKEFILE = Makefile
 #
 include $(GENIE)/src/make/Make.include
 
-INSTALL_TARGETS =  print-makeinstall-info \
-		   check-previous-installation \
+INSTALL_TARGETS = check-previous-installation \
 		   make-install-dirs \
 		   copy-install-files
 
@@ -41,6 +40,8 @@ APP_MODULES := stdapp test
 
 ALL_MODULES :=  $(OPTIONAL_MODULES) $(VLD_TOOLS) $(EVGEN_MODULES) $(MEDIUM_ENERGY_MODULES) $(SUPPORT_APP_MODULES) $(APP_MODULES) $(TEST_MEDIUM_ENERGY_MODULES) $(CORE) $(UTILS)
 
+# Modules which we want to call 'make install' on
+INSTALL_MODULES := $(OPTIONAL_MODULES) $(EVGEN_MODULES) $(MEDIUM_ENERGY_MODULES) $(TEST_MEDIUM_ENERGY_MODULES)
 
 # For each optional module, there's a variable set in Make.config that
 # is "YES" if the module should be compiled, and blank if it should
@@ -99,7 +100,7 @@ OPTVAL = $($($@_OPTVAR))
 should_build = $(if $(OPTVAR),$(if $(findstring YES,$(OPTVAL)),buildit), buildit)
 
 # The rule to build a module: if should_build says we should build it, just call $(MAKE) in its directory
-$(ALL_MODULES): bin lib src/Conventions/GVersion.h src/Conventions/GBuild.h
+$(ALL_MODULES): bin lib src/Conventions/GVersion.h src/Conventions/GBuild.h install-scripts
 	$(if $(call should_build), \
 	@echo "Building $@" ;\
 	$(MAKE) -C src/$@,\
@@ -168,13 +169,13 @@ make-install-dirs: FORCE
 	[ -d ${GENIE_LIB_INSTALLATION_PATH}     ] || mkdir ${GENIE_LIB_INSTALLATION_PATH}
 	[ -d ${GENIE_INCBASE_INSTALLATION_PATH} ] || mkdir ${GENIE_INCBASE_INSTALLATION_PATH}
 	mkdir ${GENIE_INC_INSTALLATION_PATH}
-	$(foreach(mod, $(ALL_MODULES), mkdir ${GENIE_INC_INSTALLATION_PATH}/$(mod)))
+	$(foreach mod, $(INSTALL_MODULES), mkdir ${GENIE_INC_INSTALLATION_PATH}/$(mod) ; )
 
 copy-install-files: FORCE
 	@echo " "
 	@echo "** Copying libraries/binaries/headers to installation location..."
 	cp ${GENIE_BIN_PATH}/* ${GENIE_BIN_INSTALLATION_PATH};\
-	$(foreach mod, $(ALL_MODULES), make -C src/$(mod) install ; )
+	$(foreach mod, $(INSTALL_MODULES), $(MAKE) -C src/$(mod) install ; )
 
 .PHONY: purge
 
@@ -194,6 +195,7 @@ clean-files:
 	$(foreach mod, $(ALL_MODULES), make -C src/$(mod) clean ;)
 	cd $(GENIE);\
     [  -d ./bin ] && rm -f ./bin/*;\
+    [  -d ./lib ] && rm -f ./lib/*;\
 	cd $(GENIE)
 
 clean-dir: clean-files
