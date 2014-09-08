@@ -573,7 +573,7 @@ int main(int argc, char ** argv)
       dynamic_cast<geometry::ROOTGeomAnalyzer *>(geom_driver);
     if ( rgeom ) {
       const genie::PathLengthList& maxpath = rgeom->GetMaxPathLengths();
-      std::string maxplfile = gOptWriteMaxPlXml;
+      std::string maxplfile = gOptExtMaxPlXml;
       maxpath.SaveAsXml(maxplfile);
       // append extra info to file
       std::ofstream mpfile(maxplfile.c_str(), std::ios_base::app);
@@ -591,7 +591,7 @@ int main(int argc, char ** argv)
         << std::endl
         << "nscan: " << gOptNScan << " (0>= use flux, <0 use box |nscan| points/rays)"
         << std::endl
-        << "zmin: " << zmin << " (if |zmin| > 1e30, leave ray on flux window)"
+        << "zmin: " << gOptZmin << " (if |zmin| > 1e30, leave ray on flux window)"
         << std::endl
         << "-->"
         << std::endl;
