@@ -1,0 +1,72 @@
+[RECORD]
+ -1.,1.,0,29.5
+ Angle
+ #pi+ O #rightarrow #pi+ X T#pi+ = 114 MeV
+ ingram-pip-o-114-pip-angdist-280vs266-ha-Jul_17_13
+ 2
+[EXPERIMENTAL]
+ ingram-pip-o-114-pip-angdist.dat
+ xsec:TMath::Cos(cth*.01745):err1
+ 114 MeV Ingram O Data (ang dist)
+[GENIE]
+ Jul_17_13_pip_O_114_v280_hA.ginuke.root
+ cth
+ pdgh==211
+ 1
+ GENIE 2.8.0 hA results
+[GENIE]
+ Jul_17_13_pip_O_114_v266_hA.ginuke.root
+ cth
+ pdgh==211
+ 1
+ GENIE 2.6.6 hA results
+
+
+[RECORD]
+ -1.,1.,0,31.75
+ Angle
+ #pi+ O #rightarrow #pi+ X T#pi+ = 163 MeV
+ ingram-pip-o-163-pip-angdist-280vs266-ha-Jul_17_13
+ 2
+[EXPERIMENTAL]
+ ingram-pip-o-163-pip-angdist.dat
+ xsec:TMath::Cos(cth*.01745):err1
+ 163 MeV Ingram O Data (ang dist)
+[GENIE]
+ Jul_17_13_pip_O_163_v280_hA.ginuke.root
+ cth
+ pdgh==211
+ 1
+ GENIE 2.8.0 hA results
+[GENIE]
+ Jul_17_13_pip_O_163_v266_hA.ginuke.root
+ cth
+ pdgh==211
+ 1
+ GENIE 2.6.6 hA results
+
+
+[RECORD]
+ -1.,1.,0,37.5
+ Angle
+ #pi+ O #rightarrow #pi+ X T#pi+ = 240 MeV
+ ingram-pip-o-240-pip-angdist-280vs266-ha-Jul_17_13
+ 2
+[EXPERIMENTAL]
+ ingram-pip-o-240-pip-angdist.dat
+ xsec:TMath::Cos(cth*.01745):err1
+ 240 MeV Ingram O Data (ang dist)
+[GENIE]
+ Jul_17_13_pip_O_240_v280_hA.ginuke.root
+ cth
+ pdgh==211
+ 1
+ GENIE 2.8.0 hA results
+[GENIE]
+ Jul_17_13_pip_O_240_v266_hA.ginuke.root
+ cth
+ pdgh==211
+ 1
+ GENIE 2.6.6 hA results
+
+
