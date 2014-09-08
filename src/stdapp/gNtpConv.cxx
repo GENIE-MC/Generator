@@ -135,7 +135,8 @@
 #include <TBits.h>
 #include <TObjString.h>
 #include <TMath.h>
-
+#include "BaryonResonance/BaryonResonance.h"
+#include "BaryonResonance/BaryonResUtils.h"
 #include "Conventions/GBuild.h"
 #include "Conventions/Constants.h"
 #include "Conventions/Units.h"
@@ -617,7 +618,7 @@ void ConvertToGST(void)
 
     // Resonance id ($GENIE/src/BaryonResonance/BaryonResonance.h) -
     // set only for resonance neutrinoproduction
-    int resid = (is_res) ? xcls.Resonance() : -99;
+    int resid = (is_res) ? EResonance(xcls.Resonance()) : -99;
 
     // (qel or dis) charm production?
     bool charm = xcls.IsCharmEvent();
