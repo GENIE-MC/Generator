@@ -1,0 +1,48 @@
+[RECORD]
+ -1.,1.,0,74.125
+ Angle
+ #pi+ Ni #rightarrow #pi+ X T#pi+ = 160 MeV
+ levenson-pip-ni-160-pip-angdist-280vs266-ha-May_28_13
+ 4
+[EXPERIMENTAL]
+ levenson-pip-ni-160-pip-angdist.dat
+ xsec:TMath::Cos(cth*.01745):err1
+ 160 MeV Levenson Ni Data (ang dist)
+[GENIE]
+ May_28_13_pip_Ni_160_v280_hA.ginuke.root
+ cth
+ pdgh==211
+ 1
+ GENIE 2.8.0 hA results
+[GENIE]
+ Feb_14_13_pip_Ni_160_v266_hA.ginuke.root
+ cth
+ pdgh==211
+ 1
+ GENIE 2.6.6 hA results
+
+
+[RECORD]
+ -1.,1.,0,63.875
+ Angle
+ #pi+ Ni #rightarrow #pi+ X T#pi+ = 220 MeV
+ levenson-pip-ni-220-pip-angdist-280vs266-ha-May_28_13
+ 4
+[EXPERIMENTAL]
+ levenson-pip-ni-220-pip-angdist.dat
+ xsec:TMath::Cos(cth*.01745):err1
+ 220 MeV Levenson Ni Data (ang dist)
+[GENIE]
+ May_28_13_pip_Ni_220_v280_hA.ginuke.root
+ cth
+ pdgh==211
+ 1
+ GENIE 2.8.0 hA results
+[GENIE]
+ Feb_14_13_pip_Ni_220_v266_hA.ginuke.root
+ cth
+ pdgh==211
+ 1
+ GENIE 2.6.6 hA results
+
+
