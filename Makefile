@@ -21,7 +21,7 @@ INSTALL_TARGETS = check-previous-installation \
 
 # define targets
 
-CORE := Algorithm Messenger Registry
+CORE := Algorithm Messenger Registry Conventions
 UTILS := Numerical CrossSections PDG Utils
 
 OPTIONAL_MODULES := NucleonDecay ReWeight VLE VHE FluxDrivers Geo MuELoss
@@ -41,7 +41,7 @@ APP_MODULES := stdapp test
 ALL_MODULES :=  $(OPTIONAL_MODULES) $(VLD_TOOLS) $(EVGEN_MODULES) $(MEDIUM_ENERGY_MODULES) $(SUPPORT_APP_MODULES) $(APP_MODULES) $(TEST_MEDIUM_ENERGY_MODULES) $(CORE) $(UTILS)
 
 # Modules which we want to call 'make install' on
-INSTALL_MODULES := $(OPTIONAL_MODULES) $(EVGEN_MODULES) $(MEDIUM_ENERGY_MODULES) $(TEST_MEDIUM_ENERGY_MODULES)
+INSTALL_MODULES := $(CORE) $(UTILS) $(OPTIONAL_MODULES) $(EVGEN_MODULES) $(MEDIUM_ENERGY_MODULES) $(TEST_MEDIUM_ENERGY_MODULES)
 
 # For each optional module, there's a variable set in Make.config that
 # is "YES" if the module should be compiled, and blank if it should
