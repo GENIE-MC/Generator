@@ -551,26 +551,18 @@
     <!-- position of beam origin in user coords -->
     <beampos> 0.5628,  60.6798,  -1023.3643 </beampos>
 
-    <!-- position in ( user coords ) = ( beam coords ) -->
-    <!-- convenient for MINOS because it is how the survey is reported -->
-    <!-- XML config must have already set the rotation matrix
-    <beampos> ( 1.4828, 0.2385, 0.0 ) = ( 0, 0, 1036.48837 ) </beampos>		 -->
- 
     <!-- define flux window in detector coords -->
     <!-- need 3 positions to define a rectoid -->
     <!-- first point is the base, 2nd & 3rd should be orthogonal points
          (ie 2nd 3rd point should not be kitty-corner from 1st) -->
-    <!-- gminos distance to near hall face to detector front 4907.2cm
-         4888.85 - 4907.2 = -18.35,   4966.43 - 4907.2 = 59.23 -->
-    <!-- not yet support beam coords, 
-         but if/when must have already specified transform -->
-    <!-- this window is square to the beam but at angle in user coords -->
     
-    <!-- this is appriximate window for all detector geometries -->
+    <!-- Big enough for all MINERvA geometries   Full/Frozen ID and OD  -->
+    <!-- Maybe a bit too big.  z=0.414 is just US of the Veto Wall      -->
+    <!-- B. Tice  April 15 2011 -->
     <window>
-      <point coord="det"> 2., -2., 0. </point>
-      <point coord="det"> 2., 2., 0. </point>
-      <point coord="det"> -2., -2., 0. </point>
+      <point coord="det">  1.75, -2.00, 0.414  </point>
+      <point coord="det">  1.75,  2.56, 0.414  </point>
+      <point coord="det"> -1.75, -2.00, 0.414  </point>
     </window>
     
     <!--
@@ -587,7 +579,7 @@
     <upstreamz> 0.0 </upstreamz>
 
   </param_set>
-  
+
 <!--
   ****************************************************************************
   **   ArgoNeuT section
@@ -652,6 +644,82 @@
     -->
     <upstreamz> -400.0 </upstreamz>
 
+  </param_set>
+
+<!--
+  ****************************************************************************
+  **   LBNE section
+  ****************************************************************************
+  -->
+  
+  <param_set name="LBNE-NearDet_01">
+    <!-- setting user units should be first -->
+    <units> m </units>
+
+    <!-- beamdir must come before beam zero position -->
+    <!-- rotation matrix created by sequence of rotations -->
+
+    <!-- for LBNE we don't need more than one rotation, if on-axis
+            but other rotations could follow to build up a more complex matrix;
+            complex transforms might use alternative specification methods
+            i.e. type="thetaphi3" (g3-like) or "newxyz" (g4-like) used instead
+       -->
+    <beamdir type="series">
+       <rotation axis="x" units="rad"> -0.101 </rotation>
+    </beamdir>
+
+    <!-- position in ( user coords ) = ( beam coords ) -->
+    <!-- convenient for LBNE because it is how the survey is reported -->
+    <!-- XML config must have already set the rotation matrix -->
+    <beampos> ( 0.0, 0.0, 0.0 ) = ( 0, 0, 459.0 ) </beampos>
+
+    <!-- define flux window in detector coords -->
+    <!-- need 3 positions to define a rectoid -->
+    <!-- first point is the base, 2nd & 3rd should be orthogonal points
+         (ie 2nd 3rd point should not be kitty-corner from 1st) -->
+    <!-- not yet support beam coords,
+         but if/when must have already specified transform -->
+    <!-- this window is square to the beam but at angle in user coords -->
+    <!-- LBNE STT ND is 3.5x3.5x7.04-->
+    <window>
+      <point coord="det"> -2.460, -1.750, -0.355 </point>
+      <point coord="det"> -2.460,  3.154,  0.142 </point>
+      <point coord="det">  2.460, -1.750, -0.355 </point>
+    </window>
+
+    <!--
+    default:  <enumax> 120. 1.05 1.05 2500000 </enumax>
+    -->
+    <enumax> 120. 1.05 1.05 2500000 </enumax>
+
+    <!-- allow entry to be reused 10 times before moving on -->
+    <reuse> 10 </reuse>
+
+    <!-- force ray orgin from flux window to user coord z = -1.0
+    <upstreamz> -1.0 </upstreamz>
+    -->
+    <upstreamz> -400.0 </upstreamz>
+  </param_set>
+
+  <param_set name="LBNE-FarDet_01">
+    <units> m </units>
+    <beamdir type="series">
+      <rotation axis="x" units="rad"> +0.101 </rotation>
+    </beamdir>
+    <beampos> (0, 0, 0 ) = ( 0, 0, 1300000.0 ) </beampos>
+    <!-- FD window assumes a det 14m across 14 m high and 25.3m long -->
+    <!-- The origin as at the center (in x and y) of the front face of the FD -->
+    <!-- The window is rotated 0.101rad about the x-axis -->
+    <!-- The plane of the window  is positioned so it intersects 
+         the bottom edge of the front face of the detector -->
+    <window>
+      <point coord="det"> -7.000,  -9.538,  0.257 </point>
+      <point coord="det"> -7.000,   6.858, -1.404 </point>
+      <point coord="det">  7.000,  -9.538,  0.257 </point>
+    </window>
+    <enumax> 120. 1.05 1.05 2500000 </enumax>
+    <reuse> 10 </reuse>
+    <upstreamz> -400.0 </upstreamz>
   </param_set>
 
 <!--
