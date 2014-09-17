@@ -83,7 +83,7 @@ void PDFLIB::Initialize(void) const
       lhapath_ok = false;
     }
     else {
-      if (!gSystem->AccessPathName(lhapath)) lhapath_ok = false;
+      if (gSystem->AccessPathName(lhapath)) lhapath_ok = false;
     }
   }
   if (!lhapath_ok) {
