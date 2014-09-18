@@ -165,7 +165,44 @@ public:
    Double_t beampy;
    Double_t beampz;    
 
-ClassDef(GNuMIFluxPassThroughInfo,4)
+#ifndef SKIP_MINERVA_MODS
+   //=========================================
+   // The following was inserted by MINERvA
+   //=========================================
+   int getProcessID(TString sval);
+   int getVolID(TString sval);
+
+   static const int MAX_N_TRAJ = 10; ///< Maximum number of trajectories to store
+
+   Int_t    ntrajectory;
+   Bool_t   overflow;
+   int pdgcode[MAX_N_TRAJ];
+   int trackId[MAX_N_TRAJ];
+   int parentId[MAX_N_TRAJ];
+
+   double startx[MAX_N_TRAJ];
+   double starty[MAX_N_TRAJ];
+   double startz[MAX_N_TRAJ];
+   double startpx[MAX_N_TRAJ];
+   double startpy[MAX_N_TRAJ];
+   double startpz[MAX_N_TRAJ];
+   double stopx[MAX_N_TRAJ];
+   double stopy[MAX_N_TRAJ];
+   double stopz[MAX_N_TRAJ];
+   double stoppx[MAX_N_TRAJ];
+   double stoppy[MAX_N_TRAJ];
+   double stoppz[MAX_N_TRAJ];
+   double pprodpx[MAX_N_TRAJ];
+   double pprodpy[MAX_N_TRAJ];
+   double pprodpz[MAX_N_TRAJ];
+
+   int proc[MAX_N_TRAJ];
+   int ivol[MAX_N_TRAJ];
+   int fvol[MAX_N_TRAJ];
+   //END of minerva additions
+#endif
+
+ClassDef(GNuMIFluxPassThroughInfo,5)
 };
 
 /// GNuMIFlux:

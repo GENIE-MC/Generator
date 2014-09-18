@@ -105,6 +105,11 @@
    Added ability to TChain flux files together. This is so when doing vector
    producion, we can sample all the input flux files, even if the equivalent
    hadd'ed flux file is too large.
+ @ Mar 14, 2014 - TD
+   Prevent an infinite loop in GenerateNext() when the flux driver has not been
+   properly configured by exiting within GenerateNext_weighted().
+   LoadBeamSimData() now returns bool, so that the user can catch cases when
+   the flux driver has not been properly configured.
 */
 //____________________________________________________________________________
 
@@ -204,9 +209,10 @@ bool GJPARCNuFlux::GenerateNext_weighted(void)
 
   // Check whether a jnubeam flux ntuple has been loaded
   if( (!fNuFluxTree && fNuFluxUsingTree) || (!fNuFluxChain && !fNuFluxUsingTree) ) {
-     LOG("Flux", pWARN)
+     LOG("Flux", pFATAL)
           << "The flux driver has not been properly configured";
-     return false;	
+     //return false; // don't do this - creates an infinite loop!
+     exit(1);
   }
 
   // Read next flux ntuple entry. Use fEntriesThisCycle to keep track of when
@@ -470,7 +476,7 @@ long int GJPARCNuFlux::Index(void)
   return -1;
 }
 //___________________________________________________________________________
-void GJPARCNuFlux::LoadBeamSimData(string filename, string detector_location)
+bool GJPARCNuFlux::LoadBeamSimData(string filename, string detector_location)
 {
 // Loads in a jnubeam beam simulation root file (converted from hbook format)
 // into the GJPARCNuFlux driver.
@@ -534,7 +540,7 @@ void GJPARCNuFlux::LoadBeamSimData(string filename, string detector_location)
   if(fDetLocId == 0) {
     LOG("Flux", pERROR) 
          << " ** Unknown input detector location: " << fDetLoc;
-    return;
+    return false;
   }
 
   fIsFDLoc = (fDetLocId==-1);
@@ -557,7 +563,7 @@ void GJPARCNuFlux::LoadBeamSimData(string filename, string detector_location)
     if (result != 1) {
       LOG("Flux", pERROR)
 	<< "** Couldn't get flux tree: " << ntuple_name;
-      return;
+      return false;
     }
     
     for (int i = firstfile+1; i < lastfile+1; i++) {
@@ -584,11 +590,11 @@ void GJPARCNuFlux::LoadBeamSimData(string filename, string detector_location)
       if(!fNuFluxTree) {
 	LOG("Flux", pERROR) 
 	  << "** Couldn't get flux tree: " << ntuple_name;
-	return;
+	return false;
       }
     } else {
       LOG("Flux", pERROR) << "** Couldn't open: " << filename;
-      return;
+      return false;
     }
     
     fNEntries = fNuFluxTree->GetEntries();
@@ -820,6 +826,8 @@ void GJPARCNuFlux::LoadBeamSimData(string filename, string detector_location)
   if(fUseRandomOffset){
     this->RandomOffset();  // Random start point when looping over ntuple
   }
+
+  return true;
 }
 //___________________________________________________________________________
 void GJPARCNuFlux::SetFluxParticles(const PDGCodeList & particles)
@@ -952,7 +960,7 @@ void GJPARCNuFlux::Initialize(void)
   fNNeutrinosTot1c = 0;
   fGenerateWeighted= false;
   fUseRandomOffset = true;
-  fLoadedNeutrino   = false;
+  fLoadedNeutrino  = false;
 
   this->SetDefaults();
   this->ResetCurrent();
