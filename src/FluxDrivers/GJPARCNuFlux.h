@@ -73,7 +73,7 @@ public :
   // and for passing-through flux information (eg neutrino parent decay kinematics)
   // not used by the generator but required by analyses/processing further upstream
 
-  void LoadBeamSimData  (string filename, string det_loc);     ///< load a jnubeam root flux ntuple
+  bool LoadBeamSimData  (string filename, string det_loc);     ///< load a jnubeam root flux ntuple
   void SetFluxParticles (const PDGCodeList & particles);       ///< specify list of flux neutrino species
   void SetMaxEnergy     (double Ev);                           ///< specify maximum flx neutrino energy
   void SetFilePOT       (double pot);                          ///< flux file norm is in /N POT/det [ND] or /N POT/cm^2 [FD]. Specify N (typically 1E+21)
