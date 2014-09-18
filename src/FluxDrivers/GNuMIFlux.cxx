@@ -1493,6 +1493,38 @@ void GNuMIFluxPassThroughInfo::ResetCopy()
   beampy   = 0.;
   beampz   = 0.;
 
+#ifndef SKIP_MINERVA_MODS
+  //=========================================
+  // The following was inserted by MINERvA
+  //=========================================
+  ntrajectory = 0;
+  overflow    = false;
+
+  for ( unsigned int itclear = 0; itclear < MAX_N_TRAJ; itclear++ ) {
+     pdgcode[itclear]  = 0;
+     trackId[itclear]  = 0;
+     parentId[itclear] = 0;
+     proc[itclear]     = 0;
+     ivol[itclear]     = 0;
+     fvol[itclear]     = 0;
+     startx[itclear]   = 0;
+     starty[itclear]   = 0;
+     startz[itclear]   = 0;
+     startpx[itclear]  = 0;
+     startpy[itclear]  = 0;
+     startpz[itclear]  = 0;
+     stopx[itclear]    = 0;
+     stopy[itclear]    = 0;
+     stopz[itclear]    = 0;
+     stoppx[itclear]   = 0;
+     stoppy[itclear]   = 0;
+     stoppz[itclear]   = 0;
+     pprodpx[itclear]  = 0;
+     pprodpy[itclear]  = 0;
+     pprodpz[itclear]  = 0;
+  }
+  //END of minerva additions
+#endif
 }
 
 //___________________________________________________________________________
@@ -1753,6 +1785,45 @@ void GNuMIFluxPassThroughInfo::MakeCopy(const g4numi* g4 )
   beampx   = 0.; // g4->protonPx;
   beampy   = 0.; // g4->protonPy;
   beampz   = 0.; // g4->protonPz;
+
+#ifndef SKIP_MINERVA_MODS
+  //=========================================
+  // The following was inserted by MINERvA
+  //=========================================
+  ntrajectory = g4->ntrajectory;
+  overflow    = g4->overflow;
+  // Limit number of trajectories to MAX_N_TRAJ
+  Int_t ntraj = ntrajectory;
+  if ( overflow )
+    ntraj = MAX_N_TRAJ;
+
+  for ( Int_t ic = 0; ic < ntraj; ++ic ) {
+    pdgcode[ic]  = g4->pdg[ic];
+    trackId[ic]  = g4->trackId[ic];
+    parentId[ic] = g4->parentId[ic];
+
+    startx[ic]   = g4->startx[ic];
+    starty[ic]   = g4->starty[ic];
+    startz[ic]   = g4->startz[ic];
+    stopx[ic]    = g4->stopx[ic];
+    stopy[ic]    = g4->stopy[ic];
+    stopz[ic]    = g4->stopz[ic];
+    startpx[ic]  = g4->startpx[ic];
+    startpy[ic]  = g4->startpy[ic];
+    startpz[ic]  = g4->startpz[ic];
+    stoppx[ic]   = g4->stoppx[ic];
+    stoppy[ic]   = g4->stoppy[ic];
+    stoppz[ic]   = g4->stoppz[ic];
+    pprodpx[ic]  = g4->pprodpx[ic];
+    pprodpy[ic]  = g4->pprodpy[ic];
+    pprodpz[ic]  = g4->pprodpz[ic];
+
+    proc[ic] =  getProcessID(g4->proc[ic]);
+    ivol[ic] =  getVolID(g4->ivol[ic]);
+    fvol[ic] =  getVolID(g4->fvol[ic]);
+  }
+  //END of minerva additions
+#endif
 
 }
 
@@ -2192,6 +2263,22 @@ namespace flux  {
              << "\n beam px,py,pz " << info.beampx << " " << info.beampy
              << " " << info.beampz
         ;
+
+#ifndef SKIP_MINERVA_MODS
+      //=========================================
+      // The following was inserted by MINERvA
+      //=========================================
+      stream << "\nNeutrino History : ntrajectories " << info.ntrajectory
+             << "\n (trkID, pdg) of nu parents: [";
+      Int_t ntraj = info.ntrajectory;
+      if ( info.overflow ) ntraj = GNuMIFluxPassThroughInfo::MAX_N_TRAJ;
+
+      for ( Int_t itt = 0; itt < ntraj; ++itt )
+        stream << "(" << info.trackId[itt-1] << ", " << info.pdgcode[itt] << ") ";
+      stream << "]\n";
+      //END of minerva additions
+#endif
+
       stream << "\nCurrent: pdg " << info.fgPdgC 
              << " xywgt " << info.fgXYWgt
              << "\n p4 (beam): " << utils::print::P4AsShortString(&info.fgP4)
@@ -2989,3 +3076,221 @@ TVector3 GNuMIFluxXMLHelper::ParseTV3(const string& str)
 
 }
 //___________________________________________________________________________
+
+#ifndef SKIP_MINERVA_MODS
+//=========================================
+// The following was inserted by MINERvA
+//=========================================
+int GNuMIFluxPassThroughInfo::getVolID(TString sval){
+  int ival=0;
+  if(sval=="AddedLV")ival=1;
+  else if(sval=="AlTube1LV")ival=2;
+  else if(sval=="AlTube2LV")ival=3;
+  else if(sval=="Al_BLK1")ival=4;
+  else if(sval=="Al_BLK2")ival=5;
+  else if(sval=="Al_BLK3")ival=6;
+  else if(sval=="Al_BLK4")ival=7;
+  else if(sval=="Al_BLK5")ival=8;
+  else if(sval=="Al_BLK6")ival=9;
+  else if(sval=="Al_BLK7")ival=10;
+  else if(sval=="Al_BLK8")ival=11;
+  else if(sval=="AlholeL")ival=12;
+  else if(sval=="AlholeR")ival=13;
+  else if(sval=="BEndLV")ival=14;
+  else if(sval=="BFrontLV")ival=15;
+  else if(sval=="BeDWLV")ival=16;
+  else if(sval=="BeUp1LV")ival=17;
+  else if(sval=="BeUp2LV")ival=18;
+  else if(sval=="BeUp3LV")ival=19;
+  else if(sval=="BodyLV")ival=20;
+  else if(sval=="BudalMonitor")ival=21;
+  else if(sval=="CLid1LV")ival=22;
+  else if(sval=="CLid2LV")ival=23;
+  else if(sval=="CShld_BLK11")ival=24;
+  else if(sval=="CShld_BLK12")ival=25;
+  else if(sval=="CShld_BLK2")ival=26;
+  else if(sval=="CShld_BLK3")ival=27;
+  else if(sval=="CShld_BLK4")ival=28;
+  else if(sval=="CShld_BLK7")ival=29;
+  else if(sval=="CShld_BLK8")ival=30;
+  else if(sval=="CShld_stl,BLK")ival=31;
+  else if(sval=="CerTubeLV")ival=32;
+  else if(sval=="CeramicRod")ival=33;
+  else if(sval=="ConcShield")ival=34;
+  else if(sval=="Concrete Chase Section")ival=35;
+  else if(sval=="Conn1LV")ival=36;
+  else if(sval=="Conn2LV")ival=37;
+  else if(sval=="Conn3LV")ival=38;
+  else if(sval=="DNWN")ival=39;
+  else if(sval=="DPIP")ival=40;
+  else if(sval=="DVOL")ival=41;
+  else if(sval=="DuratekBlock")ival=42;
+  else if(sval=="DuratekBlockCovering")ival=43;
+  else if(sval=="HadCell")ival=44;
+  else if(sval=="HadronAbsorber")ival=45;
+  else if(sval=="MuMonAlcvFill_0")ival=46;
+  else if(sval=="MuMonAlcv_0")ival=47;
+  else if(sval=="MuMonAlcv_1")ival=48;
+  else if(sval=="MuMonAlcv_2")ival=49;
+  else if(sval=="MuMon_0")ival=50;
+  else if(sval=="MuMon_1")ival=51;
+  else if(sval=="MuMon_2")ival=52;
+  else if(sval=="PHorn1CPB1slv")ival=53;
+  else if(sval=="PHorn1CPB2slv")ival=54;
+  else if(sval=="PHorn1F")ival=55;
+  else if(sval=="PHorn1Front")ival=56;
+  else if(sval=="PHorn1IC")ival=57;
+  else if(sval=="PHorn1InsRingslv")ival=58;
+  else if(sval=="PHorn1OC")ival=59;
+  else if(sval=="PHorn2CPB1slv")ival=60;
+  else if(sval=="PHorn2CPB2slv")ival=61;
+  else if(sval=="PHorn2F")ival=62;
+  else if(sval=="PHorn2Front")ival=63;
+  else if(sval=="PHorn2IC")ival=64;
+  else if(sval=="PHorn2InsRingslv")ival=65;
+  else if(sval=="PHorn2OC")ival=66;
+  else if(sval=="PVHadMon")ival=67;
+  else if(sval=="Pipe1")ival=68;
+  else if(sval=="Pipe1_water")ival=69;
+  else if(sval=="Pipe2")ival=70;
+  else if(sval=="Pipe2_water")ival=71;
+  else if(sval=="Pipe3")ival=72;
+  else if(sval=="Pipe3_water")ival=73;
+  else if(sval=="Pipe4")ival=74;
+  else if(sval=="Pipe4_water")ival=75;
+  else if(sval=="Pipe5")ival=76;
+  else if(sval=="Pipe5_water")ival=77;
+  else if(sval=="Pipe6")ival=78;
+  else if(sval=="Pipe6_water")ival=79;
+  else if(sval=="Pipe7")ival=80;
+  else if(sval=="Pipe8")ival=81;
+  else if(sval=="Pipe8_water")ival=82;
+  else if(sval=="Pipe9")ival=83;
+  else if(sval=="PipeAdapter1")ival=84;
+  else if(sval=="PipeAdapter1_water")ival=85;
+  else if(sval=="PipeAdapter2")ival=86;
+  else if(sval=="PipeAdapter2_water")ival=87;
+  else if(sval=="PipeBellowB")ival=88;
+  else if(sval=="PipeBellowB_water")ival=89;
+  else if(sval=="PipeBellowT")ival=90;
+  else if(sval=="PipeBellowT_water")ival=91;
+  else if(sval=="PipeC1")ival=92;
+  else if(sval=="PipeC1_water")ival=93;
+  else if(sval=="PipeC2")ival=94;
+  else if(sval=="PipeC2_water")ival=95;
+  else if(sval=="ROCK")ival=96;
+  else if(sval=="Ring1LV")ival=97;
+  else if(sval=="Ring2LV")ival=98;
+  else if(sval=="Ring3LV")ival=99;
+  else if(sval=="Ring4LV")ival=100;
+  else if(sval=="Ring5LV")ival=101;
+  else if(sval=="SC01")ival=102;
+  else if(sval=="SpiderSupport")ival=103;
+  else if(sval=="Stl_BLK1")ival=104;
+  else if(sval=="Stl_BLK10")ival=105;
+  else if(sval=="Stl_BLK2")ival=106;
+  else if(sval=="Stl_BLK3")ival=107;
+  else if(sval=="Stl_BLK4")ival=108;
+  else if(sval=="Stl_BLK5")ival=109;
+  else if(sval=="Stl_BLK6")ival=110;
+  else if(sval=="Stl_BLK7")ival=111;
+  else if(sval=="Stl_BLK8")ival=112;
+  else if(sval=="Stl_BLK9")ival=113;
+  else if(sval=="Stlhole")ival=114;
+  else if(sval=="TGAR")ival=115;
+  else if(sval=="TGT1")ival=116;
+  else if(sval=="TGTExitCyl2LV")ival=117;
+  else if(sval=="TUNE")ival=118;
+  else if(sval=="Tube1aLV")ival=119;
+  else if(sval=="Tube1bLV")ival=120;
+  else if(sval=="UpWn1")ival=121;
+  else if(sval=="UpWn2")ival=122;
+  else if(sval=="UpWnAl1SLV")ival=123;
+  else if(sval=="UpWnAl2SLV")ival=124;
+  else if(sval=="UpWnAl3SLV")ival=125;
+  else if(sval=="UpWnFe1SLV")ival=126;
+  else if(sval=="UpWnFe2SLV")ival=127;
+  else if(sval=="UpWnPolyCone")ival=128;
+  else if(sval=="blu_BLK25")ival=129;
+  else if(sval=="blu_BLK26")ival=130;
+  else if(sval=="blu_BLK27")ival=131;
+  else if(sval=="blu_BLK28")ival=132;
+  else if(sval=="blu_BLK29")ival=133;
+  else if(sval=="blu_BLK32")ival=134;
+  else if(sval=="blu_BLK37")ival=135;
+  else if(sval=="blu_BLK38")ival=136;
+  else if(sval=="blu_BLK39")ival=137;
+  else if(sval=="blu_BLK40")ival=138;
+  else if(sval=="blu_BLK45")ival=139;
+  else if(sval=="blu_BLK46")ival=140;
+  else if(sval=="blu_BLK47")ival=141;
+  else if(sval=="blu_BLK48")ival=142;
+  else if(sval=="blu_BLK49")ival=143;
+  else if(sval=="blu_BLK50")ival=144;
+  else if(sval=="blu_BLK51")ival=145;
+  else if(sval=="blu_BLK53")ival=146;
+  else if(sval=="blu_BLK55")ival=147;
+  else if(sval=="blu_BLK57")ival=148;
+  else if(sval=="blu_BLK59")ival=149;
+  else if(sval=="blu_BLK61")ival=150;
+  else if(sval=="blu_BLK63")ival=151;
+  else if(sval=="blu_BLK64")ival=152;
+  else if(sval=="blu_BLK65")ival=153;
+  else if(sval=="blu_BLK66")ival=154;
+  else if(sval=="blu_BLK67")ival=155;
+  else if(sval=="blu_BLK68")ival=156;
+  else if(sval=="blu_BLK69")ival=157;
+  else if(sval=="blu_BLK70")ival=158;
+  else if(sval=="blu_BLK72")ival=159;
+  else if(sval=="blu_BLK73")ival=160;
+  else if(sval=="blu_BLK75")ival=161;
+  else if(sval=="blu_BLK77")ival=162;
+  else if(sval=="blu_BLK78")ival=163;
+  else if(sval=="blu_BLK79")ival=164;
+  else if(sval=="blu_BLK81")ival=165;
+  else if(sval=="conc_BLK")ival=166;
+  else if(sval=="pvBaffleMother")ival=167;
+  else if(sval=="pvDPInnerTrackerTube")ival=168;
+  else if(sval=="pvMHorn1Mother")ival=169;
+  else if(sval=="pvMHorn2Mother")ival=170;
+  else if(sval=="pvTargetMother")ival=171;
+  else if(sval=="stl_slab1")ival=172;
+  else if(sval=="stl_slab4")ival=173;
+  else if(sval=="stl_slab5")ival=174;
+  else if(sval=="stl_slabL")ival=175;
+  else if(sval=="stl_slabR")ival=176;
+  return ival;
+}
+
+int GNuMIFluxPassThroughInfo::getProcessID(TString sval){
+  int ival=0;
+  if(sval=="AntiLambdaInelastic")ival=1;
+  else if(sval=="AntiNeutronInelastic")ival=2;
+  else if(sval=="AntiOmegaMinusInelastic")ival=3;
+  else if(sval=="AntiProtonInelastic")ival=4;
+  else if(sval=="AntiSigmaMinusInelastic")ival=5;
+  else if(sval=="AntiSigmaPlusInelastic")ival=6;
+  else if(sval=="AntiXiMinusInelastic")ival=7;
+  else if(sval=="AntiXiZeroInelastic")ival=8;
+  else if(sval=="Decay")ival=9;
+  else if(sval=="KaonMinusInelastic")ival=10;
+  else if(sval=="KaonPlusInelastic")ival=11;
+  else if(sval=="KaonZeroLInelastic")ival=12;
+  else if(sval=="KaonZeroSInelastic")ival=13;
+  else if(sval=="LambdaInelastic")ival=14;
+  else if(sval=="NeutronInelastic")ival=15;
+  else if(sval=="OmegaMinusInelastic")ival=16;
+  else if(sval=="PionMinusInelastic")ival=17;
+  else if(sval=="PionPlusInelastic")ival=18;
+  else if(sval=="Primary")ival=19;
+  else if(sval=="ProtonInelastic")ival=20;
+  else if(sval=="SigmaMinusInelastic")ival=21;
+  else if(sval=="SigmaPlusInelastic")ival=22;
+  else if(sval=="XiMinusInelastic")ival=23;
+  else if(sval=="XiZeroInelastic")ival=24;
+  else if(sval=="hElastic")ival=25;
+  return ival;
+}
+//END of minerva additions
+#endif
+

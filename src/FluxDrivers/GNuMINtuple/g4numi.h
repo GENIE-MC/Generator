@@ -11,6 +11,9 @@
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
+#include <TObjArray.h>
+
+#include <iostream>
 
 class g4numi {
 public :
@@ -80,6 +83,37 @@ public :
    Double_t        tpz;
    Int_t           tptype;
    Int_t           tgen;
+
+#ifndef SKIP_MINERVA_MODS
+   //=========================================
+   // The following was inserted by MINERvA
+   //=========================================
+   Int_t           ntrajectory;
+   Bool_t          overflow;
+   Int_t           pdg[10];
+   Int_t           trackId[10];
+   Int_t           parentId[10];
+   Double_t        startx[10];
+   Double_t        starty[10];
+   Double_t        startz[10];
+   Double_t        stopx[10];
+   Double_t        stopy[10];
+   Double_t        stopz[10];
+   Double_t        startpx[10];
+   Double_t        startpy[10];
+   Double_t        startpz[10];
+   Double_t        stoppx[10];
+   Double_t        stoppy[10];
+   Double_t        stoppz[10];
+   Double_t        pprodpx[10];
+   Double_t        pprodpy[10];
+   Double_t        pprodpz[10];
+   TString         proc[10];
+   TString         ivol[10];
+   TString         fvol[10];   
+   //END of minerva additions
+#endif
+
    Double_t        trkx[10];
    Double_t        trky[10];
    Double_t        trkz[10];
@@ -149,6 +183,37 @@ public :
    TBranch        *b_data_tpz;   //!
    TBranch        *b_data_tptype;   //!
    TBranch        *b_data_tgen;   //!
+
+#ifndef SKIP_MINERVA_MODS
+   //=========================================
+   // The following was inserted by MINERvA
+   //=========================================
+   TBranch        *b_data_ntrajectory;   //!
+   TBranch        *b_data_overflow;   //!
+   TBranch        *b_data_pdg;   //!
+   TBranch        *b_data_trackId;   //!
+   TBranch        *b_data_parentId;   //!
+   TBranch        *b_data_startx;   //!
+   TBranch        *b_data_starty;   //!
+   TBranch        *b_data_startz;   //!
+   TBranch        *b_data_stopx;   //!
+   TBranch        *b_data_stopy;   //!
+   TBranch        *b_data_stopz;   //!
+   TBranch        *b_data_startpx;   //!
+   TBranch        *b_data_startpy;   //!
+   TBranch        *b_data_startpz;   //!
+   TBranch        *b_data_stoppx;   //!
+   TBranch        *b_data_stoppy;   //!
+   TBranch        *b_data_stoppz;   //!
+   TBranch        *b_data_pprodpx;   //!
+   TBranch        *b_data_pprodpy;   //!
+   TBranch        *b_data_pprodpz;   //!
+   TBranch        *b_data_proc;   //!
+   TBranch        *b_data_ivol;   //!
+   TBranch        *b_data_fvol;   //!
+   //END of minerva additions
+#endif
+
    TBranch        *b_data_trkx;   //!
    TBranch        *b_data_trky;   //!
    TBranch        *b_data_trkz;   //!
@@ -289,6 +354,44 @@ void g4numi::Init(TTree *tree)
    fChain->SetBranchAddress("tpz", &tpz, &b_data_tpz);
    fChain->SetBranchAddress("tptype", &tptype, &b_data_tptype);
    fChain->SetBranchAddress("tgen", &tgen, &b_data_tgen);
+
+#ifndef SKIP_MINERVA_MODS
+   // RWH 2014-09-17 don't attach branches to addresses if they don't exist
+   bool has_ancestry = ( fChain->GetBranch("ntrajectory") != 0 );
+   std::cout << "g4numi ntuple " 
+             << ((has_ancestry)?"has":"lacks") << " ancestry branches" 
+             << std::endl;
+   if ( has_ancestry ) {
+   //=========================================
+   // The following was inserted by MINERvA
+   //=========================================
+   fChain->SetBranchAddress("ntrajectory", &ntrajectory, &b_data_ntrajectory);
+   fChain->SetBranchAddress("overflow", &overflow, &b_data_overflow);
+   fChain->SetBranchAddress("pdg[10]", pdg, &b_data_pdg);
+   fChain->SetBranchAddress("trackId[10]", trackId, &b_data_trackId);
+   fChain->SetBranchAddress("parentId[10]", parentId, &b_data_parentId);
+   fChain->SetBranchAddress("startx[10]", startx, &b_data_startx);
+   fChain->SetBranchAddress("starty[10]", starty, &b_data_starty);
+   fChain->SetBranchAddress("startz[10]", startz, &b_data_startz);
+   fChain->SetBranchAddress("stopx[10]", stopx, &b_data_stopx);
+   fChain->SetBranchAddress("stopy[10]", stopy, &b_data_stopy);
+   fChain->SetBranchAddress("stopz[10]", stopz, &b_data_stopz);
+   fChain->SetBranchAddress("startpx[10]", startpx, &b_data_startpx);
+   fChain->SetBranchAddress("startpy[10]", startpy, &b_data_startpy);
+   fChain->SetBranchAddress("startpz[10]", startpz, &b_data_startpz);
+   fChain->SetBranchAddress("stoppx[10]", stoppx, &b_data_stoppx);
+   fChain->SetBranchAddress("stoppy[10]", stoppy, &b_data_stoppy);
+   fChain->SetBranchAddress("stoppz[10]", stoppz, &b_data_stoppz);
+   fChain->SetBranchAddress("pprodpx[10]", pprodpx, &b_data_pprodpx);
+   fChain->SetBranchAddress("pprodpy[10]", pprodpy, &b_data_pprodpy);
+   fChain->SetBranchAddress("pprodpz[10]", pprodpz, &b_data_pprodpz);
+   fChain->SetBranchAddress("proc[10]", proc, &b_data_proc);
+   fChain->SetBranchAddress("ivol[10]", ivol, &b_data_ivol);
+   fChain->SetBranchAddress("fvol[10]", fvol, &b_data_fvol);
+   //END of minerva additions
+   }
+#endif
+
    fChain->SetBranchAddress("trkx[10]", trkx, &b_data_trkx);
    fChain->SetBranchAddress("trky[10]", trky, &b_data_trky);
    fChain->SetBranchAddress("trkz[10]", trkz, &b_data_trkz);
