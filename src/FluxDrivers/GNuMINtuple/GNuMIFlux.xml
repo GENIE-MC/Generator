@@ -210,6 +210,16 @@
                                     scale factor to multiply max scan energy by -->
   </param_set>
 
+  <param_set name="NOvA-NDOSRock">
+    <using_param_set> NOvA-NDOS </using_param_set>
+    <window>
+      <point coord="det">  15.000,   11.970, -5. </point>
+      <point coord="det">  15.000,  -15.000, -5. </point>
+      <point coord="det"> -12.500,   11.970, -5. </point>
+    </window>
+    <!-- <upstreamz> 0.0 </upstreamz> -->
+  </param_set>
+
   <param_set name="NOvA-ND">
     <!-- verbosity of XML parsing -->
     <verbose>0</verbose>
@@ -219,8 +229,6 @@
 
     <!-- beamdir must come before beam zero position -->
     <!-- direction of the beam in the user coordinate system -->
-    <!-- beam goes down 3 degrees in the coordinate system of the ND -->
-    <!-- rotation matrix created by sequence of rotations -->
     <!-- ND in alcove, values from Denis Perevalov as of 2011-04-19 
     <beamdir type="newxyz"> 
        [  0.99989376325     0               -0.014576083806  ]
@@ -257,41 +265,14 @@
 
   </param_set>
 
-  <param_set name="NOvA-NDoffset">
-    <!-- verbosity of XML parsing -->
-    <verbose>0</verbose>
-
-    <!-- setting user units should be first -->
-    <units> m </units>
-
-    <!-- beamdir must come before beam zero position -->
-    <!-- direction of the beam in the user coordinate system -->
-    <!-- beam goes down 3 degrees in the coordinate system of the ND -->
-    <!-- rotation matrix created by sequence of rotations -->
-    <!-- ND in alcove, values from R.S. + D.P. as of 2011-08-24 -->
-    <beamdir type="newxyz"> 
-       [  0.99989376325     0               -0.015348397324  ]
-       [ -0.0008853454738   0.99833493499   -0.057676457489  ]
-       [  0.015322841245    0.057683252207   0.99821733753   ] 
-    </beamdir>
-
-    <!-- position of beam -->
-    <!-- XML config must have already set the rotation matrix -->
-    <!-- ND in alcove, values from R.S. + D.P. as of 2011-08-24 -->
-    <beampos> ( 3.85372621054096065 60.8291044568595822 -992.867389624620387 ) </beampos>
- 
-    <!-- define flux window in detector coords -->
-    <!-- need 3 positions to define a rectoid -->
-    <!-- not yet support beam coords, 
-         but if/when must have already specified transform -->
-    <!-- make this window big enough to cover the nd, also offset it from 
-         the origin towards the beam in x and y -->
+  <param_set name="NOvA-NDRock">
+    <using_param_set> NOvA-ND </using_param_set>
     <window>
-      <point coord="det">  5.000,  -2.500, -5. </point>
-      <point coord="det">  5.000,   5.000, -5. </point>
-      <point coord="det"> -5.000,  -2.500, -5. </point>
+      <point coord="det">  15.000,  -12.500, -5. </point>
+      <point coord="det">  15.000,   15.000, -5. </point>
+      <point coord="det"> -15.000,  -12.500, -5. </point>
     </window>
-
+    <!-- <upstreamz> 0.0 </upstreamz> -->
   </param_set>
 
   <param_set name="NOvA-FD">
@@ -304,7 +285,7 @@
     <!-- beamdir must come before beam zero position -->
     <!-- direction of the beam in the user coordinate system -->
     <!-- FD values from Denis Perevalov as of 2011-05-18 -->
-    <!-- beam goes up 3 degrees in the coordinate system of the FD -->
+    <!-- beam goes up in the coordinate system of the FD -->
     <beamdir type="newxyz"> 
        [ 0.99989376325     0              -0.014576083806 ]
        [ 0.00084079591837  0.99833493499   0.057677124125 ]
@@ -324,78 +305,21 @@
     <!-- make this window big enough to cover the ipnd, also offset it from 
          the origin towards the beam in x and y -->
     <window>
-      <point coord="det">   7.8235,  -7.8235, 0.0 </point>
-      <point coord="det">  -7.8235,  -7.8235, 0.0 </point>
-      <point coord="det">   7.8235,   7.8235, 0.0 </point>
+      <point coord="det">   8.5,  -12.5, 0.0 </point>
+      <point coord="det">  -8.5,  -12.5, 0.0 </point>
+      <point coord="det">   8.5,    8.5, 0.0 </point>
     </window>
   </param_set>
 
-  <param_set name="NOvA-FD-old">
-    <!-- verbosity of XML parsing -->
-    <verbose>99</verbose>
-
-    <!-- setting user units should be first -->
-    <units> m </units>
-
-    <!-- beamdir must come before beam zero position -->
-    <!-- direction of the beam in the user coordinate system -->
-    <!-- beam goes up 3 degrees in the coordinate system of the FD -->
-    <!-- rotation matrix created by sequence of rotations -->
-    <beamdir type="series"> 
-       <rotation axis="x" units="rad"> 0.0583497 </rotation>
-    </beamdir>
-
-    <!-- this is a translation from ( user coords ) to ( beam coords ) -->
-    <!-- basically a statement of the origin in the detector coordinate system
-         has the corresponding value in the beam coordinate system -->
-    <!-- XML config must have already set the rotation matrix -->
-    <!-- FD, values from Mark Messier (via Brian Rebel) -->
-    <beampos> ( 0.0, 0.0, 0.0 ) = ( 11129.00, -4.164, 810551.00 ) </beampos>
-
-    <!-- define flux window in detector coords -->
-    <!-- need 3 positions to define a rectoid -->
-    <!-- not yet support beam coords, 
-         but if/when must have already specified transform -->
-    <!-- make this window big enough to cover the ipnd, also offset it from 
-         the origin towards the beam in x and y -->
+  <param_set name="NOvA-FDRock">
+    <using_param_set> NOvA-FD </using_param_set>
     <window>
-      <point coord="det">   7.8235,  -7.8235, 0.0 </point>
-      <point coord="det">  -7.8235,  -7.8235, 0.0 </point>
-      <point coord="det">  -7.8235,   7.8235, 0.0 </point>
+      <point coord="det">   18.5,  -22.5, 0.0 </point>
+      <point coord="det">  -18.5,  -22.5, 0.0 </point>
+      <point coord="det">   18.5,   18.5, 0.0 </point>
     </window>
+    <!-- <upstreamz> 0.0 </upstreamz> -->
   </param_set>
-
-  <param_set name="NOvA-ND-MINOSLOC">
-    <!-- verbosity of XML parsing -->
-    <verbose>0</verbose>
-
-    <!-- setting user units should be first -->
-    <units> m </units>
-
-    <!-- beamdir must come before beam zero position -->
-    <!-- rotation matrix created by sequence of rotations -->
-    <beamdir type="series"> 
-       <rotation axis="x" units="rad"> -0.0583496888977241 </rotation>
-       <!-- for MINOS we don't need more than one rotation, 
-            but others could follow to build up a more complex matrix -->
-    </beamdir>
-
-    <!-- position in ( user coords ) = ( beam coords ) -->
-    <!-- convenient for MINOS because it is how the survey is reported -->
-    <!-- XML config must have already set the rotation matrix -->
-    <beampos> ( 0., 0., 0.0 ) = ( 0, 0, 1036.48837 ) </beampos>
- 
-    <!-- define flux window in detector coords -->
-    <!-- need 3 positions to define a rectoid -->
-    <!-- not yet support beam coords, 
-         but if/when must have already specified transform -->
-    <window>
-      <point coord="det">  1.320,  1.970, 0.0 </point>
-      <point coord="det"> -1.320,  1.970, 0.0 </point>
-      <point coord="det"> -1.320, -1.970, 0.0 </point>
-    </window>
-  </param_set>
-
 
   <param_set name="NOvA-NDOS-BNB">
     <!-- verbosity of XML parsing -->
@@ -417,7 +341,6 @@
        <rotation axis="y" units="deg"> 21.5099 </rotation>
        <rotation axis="x" units="deg"> -0.7153 </rotation>
     </beamdir>
-
 
     <!-- position of beam -->
     <!-- this is a translation from ( user coords ) to ( beam coords ) -->
