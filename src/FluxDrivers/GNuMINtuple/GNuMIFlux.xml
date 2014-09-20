@@ -221,17 +221,27 @@
     <!-- direction of the beam in the user coordinate system -->
     <!-- beam goes down 3 degrees in the coordinate system of the ND -->
     <!-- rotation matrix created by sequence of rotations -->
-    <!-- ND in alcove, values from Denis Perevalov as of 2011-04-19 -->
+    <!-- ND in alcove, values from Denis Perevalov as of 2011-04-19 
     <beamdir type="newxyz"> 
        [  0.99989376325     0               -0.014576083806  ]
        [ -0.00084079591837  0.99833493499   -0.057677124125  ]
        [  0.014551813679    0.057683252207   0.99822887513   ] 
     </beamdir>
+    -->
+    <!-- ND "as built", values from Alex Radovic as of 2014-09-18 -->
+    <beamdir type="newxyz"> 
+       [  9.9990e-01  -8.2300e-04  -1.4088e-02 ]
+       [  3.0533e-06   9.9831e-01  -5.8103e-02 ]
+       [  1.4112e-02   5.8097e-02   9.9821e-01 ]
+    </beamdir>
 
     <!-- position of beam -->
     <!-- XML config must have already set the rotation matrix -->
-    <!-- ND in alcove, values from Denis Perevalov as of 2011-04-19 -->
+    <!-- ND in alcove, values from Denis Perevalov as of 2011-04-19 
     <beampos> ( 3.08553 60.82926 -992.8701 ) </beampos>
+    -->
+    <!-- ND "as built", values from Alex Radovic as of 2014-09-18 -->
+    <beampos> ( 2.5991 60.9565 -999.2012 ) </beampos>
  
     <!-- define flux window in detector coords -->
     <!-- need 3 positions to define a rectoid -->
