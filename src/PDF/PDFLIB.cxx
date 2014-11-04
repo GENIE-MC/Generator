@@ -1,17 +1,17 @@
 //____________________________________________________________________________
 /*
-   Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
-   For the full text of the license visit http://copyright.genie-mc.org
-   or see $GENIE/LICENSE
+ Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
+ For the full text of the license visit http://copyright.genie-mc.org
+ or see $GENIE/LICENSE
 
-Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-STFC, Rutherford Appleton Laboratory - June 06, 2004
+ Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+         STFC, Rutherford Appleton Laboratory - June 06, 2004
 
-For the class documentation see the corresponding header file.
+ For the class documentation see the corresponding header file.
 
-Important revisions after version 2.0.0 :
-@ Dec 05, 2008 - CA, Anselmo Meregaglia
-Added interface to the LHAPDF parton density function library.
+ Important revisions after version 2.0.0 :
+ @ Dec 05, 2008 - CA, Anselmo Meregaglia
+   Added interface to the LHAPDF parton density function library.
 
 */
 //____________________________________________________________________________
@@ -35,9 +35,9 @@ Added interface to the LHAPDF parton density function library.
 // the actual PDFLIB fortran calls
 //
 extern "C" {
-  void pdfset_ (const char param[20][20], double val[20]);
-  void structm_ (double *, double *, double *, double *, double *, 
-      double *, double *, double *, double *, double *, double *);
+ void pdfset_ (const char param[20][20], double val[20]);
+ void structm_ (double *, double *, double *, double *, double *, 
+                double *, double *, double *, double *, double *, double *);
 }
 #endif
 
@@ -45,13 +45,13 @@ using namespace genie;
 
 //____________________________________________________________________________
 PDFLIB::PDFLIB() :
-  PDFModelI("genie::PDFLIB")
+PDFModelI("genie::PDFLIB")
 {
   this->Initialize();
 }
 //____________________________________________________________________________
 PDFLIB::PDFLIB(string config) :
-  PDFModelI("genie::PDFLIB", config)
+PDFModelI("genie::PDFLIB", config)
 {
   LOG("PDF", pDEBUG) << "PDFLIB configuration:\n " << *fConfig;  
 
@@ -71,35 +71,19 @@ void PDFLIB::Initialize(void) const
   //
   bool lhapath_ok = true;
   const char * lhapath = gSystem->Getenv("LHAPATH");
-  if (!lhapath) { 
-    lhapath_ok = false;
-  }
+  if(!lhapath) lhapath_ok = false;
   else {
-    const char * geniepath = gSystem->Getenv("GENIE");
-    std::string gpth(geniepath);
-    std::string lpth(lhapath);
-    gpth = gpth + "/data/evgen/pdfs";
-    if (gpth != lpth) {
-      lhapath_ok = false;
-    }
-    else {
-      if (gSystem->AccessPathName(lhapath)) lhapath_ok = false;
-    }
+    if(!gSystem->OpenDirectory(lhapath)) lhapath_ok = false;
   }
-  if (!lhapath_ok) {
-    LOG("PDF", pFATAL) 
-      << "\n"
-      << "** LHAPDF won't be able to read-in the PDF data. \n"
-      << "** The LHAPATH env. variable is not properly (or at all) defined. \n"
-      << "** Please, set LHAPATH to $GENIE/data/evgen/pdfs \n"
-      << "** See http://projects.hepforge.org/lhapdf/ for more details. \n\n";
-    LOG("PDF", pFATAL) 
-      << "\n\n"
-      << "NOTE: In this version of GENIE, you MUST use the PDFs in\n"
-      << "$GENIE/data/evgen/pdfs with LHAPDF. You MUST set your LHAPATH\n"
-      << "environemnt variable to $GENIE/data/evgen/pdfs!\n";
-    gAbortingInErr = true;
-    exit(1);
+  if(!lhapath_ok) {
+   LOG("PDF", pFATAL) 
+     << "\n"
+     << "** LHAPDF won't be able to read-in the PDF data. \n"
+     << "** The LHAPATH env. variable is not properly (or at all) defined. \n"
+     << "** Please, set LHAPATH to <lhapdf_top_dir>/PDFsets/ \n"
+     << "** See http://projects.hepforge.org/lhapdf/ for more details. \n\n";
+   gAbortingInErr = true;
+   exit(1);
   }
 
 #else
@@ -116,8 +100,8 @@ void PDFLIB::Initialize(void) const
 //____________________________________________________________________________
 void PDFLIB::SetPDFSetFromConfig(void) const
 {
-  // Get PDF spec (particle type, pdf group/set) from configuration registry.
-  // For definitions, have a look at PDFLIB and LHAPDF manuals
+// Get PDF spec (particle type, pdf group/set) from configuration registry.
+// For definitions, have a look at PDFLIB and LHAPDF manuals
 
 #ifdef __GENIE_LHAPDF_ENABLED__
   //
