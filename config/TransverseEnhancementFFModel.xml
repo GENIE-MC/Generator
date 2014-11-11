@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for the Transverse Enhancement Magnetic Form Factor Adjustment model
+See http://arxiv.org/abs/1405.0583 and http://arxiv.org/abs/1106.0340
+
+Configurable Parameters:
+.............................................................................................................
+Name                         Type     Optional  Comment                                        Default
+.............................................................................................................
+MagFF_RT_A@Pdg=?             double   Yes       The constant A (see paper) for a               0
+                                                specific nucleus
+MagFF_RT_B@Pdg=?             double   Yes       The constant B (see paper) for a nucleus       1
+
+Note: below are the same options as above, but for a range of total nucleons in the nucleus (A).
+This config file contains the default options as described in the original paper.
+Unless specifying individual nuclei using the options above, make sure ranges are specified for every nucleus
+you will be using.  All ranges are inclusive.
+To specify an open ended range on the right hand side (eg all A larger than x) use LowA=x;HighA=419
+Values of A greater than 419 will not be checked or read in properly.
+
+MagFF_RT_A@LowA=?;HighA=?    double   Yes       A for an inclusive range of nucleus A          0
+MagFF_RT_B@LowA=?;HighA=?    double   Yes       B for an inclusive range of nucleus A          1
+
+-->
+
+<param_set name="Default">
+
+<!-- A < 12- no enhancement => A = 0 -->
+<param type="double" name="MagFF_RT_A@LowA=1;HighA=11"> 0 </param>
+<param type="double" name="MagFF_RT_B@LowA=1;HighA=11"> 1 </param>
+
+<!-- A >= 12- use carbon parameters -->
+<param type="double" name="MagFF_RT_A@LowA=12;HighA=419"> 5.19 </param>
+<param type="double" name="MagFF_RT_B@LowA=12;HighA=419"> 0.376 </param>
+
+</param_set>
+
+</alg_conf>
