@@ -22,11 +22,13 @@
 #include <TMath.h>
 
 #include "Algorithm/AlgConfigPool.h"
+#include "Algorithm/AlgFactory.h"
 #include "Base/XSecIntegratorI.h"
 #include "Conventions/Constants.h"
 #include "Conventions/RefFrame.h"
 #include "Elastic/RosenbluthPXSec.h"
 #include "ElFF/ELFormFactorsModelI.h"
+#include "ElFF/TransverseEnhancementFFModel.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGUtils.h"
 #include "Utils/KineUtils.h"
@@ -51,7 +53,9 @@ XSecAlgorithmI("genie::RosenbluthPXSec", config)
 //____________________________________________________________________________
 RosenbluthPXSec::~RosenbluthPXSec()
 {
-
+  if (fCleanUpfElFFModel) {
+    delete fElFFModel;
+  }
 }
 //____________________________________________________________________________
 double RosenbluthPXSec::XSec(
@@ -181,7 +185,7 @@ void RosenbluthPXSec::LoadConfig(void)
   fElFFModel = 0;
 
   AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
+  Registry * gc = confp->GlobalParameterList();
 
   // load elastic form factors model
   RgAlg form_factors_model = fConfig->GetAlgDef(
@@ -190,8 +194,18 @@ void RosenbluthPXSec::LoadConfig(void)
     dynamic_cast<const ELFormFactorsModelI *> (
          this->SubAlg("ElasticFormFactorsModel"));
   assert(fElFFModel);
-
-  fELFF.SetModel(fElFFModel);  
+  fCleanUpfElFFModel = false;
+  if(gc->GetBoolDef("UseElFFTransverseEnhancement", false)) {
+    const ELFormFactorsModelI* sub_alg = fElFFModel;
+    RgAlg transverse_enhancement = gc->GetAlg("TransverseEnhancement");
+    fElFFModel = dynamic_cast<const ELFormFactorsModelI *> (
+        AlgFactory::Instance()->AdoptAlgorithm(
+            transverse_enhancement.name, transverse_enhancement.config));
+    dynamic_cast<const TransverseEnhancementFFModel*>(fElFFModel)->SetElFFBaseModel(
+        sub_alg);
+    fCleanUpfElFFModel = true;
+  }
+  fELFF.SetModel(fElFFModel);
 
   // load XSec Integrator
   fXSecIntegrator =
