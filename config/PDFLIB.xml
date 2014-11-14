@@ -6,6 +6,13 @@
 Configuration sets for the PDFLIB PDFModelI
 You need to specify each PDF for both PDFLIB and LHAPDF as they canbe used interchangeably.
 
+The PDF set GRV98lo_patched was producted by Graeme Watt (Durham, UK) 
+to correct a kink in the PDFs for the default version of GRV98lo that
+is available in LHAPDF 5.9.x. The patched version recreates:
+  http://hepdata.cedar.ac.uk//hepdata/pdflib/grv/grv98/grv98.f 
+
+It can be found in $GENIE/data/evgen/pdfs
+
 Configurable Parameters:
 ................................................................................................
 Name             Type     Optional   Comment                        Default
@@ -19,7 +26,7 @@ nset_pdflib      int      No         PDFLIB PDF set
 -->
 
   <param_set name="GRVLO"> 
-     <param type="string"  name="name_lhapdf">    GRV98lo   </param>
+     <param type="string"  name="name_lhapdf">    GRV98lo_patched   </param>
      <param type="int"     name="type_lhapdf">    1         </param>
      <param type="int"     name="memset_lhapdf">  0         </param>
      <param type="int"     name="nptype_pdflib">  1         </param>
