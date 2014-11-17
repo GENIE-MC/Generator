@@ -41,6 +41,7 @@ public:
   virtual double         RemovalEnergy   (void)           const;
   virtual double         Momentum        (void)           const;
   virtual TVector3       Momentum3       (void)           const;
+  virtual FermiMoverInteractionType_t GetFermiMoverInteractionType(void) const;
 
 protected:
   NuclearModelI();
@@ -49,6 +50,7 @@ protected:
 
   mutable double   fCurrRemovalEnergy;
   mutable TVector3 fCurrMomentum;
+  mutable FermiMoverInteractionType_t fFermiMoverInteractionType;
 
 };
 
