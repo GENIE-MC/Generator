@@ -20,19 +20,19 @@ using namespace genie;
 
 //____________________________________________________________________________
 NuclearModelI::NuclearModelI() :
-Algorithm()
+Algorithm(), fFermiMoverInteractionType(kFermiMoveDefault)
 {
 
 }
 //____________________________________________________________________________
 NuclearModelI::NuclearModelI(string name) :
-Algorithm(name)
+Algorithm(name), fFermiMoverInteractionType(kFermiMoveDefault)
 {
 
 }
 //____________________________________________________________________________
 NuclearModelI::NuclearModelI(string name, string config) :
-Algorithm(name, config)
+Algorithm(name, config), fFermiMoverInteractionType(kFermiMoveDefault)
 {
 
 }
@@ -56,5 +56,8 @@ TVector3 NuclearModelI::Momentum3(void) const
 {
   return fCurrMomentum;
 }
-//____________________________________________________________________________
-
+//_____________________________________________________________________________
+FermiMoverInteractionType_t NuclearModelI::GetFermiMoverInteractionType(void) const
+{
+  return fFermiMoverInteractionType;
+}
