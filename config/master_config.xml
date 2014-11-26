@@ -120,6 +120,7 @@
    <config alg="genie::NuElectronPXSec">             NuElectronPXSec.xml             </config>
    <config alg="genie::GLRESPXSec">                  GLRESPXSec.xml                  </config>
    <config alg="genie::ReinDFRPXSec">                ReinDFRPXSec.xml                </config>
+   <config alg="genie::BergerReinSehgalRESPXSec">    BergerReinSehgalRESPXSec.xml    </config>
    <config alg="genie::ReinSeghalCOHPiPXSec">        ReinSeghalCOHPiPXSec.xml        </config>
    <config alg="genie::ReinSeghalRESPXSec">          ReinSeghalRESPXSec.xml          </config>
    <config alg="genie::ReinSeghalSPPPXSec">          ReinSeghalSPPPXSec.xml          </config>
