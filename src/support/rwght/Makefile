@@ -15,21 +15,25 @@ include $(GENIE)/src/make/Make.include
 GENIE_LIBS  = $(shell $(GENIE)/src/scripts/setup/genie-config --libs)
 LIBRARIES  := $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 
-TGT = gRwght1Scan 
+TGT = $(GENIE_BIN_PATH)/grwght1scan
 
 all: $(TGT)
 
-gRwght1Scan: FORCE
-	$(CXX) $(CXXFLAGS) -c gRwght1Scan.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) gRwght1Scan.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/grwght1scan
+gRwght1Scan.o: gRwght1Scan.cxx
+	$(CXX) $(CXXFLAGS) -c $^ $(INCLUDES)
 
-purge: FORCE
-	$(RM) *.o *~ core 
+$(GENIE_BIN_PATH)/grwght1scan: gRwght1Scan.o
+	$(LD) $(LDFLAGS) $^ $(LIBRARIES) -o $@
 
-clean: FORCE
+purge:
+	$(RM) *.o *~ core
+
+.PHONY: clean
+clean:
 	$(RM) *.o *~ core $(GENIE_BIN_PATH)/grwght1scan
 
-distclean: FORCE
+.PHONY: distclean
+distclean:
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/grwght1scan
 
 FORCE:
