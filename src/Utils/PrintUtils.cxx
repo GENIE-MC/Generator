@@ -128,20 +128,20 @@ void genie::utils::print::PrintBanner(void)
   string warn_dev_banner = 
       base_dir + 
       string("/data/logo/warning_development_version.txt");
-  PrintBanner(warn_dev_banner, 15000);
+  PrintBanner(warn_dev_banner, 0);
 #endif
 
 #ifdef __GENIE_RELEASE_CANDIDATE__ 
   string warn_rc_banner = 
       base_dir + 
       string("/data/logo/warning_release_candidate.txt");
-  PrintBanner(warn_rc_banner, 15000);
+  PrintBanner(warn_rc_banner, 0);
 #endif
 
   string main_banner = 
       base_dir + 
       string("/data/logo/genie_banner_long.txt");
-  PrintBanner(main_banner, 1000);
+  PrintBanner(main_banner, 0);
 }
 //___________________________________________________________________________
 void genie::utils::print::PrintBanner(string filename, UInt_t wait_msec)
