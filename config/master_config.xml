@@ -88,6 +88,7 @@
    <config alg="genie::BBA03ELFormFactorsModel">     BBA03ELFormFactorsModel.xml     </config>
    <config alg="genie::BBA05ELFormFactorsModel">     BBA05ELFormFactorsModel.xml     </config>
    <config alg="genie::LwlynSmithFFCC">              LwlynSmithFFCC.xml              </config>
+   <config alg="genie::TransverseEnhancementFFModel"> TransverseEnhancementFFModel.xml </config>
    <config alg="genie::LwlynSmithFFNC">              LwlynSmithFFNC.xml              </config>
    <config alg="genie::QPMDISStrucFunc">             QPMDISStrucFunc.xml             </config>
    <config alg="genie::BYStrucFunc">                 BYStrucFunc.xml                 </config>
@@ -133,6 +134,7 @@
    <!--  ****** CONFIGURATION FOR NUCLEAR ENV. ALGORITHMS ****** -->
    <config alg="genie::NuclearModelMap">             NuclearModelMap.xml             </config>
    <config alg="genie::FGMBodekRitchie">             FGMBodekRitchie.xml             </config>
+   <config alg="genie::EffectiveSF">                 EffectiveSF.xml                 </config>
    <config alg="genie::SpectralFunc1d">              SpectralFunc1d.xml              </config>
    <config alg="genie::SpectralFunc">                SpectralFunc.xml                </config>
 
@@ -143,4 +145,3 @@
    <config alg="genie::mueloss::PetrukhinShestakovModel"> PetrukhinShestakovModel.xml</config>
 
 </genie_config>
-

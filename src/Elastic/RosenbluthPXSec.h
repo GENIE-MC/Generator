@@ -54,6 +54,7 @@ private:
   const   XSecIntegratorI *     fXSecIntegrator;
   const   ELFormFactorsModelI * fElFFModel;
   mutable ELFormFactors         fELFF;
+  bool fCleanUpfElFFModel;
 };
 
 }       // genie namespace

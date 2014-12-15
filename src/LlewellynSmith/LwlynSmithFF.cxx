@@ -19,8 +19,10 @@
 #include <TMath.h>
 
 #include "Algorithm/AlgConfigPool.h"
+#include "Algorithm/AlgFactory.h"
 #include "ElFF/ELFormFactors.h"
 #include "ElFF/ELFormFactorsModelI.h"
+#include "ElFF/TransverseEnhancementFFModel.h"
 #include "Conventions/Constants.h"
 #include "LlewellynSmith/LwlynSmithFF.h"
 #include "Messenger/Messenger.h"
@@ -49,7 +51,9 @@ QELFormFactorsModelI(name, config)
 //____________________________________________________________________________
 LwlynSmithFF::~LwlynSmithFF()
 {
-
+  if (fCleanUpfElFFModel) {
+    delete fElFFModel;
+  }
 }
 //____________________________________________________________________________
 double LwlynSmithFF::F1V(const Interaction * interaction) const
@@ -125,7 +129,7 @@ void LwlynSmithFF::LoadConfig(void)
   fElFFModel = 0;
 
   AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
+  Registry * gc = confp->GlobalParameterList();
 
   // load elastic form factors model
   RgAlg form_factors_model = fConfig->GetAlgDef(
@@ -133,6 +137,17 @@ void LwlynSmithFF::LoadConfig(void)
   fElFFModel =  dynamic_cast<const ELFormFactorsModelI *> (
                                           this->SubAlg("ElasticFormFactorsModel"));
   assert(fElFFModel);
+  fCleanUpfElFFModel = false;
+  if(gc->GetBoolDef("UseElFFTransverseEnhancement", false)) {
+    const ELFormFactorsModelI* sub_alg = fElFFModel;
+    RgAlg transverse_enhancement = gc->GetAlg("TransverseEnhancement");
+    fElFFModel = dynamic_cast<const ELFormFactorsModelI *> (
+        AlgFactory::Instance()->AdoptAlgorithm(
+            transverse_enhancement.name, transverse_enhancement.config));
+    dynamic_cast<const TransverseEnhancementFFModel*>(fElFFModel)->SetElFFBaseModel(
+        sub_alg);
+    fCleanUpfElFFModel = true;
+  }
 
   fELFF.SetModel(fElFFModel);  
 
