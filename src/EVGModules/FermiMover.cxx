@@ -79,11 +79,6 @@ void FermiMover::ProcessEventRecord(GHepRecord * evrec) const
   // give hit nucleon a Fermi momentum
   this->KickHitNucleon(evrec);
 
-  // check whether to emit a 2nd nucleon due to short range corelations
-  if(fSRCRecoilNucleon) {
-       this->Emit2ndNucleonFromSRC(evrec);
-  }
-
   // add a recoiled nucleus remnant
   this->AddTargetNucleusRemnant(evrec);
 }
@@ -130,34 +125,74 @@ void FermiMover::KickHitNucleon(GHepRecord * evrec) const
   // the sruck nucleon to be on the mass-shell or not...
 
   double EN=0;
+  // Set this to either a proton or neutron to eject a secondary particle
+  int eject_nucleon_pdg = 0;
+  FermiMoverInteractionType_t interaction_type =
+      fNuclModel->GetFermiMoverInteractionType();
+  if (interaction_type == kFermiMoveEffectiveSF1p1h) {
+    EN = nucleon->Mass() - w -
+           pF2 / (2 * (nucleus->Mass() - nucleon->Mass()));
+  } else if (interaction_type == kFermiMoveEffectiveSF2p2h_eject ||
+             interaction_type == kFermiMoveEffectiveSF2p2h_noeject) {
+    TParticlePDG * other_nucleon;
+    if(nucleon->Pdg() == kPdgProton) {
+      other_nucleon = PDGLibrary::Instance()->Find(kPdgNeutron);
+    }
+    else {
+      other_nucleon = PDGLibrary::Instance()->Find(kPdgProton);
+    }
+    TParticlePDG * deuteron = PDGLibrary::Instance()->Find(1000010020);
+    EN = deuteron->Mass() - 2 * w -
+          TMath::Sqrt(pF2 + other_nucleon->Mass() * other_nucleon->Mass());
+    if (interaction_type == kFermiMoveEffectiveSF2p2h_eject &&
+        deuteron->PdgCode() != nucleus->Pdg()) {
+      // Eject a remnant nucleon for the 2p2h process. Don't eject other
+      // nucleon if target is deuterium- need to leave behind a
+      // valid remnant nucleus.
+      eject_nucleon_pdg = other_nucleon->PdgCode();
+    }
+  // Do default Fermi Moving
+  } else  {
+    if (!fKeepNuclOnMassShell) {
+      //-- compute A,Z for final state nucleus & get its PDG code 
+      int nucleon_pdgc = nucleon->Pdg();
+      bool is_p  = pdg::IsProton(nucleon_pdgc);
+      int Z = (is_p) ? nucleus->Z()-1 : nucleus->Z();
+      int A = nucleus->A() - 1;
 
-  if(!fKeepNuclOnMassShell) {
-     //-- compute A,Z for final state nucleus & get its PDG code 
-     int nucleon_pdgc = nucleon->Pdg();
-     bool is_p  = pdg::IsProton(nucleon_pdgc);
-     int Z = (is_p) ? nucleus->Z()-1 : nucleus->Z();
-     int A = nucleus->A() - 1;
-
-     TParticlePDG * fnucleus = 0;
-     int ipdgc = pdg::IonPdgCode(A, Z);
-     fnucleus = PDGLibrary::Instance()->Find(ipdgc);
-     if(!fnucleus) {
+      TParticlePDG * fnucleus = 0;
+      int ipdgc = pdg::IonPdgCode(A, Z);
+      fnucleus = PDGLibrary::Instance()->Find(ipdgc);
+      if(!fnucleus) {
         LOG("FermiMover", pFATAL)
-             << "No particle with [A = " << A << ", Z = " << Z
-                            << ", pdgc = " << ipdgc << "] in PDGLibrary!";
+              << "No particle with [A = " << A << ", Z = " << Z
+              << ", pdgc = " << ipdgc << "] in PDGLibrary!";
         exit(1);
-     }
-     //-- compute the energy of the struck (off the mass-shell) nucleus
+      }
+      //-- compute the energy of the struck (off the mass-shell) nucleus
 
-     double Mf  = fnucleus -> Mass(); // remnant nucleus mass
-     double Mi  = nucleus  -> Mass(); // initial nucleus mass
+      double Mf  = fnucleus -> Mass(); // remnant nucleus mass
+      double Mi  = nucleus  -> Mass(); // initial nucleus mass
 
-     EN = Mi - TMath::Sqrt(pF2 + Mf*Mf);
-
-  } else {
-     double MN  = nucleon->Mass();
-     double MN2 = TMath::Power(MN,2);
-     EN = TMath::Sqrt(MN2+pF2);
+      EN = Mi - TMath::Sqrt(pF2 + Mf*Mf);
+    } else {
+      double MN  = nucleon->Mass();
+      double MN2 = TMath::Power(MN,2);
+      EN = TMath::Sqrt(MN2+pF2);
+    }
+    if (fSRCRecoilNucleon) {
+      const int nucleus_pdgc = nucleus->Pdg();
+      const int nucleon_pdgc = nucleon->Pdg();
+      FermiMomentumTablePool * kftp = FermiMomentumTablePool::Instance();
+      const FermiMomentumTable * kft  = kftp->GetTable("Default");
+      const double kF = kft->FindClosestKF(nucleus_pdgc, nucleon_pdgc);
+      if (TMath::Sqrt(pF2) > kF) {
+        double Pp = (nucleon->Pdg() == kPdgProton) ? 0.05 : 0.95;
+        RandomGen * rnd = RandomGen::Instance();
+        double prob = rnd->RndGen().Rndm();
+        eject_nucleon_pdg = (prob > Pp) ? kPdgNeutron : kPdgProton;
+      }
+    }
   }
 
   //-- update the struck nucleon 4p at the interaction summary and at
@@ -189,60 +224,34 @@ void FermiMover::KickHitNucleon(GHepRecord * evrec) const
      exception.SwitchOnFastForward();
      throw exception;
   }
+  if(eject_nucleon_pdg != 0) {
+    this->Emit2ndNucleonFromSRC(evrec, eject_nucleon_pdg);
+  }
 }
 //___________________________________________________________________________
-void FermiMover::Emit2ndNucleonFromSRC(GHepRecord * evrec) const
+void FermiMover::Emit2ndNucleonFromSRC(GHepRecord * evrec,
+                                       const int eject_pdg_code) const
 {
-  LOG("FermiMover", pINFO) 
-    << "Deciding whether to add a recoil nucleon "
-    << "due to short range corelation";
+  LOG("FermiMover", pINFO) << "Adding a recoil nucleon "
+      "due to short range corelation";
 
-  GHepParticle * nucleus = evrec->TargetNucleus();
   GHepParticle * nucleon = evrec->HitNucleon();
 
-  // hit nuclear target & nucleon pdg codes
-  int nucleus_pdgc = nucleus->Pdg();
-  int nucleon_pdgc = nucleon->Pdg();
+  GHepStatus_t status = kIStHadronInTheNucleus;
+  int imom = evrec->TargetNucleusPosition();
 
-  // check the actual hit nucleon momentum momentum
-  double pn = nucleon->P4()->Vect().Mag();
+  //-- Has opposite momentum from the struck nucleon
+  double vx = nucleon->Vx();
+  double vy = nucleon->Vy();
+  double vz = nucleon->Vz();
+  double px = -1.* nucleon->Px();
+  double py = -1.* nucleon->Py();
+  double pz = -1.* nucleon->Pz();
+  double M  = PDGLibrary::Instance()->Find(eject_pdg_code)->Mass();
+  double E  = TMath::Sqrt(px*px+py*py+pz*pz+M*M);
 
-  // get kF
-  string fKFTable = "Default";
-  FermiMomentumTablePool * kftp = FermiMomentumTablePool::Instance();
-  const FermiMomentumTable * kft  = kftp->GetTable(fKFTable);
-  double kF = kft->FindClosestKF(nucleus_pdgc, nucleon_pdgc);
-
-  // check whether to emit a nucleon due to short range corelation
-  bool eject = (pn > kF);
-  if(eject) {
-
-     LOG("FermiMover", pDEBUG)
-        << "pn = " << pn << " > kF = " << kF << " => " 
-        << "Ejecting recoil nucleon";
-
-    double Pp = (nucleon->Pdg() == kPdgProton) ? 0.05 : 0.95;
-
-    RandomGen * rnd = RandomGen::Instance();
-    double prob = rnd->RndGen().Rndm();
-    int code = (prob > Pp) ? kPdgNeutron : kPdgProton;
-
-    GHepStatus_t status = kIStHadronInTheNucleus;
-    int imom = evrec->TargetNucleusPosition();
-
-    //-- Has opposite momentum from the struck nucleon
-    double vx = nucleon->Vx();
-    double vy = nucleon->Vy();
-    double vz = nucleon->Vz();
-    double px = -1.* nucleon->Px();
-    double py = -1.* nucleon->Py();
-    double pz = -1.* nucleon->Pz();
-    double M  = PDGLibrary::Instance()->Find(code)->Mass();
-    double E  = TMath::Sqrt(px*px+py*py+pz*pz+M*M);
-
-    evrec->AddParticle(
-        code, status, imom, -1, -1, -1, px, py, pz, E, vx, vy, vz, 0);
-  }
+  evrec->AddParticle(
+      eject_pdg_code, status, imom, -1, -1, -1, px, py, pz, E, vx, vy, vz, 0);
 }
 //___________________________________________________________________________
 void FermiMover::AddTargetNucleusRemnant(GHepRecord * evrec) const

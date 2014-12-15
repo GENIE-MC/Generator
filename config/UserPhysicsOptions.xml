@@ -251,6 +251,7 @@ STFC, Rutherford Appleton Laboratory
   Options:
    - genie::FGMBodekRitchie/Default
    - genie::SpectralFunc1d/Default
+   - genie::EffectiveSF/Default  <- See http://arxiv.org/abs/1405.0583
   The 'NuclearModel' option defines the default basic model which should work for _any_ nuclei 
   (typically a Fermi Gas model with the Bodek-Ritchie NN corellatin tail). Refinements for specific 
   nuclei are possible, by specifying the 'NuclearModel@Pdg=10LZZZAAAI' option. 
@@ -262,8 +263,13 @@ STFC, Rutherford Appleton Laboratory
   <param type="alg" name="NuclearModel@Pdg=1000260560">   genie::SpectralFunc1d/Default  </param>
 -->
   <param type="bool" name="IsotopesUseSameNuclearModel">  true                           </param>
-
- <!-- 
+ 
+<!-- Option for turning on Transverse Enhancement by Elastic Form Factor adjustment. 
+     See http://arxiv.org/abs/1405.0583 and http://arxiv.org/abs/1106.0340
+-->
+  <param type="bool" name="UseElFFTransverseEnhancement">  false                              </param>
+  <param type="alg" name="TransverseEnhancement"> genie::TransverseEnhancementFFModel/Default </param>
+<!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Parameters related with GENIE's Fermi Gas (RFG) model implementation  
   - RFG-Momentum-CutOff is a momentum cut-off for the NN correlation tail
