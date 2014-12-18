@@ -256,6 +256,8 @@ STFC, Rutherford Appleton Laboratory
   (typically a Fermi Gas model with the Bodek-Ritchie NN corellatin tail). Refinements for specific 
   nuclei are possible, by specifying the 'NuclearModel@Pdg=10LZZZAAAI' option. 
   Currently the same nuclear model is forced for all isotopes.
+
+  <param type="alg"  name="NuclearModel">                 genie::EffectiveSF/Default </param>
   -->
   <param type="alg"  name="NuclearModel">                 genie::FGMBodekRitchie/Default </param>
 <!--
@@ -374,6 +376,8 @@ STFC, Rutherford Appleton Laboratory
   <param type="double" name="KNO-ProbPiplusPiminus"> 0.6267 </param>
   <param type="double" name="KNO-ProbKplusKminus">   0.03 </param>
   <param type="double" name="KNO-ProbK0K0bar">       0.03 </param>
+  <param type="double" name="KNO-ProbPi0Eta">        0.0 </param> 
+  <param type="double" name="KNO-ProbEtaEta">        0.0   </param>
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

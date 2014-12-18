@@ -43,6 +43,8 @@ ProbPi0Pi0                    double  Yes   probability for pi0 pair            
 ProbPiplusPiminus             double  Yes   probability for pi+pi- pair                   KNO-ProbPiplusPiminus
 ProbKplusKminus               double  Yes   probability for K+K- pair                     KNO-ProbKplusKminus
 ProbK0K0bar                   double  Yes   probability for K0 K0bar pair                 KNO-ProbK0K0bar
+ProbPi0Eta                    double  Yes   probability for Pi0 Eta pair                  KNO-ProbPi0Eta
+ProbEtaEta                    double  Yes   Probability for Eta Eta pair                  KNO-ProbEtaEta
 ForceDecays                   bool    Yes   force decays of unstable particles            false   
 Decayer                       alg     Dep   decayer to be used if decayes are forced
 ForceMinMultiplicity          bool    Yes   force a minimum multiplicity of 2             true
