@@ -23,5 +23,9 @@
      <param type="alg" name="Integrator">   genie::Simpson2DFixN/DIS </param>
   </param_set>
 
+  <param_set name="VHE"> 
+     <param type="alg" name="Integrator">   genie::Simpson2DFixN/DIS-VHE </param>
+  </param_set>
+
 </alg_conf>
 

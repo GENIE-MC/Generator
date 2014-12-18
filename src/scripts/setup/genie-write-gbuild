@@ -71,6 +71,13 @@ if(@nret>0)
       { print GBLD   "#define __GENIE_LOW_LEVEL_MESG_ENABLED__\n"; }
 else  { print GBLD "//#define __GENIE_LOW_LEVEL_MESG_ENABLED__\n"; }
 
+# VHE enabled?
+#
+@nret = `grep 'GOPT_ENABLE_VHE_EXTENSION=YES' $GCONF_FILE`;
+if(@nret>0) 
+      { print GBLD   "#define __GENIE_VHE_ENABLED__\n"; }
+else  { print GBLD "//#define __GENIE_VHE_ENABLED__\n"; }
+
 # LHAPDF enabled?
 #
 @nret = `grep 'GOPT_ENABLE_LHAPDF=YES' $GCONF_FILE`;

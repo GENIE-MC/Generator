@@ -27,6 +27,7 @@
 #include <TMath.h>
 
 #include "Conventions/Constants.h"
+#include "Conventions/GBuild.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGLibrary.h"
@@ -94,8 +95,15 @@ double genie::utils::kinematics::PhaseSpaceVolume(
 
     const int    kNx = 100;  
     const int    kNy = 100;  
-    const double kdx = (controls::kMaxX - controls::kMinX) / (kNx-1);	
-    const double kdy = (controls::kMaxY - controls::kMinY) / (kNy-1);	
+#ifdef __GENIE_VHE_ENABLED__ 
+    const double kminx = controls::kMinX_VHE;	
+    const double kminy = controls::kMinY_VHE;	
+#else
+    const double kminx = controls::kMinX;	
+    const double kminy = controls::kMinY;	
+#endif
+    const double kdx = (controls::kMaxX - kminx) / (kNx-1);	
+    const double kdy = (controls::kMaxY - kminy) / (kNy-1);	
     const double kdV = kdx*kdy;
 
     double cW=-1, cQ2 = -1;
@@ -103,9 +111,9 @@ double genie::utils::kinematics::PhaseSpaceVolume(
     Interaction interaction(*in);
 
     for(int ix=0; ix<kNx; ix++) {
-      double x = controls::kMinX+ix*kdx;
+      double x = kminx+ix*kdx;
       for(int iy=0; iy<kNy; iy++) {
-         double y = controls::kMinY+iy*kdy;
+         double y = kminy+iy*kdy;
 
          XYtoWQ2(Ev, M, cW, cQ2, x, y);
          if(!math::IsWithinLimits(cW, W)) continue;

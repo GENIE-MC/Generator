@@ -106,6 +106,8 @@ private:
   double   fPpic;                ///< {pi+ pi-  } production probability
   double   fPKc;                 ///< {K+  K-   } production probability
   double   fPK0;                 ///< {K0  K0bar} production probability
+  double   fPpi0eta;             ///< {Pi0 eta} production probability
+  double   fPeta;                ///< {eta eta} production probability
   double   fAvp;                 ///< offset in average charged hadron multiplicity = f(W) relation for vp
   double   fAvn;                 ///< offset in average charged hadron multiplicity = f(W) relation for vn
   double   fAvbp;                ///< offset in average charged hadron multiplicity = f(W) relation for vbp
