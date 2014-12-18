@@ -41,6 +41,16 @@ STFC, Rutherford Appleton Laboratory
   <param type="double" name="RS-Omega"> 1.05  </param>
   <param type="double" name="RS-Zeta">  0.762 </param> <!-- 0.75 -->
 
+ <!-- Parameters for the Berger-Seghal Delta model
+  is_KNL      = Kuzmin, : turns on some form factor
+  is_BRS      = 
+  minibooneGA = 
+  -->
+  <param type="bool" name="is_KNL"> false </param>
+  <param type="bool" name="is_BRS"> true </param>
+  <param type="bool" name="newGA">  true </param>  <!-- nowakGA, minibooneGA -->
+  <param type="bool" name="newGV">  true </param>
+
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Constants in the Bodek-Yang DIS structure function model and in the Bodek-Yang GRV-LO-9* PDF 
@@ -625,9 +635,18 @@ STFC, Rutherford Appleton Laboratory
   <param type="alg" name="XSecModel@genie::EventGenerator/QEL-CC">       genie::LwlynSmithQELCCPXSec/Default     </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/QEL-NC">       genie::AhrensNCELPXSec/Default          </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/QEL-EM">       genie::RosenbluthPXSec/Default          </param>
+
+  <!-- New BergerReinSehgal Resonance... -->
+  <!-- 
+  <param type="alg" name="XSecModel@genie::EventGenerator/RES-CC">       genie::BergerReinSehgalRESPXSec/Default </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/RES-NC">       genie::BergerReinSehgalRESPXSec/Default </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/RES-EM">       genie::BergerReinSehgalRESPXSec/Default </param>
+   -->
+
   <param type="alg" name="XSecModel@genie::EventGenerator/RES-CC">       genie::ReinSeghalRESPXSec/Default       </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/RES-NC">       genie::ReinSeghalRESPXSec/Default       </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/RES-EM">       genie::ReinSeghalRESPXSec/Default       </param>
+
   <param type="alg" name="XSecModel@genie::EventGenerator/DIS-CC">       genie::QPMDISPXSec/Default              </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/DIS-NC">       genie::QPMDISPXSec/Default              </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/DIS-EM">       genie::QPMDISPXSec/Default              </param>
