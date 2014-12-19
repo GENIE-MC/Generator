@@ -38,7 +38,8 @@
 ##                    Nucleon: abfalterer, auce, bauhof, dicello, dietrich, ibaraki, kirkby, mcgill,     ##
 ##                             menet, mislivec, renberg, schimmerling, voss, zanelli                     ##
 ##                    Kaon:    bugg, friedman, krauss                                                    ##
-##                    Pion:    allardyce, ashery, clough, gelderloos, meirav, saunders, wilkin           ##
+##                    Pion:    allardyce, aniol, ashery, bowles, brinkmoller, clough, gelderloos,        ##
+##                             lehmann, meirav, navon, saunders, wilkin                                  ##
 ##                                                                                                       ##
 ## Input:       ROOT file:  $rootdir/[author]_MMM_DD_YY_prb_tgt_nrg_vsn_mode.ginuke.root                 ##
 ##              Data files:                                                                              ##
@@ -1027,19 +1028,69 @@ sub check_input {
 	error_exit("vertical max") unless defined $vmax;
     };
     if ($type eq 'ang' || $type eq 'nrg') {error_exit("author") unless defined $author};
-    %author_hash = ( 
-        'amian' => '1', 'baker' => '1', 'beck' => '1', 'bertrand' => '1', 'carman' => '1', 'chen' => '1', 'cochran' => '2',
-        'franz' => '1', 'hautala' => '2', 'hayashi' => '1', 'ingram' => '2', 'iwamoto' => '1', 'kin' => '1', 'kormanyos' => '1',
-        'levenson' => '2', 'mcgill' => '1', 'mckeown' => '2', 'meier' => '1', 'otsu' => '1', 'ouyang' => '1', 'roy' => '1',
-        'shibata' => '1', 'slypen' => '1', 'stamer' => '1', 'tippawan' => '1', 'tyren' => '1', 'zumbro' => '1'
+    %author_hash = (                 ## 1 means nrg_dist data, 2 means nrg_dist data and ang_dist data
+        'amian' => '1', 
+	'baker' => '1',
+	'beck' => '1',
+        'bertrand' => '1',
+        'carman' => '1',
+        'chen' => '1',
+        'cochran' => '2',
+        'franz' => '1',
+        'hautala' => '2',
+        'hayashi' => '1',
+        'ingram' => '2',
+        'iwamoto' => '1',
+        'kin' => '1',
+        'kormanyos' => '1',
+        'levenson' => '2',
+        'mcgill' => '1',
+        'mckeown' => '2',
+        'meier' => '1',
+        'otsu' => '1',
+        'ouyang' => '1',
+        'roy' => '1',
+        'shibata' => '1',
+        'slypen' => '1',
+        'stamer' => '1',
+        'tippawan' => '1',
+        'tyren' => '1',
+        'zumbro' => '1'
     );
     $valid_author = $author_hash {$author};
     if ($type eq 'ang' && $valid_author ne '2') {error_exit("author")};
     if ($type eq 'nrg' && $valid_author ne '1' && $valid_author ne '2') {error_exit("author")};
     error_exit("date of root file") unless defined $dorf[0];
-    %author_hash_2 = (
-        'abfalterer' => '3', 'ashery' => '3', 'auce' => '3', 'bauhof' => '3', 'dicello' => '3', 'dietrich' => '3', 'ibaraki' => '3', 'kirkby' => '3', 'mcgill' => '3', 'menet' => '3', 'mislivec' => '3', 'renberg' => '3',
-	'schimmerling' => '3', 'voss' => '3', 'zanelli' => '3', 'bugg' => '3', 'friedman' => '3', 'krauss' => '3', 'allardyce' => '3', 'clough' => '3', 'gelderloos' => '3', 'meirav' => '3', 'saunders' => '3', 'wilkin' => '3'
+    %author_hash_2 = (           ## 3 means total cross section data
+        'abfalterer' => '3', 
+	'aniol' => '3',
+        'ashery' => '3',
+        'auce' => '3',
+        'bauhof' => '3',
+        'bowles' => '3',
+        'brinkmoller' => '3',
+        'dicello' => '3',
+        'dietrich' => '3',
+        'ibaraki' => '3',
+        'kirkby' => '3',
+	'lehmann' => '3',
+        'mcgill' => '3',
+        'menet' => '3',
+        'mislivec' => '3',
+        'navon' => '3',
+        'renberg' => '3',
+	'schimmerling' => '3',
+        'voss' => '3',
+        'zanelli' => '3',
+        'bugg' => '3',
+        'friedman' => '3',
+        'krauss' => '3',
+        'allardyce' => '3',
+        'clough' => '3',
+        'gelderloos' => '3',
+        'meirav' => '3',
+        'saunders' => '3',
+        'wilkin' => '3'
     );
     $valid_author_2 = $author_hash_2 {$author};
     if ($type eq 'totxs' && $authors[0] && $valid_author_2 ne '3') {error_exit("author")};
