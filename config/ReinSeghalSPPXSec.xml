@@ -28,6 +28,7 @@ ESplineMax                  double  No   Emax in RES splines, xsec(E>Emax)=xsec(
 -->
   <param_set name="Fast"> 
      <param type="alg"    name="SingleRESDiffXSecAlg">   genie::ReinSeghalRESPXSec/Default                     </param>
+     <!-- <param type="alg"    name="SingleRESDiffXSecAlg">   genie::BergerReinSehgalRESPXSec/Default               </param> -->
      <param type="alg   " name="Integrator">             genie::Simpson2D/Default-Logarithmic-FixedNBins-Fast  </param>
      <param type="double" name="ESplineMax">             20                              </param>
      <param type="string" name="ResonanceNameList">      P33(1232),P11(1440)             </param>
@@ -39,6 +40,7 @@ ESplineMax                  double  No   Emax in RES splines, xsec(E>Emax)=xsec(
 -->
   <param_set name="Default"> 
      <param type="alg"    name="SingleRESDiffXSecAlg">   genie::ReinSeghalRESPXSec/Default                     </param>
+     <!-- <param type="alg"    name="SingleRESDiffXSecAlg">   genie::BergerReinSehgalRESPXSec/Default               </param> -->
      <param type="alg   " name="Integrator">             genie::Simpson2D/Default-Logarithmic-FixedNBins-Fast  </param>
      <param type="double" name="ESplineMax">             20                             </param>
   </param_set>
@@ -48,6 +50,7 @@ ESplineMax                  double  No   Emax in RES splines, xsec(E>Emax)=xsec(
 -->
   <param_set name="AllResonances"> 
      <param type="alg"    name="SingleRESDiffXSecAlg">   genie::ReinSeghalRESPXSec/Default                     </param>
+     <!-- <param type="alg"    name="SingleRESDiffXSecAlg">   genie::BergerReinSehgalRESPXSec/Default               </param> -->
      <param type="alg   " name="Integrator">             genie::Simpson2D/Default-Logarithmic-FixedNBins-Fast  </param>
      <param type="double" name="ESplineMax">             20                                  </param>
      <param type="string" name="ResonanceNameList">  
