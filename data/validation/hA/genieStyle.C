@@ -36,8 +36,8 @@ void set_root_env(){
  gStyle->SetTitleColor(kBlack);
  
 //set the margins
- gStyle->SetPadBottomMargin(0.18);
- gStyle->SetPadTopMargin(0.08);
+ gStyle->SetPadBottomMargin(0.17);
+ gStyle->SetPadTopMargin(0.11);
  gStyle->SetPadRightMargin(0.08);
  gStyle->SetPadLeftMargin(0.17);
 
@@ -49,6 +49,7 @@ void set_root_env(){
  gStyle->SetTitleSize(0.05,"xyz");
  gStyle->SetTitleOffset(1.4,"y");
  gStyle->SetTitleOffset(1.3,"x");
+ gStyle->SetTitleX(0.27);
  gStyle->SetStatFont(42);
  gStyle->SetStatFontSize(0.07);
  gStyle->SetTitleBorderSize(1);
