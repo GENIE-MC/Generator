@@ -74,7 +74,7 @@ double ReinSeghalRESXSec::Integrate(
 
   const KPhaseSpace & kps = interaction->PhaseSpace();
   if(!kps.IsAboveThreshold()) {
-     LOG("COHXSec", pDEBUG)  << "*** Below energy threshold";
+     LOG("ReinSeghalRESXSec", pDEBUG)  << "*** Below energy threshold";
      return 0;
   }
 
