@@ -10,6 +10,9 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
+ @ Dec 22, 2014 - GP
+   Incorporating changes from J. Nowack into a new class (was 
+   ReinSeghalRESPXSec, now BergerReinSehgalRESPXSec).
  @ Oct 05, 2009 - CA
    Modified code to handle charged lepton scattering too.
    Also, the helicity amplitude code now returns a `const RSHelicityAmpl &'.
@@ -50,14 +53,14 @@ using namespace genie::constants;
 
 //____________________________________________________________________________
 BergerReinSehgalRESPXSec::BergerReinSehgalRESPXSec() :
-XSecAlgorithmI("genie::BergerReinSehgalRESPXSec")
+  XSecAlgorithmI("genie::BergerReinSehgalRESPXSec")
 {
   fNuTauRdSpl    = 0;
   fNuTauBarRdSpl = 0;
 }
 //____________________________________________________________________________
 BergerReinSehgalRESPXSec::BergerReinSehgalRESPXSec(string config) :
-XSecAlgorithmI("genie::BergerReinSehgalRESPXSec", config)
+  XSecAlgorithmI("genie::BergerReinSehgalRESPXSec", config)
 {
   fNuTauRdSpl    = 0;
   fNuTauBarRdSpl = 0;
@@ -70,7 +73,7 @@ BergerReinSehgalRESPXSec::~BergerReinSehgalRESPXSec()
 }
 //____________________________________________________________________________
 double BergerReinSehgalRESPXSec::XSec(
-                 const Interaction * interaction, KinePhaseSpace_t kps) const
+    const Interaction * interaction, KinePhaseSpace_t kps) const
 {
   if(! this -> ValidProcess    (interaction) ) return 0.;
   if(! this -> ValidKinematics (interaction) ) return 0.;
@@ -83,17 +86,17 @@ double BergerReinSehgalRESPXSec::XSec(
   const Kinematics & kinematics = interaction -> Kine();
   double W  = kinematics.W();
   double q2 = kinematics.q2();
-  double costh = kinematics.FSLeptonP4().CosTheta();//JNke
+  double costh = kinematics.FSLeptonP4().CosTheta();
 
   // Under the DIS/RES joining scheme, xsec(RES)=0 for W>=Wcut
   if(fUsingDisResJoin) {
     if(W>=fWcut) {
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-       LOG("BergerReinSehgalRes", pDEBUG)
-         << "RES/DIS Join Scheme: XSec[RES, W=" << W 
-         << " >= Wcut=" << fWcut << "] = 0";
+      LOG("BergerReinSehgalRes", pDEBUG)
+        << "RES/DIS Join Scheme: XSec[RES, W=" << W 
+        << " >= Wcut=" << fWcut << "] = 0";
 #endif
-       return 0;
+      return 0;
     }
   }
 
@@ -115,8 +118,8 @@ double BergerReinSehgalRESPXSec::XSec(
   bool is_NC     = proc_info.IsWeakNC();
   bool is_EM     = proc_info.IsEM();
 
-//  bool new_GV = fGA; //JN
-//  bool new_GA = fGV; //JN
+  //  bool new_GV = fGA; //JN
+  //  bool new_GA = fGV; //JN
 
 
   if(is_CC && !is_delta) {
@@ -155,23 +158,23 @@ double BergerReinSehgalRESPXSec::XSec(
   double UV     = U*V;
 
 
-//JN parameter from the KUZMIN et al.
-  
-//  bool is_RS  = true;
+  //JN parameter from the KUZMIN et al.
+
+  //  bool is_RS  = true;
   bool is_KNL = false;
   if(fKNL && is_CC) is_KNL=true;
-  
+
   bool is_BRS = false;
   if(fBRS && is_CC) is_BRS=true;
-  
+
   double ml    = interaction->FSPrimLepton()->Mass();
   double Pl    = TMath::Sqrt(Eprime*Eprime - ml*ml);
-  
-  double vstar = (Mnuc*v + q2)/W;//missing W
+
+  double vstar = (Mnuc*v + q2)/W;  //missing W
   double Qstar = TMath::Sqrt(-q2 + vstar*vstar);
   double sqrtq2 = TMath::Sqrt(-q2);
   double a = 1. + 0.5*(W2-q2+Mnuc2)/Mnuc/W;
-  
+
 
   double KNL_Alambda_plus  = 0;
   double KNL_Alambda_minus = 0;
@@ -185,89 +188,83 @@ double BergerReinSehgalRESPXSec::XSec(
   double KNL_jz_minus = 0;
   double KNL_Qstar_plus =0;
   double KNL_Qstar_minus =0;
-  
+
   double KNL_K = Q/E/TMath::Sqrt(2*(-q2));
-  
-  
+
+
   double KNL_cL_plus  = 0;
   double KNL_cL_minus = 0;
-  
+
   double KNL_cR_plus  = 0;
   double KNL_cR_minus = 0;
-  
-  
+
+
   double KNL_cS_plus  = 0;
   double KNL_cS_minus = 0;
-  
+
   double KNL_vstar_plus = 0 ;
   double KNL_vstar_minus = 0 ;
-  
-  
-  
-  if(is_CC && (is_KNL || is_BRS)){
-    
-//std::cout<<"costh1="<<costh<<std::endl;    
-    costh = (q2 - ml*ml + 2.*E*Eprime)/2./E/Pl;
-//ml=0;
-//std::cout<<"q2="<<q2<< "m2="<<ml*ml<<" 2.*E*Eprime="<<2.*E*Eprime<<" nom="<< (q2 - ml*ml + 2.*E*Eprime)<<" den="<<2.*E*Pl<<std::endl;
-//std::cout<<"costh2="<<costh<<std::endl;
-  Pl    = TMath::Sqrt(Eprime*Eprime - ml*ml);
 
-    
-    if(costh <= -1.+1e-7) {
-      std::cout<<"Changing costh="<<costh<<" to -1"<<std::endl;
-      costh=-1+1e-6;
+
+
+  if(is_CC && (is_KNL || is_BRS)){
+
+    //std::cout<<"costh1="<<costh<<std::endl;    
+    costh = (q2 - ml*ml + 2.*E*Eprime)/2./E/Pl;
+    //ml=0;
+    //std::cout<<"q2="<<q2<< "m2="<<ml*ml<<" 2.*E*Eprime="<<2.*E*Eprime<<" nom="<< (q2 - ml*ml + 2.*E*Eprime)<<" den="<<2.*E*Pl<<std::endl;
+    //std::cout<<"costh2="<<costh<<std::endl;
+    Pl    = TMath::Sqrt(Eprime*Eprime - ml*ml);
+
+
+    if(costh <= -1. + 1e-7) {
+      LOG("BergerReinSehgalRes", pDEBUG)
+        << "Changing costh = " << costh << " to -1";
+      costh = -1 + 1e-6;
     }
-    if(costh >=  1.-1e-7){
-      std::cout<<"Changing costh="<<costh<<" to 1"<<std::endl;
-      costh= 1-1e-6;
+    if(costh >= 1. - 1e-7){
+      LOG("BergerReinSehgalRes", pDEBUG)
+        << "Changing costh = " << costh << " to 1";
+      costh = 1 - 1e-6;
     }
     vstar = (Mnuc*v + q2)/W;//missing W
     Qstar = TMath::Sqrt(-q2 + vstar*vstar);
-    
-    
+
+
     KNL_Alambda_plus  = TMath::Sqrt(E*(Eprime - Pl));
     KNL_Alambda_minus = TMath::Sqrt(E*(Eprime + Pl));
-/*
-std::cout<<"+++++++++++++++++++++++"<<std::endl;
-std::cout<<"E="<<E<<std::endl;
-std::cout<<"K="<<KNL_K<<std::endl;
-std::cout<<"El="<<Eprime<<" Pl="<<Pl<<" ml="<<ml<<std::endl;
-std::cout<<"W="<<W<<" Q="<<Q<<" q2="<<q2<<std::endl;
-std::cout<<"A-="<<KNL_Alambda_minus<<" A+="<<KNL_Alambda_plus<<std::endl;
-std::cout<<"xxxxxxxxxxxxxxxxxxxxxxx"<<std::endl;
-*/
+    /*
+       std::cout<<"+++++++++++++++++++++++"<<std::endl;
+       std::cout<<"E="<<E<<std::endl;
+       std::cout<<"K="<<KNL_K<<std::endl;
+       std::cout<<"El="<<Eprime<<" Pl="<<Pl<<" ml="<<ml<<std::endl;
+       std::cout<<"W="<<W<<" Q="<<Q<<" q2="<<q2<<std::endl;
+       std::cout<<"A-="<<KNL_Alambda_minus<<" A+="<<KNL_Alambda_plus<<std::endl;
+       std::cout<<"xxxxxxxxxxxxxxxxxxxxxxx"<<std::endl;
+       */
 
     KNL_j0_plus  = KNL_Alambda_plus /W * TMath::Sqrt(1 - costh) * (Mnuc - Eprime - Pl);
     KNL_j0_minus = KNL_Alambda_minus/W * TMath::Sqrt(1 + costh) * (Mnuc - Eprime + Pl);
-    
+
     KNL_jx_plus  = KNL_Alambda_plus/ Q * TMath::Sqrt(1 + costh) * (Pl - E);
     KNL_jx_minus = KNL_Alambda_minus/Q * TMath::Sqrt(1 - costh) * (Pl + E);
-    
+
     KNL_jy_plus  =  KNL_Alambda_plus  * TMath::Sqrt(1 + costh);
     KNL_jy_minus = -KNL_Alambda_minus * TMath::Sqrt(1 - costh);
-    
-    
+
     KNL_jz_plus  = KNL_Alambda_plus /W/Q *  TMath::Sqrt(1 - costh) * ( (E + Pl)*(Mnuc -Eprime) + Pl*(  E + 2*E*costh -Pl) );
     KNL_jz_minus = KNL_Alambda_minus/W/Q *  TMath::Sqrt(1 + costh) * ( (E - Pl)*(Mnuc -Eprime) + Pl*( -E + 2*E*costh -Pl) );
-    
 
-    
-    
-    
-    
     if (is_nu || is_lminus) {
       KNL_Qstar_plus  = sqrtq2 * KNL_j0_plus  / TMath::Sqrt(TMath::Abs(KNL_j0_plus*KNL_j0_plus - KNL_jz_plus*KNL_jz_plus) );
       KNL_Qstar_minus = sqrtq2 * KNL_j0_minus / TMath::Sqrt(TMath::Abs(KNL_j0_minus*KNL_j0_minus - KNL_jz_minus*KNL_jz_minus) );
     }
-    
+
     else if (is_nubar || is_lplus){
       KNL_Qstar_plus  = sqrtq2 * KNL_j0_minus / TMath::Sqrt(TMath::Abs(KNL_j0_minus*KNL_j0_minus - KNL_jz_minus*KNL_jz_minus) );
       KNL_Qstar_minus = sqrtq2 * KNL_j0_plus / TMath::Sqrt(TMath::Abs(KNL_j0_plus*KNL_j0_plus - KNL_jz_plus*KNL_jz_plus) );
     }
-    
-    
-    
+
     if (is_nu || is_lminus) {
       KNL_vstar_plus  = sqrtq2 * KNL_jz_plus  / TMath::Sqrt(TMath::Abs(KNL_j0_plus*KNL_j0_plus - KNL_jz_plus*KNL_jz_plus) );
       KNL_vstar_minus = sqrtq2 * KNL_jz_minus / TMath::Sqrt(TMath::Abs(KNL_j0_minus*KNL_j0_minus - KNL_jz_minus*KNL_jz_minus) );
@@ -276,53 +273,48 @@ std::cout<<"xxxxxxxxxxxxxxxxxxxxxxx"<<std::endl;
       KNL_vstar_minus  = sqrtq2 * KNL_jz_plus / TMath::Sqrt(TMath::Abs(KNL_j0_plus*KNL_j0_plus - KNL_jz_plus*KNL_jz_plus) );
       KNL_vstar_plus   = sqrtq2 * KNL_jz_minus / TMath::Sqrt(TMath::Abs(KNL_j0_minus*KNL_j0_minus - KNL_jz_minus*KNL_jz_minus) );
     }
-    
-    
+
     if(is_nu || is_lminus){
-      
       KNL_cL_plus  = TMath::Sqrt(0.5)* KNL_K * (KNL_jx_plus  - KNL_jy_plus);
       KNL_cL_minus = TMath::Sqrt(0.5)* KNL_K * (KNL_jx_minus - KNL_jy_minus);
-      
+
       KNL_cR_plus  = TMath::Sqrt(0.5)* KNL_K * (KNL_jx_plus  + KNL_jy_plus);
       KNL_cR_minus = TMath::Sqrt(0.5)* KNL_K * (KNL_jx_minus + KNL_jy_minus);
-      
+
       KNL_cS_plus   = KNL_K *  TMath::Sqrt(TMath::Abs(KNL_j0_plus *KNL_j0_plus  - KNL_jz_plus *KNL_jz_plus ) );
       KNL_cS_minus  = KNL_K *  TMath::Sqrt(TMath::Abs(KNL_j0_minus*KNL_j0_minus - KNL_jz_minus*KNL_jz_minus) );
-      
     }
-    
+
     if (is_nubar || is_lplus) {
       KNL_cL_plus  =  1 * TMath::Sqrt(0.5)* KNL_K * (KNL_jx_minus - KNL_jy_minus);
       KNL_cL_minus = -1 * TMath::Sqrt(0.5)* KNL_K * (KNL_jx_plus  - KNL_jy_plus);
-      
+
       KNL_cR_plus  =  1 * TMath::Sqrt(0.5)* KNL_K * (KNL_jx_minus + KNL_jy_minus);
       KNL_cR_minus = -1 * TMath::Sqrt(0.5)* KNL_K * (KNL_jx_plus  + KNL_jy_plus);
-      
+
       KNL_cS_plus  = -1 * KNL_K *  TMath::Sqrt(TMath::Abs(KNL_j0_minus*KNL_j0_minus - KNL_jz_minus*KNL_jz_minus) );
       KNL_cS_minus =  1 * KNL_K *  TMath::Sqrt(TMath::Abs(KNL_j0_plus*KNL_j0_plus - KNL_jz_plus*KNL_jz_plus) );
-      
-      
     }
   }
-  
-
-/*
-std::cout<<"j0-="<<KNL_j0_minus<<" j0+="<<KNL_j0_plus<<std::endl;
-std::cout<<"jx-="<<KNL_jx_minus<<" jx+="<<KNL_jx_plus<<std::endl;
-std::cout<<"jy-="<<KNL_jy_minus<<" jy+="<<KNL_jy_plus<<std::endl;
-std::cout<<"jz-="<<KNL_jz_minus<<" jz+="<<KNL_jz_plus<<std::endl;
 
 
+  /*
+     std::cout<<"j0-="<<KNL_j0_minus<<" j0+="<<KNL_j0_plus<<std::endl;
+     std::cout<<"jx-="<<KNL_jx_minus<<" jx+="<<KNL_jx_plus<<std::endl;
+     std::cout<<"jy-="<<KNL_jy_minus<<" jy+="<<KNL_jy_plus<<std::endl;
+     std::cout<<"jz-="<<KNL_jz_minus<<" jz+="<<KNL_jz_plus<<std::endl;
 
-std::cout<<"sqrt2="<<sqrtq2<<" jz+=:"<<KNL_jz_plus<<" j0+="<<KNL_j0_plus<<" denom="<<TMath::Sqrt(TMath::Abs(KNL_j0_plus*KNL_j0_plus - KNL_jz_plus*KNL_jz_plus) )<<std::endl;
 
-std::cout<<"vstar-="<<KNL_vstar_minus<<" vstar+="<<KNL_vstar_plus<<std::endl;
-std::cout<<"Qstar-="<<KNL_Qstar_minus<<" Qstar+="<<KNL_Qstar_plus<<std::endl;
-*/
+
+     std::cout<<"sqrt2="<<sqrtq2<<" jz+=:"<<KNL_jz_plus<<" j0+="<<KNL_j0_plus<<" denom="<<TMath::Sqrt(TMath::Abs(KNL_j0_plus*KNL_j0_plus - KNL_jz_plus*KNL_jz_plus) )<<std::endl;
+
+     std::cout<<"vstar-="<<KNL_vstar_minus<<" vstar+="<<KNL_vstar_plus<<std::endl;
+     std::cout<<"Qstar-="<<KNL_Qstar_minus<<" Qstar+="<<KNL_Qstar_plus<<std::endl;
+     */
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("BergerReinSehgalRes", pDEBUG) 
-     << "Kinematical params V = " << V << ", U = " << U;
+    << "Kinematical params V = " << V << ", U = " << U;
 #endif
 
   // Calculate the Feynman-Kislinger-Ravndall parameters
@@ -330,54 +322,54 @@ std::cout<<"Qstar-="<<KNL_Qstar_minus<<" Qstar+="<<KNL_Qstar_plus<<std::endl;
   double Go  = TMath::Power(1 - 0.25 * q2/Mnuc2, 0.5-IR);
   double GV  = Go * TMath::Power( 1./(1-q2/fMv2), 2);
   double GA  = Go * TMath::Power( 1./(1-q2/fMa2), 2);
-  
-  
+
+
   //JN New form factors code
-//  new_GV = false; //JN
-//  new_GA = true; //JN
-  
+  //  new_GV = false; //JN
+  //  new_GA = true; //JN
+
   if(fGV){
 
-//std::cout<<"Using new GV"<<std::endl;
+    //std::cout<<"Using new GV"<<std::endl;
     double CV0 =  1./(1-q2/fMv2/4.);
     double CV3 =  2.13 * CV0 * TMath::Power( 1-q2/fMv2,-2);
     double CV4 = -1.51 * CV0 * TMath::Power( 1-q2/fMv2,-2);
     double CV5 =  0.48 * CV0 * TMath::Power( 1-q2/fMv2/0.766, -2);
-    
-    
+
+
     double GV3 =   0.5 / TMath::Sqrt(3) * ( CV3 * (W + Mnuc)/Mnuc
-					  + CV4 * (W2 + q2 -Mnuc2)/2./Mnuc2 
-					  + CV5 * (W2 - q2 -Mnuc2)/2./Mnuc2 );
-    
+        + CV4 * (W2 + q2 -Mnuc2)/2./Mnuc2 
+        + CV5 * (W2 - q2 -Mnuc2)/2./Mnuc2 );
+
     double GV1 = - 0.5 / TMath::Sqrt(3) * ( CV3 * (Mnuc2 -q2 +Mnuc*W)/W/Mnuc
-					  + CV4 * (W2 +q2 - Mnuc2)/2./Mnuc2 
-					  + CV5 * (W2 -q2 - Mnuc2)/2./Mnuc2 );
-    
+        + CV4 * (W2 +q2 - Mnuc2)/2./Mnuc2 
+        + CV5 * (W2 -q2 - Mnuc2)/2./Mnuc2 );
+
     GV = 0.5 * TMath::Power( 1 - q2/(Mnuc + W)/(Mnuc + W), 0.5-IR)
       * TMath::Sqrt( 3 * GV3*GV3 + GV1*GV1);
 
 
   }
-  
+
   if(fGA){
-    
-//    std::cout<<"Using new GA"<<std::endl;
+
+    //    std::cout<<"Using new GA"<<std::endl;
 
     double CA5_0 = 1.2;
     double CA5 = CA5_0 *  TMath::Power( 1./(1-q2/fMa2), 2);
-//std::cout<<GA<<std::endl;    
-//  GA = 0.5 * TMath::Sqrt(3.) * TMath::Power( 1 - q2/(Mnuc + W)/(Mnuc + W), 0.5-IR) * (1- (W2 +q2 -Mnuc2)/8./Mnuc2) * CA5/fZeta;
+    //std::cout<<GA<<std::endl;    
+    //  GA = 0.5 * TMath::Sqrt(3.) * TMath::Power( 1 - q2/(Mnuc + W)/(Mnuc + W), 0.5-IR) * (1- (W2 +q2 -Mnuc2)/8./Mnuc2) * CA5/fZeta;
     GA = 0.5 * TMath::Sqrt(3.) * TMath::Power( 1 - q2/(Mnuc + W)/(Mnuc + W), 0.5-IR) * (1- (W2 +q2 -Mnuc2)/8./Mnuc2) * CA5;
 
-//std::cout<< 0.5 * TMath::Sqrt(3.) * TMath::Power( 1 - q2/(Mnuc + W)/(Mnuc + W), 0.5-IR)* (1- (W2 +q2 -Mnuc2)/8./Mnuc2)<<std::endl;
-//std::cout<<CA5<<std::endl;
-//std::cout<<GA<<std::endl;
+    //std::cout<< 0.5 * TMath::Sqrt(3.) * TMath::Power( 1 - q2/(Mnuc + W)/(Mnuc + W), 0.5-IR)* (1- (W2 +q2 -Mnuc2)/8./Mnuc2)<<std::endl;
+    //std::cout<<CA5<<std::endl;
+    //std::cout<<GA<<std::endl;
 
   }
-  
+
   //JN end of new form factors code
-															  
-															 
+
+
 
   if(is_EM) { 
     GA = 0.; // zero the axial term for EM scattering
@@ -403,7 +395,6 @@ std::cout<<"Qstar-="<<KNL_Qstar_minus<<" Qstar+="<<KNL_Qstar_plus<<std::endl;
   fFKR.Tplus  = - (fFKR.Tv + fFKR.Ta);
   fFKR.Tminus = - (fFKR.Tv - fFKR.Ta);
 
-
   //JN KNL
   double KNL_S_plus = 0;
   double KNL_S_minus = 0;
@@ -411,27 +402,24 @@ std::cout<<"Qstar-="<<KNL_Qstar_minus<<" Qstar+="<<KNL_Qstar_plus<<std::endl;
   double KNL_B_minus = 0;
   double KNL_C_plus = 0;
   double KNL_C_minus = 0;
-  
-  
-  
+
   if(is_CC && is_KNL){
     KNL_S_plus  = (KNL_vstar_plus*vstar  - KNL_Qstar_plus *Qstar )* (Mnuc2 -q2 - 3*W*Mnuc ) * GV / (6*Mnuc2)/Q2; //possibly missing minus sign ()
     KNL_S_minus = (KNL_vstar_minus*vstar - KNL_Qstar_minus*Qstar )* (Mnuc2 -q2 - 3*W*Mnuc ) * GV / (6*Mnuc2)/Q2;
 
-//std::cout<<KNL_S_plus<<"\t"<<KNL_S_minus<<"\t"<<fFKR.S<<std::endl;
-    
+    //std::cout<<KNL_S_plus<<"\t"<<KNL_S_minus<<"\t"<<fFKR.S<<std::endl;
+
     KNL_B_plus  = fZeta/(3.*W*sq2omg)/Qstar * (KNL_Qstar_plus  + KNL_vstar_plus *Qstar/a/Mnuc ) * GA;
     KNL_B_minus = fZeta/(3.*W*sq2omg)/Qstar * (KNL_Qstar_minus + KNL_vstar_minus*Qstar/a/Mnuc ) * GA;
-    
-    
+
+
     KNL_C_plus = ( (KNL_Qstar_plus*Qstar - KNL_vstar_plus*vstar ) * ( 1./3. + vstar/a/Mnuc)
-		   + KNL_vstar_plus*(2./3.*W +q2/a/Mnuc + nomg/3./a/Mnuc) )* fZeta * (GA/2./W/Qstar);
-    
+        + KNL_vstar_plus*(2./3.*W +q2/a/Mnuc + nomg/3./a/Mnuc) )* fZeta * (GA/2./W/Qstar);
+
     KNL_C_minus = ( (KNL_Qstar_minus*Qstar - KNL_vstar_minus*vstar ) * ( 1./3. + vstar/a/Mnuc)
-		    + KNL_vstar_minus*(2./3.*W +q2/a/Mnuc + nomg/3./a/Mnuc) )* fZeta * (GA/2./W/Qstar);
+        + KNL_vstar_minus*(2./3.*W +q2/a/Mnuc + nomg/3./a/Mnuc) )* fZeta * (GA/2./W/Qstar);
 
-
-//std::cout<<"KNL="<<KNL_S_plus<<"\t"<<KNL_S_minus<<"\t"<<fFKR.S<<std::endl;
+    //std::cout<<"KNL="<<KNL_S_plus<<"\t"<<KNL_S_minus<<"\t"<<fFKR.S<<std::endl;
   }
   double BRS_S_plus = 0;
   double BRS_S_minus = 0;
@@ -439,103 +427,87 @@ std::cout<<"Qstar-="<<KNL_Qstar_minus<<" Qstar+="<<KNL_Qstar_plus<<std::endl;
   double BRS_B_minus = 0;
   double BRS_C_plus = 0;
   double BRS_C_minus = 0;
-  
-  
+
+
   if(is_CC && is_BRS){
 
-   KNL_S_plus  = (KNL_vstar_plus*vstar  - KNL_Qstar_plus *Qstar )* (Mnuc2 -q2 - 3*W*Mnuc ) * GV / (6*Mnuc2)/Q2;
-   KNL_S_minus = (KNL_vstar_minus*vstar - KNL_Qstar_minus*Qstar )* (Mnuc2 -q2 - 3*W*Mnuc ) * GV / (6*Mnuc2)/Q2;
+    KNL_S_plus  = (KNL_vstar_plus*vstar  - KNL_Qstar_plus *Qstar )* (Mnuc2 -q2 - 3*W*Mnuc ) * GV / (6*Mnuc2)/Q2;
+    KNL_S_minus = (KNL_vstar_minus*vstar - KNL_Qstar_minus*Qstar )* (Mnuc2 -q2 - 3*W*Mnuc ) * GV / (6*Mnuc2)/Q2;
 
 
-   KNL_B_plus  = fZeta/(3.*W*sq2omg)/Qstar * (KNL_Qstar_plus  + KNL_vstar_plus *Qstar/a/Mnuc ) * GA;
-   KNL_B_minus = fZeta/(3.*W*sq2omg)/Qstar * (KNL_Qstar_minus + KNL_vstar_minus*Qstar/a/Mnuc ) * GA;
+    KNL_B_plus  = fZeta/(3.*W*sq2omg)/Qstar * (KNL_Qstar_plus  + KNL_vstar_plus *Qstar/a/Mnuc ) * GA;
+    KNL_B_minus = fZeta/(3.*W*sq2omg)/Qstar * (KNL_Qstar_minus + KNL_vstar_minus*Qstar/a/Mnuc ) * GA;
 
 
-   KNL_C_plus = ( (KNL_Qstar_plus*Qstar - KNL_vstar_plus*vstar ) * ( 1./3. + vstar/a/Mnuc)
-                + KNL_vstar_plus*(2./3.*W +q2/a/Mnuc + nomg/3./a/Mnuc) )* fZeta * (GA/2./W/Qstar);
+    KNL_C_plus = ( (KNL_Qstar_plus*Qstar - KNL_vstar_plus*vstar ) * ( 1./3. + vstar/a/Mnuc)
+        + KNL_vstar_plus*(2./3.*W +q2/a/Mnuc + nomg/3./a/Mnuc) )* fZeta * (GA/2./W/Qstar);
 
-   KNL_C_minus = ( (KNL_Qstar_minus*Qstar - KNL_vstar_minus*vstar ) * ( 1./3. + vstar/a/Mnuc)
-                + KNL_vstar_minus*(2./3.*W +q2/a/Mnuc + nomg/3./a/Mnuc) )* fZeta * (GA/2./W/Qstar);
-
-
+    KNL_C_minus = ( (KNL_Qstar_minus*Qstar - KNL_vstar_minus*vstar ) * ( 1./3. + vstar/a/Mnuc)
+        + KNL_vstar_minus*(2./3.*W +q2/a/Mnuc + nomg/3./a/Mnuc) )* fZeta * (GA/2./W/Qstar);
 
     BRS_S_plus = KNL_S_plus;
     BRS_S_minus = KNL_S_minus;
-    
+
     BRS_B_plus = KNL_B_plus + fZeta*GA/2./W/Qstar*( KNL_Qstar_plus*vstar - KNL_vstar_plus*Qstar)
       *( 2./3 /sq2omg *(vstar + Qstar*Qstar/Mnuc/a))/(kPionMass2 -q2);
-    
-    
+
     BRS_B_minus = KNL_B_minus + fZeta*GA/2./W/Qstar*( KNL_Qstar_minus*vstar - KNL_vstar_minus*Qstar)
       *( 2./3 /sq2omg *(vstar + Qstar*Qstar/Mnuc/a))/(kPionMass2 -q2);
-    
-    
+
     BRS_C_plus = KNL_C_plus  + fZeta*GA/2./W/Qstar*( KNL_Qstar_plus*vstar - KNL_vstar_plus*Qstar)
       * Qstar*(2./3.*W +q2/Mnuc/a +nomg/3./a/Mnuc)/(kPionMass2 -q2);
-    
+
     BRS_C_minus = KNL_C_minus  + fZeta*GA/2./W/Qstar*( KNL_Qstar_minus*vstar - KNL_vstar_minus*Qstar)
       * Qstar*(2./3.*W +q2/Mnuc/a +nomg/3./a/Mnuc)/(kPionMass2 -q2);
-    
-    
+
   }
-  
-  
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("FKR", pDEBUG) 
-     << "FKR params for RES = " << resname << " : " << fFKR;
+    << "FKR params for RES = " << resname << " : " << fFKR;
 #endif
 
   // Calculate the Rein-Sehgal Helicity Amplitudes
   double sigL_minus = 0;
   double sigR_minus = 0;
   double sigS_minus = 0;
-  
-  
+
   double sigL_plus = 0;
   double sigR_plus = 0;
   double sigS_plus = 0;
-  
-  
-  
+
   const RSHelicityAmplModelI * hamplmod = 0;
-  
   const RSHelicityAmplModelI * hamplmod_KNL_minus = 0;
   const RSHelicityAmplModelI * hamplmod_KNL_plus = 0;
-  
   const RSHelicityAmplModelI * hamplmod_BRS_minus = 0;
   const RSHelicityAmplModelI * hamplmod_BRS_plus = 0;
- 
-
-//for test>>>
-//
 
   double g2 = kGF2;
 
-   double sig0 = 0.125*(g2/kPi)*(-q2/Q2)*(W/Mnuc);
-   double scLR = W/Mnuc;
-     double scS  = (Mnuc/W)*(-Q2/q2);
+  double sig0 = 0.125*(g2/kPi)*(-q2/Q2)*(W/Mnuc);
+  double scLR = W/Mnuc;
+  double scS  = (Mnuc/W)*(-Q2/q2);
 
-   double sigL =0;
-   double sigR =0;
-   double sigS =0;
-    
-   double sigRSL =0;
-   double sigRSR =0;
-   double sigRSS =0;
+  double sigL =0;
+  double sigR =0;
+  double sigS =0;
 
-/*
-    hamplmod = fHAmplModelCC;
+  double sigRSL =0;
+  double sigRSR =0;
+  double sigRSS =0;
+
+  /*
+     hamplmod = fHAmplModelCC;
      const RSHelicityAmpl & hampl = hamplmod->Compute(resonance, fFKR);
 
-    sigRSL = scLR* (hampl.Amp2Plus3 () + hampl.Amp2Plus1 ());
-    sigRSR = scLR* (hampl.Amp2Minus3() + hampl.Amp2Minus1());
-    sigRSS = scS * (hampl.Amp20Plus () + hampl.Amp20Minus());
+     sigRSL = scLR* (hampl.Amp2Plus3 () + hampl.Amp2Plus1 ());
+     sigRSR = scLR* (hampl.Amp2Minus3() + hampl.Amp2Minus1());
+     sigRSS = scS * (hampl.Amp20Plus () + hampl.Amp20Minus());
 
 */
-//<<<<<<<<<
+  //<<<<<<<<<
   if(is_CC && !(is_KNL || is_BRS) ) {
-    
+
     hamplmod = fHAmplModelCC;
   }
   else
@@ -545,109 +517,90 @@ std::cout<<"Qstar-="<<KNL_Qstar_minus<<" Qstar+="<<KNL_Qstar_plus<<std::endl;
     }
     else
       if(is_EM) {
-	if (is_p) { hamplmod = fHAmplModelEMp;}
-	else      { hamplmod = fHAmplModelEMn;}
+        if (is_p) { hamplmod = fHAmplModelEMp;}
+        else      { hamplmod = fHAmplModelEMn;}
       }
       else
         if(is_CC && is_KNL ){
           fFKR.S = KNL_S_minus;        //2 times fFKR.S?
-	  fFKR.B = KNL_B_minus;
-	  fFKR.S = KNL_C_minus;
-	  
-	  hamplmod_KNL_minus = fHAmplModelCC;
-	  
-	  assert(hamplmod_KNL_minus);
-	  
-	  const RSHelicityAmpl & hampl_KNL_minus = hamplmod_KNL_minus->Compute(resonance, fFKR);
-	  
-	  sigL_minus = (hampl_KNL_minus.Amp2Plus3 () + hampl_KNL_minus.Amp2Plus1 ());
-	  sigR_minus = (hampl_KNL_minus.Amp2Minus3() + hampl_KNL_minus.Amp2Minus1());
-	  sigS_minus = (hampl_KNL_minus.Amp20Plus () + hampl_KNL_minus.Amp20Minus());
-	  
-	  
-	  fFKR.S = KNL_S_plus;
-	  fFKR.B = KNL_B_plus;
-	  fFKR.S = KNL_C_plus;
-	  hamplmod_KNL_plus = fHAmplModelCC;
-	  assert(hamplmod_KNL_plus);
-	  
-	  const RSHelicityAmpl & hampl_KNL_plus = hamplmod_KNL_plus->Compute(resonance, fFKR);
-	  
-	  sigL_plus = (hampl_KNL_plus.Amp2Plus3 () + hampl_KNL_plus.Amp2Plus1 ());
-	  sigR_plus = (hampl_KNL_plus.Amp2Minus3() + hampl_KNL_plus.Amp2Minus1());
-	  sigS_plus = (hampl_KNL_plus.Amp20Plus () + hampl_KNL_plus.Amp20Minus());
-	  
- 
-	  
-	  
-        }
-  
-  
-	else
-	  if(is_CC && is_BRS ){
-	    
-	    
-	    
-            fFKR.S = BRS_S_minus;
-	    fFKR.B = BRS_B_minus;
-	    fFKR.S = BRS_C_minus;
-	    
-	    hamplmod_BRS_minus = fHAmplModelCC;
-	    assert(hamplmod_BRS_minus);
-	    
-	    const RSHelicityAmpl & hampl_BRS_minus = hamplmod_BRS_minus->Compute(resonance, fFKR);
-	    
-	    sigL_minus = (hampl_BRS_minus.Amp2Plus3 () + hampl_BRS_minus.Amp2Plus1 ());
-	    sigR_minus = (hampl_BRS_minus.Amp2Minus3() + hampl_BRS_minus.Amp2Minus1());
-	    sigS_minus = (hampl_BRS_minus.Amp20Plus () + hampl_BRS_minus.Amp20Minus());
-	    
-	    
-	    fFKR.S = BRS_S_plus;
-	    fFKR.B = BRS_B_plus;
-	    fFKR.S = BRS_C_plus;
-	    hamplmod_BRS_plus = fHAmplModelCC;
-	    assert(hamplmod_BRS_plus);
-	    
-	    const RSHelicityAmpl & hampl_BRS_plus = hamplmod_BRS_plus->Compute(resonance, fFKR);
-	    
-	    sigL_plus = (hampl_BRS_plus.Amp2Plus3 () + hampl_BRS_plus.Amp2Plus1 ());
-	    sigR_plus = (hampl_BRS_plus.Amp2Minus3() + hampl_BRS_plus.Amp2Minus1());
-	    sigS_plus = (hampl_BRS_plus.Amp20Plus () + hampl_BRS_plus.Amp20Minus());
-	    
-	    
-	  }
-  
-  
-  
-  
-  
-  
-  
+          fFKR.B = KNL_B_minus;
+          fFKR.S = KNL_C_minus;
 
-/*
-if(is_CC) { 
-    hamplmod = fHAmplModelCC; 
-  }
-  else 
-  if(is_NC) { 
-    if (is_p) { hamplmod = fHAmplModelNCp;}
-    else      { hamplmod = fHAmplModelNCn;}
-  }
-  else 
-  if(is_EM) { 
-    if (is_p) { hamplmod = fHAmplModelEMp;}
-    else      { hamplmod = fHAmplModelEMn;}
-  }
-  assert(hamplmod);
-  
-  const RSHelicityAmpl & hampl = hamplmod->Compute(resonance, fFKR); 
-*/
+          hamplmod_KNL_minus = fHAmplModelCC;
+
+          assert(hamplmod_KNL_minus);
+
+          const RSHelicityAmpl & hampl_KNL_minus = hamplmod_KNL_minus->Compute(resonance, fFKR);
+
+          sigL_minus = (hampl_KNL_minus.Amp2Plus3 () + hampl_KNL_minus.Amp2Plus1 ());
+          sigR_minus = (hampl_KNL_minus.Amp2Minus3() + hampl_KNL_minus.Amp2Minus1());
+          sigS_minus = (hampl_KNL_minus.Amp20Plus () + hampl_KNL_minus.Amp20Minus());
+
+
+          fFKR.S = KNL_S_plus;
+          fFKR.B = KNL_B_plus;
+          fFKR.S = KNL_C_plus;
+          hamplmod_KNL_plus = fHAmplModelCC;
+          assert(hamplmod_KNL_plus);
+
+          const RSHelicityAmpl & hampl_KNL_plus = hamplmod_KNL_plus->Compute(resonance, fFKR);
+
+          sigL_plus = (hampl_KNL_plus.Amp2Plus3 () + hampl_KNL_plus.Amp2Plus1 ());
+          sigR_plus = (hampl_KNL_plus.Amp2Minus3() + hampl_KNL_plus.Amp2Minus1());
+          sigS_plus = (hampl_KNL_plus.Amp20Plus () + hampl_KNL_plus.Amp20Minus());
+
+        }
+        else
+          if(is_CC && is_BRS ){
+            fFKR.S = BRS_S_minus;
+            fFKR.B = BRS_B_minus;
+            fFKR.S = BRS_C_minus;
+
+            hamplmod_BRS_minus = fHAmplModelCC;
+            assert(hamplmod_BRS_minus);
+
+            const RSHelicityAmpl & hampl_BRS_minus = hamplmod_BRS_minus->Compute(resonance, fFKR);
+
+            sigL_minus = (hampl_BRS_minus.Amp2Plus3 () + hampl_BRS_minus.Amp2Plus1 ());
+            sigR_minus = (hampl_BRS_minus.Amp2Minus3() + hampl_BRS_minus.Amp2Minus1());
+            sigS_minus = (hampl_BRS_minus.Amp20Plus () + hampl_BRS_minus.Amp20Minus());
+
+            fFKR.S = BRS_S_plus;
+            fFKR.B = BRS_B_plus;
+            fFKR.S = BRS_C_plus;
+            hamplmod_BRS_plus = fHAmplModelCC;
+            assert(hamplmod_BRS_plus);
+
+            const RSHelicityAmpl & hampl_BRS_plus = hamplmod_BRS_plus->Compute(resonance, fFKR);
+
+            sigL_plus = (hampl_BRS_plus.Amp2Plus3 () + hampl_BRS_plus.Amp2Plus1 ());
+            sigR_plus = (hampl_BRS_plus.Amp2Minus3() + hampl_BRS_plus.Amp2Minus1());
+            sigS_plus = (hampl_BRS_plus.Amp20Plus () + hampl_BRS_plus.Amp20Minus());
+          }
+  /*
+     if(is_CC) { 
+     hamplmod = fHAmplModelCC; 
+     }
+     else 
+     if(is_NC) { 
+     if (is_p) { hamplmod = fHAmplModelNCp;}
+     else      { hamplmod = fHAmplModelNCn;}
+     }
+     else 
+     if(is_EM) { 
+     if (is_p) { hamplmod = fHAmplModelEMp;}
+     else      { hamplmod = fHAmplModelEMn;}
+     }
+     assert(hamplmod);
+
+     const RSHelicityAmpl & hampl = hamplmod->Compute(resonance, fFKR); 
+     */
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("RSHAmpl", pDEBUG)
-     << "Helicity Amplitudes for RES = " << resname << " : " << *hampl;
+    << "Helicity Amplitudes for RES = " << resname << " : " << *hampl;
 #endif
 
- //JNtest double g2 = kGF2;
+  //JNtest double g2 = kGF2;
   // For EM interaction replace  G_{Fermi} with :
   // a_{em} * pi / ( sqrt(2) * sin^2(theta_weinberg) * Mass_{W}^2 }
   // See C.Quigg, Gauge Theories of the Strong, Weak and E/M Interactions,
@@ -658,157 +611,149 @@ if(is_CC) {
   // So, overall:
   // G_{Fermi}^2 --> a_{em}^2 * pi^2 / (2 * sin^4(theta_weinberg) * q^{4})
   //
-  if(is_EM) {
-    double q4 = q2*q2;
-    g2 = kAem2 * kPi2 / (2.0 * fSin48w * q4); 
-  }
+    if(is_EM) {
+      double q4 = q2*q2;
+      g2 = kAem2 * kPi2 / (2.0 * fSin48w * q4); 
+    }
 
-  // Compute the cross section
+// Compute the cross section
 
 /*
-  double sig0 = 0.125*(g2/kPi)*(-q2/Q2)*(W/Mnuc);
-  double scLR = W/Mnuc;
-  double scS  = (Mnuc/W)*(-Q2/q2);
+   double sig0 = 0.125*(g2/kPi)*(-q2/Q2)*(W/Mnuc);
+   double scLR = W/Mnuc;
+   double scS  = (Mnuc/W)*(-Q2/q2);
 
-  JN test */
+   JN test */
 //  double sigL = scLR* (hampl.Amp2Plus3 () + hampl.Amp2Plus1 ());
 //  double sigR = scLR* (hampl.Amp2Minus3() + hampl.Amp2Minus1());
 //  double sigS = scS * (hampl.Amp20Plus () + hampl.Amp20Minus());
 
-
 /*
-  double sigL =0;
-  double sigR =0;
-  double sigS =0;
-JN tests  */
-  
-  if( is_KNL || is_BRS){
-    
-     sigL_minus *= scLR;
-     sigR_minus *= scLR;
-     sigS_minus *= scS;
-     
-     sigL_plus *= scLR;
-     sigR_plus *= scLR;
-     sigS_plus *= scS;
-     
-     
-//     std::cout<<"sL,R,S minus="<<sigL_minus<<","<<sigR_minus<<","<<sigS_minus<<std::endl;
-//     std::cout<<"sL,R,S plus ="<<sigL_plus <<","<<sigR_plus <<","<<sigS_plus <<std::endl;
-     
-     
-  }
-  else 
-   {
-   assert(hamplmod);
-    
-    const RSHelicityAmpl & hampl = hamplmod->Compute(resonance, fFKR);
-    
-    sigL = scLR* (hampl.Amp2Plus3 () + hampl.Amp2Plus1 ());
-    sigR = scLR* (hampl.Amp2Minus3() + hampl.Amp2Minus1());
-    sigS = scS * (hampl.Amp20Plus () + hampl.Amp20Minus());
-    
-  }
-  
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("BergerReinSehgalRes", pDEBUG) << "sig_{0} = " << sig0;
-  LOG("BergerReinSehgalRes", pDEBUG) << "sig_{L} = " << sigL;
-  LOG("BergerReinSehgalRes", pDEBUG) << "sig_{R} = " << sigR;
-  LOG("BergerReinSehgalRes", pDEBUG) << "sig_{S} = " << sigS;
-#endif
+   double sigL =0;
+   double sigR =0;
+   double sigS =0;
+   JN tests  */
 
-  double xsec = 0.0;
+if( is_KNL || is_BRS){
 
+  sigL_minus *= scLR;
+  sigR_minus *= scLR;
+  sigS_minus *= scS;
 
-  if(is_KNL || is_BRS){
-    xsec =  TMath::Power(KNL_cL_minus,2)*sigL_minus + TMath::Power(KNL_cL_plus,2)*sigL_plus
-          + TMath::Power(KNL_cR_minus,2)*sigR_minus + TMath::Power(KNL_cR_plus,2)*sigR_plus
-          + TMath::Power(KNL_cS_minus,2)*sigS_minus + TMath::Power(KNL_cS_plus,2)*sigS_plus;
-    xsec *=sig0;
-/*
-
-std::cout<<"<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n";
-
-std::cout<<"A-="<<KNL_Alambda_minus<<" A+="<<KNL_Alambda_plus<<std::endl;
-std::cout<<q2<<"\t"<<xsec<<"\t"<<sig0*(V2*sigR + U2*sigL + 2*UV*sigS)<<"\t"<<xsec/(sig0*(V2*sigRSR + U2*sigRSL + 2*UV*sigRSS))<<std::endl;
-std::cout<<"fFKR.B="<<fFKR.B<<" fFKR.C="<<fFKR.C<<" fFKR.S="<<fFKR.S<<std::endl;
-std::cout<<"CL-="<<TMath::Power(KNL_cL_minus,2)<<" CL+="<<TMath::Power(KNL_cL_plus,2)<<" U2="<<U2<<std::endl;
-std::cout<<"SL-="<<sigL_minus<<" SL+="<<sigL_plus<<" SL="<<sigRSL<<std::endl;
-
-
-std::cout<<"CR-="<<TMath::Power(KNL_cR_minus,2)<<" CR+="<<TMath::Power(KNL_cR_plus,2)<<" V2="<<V2<<std::endl;
-std::cout<<"SR-="<<sigR_minus<<" SR+="<<sigR_plus<<" sR="<<sigRSR<<std::endl;
-
-std::cout<<"CS-="<<TMath::Power(KNL_cS_minus,2)<<" CS+="<<TMath::Power(KNL_cS_plus,2)<<" UV="<<UV<<std::endl;
-std::cout<<"SS-="<<sigL_minus<<" SS+="<<sigS_plus<<" sS="<<sigRSS<<std::endl;
-std::cout<<">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n";
-*/
-
-
+  sigL_plus *= scLR;
+  sigR_plus *= scLR;
+  sigS_plus *= scS;
+  //     std::cout<<"sL,R,S minus="<<sigL_minus<<","<<sigR_minus<<","<<sigS_minus<<std::endl;
+  //     std::cout<<"sL,R,S plus ="<<sigL_plus <<","<<sigR_plus <<","<<sigS_plus <<std::endl;
 }
-  else{
-    if (is_nu || is_lminus) {
-      xsec = sig0*(V2*sigR + U2*sigL + 2*UV*sigS);
-    } 
-    else 
-      if (is_nubar || is_lplus) {
-	xsec = sig0*(U2*sigR + V2*sigL + 2*UV*sigS);
-      } 
-    xsec = TMath::Max(0.,xsec);
-  }
-  double mult = 1.0;
-  if(is_CC && is_delta) {
-    if((is_nu && is_p) || (is_nubar && is_n)) mult=3.0;
-  }
-  xsec *= mult;
-  
-  // Check whether the cross section is to be weighted with a
-  // Breit-Wigner distribution (default: true)
-  double bw = 1.0;
-  if(fWghtBW) {
-     bw = utils::bwfunc::BreitWignerL(W,LR,MR,WR,NR); 
+else {
+  assert(hamplmod);
+
+  const RSHelicityAmpl & hampl = hamplmod->Compute(resonance, fFKR);
+
+  sigL = scLR* (hampl.Amp2Plus3 () + hampl.Amp2Plus1 ());
+  sigR = scLR* (hampl.Amp2Minus3() + hampl.Amp2Minus1());
+  sigS = scS * (hampl.Amp20Plus () + hampl.Amp20Minus());
+}
+
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+LOG("BergerReinSehgalRes", pDEBUG) << "sig_{0} = " << sig0;
+LOG("BergerReinSehgalRes", pDEBUG) << "sig_{L} = " << sigL;
+LOG("BergerReinSehgalRes", pDEBUG) << "sig_{R} = " << sigR;
+LOG("BergerReinSehgalRes", pDEBUG) << "sig_{S} = " << sigS;
+#endif
+
+double xsec = 0.0;
+
+if(is_KNL || is_BRS){
+  xsec =  TMath::Power(KNL_cL_minus,2)*sigL_minus + TMath::Power(KNL_cL_plus,2)*sigL_plus
+    + TMath::Power(KNL_cR_minus,2)*sigR_minus + TMath::Power(KNL_cR_plus,2)*sigR_plus
+    + TMath::Power(KNL_cS_minus,2)*sigS_minus + TMath::Power(KNL_cS_plus,2)*sigS_plus;
+  xsec *=sig0;
+  /*
+
+     std::cout<<"<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n";
+
+     std::cout<<"A-="<<KNL_Alambda_minus<<" A+="<<KNL_Alambda_plus<<std::endl;
+     std::cout<<q2<<"\t"<<xsec<<"\t"<<sig0*(V2*sigR + U2*sigL + 2*UV*sigS)<<"\t"<<xsec/(sig0*(V2*sigRSR + U2*sigRSL + 2*UV*sigRSS))<<std::endl;
+     std::cout<<"fFKR.B="<<fFKR.B<<" fFKR.C="<<fFKR.C<<" fFKR.S="<<fFKR.S<<std::endl;
+     std::cout<<"CL-="<<TMath::Power(KNL_cL_minus,2)<<" CL+="<<TMath::Power(KNL_cL_plus,2)<<" U2="<<U2<<std::endl;
+     std::cout<<"SL-="<<sigL_minus<<" SL+="<<sigL_plus<<" SL="<<sigRSL<<std::endl;
+
+     std::cout<<"CR-="<<TMath::Power(KNL_cR_minus,2)<<" CR+="<<TMath::Power(KNL_cR_plus,2)<<" V2="<<V2<<std::endl;
+     std::cout<<"SR-="<<sigR_minus<<" SR+="<<sigR_plus<<" sR="<<sigRSR<<std::endl;
+
+     std::cout<<"CS-="<<TMath::Power(KNL_cS_minus,2)<<" CS+="<<TMath::Power(KNL_cS_plus,2)<<" UV="<<UV<<std::endl;
+     std::cout<<"SS-="<<sigL_minus<<" SS+="<<sigS_plus<<" sS="<<sigRSS<<std::endl;
+     std::cout<<">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n";
+     */
+}
+else{
+  if (is_nu || is_lminus) {
+    xsec = sig0*(V2*sigR + U2*sigL + 2*UV*sigS);
   } 
+  else 
+    if (is_nubar || is_lplus) {
+      xsec = sig0*(U2*sigR + V2*sigL + 2*UV*sigS);
+    } 
+  xsec = TMath::Max(0.,xsec);
+}
+double mult = 1.0;
+if(is_CC && is_delta) {
+  if((is_nu && is_p) || (is_nubar && is_n)) mult=3.0;
+}
+xsec *= mult;
+
+// Check whether the cross section is to be weighted with a
+// Breit-Wigner distribution (default: true)
+double bw = 1.0;
+if(fWghtBW) {
+  bw = utils::bwfunc::BreitWignerL(W,LR,MR,WR,NR); 
+} 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-     LOG("BergerReinSehgalRes", pDEBUG) 
-       << "BreitWigner(RES=" << resname << ", W=" << W << ") = " << bw;
+LOG("BergerReinSehgalRes", pDEBUG) << "BreitWigner(RES=" 
+  << resname << ", W=" << W << ") = " << bw;
 #endif
-  xsec *= bw; 
+xsec *= bw; 
 
-  // Apply NeuGEN nutau cross section reduction factors
-  double rf = 1.0;
-  Spline * spl = 0;
-  if (is_CC && fUsingNuTauScaling) {
-    if      (pdg::IsNuTau    (probepdgc)) spl = fNuTauRdSpl;
-    else if (pdg::IsAntiNuTau(probepdgc)) spl = fNuTauBarRdSpl;
-
-    if(spl) {
-      if(E <spl->XMax()) rf = spl->Evaluate(E);
-    }
+// Apply NeuGEN nutau cross section reduction factors
+double rf = 1.0;
+Spline * spl = 0;
+if (is_CC && fUsingNuTauScaling) {
+  if (pdg::IsNuTau(probepdgc)) {
+    spl = fNuTauRdSpl;
   }
-  xsec *= rf;
+  else if (pdg::IsAntiNuTau(probepdgc)) {
+    spl = fNuTauBarRdSpl;
+  }
+  if(spl) {
+    if(E <spl->XMax()) rf = spl->Evaluate(E);
+  }
+}
+xsec *= rf;
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("BergerReinSehgalRes", pINFO) 
-    << "\n d2xsec/dQ2dW"  << "[" << interaction->AsString()
-          << "](W=" << W << ", q2=" << q2 << ", E=" << E << ") = " << xsec;
+LOG("BergerReinSehgalRes", pINFO) 
+  << "\n d2xsec/dQ2dW"  << "[" << interaction->AsString()
+  << "](W=" << W << ", q2=" << q2 << ", E=" << E << ") = " << xsec;
 #endif
 
-  // The algorithm computes d^2xsec/dWdQ2
-  // Check whether variable tranformation is needed
-  if(kps!=kPSWQ2fE) {
-    double J = utils::kinematics::Jacobian(interaction,kPSWQ2fE,kps);
-    xsec *= J;
-  }
+// The algorithm computes d^2xsec/dWdQ2
+// Check whether variable tranformation is needed
+if(kps!=kPSWQ2fE) {
+  double J = utils::kinematics::Jacobian(interaction,kPSWQ2fE,kps);
+  xsec *= J;
+}
 
-  // If requested return the free nucleon xsec even for input nuclear tgt
-  if( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;
+// If requested return the free nucleon xsec even for input nuclear tgt
+if( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;
 
-  // Take into account the number of scattering centers in the target
-  int NNucl = (is_p) ? target.Z() : target.N();
+// Take into account the number of scattering centers in the target
+int NNucl = (is_p) ? target.Z() : target.N();
 
-  xsec*=NNucl; // nuclear xsec (no nuclear suppression factor)
+xsec*=NNucl; // nuclear xsec (no nuclear suppression factor)
 
-  return xsec;
+return xsec;
 }
 //____________________________________________________________________________
 double BergerReinSehgalRESPXSec::Integral(const Interaction * interaction) const
@@ -864,20 +809,19 @@ void BergerReinSehgalRESPXSec::LoadConfig(void)
   // Load all configuration data or set defaults
 
   LOG("RSHAmpl", pWARN)
-     << "get to beg = ";
+    << "get to beg = ";
   fZeta  = fConfig->GetDoubleDef( "Zeta",  gc->GetDouble("RS-Zeta")  );
   LOG("RSHAmpl", pWARN)
-     << "load fZeta";
+    << "load fZeta";
   fOmega = fConfig->GetDoubleDef( "Omega", gc->GetDouble("RS-Omega") );
   LOG("RSHAmpl", pWARN)
-     << "load Omega";
+    << "load Omega";
   fKNL = fConfig->GetBoolDef("is_KNL", gc->GetBool("is_KNL"));
   LOG("RSHAmpl", pWARN)
-     << "load is_KNL";
+    << "load is_KNL";
   fBRS = fConfig->GetBoolDef("is_BRS", gc->GetBool("is_BRS"));
   fGA  = fConfig->GetBoolDef("newGA", gc->GetBool("newGA"));
   fGV  = fConfig->GetBoolDef("newGV", gc->GetBool("newGV"));
-
 
   double ma  = fConfig->GetDoubleDef( "Ma", gc->GetDouble("RES-Ma") );
   double mv  = fConfig->GetDoubleDef( "Mv", gc->GetDouble("RES-Mv") );
@@ -888,8 +832,8 @@ void BergerReinSehgalRESPXSec::LoadConfig(void)
   fWghtBW = fConfig->GetBoolDef("BreitWignerWeight", true);
 
   double thw = fConfig->GetDoubleDef(
-         "weinberg-angle", gc->GetDouble("WeinbergAngle"));
-     
+      "weinberg-angle", gc->GetDouble("WeinbergAngle"));
+
   fSin48w = TMath::Power( TMath::Sin(thw), 4 );
 
   // Load all the sub-algorithms needed
@@ -921,7 +865,7 @@ void BergerReinSehgalRESPXSec::LoadConfig(void)
 
   // Use algorithm within a DIS/RES join scheme. If yes get Wcut
   fUsingDisResJoin = fConfig->GetBoolDef(
-    "UseDRJoinScheme", gc->GetBool("UseDRJoinScheme"));
+      "UseDRJoinScheme", gc->GetBool("UseDRJoinScheme"));
   fWcut = 999999;
   if(fUsingDisResJoin) {
     fWcut = fConfig->GetDoubleDef("Wcut",gc->GetDouble("Wcut"));
@@ -941,27 +885,26 @@ void BergerReinSehgalRESPXSec::LoadConfig(void)
   // neglected form factors in the R/S model
   fUsingNuTauScaling = fConfig->GetBoolDef("UseNuTauScalingFactors", true);
   if(fUsingNuTauScaling) {
-     if(fNuTauRdSpl)    delete fNuTauRdSpl;
-     if(fNuTauBarRdSpl) delete fNuTauBarRdSpl;
+    if(fNuTauRdSpl)    delete fNuTauRdSpl;
+    if(fNuTauBarRdSpl) delete fNuTauBarRdSpl;
 
-     assert(gSystem->Getenv("GENIE"));
-     string base = gSystem->Getenv("GENIE");
+    assert(gSystem->Getenv("GENIE"));
+    string base = gSystem->Getenv("GENIE");
 
-     string filename = base + "/data/evgen/rein_sehgal/res/nutau_xsec_scaling_factors.dat";
-     LOG("BergerReinSehgalRes", pNOTICE) 
-                << "Loading nu_tau xsec reduction spline from: " << filename;
-     fNuTauRdSpl = new Spline(filename);
+    string filename = base + "/data/evgen/rein_sehgal/res/nutau_xsec_scaling_factors.dat";
+    LOG("BergerReinSehgalRes", pNOTICE) 
+      << "Loading nu_tau xsec reduction spline from: " << filename;
+    fNuTauRdSpl = new Spline(filename);
 
-     filename = base + "/data/evgen/rein_sehgal/res/nutaubar_xsec_scaling_factors.dat";
-     LOG("BergerReinSehgalRes", pNOTICE) 
-           << "Loading bar{nu_tau} xsec reduction spline from: " << filename;
-     fNuTauBarRdSpl = new Spline(filename);
+    filename = base + "/data/evgen/rein_sehgal/res/nutaubar_xsec_scaling_factors.dat";
+    LOG("BergerReinSehgalRes", pNOTICE) 
+      << "Loading bar{nu_tau} xsec reduction spline from: " << filename;
+    fNuTauBarRdSpl = new Spline(filename);
   }
 
   // load the differential cross section integrator
   fXSecIntegrator =
-      dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));
+    dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));
   assert(fXSecIntegrator);
 }
 //____________________________________________________________________________
-
