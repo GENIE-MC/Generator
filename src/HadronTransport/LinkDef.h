@@ -13,5 +13,8 @@
 #pragma link C++ class genie::Intranuke;
 #pragma link C++ class genie::HAIntranuke;
 #pragma link C++ class genie::HNIntranuke;
+#pragma link C++ class genie::IntranukeAlt;
+#pragma link C++ class genie::HAIntranukeAlt;
+#pragma link C++ class genie::HNIntranukeAlt;
 
 #endif
