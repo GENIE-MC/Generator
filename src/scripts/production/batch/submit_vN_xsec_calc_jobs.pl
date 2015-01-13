@@ -11,10 +11,10 @@
 #    --version       : genie version number
 #    --xsplset       : set of splines to generate
 #   [--arch]         : <SL4_32bit, SL5_64bit>, default: SL5_64bit
-#   [--production]   : default: <version>
+#   [--production]   : default: routine_validation
 #   [--cycle]        : default: 01
 #   [--use-valgrind] : default: off
-#   [--batch-system] : <PBS, LSF>, default: PBS
+#   [--batch-system] : <PBS, LSF, none>, default: PBS
 #   [--queue]        : default: prod
 #   [--softw-topdir] : default: /opt/ppd/t2k/softw/GENIE
 #
@@ -56,13 +56,13 @@ unless defined $genie_version;
 
 $use_valgrind   = 0                             unless defined $use_valgrind;
 $arch           = "SL5_64bit"                   unless defined $arch;
-$production     = "$genie_version"              unless defined $production;
+$production     = "routine_validation"          unless defined $production;
 $cycle          = "01"                          unless defined $cycle;
 $batch_system   = "PBS"                         unless defined $batch_system;
 $queue          = "prod"                        unless defined $queue;
 $softw_topdir   = "/opt/ppd/t2k/softw/GENIE"    unless defined $softw_topdir;
 $genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
-$jobs_dir       = "$softw_topdir/scratch/xsec\_vN-$production\_$cycle/";
+$jobs_dir       = "$softw_topdir/scratch/$genie_version-$production\_$cycle-xsec\_vN/";
 
 $nkots = 500;
 $emax  = 500;
@@ -181,6 +181,7 @@ $emax  = 500;
 
 # make the jobs directory
 #
+print "@@ Creating job directory: $jobs_dir \n";
 mkpath ($jobs_dir, {verbose => 1, mode=>0777});
 
 for my $curr_xsplset (keys %OUTXML)  {
@@ -194,7 +195,8 @@ for my $curr_xsplset (keys %OUTXML)  {
     $gevgl  = $GEVGL   {$curr_xsplset};
     $outxml = $OUTXML  {$curr_xsplset};
 
-    $fntemplate    = "$jobs_dir/job-$curr_xsplset"; 
+    $jntemplate    = "vNxscalc-$curr_xsplset"; 
+    $fntemplate    = "$jobs_dir/$jntemplate"; 
     $grep_pipe     = "grep -B 100 -A 30 -i \"warn\\|error\\|fatal\"";
     $valgrind_cmd  = "valgrind --tool=memcheck --error-limit=no --leak-check=yes --show-reachable=yes";
     $gmkspl_opt    = "-p $nu -t $tgt -n $nkots -e $emax -o $outxml --event-generator-list $gevgl";
@@ -211,6 +213,7 @@ for my $curr_xsplset (keys %OUTXML)  {
         $batch_script = "$fntemplate.pbs";
         open(PBS, ">$batch_script") or die("Can not create the PBS batch script");
         print PBS "#!/bin/bash \n";
+        print PBS "#PBS -N $jntemplate \n";
         print PBS "#PBS -o $fntemplate.pbsout.log \n";
         print PBS "#PBS -e $fntemplate.pbserr.log \n";
         print PBS "source $genie_setup \n";
@@ -225,6 +228,7 @@ for my $curr_xsplset (keys %OUTXML)  {
         $batch_script = "$fntemplate.sh";
         open(LSF, ">$batch_script") or die("Can not create the LSF batch script");
         print LSF "#!/bin/bash \n";
+        print PBS "#BSUB-j $jntemplate \n";
         print LSF "#BSUB-q $queue \n";
         print LSF "#BSUB-o $fntemplate.lsfout.log \n";
         print LSF "#BSUB-e $fntemplate.lsferr.log \n";
@@ -234,6 +238,12 @@ for my $curr_xsplset (keys %OUTXML)  {
         close(LSF);
         `bsub < $batch_script`;
     } #LSF
+
+    # no batch system, run jobs interactively
+    if($batch_system eq 'none') {
+       system("source $genie_setup; cd $jobs_dir; $gmkspl_cmd");
+    } # interactive mode
+
 
   }
 }

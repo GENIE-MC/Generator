@@ -18,7 +18,7 @@
 #   [--production]   : production name, default: <version>
 #   [--cycle]        : cycle in current production, default: 01
 #   [--use-valgrind] : default: off
-#   [--batch-system] : <PBS, LSF>, default: PBS
+#   [--batch-system] : <PBS, LSF, none>, default: PBS
 #   [--queue]        : default: prod
 #   [--softw-topdir] : default: /opt/ppd/t2k/softw/GENIE
 #
@@ -87,7 +87,7 @@ $cycle          = "01"                        unless defined $cycle;
 $batch_system   = "PBS"                       unless defined $batch_system;
 $queue          = "prod"                      unless defined $queue;
 $softw_topdir   = "/opt/ppd/t2k/softw/GENIE"  unless defined $softw_topdir;
-if($batch_system eq 'PBS') {$time_limit     = "60:00:00"; } else {$time_limit     = "60:00";}
+$time_limit     = "60:00:00";
 $genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
 $jobs_dir       = "$softw_topdir/scratch/vld\_hadroatten-$production\_$cycle";
 $xspl_file      = "$softw_topdir/data/job_inputs/xspl/gxspl-eA-$genie_version.xml";
@@ -214,6 +214,12 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
            close(LSF);
            `qsub < $batch_script`;
        } #LSF
+
+       # no batch system, run jobs interactively
+       if($batch_system eq 'none') {
+          system("source $genie_setup; cd $jobs_dir; $evgen_cmd; $conv_cmd");
+       } # interactive mode
+
 
     } # loop over subruns
   } #checking whether to submit current run
