@@ -7,7 +7,7 @@
 
          Syntax:
            gvld_nu_xsec
-                [-d data_archive] [-g genie_inputs] [-e] [-c comparison_id]
+                [-d data_archive] [-g genie_inputs] [-e] [-c comparison_id] [-o output]
 
          Options:
 
@@ -136,7 +136,7 @@ NuXSecComparison * kComparison[kNumOfComparisons] =
   ),
   // nu_mu_bar CC inclusive, high-energy data only
   new NuXSecComparison(
-    "numubarCC_lowE", 
+    "numubarCC_highE", 
     "#bar{#nu_{#mu}} CC inclusive, medium/high-energy data only",
     "BEBC,1;BEBC,3;BEBC,6;BEBC,7;BNL_7FT,1;CCFR,3;CHARM,1;CHARM,5;FNAL_15FT,4;FNAL_15FT,5;Gargamelle,1;Gargamelle,11;Gargamelle,13;IHEP_ITEP,1;IHEP_ITEP,3;IHEP_JINR,1;MINOS,1",
      new CCIsoInclXSec(kPdgAntiNuMu),
@@ -472,7 +472,8 @@ GSimFiles gOptGenieInputs;
 string    gOptDataFilename  = "";     // -d
 string    gOptGenieFileList = "";     // -g
 bool      gOptShowErrBands  = false;  // -e
-string    gOptComparison    = "";     // -c, if unset will generate all data/MC comparisons
+string    gOptComparison    = "";     // -c
+string    gOptOutName       = "";     // -o
 
 NuXSecData    gNuXSecData;
 TPostScript * gOutPS           = 0;
@@ -573,12 +574,23 @@ void Init(void)
   string lt_for_filename   = utils::system::LocalTimeAsString("%02d.%02d.%02d_%02d.%02d.%02d"); 
   string lt_for_cover_page = utils::system::LocalTimeAsString("%02d/%02d/%02d %02d:%02d:%02d"); 
 
-  // Create output ROOT file
-  string root_filename  = Form("genie-world_nu_xsec_data_comp-%s.root",lt_for_filename.c_str());
-  gOutRF = new TFile(root_filename.c_str(), "recreate");
+  // Create output ROOT & postscript files
 
-  // Create output postscript file
-  string ps_filename  = Form("genie-world_nu_xsec_data_comp-%s.ps",lt_for_filename.c_str());
+  string filename_base;
+  if(gOptOutName.size() != 0) {
+     filename_base = gOptOutName;
+  } else {
+     if(gOptComparison.size() != 0) {
+        filename_base = Form("genie-world_nu_xsec_data_comp-%s-%s", gOptComparison.c_str(), lt_for_filename.c_str());
+     } else {
+        filename_base = Form("genie-world_nu_xsec_data_comp-all-%s", lt_for_filename.c_str());
+     }
+  }
+
+  string root_filename  = Form("%s.root", filename_base.c_str());
+  string ps_filename    = Form("%s.ps",   filename_base.c_str());
+
+  gOutRF = new TFile(root_filename.c_str(), "recreate");
   gOutPS = new TPostScript(ps_filename.c_str(), 111);
 
   // Add cover page
@@ -664,6 +676,7 @@ void Draw(int icomparison)
           NuXSecFunc & xsec_func = *kComparison[icomparison]->XSecFunc();
           TGraphAsymmErrors * model = xsec_func.ExtractFromEventSample(
                  imodel, emin, emax, n, inlogx, scale, show_err_band);
+          assert(model);
           model->SetTitle(gOptGenieInputs.ModelTag(imodel).c_str());
           int lsty = kModelLineStyle[imodel];     
           utils::style::Format(model,kBlack,lsty,2,1,1,1);
@@ -957,13 +970,17 @@ void GetCommandLineArgs(int argc, char ** argv)
      gOptComparison = parser.ArgAsString('c');
   }
 
+  // set non-default name for output ROOT and ps files
+  if(parser.OptionExists('o')){
+     gOptOutName = parser.ArgAsString('o');
+  }
 }
 //_________________________________________________________________________________
 void PrintSyntax(void)
 {
   LOG("gvldtest", pNOTICE)
     << "\n\n" << "Syntax:" << "\n"
-    << "   gvld_nu_xsec [-g genie_inputs] [-d data_archive]\n";
+    << "   gvld_nu_xsec [-g genie_inputs] [-d data_archive] [-e] [-c comparison_id] [-o output]\n";
 }
 //_________________________________________________________________________________
 
