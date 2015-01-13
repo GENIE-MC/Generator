@@ -682,7 +682,7 @@ void GEVGDriver::CreateSplines(int nknots, double emax, bool useLogE)
          // only create the spline if it does not already exists
          bool spl_exists = xsl->SplineExists(alg, interaction);
          if(!spl_exists) {
-             SLOG("GEVGDriver", pNOTICE) 
+             SLOG("GEVGDriver", pDEBUG) 
                << "The spline wasn't loaded at initialization. "
                << "I can build it now but it might take a while..."; 
              xsl->CreateSpline(alg, interaction, nknots, Emin, emax);
