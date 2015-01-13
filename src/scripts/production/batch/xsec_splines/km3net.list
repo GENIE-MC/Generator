@@ -1,0 +1,47 @@
+#
+# Specify all possible initial states for the km3net MC (requested from D.Lenis) so that all necessary
+# cross-section splines can be build. Specify the energy range and the number of knots.
+#
+
+# maximum energy (GeV)
+500
+
+# number of knots (logaritmically spaced from threshold to maximum energy)
+200
+
+# list of neutrino PDG codes
+ 12 # nue
+-12 # nuebar
+ 14 # numu
+-14 # numubar
+
+# list of target PDG codes
+1000050100  # B10
+1000050110  # B11
+1000060120  # C12
+1000110230  # Na23
+1000080160  # O16 
+1000080180  # O18
+1000120240  # Mg24
+1000120250  # Mg25
+1000120260  # Mg26
+1000130270  # Al27
+1000140280  # Si28
+1000140290  # Si29
+1000140300  # Si30
+1000160320  # S32
+1000160330  # S33
+1000160340  # S34   
+1000170350  # Cl35
+1000170370  # Cl37
+1000190390  # K39
+1000190410  # K41
+1000200400  # Ca40
+1000200420  # Ca42
+1000200440  # Ca44
+1000260540  # Fe54
+1000260560  # Fe56
+1000260570  # Fe57
+1000260580  # Fe58
+
+
