@@ -8,7 +8,6 @@
          It outputs a ROOT file containing a tree with an entry for every 
          input event. Each such tree entry contains a TArrayF of all computed 
          weights and a TArrayF of all used tweak dial values. 
-         Is a RAL/T2K analysis program.
 
 \syntax  grwght1scan \
            -f input_event_file 
