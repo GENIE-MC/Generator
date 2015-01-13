@@ -557,7 +557,8 @@ void GHepParticle::AssertIsKnownParticle(void) const
     LOG("GHepParticle", pFATAL)
       << "\n** You are attempting to insert particle with PDG code = " 
       << fPdgCode << " into the event record."
-      << "\n** This particle can not be found in $GENIE/data/genie_pdg_table.txt";
+      << "\n** This particle can not be found in "
+      << "$GENIE/data/evgen/catalogues/pdg/genie_pdg_table.txt";
     gAbortingInErr = true;
     exit(1);
   }

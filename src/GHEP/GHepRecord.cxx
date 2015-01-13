@@ -46,6 +46,9 @@
    Added KinePhaseSpace_t fDiffXSecPhSp prov data members to specify which
    differential cross-section value is stored in fDiffXSec. Added method to 
    set it and tweaked Print() accordingly.
+ @ May 02, 2013 - CA
+   Added `KinePhaseSpace_t DiffXSecVars(void) const' to return fDiffXSecPhSp.
+
 */
 //____________________________________________________________________________
 
