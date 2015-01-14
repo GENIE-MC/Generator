@@ -61,6 +61,15 @@ protected:
   virtual double GVE    (const Interaction * interaction) const;
   virtual double GVM    (const Interaction * interaction) const;
 
+  virtual double F1P    (const Interaction * interaction) const;  
+  virtual double F2P    (const Interaction * interaction) const;  
+  virtual double F1N    (const Interaction * interaction) const;  
+  virtual double F2N    (const Interaction * interaction) const;  
+ 
+  virtual double StrangeF1V   (const Interaction * interaction) const;
+  virtual double StrangexiF2V (const Interaction * interaction) const;
+  virtual double StrangeFA    (const Interaction * interaction) const;
+  
   const ELFormFactorsModelI * fElFFModel;
 
   mutable ELFormFactors fELFF;
@@ -71,6 +80,7 @@ protected:
   double fMuP;
   double fMuN;
   double fSin28w;
+  double fSin28w;  
   bool fCleanUpfElFFModel;
 };
 
