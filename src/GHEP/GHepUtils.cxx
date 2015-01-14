@@ -58,6 +58,7 @@ int genie::utils::ghep::NeutReactionCode(const GHepRecord * event)
   bool is_cohpi = proc.IsCoherent();
   bool is_ve    = proc.IsNuElectronElastic();
   bool is_imd   = proc.IsInverseMuDecay();
+  bool is_ask   = proc.IsSingleKaon();
   bool is_p     = tgt.HitNucIsSet() ? tgt.HitNucPdg()==kPdgProton  : false;
   bool is_n     = tgt.HitNucIsSet() ? tgt.HitNucPdg()==kPdgNeutron : false;
   bool is_nu    = pdg::IsNeutrino    (init.ProbePdg());
@@ -98,9 +99,9 @@ int genie::utils::ghep::NeutReactionCode(const GHepRecord * event)
   else if (is_dis && W_gt_2 && is_cc && is_nubar) evtype = -26; 
   else if (is_dis && W_gt_2 && is_nc && is_nubar) evtype = -46; 
 
-  // resonance or dis with W < 2 GeV
+  // resonance or dis with W < 2 GeV or single kaon
   //
-  else if ( is_res || (is_dis && !W_gt_2) ) {
+  else if ( is_res || (is_dis && !W_gt_2) || is_ask ) {
         
      LOG("GHepUtils", pNOTICE) << "Current event is RES or DIS with W<2";
         
@@ -215,7 +216,7 @@ int genie::utils::ghep::NeutReactionCode(const GHepRecord * event)
      else if (is_res &&  is_nubar && is_nc && is_p && np==1 && nn==0 && npi==0 && nK==0 && nlambda==0 && neta==1) evtype = -43;
               
      //
-     // single K from res
+     // single K from res (dS=0)
      //
               
      else if (is_res &&  is_nu    && is_cc && is_n && nnuc==0 && npi==0 && nK==1 && nlambda==1 && neta==0) evtype =  23;
@@ -225,6 +226,19 @@ int genie::utils::ghep::NeutReactionCode(const GHepRecord * event)
      else if (is_res &&  is_nubar && is_cc && is_p && nnuc==0 && npi==0 && nK==1 && nlambda==1 && neta==0) evtype = -23;
      else if (is_res &&  is_nubar && is_nc && is_n && nnuc==0 && npi==0 && nK==1 && nlambda==1 && neta==0) evtype = -44;
      else if (is_res &&  is_nubar && is_nc && is_p && nnuc==0 && npi==0 && nK==1 && nlambda==1 && neta==0) evtype = -45;
+     
+     //
+     // single K from AtharSingleKaon (dS=1)
+     //
+     
+     else if (is_ask &&  is_nu && is_cc && is_n && nn==1 && np==0 && nKp==1 && neKL==1) evtype =  18;
+     else if (is_ask &&  is_nu && is_cc && is_n && nn==0 && np==1 && nK0==1 && neKL==1) evtype =  19;
+     else if (is_ask &&  is_nu && is_cc && is_p && nn==0 && np==1 && nKp==1 && neKL==1) evtype =  20;
+     
+     // antineutrino modes not yet implemented
+     //else if (is_ask &&  is_nubar && is_cc && is_n && nn==1 && np==0 && nKp==1 && neKL==1) evtype = -18;
+     //else if (is_ask &&  is_nubar && is_cc && is_n && nn==0 && np==1 && nK0==1 && neKL==1) evtype = -19;
+     //else if (is_ask &&  is_nubar && is_cc && is_p && nn==0 && np==1 && nKp==1 && neKL==1) evtype = -20;
 
      //
      // multi-pi (res or dis (W<2GeV)
