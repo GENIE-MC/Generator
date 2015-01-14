@@ -142,6 +142,7 @@
   <priority msgstream="SpectralFunc">        NOTICE </priority>
   <priority msgstream="Simpson1D">           WARN   </priority>
   <priority msgstream="Simpson2D">           WARN   </priority>
+  <priority msgstream="Simpson3D">           WARN   </priority>
   <priority msgstream="Spline">              INFO   </priority>
   <priority msgstream="Target">              INFO   </priority>
   <priority msgstream="Utils">               INFO   </priority>
