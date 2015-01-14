@@ -922,4 +922,27 @@ Interaction * Interaction::NDecay(int tgt, int decay_mode)
   return interaction;
 }
 //___________________________________________________________________________
+//___________________________________________________________________________
+Interaction * Interaction::ASK(int tgt, int probe, double E)
+{
+  Interaction * interaction = 
+     Interaction::Create(tgt,probe,kScSingleKaon, kIntWeakCC);
+
+  InitialState * init_state = interaction->InitStatePtr();
+  init_state->SetProbeE(E);
+
+  return interaction;
+}
+//___________________________________________________________________________
+Interaction * Interaction::ASK(
+    int tgt, int probe, const TLorentzVector & p4probe)
+{
+  Interaction * interaction = 
+     Interaction::Create(tgt,probe,kScSingleKaon, kIntWeakCC);
+
+  InitialState * init_state = interaction->InitStatePtr();
+  init_state->SetProbeP4(p4probe);
+
+  return interaction;
+}
 
