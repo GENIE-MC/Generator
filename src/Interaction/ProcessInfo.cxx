@@ -90,6 +90,11 @@ bool ProcessInfo::IsQuasiElastic(void) const
   return (fScatteringType == kScQuasiElastic);
 }
 //____________________________________________________________________________
+bool ProcessInfo::IsSingleKaon(void) const
+{
+  return (fScatteringType == kScSingleKaon);
+}
+//____________________________________________________________________________
 bool ProcessInfo::IsDeepInelastic(void) const
 {
   return (fScatteringType == kScDeepInelastic);

@@ -52,6 +52,7 @@ public:
   bool IsResonant          (void) const;
   bool IsCoherent          (void) const;
   bool IsCoherentElas      (void) const;
+  bool IsSingleKaon        (void) const;
   bool IsElectronScattering(void) const;
   bool IsNuElectronElastic (void) const;
   bool IsInverseMuDecay    (void) const;
