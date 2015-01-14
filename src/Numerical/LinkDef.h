@@ -27,5 +27,6 @@
 #pragma link C++ class genie::Simpson1D;
 #pragma link C++ class genie::Simpson2D;
 #pragma link C++ class genie::Simpson2DFixN;
+#pragma link C++ class genie::Simpson3D;
 
 #endif
