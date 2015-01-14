@@ -224,7 +224,7 @@ endif
 # ROOT headers and libraries
 ROOT_INCLUDES  = -I$(shell root-config --incdir)
 ROOT_LIBRARIES = $(shell root-config --glibs) \
-                        -lMinuit -lGeom -lEG -lEGPythia6
+                        -lMinuit -lGeom -lEG -lEGPythia6 -lGenVector
 
 #-------------------------------------------------------------------
 #                   PROFILING / DEBUGING OPTIONS
