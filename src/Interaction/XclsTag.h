@@ -39,27 +39,32 @@ public:
  ~XclsTag();
 
   // Getting exclusive intermediate and/or final state information
-  bool IsCharmEvent     (void) const { return fIsCharmEvent;     }
-  bool IsInclusiveCharm (void) const;
-  int  CharmHadronPdg   (void) const { return fCharmedHadronPdg; }
-  int  NProtons         (void) const { return fNProtons;  }
-  int  NNeutrons        (void) const { return fNNeutrons; }
-  int  NPi0             (void) const { return fNPi0;      }
-  int  NPiPlus          (void) const { return fNPiPlus;   }
-  int  NPiMinus         (void) const { return fNPiMinus;  }
-  int  NNucleons        (void) const { return fNNeutrons + fNProtons;       }
-  int  NPions           (void) const { return fNPi0 + fNPiPlus + fNPiMinus; }
-  bool KnownResonance   (void) const { return (fResonance != kNoResonance); }
-  Resonance_t Resonance (void) const { return fResonance; }
-  int  DecayMode        (void) const { return fDecayMode; }
+  bool IsCharmEvent       (void) const { return fIsCharmEvent;     }
+  bool IsInclusiveCharm   (void) const;
+  int  CharmHadronPdg     (void) const { return fCharmedHadronPdg; }
+  bool IsStrangeEvent     (void) const { return fIsStrangeEvent;   }
+  bool IsInclusiveStrange (void) const;
+  int  StrangeHadronPdg   (void) const {return fStrangeHadronPdg;  }
+  int  NProtons           (void) const { return fNProtons;  }
+  int  NNeutrons          (void) const { return fNNeutrons; }
+  int  NPi0               (void) const { return fNPi0;      }
+  int  NPiPlus            (void) const { return fNPiPlus;   }
+  int  NPiMinus           (void) const { return fNPiMinus;  }
+  int  NNucleons          (void) const { return fNNeutrons + fNProtons;       }
+  int  NPions             (void) const { return fNPi0 + fNPiPlus + fNPiMinus; }
+  bool KnownResonance     (void) const { return (fResonance != kNoResonance); }
+  Resonance_t Resonance   (void) const { return fResonance; }
+  int  DecayMode          (void) const { return fDecayMode; }
 
   // Ssetting exclusive final state information
   void SetCharm       (int charm_pdgc = 0);
+  void SetStrange     (int strange_pdgc = 0);
   void SetNPions      (int npi_plus, int npi_0, int npi_minus);
   void SetNNucleons   (int np, int nn);
   void SetNProtons    (int np) { fNProtons  = np; }
   void SetNNeutrons   (int nn) { fNNeutrons = nn; }
   void UnsetCharm     (void);
+  void UnsetStrange   (void);
   void ResetNPions    (void);
   void ResetNNucleons (void);
   void SetResonance   (Resonance_t res);
@@ -79,6 +84,8 @@ private:
   // Private data members
   bool        fIsCharmEvent;     ///< true if we have charm production
   int         fCharmedHadronPdg; ///< charmed hadron pdg-code
+  bool        fIsStrangeEvent;   ///< true if we have strange production
+  int         fStrangeHadronPdg; ///< strange hadron pdg-code
   int         fNProtons;         ///< # of p's in the f/s hadronic system
   int         fNNeutrons;        ///< # of n's in the f/s hadronic system
   int         fNPi0;             ///< # of pi^0's in the f/s hadronic system
@@ -87,7 +94,7 @@ private:
   Resonance_t fResonance;        ///< baryon resonance excited by probe
   int         fDecayMode;
 
-ClassDef(XclsTag,2)
+ClassDef(XclsTag,3)
 };
 
 }      // namespace
