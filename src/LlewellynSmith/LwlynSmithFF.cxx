@@ -26,6 +26,8 @@
 #include "Conventions/Constants.h"
 #include "LlewellynSmith/LwlynSmithFF.h"
 #include "Messenger/Messenger.h"
+#include "PDG/PDGLibrary.h"
+#include "PDG/PDGCodes.h"
 
 using namespace genie;
 using namespace genie::constants;

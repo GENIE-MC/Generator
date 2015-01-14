@@ -80,7 +80,7 @@ protected:
   double fMuP;
   double fMuN;
   double fSin28w;
-  double fSin28w;  
+  double fFDratio;   
   bool fCleanUpfElFFModel;
 };
 
