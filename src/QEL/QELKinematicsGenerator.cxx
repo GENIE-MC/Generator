@@ -195,10 +195,12 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         // The hadronic inv. mass is equal to the recoil nucleon on-shell mass.
         // For QEL/Charm events it is set to be equal to the on-shell mass of
         // the generated charm baryon (Lamda_c+, Sigma_c+ or Sigma_c++)
+        // Similarly for strange baryons
         //
         const XclsTag & xcls = interaction->ExclTag();
         int rpdgc = 0;
         if(xcls.IsCharmEvent()) { rpdgc = xcls.CharmHadronPdg();           }
+        else if(xcls.IsStrangeEvent()) { rpdgc = xcls.StrangeHadronPdg();           }
         else                    { rpdgc = interaction->RecoilNucleonPdg(); }
         assert(rpdgc);
         double gW = PDGLibrary::Instance()->Find(rpdgc)->Mass();
