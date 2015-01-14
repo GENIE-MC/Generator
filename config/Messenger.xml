@@ -27,6 +27,10 @@
   <priority msgstream="AlgFactory">          INFO   </priority>
   <priority msgstream="Algorithm">           WARN   </priority>
   <priority msgstream="AlgConfigPool">       WARN   </priority>
+  <priority msgstream="AtharSingleKaon">     INFO   </priority>
+  <priority msgstream="ASKKinematics">       INFO   </priority>
+  <priority msgstream="ASKLepton">           INFO   </priority>
+  <priority msgstream="ASKHadron">           DEBUG  </priority>
   <priority msgstream="BardinIMD">           NOTICE </priority>
   <priority msgstream="BaryonResList">       WARN   </priority>
   <priority msgstream="BaseHad">             NOTICE </priority>
@@ -142,6 +146,7 @@
   <priority msgstream="SpectralFunc">        NOTICE </priority>
   <priority msgstream="Simpson1D">           WARN   </priority>
   <priority msgstream="Simpson2D">           WARN   </priority>
+  <priority msgstream="Simpson3D">           INFO   </priority>
   <priority msgstream="Spline">              INFO   </priority>
   <priority msgstream="Target">              INFO   </priority>
   <priority msgstream="Utils">               INFO   </priority>
