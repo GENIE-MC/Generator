@@ -139,6 +139,8 @@ public:
   static Interaction * GLR       (int tgt, double E=0);
   static Interaction * GLR       (int tgt, const TLorentzVector & p4probe);
   static Interaction * NDecay    (int tgt, int decay_mode=-1);
+  static Interaction * ASK       (int tgt, int probe, double E=0);
+  static Interaction * ASK       (int tgt, int probe, const TLorentzVector & p4probe);
 
 private:
 
