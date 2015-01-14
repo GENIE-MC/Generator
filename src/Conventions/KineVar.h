@@ -35,12 +35,20 @@ typedef enum EKineVar {
   kKVq2,
   kKVW,
   kKVt,
+  kKVTk,
+  kKVTl,
+  kKVctl,
+  kKVphikq,
   kKVSelx,
   kKVSely,
   kKVSelQ2,
   kKVSelq2,
   kKVSelW,
-  kKVSelt
+  kKVSelt,
+  kKVSelTk,
+  kKVSelTl,
+  kKVSelctl,
+  kKVSelphikq
 
 } KineVar_t;
 
@@ -52,20 +60,29 @@ public:
   static string AsString(KineVar_t kv)
   {
     switch (kv) {
-      case(kKVNull) : return "** Undefined kinematic variable **";    break;
-      case(kKVx)    : return " *Running* Bjorken x";                  break;
-      case(kKVy)    : return " *Running* Inelasticity y";             break;
-      case(kKVQ2)   : return " *Running* Momentum transfer Q2 (>0)";  break;
-      case(kKVq2)   : return " *Running* Momentum transfer q2 (<0)";  break;
-      case(kKVW)    : return " *Running* Hadronic invariant mass W";  break;
-      case(kKVt)    : return " *Running* COH 4p transfer to nucleus"; break;
-      case(kKVSelx) : return "*Selected* Bjorken x";                  break;
-      case(kKVSely) : return "*Selected* Inelasticity y";             break;
-      case(kKVSelQ2): return "*Selected* Momentum transfer Q2 (>0)";  break;
-      case(kKVSelq2): return "*Selected* Momentum transfer q2 (<0)";  break;
-      case(kKVSelW) : return "*Selected* Hadronic invariant mass W";  break;
-      case(kKVSelt) : return "*Selected* COH 4p transfer to nucleus"; break;
-      default       : return "** Unknown kinematic variable **";      break;
+      case(kKVNull)    : return "** Undefined kinematic variable **";    break;
+      case(kKVx)       : return " *Running* Bjorken x";                  break;
+      case(kKVy)       : return " *Running* Inelasticity y";             break;
+      case(kKVQ2)      : return " *Running* Momentum transfer Q2 (>0)";  break;
+      case(kKVq2)      : return " *Running* Momentum transfer q2 (<0)";  break;
+      case(kKVW)       : return " *Running* Hadronic invariant mass W";  break;
+      case(kKVt)       : return " *Running* COH 4p transfer to nucleus"; break;
+      case(kKVTk)      : return " *Running* meson kinetic energy";       break;
+      case(kKVTl)      : return " *Running* lepton kinetic energy";      break;
+      case(kKVctl)     : return " *Running* cosine of lepton theta";     break;
+      case(kKVphikq)   : return " *Running* ASK phi kq";                 break;
+      case(kKVSelx)    : return "*Selected* Bjorken x";                  break;
+      case(kKVSely)    : return "*Selected* Inelasticity y";             break;
+      case(kKVSelQ2)   : return "*Selected* Momentum transfer Q2 (>0)";  break;
+      case(kKVSelq2)   : return "*Selected* Momentum transfer q2 (<0)";  break;
+      case(kKVSelW)    : return "*Selected* Hadronic invariant mass W";  break;
+      case(kKVSelt)    : return "*Selected* COH 4p transfer to nucleus"; break;
+      case(kKVSelTk)   : return "*Selected* ASK kaon kinetic energy";    break;
+      case(kKVSelTl)   : return "*Selected* ASK lepton kinetic energy";  break;
+      case(kKVSelctl)  : return "*Selected* ASK cosine lepton theta";    break;
+      case(kKVSelphikq): return "*Selected* ASK phi kq";                 break;
+ 
+      default          : return "** Unknown kinematic variable **";      break;
     }
     return "** Unknown kinematic variable **";
   }
