@@ -56,6 +56,91 @@ LwlynSmithFF::~LwlynSmithFF()
   }
 }
 //____________________________________________________________________________
+double LwlynSmithFF::StrangeF1V(const Interaction * interaction) const
+{
+  double f1p = this->F1P(interaction); 
+  double f1n = this->F1N(interaction);
+  double value = 0.;
+
+  const XclsTag &      xcls       = interaction->ExclTag();
+  int pdgc = xcls.StrangeHadronPdg();
+
+  if (pdgc == kPdgSigmaM)        value = (f1p + 2 * f1n);
+  else if (pdgc == kPdgLambda)   value = -kSqrt3 / kSqrt2 * f1p;
+  else if (pdgc == kPdgSigma0)   value = kSqrt2 / 2 * (f1p + 2 * f1n);
+
+  return value;
+}
+//____________________________________________________________________________
+double LwlynSmithFF::StrangexiF2V(const Interaction * interaction) const
+{
+  const XclsTag &      xcls       = interaction->ExclTag();
+  int pdgc = xcls.StrangeHadronPdg();
+  
+  double f2p = this->F2P(interaction);
+  double f2n = this->F2N(interaction);
+  double MH = PDGLibrary::Instance()->Find(pdgc)->Mass();  
+  const InitialState & init_state = interaction->InitState();
+  double MN   = init_state.Tgt().HitNucMass();
+  double value = 0.;
+
+  if (pdgc == kPdgSigmaM)      
+    value = (fMuP * f2p +  fMuN * f2n)* 2 * MN / (MN + MH);
+  else if (pdgc == kPdgLambda) 
+    value = (-kSqrt3 / kSqrt2 * fMuP * f2p) * 2 * MN / (MN + MH);
+  else if (pdgc == kPdgSigma0) 
+    value = kSqrt2 / 2 * (fMuP * f2p + fMuN * f2n) * 2 * MN / (MN + MH);
+
+  return value;
+}
+
+//____________________________________________________________________________
+double LwlynSmithFF::StrangeFA(const Interaction * interaction) const
+{
+
+  const XclsTag &      xcls       = interaction->ExclTag();
+  int pdgc = xcls.StrangeHadronPdg();
+  double value = 0.;
+
+  if (pdgc == kPdgSigmaM)       value =  -1 * (1 - 2 * fFDratio);
+  else if (pdgc == kPdgLambda)  value =  -1 / kSqrt6 * (1 + 2 * fFDratio);
+  else if (pdgc == kPdgSigma0)  value =  -1 * kSqrt2 / 2 * (1 - 2 * fFDratio);
+
+  return value;
+}
+//____________________________________________________________________________
+double LwlynSmithFF::F1P(const Interaction * interaction) const
+{ 
+  fELFF.Calculate(interaction);
+  double t   = this->tau(interaction);
+  double T   = 1 / (1 - t);
+  return T * (fELFF.Gep() - t * fELFF.Gmp());
+}
+//____________________________________________________________________________
+double LwlynSmithFF::F2P(const Interaction * interaction) const
+{
+  fELFF.Calculate(interaction);
+  double t   = this->tau(interaction);
+  double T   = 1 / (1 - t);
+  return T * (fELFF.Gmp() - fELFF.Gep());
+}
+//____________________________________________________________________________
+double LwlynSmithFF::F1N(const Interaction * interaction) const
+{
+  fELFF.Calculate(interaction);
+  double t   = this->tau(interaction);
+  double T   = 1 / (1 - t);
+  return T * (fELFF.Gen() - t * fELFF.Gmn());
+}
+//____________________________________________________________________________
+double LwlynSmithFF::F2N(const Interaction * interaction) const
+{
+  fELFF.Calculate(interaction);
+  double t   = this->tau(interaction);
+  double T   = 1 / (1 - t);
+  return T * (fELFF.Gmn() - fELFF.Gen());
+}
+//____________________________________________________________________________
 double LwlynSmithFF::F1V(const Interaction * interaction) const
 {
   double t   = this->tau(interaction);
@@ -164,7 +249,8 @@ void LwlynSmithFF::LoadConfig(void)
   // weinberg angle
   double thw = fConfig->GetDoubleDef(
                           "WeinbergAngle", gc->GetDouble("WeinbergAngle"));
-  fSin28w = TMath::Power(TMath::Sin(thw), 2);
+  fSin28w  = TMath::Power(TMath::Sin(thw), 2);
+  fFDratio = 0.58;  
 }
 //____________________________________________________________________________
 double LwlynSmithFF::tau(const Interaction * interaction) const
