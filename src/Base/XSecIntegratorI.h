@@ -43,6 +43,8 @@ protected:
 
   string fGSLIntgType; ///< name of GSL numerical integrator
   double fGSLRelTol;   ///< required relative tolerance (error)
+  int    fGSLMaxEval;  ///< GSL max evaluations
+  int    fGSLMinEval;  ///< GSL min evaluations. Ignored by some integrators.
 };
 
 }       // genie namespace
