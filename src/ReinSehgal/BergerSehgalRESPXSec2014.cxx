@@ -92,7 +92,7 @@ double BergerSehgalRESPXSec2014::XSec(
   if(fUsingDisResJoin) {
     if(W>=fWcut) {
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-      LOG("BergerReinSehgalRes", pDEBUG)
+      LOG("BergerSehgalRESPXSec2014", pDEBUG)
         << "RES/DIS Join Scheme: XSec[RES, W=" << W 
         << " >= Wcut=" << fWcut << "] = 0";
 #endif
@@ -218,12 +218,12 @@ double BergerSehgalRESPXSec2014::XSec(
 
 
     if(costh <= -1. + 1e-7) {
-      LOG("BergerReinSehgalRes", pDEBUG)
+      LOG("BergerSehgalRESPXSec2014", pDEBUG)
         << "Changing costh = " << costh << " to -1";
       costh = -1 + 1e-6;
     }
     if(costh >= 1. - 1e-7){
-      LOG("BergerReinSehgalRes", pDEBUG)
+      LOG("BergerSehgalRESPXSec2014", pDEBUG)
         << "Changing costh = " << costh << " to 1";
       costh = 1 - 1e-6;
     }
@@ -313,7 +313,7 @@ double BergerSehgalRESPXSec2014::XSec(
      */
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("BergerReinSehgalRes", pDEBUG) 
+  LOG("BergerSehgalRESPXSec2014", pDEBUG) 
     << "Kinematical params V = " << V << ", U = " << U;
 #endif
 
@@ -657,10 +657,10 @@ else {
 }
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-LOG("BergerReinSehgalRes", pDEBUG) << "sig_{0} = " << sig0;
-LOG("BergerReinSehgalRes", pDEBUG) << "sig_{L} = " << sigL;
-LOG("BergerReinSehgalRes", pDEBUG) << "sig_{R} = " << sigR;
-LOG("BergerReinSehgalRes", pDEBUG) << "sig_{S} = " << sigS;
+LOG("BergerSehgalRESPXSec2014", pDEBUG) << "sig_{0} = " << sig0;
+LOG("BergerSehgalRESPXSec2014", pDEBUG) << "sig_{L} = " << sigL;
+LOG("BergerSehgalRESPXSec2014", pDEBUG) << "sig_{R} = " << sigR;
+LOG("BergerSehgalRESPXSec2014", pDEBUG) << "sig_{S} = " << sigS;
 #endif
 
 double xsec = 0.0;
@@ -711,7 +711,7 @@ if(fWghtBW) {
   bw = utils::bwfunc::BreitWignerL(W,LR,MR,WR,NR); 
 } 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-LOG("BergerReinSehgalRes", pDEBUG) << "BreitWigner(RES=" 
+LOG("BergerSehgalRESPXSec2014", pDEBUG) << "BreitWigner(RES=" 
   << resname << ", W=" << W << ") = " << bw;
 #endif
 xsec *= bw; 
@@ -733,7 +733,7 @@ if (is_CC && fUsingNuTauScaling) {
 xsec *= rf;
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-LOG("BergerReinSehgalRes", pINFO) 
+LOG("BergerSehgalRESPXSec2014", pINFO) 
   << "\n d2xsec/dQ2dW"  << "[" << interaction->AsString()
   << "](W=" << W << ", q2=" << q2 << ", E=" << E << ") = " << xsec;
 #endif
@@ -892,12 +892,12 @@ void BergerSehgalRESPXSec2014::LoadConfig(void)
     string base = gSystem->Getenv("GENIE");
 
     string filename = base + "/data/evgen/rein_sehgal/res/nutau_xsec_scaling_factors.dat";
-    LOG("BergerReinSehgalRes", pNOTICE) 
+    LOG("BergerSehgalRESPXSec2014", pNOTICE) 
       << "Loading nu_tau xsec reduction spline from: " << filename;
     fNuTauRdSpl = new Spline(filename);
 
     filename = base + "/data/evgen/rein_sehgal/res/nutaubar_xsec_scaling_factors.dat";
-    LOG("BergerReinSehgalRes", pNOTICE) 
+    LOG("BergerSehgalRESPXSec2014", pNOTICE) 
       << "Loading bar{nu_tau} xsec reduction spline from: " << filename;
     fNuTauBarRdSpl = new Spline(filename);
   }
