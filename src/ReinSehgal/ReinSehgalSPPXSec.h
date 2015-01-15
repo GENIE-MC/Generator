@@ -4,7 +4,7 @@
 \class    genie::ReinSehgalSPPXSec
 
 \brief    Computes the cross section for an exclusive 1pi reaction through
-          resonance neutrinoproduction according to the Rein-Seghal model.
+          resonance neutrinoproduction according to the Rein-Sehgal model.
 
           This algorithm produces in principle what you could also get from 
           the genie::RESXSec algorithm (RES cross section integrator) by 
@@ -22,7 +22,7 @@
 
           Is a concrete implementation of the XSecAlgorithmI interface.\n
 
-\ref      D.Rein and L.M.Seghal, Neutrino Excitation of Baryon Resonances
+\ref      D.Rein and L.M.Sehgal, Neutrino Excitation of Baryon Resonances
           and Single Pion Production, Ann.Phys.133, 79 (1981)
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>

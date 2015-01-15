@@ -4,7 +4,7 @@
 \class    genie::ReinSehgalRESPXSec
 
 \brief    Computes the double differential cross section for resonance 
-          electro- or neutrino-production according to the Rein-Seghal model.
+          electro- or neutrino-production according to the Rein-Sehgal model.
 
           The computed cross section is the d^2 xsec/ dQ^2 dW \n
 
@@ -14,7 +14,7 @@
 
           Is a concrete implementation of the XSecAlgorithmI interface.
 
-\ref      D.Rein and L.M.Seghal, Neutrino Excitation of Baryon Resonances
+\ref      D.Rein and L.M.Sehgal, Neutrino Excitation of Baryon Resonances
           and Single Pion Production, Ann.Phys.133, 79 (1981)
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>

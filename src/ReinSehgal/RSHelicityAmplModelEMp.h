@@ -5,7 +5,7 @@
 
 \brief    The Helicity Amplitudes, for all baryon resonances, for Electro-
           Magnetic (EM) interactions on free protons, as computed in the
-          Rein-Seghal's paper.
+          Rein-Sehgal's paper.
 
           Concrete implementation of the RSHelicityAmplModelI interface.
 

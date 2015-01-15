@@ -4,7 +4,7 @@
 \class    genie::ReinSehgalCOHPiPXSec
 
 \brief    Computes the double differential cross section for CC & NC coherent
-          pion production according to the \b Rein-Seghal model.
+          pion production according to the \b Rein-Sehgal model.
           v(vbar)A->v(vbar)Api0, vA->l-Api+, vbarA->l+Api-
 
           The t-dependence of the triple differential cross (d^3xsec/dxdydt)
@@ -12,7 +12,7 @@
 
           Is a concrete implementation of the XSecAlgorithmI interface.
 
-\ref      D.Rein and L.M.Seghal, Coherent pi0 production in neutrino
+\ref      D.Rein and L.M.Sehgal, Coherent pi0 production in neutrino
           reactions, Nucl.Phys.B223:29-144 (1983)
 
           D.Rein and L.M.Sehgal, PCAC and the Deficit of Forward Muons in pi+ 

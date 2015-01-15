@@ -3,7 +3,7 @@
 
 \class    genie::RSHelicityAmpl
 
-\brief    A class holding the Rein-Seghal's helicity amplitudes.
+\brief    A class holding the Rein-Sehgal's helicity amplitudes.
 
           This class is using the \b Strategy Pattern. \n
           It can accept requests to calculate itself, for a given interaction,
