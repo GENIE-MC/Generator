@@ -203,7 +203,7 @@ double GReWeightNuXSecNCRES::CalcChisq()
 //_______________________________________________________________________________________
 void GReWeightNuXSecNCRES::Init(void)
 {
-  AlgId id("genie::ReinSeghalRESPXSec","Default");
+  AlgId id("genie::ReinSehgalRESPXSec","Default");
 
   AlgFactory * algf = AlgFactory::Instance();
 

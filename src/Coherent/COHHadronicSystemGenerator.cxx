@@ -121,7 +121,7 @@ void COHHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
   //-- 4-momentum transfer q=p(neutrino) - p(f/s lepton)
   //   Note: m^2 = q^2 < 0
   //   Also, since the nucleus is heavy all energy loss is comminicated to
-  //   the outgoing pion  Rein & Seghal, Nucl.Phys.B223.29-44(1983), p.35
+  //   the outgoing pion  Rein & Sehgal, Nucl.Phys.B223.29-44(1983), p.35
 
   TLorentzVector q = p4nu - p4fsl;
 
@@ -129,7 +129,7 @@ void COHHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
           << "\n 4-p transfer q @ LAB: " << utils::print::P4AsString(&q);
 
   //-- find angle theta between q and ppi (xi=costheta)
-  //   note: t=|(ppi-q)^2|, Rein & Seghal, Nucl.Phys.B223.29-44(1983), p.36
+  //   note: t=|(ppi-q)^2|, Rein & Sehgal, Nucl.Phys.B223.29-44(1983), p.36
  
   double xi = 1. + M*xo/Epi - 0.5*mpi2/Epi2 - 0.5*to/Epi2;
   xi /= TMath::Sqrt((1.+2.*M*xo/Epi)*(1.-mpi2/Epi2));

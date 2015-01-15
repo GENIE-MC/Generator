@@ -257,7 +257,7 @@ void Init(int argc, char ** argv)
 
   gRESXSecModel = 
      dynamic_cast<const XSecAlgorithmI *>(
-             algf->GetAlgorithm("genie::ReinSeghalRESPXSec","Default"));
+             algf->GetAlgorithm("genie::ReinSehgalRESPXSec","Default"));
   gDISXSecModel = 
      dynamic_cast<const XSecAlgorithmI *>(
              algf->GetAlgorithm("genie::DISPartonModelPXSec","CC-Default"));

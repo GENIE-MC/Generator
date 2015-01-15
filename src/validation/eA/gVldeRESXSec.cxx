@@ -61,7 +61,7 @@
          Example:
 
             % gvld_e_res_xsec 
-                  --resonance-xsec-model genie::ReinSeghalRESPXSec/Default
+                  --resonance-xsec-model genie::ReinSehgalRESPXSec/Default
                   -c genie::QPMDISPXSec/Default
          This is the default, so the plain command
             % gvld_e_res_xsec
@@ -204,7 +204,7 @@ const double kWcut = 1.7; // Wcut from UserPhysicsOptions.xml
 
 string gOptDataArchiveFilename = "";  // -d argument
 string gOptDataSetsFilename    = "";  // -s argument
-string gOptRESModelName        = "genie::ReinSeghalRESPXSec/Default";  // --resonance-xsec-model argument
+string gOptRESModelName        = "genie::ReinSehgalRESPXSec/Default";  // --resonance-xsec-model argument
 string gOptDISModelName        = "genie::QPMDISPXSec/Default";  // --non-resonance-bkg-xsec-model argument
 string gOptFitParams           = "";  // --fit-params argument
 double gOptW2min               = 1.0; // --fit-W2min argument

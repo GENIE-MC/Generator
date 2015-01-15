@@ -20,7 +20,7 @@ libs="-L$libdir -lGAlgorithm -lGAtharSingleKaon -lGBaryonResonance -lGBase -lGBo
  -lGCrossSections -lGDecay -lGElas -lGElFF -lGHEP -lGEVGCore -lGEVGModules -lGEVGDrivers -lGGiBUU \
  -lGHadronTransp -lGFragmentation -lGInteraction -lGLlewellynSmith -lGMEC \
  -lGMessenger -lGNuGamma -lGNuE -lGNtuple -lGNuclear -lGNumerical -lGQPM -lGPDG -lGPDF\
- -lGQEL -lGRES -lGRegistry -lGReinSeghal -lGUtils"
+ -lGQEL -lGRES -lGRegistry -lGReinSehgal -lGUtils"
 
 # the following libs should only be there if an appropriate option was enabled at the configuration step
 if test "$GOPT_ENABLE_GEOM_DRIVERS" = "YES"; then

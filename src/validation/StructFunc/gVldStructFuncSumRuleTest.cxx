@@ -25,7 +25,7 @@
          Example:
 
             % gvld_sf_sum_rule_test \
-                --resonance-xsec-model genie::ReinSeghalRESPXSec/Default \
+                --resonance-xsec-model genie::ReinSehgalRESPXSec/Default \
                 --dis-xsec-model genie::QPMDISPXSec/Default \
                 --dis-charm-xsec-model genie::AivazisCharmPXSecLO/CC-Default
 
