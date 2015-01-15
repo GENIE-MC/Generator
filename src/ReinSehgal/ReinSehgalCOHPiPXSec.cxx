@@ -11,7 +11,7 @@
 
  Important revisions after version 2.0.0 :
  @ Nov 21, 2007 - CA
-   Was renamed to ReinSeghalCOHPiPXSec (from ReinSeghalCOHPXSec)
+   Was renamed to ReinSehgalCOHPiPXSec (from ReinSehgalCOHPXSec)
  @ Mar 31, 2009 - CA
    Fixed a minor bug in the C2 term controlling the forward mu- suppression
    predicted by Adler's PCAC (mpi -> mpi^2)
@@ -29,7 +29,7 @@
 #include "Messenger/Messenger.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
-#include "ReinSeghal/ReinSeghalCOHPiPXSec.h"
+#include "ReinSehgal/ReinSehgalCOHPiPXSec.h"
 #include "Utils/HadXSUtils.h"
 #include "Utils/KineUtils.h"
 
@@ -38,24 +38,24 @@ using namespace genie::constants;
 using namespace genie::utils;
 
 //____________________________________________________________________________
-ReinSeghalCOHPiPXSec::ReinSeghalCOHPiPXSec() :
-XSecAlgorithmI("genie::ReinSeghalCOHPiPXSec")
+ReinSehgalCOHPiPXSec::ReinSehgalCOHPiPXSec() :
+XSecAlgorithmI("genie::ReinSehgalCOHPiPXSec")
 {
 
 }
 //____________________________________________________________________________
-ReinSeghalCOHPiPXSec::ReinSeghalCOHPiPXSec(string config) :
-XSecAlgorithmI("genie::ReinSeghalCOHPiPXSec", config)
+ReinSehgalCOHPiPXSec::ReinSehgalCOHPiPXSec(string config) :
+XSecAlgorithmI("genie::ReinSehgalCOHPiPXSec", config)
 {
 
 }
 //____________________________________________________________________________
-ReinSeghalCOHPiPXSec::~ReinSeghalCOHPiPXSec()
+ReinSehgalCOHPiPXSec::~ReinSehgalCOHPiPXSec()
 {
 
 }
 //____________________________________________________________________________
-double ReinSeghalCOHPiPXSec::XSec(
+double ReinSehgalCOHPiPXSec::XSec(
                  const Interaction * interaction, KinePhaseSpace_t kps) const
 {
   if(! this -> ValidProcess    (interaction) ) return 0.;
@@ -105,7 +105,7 @@ double ReinSeghalCOHPiPXSec::XSec(
   double xsec = Gf*fp2 * A2 * E*(1-y) * sTot2 * (1+r2)*propg * Fabs*tint;
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("ReinSeghalCohPi", pDEBUG)
+  LOG("ReinSehgalCohPi", pDEBUG)
       << "\n momentum transfer .............. Q2    = " << Q2
       << "\n mass number .................... A     = " << A
       << "\n pion energy .................... Epi   = " << Epi
@@ -143,7 +143,7 @@ double ReinSeghalCOHPiPXSec::XSec(
   }
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("ReinSeghalCohPi", pINFO)
+  LOG("ReinSehgalCohPi", pINFO)
          << "d2xsec/dxdy[COHPi] (x= " << x << ", y="
                        << y << ", E=" << E << ") = "<< xsec;
 #endif
@@ -158,13 +158,13 @@ double ReinSeghalCOHPiPXSec::XSec(
   return xsec;
 }
 //____________________________________________________________________________
-double ReinSeghalCOHPiPXSec::Integral(const Interaction * interaction) const
+double ReinSehgalCOHPiPXSec::Integral(const Interaction * interaction) const
 {
   double xsec = fXSecIntegrator->Integrate(this,interaction);
   return xsec;
 }
 //____________________________________________________________________________
-bool ReinSeghalCOHPiPXSec::ValidProcess(const Interaction * interaction) const
+bool ReinSehgalCOHPiPXSec::ValidProcess(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipProcessChk)) return true;
 
@@ -183,19 +183,19 @@ bool ReinSeghalCOHPiPXSec::ValidProcess(const Interaction * interaction) const
   return true;
 }
 //____________________________________________________________________________
-void ReinSeghalCOHPiPXSec::Configure(const Registry & config)
+void ReinSehgalCOHPiPXSec::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void ReinSeghalCOHPiPXSec::Configure(string config)
+void ReinSehgalCOHPiPXSec::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void ReinSeghalCOHPiPXSec::LoadConfig(void)
+void ReinSehgalCOHPiPXSec::LoadConfig(void)
 {
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();
