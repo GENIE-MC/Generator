@@ -21,7 +21,7 @@
 #include "Conventions/KineVar.h"
 #include "Interaction/SppChannel.h"
 #include "Messenger/Messenger.h"
-#include "ReinSeghal/ReinSeghalSPPPXSec.h"
+#include "ReinSehgal/ReinSehgalSPPPXSec.h"
 #include "Utils/KineUtils.h"
 #include "Utils/MathUtils.h"
 
@@ -29,24 +29,24 @@ using namespace genie;
 using namespace genie::constants;
 
 //____________________________________________________________________________
-ReinSeghalSPPPXSec::ReinSeghalSPPPXSec() :
-XSecAlgorithmI("genie::ReinSeghalSPPPXSec")
+ReinSehgalSPPPXSec::ReinSehgalSPPPXSec() :
+XSecAlgorithmI("genie::ReinSehgalSPPPXSec")
 {
 
 }
 //____________________________________________________________________________
-ReinSeghalSPPPXSec::ReinSeghalSPPPXSec(string config) :
-XSecAlgorithmI("genie::ReinSeghalSPPPXSec", config)
+ReinSehgalSPPPXSec::ReinSehgalSPPPXSec(string config) :
+XSecAlgorithmI("genie::ReinSehgalSPPPXSec", config)
 {
 
 }
 //____________________________________________________________________________
-ReinSeghalSPPPXSec::~ReinSeghalSPPPXSec()
+ReinSehgalSPPPXSec::~ReinSehgalSPPPXSec()
 {
 
 }
 //____________________________________________________________________________
-double ReinSeghalSPPPXSec::XSec(
+double ReinSehgalSPPPXSec::XSec(
                  const Interaction * interaction, KinePhaseSpace_t kps) const
 {
   if(! this -> ValidProcess    (interaction) ) return 0.;
@@ -55,9 +55,9 @@ double ReinSeghalSPPPXSec::XSec(
   //-- Get 1pi exclusive channel
   SppChannel_t spp_channel = SppChannel::FromInteraction(interaction);
 
-  LOG("ReinSeghalSpp", pINFO)
+  LOG("ReinSehgalSpp", pINFO)
                  << "Computing a cross section for " << *interaction;
-  LOG("ReinSeghalSpp", pNOTICE)
+  LOG("ReinSehgalSpp", pNOTICE)
               << "SPP channel " << SppChannel::AsString(spp_channel);
 
   //-- Check whether a resonance has been specified
@@ -69,16 +69,16 @@ double ReinSeghalSPPPXSec::XSec(
 
     string rname = utils::res::AsString(inpres);
 
-    LOG("ReinSeghalSpp", pNOTICE) 
+    LOG("ReinSehgalSpp", pNOTICE) 
                << "Computing only the contribution from: " << rname;
     if(!fResList.Find(inpres)) {
-       LOG("ReinSeghalSpp", pWARN) 
+       LOG("ReinSehgalSpp", pWARN) 
            << "Resonance: " << rname << " was not found in my list";
        return 0;
     }
     //-- Compute the contribution of this resonance
     double xsec1 = this->XSec1RES(interaction,kps);
-    LOG("ReinSeghalSpp", pNOTICE) << "d^nxsec/ dK^n = " << xsec1;
+    LOG("ReinSehgalSpp", pNOTICE) << "d^nxsec/ dK^n = " << xsec1;
     return xsec1;
   }
 
@@ -86,18 +86,18 @@ double ReinSeghalSPPPXSec::XSec(
   //   the cross section for the input exclusive channel
 
   double xsecN = this->XSecNRES(interaction,kps);
-  LOG("ReinSeghalSpp", pNOTICE) << "d^nxsec/ dK^n = " << xsecN;
+  LOG("ReinSehgalSpp", pNOTICE) << "d^nxsec/ dK^n = " << xsecN;
   return xsecN;
 }
 //____________________________________________________________________________
-double ReinSeghalSPPPXSec::XSecNRES(
+double ReinSehgalSPPPXSec::XSecNRES(
                 const Interaction * interaction, KinePhaseSpace_t kps) const
 {
 // computes the 1pi cros section taking into account the contribution of all
 // specified baryon resonances
 
   unsigned int nres = fResList.NResonances();
-  LOG("ReinSeghalSpp", pNOTICE)
+  LOG("ReinSehgalSpp", pNOTICE)
     << "Computing SPP cross section using " << nres << " resonances";
 
   double xsec = 0;
@@ -122,7 +122,7 @@ double ReinSeghalSPPPXSec::XSecNRES(
   return xsec;
 }
 //____________________________________________________________________________
-double ReinSeghalSPPPXSec::XSec1RES(
+double ReinSehgalSPPPXSec::XSec1RES(
                const Interaction * interaction, KinePhaseSpace_t kps) const
 {
 // computes the contribution of a resonance to a 1pi exlusive reaction
@@ -144,7 +144,7 @@ double ReinSeghalSPPPXSec::XSec1RES(
   //  (total weight = Breit-Wigner * BR * isospin Glebsch-Gordon)
   double res_xsec_contrib = rxsec*br*igg;
 
-  SLOG("ReinSeghalSpp", pINFO)
+  SLOG("ReinSehgalSpp", pINFO)
      << "Contrib. from [" << utils::res::AsString(res) << "] = "
      << "<Glebsch-Gordon = " << igg
      << "> * <BR(->1pi) = " << br
@@ -154,41 +154,41 @@ double ReinSeghalSPPPXSec::XSec1RES(
   return res_xsec_contrib;
 }
 //____________________________________________________________________________
-double ReinSeghalSPPPXSec::Integral(const Interaction * interaction) const
+double ReinSehgalSPPPXSec::Integral(const Interaction * interaction) const
 {
   double xsec = fXSecIntegrator->Integrate(this,interaction);
   return xsec;
 }
 //____________________________________________________________________________
-bool ReinSeghalSPPPXSec::ValidProcess(const Interaction * interaction) const
+bool ReinSehgalSPPPXSec::ValidProcess(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipProcessChk)) return true;
 
   //-- Get the requested SPP channel
   SppChannel_t spp_channel = SppChannel::FromInteraction(interaction);
   if( spp_channel == kSppNull ) {
-    LOG("ReinSeghalSpp", pERROR)
+    LOG("ReinSehgalSpp", pERROR)
             << "\n *** Insufficient SPP exclusive final state information!";
     return false;
   }
-  LOG("ReinSeghalSpp", pINFO)
+  LOG("ReinSehgalSpp", pINFO)
                        << "Reaction: " << SppChannel::AsString(spp_channel);
   return true;
 }
 //____________________________________________________________________________
-void ReinSeghalSPPPXSec::Configure(const Registry & config)
+void ReinSehgalSPPPXSec::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void ReinSeghalSPPPXSec::Configure(string config)
+void ReinSehgalSPPPXSec::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void ReinSeghalSPPPXSec::LoadConfig(void)
+void ReinSehgalSPPPXSec::LoadConfig(void)
 {
 // load the single resonance cross section algorithm specified in the config.
 
