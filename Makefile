@@ -30,7 +30,7 @@ VLD_TOOLS := validation/EvScan validation/MCx validation/NuXSec validation/Struc
 
 EVGEN_MODULES := BaryonResonance Base EVGCore EVGDrivers Interaction GHEP Ntuple
 
-MEDIUM_ENERGY_MODULES := 	AtharSingleKaon BodekYang Charm Coherent Decay Diffractive DIS Elastic ElFF EVGModules Fragmentation GiBUU HadronTransport LlewellynSmith NuE Nuclear PartonModel PDF QEL ReinSeghal RES
+MEDIUM_ENERGY_MODULES := 	AtharSingleKaon BodekYang Charm Coherent Decay Diffractive DIS Elastic ElFF EVGModules Fragmentation GiBUU HadronTransport LlewellynSmith NuE Nuclear PartonModel PDF QEL ReinSehgal RES
 
 TEST_MEDIUM_ENERGY_MODULES := MEC NuGamma
 
