@@ -35,7 +35,7 @@
 #include "Numerical/IntegratorI.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
-#include "ReinSeghal/ReinSeghalRESXSec.h"
+#include "ReinSehgal/ReinSehgalRESXSec.h"
 #include "Utils/RunOpt.h"
 #include "Utils/MathUtils.h"
 #include "Utils/KineUtils.h"
@@ -49,24 +49,24 @@ using namespace genie::constants;
 using namespace genie::units;
 
 //____________________________________________________________________________
-ReinSeghalRESXSec::ReinSeghalRESXSec() :
-ReinSeghalRESXSecWithCache("genie::ReinSeghalRESXSec")
+ReinSehgalRESXSec::ReinSehgalRESXSec() :
+ReinSehgalRESXSecWithCache("genie::ReinSehgalRESXSec")
 {
 
 }
 //____________________________________________________________________________
-ReinSeghalRESXSec::ReinSeghalRESXSec(string config) :
-ReinSeghalRESXSecWithCache("genie::ReinSeghalRESXSec", config)
+ReinSehgalRESXSec::ReinSehgalRESXSec(string config) :
+ReinSehgalRESXSecWithCache("genie::ReinSehgalRESXSec", config)
 {
 
 }
 //____________________________________________________________________________
-ReinSeghalRESXSec::~ReinSeghalRESXSec()
+ReinSehgalRESXSec::~ReinSehgalRESXSec()
 {
 
 }
 //____________________________________________________________________________
-double ReinSeghalRESXSec::Integrate(
+double ReinSehgalRESXSec::Integrate(
           const XSecAlgorithmI * model, const Interaction * interaction) const
 {
   if(! model->ValidProcess(interaction) ) return 0.;
@@ -74,7 +74,7 @@ double ReinSeghalRESXSec::Integrate(
 
   const KPhaseSpace & kps = interaction->PhaseSpace();
   if(!kps.IsAboveThreshold()) {
-     LOG("ReinSeghalRESXSec", pDEBUG)  << "*** Below energy threshold";
+     LOG("ReinSehgalRESXSec", pDEBUG)  << "*** Below energy threshold";
      return 0;
   }
 
@@ -109,7 +109,7 @@ double ReinSeghalRESXSec::Integrate(
     if(xsl->SplineExists(model,in)) {
       const Spline * spl = xsl->GetSpline(model, in);
       double xsec = spl->Evaluate(Ev);
-      SLOG("ReinSeghalResT", pNOTICE)  
+      SLOG("ReinSehgalResT", pNOTICE)  
          << "XSec[RES/" << utils::res::AsString(res)<< "/free] (Ev = " 
                << Ev << " GeV) = " << xsec/(1E-38 *cm2)<< " x 1E-38 cm^2";
       if(! interaction->TestBit(kIAssumeFreeNucleon) ) {
@@ -132,21 +132,21 @@ double ReinSeghalRESXSec::Integrate(
   if(bare_xsec_pre_calc) {
      Cache * cache = Cache::Instance();
      string key = this->CacheBranchName(res, it, nu_pdgc, nucleon_pdgc);
-     LOG("ReinSeghalResT", pINFO) 
+     LOG("ReinSehgalResT", pINFO) 
          << "Finding cache branch with key: " << key;
      CacheBranchFx * cache_branch =
          dynamic_cast<CacheBranchFx *> (cache->FindCacheBranch(key));
      if(!cache_branch) {
-        LOG("ReinSeghalResT", pWARN)  
+        LOG("ReinSehgalResT", pWARN)  
            << "No cached RES v-production data for input neutrino"
            << " (pdgc: " << nu_pdgc << ")";
-        LOG("ReinSeghalResT", pWARN)  
+        LOG("ReinSehgalResT", pWARN)  
            << "Wait while computing/caching RES production xsec first...";
 
         this->CacheResExcitationXSec(interaction); 
 
-        LOG("ReinSeghalResT", pINFO) << "Done caching resonance xsec data";
-        LOG("ReinSeghalResT", pINFO) 
+        LOG("ReinSehgalResT", pINFO) << "Done caching resonance xsec data";
+        LOG("ReinSehgalResT", pINFO) 
                << "Finding newly created cache branch with key: " << key;
         cache_branch =
               dynamic_cast<CacheBranchFx *> (cache->FindCacheBranch(key));
@@ -159,7 +159,7 @@ double ReinSeghalRESXSec::Integrate(
     //    cross section spline at the end of its energy range-)
     double rxsec = (Ev<fEMax-1) ? cbranch(Ev) : cbranch(fEMax-1);
 
-    SLOG("ReinSeghalResT", pNOTICE)  
+    SLOG("ReinSehgalResT", pNOTICE)  
        << "XSec[RES/" << utils::res::AsString(res)<< "/free] (Ev = " 
                << Ev << " GeV) = " << rxsec/(1E-38 *cm2)<< " x 1E-38 cm^2";
 
@@ -177,12 +177,12 @@ double ReinSeghalRESXSec::Integrate(
     Range1D_t rW  = kps.Limits(kKVW);
     Range1D_t rQ2 = kps.Limits(kKVQ2);
 
-    LOG("ReinSeghalResC", pINFO)
+    LOG("ReinSehgalResC", pINFO)
           << "*** Integrating d^2 XSec/dWdQ^2 for R: "
           << utils::res::AsString(res) << " at Ev = " << Ev;
-    LOG("ReinSeghalResC", pINFO)
+    LOG("ReinSehgalResC", pINFO)
           << "{W}   = " << rW.min  << ", " << rW.max;
-    LOG("ReinSeghalResC", pINFO)
+    LOG("ReinSehgalResC", pINFO)
           << "{Q^2} = " << rQ2.min << ", " << rQ2.max;
 
 #ifdef __GENIE_GSL_ENABLED__   
@@ -212,19 +212,19 @@ double ReinSeghalRESXSec::Integrate(
   return 0;
 }
 //____________________________________________________________________________
-void ReinSeghalRESXSec::Configure(const Registry & config)
+void ReinSehgalRESXSec::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void ReinSeghalRESXSec::Configure(string config)
+void ReinSehgalRESXSec::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void ReinSeghalRESXSec::LoadConfig(void)
+void ReinSehgalRESXSec::LoadConfig(void)
 {
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();

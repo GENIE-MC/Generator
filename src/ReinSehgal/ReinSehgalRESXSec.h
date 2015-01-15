@@ -1,15 +1,15 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::ReinSeghalRESXSec
+\class    genie::ReinSehgalRESXSec
 
 \brief    Computes the cross section for an exclusive 1pi reaction through
           resonance neutrinoproduction according to the Rein-Seghal model.
 
           This algorithm produces in principle what you could also get from 
           the genie::RESXSec algorithm (RES cross section integrator) by 
-          specifying the genie::ReinSeghalRESPXSec as the differential 
-          cross section model. However, ReinSeghalRESXSec offers a faster 
+          specifying the genie::ReinSehgalRESPXSec as the differential 
+          cross section model. However, ReinSehgalRESXSec offers a faster 
           alternative. Before computing any RES cross section this algorithm 
           computes and caches splines for resonance neutrino-production cross 
           sections. This improves the speed of the GENIE spline construction 
@@ -31,19 +31,19 @@
 */
 //____________________________________________________________________________
 
-#ifndef _REIN_SEGHAL_RES_XSEC_H_
-#define _REIN_SEGHAL_RES_XSEC_H_
+#ifndef _REIN_SEHGAL_RES_XSEC_H_
+#define _REIN_SEHGAL_RES_XSEC_H_
 
-#include "ReinSeghal/ReinSeghalRESXSecWithCache.h"
+#include "ReinSehgal/ReinSehgalRESXSecWithCache.h"
 
 namespace genie {
 
-class ReinSeghalRESXSec : public ReinSeghalRESXSecWithCache {
+class ReinSehgalRESXSec : public ReinSehgalRESXSecWithCache {
 
 public:
-  ReinSeghalRESXSec();
-  ReinSeghalRESXSec(string param_set);
-  virtual ~ReinSeghalRESXSec();
+  ReinSehgalRESXSec();
+  ReinSehgalRESXSec(string param_set);
+  virtual ~ReinSehgalRESXSec();
 
   //-- XSecIntegratorI interface implementation
   double Integrate(const XSecAlgorithmI * model, const Interaction * i) const;
@@ -58,5 +58,5 @@ private:
 };
 
 }       // genie namespace
-#endif  // _REIN_SEGHAL_RES_XSEC_H_
+#endif  // _REIN_SEHGAL_RES_XSEC_H_
 
