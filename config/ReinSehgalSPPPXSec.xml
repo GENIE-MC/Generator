@@ -19,7 +19,7 @@ XSec-Integrator             alg
 -->
   <param_set name="Fast"> 
      <param type="alg"    name="XSec-Integrator">      genie::ReinSehgalSPPXSec/Default   </param>
-     <!-- <param type="alg"    name="SingleRESDiffXSecAlg"> genie::BergerReinSehgalRESPXSec/Default  </param> -->
+     <!-- <param type="alg"    name="SingleRESDiffXSecAlg"> genie::BergerSehgalRESPXSec2014/Default  </param> -->
      <param type="alg"    name="SingleRESDiffXSecAlg"> genie::ReinSehgalRESPXSec/Default  </param>
      <param type="string" name="ResonanceNameList">    P33(1232),P11(1440)                </param>
   </param_set>
@@ -29,7 +29,7 @@ XSec-Integrator             alg
 -->
   <param_set name="Default"> 
      <param type="alg" name="XSec-Integrator">      genie::ReinSehgalSPPXSec/Default        </param>
-     <!-- <param type="alg" name="SingleRESDiffXSecAlg"> genie::BergerReinSehgalRESPXSec/Default </param> -->
+     <!-- <param type="alg" name="SingleRESDiffXSecAlg"> genie::BergerSehgalRESPXSec2014/Default </param> -->
      <param type="alg" name="SingleRESDiffXSecAlg"> genie::ReinSehgalRESPXSec/Default       </param>
   </param_set>
 
@@ -38,7 +38,7 @@ XSec-Integrator             alg
 -->
   <param_set name="AllResonances"> 
      <param type="alg"    name="XSec-Integrator">      genie::ReinSehgalSPPXSec/Default        </param>
-     <!-- <param type="alg"    name="SingleRESDiffXSecAlg"> genie::BergerReinSehgalRESPXSec/Default </param> -->
+     <!-- <param type="alg"    name="SingleRESDiffXSecAlg"> genie::BergerSehgalRESPXSec2014/Default </param> -->
      <param type="alg"    name="SingleRESDiffXSecAlg"> genie::ReinSehgalRESPXSec/Default       </param>
      <param type="string" name="ResonanceNameList">  
                    P33(1232),S11(1535),D13(1520),S11(1650),D13(1700),D15(1675),S31(1620),
