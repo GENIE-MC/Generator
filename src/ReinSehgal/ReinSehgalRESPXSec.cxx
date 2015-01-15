@@ -39,9 +39,9 @@
 #include "Numerical/Spline.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
-#include "ReinSeghal/ReinSeghalRESPXSec.h"
-#include "ReinSeghal/RSHelicityAmplModelI.h"
-#include "ReinSeghal/RSHelicityAmpl.h"
+#include "ReinSehgal/ReinSehgalRESPXSec.h"
+#include "ReinSehgal/RSHelicityAmplModelI.h"
+#include "ReinSehgal/RSHelicityAmpl.h"
 #include "Utils/KineUtils.h"
 #include "Utils/MathUtils.h"
 #include "Utils/Range1.h"
@@ -51,27 +51,27 @@ using namespace genie;
 using namespace genie::constants;
 
 //____________________________________________________________________________
-ReinSeghalRESPXSec::ReinSeghalRESPXSec() :
-XSecAlgorithmI("genie::ReinSeghalRESPXSec")
+ReinSehgalRESPXSec::ReinSehgalRESPXSec() :
+XSecAlgorithmI("genie::ReinSehgalRESPXSec")
 {
   fNuTauRdSpl    = 0;
   fNuTauBarRdSpl = 0;
 }
 //____________________________________________________________________________
-ReinSeghalRESPXSec::ReinSeghalRESPXSec(string config) :
-XSecAlgorithmI("genie::ReinSeghalRESPXSec", config)
+ReinSehgalRESPXSec::ReinSehgalRESPXSec(string config) :
+XSecAlgorithmI("genie::ReinSehgalRESPXSec", config)
 {
   fNuTauRdSpl    = 0;
   fNuTauBarRdSpl = 0;
 }
 //____________________________________________________________________________
-ReinSeghalRESPXSec::~ReinSeghalRESPXSec()
+ReinSehgalRESPXSec::~ReinSehgalRESPXSec()
 {
   if(fNuTauRdSpl)    delete fNuTauRdSpl;
   if(fNuTauBarRdSpl) delete fNuTauBarRdSpl;
 }
 //____________________________________________________________________________
-double ReinSeghalRESPXSec::XSec(
+double ReinSehgalRESPXSec::XSec(
                  const Interaction * interaction, KinePhaseSpace_t kps) const
 {
   if(! this -> ValidProcess    (interaction) ) return 0.;
@@ -90,7 +90,7 @@ double ReinSeghalRESPXSec::XSec(
   if(fUsingDisResJoin) {
     if(W>=fWcut) {
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-       LOG("ReinSeghalRes", pDEBUG)
+       LOG("ReinSehgalRes", pDEBUG)
          << "RES/DIS Join Scheme: XSec[RES, W=" << W 
          << " >= Wcut=" << fWcut << "] = 0";
 #endif
@@ -152,7 +152,7 @@ double ReinSeghalRESPXSec::XSec(
   double UV     = U*V;
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("ReinSeghalRes", pDEBUG) 
+  LOG("ReinSehgalRes", pDEBUG) 
      << "Kinematical params V = " << V << ", U = " << U;
 #endif
 
@@ -242,10 +242,10 @@ double ReinSeghalRESPXSec::XSec(
   double sigS = scS * (hampl.Amp20Plus () + hampl.Amp20Minus());
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("ReinSeghalRes", pDEBUG) << "sig_{0} = " << sig0;
-  LOG("ReinSeghalRes", pDEBUG) << "sig_{L} = " << sigL;
-  LOG("ReinSeghalRes", pDEBUG) << "sig_{R} = " << sigR;
-  LOG("ReinSeghalRes", pDEBUG) << "sig_{S} = " << sigS;
+  LOG("ReinSehgalRes", pDEBUG) << "sig_{0} = " << sig0;
+  LOG("ReinSehgalRes", pDEBUG) << "sig_{L} = " << sigL;
+  LOG("ReinSehgalRes", pDEBUG) << "sig_{R} = " << sigR;
+  LOG("ReinSehgalRes", pDEBUG) << "sig_{S} = " << sigS;
 #endif
 
   double xsec = 0.0;
@@ -271,7 +271,7 @@ double ReinSeghalRESPXSec::XSec(
      bw = utils::bwfunc::BreitWignerL(W,LR,MR,WR,NR); 
   } 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-     LOG("ReinSeghalRes", pDEBUG) 
+     LOG("ReinSehgalRes", pDEBUG) 
        << "BreitWigner(RES=" << resname << ", W=" << W << ") = " << bw;
 #endif
   xsec *= bw; 
@@ -290,7 +290,7 @@ double ReinSeghalRESPXSec::XSec(
   xsec *= rf;
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("ReinSeghalRes", pINFO) 
+  LOG("ReinSehgalRes", pINFO) 
     << "\n d2xsec/dQ2dW"  << "[" << interaction->AsString()
           << "](W=" << W << ", q2=" << q2 << ", E=" << E << ") = " << xsec;
 #endif
@@ -313,13 +313,13 @@ double ReinSeghalRESPXSec::XSec(
   return xsec;
 }
 //____________________________________________________________________________
-double ReinSeghalRESPXSec::Integral(const Interaction * interaction) const
+double ReinSehgalRESPXSec::Integral(const Interaction * interaction) const
 {
   double xsec = fXSecIntegrator->Integrate(this,interaction);
   return xsec;
 }
 //____________________________________________________________________________
-bool ReinSeghalRESPXSec::ValidProcess(const Interaction * interaction) const
+bool ReinSehgalRESPXSec::ValidProcess(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipProcessChk)) return true;
 
@@ -346,19 +346,19 @@ bool ReinSeghalRESPXSec::ValidProcess(const Interaction * interaction) const
   return true;
 }
 //____________________________________________________________________________
-void ReinSeghalRESPXSec::Configure(const Registry & config)
+void ReinSehgalRESPXSec::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void ReinSeghalRESPXSec::Configure(string config)
+void ReinSehgalRESPXSec::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void ReinSeghalRESPXSec::LoadConfig(void)
+void ReinSehgalRESPXSec::LoadConfig(void)
 {
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();
@@ -437,12 +437,12 @@ void ReinSeghalRESPXSec::LoadConfig(void)
      string base = gSystem->Getenv("GENIE");
 
      string filename = base + "/data/evgen/rein_sehgal/res/nutau_xsec_scaling_factors.dat";
-     LOG("ReinSeghalRes", pNOTICE) 
+     LOG("ReinSehgalRes", pNOTICE) 
                 << "Loading nu_tau xsec reduction spline from: " << filename;
      fNuTauRdSpl = new Spline(filename);
 
      filename = base + "/data/evgen/rein_sehgal/res/nutaubar_xsec_scaling_factors.dat";
-     LOG("ReinSeghalRes", pNOTICE) 
+     LOG("ReinSehgalRes", pNOTICE) 
            << "Loading bar{nu_tau} xsec reduction spline from: " << filename;
      fNuTauBarRdSpl = new Spline(filename);
   }
