@@ -409,7 +409,7 @@ XSecModel                   alg     Yes  Cross section model used at the thread 
      <param type="alg"    name="Module-8">   genie::NucBindEnergyAggregator/Default               </param>
      <param type="alg"    name="Module-9">   genie::UnstableParticleDecayer/AfterHadronTransport  </param>
      <param type="alg"    name="ILstGen">    genie::RSPPInteractionListGenerator/CC-Default       </param>
-     <param type="alg"    name="XSecModel">  genie::ReinSeghalSPPPXSec/Default                    </param>
+     <param type="alg"    name="XSecModel">  genie::ReinSehgalSPPPXSec/Default                    </param>
   </param_set>
 
   <param_set name="RSPP-NC"> 
@@ -426,7 +426,7 @@ XSecModel                   alg     Yes  Cross section model used at the thread 
      <param type="alg"    name="Module-8">   genie::NucBindEnergyAggregator/Default               </param>
      <param type="alg"    name="Module-9">   genie::UnstableParticleDecayer/AfterHadronTransport  </param>
      <param type="alg"    name="ILstGen">    genie::RSPPInteractionListGenerator/NC-Default       </param>
-     <param type="alg"    name="XSecModel">  genie::ReinSeghalSPPPXSec/Default                    </param>
+     <param type="alg"    name="XSecModel">  genie::ReinSehgalSPPPXSec/Default                    </param>
   </param_set>
 
 </alg_conf>

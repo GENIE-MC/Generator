@@ -129,11 +129,11 @@
    <config alg="genie::GLRESPXSec">                  GLRESPXSec.xml                  </config>
    <config alg="genie::BergerReinSehgalRESPXSec">    BergerReinSehgalRESPXSec.xml    </config>
    <config alg="genie::ReinDFRPXSec">                ReinDFRPXSec.xml                </config>
-   <config alg="genie::ReinSeghalCOHPiPXSec">        ReinSeghalCOHPiPXSec.xml        </config>
-   <config alg="genie::ReinSeghalRESPXSec">          ReinSeghalRESPXSec.xml          </config>
-   <config alg="genie::ReinSeghalSPPPXSec">          ReinSeghalSPPPXSec.xml          </config>
-   <config alg="genie::ReinSeghalRESXSec">           ReinSeghalRESXSec.xml           </config>
-   <config alg="genie::ReinSeghalSPPXSec">           ReinSeghalSPPXSec.xml           </config>
+   <config alg="genie::ReinSehgalCOHPiPXSec">        ReinSehgalCOHPiPXSec.xml        </config>
+   <config alg="genie::ReinSehgalRESPXSec">          ReinSehgalRESPXSec.xml          </config>
+   <config alg="genie::ReinSehgalSPPPXSec">          ReinSehgalSPPPXSec.xml          </config>
+   <config alg="genie::ReinSehgalRESXSec">           ReinSehgalRESXSec.xml           </config>
+   <config alg="genie::ReinSehgalSPPXSec">           ReinSehgalSPPXSec.xml           </config>
    <config alg="genie::H3AMNuGammaPXSec">            H3AMNuGammaPXSec.xml            </config>
    <config alg="genie::MECPXSec">                    MECPXSec.xml                    </config>
    <config alg="genie::RosenbluthPXSec">             RosenbluthPXSec.xml             </config>

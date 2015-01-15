@@ -3,7 +3,7 @@
 <alg_conf>
 
 <!--
-Configuration for the Rein-Seghal RES excitation d^xsec / dQ^2 dW xsec algorithm
+Configuration for the Rein-Sehgal RES excitation d^xsec / dQ^2 dW xsec algorithm
 
 Configurable Parameters:
 ......................................................................................................................................
@@ -25,7 +25,7 @@ XSec-Integrator             alg
 -->
 
   <param_set name="Default"> 
-     <param type="alg"  name="XSec-Integrator">  genie::ReinSeghalRESXSec/Default    </param>
+     <param type="alg"  name="XSec-Integrator">  genie::ReinSehgalRESXSec/Default    </param>
   </param_set>
 
 </alg_conf>
