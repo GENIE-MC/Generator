@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::ReinSeghalRESPXSec
+\class    genie::ReinSehgalRESPXSec
 
 \brief    Computes the double differential cross section for resonance 
           electro- or neutrino-production according to the Rein-Seghal model.
@@ -33,7 +33,7 @@
 
 #include "Base/XSecAlgorithmI.h"
 #include "BaryonResonance/BaryonResonance.h"
-#include "ReinSeghal/FKR.h"
+#include "ReinSehgal/FKR.h"
 
 namespace genie {
 
@@ -41,12 +41,12 @@ class RSHelicityAmplModelI;
 class Spline;
 class XSecIntegratorI;
 
-class ReinSeghalRESPXSec : public XSecAlgorithmI {
+class ReinSehgalRESPXSec : public XSecAlgorithmI {
 
 public:
-  ReinSeghalRESPXSec();
-  ReinSeghalRESPXSec(string config);
-  virtual ~ReinSeghalRESPXSec();
+  ReinSehgalRESPXSec();
+  ReinSehgalRESPXSec(string config);
+  virtual ~ReinSehgalRESPXSec();
 
   // implement the XSecAlgorithmI interface 
   double XSec         (const Interaction * i, KinePhaseSpace_t k) const;
