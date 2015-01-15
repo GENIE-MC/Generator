@@ -19,7 +19,7 @@
 
 #include "BaryonResonance/BaryonResUtils.h"
 #include "Conventions/Constants.h"
-#include "ReinSeghal/RSHelicityAmplModelEMp.h"
+#include "ReinSehgal/RSHelicityAmplModelEMp.h"
 #include "Messenger/Messenger.h"
 
 using namespace genie;

@@ -22,7 +22,7 @@
 #include "Algorithm/AlgConfigPool.h"
 #include "BaryonResonance/BaryonResUtils.h"
 #include "Conventions/Constants.h"
-#include "ReinSeghal/RSHelicityAmplModelNCp.h"
+#include "ReinSehgal/RSHelicityAmplModelNCp.h"
 #include "Messenger/Messenger.h"
 
 using namespace genie;

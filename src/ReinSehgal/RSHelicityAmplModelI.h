@@ -20,8 +20,8 @@
 
 #include "Algorithm/Algorithm.h"
 #include "BaryonResonance/BaryonResonance.h"
-#include "ReinSeghal/FKR.h"
-#include "ReinSeghal/RSHelicityAmpl.h"
+#include "ReinSehgal/FKR.h"
+#include "ReinSehgal/RSHelicityAmpl.h"
 
 namespace genie {
 

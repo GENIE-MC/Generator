@@ -29,7 +29,7 @@
 #include <TMath.h>
 
 #include "Interaction/Interaction.h"
-#include "ReinSeghal/FKR.h"
+#include "ReinSehgal/FKR.h"
 
 using std::ostream;
 

@@ -25,7 +25,7 @@
 #include "Messenger/Messenger.h"
 #include "Numerical/Spline.h"
 #include "PDG/PDGUtils.h"
-#include "ReinSeghal/ReinDFRPXSec.h"
+#include "ReinSehgal/ReinDFRPXSec.h"
 #include "Utils/KineUtils.h"
 
 using namespace genie;

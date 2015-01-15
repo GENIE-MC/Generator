@@ -14,7 +14,7 @@
 */
 //____________________________________________________________________________
 
-#include "ReinSeghal/RSHelicityAmplModelI.h"
+#include "ReinSehgal/RSHelicityAmplModelI.h"
 
 using namespace genie;
 
