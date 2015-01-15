@@ -12,9 +12,9 @@ MAKEFILE = Makefile
 #
 include $(GENIE)/src/make/Make.include
 
-PACKAGE           = ReinSeghal
-DICTIONARY        = _ROOT_DICT_ReinSeghal
-LIBNAME           = libGReinSeghal
+PACKAGE           = ReinSehgal
+DICTIONARY        = _ROOT_DICT_ReinSehgal
+LIBNAME           = libGReinSehgal
 EXTRA_EXT_LIBS    =
 
 all     : rootcint lib lib-link

@@ -6,14 +6,14 @@
 
 #pragma link C++ namespace genie;
 
-#pragma link C++ class genie::BergerReinSehgalRESPXSec;
+#pragma link C++ class genie::BergerSehgalRESPXSec2014;
 #pragma link C++ class genie::ReinDFRPXSec;
-#pragma link C++ class genie::ReinSeghalCOHPiPXSec;
-#pragma link C++ class genie::ReinSeghalRESPXSec;
-#pragma link C++ class genie::ReinSeghalRESXSec;
-#pragma link C++ class genie::ReinSeghalSPPPXSec;
-#pragma link C++ class genie::ReinSeghalSPPXSec;
-#pragma link C++ class genie::ReinSeghalRESXSecWithCache;
+#pragma link C++ class genie::ReinSehgalCOHPiPXSec;
+#pragma link C++ class genie::ReinSehgalRESPXSec;
+#pragma link C++ class genie::ReinSehgalRESXSec;
+#pragma link C++ class genie::ReinSehgalSPPPXSec;
+#pragma link C++ class genie::ReinSehgalSPPXSec;
+#pragma link C++ class genie::ReinSehgalRESXSecWithCache;
 
 #pragma link C++ class genie::RSHelicityAmpl;
 #pragma link C++ class genie::RSHelicityAmplModelI;
