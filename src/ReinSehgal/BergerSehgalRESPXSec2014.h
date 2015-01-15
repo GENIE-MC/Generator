@@ -32,8 +32,8 @@
 */
 //____________________________________________________________________________
 
-#ifndef _BERGER_SEGHAL_RES_PXSEC_2014_H_
-#define _BERGER_SEGHAL_RES_PXSEC_2014_H_
+#ifndef _BERGER_SEHGAL_RES_PXSEC_2014_H_
+#define _BERGER_SEHGAL_RES_PXSEC_2014_H_
 
 #include "Base/XSecAlgorithmI.h"
 #include "BaryonResonance/BaryonResonance.h"
@@ -101,4 +101,4 @@ namespace genie {
 
 }       // genie namespace
 
-#endif  // _BERGER_SEGHAL_RES_PXSEC_2014_H_
+#endif  // _BERGER_SEHGAL_RES_PXSEC_2014_H_
