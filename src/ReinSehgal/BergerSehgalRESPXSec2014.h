@@ -37,7 +37,7 @@
 
 #include "Base/XSecAlgorithmI.h"
 #include "BaryonResonance/BaryonResonance.h"
-#include "ReinSeghal/FKR.h"
+#include "ReinSehgal/FKR.h"
 
 namespace genie {
 
