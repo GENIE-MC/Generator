@@ -162,7 +162,7 @@ double GReWeightNuXSecCOH::CalcChisq()
 //_______________________________________________________________________________________
 void GReWeightNuXSecCOH::Init(void)
 {
-  AlgId id("genie::ReinSeghalCOHPiPXSec","Default");
+  AlgId id("genie::ReinSehgalCOHPiPXSec","Default");
 
   AlgFactory * algf = AlgFactory::Instance();
   Algorithm * alg = algf->AdoptAlgorithm(id);

@@ -24,11 +24,11 @@ namespace utils {
 
 namespace hadxs
 {
-  // The inelastic pion-nucleon cross section used in Rein-Seghal coherent pi0
-  // production xsec: D.Rein and L.M.Seghal,Nucl.Phys.B223:29-144 (1983).
+  // The inelastic pion-nucleon cross section used in Rein-Sehgal coherent pi0
+  // production xsec: D.Rein and L.M.Sehgal,Nucl.Phys.B223:29-144 (1983).
   // The data used here are coming from CERN-HERA 79-01, 1979, 'Compilation of
   // cross sections I - pi- and pi+ induced reactions'. Also, look at the
-  // Fig.3 in Rein-Seghal's paper.
+  // Fig.3 in Rein-Sehgal's paper.
   // However, the actual values I am using are copied from Hugh Gallagher's
   // NeuGEN inel() function which is adapted here.
   static const int    kInelNDataPoints = 60;

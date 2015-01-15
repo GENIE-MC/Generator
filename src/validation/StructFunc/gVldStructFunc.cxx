@@ -36,7 +36,7 @@
          Example:
 
             % gvld_sf \
-                --resonance-xsec-model genie::ReinSeghalRESPXSec/Default \
+                --resonance-xsec-model genie::ReinSehgalRESPXSec/Default \
                 --dis-xsec-model genie::QPMDISPXSec/Default \
 		--dis-charm-xsec-model genie::AivazisCharmPXSecLO/CC-Default
 
