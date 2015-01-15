@@ -41,7 +41,7 @@
 #include "Numerical/IntegratorI.h"
 #include "PDG/PDGUtils.h"
 #include "PDG/PDGCodes.h"
-#include "ReinSeghal/ReinSeghalRESXSecWithCache.h"
+#include "ReinSehgal/ReinSehgalRESXSecWithCache.h"
 #include "Utils/MathUtils.h"
 #include "Utils/KineUtils.h"
 #include "Utils/Cache.h"
@@ -56,30 +56,30 @@ using namespace genie::constants;
 using namespace genie::units;
 
 //____________________________________________________________________________
-ReinSeghalRESXSecWithCache::ReinSeghalRESXSecWithCache() :
+ReinSehgalRESXSecWithCache::ReinSehgalRESXSecWithCache() :
 XSecIntegratorI()
 {
 
 }
 //____________________________________________________________________________
-ReinSeghalRESXSecWithCache::ReinSeghalRESXSecWithCache(string nm) :
+ReinSehgalRESXSecWithCache::ReinSehgalRESXSecWithCache(string nm) :
 XSecIntegratorI(nm)
 {
 
 }
 //____________________________________________________________________________
-ReinSeghalRESXSecWithCache::ReinSeghalRESXSecWithCache(string nm,string conf):
+ReinSehgalRESXSecWithCache::ReinSehgalRESXSecWithCache(string nm,string conf):
 XSecIntegratorI(nm,conf)
 {
 
 }
 //____________________________________________________________________________
-ReinSeghalRESXSecWithCache::~ReinSeghalRESXSecWithCache()
+ReinSehgalRESXSecWithCache::~ReinSehgalRESXSecWithCache()
 {
 
 }
 //____________________________________________________________________________
-void ReinSeghalRESXSecWithCache::CacheResExcitationXSec(
+void ReinSehgalRESXSecWithCache::CacheResExcitationXSec(
                                                  const Interaction * in) const
 {
 // Cache resonance neutrino production data from free nucleons
@@ -124,7 +124,7 @@ void ReinSeghalRESXSecWithCache::CacheResExcitationXSec(
          assert(!cache_branch);
 
          // Create the new cache branch
-         LOG("ReinSeghalResC", pNOTICE) 
+         LOG("ReinSehgalResC", pNOTICE) 
                         << "\n ** Creating cache branch - key = " << key;
          cache_branch = new CacheBranchFx("RES Excitation XSec");
          cache->AddCacheBranch(key, cache_branch);
@@ -132,7 +132,7 @@ void ReinSeghalRESXSecWithCache::CacheResExcitationXSec(
 
          const KPhaseSpace & kps = interaction->PhaseSpace();
          double Ethr = kps.Threshold();
-         LOG("ReinSeghalResC", pNOTICE) << "E threshold = " << Ethr;
+         LOG("ReinSehgalResC", pNOTICE) << "E threshold = " << Ethr;
 
          // Distribute the knots in the energy range as is being done in the
          // XSecSplineList so that the energy threshold is treated correctly
@@ -164,16 +164,16 @@ void ReinSeghalRESXSecWithCache::CacheResExcitationXSec(
                Range1D_t rW  = kps.Limits(kKVW);
                Range1D_t rQ2 = kps.Limits(kKVQ2);
 
-               LOG("ReinSeghalResC", pINFO) 
+               LOG("ReinSehgalResC", pINFO) 
 	         << "*** Integrating d^2 XSec/dWdQ^2 for R: " 
      	                 << utils::res::AsString(res) << " at Ev = " << Ev;
-               LOG("ReinSeghalResC", pINFO) 
+               LOG("ReinSehgalResC", pINFO) 
                                 << "{W}   = " << rW.min  << ", " << rW.max;
-      	       LOG("ReinSeghalResC", pINFO) 
+      	       LOG("ReinSehgalResC", pINFO) 
                                << "{Q^2} = " << rQ2.min << ", " << rQ2.max;
 
                if(rW.max<rW.min || rQ2.max<rQ2.min || rW.min<0 || rQ2.min<0) {
-     	          LOG("ReinSeghalResC", pINFO) 
+     	          LOG("ReinSehgalResC", pINFO) 
                               << "** Not allowed kinematically, xsec=0";
                } else {
 
@@ -199,11 +199,11 @@ void ReinSeghalRESXSecWithCache::CacheResExcitationXSec(
                   delete func;
                }
              } else {
-                 LOG("ReinSeghalResC", pINFO) 
+                 LOG("ReinSehgalResC", pINFO) 
  		       << "** Below threshold E = " << Ev << " <= " << Ethr;
              }
              cache_branch->AddValues(Ev,xsec);
-             SLOG("ReinSeghalResC", pNOTICE) 
+             SLOG("ReinSehgalResC", pNOTICE) 
                << "RES XSec (R:" << utils::res::AsString(res)
     	       << ", E="<< Ev << ") = "<< xsec/(1E-38 *cm2)<< " x 1E-38 cm^2";
          }//spline knots
@@ -216,7 +216,7 @@ void ReinSeghalRESXSecWithCache::CacheResExcitationXSec(
   delete interaction;
 }
 //____________________________________________________________________________
-string ReinSeghalRESXSecWithCache::CacheBranchName(
+string ReinSehgalRESXSecWithCache::CacheBranchName(
      Resonance_t res, InteractionType_t it, int nupdgc, int nucleonpdgc) const
 {
 // Build a unique name for the cache branch
