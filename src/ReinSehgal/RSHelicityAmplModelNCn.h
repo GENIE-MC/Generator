@@ -4,7 +4,7 @@
 \class    genie::RSHelicityAmplModelNCn
 
 \brief    The Helicity Amplitudes, for all baryon resonances, for NC neutrino
-          interactions on free neutrons, as computed in the Rein-Seghal's paper.
+          interactions on free neutrons, as computed in the Rein-Sehgal's paper.
 
           Concrete implementation of the RSHelicityAmplModelI interface.
 

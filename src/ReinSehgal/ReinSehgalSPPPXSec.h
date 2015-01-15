@@ -5,10 +5,10 @@
 
 \brief    Computes the differential cross section for an exclusive 1-pion 
           reaction through resonance neutrinoproduction according to the 
-          Rein-Seghal model.
+          Rein-Sehgal model.
 
           The cross section is computed for an input list of resonances
-          as the sum of the Rein-Seghal single resonance cross sections
+          as the sum of the Rein-Sehgal single resonance cross sections
           weighted:
 
           \li With the value of their Breit-Wigner distributions at the given
@@ -29,7 +29,7 @@
 
           Is a concrete implementation of the XSecAlgorithmI interface.
 
-\ref      D.Rein and L.M.Seghal, Neutrino Excitation of Baryon Resonances
+\ref      D.Rein and L.M.Sehgal, Neutrino Excitation of Baryon Resonances
           and Single Pion Production, Ann.Phys.133, 79 (1981)
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>

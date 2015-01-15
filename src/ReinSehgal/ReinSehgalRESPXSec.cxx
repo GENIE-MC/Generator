@@ -191,7 +191,7 @@ double ReinSehgalRESPXSec::XSec(
      << "FKR params for RES = " << resname << " : " << fFKR;
 #endif
 
-  // Calculate the Rein-Seghal Helicity Amplitudes
+  // Calculate the Rein-Sehgal Helicity Amplitudes
 
   const RSHelicityAmplModelI * hamplmod = 0;
   if(is_CC) { 

@@ -4,11 +4,11 @@
 \class    genie::ReinSehgalRESXSecWithCache
 
 \brief    An ABC that caches resonance neutrinoproduction cross sections on free 
-          nucleons according to the Rein-Seghal model. This significantly speeds 
+          nucleons according to the Rein-Sehgal model. This significantly speeds 
           the cross section calculation for multiple nuclear targets (eg at the
           spline construction phase)
 
-\ref      D.Rein and L.M.Seghal, Neutrino Excitation of Baryon Resonances
+\ref      D.Rein and L.M.Sehgal, Neutrino Excitation of Baryon Resonances
           and Single Pion Production, Ann.Phys.133, 79 (1981)
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
