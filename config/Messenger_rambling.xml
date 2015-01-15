@@ -127,12 +127,12 @@
   <priority msgstream="QELKinematics">       INFO   </priority>
   <priority msgstream="RESXSec">             INFO   </priority>
   <priority msgstream="RESPXSec">            WARN   </priority>
-  <priority msgstream="ReinSeghalCohPi">     WARN   </priority>
+  <priority msgstream="ReinSehgalCohPi">     WARN   </priority>
   <priority msgstream="ReinDFR">             WARN   </priority>
-  <priority msgstream="ReinSeghalRes">       WARN   </priority>
-  <priority msgstream="ReinSeghalResT">      NOTICE </priority>
-  <priority msgstream="ReinSeghalResC">      NOTICE </priority>
-  <priority msgstream="ReinSeghalSpp">       NOTICE </priority>
+  <priority msgstream="ReinSehgalRes">       WARN   </priority>
+  <priority msgstream="ReinSehgalResT">      NOTICE </priority>
+  <priority msgstream="ReinSehgalResC">      NOTICE </priority>
+  <priority msgstream="ReinSehgalSpp">       NOTICE </priority>
   <priority msgstream="RSHAmpl">             WARN   </priority>
   <priority msgstream="Registry">            WARN   </priority>
   <priority msgstream="ReW">                 DEBUG  </priority>

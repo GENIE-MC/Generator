@@ -3,7 +3,7 @@
 <alg_conf>
 
 <!--
-Configuration for the Rein-Seghal RES excitation xsec algorithm.
+Configuration for the Rein-Sehgal RES excitation xsec algorithm.
 This algorithm offers a fast alternative to RESXSec algorithm as it precomputes and 
 caches free nucleon resonance neutrinoproduction cross sections.
 

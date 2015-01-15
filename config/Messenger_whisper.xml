@@ -128,11 +128,11 @@
   <priority msgstream="QELKinematics">       FATAL   </priority>
   <priority msgstream="RESXSec">             FATAL   </priority>
   <priority msgstream="RESPXSec">            FATAL   </priority>
-  <priority msgstream="ReinSeghalCohPi">     FATAL   </priority>
-  <priority msgstream="ReinSeghalRes">       FATAL   </priority>
-  <priority msgstream="ReinSeghalResT">      FATAL   </priority>
-  <priority msgstream="ReinSeghalResC">      FATAL   </priority>
-  <priority msgstream="ReinSeghalSpp">       FATAL   </priority>
+  <priority msgstream="ReinSehgalCohPi">     FATAL   </priority>
+  <priority msgstream="ReinSehgalRes">       FATAL   </priority>
+  <priority msgstream="ReinSehgalResT">      FATAL   </priority>
+  <priority msgstream="ReinSehgalResC">      FATAL   </priority>
+  <priority msgstream="ReinSehgalSpp">       FATAL   </priority>
   <priority msgstream="RSHAmpl">             FATAL   </priority>
   <priority msgstream="Registry">            FATAL   </priority>
   <priority msgstream="ReW">                 FATAL   </priority>
