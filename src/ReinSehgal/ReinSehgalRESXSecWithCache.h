@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::ReinSeghalRESXSecWithCache
+\class    genie::ReinSehgalRESXSecWithCache
 
 \brief    An ABC that caches resonance neutrinoproduction cross sections on free 
           nucleons according to the Rein-Seghal model. This significantly speeds 
@@ -22,8 +22,8 @@
 */
 //____________________________________________________________________________
 
-#ifndef _REIN_SEGHAL_RES_XSEC_WITH_CACHE_H_
-#define _REIN_SEGHAL_RES_XSEC_WITH_CACHE_H_
+#ifndef _REIN_SEHGAL_RES_XSEC_WITH_CACHE_H_
+#define _REIN_SEHGAL_RES_XSEC_WITH_CACHE_H_
 
 #include "Base/XSecIntegratorI.h"
 #include "BaryonResonance/BaryonResList.h"
@@ -32,13 +32,13 @@
 
 namespace genie {
 
-class ReinSeghalRESXSecWithCache : public XSecIntegratorI {
+class ReinSehgalRESXSecWithCache : public XSecIntegratorI {
 
 protected:
-  ReinSeghalRESXSecWithCache();
-  ReinSeghalRESXSecWithCache(string name);
-  ReinSeghalRESXSecWithCache(string name, string config);
-  virtual ~ReinSeghalRESXSecWithCache();
+  ReinSehgalRESXSecWithCache();
+  ReinSehgalRESXSecWithCache(string name);
+  ReinSehgalRESXSecWithCache(string name, string config);
+  virtual ~ReinSehgalRESXSecWithCache();
 
   // Don't implement the XSecIntegratorI interface - leave it for the concrete
   // subclasses. Just define utility methods and data
@@ -54,5 +54,5 @@ protected:
 };
 
 }       // genie namespace
-#endif  // _REIN_SEGHAL_RES_XSEC_WITH_CACHE_H_
+#endif  // _REIN_SEHGAL_RES_XSEC_WITH_CACHE_H_
 
