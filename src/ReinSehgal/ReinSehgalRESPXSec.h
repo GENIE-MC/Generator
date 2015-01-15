@@ -28,8 +28,8 @@
 */
 //____________________________________________________________________________
 
-#ifndef _REIN_SEGHAL_RES_PXSEC_H_
-#define _REIN_SEGHAL_RES_PXSEC_H_
+#ifndef _REIN_SEHGAL_RES_PXSEC_H_
+#define _REIN_SEHGAL_RES_PXSEC_H_
 
 #include "Base/XSecAlgorithmI.h"
 #include "BaryonResonance/BaryonResonance.h"
@@ -91,4 +91,4 @@ private:
 
 }       // genie namespace
 
-#endif  // _REIN_SEGHAL_RES_PXSEC_H_
+#endif  // _REIN_SEHGAL_RES_PXSEC_H_
