@@ -23,7 +23,7 @@
 #include "Messenger/Messenger.h"
 #include "Numerical/IntegratorI.h"
 #include "PDG/PDGUtils.h"
-#include "ReinSeghal/ReinSeghalSPPXSec.h"
+#include "ReinSehgal/ReinSehgalSPPXSec.h"
 #include "Utils/MathUtils.h"
 #include "Utils/KineUtils.h"
 #include "Utils/Cache.h"
@@ -33,24 +33,24 @@ using namespace genie;
 using namespace genie::constants;
 
 //____________________________________________________________________________
-ReinSeghalSPPXSec::ReinSeghalSPPXSec() :
-ReinSeghalRESXSecWithCache("genie::ReinSeghalSPPXSec")
+ReinSehgalSPPXSec::ReinSehgalSPPXSec() :
+ReinSehgalRESXSecWithCache("genie::ReinSehgalSPPXSec")
 {
 
 }
 //____________________________________________________________________________
-ReinSeghalSPPXSec::ReinSeghalSPPXSec(string config) :
-ReinSeghalRESXSecWithCache("genie::ReinSeghalSPPXSec", config)
+ReinSehgalSPPXSec::ReinSehgalSPPXSec(string config) :
+ReinSehgalRESXSecWithCache("genie::ReinSehgalSPPXSec", config)
 {
 
 }
 //____________________________________________________________________________
-ReinSeghalSPPXSec::~ReinSeghalSPPXSec()
+ReinSehgalSPPXSec::~ReinSehgalSPPXSec()
 {
 
 }
 //____________________________________________________________________________
-double ReinSeghalSPPXSec::Integrate(
+double ReinSehgalSPPXSec::Integrate(
           const XSecAlgorithmI * model, const Interaction * interaction) const
 {
   if(! model->ValidProcess(interaction) ) return 0.;
@@ -90,22 +90,22 @@ double ReinSeghalSPPXSec::Integrate(
 
      //-- Build a unique name for the cache branch
      string key = this->CacheBranchName(res, it, nu_pdgc, nucleon_pdgc);
-     LOG("ReinSeghalSpp", pINFO) 
+     LOG("ReinSehgalSpp", pINFO) 
                             << "Finding cache branch with key: " << key;
      CacheBranchFx * cache_branch =
             dynamic_cast<CacheBranchFx *> (cache->FindCacheBranch(key));
 
      if(!cache_branch) {
-       LOG("ReinSeghalSpp", pWARN)  
+       LOG("ReinSehgalSpp", pWARN)  
          << "No cached RES v-production data for input neutrino"
          << " (pdgc: " << nu_pdgc << ")";
-       LOG("ReinSeghalSpp", pWARN)  
+       LOG("ReinSehgalSpp", pWARN)  
          << "Wait while computing/caching RES production xsec first...";
 
        this->CacheResExcitationXSec(interaction); 
 
-       LOG("ReinSeghalSpp", pINFO) << "Done caching resonance xsec data";
-       LOG("ReinSeghalSpp", pINFO) 
+       LOG("ReinSehgalSpp", pINFO) << "Done caching resonance xsec data";
+       LOG("ReinSehgalSpp", pINFO) 
                << "Finding newly created cache branch with key: " << key;
        cache_branch =
               dynamic_cast<CacheBranchFx *> (cache->FindCacheBranch(key));
@@ -129,7 +129,7 @@ double ReinSeghalSPPXSec::Integrate(
      //  (total weight = Breit-Wigner * BR * isospin Glebsch-Gordon)
      double res_xsec_contrib = rxsec*br*igg;
 
-     SLOG("ReinSeghalSpp", pINFO)
+     SLOG("ReinSehgalSpp", pINFO)
        << "Contrib. from [" << utils::res::AsString(res) << "] = "
        << "<Glebsch-Gordon = " << igg
        << "> * <BR(->1pi) = " << br
@@ -141,7 +141,7 @@ double ReinSeghalSPPXSec::Integrate(
 
   }//res
 
-  SLOG("ReinSeghalSpp", pNOTICE)  
+  SLOG("ReinSehgalSpp", pNOTICE)  
          << "XSec[SPP/" << SppChannel::AsString(spp_channel)
                                << "/free] (Ev = " << Ev << " GeV) = " << xsec;
 
@@ -156,19 +156,19 @@ double ReinSeghalSPPXSec::Integrate(
   return xsec;
 }
 //____________________________________________________________________________
-void ReinSeghalSPPXSec::Configure(const Registry & config)
+void ReinSehgalSPPXSec::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void ReinSeghalSPPXSec::Configure(string config)
+void ReinSehgalSPPXSec::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void ReinSeghalSPPXSec::LoadConfig(void)
+void ReinSehgalSPPXSec::LoadConfig(void)
 {
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();
