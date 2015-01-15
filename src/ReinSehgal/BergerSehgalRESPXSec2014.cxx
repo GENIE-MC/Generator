@@ -12,7 +12,7 @@
  Important revisions after version 2.0.0 :
  @ Dec 22, 2014 - GP
    Incorporating changes from J. Nowack into a new class (was 
-   ReinSeghalRESPXSec, now BergerReinSehgalRESPXSec).
+   ReinSehgalRESPXSec, now BergerSehgalRESPXSec2014).
  @ Oct 05, 2009 - CA
    Modified code to handle charged lepton scattering too.
    Also, the helicity amplitude code now returns a `const RSHelicityAmpl &'.
@@ -40,9 +40,9 @@
 #include "Numerical/Spline.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
-#include "ReinSeghal/BergerReinSehgalRESPXSec.h"
-#include "ReinSeghal/RSHelicityAmplModelI.h"
-#include "ReinSeghal/RSHelicityAmpl.h"
+#include "ReinSehgal/BergerSehgalRESPXSec2014.h"
+#include "ReinSehgal/RSHelicityAmplModelI.h"
+#include "ReinSehgal/RSHelicityAmpl.h"
 #include "Utils/KineUtils.h"
 #include "Utils/MathUtils.h"
 #include "Utils/Range1.h"
@@ -52,27 +52,27 @@ using namespace genie;
 using namespace genie::constants;
 
 //____________________________________________________________________________
-BergerReinSehgalRESPXSec::BergerReinSehgalRESPXSec() :
-  XSecAlgorithmI("genie::BergerReinSehgalRESPXSec")
+BergerSehgalRESPXSec2014::BergerSehgalRESPXSec2014() :
+  XSecAlgorithmI("genie::BergerSehgalRESPXSec2014")
 {
   fNuTauRdSpl    = 0;
   fNuTauBarRdSpl = 0;
 }
 //____________________________________________________________________________
-BergerReinSehgalRESPXSec::BergerReinSehgalRESPXSec(string config) :
-  XSecAlgorithmI("genie::BergerReinSehgalRESPXSec", config)
+BergerSehgalRESPXSec2014::BergerSehgalRESPXSec2014(string config) :
+  XSecAlgorithmI("genie::BergerSehgalRESPXSec2014", config)
 {
   fNuTauRdSpl    = 0;
   fNuTauBarRdSpl = 0;
 }
 //____________________________________________________________________________
-BergerReinSehgalRESPXSec::~BergerReinSehgalRESPXSec()
+BergerSehgalRESPXSec2014::~BergerSehgalRESPXSec2014()
 {
   if(fNuTauRdSpl)    delete fNuTauRdSpl;
   if(fNuTauBarRdSpl) delete fNuTauBarRdSpl;
 }
 //____________________________________________________________________________
-double BergerReinSehgalRESPXSec::XSec(
+double BergerSehgalRESPXSec2014::XSec(
     const Interaction * interaction, KinePhaseSpace_t kps) const
 {
   if(! this -> ValidProcess    (interaction) ) return 0.;
@@ -756,13 +756,13 @@ xsec*=NNucl; // nuclear xsec (no nuclear suppression factor)
 return xsec;
 }
 //____________________________________________________________________________
-double BergerReinSehgalRESPXSec::Integral(const Interaction * interaction) const
+double BergerSehgalRESPXSec2014::Integral(const Interaction * interaction) const
 {
   double xsec = fXSecIntegrator->Integrate(this,interaction);
   return xsec;
 }
 //____________________________________________________________________________
-bool BergerReinSehgalRESPXSec::ValidProcess(const Interaction * interaction) const
+bool BergerSehgalRESPXSec2014::ValidProcess(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipProcessChk)) return true;
 
@@ -789,19 +789,19 @@ bool BergerReinSehgalRESPXSec::ValidProcess(const Interaction * interaction) con
   return true;
 }
 //____________________________________________________________________________
-void BergerReinSehgalRESPXSec::Configure(const Registry & config)
+void BergerSehgalRESPXSec2014::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void BergerReinSehgalRESPXSec::Configure(string config)
+void BergerSehgalRESPXSec2014::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void BergerReinSehgalRESPXSec::LoadConfig(void)
+void BergerSehgalRESPXSec2014::LoadConfig(void)
 {
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();

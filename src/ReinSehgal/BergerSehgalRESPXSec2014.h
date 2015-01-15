@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::BergerReinSehgalRESPXSec
+\class    genie::BergerSehgalRESPXSec2014
 
 \brief    Computes the double differential cross section for resonance 
           electro- or neutrino-production according to the Rein-Sehgal model.
@@ -32,8 +32,8 @@
 */
 //____________________________________________________________________________
 
-#ifndef _BERGER_REIN_SEGHAL_RES_PXSEC_H_
-#define _BERGER_REIN_SEGHAL_RES_PXSEC_H_
+#ifndef _BERGER_SEGHAL_RES_PXSEC_2014_H_
+#define _BERGER_SEGHAL_RES_PXSEC_2014_H_
 
 #include "Base/XSecAlgorithmI.h"
 #include "BaryonResonance/BaryonResonance.h"
@@ -45,12 +45,12 @@ namespace genie {
   class Spline;
   class XSecIntegratorI;
 
-  class BergerReinSehgalRESPXSec : public XSecAlgorithmI {
+  class BergerSehgalRESPXSec2014 : public XSecAlgorithmI {
 
     public:
-      BergerReinSehgalRESPXSec();
-      BergerReinSehgalRESPXSec(string config);
-      virtual ~BergerReinSehgalRESPXSec();
+      BergerSehgalRESPXSec2014();
+      BergerSehgalRESPXSec2014(string config);
+      virtual ~BergerSehgalRESPXSec2014();
 
       // implement the XSecAlgorithmI interface 
       double XSec         (const Interaction * i, KinePhaseSpace_t k) const;
@@ -101,4 +101,4 @@ namespace genie {
 
 }       // genie namespace
 
-#endif  // _BERGER_REIN_SEGHAL_RES_PXSEC_H_
+#endif  // _BERGER_SEGHAL_RES_PXSEC_2014_H_
