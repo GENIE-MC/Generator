@@ -23,7 +23,7 @@
 #ifndef _HELICITY_AMPL_MODEL_EM_N_H_
 #define _HELICITY_AMPL_MODEL_EM_N_H_
 
-#include "ReinSeghal/RSHelicityAmplModelI.h"
+#include "ReinSehgal/RSHelicityAmplModelI.h"
 
 namespace genie {
 

@@ -20,8 +20,8 @@
 #include "Algorithm/AlgConfigPool.h"
 #include "BaryonResonance/BaryonResUtils.h"
 #include "Conventions/Constants.h"
-#include "ReinSeghal/RSHelicityAmplModelEMn.h"
-#include "ReinSeghal/RSHelicityAmpl.h"
+#include "ReinSehgal/RSHelicityAmplModelEMn.h"
+#include "ReinSehgal/RSHelicityAmpl.h"
 #include "Messenger/Messenger.h"
 
 using namespace genie;

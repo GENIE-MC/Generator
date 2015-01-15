@@ -18,7 +18,7 @@
 
 #include "BaryonResonance/BaryonResUtils.h"
 #include "Conventions/Constants.h"
-#include "ReinSeghal/FKR.h"
+#include "ReinSehgal/FKR.h"
 #include "Messenger/Messenger.h"
 
 using std::endl;
