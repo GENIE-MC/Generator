@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::AtharSingleKaonPXSec
+\class    genie::AtharSingleKaonPXSec2014
 
 \brief    Differential cross section for single kaon production.
 
@@ -11,14 +11,14 @@
 
 \created  2014-02-14
 
-\cpright  Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
+\cpright  Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
 //____________________________________________________________________________
 
-#ifndef _ATHAR_SINGLE_KAON_PXSEC_H_
-#define _ATHAR_SINGLE_KAON_PXSEC_H_
+#ifndef _ATHAR_SINGLE_KAON_PXSEC_2014_H_
+#define _ATHAR_SINGLE_KAON_PXSEC_2014_H_
 
 #include "Base/XSecAlgorithmI.h"
 
@@ -26,12 +26,12 @@ namespace genie {
 
 class XSecIntegratorI;
 
-class AtharSingleKaonPXSec : public XSecAlgorithmI {
+class AtharSingleKaonPXSec2014 : public XSecAlgorithmI {
 
 public:
-  AtharSingleKaonPXSec();
-  AtharSingleKaonPXSec(string config);
-  virtual ~AtharSingleKaonPXSec();
+  AtharSingleKaonPXSec2014();
+  AtharSingleKaonPXSec2014(string config);
+  virtual ~AtharSingleKaonPXSec2014();
 
   //-- XSecAlgorithmI interface implementation
   double XSec            (const Interaction * i, KinePhaseSpace_t k) const;
@@ -77,4 +77,4 @@ private:
 };
 
 }       // genie namespace
-#endif  // _ATHAR_SINGLE_KAON_PXSEC_H_
+#endif  // _ATHAR_SINGLE_KAON_PXSEC_2014_H_

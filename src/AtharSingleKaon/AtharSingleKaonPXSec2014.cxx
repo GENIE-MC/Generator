@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -18,7 +18,7 @@
 #include "Conventions/Constants.h"
 #include "Conventions/RefFrame.h"
 #include "Conventions/KineVar.h"
-#include "AtharSingleKaon/AtharSingleKaonPXSec.h"
+#include "AtharSingleKaon/AtharSingleKaonPXSec2014.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGUtils.h"
 #include "PDG/PDGCodes.h"
@@ -32,24 +32,24 @@ using namespace genie::utils;
 using namespace genie::constants;
 
 //____________________________________________________________________________
-AtharSingleKaonPXSec::AtharSingleKaonPXSec() :
-XSecAlgorithmI("genie::AtharSingleKaonPXSec")
+AtharSingleKaonPXSec2014::AtharSingleKaonPXSec2014() :
+XSecAlgorithmI("genie::AtharSingleKaonPXSec2014")
 {
 
 }
 //____________________________________________________________________________
-AtharSingleKaonPXSec::AtharSingleKaonPXSec(string config) :
-XSecAlgorithmI("genie::AtharSingleKaonPXSec", config)
+AtharSingleKaonPXSec2014::AtharSingleKaonPXSec2014(string config) :
+XSecAlgorithmI("genie::AtharSingleKaonPXSec2014", config)
 {
 
 }
 //____________________________________________________________________________
-AtharSingleKaonPXSec::~AtharSingleKaonPXSec()
+AtharSingleKaonPXSec2014::~AtharSingleKaonPXSec2014()
 {
 
 }
 //____________________________________________________________________________
-double AtharSingleKaonPXSec::XSec(
+double AtharSingleKaonPXSec2014::XSec(
                   const Interaction * interaction, KinePhaseSpace_t kps) const
 {
   // Check whether interaction is valid
@@ -167,13 +167,13 @@ double AtharSingleKaonPXSec::XSec(
   return xsec;
 }
 //____________________________________________________________________________
-double AtharSingleKaonPXSec::Integral(const Interaction * interaction) const
+double AtharSingleKaonPXSec2014::Integral(const Interaction * interaction) const
 {
   double xsec = fXSecIntegrator->Integrate(this,interaction);
   return xsec;
 }
 //____________________________________________________________________________
-bool AtharSingleKaonPXSec::ValidProcess(const Interaction * interaction) const
+bool AtharSingleKaonPXSec2014::ValidProcess(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipProcessChk)) return true;
 
@@ -185,19 +185,19 @@ bool AtharSingleKaonPXSec::ValidProcess(const Interaction * interaction) const
 
 
 //____________________________________________________________________________
-void AtharSingleKaonPXSec::Configure(const Registry & config)
+void AtharSingleKaonPXSec2014::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void AtharSingleKaonPXSec::Configure(string config)
+void AtharSingleKaonPXSec2014::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void AtharSingleKaonPXSec::LoadConfig(void)
+void AtharSingleKaonPXSec2014::LoadConfig(void)
 {
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();
@@ -346,7 +346,7 @@ void AtharSingleKaonPXSec::LoadConfig(void)
 // *****************************************************************************
 
 //____________________________________________________________________________
-double AtharSingleKaonPXSec::Amatrix_NN(double theta, double phikq) const
+double AtharSingleKaonPXSec2014::Amatrix_NN(double theta, double phikq) const
 {
   
   double sol = 0.;
@@ -1195,7 +1195,7 @@ double AtharSingleKaonPXSec::Amatrix_NN(double theta, double phikq) const
 }
 
 //____________________________________________________________________________
-double AtharSingleKaonPXSec::Amatrix_NP(double theta, double phikq) const
+double AtharSingleKaonPXSec2014::Amatrix_NP(double theta, double phikq) const
 {
 
   double sol = 0.;
@@ -4915,7 +4915,7 @@ double AtharSingleKaonPXSec::Amatrix_NP(double theta, double phikq) const
 
 
 //____________________________________________________________________________
-double AtharSingleKaonPXSec::Amatrix_PP(double theta, double phikq) const
+double AtharSingleKaonPXSec2014::Amatrix_PP(double theta, double phikq) const
 {
   double sol = 0.;
   
