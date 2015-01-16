@@ -17,70 +17,106 @@ GENIE_LIBS  = $(shell $(GENIE)/src/scripts/setup/genie-config --libs)
 
 LIBRARIES  := $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 
-TGT = $(GENIE_BIN_PATH)/gevgen \
-	$(GENIE_BIN_PATH)/gevdump \
-	$(GENIE_BIN_PATH)/gevpick \
-	$(GENIE_BIN_PATH)/gmkspl \
-	$(GENIE_BIN_PATH)/gspladd \
-	$(GENIE_BIN_PATH)/gspl2root \
-	$(GENIE_BIN_PATH)/gntpc \
-	$(GENIE_BIN_PATH)/gevgen_hadron
+TGT =    gEvGen		  	\
+	 gEvDump          	\
+	 gEvGenHadronNucleus    \
+	 gEvPick	        \
+	 gMakeSplines	  	\
+	 gSplineAdd   	  	\
+	 gSplineXml2Root  	\
+	 gMaxPathLengths  	\
+	 gNtpConv	  
 
-GMXPL = 	$(GENIE_BIN_PATH)/gmxpl
-all: $(TGT) $(GMXPL)
+all: $(TGT)
 
-# Sadly the names of the source files and final executable names aren't the same so we have to map them
-$(GENIE_BIN_PATH)/gevgen : gEvGen.o
-$(GENIE_BIN_PATH)/gevdump: gEvDump.o
-$(GENIE_BIN_PATH)/gevgen_hadron : gEvGenHadronNucleus.o
-$(GENIE_BIN_PATH)/gevpick : gEvPick.o
-$(GENIE_BIN_PATH)/gmkspl : gMakeSplines.o
-$(GENIE_BIN_PATH)/gspladd : gSplineAdd.o
-$(GENIE_BIN_PATH)/gspl2root : gSplineXml2Root.o
-$(GENIE_BIN_PATH)/gmxpl : gMaxPathLengths.o
-$(GENIE_BIN_PATH)/gntpc : gNtpConv.o
+# gevgen event generation driver
+#
+gEvGen: FORCE
+	$(CXX) $(CXXFLAGS) -c gEvGen.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gEvGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen 
 
-$(TGT):
-	$(LD) $(LDFLAGS) $^ $(LIBRARIES) -o $@
+# gevdump event print-out utility
+#
+gEvDump: FORCE
+	$(CXX) $(CXXFLAGS) -c gEvDump.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gEvDump.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevdump
 
-%.o: %.cxx
-	$(CXX) $(CXXFLAGS) -c $^ $(INCLUDES)
 
-gMaxPathLengths.o: gMaxPathLengths.cxx
+# gevgen_hadron program generating hadron + nucleus interactions using GENIE's INTRANUKE
+#
+gEvGenHadronNucleus: FORCE
+	$(CXX) $(CXXFLAGS) -c gEvGenHadronNucleus.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gEvGenHadronNucleus.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen_hadron
+
+# gevpick event topology cherry-picking program
+#
+gEvPick: FORCE
+	$(CXX) $(CXXFLAGS) -c gEvPick.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gEvPick.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevpick
+
+# gmkspl x-section spline building utility
+#
+gMakeSplines: FORCE
+	$(CXX) $(CXXFLAGS) -c gMakeSplines.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gMakeSplines.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gmkspl 
+
+# gspladd utility merging x-section spline xml files
+#
+gSplineAdd: FORCE
+	$(CXX) $(CXXFLAGS) -c gSplineAdd.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gSplineAdd.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gspladd 
+
+# gspl2root utility for converting XML splines into ROOT
+#
+gSplineXml2Root: FORCE
+	$(CXX) $(CXXFLAGS) -c gSplineXml2Root.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gSplineXml2Root.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gspl2root
+
+# gmxpl utility computing maximum path lengths for a given root geometry
+#
+gMaxPathLengths: FORCE
 ifeq ($(strip $(GOPT_ENABLE_FLUX_DRIVERS)),YES)
-	$(CXX) $(CXXFLAGS) -c $^ $(INCLUDES)
+	$(CXX) $(CXXFLAGS) -c gMaxPathLengths.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gMaxPathLengths.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gmxpl
 else
-	@echo "Not creating $@ because flux drivers are disabled"
+	@echo "You need to enable the flux drivers to build the gmxpl utility"
 endif
 
-$(GENIE_BIN_PATH)/gmxpl:
-ifeq ($(strip $(GOPT_ENABLE_FLUX_DRIVERS)),YES)
-	$(LD) $(LDFLAGS) $^ $(LIBRARIES) -o $@
-else
-	@echo "Not creating $@ because flux drivers are disabled"
-endif
+# gntpc ntuple conversion utility
+#
+gNtpConv: FORCE
+	$(CXX) $(CXXFLAGS) -c gNtpConv.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gNtpConv.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gntpc 
 
 
 #################### CLEANING
 
-.PHONY: purge clean distclean
+purge: FORCE
+	$(RM) *.o *~ core 
 
-purge:
+clean: FORCE
 	$(RM) *.o *~ core
+	$(RM) $(GENIE_BIN_PATH)/gevgen		
+	$(RM) $(GENIE_BIN_PATH)/gevdump		
+	$(RM) $(GENIE_BIN_PATH)/gevgen_hadron
+	$(RM) $(GENIE_BIN_PATH)/gevpick
+	$(RM) $(GENIE_BIN_PATH)/gmkspl 	
+	$(RM) $(GENIE_BIN_PATH)/gspladd 	
+	$(RM) $(GENIE_BIN_PATH)/gspl2root		
+	$(RM) $(GENIE_BIN_PATH)/gmxpl		
+	$(RM) $(GENIE_BIN_PATH)/gntpc		
 
-clean:
-	$(RM) *.o *~ core
-	$(foreach exe, $(TGT), $(RM) $(exe) ;)
-
-distclean:
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevgen
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevdump
+distclean: FORCE
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevgen		
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevdump		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevgen_hadron
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevpick
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gmkspl
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gspladd
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gspl2root
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gmxpl
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gntpc
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gmkspl 	
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gspladd 	
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gspl2root		
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gmxpl		
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gntpc		
+
+FORCE:
 
 # DO NOT DELETE
