@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+
+Configuration sets for the Intranuke EventRecordVisitorI
+
+Algorithm Configurable Parameters:
+.......................................................................................................................
+Name                Type    Opt   Comment                                                     Default
+.......................................................................................................................
+test-mode           bool    Yes   enables modifications for the pitest mode                   false
+R0                  double  Yes   effective nucleus size Ro in fm                             GPL NUCL-R0
+NR                  double  Yes   param multiplying the nuclear radius determining how        GPL NUCL-NR
+                                  far beyond the nuclear boundary particles are tracked
+mode                string  Yes   intranuke mode                                              GPL INUKE-Mode
+NumRmvE             double  Yes   binding energy to subtract from cascade nucleons (GeV)      GPL INUKE-NucRemovalE
+HadStep             double  Yes   step size in fm                                             GPL INUKE-HadStep
+DelRPion            double  Yes   mult. factor for pi de-Broglie wavelength determining       GPL INUKE-DelRPion
+                                  how muct to increase the nuclear radius
+DelRNucleon         double  Yes   mult. factor for nucleon de-Broglie wavelength determining  GPL INUKE-DelRNucleon
+                                  how muct to increase the nuclear radius
+-->
+
+  <param_set name="Default"> 
+  </param_set>
+
+  <param_set name="hA-TestMode"> 
+      <param type="bool" name="test-mode"> true </param>
+  </param_set>
+
+  <param_set name="hA"> 
+      <param type="string" name="mode"> hA </param>
+  </param_set>
+
+  <param_set name="hN"> 
+      <param type="string" name="mode"> hN </param>
+  </param_set>
+
+</alg_conf>
+
