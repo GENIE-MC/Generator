@@ -239,6 +239,16 @@ const EventRecordVisitorI * GetIntranuke(void)
      sname = "genie::HNIntranuke"; 
      sconf = "Default";
   }
+  else
+  if(gOptMode.compare("hA2014")==0) {
+     sname = "genie::HAIntranuke2014"; 
+     sconf = "Default";
+  }
+  else 
+  if(gOptMode.compare("hN2014")==0) {
+     sname = "genie::HNIntranuke2014"; 
+     sconf = "Default";
+  }
   else {
     LOG("gevgen_hadron", pFATAL) << "Invalid Intranuke mode - Exiting";
     gAbortingInErr = true;
