@@ -1,0 +1,8 @@
+# values from Dytman calculations using various authors
+# inel: various
+# elas: saunders
+# abs: navon
+# cex: navon, bowles
+# KE (MeV) frac
+0.0	.0769
+50.0	.0729
