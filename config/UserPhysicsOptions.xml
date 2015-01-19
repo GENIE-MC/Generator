@@ -498,8 +498,8 @@ STFC, Rutherford Appleton Laboratory
   Options include:
    - genie::HAIntranuke/Default
    - genie::HNIntranuke/Default
-   - genie::HAIntranukeAlt/Default  new 2d spline for piA
-   - genie::HNIntranukeAlt/Default
+   - genie::HAIntranuke2014/Default  new 2d spline for piA
+   - genie::HNIntranuke2014/Default
   -->
   <param type="bool" name="HadronTransp-Enable"> true </param>
   <param type="alg"  name="HadronTransp-Model">  genie::HAIntranuke/Default  </param>
