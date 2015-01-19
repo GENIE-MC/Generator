@@ -170,7 +170,7 @@ foreach(@targets)
 	$batch_script = "$fntemplate.sh";
 	open(SLURM, ">$batch_script") or die("Can not create the SLURM batch script");
 	print SLURM "#!/bin/bash \n";
-        print SLURM "#SBATCH-j $jntemplate \n";
+        print SLURM "#SBATCH-p $queue \n";
         print SLURM "#SBATCH-o $fntemplate.lsfout.log \n";
         print SLURM "#SBATCH-e $fntemplate.lsferr.log \n";
 	print SLURM "source $genie_setup \n";
