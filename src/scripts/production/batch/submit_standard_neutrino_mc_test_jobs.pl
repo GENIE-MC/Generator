@@ -16,7 +16,7 @@
 #   [--cycle]        : default: 01
 #   [--ref-samples]  : Path for reference samples, default: no reference samples / no plots will be generated
 #   [--use-valgrind] : default: off
-#   [--batch-system] : <PBS, LSF, none>, default: PBS
+#   [--batch-system] : <PBS, LSF, slurm, none>, default: PBS
 #   [--queue]        : default: prod
 #   [--softw-topdir] : default: /opt/ppd/t2k/softw/GENIE
 #
@@ -287,6 +287,25 @@ for my $curr_runnu (keys %gevgl_hash)  {
         close(LSF);
         `bsub < $batch_script`;
     } #LSF
+
+    # slurm case
+    if($batch_system eq 'slurm') {
+        $batch_script  = "$fntemplate.sh";
+        open(SLURM, ">$batch_script") or die("Can not create the SLURM batch script");
+        print SLURM "#!/bin/bash \n";
+        print SLURM "#SBATCH-p $queue \n";
+        print SLURM "#SBATCH-o $fntemplate.lsfout.log \n";
+        print SLURM "#SBATCH-e $fntemplate.lsferr.log \n";
+        print SLURM "source $genie_setup \n"; 
+        print SLURM "cd $jobs_dir \n";
+        print SLURM "$evgen_cmd \n";
+        print SLURM "$conv_cmd \n";
+        if(-d $ref_sample_path) {
+           print SLURM "$comp_cmd \n";
+        }
+        close(SLURM);
+        `sbatch --job-name=$jntemplate $batch_script`;
+    } #slurm
 
     # no batch system, run jobs interactively
     if($batch_system eq 'none') {

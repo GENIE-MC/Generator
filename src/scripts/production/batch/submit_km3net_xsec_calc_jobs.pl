@@ -14,7 +14,7 @@
 #   [--production]   : default: <version>
 #   [--cycle]        : default: 01
 #   [--use-valgrind] : default: off
-#   [--batch-system] : <PBS, LSF>, default: PBS
+#   [--batch-system] : <PBS, LSF, slurm>, default: PBS
 #   [--queue]        : default: prod
 #   [--softw-topdir] : default: /opt/ppd/t2k/softw/GENIE
 #
@@ -139,5 +139,19 @@ while( my ($tgt_name, $tgt_code) = each %targets ) {
 	`bsub < $batch_script`;
     } #LSF
 
+    # slurm case
+    if($batch_system eq 'slurm') {
+	$batch_script = "$fntemplate.sh";
+	open(SLURM, ">$batch_script") or die("Can not create the SLURM batch script");
+	print SLURM "#!/bin/bash \n";
+        print SLURM "#SBATCH-p $queue \n";
+        print SLURM "#SBATCH-o $fntemplate.pbsout.log \n";
+        print SLURM "#SBATCH-e $fntemplate.pbserr.log \n";
+	print SLURM "source $genie_setup \n";
+	print SLURM "cd $jobs_dir \n";
+	print SLURM "$gmkspl_cmd \n";
+        close(SLURM);
+	`sbatch --job-name=$tgt_name $batch_script`;
+    } #slurm
 }
 

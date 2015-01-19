@@ -16,7 +16,7 @@
 #   [--production]   : production name, default: <version>
 #   [--cycle]        : cycle in current production, default: 01
 #   [--use-valgrind] : default: off
-#   [--batch-system] : <PBS, LSF>, default: PBS
+#   [--batch-system] : <PBS, LSF, slurm>, default: PBS
 #   [--queue]        : default: prod
 #   [--softw-topdir] : default: /opt/ppd/t2k/softw/GENIE
 #
@@ -213,6 +213,22 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
            close(LSF);
            `qsub < $batch_script`;
        } #LSF
+
+      # slurm case
+       if($batch_system eq 'slurm') {
+           $batch_script  = "$fntemplate.sh";
+           open(SLURM, ">$batch_script") or die("Can not create the SLURM batch script");
+           print SLURM "#!/bin/bash \n";
+           print SLURM "#SBATCH-p $queue \n";
+           print SLURM "#SBATCH-o $fntemplate.lsfout.log \n";
+           print SLURM "#SBATCH-e $fntemplate.lsferr.log \n";
+           print SLURM "source $genie_setup \n"; 
+           print SLURM "cd $jobs_dir \n";
+           print SLURM "$evgen_cmd \n";
+           print SLURM "$conv_cmd \n";
+           close(SLURM);
+           `sbatch --job-name=mec-$curr_subrunnu $batch_script`;
+       } #slurm
 
     } # loop over subruns
   } #checking whether to submit current run
