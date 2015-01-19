@@ -14,7 +14,7 @@
 #   [--production]   : default: routine_validation
 #   [--cycle]        : default: 01
 #   [--use-valgrind] : default: off
-#   [--batch-system] : <PBS, LSF, HTCondor, none>, default: PBS
+#   [--batch-system] : <PBS, LSF, slurm, HTCondor, none>, default: PBS
 #   [--queue]        : default: prod
 #   [--softw-topdir] : default: /opt/ppd/t2k/softw/GENIE
 #
@@ -259,6 +259,21 @@ for my $curr_xsplset (keys %OUTXML)  {
         close(HTC);
         `condor_submit $batch_script`;
     } #HTCondor
+
+    # slurm case
+    if($batch_system eq 'slurm') {
+        $batch_script = "$fntemplate.sh";
+        open(SLURM, ">$batch_script") or die("Can not create the slurm batch script");
+        print SLURM "#!/bin/bash \n";
+        print SLURM "#SBATCH-p $queue \n";
+        print SLURM "#SBATCH-o $fntemplate.slurmout.log \n";
+        print SLURM "#SBATCH-e $fntemplate.slurmerr.log \n";
+        print SLURM "source $genie_setup \n";
+        print SLURM "cd $jobs_dir \n";
+        print SLURM "$gmkspl_cmd | $grep_pipe &> $fntemplate.mkspl.log \n";
+        close(SLURM);
+        `sbatch --job-name=$jntemplate $batch_script`;
+    } #slurm
 
     # no batch system, run jobs interactively
     if($batch_system eq 'none') {
