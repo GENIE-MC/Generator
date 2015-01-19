@@ -86,8 +86,8 @@
   <priority msgstream="IntLst">              NOTICE </priority>
   <priority msgstream="Interaction">         NOTICE </priority>
   <priority msgstream="Intranuke">           INFO   </priority>
-  <priority msgstream="HAIntranuke2014">     INFO   </priority>
   <priority msgstream="Intranuke2014">       INFO   </priority>
+  <priority msgstream="HAIntranuke">         INFO   </priority>
   <priority msgstream="HAIntranuke2014">     INFO   </priority>
   <priority msgstream="HNIntranuke">         NOTICE </priority>
   <priority msgstream="HNIntranuke2014">     NOTICE </priority>
