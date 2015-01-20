@@ -594,11 +594,11 @@ double BergerSehgalRESPXSec2014::XSec(
      assert(hamplmod);
 
      const RSHelicityAmpl & hampl = hamplmod->Compute(resonance, fFKR); 
-     */
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("RSHAmpl", pDEBUG)
-    << "Helicity Amplitudes for RES = " << resname << " : " << *hampl;
+    << "Helicity Amplitudes for RES = " << resname << " : " << hampl;
 #endif
+     */
 
   //JNtest double g2 = kGF2;
   // For EM interaction replace  G_{Fermi} with :

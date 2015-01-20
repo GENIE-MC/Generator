@@ -213,7 +213,7 @@ double ReinSehgalRESPXSec::XSec(
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("RSHAmpl", pDEBUG)
-     << "Helicity Amplitudes for RES = " << resname << " : " << *hampl;
+     << "Helicity Amplitudes for RES = " << resname << " : " << hampl;
 #endif
 
   double g2 = kGF2;
