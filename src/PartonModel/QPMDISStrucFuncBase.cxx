@@ -441,11 +441,11 @@ double QPMDISStrucFuncBase::NuclMod(const Interaction * interaction) const
      double x  = kine.x();
      int    A = tgt.A(); 
      f = utils::nuclear::DISNuclFactor(x,A);
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+     LOG("DISSF", pDEBUG) << "Nuclear factor for x of " << x << "  = " << f; 
+#endif
   }
 
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("DISSF", pDEBUG) << "Nuclear factor for x of " << x << "  = " << f; 
-#endif
   return f;
 }
 //____________________________________________________________________________
