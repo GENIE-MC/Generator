@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (C) 2003-2010, GENIE Neutrino MC Generator Collaboration
+ Copyright (C) 2003-2015, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
