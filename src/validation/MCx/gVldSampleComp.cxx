@@ -1790,7 +1790,7 @@ void CreatePlots(string inp_filename, string inp_filename_ref)
      //------ number of prim p
      ps->NewPage();
      gst_0->Draw("nip","","");
-     if(gst_1) gst_1->Draw("nfp","","perrsame");
+     if(gst_1) gst_1->Draw("nip","","perrsame");
      ls->Clear();
      ls->SetHeader("Primary Hadronic System: Number of protons");
      ls->Draw();
@@ -1808,7 +1808,7 @@ void CreatePlots(string inp_filename, string inp_filename_ref)
      //------ number of prim pi+
      ps->NewPage();
      gst_0->Draw("nipip","","");
-     if(gst_1) gst_1->Draw("nfpip","","perrsame");
+     if(gst_1) gst_1->Draw("nipip","","perrsame");
      ls->Clear();
      ls->SetHeader("Primary Hadronic System: Number of pi+");
      ls->Draw();
@@ -1817,7 +1817,7 @@ void CreatePlots(string inp_filename, string inp_filename_ref)
      //------ number of prim pi-
      ps->NewPage();
      gst_0->Draw("nipim","","");
-     if(gst_1) gst_1->Draw("nfpim","","perrsame");
+     if(gst_1) gst_1->Draw("nipim","","perrsame");
      ls->Clear();
      ls->SetHeader("Primary Hadronic System: Number of pi-");
      ls->Draw();
@@ -1826,7 +1826,7 @@ void CreatePlots(string inp_filename, string inp_filename_ref)
      //------ number of prim pi0
      ps->NewPage();
      gst_0->Draw("nipi0","","");
-     if(gst_1) gst_1->Draw("nfpi0","","perrsame");
+     if(gst_1) gst_1->Draw("nipi0","","perrsame");
      ls->Clear();
      ls->SetHeader("Primary Hadronic System: Number of pi0");
      ls->Draw();
