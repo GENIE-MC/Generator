@@ -160,10 +160,11 @@ if ($author) {
 $valid_author = $author_hash {$author};
 if ($valid_author ne '1' && $author ne '') { error_exit("author. The author you typed was not recognized") };
 if ($msg) { $msg = lc ($msg) };
-if ($m[0] eq '') { @m = qw( hA hN ) };  ## run both hA and hN models if user does not specify
-%mM_hash = ('ha' => 'hA', 'Ha' => 'hA', 'HA' => 'hA', 'hA' => 'hA', 'hn' => 'hN', 'Hn' => 'hN', 'HN' => 'hN', 'hN' => 'hN');
+if ($m[0] eq '') { @m = qw( hA hA2014 ) };  ## run both hA and hN models if user does not specify
+%mM_hash = ('ha' => 'hA', 'Ha' => 'hA', 'HA' => 'hA', 'hA' => 'hA', 'hn' => 'hN', 'Hn' => 'hN', 'HN' => 'hN', 'hN' => 'hN', 'hA2014' => 'hA2014', 'hN2014' => 'hN2014');
 $m[0] = $mM_hash{$m[0]};
 if ($m[1]) {$m[1] = $mM_hash{$m[1]}}; 
+print "model choices are $mM_hash{$m[0]} and $m[1]\n";
 
 if ($author eq '' && $type eq 'root') {
     if ($prbpdg[0] ne '2212' && $prbpdg[0] ne '2112' && $prbpdg[0] ne '211' && $prbpdg[0] ne '-211' && $prbpdg[0] ne '111' && $prbpdg[0] ne '311' &&  $prbpdg[0] ne '-311' && $prbpdg[0] ne '321' &&  $prbpdg[0] ne '-321' 
