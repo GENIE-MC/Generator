@@ -1117,7 +1117,7 @@ sub set_defaults {
     if ($datadir) {$datadir =~ s|/$||};     ## if datadir is defined, remove any trailing slash
     if ($rootdir) {$rootdir =~ s|/$||};     ## if rootdir is defined, remove any trailing slash
     if ($pngdir) {$pngdir =~ s|/$||};       ## if pngdir is defined, remove any trailing slash
-    @mdl = qw( ha hn )  unless defined @mdl;  ## assume both hA and hN models if user does not specify
+    @mdl = qw( devel ha2014 )  unless defined @mdl;  ## assume both hA and hN models if user does not specify
     if (defined $vsn[0] != 1) {
 	if ($GENIE =~ m/devel/i) {           ## if $GENIE contains "devel" (regardless of case)
 	    @vsn = ('DEVEL');
@@ -1176,13 +1176,14 @@ sub set_file_names {
 
 sub set_root_file_name {
     $date = $dorf[$_[0]];
-    %mM_hash = ('ha' => 'hA', 'hn' => 'hN');
+    %mM_hash = ('ha' => 'hA', 'hn' => 'hN', 'ha2014' => 'hA2014', 'hn2014' => 'hN2014');
     $mM = $mM_hash{$m};
     if ($v eq 'DEVEL') {$vee = '';} else {$vee = 'v';}
     if ($type eq 'ang' || $type eq 'nrg') {$rootfile = "$a_name$date\_$probe\_$Tgt\_$energy\_$vee$v\_$mM.ginuke.root"};
     if ($type eq 'totxs') {$rootfile = "$a_name$date\_$probe\_$Tgt\_totxs_$vee$v\_$mM.txt"};
+    print "root file to be used = $rootfile \n" ;
     $rootfilename = "$rootdir/$rootfile";
-    %version_hash = ('282' => '2.8.2', '280' => '2.8.0', '271' => '2.7.1', '266' => '2.6.6', 'DEVEL' => 'DEVEL');
+    %version_hash = ('282' => '2.8.2', '280' => '2.8.0', '271' => '2.7.1', '266' => '2.6.6', 'DEVEL' => 'DEVEL', '2.9.0' => '2.9.0');
     if (defined $version_hash{$v}) {
 	$version = $version_hash{$v};
     } else {
@@ -1233,7 +1234,7 @@ sub make_format_file {
 		    if ($author eq 'mckeown' && $Tgt ne 'He') {print File "&&ph>=.27688";}
 		    if ($author eq 'mckeown' && $Tgt eq 'He') {print File "&&ph>=.36913";}
 		    print File "\n 1\n";
-		    %mM_hash = ('ha' => 'hA', 'hn' => 'hN'); $mM = $mM_hash{$m};
+		    %mM_hash = ('ha' => 'hA', 'hn' => 'hN', 'ha2014' => 'hA2014', 'hn2014' => 'hN2014'); $mM = $mM_hash{$m};
 		    print File " GENIE $version $mM results\n";
 		};
 	    };
@@ -1271,7 +1272,7 @@ sub make_format_file {
 		    print File " pdgh==$dppdg&&cth>=$cthmin[$i]&&cth<=$cthmax[$i]&&probe_fsi>1\n";
 		    $diff = sprintf('%.4f', ($cthmax[$i] - $cthmin[$i]));
 		    print File " $diff\n";
-		    %mM_hash = ('ha' => 'hA', 'hn' => 'hN'); $mM = $mM_hash{$m};
+		    %mM_hash = ('ha' => 'hA', 'hn' => 'hN', 'ha2014' => 'hA2014', 'hn2014' => 'hN2014'); $mM = $mM_hash{$m};
 		    print File " GENIE $version $mM results\n";
 		};
 	    };
@@ -1312,7 +1313,7 @@ sub make_format_file {
 		print File " E:und:sund:cex:scex:el:sel:inel:sinel:abs:sabs:ko:sko:pipro:spipro:dcex:sdcex:reac:sreac:total:stotal\n";
 		print File " $sbtp:E*1000\n";
 		print File " 1\n";
-		%mM_hash = ('ha' => 'hA', 'hn' => 'hN'); $mM = $mM_hash{$m};
+		%mM_hash = ('ha' => 'hA', 'hn' => 'hN', 'ha2014' => 'hA2014', 'hn2014' => 'hN2014'); $mM = $mM_hash{$m};
 		print File " GENIE $version $mM results\n";
 	    };
 	};
@@ -1324,7 +1325,7 @@ sub make_format_file {
 sub make_png_files {
     ## if ($type eq 'totxs') {$dataerror = 0; $rooterror = 0};
     if ($png ne 'off' && $dataerror > 0) {print "**Did not make png file** (Missing $dataerror data files.)\n"};
-    if ($png ne 'off' && $dataerror == 0 && $rooterror > 0) {print "**Did not make png file** (Missing at least one root file.)\n"};
+    if ($png ne 'off' && $dataerror == 0 && $rooterror > 0) {print "**Did not make png file** (Missing $rooterror root files.)\n"};
     if (($png ne 'off') && ($dataerror == 0) && ($rooterror == 0)) {
 	if ($rmode == 1) {
 	    system "root -l '$GENIE/src/validation/Intranuke/rootgINukeVal.C(\x{0022}$formatfilename\x{0022},\x{0022}$datadir\x{0022},\x{0022}$rootdir\x{0022},\x{0022}$pngdir\x{0022})'";
