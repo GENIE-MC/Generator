@@ -1117,7 +1117,7 @@ sub set_defaults {
     if ($datadir) {$datadir =~ s|/$||};     ## if datadir is defined, remove any trailing slash
     if ($rootdir) {$rootdir =~ s|/$||};     ## if rootdir is defined, remove any trailing slash
     if ($pngdir) {$pngdir =~ s|/$||};       ## if pngdir is defined, remove any trailing slash
-    @mdl = qw( devel ha2014 )  unless defined @mdl;  ## assume both hA and hN models if user does not specify
+    @mdl = qw( ha ha2014 )  unless defined @mdl;  ## assume both hA and hN models if user does not specify
     if (defined $vsn[0] != 1) {
 	if ($GENIE =~ m/devel/i) {           ## if $GENIE contains "devel" (regardless of case)
 	    @vsn = ('DEVEL');
