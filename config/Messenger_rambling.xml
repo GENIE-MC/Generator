@@ -34,6 +34,7 @@
   <priority msgstream="BardinIMD">           NOTICE </priority>
   <priority msgstream="BaryonResList">       WARN   </priority>
   <priority msgstream="BaseHad">             NOTICE </priority>
+  <priority msgstream="BergerSehgalRESPXSec2014"> INFO   </priority
   <priority msgstream="BreitWignet">         INFO   </priority>
   <priority msgstream="Bardin">              INFO   </priority>
   <priority msgstream="BodekYang">           INFO   </priority>
@@ -55,6 +56,7 @@
   <priority msgstream="DISHadronicVtx">      INFO   </priority>
   <priority msgstream="DISKinematics">       NOTICE </priority>
   <priority msgstream="EventGenerator">      NOTICE </priority> 
+  <priority msgstream="EffectiveSF">         INFO   </priority>
   <priority msgstream="Elastic">             INFO   </priority>
   <priority msgstream="EVGChain">            INFO   </priority>
   <priority msgstream="EvGenListAssembler">  WARN   </priority>
