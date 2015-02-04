@@ -9,9 +9,22 @@
 
 #!/bin/bash
 
-genie_setup = $1
-jobs_dir    = $2
-executable  = $3
+echo "Running setup_env_and_run_genie_app.sh: "
+
+genie_setup=$1
+jobs_dir=$2
+executable=$3
+
+shift
+shift
+shift
+
+args=$@
+
+echo " - GENIE setup script: $genie_setup" 
+echo " - Job directory: $jobs_dir"
+echo " - Executable: $executable"
+echo " - Arguments: $args"
 
 source $genie_setup
 cd $jobs_dir
