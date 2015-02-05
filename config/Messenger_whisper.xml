@@ -33,6 +33,7 @@
   <priority msgstream="BardinIMD">           FATAL   </priority>
   <priority msgstream="BaryonResList">       FATAL   </priority>
   <priority msgstream="BaseHad">             FATAL   </priority>
+  <priority msgstream="BergerSehgalRESPXSec2014"> FATAL   </priority>
   <priority msgstream="BreitWignet">         FATAL   </priority>
   <priority msgstream="Bardin">              FATAL   </priority>
   <priority msgstream="BodekYang">           FATAL   </priority>
@@ -52,6 +53,7 @@
   <priority msgstream="DISHadronicVtx">      FATAL   </priority>
   <priority msgstream="DISKinematics">       FATAL   </priority>
   <priority msgstream="EventGenerator">      FATAL   </priority> 
+  <priority msgstream="EffectiveSF">         FATAL   </priority>
   <priority msgstream="Elastic">             FATAL   </priority>
   <priority msgstream="EVGChain">            FATAL   </priority>
   <priority msgstream="EvGenListAssembler">  FATAL   </priority>
