@@ -36,7 +36,7 @@
   <priority msgstream="BaseHad">             NOTICE </priority>
   <priority msgstream="BreitWignet">         INFO   </priority>
   <priority msgstream="Bardin">              INFO   </priority>
-  <priority msgstream="BergerSehgalRESPXSec2014"> NOTICE   </priority
+  <priority msgstream="BergerSehgalRESPXSec2014"> NOTICE   </priority>
   <priority msgstream="BodekYang">           INFO   </priority>
   <priority msgstream="BodekRitchie">        WARN   </priority>
   <priority msgstream="Cache">               WARN   </priority>
