@@ -13,7 +13,9 @@ Integrator       alg      No
 -->
 
   <param_set name="Default"> 
+<!--
      <param type="alg" name="Integrator"> genie::Simpson1D/Default-Linear  </param>
+-->
   </param_set>
 </alg_conf>
 

@@ -40,6 +40,7 @@ public:
 
 private:
   void LoadConfig (void);
+  
 };
 
 }       // genie namespace

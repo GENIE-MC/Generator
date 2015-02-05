@@ -24,12 +24,14 @@
 #ifndef _BEZRUKOV_BUGAEV_MODEL_H_
 #define _BEZRUKOV_BUGAEV_MODEL_H_
 
+#include <Math/IFunction.h>
+
 #include "MuELoss/MuELossI.h"
-#include "Numerical/GSFunc.h"
+///////#include "Numerical/GSFunc.h"
 
 namespace genie {
 
-class IntegratorI;
+/////class IntegratorI;
 
 namespace mueloss {
 
@@ -40,18 +42,18 @@ public:
   BezrukovBugaevModel(string config);
   virtual ~BezrukovBugaevModel();
 
-  //! implement the MuELossI interface
+  //! Implement the MuELossI interface
   double       dE_dx    (double E, MuELMaterial_t material) const;
   MuELProcess_t Process (void) const { return eMupNuclearInteraction; }
 
-  //! overload the Algorithm::Configure() methods to load private data
-  //! members from configuration options
-  void Configure(const Registry & config);
-  void Configure(string config);
+//  //! Overload the Algorithm::Configure() methods to load private data
+//  //! members from configuration options
+//  void Configure(const Registry & config);
+//  void Configure(string config);
 
 private:
-  void LoadConfig (void);
-  const IntegratorI * fIntegrator;
+//  void LoadConfig (void);
+/////  const IntegratorI * fIntegrator;
 };
 
 } // mueloss namespace
@@ -71,23 +73,26 @@ private:
 */
 //____________________________________________________________________________
 
-namespace genie   {
-namespace mueloss {
+namespace genie {
+ namespace mueloss {
+   namespace gsl {
 
-class BezrukovBugaevIntegrand : public GSFunc
-{
-public:
-  BezrukovBugaevIntegrand(double E, double A);
-  ~BezrukovBugaevIntegrand();
+    class BezrukovBugaevIntegrand : public ROOT::Math::IBaseFunctionOneDim
+    {
+     public:
+       BezrukovBugaevIntegrand(double E, double A);
+      ~BezrukovBugaevIntegrand();
+       // ROOT::Math::IBaseFunctionOneDim interface
+       unsigned int                      NDim   (void)       const;
+       double                            DoEval (double xin) const;
+       ROOT::Math::IBaseFunctionOneDim * Clone  (void)       const;
+     private:
+       double fE;
+       double fA;
+     };
 
-  double operator () (const vector<double> & x);
-
-private:
-  double fE;
-  double fA;
-};
-
-}  // mueloss namespace
+  }  // gsl namespace
+ }  // mueloss namespace
 }  // genie   namespace
 
 #endif // _BEZRUKOV_BUGAEV_MODEL_H_

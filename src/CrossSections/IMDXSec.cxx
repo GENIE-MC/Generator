@@ -28,7 +28,7 @@
 #include "CrossSections/GXSecFunc.h"
 #include "CrossSections/GSLXSecFunc.h"
 #include "Messenger/Messenger.h"
-#include "Numerical/IntegratorI.h"
+//#include "Numerical/IntegratorI.h"
 #include "Utils/GSLUtils.h"
 
 using namespace genie;
@@ -68,20 +68,19 @@ double IMDXSec::Integrate(
   interaction->SetBit(kISkipProcessChk);
   //interaction->SetBit(kISkipKinematicChk);
 
-#ifdef __GENIE_GSL_ENABLED__
-  ROOT::Math::IBaseFunctionOneDim * func = new utils::gsl::wrap::dXSec_dy_E(model, interaction);
+//#ifdef __GENIE_GSL_ENABLED__
+  double abstol = 1; // We mostly care about relative tolerance
+  ROOT::Math::IBaseFunctionOneDim * func = new utils::gsl::dXSec_dy_E(model, interaction);
   ROOT::Math::IntegrationOneDim::Type ig_type = utils::gsl::Integration1DimTypeFromString(fGSLIntgType);
-  ROOT::Math::Integrator ig(ig_type);
-  ig.SetFunction(*func);
-  ig.SetRelTolerance(fGSLRelTol);
+  ROOT::Math::Integrator ig(*func,ig_type,abstol,fGSLRelTol,fGSLMaxEval);
   double xsec = ig.Integral(yl.min, yl.max) * (1E-38 * units::cm2);
 
-#else
-  GXSecFunc * func = new Integrand_DXSec_Dy_E(model, interaction);
-  func->SetParam(0,"y",yl);
-  double xsec = fIntegrator->Integrate(*func);
-
-#endif
+//#else
+//  GXSecFunc * func = new Integrand_DXSec_Dy_E(model, interaction);
+//  func->SetParam(0,"y",yl);
+//  double xsec = fIntegrator->Integrate(*func);
+//
+//#endif
 
   //LOG("IMDXSec", pDEBUG) << "XSec[IMD] (E = " << E << ") = " << xsec;
 
@@ -106,13 +105,14 @@ void IMDXSec::Configure(string config)
 void IMDXSec::LoadConfig(void)
 {
   // Get specified GENIE integration algorithm
-  fIntegrator = 
-     dynamic_cast<const IntegratorI *> (this->SubAlg("Integrator"));
-  assert(fIntegrator);
+//  fIntegrator = 
+//     dynamic_cast<const IntegratorI *> (this->SubAlg("Integrator"));
+//  assert(fIntegrator);
 
   // Get GSL integration type & relative tolerance
-  fGSLIntgType = fConfig->GetStringDef("gsl-integration-type",  "adaptive");
-  fGSLRelTol   = fConfig->GetDoubleDef("gsl-relative-tolerance", 0.01);
+  fGSLIntgType = fConfig->GetStringDef("gsl-integration-type"  ,  "adaptive");
+  fGSLRelTol   = fConfig->GetDoubleDef("gsl-relative-tolerance", 1E-4);
+  fGSLMaxEval  = (unsigned int) fConfig->GetIntDef   ("gsl-max-eval"          , 100000);
 }
 //____________________________________________________________________________
 

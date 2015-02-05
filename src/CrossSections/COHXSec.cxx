@@ -22,15 +22,17 @@
 #include <TMath.h>
 #include <Math/IFunction.h>
 #include <Math/IntegratorMultiDim.h>
+#include "Math/AdaptiveIntegratorMultiDim.h"
 
 #include "Conventions/GBuild.h"
 #include "Conventions/Constants.h"
+#include "Conventions/Controls.h"
 #include "Conventions/Units.h"
 #include "CrossSections/COHXSec.h"
 #include "CrossSections/GXSecFunc.h"
 #include "CrossSections/GSLXSecFunc.h"
 #include "Messenger/Messenger.h"
-#include "Numerical/IntegratorI.h"
+//#include "Numerical/IntegratorI.h"
 #include "PDG/PDGUtils.h"
 #include "Utils/MathUtils.h"
 #include "Utils/Range1.h"
@@ -70,42 +72,90 @@ double COHXSec::Integrate(
   }
   Range1D_t xl = kps.Limits(kKVx);
   Range1D_t yl = kps.Limits(kKVy);
-
-  LOG("COHXSec", pINFO)
-       << "x integration range = [" << xl.min << ", " << xl.max << "]";
-  LOG("COHXSec", pINFO)
-       << "y integration range = [" << yl.min << ", " << yl.max << "]";
+  Range1D_t Q2l;
+  Q2l.min = controls::kASmallNum;
+  Q2l.max = 1.0;  // TODO - No magic numbers! 
 
   Interaction * interaction = new Interaction(*in);
   interaction->SetBit(kISkipProcessChk);
   //interaction->SetBit(kISkipKinematicChk);
 
-#ifdef __GENIE_GSL_ENABLED__
+  double xsec = 0.0;
+
+  if (model->Id().Name() == "genie::ReinSeghalCOHPiPXSec") {
+    LOG("COHXSec", pINFO)
+      << "x integration range = [" << xl.min << ", " << xl.max << "]";
+    LOG("COHXSec", pINFO)
+      << "y integration range = [" << yl.min << ", " << yl.max << "]";
+
+//#ifdef __GENIE_GSL_ENABLED__
   ROOT::Math::IBaseFunctionMultiDim * func = 
-      new utils::gsl::wrap::d2XSec_dxdy_E(model, interaction);
+      new utils::gsl::d2XSec_dxdy_E(model, interaction);
   ROOT::Math::IntegrationMultiDim::Type ig_type = 
       utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
-  ROOT::Math::IntegratorMultiDim ig(ig_type);
-  ig.SetRelTolerance(fGSLRelTol);
-  ig.SetFunction(*func);
+      
+  double abstol = 1; //We mostly care about relative tolerance.
+  ROOT::Math::IntegratorMultiDim ig(*func, ig_type, abstol, fGSLRelTol, fGSLMaxEval);
+  if (ig_type == ROOT::Math::IntegrationMultiDim::kADAPTIVE) {
+    ROOT::Math::AdaptiveIntegratorMultiDim * cast =
+      dynamic_cast<ROOT::Math::AdaptiveIntegratorMultiDim*>( ig.GetIntegrator() );
+      assert(cast);
+      cast->SetMinPts(fGSLMinEval);
+  }
+  
   double kine_min[2] = { xl.min, yl.min };
   double kine_max[2] = { xl.max, yl.max };
-  double xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2);
+  xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2);
 
-#else
-  GXSecFunc * func = new Integrand_D2XSec_DxDy_E(model, interaction);
-  func->SetParam(0,"x",xl);
-  func->SetParam(1,"y",yl);
-  double xsec = fIntegrator->Integrate(*func);
+//#else
+//  GXSecFunc * func = new Integrand_D2XSec_DxDy_E(model, interaction);
+//  func->SetParam(0,"x",xl);
+//  func->SetParam(1,"y",yl);
+//  xsec = fIntegrator->Integrate(*func);
+//
+//#endif
 
-#endif
+  } 
+  else if (model->Id().Name() == "genie::BergerSehgalCOHPiPXSec" || 
+           model->Id().Name() == "genie::BergerSehgalFMCOHPiPXSec") 
+  {
+//#ifdef __GENIE_GSL_ENABLED__
+    ROOT::Math::IBaseFunctionMultiDim * func = 
+      new utils::gsl::d2XSec_dQ2dy_E(model, interaction);
+    ROOT::Math::IntegrationMultiDim::Type ig_type = 
+      utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
+    ROOT::Math::IntegratorMultiDim ig(ig_type);
+    ig.SetRelTolerance(fGSLRelTol);
+    ig.SetFunction(*func);
+    if (ig_type == ROOT::Math::IntegrationMultiDim::kADAPTIVE) {
+    ROOT::Math::AdaptiveIntegratorMultiDim * cast =
+      dynamic_cast<ROOT::Math::AdaptiveIntegratorMultiDim*>( ig.GetIntegrator() );
+      assert(cast);
+      cast->SetMinPts(fGSLMinEval);
+    }
+    double kine_min[2] = { Q2l.min, yl.min };
+    double kine_max[2] = { Q2l.max, yl.max };
+    xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2);
+    delete func;
+//#else
+//    GXSecFunc * func = new Integrand_D2XSec_DQ2Dy_E(model, interaction);
+//    func->SetParam(0,"Q2",Q2l);
+//    func->SetParam(1,"y",yl);
+//    xsec = fIntegrator->Integrate(*func);
+//    delete func;
+//#endif
+  }
 
   const InitialState & init_state = in->InitState();
   double Ev = init_state.ProbeE(kRfLab);
   LOG("COHXSec", pINFO) << "XSec[COH] (E = " << Ev << " GeV) = " << xsec;
 
   delete interaction;
-  delete func;
+//#ifdef __GENIE_GSL_ENABLED__
+//  // Other cleanup?
+//#else
+//  // Other cleanup?
+//#endif
   return xsec;
 }
 //____________________________________________________________________________
@@ -124,11 +174,13 @@ void COHXSec::Configure(string config)
 void COHXSec::LoadConfig(void)
 {
   // Get specified GENIE integration algorithm
-  fIntegrator = dynamic_cast<const IntegratorI *> (this->SubAlg("Integrator"));
-  assert(fIntegrator);
+//  fIntegrator = dynamic_cast<const IntegratorI *> (this->SubAlg("Integrator"));
+//  assert(fIntegrator);
 
   // Get GSL integration type & relative tolerance
   fGSLIntgType = fConfig->GetStringDef("gsl-integration-type",  "adaptive");
-  fGSLRelTol   = fConfig->GetDoubleDef("gsl-relative-tolerance", 0.01);
+  fGSLRelTol   = fConfig->GetDoubleDef("gsl-relative-tolerance", 1E-2); 
+  fGSLMaxEval  = (unsigned int) fConfig->GetIntDef   ("gsl-max-eval"   , 500000); 
+  fGSLMinEval  = (unsigned int) fConfig->GetIntDef   ("gsl-min-eval"   , 5000); 
 }
 //____________________________________________________________________________

@@ -5,7 +5,7 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - December 10, 2003
+         STFC, Rutherford Appleton Laboratory 
 
  For the class documentation see the corresponding header file.
 
@@ -15,9 +15,11 @@
 //____________________________________________________________________________
 
 #include <TMath.h>
+#include <Math/IntegratorMultiDim.h>
 
 #include "MuELoss/KokoulinPetrukhinModel.h"
-#include "Numerical/IntegratorI.h"
+////#include "Numerical/IntegratorI.h"
+#include "Utils/GSLUtils.h"
 
 using namespace genie;
 using namespace genie::mueloss;
@@ -65,55 +67,77 @@ double KokoulinPetrukhinModel::dE_dx(double E, MuELMaterial_t material) const
 
   // integrate the Kokulin-Petrukhin differential cross section v*ds/dv for
   // muon e+e- pair production over v and p
-  KokoulinPetrukhinIntegrand vd2s_dvdp(E,Z);
-  vd2s_dvdp.SetParam(0,"v",Vmin,Vmax);
-  vd2s_dvdp.SetParam(1,"p",Pmin,Pmax);
+
+  ROOT::Math::IBaseFunctionMultiDim * integrand =
+      new gsl::KokoulinPetrukhinIntegrand(E, Z);
+  ROOT::Math::IntegrationMultiDim::Type ig_type =
+      utils::gsl::IntegrationNDimTypeFromString("adaptive");
+  
+  double abstol   = 1; // We mostly care about relative tolerance.
+  double reltol   = 1E-4;
+  int    nmaxeval = 500000;
+
+  ROOT::Math::IntegratorMultiDim ig(*integrand, ig_type, abstol, reltol, nmaxeval);
+
+  double min[2] = { Vmin, Pmin };
+  double max[2] = { Vmax, Pmax };
 
   // calculate the b factor (bE = -dE/dx) in GeV^-3
   A *= units::g;
-  double bpair = (2*kNA/A) * fIntegrator->Integrate(vd2s_dvdp);
+  double bpair = (2*kNA/A) * ig.Integral(min, max);
+
+  delete integrand;
 
   // calculate the dE/dx due to muon bremsstrahlung in GeV^-2
   double de_dx = bpair*E;
   return de_dx;
 }
 //____________________________________________________________________________
-void KokoulinPetrukhinModel::Configure(const Registry & config)
-{
-  Algorithm::Configure(config);
-  this->LoadConfig();
-}
+//void KokoulinPetrukhinModel::Configure(const Registry & config)
+//{
+//  Algorithm::Configure(config);
+//  this->LoadConfig();
+//}
+////____________________________________________________________________________
+//void KokoulinPetrukhinModel::Configure(string config)
+//{
+//  Algorithm::Configure(config);
+//  this->LoadConfig();
+//}
+////____________________________________________________________________________
+//void KokoulinPetrukhinModel::LoadConfig(void)
+//{
+////  fIntegrator = dynamic_cast<const IntegratorI *> (this->SubAlg("Integrator"));
+////  assert(fIntegrator);
+//}
 //____________________________________________________________________________
-void KokoulinPetrukhinModel::Configure(string config)
-{
-  Algorithm::Configure(config);
-  this->LoadConfig();
-}
+//
+// KokoulinPetrukhinIntegrand
+//
 //____________________________________________________________________________
-void KokoulinPetrukhinModel::LoadConfig(void)
-{
-  fIntegrator = dynamic_cast<const IntegratorI *> (this->SubAlg("Integrator"));
-  assert(fIntegrator);
-}
-//____________________________________________________________________________
-KokoulinPetrukhinIntegrand::KokoulinPetrukhinIntegrand(double E, double Z) :
-GSFunc(2)
+gsl::KokoulinPetrukhinIntegrand::KokoulinPetrukhinIntegrand(double E, double Z) :
+ROOT::Math::IBaseFunctionMultiDim()
 {
   fE = E;
   fZ = Z;
 }
 //____________________________________________________________________________
-KokoulinPetrukhinIntegrand::~KokoulinPetrukhinIntegrand()
+gsl::KokoulinPetrukhinIntegrand::~KokoulinPetrukhinIntegrand()
 {
 
 }
 //____________________________________________________________________________
-double KokoulinPetrukhinIntegrand::operator () (const vector<double> & x)
+unsigned int gsl::KokoulinPetrukhinIntegrand::NDim(void) const
+{
+  return 2;
+} 
+//____________________________________________________________________________
+double gsl::KokoulinPetrukhinIntegrand::DoEval (const double * xin) const
 {
 // Returns v*(d^2s/dvdp)
 
-  double v  = x[0]; // v, the fraction of energy transfered to the photon
-  double p  = x[1]; //
+  double v  = xin[0]; // v, the fraction of energy transfered to the photon
+  double p  = xin[1]; //
 
   if (! v >0) return 0;
   if (  v >1) return 0;
@@ -176,6 +200,12 @@ double KokoulinPetrukhinIntegrand::operator () (const vector<double> & x)
 
   double vd2s_dvdp = v*d2s_dvdp;
   return vd2s_dvdp;
+}
+//____________________________________________________________________________
+ROOT::Math::IBaseFunctionMultiDim * 
+  gsl::KokoulinPetrukhinIntegrand::Clone(void) const
+{
+  return new gsl::KokoulinPetrukhinIntegrand(fE,fZ);
 }
 //____________________________________________________________________________
 

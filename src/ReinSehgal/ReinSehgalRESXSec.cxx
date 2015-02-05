@@ -32,7 +32,7 @@
 #include "CrossSections/GSLXSecFunc.h"
 #include "Conventions/Units.h"
 #include "Messenger/Messenger.h"
-#include "Numerical/IntegratorI.h"
+//#include "Numerical/IntegratorI.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
 #include "ReinSehgal/ReinSehgalRESXSec.h"
@@ -185,9 +185,9 @@ double ReinSehgalRESXSec::Integrate(
     LOG("ReinSehgalResC", pINFO)
           << "{Q^2} = " << rQ2.min << ", " << rQ2.max;
 
-#ifdef __GENIE_GSL_ENABLED__   
+//#ifdef __GENIE_GSL_ENABLED__   
     ROOT::Math::IBaseFunctionMultiDim * func =
-        new utils::gsl::wrap::d2XSec_dWdQ2_E(model, interaction);
+        new utils::gsl::d2XSec_dWdQ2_E(model, interaction);
     ROOT::Math::IntegrationMultiDim::Type ig_type = 
         utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
     ROOT::Math::IntegratorMultiDim ig(ig_type);
@@ -197,14 +197,14 @@ double ReinSehgalRESXSec::Integrate(
     double kine_max[2] = { rW.max, rQ2.max };
     double xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2);
 
-#else         
-    GXSecFunc * func = 
-         new Integrand_D2XSec_DWDQ2_E(fSingleResXSecModel, interaction);
-    func->SetParam(0,"W",  rW);
-    func->SetParam(1,"Q2", rQ2);
-    double xsec = fIntegrator->Integrate(*func);
-
-#endif
+//#else         
+//    GXSecFunc * func = 
+//         new Integrand_D2XSec_DWDQ2_E(fSingleResXSecModel, interaction);
+//    func->SetParam(0,"W",  rW);
+//    func->SetParam(1,"Q2", rQ2);
+//    double xsec = fIntegrator->Integrate(*func);
+//
+//#endif
 
     delete func;
     return xsec;
@@ -229,9 +229,9 @@ void ReinSehgalRESXSec::LoadConfig(void)
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();
 
-  fIntegrator = 
-       dynamic_cast<const IntegratorI *> (this->SubAlg("Integrator"));
-  assert (fIntegrator);
+//  fIntegrator = 
+//       dynamic_cast<const IntegratorI *> (this->SubAlg("Integrator"));
+//  assert (fIntegrator);
 
   // Get GSL integration type & relative tolerance
   fGSLIntgType = fConfig->GetStringDef("gsl-integration-type",  "adaptive");

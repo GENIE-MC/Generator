@@ -17,13 +17,13 @@
 #include <Math/IntegratorMultiDim.h>
 #include "Math/AdaptiveIntegratorMultiDim.h"
 
+#include "AtharSingleKaon/ASKXSec.h"
+#include "AtharSingleKaon/ASKGSL.h"
 #include "Conventions/GBuild.h"
 #include "Conventions/Constants.h"
 #include "Conventions/Controls.h"
 #include "Conventions/Units.h"
-#include "CrossSections/ASKXSec.h"
-#include "CrossSections/GXSecFunc.h"
-#include "CrossSections/GSLXSecFunc.h"
+//#include "CrossSections/GXSecFunc.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/IntegratorI.h"
 #include "PDG/PDGUtils.h"
@@ -98,7 +98,7 @@ double ASKXSec::Integrate(
   // do the integration over log(1-costheta) so it's not so sharply peaked
     
   ROOT::Math::IBaseFunctionMultiDim * func = 
-        new utils::gsl::wrap::d3Xsec_dTldTkdCosThetal(model, interaction);
+        new utils::gsl::d3Xsec_dTldTkdCosThetal(model, interaction);
   double kine_min[3] = { zero, zero, -20 }; // Tlep, Tkaon, cosine theta lep
   double kine_max[3] = { tmax, tmax,  0.69314718056 }; // Tlep, Tkaon, cosine theta lep
     
@@ -131,14 +131,14 @@ void ASKXSec::Configure(string config)
 void ASKXSec::LoadConfig(void)
 {
   // Get specified GENIE integration algorithm
-  fIntegrator = dynamic_cast<const IntegratorI *> (this->SubAlg("Integrator"));
-  assert(fIntegrator);
+//  fIntegrator = dynamic_cast<const IntegratorI *> (this->SubAlg("Integrator"));
+//  assert(fIntegrator);
 
   // Get GSL integration type & relative tolerance
-  fGSLIntgType   = fConfig->GetStringDef("gsl-integration-type" ,  "vegas");
+  fGSLIntgType   = fConfig->GetStringDef("gsl-integration-type" ,    "vegas");
   fGSLMaxEval    = (unsigned int) fConfig->GetIntDef("gsl-max-evals", 20000);
-  fGSLRelTol     = fConfig->GetDoubleDef("gsl-relative-tolerance", 0.01);
-  fSplitIntegral = fConfig->GetBoolDef("split-integral", true);
+  fGSLRelTol     = fConfig->GetDoubleDef("gsl-relative-tolerance",    0.01);
+  fSplitIntegral = fConfig->GetBoolDef("split-integral",              true);
 }
 //_____________________________________________________________________________
 
