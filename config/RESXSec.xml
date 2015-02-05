@@ -1,24 +1,19 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <!--
-
 Configuration for the RESXSec cross section algorithm
-
-Configurable Parameters:
-..........................................................................................................................
-Name              Type     Opt   Comment                                      Default
-..........................................................................................................................
-Integrator        alg      No    Integration algorithm
-Kine-Wmin         double   Yes   Kinematical cut                              Use physical range
-Kine-Wmax         double   Yes   Kinematical cut                              Use physical range     
-Kine-Q2min        double   Yes   Kinematical cut                              Use physical range   
-Kine-Q2max        double   Yes   Kinematical cut                              Use physical range    
 -->
 
 <alg_conf>
 
   <param_set name="Default"> 
-     <param type="alg" name="Integrator">   genie::Simpson2D/Default-Logarithmic-FixedNBins-Fast </param>
+<!--
+    <param type="alg" name="Integrator">   genie::Simpson2D/Default-Logarithmic-FixedNBins-Fast </param>
+-->
+    <param type="string" name ="gsl-integration-type">       vegas  </param>
+    <param type="int"    name ="gsl-max-eval" >            5000000  </param>
+    <param type="int"    name ="gsl-min-eval" >             500000  </param>
+    <param type="double" name ="gsl-relative-tolerance">    0.0001  </param>
   </param_set>
 
 </alg_conf>

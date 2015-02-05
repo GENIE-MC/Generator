@@ -45,11 +45,11 @@ public:
   ReinSehgalRESXSec(string param_set);
   virtual ~ReinSehgalRESXSec();
 
-  //-- XSecIntegratorI interface implementation
+  // XSecIntegratorI interface implementation
   double Integrate(const XSecAlgorithmI * model, const Interaction * i) const;
 
-  //-- overload the Algorithm::Configure() methods to load private data
-  //   members from configuration options
+  // Overload the Algorithm::Configure() methods to load private data
+  // members from configuration options
   void Configure(const Registry & config);
   void Configure(string config);
 

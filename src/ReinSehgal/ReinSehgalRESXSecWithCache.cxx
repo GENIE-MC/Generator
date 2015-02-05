@@ -38,7 +38,7 @@
 #include "CrossSections/GXSecFunc.h"
 #include "CrossSections/GSLXSecFunc.h"
 #include "Messenger/Messenger.h"
-#include "Numerical/IntegratorI.h"
+//#include "Numerical/IntegratorI.h"
 #include "PDG/PDGUtils.h"
 #include "PDG/PDGCodes.h"
 #include "ReinSehgal/ReinSehgalRESXSecWithCache.h"
@@ -87,7 +87,7 @@ void ReinSehgalRESXSecWithCache::CacheResExcitationXSec(
   Cache * cache = Cache::Instance();
 
   assert(fSingleResXSecModel);
-  assert(fIntegrator);
+//  assert(fIntegrator);
 
   // Compute the number of spline knots - use at least 10 knots per decade 
   // && at least 40 knots in the full energy range
@@ -177,9 +177,9 @@ void ReinSehgalRESXSecWithCache::CacheResExcitationXSec(
                               << "** Not allowed kinematically, xsec=0";
                } else {
 
-#ifdef __GENIE_GSL_ENABLED__   
+//#ifdef __GENIE_GSL_ENABLED__   
                   ROOT::Math::IBaseFunctionMultiDim * func = 
-                      new utils::gsl::wrap::d2XSec_dWdQ2_E(fSingleResXSecModel, interaction);
+                      new utils::gsl::d2XSec_dWdQ2_E(fSingleResXSecModel, interaction);
                   ROOT::Math::IntegrationMultiDim::Type ig_type = 
                       utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
                   ROOT::Math::IntegratorMultiDim ig(ig_type);
@@ -189,13 +189,13 @@ void ReinSehgalRESXSecWithCache::CacheResExcitationXSec(
                   double kine_max[2] = { rW.max, rQ2.max };
                   xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2);
 
-#else
-                  GXSecFunc * func = new Integrand_D2XSec_DWDQ2_E(
-                       fSingleResXSecModel, interaction);
-                  func->SetParam(0,"W",  rW);
-                  func->SetParam(1,"Q2", rQ2);
-                  xsec = fIntegrator->Integrate(*func);
-#endif
+//#else
+//                  GXSecFunc * func = new Integrand_D2XSec_DWDQ2_E(
+//                       fSingleResXSecModel, interaction);
+//                  func->SetParam(0,"W",  rW);
+//                  func->SetParam(1,"Q2", rQ2);
+//                  xsec = fIntegrator->Integrate(*func);
+//#endif
                   delete func;
                }
              } else {

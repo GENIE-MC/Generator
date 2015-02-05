@@ -25,12 +25,14 @@
 #ifndef _PETRUKHIN_SHESTAKOV_MODEL_H_
 #define _PETRUKHIN_SHESTAKOV_MODEL_H_
 
+#include <Math/IFunction.h>
+
 #include "MuELoss/MuELossI.h"
-#include "Numerical/GSFunc.h"
+///#include "Numerical/GSFunc.h"
 
 namespace genie {
 
-class IntegratorI;
+////class IntegratorI;
 
 namespace mueloss {
 
@@ -41,18 +43,18 @@ public:
   PetrukhinShestakovModel(string config);
   virtual ~PetrukhinShestakovModel();
 
-  //! implement the MuELossI interface
+  //! Implement the MuELossI interface
   double        dE_dx   (double E, MuELMaterial_t material) const;
   MuELProcess_t Process (void) const { return eMupBremsstrahlung; }
 
-  //! overload the Algorithm::Configure() methods to load private data
-  //!  members from configuration options
-  void Configure(const Registry & config);
-  void Configure(string config);
-
-private:
-  void LoadConfig (void);
-  const IntegratorI * fIntegrator;
+//  //! Overload the Algorithm::Configure() methods to load private data
+//  //! members from configuration options
+//  void Configure(const Registry & config);
+//  void Configure(string config);
+//
+//private:
+//  void LoadConfig (void);
+//  //const IntegratorI * fIntegrator;
 };
 
 } // mueloss namespace
@@ -72,23 +74,26 @@ private:
 */
 //____________________________________________________________________________
 
-namespace genie   {
-namespace mueloss {
+namespace genie {
+ namespace mueloss {
+   namespace gsl {
+          
+    class PetrukhinShestakovIntegrand : public ROOT::Math::IBaseFunctionOneDim
+    {
+     public:
+       PetrukhinShestakovIntegrand(double E, double Z);
+      ~PetrukhinShestakovIntegrand();
+       // ROOT::Math::IBaseFunctionOneDim interface
+       unsigned int                      NDim   (void)       const;
+       double                            DoEval (double xin) const;
+       ROOT::Math::IBaseFunctionOneDim * Clone  (void)       const;
+     private:
+       double fE;
+       double fZ;
+     };
 
-class PetrukhinShestakovIntegrand : public GSFunc
-{
-public:
-  PetrukhinShestakovIntegrand(double E, double Z);
-  ~PetrukhinShestakovIntegrand();
-
-  double operator () (const vector<double> & x);
-
-private:
-  double fE;
-  double fZ;
-};
-
-} // mueloss namespace
-} // genie   namespace
+  }  // gsl namespace  
+ }  // mueloss namespace
+}  // genie   namespace
 
 #endif // _PETRUKHIN_SHESTAKOV_MODEL_H_

@@ -15,9 +15,11 @@
 //____________________________________________________________________________
 
 #include <TMath.h>
+#include <Math/Integrator.h>
 
 #include "MuELoss/BezrukovBugaevModel.h"
-#include "Numerical/IntegratorI.h"
+//#include "Numerical/IntegratorI.h"
+#include "Utils/GSLUtils.h"
 
 using namespace genie;
 using namespace genie::mueloss;
@@ -60,54 +62,73 @@ double BezrukovBugaevModel::dE_dx(double E, MuELMaterial_t material) const
 
   // integrate the Bezrukov-Bugaev differential cross section v*ds/dv for
   // muon nuclear interaction over v
-  BezrukovBugaevIntegrand vds_dv(E,A);
-  vds_dv.SetParam(0,"v",Vmin,Vmax);
+
+  ROOT::Math::IBaseFunctionOneDim * integrand = 
+          new gsl::BezrukovBugaevIntegrand(E,A);
+  ROOT::Math::IntegrationOneDim::Type ig_type =
+          utils::gsl::Integration1DimTypeFromString("adaptive");
+
+  double abstol   = 1;    // We mostly care about relative tolerance
+  double reltol   = 1E-4;
+  int    nmaxeval = 100000;
+  ROOT::Math::Integrator ig(*integrand,ig_type,abstol,reltol,nmaxeval);
 
   // calculate the b factor (bE = -dE/dx) in GeV^-3
   A *= units::g;
-  double bnucl = (kNA/A) * fIntegrator->Integrate(vds_dv);
+  double bnucl = (kNA/A) * ig.Integral(Vmin, Vmax); 
+
+  delete integrand;
 
   // calculate the dE/dx due to muon nuclear interaction in GeV^-2
   double de_dx = bnucl*E;
   return de_dx;
 }
 //____________________________________________________________________________
-void BezrukovBugaevModel::Configure(const Registry & config)
-{
-  Algorithm::Configure(config);
-  this->LoadConfig();
-}
+//void BezrukovBugaevModel::Configure(const Registry & config)
+//{
+//  Algorithm::Configure(config);
+//  this->LoadConfig();
+//}
+////____________________________________________________________________________
+//void BezrukovBugaevModel::Configure(string config)
+//{
+//  Algorithm::Configure(config);
+//  this->LoadConfig();
+//}
+////____________________________________________________________________________
+//void BezrukovBugaevModel::LoadConfig(void)
+//{
+//  //fIntegrator = 
+////       dynamic_cast<const IntegratorI *> (this->SubAlg("Integrator"));
+////  assert(fIntegrator);
+//}
 //____________________________________________________________________________
-void BezrukovBugaevModel::Configure(string config)
-{
-  Algorithm::Configure(config);
-  this->LoadConfig();
-}
+//
+// BezrukovBugaevIntegrand
+//
 //____________________________________________________________________________
-void BezrukovBugaevModel::LoadConfig(void)
-{
-  fIntegrator = 
-       dynamic_cast<const IntegratorI *> (this->SubAlg("Integrator"));
-  assert(fIntegrator);
-}
-//____________________________________________________________________________
-BezrukovBugaevIntegrand::BezrukovBugaevIntegrand(double E, double A) :
-GSFunc(1)
+gsl::BezrukovBugaevIntegrand::BezrukovBugaevIntegrand(double E, double A) :
+ROOT::Math::IBaseFunctionOneDim()
 {
   fE = E;
   fA = A;
 }
 //____________________________________________________________________________
-BezrukovBugaevIntegrand::~BezrukovBugaevIntegrand()
+gsl::BezrukovBugaevIntegrand::~BezrukovBugaevIntegrand()
 {
 
 }
 //____________________________________________________________________________
-double BezrukovBugaevIntegrand::operator () (const vector<double> & input)
+unsigned int gsl::BezrukovBugaevIntegrand::NDim(void) const
+{
+  return 1;
+}
+//____________________________________________________________________________
+double gsl::BezrukovBugaevIntegrand::DoEval(double xin) const
 {
 // Returns v*(ds/dv)
 
-  double v  = input[0]; // v, the fraction of energy transfered to the photon
+  double v = xin; // v, the fraction of energy transfered to the photon
 
   if (! v >0) return 0;
   if (  v >1) return 0;
@@ -153,4 +174,9 @@ double BezrukovBugaevIntegrand::operator () (const vector<double> & input)
   return vds_dv;
 }
 //____________________________________________________________________________
-
+ROOT::Math::IBaseFunctionOneDim *
+  gsl::BezrukovBugaevIntegrand::Clone(void) const
+{
+  return new gsl::BezrukovBugaevIntegrand(fE, fA);
+}
+//____________________________________________________________________________

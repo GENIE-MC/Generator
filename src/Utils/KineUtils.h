@@ -47,8 +47,16 @@ namespace kinematics
   Range1D_t  InelXLim    (double Ev, double M, double ml);
   Range1D_t  InelYLim    (double Ev, double M, double ml);
   Range1D_t  InelYLim_X  (double Ev, double M, double ml, double x);
+  Range1D_t  CohW2Lim    (double Mn, double mpi, double mlep, double Ev, double Q2);
+  Range1D_t  CohNuLim    (double W2min, double W2max, double Q2, double Mn, double xsi);
+  Range1D_t  CohYLim     (double Mn, double mpi, double mlep, double Ev, double Q2, double xsi);
   Range1D_t  CohYLim     (double EvL, double ml);
   Range1D_t  CohXLim     (void);
+  Range1D_t  CohQ2Lim    (double Mn, double mpi, double mlep, double Ev);
+  Range1D_t  Cohq2Lim    (double Mn, double mpi, double mlep, double Ev);
+
+  //-- helpers for kinematic limits
+  double CohW2Min(double Mn, double mpi);
 
   //-- kinematical variable transforms
   double QD2toQ2 (double QD2);
@@ -57,9 +65,11 @@ namespace kinematics
   void   XYtoWQ2 (double Ev, double M, double & W, double & Q2, double x, double y);
   double XYtoW   (double Ev, double M, double x, double y);
   double XYtoQ2  (double Ev, double M, double x, double y);
+  double Q2YtoX  (double Ev, double M, double Q2, double y);
 
   void  UpdateWQ2FromXY(const Interaction * in);
   void  UpdateXYFromWQ2(const Interaction * in);
+  void  UpdateXFromQ2Y(const Interaction * in);
 
   //-- methods used to apply cuts to kinematical limits
   void ApplyCutsToKineLimits (Range1D_t & r, double min, double max);

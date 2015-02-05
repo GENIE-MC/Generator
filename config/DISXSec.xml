@@ -4,27 +4,16 @@
 
 <!--
   Configuration sets for the DISXSec algorithm
-
-  parameter                     comment
-  **********************************************************************************
-  partial-xsec-alg-name">       d2xsec/dxdy algorithm
-  partial-xsec-param-set">      ... and its config set
-  integrator-alg-name">         algorithm used for 2-D numerical integration
-  integrator-param-set">        ... and its config set
-  x-min                         minimum x (default: epsilon)
-  x-max                         maximum x (default: 1-epsilon)
-  y-min                         minimum y (default: epsilon)
-  y-max                         maximum y (default: 1-epsilon)
-  Wmin                          kinematical cut in W
-  Q2min                         kinematical cut in Q^2
 -->
 
   <param_set name="Default"> 
-     <param type="alg" name="Integrator">   genie::Simpson2DFixN/DIS </param>
-  </param_set>
-
-  <param_set name="VHE"> 
-     <param type="alg" name="Integrator">   genie::Simpson2DFixN/DIS-VHE </param>
+<!--
+    <param type="alg" name="Integrator">   genie::Simpson2DFixN/DIS </param>
+-->
+    <param type="string" name ="gsl-integration-type">    adaptive  </param>
+    <param type="int"    name ="gsl-max-eval" >            500000   </param>
+    <param type="int"    name ="gsl-min-eval" >             10000   </param>
+    <param type="double" name ="gsl-relative-tolerance"  >  0.005   </param>
   </param_set>
 
 </alg_conf>

@@ -30,12 +30,14 @@
 #ifndef _BARDIN_IMD_RADIATIVE_CORRECTIONS_PARTIAL_XSEC_H_
 #define _BARDIN_IMD_RADIATIVE_CORRECTIONS_PARTIAL_XSEC_H_
 
+#include <Math/IFunction.h>
+
 #include "Base/XSecAlgorithmI.h"
-#include "Numerical/GSFunc.h"
+//#include "Numerical/GSFunc.h"
 
 namespace genie {
 
-class IntegratorI;
+//class IntegratorI;
 class XSecIntegratorI;
 
 class BardinIMDRadCorPXSec : public XSecAlgorithmI {
@@ -45,30 +47,30 @@ public:
   BardinIMDRadCorPXSec(string config);
   virtual ~BardinIMDRadCorPXSec();
 
-  //-- XSecAlgorithmI interface implementation
+  // XSecAlgorithmI interface implementation
   double XSec            (const Interaction * i, KinePhaseSpace_t k) const;
   double Integral        (const Interaction * i) const;
   bool   ValidProcess    (const Interaction * i) const;
 
-  //-- override the Algorithm::Configure methods to load configuration
-  //   data to private data members
+  // Override the Algorithm::Configure methods to load configuration
+  // data to private data members
   void Configure (const Registry & config);
   void Configure (string param_set);
 
 private:
 
-  //-- load configuration when Algorithm::Configure() is called
+  // Load configuration when Algorithm::Configure() is called
   void LoadConfig(void);
 
-  //-- Private functions
-  //   (symbols follow the notation in Bardin-Dokuchaeva paper)
+  // Private functions
+  // (symbols follow the notation in Bardin-Dokuchaeva paper)
   double Li2 (double z)                      const;
   double Fa  (double re, double r, double y) const;
   double P   (int    i,  double r, double y) const;
   double C   (int    i,  int k,    double r) const;
 
-  //-- data members
-  const IntegratorI *      fIntegrator;     ///< num integrator for BardinIMDRadCorIntegrand
+  // Private data members
+//  const IntegratorI *      fIntegrator;     ///< num integrator for BardinIMDRadCorIntegrand
   const XSecIntegratorI *  fXSecIntegrator; ///< differential x-sec integrator
 };
 
@@ -89,17 +91,26 @@ private:
 //____________________________________________________________________________
 
 namespace genie {
+ namespace utils {
+  namespace gsl   {
+   namespace wrap   {
 
-class BardinIMDRadCorIntegrand : public GSFunc
-{
-public:
-  BardinIMDRadCorIntegrand(double z);
-  ~BardinIMDRadCorIntegrand();
-  double operator () (const vector<double> & x);
-private:
-  double fZ;
-};
+    class BardinIMDRadCorIntegrand : public ROOT::Math::IBaseFunctionOneDim
+    {
+     public:
+       BardinIMDRadCorIntegrand(double z);
+      ~BardinIMDRadCorIntegrand();
+       // ROOT::Math::IBaseFunctionOneDim interface
+       unsigned int                      NDim   (void)       const;
+       double                            DoEval (double xin) const;
+       ROOT::Math::IBaseFunctionOneDim * Clone  (void)       const;
+     private:
+       double fZ;
+     };
 
+   } // wrap namespace
+  } // gsl namespace
+ } // utils namespace
 } // genie namespace
 
 #endif  // _BARDIN_IMD_RADIATIVE_CORRECTIONS_PARTIAL_XSEC_H_

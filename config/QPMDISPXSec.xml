@@ -27,7 +27,7 @@ UseCache                    bool    Yes   Cache suppression factors?            
 
   <param_set name="VHE"> 
      <param type="alg" name="SFAlg">           genie::BYStrucFunc/Default      </param>
-     <param type="alg" name="XSec-Integrator"> genie::DISXSec/DIS-VHE          </param>
+     <param type="alg" name="XSec-Integrator"> genie::DISXSec/Default          </param>
      <param type="alg" name="Hadronizer">      genie::KNOHadronization/Default </param>
   </param_set>
 

@@ -195,8 +195,9 @@ for my $curr_xsplset (keys %OUTXML)  {
     $gevgl  = $GEVGL   {$curr_xsplset};
     $outxml = $OUTXML  {$curr_xsplset};
 
-    $jntemplate    = "vNxscalc-$curr_xsplset"; 
-    $fntemplate    = "$jobs_dir/$jntemplate"; 
+    $jobnum_template   = "vNxscalc-$curr_xsplset"; 
+    $filename_template = "$jobs_dir/$jobnum_template"; 
+
     $grep_pipe     = "grep -B 100 -A 30 -i \"warn\\|error\\|fatal\"";
     $valgrind_cmd  = "valgrind --tool=memcheck --error-limit=no --leak-check=yes --show-reachable=yes";
     $gmkspl_opt    = "-p $nu -t $tgt -n $nkots -e $emax -o $outxml --event-generator-list $gevgl";
@@ -210,45 +211,53 @@ for my $curr_xsplset (keys %OUTXML)  {
   
     # PBS case
     if($batch_system eq 'PBS') {
-        $batch_script = "$fntemplate.pbs";
+        $batch_script = "$filename_template.pbs";
         open(PBS, ">$batch_script") or die("Can not create the PBS batch script");
         print PBS "#!/bin/bash \n";
-        print PBS "#PBS -N $jntemplate \n";
-        print PBS "#PBS -o $fntemplate.pbsout.log \n";
-        print PBS "#PBS -e $fntemplate.pbserr.log \n";
+        print PBS "#PBS -N $jobnum_template \n";
+        print PBS "#PBS -o $filename_template.pbsout.log \n";
+        print PBS "#PBS -e $filename_template.pbserr.log \n";
         print PBS "source $genie_setup \n";
         print PBS "cd $jobs_dir \n";
-        print PBS "$gmkspl_cmd | $grep_pipe &> $fntemplate.mkspl.log \n";
+        print PBS "$gmkspl_cmd | $grep_pipe &> $filename_template.mkspl.log \n";
         close(PBS);
         `qsub -q $queue $batch_script`;
     } #PBS
 
     # LSF case
     if($batch_system eq 'LSF') {
-        $batch_script = "$fntemplate.sh";
+        $batch_script = "$filename_template.sh";
         open(LSF, ">$batch_script") or die("Can not create the LSF batch script");
         print LSF "#!/bin/bash \n";
-        print PBS "#BSUB-j $jntemplate \n";
+        print PBS "#BSUB-j $jobnum_template \n";
         print LSF "#BSUB-q $queue \n";
-        print LSF "#BSUB-o $fntemplate.lsfout.log \n";
-        print LSF "#BSUB-e $fntemplate.lsferr.log \n";
+        print LSF "#BSUB-o $filename_template.lsfout.log \n";
+        print LSF "#BSUB-e $filename_template.lsferr.log \n";
         print LSF "source $genie_setup \n";
         print LSF "cd $jobs_dir \n";
-        print LSF "$gmkspl_cmd | $grep_pipe &> $fntemplate.mkspl.log \n";
+        print LSF "$gmkspl_cmd | $grep_pipe &> $filename_template.mkspl.log \n";
         close(LSF);
         `bsub < $batch_script`;
     } #LSF
 
     # HTCondor
     if($batch_system eq 'HTCondor') {
-        $batch_script = "$fntemplate.htc";
-        open(HTC, ">$batch_script") or die("Can not create the Condor submit description file");
+        $shell_script = "$filename_template.sh";
+        open(SHL, ">$shell_script") or die("Can not create the shell script: $filename_template.sh");
+        print SHL "source $genie_setup \n";
+        print SHL "cd $jobs_dir \n";
+        print SHL "$gmkspl_cmd \n";
+        close(SHL);
+        $batch_script = "$filename_template.htc";
+        open(HTC, ">$batch_script") or die("Can not create the Condor submit description file: $batch_script");
         print HTC "Universe               = vanilla \n";
-        print HTC "Executable             = setup_env_and_run_genie_app.sh \n";
-        print HTC "Arguments              = $genie_setup $jobs_dir $gmkspl_cmd \n";
-        print HTC "Log                    = $fntemplate.log \n";
-        print HTC "Output                 = $fntemplate.out \n";
-        print HTC "Error                  = $fntemplate.err \n";
+        print HTC "Executable             = $filename_template.sh \n";
+        print HTC "Arguments              = \n";
+#       print HTC "Executable             = setup_env_and_run_genie_app.sh \n";
+#       print HTC "Arguments              = $genie_setup $jobs_dir $gmkspl_cmd \n";
+        print HTC "Log                    = $filename_template.log \n";
+        print HTC "Output                 = $filename_template.out \n";
+        print HTC "Error                  = $filename_template.err \n";
         print HTC "Request_memory         = 2 GB \n";
 #       print HTC "Transfer_output_files  = ... \n";
 #       print HTC "Transfer_output_remaps = ... \n";
@@ -262,17 +271,17 @@ for my $curr_xsplset (keys %OUTXML)  {
 
     # slurm case
     if($batch_system eq 'slurm') {
-        $batch_script = "$fntemplate.sh";
+        $batch_script = "$filename_template.sh";
         open(SLURM, ">$batch_script") or die("Can not create the slurm batch script");
         print SLURM "#!/bin/bash \n";
         print SLURM "#SBATCH-p $queue \n";
-        print SLURM "#SBATCH-o $fntemplate.slurmout.log \n";
-        print SLURM "#SBATCH-e $fntemplate.slurmerr.log \n";
+        print SLURM "#SBATCH-o $filename_template.slurmout.log \n";
+        print SLURM "#SBATCH-e $filename_template.slurmerr.log \n";
         print SLURM "source $genie_setup \n";
         print SLURM "cd $jobs_dir \n";
-        print SLURM "$gmkspl_cmd | $grep_pipe &> $fntemplate.mkspl.log \n";
+        print SLURM "$gmkspl_cmd | $grep_pipe &> $filename_template.mkspl.log \n";
         close(SLURM);
-        `sbatch --job-name=$jntemplate $batch_script`;
+        `sbatch --job-name=$jobnum_template $batch_script`;
     } #slurm
 
     # no batch system, run jobs interactively

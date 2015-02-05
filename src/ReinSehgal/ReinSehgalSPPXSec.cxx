@@ -21,7 +21,7 @@
 #include "Conventions/Constants.h"
 #include "Interaction/SppChannel.h"
 #include "Messenger/Messenger.h"
-#include "Numerical/IntegratorI.h"
+//#include "Numerical/IntegratorI.h"
 #include "PDG/PDGUtils.h"
 #include "ReinSehgal/ReinSehgalSPPXSec.h"
 #include "Utils/MathUtils.h"
@@ -173,8 +173,8 @@ void ReinSehgalSPPXSec::LoadConfig(void)
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();
 
-  fIntegrator = dynamic_cast<const IntegratorI *>(this->SubAlg("Integrator"));
-  assert (fIntegrator);
+//  fIntegrator = dynamic_cast<const IntegratorI *>(this->SubAlg("Integrator"));
+//  assert (fIntegrator);
 
   // get upper E limit on res xsec spline (=f(E)) before assuming xsec=const
   fEMax = fConfig->GetDoubleDef("ESplineMax", 100);

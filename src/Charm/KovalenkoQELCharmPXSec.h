@@ -27,8 +27,10 @@
 #ifndef _KOVALENKO_QEL_CHARM_PARTIAL_XSEC_H_
 #define _KOVALENKO_QEL_CHARM_PARTIAL_XSEC_H_
 
+#include <Math/IFunction.h>
+
 #include "Base/XSecAlgorithmI.h"
-#include "Numerical/GSFunc.h"
+//#include "Numerical/GSFunc.h"
 
 namespace genie {
 
@@ -44,14 +46,14 @@ public:
   KovalenkoQELCharmPXSec(string config);
   virtual ~KovalenkoQELCharmPXSec();
 
-  //-- XSecAlgorithmI interface implementation
+  // XSecAlgorithmI interface implementation
   double XSec            (const Interaction * i, KinePhaseSpace_t k) const;
   double Integral        (const Interaction * i) const;
   bool   ValidProcess    (const Interaction * i) const;
   bool   ValidKinematics (const Interaction * i) const;
 
-  //-- override the Algorithm::Configure methods to load configuration
-  //   data to private data members
+  // Override the Algorithm::Configure methods to load configuration
+  // data to private data members
   void Configure (const Registry & config);
   void Configure (string param_set);
 
@@ -65,7 +67,7 @@ private:
   double xiBar (double Q2, double Mnuc, double v) const;
 
   const PDFModelI *       fPDFModel;
-  const IntegratorI *     fIntegrator;
+///  const IntegratorI *     fIntegrator;
   const XSecIntegratorI * fXSecIntegrator;
 
   double fMo;
@@ -80,7 +82,7 @@ private:
 
 //____________________________________________________________________________
 /*!
-\class    genie::KovQELCharmIntegrand
+\class    genie::utils::gsl::wrap::KovQELCharmIntegrand
 
 \brief    Auxiliary scalar function for the internal integration in Kovalenko
           QEL charm production cross section algorithm
@@ -93,21 +95,28 @@ private:
 //____________________________________________________________________________
 
 namespace genie {
+ namespace utils {
+  namespace gsl   {
+   namespace wrap   {
 
-class KovQELCharmIntegrand : public GSFunc
-{
-public:
-  KovQELCharmIntegrand(PDF * pdf, double Q2, int nucleon_pdgc);
-  ~KovQELCharmIntegrand();
+    class KovQELCharmIntegrand : public ROOT::Math::IBaseFunctionOneDim
+    {
+     public:
+       KovQELCharmIntegrand(PDF * pdf, double Q2, int nucleon_pdgc);
+      ~KovQELCharmIntegrand();
+       // ROOT::Math::IBaseFunctionOneDim interface
+       unsigned int                      NDim   (void)       const;
+       double                            DoEval (double xin) const;
+       ROOT::Math::IBaseFunctionOneDim * Clone  (void)       const;
+     private:
+       PDF *  fPDF;
+       double fQ2;
+       int    fPdgC;
+    };
 
-  double operator () (const vector<double> & x);
-
-private:
-  PDF *  fPDF;
-  double fQ2;
-  int    fPdgC;
-};
-
+   } // wrap namespace
+  } // gsl namespace
+ } // utils namespace
 } // genie namespace
 
 #endif  // _KOVALENKO_QEL_CHARM_PARTIAL_XSEC_H_
