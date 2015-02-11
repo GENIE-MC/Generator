@@ -109,7 +109,7 @@
    <config alg="genie::QELXSec">                     QELXSec.xml                     </config>
    <config alg="genie::DISXSec">                     DISXSec.xml                     </config>
    <config alg="genie::COHXSec">                     COHXSec.xml                     </config>
-   <config alg="genie::ASKXSec">                     ASKXSec.xml                     </config>   
+   <config alg="genie::AlamSimoAtharVacasSKXSec">    AlamSimoAtharVacasSKXSec.xml    </config>   
    <config alg="genie::IMDXSec">                     IMDXSec.xml                     </config>
    <config alg="genie::RESXSec">                     RESXSec.xml                     </config>
    <config alg="genie::NuElectronXSec">              NuElectronXSec.xml              </config>

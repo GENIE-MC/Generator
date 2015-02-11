@@ -206,15 +206,15 @@ void AlamSimoAtharVacasSKPXSec2014::LoadConfig(void)
   amLam = PDGLibrary::Instance()->Find(kPdgLambda)->Mass();
   am = kNeutronMass; // this will be nucleon mass, set event by event
   amEta = PDGLibrary::Instance()->Find(kPdgEta)->Mass();
-  Vus=fConfig->GetDoubleDef("ASK-CKM-Vus", gc->GetDouble("CKM-Vus"));
+  Vus=fConfig->GetDoubleDef("SK-CKM-Vus", gc->GetDouble("CKM-Vus"));
   // fpi is 0.0924 in Athar's code, use the same one that is already in UserPhysicsOptions
-  fpi = fConfig->GetDoubleDef("ASK-COHAR-fPi", gc->GetDouble("ASK-fPi")); // pion decay constant
-  d = fConfig->GetDoubleDef("ASK-SU3-D", gc->GetDouble("SU3-D")); // SU(3) parameter D
-  f = fConfig->GetDoubleDef("ASK-SU3-F", gc->GetDouble("SU3-F")); // SU(3) parameter F
+  fpi = fConfig->GetDoubleDef("SK-COHAR-fPi", gc->GetDouble("SK-fPi")); // pion decay constant
+  d = fConfig->GetDoubleDef("SK-SU3-D", gc->GetDouble("SU3-D")); // SU(3) parameter D
+  f = fConfig->GetDoubleDef("SK-SU3-F", gc->GetDouble("SU3-F")); // SU(3) parameter F
   g = kGF;                              // Fermi coupling
   // we really want the anomolous moment, but the one in UserPhysicsOptions is the full moment, despite the name
-  amup = fConfig->GetDoubleDef("ASK-AnomMagnMoment-P", gc->GetDouble("AnomMagnMoment-P")) - 1;
-  amun = fConfig->GetDoubleDef("ASK-AnomMagnMoment-N", gc->GetDouble("AnomMagnMoment-N"));
+  amup = fConfig->GetDoubleDef("SK-AnomMagnMoment-P", gc->GetDouble("AnomMagnMoment-P")) - 1;
+  amun = fConfig->GetDoubleDef("SK-AnomMagnMoment-N", gc->GetDouble("AnomMagnMoment-N"));
   Fm1 = -(amup+2.0*amun)/(2.0*am);
   Fm2 = -3.0*amup/(2.0*am);
 
