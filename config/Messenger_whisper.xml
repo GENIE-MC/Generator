@@ -26,10 +26,10 @@
   <priority msgstream="AlgFactory">          FATAL   </priority>
   <priority msgstream="Algorithm">           FATAL   </priority>
   <priority msgstream="AlgConfigPool">       FATAL   </priority>
-  <priority msgstream="AtharSingleKaon">     FATAL   </priority>
-  <priority msgstream="ASKKinematics">       FATAL   </priority>
-  <priority msgstream="ASKLepton">           FATAL   </priority>
-  <priority msgstream="ASKHadron">           FATAL   </priority>
+  <priority msgstream="SKXSec">              FATAL   </priority>
+  <priority msgstream="SKKinematics">        FATAL   </priority>
+  <priority msgstream="SKLepton">            FATAL   </priority>
+  <priority msgstream="SKHadron">            FATAL   </priority>
   <priority msgstream="BardinIMD">           FATAL   </priority>
   <priority msgstream="BaryonResList">       FATAL   </priority>
   <priority msgstream="BaseHad">             FATAL   </priority>

@@ -6,6 +6,7 @@
 
  Authors: Chris Marshall <marshall \at pas.rochester.edu>
           University of Rochester
+
           Martti Nirkko
           University of Berne
 
@@ -17,14 +18,12 @@
 #include <cstdlib>
 
 #include <TMath.h>
-#include <TF3.h>
 
 #include "Algorithm/AlgConfigPool.h"
 #include "Conventions/GBuild.h"
 #include "Conventions/Constants.h"
 #include "Conventions/Controls.h"
 #include "Conventions/Units.h"
-#include "AtharSingleKaon/ASKKinematicsGenerator.h"
 #include "Conventions/KinePhaseSpace.h"
 #include "EVGCore/EVGThreadException.h"
 #include "EVGCore/EventGeneratorI.h"
@@ -36,6 +35,7 @@
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGLibrary.h"
 #include "Utils/KineUtils.h"
+#include "SingleKaon/SKKinematicsGenerator.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -43,27 +43,27 @@ using namespace genie::controls;
 using namespace genie::utils;
 
 //___________________________________________________________________________
-ASKKinematicsGenerator::ASKKinematicsGenerator() :
-KineGeneratorWithCache("genie::ASKKinematicsGenerator")
+SKKinematicsGenerator::SKKinematicsGenerator() :
+KineGeneratorWithCache("genie::SKKinematicsGenerator")
 {
   //fEnvelope = 0;
 }
 //___________________________________________________________________________
-ASKKinematicsGenerator::ASKKinematicsGenerator(string config) :
-KineGeneratorWithCache("genie::ASKKinematicsGenerator", config)
+SKKinematicsGenerator::SKKinematicsGenerator(string config) :
+KineGeneratorWithCache("genie::SKKinematicsGenerator", config)
 {
   //fEnvelope = 0;
 }
 //___________________________________________________________________________
-ASKKinematicsGenerator::~ASKKinematicsGenerator()
+SKKinematicsGenerator::~SKKinematicsGenerator()
 {
   //if(fEnvelope) delete fEnvelope;
 }
 //___________________________________________________________________________
-void ASKKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
+void SKKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 {
   if(fGenerateUniformly) {
-    LOG("ASKKinematics", pNOTICE)
+    LOG("SKKinematics", pNOTICE)
           << "Generating kinematics uniformly over the allowed phase space";
   }
 
@@ -74,7 +74,7 @@ void ASKKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   CalculateKin_AtharSingleKaon(evrec);
 }
 //___________________________________________________________________________
-void ASKKinematicsGenerator::CalculateKin_AtharSingleKaon(GHepRecord * evrec) const
+void SKKinematicsGenerator::CalculateKin_AtharSingleKaon(GHepRecord * evrec) const
 {
   // Get the Primary Interacton object
   Interaction * interaction = evrec->Summary();
@@ -109,7 +109,7 @@ void ASKKinematicsGenerator::CalculateKin_AtharSingleKaon(GHepRecord * evrec) co
 
   // Tkmax <= 0 means we are below threshold for sure
   if( Tkmax <= 0.0 ) {
-    LOG("ASKKinematics", pWARN) << "No available phase space";
+    LOG("SKKinematics", pWARN) << "No available phase space";
     evrec->EventFlags()->SetBitNumber(kKineGenErr, true);
     genie::exceptions::EVGThreadException exception;
     exception.SetReason("No available phase space");
@@ -142,7 +142,7 @@ void ASKKinematicsGenerator::CalculateKin_AtharSingleKaon(GHepRecord * evrec) co
   while(1) {
      iter++;
      if(iter > kRjMaxIterations) {
-        LOG("ASKKinematics", pWARN)
+        LOG("SKKinematics", pWARN)
              << "*** Could not select a valid (tk, tl, costhetal) triplet after "
                                                << iter << " iterations";
         evrec->EventFlags()->SetBitNumber(kKineGenErr, true);
@@ -166,7 +166,7 @@ void ASKKinematicsGenerator::CalculateKin_AtharSingleKaon(GHepRecord * evrec) co
        phikq = phikqmin + dphikq * rnd->RndKine().Rndm();
      }
 
-     LOG("ASKKinematics", pDEBUG) << "Trying: Tk = " << tk << ", Tl = " << tl << ", cosThetal = " << costhetal << ", phikq = " << phikq;
+     LOG("SKKinematics", pDEBUG) << "Trying: Tk = " << tk << ", Tl = " << tl << ", cosThetal = " << costhetal << ", phikq = " << phikq;
 
      // nucleon rest frame! these need to be boosted to the lab frame before they become actual particles
      interaction->KinePtr()->SetKV(kKVTk, tk);
@@ -201,7 +201,7 @@ void ASKKinematicsGenerator::CalculateKin_AtharSingleKaon(GHepRecord * evrec) co
         this->AssertXSecLimits(interaction, xsec*J, max);
 
         if( xsec*J > xsec_max ) { // freak out if this happens
-          LOG("ASKKinematics", pWARN)
+          LOG("SKKinematics", pWARN)
              << "!!!!!!XSEC ABOVE MAX!!!!! xsec= " << xsec << ", J= " << J << ", xsec*J = " << xsec*J << " max= " << xsec_max;
         }
 
@@ -221,10 +221,10 @@ void ASKKinematicsGenerator::CalculateKin_AtharSingleKaon(GHepRecord * evrec) co
         if(fGenerateUniformly) {
           double wght = 1.0; // change this
           wght *= evrec->Weight();
-          LOG("ASKKinematics", pNOTICE) << "Current event wght = " << wght;
+          LOG("SKKinematics", pNOTICE) << "Current event wght = " << wght;
           evrec->SetWeight(wght);
         }
-        LOG("ASKKinematics", pWARN) << "\nLepton energy (rest frame) = " << el << " kaon = " << tl + mk;
+        LOG("SKKinematics", pWARN) << "\nLepton energy (rest frame) = " << el << " kaon = " << tl + mk;
 
         // reset bits
         interaction->ResetBit(kISkipProcessChk);
@@ -248,7 +248,7 @@ void ASKKinematicsGenerator::CalculateKin_AtharSingleKaon(GHepRecord * evrec) co
   }// iterations
 }
 //___________________________________________________________________________
-double ASKKinematicsGenerator::ComputeMaxXSec(const Interaction * in) const
+double SKKinematicsGenerator::ComputeMaxXSec(const Interaction * in) const
 {
 // Computes the maximum differential cross section in the requested phase
 // space. This method overloads KineGeneratorWithCache::ComputeMaxXSec
@@ -256,7 +256,7 @@ double ASKKinematicsGenerator::ComputeMaxXSec(const Interaction * in) const
 // during subsequent event generation.
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  SLOG("ASKKinematics", pDEBUG)
+  SLOG("SKKinematics", pDEBUG)
           << "Scanning the allowed phase space {K} for the max(dxsec/d{K})";
 #endif
 
@@ -324,16 +324,16 @@ double ASKKinematicsGenerator::ComputeMaxXSec(const Interaction * in) const
     }//tl
   }//tk
 
-  LOG("ASKKinmatics", pINFO) << "Max XSec is " << max_xsec << " for enu = " << enu << " tk = " << max_tk << " tl = " << max_tl << " cosine theta = " << max_ctl;
+  LOG("SKKinematics", pINFO) << "Max XSec is " << max_xsec << " for enu = " << enu << " tk = " << max_tk << " tl = " << max_tl << " cosine theta = " << max_ctl;
 
   // Apply safety factor, since value retrieved from the cache might
   // correspond to a slightly different energy.
   max_xsec *= fSafetyFactor;
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  SLOG("ASKKinematics", pDEBUG) << in->AsString();
-  SLOG("ASKKinematics", pDEBUG) << "Max xsec in phase space = " << max_xsec;
-  SLOG("ASKKinematics", pDEBUG) << "Computed using alg = " << fXSecModel->Id();
+  SLOG("SKKinematics", pDEBUG) << in->AsString();
+  SLOG("SKKinematics", pDEBUG) << "Max xsec in phase space = " << max_xsec;
+  SLOG("SKKinematics", pDEBUG) << "Computed using alg = " << fXSecModel->Id();
 #endif
 
 
@@ -342,7 +342,7 @@ double ASKKinematicsGenerator::ComputeMaxXSec(const Interaction * in) const
 }
 
 //___________________________________________________________________________
-double ASKKinematicsGenerator::Energy(const Interaction * interaction) const
+double SKKinematicsGenerator::Energy(const Interaction * interaction) const
 {
 // Override the base class Energy() method to cache the max xsec for the
 // neutrino energy in the LAB rather than in the hit nucleon rest frame.
@@ -352,31 +352,31 @@ double ASKKinematicsGenerator::Energy(const Interaction * interaction) const
   return E;
 }
 //___________________________________________________________________________
-void ASKKinematicsGenerator::Configure(const Registry & config)
+void SKKinematicsGenerator::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void ASKKinematicsGenerator::Configure(string config)
+void SKKinematicsGenerator::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void ASKKinematicsGenerator::LoadConfig(void)
+void SKKinematicsGenerator::LoadConfig(void)
 {
 
-  //-- max xsec safety factor (for rejection method) and min cached energy
+  // max xsec safety factor (for rejection method) and min cached energy
   fSafetyFactor = fConfig->GetDoubleDef("MaxXSec-SafetyFactor", 1.5);
   fEMin         = fConfig->GetDoubleDef("Cache-MinEnergy",      0.6);
 
-  //-- Generate kinematics uniformly over allowed phase space and compute
-  //   an event weight?
+  // Generate kinematics uniformly over allowed phase space and compute
+  // an event weight?
   fGenerateUniformly = fConfig->GetBoolDef("UniformOverPhaseSpace", false);
 
-  //-- Maximum allowed fractional cross section deviation from maxim cross
-  //   section used in rejection method
+  // Maximum allowed fractional cross section deviation from maxim cross
+  // section used in rejection method
   fMaxXSecDiffTolerance = 
          fConfig->GetDoubleDef("MaxXSec-DiffTolerance",999999.);
   assert(fMaxXSecDiffTolerance>=0);

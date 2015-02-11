@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::ASKKinematicsGenerator
+\class    genie::SKKinematicsGenerator
 
 \brief    Generates values for the kinematic variables describing neutrino-nucleus 
           single kaon production events.
@@ -18,42 +18,40 @@
 */
 //____________________________________________________________________________
 
-#ifndef _ASK_KINEMATICS_GENERATOR_H_
-#define _ASK_KINEMATICS_GENERATOR_H_
+#ifndef _SK_KINEMATICS_GENERATOR_H_
+#define _SK_KINEMATICS_GENERATOR_H_
 
 #include "EVGModules/KineGeneratorWithCache.h"
 #include "Utils/Range1.h"
 
-class TF3;
-
 namespace genie {
 
-class ASKKinematicsGenerator : public KineGeneratorWithCache {
+class SKKinematicsGenerator : public KineGeneratorWithCache {
 
 public :
-  ASKKinematicsGenerator();
-  ASKKinematicsGenerator(string config);
- ~ASKKinematicsGenerator();
+  SKKinematicsGenerator();
+  SKKinematicsGenerator(string config);
+ ~SKKinematicsGenerator();
 
-  // implement the EventRecordVisitorI interface
+  // Implement the EventRecordVisitorI interface
   void ProcessEventRecord(GHepRecord * event_rec) const;
 
-  // overload the Algorithm::Configure() methods to load private data
+  // Overload the Algorithm::Configure() methods to load private data
   // members from configuration options
   void Configure(const Registry & config);
   void Configure(string config);
 
 public:
-  // methods to load sub-algorithms and config data from the Registry
+  // Methods to load sub-algorithms and config data from the Registry
   void LoadConfig (void);
 
-  // different kinematics calculators for different models
-  void   CalculateKin_AtharSingleKaon(GHepRecord * event_rec) const;
+  // Different kinematics calculators for different models
+  void CalculateKin_AtharSingleKaon(GHepRecord * event_rec) const;
 
   double ComputeMaxXSec (const Interaction * in) const;
 
-  // overload KineGeneratorWithCache method to get energy
-  double Energy         (const Interaction * in) const;
+  // Overload KineGeneratorWithCache method to get energy
+  double Energy (const Interaction * in) const;
 
 private:
 
@@ -63,4 +61,4 @@ private:
 };
 
 }      // genie namespace
-#endif // _ASK_KINEMATICS_GENERATOR_H_
+#endif // _SK_KINEMATICS_GENERATOR_H_

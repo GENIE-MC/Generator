@@ -6,6 +6,7 @@
 
  Authors: Chris Marshall <marshall \at pas.rochester.edu>
           University of Rochester
+
           Martti Nirkko
           University of Berne
 
@@ -19,7 +20,6 @@
 #include <TVector3.h>
 
 #include "Conventions/Constants.h"
-#include "AtharSingleKaon/ASKHadronicSystemGenerator.h"
 #include "GHEP/GHepStatus.h"
 #include "GHEP/GHepParticle.h"
 #include "GHEP/GHepRecord.h"
@@ -33,30 +33,30 @@
 #include "EVGCore/EVGThreadException.h"
 #include "EVGCore/EventGeneratorI.h"
 #include "EVGCore/RunningThreadInfo.h"
-
+#include "SingleKaon/SKHadronicSystemGenerator.h"
 
 using namespace genie;
 using namespace genie::constants;
 
 //___________________________________________________________________________
-ASKHadronicSystemGenerator::ASKHadronicSystemGenerator() :
-HadronicSystemGenerator("genie::ASKHadronicSystemGenerator")
+SKHadronicSystemGenerator::SKHadronicSystemGenerator() :
+HadronicSystemGenerator("genie::SKHadronicSystemGenerator")
 {
 
 }
 //___________________________________________________________________________
-ASKHadronicSystemGenerator::ASKHadronicSystemGenerator(string config) :
-HadronicSystemGenerator("genie::ASKHadronicSystemGenerator", config)
+SKHadronicSystemGenerator::SKHadronicSystemGenerator(string config) :
+HadronicSystemGenerator("genie::SKHadronicSystemGenerator", config)
 {
 
 }
 //___________________________________________________________________________
-ASKHadronicSystemGenerator::~ASKHadronicSystemGenerator()
+SKHadronicSystemGenerator::~SKHadronicSystemGenerator()
 {
 
 }
 //___________________________________________________________________________
-void ASKHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
+void SKHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
 {
 // Access cross section algorithm for running thread
   //RunningThreadInfo * rtinfo = RunningThreadInfo::Instance();
@@ -65,11 +65,10 @@ void ASKHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
   CalculateHadronicSystem_AtharSingleKaon(evrec);
 }
 //___________________________________________________________________________
-void ASKHadronicSystemGenerator::CalculateHadronicSystem_AtharSingleKaon(GHepRecord * evrec) const
+void SKHadronicSystemGenerator::CalculateHadronicSystem_AtharSingleKaon(GHepRecord * evrec) const
 {
 //
-// This method generates the final state hadronic system (kaon + nucleus) in 
-// ASK interactions
+// This method generates the final state hadronic system (kaon + nucleus) 
 //
 
   Interaction * interaction = evrec->Summary();
@@ -98,8 +97,8 @@ void ASKHadronicSystemGenerator::CalculateHadronicSystem_AtharSingleKaon(GHepRec
   p4nu.Boost(-1.*beta);   
   p4fsl.Boost(-1.*beta);
 
-  LOG( "ASKHadron", pDEBUG ) << "\nStruck nucleon p = (" << pnuc4.X() << ", " << pnuc4.Y() << ", " << pnuc4.Z() << ")";
-  LOG( "ASKHadron", pDEBUG ) << "\nLab frame neutrino E = " << p4nu_lab.E() << " lepton " << p4fsl_lab.E() << " rest frame " << p4nu.E() << " lepton " << p4fsl.E();
+  LOG( "SKHadron", pDEBUG ) << "\nStruck nucleon p = (" << pnuc4.X() << ", " << pnuc4.Y() << ", " << pnuc4.Z() << ")";
+  LOG( "SKHadron", pDEBUG ) << "\nLab frame neutrino E = " << p4nu_lab.E() << " lepton " << p4fsl_lab.E() << " rest frame " << p4nu.E() << " lepton " << p4fsl.E();
 
   //-- Determine the pdg code of the final state nucleon
   int nuc_pdgc = (xcls_tag.NProtons()) ? kPdgProton : kPdgNeutron; // there's only ever one nucleon
@@ -128,13 +127,13 @@ void ASKHadronicSystemGenerator::CalculateHadronicSystem_AtharSingleKaon(GHepRec
   // Equation 17 of notes from M. Rafi Alam dated 6 November 2013
   double eN = q.E() + M - kaon_E; // FS nucleon total energy
   double cos_thetaKq = (q3*q3 + pk*pk + M*M - eN*eN)/(2*q3*pk);
-  LOG( "ASKHadron", pDEBUG ) << 
+  LOG( "SKHadron", pDEBUG ) << 
     "Cosine theta_kq = " << cos_thetaKq << "\n" <<
     "q.E = " << q.E() << " M = " << M << " kaon E " << kaon_E << " q3 = " << q3 << " pk = " << pk;
 
   // this can be slightly larger than 1 due to numerical precision issues -- don't let it be
   if( cos_thetaKq > 1.0 ) {
-    LOG( "ASKHadron", pWARN ) << 
+    LOG( "SKHadron", pWARN ) << 
       "Cosine theta_kq = " << cos_thetaKq << ", setting to 1.0\n" <<
       "q.E = " << q.E() << " M = " << M << " kaon E " << kaon_E << " q3 = " << q3 << " pk = " << pk;
     cos_thetaKq = 1.0;
@@ -152,7 +151,7 @@ void ASKHadronicSystemGenerator::CalculateHadronicSystem_AtharSingleKaon(GHepRec
   kaon.RotateUz(qvec.Unit());
   nucleon.RotateUz(qvec.Unit());
 
-  LOG( "ASKHadron", pDEBUG ) <<
+  LOG( "SKHadron", pDEBUG ) <<
     "\nKaon (x,y,z) in nuc rest frame: (" << kaon.X() << ", " << kaon.Y() << ", " << kaon.Z() << ")" <<
     "\nNucleon:                        (" << nucleon.X() << ", " << nucleon.Y() << ", " << nucleon.Z() << ")";
 
@@ -163,7 +162,7 @@ void ASKHadronicSystemGenerator::CalculateHadronicSystem_AtharSingleKaon(GHepRec
   p4kaon.Boost( beta );
   p4fsnuc.Boost( beta );
 
-  LOG( "ASKHadron", pDEBUG ) <<
+  LOG( "SKHadron", pDEBUG ) <<
     "\nKaon (x,y,z) in lab frame: (" << p4kaon.X() << ", " << p4kaon.Y() << ", " << p4kaon.Z() << ")" <<
     "\nNucleon:                   (" << p4fsnuc.X() << ", " << p4fsnuc.Y() << ", " << p4fsnuc.Z() << ")";
 

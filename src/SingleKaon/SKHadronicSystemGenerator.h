@@ -1,15 +1,15 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::ASKPrimaryLeptonGenerator
+\class    genie::SKHadronicSystemGenerator
 
-\brief    Generates the final state primary lepton in v ASK NC interactions.
+\brief    Generates the f/s hadronic system in single-Kaon production interactions.
           Is a concrete implementation of the EventRecordVisitorI interface.
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           STFC, Rutherford Appleton Laboratory
 
-\created  September 26, 2005
+\created  March 20, 2014
 
 \cpright  Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
@@ -17,27 +17,25 @@
 */
 //____________________________________________________________________________
 
-#ifndef _ASK_PRIMARY_LEPTON_GENERATOR_H_
-#define _ASK_PRIMARY_LEPTON_GENERATOR_H_
+#ifndef _SK_HADRONIC_SYSTEM_GENERATOR_H_
+#define _SK_HADRONIC_SYSTEM_GENERATOR_H_
 
-#include "EVGModules/PrimaryLeptonGenerator.h"
+#include "EVGModules/HadronicSystemGenerator.h"
 
 namespace genie {
 
-class ASKPrimaryLeptonGenerator : public PrimaryLeptonGenerator {
+class SKHadronicSystemGenerator : public HadronicSystemGenerator {
 
 public :
+  SKHadronicSystemGenerator();
+  SKHadronicSystemGenerator(string config);
+ ~SKHadronicSystemGenerator();
 
-  ASKPrimaryLeptonGenerator();
-  ASKPrimaryLeptonGenerator(string config);
-  ~ASKPrimaryLeptonGenerator();
-
-  //-- implement the EventRecordVisitorI interface
-
+  // implement the EventRecordVisitorI interface
   void ProcessEventRecord(GHepRecord * event_rec) const;
-  //void CalculatePrimaryLepton(GHepRecord * event_rec) const;
+  void CalculateHadronicSystem_AtharSingleKaon(GHepRecord * event_rec) const;
 };
 
 }      // genie namespace
+#endif // _SK_HADRONIC_SYSTEM_GENERATOR_H_
 
-#endif // _ASK_PRIMARY_LEPTON_GENERATOR_H_

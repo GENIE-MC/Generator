@@ -4,10 +4,9 @@
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - December 19, 2005
  Authors: Chris Marshall <marshall \at pas.rochester.edu>
           University of Rochester
+
           Martti Nirkko
           University of Berne
 
@@ -16,7 +15,7 @@
 */
 //____________________________________________________________________________
 
-#include "AtharSingleKaon/ASKInteractionListGenerator.h"
+#include "SingleKaon/SKInteractionListGenerator.h"
 #include "EVGCore/InteractionList.h"
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
@@ -26,24 +25,24 @@
 using namespace genie;
 
 //___________________________________________________________________________
-ASKInteractionListGenerator::ASKInteractionListGenerator() :
-InteractionListGeneratorI("genie::ASKInteractionListGenerator")
+SKInteractionListGenerator::SKInteractionListGenerator() :
+InteractionListGeneratorI("genie::SKInteractionListGenerator")
 {
 
 }
 //___________________________________________________________________________
-ASKInteractionListGenerator::ASKInteractionListGenerator(string config) :
-InteractionListGeneratorI("genie::ASKInteractionListGenerator", config)
+SKInteractionListGenerator::SKInteractionListGenerator(string config) :
+InteractionListGeneratorI("genie::SKInteractionListGenerator", config)
 {
 
 }
 //___________________________________________________________________________
-ASKInteractionListGenerator::~ASKInteractionListGenerator()
+SKInteractionListGenerator::~SKInteractionListGenerator()
 {
 
 }
 //___________________________________________________________________________
-InteractionList * ASKInteractionListGenerator::CreateInteractionList(
+InteractionList * SKInteractionListGenerator::CreateInteractionList(
                                       const InitialState & init_state) const
 {
   LOG("IntLst", pINFO)
@@ -122,19 +121,19 @@ InteractionList * ASKInteractionListGenerator::CreateInteractionList(
   return intlist;
 }
 //___________________________________________________________________________
-void ASKInteractionListGenerator::Configure(const Registry & config)
+void SKInteractionListGenerator::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfigData();
 }
 //____________________________________________________________________________
-void ASKInteractionListGenerator::Configure(string config)
+void SKInteractionListGenerator::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfigData();
 }
 //____________________________________________________________________________
-void ASKInteractionListGenerator::LoadConfigData(void)
+void SKInteractionListGenerator::LoadConfigData(void)
 {
   fIsCC = fConfig->GetBoolDef("is-CC", false);
   fIsNC = fConfig->GetBoolDef("is-NC", false);
