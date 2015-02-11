@@ -7,7 +7,7 @@
          objects (InitialState, ProcessInfo, Kinematics, XclsTag)
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@@rl.ac.uk>
-         STFC, Rutherford Appleton Laboratory
+         University of Liverpool & STFC Rutherford Appleton Lab
 
 \created May 4, 2004
 

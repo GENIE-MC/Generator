@@ -10,7 +10,7 @@
           R.Bradford, A.Bodek, H.Budd, J.Arrington, Nucl.Phys.B159 (2006) 127
           
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  Sep 15, 2009
 

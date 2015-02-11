@@ -9,7 +9,7 @@
           a free particle (eg a e- target in the inverse muon decay reaction)
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  May 03, 2004
 

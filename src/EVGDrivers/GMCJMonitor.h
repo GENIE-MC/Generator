@@ -8,7 +8,7 @@
          all output is suppressed or redirected to /dev/null.
 
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory
+         University of Liverpool & STFC Rutherford Appleton Lab
 
 \created July 13, 2005
 

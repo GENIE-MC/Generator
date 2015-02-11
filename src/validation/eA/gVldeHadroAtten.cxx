@@ -30,7 +30,7 @@
                 submit_eA_hadron_attenuation_validation_mc_jobs.pl
              
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory
+         University of Liverpool & STFC Rutherford Appleton Lab
 
 \created June 06, 2008 
 

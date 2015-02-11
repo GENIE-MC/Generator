@@ -6,7 +6,7 @@
 \brief   Test program for astrophysical neutrino flux drivers
 
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory
+         University of Liverpool & STFC Rutherford Appleton Lab
 
 \created March 26, 2010
 

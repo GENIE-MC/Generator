@@ -7,7 +7,7 @@
          employed during a neutrino event generation job.
 
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory
+         University of Liverpool & STFC Rutherford Appleton Lab
 
 \created January 25, 2004
 

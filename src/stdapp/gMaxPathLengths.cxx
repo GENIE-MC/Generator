@@ -59,7 +59,7 @@
            See $GENIE/src/Conventions/Units.h for GENIE unit definitions.
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         STFC, Rutherford Appleton Laboratory
+         University of Liverpool & STFC Rutherford Appleton Lab
 
 \created September 27, 2005
 

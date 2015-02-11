@@ -28,7 +28,7 @@
               For info on the XML file format see the GSimFiles class documentation.
 
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory
+         University of Liverpool & STFC Rutherford Appleton Lab
 
 \created June 06, 2008 
 

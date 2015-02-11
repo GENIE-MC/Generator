@@ -7,8 +7,8 @@
 
 \ref      
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+\author   Hugh Gallagher
+          Tufts University
 
 \created  June 10, 2004
 

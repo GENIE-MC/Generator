@@ -6,7 +6,7 @@
 \brief    Encapsulates an enumeration of possible algorithm comparisons
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  October 22, 2005
 

@@ -11,7 +11,7 @@
           - how to format the generated comparison plot
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  Apr 17, 2012
 

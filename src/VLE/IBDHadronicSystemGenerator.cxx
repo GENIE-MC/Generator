@@ -7,7 +7,7 @@
  Author: Corey Reed <cjreed \at nikhef.nl> - October 29, 2009
          using code from the QELKinematicGenerator written by
          Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - October 03, 2004
+         University of Liverpool & STFC Rutherford Appleton Lab - October 03, 2004
 
  For the class documentation see the corresponding header file.
 

@@ -6,7 +6,7 @@
 \brief   A list of PDG codes
 
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory
+         University of Liverpool & STFC Rutherford Appleton Lab
 
 \created May 13, 2005
 

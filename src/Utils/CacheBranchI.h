@@ -6,7 +6,7 @@
 \brief    The TObject at the root of concrete cache branches
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  November 26, 2004
 

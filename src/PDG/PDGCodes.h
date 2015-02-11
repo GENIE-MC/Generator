@@ -7,7 +7,7 @@
           A set of utility functions to handle PDG codes is provided in PDGUtils
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  May 06, 2004
 

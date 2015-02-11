@@ -10,7 +10,7 @@
           generation framework equivalent of an 'Undo')
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  September 23, 2005
 

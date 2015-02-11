@@ -6,7 +6,7 @@
 \brief    Encapsulates an enumeration of possible GENIE output TTree formats
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  September 02, 2005
 

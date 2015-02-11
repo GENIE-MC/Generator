@@ -9,7 +9,7 @@
 \ref      T.K.Gaisser, F.Halzen and T.Stanev, Physics Reports 258:173 (1995)
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  May 04, 2005
 

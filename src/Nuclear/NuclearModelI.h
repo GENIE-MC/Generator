@@ -8,7 +8,7 @@
           model describing the distribution of nucleons within a nuclei
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  October 09, 2004
 

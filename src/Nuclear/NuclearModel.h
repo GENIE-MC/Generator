@@ -6,7 +6,7 @@
 \brief    Encapsulates an enumeration of nuclear model types
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  Jun 09, 2009
 

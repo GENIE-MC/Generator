@@ -7,7 +7,7 @@
           Is a concrete implementation of the HadronizationModelI interface.
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
           Hugh Gallagher <gallag@minos.phy.tufts.edu>
           Tufts University

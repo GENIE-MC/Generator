@@ -6,7 +6,7 @@
 \brief    A simple cache branch storing the cached data in a TNtuple
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  November 26, 2004
 

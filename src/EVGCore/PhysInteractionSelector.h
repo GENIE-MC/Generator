@@ -8,7 +8,7 @@
          Is a concrete implementation of the InteractionSelectorI interface.
 
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory
+         University of Liverpool & STFC Rutherford Appleton Lab
 
 \created January 25, 2005
 

@@ -7,7 +7,7 @@
 // root[1] print_decay_channels(15)
 //
 // Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-// STFC, Rutherford Appleton Laboratory
+// University of Liverpool & STFC Rutherford Appleton Lab
 //
 
 gSystem->Load("libEG");

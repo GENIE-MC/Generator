@@ -28,7 +28,7 @@
           flux neutrinos (the latter giving smoother distributions at the tails).
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  January 26, 2008
 

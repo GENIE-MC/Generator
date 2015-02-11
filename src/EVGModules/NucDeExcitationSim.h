@@ -6,7 +6,7 @@
 \brief    Generates nuclear de-excitation gamma rays
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \ref      16O: 
            H.Ejiri,Phys.Rev.C48,1442(1993); 

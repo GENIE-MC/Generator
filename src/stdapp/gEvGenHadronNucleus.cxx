@@ -71,7 +71,7 @@
           University of Pittsburgh
 
 	  Costas Andreopoulos,
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 	  
 \version 1.3
 

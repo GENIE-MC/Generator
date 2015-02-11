@@ -6,7 +6,7 @@
 \brief    Bilinear interpolation of 2D functions on a regular grid.
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  May 30, 2009
 

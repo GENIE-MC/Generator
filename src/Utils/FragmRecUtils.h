@@ -9,7 +9,7 @@
             equivalent to PYTHIA's PYJETS.
 
 \author     Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-            STFC, Rutherford Appleton Laboratory
+            University of Liverpool & STFC Rutherford Appleton Lab
 
 \created    November 26, 2004
 

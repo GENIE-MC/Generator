@@ -28,7 +28,7 @@
            shell$ gvld_xsec_comp -f xsec-v2_4.root -r xsec-v2_2.root 
 		      
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory
+         University of Liverpool & STFC Rutherford Appleton Lab
 
 \created June 06, 2008 
 

@@ -11,7 +11,7 @@
          root[1] read_t2k_rootracker("./your_rootracker_file.root");
 
 \author  Costas Andreopoulos <costas.andreopoulos@stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory
+         University of Liverpool & STFC Rutherford Appleton Lab
 
 \created Nov 24, 2008
 

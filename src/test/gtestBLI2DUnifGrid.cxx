@@ -6,7 +6,7 @@
 \brief   Program used for testing / debugging GENIE's BLI2DUnifGrid
 
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory
+         University of Liverpool & STFC Rutherford Appleton Lab
 
 \created May 29, 2009
 

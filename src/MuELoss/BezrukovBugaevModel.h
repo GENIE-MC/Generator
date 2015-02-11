@@ -11,7 +11,7 @@
           Energy Loss of Muons in the Energy Range 1-10000 GeV, CERN 85-03
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  December 10, 2003
 
@@ -67,7 +67,7 @@ private:
           Bugaev model
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  December 10, 2003
 */

@@ -9,7 +9,7 @@
 \ref      P.D.B.Collins and T.P.Spiller, J.Phys.G11, 1289 (1984)
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  June 15, 2004
 

@@ -6,7 +6,7 @@
 \brief    Some common run-time GENIE options.
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  January 29, 2013
 

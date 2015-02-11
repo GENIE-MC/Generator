@@ -6,7 +6,7 @@
 \brief    Cross Section Calculation Interface.
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  December 10, 2003
 

@@ -8,7 +8,7 @@
 \usage   % genie 'make_sk_xsec_table.C("/some/path/genie_t2k_splines.xml")'
 
 \author  Costas Andreopoulos <costas.andreopoulos@stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory
+         University of Liverpool & STFC Rutherford Appleton Lab
 
          Ryan Terri <r.terri \at qmul.ac.uk>>
          Queen Mary, University of London

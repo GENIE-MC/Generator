@@ -5,19 +5,11 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory 
+         University of Liverpool & STFC Rutherford Appleton Lab 
 
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
- @ Nov 22, 2007 - CA
-   Was first added in 2.0.1
- @ Feb 09, 2009 - CA
-   Moved into the new Coherent package from its previous location  (EVGModules 
-   package)
- @ Feb 06, 2013 - CA
-   When the value of the differential cross-section for the selected kinematics
-   is set to the event, set the corresponding KinePhaseSpace_t value too.
 
 */
 //____________________________________________________________________________

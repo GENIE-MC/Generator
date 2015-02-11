@@ -11,7 +11,7 @@
           PDFModelI interface, that it finds attached to itself.
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  May 04, 2004
 

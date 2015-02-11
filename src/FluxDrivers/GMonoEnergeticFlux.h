@@ -10,7 +10,7 @@
           can handle a target mix or detailed geometries.
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  Feb 08, 2008
 

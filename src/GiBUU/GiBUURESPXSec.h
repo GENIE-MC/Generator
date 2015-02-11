@@ -11,7 +11,7 @@
           Phys. Rev. C 79, 034601 (2009).
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  Jun 03, 2009
 

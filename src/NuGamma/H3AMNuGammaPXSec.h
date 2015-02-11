@@ -9,7 +9,7 @@
 \ref      J.A.Harvey, C.T.Hill and R.J.Hill, PRL99, 261601 (2007)
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  February 15, 2008
 

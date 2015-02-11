@@ -6,7 +6,7 @@
 \brief    Utility class used by the DBI to upload XML data to the RDBMS
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  Jan, 2004
 

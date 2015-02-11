@@ -5,7 +5,7 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - February 15, 2008
+         University of Liverpool & STFC Rutherford Appleton Lab - February 15, 2008
 
  For the class documentation see the corresponding header file.
 

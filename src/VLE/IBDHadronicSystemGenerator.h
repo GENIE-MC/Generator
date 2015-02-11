@@ -9,7 +9,7 @@
 \author   Corey Reed <cjreed \at nikhef.nl> - October 29, 2009
           using code from the QELKinematicGenerator written by
           Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  October 29, 2009
 

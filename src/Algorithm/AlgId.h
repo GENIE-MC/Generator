@@ -6,7 +6,7 @@
 \brief    Algorithm ID (algorithm name + configuration set name)
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  October 20, 2005
 

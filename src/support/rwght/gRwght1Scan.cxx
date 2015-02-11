@@ -62,7 +62,7 @@
          Imperial College London
 
          Costas Andreopoulos, Jelena Ilic, Nick Grant
-         STFC, Rutherford Appleton Laboratory
+         University of Liverpool & STFC Rutherford Appleton Lab
 
 \created June 10, 2010
 
