@@ -10,10 +10,10 @@
 **  `Y8bood8P'   o888ooooood8 o8o        `8  o888o o888ooooood8                                       **
 **                                                                                                    **
 **                                                                                                    **
-**    Luis Alvarez-Ruso [13], Costas Andreopoulos (*) [10], Omar Benhar [9], Flavio Cavanna [5],      **
+**   Luis Alvarez-Ruso [13], Costas Andreopoulos (*) [6,10], Omar Benhar [9], Flavio Cavanna [5],     **
 **           Thomas Dealtry [7], Steve Dytman [8], Hugh Gallagher [12], Robert Hatcher [3],           ** 
-**                 Yoshinari Hayato [5], Anselmo Meregaglia [2,11], Donna Naples [8],                 **
-**               Gabriel Perdue [3], Corey Reed [6], Andre Rubbia [2], Mike Whalley [1]               **
+**                  Yoshinari Hayato [4], Anselmo Meregaglia [11], Donna Naples [8],                  **
+**                        Gabriel Perdue [3], Andre Rubbia [2], Mike Whalley [1]                      **
 **                                                                                                    **
 **                                      (The GENIE Collaboration)                                     **
 **                                                                                                    **
@@ -22,23 +22,26 @@
 **                          (3) Fermi National Accelerator Laboratory, USA                            **
 **                    (4) Kamioka Observatory, ICRR, University of Tokyo, Japan                       **
 **                             (5) L'Aquila University and INFN, Italy                                **
-**                                   (6) NIKHEF, The Netherlands                                      **
+**                                 (6) University of Liverpool, UK                                    **
 **                                    (7) Oxford University, UK                                       **
 **                                  (8) Pittsburgh University, USA                                    **
 **                           (9) Rome Sapienza University and INFN, Italy                             **
-**        (10) Rutherford Appleton Laboratory / Science and Technology Facilities Council, UK         **
+**                            (10) STFC Rutherford Appleton Laboratory UK                             **
 **                                   (11) Strasbourg IPHC, France                                     **
 **                                    (12) Tufts University, USA                                      **
 **                                  (13) Valencia University, Spain                                   **
 **                                                                                                    **
 **                                                                                                    **
-** (*) Corresponding Author: Dr. Costas Andreopoulos                                                  **
-**     address: Rutherford Appleton Laboratory, Harwell Oxford Campus, OX11 0QX, United Kingdom       **
-**     e-mail : costas.andreopoulos \at stfc.ac.uk >                                                  **
-**     tel    : +44-(0)1235-445091                                                                    **
-**     fax    : +44-(0)1235-446733                                                                    **
+** (*) Corresponding Author: Dr. Costas Andreopoulos  <costas.andreopoulos \at stfc.ac.uk>            **
+**      -----------------------------------------------------------------                             **
+**     | University of Liverpool  |  STFC Rutherford Appleton Laboratory |                            **
+**     | Physics Department       |  Particle Physics Department         |                            **
+**     | Oliver Lodge Lab 316     |  Harwell Oxford Campus, R1 2.89      |                            **
+**     | Liverpool L69 7ZE, UK    |  Oxfordshire OX11 0QX, UK            |                            **
+**     | +44-(0)1517-943201 (tel) |  +44-(0)1235-445091 (tel)            |                            **
+**      -----------------------------------------------------------------                             **
 **                                                                                                    **
-** (c) 2003-2014 GENIE Collaboration                                                                  **
+** (c) 2003-2015 GENIE Collaboration                                                                  **
 **                                                                                                    **
 ** This program is free software: you can redistribute it and/or modify it under the terms of         ** 
 ** the GNU General Public License as published by the Free Software Foundation, either version 3 of   ** 
