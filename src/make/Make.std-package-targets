@@ -35,7 +35,7 @@ rootcint: $(DICTIONARY).o
 $(DICTIONARY).cc: LinkDef.h $(DICTGEN_OBJECTS)
 	$(RM) $(DICTIONARY).*
 	@echo "[package: $(PACKAGE)] Generating ROOT dictionary ..."
-	rootcint -f $(DICTIONARY).cc -c -I$(ROOTSYS)/include -I$(GENIE)/src -I$(GENIE)/src/NuValidator $(DICTGEN_HEADERS) LinkDef.h
+	rootcint -f $(DICTIONARY).cc -c -I$(ROOTSYS)/include -I$(GENIE)/src $(DICTGEN_HEADERS) LinkDef.h
 
 #
 #
