@@ -94,8 +94,11 @@ void ASKKinematicsGenerator::CalculateKin_AtharSingleKaon(GHepRecord * evrec) co
 
   // Determine lepton and kaon masses
   int leppdg = interaction->FSPrimLeptonPdg();
-  const TLorentzVector P4_nu = *(interaction->InitStatePtr()->GetProbeP4(kRfLab));
-  double enu = interaction->InitState().ProbeE(kRfLab); // Enu in lab frame
+  const TLorentzVector pnuc4 = interaction->InitState().Tgt().HitNucP4(); // 4-momentum of struck nucleon in lab frame
+  TVector3 beta = pnuc4.BoostVector();
+  TLorentzVector P4_nu = *(interaction->InitStatePtr()->GetProbeP4(kRfHitNucRest)); // struck nucleon rest frame
+
+  double enu = P4_nu.E(); // in nucleon rest frame
   int kaon_pdgc = interaction->ExclTag().StrangeHadronPdg();
   double mk = PDGLibrary::Instance()->Find(kaon_pdgc)->Mass();
   double ml = PDGLibrary::Instance()->Find(leppdg)->Mass();
@@ -165,24 +168,25 @@ void ASKKinematicsGenerator::CalculateKin_AtharSingleKaon(GHepRecord * evrec) co
 
      LOG("ASKKinematics", pDEBUG) << "Trying: Tk = " << tk << ", Tl = " << tl << ", cosThetal = " << costhetal << ", phikq = " << phikq;
 
+     // nucleon rest frame! these need to be boosted to the lab frame before they become actual particles
      interaction->KinePtr()->SetKV(kKVTk, tk);
      interaction->KinePtr()->SetKV(kKVTl, tl);
      interaction->KinePtr()->SetKV(kKVctl, costhetal);
      interaction->KinePtr()->SetKV(kKVphikq, phikq);
 
-     // Set Q2 and W
+     // lorentz invariant stuff, but do all the calculations in the nucleon rest frame
      double el = tl + ml;
      double pl = TMath::Sqrt(el*el - ml*ml);
-     double Mf = (interaction->ExclTag().NProtons()==1) ? kProtonMass : kNeutronMass; 
+     double M = interaction->InitState().Tgt().Mass();
      TVector3 lepton_3vector = TVector3(0,0,0);
-     lepton_3vector.SetMagThetaPhi(pl,TMath::ACos(costhetal),0.0); //phi_l doesn't affect q2, we'll choose it later
-     TLorentzVector P4_lep    = TLorentzVector(lepton_3vector , el );
+     lepton_3vector.SetMagThetaPhi(pl,TMath::ACos(costhetal),0.0);
+     TLorentzVector P4_lep( lepton_3vector, tl+ml );
      TLorentzVector q = P4_nu - P4_lep;
      double Q2 = -q.Mag2();
-     double nu = P4_nu.E() - P4_lep.E(); // hadronic system energy nu
-
-     interaction->KinePtr()->SetQ2(Q2);
-     double W2 = Mf*Mf + 2*Mf*nu - Q2;
+     double xbj = Q2/(2*M*q.E());
+     double y = q.E()/P4_nu.E();
+     double W2 = (pnuc4+q).Mag2();
+      
 
      // computing cross section for the current kinematics
      xsec = fXSecModel->XSec(interaction, kPSTkTlctl);
@@ -220,21 +224,20 @@ void ASKKinematicsGenerator::CalculateKin_AtharSingleKaon(GHepRecord * evrec) co
           LOG("ASKKinematics", pNOTICE) << "Current event wght = " << wght;
           evrec->SetWeight(wght);
         }
-        LOG("ASKKinematics", pDEBUG) << "neutrino 4p = (" << P4_nu.E() << ", " << P4_nu.X() << ", " << P4_nu.Y() << ", " << P4_nu.Z() << ")";
-        LOG("ASKKinematics", pDEBUG) << "Q2 = " << Q2 << " W = " << TMath::Sqrt(W2);
+        LOG("ASKKinematics", pWARN) << "\nLepton energy (rest frame) = " << el << " kaon = " << tl + mk;
 
         // reset bits
         interaction->ResetBit(kISkipProcessChk);
         interaction->ResetBit(kISkipKinematicChk);
 
-        interaction->KinePtr()->SetKV(kKVSelTk, tk);
-        interaction->KinePtr()->SetKV(kKVSelTl, tl);
-        interaction->KinePtr()->SetKV(kKVSelctl, costhetal);
-        interaction->KinePtr()->SetKV(kKVSelphikq, phikq);
+        interaction->KinePtr()->SetKV(kKVSelTk, tk); // nucleon rest frame
+        interaction->KinePtr()->SetKV(kKVSelTl, tl); // nucleon rest frame
+        interaction->KinePtr()->SetKV(kKVSelctl, costhetal); // nucleon rest frame
+        interaction->KinePtr()->SetKV(kKVSelphikq, phikq); // nucleon rest frame
         interaction->KinePtr()->SetQ2(Q2, true);
         interaction->KinePtr()->SetW(TMath::Sqrt(W2), true);
-        interaction->KinePtr()->Setx( Q2/(2*Mf*nu), true );
-        interaction->KinePtr()->Sety( nu/P4_nu.E(), true );
+        interaction->KinePtr()->Setx( xbj, true );
+        interaction->KinePtr()->Sety( y, true );
         interaction->KinePtr()->ClearRunningValues();
 
         // set the cross section for the selected kinematics
@@ -268,7 +271,7 @@ double ASKKinematicsGenerator::ComputeMaxXSec(const Interaction * in) const
   // don't do phi_kq -- the maximum will always occur at phi_kq = pi
 
   int leppdg = in->FSPrimLeptonPdg();
-  double enu = in->InitState().ProbeE(kRfLab); // Enu in lab frame
+  double enu = in->InitState().ProbeE(kRfHitNucRest); // Enu in nucleon rest frame
   int kaon_pdgc = in->ExclTag().StrangeHadronPdg();
   double mk = PDGLibrary::Instance()->Find(kaon_pdgc)->Mass();
   double ml = PDGLibrary::Instance()->Find(leppdg)->Mass();
@@ -321,7 +324,7 @@ double ASKKinematicsGenerator::ComputeMaxXSec(const Interaction * in) const
     }//tl
   }//tk
 
-  LOG("ASKKinmatics", pINFO) << "Max XSec is " << max_xsec << " for tk = " << max_tk << " tl = " << max_tl << " cosine theta = " << max_ctl;
+  LOG("ASKKinmatics", pINFO) << "Max XSec is " << max_xsec << " for enu = " << enu << " tk = " << max_tk << " tl = " << max_tl << " cosine theta = " << max_ctl;
 
   // Apply safety factor, since value retrieved from the cache might
   // correspond to a slightly different energy.

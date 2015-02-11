@@ -71,7 +71,6 @@ void ASKHadronicSystemGenerator::CalculateHadronicSystem_AtharSingleKaon(GHepRec
 // This method generates the final state hadronic system (kaon + nucleus) in 
 // ASK interactions
 //
-  //RandomGen * rnd = RandomGen::Instance();
 
   Interaction * interaction = evrec->Summary();
   Kinematics * kinematics = interaction->KinePtr();
@@ -85,9 +84,22 @@ void ASKHadronicSystemGenerator::CalculateHadronicSystem_AtharSingleKaon(GHepRec
   assert(Ni);
   assert(fsl);
 
-  const TLorentzVector & vtx   = *(nu->X4());
-  const TLorentzVector & p4nu  = *(nu ->P4());
-  const TLorentzVector & p4fsl = *(fsl->P4());
+  const TLorentzVector vtx   = *(nu->X4());
+  const TLorentzVector p4nu_lab  = *(nu ->P4());
+  const TLorentzVector p4fsl_lab = *(fsl->P4());
+
+  // these will get boosted to the nucleon rest frame
+  TLorentzVector p4nu = p4nu_lab;
+  TLorentzVector p4fsl = p4fsl_lab;
+
+  // Transform the neutrino and final-state lepton to the struck nucleon rest frame
+  const TLorentzVector pnuc4 = interaction->InitState().Tgt().HitNucP4(); // 4-momentum of struck nucleon in lab frame
+  TVector3 beta = pnuc4.BoostVector();
+  p4nu.Boost(-1.*beta);   
+  p4fsl.Boost(-1.*beta);
+
+  LOG( "ASKHadron", pDEBUG ) << "\nStruck nucleon p = (" << pnuc4.X() << ", " << pnuc4.Y() << ", " << pnuc4.Z() << ")";
+  LOG( "ASKHadron", pDEBUG ) << "\nLab frame neutrino E = " << p4nu_lab.E() << " lepton " << p4fsl_lab.E() << " rest frame " << p4nu.E() << " lepton " << p4fsl.E();
 
   //-- Determine the pdg code of the final state nucleon
   int nuc_pdgc = (xcls_tag.NProtons()) ? kPdgProton : kPdgNeutron; // there's only ever one nucleon
@@ -98,7 +110,8 @@ void ASKHadronicSystemGenerator::CalculateHadronicSystem_AtharSingleKaon(GHepRec
                           kIStHadronInTheNucleus : kIStStableFinalState;
 
   //-- basic kinematic inputs
-  double M    = (xcls_tag.NProtons()) ? kProtonMass : kNeutronMass; // there's only ever one nucleon
+//  double M    = (xcls_tag.NProtons()) ? kProtonMass : kNeutronMass; // there's only ever one nucleon
+  double M  = pnuc4.M();  // Mass of the struck nucleon
   double mk   = PDGLibrary::Instance()->Find(kaon_pdgc)->Mass(); // K+ and K0 mass are slightly different
   double mk2  = TMath::Power(mk,2);
 
@@ -107,16 +120,25 @@ void ASKHadronicSystemGenerator::CalculateHadronicSystem_AtharSingleKaon(GHepRec
   double kaon_E = kaon_T + mk;
   double pk = sqrt( kaon_E*kaon_E - mk2 );
 
-  TLorentzVector q = p4nu - p4fsl;
+  TLorentzVector q = p4nu - p4fsl; // nucleon rest frame
 
-  TVector3 qvec = q.Vect(); // this is in lab frame
+  TVector3 qvec = q.Vect(); // nucleon rest frame
   double q3 = qvec.Mag(); // in q frame (0,0,q3)
 
   // Equation 17 of notes from M. Rafi Alam dated 6 November 2013
-  double eN = q.E() + M - kaon_E; // nucleon total energy
+  double eN = q.E() + M - kaon_E; // FS nucleon total energy
   double cos_thetaKq = (q3*q3 + pk*pk + M*M - eN*eN)/(2*q3*pk);
+  LOG( "ASKHadron", pDEBUG ) << 
+    "Cosine theta_kq = " << cos_thetaKq << "\n" <<
+    "q.E = " << q.E() << " M = " << M << " kaon E " << kaon_E << " q3 = " << q3 << " pk = " << pk;
+
   // this can be slightly larger than 1 due to numerical precision issues -- don't let it be
-  if( cos_thetaKq > 1.0 ) cos_thetaKq = 1.0;
+  if( cos_thetaKq > 1.0 ) {
+    LOG( "ASKHadron", pWARN ) << 
+      "Cosine theta_kq = " << cos_thetaKq << ", setting to 1.0\n" <<
+      "q.E = " << q.E() << " M = " << M << " kaon E " << kaon_E << " q3 = " << q3 << " pk = " << pk;
+    cos_thetaKq = 1.0;
+  }
 
   // Get phi for the k-q plane relative to nu-l plane
   double phi_kq = kinematics->GetKV(kKVSelphikq);
@@ -126,28 +148,34 @@ void ASKHadronicSystemGenerator::CalculateHadronicSystem_AtharSingleKaon(GHepRec
 
   TVector3 nucleon( -kaon.X(), -kaon.Y(), q3 - kaon.Z() ); // force 3-momentum conservation in q frame
 
-  LOG( "ASKHadron", pDEBUG ) <<
-    "\nTk " << kaon_T << " Tlep " << kinematics->GetKV(kKVSelTl) << " costhetalep " << kinematics->GetKV(kKVSelctl) << " philep " << p4fsl.Vect().Phi() << " phikq " << phi_kq <<
-    "\nKaon (x,y,z) in q frame: (" << kaon.X() << ", " << kaon.Y() << ", " << kaon.Z() << ")" <<
-    "\nNucleon:                 (" << nucleon.X() << ", " << nucleon.Y() << ", " << nucleon.Z() << ")";
-
   // Transform hadron momenta from z axis along q to lab frame
   kaon.RotateUz(qvec.Unit());
   nucleon.RotateUz(qvec.Unit());
 
   LOG( "ASKHadron", pDEBUG ) <<
-    "\nKaon (x,y,z) in lab frame: (" << kaon.X() << ", " << kaon.Y() << ", " << kaon.Z() << ")" <<
-    "\nNucleon:                   (" << nucleon.X() << ", " << nucleon.Y() << ", " << nucleon.Z() << ")";
+    "\nKaon (x,y,z) in nuc rest frame: (" << kaon.X() << ", " << kaon.Y() << ", " << kaon.Z() << ")" <<
+    "\nNucleon:                        (" << nucleon.X() << ", " << nucleon.Y() << ", " << nucleon.Z() << ")";
 
-  double pxNf = nucleon.Px();
-  double pyNf = nucleon.Py();
-  double pzNf = nucleon.Pz();
-  double ENf = sqrt(pxNf*pxNf + pyNf*pyNf + pzNf*pzNf + M*M);  
+  // make 4-vectors for the kaon and nucleon
+  TLorentzVector p4kaon( kaon, sqrt(kaon.Mag2()+mk2) );
+  TLorentzVector p4fsnuc( nucleon, sqrt(nucleon.Mag2()+M*M) );
+  // these are in the struck nucleon rest frame...boost them to the lab frame
+  p4kaon.Boost( beta );
+  p4fsnuc.Boost( beta );
 
-  double pxKf = kaon.Px();
-  double pyKf = kaon.Py();
-  double pzKf = kaon.Pz();
-  double EKf = sqrt(pxKf*pxKf + pyKf*pyKf + pzKf*pzKf + mk2); 
+  LOG( "ASKHadron", pDEBUG ) <<
+    "\nKaon (x,y,z) in lab frame: (" << p4kaon.X() << ", " << p4kaon.Y() << ", " << p4kaon.Z() << ")" <<
+    "\nNucleon:                   (" << p4fsnuc.X() << ", " << p4fsnuc.Y() << ", " << p4fsnuc.Z() << ")";
+
+  double pxNf = p4fsnuc.Px();
+  double pyNf = p4fsnuc.Py();
+  double pzNf = p4fsnuc.Pz();
+  double ENf = p4fsnuc.E();
+
+  double pxKf = p4kaon.Px();
+  double pyKf = p4kaon.Py();
+  double pzKf = p4kaon.Pz();
+  double EKf = p4kaon.E();
 
   //-- Save the particles at the GHEP record
 
