@@ -76,6 +76,39 @@ double ASKXSec::Integrate(
      return 0;
   }
 
+  // If the input interaction is off a nuclear target, then chek whether 
+  // the corresponding free nucleon cross section already exists at the 
+  // cross section spline list. 
+  // Cross section for PP scales with number of protons, NP and NN scale 
+  // with number of neutrons
+  int nucpdgc = init_state.Tgt().HitNucPdg();
+  int NNucl   = (pdg::IsProton(nucpdgc)) ? 
+                   init_state.Tgt().Z() : init_state.Tgt().N();
+  double Ev = init_state.ProbeE(kRfHitNucRest);
+
+  XSecSplineList * xsl = XSecSplineList::Instance();
+  if(init_state.Tgt().IsNucleus() && !xsl->IsEmpty() ) {
+    Interaction * interaction = new Interaction(*in);
+    Target * target = interaction->InitStatePtr()->TgtPtr();
+    if(pdg::IsProton(nucpdgc)) { target->SetId(kPdgTgtFreeP); }
+    else                       { target->SetId(kPdgTgtFreeN); }
+    if(xsl->SplineExists(model,interaction)) {
+      const Spline * spl = xsl->GetSpline(model, interaction);
+      double xsec = spl->Evaluate(Ev);
+      LOG("ASKXSec", pINFO)  
+        << "From XSecSplineList: XSec[ASK,free nucleon] (E = " << Ev << " GeV) = " << xsec;
+      if(! interaction->TestBit(kIAssumeFreeNucleon) ) { 
+          xsec *= NNucl; 
+          LOG("ASKXSec", pINFO)  << "XSec[ASK] (E = " << Ev << " GeV) = " << xsec;
+      }
+      delete interaction;
+      return xsec;
+    }
+    delete interaction;
+  }
+
+  // no free nucelon spline exists -- do the integration
+ 
   // Check this
   double Enu = init_state.ProbeE(kRfLab);
   int kpdg = in->ExclTag().StrangeHadronPdg();
