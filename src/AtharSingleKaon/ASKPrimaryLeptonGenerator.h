@@ -35,7 +35,7 @@ public :
   //-- implement the EventRecordVisitorI interface
 
   void ProcessEventRecord(GHepRecord * event_rec) const;
-  void CalculatePrimaryLepton(GHepRecord * event_rec) const;
+  //void CalculatePrimaryLepton(GHepRecord * event_rec) const;
 };
 
 }      // genie namespace

@@ -65,7 +65,7 @@ double AtharSingleKaonPXSec2014::XSec(
   // Initialisation begins here
   // --------------------------
   // mutable variables used in the matrix element calculation
-  Enu = init_state.ProbeE(kRfLab);
+  Enu = init_state.ProbeE(kRfHitNucRest); // use the struck nucleon rest frame
   leptonPDG = interaction->FSPrimLeptonPdg();
   
   // Fill reaction type (NN=1, NP=2, PP=3)
@@ -88,9 +88,6 @@ double AtharSingleKaonPXSec2014::XSec(
   double costheta = kinematics.GetKV(kKVctl);
   double phikq = kinematics.GetKV(kKVphikq);
 
-  LOG( "AtharSingleKaon", pDEBUG)
-    << "Tlep = " << Tlep << " Tk = " << Tkaon << " cos theta lep = " << costheta << " phi_kq = " << phikq;
-  
   // Set lepton mass
   aml = PDGLibrary::Instance()->Find(leptonPDG)->Mass(); // mutable
 
@@ -210,9 +207,10 @@ void AtharSingleKaonPXSec2014::LoadConfig(void)
   am = kNeutronMass; // this will be nucleon mass, set event by event
   amEta = PDGLibrary::Instance()->Find(kPdgEta)->Mass();
   Vus=fConfig->GetDoubleDef("ASK-CKM-Vus", gc->GetDouble("CKM-Vus"));
-  fpi = 0.0924;                         // pion decay constant
-  d = 0.804;                            // SU(3) parameter 'D'
-  f = 0.463;                            // SU(3) parameter 'F'
+  // fpi is 0.0924 in Athar's code, use the same one that is already in UserPhysicsOptions
+  fpi = fConfig->GetDoubleDef("ASK-COHAR-fPi", gc->GetDouble("ASK-fPi")); // pion decay constant
+  d = fConfig->GetDoubleDef("ASK-SU3-D", gc->GetDouble("SU3-D")); // SU(3) parameter D
+  f = fConfig->GetDoubleDef("ASK-SU3-F", gc->GetDouble("SU3-F")); // SU(3) parameter F
   g = kGF;                              // Fermi coupling
   // we really want the anomolous moment, but the one in UserPhysicsOptions is the full moment, despite the name
   amup = fConfig->GetDoubleDef("ASK-AnomMagnMoment-P", gc->GetDouble("AnomMagnMoment-P")) - 1;

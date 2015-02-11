@@ -1,39 +1,39 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
- For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - September 26, 2005
- Authors: Chris Marshall <marshall \at pas.rochester.edu>
-          University of Rochester
-          Martti Nirkko
-          University of Berne
-
- For the class documentation see the corresponding header file.
-
+  Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
+  For the full text of the license visit http://copyright.genie-mc.org
+  or see $GENIE/LICENSE
+  
+  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+          STFC, Rutherford Appleton Laboratory - September 26, 2005
+  Authors: Chris Marshall <marshall \at pas.rochester.edu>
+           University of Rochester
+           Martti Nirkko
+           University of Berne
+ 
+   For the class documentation see the corresponding header file.
 */
 //____________________________________________________________________________
+//#include <TMath.h>
+//#include <TVector3.h>
 
-#include <TMath.h>
-#include <TVector3.h>
-
-#include "Conventions/Constants.h"
+//#include "Conventions/Constants.h"
 #include "AtharSingleKaon/ASKPrimaryLeptonGenerator.h"
 #include "GHEP/GHepParticle.h"
 #include "GHEP/GHepRecord.h"
-#include "Interaction/Interaction.h"
+#include "GHEP/GHepFlags.h"
+//#include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
-#include "Numerical/RandomGen.h"
-#include "Base/XSecAlgorithmI.h"
+//#include "Numerical/RandomGen.h"
+//#include "Base/XSecAlgorithmI.h"
 #include "EVGCore/EVGThreadException.h"
-#include "EVGCore/EventGeneratorI.h"
-#include "EVGCore/RunningThreadInfo.h"
+//#include "EVGCore/EventGeneratorI.h"
+//#include "EVGCore/RunningThreadInfo.h"
 
 
 using namespace genie;
-using namespace genie::constants;
+//using namespace genie::constants;
 
 //___________________________________________________________________________
 ASKPrimaryLeptonGenerator::ASKPrimaryLeptonGenerator() :
@@ -55,19 +55,30 @@ ASKPrimaryLeptonGenerator::~ASKPrimaryLeptonGenerator()
 //___________________________________________________________________________
 void ASKPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
 {
-//-- Access cross section algorithm for running thread
-  //RunningThreadInfo * rtinfo = RunningThreadInfo::Instance();
-  //const EventGeneratorI * evg = rtinfo->RunningThread();
-  //const XSecAlgorithmI *fXSecModel = evg->CrossSectionAlg();
-  CalculatePrimaryLepton(evrec);
+
+  // no modification is required to the std implementation
+  PrimaryLeptonGenerator::ProcessEventRecord(evrec);
+
+  if(evrec->FinalStatePrimaryLepton()->IsOffMassShell()) {
+    LOG("LeptonicVertex", pERROR)
+               << "*** Selected kinematics lead to off mass shell lepton!";
+     evrec->EventFlags()->SetBitNumber(kLeptoGenErr, true);
+     genie::exceptions::EVGThreadException exception;
+     exception.SetReason("E<m for final state lepton");
+     exception.SwitchOnFastForward();
+     throw exception;
+  }
+
+  //CalculatePrimaryLepton(evrec);
 }
+/*
 //___________________________________________________________________________
 void ASKPrimaryLeptonGenerator::CalculatePrimaryLepton(GHepRecord * evrec) const
 {
 // This method generates the final state primary lepton in ASK events
 
   Interaction * interaction = evrec->Summary();
-//  const InitialState & init_state = interaction->InitState();
+  const InitialState & init_state = interaction->InitState();
 
   // Look-up selected kinematics
   double lep_t = interaction->Kine().GetKV(kKVSelTl);
@@ -112,3 +123,4 @@ void ASKPrimaryLeptonGenerator::CalculatePrimaryLepton(GHepRecord * evrec) const
   // Set final state lepton polarization
   this->SetPolarization(evrec);
 }
+*/
