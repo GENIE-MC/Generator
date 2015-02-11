@@ -3,7 +3,7 @@
 <alg_conf>
 
 <!--
-Configuration for the Athar single kaon cross section
+Configuration for the Alam Simo Athar single kaon cross section calculator
 
 Configurable Parameters:
 ....................................................................................................
@@ -16,21 +16,15 @@ gsl-max-evals           int      yes        Max limit of evaluations for multidi
 -->
 
   <param_set name="Default"> 
-    <param type="alg" name="Integrator"> genie::Simpson3D/Default-Logarithmic-FixedNBins-101 </param> <!-- Not supported by non-GSL -->
-     
     <param type="string" name ="gsl-integration-type">       vegas  </param>
     <param type="int"    name ="gsl-max-evals">              40000  </param>
-    <param type="double" name ="gsl-relative-tolerance"  >    0.01  </param>
-    
+    <param type="double" name ="gsl-relative-tolerance"  >    0.01  </param>    
   </param_set>
   
   <param_set name="Fast"> 
-    <param type="alg" name="Integrator"> genie::Simpson3D/Default-Logarithmic-FixedNBins-101 </param> <!-- Not supported by non-GSL -->
-     
     <param type="string" name ="gsl-integration-type">       miser   </param>
     <param type="int"    name ="gsl-max-evals">              10000   </param>
-    <param type="double" name ="gsl-relative-tolerance"  >    0.05   </param>
-    
+    <param type="double" name ="gsl-relative-tolerance"  >    0.05   </param>    
   </param_set>
 
 </alg_conf>
