@@ -87,7 +87,7 @@ purge: FORCE
 #
 #
 clean: FORCE   
-	$(RM) *.o *~ core a.out $(GENIE_LIB_PATH)/$(LIBNAME)* $(DICTIONARY).* Makefile.temp
+	$(RM) *.o *.d *~ core a.out $(GENIE_LIB_PATH)/$(LIBNAME)* $(DICTIONARY).* Makefile.temp
 
 
 #
