@@ -10,7 +10,7 @@
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           STFC, Rutherford Appleton Laboratory
 
-\created  December 19, 2005
+\created  March 20, 2014
 
 \cpright  Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
@@ -18,26 +18,26 @@
 */
 //____________________________________________________________________________
 
-#ifndef _ASK_INTERACTION_LIST_GENERATOR_H_
-#define _ASK_INTERACTION_LIST_GENERATOR_H_
+#ifndef _SK_INTERACTION_LIST_GENERATOR_H_
+#define _SK_INTERACTION_LIST_GENERATOR_H_
 
 #include "EVGCore/InteractionListGeneratorI.h"
 
 namespace genie {
 
-class ASKInteractionListGenerator : public InteractionListGeneratorI {
+class SKInteractionListGenerator : public InteractionListGeneratorI {
 
 public :
 
-  ASKInteractionListGenerator();
-  ASKInteractionListGenerator(string config);
-  ~ASKInteractionListGenerator();
+  SKInteractionListGenerator();
+  SKInteractionListGenerator(string config);
+ ~SKInteractionListGenerator();
 
-  //-- implement the InteractionListGeneratorI interface
+  // Implement the InteractionListGeneratorI interface
   InteractionList * CreateInteractionList(const InitialState & init) const;
 
-  //-- overload the Algorithm::Configure() methods to load private data
-  //   members from configuration options
+  // Overload the Algorithm::Configure() methods to load private data
+  // members from configuration options
   void Configure(const Registry & config);
   void Configure(string config);
 
@@ -51,4 +51,4 @@ private:
 
 }      // genie namespace
 
-#endif // _ASK_INTERACTION_LIST_GENERATOR_H_
+#endif // _SK_INTERACTION_LIST_GENERATOR_H_

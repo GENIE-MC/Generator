@@ -27,10 +27,10 @@
   <priority msgstream="AlgFactory">          INFO   </priority>
   <priority msgstream="Algorithm">           WARN   </priority>
   <priority msgstream="AlgConfigPool">       WARN   </priority>
-  <priority msgstream="AtharSingleKaon">     INFO   </priority>
-  <priority msgstream="ASKKinematics">       INFO   </priority>
-  <priority msgstream="ASKLepton">           INFO   </priority>
-  <priority msgstream="ASKHadron">           DEBUG  </priority>  
+  <priority msgstream="SKXSec">              INFO   </priority>
+  <priority msgstream="SKKinematics">        INFO   </priority>
+  <priority msgstream="SKLepton">            INFO   </priority>
+  <priority msgstream="SKHadron">            DEBUG  </priority>  
   <priority msgstream="BardinIMD">           NOTICE </priority>
   <priority msgstream="BaryonResList">       WARN   </priority>
   <priority msgstream="BaseHad">             NOTICE </priority>

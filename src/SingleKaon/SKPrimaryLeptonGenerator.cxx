@@ -5,55 +5,45 @@
   For the full text of the license visit http://copyright.genie-mc.org
   or see $GENIE/LICENSE
   
-  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory - September 26, 2005
   Authors: Chris Marshall <marshall \at pas.rochester.edu>
            University of Rochester
+
            Martti Nirkko
            University of Berne
  
    For the class documentation see the corresponding header file.
+
 */
 //____________________________________________________________________________
-//#include <TMath.h>
-//#include <TVector3.h>
 
-//#include "Conventions/Constants.h"
-#include "AtharSingleKaon/ASKPrimaryLeptonGenerator.h"
 #include "GHEP/GHepParticle.h"
 #include "GHEP/GHepRecord.h"
 #include "GHEP/GHepFlags.h"
-//#include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
-//#include "Numerical/RandomGen.h"
-//#include "Base/XSecAlgorithmI.h"
 #include "EVGCore/EVGThreadException.h"
-//#include "EVGCore/EventGeneratorI.h"
-//#include "EVGCore/RunningThreadInfo.h"
-
+#include "SingleKaon/SKPrimaryLeptonGenerator.h"
 
 using namespace genie;
-//using namespace genie::constants;
 
 //___________________________________________________________________________
-ASKPrimaryLeptonGenerator::ASKPrimaryLeptonGenerator() :
-PrimaryLeptonGenerator("genie::ASKPrimaryLeptonGenerator")
+SKPrimaryLeptonGenerator::SKPrimaryLeptonGenerator() :
+PrimaryLeptonGenerator("genie::SKPrimaryLeptonGenerator")
 {
 
 }
 //___________________________________________________________________________
-ASKPrimaryLeptonGenerator::ASKPrimaryLeptonGenerator(string config) :
-PrimaryLeptonGenerator("genie::ASKPrimaryLeptonGenerator", config)
+SKPrimaryLeptonGenerator::SKPrimaryLeptonGenerator(string config) :
+PrimaryLeptonGenerator("genie::SKPrimaryLeptonGenerator", config)
 {
 
 }
 //___________________________________________________________________________
-ASKPrimaryLeptonGenerator::~ASKPrimaryLeptonGenerator()
+SKPrimaryLeptonGenerator::~SKPrimaryLeptonGenerator()
 {
 
 }
 //___________________________________________________________________________
-void ASKPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
+void SKPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
 {
 
   // no modification is required to the std implementation
@@ -68,14 +58,13 @@ void ASKPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
      exception.SwitchOnFastForward();
      throw exception;
   }
-
   //CalculatePrimaryLepton(evrec);
 }
 /*
 //___________________________________________________________________________
-void ASKPrimaryLeptonGenerator::CalculatePrimaryLepton(GHepRecord * evrec) const
+void SKPrimaryLeptonGenerator::CalculatePrimaryLepton(GHepRecord * evrec) const
 {
-// This method generates the final state primary lepton in ASK events
+// This method generates the final state primary lepton in single-K events
 
   Interaction * interaction = evrec->Summary();
   const InitialState & init_state = interaction->InitState();
@@ -94,7 +83,7 @@ void ASKPrimaryLeptonGenerator::CalculatePrimaryLepton(GHepRecord * evrec) const
   RandomGen * rnd = RandomGen::Instance();
   double phi  = 2*kPi * rnd->RndLep().Rndm();
 
-  LOG( "ASKLepton", pDEBUG )
+  LOG( "SKLepton", pDEBUG )
     << "lepton T = " << lep_t << " cos theta = " << lep_costheta << " random phi = " << phi;
 
   // Lepton 3vector w.r.t. neutrino direction
@@ -108,7 +97,7 @@ void ASKPrimaryLeptonGenerator::CalculatePrimaryLepton(GHepRecord * evrec) const
   // {z':(neutrino direction), z'x':(theta plane)} to the LAB
   p3l.RotateUz(unit_nudir);
 
-  LOG( "ASKLepton", pDEBUG )
+  LOG( "SKLepton", pDEBUG )
     << "lab frame lepton px = " << p3l.x() << " py = " << p3l.y() << " pz = " << p3l.z();
 
   // Lepton 4-momentum in LAB

@@ -2,7 +2,7 @@
 
 <alg_conf>
 
-  Configuration sets for ASKPrimaryLeptonGenerator EventRecordVisitorI
+  Configuration sets for SKPrimaryLeptonGenerator EventRecordVisitorI
 
   <param_set name="Default"> 
   </param_set>

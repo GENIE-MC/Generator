@@ -128,7 +128,6 @@ core-medium-energy-range: FORCE
 	@echo " "
 	@echo "** Building core medium energy range physics models..."
 	cd ${GENIE}/src;\
-	cd AtharSingleKaon;    make; cd ..; \
 	cd BodekYang;          make; cd ..; \
 	cd Charm;              make; cd ..; \
 	cd Coherent;           make; cd ..; \
@@ -148,7 +147,8 @@ core-medium-energy-range: FORCE
 	cd PDF;                make; cd ..; \
 	cd QEL;                make; cd ..; \
 	cd ReinSehgal;         make; cd ..; \
-	cd RES;                make; cd ..; 
+	cd RES;                make; cd ..; \
+	cd SingleKaon;         make; cd ..; 
 
 test-medium-energy-range: FORCE
 	@echo " "
@@ -403,7 +403,6 @@ make-install-dirs: FORCE
 	[ -d ${GENIE_INCBASE_INSTALLATION_PATH} ] || mkdir ${GENIE_INCBASE_INSTALLATION_PATH}
 	mkdir ${GENIE_INC_INSTALLATION_PATH}
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Algorithm
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/AtharSingleKaon
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/BaryonResonance
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Base
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/BodekYang
@@ -444,6 +443,7 @@ make-install-dirs: FORCE
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/ReWeight
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Registry
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/ReinSehgal
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/SingleKaon
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Utils
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/VLE
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/VHE
@@ -454,7 +454,6 @@ copy-install-files: FORCE
 	cp ${GENIE_BIN_PATH}/* ${GENIE_BIN_INSTALLATION_PATH};\
 	cd ${GENIE}/src;\
 	cd Algorithm;              make install; cd ..; \
-	cd AtharSingleKaon;        make install; cd ..; \
 	cd BaryonResonance;        make install; cd ..; \
 	cd Base;                   make install; cd ..; \
 	cd BodekYang;              make install; cd ..; \
@@ -495,6 +494,7 @@ copy-install-files: FORCE
 	cd Registry;               make install; cd ..; \
 	cd ReinSehgal;             make install; cd ..; \
 	cd ReWeight;               make install; cd ..; \
+	cd SingleKaon;             make install; cd ..; \
 	cd Utils;                  make install; cd ..; \
 	cd VLE;                    make install; cd ..; \
 	cd VHE;                    make install; cd ..; \
@@ -505,7 +505,6 @@ purge: FORCE
 	@echo "** Purging..."
 	cd ${GENIE}/src;\
 	cd Algorithm;                     make purge; cd ..; \
-	cd AtharSingleKaon;               make purge; cd ..; \
 	cd BaryonResonance;               make purge; cd ..; \
 	cd Base;                          make purge; cd ..; \
 	cd BodekYang;                     make purge; cd ..; \
@@ -545,6 +544,7 @@ purge: FORCE
 	cd Registry;                      make purge; cd ..; \
 	cd ReinSehgal;                    make purge; cd ..; \
 	cd ReWeight;                      make purge; cd ..; \
+	cd SingleKaon;                    make purge; cd ..; \
 	cd Utils;                         make purge; cd ..; \
 	cd VLE;                           make purge; cd ..; \
 	cd VHE;                           make purge; cd ..; \
@@ -564,7 +564,6 @@ clean-files: FORCE
 	@echo "** Cleaning..."
 	cd ${GENIE}/src;\
 	cd Algorithm;                     make clean; cd ..; \
-	cd AtharSingleKaon;               make clean; cd ..; \
 	cd BaryonResonance;               make clean; cd ..; \
 	cd Base;                          make clean; cd ..; \
 	cd BodekYang;                     make clean; cd ..; \
@@ -604,6 +603,7 @@ clean-files: FORCE
 	cd Registry;                      make clean; cd ..; \
 	cd ReinSehgal;                    make clean; cd ..; \
 	cd ReWeight;                      make clean; cd ..; \
+	cd SingleKaon;                    make clean; cd ..; \
 	cd Utils;                         make clean; cd ..; \
 	cd validation/EvScan;             make clean; cd ../../; \
 	cd validation/MCx;                make clean; cd ../../; \
@@ -645,7 +645,6 @@ distclean: FORCE
 	[ ! -d ${GENIE_INSTALLATION_PATH}/include/GENIE ] || rm -rf ${GENIE_INSTALLATION_PATH}/include/GENIE/
 	cd ${GENIE}/src/;\
 	cd Algorithm;                      make distclean; cd ..; \
-	cd AtharSingleKaon;                make distclean; cd ..; \
 	cd BaryonResonance;                make distclean; cd ..; \
 	cd Base;                           make distclean; cd ..; \
 	cd BodekYang;                      make distclean; cd ..; \
@@ -685,6 +684,7 @@ distclean: FORCE
 	cd Registry;                       make distclean; cd ..; \
 	cd ReinSehgal;                     make distclean; cd ..; \
 	cd ReWeight;                       make distclean; cd ..; \
+	cd SingleKaon;                     make distclean; cd ..; \
 	cd Utils;                          make distclean; cd ..; \
 	cd validation/EvScan;              make distclean; cd ../../; \
 	cd validation/MCx;                 make distclean; cd ../../; \

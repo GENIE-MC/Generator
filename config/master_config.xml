@@ -22,7 +22,7 @@
    <config alg="genie::NuEPrimaryLeptonGenerator">   NuEPrimaryLeptonGenerator.xml   </config>
    <config alg="genie::COHPrimaryLeptonGenerator">   COHPrimaryLeptonGenerator.xml   </config>
    <config alg="genie::DFRPrimaryLeptonGenerator">   DFRPrimaryLeptonGenerator.xml   </config>
-   <config alg="genie::ASKPrimaryLeptonGenerator">   ASKPrimaryLeptonGenerator.xml   </config>   
+   <config alg="genie::SKPrimaryLeptonGenerator">    SKPrimaryLeptonGenerator.xml    </config>   
    <config alg="genie::QELKinematicsGenerator">      QELKinematicsGenerator.xml      </config>
    <config alg="genie::DISKinematicsGenerator">      DISKinematicsGenerator.xml      </config>
    <config alg="genie::RESKinematicsGenerator">      RESKinematicsGenerator.xml      </config>
@@ -30,7 +30,7 @@
    <config alg="genie::COHKinematicsGenerator">      COHKinematicsGenerator.xml      </config>
    <config alg="genie::COHElKinematicsGenerator">    COHElKinematicsGenerator.xml    </config>
    <config alg="genie::DFRKinematicsGenerator">      DFRKinematicsGenerator.xml      </config>
-   <config alg="genie::ASKKinematicsGenerator">      ASKKinematicsGenerator.xml      </config>   
+   <config alg="genie::SKKinematicsGenerator">       SKKinematicsGenerator.xml       </config>   
    <config alg="genie::QELHadronicSystemGenerator">  QELHadronicSystemGenerator.xml  </config>
    <config alg="genie::COHHadronicSystemGenerator">  COHHadronicSystemGenerator.xml  </config>
    <config alg="genie::COHElHadronicSystemGenerator">COHElHadronicSystemGenerator.xml</config>
@@ -38,7 +38,7 @@
    <config alg="genie::DISHadronicSystemGenerator">  DISHadronicSystemGenerator.xml  </config>
    <config alg="genie::RESHadronicSystemGenerator">  RESHadronicSystemGenerator.xml  </config>
    <config alg="genie::RSPPHadronicSystemGenerator"> RSPPHadronicSystemGenerator.xml </config>
-   <config alg="genie::ASKHadronicSystemGenerator">  ASKHadronicSystemGenerator.xml  </config>   
+   <config alg="genie::SKHadronicSystemGenerator">   SKHadronicSystemGenerator.xml   </config>   
    <config alg="genie::NuETargetRemnantGenerator">   NuETargetRemnantGenerator.xml   </config>
    <config alg="genie::RSPPResonanceSelector">       RSPPResonanceSelector.xml       </config>
    <config alg="genie::AMNuGammaGenerator">          AMNuGammaGenerator.xml          </config>
@@ -57,7 +57,7 @@
    <config alg="genie::MECInteractionListGenerator">           MECInteractionListGenerator.xml       </config>
    <config alg="genie::GLRESInteractionListGenerator">         GLRESInteractionListGenerator.xml     </config>
    <config alg="genie::DFRInteractionListGenerator">           DFRInteractionListGenerator.xml       </config>
-   <config alg="genie::ASKInteractionListGenerator">           ASKInteractionListGenerator.xml       </config>    
+   <config alg="genie::SKInteractionListGenerator">            SKInteractionListGenerator.xml        </config>    
    <config alg="genie::DummyInteractionListGenerator">         Default.xml                           </config>
    <config alg="genie::InteractionListAssembler">              InteractionListAssembler.xml          </config>
    <config alg="genie::EventGeneratorListAssembler">           EventGeneratorListAssembler.xml       </config>
@@ -115,32 +115,32 @@
    <config alg="genie::NuElectronXSec">              NuElectronXSec.xml              </config>
 
    <!--  ****** CONFIGURATION FOR XSEC ALGORITHMS ****** -->
-   <config alg="genie::AhrensNCELPXSec">             AhrensNCELPXSec.xml             </config>
-   <config alg="genie::LwlynSmithQELCCPXSec">        LwlynSmithQELCCPXSec.xml        </config>
-   <config alg="genie::QPMDISPXSec">                 QPMDISPXSec.xml                 </config>
-   <config alg="genie::AivazisCharmPXSecLO">         AivazisCharmPXSecLO.xml         </config>
-   <config alg="genie::SlowRsclCharmDISPXSecLO">     SlowRsclCharmDISPXSecLO.xml     </config>
-   <config alg="genie::KovalenkoQELCharmPXSec">      KovalenkoQELCharmPXSec.xml      </config>
-   <config alg="genie::PaisQELLambdaPXSec">          PaisQELLambdaPXSec.xml          </config>
-   <config alg="genie::AtharSingleKaonPXSec2014">    AtharSingleKaonPXSec2014.xml    </config>   
-   <config alg="genie::P33PaschosLalakulichPXSec">   P33PaschosLalakulichPXSec.xml   </config>
-   <config alg="genie::BardinIMDRadCorPXSec">        BardinIMDRadCorPXSec.xml        </config>
-   <config alg="genie::IMDAnnihilationPXSec">        IMDAnnihilationPXSec.xml        </config>
-   <config alg="genie::COHElasticPXSec">             COHElasticPXSec.xml             </config>
-   <config alg="genie::NuElectronPXSec">             NuElectronPXSec.xml             </config>
-   <config alg="genie::GLRESPXSec">                  GLRESPXSec.xml                  </config>
-   <config alg="genie::BergerSehgalRESPXSec2014">    BergerSehgalRESPXSec2014.xml    </config>
-   <config alg="genie::ReinDFRPXSec">                ReinDFRPXSec.xml                </config>
-   <config alg="genie::ReinSehgalCOHPiPXSec">        ReinSehgalCOHPiPXSec.xml        </config>
-   <config alg="genie::ReinSehgalRESPXSec">          ReinSehgalRESPXSec.xml          </config>
-   <config alg="genie::ReinSehgalSPPPXSec">          ReinSehgalSPPPXSec.xml          </config>
-   <config alg="genie::ReinSehgalRESXSec">           ReinSehgalRESXSec.xml           </config>
-   <config alg="genie::ReinSehgalSPPXSec">           ReinSehgalSPPXSec.xml           </config>
-   <config alg="genie::H3AMNuGammaPXSec">            H3AMNuGammaPXSec.xml            </config>
-   <config alg="genie::MECPXSec">                    MECPXSec.xml                    </config>
-   <config alg="genie::RosenbluthPXSec">             RosenbluthPXSec.xml             </config>
-   <config alg="genie::StrumiaVissaniIBDPXSec">      StrumiaVissaniIBDPXSec.xml      </config>
-   <config alg="genie::DummyPXSec">                  Default.xml                     </config>
+   <config alg="genie::AhrensNCELPXSec">               AhrensNCELPXSec.xml               </config>
+   <config alg="genie::LwlynSmithQELCCPXSec">          LwlynSmithQELCCPXSec.xml          </config>
+   <config alg="genie::QPMDISPXSec">                   QPMDISPXSec.xml                   </config>
+   <config alg="genie::AivazisCharmPXSecLO">           AivazisCharmPXSecLO.xml           </config>
+   <config alg="genie::SlowRsclCharmDISPXSecLO">       SlowRsclCharmDISPXSecLO.xml       </config>
+   <config alg="genie::KovalenkoQELCharmPXSec">        KovalenkoQELCharmPXSec.xml        </config>
+   <config alg="genie::PaisQELLambdaPXSec">            PaisQELLambdaPXSec.xml            </config>
+   <config alg="genie::AlamSimoAtharVacasSKPXSec2014"> AlamSimoAtharVacasSKPXSec2014.xml </config>   
+   <config alg="genie::P33PaschosLalakulichPXSec">     P33PaschosLalakulichPXSec.xml     </config>
+   <config alg="genie::BardinIMDRadCorPXSec">          BardinIMDRadCorPXSec.xml          </config>
+   <config alg="genie::IMDAnnihilationPXSec">          IMDAnnihilationPXSec.xml          </config>
+   <config alg="genie::COHElasticPXSec">               COHElasticPXSec.xml               </config>
+   <config alg="genie::NuElectronPXSec">               NuElectronPXSec.xml               </config>
+   <config alg="genie::GLRESPXSec">                    GLRESPXSec.xml                    </config>
+   <config alg="genie::BergerSehgalRESPXSec2014">      BergerSehgalRESPXSec2014.xml      </config>
+   <config alg="genie::ReinDFRPXSec">                  ReinDFRPXSec.xml                  </config>
+   <config alg="genie::ReinSehgalCOHPiPXSec">          ReinSehgalCOHPiPXSec.xml          </config>
+   <config alg="genie::ReinSehgalRESPXSec">            ReinSehgalRESPXSec.xml            </config>
+   <config alg="genie::ReinSehgalSPPPXSec">            ReinSehgalSPPPXSec.xml            </config>
+   <config alg="genie::ReinSehgalRESXSec">             ReinSehgalRESXSec.xml             </config>
+   <config alg="genie::ReinSehgalSPPXSec">             ReinSehgalSPPXSec.xml             </config>
+   <config alg="genie::H3AMNuGammaPXSec">              H3AMNuGammaPXSec.xml              </config>
+   <config alg="genie::MECPXSec">                      MECPXSec.xml                      </config>
+   <config alg="genie::RosenbluthPXSec">               RosenbluthPXSec.xml               </config>
+   <config alg="genie::StrumiaVissaniIBDPXSec">        StrumiaVissaniIBDPXSec.xml        </config>
+   <config alg="genie::DummyPXSec">                    Default.xml                       </config>
 
    <!--  ****** CONFIGURATION FOR NUCLEAR ENV. ALGORITHMS ****** -->
    <config alg="genie::NuclearModelMap">             NuclearModelMap.xml             </config>

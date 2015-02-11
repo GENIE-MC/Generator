@@ -2,7 +2,7 @@
 
 <alg_conf>
 
-  Configuration sets for ASKHadronicSystemGenerator EventRecordVisitorI
+  Configuration sets for SKHadronicSystemGenerator EventRecordVisitorI
 
   <param_set name="Default"> 
   </param_set>
