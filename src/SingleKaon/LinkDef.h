@@ -7,8 +7,7 @@
 #pragma link C++ namespace genie;
 
 #pragma link C++ class genie::AlamSimoAtharVacasSKPXSec2014;
-
-#pragma link C++ class genie::ASKXSec;
+#pragma link C++ class genie::AlamSimoAtharVacasSKXSec;
 
 #pragma link C++ class genie::SKInteractionListGenerator;
 #pragma link C++ class genie::SKPrimaryLeptonGenerator;

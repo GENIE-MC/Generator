@@ -4,8 +4,7 @@
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory 
+ Author: Chris Marshall and Martti Nirkko
 
  For the class documentation see the corresponding header file.
 
@@ -17,20 +16,25 @@
 #include <Math/IntegratorMultiDim.h>
 #include "Math/AdaptiveIntegratorMultiDim.h"
 
-#include "AtharSingleKaon/ASKXSec.h"
-#include "AtharSingleKaon/ASKGSL.h"
+#include "SingleKaon/AlamSimoAtharVacasSKXSec.h"
 #include "Conventions/GBuild.h"
 #include "Conventions/Constants.h"
 #include "Conventions/Controls.h"
 #include "Conventions/Units.h"
-//#include "CrossSections/GXSecFunc.h"
+#include "Conventions/KineVar.h"
+#include "Conventions/KinePhaseSpace.h"
+#include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
+#include "Numerical/Spline.h"
 #include "Numerical/IntegratorI.h"
+#include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
 #include "PDG/PDGLibrary.h"
 #include "Utils/MathUtils.h"
+#include "Utils/KineUtils.h"
 #include "Utils/Range1.h"
 #include "Utils/GSLUtils.h"
+#include "Utils/XSecSplineList.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -38,33 +42,32 @@ using namespace genie::controls;
 using namespace genie::utils;
 
 //____________________________________________________________________________
-ASKXSec::ASKXSec() :
-XSecIntegratorI("genie::ASKXSec")
+AlamSimoAtharVacasSKXSec::AlamSimoAtharVacasSKXSec() :
+XSecIntegratorI("genie::AlamSimoAtharVacasSKXSec")
 {
 
 }
 //____________________________________________________________________________
-ASKXSec::ASKXSec(string config) :
-XSecIntegratorI("genie::ASKXSec", config)
+AlamSimoAtharVacasSKXSec::AlamSimoAtharVacasSKXSec(string config) :
+XSecIntegratorI("genie::AlamSimoAtharVacasSKXSec", config)
 {
 
 }
 //____________________________________________________________________________
-ASKXSec::~ASKXSec()
+AlamSimoAtharVacasSKXSec::~AlamSimoAtharVacasSKXSec()
 {
 
 }
 //____________________________________________________________________________
-double ASKXSec::Integrate(
+double AlamSimoAtharVacasSKXSec::Integrate(
       const XSecAlgorithmI * model, const Interaction * in) const
 {
+  LOG("SKXSec", pDEBUG) << "Integrating the Alam Simo Athar Vacas model";
 
-  LOG( "ASKXSec", pDEBUG ) << "Thank you for calling ASKXSec::Integrate";
-
-  #ifndef __GENIE_GSL_ENABLED__
-    SLOG("ASKXSec",pFATAL)<<"Trying to call AtharSingleKaon without GSL";
+#ifndef __GENIE_GSL_ENABLED__
+    SLOG("SKXSec",pFATAL) << "GSL not enabled!";
     return 0.;
-  #endif
+#endif
   
   const InitialState & init_state = in -> InitState();
   
@@ -72,7 +75,7 @@ double ASKXSec::Integrate(
   
   const KPhaseSpace & kps = in->PhaseSpace(); // only OK phase space for this
   if(!kps.IsAboveThreshold()) {
-     LOG("ASKXSec", pDEBUG)  << "*** Below energy threshold";
+     LOG("SKXSec", pDEBUG)  << "*** Below energy threshold";
      return 0;
   }
 
@@ -95,11 +98,11 @@ double ASKXSec::Integrate(
     if(xsl->SplineExists(model,interaction)) {
       const Spline * spl = xsl->GetSpline(model, interaction);
       double xsec = spl->Evaluate(Ev);
-      LOG("ASKXSec", pINFO)  
-        << "From XSecSplineList: XSec[ASK,free nucleon] (E = " << Ev << " GeV) = " << xsec;
+      LOG("SKXSec", pINFO)  
+        << "From XSecSplineList: XSec[SK,free nucleon] (E = " << Ev << " GeV) = " << xsec;
       if(! interaction->TestBit(kIAssumeFreeNucleon) ) { 
           xsec *= NNucl; 
-          LOG("ASKXSec", pINFO)  << "XSec[ASK] (E = " << Ev << " GeV) = " << xsec;
+          LOG("SKXSec", pINFO)  << "XSec[SK] (E = " << Ev << " GeV) = " << xsec;
       }
       delete interaction;
       return xsec;
@@ -119,7 +122,7 @@ double ASKXSec::Integrate(
   double zero    = 0.0;
   double tmax = Enu - mk - ml;
 
-  LOG("ASKXSec", pDEBUG)
+  LOG("SKXSec", pDEBUG)
        << "Lepton/Kaon KE integration range = [" << 0.0 << ", " << tmax << "]";
 
   Interaction * interaction = new Interaction(*in);
@@ -149,24 +152,20 @@ double ASKXSec::Integrate(
   return xsec;
 }
 //____________________________________________________________________________
-void ASKXSec::Configure(const Registry & config)
+void AlamSimoAtharVacasSKXSec::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void ASKXSec::Configure(string config)
+void AlamSimoAtharVacasSKXSec::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void ASKXSec::LoadConfig(void)
+void AlamSimoAtharVacasSKXSec::LoadConfig(void)
 {
-  // Get specified GENIE integration algorithm
-//  fIntegrator = dynamic_cast<const IntegratorI *> (this->SubAlg("Integrator"));
-//  assert(fIntegrator);
-
   // Get GSL integration type & relative tolerance
   fGSLIntgType   = fConfig->GetStringDef("gsl-integration-type" ,    "vegas");
   fGSLMaxEval    = (unsigned int) fConfig->GetIntDef("gsl-max-evals", 20000);
@@ -174,5 +173,79 @@ void ASKXSec::LoadConfig(void)
   fSplitIntegral = fConfig->GetBoolDef("split-integral",              true);
 }
 //_____________________________________________________________________________
+// GSL wrappers
+//____________________________________________________________________________
+
+genie::utils::gsl::d3Xsec_dTldTkdCosThetal::d3Xsec_dTldTkdCosThetal(
+     const XSecAlgorithmI * m, const Interaction * i) :
+ROOT::Math::IBaseFunctionMultiDim(),
+fModel(m),
+fInteraction(i)
+{
+  
+}
+
+genie::utils::gsl::d3Xsec_dTldTkdCosThetal::~d3Xsec_dTldTkdCosThetal()
+{
+  
+}   
+
+unsigned int genie::utils::gsl::d3Xsec_dTldTkdCosThetal::NDim(void) const
+{
+  // phi_kq is important for kinematics generation
+  // But dependence is weak so we will not use it in the integration
+  return 3;
+}
+
+double genie::utils::gsl::d3Xsec_dTldTkdCosThetal::DoEval(const double * xin) const
+{
+// inputs:
+//    Tl [GeV]
+//    Tk [GeV]
+//    cosine theta l
+//    * calculate phi_kq based on neutrino energy -- this is for the integral only
+// outputs:
+//   differential cross section [10^-38 cm^2]
+//
+ 
+  double Enu = fInteraction->InitState().ProbeE(kRfLab);
+    
+  double phikq = 0.5*constants::kPi;
+  if( Enu > 3.0 ) phikq = 0.55*constants::kPi;
+  else if( Enu > 1.0 ) phikq = constants::kPi*(0.5 + 0.025*(Enu-1.0));
+
+  Kinematics * kinematics = fInteraction->KinePtr();
+
+  double T_l         = xin[0];
+  double T_k         = xin[1];
+  //double cos_theta_l = xin[2];
+  double log_oneminuscostheta = xin[2];
+  double cos_theta_l = 1.0 - TMath::Exp(log_oneminuscostheta);
+  double J = 1.0 - cos_theta_l; // Jacobian for transformation
+    
+  kinematics->SetKV(kKVTl, T_l);
+  kinematics->SetKV(kKVTk, T_k);
+  kinematics->SetKV(kKVctl, cos_theta_l);
+  kinematics->SetKV(kKVphikq, phikq);
+  
+  double xsec = fModel->XSec(fInteraction);
+  LOG( "GXSecFunc", pDEBUG ) 
+     << "t_l = " << T_l << " t_k = " << T_k << " costhetal = " << cos_theta_l << " phikq = " << phikq 
+     << " enu = " << Enu << " Xsec = " << xsec;
+
+  // integrate out phi_kq by multiplying by 2pi
+  
+  xsec *= 2.0 * genie::constants::kPi * J;
+ 
+  return xsec/(1E-38 * units::cm2);
+}
+
+ROOT::Math::IBaseFunctionMultiDim *
+   genie::utils::gsl::d3Xsec_dTldTkdCosThetal::Clone() const
+{
+  return
+    new genie::utils::gsl::d3Xsec_dTldTkdCosThetal(fModel,fInteraction);
+}
+//____________________________________________________________________________
 
 
