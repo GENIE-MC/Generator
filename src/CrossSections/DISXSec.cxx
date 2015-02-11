@@ -40,10 +40,8 @@
 #include "Conventions/Constants.h"
 #include "Conventions/Units.h"
 #include "CrossSections/DISXSec.h"
-#include "CrossSections/GXSecFunc.h"
 #include "CrossSections/GSLXSecFunc.h"
 #include "Messenger/Messenger.h"
-//#include "Numerical/IntegratorI.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
 #include "Utils/RunOpt.h"
@@ -179,7 +177,6 @@ double DISXSec::Integrate(
      double xsec = 0.;
 
      if(phsp_ok) {
-//#ifdef __GENIE_GSL_ENABLED__
        ROOT::Math::IBaseFunctionMultiDim * func = 
           new utils::gsl::d2XSec_dWdQ2_E(model, interaction);
        ROOT::Math::IntegrationMultiDim::Type ig_type = 
@@ -191,13 +188,6 @@ double DISXSec::Integrate(
        double kine_max[2] = { Wl.max, Q2l.max };
        xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2);
        delete func;
-//#else
-//       GXSecFunc * func = new Integrand_D2XSec_DWDQ2_E(model, interaction);
-//       func->SetParam(0,"W", Wl);
-//       func->SetParam(1,"Q2",Q2l);
-//       xsec = fIntegrator->Integrate(*func);
-//       delete func;
-//#endif
      }//phase space ok?
 
      LOG("DISXSec", pINFO)  << "XSec[DIS] (E = " << Ev << " GeV) = " << xsec;
@@ -223,10 +213,6 @@ void DISXSec::Configure(string config)
 //____________________________________________________________________________
 void DISXSec::LoadConfig(void)
 {
-  // Get specified GENIE integration algorithm
-//  fIntegrator = dynamic_cast<const IntegratorI *> (this->SubAlg("Integrator"));
-//  assert(fIntegrator);
-
   // Get GSL integration type & relative tolerance
   fGSLIntgType = fConfig->GetStringDef("gsl-integration-type"  ,  "adaptive");
   fGSLRelTol   = fConfig->GetDoubleDef("gsl-relative-tolerance", 1E-2);
@@ -291,12 +277,8 @@ void DISXSec::CacheFreeNucleonXSec(
   }
 
   // Create the integrand
-//#ifdef __GENIE_GSL_ENABLED__
   ROOT::Math::IBaseFunctionMultiDim * func = 
      new utils::gsl::d2XSec_dWdQ2_E(model, interaction);
-//#else
-//  GXSecFunc * func = new Integrand_D2XSec_DWDQ2_E(model, interaction);
-//#endif
 
   // Compute the cross section at the given set of knots
   for(int ie=0; ie<nknots; ie++) {
@@ -317,7 +299,6 @@ void DISXSec::CacheFreeNucleonXSec(
             Wl.min >= 0. &&  Wl.max >= 0. &&  Wl.max >=  Wl.min);
 
        if(phsp_ok) {
-//#ifdef __GENIE_GSL_ENABLED__
          ROOT::Math::IntegrationMultiDim::Type ig_type = 
              utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
          double abstol = 1; //We mostly care about relative tolerance.
@@ -333,11 +314,6 @@ void DISXSec::CacheFreeNucleonXSec(
          double kine_min[2] = { Wl.min, Q2l.min };
          double kine_max[2] = { Wl.max, Q2l.max };
          xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2);
-//#else
-//         func->SetParam(0,"W", Wl);
-//         func->SetParam(1,"Q2",Q2l);
-//         xsec = fIntegrator->Integrate(*func);
-//#endif
        }// phase space limits ok?
     }//Ev>threshold
 

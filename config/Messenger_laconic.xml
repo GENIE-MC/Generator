@@ -151,9 +151,6 @@
   <priority msgstream="StrumiaVissani">      WARN   </priority>
   <priority msgstream="SpectralFunc1">       WARN   </priority>
   <priority msgstream="SpectralFunc">        WARN   </priority>
-  <priority msgstream="Simpson1D">           WARN   </priority>
-  <priority msgstream="Simpson2D">           WARN   </priority>
-  <priority msgstream="Simpson3D">           WARN   </priority>  
   <priority msgstream="Spline">              WARN   </priority>
   <priority msgstream="Target">              WARN   </priority>
   <priority msgstream="Utils">               WARN   </priority>

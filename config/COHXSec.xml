@@ -12,9 +12,6 @@ Name             Type     Optional   Comment                 Default
 -->
 
   <param_set name="Default"> 
-<!--
-    <param type="alg" name="Integrator"> genie::Simpson2D/Default-Logarithmic-FixedNBins-101 </param>
--->     
     <param type="string" name ="gsl-integration-type">    adaptive  </param>
     <param type="int"    name ="gsl-max-eval" >             500000  </param>
     <param type="int"    name ="gsl-min-eval" >              10000  </param>

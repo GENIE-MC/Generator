@@ -35,10 +35,8 @@
 #include "Conventions/Constants.h"
 #include "Conventions/Units.h"
 #include "Conventions/KineVar.h"
-#include "CrossSections/GXSecFunc.h"
 #include "CrossSections/GSLXSecFunc.h"
 #include "Messenger/Messenger.h"
-//#include "Numerical/IntegratorI.h"
 #include "PDG/PDGUtils.h"
 #include "PDG/PDGCodes.h"
 #include "ReinSehgal/ReinSehgalRESXSecWithCache.h"
@@ -177,7 +175,6 @@ void ReinSehgalRESXSecWithCache::CacheResExcitationXSec(
                               << "** Not allowed kinematically, xsec=0";
                } else {
 
-//#ifdef __GENIE_GSL_ENABLED__   
                   ROOT::Math::IBaseFunctionMultiDim * func = 
                       new utils::gsl::d2XSec_dWdQ2_E(fSingleResXSecModel, interaction);
                   ROOT::Math::IntegrationMultiDim::Type ig_type = 
@@ -188,14 +185,6 @@ void ReinSehgalRESXSecWithCache::CacheResExcitationXSec(
                   double kine_min[2] = { rW.min, rQ2.min };
                   double kine_max[2] = { rW.max, rQ2.max };
                   xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2);
-
-//#else
-//                  GXSecFunc * func = new Integrand_D2XSec_DWDQ2_E(
-//                       fSingleResXSecModel, interaction);
-//                  func->SetParam(0,"W",  rW);
-//                  func->SetParam(1,"Q2", rQ2);
-//                  xsec = fIntegrator->Integrate(*func);
-//#endif
                   delete func;
                }
              } else {

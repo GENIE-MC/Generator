@@ -29,11 +29,9 @@
 #include "Conventions/KineVar.h"
 #include "Conventions/RefFrame.h"
 #include "CrossSections/QELXSec.h"
-#include "CrossSections/GXSecFunc.h"
 #include "CrossSections/GSLXSecFunc.h"
 #include "Messenger/Messenger.h"
 #include "Nuclear/NuclearModelI.h"
-//#include "Numerical/IntegratorI.h"
 #include "PDG/PDGUtils.h"
 #include "PDG/PDGLibrary.h"
 #include "Utils/KineUtils.h"
@@ -146,7 +144,6 @@ double QELXSec::IntegrateOnce(
   interaction->SetBit(kISkipProcessChk);
   interaction->SetBit(kISkipKinematicChk);
 
-//#ifdef __GENIE_GSL_ENABLED__
   ROOT::Math::IBaseFunctionOneDim * func = new 
       utils::gsl::dXSec_dQ2_E(model, interaction);
   ROOT::Math::IntegrationOneDim::Type ig_type = 
@@ -156,13 +153,6 @@ double QELXSec::IntegrateOnce(
   ROOT::Math::Integrator ig(*func,ig_type,abstol,fGSLRelTol,fGSLMaxEval);
   double xsec = ig.Integral(rQ2.min, rQ2.max) * (1E-38 * units::cm2);
      
-//#else
-//  GXSecFunc * func = new Integrand_DXSec_DQ2_E(model, interaction);
-//  func->SetParam(0,"Q2",rQ2);
-//  double xsec = fIntegrator->Integrate(*func);
-//
-//#endif
-
   //LOG("QELXSec", pDEBUG) << "XSec[QEL] (E = " << E << ") = " << xsec;
 
   delete func;
@@ -185,14 +175,10 @@ void QELXSec::Configure(string config)
 //____________________________________________________________________________
 void QELXSec::LoadConfig(void)
 {
-  // Get the specified GENIE integration algorithm
-//  fIntegrator = dynamic_cast<const IntegratorI *>(this->SubAlg("Integrator"));
-//  assert(fIntegrator);
-
   // Get GSL integration type & relative tolerance
-  fGSLIntgType = fConfig->GetStringDef("gsl-integration-type"  ,  "adaptive");
+  fGSLIntgType = fConfig->GetStringDef("gsl-integration-type", "adaptive");
   fGSLRelTol   = fConfig->GetDoubleDef("gsl-relative-tolerance", 0.01);
-  fGSLMaxEval  = (unsigned int) fConfig->GetIntDef   ("gsl-max-eval"          , 100000);
+  fGSLMaxEval  = (unsigned int) fConfig->GetIntDef ("gsl-max-eval", 100000);
 
   fDoAvgOverNucleonMomentum =
      fConfig->GetBoolDef("AverageOverNucleonMomentum", false);
