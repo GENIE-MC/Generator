@@ -12,9 +12,9 @@ MAKEFILE = Makefile
 #
 include $(GENIE)/src/make/Make.include
 
-PACKAGE           = AtharSingleKaon
-DICTIONARY        = _ROOT_DICT_AtharSingleKaon
-LIBNAME           = libGAtharSingleKaon
+PACKAGE           = SingleKaon
+DICTIONARY        = _ROOT_DICT_SingleKaon
+LIBNAME           = libGSingleKaon
 EXTRA_EXT_LIBS    =
 
 all     : rootcint lib lib-link
