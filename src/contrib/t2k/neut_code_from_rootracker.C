@@ -12,7 +12,7 @@
          root[1] neut_code_from_rootracker("./your_rootracker_file.root");
 
 \author  Costas Andreopoulos <costas.andreopoulos@stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory
+         University of Liverpool & STFC Rutherford Appleton Lab
 
 \created Nov 24, 2008
 

@@ -6,7 +6,7 @@
 \brief   Program used for testing / debugging log4cpp
 
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory
+         University of Liverpool & STFC Rutherford Appleton Lab
 
 \created June 10, 2004
 

@@ -6,7 +6,7 @@
 \brief    The GENIE Algorithm Factory.
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  May 12, 2004
 

@@ -34,7 +34,7 @@
               By default, all data/MC comparisons will be generated.
                
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory
+         University of Liverpool & STFC Rutherford Appleton Lab
 
 \created June 06, 2008 
 

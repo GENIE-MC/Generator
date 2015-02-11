@@ -193,7 +193,7 @@
 \created August 20, 2010
 
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory
+         University of Liverpool & STFC Rutherford Appleton Lab
 
          Torben Ferber <torben.ferber \at DESY.DE>
          DESY

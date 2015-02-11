@@ -9,7 +9,7 @@
 \synopsis gnuvld_dbupload -f filename.xml -h host -d dbase -u user -p passwd
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created October 05, 2004
 */

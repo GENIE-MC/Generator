@@ -25,7 +25,7 @@
          decade), with Emin = 0.100 GeV.
 
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory
+         University of Liverpool & STFC Rutherford Appleton Lab
 
 \created July 3, 2005 [during the most boring MINOS shift ever!]
 

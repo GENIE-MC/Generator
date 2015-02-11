@@ -6,7 +6,7 @@
 \brief      Simple utilities for GENIE Graphical User Interface widgets
 
 \author     Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-            STFC, Rutherford Appleton Laboratory
+            University of Liverpool & STFC Rutherford Appleton Lab
 
 \created    January 12, 2004
 

@@ -9,7 +9,7 @@
 \ref      C.Peterson et al., Phys.Rev.D23, 56 (1981)
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  June 15, 2004
 

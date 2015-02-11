@@ -12,7 +12,7 @@
           Is a concrete implementation of the DecayModelI interface.
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  November 27, 2004
 

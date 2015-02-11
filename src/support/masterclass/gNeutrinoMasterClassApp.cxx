@@ -6,7 +6,7 @@
 \brief   GENIE Neutrino Masterclass App
 
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory
+         University of Liverpool & STFC Rutherford Appleton Lab
 
 \created July 14, 2004
 

@@ -6,7 +6,7 @@
 \brief    A more convenient interface to the log4cpp Message Service
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  June 16, 2004
 

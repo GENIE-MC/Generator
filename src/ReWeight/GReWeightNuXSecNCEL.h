@@ -6,7 +6,7 @@
 \brief    Reweighting NCEL GENIE neutrino cross sections
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  Nov 25, 2010
 

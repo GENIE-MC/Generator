@@ -11,7 +11,7 @@
 //               but a Gamma function
 //
 // Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-// STFC, Rutherford Appleton Laboratory
+// University of Liverpool & STFC Rutherford Appleton Lab
 //
 
 double integrand              (double * x, double * par);

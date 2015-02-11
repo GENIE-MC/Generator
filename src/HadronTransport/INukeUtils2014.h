@@ -9,7 +9,7 @@
            Imperial College London
 
            Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-           STFC, Rutherford Appleton Laboratory
+           University of Liverpool & STFC Rutherford Appleton Lab
 
 	   Aaron Meyer <asm58 \at pitt.edu>
 	   Pittsburgh University

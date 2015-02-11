@@ -6,7 +6,7 @@
 \brief    A libxml2-based parser for the NuValidator XML data files
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  August 2003 
 

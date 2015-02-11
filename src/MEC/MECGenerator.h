@@ -6,7 +6,7 @@
 \brief    Simulate the primary MEC interaction
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
           Steve Dytman <dytman+ \at pitt.edu>
           Pittsburgh University

@@ -7,7 +7,7 @@
           formula) with configurable but fixed number of integration steps. 
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  May 03, 2004
 

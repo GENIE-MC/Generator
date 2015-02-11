@@ -31,7 +31,7 @@
               For info on the XML file format see the GSimFiles class documentation.
                       
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory
+         University of Liverpool & STFC Rutherford Appleton Lab
 
          Hugh Gallagher <gallag \at minos.phy.tufts.edu>
          Tufts University

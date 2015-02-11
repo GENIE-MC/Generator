@@ -11,7 +11,7 @@
 \brief    A simple [min,max] interval for integers.
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  May 06, 2004
 

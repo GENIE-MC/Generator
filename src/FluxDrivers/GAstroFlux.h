@@ -84,7 +84,7 @@
           specify the power-law index by calling SetEnergyPowLawIdx().
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  March 27, 2010
 

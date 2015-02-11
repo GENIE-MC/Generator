@@ -4,21 +4,13 @@
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - June 10, 2004
+ Author: Hugh Gallagher
+         Tufts University
 
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
 
- @ Sep 13, 2007 - CA
-   Debugged the model in order to be included in the default event generation
-   threads in the next physics release (2.0.2). Rather than using Kovalenko's
-   expression for the ZR scaling factor, I apply an ad-hoc scaling factor 
-   maintaining the relative strength of the QELC channels but lowering their 
-   sum to be consistent with recent NOMAD measurement. The default value of
-   M0 has been changed from 0.1 to sqrt(0.1) as in M.Bischofberger's (ETHZ)
-   PhD thesis (DISS.ETH NO 16034). For more details see GENIE-PUB/2007/006.
 */
 //____________________________________________________________________________
 

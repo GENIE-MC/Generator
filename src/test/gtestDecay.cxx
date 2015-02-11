@@ -6,7 +6,7 @@
 \brief   test program used for testing / debugging the GENIE particle decayers
 
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory
+         University of Liverpool & STFC Rutherford Appleton Lab
 
 \created June 20, 2004
 

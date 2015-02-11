@@ -6,7 +6,7 @@
 \brief    Generated/set kinematical variables for an event
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  May 08, 2004
 

@@ -6,7 +6,7 @@
 \brief    Computes the Inverse Muon Decay cross section.
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  Fabruary 14, 2005
 

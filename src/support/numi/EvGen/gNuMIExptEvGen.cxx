@@ -239,7 +239,7 @@
          Please read the GENIE user manual for more information.
 
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory
+         University of Liverpool & STFC Rutherford Appleton Lab
 
 \created August 20, 2008
 

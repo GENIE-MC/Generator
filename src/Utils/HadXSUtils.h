@@ -6,7 +6,7 @@
 \brief      Simple functions and data for computing hadron interaction xsecs
 
 \author     Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-            STFC, Rutherford Appleton Laboratory
+            University of Liverpool & STFC Rutherford Appleton Lab
 
 \created    March 11, 2004
 

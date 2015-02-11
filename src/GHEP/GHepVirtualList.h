@@ -12,7 +12,7 @@
           and get cleared after the generation of each event is completed.
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  July 16, 2005
 

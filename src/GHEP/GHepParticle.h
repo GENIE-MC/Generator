@@ -6,7 +6,7 @@
 \brief   STDHEP-like event record entry that can fit a particle or a nucleus.
 
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory
+         University of Liverpool & STFC Rutherford Appleton Lab
 
 \created November 18, 2004
 

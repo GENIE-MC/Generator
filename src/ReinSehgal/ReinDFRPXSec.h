@@ -8,7 +8,7 @@
 \ref      D.Rein, Nucl.Phys.B278(1986) 61-77
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  Feb 17th, 2009
 

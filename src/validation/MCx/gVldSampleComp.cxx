@@ -25,7 +25,7 @@
            gvld_sample_comp -f /path/gntp.1.gst.root -r /path/gntp.2.gst.root
 		      
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory
+         University of Liverpool & STFC Rutherford Appleton Lab
 
 \created June 06, 2008 
 

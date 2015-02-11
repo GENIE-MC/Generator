@@ -10,7 +10,7 @@
           L.A.Ahrens et al., Phys.Rev.D 35:785 (1987)
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  Fabruary 15, 2005
 

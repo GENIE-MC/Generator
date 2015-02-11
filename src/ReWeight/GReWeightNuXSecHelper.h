@@ -6,7 +6,7 @@
 \brief   Helper class for cross section model reweighting
 
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory
+         University of Liverpool & STFC Rutherford Appleton Lab
 
 \created October 22, 2005
 

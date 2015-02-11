@@ -14,7 +14,7 @@
 \ref      S.G.Kovalenko, Sov.J.Nucl.Phys.52:934 (1990)
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  June 10, 2004
 
@@ -88,7 +88,7 @@ private:
           QEL charm production cross section algorithm
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  February 20, 2006
 */

@@ -22,7 +22,7 @@
             [--check-decayer-consistency]
 
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory
+         University of Liverpool & STFC Rutherford Appleton Lab
 
 \created August 13, 2008
 

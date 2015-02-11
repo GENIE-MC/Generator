@@ -101,7 +101,7 @@
 	***  See the User Manual for more details and examples. ***
 
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory
+         University of Liverpool & STFC Rutherford Appleton Lab
 
 \created October 05, 2004
 

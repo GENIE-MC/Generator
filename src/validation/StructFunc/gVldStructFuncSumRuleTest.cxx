@@ -30,7 +30,7 @@
                 --dis-charm-xsec-model genie::AivazisCharmPXSecLO/CC-Default
 
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory
+         University of Liverpool & STFC Rutherford Appleton Lab
 
 \created May 30, 2009
 
