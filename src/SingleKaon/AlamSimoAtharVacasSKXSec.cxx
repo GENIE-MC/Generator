@@ -26,7 +26,6 @@
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/Spline.h"
-#include "Numerical/IntegratorI.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
 #include "PDG/PDGLibrary.h"

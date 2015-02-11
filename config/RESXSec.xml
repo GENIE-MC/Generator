@@ -7,9 +7,6 @@ Configuration for the RESXSec cross section algorithm
 <alg_conf>
 
   <param_set name="Default"> 
-<!--
-    <param type="alg" name="Integrator">   genie::Simpson2D/Default-Logarithmic-FixedNBins-Fast </param>
--->
     <param type="string" name ="gsl-integration-type">       vegas  </param>
     <param type="int"    name ="gsl-max-eval" >            5000000  </param>
     <param type="int"    name ="gsl-min-eval" >             500000  </param>

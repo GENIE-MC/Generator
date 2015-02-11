@@ -25,10 +25,8 @@
 #include "Conventions/Units.h"
 #include "Conventions/KineVar.h"
 #include "CrossSections/RESXSec.h"
-#include "CrossSections/GXSecFunc.h"
 #include "CrossSections/GSLXSecFunc.h"
 #include "Messenger/Messenger.h"
-//#include "Numerical/IntegratorI.h"
 #include "PDG/PDGUtils.h"
 #include "Utils/MathUtils.h"
 #include "Utils/KineUtils.h"
@@ -72,13 +70,11 @@ double RESXSec::Integrate(
   interaction->SetBit(kISkipProcessChk);
   //interaction->SetBit(kISkipKinematicChk);
 
-//#ifdef __GENIE_GSL_ENABLED__
   ROOT::Math::IBaseFunctionMultiDim * func = 
       new utils::gsl::d2XSec_dWdQ2_E(model, interaction);
   
   ROOT::Math::IntegrationMultiDim::Type ig_type = 
       utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
-//double abstol = 1; //We mostly care about relative tolerance.
   double abstol = 1E-16; //We mostly care about relative tolerance.
   
   ROOT::Math::IntegratorMultiDim ig(*func, ig_type, abstol, fGSLRelTol, fGSLMaxEval);
@@ -96,14 +92,6 @@ double RESXSec::Integrate(
     LOG("RESXSec", pERROR)  << "Integrator error code = " << ig.Error();
   }
          
-//#else
-//  GXSecFunc * func = new Integrand_D2XSec_DWDQ2_E(model, interaction);
-//  func->SetParam(0,"W",  Wl);
-//  func->SetParam(1,"Q2", Q2l);
-//  double xsec = fIntegrator->Integrate(*func);
-//
-//#endif
-
   //LOG("RESXSec", pINFO)  << "XSec[RES] (Ev = " << Ev << " GeV) = " << xsec;
 
   delete interaction;
@@ -125,11 +113,6 @@ void RESXSec::Configure(string config)
 //____________________________________________________________________________
 void RESXSec::LoadConfig(void)
 {
-  // Get the specified GENIE integration algorithm
-//  fIntegrator = 
-//       dynamic_cast<const IntegratorI *> (this->SubAlg("Integrator"));
-//  assert(fIntegrator);
-
   // Get GSL integration type & relative tolerance
   fGSLIntgType = fConfig->GetStringDef("gsl-integration-type"  ,  "adaptive");
   fGSLRelTol   = fConfig->GetDoubleDef("gsl-relative-tolerance",   1E-2);

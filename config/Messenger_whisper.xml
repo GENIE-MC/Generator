@@ -146,9 +146,6 @@
   <priority msgstream="StrumiaVissani">      FATAL   </priority>
   <priority msgstream="SpectralFunc1">       FATAL   </priority>
   <priority msgstream="SpectralFunc">        FATAL   </priority>
-  <priority msgstream="Simpson1D">           FATAL   </priority>
-  <priority msgstream="Simpson2D">           FATAL   </priority>
-  <priority msgstream="Simpson3D">           FATAL   </priority>
   <priority msgstream="Spline">              FATAL   </priority>
   <priority msgstream="Target">              FATAL   </priority>
   <priority msgstream="Utils">               FATAL   </priority>

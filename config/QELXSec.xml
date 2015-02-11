@@ -15,9 +15,6 @@ NuclearInfluenceCutoffEnergy double   Yes        needed if AverageOverNucleonMom
 -->
 
   <param_set name="Default"> 
-<!--
-     <param type="alg"    name="Integrator">                    genie::Simpson1D/Default-Logarithmic  </param>
--->
     <param type="alg"    name="NuclearModel">                  genie::NuclearModelMap/Default        </param>
 
     <param type="bool"   name = "AverageOverNucleonMomentum">     true   </param>
@@ -27,13 +24,6 @@ NuclearInfluenceCutoffEnergy double   Yes        needed if AverageOverNucleonMom
     <param type="int"    name = "gsl-max-eval">                   40000  </param>
     <param type="double" name = "gsl-relative-tolerance">         0.001  </param>
   </param_set>
-
-<!--
-  <param_set name="OldDefault"> 
-     <param type="alg"    name="Integrator">                    genie::Simpson1D/Default-Logarithmic  </param>
-     <param type="bool"   name="AverageOverNucleonMomentum">    false                                 </param>
-  </param_set>
--->
 
 </alg_conf>
 
