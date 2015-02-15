@@ -644,13 +644,13 @@ void HAIntranuke2014::InelasticHA(
       double E3L = cl1->KinE();
       double E4L = cl2->KinE();
       LOG ("HAIntranuke2014",pINFO) << "Successful quasielastic scattering or charge exchange";
-      LOG("HAIntranuke2014",pINFO)
-	<< "C3CM = " << C3CM << "\n  P3 = " 
-	<< P3L << "   " << E3L << "             P4 = " ;
-  if(ev->Probe() ) { LOG("HAIntranuke2014",pINFO)
-	<< P4L << "   " << E4L << "\n probe KE = " << ev->Probe()->KinE() << "\n";
-  }
-  if (ev->Probe() && (E3L>ev->Probe()->KinE()||E4L>ev->Probe()->KinE()))  //is this redundant?
+      LOG("HAIntranuke",pINFO)
+	<< "C3CM = " << C3CM << "\n  P3L, E3L = " 
+	<< P3L << "   " << E3L << "  P4L, E4L = "<< P4L << "   " << E4L ;
+      if(ev->Probe() ) { LOG("HAIntranuke",pINFO)
+	  << "P4L = " << P4L << " ;E4L=  " << E4L << "\n probe KE = " << ev->Probe()->KinE() << "\n";
+      }
+      if (ev->Probe() && (E3L>ev->Probe()->E()||E4L>ev->Probe()->E()))  //is this redundant?
 	{
 	  exceptions::INukeException exception;
 	  exception.SetReason("TwoBodyCollison gives KE> probe KE in hA simulation");
