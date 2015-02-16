@@ -61,10 +61,10 @@ bool NuclearModelMap::GenerateNucleon(const Target & target) const
   bool ok = nm->GenerateNucleon(target);
 
   fCurrRemovalEnergy = nm->RemovalEnergy();
-
   TVector3 p = nm->Momentum3();
   fCurrMomentum.SetXYZ(p.Px(), p.Py(), p.Pz());
-
+  fFermiMoverInteractionType = nm->GetFermiMoverInteractionType();
+  
   return ok;
 }
 //____________________________________________________________________________
