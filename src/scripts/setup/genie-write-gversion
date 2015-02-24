@@ -26,14 +26,12 @@ $svn_revision = `svn info | grep -i revision`;
 if($? == 0) {
   # remove any non-digit
   $svn_revision =~ s/\D+\s+//;
-}
-else {
+} else {
   # Couldn't run svn info. 
   # This may be a user without svn who installs GENIE from a tarball.
   # Try to extract the revision number from $GENIE/.svn/entries
   $svn_revision = -1;  
-  open(SVN_ENTRIES, "<$GENIE/.svn/entries"); 
-  if (tell(SVN_ENTRIES) != -1) {
+  if (open(SVN_ENTRIES, "<$GENIE/.svn/entries")) { 
     @svn_entries = <SVN_ENTRIES>;
     close(SVN_ENTRIES);
     chomp($svn_revision = $svn_entries[3]); # the rev number seems to be at the 4th line
@@ -75,12 +73,14 @@ if($major == 999 && $minor == 999 && $revis == 999) {
 #   }
 # }
 
-$svn_differences = `svn status -q`;
-if($? == 0) {
-  print GVRS "/* \n";
-  print GVRS " * SVN differences at compile time: \n";
-  print GVRS "$svn_differences";
-  print GVRS "*/ \n\n";
+if ($svn_revision != -1 ) {
+  $svn_differences = `svn status -q`;
+  if($? == 0) {
+    print GVRS "/* \n";
+    print GVRS " * SVN differences at compile time: \n";
+    print GVRS "$svn_differences";
+    print GVRS "*/ \n\n";
+  }
 }
   
 print GVRS "#endif\n\n";
