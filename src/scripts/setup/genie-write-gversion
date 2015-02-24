@@ -31,12 +31,14 @@ else {
   # Couldn't run svn info. 
   # This may be a user without svn who installs GENIE from a tarball.
   # Try to extract the revision number from $GENIE/.svn/entries
-  open(SVN_ENTRIES, "<$GENIE/.svn/entries") 
-     or die("Can not read the GENIE SVN revision number!");
-  @svn_entries = <SVN_ENTRIES>;
-  close(SVN_ENTRIES);
-  chomp($svn_revision = $svn_entries[3]); # the rev number seems to be at the 4th line
-} 
+  $svn_revision = -1;  
+  open(SVN_ENTRIES, "<$GENIE/.svn/entries"); 
+  if (tell(SVN_ENTRIES) != -1) {
+    @svn_entries = <SVN_ENTRIES>;
+    close(SVN_ENTRIES);
+    chomp($svn_revision = $svn_entries[3]); # the rev number seems to be at the 4th line
+  }
+}
 
 # Open header file
 $GVRS_FILE = "$GENIE/src/Conventions/GVersion.h";
@@ -59,16 +61,28 @@ print GVRS "#define GRELCODE(a,b,c) (((a) << 16) + ((b) << 8) + (c)) \n\n";
 print GVRS "#define __GENIE_RELEASE__      \"$release\"\n";
 print GVRS "#define __GENIE_RELEASE_CODE__ GRELCODE($major,$minor,$revis) \n\n";
 
+# print the commit number even if it is unresolved (-1) -> that flags that it is unresolved...
 print GVRS "#define __GENIE_SVN_REVISION__ $svn_revision \n\n";
 
 if($major == 999 && $minor == 999 && $revis == 999) {
   print GVRS "#define __GENIE_DEVEL_VERSION__ \n\n";
-} else {
-  if($minor % 2) {
-     print GVRS "#define __GENIE_RELEASE_CANDIDATE__ \n\n";
-  }
 }
+# We have odd-numbered releases now, so comment this out (delete soon).
+# New convention for beta releases?
+# else {
+#   if($minor % 2) {
+#      print GVRS "#define __GENIE_RELEASE_CANDIDATE__ \n\n";
+#   }
+# }
 
+$svn_differences = `svn status -q`;
+if($? == 0) {
+  print GVRS "/* \n";
+  print GVRS " * SVN differences at compile time: \n";
+  print GVRS "$svn_differences";
+  print GVRS "*/ \n\n";
+}
+  
 print GVRS "#endif\n\n";
 
 # Close header file
