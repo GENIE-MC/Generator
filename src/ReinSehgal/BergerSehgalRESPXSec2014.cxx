@@ -217,11 +217,11 @@ double BergerSehgalRESPXSec2014::XSec(
 
   if(is_CC && (is_KNL || is_BRS)){
 
-    LOG("BergerSehgal2014",pNOTICE) "costh1="<<costh;    
+    LOG("BergerSehgalRESPXSec2014",pINFO) "costh1="<<costh;    
     costh = (q2 - ml*ml + 2.*E*Eprime)/2./E/Pl;
     //ml=0;
-    LOG("BergerSehgal2014",pNOTICE) "q2="<<q2<< "m2="<<ml*ml<<" 2.*E*Eprime="<<2.*E*Eprime<<" nom="<< (q2 - ml*ml + 2.*E*Eprime)<<" den="<<2.*E*Pl;
-    LOG("BergerSehgal2014",pNOTICE) "costh2="<<costh;
+    LOG("BergerSehgalRESPXSec2014",pINFO) "q2="<<q2<< "m2="<<ml*ml<<" 2.*E*Eprime="<<2.*E*Eprime<<" nom="<< (q2 - ml*ml + 2.*E*Eprime)<<" den="<<2.*E*Pl;
+    LOG("BergerSehgalRESPXSec2014",pINFO) "costh2="<<costh;
     Pl    = TMath::Sqrt(Eprime*Eprime - ml*ml);
 
 
@@ -241,12 +241,12 @@ double BergerSehgalRESPXSec2014::XSec(
 
     KNL_Alambda_plus  = TMath::Sqrt(E*(Eprime - Pl));
     KNL_Alambda_minus = TMath::Sqrt(E*(Eprime + Pl));
-    LOG("BergerSehgal2014",pNOTICE) <<"+++++++++++++++++++++++";
-    LOG("BergerSehgal2014",pNOTICE) <<"E="<<E << " K= "<<KNL_K;
-    LOG("BergerSehgal2014",pNOTICE) <<"El="<<Eprime<<" Pl="<<Pl<<" ml="<<ml;
-    LOG("BergerSehgal2014",pNOTICE) <<"W="<<W<<" Q="<<Q<<" q2="<<q2;
-    LOG("BergerSehgal2014",pNOTICE) <<"A-="<<KNL_Alambda_minus<<" A+="<<KNL_Alambda_plus;
-    LOG("BergerSehgal2014",pNOTICE) <<"xxxxxxxxxxxxxxxxxxxxxxx";
+    LOG("BergerSehgalRESPXSec2014",pINFO) <<"+++++++++++++++++++++++";
+    LOG("BergerSehgalRESPXSec2014",pINFO) <<"E="<<E << " K= "<<KNL_K;
+    LOG("BergerSehgalRESPXSec2014",pINFO) <<"El="<<Eprime<<" Pl="<<Pl<<" ml="<<ml;
+    LOG("BergerSehgalRESPXSec2014",pINFO) <<"W="<<W<<" Q="<<Q<<" q2="<<q2;
+    LOG("BergerSehgalRESPXSec2014",pINFO) <<"A-="<<KNL_Alambda_minus<<" A+="<<KNL_Alambda_plus;
+    LOG("BergerSehgalRESPXSec2014",pINFO) <<"xxxxxxxxxxxxxxxxxxxxxxx";
 
     KNL_j0_plus  = KNL_Alambda_plus /W * TMath::Sqrt(1 - costh) * (Mnuc - Eprime - Pl);
     KNL_j0_minus = KNL_Alambda_minus/W * TMath::Sqrt(1 + costh) * (Mnuc - Eprime + Pl);
@@ -302,15 +302,15 @@ double BergerSehgalRESPXSec2014::XSec(
     }
   }
 
-     LOG("BergerSehgal2014",pNOTICE) <<"j0-="<<KNL_j0_minus<<" j0+="<<KNL_j0_plus;
-     LOG("BergerSehgal2014",pNOTICE) <<"jx-="<<KNL_jx_minus<<" jx+="<<KNL_jx_plus;
-     LOG("BergerSehgal2014",pNOTICE) <<"jy-="<<KNL_jy_minus<<" jy+="<<KNL_jy_plus;
-     LOG("BergerSehgal2014",pNOTICE) <<"jz-="<<KNL_jz_minus<<" jz+="<<KNL_jz_plus;
+     LOG("BergerSehgalRESPXSec2014",pINFO) <<"j0-="<<KNL_j0_minus<<" j0+="<<KNL_j0_plus;
+     LOG("BergerSehgalRESPXSec2014",pINFO) <<"jx-="<<KNL_jx_minus<<" jx+="<<KNL_jx_plus;
+     LOG("BergerSehgalRESPXSec2014",pINFO) <<"jy-="<<KNL_jy_minus<<" jy+="<<KNL_jy_plus;
+     LOG("BergerSehgalRESPXSec2014",pINFO) <<"jz-="<<KNL_jz_minus<<" jz+="<<KNL_jz_plus;
 
-     LOG("BergerSehgal2014",pNOTICE) "sqrt2="<<sqrtq2<<" jz+=:"<<KNL_jz_plus<<" j0+="<<KNL_j0_plus<<" denom="<<TMath::Sqrt(TMath::Abs(KNL_j0_plus*KNL_j0_plus - KNL_jz_plus*KNL_jz_plus) );
+     LOG("BergerSehgalRESPXSec2014",pINFO) "sqrt2="<<sqrtq2<<" jz+=:"<<KNL_jz_plus<<" j0+="<<KNL_j0_plus<<" denom="<<TMath::Sqrt(TMath::Abs(KNL_j0_plus*KNL_j0_plus - KNL_jz_plus*KNL_jz_plus) );
 
-     LOG("BergerSehgal2014",pNOTICE) <<"vstar-="<<KNL_vstar_minus<<" vstar+="<<KNL_vstar_plus;
-     LOG("BergerSehgal2014",pNOTICE) <<"Qstar-="<<KNL_Qstar_minus<<" Qstar+="<<KNL_Qstar_plus;
+     LOG("BergerSehgalRESPXSec2014",pINFO) <<"vstar-="<<KNL_vstar_minus<<" vstar+="<<KNL_vstar_plus;
+     LOG("BergerSehgalRESPXSec2014",pINFO) <<"Qstar-="<<KNL_Qstar_minus<<" Qstar+="<<KNL_Qstar_plus;
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("BergerSehgalRESPXSec2014", pDEBUG) 
@@ -353,15 +353,15 @@ double BergerSehgalRESPXSec2014::XSec(
 
   if(fGA){
 
-    LOG("BergerSehgal2014",pDEBUG) <<"Using new GA";
+    LOG("BergerSehgalRESPXSec2014",pDEBUG) <<"Using new GA";
 
     double CA5_0 = 1.2;
     double CA5 = CA5_0 *  TMath::Power( 1./(1-q2/fMa2), 2);
     //  GA = 0.5 * TMath::Sqrt(3.) * TMath::Power( 1 - q2/(Mnuc + W)/(Mnuc + W), 0.5-IR) * (1- (W2 +q2 -Mnuc2)/8./Mnuc2) * CA5/fZeta;
     GA = 0.5 * TMath::Sqrt(3.) * TMath::Power( 1 - q2/(Mnuc + W)/(Mnuc + W), 0.5-IR) * (1- (W2 +q2 -Mnuc2)/8./Mnuc2) * CA5;
 
-    //    LOG("BergerSehgal2014",pNOTICE) << 0.5 * TMath::Sqrt(3.) * TMath::Power( 1 - q2/(Mnuc + W)/(Mnuc + W), 0.5-IR)* (1- (W2 +q2 -Mnuc2)/8./Mnuc2);
-    LOG("BergerSehgal2014",pNOTICE) <<"GA= " <<GA << "  C5A= " <<CA5;
+    //    LOG("BergerSehgal2014",pINFO) << 0.5 * TMath::Sqrt(3.) * TMath::Power( 1 - q2/(Mnuc + W)/(Mnuc + W), 0.5-IR)* (1- (W2 +q2 -Mnuc2)/8./Mnuc2);
+    LOG("BergerSehgalRESPXSec2014",pINFO) <<"GA= " <<GA << "  C5A= " <<CA5;
   }
 
   //JN end of new form factors code
@@ -404,11 +404,11 @@ double BergerSehgalRESPXSec2014::XSec(
     KNL_S_plus  = (KNL_vstar_plus*vstar  - KNL_Qstar_plus *Qstar )* (Mnuc2 -q2 - 3*W*Mnuc ) * GV / (6*Mnuc2)/Q2; //possibly missing minus sign ()
     KNL_S_minus = (KNL_vstar_minus*vstar - KNL_Qstar_minus*Qstar )* (Mnuc2 -q2 - 3*W*Mnuc ) * GV / (6*Mnuc2)/Q2;
 
-    LOG("BergerSehgal2014",pNOTICE) <<"KNL S= " <<KNL_S_plus<<"\t"<<KNL_S_minus<<"\t"<<fFKR.S;
+    LOG("BergerSehgalRESPXSec2014",pINFO) <<"KNL S= " <<KNL_S_plus<<"\t"<<KNL_S_minus<<"\t"<<fFKR.S;
 
     KNL_B_plus  = fZeta/(3.*W*sq2omg)/Qstar * (KNL_Qstar_plus  + KNL_vstar_plus *Qstar/a/Mnuc ) * GA;
     KNL_B_minus = fZeta/(3.*W*sq2omg)/Qstar * (KNL_Qstar_minus + KNL_vstar_minus*Qstar/a/Mnuc ) * GA;
-    LOG("BergerSehgal2014",pNOTICE) <<"KNL B= " <<KNL_B_plus<<"\t"<<KNL_B_minus<<"\t"<<fFKR.B;
+    LOG("BergerSehgalRESPXSec2014",pINFO) <<"KNL B= " <<KNL_B_plus<<"\t"<<KNL_B_minus<<"\t"<<fFKR.B;
 
     KNL_C_plus = ( (KNL_Qstar_plus*Qstar - KNL_vstar_plus*vstar ) * ( 1./3. + vstar/a/Mnuc)
         + KNL_vstar_plus*(2./3.*W +q2/a/Mnuc + nomg/3./a/Mnuc) )* fZeta * (GA/2./W/Qstar);
@@ -416,7 +416,7 @@ double BergerSehgalRESPXSec2014::XSec(
     KNL_C_minus = ( (KNL_Qstar_minus*Qstar - KNL_vstar_minus*vstar ) * ( 1./3. + vstar/a/Mnuc)
         + KNL_vstar_minus*(2./3.*W +q2/a/Mnuc + nomg/3./a/Mnuc) )* fZeta * (GA/2./W/Qstar);
 
-    LOG("BergerSehgal2014",pNOTICE)  <<"KNL C= "<<KNL_C_plus<<"\t"<<KNL_C_minus<<"\t"<<fFKR.C;
+    LOG("BergerSehgalRESPXSec2014",pINFO)  <<"KNL C= "<<KNL_C_plus<<"\t"<<KNL_C_minus<<"\t"<<fFKR.C;
   }
   double BRS_S_plus = 0;
   double BRS_S_minus = 0;
@@ -444,21 +444,21 @@ double BergerSehgalRESPXSec2014::XSec(
 
     BRS_S_plus = KNL_S_plus;
     BRS_S_minus = KNL_S_minus;
-    LOG("BergerSehgal2014",pNOTICE) <<"BRS S= " <<KNL_S_plus<<"\t"<<KNL_S_minus<<"\t"<<fFKR.S;
+    LOG("BergerSehgalRESPXSec2014",pINFO) <<"BRS S= " <<KNL_S_plus<<"\t"<<KNL_S_minus<<"\t"<<fFKR.S;
 
     BRS_B_plus = KNL_B_plus + fZeta*GA/2./W/Qstar*( KNL_Qstar_plus*vstar - KNL_vstar_plus*Qstar)
       *( 2./3 /sq2omg *(vstar + Qstar*Qstar/Mnuc/a))/(kPionMass2 -q2);
 
     BRS_B_minus = KNL_B_minus + fZeta*GA/2./W/Qstar*( KNL_Qstar_minus*vstar - KNL_vstar_minus*Qstar)
       *( 2./3 /sq2omg *(vstar + Qstar*Qstar/Mnuc/a))/(kPionMass2 -q2);
-    LOG("BergerSehgal2014",pNOTICE) <<"BRS B= " <<KNL_B_plus<<"\t"<<KNL_B_minus<<"\t"<<fFKR.B;
+    LOG("BergerSehgalRESPXSec2014",pINFO) <<"BRS B= " <<KNL_B_plus<<"\t"<<KNL_B_minus<<"\t"<<fFKR.B;
 
     BRS_C_plus = KNL_C_plus  + fZeta*GA/2./W/Qstar*( KNL_Qstar_plus*vstar - KNL_vstar_plus*Qstar)
       * Qstar*(2./3.*W +q2/Mnuc/a +nomg/3./a/Mnuc)/(kPionMass2 -q2);
 
     BRS_C_minus = KNL_C_minus  + fZeta*GA/2./W/Qstar*( KNL_Qstar_minus*vstar - KNL_vstar_minus*Qstar)
       * Qstar*(2./3.*W +q2/Mnuc/a +nomg/3./a/Mnuc)/(kPionMass2 -q2);
-    LOG("BergerSehgal2014",pNOTICE) <<"BRS C= " <<KNL_C_plus<<"\t"<<KNL_C_minus<<"\t"<<fFKR.C;
+    LOG("BergerSehgalRESPXSec2014",pINFO) <<"BRS C= " <<KNL_C_plus<<"\t"<<KNL_C_minus<<"\t"<<fFKR.C;
 
   }
 
@@ -643,8 +643,8 @@ if( is_KNL || is_BRS){
   sigL_plus *= scLR;
   sigR_plus *= scLR;
   sigS_plus *= scS;
-  LOG("BergerSehgal2014",pNOTICE) <<"sL,R,S minus="<<sigL_minus<<","<<sigR_minus<<","<<sigS_minus;
-  LOG("BergerSehgal2014",pNOTICE) <<"sL,R,S plus ="<<sigL_plus <<","<<sigR_plus <<","<<sigS_plus;
+  LOG("BergerSehgalRESPXSec2014",pINFO) <<"sL,R,S minus="<<sigL_minus<<","<<sigR_minus<<","<<sigS_minus;
+  LOG("BergerSehgalRESPXSec2014",pINFO) <<"sL,R,S plus ="<<sigL_plus <<","<<sigR_plus <<","<<sigS_plus;
 }
 else {
   assert(hamplmod);
@@ -671,20 +671,20 @@ if(is_KNL || is_BRS){
     + TMath::Power(KNL_cS_minus,2)*sigS_minus + TMath::Power(KNL_cS_plus,2)*sigS_plus;
   xsec *=sig0;
 
-     LOG("BergerSehgal2014",pNOTICE) <<"<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n";
+     LOG("BergerSehgalRESPXSec2014",pINFO) <<"<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n";
 
-     LOG("BergerSehgal2014",pNOTICE) <<"A-="<<KNL_Alambda_minus<<" A+="<<KNL_Alambda_plus;
-     LOG("BergerSehgal2014",pNOTICE) <<q2<<"\t"<<xsec<<"\t"<<sig0*(V2*sigR + U2*sigL + 2*UV*sigS)<<"\t"<<xsec/(sig0*(V2*sigRSR + U2*sigRSL + 2*UV*sigRSS));
-     LOG("BergerSehgal2014",pNOTICE) <<"fFKR.B="<<fFKR.B<<" fFKR.C="<<fFKR.C<<" fFKR.S="<<fFKR.S;
-     LOG("BergerSehgal2014",pNOTICE) <<"CL-="<<TMath::Power(KNL_cL_minus,2)<<" CL+="<<TMath::Power(KNL_cL_plus,2)<<" U2="<<U2;
-     LOG("BergerSehgal2014",pNOTICE) <<"SL-="<<sigL_minus<<" SL+="<<sigL_plus<<" SL="<<sigRSL;
+     LOG("BergerSehgalRESPXSec2014",pINFO) <<"A-="<<KNL_Alambda_minus<<" A+="<<KNL_Alambda_plus;
+     LOG("BergerSehgalRESPXSec2014",pINFO) <<q2<<"\t"<<xsec<<"\t"<<sig0*(V2*sigR + U2*sigL + 2*UV*sigS)<<"\t"<<xsec/(sig0*(V2*sigRSR + U2*sigRSL + 2*UV*sigRSS));
+     LOG("BergerSehgalRESPXSec2014",pINFO) <<"fFKR.B="<<fFKR.B<<" fFKR.C="<<fFKR.C<<" fFKR.S="<<fFKR.S;
+     LOG("BergerSehgalRESPXSec2014",pINFO) <<"CL-="<<TMath::Power(KNL_cL_minus,2)<<" CL+="<<TMath::Power(KNL_cL_plus,2)<<" U2="<<U2;
+     LOG("BergerSehgalRESPXSec2014",pINFO) <<"SL-="<<sigL_minus<<" SL+="<<sigL_plus<<" SL="<<sigRSL;
 
-     LOG("BergerSehgal2014",pNOTICE) <<"CR-="<<TMath::Power(KNL_cR_minus,2)<<" CR+="<<TMath::Power(KNL_cR_plus,2)<<" V2="<<V2;
-     LOG("BergerSehgal2014",pNOTICE) <<"SR-="<<sigR_minus<<" SR+="<<sigR_plus<<" sR="<<sigRSR;
+     LOG("BergerSehgalRESPXSec2014",pINFO) <<"CR-="<<TMath::Power(KNL_cR_minus,2)<<" CR+="<<TMath::Power(KNL_cR_plus,2)<<" V2="<<V2;
+     LOG("BergerSehgalRESPXSec2014",pINFO) <<"SR-="<<sigR_minus<<" SR+="<<sigR_plus<<" sR="<<sigRSR;
 
-     LOG("BergerSehgal2014",pNOTICE) <<"CS-="<<TMath::Power(KNL_cS_minus,2)<<" CS+="<<TMath::Power(KNL_cS_plus,2)<<" UV="<<UV;
-     LOG("BergerSehgal2014",pNOTICE) <<"SS-="<<sigL_minus<<" SS+="<<sigS_plus<<" sS="<<sigRSS;
-     LOG("BergerSehgal2014",pNOTICE) <<">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n";
+     LOG("BergerSehgalRESPXSec2014",pINFO) <<"CS-="<<TMath::Power(KNL_cS_minus,2)<<" CS+="<<TMath::Power(KNL_cS_plus,2)<<" UV="<<UV;
+     LOG("BergerSehgalRESPXSec2014",pINFO) <<"SS-="<<sigL_minus<<" SS+="<<sigS_plus<<" sS="<<sigRSS;
+     LOG("BergerSehgalRESPXSec2014",pINFO) <<">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n";
 
 }
 else{
@@ -891,12 +891,12 @@ void BergerSehgalRESPXSec2014::LoadConfig(void)
     string base = gSystem->Getenv("GENIE");
 
     string filename = base + "/data/evgen/rein_sehgal/res/nutau_xsec_scaling_factors.dat";
-    LOG("BergerSehgalRESPXSec2014", pNOTICE) 
+    LOG("BergerSehgalRESPXSec2014", pINFO) 
       << "Loading nu_tau xsec reduction spline from: " << filename;
     fNuTauRdSpl = new Spline(filename);
 
     filename = base + "/data/evgen/rein_sehgal/res/nutaubar_xsec_scaling_factors.dat";
-    LOG("BergerSehgalRESPXSec2014", pNOTICE) 
+    LOG("BergerSehgalRESPXSec2014", pINFO) 
       << "Loading bar{nu_tau} xsec reduction spline from: " << filename;
     fNuTauBarRdSpl = new Spline(filename);
   }
