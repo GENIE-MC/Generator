@@ -117,8 +117,6 @@ void TransverseEnhancementFFModel::Configure(string config)
 //____________________________________________________________________________
 void TransverseEnhancementFFModel::LoadConfig(void)
 {
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
   LoadAllIsotopesForKey("MagFF_RT_A", "TransverseEnhancementFFModel", fConfig,
                         &fNucMagFF_RT_A);
   LoadAllNucARangesForKey("MagFF_RT_A", "TransverseEnhancementFFModel", fConfig,
