@@ -390,7 +390,7 @@ check-previous-installation: FORCE
 	@echo " "
 	@echo "** Testing for existing GENIE installation at specified installation location..."
 ifeq ($(strip $(GENIE_PREVIOUS_INSTALLATION)),YES)
-	$(error Previous installation exists at your specified installation path: $(GENIE_INSTALLATION_PATH). Trgy 'gmake distclean' first)
+	$(error Previous installation exists at your specified installation path: $(GENIE_INSTALLATION_PATH). Trgy 'make distclean' first)
 endif
 
 make-install-dirs: FORCE
