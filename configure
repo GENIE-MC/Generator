@@ -522,7 +522,7 @@ if(-e $MKCONF_FILE) {
   system("cat $MKCONF_FILE | grep GOPT_ENABLE_ > $MKCONF_FILE\_no_paths");
 
   print "\n";
-  print "*** To continue building GENIE type: gmake ";
+  print "*** To continue building GENIE type: make ";
   # Warning for SRT users  
   if(defined $ENV{'SRT_ENV_SET'}) {
     print "(Don't forget to 'srt_setup --unsetup' first)";
