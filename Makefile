@@ -27,7 +27,6 @@ BUILD_TARGETS =    print-make-info \
 		   core-medium-energy-range \
 		   test-medium-energy-range \
 		   vle-extension \
-		   vhe-extension \
 		   flux-drivers \
 		   geom-drivers \
 		   nucleon-decay \
@@ -148,6 +147,7 @@ core-medium-energy-range: FORCE
 	cd QEL;                make; cd ..; \
 	cd ReinSehgal;         make; cd ..; \
 	cd RES;                make; cd ..; \
+	cd VHE;                make; cd ..; \
 	cd SingleKaon;         make; cd ..; 
 
 test-medium-energy-range: FORCE
@@ -167,18 +167,6 @@ ifeq ($(strip $(GOPT_ENABLE_VLE_EXTENSION)),YES)
 else
 	@echo " "
 	@echo "** The VLE extension was not enabled. Skipping..."
-endif
-
-vhe-extension: FORCE
-ifeq ($(strip $(GOPT_ENABLE_VHE_EXTENSION)),YES)
-	@echo " "
-	@echo "** Building VHE extension..."
-	cd ${GENIE}/src/VHE; \
-	make; \
-	cd ${GENIE}
-else
-	@echo " "
-	@echo "** The VHE extension was not enabled. Skipping..."
 endif
 
 flux-drivers: FORCE

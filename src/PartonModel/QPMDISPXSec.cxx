@@ -133,13 +133,11 @@ double QPMDISPXSec::XSec(
   if(proc_info.IsEM()) {
     g2 = kAem2 * kPi2 / (2.0 * fSin48w * Q4); 
   }
-#ifdef __GENIE_VHE_ENABLED__  
   if (proc_info.IsWeakCC()) {
     g2 = kGF2 * kMw2 * kMw2 / TMath::Power((Q2 + kMw2), 2);
   } else if (proc_info.IsWeakNC()) {
     g2 = kGF2 * kMz2 * kMz2 / TMath::Power((Q2 + kMz2), 2);
   }
-#endif
   double front_factor = (g2*Mnuc*E) / kPi;
 
   // Build all dxsec/dxdy terms
