@@ -95,13 +95,8 @@ double genie::utils::kinematics::PhaseSpaceVolume(
 
     const int    kNx = 100;  
     const int    kNy = 100;  
-#ifdef __GENIE_VHE_ENABLED__
-    const double kminx = controls::kMinX_VHE;
-    const double kminy = controls::kMinY_VHE;
-#else
     const double kminx = controls::kMinX;
     const double kminy = controls::kMinY;
-#endif
     const double kdx = (controls::kMaxX - kminx) / (kNx-1);
     const double kdy = (controls::kMaxY - kminy) / (kNy-1);
     const double kdV = kdx*kdy;

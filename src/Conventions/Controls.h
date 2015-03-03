@@ -40,11 +40,9 @@ static const unsigned int kDefaultRandSeed = 65539;
 static const double kASmallNum      = 1E-6;  
 static const double kMinQ2Limit     = 1E-4;  // GeV^2
 static const double kMinQ2Limit_VLE = 1E-10; // GeV^2
-static const double kMinX           = 1E-4;
-static const double kMinX_VHE       = 1E-5;
+static const double kMinX           = 1E-5;
 static const double kMaxX           = 1.-kASmallNum;
-static const double kMinY           = 1E-4;
-static const double kMinY_VHE       = 1E-5;
+static const double kMinY           = 1E-5;
 static const double kMaxY           = 1.-kASmallNum;
 
 // KNO Hadronization model control parameters
