@@ -237,7 +237,7 @@ double GReWeightResonanceDecay::RewThetaDelta2Npi(const EventRecord & event)
   bool tweaked = (TMath::Abs(fThetaDelta2NpiTwkDial) > controls::kASmallNum);
   if(!tweaked) return 1.;
 
-  bool is_Deltapp_1pi = false; 
+  bool is_Delta_1pi = false;
   int ir = -1; // resonance position
   int ip = -1; // pion position
   int i  =  0;
@@ -253,15 +253,62 @@ double GReWeightResonanceDecay::RewThetaDelta2Npi(const EventRecord & event)
       if(nd==2) {
         int fpdg = event.Particle(fd)->Pdg();
         int lpdg = event.Particle(ld)->Pdg();
-        if(fpdg==kPdgProton && lpdg==kPdgPiP) { is_Deltapp_1pi = true; ip = ld; }
-        if(lpdg==kPdgProton && fpdg==kPdgPiP) { is_Deltapp_1pi = true; ip = fd; }
+        if(fpdg==kPdgProton && lpdg==kPdgPiP) { is_Delta_1pi = true; ip = ld; }
+        if(lpdg==kPdgProton && fpdg==kPdgPiP) { is_Delta_1pi = true; ip = fd; }
       }
-      if(is_Deltapp_1pi) break;
     }
+
+    bool is_Deltap = (p->Pdg()==kPdgP33m1232_DeltaP);
+    if(is_Deltap) {
+      ir = i;
+      int fd = p->FirstDaughter();
+      int ld = p->LastDaughter();
+      int nd = 1 + ld - fd;
+      if(nd==2) {
+        int fpdg = event.Particle(fd)->Pdg();
+        int lpdg = event.Particle(ld)->Pdg();
+        if(fpdg==kPdgProton && lpdg==kPdgPi0) { is_Delta_1pi = true; ip = ld; }
+        if(lpdg==kPdgProton && fpdg==kPdgPi0) { is_Delta_1pi = true; ip = fd; }
+        if(fpdg==kPdgNeutron && lpdg==kPdgPiP) { is_Delta_1pi = true; ip = ld; }
+        if(lpdg==kPdgNeutron && fpdg==kPdgPiP) { is_Delta_1pi = true; ip = fd; }
+      }
+    }
+
+    bool is_Delta0 = (p->Pdg()==kPdgP33m1232_Delta0);
+    if(is_Delta0) {
+      ir = i;
+      int fd = p->FirstDaughter();
+      int ld = p->LastDaughter();
+      int nd = 1 + ld - fd;
+      if(nd==2) {
+        int fpdg = event.Particle(fd)->Pdg();
+        int lpdg = event.Particle(ld)->Pdg();
+        if(fpdg==kPdgProton && lpdg==kPdgPiM) { is_Delta_1pi = true; ip = ld; }
+        if(lpdg==kPdgProton && fpdg==kPdgPiM) { is_Delta_1pi = true; ip = fd; }
+        if(fpdg==kPdgNeutron && lpdg==kPdgPi0) { is_Delta_1pi = true; ip = ld; }
+        if(lpdg==kPdgNeutron && fpdg==kPdgPi0) { is_Delta_1pi = true; ip = fd; }
+      }
+    }
+
+    bool is_DeltaM = (p->Pdg()==kPdgP33m1232_DeltaM);
+    if(is_DeltaM) {
+      ir = i;
+      int fd = p->FirstDaughter();
+      int ld = p->LastDaughter();
+      int nd = 1 + ld - fd;
+      if(nd==2) {
+        int fpdg = event.Particle(fd)->Pdg();
+        int lpdg = event.Particle(ld)->Pdg();
+        if(fpdg==kPdgNeutron && lpdg==kPdgPiM) { is_Delta_1pi = true; ip = ld; }
+        if(lpdg==kPdgNeutron && fpdg==kPdgPiM) { is_Delta_1pi = true; ip = fd; }
+      }
+    }
+
+    if(is_Delta_1pi) break;
     i++;
   }
 
-  if(!is_Deltapp_1pi) return 1.;
+  if(!is_Delta_1pi) return 1.;
 
   LOG("ReW", pDEBUG) << "A Delta++ -> p pi+ event:";
   LOG("ReW", pDEBUG) << "Resonance is at position: " << ir;
