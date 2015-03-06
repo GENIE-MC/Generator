@@ -1,11 +1,11 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
  Authors: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+          STFC, Rutherford Appleton Laboratory
 
  For the class documentation see the corresponding header file.
 
@@ -151,7 +151,8 @@ double GReWeightFZone::CalcWeight(const EventRecord & event)
        LOG("ReW", pFATAL) << "INTRANUKE didn't set a valid rescattering code for event in position: " << ip;
        LOG("ReW", pFATAL) << "Here is the problematic event:";
        LOG("ReW", pFATAL) << event;
-       exit(1);
+//       exit(1);
+      fsi_code = kIHAFtNoInteraction;
      }
      bool escaped    = (fsi_code == (int)kIHAFtNoInteraction);
      bool interacted = !escaped;
@@ -164,8 +165,11 @@ double GReWeightFZone::CalcWeight(const EventRecord & event)
      
      // Default formation zone
      double m = p->Mass();
-     TLorentzVector * p4  = p->P4(); 
-     double fz_def = phys::FormationZone(m,*p4,p3hadr,fct0,fK);
+     TLorentzVector * p4  = p->P4();
+ 
+     double ct0=0.;
+     pdg::IsNucleon(pdgc) ? ct0=fct0nucleon : ct0=fct0pion;
+     double fz_def = phys::FormationZone(m,*p4,p3hadr,ct0,fK);
 
      double fz_scale_factor  = (1 + fFZoneTwkDial * fracerr);
      double fz_twk  = fz_def * fz_scale_factor;
@@ -205,10 +209,11 @@ void GReWeightFZone::Init(void)
 {
   fFZoneTwkDial = 0.;
 
-  this->SetR0  (1.3);//fm
-  this->SetNR  (3.);
-  this->SetCT0 (0.342);//fm
-  this->SetK   (0.);
+  this->SetR0         (1.3);//fm
+  this->SetNR         (3.);
+  this->SetCT0Pion    (0.342);//fm
+  this->SetCT0Nucleon (2.300);//fm
+  this->SetK          (0.);
 }
 //_______________________________________________________________________________________
 
