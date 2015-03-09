@@ -255,11 +255,11 @@ void get_mass(Double_t length_unit, Double_t density_unit)
    cout << setw(4) << "Z" 
         << setw(4) << "A"
         << setw(14) << "PDG isotope"
-        << setw(5) << "     "
+        << setw(6) << "      "
         << setprecision(6)
         << setw(14) << "volume (m^3)"
         << setw(14) << "mass (kg)"
-        << setw(10) << "mass (%)"
+        << setw(14) << "mass (%)"
         <<  endl;
 
    double total_mass_isotopes = 0;
@@ -280,11 +280,11 @@ void get_mass(Double_t length_unit, Double_t density_unit)
               cout << setw(4) << i
              << setw(4)<< j
              << setw(14) << pdgcode
-             << setw(5) << pdglib->Find(pdgcode)->GetName()
+             << setw(6) << pdglib->Find(pdgcode)->GetName()
              << setprecision(6) 
              << setw(14) << larr_VolumeIsotopes[ i ][ j ]
              << setw(14) << larr_MassIsotopes[ i ][ j ] 
-             << setw(10) << larr_MassIsotopes[ i ][ j ]*100.0/total_mass_isotopes
+             << setw(14) << larr_MassIsotopes[ i ][ j ]*100.0/total_mass_isotopes
              <<  endl;
          }
          else if ( larr_VolumeIsotopes[ i ][ j ] < -ldou_MinimumVolume ) {
