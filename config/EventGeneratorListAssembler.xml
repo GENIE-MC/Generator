@@ -69,9 +69,9 @@ Generator-%d                alg     No
   <param_set name="UHE"> 
      <param type="int" name="NGenerators">  4                                  </param>
      <param type="alg" name="Generator-0">  genie::EventGenerator/GLRES        </param>
-     <param type="alg" name="Generator-1">  genie::EventGenerator/DIS-CC       </param> <!-- needs more work for ultra high E -->
-     <param type="alg" name="Generator-2">  genie::EventGenerator/DIS-NC       </param> <!-- needs more work for ultra high E -->
-     <param type="alg" name="Generator-3">  genie::EventGenerator/DIS-CC-CHARM </param> <!-- needs more work for ultra high E -->
+     <param type="alg" name="Generator-1">  genie::EventGenerator/DIS-CC       </param>
+     <param type="alg" name="Generator-2">  genie::EventGenerator/DIS-NC       </param>
+     <param type="alg" name="Generator-3">  genie::EventGenerator/DIS-CC-CHARM </param>
   </param_set>
 
   <param_set name="GLRES"> 
