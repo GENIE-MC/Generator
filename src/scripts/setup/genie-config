@@ -20,7 +20,7 @@ libs="-L$libdir -lGAlgorithm -lGBaryonResonance -lGBase -lGBodekYang -lGCharm -l
  -lGCrossSections -lGDecay -lGElas -lGElFF -lGHEP -lGEVGCore -lGEVGModules -lGEVGDrivers -lGGiBUU \
  -lGHadronTransp -lGFragmentation -lGInteraction -lGLlewellynSmith -lGMEC \
  -lGMessenger -lGNuGamma -lGNuE -lGNtuple -lGNuclear -lGNumerical -lGQPM -lGPDG -lGPDF\
- -lGQEL -lGRES -lGRegistry -lGReinSehgal -lGSingleKaon -lGUtils"
+ -lGQEL -lGRES -lGRegistry -lGReinSehgal -lGSingleKaon -lGUtils -lGVHE"
 
 # the following libs should only be there if an appropriate option was enabled at the configuration step
 if test "$GOPT_ENABLE_GEOM_DRIVERS" = "YES"; then
@@ -31,9 +31,6 @@ if test "$GOPT_ENABLE_FLUX_DRIVERS" = "YES"; then
 fi
 if test "$GOPT_ENABLE_VLE_EXTENSION" = "YES"; then
   libs="$libs -lGVLE"
-fi
-if test "$GOPT_ENABLE_VHE_EXTENSION" = "YES"; then
-  libs="$libs -lGVHE"
 fi
 if test "$GOPT_ENABLE_MUELOSS" = "YES"; then
   libs="$libs -lGMuELoss"
