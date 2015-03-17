@@ -32,6 +32,9 @@
 #include "FluxDrivers/GFlukaAtmo3DFlux.h"
 #include "Messenger/Messenger.h"
 
+#include "FluxDrivers/GFluxDriverFactory.h"
+FLUXDRIVERREG4(genie,flux,GFlukaAtmo3DFlux,genie::flux::GFlukaAtmo3DFlux)
+
 using std::ifstream;
 using std::ios;
 using namespace genie;

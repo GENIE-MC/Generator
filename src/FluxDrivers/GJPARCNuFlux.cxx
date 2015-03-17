@@ -135,6 +135,9 @@
 #include "Utils/PrintUtils.h"
 #include "Utils/StringUtils.h"
 
+#include "FluxDrivers/GFluxDriverFactory.h"
+FLUXDRIVERREG4(genie,flux,GJPARCNuFlux,genie::flux::GJPARCNuFlux)
+
 using std::endl;
 using std::cout;
 using std::endl;

@@ -38,4 +38,8 @@
 #pragma link C++ class genie::flux::GFlavorMixerFactory;
 #pragma link C++ class genie::flux::GFlavorMap;
 
+#pragma link C++ class genie::flux::GFluxDriverFactory;
+//#pragma link C++ class genie::flux::GFluxExposureI;
+//#pragma link C++ class genie::flux::GFluxFileConfigI;
+
 #endif
