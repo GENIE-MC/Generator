@@ -39,6 +39,7 @@ namespace flux  {
 class GMonoEnergeticFlux: public GFluxI {
 
 public :
+  GMonoEnergeticFlux();
   GMonoEnergeticFlux(double Ev, int pdg);
   GMonoEnergeticFlux(double Ev, const map<int,double> & numap /* pdg -> weight*/);
  ~GMonoEnergeticFlux();
@@ -63,10 +64,13 @@ public :
   void                   SetNuDirection  (const TVector3 & direction);
   void                   SetBeamSpot     (const TVector3 & spot);
 
+  // allow re-initialization, and/or initialization after default ctor
+  void   Initialize (double Ev, int pdg);
+  void   Initialize (double Ev, const map<int,double> & numap);
+
 private:
 
   // private methods
-  void   Initialize (double Ev, const map<int,double> & numap);
   void   CleanUp    (void);
 
   // private data members

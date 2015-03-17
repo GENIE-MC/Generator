@@ -55,6 +55,9 @@ using std::endl;
 #include "TRegexp.h"
 #include "TString.h"
 
+#include "FluxDrivers/GFluxDriverFactory.h"
+FLUXDRIVERREG4(genie,flux,GSimpleNtpFlux,genie::flux::GSimpleNtpFlux)
+
 //#define __GENIE_LOW_LEVEL_MESG_ENABLED__
 // next line won't work for NOvA: ROOT's Error() != DefaultErrorHandler
 //#define USE_INDEX_FOR_META 

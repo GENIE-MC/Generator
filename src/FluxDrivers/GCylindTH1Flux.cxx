@@ -33,6 +33,9 @@
 #include "PDG/PDGCodeList.h"
 #include "Utils/PrintUtils.h"
 
+#include "FluxDrivers/GFluxDriverFactory.h"
+FLUXDRIVERREG4(genie,flux,GCylindTH1Flux,genie::flux::GCylindTH1Flux)
+
 using namespace genie;
 using namespace genie::constants;
 using namespace genie::flux;

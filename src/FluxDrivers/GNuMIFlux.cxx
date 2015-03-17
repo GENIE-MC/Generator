@@ -213,6 +213,9 @@ using std::endl;
 #include "TRegexp.h"
 #include "TString.h"
 
+#include "FluxDrivers/GFluxDriverFactory.h"
+FLUXDRIVERREG4(genie,flux,GNuMIFlux,genie::flux::GNuMIFlux)
+
 #ifdef  GNUMI_TEST_XY_WGT
 static genie::flux::xypartials gpartials;  // global one used by CalcEnuWgt()
 #endif

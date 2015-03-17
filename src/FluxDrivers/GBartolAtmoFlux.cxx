@@ -27,6 +27,9 @@
 #include "FluxDrivers/GBartolAtmoFlux.h"
 #include "Messenger/Messenger.h"
 
+#include "FluxDrivers/GFluxDriverFactory.h"
+FLUXDRIVERREG4(genie,flux,GBartolAtmoFlux,genie::flux::GBartolAtmoFlux)
+
 using std::ifstream;
 using std::ios;
 
