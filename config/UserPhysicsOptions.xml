@@ -178,6 +178,12 @@ STFC, Rutherford Appleton Laboratory
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Pion decay constant needed by the Athar model
+  -->
+ <param type="double" name="AlamSimoAtharVacas-fPi"> 0.093 </param>
+
+ <!-- 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   BBA2003 elastic form factor parameters
   - BBA03-Gen-* are parameters for the Krutov Gen parameterization used in BBA2003
   - BBA03-Gep/Gmp/Gmn-* are coefficients for the BBA2003 inverse polynomial fit for Gep,Gmp,Gmn
