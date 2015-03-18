@@ -29,6 +29,8 @@
 #include <TLorentzRotation.h>
 
 #include "EVGDrivers/GFluxI.h"
+#include "FluxDrivers/GFluxExposureI.h"
+#include "FluxDrivers/GFluxFileConfigI.h"
 #include "PDG/PDGUtils.h"
 
 class TFile;
@@ -181,7 +183,9 @@ namespace flux  {
 /// ==========
 /// An implementation of the GFluxI interface that provides NuMI flux
 ///
-class GSimpleNtpFlux: public GFluxI {
+class GSimpleNtpFlux : public GFluxI, 
+    public GFluxExposureI, public GFluxFileConfigI
+{
 
 public :
   GSimpleNtpFlux();
@@ -230,21 +234,26 @@ public :
   //
   // information about the current state
   //
+  virtual double GetTotalExposure() const;  // GFluxExposureI interface
   double    UsedPOTs(void) const;       ///< # of protons-on-target used
   long int  NFluxNeutrinos(void) const { return fNNeutrinos; } ///< number of flux neutrinos looped so far
+  long int  NEntriesUsed(void) const { return fNEntriesUsed; } ///< number of entries read from files
   double    SumWeight(void) const { return fSumWeight;  } ///< integrated weight for flux neutrinos looped so far
 
   void      PrintCurrent(void);         ///< print current entry from leaves
   void      PrintConfig();              ///< print the current configuration
 
   std::vector<std::string> GetFileList();  ///< list of files currently part of chain
+
+  // 
+  // GFluxFileConfigI interface
+  //
+  virtual void  LoadBeamSimData(const std::vector<string>& filenames,
+                                const std::string&         det_loc);
+  using GFluxFileConfigI::LoadBeamSimData; // inherit the rest
   //
   // configuration of GSimpleNtpFlux
   //
-
-  void      LoadBeamSimData(std::vector<string> filenames, string det_loc);     ///< load root flux ntuple files and config
-  void      LoadBeamSimData(std::set<string>    filenames, string det_loc);     ///< load root flux ntuple files and config
-  void      LoadBeamSimData(string filename, string det_loc);     ///< older (obsolete) single file version
 
   void      SetRequestedBranchList(string blist="entry,numi,aux") { fNuFluxBranchRequest = blist; }
 
@@ -305,6 +314,7 @@ private:
 
   double    fSumWeight;           ///< sum of weights for nus thrown so far
   long int  fNNeutrinos;          ///< number of flux neutrinos thrown so far
+  long int  fNEntriesUsed;        ///< number of entries read from files
   double    fEffPOTsPerNu;        ///< what a entry is worth ...
   double    fAccumPOTs;           ///< POTs used so far
 

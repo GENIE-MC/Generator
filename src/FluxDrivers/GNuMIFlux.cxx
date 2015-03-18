@@ -266,7 +266,8 @@ const TLorentzVector kPosCenterNearBeam(0.,0.,  1039.35,0.);
 const TLorentzVector kPosCenterFarBeam (0.,0.,735340.00,0.);
 
 //____________________________________________________________________________
-GNuMIFlux::GNuMIFlux()
+GNuMIFlux::GNuMIFlux() :
+  GFluxExposureI(genie::flux::kPOTs)
 {
   this->Initialize();
 }
@@ -276,6 +277,12 @@ GNuMIFlux::~GNuMIFlux()
   this->CleanUp();
 }
 
+//___________________________________________________________________________
+double GNuMIFlux::GetTotalExposure() const
+{
+  // complete the GFluxExposureI interface
+  return UsedPOTs();
+}
 //___________________________________________________________________________
 bool GNuMIFlux::GenerateNext(void)
 {
@@ -622,26 +629,8 @@ double GNuMIFlux::POT_curr(void) {
 }
 
 //___________________________________________________________________________
-void GNuMIFlux::LoadBeamSimData(string filename, string config )
-{
-// Loads a beam simulation root file into the GNuMIFlux driver.
-  std::vector<std::string> filevec;
-  filevec.push_back(filename);
-  LoadBeamSimData(filevec,config); // call the one that takes a vector
-}
-
-//___________________________________________________________________________
-void GNuMIFlux::LoadBeamSimData(std::set<string> fileset, string config )
-{
-// Loads a beam simulation root file into the GNuMIFlux driver.
-  // have a set<> want a vector<>
-  std::vector<std::string> filevec;
-  std::copy(fileset.begin(),fileset.end(),std::back_inserter(filevec));
-  LoadBeamSimData(filevec,config); // call the one that takes a vector
-}
-
-//___________________________________________________________________________
-void GNuMIFlux::LoadBeamSimData(std::vector<string> patterns, string config )
+void GNuMIFlux::LoadBeamSimData(const std::vector<std::string>& patterns,
+                                const std::string&              config )
 {
 // Loads in a gnumi beam simulation root file (converted from hbook format)
 // into the GNuMIFlux driver.
@@ -1275,7 +1264,7 @@ void GNuMIFlux::SetDefaults(void)
   this->SetNumOfCycles   (0);
   this->SetEntryReuse    (1);
 
-  this->SetXMLFile();
+  this->SetXMLFileBase("GNuMIFlux.xml");
 }
 //___________________________________________________________________________
 void GNuMIFlux::ResetCurrent(void)
@@ -2500,7 +2489,7 @@ bool GNuMIFlux::LoadConfig(string cfg)
 {
   const char* altxml = gSystem->Getenv("GNUMIFLUXXML");
   if ( altxml ) {
-    SetXMLFile(altxml);
+    SetXMLFileBase(altxml);
   }
   genie::flux::GNuMIFluxXMLHelper helper(this);
   return helper.LoadConfig(cfg);
@@ -2670,7 +2659,7 @@ std::vector<long int> GNuMIFluxXMLHelper::GetIntVector(std::string str)
 
 bool GNuMIFluxXMLHelper::LoadConfig(string cfg)
 {
-  string fname = utils::xml::GetXMLFilePath(fGNuMI->GetXMLFile());
+  string fname = utils::xml::GetXMLFilePath(fGNuMI->GetXMLFileBase());
 
   bool is_accessible = ! (gSystem->AccessPathName(fname.c_str()));
   if (!is_accessible) {

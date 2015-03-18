@@ -75,7 +75,8 @@ ClassImp(GSimpleNtpMeta)
 UInt_t genie::flux::GSimpleNtpMeta::mxfileprint = UINT_MAX;
 
 //____________________________________________________________________________
-GSimpleNtpFlux::GSimpleNtpFlux()
+GSimpleNtpFlux::GSimpleNtpFlux() :
+  GFluxExposureI(genie::flux::kPOTs)
 {
   this->Initialize();
 }
@@ -84,7 +85,12 @@ GSimpleNtpFlux::~GSimpleNtpFlux()
 {
   this->CleanUp();
 }
-
+//___________________________________________________________________________
+double GSimpleNtpFlux::GetTotalExposure() const
+{
+  // complete the GFluxExposureI interface
+  return UsedPOTs();
+}
 //___________________________________________________________________________
 bool GSimpleNtpFlux::GenerateNext(void)
 {
@@ -175,7 +181,8 @@ bool GSimpleNtpFlux::GenerateNext_weighted(void)
     // Reset previously generated neutrino code / 4-p / 4-x
     this->ResetCurrent();
     // Move on, read next flux ntuple entry
-    fIEntry++;
+    ++fIEntry;
+    ++fNEntriesUsed;  // count total # used
     if ( fIEntry >= fNEntries ) {
       // Ran out of entries @ the current cycle of this flux file
       // Check whether more (or infinite) number of cycles is requested
@@ -369,26 +376,8 @@ double GSimpleNtpFlux::UsedPOTs(void) const
 }
 
 //___________________________________________________________________________
-void GSimpleNtpFlux::LoadBeamSimData(string filename, string config )
-{
-// Loads a beam simulation root file into the GSimpleNtpFlux driver.
-  std::vector<std::string> filevec;
-  filevec.push_back(filename);
-  LoadBeamSimData(filevec,config); // call the one that takes a vector
-}
-
-//___________________________________________________________________________
-void GSimpleNtpFlux::LoadBeamSimData(std::set<string> fileset, string config )
-{
-// Loads a beam simulation root file into the GSimpleNtpFlux driver.
-  // have a set<> want a vector<>
-  std::vector<std::string> filevec;
-  std::copy(fileset.begin(),fileset.end(),std::back_inserter(filevec));
-  LoadBeamSimData(filevec,config); // call the one that takes a vector
-}
-
-//___________________________________________________________________________
-void GSimpleNtpFlux::LoadBeamSimData(std::vector<string> patterns, string config )
+void GSimpleNtpFlux::LoadBeamSimData(const std::vector<string>& patterns,
+                                     const std::string&         config )
 {
 // Loads a beam simulation root file into the GSimpleNtpFlux driver.
 
@@ -1099,6 +1088,7 @@ void GSimpleNtpFlux::PrintConfig()
     << "\n used entry " << fIEntry << " " << fIUse << "/" << fNUse
     << " times, in " << fICycle << "/" << fNCycles << " cycles"
     << "\n SumWeight " << fSumWeight << " for " << fNNeutrinos << " neutrinos"
+    << " with " << fNEntriesUsed << " entries read"
     << "\n EffPOTsPerNu " << fEffPOTsPerNu << " AccumPOTs " << fAccumPOTs
     << "\n GenWeighted \"" << (fGenWeighted?"true":"false") << "\""
     << " AlreadyUnwgt \"" << (fAlreadyUnwgt?"true":"false") << "\""

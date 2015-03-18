@@ -34,6 +34,8 @@
 
 #include "EVGDrivers/GFluxI.h"
 #include "PDG/PDGUtils.h"
+#include "FluxDrivers/GFluxExposureI.h"
+#include "FluxDrivers/GFluxFileConfigI.h"
 
 class TFile;
 class TChain;
@@ -209,7 +211,9 @@ ClassDef(GNuMIFluxPassThroughInfo,5)
 /// ==========
 /// An implementation of the GFluxI interface that provides NuMI flux
 ///
-class GNuMIFlux: public GFluxI {
+class GNuMIFlux : public GFluxI, 
+    public GFluxExposureI, public GFluxFileConfigI 
+{
 
 public :
   GNuMIFlux();
@@ -249,6 +253,7 @@ public :
   //
   // information about the current state
   //
+  virtual double GetTotalExposure() const;  // GFluxExposureI interface
   double    POT_curr(void);             ///< current average POT (RWH?)
   double    UsedPOTs(void) const;       ///< # of protons-on-target used
   long int  NFluxNeutrinos(void) const { return fNNeutrinos; } ///< number of flux neutrinos looped so far
@@ -259,15 +264,15 @@ public :
 
   std::vector<std::string> GetFileList();  ///< list of files currently part of chain
 
+  // 
+  // GFluxFileConfigI interface
+  //
+  virtual void  LoadBeamSimData(const std::vector<std::string>& filenames,
+                                const std::string&              det_loc);
+  using GFluxFileConfigI::LoadBeamSimData; // inherit the rest
   //
   // configuration of GNuMIFlux
   //
-  void      SetXMLFile(string xmlbasename="GNuMIFlux.xml") { fXMLbasename = xmlbasename; }  ///< set the name of the file that hold XML config param_sets
-  std::string GetXMLFile() const { return fXMLbasename; }  ///< return the name of the file that hold XML config param_sets
-
-  void      LoadBeamSimData(std::vector<string> filenames, string det_loc);     ///< load root flux ntuple files and config
-  void      LoadBeamSimData(std::set<string>    filenames, string det_loc);     ///< load root flux ntuple files and config
-  void      LoadBeamSimData(string filename, string det_loc);     ///< older (obsolete) single file version
 
   bool      LoadConfig(string cfg);                               ///< load a named configuration
   void      SetFluxParticles(const PDGCodeList & particles);      ///< specify list of flux neutrino species

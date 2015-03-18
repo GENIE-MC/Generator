@@ -39,7 +39,10 @@
 #pragma link C++ class genie::flux::GFlavorMap;
 
 #pragma link C++ class genie::flux::GFluxDriverFactory;
-//#pragma link C++ class genie::flux::GFluxExposureI;
-//#pragma link C++ class genie::flux::GFluxFileConfigI;
+
+#pragma link C++ enum          genie::flux::EExposure;
+#pragma link C++ nestedtypedef genie::flux::Exposure_t;
+#pragma link C++ class genie::flux::GFluxExposureI;
+#pragma link C++ class genie::flux::GFluxFileConfigI;
 
 #endif
