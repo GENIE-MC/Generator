@@ -903,29 +903,6 @@ void GNuMIFlux::SetMaxEnergy(double Ev)
     << "Declared maximum flux neutrino energy: " << fMaxEv;
 }
 //___________________________________________________________________________
-void GNuMIFlux::SetUpstreamZ(double z0)
-{
-// The flux neutrino position (x,y) is given on the user specified flux window.
-// This method sets the preferred user coord starting z position upstream of
-// detector face. Each flux neutrino will be backtracked from the initial
-// flux window to the input z0.  If the value is unreasonable (> 10^30) 
-// then the ray is left on the flux window.
-
-  fZ0 = z0;
-}
-//___________________________________________________________________________
-void GNuMIFlux::SetNumOfCycles(long int ncycle)
-{
-// The flux ntuples can be recycled for a number of times to boost generated
-// event statistics without requiring enormous beam simulation statistics.
-// That option determines how many times the driver is going to cycle through
-// the input flux ntuple.
-// With ncycle=0 the flux ntuple will be recycled an infinite amount of times so
-// that the event generation loop can exit only on a POT or event num check.
-
-  fNCycles = TMath::Max(0L, ncycle);
-}
-//___________________________________________________________________________
 void GNuMIFlux::SetEntryReuse(long int nuse)
 {
 // With nuse > 1 then the same entry in the file is used "nuse" times
@@ -1208,7 +1185,6 @@ void GNuMIFlux::Initialize(void)
 
   fNEntries        =  0;
   fIEntry          = -1;
-  fNCycles         =  0;
   fICycle          =  0;
   fNUse            =  1;
   fIUse            =  999999;
@@ -1221,7 +1197,6 @@ void GNuMIFlux::Initialize(void)
   fMaxWgtEntries   = 2500000;
   fMaxEFudge       =  0;
 
-  fZ0              =  -3.4e38;
   fSumWeight       =  0;
   fNNeutrinos      =  0;
   fEffPOTsPerNu    =  0;

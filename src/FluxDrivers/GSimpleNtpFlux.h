@@ -262,14 +262,11 @@ public :
 
   void      SetGenWeighted(bool genwgt=false) { fGenWeighted = genwgt; } ///< toggle whether GenerateNext() returns weight=1 flux (initial default false)
 
-  void      SetNumOfCycles(long int ncycle);                      ///< set how many times to cycle through the ntuple (default: 1 / n=0 means 'infinite')
   void      SetEntryReuse(long int nuse=1);                       ///<  # of times to use entry before moving to next
 
   void      ProcessMeta(void);  ///< scan for max flux energy, weight
 
   void      GetFluxWindow(TVector3& p1, TVector3& p2, TVector3& p3) const; ///< 3 points define a plane in beam coordinate 
-
-  void      SetUpstreamZ(double z0);                           ///< set flux neutrino initial z position (upstream of the detector) pushed back from the flux window
 
 private:
 
