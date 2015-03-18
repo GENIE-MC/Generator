@@ -208,7 +208,7 @@ void AlamSimoAtharVacasSKPXSec2014::LoadConfig(void)
   amEta = PDGLibrary::Instance()->Find(kPdgEta)->Mass();
   Vus=fConfig->GetDoubleDef("SK-CKM-Vus", gc->GetDouble("CKM-Vus"));
   // fpi is 0.0924 in Athar's code, use the same one that is already in UserPhysicsOptions
-  fpi = fConfig->GetDoubleDef("SK-COHAR-fPi", gc->GetDouble("SK-fPi")); // pion decay constant
+  fpi = fConfig->GetDoubleDef("SK-PionDecayConstant", gc->GetDouble("PionDecayConstant")); // pion decay constant
   d = fConfig->GetDoubleDef("SK-SU3-D", gc->GetDouble("SU3-D")); // SU(3) parameter D
   f = fConfig->GetDoubleDef("SK-SU3-F", gc->GetDouble("SU3-F")); // SU(3) parameter F
   g = kGF;                              // Fermi coupling
