@@ -49,10 +49,20 @@ namespace flux {
     virtual void         SetXMLFileBase(std::string xmlbasename="");
     virtual std::string  GetXMLFileBase() const { return fXMLbasename; }
 
-  private:
+    /// set flux neutrino initial z position (upstream of the detector)
+    /// pushed back from the normal flux window
+    virtual void         SetUpstreamZ(double z0);
+
+    /// limit cycling through input files
+    virtual void         SetNumOfCycles(long int ncycle);
+
+  protected:  // visible to derived classes
   
     std::string   fXMLbasename;  ///< XML file that might hold config param_sets
-
+    long int      fNCycles;      ///< # times to cycle through the ntuple(s)
+                                 ///< default 0 = infinitely
+    double        fZ0;           ///< configurable starting z position for 
+                                 ///< each flux neutrino (in detector coord system)
   };
 
 } // namespace flux

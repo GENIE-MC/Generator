@@ -280,7 +280,6 @@ public :
 
   void      SetGenWeighted(bool genwgt=false) { fGenWeighted = genwgt; } ///< toggle whether GenerateNext() returns weight=1 flux (initial default false)
 
-  void      SetNumOfCycles(long int ncycle);                      ///< set how many times to cycle through the ntuple (default: 1 / n=0 means 'infinite')
   void      SetEntryReuse(long int nuse=1);                       ///<  # of times to use entry before moving to next
 
   void      SetTreeName(string name);                             ///< set input tree name (default: "h10")
@@ -334,8 +333,6 @@ public :
   // as optional flag to *etFluxWindow
   void      SetFluxWindow(TVector3  p1, TVector3  p2, TVector3  p3); ///< 3 points define a plane (by default in user coordinates)
   void      GetFluxWindow(TVector3& p1, TVector3& p2, TVector3& p3) const; ///< 3 points define a plane in beam coordinate 
-
-  void      SetUpstreamZ(double z0);                           ///< set flux neutrino initial z position (upstream of the detector) pushed back from the flux window
 
   /// force weights at MINOS detector "center" as found in ntuple
   void      UseFluxAtNearDetCenter(void);
@@ -398,7 +395,6 @@ private:
   long int  fMaxWgtEntries;       ///< # of entries in estimating max wgt
   double    fMaxEFudge;           ///< fudge factor for estmating max enu (0=> use fixed 120GeV)
 
-  long int  fNCycles;             ///< # times to cycle through the flux ntuple
   long int  fICycle;              ///< current file cycle
   long int  fNUse;                ///< how often to use same entry in a row
   long int  fIUse;                ///< current # of times an entry has been used
@@ -419,7 +415,6 @@ private:
   TLorentzVector   fBeamZero;       ///< beam origin in user coords
   TLorentzRotation fBeamRot;        ///< rotation applied beam --> user coord
   TLorentzRotation fBeamRotInv;
-  double           fZ0;             ///< configurable starting z position for each flux neutrino (in detector coord system)
 
   TVector3         fFluxWindowPtUser[3]; ///<  user points of flux window
   TLorentzVector   fFluxWindowBase; ///< base point for flux window - beam coord
