@@ -178,9 +178,16 @@ STFC, Rutherford Appleton Laboratory
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Pion decay constant needed by the Athar model
+  Pion decay constant (GeV)
   -->
- <param type="double" name="AlamSimoAtharVacas-fPi"> 0.093 </param>
+ <param type="double" name="PionDecayConstant"> 0.093 </param>
+
+ <!-- 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  SU(3) parameters D and F
+  -->
+  <param type="double" name="SU3-D"> 0.804 </param>
+  <param type="double" name="SU3-F"> 0.463 </param>
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
