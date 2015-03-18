@@ -63,11 +63,6 @@ double AlamSimoAtharVacasSKXSec::Integrate(
 {
   LOG("SKXSec", pDEBUG) << "Integrating the Alam Simo Athar Vacas model";
 
-#ifndef __GENIE_GSL_ENABLED__
-    SLOG("SKXSec",pFATAL) << "GSL not enabled!";
-    return 0.;
-#endif
-  
   const InitialState & init_state = in -> InitState();
   
   if(! model->ValidProcess(in) ) return 0.;
