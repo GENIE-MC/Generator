@@ -23,6 +23,7 @@
 #include "GHEP/GHepStatus.h"
 #include "GHEP/GHepParticle.h"
 #include "GHEP/GHepRecord.h"
+#include "GHEP/GHepFlags.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
 #include "PDG/PDGLibrary.h"
@@ -109,10 +110,10 @@ void SKHadronicSystemGenerator::CalculateHadronicSystem_AtharSingleKaon(GHepReco
                           kIStHadronInTheNucleus : kIStStableFinalState;
 
   //-- basic kinematic inputs
-//  double M    = (xcls_tag.NProtons()) ? kProtonMass : kNeutronMass; // there's only ever one nucleon
-  double M  = pnuc4.M();  // Mass of the struck nucleon
-  double mk   = PDGLibrary::Instance()->Find(kaon_pdgc)->Mass(); // K+ and K0 mass are slightly different
-  double mk2  = TMath::Power(mk,2);
+  double Mf    = (xcls_tag.NProtons()) ? kProtonMass : kNeutronMass; // there's only ever one nucleon
+  double M     = pnuc4.M();  // Mass of the struck nucleon
+  double mk    = PDGLibrary::Instance()->Find(kaon_pdgc)->Mass(); // K+ and K0 mass are slightly different
+  double mk2   = TMath::Power(mk,2);
 
   //-- specific kinematic quantities
   double kaon_T = kinematics->GetKV(kKVSelTk);
@@ -126,18 +127,30 @@ void SKHadronicSystemGenerator::CalculateHadronicSystem_AtharSingleKaon(GHepReco
 
   // Equation 17 of notes from M. Rafi Alam dated 6 November 2013
   double eN = q.E() + M - kaon_E; // FS nucleon total energy
-  double cos_thetaKq = (q3*q3 + pk*pk + M*M - eN*eN)/(2*q3*pk);
+  double cos_thetaKq = (q3*q3 + pk*pk + Mf*Mf - eN*eN)/(2*q3*pk);
+
   LOG( "SKHadron", pDEBUG ) << 
     "Cosine theta_kq = " << cos_thetaKq << "\n" <<
     "q.E = " << q.E() << " M = " << M << " kaon E " << kaon_E << " q3 = " << q3 << " pk = " << pk;
 
-  // this can be slightly larger than 1 due to numerical precision issues -- don't let it be
-  if( cos_thetaKq > 1.0 ) {
-    LOG( "SKHadron", pWARN ) << 
-      "Cosine theta_kq = " << cos_thetaKq << ", setting to 1.0\n" <<
-      "q.E = " << q.E() << " M = " << M << " kaon E " << kaon_E << " q3 = " << q3 << " pk = " << pk;
-    cos_thetaKq = 1.0;
+  if(cos_thetaKq > 1.0) {
+     LOG("SKHadron", pWARN) << "Invalid selected kinematics; Attempt regenerating";
+     evrec->EventFlags()->SetBitNumber(kKineGenErr, true);
+     genie::exceptions::EVGThreadException exception;
+     exception.SetReason("Invalid selected kinematics");
+     exception.SwitchOnStepBack();
+     exception.SetReturnStep(0);
+     throw exception;
   }
+
+//  this can be slightly larger than 1 due to numerical precision issues -- don't let it be
+//  if( cos_thetaKq > 1.0 ) {
+//    LOG( "SKHadron", pWARN ) << 
+//      "Cosine theta_kq = " << cos_thetaKq << ", setting to 1.0\n" <<
+//      "q.E = " << q.E() << " M = " << M << " kaon E " << kaon_E << " q3 = " << q3 << " pk = " << pk;
+//    cos_thetaKq = 1.0;
+//  }
+
 
   // Get phi for the k-q plane relative to nu-l plane
   double phi_kq = kinematics->GetKV(kKVSelphikq);
@@ -157,7 +170,7 @@ void SKHadronicSystemGenerator::CalculateHadronicSystem_AtharSingleKaon(GHepReco
 
   // make 4-vectors for the kaon and nucleon
   TLorentzVector p4kaon( kaon, sqrt(kaon.Mag2()+mk2) );
-  TLorentzVector p4fsnuc( nucleon, sqrt(nucleon.Mag2()+M*M) );
+  TLorentzVector p4fsnuc( nucleon, sqrt(nucleon.Mag2()+Mf*Mf) );
   // these are in the struck nucleon rest frame...boost them to the lab frame
   p4kaon.Boost( beta );
   p4fsnuc.Boost( beta );
