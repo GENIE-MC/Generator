@@ -22,7 +22,7 @@
 #include <string>
 #include <vector>
 
-#ifndef __CINT__
+#if !defined(__CINT__) && !defined(__MAKECINT__)
 #include "libxml/parser.h"
 #include "libxml/xmlmemory.h"
 #endif
@@ -37,7 +37,7 @@ namespace genie {
 namespace utils {
 namespace xml   {
 
-#ifndef __CINT__
+#if !defined(__CINT__) && !defined(__MAKECINT__)
   inline string TrimSpaces(xmlChar * xmls)
   {
    // trim the leading/trailing spaces from an parsed xml string like in:
