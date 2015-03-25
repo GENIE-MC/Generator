@@ -1,6 +1,6 @@
 ####################################################################
-# Makefile for the event generation driver customized for NuMI
-# beam-line experiments
+# Makefile for the event generation driver customized for FNAL
+# neutrino experiments
 #
 # Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
 ####################################################################
@@ -28,24 +28,24 @@ endif
 GENIE_LIBS  = $(shell $(GENIE)/src/scripts/setup/genie-config --libs)
 LIBRARIES  := $(GENIE_LIBS) $(DK2NULIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 
-TGT = gevgen_numi
+TGT = gevgen_fnal
 
 all: $(TGT)
 
-gevgen_numi: FORCE
-	$(CXX) $(CXXFLAGS) -c gNuMIExptEvGen.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) gNuMIExptEvGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen_numi
-	@echo "For historical purposes, add symbolic link to the NuMI event generation app"
-	ln -sf $(GENIE_BIN_PATH)/gevgen_numi $(GENIE_BIN_PATH)/gNuMIevgen
+gevgen_fnal: FORCE
+	$(CXX) $(CXXFLAGS) -c gFNALExptEvGen.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gFNALExptEvGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen_fnal
+	@echo "For historical purposes, add a NuMI event generation app sym link"
+	ln -sf $(GENIE_BIN_PATH)/gevgen_fnal $(GENIE_BIN_PATH)/gevgen_numi
 
 purge: FORCE
 	$(RM) *.o *~ core 
 
 clean: FORCE
-	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gevgen_numi $(GENIE_BIN_PATH)/gNuMIevgen
+	$(RM) *.o *~ core $(GENIE_BIN_PATH)/gevgen_fnal $(GENIE_BIN_PATH)/gevgen_numi
 
 distclean: FORCE
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevgen_numi
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevgen_fnal
 
 FORCE:
 
