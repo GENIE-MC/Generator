@@ -596,17 +596,6 @@ void GSimpleNtpFlux::ProcessMeta(void)
 
 }
 //___________________________________________________________________________
-void GSimpleNtpFlux::SetFluxParticles(const PDGCodeList & particles)
-{
-  if (!fPdgCList) {
-     fPdgCList = new PDGCodeList;
-  }
-  fPdgCList->Copy(particles);
-
-  LOG("Flux", pINFO)
-    << "Declared list of neutrino species: " << *fPdgCList;
-}
-//___________________________________________________________________________
 void GSimpleNtpFlux::SetMaxEnergy(double Ev)
 {
   fMaxEv = TMath::Max(0.,Ev);

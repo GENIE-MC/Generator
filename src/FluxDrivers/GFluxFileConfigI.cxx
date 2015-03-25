@@ -10,6 +10,7 @@
 ////////////////////////////////////////////////////////////////////////
 
 #include "FluxDrivers/GFluxFileConfigI.h"
+#include "Messenger/Messenger.h"
 #include "TMath.h"
 
 namespace genie {
@@ -70,6 +71,17 @@ namespace flux {
     // event num check.
 
     fNCycles = TMath::Max(0L, ncycle);
+  }
+  //___________________________________________________________________________
+  void GFluxFileConfigI::SetFluxParticles(const PDGCodeList & particles)
+  {
+    if (!fPdgCList) {
+      fPdgCList = new PDGCodeList;
+    }
+    fPdgCList->Copy(particles);
+    
+    LOG("Flux", pINFO)
+      << "Declared list of neutrino species: " << *fPdgCList;
   }
 
 } // namespace flux

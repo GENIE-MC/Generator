@@ -884,17 +884,6 @@ void GNuMIFlux::ScanForMaxWeight(void)
 
 }
 //___________________________________________________________________________
-void GNuMIFlux::SetFluxParticles(const PDGCodeList & particles)
-{
-  if (!fPdgCList) {
-     fPdgCList = new PDGCodeList;
-  }
-  fPdgCList->Copy(particles);
-
-  LOG("Flux", pINFO)
-    << "Declared list of neutrino species: " << *fPdgCList;
-}
-//___________________________________________________________________________
 void GNuMIFlux::SetMaxEnergy(double Ev)
 {
   fMaxEv = TMath::Max(0.,Ev);
