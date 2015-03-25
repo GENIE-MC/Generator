@@ -20,6 +20,8 @@
 #include <vector>
 #include <set>
 
+#include "PDG/PDGCodeList.h"
+
 namespace genie {
 namespace flux {
 
@@ -33,6 +35,7 @@ namespace flux {
     //
     // define the GFluxFileConfigI interface:
     //
+
     /// first is primary method for loading root flux ntuple files and config
     /// others are alternatives that can be overloaded but have
     /// sensible defaults to fall back to calling the vector version
@@ -49,6 +52,9 @@ namespace flux {
     virtual void         SetXMLFileBase(std::string xmlbasename="");
     virtual std::string  GetXMLFileBase() const { return fXMLbasename; }
 
+    /// specify list of flux neutrino species
+    virtual void         SetFluxParticles(const PDGCodeList & particles);
+
     /// set flux neutrino initial z position (upstream of the detector)
     /// pushed back from the normal flux window
     virtual void         SetUpstreamZ(double z0);
@@ -57,7 +63,8 @@ namespace flux {
     virtual void         SetNumOfCycles(long int ncycle);
 
   protected:  // visible to derived classes
-  
+
+    PDGCodeList * fPdgCList;     ///< list of neutrino pdg-codes to generate  
     std::string   fXMLbasename;  ///< XML file that might hold config param_sets
     long int      fNCycles;      ///< # times to cycle through the ntuple(s)
                                  ///< default 0 = infinitely

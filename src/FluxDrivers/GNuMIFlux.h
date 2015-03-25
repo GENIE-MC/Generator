@@ -275,7 +275,6 @@ public :
   //
 
   bool      LoadConfig(string cfg);                               ///< load a named configuration
-  void      SetFluxParticles(const PDGCodeList & particles);      ///< specify list of flux neutrino species
   void      SetMaxEnergy(double Ev);                              ///< specify maximum flx neutrino energy
 
   void      SetGenWeighted(bool genwgt=false) { fGenWeighted = genwgt; } ///< toggle whether GenerateNext() returns weight=1 flux (initial default false)
@@ -371,7 +370,6 @@ private:
   // Private data members
   //
   double         fMaxEv;          ///< maximum energy
-  PDGCodeList *  fPdgCList;       ///< list of neutrino pdg-codes to generate
   PDGCodeList *  fPdgCListRej;    ///< list of neutrino pdg-codes seen but rejected
   bool           fEnd;            ///< end condition reached
 
