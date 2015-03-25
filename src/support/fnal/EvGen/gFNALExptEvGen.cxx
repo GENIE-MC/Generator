@@ -3,7 +3,7 @@
 
 \program gevgen_fnal
 
-\brief   A GENIE event generation driver `customized' for the FNAL beam-line 
+\brief   A GENIE event generation driver `customized' for the FNAL neutrino
          experiments using flux drivers for file types used by those expts.
          This program was adapted from gevgen_t2k used at T2K. 
 
