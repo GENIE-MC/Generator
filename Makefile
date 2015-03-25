@@ -37,7 +37,7 @@ BUILD_TARGETS =    print-make-info \
 		   generator-test-exe \
 		   generator-std-exe \
 		   t2k-support-softw \
-		   numi-support-softw \
+		   fnal-support-softw \
 		   atmo-support-softw \
 		   nucleon-decay-support-softw \
 		   reweight-support-softw \
@@ -283,11 +283,11 @@ else
 	@echo "Not enabled! Skipping..."
 endif
 
-numi-support-softw: FORCE
+fnal-support-softw: FORCE
 	@echo " "
-	@echo "** Building NuMI-specific support software..."
-ifeq ($(strip $(GOPT_ENABLE_NUMI)),YES)
-	cd ${GENIE}/src/support/numi/EvGen/;\
+	@echo "** Building FNAL-specific support software..."
+ifeq ($(strip $(GOPT_ENABLE_FNAL)),YES)
+	cd ${GENIE}/src/support/fnal/EvGen/;\
 	make all; \
 	cd ${GENIE}
 else
@@ -604,7 +604,7 @@ clean-files: FORCE
 	cd VHE;                           make clean; cd ..; \
 	cd stdapp;                        make clean; cd ..; \
 	cd support/t2k/EvGen/;            make clean; cd ../../../; \
-	cd support/numi/EvGen/;           make clean; cd ../../../; \
+	cd support/fnal/EvGen/;           make clean; cd ../../../; \
 	cd support/atmo/EvGen/;           make clean; cd ../../../; \
 	cd support/atmo/UpMuFluxGen/;     make clean; cd ../../../; \
 	cd support/ndcy/EvGen/;           make clean; cd ../../../; \
@@ -685,7 +685,7 @@ distclean: FORCE
 	cd VHE;                            make distclean; cd ..; \
 	cd stdapp;                         make distclean; cd ..; \
 	cd support/t2k/EvGen/;             make distclean; cd ../../../; \
-	cd support/numi/EvGen/;            make distclean; cd ../../../; \
+	cd support/fnal/EvGen/;            make distclean; cd ../../../; \
 	cd support/atmo/EvGen/;            make distclean; cd ../../../; \
 	cd support/atmo/UpMuFluxGen/;      make distclean; cd ../../../; \
 	cd support/ndcy/EvGen/;            make distclean; cd ../../../; \
