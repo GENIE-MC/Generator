@@ -80,7 +80,7 @@ double COHXSec::Integrate(
 
   double xsec = 0.0;
 
-  if (model->Id().Name() == "genie::ReinSeghalCOHPiPXSec") {
+  if (model->Id().Name() == "genie::ReinSehgalCOHPiPXSec") {
     LOG("COHXSec", pINFO)
       << "x integration range = [" << xl.min << ", " << xl.max << "]";
     LOG("COHXSec", pINFO)
