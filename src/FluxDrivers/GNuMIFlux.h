@@ -253,10 +253,12 @@ public :
   //
   // information about the current state
   //
-  virtual double GetTotalExposure() const;  // GFluxExposureI interface
+  virtual double    GetTotalExposure() const;  // GFluxExposureI interface
+  virtual long int  NFluxNeutrinos() const;    ///< # of rays generated
+
   double    POT_curr(void);             ///< current average POT (RWH?)
   double    UsedPOTs(void) const;       ///< # of protons-on-target used
-  long int  NFluxNeutrinos(void) const { return fNNeutrinos; } ///< number of flux neutrinos looped so far
+
   double    SumWeight(void) const { return fSumWeight;  } ///< integrated weight for flux neutrinos looped so far
 
   void      PrintCurrent(void);         ///< print current entry from leaves
@@ -270,6 +272,11 @@ public :
   virtual void  LoadBeamSimData(const std::vector<std::string>& filenames,
                                 const std::string&              det_loc);
   using GFluxFileConfigI::LoadBeamSimData; // inherit the rest
+  virtual void GetBranchInfo(std::vector<std::string>& branchNames,
+                             std::vector<std::string>& branchClassNames,
+                             std::vector<void**>&      branchObjPointers);
+  virtual TTree* GetMetaDataTree();
+
   //
   // configuration of GNuMIFlux
   //

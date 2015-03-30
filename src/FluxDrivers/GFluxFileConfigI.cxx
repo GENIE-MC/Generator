@@ -47,6 +47,23 @@ namespace flux {
   }
 
   //___________________________________________________________________________
+  void GFluxFileConfigI::GetBranchInfo(std::vector<std::string>& branchNames,
+                                       std::vector<std::string>& branchClassNames,
+                                       std::vector<void**>&      branchObjPointers)
+  {
+    // allow flux driver to report back current status and/or ntuple entry 
+    // info for possible recording in the output file by supplying
+    // the class name, and a pointer to the object that will be filled
+    // as well as a suggested name for the branch.
+
+    // default is not to supply anything
+  }
+  TTree* GFluxFileConfigI::GetMetaDataTree()
+  {
+    return 0;
+  }
+
+  //___________________________________________________________________________
   void GFluxFileConfigI::SetUpstreamZ(double z0)
   {
     // The flux neutrino position (x,y) is given on the user specified 

@@ -234,9 +234,11 @@ public :
   //
   // information about the current state
   //
-  virtual double GetTotalExposure() const;  // GFluxExposureI interface
+  virtual double    GetTotalExposure() const;  ///< GFluxExposureI interface
+  virtual long int  NFluxNeutrinos() const;    ///< # of rays generated
+
   double    UsedPOTs(void) const;       ///< # of protons-on-target used
-  long int  NFluxNeutrinos(void) const { return fNNeutrinos; } ///< number of flux neutrinos looped so far
+
   long int  NEntriesUsed(void) const { return fNEntriesUsed; } ///< number of entries read from files
   double    SumWeight(void) const { return fSumWeight;  } ///< integrated weight for flux neutrinos looped so far
 
@@ -251,6 +253,11 @@ public :
   virtual void  LoadBeamSimData(const std::vector<string>& filenames,
                                 const std::string&         det_loc);
   using GFluxFileConfigI::LoadBeamSimData; // inherit the rest
+  virtual void  GetBranchInfo(std::vector<std::string>& branchNames,
+                              std::vector<std::string>& branchClassNames,
+                              std::vector<void**>&      branchObjPointers);
+  virtual TTree* GetMetaDataTree();
+
   //
   // configuration of GSimpleNtpFlux
   //
@@ -326,6 +333,11 @@ private:
   TLorentzVector   fP4;        ///< reconstituted p4 vector
   TLorentzVector   fX4;        ///< reconstituted position vector
   GSimpleNtpMeta*  fCurMeta;   ///< current meta data 
+
+  GSimpleNtpEntry* fCurEntryCopy;  ///< current entry
+  GSimpleNtpNuMI*  fCurNuMICopy;   ///< current "numi" branch extra info
+  GSimpleNtpAux*   fCurAuxCopy;    ///< current "aux" branch extra info
+
 };
 
 } // flux namespace
