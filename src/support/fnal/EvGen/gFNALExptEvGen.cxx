@@ -256,6 +256,9 @@
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          University of Liverpool & STFC Rutherford Appleton Lab
 
+         Robert Hatcher <rhatcher \at fnal.gov>
+         Fermi National Accelerator Laboratory
+
 \created August 20, 2008
 
 \cpright Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
@@ -276,6 +279,7 @@
 #include <fstream>
 
 #include <TSystem.h>
+#include <TError.h>  // for gErrorIgnoreLevel
 #include <TTree.h>
 #include <TFile.h>
 #include <TH1D.h>
@@ -306,14 +310,19 @@
 
 #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
 #include "FluxDrivers/GFluxDriverFactory.h"
-#include "FluxDrivers/GNuMIFlux.h"
 #include "FluxDrivers/GCylindTH1Flux.h"
-  #ifdef __DK2NU_FLUX_DRIVER_AVAILABLE__
-    #include "dk2nu/tree/dk2nu.h"
-    #include "dk2nu/tree/dkmeta.h"
-    #include "dk2nu/tree/NuChoice.h"
-    #include "dk2nu/genie/GDk2NuFlux.h"
-  #endif
+#include "FluxDrivers/GFluxFileConfigI.h"
+#include "FluxDrivers/GFluxExposureI.h"
+
+//#include "FluxDrivers/GNuMIFlux.h"
+//#include "FluxDrivers/GSimpleNtpFlux.h"
+//  #ifdef __DK2NU_FLUX_DRIVER_AVAILABLE__
+//    #include "dk2nu/tree/dk2nu.h"
+//    #include "dk2nu/tree/dkmeta.h"
+//    #include "dk2nu/tree/NuChoice.h"
+//    #include "dk2nu/genie/GDk2NuFlux.h"
+//  #endif
+
 #endif
 
 #ifdef __GENIE_GEOM_DRIVERS_ENABLED__
@@ -330,9 +339,15 @@ using std::ostringstream;
 
 using namespace genie;
 
+// Forward function declarations
+//
+void LoadExtraOptions   (void);
 void GetCommandLineArgs (int argc, char ** argv);
 void PrintSyntax        (void);
 void CreateFidSelection (string fidcut, GeomAnalyzerI* geom_driver);
+void DetermineFluxDriver(string fopt);
+void ParseFluxHst       (string fopt);
+void ParseFluxFileConfig(string fopt);
 
 // Default options (override them using the command line arguments):
 //
@@ -345,8 +360,9 @@ string          kDefOptEvFilePrefix = "gntp";
 //
 Long_t          gOptRunNu;                     // run number
 bool            gOptUsingRootGeom = false;     // using root geom or target mix?
-bool            gOptUsingHistFlux = false;     // using gnumi beam flux ntuples or flux from histograms?
-bool            gOptUsingDk2NuFlux = false;    // are the ntuples dk2nu format?
+bool            gOptUsingHistFlux = false;     // using beam flux ntuples or flux from histograms?
+string          gOptFluxDriver = "";           // flux driver class to use
+map<string,string> gOptFluxShortNames;
 PDGCodeList     gOptFluxPdg;                   // list of neutrino flavors to accept
 map<int,double> gOptTgtMix;                    // target mix  (tgt pdg -> wght frac) / if not using detailed root geom
 map<int,TH1D*>  gOptFluxHst;                   // flux histos (nu pdg  -> spectrum)  / if not using beam sim ntuples
@@ -380,6 +396,7 @@ static void gsSIGTERMhandler(int /* s */)
 //____________________________________________________________________________
 int main(int argc, char ** argv)
 {
+  LoadExtraOptions();
   GetCommandLineArgs(argc,argv);
 
   // Initialization of random number generators, cross-section table,
@@ -456,92 +473,88 @@ int main(int argc, char ** argv)
   // *************************************************************************
   // * Create / configure the flux driver 
   // *************************************************************************
-  GFluxI * flux_driver = 0;
-
-#ifdef __DK2NU_FLUX_DRIVER_AVAILABLE__
-  flux::GDk2NuFlux *    dk2nu_flux_driver = 0;
-#endif
-  flux::GNuMIFlux *      numi_flux_driver = 0;
-  flux::GCylindTH1Flux * hst_flux_driver  = 0;
-
-  if ( ! gOptUsingHistFlux && ! gOptUsingDk2NuFlux ) {
-    //
-    // *** Using the detailed NuMI neutrino flux description by feeding-in 
-    // *** the gNuMI flux simulation ntuples
-    //
-    // creating & configuring a NuMI neutrino flux driver
-    numi_flux_driver = new flux::GNuMIFlux;
-    numi_flux_driver->LoadBeamSimData(gOptFluxFile, gOptDetectorLocation);
-    numi_flux_driver->SetUpstreamZ(gOptZmin);  // was "zmin" from bounding_box
-    numi_flux_driver->SetNumOfCycles(0);
-
-    if ( gOptFluxPdg.size() > 0 ) {
-      // user specified list of neutrino PDGs
-      numi_flux_driver->SetFluxParticles(gOptFluxPdg);
-      std::ostringstream s;
-      PDGCodeList::const_iterator itr = gOptFluxPdg.begin();
-      for ( ; itr != gOptFluxPdg.end(); ++itr) s << (*itr) << " ";
-      LOG("gevgen_fnal", pNOTICE) 
-        << "Limiting to nu PDGs:" << s.str();
-    }
-    // casting to the GENIE flux driver interface
-    flux_driver = dynamic_cast<GFluxI *> (numi_flux_driver);
-  } 
-#ifndef __DK2NU_FLUX_DRIVER_AVAILABLE__
-  else if ( ! gOptUsingHistFlux && gOptUsingDk2NuFlux ) {
-    LOG("gevgen_fnal", pFATAL) << "Dk2Nu flux files not supported in this build.";
+  GFluxI * flux_driver = 
+    genie::flux::GFluxDriverFactory::Instance().GetFluxDriver(gOptFluxDriver);
+  if ( ! flux_driver ) {
+    // couldn't get the requested flux driver ?
+    std::ostringstream s;
+    s << "Known FluxDrivers:\n";
+    const std::vector<std::string>& known =
+      genie::flux::GFluxDriverFactory::Instance().AvailableFluxDrivers();
+    std::vector<std::string>::const_iterator itr = known.begin();
+    for ( ; itr != known.end(); ++itr ) s << "  " << (*itr) << "\n";
+    LOG("gevgen_fnal", pFATAL) 
+      << "Failed to get any flux driver from GFluxDriverFactory\n"
+      << "when using \"" << gOptFluxDriver << "\"\n" << s.str();
+    exit(1);
   }
-#else
-  else if ( ! gOptUsingHistFlux && gOptUsingDk2NuFlux ) {
+
+  if ( ! gOptUsingHistFlux ) {
+    genie::flux::GFluxFileConfigI* flux_file_config =
+      dynamic_cast<genie::flux::GFluxFileConfigI*>(flux_driver);
+    if ( ! flux_file_config ) {
+      LOG("gevgen_fnal", pFATAL) 
+        << "Failed to get GFluxFileConfigI driver from GFluxDriverFactory\n"
+        << "when using \"" << gOptFluxDriver << "\"";
+      exit(1);
+    }
+
     //
-    // *** Using the detailed Dk2Nu neutrino flux description by feeding-in 
-    // *** the full flux simulation ntuples
+    // *** Using the detailed ntuple neutrino flux description
     //
-    // creating & configuring a NuMI neutrino flux driver
-    dk2nu_flux_driver = new flux::GDk2NuFlux;
-    dk2nu_flux_driver->LoadBeamSimData(gOptFluxFile, gOptDetectorLocation);
-    dk2nu_flux_driver->SetUpstreamZ(gOptZmin);  // was "zmin" from bounding_box
-    dk2nu_flux_driver->SetNumOfCycles(0);
+    flux_file_config->LoadBeamSimData(gOptFluxFile, gOptDetectorLocation);
+    flux_file_config->SetUpstreamZ(gOptZmin);  // was "zmin" from bounding_box
+    flux_file_config->SetNumOfCycles(0);
 
     if ( gOptFluxPdg.size() > 0 ) {
       // user specified list of neutrino PDGs
-      dk2nu_flux_driver->SetFluxParticles(gOptFluxPdg);
+      flux_file_config->SetFluxParticles(gOptFluxPdg);
       std::ostringstream s;
       PDGCodeList::const_iterator itr = gOptFluxPdg.begin();
       for ( ; itr != gOptFluxPdg.end(); ++itr) s << (*itr) << " ";
       LOG("gevgen_fnal", pNOTICE) 
-        << "Limiting to nu PDGs:" << s.str();
+        << "Limiting to nu PDGs: " << s.str();
     }
-    // casting to the GENIE flux driver interface
-    flux_driver = dynamic_cast<GFluxI *> (dk2nu_flux_driver);
   } 
-#endif
   else {
     //
     // *** Using fluxes from histograms (for all specified neutrino species)
     //
+    genie::flux::GCylindTH1Flux * hist_flux_driver = 
+      dynamic_cast<genie::flux::GCylindTH1Flux*>(flux_driver);
+    if ( ! hist_flux_driver ) {
+      LOG("gevgen_fnal", pFATAL) 
+        << "Failed to get GCylinderTH1Flux driver from GFluxDriverFactory\n"
+        << "when using " << gOptFluxDriver;
+      exit(1);
+    }
 
     // creating & configuring a generic GCylindTH1Flux flux driver
     TVector3 bdir (0,0,1); // dir along +z
     TVector3 bspot(0,0,0);
-    hst_flux_driver = new flux::GCylindTH1Flux;
-    hst_flux_driver->SetNuDirection      (bdir);
-    hst_flux_driver->SetBeamSpot         (bspot);
-    hst_flux_driver->SetTransverseRadius (-1);
+
+    hist_flux_driver->SetNuDirection      (bdir);
+    hist_flux_driver->SetBeamSpot         (bspot);
+    hist_flux_driver->SetTransverseRadius (-1);
     map<int,TH1D*>::iterator it = gOptFluxHst.begin();
     for( ; it != gOptFluxHst.end(); ++it) {
         int    pdg_code = it->first;
         TH1D * spectrum = it->second;
-        hst_flux_driver->AddEnergySpectrum(pdg_code, spectrum);
+        hist_flux_driver->AddEnergySpectrum(pdg_code, spectrum);
         // once the histogram has been added to the GCylindTH1Flux driver
         // it is owned by the driver and it is up to the the driver
         // to clean up (i.e. delete it).  
         // remove it from this map to avoid double deletion.
         it->second = 0;
     }
-    // casting to the GENIE flux driver interface
-    flux_driver = dynamic_cast<GFluxI *> (hst_flux_driver);
   }
+
+  // these might come in handy ... avoid repeated dynamic_cast<> calls
+  genie::flux::GFluxExposureI* fluxExposureI = 
+    dynamic_cast<genie::flux::GFluxExposureI*>(flux_driver);
+  genie::flux::GFluxFileConfigI* fluxFileConfigI =
+    dynamic_cast<genie::flux::GFluxFileConfigI*>(flux_driver);
+
 
   // *************************************************************************
   // * Handle chicken/egg problem: geom analyzer vs. flux.
@@ -624,27 +637,48 @@ int main(int argc, char ** argv)
   ntpw.CustomizeFilenamePrefix(gOptEvFilePrefix);
   ntpw.Initialize();
 
-  // Add a custom-branch at the standard GENIE event tree so that
+
+  std::vector<TBranch*>    extraBranches;
+  std::vector<std::string> branchNames;
+  std::vector<std::string> branchClassNames;
+  std::vector<void**>      branchObjPointers;
+
+  // Add custom branch(s) to the standard GENIE event tree so that
   // info on the flux neutrino parent particle can be passed-through
-  flux::GNuMIFluxPassThroughInfo * flux_info = new flux::GNuMIFluxPassThroughInfo;
-#ifdef __DK2NU_FLUX_DRIVER_AVAILABLE__
-  bsim::Dk2Nu *    dk2nu_info    = new bsim::Dk2Nu;
-  bsim::NuChoice * nuchoice_info = new bsim::NuChoice;
-#endif
-  if ( ! gOptUsingHistFlux ) {
-    TBranch * flux = 0;
-    if ( ! gOptUsingDk2NuFlux ) {
-      flux = ntpw.EventTree()->Branch("flux",
-             "genie::flux::GNuMIFluxPassThroughInfo", &flux_info, 32000, 1);
-#ifdef __DK2NU_FLUX_DRIVER_AVAILABLE__
+  if ( fluxFileConfigI ) {
+    fluxFileConfigI->GetBranchInfo(branchNames,branchClassNames,
+                                    branchObjPointers);
+    size_t nn = branchNames.size();
+    size_t nc = branchClassNames.size();
+    size_t np = branchObjPointers.size();
+    if ( nn != nc || nc != np ) {
+     LOG("gevgen_fnal", pERROR)
+       << "Inconsistent info back from \"" << gOptFluxDriver << "\" "
+       << "for branch info:  " << nn << " " << nc << " " << np;
     } else {
-      flux = ntpw.EventTree()->Branch("dk2nu","bsim::Dk2Nu",&dk2nu_info,32000,99);
-             ntpw.EventTree()->Branch("nuchoice","bsim::NuChoice",&nuchoice_info,32000,99);
-#endif
-    }
-    assert(flux);
-    flux->SetAutoDelete(kFALSE);
-  }
+      for (size_t ii = 0; ii < nn; ++ii) {
+        const char* bname = branchNames[ii].c_str();
+        const char* cname = branchClassNames[ii].c_str();
+        void**&     optr  = branchObjPointers[ii];  // note critical '&' !
+        if ( ! optr || ! *optr ) continue;  // no pointer supplied, skip it
+        int split = 99;  // 1
+        LOG("gevgen_fnal", pNOTICE)
+          << "Adding extra branch \"" << bname << "\" of type \""
+          << cname << "\" (" << optr << ") to output tree";
+        TBranch* bptr = ntpw.EventTree()->Branch(bname,cname,optr,32000,split);
+        extraBranches.push_back(bptr);
+
+        if ( bptr ) {
+          // don't delete this !!! we're sharing
+          bptr->SetAutoDelete(false);
+        } else {
+          LOG("gevgen_fnal", pERROR)
+          << "FAILED to add extra branch \"" << bname << "\" of type \""
+          << cname << "\" to output tree";
+        }
+      } // loop over additions
+    } // same # of entries
+  } // of genie::flux::GFluxFileConfigI type
 
   // Create a MC job monitor for a periodically updated status file
   GMCJMonitor mcjmonitor(gOptRunNu);
@@ -654,7 +688,9 @@ int main(int argc, char ** argv)
   // * Event generation loop
   // *************************************************************************
 
-  signal(SIGTERM,gsSIGTERMhandler);  // define handler to allow signal to end job gracefully
+  // define handler to allow signal to end job gracefully
+  signal(SIGTERM,gsSIGTERMhandler);  
+
   int ievent = 0;
   while ( ! gSigTERM ) 
   {
@@ -663,21 +699,14 @@ int main(int argc, char ** argv)
 
      // In case the required statistics was expressed as 'number of events'
      // then quit if that number has been generated
-     if ( ievent == gOptNev) break;
+     if ( ievent == gOptNev ) break;
 
      // In case the required statistics was expressed as 'number of POT' 
      // then exit the event loop if the requested POT has been generated.
-     if ( gOptPOT > 0 && ! gOptUsingHistFlux ) {
-        double fpot = 0;
-        if ( ! gOptUsingDk2NuFlux ) {
-           fpot = numi_flux_driver->UsedPOTs();     // current POT in flux file 
-#ifdef __DK2NU_FLUX_DRIVER_AVAILABLE__
-        } else {
-           fpot = dk2nu_flux_driver->UsedPOTs();
-#endif
-        }
-        double psc  = mcj_driver->GlobProbScale();      // interaction prob. scale 
-        double pot  = fpot / psc;                       // POT for generated sample
+     if ( gOptPOT > 0 && fluxExposureI ) {
+        double fpot = fluxExposureI->GetTotalExposure(); // current POTs used 
+        double psc  = mcj_driver->GlobProbScale();  // interaction prob. scale 
+        double pot  = fpot / psc;                   // POTs for generated sample
         if ( pot >= gOptPOT ) break;
      }
 
@@ -700,66 +729,59 @@ int main(int argc, char ** argv)
      LOG("gevgen_fnal", pINFO)  
          << "Generated event: " << *event;
 
-     // A valid event was generated: extract flux info (parent decay/prod
-     // position/kinematics) for that simulated event so that it can be 
-     // passed-through.
-     // Can only do so if I am generating events using the gnumi beam flux
-     // ntuples, not simple histograms
-     if ( ! gOptUsingHistFlux ) {
-        //
-        if ( ! gOptUsingDk2NuFlux ) {
-           // just copy, don't keep re-creating new instances on heap
-           *flux_info = numi_flux_driver->PassThroughInfo();
-           LOG("gevgen_fnal", pINFO) 
-             << "Pass-through flux info associated with generated event: " 
-             << *flux_info;
-#ifdef __DK2NU_FLUX_DRIVER_AVAILABLE__
-        } else {
-          *dk2nu_info    = dk2nu_flux_driver->GetDk2Nu();
-          *nuchoice_info = dk2nu_flux_driver->GetNuChoice();
-           LOG("gevgen_fnal", pINFO) 
-             << "dk2nu info associated with generated event: " 
-             << dk2nu_info->AsString() << "\n"
-             << nuchoice_info->AsString();
-#endif
-        }
-     }
+     // A valid event was generated: flux info (parent decay/prod
+     // position/kinematics) for that simulated event should already
+     // be connected to the right output tree branch
 
      // Add event at the output ntuple, refresh the mc job monitor & clean-up
      ntpw.AddEventRecord(ievent, event);
      mcjmonitor.Update(ievent,event);
      delete event;
      ievent++;
+
   } //1
 
+  // Copy metadata tree, if available
+  if ( fluxFileConfigI ) {
+    TTree* t1 = fluxFileConfigI->GetMetaDataTree();
+    if ( t1 ) {
+      size_t nmeta = t1->GetEntries();
+      TTree* t2 = (TTree*)t1->Clone(0);
+      for (size_t i = 0; i < nmeta; ++i) {
+        t1->GetEntry(i);
+        t2->Fill();
+      }
+      t2->Write();
+    }
+  }
+
   LOG("gevgen_fnal", pINFO) 
-    << "The GENIE MC job is done generaing events - Cleaning up & exiting...";
+    << "The GENIE MC job is done generating events - Cleaning up & exiting...";
 
   // *************************************************************************
   // * Print job statistics & 
   // * calculate normalization factor for the generated sample
   // *************************************************************************
-  if ( ! gOptUsingHistFlux && gOptUsingRootGeom) 
-  {
+  if ( ! gOptUsingHistFlux && gOptUsingRootGeom ) {
     // POT normalization will only be calculated if event generation was based
-    // on beam simulation  outputs (not just histograms) & a detailed detector
+    // on beam simulation ntuples (not just histograms) & a detailed detector
     // geometry description.
-    // Get nunber of flux neutrinos read-in by flux friver, number of flux
+    // Get nunber of flux neutrinos read-in by flux driver, number of flux
     // neutrinos actually thrown to the event generation driver and number
     // of neutrino interactions actually generated
-    double   fpot     = 0;
     long int nflx     = 0;
-    long int nflx_evg = mcj_driver       -> NFluxNeutrinos(); 
-    if ( ! gOptUsingDk2NuFlux ) {
-       fpot = numi_flux_driver->UsedPOTs();     // current POT in flux file 
-       nflx = numi_flux_driver->NFluxNeutrinos();
-       numi_flux_driver->PrintConfig();
-#ifdef __DK2NU_FLUX_DRIVER_AVAILABLE__
-    } else {
-       fpot = dk2nu_flux_driver->UsedPOTs();
-       nflx = dk2nu_flux_driver->NFluxNeutrinos();
-       dk2nu_flux_driver->PrintConfig();
-#endif
+    long int nflx_evg = mcj_driver-> NFluxNeutrinos(); 
+    double   fpot     = 0;
+    const char* exposureUnits = "(unknown units)";
+    if ( fluxExposureI ) {
+      fpot = fluxExposureI->GetTotalExposure(); // POTs used so far 
+      nflx = fluxExposureI->NFluxNeutrinos();
+      //genie::flux::Exposure_t etype = fluxExposureI->GetExposureType();
+      //exposureUnits = genie::flux::GFluxExposureI::AsString(etype);
+      exposureUnits = fluxExposureI->GetExposureUnits();
+    }
+    if ( fluxFileConfigI ) {
+      fluxFileConfigI->PrintConfig();
     }
     double psc   = mcj_driver->GlobProbScale();      // interaction prob. scale 
     if ( psc <= 0.0 ) {
@@ -770,10 +792,12 @@ int main(int argc, char ** argv)
 
     LOG("gevgen_fnal", pNOTICE) 
         << "\n >> Interaction probability scaling factor:  " << psc
+        << "\n >> using: " << gOptFluxDriver 
         << "\n >> N of flux v read-in by flux driver:      " << nflx
         << "\n >> N of flux v thrown to event gen driver:  " << nflx_evg
         << "\n >> N of generated v interactions:           " << nev
-        << "\n ** Normalization for generated sample:      " << pot << " POT * detector";
+        << "\n ** Normalization for generated sample:      " << pot
+        << " " << exposureUnits << " * detector";
 
     ntpw.EventTree()->SetWeight(pot); // store POT
 
@@ -803,6 +827,59 @@ int main(int argc, char ** argv)
 
   return 0;
 }
+
+//____________________________________________________________________________
+void LoadExtraOptions(void)
+{
+  /// potentially load extra libraries that might extend the list of 
+  /// potential flux drivers, and how to map short names to classes ...
+  // we really should at this point read some external file to get
+  // an expandable list of libraries ... but for now just hard code it
+
+  vector<string> extraLibs;
+
+  ///***** this part should come from reading an external file
+  
+  extraLibs.push_back("libdk2nuTree");
+  extraLibs.push_back("libdk2nuGenie");
+
+  // what one might expect to find at the beginning of -f <arg>
+
+  gOptFluxShortNames["histo"]   = "genie::flux::GCylindTH1Flux";
+  gOptFluxShortNames["hist"]    = "genie::flux::GCylindTH1Flux";
+
+  gOptFluxShortNames["simple"]  = "genie::flux::GSimpleNtpFlux";
+  gOptFluxShortNames["numi"]    = "genie::flux::GNuMIFlux";
+  gOptFluxShortNames["dk2nu"]   = "genie::flux::GDk2NuFlux";
+
+  ///******* done with fake "read"
+
+  // see if there are any libraries to load
+  // just let ROOT do it ... check error code on return
+  // but tweak ROOT's ERROR message output so we don't see huge messages
+  // for failures
+  //  gErrorIgnoreLevel to kError (from TError.h)
+
+  Int_t prevErrorLevel = gErrorIgnoreLevel;
+  gErrorIgnoreLevel    = kFatal;
+  for (size_t ilib=0; ilib < extraLibs.size(); ++ilib) {
+    // library names should be like libXYZZY  without extension [e.g. .so]
+    // but with the leading "lib"
+    int loadStatus = gSystem->Load(extraLibs[ilib].c_str());
+    const char* statWords = "failed to load";
+    if      ( loadStatus ==  0 ) { statWords = "successfully loaded"; }
+    else if ( loadStatus ==  1 ) { statWords = "already had loaded"; }
+    else if ( loadStatus == -1 ) { statWords = "couldn't find library"; }
+    else if ( loadStatus == -2 ) { statWords = "mismatched version"; }
+
+    LOG("gevgen_fnal",pNOTICE)
+         << statWords << " (" << loadStatus << ") " << extraLibs[ilib];
+  }
+  // restore the ROOT error message level
+  gErrorIgnoreLevel    = prevErrorLevel;
+
+}
+
 //____________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
 {
@@ -995,115 +1072,13 @@ void GetCommandLineArgs(int argc, char ** argv)
   //
   // *** flux 
   // 
-  if( parser.OptionExists('f') ) {
+  if ( parser.OptionExists('f') ) {
     LOG("gevgen_fnal", pDEBUG) << "Getting input flux";
-    string flux = parser.ArgAsString('f');
-    gOptUsingHistFlux = (flux.find("[") != string::npos);
-
-    if(!gOptUsingHistFlux) {
-        // Using gnumi beam flux ntuples
-        // Extract gnumi beam flux (root) file name & detector location
-        //
-        vector<string> fluxv = utils::str::Split(flux,",");
-        if(fluxv.size()<2) {
-           LOG("gevgen_fnal", pFATAL) 
-             << "You need to specify both a flux ntuple ROOT file " 
-             << " _AND_ a detector location";
-           PrintSyntax();
-           exit(1);
-        }
-        gOptFluxFile         = fluxv[0];
-        gOptDetectorLocation = fluxv[1];
-        gOptUsingDk2NuFlux   = ( gOptFluxFile.find("dk2nu") != std::string::npos );
-        for ( size_t j = 2; j < fluxv.size(); ++j ) {
-          int ipdg = atoi(fluxv[j].c_str());
-          gOptFluxPdg.push_back(ipdg);
-        }
-    } else {
-        // Using flux from histograms
-        // Extract the root file name & the list of histogram names & neutrino 
-        // species (specified as 'filename,histo1[species1],histo2[species2],...') 
-        // See documentation on top section of this file.
-        //
-        vector<string> fluxv = utils::str::Split(flux,",");      
-        if(fluxv.size()<2) {
-           LOG("gevgen_fnal", pFATAL) 
-             << "You need to specify both a flux ntuple ROOT file " 
-             << " _AND_ a detector location";
-           PrintSyntax();
-           exit(1);
-        }
-        gOptFluxFile = fluxv[0];
-        bool accessible_flux_file = !(gSystem->AccessPathName(gOptFluxFile.c_str()));
-        if (!accessible_flux_file) {
-            LOG("gevgen_fnal", pFATAL) 
-              << "Can not access flux file: " << gOptFluxFile;
-            PrintSyntax();
-            exit(1);
-        }
-        // Extract energy spectra for all specified neutrino species
-        TFile flux_file(gOptFluxFile.c_str(), "read");
-        for(unsigned int inu=1; inu<fluxv.size(); inu++) {
-            string nutype_and_histo = fluxv[inu];
-   	    string::size_type open_bracket  = nutype_and_histo.find("[");
-	    string::size_type close_bracket = nutype_and_histo.find("]");
-            if (open_bracket ==string::npos || 
-                close_bracket==string::npos) 
-            {
-                LOG("gevgen_fnal", pFATAL) 
-                   << "You made an error in specifying the flux histograms"; 
-                PrintSyntax();
-                exit(1);
-            }
-   	    string::size_type ibeg = 0;
-	    string::size_type iend = open_bracket;
-	    string::size_type jbeg = open_bracket+1;
-	    string::size_type jend = close_bracket;
-            string nutype = nutype_and_histo.substr(ibeg,iend-ibeg);
-            string histo  = nutype_and_histo.substr(jbeg,jend-jbeg);
-            // access specified histogram from the input root file
-            TH1D * ihst = (TH1D*) flux_file.Get(histo.c_str()); 
-            if(!ihst) {
-                LOG("gevgen_fnal", pFATAL) 
-                  << "Can not find histogram: " << histo 
-                  << " in flux file: " << gOptFluxFile;
-                PrintSyntax();
-                exit(1);
-            }
-            // create a local copy of the input histogram
-            TH1D * spectrum = new TH1D(
-                 histo.c_str(), histo.c_str(), ihst->GetNbinsX(),  
-                 ihst->GetXaxis()->GetXmin(), ihst->GetXaxis()->GetXmax());
-            spectrum->SetDirectory(0);
-            for(int ibin = 1; ibin <= ihst->GetNbinsX(); ibin++) {
-               spectrum->SetBinContent(ibin, ihst->GetBinContent(ibin));
-            }
-            // convert neutrino name -> pdg code
-            int pdg = atoi(nutype.c_str());
-            if(!pdg::IsNeutrino(pdg) && !pdg::IsAntiNeutrino(pdg)) {
-                LOG("gevgen_fnal", pFATAL) 
-                    << "Unknown neutrino type: " << nutype; 
-                PrintSyntax();
-                exit(1);
-            }
-            // store flux neutrino code / energy spectrum
-            LOG("gevgen_fnal", pDEBUG) 
-              << "Adding energy spectrum for flux neutrino: pdg = " << pdg;
-            gOptFluxHst.insert(map<int, TH1D*>::value_type(pdg, spectrum));
-        }//inu
-        if(gOptFluxHst.size()<1) {
-           LOG("gevgen_fnal", pFATAL) 
-               << "You have not specified any flux histogram!";
-           PrintSyntax();
-           exit(1);
-        }
-        flux_file.Close();
-    } // flux from histograms or from gnumi beam ntuples?
-
+    DetermineFluxDriver(parser.ArgAsString('f'));
   } else {
-      LOG("gevgen_fnal", pFATAL) << "No flux info was specified - Exiting";
-      PrintSyntax();
-      exit(1);
+    LOG("gevgen_fnal", pFATAL) << "No flux info was specified - Exiting";
+    PrintSyntax();
+    exit(1);
   }
 
   // number of events to generate
@@ -1182,7 +1157,7 @@ void GetCommandLineArgs(int argc, char ** argv)
        exit(1);
     } 
   }
-  // If we use a flux histograms (not gNuMI flux ntuples) then -currently- the
+  // If we use a flux histograms (not flux ntuples) then -currently- the
   // only way to control exposure is via a number of events
   if(gOptUsingHistFlux) {
      if(gOptNev < 0) {
@@ -1192,9 +1167,10 @@ void GetCommandLineArgs(int argc, char ** argv)
        exit(1);
      }
   }
-  // If we don't use a detailed ROOT detector geometry (but just a target mix) then 
-  // don't accept POT as a way to control job statistics (not enough info is passed
-  // in the target mix to compute POT & the calculation can be easily done offline)
+  // If we don't use a detailed ROOT detector geometry (but just a target mix)
+  // then don't accept POT as a way to control job statistics (not enough info
+  // is passed in the target mix to compute POT & the calculation can be easily
+  // done offline)
   if(!gOptUsingRootGeom) {
     if(gOptPOT > 0) {
        LOG("gevgen_fnal", pFATAL) 
@@ -1233,7 +1209,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   }
 
   ostringstream fluxinfo;
-  if(gOptUsingHistFlux) {
+  if (gOptUsingHistFlux) {
     fluxinfo << "Using histograms: ";
     map<int,TH1D*>::const_iterator iter;
     for(iter = gOptFluxHst.begin(); iter != gOptFluxHst.end(); ++iter) {
@@ -1246,7 +1222,7 @@ void GetCommandLineArgs(int argc, char ** argv)
           }//p?
     }
   } else {
-    fluxinfo << "Using gnumi beam simulation - "
+    fluxinfo << "Using " << gOptFluxDriver << " flux driver- "
              << "file = "        << gOptFluxFile
              << ", location = "  << gOptDetectorLocation;
   }
@@ -1431,4 +1407,181 @@ void CreateFidSelection (string fidcut, GeomAnalyzerI* geom_driver)
   rgeom->AdoptGeomVolSelector(fidsel);
 
 }
+//____________________________________________________________________________
+void DetermineFluxDriver(string fopt) 
+{
+  // based on the -f option string determine which flux driver to use
+  // this may take some guessing
+
+  // first look for strings that look like "<proto>:..."
+  // or ....<proto>.root,....
+  // where "<proto>" is a key the gOptFluxShortNames map
+
+  map<string,string>::const_iterator mitr     = gOptFluxShortNames.begin();
+  map<string,string>::const_iterator mitr_end = gOptFluxShortNames.end();
+  for ( ; mitr != mitr_end; ++mitr ) {
+    string proto  = mitr->first + string(":");
+    string gproto = string("g") + proto;
+    string protor = proto + ".root,";
+    string full  = mitr->second;
+    if ( fopt.find(proto) == 0 ) {
+      fopt.erase(0,proto.size());
+      gOptFluxDriver = full;
+      break;
+    } else if ( fopt.find(gproto) == 0 ) {
+      fopt.erase(0,gproto.size());
+      gOptFluxDriver = full;
+      break;
+    } else if ( fopt.find(protor) != std::string::npos ) {
+      gOptFluxDriver = full;
+      break;
+    }
+  } 
+  // tested all cases where user might have specified explicitly
+  // or been part of an extended file extension 
+  // this is where it gets messy
+  if ( gOptFluxDriver == "" ) {
+
+    // not specified ? guess from file name itself
+    if ( fopt.find("gsimple") != std::string::npos ) {
+      // put dk2nu after gsimple in case simple files are derived from dk2nu
+      // then both are in name we should choose gsimple
+      gOptFluxDriver = "genie::flux::GSimpleNtpFlux";
+    } else if ( fopt.find("dk2nu") != std::string::npos ) {
+      gOptFluxDriver = "genie::flux::GDk2NuFlux";
+    } else {
+      // does it look like the histogram format
+      const char* hstrings[] = { ",12[", ",+12[", ",-12[",
+                                 ",14[", ",+14[", ",-14[",
+                                 ",16[", ",+16[", ",-16[" };
+      size_t nh = sizeof(hstrings)/sizeof(const char*);
+      for (size_t ih=0; ih<nh; ++ih) {
+        if ( fopt.find(hstrings[ih]) != std::string::npos ) {
+          // hey!
+          gOptFluxDriver = "genie::flux::GCylindTH1Flux";
+          break;
+        }
+      } // loop over possible histogram specifiers
+    }
+
+    // fall through default ... hope it works
+    if ( gOptFluxDriver == "" ) {
+      gOptFluxDriver = "genie::flux::GNuMIFlux";
+    }
+  }
+
+  gOptUsingHistFlux = ( gOptFluxDriver == "genie::flux::GCylindTH1Flux" );
+  if ( gOptUsingHistFlux ) ParseFluxHst(fopt);
+  else                     ParseFluxFileConfig(fopt);
+}
+//____________________________________________________________________________
+void ParseFluxHst(string flux) 
+{
+  // Using flux from histograms
+  // Extract the root file name & the list of histogram names & neutrino 
+  // species (specified as 'filename,histo1[species1],histo2[species2],...') 
+  // See documentation on top section of this file.
+  //
+
+  vector<string> fluxv = utils::str::Split(flux,",");      
+  if(fluxv.size()<2) {
+    LOG("gevgen_fnal", pFATAL) 
+      << "You need to specify both a flux ntuple ROOT file " 
+      << " _AND_ a detector location";
+    PrintSyntax();
+    exit(1);
+  }
+  gOptFluxFile = fluxv[0];
+  bool accessible_flux_file = !(gSystem->AccessPathName(gOptFluxFile.c_str()));
+  if (!accessible_flux_file) {
+    LOG("gevgen_fnal", pFATAL) 
+      << "Can not access flux file: " << gOptFluxFile;
+    PrintSyntax();
+    exit(1);
+  }
+  // Extract energy spectra for all specified neutrino species
+  TFile flux_file(gOptFluxFile.c_str(), "read");
+  for(unsigned int inu=1; inu<fluxv.size(); inu++) {
+    string nutype_and_histo = fluxv[inu];
+    string::size_type open_bracket  = nutype_and_histo.find("[");
+    string::size_type close_bracket = nutype_and_histo.find("]");
+    if (open_bracket ==string::npos || 
+        close_bracket==string::npos) 
+      {
+        LOG("gevgen_fnal", pFATAL) 
+          << "You made an error in specifying the flux histograms"; 
+        PrintSyntax();
+        exit(1);
+      }
+    string::size_type ibeg = 0;
+    string::size_type iend = open_bracket;
+    string::size_type jbeg = open_bracket+1;
+    string::size_type jend = close_bracket;
+    string nutype = nutype_and_histo.substr(ibeg,iend-ibeg);
+    string histo  = nutype_and_histo.substr(jbeg,jend-jbeg);
+    // access specified histogram from the input root file
+    TH1D * ihst = (TH1D*) flux_file.Get(histo.c_str()); 
+    if(!ihst) {
+      LOG("gevgen_fnal", pFATAL) 
+        << "Can not find histogram: " << histo 
+        << " in flux file: " << gOptFluxFile;
+      PrintSyntax();
+      exit(1);
+    }
+    // create a local copy of the input histogram
+    TH1D * spectrum = new TH1D(
+            histo.c_str(), histo.c_str(), ihst->GetNbinsX(),  
+            ihst->GetXaxis()->GetXmin(), ihst->GetXaxis()->GetXmax());
+    spectrum->SetDirectory(0);
+    for(int ibin = 1; ibin <= ihst->GetNbinsX(); ibin++) {
+      spectrum->SetBinContent(ibin, ihst->GetBinContent(ibin));
+    }
+    // convert neutrino name -> pdg code
+    int pdg = atoi(nutype.c_str());
+    if(!pdg::IsNeutrino(pdg) && !pdg::IsAntiNeutrino(pdg)) {
+      LOG("gevgen_fnal", pFATAL) 
+        << "Unknown neutrino type: " << nutype; 
+      PrintSyntax();
+      exit(1);
+    }
+    // store flux neutrino code / energy spectrum
+    LOG("gevgen_fnal", pDEBUG) 
+      << "Adding energy spectrum for flux neutrino: pdg = " << pdg;
+    gOptFluxHst.insert(map<int, TH1D*>::value_type(pdg, spectrum));
+  }//inu
+
+  if(gOptFluxHst.size()<1) {
+    LOG("gevgen_fnal", pFATAL) 
+      << "You have not specified any flux histogram!";
+    PrintSyntax();
+    exit(1);
+  }
+
+  flux_file.Close();
+}
+
+//____________________________________________________________________________
+void ParseFluxFileConfig(string flux) 
+{
+  // Using gnumi/gsimple/dk2nu beam flux ntuples
+  // Extract beam flux (root) file name & detector location
+  //
+  vector<string> fluxv = utils::str::Split(flux,",");
+  if(fluxv.size()<2) {
+    LOG("gevgen_fnal", pFATAL) 
+      << "You need to specify both a flux ntuple ROOT file " 
+      << " _AND_ a detector location";
+    PrintSyntax();
+    exit(1);
+  }
+  gOptFluxFile         = fluxv[0];
+  gOptDetectorLocation = fluxv[1];
+  
+  for ( size_t j = 2; j < fluxv.size(); ++j ) {
+    int ipdg = atoi(fluxv[j].c_str());
+    gOptFluxPdg.push_back(ipdg);
+  }
+  
+}
+
 //____________________________________________________________________________
