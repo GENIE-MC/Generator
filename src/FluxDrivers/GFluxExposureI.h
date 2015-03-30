@@ -17,6 +17,7 @@
 #define GENIE_FLUX_GFLUXEXPOSUREI_H
 
 #include <string>
+#include <ctype.h>
 
 namespace genie {
 namespace flux {
@@ -35,12 +36,22 @@ namespace flux {
     GFluxExposureI(genie::flux::Exposure_t etype);
     virtual ~GFluxExposureI();
 
+    /// what units are returned by GetTotalExposure?
+    const char*             GetExposureUnits() const;
     genie::flux::Exposure_t GetExposureType() const;
 
     //
     // define the GFluxExposureI interface:
     //
-    virtual double GetTotalExposure() const = 0;
+    virtual double    GetTotalExposure() const = 0;
+
+    /// # of rays generated
+    virtual long int  NFluxNeutrinos() const = 0;
+
+
+    // string conversions for the associated enum
+    static const char*              AsString(genie::flux::Exposure_t etype);
+    static genie::flux::Exposure_t  StringToEnum(const char* chars, int maxChar=0);
 
   private:
     genie::flux::Exposure_t fEType; 

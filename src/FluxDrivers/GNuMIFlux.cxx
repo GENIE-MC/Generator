@@ -283,6 +283,14 @@ double GNuMIFlux::GetTotalExposure() const
   // complete the GFluxExposureI interface
   return UsedPOTs();
 }
+
+//___________________________________________________________________________
+long int GNuMIFlux::NFluxNeutrinos(void) const
+{
+  /// number of flux neutrinos ray generated so far 
+  return fNNeutrinos; 
+}
+
 //___________________________________________________________________________
 bool GNuMIFlux::GenerateNext(void)
 {
@@ -803,6 +811,23 @@ void GNuMIFlux::LoadBeamSimData(const std::vector<std::string>& patterns,
   this->CalcEffPOTsPerNu();
   
 }
+//___________________________________________________________________________
+void GNuMIFlux::GetBranchInfo(std::vector<std::string>& branchNames,
+                              std::vector<std::string>& branchClassNames,
+                              std::vector<void**>&      branchObjPointers)
+{
+  // allow flux driver to report back current status and/or ntuple entry 
+  // info for possible recording in the output file by supplying
+  // the class name, and a pointer to the object that will be filled
+  // as well as a suggested name for the branch.
+  
+  branchNames.push_back("flux");
+  branchClassNames.push_back("genie::flux::GNuMIFluxPassThroughInfo");
+  branchObjPointers.push_back((void**)&fCurEntry);
+
+}
+TTree* GNuMIFlux::GetMetaDataTree() { return 0; } // there is none
+
 //___________________________________________________________________________
 void GNuMIFlux::ScanForMaxWeight(void)
 {

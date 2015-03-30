@@ -21,6 +21,7 @@
 #include <set>
 
 #include "PDG/PDGCodeList.h"
+class TTree;
 
 namespace genie {
 namespace flux {
@@ -51,6 +52,32 @@ namespace flux {
 
     virtual void         SetXMLFileBase(std::string xmlbasename="");
     virtual std::string  GetXMLFileBase() const { return fXMLbasename; }
+
+    /// allow caller to copy current status / ntuple entry info
+    /// in the output file by providing copies of internal info
+    ///
+    /// Assumes that branch object pointers will not change
+    /// which may require either a copy be made or, if using the class
+    /// directly for reading the branch, one must force ROOT to
+    /// not autodelete: 
+    ///   myns::MyClassType* fCurrMyClass = new myns::MyClassType;
+    ///   myTree->SetBranchAddress("bname",&fCurMyClass);
+    ///   //? TBranch* b = myTree->GetBranch("bname");
+    ///   //? b->SetAutoDelete(false);
+    ///
+    /// ensure vectors are sized sufficiently (or use .push_back())
+    ///  branchNames[i]       = "bname"
+    ///  branchClassNames[i]  = "myns::MyClassType"
+    ///  branchObjPointers[i] = (void**)&fCurMyClass;
+
+    virtual void  GetBranchInfo(std::vector<std::string>& branchNames,
+                                std::vector<std::string>& branchClassNames,
+                                std::vector<void**>&      branchObjPointers);
+
+    virtual TTree* GetMetaDataTree(); //
+
+    /// print the current configuration
+    virtual void         PrintConfig() = 0;
 
     /// specify list of flux neutrino species
     virtual void         SetFluxParticles(const PDGCodeList & particles);

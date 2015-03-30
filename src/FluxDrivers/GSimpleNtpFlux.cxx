@@ -92,6 +92,12 @@ double GSimpleNtpFlux::GetTotalExposure() const
   return UsedPOTs();
 }
 //___________________________________________________________________________
+long int  GSimpleNtpFlux::NFluxNeutrinos(void) const 
+{ 
+  ///< number of flux neutrinos looped so far
+  return fNNeutrinos; 
+} 
+//___________________________________________________________________________
 bool GSimpleNtpFlux::GenerateNext(void)
 {
 // Get next (unweighted) flux ntuple entry on the specified detector location
@@ -492,19 +498,26 @@ void GSimpleNtpFlux::LoadBeamSimData(const std::vector<string>& patterns,
     assert(0);
   }
 #endif
+  //TBranch* bentry = fNuFluxTree->GetBranch("entry");
+  //bentry->SetAutoDelete(false);
 
-  if ( OptionalAttachBranch("numi") ) 
+  if ( OptionalAttachBranch("numi") ) {
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0)
     sba_status[1] = 
 #endif
       fNuFluxTree->SetBranchAddress("numi",&fCurNuMI);
-  else { delete fCurNuMI; fCurNuMI = 0; }
-  if ( OptionalAttachBranch("aux") ) 
+    //TBranch* bnumi = fNuFluxTree->GetBranch("numi");
+    //bnumi->SetAutoDelete(false);
+  } else { delete fCurNuMI; fCurNuMI = 0; }
+
+  if ( OptionalAttachBranch("aux") ) {
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0)
     sba_status[2] = 
 #endif
       fNuFluxTree->SetBranchAddress("aux",&fCurAux);
-  else { delete fCurAux; fCurAux = 0; }
+    //TBranch* baux = fNuFluxTree->GetBranch("aux");
+    //baux->SetAutoDelete(false);
+  } else { delete fCurAux; fCurAux = 0; }
 
   LOG("Flux", pDEBUG)
     << " SetBranchAddress status: "
@@ -542,6 +555,36 @@ void GSimpleNtpFlux::LoadBeamSimData(const std::vector<string>& patterns,
   this->CalcEffPOTsPerNu();
   
 }
+//___________________________________________________________________________
+void GSimpleNtpFlux::GetBranchInfo(std::vector<std::string>& branchNames,
+                                   std::vector<std::string>& branchClassNames,
+                                   std::vector<void**>&      branchObjPointers)
+{
+  // allow flux driver to report back current status and/or ntuple entry 
+  // info for possible recording in the output file by supplying
+  // the class name, and a pointer to the object that will be filled
+  // as well as a suggested name for the branch.
+
+  if ( fCurEntry ) {
+    branchNames.push_back("simple");
+    branchClassNames.push_back("genie::flux::GSimpleNtpEntry");
+    branchObjPointers.push_back((void**)&fCurEntry);
+  }
+
+  if ( fCurNuMI ) {
+    branchNames.push_back("numi");
+    branchClassNames.push_back("genie::flux::GSimpleNtpNuMI");
+    branchObjPointers.push_back((void**)&fCurNuMI);
+  }
+
+  if ( fCurAux ) {
+    branchNames.push_back("aux");
+    branchClassNames.push_back("genie::flux::GSimpleNtpAux");
+    branchObjPointers.push_back((void**)&fCurAux);
+  }
+}
+TTree* GSimpleNtpFlux::GetMetaDataTree() { return fNuMetaTree; }
+
 //___________________________________________________________________________
 void GSimpleNtpFlux::ProcessMeta(void)
 {
@@ -668,6 +711,10 @@ void GSimpleNtpFlux::Initialize(void)
   fCurNuMI         = new GSimpleNtpNuMI;
   fCurAux          = new GSimpleNtpAux;
   fCurMeta         = new GSimpleNtpMeta;
+
+  fCurEntryCopy    = 0;
+  fCurNuMICopy     = 0;
+  fCurAuxCopy      = 0;
 
   fNuFluxTree      = new TChain("flux");
   fNuMetaTree      = new TChain("meta");
