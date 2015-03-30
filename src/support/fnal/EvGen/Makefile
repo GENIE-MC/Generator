@@ -13,17 +13,17 @@ MAKEFILE = Makefile
 #
 include $(GENIE)/src/make/Make.include
 
-# set extra stuff if $DK2NU is defined
-ifneq ($(shell ls -1 ${DK2NU}/lib/libdk2nuGenie* 2>/dev/null ),)
-    $(warning DK2NU/lib/libdk2nuGenie library exists, build against it)
-    DK2NULIBS  := -L $(DK2NU)/lib -ldk2nuTree -ldk2nuGenie
-    DK2NUFLAGS := -D__DK2NU_FLUX_DRIVER_AVAILABLE__ -I${DK2NU} -I${DK2NU}/include
-    CXXFLAGS   += $(DK2NUFLAGS)
-    # $(warning using $(DK2NULIBS))
-    # $(warning using DK2NUFLAGS=$(DK2NUFLAGS))
+## set extra stuff if $DK2NU is defined
+#ifneq ($(shell ls -1 ${DK2NU}/lib/libdk2nuGenie* 2>/dev/null ),)
+#    $(warning DK2NU/lib/libdk2nuGenie library exists, build against it)
+#    DK2NULIBS  := -L $(DK2NU)/lib -ldk2nuTree -ldk2nuGenie
+#    DK2NUFLAGS := -D__DK2NU_FLUX_DRIVER_AVAILABLE__ -I${DK2NU} -I${DK2NU}/include
+#    CXXFLAGS   += $(DK2NUFLAGS)
+#    # $(warning using $(DK2NULIBS))
+#    # $(warning using DK2NUFLAGS=$(DK2NUFLAGS))
 #else
 #    $(warning building without Dk2Nu support)
-endif
+#endif
 
 GENIE_LIBS  = $(shell $(GENIE)/src/scripts/setup/genie-config --libs)
 LIBRARIES  := $(GENIE_LIBS) $(DK2NULIBS) $(LIBRARIES) $(CERN_LIBRARIES)
