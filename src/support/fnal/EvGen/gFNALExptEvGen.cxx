@@ -839,7 +839,8 @@ void LoadExtraOptions(void)
   vector<string> extraLibs;
 
   ///***** this part should come from reading an external file
-  
+  /// placeholder file $GENIE/config/FluxDriverExpansion.xml
+
   extraLibs.push_back("libdk2nuTree");
   extraLibs.push_back("libdk2nuGenie");
 
