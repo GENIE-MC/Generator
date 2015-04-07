@@ -120,6 +120,8 @@ public :
   virtual double Probability    (void) const  { return fProb;     }
   virtual double XSec           (void) const  { return fXSec;     }
   virtual double DiffXSec       (void) const  { return fDiffXSec; }
+  virtual KinePhaseSpace_t DiffXSecVars  (void) const  { return fDiffXSecPhSp; }
+
   virtual void   SetWeight      (double wght) { fWeight   = (wght>0) ? wght : 0.; }
   virtual void   SetProbability (double prob) { fProb     = (prob>0) ? prob : 0.; }
   virtual void   SetXSec        (double xsec) { fXSec     = (xsec>0) ? xsec : 0.; }
