@@ -18,7 +18,10 @@
           (http://www.physics.lancs.ac.uk/people/jaroslaw-nowak) and 
           S. Dytman.
 
-\ref      D.Rein and L.M.Sehgal, Neutrino Excitation of Baryon Resonances
+\ref      main model: Berger, Sehgal Phys. Rev. D76, 113004 (2007) \n
+          alternate: Kuzmin, Lyubushkin, Naumov Mod. Phys. Lett. A19 (2004) 2815 \n
+          modifications within original format of 
+	  D.Rein and L.M.Sehgal, Neutrino Excitation of Baryon Resonances
           and Single Pion Production, Ann.Phys.133, 79 (1981)
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
