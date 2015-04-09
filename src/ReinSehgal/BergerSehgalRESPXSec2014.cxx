@@ -819,8 +819,8 @@ void BergerSehgalRESPXSec2014::LoadConfig(void)
   LOG("RSHAmpl", pWARN)
     << "load is_KNL";
   fBRS = fConfig->GetBoolDef("is_BRS", gc->GetBool("is_BRS"));
-  fGA  = fConfig->GetBoolDef("newGA", gc->GetBool("newGA"));
-  fGV  = fConfig->GetBoolDef("newGV", gc->GetBool("newGV"));
+  fGA  = fConfig->GetBoolDef("minibooneGA", gc->GetBool("minibooneGA"));
+  fGV  = fConfig->GetBoolDef("minibooneGV", gc->GetBool("minibooneGV"));
 
   double ma  = fConfig->GetDoubleDef( "Ma", gc->GetDouble("RES-Ma") );
   double mv  = fConfig->GetDoubleDef( "Mv", gc->GetDouble("RES-Mv") );
