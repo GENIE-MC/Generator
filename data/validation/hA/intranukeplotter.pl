@@ -92,6 +92,9 @@ foreach (@ARGV) {
     if ($_ eq '--rescale') { $rescale    = $ARGV[$iarg+1]; }     ## factor by which to rescale vertical maximum on plot
     if ($_ eq '--rmode')   { $rmode      = $ARGV[$iarg+1]; }     ## root mode-- '0' runs 'root -b -q' and '1' runs 'root -l'
     if ($_ eq '--err')     { $err_system = $ARGV[$iarg+1]; }     ## error system ('i' for interactive; defaults to non-interactive)
+    if ($_ eq '--modes1')  { $modes[0]   = $ARGV[$iarg+1]; }     ## comma-separated list of modes for GENIE version 1
+    if ($_ eq '--modes2')  { $modes[1]   = $ARGV[$iarg+1]; }     ## comma-separated list of modes for GENIE version 2
+    if ($_ eq '--modes3')  { $modes[2]   = $ARGV[$iarg+1]; }     ## comma-separated list of modes for GENIE version 3
     $iarg++;
 };
 
@@ -120,11 +123,12 @@ if ($type eq 'ang') {
     'levenson' => ['levenson_1','levenson_2'],
     'mcgill' => ['mcgill'],    
     'mckeown' => ['mckeown','mckeown_2'],
+    'mckshort' => ['mckshort'],
     'meier' => ['meier', 'meier_al'],
     'otsu' => ['otsu'],
     'ouyang' => ['ouyang'],
     'roy' => ['roy'],
-    'shibata' => ['shibata_p', 'shibata_pip'],
+    'shibata' => ['shibata_p',shibata_pi], ## update this
     'slypen' => ['slypen_c', 'slypen_fe'],
     'stamer' => ['stamer'],
     'tippawan' => ['tippawan'],
@@ -274,6 +278,13 @@ if ($group eq "mckeown_2") {
     @dp = qw( p );  
     $bins = 4;
 };
+if ($group eq "mckshort") {
+    @p = qw( pim pip );  
+    @Tgt = qw( C Al Ni );
+    @nrg = ( 100, 160, 220 );
+    @dp = qw( p );  
+    $bins = 4;
+};
 if ($group eq "meier") {
     @p = qw( p );  
     @Tgt = qw( C Fe O Pb );
@@ -309,20 +320,6 @@ if ($group eq "roy") {
     @dp = qw( p );  
     $bins = 4;
 };
-if ($group eq "shibata_p") {
-    @p = qw( p );
-    @Tgt = qw( Cu );
-    @nrg = ( 747.063, 1732 );
-    @dp = qw( p );
-    $bins = 4;
-}
-if ($group eq "shibata_pip") {
-    @p = qw( pip );
-    @Tgt = qw( Cu );
-    @nrg = ( 1267.37, 2364.32 );
-    @dp = qw( p );
-    $bins = 4;
-}
 if ($group eq "slypen_c") {
     @p = qw( n );  
     @Tgt = qw( C );
@@ -377,7 +374,8 @@ foreach $tgt (@Tgt) {
     };
 };
 };
-};
+}
+
 
 ###############################################################################################################################################################
 ###############################################################################################################################################################
@@ -397,7 +395,7 @@ if ($type eq 'nrg') {
     'franz' => ['franz'],
     'hautala' => ['hautala'],
     'hayashi' => ['hayashi'],
-    'ingram' => ['ingram_114', 'ingram_240'],
+    'ingram' => ['ingram_114','ingram_162', 'ingram_240'],
     'iwamoto' => ['iwamoto_870', 'iwamoto_2100'],
     'kin' => ['kin_300', 'kin_392'],
     'kormanyos' => ['kormanyos'],
@@ -408,7 +406,9 @@ if ($type eq 'nrg') {
     'otsu' => ['otsu_392', 'otsu_400'],
     'ouyang' => ['ouyang'],
     'roy' => ['roy', 'roy_ta'],
-    'shibata' => ['shibata_p', 'shibata_pip'],
+    'shibata' => [ 'shibata1', 'shibata2', 'shibata3', 'shibata4', 'shibata5', 'shibata6', 'shibata7', 'shibata8', 'shibata9' ],
+    'shibata_p' => [ 'shibata2', 'shibata3', 'shibata6', 'shibata7', 'shibata8', 'shibata9' ],
+    'shibata_pi' => [ 'shibata1' , 'shibata4', 'shibata5' ],
     'slypen' => ['slypen_c', 'slypen_c_62.7', 'slypen_fe'],
     'stamer' => ['stamer'],
     'tippawan' => ['tippawan'],
@@ -550,22 +550,32 @@ if ($group eq "hayashi") {
 };
 if ($group eq "ingram_114") {
     @p = qw( pip );  
-    @Tgt = qw( H2O );
+    @Tgt = qw( O );
     @nrg = ( 114 );
     @dp = qw( pip );
-    @ang = ( 50, 80 );
-    @cthmin = ( .54, .074 );
-    @cthmax = ( .74, .274 );  
+    @ang = ( 30, 50, 80, 110 );
+    @cthmin = ( .766, .543, .074, -.442 );
+    @cthmax = ( .966, .743, .274, -.222 );  
+    $bins = 2;
+};
+if ($group eq "ingram_162") {
+    @p = qw( pip );  
+    @Tgt = qw( O );
+    @nrg = ( 162 );
+    @dp = qw( pip );
+    @ang = ( 30, 50, 80, 110, 134 );
+    @cthmin = ( .766, .543, .074, -.442, -.845 );
+    @cthmax = ( .966, .743, .274, -.222, -.545 );  
     $bins = 2;
 };
 if ($group eq "ingram_240") {
     @p = qw( pip );  
-    @Tgt = qw( H2O );
+    @Tgt = qw( O );
     @nrg = ( 240 );
     @dp = qw( pip );
-    @ang = ( 60, 130 );
-    @cthmin = ( .35, -.79 );
-    @cthmax = ( .65, -.49 ); 
+    @ang = ( 35, 60, 85, 110, 130 );
+    @cthmin = ( .669, .35, -.063, -.492, -.793 );
+    @cthmax = ( .969, .65, .237, -.192, -.493 ); 
     $bins = 2;
 };
 if ($group eq "iwamoto_870") {
@@ -708,6 +718,16 @@ if ($group eq "mckeown") {
     @cthmax = ( .926, .767, .060, -.440, -.806);  
     $bins = 4;
 };
+if ($group eq "mckshort") {
+    @p = qw( pim pip );  
+    @Tgt = qw( Al C Ni );
+    @nrg = ( 100, 160, 220 );
+    @dp = qw( p );
+    @ang = ( 30, 45, 90, 120, 150 );
+    @cthmin = ( .806, .647, -.060, -.560, -.926 );
+    @cthmax = ( .926, .767, .060, -.440, -.806);  
+    $bins = 4;
+};
 if ($group eq "meier") {
     @p = qw( p );  
     @Tgt = qw( C Fe O Pb );
@@ -778,26 +798,135 @@ if ($group eq "roy_ta") {
     @cthmax = ( .5, .087, -.423, -.906 ); 
     $bins = 4;
 };
-if ($group eq "shibata_p") {
+
+#####################################################################################################
+
+########################
+
+## MORE SHIBATA EDITS:
+
+#Temporary workspace.
+
+###########################################################################
+
+## New Code ##########################
+
+###############################
+
+## Red line group:
+if ($group eq "shibata1") {
+    @p = qw( pip );
+    @Tgt = qw( C Cu Pb );
+    @nrg = ( 3862.86 );
+    @dp = qw( p );
+    @ang = ( 30, 45, 60, 75, 90, 120 );
+    @cthmin = ( 0.819 , 0.643 , 0.423, 0.174, -0.087 , -0.574 );
+    @cthmax = ( 0.906 , 0.766 , 0.574, 0.342, 0.087, -0.423 );
+    $bins = 4;
+};
+
+## Yellow line group:
+if ($group eq "shibata2") {
+    @p = qw( p );
+    @Tgt = qw( C Cu Pb );
+    @nrg = ( 3170.3 );
+    @dp = qw( p );
+    @ang = ( 30, 45, 60, 75, 90, 120 );
+    @cthmin = ( 0.819 , 0.643 , 0.423, 0.174, -0.087 , -0.574 );
+    @cthmax = ( 0.906 , 0.766 , 0.574, 0.342, 0.087, -0.423 );
+    $bins = 4;
+};
+
+## Blue line group:
+if ($group eq "shibata3") {
     @p = qw( p );
     @Tgt = qw( Cu );
-    @nrg = ( 747.063, 1732 );
+    @nrg = ( 1732.0 , 747.063 );
     @dp = qw( p );
     @ang = ( 30, 45, 60, 75, 90, 120 );
-    @cthmin = ( .819, .643, .423, .174, -.087, -.574);
-    @cthmax = ( .906, .766, .574, .342, .087, -.423);
+    @cthmin = ( 0.819 , 0.643 , 0.423, 0.174, -0.087 , -0.574 );
+    @cthmax = ( 0.906 , 0.766 , 0.574, 0.342, 0.087, -0.423 );
     $bins = 4;
-}
-if ($group eq "shibata_pip") {
+};
+
+## Violet line group:
+if ($group eq "shibata4") {
     @p = qw( pip );
     @Tgt = qw( Cu );
-    @nrg = ( 1267.37, 2364.32 );
+    @nrg = ( 2364.32 , 1267.37 );
     @dp = qw( p );
     @ang = ( 30, 45, 60, 75, 90, 120 );
-    @cthmin = ( .819, .643, .423, .174, -.087, -.574);
-    @cthmax = ( .906, .766, .574, .342, .087, -.423);
+    @cthmin = ( 0.819 , 0.643 , 0.423, 0.174, -0.087 , -0.574 );
+    @cthmax = ( 0.906 , 0.766 , 0.574, 0.342, 0.087, -0.423 );
     $bins = 4;
-}
+};
+
+## Red dash group:
+if ($group eq "shibata5") {
+    @p = qw( pip );
+    @Tgt = qw( Cu );
+    @nrg = ( 2863.67 );
+    @dp = qw( n  );
+    @ang = ( 60 );
+    @cthmin = ( 0.423 );
+    @cthmax = ( 0.574 );
+    $bins = 4;
+};
+
+## Yello dash group:
+if ($group eq "shibata6") {
+    @p = qw( p );
+    @Tgt = qw( Al C Cu );  ##Removed Ag
+    @nrg = ( 11098.4 );
+    @dp = qw( pip  );
+    @ang = ( 90 );
+    @cthmin = ( -0.087 );
+    @cthmax = ( 0.087 );
+    $bins = 4;
+};
+
+## Blue dash group:
+if ($group eq "shibata7") {
+    @p = qw( p );
+    @Tgt = qw( Al C Cu );
+    @nrg = ( 11098.4 );
+    @dp = qw( pim  );
+    @ang = ( 90 );
+    @cthmin = ( -0.087 );
+    @cthmax = ( 0.087 );
+    $bins = 4;
+};
+
+## Violet dash group:
+if ($group eq "shibata8") {
+    @p = qw( p );
+    @Tgt = qw( Ag Al Cu Ta );
+    @nrg = ( 11098.4 );
+    @dp = qw( p  );
+    @ang = ( 90 );
+    @cthmin = ( -0.087 );
+    @cthmax = ( 0.087 );
+    $bins = 4;
+};
+
+## Black dash group:
+if ($group eq "shibata9") {
+    @p = qw( p );
+    @Tgt = qw( Cu );
+    @nrg = ( 2205.03 );
+    @dp = qw( n  );
+    @ang = ( 60 );
+    @cthmin = ( 0.423 );
+    @cthmax = ( 0.574 );
+    $bins = 4;
+};
+
+#############################################################################################
+
+
+
+
+
 if ($group eq "slypen_c") {
     @p = qw( n );  
     @Tgt = qw( C );
@@ -915,7 +1044,8 @@ if ($defaults eq 'yes') {
 	    if ($subtype eq 'total') {@authors = qw(abfalterer)};
 	    if ($subtype eq 'reac') {@authors = qw(schimmerling voss)};   
 	};
-    };
+    }
+
     if ($probe eq 'pip') {
 	if ($tgt eq 'al') {
 	    if ($subtype eq 'reac') {
@@ -1046,11 +1176,17 @@ sub check_input {
         'levenson' => '2',
         'mcgill' => '1',
         'mckeown' => '2',
+        'mckshort' => '2',
         'meier' => '1',
         'otsu' => '1',
         'ouyang' => '1',
         'roy' => '1',
         'shibata' => '1',
+
+        'shibata_p' => '1',
+        'shibata_pi' => '1',
+
+
         'slypen' => '1',
         'stamer' => '1',
         'tippawan' => '1',
@@ -1102,6 +1238,9 @@ sub check_input {
 ## Subroutine to set defaults ##
 
 sub set_defaults {
+    if ($modes[0]) {$modes[0] = lc($modes[0]);}
+    if ($modes[1]) {$modes[1] = lc($modes[1]);}
+    if ($modes[2]) {$modes[2] = lc($modes[2]);}
     if ($st) {$st = lc($st)};
     %st_hash = ('r' => 'reac', 'reac' => 'reac', 'reaction' => 'reac', 'rxn' => 'reac', 't' => 'total', 'tot' => 'total', 'total' => 'total', 'cex' => 'cex', 'elas' => 'elas', 'el' => 'elas', 'inel' => 'inelas', 'inelas' => 'inelas', 
 		'abs' => 'abs', 'ko' => 'ko', 'knockout' => 'ko', 'k-o' => 'ko', 'pipro' => 'pipro'); 
@@ -1117,9 +1256,18 @@ sub set_defaults {
     if ($datadir) {$datadir =~ s|/$||};     ## if datadir is defined, remove any trailing slash
     if ($rootdir) {$rootdir =~ s|/$||};     ## if rootdir is defined, remove any trailing slash
     if ($pngdir) {$pngdir =~ s|/$||};       ## if pngdir is defined, remove any trailing slash
-    @mdl = qw( ha ha2014 )  unless defined @mdl;  ## assume both hA and hN models if user does not specify
-    if (defined $vsn[0] != 1) {
+    
+    if (!(@mdl)) {                          ## if user doesn't specify @mdl...
+	if (@modes) {
+	    @mdl = qw( xx );                ## ...but does specify @modes, set @mdl to dummy value
+	} else {
+	    @mdl = qw( ha hn );             ## else assume hA and hN
+	}
+    }
+
+    if (defined $vsn[0] != 1) {              ## is user doesn't specify GENIE version...
 	if ($GENIE =~ m/devel/i) {           ## if $GENIE contains "devel" (regardless of case)
+	    $version = 'DEVEL';
 	    @vsn = ('DEVEL');
 	} elsif (!($GENIE =~ m/\d/)) {       ## if $GENIE contains no digits
 	    @vsn = ('280');
@@ -1129,13 +1277,24 @@ sub set_defaults {
 	    @vsn = ("$v_num");
 	}
     }
-    ## @vsn = ( 280 )      unless defined @vsn;  ## assume GENIE version 2.8.0 if user does not specify
     if ($vsn[0] == 266 || $vsn[1] == 266 || $vsn[2] == 266) {@mdl = qw( hA )};  ## eliminate hN if using v2.6.6
     if (($vsn[1]) && ($dorf[1] eq '')) {$dorf[1] = $dorf[0]};  ## assume date of second group of root files is same as first if user does not specify
     if (($vsn[2]) && ($dorf[2] eq '')) {$dorf[2] = $dorf[0]};  ## assume date of third group of root files is same as first if user does not specify
     $datadir = "data_files" unless defined $datadir;           ## default directory to find data files is present working directory
     $rootdir = "root_files" unless defined $rootdir;           ## default directory to find root files is pwd
     $pngdir = "png_files"   unless defined $pngdir;            ## default directory to put png files is png_files directory within pwd
+
+    print "Output files will be placed in this directory: $pngdir\n";
+    if (!(-e $pngdir)) {
+	print "This directory ($pngdir) does not exist. Building it now.\n";
+	system("mkdir -p $pngdir");
+	if (-e $pngdir) {
+	    print "The directory ($pngdir) has been built.\n";
+	} else {
+	    die("Could not find and could not build target directory ($pngdir).\n");
+	}
+    }
+
     $err_system = 'ni'      unless defined $err_system;        ## default error system (non-interactive)
 };
 
@@ -1178,12 +1337,12 @@ sub set_root_file_name {
     $date = $dorf[$_[0]];
     %mM_hash = ('ha' => 'hA', 'hn' => 'hN', 'ha2014' => 'hA2014', 'hn2014' => 'hN2014');
     $mM = $mM_hash{$m};
-    if ($v eq 'DEVEL') {$vee = '';} else {$vee = 'v';}
+    if ($v eq 'DEVEL' || $v eq 'DB') {$vee = '';} else {$vee = 'v';}
     if ($type eq 'ang' || $type eq 'nrg') {$rootfile = "$a_name$date\_$probe\_$Tgt\_$energy\_$vee$v\_$mM.ginuke.root"};
     if ($type eq 'totxs') {$rootfile = "$a_name$date\_$probe\_$Tgt\_totxs_$vee$v\_$mM.txt"};
     print "root file to be used = $rootfile \n" ;
     $rootfilename = "$rootdir/$rootfile";
-    %version_hash = ('282' => '2.8.2', '280' => '2.8.0', '271' => '2.7.1', '266' => '2.6.6', 'DEVEL' => 'DEVEL', '2.9.0' => '2.9.0');
+    %version_hash = ('282' => '2.8.2', '280' => '2.8.0', '271' => '2.7.1', '266' => '2.6.6', 'DEVEL' => 'DEVEL', 'DB' => 'DB', '290' => '2.9.0');
     if (defined $version_hash{$v}) {
 	$version = $version_hash{$v};
     } else {
@@ -1225,6 +1384,7 @@ sub make_format_file {
 	    print File " $energy MeV $Author $Tgt Data (ang dist)\n";
 	    for my $i (0 .. $#vsn) {
 		$v = $vsn[$i];
+		set_models($i);
 		foreach $m (@mdl) {
 		    set_root_file_name($i);
 		    print File "[GENIE]\n";
@@ -1237,6 +1397,7 @@ sub make_format_file {
 		    %mM_hash = ('ha' => 'hA', 'hn' => 'hN', 'ha2014' => 'hA2014', 'hn2014' => 'hN2014'); $mM = $mM_hash{$m};
 		    print File " GENIE $version $mM results\n";
 		};
+		unset_models();
 	    };
 	    print File "\n\n";
 	};
@@ -1264,6 +1425,7 @@ sub make_format_file {
 	    print File " $energy MeV $Author $Tgt Data ($angle deg)\n";
 	    for my $vsn_index (0 .. $#vsn) {
 		$v = $vsn[$vsn_index];
+		set_models($vsn_index);
 		foreach $m (@mdl) {
 		    set_root_file_name($vsn_index);
 		    print File "[GENIE]\n";
@@ -1275,6 +1437,7 @@ sub make_format_file {
 		    %mM_hash = ('ha' => 'hA', 'hn' => 'hN', 'ha2014' => 'hA2014', 'hn2014' => 'hN2014'); $mM = $mM_hash{$m};
 		    print File " GENIE $version $mM results\n";
 		};
+		unset_models();
 	    };
 	    print File "\n\n";
 	    $i++;
@@ -1306,6 +1469,7 @@ sub make_format_file {
 	};
 	for my $i (0 .. $#vsn) {
 	    $v = $vsn[$i];
+	    set_models($i);
 	    foreach $m (@mdl) {
 		set_root_file_name($i);
 		print File "[GENIE]\n";
@@ -1316,6 +1480,7 @@ sub make_format_file {
 		%mM_hash = ('ha' => 'hA', 'hn' => 'hN', 'ha2014' => 'hA2014', 'hn2014' => 'hN2014'); $mM = $mM_hash{$m};
 		print File " GENIE $version $mM results\n";
 	    };
+	    unset_models();
 	};
     };
 };
@@ -1473,6 +1638,30 @@ sub load_datafile {
     unlink(array_energies);
 };
 
+## Subroutine to set models separately for each version ##
+
+sub set_models {
+    my $iteration = $_[0];
+    if ($modes[0]) {
+	if ($modes[$iteration]) {
+	    @cur_modes = split(',',$modes[$iteration]);
+	} else {
+	    print "No models specified for this version of GENIE. Using same models as first GENIE version specified.\n";
+	    @cur_modes = split(',',$modes[0]);
+	}
+	@mdl = @cur_modes;
+    }
+}
+
+## Temporary subroutine to hack my way around a small problem instead of solving it ##
+
+sub unset_models {
+    if ($modes[0]) {
+	@mdl = qw( xx );
+    }
+}
+    
+
 ## Subroutine for incorrect usage ##
 
 sub error_exit {
@@ -1559,4 +1748,3 @@ sub error_exit {
 sub error_exit_g {
     die("You must set up GENIE before running this script.\n");
 }
-
