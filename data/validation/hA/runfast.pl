@@ -82,9 +82,10 @@ foreach (@ARGV) {
     if ($_ eq '--rm')      { $remove     = $ARGV[$iarg+1]; } ## choose to discard gntp files after they're used
     if ($_ eq '--name')    { $prepend    = $ARGV[$iarg+1]; } ## choose to prepend author's name to ROOT files
     if ($_ eq '--rootdir') { $rootdir    = $ARGV[$iarg+1]; } ## destination directory for ROOT files
-    if ($_ eq '--err')     { $err_system = $ARGV[$iarg+1]; } ## error system ('i' for interactive; defaults to non-interactive)
+    if ($_ eq '--err')     { $err_system = $ARGV[$iarg+1]; } ## input error handling system ('i' for interactive; defaults to non-interactive)
     if ($_ eq '--seed')    { $seed       = $ARGV[$iarg+1]; } ## seed
     if ($_ eq '--el')      { $nrg_list   = $ARGV[$iarg+1]; } ## list of energies
+    if ($_ eq '--dv')      { $devvsn     = $ARGV[$iarg+1]; } ## extra flag to distinguish between DEVEL version w/ or w/o Brian's changes
     $iarg++;
 }
 
@@ -106,6 +107,7 @@ if ($prbpdg[0]) {$prbpdg[0] = $prb_input_hash{$prbpdg[0]}};
 if ($prbpdg[1]) {$prbpdg[1] = $prb_input_hash{$prbpdg[1]}};
 
 %tgt_input_hash = (  ## a hash to allow different input formats for targets
+        'n'   => '1000',    '1000'    => '1000',
         'h'   => '1',    '1'    => '1',
 	'd'   => '1001', '1001' => '1001',  ## i'm just adding 1000 for less common isotopes
         'he'  => '2',    '2'    => '2', 
@@ -126,6 +128,7 @@ if ($prbpdg[1]) {$prbpdg[1] = $prb_input_hash{$prbpdg[1]}};
         'cu'  => '29',   '29'   => '29',
         'zr'  => '40',   '40'   => '40',
 	'nb'  => '41',   '41'   => '41',
+        'ag'  => '47',   '47'   => '47',
 	'sn'  => '50',   '50'   => '50',
         'ta'  => '73',   '73'   => '73',
         'pb'  => '82',   '82'   => '82',
@@ -154,17 +157,16 @@ if ($author) {
     'amian' => '1', 'baker' => '1', 'beck' => '1', 'bertrand' => '1', 'carman' => '1', 'chen' => '1', 'cochran' => '1',
     'franz' => '1', 'hautala' => '1', 'hayashi' => '1', 'ingram' => '1', 'iwamoto' => '1', 'kin' => '1', 'kormanyos' => '1',
     'levenson' => '1', 'mcgill' => '1', 'mckeown' => '1', 'meier' => '1', 'otsu' => '1', 'ouyang' => '1', 'roy' => '1',
-    'shibata' => '1', 'slypen' => '1', 'stamer' => '1', 'tippawan' => '1', 'tyren' => '1', 'zumbro' => '1',
+    'shibata' => '1', 'shibata_p' => '1', 'shibata_pi' => '1', 'slypen' => '1', 'stamer' => '1', 'tippawan' => '1', 'tyren' => '1', 'zumbro' => '1',
     'mckeown1' => '1', 'mckeown2' => '1', 'mckeown3' => '1', 'mckeown4' => '1', 'mckeown5' => '1', 'mckeown6' => '1'
 );
 $valid_author = $author_hash {$author};
 if ($valid_author ne '1' && $author ne '') { error_exit("author. The author you typed was not recognized") };
 if ($msg) { $msg = lc ($msg) };
-if ($m[0] eq '') { @m = qw( hA hA2014 ) };  ## run both hA and hN models if user does not specify
-%mM_hash = ('ha' => 'hA', 'Ha' => 'hA', 'HA' => 'hA', 'hA' => 'hA', 'hn' => 'hN', 'Hn' => 'hN', 'HN' => 'hN', 'hN' => 'hN', 'hA2014' => 'hA2014', 'hN2014' => 'hN2014');
+if ($m[0] eq '') { @m = qw( hA hN ) };  ## run both hA and hN models if user does not specify
+%mM_hash = ('ha' => 'hA', 'Ha' => 'hA', 'HA' => 'hA', 'hA' => 'hA', 'hn' => 'hN', 'Hn' => 'hN', 'HN' => 'hN', 'hN' => 'hN', 'ha2014' => 'hA2014', 'hA2014' => 'hA2014', 'hN2014' => 'hN2014');
 $m[0] = $mM_hash{$m[0]};
 if ($m[1]) {$m[1] = $mM_hash{$m[1]}}; 
-print "model choices are $mM_hash{$m[0]} and $m[1]\n";
 
 if ($author eq '' && $type eq 'root') {
     if ($prbpdg[0] ne '2212' && $prbpdg[0] ne '2112' && $prbpdg[0] ne '211' && $prbpdg[0] ne '-211' && $prbpdg[0] ne '111' && $prbpdg[0] ne '311' &&  $prbpdg[0] ne '-311' && $prbpdg[0] ne '321' &&  $prbpdg[0] ne '-321' 
@@ -213,7 +215,9 @@ if ($type eq 'totxs' || $type eq 'both') {
     'otsu'      => ['otsu'],
     'ouyang'    => ['ouyang'],
     'roy'       => ['roy'],
-    'shibata'   => ['shibata_p', 'shibata_pip'],
+    'shibata'   => ['shibata1', 'shibata2', 'shibata3', 'shibata4', 'shibata5'],
+    'shibata_p' => ['shibata1', 'shibata2', 'shibata3'],
+    'shibata_pi'=> [ 'shibata4', 'shibata5'],
     'slypen'    => ['slypen_c', 'slypen_fe'],
     'stamer'    => ['stamer'],
     'tippawan'  => ['tippawan'],
@@ -257,8 +261,11 @@ foreach $group ( @{$group_hash {$author}} ) {
     'otsu'         => '2212',
     'ouyang'       => '-211',
     'roy'          => '2212',
-    'shibata_p'    => '2212',
-    'shibata_pip'  => '211',
+    'shibata1'     => '2212',
+    'shibata2'     => '2212',
+    'shibata3'     => '2212',
+    'shibata4'     => '211', 
+    'shibata5'     => '211',
     'slypen_c'     => '2112',
     'slypen_fe'    => '2112',
     'stamer'       => '2212',
@@ -290,7 +297,7 @@ if ($prbpdg2_hash{$group} ne '') {$prbpdg[1] = $prbpdg2_hash{$group}};
     'franz'        => '29',
     'hautala'      => '6',
     'hayashi'      => '6',
-    'ingram'       => '1008',
+    'ingram'       => '8',
     'iwamoto_870'  => '26',
     'iwamoto_2100' => '26',
     'kin'          => '6',
@@ -310,8 +317,11 @@ if ($prbpdg2_hash{$group} ne '') {$prbpdg[1] = $prbpdg2_hash{$group}};
     'otsu'         => '6',
     'ouyang'       => '6',
     'roy'          => '2',
-    'shibata_p'    => '29',
-    'shibata_pip'  => '29',
+    'shibata1'     => '47',
+    'shibata2'     => '29',
+    'shibata3'     => '6',
+    'shibata4'     => '6',
+    'shibata5'     => '29',
     'slypen_c'     => '6',
     'slypen_fe'    => '26',
     'stamer'       => '13',
@@ -321,17 +331,20 @@ if ($prbpdg2_hash{$group} ne '') {$prbpdg[1] = $prbpdg2_hash{$group}};
 );
 $tgt[0] = $target1_hash {$group};
 %target2_hash = (                                 ## target 2
-    'amian'    => '4',
-    'beck'     => '82',
-    'cochran'  => '4',
-    'hautala'  => '20',
-    'levenson' => '28',
-    'mcgill'   => '20',    
-    'mckeown'  => '4',
-    'meier'    => '6',
-    'ouyang'   => '83',
-    'roy'      => '28',
-    'stamer'   => '82',
+    'amian'       => '4',
+    'beck'        => '82',
+    'cochran'     => '4',
+    'hautala'     => '20',
+    'levenson'    => '28',
+    'mcgill'      => '20',    
+    'mckeown'     => '4',
+    'meier'       => '6',
+    'ouyang'      => '83',
+    'roy'         => '28',
+    'shibata1'    => '13',
+    'shibata3'    => '82',
+    'shibata4'    => '82',
+    'stamer'      => '82',
 );
 if ($target2_hash{$group} ne '') {$tgt[1] = $target2_hash {$group}};
 %target3_hash = (                                 ## target 3
@@ -341,6 +354,7 @@ if ($target2_hash{$group} ne '') {$tgt[1] = $target2_hash {$group}};
     'mckeown'  => '6',
     'meier'    => '26',
     'roy'      => '73',
+    'shibata1' => '73',
     'stamer'   => '40',    
 );
 if ($target3_hash{$group} ne '') {$tgt[2] = $target3_hash{$group}};
@@ -349,6 +363,7 @@ if ($target3_hash{$group} ne '') {$tgt[2] = $target3_hash{$group}};
     'cochran' => '29',
     'mckeown' => '3',
     'meier'   => '8',
+    'shibata1'=> '6',
 );
 if ($target4_hash{$group} ne '') {$tgt[3] = $target4_hash{$group}};
 %target5_hash = (                                 ## target 5
@@ -394,8 +409,11 @@ if ($target6_hash{$group} ne '') {$tgt[5] = $target6_hash{$group}};
     'otsu'         => '.392',
     'ouyang'       => '.500',
     'roy'          => '.500',
-    'shibata_p'    => '.747063',
-    'shibata_pip'  => '1.26737',
+    'shibata1'     => '11.0984',
+    'shibata2'     => '.747063',
+    'shibata3'     => '3.1703',
+    'shibata4'     => '3.86286',
+    'shibata5'     => '1.26737',
     'slypen_c'     => '.0265',
     'slypen_fe'    => '.0255',
     'stamer'       => '.256',
@@ -419,8 +437,8 @@ $k[0] = $k1_hash {$group};
     'mckeown5'    => '.160',
     'mckeown6'    => '.160',
     'otsu'        => '.400',
-    'shibata_p'   => '1.732',
-    'shibata_pip' => '2.38432',
+    'shibata2'    => '1.732',
+    'shibata5'    => '2.36432',
     'slypen_c'    => '.050',
     'slypen_fe'   => '.049',
     'stamer'      => '.800',
@@ -438,18 +456,23 @@ if ($k2_hash{$group} ne '') {$k[1] = $k2_hash{$group}};
     'mckeown4'   => '.220',
     'mckeown5'   => '.220',
     'mckeown6'   => '.220',
+    'shibata2'   => '3.1703',
+    'shibata5'   => '2.86367',
     'slypen_c'   => '.0627',
     'slypen_fe'  => '.0627',
 );
 if ($k3_hash{$group} ne '') {$k[2] = $k3_hash{$group}};
 %k4_hash = (                                      ## beam energy 4
     'franz'      => '.542',
-    'levenson_c' => '.300', 
+    'levenson_c' => '.300',
+    'shibata2'   => '2.20503',
+    'shibata5'   => '3.86286', 
     'slypen_c'   => '.0728',
 );
 if ($k4_hash{$group} ne '') {$k[3] = $k4_hash{$group}};
 %k5_hash = (                                      ## beam energy 5
     'franz' => '.3174',
+    'shibata2' => '11.0984',
 );
 if ($k5_hash{$group} ne '') {$k[4] = $k5_hash{$group}};
 %k6_hash = (                                      ## beam energy 6
@@ -487,7 +510,11 @@ sub definitions {
 
     ## GENIE VERSION
     if ($GENIE =~ m/devel/i) {           ## if $GENIE contains "devel" (regardless of case)
-	$version = 'DEVEL';
+	if (lc($devvsn) eq 'b') {
+	    $version = 'DB';
+	} else {
+	    $version = 'DEVEL';
+	}
     } elsif (!($GENIE =~ m/\d/)) {       ## if $GENIE contains no digits
 	$version = 'v280';
     } else {
@@ -530,6 +557,7 @@ sub definitions {
 
     ## TARGETS
     %t_hash = (
+        '1000' => '1000000010',
         '1'    => '1000010010',
 	'1001' => '1000010020',
         '2'    => '1000020040',
@@ -549,6 +577,7 @@ sub definitions {
         '28'   => '1000280580',
         '29'   => '1000290630',
         '40'   => '1000400900',
+        '47'   => '1000471070',
 	'41'   => '1000410930',
         '50'   => '1000501200',
         '73'   => '1000731810',
@@ -559,6 +588,7 @@ sub definitions {
 
     ## TARGETS
     %atom_hash = (
+        '1000' => 'n',
         '1'    => 'H',
 	'1001' => 'D',
         '2'    => 'He',
@@ -579,6 +609,7 @@ sub definitions {
         '29'   => 'Cu',
         '40'   => 'Zr',
 	'41'   => 'Nb',
+        '47'   => 'Ag',
 	'50'   => 'Sn',
         '73'   => 'Ta',
         '82'   => 'Pb',
