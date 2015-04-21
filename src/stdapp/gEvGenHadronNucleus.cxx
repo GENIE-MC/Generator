@@ -71,13 +71,13 @@
           University of Pittsburgh
 
 	  Costas Andreopoulos,
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 	  
 \version 1.3
 
 \created May 1, 2007
 
-\cpright Copyright (c) 2003-2010, GENIE Neutrino MC Generator Collaboration
+\cpright Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
          or see $GENIE/LICENSE
 */
@@ -237,6 +237,16 @@ const EventRecordVisitorI * GetIntranuke(void)
   else 
   if(gOptMode.compare("hN")==0) {
      sname = "genie::HNIntranuke"; 
+     sconf = "Default";
+  }
+  else
+  if(gOptMode.compare("hA2014")==0) {
+     sname = "genie::HAIntranuke2014"; 
+     sconf = "Default";
+  }
+  else 
+  if(gOptMode.compare("hN2014")==0) {
+     sname = "genie::HNIntranuke2014"; 
      sconf = "Default";
   }
   else {

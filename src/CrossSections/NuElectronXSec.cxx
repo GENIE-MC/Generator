@@ -1,11 +1,11 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - February 10, 2006
+         University of Liverpool & STFC Rutherford Appleton Lab 
 
  For the class documentation see the corresponding header file.
 
@@ -25,10 +25,8 @@
 #include "Conventions/Units.h"
 #include "Conventions/RefFrame.h"
 #include "CrossSections/NuElectronXSec.h"
-#include "CrossSections/GXSecFunc.h"
 #include "CrossSections/GSLXSecFunc.h"
 #include "Messenger/Messenger.h"
-#include "Numerical/IntegratorI.h"
 #include "Utils/GSLUtils.h"
   
 using namespace genie;
@@ -70,22 +68,12 @@ double NuElectronXSec::Integrate(
   interaction->SetBit(kISkipProcessChk);
   //interaction->SetBit(kISkipKinematicChk);
 
-#ifdef __GENIE_GSL_ENABLED__
   ROOT::Math::IBaseFunctionOneDim * func = 
-     new utils::gsl::wrap::dXSec_dy_E(model, interaction);
+     new utils::gsl::dXSec_dy_E(model, interaction);
   ROOT::Math::IntegrationOneDim::Type ig_type = 
      utils::gsl::Integration1DimTypeFromString(fGSLIntgType);
-  ROOT::Math::Integrator ig(ig_type);
-  ig.SetFunction(*func);
-  ig.SetRelTolerance(fGSLRelTol);
+  ROOT::Math::Integrator ig(*func,ig_type,1,fGSLRelTol,fGSLMaxEval);
   double xsec = ig.Integral(yl.min, yl.max) * (1E-38 * units::cm2);
-
-#else
-  GXSecFunc * func = new Integrand_DXSec_Dy_E(model, interaction);
-  func->SetParam(0,"y",yl);
-  double xsec = fIntegrator->Integrate(*func);
-
-#endif
 
   //LOG("NuEXSec", pDEBUG) << "*** XSec[ve-] (E=" << E << ") = " << xsec;
 
@@ -108,13 +96,10 @@ void NuElectronXSec::Configure(string config)
 //____________________________________________________________________________
 void NuElectronXSec::LoadConfig(void)
 {
-  // Get the specified GENIE integration algorithm
-  fIntegrator = dynamic_cast<const IntegratorI *>(this->SubAlg("Integrator"));
-  assert(fIntegrator);
-
   // Get GSL integration type & relative tolerance
-  fGSLIntgType = fConfig->GetStringDef("gsl-integration-type",  "adaptive");
-  fGSLRelTol   = fConfig->GetDoubleDef("gsl-relative-tolerance", 0.01);
+  fGSLIntgType = fConfig->GetStringDef("gsl-integration-type"  ,   "adaptive");
+  fGSLRelTol   = fConfig->GetDoubleDef("gsl-relative-tolerance",    0.01);
+  fGSLMaxEval  = (unsigned int) fConfig->GetIntDef ("gsl-max-eval", 100000);
 }
 //____________________________________________________________________________
 

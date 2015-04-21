@@ -20,7 +20,7 @@
 #   [--production]     : Production name. Default: <version>
 #   [--cycle]          : Cycle in current production. Default: 01
 #   [--use-valgrind]   : Use Valgrind? Default: off
-#   [--batch-system]   : Batch system: <PBS, LSF, none>. Default: PBS
+#   [--batch-system]   : Batch system: <PBS, LSF, slurm, none>. Default: PBS
 #   [--queue]          : Batch queue. Default: prod
 #   [--softw-topdir]   : Software installation top directory. Default: /opt/ppd/t2k/softw/GENIE
 #
@@ -279,6 +279,21 @@ for my $curr_syst (keys %def_ntwkdials)  {
        close(LSF);
        `qsub < $batch_script`;
     } #LSF
+
+    # slurm case
+    if($batch_system eq 'slurm') {
+       $batch_script  = "$fntemplate.sh";
+       open(SLURM, ">$batch_script") or die("Can not create the SLURM batch script");
+       print SLURM "#!/bin/bash \n";
+       print SLURM "#SBATCH-p $queue \n";
+       print SLURM "#SBATCH-o $fntemplate.lsfout.log \n";
+       print SLURM "#SBATCH-e $fntemplate.lsferr.log \n";
+       print SLURM "source $genie_setup \n"; 
+       print SLURM "cd $jobs_dir \n";
+       print SLURM "$genie_cmd \n";
+       close(SLURM);
+       `sbatch --job-name=syst-$curr_syst $batch_script`;
+    } #slurm
 
     # no batch system, run jobs interactively
     if($batch_system eq 'none') {

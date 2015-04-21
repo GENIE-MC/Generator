@@ -1,0 +1,24 @@
+[RECORD]
+ -1.,1.,0,50
+ Angle
+ p Pb #rightarrow #pi+ X Tp = 730 MeV
+ cochran-p-pb-730-pip-angdist-280vs266-ha-May_22_13
+ 10
+[EXPERIMENTAL]
+ cochran-p-pb-730-pip-angdist.dat
+ xsec:TMath::Cos(cth*.01745):err1
+ 730 MeV Cochran Pb Data (ang dist)
+[GENIE]
+ May_22_13_p_Pb_730_v280_hA.ginuke.root
+ cth
+ pdgh==211
+ 1
+ GENIE 2.8.0 hA results
+[GENIE]
+ Jul_10_13_p_Pb_730_v266_hA.ginuke.root
+ cth
+ pdgh==211
+ 1
+ GENIE 2.6.6 hA results
+
+

@@ -1,0 +1,8 @@
+#Angular distribution for proton -> p on Ca (Hautala) at 197 MeV
+#PhysRevC.65.034612
+#ang  sig        err
+#deg  mb/sr      mb/sr
+13.   9.510e+01  2.748e+00
+24.   7.041e+01  1.804e+00
+37.   7.283e+01  1.866e+00
+48.   4.124e+01  1.147e+00

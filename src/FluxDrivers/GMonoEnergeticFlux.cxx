@@ -1,11 +1,11 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - July 04, 2005
+         University of Liverpool & STFC Rutherford Appleton Lab - July 04, 2005
 
  For the class documentation see the corresponding header file.
 
@@ -36,18 +36,25 @@
 #include "PDG/PDGCodeList.h"
 #include "Utils/PrintUtils.h"
 
+#include "FluxDrivers/GFluxDriverFactory.h"
+FLUXDRIVERREG4(genie,flux,GMonoEnergeticFlux,genie::flux::GMonoEnergeticFlux)
+
 using namespace genie;
 using namespace genie::constants;
 using namespace genie::flux;
 
 //____________________________________________________________________________
+GMonoEnergeticFlux::GMonoEnergeticFlux() :
+GFluxI()
+{
+  // default ctor for consistency with GFluxDriverFactory needs
+  // up to user to call Initialize() to set energy and flavor(s)
+}
+//____________________________________________________________________________
 GMonoEnergeticFlux::GMonoEnergeticFlux(double Ev, int pdg) :
 GFluxI()
 {
-  map<int,double> numap;
-  numap.insert( map<int, double>::value_type(pdg, 1.) );
-
-  this->Initialize(Ev,numap);
+  this->Initialize(Ev,pdg);
 }
 //___________________________________________________________________________
 GMonoEnergeticFlux::GMonoEnergeticFlux(
@@ -101,6 +108,14 @@ void GMonoEnergeticFlux::GenerateWeighted(bool gen_weighted)
   LOG("Flux", pERROR) <<
       "No GenerateWeighted(bool gen_weighted) method implemented for " <<
       "gen_weighted: " << gen_weighted;
+}
+//___________________________________________________________________________
+void GMonoEnergeticFlux::Initialize(double Ev, int pdg) 
+{
+  map<int,double> numap;
+  numap.insert( map<int, double>::value_type(pdg, 1.) );
+
+  this->Initialize(Ev,numap);
 }
 //___________________________________________________________________________
 void GMonoEnergeticFlux::Initialize(double Ev, const map<int,double> & numap) 

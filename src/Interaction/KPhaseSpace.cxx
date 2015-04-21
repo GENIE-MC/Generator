@@ -1,11 +1,11 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - May 03, 2004
+         University of Liverpool & STFC Rutherford Appleton Lab - May 03, 2004
 
  For the class documentation see the corresponding header file.
 
@@ -83,6 +83,18 @@ double KPhaseSpace::Threshold(void) const
   const Target &       tgt        = init_state.Tgt();
 
   double ml = fInteraction->FSPrimLepton()->Mass();
+
+  if (pi.IsSingleKaon()) {
+    int kaon_pdgc = xcls.StrangeHadronPdg();
+    double Mi   = tgt.HitNucP4Ptr()->M(); // initial nucleon mass
+    // Final nucleon can be different for K0 interaction
+    double Mf = (xcls.NProtons()==1) ? kProtonMass : kNeutronMass;  
+    double mk   = PDGLibrary::Instance()->Find(kaon_pdgc)->Mass();
+    double ml   = PDGLibrary::Instance()->Find(fInteraction->FSPrimLeptonPdg())->Mass();
+    double mtot = ml + mk + Mf; // total mass of FS particles
+    double Ethresh = (mtot*mtot - Mi*Mi)/(2. * Mf);
+    return Ethresh;
+  }
 
   if (pi.IsCoherent()) {
     int tgtpdgc = tgt.Pdg(); // nuclear target PDG code (10LZZZAAAI)
@@ -208,6 +220,7 @@ bool KPhaseSpace::IsAboveThreshold(void) const
      pi.IsResonant()         || 
      pi.IsDeepInelastic()    || 
      pi.IsDiffractive()      || 
+     pi.IsSingleKaon()       ||
      pi.IsAMNuGamma()) 
   {
       E = init_state.ProbeE(kRfHitNucRest);
@@ -221,6 +234,13 @@ bool KPhaseSpace::IsAllowed(void) const
 {
   const ProcessInfo & pi   = fInteraction->ProcInfo();
   const Kinematics &  kine = fInteraction->Kine();
+
+  // ASK single kaon:
+  // XSec code returns zero when kinematics are not allowed
+  // Here just let kinematics always be allowed
+  if(pi.IsSingleKaon()) {
+    return true;
+  }
 
   // QEL: 
   //  Check the running Q2 vs the Q2 limits

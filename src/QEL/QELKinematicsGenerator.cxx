@@ -1,11 +1,11 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory
+         University of Liverpool & STFC Rutherford Appleton Lab
 
  For the class documentation see the corresponding header file.
 
@@ -195,10 +195,12 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         // The hadronic inv. mass is equal to the recoil nucleon on-shell mass.
         // For QEL/Charm events it is set to be equal to the on-shell mass of
         // the generated charm baryon (Lamda_c+, Sigma_c+ or Sigma_c++)
+        // Similarly for strange baryons
         //
         const XclsTag & xcls = interaction->ExclTag();
         int rpdgc = 0;
         if(xcls.IsCharmEvent()) { rpdgc = xcls.CharmHadronPdg();           }
+        else if(xcls.IsStrangeEvent()) { rpdgc = xcls.StrangeHadronPdg();           }
         else                    { rpdgc = interaction->RecoilNucleonPdg(); }
         assert(rpdgc);
         double gW = PDGLibrary::Instance()->Find(rpdgc)->Mass();

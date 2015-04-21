@@ -49,7 +49,7 @@
   gSystem->Load("libGCharm.so");
   gSystem->Load("libGElas.so");
   gSystem->Load("libGGiBUU.so");
-  gSystem->Load("libGReinSeghal.so");
+  gSystem->Load("libGReinSehgal.so");
   gSystem->Load("libGQPM.so");
   gSystem->Load("libGBodekYang.so");
   gSystem->Load("libGEVGModules.so");

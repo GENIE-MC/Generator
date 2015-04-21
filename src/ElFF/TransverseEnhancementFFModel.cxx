@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -117,8 +117,6 @@ void TransverseEnhancementFFModel::Configure(string config)
 //____________________________________________________________________________
 void TransverseEnhancementFFModel::LoadConfig(void)
 {
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
   LoadAllIsotopesForKey("MagFF_RT_A", "TransverseEnhancementFFModel", fConfig,
                         &fNucMagFF_RT_A);
   LoadAllNucARangesForKey("MagFF_RT_A", "TransverseEnhancementFFModel", fConfig,

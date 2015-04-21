@@ -61,18 +61,18 @@
          Example:
 
             % gvld_e_res_xsec 
-                  --resonance-xsec-model genie::ReinSeghalRESPXSec/Default
+                  --resonance-xsec-model genie::ReinSehgalRESPXSec/Default
                   -c genie::QPMDISPXSec/Default
          This is the default, so the plain command
             % gvld_e_res_xsec
          will do same thing
 
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory
+         University of Liverpool & STFC Rutherford Appleton Lab
 
 \created Oct 16, 2009 
 
-\cpright Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
+\cpright Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
          or see $GENIE/LICENSE
 */
@@ -204,7 +204,7 @@ const double kWcut = 1.7; // Wcut from UserPhysicsOptions.xml
 
 string gOptDataArchiveFilename = "";  // -d argument
 string gOptDataSetsFilename    = "";  // -s argument
-string gOptRESModelName        = "genie::ReinSeghalRESPXSec/Default";  // --resonance-xsec-model argument
+string gOptRESModelName        = "genie::ReinSehgalRESPXSec/Default";  // --resonance-xsec-model argument
 string gOptDISModelName        = "genie::QPMDISPXSec/Default";  // --non-resonance-bkg-xsec-model argument
 string gOptFitParams           = "";  // --fit-params argument
 double gOptW2min               = 1.0; // --fit-W2min argument

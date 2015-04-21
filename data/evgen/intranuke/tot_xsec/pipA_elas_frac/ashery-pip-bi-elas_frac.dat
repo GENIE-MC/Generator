@@ -1,0 +1,9 @@
+# 1st column is KE, 2nd column is fraction of total cross section
+# 
+# KE elas_frac
+85  .290
+125  .348
+165  .378
+205  .409
+245  .415
+315  .443

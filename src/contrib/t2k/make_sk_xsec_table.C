@@ -8,14 +8,14 @@
 \usage   % genie 'make_sk_xsec_table.C("/some/path/genie_t2k_splines.xml")'
 
 \author  Costas Andreopoulos <costas.andreopoulos@stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory
+         University of Liverpool & STFC Rutherford Appleton Lab
 
          Ryan Terri <r.terri \at qmul.ac.uk>>
          Queen Mary, University of London
 
 \created Nov 24, 2008
 
-\cpright Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
+\cpright Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
          or see $GENIE/LICENSE
 */

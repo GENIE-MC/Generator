@@ -1,11 +1,11 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - October 03, 2004
+         University of Liverpool & STFC Rutherford Appleton Lab - October 03, 2004
 
  For the class documentation see the corresponding header file.
 
@@ -65,8 +65,9 @@ void QELHadronicSystemGenerator::AddRecoilBaryon(GHepRecord * evrec) const
   Interaction * interaction = evrec->Summary();
   const XclsTag & xcls = interaction->ExclTag();
   int pdgc = 0;
-  if(xcls.IsCharmEvent()) { pdgc = xcls.CharmHadronPdg();           }
-  else                    { pdgc = interaction->RecoilNucleonPdg(); }
+  if     (xcls.IsCharmEvent())   { pdgc = xcls.CharmHadronPdg();           }
+  else if(xcls.IsStrangeEvent()) { pdgc = xcls.StrangeHadronPdg();         }
+  else                           { pdgc = interaction->RecoilNucleonPdg(); }
   assert(pdgc!=0);
 
   //-- Determine the status code
@@ -89,8 +90,9 @@ void QELHadronicSystemGenerator::AddRecoilBaryon(GHepRecord * evrec) const
       << "Adding recoil baryon [pdgc = " << pdgc << "]";
 
   GHepParticle p(pdgc, ist, mom,-1,-1,-1, p4, vtx);
-  double w = xcls.IsCharmEvent() ? 
-                0. : evrec->Particle(mom)->RemovalEnergy();
+  double w = ( xcls.IsCharmEvent() || xcls.IsStrangeEvent()) ? 
+                  0. : evrec->Particle(mom)->RemovalEnergy();
+
   p.SetRemovalEnergy(w);
   evrec->AddParticle(p);
 }

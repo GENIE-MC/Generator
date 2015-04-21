@@ -7,11 +7,11 @@
           A set of utility functions to handle PDG codes is provided in PDGUtils
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  May 06, 2004
 
-\cpright  Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
+\cpright  Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE 
 */
@@ -180,7 +180,7 @@ const int kPdgCoulobtron   = 2000000102; // coulomb energy subtracted from f/s l
 const int kPdgClusterNN    = 2000000200; // a nn cluster within a nucleus
 const int kPdgClusterNP    = 2000000201; // a np cluster within a nucleus
 const int kPdgClusterPP    = 2000000202; // a pp cluster within a nucleus
-const int kPdgDecayNuclCluster    = 2000000300; // nucleon cluster before phase decay 
+const int kPdgCompNuclCluster    = 2000000300; // nucleon cluster before phase decay 
 
 // PDG codes for PYTHIA/JETSET special particles
 const int kPdgCluster      = 91; 

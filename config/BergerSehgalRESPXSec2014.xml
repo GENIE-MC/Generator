@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for the Berger-Rein-Sehgal RES excitation d^xsec / dQ^2 dW xsec algorithm
+
+Configurable Parameters:
+......................................................................................................................................
+Name                        Type    Optional   Comment                                                    Default
+......................................................................................................................................
+Zeta                        double  Yes   FKR's Z parameter                                               GPL: RS-Zeta
+Omega                       double  Yes   FKR's Omega parameter                                           GPL: RS-Omega
+Ma                          double  Yes   RES axial mass                                                  GPL: RES-Max
+Mv                          double  Yes   RES vector mass                                                 GPL: RES-Mv
+BreitWeignerWeight          bool    Yes   Weight xsec with breit-wigner?                                  true
+UseNuTauScalingFactors      bool    Yes   Load/Use NEUGEN reduction factor splines for nutaus             true
+UseDRJoinScheme             bool    Yes   Use DIS/RES joining scheme?                                     GPL: UseDRJoinScheme
+Wcut                        double  Yes   Param used in DIS/RES joining                                   GPL: Wcut
+MaxNWidthForN2Res           double  Yes   x in limiting allowed W phase space for n=2 res according to    2.0
+                                          W < min{ Wmin(physical), MassRes + x * WidthRes }
+MaxNWidthForN0Res           double  Yes   As above for n=0 resonances                                     4.0
+MaxNWidthForGNres           double  Yes   As above for the remaining resonances                           6.0
+XSec-Integrator             alg
+-->
+
+  <param_set name="Default"> 
+     <param type="alg"  name="XSec-Integrator">  genie::ReinSehgalRESXSec/Default    </param>
+  </param_set>
+
+</alg_conf>
+
+

@@ -1,4 +1,4 @@
-# -*-mode: Makefile-*-
+#
 # Make.include for GENIE Object-Oriented Neutrino Generator
 #
 # Costas Andreopoulos (Rutherford Lab.) <costas.andreopoulos \at stfc.ac.uk>
@@ -47,7 +47,7 @@ GENIE_BIN_INSTALLATION_PATH     := $(GENIE_INSTALLATION_PATH)/bin
 GENIE_INCBASE_INSTALLATION_PATH := $(GENIE_INSTALLATION_PATH)/include
 GENIE_INC_INSTALLATION_PATH     := $(GENIE_INCBASE_INSTALLATION_PATH)/GENIE
 
-# GENIE & NuValidator header files base dir
+# GENIE header files base dir
 #
 GENIE_INCLUDES := -I$(GENIE)/src/
 
@@ -224,7 +224,7 @@ endif
 # ROOT headers and libraries
 ROOT_INCLUDES  = -I$(shell root-config --incdir)
 ROOT_LIBRARIES = $(shell root-config --glibs) \
-                        -lMinuit -lGeom -lEG -lEGPythia6
+                        -lMinuit -lGeom -lEG -lEGPythia6 -lGenVector
 
 #-------------------------------------------------------------------
 #                   PROFILING / DEBUGING OPTIONS
@@ -256,7 +256,7 @@ endif
 #-------------------------------------------------------------------
 #                       Some global variables
 #-------------------------------------------------------------------
-MAKE   := gmake
+MAKE   := make
 RM      = rm -f
 MKDIR   = mkdir -p
 CAT     = cat
@@ -362,7 +362,7 @@ CXXFLAGS      = -Wall -fPIC \
 ifeq ($(strip $(GCC_GE_4_1_0)), YES) 
   CXXFLAGS += -Wno-strict-aliasing -ffriend-injection
 endif
-LDFLAGS       = -g -Wl,--no-as-needed
+LDFLAGS       = -g -Wl,--no-as-needed -Wl,--no-undefined
 SOFLAGS       = -shared
 DllSuf       := so
 DllLinkSuf   := 
@@ -389,7 +389,7 @@ CXXFLAGS      = -Wall -fPIC \
 ifeq ($(strip $(GCC_GE_4_1_0)), YES) 
   CXXFLAGS += -Wno-strict-aliasing -ffriend-injection
 endif
-LDFLAGS       = -g -Wl,--no-as-needed
+LDFLAGS       = -g -Wl,--no-as-needed -Wl,--no-undefined
 SOFLAGS       = -shared
 DllSuf       := so
 DllLinkSuf   := 
@@ -430,7 +430,7 @@ LIBRARIES := $(SYSLIBS) \
 # Default compiler and preprocessor flags
 
 CXXFLAGS := $(ENV_CXXFLAGS) $(CXXFLAGS)
-CPPFLAGS  = $(INCLUDES) -MMD -MP
+CPPFLAGS  = $(INCLUDES)
 CFLAGS    = -g
 
 #-------------------------------------------------------------------
@@ -445,31 +445,31 @@ CFLAGS    = -g
 #.cxx.o:
 #	$(CXX) -c -o $@ $(CXXFLAGS) $(CPPFLAGS) $<
 
-%.o : %.cc
+.cc.o:
 	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) $<
 
-%.o : %.cxx
+.cxx.o:
 	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) $<
 
-%.o : %.C
+.C.o:
 	$(CXX) -c -o $@ $(CXXFLAGS) $(CPPFLAGS) $<
 
-%.o : %.c
+.c.o:
 	$(CC) -c -o $@ $(CXXFLAGS) $(CPPFLAGS) $<
 
-%.o : %.F
+.F.o :
 	$(FORT) $(FORTOPTS) -o $@ $<
 
-%.o : %.f
+.f.o :
 	$(FORT) $(FORTOPTS) -o $@ $<
 
-%.a : %.F
+.F.a :
 	$(FORT) $(FORTOPTS) -o $*.o $<
 	$(AR) $(ARFLAGS) $@ $*.o
 	$(RANLIB) $@
 	$(RM) $*.o
 
-%.a : %.f
+.f.a :
 	$(FORT) $(FORTOPTS) -o $*.o $<
 	$(AR) $(ARFLAGS) $@ $*.o
 	$(RANLIB) $@

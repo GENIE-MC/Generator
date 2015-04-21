@@ -107,11 +107,11 @@
                 The output file is named myfile.gtrac.root
 
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory
+         University of Liverpool & STFC Rutherford Appleton Lab
 
 \created September 23, 2005
 
-\cpright Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
+\cpright Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
          or see $GENIE/LICENSE
 */
@@ -135,7 +135,8 @@
 #include <TBits.h>
 #include <TObjString.h>
 #include <TMath.h>
-
+#include "BaryonResonance/BaryonResonance.h"
+#include "BaryonResonance/BaryonResUtils.h"
 #include "Conventions/GBuild.h"
 #include "Conventions/Constants.h"
 #include "Conventions/Units.h"
@@ -312,6 +313,7 @@ void ConvertToGST(void)
   bool   brIsMec       = false;  // Is MEC?
   bool   brIsDfr       = false;  // Is Diffractive?
   bool   brIsImd       = false;  // Is IMD?
+  bool   brIsSingleK   = false;  // Is single kaon?  
   bool   brIsImdAnh    = false;  // Is IMD annihilation?
   bool   brIsNuEL      = false;  // Is ve elastic?
   bool   brIsEM        = false;  // Is EM process?
@@ -420,6 +422,7 @@ void ConvertToGST(void)
   s_tree->Branch("dfr",           &brIsDfr,         "dfr/O"	    );
   s_tree->Branch("imd",	          &brIsImd,	    "imd/O"	    );
   s_tree->Branch("imdanh",        &brIsImdAnh,	    "imdanh/O"	    );
+  s_tree->Branch("singlek",       &brIsSingleK,     "singlek/O"     );  
   s_tree->Branch("nuel",          &brIsNuEL,        "nuel/O"	    );
   s_tree->Branch("em",	          &brIsEM,	    "em/O"	    );
   s_tree->Branch("cc",	          &brIsCC,	    "cc/O"	    );
@@ -603,6 +606,7 @@ void ConvertToGST(void)
     bool is_dfr    = proc_info.IsDiffractive();
     bool is_imd    = proc_info.IsInverseMuDecay();
     bool is_imdanh = proc_info.IsIMDAnnihilation();
+    bool is_singlek = proc_info.IsSingleKaon();    
     bool is_nuel   = proc_info.IsNuElectronElastic();
     bool is_em     = proc_info.IsEM();
     bool is_weakcc = proc_info.IsWeakCC();
@@ -617,7 +621,7 @@ void ConvertToGST(void)
 
     // Resonance id ($GENIE/src/BaryonResonance/BaryonResonance.h) -
     // set only for resonance neutrinoproduction
-    int resid = (is_res) ? xcls.Resonance() : -99;
+    int resid = (is_res) ? EResonance(xcls.Resonance()) : -99;
 
     // (qel or dis) charm production?
     bool charm = xcls.IsCharmEvent();
@@ -683,7 +687,7 @@ void ConvertToGST(void)
     // Extract more info on the hadronic system
     // Only for QEL/RES/DIS/COH/MEC events
     //
-    bool study_hadsyst = (is_qel || is_res || is_dis || is_coh || is_mec);
+    bool study_hadsyst = (is_qel || is_res || is_dis || is_coh || is_mec || is_singlek);    
     
     //
     TObjArrayIter piter(&event);
@@ -799,7 +803,8 @@ void ConvertToGST(void)
     brIsDis      = is_dis;  
     brIsCoh      = is_coh;  
     brIsDfr      = is_dfr;  
-    brIsImd      = is_imd;  
+    brIsImd      = is_imd;
+    brIsSingleK  = is_singlek;    
     brIsNuEL     = is_nuel;  
     brIsEM       = is_em;  
     brIsMec      = is_mec;

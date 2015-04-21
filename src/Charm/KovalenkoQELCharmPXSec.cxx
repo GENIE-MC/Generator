@@ -1,11 +1,11 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - June 10, 2004
+         University of Liverpool & STFC Rutherford Appleton Lab 
 
  For the class documentation see the corresponding header file.
 
@@ -23,6 +23,7 @@
 //____________________________________________________________________________
 
 #include <TMath.h>
+#include <Math/Integrator.h>
 
 #include "Algorithm/AlgConfigPool.h"
 #include "Base/XSecIntegratorI.h"
@@ -33,13 +34,14 @@
 #include "Conventions/RefFrame.h"
 #include "Conventions/Units.h"
 #include "Messenger/Messenger.h"
-#include "Numerical/IntegratorI.h"
+/////#include "Numerical/IntegratorI.h"
 #include "PDF/PDF.h"
 #include "PDF/PDFModelI.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
 #include "PDG/PDGLibrary.h"
 #include "Utils/KineUtils.h"
+#include "Utils/GSLUtils.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -154,11 +156,11 @@ double KovalenkoQELCharmPXSec::DR(const Interaction * interaction) const
 {
   const InitialState & init_state = interaction -> InitState();
 
-  //----- compute PDFs
+  // Compute PDFs
   PDF pdfs;
   pdfs.SetModel(fPDFModel);   // <-- attach algorithm
 
-  //----- compute integration area = [xi_bar_plus, xi_bar_minus]
+  // Compute integration area = [xi_bar_plus, xi_bar_minus]
   const Kinematics & kinematics = interaction->Kine();
 
   double Q2     = kinematics.Q2();
@@ -171,21 +173,29 @@ double KovalenkoQELCharmPXSec::DR(const Interaction * interaction) const
   double vR_plus   = ( TMath::Power(MR+DeltaR,2) - Mnuc2 + Q2 ) / (2*Mnuc);
 
   LOG("QELCharmXSec", pDEBUG)
-            << "vR = [plus: " << vR_plus << ", minus: " << vR_minus << "]";
+    << "vR = [plus: " << vR_plus << ", minus: " << vR_minus << "]";
 
   double xi_bar_minus  = 0.999;
   double xi_bar_plus  = this->xiBar(Q2, Mnuc, vR_plus);
 
-  LOG("QELCharmXSec", pDEBUG) << "Integration limits = ["
-                             << xi_bar_plus << ", " << xi_bar_minus << "]";
+  LOG("QELCharmXSec", pDEBUG) 
+    << "Integration limits = [" << xi_bar_plus << ", " << xi_bar_minus << "]";
 
   int pdgc = init_state.Tgt().HitNucPdg();
 
-  KovQELCharmIntegrand * func = new KovQELCharmIntegrand(&pdfs,Q2,pdgc);
-  func->SetParam(0,"xi_bar",xi_bar_plus, xi_bar_minus);
-  double D = fIntegrator->Integrate(*func);
+  ROOT::Math::IBaseFunctionOneDim * integrand = new 
+          utils::gsl::wrap::KovQELCharmIntegrand(&pdfs,Q2,pdgc);
+  ROOT::Math::IntegrationOneDim::Type ig_type = 
+          utils::gsl::Integration1DimTypeFromString("adaptive");
+  
+  double abstol   = 1;    // We mostly care about relative tolerance
+  double reltol   = 1E-4; 
+  int    nmaxeval = 100000;
+  ROOT::Math::Integrator ig(*integrand,ig_type,abstol,reltol,nmaxeval);
+  double D = ig.Integral(xi_bar_plus, xi_bar_minus);
 
-  delete func;
+  delete integrand;
+
   return D;
 }
 //____________________________________________________________________________
@@ -305,7 +315,7 @@ void KovalenkoQELCharmPXSec::Configure(string param_set)
 void KovalenkoQELCharmPXSec::LoadConfig(void)
 {
   fPDFModel   = 0;
-  fIntegrator = 0;
+  ///fIntegrator = 0;
   /*
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();
@@ -329,43 +339,48 @@ void KovalenkoQELCharmPXSec::LoadConfig(void)
   assert(fXSecIntegrator);
 
   // load numerical integrator for integrand in diff x-section calc.
-  fIntegrator = dynamic_cast<const IntegratorI *>(this->SubAlg("Integrator"));
-  assert(fIntegrator);
+//  fIntegrator = dynamic_cast<const IntegratorI *>(this->SubAlg("Integrator"));
+//  assert(fIntegrator);
 }
 //____________________________________________________________________________
 // Auxiliary scalar function for internal integration
 //____________________________________________________________________________
-KovQELCharmIntegrand::KovQELCharmIntegrand(
+utils::gsl::wrap::KovQELCharmIntegrand::KovQELCharmIntegrand(
            PDF * pdf, double Q2, int nucleon_pdgc) :
-GSFunc(1)
+ROOT::Math::IBaseFunctionOneDim()
 {
   fPDF  = pdf;
-  fQ2   = Q2;
+  fQ2   = TMath::Max(0.3, Q2);
   fPdgC = nucleon_pdgc;
-
-  fQ2 = TMath::Max(0.3, fQ2);
 }
 //____________________________________________________________________________
-KovQELCharmIntegrand::~KovQELCharmIntegrand()
+utils::gsl::wrap::KovQELCharmIntegrand::~KovQELCharmIntegrand()
 {
 
 }
 //____________________________________________________________________________
-double KovQELCharmIntegrand::operator() (const vector<double> & param)
+unsigned int utils::gsl::wrap::KovQELCharmIntegrand::NDim(void) const
 {
-  double t = param[0];
+  return 1;
+}
+//____________________________________________________________________________
+double utils::gsl::wrap::KovQELCharmIntegrand::DoEval(double xin) const
+{
+  if(xin<0 || xin>1) return 0.;
+
+  fPDF->Calculate(xin, fQ2);
   bool isP = pdg::IsProton(fPdgC);
-
-  if(t<0 || t>1) return 0.;
-  fPDF->Calculate(t, fQ2);
-
   double f = (isP) ? fPDF->DownValence() : fPDF->UpValence();
 
   LOG("QELCharmXSec", pDEBUG) 
-        << "f(t = " << t << ", Q2 = " << fQ2 << ") = " << f; 
+        << "f(xin = " << xin << ", Q2 = " << fQ2 << ") = " << f; 
 
   return f;
 }
 //____________________________________________________________________________
-
-
+ROOT::Math::IBaseFunctionOneDim * 
+  utils::gsl::wrap::KovQELCharmIntegrand::Clone(void) const
+{
+  return new utils::gsl::wrap::KovQELCharmIntegrand(fPDF, fQ2, fPdgC);
+}
+//____________________________________________________________________________

@@ -1,11 +1,11 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory
+         University of Liverpool & STFC Rutherford Appleton Lab
 
  Adapted from neugen 3.
  Primary authors: D.Naples (Pittsburgh U.), H.Gallagher (Tufts U), CA
@@ -19,6 +19,10 @@
    lN->l'X mode to lq->l'q' mode more transparant
  @ Oct 09, 2009 - CA
    Renamed to QPMDISStrucFuncBase from DISStructureFuncModel.
+ @ Aug 12, 2014 - HG 
+   Fix a problem identified by Brian Tice (Minerva)
+   The nuclear modification to the pdf should be calculated in terms 
+   of the experimental x, not the rescaled x.  The same goes for R(x,Q2).
 */
 //____________________________________________________________________________
 
@@ -27,6 +31,7 @@
 #include "Algorithm/AlgConfigPool.h"
 #include "Conventions/GBuild.h"
 #include "Conventions/Constants.h"
+#include "Conventions/RefFrame.h"
 #include "Messenger/Messenger.h"
 #include "PartonModel/QPMDISStrucFuncBase.h"
 #include "PDF/PDFModelI.h"
@@ -427,10 +432,20 @@ double QPMDISStrucFuncBase::NuclMod(const Interaction * interaction) const
   double f = 1.;
   if(fIncludeNuclMod) {
      const Target & tgt  = interaction->InitState().Tgt();
-     double x = this->ScalingVar(interaction);
-     int    A = tgt.A();
+
+//   The x used for computing the DIS Nuclear correction factor should be the 
+//   experimental x, not the rescaled x or off-shell-rest-frame version of x 
+//   (i.e. selected x).  Since we do not have access to experimental x at this 
+//   point in the calculation, just use selected x. 
+     const Kinematics & kine  = interaction->Kine();
+     double x  = kine.x();
+     int    A = tgt.A(); 
      f = utils::nuclear::DISNuclFactor(x,A);
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+     LOG("DISSF", pDEBUG) << "Nuclear factor for x of " << x << "  = " << f; 
+#endif
   }
+
   return f;
 }
 //____________________________________________________________________________
@@ -439,8 +454,14 @@ double QPMDISStrucFuncBase::R(const Interaction * interaction) const
 // Computes R ( ~ longitudinal structure function FL = R * 2xF1)
 // The scaling variable can be overwritten to include corrections
 
+//   The x used for computing the DIS Nuclear correction factor should be the 
+//   experimental x, not the rescaled x or off-shell-rest-frame version of x 
+//   (i.e. selected x).  Since we do not have access to experimental x at this 
+//   point in the calculation, just use selected x. 
   if(fIncludeR) {
-    double x  = this->ScalingVar(interaction);
+    const Kinematics & kine  = interaction->Kine();
+    double x  = kine.x();
+//    double x  = this->ScalingVar(interaction);
     double Q2 = this->Q2(interaction);
     double R = utils::phys::RWhitlow(x, Q2);
     return R;

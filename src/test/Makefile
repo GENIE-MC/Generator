@@ -34,7 +34,6 @@ TGT =	gtestAlgorithms 	 \
 	gtestHadronization	 \
 	gtestINukeHadroData      \
 	gtestMessenger		 \
-	gtestNumerical		 \
 	gtestNaturalIsotopes	 \
 	gtestPDFLIB		 \
 	gtestPREM		 \
@@ -149,10 +148,6 @@ else
 	@echo "You need to enable the MuELoss package to build the gtestMuELoss program"
 endif
 
-gtestNumerical: FORCE
-	$(CXX) $(CXXFLAGS) -c gtestNumerical.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) gtestNumerical.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestNumerical
-
 gtestNaturalIsotopes: FORCE
 	$(CXX) $(CXXFLAGS) -c gtestNaturalIsotopes.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) gtestNaturalIsotopes.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestNaturalIsotopes
@@ -220,7 +215,6 @@ clean: FORCE
 	$(RM) $(GENIE_BIN_PATH)/gtestHadronization	
 	$(RM) $(GENIE_BIN_PATH)/gtestINukeHadroData	
 	$(RM) $(GENIE_BIN_PATH)/gtestMessenger		
-	$(RM) $(GENIE_BIN_PATH)/gtestNumerical		
 	$(RM) $(GENIE_BIN_PATH)/gtestNaturalIsotopes	
 	$(RM) $(GENIE_BIN_PATH)/gtestPDFLIB		
 	$(RM) $(GENIE_BIN_PATH)/gtestPREM		
@@ -255,7 +249,6 @@ distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestHadronization	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestINukeHadroData
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestMessenger		
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestNumerical		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestNaturalIsotopes		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestPDFLIB		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestPREM		

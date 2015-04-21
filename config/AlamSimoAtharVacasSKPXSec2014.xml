@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for the Alam Simo Athar single kaon differential cross section model
+-->
+
+  <param_set name="Default"> 
+      <param type="alg" name="XSec-Integrator"> genie::AlamSimoAtharVacasSKXSec/Default </param>
+  </param_set>
+
+</alg_conf>
+
+

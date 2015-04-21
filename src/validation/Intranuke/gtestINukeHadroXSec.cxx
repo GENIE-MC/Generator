@@ -16,7 +16,7 @@
 
 \created July 26, 2010
 
-\cpright Copyright (c) 2003-2010, GENIE Neutrino MC Generator Collaboration
+\cpright Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
          All rights reserved.
          For the licensing terms see $GENIE/USER_LICENSE.
 */
@@ -613,6 +613,10 @@ void GetCommandLineArgs(int argc, char ** argv)
     PrintSyntax();
     gAbortingInErr = true;
     exit(1);
+  }
+  if( parser.OptionExists('o') ) {
+    LOG("gtestINukeHadroXSec", pINFO) << "Reading output filename";
+    gOptOutputFilename = parser.ArgAsString('o');
   }
 
   // write-out events?

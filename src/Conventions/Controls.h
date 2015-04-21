@@ -6,11 +6,11 @@
 \brief     Misc GENIE control constants
 
 \author    Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-           STFC, Rutherford Appleton Laboratory
+           University of Liverpool & STFC Rutherford Appleton Lab
 
 \created   May 03, 2004
 
-\cpright   Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
+\cpright   Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
            For the full text of the license visit http://copyright.genie-mc.org
            or see $GENIE/LICENSE
 */
@@ -40,9 +40,9 @@ static const unsigned int kDefaultRandSeed = 65539;
 static const double kASmallNum      = 1E-6;  
 static const double kMinQ2Limit     = 1E-4;  // GeV^2
 static const double kMinQ2Limit_VLE = 1E-10; // GeV^2
-static const double kMinX           = 1E-4;
+static const double kMinX           = 1E-5;
 static const double kMaxX           = 1.-kASmallNum;
-static const double kMinY           = 1E-4;
+static const double kMinY           = 1E-5;
 static const double kMaxY           = 1.-kASmallNum;
 
 // KNO Hadronization model control parameters

@@ -2,7 +2,7 @@
 rootgINukeVal.C
 genie Intranuke Data Analysis
 Author Andrew Seel March 2011
-Improvements by Juan Manfredi summer, 2012
+updated Juan Manfredi July 2012
 
 This program simplifies the production of graphs of energy/angle v. cross section for both GENIE generated events and published cross section data. This ROOT script is an upgrade to gINukeVal (circa 2008) that changes the format file format in order to allow for the graphing of N data files.
 
@@ -41,6 +41,7 @@ FORMAT OVERVIEW:  (All white-space is ignored, each line is its own field, excep
   cols
   legend title
   cut                   <- Normally uneccessary. Needed for XS filetypes
+[GEANT]
   
 */
 
@@ -115,6 +116,7 @@ DataFile::DataFile(string dtype,string ddir, string ddname, string dtitle, strin
   cut = dcut;
   dcth = ddcth;
   color = dcolor;
+  if (color>=5) {color++;}
   isValid = GetData();
 }
 
@@ -629,7 +631,30 @@ int rootgINukeVal(char* fFile, char* dataDir = ".", char* ROOTDir = ".",char* sa
     cans->cd();
     TPad* curP = gPad;
     int numFiles = format.numOfType("EXPERIMENTAL");
-   
+
+    /*
+    int j = 0;
+    
+    for(j=0;j<3;j++){
+      DataFile* experimental = format.makeDataFile(0,dDir,"EXPERIMENTAL");
+      TGraphErrors* data1;
+      if(format.type.compare("XS")==0){
+        experimental->dataTuple->Draw(experimental->cut.c_str(),"","goff");
+        data1 = new TGraphErrors(experimental->dataTuple->GetSelectedRows(),experimental->dataTuple->GetV1(), experimental->dataTuple->GetV2(),experimental->dataTuple->GetV3(),experimental->dataTuple->GetV4());
+      }
+      else{
+        experimental->dataTree->Draw(experimental->cols.c_str(),"","goff");
+        data1 = new TGraphErrors(experimental->dataTree->GetSelectedRows(),experimental->dataTree->GetV2(), experimental->dataTree->GetV1(),0,experimental->dataTree->GetV3());
+      }
+      //data1->SetLineStyle(0);
+      data1->SetMarkerColor(experimental->color);
+      data1->SetMarkerStyle(markerStyle);
+      markerStyle++;
+      leg1->AddEntry(data1,experimental->title.c_str(),"P");
+      data1->Draw("p same");
+    }
+    */
+    
     for(j=0;j<numFiles;j++){
       DataFile* experimental = format.makeDataFile(j,dDir,"EXPERIMENTAL");
       TGraphErrors* data1;
@@ -644,7 +669,6 @@ int rootgINukeVal(char* fFile, char* dataDir = ".", char* ROOTDir = ".",char* sa
       data1->SetLineStyle(3);
       data1->SetMarkerColor(experimental->color);
       data1->SetMarkerStyle(markerStyle);
-      data1->SetMarkerSize(1.5);
       markerStyle++;
       leg1->AddEntry(data1,experimental->title.c_str(),"P");
       data1->Draw("p same");

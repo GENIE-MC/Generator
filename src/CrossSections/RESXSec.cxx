@@ -1,11 +1,11 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory 
+         University of Liverpool & STFC Rutherford Appleton Lab 
 
  For the class documentation see the corresponding header file.
 
@@ -25,10 +25,8 @@
 #include "Conventions/Units.h"
 #include "Conventions/KineVar.h"
 #include "CrossSections/RESXSec.h"
-#include "CrossSections/GXSecFunc.h"
 #include "CrossSections/GSLXSecFunc.h"
 #include "Messenger/Messenger.h"
-#include "Numerical/IntegratorI.h"
 #include "PDG/PDGUtils.h"
 #include "Utils/MathUtils.h"
 #include "Utils/KineUtils.h"
@@ -72,26 +70,28 @@ double RESXSec::Integrate(
   interaction->SetBit(kISkipProcessChk);
   //interaction->SetBit(kISkipKinematicChk);
 
-#ifdef __GENIE_GSL_ENABLED__
   ROOT::Math::IBaseFunctionMultiDim * func = 
-      new utils::gsl::wrap::d2XSec_dWdQ2_E(model, interaction);
+      new utils::gsl::d2XSec_dWdQ2_E(model, interaction);
+  
   ROOT::Math::IntegrationMultiDim::Type ig_type = 
       utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
-  ROOT::Math::IntegratorMultiDim ig(ig_type);
-  ig.SetRelTolerance(fGSLRelTol);
-  ig.SetFunction(*func);
+  double abstol = 1E-16; //We mostly care about relative tolerance.
+  
+  ROOT::Math::IntegratorMultiDim ig(*func, ig_type, abstol, fGSLRelTol, fGSLMaxEval);
+
   double kine_min[2] = { Wl.min, Q2l.min };
   double kine_max[2] = { Wl.max, Q2l.max };
   double xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2);
-           
-#else
-  GXSecFunc * func = new Integrand_D2XSec_DWDQ2_E(model, interaction);
-  func->SetParam(0,"W",  Wl);
-  func->SetParam(1,"Q2", Q2l);
-  double xsec = fIntegrator->Integrate(*func);
 
-#endif
+  LOG("RESXSec", pERROR)  << "Integrator opt / Integrator = " <<  ig.Options().Integrator();
 
+  if(xsec < 0) {
+    LOG("RESXSec", pERROR)  << "Algorithm " << *model << " returns a negative cross-section (xsec = " << xsec << " 1E-38 * cm2)";
+    LOG("RESXSec", pERROR)  << "for process" << *interaction;
+    LOG("RESXSec", pERROR)  << "Integrator status code = " << ig.Status();
+    LOG("RESXSec", pERROR)  << "Integrator error code = " << ig.Error();
+  }
+         
   //LOG("RESXSec", pINFO)  << "XSec[RES] (Ev = " << Ev << " GeV) = " << xsec;
 
   delete interaction;
@@ -113,13 +113,10 @@ void RESXSec::Configure(string config)
 //____________________________________________________________________________
 void RESXSec::LoadConfig(void)
 {
-  // Get the specified GENIE integration algorithm
-  fIntegrator = 
-       dynamic_cast<const IntegratorI *> (this->SubAlg("Integrator"));
-  assert(fIntegrator);
-
   // Get GSL integration type & relative tolerance
-  fGSLIntgType = fConfig->GetStringDef("gsl-integration-type",  "adaptive");
-  fGSLRelTol   = fConfig->GetDoubleDef("gsl-relative-tolerance", 0.01);
+  fGSLIntgType = fConfig->GetStringDef("gsl-integration-type"  ,  "adaptive");
+  fGSLRelTol   = fConfig->GetDoubleDef("gsl-relative-tolerance",   1E-2);
+  fGSLMaxEval  = (unsigned int) fConfig->GetIntDef("gsl-max-eval", 500000);
+  fGSLMinEval  = (unsigned int) fConfig->GetIntDef("gsl-min-eval", 5000);
 }
 //____________________________________________________________________________

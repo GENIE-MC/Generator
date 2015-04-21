@@ -6,11 +6,11 @@
 \brief    GENIE's GHEP MC event record.
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  October 1, 2004
 
-\cpright  Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
+\cpright  Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
@@ -116,10 +116,10 @@ public :
 
   // Methods to set/get the event weight and cross sections
 
-  virtual double           Weight        (void) const  { return fWeight;       }
-  virtual double           Probability   (void) const  { return fProb;         }
-  virtual double           XSec          (void) const  { return fXSec;         }
-  virtual double           DiffXSec      (void) const  { return fDiffXSec;     }
+  virtual double Weight         (void) const  { return fWeight;   }
+  virtual double Probability    (void) const  { return fProb;     }
+  virtual double XSec           (void) const  { return fXSec;     }
+  virtual double DiffXSec       (void) const  { return fDiffXSec; }
   virtual KinePhaseSpace_t DiffXSecVars  (void) const  { return fDiffXSecPhSp; }
 
   virtual void   SetWeight      (double wght) { fWeight   = (wght>0) ? wght : 0.; }

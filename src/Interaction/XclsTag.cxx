@@ -1,11 +1,11 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - December 08, 2004
+         University of Liverpool & STFC Rutherford Appleton Lab - December 08, 2004
 
  For the class documentation see the corresponding header file.
 
@@ -77,6 +77,23 @@ void XclsTag::UnsetCharm(void)
   fCharmedHadronPdg = 0;
 }
 //___________________________________________________________________________
+bool XclsTag::IsInclusiveStrange(void) const
+{
+  return ( this->IsStrangeEvent() && (this->StrangeHadronPdg() == 0) );
+}
+//___________________________________________________________________________
+void XclsTag::SetStrange(int strange_pdgc)
+{
+  fIsStrangeEvent     = true;
+  fStrangeHadronPdg   = strange_pdgc; // leave as 0 (default) for inclusive strange
+}
+//___________________________________________________________________________
+void XclsTag::UnsetStrange(void)
+{
+  fIsStrangeEvent     = false;
+  fStrangeHadronPdg   = 0;
+}
+//___________________________________________________________________________
 void XclsTag::SetNPions(int npi_plus, int npi_0, int npi_minus)
 {
   fNPiPlus  = npi_plus;
@@ -117,6 +134,8 @@ void XclsTag::Reset(void)
 {
   fIsCharmEvent     = false;
   fCharmedHadronPdg = 0;
+  fIsStrangeEvent   = false; 
+  fStrangeHadronPdg = 0;
   fNProtons         = 0;
   fNNeutrons        = 0;
   fNPi0             = 0;
@@ -130,6 +149,8 @@ void XclsTag::Copy(const XclsTag & xcls)
 {
   fIsCharmEvent     = xcls.fIsCharmEvent;
   fCharmedHadronPdg = xcls.fCharmedHadronPdg;
+  fIsStrangeEvent   = xcls.fIsStrangeEvent;
+  fStrangeHadronPdg = xcls.fStrangeHadronPdg;
   fNProtons         = xcls.fNProtons;
   fNNeutrons        = xcls.fNNeutrons;
   fNPi0             = xcls.fNPi0;
@@ -166,6 +187,13 @@ string XclsTag::AsString(void) const
   if(fIsCharmEvent) {
     tag << "charm:";
     if(fCharmedHadronPdg) tag << fCharmedHadronPdg;
+    else tag << "incl";
+    need_separator = true;
+  }
+
+  if(fIsStrangeEvent) {
+    tag << "strange:";
+    if(fStrangeHadronPdg) tag << fStrangeHadronPdg;
     else tag << "incl";
     need_separator = true;
   }
@@ -208,6 +236,20 @@ void XclsTag::Print(ostream & stream) const
            stream << " (" << chadr->GetName() << ")";
      }
   }
+
+  stream << " |--> strange prod.  : "
+         << utils::print::BoolAsString(fIsStrangeEvent);
+  if(fIsStrangeEvent) {
+     if(!fStrangeHadronPdg) stream << " [inclusive]";
+     else  {
+       stream << " - Strange hadron PDG-code = " << fStrangeHadronPdg;
+
+       TParticlePDG * chadr = PDGLibrary::Instance()->Find( fStrangeHadronPdg );
+       if(chadr)
+           stream << " (" << chadr->GetName() << ")";
+     }
+  }
+
   stream << endl;
 
   stream << " |--> f/s nucleons :"

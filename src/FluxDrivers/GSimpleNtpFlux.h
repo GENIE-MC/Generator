@@ -10,7 +10,7 @@
 
 \created  Jan 25, 2010
 
-\cpright  Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
+\cpright  Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
@@ -29,6 +29,8 @@
 #include <TLorentzRotation.h>
 
 #include "EVGDrivers/GFluxI.h"
+#include "FluxDrivers/GFluxExposureI.h"
+#include "FluxDrivers/GFluxFileConfigI.h"
 #include "PDG/PDGUtils.h"
 
 class TFile;
@@ -181,7 +183,9 @@ namespace flux  {
 /// ==========
 /// An implementation of the GFluxI interface that provides NuMI flux
 ///
-class GSimpleNtpFlux: public GFluxI {
+class GSimpleNtpFlux : public GFluxI, 
+    public GFluxExposureI, public GFluxFileConfigI
+{
 
 public :
   GSimpleNtpFlux();
@@ -230,37 +234,45 @@ public :
   //
   // information about the current state
   //
+  virtual double    GetTotalExposure() const;  ///< GFluxExposureI interface
+  virtual long int  NFluxNeutrinos() const;    ///< # of rays generated
+
   double    UsedPOTs(void) const;       ///< # of protons-on-target used
-  long int  NFluxNeutrinos(void) const { return fNNeutrinos; } ///< number of flux neutrinos looped so far
+
+  long int  NEntriesUsed(void) const { return fNEntriesUsed; } ///< number of entries read from files
   double    SumWeight(void) const { return fSumWeight;  } ///< integrated weight for flux neutrinos looped so far
 
   void      PrintCurrent(void);         ///< print current entry from leaves
   void      PrintConfig();              ///< print the current configuration
 
   std::vector<std::string> GetFileList();  ///< list of files currently part of chain
+
+  // 
+  // GFluxFileConfigI interface
+  //
+  virtual void  LoadBeamSimData(const std::vector<string>& filenames,
+                                const std::string&         det_loc);
+  using GFluxFileConfigI::LoadBeamSimData; // inherit the rest
+  virtual void  GetBranchInfo(std::vector<std::string>& branchNames,
+                              std::vector<std::string>& branchClassNames,
+                              std::vector<void**>&      branchObjPointers);
+  virtual TTree* GetMetaDataTree();
+
   //
   // configuration of GSimpleNtpFlux
   //
 
-  void      LoadBeamSimData(std::vector<string> filenames, string det_loc);     ///< load root flux ntuple files and config
-  void      LoadBeamSimData(std::set<string>    filenames, string det_loc);     ///< load root flux ntuple files and config
-  void      LoadBeamSimData(string filename, string det_loc);     ///< older (obsolete) single file version
-
   void      SetRequestedBranchList(string blist="entry,numi,aux") { fNuFluxBranchRequest = blist; }
 
-  void      SetFluxParticles(const PDGCodeList & particles);      ///< specify list of flux neutrino species
   void      SetMaxEnergy(double Ev);                              ///< specify maximum flx neutrino energy
 
   void      SetGenWeighted(bool genwgt=false) { fGenWeighted = genwgt; } ///< toggle whether GenerateNext() returns weight=1 flux (initial default false)
 
-  void      SetNumOfCycles(long int ncycle);                      ///< set how many times to cycle through the ntuple (default: 1 / n=0 means 'infinite')
   void      SetEntryReuse(long int nuse=1);                       ///<  # of times to use entry before moving to next
 
   void      ProcessMeta(void);  ///< scan for max flux energy, weight
 
   void      GetFluxWindow(TVector3& p1, TVector3& p2, TVector3& p3) const; ///< 3 points define a plane in beam coordinate 
-
-  void      SetUpstreamZ(double z0);                           ///< set flux neutrino initial z position (upstream of the detector) pushed back from the flux window
 
 private:
 
@@ -279,7 +291,6 @@ private:
   // Private data members
   //
   double         fMaxEv;          ///< maximum energy
-  PDGCodeList *  fPdgCList;       ///< list of neutrino pdg-codes
   PDGCodeList *  fPdgCListRej;    ///< list of neutrino pdg-codes seen but rejected
   bool           fEnd;            ///< end condition reached
 
@@ -305,6 +316,7 @@ private:
 
   double    fSumWeight;           ///< sum of weights for nus thrown so far
   long int  fNNeutrinos;          ///< number of flux neutrinos thrown so far
+  long int  fNEntriesUsed;        ///< number of entries read from files
   double    fEffPOTsPerNu;        ///< what a entry is worth ...
   double    fAccumPOTs;           ///< POTs used so far
 
@@ -321,6 +333,11 @@ private:
   TLorentzVector   fP4;        ///< reconstituted p4 vector
   TLorentzVector   fX4;        ///< reconstituted position vector
   GSimpleNtpMeta*  fCurMeta;   ///< current meta data 
+
+  GSimpleNtpEntry* fCurEntryCopy;  ///< current entry
+  GSimpleNtpNuMI*  fCurNuMICopy;   ///< current "numi" branch extra info
+  GSimpleNtpAux*   fCurAuxCopy;    ///< current "aux" branch extra info
+
 };
 
 } // flux namespace

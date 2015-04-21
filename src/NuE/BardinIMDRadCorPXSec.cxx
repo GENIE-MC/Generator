@@ -1,11 +1,11 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - February 14, 2005
+         University of Liverpool & STFC Rutherford Appleton Lab
 
  For the class documentation see the corresponding header file.
 
@@ -15,6 +15,7 @@
 //____________________________________________________________________________
 
 #include <TMath.h>
+#include <Math/Integrator.h>
 
 #include "Base/XSecIntegratorI.h"
 #include "Conventions/GBuild.h"
@@ -22,8 +23,9 @@
 #include "Conventions/RefFrame.h"
 #include "NuE/BardinIMDRadCorPXSec.h"
 #include "Messenger/Messenger.h"
-#include "Numerical/IntegratorI.h"
+//#include "Numerical/IntegratorI.h"
 #include "Utils/KineUtils.h"
+#include "Utils/GSLUtils.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -84,17 +86,17 @@ double BardinIMDRadCorPXSec::XSec(
      << "dxsec[1-loop]/dy (Ev = " << E << ", y = " << y << ") = " << xsec;
 #endif
 
-  //----- The algorithm computes dxsec/dy
-  //      Check whether variable tranformation is needed
+  // The algorithm computes dxsec/dy
+  // Check whether variable tranformation is needed
   if(kps!=kPSyfE) {
     double J = utils::kinematics::Jacobian(interaction,kPSyfE,kps);
     xsec *= J;
   }
 
-  //----- If requested return the free electron xsec even for nuclear target
+  // If requested return the free electron xsec even for nuclear target
   if( interaction->TestBit(kIAssumeFreeElectron) ) return xsec;
 
-  //----- Scale for the number of scattering centers at the target
+  // Scale for the number of scattering centers at the target
   int Ne = init_state.Tgt().Z(); // num of scattering centers
   xsec *= Ne; 
 
@@ -110,7 +112,6 @@ double BardinIMDRadCorPXSec::Integral(const Interaction * interaction) const
 bool BardinIMDRadCorPXSec::ValidProcess(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipProcessChk)) return true;
-
   return true;
 }
 //____________________________________________________________________________
@@ -164,23 +165,31 @@ double BardinIMDRadCorPXSec::P(int i, double r, double y) const
 double BardinIMDRadCorPXSec::Li2(double z) const
 {
   double epsilon = 1e-2;
-  Range1D_t t(epsilon, 1.0 - epsilon);
+  double tmin = epsilon;
+  double tmax = 1. - epsilon;
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("BardinIMD", pDEBUG)
-    << "Summing BardinIMDRadCorIntegrand in [" << t.min<< ", " << t.max<< "]";
+    << "Summing BardinIMDRadCorIntegrand in [" << tmin<< ", " << tmax<< "]";
 #endif
 
-  BardinIMDRadCorIntegrand * func = new BardinIMDRadCorIntegrand(z);
-  func->SetParam(0,"t",t);
+  ROOT::Math::IBaseFunctionOneDim * integrand = new
+          utils::gsl::wrap::BardinIMDRadCorIntegrand(z);
+  ROOT::Math::IntegrationOneDim::Type ig_type =
+          utils::gsl::Integration1DimTypeFromString("adaptive");
 
-  double li2 = fIntegrator->Integrate(*func);
+  double abstol   = 1;    // We mostly care about relative tolerance
+  double reltol   = 1E-4;
+  int    nmaxeval = 100000;
+  ROOT::Math::Integrator ig(*integrand,ig_type,abstol,reltol,nmaxeval);
+  double li2 = ig.Integral(tmin, tmax);
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("BardinIMD", pDEBUG) << "Li2(z = " << z << ")" << li2;
 #endif
 
-  delete func;
+  delete integrand;
+
   return li2;
 }
 //____________________________________________________________________________
@@ -263,9 +272,9 @@ void BardinIMDRadCorPXSec::Configure(string param_set)
 //____________________________________________________________________________
 void BardinIMDRadCorPXSec::LoadConfig(void)
 {
-  fIntegrator = 
-      dynamic_cast<const IntegratorI *> (this->SubAlg("Integrator"));
-  assert(fIntegrator);
+  ////fIntegrator = 
+////      dynamic_cast<const IntegratorI *> (this->SubAlg("Integrator"));
+/////  assert(fIntegrator);
 
   fXSecIntegrator =
       dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));
@@ -274,25 +283,34 @@ void BardinIMDRadCorPXSec::LoadConfig(void)
 //____________________________________________________________________________
 // Auxiliary scalar function for internal integration
 //____________________________________________________________________________
-BardinIMDRadCorIntegrand::BardinIMDRadCorIntegrand(double z) :
-GSFunc(1)
+utils::gsl::wrap::BardinIMDRadCorIntegrand::BardinIMDRadCorIntegrand(double z):
+ROOT::Math::IBaseFunctionOneDim()
 {
   fZ = z;
 }
 //____________________________________________________________________________
-BardinIMDRadCorIntegrand::~BardinIMDRadCorIntegrand()
+utils::gsl::wrap::BardinIMDRadCorIntegrand::~BardinIMDRadCorIntegrand()
 {
 
 }
 //____________________________________________________________________________
-double BardinIMDRadCorIntegrand::operator() (const vector<double> & param)
+unsigned int utils::gsl::wrap::BardinIMDRadCorIntegrand::NDim(void) const
+{    
+  return 1;
+} 
+//____________________________________________________________________________
+double utils::gsl::wrap::BardinIMDRadCorIntegrand::DoEval(double xin) const
 {
-  double t = param[0];
-  if(t==0) return 0.;
-
-  if(t*fZ>=1.) return 0.;
-  double f = TMath::Log(1.-fZ*t)/t;
+  if(xin<=0) return 0.;
+  if(xin*fZ >= 1.) return 0.;
+  double f = TMath::Log(1.-fZ*xin)/xin;
   return f;
+}
+//____________________________________________________________________________
+ROOT::Math::IBaseFunctionOneDim *
+  utils::gsl::wrap::BardinIMDRadCorIntegrand::Clone(void) const
+{
+  return new utils::gsl::wrap::BardinIMDRadCorIntegrand(fZ);
 }
 //____________________________________________________________________________
 

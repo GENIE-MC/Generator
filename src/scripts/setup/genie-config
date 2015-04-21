@@ -20,7 +20,7 @@ libs="-L$libdir -lGAlgorithm -lGBaryonResonance -lGBase -lGBodekYang -lGCharm -l
  -lGCrossSections -lGDecay -lGElas -lGElFF -lGHEP -lGEVGCore -lGEVGModules -lGEVGDrivers -lGGiBUU \
  -lGHadronTransp -lGFragmentation -lGInteraction -lGLlewellynSmith -lGMEC \
  -lGMessenger -lGNuGamma -lGNuE -lGNtuple -lGNuclear -lGNumerical -lGQPM -lGPDG -lGPDF\
- -lGQEL -lGRES -lGRegistry -lGReinSeghal -lGUtils"
+ -lGQEL -lGRES -lGRegistry -lGReinSehgal -lGSingleKaon -lGUtils -lGVHE"
 
 # the following libs should only be there if an appropriate option was enabled at the configuration step
 if test "$GOPT_ENABLE_GEOM_DRIVERS" = "YES"; then
@@ -32,9 +32,6 @@ fi
 if test "$GOPT_ENABLE_VLE_EXTENSION" = "YES"; then
   libs="$libs -lGVLE"
 fi
-if test "$GOPT_ENABLE_VHE_EXTENSION" = "YES"; then
-  libs="$libs -lGVHE"
-fi
 if test "$GOPT_ENABLE_MUELOSS" = "YES"; then
   libs="$libs -lGMuELoss"
 fi
@@ -45,18 +42,9 @@ if test "$GOPT_ENABLE_NUCLEON_DECAY" = "YES"; then
   libs="$libs -lGNucleonDecay"
 fi
 
-### GENIE validation tools;
-vldlibs=""
-if test "$GOPT_ENABLE_VALIDATION_TOOLS" = "YES"; then
-vldlibs="$vldlibs -L$libdir -lGNuVld"
-fi
-
-### dependencies for depreciated version of nuvalidator package
-nvldlibs="-L$libdir -lGNuVldXML -lGNuVldDBU -lGNuVldGUI -lGNuVldNeugen"
-
 ### Usage
 usage="\
-Usage: genie-config [--libs] [-vldlibs] [--libdir] [--topsrcdir]" 
+Usage: genie-config [--libs] [--libdir] [--topsrcdir]" 
 
 if test $# -eq 0; then
    echo "${usage}" 1>&2
@@ -75,14 +63,6 @@ while test $# -gt 0; do
     --libs)
       ### GENIE libraries
       out="$out $libs"
-      ;;
-    --vldlibs)
-      ### GENIE validation tool libraries
-      out="$out $vldlibs"
-      ;;
-    --nuvldlibs)
-      ### GENIE nuvalidator libraries (depreciated version)
-      out="$out $nuvldlibs"
       ;;
     --libdir)
       ### Output GENIE libdir

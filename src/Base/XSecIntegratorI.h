@@ -6,11 +6,11 @@
 \brief    Cross Section Integrator Interface.
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  May 03, 2004
 
-\cpright  Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
+\cpright  Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
@@ -25,7 +25,7 @@
 
 namespace genie {
 
-class IntegratorI;
+//class IntegratorI;
 class XSecIntegratorI : public Algorithm {
 
 public:
@@ -39,10 +39,12 @@ protected:
   XSecIntegratorI(string name);
   XSecIntegratorI(string name, string config);
 
-  const IntegratorI * fIntegrator; ///< GENIE numerical integrator 
+/////  const IntegratorI * fIntegrator; ///< GENIE numerical integrator 
 
   string fGSLIntgType; ///< name of GSL numerical integrator
   double fGSLRelTol;   ///< required relative tolerance (error)
+  int    fGSLMaxEval;  ///< GSL max evaluations
+  int    fGSLMinEval;  ///< GSL min evaluations. Ignored by some integrators.
 };
 
 }       // genie namespace

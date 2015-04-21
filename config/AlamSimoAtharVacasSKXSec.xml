@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for the Alam Simo Athar single kaon cross section calculator
+
+Configurable Parameters:
+....................................................................................................
+Name                    Type     Optional   Comment                                                 Default
+gsl-integration-type    string   yes        Algorithm to use for multidimensional integral          vegas
+gsl-relative-tolerance  double   yes        Desired numerical accuracy for each integral            0.01
+gsl-max-evals           int      yes        Max limit of evaluations for multidimensional integral  20000
+....................................................................................................
+
+-->
+
+  <param_set name="Default"> 
+    <param type="string" name ="gsl-integration-type">       vegas  </param>
+    <param type="int"    name ="gsl-max-evals">              40000  </param>
+    <param type="double" name ="gsl-relative-tolerance"  >    0.01  </param>    
+  </param_set>
+  
+  <param_set name="Fast"> 
+    <param type="string" name ="gsl-integration-type">       miser   </param>
+    <param type="int"    name ="gsl-max-evals">              10000   </param>
+    <param type="double" name ="gsl-relative-tolerance"  >    0.05   </param>    
+  </param_set>
+
+</alg_conf>
+

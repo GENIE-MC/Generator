@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -55,6 +55,9 @@ using std::endl;
 #include "TRegexp.h"
 #include "TString.h"
 
+#include "FluxDrivers/GFluxDriverFactory.h"
+FLUXDRIVERREG4(genie,flux,GSimpleNtpFlux,genie::flux::GSimpleNtpFlux)
+
 //#define __GENIE_LOW_LEVEL_MESG_ENABLED__
 // next line won't work for NOvA: ROOT's Error() != DefaultErrorHandler
 //#define USE_INDEX_FOR_META 
@@ -72,7 +75,8 @@ ClassImp(GSimpleNtpMeta)
 UInt_t genie::flux::GSimpleNtpMeta::mxfileprint = UINT_MAX;
 
 //____________________________________________________________________________
-GSimpleNtpFlux::GSimpleNtpFlux()
+GSimpleNtpFlux::GSimpleNtpFlux() :
+  GFluxExposureI(genie::flux::kPOTs)
 {
   this->Initialize();
 }
@@ -81,7 +85,18 @@ GSimpleNtpFlux::~GSimpleNtpFlux()
 {
   this->CleanUp();
 }
-
+//___________________________________________________________________________
+double GSimpleNtpFlux::GetTotalExposure() const
+{
+  // complete the GFluxExposureI interface
+  return UsedPOTs();
+}
+//___________________________________________________________________________
+long int  GSimpleNtpFlux::NFluxNeutrinos(void) const 
+{ 
+  ///< number of flux neutrinos looped so far
+  return fNNeutrinos; 
+} 
 //___________________________________________________________________________
 bool GSimpleNtpFlux::GenerateNext(void)
 {
@@ -172,7 +187,8 @@ bool GSimpleNtpFlux::GenerateNext_weighted(void)
     // Reset previously generated neutrino code / 4-p / 4-x
     this->ResetCurrent();
     // Move on, read next flux ntuple entry
-    fIEntry++;
+    ++fIEntry;
+    ++fNEntriesUsed;  // count total # used
     if ( fIEntry >= fNEntries ) {
       // Ran out of entries @ the current cycle of this flux file
       // Check whether more (or infinite) number of cycles is requested
@@ -366,26 +382,8 @@ double GSimpleNtpFlux::UsedPOTs(void) const
 }
 
 //___________________________________________________________________________
-void GSimpleNtpFlux::LoadBeamSimData(string filename, string config )
-{
-// Loads a beam simulation root file into the GSimpleNtpFlux driver.
-  std::vector<std::string> filevec;
-  filevec.push_back(filename);
-  LoadBeamSimData(filevec,config); // call the one that takes a vector
-}
-
-//___________________________________________________________________________
-void GSimpleNtpFlux::LoadBeamSimData(std::set<string> fileset, string config )
-{
-// Loads a beam simulation root file into the GSimpleNtpFlux driver.
-  // have a set<> want a vector<>
-  std::vector<std::string> filevec;
-  std::copy(fileset.begin(),fileset.end(),std::back_inserter(filevec));
-  LoadBeamSimData(filevec,config); // call the one that takes a vector
-}
-
-//___________________________________________________________________________
-void GSimpleNtpFlux::LoadBeamSimData(std::vector<string> patterns, string config )
+void GSimpleNtpFlux::LoadBeamSimData(const std::vector<string>& patterns,
+                                     const std::string&         config )
 {
 // Loads a beam simulation root file into the GSimpleNtpFlux driver.
 
@@ -500,19 +498,26 @@ void GSimpleNtpFlux::LoadBeamSimData(std::vector<string> patterns, string config
     assert(0);
   }
 #endif
+  //TBranch* bentry = fNuFluxTree->GetBranch("entry");
+  //bentry->SetAutoDelete(false);
 
-  if ( OptionalAttachBranch("numi") ) 
+  if ( OptionalAttachBranch("numi") ) {
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0)
     sba_status[1] = 
 #endif
       fNuFluxTree->SetBranchAddress("numi",&fCurNuMI);
-  else { delete fCurNuMI; fCurNuMI = 0; }
-  if ( OptionalAttachBranch("aux") ) 
+    //TBranch* bnumi = fNuFluxTree->GetBranch("numi");
+    //bnumi->SetAutoDelete(false);
+  } else { delete fCurNuMI; fCurNuMI = 0; }
+
+  if ( OptionalAttachBranch("aux") ) {
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0)
     sba_status[2] = 
 #endif
       fNuFluxTree->SetBranchAddress("aux",&fCurAux);
-  else { delete fCurAux; fCurAux = 0; }
+    //TBranch* baux = fNuFluxTree->GetBranch("aux");
+    //baux->SetAutoDelete(false);
+  } else { delete fCurAux; fCurAux = 0; }
 
   LOG("Flux", pDEBUG)
     << " SetBranchAddress status: "
@@ -550,6 +555,36 @@ void GSimpleNtpFlux::LoadBeamSimData(std::vector<string> patterns, string config
   this->CalcEffPOTsPerNu();
   
 }
+//___________________________________________________________________________
+void GSimpleNtpFlux::GetBranchInfo(std::vector<std::string>& branchNames,
+                                   std::vector<std::string>& branchClassNames,
+                                   std::vector<void**>&      branchObjPointers)
+{
+  // allow flux driver to report back current status and/or ntuple entry 
+  // info for possible recording in the output file by supplying
+  // the class name, and a pointer to the object that will be filled
+  // as well as a suggested name for the branch.
+
+  if ( fCurEntry ) {
+    branchNames.push_back("simple");
+    branchClassNames.push_back("genie::flux::GSimpleNtpEntry");
+    branchObjPointers.push_back((void**)&fCurEntry);
+  }
+
+  if ( fCurNuMI ) {
+    branchNames.push_back("numi");
+    branchClassNames.push_back("genie::flux::GSimpleNtpNuMI");
+    branchObjPointers.push_back((void**)&fCurNuMI);
+  }
+
+  if ( fCurAux ) {
+    branchNames.push_back("aux");
+    branchClassNames.push_back("genie::flux::GSimpleNtpAux");
+    branchObjPointers.push_back((void**)&fCurAux);
+  }
+}
+TTree* GSimpleNtpFlux::GetMetaDataTree() { return fNuMetaTree; }
+
 //___________________________________________________________________________
 void GSimpleNtpFlux::ProcessMeta(void)
 {
@@ -604,46 +639,12 @@ void GSimpleNtpFlux::ProcessMeta(void)
 
 }
 //___________________________________________________________________________
-void GSimpleNtpFlux::SetFluxParticles(const PDGCodeList & particles)
-{
-  if (!fPdgCList) {
-     fPdgCList = new PDGCodeList;
-  }
-  fPdgCList->Copy(particles);
-
-  LOG("Flux", pINFO)
-    << "Declared list of neutrino species: " << *fPdgCList;
-}
-//___________________________________________________________________________
 void GSimpleNtpFlux::SetMaxEnergy(double Ev)
 {
   fMaxEv = TMath::Max(0.,Ev);
 
   LOG("Flux", pINFO)
     << "Declared maximum flux neutrino energy: " << fMaxEv;
-}
-//___________________________________________________________________________
-void GSimpleNtpFlux::SetUpstreamZ(double z0)
-{
-// The flux neutrino position (x,y) is given on the user specified flux window.
-// This method sets the preferred user coord starting z position upstream of
-// detector face. Each flux neutrino will be backtracked from the initial
-// flux window to the input z0.  If the value is unreasonable (> 10^30) 
-// then the ray is left on the flux window.
-
-  fZ0 = z0;
-}
-//___________________________________________________________________________
-void GSimpleNtpFlux::SetNumOfCycles(long int ncycle)
-{
-// The flux ntuples can be recycled for a number of times to boost generated
-// event statistics without requiring enormous beam simulation statistics.
-// That option determines how many times the driver is going to cycle through
-// the input flux ntuple.
-// With ncycle=0 the flux ntuple will be recycled an infinite amount of times so
-// that the event generation loop can exit only on a POT or event num check.
-
-  fNCycles = TMath::Max(0L, ncycle);
 }
 //___________________________________________________________________________
 void GSimpleNtpFlux::SetEntryReuse(long int nuse)
@@ -711,6 +712,10 @@ void GSimpleNtpFlux::Initialize(void)
   fCurAux          = new GSimpleNtpAux;
   fCurMeta         = new GSimpleNtpMeta;
 
+  fCurEntryCopy    = 0;
+  fCurNuMICopy     = 0;
+  fCurAuxCopy      = 0;
+
   fNuFluxTree      = new TChain("flux");
   fNuMetaTree      = new TChain("meta");
 
@@ -721,7 +726,6 @@ void GSimpleNtpFlux::Initialize(void)
 
   fNEntries        =  0;
   fIEntry          = -1;
-  fNCycles         =  0;
   fICycle          =  0;
   fNUse            =  1;
   fIUse            =  999999;
@@ -730,7 +734,6 @@ void GSimpleNtpFlux::Initialize(void)
 
   fMaxWeight       = -1;
 
-  fZ0              =  -3.4e38;
   fSumWeight       =  0;
   fNNeutrinos      =  0;
   fEffPOTsPerNu    =  0;
@@ -1096,6 +1099,7 @@ void GSimpleNtpFlux::PrintConfig()
     << "\n used entry " << fIEntry << " " << fIUse << "/" << fNUse
     << " times, in " << fICycle << "/" << fNCycles << " cycles"
     << "\n SumWeight " << fSumWeight << " for " << fNNeutrinos << " neutrinos"
+    << " with " << fNEntriesUsed << " entries read"
     << "\n EffPOTsPerNu " << fEffPOTsPerNu << " AccumPOTs " << fAccumPOTs
     << "\n GenWeighted \"" << (fGenWeighted?"true":"false") << "\""
     << " AlreadyUnwgt \"" << (fAlreadyUnwgt?"true":"false") << "\""

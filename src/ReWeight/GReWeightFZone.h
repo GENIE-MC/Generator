@@ -9,11 +9,11 @@
           Imperial College London
 
           Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  Sep 20, 2009
 
-\cpright  Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
+\cpright  Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
@@ -46,10 +46,11 @@ namespace rew   {
 
    // other config options
    // set to match values used at event generation
-   void SetR0 (double R0 ) { fR0  = R0;  }
-   void SetNR (double NR ) { fNR  = NR;  }
-   void SetCT0(double ct0) { fct0 = ct0; }
-   void SetK  (double k  ) { fK   = k;   }
+   void SetR0 (double R0 )        { fR0         = R0;  }
+   void SetNR (double NR )        { fNR         = NR;  }
+   void SetCT0Pion(double ct0)    { fct0pion    = ct0; }
+   void SetCT0Nucleon(double ct0) { fct0nucleon = ct0; }
+   void SetK  (double k  )        { fK          = k;   }
 
  private:
 
@@ -57,10 +58,11 @@ namespace rew   {
 
    double fFZoneTwkDial; ///< formation zone tweaking dial
 
-   double fNR;  ///<
-   double fR0;  ///<
-   double fct0; ///<
-   double fK;   ///<
+   double fNR;         ///<
+   double fR0;         ///<
+   double fct0pion;    ///<
+   double fct0nucleon; ///<
+   double fK;          ///<
 
  };
 

@@ -6,11 +6,11 @@
 \brief     Basic constants
 
 \author    Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-           STFC, Rutherford Appleton Laboratory
+           University of Liverpool & STFC Rutherford Appleton Lab
 
 \created   May 03, 2004
 
-\cpright   Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
+\cpright   Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
            For the full text of the license visit http://copyright.genie-mc.org
            or see $GENIE/LICENSE
 */
@@ -39,6 +39,7 @@ static const double kPi    = 3.1415927;
 static const double kPi2   = TMath::Power(kPi,2);
 static const double kPi3   = TMath::Power(kPi,3);
 static const double kPi4   = TMath::Power(kPi,4);
+static const double kSqrtPi= TMath::Sqrt(kPi);
 static const double ke     = 2.7182818;
 static const double kSqrte = TMath::Sqrt(ke);
 

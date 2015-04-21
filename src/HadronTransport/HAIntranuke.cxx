@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2010, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -515,8 +515,9 @@ void HAIntranuke::InelasticHA(
     << "InelasticHA() is invoked for a : " << p->Name()
     << " whose fate is : " << INukeHadroFates::AsString(fate);
 #endif
-  LOG("HAIntranuke", pINFO) << " probe KE = " << ev->Probe()->KinE();
-
+  if(ev->Probe() ) {
+    LOG("HAIntranuke", pINFO) << " probe KE = " << ev->Probe()->KinE();
+  }
   if(fate!=kIHAFtCEx && fate!=kIHAFtInelas)
     {
       LOG("HAIntranuke", pWARN)
@@ -641,21 +642,24 @@ void HAIntranuke::InelasticHA(
       double E4L = cl2->KinE();
       LOG ("HAIntranuke",pINFO) << "Successful quasielastic scattering or charge exchange";
       LOG("HAIntranuke",pINFO)
-	<< "C3CM = " << C3CM << "\n  P3 = " 
-	<< P3L << "   " << E3L << "             P4 = " 
-	<< P4L << "   " << E4L << "\n probe KE = " << ev->Probe()->KinE() << "\n";
-      if (E3L>ev->Probe()->KinE()||E4L>ev->Probe()->KinE())  //is this redundant?
-	{
-	  exceptions::INukeException exception;
-	  exception.SetReason("TwoBodyCollison gives KE> probe KE in hA simulation");
-	  throw exception;
-	}
-      ev->AddParticle(*cl1);
-      ev->AddParticle(*cl2);
-      delete cl1;
-      delete cl2;
+	<< "C3CM = " << C3CM << "\n  P3L, E3L = " 
+	<< P3L << "   " << E3L << "  P4L, E4L = "<< P4L << "   " << E4L ;
+      if(ev->Probe() ) { LOG("HAIntranuke",pINFO)
+	  << "P4L = " << P4L << " ;E4L=  " << E4L << "\n probe KE = " << ev->Probe()->KinE() << "\n";
+	if (ev->Probe() && (E3L>ev->Probe()->E()||E4L>ev->Probe()->E()))  //is this redundant?
+	  {
+	    exceptions::INukeException exception;
+	    exception.SetReason("TwoBodyCollison gives KE> probe KE in hA simulation");
+	    throw exception;
+	  }
+	ev->AddParticle(*cl1);
+	ev->AddParticle(*cl2);
+	delete cl1;
+	delete cl2;
 
-      LOG("HAIntranuke", pDEBUG) << "Nucleus : (A,Z) = ("<<fRemnA<<','<<fRemnZ<<')';
+	LOG("HAIntranuke", pDEBUG) << "Nucleus : (A,Z) = ("<<fRemnA<<','<<fRemnZ<<')';
+      }
+
     } else
     {
       exceptions::INukeException exception;
@@ -776,7 +780,7 @@ void HAIntranuke::Inelastic(
       //
       // added 03/21/11 - Aaron Meyer
       //
-      if ((pdg::IsPion(pdgc) || pdg::IsKaon(pdgc)) && rnd->RndFsi().Rndm()<1.14*(.903-0.00189*fRemnA)*(1.35-0.00467*ke))
+      if (pdg::IsPion(pdgc) && rnd->RndFsi().Rndm()<1.14*(.903-0.00189*fRemnA)*(1.35-0.00467*ke))
 	{  // pi d -> N N, probability determined empirically with McKeown data
 
 	  INukeFateHN_t fate_hN=kIHNFtAbs;
@@ -785,7 +789,7 @@ void HAIntranuke::Inelastic(
 
 	  // choose target nucleon
 	  // -- fates weighted by values from Engel, Mosel...
-	  if (pdgc==kPdgPiP || pdgc==kPdgKP) { 
+	  if (pdgc==kPdgPiP) { 
             double Prob_pipd_pp=2.*ppcnt*(1.-ppcnt);
             double Prob_pipnn_pn=.083*(1.-ppcnt)*(1.-ppcnt);
 	    if (rnd->RndFsi().Rndm()*(Prob_pipd_pp+Prob_pipnn_pn)<Prob_pipd_pp){
@@ -795,7 +799,7 @@ void HAIntranuke::Inelastic(
 	                       t1code=kPdgNeutron; t2code=kPdgNeutron; 
 	                       scode=kPdgProton;   s2code=kPdgNeutron;}
 	  }
-	  if (pdgc==kPdgPiM || pdgc==kPdgKM) { 
+	  if (pdgc==kPdgPiM) { 
             double Prob_pimd_nn=2.*ppcnt*(1.-ppcnt);
             double Prob_pimpp_pn=.083*ppcnt*ppcnt;
 	    if (rnd->RndFsi().Rndm()*(Prob_pimd_nn+Prob_pimpp_pn)<Prob_pimd_nn){
@@ -955,15 +959,25 @@ void HAIntranuke::Inelastic(
 	  //	  LOG("HAIntranuke", pINFO) << "--> mean sum distr = " << ns0 << ", Stand dev = " << Sig_ns;
 	  LOG("HAIntranuke", pINFO) << "--> gam_ns = " << gam_ns;
 	}
-      else if ( pdgc==kPdgPiP || pdgc==kPdgPi0 || pdgc==kPdgPiM || pdgc==kPdgKP || pdgc==kPdgKM) //pion or kaon probe
+      else if ( pdgc==kPdgPiP || pdgc==kPdgPi0 || pdgc==kPdgPiM) //pion probe
 	{
 	  ns0 = .0001*(1.+ke/250.) * (fRemnA-10)*(fRemnA-10) + 3.5;
 	  nd0 = (1.+ke/250.) - ((fRemnA/200.)*(1. + 2.*ke/250.));
 	  Sig_ns = (10. + 4. * ke/250.)*TMath::Power(fRemnA/250.,0.9);  //(1. - TMath::Exp(-0.02*fRemnA));
 	  Sig_nd = 4*(1 - TMath::Exp(-0.03*ke));
-	  LOG("HAIntranuke", pINFO) << "pion or kaon absorption";
+	  LOG("HAIntranuke", pINFO) << "pion absorption";
 	  LOG("HAIntranuke", pINFO) << "--> mean diff distr = " << nd0 << ", stand dev = " << Sig_nd;
 	  LOG("HAIntranuke", pINFO) << "--> mean sum distr = " << ns0 << ", Stand dev = " << Sig_ns;
+	}
+      else if (pdgc==kPdgKP || pdgc==kPdgKM) // kaon probe
+	{
+	  ns0 = (rnd->RndFsi().Rndm()>0.5?3:2);
+	  nd0 = 1.;
+	  Sig_ns = 0.1;
+	  Sig_nd = 0.1;
+	  LOG("HAIntranuke", pINFO) << "kaon absorption - set ns, nd later";
+	  //	  LOG("HAIntranuke", pINFO) << "--> mean diff distr = " << nd0 << ", stand dev = " << Sig_nd;
+	  //	  LOG("HAIntranuke", pINFO) << "--> mean sum distr = " << ns0 << ", Stand dev = " << Sig_ns;
 	}
       else
 	{
@@ -1012,7 +1026,11 @@ void HAIntranuke::Inelastic(
 	    {
 	      ns = -TMath::Log(rnd->RndFsi().Rndm())/gam_ns; // exponential random variable
 	    }	  
-	  else if ( pdgc==kPdgPiP || pdgc==kPdgPi0 || pdgc==kPdgPiM|| pdgc==kPdgKP|| pdgc==kPdgKM ) //pion probe
+	  if ( pdg::IsKaon (pdgc) ) //charged kaon probe - either 2 or 3 nucleons to stay simple
+	    {
+	      ns =  (rnd->RndFsi().Rndm()<0.5?2:3);
+	    }
+	  else if ( pdgc==kPdgPiP || pdgc==kPdgPi0 || pdgc==kPdgPiM) //pion probe
 	    {
 	      // Pion fit for sum takes for xs*exp((xs-x0)^2 / 2*sig_xs0)
 	      // Find random variable by first finding gaussian random variable
@@ -1056,9 +1074,12 @@ void HAIntranuke::Inelastic(
 		    not_found=false;
 		  }
 		} //while(not_found)
-	    }//else pion or kaon 
+	    }//else pion
 
-	  double nd = nd0 + Sig_nd * x2; // difference (p-n) for both types of probe
+	  double nd = nd0 + Sig_nd * x2; // difference (p-n) for both pion, nucleon probe
+	  if (pdgc==kPdgKP)   // special for KP
+	    { if (ns==2) nd=0;
+	      if (ns>2) nd=1; }
 
 	  np = int((ns+nd)/2.+.5); // Addition of .5 for rounding correction
 	  nn = int((ns-nd)/2.+.5);
@@ -1068,13 +1089,14 @@ void HAIntranuke::Inelastic(
 
 	  /*if ((ns+nd)/2. < 0 || (ns-nd)/2. < 0)  {iter++; continue;}
 	    else */ 
+	  //check for problems befor executing phase space 'decay'
 	       if (np < 0 || nn < 0 )                 {iter++; continue;}
           else if (np + nn < 2. )                     {iter++; continue;}
           else if ((np + nn == 2.) &&  pdg::IsNeutronOrProton (pdgc))                     {iter++; continue;}
           else if (np > fRemnZ + ((pdg::IsProton(pdgc) || pdgc==kPdgPiP || pdgc==kPdgKP)?1:0)
 		   - ((pdgc==kPdgPiM || pdgc==kPdgKM)?1:0)) {iter++; continue;}
-          else if (nn > fRemnA-fRemnZ + ((pdg::IsNeutron(pdgc)||pdgc==kPdgPiM)?1:0)
-		   - ((pdgc==kPdgPiP || pdgc==kPdgKP)?1:0)) {iter++; continue;}
+          else if (nn > fRemnA-fRemnZ + ((pdg::IsNeutron(pdgc)||pdgc==kPdgPiM||pdgc==kPdgKM)?1:0)
+		   - ((pdgc==kPdgPiP||pdgc==kPdgKP)?1:0)) {iter++; continue;}
 	  else { 
 	    not_done=false;   //success
 	    LOG("HAIntranuke",pINFO) << "success, iter = " << iter << "  np, nn = " << np << "  " << nn; 
@@ -1085,8 +1107,8 @@ void HAIntranuke::Inelastic(
 		nn = int(nn*frac);
 	      }
 
-	    if (  (np==fRemnZ       +((pdg::IsProton (pdgc)||pdgc==kPdgPiP|| pdgc==kPdgKP)?1:0)-(pdgc==kPdgPiM?1:0))
-		&&(nn==fRemnA-fRemnZ+((pdg::IsNeutron(pdgc)||pdgc==kPdgPiM|| pdgc==kPdgKM)?1:0)-(pdgc==kPdgPiP?1:0)) )
+	    if (  (np==fRemnZ       +((pdg::IsProton (pdgc)||pdgc==kPdgPiP||pdgc==kPdgKP)?1:0)-(pdgc==kPdgPiM||pdgc==kPdgKM?1:0))
+		&&(nn==fRemnA-fRemnZ+((pdg::IsNeutron(pdgc)||pdgc==kPdgPiM||pdgc==kPdgKM)?1:0)-(pdgc==kPdgPiP||pdgc==kPdgKP?1:0)) )
 	      { // leave at least one nucleon in the nucleus to prevent excess momentum
 		if (rnd->RndFsi().Rndm()<np/(double)(np+nn)) np--;
 		else nn--;
@@ -1098,7 +1120,7 @@ void HAIntranuke::Inelastic(
 	} //while(not_done)
 
       // change remnants to reflect probe
-      if ( pdgc==kPdgProton || pdgc==kPdgPiP|| pdgc==kPdgKP )     fRemnZ++;
+      if ( pdgc==kPdgProton || pdgc==kPdgPiP || pdgc==kPdgKP)     fRemnZ++;
       if ( pdgc==kPdgPiM || pdgc==kPdgKM)                         fRemnZ--;
       if ( pdg::IsNeutronOrProton (pdgc) )         fRemnA++;
 
@@ -1133,15 +1155,15 @@ void HAIntranuke::Inelastic(
 	  TLorentzVector clusP4(pP3,clusKE);   //no mass
 
 	  TLorentzVector X4(*p->X4());
-	  GHepStatus_t ist = kIStDecayedState;
+	  GHepStatus_t ist = kIStNucleonClusterTarget;
 
 	  int mom = p->FirstMother();
 
-	  GHepParticle * p0 = new GHepParticle(kPdgDecayNuclCluster,ist, mom,-1,-1,-1,clusP4,X4);
-	  GHepParticle * p1 = new GHepParticle(kPdgDecayNuclCluster,ist, mom,-1,-1,-1,clusP4,X4);
-	  GHepParticle * p2 = new GHepParticle(kPdgDecayNuclCluster,ist, mom,-1,-1,-1,clusP4,X4);
-	  GHepParticle * p3 = new GHepParticle(kPdgDecayNuclCluster,ist, mom,-1,-1,-1,clusP4,X4);
-	  GHepParticle * p4 = new GHepParticle(kPdgDecayNuclCluster,ist, mom,-1,-1,-1,clusP4,X4);
+	  GHepParticle * p0 = new GHepParticle(kPdgCompNuclCluster,ist, mom,-1,-1,-1,clusP4,X4);
+	  GHepParticle * p1 = new GHepParticle(kPdgCompNuclCluster,ist, mom,-1,-1,-1,clusP4,X4);
+	  GHepParticle * p2 = new GHepParticle(kPdgCompNuclCluster,ist, mom,-1,-1,-1,clusP4,X4);
+	  GHepParticle * p3 = new GHepParticle(kPdgCompNuclCluster,ist, mom,-1,-1,-1,clusP4,X4);
+	  GHepParticle * p4 = new GHepParticle(kPdgCompNuclCluster,ist, mom,-1,-1,-1,clusP4,X4);
 
 	  // To conserve 4-momenta
 	  //	  fRemnP4 -= probP4 + protP4*np_p + neutP4*(4-np_p) - *p->P4();
@@ -1234,6 +1256,8 @@ void HAIntranuke::Inelastic(
 	}
       else // less than 18 particles pion
 	{
+	  if (pdgc==kPdgKP)  list.push_back(kPdgKP); //normally conserve strangeness
+	  if (pdgc==kPdgKM)  list.push_back(kPdgKM);
 	  for (int i=0;i<np;i++)
 	    {
 	      list.push_back(kPdgProton);

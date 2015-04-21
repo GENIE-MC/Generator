@@ -59,11 +59,11 @@
            See $GENIE/src/Conventions/Units.h for GENIE unit definitions.
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@rl.ac.uk>
-         STFC, Rutherford Appleton Laboratory
+         University of Liverpool & STFC Rutherford Appleton Lab
 
 \created September 27, 2005
 
-\cpright Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
+\cpright Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
          or see $GENIE/LICENSE
 */
