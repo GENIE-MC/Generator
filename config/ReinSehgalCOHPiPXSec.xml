@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+Configurations for the Rein-Sehgal coherent pi production cross section algorithm
+
+Algorithm Configurable Parameters:
+....................................................................................................
+Name             Type     Optional   Comment                 Default
+....................................................................................................
+Ma               double   Yes        Coherent Axial Mass                   GPL: COH-Ma
+Ro               double   Yes        Nuclear Size Scale                    GPL: COH-Ro
+Re-Im-Ampl       double   Yes        Re/Im of fwd amplitude                GPL: COH-ReImAmpl
+UseModifiedPCAC  bool     Yes        Inc. f/s lepton mass to Adler's PCAC  GPL: COH-UseModifiedPCAC
+XSec-Integrator  alg      No
+-->
+
+<alg_conf>
+
+  <param_set name="Default"> 
+      <param type="alg" name="XSec-Integrator"> genie::COHXSec/Default </param>
+  </param_set>
+
+</alg_conf>
+
+

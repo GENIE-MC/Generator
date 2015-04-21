@@ -7,11 +7,11 @@
           Is a concrete implementation of the EventRecordVisitorI interface.
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  October 03, 2004
 
-\cpright  Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
+\cpright  Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
@@ -51,10 +51,11 @@ private:
   const HadronizationModelI * fHadronizationModel;
 
   bool   fFilterPreFragmEntries;
-  double fR0;   ///< param controling nuclear size
-  double fNR;   ///< how far beyond the nuclear boundary does the particle tracker goes?
-  double fct0;  ///< formation zone (c * formation time)
-  double fK;    ///< param multiplying pT^2 in formation zone calculation
+  double fR0;          ///< param controling nuclear size
+  double fNR;          ///< how far beyond the nuclear boundary does the particle tracker goes?
+  double fct0pion;     ///< formation zone (c * formation time) - for pions
+  double fct0nucleon;  ///< formation zone (c * formation time) - for nucleons
+  double fK;           ///< param multiplying pT^2 in formation zone calculation
 };
 
 }      // genie namespace

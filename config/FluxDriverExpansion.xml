@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- 
+  Configuration for Flux Driver expandability
+  extraLibs:      list of libraries to attempt to load 
+                  (no extension, but with leading "lib")
+  fluxShortNames: some keys to use in determing the file format and
+                  thus the right flux driver to use 
+-->
+
+<extraLibs>
+  <lib> libdk2nuTree   </lib>
+  <lib> libdk2nuGenie  </lib>
+</extraLibs>
+
+<fluxShortNames>
+  <driver name="histo">   genie::flux::GCylindTH1Flux  </driver>
+  <driver name="hist">    genie::flux::GCylindTH1Flux  </driver>
+
+  <driver name="simple">  genie::flux::GSimpleNtpFlux  </driver>
+  <driver name="numi">    genie::flux::GNuMIFlux       </driver>
+  <driver name="dk2nu">   genie::flux::GDk2NuFlux      </driver>
+</fluxNames>
+

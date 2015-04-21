@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for the SKInteractionListGenerator InteractionListGeneratorI
+
+Configurable Parameters:
+.......................................................................................................
+Name             Type     Optional   Comment               Default
+.......................................................................................................
+-->
+
+  <param_set name="Default"> 
+        <param type="bool" name="is-CC">          true  </param>
+        <param type="bool" name="is-Strange">     true  </param>
+        <param type="bool" name="is-Single-Kaon"> true  </param>
+  </param_set>
+  
+</alg_conf>
+

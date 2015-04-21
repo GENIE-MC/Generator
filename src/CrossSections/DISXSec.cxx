@@ -1,11 +1,11 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory 
+         University of Liverpool & STFC Rutherford Appleton Lab 
 
  For the class documentation see the corresponding header file.
 
@@ -32,6 +32,7 @@
 #include <TMath.h>
 #include <Math/IFunction.h>
 #include <Math/IntegratorMultiDim.h>
+#include "Math/AdaptiveIntegratorMultiDim.h"
 
 #include "Algorithm/AlgConfigPool.h"
 #include "Conventions/GBuild.h"
@@ -39,10 +40,8 @@
 #include "Conventions/Constants.h"
 #include "Conventions/Units.h"
 #include "CrossSections/DISXSec.h"
-#include "CrossSections/GXSecFunc.h"
 #include "CrossSections/GSLXSecFunc.h"
 #include "Messenger/Messenger.h"
-#include "Numerical/IntegratorI.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
 #include "Utils/RunOpt.h"
@@ -178,26 +177,17 @@ double DISXSec::Integrate(
      double xsec = 0.;
 
      if(phsp_ok) {
-#ifdef __GENIE_GSL_ENABLED__
        ROOT::Math::IBaseFunctionMultiDim * func = 
-          new utils::gsl::wrap::d2XSec_dWdQ2_E(model, interaction);
+          new utils::gsl::d2XSec_dWdQ2_E(model, interaction);
        ROOT::Math::IntegrationMultiDim::Type ig_type = 
-          utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
-       ROOT::Math::IntegratorMultiDim ig(ig_type);
-       //ig.SetAbsTolerance(0.00001);
-       ig.SetRelTolerance(fGSLRelTol);
-       ig.SetFunction(*func);
+           utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
+           
+       double abstol = 1; //We mostly care about relative tolerance.
+       ROOT::Math::IntegratorMultiDim ig(*func, ig_type, abstol, fGSLRelTol, fGSLMaxEval);
        double kine_min[2] = { Wl.min, Q2l.min };
        double kine_max[2] = { Wl.max, Q2l.max };
        xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2);
        delete func;
-#else
-       GXSecFunc * func = new Integrand_D2XSec_DWDQ2_E(model, interaction);
-       func->SetParam(0,"W", Wl);
-       func->SetParam(1,"Q2",Q2l);
-       xsec = fIntegrator->Integrate(*func);
-       delete func;
-#endif
      }//phase space ok?
 
      LOG("DISXSec", pINFO)  << "XSec[DIS] (E = " << Ev << " GeV) = " << xsec;
@@ -223,13 +213,11 @@ void DISXSec::Configure(string config)
 //____________________________________________________________________________
 void DISXSec::LoadConfig(void)
 {
-  // Get specified GENIE integration algorithm
-  fIntegrator = dynamic_cast<const IntegratorI *> (this->SubAlg("Integrator"));
-  assert(fIntegrator);
-
   // Get GSL integration type & relative tolerance
-  fGSLIntgType = fConfig->GetStringDef("gsl-integration-type",  "adaptive");
-  fGSLRelTol   = fConfig->GetDoubleDef("gsl-relative-tolerance", 0.001);
+  fGSLIntgType = fConfig->GetStringDef("gsl-integration-type"  ,  "adaptive");
+  fGSLRelTol   = fConfig->GetDoubleDef("gsl-relative-tolerance", 1E-2);
+  fGSLMaxEval  = (unsigned int) fConfig->GetIntDef   ("gsl-max-eval"   , 500000);
+  fGSLMinEval  = (unsigned int) fConfig->GetIntDef   ("gsl-min-eval"   , 10000);
 
   // Energy range for cached splines
   AlgConfigPool * confp = AlgConfigPool::Instance();
@@ -289,12 +277,8 @@ void DISXSec::CacheFreeNucleonXSec(
   }
 
   // Create the integrand
-#ifdef __GENIE_GSL_ENABLED__
   ROOT::Math::IBaseFunctionMultiDim * func = 
-     new utils::gsl::wrap::d2XSec_dWdQ2_E(model, interaction);
-#else
-  GXSecFunc * func = new Integrand_D2XSec_DWDQ2_E(model, interaction);
-#endif
+     new utils::gsl::d2XSec_dWdQ2_E(model, interaction);
 
   // Compute the cross section at the given set of knots
   for(int ie=0; ie<nknots; ie++) {
@@ -315,21 +299,21 @@ void DISXSec::CacheFreeNucleonXSec(
             Wl.min >= 0. &&  Wl.max >= 0. &&  Wl.max >=  Wl.min);
 
        if(phsp_ok) {
-#ifdef __GENIE_GSL_ENABLED__
          ROOT::Math::IntegrationMultiDim::Type ig_type = 
              utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
-         ROOT::Math::IntegratorMultiDim ig(ig_type);
-         //ig.SetAbsTolerance(0.00001);
-         ig.SetRelTolerance(fGSLRelTol);
-         ig.SetFunction(*func);
+         double abstol = 1; //We mostly care about relative tolerance.
+         ROOT::Math::IntegratorMultiDim ig(*func, ig_type, abstol, fGSLRelTol, fGSLMaxEval);
+
+         if (ig_type == ROOT::Math::IntegrationMultiDim::kADAPTIVE) {
+            ROOT::Math::AdaptiveIntegratorMultiDim * cast =
+              dynamic_cast<ROOT::Math::AdaptiveIntegratorMultiDim*>( ig.GetIntegrator() );
+            assert(cast);
+            cast->SetMinPts(fGSLMinEval);
+         }
+
          double kine_min[2] = { Wl.min, Q2l.min };
          double kine_max[2] = { Wl.max, Q2l.max };
          xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2);
-#else
-         func->SetParam(0,"W", Wl);
-         func->SetParam(1,"Q2",Q2l);
-         xsec = fIntegrator->Integrate(*func);
-#endif
        }// phase space limits ok?
     }//Ev>threshold
 

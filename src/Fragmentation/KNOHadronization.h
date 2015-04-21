@@ -14,7 +14,7 @@
           Is a concrete implementation of the HadronizationModelI interface.
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
           Hugh Gallagher <gallag@minos.phy.tufts.edu>
           Tufts University
@@ -24,7 +24,7 @@
 
 \created  August 17, 2004
 
-\cpright  Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
+\cpright  Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
@@ -106,6 +106,8 @@ private:
   double   fPpic;                ///< {pi+ pi-  } production probability
   double   fPKc;                 ///< {K+  K-   } production probability
   double   fPK0;                 ///< {K0  K0bar} production probability
+  double   fPpi0eta;             ///< {Pi0 eta} production probability
+  double   fPeta;                ///< {eta eta} production probability
   double   fAvp;                 ///< offset in average charged hadron multiplicity = f(W) relation for vp
   double   fAvn;                 ///< offset in average charged hadron multiplicity = f(W) relation for vn
   double   fAvbp;                ///< offset in average charged hadron multiplicity = f(W) relation for vbp

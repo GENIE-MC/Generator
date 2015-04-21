@@ -1,19 +1,19 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory
+         University of Liverpool & STFC Rutherford Appleton Lab
 
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
  @ May 05, 2010 - CR
    Adding special ctor for ROOT I/O purposes so as to avoid memory leak due to
-   memory allocated in the default ctor when objects of this class are read by 
-   the ROOT Streamer. 
+   memory allocated in the default ctor when objects of this class are read by
+   the ROOT Streamer.
 
 */
 //____________________________________________________________________________
@@ -55,7 +55,7 @@ TObject()
 //____________________________________________________________________________
 Kinematics::Kinematics(TRootIOCtor*) :
 TObject(),
-fP4Fsl(0), 
+fP4Fsl(0),
 fP4HadSyst(0)
 {
 
@@ -71,7 +71,7 @@ void Kinematics::Init(void)
   fKV.clear();
 
   fP4Fsl     = new TLorentzVector;
-  fP4HadSyst = new TLorentzVector; 
+  fP4HadSyst = new TLorentzVector;
 }
 //____________________________________________________________________________
 void Kinematics::CleanUp(void)
@@ -79,7 +79,7 @@ void Kinematics::CleanUp(void)
   fKV.clear();
 
   delete fP4Fsl;
-  delete fP4HadSyst; 
+  delete fP4HadSyst;
 }
 //____________________________________________________________________________
 void Kinematics::Reset(void)
@@ -142,7 +142,7 @@ double Kinematics::Q2(bool selected) const
   } else {
     if      (this->KVSet(kKVQ2) )    { return     this->GetKV(kKVQ2); }
     else if (this->KVSet(kKVq2) )    { return -1* this->GetKV(kKVq2); }
-  }  
+  }
 
   LOG("Interaction", pWARN) << "Kinematic variable Q2 was not set";
   return -99999;
@@ -404,4 +404,3 @@ Kinematics & Kinematics::operator = (const Kinematics & kinematics)
   return (*this);
 }
 //___________________________________________________________________________
-

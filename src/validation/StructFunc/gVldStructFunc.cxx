@@ -36,19 +36,19 @@
          Example:
 
             % gvld_sf \
-                --resonance-xsec-model genie::ReinSeghalRESPXSec/Default \
+                --resonance-xsec-model genie::ReinSehgalRESPXSec/Default \
                 --dis-xsec-model genie::QPMDISPXSec/Default \
 		--dis-charm-xsec-model genie::AivazisCharmPXSecLO/CC-Default
 
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory
+         University of Liverpool & STFC Rutherford Appleton Lab
 
          Jelena Ilic <jelena.ilic \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory
+         University of Liverpool & STFC Rutherford Appleton Lab
 
 \created June 06, 2008 
 
-\cpright Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
+\cpright Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
          or see $GENIE/LICENSE
 */

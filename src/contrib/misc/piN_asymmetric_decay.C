@@ -8,7 +8,7 @@
 // root[1] run_evgen_test(W);
 //
 // Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-// STFC, Rutherford Appleton Laboratory
+// University of Liverpool & STFC Rutherford Appleton Lab
 //
 
 //

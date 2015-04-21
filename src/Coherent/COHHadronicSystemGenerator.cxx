@@ -1,11 +1,11 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - October 03, 2004
+         University of Liverpool & STFC Rutherford Appleton Lab 
 
  For the class documentation see the corresponding header file.
 
@@ -121,7 +121,7 @@ void COHHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
   //-- 4-momentum transfer q=p(neutrino) - p(f/s lepton)
   //   Note: m^2 = q^2 < 0
   //   Also, since the nucleus is heavy all energy loss is comminicated to
-  //   the outgoing pion  Rein & Seghal, Nucl.Phys.B223.29-44(1983), p.35
+  //   the outgoing pion  Rein & Sehgal, Nucl.Phys.B223.29-44(1983), p.35
 
   TLorentzVector q = p4nu - p4fsl;
 
@@ -129,7 +129,7 @@ void COHHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
           << "\n 4-p transfer q @ LAB: " << utils::print::P4AsString(&q);
 
   //-- find angle theta between q and ppi (xi=costheta)
-  //   note: t=|(ppi-q)^2|, Rein & Seghal, Nucl.Phys.B223.29-44(1983), p.36
+  //   note: t=|(ppi-q)^2|, Rein & Sehgal, Nucl.Phys.B223.29-44(1983), p.36
  
   double xi = 1. + M*xo/Epi - 0.5*mpi2/Epi2 - 0.5*to/Epi2;
   xi /= TMath::Sqrt((1.+2.*M*xo/Epi)*(1.-mpi2/Epi2));

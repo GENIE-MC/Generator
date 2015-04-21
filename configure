@@ -5,7 +5,7 @@
 # For help, type ./configure --help
 #
 # Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-# STFC, Rutherford Appleton Laboratory
+# University of Liverpool & STFC Rutherford Appleton Lab
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # print out info & exit if any of the command-line arguments was --help
@@ -28,13 +28,11 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "    flux-drivers      Built-in flux drivers                                       default: enabled  \n";
   print "    geom-drivers      Built-in detector geometry drivers                          default: enabled  \n";
   print "    vle-extension     GENIE very low energy (1 MeV - 100 MeV) extension           default: disabled (Experimental) \n";
-  print "    vhe-extension     GENIE very high energy ( > 500 GeV ) extension              default: disabled (Experimental) \n";
   print "    validation-tools  GENIE physics model validation tools (requires MySQL)       default: disabled \n";
   print "    mueloss           Muon energy loss modeling                                   default: enabled  \n";
   print "    test              Build test programs                                         default: disabled \n";
-  print "    gsl               Enable use of the GSL math library (via ROOT MathMore)      default: disabled (Experimental. Don't use yet)\n";
   print "    t2k               Enable T2K-specific event generation app                    default: disabled \n";
-  print "    numi              Enable NuMI-specific event generation app                   default: disabled \n";
+  print "    fnal              Enable FNAL-specific event generation app                   default: disabled \n";
   print "    atmo              Enable atmospheric neutrino event generation app            default: disabled \n";
   print "    nucleon-decay     Enable nucleon decay event generation app                   default: disabled \n";
   print "    rwght             Enable event reweighting tools                              default: disabled \n";
@@ -63,21 +61,32 @@ $GENIE = $ENV{'GENIE'};
 die ("*** Error *** The GENIE environmental variable (pointing to the top level GENIE directory) is not defined") 
 unless defined $GENIE;
 
-# Check that $ROOTSYS is set
-#
-$ROOTSYS = $ENV{'ROOTSYS'};
-die ("*** Error *** The ROOTSYS environmental variable is not defined. Is ROOT installed?") 
-unless defined $ROOTSYS;
-
 # Print GENIE banner 
 #
-$BANNER_FILE = "$GENIE/data/banner/BANNER.txt";
+$BANNER_FILE = "$GENIE/data/logo/genie_banner_short.txt";
 if(-e $BANNER_FILE) {
   open(BANNER, "<$BANNER_FILE");
   @hdr=<BANNER>;
   print @hdr;
   close(BANNER);
 }
+
+# Check that $ROOTSYS is set
+#
+$ROOTSYS = $ENV{'ROOTSYS'};
+die ("*** Error *** The ROOTSYS environmental variable is not defined. Is ROOT installed?") 
+unless defined $ROOTSYS;
+
+# Check whether ROOT itself was build with GSL enabled
+# (GENIE uses GSL via ROOT's MathMore library.)
+#
+{
+  $mathmore_lib = "$ROOTSYS/lib/libMathMore.so";
+  if( ! -f $mathmore_lib ) {
+     die ("*** Error *** ROOT needs to be built with GSL/MathMore enabled.");
+  }
+}
+
 
 # Enable auto-detection?
 #
@@ -128,13 +137,11 @@ my $gopt_enable_cernlib          = "NO";
 my $gopt_enable_flux_drivers     = "YES";
 my $gopt_enable_geom_drivers     = "YES";
 my $gopt_enable_vle_extension    = "NO";
-my $gopt_enable_vhe_extension    = "NO";
 my $gopt_enable_validation_tools = "NO";
 my $gopt_enable_mueloss          = "YES";
 my $gopt_enable_test             = "NO";
-my $gopt_enable_gsl              = "NO";
 my $gopt_enable_t2k              = "NO";
-my $gopt_enable_numi             = "NO";
+my $gopt_enable_fnal             = "NO";
 my $gopt_enable_atmo             = "NO";
 my $gopt_enable_nucleon_decay    = "NO";
 my $gopt_enable_rwght            = "NO";
@@ -153,13 +160,11 @@ if(($match = grep(/--enable-cernlib/i ,         @ARGV)) > 0) { $gopt_enable_cern
 if(($match = grep(/--disable-flux-drivers/i,    @ARGV)) > 0) { $gopt_enable_flux_drivers     = "NO";  }
 if(($match = grep(/--disable-geom-drivers/i,    @ARGV)) > 0) { $gopt_enable_geom_drivers     = "NO";  }
 if(($match = grep(/--enable-vle-extension/i,    @ARGV)) > 0) { $gopt_enable_vle_extension    = "YES"; }
-if(($match = grep(/--enable-vhe-extension/i,    @ARGV)) > 0) { $gopt_enable_vhe_extension    = "YES"; }
 if(($match = grep(/--enable-validation-tools/i, @ARGV)) > 0) { $gopt_enable_validation_tools = "YES"; }
 if(($match = grep(/--disable-mueloss/i,         @ARGV)) > 0) { $gopt_enable_mueloss          = "NO";  }
 if(($match = grep(/--enable-test/i,             @ARGV)) > 0) { $gopt_enable_test             = "YES"; }
-if(($match = grep(/--enable-gsl/i,              @ARGV)) > 0) { $gopt_enable_gsl              = "YES"; }
 if(($match = grep(/--enable-t2k/i,              @ARGV)) > 0) { $gopt_enable_t2k              = "YES"; }
-if(($match = grep(/--enable-numi/i,             @ARGV)) > 0) { $gopt_enable_numi             = "YES"; }
+if(($match = grep(/--enable-fnal/i,             @ARGV)) > 0) { $gopt_enable_fnal             = "YES"; }
 if(($match = grep(/--enable-atmo/i,             @ARGV)) > 0) { $gopt_enable_atmo             = "YES"; }
 if(($match = grep(/--enable-nucleon-decay/i,    @ARGV)) > 0) { $gopt_enable_nucleon_decay    = "YES"; }
 if(($match = grep(/--enable-rwght/i,            @ARGV)) > 0) { $gopt_enable_rwght            = "YES"; }
@@ -168,28 +173,6 @@ if(($match = grep(/--enable-masterclass/i,      @ARGV)) > 0) { $gopt_enable_mast
 
 my $gopt_with_cxx_debug_flag="";
 if($gopt_enable_debug eq "YES") { $gopt_with_cxx_debug_flag = "-g"; }
-
-
-# Warnings for recently modified configuration options
-#
-if($options=~m/--enable-t2k-evgen/i) {
-  print "\n";
-  print "*** Warning *** Note that the option --enable-t2k-evgen has been renamed to --enable-t2k \n";
-  print "*** Warning *** The T2K-specific tools will not be enabled if you mis-type the configuration option.\n";
-  print "*** Warning *** Please see './configure --help' for all config option updates \n\n";
-}
-
-# Check whether ROOT itself was build with GSL enabled
-# (GENIE uses GSL via ROOT's MathMore library.)
-#
-if($gopt_enable_gsl eq "YES") {
-  $mathmore_lib = "$ROOTSYS/lib/libMathMore.so";
-  if( ! -f $mathmore_lib ) {
-     print "*** Warning *** You can't use --enable-gsl because you didn't build ROOT with GSL/MathMore enabled.\n";
-     print "*** Warning *** Reverting back to the --disable-gsl option.\n";
-     $gopt_enable_gsl = "NO";
-  }
-}
 
 # Check compiler optimization level
 #
@@ -488,13 +471,11 @@ print MKCONF "GOPT_ENABLE_CERNLIB=$gopt_enable_cernlib\n";
 print MKCONF "GOPT_ENABLE_FLUX_DRIVERS=$gopt_enable_flux_drivers\n";
 print MKCONF "GOPT_ENABLE_GEOM_DRIVERS=$gopt_enable_geom_drivers\n";
 print MKCONF "GOPT_ENABLE_VLE_EXTENSION=$gopt_enable_vle_extension\n";
-print MKCONF "GOPT_ENABLE_VHE_EXTENSION=$gopt_enable_vhe_extension\n";
 print MKCONF "GOPT_ENABLE_VALIDATION_TOOLS=$gopt_enable_validation_tools\n"; 
 print MKCONF "GOPT_ENABLE_MUELOSS=$gopt_enable_mueloss\n";
 print MKCONF "GOPT_ENABLE_TEST=$gopt_enable_test\n";
-print MKCONF "GOPT_ENABLE_GSL=$gopt_enable_gsl\n";
 print MKCONF "GOPT_ENABLE_T2K=$gopt_enable_t2k\n";
-print MKCONF "GOPT_ENABLE_NUMI=$gopt_enable_numi\n";
+print MKCONF "GOPT_ENABLE_FNAL=$gopt_enable_fnal\n";
 print MKCONF "GOPT_ENABLE_ATMO=$gopt_enable_atmo\n";
 print MKCONF "GOPT_ENABLE_NUCLEON_DECAY=$gopt_enable_nucleon_decay\n";
 print MKCONF "GOPT_ENABLE_RWGHT=$gopt_enable_rwght\n";
@@ -537,7 +518,7 @@ if(-e $MKCONF_FILE) {
   system("cat $MKCONF_FILE | grep GOPT_ENABLE_ > $MKCONF_FILE\_no_paths");
 
   print "\n";
-  print "*** To continue building GENIE type: gmake ";
+  print "*** To continue building GENIE type: make ";
   # Warning for SRT users  
   if(defined $ENV{'SRT_ENV_SET'}) {
     print "(Don't forget to 'srt_setup --unsetup' first)";

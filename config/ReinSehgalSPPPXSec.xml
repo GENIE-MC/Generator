@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for the Rein-Sehgal exclusive 1pi d^xsec / dQ^2 dW xsec algorithm
+
+Algorithm Configurable Parameters:
+..........................................................................................................................
+Name                        Type    Opt  Comment                                               Default
+..........................................................................................................................
+SingleRESDiffXSecAlg        alg     No   algorithm used for computing res excitation xsec
+ResonanceNameList           string  Yes  list of resonances to be taken into account           GPL: ResonanceNameList
+XSec-Integrator             alg
+-->
+
+<!--
+  In this configuration set we include only the first two resonances
+-->
+  <param_set name="Fast"> 
+     <param type="alg"    name="XSec-Integrator">      genie::ReinSehgalSPPXSec/Default   </param>
+     <!-- <param type="alg"    name="SingleRESDiffXSecAlg"> genie::BergerSehgalRESPXSec2014/Default  </param> -->
+     <param type="alg"    name="SingleRESDiffXSecAlg"> genie::ReinSehgalRESPXSec/Default  </param>
+     <param type="string" name="ResonanceNameList">    P33(1232),P11(1440)                </param>
+  </param_set>
+
+<!--
+  In this configuration set we include all the resonances defined in GlobalParameterList
+-->
+  <param_set name="Default"> 
+     <param type="alg" name="XSec-Integrator">      genie::ReinSehgalSPPXSec/Default        </param>
+     <!-- <param type="alg" name="SingleRESDiffXSecAlg"> genie::BergerSehgalRESPXSec2014/Default </param> -->
+     <param type="alg" name="SingleRESDiffXSecAlg"> genie::ReinSehgalRESPXSec/Default       </param>
+  </param_set>
+
+<!--
+  In this configuration set we include all resonances known to GENIE including the the ambiguous P33(1600), F17(1970)
+-->
+  <param_set name="AllResonances"> 
+     <param type="alg"    name="XSec-Integrator">      genie::ReinSehgalSPPXSec/Default        </param>
+     <!-- <param type="alg"    name="SingleRESDiffXSecAlg"> genie::BergerSehgalRESPXSec2014/Default </param> -->
+     <param type="alg"    name="SingleRESDiffXSecAlg"> genie::ReinSehgalRESPXSec/Default       </param>
+     <param type="string" name="ResonanceNameList">  
+                   P33(1232),S11(1535),D13(1520),S11(1650),D13(1700),D15(1675),S31(1620),
+                   D33(1700),P11(1440),P33(1600),P13(1720),F15(1680),P31(1910),P33(1920),
+                   F35(1905),F37(1950),P11(1710),F17(1970)
+     </param>
+
+  </param_set>
+
+</alg_conf>
+
+

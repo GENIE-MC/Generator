@@ -6,11 +6,11 @@
 \brief      Simple functions and data for computing hadron interaction xsecs
 
 \author     Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-            STFC, Rutherford Appleton Laboratory
+            University of Liverpool & STFC Rutherford Appleton Lab
 
 \created    March 11, 2004
 
-\cpright    Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
+\cpright    Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
             For the full text of the license visit http://copyright.genie-mc.org
             or see $GENIE/LICENSE
 */
@@ -24,11 +24,11 @@ namespace utils {
 
 namespace hadxs
 {
-  // The inelastic pion-nucleon cross section used in Rein-Seghal coherent pi0
-  // production xsec: D.Rein and L.M.Seghal,Nucl.Phys.B223:29-144 (1983).
+  // The inelastic pion-nucleon cross section used in Rein-Sehgal coherent pi0
+  // production xsec: D.Rein and L.M.Sehgal,Nucl.Phys.B223:29-144 (1983).
   // The data used here are coming from CERN-HERA 79-01, 1979, 'Compilation of
   // cross sections I - pi- and pi+ induced reactions'. Also, look at the
-  // Fig.3 in Rein-Seghal's paper.
+  // Fig.3 in Rein-Sehgal's paper.
   // However, the actual values I am using are copied from Hugh Gallagher's
   // NeuGEN inel() function which is adapted here.
   static const int    kInelNDataPoints = 60;

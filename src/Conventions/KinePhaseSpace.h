@@ -6,11 +6,11 @@
 \brief    Enumeration of kinematical phase spaces
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  May 06, 2004
 
-\cpright  Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
+\cpright  Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
@@ -56,7 +56,13 @@ typedef enum EKinePhaseSpace {
   kPSW2logQ2fE,
   kPSWq2fE,
   kPSW2q2fE,
-  kPSxytfE
+  kPSxytfE,
+  kPSQ2yfE,
+  kPSlogQ2logyfE,
+  kPSElOlOpifE,
+  kPSElOlTpifE,
+  kPSTkTlctl
+
 } KinePhaseSpace_t;
 
 class KinePhaseSpace
@@ -99,6 +105,11 @@ public:
       case(kPSWq2fE)      : return "<{W,q2}|E>";      break;
       case(kPSW2q2fE)     : return "<{W2,q2}|E>";     break;
       case(kPSxytfE)      : return "<{x,y,t}|E>";     break;
+      case(kPSQ2yfE)      : return "<{Q2,y}|E>";      break;
+      case(kPSlogQ2logyfE): return "<{Q2,y}|E>";      break;
+      case(kPSElOlOpifE)  : return "<{Elep,Omega_lep,Omega_pi}|E>"; break;
+      case(kPSElOlTpifE)  : return "<{Elep,Omega_lep,Theta_pi}|E>"; break;
+      case(kPSTkTlctl)    : return "<{Tk,Tl,cos(theta_l)}|E>";      break;
     }
     return "** Undefined kinematic phase space **";
   }

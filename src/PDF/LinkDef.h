@@ -9,6 +9,5 @@
 #pragma link C++ class genie::PDF;
 #pragma link C++ class genie::PDFModelI;
 #pragma link C++ class genie::PDFLIB;
-#pragma link C++ class genie::GRV98LO;
 
 #endif

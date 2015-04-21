@@ -1,11 +1,11 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory 
+         University of Liverpool & STFC Rutherford Appleton Lab 
 
  For documentation see the corresponding header file.
 
@@ -23,10 +23,11 @@
 //____________________________________________________________________________
 
 #include <cstdlib>
-
+#include <limits>
 #include <TMath.h>
 
 #include "Conventions/Constants.h"
+#include "Conventions/GBuild.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGLibrary.h"
@@ -94,8 +95,10 @@ double genie::utils::kinematics::PhaseSpaceVolume(
 
     const int    kNx = 100;  
     const int    kNy = 100;  
-    const double kdx = (controls::kMaxX - controls::kMinX) / (kNx-1);	
-    const double kdy = (controls::kMaxY - controls::kMinY) / (kNy-1);	
+    const double kminx = controls::kMinX;
+    const double kminy = controls::kMinY;
+    const double kdx = (controls::kMaxX - kminx) / (kNx-1);
+    const double kdy = (controls::kMaxY - kminy) / (kNy-1);
     const double kdV = kdx*kdy;
 
     double cW=-1, cQ2 = -1;
@@ -103,9 +106,9 @@ double genie::utils::kinematics::PhaseSpaceVolume(
     Interaction interaction(*in);
 
     for(int ix=0; ix<kNx; ix++) {
-      double x = controls::kMinX+ix*kdx;
+      double x = kminx+ix*kdx;
       for(int iy=0; iy<kNy; iy++) {
-         double y = controls::kMinY+iy*kdy;
+         double y = kminy+iy*kdy;
 
          XYtoWQ2(Ev, M, cW, cQ2, x, y);
          if(!math::IsWithinLimits(cW, W)) continue;
@@ -187,6 +190,15 @@ double genie::utils::kinematics::Jacobian(
   } 
 
   //
+  // transformation: {Q2,y}|E -> {lnQ2,lny}|E
+  //
+  else 
+  if ( TransformMatched(fromps,tops,kPSQ2yfE,kPSlogQ2logyfE,forward) ) 
+  {
+    J = 1. / (kine.Q2() * kine.y());
+  } 
+
+  //
   // transformation: {W,Q2}|E -> {W,lnQ2}|E
   //
   else if ( TransformMatched(fromps,tops,kPSWQ2fE,kPSWlogQ2fE,forward) ) 
@@ -228,7 +240,13 @@ double genie::utils::kinematics::Jacobian(
     double y  = kine.y();
     double W  = kine.W();
     J = 2*TMath::Power(M*Ev,2) * y/W;
-  } 
+  }
+  
+  // Transformation: {Omegalep,Omegapi}|E -> {Omegalep,Thetapi}|E
+  else if ( TransformMatched(fromps,tops,kPSElOlOpifE,kPSElOlTpifE,forward) ) {
+    // Use symmetry to turn 4d integral into 3d * 2pi
+    J = 2*constants::kPi;
+  }
 
   else {
      SLOG("KineLimits", pFATAL) 
@@ -456,6 +474,100 @@ Range1D_t genie::utils::kinematics::CohXLim(void)
   return x;
 }
 //____________________________________________________________________________
+Range1D_t genie::utils::kinematics::CohQ2Lim(double Mn, double mpi, double mlep, double Ev)
+{
+  double Mn2 = Mn * Mn;
+  double mlep2 = mlep * mlep;
+  double s = Mn2 + 2.0 * Mn * Ev;
+  double W2min = CohW2Min(Mn, mpi);
+  
+  // Looks like Q2min = A * B - C
+  double A = (s - Mn * Mn) / 2.0;
+  double a = 1.0;
+  double b = mlep2 / s;
+  double c = W2min / s;
+  double lambda = a * a + b * b + c * c - 2.0 * a * b - 2.0 * a * c - 2.0 * b * c;
+  double B = 1 - TMath::Sqrt(lambda);
+  double C = 0.5 * (W2min + mlep2 - Mn2 * (W2min - mlep2) / s );
+
+  Range1D_t Q2;
+  Q2.min = A * B - C;
+  Q2.max = std::numeric_limits<double>::max();  // Value must be overriden in user options
+  return Q2;
+}
+//____________________________________________________________________________
+Range1D_t genie::utils::kinematics::Cohq2Lim(double Mn, double mpi, double mlep, double Ev)
+{
+  Range1D_t Q2 = utils::kinematics::CohQ2Lim(Mn, mpi, mlep, Ev);
+  Range1D_t q2;
+  q2.min = - Q2.max;
+  q2.max = - Q2.min;
+  return q2;
+}
+//____________________________________________________________________________
+Range1D_t genie::utils::kinematics::CohW2Lim(double Mn, double mpi, double mlep, 
+    double Ev, double Q2)
+{
+  Range1D_t W2l;
+  W2l.min = -1;
+  W2l.max = -1;
+
+  double s = Mn * Mn + 2.0 * Mn * Ev;
+  double Mnterm = 1 - Mn * Mn / s;
+  double Mlterm = 1 - mlep * mlep / s;
+  double T1 = 0.25 * s * s * Mnterm * Mnterm * Mlterm;
+  double T2 = Q2 - (0.5 * s * Mnterm) + (0.5 * mlep * mlep * Mnterm);
+
+  W2l.min = CohW2Min(Mn, mpi);
+  W2l.max = (T1 - T2 * T2 ) * 
+    (1.0 / Mnterm) * 
+    (1.0 / (Q2 + mlep * mlep));
+
+  return W2l;
+}
+//____________________________________________________________________________
+Range1D_t genie::utils::kinematics::CohNuLim(double W2min, double W2max, 
+    double Q2, double Mn, double xsi)
+{
+  Range1D_t nul;
+  nul.min = -1;
+  nul.max = -1;
+
+  double nu_min = (W2min + Q2 - Mn * Mn) / (2.0 * Mn);
+  double nu_max = (W2max + Q2 - Mn * Mn) / (2.0 * Mn);
+  double xsiQ = xsi * TMath::Sqrt(Q2);
+
+  nul.min = (xsiQ > nu_min) ? xsiQ : nu_min;
+  nul.max = nu_max;
+
+  return nul;
+}
+//____________________________________________________________________________
+Range1D_t genie::utils::kinematics::CohYLim(double Mn, double mpi, double mlep, 
+    double Ev, double Q2, double xsi)
+{
+  Range1D_t ylim;
+  ylim.min = -1;
+  ylim.max = -1;
+
+  Range1D_t W2lim = genie::utils::kinematics::CohW2Lim(Mn, mpi, mlep, Ev, Q2);
+  if (W2lim.min > W2lim.max) {
+    LOG("KineLimits", pDEBUG) 
+      << "Kinematically forbidden region in CohYLim. W2min = " << W2lim.min 
+      << "; W2max =" << W2lim.max;
+    LOG("KineLimits", pDEBUG) 
+      << "  Mn = " << Mn << "; mpi = " << mpi << "; mlep = " 
+      << mlep << "; Ev = " << Ev << "; Q2 = " << Q2;
+    return ylim;
+  }
+  Range1D_t nulim = genie::utils::kinematics::CohNuLim(W2lim.min, W2lim.max, 
+      Q2, Mn, xsi);
+  ylim.min = nulim.min / Ev;
+  ylim.max = nulim.max / Ev;
+
+  return ylim;
+}
+//____________________________________________________________________________
 Range1D_t genie::utils::kinematics::CohYLim(double EvL, double ml)
 {
 // Computes y limits for coherent v interactions
@@ -463,6 +575,13 @@ Range1D_t genie::utils::kinematics::CohYLim(double EvL, double ml)
   Range1D_t y(kPionMass/EvL + controls::kASmallNum, 
               1.-ml/EvL - controls::kASmallNum);
   return y;
+}
+//____________________________________________________________________________
+// Helpers for kinematic limits
+//____________________________________________________________________________
+double genie::utils::kinematics::CohW2Min(double Mn, double mpi)
+{
+  return (Mn + mpi) * (Mn + mpi);
 }
 //____________________________________________________________________________
 // Kinematical Transformations:
@@ -609,6 +728,22 @@ double genie::utils::kinematics::XYtoQ2(
   return Q2;
 }
 //___________________________________________________________________________
+double genie::utils::kinematics::Q2YtoX(
+                                    double Ev, double M, double Q2, double y)
+{
+// Converts (Q^2,y) => x
+// Ev is the neutrino energy at the struck nucleon rest frame
+// M is the nucleon mass - it does not need to be on the mass shell
+  assert(Ev > 0. && M  > 0. && Q2 > 0. && y  > 0.);
+
+  double x = Q2 / (2. * y * M * Ev);
+
+  LOG("KineLimits", pDEBUG) << "(Ev=" << Ev << ",Q2=" << Q2 
+    << ",y=" << y << ",M=" << M << ") => x=" << x;
+
+  return x;
+}
+//___________________________________________________________________________
 bool genie::utils::kinematics::IsAboveCharmThreshold(
                                    double x, double Q2, double M, double mc)
 {
@@ -694,6 +829,32 @@ void genie::utils::kinematics::UpdateXYFromWQ2(const Interaction * in)
     kinematics::WQ2toXY(Ev,M,W,Q2,x,y);
     kine->Setx(x);
     kine->Sety(y);
+  }
+}
+//___________________________________________________________________________
+void genie::utils::kinematics::UpdateXFromQ2Y(const Interaction * in)
+{
+  Kinematics * kine = in->KinePtr();
+
+  if(kine->KVSet(kKVy) && kine->KVSet(kKVQ2)) {
+
+    const ProcessInfo &  pi = in->ProcInfo();
+    double M = 0.0;
+
+    if (pi.IsCoherent()) {
+      M = in->InitState().Tgt().Mass(); // nucleus mass
+    }
+    else {
+      M = in->InitState().Tgt().HitNucP4Ptr()->M(); //can be off m/shell
+    }
+
+    const InitialState & init_state = in->InitState();
+    double Ev = init_state.ProbeE(kRfHitNucRest);
+    double y  = kine->y();
+    double Q2 = kine->Q2();
+
+    double x = kinematics::Q2YtoX(Ev,M,Q2,y);
+    kine->Setx(x);
   }
 }
 //____________________________________________________________________________

@@ -31,14 +31,14 @@
               For info on the XML file format see the GSimFiles class documentation.
                       
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory
+         University of Liverpool & STFC Rutherford Appleton Lab
 
          Hugh Gallagher <gallag \at minos.phy.tufts.edu>
          Tufts University
 
 \created June 06, 2008 
 
-\cpright Copyright (c) 2003-2011, GENIE Neutrino MC Generator Collaboration
+\cpright Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
          or see $GENIE/LICENSE
 */

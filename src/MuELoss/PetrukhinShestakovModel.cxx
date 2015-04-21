@@ -1,11 +1,11 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - December 10, 2003
+         University of Liverpool & STFC Rutherford Appleton Lab - December 10, 2003
 
  For the class documentation see the corresponding header file.
 
@@ -15,9 +15,11 @@
 //____________________________________________________________________________
 
 #include <TMath.h>
+#include <Math/Integrator.h>
 
 #include "MuELoss/PetrukhinShestakovModel.h"
-#include "Numerical/IntegratorI.h"
+////#include "Numerical/IntegratorI.h"
+#include "Utils/GSLUtils.h"
 
 using namespace genie;
 using namespace genie::mueloss;
@@ -58,56 +60,71 @@ double PetrukhinShestakovModel::dE_dx(double E, MuELMaterial_t material) const
   double Vmin = 0.;
   double Vmax = 1. - 0.75*kSqrte* (kMuonMass/E) * TMath::Power(Z,1/3.);
 
-  // integrate the Bethe-Heitler muon bremsstrahlung cross section v*ds/dv
-  // over v
-  PetrukhinShestakovIntegrand vds_dv(E,Z);
-  vds_dv.SetParam(0,"v",Vmin,Vmax);
+  // integrate the Bethe-Heitler muon bremsstrahlung 
+  // cross section v*ds/dv over v
+
+  ROOT::Math::IBaseFunctionOneDim * integrand =
+          new gsl::PetrukhinShestakovIntegrand(E,Z);
+  ROOT::Math::IntegrationOneDim::Type ig_type =
+          utils::gsl::Integration1DimTypeFromString("adaptive");
+
+  double abstol   = 1;    // We mostly care about relative tolerance   
+  double reltol   = 1E-4;
+  int    nmaxeval = 100000;
+  ROOT::Math::Integrator ig(*integrand,ig_type,abstol,reltol,nmaxeval);
 
   // calculate the b factor (bE = -dE/dx) in GeV^-3
   A *= units::g;
-  double bbrem = (kNA/A) * fIntegrator->Integrate(vds_dv);
+  double bbrem = (kNA/A) * ig.Integral(Vmin, Vmax);
+
+  delete integrand;
 
   // calculate the dE/dx due to muon bremsstrahlung in GeV^-2
   double de_dx = bbrem*E;
   return de_dx;
 }
 //____________________________________________________________________________
-void PetrukhinShestakovModel::Configure(const Registry & config)
-{
-  Algorithm::Configure(config);
-  this->LoadConfig();
-}
+//void PetrukhinShestakovModel::Configure(const Registry & config)
+//{
+//  Algorithm::Configure(config);
+//  this->LoadConfig();
+//}
+////____________________________________________________________________________
+//void PetrukhinShestakovModel::Configure(string config)
+//{
+//  Algorithm::Configure(config);
+//  this->LoadConfig();
+//}
+////____________________________________________________________________________
+//void PetrukhinShestakovModel::LoadConfig(void)
+//{
+////  fIntegrator = dynamic_cast<const IntegratorI *>(this->SubAlg("Integrator"));
+////  assert(fIntegrator);
+//}
 //____________________________________________________________________________
-void PetrukhinShestakovModel::Configure(string config)
-{
-  Algorithm::Configure(config);
-  this->LoadConfig();
-}
-//____________________________________________________________________________
-void PetrukhinShestakovModel::LoadConfig(void)
-{
-  fIntegrator = dynamic_cast<const IntegratorI *>(this->SubAlg("Integrator"));
-  assert(fIntegrator);
-}
-//____________________________________________________________________________
-PetrukhinShestakovIntegrand::PetrukhinShestakovIntegrand(double E, double Z) :
-GSFunc(1)
+gsl::PetrukhinShestakovIntegrand::PetrukhinShestakovIntegrand(double E, double Z) :
+ROOT::Math::IBaseFunctionOneDim()
 {
   fE = E;
   fZ = Z;
 }
 //____________________________________________________________________________
-PetrukhinShestakovIntegrand::~PetrukhinShestakovIntegrand()
+gsl::PetrukhinShestakovIntegrand::~PetrukhinShestakovIntegrand()
 {
 
 }
 //____________________________________________________________________________
-double PetrukhinShestakovIntegrand::operator () (const vector<double> & x)
+unsigned int gsl::PetrukhinShestakovIntegrand::NDim(void) const
+{
+  return 1;
+}
+//____________________________________________________________________________
+double gsl::PetrukhinShestakovIntegrand::DoEval(double xin) const
 {
 // Calculate the Bethe-Heitler cross section ds/dv for muon bremsstrahlung
 // Returns v*(ds/dv)
 
-  double v  = x[0]; // v, the fraction of energy transfered to the photon
+  double v  = xin; // v, the fraction of energy transfered to the photon
   double v2 = TMath::Power(v,2.);
 
   if (! v >0) return 0;
@@ -139,6 +156,12 @@ double PetrukhinShestakovIntegrand::operator () (const vector<double> & x)
   double ds_dv  = (a3*memu2*kLe2) * (4*Z2) * (fi) * (4/3.-4*v/3.+v2)/v;
   double vds_dv = v*ds_dv;
   return vds_dv; // in GeV^-2
+}
+//____________________________________________________________________________
+ROOT::Math::IBaseFunctionOneDim *
+  gsl::PetrukhinShestakovIntegrand::Clone(void) const
+{ 
+  return new gsl::PetrukhinShestakovIntegrand(fE, fZ);
 }
 //____________________________________________________________________________
 

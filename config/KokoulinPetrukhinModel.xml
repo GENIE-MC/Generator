@@ -9,11 +9,9 @@ Configurable Parameters:
 .......................................................................................................
 Name             Type     Optional   Comment               Default
 .......................................................................................................
-Integrator       alg      No
 -->
 
   <param_set name="Default"> 
-     <param type="alg" name="Integrator"> genie::Simpson2D/Default-Linear-FixedNBins </param>
   </param_set>
 </alg_conf>
 

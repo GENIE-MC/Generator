@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2010, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -8,7 +8,7 @@
          Imperial College London
 
          Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory
+         University of Liverpool & STFC Rutherford Appleton Lab
 
 	 Aaron Meyer <asm58 \at pitt.edu>
 	 Pittsburgh University
@@ -1596,19 +1596,20 @@ bool genie::utils::intranuke::PhaseSpaceDecay(
   TLorentzVector * pd = p->GetP4(); // incident particle 4p
 
   bool is_nuc = pdg::IsNeutronOrProton(p->Pdg());
-
+  bool is_kaon = p->Pdg()==kPdgKP || p->Pdg()==kPdgKM;
   // update available energy -> init (mass + kinetic) + sum of f/s masses
+  // for pion only.  Probe mass not available for nucleon, kaon
   double availE = pd->Energy() + mass_sum; 
-  if(is_nuc) availE -= p->Mass();
+  if(is_nuc||is_kaon) availE -= p->Mass();
   pd->SetE(availE);
 
   LOG("INukeUtils",pNOTICE) 
     << "size, mass_sum, availE, pd mass, energy = " << pdgv.size() << "  " 
-    << mass_sum << "  " << p->Mass() << "  " << p->Energy() ;
+    << mass_sum << "  " << availE << "  " << p->Mass() << "  " << p->Energy() ;
 
   // compute the 4p transfer to the hadronic blob
   double dE = mass_sum;
-  if(is_nuc) dE -= p->Mass();  
+  if(is_nuc||is_kaon) dE -= p->Mass();  
   TLorentzVector premnsub(0,0,0,dE);
   RemnP4 -= premnsub;
 
@@ -1616,7 +1617,7 @@ bool genie::utils::intranuke::PhaseSpaceDecay(
     << "Final state = " << state_sstream.str() << " has N = " << pdgv.size() 
     << " particles / total mass = " << mass_sum;
   LOG("INukeUtils", pINFO)
-    << "Decaying system p4 = " << utils::print::P4AsString(pd);
+    << "Composite system p4 = " << utils::print::P4AsString(pd);
 
   // Set the decay
   TGenPhaseSpace GenPhaseSpace; 
@@ -1635,8 +1636,9 @@ bool genie::utils::intranuke::PhaseSpaceDecay(
   }
 
   // The decay is permitted - add the incident particle at the event record
-  // and mark is as 'decayed state'
-  p->SetStatus(kIStDecayedState);
+  // and mark is as 'Nucleon Cluster Target' (used to be confusing 'Decayed State')
+  p->SetStatus(kIStNucleonClusterTarget);  //kIStDecayedState);
+  p->SetPdgCode(kPdgCompNuclCluster);
   ev->AddParticle(*p);
 
   // Get the maximum weight

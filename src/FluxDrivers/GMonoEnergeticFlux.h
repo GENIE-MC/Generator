@@ -10,11 +10,11 @@
           can handle a target mix or detailed geometries.
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  Feb 08, 2008
 
-\cpright  Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
+\cpright  Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
@@ -39,6 +39,7 @@ namespace flux  {
 class GMonoEnergeticFlux: public GFluxI {
 
 public :
+  GMonoEnergeticFlux();
   GMonoEnergeticFlux(double Ev, int pdg);
   GMonoEnergeticFlux(double Ev, const map<int,double> & numap /* pdg -> weight*/);
  ~GMonoEnergeticFlux();
@@ -63,10 +64,13 @@ public :
   void                   SetNuDirection  (const TVector3 & direction);
   void                   SetBeamSpot     (const TVector3 & spot);
 
+  // allow re-initialization, and/or initialization after default ctor
+  void   Initialize (double Ev, int pdg);
+  void   Initialize (double Ev, const map<int,double> & numap);
+
 private:
 
   // private methods
-  void   Initialize (double Ev, const map<int,double> & numap);
   void   CleanUp    (void);
 
   // private data members

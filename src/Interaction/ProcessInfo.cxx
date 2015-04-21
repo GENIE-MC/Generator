@@ -1,11 +1,11 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory 
+         University of Liverpool & STFC Rutherford Appleton Lab 
 
  For the class documentation see the corresponding header file.
 
@@ -88,6 +88,11 @@ void ProcessInfo::Reset(void)
 bool ProcessInfo::IsQuasiElastic(void) const
 {
   return (fScatteringType == kScQuasiElastic);
+}
+//____________________________________________________________________________
+bool ProcessInfo::IsSingleKaon(void) const
+{
+  return (fScatteringType == kScSingleKaon);
 }
 //____________________________________________________________________________
 bool ProcessInfo::IsDeepInelastic(void) const

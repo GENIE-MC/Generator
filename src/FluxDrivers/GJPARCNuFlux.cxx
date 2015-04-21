@@ -1,11 +1,11 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2010, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory - Feb 04, 2008
+         University of Liverpool & STFC Rutherford Appleton Lab - Feb 04, 2008
 
  For the class documentation see the corresponding header file.
 
@@ -134,6 +134,9 @@
 #include "Utils/MathUtils.h"
 #include "Utils/PrintUtils.h"
 #include "Utils/StringUtils.h"
+
+#include "FluxDrivers/GFluxDriverFactory.h"
+FLUXDRIVERREG4(genie,flux,GJPARCNuFlux,genie::flux::GJPARCNuFlux)
 
 using std::endl;
 using std::cout;

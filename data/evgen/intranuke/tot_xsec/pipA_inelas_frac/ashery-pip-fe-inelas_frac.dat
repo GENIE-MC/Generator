@@ -1,0 +1,8 @@
+# 1st column is KE, 2nd column is fraction of total cross section
+# Data at 85 MeV omitted in favor of Aniol data
+#
+125  .336
+165  .258
+205  .206
+245  .267
+315  .278

@@ -1,11 +1,11 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory
+         University of Liverpool & STFC Rutherford Appleton Lab
 
  For the class documentation see the corresponding header file.
 
@@ -243,8 +243,11 @@ void DISHadronicSystemGenerator::SimulateFormationZone(
       << "Applying formation-zone to " << p->Name();
 
     double m = p->Mass();  
+    int pdgc = p->Pdg();
     const TLorentzVector & p4 = *(p->P4());
-    double fz = phys::FormationZone(m,p4,p3hadr,fct0,fK);
+    double ct0=0.;
+    pdg::IsNucleon(pdgc) ? ct0=fct0nucleon : ct0=fct0pion; 
+    double fz = phys::FormationZone(m,p4,p3hadr,ct0,fK);
 
     //-- Apply the formation zone step
 
@@ -318,10 +321,12 @@ void DISHadronicSystemGenerator::LoadConfig(void)
 
   //-- Get parameters controlling the formation zone simulation
   //
-  fct0 = fConfig->GetDoubleDef ("ct0",  gc->GetDouble("FZONE-ct0")); // fm
-  fK   = fConfig->GetDoubleDef ("Kpt2", gc->GetDouble("FZONE-KPt2"));
+  fct0pion    = fConfig->GetDoubleDef ("ct0pion",  gc->GetDouble("FZONE-ct0pion")); // fm
+  fct0nucleon = fConfig->GetDoubleDef ("ct0nucleon",  gc->GetDouble("FZONE-ct0nucleon")); // fm
+  fK          = fConfig->GetDoubleDef ("Kpt2", gc->GetDouble("FZONE-KPt2"));
 
-  LOG("DISHadronicVtx", pDEBUG) << "ct0     = " << fct0 << " fermi";
+  LOG("DISHadronicVtx", pDEBUG) << "ct0pion     = " << fct0pion    << " fermi";
+  LOG("DISHadronicVtx", pDEBUG) << "ct0nucleon  = " << fct0nucleon << " fermi";
   LOG("DISHadronicVtx", pDEBUG) << "K(pt^2) = " << fK;
 }
 //____________________________________________________________________________

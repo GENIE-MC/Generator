@@ -14,7 +14,7 @@
 
 \created  Jun 27, 2008
 
-\cpright  Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
+\cpright  Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
@@ -34,6 +34,8 @@
 
 #include "EVGDrivers/GFluxI.h"
 #include "PDG/PDGUtils.h"
+#include "FluxDrivers/GFluxExposureI.h"
+#include "FluxDrivers/GFluxFileConfigI.h"
 
 class TFile;
 class TChain;
@@ -209,7 +211,9 @@ ClassDef(GNuMIFluxPassThroughInfo,5)
 /// ==========
 /// An implementation of the GFluxI interface that provides NuMI flux
 ///
-class GNuMIFlux: public GFluxI {
+class GNuMIFlux : public GFluxI, 
+    public GFluxExposureI, public GFluxFileConfigI 
+{
 
 public :
   GNuMIFlux();
@@ -249,9 +253,12 @@ public :
   //
   // information about the current state
   //
+  virtual double    GetTotalExposure() const;  // GFluxExposureI interface
+  virtual long int  NFluxNeutrinos() const;    ///< # of rays generated
+
   double    POT_curr(void);             ///< current average POT (RWH?)
   double    UsedPOTs(void) const;       ///< # of protons-on-target used
-  long int  NFluxNeutrinos(void) const { return fNNeutrinos; } ///< number of flux neutrinos looped so far
+
   double    SumWeight(void) const { return fSumWeight;  } ///< integrated weight for flux neutrinos looped so far
 
   void      PrintCurrent(void);         ///< print current entry from leaves
@@ -259,23 +266,26 @@ public :
 
   std::vector<std::string> GetFileList();  ///< list of files currently part of chain
 
+  // 
+  // GFluxFileConfigI interface
+  //
+  virtual void  LoadBeamSimData(const std::vector<std::string>& filenames,
+                                const std::string&              det_loc);
+  using GFluxFileConfigI::LoadBeamSimData; // inherit the rest
+  virtual void GetBranchInfo(std::vector<std::string>& branchNames,
+                             std::vector<std::string>& branchClassNames,
+                             std::vector<void**>&      branchObjPointers);
+  virtual TTree* GetMetaDataTree();
+
   //
   // configuration of GNuMIFlux
   //
-  void      SetXMLFile(string xmlbasename="GNuMIFlux.xml") { fXMLbasename = xmlbasename; }  ///< set the name of the file that hold XML config param_sets
-  std::string GetXMLFile() const { return fXMLbasename; }  ///< return the name of the file that hold XML config param_sets
-
-  void      LoadBeamSimData(std::vector<string> filenames, string det_loc);     ///< load root flux ntuple files and config
-  void      LoadBeamSimData(std::set<string>    filenames, string det_loc);     ///< load root flux ntuple files and config
-  void      LoadBeamSimData(string filename, string det_loc);     ///< older (obsolete) single file version
 
   bool      LoadConfig(string cfg);                               ///< load a named configuration
-  void      SetFluxParticles(const PDGCodeList & particles);      ///< specify list of flux neutrino species
   void      SetMaxEnergy(double Ev);                              ///< specify maximum flx neutrino energy
 
   void      SetGenWeighted(bool genwgt=false) { fGenWeighted = genwgt; } ///< toggle whether GenerateNext() returns weight=1 flux (initial default false)
 
-  void      SetNumOfCycles(long int ncycle);                      ///< set how many times to cycle through the ntuple (default: 1 / n=0 means 'infinite')
   void      SetEntryReuse(long int nuse=1);                       ///<  # of times to use entry before moving to next
 
   void      SetTreeName(string name);                             ///< set input tree name (default: "h10")
@@ -330,8 +340,6 @@ public :
   void      SetFluxWindow(TVector3  p1, TVector3  p2, TVector3  p3); ///< 3 points define a plane (by default in user coordinates)
   void      GetFluxWindow(TVector3& p1, TVector3& p2, TVector3& p3) const; ///< 3 points define a plane in beam coordinate 
 
-  void      SetUpstreamZ(double z0);                           ///< set flux neutrino initial z position (upstream of the detector) pushed back from the flux window
-
   /// force weights at MINOS detector "center" as found in ntuple
   void      UseFluxAtNearDetCenter(void);
   void      UseFluxAtFarDetCenter(void);
@@ -369,7 +377,6 @@ private:
   // Private data members
   //
   double         fMaxEv;          ///< maximum energy
-  PDGCodeList *  fPdgCList;       ///< list of neutrino pdg-codes to generate
   PDGCodeList *  fPdgCListRej;    ///< list of neutrino pdg-codes seen but rejected
   bool           fEnd;            ///< end condition reached
 
@@ -393,7 +400,6 @@ private:
   long int  fMaxWgtEntries;       ///< # of entries in estimating max wgt
   double    fMaxEFudge;           ///< fudge factor for estmating max enu (0=> use fixed 120GeV)
 
-  long int  fNCycles;             ///< # times to cycle through the flux ntuple
   long int  fICycle;              ///< current file cycle
   long int  fNUse;                ///< how often to use same entry in a row
   long int  fIUse;                ///< current # of times an entry has been used
@@ -414,7 +420,6 @@ private:
   TLorentzVector   fBeamZero;       ///< beam origin in user coords
   TLorentzRotation fBeamRot;        ///< rotation applied beam --> user coord
   TLorentzRotation fBeamRotInv;
-  double           fZ0;             ///< configurable starting z position for each flux neutrino (in detector coord system)
 
   TVector3         fFluxWindowPtUser[3]; ///<  user points of flux window
   TLorentzVector   fFluxWindowBase; ///< base point for flux window - beam coord

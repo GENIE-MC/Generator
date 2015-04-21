@@ -7,11 +7,11 @@
          objects (InitialState, ProcessInfo, Kinematics, XclsTag)
 
 \author  Costas Andreopoulos <C.V.Andreopoulos@@rl.ac.uk>
-         STFC, Rutherford Appleton Laboratory
+         University of Liverpool & STFC Rutherford Appleton Lab
 
 \created May 4, 2004
 
-\cpright Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
+\cpright Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
          or see $GENIE/LICENSE
 */

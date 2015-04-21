@@ -6,10 +6,13 @@
 \brief    Singleton class to load & serve tables of Fermi momentum constants
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  August 18, 2005
 
+\cpright  Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org
+          or see $GENIE/LICENSE
 */
 //____________________________________________________________________________
 

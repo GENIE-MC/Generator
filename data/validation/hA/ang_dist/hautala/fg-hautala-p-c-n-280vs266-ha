@@ -1,0 +1,24 @@
+[RECORD]
+ -1.,1.,0,
+ Angle
+ p C #rightarrow n X Tp = 197 MeV
+ hautala-p-c-197-n-angdist-280vs266-ha-May_24_13
+ 4
+[EXPERIMENTAL]
+ hautala-p-c-197-n-angdist.dat
+ xsec:TMath::Cos(cth*.01745):err1
+ 197 MeV Hautala C Data (ang dist)
+[GENIE]
+ May_24_13_p_C_197_v280_hA.ginuke.root
+ cth
+ pdgh==2112
+ 1
+ GENIE 2.8.0 hA results
+[GENIE]
+ Jul_11_13_p_C_197_v266_hA.ginuke.root
+ cth
+ pdgh==2112
+ 1
+ GENIE 2.6.6 hA results
+
+

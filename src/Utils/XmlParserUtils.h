@@ -6,11 +6,11 @@
 \brief      XML utilities
 
 \author     Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-            STFC, Rutherford Appleton Laboratory
+            University of Liverpool & STFC Rutherford Appleton Lab
 
 \created    May 04, 2004
  
-\cpright    Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
+\cpright    Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
             For the full text of the license visit http://copyright.genie-mc.org
             or see $GENIE/LICENSE
 */
@@ -22,8 +22,10 @@
 #include <string>
 #include <vector>
 
+#if !defined(__CINT__) && !defined(__MAKECINT__)
 #include "libxml/parser.h"
 #include "libxml/xmlmemory.h"
+#endif
 
 #include "Utils/StringUtils.h"
 
@@ -35,6 +37,7 @@ namespace genie {
 namespace utils {
 namespace xml   {
 
+#if !defined(__CINT__) && !defined(__MAKECINT__)
   inline string TrimSpaces(xmlChar * xmls)
   {
    // trim the leading/trailing spaces from an parsed xml string like in:
@@ -62,6 +65,7 @@ namespace xml   {
 
     return str;
   }
+#endif
 
   //_________________________________________________________________________
   inline string GetXMLPathList()

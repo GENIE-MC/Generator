@@ -6,11 +6,11 @@
 \brief    Enumeration of scattering types
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  May 06, 2004
 
-\cpright  Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
+\cpright  Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE 
 */
@@ -30,6 +30,7 @@ typedef enum EScatteringType {
 
   kScNull = 0,
   kScQuasiElastic,
+  kScSingleKaon,
   kScDeepInelastic,
   kScResonant,
   kScCoherent,
@@ -57,6 +58,7 @@ public:
       case(kScQuasiElastic) :      return "QES";       break;
       case(kScDeepInelastic) :     return "DIS";       break;
       case(kScResonant) :          return "RES";       break;
+      case(kScSingleKaon) :        return "1Kaon";     break;
       case(kScCoherent) :          return "COH";       break;
       case(kScDiffractive) :       return "DFR";       break;
       case(kScNuElectronElastic) : return "NuEEL";     break;

@@ -12,11 +12,11 @@
           concrete subclasses: LwlynSmithFFCC, LwlynSmithFFNC.
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  May 03, 2004
 
-\cpright  Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
+\cpright  Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
@@ -61,6 +61,15 @@ protected:
   virtual double GVE    (const Interaction * interaction) const;
   virtual double GVM    (const Interaction * interaction) const;
 
+  virtual double F1P    (const Interaction * interaction) const;  
+  virtual double F2P    (const Interaction * interaction) const;  
+  virtual double F1N    (const Interaction * interaction) const;  
+  virtual double F2N    (const Interaction * interaction) const;  
+ 
+  virtual double StrangeF1V   (const Interaction * interaction) const;
+  virtual double StrangexiF2V (const Interaction * interaction) const;
+  virtual double StrangeFA    (const Interaction * interaction) const;
+  
   const ELFormFactorsModelI * fElFFModel;
 
   mutable ELFormFactors fELFF;
@@ -71,6 +80,7 @@ protected:
   double fMuP;
   double fMuN;
   double fSin28w;
+  double fFDratio;   
   bool fCleanUpfElFFModel;
 };
 

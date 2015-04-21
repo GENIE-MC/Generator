@@ -6,11 +6,11 @@
 \brief    GHepParticle Status
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  November 20, 2004
 
-\cpright  Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
+\cpright  Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */ 
@@ -37,7 +37,7 @@ typedef enum EGHepStatus {
    kIStPreDecayResonantState      = 13,
    kIStHadronInTheNucleus         = 14,   /* hadrons inside the nucleus: marked for hadron transport modules to act on */
    kIStFinalStateNuclearRemnant   = 15,   /* low energy nuclear fragments entering the record collectively as a 'hadronic blob' pseudo-particle */
-   kIStNucleonClusterTarget       = 16
+   kIStNucleonClusterTarget       = 16,   // for composite nucleons before phase space decay
 } 
 GHepStatus_t; 
   

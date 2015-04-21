@@ -1,0 +1,234 @@
+Note: Use the Quick Summary section to edit the section of $GENIE/src/HadronTransport/INukeHadroData.cxx
+      where the TGraph2D objects are constructed.
+
+---Quick Summary---
+
+**abs**
+Num nuclei: 7
+Nuclei: { 1, 7, 12, 27, 56, 93, 209 }
+Total points: 86
+
+**cex**
+Num nuclei: 13
+Nuclei: { 1, 2, 3, 4, 7, 9, 12, 16, 27, 56, 58, 93, 209 }
+Total points: 105
+
+**elas**
+Num nuclei: 7
+Nuclei: { 1, 7, 12, 27, 56, 93, 209 }
+Total points: 87
+
+**inelas**
+Num nuclei: 7
+Nuclei: { 1, 7, 12, 27, 56, 93, 209 }
+Total points: 87
+
+**pipro**
+Num nuclei: 3
+Nuclei: { 1, 56, 209 }
+Total points: 51
+
+**tot**
+Num nuclei: 14
+Nuclei: { 1, 4, 6, 7, 9, 12, 16, 27, 28, 32, 40, 56, 93, 209 }
+Total points: 195
+
+**abs_frac**
+Num nuclei: 7
+Nuclei: { 1, 7, 12, 27, 56, 93, 209 }
+Total points: 86
+
+**cex_frac**
+Num nuclei: 13
+Nuclei: { 1, 2, 3, 4, 7, 9, 12, 16, 27, 56, 58, 93, 209 }
+Total points: 105
+
+**elas_frac**
+Num nuclei: 7
+Nuclei: { 1, 7, 12, 27, 56, 93, 209 }
+Total points: 87
+
+**inelas_frac**
+Num nuclei: 7
+Nuclei: { 1, 7, 12, 27, 56, 93, 209 }
+Total points: 87
+
+**pipro_frac**
+Num nuclei: 3
+Nuclei: { 1, 56, 209 }
+Total points: 51
+
+
+
+---Data Modifications---
+
+A	Fate		KE	Factor
+
+27	abs_frac	315	1.5
+27	inelas_frac	165	0.95
+12	abs_frac	245	1.2
+12	abs_frac	315	1.5
+12	cex_frac	85	0.95
+12	cex_frac	125	1.05
+56	abs_frac	125	0.95
+56	cex_frac	125	1.1
+56	cex_frac	205	1.1
+7	abs_frac	125	0.85
+7	abs_frac	205	1.9
+7	abs_frac	245	2
+7	inelas_frac	315	0.65
+209	abs_frac	85	0.95
+209	abs_frac	125	1.1
+209	abs_frac	205	1.1
+209	abs_frac	315	1.1
+209	cex_frac	205	0.95
+209	inelas_frac	125	0.8
+209	inelas_frac	205	0.9
+209	inelas_frac	245	0.9
+
+
+
+---Powers of A---
+
+Absorption: 		0.846667
+Charge exchange: 	0.666667
+Elastic: 		0.916667
+Inelastic: 		0.666667
+Pion producion: 	0.666667
+Total: 			0.666667
+
+
+---Extra Details---
+
+Fate: abs
+	Nucleus: al  | A:  27 | Data points:  6
+	Nucleus: bi  | A: 209 | Data points: 21
+	Nucleus: c   | A:  12 | Data points:  6
+	Nucleus: fe  | A:  56 | Data points: 21
+	Nucleus: li  | A:   7 | Data points:  5
+	Nucleus: nb  | A:  93 | Data points:  6
+	Nucleus: h   | A:   1 | Data points: 21
+
+	Total points for abs: 86
+
+Fate: cex
+	Nucleus: al  | A:  27 | Data points:  6
+	Nucleus: be  | A:   9 | Data points:  1
+	Nucleus: bi  | A: 209 | Data points: 21
+	Nucleus: c   | A:  12 | Data points:  6
+	Nucleus: d   | A:   2 | Data points:  5
+	Nucleus: fe  | A:  56 | Data points: 21
+	Nucleus: h   | A:   1 | Data points: 21
+	Nucleus: he3 | A:   3 | Data points:  5
+	Nucleus: he  | A:   4 | Data points:  5
+	Nucleus: li  | A:   7 | Data points:  5
+	Nucleus: nb  | A:  93 | Data points:  6
+	Nucleus: ni  | A:  58 | Data points:  1
+	Nucleus: o   | A:  16 | Data points:  2
+
+	Total points for cex: 105
+
+Fate: elas
+	Nucleus: al  | A:  27 | Data points:  6
+	Nucleus: bi  | A: 209 | Data points: 21
+	Nucleus: c   | A:  12 | Data points:  6
+	Nucleus: fe  | A:  56 | Data points: 21
+	Nucleus: li  | A:   7 | Data points:  6
+	Nucleus: nb  | A:  93 | Data points:  6
+	Nucleus: h   | A:   1 | Data points: 21
+
+	Total points for elas: 87
+
+Fate: inelas
+	Nucleus: al  | A:  27 | Data points:  6
+	Nucleus: bi  | A: 209 | Data points: 21
+	Nucleus: c   | A:  12 | Data points:  6
+	Nucleus: fe  | A:  56 | Data points: 21
+	Nucleus: li  | A:   7 | Data points:  6
+	Nucleus: nb  | A:  93 | Data points:  6
+	Nucleus: h   | A:   1 | Data points: 21
+
+	Total points for inelas: 87
+
+Fate: pipro
+	Nucleus: h   | A:   1 | Data points: 21
+	Nucleus: fe  | A:  56 | Data points: 15
+	Nucleus: bi  | A: 209 | Data points: 15
+
+	Total points for pipro: 51
+
+Fate: tot
+	Nucleus: al  | A:  27 | Data points:  7
+	Nucleus: be  | A:   9 | Data points: 19
+	Nucleus: bi  | A: 209 | Data points: 21
+	Nucleus: c   | A:  12 | Data points: 34
+	Nucleus: ca  | A:  40 | Data points:  1
+	Nucleus: fe  | A:  56 | Data points: 21
+	Nucleus: h   | A:   1 | Data points: 21
+	Nucleus: he  | A:   4 | Data points:  5
+	Nucleus: li  | A:   7 | Data points: 25
+	Nucleus: li6 | A:   6 | Data points: 21
+	Nucleus: nb  | A:  93 | Data points:  6
+	Nucleus: o   | A:  16 | Data points:  6
+	Nucleus: s   | A:  32 | Data points:  7
+	Nucleus: si  | A:  28 | Data points:  1
+
+	Total points for tot: 195
+
+Fate: abs_frac
+	Nucleus: al  | A:  27 | Data points:  6
+	Nucleus: bi  | A: 209 | Data points: 21
+	Nucleus: c   | A:  12 | Data points:  6
+	Nucleus: fe  | A:  56 | Data points: 21
+	Nucleus: li  | A:   7 | Data points:  5
+	Nucleus: nb  | A:  93 | Data points:  6
+	Nucleus: h   | A:   1 | Data points: 21
+
+	Total points for abs_frac: 86
+
+Fate: cex_frac
+	Nucleus: al  | A:  27 | Data points:  6
+	Nucleus: be  | A:   9 | Data points:  1
+	Nucleus: bi  | A: 209 | Data points: 21
+	Nucleus: c   | A:  12 | Data points:  6
+	Nucleus: d   | A:   2 | Data points:  5
+	Nucleus: fe  | A:  56 | Data points: 21
+	Nucleus: h   | A:   1 | Data points: 21
+	Nucleus: he3 | A:   3 | Data points:  5
+	Nucleus: he  | A:   4 | Data points:  5
+	Nucleus: li  | A:   7 | Data points:  5
+	Nucleus: nb  | A:  93 | Data points:  6
+	Nucleus: ni  | A:  58 | Data points:  1
+	Nucleus: o   | A:  16 | Data points:  2
+
+	Total points for cex_frac: 105
+
+Fate: elas_frac
+	Nucleus: al  | A:  27 | Data points:  6
+	Nucleus: bi  | A: 209 | Data points: 21
+	Nucleus: c   | A:  12 | Data points:  6
+	Nucleus: fe  | A:  56 | Data points: 21
+	Nucleus: li  | A:   7 | Data points:  6
+	Nucleus: nb  | A:  93 | Data points:  6
+	Nucleus: h   | A:   1 | Data points: 21
+
+	Total points for elas_frac: 87
+
+Fate: inelas_frac
+	Nucleus: al  | A:  27 | Data points:  6
+	Nucleus: bi  | A: 209 | Data points: 21
+	Nucleus: c   | A:  12 | Data points:  6
+	Nucleus: fe  | A:  56 | Data points: 21
+	Nucleus: li  | A:   7 | Data points:  6
+	Nucleus: nb  | A:  93 | Data points:  6
+	Nucleus: h   | A:   1 | Data points: 21
+
+	Total points for inelas_frac: 87
+
+Fate: pipro_frac
+	Nucleus: h   | A:   1 | Data points: 21
+	Nucleus: fe  | A:  56 | Data points: 15
+	Nucleus: bi  | A: 209 | Data points: 15
+
+	Total points for pipro_frac: 51
+

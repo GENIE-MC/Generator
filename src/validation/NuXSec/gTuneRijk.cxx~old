@@ -23,14 +23,14 @@
          shell% gtune_rijk -h mysql://localhost/NuScat -u costas -p pswd -d 0,1,2,3
                       
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory
+         University of Liverpool & STFC Rutherford Appleton Lab
 
          Hugh Gallagher <gallag \at minos.phy.tufts.edu>
          Tufts University
 
 \created June 06, 2008 
 
-\cpright Copyright (c) 2003-2011, GENIE Neutrino MC Generator Collaboration
+\cpright Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
          or see $GENIE/LICENSE
 */
@@ -257,7 +257,7 @@ void Init(int argc, char ** argv)
 
   gRESXSecModel = 
      dynamic_cast<const XSecAlgorithmI *>(
-             algf->GetAlgorithm("genie::ReinSeghalRESPXSec","Default"));
+             algf->GetAlgorithm("genie::ReinSehgalRESPXSec","Default"));
   gDISXSecModel = 
      dynamic_cast<const XSecAlgorithmI *>(
              algf->GetAlgorithm("genie::DISPartonModelPXSec","CC-Default"));

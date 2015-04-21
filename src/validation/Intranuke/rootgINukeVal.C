@@ -2,6 +2,7 @@
 rootgINukeVal.C
 genie Intranuke Data Analysis
 Author Andrew Seel March 2011
+updated Juan Manfredi July 2012
 
 This program simplifies the production of graphs of energy/angle v. cross section for both GENIE generated events and published cross section data. This ROOT script is an upgrade to gINukeVal (circa 2008) that changes the format file format in order to allow for the graphing of N data files.
 
@@ -40,18 +41,25 @@ FORMAT OVERVIEW:  (All white-space is ignored, each line is its own field, excep
   cols
   legend title
   cut                   <- Normally uneccessary. Needed for XS filetypes
+[GEANT]
+  
 */
 
 
-#include <iostream.h>
-#include <fstream.h>
+#include <iostream>
+#include <fstream>
 #include <sstream>
-#include <list.h>
+#include <list>
 #include <TMath.h>
 #include <TCanvas.h>
 #include <TError.h>
 #include <TTree.h>
 #include <string>
+#include <TCollection.h>
+#include <TNtuple.h>
+#include <vector>
+#include <typeinfo>
+#include <genieStyle.C>
 
 //A small utility function that cuts off wrapping spaces
 string trim(string in){
@@ -68,17 +76,17 @@ string trim(string in){
 class DataFile
 {
 public:
-  string dir  =".";
-  string filename = "";
-  string name ="";
-  string title="";
-  string cols ="E/D:xsec:err1";
-  string gType ="Energy";
-  string cut  ="";
-  float dcth  =1;
-  int color = 1;
-  TFile* file =0x0;
-  bool isValid=false;
+  string dir;
+  string filename;
+  string name;
+  string title;
+  string cols;
+  string gType;
+  string cut;
+  float dcth;
+  int color;
+  TFile* file;
+  bool isValid; //=false
   bool GetData();
   DataFile();
   DataFile(string dname, string dtitle);
@@ -87,7 +95,7 @@ public:
   int GetID() {return this->ID;};
   bool valid() {return isValid;};
   int analyzeTextFile();
-  TTree* dataTree = new TTree;
+  TTree* dataTree;
   TNtuple* dataTuple;
 };
 
@@ -108,6 +116,7 @@ DataFile::DataFile(string dtype,string ddir, string ddname, string dtitle, strin
   cut = dcut;
   dcth = ddcth;
   color = dcolor;
+  if (color>=5) {color++;}
   isValid = GetData();
 }
 
@@ -450,8 +459,11 @@ int rootgINukeVal(char* fFile, char* dataDir = ".", char* ROOTDir = ".",char* sa
 {
   string tFile (fFile);
   string dDir (dataDir);
+  int legendSize; //counting entries in legend
+  float TextSize, y1; //adjusted font size and lower bound on legend
   FormatFile format (tFile);
   TCanvas* cans;
+  set_root_env();
   size_t curRecord=1;
   bool doCurrent = false;
   doCurrent = format.process(curRecord);
@@ -464,8 +476,11 @@ int rootgINukeVal(char* fFile, char* dataDir = ".", char* ROOTDir = ".",char* sa
   while(doCurrent == true){
     cout<<format.numOfType("GENIE")<<" root files and "<<format.numOfType("EXPERIMENTAL")<<" published data files "<<endl;
 
+    int legendSize = format.numOfType("GENIE") + format.numOfType("EXPERIMENTAL");
     stringstream convert;
-    gStyle->SetErrorX(0);
+    //gStyle->SetErrorX(0);
+    //gStyle->SetStyle(genieStyle);
+    set_root_env();
     Double_t size = 0;
     Int_t num = 0;
     Int_t target = 0;
@@ -473,7 +488,7 @@ int rootgINukeVal(char* fFile, char* dataDir = ".", char* ROOTDir = ".",char* sa
     Double_t factor = 0;
     TH1F* htemp = 0;
     bool good = false;
-    gROOT->SetStyle("T2K");
+    //gROOT->SetStyle("T2K");
 
     //the FormatFile class holds the graph limits as strings, converting here 
     Double_t xl, yl, xu, yu;
@@ -494,7 +509,13 @@ int rootgINukeVal(char* fFile, char* dataDir = ".", char* ROOTDir = ".",char* sa
     TPad* curP = gPad;
     if(format.logx==true){gPad->SetLogx(1);}
     if(format.logy==true){gPad->SetLogy(1);}
-    TLegend* leg1 = new TLegend(.6,.8,1,1,"");
+    
+    TextSize = .035;
+    y1 = 1.05-(.075*legendSize);//1, .075
+
+    TLegend* leg1 = new TLegend(.52,y1,1,1,"");//.6
+    leg1->SetTextSize(TextSize);
+    //TLegend* leg1 = new TLegend(.6,.8,1,1,"");
 
     //Get the frame, set parameters, redraw frame
     TH1F* hf1 = (TH1F*) cans->DrawFrame(xl,yl,xu,yu);
@@ -515,8 +536,7 @@ int rootgINukeVal(char* fFile, char* dataDir = ".", char* ROOTDir = ".",char* sa
       hf1->GetXaxis()->SetTitle("Energy [MeV]");
       hf1->GetYaxis()->SetTitle("#frac{d#sigma}{d#OmegadE} [#frac{mb}{sr#upointMev}]");
     }
-    hf1->GetYaxis()->SetTitleOffset(.8);
-    hf1->GetXaxis()->SetNdivisions(-50202);
+    //hf1->GetXaxis()->SetNdivisions(-50202);
     hf1->GetYaxis()->CenterTitle();
     hf1->Draw();
 
@@ -524,6 +544,9 @@ int rootgINukeVal(char* fFile, char* dataDir = ".", char* ROOTDir = ".",char* sa
     //Loop over each GINUKE file, scaling and drawing each
     int numRoots = format.numOfType("GENIE");
     int k;
+    int markerStyle=20;
+
+ 
     for(k=0;k<numRoots;k++){
       DataFile* simData = format.makeDataFile(k,ROOTDir,"GENIE");
       if(format.type.compare("XS")==0){
@@ -531,14 +554,15 @@ int rootgINukeVal(char* fFile, char* dataDir = ".", char* ROOTDir = ".",char* sa
         //Do things completely differently
         int curCol = simData->color;
         simData->dataTuple->SetMarkerColor(curCol);
-        simData->dataTuple->SetMarkerStyle(20+curCol-1);
-        simData->dataTuple->SetLineStyle(2);
+        simData->dataTuple->SetMarkerStyle(markerStyle);
+	markerStyle++;
+        simData->dataTuple->SetLineStyle(2);//2
         simData->dataTuple->SetLineColor(curCol);
         cout<<"About to draw tuple"<<endl;
         //simData->dataTuple->Draw();
         cout<<simData->cut.c_str()<<endl;
-        simData->dataTuple->Draw(simData->cut.c_str(),"","line psame");
-        leg1->AddEntry(simData->dataTuple,simData->title.c_str());
+        simData->dataTuple->Draw(simData->cut.c_str(),"","line psame L");
+	leg1->AddEntry(simData->dataTuple,simData->title.c_str(),"P");
         cout<<"Tuple drawn"<<endl;
       }
       else{
@@ -548,13 +572,14 @@ int rootgINukeVal(char* fFile, char* dataDir = ".", char* ROOTDir = ".",char* sa
         string newCut = simData->cut;
         newCut = newCut +"&&"+simData->cols+"<="+format.xu;
         newCut = newCut + "&&"+simData->cols+">"+format.xl;
-        simData->dataTree->Draw(simData->cols.c_str(),newCut.c_str());
+        simData->dataTree->Draw(simData->cols.c_str(),newCut.c_str(), "L");
         //tempVas is used in order to not clobber cans's htemp
         if(simData->valid()){
 
           //Grab the associated histogram from tempVas, apply scaling factor
           htemp = (TH1F*) gPad->GetPrimitive("htemp");
           TH1F* hist1;
+	  TH1F* hist1error;
           good=false;
           //Make sure that something actually existed in the cut
           if (htemp != 0x0) {
@@ -571,7 +596,8 @@ int rootgINukeVal(char* fFile, char* dataDir = ".", char* ROOTDir = ".",char* sa
             hist1->Scale(factor,"width");
             int curCol = simData->color;
             hist1->SetMarkerColor(curCol);
-            hist1->SetMarkerStyle(20+curCol-1);
+            hist1->SetMarkerStyle(markerStyle);
+	    markerStyle++;
             hist1->SetLineStyle(2);
             hist1->SetLineColor(curCol);
           }
@@ -582,8 +608,14 @@ int rootgINukeVal(char* fFile, char* dataDir = ".", char* ROOTDir = ".",char* sa
             //Draw a copy of histogram to cans on top of any other histograms already there
             cans->cd();
             //TPad* curP = gPad;
-            leg1->AddEntry(hist1,simData->title.c_str());
-            hist1->DrawCopy("e1 psame");
+	    leg1->AddEntry(hist1,simData->title.c_str());
+            hist1->DrawCopy("e1 psame");//e1 psame
+	    hist1->Draw("hist l same");
+	    
+	    //make and draw an extra histogram to have solid error bars
+	    hist1error = (TH1F*) hist1->Clone("hist1error"); 
+	    hist1error->SetLineStyle(1);
+	    hist1error->DrawCopy("e1 same");
           }
         }
         else{
@@ -599,7 +631,30 @@ int rootgINukeVal(char* fFile, char* dataDir = ".", char* ROOTDir = ".",char* sa
     cans->cd();
     TPad* curP = gPad;
     int numFiles = format.numOfType("EXPERIMENTAL");
+
+    /*
     int j = 0;
+    
+    for(j=0;j<3;j++){
+      DataFile* experimental = format.makeDataFile(0,dDir,"EXPERIMENTAL");
+      TGraphErrors* data1;
+      if(format.type.compare("XS")==0){
+        experimental->dataTuple->Draw(experimental->cut.c_str(),"","goff");
+        data1 = new TGraphErrors(experimental->dataTuple->GetSelectedRows(),experimental->dataTuple->GetV1(), experimental->dataTuple->GetV2(),experimental->dataTuple->GetV3(),experimental->dataTuple->GetV4());
+      }
+      else{
+        experimental->dataTree->Draw(experimental->cols.c_str(),"","goff");
+        data1 = new TGraphErrors(experimental->dataTree->GetSelectedRows(),experimental->dataTree->GetV2(), experimental->dataTree->GetV1(),0,experimental->dataTree->GetV3());
+      }
+      //data1->SetLineStyle(0);
+      data1->SetMarkerColor(experimental->color);
+      data1->SetMarkerStyle(markerStyle);
+      markerStyle++;
+      leg1->AddEntry(data1,experimental->title.c_str(),"P");
+      data1->Draw("p same");
+    }
+    */
+    
     for(j=0;j<numFiles;j++){
       DataFile* experimental = format.makeDataFile(j,dDir,"EXPERIMENTAL");
       TGraphErrors* data1;
@@ -611,14 +666,22 @@ int rootgINukeVal(char* fFile, char* dataDir = ".", char* ROOTDir = ".",char* sa
         experimental->dataTree->Draw(experimental->cols.c_str(),"","goff");
         data1 = new TGraphErrors(experimental->dataTree->GetSelectedRows(),experimental->dataTree->GetV2(), experimental->dataTree->GetV1(),0,experimental->dataTree->GetV3());
       }
-      data1->SetLineStyle(0);
+      data1->SetLineStyle(3);
       data1->SetMarkerColor(experimental->color);
-      data1->SetMarkerStyle(20);
+      data1->SetMarkerStyle(markerStyle);
+      markerStyle++;
       leg1->AddEntry(data1,experimental->title.c_str(),"P");
       data1->Draw("p same");
     }
-    //Draw the legend
+    
+    
+    //Draw the legend    
+
+    //set_root_env();
+    leg1->SetLineWidth(2);
     leg1->Draw();
+
+    //add_plot_label("THIS IS A TEST #alpha #Alpha#gamma", .5, .5, .05);
 
     //Save the record
     string saveName(saveDir);
@@ -631,5 +694,6 @@ int rootgINukeVal(char* fFile, char* dataDir = ".", char* ROOTDir = ".",char* sa
     doCurrent = format.process(curRecord);
   }
   cout<<"No more records found, exiting"<<endl;
+  //delete [] entryArray;
   return 0;
 }

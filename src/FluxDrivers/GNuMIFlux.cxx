@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -8,7 +8,7 @@
          Fermi National Accelerator Laboratory
 
          Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory
+         University of Liverpool & STFC Rutherford Appleton Lab
 
  For the class documentation see the corresponding header file.
 
@@ -213,6 +213,9 @@ using std::endl;
 #include "TRegexp.h"
 #include "TString.h"
 
+#include "FluxDrivers/GFluxDriverFactory.h"
+FLUXDRIVERREG4(genie,flux,GNuMIFlux,genie::flux::GNuMIFlux)
+
 #ifdef  GNUMI_TEST_XY_WGT
 static genie::flux::xypartials gpartials;  // global one used by CalcEnuWgt()
 #endif
@@ -263,7 +266,8 @@ const TLorentzVector kPosCenterNearBeam(0.,0.,  1039.35,0.);
 const TLorentzVector kPosCenterFarBeam (0.,0.,735340.00,0.);
 
 //____________________________________________________________________________
-GNuMIFlux::GNuMIFlux()
+GNuMIFlux::GNuMIFlux() :
+  GFluxExposureI(genie::flux::kPOTs)
 {
   this->Initialize();
 }
@@ -271,6 +275,20 @@ GNuMIFlux::GNuMIFlux()
 GNuMIFlux::~GNuMIFlux()
 {
   this->CleanUp();
+}
+
+//___________________________________________________________________________
+double GNuMIFlux::GetTotalExposure() const
+{
+  // complete the GFluxExposureI interface
+  return UsedPOTs();
+}
+
+//___________________________________________________________________________
+long int GNuMIFlux::NFluxNeutrinos(void) const
+{
+  /// number of flux neutrinos ray generated so far 
+  return fNNeutrinos; 
 }
 
 //___________________________________________________________________________
@@ -619,26 +637,8 @@ double GNuMIFlux::POT_curr(void) {
 }
 
 //___________________________________________________________________________
-void GNuMIFlux::LoadBeamSimData(string filename, string config )
-{
-// Loads a beam simulation root file into the GNuMIFlux driver.
-  std::vector<std::string> filevec;
-  filevec.push_back(filename);
-  LoadBeamSimData(filevec,config); // call the one that takes a vector
-}
-
-//___________________________________________________________________________
-void GNuMIFlux::LoadBeamSimData(std::set<string> fileset, string config )
-{
-// Loads a beam simulation root file into the GNuMIFlux driver.
-  // have a set<> want a vector<>
-  std::vector<std::string> filevec;
-  std::copy(fileset.begin(),fileset.end(),std::back_inserter(filevec));
-  LoadBeamSimData(filevec,config); // call the one that takes a vector
-}
-
-//___________________________________________________________________________
-void GNuMIFlux::LoadBeamSimData(std::vector<string> patterns, string config )
+void GNuMIFlux::LoadBeamSimData(const std::vector<std::string>& patterns,
+                                const std::string&              config )
 {
 // Loads in a gnumi beam simulation root file (converted from hbook format)
 // into the GNuMIFlux driver.
@@ -812,6 +812,23 @@ void GNuMIFlux::LoadBeamSimData(std::vector<string> patterns, string config )
   
 }
 //___________________________________________________________________________
+void GNuMIFlux::GetBranchInfo(std::vector<std::string>& branchNames,
+                              std::vector<std::string>& branchClassNames,
+                              std::vector<void**>&      branchObjPointers)
+{
+  // allow flux driver to report back current status and/or ntuple entry 
+  // info for possible recording in the output file by supplying
+  // the class name, and a pointer to the object that will be filled
+  // as well as a suggested name for the branch.
+  
+  branchNames.push_back("flux");
+  branchClassNames.push_back("genie::flux::GNuMIFluxPassThroughInfo");
+  branchObjPointers.push_back((void**)&fCurEntry);
+
+}
+TTree* GNuMIFlux::GetMetaDataTree() { return 0; } // there is none
+
+//___________________________________________________________________________
 void GNuMIFlux::ScanForMaxWeight(void)
 {
   if (!fDetLocIsSet) {
@@ -892,46 +909,12 @@ void GNuMIFlux::ScanForMaxWeight(void)
 
 }
 //___________________________________________________________________________
-void GNuMIFlux::SetFluxParticles(const PDGCodeList & particles)
-{
-  if (!fPdgCList) {
-     fPdgCList = new PDGCodeList;
-  }
-  fPdgCList->Copy(particles);
-
-  LOG("Flux", pINFO)
-    << "Declared list of neutrino species: " << *fPdgCList;
-}
-//___________________________________________________________________________
 void GNuMIFlux::SetMaxEnergy(double Ev)
 {
   fMaxEv = TMath::Max(0.,Ev);
 
   LOG("Flux", pINFO)
     << "Declared maximum flux neutrino energy: " << fMaxEv;
-}
-//___________________________________________________________________________
-void GNuMIFlux::SetUpstreamZ(double z0)
-{
-// The flux neutrino position (x,y) is given on the user specified flux window.
-// This method sets the preferred user coord starting z position upstream of
-// detector face. Each flux neutrino will be backtracked from the initial
-// flux window to the input z0.  If the value is unreasonable (> 10^30) 
-// then the ray is left on the flux window.
-
-  fZ0 = z0;
-}
-//___________________________________________________________________________
-void GNuMIFlux::SetNumOfCycles(long int ncycle)
-{
-// The flux ntuples can be recycled for a number of times to boost generated
-// event statistics without requiring enormous beam simulation statistics.
-// That option determines how many times the driver is going to cycle through
-// the input flux ntuple.
-// With ncycle=0 the flux ntuple will be recycled an infinite amount of times so
-// that the event generation loop can exit only on a POT or event num check.
-
-  fNCycles = TMath::Max(0L, ncycle);
 }
 //___________________________________________________________________________
 void GNuMIFlux::SetEntryReuse(long int nuse)
@@ -1216,7 +1199,6 @@ void GNuMIFlux::Initialize(void)
 
   fNEntries        =  0;
   fIEntry          = -1;
-  fNCycles         =  0;
   fICycle          =  0;
   fNUse            =  1;
   fIUse            =  999999;
@@ -1229,7 +1211,6 @@ void GNuMIFlux::Initialize(void)
   fMaxWgtEntries   = 2500000;
   fMaxEFudge       =  0;
 
-  fZ0              =  -3.4e38;
   fSumWeight       =  0;
   fNNeutrinos      =  0;
   fEffPOTsPerNu    =  0;
@@ -1272,7 +1253,7 @@ void GNuMIFlux::SetDefaults(void)
   this->SetNumOfCycles   (0);
   this->SetEntryReuse    (1);
 
-  this->SetXMLFile();
+  this->SetXMLFileBase("GNuMIFlux.xml");
 }
 //___________________________________________________________________________
 void GNuMIFlux::ResetCurrent(void)
@@ -2497,7 +2478,7 @@ bool GNuMIFlux::LoadConfig(string cfg)
 {
   const char* altxml = gSystem->Getenv("GNUMIFLUXXML");
   if ( altxml ) {
-    SetXMLFile(altxml);
+    SetXMLFileBase(altxml);
   }
   genie::flux::GNuMIFluxXMLHelper helper(this);
   return helper.LoadConfig(cfg);
@@ -2667,7 +2648,7 @@ std::vector<long int> GNuMIFluxXMLHelper::GetIntVector(std::string str)
 
 bool GNuMIFluxXMLHelper::LoadConfig(string cfg)
 {
-  string fname = utils::xml::GetXMLFilePath(fGNuMI->GetXMLFile());
+  string fname = utils::xml::GetXMLFilePath(fGNuMI->GetXMLFileBase());
 
   bool is_accessible = ! (gSystem->AccessPathName(fname.c_str()));
   if (!is_accessible) {

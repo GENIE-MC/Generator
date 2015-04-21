@@ -7,11 +7,11 @@
           Is a concrete implementation of the XSecIntegratorI interface. \n
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          STFC, Rutherford Appleton Laboratory
+          University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  May 04, 2004
 
-\cpright  Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
+\cpright  Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
@@ -34,7 +34,7 @@ public:
   //! XSecIntegratorI interface implementation
   double Integrate(const XSecAlgorithmI * model, const Interaction * i) const;
 
-  //! overload the Algorithm::Configure() methods to load private data
+  //! Overload the Algorithm::Configure() methods to load private data
   //! members from configuration options
   void Configure(const Registry & config);
   void Configure(string config);

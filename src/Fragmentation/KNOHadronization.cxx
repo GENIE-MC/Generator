@@ -1,11 +1,11 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2013, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos  <costas.andreopoulos \at stfc.ac.uk>
-         STFC, Rutherford Appleton Laboratory 
+         University of Liverpool & STFC Rutherford Appleton Lab 
 
          Hugh Gallagher <gallag \at minos.phy.tufts.edu>
          Tufts University
@@ -32,7 +32,8 @@
  @ Mar 28, 2012 - CA
    Commented-out option to use 'legacy KNO data' (used in neugrn and in 
    GENIE/neugen comparisons circa 2007) instead of the Levy parameterization.
-
+ @ Oct 24, 2014 - Ji Liu (NOVA)
+   Add production of etas
 */
 //____________________________________________________________________________
 
@@ -489,6 +490,24 @@ void KNOHadronization::LoadConfig(void)
   //-- K0 K0bar
   fPK0  = fConfig->GetDoubleDef(
              "ProbK0K0bar", gc->GetDouble("KNO-ProbK0K0bar")); 
+  //-- pi0 eta
+  fPpi0eta = fConfig->GetDoubleDef(
+	     "ProbPi0Eta", gc->GetDouble("KNO-ProbPi0Eta"));
+  //-- eta eta
+  fPeta  = fConfig->GetDoubleDef(
+	     "ProbEtaEta", gc->GetDouble("KNO-ProbEtaEta")); 
+  
+  double fsum = fPeta + fPpi0eta + fPK0 + fPKc + fPpic + fPpi0;
+  double diff = TMath::Abs(1.-fsum); 
+  if(diff>0.001) {
+     LOG("KNOHad", pWARN) << "KNO Probabilities do not sum to unity! Renormalizing..." ;
+     fPpi0 = fPpi0/fsum; 
+     fPpic = fPpic/fsum; 
+     fPKc  = fPKc/fsum; 
+     fPK0 = fPK0/fsum; 
+     fPpi0eta = fPpi0eta/fsum;
+     fPeta = fPeta/fsum; 
+  }
 
   // Decay unstable particles now or leave it for later? Which decayer to use?
   fDecayer = 0;
@@ -1213,6 +1232,9 @@ PDGCodeList * KNOHadronization::GenerateHadronCodes(
      double M2Kc  =     pdg -> Find (kPdgKP ) -> Mass() +
                         pdg -> Find (kPdgKM ) -> Mass();
      double M2K0  = 2 * pdg -> Find (kPdgK0 ) -> Mass();
+     double M2Eta = 2 * pdg -> Find (kPdgEta) -> Mass();
+     double Mpi0eta =   pdg -> Find (kPdgPi0) -> Mass() +
+                        pdg -> Find (kPdgEta) -> Mass();
 
      // Prevent multiplicity overflow.
      // Check if we have an odd number of hadrons to add.
@@ -1231,12 +1253,13 @@ PDGCodeList * KNOHadronization::GenerateHadronCodes(
 
      // Now add pairs (pi0 pi0 / pi+ pi- / K+ K- / K0 K0bar)
      assert( hadrons_to_add % 2 == 0 ); // even number
+     LOG("KNOHad", pDEBUG)
+       <<" hadrons_to_add = "<<hadrons_to_add<<" W= "<<W<<" M2pi0 = "<<M2pi0<<"  M2pic = "<<M2pic<<"  M2Kc = "<<M2Kc<<"  M2K0= "<<M2K0<<" M2Eta= "<<M2Eta;
 
      while(hadrons_to_add > 0 && W >= M2pi0) {
 
          double x = rnd->RndHadro().Rndm();
          LOG("KNOHad", pDEBUG) << "rndm = " << x;
-
          // Add a pi0 pair         
          if (x >= 0 && x < fPpi0) {  
             LOG("KNOHad", pDEBUG) << " -> Adding a pi0pi0 pair";
@@ -1286,11 +1309,39 @@ PDGCodeList * KNOHadronization::GenerateHadronCodes(
                 LOG("KNOHad", pDEBUG) 
                  << "Not enough mass for a K0 K0bar: trying something else";
             }
+	 }
 
-         } else {
-            LOG("KNOHad", pERROR)
-                 << "Hadron Assignment Probabilities do not add up to 1!!";
-            exit(1);
+	 // Add a Pi0-Eta pair
+	 else if (x <= fPpi0 + fPpic + fPKc + fPK0 + fPpi0eta) {
+            if( W >= Mpi0eta ) {
+                LOG("KNOHad", pDEBUG) << " -> Adding a Pi0-Eta pair";
+                pdgc->push_back( kPdgPi0 );
+                pdgc->push_back( kPdgEta );
+                hadrons_to_add -= 2; // update the number of hadrons to add
+                W -= Mpi0eta; // update the available invariant mass
+            } else {
+                LOG("KNOHad", pDEBUG) 
+                 << "Not enough mass for a Pi0-Eta pair: trying something else";
+            }
+	 }
+
+	 //Add a Eta pair
+	 else if(x <= fPpi0 + fPpic + fPKc + fPK0 + fPpi0eta + fPeta) {  
+	   if( W >= M2Eta ){
+	     LOG("KNOHad", pDEBUG) << " -> Adding a eta-eta pair";
+	     pdgc->push_back( kPdgEta );
+	     pdgc->push_back( kPdgEta );
+	     hadrons_to_add -= 2; // update the number of hadrons to add
+	     W -= M2Eta; // update the available invariant mass
+	   }  else {
+	     LOG("KNOHad", pDEBUG) 
+	       << "Not enough mass for a Eta-Eta pair: trying something else";
+	   }
+	   
+	 } else {
+	   LOG("KNOHad", pERROR)
+	     << "Hadron Assignment Probabilities do not add up to 1!!";
+	   exit(1);
          }
 
          // make sure it has enough invariant mass to reach the
