@@ -65,9 +65,32 @@ namespace hadxs
         23.992,  24.058,  23.805,  23.808,  23.811,  23.815
   };
 
-  double InelasticPionNucleonXSec (double Epion);
-  double TotalPionNucleonXSec     (double Epion);
+  // Previous (2.8) default has been to treat pions as charged for purposes of mass.
+  double InelasticPionNucleonXSec (double Epion, bool isChargedPion=true);
+  double TotalPionNucleonXSec     (double Epion, bool isChargedPion=true);
 
+
+  // Pion-Nucleon cross-sections as implemented by C. Berger for re-implementation
+  // of the Rein-Sehgal coherent pion production model, and provided to D. Cherdack.
+  // 
+  // C. Berger & L. Sehgal
+  // "PCAC and coherent pion production by low energy neutrinos"
+  // http://arxiv.org/abs/0812.2653
+  namespace berger
+  {
+    double InelasticPionNucleonXSec (double Epion, bool isChargedPion=true);
+    double TotalPionNucleonXSec     (double Epion, bool isChargedPion=true);
+    double PionNucleonXSec     (double Epion, bool get_total, bool isChargedPion=true);
+    //Pion-Nucleus xsec extrapolated from pion-Carbon data
+    int    PionNucleusXSec(double tpi, double ppistar, double t_new, double A, double &tpilow, double &siglow, double &tpihigh, double &sighigh);
+                           //Input: the pion kinetic energy, 
+                           //       the pion CMS momentum, 
+                           //       the square if the 4-p transfer from the pion to the nucleus, and 
+                           //       the number of nucleons in teh target nucleus
+                           //Also pass pointers to varaibles which store the output: 
+                           //       the data points (xsec -vs- tpi) above and below the input tpi
+                           //       an interpolation algorithm must be used to determine the xsec from this information
+  }
 }      // hadxs namespace
 }      // utils namespace
 }      // genie namespace
