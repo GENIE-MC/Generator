@@ -24,18 +24,23 @@
 
 namespace genie {
 
-class COHPrimaryLeptonGenerator : public PrimaryLeptonGenerator {
+  class COHPrimaryLeptonGenerator : public PrimaryLeptonGenerator {
 
-public :
+  public :
 
-  COHPrimaryLeptonGenerator();
-  COHPrimaryLeptonGenerator(string config);
-  ~COHPrimaryLeptonGenerator();
+    COHPrimaryLeptonGenerator();
+    COHPrimaryLeptonGenerator(string config);
+    ~COHPrimaryLeptonGenerator();
 
-  //-- implement the EventRecordVisitorI interface
+    //-- implement the EventRecordVisitorI interface
 
-  void ProcessEventRecord(GHepRecord * event_rec) const;
-};
+    void ProcessEventRecord(GHepRecord * event_rec) const;
+
+  private :
+    
+    void CalculatePrimaryLepton_AlvarezRuso(GHepRecord * event_rec) const;
+
+  };
 
 }      // genie namespace
 

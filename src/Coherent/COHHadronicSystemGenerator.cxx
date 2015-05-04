@@ -39,19 +39,23 @@
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
 #include "Utils/PrintUtils.h"
+#include "Base/XSecAlgorithmI.h"
+#include "EVGCore/EVGThreadException.h"
+#include "EVGCore/EventGeneratorI.h"
+#include "EVGCore/RunningThreadInfo.h"
 
 using namespace genie;
 using namespace genie::constants;
 
 //___________________________________________________________________________
 COHHadronicSystemGenerator::COHHadronicSystemGenerator() :
-HadronicSystemGenerator("genie::COHHadronicSystemGenerator")
+  HadronicSystemGenerator("genie::COHHadronicSystemGenerator")
 {
 
 }
 //___________________________________________________________________________
 COHHadronicSystemGenerator::COHHadronicSystemGenerator(string config) :
-HadronicSystemGenerator("genie::COHHadronicSystemGenerator", config)
+  HadronicSystemGenerator("genie::COHHadronicSystemGenerator", config)
 {
 
 }
@@ -63,9 +67,61 @@ COHHadronicSystemGenerator::~COHHadronicSystemGenerator()
 //___________________________________________________________________________
 void COHHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
 {
-// This method generates the final state hadronic system (pion + nucleus) in 
-// COH interactions
-//
+  // Access cross section algorithm for running thread
+  RunningThreadInfo * rtinfo = RunningThreadInfo::Instance();
+  const EventGeneratorI * evg = rtinfo->RunningThread();
+  const XSecAlgorithmI *fXSecModel = evg->CrossSectionAlg();
+  if (fXSecModel->Id().Name() == "genie::ReinSehgalCOHPiPXSec") {
+    CalculateHadronicSystem_ReinSehgal(evrec);
+  } else if ((fXSecModel->Id().Name() == "genie::BergerSehgalCOHPiPXSec")) {
+    CalculateHadronicSystem_BergerSehgal(evrec);
+  } else if ((fXSecModel->Id().Name() == "genie::BergerSehgalFMCOHPiPXSec")) {
+    CalculateHadronicSystem_BergerSehgalFM(evrec);
+  } else if ((fXSecModel->Id().Name() == "genie::AlvarezRusoCOHPiPXSec")) {
+    CalculateHadronicSystem_AlvarezRuso(evrec);
+  }
+  else {
+    LOG("COHHadronicSystemGenerator",pFATAL) <<
+      "ProcessEventRecord >> Cannot calculate hadronic system for " <<
+      fXSecModel->Id().Name();
+  }
+}
+//___________________________________________________________________________
+int COHHadronicSystemGenerator::getPionPDGCodeFromXclTag(const XclsTag& xcls_tag) const
+{
+  int pion_pdgc = 0;
+  if      (xcls_tag.NPi0()     == 1) pion_pdgc = kPdgPi0;
+  else if (xcls_tag.NPiPlus()  == 1) pion_pdgc = kPdgPiP;
+  else if (xcls_tag.NPiMinus() == 1) pion_pdgc = kPdgPiM;
+  else {
+    LOG("COHHadronicVtx", pFATAL)
+      << "No final state pion information in XclsTag!";
+    exit(1);
+  }
+  return pion_pdgc;
+}
+//___________________________________________________________________________
+void COHHadronicSystemGenerator::CalculateHadronicSystem_BergerSehgal(GHepRecord * evrec) const
+{
+  // Treatment of the hadronic side is identical to Rein-Sehgal if we assume an infinite 
+  // mass for the nucleus.
+  CalculateHadronicSystem_ReinSehgal(evrec);
+}
+//___________________________________________________________________________
+void COHHadronicSystemGenerator::CalculateHadronicSystem_BergerSehgalFM(GHepRecord * evrec) const
+{
+  // Treatment of the hadronic side is identical to Rein-Sehgal if we assume an infinite 
+  // mass for the nucleus.
+  // TODO - import the fix for the finite mass assumption!
+  CalculateHadronicSystem_ReinSehgal(evrec);
+}
+//___________________________________________________________________________
+void COHHadronicSystemGenerator::CalculateHadronicSystem_ReinSehgal(GHepRecord * evrec) const
+{
+  //
+  // This method generates the final state hadronic system (pion + nucleus) in 
+  // COH interactions
+  //
   RandomGen * rnd = RandomGen::Instance();
 
   Interaction * interaction = evrec->Summary();
@@ -85,15 +141,7 @@ void COHHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
   //-- Determine the pdg code of the final state pion & nucleus
   int nucl_pdgc = Ni->Pdg(); // same as the initial nucleus
-  int pion_pdgc = 0;
-  if      (xcls_tag.NPi0()     == 1) pion_pdgc = kPdgPi0;
-  else if (xcls_tag.NPiPlus()  == 1) pion_pdgc = kPdgPiP;
-  else if (xcls_tag.NPiMinus() == 1) pion_pdgc = kPdgPiM;
-  else {
-     LOG("COHHadronicVtx", pFATAL)
-               << "No final state pion information in XclsTag!";
-     exit(1);
-  }
+  int pion_pdgc = getPionPDGCodeFromXclTag(xcls_tag);
 
   //-- basic kinematic inputs
   double E    = nu->E();  
@@ -105,8 +153,8 @@ void COHHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
   double to   = interaction->Kine().t(true); 
 
   SLOG("COHHadronicVtx", pINFO) 
-         << "Ev = "<< E << ", xo = " << xo 
-                         << ", yo = " << yo << ", to = " << to;
+    << "Ev = "<< E << ", xo = " << xo 
+    << ", yo = " << yo << ", to = " << to;
 
   //-- compute pion energy and |momentum|
   double Epi  = yo * E;  
@@ -115,7 +163,7 @@ void COHHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
   double ppi  = TMath::Sqrt(TMath::Max(0.,ppi2));
 
   SLOG("COHHadronicVtx", pINFO)
-                      << "f/s pion E = " << Epi << ", |p| = " << ppi;
+    << "f/s pion E = " << Epi << ", |p| = " << ppi;
   assert(Epi>mpi);
 
   //-- 4-momentum transfer q=p(neutrino) - p(f/s lepton)
@@ -126,11 +174,11 @@ void COHHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
   TLorentzVector q = p4nu - p4fsl;
 
   SLOG("COHHadronicVtx", pINFO) 
-          << "\n 4-p transfer q @ LAB: " << utils::print::P4AsString(&q);
+    << "\n 4-p transfer q @ LAB: " << utils::print::P4AsString(&q);
 
   //-- find angle theta between q and ppi (xi=costheta)
   //   note: t=|(ppi-q)^2|, Rein & Sehgal, Nucl.Phys.B223.29-44(1983), p.36
- 
+
   double xi = 1. + M*xo/Epi - 0.5*mpi2/Epi2 - 0.5*to/Epi2;
   xi /= TMath::Sqrt((1.+2.*M*xo/Epi)*(1.-mpi2/Epi2));
 
@@ -151,7 +199,7 @@ void COHHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
   ppi3.RotateUz(q.Vect().Unit()); // align longit. component with q in LAB
 
   SLOG("COHHadronicVtx", pINFO) 
-               << "Pion 3-p @ LAB: " << utils::print::Vec3AsString(&ppi3);
+    << "Pion 3-p @ LAB: " << utils::print::Vec3AsString(&ppi3);
 
   // now figure out the f/s nucleus 4-p
 
@@ -163,14 +211,62 @@ void COHHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
   //-- Save the particles at the GHEP record
 
   int mom = evrec->TargetNucleusPosition();
-  
-  evrec->AddParticle(
-     nucl_pdgc,kIStStableFinalState, mom,-1,-1,-1, 
-     pxNf, pyNf, pzNf, ENf, 0, 0, 0, 0);
 
-  evrec->AddParticle(
-     pion_pdgc,kIStStableFinalState, mom,-1,-1,-1, 
-     ppi3.Px(), ppi3.Py(),ppi3.Pz(),Epi, vtx.X(), vtx.Y(), vtx.Z(), vtx.T());
+  evrec->AddParticle(nucl_pdgc,kIStStableFinalState, mom,-1,-1,-1, 
+                     pxNf, pyNf, pzNf, ENf, 0, 0, 0, 0);
+
+  evrec->AddParticle(pion_pdgc,kIStStableFinalState, mom,-1,-1,-1, 
+                     ppi3.Px(), ppi3.Py(),ppi3.Pz(),Epi, vtx.X(), vtx.Y(), vtx.Z(), vtx.T());
 }
 //___________________________________________________________________________
+void COHHadronicSystemGenerator::CalculateHadronicSystem_AlvarezRuso(GHepRecord * evrec) const
+{
+  Interaction * interaction = evrec->Summary();
+  const Kinematics &   kinematics = interaction -> Kine();
+  GHepParticle * nu  = evrec->Probe();
+  GHepParticle * Ni  = evrec->TargetNucleus();
+  GHepParticle * fsl = evrec->FinalStatePrimaryLepton();
+
+  // Pion
+  const TLorentzVector ppi  = kinematics.HadSystP4();
+  const TVector3 ppi3 = ppi.Vect();
+  const double Epi = ppi.E();
+  int pion_pdgc=0;
+  if ( interaction->ProcInfo().IsWeakCC() ) {
+    if( nu->Pdg() > 0 ){ // neutrino
+      pion_pdgc = kPdgPiP;
+    }
+    else{ // anti-neutrino
+      pion_pdgc = kPdgPiM;
+    }
+  }
+  else if ( interaction->ProcInfo().IsWeakNC() ) {
+    pion_pdgc = kPdgPi0;
+  }
+  else{
+    LOG("COHHadronicSystemGeneratorAR", pFATAL)
+      << "Could not determine pion involved in interaction";
+    exit(1);
+  }
+
+  //
+  // Nucleus
+  int nucl_pdgc = Ni->Pdg(); // pdg of final nucleus same as the initial nucleus
+  double pxNf = nu->Px() + Ni->Px() - fsl->Px() - ppi3.Px();
+  double pyNf = nu->Py() + Ni->Py() - fsl->Py() - ppi3.Py();
+  double pzNf = nu->Pz() + Ni->Pz() - fsl->Pz() - ppi3.Pz();
+  double ENf  = nu->E()  + Ni->E()  - fsl->E()  - Epi;
+  //
+  // Both
+  const TLorentzVector & vtx   = *(nu->X4());
+  int mom = evrec->TargetNucleusPosition();
+
+  //
+  // Fill the records
+  evrec->AddParticle(nucl_pdgc,kIStStableFinalState, mom,-1,-1,-1,
+                     pxNf, pyNf, pzNf, ENf, 0, 0, 0, 0);
+
+  evrec->AddParticle(pion_pdgc,kIStStableFinalState, mom,-1,-1,-1,
+                     ppi3.Px(), ppi3.Py(),ppi3.Pz(),Epi, vtx.X(), vtx.Y(), vtx.Z(), vtx.T());
+}
 
