@@ -127,6 +127,8 @@ core-medium-energy-range: FORCE
 	@echo " "
 	@echo "** Building core medium energy range physics models..."
 	cd ${GENIE}/src;\
+	cd AlvarezRuso;        make; cd ..; \
+	cd BergerSehgal;       make; cd ..; \
 	cd BodekYang;          make; cd ..; \
 	cd Charm;              make; cd ..; \
 	cd Coherent;           make; cd ..; \
@@ -391,8 +393,10 @@ make-install-dirs: FORCE
 	[ -d ${GENIE_INCBASE_INSTALLATION_PATH} ] || mkdir ${GENIE_INCBASE_INSTALLATION_PATH}
 	mkdir ${GENIE_INC_INSTALLATION_PATH}
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Algorithm
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/AlvarezRuso
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/BaryonResonance
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Base
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/BergerSehgal
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/BodekYang
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Charm
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Coherent
@@ -442,8 +446,10 @@ copy-install-files: FORCE
 	cp ${GENIE_BIN_PATH}/* ${GENIE_BIN_INSTALLATION_PATH};\
 	cd ${GENIE}/src;\
 	cd Algorithm;              make install; cd ..; \
+	cd AlvarezRuso;            make install; cd ..; \
 	cd BaryonResonance;        make install; cd ..; \
 	cd Base;                   make install; cd ..; \
+	cd BergerSehgal;           make install; cd ..; \
 	cd BodekYang;              make install; cd ..; \
 	cd Charm;                  make install; cd ..; \
 	cd Coherent;               make install; cd ..; \
@@ -493,8 +499,10 @@ purge: FORCE
 	@echo "** Purging..."
 	cd ${GENIE}/src;\
 	cd Algorithm;                     make purge; cd ..; \
+	cd AlvarezRuso;                   make purge; cd ..; \
 	cd BaryonResonance;               make purge; cd ..; \
 	cd Base;                          make purge; cd ..; \
+	cd BergerSehgal;                  make purge; cd ..; \
 	cd BodekYang;                     make purge; cd ..; \
 	cd Charm;                         make purge; cd ..; \
 	cd Coherent;                      make purge; cd ..; \
@@ -552,8 +560,10 @@ clean-files: FORCE
 	@echo "** Cleaning..."
 	cd ${GENIE}/src;\
 	cd Algorithm;                     make clean; cd ..; \
+	cd AlvarezRuso;                   make clean; cd ..; \
 	cd BaryonResonance;               make clean; cd ..; \
 	cd Base;                          make clean; cd ..; \
+	cd BergerSehgal;                  make clean; cd ..; \
 	cd BodekYang;                     make clean; cd ..; \
 	cd Charm;                         make clean; cd ..; \
 	cd Coherent;                      make clean; cd ..; \
@@ -633,8 +643,10 @@ distclean: FORCE
 	[ ! -d ${GENIE_INSTALLATION_PATH}/include/GENIE ] || rm -rf ${GENIE_INSTALLATION_PATH}/include/GENIE/
 	cd ${GENIE}/src/;\
 	cd Algorithm;                      make distclean; cd ..; \
+	cd AlvarezRuso;                    make distclean; cd ..; \
 	cd BaryonResonance;                make distclean; cd ..; \
 	cd Base;                           make distclean; cd ..; \
+	cd BergerSehgal;                   make distclean; cd ..; \
 	cd BodekYang;                      make distclean; cd ..; \
 	cd Charm;                          make distclean; cd ..; \
 	cd Coherent;                       make distclean; cd ..; \
