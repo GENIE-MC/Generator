@@ -26,6 +26,8 @@
   <priority msgstream="AlgFactory">          FATAL   </priority>
   <priority msgstream="Algorithm">           FATAL   </priority>
   <priority msgstream="AlgConfigPool">       FATAL   </priority>
+  <priority msgstream="AlvarezRusoCohPi">    FATAL   </priority>
+  <priority msgstream="BergerSehgalCohPi">   FATAL   </priority>  
   <priority msgstream="SKXSec">              FATAL   </priority>
   <priority msgstream="SKKinematics">        FATAL   </priority>
   <priority msgstream="SKLepton">            FATAL   </priority>
@@ -42,6 +44,7 @@
   <priority msgstream="CharmHad">            FATAL   </priority>
   <priority msgstream="CFracTab">            FATAL   </priority>
   <priority msgstream="COHXSec">             FATAL   </priority>
+  <priority msgstream="COHXSecAR">           FATAL   </priority>
   <priority msgstream="CLAP">                FATAL   </priority>
   <priority msgstream="COHHadronicVtx">      FATAL   </priority>
   <priority msgstream="COHKinematics">       FATAL   </priority>

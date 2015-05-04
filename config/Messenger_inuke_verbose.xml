@@ -27,6 +27,8 @@
   <priority msgstream="AlgFactory">          INFO   </priority>
   <priority msgstream="Algorithm">           WARN   </priority>
   <priority msgstream="AlgConfigPool">       WARN   </priority>
+  <priority msgstream="AlvarezRusoCohPi">    WARN   </priority>
+  <priority msgstream="BergerSehgalCohPi">   WARN   </priority>  
   <priority msgstream="SKXSec">              INFO   </priority>
   <priority msgstream="SKKinematics">        INFO   </priority>
   <priority msgstream="SKLepton">            INFO   </priority>
@@ -43,6 +45,7 @@
   <priority msgstream="CharmHad">            NOTICE </priority>
   <priority msgstream="CFracTab">            INFO   </priority>
   <priority msgstream="COHXSec">             NOTICE </priority>
+  <priority msgstream="COHXSecAR">           NOTICE </priority>
   <priority msgstream="CLAP">                NOTICE </priority>
   <priority msgstream="COHHadronicVtx">      INFO   </priority>
   <priority msgstream="COHKinematics">       WARN   </priority>
