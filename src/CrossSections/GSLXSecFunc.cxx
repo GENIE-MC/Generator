@@ -61,7 +61,7 @@ double genie::utils::gsl::dXSec_dQ2_E::DoEval(double xin) const
   fInteraction->KinePtr()->SetQ2(Q2);
   double xsec = fModel->XSec(fInteraction, kPSQ2fE);
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("GXSecFunc", pDEBUG) << "xsec(Q2 = " << Q2 << ") = " << xsec;
+  LOG("GSLXSecFunc", pDEBUG) << "xsec(Q2 = " << Q2 << ") = " << xsec;
 #endif
   return xsec/(1E-38 * units::cm2);
 }
