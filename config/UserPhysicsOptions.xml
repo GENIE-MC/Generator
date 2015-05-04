@@ -122,6 +122,23 @@ STFC, Rutherford Appleton Laboratory
   -->
   <param type="double" name="COH-Ma"> 1.000 </param>
 
+ <!--
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Axial and Vector masses for the Delta formfactors in the Alvarez-Ruso model of coherent scattering.
+  The values comes from Scheiner and von Hippel, Nucl Phys. B 58 (1973) p 333.
+  -->
+  <param type="double" name="COHAR-Ma-Delta"> 1.280 </param>
+  <param type="double" name="COHAR-Mv-Delta"> 0.730 </param>
+
+ <!--
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Axial and Vector masses for the Nucleon formfactors in the Alvarez-Ruso model of coherent scattering.
+  Note that the vector mass comes the BBBA-2003 Quasielastic form factor parametrisation.
+  -->
+  <param type="double" name="COHAR-Ma-Nuc"> 1.000 </param>
+  <param type="double" name="COHAR-Mv-Nuc"> 0.840 </param>
+  <param type="double" name="COHAR-GA0"> 1.2670 </param>
+  
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Value of axial form factor at Q2=0  
@@ -140,6 +157,35 @@ STFC, Rutherford Appleton Laboratory
   -->
   <param type="double" name="COH-Ro"> 1.000 </param>
 
+ <!--
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  The $\xi$ scaling variable used to determine \nu_{min} from Paschos-Schalla PRD 80 033005 for 
+  coherent pion reactions. (E * y = nu) Dimensionless units. Set this to a value below zero 
+  to use simple lepton kinematics to set the nu (y) bounds instead.
+  -->
+  <param type="double" name="COH-PaschosSchallaXi"> 0.000 </param>
+
+ <!--
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Maximum considered Q^2 for Berger-Sehgal coherent reactions when estimating the max cross section. 
+  Units in GeV^2.
+  -->
+  <param type="double" name="COH-Q2-min"> 0.000 </param>
+
+ <!--
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Maximum considered Q^2 for Berger-Sehgal coherent reactions when estimating the max cross section. 
+  Units in GeV^2.
+  -->
+  <param type="double" name="COH-Q2-max"> 1.000 </param>
+
+ <!--
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  If false, use the pion-nucleon cross section specially computed for the Berger-Sehgal model.
+  If true, use the Rein-Sehgal "style" pion-nucleon cross section and scale by A for all pion energies. 
+  -->
+  <param type="bool" name="COH-UseRSPionXSec"> false </param>
+  
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Real over imaginary fwd scattering amplitude in coherent interactions 
@@ -153,6 +199,34 @@ STFC, Rutherford Appleton Laboratory
   -->
   <param type="bool" name="COH-UseModifiedPCAC"> true </param>
 
+ <!--
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  a4,5 and b4,5 are parameters in the parametrisation of C_4^A and C_5^A form factors in the Alvarez-Ruso
+  coherent model.
+  -->
+  <param type="double" name="COHAR-a4"> -1.21 </param>
+  <param type="double" name="COHAR-a5"> -1.21 </param>
+  <param type="double" name="COHAR-b4"> 2.0 </param>
+  <param type="double" name="COHAR-b5"> 2.0 </param>
+
+ <!--
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Pion decay constant for Alvarez-Ruso coherent model (GeV)
+  -->
+  <param type="double" name="COHAR-fPi"> 0.093 </param>
+
+ <!--
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Delta-N coupling constant for Alvarez-Ruso coherent model
+  -->
+  <param type="double" name="COHAR-fStar"> 2.13 </param>
+ 
+ <!--
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Nuclear Density for Alvarez-Ruso coherent model
+  -->
+  <param type="double" name="COHAR-Rho0"> 0.17 </param>
+  
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Axial mass for diffractive scattering (GeV)
@@ -666,8 +740,28 @@ STFC, Rutherford Appleton Laboratory
   <param type="alg" name="XSecModel@genie::EventGenerator/DIS-CC">         genie::QPMDISPXSec/Default            </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/DIS-NC">         genie::QPMDISPXSec/Default            </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/DIS-EM">         genie::QPMDISPXSec/Default            </param>
+
+
   <param type="alg" name="XSecModel@genie::EventGenerator/COH-CC">         genie::ReinSehgalCOHPiPXSec/Default   </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/COH-NC">         genie::ReinSehgalCOHPiPXSec/Default   </param>
+
+
+  <!-- BS "Finite-mass" (as opposed to infinite mass) nucleus -->
+  <!--
+  <param type="alg" name="XSecModel@genie::EventGenerator/COH-CC">         genie::BergerSehgalFMCOHPiPXSec2015/Default   </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/COH-NC">         genie::BergerSehgalFMCOHPiPXSec2015/Default   </param>
+  -->
+
+  <!-- Berger-Sehgal "as in the paper" (with Paschos-Schalla integration bounds)
+  <param type="alg" name="XSecModel@genie::EventGenerator/COH-CC">         genie::BergerSehgalCOHPiPXSec2015/Default   </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/COH-NC">         genie::BergerSehgalCOHPiPXSec2015/Default   </param>
+  -->
+
+  <!-- Alvarez-Ruso et al COH pion
+  <param type="alg" name="XSecModel@genie::EventGenerator/COH-CC">       genie::AlvarezRusoCOHPiPXSec/Fast       </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/COH-NC">       genie::AlvarezRusoCOHPiPXSec/Fast       </param>
+  -->
+
   <param type="alg" name="XSecModel@genie::EventGenerator/IMD">            genie::BardinIMDRadCorPXSec/Default   </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/IMD-ANH">        genie::IMDAnnihilationPXSec/Default   </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/NUE-EL">         genie::NuElectronPXSec/Default        </param>
