@@ -16,11 +16,13 @@ srcdir=$GENIE/src
 ### GENIE libraries;
 
 # the following libs should always be there
-libs="-L$libdir -lGAlgorithm -lGBaryonResonance -lGBase -lGBodekYang -lGCharm -lGCoh -lGDfrc -lGDIS \
- -lGCrossSections -lGDecay -lGElas -lGElFF -lGHEP -lGEVGCore -lGEVGModules -lGEVGDrivers -lGGiBUU \
+libs="-L$libdir -lGAlgorithm -lGBaryonResonance -lGBase -lGBergerSehgal \
+ -lGBodekYang -lGCharm -lGCoh -lGDfrc -lGDIS -lGCrossSections -lGDecay -lGElas \
+ -lGElFF -lGHEP -lGEVGCore -lGEVGModules -lGEVGDrivers -lGGiBUU \
  -lGHadronTransp -lGFragmentation -lGInteraction -lGLlewellynSmith -lGMEC \
- -lGMessenger -lGNuGamma -lGNuE -lGNtuple -lGNuclear -lGNumerical -lGQPM -lGPDG -lGPDF\
- -lGQEL -lGRES -lGRegistry -lGReinSehgal -lGSingleKaon -lGUtils -lGVHE"
+ -lGMessenger -lGNuGamma -lGNuE -lGNtuple -lGNuclear -lGNumerical -lGQPM \
+ -lGPDG -lGPDF -lGQEL -lGRES -lGRegistry -lGReinSehgal -lGSingleKaon -lGUtils \
+ -lGVHE"
 
 # the following libs should only be there if an appropriate option was enabled at the configuration step
 if test "$GOPT_ENABLE_GEOM_DRIVERS" = "YES"; then
