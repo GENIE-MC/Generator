@@ -88,9 +88,9 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   fXSecModel = evg->CrossSectionAlg();
   if (fXSecModel->Id().Name() == "genie::ReinSehgalCOHPiPXSec") {
     CalculateKin_ReinSehgal(evrec);
-  } else if (fXSecModel->Id().Name() == "genie::BergerSehgalCOHPiPXSec") {
+  } else if (fXSecModel->Id().Name() == "genie::BergerSehgalCOHPiPXSec2015") {
     CalculateKin_BergerSehgal(evrec);
-  } else if (fXSecModel->Id().Name() == "genie::BergerSehgalFMCOHPiPXSec") {
+  } else if (fXSecModel->Id().Name() == "genie::BergerSehgalFMCOHPiPXSec2015") {
     CalculateKin_BergerSehgalFM(evrec);
   } else if ((fXSecModel->Id().Name() == "genie::AlvarezRusoCOHPiPXSec")) {
     CalculateKin_AlvarezRuso(evrec);
@@ -679,8 +679,7 @@ void COHKinematicsGenerator::SetKinematics(const double E_l,
   kinematics->SetHadSystP4 (P4_pion); // use Hadronic System variable to store pion momentum
 }
 //___________________________________________________________________________
-bool COHKinematicsGenerator::CheckKinematics(
-                                             const double E_l,
+bool COHKinematicsGenerator::CheckKinematics(const double E_l,
                                              const double /*  theta_l    */ ,  
                                              const double /*  phi_l      */ ,
                                              const double /*  theta_pi   */ ,

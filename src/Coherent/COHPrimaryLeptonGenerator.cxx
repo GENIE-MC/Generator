@@ -64,10 +64,10 @@ void COHPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
   if (fXSecModel->Id().Name() == "genie::ReinSehgalCOHPiPXSec") {
     PrimaryLeptonGenerator::ProcessEventRecord(evrec);
   }
-  else if ((fXSecModel->Id().Name() == "genie::BergerSehgalCOHPiPXSec")) {
+  else if ((fXSecModel->Id().Name() == "genie::BergerSehgalCOHPiPXSec2015")) {
     PrimaryLeptonGenerator::ProcessEventRecord(evrec);
   }
-  else if ((fXSecModel->Id().Name() == "genie::BergerSehgalFMCOHPiPXSec")) {
+  else if ((fXSecModel->Id().Name() == "genie::BergerSehgalFMCOHPiPXSec2015")) {
     PrimaryLeptonGenerator::ProcessEventRecord(evrec);
   }
   else if ((fXSecModel->Id().Name() == "genie::AlvarezRusoCOHPiPXSec")) {

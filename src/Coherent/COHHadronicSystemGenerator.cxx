@@ -73,9 +73,9 @@ void COHHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
   const XSecAlgorithmI *fXSecModel = evg->CrossSectionAlg();
   if (fXSecModel->Id().Name() == "genie::ReinSehgalCOHPiPXSec") {
     CalculateHadronicSystem_ReinSehgal(evrec);
-  } else if ((fXSecModel->Id().Name() == "genie::BergerSehgalCOHPiPXSec")) {
+  } else if ((fXSecModel->Id().Name() == "genie::BergerSehgalCOHPiPXSec2015")) {
     CalculateHadronicSystem_BergerSehgal(evrec);
-  } else if ((fXSecModel->Id().Name() == "genie::BergerSehgalFMCOHPiPXSec")) {
+  } else if ((fXSecModel->Id().Name() == "genie::BergerSehgalFMCOHPiPXSec2015")) {
     CalculateHadronicSystem_BergerSehgalFM(evrec);
   } else if ((fXSecModel->Id().Name() == "genie::AlvarezRusoCOHPiPXSec")) {
     CalculateHadronicSystem_AlvarezRuso(evrec);
