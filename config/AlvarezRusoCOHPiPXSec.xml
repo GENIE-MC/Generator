@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+Configurations for the Alvarez-Ruso coherent pi production cross section algorithm
+
+Algorithm Configurable Parameters:
+....................................................................................................
+Name             Type     Optional   Comment                 Default
+....................................................................................................
+XSec-Integrator  alg      No
+UseLookuptable	 bool     Yes       Pi w'functions from
+                                    lookup table rather than
+				    direct calculation         Yes
+CoHAR_A4         double   yes       parameter in C_4^A form
+                                    factor                    -1.21
+CoHAR_A5         double   yes       parameter in C_5^A form
+                                    factor (=COHAR_A4)        -1.21
+CoHAR_B4         double   yes       parameter in C_4^A form
+                                    factor                     2.00
+CoHAR_B5         double   yes       parameter in C_5^A form
+                                    factor                     2.00
+CoHAR_Rho0       double   yes       Nuclear density (fm^-3)    0.17
+CoHAR_fPi        double   yes	    Pion decay constant        130.41
+CoHAR_fStar      double   yes       N-Delta Coupling constant  2.13
+CoHAR_gA	 double   yes	    Coherent axial 
+				    coupling at Q2 = 0         1.26
+CoHAR_mA	 double   yes       Coherent axial mass        1.28
+-->
+
+<alg_conf>
+
+  <param_set name="Default"> 
+      <param type="alg" name="XSec-Integrator"> genie::COHXSecAR/Default </param>
+      <param type="bool" name="UseLookupTable"> false </param>
+  </param_set>
+  
+  <param_set name="Fast"> 
+      <param type="alg" name="XSec-Integrator"> genie::COHXSecAR/Fast </param>
+      <param type="bool" name="UseLookupTable"> false </param>
+  </param_set>
+
+</alg_conf>
+
+

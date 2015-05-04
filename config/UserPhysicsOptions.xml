@@ -742,6 +742,7 @@ STFC, Rutherford Appleton Laboratory
   <param type="alg" name="XSecModel@genie::EventGenerator/DIS-EM">         genie::QPMDISPXSec/Default            </param>
 
 
+  <!-- -->
   <param type="alg" name="XSecModel@genie::EventGenerator/COH-CC">         genie::ReinSehgalCOHPiPXSec/Default   </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/COH-NC">         genie::ReinSehgalCOHPiPXSec/Default   </param>
 

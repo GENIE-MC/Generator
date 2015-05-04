@@ -103,6 +103,7 @@
    <config alg="genie::QELXSec">                     QELXSec.xml                     </config>
    <config alg="genie::DISXSec">                     DISXSec.xml                     </config>
    <config alg="genie::COHXSec">                     COHXSec.xml                     </config>
+   <config alg="genie::COHXSecAR">                   COHXSecAR.xml                   </config>
    <config alg="genie::AlamSimoAtharVacasSKXSec">    AlamSimoAtharVacasSKXSec.xml    </config>   
    <config alg="genie::IMDXSec">                     IMDXSec.xml                     </config>
    <config alg="genie::RESXSec">                     RESXSec.xml                     </config>
@@ -110,6 +111,9 @@
 
    <!--  ****** CONFIGURATION FOR XSEC ALGORITHMS ****** -->
    <config alg="genie::AhrensNCELPXSec">               AhrensNCELPXSec.xml               </config>
+   <config alg="genie::AlvarezRusoCOHPiPXSec">         AlvarezRusoCOHPiPXSec.xml         </config> 
+   <config alg="genie::BergerSehgalCOHPiPXSec2015">    BergerSehgalCOHPiPXSec2015.xml    </config> 
+   <config alg="genie::BergerSehgalFMCOHPiPXSec2015">  BergerSehgalFMCOHPiPXSec2015.xml  </config> 
    <config alg="genie::LwlynSmithQELCCPXSec">          LwlynSmithQELCCPXSec.xml          </config>
    <config alg="genie::QPMDISPXSec">                   QPMDISPXSec.xml                   </config>
    <config alg="genie::AivazisCharmPXSecLO">           AivazisCharmPXSecLO.xml           </config>
