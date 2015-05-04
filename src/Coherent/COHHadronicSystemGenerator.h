@@ -24,16 +24,25 @@
 
 namespace genie {
 
-class COHHadronicSystemGenerator : public HadronicSystemGenerator {
+  class XclsTag;
 
-public :
-  COHHadronicSystemGenerator();
-  COHHadronicSystemGenerator(string config);
- ~COHHadronicSystemGenerator();
+  class COHHadronicSystemGenerator : public HadronicSystemGenerator {
 
-  // implement the EventRecordVisitorI interface
-  void ProcessEventRecord(GHepRecord * event_rec) const;
-};
+  public :
+    COHHadronicSystemGenerator();
+    COHHadronicSystemGenerator(string config);
+    ~COHHadronicSystemGenerator();
+
+    // implement the EventRecordVisitorI interface
+    void ProcessEventRecord(GHepRecord * event_rec) const;
+    void CalculateHadronicSystem_ReinSehgal(GHepRecord * event_rec) const;
+    void CalculateHadronicSystem_BergerSehgal(GHepRecord * event_rec) const;
+    void CalculateHadronicSystem_BergerSehgalFM(GHepRecord * event_rec) const;
+    void CalculateHadronicSystem_AlvarezRuso(GHepRecord * event_rec) const;
+
+  private:
+    int getPionPDGCodeFromXclTag(const XclsTag& xcls_tag) const;
+  };
 
 }      // genie namespace
 #endif // _COH_HADRONIC_SYSTEM_GENERATOR_H_

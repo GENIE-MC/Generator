@@ -9,6 +9,9 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
+ @ Feb 09, 2009 - CA
+   Moved into the new Coherent package from its previous location  (Elastic
+   package)
 
 */
 //____________________________________________________________________________

@@ -161,6 +161,7 @@ void COHElKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         interaction->KinePtr()->ClearRunningValues();
 
         // set the cross section for the selected kinematics
+        // TODO: this is kPSxyfE on the dev branch, but I think kPSyfE is right
         evrec->SetDiffXSec(xsec,kPSyfE);
 
         return;
