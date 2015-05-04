@@ -62,6 +62,9 @@ public:
   Range1D_t  XLim    (void) const;  ///< x  limits
   Range1D_t  YLim    (void) const;  ///< y  limits
   Range1D_t  YLim_X  (void) const;  ///< y  limits @ fixed x
+  Range1D_t  YLim    (double xsi) const;  ///< y  limits (COH)
+  Range1D_t  YLim_X  (double xsi) const;  ///< y  limits @ fixed x (COH)
+  Range1D_t  TLim    (void) const;  ///< t  limits
 
 private:
 

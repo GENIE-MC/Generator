@@ -168,9 +168,9 @@ double KPhaseSpace::Threshold(void) const
 //___________________________________________________________________________
 Range1D_t KPhaseSpace::Limits(KineVar_t kvar) const
 {
-// Compute limits for the input kinematic variable irrespective of any other
-// relevant kinematical variable
-//
+  // Compute limits for the input kinematic variable irrespective of any other
+  // relevant kinematical variable
+  //
   assert(fInteraction);
 
   switch(kvar) {
@@ -179,11 +179,12 @@ Range1D_t KPhaseSpace::Limits(KineVar_t kvar) const
   case(kKVq2) : return this->q2Lim(); break;
   case(kKVx)  : return this->XLim();  break;
   case(kKVy)  : return this->YLim();  break;
+  case(kKVt)  : return this->TLim();  break;
   default:
-   LOG("KPhaseSpace", pERROR) 
-        << "Couldn't compute limits for " << KineVar::AsString(kvar);
-   Range1D_t R(-1.,-1);
-   return R;
+    LOG("KPhaseSpace", pERROR) 
+      << "Couldn't compute limits for " << KineVar::AsString(kvar);
+    Range1D_t R(-1.,-1);
+    return R;
   }
 }
 //____________________________________________________________________________
@@ -338,9 +339,14 @@ Range1D_t KPhaseSpace::WLim(void) const
 //____________________________________________________________________________
 Range1D_t KPhaseSpace::Q2Lim_W(void) const
 {
-// Computes momentum transfer (Q2>0) limits @ the input invariant mass
-// The calculation proceeds as in kinematics::InelQ2Lim_W(). 
-// For QEL, W is set to the recoil nucleon mass
+  // Computes momentum transfer (Q2>0) limits @ the input invariant mass
+  // The calculation proceeds as in kinematics::InelQ2Lim_W(). 
+  // For QEL, W is set to the recoil nucleon mass
+  //
+  // TODO: For now, choosing to handle Q2 at fixed W for coherent in the 
+  // same way as for the general Q2 limits... but shouldn't we just use
+  // W = m_pi? - which we do in Q2Lim() anyway... seems like there are
+  // cleanup opportunities here.
 
   Range1D_t Q2l;
   Q2l.min = -1;
@@ -349,8 +355,13 @@ Range1D_t KPhaseSpace::Q2Lim_W(void) const
   const ProcessInfo & pi = fInteraction->ProcInfo();
   bool is_qel  = pi.IsQuasiElastic()  || pi.IsInverseBetaDecay();
   bool is_inel = pi.IsDeepInelastic() || pi.IsResonant();
+  bool is_coh  = pi.IsCoherent();
 
-  if(!is_qel && !is_inel) return Q2l;
+  if(!is_qel && !is_inel && !is_coh) return Q2l;
+
+  if(is_coh) {
+    return Q2Lim();
+  }
 
   const InitialState & init_state = fInteraction->InitState();
   double Ev  = init_state.ProbeE(kRfHitNucRest);
@@ -382,10 +393,10 @@ Range1D_t KPhaseSpace::q2Lim_W(void) const
 //____________________________________________________________________________
 Range1D_t KPhaseSpace::Q2Lim(void) const
 {
-// Computes momentum transfer (Q2>0) limits irrespective of the invariant mass
-// For QEL this is identical to Q2Lim_W (since W is fixed)
-// For RES & DIS, the calculation proceeds as in kinematics::InelQ2Lim(). 
-//
+  // Computes momentum transfer (Q2>0) limits irrespective of the invariant mass
+  // For QEL this is identical to Q2Lim_W (since W is fixed)
+  // For RES & DIS, the calculation proceeds as in kinematics::InelQ2Lim(). 
+  //
   Range1D_t Q2l;
   Q2l.min = -1;
   Q2l.max = -1;
@@ -393,13 +404,21 @@ Range1D_t KPhaseSpace::Q2Lim(void) const
   const ProcessInfo & pi = fInteraction->ProcInfo();
   bool is_qel  = pi.IsQuasiElastic()  || pi.IsInverseBetaDecay();
   bool is_inel = pi.IsDeepInelastic() || pi.IsResonant();
+  bool is_coh  = pi.IsCoherent();
 
-  if(!is_qel && !is_inel) return Q2l;
+  if(!is_qel && !is_inel && !is_coh) return Q2l;
 
   const InitialState & init_state = fInteraction->InitState();
   double Ev  = init_state.ProbeE(kRfHitNucRest);
   double M   = init_state.Tgt().HitNucP4Ptr()->M(); // can be off m/shell
   double ml  = fInteraction->FSPrimLepton()->Mass();
+
+  if(is_coh) {
+    bool pionIsCharged = pi.IsWeakCC();
+    double mpi = pionIsCharged ? kPionMass : kPi0Mass;
+    Q2l = kinematics::CohQ2Lim(M, mpi, ml, Ev);
+    return Q2l;
+  }
 
   const XclsTag & xcls = fInteraction->ExclTag();
 
@@ -411,9 +430,9 @@ Range1D_t KPhaseSpace::Q2Lim(void) const
       W = PDGLibrary::Instance()->Find(charm_pdgc)->Mass();
     }
     if (pi.IsInverseBetaDecay()) {
-       Q2l = kinematics::InelQ2Lim_W(Ev,M,ml,W,controls::kMinQ2Limit_VLE);
+      Q2l = kinematics::InelQ2Lim_W(Ev,M,ml,W,controls::kMinQ2Limit_VLE);
     } else {
-       Q2l = kinematics::InelQ2Lim_W(Ev,M,ml,W);
+      Q2l = kinematics::InelQ2Lim_W(Ev,M,ml,W);
     }
     return Q2l;
   }
@@ -436,7 +455,7 @@ Range1D_t KPhaseSpace::q2Lim(void) const
 //____________________________________________________________________________
 Range1D_t KPhaseSpace::XLim(void) const
 {
-// Computes x-limits;
+  // Computes x-limits;
 
   Range1D_t xl;
   xl.min = -1;
@@ -557,5 +576,81 @@ Range1D_t KPhaseSpace::YLim_X(void) const
     return yl;
   }
   return yl;
+}
+//____________________________________________________________________________
+Range1D_t KPhaseSpace::YLim(double xsi) const
+{
+  // Paschos-Schalla xsi parameter for y-limits in COH
+  
+  Range1D_t yl;
+  yl.min = -1;
+  yl.max = -1;
+
+  const ProcessInfo & pi = fInteraction->ProcInfo();
+
+  //COH
+  bool is_coh = pi.IsCoherent();
+  if(is_coh) {  
+    const InitialState & init_state = fInteraction->InitState();
+    const Kinematics & kine = fInteraction->Kine();
+    double Ev = init_state.ProbeE(kRfHitNucRest);
+    double Q2 = kine.Q2();
+    bool pionIsCharged = pi.IsWeakCC();
+    double Mn = init_state.Tgt().Mass();
+    double mpi = pionIsCharged ? kPionMass : kPi0Mass;
+    double mlep = fInteraction->FSPrimLepton()->Mass();
+    yl = kinematics::CohYLim(Mn, mpi, mlep, Ev, Q2, xsi);
+    return yl;
+  } else {
+    return this->YLim();
+  }
+}
+//____________________________________________________________________________
+Range1D_t KPhaseSpace::YLim_X(double xsi) const
+{
+  // Paschos-Schalla xsi parameter for y-limits in COH
+  
+  const ProcessInfo & pi = fInteraction->ProcInfo();
+
+  //COH
+  bool is_coh = pi.IsCoherent();
+  if(is_coh) {  
+    return this->YLim(xsi);
+  } else {
+    return this->YLim_X();
+  }
+}
+//____________________________________________________________________________
+Range1D_t KPhaseSpace::TLim(void) const
+{
+  // t limits for Coherent pion production from 
+  //   Kartavtsev, Paschos, and Gounaris, PRD 74 054007, and
+  //   Paschos and Schalla, PRD 80, 03305
+  // TODO: Attempt to assign t bounds for other reactions?
+  Range1D_t tl;
+  tl.min = -1;
+  tl.max = -1;
+
+  const InitialState & init_state = fInteraction->InitState();
+  const ProcessInfo & pi = fInteraction->ProcInfo();
+  const Kinematics & kine = fInteraction->Kine();
+  double Ev = init_state.ProbeE(kRfHitNucRest);
+  double Q2 = kine.Q2();
+  double nu = Ev * kine.y();
+  bool pionIsCharged = pi.IsWeakCC();
+  double mpi = pionIsCharged ? kPionMass : kPi0Mass;
+
+  //COH
+  bool is_coh = pi.IsCoherent();
+  if(is_coh) {  
+    tl.min = 1.0 * (Q2 + mpi * mpi)/(2.0 * nu) * (Q2 + mpi * mpi)/(2.0 * nu);
+    tl.max = 0.05;
+    return tl;
+  }
+  // RES+DIS
+  // IMD
+  // Diffractive is more interesting? TODO: Check on diffractive t limits.
+  LOG("KPhaseSpace", pWARN) << "It is not sensible to ask for t limits for non-coherent events.";
+  return tl;
 }
 //____________________________________________________________________________
