@@ -25,8 +25,9 @@
 
 namespace genie {
 
-//class IntegratorI;
-class XSecIntegratorI : public Algorithm {
+class IntegratorI;
+
+ class XSecIntegratorI : public Algorithm {
 
 public:
   virtual ~XSecIntegratorI();
@@ -39,7 +40,7 @@ protected:
   XSecIntegratorI(string name);
   XSecIntegratorI(string name, string config);
 
-/////  const IntegratorI * fIntegrator; ///< GENIE numerical integrator 
+  const IntegratorI * fIntegrator; ///< GENIE numerical integrator 
 
   string fGSLIntgType; ///< name of GSL numerical integrator
   double fGSLRelTol;   ///< required relative tolerance (error)
