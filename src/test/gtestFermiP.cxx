@@ -92,7 +92,8 @@ int main(int /*argc*/, char ** /*argv*/)
   f.Close();
 
   //-- Clean-up
-  delete [] nucltgt;
+  delete nucltgt[0];
+  delete nucltgt[1];
   delete nuclnt;
 
   return 0;
