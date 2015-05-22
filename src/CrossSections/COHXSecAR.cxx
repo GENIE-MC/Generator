@@ -56,11 +56,6 @@ COHXSecAR::~COHXSecAR()
 double COHXSecAR::Integrate(
       const XSecAlgorithmI * model, const Interaction * in) const
 {
-  #ifndef __GENIE_GSL_ENABLED__
-    SLOG("COHXSecAR",pFATAL)<<"Trying to call AlvarezRuso without GSL";
-    return 0.;
-  #endif
-  
   const InitialState & init_state = in -> InitState();
   
   if(! model->ValidProcess(in) ) return 0.;
