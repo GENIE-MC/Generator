@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for the Simpson1D integrator
+
+Configurable Parameters:
+.......................................................................................................
+Name             Type     Optional   Comment               Default
+.......................................................................................................
+-->
+
+  <param_set name="Default-Linear"> 
+     <param type="int"    name="MaxNIter">    20    </param>
+     <param type="int"    name="InitNStep">   3     </param>
+     <param type="double" name="MaxErr">      2.0   </param>
+     <param type="bool"   name="InLoge">      false </param>
+  </param_set>
+
+  <param_set name="Default-Logarithmic"> 
+     <param type="int"    name="MaxNIter">    20    </param>
+     <param type="int"    name="InitNStep">   3     </param>
+     <param type="double" name="MaxErr">      2.0   </param>
+     <param type="bool"   name="InLoge">      true  </param>
+  </param_set>
+
+</alg_conf>
+

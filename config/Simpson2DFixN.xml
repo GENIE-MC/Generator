@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for the Simpson2DFixN integrator
+
+Configurable Parameters:
+.......................................................................................................
+Name             Type     Optional   Comment               Default
+.......................................................................................................
+-->
+
+  <param_set name="LinLin-61"> 
+     <param type="int"    name="NBinsDim0">     61    </param>
+     <param type="int"    name="NBinsDim1">     61    </param>
+  </param_set>
+
+  <param_set name="LinLin-101"> 
+     <param type="int"    name="NBinsDim0">     101   </param>
+     <param type="int"    name="NBinsDim1">     101   </param>
+  </param_set>
+
+  <param_set name="LinLin-201"> 
+     <param type="int"    name="NBinsDim0">     201   </param>
+     <param type="int"    name="NBinsDim1">     201   </param>
+  </param_set>
+
+  <param_set name="LogLog-61"> 
+     <param type="bool"   name="InLogeDim0">   true  </param>
+     <param type="bool"   name="InLogeDim1">   true  </param>
+     <param type="int"    name="NBinsDim0">     61    </param>
+     <param type="int"    name="NBinsDim1">     61    </param>
+  </param_set>
+
+  <param_set name="LogLog-101"> 
+     <param type="bool"   name="InLogeDim0">   true  </param>
+     <param type="bool"   name="InLogeDim1">   true  </param>
+     <param type="int"    name="NBinsDim0">     101   </param>
+     <param type="int"    name="NBinsDim1">     101   </param>
+  </param_set>
+
+  <param_set name="LogLog-201"> 
+     <param type="bool"   name="InLogeDim0">   true  </param>
+     <param type="bool"   name="InLogeDim1">   true  </param>
+     <param type="int"    name="NBinsDim0">     201   </param>
+     <param type="int"    name="NBinsDim1">     201   </param>
+  </param_set>
+
+  <param_set name="RS"> 
+     <param type="bool"   name="InLogeDim0">   false  </param>
+     <param type="bool"   name="InLogeDim1">   true   </param>
+     <param type="int"    name="NBinsDim0">    1001   </param>
+     <param type="int"    name="NBinsDim1">      51   </param>
+  </param_set>
+
+  <param_set name="DIS"> 
+     <param type="bool"   name="InLogeDim0">   true  </param>
+     <param type="bool"   name="InLogeDim1">   true  </param>
+     <param type="int"    name="NBinsDim0">      51   </param>
+     <param type="int"    name="NBinsDim1">     201   </param>
+  </param_set>
+
+</alg_conf>
+
