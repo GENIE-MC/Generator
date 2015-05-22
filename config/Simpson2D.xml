@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for the Simpson2D integrator
+
+Configurable Parameters:
+.......................................................................................................
+Name             Type     Optional   Comment               Default
+.......................................................................................................
+-->
+
+  <param_set name="Default-Linear"> 
+     <param type="int"    name="MaxNIter">            20    </param>
+     <param type="int"    name="InitNStep">           3     </param>
+     <param type="double" name="MaxErr">              6.0   </param>
+     <param type="bool"   name="InLoge">              false </param>
+     <param type="bool"   name="FastDensityIncrease"> true  </param>
+  </param_set>
+
+  <param_set name="Default-Logarithmic"> 
+     <param type="int"    name="MaxNIter">            20    </param>
+     <param type="int"    name="InitNStep">           5     </param>
+     <param type="double" name="MaxErr">              5.0   </param>
+     <param type="bool"   name="InLoge">              true  </param>
+     <param type="bool"   name="FastDensityIncrease"> true  </param>
+  </param_set>
+
+  <param_set name="Default-Linear-FixedNBins"> 
+     <param type="bool"   name="InLoge">              false </param>
+     <param type="bool"   name="ForceFixedNBins">     true  </param>
+  </param_set>
+
+  <param_set name="Default-Linear-FixedNBins-201"> 
+     <param type="bool"   name="InLoge">              false </param>
+     <param type="bool"   name="ForceFixedNBins">     true  </param>
+     <param type="int"    name="NBinsDim0">           201   </param>
+     <param type="int"    name="NBinsDim1">           201   </param>
+  </param_set>
+
+  <param_set name="Default-Logarithmic-FixedNBins-Fast"> 
+     <param type="bool"   name="InLoge">              true  </param>
+     <param type="bool"   name="ForceFixedNBins">     true  </param>
+     <param type="int"    name="NBinsDim0">           61    </param>
+     <param type="int"    name="NBinsDim1">           61    </param>
+  </param_set>
+
+  <param_set name="Default-Logarithmic-FixedNBins-101"> 
+     <param type="bool"   name="InLoge">              true  </param>
+     <param type="bool"   name="ForceFixedNBins">     true  </param>
+     <param type="int"    name="NBinsDim0">           101   </param>
+     <param type="int"    name="NBinsDim1">           101   </param>
+  </param_set>
+
+  <param_set name="Default-Logarithmic-FixedNBins-201"> 
+     <param type="bool"   name="InLoge">              true  </param>
+     <param type="bool"   name="ForceFixedNBins">     true  </param>
+     <param type="int"    name="NBinsDim0">           201   </param>
+     <param type="int"    name="NBinsDim1">           201   </param>
+  </param_set>
+
+  <param_set name="Default-Logarithmic-FixedNBins-301"> 
+     <param type="bool"   name="InLoge">              true  </param>
+     <param type="bool"   name="ForceFixedNBins">     true  </param>
+     <param type="int"    name="NBinsDim0">           301   </param>
+     <param type="int"    name="NBinsDim1">           301   </param>
+  </param_set>
+
+</alg_conf>
+

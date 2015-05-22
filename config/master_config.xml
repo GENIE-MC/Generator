@@ -84,6 +84,11 @@
    <config alg="genie::PythiaDecayer">               PythiaDecayer.xml               </config>
    <config alg="genie::BaryonResonanceDecayer">      BaryonResonanceDecayer.xml      </config>
 
+   <!-- ****** CONFIGURATION FOR (LIKELY OBSOLETE) INTEGRATORS ****** -->
+   <config alg="genie::Simpson1D">                   Simpson1D.xml                   </config>
+   <config alg="genie::Simpson2D">                   Simpson2D.xml                   </config>
+   <config alg="genie::Simpson2DFixN">               Simpson2DFixN.xml               </config>
+   
    <!--  ****** CONFIGURATION FORM FACTOR and STRUCTURE FUNCTION ALGORITHMS ****** -->
    <config alg="genie::DipoleELFormFactorsModel">    DipoleELFormFactorsModel.xml    </config>
    <config alg="genie::BBA03ELFormFactorsModel">     BBA03ELFormFactorsModel.xml     </config>
