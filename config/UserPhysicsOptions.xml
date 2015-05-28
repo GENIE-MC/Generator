@@ -354,9 +354,9 @@ STFC, Rutherford Appleton Laboratory
   nuclei are possible, by specifying the 'NuclearModel@Pdg=10LZZZAAAI' option. 
   Currently the same nuclear model is forced for all isotopes.
 
-  <param type="alg"  name="NuclearModel">                 genie::FGMBodekRitchie/Default </param>
-  -->
   <param type="alg"  name="NuclearModel">                 genie::EffectiveSF/Default </param>
+  -->
+  <param type="alg"  name="NuclearModel">                 genie::FGMBodekRitchie/Default </param>
 <!--
   <param type="alg" name="NuclearModel@Pdg=1000060120">   genie::SpectralFunc1d/Default  </param>
   <param type="alg" name="NuclearModel@Pdg=1000260560">   genie::SpectralFunc1d/Default  </param>
