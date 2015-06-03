@@ -34,4 +34,11 @@
 #pragma link C++ class genie::rew::GReWeightNuXSecNC;
 #pragma link C++ class genie::rew::GReWeightNuXSecHelper;
 
+
+#pragma link C++ class genie::rew::GReWeightInfo;
+#pragma link C++ class genie::rew::GReWeightIORecord;
+#pragma link C++ class genie::rew::GReWeightIOBranchDesc;
+
+#pragma link C++ ioctortype TRootIOCtor;
+
 #endif
