@@ -4,7 +4,7 @@
   gSystem->SetDynamicPath(libs.Data());
 
   // PYTHIA 6 lib
-  gSystem->Load("libPythia6.so");
+  gSystem->Load("libPythia6");
 
   // extra ROOT libs
   gSystem->Load("libPhysics");
@@ -22,47 +22,47 @@
   //
 
   // framework and utilities
-  gSystem->Load("libGMessenger.so");
-  gSystem->Load("libGRegistry.so");
-  gSystem->Load("libGAlgorithm.so");
-  gSystem->Load("libGInteraction.so");
-  gSystem->Load("libGHEP.so");
-  gSystem->Load("libGBase.so");
-  gSystem->Load("libGNumerical.so");
-  gSystem->Load("libGUtils.so");
-  gSystem->Load("libGPDG.so");
-  gSystem->Load("libGBaryonResonance.so");
-  gSystem->Load("libGEVGCore.so");
-  gSystem->Load("libGEVGDrivers.so");
-  gSystem->Load("libGNtuple.so");
-  gSystem->Load("libGGeo.so");
-  gSystem->Load("libGFluxDrivers.so");
+  gSystem->Load("libGMessenger");
+  gSystem->Load("libGRegistry");
+  gSystem->Load("libGAlgorithm");
+  gSystem->Load("libGInteraction");
+  gSystem->Load("libGHEP");
+  gSystem->Load("libGBase");
+  gSystem->Load("libGNumerical");
+  gSystem->Load("libGUtils");
+  gSystem->Load("libGPDG");
+  gSystem->Load("libGBaryonResonance");
+  gSystem->Load("libGEVGCore");
+  gSystem->Load("libGEVGDrivers");
+  gSystem->Load("libGNtuple");
+  gSystem->Load("libGGeo");
+  gSystem->Load("libGFluxDrivers");
 
   // physics
-  gSystem->Load("libGPDF.so");
-  gSystem->Load("libGElFF.so");
-  gSystem->Load("libGDecay.so");
-  gSystem->Load("libGFragmentation.so");
-  gSystem->Load("libGNuclear.so");
-  gSystem->Load("libGLlewellynSmith.so");
-  gSystem->Load("libGCrossSections.so");	
-  gSystem->Load("libGCharm.so");
-  gSystem->Load("libGElas.so");
-  gSystem->Load("libGGiBUU.so");
-  gSystem->Load("libGReinSehgal.so");
-  gSystem->Load("libGQPM.so");
-  gSystem->Load("libGBodekYang.so");
-  gSystem->Load("libGEVGModules.so");
-  gSystem->Load("libGQEL.so");
-  gSystem->Load("libGRES.so");
-  gSystem->Load("libGDIS.so");
-  gSystem->Load("libGCoh.so");
-  gSystem->Load("libGDfrc.so");
-  gSystem->Load("libGMEC.so");
-  gSystem->Load("libGNuE.so");
-  gSystem->Load("libGNuGamma.so");
-//gSystem->Load("libGVLE.so");
-//gSystem->Load("libGVHE.so");
-  gSystem->Load("libGHadronTransp.so");
+  gSystem->Load("libGPDF");
+  gSystem->Load("libGElFF");
+  gSystem->Load("libGDecay");
+  gSystem->Load("libGFragmentation");
+  gSystem->Load("libGNuclear");
+  gSystem->Load("libGLlewellynSmith");
+  gSystem->Load("libGCrossSections");	
+  gSystem->Load("libGCharm");
+  gSystem->Load("libGElas");
+  gSystem->Load("libGGiBUU");
+  gSystem->Load("libGReinSehgal");
+  gSystem->Load("libGQPM");
+  gSystem->Load("libGBodekYang");
+  gSystem->Load("libGEVGModules");
+  gSystem->Load("libGQEL");
+  gSystem->Load("libGRES");
+  gSystem->Load("libGDIS");
+  gSystem->Load("libGCoh");
+  gSystem->Load("libGDfrc");
+  gSystem->Load("libGMEC");
+  gSystem->Load("libGNuE");
+  gSystem->Load("libGNuGamma");
+//gSystem->Load("libGVLE");
+//gSystem->Load("libGVHE");
+  gSystem->Load("libGHadronTransp");
 }
 
