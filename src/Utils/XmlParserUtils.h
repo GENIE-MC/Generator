@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\namespace  genie::utils::xml
+\  genie::utils::xml
 
 \brief      XML utilities
 
@@ -27,11 +27,19 @@
 #include "libxml/xmlmemory.h"
 #endif
 
+#include <TSystem.h>
+#include <TVectorT.h>
+
 #include "Utils/StringUtils.h"
 
-#include <TSystem.h>
+class TFile;
+class TH1F;
+class TH1D;
+class TH2D;
+class TSpline3;
 
 using std::string;
+using std::vector;
 
 namespace genie {
 namespace utils {
@@ -48,21 +56,17 @@ namespace xml   {
    // In this method, "\n" is treated as 'empty space' so as to trim not only
    // empty spaces in the line that contains the string but also all leading
    // and trailing empty lines
-
+  
     string str = string( (const char *) xmls );
-
     return utils::str::TrimSpaces(str);
   }
 
   //_________________________________________________________________________
   inline string GetAttribute(xmlNodePtr xml_cur, string attr_name)
   {
-    xmlChar * xmls = xmlGetProp(xml_cur, (const xmlChar *) attr_name.c_str());
-    
+    xmlChar * xmls = xmlGetProp(xml_cur, (const xmlChar *) attr_name.c_str());    
     string str = TrimSpaces(xmls);
-
     xmlFree(xmls);
-
     return str;
   }
 #endif
@@ -112,6 +116,55 @@ namespace xml   {
   }
 
   //_________________________________________________________________________
+
+#if !defined(__CINT__) && !defined(__MAKECINT__)
+
+  // Find a particular node witin the input XML document.
+  // The node is specified using the input path.
+  // For example, to retrieve node <superk_energy_scale_err>
+  // in XML doc below
+  // <t2k>
+  //   <systematics>
+  //      <superk_energy_scale_err>
+  //          0.015
+  //      </superk_energy_scale_err>
+  //   </systematics>
+  // </t2k>
+  // specify the path "t2k/systematics/superk_energy_scale_err"
+  //
+  xmlNodePtr FindNode(xmlDocPtr xml_doc, string node_path);
+
+  //
+  // Retrieve XML file data in various formats.
+  // To retrieve a ROOT object from within a ROOT file, the following XML scheme is used
+  // <some_node>
+  //      <another_node>
+  //            <filename> blah </filename>
+  //            <objname>  blah </objname>
+  //            <objtype>  blah </objtype>
+  //      </another_node>
+  // </some_node>
+  //
+  bool           GetBool        (xmlDocPtr xml_doc, string node_path);       
+  int            GetInt         (xmlDocPtr xml_doc, string node_path);
+  vector<int>    GetIntArray    (xmlDocPtr xml_doc, string node_path); // comma-separated values in XML file
+  double         GetDouble      (xmlDocPtr xml_doc, string node_path);
+  vector<double> GetDoubleArray (xmlDocPtr xml_doc, string node_path); // comma-separated values in XML file
+  string         GetString      (xmlDocPtr xml_doc, string node_path);
+  string         GetROOTFileName(xmlDocPtr xml_doc, string node_path);
+  string         GetROOTObjName (xmlDocPtr xml_doc, string node_path);
+  string         GetROOTObjType (xmlDocPtr xml_doc, string node_path);
+  TFile *        GetTFile       (xmlDocPtr xml_doc, string node_path, string base_dir = "<env>");
+  TH1F *         GetTH1F        (xmlDocPtr xml_doc, string node_path, string base_dir = "<env>");  
+  TH1D *         GetTH1D        (xmlDocPtr xml_doc, string node_path, string base_dir = "<env>");  
+  TH2D *         GetTH2D        (xmlDocPtr xml_doc, string node_path, string base_dir = "<env>");  
+  TVectorD *     GetTVectorD    (xmlDocPtr xml_doc, string node_path, string base_dir = "<env>");  
+/*
+  TMatrixDSym *  GetTMatrixDSym (xmlDocPtr xml_doc, string node_path, string base_dir = "<env>");  
+  TMatrixD *     GetTMatrixD    (xmlDocPtr xml_doc, string node_path, string base_dir = "<env>");  
+  TSpline3 *     GetTSpline3    (xmlDocPtr xml_doc, string node_path, string base_dir = "<env>");
+*/
+#endif
 
 }         // xml   namespace
 }         // utils namespace

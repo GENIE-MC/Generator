@@ -32,7 +32,7 @@
           </genie_simulation_outputs>
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+          University of Liverpool & STFC Rutherford Appleton Laboratory
 
 \created  Oct 12, 2009
 
@@ -66,6 +66,7 @@ public:
  ~GSimFiles(void);
 
   int              NModels       (void)             const;
+  int              FindModelID   (string tag)       const;
   string           ModelTag      (int imodel)       const;
   TFile *          XSecFile      (int imodel)       const;
   string           XSecFileName  (int imodel)       const;
