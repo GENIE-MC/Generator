@@ -34,6 +34,7 @@ namespace str
   string         IntAsString            (int i);
   vector<string> Split                  (string input, string delim);
   string         RemoveSuccessiveSpaces (string input);
+  void           ReplaceStringInPlace   (string& subject, const string& search, const string& replace); 
   string         FilterString           (string filt, string input);
   string         ToUpper                (string input);
   string         ToLower                (string input);
