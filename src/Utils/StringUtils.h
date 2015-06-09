@@ -39,10 +39,7 @@ namespace str
   string         ToUpper                (string input);
   string         ToLower                (string input);
 
-  //! concatenation methods used for NuValidator's TGTextEdit widgets
-
-  const char * Concat(const char * s1, const char * s2,
-                                  const char * s3 = 0, const char * s4 = 0);
+  const char * Concat(const char * s1, const char * s2, const char * s3 = 0, const char * s4 = 0);
   const char * Concat(const char * s1, bool b);
   const char * Concat(const char * s1, int n);
   const char * Concat(const char * s1, float x);
