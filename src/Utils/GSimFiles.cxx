@@ -5,13 +5,9 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
+         University of Liverpool & STFC Rutherford Appleton Laboratory
 
  For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Oct 13, 2009 - CA
-   This class was first added in version 2.5.1
 */
 //____________________________________________________________________________
 
@@ -52,6 +48,17 @@ GSimFiles::~GSimFiles(void)
 int GSimFiles::NModels(void) const
 {
   return fNModels;
+}
+//____________________________________________________________________________
+int GSimFiles::FindModelID(string tag) const
+{
+  int imodel = 0;
+  vector<string>::const_iterator it = fModelTag->begin();
+  for( ; it != fModelTag->end(); ++it) {
+    if(*it == tag) return imodel;
+    imodel++;
+  }
+  return -1;
 }
 //____________________________________________________________________________
 string GSimFiles::ModelTag(int imodel) const

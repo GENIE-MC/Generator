@@ -1,4 +1,4 @@
-#
+# -*-mode: Makefile-*-
 # Make.target for GENIE Neutrino Generator
 #
 # Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
@@ -35,12 +35,12 @@ rootcint: $(DICTIONARY).o
 $(DICTIONARY).cc: LinkDef.h $(DICTGEN_OBJECTS)
 	$(RM) $(DICTIONARY).*
 	@echo "[package: $(PACKAGE)] Generating ROOT dictionary ..."
-	rootcint -f $(DICTIONARY).cc -c -I$(ROOTSYS)/include -I$(GENIE)/src $(DICTGEN_HEADERS) LinkDef.h
+	rootcint -f $(DICTIONARY).cc -c $(INCLUDES) $(DICTGEN_HEADERS) LinkDef.h
 
 #
 #
 
-lib: $(LIB_DEPEND)
+$(PACKAGE_LIB_WITH_PATH): $(LIB_DEPEND)
 	@echo "[package: $(PACKAGE)] Generating shared library ..."
 ifeq ($(strip $(DICTIONARY)),undefined)
 	$(SOCMD) $(SOFLAGS) $(SOMINF) $(PACKAGE_OBJECTS) $(EXTRA_EXT_LIBS) $(OutPutOpt) $(PACKAGE_LIB_WITH_PATH)
@@ -48,21 +48,28 @@ else
 	$(SOCMD) $(SOFLAGS) $(SOMINF) $(PACKAGE_ALL_OBJECTS) $(EXTRA_EXT_LIBS) $(OutPutOpt) $(PACKAGE_LIB_WITH_PATH)
 endif
 
-#
-#
-lib-link: FORCE
-	@echo "[package: $(PACKAGE)] Creating symbolic link to shared library ..."
-ifeq ($(strip $(GOPT_ENABLE_DYLIBVERSION)),YES)
-	$(SYMLINK) $(PACKAGE_LIB) $(PACKAGE_LIBNOVRS_WITH_PATH)
-endif
+lib: $(PACKAGE_LIB_WITH_PATH)
+
+$(PACKAGE_LIBMACLINK_WITH_PATH): $(PACKAGE_LIB_WITH_PATH)
 ifeq ($(strip $(IS_MACOSX)),YES)
 	$(SYMLINK) $(PACKAGE_LIB) $(PACKAGE_LIBMACLINK_WITH_PATH)
 endif
 
 
+$(PACKAGE_LIBNOVRS_WITH_PATH): $(PACKAGE_LIB_WITH_PATH)
+	@echo "[package: $(PACKAGE)] Creating symbolic link to shared library ..."
+ifeq ($(strip $(GOPT_ENABLE_DYLIBVERSION)),YES)
+	$(SYMLINK) $(PACKAGE_LIB) $(PACKAGE_LIBNOVRS_WITH_PATH)
+endif
+
 #
 #
-install-lib: FORCE
+lib-link: $(PACKAGE_LIBNOVRS_WITH_PATH) $(PACKAGE_LIBMACLINK_WITH_PATH)
+
+
+#
+#
+install-lib:
 	@echo "[package: $(PACKAGE)] Installing library..."
 	[ ! -f $(PACKAGE_LIB_WITH_PATH) ] || $(COPY) $(PACKAGE_LIB_WITH_PATH) $(GENIE_LIB_INSTALLATION_PATH)
 ifeq ($(strip $(GOPT_ENABLE_DYLIBVERSION)),YES)
@@ -74,24 +81,32 @@ endif
 
 #
 #
-install-inc: FORCE
+install-inc:
 	@echo "[package: $(PACKAGE)] Installing headers..."
 	$(COPY) *.h $(GENIE_INC_INSTALLATION_PATH)/$(PACKAGE)
 
 #
 #
-purge: FORCE
-	$(RM) $(PACKAGE_OBJECTS) *~ core a.out Makefile.temp
- 
-
-#
-#
-clean: FORCE   
-	$(RM) *.o *.d *~ core a.out $(GENIE_LIB_PATH)/$(LIBNAME)* $(DICTIONARY).* Makefile.temp
+.PHONY: purge
+purge:
+	$(RM) -f $(PACKAGE_OBJECTS) *.d *~ core a.out Makefile.temp
 
 
 #
 #
-distclean: FORCE
-	$(RM) $(GENIE_LIB_INSTALLATION_PATH)/$(LIBNAME)*
+.PHONY: clean
+clean:
+	@echo "Clean in $(PACKAGE)"
+	$(RM) -f *.d *.o *~ core a.out $(GENIE_LIB_PATH)/$(LIBNAME)* $(DICTIONARY).* Makefile.temp
 
+
+#
+#
+.PHONY: distclean
+distclean:
+	$(RM) -f $(GENIE_LIB_INSTALLATION_PATH)/$(LIBNAME)*
+
+
+DEP=$(addsuffix .d, $(basename $(PACKAGE_ALL_SOURCES)))
+
+-include $(DEP)
