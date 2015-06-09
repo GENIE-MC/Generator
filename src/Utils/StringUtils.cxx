@@ -70,6 +70,18 @@ string genie::utils::str::RemoveSuccessiveSpaces(string input)
   return FilterString("\n",trimmed);
 }
 //____________________________________________________________________________
+void genie::utils::str::ReplaceStringInPlace(
+  string& subject, const string& search, const string& replace)
+{
+// Searches the string "input" for "search" and replaces this with "replace"
+  size_t pos = 0;
+  while ((pos = subject.find(search, pos)) != std::string::npos) {
+    subject.replace(pos, search.length(), replace);
+    // move to end of replaced string
+    pos += replace.length();
+  }
+}
+//____________________________________________________________________________
 string genie::utils::str::FilterString(string filt_elements, string input)
 {
 // filter out from 'input' all characters that can be found in 'filt_elements'
