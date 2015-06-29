@@ -1,12 +1,12 @@
 //____________________________________________________________________________
 /*!
 
-\program gvld_sample_scan
+\program gevscan
 
-\brief   A simple validation program to read-in a GHEP event tree and test 
-         whether the generated events obey basic conservation laws
+\brief   A utility that reads-in a GHEP event tree and performs basic sanity 
+         checks / test whether the generated events obey basic conservation laws
 
-\syntax  gvld_sample_scan 
+\syntax  gevscan
              -f ghep_event_file 
             [-o output_error_log_file]
             [-n nev1[,nev2]]
@@ -119,10 +119,10 @@ int main(int argc, char ** argv)
   TFile file(gOptInpFilename.c_str(),"READ");
 
   NtpMCTreeHeader * thdr = dynamic_cast <NtpMCTreeHeader *> ( file.Get("header") );
-  LOG("gvldtest", pINFO) << "Input tree header: " << *thdr;
+  LOG("gevscan", pINFO) << "Input tree header: " << *thdr;
   NtpMCFormat_t format = thdr->format;
   if(format != kNFGHEP) {
-      LOG("gvldtest", pERROR) 
+      LOG("gevscan", pERROR) 
         << "*** Unsupported event-tree format : "
         << NtpMCFormat::AsString(format);
       file.Close();
@@ -196,7 +196,7 @@ int main(int argc, char ** argv)
 //____________________________________________________________________________
 void CheckEnergyMomentumConservation (void)
 {
-  LOG("gvldtest", pNOTICE) << "Checking energy/momentum conservation...";
+  LOG("gevscan", pNOTICE) << "Checking energy/momentum conservation...";
 
   if(gErrLog.is_open()) {
     gErrLog << "# Events failing the energy-momentum conservation test:" << endl;
@@ -214,7 +214,7 @@ void CheckEnergyMomentumConservation (void)
     NtpMCRecHeader rec_header = gMCRec->hdr;
     EventRecord &  event      = *(gMCRec->event);
 
-    LOG("gvldtest", pINFO) << "Checking event.... " << i;
+    LOG("gevscan", pINFO) << "Checking event.... " << i;
 
     double E_init  = 0, E_fin  = 0; // E
     double px_init = 0, px_fin = 0; // px
@@ -257,7 +257,7 @@ void CheckEnergyMomentumConservation (void)
               pz_conserved;
 
     if(!ok) {
-       LOG("gvldtest", pERROR) 
+       LOG("gevscan", pERROR) 
          << " ** Energy-momentum non-conservation in event: " << i 
          << "\n"
          << event;
@@ -278,14 +278,14 @@ void CheckEnergyMomentumConservation (void)
      }
   }
 
-  LOG("gvldtest", pNOTICE) 
+  LOG("gevscan", pNOTICE) 
      << "Found " << nerr 
      << " events failing the energy/momentum conservation test";
 }
 //____________________________________________________________________________
 void CheckChargeConservation(void)
 {
-  LOG("gvldtest", pNOTICE) << "Checking charge conservation...";
+  LOG("gevscan", pNOTICE) << "Checking charge conservation...";
 
   if(gErrLog.is_open()) {
      gErrLog << "# Events failing the charge conservation test:" << endl;
@@ -303,7 +303,7 @@ void CheckChargeConservation(void)
     NtpMCRecHeader rec_header = gMCRec->hdr;
     EventRecord &  event      = *(gMCRec->event);
 
-    LOG("gvldtest", pINFO) << "Checking event.... " << i;
+    LOG("gevscan", pINFO) << "Checking event.... " << i;
 
     // Can't run the test for neutrinos scattered off nuclear targets
     // because of intranuclear rescattering effects and the presence, in the event
@@ -312,7 +312,7 @@ void CheckChargeConservation(void)
     // for a free nucleon targets.
     GHepParticle * nucltgt = event.TargetNucleus();
     if (nucltgt) {
-      LOG("gvldtest", pINFO)
+      LOG("gevscan", pINFO)
            << "Event in nuclear target - Skipping test...";
       continue;
     }
@@ -339,7 +339,7 @@ void CheckChargeConservation(void)
     double epsilon = 1E-3; 
     bool ok = TMath::Abs(Q_init - Q_fin)  < epsilon;
     if(!ok) {
-       LOG("gvldtest", pERROR) 
+       LOG("gevscan", pERROR) 
          << " ** Charge non-conservation in event: " << i 
          << "\n"
          << event;
@@ -360,14 +360,14 @@ void CheckChargeConservation(void)
      }
   }
 
-  LOG("gvldtest", pNOTICE) 
+  LOG("gevscan", pNOTICE) 
      << "Found " << nerr 
      << " events failing the charge conservation test";
 }
 //____________________________________________________________________________
 void CheckForPseudoParticlesInFinState(void)
 {
-  LOG("gvldtest", pNOTICE) 
+  LOG("gevscan", pNOTICE) 
       << "Checking for pseudo-particles appearing in final state...";
 
   if(gErrLog.is_open()) {
@@ -386,7 +386,7 @@ void CheckForPseudoParticlesInFinState(void)
     NtpMCRecHeader rec_header = gMCRec->hdr;
     EventRecord &  event      = *(gMCRec->event);
 
-    LOG("gvldtest", pINFO) << "Checking event.... " << i;
+    LOG("gevscan", pINFO) << "Checking event.... " << i;
 
     GHepParticle * p = 0;
     TIter event_iter(&event);
@@ -404,7 +404,7 @@ void CheckForPseudoParticlesInFinState(void)
     }//p
 
     if(!ok) {
-       LOG("gvldtest", pERROR) 
+       LOG("gevscan", pERROR) 
          << " ** Pseudo-particle final state particle in event: " << i 
          << "\n"
          << event;
@@ -425,14 +425,14 @@ void CheckForPseudoParticlesInFinState(void)
      }
   }
 
-  LOG("gvldtest", pNOTICE) 
+  LOG("gevscan", pNOTICE) 
      << "Found " << nerr 
      << " events with pseudo-particles in  final state";
 }
 //____________________________________________________________________________
 void CheckForOffMassShellParticlesInFinState(void)
 {
-  LOG("gvldtest", pNOTICE) 
+  LOG("gevscan", pNOTICE) 
       << "Checking for off-mass-shell particles appearing in the final state...";
 
   if(gErrLog.is_open()) {
@@ -451,7 +451,7 @@ void CheckForOffMassShellParticlesInFinState(void)
     NtpMCRecHeader rec_header = gMCRec->hdr;
     EventRecord &  event      = *(gMCRec->event);
 
-    LOG("gvldtest", pINFO) << "Checking event.... " << i;
+    LOG("gevscan", pINFO) << "Checking event.... " << i;
 
     GHepParticle * p = 0;
     TIter event_iter(&event);
@@ -468,7 +468,7 @@ void CheckForOffMassShellParticlesInFinState(void)
     }//p
 
     if(!ok) {
-       LOG("gvldtest", pERROR) 
+       LOG("gevscan", pERROR) 
          << " ** Off-mass-shell final state particle in event: " << i 
          << "\n"
          << event;
@@ -489,14 +489,14 @@ void CheckForOffMassShellParticlesInFinState(void)
      }
   }
 
-  LOG("gvldtest", pNOTICE) 
+  LOG("gevscan", pNOTICE) 
      << "Found " << nerr 
      << " events with off-mass-shell particles in final state";
 }
 //____________________________________________________________________________
 void CheckForNumFinStateNucleonsInconsistentWithTarget(void)
 {
-  LOG("gvldtest", pNOTICE) 
+  LOG("gevscan", pNOTICE) 
      << "Checking for number of final state nucleons inconsistent with target...";
 
   if(gErrLog.is_open()) {
@@ -515,12 +515,12 @@ void CheckForNumFinStateNucleonsInconsistentWithTarget(void)
     NtpMCRecHeader rec_header = gMCRec->hdr;
     EventRecord &  event      = *(gMCRec->event);
 
-    LOG("gvldtest", pINFO) << "Checking event.... " << i;
+    LOG("gevscan", pINFO) << "Checking event.... " << i;
 
     // get target nucleus
     GHepParticle * nucltgt = event.TargetNucleus();
     if (!nucltgt) {
-      LOG("gvldtest", pINFO)
+      LOG("gevscan", pINFO)
            << "Event not in nuclear target - Skipping test...";
       continue;
     }
@@ -552,7 +552,7 @@ void CheckForNumFinStateNucleonsInconsistentWithTarget(void)
       if(pdg::IsNeutron(pdgc)) { N++; }
     }//p
 
-    LOG("gvldtest", pINFO)
+    LOG("gevscan", pINFO)
        << "Before intranuclear hadron transport: Z = " << Z << ", N = " << N;
 
     // count final state nucleons
@@ -566,12 +566,12 @@ void CheckForNumFinStateNucleonsInconsistentWithTarget(void)
       if(pdg::IsProton (pdgc)) { Zf++; }
       if(pdg::IsNeutron(pdgc)) { Nf++; }
     }
-    LOG("gvldtest", pINFO)
+    LOG("gevscan", pINFO)
        << "In the final state: Z = " << Zf << ", N = " << Nf;
 
     bool ok = (Zf <= Z && Nf <= N);
     if(!ok) {
-       LOG("gvldtest", pERROR) 
+       LOG("gevscan", pERROR) 
          << " ** Number of final state nucleons inconsistent with target in event: " << i 
          << "\n"
          << event;
@@ -593,14 +593,14 @@ void CheckForNumFinStateNucleonsInconsistentWithTarget(void)
      }
   }
 
-  LOG("gvldtest", pNOTICE) 
+  LOG("gevscan", pNOTICE) 
      << "Found " << nerr 
      << " events with a number of final state nucleons inconsistent with target";
 }
 //____________________________________________________________________________
 void CheckVertexDistribution(void)
 {
-  LOG("gvldtest", pNOTICE) 
+  LOG("gevscan", pNOTICE) 
      << "Checking intra-nuclear vertex distribution...";
 
   if(gErrLog.is_open()) {
@@ -622,12 +622,12 @@ void CheckVertexDistribution(void)
     NtpMCRecHeader rec_header = gMCRec->hdr;
     EventRecord &  event      = *(gMCRec->event);
 
-    LOG("gvldtest", pINFO) << "Checking event.... " << i;
+    LOG("gevscan", pINFO) << "Checking event.... " << i;
 
     // get target nucleus
     GHepParticle * nucltgt = event.TargetNucleus();
     if (!nucltgt) {
-      LOG("gvldtest", pINFO)
+      LOG("gevscan", pINFO)
            << "Event not in nuclear target - Skipping...";
       continue;
     }
@@ -639,7 +639,7 @@ void CheckVertexDistribution(void)
 
     // this test is run on a MC sample for a given target
     if(Z != nucltgt->Z() || A != nucltgt->A()) {
-      LOG("gvldtest", pINFO)
+      LOG("gevscan", pINFO)
            << "Event not in nuclear target seen first - Skipping...";
       continue;
     }
@@ -666,7 +666,7 @@ void CheckVertexDistribution(void)
 
     // check consistency
     double pvalue = r_distr_mc->Chi2Test(r_distr_expected,"WWP");
-    LOG("gvldtest", pNOTICE) << "p-value {\\chi^2 test} = " << pvalue;
+    LOG("gevscan", pNOTICE) << "p-value {\\chi^2 test} = " << pvalue;
 
     if(gErrLog.is_open()) {
        if(pvalue < 0.99) {
@@ -703,7 +703,7 @@ void CheckDecayerConsistency(void)
 // PYTHIA hadronization. It might also happen if the decayed particle status is
 // used incorrectly in some modules (eg intranuke).
 //
-  LOG("gvldtest", pNOTICE) 
+  LOG("gevscan", pNOTICE) 
      << "Checking decayer consistency...";
 
   if(gErrLog.is_open()) {
@@ -722,7 +722,7 @@ void CheckDecayerConsistency(void)
     NtpMCRecHeader rec_header = gMCRec->hdr;
     EventRecord &  event      = *(gMCRec->event);
 
-    LOG("gvldtest", pINFO) << "Checking event.... " << i;
+    LOG("gevscan", pINFO) << "Checking event.... " << i;
 
     GHepParticle * p = 0;
     TIter event_iter(&event);
@@ -757,13 +757,13 @@ void CheckDecayerConsistency(void)
     mesg << "Problem!\n" << particles_in_both_lists.size() << " particles seen both final state and to have decayed.";
   }
  
-  LOG("gvldtest", pNOTICE) 
+  LOG("gevscan", pNOTICE) 
     << mesg.str();
-  LOG("gvldtest", pNOTICE) 
+  LOG("gevscan", pNOTICE) 
     << "Particles seen in final state: " << final_state_particles;
-  LOG("gvldtest", pNOTICE) 
+  LOG("gevscan", pNOTICE) 
     << "Particles seen to have decayed: " << decayed_particles;
-  LOG("gvldtest", pNOTICE) 
+  LOG("gevscan", pNOTICE) 
     << "Particles seen in both lists: " << particles_in_both_lists;
 
   if(gErrLog.is_open()) {
@@ -824,7 +824,7 @@ void CheckDecayerConsistency(void)
 //____________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
 {
-  LOG("gvldtest", pNOTICE) << "*** Parsing command line arguments";
+  LOG("gevscan", pNOTICE) << "*** Parsing command line arguments";
 
   RunOpt::Instance()->ReadFromCommandLine(argc,argv);
 
@@ -832,10 +832,10 @@ void GetCommandLineArgs(int argc, char ** argv)
   
   // get input GENIE event sample
   if( parser.OptionExists('f') ) {
-    LOG("gvldtest", pINFO) << "Reading event sample filename";
+    LOG("gevscan", pINFO) << "Reading event sample filename";
     gOptInpFilename = parser.ArgAsString('f');
   } else {
-    LOG("gvldtest", pFATAL) 
+    LOG("gevscan", pFATAL) 
         << "Unspecified input filename - Exiting";
     PrintSyntax();
     exit(1);
@@ -843,7 +843,7 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   // get output error log
   if( parser.OptionExists('o') ) {
-    LOG("gvldtest", pINFO) << "Reading err log file name";
+    LOG("gevscan", pINFO) << "Reading err log file name";
     gOptOutFilename = parser.ArgAsString('o');
   } 
 
@@ -901,9 +901,9 @@ void GetCommandLineArgs(int argc, char ** argv)
 //____________________________________________________________________________
 void PrintSyntax(void)
 {
-  LOG("gvldtest", pNOTICE)
+  LOG("gevscan", pNOTICE)
     << "\n\n" << "Syntax:" << "\n"
-    << "   gvld_sample_scan -f sample.root [-n n1[,n2]] [-o errlog] [check names]\n";
+    << " gevscan -f sample.root [-n n1[,n2]] [-o errlog] [check names]\n";
 }
 //_________________________________________________________________________________
 bool CheckRootFilename(string filename)
@@ -912,7 +912,7 @@ bool CheckRootFilename(string filename)
     
   bool is_accessible = ! (gSystem->AccessPathName(filename.c_str()));
   if (!is_accessible) {
-   LOG("gvldtest", pERROR)  
+   LOG("gevscan", pERROR)  
        << "The input ROOT file [" << filename << "] is not accessible";
    return false;
   }

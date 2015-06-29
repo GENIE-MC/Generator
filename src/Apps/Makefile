@@ -25,6 +25,9 @@ TGT =    gevgen		  	\
 	 gevgen_upmu            \
 	 gevdump          	\
 	 gevpick	        \
+	 gevscan	        \
+	 gevcomp	        \
+	 gxscomp	        \
 	 gmkspl  	  	\
 	 gspladd   	  	\
 	 gspl2root	  	\
@@ -115,12 +118,33 @@ gevdump: FORCE
 	$(CXX) $(CXXFLAGS) -c gEvDump.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) gEvDump.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevdump
 
-# gevpick event topology cherry-picking program
+# event topology cherry-picking program
 #
 gevpick: FORCE
 	@echo "** Building gevpick"
 	$(CXX) $(CXXFLAGS) -c gEvPick.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) gEvPick.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevpick
+
+# utility performing sanity checks on event samples
+#
+gevscan: FORCE
+	@echo "** Building gevscan"
+	$(CXX) $(CXXFLAGS) -c gEvScan.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gEvScan.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevscan
+
+# utility performing comparisons between two event samples
+#
+gevcomp: FORCE
+	@echo "** Building gevcomp"
+	$(CXX) $(CXXFLAGS) -c gEvComp.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gEvComp.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevcomp
+
+# utility performing comparisons between two sets of pre-computed x-section splines
+#
+gxscomp: FORCE
+	@echo "** Building gxscomp"
+	$(CXX) $(CXXFLAGS) -c gXSecComp.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gXSecComp.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gxscomp
 
 # x-section spline building utility
 #
@@ -200,6 +224,9 @@ clean: FORCE
 	$(RM) $(GENIE_BIN_PATH)/gevgen_ndcy
 	$(RM) $(GENIE_BIN_PATH)/gevdump		
 	$(RM) $(GENIE_BIN_PATH)/gevpick
+	$(RM) $(GENIE_BIN_PATH)/gevscan
+	$(RM) $(GENIE_BIN_PATH)/gevcomp
+	$(RM) $(GENIE_BIN_PATH)/gxscomp
 	$(RM) $(GENIE_BIN_PATH)/gmkspl 	
 	$(RM) $(GENIE_BIN_PATH)/gspladd 	
 	$(RM) $(GENIE_BIN_PATH)/gspl2root		
@@ -218,6 +245,9 @@ distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevgen_ndcy
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevdump		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevpick
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevscan
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevcomp
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gxscomp
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gmkspl 	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gspladd 	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gspl2root		
