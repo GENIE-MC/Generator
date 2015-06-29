@@ -32,16 +32,9 @@ BUILD_TARGETS =    print-make-info \
 		   nucleon-decay \
 		   reweight \
 		   mueloss \
-		   vld-tools \
 		   doxygen-doc \
 		   generator-test-exe \
-		   generator-std-exe \
-		   t2k-support-softw \
-		   fnal-support-softw \
-		   atmo-support-softw \
-		   nucleon-decay-support-softw \
-		   reweight-support-softw \
-		   masterclass-support-softw \
+		   apps \
 		   install-scripts
 INSTALL_TARGETS =  print-makeinstall-info \
 		   check-previous-installation \
@@ -229,10 +222,10 @@ doxygen: FORCE
 	make doxygen; \
 	cd ${GENIE}
 
-generator-std-exe: FORCE
+apps: FORCE
 	@echo " "
 	@echo "** Building GENIE applications..."
-	cd ${GENIE}/src/stdapp;\
+	cd ${GENIE}/src/Apps;\
 	make all; \
 	cd ${GENIE}
 
@@ -246,75 +239,6 @@ ifeq ($(strip $(GOPT_ENABLE_TEST)),YES)
 else
 	@echo " "
 	@echo "** Test applications were not enabled! Skipping..."
-endif
-
-t2k-support-softw: FORCE
-	@echo " "
-	@echo "** Building T2K-specific support software..."
-ifeq ($(strip $(GOPT_ENABLE_T2K)),YES)
-	cd ${GENIE}/src/support/t2k/EvGen/;\
-	make all; \
-	cd ${GENIE}
-else
-	@echo "Not enabled! Skipping..."
-endif
-
-fnal-support-softw: FORCE
-	@echo " "
-	@echo "** Building FNAL-specific support software..."
-ifeq ($(strip $(GOPT_ENABLE_FNAL)),YES)
-	cd ${GENIE}/src/support/fnal/EvGen/;\
-	make all; \
-	cd ${GENIE}
-else
-	@echo "Not enabled! Skipping..."
-endif
-
-
-atmo-support-softw: FORCE
-	@echo " "
-	@echo "** Building support software for atmospheric neutrino studies..."
-ifeq ($(strip $(GOPT_ENABLE_ATMO)),YES)
-	cd ${GENIE}/src/support/atmo/EvGen/;\
-	make all; \
-	cd ${GENIE}/src/support/atmo/UpMuFluxGen/;\
-	make all; \
-	cd ${GENIE}
-else
-	@echo "Not enabled! Skipping..."
-endif
-
-nucleon-decay-support-softw: FORCE
-	@echo " "
-	@echo "** Building nucleon decay applications ..."
-ifeq ($(strip $(GOPT_ENABLE_NUCLEON_DECAY)),YES)
-	cd ${GENIE}/src/support/ndcy/EvGen;\
-	make all; \
-	cd ${GENIE}
-else
-	@echo "Nucleon decay not enabled! Skipping..."
-endif
-
-reweight-support-softw: FORCE
-	@echo " "
-	@echo "** Building event reweighting applications ..."
-ifeq ($(strip $(GOPT_ENABLE_RWGHT)),YES)
-	cd ${GENIE}/src/support/rwght/;\
-	make all; \
-	cd ${GENIE}
-else
-	@echo "Event reweighting not enabled! Skipping..."
-endif
-
-masterclass-support-softw: FORCE
-	@echo " "
-	@echo "** Building neutrino masterclass application ..."
-ifeq ($(strip $(GOPT_ENABLE_MASTERCLASS)),YES)
-	cd ${GENIE}/src/support/masterclass/;\
-	make all; \
-	cd ${GENIE}
-else
-	@echo "Masterclass app not enabled! Skipping..."
 endif
 
 install-scripts: FORCE
@@ -572,14 +496,7 @@ clean-files: FORCE
 	cd Utils;                         make clean; cd ..; \
 	cd VLE;                           make clean; cd ..; \
 	cd VHE;                           make clean; cd ..; \
-	cd stdapp;                        make clean; cd ..; \
-	cd support/t2k/EvGen/;            make clean; cd ../../../; \
-	cd support/fnal/EvGen/;           make clean; cd ../../../; \
-	cd support/atmo/EvGen/;           make clean; cd ../../../; \
-	cd support/atmo/UpMuFluxGen/;     make clean; cd ../../../; \
-	cd support/ndcy/EvGen/;           make clean; cd ../../../; \
-	cd support/rwght/;                make clean; cd ../../; \
-	cd support/masterclass/;          make clean; cd ../../; \
+	cd Apps;                          make clean; cd ..; \
 	cd test;                          make clean; cd ..; \
 	cd scripts;                       make clean; cd ..;\
 	cd $(GENIE);\
@@ -648,14 +565,7 @@ distclean: FORCE
 	cd Utils;                          make distclean; cd ..; \
 	cd VLE;                            make distclean; cd ..; \
 	cd VHE;                            make distclean; cd ..; \
-	cd stdapp;                         make distclean; cd ..; \
-	cd support/t2k/EvGen/;             make distclean; cd ../../../; \
-	cd support/fnal/EvGen/;            make distclean; cd ../../../; \
-	cd support/atmo/EvGen/;            make distclean; cd ../../../; \
-	cd support/atmo/UpMuFluxGen/;      make distclean; cd ../../../; \
-	cd support/ndcy/EvGen/;            make distclean; cd ../../../; \
-	cd support/rwght/;                 make distclean; cd ../../; \
-	cd support/masterclass/;           make distclean; cd ../../; \
+	cd Apps;                           make distclean; cd ..; \
 	cd test;                           make distclean; cd ..; \
 	cd scripts;                        make distclean; \
 	cd ${GENIE}

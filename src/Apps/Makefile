@@ -1,8 +1,7 @@
 #
-# Makefile for GENIE standard apps
+# Makefile for GENIE Apps
 #
 # Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-# May 02, 2004
 #
 
 SHELL = /bin/sh
@@ -17,64 +16,136 @@ GENIE_LIBS  = $(shell $(GENIE)/src/scripts/setup/genie-config --libs)
 
 LIBRARIES  := $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 
-TGT =    gEvGen		  	\
-	 gEvDump          	\
-	 gEvGenHadronNucleus    \
-	 gEvPick	        \
-	 gMakeSplines	  	\
-	 gSplineAdd   	  	\
-	 gSplineXml2Root  	\
-	 gMaxPathLengths  	\
-	 gNtpConv	  
+TGT =    gevgen		  	\
+	 gevgen_fnal            \
+	 gevgen_t2k             \
+	 gevgen_atmo            \
+	 gevgen_hadron          \
+         gevgen_ndcy            \
+	 gevgen_upmu            \
+	 gevdump          	\
+	 gevpick	        \
+	 gmkspl  	  	\
+	 gspladd   	  	\
+	 gspl2root	  	\
+	 gmxpl		  	\
+	 grwght1scan		\
+	 gntpc	  
 
 all: $(TGT)
 
-# gevgen event generation driver
+# a simple/generic gevgen event generation app
 #
-gEvGen: FORCE
+gevgen: FORCE
+	@echo "** Building gevgen"
 	$(CXX) $(CXXFLAGS) -c gEvGen.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) gEvGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen 
 
-# gevdump event print-out utility
+# neutrino event generation app for Fermilab experiments (DUNE, or experiments in NuMI and Booster beamlines)
 #
-gEvDump: FORCE
-	$(CXX) $(CXXFLAGS) -c gEvDump.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) gEvDump.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevdump
+gevgen_fnal: FORCE
+	@echo "** Building gevgen_fnal"
+ifeq ($(strip $(GOPT_ENABLE_FNAL)),YES)
+	$(CXX) $(CXXFLAGS) -c gFNALExptEvGen.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gFNALExptEvGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen_fnal
+	@echo "For historical purposes, add a NuMI event generation app sym link"
+	ln -sf $(GENIE_BIN_PATH)/gevgen_fnal $(GENIE_BIN_PATH)/gevgen_numi
+else
+	@echo "FNAL support not enabled!"
+endif
 
-
-# gevgen_hadron program generating hadron + nucleus interactions using GENIE's INTRANUKE
+# T2K neutrino event generation app 
 #
-gEvGenHadronNucleus: FORCE
+gevgen_t2k: FORCE
+	@echo "** Building gevgen_t2k"
+ifeq ($(strip $(GOPT_ENABLE_T2K)),YES)
+	$(CXX) $(CXXFLAGS) -c gT2KEvGen.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gT2KEvGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen_t2k
+	@echo "For historical purposes, add symbolic link to the T2K event generation app"
+	ln -sf $(GENIE_BIN_PATH)/gevgen_t2k $(GENIE_BIN_PATH)/gT2Kevgen
+else
+	@echo "T2K support not enabled!"
+endif
+
+# atmospheric neutrino event generation app
+#
+gevgen_atmo: FORCE
+	@echo "** Building gevgen_atmo"
+ifeq ($(strip $(GOPT_ENABLE_ATMO)),YES)
+	$(CXX) $(CXXFLAGS) -c gAtmoEvGen.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gAtmoEvGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen_atmo
+else
+	@echo "Atmospheric neutrino support not enabled!"
+endif
+
+# (atmospheric) neutrino-incuded upgoing-muon flux generation app
+#
+gevgen_upmu: FORCE
+	@echo "** Building gevgen_upmu"
+ifeq ($(strip $(GOPT_ENABLE_ATMO)),YES)
+	$(CXX) $(CXXFLAGS) -c gUpMuFluxGen.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gUpMuFluxGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen_upmu
+else
+	@echo "Atmospheric neutrino support not enabled!"
+endif
+
+# hadron + nucleus event generation app
+#
+gevgen_hadron: FORCE
+	@echo "** Building gevgen_hadron"
 	$(CXX) $(CXXFLAGS) -c gEvGenHadronNucleus.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) gEvGenHadronNucleus.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen_hadron
 
+# nucleon decay event generation app
+#
+gevgen_ndcy: FORCE
+	@echo "** Building gevgen_ndcy"
+ifeq ($(strip $(GOPT_ENABLE_NUCLEON_DECAY)),YES)
+	$(CXX) $(CXXFLAGS) -c gNucleonDecayEvGen.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gNucleonDecayEvGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen_ndcy
+else
+	@echo "Nucleon decay not enabled!"
+endif
+
+# gevdump event print-out utility
+#
+gevdump: FORCE
+	@echo "** Building gevdump"
+	$(CXX) $(CXXFLAGS) -c gEvDump.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gEvDump.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevdump
+
 # gevpick event topology cherry-picking program
 #
-gEvPick: FORCE
+gevpick: FORCE
+	@echo "** Building gevpick"
 	$(CXX) $(CXXFLAGS) -c gEvPick.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) gEvPick.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevpick
 
-# gmkspl x-section spline building utility
+# x-section spline building utility
 #
-gMakeSplines: FORCE
+gmkspl: FORCE
+	@echo "** Building gmkspl"
 	$(CXX) $(CXXFLAGS) -c gMakeSplines.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) gMakeSplines.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gmkspl 
 
-# gspladd utility merging x-section spline xml files
+# utility merging x-section spline xml files
 #
-gSplineAdd: FORCE
+gspladd: FORCE
+	@echo "** Building gspladd"
 	$(CXX) $(CXXFLAGS) -c gSplineAdd.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) gSplineAdd.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gspladd 
 
-# gspl2root utility for converting XML splines into ROOT
+# utility for converting XML splines into ROOT format
 #
-gSplineXml2Root: FORCE
+gspl2root: FORCE
+	@echo "** Building gspl2root"
 	$(CXX) $(CXXFLAGS) -c gSplineXml2Root.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) gSplineXml2Root.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gspl2root
 
-# gmxpl utility computing maximum path lengths for a given root geometry
+# utility computing maximum path lengths for a given root geometry
 #
-gMaxPathLengths: FORCE
+gmxpl: FORCE
+	@echo "** Building gmxpl"
 ifeq ($(strip $(GOPT_ENABLE_FLUX_DRIVERS)),YES)
 	$(CXX) $(CXXFLAGS) -c gMaxPathLengths.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) gMaxPathLengths.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gmxpl
@@ -82,9 +153,21 @@ else
 	@echo "You need to enable the flux drivers to build the gmxpl utility"
 endif
 
-# gntpc ntuple conversion utility
+# simple utility for calculating weights in response to tweaking a single systematic param
 #
-gNtpConv: FORCE
+grwght1scan: FORCE
+	@echo "** Building grwght1scan"
+ifeq ($(strip $(GOPT_ENABLE_RWGHT)),YES)
+	$(CXX) $(CXXFLAGS) -c gRwght1Scan.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gRwght1Scan.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/grwght1scan
+else
+	@echo "Event reweighting not enabled!"
+endif
+
+# ntuple conversion utility
+#
+gntpc: FORCE
+	@echo "** Building gntpc"
 	$(CXX) $(CXXFLAGS) -c gNtpConv.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) gNtpConv.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gntpc 
 
@@ -97,24 +180,36 @@ purge: FORCE
 clean: FORCE
 	$(RM) *.o *~ core
 	$(RM) $(GENIE_BIN_PATH)/gevgen		
-	$(RM) $(GENIE_BIN_PATH)/gevdump		
+	$(RM) $(GENIE_BIN_PATH)/gevgen_fnal		
+	$(RM) $(GENIE_BIN_PATH)/gevgen_t2k		
+	$(RM) $(GENIE_BIN_PATH)/gevgen_atmo		
+	$(RM) $(GENIE_BIN_PATH)/gevgen_upmu		
 	$(RM) $(GENIE_BIN_PATH)/gevgen_hadron
+	$(RM) $(GENIE_BIN_PATH)/gevgen_ndcy
+	$(RM) $(GENIE_BIN_PATH)/gevdump		
 	$(RM) $(GENIE_BIN_PATH)/gevpick
 	$(RM) $(GENIE_BIN_PATH)/gmkspl 	
 	$(RM) $(GENIE_BIN_PATH)/gspladd 	
 	$(RM) $(GENIE_BIN_PATH)/gspl2root		
 	$(RM) $(GENIE_BIN_PATH)/gmxpl		
+	$(RM) $(GENIE_BIN_PATH)/grwght1scan		
 	$(RM) $(GENIE_BIN_PATH)/gntpc		
 
 distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevgen		
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevdump		
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevgen_fnal		
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevgen_t2k		
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevgen_atmo		
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevgen_upmu		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevgen_hadron
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevgen_ndcy
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevdump		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevpick
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gmkspl 	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gspladd 	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gspl2root		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gmxpl		
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/grwght1scan		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gntpc		
 
 FORCE:
