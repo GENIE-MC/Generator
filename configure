@@ -28,7 +28,6 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "    flux-drivers      Built-in flux drivers                                       default: enabled  \n";
   print "    geom-drivers      Built-in detector geometry drivers                          default: enabled  \n";
   print "    vle-extension     GENIE very low energy (1 MeV - 100 MeV) extension           default: disabled (Experimental) \n";
-  print "    validation-tools  GENIE physics model validation tools (requires MySQL)       default: disabled \n";
   print "    mueloss           Muon energy loss modeling                                   default: enabled  \n";
   print "    test              Build test programs                                         default: disabled \n";
   print "    t2k               Enable T2K-specific event generation app                    default: disabled \n";
@@ -137,7 +136,6 @@ my $gopt_enable_cernlib          = "NO";
 my $gopt_enable_flux_drivers     = "YES";
 my $gopt_enable_geom_drivers     = "YES";
 my $gopt_enable_vle_extension    = "NO";
-my $gopt_enable_validation_tools = "NO";
 my $gopt_enable_mueloss          = "YES";
 my $gopt_enable_test             = "NO";
 my $gopt_enable_t2k              = "NO";
@@ -160,7 +158,6 @@ if(($match = grep(/--enable-cernlib/i ,         @ARGV)) > 0) { $gopt_enable_cern
 if(($match = grep(/--disable-flux-drivers/i,    @ARGV)) > 0) { $gopt_enable_flux_drivers     = "NO";  }
 if(($match = grep(/--disable-geom-drivers/i,    @ARGV)) > 0) { $gopt_enable_geom_drivers     = "NO";  }
 if(($match = grep(/--enable-vle-extension/i,    @ARGV)) > 0) { $gopt_enable_vle_extension    = "YES"; }
-if(($match = grep(/--enable-validation-tools/i, @ARGV)) > 0) { $gopt_enable_validation_tools = "YES"; }
 if(($match = grep(/--disable-mueloss/i,         @ARGV)) > 0) { $gopt_enable_mueloss          = "NO";  }
 if(($match = grep(/--enable-test/i,             @ARGV)) > 0) { $gopt_enable_test             = "YES"; }
 if(($match = grep(/--enable-t2k/i,              @ARGV)) > 0) { $gopt_enable_t2k              = "YES"; }
@@ -333,12 +330,6 @@ if($gopt_enable_lhapdf eq "NO" && $gopt_enable_cernlib eq "NO") {
    exit 1;
 }
 
-# If --enable-validation-tools was set then ROOT must have mysql support enabled
-#
-if($gopt_enable_validation_tools eq "YES") {
-
-}
-
 # Get pythia6 library path
 #
 my $gopt_with_pythia6_lib = "";	
@@ -471,7 +462,6 @@ print MKCONF "GOPT_ENABLE_CERNLIB=$gopt_enable_cernlib\n";
 print MKCONF "GOPT_ENABLE_FLUX_DRIVERS=$gopt_enable_flux_drivers\n";
 print MKCONF "GOPT_ENABLE_GEOM_DRIVERS=$gopt_enable_geom_drivers\n";
 print MKCONF "GOPT_ENABLE_VLE_EXTENSION=$gopt_enable_vle_extension\n";
-print MKCONF "GOPT_ENABLE_VALIDATION_TOOLS=$gopt_enable_validation_tools\n"; 
 print MKCONF "GOPT_ENABLE_MUELOSS=$gopt_enable_mueloss\n";
 print MKCONF "GOPT_ENABLE_TEST=$gopt_enable_test\n";
 print MKCONF "GOPT_ENABLE_T2K=$gopt_enable_t2k\n";
