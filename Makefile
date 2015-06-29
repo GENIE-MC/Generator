@@ -32,6 +32,7 @@ BUILD_TARGETS =    print-make-info \
 		   nucleon-decay \
 		   reweight \
 		   mueloss \
+		   masterclass \
 		   doxygen-doc \
 		   generator-test-exe \
 		   apps \
@@ -191,13 +192,25 @@ endif
 mueloss: FORCE
 ifeq ($(strip $(GOPT_ENABLE_MUELOSS)),YES)
 	@echo " "
-	@echo "** Building mueloss utility package..."
+	@echo "** Building MuELoss utility package..."
 	cd ${GENIE}/src/MuELoss; \
 	make; \
 	cd ${GENIE}
 else
 	@echo " "
 	@echo "** Mueloss was not enabled. Skipping..."
+endif
+
+masterclass: FORCE
+ifeq ($(strip $(GOPT_ENABLE_MASTERCLASS)),YES)
+	@echo " "
+	@echo "** Building Masterclass package..."
+	cd ${GENIE}/src/Masterclass; \
+	make; \
+	cd ${GENIE}
+else
+	@echo " "
+	@echo "** Masterclass was not enabled. Skipping..."
 endif
 
 # This target is used for generating the doxygen documentation

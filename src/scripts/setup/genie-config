@@ -37,6 +37,9 @@ fi
 if test "$GOPT_ENABLE_MUELOSS" = "YES"; then
   libs="$libs -lGMuELoss"
 fi
+if test "$GOPT_ENABLE_MASTERCLASS" = "YES"; then
+  libs="$libs -lGMasterclass"
+fi
 if test "$GOPT_ENABLE_RWGHT" = "YES"; then
   libs="$libs -lGReWeight"
 fi
