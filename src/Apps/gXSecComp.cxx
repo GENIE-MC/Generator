@@ -1,13 +1,14 @@
 //____________________________________________________________________________
 /*!
 
-\program gvld_xsec_comp
+\program gxscomp
 
-\brief   A GENIE utility that reads-in GENIE cross section files and 
-         generates comparisons plots.
+\brief   A simple utility that plots the pre-calculated cross-sections used as
+         input for event generation. Can also compare against a reference set of
+         such pre-computed cross-sections.
 
          Syntax:
-           gvld_xsec_comp 
+           gxscomp
                 -f xsec_file[,label] 
                [-r reference_xsec_file[,label]] 
                [-o output]
@@ -25,7 +26,7 @@
          Example:
            To compare cross sections in xsec-v2_4.root and xsec-v2_2.root
            type:
-           shell$ gvld_xsec_comp -f xsec-v2_4.root -r xsec-v2_2.root 
+           shell$ gxscomp -f xsec-v2_4.root -r xsec-v2_2.root 
 		      
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          University of Liverpool & STFC Rutherford Appleton Lab
@@ -129,7 +130,7 @@ int main(int argc, char ** argv)
   MakePlots();
   End();
   
-  LOG("gvldtest", pINFO)  << "Done!";
+  LOG("gxscomp", pINFO)  << "Done!";
 
   return 0;
 }
@@ -224,7 +225,7 @@ void OpenDir(void)
   }
 
   if(!gDirRef0) {
-    LOG("gvldtest", pINFO)  << "No reference plots will be shown.";
+    LOG("gxscomp", pINFO)  << "No reference plots will be shown.";
   }
 }
 //_________________________________________________________________________________
@@ -353,7 +354,7 @@ void MakePlots(void)
 //_________________________________________________________________________________
 void MakePlotsCurrDir(void)
 {
-  LOG("gvldtest", pINFO)  << "Plotting graphs from directory: " << gDirName;
+  LOG("gxscomp", pINFO)  << "Plotting graphs from directory: " << gDirName;
 
   OpenDir         ();
   DirNameToProbe  ();
@@ -362,8 +363,8 @@ void MakePlotsCurrDir(void)
   const char * probestr  = gCurrProbeLbl.c_str();
   const char * targetstr = gCurrTargetLbl.c_str();
 
-  LOG("gvldtest", pINFO)  << "Probe  : " << probestr;
-  LOG("gvldtest", pINFO)  << "Target : " << targetstr;
+  LOG("gxscomp", pINFO)  << "Probe  : " << probestr;
+  LOG("gxscomp", pINFO)  << "Target : " << targetstr;
 
   //
   // Start plotting...
@@ -701,7 +702,7 @@ TGraph * DrawRatio(TGraph * gr0, TGraph * gr1)
   if(!gr0) return 0;
   if(!gr1) return 0;
 
-  LOG("gvldtest", pDEBUG) << "Drawing ratio...";
+  LOG("gxscomp", pDEBUG) << "Drawing ratio...";
 
   const int np = gr0->GetN();
 
@@ -738,7 +739,7 @@ TGraph * DrawRatio(TGraph * gr0, TGraph * gr1)
 //_________________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
 {
-  LOG("gvldtest", pINFO) << "*** Parsing command line arguments";
+  LOG("gxscomp", pINFO) << "*** Parsing command line arguments";
 
   CmdLnArgParser parser(argc,argv);
 
@@ -783,7 +784,7 @@ void GetCommandLineArgs(int argc, char ** argv)
     }
     gOptHaveRef = true;
   } else {
-    LOG("gvldtest", pNOTICE) << "No reference cross section file";
+    LOG("gxscomp", pNOTICE) << "No reference cross section file";
     gOptHaveRef = false;
   }
 
@@ -798,9 +799,9 @@ void GetCommandLineArgs(int argc, char ** argv)
 //_________________________________________________________________________________
 void PrintSyntax(void)
 {
-  LOG("gvldtest", pNOTICE)
+  LOG("gxscomp", pNOTICE)
     << "\n\n" << "Syntax:" << "\n"
-    << "   gvld_xsec_comp  -f xsec_file [-r reference_xsec_file] [-o output]\n";
+    << " gxscomp  -f xsec_file [-r reference_xsec_file] [-o output]\n";
 }
 //_________________________________________________________________________________
 bool CheckRootFilename(string filename)
@@ -809,7 +810,7 @@ bool CheckRootFilename(string filename)
 
   bool is_accessible = ! (gSystem->AccessPathName(filename.c_str()));
   if (!is_accessible) {
-   LOG("gvldtest", pERROR)
+   LOG("gxscomp", pERROR)
        << "The input ROOT file [" << filename << "] is not accessible";
    return false;
   }

@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\program gvld_sample_comp
+\program gevcomp
 
 \brief   A GENIE neutrino event sample comparison utility.
          Reads-in a GENIE GHEP event tree and generates a postscript file
@@ -9,7 +9,7 @@
          sample is specified)
 
          Syntax :
-           gvld_sample_comp -f sample [-r reference_sample]
+           gevcomp -f sample [-r reference_sample]
 
          Options:
            [] Denotes an optional argument
@@ -22,7 +22,7 @@
            GENIE's gntpc utility
            	      
          Example:
-           gvld_sample_comp -f /path/gntp.1.gst.root -r /path/gntp.2.gst.root
+           gevcomp -f /path/gntp.1.gst.root -r /path/gntp.2.gst.root
 		      
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          University of Liverpool & STFC Rutherford Appleton Lab
@@ -85,7 +85,7 @@ int main(int argc, char ** argv)
   utils::style::SetDefaultStyle();
   CreatePlots(gOptInpFile,gOptInpFileRef);
   
-  LOG("gvldtest", pINFO)  << "Done!";
+  LOG("gevcomp", pINFO)  << "Done!";
   return 0;
 }
 //_________________________________________________________________________________
@@ -97,7 +97,7 @@ void CreatePlots(string inp_filename, string inp_filename_ref)
   TTree * gst_1 = 0;
 
   if(!CheckRootFilename(inp_filename)) {
-    LOG("gvldtest", pERROR) << "Input file: " << inp_filename << " doesn't exist";
+    LOG("gevcomp", pERROR) << "Input file: " << inp_filename << " doesn't exist";
     return;
   }
   fin_0 = new TFile(inp_filename.c_str(),"READ");
@@ -2000,34 +2000,34 @@ string OutputFileName(string inpname)
 //_________________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
 {
-  LOG("gvldtest", pNOTICE) << "*** Parsing command line arguments";
+  LOG("gevcomp", pNOTICE) << "*** Parsing command line arguments";
 
   CmdLnArgParser parser(argc,argv);
 
   // get GENIE summary ntuple
   if( parser.OptionExists('f') ) {
-    LOG("gvldtest", pINFO) << "Reading filename for tested event sample";
+    LOG("gevcomp", pINFO) << "Reading filename for tested event sample";
     gOptInpFile = parser.ArgAsString('f');
   } else {
-    LOG("gvldtest", pFATAL) << "Unspecified input filename - Exiting";
+    LOG("gevcomp", pFATAL) << "Unspecified input filename - Exiting";
     PrintSyntax();
     exit(1);
   }
 
   // get another (reference) GENIE summary ntuple
   if( parser.OptionExists('r') ) {
-    LOG("gvldtest", pINFO) << "Reading filename for reference event sample";
+    LOG("gevcomp", pINFO) << "Reading filename for reference event sample";
     gOptInpFileRef = parser.ArgAsString('r');
   } else {
-    LOG("gvldtest", pNOTICE) << "Unspecified 'reference' event sample";
+    LOG("gevcomp", pNOTICE) << "Unspecified 'reference' event sample";
   }
 }
 //_________________________________________________________________________________
 void PrintSyntax(void)
 {
-  LOG("gvldtest", pNOTICE)
+  LOG("gevcomp", pNOTICE)
     << "\n\n" << "Syntax:" << "\n"
-    << "   gvld_sample_comp -f sample.root [-n nev] [-r reference_sample.root]\n";
+    << " gevcomp -f sample.root [-n nev] [-r reference_sample.root]\n";
 }
 //_________________________________________________________________________________
 bool CheckRootFilename(string filename)
@@ -2036,7 +2036,7 @@ bool CheckRootFilename(string filename)
 
   bool is_accessible = ! (gSystem->AccessPathName(filename.c_str()));
   if (!is_accessible) {
-   LOG("gvldtest", pERROR)
+   LOG("gevcomp", pERROR)
        << "The input ROOT file [" << filename << "] is not accessible";
    return false;
   }
