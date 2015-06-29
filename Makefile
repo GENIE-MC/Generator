@@ -207,32 +207,6 @@ else
 	@echo "** Mueloss was not enabled. Skipping..."
 endif
 
-vld-tools: FORCE
-ifeq ($(strip $(GOPT_ENABLE_VALIDATION_TOOLS)),YES)
-	@echo " "
-	@echo "** Building GENIE validation tools..."
-	cd ${GENIE}/src/validation/EvScan; \
-	make; \
-	cd ${GENIE}/src/validation/MCx; \
-	make; \
-	cd ${GENIE}/src/validation/NuXSec; \
-	make; \
-	cd ${GENIE}/src/validation/StructFunc; \
-	make; \
-	cd ${GENIE}/src/validation/Hadronization; \
-	make; \
-	cd ${GENIE}/src/validation/Intranuke; \
-	make; \
-	cd ${GENIE}/src/validation/Merenyi; \
-	make; \
-	cd ${GENIE}/src/validation/eA; \
-	make; \
-	cd ${GENIE}
-else
-	@echo " "
-	@echo "** GENIE validation tools were disabled. Skipping..."
-endif
-
 # This target is used for generating the doxygen documentation
 # during the genie build. 
 # It only does so if the option has been enabled explicitly by the user.
@@ -544,13 +518,6 @@ purge: FORCE
 	cd Utils;                         make purge; cd ..; \
 	cd VLE;                           make purge; cd ..; \
 	cd VHE;                           make purge; cd ..; \
-	cd validation/EvScan;             make purge; cd ../../; \
-	cd validation/MCx;                make purge; cd ../../; \
-	cd validation/NuXSec;             make purge; cd ../../; \
-	cd validation/StructFunc;         make purge; cd ../../; \
-	cd validation/Hadronization;      make purge; cd ../../; \
-	cd validation/Merenyi;            make purge; cd ../../; \
-	cd validation/eA;                 make purge; cd ../../; \
 	cd ${GENIE}
 
 clean: clean-files clean-dir clean-etc
@@ -603,13 +570,6 @@ clean-files: FORCE
 	cd ReWeight;                      make clean; cd ..; \
 	cd SingleKaon;                    make clean; cd ..; \
 	cd Utils;                         make clean; cd ..; \
-	cd validation/EvScan;             make clean; cd ../../; \
-	cd validation/MCx;                make clean; cd ../../; \
-	cd validation/NuXSec;             make clean; cd ../../; \
-	cd validation/StructFunc;         make clean; cd ../../; \
-	cd validation/Hadronization;      make clean; cd ../../; \
-	cd validation/Merenyi;            make clean; cd ../../; \
-	cd validation/eA;                 make clean; cd ../../; \
 	cd VLE;                           make clean; cd ..; \
 	cd VHE;                           make clean; cd ..; \
 	cd stdapp;                        make clean; cd ..; \
@@ -686,13 +646,6 @@ distclean: FORCE
 	cd ReWeight;                       make distclean; cd ..; \
 	cd SingleKaon;                     make distclean; cd ..; \
 	cd Utils;                          make distclean; cd ..; \
-	cd validation/EvScan;              make distclean; cd ../../; \
-	cd validation/MCx;                 make distclean; cd ../../; \
-	cd validation/NuXSec;              make distclean; cd ../../; \
-	cd validation/StructFunc;          make distclean; cd ../../; \
-	cd validation/Hadronization;       make distclean; cd ../../; \
-	cd validation/Merenyi;             make distclean; cd ../../; \
-	cd validation/eA;                  make distclean; cd ../../; \
 	cd VLE;                            make distclean; cd ..; \
 	cd VHE;                            make distclean; cd ..; \
 	cd stdapp;                         make distclean; cd ..; \
