@@ -4,16 +4,8 @@
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>, Rutherford Lab.
-         November 30, 2007
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Nov 30, 2007 - CA
-   Was added in 2.0.1, intended to replace an older set of GHEP rendering
-   classes. No GHEP drawing at that time.
-
+ Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+         University of Liverpool & STFC Rutherford Appleton Lab
 */
 //____________________________________________________________________________
 
@@ -35,7 +27,7 @@
 #include "GHEP/GHepParticle.h"
 #include "Messenger/Messenger.h"
 #include "Utils/NuclearUtils.h"
-#include "support/masterclass/MCTruthDisplay.h"
+#include "Masterclass/MCTruthDisplay.h"
 
 using std::ostringstream;
 

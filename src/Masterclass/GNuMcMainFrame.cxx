@@ -6,11 +6,6 @@
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          University of Liverpool & STFC Rutherford Appleton Lab
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
-
 */
 //____________________________________________________________________________
 
@@ -54,8 +49,8 @@
 #include "Messenger/Messenger.h"
 #include "Ntuple/NtpMCTreeHeader.h"
 #include "Ntuple/NtpMCEventRecord.h"
-#include "support/masterclass/GNuMcMainFrame.h"
-#include "support/masterclass/MCTruthDisplay.h"
+#include "Masterclass/GNuMcMainFrame.h"
+#include "Masterclass/MCTruthDisplay.h"
 
 using std::ostringstream;
 using std::setprecision;

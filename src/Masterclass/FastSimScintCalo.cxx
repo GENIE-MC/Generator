@@ -6,13 +6,6 @@
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          University of Liverpool & STFC Rutherford Appleton Lab
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Sep 22, 2010 - CA
-   Was first added in 2.7.1.
-
 */
 //____________________________________________________________________________
 
@@ -31,7 +24,7 @@
 #include "EVGCore/EventRecord.h"
 #include "GHEP/GHepParticle.h"
 #include "Messenger/Messenger.h"
-#include "support/masterclass/FastSimScintCalo.h"
+#include "Masterclass/FastSimScintCalo.h"
 
 using namespace genie;
 using namespace genie::masterclass;
