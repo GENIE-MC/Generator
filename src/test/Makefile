@@ -2,7 +2,6 @@
 # Makefile for GENIE test programs
 #
 # Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-# May 02, 2004
 #
 
 SHELL = /bin/sh
@@ -14,7 +13,6 @@ MAKEFILE = Makefile
 include $(GENIE)/src/make/Make.include
 
 GENIE_LIBS  = $(shell $(GENIE)/src/scripts/setup/genie-config --libs)
-#LIBRARIES  := $(LHAPDF_LIBRARIES) $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 LIBRARIES  := $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 
 
@@ -43,7 +41,6 @@ TGT =	gtestAlgorithms 	 \
 	gtestRegistry		 \
 	gtestInteraction	 \
 	gtestResonances		 \
-	gtestRwMarginalization	 \
 	gtestKPhaseSpace	
 
 all: $(TGT)
@@ -172,14 +169,6 @@ gtestResonances: FORCE
 	$(CXX) $(CXXFLAGS) -c gtestResonances.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) gtestResonances.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestResonances
 
-gtestRwMarginalization: FORCE
-ifeq ($(strip $(GOPT_ENABLE_RWGHT)),YES)
-	$(CXX) $(CXXFLAGS) -c gtestRwMarginalization.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) gtestRwMarginalization.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestRwMarginalization
-else
-	@echo "You need to enable event reweighting first!"
-endif
-
 gtestKPhaseSpace: FORCE
 	$(CXX) $(CXXFLAGS) -c gtestKPhaseSpace.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) gtestKPhaseSpace.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestKPhaseSpace
@@ -223,7 +212,6 @@ clean: FORCE
 	$(RM) $(GENIE_BIN_PATH)/gtestRegistry		
 	$(RM) $(GENIE_BIN_PATH)/gtestInteraction	
 	$(RM) $(GENIE_BIN_PATH)/gtestResonances		
-	$(RM) $(GENIE_BIN_PATH)/gtestRwMarginalization	
 	$(RM) $(GENIE_BIN_PATH)/gtestKPhaseSpace	
 ifeq ($(strip $(GOPT_ENABLE_MUELOSS)),YES)
 	$(RM) $(GENIE_BIN_PATH)/gtestMuELoss		
@@ -257,7 +245,6 @@ distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestRegistry		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestInteraction	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestResonances		
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestRwMarginalization		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestKPhaseSpace	
 ifeq ($(strip $(GOPT_ENABLE_MUELOSS)),YES)
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestMuELoss		
