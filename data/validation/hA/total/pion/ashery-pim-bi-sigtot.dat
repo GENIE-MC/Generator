@@ -1,7 +1,0 @@
-# pi- bismuth total xs
-# Ashery, et al - Phys Rev C23, 2173 (1981)
-# units are MeV, mb
-# NB reac is calculated as sig_tot - sig_elas
-#	cex	sig	elas	sig	inel	sig	abs	sig	reac	sig	tot	sig
-125	138	70	2140	130	1498	660	1312	310	2948	421	5088	400
-165	170	85	2107	420	1577	570	1050	265	2797	516	4904	300

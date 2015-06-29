@@ -1,9 +1,0 @@
-# neutron Fe total reaction xs
-#source:  Phys Rev C23,1015 (1981) (NNDC)
-#AUTHOR     (C.ZANELLI,P.URONE,J.ROMERO,F.BRADY,M.JOHNSON,
-#TITLE      TOTAL NON-ELASTIC CROSS SECTIONS OF NEUTRONS ON
-#            C,O,CA,AND FE AT 40.3 AND 50.4 MEV
-#EN         DATA       DATA-ERR
-#MEV        MB         MB
- 40.3       909.       39.
- 50.4       899.       42.
