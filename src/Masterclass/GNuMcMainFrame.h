@@ -79,7 +79,7 @@ class TTree;
 
 #include "EVGCore/EventRecord.h"
 #include "Ntuple/NtpMCEventRecord.h"
-#include "support/masterclass/MCTruthDisplay.h"
+#include "Masterclass/MCTruthDisplay.h"
 
 using std::string;
 
