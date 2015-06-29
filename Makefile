@@ -34,7 +34,6 @@ BUILD_TARGETS =    print-make-info \
 		   mueloss \
 		   masterclass \
 		   doxygen-doc \
-		   generator-test-exe \
 		   apps \
 		   install-scripts
 INSTALL_TARGETS =  print-makeinstall-info \
@@ -241,18 +240,6 @@ apps: FORCE
 	cd ${GENIE}/src/Apps;\
 	make all; \
 	cd ${GENIE}
-
-generator-test-exe: FORCE
-ifeq ($(strip $(GOPT_ENABLE_TEST)),YES)
-	@echo " "
-	@echo "** Building test applications..."
-	cd ${GENIE}/src/test;\
-	make all; \
-	cd ${GENIE}
-else
-	@echo " "
-	@echo "** Test applications were not enabled! Skipping..."
-endif
 
 install-scripts: FORCE
 	@echo " "
