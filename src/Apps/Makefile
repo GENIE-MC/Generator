@@ -30,7 +30,8 @@ TGT =    gevgen		  	\
 	 gspl2root	  	\
 	 gmxpl		  	\
 	 grwght1scan		\
-	 gntpc	  
+	 gntpc	  		\
+	 gmstcl
 
 all: $(TGT)
 
@@ -171,8 +172,19 @@ gntpc: FORCE
 	$(CXX) $(CXXFLAGS) -c gNtpConv.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) gNtpConv.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gntpc 
 
+# Masterclass app
+#
+gmstcl: FORCE
+	@echo "** Building gmstcl";
+ifeq ($(strip $(GOPT_ENABLE_MASTERCLASS)),YES)
+	$(CXX) $(CXXFLAGS) -c gMasterclass.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gMasterclass.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gmstcl 
+else
+	@echo "Masterclass not enabled!"
+endif
 
-#################### CLEANING
+
+# CLEANING-UP
 
 purge: FORCE
 	$(RM) *.o *~ core 
@@ -194,6 +206,7 @@ clean: FORCE
 	$(RM) $(GENIE_BIN_PATH)/gmxpl		
 	$(RM) $(GENIE_BIN_PATH)/grwght1scan		
 	$(RM) $(GENIE_BIN_PATH)/gntpc		
+	$(RM) $(GENIE_BIN_PATH)/gmstcl		
 
 distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevgen		
@@ -211,6 +224,7 @@ distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gmxpl		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/grwght1scan		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gntpc		
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gmstcl		
 
 FORCE:
 

@@ -1,9 +1,9 @@
 //____________________________________________________________________________
 /*!
 
-\program gnumc
+\program gmstcl
 
-\brief   GENIE Neutrino Masterclass App
+\brief   GENIE Masterclass GUI
 
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          University of Liverpool & STFC Rutherford Appleton Lab
@@ -20,7 +20,7 @@
 #include <TApplication.h>
 #include <TGClient.h>
 
-#include "support/masterclass/GNuMcMainFrame.h"
+#include "Masterclass/GNuMcMainFrame.h"
 
 using namespace genie;
 using namespace genie::masterclass;
@@ -32,4 +32,5 @@ int main(int argc, char ** argv)
   ggui.Run();
   return 0;
 }
+
 
