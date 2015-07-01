@@ -2,37 +2,25 @@
 
 #---------------------------------------------------------------------------------------------------------------------
 # Submit standard neutrino event generation jobs for GENIE release validation
-# The outputs can be compared with outputs from past releases using GENIE's gvld_sample_comp utility.
-# Sanity checks can be performed using GENIE's gvld_sample_scan utility.
+# The outputs can be compared with outputs from past releases using the GENIE/Generator gevcomp app.
+# Sanity checks can be performed using the GENIE/Generator gevscan app.
 #
 # Syntax:
 #   shell% perl submit_standard_neutrino_mc_test_jobs.pl <options>
 #
 # Options:
-#    --version       : GENIE version number
-#    --run           : Comma separated list of run numbers
-#   [--arch]         : <SL4_32bit, SL5_64bit>, default: SL5_64bit
-#   [--production]   : default: routine_validation
-#   [--cycle]        : default: 01
-#   [--ref-samples]  : Path for reference samples, default: no reference samples / no plots will be generated
-#   [--use-valgrind] : default: off
-#   [--batch-system] : <PBS, LSF, slurm, none>, default: PBS
-#   [--queue]        : default: prod
-#   [--softw-topdir] : default: /opt/ppd/t2k/softw/GENIE
+#    --version        : GENIE version number
+#    --run            : Comma separated list of run numbers
+#   [--arch]          : <SL4.x86_32, SL5.x86_64, SL6.x86_64, ...>, default: SL6.x86_64
+#   [--production]    : default: routine_validation
+#   [--cycle]         : default: 01
+#   [--ref-samples]   : Path for reference samples, default: no reference samples / no plots will be generated
+#   [--use-valgrind]  : default: off
+#   [--batch-system]  : <PBS, LSF, slurm, HTCondor, HTCondor_PBS, none>, default: PBS
+#   [--queue]         : default: prod
+#   [--softw-topdir]  : top level dir for softw installations, default: /opt/ppd/t2k/softw/GENIE/generator
+#   [--jobs-topdir]   : top level dir for job files, default: /opt/ppd/t2k/softw/GENIE/scratch
 #
-# Examples:
-#   shell% perl submit_standard_neutrino_mc_test_jobs.pl \
-#               --production 2.5.1_prelease_tests --cycle 01 --version v2.5.1 --run 1001
-#   shell% perl submit_standard_neutrino_mc_test_jobs.pl \
-#                --production 2.5.1_prelease_tests --cycle 01 --version v2.5.1 --run 1000,1001,9203
-#   shell% perl submit_standard_neutrino_mc_test_jobs.pl \
-#                --production 2.5.1_prelease_tests --cycle 01 --version v2.5.1 --run all
-#
-# Tested at the RAL/PPD Tier2 PBS batch farm.
-#
-# Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-# STFC, Rutherford Appleton Lab
-#---------------------------------------------------------------------------------------------------------------------
 #
 # SAMPLES:
 #......................................................................
@@ -61,6 +49,22 @@
 #  9204  |  50k |  nuebar  + Fe56  |   20    | IMD (annihilation)
 #......................................................................
 #
+#
+# Examples:
+#   shell% perl submit_standard_neutrino_mc_test_jobs.pl \
+#               --production 2.5.1_prelease_tests --cycle 01 --version v2.5.1 --run 1001
+#   shell% perl submit_standard_neutrino_mc_test_jobs.pl \
+#                --production 2.5.1_prelease_tests --cycle 01 --version v2.5.1 --run 1000,1001,9203
+#   shell% perl submit_standard_neutrino_mc_test_jobs.pl \
+#                --production 2.5.1_prelease_tests --cycle 01 --version v2.5.1 --run all
+#
+# Tested at the RAL/PPD Tier2 PBS batch farm.
+#
+# Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+# STFC, Rutherford Appleton Lab
+#---------------------------------------------------------------------------------------------------------------------
+#
+#
 
 use File::Path;
 
@@ -68,16 +72,17 @@ use File::Path;
 #
 $iarg=0;
 foreach (@ARGV) {
-  if($_ eq '--version')       { $genie_version   = $ARGV[$iarg+1]; }
-  if($_ eq '--run')           { $runnu           = $ARGV[$iarg+1]; }
-  if($_ eq '--arch')          { $arch            = $ARGV[$iarg+1]; }
-  if($_ eq '--production')    { $production      = $ARGV[$iarg+1]; }
-  if($_ eq '--cycle')         { $cycle           = $ARGV[$iarg+1]; }
-  if($_ eq '--ref-samples')   { $ref_sample_path = $ARGV[$iarg+1]; }
-  if($_ eq '--use-valgrind')  { $use_valgrind    = $ARGV[$iarg+1]; }
-  if($_ eq '--batch-system')  { $batch_system    = $ARGV[$iarg+1]; }
-  if($_ eq '--queue')         { $queue           = $ARGV[$iarg+1]; }
-  if($_ eq '--softw-topdir')  { $softw_topdir    = $ARGV[$iarg+1]; }  
+  if($_ eq '--version')        { $genie_version   = $ARGV[$iarg+1]; }
+  if($_ eq '--run')            { $runnu           = $ARGV[$iarg+1]; }
+  if($_ eq '--arch')           { $arch            = $ARGV[$iarg+1]; }
+  if($_ eq '--production')     { $production      = $ARGV[$iarg+1]; }
+  if($_ eq '--cycle')          { $cycle           = $ARGV[$iarg+1]; }
+  if($_ eq '--ref-samples')    { $ref_sample_path = $ARGV[$iarg+1]; }
+  if($_ eq '--use-valgrind')   { $use_valgrind    = $ARGV[$iarg+1]; }
+  if($_ eq '--batch-system')   { $batch_system    = $ARGV[$iarg+1]; }
+  if($_ eq '--queue')          { $queue           = $ARGV[$iarg+1]; }
+  if($_ eq '--softw-topdir')   { $softw_topdir    = $ARGV[$iarg+1]; }  
+  if($_ eq '--jobs-topdir')    { $jobs_topdir     = $ARGV[$iarg+1]; }
   $iarg++;
 }
 die("** Aborting [Undefined benchmark runs #. Use the --run option]")
@@ -85,17 +90,18 @@ unless defined $runnu;
 die("** Aborting [Undefined GENIE version. Use the --version option]")
 unless defined $genie_version;
 
-$use_valgrind    = 0                          unless defined $use_valgrind;
-$arch            = "SL5_64bit"                unless defined $arch;
-$production      = "routine_validation"       unless defined $production;
-$cycle           = "01"                       unless defined $cycle;
-$batch_system    = "PBS"                      unless defined $batch_system;
-$queue           = "prod"                     unless defined $queue;
-$softw_topdir    = "/opt/ppd/t2k/softw/GENIE" unless defined $softw_topdir;
-$ref_sample_path = 0                          unless defined $ref_sample_path;
+$use_valgrind    = 0                                   unless defined $use_valgrind;
+$arch            = "SL6.x86_64"                        unless defined $arch;
+$production      = "routine_validation"                unless defined $production;
+$cycle           = "01"                                unless defined $cycle;
+$batch_system    = "PBS"                               unless defined $batch_system;
+$queue           = "prod"                              unless defined $queue;
+$softw_topdir   = "/opt/ppd/t2k/softw/GENIE/generator" unless defined $softw_topdir;
+$jobs_topdir    = "/opt/ppd/t2k/softw/GENIE/scratch"   unless defined $jobs_topdir;  
+$ref_sample_path = 0                                   unless defined $ref_sample_path;
 $genie_setup     = "$softw_topdir/builds/$arch/$genie_version-setup";
-$jobs_dir        = "$softw_topdir/scratch/$genie_version-$production\_$cycle-mctest";
 $xspl_file       = "$softw_topdir/data/job_inputs/xspl/gxspl-vA-$genie_version.xml";
+$jobs_dir        = "$jobs_topdir/$genie_version-$production\_$cycle-mctest";
 $mcseed          = 210921029;
 
 %nevents_hash = ( 
@@ -234,14 +240,14 @@ for my $curr_runnu (keys %gevgl_hash)  {
     $en    = $energy_hash  {$curr_runnu};
     $gevgl = $gevgl_hash   {$curr_runnu};
 
-    $jntemplate    = "mctest-$curr_runnu";
-    $fntemplate    = "$jobs_dir/$jntemplate";
-    $grep_pipe     = "grep -B 20 -A 30 -i \"warn\\|error\\|fatal\"";
-    $valgrind_cmd  = "valgrind --tool=memcheck --error-limit=no --leak-check=yes --show-reachable=yes";
-    $evgen_opt     = "-n $nev -e $en -p $nu -t $tgt -r $curr_runnu --seed $mcseed --cross-sections $xspl_file --event-generator-list $gevgl";
-    $evgen_cmd     = "gevgen $evgen_opt | $grep_pipe &> $fntemplate.evgen.log";
-    $conv_cmd      = "gntpc -f gst -i gntp.$curr_runnu.ghep.root | $grep_pipe &> $fntemplate.conv.log";
-    $comp_cmd      = "gvld_sample_comp -f gntp.$curr_runnu.gst.root -r $ref_sample_path/gntp.$curr_runnu.gst.root | $grep_pipe &> $fntemplate.comp.log";
+    $jobname           = "mctest-$curr_runnu";
+    $filename_template = "$jobs_dir/$jobname";
+    $grep_pipe         = "grep -B 20 -A 30 -i \"warn\\|error\\|fatal\"";
+    $valgrind_cmd      = "valgrind --tool=memcheck --error-limit=no --leak-check=yes --show-reachable=yes";
+    $evgen_opt         = "-n $nev -e $en -p $nu -t $tgt -r $curr_runnu --seed $mcseed --cross-sections $xspl_file --event-generator-list $gevgl";
+    $evgen_cmd         = "gevgen $evgen_opt | $grep_pipe &> $filename_template.evgen.log";
+    $conv_cmd          = "gntpc -f gst -i gntp.$curr_runnu.ghep.root | $grep_pipe &> $filename_template.conv.log";
+    $comp_cmd          = "gevcomp -f gntp.$curr_runnu.gst.root -r $ref_sample_path/gntp.$curr_runnu.gst.root | $grep_pipe &> $filename_template.comp.log";
 
     print "@@ exec: $evgen_cmd \n";
 
@@ -250,13 +256,13 @@ for my $curr_runnu (keys %gevgl_hash)  {
     #
   
     # PBS case
-    if($batch_system eq 'PBS') {
-        $batch_script  = "$fntemplate.pbs";
+    if($batch_system eq 'PBS' || $batch_system eq 'HTCondor_PBS') {
+        $batch_script  = "$filename_template.pbs";
         open(PBS, ">$batch_script") or die("Can not create the PBS batch script");
         print PBS "#!/bin/bash \n";
-        print PBS "#PBS -N $jntemplate \n";
-        print PBS "#PBS -o $fntemplate.pbsout.log \n";
-        print PBS "#PBS -e $fntemplate.pbserr.log \n";
+        print PBS "#PBS -N $jobname \n";
+        print PBS "#PBS -o $filename_template.pbsout.log \n";
+        print PBS "#PBS -e $filename_template.pbserr.log \n";
         print PBS "source $genie_setup \n"; 
         print PBS "cd $jobs_dir \n";
         print PBS "$evgen_cmd \n";
@@ -265,18 +271,22 @@ for my $curr_runnu (keys %gevgl_hash)  {
            print PBS "$comp_cmd \n";
         }
         close(PBS);
-        `qsub -q $queue $batch_script`;
+        $job_submission_command = "qsub";
+        if($batch_system eq 'HTCondor_PBS') {
+           $job_submission_command = "condor_qsub";
+        }
+        `$job_submission_command -q $queue $batch_script`;
     } #PBS
 
     # LSF case
     if($batch_system eq 'LSF') {
-        $batch_script  = "$fntemplate.sh";
+        $batch_script  = "$filename_template.sh";
         open(LSF, ">$batch_script") or die("Can not create the LSF batch script");
         print LSF "#!/bin/bash \n";
-        print PBS "#BSUB-j $jntemplate \n";
+        print PBS "#BSUB-j $jobname \n";
         print LSF "#BSUB-q $queue \n";
-        print LSF "#BSUB-o $fntemplate.lsfout.log \n";
-        print LSF "#BSUB-e $fntemplate.lsferr.log \n";
+        print LSF "#BSUB-o $filename_template.lsfout.log \n";
+        print LSF "#BSUB-e $filename_template.lsferr.log \n";
         print LSF "source $genie_setup \n"; 
         print LSF "cd $jobs_dir \n";
         print LSF "$evgen_cmd \n";
@@ -287,15 +297,35 @@ for my $curr_runnu (keys %gevgl_hash)  {
         close(LSF);
         `bsub < $batch_script`;
     } #LSF
+             
+    # HTCondor
+    if($batch_system eq 'HTCondor') {
+        $batch_script = "$filename_template.htc";
+        open(HTC, ">$batch_script") or die("Can not create the Condor submit description file: $batch_script");
+        print HTC "Universe               = vanilla \n";
+        print HTC "Executable             = $softw_topdir/builds/$arch/$genie_version/src/scripts/production/batch/htcondor_exec.sh \n";
+        print HTC "Arguments              = $genie_setup $jobs_dir $gevgen_cmd $conv_cmd";
+        if(-d $ref_sample_path) {
+           print HTC " $comp_cmd";
+        } 
+        print HTC "\n";
+        print HTC "Log                    = $filename_template.log \n";
+        print HTC "Output                 = $filename_template.out \n";
+        print HTC "Error                  = $filename_template.err \n";
+        print HTC "Request_memory         = 2 GB \n";
+        print HTC "Queue \n";
+        close(HTC);
+        `condor_submit $batch_script`;
+    } #HTCondor
 
     # slurm case
     if($batch_system eq 'slurm') {
-        $batch_script  = "$fntemplate.sh";
+        $batch_script  = "$filename_template.sh";
         open(SLURM, ">$batch_script") or die("Can not create the SLURM batch script");
         print SLURM "#!/bin/bash \n";
         print SLURM "#SBATCH-p $queue \n";
-        print SLURM "#SBATCH-o $fntemplate.lsfout.log \n";
-        print SLURM "#SBATCH-e $fntemplate.lsferr.log \n";
+        print SLURM "#SBATCH-o $filename_template.lsfout.log \n";
+        print SLURM "#SBATCH-e $filename_template.lsferr.log \n";
         print SLURM "source $genie_setup \n"; 
         print SLURM "cd $jobs_dir \n";
         print SLURM "$evgen_cmd \n";
@@ -304,7 +334,7 @@ for my $curr_runnu (keys %gevgl_hash)  {
            print SLURM "$comp_cmd \n";
         }
         close(SLURM);
-        `sbatch --job-name=$jntemplate $batch_script`;
+        `sbatch --job-name=$jobname $batch_script`;
     } #slurm
 
     # no batch system, run jobs interactively
