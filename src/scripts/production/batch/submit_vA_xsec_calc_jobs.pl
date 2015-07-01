@@ -1,10 +1,10 @@
 #!/usr/bin/perl
 
-#------------------------------------------------------------------------------------------
-# Submit jobs for calculating GENIE cross-section splines for all nuclear targets 
-# and at the energy range required for generating the GENIE release validation samples.
-# Note that other scripts are available for generating cross-section splines for the 
-# larger array of nuclear targets found in detector geometry descriptions of given expts.
+#----------------------------------------------------------------------------------------------------------------
+# Submit jobs for calculating GENIE x-section splines for all nuclear targets and at the energy range required 
+# for generating the GENIE release validation samples. Note that other scripts are available for generating 
+# x-section splines for the larger array of targets found in detector geometry descriptions of given expts.
+# If needed, use the GENIE gspladd utility to merge the job outputs.
 #
 # Syntax:
 #   shell% perl submit_vA_xsec_calc_jobs.pl <options>
@@ -12,22 +12,23 @@
 # Options:
 #    --version       : GENIE version number
 #    --config-file   : Text file which specifies the list of initial states
-#   [--arch]         : <SL4_32bit, SL5_64bit>, default: SL5_64bit
+#   [--arch]         : <SL4.x86_32, SL5.x86_64, SL6.x86_64, ...>, default: SL6.x86_64
 #   [--production]   : default: routine_validation
 #   [--cycle]        : default: 01
 #   [--use-valgrind] : default: off
-#   [--batch-system] : <PBS, LSF, slurm>, default: PBS
+#   [--batch-system]  : <PBS, LSF, slurm, HTCondor, HTCondor_PBS, none>, default: PBS
 #   [--queue]        : default: prod
-#   [--softw-topdir] : default: /opt/ppd/t2k/softw/GENIE
+#   [--softw-topdir]  : top level dir for softw installations, default: /opt/ppd/t2k/softw/GENIE/generator
+#   [--jobs-topdir]   : top level dir for job files, default: /opt/ppd/t2k/softw/GENIE/scratch
 #
-# Notes:
-#   * Use GENIE gspladd utility to merge the job outputs
+# Author:
+#   Costas Andreopoulos <costas.andreopoulos \st stfc.ac.uk>
+#   University of Liverpool & STFC Rutherford Appleton Laboratory
 #
-# Tested at the RAL/PPD Tier2 PBS batch farm.
-#
-# Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-# STFC, Rutherford Appleton Lab
-#------------------------------------------------------------------------------------------
+# Copyright:
+#   Copyright (c) 2003-2015, The GENIE Collaboration
+#   For the full text of the license visit http://copyright.genie-mc.org
+#----------------------------------------------------------------------------------------------------------------
 
 use File::Path;
 use File::Basename;
@@ -45,6 +46,7 @@ foreach (@ARGV) {
   if($_ eq '--batch-system')   { $batch_system  = $ARGV[$iarg+1]; }
   if($_ eq '--queue')          { $queue         = $ARGV[$iarg+1]; }
   if($_ eq '--softw-topdir')   { $softw_topdir  = $ARGV[$iarg+1]; }
+  if($_ eq '--jobs-topdir')    { $jobs_topdir   = $ARGV[$iarg+1]; }
   $iarg++;
 }
 die("** Aborting [Undefined GENIE version. Use the --version option]")
@@ -52,18 +54,19 @@ unless defined $genie_version;
 die("** Aborting [Undefined configuration file. Use the --config-file option. See examples in ?]")
 unless defined $config_file;
 
-$use_valgrind   = 0                          unless defined $use_valgrind;
-$arch           = "SL5_64bit"                unless defined $arch;
-$production     = "routine_validation"       unless defined $production;
-$cycle          = "01"                       unless defined $cycle;
-$batch_system   = "PBS"                      unless defined $batch_system;
-$queue          = "prod"                     unless defined $queue;
-$softw_topdir   = "/opt/ppd/t2k/softw/GENIE" unless defined $softw_topdir;
+$use_valgrind   = 0                                    unless defined $use_valgrind;
+$arch           = "SL6.x86_64"                         unless defined $arch;
+$production     = "routine_validation"                 unless defined $production;
+$cycle          = "01"                                 unless defined $cycle;
+$batch_system   = "PBS"                                unless defined $batch_system;
+$queue          = "prod"                               unless defined $queue;
+$softw_topdir   = "/opt/ppd/t2k/softw/GENIE/generator" unless defined $softw_topdir;
+$jobs_topdir    = "/opt/ppd/t2k/softw/GENIE/scratch"   unless defined $jobs_topdir;
 
 $genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
-$config         = basename($config_file,".list");
-$jobs_dir       = "$softw_topdir/scratch/$genie_version-$production\_$cycle-xsec\_vA\_$config";
 $freenucsplines = "$softw_topdir/data/job_inputs/xspl/gxspl-vN-$genie_version.xml";
+$config         = basename($config_file,".list");
+$jobs_dir       = "$jobs_topdir/$genie_version-$production\_$cycle-xsec\_vA\_$config";
 
 $nknots    =  0;
 $emax      =  0;
@@ -124,11 +127,11 @@ foreach(@targets)
 {
     s/ //g;  # rm empty spaces from $_
     $tgt_code = $_;
-    $jntemplate = "vAxscalc-$tgt_code";
-    $fntemplate = "$jobs_dir/$jntemplate";
+    $jobname  = "vAxscalc-$tgt_code";
+    $filename_template = "$jobs_dir/$jobname";
     $grep_pipe  = "grep -B 100 -A 30 -i \"warn\\|error\\|fatal\"";
     $gmkspl_opt = "-p $nu_codes -t $_ -n $nknots -e $emax --input-cross-sections $freenucsplines --output-cross-sections gxspl_$tgt_code.xml";
-    $gmkspl_cmd = "gmkspl $gmkspl_opt | $grep_pipe &> $fntemplate.mkspl.log";
+    $gmkspl_cmd = "gmkspl $gmkspl_opt | $grep_pipe &> $filename_template.mkspl.log";
     print "@@ exec: $gmkspl_cmd \n";
 
     #
@@ -136,28 +139,32 @@ foreach(@targets)
     #
   
     # PBS case
-    if($batch_system eq 'PBS') {
-	$batch_script = "$fntemplate.pbs";
+    if($batch_system eq 'PBS' || $batch_system eq 'HTCondor_PBS') {
+	$batch_script = "$filename_template.pbs";
 	open(PBS, ">$batch_script") or die("Can not create the PBS batch script");
 	print PBS "#!/bin/bash \n";
-        print PBS "#PBS -N $jntemplate \n";
-        print PBS "#PBS -o $fntemplate.pbsout.log \n";
-        print PBS "#PBS -e $fntemplate.pbserr.log \n";
+        print PBS "#PBS -N $jobname \n";
+        print PBS "#PBS -o $filename_template.pbsout.log \n";
+        print PBS "#PBS -e $filename_template.pbserr.log \n";
 	print PBS "source $genie_setup \n";
 	print PBS "cd $jobs_dir \n";
 	print PBS "$gmkspl_cmd \n";
         close(PBS);
-	`qsub -q $queue $batch_script`;
+        $job_submission_command = "qsub";
+        if($batch_system eq 'HTCondor_PBS') {
+           $job_submission_command = "condor_qsub";
+        }
+        `$job_submission_command -q $queue $batch_script`;
     } #PBS
 
     # LSF case
     if($batch_system eq 'LSF') {
-	$batch_script = "$fntemplate.sh";
+	$batch_script = "$filename_template.sh";
 	open(LSF, ">$batch_script") or die("Can not create the LSF batch script");
 	print LSF "#!/bin/bash \n";
-        print LSF "#BSUB-j $jntemplate \n";
-        print LSF "#BSUB-o $fntemplate.lsfout.log \n";
-        print LSF "#BSUB-e $fntemplate.lsferr.log \n";
+        print LSF "#BSUB-j $jobname \n";
+        print LSF "#BSUB-o $filename_template.lsfout.log \n";
+        print LSF "#BSUB-e $filename_template.lsferr.log \n";
 	print LSF "source $genie_setup \n";
 	print LSF "cd $jobs_dir \n";
 	print LSF "$gmkspl_cmd \n";
@@ -165,19 +172,35 @@ foreach(@targets)
 	`bsub < $batch_script`;
     } #LSF
 
+    # HTCondor
+    if($batch_system eq 'HTCondor') {
+        $batch_script = "$filename_template.htc";
+        open(HTC, ">$batch_script") or die("Can not create the Condor submit description file: $batch_script");
+        print HTC "Universe               = vanilla \n";
+        print HTC "Executable             = $softw_topdir/builds/$arch/$genie_version/src/scripts/production/batch/htcondor_exec.sh \n";
+        print HTC "Arguments              = $genie_setup $jobs_dir $gmkspl_cmd \n";
+        print HTC "Log                    = $filename_template.log \n";
+        print HTC "Output                 = $filename_template.out \n";
+        print HTC "Error                  = $filename_template.err \n";
+        print HTC "Request_memory         = 2 GB \n";
+        print HTC "Queue \n";
+        close(HTC);
+        `condor_submit $batch_script`;
+    } #HTCondor
+    
     # slurm case
     if($batch_system eq 'slurm') {
-	$batch_script = "$fntemplate.sh";
+	$batch_script = "$filename_template.sh";
 	open(SLURM, ">$batch_script") or die("Can not create the SLURM batch script");
 	print SLURM "#!/bin/bash \n";
         print SLURM "#SBATCH-p $queue \n";
-        print SLURM "#SBATCH-o $fntemplate.lsfout.log \n";
-        print SLURM "#SBATCH-e $fntemplate.lsferr.log \n";
+        print SLURM "#SBATCH-o $filename_template.lsfout.log \n";
+        print SLURM "#SBATCH-e $filename_template.lsferr.log \n";
 	print SLURM "source $genie_setup \n";
 	print SLURM "cd $jobs_dir \n";
 	print SLURM "$gmkspl_cmd \n";
         close(SLURM);
-	`sbatch --job-name=$jntemplate $batch_script`;
+	`sbatch --job-name=$jobname $batch_script`;
     } #slurm
 
     # run interactively

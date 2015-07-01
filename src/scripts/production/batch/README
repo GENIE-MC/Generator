@@ -1,22 +1,42 @@
- These scripts are used primarily at the RAL/PPD Tier2 PBS batch farm.
+ These scripts are used primarily at the RAL/PPD Tier2 batch farm.
  To recycle the scripts at another batch farm, build the following directory structure:
 
  <some_top_dir>
      |
-     |
-     |------- builds/
-     |          |     
-     |          |--------- SL5_64bit/
-     |          |             |
-     |          |             |------- <version>       directory (<version> is of type v2.4.4, v2.6.0 etc / multiple versions can exist)
-     |          |             |------- <version>-setup script    (script to fully setup the environment for a specific version of GENIE)
-     |          |     
-     |          |--------- SL4_32bit/
-     |          |             |
-     |          |             |------- ....
-     |          |             |------- ....
-     |          |
-     |          |--------- <other_arch>/
+     |--- generator
+     |       |
+     |       |-- builds/
+     |             |     
+     |             |--------- SL6.x86_64
+     |             |             |
+     |             |             |------- <version>       directory (<version> is of type v2.4.4, v2.6.0 etc / multiple versions can exist)
+     |             |             |------- <version>-setup script    (script to fully setup the environment for a specific version of GENIE)
+     |             |     
+     |             |--------- SL5.x86_64
+     |             |             |
+     |             |             |------- ....
+     |             |             |------- ....
+     |             |
+     |             |--------- <other_OS.Arch>/
+     |          
+     |          
+     |--- comparisons
+     |       |
+     |       |-- builds/
+     |             |     
+     |             |--------- SL6.x86_64
+     |                           | 
+     |                           |....
+     |          
+     |          
+     |--- tuning
+     |       |
+     |       |-- builds/
+     |             |     
+     |             |--------- SL6.x86_64
+     |                           | 
+     |                           |....
+     |          
      |          
      |-------- data/
      |          |
