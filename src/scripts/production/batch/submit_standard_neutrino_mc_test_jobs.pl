@@ -226,7 +226,7 @@ mkpath ($jobs_dir, {verbose => 1, mode=>0777});
 print "Input runs: $runnu \n";
 
 for my $curr_runnu (keys %gevgl_hash)  {
-  print "Checking benchmark run: ...... $curr_runnu \n";
+  # print "Checking benchmark run: ...... $curr_runnu \n";
 
   if($runnu=~m/$curr_runnu/ || $runnu eq "all") {
     print "** matched -> submitting job \n";
@@ -242,7 +242,8 @@ for my $curr_runnu (keys %gevgl_hash)  {
 
     $jobname           = "mctest-$curr_runnu";
     $filename_template = "$jobs_dir/$jobname";
-    $grep_pipe         = "grep -B 20 -A 30 -i \"warn\\|error\\|fatal\"";
+#   $grep_pipe         = "grep -B 20 -A 30 -i \"warn\\|error\\|fatal\"";
+    $grep_pipe         = "grep -B 20 -A 10 -i fatal";
     $valgrind_cmd      = "valgrind --tool=memcheck --error-limit=no --leak-check=yes --show-reachable=yes";
     $evgen_opt         = "-n $nev -e $en -p $nu -t $tgt -r $curr_runnu --seed $mcseed --cross-sections $xspl_file --event-generator-list $gevgl";
     $evgen_cmd         = "gevgen $evgen_opt | $grep_pipe &> $filename_template.evgen.log";
@@ -304,7 +305,7 @@ for my $curr_runnu (keys %gevgl_hash)  {
         open(HTC, ">$batch_script") or die("Can not create the Condor submit description file: $batch_script");
         print HTC "Universe               = vanilla \n";
         print HTC "Executable             = $softw_topdir/builds/$arch/$genie_version/src/scripts/production/batch/htcondor_exec.sh \n";
-        print HTC "Arguments              = $genie_setup $jobs_dir $gevgen_cmd $conv_cmd";
+        print HTC "Arguments              = $genie_setup $jobs_dir $evgen_cmd $conv_cmd";
         if(-d $ref_sample_path) {
            print HTC " $comp_cmd";
         } 
