@@ -35,7 +35,6 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "    atmo              Enable atmospheric neutrino event generation app            default: disabled \n";
   print "    nucleon-decay     Enable nucleon decay event generation app                   default: disabled \n";
   print "    rwght             Enable event reweighting tools                              default: disabled \n";
-  print "    fastsim           Enable fast MC apps using parameterised detector responses  default: disabled \n";
   print "    masterclass       Enable GENIE neutrino masterclass app                       default: disabled (Experimental) \n";
   print "\n options for 3rd party software, prefix with --with- (eg --with-lhapdf-lib=/some/path/)\n\n";
   print "    optimiz-level     Compiler optimization        any of O,O2,O3,OO,Os / default: O2 \n";
@@ -143,7 +142,6 @@ my $gopt_enable_fnal             = "NO";
 my $gopt_enable_atmo             = "NO";
 my $gopt_enable_nucleon_decay    = "NO";
 my $gopt_enable_rwght            = "NO";
-my $gopt_enable_fastsim          = "NO";
 my $gopt_enable_masterclass      = "NO";
 
 # Check configure's command line arguments for non-default values
@@ -165,7 +163,6 @@ if(($match = grep(/--enable-fnal/i,             @ARGV)) > 0) { $gopt_enable_fnal
 if(($match = grep(/--enable-atmo/i,             @ARGV)) > 0) { $gopt_enable_atmo             = "YES"; }
 if(($match = grep(/--enable-nucleon-decay/i,    @ARGV)) > 0) { $gopt_enable_nucleon_decay    = "YES"; }
 if(($match = grep(/--enable-rwght/i,            @ARGV)) > 0) { $gopt_enable_rwght            = "YES"; }
-if(($match = grep(/--enable-fastsim/i,          @ARGV)) > 0) { $gopt_enable_fastsim          = "YES"; }
 if(($match = grep(/--enable-masterclass/i,      @ARGV)) > 0) { $gopt_enable_masterclass      = "YES"; }
 
 my $gopt_with_cxx_debug_flag="";
@@ -469,7 +466,6 @@ print MKCONF "GOPT_ENABLE_FNAL=$gopt_enable_fnal\n";
 print MKCONF "GOPT_ENABLE_ATMO=$gopt_enable_atmo\n";
 print MKCONF "GOPT_ENABLE_NUCLEON_DECAY=$gopt_enable_nucleon_decay\n";
 print MKCONF "GOPT_ENABLE_RWGHT=$gopt_enable_rwght\n";
-print MKCONF "GOPT_ENABLE_FASTSIM=$gopt_enable_fastsim\n";
 print MKCONF "GOPT_ENABLE_MASTERCLASS=$gopt_enable_masterclass\n";
 print MKCONF "GOPT_WITH_CXX_DEBUG_FLAG=$gopt_with_cxx_debug_flag\n";
 print MKCONF "GOPT_WITH_CXX_OPTIMIZ_FLAG=-$gopt_with_cxx_optimiz_flag\n";
