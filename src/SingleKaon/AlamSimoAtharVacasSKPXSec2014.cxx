@@ -60,7 +60,7 @@ double AlamSimoAtharVacasSKPXSec2014::XSec(
   const Kinematics &   kinematics = interaction -> Kine();
   Target * target  = interaction->InitStatePtr()->TgtPtr();
   int nTargetProtons = target->Z();
-  int nTargetNeutrons = target->Z();
+  int nTargetNeutrons = target->N();
   
   // Initialisation begins here
   // --------------------------
