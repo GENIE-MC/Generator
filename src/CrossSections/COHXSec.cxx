@@ -31,7 +31,6 @@
 #include "CrossSections/COHXSec.h"
 #include "CrossSections/GSLXSecFunc.h"
 #include "Messenger/Messenger.h"
-#include "Numerical/IntegratorI.h"
 #include "PDG/PDGUtils.h"
 #include "Utils/MathUtils.h"
 #include "Utils/Range1.h"

@@ -12,17 +12,4 @@
 #pragma link C++ class genie::BLI2DUnifGrid;
 #pragma link C++ class genie::BLI2DNonUnifGrid;
 
-//
-// TODO: to be replaced with GSL/MathMore equivalents
-//
-#pragma link C++ class genie::GridSpacing;
-#pragma link C++ class genie::GridDimension;
-#pragma link C++ class genie::UnifGridDimension;
-#pragma link C++ class genie::UnifGrid;
-#pragma link C++ class genie::GBFunc;
-#pragma link C++ class genie::GSFunc;
-#pragma link C++ class genie::GVFunc;
-#pragma link C++ class genie::FunctionMap;
-#pragma link C++ class genie::IntegratorI;
-
 #endif

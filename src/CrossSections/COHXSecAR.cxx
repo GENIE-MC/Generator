@@ -25,7 +25,6 @@
 #include "CrossSections/COHXSecAR.h"
 #include "CrossSections/GSLXSecFunc.h"
 #include "Messenger/Messenger.h"
-#include "Numerical/IntegratorI.h"
 #include "PDG/PDGUtils.h"
 #include "Utils/MathUtils.h"
 #include "Utils/Range1.h"
@@ -142,10 +141,6 @@ void COHXSecAR::Configure(string config)
 //____________________________________________________________________________
 void COHXSecAR::LoadConfig(void)
 {
-  // Get specified GENIE integration algorithm
-  // fIntegrator = dynamic_cast<const IntegratorI *> (this->SubAlg("Integrator"));
-  // assert(fIntegrator);
-
   // Get GSL integration type & relative tolerance
   fGSLIntgType   = fConfig->GetStringDef("gsl-integration-type" ,  "vegas");
   fGSLMaxEval    = (unsigned int) fConfig->GetIntDef("gsl-max-eval", 4000);
