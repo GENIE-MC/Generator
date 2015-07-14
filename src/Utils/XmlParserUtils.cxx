@@ -70,13 +70,19 @@ bool genie::utils::xml::GetBool(xmlDocPtr xml_doc, string node_path)
   if(content == "true" || 
      content == "TRUE" || 
      content == "True" || 
+     content == "on"   ||
+     content == "ON"   ||
+     content == "On"   ||
      content == "1"    || 
      content == "I") return true;
 
   if(content == "false" || 
      content == "FALSE" || 
-     content == "False" || 
-     content == "0"    || 
+     content == "False" ||
+     content == "off"   ||
+     content == "OFF"   ||
+     content == "Off"   ||
+     content == "0"     || 
      content == "O") return false;
 
   LOG("XML", pERROR) 
