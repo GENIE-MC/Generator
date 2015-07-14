@@ -497,7 +497,6 @@ clean-files: FORCE
 	cd VLE;                           make clean; cd ..; \
 	cd VHE;                           make clean; cd ..; \
 	cd Apps;                          make clean; cd ..; \
-	cd test;                          make clean; cd ..; \
 	cd scripts;                       make clean; cd ..;\
 	cd $(GENIE);\
     [ ! -d ./bin ] || rm ./bin/*;\
@@ -566,7 +565,6 @@ distclean: FORCE
 	cd VLE;                            make distclean; cd ..; \
 	cd VHE;                            make distclean; cd ..; \
 	cd Apps;                           make distclean; cd ..; \
-	cd test;                           make distclean; cd ..; \
 	cd scripts;                        make distclean; \
 	cd ${GENIE}
 
