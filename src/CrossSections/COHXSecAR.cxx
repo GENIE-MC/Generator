@@ -14,6 +14,7 @@
 
 #include <TMath.h>
 #include <Math/IFunction.h>
+#include <Math/Integrator.h>
 #include <Math/IntegratorMultiDim.h>
 #include "Math/AdaptiveIntegratorMultiDim.h"
 
@@ -142,8 +143,8 @@ void COHXSecAR::Configure(string config)
 void COHXSecAR::LoadConfig(void)
 {
   // Get specified GENIE integration algorithm
-  fIntegrator = dynamic_cast<const IntegratorI *> (this->SubAlg("Integrator"));
-  assert(fIntegrator);
+  // fIntegrator = dynamic_cast<const IntegratorI *> (this->SubAlg("Integrator"));
+  // assert(fIntegrator);
 
   // Get GSL integration type & relative tolerance
   fGSLIntgType   = fConfig->GetStringDef("gsl-integration-type" ,  "vegas");

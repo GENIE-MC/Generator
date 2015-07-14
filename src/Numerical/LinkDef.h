@@ -24,8 +24,5 @@
 #pragma link C++ class genie::GVFunc;
 #pragma link C++ class genie::FunctionMap;
 #pragma link C++ class genie::IntegratorI;
-#pragma link C++ class genie::Simpson1D;
-#pragma link C++ class genie::Simpson2D;
-#pragma link C++ class genie::Simpson2DFixN;
 
 #endif

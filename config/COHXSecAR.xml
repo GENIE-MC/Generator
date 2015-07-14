@@ -17,7 +17,7 @@ gsl-max-eval            int      yes        Max limit of evaluations for multidi
 -->
 
   <param_set name="Default"> 
-    <param type="alg" name="Integrator"> genie::Simpson2D/Default-Logarithmic-FixedNBins-101 </param> <!-- Not supported by non-GSL -->
+    <!-- <param type="alg" name="Integrator"> genie::Simpson2D/Default-Logarithmic-FixedNBins-101 </param> -->
      
     <param type="string" name ="gsl-integration-type">       miser  </param>
     <param type="int"    name ="gsl-max-eval" >              40000  </param>
@@ -27,7 +27,7 @@ gsl-max-eval            int      yes        Max limit of evaluations for multidi
   </param_set>
   
   <param_set name="Fast"> 
-    <param type="alg" name="Integrator"> genie::Simpson2D/Default-Logarithmic-FixedNBins-101 </param> <!-- Not supported by non-GSL -->
+    <!-- <param type="alg" name="Integrator"> genie::Simpson2D/Default-Logarithmic-FixedNBins-101 </param> -->
      
     <param type="string" name ="gsl-integration-type">       miser   </param>
     <param type="int"    name ="gsl-max-eval" >              10000   </param>
