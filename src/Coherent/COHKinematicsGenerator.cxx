@@ -720,9 +720,9 @@ double COHKinematicsGenerator::ComputeMaxXSec(const Interaction * in) const
   double max_xsec = 0.;
   if (fXSecModel->Id().Name() == "genie::ReinSehgalCOHPiPXSec") {
     max_xsec = MaxXSec_ReinSehgal(in);
-  } else if ((fXSecModel->Id().Name() == "genie::BergerSehgalCOHPiPXSec")) {
+  } else if ((fXSecModel->Id().Name() == "genie::BergerSehgalCOHPiPXSec2015")) {
     max_xsec = MaxXSec_BergerSehgal(in);
-  } else if ((fXSecModel->Id().Name() == "genie::BergerSehgalFMCOHPiPXSec")) {
+  } else if ((fXSecModel->Id().Name() == "genie::BergerSehgalFMCOHPiPXSec2015")) {
     max_xsec = MaxXSec_BergerSehgalFM(in);
   } else if ((fXSecModel->Id().Name() == "genie::AlvarezRusoCOHPiPXSec")) {
     max_xsec = MaxXSec_AlvarezRuso(in);
