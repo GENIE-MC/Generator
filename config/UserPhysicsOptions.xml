@@ -743,9 +743,9 @@ STFC, Rutherford Appleton Laboratory
 
 
   <!-- 
+  -->
   <param type="alg" name="XSecModel@genie::EventGenerator/COH-CC">         genie::ReinSehgalCOHPiPXSec/Default   </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/COH-NC">         genie::ReinSehgalCOHPiPXSec/Default   </param>
-  -->
 
   <!-- BS "Finite-mass" (as opposed to infinite mass) nucleus -->
   <!--
@@ -759,9 +759,9 @@ STFC, Rutherford Appleton Laboratory
   -->
 
   <!-- Alvarez-Ruso et al COH pion
-  -->
   <param type="alg" name="XSecModel@genie::EventGenerator/COH-CC">       genie::AlvarezRusoCOHPiPXSec/Fast       </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/COH-NC">       genie::AlvarezRusoCOHPiPXSec/Fast       </param>
+  -->
 
   <param type="alg" name="XSecModel@genie::EventGenerator/IMD">            genie::BardinIMDRadCorPXSec/Default   </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/IMD-ANH">        genie::IMDAnnihilationPXSec/Default   </param>
