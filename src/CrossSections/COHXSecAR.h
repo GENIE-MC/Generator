@@ -22,8 +22,6 @@
 
 #include "Base/XSecIntegratorI.h"
 
-#include <Math/Integrator.h>
-
 namespace genie {
 
 class COHXSecAR : public XSecIntegratorI {
