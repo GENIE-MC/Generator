@@ -770,7 +770,8 @@ double COHKinematicsGenerator::MaxXSec_BergerSehgal(const Interaction * in) cons
     } else {
       yr = kps.YLim();
     }
-    if ((yr.max < 0) || (yr.max < yr.min)) { // forbidden kinematics
+    if ((yr.max < 0) || (yr.max < yr.min) || 
+        (yr.max > 1) || (yr.min < 0)) { // forbidden kinematics
       continue;
     }
     const double logymin  = TMath::Log10(yr.min);
