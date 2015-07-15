@@ -476,12 +476,15 @@ Range1D_t genie::utils::kinematics::CohXLim(void)
 //____________________________________________________________________________
 Range1D_t genie::utils::kinematics::CohQ2Lim(double Mn, double mpi, double mlep, double Ev)
 {
+  // The expressions for Q^2 min appears in PRD 74, 054007 (2006) by 
+  // Kartavtsev, Paschos, and Gounaris
+
   double Mn2 = Mn * Mn;
   double mlep2 = mlep * mlep;
   double s = Mn2 + 2.0 * Mn * Ev;
   double W2min = CohW2Min(Mn, mpi);
   
-  // Looks like Q2min = A * B - C
+  // Looks like Q2min = A * B - C, where A, B, and C are complicated
   double A = (s - Mn * Mn) / 2.0;
   double a = 1.0;
   double b = mlep2 / s;
@@ -508,6 +511,9 @@ Range1D_t genie::utils::kinematics::Cohq2Lim(double Mn, double mpi, double mlep,
 Range1D_t genie::utils::kinematics::CohW2Lim(double Mn, double mpi, double mlep, 
     double Ev, double Q2)
 {
+  // These expressions for W^2 min and max appear in PRD 74, 054007 (2006) by
+  // Kartavtsev, Paschos, and Gounaris
+
   Range1D_t W2l;
   W2l.min = -1;
   W2l.max = -1;
@@ -515,6 +521,7 @@ Range1D_t genie::utils::kinematics::CohW2Lim(double Mn, double mpi, double mlep,
   double s = Mn * Mn + 2.0 * Mn * Ev;
   double Mnterm = 1 - Mn * Mn / s;
   double Mlterm = 1 - mlep * mlep / s;
+  // Here T1, T2 are generically "term 1" and "term 2" in a long expression
   double T1 = 0.25 * s * s * Mnterm * Mnterm * Mlterm;
   double T2 = Q2 - (0.5 * s * Mnterm) + (0.5 * mlep * mlep * Mnterm);
 
@@ -581,6 +588,9 @@ Range1D_t genie::utils::kinematics::CohYLim(double EvL, double ml)
 //____________________________________________________________________________
 double genie::utils::kinematics::CohW2Min(double Mn, double mpi)
 {
+  // These expressions for W^2 min and max appear in PRD 74, 054007 (2006) by
+  // Kartavtsev, Paschos, and Gounaris
+
   return (Mn + mpi) * (Mn + mpi);
 }
 //____________________________________________________________________________
