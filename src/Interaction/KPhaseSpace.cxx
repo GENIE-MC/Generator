@@ -581,6 +581,7 @@ Range1D_t KPhaseSpace::YLim_X(void) const
 Range1D_t KPhaseSpace::YLim(double xsi) const
 {
   // Paschos-Schalla xsi parameter for y-limits in COH
+  // From PRD 80, 033005 (2009)
   
   Range1D_t yl;
   yl.min = -1;
@@ -609,6 +610,7 @@ Range1D_t KPhaseSpace::YLim(double xsi) const
 Range1D_t KPhaseSpace::YLim_X(double xsi) const
 {
   // Paschos-Schalla xsi parameter for y-limits in COH
+  // From PRD 80, 033005 (2009)
   
   const ProcessInfo & pi = fInteraction->ProcInfo();
 
