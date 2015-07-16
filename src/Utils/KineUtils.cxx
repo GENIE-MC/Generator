@@ -492,23 +492,31 @@ Range1D_t genie::utils::kinematics::CohQ2Lim(double Mn, double mpi, double mlep,
   // The expressions for Q^2 min appears in PRD 74, 054007 (2006) by 
   // Kartavtsev, Paschos, and Gounaris
 
+  Range1D_t Q2;
+  Q2.min = 0.0;
+  Q2.max = std::numeric_limits<double>::max();  // Value must be overriden in user options
+
   double Mn2 = Mn * Mn;
   double mlep2 = mlep * mlep;
   double s = Mn2 + 2.0 * Mn * Ev;
   double W2min = CohW2Min(Mn, mpi);
   
   // Looks like Q2min = A * B - C, where A, B, and C are complicated
-  double A = (s - Mn * Mn) / 2.0;
   double a = 1.0;
   double b = mlep2 / s;
   double c = W2min / s;
   double lambda = a * a + b * b + c * c - 2.0 * a * b - 2.0 * a * c - 2.0 * b * c;
-  double B = 1 - TMath::Sqrt(lambda);
-  double C = 0.5 * (W2min + mlep2 - Mn2 * (W2min - mlep2) / s );
+  if (lambda > 0) {
+    double A = (s - Mn * Mn) / 2.0;
+    double B = 1 - TMath::Sqrt(lambda);
+    double C = 0.5 * (W2min + mlep2 - Mn2 * (W2min - mlep2) / s );
+    Q2.min = A * B - C;
+  } else {
+    SLOG("KineLimits", pERROR) 
+      << "Q2 kinematic limits calculation failed for CohQ2Lim. "
+      << "Assuming Q2min = 0.0";
+  }
 
-  Range1D_t Q2;
-  Q2.min = A * B - C;
-  Q2.max = std::numeric_limits<double>::max();  // Value must be overriden in user options
   return Q2;
 }
 //____________________________________________________________________________
