@@ -91,7 +91,7 @@ bool BLI2DUnifGrid::AddPoint(double x, double y, double z)
   fZ[iz] = z;
 
   fZmin = TMath::Min(z, fZmin);
-  fZmax = TMath::Min(z, fZmax);
+  fZmax = TMath::Max(z, fZmax);
 
   LOG("BLI2DUnifGrid", pDEBUG) 
     << "Added x = " << x << " (ix = " << ix << ")"
@@ -324,7 +324,7 @@ bool BLI2DNonUnifGrid::AddPoint(double x, double y, double z)
   fZ[iz] = z;
 
   fZmin = TMath::Min(z, fZmin);
-  fZmax = TMath::Min(z, fZmax);
+  fZmax = TMath::Max(z, fZmax);
 
   LOG("BLI2DNonUnifGrid", pDEBUG) 
     << "Added x = " << x << " (ix = " << xidx << ")"
