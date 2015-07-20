@@ -24,6 +24,7 @@
 #include <TMath.h>
 
 #include <cassert>
+#include <limits>
 
 #include "Messenger/Messenger.h"
 #include "Numerical/BLI2D.h"
@@ -149,8 +150,8 @@ void BLI2DUnifGrid::Init(
   fXmax = 0.;
   fYmin = 0.;
   fYmax = 0.;
-  fZmin = 0.;
-  fZmax = 0.;
+  fZmin = std::numeric_limits<double>::max();
+  fZmax = std::numeric_limits<double>::min();
   fDX   = 0.;
   fDY   = 0.;
   fX    = 0;
@@ -166,8 +167,8 @@ void BLI2DUnifGrid::Init(
     fXmax = xmax;
     fYmin = ymin;
     fYmax = ymax;
-    fZmin = 0.;
-    fZmax = 0.;
+    fZmin = std::numeric_limits<double>::max();
+    fZmax = std::numeric_limits<double>::min();
 
     fDX = (xmax-xmin)/(nx-1);
     fDY = (ymax-ymin)/(ny-1);
@@ -408,8 +409,8 @@ void BLI2DNonUnifGrid::Init(
   fXmax  = 0.;
   fYmin  = 0.;
   fYmax  = 0.;
-  fZmin  = 0.;
-  fZmax  = 0.;
+  fZmin  = std::numeric_limits<double>::max();
+  fZmax  = std::numeric_limits<double>::min(); 
   fX     = 0;
   fY     = 0;
   fZ     = 0;
@@ -423,8 +424,8 @@ void BLI2DNonUnifGrid::Init(
     fXmax = xmax;
     fYmin = ymin;
     fYmax = ymax;
-    fZmin = 0.;
-    fZmax = 0.;
+    fZmin = std::numeric_limits<double>::max();
+    fZmax = std::numeric_limits<double>::min();
 
     fX = new double[fNX];
     fY = new double[fNY];
