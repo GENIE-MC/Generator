@@ -104,8 +104,7 @@ double COHXSec::Integrate(
     double kine_max[2] = { xl.max, yl.max };
     xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2);
   } 
-  else if (model->Id().Name() == "genie::BergerSehgalCOHPiPXSec2015" || 
-           model->Id().Name() == "genie::BergerSehgalFMCOHPiPXSec2015") 
+  else if (model->Id().Name() == "genie::BergerSehgalCOHPiPXSec2015")
   {
     ROOT::Math::IBaseFunctionMultiDim * func = 
       new utils::gsl::d2XSec_dQ2dy_E(model, interaction);
@@ -122,6 +121,30 @@ double COHXSec::Integrate(
     }
     double kine_min[2] = { Q2l.min, yl.min };
     double kine_max[2] = { Q2l.max, yl.max };
+    xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2);
+    delete func;
+  }
+  else if (model->Id().Name() == "genie::BergerSehgalFMCOHPiPXSec2015") 
+  {
+    Range1D_t tl;
+    tl.min = controls::kASmallNum;
+    tl.max = 0.25;  // TODO - No magic numbers! 
+
+    ROOT::Math::IBaseFunctionMultiDim * func = 
+      new utils::gsl::d2XSec_dQ2dydt_E(model, interaction);
+    ROOT::Math::IntegrationMultiDim::Type ig_type = 
+      utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
+    ROOT::Math::IntegratorMultiDim ig(ig_type);
+    ig.SetRelTolerance(fGSLRelTol);
+    ig.SetFunction(*func);
+    if (ig_type == ROOT::Math::IntegrationMultiDim::kADAPTIVE) {
+    ROOT::Math::AdaptiveIntegratorMultiDim * cast =
+      dynamic_cast<ROOT::Math::AdaptiveIntegratorMultiDim*>( ig.GetIntegrator() );
+      assert(cast);
+      cast->SetMinPts(fGSLMinEval);
+    }
+    double kine_min[3] = { Q2l.min, yl.min, tl.min };
+    double kine_max[3] = { Q2l.max, yl.max, tl.max };
     xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2);
     delete func;
   }
