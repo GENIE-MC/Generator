@@ -510,7 +510,12 @@ Range1D_t genie::utils::kinematics::CohQ2Lim(double Mn, double mpi, double mlep,
     double A = (s - Mn * Mn) / 2.0;
     double B = 1 - TMath::Sqrt(lambda);
     double C = 0.5 * (W2min + mlep2 - Mn2 * (W2min - mlep2) / s );
-    Q2.min = A * B - C;
+    if (A * B - C < 0) {
+      SLOG("KineLimits", pERROR) 
+        << "Q2 kinematic limits calculation failed for CohQ2Lim. "
+        << "Assuming Q2min = 0.0";
+    }
+    Q2.min = TMath::Max(0., A * B - C);
   } else {
     SLOG("KineLimits", pERROR) 
       << "Q2 kinematic limits calculation failed for CohQ2Lim. "
