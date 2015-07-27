@@ -35,6 +35,7 @@ namespace genie {
 
   class XSecIntegratorI;
 
+  // this class should probably inherit from the infinite mass target version
   class BergerSehgalFMCOHPiPXSec2015 : public XSecAlgorithmI {
 
     public:

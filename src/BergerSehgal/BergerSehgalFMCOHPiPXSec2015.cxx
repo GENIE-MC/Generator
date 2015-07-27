@@ -55,6 +55,9 @@ double BergerSehgalFMCOHPiPXSec2015::XSec(
   // This method computes the differential cross section represented 
   // in Eq.'s 6 (CC) and 7 (NC) from that paper.
 
+  // We have additionally modified the formulae to account for a 
+  // non-infinite mass for the target nucleus
+
   if(! this -> ValidProcess    (interaction) ) return 0.;
   if(! this -> ValidKinematics (interaction) ) return 0.;
 
@@ -67,20 +70,20 @@ double BergerSehgalFMCOHPiPXSec2015::XSec(
   double E      = init_state.ProbeE(kRfLab);        // nu E
   double Q2     = kinematics.Q2();
   double y      = kinematics.y();                   // inelasticity
-  double x      = kinematics.x();          
+  double t      = kinematics.t();                   // fun exists?
   assert(E > 0.);
   assert(y > 0.);
   assert(y < 1.);
   double ppistar = PionCOMAbsMomentum(interaction); // |Center of Mass Momentum|
   if (ppistar <= 0.0) { 
-    LOG("BergerSehgalCohPi", pDEBUG) << "Pion COM momentum negative for Q2 = " << Q2 << 
-      " x = " << x << " y = " << y; 
+    LOG("BergerSehgalFMCohPi", pDEBUG) << "Pion COM momentum negative for Q2 = " << Q2 << 
+      " y = " << y; 
     return 0.0; 
   }
   double front  = ExactKinematicTerm(interaction);
   if (front <= 0.0) { 
-    LOG("BergerSehgalCohPi", pDEBUG) << "Exact kin. form = " << front << 
-      " E = " << E << " Q2 = " << Q2 << " y = " << y << " x = " << x; 
+    LOG("BergerSehgalFMCohPi", pDEBUG) << "Exact kin. form = " << front << 
+      " E = " << E << " Q2 = " << Q2 << " y = " << y;
     return 0.0; 
   }
 
@@ -89,129 +92,129 @@ double BergerSehgalFMCOHPiPXSec2015::XSec(
   double A_3    = TMath::Power(A, 1./3.);
   double M      = init_state.Tgt().Mass();
   double M_pi   = pionIsCharged ? kPionMass : kPi0Mass;
-  double Epi    = y*E;                             // ~pion energy
-  double ma2    = TMath::Power(fMa, 2);            // "axial mass" squared
+  double M_pi2  = M_pi * M_pi;
+  double Epi    = y * E - t / (2 * M);  
+  double Epi2   = Epi * Epi;
+  double ma2    = fMa * fMa;
   double Ga     = ma2 / (ma2 + Q2);
-  double Ga2    = TMath::Power(Ga, 2.);            // propagator term
+  double Ga2    = Ga * Ga;
   double Ro2    = TMath::Power(fRo * units::fermi, 2.);
+  double ppi2   = Epi2 - M_pi2;
+  double ppi    = ppi2 > 0.0 ? sqrt(ppi2) : 0.0;
+  // double fp     = 0.93 * kPionMass;  // unused  // pion decay constant
+
+  double costheta = (t - Q2 - M_pi * M_pi) / (2 * ( (y *E - Epi) * Epi - 
+       ppi * sqrt(TMath::Power(y * E - Epi, 2.) + t) ) );
+
+  if ((costheta > 1.0) || (costheta < -1.0)) return 0.0;
 
   // the xsec is d^3xsec/dQ^2dydt but the only t-dependent factor 
   // is an exp(-bt) so it can be integrated analyticaly
-  double Epi2   = TMath::Power(Epi, 2.);
-  double R      = fRo * A_3 * units::fermi; // nuclear radius
-  double R2     = TMath::Power(R, 2.);
-  double b      = 0.33333 * R2;
-  double MxEpi  = M * x / Epi;
-  double mEpi2  = (M_pi * M_pi) / Epi2;
-  double tA     = 1. + MxEpi - 0.5 * mEpi2;
-  double tB     = TMath::Sqrt(1.0 + 2 * MxEpi) * TMath::Sqrt(1.0 - mEpi2);
-  double tmin   = 2 * Epi2 * (tA - tB);
-  double tmax   = 2 * Epi2 * (tA + tB);
+  // double R      = fRo * A_3 * units::fermi; // nuclear radius
+  // double R2     = TMath::Power(R, 2.);
+  // double b      = 0.33333 * R2;
 
   /* const KPhaseSpace & kphase = interaction->PhaseSpace(); */
   /* Range1D_t tl = kphase.TLim();   // TESTING! */
 
-  double sigtot_pin  = utils::hadxs::berger::PionNucleonXSec(Epi, /* get_total = */ true, pionIsCharged);
-  double sigel_pin   = utils::hadxs::berger::PionNucleonXSec(Epi, /* get_total = */ false, pionIsCharged);
+  bool get_total = true;
+  double sigtot_pin  = utils::hadxs::berger::PionNucleonXSec(Epi, get_total, pionIsCharged);
+  get_total = false;
+  double sigel_pin   = utils::hadxs::berger::PionNucleonXSec(Epi, get_total, pionIsCharged);
   double siginel_pin = sigtot_pin - sigel_pin;
 
   double fabs_input  = (9.0 * A_3) / (16.0 * kPi * Ro2);
   double fabs        = TMath::Exp( -1.0 * fabs_input * siginel_pin);
 
   double factor      = 0.1; // to go from 10^-37 cm^2 -> 10^-38 cm^2
-  double RS_factor   = (units::mb*A2*fabs)/(16.0*kPi) * (sigtot_pin*sigtot_pin); //A_RS for BS version of RS, and/or Tpi>1.0
+  // A_RS for BS version of RS, and/or Tpi>1.0
+  double RS_factor   = (units::mb*A2*fabs)/(16.0*kPi) * (sigtot_pin*sigtot_pin); 
 
-  // get the pion-nucleus cross section on carbon, fold it into differential cross section
-  double tpi         = (E * y) - M_pi - ((Q2 + M_pi * M_pi) / (2 * M)); 
-  double tpilow      = 0.0;
-  double siglow      = 0.0;
-  double tpihigh     = 0.0;
-  double sighigh     = 0.0;
-  double dsigdzfit   = 0.0;
-  double dsigdtfit   = 0.0;
-  int    xsec_stat   = 0;
-  double dsig        = 0.0;
-  double tstep       = 100;
-  double logt_step   = TMath::Abs(log(tmax) - log(tmin)) / tstep;
-  double logt        = log(tmin) - logt_step/2.0;
-  double t_itt       = TMath::Exp(logt);
-  double t_width     = 0.0;
+  // TODO: Call new functions to look up BS pion xsec data as spline
+  double sTot   = utils::hadxs::berger::TotalPionNucleonXSec(Epi); // tot. pi+N xsec
+  double sTot2  = sTot * sTot;
+  double sInel  = utils::hadxs::berger::InelasticPionNucleonXSec(Epi); // inel. pi+N xsec
 
-  for (double t_step = 0; t_step<tstep; t_step++) {
+  // effect of pion absorption in the nucleus
+  double Fabs   = TMath::Exp( -9. * A_3 * sInel / (16. * kPi * Ro2) );
+  double R      = fRo * A_3 * units::fermi; // nuclear radius
+  double R2     = R * R;
+  double b      = 0.33333 * R2;
+  double expbt  = TMath::Exp( -b * t );
 
-    logt = logt + logt_step;
-    t_itt = TMath::Exp(logt);
-    t_width = t_itt*logt_step;
+  double dsigEldt = sTot2 / (16. * kPi);
+  double dsigpiNdt = A2 * dsigEldt * expbt * Fabs;
 
-    if (tpi <= 1.0 && fRSPionXSec == false) {  
-      xsec_stat =  utils::hadxs::berger::PionNucleusXSec(tpi, ppistar, t_itt, A, tpilow, siglow, tpihigh, sighigh);
-      if(xsec_stat){
-        LOG("BergerSehgalCohPi", pERROR) << "Call to PionNucleusXSec code failed - return xsec of 0.0";
-        return 0.0;
-      }
-      dsigdzfit = siglow + (sighigh - siglow) * (tpi - tpilow) / (tpihigh - tpilow);
-      dsigdtfit = dsigdzfit / (2.0 * ppistar * ppistar);
-      // we are handed a cross section in mb, need to convert it to GeV^{-2}
-      dsig +=   1.0  * front * Ga2 * t_width * dsigdtfit * units::mb;
-    }
-    else {
-      dsig += factor * front * Ga2 * t_width * RS_factor * exp(-1.0*b*t_itt);
-    }
+  double tpilow    = 0.0;
+  double siglow    = 0.0;
+  double tpihigh   = 0.0;
+  double sighigh   = 0.0;
+  double dsigdt    = 0.0;
+  double tpi       = 0.0;
+  int    xsec_stat = 0;
+  // lab
+  /* tpi       = epi_lab - mpi; */
+  /* xsec_stat = utils::hadxs::berger::PionNucleusXSec( tpi, PAprime, t, A, tpilow, siglow, tpihigh, sighigh ); */
+  /* dsigdt    = siglow + (sighigh-siglow)*(tpi - tpilow)/(tpihigh - tpilow); */
+  // c.o.m.
+  tpi       = Epi - M_pi;
+  xsec_stat = utils::hadxs::berger::PionNucleusXSec( tpi, ppistar, t, A, tpilow, siglow, 
+      tpihigh, sighigh );
+  dsigdt    = siglow + (sighigh-siglow)*(tpi - tpilow)/(tpihigh - tpilow);
 
-  }
-  xsec = dsig;
+  /* double edep_dsigpiNdt = epi_lab > 1.0 ? dsigpiNdt : dsigdt; */
+  double edep_dsigpiNdt = Epi > 1.0 ? dsigpiNdt : dsigdt;
 
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("BergerSehgalCohPi", pDEBUG)
-    << "\n momentum transfer .............. Q2    = " << Q2
-    << "\n mass number .................... A     = " << A
-    << "\n pion energy .................... Epi   = " << Epi
-    << "\n propagator term ................ Ga2   = " << Ga2
-    << "\n total pi+N cross section ....... sigT  = " << sigtot_pin
-    << "\n inelastic pi+N cross section ... sigI  = " << siginel_pin
-    << "\n nuclear size scale ............. Ro    = " << fRo
-    << "\n pion absorption factor ......... Fabs  = " << fabs
-    << "\n t integration range ............ [" << tmin << "," << tmax << "]"
-#endif
+  xsec = front * Ga2 * edep_dsigpiNdt;
 
-  // Correction for finite final state lepton mass.
-  if (pionIsCharged) {
-    // Lepton mass modification is part of Berger-Sehgal and should not be optional.
+  if(interaction->ProcInfo().IsWeakCC()) { 
+    // Check whether a modification to Adler's PCAC theorem is applied for
+    // including the effect of the muon mass. 
+    // See Rein and Sehgal, PCAC and the Deficit of Forward Muons in pi+ 
+    // Production by Neutrinos, hep-ph/0606185
     double C = 1.;
-    // First, we need to remove the leading G_{A}^2 which is required for NC.
-    xsec /= Ga2;
-    // Next, \cos^2 \theta_{Cabbibo} appears in the CC xsec, but not the NC.
-    xsec *= fCos8c2;
     double ml    = interaction->FSPrimLepton()->Mass();
-    double ml2   = TMath::Power(ml,2);
-    double Q2min = ml2 * y/(1-y);
-    if(Q2 > Q2min) {
-      double C1 = TMath::Power(Ga - 0.5 * Q2min / (Q2 + kPionMass2), 2);
-      double C2 = 0.25 * y * Q2min * (Q2 - Q2min) / TMath::Power(Q2 + kPionMass2, 2);
-      C = C1 + C2;
+    double Q2min = TMath::Power(ml,2.) * y / (1 - y);
+    if(Q2>Q2min) {
+      double mlc_q2_term = (Q2min/(Q2 + kPionMass2));
+      double massive_lepton_correction = 
+        TMath::Power( Ga - (1./2.)*mlc_q2_term, 2. ) +
+        (y/4) * (Q2 - Q2min) * mlc_q2_term;
+      C = 2.0 * fCos8c2 * massive_lepton_correction;
     } else {
       C = 0.;
     }
-    xsec *= (2. * C); // *2 is for CC vs NC in BS 
+    xsec *= C; 
   }
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("BergerSehgalCohPi", pINFO)
-    << "d2xsec/dQ2dy[COHPi] (Q2= " << Q2 << ", y="
+  LOG("BergerSehgalFMCohPi", pDEBUG)
+    << "\n momentum transfer .............. Q2    = " << Q2
+    << "\n mass number .................... A     = " << A
+    << "\n pion energy .................... Epi   = " << Epi
+    << "\n propagator term ................ propg = " << propg
+    << "\n Re/Im of fwd pion scat. ampl. .. Re/Im = " << fReIm
+    << "\n total pi+N cross section ....... sigT  = " << sTot
+    << "\n inelastic pi+N cross section ... sigI  = " << sInel
+    << "\n nuclear size scale ............. Ro    = " << fRo
+    << "\n pion absorption factor ......... Fabs  = " << Fabs
+    << "\n t integration factor ........... tint  = " << tint;
+#endif
+
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+  LOG("BergerSehgalFMCohPi", pINFO)
+    << "d2xsec/dxdy[COHPi] (x= " << x << ", y="
     << y << ", E=" << E << ") = "<< xsec;
 #endif
 
-  //----- The algorithm computes d^2xsec/dQ2dy
-  // Check whether variable tranformation is needed? May be working with logs. 
-  // kPSlogQ2logyfE is possible - all others will not succeed
-  if(kps != kPSQ2yfE) {
-    double J = utils::kinematics::Jacobian(interaction,kPSQ2yfE, kps);
-    xsec *= J;
-  }
+  //----- The algorithm computes d^3xsec/dQ^2dydt
+  //      Check whether Jacobian tranformation is needed...
+
   return xsec;
 }
 //____________________________________________________________________________
-double BergerSehgalFMCOHPiPXSec2015::ExactKinematicTerm(const Interaction * interaction) const
+double BergerSehgalFMCOHPiPXSec2015::ExactKinematicTerm(
+    const Interaction * interaction) const
 {
   // This function is a bit inefficient but is being encapsulated as 
   // such in order to possibly migrate into a general kinematics check.
@@ -231,7 +234,8 @@ double BergerSehgalFMCOHPiPXSec2015::ExactKinematicTerm(const Interaction * inte
   return term;   
 }
 //____________________________________________________________________________
-double BergerSehgalFMCOHPiPXSec2015::PionCOMAbsMomentum(const Interaction * interaction) const
+double BergerSehgalFMCOHPiPXSec2015::PionCOMAbsMomentum(
+    const Interaction * interaction) const
 {
   // This function is a bit inefficient but is being encapsulated as 
   // such in order to possibly migrate into a general kinematics check.
@@ -245,8 +249,9 @@ double BergerSehgalFMCOHPiPXSec2015::PionCOMAbsMomentum(const Interaction * inte
   double y             = kinematics.y();                   // inelasticity
   double MT            = init_state.Tgt().Mass(); 
 
-  double W2      = MT*MT - Q2 + 2.0 * y * E * MT;
-  double arg     = (2.0*MT*(y*E - M_pi) - Q2 - M_pi*M_pi)*(2.0*MT*(y*E + M_pi) - Q2 - M_pi*M_pi);
+  double W2      = MT * MT - Q2 + 2.0 * y * E * MT;
+  double arg     = (2.0 * MT * (y * E - M_pi) - Q2 - M_pi * M_pi) * 
+    (2.0 * MT * (y * E + M_pi) - Q2 - M_pi * M_pi);
   if (arg < 0) return arg;
   double ppistar = TMath::Sqrt(arg) / 2.0 / TMath::Sqrt(W2);
 
