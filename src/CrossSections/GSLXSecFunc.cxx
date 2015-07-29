@@ -220,8 +220,8 @@ double genie::utils::gsl::d2XSec_dQ2dydt_E::DoEval(const double * xin) const
   double  t = xin[2];
   fInteraction->KinePtr()->SetQ2(Q2);
   fInteraction->KinePtr()->Sety(y);
-  fInteraction->KinePtr()->Sety(t);
-  // kinematics::UpdateXFromQ2Y(fInteraction);
+  fInteraction->KinePtr()->Sett(t);
+  kinematics::UpdateXFromQ2Y(fInteraction);
   double xsec = fModel->XSec(fInteraction, kPSQ2yfE);
   return xsec/(1E-38 * units::cm2);
 }
