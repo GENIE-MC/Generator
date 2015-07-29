@@ -743,15 +743,15 @@ STFC, Rutherford Appleton Laboratory
 
 
   <!-- 
-  -->
   <param type="alg" name="XSecModel@genie::EventGenerator/COH-CC">         genie::ReinSehgalCOHPiPXSec/Default   </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/COH-NC">         genie::ReinSehgalCOHPiPXSec/Default   </param>
+  -->
 
   <!-- BS "Finite-mass" (as opposed to infinite mass) nucleus -->
   <!--
+  -->
   <param type="alg" name="XSecModel@genie::EventGenerator/COH-CC">         genie::BergerSehgalFMCOHPiPXSec2015/Default   </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/COH-NC">         genie::BergerSehgalFMCOHPiPXSec2015/Default   </param>
-  -->
 
   <!-- Berger-Sehgal "as in the paper" (with Paschos-Schalla integration bounds)
   <param type="alg" name="XSecModel@genie::EventGenerator/COH-CC">         genie::BergerSehgalCOHPiPXSec2015/Default   </param>
