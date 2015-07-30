@@ -181,6 +181,13 @@ STFC, Rutherford Appleton Laboratory
 
  <!--
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Maximum considered t for Berger-Sehgal coherent reactions when estimating the max cross section. 
+  Units in GeV^2.
+  -->
+  <param type="double" name="COH-t-max"> 0.250 </param>
+
+ <!--
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   If false, use the pion-nucleon cross section specially computed for the Berger-Sehgal model.
   If true, use the Rein-Sehgal "style" pion-nucleon cross section and scale by A for all pion energies. 
   -->
