@@ -24,6 +24,7 @@
 #include <Math/IntegratorMultiDim.h>
 #include "Math/AdaptiveIntegratorMultiDim.h"
 
+#include "Algorithm/AlgConfigPool.h"
 #include "Conventions/GBuild.h"
 #include "Conventions/Constants.h"
 #include "Conventions/Controls.h"
@@ -72,7 +73,7 @@ double COHXSec::Integrate(
   Range1D_t yl = kps.Limits(kKVy);
   Range1D_t Q2l;
   Q2l.min = controls::kASmallNum;
-  Q2l.max = 1.0;  // TODO - No magic numbers! 
+  Q2l.max = fQ2Max;
 
   Interaction * interaction = new Interaction(*in);
   interaction->SetBit(kISkipProcessChk);
@@ -128,7 +129,7 @@ double COHXSec::Integrate(
   {
     Range1D_t tl;
     tl.min = controls::kASmallNum;
-    tl.max = 0.25;  // TODO - No magic numbers! 
+    tl.max = fTMax;
 
     ROOT::Math::IBaseFunctionMultiDim * func = 
       new utils::gsl::d2XSec_dQ2dydt_E(model, interaction);
@@ -172,10 +173,23 @@ void COHXSec::Configure(string config)
 //____________________________________________________________________________
 void COHXSec::LoadConfig(void)
 {
+  AlgConfigPool * confp = AlgConfigPool::Instance();
+  const Registry * gc = confp->GlobalParameterList();
+
   // Get GSL integration type & relative tolerance
   fGSLIntgType = fConfig->GetStringDef("gsl-integration-type",  "adaptive");
   fGSLRelTol   = fConfig->GetDoubleDef("gsl-relative-tolerance", 1E-2); 
   fGSLMaxEval  = (unsigned int) fConfig->GetIntDef ("gsl-max-eval", 500000); 
   fGSLMinEval  = (unsigned int) fConfig->GetIntDef ("gsl-min-eval",  5000); 
+
+  //-- COH model parameter t_max for t = (q - p_pi)^2
+  fTMax = fConfig->GetDoubleDef("COH-t-max", gc->GetDouble("COH-t-max"));
+  //-- COH model bounds of integration for Q^2
+  fQ2Min = fConfig->GetDoubleDef("COH-Q2-min", gc->GetDouble("COH-Q2-min"));
+  fQ2Max = fConfig->GetDoubleDef("COH-Q2-max", gc->GetDouble("COH-Q2-max"));
+  //-- nu_min scaling from Paschos, Schalla PRD 80 033005
+  fPaschosSchallaXi = 
+    fConfig->GetDoubleDef("COH-PaschosSchallaXi",
+                          gc->GetDouble("COH-PaschosSchallaXi"));
 }
 //____________________________________________________________________________
