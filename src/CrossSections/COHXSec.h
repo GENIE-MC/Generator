@@ -24,24 +24,30 @@
 
 namespace genie {
 
-class COHXSec : public XSecIntegratorI {
-public:
-  COHXSec();
-  COHXSec(string config);
-  virtual ~COHXSec();
+  class COHXSec : public XSecIntegratorI {
 
-  // XSecIntegratorI interface implementation
-  double Integrate(const XSecAlgorithmI * model, const Interaction * i) const;
+    public:
+      COHXSec();
+      COHXSec(string config);
+      virtual ~COHXSec();
 
-  // Overload the Algorithm::Configure() methods to load private data
-  // members from configuration options
-  void Configure(const Registry & config);
-  void Configure(string config);
+      // XSecIntegratorI interface implementation
+      double Integrate(const XSecAlgorithmI * model, const Interaction * i) const;
 
-private:
-  void LoadConfig (void);
-  
-};
+      // Overload the Algorithm::Configure() methods to load private data
+      // members from configuration options
+      void Configure(const Registry & config);
+      void Configure(string config);
+
+    private:
+      void LoadConfig (void);
+
+      double fQ2Min;  ///< lower bound of integration for Q^2 in Berger-Sehgal Model
+      double fQ2Max;  ///< upper bound of integration for Q^2 in Berger-Sehgal Model
+      double fTMax;   ///< upper bound for t = (q - p_pi)^2
+      double fPaschosSchallaXi; ///< nu_min scalaing parameter 
+
+  };
 
 }       // genie namespace
 #endif  // _COH_XSEC_H_
