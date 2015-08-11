@@ -42,11 +42,11 @@ STFC, Rutherford Appleton Laboratory
   <param type="double" name="RS-Zeta">  0.762 </param> <!-- 0.75 -->
 
  <!-- Parameters for the Berger-Sehgal Delta model
-  is_KNL      = Kuzmin, Lyubushkin, Naumov Mod. Phys. Lett. A19 (2004) 2815: turns on some form factor
+  is_KLN      = Kuzmin, Lyubushkin, Naumov Mod. Phys. Lett. A19 (2004) 2815: turns on some form factor
   is_BRS      = Berger, Sehgal Phys. Rev. D76, 113004 (2007)
   newGA, newGV = tuning to axial, vector form factors by MiniBoone (J. Nowak)
   -->
-  <param type="bool" name="is_KNL"> false </param>
+  <param type="bool" name="is_KLN"> false </param>
   <param type="bool" name="is_BRS"> true </param>
   <param type="bool" name="minibooneGA">  true </param>
   <param type="bool" name="minibooneGV">  true </param>
