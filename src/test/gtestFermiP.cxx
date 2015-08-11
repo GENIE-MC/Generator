@@ -34,7 +34,7 @@ using namespace genie;
 int main(int /*argc*/, char ** /*argv*/)
 {
   const unsigned int kNTargets = 2;
-  const unsigned int kNModels  = 4;
+  const unsigned int kNModels  = 2;  // 4 if Benhar models are available
   const unsigned int kNEvents  = 3000;
 
   //-- Get nuclear models
@@ -43,17 +43,17 @@ int main(int /*argc*/, char ** /*argv*/)
   const NuclearModelI * bodritch =
        dynamic_cast<const NuclearModelI *> (algf->GetAlgorithm(
 			     "genie::FGMBodekRitchie","Default"));
-  const NuclearModelI * benhsf1d = 
-       dynamic_cast<const NuclearModelI *> (
-              algf->GetAlgorithm("genie::BenharSpectralFunc1D","Default"));
-  const NuclearModelI * benhsf2d = 
-       dynamic_cast<const NuclearModelI *> (
-                 algf->GetAlgorithm("genie::BenharSpectralFunc","Default"));
+  // const NuclearModelI * benhsf1d = 
+  //      dynamic_cast<const NuclearModelI *> (
+  //             algf->GetAlgorithm("genie::BenharSpectralFunc1D","Default"));
+  // const NuclearModelI * benhsf2d = 
+  //      dynamic_cast<const NuclearModelI *> (
+  //                algf->GetAlgorithm("genie::BenharSpectralFunc","Default"));
   const NuclearModelI * effsf = 
        dynamic_cast<const NuclearModelI *> (
                  algf->GetAlgorithm("genie::EffectiveSF","Default"));
 
-  const NuclearModelI * nuclmodel[kNModels] = { bodritch, benhsf1d, benhsf2d, effsf };
+  const NuclearModelI * nuclmodel[kNModels] = { bodritch, /* benhsf1d, benhsf2d, */ effsf };
 
   //-- Create nuclear targets
   Target * nucltgt[kNTargets];
@@ -92,7 +92,6 @@ int main(int /*argc*/, char ** /*argv*/)
   f.Close();
 
   //-- Clean-up
-  delete [] nucltgt;
   delete nuclnt;
 
   return 0;
