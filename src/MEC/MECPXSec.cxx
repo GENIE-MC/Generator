@@ -109,7 +109,7 @@ double MECPXSec::XSec(
   double y = 0.;
   genie::utils::kinematics::WQ2toXY(Ev,M2n,W,Q2,x,y);
   //  LOG("MEC", pINFO) << "x = " << x << ", y = " << y;
-  double Tmu = (1.-y)*Ev;
+  // double Tmu = (1.-y)*Ev; // UNUSED variable - commented to quiet the compiler
 
   // Calculate d^2xsec/dWdQ2 - first form factor which is common to both
   double Wdep  = TMath::Gaus(W, fMass, fWidth);
