@@ -169,8 +169,8 @@ double BergerSehgalRESPXSec2014::XSec(
   //JN parameter from the KUZMIN et al.
 
   //  bool is_RS  = true;
-  bool is_KNL = false;
-  if(fKNL && is_CC) is_KNL=true;
+  bool is_KLN = false;
+  if(fKLN && is_CC) is_KLN=true;
 
   bool is_BRS = false;
   if(fBRS && is_CC) is_BRS=true;
@@ -215,7 +215,7 @@ double BergerSehgalRESPXSec2014::XSec(
 
 
 
-  if(is_CC && (is_KNL || is_BRS)){
+  if(is_CC && (is_KLN || is_BRS)){
 
     LOG("BergerSehgalRESPXSec2014",pINFO) "costh1="<<costh;    
     costh = (q2 - ml*ml + 2.*E*Eprime)/2./E/Pl;
@@ -400,7 +400,7 @@ double BergerSehgalRESPXSec2014::XSec(
   double KNL_C_plus = 0;
   double KNL_C_minus = 0;
 
-  if(is_CC && is_KNL){
+  if(is_CC && is_KLN){
     KNL_S_plus  = (KNL_vstar_plus*vstar  - KNL_Qstar_plus *Qstar )* (Mnuc2 -q2 - 3*W*Mnuc ) * GV / (6*Mnuc2)/Q2; //possibly missing minus sign ()
     KNL_S_minus = (KNL_vstar_minus*vstar - KNL_Qstar_minus*Qstar )* (Mnuc2 -q2 - 3*W*Mnuc ) * GV / (6*Mnuc2)/Q2;
 
@@ -506,7 +506,7 @@ double BergerSehgalRESPXSec2014::XSec(
 
 */
   //<<<<<<<<<
-  if(is_CC && !(is_KNL || is_BRS) ) {
+  if(is_CC && !(is_KLN || is_BRS) ) {
 
     hamplmod = fHAmplModelCC;
   }
@@ -521,7 +521,7 @@ double BergerSehgalRESPXSec2014::XSec(
         else      { hamplmod = fHAmplModelEMn;}
       }
       else
-        if(is_CC && is_KNL ){
+        if(is_CC && is_KLN ){
           fFKR.S = KNL_S_minus;        //2 times fFKR.S?
           fFKR.B = KNL_B_minus;
           fFKR.S = KNL_C_minus;
@@ -634,7 +634,7 @@ double BergerSehgalRESPXSec2014::XSec(
    double sigS =0;
    JN tests  */
 
-if( is_KNL || is_BRS){
+if( is_KLN || is_BRS){
 
   sigL_minus *= scLR;
   sigR_minus *= scLR;
@@ -665,7 +665,7 @@ LOG("BergerSehgalRESPXSec2014", pDEBUG) << "sig_{S} = " << sigS;
 
 double xsec = 0.0;
 
-if(is_KNL || is_BRS){
+if(is_KLN || is_BRS){
   xsec =  TMath::Power(KNL_cL_minus,2)*sigL_minus + TMath::Power(KNL_cL_plus,2)*sigL_plus
     + TMath::Power(KNL_cR_minus,2)*sigR_minus + TMath::Power(KNL_cR_plus,2)*sigR_plus
     + TMath::Power(KNL_cS_minus,2)*sigS_minus + TMath::Power(KNL_cS_plus,2)*sigS_plus;
@@ -815,9 +815,9 @@ void BergerSehgalRESPXSec2014::LoadConfig(void)
   fOmega = fConfig->GetDoubleDef( "Omega", gc->GetDouble("RS-Omega") );
   LOG("RSHAmpl", pWARN)
     << "load Omega";
-  fKNL = fConfig->GetBoolDef("is_KNL", gc->GetBool("is_KNL"));
+  fKLN = fConfig->GetBoolDef("is_KLN", gc->GetBool("is_KLN"));
   LOG("RSHAmpl", pWARN)
-    << "load is_KNL";
+    << "load is_KLN";
   fBRS = fConfig->GetBoolDef("is_BRS", gc->GetBool("is_BRS"));
   fGA  = fConfig->GetBoolDef("minibooneGA", gc->GetBool("minibooneGA"));
   fGV  = fConfig->GetBoolDef("minibooneGV", gc->GetBool("minibooneGV"));

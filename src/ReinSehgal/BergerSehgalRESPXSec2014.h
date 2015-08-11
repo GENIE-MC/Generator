@@ -94,7 +94,7 @@ namespace genie {
       Spline * fNuTauBarRdSpl;     ///< xsec reduction spline for nu_tau_bar
 
 
-      bool fKNL;
+      bool fKLN;
       bool fBRS;
       bool fGA;
       bool fGV;
