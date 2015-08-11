@@ -128,7 +128,7 @@ void HNIntranuke2014::SimulateHadronicFinalState(GHepRecord* ev, GHepParticle* p
   // check particle id
   int pdgc = p->Pdg();
   bool is_pion    = (pdgc==kPdgPiP || pdgc==kPdgPiM || pdgc==kPdgPi0);
-  bool is_kaon    = (pdgc==kPdgKP);
+  // bool is_kaon    = (pdgc==kPdgKP);  // UNUSED variable - comment out to quiet compiler warning
   bool is_baryon  = (pdgc==kPdgProton || pdgc==kPdgNeutron);
   bool is_gamma   = (pdgc==kPdgGamma);										
   if(!(is_pion || is_baryon  || is_gamma))
