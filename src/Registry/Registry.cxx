@@ -336,7 +336,7 @@ void Registry::Set(RgKey key, RgTree item)
   SetRegistryItem(this, key, item); // call templated set method
 }
 //____________________________________________________________________________
-void Registry::Get(RgKey key, const RegistryItemI * item) const
+void Registry::Get(RgKey key, const RegistryItemI * & item) const
 {
   RgIMapConstIter entry = fRegistry.find(key);
   item = entry->second;

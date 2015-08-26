@@ -112,7 +112,7 @@ public:
   void   Set (RgKey key, RgH2F   item);
   void   Set (RgKey key, RgTree  item);
 
-  void   Get (RgKey key, const RegistryItemI * item) const;
+  void   Get (RgKey key, const RegistryItemI * & item) const;
   void   Get (RgKey key, RgBool & item) const;
   void   Get (RgKey key, RgInt &  item) const;
   void   Get (RgKey key, RgDbl &  item) const;
