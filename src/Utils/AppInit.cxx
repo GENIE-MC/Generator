@@ -26,6 +26,7 @@
 #include "Utils/XSecSplineList.h"
 #include "Utils/SystemUtils.h"
 #include "Utils/AppInit.h"
+#include "Utils/StringUtils.h"
 
 using namespace genie;
 
@@ -83,16 +84,20 @@ void genie::utils::app_init::XSecTable (string inpfile, bool require_table)
 
 }
 //___________________________________________________________________________
-void genie::utils::app_init::MesgThresholds(string inp_file)
+void genie::utils::app_init::MesgThresholds(string filelist)
 {
-  if(inp_file.size() > 0) {
-     Messenger * m = Messenger::Instance();
-     bool ok = m->SetPrioritiesFromXmlFile(inp_file);
-     if(!ok) {
-       LOG("AppInit", pWARN) 
+  std::vector<std::string> files = genie::utils::str::Split(filelist,":;,");
+  for (size_t i=0; i < files.size(); ++i ) {
+    std::string inp_file = files[i];
+    if(inp_file.size() > 0) {
+      Messenger * m = Messenger::Instance();
+      bool ok = m->SetPrioritiesFromXmlFile(inp_file);
+      if(!ok) {
+        LOG("AppInit", pWARN) 
           << "Could not load customized mesg thresholds from: " 
           << inp_file;
-     }
+      }
+    }
   }
 
 }
