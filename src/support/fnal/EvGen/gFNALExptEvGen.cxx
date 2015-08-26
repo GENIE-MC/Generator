@@ -330,6 +330,7 @@
 #include "Geo/ROOTGeomAnalyzer.h"
 #include "Geo/PointGeomAnalyzer.h"
 #include "Geo/GeomVolSelectorFiducial.h"
+#include "Geo/GeomVolSelectorRockBox.h"
 #endif
 
 using std::string;
@@ -345,6 +346,7 @@ void LoadExtraOptions   (void);
 void GetCommandLineArgs (int argc, char ** argv);
 void PrintSyntax        (void);
 void CreateFidSelection (string fidcut, GeomAnalyzerI* geom_driver);
+void CreateRockBoxSelection (string fidcut, GeomAnalyzerI* geom_driver);
 void DetermineFluxDriver(string fopt);
 void ParseFluxHst       (string fopt);
 void ParseFluxFileConfig(string fopt);
@@ -368,6 +370,7 @@ map<int,double> gOptTgtMix;                    // target mix  (tgt pdg -> wght f
 map<int,TH1D*>  gOptFluxHst;                   // flux histos (nu pdg  -> spectrum)  / if not using beam sim ntuples
 string          gOptRootGeom;                  // input ROOT file with realistic detector geometry
 string          gOptRootGeomTopVol = "";       // input geometry top event generation volume 
+string          gOptRootGeomMasterVol = "";    // (highest level of geometry)
 double          gOptGeomLUnits = 0;            // input geometry length units 
 double          gOptGeomDUnits = 0;            // input geometry density units 
 string          gOptExtMaxPlXml = "";          // max path lengths XML file for input geometry 
@@ -422,17 +425,21 @@ int main(int argc, char ** argv)
     // creating & configuring a root geometry driver
     geometry::ROOTGeomAnalyzer * rgeom = 
             new geometry::ROOTGeomAnalyzer(gOptRootGeom);
+    TGeoVolume * topvol = rgeom->GetGeometry()->GetTopVolume();
+    if ( ! topvol ) {
+      LOG("gevgen_numi", pFATAL) << "Null top ROOT geometry volume!";
+      exit(1);
+    }
+    // retrieve the master volume name
+    gOptRootGeomMasterVol = topvol->GetName();
+
     rgeom -> SetLengthUnits  (gOptGeomLUnits);
     rgeom -> SetDensityUnits (gOptGeomDUnits);
-    rgeom -> SetTopVolName   (gOptRootGeomTopVol);
+    rgeom -> SetTopVolName   (gOptRootGeomTopVol); // set user defined "topvol"
 
     // getting the bounding box dimensions along z so as to set the
     // appropriate upstream generation surface for the NuMI flux driver
-    TGeoVolume * topvol = rgeom->GetGeometry()->GetTopVolume();
-    if ( ! topvol ) {
-      LOG("gevgen_fnal", pFATAL) << "Null top ROOT geometry volume!";
-      exit(1);
-    }
+
     // RWH 2010-07-16:  do not try to automatically get zmin from geometry, rather
     // by default let the flux start from the window.  If the user wants to 
     // override this then they need to explicitly set a "zmin".   Trying to use
@@ -454,7 +461,9 @@ int main(int argc, char ** argv)
     geom_driver = dynamic_cast<GeomAnalyzerI *> (rgeom);
 
     // user specifid a fiducial volume cut ... parse that out
-    if ( gOptFidCut != "" ) CreateFidSelection(gOptFidCut,rgeom);
+    if ( gOptFidCut.find("rock") != std::string::npos )
+                                 CreateRockBoxSelection(gOptFidCut,rgeom);
+    else if ( gOptFidCut != "" ) CreateFidSelection(gOptFidCut,rgeom);
 
   } 
   else {
@@ -1371,7 +1380,7 @@ void CreateFidSelection (string fidcut, GeomAnalyzerI* geom_driver)
       LOG("gevgen_fnal", pFATAL) << "MakeBox needs 6 values, not " << nvals
                                 << " fidcut=\"" << fidcut << "\"";
     double xyzmin[3] = { vals[0], vals[1], vals[2] };
-    double xyzmax[3] = { vals[4], vals[5], vals[5] };
+    double xyzmax[3] = { vals[3], vals[4], vals[5] };
     fidsel->MakeBox(xyzmin,xyzmax);
 
   } else if ( stype.find("zpoly")  != string::npos ) {
@@ -1408,6 +1417,105 @@ void CreateFidSelection (string fidcut, GeomAnalyzerI* geom_driver)
   rgeom->AdoptGeomVolSelector(fidsel);
 
 }
+//____________________________________________________________________________
+void CreateRockBoxSelection (string fidcut, GeomAnalyzerI* geom_driver)
+{
+
+  if( fidcut.find_first_not_of(" \t\n") != 0) // trim any leading whitespace
+    fidcut.erase( 0, fidcut.find_first_not_of(" \t\n")  );
+  
+  // convert string to lowercase
+  std::transform(fidcut.begin(),fidcut.end(),fidcut.begin(),::tolower);
+  
+  genie::geometry::ROOTGeomAnalyzer * rgeom = 
+    dynamic_cast<genie::geometry::ROOTGeomAnalyzer *>(geom_driver);
+  if ( ! rgeom ) {
+    LOG("gevgen_numi", pWARN)
+      << "Can not create GeomVolSelectorRockBox,"
+      << " geometry driver is not ROOTGeomAnalyzer";
+    return;
+  }
+  
+  LOG("gevgen_numi", pWARN) << "fiducial (rock) cut: " << fidcut;
+  
+  // for now, only fiducial no "rock box"
+  genie::geometry::GeomVolSelectorRockBox* rocksel =
+    new genie::geometry::GeomVolSelectorRockBox();
+  
+  vector<string> strtok = genie::utils::str::Split(fidcut,":");
+  if ( strtok.size() != 2 ) {
+    LOG("gevgen_numi", pWARN) 
+      << "Can not create GeomVolSelectorRockBox,"
+      << " no \":\" separating type from values.  nsplit=" << strtok.size();
+    for ( unsigned int i=0; i < strtok.size(); ++i )
+      LOG("gevgen_numi", pWARN) 
+        << "strtok[" << i << "] = \"" << strtok[i] << "\"";
+    return;
+  }
+  
+  string stype = strtok[0];
+  
+  // parse out values
+  vector<double> vals;
+  vector<string> valstrs = genie::utils::str::Split(strtok[1]," ,;(){}[]\t\n\r");
+  vector<string>::const_iterator iter = valstrs.begin();
+  for ( ; iter != valstrs.end(); ++iter ) {
+    const string& valstr1 = *iter;
+    if ( valstr1 != "" ) {
+      double aval = atof(valstr1.c_str());
+      LOG("gevgen_numi", pWARN) << "rock value [" << vals.size() << "] "
+                                << aval;
+      vals.push_back(aval);
+    }
+  }
+  size_t nvals = vals.size();
+  
+  rocksel->SetRemoveEntries(true);  // drop segments that won't be considered
+  
+  // assume coordinates are in the *master* (not "top volume") system
+  // need to set fTopVolume to fWorldVolume 
+  //fTopVolume = fWorldVolume;
+  //rgeom->SetTopVolName(fTopVolume.c_str());
+  gOptRootGeomTopVol = gOptRootGeomMasterVol;
+  rgeom->SetTopVolName(gOptRootGeomMasterVol);
+
+  if ( nvals < 6 ) {
+    LOG("gevgen_numi", pFATAL)  << "rockbox needs at "
+                                << "least 6 values, found " 
+                                << nvals << "in \"" 
+                                << strtok[1] << "\"";
+    exit(1);
+    
+  }
+  double xyzmin[3] = { vals[0], vals[1], vals[2] };
+  double xyzmax[3] = { vals[3], vals[4], vals[5] };
+  
+  bool   rockonly  = true;
+  double wallmin   = 800.;   // geometry in cm, ( 8 meter buffer)
+  double dedx      = 2.5 * 1.7e-3; // GeV/cm, rho=2.5, 1.7e-3 ~ rock like loss
+  double fudge     = 1.05;
+  
+  if ( nvals >=  7 ) rockonly = vals[6];
+  if ( nvals >=  8 ) wallmin  = vals[7];
+  if ( nvals >=  9 ) dedx     = vals[8];
+  if ( nvals >= 10 ) fudge    = vals[9];
+  
+  rocksel->SetRockBoxMinimal(xyzmin,xyzmax);
+  rocksel->SetMinimumWall(wallmin);
+  rocksel->SetDeDx(dedx/fudge);
+
+  if ( nvals >= 11 ) rocksel->SetExpandFromInclusion((int)vals[10]);
+  
+  // if not rock-only then make a tiny exclusion bubble
+  // call to MakeBox shouldn't be necessary
+  //  should be done by SetRockBoxMinimal but for some GENIE versions isn't
+  if ( ! rockonly ) rocksel->MakeSphere(0,0,0,1.0e-10);
+  else              rocksel->MakeBox(xyzmin,xyzmax); 
+  
+  rgeom->AdoptGeomVolSelector(rocksel);
+
+}
+
 //____________________________________________________________________________
 void DetermineFluxDriver(string fopt) 
 {
