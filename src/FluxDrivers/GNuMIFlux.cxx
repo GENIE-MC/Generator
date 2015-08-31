@@ -1481,7 +1481,7 @@ void GNuMIFluxPassThroughInfo::ResetCopy()
   ntrajectory = 0;
   overflow    = false;
 
-  for ( unsigned int itclear = 0; itclear < MAX_N_TRAJ; itclear++ ) {
+  for ( int itclear = 0; itclear < MAX_N_TRAJ; itclear++ ) {
      pdgcode[itclear]  = 0;
      trackId[itclear]  = 0;
      parentId[itclear] = 0;
