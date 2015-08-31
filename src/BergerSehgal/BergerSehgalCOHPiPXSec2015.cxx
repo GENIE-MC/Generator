@@ -115,11 +115,18 @@ double BergerSehgalCOHPiPXSec2015::XSec(
   double sigel_pin   = utils::hadxs::berger::PionNucleonXSec(Epi, /* get_total = */ false, pionIsCharged);
   double siginel_pin = sigtot_pin - sigel_pin;
 
+  // fabs (F_{abs}) describes the average attenuation of a pion emerging
+  // from a sphere of nuclear matter with radius = R_0 A^{1/3}. it is 
+  // Eq. 13 in Berger-Sehgal PRD 79, 053003
   double fabs_input  = (9.0 * A_3) / (16.0 * kPi * Ro2);
   double fabs        = TMath::Exp( -1.0 * fabs_input * siginel_pin);
 
-  double factor      = 0.1; // to go from 10^-37 cm^2 -> 10^-38 cm^2
-  double RS_factor   = (units::mb*A2*fabs)/(16.0*kPi) * (sigtot_pin*sigtot_pin); //A_RS for BS version of RS, and/or Tpi>1.0
+  // my old hackery to get things to work, A. Mislivec provided a better alt.
+  // double factor      = 0.1; // to go from 10^-37 cm^2 -> 10^-38 cm^2
+  // double RS_factor   = (units::mb*A2*fabs)/(16.0*kPi) * (sigtot_pin*sigtot_pin);
+
+  // A_RS for BS version of RS, and/or Tpi>1.0
+  double RS_factor = (A2 * fabs) / (16.0 * kPi) * (sigtot_pin * sigtot_pin);
 
   // get the pion-nucleus cross section on carbon, fold it into differential cross section
   double tpi         = (E * y) - M_pi - ((Q2 + M_pi * M_pi) / (2 * M)); 
@@ -155,7 +162,7 @@ double BergerSehgalCOHPiPXSec2015::XSec(
       dsig +=   1.0  * front * Ga2 * t_width * dsigdtfit * units::mb;
     }
     else {
-      dsig += factor * front * Ga2 * t_width * RS_factor * exp(-1.0*b*t_itt);
+      dsig += /*factor **/ front * Ga2 * t_width * RS_factor * exp(-1.0*b*t_itt);
     }
 
   }
