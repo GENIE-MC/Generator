@@ -108,42 +108,28 @@ double BergerSehgalFMCOHPiPXSec2015::XSec(
 
   if ((costheta > 1.0) || (costheta < -1.0)) return 0.0;
 
-  // the xsec is d^3xsec/dQ^2dydt but the only t-dependent factor 
-  // is an exp(-bt) so it can be integrated analyticaly
-  // double R      = fRo * A_3 * units::fermi; // nuclear radius
-  // double R2     = TMath::Power(R, 2.);
-  // double b      = 0.33333 * R2;
-
-  /* const KPhaseSpace & kphase = interaction->PhaseSpace(); */
-  /* Range1D_t tl = kphase.TLim();   // TESTING! */
-
-  bool get_total = true;
-  double sigtot_pin  = utils::hadxs::berger::PionNucleonXSec(Epi, get_total, pionIsCharged);
-  get_total = false;
-  double sigel_pin   = utils::hadxs::berger::PionNucleonXSec(Epi, get_total, pionIsCharged);
-  double siginel_pin = sigtot_pin - sigel_pin;
-
-  double fabs_input  = (9.0 * A_3) / (16.0 * kPi * Ro2);
-  double fabs        = TMath::Exp( -1.0 * fabs_input * siginel_pin);
-
-  double factor      = 0.1; // to go from 10^-37 cm^2 -> 10^-38 cm^2
-  // A_RS for BS version of RS, and/or Tpi>1.0
-  double RS_factor   = (units::mb*A2*fabs)/(16.0*kPi) * (sigtot_pin*sigtot_pin); 
-
-  // TODO: Call new functions to look up BS pion xsec data as spline
-  double sTot   = utils::hadxs::berger::TotalPionNucleonXSec(Epi); // tot. pi+N xsec
+  // tot. pi+N xsec
+  double sTot   = 
+    utils::hadxs::berger::TotalPionNucleonXSec(Epi, pionIsCharged); 
   double sTot2  = sTot * sTot;
-  double sInel  = utils::hadxs::berger::InelasticPionNucleonXSec(Epi); // inel. pi+N xsec
+  // inel. pi+N xsec
+  double sInel  = 
+    utils::hadxs::berger::InelasticPionNucleonXSec(Epi, pionIsCharged); 
 
-  // effect of pion absorption in the nucleus
-  double Fabs   = TMath::Exp( -9. * A_3 * sInel / (16. * kPi * Ro2) );
-  double R      = fRo * A_3 * units::fermi; // nuclear radius
-  double R2     = R * R;
-  double b      = 0.33333 * R2;
-  double expbt  = TMath::Exp( -b * t );
+  // Fabs (F_{abs}) describes the average attenuation of a pion emerging
+  // from a sphere of nuclear matter with radius = R_0 A^{1/3}. it is 
+  // Eq. 13 in Berger-Sehgal PRD 79, 053003
+  double Fabs_input = (9.0 * A_3) / (16.0 * kPi * Ro2);
+  double Fabs       = TMath::Exp( -1.0 * Fabs_input * sInel);
 
-  double dsigEldt = sTot2 / (16. * kPi);
-  double dsigpiNdt = A2 * dsigEldt * expbt * Fabs;
+  // A_RS for BS version of RS, and/or Tpi>1.0
+  double RS_factor = (A2 * Fabs) / (16.0 * kPi) * (sTot2); 
+  double R         = fRo * A_3 * units::fermi; // nuclear radius
+  double R2        = R * R;                    // 
+  double b         = 0.33333 * R2;             // Eq. 12 in BS
+  double expbt     = TMath::Exp( -b * t );
+  double dsigEldt = sTot2 / (16. * kPi);            // Eq. 11 in BS
+  double dsigpiNdt = A2 * dsigEldt * expbt * Fabs;  // Eq. 10 in BS
 
   double tpilow    = 0.0;
   double siglow    = 0.0;
@@ -152,17 +138,16 @@ double BergerSehgalFMCOHPiPXSec2015::XSec(
   double dsigdt    = 0.0;
   double tpi       = 0.0;
   int    xsec_stat = 0;
-  // lab
-  /* tpi       = epi_lab - mpi; */
-  /* xsec_stat = utils::hadxs::berger::PionNucleusXSec( tpi, PAprime, t, A, tpilow, siglow, tpihigh, sighigh ); */
-  /* dsigdt    = siglow + (sighigh-siglow)*(tpi - tpilow)/(tpihigh - tpilow); */
+
   // c.o.m.
   tpi       = Epi - M_pi;
-  xsec_stat = utils::hadxs::berger::PionNucleusXSec( tpi, ppistar, t, A, tpilow, siglow, 
-      tpihigh, sighigh );
-  dsigdt    = siglow + (sighigh-siglow)*(tpi - tpilow)/(tpihigh - tpilow);
+  xsec_stat = 
+    utils::hadxs::berger::PionNucleusXSec(
+        tpi, ppistar, t, A, 
+        tpilow, siglow, 
+        tpihigh, sighigh);
+  dsigdt = siglow + (sighigh - siglow) * (tpi - tpilow) / (tpihigh - tpilow);
 
-  /* double edep_dsigpiNdt = epi_lab > 1.0 ? dsigpiNdt : dsigdt; */
   double edep_dsigpiNdt = Epi > 1.0 ? dsigpiNdt : dsigdt;
 
   xsec = front * Ga2 * edep_dsigpiNdt;
