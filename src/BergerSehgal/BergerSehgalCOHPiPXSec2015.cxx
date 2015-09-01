@@ -168,6 +168,28 @@ double BergerSehgalCOHPiPXSec2015::XSec(
   }
   xsec = dsig;
 
+  // Correction for finite final state lepton mass.
+  // Lepton mass modification is part of Berger-Sehgal and is not optional.
+  if (pionIsCharged) {
+    double C = 1.;
+    // First, we need to remove the leading G_{A}^2 which is required for NC.
+    xsec /= Ga2;
+    // Next, \cos^2 \theta_{Cabbibo} appears in the CC xsec, but not the NC.
+    xsec *= fCos8c2;
+    double ml    = interaction->FSPrimLepton()->Mass();
+    double ml2   = TMath::Power(ml,2);
+    double Q2min = ml2 * y/(1-y);
+    if(Q2 > Q2min) {
+      double C1 = TMath::Power(Ga - 0.5 * Q2min / (Q2 + kPionMass2), 2);
+      double C2 = 0.25 * y * Q2min * (Q2 - Q2min) / 
+        TMath::Power(Q2 + kPionMass2, 2);
+      C = C1 + C2;
+    } else {
+      C = 0.;
+    }
+    xsec *= (2. * C); // *2 is for CC vs NC in BS 
+  }
+
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("BergerSehgalCohPi", pDEBUG)
     << "\n momentum transfer .............. Q2    = " << Q2
@@ -179,30 +201,6 @@ double BergerSehgalCOHPiPXSec2015::XSec(
     << "\n nuclear size scale ............. Ro    = " << fRo
     << "\n pion absorption factor ......... Fabs  = " << fabs
     << "\n t integration range ............ [" << tmin << "," << tmax << "]"
-#endif
-
-  // Correction for finite final state lepton mass.
-  if (pionIsCharged) {
-    // Lepton mass modification is part of Berger-Sehgal and should not be optional.
-    double C = 1.;
-    // First, we need to remove the leading G_{A}^2 which is required for NC.
-    xsec /= Ga2;
-    // Next, \cos^2 \theta_{Cabbibo} appears in the CC xsec, but not the NC.
-    xsec *= fCos8c2;
-    double ml    = interaction->FSPrimLepton()->Mass();
-    double ml2   = TMath::Power(ml,2);
-    double Q2min = ml2 * y/(1-y);
-    if(Q2 > Q2min) {
-      double C1 = TMath::Power(Ga - 0.5 * Q2min / (Q2 + kPionMass2), 2);
-      double C2 = 0.25 * y * Q2min * (Q2 - Q2min) / TMath::Power(Q2 + kPionMass2, 2);
-      C = C1 + C2;
-    } else {
-      C = 0.;
-    }
-    xsec *= (2. * C); // *2 is for CC vs NC in BS 
-  }
-
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("BergerSehgalCohPi", pINFO)
     << "d2xsec/dQ2dy[COHPi] (Q2= " << Q2 << ", y="
     << y << ", E=" << E << ") = "<< xsec;
