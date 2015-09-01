@@ -128,7 +128,7 @@ double BergerSehgalFMCOHPiPXSec2015::XSec(
   double R2        = R * R;                    // 
   double b         = 0.33333 * R2;             // Eq. 12 in BS
   double expbt     = TMath::Exp( -b * t );
-  double dsigEldt = sTot2 / (16. * kPi);            // Eq. 11 in BS
+  double dsigEldt  = sTot2 / (16. * kPi);           // Eq. 11 in BS
   double dsigpiNdt = A2 * dsigEldt * expbt * Fabs;  // Eq. 10 in BS
 
   double tpilow    = 0.0;
@@ -147,29 +147,32 @@ double BergerSehgalFMCOHPiPXSec2015::XSec(
         tpilow, siglow, 
         tpihigh, sighigh);
   dsigdt = siglow + (sighigh - siglow) * (tpi - tpilow) / (tpihigh - tpilow);
+  dsigdt = dsigdt / (2.0 * ppistar * ppistar) * units::mb;
 
   double edep_dsigpiNdt = Epi > 1.0 ? dsigpiNdt : dsigdt;
 
   xsec = front * Ga2 * edep_dsigpiNdt;
 
-  if(interaction->ProcInfo().IsWeakCC()) { 
-    // Check whether a modification to Adler's PCAC theorem is applied for
-    // including the effect of the muon mass. 
-    // See Rein and Sehgal, PCAC and the Deficit of Forward Muons in pi+ 
-    // Production by Neutrinos, hep-ph/0606185
+  // Correction for finite final state lepton mass.
+  // Lepton mass modification is part of Berger-Sehgal and is not optional.
+  if (pionIsCharged) {
     double C = 1.;
+    // First, we need to remove the leading G_{A}^2 which is required for NC.
+    xsec /= Ga2;
+    // Next, \cos^2 \theta_{Cabbibo} appears in the CC xsec, but not the NC.
+    xsec *= fCos8c2;
     double ml    = interaction->FSPrimLepton()->Mass();
-    double Q2min = TMath::Power(ml,2.) * y / (1 - y);
-    if(Q2>Q2min) {
-      double mlc_q2_term = (Q2min/(Q2 + kPionMass2));
-      double massive_lepton_correction = 
-        TMath::Power( Ga - (1./2.)*mlc_q2_term, 2. ) +
-        (y/4) * (Q2 - Q2min) * mlc_q2_term;
-      C = 2.0 * fCos8c2 * massive_lepton_correction;
+    double ml2   = TMath::Power(ml,2);
+    double Q2min = ml2 * y/(1-y);
+    if(Q2 > Q2min) {
+      double C1 = TMath::Power(Ga - 0.5 * Q2min / (Q2 + kPionMass2), 2);
+      double C2 = 0.25 * y * Q2min * (Q2 - Q2min) / 
+        TMath::Power(Q2 + kPionMass2, 2);
+      C = C1 + C2;
     } else {
       C = 0.;
     }
-    xsec *= C; 
+    xsec *= (2. * C); // *2 is for CC vs NC in BS 
   }
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
@@ -184,9 +187,6 @@ double BergerSehgalFMCOHPiPXSec2015::XSec(
     << "\n nuclear size scale ............. Ro    = " << fRo
     << "\n pion absorption factor ......... Fabs  = " << Fabs
     << "\n t integration factor ........... tint  = " << tint;
-#endif
-
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("BergerSehgalFMCohPi", pINFO)
     << "d2xsec/dxdy[COHPi] (x= " << x << ", y="
     << y << ", E=" << E << ") = "<< xsec;
