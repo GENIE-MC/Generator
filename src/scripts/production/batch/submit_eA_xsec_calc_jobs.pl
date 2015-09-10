@@ -10,21 +10,22 @@
 #
 # Options:
 #    --version       : GENIE version number
-#   [--arch]         : <SL4_32bit, SL5_64bit>, default: SL5_64bit
+#   [--arch]         : <SL4.x86_32, SL5.x86_64, SL6.x86_64, ...>, default: SL6.x86_64
 #   [--production]   : default: <version>
 #   [--cycle]        : default: 01
 #   [--use-valgrind] : default: off
 #   [--batch-system] : <PBS, LSF, slurm, none>, default: PBS
 #   [--queue]        : default: prod
-#   [--softw-topdir] : default: /opt/ppd/t2k/softw/GENIE
+#   [--softw-topdir] : top level dir for softw installations, default: /opt/ppd/t2k/softw/GENIE/
+#   [--jobs-topdir]  : top level dir for job files, default: /opt/ppd/t2k/scratch/GENIE/
 #
-# Notes:
-#   * Use GENIE gspladd utility to merge the job outputs
+# Author:
+#   Costas Andreopoulos <costas.andreopoulos \st stfc.ac.uk>
+#   University of Liverpool & STFC Rutherford Appleton Laboratory
 #
-# Tested at the RAL/PPD Tier2 PBS batch farm.
-#
-# Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-# STFC, Rutherford Appleton Lab
+# Copyright:
+#   Copyright (c) 2003-2015, The GENIE Collaboration
+#   For the full text of the license visit http://copyright.genie-mc.org
 #----------------------------------------------------------------------
 
 use File::Path;
@@ -41,20 +42,22 @@ foreach (@ARGV) {
   if($_ eq '--batch-system')  { $batch_system  = $ARGV[$iarg+1]; }
   if($_ eq '--queue')         { $queue         = $ARGV[$iarg+1]; }
   if($_ eq '--softw-topdir')  { $softw_topdir  = $ARGV[$iarg+1]; }
+  if($_ eq '--jobs-topdir')   { $jobs_topdir   = $ARGV[$iarg+1]; }
   $iarg++;
 }
 die("** Aborting [Undefined GENIE version. Use the --version option]")
 unless defined $genie_version;
 
-$use_valgrind   = 0                          unless defined $use_valgrind;
-$arch           = "SL5_64bit"                unless defined $arch;
-$production     = "$genie_version"           unless defined $production;
-$cycle          = "01"                       unless defined $cycle;
-$batch_system   = "PBS"                      unless defined $batch_system;
-$queue          = "prod"                     unless defined $queue;
-$softw_topdir   = "/opt/ppd/t2k/softw/GENIE" unless defined $softw_topdir;
-$genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
-$jobs_dir       = "$softw_topdir/scratch/xsec\_eA-$production\_$cycle/";
+$use_valgrind   = 0                             unless defined $use_valgrind;
+$arch           = "SL6.x86_64"                  unless defined $arch;
+$production     = "$genie_version"              unless defined $production;
+$cycle          = "01"                          unless defined $cycle;
+$batch_system   = "PBS"                         unless defined $batch_system;
+$queue          = "prod"                        unless defined $queue;
+$softw_topdir   = "/opt/ppd/t2k/softw/GENIE"    unless defined $softw_topdir;
+$jobs_topdir    = "/opt/ppd/t2k/scratch/GENIE/" unless defined $jobs_topdir;
+$genie_setup    = "$softw_topdir/generator/builds/$arch/$genie_version-setup";
+$jobs_dir       = "$jobs_topdir/xsec\_eA-$production\_$cycle/";
 
 $nkots     = 200;
 $emax      =  35;

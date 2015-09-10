@@ -12,13 +12,14 @@
 #   [--flux-config]      : JNUBEAM config, <nominal, flat36mm, yshift2mm,...>, default: nominal
 #   [--flux-file-prefix] : JNUBEAM flux file prefix, default: nu.nd.
 #   [--flux-file-suffix] : JNUBEAM flux file suffix, default: .root
-#   [--arch]             : <SL4_32bit, SL5_64bit>, default: SL5_64bit
+#   [--arch]             : <SL4.x86_32, SL5.x86_64, SL6.x86_64, ...>, default: SL6.x86_64
 #   [--production]       : default: <version>
 #   [--cycle]            : default: 01
 #   [--use-valgrind]     : default: off
 #   [--batch-system]     : <PBS, LSF>, default: PBS
 #   [--queue]            : default: prod
-#   [--softw-topdir]     : default: /opt/ppd/t2k/softw/GENIE
+#   [--softw-topdir]     : top level dir for softw installations, default: /opt/ppd/t2k/softw/GENIE
+#   [--jobs-topdir]      : top level dir for job files, default: /opt/ppd/t2k/scratch/GENIE/
 #
 # Example:
 #   shell$ perl submit_t2k_nd280_mc_jobs.pl --flux-run 180 --version v2.4.0 --production mdc0 --cycle 01
@@ -50,6 +51,7 @@ foreach (@ARGV) {
   if($_ eq '--batch-system')      { $batch_system     = $ARGV[$iarg+1]; }
   if($_ eq '--queue')             { $queue            = $ARGV[$iarg+1]; }
   if($_ eq '--softw-topdir')      { $softw_topdir     = $ARGV[$iarg+1]; } 
+  if($_ eq '--jobs-topdir')       { $jobs_topdir      = $ARGV[$iarg+1]; }
   $iarg++;
 }
 die("** Aborting [Undefined flux file run #. Use the --flux-run option]")
@@ -57,25 +59,25 @@ unless defined $flux_run;
 die("** Aborting [Undefined GENIE version. Use the --version option]")
 unless defined $genie_version;
 
-$use_valgrind      = 0                          unless defined $use_valgrind;
-$arch              = "SL5_64bit"                unless defined $arch;
-$production        = "$genie_version"           unless defined $production;
-$cycle             = "01"                       unless defined $cycle;
-$batch_system      = "PBS"                      unless defined $batch_system;
-$queue             = "prod"                     unless defined $queue;
-$softw_topdir      = "/opt/ppd/t2k/softw/GENIE" unless defined $softw_topdir;
-$flux_version      = "10c"                      unless defined $flux_version;
-$flux_config       = "nominal"                  unless defined $flux_config;
-$flux_file_prefix  = "nu.nd."                   unless defined $flux_file_prefix;
-$flux_file_suffix  = ".root"                    unless defined $flux_file_suffix;
+$use_valgrind      = 0                             unless defined $use_valgrind;
+$arch              = "SL6.x86_64"                  unless defined $arch;
+$production        = "$genie_version"              unless defined $production;
+$cycle             = "01"                          unless defined $cycle;
+$batch_system      = "PBS"                         unless defined $batch_system;
+$queue             = "prod"                        unless defined $queue;
+$softw_topdir      = "/opt/ppd/t2k/softw/GENIE"    unless defined $softw_topdir;
+$flux_version      = "10c"                         unless defined $flux_version;
+$flux_config       = "nominal"                     unless defined $flux_config;
+$flux_file_prefix  = "nu.nd."                      unless defined $flux_file_prefix;
+$flux_file_suffix  = ".root"                       unless defined $flux_file_suffix;
+$jobs_topdir       = "/opt/ppd/t2k/scratch/GENIE/" unless defined $jobs_topdir;
 $job_pot           = "1E+18";
 $mcrun_base        = 10000000;
 $mcseed_base       = 210921029;
 $time_limit        = "30:00:00";
-$genie_setup       = "$softw_topdir/builds/$arch/$genie_version-setup";
-$production_dir    = "$softw_topdir/scratch";
+$genie_setup       = "$softw_topdir/generator/builds/$arch/$genie_version-setup";
 $inputs_dir        = "$softw_topdir/data/job_inputs";
-$job_dir           = "$production_dir/nd280mc-$production\_$cycle";
+$job_dir           = "$jobs_topdir/nd280mc-$production\_$cycle";
 $flux_dir          = "$inputs_dir/t2k_flux/$flux_version/nd/$flux_config";
 $flux_file         = "$flux_dir/$flux_file_prefix$flux_run$flux_file_suffix";
 $flux_det_loc      = "nd5";

@@ -18,8 +18,8 @@
 #   [--use-valgrind] : default: off
 #   [--batch-system]  : <PBS, LSF, slurm, HTCondor, HTCondor_PBS, none>, default: PBS
 #   [--queue]        : default: prod
-#   [--softw-topdir]  : top level dir for softw installations, default: /opt/ppd/t2k/softw/GENIE/generator
-#   [--jobs-topdir]   : top level dir for job files, default: /opt/ppd/t2k/softw/GENIE/scratch
+#   [--softw-topdir]  : top level dir for softw installations, default: /opt/ppd/t2k/softw/GENIE/
+#   [--jobs-topdir]   : top level dir for job files, default: /opt/ppd/t2k/scratch/GENIE/
 #
 # Author:
 #   Costas Andreopoulos <costas.andreopoulos \st stfc.ac.uk>
@@ -54,16 +54,16 @@ unless defined $genie_version;
 die("** Aborting [Undefined configuration file. Use the --config-file option. See examples in ?]")
 unless defined $config_file;
 
-$use_valgrind   = 0                                    unless defined $use_valgrind;
-$arch           = "SL6.x86_64"                         unless defined $arch;
-$production     = "routine_validation"                 unless defined $production;
-$cycle          = "01"                                 unless defined $cycle;
-$batch_system   = "PBS"                                unless defined $batch_system;
-$queue          = "prod"                               unless defined $queue;
-$softw_topdir   = "/opt/ppd/t2k/softw/GENIE/generator" unless defined $softw_topdir;
-$jobs_topdir    = "/opt/ppd/t2k/softw/GENIE/scratch"   unless defined $jobs_topdir;
+$use_valgrind   = 0                             unless defined $use_valgrind;
+$arch           = "SL6.x86_64"                  unless defined $arch;
+$production     = "routine_validation"          unless defined $production;
+$cycle          = "01"                          unless defined $cycle;
+$batch_system   = "PBS"                         unless defined $batch_system;
+$queue          = "prod"                        unless defined $queue;
+$softw_topdir   = "/opt/ppd/t2k/softw/GENIE/"   unless defined $softw_topdir;
+$jobs_topdir    = "/opt/ppd/t2k/scratch/GENIE/" unless defined $jobs_topdir;
 
-$genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
+$genie_setup    = "$softw_topdir/generator/builds/$arch/$genie_version-setup";
 $freenucsplines = "$softw_topdir/data/job_inputs/xspl/gxspl-vN-$genie_version.xml";
 $config         = basename($config_file,".list");
 $jobs_dir       = "$jobs_topdir/$genie_version-$production\_$cycle-xsec\_vA\_$config";
@@ -177,7 +177,7 @@ foreach(@targets)
         $batch_script = "$filename_template.htc";
         open(HTC, ">$batch_script") or die("Can not create the Condor submit description file: $batch_script");
         print HTC "Universe               = vanilla \n";
-        print HTC "Executable             = $softw_topdir/builds/$arch/$genie_version/src/scripts/production/batch/htcondor_exec.sh \n";
+        print HTC "Executable             = $softw_topdir/generator/builds/$arch/$genie_version/src/scripts/production/batch/htcondor_exec.sh \n";
         print HTC "Arguments              = $genie_setup $jobs_dir $gmkspl_cmd \n";
         print HTC "Log                    = $filename_template.log \n";
         print HTC "Output                 = $filename_template.out \n";

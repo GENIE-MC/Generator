@@ -9,24 +9,19 @@
 #   perl submit-vld_hadroatten.pl <options>
 #
 # Options:
-#    --version       : GENIE version number
-#    --run           : runs to submit (eg --run 101102 / --run 101102,154002 / -run all)
-#   [--model-enum]   : physics model enumeration, default: 0
-#   [--nsubruns]     : number of subruns per run, default: 1
-#   [--offset]       : subrun offset (for augmenting existing sample), default: 0
-#   [--arch]         : <SL4_32bit, SL5_64bit>, default: SL5_64bit
-#   [--production]   : production name, default: <version>
-#   [--cycle]        : cycle in current production, default: 01
-#   [--use-valgrind] : default: off
-#   [--batch-system] : <PBS, LSF, slurm, none>, default: PBS
-#   [--queue]        : default: prod
-#   [--softw-topdir] : default: /opt/ppd/t2k/softw/GENIE
-#
-# Tested at the RAL/PPD Tier2 PBS batch farm.
-#
-# Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-# STFC, Rutherford Appleton Lab
-#-----------------------------------------------------------------------------------------------------------
+#    --version        : GENIE version number
+#    --run            : runs to submit (eg --run 101102 / --run 101102,154002 / -run all)
+#   [--model-enum]    : physics model enumeration, default: 0
+#   [--nsubruns]      : number of subruns per run, default: 1
+#   [--offset]        : subrun offset (for augmenting existing sample), default: 0
+#   [--arch]          : <SL4.x86_32, SL5.x86_64, SL6.x86_64, ...>, default: SL6.x86_64
+#   [--production]    : production name, default: <version>
+#   [--cycle]         : cycle in current production, default: 01
+#   [--use-valgrind]  : default: off
+#   [--batch-system]  : <PBS, LSF, slurm, none>, default: PBS
+#   [--queue]         : default: prod
+#   [--softw-topdir]  : top level dir for softw installations, default: /opt/ppd/t2k/softw/GENIE/
+#   [--jobs-topdir]   : top level dir for job files, default: /opt/ppd/t2k/softw/scratch/GENIE/
 #
 # EVENT SAMPLES:
 #
@@ -51,6 +46,15 @@
 #
 #...................................................................................
 #
+# Author:
+#   Costas Andreopoulos <costas.andreopoulos \st stfc.ac.uk>
+#   University of Liverpool & STFC Rutherford Appleton Laboratory
+#
+# Copyright:
+#   Copyright (c) 2003-2015, The GENIE Collaboration
+#   For the full text of the license visit http://copyright.genie-mc.org
+#-----------------------------------------------------------------------------------------------------------
+#
 
 use File::Path;
 
@@ -70,6 +74,7 @@ foreach (@ARGV) {
   if($_ eq '--batch-system')  { $batch_system  = $ARGV[$iarg+1]; }
   if($_ eq '--queue')         { $queue         = $ARGV[$iarg+1]; }
   if($_ eq '--softw-topdir')  { $softw_topdir  = $ARGV[$iarg+1]; }  
+  if($_ eq '--jobs-topdir')   { $jobs_topdir   = $ARGV[$iarg+1]; }
   $iarg++;
 }
 die("** Aborting [Undefined GENIE version. Use the --version option]")
@@ -77,19 +82,20 @@ unless defined $genie_version;
 die("** Aborting [You need to specify which runs to submit. Use the --run option]")
 unless defined $runnu;
 
-$model_enum     = "0"                         unless defined $model_enum;
-$nsubruns       = 1                           unless defined $nsubruns;
-$offset         = 0                           unless defined $offset;
-$use_valgrind   = 0                           unless defined $use_valgrind;
-$arch           = "SL5_64bit"                 unless defined $arch;
-$production     = "$genie_version"            unless defined $production;
-$cycle          = "01"                        unless defined $cycle;
-$batch_system   = "PBS"                       unless defined $batch_system;
-$queue          = "prod"                      unless defined $queue;
-$softw_topdir   = "/opt/ppd/t2k/softw/GENIE"  unless defined $softw_topdir;
+$model_enum     = "0"                           unless defined $model_enum;
+$nsubruns       = 1                             unless defined $nsubruns;
+$offset         = 0                             unless defined $offset;
+$use_valgrind   = 0                             unless defined $use_valgrind;
+$arch           = "SL5_64bit"                   unless defined $arch;
+$production     = "$genie_version"              unless defined $production;
+$cycle          = "01"                          unless defined $cycle;
+$batch_system   = "PBS"                         unless defined $batch_system;
+$queue          = "prod"                        unless defined $queue;
+$softw_topdir   = "/opt/ppd/t2k/softw/GENIE"    unless defined $softw_topdir;
+$jobs_topdir    = "/opt/ppd/t2k/scratch/GENIE/" unless defined $jobs_topdir;
 $time_limit     = "60:00:00";
-$genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
-$jobs_dir       = "$softw_topdir/scratch/vld\_hadroatten-$production\_$cycle";
+$genie_setup    = "$softw_topdir/generator/builds/$arch/$genie_version-setup";
+$jobs_dir       = "$jobs_topdir/vld\_hadroatten-$production\_$cycle";
 $xspl_file      = "$softw_topdir/data/job_inputs/xspl/gxspl-eA-$genie_version.xml";
 $mcseed         = 210921029;
 $nev_per_subrun = 50000;
@@ -168,7 +174,8 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
        $curr_subrunnu = 10000 * $curr_runnu + 1000 * $model_enum + $isubrun + $offset;
        $curr_seed     = $mcseed + $isubrun + $offset;
        $fntemplate    = "$jobs_dir/hadroatten-$curr_subrunnu";
-       $grep_pipe     = "grep -B 20 -A 30 -i \"warn\\|error\\|fatal\"";
+#      $grep_pipe     = "grep -B 20 -A 30 -i \"warn\\|error\\|fatal\"";
+       $grep_pipe     = "grep -B 20 -A 30 -i fatal";
        $valgrind_cmd  = "valgrind --tool=memcheck --error-limit=no --leak-check=yes --show-reachable=yes";
        $evgen_opt     = "-n $nev_per_subrun -e $en -p $probe -t $tgt $fluxopt -r $curr_subrunnu --seed $curr_seed --cross-sections $xspl_file --event-generator-list $gevgl";
        $evgen_cmd     = "gevgen $evgen_opt | $grep_pipe &> $fntemplate.evgen.log";
