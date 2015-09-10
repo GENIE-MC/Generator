@@ -11,21 +11,25 @@
 #   [--flux-version]   : JNUBEAM flux version, <07a, 10a, 10c, 11a...>, default: 11a
 #   [--flux-config]    : JNUBEAM config, <nominal, yshift2mm,...>, default: nominal
 #   [--flux-hist-file] : JNUBEAM flux histogram file, default: sk_flux_histograms.root
-#   [--arch]           : <SL4_32bit, SL5_64bit>, default: SL5_64bit
+#   [--arch]           : <SL4.x86_32, SL5.x86_64, SL6.x86_64, ...>, default: SL6.x86_64
 #   [--production]     : default: <version>
 #   [--cycle]          : default: 01
 #   [--use-valgrind]   : default: off
 #   [--batch-system]   : <PBS, LSF>, default: PBS
 #   [--queue]          : default: prod
-#   [--softw-topdir]   : default: /opt/ppd/t2k/softw/GENIE
+#   [--softw-topdir]   : top level dir for softw installations, default: /opt/ppd/t2k/softw/GENIE
+#   [--jobs-topdir]    : top level dir for job files, default: /opt/ppd/t2k/scratch/GENIE/
 #
 # Example:
 #   shell& perl submit_t2k_superk_fhst_mc_jobs.pl --run 180 --neutrino numubar --version v2.5.1
 #
-# Tested at the RAL/PPD Tier2 PBS batch farm.
+# Author:
+#   Costas Andreopoulos <costas.andreopoulos \st stfc.ac.uk>
+#   University of Liverpool & STFC Rutherford Appleton Laboratory
 #
-# Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-# STFC, Rutherford Appleton Lab
+# Copyright:
+#   Copyright (c) 2003-2015, The GENIE Collaboration
+#   For the full text of the license visit http://copyright.genie-mc.org
 #----------------------------------------------------------------------------------------------------
 
 #!/usr/bin/perl
@@ -49,6 +53,7 @@ foreach (@ARGV) {
   if($_ eq '--batch-system')   { $batch_system   = $ARGV[$iarg+1]; }
   if($_ eq '--queue')          { $queue          = $ARGV[$iarg+1]; }
   if($_ eq '--softw-topdir')   { $softw_topdir   = $ARGV[$iarg+1]; }  
+  if($_ eq '--jobs-topdir')    { $jobs_topdir   = $ARGV[$iarg+1]; }
   $iarg++;
 }
 die("** Aborting [Undefined run number. Use the --run option]")
@@ -58,25 +63,25 @@ unless defined $neutrino;
 die("** Aborting [Undefined GENIE version. Use the --version option]")
 unless defined $genie_version; 
 
-$use_valgrind   = 0                            unless defined $use_valgrind;
-$arch           = "SL5_64bit"                  unless defined $arch;
-$production     = "$genie_version"             unless defined $production;
-$cycle          = "01"                         unless defined $cycle;
-$batch_system   = "PBS"                        unless defined $batch_system;
-$queue          = "prod"                       unless defined $queue;
-$softw_topdir   = "/opt/ppd/t2k/softw/GENIE"   unless defined $softw_topdir;
-$flux_version   = "11a"                        unless defined $flux_version;
-$flux_config    = "nominal"                    unless defined $flux_config;
-$flux_hist_file = "sk_flux_histograms.root"    unless defined $flux_hist_file;
+$use_valgrind   = 0                             unless defined $use_valgrind;
+$arch           = "SL6.x86_64"                  unless defined $arch;
+$production     = "$genie_version"              unless defined $production;
+$cycle          = "01"                          unless defined $cycle;
+$batch_system   = "PBS"                         unless defined $batch_system;
+$queue          = "prod"                        unless defined $queue;
+$softw_topdir   = "/opt/ppd/t2k/softw/GENIE"    unless defined $softw_topdir;
+$flux_version   = "11a"                         unless defined $flux_version;
+$flux_config    = "nominal"                     unless defined $flux_config;
+$flux_hist_file = "sk_flux_histograms.root"     unless defined $flux_hist_file;
+$jobs_topdir    = "/opt/ppd/t2k/scratch/GENIE/" unless defined $jobs_topdir;
 $nevents        = "2000";   
 $time_limit     = "05:00:00";
-$production_dir = "$softw_topdir/scratch";
 $inputs_dir     = "$softw_topdir/data/job_inputs";
-$genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
+$genie_setup    = "$softw_topdir/generator/builds/$arch/$genie_version-setup";
 $geom_tgt_mix   = "1000080160[0.8879],1000010010[0.1121]";
 $xspl_file      = "$inputs_dir/xspl/gxspl-t2k-$genie_version.xml";
 $flux_file      = "$inputs_dir/t2k_flux/$flux_version/sk/$flux_config/$flux_hist_file";
-$job_dir        = "$production_dir/skmc-$production\_$cycle-$neutrino";
+$job_dir        = "$jobs_topdir/skmc-$production\_$cycle-$neutrino";
 $file_prefix    = "genie_sk";
 
 %mcseed_base    = ( 'numu'    => '183221029',
@@ -127,7 +132,8 @@ $hst = $flux_hist_name {$neutrino};
 #
 $fntemplate    = "$job_dir/skjob-$mcrun";
 $ghep_file     = "$file_prefix.$production\_$cycle.$neutrino.$mcrun.ghep.root";
-$grep_pipe     = "grep -B 50 -A 50 -i \"warn\\|error\\|fatal\"";
+#$grep_pipe     = "grep -B 50 -A 50 -i \"warn\\|error\\|fatal\"";
+$grep_pipe     = "grep -B 50 -A 50 -i fatal";
 $valgrind_cmd  = "valgrind --tool=memcheck --error-limit=no --leak-check=yes --show-reachable=yes";
 $evgen_opt     = "-g $geom_tgt_mix -f $flux_file,$nu\[$hst\] -r $mcrun --seed $mcseed -n $nevents --cross-sections $xspl_file";
 $evgen_cmd     = "gevgen_t2k $evgen_opt | $grep_pipe &> $fntemplate.evgen.log";

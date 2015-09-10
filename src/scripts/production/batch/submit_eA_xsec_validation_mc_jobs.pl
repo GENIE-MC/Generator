@@ -1,5 +1,6 @@
 #!/usr/bin/perl
 
+#
 #-----------------------------------------------------------------------------------------------------------
 # Submit jobs to generate data needed for validating GENIE (e,e') differential cross-section modelling.
 #
@@ -12,22 +13,14 @@
 #   [--model-enum]   : physics model enumeration, default: 0
 #   [--nsubruns]     : number of subruns per run, default: 1
 # @ [--Emin]         : minimum energy (eg `--run 56Fe --Emin 1.500' will only run the standard iron jobs above 1.5 GeV)
-#   [--arch]         : <SL4_32bit, SL5_64bit>, default: SL5_64bit
+#   [--arch]         : <SL4.x86_32, SL5.x86_64, SL6.x86_64, ...>, default: SL6.x86_64
 #   [--production]   : production name, default: <model>_<version>
 #   [--cycle]        : cycle in current production, default: 01
 #   [--use-valgrind] : default: off
 #   [--batch-system] : <PBS, LSF, slurm, none>, default: PBS
 #   [--queue]        : default: prod
-#   [--softw-topdir] : default: /opt/ppd/t2k/softw/GENIE
-#
-# Tested at the RAL/PPD Tier2 PBS batch farm.
-#
-# Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-# STFC, Rutherford Appleton Lab
-#
-# Nick Prouse <nicholas.prouse06 \at imperial.ac.uk>
-# Imperial College London
-#-----------------------------------------------------------------------------------------------------------
+#   [--softw-topdir] : top level dir for softw installations, default: /opt/ppd/t2k/softw/GENIE/
+#   [--jobs-topdir]  : top level dir for job files, default: /opt/ppd/t2k/scratch/GENIE/
 #
 # Run number key: IZZZAAAEEEEEMxx
 #
@@ -37,6 +30,16 @@
 # EEEEE : energy used in MeV (eg 00680->0.68GeV, 02015->2.015GeV etc) 
 # M     : physics model enumeration, 0-9
 # xx    : sub-run ID, 00-99, 100k events each
+#
+#
+# Author:
+#   Costas Andreopoulos <costas.andreopoulos \st stfc.ac.uk>
+#   University of Liverpool & STFC Rutherford Appleton Laboratory
+# 
+# Copyright:
+#   Copyright (c) 2003-2015, The GENIE Collaboration
+#   For the full text of the license visit http://copyright.genie-mc.org
+#-----------------------------------------------------------------------------------------------------------
 #
 
 use File::Path;
@@ -57,6 +60,7 @@ foreach (@ARGV) {
   if($_ eq '--batch-system')  { $batch_system  = $ARGV[$iarg+1]; }
   if($_ eq '--queue')         { $queue         = $ARGV[$iarg+1]; }
   if($_ eq '--softw-topdir')  { $softw_topdir  = $ARGV[$iarg+1]; }  
+  if($_ eq '--jobs-topdir')   { $jobs_topdir   = $ARGV[$iarg+1]; }   
   $iarg++;
 }
 die("** Aborting [Undefined GENIE version. Use the --version option]")
@@ -67,16 +71,17 @@ unless defined $run;
 $model_enum     = "0"                                     unless defined $model_enum;
 $nsubruns       = 1                                       unless defined $nsubruns;
 $use_valgrind   = 0                                       unless defined $use_valgrind;
-$arch           = "SL5_64bit"                             unless defined $arch;
+$arch           = "SL6.x86_64"                            unless defined $arch;
 $production     = "$model_enum\_$genie_version"           unless defined $production;
 $cycle          = "01"                                    unless defined $cycle;
 $batch_system   = "PBS"                                   unless defined $batch_system;
 $queue          = "prod"                                  unless defined $queue;
 $softw_topdir   = "/opt/ppd/t2k/softw/GENIE"              unless defined $softw_topdir;
+$jobs_topdir    = "/opt/ppd/t2k/scratch/GENIE/"           unless defined $jobs_topdir;
 $time_limit     = "60:00:00";
-$genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
-$jobs_dir       = "$softw_topdir/scratch/eA-$production\_$cycle";
 $xspl_file      = "$softw_topdir/data/job_inputs/xspl/gxspl-eA-$genie_version.xml";
+$genie_setup    = "$softw_topdir/generator/builds/$arch/$genie_version-setup";
+$jobs_dir       = "$jobs_topdir/eA-$production\_$cycle";
 $mcseed         = 210921029;
 $nev_per_subrun = 100000;
 

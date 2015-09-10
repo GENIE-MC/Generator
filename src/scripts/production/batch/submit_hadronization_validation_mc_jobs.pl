@@ -16,8 +16,8 @@
 #   [--use-valgrind]  : default: off
 #   [--batch-system]  : <PBS, LSF, slurm, HTCondor, HTCondor_PBS, none>, default: PBS
 #   [--queue]         : default: prod
-#   [--softw-topdir]  : top level dir for softw installations, default: /opt/ppd/t2k/softw/GENIE/generator
-#   [--jobs-topdir]   : top level dir for job files, default: /opt/ppd/t2k/softw/GENIE/scratch
+#   [--softw-topdir]  : top level dir for softw installations, default: /opt/ppd/t2k/softw/GENIE/
+#   [--jobs-topdir]   : top level dir for job files, default: /opt/ppd/t2k/softw/scratch/GENIE/
 #
 #
 # EVENT SAMPLES:
@@ -64,15 +64,15 @@ foreach (@ARGV) {
 die("** Aborting [Undefined GENIE version. Use the --version option]")
 unless defined $genie_version;
 
-$nsubruns       = 1                                    unless defined $nsubruns;
-$use_valgrind   = 0                                    unless defined $use_valgrind;
-$arch           = "SL6.x86_64"                         unless defined $arch;
-$production     = "routine_validation"                 unless defined $production;
-$cycle          = "01"                                 unless defined $cycle;
-$batch_system   = "PBS"                                unless defined $batch_system;
-$queue          = "prod"                               unless defined $queue;
-$softw_topdir   = "/opt/ppd/t2k/softw/GENIE/generator" unless defined $softw_topdir;
-$jobs_topdir    = "/opt/ppd/t2k/softw/GENIE/scratch"   unless defined $jobs_topdir;  
+$nsubruns       = 1                             unless defined $nsubruns;
+$use_valgrind   = 0                             unless defined $use_valgrind;
+$arch           = "SL6.x86_64"                  unless defined $arch;
+$production     = "routine_validation"          unless defined $production;
+$cycle          = "01"                          unless defined $cycle;
+$batch_system   = "PBS"                         unless defined $batch_system;
+$queue          = "prod"                        unless defined $queue;
+$softw_topdir   = "/opt/ppd/t2k/softw/GENIE/"   unless defined $softw_topdir;
+$jobs_topdir    = "/opt/ppd/t2k/scratch/GENIE/" unless defined $jobs_topdir;  
 $time_limit     = "60:00:00";
 $genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
 $xspl_file      = "$softw_topdir/data/job_inputs/xspl/gxspl-vN-$genie_version.xml";
@@ -106,10 +106,10 @@ $nev_per_subrun = 100000;
   '1300' =>  'HadronizationTest',
 );
 %evg_fluxopt_hash = ( 
-  '1000' =>  '-f "1/x"',
-  '1100' =>  '-f "1/x"',
-  '1200' =>  '-f "1/x"',
-  '1300' =>  '-f "1/x"',
+  '1000' =>  '-f \"1/x\"',
+  '1100' =>  '-f \"1/x\"',
+  '1200' =>  '-f \"1/x\"',
+  '1300' =>  '-f \"1/x\"',
 );
 
 # make the jobs directory
@@ -141,7 +141,8 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
        $curr_seed         = $mcseed + $isubrun;
        $jobname           = "hadro-$curr_subrunnu";
        $filename_template = "$jobs_dir/$jobname";
-       $grep_pipe         = "grep -B 20 -A 30 -i \"warn\\|error\\|fatal\"";
+#       $grep_pipe         = "grep -B 20 -A 30 -i \"warn\\|error\\|fatal\"";
+       $grep_pipe         = "grep -B 20 -A 30 -i fatal";
        $valgrind_cmd      = "valgrind --tool=memcheck --error-limit=no --leak-check=yes --show-reachable=yes";
        $evgen_opt         = "-n $nev_per_subrun -e $en -p $nu -t $tgt $fluxopt -r $curr_subrunnu --seed $curr_seed --cross-sections $xspl_file --event-generator-list $gevgl";
        $evgen_cmd         = "gevgen $evgen_opt | $grep_pipe &> $filename_template.evgen.log";
@@ -194,7 +195,7 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
            $batch_script = "$filename_template.htc";
            open(HTC, ">$batch_script") or die("Can not create the Condor submit description file: $batch_script");
            print HTC "Universe               = vanilla \n";
-           print HTC "Executable             = $softw_topdir/builds/$arch/$genie_version/src/scripts/production/batch/htcondor_exec.sh \n";
+           print HTC "Executable             = $softw_topdir/generator/builds/$arch/$genie_version/src/scripts/production/batch/htcondor_exec.sh \n";
            print HTC "Arguments              = $genie_setup $jobs_dir $evgen_cmd \n";
            print HTC "Log                    = $filename_template.log \n";
            print HTC "Output                 = $filename_template.out \n";
