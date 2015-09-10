@@ -33,6 +33,7 @@
   <priority msgstream="BardinIMD">           FATAL   </priority>
   <priority msgstream="BaryonResList">       FATAL   </priority>
   <priority msgstream="BaseHad">             FATAL   </priority>
+  <priority msgstream="BSKLNBaseRESPXSec2014">    FATAL   </priority>
   <priority msgstream="BergerSehgalRESPXSec2014"> FATAL   </priority>
   <priority msgstream="BreitWignet">         FATAL   </priority>
   <priority msgstream="Bardin">              FATAL   </priority>

@@ -34,6 +34,7 @@
   <priority msgstream="BardinIMD">           NOTICE </priority>
   <priority msgstream="BaryonResList">       WARN   </priority>
   <priority msgstream="BaseHad">             NOTICE </priority>
+  <priority msgstream="BSKLNBaseRESPXSec2014">    INFO   </priority>
   <priority msgstream="BergerSehgalRESPXSec2014"> INFO   </priority>
   <priority msgstream="BreitWignet">         INFO   </priority>
   <priority msgstream="Bardin">              INFO   </priority>
