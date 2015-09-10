@@ -16,18 +16,22 @@
 #                        To process the first 10000 events, type `--nevents 10000'.
 #                        To process the 3000 events between 1000 and 4999, type `--nevents 1000,4999'.
 #   [--output-weights] : Output weight file. Default: weights_<name of systematic>.root
-#   [--arch]           : <SL4_32bit, SL5_64bit>. Default: SL5_64bit
+#   [--arch]           : <SL4.x86_32, SL5.x86_64, SL6.x86_64, ...>, default: SL6.x86_64
 #   [--production]     : Production name. Default: <version>
 #   [--cycle]          : Cycle in current production. Default: 01
 #   [--use-valgrind]   : Use Valgrind? Default: off
 #   [--batch-system]   : Batch system: <PBS, LSF, slurm, none>. Default: PBS
 #   [--queue]          : Batch queue. Default: prod
-#   [--softw-topdir]   : Software installation top directory. Default: /opt/ppd/t2k/softw/GENIE
+#   [--softw-topdir]   : top level dir for softw installations, default: /opt/ppd/t2k/softw/GENIE/
+#   [--jobs-topdir]    : top level dir for job files, default: /opt/ppd/t2k/softw/scratch/GENIE/
 #
-# Tested at the RAL/PPD Tier2 PBS batch farm.
+# Author:
+#   Costas Andreopoulos <costas.andreopoulos \st stfc.ac.uk>
+#   University of Liverpool & STFC Rutherford Appleton Laboratory
 #
-# Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-# STFC, Rutherford Appleton Lab
+# Copyright:
+#   Copyright (c) 2003-2015, The GENIE Collaboration
+#   For the full text of the license visit http://copyright.genie-mc.org
 #-----------------------------------------------------------------------------------------------------------
 #
 
@@ -49,6 +53,7 @@ foreach (@ARGV) {
   if($_ eq '--batch-system')   { $batch_system   = $ARGV[$iarg+1]; }
   if($_ eq '--queue')          { $queue          = $ARGV[$iarg+1]; }
   if($_ eq '--softw-topdir')   { $softw_topdir   = $ARGV[$iarg+1]; }  
+  if($_ eq '--jobs-topdir')    { $jobs_topdir    = $ARGV[$iarg+1]; }
   $iarg++;
 }
 die("** Aborting [Undefined GENIE version. Use the --version option]")
@@ -58,17 +63,18 @@ unless defined $syst;
 die("** Aborting [You need to specify an input event file. Use the --input-events option]")
 unless defined $input-events;
 
-$use_valgrind   = 0                           unless defined $use_valgrind;
-$arch           = "SL5_64bit"                 unless defined $arch;
-$production     = "$genie_version"            unless defined $production;
-$cycle          = "01"                        unless defined $cycle;
-$batch_system   = "PBS"                       unless defined $batch_system;
-$queue          = "prod"                      unless defined $queue;
-$softw_topdir   = "/opt/ppd/t2k/softw/GENIE"  unless defined $softw_topdir;
+$use_valgrind   = 0                             unless defined $use_valgrind;
+$arch           = "SL6.x86_64"                  unless defined $arch;
+$production     = "$genie_version"              unless defined $production;
+$cycle          = "01"                          unless defined $cycle;
+$batch_system   = "PBS"                         unless defined $batch_system;
+$queue          = "prod"                        unless defined $queue;
+$softw_topdir   = "/opt/ppd/t2k/softw/GENIE"    unless defined $softw_topdir;
+$jobs_topdir    = "/opt/ppd/t2k/scratch/GENIE/" unless defined $jobs_topdir;
 $time_limit     = "60:00:00";
-$genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
-$jobs_dir       = "$softw_topdir/scratch/vAsyst-$production\_$cycle";
-$gexec          = "grwght1scan"; # name of GENIE executable (src code in $GENIE/src/rwght/ in v2.7.1 and above)
+$genie_setup    = "$softw_topdir/generator/builds/$arch/$genie_version-setup";
+$jobs_dir       = "$jobs_topdir/rwght1scan-$production\_$cycle";
+$gexec          = "grwght1scan"; 
 
 %def_ntwkdials = ( 
  'MaNCEL'              =>  '3',

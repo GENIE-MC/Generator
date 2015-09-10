@@ -5,24 +5,31 @@
 #    % perl submit.pl <options>
 #
 # Options:
-#    --cmd           : Command(s) to execute
-#    --version       : GENIE version number
-#   [--job-name]     : default: tmp-(random_number)
-#   [--arch]         : <SL4_32bit, SL5_64bit>, default: SL5_64bit
-#   [--production]   : default: routine_validation
-#   [--cycle]        : default: 01
-#   [--batch-system] : <PBS, LSF, none>, default: PBS
-#   [--queue]        : default: prod
-#   [--softw-topdir] : default: /opt/ppd/t2k/softw/GENIE
+#    --cmd              : Command(s) to execute
+#    --version          : GENIE version number
+#   [--job-name]        : default: tmp-(random_number)
+#   [--arch]            : <SL4.x86_32, SL5.x86_64, SL6.x86_64, ...>, default: SL6.x86_64
+#   [--production]      : default: routine_validation
+#   [--cycle]           : default: 01
+#   [--batch-system]    : <PBS, LSF, none>, default: PBS
+#   [--queue]           : default: prod
+#   [--softw-topdir]    : top level dir for softw installations, default: /opt/ppd/t2k/softw/GENIE/
+#   [--jobs-topdir]     : top level dir for job files, default: /opt/ppd/t2k/softw/scratch/GENIE/
 #
 # Example:
 #   % perl submit.pl 
-#     --cmd 'gevgen -p 14 -t 1000260560 -e 1 --cross-sections /some/path/xsec.xml --seed 1989298 --r 100; mv gntp.100.ghep.root /some/other/path/'
-#     --version v2.8.0 
+#     --cmd 'gevgen -p 14 -t 1000260560 -e 1 --cross-sections /some/path/xsec.xml \
+#     --seed 1989298 --r 100; mv gntp.100.ghep.root /some/other/path/' \
+#     --version v2.8.0 \
 #     --job-name numuFe100
 #
-# Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-# STFC, Rutherford Appleton Lab
+# Author:
+#   Costas Andreopoulos <costas.andreopoulos \st stfc.ac.uk>
+#   University of Liverpool & STFC Rutherford Appleton Laboratory
+#
+# Copyright:
+#   Copyright (c) 2003-2015, The GENIE Collaboration
+#   For the full text of the license visit http://copyright.genie-mc.org
 #-------------------------------------------------------------------------------------------
 
 #!/usr/bin/perl
@@ -40,6 +47,7 @@ foreach (@ARGV) {
   if($_ eq '--batch-system')  { $batch_system    = $ARGV[$iarg+1]; }
   if($_ eq '--queue')         { $queue           = $ARGV[$iarg+1]; }
   if($_ eq '--softw-topdir')  { $softw_topdir    = $ARGV[$iarg+1]; }
+  if($_ eq '--jobs-topdir')   { $jobs_topdir     = $ARGV[$iarg+1]; }
   $iarg++;
 }
 die("** Aborting [Undefined GENIE command. Use the --cmd option]")
@@ -49,16 +57,16 @@ unless defined $genie_version;
 
 $random_num = int (rand(999999999));
 
-$name              = "tmp-$random_num"          unless defined $name;
-$arch              = "SL5_64bit"                unless defined $arch;
-$production        = "routine_validation"       unless defined $production;
-$cycle             = "01"                       unless defined $cycle;
-$batch_system      = "PBS"                      unless defined $batch_system;
-$queue             = "prod"                     unless defined $queue;
-$softw_topdir      = "/opt/ppd/t2k/softw/GENIE" unless defined $softw_topdir;
-
-$genie_setup       = "$softw_topdir/builds/$arch/$genie_version-setup";
-$job_dir           = "$softw_topdir/scratch/$genie_version-$production\_$cycle-$name";
+$name           = "tmp-$random_num"             unless defined $name;
+$arch           = "SL6.x86_64"                  unless defined $arch;
+$production     = "routine_validation"          unless defined $production;
+$cycle          = "01"                          unless defined $cycle;
+$batch_system   = "PBS"                         unless defined $batch_system;
+$queue          = "prod"                        unless defined $queue;
+$softw_topdir   = "/opt/ppd/t2k/softw/GENIE"    unless defined $softw_topdir;
+$jobs_topdir    = "/opt/ppd/t2k/scratch/GENIE/" unless defined $jobs_topdir;
+$genie_setup    = "$softw_topdir/generator/builds/$arch/$genie_version-setup";
+$job_dir        = "$jobs_topdir/$genie_version-$production\_$cycle-$name";
 
 # make the job directory
 #
