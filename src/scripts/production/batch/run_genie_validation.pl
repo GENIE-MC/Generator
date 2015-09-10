@@ -10,15 +10,21 @@
 #   [--user]            : username, used for monitoring job progress, default: candreop
 #   [--ref-data-topdir] : path to output files from a previous production used for reference
 #   [--ref-data-label]  : 
-#   [--arch]            : <SL4_32bit, SL5_64bit>, default: SL5_64bit
+#   [--arch]            : <SL4.x86_32, SL5.x86_64, SL6.x86_64, ...>, default: SL6.x86_64
 #   [--production]      : default: routine_validation
 #   [--cycle]           : default: 01
 #   [--batch-system]    : <PBS, LSF>, default: PBS (currently works only for PBS)
 #   [--queue]           : default: prod
-#   [--softw-topdir]    : default: /opt/ppd/t2k/softw/GENIE
+#   [--softw-topdir]  : top level dir for softw installations, default: /opt/ppd/t2k/softw/GENIE/
+#   [--jobs-topdir]   : top level dir for job files, default: /opt/ppd/t2k/softw/scratch/GENIE/
 #
-# Costas Andreopoulos <costas.andreopoulos \st stfc.ac.uk>
-# STFC, Rutherford Appleton Lab
+# Author:
+#   Costas Andreopoulos <costas.andreopoulos \st stfc.ac.uk>
+#   University of Liverpool & STFC Rutherford Appleton Laboratory
+#
+# Copyright:
+#   Copyright (c) 2003-2015, The GENIE Collaboration
+#   For the full text of the license visit http://copyright.genie-mc.org
 #---------------------------------------------------------------------------------------
 
 #!/usr/bin/perl
@@ -36,6 +42,7 @@ foreach (@ARGV) {
   if($_ eq '--batch-system')    { $batch_system  = $ARGV[$iarg+1]; }
   if($_ eq '--queue')           { $queue         = $ARGV[$iarg+1]; }
   if($_ eq '--softw-topdir')    { $softw_topdir  = $ARGV[$iarg+1]; }
+  if($_ eq '--jobs-topdir')     { $jobs_topdir   = $ARGV[$iarg+1]; }
   $iarg++;
 }
 die("** Aborting [Undefined GENIE version. Use the --version option]")
@@ -43,21 +50,21 @@ unless defined $genie_version;
 
 $user           = "candreop"                    unless defined $user;
 $ref_label      = "reference"                   unless defined $ref_label;
-$arch           = "SL5_64bit"                   unless defined $arch;
+$arch           = "SL6.x86_64"                  unless defined $arch;
 $production     = "routine_validation"          unless defined $production;
 $cycle          = "01"                          unless defined $cycle;
 $batch_system   = "PBS"                         unless defined $batch_system;
 $queue          = "prod"                        unless defined $queue;
 $softw_topdir   = "/opt/ppd/t2k/softw/GENIE"    unless defined $softw_topdir;
+$jobs_topdir    = "/opt/ppd/t2k/scratch/GENIE/" unless defined $jobs_topdir;
 
 $out_data_dir   = "$softw_topdir/data/stage/$genie_version-$production\_$cycle";
 $inp_data_dir   = "$softw_topdir/data/job_inputs/";
-$job_dir        = "$softw_topdir/scratch/";
-$genie_setup    = "$softw_topdir/builds/$arch/$genie_version-setup";
-$genie_topdir   = "$softw_topdir/builds/$arch/$genie_version/";
+$genie_setup    = "$softw_topdir/generator/builds/$arch/$genie_version-setup";
+$genie_topdir   = "$softw_topdir/generator/builds/$arch/$genie_version/";
 $scripts_dir    = "$genie_topdir/src/scripts/production/batch/";
 $scripts_dir2   = "$genie_topdir/src/scripts/production/misc/";
-$status_file    = "$job_dir/$genie_version-$production\_$cycle.status";
+$status_file    = "$jobs_topdir/$genie_version-$production\_$cycle.status";
 
 $std_args  = "--version $genie_version " .
              "--arch $arch " .
@@ -133,7 +140,7 @@ if($status eq "calculating neutrino-nucleon cross-section splines")
 
    # Make sure there is one output XML file for each input PBS script
    print "Making sure all output files are present... \n";
-   my $ret = check_number_of_xml_and_pbs_files("$job_dir/$genie_version-$production\_$cycle-xsec\_vN/");
+   my $ret = check_number_of_xml_and_pbs_files("$jobs_topdir/$genie_version-$production\_$cycle-xsec\_vN/");
    if($ret != 0) {
      print "The number of output XML files does not match the number of input PBS files. \n";       
      print "Some of the batch jobs have failed. \n"; 
@@ -143,8 +150,8 @@ if($status eq "calculating neutrino-nucleon cross-section splines")
 
    # Check log files for errors
    print "Checking for errors... \n";
-   $nerr = `more $job_dir/$genie_version-$production\_$cycle-xsec\_vN/*log | grep -i error | wc -l`
-         + `more $job_dir/$genie_version-$production\_$cycle-xsec\_vN/*log | grep -i fatal | wc -l`;
+   $nerr = `more $jobs_topdir/$genie_version-$production\_$cycle-xsec\_vN/*log | grep -i error | wc -l`
+         + `more $jobs_topdir/$genie_version-$production\_$cycle-xsec\_vN/*log | grep -i fatal | wc -l`;
    if($nerr > 0)
    {
       print "I found $nerr errors in the neutrino-nucleon cross-section calculation job log-files. \n";       
@@ -155,7 +162,7 @@ if($status eq "calculating neutrino-nucleon cross-section splines")
    # Merge all XML files to one and copy to standard locations
    print "Merging all free nucleon cross-section XML files... \n";
    $cmd = "source $genie_setup; " .
-          "gspladd -d $job_dir/$genie_version-$production\_$cycle-xsec\_vN/ -o gxspl-vN-$genie_version.xml; " .
+          "gspladd -d $jobs_topdir/$genie_version-$production\_$cycle-xsec\_vN/ -o gxspl-vN-$genie_version.xml; " .
           "cp gxspl-vN-$genie_version.xml $inp_data_dir/xspl/; " .
           "cp gxspl-vN-$genie_version.xml $out_data_dir/xsec/; " .
           "rm -f gxspl-vN-$genie_version.xml";
@@ -251,7 +258,7 @@ if($status eq "calculating neutrino-nucleus cross-section splines")
 
    # Make sure there is one output XML file for each input PBS script
    print "Making sure all output files are present... \n";
-   my $ret = check_number_of_xml_and_pbs_files("$job_dir/$genie_version-$production\_$cycle-xsec\_vA\_genie\_test/");
+   my $ret = check_number_of_xml_and_pbs_files("$jobs_topdir/$genie_version-$production\_$cycle-xsec\_vA\_genie\_test/");
    if($ret != 0) {
      print "The number of output XML files does not match the number of input PBS files. \n";       
      print "Some of the batch jobs have failed. \n"; 
@@ -261,8 +268,8 @@ if($status eq "calculating neutrino-nucleus cross-section splines")
 
    # Check log files for errors
    print "Checking for errors... \n";
-   $nerr = `more $job_dir/$genie_version-$production\_$cycle-xsec\_vA\_genie\_test/*log | grep -i error | wc -l`
-         + `more $job_dir/$genie_version-$production\_$cycle-xsec\_vA\_genie\_test/*log | grep -i fatal | wc -l`;
+   $nerr = `more $jobs_topdir/$genie_version-$production\_$cycle-xsec\_vA\_genie\_test/*log | grep -i error | wc -l`
+         + `more $jobs_topdir/$genie_version-$production\_$cycle-xsec\_vA\_genie\_test/*log | grep -i fatal | wc -l`;
    if($nerr >= 0)
    {
       print "I found $nerr errors in the neutrino-nucleus cross-section calculation job log-files. \n";       
@@ -277,7 +284,7 @@ if($status eq "calculating neutrino-nucleus cross-section splines")
    # Merge all XML files to one and copy to standard locations
    print "Merging all neutrino-nucleus cross-section XML files... \n";
    $cmd = "source $genie_setup; " .
-          "gspladd -d $job_dir/$genie_version-$production\_$cycle-xsec\_vA\_genie\_test/ -o gxspl-vA-$genie_version.xml; " .
+          "gspladd -d $jobs_topdir/$genie_version-$production\_$cycle-xsec\_vA\_genie\_test/ -o gxspl-vA-$genie_version.xml; " .
           "cp gxspl-vA-$genie_version.xml $inp_data_dir/xspl/; " .
           "cp gxspl-vA-$genie_version.xml $out_data_dir/xsec/; " .
           "rm -f gxspl-vA-$genie_version.xml";
@@ -319,8 +326,8 @@ if($status eq "running standard neutrino MC jobs")
    # Check log files for errors and make sure there is one output ROOT file for each input PBS script
    #
    print "Checking for errors... \n";
-   $nerr = `more $job_dir/$genie_version-$production\_$cycle-mctest/*log | grep -i error | wc -l`
-         + `more $job_dir/$genie_version-$production\_$cycle-mctest/*log | grep -i fatal | wc -l`;
+   $nerr = `more $jobs_topdir/$genie_version-$production\_$cycle-mctest/*log | grep -i error | wc -l`
+         + `more $jobs_topdir/$genie_version-$production\_$cycle-mctest/*log | grep -i fatal | wc -l`;
    if($nerr > 0)
    {
       print "I found $nerr errors in the standard neutrino MC job log-files. \n";       
@@ -328,7 +335,7 @@ if($status eq "running standard neutrino MC jobs")
 #      exit;
    }
    print "Checking the number of output ROOT/GHEP files... \n";
-   opendir my $dir, "$job_dir/$genie_version-$production\_$cycle-mctest/" or die "Can not open directory: $!";
+   opendir my $dir, "$jobs_topdir/$genie_version-$production\_$cycle-mctest/" or die "Can not open directory: $!";
    my @evtfiles  = grep { /.ghep.root$/ } readdir $dir;
    rewinddir $dir;
    my @pbsfiles  = grep { /.pbs$/       } readdir $dir;
@@ -343,8 +350,8 @@ if($status eq "running standard neutrino MC jobs")
       exit;
    }
 
-   $cmd = "mv $job_dir/$genie_version-$production\_$cycle-mctest/*ghep.root $out_data_dir/mctest/ghep/; " .
-          "mv $job_dir/$genie_version-$production\_$cycle-mctest/*gst.root  $out_data_dir/mctest/gst/";
+   $cmd = "mv $jobs_topdir/$genie_version-$production\_$cycle-mctest/*ghep.root $out_data_dir/mctest/ghep/; " .
+          "mv $jobs_topdir/$genie_version-$production\_$cycle-mctest/*gst.root  $out_data_dir/mctest/gst/";
    execute_command($cmd);
    update_status_file($status_file,"done running standard neutrino MC jobs");
    exit;
@@ -549,8 +556,8 @@ if($status eq "running MC jobs for cross-section model validation")
    if($njobs > 0) {
       exit;
    }
-   $cmd = "mv $job_dir/$genie_version-$production\_$cycle-xsec_validation/*ghep.root $out_data_dir/xsec_validation/ghep/; " .
-          "mv $job_dir/$genie_version-$production\_$cycle-xsec_validation/*gst.root  $out_data_dir/xsec_validation/gst/";
+   $cmd = "mv $jobs_topdir/$genie_version-$production\_$cycle-xsec_validation/*ghep.root $out_data_dir/xsec_validation/ghep/; " .
+          "mv $jobs_topdir/$genie_version-$production\_$cycle-xsec_validation/*gst.root  $out_data_dir/xsec_validation/gst/";
    execute_command($cmd);
    update_status_file($status_file,"done running MC jobs for cross-section model validation");
    exit;
@@ -671,7 +678,7 @@ if($status eq "running MC jobs for hadronization model validation")
    if($njobs > 0) {
       exit;
    }
-   $cmd = "mv $job_dir/$genie_version-$production\_$cycle-hadronization/*ghep.root $out_data_dir/hadronization/ghep/";
+   $cmd = "mv $jobs_topdir/$genie_version-$production\_$cycle-hadronization/*ghep.root $out_data_dir/hadronization/ghep/";
    execute_command($cmd);
    update_status_file($status_file,"done running MC jobs for hadronization model validation");
    exit;
