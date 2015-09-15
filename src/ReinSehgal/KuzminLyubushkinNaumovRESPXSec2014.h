@@ -1,9 +1,9 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::BergerSehgalRESPXSec2014
+\class    genie::KuzminLyubushkinNaumovRESPXSec2014
 
-\brief    Computes the double differential cross section for resonance 
+\brief    Computes the double differential cross section for resonance
           electro- or neutrino-production according to the Berger Sehgal model.
 
           The computed cross section is the d^2 xsec/ dQ^2 dW \n
@@ -13,10 +13,10 @@
 
           Is a concrete implementation of the XSecAlgorithmI interface.
 
-\ref      Berger, Sehgal Phys. Rev. D76, 113004 (2007)
+\ref      Kuzmin, Lyubushkin, Naumov Mod. Phys. Lett. A19 (2004) 2815
 
-          Modifications within original format of 
-	  D.Rein and L.M.Sehgal, Neutrino Excitation of Baryon Resonances
+          Modifications within original format of
+          D.Rein and L.M.Sehgal, Neutrino Excitation of Baryon Resonances
           and Single Pion Production, Ann.Phys.133, 79 (1981)
 
           Modifications based on a MiniBooNE tune courtesy of J. Nowak
@@ -25,10 +25,10 @@
 \author   Steve Dytman
           University of Pittsburgh
 
-          Jarek Nowak 
+          Jarek Nowak
           University of Lancaster
 
-	  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+          Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           University of Liverpool & STFC Rutherford Appleton Lab
 
 \created  Sep 15, 2015
@@ -39,21 +39,21 @@
 */
 //____________________________________________________________________________
 
-#ifndef _BERGER_SEHGAL_RES_PXSEC_2014_H_
-#define _BERGER_SEHGAL_RES_PXSEC_2014_H_
+#ifndef _KUZMIN_LYUBUSHKIN_NAUMOV_RES_PXSEC_2014_H_
+#define _KUZMIN_LYUBUSHKIN_NAUMOV_RES_PXSEC_2014_H_
 
 #include "ReinSehgal/BSKLNBaseRESPXSec2014.h"
 
 namespace genie {
 
- class BergerSehgalRESPXSec2014: public BSKLNBaseRESPXSec2014
+ class KuzminLyubushkinNaumovRESPXSec2014: public BSKLNBaseRESPXSec2014
  {
    public:
-     BergerSehgalRESPXSec2014();
-     BergerSehgalRESPXSec2014(string config);
-     virtual ~BergerSehgalRESPXSec2014();
+     KuzminLyubushkinNaumovRESPXSec2014();
+     KuzminLyubushkinNaumovRESPXSec2014(string config);
+     virtual ~KuzminLyubushkinNaumovRESPXSec2014();
  };
 
 }       // genie namespace
 
-#endif  // _BERGER_SEHGAL_RES_PXSEC_2014_H_
+#endif  // _KUZMIN_LYUBUSHKIN_NAUMOV_RES_PXSEC_2014_H_
