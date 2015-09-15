@@ -3,31 +3,29 @@
 
 \class    genie::BSKLNBaseRESPXSec2014
 
-\brief    Computes the double differential cross section for resonance 
-          electro- or neutrino-production according to the Rein-Sehgal model.
+\brief    Base class for the Berger-Sehgal and the Kuzmin, Lyubushkin, Naumov
+          resonance models, implemented as modifications to the Rein-Sehgal model.
 
-          The computed cross section is the d^2 xsec/ dQ^2 dW \n
-
-          where \n
-            \li \c Q^2 : momentum transfer ^ 2
-            \li \c W   : invariant mass of the final state hadronic system
-
-          Is a concrete implementation of the XSecAlgorithmI interface.
-
-          Modifications based on a MiniBooNE tune courtesy of J. Nowak
-          (http://www.physics.lancs.ac.uk/people/jaroslaw-nowak) and 
-          S. Dytman.
-
-\ref      main model: Berger, Sehgal Phys. Rev. D76, 113004 (2007) \n
-          alternate: Kuzmin, Lyubushkin, Naumov Mod. Phys. Lett. A19 (2004) 2815 \n
-          modifications within original format of 
+\ref      Berger, Sehgal Phys. Rev. D76, 113004 (2007) \n
+          Kuzmin, Lyubushkin, Naumov Mod. Phys. Lett. A19 (2004) 2815 \n
 	  D.Rein and L.M.Sehgal, Neutrino Excitation of Baryon Resonances
-          and Single Pion Production, Ann.Phys.133, 79 (1981)
+          and Single Pion Production, Ann.Phys.133, 79 (1981) \n
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+          Modifications based on a MiniBooNE tune courtesy of J. Nowak, S.Dytman
+
+\author   Steve Dytman
+          University of Pittsburgh
+
+          Jarek Nowak
+          University of Lancaster
+
+          Gabe Perdue
+          Fermilab
+
+          Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           University of Liverpool & STFC Rutherford Appleton Lab
 
-\created  May 05, 2004
+\created  Sep 15, 2015
 
 \cpright  Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
