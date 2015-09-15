@@ -6,7 +6,9 @@
 
 #pragma link C++ namespace genie;
 
+#pragma link C++ class genie::BSKLNBaseRESPXSec2014;
 #pragma link C++ class genie::BergerSehgalRESPXSec2014;
+#pragma link C++ class genie::KuzminLyubushkinNaumovRESPXSec2014;
 #pragma link C++ class genie::ReinDFRPXSec;
 #pragma link C++ class genie::ReinSehgalCOHPiPXSec;
 #pragma link C++ class genie::ReinSehgalRESPXSec;

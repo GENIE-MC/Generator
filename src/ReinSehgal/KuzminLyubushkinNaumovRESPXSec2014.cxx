@@ -6,26 +6,26 @@
 */
 //____________________________________________________________________________
 
-#include "ReinSehgal/BergerSehgalRESPXSec2014.h"
+#include "ReinSehgal/KuzminLyubushkinNaumovRESPXSec2014.h"
 
 using namespace genie;
 
 //____________________________________________________________________________
-BergerSehgalRESPXSec2014::BergerSehgalRESPXSec2014() :
-BSKLNBaseRESPXSec2014("genie::BergerSehgalRESPXSec2014")
+KuzminLyubushkinNaumovRESPXSec2014::KuzminLyubushkinNaumovRESPXSec2014() :
+BSKLNBaseRESPXSec2014("genie::KuzminLyubushkinNaumovRESPXSec2014")
 {
-  this->fKLN = false;
-  this->fBRS = true;
+  this->fKLN = true;
+  this->fBRS = false;
 }
 //____________________________________________________________________________
-BergerSehgalRESPXSec2014::BergerSehgalRESPXSec2014(string config) :
-BSKLNBaseRESPXSec2014("genie::BergerSehgalRESPXSec2014", config)
+KuzminLyubushkinNaumovRESPXSec2014::KuzminLyubushkinNaumovRESPXSec2014(string config) :
+BSKLNBaseRESPXSec2014("genie::KuzminLyubushkinNaumovRESPXSec2014", config)
 {
-  this->fKLN = false;
-  this->fBRS = true;
+  this->fKLN = true;
+  this->fBRS = false;
 }
 //____________________________________________________________________________
-BergerSehgalRESPXSec2014::~BergerSehgalRESPXSec2014()
+KuzminLyubushkinNaumovRESPXSec2014::~KuzminLyubushkinNaumovRESPXSec2014()
 {
 
 }
