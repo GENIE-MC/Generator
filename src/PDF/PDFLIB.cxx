@@ -73,7 +73,9 @@ void PDFLIB::Initialize(void) const
   const char * lhapath = gSystem->Getenv("LHAPATH");
   if(!lhapath) lhapath_ok = false;
   else {
-    if(!gSystem->OpenDirectory(lhapath)) lhapath_ok = false;
+      void *dirp = gSystem->OpenDirectory(lhapath);
+      if (dirp) gSystem->FreeDirectory(dirp);
+      else lhapath_ok = false;
   }
   if(!lhapath_ok) {
    LOG("PDF", pFATAL) 
