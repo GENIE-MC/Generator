@@ -56,8 +56,8 @@ TH1D* get_delnu_plot_genie(const int nucZ, const int nucA, const double q2) {
 	sprintf(histo_title, "^{%d}%s, Q^{2} = (%0.1f #pm %0.2f) GeV",
 	        nucA, get_nucleus_name(nucZ), q2, q2_error);
 	TH1D* delnu = new TH1D("genie", histo_title, 100, -1.0, 2.0);
-	delnu->GetXaxis()->SetTitle("#nu - Q^{2} / (2 * M_{p})");
-	delnu->GetYaxis()->SetTitle("(1 / #sigma) d#sigma / d#nu");
+	delnu->GetXaxis()->SetTitle("#nu - Q^{2} / (2 * M_{p}) (GeV)");
+	delnu->GetYaxis()->SetTitle("(1 / #sigma) d#sigma / d#nu (GeV^{-1})");
 	delnu->SetLineColor(kRed);
 	const int start_run = 500000;
 	const int end_run = 500010;
@@ -147,7 +147,7 @@ void validation_plot_energy_xs_nu_nubar(bool is_bar) {
 	TH1F* frame = canvas.DrawFrame(1e-1, 0, 1e2, (is_bar ? 1.2 : 1.6));
 	frame->SetTitle(title);
 	frame->GetYaxis()->SetTitle("#sigma (10^{-38} cm^{2})");
-	frame->GetXaxis()->SetTitle("E^{#nu} (GeV)");
+	frame->GetXaxis()->SetTitle("E_{#nu} (GeV)");
 	frame->Draw();
 	eff_energy_xs->Draw("SAME");
 	def_energy_xs->Draw("SAME");
