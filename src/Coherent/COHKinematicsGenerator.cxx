@@ -233,7 +233,7 @@ void COHKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         interaction->KinePtr()->ClearRunningValues();
 
         // set the cross section for the selected kinematics
-        evrec->SetDiffXSec(xsec*TMath::Exp(-b*gt),kPSxytfE);
+        evrec->SetDiffXSec(xsec*TMath::Exp(-b*gt)/tsum,kPSxytfE);
 
         return;
      }
