@@ -209,7 +209,7 @@ void COHKinematicsGenerator::CalculateKin_BergerSehgal(GHepRecord * evrec) const
       interaction->KinePtr()->ClearRunningValues();
 
       // set the cross section for the selected kinematics
-      evrec->SetDiffXSec(xsec*TMath::Exp(-b*gt),kPSQ2yfE);
+      evrec->SetDiffXSec(xsec * TMath::Exp(-b * gt) / tsum, kPSQ2yfE);
 
       return;
     }
