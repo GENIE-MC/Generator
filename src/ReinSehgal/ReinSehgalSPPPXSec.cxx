@@ -205,9 +205,11 @@ void ReinSehgalSPPPXSec::LoadConfig(void)
   //   Support for this will be added here as well.
 
   fResList.Clear();
-  assert( fConfig->Exists("ResonanceNameList") );
-  string resonanes = fConfig->GetString("ResonanceNameList");
-  fResList.DecodeFromNameList(resonanes);
+  AlgConfigPool * confp = AlgConfigPool::Instance();
+  const Registry * gc = confp->GlobalParameterList();
+  string resonances = fConfig->GetStringDef(
+                     "ResonanceNameList", gc->GetString("ResonanceNameList"));
+  fResList.DecodeFromNameList(resonances);
 
   //-- load the differential cross section integrator
   fXSecIntegrator =
