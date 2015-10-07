@@ -14,6 +14,7 @@
 */
 //____________________________________________________________________________
 
+#include "Algorithm/AlgConfigPool.h"
 #include "Algorithm/AlgFactory.h"
 #include "Base/XSecIntegratorI.h"
 #include "BaryonResonance/BaryonResUtils.h"
