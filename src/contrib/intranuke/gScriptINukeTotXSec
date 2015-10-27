@@ -1,0 +1,193 @@
+#!/bin/bash
+# gtestIntranuke Script
+# Alex Bell, University of Pittsburgh, 2-13-08
+# Used to consolidate data from gtestIntranuke
+#   runs in order to compare resultant x-sec
+#   against expected experimental values
+
+#export GSEED="$(date +%s)"
+
+PROBE_TYPES=(p n pip pim pi0 kp km 2212 2112 211 -211 111 321 -321)
+
+filename=
+probe=p
+p_pdg="2212"
+target="1000260560"
+min_ke=
+max_ke=
+step_size=
+num_events=
+inuke_mode=
+
+function usage
+{
+	echo  "Syntax: gtestIntranukeScript -f output_filename [-p probe_type] [-t target] "
+        echo  "                       -min min_ke -max max_ke -s step_size -n num_events -m mode"
+        echo  ""
+        echo  "output_filename :: filename for x-sec output"
+        echo  "     probe_type :: probe, choices are {p,n,pip,pim,pi0,kp,kn}"
+        echo  "         target :: target pdg code"
+        echo  "         min_ke :: minimum of the kinetic energy range, in GeV"
+        echo  "         max_ke :: maximum of the kinetic energy range, in GeV"
+        echo  "      step_size :: size of ke steps"
+        echo  "       num_runs :: number of events per energy step"
+        echo  "           mode :: Intranuke mode"
+	echo  ""
+}
+
+function error_exit ()
+{
+	echo "Error executing script: $1"
+        usage
+	exit 1
+}
+
+function pdg ()
+{
+	case $1 in
+		"${PROBE_TYPES[0]}")	p_pdg="2212"
+					;;
+		"${PROBE_TYPES[1]}") 	p_pdg="2112"
+					;;
+		"${PROBE_TYPES[2]}")	p_pdg="211"
+					;;
+		"${PROBE_TYPES[3]}")	p_pdg="-211"
+					;;
+		"${PROBE_TYPES[4]}")	p_pdg="111"
+					;;
+		"${PROBE_TYPES[5]}")	p_pdg="321"
+					;;
+		"${PROBE_TYPES[6]}")	p_pdg="-321"
+					;;
+		"${PROBE_TYPES[7]}")	p_pdg="2212"
+					;;
+		"${PROBE_TYPES[8]}") 	p_pdg="2112"
+					;;
+		"${PROBE_TYPES[9]}")	p_pdg="211"
+					;;
+		"${PROBE_TYPES[10]}")	p_pdg="-211"
+					;;
+		"${PROBE_TYPES[11]}")	p_pdg="111"
+					;;
+		"${PROBE_TYPES[12]}")	p_pdg="321"
+					;;
+		"${PROBE_TYPES[13]}")	p_pdg="-321"
+					;;
+		*)			error_exit "Bad Probe Type"
+	esac
+} 
+
+while [ "$1" != "" ]; do
+	case $1 in
+		-f)		shift
+				filename=$1
+				;;
+		-p)		shift
+				probe=$1
+				;;
+		-t)		shift
+				target=$1
+				;;
+		-min)   	shift
+				min_ke=$1
+				;;
+		-max)   	shift
+				max_ke=$1
+				;;
+		-s)		shift
+				step_size=$1
+				;;
+		-n)		shift
+				num_events=$1
+				;;
+		-m)		shift
+				inuke_mode=$1
+				;;
+		--help)		usage
+				exit
+				;;
+		*)		usage
+				error_exit "Bad Command-line Arguments"
+	esac
+	shift
+done
+
+if [ "$filename" = "" ]; then
+	error_exit "Must specify output file"
+fi
+
+response=
+if [ -f $filename ]; then
+	echo -n "File $filename exists, overwrite? (y or n): "
+	read response
+	if [ "$response" != "y" ]; then
+ 		error_exit "Overwrite Protection"
+	fi
+fi 
+
+if [ -f gevgen_hadron_xsection.txt ]; then
+    rm gevgen_hadron_xsection.txt
+fi 	
+
+i=0
+test_val=1
+len=${#PROBE_TYPES[*]}
+while [ $i -lt $len ]; do
+	if [ "$probe" = "${PROBE_TYPES[$i]}" ]; then
+		test_val=0
+	fi
+	let i++
+done
+
+if [ "$test_val" = "1" ]; then 
+	error_exit "Bad Probe Type"
+fi
+
+if [ "$inuke_mode" = "" ]; then 
+	error_exit "No Mode Specified"
+fi
+
+pdg $probe
+
+if [ "$min_ke" = "" ]; then
+	error_exit "Must Specify min_ke"
+fi
+
+if [ "$max_ke" = "" ]; then
+	error_exit "Must Specify max_ke"
+fi
+
+if [ "$step_size" = "" ]; then
+	error_exit "Must Specify step_size"
+fi
+
+if [ "$num_events" = "" ]; then
+	error_exit "Must Specify num_events"
+fi
+
+    echo "# X-Sections for gtestIntranuke mode $inuke_mode" > $filename \
+ && echo "# Probe: $probe /w pdg: $p_pdg" >> $filename \
+ && echo "# Target: $target" >> $filename \
+ && echo "# Min: $min_ke GeV; Max: $max_ke GeV" >> $filename \
+ && echo "# Energy step size: $step_size GeV" >> $filename \
+ && echo "# Number of events per step: $num_events" >> $filename \
+ && echo "# Below, energy in GeV, x-sec in millibarns, and each type has x-sec followed by error" >> $filename \
+ || error_exit "Error writing to file $filename"
+
+energy=$min_ke
+while [ "$(echo "scale=6; $energy<=$max_ke"|bc)" = "1" ]; do
+	if gevgen_hadron -n $num_events -p $p_pdg -t $target -k $energy -m $inuke_mode -r 9909 --seed $(date +%s) --message-thresholds Messenger_laconic.xml; then
+          if gtestINukeHadroXSec -f gntp.inuke.9909.ghep.root -w; then
+	      echo "Ran gevgen_hadron for $num_events events at $energy GeV in $inuke_mode mode"
+          else
+	      error_exit "Error Running INukeHadroXSec"
+          fi
+	else
+	    error_exit "Error Running gtestIntranuke"
+	fi
+	
+	energy="$(echo "scale=6; $energy + $step_size"|bc)"
+done
+
+cat gevgen_hadron_xsection.txt > $filename
+rm gevgen_hadron_xsection.txt
