@@ -85,7 +85,7 @@ double AhrensNCELPXSec::XSec(
   //-- compute isovector form factor terms
   double Ge1 = 0.5 * fkAlpha / qmv2;
   double Gm1 = 0.5 * fkAlpha * (fMuP-fMuN) / qmv2;
-  double Ga1 = -0.5 * fFa0 * (1+fEta)/ qma2;  
+  double Ga1 = -0.5 * fFa0 * (1 + (nucsign)*fEta)/ qma2;  
 
   //-- compute form factors
   double Ge  = Ge0 + (nucsign) * Ge1;
