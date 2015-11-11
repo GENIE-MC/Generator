@@ -174,6 +174,7 @@ using std::setw;
 using std::setprecision;
 using std::setfill;
 using std::ios;
+using std::setiosflags;
 using std::vector;
 
 using namespace genie;

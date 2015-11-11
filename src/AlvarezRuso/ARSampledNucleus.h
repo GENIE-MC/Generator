@@ -17,6 +17,7 @@
           or see $GENIE/LICENSE
 */
 //____________________________________________________________________________
+
 #ifndef _AR_NUCLEUS_H_
 #define _AR_NUCLEUS_H_
 
@@ -104,7 +105,9 @@ class ARSampledNucleus
     
     double CalcDensity(double radius, double nuc_rad, double nuc_diff) const;
     
-    static const double mean_radius_squared = 0.69; // in fermi
+    // warning: in-class initializer for static data member of type 'const double' is a GNU extension [-Wgnu-static-float-init]
+    // static const double mean_radius_squared = 0.69; // in fermi
+    static double mean_radius_squared;
     
     double Density0(unsigned int number, double diffuseness, double radius) const;
     TF1* Density0Function() const;

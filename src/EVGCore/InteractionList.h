@@ -28,6 +28,9 @@ using std::ostream;
 namespace genie {
 
 class Interaction;
+class InteractionList;
+
+ostream & operator << (ostream & stream, const InteractionList & intl);
 
 class InteractionList : public vector<Interaction *> {
 

@@ -44,6 +44,9 @@ using std::ostream;
 namespace genie {
 namespace flux  {
 
+class GSimpleNtpEntry;    
+ostream & operator << (ostream & stream, const GSimpleNtpEntry & info);
+
 /// Small persistable C-struct -like classes that makes up the SimpleNtpFlux
 /// ntuple.  This is only valid for a particular flux window (no reweighting,
 /// no coordinate transformation available).
@@ -82,6 +85,10 @@ namespace flux  {
     ClassDef(GSimpleNtpEntry,1)
   };
 
+
+  class GSimpleNtpNuMI;
+  ostream & operator << (ostream & stream, const GSimpleNtpNuMI & info);
+
 /// GSimpleNtpNuMI
 /// =========================
 /// Additional elements for NuMI (allow SKZP reweighting and reference
@@ -119,6 +126,9 @@ namespace flux  {
   };
 
 
+  class GSimpleNtpAux;
+  ostream & operator << (ostream & stream, const GSimpleNtpAux & info);
+
 /// GSimpleNtpAux
 /// =========================
 /// Additional elements for expansion as "aux" branch
@@ -136,6 +146,9 @@ namespace flux  {
    ClassDef(GSimpleNtpAux,1)
   };
 
+
+  class GSimpleNtpMeta;
+  ostream & operator << (ostream & stream, const GSimpleNtpMeta & info);
 
 /// GSimpleNtpMeta
 /// =========================

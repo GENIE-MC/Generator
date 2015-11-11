@@ -32,6 +32,9 @@ using std::ostream;
 
 namespace genie {
 
+class NtpMCEventRecord;
+ostream & operator<< (ostream& stream, const NtpMCEventRecord & rec);
+
 class NtpMCEventRecord : public NtpMCRecordI {
 
 public :

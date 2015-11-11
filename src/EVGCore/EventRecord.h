@@ -30,7 +30,10 @@ using std::ostream;
 
 namespace genie {
 
+class EventRecord;
 class EventRecordVisitorI;
+
+ostream & operator<< (ostream& stream, const EventRecord & event);
 
 class EventRecord : public GHepRecord {
 

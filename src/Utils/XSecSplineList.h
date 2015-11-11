@@ -38,6 +38,9 @@ class XSecAlgorithmI;
 class Interaction;
 class Spline;
 
+class XSecSplineList;
+ostream & operator << (ostream & stream, const XSecSplineList & xsl);
+
 class XSecSplineList {
 
 public:

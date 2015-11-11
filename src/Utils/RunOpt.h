@@ -28,6 +28,9 @@ using std::ostream;
 
 namespace genie {
 
+class RunOpt;
+ostream & operator << (ostream & stream, const RunOpt & opt);
+
 class RunOpt
 {
 public:
@@ -68,7 +71,6 @@ private:
   bool   fEnableBareXSecPreCalc;     ///< Cache calcs relevant to free-nucleon xsecs before any nuclear xsec computation? 
                                      ///< The option switches on/off cacheing calculations which interfere with event reweighting.
                                      ///< This used to be set by the $GDISABLECACHING.
-
   // Self
   static RunOpt * fInstance;
 

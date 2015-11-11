@@ -43,6 +43,8 @@ using namespace genie::constants;
 namespace genie {
 namespace alvarezruso {
 
+double ARSampledNucleus::mean_radius_squared = 0.69; // fm (CA)
+
 ARSampledNucleus::ARSampledNucleus(unsigned int ZNumber, unsigned int ANumber, unsigned int fSampling_):
   fZ(ZNumber),
   fA(ANumber),

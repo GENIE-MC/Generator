@@ -27,6 +27,9 @@ using std::ostream;
 
 namespace genie {
 
+class PDGCodeList;
+ostream & operator << (ostream & stream, const PDGCodeList & list);
+
 class PDGCodeList : public vector<int> {
 
 public :

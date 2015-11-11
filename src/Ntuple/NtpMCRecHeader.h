@@ -27,6 +27,9 @@ using std::ostream;
 
 namespace genie {
 
+class NtpMCRecHeader;
+ostream & operator << (ostream & stream, const NtpMCRecHeader & hdr);
+
 class NtpMCRecHeader : public TObject {
 
 public :

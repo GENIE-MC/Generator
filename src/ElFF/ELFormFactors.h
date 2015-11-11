@@ -29,7 +29,10 @@ using std::ostream;
 
 namespace genie {
 
+class ELFormFactors;
 class Interaction;
+
+ostream & operator << (ostream & stream, const ELFormFactors & ff);
 
 class ELFormFactors {
 

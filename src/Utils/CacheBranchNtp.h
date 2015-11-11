@@ -30,6 +30,9 @@ using std::ostream;
 
 namespace genie {
 
+class CacheBranchNtp;
+ostream & operator << (ostream & stream, const CacheBranchNtp & cbntp);
+
 class CacheBranchNtp : public CacheBranchI
 {
 public:

@@ -35,6 +35,9 @@ using std::ostream;
 
 namespace genie {
 
+class RSHelicityAmpl;
+ostream & operator<< (ostream & stream, const RSHelicityAmpl & hamp);
+
 class RSHelicityAmpl {
 
 friend class RSHelicityAmplModelCC;

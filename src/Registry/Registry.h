@@ -41,7 +41,6 @@ using std::ostream;
 
 namespace genie {
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Type definitions
 //
 typedef map <RgKey, RegistryItemI *>                 RgIMap;
@@ -50,7 +49,7 @@ typedef map <RgKey, RegistryItemI *>::size_type      RgIMapSizeType;
 typedef map <RgKey, RegistryItemI *>::iterator       RgIMapIter;
 typedef map <RgKey, RegistryItemI *>::const_iterator RgIMapConstIter;
 typedef vector<RgKey>                                RgKeyList;
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 // Templated utility methods to set/get registry items
 //
 class Registry;
@@ -59,7 +58,10 @@ template<class T>
 template<class T> 
   T GetValueOrUseDefault(
      Registry * r, RgKey key, T def, bool set_def=true);
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+//
+//
+ostream & operator << (ostream & stream, const Registry & registry);
 
 class Registry {
 

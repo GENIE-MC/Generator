@@ -41,6 +41,9 @@ using std::ofstream;
 
 namespace genie {
 
+class Spline;
+ostream & operator << (ostream & stream, const Spline & spl);
+
 class Spline : public TObject {
 
 public:

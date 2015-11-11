@@ -29,8 +29,11 @@ using std::ostream;
 
 namespace genie {
 
+class GEVGPool;
 class GEVGDriver;
 class InitialState;
+
+ostream & operator << (ostream & stream, const GEVGPool & pool);
 
 class GEVGPool : public map<string, GEVGDriver *> {
 

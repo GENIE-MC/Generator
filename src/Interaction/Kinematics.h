@@ -34,6 +34,9 @@ class TLorentzVector;
 
 namespace genie {
 
+class Kinematics;
+ostream & operator << (ostream & stream, const Kinematics & kine);
+
 class Kinematics : public TObject {
 
 public:

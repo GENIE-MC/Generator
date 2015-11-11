@@ -48,6 +48,9 @@ using std::pair;
 namespace genie {
 namespace geometry {
 
+class PathSegment;
+ostream & operator << (ostream & stream, const PathSegment & list);
+
 typedef std::pair<Double_t,Double_t> StepRange;
 typedef std::vector<StepRange>       StepRangeSet;
 
@@ -113,6 +116,10 @@ class PathSegment {
 
 inline bool operator < (const PathSegment &lhs, const PathSegment &rhs)
   { return ( lhs.fRayDist < rhs.fRayDist ); }
+
+
+class PathSegmentList;
+ostream & operator << (ostream & stream, const PathSegmentList & list);
 
 class PathSegmentList {
 

@@ -33,6 +33,9 @@ using std::map;
 namespace genie {
 namespace utils {
 
+class T2KEvGenMetaData;
+ostream & operator << (ostream & stream, const T2KEvGenMetaData & md);
+
 class T2KEvGenMetaData: public TObject
 {
 public:

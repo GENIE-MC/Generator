@@ -31,6 +31,9 @@ using std::string;
 
 namespace genie {
 
+class BaryonResList;
+ostream & operator << (ostream & stream, const BaryonResList & rl);
+
 class BaryonResList
 {
 public:

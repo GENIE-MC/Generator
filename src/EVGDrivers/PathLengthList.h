@@ -35,7 +35,10 @@ using std::string;
 
 namespace genie {
 
+class PathLengthList;
 class PDGCodeList;
+
+ostream & operator << (ostream & stream, const PathLengthList & list);
 
 class PathLengthList : public map<int, double> {
 
