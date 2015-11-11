@@ -35,6 +35,9 @@ using std::string;
 
 namespace genie {
 
+class ProcessInfo;
+ostream & operator << (ostream& stream, const ProcessInfo & proc);
+
 class ProcessInfo : public TObject {
 
 public:

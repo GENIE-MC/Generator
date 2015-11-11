@@ -49,6 +49,7 @@ using std::setw;
 using std::setprecision;
 using std::setfill;
 using std::ios;
+using std::setiosflags;
 using std::cout;
 
 const double kPCutOff    = 1e-15;

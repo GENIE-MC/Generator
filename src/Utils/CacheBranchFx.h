@@ -32,6 +32,9 @@ using std::map;
 
 namespace genie {
 
+class CacheBranchFx;
+ostream & operator << (ostream & stream, const CacheBranchFx & cbntp);
+
 class CacheBranchFx : public CacheBranchI
 {
 public:

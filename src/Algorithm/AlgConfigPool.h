@@ -35,6 +35,9 @@ using std::ostream;
 
 namespace genie {
 
+class AlgConfigPool;
+ostream & operator << (ostream & stream, const AlgConfigPool & cp);
+
 class AlgConfigPool {
 
 public:

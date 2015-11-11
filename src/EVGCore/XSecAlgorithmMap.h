@@ -31,11 +31,14 @@ using std::ostream;
 
 namespace genie {
 
+class XSecAlgorithmMap;
 class XSecAlgorithmI;
 class Interaction;
 class InteractionList;
 class InitialState;
 class EventGeneratorList;
+
+ostream & operator << (ostream & stream, const XSecAlgorithmMap & xsmap);
 
 class XSecAlgorithmMap : public map<string, const XSecAlgorithmI *> {
 

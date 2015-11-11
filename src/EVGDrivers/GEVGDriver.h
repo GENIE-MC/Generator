@@ -38,6 +38,7 @@ using std::string;
 
 namespace genie {
 
+class GEVGDriver;
 class EventRecord;
 class EventGeneratorList;
 class EventGeneratorI;
@@ -48,6 +49,8 @@ class Interaction;
 class InitialState;
 class Target;
 class Spline;
+
+ostream & operator << (ostream & stream, const GEVGDriver & driver);
 
 class GEVGDriver {
 

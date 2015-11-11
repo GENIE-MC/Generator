@@ -47,6 +47,9 @@ const UInt_t kIAssumeFreeNucleon   = 1<<15; ///<
 const UInt_t kIAssumeFreeElectron  = 1<<15; ///<
 const UInt_t kINoNuclearCorrection = 1<<14; ///< if set, inhibit nuclear corrections 
 
+class Interaction;
+ostream & operator << (ostream & stream, const Interaction & i); 
+
 class Interaction : public TObject {
 
 public:

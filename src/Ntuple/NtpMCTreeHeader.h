@@ -32,6 +32,9 @@ using std::ostream;
 
 namespace genie {
 
+class NtpMCTreeHeader;
+ostream & operator << (ostream & stream, const NtpMCTreeHeader & hdr);
+
 class NtpMCTreeHeader : public TNamed {
 
 public :

@@ -30,7 +30,10 @@ using std::ostream;
 
 namespace genie {
 
+class GVldContext;
 class Interaction;
+
+ostream & operator<< (ostream & stream, const GVldContext & vldc);
 
 class GVldContext {
 

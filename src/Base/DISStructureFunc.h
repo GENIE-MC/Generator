@@ -34,6 +34,9 @@ using std::ostream;
 
 namespace genie {
 
+class DISStructureFunc;
+ostream & operator << (ostream & stream, const DISStructureFunc & sf);
+
 class DISStructureFunc {
 
 public:

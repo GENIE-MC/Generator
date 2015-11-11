@@ -59,6 +59,9 @@ using std::vector;
 
 namespace genie {
 
+class GSimFiles;
+ostream & operator << (ostream & stream, const GSimFiles & gsimf);  
+
 class GSimFiles
 {
 public:

@@ -27,7 +27,10 @@ using std::ostream;
 
 namespace genie {
 
+class EventGeneratorList;
 class EventGeneratorI;
+
+ostream & operator << (ostream & stream, const EventGeneratorList & evgl);
 
 class EventGeneratorList : public vector<const EventGeneratorI *> {
 

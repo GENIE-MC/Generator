@@ -53,6 +53,9 @@ using std::ostream;
 namespace genie {
 namespace flux  {
 
+class GNuMIFluxPassThroughInfo;
+ostream & operator << (ostream & stream, const GNuMIFluxPassThroughInfo & info);
+
 /// GNuMIFluxPassThroughInfo:
 /// =========================
 /// A small persistable C-struct -like class that mirrors (some of) the 

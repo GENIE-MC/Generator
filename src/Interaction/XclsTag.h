@@ -31,6 +31,9 @@ using std::string;
 
 namespace genie {
 
+class XclsTag;
+ostream & operator << (ostream& stream, const XclsTag & xcls); 
+
 class XclsTag : public TObject {
 
 public:

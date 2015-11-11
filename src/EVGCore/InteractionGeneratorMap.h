@@ -34,10 +34,13 @@ using std::ostream;
 
 namespace genie {
 
+class InteractionGeneratorMap;
 class EventGeneratorI;
 class InteractionList;
 class InitialState;
 class EventGeneratorList;
+
+ostream & operator << (ostream & stream, const InteractionGeneratorMap & xsmap);
 
 class InteractionGeneratorMap : public map<string, const EventGeneratorI *> {
 

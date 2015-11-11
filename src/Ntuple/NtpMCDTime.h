@@ -28,6 +28,9 @@ using std::ostream;
 
 namespace genie {
 
+class NtpMCDTime;
+ostream & operator << (ostream & stream, const NtpMCDTime & dt);
+
 class NtpMCDTime : public TObject {
 
 public :

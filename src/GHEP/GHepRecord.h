@@ -38,7 +38,10 @@ using std::vector;
 
 namespace genie {
 
+class GHepRecord;
 class GHepParticle;
+
+ostream & operator << (ostream & stream, const GHepRecord & event);
 
 class GHepRecord : public TClonesArray {
 

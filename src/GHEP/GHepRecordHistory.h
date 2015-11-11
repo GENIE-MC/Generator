@@ -33,7 +33,10 @@ using std::ostream;
 
 namespace genie {
 
+class GHepRecordHistory;
 class GHepRecord;
+
+ostream & operator << (ostream & stream, const GHepRecordHistory & history);
 
 class GHepRecordHistory : public map<int, GHepRecord*> {
 

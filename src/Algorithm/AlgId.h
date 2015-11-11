@@ -29,6 +29,9 @@ using std::ostream;
 
 namespace genie {
 
+class AlgId;
+ostream & operator << (ostream & stream, const AlgId & alg);
+
 class AlgId {
 
 public:

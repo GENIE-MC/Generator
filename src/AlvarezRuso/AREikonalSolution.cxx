@@ -56,7 +56,8 @@ cdouble AREikonalSolution::Element(const double radius, const double cosine_rz,
   integrationtools::SGNR(za, rmax, nz, sampling, absiz, junk, decoy);
   
   //do i=1,nzs
-  cdouble ordez[sampling];
+//  cdouble ordez[sampling];
+  cdouble * ordez = new cdouble[sampling]; // CA
   double zp, rp;
   cdouble piself;
   
@@ -90,6 +91,8 @@ cdouble AREikonalSolution::Element(const double radius, const double cosine_rz,
   // Eikonal approximation to the wave function  
   cdouble uwaveik = exp( - cdouble(0,1) * ( ppim*za + resu ) );
   
+  delete [] ordez; // CA
+
   return uwaveik;
 }
 

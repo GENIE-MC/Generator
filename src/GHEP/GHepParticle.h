@@ -34,6 +34,9 @@ using std::ostream;
 
 namespace genie {
 
+class GHepParticle;
+ostream & operator << (ostream & stream, const GHepParticle & p);
+
 class GHepParticle : public TObject {
 
 public :

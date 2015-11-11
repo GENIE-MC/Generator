@@ -26,6 +26,9 @@ using std::ostream;
 
 namespace genie {
 
+class FKR;
+ostream & operator<< (ostream & stream, const FKR & parameters);
+
 class FKR {
 
 public:

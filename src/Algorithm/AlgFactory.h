@@ -33,6 +33,9 @@ using std::ostream;
 namespace genie {
 
 class Algorithm;
+class AlgFactory;
+
+ostream & operator << (ostream & stream, const genie::AlgFactory & algf);
 
 class AlgFactory {
 

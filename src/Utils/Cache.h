@@ -31,7 +31,10 @@ using std::ostream;
 
 namespace genie {
 
+class Cache;
 class CacheBranchI;
+
+ostream & operator << (ostream & stream, const Cache & cache);
 
 class Cache
 {

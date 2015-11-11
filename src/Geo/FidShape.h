@@ -37,6 +37,10 @@ namespace geometry {
 
 class ROOTGeomAnalyzer;
 
+class PlaneParam;
+std::ostream& operator<< (std::ostream& stream, 
+                           const genie::geometry::PlaneParam& pparam);
+
 class RayIntercept {
   /// A class to hold information about where a ray intercepts a
   /// convex shape.  
@@ -79,6 +83,10 @@ class PlaneParam {
 
   Double_t a, b, c, d; // the parameters
 };
+
+class FidShape;
+std::ostream& operator<< (std::ostream& stream, 
+                          const genie::geometry::FidShape& shape);
 
 class FidShape {
   // generic fiducial shape

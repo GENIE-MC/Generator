@@ -37,6 +37,9 @@ using std::map;
 namespace genie {
 
 class Algorithm;
+
+ostream & operator << (ostream & stream, const Algorithm & alg);
+
 typedef map <string, Algorithm *>                 AlgMap;
 typedef map <string, Algorithm *>::iterator       AlgMapIter;
 typedef map <string, Algorithm *>::const_iterator AlgMapConstIter;

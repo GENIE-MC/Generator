@@ -33,6 +33,9 @@ using std::ostream;
 
 namespace genie {
 
+class QELFormFactors;
+ostream & operator << (ostream & stream, const QELFormFactors & ff);
+
 class QELFormFactors {
 
 public:

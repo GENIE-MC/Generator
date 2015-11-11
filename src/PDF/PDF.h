@@ -32,6 +32,9 @@ using std::ostream;
 
 namespace genie {
 
+class PDF;
+ostream & operator << (ostream & stream, const PDF & pdf_set);
+
 class PDF {
 
 public:

@@ -35,6 +35,9 @@ class TRootIOCtor;
 
 namespace genie {
 
+class Target;
+ostream & operator << (ostream & stream, const Target & t); 
+
 class Target : public TObject {
 
 public:

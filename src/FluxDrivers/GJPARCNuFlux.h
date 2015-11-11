@@ -46,6 +46,8 @@ namespace flux  {
 
 class GJPARCNuFluxPassThroughInfo;
 
+ostream & operator << (ostream & stream, const GJPARCNuFluxPassThroughInfo & info);
+
 class GJPARCNuFlux: public GFluxI {
 
 public :
