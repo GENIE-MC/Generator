@@ -22,6 +22,8 @@
 #ifndef _G_REWEIGHT_NU_XSEC_CCRES_H_
 #define _G_REWEIGHT_NU_XSEC_CCRES_H_
 
+//#define _G_REWEIGHT_CCRES_DEBUG_
+
 #include <map>
 #include <string>
 
@@ -55,7 +57,6 @@ namespace rew   {
    void   Reset          (void);
    void   Reconfigure    (void);
    double CalcWeight     (const EventRecord & event);
-   double CalcChisq      (void);
 
    // various config options
    void SetMode     (int mode) { fMode       = mode; }
@@ -94,8 +95,10 @@ namespace rew   {
    double fMvDef;        ///<
    double fMvCurr;       ///<
 
+#ifdef _G_REWEIGHT_CCRES_DEBUG_
    TFile *    fTestFile;
    TNtupleD * fTestNtp;
+#endif
  };
 
 } // rew   namespace

@@ -40,6 +40,10 @@ ostream & operator << (ostream & stream, const Target & t);
 
 class Target : public TObject {
 
+using TObject::Print; // suppress clang 'hides overloaded virtual function [-Woverloaded-virtual]' warnings
+using TObject::Compare;
+using TObject::Copy;
+
 public:
   Target();
   Target(int pdgc);

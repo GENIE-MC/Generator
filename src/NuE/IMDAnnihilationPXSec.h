@@ -21,8 +21,8 @@
 */
 //____________________________________________________________________________
 
-#ifndef _IMD_ANNIHILATION_PARTIAL_XSEC_H_
-#define _IMD_ANNIHILATION_XSEC_H_
+#ifndef _IMD_ANNIHILATION_PXSEC_H_
+#define _IMD_ANNIHILATION_PXSEC_H_
 
 #include "Base/XSecAlgorithmI.h"
 
@@ -57,4 +57,4 @@ private:
 };
 
 }       // genie namespace
-#endif  // _IMD_ANNIHILATION_PARTIAL_XSEC_H_
+#endif  // _IMD_ANNIHILATION_PXSEC_H_

@@ -35,8 +35,11 @@ class XclsTag;
 ostream & operator << (ostream& stream, const XclsTag & xcls); 
 
 class XclsTag : public TObject {
-
+  
 public:
+  using TObject::Print; // suppress clang 'hides overloaded virtual function [-Woverloaded-virtual]' warnings
+  using TObject::Copy;
+
   XclsTag();
   XclsTag(const XclsTag & xcls);
  ~XclsTag();

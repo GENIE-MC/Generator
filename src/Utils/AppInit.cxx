@@ -48,7 +48,7 @@ void genie::utils::app_init::XSecTable (string inpfile, bool require_table)
 
   // file was specified & exists - load table
   if(utils::system::FileExists(inpfile)) {
-    XSecSplineList * xspl = XSecSplineList::Instance();
+    //XSecSplineList * xspl = XSecSplineList::Instance();
     XmlParserStatus_t status = xspl->LoadFromXml(inpfile);
     if(status != kXmlOK) {
       LOG("AppInit", pFATAL)

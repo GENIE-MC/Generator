@@ -53,7 +53,6 @@ namespace rew   {
    void   Reset          (void);
    void   Reconfigure    (void);
    double CalcWeight     (const EventRecord & event);
-   double CalcChisq      (void);
 
    // various config options
    void SetMode     (int mode) { fMode       = mode; }

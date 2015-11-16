@@ -38,6 +38,7 @@ ostream & operator << (ostream & stream, const NtpMCTreeHeader & hdr);
 class NtpMCTreeHeader : public TNamed {
 
 public :
+  using TNamed::Copy; // suppress clang 'hides overloaded virtual function [-Woverloaded-virtual]' warnings
 
   NtpMCTreeHeader();
   NtpMCTreeHeader(const NtpMCTreeHeader & hdr);

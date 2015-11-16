@@ -60,13 +60,16 @@ namespace rew   {
    void   Reset          (void);
    void   Reconfigure    (void);
    double CalcWeight     (const EventRecord & event);
-   double CalcChisq      (void);
 
  private:
 
    GReWeightINukeParams fINukeRwParams;
+
+#ifdef _G_REWEIGHT_INUKE_DEBUG_NTP_
    TFile *              fTestFile;
    TNtuple *            fTestNtp;
+#endif
+
  };
 
 } // rew

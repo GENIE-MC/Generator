@@ -301,7 +301,7 @@ void SaveToPsFile(void)
   //
   //c->Draw();
   TH1F * h = (TH1F*) c->DrawFrame(gEmin, XSmin, gEmax, XSmax);
-  for(unsigned int i = 0; i <= nspl; i++) if(gr[i]) gr[i]->Draw("LP");
+  for(unsigned int ispl = 0; ispl <= nspl; ispl++) if(gr[ispl]) { gr[ispl]->Draw("LP"); }
   h->GetXaxis()->SetTitle("Ev (GeV)");
   h->GetYaxis()->SetTitle("#sigma_{nuclear}/Ev (cm^{2}/GeV)");
   c->SetLogx();

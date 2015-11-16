@@ -165,7 +165,7 @@ public:
   }
   //____________________________________________________________________
   // material density in gr/cm^3
-  static const double Density(MuELMaterial_t material)
+  static double Density(MuELMaterial_t material)
   {
      switch(material) {
 
@@ -233,7 +233,7 @@ public:
      return 0;
   }
   //____________________________________________________________________
-  static const double Z(MuELMaterial_t material)
+  static double Z(MuELMaterial_t material)
   {
      switch(material) {
 
@@ -301,7 +301,7 @@ public:
      return 0;
   }
   //____________________________________________________________________
-  static const double A(MuELMaterial_t material)
+  static double A(MuELMaterial_t material)
   {
      switch(material) {
 

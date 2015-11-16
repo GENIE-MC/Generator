@@ -36,6 +36,8 @@ ostream & operator << (ostream & stream, const CacheBranchNtp & cbntp);
 class CacheBranchNtp : public CacheBranchI
 {
 public:
+  using TObject::Print; // suppress clang 'hides overloaded virtual function [-Woverloaded-virtual]' warnings
+
   CacheBranchNtp();
   CacheBranchNtp(string name, string brdef);
   ~CacheBranchNtp();

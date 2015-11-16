@@ -901,7 +901,7 @@ double genie::utils::gsl::dXSec_Log_Wrapper::DoEval (const double * xin) const
       a = fMins[i];
       b = fMaxes[i];
       x = xin[i];
-      toEval[i] = a + (b-a)/(constants::ke-1.) * (exp(x/(b-a)) - 1.);
+      toEval[i] = a + (b-a)/(constants::kNapierConst-1.) * (exp(x/(b-a)) - 1.);
     }
     else {
       toEval[i] = xin[i];

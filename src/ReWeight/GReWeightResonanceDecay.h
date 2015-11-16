@@ -22,6 +22,8 @@
 #ifndef _G_REWEIGHT_RESDEC_H_
 #define _G_REWEIGHT_RESDEC_H_
 
+//#define _G_REWEIGHT_RESDEC_DEBUG_
+
 #include <map>
 
 #include "ReWeight/GReWeightI.h"
@@ -50,7 +52,6 @@ namespace rew   {
    void   Reset          (void);
    void   Reconfigure    (void);
    double CalcWeight     (const EventRecord & event);
-   double CalcChisq      (void);
 
    // various config options
    void RewNue      (bool tf ) { fRewNue     = tf; }
@@ -80,8 +81,10 @@ namespace rew   {
    map<int, TH1D*> fMpBR1gammaDef; // resonance pdg -> X + 1gamma, default BR = f(W)
    map<int, TH1D*> fMpBR1etaDef;   // resonance pdg -> X + 1eta,   default BR = f(W)
 
+#ifdef _G_REWEIGHT_RESDEC_DEBUG_
    TFile *    fTestFile;
    TNtupleD * fTestNtp;
+#endif
  };
 
 } // rew

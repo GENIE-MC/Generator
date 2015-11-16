@@ -32,8 +32,6 @@
 #include "ReWeight/GReWeightResonanceDecay.h"
 #include "ReWeight/GSystUncertainty.h"
 
-//#define _G_REWEIGHT_RESDEC_DEBUG_
-
 using namespace genie;
 using namespace genie::rew;
 
@@ -122,16 +120,6 @@ double GReWeightResonanceDecay::CalcWeight(const EventRecord & event)
     this->RewThetaDelta2Npi(event);
 
   return wght;
-}
-//_______________________________________________________________________________________
-double GReWeightResonanceDecay::CalcChisq(void)
-{
-  double chisq =
-    TMath::Power(fBR1gammaTwkDial,       2.) +
-    TMath::Power(fBR1etaTwkDial,         2.) +
-    TMath::Power(fThetaDelta2NpiTwkDial, 2.);
-
-  return chisq;
 }
 //_______________________________________________________________________________________
 double GReWeightResonanceDecay::RewBR(const EventRecord & event)

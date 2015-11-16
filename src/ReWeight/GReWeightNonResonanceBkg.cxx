@@ -191,17 +191,6 @@ double GReWeightNonResonanceBkg::CalcWeight(const genie::EventRecord & event)
   return 1.;
 }
 //_______________________________________________________________________________________
-double GReWeightNonResonanceBkg::CalcChisq()
-{
-  double chisq = 0.;
-  map<GSyst_t,double>::const_iterator it = fRTwkDial.begin();
-  for( ; it != fRTwkDial.end(); ++it) {
-    double twk_dial = it->second;
-    chisq += TMath::Power(twk_dial, 2.);
-  }
-  return chisq;
-}
-//_______________________________________________________________________________________
 void GReWeightNonResonanceBkg::Init(void)
 {
   this->SetWminCut(2.0*units::GeV);

@@ -13,7 +13,6 @@ namespace rew   {
 class GReWeightInfo : public TObject {
 
    public:
-   
       GReWeightInfo() : TObject(), fTweak(0.), fWeight(1.) {}
       GReWeightInfo( double twk, double wt ) : TObject() { fTweak=twk; fWeight=wt; }
       GReWeightInfo( TRootIOCtor* ) : TObject(), fTweak(0.), fWeight(1.) {}
@@ -48,7 +47,8 @@ namespace rew
 class GReWeightIORecord : public TObject {
 
    public:
-   
+      using TObject::Copy; // suppress clang 'hides overloaded virtual function [-Woverloaded-virtual]' warnings
+      
       GReWeightIORecord();
       GReWeightIORecord( const GReWeightIORecord& );
       GReWeightIORecord( TRootIOCtor* );

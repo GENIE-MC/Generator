@@ -273,10 +273,25 @@ RANLIB    = ranlib
 #                        COMPILER OPTIONS
 #-------------------------------------------------------------------
 
-# -- gcc
+ifeq ($(GOPT_WITH_COMPILER),$(filter $(GOPT_WITH_COMPILER),clang clang++))
+  # --clang
+  CXX           = clang++
+  CC            = clang
+  LD            = clang++
+else ifeq ($(GOPT_WITH_COMPILER),$(filter $(GOPT_WITH_COMPILER),gcc g++))
+  # -- gcc
+  CXX = g++
+  CC  = gcc
+  LD  = g++
+else
+  $(error GOPT_WITH_COMPILER not set correctly!)
+endif
 
-CXX = g++
-LD  = g++
+#check if we're using clang (complicated because g++ is sometimes a clang alias...)
+APPLE_CLANG := $(shell $(CXX) -v 2>&1 | sed -n "s/.*clang//p" | cut -d . -f 1)
+ifneq ($(APPLE_CLANG),)
+USING_CLANG  = YES
+endif
 
 # get gcc version & split in '.' delimited tokens (major/minor/revison num.)
 CXXVRS      = $(shell $(CXX) -dumpversion)
@@ -291,22 +306,24 @@ CXXVRS_REV  = $(shell awk 'BEGIN {\
 GCC_GE_4_1_0  = $(shell awk 'BEGIN {\
 		if($(CXXVRS_MAJ)>=4 && $(CXXVRS_MIN)>0) print "YES"}') 
 
-# MAC OS X with gcc, 32-bit mode
+
+# MAC OS X with gcc or clang, 32-bit mode
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ifeq ($(strip $(ARCH)),macosx) 
 ARCH_OK       = YES
 IS_MACOSX     = YES
-CXXFLAGS      = -pipe -W -Wall -Wno-long-double \
-		-fsigned-char -fno-common -flat_namespace \
-		$(GOPT_WITH_CXX_DEBUG_FLAG) \
-		$(GOPT_WITH_CXX_OPTIMIZ_FLAG) \
-		$(GOPT_WITH_CXX_USERDEF_FLAGS) 
+CXXFLAGS      = -pipe -W -Wall -Wno-long-double -fsigned-char -fno-common \
+		$(OPT_WITH_CXX_DEBUG_FLAG) \
+		$(OPT_WITH_CXX_OPTIMIZ_FLAG) \
+		$(OPT_WITH_CXX_USERDEF_FLAGS) 
 ifeq ($(strip $(GCC_GE_4_1_0)), YES) 
-  CXXFLAGS += -Wno-strict-aliasing -ffriend-injection
+  CXXFLAGS += -Wno-strict-aliasing 
+endif
+ifneq ($(USING_CLANG), YES)
+  CXXFLAGS += -flat_namespace
 endif
 LDFLAGS       = -bind_at_load
-SOFLAGS       = -dynamiclib -flat_namespace \
-		-single_module -undefined dynamic_lookup
+SOFLAGS       = -dynamiclib -flat_namespace -single_module -undefined dynamic_lookup
 DllSuf       := dylib
 DllLinkSuf   := so
 StaticLibSuf := a
@@ -321,22 +338,79 @@ SOMINF        =
 EXTRALIBS     = 
 endif
 
-# MAC OS X with gcc, 64-bit mode
+
+
+
+#ifeq ($(strip $(ARCH)),macosx) 
+#ARCH_OK       = YES
+#IS_MACOSX     = YES
+#CXXFLAGS      = -pipe -W -Wall -Wno-long-double \
+#		-fsigned-char -fno-common -flat_namespace \#
+#		$(GOPT_WITH_CXX_DEBUG_FLAG) \
+#		$(GOPT_WITH_CXX_OPTIMIZ_FLAG) \
+#		$(GOPT_WITH_CXX_USERDEF_FLAGS) 
+#ifeq ($(strip $(GCC_GE_4_1_0)), YES) 
+#  CXXFLAGS += -Wno-strict-aliasing -ffriend-injection
+#endif
+#LDFLAGS       = -bind_at_load
+#SOFLAGS       = -dynamiclib -flat_namespace \
+#		-single_module -undefined dynamic_lookup
+#DllSuf       := dylib
+#DllLinkSuf   := so
+#StaticLibSuf := a
+#ObjSuf       := o
+#SrcSuf       := cxx
+#FORT         := g77
+#FORTOPTS     := $(FFLAGS) -g -c -O -DLINUX $(F77INCS) -fno-second-underscore
+#RANLIB       := ranlib
+#SOCMD         = $(LD)
+#OutPutOpt     = -o
+#SOMINF        =
+#EXTRALIBS     = 
+#endif
+
+# MAC OS X with gcc or clang, 64-bit mode
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-ifeq ($(strip $(ARCH)),macosx64) 
+ifeq ($(strip $(ARCH)),macosx64)
+OSX_VERSION = $(shell sw_vers | grep 'ProductVersion:' | grep -o '[0-9]*\.[0-9]*\.[0-9]*')  
+OSXVRS_MAJ  = $(shell awk 'BEGIN {\
+		str="$(OSX_VERSION)"; split(str, tk, "."); print tk[1]}')
+OSXVRS_MIN  = $(shell awk 'BEGIN {\
+		str="$(OSX_VERSION)"; split(str, tk, "."); print tk[2]}')
+OSXVRS_REV  = $(shell awk 'BEGIN {\
+		str="$(OSX_VERSION)"; split(str, tk, "."); print tk[3]}')
+# osx version >= 10.6 ?
+OSX_GE_10_6_0  = $(shell awk 'BEGIN {\
+		if($(OSXVRS_MAJ)>=10 && $(OSXVRS_MIN)>=6) print "YES"}')
+# osx version >= 10.9 ?
+OSX_GE_10_9_0  = $(shell awk 'BEGIN {\
+		if($(OSXVRS_MAJ)>=10 && $(OSXVRS_MIN)>=9) print "YES"}')
 ARCH_OK       = YES
 IS_MACOSX     = YES
-CXXFLAGS      = -m64 -pipe -W -Wall \
-		-fsigned-char -fno-common -flat_namespace \
-		$(GOPT_WITH_CXX_DEBUG_FLAG) \
-		$(GOPT_WITH_CXX_OPTIMIZ_FLAG) \
-		$(GOPT_WITH_CXX_USERDEF_FLAGS) 
-ifeq ($(strip $(GCC_GE_4_1_0)), YES) 
-  CXXFLAGS += -Wno-strict-aliasing -ffriend-injection
+IS_MACOSX     = YES
+CXXFLAGS      = -m64 -pipe -Wshadow -W -Wall -Woverloaded-virtual \
+                -fsigned-char -fno-common \
+                $(OPT_WITH_CXX_DEBUG_FLAG) \
+                $(OPT_WITH_CXX_OPTIMIZ_FLAG) \
+                $(OPT_WITH_CXX_USERDEF_FLAGS) 
+ifneq ($(strip $(GCC_GE_4_2_1)), YES) 
+  ifneq ($(USING_CLANG), YES)
+    CXXFLAGS   += -flat_namespace
+  endif
+endif
+ifeq ($(GCC_GE_4_1_0),YES)
+  ifeq ($(USING_CLANG),YES)
+    ifeq ($(OSX_GE_10_9_0),YES)
+	CXXFLAGS += -stdlib=libc++ -mmacosx-version-min=10.9
+    else ifeq ($(OSX_GE_10_6_0),YES)
+	CXXFLAGS += -stdlib=libstdc++ -mmacosx-version-min=10.6
+    endif
+  endif
+  CXXFLAGS += -Wno-strict-aliasing
 endif
 LDFLAGS       = -bind_at_load
 SOFLAGS       = -dynamiclib -flat_namespace \
-		-single_module -undefined dynamic_lookup
+                -single_module -undefined dynamic_lookup
 DllSuf       := dylib
 DllLinkSuf   := so
 StaticLibSuf := a
@@ -350,6 +424,34 @@ OutPutOpt     = -o
 SOMINF        =
 EXTRALIBS     = 
 endif
+
+#ifeq ($(strip $(ARCH)),macosx64) 
+#ARCH_OK       = YES
+#IS_MACOSX     = YES
+#CXXFLAGS      = -m64 -pipe -W -Wall \
+#		-fsigned-char -fno-common -flat_namespace \
+#		$(GOPT_WITH_CXX_DEBUG_FLAG) \
+#		$(GOPT_WITH_CXX_OPTIMIZ_FLAG) \
+#		$(GOPT_WITH_CXX_USERDEF_FLAGS) 
+#ifeq ($(strip $(GCC_GE_4_1_0)), YES) 
+#  CXXFLAGS += -Wno-strict-aliasing -ffriend-injection
+#endif
+#LDFLAGS       = -bind_at_load
+#SOFLAGS       = -dynamiclib -flat_namespace \
+#		-single_module -undefined dynamic_lookup
+#DllSuf       := dylib
+#DllLinkSuf   := so
+#StaticLibSuf := a
+#ObjSuf       := o
+#SrcSuf       := cxx
+#FORT         := g77
+#FORTOPTS     := $(FFLAGS) -g -c -O -DLINUX $(F77INCS) -fno-second-underscore
+#RANLIB       := ranlib
+#SOCMD         = $(LD)
+#OutPutOpt     = -o
+#SOMINF        =
+#EXTRALIBS     = 
+#endif
 
 # LINUX / 32-bit x86 / with gcc
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

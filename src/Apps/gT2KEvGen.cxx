@@ -683,15 +683,15 @@ int main(int argc, char ** argv)
        << "Successfully calculated/loaded flux interaction probabilities!"; 
       // Print out a list of expected number of events per POT and per cycle
       // based on the pre-generated flux interaction probabilities
-      map<int, double> sum_probs = mcj_driver->SumFluxIntProbs();
-      map<int, double>::const_iterator sum_probs_it = sum_probs.begin();
+      map<int, double> sum_probs_map = mcj_driver->SumFluxIntProbs();
+      map<int, double>::const_iterator sum_probs_it = sum_probs_map.begin();
       double ntot_per_pot = 0.0;
       double ntot_per_cycle = 0.0;
       double pscale = mcj_driver->GlobProbScale();
       double pot_1cycle = jparc_flux_driver->POT_1cycle();
       LOG("T2KProdInfo", pNOTICE) << 
           "Expected event rates based on flux interaction probabilities:";
-      for(; sum_probs_it != sum_probs.end(); sum_probs_it++){
+      for(; sum_probs_it != sum_probs_map.end(); sum_probs_it++){
         double sum_probs = sum_probs_it->second;
         double nevts_per_cycle = sum_probs / pscale;  // take into account rescale 
         double nevts_per_pot = sum_probs/pot_1cycle;  // == (sum_probs*pscale)/(pot_1cycle*pscale) 

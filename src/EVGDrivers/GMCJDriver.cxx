@@ -725,15 +725,17 @@ void GMCJDriver::ComputeProbScales(void)
 
   // clean up global probability scale and maximum probabilties per neutrino
   // type & energy bin
-  fGlobPmax = 0;
-  map<int,TH1D*>::iterator pmax_iter = fPmax.begin();
-  for( ; pmax_iter != fPmax.end(); ++pmax_iter) {
-    TH1D * pmax = pmax_iter->second;
-    if(pmax) {
-      delete pmax; pmax = 0;    
+  {
+    fGlobPmax = 0;
+    map<int,TH1D*>::iterator pmax_iter = fPmax.begin();
+    for( ; pmax_iter != fPmax.end(); ++pmax_iter) {
+      TH1D * pmax = pmax_iter->second;
+      if(pmax) {
+        delete pmax; pmax = 0;    
+      }
     }
+    fPmax.clear();
   }
-  fPmax.clear();
 
   // for maximum interaction probability vs E /for given geometry/ I will
   // be using 300 bins up to the maximum energy for the input flux
@@ -813,20 +815,21 @@ void GMCJDriver::ComputeProbScales(void)
   // Sum Probabilities {
   //   all neutrinos, all targets, @  max path length, @ max energy}
   //
-  for(nuiter = fNuList.begin(); nuiter != fNuList.end(); ++nuiter) {
-    int neutrino_pdgc = *nuiter;
-    map<int,TH1D*>::const_iterator pmax_iter = fPmax.find(neutrino_pdgc);
-    assert(pmax_iter != fPmax.end());
-    TH1D * pmax_hst = pmax_iter->second;
-    assert(pmax_hst);
-//  double pmax = pmax_hst->GetBinContent(pmax_hst->FindBin(fEmax));
-    double pmax = pmax_hst->GetMaximum();
-    assert(pmax>0);        
-//  fGlobPmax += pmax;
-    fGlobPmax = TMath::Max(pmax, fGlobPmax); // ?;
+  {
+    for(nuiter = fNuList.begin(); nuiter != fNuList.end(); ++nuiter) {
+      int neutrino_pdgc = *nuiter;
+      map<int,TH1D*>::const_iterator pmax_iter = fPmax.find(neutrino_pdgc);
+      assert(pmax_iter != fPmax.end());
+      TH1D * pmax_hst = pmax_iter->second;
+      assert(pmax_hst);
+//    double pmax = pmax_hst->GetBinContent(pmax_hst->FindBin(fEmax));
+      double pmax = pmax_hst->GetMaximum();
+      assert(pmax>0);        
+//    fGlobPmax += pmax;
+      fGlobPmax = TMath::Max(pmax, fGlobPmax); // ?;
+    }
+    LOG("GMCJDriver", pNOTICE) << "*** Probability scale = " << fGlobPmax;
   }
-
-  LOG("GMCJDriver", pNOTICE) << "*** Probability scale = " << fGlobPmax;
 }
 //___________________________________________________________________________
 void GMCJDriver::InitEventGeneration(void)

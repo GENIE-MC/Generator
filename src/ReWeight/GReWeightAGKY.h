@@ -22,6 +22,8 @@
 #ifndef _G_REWEIGHT_AGKY_H_
 #define _G_REWEIGHT_AGKY_H_
 
+//#define _G_REWEIGHT_AGKY_DEBUG_
+
 #include "ReWeight/GReWeightI.h"
 
 using namespace genie::rew;
@@ -46,7 +48,6 @@ namespace rew   {
    void   Reset          (void);
    void   Reconfigure    (void);
    double CalcWeight     (const EventRecord & event);
-   double CalcChisq      (void);
 
    // various config options
    void RewNue      (bool tf ) { fRewNue     = tf; }
@@ -82,8 +83,10 @@ namespace rew   {
    double fI0XFpdf;             ///<
    double fI0PT2pdf;            ///<
 
+#ifdef _G_REWEIGHT_AGKY_DEBUG_
    TFile *    fTestFile;
    TNtupleD * fTestNtp;
+#endif
  };
 
 } // rew

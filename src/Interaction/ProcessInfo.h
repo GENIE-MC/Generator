@@ -41,15 +41,19 @@ ostream & operator << (ostream& stream, const ProcessInfo & proc);
 class ProcessInfo : public TObject {
 
 public:
+  using TObject::Print; // suppress clang 'hides overloaded virtual function [-Woverloaded-virtual]' warnings
+  using TObject::Copy;
+  using TObject::Compare;
+
   ProcessInfo();
   ProcessInfo(ScatteringType_t sc_type, InteractionType_t  int_type);
   ProcessInfo(const ProcessInfo & proc);
  ~ProcessInfo();
 
-  //-- set process information
+  // Set process information
   void Set(ScatteringType_t sc_type, InteractionType_t  int_type);
 
-  //-- query for process information
+  // Query for process information
   bool IsQuasiElastic      (void) const;
   bool IsDeepInelastic     (void) const;
   bool IsResonant          (void) const;
@@ -71,15 +75,15 @@ public:
   bool IsWeakNC            (void) const;
   bool IsWeakMix           (void) const;
 
-  //-- get scattering and interaction type enumerations
+  // Get scattering and interaction type enumerations
   ScatteringType_t  ScatteringTypeId  (void) const;
   InteractionType_t InteractionTypeId (void) const;
 
-  //-- get scattering and interaction types as strings
+  // Get scattering and interaction types as strings
   string ScatteringTypeAsString  (void) const;
   string InteractionTypeAsString (void) const;
 
-  //-- Copy, reset, compare, print itself and build string code
+  // Copy, reset, compare, print itself and build string code
   void   Reset    (void);
   void   Copy     (const ProcessInfo & proc);
   bool   Compare  (const ProcessInfo & proc) const;
@@ -92,7 +96,6 @@ public:
 
 private:
 
-  //-- Private data members
   ScatteringType_t  fScatteringType;  ///< scattering type  (QEL, RES, DIS, ...)
   InteractionType_t fInteractionType; ///< interaction type (Weak CC/NC, E/M, ...)
 

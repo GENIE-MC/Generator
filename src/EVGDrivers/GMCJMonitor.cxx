@@ -91,7 +91,6 @@ void GMCJMonitor::Init(void)
   fStatusFile = filename.str();
 
   // create a stopwatch
-  TStopwatch fWatch;
   fWatch.Reset(); 
   fWatch.Start();
   fCpuTime = 0;

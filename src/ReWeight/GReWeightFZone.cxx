@@ -199,12 +199,6 @@ double GReWeightFZone::CalcWeight(const EventRecord & event)
   return event_weight;
 }
 //_______________________________________________________________________________________
-double GReWeightFZone::CalcChisq(void)
-{
-  double chisq = TMath::Power(fFZoneTwkDial, 2.);
-  return chisq;
-}
-//_______________________________________________________________________________________
 void GReWeightFZone::Init(void)
 {
   fFZoneTwkDial = 0.;

@@ -36,8 +36,6 @@
 #include "ReWeight/GReWeightUtils.h"
 #include "ReWeight/GSystUncertainty.h"
 
-//#define _G_REWEIGHT_AGKY_DEBUG_
-
 using namespace genie;
 using namespace genie::rew;
 using namespace genie::constants;
@@ -321,15 +319,6 @@ double GReWeightAGKY::RewxFpT1pi(const EventRecord & event)
 #endif
 
   return wght;
-}
-//_______________________________________________________________________________________
-double GReWeightAGKY::CalcChisq(void)
-{
-  double chisq =
-    TMath::Power(fPeakBaryonXFTwkDial, 2.) +
-    TMath::Power(fAvgPT2TwkDial,       2.);
-
-  return chisq;
 }
 //_______________________________________________________________________________________
 void GReWeightAGKY::Init(void)

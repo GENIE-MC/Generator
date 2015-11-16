@@ -58,15 +58,15 @@ private:
   mutable alvarezruso::AlvarezRusoCOHPiPDXSec * fMultidiff;
   mutable const Interaction * fLastInteraction;
   //Parameters
-  bool fUseLookupTable;
-  double fa4;
-  double fa5;
-  double fb4;
-  double fb5;
-  double ffPi;
-  double ffStar;
-  double fMa;
-  double fRo;
+  //bool fUseLookupTable;
+  //double fa4;
+  //double fa5;
+  //double fb4;
+  //double fb5;
+  //double ffPi;
+  //double ffStar;
+  //double fMa;
+  //double fRo;
 };
 
 }      // genie namespace

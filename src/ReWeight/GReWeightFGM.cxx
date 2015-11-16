@@ -32,8 +32,6 @@
 #include "ReWeight/GSystUncertainty.h"
 #include "Utils/NuclearUtils.h"
 
-//#define _G_REWEIGHT_FGM_DEBUG_
-
 using namespace genie;
 using namespace genie::rew;
 using namespace genie::utils;
@@ -102,11 +100,6 @@ double GReWeightFGM::CalcWeight(const EventRecord & event)
     this->RewCCQEMomDistroFGtoSF (event);
  
   return wght;
-}
-//_______________________________________________________________________________________
-double GReWeightFGM::CalcChisq(void)
-{
-  return 0.;
 }
 //_______________________________________________________________________________________
 double GReWeightFGM::RewCCQEPauliSupViaKF(const EventRecord & event) 
@@ -186,21 +179,21 @@ double GReWeightFGM::RewCCQEMomDistroFGtoSF(const EventRecord & event)
   bool is_cc = event.Summary()->ProcInfo().IsWeakCC();
   if(!is_qe || !is_cc) return 1.;
 
-  GHepParticle * tgt = event.TargetNucleus();
-  if(!tgt) return 1.; // scattering off free-nucleon 
+  GHepParticle * tgtnucleus = event.TargetNucleus();
+  if(!tgtnucleus) return 1.; // scattering off free-nucleon 
 
-  GHepParticle * hitnuc = event.HitNucleon();
-  if(!hitnuc) return 1.;
+  GHepParticle * hitnucleon = event.HitNucleon();
+  if(!hitnucleon) return 1.;
 
   const double kPmax = 0.5;
-  double p = hitnuc->P4()->Vect().Mag();
+  double p = hitnucleon->P4()->Vect().Mag();
   if(p > kPmax) return 1.;
 
   TH1D * hfg = 0;
   TH1D * hsf = 0;
 
-  int tgtpdg = tgt    -> Pdg();
-  int nucpdg = hitnuc -> Pdg();
+  int tgtpdg = tgtnucleus -> Pdg();
+  int nucpdg = hitnucleon -> Pdg();
 
   map<int, TH1D*> & mapfg = pdg::IsNeutron(nucpdg) ? fMapFGn : fMapFGp;
   map<int, TH1D*> & mapsf = pdg::IsNeutron(nucpdg) ? fMapSFn : fMapSFp;

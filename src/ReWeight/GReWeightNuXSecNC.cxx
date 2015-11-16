@@ -110,12 +110,6 @@ double GReWeightNuXSecNC::CalcWeight(const genie::EventRecord & event)
   return fNCTwkDial;
 }
 //_______________________________________________________________________________________
-double GReWeightNuXSecNC::CalcChisq(void)
-{
-  double chisq = TMath::Power(fNCTwkDial,  2.);
-  return chisq;
-}
-//_______________________________________________________________________________________
 void GReWeightNuXSecNC::Init(void)
 {
   fNCTwkDial = 0.;

@@ -78,11 +78,6 @@ double GReWeightDISNuclMod::CalcWeight(const EventRecord & /*event*/)
   return 1.;
 }
 //_______________________________________________________________________________________
-double GReWeightDISNuclMod::CalcChisq(void)
-{
-  return 0.;
-}
-//_______________________________________________________________________________________
 void GReWeightDISNuclMod::Init(void)
 {
   fNuclModTwkDial = 0.;

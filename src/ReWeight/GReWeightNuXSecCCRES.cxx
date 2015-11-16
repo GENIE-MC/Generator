@@ -46,8 +46,6 @@
 #include "ReWeight/GSystUncertainty.h"
 #include "Registry/Registry.h"
 
-//#define _G_REWEIGHT_CCRES_DEBUG_
-
 using namespace genie;
 using namespace genie::rew;
 
@@ -194,22 +192,6 @@ double GReWeightNuXSecCCRES::CalcWeight(const genie::EventRecord & event)
   }
 
   return 1.;
-}
-//_______________________________________________________________________________________
-double GReWeightNuXSecCCRES::CalcChisq()
-{
-  double chisq = 0.;
-  if(fMode==kModeMaMv) {   
-     chisq += TMath::Power(fMaTwkDial, 2.);
-     chisq += TMath::Power(fMvTwkDial, 2.);
-  }
-  else
-  if(fMode==kModeNormAndMaMvShape) { 
-     chisq += TMath::Power(fNormTwkDial, 2.);
-     chisq += TMath::Power(fMaTwkDial,   2.);
-     chisq += TMath::Power(fMvTwkDial,   2.);
-  }
-  return chisq;
 }
 //_______________________________________________________________________________________
 void GReWeightNuXSecCCRES::Init(void)

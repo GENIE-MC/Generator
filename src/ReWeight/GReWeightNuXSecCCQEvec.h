@@ -23,6 +23,8 @@
 #ifndef _G_REWEIGHT_NU_XSEC_CCQE_VEC_H_
 #define _G_REWEIGHT_NU_XSEC_CCQE_VEC_H_
 
+//#define _G_REWEIGHT_CCQE_VEC_DEBUG_
+
 #include <map>
 #include <string>
 
@@ -52,7 +54,6 @@ namespace rew   {
    void   Reset          (void);
    void   Reconfigure    (void);
    double CalcWeight     (const EventRecord & event);
-   double CalcChisq      (void);
 
    // various config options
    void RewNue      (bool tf ) { fRewNue     = tf;   }
@@ -74,8 +75,10 @@ namespace rew   {
    bool   fRewNumu;      ///< reweight nu_mu CC?
    bool   fRewNumubar;   ///< reweight nu_mu_bar CC?
 
+#ifdef _G_REWEIGHT_CCQE_VEC_DEBUG_
    TFile *    fTestFile;
    TNtupleD * fTestNtp;
+#endif
  };
 
 } // rew   namespace

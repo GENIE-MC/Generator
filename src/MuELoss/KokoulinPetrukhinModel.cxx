@@ -18,7 +18,6 @@
 #include <Math/IntegratorMultiDim.h>
 
 #include "MuELoss/KokoulinPetrukhinModel.h"
-////#include "Numerical/IntegratorI.h"
 #include "Utils/GSLUtils.h"
 
 using namespace genie;
@@ -58,7 +57,7 @@ double KokoulinPetrukhinModel::dE_dx(double E, MuELMaterial_t material) const
 
   // calculate (the min,max) fraction of energy, v, carried to the photon
   double Vmin = 4.*kElectronMass/E;
-  double Vmax = 1. - 0.75*kSqrte* (kMuonMass/E) * TMath::Power(Z,1/3.);
+  double Vmax = 1. - 0.75*kSqrtNapierConst* (kMuonMass/E) * TMath::Power(Z,1/3.);
 
   // claculate the limits of the asymmetry parameter of the e+e- pair
   // p = (E(+) - E(-)) / (E(+) + E(-))
@@ -139,9 +138,9 @@ double gsl::KokoulinPetrukhinIntegrand::DoEval (const double * xin) const
   double v  = xin[0]; // v, the fraction of energy transfered to the photon
   double p  = xin[1]; //
 
-  if (! v >0) return 0;
-  if (  v >1) return 0;
-  if (! fE>0) return 0;
+  if (! (v >0)) return 0;
+  if (   v >1)  return 0;
+  if (! (fE>0)) return 0;
 
   double pmax_v = (1. - 6.*kMuonMass2 / (fE*fE*(1.-v)) ) * 
                                  TMath::Sqrt(1.-4.*kElectronMass/(fE*v));
@@ -176,7 +175,7 @@ double gsl::KokoulinPetrukhinIntegrand::DoEval (const double * xin) const
   double Ym   = (4. + p2 + 3.*b*(1.+p2)) /
                       ((1.+p2)*(1.5+2.*b)*TMath::Log(3.+xi) + 1. - 1.5*p2);
   double LmA  = (2./3.) * mume * R * Zm23;
-  double LmB  = 1. + (2.*me*R * kSqrte * Zm13 * (1+xi) * (1+Ym)) / (fE*v*(1-p2) );
+  double LmB  = 1. + (2.*me*R * kSqrtNapierConst * Zm13 * (1+xi) * (1+Ym)) / (fE*v*(1-p2) );
   double Lm   = TMath::Log(LmA/LmB);
   double FIm  = (FImA+FImB+FImC)*Lm;
 
@@ -190,7 +189,7 @@ double gsl::KokoulinPetrukhinIntegrand::DoEval (const double * xin) const
                     (2.*(1.+3.*b)*TMath::Log(3.+1./xi) - p2 - 2.*b*(2.-p2));
   double x_Y  = (1+xi)*(1+Ye);
   double LeA  = R*Zm13*TMath::Sqrt(x_Y);
-  double LeB  = 1. + (2.*me*R*kSqrte*Zm13*x_Y) / (fE*v*(1-p2));
+  double LeB  = 1. + (2.*me*R*kSqrtNapierConst*Zm13*x_Y) / (fE*v*(1-p2));
   double LeC  = 1.5 * memu * Z13;
   double LeD  = 1 + TMath::Power(LeC,2.)*x_Y;
   double Le   = TMath::Log(LeA/LeB) - 0.5*TMath::Log(LeD);

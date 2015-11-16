@@ -38,6 +38,8 @@ ostream & operator << (ostream & stream, const CacheBranchFx & cbntp);
 class CacheBranchFx : public CacheBranchI
 {
 public:
+  using TObject::Print; // suppress clang 'hides overloaded virtual function [-Woverloaded-virtual]' warnings
+
   CacheBranchFx();
   CacheBranchFx(string name);
   ~CacheBranchFx();

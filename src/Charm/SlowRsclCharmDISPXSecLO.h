@@ -52,8 +52,8 @@ private:
   const PDFModelI *       fPDFModel;
   const XSecIntegratorI * fXSecIntegrator;
 
-  bool   fDContributes;
-  bool   fSContributes;
+//bool   fDContributes;
+//bool   fSContributes;
   double fMc;
   double fVcd;
   double fVcs;

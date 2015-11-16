@@ -957,7 +957,7 @@ bool KNOHadronization::PhaseSpaceDecay(
   // Get the maximum weight
   //double wmax = fPhaseSpaceGenerator.GetWtMax();
   double wmax = -1;
-  for(int i=0; i<200; i++) {
+  for(int idec=0; idec<200; idec++) {
      double w = fPhaseSpaceGenerator.Generate();   
      if(reweight) { w *= this->ReWeightPt2(pdgv); }
      wmax = TMath::Max(wmax,w);

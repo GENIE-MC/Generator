@@ -18,7 +18,6 @@
 #include <Math/Integrator.h>
 
 #include "MuELoss/PetrukhinShestakovModel.h"
-////#include "Numerical/IntegratorI.h"
 #include "Utils/GSLUtils.h"
 
 using namespace genie;
@@ -58,7 +57,7 @@ double PetrukhinShestakovModel::dE_dx(double E, MuELMaterial_t material) const
 
   // calculate (the min,max) fraction of energy, v,  carried to the photon
   double Vmin = 0.;
-  double Vmax = 1. - 0.75*kSqrte* (kMuonMass/E) * TMath::Power(Z,1/3.);
+  double Vmax = 1. - 0.75*kSqrtNapierConst* (kMuonMass/E) * TMath::Power(Z,1/3.);
 
   // integrate the Bethe-Heitler muon bremsstrahlung 
   // cross section v*ds/dv over v
@@ -83,24 +82,6 @@ double PetrukhinShestakovModel::dE_dx(double E, MuELMaterial_t material) const
   double de_dx = bbrem*E;
   return de_dx;
 }
-//____________________________________________________________________________
-//void PetrukhinShestakovModel::Configure(const Registry & config)
-//{
-//  Algorithm::Configure(config);
-//  this->LoadConfig();
-//}
-////____________________________________________________________________________
-//void PetrukhinShestakovModel::Configure(string config)
-//{
-//  Algorithm::Configure(config);
-//  this->LoadConfig();
-//}
-////____________________________________________________________________________
-//void PetrukhinShestakovModel::LoadConfig(void)
-//{
-////  fIntegrator = dynamic_cast<const IntegratorI *>(this->SubAlg("Integrator"));
-////  assert(fIntegrator);
-//}
 //____________________________________________________________________________
 gsl::PetrukhinShestakovIntegrand::PetrukhinShestakovIntegrand(double E, double Z) :
 ROOT::Math::IBaseFunctionOneDim()
@@ -127,9 +108,9 @@ double gsl::PetrukhinShestakovIntegrand::DoEval(double xin) const
   double v  = xin; // v, the fraction of energy transfered to the photon
   double v2 = TMath::Power(v,2.);
 
-  if (! v >0) return 0;
-  if (  v >1) return 0;
-  if (! fE>0) return 0;
+  if (! (v >0)) return 0;
+  if (   v >1)  return 0;
+  if (! (fE>0)) return 0;
 
   // Some constants...
   double Z2    = TMath::Power(fZ,2.);
@@ -149,7 +130,7 @@ double gsl::PetrukhinShestakovIntegrand::DoEval(double xin) const
   // Calculate the fi(delta) factor for the bremsstrahlung cross section
   // ds/dv according to the Petrukhin/Shestakov formula (dimensionless)
   double a  = ( (fZ<10) ? 189.*mmue * Zm13 : 189.*mmue * (2./3.)*Zm23 );
-  double b  = 1. + (189./me) * Zm13 * kSqrte * delta;
+  double b  = 1. + (189./me) * Zm13 * kSqrtNapierConst * delta;
   double fi = TMath::Log(a/b);
 
   // Calculate the Bethe-Heitler cross section ds/dv for muon bremsstrahlung

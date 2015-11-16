@@ -100,7 +100,7 @@ class ARSampledNucleus
     double fNucRadiusSq;
     double fDiffusenessCentres;
     double fRadiusCentres;
-    double fRadiusCentresSq;
+  //double fRadiusCentresSq;
     double fUseHarmonicOscillator;
     
     double CalcDensity(double radius, double nuc_rad, double nuc_diff) const;
