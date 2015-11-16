@@ -4,10 +4,7 @@
    For the full text of the license visit http://copyright.genie-mc.org
    or see $GENIE/LICENSE
 
-Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-STFC, Rutherford Appleton Laboratory - March 11, 2005
-
-For the class documentation see the corresponding header file.
+   For the class documentation see the corresponding header file.
 */
 //____________________________________________________________________________
 
@@ -49,7 +46,7 @@ BergerSehgalFMCOHPiPXSec2015::~BergerSehgalFMCOHPiPXSec2015()
 }
 //____________________________________________________________________________
 double BergerSehgalFMCOHPiPXSec2015::XSec(
-    const Interaction * interaction, KinePhaseSpace_t kps) const
+    const Interaction * interaction, KinePhaseSpace_t /*kps*/) const
 {
   // Here we are following PRD 79, 053003 (2009) by Berger and Sehgal
   // This method computes the differential cross section represented 
@@ -123,7 +120,7 @@ double BergerSehgalFMCOHPiPXSec2015::XSec(
   double Fabs       = TMath::Exp( -1.0 * Fabs_input * sInel);
 
   // A_RS for BS version of RS, and/or Tpi>1.0
-  double RS_factor = (A2 * Fabs) / (16.0 * kPi) * (sTot2); 
+//double RS_factor = (A2 * Fabs) / (16.0 * kPi) * (sTot2); 
   double R         = fRo * A_3 * units::fermi; // nuclear radius
   double R2        = R * R;                    // 
   double b         = 0.33333 * R2;             // Eq. 12 in BS
@@ -262,7 +259,7 @@ bool BergerSehgalFMCOHPiPXSec2015::ValidProcess(const Interaction * interaction)
   if (!proc_info.IsCoherent())  return false;
   if (!proc_info.IsWeak())      return false;
   if (target.HitNucIsSet())     return false;
-  if (!target.A()>1)            return false;
+  if (!(target.A()>1))          return false;
   if (!pdg::IsNeutrino(nu) && !pdg::IsAntiNeutrino(nu)) return false;
 
   return true;

@@ -2550,10 +2550,11 @@ void ConvertToGHad(void)
     double y  = kine.y (get_selected);
     double W  = kine.W (get_selected);
 
+    GHepParticle * p = 0;
+
     int hadmod  = -1;
     int ihadmom = -1;
     TIter event_iter(&event);
-    GHepParticle * p = 0;
     int i=-1;
     while ( (p = dynamic_cast<GHepParticle *>(event_iter.Next())) ) {
       i++;
@@ -2616,7 +2617,7 @@ void ConvertToGHad(void)
     vector<int>::const_iterator hiter = hadv.begin();
     for( ; hiter != hadv.end(); ++hiter) {
       int id = *hiter;
-      GHepParticle * p = event.Particle(id);
+      p = event.Particle(id);
       int pdg = p->Pdg();
       double px = p->P4()->Px();
       double py = p->P4()->Py();

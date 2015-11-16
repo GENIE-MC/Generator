@@ -55,9 +55,6 @@ namespace rew   {
   //! calculate a weight for the input event using the current nuisance param values
   virtual double CalcWeight (const genie::EventRecord & event) = 0;  
 
-  //! calculate penalty factors
-  virtual double CalcChisq (void) = 0;        
-
  protected:
 
    GReWeightI() 

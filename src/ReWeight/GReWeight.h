@@ -48,7 +48,6 @@ namespace rew   {
    GSystSet &  Systematics   (void);                             ///< set of enabled systematic params & values
    void        Reconfigure   (void);                             ///< reconfigure weight calculators with new params
    double      CalcWeight    (const genie::EventRecord & event); ///< calculate weight for input event
-   double      CalcChisq     (void);                             ///< calculate penalty chisq for current values of tweaking dials
    void        Print         (void);                             ///< print
 
   private:

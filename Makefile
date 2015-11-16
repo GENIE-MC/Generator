@@ -316,6 +316,7 @@ make-install-dirs: FORCE
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/HadronTransport
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Interaction
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/LlewellynSmith
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/Masterclass
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/MEC
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Messenger
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/MuELoss
@@ -369,6 +370,7 @@ copy-install-files: FORCE
 	cd HadronTransport;        make install; cd ..; \
 	cd Interaction;            make install; cd ..; \
 	cd LlewellynSmith;         make install; cd ..; \
+	cd Masterclass;            make install; cd ..; \
 	cd MEC;                    make install; cd ..; \
 	cd Messenger;              make install; cd ..; \
 	cd MuELoss;                make install; cd ..; \
@@ -421,6 +423,7 @@ purge: FORCE
 	cd HadronTransport;               make purge; cd ..; \
 	cd Interaction;                   make purge; cd ..; \
 	cd LlewellynSmith;                make purge; cd ..; \
+	cd Masterclass;                   make purge; cd ..; \
 	cd MEC;                           make purge; cd ..; \
 	cd Messenger;                     make purge; cd ..; \
 	cd MuELoss;                       make purge; cd ..; \
@@ -475,6 +478,7 @@ clean-files: FORCE
 	cd HadronTransport;               make clean; cd ..; \
 	cd Interaction;                   make clean; cd ..; \
 	cd LlewellynSmith;                make clean; cd ..; \
+	cd Masterclass;                   make clean; cd ..; \
 	cd MEC;                           make clean; cd ..; \
 	cd Messenger;                     make clean; cd ..; \
 	cd MuELoss;                       make clean; cd ..; \
@@ -543,6 +547,7 @@ distclean: FORCE
 	cd HadronTransport;                make distclean; cd ..; \
 	cd Interaction;                    make distclean; cd ..; \
 	cd LlewellynSmith;                 make distclean; cd ..; \
+	cd Masterclass;                    make distclean; cd ..; \
 	cd MEC;                            make distclean; cd ..; \
 	cd Messenger;                      make distclean; cd ..; \
 	cd MuELoss;                        make distclean; cd ..; \

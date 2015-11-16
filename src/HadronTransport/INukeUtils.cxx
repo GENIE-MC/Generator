@@ -1643,7 +1643,7 @@ bool genie::utils::intranuke::PhaseSpaceDecay(
 
   // Get the maximum weight
   double wmax = -1;
-  for(int i=0; i<200; i++) {
+  for(int idec=0; idec<200; idec++) {
      double w = GenPhaseSpace.Generate();
      wmax = TMath::Max(wmax,w);
   }

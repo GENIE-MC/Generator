@@ -50,7 +50,7 @@ AlamSimoAtharVacasSKPXSec2014::~AlamSimoAtharVacasSKPXSec2014()
 }
 //____________________________________________________________________________
 double AlamSimoAtharVacasSKPXSec2014::XSec(
-                  const Interaction * interaction, KinePhaseSpace_t kps) const
+              const Interaction * interaction, KinePhaseSpace_t /*kps*/) const
 {
   // Check whether interaction is valid
   if(! this -> ValidProcess    (interaction) ) return 0.;

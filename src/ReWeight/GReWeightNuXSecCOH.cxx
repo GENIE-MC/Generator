@@ -152,14 +152,6 @@ double GReWeightNuXSecCOH::CalcWeight(const genie::EventRecord & event)
   return new_weight;
 }
 //_______________________________________________________________________________________
-double GReWeightNuXSecCOH::CalcChisq()
-{
-  double chisq = 
-          TMath::Power(fMaTwkDial, 2.) +
-          TMath::Power(fR0TwkDial, 2.);
-  return chisq;
-}
-//_______________________________________________________________________________________
 void GReWeightNuXSecCOH::Init(void)
 {
   AlgId id("genie::ReinSehgalCOHPiPXSec","Default");

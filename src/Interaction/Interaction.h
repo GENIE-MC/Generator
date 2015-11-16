@@ -53,6 +53,9 @@ ostream & operator << (ostream & stream, const Interaction & i);
 class Interaction : public TObject {
 
 public:
+  using TObject::Print; // suppress clang 'hides overloaded virtual function [-Woverloaded-virtual]' warnings
+  using TObject::Copy;  // 
+
   Interaction();
   Interaction(const InitialState & init, const ProcessInfo & proc);
   Interaction(const Interaction & i);

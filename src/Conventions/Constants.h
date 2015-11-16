@@ -40,8 +40,9 @@ static const double kPi2   = TMath::Power(kPi,2);
 static const double kPi3   = TMath::Power(kPi,3);
 static const double kPi4   = TMath::Power(kPi,4);
 static const double kSqrtPi= TMath::Sqrt(kPi);
-static const double ke     = 2.7182818;
-static const double kSqrte = TMath::Sqrt(ke);
+
+static const double kNapierConst     = 2.7182818;
+static const double kSqrtNapierConst = TMath::Sqrt(kNapierConst);
 
 //
 // Avogadro number, compton wavelength and such...

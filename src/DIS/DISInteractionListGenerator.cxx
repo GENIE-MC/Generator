@@ -62,9 +62,7 @@ InteractionList * DISInteractionListGenerator::CreateInteractionList(
      return 0;
   }
 
-  int      ppdg   = init_state.ProbePdg();
-  Target * target = init_state.TgtPtr();
-
+  int ppdg = init_state.ProbePdg();
   if( !pdg::IsLepton(ppdg) ) {
      LOG("IntLst", pWARN)
        << "Can not handle probe! Returning NULL InteractionList "
@@ -72,8 +70,8 @@ InteractionList * DISInteractionListGenerator::CreateInteractionList(
      return 0;
   }
 
-  bool hasP = (target->Z() > 0);
-  bool hasN = (target->N() > 0);
+  bool hasP = (init_state.Tgt().Z() > 0);
+  bool hasN = (init_state.Tgt().N() > 0);
 
   InteractionList * intlist = new InteractionList;
 

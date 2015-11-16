@@ -116,19 +116,19 @@ bool EffectiveSF::GenerateNucleon(const Target & target) const
   return true;
 }
 //____________________________________________________________________________
-// Returns the probability of the bin containing p.  I don't know what w is
-// supposed to be, but I copied its implementation from Bodek-Ritchie.
+// Returns the probability of the bin with given momentum. I don't know what w 
+// is supposed to be, but I copied its implementation from Bodek-Ritchie.
 // Implements the interface.
 //____________________________________________________________________________
-double EffectiveSF::Prob(double p, double w, const Target & target) const
+double EffectiveSF::Prob(double mom, double w, const Target & target) const
 {
   if(w < 0) {
-     TH1D * prob = this->ProbDistro(target);
-     int bin = prob->FindBin(p);
-     double y  = prob->GetBinContent(bin);
-     double dx = prob->GetBinWidth(bin);
-     double p  = y * dx;
-     return p;
+     TH1D * prob_distr = this->ProbDistro(target);
+     int bin = prob_distr->FindBin(mom);
+     double y  = prob_distr->GetBinContent(bin);
+     double dx = prob_distr->GetBinWidth(bin);
+     double prob  = y * dx;
+     return prob;
   }
   return 1;
 }

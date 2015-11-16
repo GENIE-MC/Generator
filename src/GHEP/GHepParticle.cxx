@@ -365,7 +365,7 @@ void GHepParticle::SetPolarization(const TVector3 & polz)
 // sets the polarization angles
 
   double p = polz.Mag();
-  if(! p>0) {
+  if(! (p>0) ) {
     LOG("GHepParticle", pERROR) 
            << "Input polarization vector has non-positive norm! Ignoring it";
     return;

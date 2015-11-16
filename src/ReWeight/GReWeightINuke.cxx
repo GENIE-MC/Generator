@@ -26,8 +26,6 @@
 */
 //____________________________________________________________________________
 
-//#define _G_REWEIGHT_INUKE_DEBUG_NTP_
-
 #include <cassert>
 #include <cstdlib>
 
@@ -229,10 +227,5 @@ double GReWeightINuke::CalcWeight(const EventRecord & event)
   }//particle loop
   
   return event_weight;
-}
-//_______________________________________________________________________________________
-double GReWeightINuke::CalcChisq(void)
-{
-  return fINukeRwParams.ChisqPenalty();
 }
 //_______________________________________________________________________________________

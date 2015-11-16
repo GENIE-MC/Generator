@@ -22,6 +22,8 @@
 #ifndef _G_REWEIGHT_FGM_H_
 #define _G_REWEIGHT_FGM_H_
 
+//#define _G_REWEIGHT_FGM_DEBUG_
+
 #include <map>
 
 #include "ReWeight/GReWeightI.h"
@@ -53,7 +55,6 @@ namespace rew   {
    void   Reset          (void);
    void   Reconfigure    (void);
    double CalcWeight     (const EventRecord & event);
-   double CalcChisq      (void);
 
  private:
 
@@ -73,8 +74,11 @@ namespace rew   {
    map<int, TH1D *> fMapSFn;
    map<int, TH1D *> fMapSFp;
 
+#ifdef _G_REWEIGHT_FGM_DEBUG_
    TFile *    fTestFile;
    TNtupleD * fTestNtp;
+#endif
+
  };
 
 } // rew

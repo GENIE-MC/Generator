@@ -47,7 +47,9 @@ ostream & operator << (ostream & stream, const Spline & spl);
 class Spline : public TObject {
 
 public:
-  //-- ctors & dtor
+  using TObject::Print; // suppress clang 'hides overloaded virtual function [-Woverloaded-virtual]' warnings
+
+  // ctors & dtor
   Spline();
   Spline(string filename, string xtag="", string ytag="", bool is_xml = false);
   Spline(TNtupleD * ntuple, string xy, string cut="");
@@ -59,7 +61,7 @@ public:
   Spline(const TSpline3 & spline, int nknots);
   virtual ~Spline();
 
-  //-- load the Spline from XML, flat ASCII, ROOT ntuple/tree/tspline3, or SQL DB
+  // Load the Spline from XML, flat ASCII, ROOT ntuple/tree/tspline3, or SQL DB
   bool   LoadFromXmlFile    (string filename, string xtag, string ytag);
   bool   LoadFromAsciiFile  (string filename);
   bool   LoadFromNtuple     (TNtupleD * nt, string xy, string cut = "");
@@ -67,7 +69,7 @@ public:
   bool   LoadFromDBase      (TSQLServer * db,  string query);
   bool   LoadFromTSpline3   (const TSpline3 & spline, int nknots);
 
-  //-- get xmin,xmax,nknots, check x variable against valid range and evaluate spline
+  // Get xmin,xmax,nknots, check x variable against valid range and evaluate spline
   int    NKnots             (void) const {return fNKnots;}
   void   GetKnot            (int iknot, double & x, double & y) const;
   double GetKnotX           (int iknot) const;
@@ -83,23 +85,23 @@ public:
 
   void   YCanBeNegative(bool tf) { fYCanBeNegative = tf; }
 
-  //-- save the Spline in XML, flat ASCII or ROOT format
+  // Save the Spline in XML, flat ASCII or ROOT format
   void   SaveAsXml (string filename, string xtag, string ytag, string name="") const;
   void   SaveAsXml (ofstream & str,  string xtag, string ytag,
                                           string name="", bool insert = false) const;
   void   SaveAsText(string filename, string format="%10.6f\t%10.6f") const;
   void   SaveAsROOT(string filename, string name="", bool recreate=false) const;
 
-  //-- export Spline as TGraph or TSpline3
+  // Export Spline as TGraph or TSpline3
   TGraph *   GetAsTGraph  (int np = 500, bool xscaling = false,
                            bool inlog=false, double fx=1., double fy=1.) const;
   TSpline3 * GetAsTSpline (void) const { return fInterpolator; }
 
-  //-- knot manipulation methods in additions to the TSpline3 ones
+  // Knot manipulation methods in additions to the TSpline3 ones
   void FindClosestKnot(double x, double & xknot, double & yknot, Option_t * opt="-+") const;
   bool ClosestKnotValueIsZero(double x, Option_t * opt="-+") const;
 
-  //-- common mathematical operations applied simultaneously on all spline knots
+  // Common mathematical operations applied simultaneously on all spline knots
   void Add      (const Spline & spl, double c=1);
   void Multiply (const Spline & spl, double c=1);
   void Divide   (const Spline & spl, double c=1);
@@ -107,20 +109,20 @@ public:
   void Multiply (double a);
   void Divide   (double a);
 
-  //-- print knots
+  // Print knots
   void Print(ostream & stream) const;
 
-  //-- overloaded operators
+  // Overloaded operators
   friend ostream & operator << (ostream & stream, const Spline & spl);
 
 private:
 
-  //-- initialize and build spline
+  // Initialize and build spline
   void InitSpline  (void);
   void ResetSpline (void);
   void BuildSpline (int nentries, double x[], double y[]);
 
-  //-- private data members
+  // Private data members
   string     fName;
   int        fNKnots;
   double     fXMin;

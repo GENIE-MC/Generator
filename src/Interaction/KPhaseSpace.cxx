@@ -90,7 +90,7 @@ double KPhaseSpace::Threshold(void) const
     // Final nucleon can be different for K0 interaction
     double Mf = (xcls.NProtons()==1) ? kProtonMass : kNeutronMass;  
     double mk   = PDGLibrary::Instance()->Find(kaon_pdgc)->Mass();
-    double ml   = PDGLibrary::Instance()->Find(fInteraction->FSPrimLeptonPdg())->Mass();
+  //double ml   = PDGLibrary::Instance()->Find(fInteraction->FSPrimLeptonPdg())->Mass();
     double mtot = ml + mk + Mf; // total mass of FS particles
     double Ethresh = (mtot*mtot - Mi*Mi)/(2. * Mf);
     return Ethresh;

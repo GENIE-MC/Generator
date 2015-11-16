@@ -330,7 +330,7 @@ void NucleonDecayPrimaryVtxGenerator::GenerateDecayProducts(
   // Get the maximum weight
   //double wmax = fPhaseSpaceGenerator.GetWtMax();
   double wmax = -1;
-  for(int i=0; i<200; i++) {
+  for(int idec=0; idec<200; idec++) {
      double w = fPhaseSpaceGenerator.Generate();   
      wmax = TMath::Max(wmax,w);
   }

@@ -31,7 +31,7 @@ class BetheBlochMaterialParams
 {
 public:
   //____________________________________________________________________
-  static const double IonizationPotential(MuELMaterial_t material) 
+  static double IonizationPotential(MuELMaterial_t material) 
   {
    // returns the ionization potential for the input material (in eV)
 
@@ -101,7 +101,7 @@ public:
      return 0;
   }
   //____________________________________________________________________
-  static const double DensityCorrection_C(MuELMaterial_t material)
+  static double DensityCorrection_C(MuELMaterial_t material)
   {
    // returns the density correction factor C
 
@@ -171,7 +171,7 @@ public:
      return 0;
   }
   //____________________________________________________________________
-  static const double DensityCorrection_X0(MuELMaterial_t material)
+  static double DensityCorrection_X0(MuELMaterial_t material)
   {
    // returns the density correction constant X0
 
@@ -241,7 +241,7 @@ public:
      return 0;
   }
   //____________________________________________________________________
-  static const double DensityCorrection_X1(MuELMaterial_t material)
+  static double DensityCorrection_X1(MuELMaterial_t material)
   {
    // returns the density correction constant X1
 
@@ -311,7 +311,7 @@ public:
      return 0;
   }
   //____________________________________________________________________
-  static const double DensityCorrection_a(MuELMaterial_t material)
+  static double DensityCorrection_a(MuELMaterial_t material)
   {
    // returns the density correction constant a
 
@@ -381,7 +381,7 @@ public:
      return 0;
   }
   //____________________________________________________________________
-  static const double DensityCorrection_m(MuELMaterial_t material)
+  static double DensityCorrection_m(MuELMaterial_t material)
   {
    // returns the density correction constant m
 

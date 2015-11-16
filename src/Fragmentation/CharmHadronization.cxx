@@ -532,10 +532,10 @@ TClonesArray * CharmHadronization::Hadronize(
          bremn -> SetEnergy (p4.E() );
 
          // handle insertion of charmed hadron 
-         int ip  = bremn->GetParent();
+         int jp  = bremn->GetParent();
          int ifc = bremn->GetFirstChild();
          int ilc = bremn->GetLastChild();
-         bremn -> SetParent     ( (ip  == 0 ?  1 : ip +1) );
+         bremn -> SetParent     ( (jp  == 0 ?  1 : jp +1) );
          bremn -> SetFirstChild ( (ifc == 0 ? -1 : ifc+1) );
          bremn -> SetLastChild  ( (ilc == 0 ? -1 : ilc+1) );
       }

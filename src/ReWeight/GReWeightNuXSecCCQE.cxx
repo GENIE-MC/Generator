@@ -50,8 +50,6 @@
 #include "ReWeight/GReWeightUtils.h"
 #include "Registry/Registry.h"
 
-//#define _G_REWEIGHT_CCQE_DEBUG_
-
 using namespace genie;
 using namespace genie::rew;
 
@@ -190,20 +188,6 @@ double GReWeightNuXSecCCQE::CalcWeight(const genie::EventRecord & event)
   }
 
   return 1.;
-}
-//_______________________________________________________________________________________
-double GReWeightNuXSecCCQE::CalcChisq()
-{
-  double chisq = 0.;
-  if(fMode==kModeMa) {   
-     chisq += TMath::Power(fMaTwkDial, 2.);
-  }
-  else
-  if(fMode==kModeNormAndMaShape) { 
-     chisq += TMath::Power(fNormTwkDial, 2.);
-     chisq += TMath::Power(fMaTwkDial,   2.);
-  }
-  return chisq;
 }
 //_______________________________________________________________________________________
 void GReWeightNuXSecCCQE::Init(void)

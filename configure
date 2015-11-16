@@ -37,6 +37,7 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "    rwght             Enable event reweighting tools                              default: disabled \n";
   print "    masterclass       Enable GENIE neutrino masterclass app                       default: disabled (Experimental) \n";
   print "\n options for 3rd party software, prefix with --with- (eg --with-lhapdf-lib=/some/path/)\n\n";
+  print "    compiler          Compiler to use (any of clang,gcc)                          default: gcc \n";
   print "    optimiz-level     Compiler optimization        any of O,O2,O3,OO,Os / default: O2 \n";
   print "    profiler-lib      Path to profiler library     needed if you --enable-profiler \n";
   print "    doxygen-path      Doxygen binary path          needed if you --enable-doxygen-doc  (if unset: checks for a \$DOXYGENPATH env.var.) \n";
@@ -167,6 +168,13 @@ if(($match = grep(/--enable-masterclass/i,      @ARGV)) > 0) { $gopt_enable_mast
 
 my $gopt_with_cxx_debug_flag="";
 if($gopt_enable_debug eq "YES") { $gopt_with_cxx_debug_flag = "-g"; }
+
+# Check compiler
+#
+my $opt_with_compiler="gcc"; # default
+if( $options=~m/--with-compiler=(\S*)/i ) {
+  $gopt_with_compiler = $1;
+}
 
 # Check compiler optimization level
 #
@@ -467,6 +475,7 @@ print MKCONF "GOPT_ENABLE_ATMO=$gopt_enable_atmo\n";
 print MKCONF "GOPT_ENABLE_NUCLEON_DECAY=$gopt_enable_nucleon_decay\n";
 print MKCONF "GOPT_ENABLE_RWGHT=$gopt_enable_rwght\n";
 print MKCONF "GOPT_ENABLE_MASTERCLASS=$gopt_enable_masterclass\n";
+print MKCONF "GOPT_WITH_COMPILER=$gopt_with_compiler\n";
 print MKCONF "GOPT_WITH_CXX_DEBUG_FLAG=$gopt_with_cxx_debug_flag\n";
 print MKCONF "GOPT_WITH_CXX_OPTIMIZ_FLAG=-$gopt_with_cxx_optimiz_flag\n";
 print MKCONF "GOPT_WITH_PROFILER_LIB=$gopt_with_profiler_lib\n";

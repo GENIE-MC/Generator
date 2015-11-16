@@ -39,8 +39,6 @@
 #include "ReWeight/GSystSet.h"
 #include "ReWeight/GSystUncertainty.h"
 
-//#define _G_REWEIGHT_CCQE_VEC_DEBUG_
-
 using namespace genie;
 using namespace genie::rew;
 
@@ -155,12 +153,6 @@ double GReWeightNuXSecCCQEvec::CalcWeight(const genie::EventRecord & event)
 
 
   return weight;
-}
-//_______________________________________________________________________________________
-double GReWeightNuXSecCCQEvec::CalcChisq()
-{
-  double chisq = TMath::Power(fFFTwkDial, 2.);
-  return chisq;
 }
 //_______________________________________________________________________________________
 void GReWeightNuXSecCCQEvec::Init(void)

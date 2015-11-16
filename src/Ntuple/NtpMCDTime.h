@@ -34,6 +34,8 @@ ostream & operator << (ostream & stream, const NtpMCDTime & dt);
 class NtpMCDTime : public TObject {
 
 public :
+  using TObject::Copy; // suppress clang 'hides overloaded virtual function [-Woverloaded-virtual]' warnings
+
   NtpMCDTime();
   NtpMCDTime(const NtpMCDTime & dt);
   virtual ~NtpMCDTime();
