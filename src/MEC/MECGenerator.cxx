@@ -17,6 +17,8 @@
    Skeleton was first added in version 2.5.1
  @ Nov 24-30, 2010 - CA
    Major development leading to the first complete version of the generator.
+ @ Nov 20, 2015 - CA, SD  
+   Add proper exception handling for failure of phase space decay.
 */
 //____________________________________________________________________________
 
@@ -405,15 +407,17 @@ void MECGenerator::DecayNucleonCluster(GHepRecord * event) const
      delete p4d;
      delete v4d; 
      // throw exception
+     event->EventFlags()->SetBitNumber(kHadroSysGenErr, true);
      genie::exceptions::EVGThreadException exception;
      exception.SetReason("Decay not permitted kinematically");
-     exception.SwitchOnFastForward();
+     exception.SwitchOnStepBack();
+     exception.SetReturnStep(0);
      throw exception;
   }
 
   // Get the maximum weight
   double wmax = -1;
-  for(int i=0; i<200; i++) {
+  for(int idec=0; idec<200; idec++) {
      double w = fPhaseSpaceGenerator.Generate();   
      wmax = TMath::Max(wmax,w);
   }
@@ -440,9 +444,11 @@ void MECGenerator::DecayNucleonCluster(GHepRecord * event) const
        delete p4d;
        delete v4d;
        // throw exception
+       event->EventFlags()->SetBitNumber(kHadroSysGenErr, true);
        genie::exceptions::EVGThreadException exception;
        exception.SetReason("Couldn't select decay after N attempts");
-       exception.SwitchOnFastForward();
+       exception.SwitchOnStepBack();
+       exception.SetReturnStep(0);
        throw exception;
      }
      double w  = fPhaseSpaceGenerator.Generate();   
