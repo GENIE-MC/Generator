@@ -43,14 +43,15 @@ GFlavorMap::GFlavorMap()
 GFlavorMap::~GFlavorMap() { ; }
 
 //____________________________________________________________________________
-void GFlavorMap::Config(std::string config)
+void GFlavorMap::Config(std::string configIn)
 {
+  std::string config = genie::utils::str::TrimSpaces(configIn);
   LOG_BEGIN("FluxBlender", pINFO) 
     << "GFlavorMap::Config \"" << config << "\"" << LOG_END;
   
   if ( config.find("swap") == 0 || 
        config.find("map")  == 0 || 
-       config.find("genie::flux::GFlavorMap") ) {
+       config.find("genie::flux::GFlavorMap") == 0 ) {
     ParseMapString(config);
   } else if ( config.find("fixedfrac") == 0 ) {
     ParseFixedfracString(config);
