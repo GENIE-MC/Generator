@@ -72,10 +72,20 @@ bool PDGLibrary::LoadDBase(void)
   fDatabasePDG = TDatabasePDG::Instance();
 
   // loading PDG data from $GENIE/config/
+  const char* altpdgtable = gSystem->Getenv("GENIE_PDG_TABLE");
+  if ( altpdgtable ) {
+    if ( ! (gSystem->AccessPathName(altpdgtable) ) ) {
+        LOG("PDG", pINFO) << "Load PDG data from $GENIE_PDG_TABLE: "
+                          << altpdgtable;
+        fDatabasePDG->ReadPDGTable( altpdgtable );
+        return true;
+    } 
+  }
 
-  if(gSystem->Getenv("GENIE")) {
+  if ( gSystem->Getenv("GENIE") ) {
     string base_dir = string( gSystem->Getenv("GENIE") );
-    string path = base_dir + string("/data/evgen/catalogues/pdg/genie_pdg_table.txt");
+    string path = base_dir + 
+      string("/data/evgen/catalogues/pdg/genie_pdg_table.txt");
 
     if ( ! (gSystem->AccessPathName(path.c_str()) ) ) {
         LOG("PDG", pINFO) << "Load PDG data from: " << path;
