@@ -86,6 +86,11 @@ vector<string> & GSimFiles::EvtFileNames(int imodel) const
   return (*fEvtFileNames)[imodel];
 }
 //____________________________________________________________________________
+const string & GSimFiles::PathToXMLFile(void) const
+{
+   return fPath2XMLFile;
+}
+//____________________________________________________________________________
 bool GSimFiles::LoadFromFile(string xmlfile)
 {
   LOG("GSimFiles", pNOTICE) << "Loading: " << xmlfile;
@@ -225,6 +230,8 @@ bool GSimFiles::LoadFromFile(string xmlfile)
   }//reader!=null
 
   fNModels = imodel;
+  
+  fPath2XMLFile = xmlfile;
 
   return true;
 }
@@ -232,6 +239,7 @@ bool GSimFiles::LoadFromFile(string xmlfile)
 void GSimFiles::Print(ostream & stream) const
 {
   stream << endl;
+  stream << "loaded from path: " << fPath2XMLFile << endl;
   for(int imodel=0; imodel < this->NModels(); imodel++) {
      stream << "model tag: [" << this->ModelTag(imodel) << "]" << endl;
      if(this->XSecFile(imodel)) {
@@ -260,10 +268,15 @@ void GSimFiles::Init(const int nmaxmodels)
     (*fXSecFile) [i] = 0;
     (*fEvtChain) [i] = 0;
   }
+
+  fPath2XMLFile = "";
+
 }
 //____________________________________________________________________________
 void GSimFiles::CleanUp(void)
 {
+
+   fPath2XMLFile = "";
 
 }
 //____________________________________________________________________________
