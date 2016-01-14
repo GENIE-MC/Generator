@@ -65,7 +65,7 @@ Important revisions after version 2.0.0 :
          make beam energy range a little larger to use more datasets
          make angle and nu settings correct for wide range of ep data
  
-\cpright Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
+\cpright Copyright (c) 2003-2016, GENIE Neutrino MC Generator Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
          or see $GENIE/LICENSE
 */
