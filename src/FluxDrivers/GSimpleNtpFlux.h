@@ -338,8 +338,6 @@ private:
                                   // i.e. are all entry "wgt" values = 1
   bool      fAllFilesMeta;        ///< do all files in chain have meta data
 
-  double           fZ0;             ///< configurable starting z position for each flux neutrino (in detector coord system)
-
   GSimpleNtpEntry* fCurEntry;  ///< current entry
   GSimpleNtpNuMI*  fCurNuMI;   ///< current "numi" branch extra info
   GSimpleNtpAux*   fCurAux;    ///< current "aux" branch extra info
