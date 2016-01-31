@@ -229,15 +229,9 @@
 
     <!-- beamdir must come before beam zero position -->
     <!-- direction of the beam in the user coordinate system -->
-    <!-- ND in alcove, values from Denis Perevalov as of 2011-04-19 
-    <beamdir type="newxyz"> 
-       [  0.99989376325     0               -0.014576083806  ]
-       [ -0.00084079591837  0.99833493499   -0.057677124125  ]
-       [  0.014551813679    0.057683252207   0.99822887513   ] 
-    </beamdir>
     -->
-    <!-- ND "as built", values from Alex Radovic as of 2014-09-18 -->
-    <beamdir type="newxyz"> 
+    <!-- ND values from Alex Radovic / Ryan Nichol as of 2015-11-5 -->
+    <beamdir type="newxyz">
        [  9.9990e-01  -8.2300e-04  -1.4088e-02 ]
        [  3.0533e-06   9.9831e-01  -5.8103e-02 ]
        [  1.4112e-02   5.8097e-02   9.9821e-01 ]
@@ -245,12 +239,9 @@
 
     <!-- position of beam -->
     <!-- XML config must have already set the rotation matrix -->
-    <!-- ND in alcove, values from Denis Perevalov as of 2011-04-19 
-    <beampos> ( 3.08553 60.82926 -992.8701 ) </beampos>
-    -->
-    <!-- ND "as built", values from Alex Radovic as of 2014-09-18 -->
-    <beampos> ( 2.5991 60.9565 -999.2012 ) </beampos>
- 
+    <!-- ND values from Alex Radovic / Ryan Nichol as of 2015-11-5 -->
+    <beampos> ( 2.269447 61.001882 -991.131313 ) </beampos> 
+
     <!-- define flux window in detector coords -->
     <!-- need 3 positions to define a rectoid -->
     <!-- not yet support beam coords, 
@@ -263,6 +254,28 @@
       <point coord="det"> -5.000,  -2.500, -5. </point>
     </window>
 
+  </param_set>
+
+  <param_set name="NOvA-ND-2011">
+    <using_param_set> NOvA-ND </using_param_set>
+    <!-- ND in alcove, values from Denis Perevalov as of 2011-04-19 -->
+     <beamdir type="newxyz"> 
+       [  0.99989376325     0               -0.014576083806  ]
+       [ -0.00084079591837  0.99833493499   -0.057677124125  ]
+       [  0.014551813679    0.057683252207   0.99822887513   ] 
+    </beamdir>
+    <beampos> ( 3.08553 60.82926 -992.8701 ) </beampos>
+  </param_set>
+
+  <param_set name="NOvA-ND-2014">
+    <using_param_set> NOvA-ND </using_param_set>
+    <!-- ND "as built", values from Alex Radovic as of 2014-09-18 -->
+    <beamdir type="newxyz"> 
+       [  9.9990e-01  -8.2300e-04  -1.4088e-02 ]
+       [  3.0533e-06   9.9831e-01  -5.8103e-02 ]
+       [  1.4112e-02   5.8097e-02   9.9821e-01 ]
+    </beamdir>
+    <beampos> ( 2.5991 60.9565 -999.2012 ) </beampos>
   </param_set>
 
   <param_set name="NOvA-NDRock">
@@ -284,19 +297,20 @@
 
     <!-- beamdir must come before beam zero position -->
     <!-- direction of the beam in the user coordinate system -->
-    <!-- FD values from Denis Perevalov as of 2011-05-18 -->
     <!-- beam goes up in the coordinate system of the FD -->
-    <beamdir type="newxyz"> 
-       [ 0.99989376325     0              -0.014576083806 ]
-       [ 0.00084079591837  0.99833493499   0.057677124125 ]
-       [ 0.014551813679   -0.057683252207  0.99822887513  ] 
+    <!-- FD "as built", values from Ryan Nichol, 2015-11-09  -->
+    <beamdir type="newxyz">
+       [ 0.999906221741 0.000472822894411 -0.0136866417481  ]
+       [ 0.000472822894411 0.997616062703 0.0690070132296  ]
+       [ 0.0136866417481 -0.0690070132296 0.997522284444 ]
     </beamdir>
 
     <!-- this is a translation from ( user coords ) to ( beam coords ) -->
     <!-- basically a statement of the origin in the detector coordinate system
          has the corresponding value in the beam coordinate system -->
     <!-- XML config must have already set the rotation matrix -->
-    <beampos> ( 686.841613827855 -42602.54118512  -809517.55316212 ) </beampos>
+    <!-- FD "as built", values from Ryan Nichol, 2015-11-09  -->
+    <beampos> ( 57.666820 -51777.408547 -808852.640542 ) </beampos>
 
     <!-- define flux window in detector coords -->
     <!-- need 3 positions to define a rectoid -->
@@ -309,6 +323,17 @@
       <point coord="det">  -8.5,  -12.5, 0.0 </point>
       <point coord="det">   8.5,    8.5, 0.0 </point>
     </window>
+  </param_set>
+
+  <param_set name="NOvA-FD-2011">
+    <using_param_set> NOvA-FD </using_param_set>
+    <!-- FD values from Denis Perevalov as of 2011-05-18 -->
+    <beamdir type="newxyz"> 
+       [ 0.99989376325     0              -0.014576083806 ]
+       [ 0.00084079591837  0.99833493499   0.057677124125 ]
+       [ 0.014551813679   -0.057683252207  0.99822887513  ] 
+    </beamdir>
+    <beampos> ( 686.841613827855 -42602.54118512  -809517.55316212 ) </beampos>
   </param_set>
 
   <param_set name="NOvA-FDRock">
