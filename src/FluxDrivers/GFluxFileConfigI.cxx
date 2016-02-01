@@ -17,7 +17,12 @@ namespace genie {
 namespace flux {
 
   GFluxFileConfigI::GFluxFileConfigI()
-    : fXMLbasename(""), fNCycles(0), fZ0(-3.4e38)
+    : fPdgCList(new PDGCodeList)
+    , fPdgCListRej(new PDGCodeList)
+    , fXMLbasename("")
+    , fNCycles(0)
+    , fICycle(0)
+    , fZ0(-3.4e38)
   { ; }
 
   GFluxFileConfigI::~GFluxFileConfigI() { ; }
@@ -92,9 +97,6 @@ namespace flux {
   //___________________________________________________________________________
   void GFluxFileConfigI::SetFluxParticles(const PDGCodeList & particles)
   {
-    if (!fPdgCList) {
-      fPdgCList = new PDGCodeList;
-    }
     fPdgCList->Copy(particles);
     
     LOG("Flux", pINFO)

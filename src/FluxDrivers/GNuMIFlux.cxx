@@ -1185,8 +1185,7 @@ void GNuMIFlux::Initialize(void)
 
   fMaxEv           =  0;
   fEnd             =  false;
-  fPdgCList        = new PDGCodeList;
-  fPdgCListRej     = new PDGCodeList;
+
   fCurEntry        = new GNuMIFluxPassThroughInfo;
 
   fNuFluxTree      =  0;

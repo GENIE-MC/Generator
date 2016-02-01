@@ -705,8 +705,7 @@ void GSimpleNtpFlux::Initialize(void)
 
   fMaxEv           =  0;
   fEnd             =  false;
-  fPdgCList        = new PDGCodeList;
-  fPdgCListRej     = new PDGCodeList;
+
   fCurEntry        = new GSimpleNtpEntry;
   fCurNuMI         = new GSimpleNtpNuMI;
   fCurAux          = new GSimpleNtpAux;

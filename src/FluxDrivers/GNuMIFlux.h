@@ -377,10 +377,9 @@ private:
   // Private data members
   //
   double         fMaxEv;          ///< maximum energy
-  PDGCodeList *  fPdgCListRej;    ///< list of neutrino pdg-codes seen but rejected
+
   bool           fEnd;            ///< end condition reached
 
-  string    fXMLbasename;         ///< XML filename for config data
   std::vector<string> fNuFluxFilePatterns;   ///< (potentially wildcarded) path(s)
   string    fNuFluxTreeName;      ///< Tree name "h10" (g3) or "nudata" (g4)
   TChain*   fNuFluxTree;          ///< TTree in g3numi or g4numi // REF ONLY!
@@ -400,7 +399,6 @@ private:
   long int  fMaxWgtEntries;       ///< # of entries in estimating max wgt
   double    fMaxEFudge;           ///< fudge factor for estmating max enu (0=> use fixed 120GeV)
 
-  long int  fICycle;              ///< current file cycle
   long int  fNUse;                ///< how often to use same entry in a row
   long int  fIUse;                ///< current # of times an entry has been used
   double    fSumWeight;           ///< sum of weights for nus thrown so far
