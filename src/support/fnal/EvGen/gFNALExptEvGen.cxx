@@ -498,10 +498,14 @@ int main(int argc, char ** argv)
     exit(1);
   }
 
+  // these might come in handy ... avoid repeated dynamic_cast<> calls
+  genie::flux::GFluxExposureI* fluxExposureI = 
+    dynamic_cast<genie::flux::GFluxExposureI*>(flux_driver);
+  genie::flux::GFluxFileConfigI* fluxFileConfigI =
+    dynamic_cast<genie::flux::GFluxFileConfigI*>(flux_driver);
+
   if ( ! gOptUsingHistFlux ) {
-    genie::flux::GFluxFileConfigI* flux_file_config =
-      dynamic_cast<genie::flux::GFluxFileConfigI*>(flux_driver);
-    if ( ! flux_file_config ) {
+    if ( ! fluxFileConfigI ) {
       LOG("gevgen_fnal", pFATAL) 
         << "Failed to get GFluxFileConfigI driver from GFluxDriverFactory\n"
         << "when using \"" << gOptFluxDriver << "\"";
@@ -511,13 +515,13 @@ int main(int argc, char ** argv)
     //
     // *** Using the detailed ntuple neutrino flux description
     //
-    flux_file_config->LoadBeamSimData(gOptFluxFile, gOptDetectorLocation);
-    flux_file_config->SetUpstreamZ(gOptZmin);  // was "zmin" from bounding_box
-    flux_file_config->SetNumOfCycles(0);
+    fluxFileConfigI->LoadBeamSimData(gOptFluxFile, gOptDetectorLocation);
+    fluxFileConfigI->SetUpstreamZ(gOptZmin);  // was "zmin" from bounding_box
+    fluxFileConfigI->SetNumOfCycles(0);
 
     if ( gOptFluxPdg.size() > 0 ) {
       // user specified list of neutrino PDGs
-      flux_file_config->SetFluxParticles(gOptFluxPdg);
+      fluxFileConfigI->SetFluxParticles(gOptFluxPdg);
       std::ostringstream s;
       PDGCodeList::const_iterator itr = gOptFluxPdg.begin();
       for ( ; itr != gOptFluxPdg.end(); ++itr) s << (*itr) << " ";
@@ -558,13 +562,6 @@ int main(int argc, char ** argv)
     }
   }
 
-  // these might come in handy ... avoid repeated dynamic_cast<> calls
-  genie::flux::GFluxExposureI* fluxExposureI = 
-    dynamic_cast<genie::flux::GFluxExposureI*>(flux_driver);
-  genie::flux::GFluxFileConfigI* fluxFileConfigI =
-    dynamic_cast<genie::flux::GFluxFileConfigI*>(flux_driver);
-
-
   // *************************************************************************
   // * Handle chicken/egg problem: geom analyzer vs. flux.
   // * Need both at this point change geom scan defaults.
@@ -600,6 +597,8 @@ int main(int argc, char ** argv)
   mcj_driver->UseFluxDriver(flux_driver);    
   mcj_driver->UseGeomAnalyzer(geom_driver);        
   if ( ( gOptExtMaxPlXml != "" ) && ! gOptWriteMaxPlXml ) {
+    LOG("gevgen_fnal", pINFO)
+      << "mcj_driver->UseMaxPathLengths(" << gOptExtMaxPlXml << ")";
     mcj_driver->UseMaxPathLengths(gOptExtMaxPlXml);  
   }
   mcj_driver->Configure();                         
@@ -636,6 +635,8 @@ int main(int argc, char ** argv)
       mpfile.close();
     }
   }
+  if (fluxFileConfigI) fluxFileConfigI->PrintConfig();
+
 
   // *************************************************************************
   // * Prepare for writing the output event tree & status file
