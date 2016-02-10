@@ -592,6 +592,8 @@ STFC, Rutherford Appleton Laboratory
    - genie::HNIntranuke/Default
    - genie::HAIntranuke2014/Default  new 2d spline for piA
    - genie::HNIntranuke2014/Default
+   - genie::HAIntranuke2015/Default
+   - genie::HNIntranuke2015/Default
   -->
   <param type="bool" name="HadronTransp-Enable"> true </param>
   <param type="alg"  name="HadronTransp-Model">  genie::HAIntranuke/Default  </param>
@@ -618,6 +620,8 @@ STFC, Rutherford Appleton Laboratory
   <param type="double" name="INUKE-FermiMomentum">     0.250 </param>
   <param type="bool"   name="INUKE-DoFermi">           true  </param>
   <param type="bool"   name="INUKE-DoCompoundNucleus"> true  </param>
+  <param type="bool"   name="HNINUKE-useOset">         true  </param> <!-- only for hN2015 -->
+  <param type="bool"   name="HNINUKE-altOset">         false </param> <!-- only for hN2015 -->
 
  <!-- 	
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
