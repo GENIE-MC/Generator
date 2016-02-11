@@ -1,41 +1,55 @@
+/**
+ * @brief Oset model handler (abstract class)
+ * 
+ * @author Tomasz Golan
+ * @date 2015
+ * @warning Applicable for pion with Tk < 350 MeV
+ * @remarks Based on E. Oset et al., Nucl. Phys. A484 (1988) 557-592
+ * 
+*/
+
 #ifndef OSET_CROSS_SECTION_H
 #define OSET_CROSS_SECTION_H
 
 #include <cmath>
 #include <limits>
 
-class OsetCrossSection // abstract oset class
+class OsetCrossSection
 {
   public:
 
-  OsetCrossSection ();
+  OsetCrossSection (); //!< contructor
 
-  // use to set up Oset class (assign pion Tk, nuclear density etc)
+  //! use to set up Oset class (assign pion Tk, nuclear density etc)
   virtual void setupOset (const double &density, const double &pionTk,
                           const int &pionPDG,
                           const double &protonFraction) = 0;
 
-  // get total = (qel+cex+abs) cross section 
+  //! return total = (qel+cex+abs) cross section 
   inline double getTotalCrossSection  () const
   {
     return totalCrossSection;
   }
-  // get cex cross section 
+  
+  //! return cex cross section 
   inline double getCexCrossSection () const
   {
     return cexCrossSection;
   }
-  // get absorption cross section
+  
+  //! return absorption cross section
   inline double getAbsorptionCrossSection () const
   {
     return absorptionCrossSection;
   }
-  // get fraction of cex events
+  
+  //! return fraction of cex events
   inline double getCexFraction () const
   {
     return cexCrossSection / totalCrossSection;
   }
-  // get fraction of absorption events
+  
+  //! return fraction of absorption events
   inline double getAbsorptionFraction () const
   {
     return absorptionCrossSection / totalCrossSection;
@@ -43,31 +57,37 @@ class OsetCrossSection // abstract oset class
 
   protected:
 
-  double nuclearDensity;    // nuclear density in fm-3
-  double pionKineticEnergy; // pion kinetic energy in MeV
+  double nuclearDensity;    //!< nuclear density in fm-3
+  double pionKineticEnergy; //!< pion kinetic energy in MeV
 
-  // cross section averaged over proton / neutron fraction
-  double totalCrossSection;      // el+cex+abs cross section
-  double cexCrossSection;        //        cex cross section
-  double absorptionCrossSection; // absorption cross section
+  //! el+cex+abs cross section (averaged over proton / neutron fraction)
+  double totalCrossSection;      
+  //! cex cross section (averaged over proton / neutron fraction)
+  double cexCrossSection;        
+  //! absorption cross section (averaged over proton / neutron fraction)
+  double absorptionCrossSection; 
 
-  // cross section per channel 
-  // if (pi0) channel = 2;
-  // else channel = [(10 * pip + pim) == (10 * p + n)]
-  // 0 -> pi+n or pi-p, 1 -> pi+p or pi-n, 2 -> pi0  double
-  static const unsigned int nChannels = 3; // pi+n, pi+p, pi0
-  double qelCrossSections[nChannels]; // qel = el + cex
-  double cexCrossSections[nChannels]; // only cex
+  //! number of possible channels: pi+n, pi+p, pi0
+  /*! if (pi0) channel = 2 \n
+   *  else channel = [(10 * pip + pim) == (10 * p + n)] \n \n
+   *  0 -> pi+n or pi-p, 1 -> pi+p or pi-n, 2 -> pi0
+   */
+  static const unsigned int nChannels = 3; 
   
-  // set up cross sections for all channels
+  //! total qel (el+cex) cross section for each channel
+  double qelCrossSections[nChannels]; 
+  double cexCrossSections[nChannels]; //!< cex cross section for each channel
+  
+  //! calculalte cross sections for each channel
   virtual void setCrossSections () = 0;
-  // calculate avg cross sections according to proton / neutron fraction
+  
+  //! calculate avg cross sections according to proton / neutron fraction
   void setCrossSections (const int &pionPDG,
                          const double &protonFraction);
 
-  static const int kPdgPiP =  211;
-  static const int kPdgPiM = -211;
-  static const int kPdgPi0 =  111;  
+  static const int kPdgPiP =  211; //!< positive pion PDG
+  static const int kPdgPiM = -211; //!< negative pion PDG
+  static const int kPdgPi0 =  111; //!< neutral pion PDG
 };
 
 namespace osetUtils

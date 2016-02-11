@@ -6,7 +6,7 @@
 
 using namespace osetUtils;
 
-// constructor -> load table from file
+//! load tables from file and check its integrity
 OsetCrossSectionTable :: OsetCrossSectionTable (const char *filename) :
                           nDensityBins (0), nEnergyBins (0),
                           densityBinWidth (0.0), energyBinWidth (0.0)
@@ -34,7 +34,17 @@ OsetCrossSectionTable :: OsetCrossSectionTable (const char *filename) :
   densityHandler.setHandler (densityBinWidth, nDensityBins);
   energyHandler.setHandler  (energyBinWidth,  nEnergyBins);
 }
+
 // process single line from table file, push values to proper vector
+/*! <ul>
+ * <li> split line read from the file; the following structure is used:
+ * \n \n 
+ * d; Tk; pi+n: tot fabs fcex; pi+p: tot fabs fcex; pi0: tot fabs fcex
+ * \n \n
+ * <li> check its integrity
+ * <li> save values into proper variables
+ * </ul> 
+ */
 int OsetCrossSectionTable :: processLine (const std::string &line)
 {
   std::istringstream splitLine (line); // use istringstream to split string
@@ -67,7 +77,7 @@ int OsetCrossSectionTable :: processLine (const std::string &line)
   return 0; // no errors
 }
 
-// check if data in file is consistent (bin width etc)
+//! return 0 if all bins widths are constistent or return error code
 int OsetCrossSectionTable :: checkIntegrity (const double &densityValue,
                                               const double &energyValue)
 {
@@ -121,7 +131,15 @@ int OsetCrossSectionTable :: checkIntegrity (const double &densityValue,
   return 0; // no errors
 }
 
-// stop program and through an error if input file is corrupted
+/*! possible errors:
+ * 
+ *  <ul>
+ *  <li> the file with tables could not be loaded
+ *  <li> density bin width is not constant
+ *  <li> there is different number of energy point per density value
+ *  <li> energy bin width is not constant
+ *  </ul> 
+ */ 
 void OsetCrossSectionTable :: badFile (const char* file, const int &errorCode,
                                         const int &line) const
 {
@@ -140,7 +158,7 @@ void OsetCrossSectionTable :: badFile (const char* file, const int &errorCode,
   exit(errorCode);
 }
 
-// make interpolation between four points around (density, energy)  
+//! make bilinear interpolation between four points around (density, energy)
 double OsetCrossSectionTable :: interpolate (const std::vector<double> &data)
                                               const
 {
@@ -187,7 +205,7 @@ double OsetCrossSectionTable :: interpolate (const std::vector<double> &data)
           totalBinWidth;
 }
 
-// update point if value has changed
+//! set up table index and weights for given point
 void OsetCrossSectionTable :: PointHandler :: update (const double &newValue)
 {
   value = newValue;         // update value
@@ -206,7 +224,12 @@ void OsetCrossSectionTable :: PointHandler :: update (const double &newValue)
 }
 
 
-// set up density, pion Tk and their handlers (use for interpolation)
+/*! <ul>
+ *  <li> set up density, pion Tk and their handlers (for interpolation)
+ *  <li> get interpolated cross sections
+ *  <li> set up proper cross section variables
+ *  </ul> 
+ */ 
 void OsetCrossSectionTable :: setupOset (const double &density,
                                          const double &pionTk,
                                          const int &pionPDG,
@@ -220,7 +243,9 @@ void OsetCrossSectionTable :: setupOset (const double &density,
   OsetCrossSection::setCrossSections (pionPDG, protonFraction);  
 }
 
-// calculate cross sections
+/*! assign cross sections values to proper variables
+ * using bilinear interpolation
+ */ 
 void OsetCrossSectionTable :: setCrossSections ()
 {
     for (int i = 0; i < nChannels; i++) // channel loop

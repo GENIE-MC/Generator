@@ -4,6 +4,7 @@
 // workaround to get access to last instance
 OsetCrossSection* osetUtils::currentInstance = NULL;
 
+//! set up initial density and enegry values; set up pointer to current instance
 OsetCrossSection :: OsetCrossSection () : nuclearDensity (-1.0),
                                           pionKineticEnergy (-1.0)
 {
