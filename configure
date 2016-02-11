@@ -171,7 +171,7 @@ if($gopt_enable_debug eq "YES") { $gopt_with_cxx_debug_flag = "-g"; }
 
 # Check compiler
 #
-my $opt_with_compiler="gcc"; # default
+my $gopt_with_compiler="gcc"; # default
 if( $options=~m/--with-compiler=(\S*)/i ) {
   $gopt_with_compiler = $1;
 }
