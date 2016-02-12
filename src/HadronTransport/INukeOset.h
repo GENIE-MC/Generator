@@ -8,8 +8,8 @@
  * 
 */
 
-#ifndef OSET_CROSS_SECTION_H
-#define OSET_CROSS_SECTION_H
+#ifndef INUKE_OSET_H
+#define INUKE_OSET_H
 
 #include <cmath>
 #include <limits>
@@ -21,15 +21,14 @@
 using namespace genie;
 using namespace genie::constants;
 
-class OsetCrossSection
+class INukeOset
 {
   public:
 
-  OsetCrossSection (); //!< contructor
+  INukeOset (); //!< contructor
 
   //! use to set up Oset class (assign pion Tk, nuclear density etc)
-  virtual void setupOset (const double &density, const double &pionTk,
-                          const int &pionPDG,
+  virtual void setupOset (const double &density, const double &pionTk, const int &pionPDG,
                           const double &protonFraction) = 0;
 
   //! return total = (qel+cex+abs) cross section 
@@ -96,7 +95,7 @@ class OsetCrossSection
 namespace osetUtils
 {
   // workaround to get access to last instance
-  extern OsetCrossSection* currentInstance; 
+  extern INukeOset* currentInstance; 
   // check if double == double with defined accuracy
   inline bool isEqual (const double &x, const double &y,
                        const double &epsilon)
@@ -116,4 +115,4 @@ namespace osetUtils
   }
 } // namespace osetUtils
 
-#endif
+#endif // INUKE_OSET_H

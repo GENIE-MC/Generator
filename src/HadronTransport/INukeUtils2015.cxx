@@ -63,9 +63,9 @@
 #include "Registry/Registry.h"
 #include "Utils/NuclearUtils.h"
 #include "Utils/PrintUtils.h"
-#include "HadronTransport/OsetCrossSection.h"
-#include "HadronTransport/OsetCrossSectionTable.h"
-#include "HadronTransport/OsetCrossSectionFormula.h"
+#include "HadronTransport/INukeOset.h"
+#include "HadronTransport/INukeOsetTable.h"
+#include "HadronTransport/INukeOsetFormula.h"
 
 using std::ostringstream;
 using namespace genie;
@@ -1810,9 +1810,9 @@ double genie::utils::intranuke2015::sigmaTotalOset (
                                     )
 {
   // ------ OsetCrossSection init (only first time function is called) ------ //
-  static OsetCrossSection *osetCrossSection = NULL;
+  static INukeOset *iNukeOset = NULL;
 
-  if (osetCrossSection == NULL)
+  if (iNukeOset == NULL)
   {
     if (isTableChosen)
     {
@@ -1825,17 +1825,16 @@ double genie::utils::intranuke2015::sigmaTotalOset (
       static const std::string dataFile = dataDir + "tot_xsec/"
                                           "intranuke-xsection-pi+N-Oset.dat";
       // initialize OsetCrossSection on first call                                    
-      osetCrossSection = new OsetCrossSectionTable (dataFile.c_str());
+      iNukeOset = new INukeOsetTable (dataFile.c_str());
     }
-    else osetCrossSection = new OsetCrossSectionFormula();
+    else iNukeOset = new INukeOsetFormula();
   }
   // ------ OsetCrossSection init (only first time function is called) ------ //
 
   // set up Oset class (assign pion Tk, nuclear density etc)
-  osetCrossSection->setupOset (density, pionKineticEnergy, pionPDG,
-                               protonFraction);
+  iNukeOset->setupOset (density, pionKineticEnergy, pionPDG, protonFraction);
 
-  return osetCrossSection->getTotalCrossSection();
+  return iNukeOset->getTotalCrossSection();
 
 }
 

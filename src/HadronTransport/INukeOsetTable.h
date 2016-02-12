@@ -10,28 +10,27 @@
  * 
  * This implementation is kept from historical reasons.
  * Due to different approach to cascade in GENIE and NuWro there are some normalization issues.
- * Default Oset model can be found in OsetCrossSectionFormula
+ * Default Oset model can be found in INukeOsetFormula
  * 
 */
 
-#ifndef OSET_CROSS_SECTION_TABLE_H
-#define OSET_CROSS_SECTION_TABLE_H
+#ifndef INUKE_OSET_TABLE_H
+#define INUKE_OSET_TABLE_H
 
-#include "OsetCrossSection.h"
+#include "INukeOset.h"
 #include <vector>
 #include <string>
 
 // handle tables with Oset cross sections
-class OsetCrossSectionTable : public OsetCrossSection
+class INukeOsetTable : public INukeOset
 {
   public:
 
   //! constructor
-  OsetCrossSectionTable (const char* filename);  
+  INukeOsetTable (const char* filename);  
 
   //! use to set up Oset class (assign pion Tk, nuclear density etc)
-  void setupOset (const double &density, const double &pionTk,
-                  const int &pionPDG, const double &protonFraction);
+  void setupOset (const double &density, const double &pionTk, const int &pionPDG, const double &protonFraction);
 
   private:
   
@@ -67,12 +66,10 @@ class OsetCrossSectionTable : public OsetCrossSection
   int processLine (const std::string &line);
   
   //! check if data in file is consistent (method fixed for Oset tables)
-  int checkIntegrity (const double &densityValue, 
-                      const double &energyValue);
+  int checkIntegrity (const double &densityValue, const double &energyValue);
   
   //! stop program and through an error if input file is corrupted (method fixed for Oset tables)
-  void badFile (const char* file, const int &errorCode,
-                const int &line = 0) const;
+  void badFile (const char* file, const int &errorCode, const int &line = 0) const;
 
   //! calculalte cross sections for each channel
   void setCrossSections ();
@@ -104,4 +101,4 @@ class OsetCrossSectionTable : public OsetCrossSection
   PointHandler energyHandler;  //!< pion kinetic energy handler
 };
 
-#endif
+#endif // INUKE_OSET_TABLE_H

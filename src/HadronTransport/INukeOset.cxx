@@ -1,18 +1,16 @@
-#include "OsetCrossSection.h"
+#include "INukeOset.h"
 #include <cstddef>
 
 // workaround to get access to last instance
-OsetCrossSection* osetUtils::currentInstance = NULL;
+INukeOset* osetUtils::currentInstance = NULL;
 
 //! set up initial density and enegry values; set up pointer to current instance
-OsetCrossSection :: OsetCrossSection () : nuclearDensity (-1.0),
-                                          pionKineticEnergy (-1.0)
+INukeOset :: INukeOset () : nuclearDensity (-1.0), pionKineticEnergy (-1.0)
 {
   osetUtils::currentInstance = this;
 }
 
-void OsetCrossSection :: setCrossSections (const int &pionPDG,
-                                           const double &protonFraction)
+void INukeOset :: setCrossSections (const int &pionPDG, const double &protonFraction)
 {  
   if (pionPDG == kPdgPi0)
   {

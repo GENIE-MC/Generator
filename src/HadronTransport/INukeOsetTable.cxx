@@ -2,14 +2,13 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
-#include "OsetCrossSectionTable.h"
+#include "INukeOsetTable.h"
 
 using namespace osetUtils;
 
 //! load tables from file and check its integrity
-OsetCrossSectionTable :: OsetCrossSectionTable (const char *filename) :
-                          nDensityBins (0), nEnergyBins (0),
-                          densityBinWidth (0.0), energyBinWidth (0.0)
+INukeOsetTable :: INukeOsetTable (const char *filename) : nDensityBins (0), nEnergyBins (0), 
+                                                          densityBinWidth (0.0), energyBinWidth (0.0)
 {
   // open file with Oset table
   std::ifstream fileWithTables (filename);
@@ -45,7 +44,7 @@ OsetCrossSectionTable :: OsetCrossSectionTable (const char *filename) :
  * <li> save values into proper variables
  * </ul> 
  */
-int OsetCrossSectionTable :: processLine (const std::string &line)
+int INukeOsetTable :: processLine (const std::string &line)
 {
   std::istringstream splitLine (line); // use istringstream to split string
   // line = d; KE; pi+n: tot fabs fcex; pi+p: tot fabs fcex; pi0: tot fabs fcex
@@ -78,8 +77,7 @@ int OsetCrossSectionTable :: processLine (const std::string &line)
 }
 
 //! return 0 if all bins widths are constistent or return error code
-int OsetCrossSectionTable :: checkIntegrity (const double &densityValue,
-                                              const double &energyValue)
+int INukeOsetTable :: checkIntegrity (const double &densityValue, const double &energyValue)
 {
   static unsigned int energyBinCounter = 0; // #energy bins for current density
   
@@ -140,8 +138,7 @@ int OsetCrossSectionTable :: checkIntegrity (const double &densityValue,
  *  <li> energy bin width is not constant
  *  </ul> 
  */ 
-void OsetCrossSectionTable :: badFile (const char* file, const int &errorCode,
-                                        const int &line) const
+void INukeOsetTable :: badFile (const char* file, const int &errorCode, const int &line) const
 {
   std::cerr << "\nERROR: " << file << " is corrupted (";
   
@@ -159,8 +156,7 @@ void OsetCrossSectionTable :: badFile (const char* file, const int &errorCode,
 }
 
 //! make bilinear interpolation between four points around (density, energy)
-double OsetCrossSectionTable :: interpolate (const std::vector<double> &data)
-                                              const
+double INukeOsetTable :: interpolate (const std::vector<double> &data) const
 {
   // take four points adjacent to (density, energy) = (d,E):
   // (d0, E0), (d1, E0), (d0, E1), (d1, E1)
@@ -206,7 +202,7 @@ double OsetCrossSectionTable :: interpolate (const std::vector<double> &data)
 }
 
 //! set up table index and weights for given point
-void OsetCrossSectionTable :: PointHandler :: update (const double &newValue)
+void INukeOsetTable :: PointHandler :: update (const double &newValue)
 {
   value = newValue;         // update value
   index = value / binWidth; // update index
@@ -230,23 +226,21 @@ void OsetCrossSectionTable :: PointHandler :: update (const double &newValue)
  *  <li> set up proper cross section variables
  *  </ul> 
  */ 
-void OsetCrossSectionTable :: setupOset (const double &density,
-                                         const double &pionTk,
-                                         const int &pionPDG,
-                                         const double &protonFraction)
+void INukeOsetTable :: setupOset (const double &density, const double &pionTk, const int &pionPDG,
+                                  const double &protonFraction)
 {
   nuclearDensity    = density;
   pionKineticEnergy = pionTk;
   densityHandler.update (nuclearDensity);    // update density index / weights
   energyHandler.update  (pionKineticEnergy); // update energy index / weights
   setCrossSections();
-  OsetCrossSection::setCrossSections (pionPDG, protonFraction);  
+  INukeOset::setCrossSections (pionPDG, protonFraction);  
 }
 
 /*! assign cross sections values to proper variables
  * using bilinear interpolation
  */ 
-void OsetCrossSectionTable :: setCrossSections ()
+void INukeOsetTable :: setCrossSections ()
 {
     for (int i = 0; i < nChannels; i++) // channel loop
     {
