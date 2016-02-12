@@ -241,7 +241,7 @@ bool Intranuke2015::CanRescatter(const GHepParticle * p) const
             p->Pdg() == kPdgPi0     ||
             p->Pdg() == kPdgProton  ||
             p->Pdg() == kPdgNeutron ||
-	    p->Pdg() == kPdgGamma   ||
+	    //	    p->Pdg() == kPdgGamma   ||
 	    p->Pdg() == kPdgKP      //||
 	    //	    p->Pdg() == kPdgKM
           );
