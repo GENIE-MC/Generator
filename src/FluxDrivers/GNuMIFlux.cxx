@@ -1185,8 +1185,7 @@ void GNuMIFlux::Initialize(void)
 
   fMaxEv           =  0;
   fEnd             =  false;
-  fPdgCList        = new PDGCodeList;
-  fPdgCListRej     = new PDGCodeList;
+
   fCurEntry        = new GNuMIFluxPassThroughInfo;
 
   fNuFluxTree      =  0;
@@ -1481,7 +1480,7 @@ void GNuMIFluxPassThroughInfo::ResetCopy()
   ntrajectory = 0;
   overflow    = false;
 
-  for ( int itclear = 0; itclear < MAX_N_TRAJ; itclear++ ) {
+  for ( unsigned int itclear = 0; itclear < MAX_N_TRAJ; itclear++ ) {
      pdgcode[itclear]  = 0;
      trackId[itclear]  = 0;
      parentId[itclear] = 0;

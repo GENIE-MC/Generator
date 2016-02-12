@@ -92,8 +92,10 @@ namespace flux {
   protected:  // visible to derived classes
 
     PDGCodeList * fPdgCList;     ///< list of neutrino pdg-codes to generate  
+    PDGCodeList * fPdgCListRej;  ///< list of nu pdg-codes seen but rejected
     std::string   fXMLbasename;  ///< XML file that might hold config param_sets
     long int      fNCycles;      ///< # times to cycle through the ntuple(s)
+    long int      fICycle;       ///< current file cycle
                                  ///< default 0 = infinitely
     double        fZ0;           ///< configurable starting z position for 
                                  ///< each flux neutrino (in detector coord system)
