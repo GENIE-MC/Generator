@@ -26,13 +26,7 @@ class OsetCrossSectionFormula : public OsetCrossSection
 
   // constants 
   static const double couplingConstant; //!< f*^2
-  static const double chargedPionMass;  //!< charged pion mass in MeV
-  static const double neutralPionMass;  //!< charged pion mass in MeV
-  static const double chargedPionMass2; //!< charged pion mass squared
-  static const double neutralPionMass2; //!< charged pion mass squared
-  static const double protonMass;       //!< proton mass in MeV
-  static const double neutronMass;      //!< neutron mass in MeV
-  static const double nucleonMass;      //!< average nucleon mass
+  static const double nucleonMass;      //!< average nucleon mass [MeV]
   static const double nucleonMass2;     //!< average nucleon mass squared
   static const double deltaMass;        //!< delta mass in MeV
   static const double normalDensity;    //!< normal nuclear density [fm-3]
@@ -50,13 +44,13 @@ class OsetCrossSectionFormula : public OsetCrossSection
   static const double  coefBeta[nChannels]; //!< beta (eq. 2.21)
 
   // kinematics variables
-  const double *pionMass;  //!< pointer to charged / neutral pion mass
-  const double *pionMass2; //!< pointer to pion mass ^2
-  double pionMomentum;     //!< pion momentum in MeV
-  double pionEnergy;       //!< pion total energy in MeV
-  double momentumCMS;      //!< momentum in CMS in MeV
-  double momentumCMS2;     //!< momentum in CMS squared
-  double invariantMass;    //!< inv mass = sqrt(s mandelstam) in MeV
+  double pionMass;      //!< pion mass in MeV
+  double pionMass2;     //!< pion mass squared
+  double pionMomentum;  //!< pion momentum in MeV
+  double pionEnergy;    //!< pion total energy in MeV
+  double momentumCMS;   //!< momentum in CMS in MeV
+  double momentumCMS2;  //!< momentum in CMS squared
+  double invariantMass; //!< inv mass = sqrt(s mandelstam) in MeV
 
   // delta variables
   double reducedHalfWidth;     //!< reduced delta half width in MeV

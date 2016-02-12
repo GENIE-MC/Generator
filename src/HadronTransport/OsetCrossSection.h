@@ -14,6 +14,13 @@
 #include <cmath>
 #include <limits>
 
+#include "PDG/PDGCodes.h"
+#include "PDG/PDGLibrary.h"
+#include "Conventions/Constants.h"
+
+using namespace genie;
+using namespace genie::constants;
+
 class OsetCrossSection
 {
   public:
@@ -84,10 +91,6 @@ class OsetCrossSection
   //! calculate avg cross sections according to proton / neutron fraction
   void setCrossSections (const int &pionPDG,
                          const double &protonFraction);
-
-  static const int kPdgPiP =  211; //!< positive pion PDG
-  static const int kPdgPiM = -211; //!< negative pion PDG
-  static const int kPdgPi0 =  111; //!< neutral pion PDG
 };
 
 namespace osetUtils

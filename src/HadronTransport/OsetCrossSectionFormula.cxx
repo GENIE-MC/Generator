@@ -7,16 +7,9 @@ const double OsetCrossSectionFormula :: normalDensity = 0.17; // fm-3
 
 const double OsetCrossSectionFormula :: normFactor = 197.327 * 197.327 * 10.0;
 
-// particles mass (can be removed and replaced by GENIE's definitions)
-
-const double OsetCrossSectionFormula :: chargedPionMass  = 139.57018; // MeV
-const double OsetCrossSectionFormula :: neutralPionMass  = 134.97666; // MeV
-const double OsetCrossSectionFormula :: chargedPionMass2 = chargedPionMass * chargedPionMass;
-const double OsetCrossSectionFormula :: neutralPionMass2 = neutralPionMass * neutralPionMass;
+// particles mass
                                                             
-const double OsetCrossSectionFormula :: protonMass   = 938.272013; // MeV
-const double OsetCrossSectionFormula :: neutronMass  = 939.565346; // MeV
-const double OsetCrossSectionFormula :: nucleonMass  = (protonMass + neutronMass) / 2.0;
+const double OsetCrossSectionFormula :: nucleonMass  = kNucleonMass * 1000.0; // [MeV]
 const double OsetCrossSectionFormula :: nucleonMass2 = nucleonMass * nucleonMass;
 
 const double OsetCrossSectionFormula :: deltaMass = 1232.0; // MeV
@@ -61,21 +54,21 @@ void OsetCrossSectionFormula :: setKinematics (const double &pionTk,
 {
   if (isPi0)
   {
-    pionMass  = &neutralPionMass;
-    pionMass2 = &neutralPionMass2;
+    pionMass  = PDGLibrary::Instance()->Find(kPdgPi0)->Mass() * 1000.0; // [MeV]
+    pionMass2 = pionMass * pionMass;
   }
   else
   {
-    pionMass  = &chargedPionMass;
-    pionMass2 = &chargedPionMass2;
+    pionMass  = PDGLibrary::Instance()->Find(kPdgPiP)->Mass() * 1000.0; // [MeV]
+    pionMass2 = pionMass * pionMass;
   }
 
   pionKineticEnergy = pionTk;
-  pionEnergy        = pionKineticEnergy + *pionMass;
-  pionMomentum      = sqrt (pionEnergy * pionEnergy - *pionMass2);
+  pionEnergy        = pionKineticEnergy + pionMass;
+  pionMomentum      = sqrt (pionEnergy * pionEnergy - pionMass2);
 
   // assuming nucleon at rest
-  invariantMass = sqrt (*pionMass2 + 2.0 * nucleonMass * pionEnergy +
+  invariantMass = sqrt (pionMass2 + 2.0 * nucleonMass * pionEnergy +
                         nucleonMass2);
 
   momentumCMS  = pionMomentum * nucleonMass / invariantMass;
@@ -92,7 +85,7 @@ void OsetCrossSectionFormula :: setDelta ()
 {
   static const double constFactor = 1.0 / 12.0 / M_PI;
 
-  couplingFactor = couplingConstant / *pionMass2; // (f*/m_pi)^2, e.g. eq. 2.6
+  couplingFactor = couplingConstant / pionMass2; // (f*/m_pi)^2, e.g. eq. 2.6
 
   // see eq. 2.7 and sec. 2.3
   reducedHalfWidth = constFactor * couplingFactor * nucleonMass * momentumCMS *
@@ -136,7 +129,7 @@ void OsetCrossSectionFormula :: setCrossSections ()
   const double sXsecAbsorption = sAbsorptionFactor / pionMomentum *
                                  nuclearDensity *
                                  (1.0 + pionEnergy / 2.0 / nucleonMass) /
-                                 pow (*pionMass / 197.327, 4.0);
+                                 pow (pionMass / 197.327, 4.0);
 
   // total absorption cross section coming from both s- and p-waves
   absorptionCrossSection = pXsecAbsorption + sXsecAbsorption;
@@ -147,11 +140,11 @@ void OsetCrossSectionFormula :: setCrossSections ()
   const double pXsecTotalQel = pXsecCommon * reducedHalfWidth;
 
   // see eq. 3.7 
-  const double ksi = (invariantMass - nucleonMass - *pionMass) / *pionMass;
+  const double ksi = (invariantMass - nucleonMass - pionMass) / pionMass;
 
   // el+cex s-wave cross section
   const double sXsecTotalQel = quadraticFunction (ksi, coefSigma) /
-                               *pionMass2 * normFactor;
+                               pionMass2 * normFactor;
 
   // see eq. 3.8
   const double B = quadraticFunction (ksi, coefB);
@@ -206,7 +199,7 @@ double OsetCrossSectionFormula :: deltaReduction () const
 //! based on eq. 2.21
 void OsetCrossSectionFormula :: setSelfEnergy ()
 {
-  const double x = pionKineticEnergy / *pionMass;
+  const double x = pionKineticEnergy / pionMass;
   const double densityFraction = nuclearDensity / normalDensity;
 
   const double alpha = quadraticFunction (x, coefAlpha);
