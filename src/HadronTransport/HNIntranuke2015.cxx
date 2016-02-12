@@ -207,7 +207,7 @@ INukeFateHN_t HNIntranuke2015::HadronFateHN(const GHepParticle * p) const
 
   bool isPion = (pdgc == kPdgPiP or pdgc == kPdgPi0 or pdgc == kPdgPiM);
 
-  if (isPion and useOset and ke < 350.0) return HadronFateOset ();
+  if (isPion and fUseOset and ke < 350.0) return HadronFateOset ();
  
   LOG("HNIntranuke2015", pINFO) 
    << "Selecting hN fate for " << p->Name() << " with KE = " << ke << " MeV";
@@ -538,7 +538,7 @@ void HNIntranuke2015::AbsorbHN(
     }
 
   // pauli blocking (do not apply PB for Oset)
-  if(!useOset && (P3L < fFermiMomentum || P4L < fFermiMomentum))
+  if(!fUseOset && (P3L < fFermiMomentum || P4L < fFermiMomentum))
     {
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
       LOG("HNIntranuke2015",pINFO) << "AbsorbHN failed: Pauli blocking";
@@ -920,8 +920,8 @@ void HNIntranuke2015::LoadConfig(void)
   fDoFermi       = fConfig->GetBoolDef   ("DoFermi",      gc->GetBool("INUKE-DoFermi"));
   fFreeStep      = fConfig->GetDoubleDef ("FreeStep",     gc->GetDouble("INUKE-FreeStep"));
   fDoCompoundNucleus = fConfig->GetBoolDef ("DoCompoundNucleus", gc->GetBool("INUKE-DoCompoundNucleus"));
-  useOset        = fConfig->GetBoolDef ("useOset",        gc->GetBool("HNINUKE-useOset"));
-  altOset        = fConfig->GetBoolDef ("altOset",        gc->GetBool("HNINUKE-altOset"));
+  fUseOset        = fConfig->GetBoolDef ("UseOset", true);
+  fAltOset        = fConfig->GetBoolDef ("AltOset", false);
 
   // report
   LOG("HNIntranuke2015", pINFO) << "Settings for Intranuke2015 mode: " << INukeMode::AsString(kIMdHN);
@@ -939,8 +939,8 @@ void HNIntranuke2015::LoadConfig(void)
   LOG("HNIntranuke2015", pWARN) << "FermiMomtm  = " << fFermiMomentum;
   LOG("HNIntranuke2015", pWARN) << "DoFermi?    = " << ((fDoFermi)?(true):(false));
   LOG("HNIntranuke2015", pWARN) << "DoCmpndNuc? = " << ((fDoCompoundNucleus)?(true):(false));
-  LOG("HNIntranuke2015", pWARN) << "useOset     = " << useOset;
-  LOG("HNIntranuke2015", pWARN) << "altOset     = " << altOset;
+  LOG("HNIntranuke2015", pWARN) << "useOset     = " << fUseOset;
+  LOG("HNIntranuke2015", pWARN) << "altOset     = " << fAltOset;
 }
 //___________________________________________________________________________
 
