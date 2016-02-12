@@ -1,41 +1,41 @@
-#include "OsetCrossSectionFormula.h"
+#include "INukeOsetFormula.h"
 
 // constants 
-const double OsetCrossSectionFormula :: couplingConstant = 0.36 * 4.0 * M_PI;
+const double INukeOsetFormula :: couplingConstant = 0.36 * 4.0 * M_PI;
 
-const double OsetCrossSectionFormula :: normalDensity = 0.17; // fm-3
+const double INukeOsetFormula :: normalDensity = 0.17; // fm-3
 
-const double OsetCrossSectionFormula :: normFactor = 197.327 * 197.327 * 10.0;
+const double INukeOsetFormula :: normFactor = 197.327 * 197.327 * 10.0;
 
 // particles mass
                                                             
-const double OsetCrossSectionFormula :: nucleonMass  = kNucleonMass * 1000.0; // [MeV]
-const double OsetCrossSectionFormula :: nucleonMass2 = nucleonMass * nucleonMass;
+const double INukeOsetFormula :: nucleonMass  = kNucleonMass * 1000.0; // [MeV]
+const double INukeOsetFormula :: nucleonMass2 = nucleonMass * nucleonMass;
 
-const double OsetCrossSectionFormula :: deltaMass = 1232.0; // MeV
+const double INukeOsetFormula :: deltaMass = 1232.0; // MeV
 
 // s-wave parametrization (see sec. 3.1)
 
-const double OsetCrossSectionFormula :: coefSigma[3] = {-0.01334, 0.06889, 0.19753};
-const double OsetCrossSectionFormula :: coefB[3] = {-0.01866, 0.06602, 0.21972};
-const double OsetCrossSectionFormula :: coefD[3] = {-0.08229, 0.37062,-0.03130};
-const double OsetCrossSectionFormula :: ImB0 = 0.035;
+const double INukeOsetFormula :: coefSigma[3] = {-0.01334, 0.06889, 0.19753};
+const double INukeOsetFormula :: coefB[3] = {-0.01866, 0.06602, 0.21972};
+const double INukeOsetFormula :: coefD[3] = {-0.08229, 0.37062,-0.03130};
+const double INukeOsetFormula :: ImB0 = 0.035;
 
 //! delta parametrization coefficients (NuclPhys A468 (1987) 631-652)
-const double OsetCrossSectionFormula ::  coefCQ[3] = { -5.19, 15.35,   2.06};
+const double INukeOsetFormula ::  coefCQ[3] = { -5.19, 15.35,   2.06};
 //! delta parametrization coefficients (NuclPhys A468 (1987) 631-652)
-const double OsetCrossSectionFormula :: coefCA2[3] = {  1.06, -6.64,  22.66};
+const double INukeOsetFormula :: coefCA2[3] = {  1.06, -6.64,  22.66};
 //! delta parametrization coefficients (NuclPhys A468 (1987) 631-652)
-const double OsetCrossSectionFormula :: coefCA3[3] = {-13.46, 46.17, -20.34};
+const double INukeOsetFormula :: coefCA3[3] = {-13.46, 46.17, -20.34};
 //! delta parametrization coefficients (NuclPhys A468 (1987) 631-652)
-const double OsetCrossSectionFormula :: coefAlpha[3] = {0.382, -1.322, 1.466};
+const double INukeOsetFormula :: coefAlpha[3] = {0.382, -1.322, 1.466};
 //! delta parametrization coefficients (NuclPhys A468 (1987) 631-652)
-const double OsetCrossSectionFormula :: coefBeta[3]  = {-0.038,  0.204, 0.613};
+const double INukeOsetFormula :: coefBeta[3]  = {-0.038,  0.204, 0.613};
 
 using namespace osetUtils;
 
 //! @f$ p_{F} = \left(\frac{3}{2}\pi\rho\right)^{1/3} @f$
-void OsetCrossSectionFormula :: setNucleus (const double &density)
+void INukeOsetFormula :: setNucleus (const double &density)
 {
   static const double constFactor = 3.0 / 2.0 * M_PI * M_PI;
 
@@ -49,8 +49,7 @@ void OsetCrossSectionFormula :: setNucleus (const double &density)
  *  <li> calculate energy, momentum (in LAB and CMS) and invariant mass
  *  </ul>
  */ 
-void OsetCrossSectionFormula :: setKinematics (const double &pionTk,
-                                                const bool &isPi0)
+void INukeOsetFormula :: setKinematics (const double &pionTk, const bool &isPi0)
 {
   if (isPi0)
   {
@@ -81,7 +80,7 @@ void OsetCrossSectionFormula :: setKinematics (const double &pionTk,
  *  <li> calculalte Delta propagator
  *  </ul>
  */ 
-void OsetCrossSectionFormula :: setDelta ()
+void INukeOsetFormula :: setDelta ()
 {
   static const double constFactor = 1.0 / 12.0 / M_PI;
 
@@ -106,7 +105,7 @@ void OsetCrossSectionFormula :: setDelta ()
  *  <li> calculalte fraction of cex in total qel (based on isospin relation)
  *  </ul>
  */
-void OsetCrossSectionFormula :: setCrossSections ()
+void INukeOsetFormula :: setCrossSections ()
 {
 
   // common part for all p-wave cross sections
@@ -179,7 +178,7 @@ void OsetCrossSectionFormula :: setCrossSections ()
 }
                                   
 //! related to Pauli blocking, see sec. 2.3
-double OsetCrossSectionFormula :: deltaReduction () const
+double INukeOsetFormula :: deltaReduction () const
 {
   // assuming nucleon at rest 
   const double deltaEnergy = pionEnergy + nucleonMass;
@@ -197,7 +196,7 @@ double OsetCrossSectionFormula :: deltaReduction () const
 }
 
 //! based on eq. 2.21
-void OsetCrossSectionFormula :: setSelfEnergy ()
+void INukeOsetFormula :: setSelfEnergy ()
 {
   const double x = pionKineticEnergy / pionMass;
   const double densityFraction = nuclearDensity / normalDensity;
@@ -231,15 +230,13 @@ void OsetCrossSectionFormula :: setSelfEnergy ()
  *  <li> calculate cross sections
  *  </ul> 
  */
-void OsetCrossSectionFormula :: setupOset (const double &density,
-                                           const double &pionTk,
-                                           const int &pionPDG,
-                                           const double &protonFraction)
+void INukeOsetFormula :: setupOset (const double &density, const double &pionTk, const int &pionPDG, 
+                                    const double &protonFraction)
 {
   setNucleus (density);
   setKinematics (pionTk, pionPDG == kPdgPi0);
   setDelta();
   setCrossSections ();
-  OsetCrossSection::setCrossSections (pionPDG, protonFraction);  
+  INukeOset::setCrossSections (pionPDG, protonFraction);  
 }
 

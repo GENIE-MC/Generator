@@ -8,13 +8,13 @@
  * 
 */
 
-#ifndef OSET_CROSS_SECTION_FORMULA_H
-#define OSET_CROSS_SECTION_FORMULA_H
+#ifndef INUKE_OSET_FORMULA_H
+#define INUKE_OSET_FORMULA_H
 
-#include "OsetCrossSection.h"
+#include "INukeOset.h"
 
 // calculate cross section for piN based on Oset model
-class OsetCrossSectionFormula : public OsetCrossSection
+class INukeOsetFormula : public INukeOset
 {
   public:
 
@@ -83,4 +83,4 @@ class OsetCrossSectionFormula : public OsetCrossSection
 };
 
 
-#endif //OSET_CALCULATIONS_H
+#endif // INUKE_OSET_FORMULA_H

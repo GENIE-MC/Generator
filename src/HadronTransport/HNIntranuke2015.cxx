@@ -70,7 +70,7 @@
 #include "PDG/PDGUtils.h"
 #include "Utils/PrintUtils.h"
 #include "Utils/NuclearUtils.h"
-#include "HadronTransport/OsetCrossSection.h"
+#include "HadronTransport/INukeOset.h"
 
 using std::ostringstream;
 
