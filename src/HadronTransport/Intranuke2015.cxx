@@ -399,7 +399,7 @@ double Intranuke2015::GenerateStep(GHepRecord* /*evrec*/, GHepParticle* p) const
   RandomGen * rnd = RandomGen::Instance();
 
   double L = utils::intranuke2015::MeanFreePath(p->Pdg(), *p->X4(), *p->P4(), fRemnA,
-     fRemnZ, fDelRPion, fDelRNucleon, useOset, altOset);
+     fRemnZ, fDelRPion, fDelRNucleon, fUseOset, fAltOset);
   double d = -1.*L * TMath::Log(rnd->RndFsi().Rndm());
 
   LOG("Intranuke2015", pDEBUG)

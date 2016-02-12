@@ -114,8 +114,8 @@ protected:
   bool         fDoFermi;      ///< whether or not to do fermi mom. 
   bool         fDoMassDiff;   ///< whether or not to do mass diff. mode
   bool         fDoCompoundNucleus; ///< whether or not to do compound nucleus considerations
-  bool         useOset;       ///< Oset model for low energy pion in hN
-  bool         altOset;       ///< NuWro's table-based implementation (not recommended)
+  bool         fUseOset;      ///< Oset model for low energy pion in hN
+  bool         fAltOset;      ///< NuWro's table-based implementation (not recommended)
 };
 
 }      // genie namespace

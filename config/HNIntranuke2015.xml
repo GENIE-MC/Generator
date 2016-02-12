@@ -21,12 +21,19 @@ DelRPion            double  Yes   mult. factor for pi de-Broglie wavelength dete
                                   how muct to increase the nuclear radius
 DelRNucleon         double  Yes   mult. factor for nucleon de-Broglie wavelength determining  GPL INUKE-DelRNucleon
                                   how muct to increase the nuclear radius
-useOset             bool    Yes   enables Oset model for low energy pions                     GPL HNINUKE-useOset
-altOset             bool    Yes   alternative Oset table-based implementation                 GPL HNINUKE-altOset
+UseOset             bool    Yes   enables Oset model for low energy pions                     true
+AltOset             bool    Yes   alternative Oset table-based implementation                 false
 
 -->
 
   <param_set name="Default"> 
+    <param type="bool" name="HNINUKE-UseOset"> true  </param>
+    <param type="bool" name="HNINUKE-AltOset"> false </param>
+  </param_set>
+
+  <param_set name="OsetOff"> 
+    <param type="bool" name="HNINUKE-UseOset"> false </param>
+    <param type="bool" name="HNINUKE-AltOset"> false </param>
   </param_set>
 
 </alg_conf>
