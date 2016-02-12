@@ -60,17 +60,17 @@ class OsetCrossSectionTable : public OsetCrossSection
   double densityBinWidth;    //!< density step (must be fixed)
   double energyBinWidth;     //!< energy step (must be fixed)
 
-  //! interpolate cross section
+  //! interpolate cross section (method fixed for Oset tables)
   double interpolate (const std::vector<double> &data) const;
 
-  //! process single line from table file, push values to proper vector
+  //! process single line from table file, push values to proper vector (method fixed for Oset tables)
   int processLine (const std::string &line);
   
-  //! check if data in file is consistent
+  //! check if data in file is consistent (method fixed for Oset tables)
   int checkIntegrity (const double &densityValue, 
                       const double &energyValue);
   
-  //! stop program and through an error if input file is corrupted
+  //! stop program and through an error if input file is corrupted (method fixed for Oset tables)
   void badFile (const char* file, const int &errorCode,
                 const int &line = 0) const;
 
