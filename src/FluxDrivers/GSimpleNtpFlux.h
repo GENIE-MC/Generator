@@ -304,7 +304,6 @@ private:
   // Private data members
   //
   double         fMaxEv;          ///< maximum energy
-  PDGCodeList *  fPdgCListRej;    ///< list of neutrino pdg-codes seen but rejected
   bool           fEnd;            ///< end condition reached
 
   std::vector<string> fNuFluxFilePatterns;  ///< (potentially wildcarded) path(s)
@@ -322,8 +321,6 @@ private:
   double    fWeight;              ///< current neutrino weight
   double    fMaxWeight;           ///< max flux neutrino weight in input file
 
-  long int  fNCycles;             ///< # times to cycle through the flux ntuple
-  long int  fICycle;              ///< current file cycle
   long int  fNUse;                ///< how often to use same entry in a row
   long int  fIUse;                ///< current # of times an entry has been used
 

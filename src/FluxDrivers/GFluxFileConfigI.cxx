@@ -17,7 +17,12 @@ namespace genie {
 namespace flux {
 
   GFluxFileConfigI::GFluxFileConfigI()
-    : fXMLbasename(""), fNCycles(0), fZ0(-3.4e38)
+    : fPdgCList(new PDGCodeList)
+    , fPdgCListRej(new PDGCodeList)
+    , fXMLbasename("")
+    , fNCycles(0)
+    , fICycle(0)
+    , fZ0(-3.4e38)
   { ; }
 
   GFluxFileConfigI::~GFluxFileConfigI() { ; }
@@ -47,9 +52,9 @@ namespace flux {
   }
 
   //___________________________________________________________________________
-  void GFluxFileConfigI::GetBranchInfo(std::vector<std::string>& /*branchNames*/,
-                                       std::vector<std::string>& /*branchClassNames*/,
-                                       std::vector<void**>&      /*branchObjPointers*/)
+  void GFluxFileConfigI::GetBranchInfo(std::vector<std::string>& /* branchNames */,
+                                       std::vector<std::string>& /* branchClassNames */,
+                                       std::vector<void**>&      /* branchObjPointers */)
   {
     // allow flux driver to report back current status and/or ntuple entry 
     // info for possible recording in the output file by supplying
@@ -58,6 +63,8 @@ namespace flux {
 
     // default is not to supply anything
   }
+
+  //___________________________________________________________________________
   TTree* GFluxFileConfigI::GetMetaDataTree()
   {
     return 0;
@@ -92,9 +99,6 @@ namespace flux {
   //___________________________________________________________________________
   void GFluxFileConfigI::SetFluxParticles(const PDGCodeList & particles)
   {
-    if (!fPdgCList) {
-      fPdgCList = new PDGCodeList;
-    }
     fPdgCList->Copy(particles);
     
     LOG("Flux", pINFO)

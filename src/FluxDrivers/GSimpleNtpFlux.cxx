@@ -547,6 +547,7 @@ void GSimpleNtpFlux::LoadBeamSimData(const std::vector<string>& patterns,
   LOG("Flux",pINFO) << "Start with entry fIEntry=" << fIEntry;  
 
   // don't count things we used to estimate max weight
+  fNEntriesUsed = 0;
   fSumWeight  = 0;
   fNNeutrinos = 0;
   fAccumPOTs  = 0;
@@ -705,8 +706,7 @@ void GSimpleNtpFlux::Initialize(void)
 
   fMaxEv           =  0;
   fEnd             =  false;
-  fPdgCList        = new PDGCodeList;
-  fPdgCListRej     = new PDGCodeList;
+
   fCurEntry        = new GSimpleNtpEntry;
   fCurNuMI         = new GSimpleNtpNuMI;
   fCurAux          = new GSimpleNtpAux;
@@ -726,6 +726,7 @@ void GSimpleNtpFlux::Initialize(void)
 
   fNEntries        =  0;
   fIEntry          = -1;
+  fIFileNumber     =  0;
   fICycle          =  0;
   fNUse            =  1;
   fIUse            =  999999;
@@ -736,6 +737,7 @@ void GSimpleNtpFlux::Initialize(void)
 
   fSumWeight       =  0;
   fNNeutrinos      =  0;
+  fNEntriesUsed    =  0;
   fEffPOTsPerNu    =  0;
   fAccumPOTs       =  0;
 
