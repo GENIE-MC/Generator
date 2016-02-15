@@ -39,25 +39,25 @@ class INukeOsetTable : public INukeOset
    * d0 e0, d0 e1, ... , d0 en, d1 e0 ... \n
    * channel = 0 -> pi+n or pi-p, 1 -> pi+p or pi-n, 2 -> pi0
    */
-  std::vector <double> qelCrossSectionTable [nChannels]; 
+  std::vector <double> fQelCrossSectionTable [fNChannels]; 
   
   //! charge-exchange piN cross section
   /*! vector contains values in the following order:
    * d0 e0, d0 e1, ... , d0 en, d1 e0 ... \n
    * channel = 0 -> pi+n or pi-p, 1 -> pi+p or pi-n, 2 -> pi0
    */
-  std::vector <double> cexCrossSectionTable [nChannels];
+  std::vector <double> fCexCrossSectionTable [fNChannels];
   
   //! pi absorption cross section
   /*! vector contains values in the following order:
    * d0 e0, d0 e1, ... , d0 en, d1 e0 ...
    */
-  std::vector <double> absorptionCrossSectionTable;
+  std::vector <double> fAbsorptionCrossSectionTable;
 
-  unsigned int nDensityBins; //!< number of denisty bins
-  unsigned int nEnergyBins;  //!< number of energy bins
-  double densityBinWidth;    //!< density step (must be fixed)
-  double energyBinWidth;     //!< energy step (must be fixed)
+  unsigned int fNDensityBins; //!< number of denisty bins
+  unsigned int fNEnergyBins;  //!< number of energy bins
+  double fDensityBinWidth;    //!< density step (must be fixed)
+  double fEnergyBinWidth;     //!< energy step (must be fixed)
 
   //! interpolate cross section (method fixed for Oset tables)
   double interpolate (const std::vector<double> &data) const;
@@ -97,8 +97,8 @@ class INukeOsetTable : public INukeOset
     void update (const double &newValue); //!< update point if changed
   };
 
-  PointHandler densityHandler; //!< nuclear density handler
-  PointHandler energyHandler;  //!< pion kinetic energy handler
+  PointHandler fDensityHandler; //!< nuclear density handler
+  PointHandler fEnergyHandler;  //!< pion kinetic energy handler
 };
 
 #endif // INUKE_OSET_TABLE_H

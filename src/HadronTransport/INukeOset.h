@@ -34,55 +34,55 @@ class INukeOset
   //! return total = (qel+cex+abs) cross section 
   inline double getTotalCrossSection  () const
   {
-    return totalCrossSection;
+    return fTotalCrossSection;
   }
   
   //! return cex cross section 
   inline double getCexCrossSection () const
   {
-    return cexCrossSection;
+    return fCexCrossSection;
   }
   
   //! return absorption cross section
   inline double getAbsorptionCrossSection () const
   {
-    return absorptionCrossSection;
+    return fAbsorptionCrossSection;
   }
   
   //! return fraction of cex events
   inline double getCexFraction () const
   {
-    return cexCrossSection / totalCrossSection;
+    return fCexCrossSection / fTotalCrossSection;
   }
   
   //! return fraction of absorption events
   inline double getAbsorptionFraction () const
   {
-    return absorptionCrossSection / totalCrossSection;
+    return fAbsorptionCrossSection / fTotalCrossSection;
   }
 
   protected:
 
-  double nuclearDensity;    //!< nuclear density in fm-3
-  double pionKineticEnergy; //!< pion kinetic energy in MeV
+  double fNuclearDensity;    //!< nuclear density in fm-3
+  double fPionKineticEnergy; //!< pion kinetic energy in MeV
 
   //! el+cex+abs cross section (averaged over proton / neutron fraction)
-  double totalCrossSection;      
+  double fTotalCrossSection;      
   //! cex cross section (averaged over proton / neutron fraction)
-  double cexCrossSection;        
+  double fCexCrossSection;        
   //! absorption cross section (averaged over proton / neutron fraction)
-  double absorptionCrossSection; 
+  double fAbsorptionCrossSection; 
 
   //! number of possible channels: pi+n, pi+p, pi0
   /*! if (pi0) channel = 2 \n
    *  else channel = [(10 * pip + pim) == (10 * p + n)] \n \n
    *  0 -> pi+n or pi-p, 1 -> pi+p or pi-n, 2 -> pi0
    */
-  static const unsigned int nChannels = 3; 
+  static const unsigned int fNChannels = 3; 
   
   //! total qel (el+cex) cross section for each channel
-  double qelCrossSections[nChannels]; 
-  double cexCrossSections[nChannels]; //!< cex cross section for each channel
+  double fQelCrossSections[fNChannels]; 
+  double fCexCrossSections[fNChannels]; //!< cex cross section for each channel
   
   //! calculalte cross sections for each channel
   virtual void setCrossSections () = 0;

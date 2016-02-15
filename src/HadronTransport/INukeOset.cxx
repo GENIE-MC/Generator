@@ -5,7 +5,7 @@
 INukeOset* osetUtils::currentInstance = NULL;
 
 //! set up initial density and enegry values; set up pointer to current instance
-INukeOset :: INukeOset () : nuclearDensity (-1.0), pionKineticEnergy (-1.0)
+INukeOset :: INukeOset () : fNuclearDensity (-1.0), fPionKineticEnergy (-1.0)
 {
   osetUtils::currentInstance = this;
 }
@@ -14,9 +14,8 @@ void INukeOset :: setCrossSections (const int &pionPDG, const double &protonFrac
 {  
   if (pionPDG == kPdgPi0)
   {
-      cexCrossSection = cexCrossSections[2];
-    totalCrossSection = qelCrossSections[2] +
-                        absorptionCrossSection;
+      fCexCrossSection = fCexCrossSections[2];
+    fTotalCrossSection = fQelCrossSections[2] + fAbsorptionCrossSection;
   }
   else
   {
@@ -25,14 +24,10 @@ void INukeOset :: setCrossSections (const int &pionPDG, const double &protonFrac
     const int channelIndexOnNeutron = (pionPDG == kPdgPiM); // 0 = pi+, 1 = pi-
 
     // total xsec = (Z * xsec_proton + (A-Z) * xsec_neutron) / A
-    cexCrossSection = protonFraction * cexCrossSections[channelIndexOnProton] +
-                      (1.0 - protonFraction) *
-                      cexCrossSections[channelIndexOnNeutron];
+    fCexCrossSection = protonFraction * fCexCrossSections[channelIndexOnProton] +
+                       (1.0 - protonFraction) * fCexCrossSections[channelIndexOnNeutron];
 
-    totalCrossSection = protonFraction *
-                        qelCrossSections[channelIndexOnProton] +
-                        (1.0 - protonFraction) *
-                        qelCrossSections[channelIndexOnNeutron] +
-                        + absorptionCrossSection;
+    fTotalCrossSection = protonFraction * fQelCrossSections[channelIndexOnProton] +
+                        (1.0 - protonFraction) * fQelCrossSections[channelIndexOnNeutron] + fAbsorptionCrossSection;
   }
 }  
