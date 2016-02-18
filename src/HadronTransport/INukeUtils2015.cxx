@@ -76,7 +76,7 @@ using namespace genie::controls;
 //____________________________________________________________________________
 double genie::utils::intranuke2015::MeanFreePath(
    int pdgc, const TLorentzVector & x4, const TLorentzVector & p4, 
-   double A, double Z, double nRpi, double nRnuc, const bool useOset, const bool altOset)
+   double A, double Z, double nRpi, double nRnuc, const bool useOset, const bool altOset, const bool xsecNNCorr)
 {
 // Calculate the mean free path (in fm) for a pions and nucleons in a nucleus
 //
@@ -159,6 +159,10 @@ double genie::utils::intranuke2015::MeanFreePath(
   // the xsection splines in INukeHadroData return the hadron x-section in
   // mb -> convert to fm^2
   sigtot *= (units::mb / units::fm2);
+    
+  if (xsecNNCorr and is_nucleon)
+    sigtot *= INukeNucleonCorr::getInstance()->
+              getAvgCorrection (rho, A, Z, pdgc, p4.E() - PDGLibrary::Instance()->Find(pdgc)->Mass());
 
   // compute the mean free path
   double lamda = 1. / (rho * sigtot);

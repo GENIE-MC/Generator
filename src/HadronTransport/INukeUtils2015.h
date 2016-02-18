@@ -29,6 +29,7 @@
 
 #include "HadronTransport/INukeHadroFates.h"
 #include "HadronTransport/INukeMode.h"
+#include "HadronTransport/INukeNucleonCorr.h"
 #include "Nuclear/NuclearModelI.h"
 
 class TLorentzVector;
@@ -51,7 +52,7 @@ namespace intranuke2015
   //! Mean free path (pions, nucleons)
   double MeanFreePath(
     int pdgc, const TLorentzVector & x4, const TLorentzVector & p4, double A,
-    double Z, double nRpi=0.5, double nRnuc=1.0, const bool useOset = false, const bool altOset = false);
+    double Z, double nRpi=0.5, double nRnuc=1.0, const bool useOset = false, const bool altOset = false, const bool xsecNNCorr = false);
  
   //! Mean free path (Delta++ **test**)
   double MeanFreePath_Delta(
