@@ -23,6 +23,7 @@ DelRNucleon         double  Yes   mult. factor for nucleon de-Broglie wavelength
                                   how muct to increase the nuclear radius
 UseOset             bool    Yes   enables Oset model for low energy pions                     true
 AltOset             bool    Yes   alternative Oset table-based implementation                 false
+XsecNNCorr          bool    Yes   nuclear medium correction for NN cross section              HNINUKE-XsecNNCorr
 
 -->
 

@@ -116,6 +116,7 @@ protected:
   bool         fDoCompoundNucleus; ///< whether or not to do compound nucleus considerations
   bool         fUseOset;      ///< Oset model for low energy pion in hN
   bool         fAltOset;      ///< NuWro's table-based implementation (not recommended)
+  bool         fXsecNNCorr;   ///< use nuclear medium correction for NN cross section
 };
 
 }      // genie namespace
