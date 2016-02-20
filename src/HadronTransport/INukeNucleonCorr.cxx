@@ -19,9 +19,12 @@ const double INukeNucleonCorr::fBeta1   = -116.00 / fRho0 / 1000.0;          // 
 const double INukeNucleonCorr::fLambda0 =    3.29 / (units::fermi);          // converted to GeV
 const double INukeNucleonCorr::fLambda1 =  -0.373 / (units::fermi) / fRho0;  // converted to GeV
 
-const double INukeNucleonCorr::fDensityStep = 0.01; // [fm^{-3}]
-const double INukeNucleonCorr::fEnergyStep  = 0.05; // [GeV]
-const double INukeNucleonCorr::fMaxEnergy   = 1.00; // [GeV]
+const int INukeNucleonCorr::fNDensityBins = 16;  // number of bins for density cache array
+const int INukeNucleonCorr::fNEnergyBins  = 20;  // number of bins for energy cache array
+const double INukeNucleonCorr::fMaxEnergy    = 1.0; // [GeV]
+
+const double INukeNucleonCorr::fDensityStep = fRho0 / fNDensityBins;      // [fm^{-3}]
+const double INukeNucleonCorr::fEnergyStep  = fMaxEnergy / fNEnergyBins; // [GeV]
 
 // ----- CALCULATIONS ----- //
 
@@ -85,15 +88,11 @@ double INukeNucleonCorr :: getCorrection (const double mass, const double rho,
 //! generate kinematics fRepeat times to calculate average correction
 double INukeNucleonCorr :: getAvgCorrection (const double rho, const int A, const int Z, const int pdg, const double Ek)
 {
-  // cache binning
-  static const int nDensityBins = fRho0 / fDensityStep;
-  static const int nEnergyBins  = fMaxEnergy / fEnergyStep;
-  
-  static double cache[nDensityBins][nEnergyBins] = {{-1}}; // corrections cache
+  static double cache[fNDensityBins][fNEnergyBins] = {{-1}}; // corrections cache
   
   // determine current bins
-  const int densityBin = rho / fDensityStep < nDensityBins ? rho / fDensityStep : nDensityBins - 1;
-  const int energyBin  =  Ek / fEnergyStep  < nEnergyBins  ?  Ek / fEnergyStep  : nEnergyBins - 1;
+  const int densityBin = rho / fDensityStep < fNDensityBins ? rho / fDensityStep : fNDensityBins - 1;
+  const int energyBin  =  Ek / fEnergyStep  < fNEnergyBins  ?  Ek / fEnergyStep  : fNEnergyBins - 1;
   
   if (cache[densityBin][energyBin] > 0.0) return cache[densityBin][energyBin]; // correction already calculated
     

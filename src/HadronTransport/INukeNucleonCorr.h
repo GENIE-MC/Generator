@@ -43,9 +43,12 @@ class INukeNucleonCorr
     static const double fLambda0; //!< lambda coefficient as defined by Eq. 2.19
     static const double fLambda1; //!< lambda coefficient as defined by Eq. 2.19
     
+    static const int fNDensityBins; //!< cache binning for density
+    static const int fNEnergyBins;  //!< cache binning for energy
+
+    static const double fMaxEnergy;   //!< above this energy correction is assumed to be constant
     static const double fDensityStep; //!< within this density step correction is assumed to be constant
     static const double fEnergyStep;  //!< within this energy step correction is assumed to be constant
-    static const double fMaxEnergy;   //!< above this energy correction is assumed to be constant
     
     // ----- CALC VARIABLES ----- //
     
