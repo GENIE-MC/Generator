@@ -206,7 +206,7 @@ void INukeOsetFormula :: setSelfEnergy ()
   absNN *= pow (densityFraction, beta);
 
   if (absNNN < 0.0) absNNN = 0.0; // it may happen for Tk < 50 MeV
-  else absNNN * pow (densityFraction, 2.0 * beta);
+  else absNNN *= pow (densityFraction, 2.0 * beta);
 
   // absNN and absNNN are multiplied by number of nucleons to get proper
   // cross section normalization
