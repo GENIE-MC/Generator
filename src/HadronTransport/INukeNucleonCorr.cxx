@@ -56,7 +56,7 @@ double INukeNucleonCorr :: localFermiMom (const double rho, const int A, const i
 }
 
 //! generate random momentum direction and return 4-momentum of target nucleon
-TLorentzVector INukeNucleonCorr :: generateTargetNucleon (const double mass, const double fermiMomentum)
+TLorentzVector INukeNucleonCorr :: generateTargetNucleon (const double mass, const double fermiMom)
 {
   RandomGen * rnd = RandomGen::Instance();
     
@@ -66,7 +66,7 @@ TLorentzVector INukeNucleonCorr :: generateTargetNucleon (const double mass, con
   const double      phi = 2.0 * M_PI * rnd->RndGen().Rndm(); // random phi
 
   // set nucleon 4-momentum
-  const double p = rnd->RndGen().Rndm() * fermiMomentum; // random nucleon momentum up to Fermi level
+  const double p = rnd->RndGen().Rndm() * fermiMom; // random nucleon momentum up to Fermi level
 
   const TVector3   p3 = TVector3 (p * sintheta * cos (phi), p * sintheta * sin (phi), p * costheta); // 3-momentum
   const double energy = sqrt (p3.Mag2() + mass * mass); // energy
