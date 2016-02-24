@@ -1377,6 +1377,7 @@ void HAIntranuke2015::LoadConfig(void)
   fDoFermi       = fConfig->GetBoolDef   ("DoFermi",      gc->GetBool("INUKE-DoFermi"));
   fFreeStep      = fConfig->GetDoubleDef ("FreeStep",     gc->GetDouble("INUKE-FreeStep"));
   fDoCompoundNucleus = fConfig->GetBoolDef ("DoCompoundNucleus", gc->GetBool("INUKE-DoCompoundNucleus"));
+  fUseOset       = false; // disable oset model for hA
 
   // report
   LOG("HAIntranuke2015", pINFO) << "Settings for INTRANUKE mode: " << INukeMode::AsString(kIMdHA);
