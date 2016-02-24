@@ -922,7 +922,7 @@ void HNIntranuke2015::LoadConfig(void)
   fDoCompoundNucleus = fConfig->GetBoolDef ("DoCompoundNucleus", gc->GetBool("INUKE-DoCompoundNucleus"));
   fUseOset        = fConfig->GetBoolDef ("UseOset", true);
   fAltOset        = fConfig->GetBoolDef ("AltOset", false);
-  fXsecNNCorr     = fConfig->GetBoolDef ("XsecNNCorr", gc->GetBool("HNINUKE-XsecNNCorr"));
+  fXsecNNCorr     = fConfig->GetBoolDef ("XsecNNCorr", gc->GetBool("INUKE-XsecNNCorr"));
 
   // report
   LOG("HNIntranuke2015", pINFO) << "Settings for Intranuke2015 mode: " << INukeMode::AsString(kIMdHN);
