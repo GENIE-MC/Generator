@@ -516,12 +516,12 @@ endif
 
 # includes and libraries needed to compile programs. 
 
-INCLUDES := $(ROOT_INCLUDES) \
+INCLUDES :=  $(LINUX_SYS_INCLUDES) \
 	    $(XML_INCLUDES) \
 	    $(LOG_INCLUDES) \
+	    $(ROOT_INCLUDES) \
 	    $(LHAPDF_INCLUDES) \
 	    $(GENIE_INCLUDES) \
-	    $(LINUX_SYS_INCLUDES)
 
 LIBRARIES := $(SYSLIBS) \
              $(ROOT_LIBRARIES) \
