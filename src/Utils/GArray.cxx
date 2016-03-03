@@ -61,7 +61,7 @@ GArray1D::~GArray1D()
   if(this->Data) { delete [] this->Data; }
 }
 //____________________________________________________________________________
-bool GArray1D::InRange(int i)
+bool GArray1D::InRange(int i) const
 {
   if(i >= 0 && i < this->Size) 
   {
@@ -73,7 +73,7 @@ bool GArray1D::InRange(int i)
   return false;
 }
 //____________________________________________________________________________
-bool GArray1D::InRange2(int i)
+bool GArray1D::InRange2(int i) const
 {
   if(i >= 0 && i < this->Size) 
   {
@@ -82,7 +82,7 @@ bool GArray1D::InRange2(int i)
   return false;
 }
 //____________________________________________________________________________
-double GArray1D::Get(int i)
+double GArray1D::Get(int i) const
 {
 #ifndef __skip_range_check__
   if(!(this->InRange(i))) return -9999999;
@@ -122,7 +122,7 @@ void GArray1D::Scale(double s)
   }
 }
 //____________________________________________________________________________
-double GArray1D::GetMaxBin()
+double GArray1D::GetMaxBin(void) const
 {
   return this->Get(Size-1);
 }
@@ -174,7 +174,7 @@ GArray2D::~GArray2D()
   if(this->Data) { delete [] this->Data; }
 }
 //____________________________________________________________________________
-bool GArray2D::InRange(int i, int j)
+bool GArray2D::InRange(int i, int j) const
 {
   if(i >= 0 && i < this->Size0) 
   {
@@ -190,7 +190,7 @@ bool GArray2D::InRange(int i, int j)
   return false;
 }
 //____________________________________________________________________________
-bool GArray2D::InRange2(int i, int j)
+bool GArray2D::InRange2(int i, int j) const
 {
   if(i >= 0 && i < this->Size0) 
   {
@@ -202,7 +202,7 @@ bool GArray2D::InRange2(int i, int j)
   return false;
 }
 //____________________________________________________________________________
-double GArray2D::Get(int i, int j)
+double GArray2D::Get(int i, int j) const
 {
 #ifndef __skip_range_check__
   if(!(this->InRange(i,j))) return -9999999;
@@ -253,8 +253,8 @@ double genie::GArray2D::operator () (int i, int j)
 //____________________________________________________________________________
 //____________________________________________________________________________
 TH1D * genie::utils::arr::GArray2TH1D(
-   string name, genie::GArray1D* binning, 
-  genie::GArray1D* central_values, genie::GArray1D* abs_err, Option_t * opt)
+  string name, const genie::GArray1D* binning, 
+  const genie::GArray1D* central_values, const genie::GArray1D* abs_err, Option_t * opt)
 {
   if(!binning) return 0;
   if(!central_values) return 0;
@@ -281,8 +281,8 @@ TH1D * genie::utils::arr::GArray2TH1D(
 }
 //____________________________________________________________________________
 TH1D * genie::utils::arr::GArray2TH1D(
-   string name, genie::GArray1D* binning, 
-   genie::GArray2D* central_values, genie::GArray2D* abs_err,
+   string name, const genie::GArray1D* binning, 
+   const genie::GArray2D* central_values, const genie::GArray2D* abs_err,
    int fix_idx, int fix_dim, Option_t * opt)
 {
   if(!binning) return 0;
@@ -316,8 +316,8 @@ TH1D * genie::utils::arr::GArray2TH1D(
 }
 //____________________________________________________________________________
 TH2D * genie::utils::arr::GArray2TH2D(
-   string name, genie::GArray1D* binning_x, genie::GArray1D* binning_y, 
-   genie::GArray2D* central_values, genie::GArray2D* abs_err, Option_t * opt)
+   string name, const genie::GArray1D* binning_x, const genie::GArray1D* binning_y, 
+   const genie::GArray2D* central_values, const genie::GArray2D* abs_err, Option_t * opt)
 {
   if(!binning_x) return 0;
   if(!binning_y) return 0;

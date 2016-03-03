@@ -44,14 +44,14 @@ public:
   GArray1D(TRootIOCtor*);
  ~GArray1D();
 
-  bool   InRange  (int i);
-  bool   InRange2 (int i);
-  double Get      (int i);
+  bool   InRange  (int i) const;
+  bool   InRange2 (int i) const;
+  double Get      (int i) const;
   void   Add      (int i, double x);
   void   Set      (int i, double x);
   void   SetAll   (double x);
   void   Scale    (double s);
-  double GetMaxBin();
+  double GetMaxBin(void) const;
 
   double operator () (int i);
 
@@ -73,9 +73,9 @@ public:
   GArray2D(TRootIOCtor*);
  ~GArray2D();
 
-  bool   InRange  (int i, int j);
-  bool   InRange2 (int i, int j);
-  double Get      (int i, int j);
+  bool   InRange  (int i, int j) const;
+  bool   InRange2 (int i, int j) const;
+  double Get      (int i, int j) const;
   void   Add      (int i, int j, double x);
   void   Set      (int i, int j, double x);
   void   SetAll   (double x);
@@ -96,18 +96,18 @@ namespace arr {
 
   // Convert input `central_values' GArray1D to a TH1D (variable-size binning supported)
   TH1D * GArray2TH1D(
-    string name, genie::GArray1D* binning, genie::GArray1D* central_values, genie::GArray1D* abs_err, Option_t * opt);
+    string name, const genie::GArray1D* binning, const genie::GArray1D* central_values, const genie::GArray1D* abs_err, Option_t * opt);
 
   // Get a slice of the input `central_values' GArray2D and convert it to a TH1D (variable-size binning supported)
   // For example:
   // - to create 1D slice g(i) from 2D array f(i,j) for j=2, use fix_idx = 2, fix_dim = 1
   // - to create 1D slice g(j) from 2D array f(i,j) for i=3, use fix_idx = 3, fix_dim = 0
   TH1D * GArray2TH1D(
-    string name, genie::GArray1D* binning, genie::GArray2D* central_values, genie::GArray2D* abs_err, int fix_idx, int fix_dim, Option_t * opt);
+    string name, const genie::GArray1D* binning, const genie::GArray2D* central_values, const genie::GArray2D* abs_err, int fix_idx, int fix_dim, Option_t * opt);
 
   // Convert input `central_values' GArray2D to a TH2D (variable-size binning supported)
   TH2D * GArray2TH2D(
-    string name, genie::GArray1D* binning_x, genie::GArray1D* binning_y, genie::GArray2D* central_values, genie::GArray2D* abs_err, Option_t * opt);
+    string name, const genie::GArray1D* binning_x, const genie::GArray1D* binning_y, const genie::GArray2D* central_values, const genie::GArray2D* abs_err, Option_t * opt);
 
 }      // arr   namespace
 }      // utils namespace
