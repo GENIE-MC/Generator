@@ -109,6 +109,18 @@ namespace arr {
   TH2D * GArray2TH2D(
     string name, const genie::GArray1D* binning_x, const genie::GArray1D* binning_y, const genie::GArray2D* central_values, const genie::GArray2D* abs_err, Option_t * opt);
 
+  // In cases where the array describes bin boundaries, find the bin (range: [0, N-1]) that contains the input value.
+  // Return -1 for under/overlows.
+  int  BinIdx (double x, const genie::GArray1D* binning);
+  // In cases where the array describes bin boundaries, return the size of the bith that includes x, or the size of the i^th bin
+  // Return 0 for under/overlows.
+  double  BinSize (double x, const genie::GArray1D* binning);
+  double  BinSize (int idx,  const genie::GArray1D* binning);
+  // Fill the input 1-D or 2-D array 
+  // If wght_with_bin_sz is true, the weight is scaled by the bin size (wght/bin_size is added in the histogram).
+  bool Fill(double x, double wght, bool wght_with_bin_sz, const genie::GArray1D* binning, genie::GArray1D* contents);
+  bool Fill(double x, double y, double wght, bool wght_with_bin_sz, const genie::GArray1D* binning_x, const genie::GArray1D* binning_y, genie::GArray2D* contents);
+
 }      // arr   namespace
 }      // utils namespace
 }      // genie namespace
