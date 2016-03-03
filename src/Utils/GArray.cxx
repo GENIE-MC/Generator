@@ -15,6 +15,7 @@
 //#define __skip_range_check__
 
 #include <TRootIOCtor.h>
+#include <TMath.h>
 #include <TH1D.h>
 #include <TH2D.h>
 
@@ -348,6 +349,70 @@ TH2D * genie::utils::arr::GArray2TH2D(
     }
   }
   return h;
+}
+//____________________________________________________________________________
+int genie::utils::arr::BinIdx(double x, const genie::GArray1D* binning)
+{
+  if(binning) return -1;
+  const int n = binning->Size;
+  if (x < binning->Get(0) || x > binning->Get(n-1)) return -1;
+  return TMath::BinarySearch(n, binning->Data, x); 
+}
+//____________________________________________________________________________
+double genie::utils::arr::BinSize (double x, const genie::GArray1D* binning)
+{
+  int idx = genie::utils::arr::BinIdx(x, binning);
+  return genie::utils::arr::BinSize(idx, binning);
+}
+//____________________________________________________________________________
+double genie::utils::arr::BinSize (int idx,  const genie::GArray1D* binning)
+{
+  if(!binning) return 0;
+  if(idx < 0 ) return 0;  
+  const int n = binning->Size;
+  if(idx + 1 > n - 1) return 0.;
+  double size = binning->Get(idx+1) - binning->Get(idx); 
+  return size;
+}
+//____________________________________________________________________________
+bool genie::utils::arr::Fill(
+  double x, double wght, bool wght_with_bin_sz,
+  const genie::GArray1D* binning, genie::GArray1D* contents)
+{
+  int idx = genie::utils::arr::BinIdx(x, binning);
+  if(idx == -1) return false;
+  if(!contents) return false;
+  double scale = 1;
+  if(wght_with_bin_sz) {
+    double sz = genie::utils::arr::BinSize(idx,binning);
+    if(sz > 0) {
+       scale = 1/sz;
+    }
+  }
+  contents->Add(idx,scale*wght);
+  return true;
+}
+//____________________________________________________________________________
+bool genie::utils::arr::Fill(
+  double x, double y, double wght, bool wght_with_bin_sz,
+  const genie::GArray1D* binning_x, const genie::GArray1D* binning_y, 
+  genie::GArray2D* contents)
+{
+  int idx_x = genie::utils::arr::BinIdx(x, binning_x);
+  int idx_y = genie::utils::arr::BinIdx(y, binning_y);
+  if(idx_x == -1 || idx_y == -1) return false;
+  if(!contents) return false;
+  double scale = 1;
+  if(wght_with_bin_sz) {
+    double sz_x = genie::utils::arr::BinSize(idx_x,binning_x);
+    double sz_y = genie::utils::arr::BinSize(idx_y,binning_y);
+    double sz   = sz_x * sz_y;
+    if(sz > 0) {
+       scale = 1/sz;
+    }
+  }
+  contents->Add(idx_x,idx_y,scale*wght);
+  return true;
 }
 //____________________________________________________________________________
 
