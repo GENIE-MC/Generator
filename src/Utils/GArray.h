@@ -41,6 +41,7 @@ class GArray1D: public TNamed
 public:
   GArray1D();
   GArray1D(int n, double xinit=0.);
+  GArray1D(const GArray1D & arr);
   GArray1D(TRootIOCtor*);
  ~GArray1D();
 
@@ -70,6 +71,7 @@ class GArray2D: public TNamed
 public:
   GArray2D();
   GArray2D(int n0, int n1, double xinit=0.);
+  GArray2D(const GArray2D & arr);
   GArray2D(TRootIOCtor*);
  ~GArray2D();
 
