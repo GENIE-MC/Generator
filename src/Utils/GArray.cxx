@@ -51,6 +51,15 @@ TNamed()
   this->SetAll(xinit);
 }
 //____________________________________________________________________________
+GArray1D::GArray1D(const GArray1D & arr) :
+TNamed()
+{
+  this->Size = arr.Size;
+  for(int i=0; i < arr.Size; i++) {
+    this->Data[i] = arr.Data[i];
+  }
+}
+//____________________________________________________________________________
 GArray1D::GArray1D(TRootIOCtor*)
 {
   this->Size = 0;
@@ -160,6 +169,17 @@ TNamed()
     this->Data  = new double[this->Size];
   }
   this->SetAll(xinit);
+}
+//____________________________________________________________________________
+GArray2D::GArray2D(const GArray2D & arr) :
+TNamed()
+{  
+  this->Size  = arr.Size;
+  this->Size0 = arr.Size0;
+  this->Size1 = arr.Size1;
+  for(int i=0; i < arr.Size; i++) {
+    this->Data[i] = arr.Data[i];
+  }
 }
 //____________________________________________________________________________
 GArray2D::GArray2D(TRootIOCtor*)
