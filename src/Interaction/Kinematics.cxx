@@ -192,116 +192,116 @@ double Kinematics::t(bool selected) const
 //____________________________________________________________________________
 double Kinematics::Logx(bool selected) const
 {
-  double x = this->x(selected);
-  return (x>0) ? TMath::Log(x) : -99999;
+  double xs = this->x(selected);
+  return (xs>0) ? TMath::Log(xs) : -99999;
 }
 //____________________________________________________________________________
 double Kinematics::Logy(bool selected) const
 {
-  double y = this->y(selected);
-  return (y>0) ? TMath::Log(y) : -99999;
+  double ys = this->y(selected);
+  return (ys>0) ? TMath::Log(ys) : -99999;
 }
 //____________________________________________________________________________
 double Kinematics::LogQ2(bool selected) const
 {
-  double Q2 = this->Q2(selected);
-  return (Q2>0) ? TMath::Log(Q2) : -99999;
+  double Q2s = this->Q2(selected);
+  return (Q2s>0) ? TMath::Log(Q2s) : -99999;
 }
 //____________________________________________________________________________
 double Kinematics::LogW(bool selected) const
 {
-  double W = this->W(selected);
-  return (W>0) ? TMath::Log(W) : -99999;
+  double Ws = this->W(selected);
+  return (Ws>0) ? TMath::Log(Ws) : -99999;
 }
 //____________________________________________________________________________
 double Kinematics::Log10x(bool selected) const
 {
-  double x = this->x(selected);
-  return (x>0) ? TMath::Log10(x) : -99999;
+  double xs = this->x(selected);
+  return (xs>0) ? TMath::Log10(xs) : -99999;
 }
 //____________________________________________________________________________
 double Kinematics::Log10y(bool selected) const
 {
-  double y = this->y(selected);
-  return (y>0) ? TMath::Log10(y) : -99999;
+  double ys = this->y(selected);
+  return (ys>0) ? TMath::Log10(ys) : -99999;
 }
 //____________________________________________________________________________
 double Kinematics::Log10Q2(bool selected) const
 {
-  double Q2 = this->Q2(selected);
-  return (Q2>0) ? TMath::Log10(Q2) : -99999;
+  double Q2s = this->Q2(selected);
+  return (Q2s>0) ? TMath::Log10(Q2s) : -99999;
 }
 //____________________________________________________________________________
 double Kinematics::Log10W(bool selected) const
 {
-  double W = this->W(selected);
-  return (W>0) ? TMath::Log10(W) : -99999;
+  double Ws = this->W(selected);
+  return (Ws>0) ? TMath::Log10(Ws) : -99999;
 }
 //____________________________________________________________________________
-void Kinematics::Setx(double x, bool selected)
+void Kinematics::Setx(double xbj, bool selected)
 {
 // sets the running or selected value of Bjorken scaling variable x
 
-  if(x<0 || x>1) {
+  if(xbj<0 || xbj>1) {
      LOG("Interaction", pWARN)
-                      << "Setting unphysical value for x (x = " << x << ")";
+                      << "Setting unphysical value for x (x = " << xbj << ")";
   }
   KineVar_t kvar = (selected) ? kKVSelx : kKVx;
-  this->SetKV(kvar, x);
+  this->SetKV(kvar, xbj);
 }
 //____________________________________________________________________________
-void Kinematics::Sety(double y, bool selected)
+void Kinematics::Sety(double inel_y, bool selected)
 {
 // sets the running or selected value of inelasticity y
 
-  if(y<0 || y>1) {
+  if(inel_y<0 || inel_y>1) {
      LOG("Interaction", pWARN)
-                     << "Setting unphysical value for y (y = " << y << ")";
+                     << "Setting unphysical value for y (y = " << inel_y << ")";
   }
   KineVar_t kvar = (selected) ? kKVSely : kKVy;
-  this->SetKV(kvar, y);
+  this->SetKV(kvar, inel_y);
 }
 //____________________________________________________________________________
-void Kinematics::SetQ2(double Q2, bool selected)
+void Kinematics::SetQ2(double Qsqrd, bool selected)
 {
 // sets the running or selected value of momentum transfer Q2 (>0)
 
-  if(Q2<0) {
+  if(Qsqrd<0) {
      LOG("Interaction", pWARN)
-                 << "Setting unphysical value for Q2 (Q2 = " << Q2 << ")";
+                 << "Setting unphysical value for Q2 (Q2 = " << Qsqrd << ")";
   }
   KineVar_t kvar = (selected) ? kKVSelQ2 : kKVQ2;
-  this->SetKV(kvar, Q2);
+  this->SetKV(kvar, Qsqrd);
 }
 //____________________________________________________________________________
-void Kinematics::Setq2(double q2, bool selected)
+void Kinematics::Setq2(double qsqrd, bool selected)
 {
 // sets the running or selected value of momentum transfer q2 (<0)
 
-  if(q2>0) {
+  if(qsqrd>0) {
      LOG("Interaction", pWARN)
-                 << "Setting unphysical value for q2 (q2 = " << q2 << ")";
+                 << "Setting unphysical value for q2 (q2 = " << qsqrd << ")";
   }
   KineVar_t kvar = (selected) ? kKVSelq2 : kKVq2;
-  this->SetKV(kvar, q2);
+  this->SetKV(kvar, qsqrd);
 }
 //____________________________________________________________________________
-void Kinematics::SetW(double W, bool selected)
+void Kinematics::SetW(double hadr_mass_W, bool selected)
 {
 // sets the running or selected value of invariant hadronic mass W
 
-  if(W<0) {
+  if(hadr_mass_W<0) {
      LOG("Interaction", pWARN)
-                   << "Setting unphysical value for W (W = " << W << ")";
+                   << "Setting unphysical value for W (W = " << hadr_mass_W << ")";
   }
   KineVar_t kvar = (selected) ? kKVSelW : kKVW;
-  this->SetKV(kvar, W);
+  this->SetKV(kvar, hadr_mass_W);
 }
 //____________________________________________________________________________
-void Kinematics::Sett(double t, bool selected)
+void Kinematics::Sett(double tval, bool selected)
 {
   KineVar_t kvar = (selected) ? kKVSelt : kKVt;
-  this->SetKV(kvar, t);
+  this->SetKV(kvar, tval);
 }
 //____________________________________________________________________________
 void Kinematics::SetFSLeptonP4(const TLorentzVector & p4)
