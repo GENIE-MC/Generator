@@ -174,7 +174,6 @@ using std::setw;
 using std::setprecision;
 using std::setfill;
 using std::ios;
-using std::setiosflags;
 using std::vector;
 
 using namespace genie;
@@ -688,7 +687,7 @@ void ConvertToGST(void)
     // Extract more info on the hadronic system
     // Only for QEL/RES/DIS/COH/MEC events
     //
-    bool study_hadsyst = (is_qel || is_res || is_dis || is_coh || is_mec || is_singlek);    
+    bool study_hadsyst = (is_qel || is_res || is_dis || is_coh || is_dfr || is_mec || is_singlek);
     
     //
     TObjArrayIter piter(&event);
@@ -2550,11 +2549,10 @@ void ConvertToGHad(void)
     double y  = kine.y (get_selected);
     double W  = kine.W (get_selected);
 
-    GHepParticle * p = 0;
-
     int hadmod  = -1;
     int ihadmom = -1;
     TIter event_iter(&event);
+    GHepParticle * p = 0;
     int i=-1;
     while ( (p = dynamic_cast<GHepParticle *>(event_iter.Next())) ) {
       i++;
@@ -2617,7 +2615,7 @@ void ConvertToGHad(void)
     vector<int>::const_iterator hiter = hadv.begin();
     for( ; hiter != hadv.end(); ++hiter) {
       int id = *hiter;
-      p = event.Particle(id);
+      GHepParticle * p = event.Particle(id);
       int pdg = p->Pdg();
       double px = p->P4()->Px();
       double py = p->P4()->Py();
