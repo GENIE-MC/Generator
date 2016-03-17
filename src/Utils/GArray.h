@@ -48,6 +48,7 @@ public:
   GArray1D();
   GArray1D(int n, double xinit=0.);
   GArray1D(const GArray1D & arr);
+  GArray1D(const GArray1D & arr, string new_name);
   GArray1D(TRootIOCtor*);
  ~GArray1D();
 
@@ -84,6 +85,7 @@ public:
   GArray2D();
   GArray2D(int n0, int n1, double xinit=0.);
   GArray2D(const GArray2D & arr);
+  GArray2D(const GArray2D & arr, string new_name);
   GArray2D(TRootIOCtor*);
  ~GArray2D();
 

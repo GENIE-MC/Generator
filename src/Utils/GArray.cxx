@@ -75,6 +75,21 @@ TNamed()
   for(int idx=0; idx < arr.Size; idx++) {
     this->Data[idx] = arr.Data[idx];
   }
+
+  this->SetName(arr.GetName());
+}
+//____________________________________________________________________________
+GArray1D::GArray1D(const GArray1D & arr, string new_name) :
+TNamed()
+{
+  this->Size = arr.Size;
+  this->Data = new double[arr.Size];
+
+  for(int idx=0; idx < arr.Size; idx++) {
+    this->Data[idx] = arr.Data[idx];
+  }
+
+  this->SetName(new_name.c_str());
 }
 //____________________________________________________________________________
 GArray1D::GArray1D(TRootIOCtor*)
@@ -208,6 +223,23 @@ TNamed()
   for(int idx=0; idx < arr.Size; idx++) {
     this->Data[idx] = arr.Data[idx];
   }
+
+  this->SetName(arr.GetName());
+}
+//____________________________________________________________________________
+GArray2D::GArray2D(const GArray2D & arr, string new_name) :
+TNamed()
+{  
+  this->Size  = arr.Size;
+  this->Size0 = arr.Size0;
+  this->Size1 = arr.Size1;
+  this->Data  = new double[arr.Size];
+
+  for(int idx=0; idx < arr.Size; idx++) {
+    this->Data[idx] = arr.Data[idx];
+  }
+
+  this->SetName(new_name.c_str());
 }
 //____________________________________________________________________________
 GArray2D::GArray2D(TRootIOCtor*)
