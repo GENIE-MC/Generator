@@ -55,6 +55,8 @@ GArray1D::GArray1D(const GArray1D & arr) :
 TNamed()
 {
   this->Size = arr.Size;
+  this->Data = new double[arr.Size];
+
   for(int i=0; i < arr.Size; i++) {
     this->Data[i] = arr.Data[i];
   }
@@ -177,6 +179,8 @@ TNamed()
   this->Size  = arr.Size;
   this->Size0 = arr.Size0;
   this->Size1 = arr.Size1;
+  this->Data  = new double[arr.Size];
+
   for(int i=0; i < arr.Size; i++) {
     this->Data[i] = arr.Data[i];
   }
