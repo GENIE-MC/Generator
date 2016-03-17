@@ -21,6 +21,7 @@
 #ifndef _GENIE_ARRAYS_H_
 #define _GENIE_ARRAYS_H_
 
+#include <iostream>
 #include <string>
 #include <TNamed.h>
 
@@ -32,9 +33,14 @@ using std::string;
 
 namespace genie {
 
+class GArray1D;
+class GArray2D;
+
 // .......................................
 // 1-dimensional array of doubles
 // .......................................
+
+ostream & operator << (ostream & stream, const GArray1D & arr);
 
 class GArray1D: public TNamed
 {
@@ -52,6 +58,8 @@ public:
   void   Set      (int i, double x);
   void   SetAll   (double x);
   void   Scale    (double s);
+  void   Print    (ostream & stream) const;
+
   double GetMaxBin(void) const;
 
   double operator () (int i);
@@ -65,6 +73,8 @@ ClassDef(GArray1D,1)
 // .......................................
 // 2-dimensional array of doubles
 // .......................................
+
+ostream & operator << (ostream & stream, const GArray2D & arr);
 
 class GArray2D: public TNamed
 {
@@ -82,6 +92,7 @@ public:
   void   Set      (int i, int j, double x);
   void   SetAll   (double x);
   void   Scale    (double s);
+  void   Print    (ostream & stream) const;
 
   double operator () (int i, int j);
 

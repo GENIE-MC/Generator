@@ -23,9 +23,24 @@
 #include "Messenger/Messenger.h"
 
 using namespace genie;
+using std::endl;
 
 ClassImp(GArray1D);
 ClassImp(GArray2D);
+
+namespace genie
+{
+  ostream & operator << (ostream & stream, const GArray1D & arr)
+  {
+     arr.Print(stream);
+     return stream;
+  }
+  ostream & operator << (ostream & stream, const GArray2D & arr)
+  {
+     arr.Print(stream);
+     return stream;
+  }
+}
 
 //____________________________________________________________________________
 //                               GArray1D
@@ -57,8 +72,8 @@ TNamed()
   this->Size = arr.Size;
   this->Data = new double[arr.Size];
 
-  for(int i=0; i < arr.Size; i++) {
-    this->Data[i] = arr.Data[i];
+  for(int idx=0; idx < arr.Size; idx++) {
+    this->Data[idx] = arr.Data[idx];
   }
 }
 //____________________________________________________________________________
@@ -73,50 +88,50 @@ GArray1D::~GArray1D()
   if(this->Data) { delete [] this->Data; }
 }
 //____________________________________________________________________________
-bool GArray1D::InRange(int i) const
+bool GArray1D::InRange(int idx) const
 {
-  if(i >= 0 && i < this->Size) 
+  if(idx >= 0 && idx < this->Size) 
   {
      return true;
   } 
   LOG("GArray", pERROR)
-     << "Accessing element " << i 
+     << "Accessing element " << idx 
      << " in array with elements in range [0, " << this->Size << ")";
   return false;
 }
 //____________________________________________________________________________
-bool GArray1D::InRange2(int i) const
+bool GArray1D::InRange2(int idx) const
 {
-  if(i >= 0 && i < this->Size) 
+  if(idx >= 0 && idx < this->Size) 
   {
      return true;
   } 
   return false;
 }
 //____________________________________________________________________________
-double GArray1D::Get(int i) const
+double GArray1D::Get(int idx) const
 {
 #ifndef __skip_range_check__
-  if(!(this->InRange(i))) return -9999999;
+  if(!(this->InRange(idx))) return -9999999;
 #endif
 
-  return this->Data[i];
+  return this->Data[idx];
 }
 //____________________________________________________________________________
-void GArray1D::Add(int i, double x)
+void GArray1D::Add(int idx, double x)
 {
-  double x_old = this->Data[i];
+  double x_old = this->Data[idx];
   double x_new = x_old + x;
-  this->Data[i] = x_new;
+  this->Data[idx] = x_new;
 }
 //____________________________________________________________________________
-void GArray1D::Set(int i, double x)
+void GArray1D::Set(int idx, double x)
 {
 #ifndef __skip_range_check__
-  if(!(this->InRange(i))) return;
+  if(!(this->InRange(idx))) return;
 #endif
 
-  this->Data[i] = x;
+  this->Data[idx] = x;
 }
 //____________________________________________________________________________
 void GArray1D::SetAll(double x)
@@ -134,14 +149,23 @@ void GArray1D::Scale(double s)
   }
 }
 //____________________________________________________________________________
-double GArray1D::GetMaxBin(void) const
+double GArray1D::GetMaxBin(void) const // needed?
 {
   return this->Get(Size-1);
 }
 //____________________________________________________________________________
-double genie::GArray1D::operator () (int i) 
+void genie::GArray1D::Print(ostream & stream) const
 {
-  return this->Get(i);
+  stream << endl;
+  for (int idx = 0; idx < this->Size; idx++) {
+    double x = this->Get(idx);
+    stream << idx << " --> " << x << endl;
+  }
+}
+//____________________________________________________________________________
+double genie::GArray1D::operator () (int idx) 
+{
+  return this->Get(idx);
 }
 //____________________________________________________________________________
 //                               GArray2D
@@ -181,8 +205,8 @@ TNamed()
   this->Size1 = arr.Size1;
   this->Data  = new double[arr.Size];
 
-  for(int i=0; i < arr.Size; i++) {
-    this->Data[i] = arr.Data[i];
+  for(int idx=0; idx < arr.Size; idx++) {
+    this->Data[idx] = arr.Data[idx];
   }
 }
 //____________________________________________________________________________
@@ -268,6 +292,11 @@ void GArray2D::Scale(double s)
      double x = this->Data[idx];
      this->Data[idx] = s*x;
   }
+}
+//____________________________________________________________________________
+void genie::GArray2D::Print(ostream & /*stream*/) const
+{
+
 }
 //____________________________________________________________________________
 double genie::GArray2D::operator () (int i, int j) 
@@ -377,7 +406,7 @@ TH2D * genie::utils::arr::GArray2TH2D(
 //____________________________________________________________________________
 int genie::utils::arr::BinIdx(double x, const genie::GArray1D* binning)
 {
-  if(binning) return -1;
+  if(!binning) return -1;
   const int n = binning->Size;
   if (x < binning->Get(0) || x > binning->Get(n-1)) return -1;
   return TMath::BinarySearch(n, binning->Data, x); 
@@ -404,6 +433,8 @@ bool genie::utils::arr::Fill(
   const genie::GArray1D* binning, genie::GArray1D* contents)
 {
   int idx = genie::utils::arr::BinIdx(x, binning);
+  //LOG("GArray", pDEBUG) << "Bin edges: " << *binning;
+  //LOG("GArray", pDEBUG) << "Entry " << x << " will be stored at element = " << idx;
   if(idx == -1) return false;
   if(!contents) return false;
   double scale = 1;
