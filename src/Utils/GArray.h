@@ -51,6 +51,8 @@ public:
   GArray1D(TRootIOCtor*);
  ~GArray1D();
 
+  using TNamed::Print; //suppress clang 'hides overloaded virtual function [-Woverloaded-virtual]' warnings
+
   bool   InRange  (int i) const;
   bool   InRange2 (int i) const;
   double Get      (int i) const;
@@ -84,6 +86,8 @@ public:
   GArray2D(const GArray2D & arr);
   GArray2D(TRootIOCtor*);
  ~GArray2D();
+
+  using TNamed::Print; //suppress clang 'hides overloaded virtual function [-Woverloaded-virtual]' warnings
 
   bool   InRange  (int i, int j) const;
   bool   InRange2 (int i, int j) const;
