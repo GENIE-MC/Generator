@@ -2615,13 +2615,13 @@ void ConvertToGHad(void)
     vector<int>::const_iterator hiter = hadv.begin();
     for( ; hiter != hadv.end(); ++hiter) {
       int id = *hiter;
-      GHepParticle * p = event.Particle(id);
-      int pdg = p->Pdg();
-      double px = p->P4()->Px();
-      double py = p->P4()->Py();
-      double pz = p->P4()->Pz();
-      double E  = p->P4()->Energy();
-      double m  = p->P4()->M();
+      GHepParticle * particle = event.Particle(id);
+      int pdg = particle->Pdg();
+      double px = particle->P4()->Px();
+      double py = particle->P4()->Py();
+      double pz = particle->P4()->Pz();
+      double E  = particle->P4()->Energy();
+      double m  = particle->P4()->M();
       output << pdg << "\t" 
              << px  << "\t" << py << "\t" << pz << "\t"
              << E   << "\t" << m  << endl;
