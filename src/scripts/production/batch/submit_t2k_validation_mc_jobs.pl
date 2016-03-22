@@ -25,20 +25,21 @@
 #  run   | nev      |  init state       | location   | flux  | relevant data releases
 #  type  | /subrun  |                   |            |       | in GENIE/Comparisons
 #........................................................................
-#  100   | 100k     |  numu    + Carbon  | on-axis    | (a)   | t2k_ingrid_numuccqe_2015
-#  110   | 100k     |  numu    + Carbon  | off-axis   | (b)   | t2k_nd280_numuccqe_2014, t2k_nd280_numucc_2013
-#  210   | 100k     |  nue     + Carbon  | off-axis   | (c)   | t2k_nd280_nuecc_2014
+#  100   | 100k     |  numu    + Carbon  | on-axis    | (a)  | t2k_ingrid_numuccqe_2015
+#  110   | 100k     |  numu    + Carbon  | off-axis   | (b)  | t2k_nd280_numuccqe_2014, t2k_nd280_numucc_2013
+#  210   | 100k     |  nue     + Carbon  | off-axis   | (c)  | t2k_nd280_nuecc_2014
 #........................................................................
 #
 # Run numbers are constructed as IJKXXX, where IJK is the run type and XXX is the subrun number
+#
 # I: Flavour (1: numu, 2: nue)
 # J: Location (0: on-axis/INGRID, 1: off-axis/ND280)
 # K: Nuclear target (0: Carbon)
 #
-# Flux:
-# (a) 
-# (b) 
-# (c)
+# Info on flux used:
+# (a) see the code for now
+# (b) see the code for now
+# (c) see the code for now
 #
 # Author:
 #   Costas Andreopoulos <costas.andreopoulos \st stfc.ac.uk>
@@ -116,9 +117,9 @@ $mcseed          = 210921029;
 );
 
 %flux_hash = ( 
-  '100' =>  "$softw_topdir/comparisons/builds/$arch/vtrunk/data/fluxes/t2k/???",
-  '110' =>  "$softw_topdir/comparisons/builds/$arch/vtrunk/data/fluxes/t2k/???",
-  '210' =>  "$softw_topdir/comparisons/builds/$arch/vtrunk/data/fluxes/t2k/???"
+  '100' =>  "$softw_topdir/comparisons/builds/$arch/vtrunk/data/measurements/vA/t2k/t2k_ingrid_numuccqe_2015/flux_data_release.root,flux",
+  '110' =>  "$softw_topdir/comparisons/builds/$arch/vtrunk/data/measurements/vA/t2k/t2k_nd280_numucc_2013/data_release.root,flux_numu",
+  '210' =>  "$softw_topdir/comparisons/builds/$arch/vtrunk/data/measurements/vA/t2k/t2k_nd280_nuecc_2014/flux.root,nue_flux"
 );
 
 # make the jobs directory
