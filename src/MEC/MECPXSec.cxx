@@ -29,6 +29,7 @@
 
 #include <TMath.h>
 
+#include "Algorithm/AlgConfigPool.h"
 #include "Conventions/Constants.h"
 #include "Conventions/Controls.h"
 #include "Conventions/GBuild.h"
@@ -221,17 +222,25 @@ double MECPXSec::Integral(const Interaction * interaction) const
      // fFracCCQE_cluster is fraction of MEC going to each NN pair
      double fFracCCQE=0.;
      double Elo=1.;
-     double Ehi=5.;
+     double Ehi=-999.; // 5.;  // turned this off.
 
-     if (E<Elo) fFracCCQE=fFracCCQElo;
-     if (E>Elo&&E<Ehi) fFracCCQE=fFracCCQElo*(1.-(E-Elo)/(Ehi-Elo));
-     if (E>Ehi) fFracCCQE=0.;
+     if (Ehi <= Elo){
+       fFracCCQE = fFracCCQElo;
+     } else {
+       // originally was set to roll off at 5 GeV.
+       // the code is preserved here, but is disabled by the Ehi setting above.
+       if (E<Elo) fFracCCQE=fFracCCQElo;
+       if (E>Elo&&E<Ehi) fFracCCQE=fFracCCQElo*(1.-(E-Elo)/(Ehi-Elo));
+       if (E>Ehi) fFracCCQE=0.;
+     }
 
      double fFracCCQE_cluster=0.;
-     if(pdg::IsNeutrino(nupdg) && nucleon_cluster_pdg==2000000200) fFracCCQE_cluster= .8;  //n+n
-     if(pdg::IsNeutrino(nupdg) && nucleon_cluster_pdg==2000000201) fFracCCQE_cluster= .2;  //n+p
-     if(pdg::IsAntiNeutrino(nupdg) && nucleon_cluster_pdg==2000000201) fFracCCQE_cluster= .8;   //n+p
-     if(pdg::IsAntiNeutrino(nupdg) && nucleon_cluster_pdg==2000000202) fFracCCQE_cluster= .2;   //p+p
+     // see the isem case below.  For cc neutrino, one initial state is not accessible. 
+     double npfrac = fFracPN / (fFracPN + 0.5*(1-fFracPN)); //  0.888... if fFracPN = 0.8 
+     if(pdg::IsNeutrino(nupdg) && nucleon_cluster_pdg==2000000201) fFracCCQE_cluster= npfrac;  //n+p
+     if(pdg::IsNeutrino(nupdg) && nucleon_cluster_pdg==2000000200) fFracCCQE_cluster= 1.0-npfrac;  //n+n
+     if(pdg::IsAntiNeutrino(nupdg) && nucleon_cluster_pdg==2000000201) fFracCCQE_cluster= npfrac;   //n+p
+     if(pdg::IsAntiNeutrino(nupdg) && nucleon_cluster_pdg==2000000202) fFracCCQE_cluster= 1.0-npfrac;   //p+p
 
 
      xsec *= fFracCCQE*fFracCCQE_cluster;
@@ -246,7 +255,8 @@ double MECPXSec::Integral(const Interaction * interaction) const
   }
 
   else if(isnc) {
-     return 1.;
+      // not implemented -- would be in spirit like isem ?
+      return 0.;
   }     
   else if(isem) {
     int nucpdg = kPdgProton;
@@ -263,9 +273,9 @@ double MECPXSec::Integral(const Interaction * interaction) const
     // FFracEMQE is fraction of QE going to MEC
     // fFracEMQE_cluster is fraction of MEC going to each NN pair
     double fFracEMQE_cluster=0.;
-    if(nucleon_cluster_pdg==2000000200) fFracEMQE_cluster= .1;  //n+n
-    if(nucleon_cluster_pdg==2000000201) fFracEMQE_cluster= .8;  //n+p
-    if(nucleon_cluster_pdg==2000000202) fFracEMQE_cluster= .1;  //p+p
+    if(nucleon_cluster_pdg==2000000200) fFracEMQE_cluster= 0.5*(1-fFracPN);  //n+n
+    if(nucleon_cluster_pdg==2000000201) fFracEMQE_cluster= fFracPN;  //n+p
+    if(nucleon_cluster_pdg==2000000202) fFracEMQE_cluster= 0.5*(1-fFracPN);  //p+p
     xsec *= fFracEMQE*fFracEMQE_cluster;
     delete inn;
     delete inp;
@@ -299,15 +309,21 @@ void MECPXSec::Configure(string config)
 //____________________________________________________________________________
 void MECPXSec::LoadConfig(void)
 {
+  AlgConfigPool * confp = AlgConfigPool::Instance();
+  const Registry * gc = confp->GlobalParameterList();
+
   fXSecAlgCCQE = 0;
   fXSecAlgEMQE = 0;
 
-  fMq2d   = 0.4; // GeV
-  fMass   = 2.1; // GeV   2.1
-  fWidth  = 0.05; // GeV  .05
-  fFracCCQElo = 0.45; //fraction of CCQE xsec at Miniboone energies to CCMEC xsec
-                      //  at first, this is energy independent
-  fFracEMQE=0.05;  //fraction of 0.5*(ep+en) Rosenbluth xsec going to (e,e') MEC
+  fMq2d = fConfig->GetDoubleDef("EmpiricalMEC-Mq2d", gc->GetDouble("EmpiricalMEC-Mq2d"));
+  fMass = fConfig->GetDoubleDef("EmpiricalMEC-Mass", gc->GetDouble("EmpiricalMEC-Mass"));
+  fWidth = fConfig->GetDoubleDef("EmpiricalMEC-Width", gc->GetDouble("EmpiricalMEC-Width"));
+  fFracCCQElo = fConfig->GetDoubleDef("EmpiricalMEC-FracCCQElo",
+          gc->GetDouble("EmpiricalMEC-FracCCQElo"));
+  fFracEMQE = fConfig->GetDoubleDef("EmpiricalMEC-FracEMQE",
+          gc->GetDouble("EmpiricalMEC-FracEMQE"));
+  fFracPN = fConfig->GetDoubleDef("EmpiricalMEC-FracPN",
+          gc->GetDouble("EmpiricalMEC-FracPN"));
 
   // Get the specified CCQE cross section model
   fXSecAlgCCQE = 

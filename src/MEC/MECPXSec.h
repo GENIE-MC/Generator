@@ -49,7 +49,7 @@ private:
   double fMq2d;       ///< toy model param: `mass' in dipole (Q2 - dependence) form factor (GeV)
   double fMass;       ///< toy model param: peak  of W distribution (GeV)
   double fWidth;      ///< toy model param: width of W distribution (GeV)
-  double fEc;         ///< toy model param: low energy cutoff (GeV) 
+  double fFracPN;     ///< toy model param: fraction of nucleon pairs that are pn, not nn or pp
 
   double fFracCCQElo;   ///< empirical model param: MEC cross section is taken to be this fraction of CCQE cross section at Miniboone energies (0 at NOMAD energies)
   double fFracEMQE;   ///< empirical model param: MEC cross section is taken to be this fraction of Rosenbluth xs

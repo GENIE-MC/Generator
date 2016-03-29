@@ -109,6 +109,25 @@ STFC, Rutherford Appleton Laboratory
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Empirical MEC parameters
+
+  Mq2d       : units GeV
+  Mass       : units GeV
+  Width      : units GeV 
+  FracCCQElo : Fraction of CCQE xsec at Miniboone energies to CCMEC xsec.
+                At first, this is energy independent.
+  FracEMQE   : Fraction of 0.5*(ep+en) Rosenbluth xsec going to (e,e') MEC.
+  FracPN     : Fraction of pairs in the nucleus that are pn, based on SRC observations in e scattering.
+  -->
+  <param type="double" name="EmpiricalMEC-Mq2d"> 0.4 </param>
+  <param type="double" name="EmpiricalMEC-Mass"> 2.1 </param>
+  <param type="double" name="EmpiricalMEC-Width"> 0.05 </param>
+  <param type="double" name="EmpiricalMEC-FracCCQElo"> 0.45 </param>
+  <param type="double" name="EmpiricalMEC-FracEMQE"> 0.05 </param>
+  <param type="double" name="EmpiricalMEC-FracPN"> 0.8 </param>
+
+ <!-- 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Axial and vector masses for resonance production  
   -->
   <param type="double" name="RES-Ma"> 1.120 </param>
