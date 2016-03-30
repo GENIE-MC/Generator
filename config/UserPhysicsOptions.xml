@@ -109,11 +109,11 @@ STFC, Rutherford Appleton Laboratory
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Empirical MEC parameters
+  Empirical MEC parameters - parameters for the S. Dytman "empirical" MEC model (MECPXSec)
 
-  Mq2d       : units GeV
+  Mq2d       : Analogous to MA in CCQE (drives Q^2 dependence); units GeV
   Mass       : units GeV
-  Width      : units GeV 
+  Width      : Width of the gaussian W-dependence in the dip region; units GeV 
   FracCCQElo : Fraction of CCQE xsec at Miniboone energies to CCMEC xsec.
                 At first, this is energy independent.
   FracEMQE   : Fraction of 0.5*(ep+en) Rosenbluth xsec going to (e,e') MEC.
