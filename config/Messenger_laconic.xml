@@ -76,7 +76,7 @@
   <priority msgstream="GHepParticle">          WARN   </priority>
   <priority msgstream="GHepUtils">             WARN   </priority>
   <priority msgstream="GuiUtils">              WARN   </priority>
-  <priority msgstream="GridDim">               WARN   </priority>
+  <priority msgstream="GRV98LO">               WARN   </priority>
   <priority msgstream="GXSecFunc">             WARN   </priority>
   <priority msgstream="GLRES">                 WARN   </priority>
   <priority msgstream="GIBUU">                 WARN   </priority>

@@ -22,6 +22,12 @@
     one found last is used
    -->
 
+  <priority msgstream="EventLoop">          DEBUG   </priority>
+  <priority msgstream="GCPlex">             DEBUG   </priority>
+  <priority msgstream="GSimFiles">          DEBUG   </priority>
+  <priority msgstream="MiniBooNE">          DEBUG   </priority>
+
+
   <priority msgstream="Messenger">             NOTICE </priority>
   <priority msgstream="AhrensNCEL">            WARN   </priority>
   <priority msgstream="AlgFactory">            INFO   </priority>
@@ -78,7 +84,7 @@
   <priority msgstream="GHEP">                  WARN   </priority>
   <priority msgstream="GHepParticle">          INFO   </priority>
   <priority msgstream="GuiUtils">              INFO   </priority>
-  <priority msgstream="GridDim">               WARN   </priority>
+  <priority msgstream="GRV98LO">               WARN   </priority>
   <priority msgstream="GXSecFunc">             WARN   </priority>
   <priority msgstream="GLRES">                 WARN   </priority>
   <priority msgstream="HadTransp">             WARN   </priority>
