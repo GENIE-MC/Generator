@@ -34,7 +34,9 @@ TGT =    gevgen		  	\
 	 gmxpl		  	\
 	 grwght1scan		\
 	 gntpc	  		\
-	 gmstcl
+	 gmstcl			\
+	 gpdfcomp		\
+	 gsfcomp
 
 all: $(TGT)
 
@@ -207,6 +209,19 @@ else
 	@echo "Masterclass not enabled!"
 endif
 
+# App to compare PDF 
+#
+gpdfcomp: FORCE
+	@echo "** Building gpdfcomp"
+	$(CXX) $(CXXFLAGS) -c gPDFComp.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gPDFComp.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gpdfcomp
+
+# App to compare structure function models (see GENIE/Comparisons for an app to compare with data)
+#
+gsfcomp: FORCE
+	@echo "** Building gsfcomp"
+	$(CXX) $(CXXFLAGS) -c gSFComp.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gSFComp.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gsfcomp
 
 # CLEANING-UP
 
@@ -234,6 +249,7 @@ clean: FORCE
 	$(RM) $(GENIE_BIN_PATH)/grwght1scan		
 	$(RM) $(GENIE_BIN_PATH)/gntpc		
 	$(RM) $(GENIE_BIN_PATH)/gmstcl		
+	$(RM) $(GENIE_BIN_PATH)/gpdfcomp
 
 distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gevgen		
@@ -255,6 +271,7 @@ distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/grwght1scan		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gntpc		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gmstcl		
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gpdfcomp
 
 FORCE:
 

@@ -76,7 +76,7 @@
   <priority msgstream="GHepParticle">          FATAL   </priority>
   <priority msgstream="GHepUtils">             FATAL   </priority>
   <priority msgstream="GuiUtils">              FATAL   </priority>
-  <priority msgstream="GridDim">               FATAL   </priority>
+  <priority msgstream="GRV98LO">               FATAL   </priority>
   <priority msgstream="GXSecFunc">             FATAL   </priority>
   <priority msgstream="GLRES">                 FATAL   </priority>
   <priority msgstream="GIBUU">                 FATAL   </priority>

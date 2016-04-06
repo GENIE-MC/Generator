@@ -79,6 +79,7 @@
    <config alg="genie::CharmHadronization">          CharmHadronization.xml          </config>
 
    <!-- ****** CONFIGURATION FOR PARTON DENSITY FUNCTION ALGORITHMS ****** -->
+   <config alg="genie::GRV98LO">                     GRV98LO.xml                     </config>
    <config alg="genie::PDFLIB">                      PDFLIB.xml                      </config>
    <config alg="genie::BYPDF">                       BYPDF.xml                       </config>
 
