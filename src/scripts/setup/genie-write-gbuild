@@ -85,13 +85,6 @@ if(@nret>0)
       { print GBLD   "#define __GENIE_LHAPDF_ENABLED__\n"; }
 else  { print GBLD "//#define __GENIE_LHAPDF_ENABLED__\n"; }
 
-# CERNLIB enabled?
-#
-@nret = `grep 'GOPT_ENABLE_CERNLIB=YES' $GCONF_FILE`;
-if(@nret>0) 
-      { print GBLD   "#define __GENIE_CERNLIB_ENABLED__\n"; }
-else  { print GBLD "//#define __GENIE_CERNLIB_ENABLED__\n"; }
-
 # GSL enabled?
 #
 @nret = `grep 'GOPT_ENABLE_GSL=YES' $GCONF_FILE`;

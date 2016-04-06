@@ -5,13 +5,10 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab - June 06, 2004
+         University of Liverpool & STFC Rutherford Appleton Lab 
 
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Dec 05, 2008 - CA, Anselmo Meregaglia
-   Added interface to the LHAPDF parton density function library.
+ Disabled PDFLIB - Only LHAPDFv5 support left / to clean-up before next
+ release. Experimenting in LHAPDFv6
 
 */
 //____________________________________________________________________________
@@ -30,15 +27,15 @@
 // include the LHAPDF C++ wrapper
 //
 #include "LHAPDF/LHAPDF.h"
-#else
+//#else
 //
 // the actual PDFLIB fortran calls
 //
-extern "C" {
- void pdfset_ (const char param[20][20], double val[20]);
- void structm_ (double *, double *, double *, double *, double *, 
-                double *, double *, double *, double *, double *, double *);
-}
+//extern "C" {
+// void pdfset_ (const char param[20][20], double val[20]);
+// void structm_ (double *, double *, double *, double *, double *, 
+//                double *, double *, double *, double *, double *, double *);
+//}
 #endif
 
 using namespace genie;
@@ -88,6 +85,7 @@ void PDFLIB::Initialize(void) const
    exit(1);
   }
 
+/*
 #else
   //
   // PDFLIB
@@ -96,7 +94,7 @@ void PDFLIB::Initialize(void) const
   double val[20];
   strcpy(param[0], "Init0");
   pdfset_(param, val); // call pdfset from the fortran PDFLIB library
-
+*/
 #endif
 }
 //____________________________________________________________________________
@@ -122,6 +120,7 @@ void PDFLIB::SetPDFSetFromConfig(void) const
   LHAPDF::initPDFByName(name, stype, memset);
   LHAPDF::extrapolate(false);
 
+/*
 #else
   //
   // PDFLIB
@@ -145,67 +144,69 @@ void PDFLIB::SetPDFSetFromConfig(void) const
   val[2] = nset;
 
   pdfset_(param, val);
+*/
 
 #endif
 }
 //____________________________________________________________________________
-double PDFLIB::UpValence(double x, double q2) const
+double PDFLIB::UpValence(double x, double Q2) const
 {
-  return AllPDFs(x,q2).uval;
+  return AllPDFs(x,Q2).uval;
 }
 //____________________________________________________________________________
-double PDFLIB::DownValence(double x, double q2) const
+double PDFLIB::DownValence(double x, double Q2) const
 {
-  return AllPDFs(x,q2).dval;
+  return AllPDFs(x,Q2).dval;
 }
 //____________________________________________________________________________
-double PDFLIB::UpSea(double x, double q2) const
+double PDFLIB::UpSea(double x, double Q2) const
 {
-  return AllPDFs(x,q2).usea;
+  return AllPDFs(x,Q2).usea;
 }
 //____________________________________________________________________________
-double PDFLIB::DownSea(double x, double q2) const
+double PDFLIB::DownSea(double x, double Q2) const
 {
-  return AllPDFs(x,q2).dsea;
+  return AllPDFs(x,Q2).dsea;
 }
 //____________________________________________________________________________
-double PDFLIB::Strange(double x, double q2) const
+double PDFLIB::Strange(double x, double Q2) const
 {
-  return AllPDFs(x,q2).str;
+  return AllPDFs(x,Q2).str;
 }
 //____________________________________________________________________________
-double PDFLIB::Charm(double x, double q2) const
+double PDFLIB::Charm(double x, double Q2) const
 {
-  return AllPDFs(x,q2).chm;
+  return AllPDFs(x,Q2).chm;
 }
 //____________________________________________________________________________
-double PDFLIB::Bottom(double x, double q2) const
+double PDFLIB::Bottom(double x, double Q2) const
 {
-  return AllPDFs(x,q2).bot;
+  return AllPDFs(x,Q2).bot;
 }
 //____________________________________________________________________________
-double PDFLIB::Top(double x, double q2) const
+double PDFLIB::Top(double x, double Q2) const
 {
-  return AllPDFs(x,q2).top;
+  return AllPDFs(x,Q2).top;
 }
 //____________________________________________________________________________
-double PDFLIB::Gluon(double x, double q2) const
+double PDFLIB::Gluon(double x, double Q2) const
 {
-  return AllPDFs(x,q2).gl;
+  return AllPDFs(x,Q2).gl;
 }
 //____________________________________________________________________________
-PDF_t PDFLIB::AllPDFs(double x, double q2) const
+PDF_t PDFLIB::AllPDFs(double x, double Q2) const
 {
   PDF_t pdf;
-
-  // QCD scale
-  double q = TMath::Sqrt( TMath::Abs(q2) ); 
 
 #ifdef __GENIE_LHAPDF_ENABLED__
   //
   // LHAPDF
   //
-  vector<double> pdfs = LHAPDF::xfx(x, q);
+
+  // QCD scale
+  double Q = TMath::Sqrt( TMath::Abs(Q2) ); 
+
+  vector<double> pdfs = LHAPDF::xfx(x, Q);
   pdf.uval = pdfs[8] - pdfs[4];
   pdf.dval = pdfs[7] - pdfs[5];
   pdf.usea = pdfs[4];
@@ -216,6 +217,7 @@ PDF_t PDFLIB::AllPDFs(double x, double q2) const
   pdf.top  = pdfs[12];
   pdf.gl   = pdfs[6];;
 
+/*
 #else
   //
   // PDFLIB
@@ -235,6 +237,7 @@ PDF_t PDFLIB::AllPDFs(double x, double q2) const
   pdf.bot  = bot;
   pdf.top  = top;
   pdf.gl   = gl;
+*/
 
 #endif
 

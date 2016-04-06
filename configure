@@ -23,8 +23,7 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "    lowlevel-mesg     Disable (rather than filter out at run time) prolific       default: disabled \n";
   print "                      debug/info level messages known to slow GENIE down          \n";
   print "    debug             Adds -g in the compiler options to request debug info       default: disabled \n";
-  print "    lhapdf            Use the LHAPDF parton density function library              default: enabled  \n";
-  print "    cernlib           Use the CERN libraries                                      default: disabled (CERNLIBs to be phased-out. Please use LHAPDF instead)\n";
+  print "    lhapdf            Use the LHAPDF5 parton density function library             default: disabled \n";
   print "    flux-drivers      Built-in flux drivers                                       default: enabled  \n";
   print "    geom-drivers      Built-in detector geometry drivers                          default: enabled  \n";
   print "    vle-extension     GENIE very low energy (1 MeV - 100 MeV) extension           default: disabled (Experimental) \n";
@@ -42,9 +41,8 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "    profiler-lib      Path to profiler library     needed if you --enable-profiler \n";
   print "    doxygen-path      Doxygen binary path          needed if you --enable-doxygen-doc  (if unset: checks for a \$DOXYGENPATH env.var.) \n";
   print "    pythia6-lib       PYTHIA6 library path         always needed                       (if unset: checks for a \$PYTHIA6 env.var.,    then tries to auto-detect it) \n";
-  print "    cern-lib          CERN libraries path          needed if you --enable-cernlib      (if unset: checks for a \$CERNLIB env.var.,    then tries to auto-detect it) \n";
-  print "    lhapdf-inc        Path to LHAPDF includes      needed if you --enable-lhapdf       (if unset: checks for a \$LHAPDF_INC env.var., then tries to auto-detect it) \n";
-  print "    lhapdf-lib        Path to LHAPDF libraries     needed if you --enable-lhapdf       (if unset: checks for a \$LHAPDF_INC env.var.. then tries to auto-detect it) \n";
+  print "    lhapdf-inc        Path to LHAPDF5 includes     needed if you --enable-lhapdf       (if unset: checks for a \$LHAPDF_INC env.var., then tries to auto-detect it) \n";
+  print "    lhapdf-lib        Path to LHAPDF5 libraries    needed if you --enable-lhapdf       (if unset: checks for a \$LHAPDF_INC env.var.. then tries to auto-detect it) \n";
   print "    libxml2-inc       Path to libxml2 includes     always needed                       (if unset: tries to auto-detect it) \n";
   print "    libxml2-lib       Path to libxml2 library      always needed                       (if unset: tries to auto-detect it) \n";
   print "    log4cpp-inc       Path to log4cpp includes     always needed                       (if unset: tries to auto-detect it) \n";
@@ -131,8 +129,7 @@ my $gopt_enable_doxygen_doc      = "NO";
 my $gopt_enable_dylibversion     = "YES";
 my $gopt_enable_lowlevel_mesg    = "NO";
 my $gopt_enable_debug            = "NO";
-my $gopt_enable_lhapdf           = "YES";
-my $gopt_enable_cernlib          = "NO";
+my $gopt_enable_lhapdf           = "NO";
 my $gopt_enable_flux_drivers     = "YES";
 my $gopt_enable_geom_drivers     = "YES";
 my $gopt_enable_vle_extension    = "NO";
@@ -152,8 +149,7 @@ if(($match = grep(/--enable-doxygen-doc/i,      @ARGV)) > 0) { $gopt_enable_doxy
 if(($match = grep(/--disable-dylibversion/i,    @ARGV)) > 0) { $gopt_enable_dylibversion     = "NO";  }
 if(($match = grep(/--enable-lowlevel-mesg/i,    @ARGV)) > 0) { $gopt_enable_lowlevel_mesg    = "YES"; }
 if(($match = grep(/--enable-debug/i,            @ARGV)) > 0) { $gopt_enable_debug            = "YES"; }
-if(($match = grep(/--disable-lhapdf/i,          @ARGV)) > 0) { $gopt_enable_lhapdf           = "NO";  }
-if(($match = grep(/--enable-cernlib/i ,         @ARGV)) > 0) { $gopt_enable_cernlib          = "YES"; }
+if(($match = grep(/--enable-lhapdf/i,           @ARGV)) > 0) { $gopt_enable_lhapdf           = "YES"; }
 if(($match = grep(/--disable-flux-drivers/i,    @ARGV)) > 0) { $gopt_enable_flux_drivers     = "NO";  }
 if(($match = grep(/--disable-geom-drivers/i,    @ARGV)) > 0) { $gopt_enable_geom_drivers     = "NO";  }
 if(($match = grep(/--enable-vle-extension/i,    @ARGV)) > 0) { $gopt_enable_vle_extension    = "YES"; }
@@ -280,59 +276,6 @@ if($gopt_enable_lhapdf eq "YES") {
      print "*** Error *** Otherwise, you should --disable-lhapdf\n\n";
      exit 1;
   }
-}
-
-# If --enable-cernlib was set then the full path to the CERNLIBs must be specified
-#
-my $gopt_with_cern_lib = "";
-if($gopt_enable_cernlib eq "YES") {
-  if($options=~m/--with-cernlib=\S*/i) {
-     print "*** Error *** Note that the option --with-cernlib has been renamed to --with-cern-lib \n";
-     print "*** Error *** Please see './configure --help' for all config option updates \n\n";
-     exit 1;
-  }
-  if($gopt_enable_lhapdf eq "YES") {
-     print "\n";
-     print "*** Warning *** You have already enabled the LHAPDF library: The CERNLIB library dependency is now redundant. \n";
-     print "*** Warning *** No action is required but it is safe for you _not_ to --enable-cernlib. \n\n";
-  } else {
-     print "\n";
-     print "*** Warning *** Using CERNLIB in GENIE is functional but is becoming depreciated. \n";
-     print "*** Warning *** Please start using LHAPDF instead. \n\n";
-  }
-  if($options=~m/--with-cern-lib=(\S*)/i) {
-     $gopt_with_cern_lib = $1;
-   }
-   if(! -d $gopt_with_cern_lib) { 
-     print "\n*** Warning *** CERNLIB has been enabled but you didn't specify the CERNLIB path \n";
-   }
-   # if it was not set, try to pick it up from the environment
-   if(! -d $gopt_with_cern_lib && defined $ENV{'CERNLIB'}) { 
-     $gopt_with_cern_lib = $ENV{'CERNLIB'}; 
-     print "The \$CERNLIB env var is defined. I will pick that and use --with-cern-lib=$gopt_with_cern_lib\n";
-   }
-   # if it still not set, try autodetecting it
-   if(! -d $gopt_with_cern_lib && $auto_detect) 
-   {
-     print "Auto-detecting the CERNLIB path...\n";
-     $matched = auto_detect("libpdflib*.*");
-     if( $matched=~m/(\S*)\/libpdflib\S*/i ) {
-        $gopt_with_cern_lib = $1;
-     }
-     print "Setting --with-cern-lib=$gopt_with_cern_lib\n";
-   }
-   if(! -d $gopt_with_cern_lib) {
-       print "*** Error *** Could not locate the CERNLIB path. Please specify it using --with-cern-lib=/some/path/\n\n";
-       exit 1;
-   }
-} 
-
-# Check that at least one of CERNLIB and LHAPDF is enabled
-#
-if($gopt_enable_lhapdf eq "NO" && $gopt_enable_cernlib eq "NO") {
-   print "*** Error *** You can not disable both LHAPDF and CERNLIB. \n";
-   print "*** Error *** Please enable one (preferably LHAPDF). \n\n";
-   exit 1;
 }
 
 # Get pythia6 library path
@@ -463,7 +406,6 @@ print MKCONF "GOPT_ENABLE_DOXYGEN_DOC=$gopt_enable_doxygen_doc\n";
 print MKCONF "GOPT_ENABLE_DYLIBVERSION=$gopt_enable_dylibversion\n";
 print MKCONF "GOPT_ENABLE_LOW_LEVEL_MESG=$gopt_enable_lowlevel_mesg\n";
 print MKCONF "GOPT_ENABLE_LHAPDF=$gopt_enable_lhapdf\n";
-print MKCONF "GOPT_ENABLE_CERNLIB=$gopt_enable_cernlib\n";
 print MKCONF "GOPT_ENABLE_FLUX_DRIVERS=$gopt_enable_flux_drivers\n";
 print MKCONF "GOPT_ENABLE_GEOM_DRIVERS=$gopt_enable_geom_drivers\n";
 print MKCONF "GOPT_ENABLE_VLE_EXTENSION=$gopt_enable_vle_extension\n";
@@ -481,7 +423,6 @@ print MKCONF "GOPT_WITH_CXX_OPTIMIZ_FLAG=-$gopt_with_cxx_optimiz_flag\n";
 print MKCONF "GOPT_WITH_PROFILER_LIB=$gopt_with_profiler_lib\n";
 print MKCONF "GOPT_WITH_DOXYGEN_PATH=$gopt_with_doxygen_path\n";
 print MKCONF "GOPT_WITH_PYTHIA6_LIB=$gopt_with_pythia6_lib\n";
-print MKCONF "GOPT_WITH_CERN_LIB=$gopt_with_cern_lib\n";
 print MKCONF "GOPT_WITH_LHAPDF_LIB=$gopt_with_lhapdf_lib\n";
 print MKCONF "GOPT_WITH_LHAPDF_INC=$gopt_with_lhapdf_inc\n";
 print MKCONF "GOPT_WITH_LIBXML2_INC=$gopt_with_libxml2_inc\n";

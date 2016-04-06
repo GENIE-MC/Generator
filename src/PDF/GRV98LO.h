@@ -46,16 +46,16 @@ public:
 
   // implement the PDFModelI interface
 
-  double UpValence   (double x, double q2) const;
-  double DownValence (double x, double q2) const;
-  double UpSea       (double x, double q2) const;
-  double DownSea     (double x, double q2) const;
-  double Strange     (double x, double q2) const;
-  double Charm       (double x, double q2) const;
-  double Bottom      (double x, double q2) const;
-  double Top         (double x, double q2) const;
-  double Gluon       (double x, double q2) const;
-  PDF_t  AllPDFs     (double x, double q2) const;
+  double UpValence   (double x, double Q2) const;
+  double DownValence (double x, double Q2) const;
+  double UpSea       (double x, double Q2) const;
+  double DownSea     (double x, double Q2) const;
+  double Strange     (double x, double Q2) const;
+  double Charm       (double x, double Q2) const;
+  double Bottom      (double x, double Q2) const;
+  double Top         (double x, double Q2) const;
+  double Gluon       (double x, double Q2) const;
+  PDF_t  AllPDFs     (double x, double Q2) const;
 
   // override the default "Configure" implementation 
   // of the Algorithm interface
