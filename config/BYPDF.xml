@@ -20,5 +20,9 @@ Uncorr-PDF-Set             alg     No    Uncorrected PDF model
      <param type="alg" name="Uncorr-PDF-Set">  genie::GRV98LO/Default </param>
   </param_set>
 
+  <param_set name="Optional"> 
+     <param type="alg" name="Uncorr-PDF-Set">  genie::PDFLIB/GRVLO  </param>
+  </param_set>
+
 </alg_conf>
 

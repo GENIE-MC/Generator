@@ -48,52 +48,52 @@ GRV98LO::~GRV98LO()
 
 }
 //____________________________________________________________________________
-double GRV98LO::UpValence(double x, double q2) const
+double GRV98LO::UpValence(double x, double Q2) const
 {
-  return AllPDFs(x,q2).uval;
+  return AllPDFs(x,Q2).uval;
 }
 //____________________________________________________________________________
-double GRV98LO::DownValence(double x, double q2) const
+double GRV98LO::DownValence(double x, double Q2) const
 {
-  return AllPDFs(x,q2).dval;
+  return AllPDFs(x,Q2).dval;
 }
 //____________________________________________________________________________
-double GRV98LO::UpSea(double x, double q2) const
+double GRV98LO::UpSea(double x, double Q2) const
 {
-  return AllPDFs(x,q2).usea;
+  return AllPDFs(x,Q2).usea;
 }
 //____________________________________________________________________________
-double GRV98LO::DownSea(double x, double q2) const
+double GRV98LO::DownSea(double x, double Q2) const
 {
-  return AllPDFs(x,q2).dsea;
+  return AllPDFs(x,Q2).dsea;
 }
 //____________________________________________________________________________
-double GRV98LO::Strange(double x, double q2) const
+double GRV98LO::Strange(double x, double Q2) const
 {
-  return AllPDFs(x,q2).str;
+  return AllPDFs(x,Q2).str;
 }
 //____________________________________________________________________________
-double GRV98LO::Charm(double x, double q2) const
+double GRV98LO::Charm(double x, double Q2) const
 {
-  return AllPDFs(x,q2).chm;
+  return AllPDFs(x,Q2).chm;
 }
 //____________________________________________________________________________
-double GRV98LO::Bottom(double x, double q2) const
+double GRV98LO::Bottom(double x, double Q2) const
 {
-  return AllPDFs(x,q2).bot;
+  return AllPDFs(x,Q2).bot;
 }
 //____________________________________________________________________________
-double GRV98LO::Top(double x, double q2) const
+double GRV98LO::Top(double x, double Q2) const
 {
-  return AllPDFs(x,q2).top;
+  return AllPDFs(x,Q2).top;
 }
 //____________________________________________________________________________
-double GRV98LO::Gluon(double x, double q2) const
+double GRV98LO::Gluon(double x, double Q2) const
 {
-  return AllPDFs(x,q2).gl;
+  return AllPDFs(x,Q2).gl;
 }
 //____________________________________________________________________________
-PDF_t GRV98LO::AllPDFs(double x, double q2) const
+PDF_t GRV98LO::AllPDFs(double x, double Q2) const
 {
   PDF_t pdf;
 
@@ -113,10 +113,7 @@ PDF_t GRV98LO::AllPDFs(double x, double q2) const
   }
 
   LOG("GRV98LO", pDEBUG) 
-    << "Inputs x = " << x << ", q2 = " << q2;
-
-//double Q2 = -1*q2;
-  double Q2 = q2;  // NOTE: input is q2, but it really is Q2...
+    << "Inputs x = " << x << ", Q2 = " << Q2;
 
   // apply kinematical limits 
 //Q2 = TMath::Max(Q2, fGridQ2[0]);
@@ -124,10 +121,6 @@ PDF_t GRV98LO::AllPDFs(double x, double q2) const
   Q2 = TMath::Min(Q2, fGridQ2[kNQ2-1]);
   x  = TMath::Max(x,  fGridXbj[0]);
   x  = TMath::Min(x,  fGridXbj[kNXBj-1]);
-  //  Q2 = TMath::Max(Q2, 0.8);
-  //  Q2 = TMath::Min(Q2, 1.0E+6);
-  //  x  = TMath::Max(x,  1.0E-9);
-  //  x  = TMath::Min(x,  1.0);
 
   double logx  = TMath::Log(x);
   double logQ2 = TMath::Log(Q2);

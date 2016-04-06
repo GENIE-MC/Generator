@@ -38,16 +38,16 @@ public:
 
   //-- define PDFModelI interface
 
-  virtual double UpValence   (double x, double q2) const = 0;
-  virtual double DownValence (double x, double q2) const = 0;
-  virtual double UpSea       (double x, double q2) const = 0;
-  virtual double DownSea     (double x, double q2) const = 0;
-  virtual double Strange     (double x, double q2) const = 0;
-  virtual double Charm       (double x, double q2) const = 0;
-  virtual double Bottom      (double x, double q2) const = 0;
-  virtual double Top         (double x, double q2) const = 0;
-  virtual double Gluon       (double x, double q2) const = 0;
-  virtual PDF_t  AllPDFs     (double x, double q2) const = 0;
+  virtual double UpValence   (double x, double Q2) const = 0;
+  virtual double DownValence (double x, double Q2) const = 0;
+  virtual double UpSea       (double x, double Q2) const = 0;
+  virtual double DownSea     (double x, double Q2) const = 0;
+  virtual double Strange     (double x, double Q2) const = 0;
+  virtual double Charm       (double x, double Q2) const = 0;
+  virtual double Bottom      (double x, double Q2) const = 0;
+  virtual double Top         (double x, double Q2) const = 0;
+  virtual double Gluon       (double x, double Q2) const = 0;
+  virtual PDF_t  AllPDFs     (double x, double Q2) const = 0;
 
 protected:
 

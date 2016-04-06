@@ -164,32 +164,6 @@ endif
 endif # macosx64
 
 #-------------------------------------------------------------------
-#                             CERNLIB
-#-------------------------------------------------------------------
-
-ifeq ($(strip $(GOPT_ENABLE_CERNLIB)),YES) 
-
-CERN_LIB_DIR = $(GOPT_WITH_CERN_LIB)
-
-# figure out which pdflib to use (name keeps changing)
-
-#-- find all libraries named libpdflib*.a and remove the .a part
-PPDFLIBS = $(subst .a,,$(wildcard $(CERN_LIB_DIR)/libpdflib*.a))
-#-- if many were found use the first one
-PPDFLIB  = $(shell awk 'BEGIN {str="$(PPDFLIBS)"; \
-			split(str, tokens, " "); print tokens[1]}')
-#-- remove the path name
-PDFLIB   = $(shell awk 'BEGIN {str="$(PPDFLIB)"; \
-			n=split(str, tokens, "/"); print tokens[n]}')
-#-- replace the first lib with -l so libpdflib -> -lpdflib
-LPDFLIB  = $(shell awk 'BEGIN { str="$(PDFLIB)"; \
-				sub(/lib/, "-l", str); print str}')
-
-CERN_LIBRARIES = -L$(CERN_LIB_DIR) $(LPDFLIB) -lkernlib -lmathlib -lpacklib $(FORT_LIBRARIES)
-
-endif # enable-cern
-
-#-------------------------------------------------------------------
 #                             LHAPDF
 #-------------------------------------------------------------------
 
