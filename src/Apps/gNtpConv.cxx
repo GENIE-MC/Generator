@@ -311,8 +311,6 @@ void ConvertToGST(void)
   bool   brIsDis       = false;  // Is DIS?
   bool   brIsCoh       = false;  // Is Coherent?
   bool   brIsMec       = false;  // Is MEC?
-  bool   brIsMecTensor = false;  // Is MECTensor?
-  bool   brIsMecTensorPdd = false;  // Is MECTensorPdd?
   bool   brIsDfr       = false;  // Is Diffractive?
   bool   brIsImd       = false;  // Is IMD?
   bool   brIsSingleK   = false;  // Is single kaon?  
@@ -418,8 +416,6 @@ void ConvertToGST(void)
   s_tree->Branch("sea",	          &brFromSea,       "sea/O"	    );
   s_tree->Branch("qel",	          &brIsQel,	    "qel/O"	    );
   s_tree->Branch("mec",	          &brIsMec,	    "mec/O"	    );
-  s_tree->Branch("mectensor",	  &brIsMecTensor,   "mectensor/O"   );
-  s_tree->Branch("mectensorpdd",  &brIsMecTensorPdd,"mectensorpdd/O");
   s_tree->Branch("res",	          &brIsRes,	    "res/O"	    );
   s_tree->Branch("dis",	          &brIsDis,	    "dis/O"	    );
   s_tree->Branch("coh",           &brIsCoh,         "coh/O"	    );
