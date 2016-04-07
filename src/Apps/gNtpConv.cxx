@@ -311,6 +311,8 @@ void ConvertToGST(void)
   bool   brIsDis       = false;  // Is DIS?
   bool   brIsCoh       = false;  // Is Coherent?
   bool   brIsMec       = false;  // Is MEC?
+  bool   brIsMecTensor = false;  // Is MECTensor?
+  bool   brIsMecTensorPdd = false;  // Is MECTensorPdd?
   bool   brIsDfr       = false;  // Is Diffractive?
   bool   brIsImd       = false;  // Is IMD?
   bool   brIsSingleK   = false;  // Is single kaon?  
@@ -406,7 +408,7 @@ void ConvertToGST(void)
   //
   s_tree->Branch("iev",           &brIev,           "iev/I"         );
   s_tree->Branch("neu",	          &brNeutrino,      "neu/I"	    );
-  s_tree->Branch("fspl",	  &brFSPrimLept,    "fspl/I"	    );
+  s_tree->Branch("fspl",	      &brFSPrimLept,    "fspl/I"	    );
   s_tree->Branch("tgt",           &brTarget,        "tgt/I"	    );
   s_tree->Branch("Z",             &brTargetZ,       "Z/I"	    );
   s_tree->Branch("A",             &brTargetA,       "A/I"	    );
@@ -416,6 +418,8 @@ void ConvertToGST(void)
   s_tree->Branch("sea",	          &brFromSea,       "sea/O"	    );
   s_tree->Branch("qel",	          &brIsQel,	    "qel/O"	    );
   s_tree->Branch("mec",	          &brIsMec,	    "mec/O"	    );
+  s_tree->Branch("mectensor",	  &brIsMecTensor,   "mectensor/O"   );
+  s_tree->Branch("mectensorpdd",  &brIsMecTensorPdd,"mectensorpdd/O");
   s_tree->Branch("res",	          &brIsRes,	    "res/O"	    );
   s_tree->Branch("dis",	          &brIsDis,	    "dis/O"	    );
   s_tree->Branch("coh",           &brIsCoh,         "coh/O"	    );
@@ -441,7 +445,7 @@ void ConvertToGST(void)
   s_tree->Branch("t",	          &brKineT,	    "t/D"	    );
   s_tree->Branch("Q2",	          &brKineQ2,        "Q2/D"	    );
   s_tree->Branch("W",	          &brKineW,	    "W/D"	    );
-  s_tree->Branch("EvRF",	  &brEvRF,	    "EvRF/D"	    );
+  s_tree->Branch("EvRF",	      &brEvRF,	    "EvRF/D"	    );
   s_tree->Branch("Ev",	          &brEv,	    "Ev/D"	    );
   s_tree->Branch("pxv",	          &brPxv,	    "pxv/D"	    );
   s_tree->Branch("pyv",	          &brPyv,	    "pyv/D"	    );

@@ -170,7 +170,9 @@ const int kPdgTgtFreeN     = 1000000010;
 const int kPdgTgtDeuterium = 1000010020;
 const int kPdgTgtC12       = 1000060120;
 const int kPdgTgtO16       = 1000080160;
+const int kPdgTgtCa40      = 1000200400;
 const int kPdgTgtFe56      = 1000260560;
+
 
 // PDG codes for GENIE special particles
 const int kPdgHadronicSyst = 2000000001; // dis hadronic system before hadronization

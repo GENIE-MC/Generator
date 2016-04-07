@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for the Nieves, Simo and Vacas (Valencia) MEC cross-section model
+-->
+
+  <param_set name="Default"> 
+      <param type="alg"  name="NumericalIntegrationAlg"> genie::MECXSec/Default </param>
+  </param_set>
+
+</alg_conf>
+
+

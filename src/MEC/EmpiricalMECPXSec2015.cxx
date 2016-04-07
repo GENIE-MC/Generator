@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2016, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -29,13 +29,14 @@
 
 #include <TMath.h>
 
+#include "Algorithm/AlgConfigPool.h"
 #include "Conventions/Constants.h"
 #include "Conventions/Controls.h"
 #include "Conventions/GBuild.h"
 #include "Conventions/Units.h"
 #include "GHEP/GHepParticle.h"
 #include "Messenger/Messenger.h"
-#include "MEC/MECPXSec.h"
+#include "MEC/EmpiricalMECPXSec2015.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
 #include "PDG/PDGLibrary.h"
@@ -46,24 +47,24 @@ using namespace genie::constants;
 using namespace genie::controls;
 
 //____________________________________________________________________________
-MECPXSec::MECPXSec() :
-XSecAlgorithmI("genie::MECPXSec")
+EmpiricalMECPXSec2015::EmpiricalMECPXSec2015() :
+XSecAlgorithmI("genie::EmpiricalMECPXSec2015")
 {
 
 }
 //____________________________________________________________________________
-MECPXSec::MECPXSec(string config) :
-XSecAlgorithmI("genie::MECPXSec", config)
+EmpiricalMECPXSec2015::EmpiricalMECPXSec2015(string config) :
+XSecAlgorithmI("genie::EmpiricalMECPXSec2015", config)
 {
 
 }
 //____________________________________________________________________________
-MECPXSec::~MECPXSec()
+EmpiricalMECPXSec2015::~EmpiricalMECPXSec2015()
 {
 
 }
 //____________________________________________________________________________
-double MECPXSec::XSec(
+double EmpiricalMECPXSec2015::XSec(
 		      const Interaction * interaction, KinePhaseSpace_t kps) const
 {
 
@@ -171,7 +172,7 @@ double MECPXSec::XSec(
   return xsec;
 }
 //____________________________________________________________________________
-double MECPXSec::Integral(const Interaction * interaction) const
+double EmpiricalMECPXSec2015::Integral(const Interaction * interaction) const
 {
 // Calculate the CCMEC cross section as a fraction of the CCQE cross section
 // for the given nuclear target at the given energy.
@@ -220,18 +221,27 @@ double MECPXSec::Integral(const Interaction * interaction) const
      // FFracCCQE is fraction of QE going to MEC
      // fFracCCQE_cluster is fraction of MEC going to each NN pair
      double fFracCCQE=0.;
+     // TODO - remove the rolloff altogether?
      double Elo=1.;
-     double Ehi=5.;
+     double Ehi=-999.; // 5.;  // turned this off. - TODO - make a parameter for opts?
 
-     if (E<Elo) fFracCCQE=fFracCCQElo;
-     if (E>Elo&&E<Ehi) fFracCCQE=fFracCCQElo*(1.-(E-Elo)/(Ehi-Elo));
-     if (E>Ehi) fFracCCQE=0.;
+     if (Ehi <= Elo){
+       fFracCCQE = fFracCCQElo;
+     } else {
+       // originally was set to roll off at 5 GeV.
+       // the code is preserved here, but is disabled by the Ehi setting above.
+       if (E<Elo) fFracCCQE=fFracCCQElo;
+       if (E>Elo&&E<Ehi) fFracCCQE=fFracCCQElo*(1.-(E-Elo)/(Ehi-Elo));
+       if (E>Ehi) fFracCCQE=0.;
+     }
 
      double fFracCCQE_cluster=0.;
-     if(pdg::IsNeutrino(nupdg) && nucleon_cluster_pdg==2000000200) fFracCCQE_cluster= .8;  //n+n
-     if(pdg::IsNeutrino(nupdg) && nucleon_cluster_pdg==2000000201) fFracCCQE_cluster= .2;  //n+p
-     if(pdg::IsAntiNeutrino(nupdg) && nucleon_cluster_pdg==2000000201) fFracCCQE_cluster= .8;   //n+p
-     if(pdg::IsAntiNeutrino(nupdg) && nucleon_cluster_pdg==2000000202) fFracCCQE_cluster= .2;   //p+p
+     // see the isem case below.  For cc neutrino, one initial state is not accessible. 
+     double npfrac = fFracPN / (fFracPN + 0.5*(1-fFracPN)); //  0.888... if fFracPN = 0.8 
+     if(pdg::IsNeutrino(nupdg) && nucleon_cluster_pdg==2000000201) fFracCCQE_cluster= npfrac;  //n+p
+     if(pdg::IsNeutrino(nupdg) && nucleon_cluster_pdg==2000000200) fFracCCQE_cluster= 1.0-npfrac;  //n+n
+     if(pdg::IsAntiNeutrino(nupdg) && nucleon_cluster_pdg==2000000201) fFracCCQE_cluster= npfrac;   //n+p
+     if(pdg::IsAntiNeutrino(nupdg) && nucleon_cluster_pdg==2000000202) fFracCCQE_cluster= 1.0-npfrac;   //p+p
 
 
      xsec *= fFracCCQE*fFracCCQE_cluster;
@@ -246,7 +256,8 @@ double MECPXSec::Integral(const Interaction * interaction) const
   }
 
   else if(isnc) {
-     return 1.;
+      // not implemented -- would be in spirit like isem ?
+      return 0.;
   }     
   else if(isem) {
     int nucpdg = kPdgProton;
@@ -263,9 +274,9 @@ double MECPXSec::Integral(const Interaction * interaction) const
     // FFracEMQE is fraction of QE going to MEC
     // fFracEMQE_cluster is fraction of MEC going to each NN pair
     double fFracEMQE_cluster=0.;
-    if(nucleon_cluster_pdg==2000000200) fFracEMQE_cluster= .1;  //n+n
-    if(nucleon_cluster_pdg==2000000201) fFracEMQE_cluster= .8;  //n+p
-    if(nucleon_cluster_pdg==2000000202) fFracEMQE_cluster= .1;  //p+p
+    if(nucleon_cluster_pdg==2000000200) fFracEMQE_cluster= 0.5*(1-fFracPN);  //n+n
+    if(nucleon_cluster_pdg==2000000201) fFracEMQE_cluster= fFracPN;  //n+p
+    if(nucleon_cluster_pdg==2000000202) fFracEMQE_cluster= 0.5*(1-fFracPN);  //p+p
     xsec *= fFracEMQE*fFracEMQE_cluster;
     delete inn;
     delete inp;
@@ -275,7 +286,7 @@ double MECPXSec::Integral(const Interaction * interaction) const
   return 0;
 }
 //____________________________________________________________________________
-bool MECPXSec::ValidProcess(const Interaction * interaction) const
+bool EmpiricalMECPXSec2015::ValidProcess(const Interaction * interaction) const
 {
   if(interaction->TestBit(kISkipProcessChk)) return true;
 
@@ -285,29 +296,35 @@ bool MECPXSec::ValidProcess(const Interaction * interaction) const
   return true;
 }
 //____________________________________________________________________________
-void MECPXSec::Configure(const Registry & config)
+void EmpiricalMECPXSec2015::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void MECPXSec::Configure(string config)
+void EmpiricalMECPXSec2015::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void MECPXSec::LoadConfig(void)
+void EmpiricalMECPXSec2015::LoadConfig(void)
 {
+  AlgConfigPool * confp = AlgConfigPool::Instance();
+  const Registry * gc = confp->GlobalParameterList();
+
   fXSecAlgCCQE = 0;
   fXSecAlgEMQE = 0;
 
-  fMq2d   = 0.4; // GeV
-  fMass   = 2.1; // GeV   2.1
-  fWidth  = 0.05; // GeV  .05
-  fFracCCQElo = 0.45; //fraction of CCQE xsec at Miniboone energies to CCMEC xsec
-                      //  at first, this is energy independent
-  fFracEMQE=0.05;  //fraction of 0.5*(ep+en) Rosenbluth xsec going to (e,e') MEC
+  fMq2d = fConfig->GetDoubleDef("EmpiricalMEC-Mq2d", gc->GetDouble("EmpiricalMEC-Mq2d"));
+  fMass = fConfig->GetDoubleDef("EmpiricalMEC-Mass", gc->GetDouble("EmpiricalMEC-Mass"));
+  fWidth = fConfig->GetDoubleDef("EmpiricalMEC-Width", gc->GetDouble("EmpiricalMEC-Width"));
+  fFracCCQElo = fConfig->GetDoubleDef("EmpiricalMEC-FracCCQElo",
+          gc->GetDouble("EmpiricalMEC-FracCCQElo"));
+  fFracEMQE = fConfig->GetDoubleDef("EmpiricalMEC-FracEMQE",
+          gc->GetDouble("EmpiricalMEC-FracEMQE"));
+  fFracPN = fConfig->GetDoubleDef("EmpiricalMEC-FracPN",
+          gc->GetDouble("EmpiricalMEC-FracPN"));
 
   // Get the specified CCQE cross section model
   fXSecAlgCCQE = 

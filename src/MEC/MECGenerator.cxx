@@ -24,6 +24,7 @@
 
 #include <TMath.h>
 
+#include "Algorithm/AlgConfigPool.h"
 #include "Base/XSecAlgorithmI.h"
 #include "Conventions/Constants.h"
 #include "Conventions/Controls.h"
@@ -36,6 +37,7 @@
 #include "GHEP/GHepRecord.h"
 #include "Messenger/Messenger.h"
 #include "MEC/MECGenerator.h"
+#include "MEC/MECHadronTensor.h"
 #include "Numerical/RandomGen.h"
 #include "Nuclear/NuclearModelI.h"
 #include "PDG/PDGCodes.h"
@@ -69,16 +71,38 @@ MECGenerator::~MECGenerator()
 //___________________________________________________________________________
 void MECGenerator::ProcessEventRecord(GHepRecord * event) const
 {
-  LOG("MEC", pWARN)
-     << print::PrintFramedMesg(
-         "Experimental code (MEC generator) - Run at your own risk");
+  //-- Access cross section algorithm for running thread
+  RunningThreadInfo * rtinfo = RunningThreadInfo::Instance();
+  const EventGeneratorI * evg = rtinfo->RunningThread();
+  fXSecModel = evg->CrossSectionAlg();
+  if (fXSecModel->Id().Name() == "genie::EmpiricalMECPXSec2015") {
+      this -> AddTargetRemnant      (event); /// shortly, this will be handled by the InitialStateAppender module
+      this -> GenerateFermiMomentum(event);
+      this -> SelectEmpiricalKinematics(event);
+      // TODO: test removing `AddFinalStateLepton` and replacing it with
+      //    PrimaryLeptonGenerator::ProcessEventRecord(evrec);
+      this -> AddFinalStateLepton(event);
+      // TODO: maybe put `RecoilNucleonCluster` in a `MECHadronicSystemGenerator` class,
+      // name it `GenerateEmpiricalDiNucleonCluster` or something...
+      this -> RecoilNucleonCluster(event);
+      // TODO: `DecayNucleonCluster` should probably be in `MECHadronicSystemGenerator`,
+      // if we make that...
+      this -> DecayNucleonCluster(event);
+  } else if (fXSecModel->Id().Name() == "genie::NievesSimoVacasMECPXSec2016") {
+      this -> SelectNSVLeptonKinematics(event);
+      this -> AddTargetRemnant(event);
+      this -> GenerateNSVInitialHadrons(event);
+      // Note: this method in `MECTensor/MECTensorGenerator.cxx` appeared to be a straight
+      // copy of an earlier version of the `DecayNucleonCluster` method here - but, watch
+      // for this...
+      this -> DecayNucleonCluster(event);
+  }
+  else {
+      LOG("MECGenerator",pFATAL) <<
+          "ProcessEventRecord >> Cannot calculate kinematics for " <<
+          fXSecModel->Id().Name();
+  }
 
-  this -> AddTargetRemnant      (event); /// shortly, this will be handled by the InitialStateAppender module
-  this -> GenerateFermiMomentum (event);
-  this -> SelectKinematics      (event);
-  this -> AddFinalStateLepton   (event);
-  this -> RecoilNucleonCluster  (event);
-  this -> DecayNucleonCluster   (event);
 
 }
 //___________________________________________________________________________
@@ -175,7 +199,7 @@ void MECGenerator::GenerateFermiMomentum(GHepRecord * event) const
   event->Summary()->InitStatePtr()->TgtPtr()->SetHitNucP4(p4nclust);
 } 
 //___________________________________________________________________________ 
-void MECGenerator::SelectKinematics(GHepRecord * event) const
+void MECGenerator::SelectEmpiricalKinematics(GHepRecord * event) const
 {
 // Select interaction kinematics using the rejection method.
 //
@@ -510,25 +534,495 @@ PDGCodeList MECGenerator::NucleonClusterConstituents(int pdgc) const
   return pdgv;
 }
 //___________________________________________________________________________
+void MECGenerator::SelectNSVLeptonKinematics (GHepRecord * event) const
+{
+  // -- implementation -- //
+  // The IFIC Valencia model can provide three different hadron tensors.
+  // The user probably wants all CC QE-like 2p2h events
+  // But could in principle get the no-delta component if they want (deactivated incode)
+  int FullDeltaNodelta = 1;  // 1:  full, 2:  only delta, 3:  zero delta
+
+  // -- limit the maximum XS for the accept/reject loop -- //
+  // 
+  // MaxXSec parameters.  This whole calculation could be in it's own function?
+  // these need to lead to a number that is safely large enough, or crash the run.
+  double XSecMaxPar1 = 2.2504;
+  double XSecMaxPar2 = 9.41158;
+
+  // -- Event Properties -----------------------------//
+  Interaction * interaction = event->Summary();
+  Kinematics * kinematics = interaction->KinePtr();
+
+  double Enu = interaction->InitState().ProbeE(kRfHitNucRest);
+
+  int TgtPDG = interaction->InitState().TgtPdg();
+  // interacton vtx
+  TLorentzVector v4(*event->Probe()->X4());
+  TLorentzVector tempp4(0.,0.,0.,0.);
+
+  // -- Lepton Kinematic Limits ----------------------------------------- //
+  double Costh = 0.0; // lepton angle
+  double CosthMax = 1.0;
+  double CosthMin = -1.0;
+
+  double T = 0.0;  // lepton kinetic energy
+  double TMax = std::numeric_limits<double>::max();
+  double TMin = 0.0;
+
+  double Plep = 0.0; // lepton 3 momentum
+  double Elep = 0.0; // lepton energy
+  double LepMass = interaction->FSPrimLepton()->Mass();
+  
+  double Q0 = 0.0; // energy component of q four vector
+  double Q3 = 0.0; // magnitude of transfered 3 momentum
+  double Q2 = 0.0; // properly Q^2 (Q squared) - transfered 4 momentum.
+
+  // Set lepton KE TMax for for throwing rndm in the accept/reject loop.
+  // We can accidentally set it too high, because the xsec will return zero.
+  // This way if someone reuses this code, they are not tripped up by it.
+  TMax = Enu - LepMass;
+
+  // Set Tmin for throwing rndm in the accept/reject loop
+  // the hadron tensors we expect will be limited in q3
+  // therefore also the outgoing lepton KE can't be too low or costheta too backward
+  // make the accept/reject loop more efficient by using Min values.
+  if(Enu < fQ3Max){
+    TMin = 0 ;
+    CosthMin = -1 ; 
+  } else {
+    TMin = TMath::Sqrt(TMath::Power(LepMass, 2) + TMath::Power((Enu - fQ3Max), 2)) - LepMass;
+    CosthMin = TMath::Sqrt(1 - TMath::Power((fQ3Max / Enu ), 2));
+  }
+
+  // The accept/reject loop tests a rand against a maxxsec - must scale with A.
+  int NuclearA = 12;
+  int NuclearAfactorXSecMax = 1.0;
+  if (TgtPDG != kPdgTgtC12) {
+    if (TgtPDG > kPdgTgtFreeN && TgtPDG) {
+      NuclearA = pdg::IonPdgCodeToA(TgtPDG);
+      // The QE-like portion scales as A, but the Delta portion increases faster, not simple.
+      // so this gives additional safety factor.  Remember, we need a safe max, not precise max.
+      if (NuclearA < 12) NuclearAfactorXSecMax *= NuclearA / 12.0;
+      else NuclearAfactorXSecMax *= TMath::Power(NuclearA/12.0, 1.2);
+    } 
+    else {
+      LOG("MEC", pERROR) << "Trying to scale XSecMax for larger nuclei, but "
+          << TgtPDG << " isn't a nucleus?";
+      assert(false);
+    }
+  }
+  
+  // -- Generate and Test the Kinematics----------------------------------//
+
+  RandomGen * rnd = RandomGen::Instance();
+  bool accept = false;
+  unsigned int iter = 0;
+
+  // loop over different (randomly) selected T and Costh
+  while (!accept) {
+      iter++;
+      if(iter > kRjMaxIterations) {
+          // error if try too many times
+          LOG("MEC", pWARN)
+              << "Couldn't select a valid Tmu, CosTheta pair after " 
+              << iter << " iterations";
+          event->EventFlags()->SetBitNumber(kKineGenErr, true);
+          genie::exceptions::EVGThreadException exception;
+          exception.SetReason("Couldn't select lepton kinematics");
+          exception.SwitchOnFastForward();
+          throw exception;
+      }
+
+      // generate random kinetic energy T and Costh
+      T = TMin + (TMax-TMin)*rnd->RndKine().Rndm();
+      Costh = CosthMin + (CosthMax-CosthMin)*rnd->RndKine().Rndm();
+
+      // Calculate useful values for judging this choice
+      Plep = TMath::Sqrt( T * (T + (2.0 * LepMass)));  // ok is sqrt(E2 - m2)
+      Q3 = TMath::Sqrt(Plep*Plep + Enu*Enu - 2.0 * Plep * Enu * Costh);
+
+      // Don't bother doing hard work if the selected Q3 is greater than Q3Max
+      if (Q3 < fQ3Max){
+
+          kinematics->SetKV(kKVTl, T);
+          kinematics->SetKV(kKVctl, Costh);
+
+          // decide whether to accept or reject these kinematics
+          // AND set the chosen two-nucleon system
+
+          // to save time, use a pre-calculated max cross-section XSecMax
+          // it doesn't matter what it is, as long as it is big enough.
+          // RIK asks can XSecMax can be pushed to the q0q3 part of the calculation
+          // where the XS doesn't depend much on Enu.
+          // instead, this implementation uses a rough dependence on log10(Enu).
+          // starting around 0.5 GeV, the log10(max) is linear vs. log10(Enu)
+          // 1.10*TMath::Power(10.0, 2.2504 * TMath::Log10(Enu) - 9.41158)
+
+          if (FullDeltaNodelta == 1){ 
+              // this block for the user who wants all CC QE-like 2p2h events
+
+              // extract xsecmax from the spline making process for C12 and other nuclei.
+              //  plot Log10(E) on horizontal and Log10(xsecmax) vertical
+              //  and fit a line.  Use that plus 1.25 safety factors to limit the accept/reject loop.
+              double XSecMax = 1.25*TMath::Power(10.0, XSecMaxPar1 * TMath::Log10(Enu) - XSecMaxPar2);
+              XSecMax *=  NuclearAfactorXSecMax;  // Scale it by A, precomputed above.
+
+              LOG("MEC", pDEBUG) << " T, Costh: " << T << ", " << Costh ;
+
+              // TODO: all the PDD stuff has now basically been moved into the XSec calc, we
+              // need to check and be sure the modern analog of the `isPDD` flag is being
+              // set appropriately...
+              // double XSecFour[4];
+              // hadtensor->XSecFour(TgtPDG, NuPDG, Enu, T, Costh, XSecFour, true);
+
+              double XSec = fXSecModel->XSec(interaction, kPSTlctl);
+
+              if (XSec > XSecMax) {
+                  LOG("MEC", pERROR) << "XSec is > XSecMax for nucleus " << TgtPDG 
+                      << " don't let this happen.";
+              }
+              assert(XSec <= XSecMax);
+              accept = XSec > XSecMax*rnd->RndKine().Rndm();
+              LOG("MEC", pINFO) << "Xsec, Max, Accept: " << XSec << ", " 
+                  << XSecMax << ", " << accept; 
+
+              if(accept){
+                  // If it passes the All cross section we still need to do two things
+                  // Was the initial state pn or not?
+                  // Do we assign the reaction to have had a Delta on the inside?
+
+                  // TODO: comment this block out for now to get things to compile...
+                  /*
+
+                  // This uses the second hadtensor, delta-only to get a second subset Xsec
+                  // Set PDD "pionless delta decay" if it passes this also.
+                  // PDD means from the part of the XSec with an internal Delta line
+                  // that (at the diagram level) did not produce a pion in the final state.
+                  // Precompute the two cross sections we need, but throw the random later.
+                  //double XSecDelta = hadtensor->XSecDeltaAll(TgtPDG, NuPDG, Enu, T, Costh);
+                  //double XSecDeltaPN = hadtensor->XSecDeltapn(TgtPDG, NuPDG, Enu, T, Costh);
+                  double XSecDelta = XSecFour[2];
+                  double XSecDeltaPN = XSecFour[3];
+                  bool isPDD = 0;  // this flag is actually set inside the if blocks.
+
+                  // Find out if we should use a pn initial state
+                  //double XSecPN= hadtensor->XSecFullpn(TgtPDG, NuPDG, Enu, T, Costh);
+                  double XSecPN = XSecFour[1];
+
+                  double myrand = rnd->RndKine().Rndm();
+                  double pnFraction = XSecPN / XSec;
+                  LOG("MEC", pINFO) << "RIK test for pn " << XSecPN << " " << XSec 
+                      << " " << pnFraction << " " << myrand;
+
+                  if ( myrand <= pnFraction){
+                      // yes it is, add a PN initial state to event record
+                      event->AddParticle(kPdgClusterNP, kIStNucleonTarget,
+                              1, -1, -1, -1, tempp4, v4);
+                      init_state->TgtPtr()->SetHitNucPdg(kPdgClusterNP);
+
+                      // Its a pn, so test for Delta by comparing DeltaPN/PN
+                      if (rnd->RndKine().Rndm() <= XSecDeltaPN/XSecPN) {
+                          isPDD=1;
+                      }
+                  }
+                  else {
+                      // no it is not, add either NN or PP initial state to event record.
+                      if (NuPDG > 0) {
+                          event->AddParticle(kPdgClusterNN, kIStNucleonTarget,
+                                  1, -1, -1, -1, tempp4, v4);
+                          init_state->TgtPtr()->SetHitNucPdg(kPdgClusterNN);
+                      }
+                      else {
+                          event->AddParticle(kPdgClusterPP, kIStNucleonTarget,
+                                  1, -1, -1, -1, tempp4, v4);
+                          init_state->TgtPtr()->SetHitNucPdg(kPdgClusterPP); 
+                      }
+
+                      // its not pn, so test for Delta (XSecDelta-XSecDeltaPN)/(XSec-XSecPN)
+                      // right, both numerator and denominator are total not pn.
+                      if (rnd->RndKine().Rndm() <=
+                              (XSecDelta - XSecDeltaPN) / (XSec - XSecPN)) {
+                          isPDD = 1;
+                      }
+                  }
+
+                  // now test whether we tagged this as a pion event
+                  // and assign that fact to the Exclusive State tag
+                  // later, we can query const XclsTag & xcls = interaction->ExclTag() 
+                  if (isPDD){
+                      XclsTag * xcls = interaction->ExclTagPtr();
+                      xcls->SetResonance(kP33_1232);		
+                  }
+
+                  */  // end of long comment block - see TODO above...
+
+              } // end if accept
+          }// end if delta ==1
+
+          /* One can make simpler versions of the above for the
+             FullDeltaNodelta == 2 (only delta)
+             or
+             FullDeltaNodelta == 3 (set Delta FF = 1, lose interference effect).
+             but I don't see what the use-case is for these, genratorly speaking.
+             */
+
+      }// end if passes q3 test
+  }// end while
+
+  // -- finish lepton kinematics
+  // If the code got here, then we accepted some kinematics
+  // and we can proceed to generate the final state.
+
+  // define coordinate system wrt neutrino: z along neutrino, xy perp
+
+  // Cos theta gives us z, the rest in xy:
+  double PlepZ = Plep * Costh;
+  double PlepXY = Plep * TMath::Sqrt(1. - TMath::Power(Costh,2));
+
+  // random rotation about unit vector for phi direction
+  double phi= 2 * kPi * rnd->RndLep().Rndm();
+  // now fill x and y from PlepXY
+  double PlepX = PlepXY * TMath::Cos(phi);
+  double PlepY = PlepXY * TMath::Sin(phi);
+
+  // Rotate lepton momentum vector from the reference frame (x'y'z') where 
+  // {z':(neutrino direction), z'x':(theta plane)} to the LAB
+  TVector3 unit_nudir = event->Probe()->P4()->Vect().Unit();
+  TVector3 p3l(PlepX, PlepY, PlepZ);
+  p3l.RotateUz(unit_nudir);
+
+  // Lepton 4-momentum in LAB
+  Elep = TMath::Sqrt(LepMass*LepMass + PlepX*PlepX + PlepY*PlepY + PlepZ*PlepZ); 
+  TLorentzVector p4l(p3l,Elep);
+
+  // Figure out the final-state primary lepton PDG code
+  int pdgc = interaction->FSPrimLepton()->PdgCode();
+  int momidx = event->ProbePosition();
+
+  // -- Store Values ------------------------------------------//
+  // -- Interaction: Q2
+  Q0 = Enu - Elep;
+  Q2 = Q3*Q3 - Q0*Q0;
+
+  interaction->KinePtr()->SetQ2(Q2, true);
+  interaction->KinePtr()->Sety(Q0/Enu, true);
+  interaction->KinePtr()->SetFSLeptonP4(p4l);
+  // in later methods
+  // will also set the four-momentum and W^2 of the hadron system.
+
+  // -- Lepton
+  event->AddParticle( pdgc, kIStStableFinalState, momidx, -1, -1, -1, p4l, v4);
+
+  LOG("MEC",pDEBUG) << "~~~ LEPTON DONE ~~~";
+}
+//___________________________________________________________________________
+void MECGenerator::GenerateNSVInitialHadrons(GHepRecord * event) const
+{
+    // We need a kinematic limits accept/reject loop here, so generating the
+    // initial hadrons is combined with generating the recoil hadrons...
+
+    LOG("MEC",pDEBUG) << "Generate Initial Hadrons - Start";
+
+    Interaction * interaction = event->Summary();
+    GHepParticle * neutrino = event->Probe();
+    assert(neutrino);
+    TLorentzVector p4nu(*neutrino->P4());
+
+    // get final state primary lepton & its 4-momentum
+    GHepParticle * fsl = event->FinalStatePrimaryLepton();
+    assert(fsl);
+    TLorentzVector p4l(*fsl->P4());
+
+    // calculate 4-momentum transfer from these
+    TLorentzVector Q4 = p4nu - p4l;
+
+    // get the target two-nucleon cluster and nucleus.
+    // the remnant nucleus is apparently set, except for its momentum.
+    GHepParticle * target_nucleus = event->TargetNucleus();
+    assert(target_nucleus);
+    GHepParticle * initial_nucleon_cluster = event->HitNucleon();
+    assert(initial_nucleon_cluster);
+    GHepParticle * remnant_nucleus = event->RemnantNucleus();
+    assert(remnant_nucleus);
+
+    // -- make a two-nucleon system, then give them some momenta.
+
+    // instantiate an empty local target nucleus, so I can use existing methods
+    // to get a momentum from the prevailing Fermi-motion distribution 
+    Target tgt(target_nucleus->Pdg());
+
+    // NucleonClusterConstituents is an implementation within this class, called with this
+    // It using the nucleon cluster from the earlier tests for a pn state,
+    // the method returns a vector of pdgs, which hopefully will be of size two.
+
+    PDGCodeList pdgv = this->NucleonClusterConstituents(initial_nucleon_cluster->Pdg());
+    assert(pdgv.size()==2);
+
+    // These things need to be saved through to the end of the accept loop.
+    bool accept = false;
+    TVector3 p31i;
+    TVector3 p32i;
+    unsigned int iter = 0;
+
+    int initial_nucleon_cluster_pdg = initial_nucleon_cluster->Pdg();
+    int final_nucleon_cluster_pdg = 0;
+    if (neutrino->Pdg() > 0) {
+        if (initial_nucleon_cluster->Pdg() == kPdgClusterNP) {
+            final_nucleon_cluster_pdg = kPdgClusterPP;
+        }
+        else if (initial_nucleon_cluster->Pdg() == kPdgClusterNN) {
+            final_nucleon_cluster_pdg = kPdgClusterNP;
+        }
+        else {
+            LOG("MEC", pERROR) << "Wrong pdg for a CC neutrino MEC interaction" 
+                << initial_nucleon_cluster->Pdg();
+        }
+    } 
+    else if (neutrino->Pdg() < 0) {
+        if (initial_nucleon_cluster->Pdg() == kPdgClusterNP) {
+            final_nucleon_cluster_pdg = kPdgClusterNN;
+        }
+        else if (initial_nucleon_cluster->Pdg() == kPdgClusterPP) {
+            final_nucleon_cluster_pdg = kPdgClusterNP;
+        }
+        else {
+            LOG("MEC", pERROR) << "Wrong pdg for a CC anti-neutrino MEC interaction" 
+                << initial_nucleon_cluster->Pdg();
+        }
+    }
+
+    TLorentzVector p4initial_cluster;
+    TLorentzVector p4final_cluster;
+    TLorentzVector p4remnant_nucleus;
+    double removalenergy1;
+    double removalenergy2;
+
+    //===========================================================================
+    // Choose two nucleons from the prevailing fermi-motion distribution.
+    // Some produce kinematically unallowed combinations initial cluster and Q2
+    // Find out, and if so choose them again with this accept/reject loop.
+    // Some kinematics are especially tough 
+    while(!accept){
+        iter++;
+        if(iter > kRjMaxIterations*1000) {
+            // error if try too many times
+            LOG("MEC", pWARN)
+                << "Couldn't select a valid W, Q^2 pair after " 
+                << iter << " iterations";
+            event->EventFlags()->SetBitNumber(kKineGenErr, true);
+            genie::exceptions::EVGThreadException exception;
+            exception.SetReason("Couldn't select initial hadron kinematics");
+            exception.SwitchOnFastForward();
+            throw exception;
+        }
+
+        // generate nucleons
+        // tgt is a Target object for local use, just waiting to be filled.
+        // this sets the pdg of each nucleon and its momentum from a Fermi-gas
+        // Nieves et al. would use a local Fermi gas here, not this, but ok.
+        // so momentum from global Fermi gas, local Fermi gas, or spectral function
+        // and removal energy ~0.025 GeV, correlated with density, or from SF distribution
+        tgt.SetHitNucPdg(pdgv[0]);
+        fNuclModel->GenerateNucleon(tgt);
+        p31i = fNuclModel->Momentum3();
+        removalenergy1 = fNuclModel->RemovalEnergy();
+        tgt.SetHitNucPdg(pdgv[1]);
+        fNuclModel->GenerateNucleon(tgt);
+        p32i = fNuclModel->Momentum3();
+        removalenergy2 = fNuclModel->RemovalEnergy();
+
+        // not sure -- could give option to use Nieves q-value here.
+
+        // Now write down the initial cluster four-vector for this choice
+        TVector3 p3i = p31i + p32i;
+        double mass2 = PDGLibrary::Instance()->Find( initial_nucleon_cluster_pdg )->Mass();
+        mass2 *= mass2;
+        double energy = TMath::Sqrt(p3i.Mag2() + mass2);
+        p4initial_cluster.SetPxPyPzE(p3i.Px(),p3i.Py(),p3i.Pz(),energy);
+
+        // cast the removal energy as the energy component of a 4-vector for later.
+        TLorentzVector tLVebind(0., 0., 0., -1.0 * (removalenergy1 + removalenergy2));
+
+        // RIK: You might ask why is this the right place to subtract ebind?
+        // It is okay. Physically, I'm subtracting it from q. The energy
+        // transfer to the nucleon is 50 MeV less. the energy cost to put this
+        // cluster on-shell. What Jan says he does in PRC.86.015504 is this:
+        //   The nucleons are assumed to be in a potential well
+        //     V = Efermi + 8 MeV.
+        //   The Fermi energy is subtracted from each initial-state nucleon
+        //   (I guess he does it dynamically based on Ef = p2/2M or so which 
+        //   is what we are doing above, on average). Then after the reaction,
+        // another 8 MeV is subtracted at that point; a small adjustment to the
+        // momentum is needed to keep the nucleon on shell.
+
+        // calculate recoil nucleon cluster 4-momentum (tLVebind is negative)
+        p4final_cluster = p4initial_cluster + Q4 + tLVebind;
+
+        // Test if the resulting four-vector corresponds to a high-enough invariant mass.
+        // Fail the accept if we couldn't put this thing on-shell.
+        if (p4final_cluster.M() < 
+                PDGLibrary::Instance()->Find(final_nucleon_cluster_pdg )->Mass()) {
+            accept = false;
+        } else {
+            accept = true;
+        }
+
+    }  // end accept loop
+
+    // we got here if we accepted the final state two-nucleon system
+    // so now we need to write everything to ghep
+
+    // First the initial state nucleons.
+    initial_nucleon_cluster->SetMomentum(p4initial_cluster);
+
+    // and the remnant nucleus
+    double Mi  = PDGLibrary::Instance()->Find(target_nucleus->Pdg() )-> Mass();
+    remnant_nucleus->SetMomentum(-1.0*p4initial_cluster.Px(),
+            -1.0*p4initial_cluster.Py(),
+            -1.0*p4initial_cluster.Pz(),
+            Mi - p4initial_cluster.E());
+
+    // Now the final nucleon cluster.
+
+    // Getting this v4 is a position, i.e. a position within the nucleus (?)
+    // possibly it takes on a non-trivial value only for local Fermi gas
+    // or for sophisticated treatments of intranuclear rescattering.
+    TLorentzVector v4(*neutrino->X4());
+
+    // Now write the (undecayed) final two-nucleon system
+    GHepParticle p1(final_nucleon_cluster_pdg, kIStDecayedState,
+            2, -1, -1, -1, p4final_cluster, v4);
+    p1.SetRemovalEnergy(removalenergy1 + removalenergy2);
+    // actually, this is not an status1 particle, so it is not picked up
+    // by the aggregator. anyway, the aggregator does not run until the very end.
+    event->AddParticle(p1);
+
+    interaction->KinePtr()->SetHadSystP4(p4final_cluster);
+}
+//___________________________________________________________________________
 void MECGenerator::Configure(const Registry & config)   
 {
-  Algorithm::Configure(config);
-  this->LoadConfig();
+    Algorithm::Configure(config);
+    this->LoadConfig();
 } 
 //___________________________________________________________________________ 
 void MECGenerator::Configure(string config)
 {
-  Algorithm::Configure(config);
-  this->LoadConfig();
+    Algorithm::Configure(config);
+    this->LoadConfig();
 }
 //___________________________________________________________________________
 void MECGenerator::LoadConfig(void)
 {
-  fNuclModel = 0;
-      
-  RgKey nuclkey = "NuclearModel";
-  fNuclModel = dynamic_cast<const NuclearModelI *> (this->SubAlg(nuclkey));
-  assert(fNuclModel);
+    AlgConfigPool * confp = AlgConfigPool::Instance();
+    const Registry * gc = confp->GlobalParameterList();
+
+    fNuclModel = 0;
+    RgKey nuclkey = "NuclearModel";
+    fNuclModel = dynamic_cast<const NuclearModelI *> (this->SubAlg(nuclkey));
+    assert(fNuclModel);
+
+    fQ3Max = fConfig->GetDoubleDef("NSV-Q3Max", gc->GetDouble("NSV-Q3Max"));
 }
 //___________________________________________________________________________
 

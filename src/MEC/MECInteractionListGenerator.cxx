@@ -16,6 +16,7 @@
 */
 //____________________________________________________________________________
 
+#include "Algorithm/AlgConfigPool.h"
 #include "EVGCore/InteractionList.h"
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
@@ -56,6 +57,27 @@ InteractionList *
   if(target.A() < 4) return 0;
 
   InteractionList * intlist = new InteractionList;
+
+  if(!fSetDiNucleonCode) {
+    if(fIsCC) {
+      Interaction * interaction = Interaction::MECCC(tgtpdg, nupdg, 0.0);
+      intlist->push_back(interaction);
+    }
+/*
+NOTE:  Nieves MEC model implementation does CC only 
+    else
+    if(fIsNC) {
+      Interaction * interaction = Interaction::MECNC(tgtpdg, nupdg, 0.0);
+      intlist->push_back(interaction);
+    } 
+    else
+    if(fIsEM) {
+      Interaction * interaction = Interaction::MECEM(tgtpdg, nupdg, 0.0);
+      intlist->push_back(interaction);
+    }
+*/
+    return intlist;
+  }
 
   const int nc = 3;
   const int nucleon_cluster[nc] = { 
@@ -120,9 +142,15 @@ void MECInteractionListGenerator::Configure(string config)
 //____________________________________________________________________________
 void MECInteractionListGenerator::LoadConfigData(void)
 {
+  AlgConfigPool * confp = AlgConfigPool::Instance();
+  const Registry * gc = confp->GlobalParameterList();
+
   fIsCC = fConfig->GetBoolDef("is-CC",  false);
   fIsNC = fConfig->GetBoolDef("is-NC",  false);
   fIsEM = fConfig->GetBoolDef("is-EM",  false);
+
+  fSetDiNucleonCode = fConfig->GetBoolDef("SetDiNucleonCode",
+          gc->GetBool("SetDiNucleonCode"));
 }
 //____________________________________________________________________________
 

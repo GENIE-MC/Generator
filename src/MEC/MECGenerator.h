@@ -49,19 +49,23 @@ public :
 
 private:
 
-  void        LoadConfig                  (void);
-  void        AddNucleonCluster           (GHepRecord * event) const;
-  void        AddTargetRemnant            (GHepRecord * event) const;
-  void        GenerateFermiMomentum       (GHepRecord * event) const;
-  void        SelectKinematics            (GHepRecord * event) const;
-  void        AddFinalStateLepton         (GHepRecord * event) const;
-  void        RecoilNucleonCluster        (GHepRecord * event) const;
-  void        DecayNucleonCluster         (GHepRecord * event) const;
-  PDGCodeList NucleonClusterConstituents  (int pdgc)           const;
+  void    LoadConfig                        (void);
+  void    AddNucleonCluster                 (GHepRecord * event) const;
+  void    AddTargetRemnant                  (GHepRecord * event) const;
+  void    GenerateFermiMomentum             (GHepRecord * event) const;
+  void    SelectEmpiricalKinematics         (GHepRecord * event) const;
+  void    AddFinalStateLepton               (GHepRecord * event) const;
+  void    RecoilNucleonCluster              (GHepRecord * event) const;
+  void    DecayNucleonCluster               (GHepRecord * event) const;
+  void    SelectNSVLeptonKinematics         (GHepRecord * event) const;
+  void    GenerateNSVInitialHadrons         (GHepRecord * event) const;
+  PDGCodeList NucleonClusterConstituents    (int pdgc)           const;
   
   mutable const XSecAlgorithmI * fXSecModel;
   mutable TGenPhaseSpace         fPhaseSpaceGenerator;
   const NuclearModelI *          fNuclModel;
+
+  double fQ3Max;
 };
 
 }      // genie namespace

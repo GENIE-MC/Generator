@@ -1,18 +1,20 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::MECPXSec
+\class    genie::EmpiricalMECPXSec2015
 
 \brief    Computes the MEC differential cross section.
           Is a concrete implementation of the XSecAlgorithmI interface. \n
 
-\ref      
+\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+          University of Liverpool & STFC Rutherford Appleton Lab 
 
-\author   
+          Steve Dytman <dytman+ \at pitt.edu>
+          Pittsburgh University
 
 \created  May 05, 2009
 
-\cpright  Copyright (c) 2003-2016, GENIE Neutrino MC Generator Collaboration
+\cpright  Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
@@ -25,12 +27,12 @@
 
 namespace genie {
 
-class MECPXSec : public XSecAlgorithmI {
+class EmpiricalMECPXSec2015 : public XSecAlgorithmI {
 
 public:
-  MECPXSec();
-  MECPXSec(string config);
-  virtual ~MECPXSec();
+  EmpiricalMECPXSec2015();
+  EmpiricalMECPXSec2015(string config);
+  virtual ~EmpiricalMECPXSec2015();
 
   // XSecAlgorithmI interface implementation
   double XSec            (const Interaction * i, KinePhaseSpace_t k) const;
@@ -49,7 +51,7 @@ private:
   double fMq2d;       ///< toy model param: `mass' in dipole (Q2 - dependence) form factor (GeV)
   double fMass;       ///< toy model param: peak  of W distribution (GeV)
   double fWidth;      ///< toy model param: width of W distribution (GeV)
-//double fEc;         ///< toy model param: low energy cutoff (GeV) 
+  double fFracPN;     ///< toy model param: fraction of nucleon pairs that are pn, not nn or pp
 
   double fFracCCQElo;   ///< empirical model param: MEC cross section is taken to be this fraction of CCQE cross section at Miniboone energies (0 at NOMAD energies)
   double fFracEMQE;   ///< empirical model param: MEC cross section is taken to be this fraction of Rosenbluth xs

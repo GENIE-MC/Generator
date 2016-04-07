@@ -222,7 +222,7 @@ int Interaction::RecoilNucleonPdg(void) const
   int recoil_nuc = 0;
   int struck_nuc = target.HitNucPdg();
 
-  if(fProcInfo->IsQuasiElastic() || fProcInfo->IsInverseBetaDecay()) {
+  if (fProcInfo->IsQuasiElastic() || fProcInfo->IsInverseBetaDecay()) {
     bool struck_is_nuc = pdg::IsNucleon(struck_nuc);
     bool is_weak = fProcInfo->IsWeak();
     bool is_em   = fProcInfo->IsEM();
@@ -234,7 +234,7 @@ int Interaction::RecoilNucleonPdg(void) const
     }
   }
 
-  if(fProcInfo->IsMEC()) {
+  if (fProcInfo->IsMEC()) {
     bool struck_is_2nuc_cluster = pdg::Is2NucleonCluster(struck_nuc);
     bool is_weak = fProcInfo->IsWeak();
     bool is_em   = fProcInfo->IsEM();
@@ -839,6 +839,30 @@ Interaction * Interaction::MECCC(
 
   return interaction;
 }
+//___________________________________________________________________________
+Interaction * Interaction::MECCC(int tgt, int probe, double E)
+{
+  Interaction * interaction = 
+     Interaction::Create(tgt, probe, kScMEC, kIntWeakCC);
+
+  InitialState * init_state = interaction->InitStatePtr();
+  init_state->SetProbeE(E);
+
+  return interaction;
+}
+//___________________________________________________________________________
+Interaction * Interaction::MECCC(
+   int tgt, int probe, const TLorentzVector & p4probe)
+{
+  Interaction * interaction = 
+     Interaction::Create(tgt, probe, kScMEC, kIntWeakCC);
+
+  InitialState * init_state = interaction->InitStatePtr();
+  init_state->SetProbeP4(p4probe);
+
+  return interaction;
+}
+
 //___________________________________________________________________________
 Interaction * Interaction::MECNC(int tgt, int ncluster, int probe, double E)
 {

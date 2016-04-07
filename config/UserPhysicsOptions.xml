@@ -109,6 +109,34 @@ STFC, Rutherford Appleton Laboratory
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  MEC parameters
+
+  SetDiNucleonCode:  Include the dinucleon code in the interaction list generator.
+                     Want `true` for EmpiricalMEC, `false` for NSV
+  -->
+  <param type="bool" name="SetDiNucleonCode"> true </param>
+
+ <!-- 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Empirical MEC parameters
+
+  Mq2d       : Analogous to MA in CCQE (drives Q^2 dependence); units GeV
+  Mass       : units GeV
+  Width      : Width of the gaussian W-dependence in the dip region; units GeV 
+  FracCCQElo : Fraction of CCQE xsec at Miniboone energies to CCMEC xsec.
+                At first, this is energy independent.
+  FracEMQE   : Fraction of 0.5*(ep+en) Rosenbluth xsec going to (e,e') MEC.
+  FracPN     : Fraction of pairs in the nucleus that are pn, based on SRC observations in e scattering.
+  -->
+  <param type="double" name="EmpiricalMEC-Mq2d"> 0.4 </param>
+  <param type="double" name="EmpiricalMEC-Mass"> 2.1 </param>
+  <param type="double" name="EmpiricalMEC-Width"> 0.05 </param>
+  <param type="double" name="EmpiricalMEC-FracCCQElo"> 0.45 </param>
+  <param type="double" name="EmpiricalMEC-FracEMQE"> 0.05 </param>
+  <param type="double" name="EmpiricalMEC-FracPN"> 0.8 </param>
+
+ <!-- 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Axial and vector masses for resonance production  
   -->
   <param type="double" name="RES-Ma"> 1.120 </param>
@@ -231,7 +259,13 @@ STFC, Rutherford Appleton Laboratory
   Nuclear Density for Alvarez-Ruso coherent model
   -->
   <param type="double" name="COHAR-Rho0"> 0.17 </param>
-  
+
+  <!--
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Q3 max for Nieves-Simo-Vacas ("Valencia") 2p2h model 
+  -->
+  <param type="double" name="NSV-Q3Max"> 1.2 </param>
+ 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Axial mass for diffractive scattering (GeV)
@@ -787,9 +821,13 @@ STFC, Rutherford Appleton Laboratory
   <param type="alg" name="XSecModel@genie::EventGenerator/AM-NUGAMMA">     genie::H3AMNuGammaPXSec/Default       </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/DFR-CC">         genie::ReinDFRPXSec/Default           </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/DFR-NC">         genie::ReinDFRPXSec/Default           </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/MEC-CC">         genie::MECPXSec/Default               </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/MEC-NC">         genie::MECPXSec/Default               </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/MEC-EM">         genie::MECPXSec/Default               </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/MEC-CC">         genie::EmpiricalMECPXSec2015/Default  </param>
+  <!--
+  <param type="alg" name="XSecModel@genie::EventGenerator/MEC-CC">         genie::NievesSimoVacasMECPXSec2016/Default </param>
+  -->
+  <param type="alg" name="XSecModel@genie::EventGenerator/MEC-NC">         genie::EmpiricalMECPXSec2015/Default  </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/MEC-EM">         genie::EmpiricalMECPXSec2015/Default  </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/MEC-CC-TENSOR">  genie::MECTensorPXSec/Default         </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/GLRES">          genie::GLRESPXSec/Default             </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/NucleonDecay">   genie::DummyPXSec/Default             </param>
 
@@ -809,6 +847,18 @@ STFC, Rutherford Appleton Laboratory
   -->
   <param type="double" name="GVLD-Emin">    0.010  </param>
   <param type="double" name="GVLD-Emax"> 1000.000  </param>
+
+ <!-- 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  MECTensor options
+  - TensorModel: 1 - Nieves
+                 2 - Martini
+  - PDDComponent: 1 - MEC w/ PDD
+                  2 - MEC w/o PDD
+                  3 - MEC only PDD
+  -->
+  <param type="int" name="TensorModel">   1  </param>
+  <param type="int" name="PDDComponent">  1  </param>
 
  </param_set>
 

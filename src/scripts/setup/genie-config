@@ -18,8 +18,8 @@ srcdir=$GENIE/src
 # the following libs should always be there
 libs="-L$libdir -lGAlgorithm -lGAlvarezRuso -lGBaryonResonance -lGBase -lGBergerSehgal \
  -lGBodekYang -lGCharm -lGCoh -lGDfrc -lGDIS -lGCrossSections -lGDecay -lGElas \
- -lGElFF -lGHEP -lGEVGCore -lGEVGModules -lGEVGDrivers -lGGiBUU \
- -lGHadronTransp -lGFragmentation -lGInteraction -lGLlewellynSmith -lGMEC \
+ -lGElFF -lGHEP -lGEVGCore -lGEVGModules -lGEVGDrivers -lGGiBUU -lGHadronTransp \
+ -lGFragmentation -lGInteraction -lGLlewellynSmith -lGMEC -lGMECTensor \
  -lGMessenger -lGNuGamma -lGNuE -lGNtuple -lGNuclear -lGNumerical -lGQPM \
  -lGPDG -lGPDF -lGQEL -lGRES -lGRegistry -lGReinSehgal -lGSingleKaon -lGUtils \
  -lGVHE"
