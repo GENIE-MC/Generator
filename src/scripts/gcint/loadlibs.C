@@ -59,6 +59,7 @@
   gSystem->Load("libGCoh");
   gSystem->Load("libGDfrc");
   gSystem->Load("libGMEC");
+  gSystem->Load("libGMECTensor");
   gSystem->Load("libGNuE");
   gSystem->Load("libGNuGamma");
 //gSystem->Load("libGVLE");

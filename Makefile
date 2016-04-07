@@ -150,6 +150,7 @@ test-medium-energy-range: FORCE
 	@echo "** Building tested medium energy range physics models..."
 	cd ${GENIE}/src;\
 	cd MEC;                make; cd ..; \
+	cd MECTensor;          make; cd ..; \
 	cd NuGamma;            make; cd ..; 
 
 vle-extension: FORCE

@@ -45,6 +45,7 @@
    <config alg="genie::RSPPResonanceSelector">       RSPPResonanceSelector.xml       </config>
    <config alg="genie::AMNuGammaGenerator">          AMNuGammaGenerator.xml          </config>
    <config alg="genie::MECGenerator">                MECGenerator.xml                </config>
+   <config alg="genie::MECTensorGenerator">          MECTensorGenerator.xml          </config>
    <config alg="genie::GLRESGenerator">              GLRESGenerator.xml              </config>
    <config alg="genie::NucleonDecayPrimaryVtxGenerator"> NucleonDecayPrimaryVtxGenerator.xml </config>
 
@@ -57,6 +58,7 @@
    <config alg="genie::COHInteractionListGenerator">           COHInteractionListGenerator.xml       </config>
    <config alg="genie::AMNuGammaInteractionListGenerator">     AMNuGammaInteractionListGenerator.xml </config>
    <config alg="genie::MECInteractionListGenerator">           MECInteractionListGenerator.xml       </config>
+   <config alg="genie::MECTensorInteractionListGenerator">     MECTensorInteractionListGenerator.xml </config>
    <config alg="genie::GLRESInteractionListGenerator">         GLRESInteractionListGenerator.xml     </config>
    <config alg="genie::DFRInteractionListGenerator">           DFRInteractionListGenerator.xml       </config>
    <config alg="genie::SKInteractionListGenerator">            SKInteractionListGenerator.xml        </config>    
@@ -110,6 +112,7 @@
    <config alg="genie::AlamSimoAtharVacasSKXSec">    AlamSimoAtharVacasSKXSec.xml    </config>   
    <config alg="genie::IMDXSec">                     IMDXSec.xml                     </config>
    <config alg="genie::RESXSec">                     RESXSec.xml                     </config>
+   <config alg="genie::MECXSec">                     MECXSec.xml                     </config>
    <config alg="genie::NuElectronXSec">              NuElectronXSec.xml              </config>
 
    <!--  ****** CONFIGURATION FOR XSEC ALGORITHMS ****** -->
@@ -138,7 +141,9 @@
    <config alg="genie::ReinSehgalRESXSec">                  ReinSehgalRESXSec.xml                  </config>
    <config alg="genie::ReinSehgalSPPXSec">                  ReinSehgalSPPXSec.xml                  </config>
    <config alg="genie::H3AMNuGammaPXSec">                   H3AMNuGammaPXSec.xml                   </config>
-   <config alg="genie::MECPXSec">                           MECPXSec.xml                           </config>
+   <config alg="genie::EmpiricalMECPXSec2015">              EmpiricalMECPXSec2015.xml              </config>
+   <config alg="genie::MECTensorPXSec">                     MECTensorPXSec.xml                     </config>
+   <config alg="genie::NievesSimoVacasMECPXSec2016">        NievesSimoVacasMECPXSec2016.xml        </config>
    <config alg="genie::RosenbluthPXSec">                    RosenbluthPXSec.xml                    </config>
    <config alg="genie::StrumiaVissaniIBDPXSec">             StrumiaVissaniIBDPXSec.xml             </config>
    <config alg="genie::DummyPXSec">                         Default.xml                            </config>
