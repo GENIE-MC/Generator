@@ -135,6 +135,7 @@ core-medium-energy-range: FORCE
 	cd GiBUU;              make; cd ..; \
 	cd HadronTransport;    make; cd ..; \
 	cd LlewellynSmith;     make; cd ..; \
+	cd MEC;                make; cd ..; \
 	cd NuE;                make; cd ..; \
 	cd Nuclear;            make; cd ..; \
 	cd PartonModel;        make; cd ..; \
@@ -149,8 +150,6 @@ test-medium-energy-range: FORCE
 	@echo " "
 	@echo "** Building tested medium energy range physics models..."
 	cd ${GENIE}/src;\
-	cd MEC;                make; cd ..; \
-	cd MECTensor;          make; cd ..; \
 	cd NuGamma;            make; cd ..; 
 
 vle-extension: FORCE

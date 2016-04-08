@@ -19,7 +19,7 @@ srcdir=$GENIE/src
 libs="-L$libdir -lGAlgorithm -lGAlvarezRuso -lGBaryonResonance -lGBase -lGBergerSehgal \
  -lGBodekYang -lGCharm -lGCoh -lGDfrc -lGDIS -lGCrossSections -lGDecay -lGElas \
  -lGElFF -lGHEP -lGEVGCore -lGEVGModules -lGEVGDrivers -lGGiBUU -lGHadronTransp \
- -lGFragmentation -lGInteraction -lGLlewellynSmith -lGMEC -lGMECTensor \
+ -lGFragmentation -lGInteraction -lGLlewellynSmith -lGMEC \
  -lGMessenger -lGNuGamma -lGNuE -lGNtuple -lGNuclear -lGNumerical -lGQPM \
  -lGPDG -lGPDF -lGQEL -lGRES -lGRegistry -lGReinSehgal -lGSingleKaon -lGUtils \
  -lGVHE"
