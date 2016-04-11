@@ -42,7 +42,7 @@ typedef enum EScatteringType {
   kScCoherentElas,
   kScInverseBetaDecay,
   kScGlashowResonance,
-  kScIMDAnnihilation,
+  kScIMDAnnihilation
 
 } ScatteringType_t;
 
