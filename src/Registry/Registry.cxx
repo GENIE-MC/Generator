@@ -73,7 +73,7 @@ namespace genie {
    T value;
    if(r->Exists(key)) { 
       if(r->ItemIsLocal(key)) {
-	 r->Get(key,value); 
+         r->Get(key,value); 
          return value;
       }
    }
@@ -82,8 +82,8 @@ namespace genie {
    if(was_locked) r->UnLock();
 
    if(set_def) {
-	r->Set(key, value);
-	r->LinkToGlobalDef(key);
+      r->Set(key, value);
+      r->LinkToGlobalDef(key);
    }
    if(was_locked) r->Lock();
    return value;
@@ -338,7 +338,7 @@ void Registry::Set(RgKey key, RgTree item)
 //____________________________________________________________________________
 void Registry::Get(RgKey key, const RegistryItemI * & item) const
 {
-  RgIMapConstIter entry = fRegistry.find(key);
+  RgIMapConstIter entry = this->SafeFind(key);
   item = entry->second;
 }
 //____________________________________________________________________________
@@ -348,7 +348,7 @@ void Registry::Get(RgKey key, RgBool & item) const
   LOG("Registry", pDEBUG) << "Get an RgBool item with key: " << key;
 #endif
 
-  RgIMapConstIter entry = fRegistry.find(key);
+  RgIMapConstIter entry = this->SafeFind(key);
   RegistryItemI * rib = entry->second;
   RegistryItem<RgBool> * ri = dynamic_cast<RegistryItem<RgBool>*> (rib);
 
@@ -364,7 +364,7 @@ void Registry::Get(RgKey key, RgInt & item) const
   LOG("Registry", pDEBUG) << "Getting an RgInt item with key: " << key;
 #endif
 
-  RgIMapConstIter entry = fRegistry.find(key);
+  RgIMapConstIter entry = this->SafeFind(key);
   RegistryItemI * rib = entry->second;
   RegistryItem<RgInt> * ri = dynamic_cast< RegistryItem<RgInt> * > (rib);
 
@@ -380,7 +380,7 @@ void Registry::Get(RgKey key, RgDbl & item) const
   LOG("Registry", pDEBUG) << "Getting an RgDbl item with key: " << key;
 #endif
 
-  RgIMapConstIter entry = fRegistry.find(key);
+  RgIMapConstIter entry = this->SafeFind(key);
   RegistryItemI * rib = entry->second;
   RegistryItem<RgDbl> * ri = dynamic_cast<RegistryItem<RgDbl>*> (rib);
 
@@ -396,7 +396,7 @@ void Registry::Get(RgKey key, RgStr & item) const
   LOG("Registry", pDEBUG) << "Getting an RgStr item with  key: " << key;
 #endif
 
-  RgIMapConstIter entry = fRegistry.find(key);
+  RgIMapConstIter entry = this->SafeFind(key);
   RegistryItemI * rib = entry->second;
   RegistryItem<RgStr> * ri = dynamic_cast<RegistryItem<RgStr>*> (rib);
 
@@ -412,7 +412,7 @@ void Registry::Get(RgKey key, RgAlg & item) const
   LOG("Registry", pDEBUG) << "Getting an RgAlg item with key: " << key;
 #endif
 
-  RgIMapConstIter entry = fRegistry.find(key);
+  RgIMapConstIter entry = this->SafeFind(key);
   RegistryItemI * rib = entry->second;
   RegistryItem<RgAlg> * ri = dynamic_cast<RegistryItem<RgAlg>*> (rib);
 
@@ -429,7 +429,7 @@ void Registry::Get(RgKey key, RgH1F & item) const
   LOG("Registry", pDEBUG) << "Getting an RgH1F item with key: " << key;
 #endif
 
-  RgIMapConstIter entry = fRegistry.find(key);
+  RgIMapConstIter entry = this->SafeFind(key);
   RegistryItemI * rib = entry->second;
   RegistryItem<RgH1F> *ri = dynamic_cast<RegistryItem<RgH1F>*> (rib);
   item = ri->Data();
@@ -445,7 +445,7 @@ void Registry::Get(RgKey key, RgH2F & item) const
   LOG("Registry", pDEBUG) << "Getting an RgH2F item with key: " << key;
 #endif
 
-  RgIMapConstIter entry = fRegistry.find(key);
+  RgIMapConstIter entry = this->SafeFind(key);
   RegistryItemI * rib = entry->second;
   RegistryItem<RgH2F> *ri = dynamic_cast<RegistryItem<RgH2F>*> (rib);
   item = ri->Data();
@@ -461,7 +461,7 @@ void Registry::Get(RgKey key, RgTree & item) const
   LOG("Registry", pDEBUG) << "Getting an RgTree item with key: " << key;
 #endif
 
-  RgIMapConstIter entry = fRegistry.find(key);
+  RgIMapConstIter entry = this->SafeFind(key);
   RegistryItemI * rib = entry->second;
   RegistryItem<RgTree> *ri =  dynamic_cast<RegistryItem<RgTree>*> (rib);
   item = ri->Data();
@@ -559,6 +559,19 @@ string Registry::GetStringDef(RgKey key, string def_opt, bool set_def)
 RgAlg Registry::GetAlgDef(RgKey key, RgAlg  def_opt, bool set_def)
 {
   return GetValueOrUseDefault(this, key, def_opt, set_def);
+}
+//____________________________________________________________________________
+RgIMapConstIter Registry::SafeFind(RgKey key) const
+{
+  RgIMapConstIter entry = fRegistry.find(key);
+  if (entry!=fRegistry.end()) {
+    return entry;
+  }
+  LOG("Registry/SafeFind", pFATAL)
+       << "*** Key: " << key
+       << " does not exist in registry: " << this->Name();
+  gAbortingInErr = true;
+  exit(1);    
 }
 //____________________________________________________________________________
 bool Registry::Exists(RgKey key) const
