@@ -62,29 +62,29 @@ print-makeinstall-info: FORCE
 base-framework: FORCE
 	@echo " "
 	@echo "** Building base-framework..."
-	cd ${GENIE}/src;\
-	cd Algorithm;  make; cd ..; \
-	cd Messenger;  make; cd ..; \
-	cd Registry;   make; \
+	cd ${GENIE}/src && \
+	cd Algorithm &&  $(MAKE) && cd .. && \
+	cd Messenger &&  $(MAKE) && cd .. && \
+	cd Registry && $(MAKE) && \
 	cd ${GENIE}
 
 utils: FORCE
 	@echo " "
 	@echo "** Building utility libraries..."
-	cd ${GENIE}/src;\
-	cd Numerical;      make; cd ..; \
-	cd CrossSections;  make; cd ..; \
-	cd PDG;            make; cd ..; \
-	cd Utils;          make; \
+	cd ${GENIE}/src && \
+	cd Numerical &&      $(MAKE) && cd .. && \
+	cd CrossSections &&  $(MAKE) && cd .. && \
+	cd PDG &&            $(MAKE) && cd .. && \
+	cd Utils &&          $(MAKE) && \
 	cd ${GENIE}
 
 nucleon-decay:
 	@echo " "
 	@echo "** Building nucleon decay library..."
 ifeq ($(strip $(GOPT_ENABLE_NUCLEON_DECAY)),YES)
-	cd ${GENIE}/src;\
-	cd NucleonDecay; \
-	make; \
+	cd ${GENIE}/src && \
+	cd NucleonDecay && \
+	$(MAKE) && \
 	cd ${GENIE}
 else
 	@echo " "
@@ -95,9 +95,9 @@ reweight:
 	@echo " "
 	@echo "** Building event reweighting library..."
 ifeq ($(strip $(GOPT_ENABLE_RWGHT)),YES)
-	cd ${GENIE}/src;\
-	cd ReWeight; \
-	make; \
+	cd ${GENIE}/src && \
+	cd ReWeight && \
+	$(MAKE) && \
 	cd ${GENIE}
 else
 	@echo " "
@@ -107,57 +107,60 @@ endif
 evgen-framework: FORCE
 	@echo " "
 	@echo "** Building evgen-framework..."
-	cd ${GENIE}/src;\
-	cd BaryonResonance;    make; cd ..; \
-	cd Base;               make; cd ..; \
-	cd EVGCore;            make; cd ..; \
-	cd EVGDrivers;         make; cd ..; \
-	cd Interaction;        make; cd ..; \
-	cd GHEP;               make; cd ..; \
-	cd Ntuple;             make; 
+	cd ${GENIE}/src && \
+	cd BaryonResonance &&    $(MAKE) && cd .. && \
+	cd Base &&               $(MAKE) && cd .. && \
+	cd EVGCore &&            $(MAKE) && cd .. && \
+	cd EVGDrivers &&         $(MAKE) && cd .. && \
+	cd Interaction &&        $(MAKE) && cd .. && \
+	cd GHEP &&               $(MAKE) && cd .. && \
+	cd Ntuple &&             $(MAKE) && \
+	cd ${GENIE}
 
 core-medium-energy-range: FORCE
 	@echo " "
 	@echo "** Building core medium energy range physics models..."
-	cd ${GENIE}/src;\
-	cd AlvarezRuso;        make; cd ..; \
-	cd BergerSehgal;       make; cd ..; \
-	cd BodekYang;          make; cd ..; \
-	cd Charm;              make; cd ..; \
-	cd Coherent;           make; cd ..; \
-	cd Decay;              make; cd ..; \
-	cd Diffractive;        make; cd ..; \
-	cd DIS;                make; cd ..; \
-	cd Elastic;            make; cd ..; \
-	cd ElFF;               make; cd ..; \
-	cd EVGModules;         make; cd ..; \
-	cd Fragmentation;      make; cd ..; \
-	cd GiBUU;              make; cd ..; \
-	cd HadronTransport;    make; cd ..; \
-	cd LlewellynSmith;     make; cd ..; \
-	cd MEC;                make; cd ..; \
-	cd NuE;                make; cd ..; \
-	cd Nuclear;            make; cd ..; \
-	cd PartonModel;        make; cd ..; \
-	cd PDF;                make; cd ..; \
-	cd QEL;                make; cd ..; \
-	cd ReinSehgal;         make; cd ..; \
-	cd RES;                make; cd ..; \
-	cd VHE;                make; cd ..; \
-	cd SingleKaon;         make; cd ..; 
+	cd ${GENIE}/src && \
+	cd AlvarezRuso &&        $(MAKE) && cd .. && \
+	cd BergerSehgal &&       $(MAKE) && cd .. && \
+	cd BodekYang &&          $(MAKE) && cd .. && \
+	cd Charm &&              $(MAKE) && cd .. && \
+	cd Coherent &&           $(MAKE) && cd .. && \
+	cd Decay &&              $(MAKE) && cd .. && \
+	cd Diffractive &&        $(MAKE) && cd .. && \
+	cd DIS &&                $(MAKE) && cd .. && \
+	cd Elastic &&            $(MAKE) && cd .. && \
+	cd ElFF &&               $(MAKE) && cd .. && \
+	cd EVGModules &&         $(MAKE) && cd .. && \
+	cd Fragmentation &&      $(MAKE) && cd .. && \
+	cd GiBUU &&              $(MAKE) && cd .. && \
+	cd HadronTransport &&    $(MAKE) && cd .. && \
+	cd LlewellynSmith &&     $(MAKE) && cd .. && \
+	cd MEC &&                $(MAKE) && cd .. && \
+	cd NuE &&                $(MAKE) && cd .. && \
+	cd Nuclear &&            $(MAKE) && cd .. && \
+	cd PartonModel &&        $(MAKE) && cd .. && \
+	cd PDF &&                $(MAKE) && cd .. && \
+	cd QEL &&                $(MAKE) && cd .. && \
+	cd ReinSehgal &&         $(MAKE) && cd .. && \
+	cd RES &&                $(MAKE) && cd .. && \
+	cd VHE &&                $(MAKE) && cd .. && \
+	cd SingleKaon &&         $(MAKE) && \
+	cd ${GENIE}
 
 test-medium-energy-range: FORCE
 	@echo " "
 	@echo "** Building tested medium energy range physics models..."
-	cd ${GENIE}/src;\
-	cd NuGamma;            make; cd ..; 
+	cd ${GENIE}/src && \
+	cd NuGamma &&            $(MAKE) && \
+	cd ${GENIE}
 
 vle-extension: FORCE
 ifeq ($(strip $(GOPT_ENABLE_VLE_EXTENSION)),YES)
 	@echo " "
 	@echo "** Building VLE extension..."
-	cd ${GENIE}/src/VLE; \
-	make; \
+	cd ${GENIE}/src/VLE && \
+	$(MAKE) && \
 	cd ${GENIE}
 else
 	@echo " "
@@ -168,8 +171,8 @@ flux-drivers: FORCE
 ifeq ($(strip $(GOPT_ENABLE_FLUX_DRIVERS)),YES)
 	@echo " "
 	@echo "** Building flux-drivers..."
-	cd ${GENIE}/src/FluxDrivers; \
-	make; \
+	cd ${GENIE}/src/FluxDrivers && \
+	$(MAKE) && \
 	cd ${GENIE}
 else
 	@echo " "
@@ -180,8 +183,8 @@ geom-drivers: FORCE
 ifeq ($(strip $(GOPT_ENABLE_GEOM_DRIVERS)),YES)
 	@echo " "
 	@echo "** Building geometry-drivers..."
-	cd ${GENIE}/src/Geo; \
-	make; \
+	cd ${GENIE}/src/Geo && \
+	$(MAKE) && \
 	cd ${GENIE}
 else
 	@echo " "
@@ -192,8 +195,8 @@ mueloss: FORCE
 ifeq ($(strip $(GOPT_ENABLE_MUELOSS)),YES)
 	@echo " "
 	@echo "** Building MuELoss utility package..."
-	cd ${GENIE}/src/MuELoss; \
-	make; \
+	cd ${GENIE}/src/MuELoss && \
+	$(MAKE) && \
 	cd ${GENIE}
 else
 	@echo " "
@@ -204,8 +207,8 @@ masterclass: FORCE
 ifeq ($(strip $(GOPT_ENABLE_MASTERCLASS)),YES)
 	@echo " "
 	@echo "** Building Masterclass package..."
-	cd ${GENIE}/src/Masterclass; \
-	make; \
+	cd ${GENIE}/src/Masterclass && \
+	$(MAKE) && \
 	cd ${GENIE}
 else
 	@echo " "
@@ -219,8 +222,8 @@ doxygen-doc: FORCE
 ifeq ($(strip $(GOPT_ENABLE_DOXYGEN_DOC)),YES)
 	@echo " "
 	@echo "** Building doxygen documentation..."
-	cd ${GENIE}/src/scripts;\
-	make doxygen; \
+	cd ${GENIE}/src/scripts && \
+	$(MAKE) doxygen && \
 	cd ${GENIE};
 else
 endif
@@ -231,21 +234,21 @@ doxygen: FORCE
 	@echo " "
 	@echo "** Building doxygen documentation..."
 	cd ${GENIE}/src/scripts \
-	make doxygen; \
+	$(MAKE) doxygen && \
 	cd ${GENIE}
 
 apps: FORCE
 	@echo " "
 	@echo "** Building GENIE applications..."
-	cd ${GENIE}/src/Apps;\
-	make all; \
+	cd ${GENIE}/src/Apps && \
+	$(MAKE) all && \
 	cd ${GENIE}
 
 install-scripts: FORCE
 	@echo " "
 	@echo "** Installing scripts..."
-	cd ${GENIE}/src/scripts;\
-	make install; \
+	cd ${GENIE}/src/scripts && \
+	$(MAKE) install && \
 	cd ${GENIE}
 
 all-libs: base-framework \
@@ -270,15 +273,15 @@ autogenerated-headers: FORCE
 make-bin-lib-dir: FORCE
 	@echo " "
 	@echo "** Creating GENIE lib and bin directories..."
-	cd ${GENIE}; \
-	[ -d bin ] || mkdir bin; chmod 755 bin;\
-	[ -d lib ] || mkdir lib; chmod 755 lib;
+	cd ${GENIE} && \
+	[ -d bin ] || mkdir bin && chmod 755 bin && \
+	[ -d lib ] || mkdir lib && chmod 755 lib;
 
 check-previous-installation: FORCE
 	@echo " "
 	@echo "** Testing for existing GENIE installation at specified installation location..."
 ifeq ($(strip $(GENIE_PREVIOUS_INSTALLATION)),YES)
-	$(error Previous installation exists at your specified installation path: $(GENIE_INSTALLATION_PATH). Trgy 'make distclean' first)
+	$(error Previous installation exists at your specified installation path: $(GENIE_INSTALLATION_PATH). Trgy '$(MAKE) distclean' first)
 endif
 
 make-install-dirs: FORCE
@@ -342,109 +345,109 @@ make-install-dirs: FORCE
 copy-install-files: FORCE
 	@echo " "
 	@echo "** Copying libraries/binaries/headers to installation location..."
-	cp ${GENIE_BIN_PATH}/* ${GENIE_BIN_INSTALLATION_PATH};\
-	cd ${GENIE}/src;\
-	cd Algorithm;              make install; cd ..; \
-	cd AlvarezRuso;            make install; cd ..; \
-	cd BaryonResonance;        make install; cd ..; \
-	cd Base;                   make install; cd ..; \
-	cd BergerSehgal;           make install; cd ..; \
-	cd BodekYang;              make install; cd ..; \
-	cd Charm;                  make install; cd ..; \
-	cd Coherent;               make install; cd ..; \
-	cd Conventions;            make install; cd ..; \
-	cd CrossSections;          make install; cd ..; \
-	cd Decay;                  make install; cd ..; \
-	cd Diffractive;            make install; cd ..; \
-	cd DIS;                    make install; cd ..; \
-	cd Elastic;                make install; cd ..; \
-	cd ElFF;                   make install; cd ..; \
-	cd EVGCore;                make install; cd ..; \
-	cd EVGModules;             make install; cd ..; \
-	cd EVGDrivers;             make install; cd ..; \
-	cd FluxDrivers;            make install; cd ..; \
-	cd Fragmentation;          make install; cd ..; \
-	cd GHEP;                   make install; cd ..; \
-	cd Geo;                    make install; cd ..; \
-	cd GiBUU;                  make install; cd ..; \
-	cd HadronTransport;        make install; cd ..; \
-	cd Interaction;            make install; cd ..; \
-	cd LlewellynSmith;         make install; cd ..; \
-	cd Masterclass;            make install; cd ..; \
-	cd MEC;                    make install; cd ..; \
-	cd Messenger;              make install; cd ..; \
-	cd MuELoss;                make install; cd ..; \
-	cd Nuclear;                make install; cd ..; \
-	cd NucleonDecay;           make install; cd ..; \
-	cd Ntuple;                 make install; cd ..; \
-	cd NuE;                    make install; cd ..; \
-	cd NuGamma;                make install; cd ..; \
-	cd Numerical;              make install; cd ..; \
-	cd PartonModel;            make install; cd ..; \
-	cd PDF;                    make install; cd ..; \
-	cd PDG;                    make install; cd ..; \
-	cd QEL;                    make install; cd ..; \
-	cd RES;                    make install; cd ..; \
-	cd Registry;               make install; cd ..; \
-	cd ReinSehgal;             make install; cd ..; \
-	cd ReWeight;               make install; cd ..; \
-	cd SingleKaon;             make install; cd ..; \
-	cd Utils;                  make install; cd ..; \
-	cd VLE;                    make install; cd ..; \
-	cd VHE;                    make install; cd ..; \
+	cp ${GENIE_BIN_PATH}/* ${GENIE_BIN_INSTALLATION_PATH} && \
+	cd ${GENIE}/src && \
+	cd Algorithm &&              $(MAKE) install && cd .. && \
+	cd AlvarezRuso &&            $(MAKE) install && cd .. && \
+	cd BaryonResonance &&        $(MAKE) install && cd .. && \
+	cd Base &&                   $(MAKE) install && cd .. && \
+	cd BergerSehgal &&           $(MAKE) install && cd .. && \
+	cd BodekYang &&              $(MAKE) install && cd .. && \
+	cd Charm &&                  $(MAKE) install && cd .. && \
+	cd Coherent &&               $(MAKE) install && cd .. && \
+	cd Conventions &&            $(MAKE) install && cd .. && \
+	cd CrossSections &&          $(MAKE) install && cd .. && \
+	cd Decay &&                  $(MAKE) install && cd .. && \
+	cd Diffractive &&            $(MAKE) install && cd .. && \
+	cd DIS &&                    $(MAKE) install && cd .. && \
+	cd Elastic &&                $(MAKE) install && cd .. && \
+	cd ElFF &&                   $(MAKE) install && cd .. && \
+	cd EVGCore &&                $(MAKE) install && cd .. && \
+	cd EVGModules &&             $(MAKE) install && cd .. && \
+	cd EVGDrivers &&             $(MAKE) install && cd .. && \
+	cd FluxDrivers &&            $(MAKE) install && cd .. && \
+	cd Fragmentation &&          $(MAKE) install && cd .. && \
+	cd GHEP &&                   $(MAKE) install && cd .. && \
+	cd Geo &&                    $(MAKE) install && cd .. && \
+	cd GiBUU &&                  $(MAKE) install && cd .. && \
+	cd HadronTransport &&        $(MAKE) install && cd .. && \
+	cd Interaction &&            $(MAKE) install && cd .. && \
+	cd LlewellynSmith &&         $(MAKE) install && cd .. && \
+	cd Masterclass &&            $(MAKE) install && cd .. && \
+	cd MEC &&                    $(MAKE) install && cd .. && \
+	cd Messenger &&              $(MAKE) install && cd .. && \
+	cd MuELoss &&                $(MAKE) install && cd .. && \
+	cd Nuclear &&                $(MAKE) install && cd .. && \
+	cd NucleonDecay &&           $(MAKE) install && cd .. && \
+	cd Ntuple &&                 $(MAKE) install && cd .. && \
+	cd NuE &&                    $(MAKE) install && cd .. && \
+	cd NuGamma &&                $(MAKE) install && cd .. && \
+	cd Numerical &&              $(MAKE) install && cd .. && \
+	cd PartonModel &&            $(MAKE) install && cd .. && \
+	cd PDF &&                    $(MAKE) install && cd .. && \
+	cd PDG &&                    $(MAKE) install && cd .. && \
+	cd QEL &&                    $(MAKE) install && cd .. && \
+	cd RES &&                    $(MAKE) install && cd .. && \
+	cd Registry &&               $(MAKE) install && cd .. && \
+	cd ReinSehgal &&             $(MAKE) install && cd .. && \
+	cd ReWeight &&               $(MAKE) install && cd .. && \
+	cd SingleKaon &&             $(MAKE) install && cd .. && \
+	cd Utils &&                  $(MAKE) install && cd .. && \
+	cd VLE &&                    $(MAKE) install && cd .. && \
+	cd VHE &&                    $(MAKE) install && cd .. && \
 	cd ${GENIE}
 
 purge: FORCE
 	@echo " "
 	@echo "** Purging..."
-	cd ${GENIE}/src;\
-	cd Algorithm;                     make purge; cd ..; \
-	cd AlvarezRuso;                   make purge; cd ..; \
-	cd BaryonResonance;               make purge; cd ..; \
-	cd Base;                          make purge; cd ..; \
-	cd BergerSehgal;                  make purge; cd ..; \
-	cd BodekYang;                     make purge; cd ..; \
-	cd Charm;                         make purge; cd ..; \
-	cd Coherent;                      make purge; cd ..; \
-	cd CrossSections;                 make purge; cd ..; \
-	cd Decay;                         make purge; cd ..; \
-	cd Diffractive;                   make purge; cd ..; \
-	cd DIS;                           make purge; cd ..; \
-	cd Elastic;                       make purge; cd ..; \
-	cd ElFF;                          make purge; cd ..; \
-	cd EVGCore;                       make purge; cd ..; \
-	cd EVGModules;                    make purge; cd ..; \
-	cd EVGDrivers;                    make purge; cd ..; \
-	cd FluxDrivers;                   make purge; cd ..; \
-	cd Fragmentation;                 make purge; cd ..; \
-	cd GHEP;                          make purge; cd ..; \
-	cd Geo;                           make purge; cd ..; \
-	cd GiBUU;                         make purge; cd ..; \
-	cd HadronTransport;               make purge; cd ..; \
-	cd Interaction;                   make purge; cd ..; \
-	cd LlewellynSmith;                make purge; cd ..; \
-	cd Masterclass;                   make purge; cd ..; \
-	cd MEC;                           make purge; cd ..; \
-	cd Messenger;                     make purge; cd ..; \
-	cd MuELoss;                       make purge; cd ..; \
-	cd Nuclear;                       make purge; cd ..; \
-	cd NucleonDecay;                  make purge; cd ..; \
-	cd Ntuple;                        make purge; cd ..; \
-	cd NuGamma;                       make purge; cd ..; \
-	cd NuE;                           make purge; cd ..; \
-	cd Numerical;                     make purge; cd ..; \
-	cd PartonModel;                   make purge; cd ..; \
-	cd PDF;                           make purge; cd ..; \
-	cd PDG;                           make purge; cd ..; \
-	cd QEL;                           make purge; cd ..; \
-	cd RES;                           make purge; cd ..; \
-	cd Registry;                      make purge; cd ..; \
-	cd ReinSehgal;                    make purge; cd ..; \
-	cd ReWeight;                      make purge; cd ..; \
-	cd SingleKaon;                    make purge; cd ..; \
-	cd Utils;                         make purge; cd ..; \
-	cd VLE;                           make purge; cd ..; \
-	cd VHE;                           make purge; cd ..; \
+	cd ${GENIE}/src && \
+	cd Algorithm &&                     $(MAKE) purge && cd .. && \
+	cd AlvarezRuso &&                   $(MAKE) purge && cd .. && \
+	cd BaryonResonance &&               $(MAKE) purge && cd .. && \
+	cd Base &&                          $(MAKE) purge && cd .. && \
+	cd BergerSehgal &&                  $(MAKE) purge && cd .. && \
+	cd BodekYang &&                     $(MAKE) purge && cd .. && \
+	cd Charm &&                         $(MAKE) purge && cd .. && \
+	cd Coherent &&                      $(MAKE) purge && cd .. && \
+	cd CrossSections &&                 $(MAKE) purge && cd .. && \
+	cd Decay &&                         $(MAKE) purge && cd .. && \
+	cd Diffractive &&                   $(MAKE) purge && cd .. && \
+	cd DIS &&                           $(MAKE) purge && cd .. && \
+	cd Elastic &&                       $(MAKE) purge && cd .. && \
+	cd ElFF &&                          $(MAKE) purge && cd .. && \
+	cd EVGCore &&                       $(MAKE) purge && cd .. && \
+	cd EVGModules &&                    $(MAKE) purge && cd .. && \
+	cd EVGDrivers &&                    $(MAKE) purge && cd .. && \
+	cd FluxDrivers &&                   $(MAKE) purge && cd .. && \
+	cd Fragmentation &&                 $(MAKE) purge && cd .. && \
+	cd GHEP &&                          $(MAKE) purge && cd .. && \
+	cd Geo &&                           $(MAKE) purge && cd .. && \
+	cd GiBUU &&                         $(MAKE) purge && cd .. && \
+	cd HadronTransport &&               $(MAKE) purge && cd .. && \
+	cd Interaction &&                   $(MAKE) purge && cd .. && \
+	cd LlewellynSmith &&                $(MAKE) purge && cd .. && \
+	cd Masterclass &&                   $(MAKE) purge && cd .. && \
+	cd MEC &&                           $(MAKE) purge && cd .. && \
+	cd Messenger &&                     $(MAKE) purge && cd .. && \
+	cd MuELoss &&                       $(MAKE) purge && cd .. && \
+	cd Nuclear &&                       $(MAKE) purge && cd .. && \
+	cd NucleonDecay &&                  $(MAKE) purge && cd .. && \
+	cd Ntuple &&                        $(MAKE) purge && cd .. && \
+	cd NuGamma &&                       $(MAKE) purge && cd .. && \
+	cd NuE &&                           $(MAKE) purge && cd .. && \
+	cd Numerical &&                     $(MAKE) purge && cd .. && \
+	cd PartonModel &&                   $(MAKE) purge && cd .. && \
+	cd PDF &&                           $(MAKE) purge && cd .. && \
+	cd PDG &&                           $(MAKE) purge && cd .. && \
+	cd QEL &&                           $(MAKE) purge && cd .. && \
+	cd RES &&                           $(MAKE) purge && cd .. && \
+	cd Registry &&                      $(MAKE) purge && cd .. && \
+	cd ReinSehgal &&                    $(MAKE) purge && cd .. && \
+	cd ReWeight &&                      $(MAKE) purge && cd .. && \
+	cd SingleKaon &&                    $(MAKE) purge && cd .. && \
+	cd Utils &&                         $(MAKE) purge && cd .. && \
+	cd VLE &&                           $(MAKE) purge && cd .. && \
+	cd VHE &&                           $(MAKE) purge && cd .. && \
 	cd ${GENIE}
 
 clean: clean-files clean-dir clean-etc
@@ -452,125 +455,125 @@ clean: clean-files clean-dir clean-etc
 clean-files: FORCE
 	@echo " "
 	@echo "** Cleaning..."
-	cd ${GENIE}/src;\
-	cd Algorithm;                     make clean; cd ..; \
-	cd AlvarezRuso;                   make clean; cd ..; \
-	cd BaryonResonance;               make clean; cd ..; \
-	cd Base;                          make clean; cd ..; \
-	cd BergerSehgal;                  make clean; cd ..; \
-	cd BodekYang;                     make clean; cd ..; \
-	cd Charm;                         make clean; cd ..; \
-	cd Coherent;                      make clean; cd ..; \
-	cd CrossSections;                 make clean; cd ..; \
-	cd Decay;                         make clean; cd ..; \
-	cd Diffractive;                   make clean; cd ..; \
-	cd DIS;                           make clean; cd ..; \
-	cd Elastic;                       make clean; cd ..; \
-	cd ElFF;                          make clean; cd ..; \
-	cd EVGCore;                       make clean; cd ..; \
-	cd EVGModules;                    make clean; cd ..; \
-	cd EVGDrivers;                    make clean; cd ..; \
-	cd FluxDrivers;                   make clean; cd ..; \
-	cd Fragmentation;                 make clean; cd ..; \
-	cd GHEP;                          make clean; cd ..; \
-	cd Geo;                           make clean; cd ..; \
-	cd GiBUU;                         make clean; cd ..; \
-	cd HadronTransport;               make clean; cd ..; \
-	cd Interaction;                   make clean; cd ..; \
-	cd LlewellynSmith;                make clean; cd ..; \
-	cd Masterclass;                   make clean; cd ..; \
-	cd MEC;                           make clean; cd ..; \
-	cd Messenger;                     make clean; cd ..; \
-	cd MuELoss;                       make clean; cd ..; \
-	cd Nuclear;                       make clean; cd ..; \
-	cd NucleonDecay;                  make clean; cd ..; \
-	cd Ntuple;                        make clean; cd ..; \
-	cd NuGamma;                       make clean; cd ..; \
-	cd NuE;                           make clean; cd ..; \
-	cd Numerical;                     make clean; cd ..; \
-	cd PartonModel;                   make clean; cd ..; \
-	cd PDF;                           make clean; cd ..; \
-	cd PDG;                           make clean; cd ..; \
-	cd QEL;                           make clean; cd ..; \
-	cd RES;                           make clean; cd ..; \
-	cd Registry;                      make clean; cd ..; \
-	cd ReinSehgal;                    make clean; cd ..; \
-	cd ReWeight;                      make clean; cd ..; \
-	cd SingleKaon;                    make clean; cd ..; \
-	cd Utils;                         make clean; cd ..; \
-	cd VLE;                           make clean; cd ..; \
-	cd VHE;                           make clean; cd ..; \
-	cd Apps;                          make clean; cd ..; \
-	cd scripts;                       make clean; cd ..;\
-	cd $(GENIE);\
-    [ ! -d ./bin ] || rm ./bin/*;\
+	cd ${GENIE}/src && \
+	cd Algorithm &&                     $(MAKE) clean && cd .. && \
+	cd AlvarezRuso &&                   $(MAKE) clean && cd .. && \
+	cd BaryonResonance &&               $(MAKE) clean && cd .. && \
+	cd Base &&                          $(MAKE) clean && cd .. && \
+	cd BergerSehgal &&                  $(MAKE) clean && cd .. && \
+	cd BodekYang &&                     $(MAKE) clean && cd .. && \
+	cd Charm &&                         $(MAKE) clean && cd .. && \
+	cd Coherent &&                      $(MAKE) clean && cd .. && \
+	cd CrossSections &&                 $(MAKE) clean && cd .. && \
+	cd Decay &&                         $(MAKE) clean && cd .. && \
+	cd Diffractive &&                   $(MAKE) clean && cd .. && \
+	cd DIS &&                           $(MAKE) clean && cd .. && \
+	cd Elastic &&                       $(MAKE) clean && cd .. && \
+	cd ElFF &&                          $(MAKE) clean && cd .. && \
+	cd EVGCore &&                       $(MAKE) clean && cd .. && \
+	cd EVGModules &&                    $(MAKE) clean && cd .. && \
+	cd EVGDrivers &&                    $(MAKE) clean && cd .. && \
+	cd FluxDrivers &&                   $(MAKE) clean && cd .. && \
+	cd Fragmentation &&                 $(MAKE) clean && cd .. && \
+	cd GHEP &&                          $(MAKE) clean && cd .. && \
+	cd Geo &&                           $(MAKE) clean && cd .. && \
+	cd GiBUU &&                         $(MAKE) clean && cd .. && \
+	cd HadronTransport &&               $(MAKE) clean && cd .. && \
+	cd Interaction &&                   $(MAKE) clean && cd .. && \
+	cd LlewellynSmith &&                $(MAKE) clean && cd .. && \
+	cd Masterclass &&                   $(MAKE) clean && cd .. && \
+	cd MEC &&                           $(MAKE) clean && cd .. && \
+	cd Messenger &&                     $(MAKE) clean && cd .. && \
+	cd MuELoss &&                       $(MAKE) clean && cd .. && \
+	cd Nuclear &&                       $(MAKE) clean && cd .. && \
+	cd NucleonDecay &&                  $(MAKE) clean && cd .. && \
+	cd Ntuple &&                        $(MAKE) clean && cd .. && \
+	cd NuGamma &&                       $(MAKE) clean && cd .. && \
+	cd NuE &&                           $(MAKE) clean && cd .. && \
+	cd Numerical &&                     $(MAKE) clean && cd .. && \
+	cd PartonModel &&                   $(MAKE) clean && cd .. && \
+	cd PDF &&                           $(MAKE) clean && cd .. && \
+	cd PDG &&                           $(MAKE) clean && cd .. && \
+	cd QEL &&                           $(MAKE) clean && cd .. && \
+	cd RES &&                           $(MAKE) clean && cd .. && \
+	cd Registry &&                      $(MAKE) clean && cd .. && \
+	cd ReinSehgal &&                    $(MAKE) clean && cd .. && \
+	cd ReWeight &&                      $(MAKE) clean && cd .. && \
+	cd SingleKaon &&                    $(MAKE) clean && cd .. && \
+	cd Utils &&                         $(MAKE) clean && cd .. && \
+	cd VLE &&                           $(MAKE) clean && cd .. && \
+	cd VHE &&                           $(MAKE) clean && cd .. && \
+	cd Apps &&                          $(MAKE) clean && cd .. && \
+	cd scripts &&                       $(MAKE) clean && cd .. && \
+	cd $(GENIE) && \
+    [ ! -d ./bin ] || rm ./bin/* && \
 	cd $(GENIE)
 
 clean-dir: FORCE
-	@echo "Deleting GENIE lib and bin directories...";\
-	cd $(GENIE);\
-	[ ! -d ./bin ] || rmdir ./bin;\
+	@echo "Deleting GENIE lib and bin directories..." && \
+	cd $(GENIE) && \
+	[ ! -d ./bin ] || rmdir ./bin && \
 	[ ! -d ./lib ] || rmdir ./lib 
 
 clean-etc: FORCE
-	cd $(GENIE); \
-	rm -f ./*log; \
+	cd $(GENIE) && \
+	rm -f ./*log && \
 	cd ${GENIE}
 
 distclean: FORCE
 	@echo " "
 	@echo "** Cleaning GENIE installation... "
 	[ ! -d ${GENIE_INSTALLATION_PATH}/include/GENIE ] || rm -rf ${GENIE_INSTALLATION_PATH}/include/GENIE/
-	cd ${GENIE}/src/;\
-	cd Algorithm;                      make distclean; cd ..; \
-	cd AlvarezRuso;                    make distclean; cd ..; \
-	cd BaryonResonance;                make distclean; cd ..; \
-	cd Base;                           make distclean; cd ..; \
-	cd BergerSehgal;                   make distclean; cd ..; \
-	cd BodekYang;                      make distclean; cd ..; \
-	cd Charm;                          make distclean; cd ..; \
-	cd Coherent;                       make distclean; cd ..; \
-	cd CrossSections;                  make distclean; cd ..; \
-	cd Decay;                          make distclean; cd ..; \
-	cd Diffractive;                    make distclean; cd ..; \
-	cd DIS;                            make distclean; cd ..; \
-	cd Elastic;                        make distclean; cd ..; \
-	cd ElFF;                           make distclean; cd ..; \
-	cd EVGCore;                        make distclean; cd ..; \
-	cd EVGModules;                     make distclean; cd ..; \
-	cd EVGDrivers;                     make distclean; cd ..; \
-	cd FluxDrivers;                    make distclean; cd ..; \
-	cd Fragmentation;                  make distclean; cd ..; \
-	cd GHEP;                           make distclean; cd ..; \
-	cd Geo;                            make distclean; cd ..; \
-	cd GiBUU;                          make distclean; cd ..; \
-	cd HadronTransport;                make distclean; cd ..; \
-	cd Interaction;                    make distclean; cd ..; \
-	cd LlewellynSmith;                 make distclean; cd ..; \
-	cd Masterclass;                    make distclean; cd ..; \
-	cd MEC;                            make distclean; cd ..; \
-	cd Messenger;                      make distclean; cd ..; \
-	cd MuELoss;                        make distclean; cd ..; \
-	cd Nuclear;                        make distclean; cd ..; \
-	cd NucleonDecay;                   make distclean; cd ..; \
-	cd Ntuple;                         make distclean; cd ..; \
-	cd NuGamma;                        make distclean; cd ..; \
-	cd NuE;                            make distclean; cd ..; \
-	cd Numerical;                      make distclean; cd ..; \
-	cd PartonModel;                    make distclean; cd ..; \
-	cd PDF;                            make distclean; cd ..; \
-	cd PDG;                            make distclean; cd ..; \
-	cd QEL;                            make distclean; cd ..; \
-	cd RES;                            make distclean; cd ..; \
-	cd Registry;                       make distclean; cd ..; \
-	cd ReinSehgal;                     make distclean; cd ..; \
-	cd ReWeight;                       make distclean; cd ..; \
-	cd SingleKaon;                     make distclean; cd ..; \
-	cd Utils;                          make distclean; cd ..; \
-	cd VLE;                            make distclean; cd ..; \
-	cd VHE;                            make distclean; cd ..; \
-	cd Apps;                           make distclean; cd ..; \
-	cd scripts;                        make distclean; \
+	cd ${GENIE}/src/ && \
+	cd Algorithm &&                      $(MAKE) distclean && cd .. && \
+	cd AlvarezRuso &&                    $(MAKE) distclean && cd .. && \
+	cd BaryonResonance &&                $(MAKE) distclean && cd .. && \
+	cd Base &&                           $(MAKE) distclean && cd .. && \
+	cd BergerSehgal &&                   $(MAKE) distclean && cd .. && \
+	cd BodekYang &&                      $(MAKE) distclean && cd .. && \
+	cd Charm &&                          $(MAKE) distclean && cd .. && \
+	cd Coherent &&                       $(MAKE) distclean && cd .. && \
+	cd CrossSections &&                  $(MAKE) distclean && cd .. && \
+	cd Decay &&                          $(MAKE) distclean && cd .. && \
+	cd Diffractive &&                    $(MAKE) distclean && cd .. && \
+	cd DIS &&                            $(MAKE) distclean && cd .. && \
+	cd Elastic &&                        $(MAKE) distclean && cd .. && \
+	cd ElFF &&                           $(MAKE) distclean && cd .. && \
+	cd EVGCore &&                        $(MAKE) distclean && cd .. && \
+	cd EVGModules &&                     $(MAKE) distclean && cd .. && \
+	cd EVGDrivers &&                     $(MAKE) distclean && cd .. && \
+	cd FluxDrivers &&                    $(MAKE) distclean && cd .. && \
+	cd Fragmentation &&                  $(MAKE) distclean && cd .. && \
+	cd GHEP &&                           $(MAKE) distclean && cd .. && \
+	cd Geo &&                            $(MAKE) distclean && cd .. && \
+	cd GiBUU &&                          $(MAKE) distclean && cd .. && \
+	cd HadronTransport &&                $(MAKE) distclean && cd .. && \
+	cd Interaction &&                    $(MAKE) distclean && cd .. && \
+	cd LlewellynSmith &&                 $(MAKE) distclean && cd .. && \
+	cd Masterclass &&                    $(MAKE) distclean && cd .. && \
+	cd MEC &&                            $(MAKE) distclean && cd .. && \
+	cd Messenger &&                      $(MAKE) distclean && cd .. && \
+	cd MuELoss &&                        $(MAKE) distclean && cd .. && \
+	cd Nuclear &&                        $(MAKE) distclean && cd .. && \
+	cd NucleonDecay &&                   $(MAKE) distclean && cd .. && \
+	cd Ntuple &&                         $(MAKE) distclean && cd .. && \
+	cd NuGamma &&                        $(MAKE) distclean && cd .. && \
+	cd NuE &&                            $(MAKE) distclean && cd .. && \
+	cd Numerical &&                      $(MAKE) distclean && cd .. && \
+	cd PartonModel &&                    $(MAKE) distclean && cd .. && \
+	cd PDF &&                            $(MAKE) distclean && cd .. && \
+	cd PDG &&                            $(MAKE) distclean && cd .. && \
+	cd QEL &&                            $(MAKE) distclean && cd .. && \
+	cd RES &&                            $(MAKE) distclean && cd .. && \
+	cd Registry &&                       $(MAKE) distclean && cd .. && \
+	cd ReinSehgal &&                     $(MAKE) distclean && cd .. && \
+	cd ReWeight &&                       $(MAKE) distclean && cd .. && \
+	cd SingleKaon &&                     $(MAKE) distclean && cd .. && \
+	cd Utils &&                          $(MAKE) distclean && cd .. && \
+	cd VLE &&                            $(MAKE) distclean && cd .. && \
+	cd VHE &&                            $(MAKE) distclean && cd .. && \
+	cd Apps &&                           $(MAKE) distclean && cd .. && \
+	cd scripts &&                        $(MAKE) distclean && \
 	cd ${GENIE}
 
 FORCE:
