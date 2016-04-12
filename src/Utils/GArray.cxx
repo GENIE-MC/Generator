@@ -24,6 +24,7 @@
 
 using namespace genie;
 using std::endl;
+using std::ostream;
 
 ClassImp(GArray1D);
 ClassImp(GArray2D);
