@@ -14,38 +14,46 @@ libdir=$GENIE/lib
 srcdir=$GENIE/src
 
 ### GENIE libraries;
+# Order is important for loadlibs.C - try to keep libraries before those their depend on.
 
 # the following libs should always be there
-libs="-L$libdir -lGAlgorithm -lGAlvarezRuso -lGBaryonResonance -lGBase -lGBergerSehgal \
- -lGBodekYang -lGCharm -lGCoh -lGDfrc -lGDIS -lGCrossSections -lGDecay -lGElas \
- -lGElFF -lGHEP -lGEVGCore -lGEVGModules -lGEVGDrivers -lGGiBUU -lGHadronTransp \
- -lGFragmentation -lGInteraction -lGLlewellynSmith -lGMEC \
- -lGMessenger -lGNuGamma -lGNuE -lGNtuple -lGNuclear -lGNumerical -lGQPM \
- -lGPDG -lGPDF -lGQEL -lGRES -lGRegistry -lGReinSehgal -lGSingleKaon -lGUtils \
- -lGVHE"
-
+util_libs=" -lGMessenger -lGRegistry -lGAlgorithm -lGInteraction -lGHEP \
+  -lGBase -lGNumerical -lGUtils -lGPDG -lGBaryonResonance -lGEVGCore \
+  -lGEVGDrivers -lGNtuple "
+  
 # the following libs should only be there if an appropriate option was enabled at the configuration step
 if test "$GOPT_ENABLE_GEOM_DRIVERS" = "YES"; then
-  libs="$libs -lGGeo"
+  util_libs="$util_libs -lGGeo "
 fi
 if test "$GOPT_ENABLE_FLUX_DRIVERS" = "YES"; then
-  libs="$libs -lGFluxDrivers"
+  util_libs="$util_libs -lGFluxDrivers "
 fi
+
+# the following libs should always be there
+phys_libs=" -lGPDF -lGElFF -lGDecay -lGFragmentation -lGNuclear -lGLlewellynSmith \
+ -lGCrossSections  -lGCharm -lGElas -lGGiBUU -lGReinSehgal -lGQPM \
+ -lGBodekYang -lGEVGModules -lGQEL -lGRES -lGDIS -lGCoh -lGDfrc -lGMEC \
+ -lGNuE -lGNuGamma -lGHadronTransp "
+
+# the following libs should only be there if an appropriate option was enabled at the configuration step
 if test "$GOPT_ENABLE_VLE_EXTENSION" = "YES"; then
-  libs="$libs -lGVLE"
+  phys_libs="$phys_libs -lGVLE "
 fi
 if test "$GOPT_ENABLE_MUELOSS" = "YES"; then
-  libs="$libs -lGMuELoss"
+  phys_libs="$phys_libs -lGMuELoss "
 fi
 if test "$GOPT_ENABLE_MASTERCLASS" = "YES"; then
-  libs="$libs -lGMasterclass"
+  phys_libs="$phys_libs -lGMasterclass "
 fi
 if test "$GOPT_ENABLE_RWGHT" = "YES"; then
-  libs="$libs -lGReWeight"
+  phys_libs="$phys_libs -lGReWeight "
 fi
 if test "$GOPT_ENABLE_NUCLEON_DECAY" = "YES"; then
-  libs="$libs -lGNucleonDecay"
+  phys_libs="$phys_libs -lGNucleonDecay "
 fi
+
+# Assemble the final libs variable
+libs="-L$libdir $util_libs $phys_libs "
 
 ### Usage
 usage="\
