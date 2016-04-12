@@ -101,7 +101,11 @@ purge:
 .PHONY: clean
 clean:
 	@echo "Clean in $(PACKAGE)"
-	$(RM) -f *.d *.o *~ core a.out $(GENIE_LIB_PATH)/$(LIBNAME)* $(DICTIONARY).* $(GENIE_LIB_PATH)/$(DICTIONARY)* Makefile.temp
+ifeq ($(strip $(DICTIONARY)),undefined)
+	$(RM) -f *.d *.o *~ core a.out $(GENIE_LIB_PATH)/$(LIBNAME)* Makefile.temp
+else
+	$(RM) -f *.d *.o *~ core a.out $(GENIE_LIB_PATH)/$(LIBNAME)* $(DICTIONARY)* $(GENIE_LIB_PATH)/$(DICTIONARY)* Makefile.temp
+endif
 
 
 #
