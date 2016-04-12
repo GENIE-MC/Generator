@@ -62,6 +62,7 @@
 #include "Utils/RunOpt.h"
 
 using std::ostringstream;
+using std::ofstream;
 using std::string;
 using std::vector;
 using std::setw;
