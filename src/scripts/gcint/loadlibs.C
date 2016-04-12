@@ -32,7 +32,7 @@
     TObjArray * tokens = line.Tokenize(" ");
     for (int i = 0 ; i < tokens->GetEntries() ; i++) {
       TObjString * token_os = static_cast<TObjString*>(tokens->At(i));
-      if (not token_os) {continue;}
+      if (!token_os) {continue;}
       TObjArray * matches = re.MatchS(token_os->GetString());
       if (matches->GetEntries()!=2) { continue; }
       TObjString * libname_os = static_cast<TObjString*>(matches->At(1));
