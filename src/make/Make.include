@@ -558,3 +558,5 @@ CFLAGS    = -g
 	$(AR) $(ARFLAGS) $@ $*.o
 	$(RANLIB) $@
 	$(RM) $*.o
+
+print-%  : ; @echo $* = $($*)
