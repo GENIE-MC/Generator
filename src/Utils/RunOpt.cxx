@@ -24,6 +24,7 @@
 #include "GHEP/GHepFlags.h"
 #include "Utils/CmdLnArgParser.h"
 #include "Utils/RunOpt.h"
+#include "Messenger/Messenger.h"
 
 using std::cout;
 using std::endl;
@@ -72,8 +73,9 @@ void RunOpt::Init(void)
    fUnphysEventMask->SetBitNumber(i, true);
   }
   fMCJobStatusRefreshRate = 50;
-  fEventRecordPrintLevel = 3;
-  fEventGeneratorList = "Default";
+  fEventRecordPrintLevel  = 3;
+  fEventGeneratorList     = "Default";
+  fTune                   = "Default";
 }
 //____________________________________________________________________________
 void RunOpt::ReadFromCommandLine(int argc, char ** argv)
@@ -108,6 +110,13 @@ void RunOpt::ReadFromCommandLine(int argc, char ** argv)
     fEventGeneratorList = parser.ArgAsString("event-generator-list");
   }
 
+  if( parser.OptionExists("tune") ) {
+    LOG("RunOpt", pWARN) 
+       << "--tune argument is dummy. "
+       << "A single (\"Default\") tune is supported for this version of GENIE";
+  //fTune = parser.ArgAsString("tune");
+  }
+
   if( parser.OptionExists("unphysical-event-mask") ) {
     const char * bitfield = 
        parser.ArgAsString("unphysical-event-mask").c_str();
@@ -125,6 +134,7 @@ void RunOpt::ReadFromCommandLine(int argc, char ** argv)
 void RunOpt::Print(ostream & stream) const
 {
   stream << "Global running options:";
+  stream << "\n GENIE tune: " << fTune;
   stream << "\n Event generator list: " << fEventGeneratorList;
   stream << "\n User-specified message thresholds : " << fMesgThresholds;
   stream << "\n Cache file : " << fCacheFile;
