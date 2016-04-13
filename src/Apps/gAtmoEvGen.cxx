@@ -245,8 +245,9 @@
 #include "Utils/RunOpt.h"
 
 #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
-#include "FluxDrivers/GFlukaAtmo3DFlux.h"
-#include "FluxDrivers/GBartolAtmoFlux.h"
+#include "FluxDrivers/GFLUKAAtmoFlux.h"
+#include "FluxDrivers/GBGLRSAtmoFlux.h"
+#include "FluxDrivers/GHAKKMAtmoFlux.h"
 #endif
 
 #ifdef __GENIE_GEOM_DRIVERS_ENABLED__
@@ -271,7 +272,7 @@ GeomAnalyzerI * GetGeometry        (void);
 // User-specified options:
 //
 Long_t          gOptRunNu;                     // run number
-string          gOptFluxSim;                   // flux simulation (FLUKA or BGLRS)
+string          gOptFluxSim;                   // flux simulation (FLUKA, BGLRS or HAKKM)
 map<int,string> gOptFluxFiles;                 // neutrino pdg code -> flux file map
 bool            gOptUsingRootGeom = false;     // using root geom or target mix?
 map<int,double> gOptTgtMix;                    // target mix  (tgt pdg -> wght frac) / if not using detailed root geom
@@ -440,12 +441,16 @@ GFluxI* GetFlux(void)
   // Instantiate appropriate concrete flux driver
   GAtmoFlux * atmo_flux_driver = 0;
   if(gOptFluxSim == "FLUKA") {
-     GFlukaAtmo3DFlux * fluka_flux = new GFlukaAtmo3DFlux;
+     GFLUKAAtmoFlux * fluka_flux = new GFLUKAAtmoFlux;
      atmo_flux_driver = dynamic_cast<GAtmoFlux *>(fluka_flux);
   } else
   if(gOptFluxSim == "BGLRS") {
-     GBartolAtmoFlux * bartol_flux = new GBartolAtmoFlux;
+     GBGLRSAtmoFlux * bartol_flux = new GBGLRSAtmoFlux;
      atmo_flux_driver = dynamic_cast<GAtmoFlux *>(bartol_flux);
+  } else 
+  if(gOptFluxSim == "HAKKM") {
+     GHAKKMAtmoFlux * honda_flux = new GHAKKMAtmoFlux;
+     atmo_flux_driver = dynamic_cast<GAtmoFlux *>(honda_flux);
   } else {
      LOG("gevgen_atmo", pFATAL) << "Uknonwn flux simulation: " << gOptFluxSim;
      gAbortingInErr = true;
@@ -460,7 +465,7 @@ GFluxI* GetFlux(void)
   for( ; file_iter != gOptFluxFiles.end(); ++file_iter) {
     int neutrino_code = file_iter->first;
     string filename   = file_iter->second;
-    atmo_flux_driver->SetFluxFile(neutrino_code, filename);
+    atmo_flux_driver->AddFluxFile(neutrino_code, filename);
   }
   atmo_flux_driver->LoadFluxData();
   // configure flux generation surface:
@@ -612,9 +617,11 @@ void GetCommandLineArgs(int argc, char ** argv)
     for(string::size_type i=0; i<gOptFluxSim.size(); i++) {
        gOptFluxSim[i] = toupper(gOptFluxSim[i]);
     }
-    if((gOptFluxSim != "FLUKA") && (gOptFluxSim != "BGLRS")) {
+    if((gOptFluxSim != "FLUKA") && 
+       (gOptFluxSim != "BGLRS") && 
+       (gOptFluxSim != "HAKKM")) {
         LOG("gevgen_atmo", pFATAL) 
-             << "The flux file source needs to be one of <FLUKA,BGLRS>"; 
+             << "The flux file source needs to be one of <FLUKA,BGLRS,HAKKM>"; 
         PrintSyntax();
         gAbortingInErr = true;
         exit(1);
@@ -843,8 +850,6 @@ void GetCommandLineArgs(int argc, char ** argv)
     LOG("gevgen_atmo", pINFO) << "Unspecified cross-section file";
     gOptInpXSecFile = "";
   }
-
-
 
   //
   // print-out summary

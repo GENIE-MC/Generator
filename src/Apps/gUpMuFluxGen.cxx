@@ -33,8 +33,8 @@
                - The `simulation' string can be either `FLUKA' or `BGLRS' (so that
                  input data are binned using the correct FLUKA and BGLRS energy and
                  costheta binning). See comments in 
-                 - $GENIE/src/Flux/GFlukaAtmo3DFlux.h
-                 - $GENIE/src/Flux/GBartolAtmoFlux.h
+                 - $GENIE/src/Flux/GFLUKAAtmoFlux.h
+                 - $GENIE/src/Flux/GBGLRSAtmoFlux.h
                  and follow the links to the FLUKA and BGLRS atmo. flux web pages.
                - The neutrino codes are the PDG ones, for numu and anumu only
                - The /path/file.data,neutrino_code part of the option can be 
@@ -127,8 +127,8 @@
 #include "Utils/CmdLnArgParser.h"
 
 #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
-#include "FluxDrivers/GFlukaAtmo3DFlux.h"
-#include "FluxDrivers/GBartolAtmoFlux.h"
+#include "FluxDrivers/GFLUKAAtmoFlux.h"
+#include "FluxDrivers/GBGLRSAtmoFlux.h"
 #endif
 
 using std::string;
@@ -595,11 +595,11 @@ GFluxI* GetFlux(void)
   // Instantiate appropriate concrete flux driver
   GAtmoFlux * atmo_flux_driver = 0;
   if(gOptFluxSim == "FLUKA") {
-     GFlukaAtmo3DFlux * fluka_flux = new GFlukaAtmo3DFlux;
+     GFLUKAAtmoFlux * fluka_flux = new GFLUKAAtmoFlux;
      atmo_flux_driver = dynamic_cast<GAtmoFlux *>(fluka_flux);
   } else
   if(gOptFluxSim == "BGLRS") {
-     GBartolAtmoFlux * bartol_flux = new GBartolAtmoFlux;
+     GBGLRSAtmoFlux * bartol_flux = new GBGLRSAtmoFlux;
      atmo_flux_driver = dynamic_cast<GAtmoFlux *>(bartol_flux);
   } else {
      LOG("gevgen_upmu", pFATAL) << "Uknonwn flux simulation: " << gOptFluxSim;
@@ -616,7 +616,7 @@ GFluxI* GetFlux(void)
   for( ; file_iter != gOptFluxFiles.end(); ++file_iter) {
     int neutrino_code = file_iter->first;
     string filename   = file_iter->second;
-    atmo_flux_driver->SetFluxFile(neutrino_code, filename);
+    atmo_flux_driver->AddFluxFile(neutrino_code, filename);
   }
   atmo_flux_driver->LoadFluxData();
   // configure flux generation surface:
