@@ -40,6 +40,7 @@ public:
   void ReadFromCommandLine(int argc, char ** argv);
 
   // Get options set.
+  string Tune                   (void) const { return fTune;                   }
   string EventGeneratorList     (void) const { return fEventGeneratorList;     }
   string CacheFile              (void) const { return fCacheFile;              }
   string MesgThresholdFiles     (void) const { return fMesgThresholds;         }
@@ -62,15 +63,15 @@ private:
   void Init (void);
 
   // options
-  string fEventGeneratorList;        ///< Name of event generator list to be loaded by the event generation drivers. This used to be set by $GEVGL.
-  string fCacheFile;                 ///< Name of cache file, is cache is to be re-used. This used to be set by the $GCACHEFILE.
-  string fMesgThresholds;            ///< List of files (delimited with : if more than one) with custom mesg stream thresholds. This used to be set by $GMSGCONF.
-  TBits* fUnphysEventMask;           ///< Unphysical event mask. This used to be set by $GUNPHYSMASK.
-  int    fEventRecordPrintLevel;     ///< GHEP event r ecord print level. This used to be set by $GHEPPRINTLEVEL
-  int    fMCJobStatusRefreshRate;    ///< MC job status file refresh rate. This used to be set by $GMCJMONREFRESH.
+  string fTune;                      ///< GENIE comprehensive neutrino interaction model tune.
+  string fEventGeneratorList;        ///< Name of event generator list to be loaded by the event generation drivers. 
+  string fCacheFile;                 ///< Name of cache file, is cache is to be re-used. 
+  string fMesgThresholds;            ///< List of files (delimited with : if more than one) with custom mesg stream thresholds. 
+  TBits* fUnphysEventMask;           ///< Unphysical event mask. 
+  int    fEventRecordPrintLevel;     ///< GHEP event r ecord print level. 
+  int    fMCJobStatusRefreshRate;    ///< MC job status file refresh rate. 
   bool   fEnableBareXSecPreCalc;     ///< Cache calcs relevant to free-nucleon xsecs before any nuclear xsec computation? 
                                      ///< The option switches on/off cacheing calculations which interfere with event reweighting.
-                                     ///< This used to be set by the $GDISABLECACHING.
   // Self
   static RunOpt * fInstance;
 
