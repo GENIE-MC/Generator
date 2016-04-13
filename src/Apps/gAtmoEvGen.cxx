@@ -44,18 +44,18 @@
               Specifies the input flux files
               The general syntax is: `-f simulation:/path/file.data[neutrino_code],...'
               [Notes] 
-               - The `simulation' string can be either `FLUKA' or `BGLRS' (so that
-                 input data are binned using the correct FLUKA and BGLRS energy and
-                 costheta binning). See comments in 
-                 - $GENIE/src/Flux/GFlukaAtmo3DFlux.h
-                 - $GENIE/src/Flux/GBartolAtmoFlux.h
-                 and follow the links to the FLUKA and BGLRS atmo. flux web pages.
+               - The `simulation' string can be either `FLUKA', `BGLRS' or `HAKKM'.
+                 See:
+                 - $GENIE/src/Flux/GFLUKAAtmoFlux.h
+                 - $GENIE/src/Flux/GBGLRSAtmoFlux.h
+                 - $GENIE/src/Flux/GHAKKMAtmoFlux.h
                - The neutrino codes are the PDG ones.
                - The /path/file.data,neutrino_code part of the option can be 
                  repeated multiple times (separated by commas), once for each 
                  flux neutrino species you want to consider, 
                  eg. '-f FLUKA:~/data/sdave_numu07.dat[14],~/data/sdave_nue07.dat[12]'
                  eg. '-f BGLRS:~/data/flux10_271003_z.kam_nue[12]'
+                 eg. '-f HAKKM:~/data/kam-ally-20-12-solmax.d[12]'
            -g 
               Input 'geometry'.
               This option can be used to specify any of:
