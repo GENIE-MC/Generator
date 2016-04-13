@@ -18,8 +18,9 @@
 #pragma link C++ class genie::flux::GMonoEnergeticFlux;
 
 #pragma link C++ class genie::flux::GAtmoFlux;
-#pragma link C++ class genie::flux::GFlukaAtmo3DFlux;
-#pragma link C++ class genie::flux::GBartolAtmoFlux;
+#pragma link C++ class genie::flux::GFLUKAAtmoFlux;
+#pragma link C++ class genie::flux::GBGLRSAtmoFlux;
+#pragma link C++ class genie::flux::GHAKKMAtmoFlux;
 
 #pragma link C++ class genie::flux::GAstroFlux;
 #pragma link C++ class genie::flux::GPointSourceAstroFlux;

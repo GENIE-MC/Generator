@@ -12,7 +12,7 @@
  Important revisions after version 2.0.0 :
  @ Feb 05, 2008 - CA
    This class was added in 2.3.1 by code factored out from the concrete
-   GFlukaAtmo3DFlux driver & the newer, largely similar, GBartolAtmoFlux
+   GFLUKAAtmoFlux driver & the newer, largely similar, GBGLRSAtmoFlux
    driver.
  @ Feb 23, 2010 - CA
    Re-structuring and clean-up. Added option to generate weighted flux.
@@ -30,19 +30,23 @@
    Implemented dummy versions of the new GFluxI::Clear and GFluxI::Index as 
    these methods needed for pre-generation of flux interaction probabilities 
    in GMCJDriver.
-@ Feb 03, 2011 - TF
+ @ Feb 03, 2011 - TF
    Bug fixed: events are now generated randomly and uniformly on a disc with 
    R = R_{transverse}
-@ Feb 23, 2012 - AB
+ @ Feb 23, 2012 - AB
    Bug fixed: events were being generated according to the differential flux
    in each energy bin, dPhi/dE, rather than the total flux, Phi, in each bin.
    This has now been fixed.
+ @ Jul 13, 2015 - CA
+   Changed all internal flux histograms from 2-D to 3-D to accomodate fluxes
+   (ATMNC) with phi dependence. Changed several names accordingly. For FLUKA
+   and BGLRS fluxes, just add a single phi bin from 0 to 2*pi.
 */
 //____________________________________________________________________________
 
 #include <cassert>
 
-#include <TH2D.h>
+#include <TH3D.h>
 #include <TMath.h>
 
 #include "Conventions/Constants.h"
@@ -108,11 +112,10 @@ bool GAtmoFlux::GenerateNext_1try(void)
   // Get a RandomGen instance
   RandomGen * rnd = RandomGen::Instance();
 
-  // Generate a (Ev, costheta) pair from the 'combined' flux histogram
-  // and select (phi) uniformly over [0,2pi]
+  // Generate (Ev, costheta, phi) 
   double Ev       = 0.;
   double costheta = 0.;
-  double phi      = 2.*kPi* rnd->RndFlux().Rndm();
+  double phi      = 0;
   double weight   = 0;
   int    nu_pdg   = 0;
 
@@ -131,6 +134,7 @@ bool GAtmoFlux::GenerateNext_1try(void)
      double emax = TMath::Power(fEnergyBins[fNumEnergyBins],1.0-alpha);
      Ev          = TMath::Power(emin+(emax-emin)*rnd->RndFlux().Rndm(),1.0/(1.0-alpha));
      costheta    = -1+2*rnd->RndFlux().Rndm();
+     phi         = 2.*kPi* rnd->RndFlux().Rndm();
 
      unsigned int nnu = fPdgCList->size();
      unsigned int inu = rnd->RndFlux().Integer(nnu);
@@ -140,14 +144,11 @@ bool GAtmoFlux::GenerateNext_1try(void)
         LOG("Flux", pINFO) << "E < Emin";
 	return false;
      }
- 
-     double flux = GetFlux( nu_pdg, Ev, costheta );
-
+     double flux = this->GetFlux(nu_pdg, Ev, costheta, phi);
      if(flux<=0) {
         LOG("Flux", pINFO) << "Flux <= 0";
 	return false;
      }
-
      weight = flux*TMath::Power(Ev,alpha);
   } 
   else {
@@ -156,11 +157,12 @@ bool GAtmoFlux::GenerateNext_1try(void)
      // generate nominal flux
      //
 
-     Axis_t ax = 0, ay = 0;
-     fFluxSum2D->GetRandom2(ax, ay);
+     Axis_t ax = 0, ay = 0, az = 0;
+     fTotalFluxHisto->GetRandom3(ax, ay, az);
      Ev       = (double)ax;
      costheta = (double)ay;
-     nu_pdg   = this->SelectNeutrino(Ev, costheta);
+     phi      = (double)az;
+     nu_pdg   = this->SelectNeutrino(Ev, costheta, phi);
      weight   = 1.0;
   }
 
@@ -300,14 +302,26 @@ void GAtmoFlux::Initialize(void)
 {
   LOG("Flux", pNOTICE) << "Initializing atmospheric flux driver";
 
+  fMaxEv = -1; 
+
+  fNumPhiBins = 0;  
+  fNumCosThetaBins = 0; 
+  fNumEnergyBins = 0;
+  fPhiBins = 0;
+  fCosThetaBins = 0;
+  fEnergyBins = 0;
+
+  fTotalFluxHisto = 0;
+  fTotalFluxHistoIntg = 0;
+
   bool allow_dup = false;
   fPdgCList = new PDGCodeList(allow_dup);
 
-  // initializing flux TH2D histos [ flux = f(Ev,costheta) ] & files
+  // initializing flux TH3D histos [ flux = f(Ev,costheta,phi) ] & files
   fFluxFile.clear();
-  fFlux2D.clear();
-  fFluxSum2D = 0;
-  fFluxSum2DIntg = 0;
+  fFluxHistoMap.clear();
+  fTotalFluxHisto = 0;
+  fTotalFluxHistoIntg = 0;
 
   // setting maximum energy in flux files
   assert(fEnergyBins);
@@ -353,34 +367,35 @@ void GAtmoFlux::ResetSelection(void)
   fgPdgC = 0;
   fgP4.SetPxPyPzE (0.,0.,0.,0.);
   fgX4.SetXYZT    (0.,0.,0.,0.);
+  fWeight = 0;
 }
 //___________________________________________________________________________
 void GAtmoFlux::CleanUp(void)
 {
   LOG("Flux", pNOTICE) << "Cleaning up...";
 
-  map<int,TH2D*>::iterator rawiter = fFluxRaw2D.begin();
-  for( ; rawiter != fFluxRaw2D.end(); ++rawiter) {
-    TH2D * flux_histogram = rawiter->second;
+  map<int,TH3D*>::iterator rawiter = fRawFluxHistoMap.begin();
+  for( ; rawiter != fRawFluxHistoMap.end(); ++rawiter) {
+    TH3D * flux_histogram = rawiter->second;
     if(flux_histogram) {
        delete flux_histogram;
        flux_histogram = 0;
     }
   }
-  fFluxRaw2D.clear();
+  fRawFluxHistoMap.clear();
 
-  map<int,TH2D*>::iterator iter = fFlux2D.begin();
-  for( ; iter != fFlux2D.end(); ++iter) {
-    TH2D * flux_histogram = iter->second;
+  map<int,TH3D*>::iterator iter = fFluxHistoMap.begin();
+  for( ; iter != fFluxHistoMap.end(); ++iter) {
+    TH3D * flux_histogram = iter->second;
     if(flux_histogram) {
        delete flux_histogram;
        flux_histogram = 0;
     }
   }
-  fFlux2D.clear();
+  fFluxHistoMap.clear();
 
-  if (fFluxSum2D) delete fFluxSum2D;
-  if (fPdgCList ) delete fPdgCList;
+  if (fTotalFluxHisto) delete fTotalFluxHisto;
+  if (fPdgCList) delete fPdgCList;
 
   delete [] fCosThetaBins;
   delete [] fEnergyBins;
@@ -415,7 +430,7 @@ bool GAtmoFlux::LoadFluxData(void)
   LOG("Flux", pNOTICE)
         << "Loading atmospheric neutrino flux simulation data";
 
-  fFlux2D.clear();
+  fFluxHistoMap.clear();
   fPdgCList->clear();
 
   bool loading_status = true;
@@ -428,33 +443,33 @@ bool GAtmoFlux::LoadFluxData(void)
     LOG("Flux", pNOTICE)
         << "Loading data for: " << pname;
   
-    TH2D* hist = 0;
+    TH3D* hist = 0;
 
-    std::map<int,TH2D*>::iterator myMapEntry = fFluxRaw2D.find(nu_pdg);
+    std::map<int,TH3D*>::iterator myMapEntry = fRawFluxHistoMap.find(nu_pdg);
 
-    if( myMapEntry != fFluxRaw2D.end() ){
+    if( myMapEntry != fRawFluxHistoMap.end() ){
       hist = myMapEntry->second;
     }
     
     if( hist==0 ){
-      hist = this->CreateFluxHisto2D(pname.c_str(), pname.c_str());
-      fFluxRaw2D.insert( map<int,TH2D*>::value_type(nu_pdg,hist) );
+      hist = this->CreateFluxHisto(pname.c_str(), pname.c_str());
+      fRawFluxHistoMap.insert( map<int,TH3D*>::value_type(nu_pdg,hist) );
     }
 
-    bool loaded = this->FillFluxHisto2D(hist, filename);
+    bool loaded = this->FillFluxHisto(hist, filename);
 
     loading_status = loading_status && loaded;
   }
 
   if(loading_status) {
 
-    map<int,TH2D*>::iterator hist_iter = fFluxRaw2D.begin();
-    for ( ; hist_iter != fFluxRaw2D.end(); ++hist_iter) {
+    map<int,TH3D*>::iterator hist_iter = fRawFluxHistoMap.begin();
+    for ( ; hist_iter != fRawFluxHistoMap.end(); ++hist_iter) {
       int   nu_pdg = hist_iter->first;
-      TH2D* hist   = hist_iter->second;
+      TH3D* hist   = hist_iter->second;
 
-      TH2D* hnorm = this->CreateNormalisedFluxHisto2D( hist );
-      fFlux2D.insert( map<int,TH2D*>::value_type(nu_pdg,hnorm) );
+      TH3D* hnorm = this->CreateNormalisedFluxHisto( hist );
+      fFluxHistoMap.insert( map<int,TH3D*>::value_type(nu_pdg,hnorm) );
       fPdgCList->push_back(nu_pdg);
     }
 
@@ -469,18 +484,20 @@ bool GAtmoFlux::LoadFluxData(void)
   return false;
 }
 //___________________________________________________________________________
-TH2D* GAtmoFlux::CreateNormalisedFluxHisto2D(TH2D* h2)
+TH3D* GAtmoFlux::CreateNormalisedFluxHisto(TH3D* hist)
 {
+// return integrated flux
+
   // sanity check
-  if( h2==0 ) return 0;
+  if(!hist) return 0;
   
   // make new histogram name
-  TString histname = h2->GetName();
+  TString histname = hist->GetName();
   histname.Append("_IntegratedFlux");  
 
   // make new histogram
-  TH2D* hIntegratedFlux2D = (TH2D*)(h2->Clone(histname.Data()));
-  hIntegratedFlux2D->Reset();
+  TH3D* hist_intg = (TH3D*)(hist->Clone(histname.Data()));
+  hist_intg->Reset();
 
   // integrate flux in each bin
   Double_t dN_dEdS = 0.0;
@@ -488,38 +505,37 @@ TH2D* GAtmoFlux::CreateNormalisedFluxHisto2D(TH2D* h2)
   Double_t dE = 0.0;
   Double_t dN = 0.0;
 
-  for( Int_t nx=0; nx<h2->GetXaxis()->GetNbins(); nx++ ){ // x-axis: energy
-    for( Int_t ny=0; ny<h2->GetYaxis()->GetNbins(); ny++ ){ // y-axis: angle
-      dN_dEdS = h2->GetBinContent(nx+1,ny+1);
+  for(Int_t e_bin = 1; e_bin <= hist->GetXaxis()->GetNbins(); e_bin++)
+  { 
+    for(Int_t c_bin = 1; c_bin <= hist->GetYaxis()->GetNbins(); c_bin++)
+    {
+      for(Int_t p_bin = 1; p_bin <= hist->GetZaxis()->GetNbins(); p_bin++)
+      {
+         dN_dEdS = hist->GetBinContent(e_bin,c_bin,p_bin);
 
-      dE = h2->GetXaxis()->GetBinUpEdge(nx+1)
-          - h2->GetXaxis()->GetBinLowEdge(nx+1);
+         dE = hist->GetXaxis()->GetBinUpEdge(e_bin)
+            - hist->GetXaxis()->GetBinLowEdge(e_bin);
 
-      dS = 2.0*TMath::Pi()
-         * ( h2->GetYaxis()->GetBinUpEdge(ny+1)
-            - h2->GetYaxis()->GetBinLowEdge(ny+1) );
+         dS = ( hist->GetZaxis()->GetBinUpEdge(p_bin)
+              - hist->GetZaxis()->GetBinLowEdge(p_bin)  )
+            * ( hist->GetYaxis()->GetBinUpEdge(c_bin)
+              - hist->GetYaxis()->GetBinLowEdge(c_bin) );
 
-      dN = dN_dEdS*dE*dS;
-
-      hIntegratedFlux2D->SetBinContent(nx+1,ny+1,dN);
+         dN = dN_dEdS*dE*dS;
+   
+         hist_intg->SetBinContent(e_bin,c_bin,p_bin,dN);
+      }
     }
   }
 
-  // return integrated flux
-  return hIntegratedFlux2D; 
+  return hist_intg; 
 }
 //___________________________________________________________________________
-void GAtmoFlux::ZeroFluxHisto2D(TH2D * histo)
+void GAtmoFlux::ZeroFluxHisto(TH3D * histo)
 {
-  LOG("Flux", pNOTICE) << "Forcing flux histogram contents to 0";
-
-  for(unsigned int ie = 0; ie < fNumEnergyBins; ie++) {
-    for(unsigned int ic = 0; ic < fNumCosThetaBins; ic++) {
-       double energy   = fEnergyBins  [ie];
-       double costheta = fCosThetaBins[ic];
-       histo->Fill(energy,costheta,0.);
-    }
-  }
+  LOG("Flux", pDEBUG) << "Forcing flux histogram contents to 0";
+  if(!histo) return;
+  histo->Reset();
 }
 //___________________________________________________________________________
 void GAtmoFlux::AddAllFluxes(void)
@@ -527,29 +543,31 @@ void GAtmoFlux::AddAllFluxes(void)
   LOG("Flux", pNOTICE)
        << "Computing combined flux & flux normalization factor";
 
-  if(fFluxSum2D) delete fFluxSum2D;
+  if(fTotalFluxHisto) delete fTotalFluxHisto;
 
-  fFluxSum2D = this->CreateFluxHisto2D("sum", "combined flux" );
+  fTotalFluxHisto = this->CreateFluxHisto("sum", "combined flux" );
 
-  map<int,TH2D*>::iterator iter = fFlux2D.begin();
-  for( ; iter != fFlux2D.end(); ++iter) {
-    TH2D * flux_histogram = iter->second;
-    fFluxSum2D->Add(flux_histogram);
+  map<int,TH3D*>::iterator it = fFluxHistoMap.begin();
+  for( ; it != fFluxHistoMap.end(); ++it) {
+    TH3D * flux_histogram = it->second;
+    fTotalFluxHisto->Add(flux_histogram);
   }
 
-  fFluxSum2DIntg = fFluxSum2D->Integral();
+  fTotalFluxHistoIntg = fTotalFluxHisto->Integral();
 }
 //___________________________________________________________________________
-TH2D * GAtmoFlux::CreateFluxHisto2D(string name, string title)
+TH3D * GAtmoFlux::CreateFluxHisto(string name, string title)
 {
   LOG("Flux", pNOTICE) << "Instantiating histogram: [" << name << "]";
-  TH2D * h2 = new TH2D(
-           name.c_str(), title.c_str(),
-           fNumEnergyBins, fEnergyBins, fNumCosThetaBins, fCosThetaBins);
-  return h2;
+  TH3D * hist = new TH3D(
+     name.c_str(), title.c_str(),
+     fNumEnergyBins,   fEnergyBins, 
+     fNumCosThetaBins, fCosThetaBins, 
+     fNumPhiBins,      fPhiBins);
+  return hist;
 }
 //___________________________________________________________________________
-int GAtmoFlux::SelectNeutrino(double Ev, double costheta)
+int GAtmoFlux::SelectNeutrino(double Ev, double costheta, double phi)
 {
 // Select a neutrino species at the input Ev and costheta given their
 // relatve flux at this bin.
@@ -559,10 +577,10 @@ int GAtmoFlux::SelectNeutrino(double Ev, double costheta)
   double * flux = new double[n];
 
   unsigned int i=0;
-  map<int,TH2D*>::iterator iter = fFlux2D.begin();
-  for( ; iter != fFlux2D.end(); ++iter) {
-     TH2D * flux_histogram = iter->second;
-     int ibin = flux_histogram->FindBin(Ev,costheta);
+  map<int,TH3D*>::iterator it = fFluxHistoMap.begin();
+  for( ; it != fFluxHistoMap.end(); ++it) {
+     TH3D * flux_histogram = it->second;
+     int ibin = flux_histogram->FindBin(Ev,costheta,phi);
      flux[i]  = flux_histogram->GetBinContent(ibin);
      i++;
   }
@@ -597,85 +615,116 @@ int GAtmoFlux::SelectNeutrino(double Ev, double costheta)
 }
 
 //___________________________________________________________________________
-TH2D* GAtmoFlux::GetFluxHistogram(int flavour)
+TH3D* GAtmoFlux::GetFluxHistogram(int flavour)
 {
-  TH2D* histogram = 0;
-
-  std::map<int,TH2D*>::iterator myMapEntry = fFluxRaw2D.find(flavour);
-
-  if( myMapEntry != fFluxRaw2D.end() ){
-    histogram = myMapEntry->second;
+  TH3D* histogram = 0;
+  std::map<int,TH3D*>::iterator it = fRawFluxHistoMap.find(flavour);
+  if(it != fRawFluxHistoMap.end())
+  {
+    histogram = it->second;
   }
-
   return histogram;
 } 
-
 //___________________________________________________________________________
 double GAtmoFlux::GetFlux(int flavour)
 {
-  TH2D* hFlux2D = (TH2D*)(GetFluxHistogram(flavour));
+  TH3D* flux_hist = this->GetFluxHistogram(flavour);
+  if(!flux_hist) return 0.0;
 
-  if( hFlux2D==0 ) return 0.0;
-
-  Double_t Flux = 0.0;
+  Double_t flux    = 0.0;
   Double_t dN_dEdS = 0.0;
-  Double_t dS = 0.0;
-  Double_t dE = 0.0;
+  Double_t dS      = 0.0;
+  Double_t dE      = 0.0;
   
-  for( Int_t nx=0; nx<hFlux2D->GetXaxis()->GetNbins(); nx++ ){ // x-axis: energy
-    for( Int_t ny=0; ny<hFlux2D->GetYaxis()->GetNbins(); ny++ ){ // y-axis: angle
-      dN_dEdS = hFlux2D->GetBinContent(nx+1,ny+1);
+  for(Int_t e_bin = 1; e_bin <= flux_hist->GetXaxis()->GetNbins(); e_bin++) 
+  { 
+    for(Int_t c_bin = 1; c_bin <= flux_hist->GetYaxis()->GetNbins(); c_bin++) 
+    { 
+      for( Int_t p_bin = 1; p_bin <= flux_hist->GetZaxis()->GetNbins(); p_bin++) 
+      { 
+         dN_dEdS = flux_hist->GetBinContent(e_bin,c_bin,p_bin);
 
-      dE = hFlux2D->GetXaxis()->GetBinUpEdge(nx+1)
-          - hFlux2D->GetXaxis()->GetBinLowEdge(nx+1);
+         dE = flux_hist->GetXaxis()->GetBinUpEdge(e_bin)
+            - flux_hist->GetXaxis()->GetBinLowEdge(e_bin);
 
-      dS = 2.0*TMath::Pi()
-         * ( hFlux2D->GetYaxis()->GetBinUpEdge(ny+1)
-           - hFlux2D->GetYaxis()->GetBinLowEdge(ny+1) );
+         dS = ( flux_hist->GetZaxis()->GetBinUpEdge(p_bin)
+              - flux_hist->GetZaxis()->GetBinLowEdge(p_bin) )
+            * ( flux_hist->GetYaxis()->GetBinUpEdge(c_bin)
+              - flux_hist->GetYaxis()->GetBinLowEdge(c_bin) );
 
-      Flux += dN_dEdS*dE*dS;
+         flux += dN_dEdS*dE*dS;
+      }
     }
   }
 
-  return Flux;
+  return flux;
 }
-
 //___________________________________________________________________________
 double GAtmoFlux::GetFlux(int flavour, double energy)
 {
-  TH2D* hFlux2D = (TH2D*)(GetFluxHistogram(flavour));
+  TH3D* flux_hist = this->GetFluxHistogram(flavour);
+  if(!flux_hist) return 0.0;
 
-  if( hFlux2D==0 ) return 0.0;
-
-  Int_t nE = hFlux2D->GetXaxis()->FindBin(energy); 
-
-  Double_t Flux = 0.0;
+  Double_t flux    = 0.0;
   Double_t dN_dEdS = 0.0;
-  Double_t dS = 0.0;
+  Double_t dS      = 0.0;
+
+  Int_t e_bin = flux_hist->GetXaxis()->FindBin(energy); 
   
-  for( Int_t ny=0; ny<hFlux2D->GetYaxis()->GetNbins(); ny++ ){ // y-axis: angle
-    dN_dEdS = hFlux2D->GetBinContent(nE,ny+1);
+  for(Int_t c_bin = 1; c_bin <= flux_hist->GetYaxis()->GetNbins(); c_bin++) 
+  { 
+    for( Int_t p_bin = 1; p_bin <= flux_hist->GetZaxis()->GetNbins(); p_bin++) 
+    { 
+       dN_dEdS = flux_hist->GetBinContent(e_bin,c_bin,p_bin);
 
-    dS = 2.0*TMath::Pi()
-       * ( hFlux2D->GetYaxis()->GetBinUpEdge(ny+1)
-         - hFlux2D->GetYaxis()->GetBinLowEdge(ny+1) );
-
-    Flux += dN_dEdS*dS;
+       dS = ( flux_hist->GetZaxis()->GetBinUpEdge(p_bin)
+              - flux_hist->GetZaxis()->GetBinLowEdge(p_bin) )
+          * ( flux_hist->GetYaxis()->GetBinUpEdge(c_bin)
+              - flux_hist->GetYaxis()->GetBinLowEdge(c_bin) );
+   
+       flux += dN_dEdS*dS;
+    }
   }
 
-  return Flux;
+  return flux;
 }
-
 //___________________________________________________________________________
-double GAtmoFlux::GetFlux(int flavour, double energy, double angle)
+double GAtmoFlux::GetFlux(int flavour, double energy, double costh)
 {
-  TH2D* hFlux2D = (TH2D*)(GetFluxHistogram(flavour));
+  TH3D* flux_hist = this->GetFluxHistogram(flavour);
+  if(!flux_hist) return 0.0;
 
-  if( hFlux2D==0 ) return 0.0; 
+  Double_t flux    = 0.0;
+  Double_t dN_dEdS = 0.0;
+  Double_t dS      = 0.0;
 
-  Int_t nE = hFlux2D->GetXaxis()->FindBin(energy);
-  Int_t nA = hFlux2D->GetYaxis()->FindBin(angle);
+  Int_t e_bin = flux_hist->GetXaxis()->FindBin(energy);
+  Int_t c_bin = flux_hist->GetYaxis()->FindBin(costh);
   
-  return hFlux2D->GetBinContent(nE,nA);
+  for( Int_t p_bin = 1; p_bin <= flux_hist->GetZaxis()->GetNbins(); p_bin++) 
+  { 
+     dN_dEdS = flux_hist->GetBinContent(e_bin,c_bin,p_bin);
+
+     dS = ( flux_hist->GetZaxis()->GetBinUpEdge(p_bin)
+          - flux_hist->GetZaxis()->GetBinLowEdge(p_bin) );
+   
+     flux += dN_dEdS*dS;
+  }
+
+  return flux;
 }
+//___________________________________________________________________________
+double GAtmoFlux::GetFlux(int flavour, double energy, double costh, double phi)
+{
+  TH3D* flux_hist = this->GetFluxHistogram(flavour);
+  if(!flux_hist) return 0.0;
+
+  Int_t e_bin = flux_hist->GetXaxis()->FindBin(energy);
+  Int_t c_bin = flux_hist->GetYaxis()->FindBin(costh);
+  Int_t p_bin = flux_hist->GetZaxis()->FindBin(phi);
+  
+  Double_t flux = flux_hist->GetBinContent(e_bin,c_bin,p_bin);
+  return flux;
+}
+//___________________________________________________________________________
 
