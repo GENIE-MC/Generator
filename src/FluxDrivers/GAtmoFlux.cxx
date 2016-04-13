@@ -39,8 +39,16 @@
    This has now been fixed.
  @ Jul 13, 2015 - CA
    Changed all internal flux histograms from 2-D to 3-D to accomodate fluxes
-   (ATMNC) with phi dependence. Changed several names accordingly. For FLUKA
+   (HAKKM) with phi dependence. Changed several names accordingly. For FLUKA
    and BGLRS fluxes, just add a single phi bin from 0 to 2*pi.
+ @ Apr 13, 2016 - CA
+   Added AddFluxFile() without neutrino PDG code argument for the case that
+   the input data file (as it is the case for HAKKM) includes all species.
+   The pure virtual method FillFluxHisto() now takes a neutrino PDG code
+   rather than a TH3D ptr input and it is expected to retrieve the TH3D flux
+   itself. This change was made to easily fit HAKKM in the code already used
+   by FLUKA and BGLRS.
+
 */
 //____________________________________________________________________________
 
@@ -323,10 +331,6 @@ void GAtmoFlux::Initialize(void)
   fTotalFluxHisto = 0;
   fTotalFluxHistoIntg = 0;
 
-  // setting maximum energy in flux files
-  assert(fEnergyBins);
-  fMaxEv = fEnergyBins[fNumEnergyBins];
-
   // Default option is to generate unweighted flux neutrinos
   // (flux = f(E,costheta) will be used as PDFs)
   // User can enable option to generate weighted neutrinos
@@ -420,10 +424,24 @@ void GAtmoFlux::AddFluxFile(int nu_pdg, string filename)
   }
 }
 //___________________________________________________________________________
-void GAtmoFlux::SetFluxFile(int nu_pdg, string filename)
+void GAtmoFlux::AddFluxFile(string filename)
 {
-  return AddFluxFile( nu_pdg, filename );
+// FLUKA and BGLRS provide one file per neutrino species.
+// HAKKKM provides a single file for all nue,nuebar,numu,numubar.
+// If no neutrino species is provided, assume that the file contains all 4
+// but fit it into the franework developed for FLUKA and BGLRS, 
+// i.e. add the file 4 times
+
+  fFluxFlavour.push_back(kPdgNuE);      fFluxFile.push_back(filename);
+  fFluxFlavour.push_back(kPdgAntiNuE);  fFluxFile.push_back(filename);
+  fFluxFlavour.push_back(kPdgNuMu);     fFluxFile.push_back(filename);
+  fFluxFlavour.push_back(kPdgAntiNuMu); fFluxFile.push_back(filename);
 }
+//___________________________________________________________________________
+//void GAtmoFlux::SetFluxFile(int nu_pdg, string filename)
+//{
+//  return AddFluxFile( nu_pdg, filename );
+//}
 //___________________________________________________________________________
 bool GAtmoFlux::LoadFluxData(void)
 {
@@ -440,29 +458,25 @@ bool GAtmoFlux::LoadFluxData(void)
     string filename = fFluxFile.at(n);
     string pname = PDGLibrary::Instance()->Find(nu_pdg)->GetName();
 
-    LOG("Flux", pNOTICE)
-        << "Loading data for: " << pname;
+    LOG("Flux", pNOTICE) << "Loading data for: " << pname;
   
+    // create histogram
     TH3D* hist = 0;
-
     std::map<int,TH3D*>::iterator myMapEntry = fRawFluxHistoMap.find(nu_pdg);
-
-    if( myMapEntry != fRawFluxHistoMap.end() ){
-      hist = myMapEntry->second;
-    }
-    
-    if( hist==0 ){
-      hist = this->CreateFluxHisto(pname.c_str(), pname.c_str());
-      fRawFluxHistoMap.insert( map<int,TH3D*>::value_type(nu_pdg,hist) );
-    }
-
-    bool loaded = this->FillFluxHisto(hist, filename);
-
+    if( myMapEntry == fRawFluxHistoMap.end() ){
+//      hist = myMapEntry->second;
+//      if(hist==0) {
+        hist = this->CreateFluxHisto(pname.c_str(), pname.c_str());
+        fRawFluxHistoMap.insert( map<int,TH3D*>::value_type(nu_pdg,hist) );
+//      }
+    }    
+    // now let concrete instances to read the flux-specific data files
+    // and fill the histogram
+    bool loaded = this->FillFluxHisto(nu_pdg, filename);
     loading_status = loading_status && loaded;
   }
 
   if(loading_status) {
-
     map<int,TH3D*>::iterator hist_iter = fRawFluxHistoMap.begin();
     for ( ; hist_iter != fRawFluxHistoMap.end(); ++hist_iter) {
       int   nu_pdg = hist_iter->first;

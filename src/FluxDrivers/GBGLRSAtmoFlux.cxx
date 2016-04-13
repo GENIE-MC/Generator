@@ -43,10 +43,10 @@ GBGLRSAtmoFlux::GBGLRSAtmoFlux() :
 GAtmoFlux()
 {
   LOG("Flux", pNOTICE)
-       << "Instantiating the BGLRS atmospheric neutrino flux driver";
+     << "Instantiating the GENIE BGLRS atmospheric neutrino flux driver";
 
-  this->SetBinSizes();
   this->Initialize();
+  this->SetBinSizes();
 }
 //___________________________________________________________________________
 GBGLRSAtmoFlux::~GBGLRSAtmoFlux()
@@ -120,15 +120,24 @@ void GBGLRSAtmoFlux::SetBinSizes(void)
     } 
   }      
 
+  fMaxEv = fEnergyBins[fNumEnergyBins];
+
   fNumPhiBins      = 1;
   fNumCosThetaBins = kBGLRS3DNumCosThetaBins;
   fNumEnergyBins   = kBGLRS3DNumLogEvBinsLow + kBGLRS3DNumLogEvBinsHigh; 
 }
 //___________________________________________________________________________
-bool GBGLRSAtmoFlux::FillFluxHisto(TH3D * histo, string filename)
+bool GBGLRSAtmoFlux::FillFluxHisto(int nu_pdg, string filename)
 {
-  LOG("Flux", pNOTICE) << "Loading: " << filename;
+  LOG("Flux", pNOTICE) 
+    << "Loading BGLRS flux for neutrino: " << nu_pdg 
+    << " from file: " << filename;
 
+  TH3D* histo = 0;
+  std::map<int,TH3D*>::iterator myMapEntry = fRawFluxHistoMap.find(nu_pdg);
+  if( myMapEntry != fRawFluxHistoMap.end() ){
+      histo = myMapEntry->second;
+  }
   if(!histo) {
      LOG("Flux", pERROR) << "Null flux histogram!";
      return false;

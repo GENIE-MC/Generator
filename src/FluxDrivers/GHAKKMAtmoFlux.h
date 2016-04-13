@@ -33,7 +33,7 @@ namespace flux  {
 
 // Number of cos(zenith), azimuthat, and log(energy) bins in flux simulation
 
-const unsigned int kGHnd3DNumCosThetaBins       =  40;
+const unsigned int kGHnd3DNumCosThetaBins       =  20;
 const double       kGHnd3DCosThetaMin           =  -1.0;
 const double       kGHnd3DCosThetaMax           =   1.0;
 const unsigned int kGHnd3DNumPhiBins       	=  12;
@@ -41,7 +41,7 @@ const double       kGHnd3DPhiMin           	=   0.0;
 const double       kGHnd3DPhiMax           	= 360.0;
 const unsigned int kGHnd3DNumLogEvBins          = 101;	
 const unsigned int kGHnd3DNumLogEvBinsPerDecade =  20;
-const double       kGHnd3DEvMin                 =   0.095; // GeV
+const double       kGHnd3DEvMin                 =   0.1; // GeV
 
 class GHAKKMAtmoFlux: public GAtmoFlux {
 
@@ -58,7 +58,7 @@ public :
 private:
 
   void SetBinSizes   (void);
-  bool FillFluxHisto (TH3D * hist, string filename);
+  bool FillFluxHisto (int nu_pdg, string filename);
 };
 
 } // flux namespace
