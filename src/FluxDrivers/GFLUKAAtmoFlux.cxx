@@ -47,10 +47,10 @@ GFLUKAAtmoFlux::GFLUKAAtmoFlux() :
 GAtmoFlux()
 {
   LOG("Flux", pNOTICE)
-       << "Instantiating the Fluka-3D atmospheric neutrino flux driver";
+    << "Instantiating the GENIE FLUKA atmospheric neutrino flux driver";
 
-  this->SetBinSizes();
   this->Initialize();
+  this->SetBinSizes();
 }
 //___________________________________________________________________________
 GFLUKAAtmoFlux::~GFLUKAAtmoFlux()
@@ -115,15 +115,24 @@ void GFLUKAAtmoFlux::SetBinSizes(void)
          << ": bin centre = " << (fEnergyBins[i] + fEnergyBins[i+1])/2.;
   }
 
+  fMaxEv = fEnergyBins[fNumEnergyBins];
+
   fNumPhiBins      = 1;
   fNumCosThetaBins = kGFlk3DNumCosThetaBins;
   fNumEnergyBins   = kGFlk3DNumLogEvBins;
 }
 //____________________________________________________________________________
-bool GFLUKAAtmoFlux::FillFluxHisto(TH3D * histo, string filename)
+bool GFLUKAAtmoFlux::FillFluxHisto(int nu_pdg, string filename)
 {
-  LOG("Flux", pNOTICE) << "Loading: " << filename;
+  LOG("Flux", pNOTICE)
+    << "Loading FLUKA atmospheric flux for neutrino: " << nu_pdg 
+    << " from file: " << filename;
 
+  TH3D* histo = 0;
+  std::map<int,TH3D*>::iterator myMapEntry = fRawFluxHistoMap.find(nu_pdg);
+  if( myMapEntry != fRawFluxHistoMap.end() ){
+      histo = myMapEntry->second;
+  }
   if(!histo) {
      LOG("Flux", pERROR) << "Null flux histogram!";
      return false;

@@ -89,8 +89,8 @@ public :
   void     SetSpectralIndex   (double index); 
   void     SetRadii           (double Rlongitudinal, double Rtransverse);
   void     SetUserCoordSystem (TRotation & rotation); ///< Rotation: Topocentric Horizontal -> User-defined Topocentric Coord System.
-  void     SetFluxFile        (int neutrino_pdg, string filename);
   void     AddFluxFile        (int neutrino_pdg, string filename);
+  void     AddFluxFile        (string filename);
   bool     LoadFluxData       (void);
 
   TH3D*    GetFluxHistogram   (int flavour);
@@ -116,8 +116,8 @@ protected:
   int     SelectNeutrino    (double Ev, double costheta, double phi); 
   TH3D*   CreateNormalisedFluxHisto ( TH3D* hist);  // normalise flux files
 
-  // pure virtual protected methods; to be implemented by concrete flux drivers
-  virtual bool FillFluxHisto (TH3D * hist, string filename) = 0;
+  // pure virtual methods; to be implemented by concrete flux drivers
+  virtual bool FillFluxHisto (int nu_pdg, string filename) = 0;
 
   // protected data members
   double           fMaxEv;              ///< maximum energy (in input flux files)
