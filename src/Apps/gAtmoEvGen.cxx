@@ -23,6 +23,7 @@
                        [--seed random_number_seed]
                        [--cross-sections xml_file]
                        [--event-generator-list list_name]
+                       [--tune genie_tune]
                        [--message-thresholds xml_file]
                        [--unphysical-event-mask mask]
                        [--event-record-print-level level]
@@ -145,7 +146,10 @@
            --cross-sections
               Name (incl. full path) of an XML file with pre-computed
               cross-section values used for constructing splines.
-          --message-thresholds
+           --tune
+              Specifies a GENIE comprehensive neutrino interaction model tune.
+              [default: "Default"].
+           --message-thresholds
               Allows users to customize the message stream thresholds.
               The thresholds are specified using an XML file.
               See $GENIE/config/Messenger.xml for the XML schema.

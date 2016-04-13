@@ -11,9 +11,9 @@
             functional form, tabular text file or a ROOT histogram) and for 
             simple 'geometries' (a target mix with its corresponding weights)
 
-         For more complex event generation cases, for specific experiments, 
-         using the outputs of detailed neutrino flux simulations and realistic 
-         detector geometry descriptions see in $GENIE/src/support/.
+         See the GENIE manual for other apps handling experiment-specific 
+         event generation cases using the outputs of detailed neutrino flux 
+         simulations and realistic detector geometry descriptions.
 
          Syntax :
            gevgen [-h] 
@@ -27,6 +27,7 @@
                   [--seed random_number_seed] 
                   [--cross-sections xml_file]
                   [--event-generator-list list_name]
+                  [--tune genie_tune]
                   [--message-thresholds xml_file]          
                   [--unphysical-event-mask mask]
                   [--event-record-print-level level]
@@ -80,6 +81,9 @@
               cross-section values used for constructing splines.
            --event-generator-list            
               List of event generators to load in event generation drivers.
+              [default: "Default"].
+           --tune
+              Specifies a GENIE comprehensive neutrino interaction model tune.
               [default: "Default"].
            --message-thresholds           
               Allows users to customize the message stream thresholds.

@@ -5,8 +5,11 @@
 
 \brief   A GENIE utility printing-out GHEP event trees.
 
-         Syntax:
-           shell$ gevdump -f filename [-n n1[,n2]] [--event-record-print-level]
+         *** Synopsis :
+
+         gevdump -f filename 
+                [-n n1[,n2]] 
+                [--event-record-print-level]
 
          [] denotes an optional argument
 
@@ -127,8 +130,7 @@ int main(int argc, char ** argv)
   }
 
   // if the event file was created by one of GENIE's specialized event generation 
-  // applications for T2K or the NuMI-beamline expts (see $GENIE/src/support/) 
-  // then there may be additional branches holding JPARC and NuMI flux pass-through 
+  // then there may be additional branches holding flux pass-through 
   // info (flux neutrino parent info for each generated event).
 #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
   flux::GJPARCNuFluxPassThroughInfo * jparc_flux_info = 0;
