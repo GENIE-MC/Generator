@@ -10,11 +10,16 @@
          command line or extracted from the input ROOT/GEANT geometry.
 
          Syntax :
-           gmkspl -p nupdg <-t target_pdg_codes, -f geometry_file> 
+           gmkspl -p nupdg 
+                 <-t target_pdg_codes, 
+                  -f geometry_file> 
                   <-o | --output-cross-sections> output_xml_xsec_file
-                  [-n nknots] [-e max_energy] [--seed random_number_seed] 
+                  [-n nknots] 
+                  [-e max_energy] 
+                  [--seed random_number_seed] 
                   [--input-cross-sections xml_file]
                   [--event-generator-list list_name]
+                  [--tune genie_tune]
                   [--message-thresholds xml_file]
 
          Note :
@@ -49,6 +54,9 @@
               cross-section calculation for nuclear targets.
           --event-generator-list
               List of event generators to load in event generation drivers.
+              [default: "Default"].
+          --tune
+              Specifies a GENIE comprehensive neutrino interaction model tune.
               [default: "Default"].
            --message-thresholds
               Allows users to customize the message stream thresholds.

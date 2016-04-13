@@ -542,7 +542,7 @@ void PrintSyntax(void)
    << "\n             [--mc-job-status-refresh-rate  rate]"
    << "\n"
    << " Please also read the detailed documentation at http://www.genie-mc.org"
-   << " or look at the source code: $GENIE/src/support/ndcy/EvGen/gNucleonDecayEvGen.cxx"
+   << " or look at the source code: $GENIE/src/Apps/gNucleonDecayEvGen.cxx"
    << "\n";
 }
 //_________________________________________________________________________________________
