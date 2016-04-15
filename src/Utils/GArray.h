@@ -139,6 +139,7 @@ namespace arr {
   // If wght_with_bin_sz is true, the weight is scaled by the bin size (wght/bin_size is added in the histogram).
   bool Fill(double x, double wght, bool wght_with_bin_sz, const genie::GArray1D* binning, genie::GArray1D* contents);
   bool Fill(double x, double y, double wght, bool wght_with_bin_sz, const genie::GArray1D* binning_x, const genie::GArray1D* binning_y, genie::GArray2D* contents);
+  bool Fill(double x, double y, double wght, bool wght_with_bin_sz, const genie::GArray1D* xlow, const genie::GArray1D* xhigh, const genie::GArray1D* ylow, const genie::GArray1D* yhigh, genie::GArray1D* contents);
 
 }      // arr   namespace
 }      // utils namespace
