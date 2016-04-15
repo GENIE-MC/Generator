@@ -518,6 +518,7 @@ bool genie::utils::arr::Fill(
     if(y < ylow ->Get(i)) continue;
     if(y > yhigh->Get(i)) continue;
     found = true;
+    break;
   }
   if(!found) return false;
   double scale = 1;
