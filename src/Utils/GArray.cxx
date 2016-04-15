@@ -503,4 +503,34 @@ bool genie::utils::arr::Fill(
   return true;
 }
 //____________________________________________________________________________
+bool genie::utils::arr::Fill(
+  double x, double y, double wght, bool wght_with_bin_sz, 
+  const genie::GArray1D* xlow, const genie::GArray1D* xhigh, 
+  const genie::GArray1D* ylow, const genie::GArray1D* yhigh, 
+  genie::GArray1D* contents)
+{
+  bool found = false;
+  int i = -1;
+  int n = xlow->Size;
+  for(i = 0; i < n; i++) {
+    if(x < xlow ->Get(i)) continue;
+    if(x > xhigh->Get(i)) continue;
+    if(y < ylow ->Get(i)) continue;
+    if(y > yhigh->Get(i)) continue;
+    found = true;
+  }
+  if(!found) return false;
+  double scale = 1;
+  if(wght_with_bin_sz) {
+    double sz_x = xhigh->Get(i) - xlow->Get(i);
+    double sz_y = yhigh->Get(i) - ylow->Get(i);
+    double sz   = sz_x * sz_y;
+    if(sz > 0) {
+       scale = 1/sz;
+    }
+  }
+  contents->Add(i,scale*wght);
+  return true;
+}
+//____________________________________________________________________________
 
