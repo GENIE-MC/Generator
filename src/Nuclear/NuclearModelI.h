@@ -15,6 +15,14 @@
 \cpright  Copyright (c) 2003-2016, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
+
+ Important revisions after version 2.0.0 :
+ @ Mar 18, 2016 - JJ (SD)
+   Added option for GenerateNucleon() to be called with a target and a radius
+   as the arguments. Currently used by LocalFGM. Calls 
+   GenerateNucleon() with the radius set to 0 for all other NuclearModelI
+   implementations.
+
 */
 //____________________________________________________________________________
 
@@ -42,6 +50,15 @@ public:
   virtual double         Momentum        (void)           const;
   virtual TVector3       Momentum3       (void)           const;
   virtual FermiMoverInteractionType_t GetFermiMoverInteractionType(void) const;
+
+  virtual bool GenerateNucleon(const Target & tgt, 
+			       double hitNucleonRadius) const {
+    return GenerateNucleon(tgt);
+  }
+  virtual double Prob(double p, double w, const Target & tgt,
+	      double hitNucleonRadius) const {
+    return Prob(p,w,tgt);
+  }
 
 protected:
   NuclearModelI();

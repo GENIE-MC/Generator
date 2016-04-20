@@ -20,6 +20,9 @@
  @ Feb 14, 2013 - CA
    Temporarily disable the kinematical transformation that takes out the
    dipole form from the dsigma/dQ2 p.d.f.
+ @ Mar 18, 2016 - JJ (SD)
+   Store the struck nucleon position in the Target object before calling
+   the xsec method for the first time
 */
 //____________________________________________________________________________
 
@@ -35,6 +38,7 @@
 #include "EVGCore/RunningThreadInfo.h"
 #include "GHEP/GHepRecord.h"
 #include "GHEP/GHepFlags.h"
+#include "GHEP/GHepParticle.h"
 #include "Messenger/Messenger.h"
 #include "Numerical/RandomGen.h"
 #include "PDG/PDGLibrary.h"
@@ -84,6 +88,10 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   Interaction * interaction = evrec->Summary();
   interaction->SetBit(kISkipProcessChk);
   interaction->SetBit(kISkipKinematicChk);
+
+  // store the struck nucleon position for use by the xsec method
+  double hitNucPos = evrec->HitNucleon()->X4()->Vect().Mag();
+  interaction->InitStatePtr()->TgtPtr()->SetHitNucPosition(hitNucPos);
 
   //-- Note: The kinematic generator would be using the free nucleon cross
   //   section (even for nuclear targets) so as not to double-count nuclear
@@ -255,6 +263,10 @@ void QELKinematicsGenerator::SpectralFuncExperimentalCode(
   Interaction * interaction = new Interaction(*evrec->Summary());
   interaction->SetBit(kISkipProcessChk);
   interaction->SetBit(kISkipKinematicChk);
+
+  // store the struck nucleon position for use by the xsec method
+  double hitNucPos = evrec->HitNucleon()->X4()->Vect().Mag();
+  interaction->InitStatePtr()->TgtPtr()->SetHitNucPosition(hitNucPos);
 
   //-- Note: The kinematic generator would be using the free nucleon cross
   //   section (even for nuclear targets) so as not to double-count nuclear

@@ -29,6 +29,7 @@ typedef enum ENuclearModel {
 
    kNucmUndefined    = -1, 
    kNucmFermiGas,
+   kNucmLocalFermiGas,
    kNucmSpectralFunc,
    kNucmEffSpectralFunc
 
@@ -48,6 +49,7 @@ public:
      switch (nucmod) {
      case kNucmUndefined:       return "Undefined nuclear model";  break;
      case kNucmFermiGas:        return "Fermi gas model";          break;
+     case kNucmLocalFermiGas:   return "Local Fermi gas model";    break;
      case kNucmSpectralFunc:    return "Spectral function model";  break;
      case kNucmEffSpectralFunc: return "Effective spectral function model"; break;
      default:                 break;

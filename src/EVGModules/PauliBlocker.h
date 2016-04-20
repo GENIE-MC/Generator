@@ -42,9 +42,9 @@ public :
   void Configure (string param_set);
 
 private:
+   void LoadModelType(void);
 
-   void LoadKFTable(void);
-
+   bool fLFG;
    const FermiMomentumTable * fKFTable;
    string fKFTableName;
 };
