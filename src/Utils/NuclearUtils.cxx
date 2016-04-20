@@ -28,7 +28,9 @@
    reweighting. 
  @ Jul 15, 2010 - AM
    Added BindEnergy(int nucA, int nucZ), used in Intranuke
-
+ @ Mar 18, 2016 - JJ (SD)
+   Check if a local Fermi gas model should be used when calculating the
+   Fermi momentum
 */
 //____________________________________________________________________________
 
@@ -36,16 +38,23 @@
 
 #include <TMath.h>
 
+#include "Algorithm/AlgFactory.h"
+#include "Algorithm/AlgConfigPool.h"
+#include "Conventions/Constants.h"
+#include "Conventions/Units.h"
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
 #include "Nuclear/FermiMomentumTablePool.h"
 #include "Nuclear/FermiMomentumTable.h"
 #include "Nuclear/NuclearData.h"
+#include "Nuclear/NuclearModel.h"
+#include "Nuclear/NuclearModelI.h"
 #include "PDG/PDGUtils.h"
 #include "Utils/NuclearUtils.h"
 
 using namespace genie;
 using namespace genie::constants;
+using namespace genie::units;
 
 //____________________________________________________________________________
 double genie::utils::nuclear::BindEnergy(const Target & target)
@@ -152,15 +161,47 @@ double genie::utils::nuclear::NuclQELXSecSuppression(
      final_nucleon_pdgc = pdg::SwitchProtonNeutron(struck_nucleon_pdgc);
   }
 
-  // get the requested Fermi momentum table 
-  FermiMomentumTablePool * kftp = FermiMomentumTablePool::Instance();
-  const FermiMomentumTable * kft  = kftp->GetTable(kftable);
+  // Check if an LFG model should be used for Fermi momentum
+  // Create a nuclear model object to check the model type
+  AlgConfigPool * confp = AlgConfigPool::Instance();
+  const Registry * gc = confp->GlobalParameterList();
+  RgKey nuclkey = "NuclearModel";
+  RgAlg nuclalg = gc->GetAlg(nuclkey);
+  AlgFactory * algf = AlgFactory::Instance();
+  const NuclearModelI* nuclModel = 
+    dynamic_cast<const NuclearModelI*>(
+			     algf->GetAlgorithm(nuclalg.name,nuclalg.config));
+  // Check if the model is a local Fermi gas
+  bool lfg = (nuclModel && nuclModel->ModelType(Target()) == kNucmLocalFermiGas);
 
-  // Fermi momentum for initial, final nucleons
-  double kFi = kft->FindClosestKF(target_pdgc, struck_nucleon_pdgc);
-  double kFf = (struck_nucleon_pdgc==final_nucleon_pdgc) ? kFi : 
-               kft->FindClosestKF(target_pdgc, final_nucleon_pdgc );
+  double kFi, kFf;
+  if(lfg){
+    double hbarc = kLightSpeed*kPlankConstant/fermi;
+    Target* tgt = interaction->InitStatePtr()->TgtPtr();
+    double radius = tgt->HitNucPosition();
 
+    int A = tgt->A();
+    // kFi
+    bool is_p_i = pdg::IsProton(struck_nucleon_pdgc);
+    double numNuci = (is_p_i) ? (double)tgt->Z():(double)tgt->N();
+    kFi = TMath::Power(3*kPi2*numNuci*
+		     genie::utils::nuclear::Density(radius,A),1.0/3.0) *hbarc;
+    // kFi
+    bool is_p_f = pdg::IsProton(final_nucleon_pdgc);
+    double numNucf = (is_p_f) ? (double)tgt->Z():(double)tgt->N();
+    kFf = TMath::Power(3*kPi2*numNucf*
+		     genie::utils::nuclear::Density(radius,A),1.0/3.0) *hbarc;
+  }else{
+    // get the requested Fermi momentum table 
+    FermiMomentumTablePool * kftp = FermiMomentumTablePool::Instance();
+    const FermiMomentumTable * kft  = kftp->GetTable(kftable);
+    
+    // Fermi momentum for initial, final nucleons
+    kFi = kft->FindClosestKF(target_pdgc, struck_nucleon_pdgc);
+    kFf = (struck_nucleon_pdgc==final_nucleon_pdgc) ? kFi : 
+          kft->FindClosestKF(target_pdgc, final_nucleon_pdgc );
+  }
+  
   double Mn = target.HitNucP4Ptr()->M(); // can be off m/shell
 
   const Kinematics & kine = interaction->Kine();

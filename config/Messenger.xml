@@ -27,7 +27,6 @@
   <priority msgstream="GSimFiles">          DEBUG   </priority>
   <priority msgstream="MiniBooNE">          DEBUG   </priority>
 
-
   <priority msgstream="Messenger">             NOTICE </priority>
   <priority msgstream="AhrensNCEL">            WARN   </priority>
   <priority msgstream="AlgFactory">            INFO   </priority>
@@ -113,6 +112,7 @@
   <priority msgstream="KineLimits">            INFO   </priority>
   <priority msgstream="Kinematics">            NOTICE </priority>
   <priority msgstream="LeptonicVertex">        WARN   </priority>
+  <priority msgstream="LocalFGM">              WARN   </priority>
   <priority msgstream="LwlynSmith">            NOTICE </priority>
   <priority msgstream="Math">                  NOTICE </priority>
   <priority msgstream="MEC">                   INFO   </priority>
@@ -170,17 +170,17 @@
   <priority msgstream="XSecAlgMap">            NOTICE </priority>
   <priority msgstream="XSecSplLst">            NOTICE </priority>
 
-  <priority msgstream="gevgen">                NOTICE </priority>
-  <priority msgstream="gevgen_ndcy">           NOTICE </priority>
-  <priority msgstream="gevgen_atmo">           NOTICE </priority>
-  <priority msgstream="gevgen_upmu">           NOTICE </priority>
-  <priority msgstream="gevgen_t2k">            NOTICE </priority>
-  <priority msgstream="gevgen_numi">           NOTICE </priority>
-  <priority msgstream="gevgen_hadron">         NOTICE </priority>
-  <priority msgstream="gvldtest">              NOTICE </priority>
-  <priority msgstream="grwght1scan">           INFO   </priority>
-  <priority msgstream="gtune">                 INFO   </priority>
-  <priority msgstream="gntpc">                 INFO   </priority>
-  <priority msgstream="gmkspl">                INFO   </priority>
+  <priority msgstream="gevgen">              NOTICE </priority>
+  <priority msgstream="gevgen_ndcy">         NOTICE </priority>
+  <priority msgstream="gevgen_atmo">         NOTICE </priority>
+  <priority msgstream="gevgen_upmu">         NOTICE </priority>
+  <priority msgstream="gevgen_t2k">          NOTICE </priority>
+  <priority msgstream="gevgen_numi">         NOTICE </priority>
+  <priority msgstream="gevgen_hadron">       NOTICE </priority>
+  <priority msgstream="gvldtest">            NOTICE </priority>
+  <priority msgstream="grwght1scan">         INFO   </priority>
+  <priority msgstream="gtune">               INFO   </priority>
+  <priority msgstream="gntpc">               INFO   </priority>
+  <priority msgstream="gmkspl">              INFO   </priority>
 
 </messenger_config>

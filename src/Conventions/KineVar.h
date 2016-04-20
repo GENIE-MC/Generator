@@ -48,7 +48,9 @@ typedef enum EKineVar {
   kKVSelTk,
   kKVSelTl,
   kKVSelctl,
-  kKVSelphikq
+  kKVSelphikq,
+  kKVSelRad
+
 
 } KineVar_t;
 
@@ -81,6 +83,7 @@ public:
       case(kKVSelTl)   : return "*Selected* ASK lepton kinetic energy";  break;
       case(kKVSelctl)  : return "*Selected* ASK cosine lepton theta";    break;
       case(kKVSelphikq): return "*Selected* ASK phi kq";                 break;
+      case(kKVSelRad)  : return "*Selected* Struck particle position";   break;
  
       default          : return "** Unknown kinematic variable **";      break;
     }

@@ -12,7 +12,10 @@
  Important revisions after version 2.0.0 :
  @ Sep 19, 2009 - CA
    Renamed QELPXSec -> LwlynSmithQELCCPXSec
-
+ @ Mar 18, 2016 - JJ (SD)
+   Moved code to average over initial nucleons from QELXSec to the Integral()
+   method here. For each nucleon, generate a struck nucleon position, then a
+   momentum, then integrate.
 */
 //____________________________________________________________________________
 
@@ -27,9 +30,15 @@
 #include "Conventions/RefFrame.h"
 #include "Conventions/KineVar.h"
 #include "Conventions/Units.h"
+#include "EVGModules/InitialStateAppender.h"
+#include "EVGModules/VertexGenerator.h"
+#include "GHEP/GHepParticle.h"
+#include "GHEP/GHepRecord.h"
 #include "LlewellynSmith/LwlynSmithQELCCPXSec.h"
 #include "Messenger/Messenger.h"
+#include "Nuclear/NuclearModelI.h"
 #include "PDG/PDGCodes.h"
+#include "PDG/PDGLibrary.h"
 #include "PDG/PDGUtils.h"
 #include "Utils/MathUtils.h"
 #include "Utils/KineUtils.h"
@@ -153,10 +162,80 @@ double LwlynSmithQELCCPXSec::XSec(
   return xsec;
 }
 //____________________________________________________________________________
-double LwlynSmithQELCCPXSec::Integral(const Interaction * interaction) const
+double LwlynSmithQELCCPXSec::Integral(const Interaction * in) const
 {
-  double xsec = fXSecIntegrator->Integrate(this,interaction);
-  return xsec;
+  bool nuclear_target = in->InitState().Tgt().IsNucleus();
+  if(!nuclear_target || !fDoAvgOverNucleonMomentum) {
+    return fXSecIntegrator->Integrate(this,in);
+  }
+
+  double E = in->InitState().ProbeE(kRfHitNucRest);
+  if(fLFG || E < fEnergyCutOff) {
+    // clone the input interaction so as to tweak the
+    // hit nucleon 4-momentum in the averaging loop
+    Interaction in_curr(*in);
+
+    // hit target
+    Target * tgt = in_curr.InitState().TgtPtr();
+
+    // get nuclear masses (init & final state nucleus)
+    int nucleon_pdgc = tgt->HitNucPdg();
+    bool is_p = pdg::IsProton(nucleon_pdgc);
+    int Zi = tgt->Z();
+    int Ai = tgt->A();
+    int Zf = (is_p) ? Zi-1 : Zi;
+    int Af = Ai-1;
+    PDGLibrary * pdglib = PDGLibrary::Instance();
+    TParticlePDG * nucl_i = pdglib->Find( pdg::IonPdgCode(Ai, Zi) );
+    TParticlePDG * nucl_f = pdglib->Find( pdg::IonPdgCode(Af, Zf) );
+    if(!nucl_f) {
+      LOG("LwlynSmith", pFATAL)
+	<< "Unknwown nuclear target! No target with code: "
+	<< pdg::IonPdgCode(Af, Zf) << " in PDGLibrary!";
+      exit(1);
+    }
+    double Mi  = nucl_i -> Mass(); // initial nucleus mass
+    double Mf  = nucl_f -> Mass(); // remnant nucleus mass
+
+    // throw nucleons with fermi momenta and binding energies 
+    // generated according to the current nuclear model for the
+    // input target and average the cross section
+    double xsec_sum = 0.;
+    const int nnuc = 2000;
+    for(int inuc=0;inuc<nnuc;inuc++){
+      // Use VertexGenerator to generate a position
+      GHepRecord * evrec = new GHepRecord();
+      Interaction * in_temp = new Interaction(*in);
+      evrec->AttachSummary(in_temp);
+      InitialStateAppender * isa = new InitialStateAppender();
+      isa->ProcessEventRecord(evrec);
+      delete isa;
+      VertexGenerator * vg = new VertexGenerator();
+      vg->Configure("Default");
+      vg->ProcessEventRecord(evrec);
+      delete vg;
+      double r = evrec->HitNucleon()->X4()->Vect().Mag();
+      delete evrec; // also deletes in_temp, since in_temp was attached
+      tgt->SetHitNucPosition(r);
+
+      // Generate a nucleon
+      fNuclModel->GenerateNucleon(*tgt, r);
+      TVector3 p3N = fNuclModel->Momentum3();
+      double   EN  = Mi - TMath::Sqrt(p3N.Mag2() + Mf*Mf);
+      TLorentzVector* p4N = tgt->HitNucP4Ptr();
+      p4N->SetPx (p3N.Px());
+      p4N->SetPy (p3N.Py());
+      p4N->SetPz (p3N.Pz());
+      p4N->SetE  (EN);
+
+      double xsec = fXSecIntegrator->Integrate(this,&in_curr);
+      xsec_sum += xsec;
+    }
+    double xsec_avg = xsec_sum / nnuc;
+    return xsec_avg;
+  }else{
+    return fXSecIntegrator->Integrate(this,in);
+  }
 }
 //____________________________________________________________________________
 bool LwlynSmithQELCCPXSec::ValidProcess(const Interaction * interaction) const
@@ -213,6 +292,27 @@ void LwlynSmithQELCCPXSec::LoadConfig(void)
   fXSecIntegrator =
       dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));
   assert(fXSecIntegrator);
+
+  // Get nuclear model for use in Integral()
+  RgKey nuclkey = "IntegralNuclearModel";
+  fNuclModel = dynamic_cast<const NuclearModelI *> (this->SubAlg(nuclkey));
+  assert(fNuclModel);
+
+  fLFG = fNuclModel->ModelType(Target()) == kNucmLocalFermiGas;
+
+  // Always average over initial nucleons if the nuclear model is LFG
+  fDoAvgOverNucleonMomentum =
+    fLFG || fConfig->GetBoolDef("IntegralAverageOverNucleonMomentum", false);
+
+  fEnergyCutOff = 0.;
+
+  if(fDoAvgOverNucleonMomentum) {
+    // Get averaging cutoff energy
+    fEnergyCutOff = 
+      fConfig->GetDoubleDef("IntegralNuclearInfluenceCutoffEnergy", 2.0);
+  }
+
+  
 }
 //____________________________________________________________________________
 

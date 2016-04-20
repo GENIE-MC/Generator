@@ -18,7 +18,10 @@
    the ROOT Streamer. 
  @ Nov 28, 2011 - CA
    Now a nucleon-cluster ID is an accepted option for SetHitNucPdg().
-
+ @ Mar 18, 2016 - JJ (SD)
+   Added methods to store and retrieve the struck nucleon position. Position
+   is stored as a double, indicating the distance from the center of the
+   nucleus.
 */
 //____________________________________________________________________________
 
@@ -119,6 +122,7 @@ void Target::Init(void)
   fHitQrkPDG = 0;
   fHitSeaQrk = false;
   fHitNucP4  = new TLorentzVector(0,0,0,kNucleonMass);
+  fHitNucRad = 0.;
 }
 //___________________________________________________________________________
 void Target::CleanUp(void)
@@ -138,6 +142,7 @@ void Target::Copy(const Target & tgt)
      fHitQrkPDG = tgt.fHitQrkPDG; // struck quark PDG
      fHitSeaQrk = tgt.fHitSeaQrk; // struck quark is from sea?
      (*fHitNucP4) = (*tgt.fHitNucP4);
+     fHitNucRad = tgt.fHitNucRad;
 
      // look-up the nucleus in the isotopes chart
      this->ForceNucleusValidity(); 
@@ -207,6 +212,11 @@ void Target::ForceHitNucOnMassShell(void)
      double e = TMath::Sqrt(p*p+m*m);
      this->HitNucP4Ptr()->SetE(e);     
   }
+}
+//___________________________________________________________________________
+void Target::SetHitNucPosition(double r)
+{
+  fHitNucRad = r;
 }
 //___________________________________________________________________________
 double Target::Charge(void) const

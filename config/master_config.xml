@@ -148,6 +148,7 @@
    <!--  ****** CONFIGURATION FOR NUCLEAR ENV. ALGORITHMS ****** -->
    <config alg="genie::NuclearModelMap">             NuclearModelMap.xml             </config>
    <config alg="genie::FGMBodekRitchie">             FGMBodekRitchie.xml             </config>
+   <config alg="genie::LocalFGM">                    LocalFGM.xml                    </config>
    <config alg="genie::EffectiveSF">                 EffectiveSF.xml                 </config>
    <config alg="genie::SpectralFunc1d">              SpectralFunc1d.xml              </config>
    <config alg="genie::SpectralFunc">                SpectralFunc.xml                </config>

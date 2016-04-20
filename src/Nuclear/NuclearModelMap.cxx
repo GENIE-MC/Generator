@@ -1,4 +1,4 @@
-//____________________________________________________________________________
+ //____________________________________________________________________________
 /*
  Copyright (c) 2003-2016, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
@@ -10,6 +10,10 @@
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
+
+ @ Mar 18, 2016- Joe Johnston (SD)
+   Update GenerateNucleon() and Prob() to accept a radius as the argument,
+   and call the corresponding methods in the nuclear model with a radius.
 
 */
 //____________________________________________________________________________
@@ -53,12 +57,13 @@ NuclearModelMap::~NuclearModelMap()
 
 }
 //____________________________________________________________________________
-bool NuclearModelMap::GenerateNucleon(const Target & target) const
+bool NuclearModelMap::GenerateNucleon(const Target & target,
+				      double hitNucleonRadius) const
 {
   const NuclearModelI * nm = this->SelectModel(target);
   if(!nm) return false;
 
-  bool ok = nm->GenerateNucleon(target);
+  bool ok = nm->GenerateNucleon(target,hitNucleonRadius);
 
   fCurrRemovalEnergy = nm->RemovalEnergy();
   TVector3 p = nm->Momentum3();
@@ -68,12 +73,13 @@ bool NuclearModelMap::GenerateNucleon(const Target & target) const
   return ok;
 }
 //____________________________________________________________________________
-double NuclearModelMap::Prob(double p, double w, const Target & target) const
+double NuclearModelMap::Prob(double p, double w, const Target & target,
+			     double hitNucRadius) const
 {
   const NuclearModelI * nm = this->SelectModel(target);
   if(!nm) return 0;
 
-  return nm->Prob(p,w,target);
+  return nm->Prob(p,w,target,hitNucRadius);
 }
 //____________________________________________________________________________
 NuclearModel_t NuclearModelMap::ModelType(const Target & target) const
@@ -140,8 +146,6 @@ void NuclearModelMap::LoadConfig(void)
     }
   }
  
-  LOG("Nuclear", pDEBUG)
-    << "Finished LoadConfig";
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   for (map<int,const NuclearModelI*>::iterator it = fRefinedModels.begin(); 
       it != fRefinedModels.end(); ++it) {

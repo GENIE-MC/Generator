@@ -9,17 +9,9 @@ Configurable Parameters:
 .....................................................................................................
 Name                         Type     Optional   Comment                                      Default
 .....................................................................................................
-AverageOverNucleonMomentum   bool     No
-NuclearModel                 alg      Yes        needed if AverageOverNucleonMomentum=true
-NuclearInfluenceCutoffEnergy double   Yes        needed if AverageOverNucleonMomentum=true
 -->
 
   <param_set name="Default"> 
-    <param type="alg"    name="NuclearModel">                  genie::NuclearModelMap/Default        </param>
-
-    <param type="bool"   name = "AverageOverNucleonMomentum">     true   </param>
-    <param type="double" name = "NuclearInfluenceCutoffEnergy">    2.0   </param>     
-
     <param type="string" name = "gsl-integration-type">        adaptive  </param>
     <param type="int"    name = "gsl-max-eval">                   40000  </param>
     <param type="double" name = "gsl-relative-tolerance">         0.001  </param>

@@ -36,9 +36,19 @@ public:
   NuclearModelMap(string config);
   virtual ~NuclearModelMap();
 
-  //-- implement the NuclearModelI interface
-  bool           GenerateNucleon (const Target & t) const;
-  double         Prob            (double p, double w, const Target & t) const;
+  //-- Allow GenerateNucleon to be called with a radius  
+  bool           GenerateNucleon (const Target & t,
+                                  double hitNucleonRadius) const;
+  double         Prob            (double p, double w, const Target & t,
+                                  double hitNucleonRadius) const;
+
+  //-- implement the NuclearModelI interface             
+  bool GenerateNucleon (const Target & t) const {
+    return GenerateNucleon(t,0.0);
+  }
+  double Prob (double p, double w, const Target & t) const {
+    return Prob(p,w,t,0.0);
+  }
   NuclearModel_t ModelType       (const Target & t) const;
 
   //-- override the Algorithm::Configure methods to load configuration

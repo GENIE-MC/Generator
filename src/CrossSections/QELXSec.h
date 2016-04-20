@@ -45,12 +45,6 @@ private:
 
   void LoadConfig (void);
 
-  double IntegrateOnce(const XSecAlgorithmI * model, const Interaction * i) const;
-
-  const NuclearModelI *  fNuclModel;   ///< Nuclear model for extracting nucleon momenta
-  bool   fDoAvgOverNucleonMomentum;    ///< Average cross section over hit nucleon monentum?
-  double fEnergyCutOff;                ///< Average only for energies below this cutoff defining 
-                                       ///< the region where nuclear modeling details do matter
 };
 
 }       // genie namespace

@@ -11,13 +11,22 @@
 
  Important revisions after version 2.0.0 :
 
+ @ Mar 18, 2016- Joe Johnston (SD)
+   Added checks to see if the nuclear model is a LocalFGM object, 
+   and in that case use Local FG for Pauli blocking. Replaced LoadKFTable()
+   with LoadConfig(), to detect the nuclear model type and only load a Fermi
+   momentum table if the nuclear model is a relativistic Fermi gas.
+
 */
 //____________________________________________________________________________
 
 #include <TLorentzVector.h>
 #include <TVector3.h>
 
+#include "Algorithm/AlgFactory.h"
 #include "Algorithm/AlgConfigPool.h"
+#include "Conventions/Constants.h"
+#include "Conventions/Units.h"
 #include "EVGCore/EVGThreadException.h"
 #include "EVGModules/PauliBlocker.h"
 #include "GHEP/GHepRecord.h"
@@ -25,10 +34,18 @@
 #include "GHEP/GHepFlags.h"
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
+#include "Nuclear/NuclearModel.h"
+#include "Nuclear/NuclearModelI.h"
 #include "Nuclear/FermiMomentumTablePool.h"
 #include "Nuclear/FermiMomentumTable.h"
+#include "PDG/PDGLibrary.h" 
+#include "PDG/PDGUtils.h" 
+#include "PDG/PDGCodes.h"
+#include "Utils/NuclearUtils.h"
 
 using namespace genie;
+using namespace genie::constants;
+using namespace genie::units;
 
 //___________________________________________________________________________
 PauliBlocker::PauliBlocker() :
@@ -45,7 +62,7 @@ EventRecordVisitorI("genie::PauliBlocker",  config)
 //___________________________________________________________________________
 PauliBlocker::~PauliBlocker()
 {
-
+  
 }
 //___________________________________________________________________________
 void PauliBlocker::ProcessEventRecord(GHepRecord * evrec) const
@@ -54,10 +71,10 @@ void PauliBlocker::ProcessEventRecord(GHepRecord * evrec) const
   GHepParticle * nucltgt = evrec->TargetNucleus();
   if (!nucltgt) {
     LOG("PauliBlock", pINFO)
-           << "No nuclear target found - The Pauli Blocker exits";
+	    << "No nuclear target found - The Pauli Blocker exits";
     return;
   }
-
+  
   // Handle only QEL for now...
   Interaction * interaction = evrec->Summary();
   const ProcessInfo & proc = interaction->ProcInfo();
@@ -65,76 +82,100 @@ void PauliBlocker::ProcessEventRecord(GHepRecord * evrec) const
     LOG("PauliBlock", pINFO) << "Not a QEL event - The Pauli Blocker exits";  
     return;
   }
-
+  
   GHepParticle * hit = evrec->HitNucleon();
   assert(hit);
   GHepParticle * recoil = evrec->Particle(hit->FirstDaughter());
   assert(recoil);
-
+  
   int tgt_pdgc = nucltgt -> Pdg();
   int nuc_pdgc = recoil  -> Pdg();
-
+  
   // get the Fermi momentum
-  const double kf = fKFTable->FindClosestKF(tgt_pdgc, nuc_pdgc);
+  double kf;
+  if(fLFG){
+    int nucleon_pdgc = hit->Pdg();
+    assert(pdg::IsProton(nucleon_pdgc) || pdg::IsNeutron(nucleon_pdgc));
+    Target* tgt = interaction->InitStatePtr()->TgtPtr();
+    int A = tgt->A();
+    bool is_p = pdg::IsProton(nucleon_pdgc);
+    double numNuc = (is_p) ? (double)tgt->Z():(double)tgt->N();
+    double radius = hit->X4()->Vect().Mag();
+    double hbarc = kLightSpeed*kPlankConstant/fermi;
+    kf= TMath::Power(3*kPi2*numNuc*
+		     genie::utils::nuclear::Density(radius,A),1.0/3.0) *hbarc;
+  }else{
+    kf = fKFTable->FindClosestKF(tgt_pdgc, nuc_pdgc);
+  }
   LOG("PauliBlock", pINFO) << "KF = " << kf;
-
+  
   // get the recoil momentum
   double p = recoil->P4()->P(); // |p| for the recoil nucleon
   LOG("PauliBlock", pINFO) << "Recoil nucleon |P| = " << p;
-
-  // check for pauli blocking
+  
+   // check for pauli blocking
   bool is_blocked = (p < kf);
-
+  
   // if it is blocked, set & thow an exception
   if(is_blocked) {
-     LOG("PauliBlock", pNOTICE)
-        << " *** The generated event is Pauli-blocked ("
-        << "|p_{nucleon}| = " << p << " GeV < Fermi momentum = " << kf << " GeV) ***";
-
-     evrec->EventFlags()->SetBitNumber(kPauliBlock, true);
-     genie::exceptions::EVGThreadException exception;
-     exception.SetReason("Pauli-blocked event");
-
-     if(proc.IsQuasiElastic()) {
-        // nuclear suppression taken into account at the QEL cross
-        // section - should attempt to regenerate the event as QEL
-        exception.SwitchOnStepBack();
-        exception.SetReturnStep(0);
-     } else {
-        // end this event generation thread and start again at the 
-        // interaction selection step
-        // - this is irrelevant for the time being as we only handle QEL-
-        exception.SwitchOnFastForward();
-     }
-     throw exception;
+    LOG("PauliBlock", pNOTICE)
+      << " *** The generated event is Pauli-blocked ("
+      << "|p_{nucleon}| = " << p << " GeV < Fermi momentum = " << kf << " GeV) ***";
+    
+    evrec->EventFlags()->SetBitNumber(kPauliBlock, true);
+    genie::exceptions::EVGThreadException exception;
+    exception.SetReason("Pauli-blocked event");
+    
+    if(proc.IsQuasiElastic()) {
+      // nuclear suppression taken into account at the QEL cross
+      // section - should attempt to regenerate the event as QEL
+      exception.SwitchOnStepBack();
+      exception.SetReturnStep(0);
+    } else {
+      // end this event generation thread and start again at the 
+      // interaction selection step
+      // - this is irrelevant for the time being as we only handle QEL-
+      exception.SwitchOnFastForward();
+    }
+    throw exception;
   }
 }
 //___________________________________________________________________________
 void PauliBlocker::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
-  this->LoadKFTable();
+  this->LoadModelType();
 }
 //___________________________________________________________________________
 void PauliBlocker::Configure(string param_set)
 {
   Algorithm::Configure(param_set);
-  this->LoadKFTable();
+  this->LoadModelType();
 }
 //___________________________________________________________________________
-void PauliBlocker::LoadKFTable(void)
-{
+void PauliBlocker::LoadModelType(void){
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();
-
-  fKFTableName = fConfig->GetStringDef ("FermiMomentumTable",
-                                    gc->GetString("FermiMomentumTable"));
-  fKFTable = 0;
-
-  // get the Fermi momentum table
-  FermiMomentumTablePool * kftp = FermiMomentumTablePool::Instance();
-  fKFTable = kftp->GetTable(fKFTableName);
-  assert(fKFTable);
+  
+  // Create a nuclear model object to check the model type
+  RgKey nuclkey = "NuclearModel";
+  RgAlg nuclalg = gc->GetAlg(nuclkey);
+  AlgFactory * algf = AlgFactory::Instance();
+  const NuclearModelI* nuclModel = 
+    dynamic_cast<const NuclearModelI*>(
+			     algf->GetAlgorithm(nuclalg.name,nuclalg.config));
+  // Check if the model is a local Fermi gas
+  fLFG = (nuclModel && nuclModel->ModelType(Target()) == kNucmLocalFermiGas);
+  
+  if(!fLFG){
+    // get the Fermi momentum table for relativistic Fermi gas
+    fKFTableName = fConfig->GetStringDef ("FermiMomentumTable",
+					  gc->GetString("FermiMomentumTable"));
+    fKFTable = 0;
+    
+    FermiMomentumTablePool * kftp = FermiMomentumTablePool::Instance();
+    fKFTable = kftp->GetTable(fKFTableName);
+    assert(fKFTable);
+  }
 }
 //___________________________________________________________________________
-

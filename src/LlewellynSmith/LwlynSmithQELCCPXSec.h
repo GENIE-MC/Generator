@@ -25,6 +25,7 @@
 
 #include "Base/XSecAlgorithmI.h"
 #include "Base/QELFormFactors.h"
+#include "Nuclear/NuclearModelI.h"
 
 namespace genie {
 
@@ -55,6 +56,14 @@ private:
   const QELFormFactorsModelI * fFormFactorsModel; ///<
   const XSecIntegratorI *      fXSecIntegrator;   ///<
   double                       fCos8c2;           ///< cos^2(cabbibo angle)
+
+  // Variables for integrating
+  const NuclearModelI *        fNuclModel;
+  bool   fLFG;                         ///< If the nuclear model is lfg alway average over nucleons
+  bool   fDoAvgOverNucleonMomentum;    ///< Average cross section over hit nucleon monentum?
+  double fEnergyCutOff;                ///< Average only for energies below this cutoff defining 
+                                       ///< the region where nuclear modeling details do matter
+
 };
 
 }       // genie namespace

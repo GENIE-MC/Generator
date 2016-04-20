@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for the local Fermi gas model
+
+Configurable Parameters:
+.............................................................................................................
+Name               Type    Optional   Comment                      Default
+.............................................................................................................
+MomentumMax        double   Yes       max p in prob distribution                     1 GeV
+MomentumCutOff     double   Yes       momentum cut off value                         GPL RFG-Momentum-CutOff
+NucRemovalE@Pdg=?  int      Yes       nuclear removal energy for specfic nuclei      GPL RFG-NucRemovalE@Pdg=x
+-->
+
+  <param_set name="Default"> 
+  </param_set>
+
+</alg_conf>
+

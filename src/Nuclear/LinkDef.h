@@ -11,6 +11,7 @@
 #pragma link C++ class genie::SpectralFunc;
 #pragma link C++ class genie::SpectralFunc1d;
 #pragma link C++ class genie::FGMBodekRitchie;
+#pragma link C++ class genie::LocalFGM;
 #pragma link C++ class genie::NuclearModelMap;
 #pragma link C++ class genie::FermiMomentumTable;
 #pragma link C++ class genie::FermiMomentumTablePool;
