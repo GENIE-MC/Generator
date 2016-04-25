@@ -108,9 +108,9 @@ double genie::utils::intranuke2015::MeanFreePath(
  
   if(A<=20) { ring /= 2.; }
  
-  if      (is_pion    || is_kaon ) { ring *= nRpi;  }
+  if      (is_pion               ) { ring *= nRpi;  }
   else if (is_nucleon            ) { ring *= nRnuc; }
-  else if (is_gamma              ) { ring = 0.;     }
+  else if (is_gamma || is_kaon || useOset) { ring = 0.;     }
 
   // get the nuclear density at the current position
   double rnow = x4.Vect().Mag(); 
@@ -129,6 +129,8 @@ double genie::utils::intranuke2015::MeanFreePath(
   double ppcnt = (double) Z/ (double) A; // % of protons remaining
   INukeHadroData2015 * fHadroData2015 = INukeHadroData2015::Instance();
 
+  //  LOG ("INukeUtils",pWARN)
+  //   << "top of sigtot section";
   if (is_pion and useOset and ke < 350.0)
     sigtot = sigmaTotalOset (ke, rho, pdgc, ppcnt, altOset);
   else if (pdgc == kPdgPiP)
@@ -148,7 +150,7 @@ double genie::utils::intranuke2015::MeanFreePath(
       sigtot+= fHadroData2015 -> XSecNn_Tot()   -> Evaluate(ke)*(1-ppcnt);}
   else if (pdgc == kPdgKP)
     { sigtot = fHadroData2015 -> XSecKpN_Tot()  -> Evaluate(ke);
-      sigtot*=1.2;}
+      sigtot*=1.1;}
   else if (pdgc == kPdgGamma)
     { sigtot = fHadroData2015 -> XSecGamp_fs()  -> Evaluate(ke)*ppcnt;
       sigtot+= fHadroData2015 -> XSecGamn_fs()  -> Evaluate(ke)*(1-ppcnt);}
