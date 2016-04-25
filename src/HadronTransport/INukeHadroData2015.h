@@ -96,8 +96,9 @@ public:
   const Spline * XSecNn_Elas      (void) const { return fXSecNn_Elas;      } 
   const Spline * XSecNn_Reac      (void) const { return fXSecNn_Reac;      }
   const Spline * XSecKpn_Elas     (void) const { return fXSecKpn_Elas;     }
+  const Spline * XSecKpn_CEx      (void) const { return fXSecKpn_CEx;      }
   const Spline * XSecKpp_Elas     (void) const { return fXSecKpp_Elas;     }
-  const Spline * XSecKpN_Abs      (void) const { return fXSecKpN_Abs;      }
+  const Spline * XSecKpN_Abs      (void) const { return fXSecKpN_Abs;      } //not implemented
   const Spline * XSecKpN_Tot      (void) const { return fXSecKpN_Tot;      }
   const Spline * XSecGamp_fs      (void) const { return fXSecGamp_fs;      }  
   const Spline * XSecGamn_fs      (void) const { return fXSecGamn_fs;      }
@@ -120,6 +121,7 @@ public:
   const Spline * FracKA_Tot       (void) const { return fFracKA_Tot;       }
   const Spline * FracKA_Elas      (void) const { return fFracKA_Elas;      }
   const Spline * FracKA_Inel      (void) const { return fFracKA_Inel;      }
+  const Spline * FracKA_CEx       (void) const { return fFracKA_CEx;       }
   const Spline * FracKA_Abs       (void) const { return fFracKA_Abs;       }
 
 
@@ -183,6 +185,7 @@ private:
   Spline * fXSecNn_Reac;       ///<
   Spline * fXSecKpn_Elas;      ///< K+N x-section splines
   Spline * fXSecKpp_Elas;      ///<
+  Spline * fXSecKpn_CEx;       ///<
   Spline * fXSecKpN_Abs;        ///<
   Spline * fXSecKpN_Tot;       ///<
   Spline * fFracPA_Tot;        ///< N+A x-section splines
@@ -199,6 +202,7 @@ private:
   Spline * fFracNA_PiPro;       ///<
   Spline * fFracKA_Tot;        ///< K+A x-section splines
   Spline * fFracKA_Elas;       ///<
+  Spline * fFracKA_CEx;        ///<
   Spline * fFracKA_Inel;       ///<
   Spline * fFracKA_Abs;        ///<
   Spline * fXSecGamp_fs;       ///< gamma A x-section splines
@@ -219,6 +223,8 @@ private:
   BLI2DNonUnifGrid * fhN2dXSecPimN_Elas;
   BLI2DNonUnifGrid * fhN2dXSecKpN_Elas;
   BLI2DNonUnifGrid * fhN2dXSecKpP_Elas;
+  BLI2DNonUnifGrid * fhN2dXSecKpN_CEx;
+  BLI2DNonUnifGrid * fhN2dXSecKpN_Abs;
   BLI2DNonUnifGrid * fhN2dXSecPiN_CEx;
   BLI2DNonUnifGrid * fhN2dXSecPiN_Abs;
   BLI2DNonUnifGrid * fhN2dXSecGamPi0P_Inelas;
