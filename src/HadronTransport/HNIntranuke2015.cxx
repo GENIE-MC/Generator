@@ -33,10 +33,14 @@
    produced by reactions are stepped through the nucleus like probe particles.
    Particles react with nucleons instead of the entire nucleus, and final states
    are determined after reactions are finished, not before.
- @ Dec 15, 2014 - SD, NG 
+ @ Dec 15, 2014 - SD, Nick Geary 
    Update fates to include Compound Nucleus final state correctly.
- @ Jan 9, 2015 - SD, NG, TG
+ @ Jan 9, 2015 - SD, NG, Tomek Golan
    Added 2014 version of INTRANUKE codes (new class) for independent development.
+ @ Oct, 2015 - TG
+   Added 2015 version of INTRANUKE codes (new class) for independent development.  Include Oset model for medium corrections to piA for Tpi<350 MeV.
+ @ May, 2015 Flor Blaszczyk
+   K+ are now handled.
 */
 //____________________________________________________________________________
 
@@ -132,7 +136,7 @@ void HNIntranuke2015::SimulateHadronicFinalState(GHepRecord* ev, GHepParticle* p
   bool is_kaon    = (pdgc==kPdgKP);
   bool is_baryon  = (pdgc==kPdgProton || pdgc==kPdgNeutron);
   bool is_gamma   = (pdgc==kPdgGamma);										
-  if(!(is_pion || is_baryon  || is_gamma))
+  if(!(is_pion || is_baryon  || is_gamma || is_kaon))
     {
       LOG("HNIntranuke2015", pERROR) << "** Cannot handle particle: " << p->Name();
       return;
@@ -299,14 +303,51 @@ INukeFateHN_t HNIntranuke2015::HadronFateHN(const GHepParticle * p) const
 
     // handle gamma -- does not currently consider the elastic case 
     else if (pdgc==kPdgGamma)  return kIHNFtInelas;
-    
-    // handle kaon -- currently only elastic case 
-    else if (pdgc==kPdgKP)  return kIHNFtElas;
-    
+    // Handle kaon -- elastic + charge exchange
+    else if (pdgc==kPdgKP){
+       double frac_cex      = this->FateWeight(pdgc, kIHNFtCEx)
+	                            * fHadroData2015->Frac(pdgc, kIHNFtCEx,     ke, fRemnA, fRemnZ);
+       double frac_elas     = this->FateWeight(pdgc, kIHNFtElas)
+	                            * fHadroData2015->Frac(pdgc, kIHNFtElas,    ke, fRemnA, fRemnZ);
+
+       //       frac_cex     *= fNucCEXFac;    // scaling factors
+       //       frac_elas    *= fNucQEFac;   // Flor - Correct scaling factors?
+
+       LOG("HNIntranuke", pINFO) 
+          << "\n frac{" << INukeHadroFates::AsString(kIHNFtCEx)     << "} = " << frac_cex
+          << "\n frac{" << INukeHadroFates::AsString(kIHNFtElas)    << "} = " << frac_elas;
+
+       // compute total fraction (can be <1 if fates have been switched off)
+       double tf = frac_cex      +
+                   frac_elas;
+
+       double r = tf * rnd->RndFsi().Rndm();
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+       LOG("HNIntranuke", pDEBUG) << "r = " << r << " (max = " << tf << ")";
+#endif
+
+       double cf=0; // current fraction
+
+       if(r < (cf += frac_cex     )) return kIHNFtCEx;    //cex
+       if(r < (cf += frac_elas    )) return kIHNFtElas;   //elas  
+
+       LOG("HNIntranuke", pWARN) 
+         << "No selection after going through all fates! " 
+                     << "Total fraction = " << tf << " (r = " << r << ")";
+       ////////////////////////////
+       return kIHNFtUndefined;
+    }//End K+
+
+    /*else if (pdgc==kPdgKM){
+
+       return kIHNFtElas;
+    }//End K-*/
+
   }//iterations
 
   return kIHNFtUndefined;
 }
+
 //___________________________________________________________________________
 double HNIntranuke2015::FateWeight(int pdgc, INukeFateHN_t fate) const
 {
@@ -325,6 +366,7 @@ double HNIntranuke2015::FateWeight(int pdgc, INukeFateHN_t fate) const
     {
       if (fate == kIHNFtCEx && pdgc==kPdgPiP ) { return (nn>=1) ? 1. : 0.; }
       if (fate == kIHNFtCEx && pdgc==kPdgPiM ) { return (np>=1) ? 1. : 0.; }
+      if (fate == kIHNFtCEx && pdgc==kPdgKP  ) { return (nn>=1) ? 1. : 0.; } //Added, changed np to nn
       if (fate == kIHNFtAbs)      { return ((nn>=1) && (np>=1)) ? 1. : 0.; }
     }
 
@@ -631,6 +673,7 @@ void HNIntranuke2015::ElasHN(
     {
       if(pcode==kPdgPiP)      {tcode = kPdgNeutron; scode = kPdgPi0; s2code = kPdgProton;}
       else if(pcode==kPdgPiM) {tcode = kPdgProton;  scode = kPdgPi0; s2code = kPdgNeutron;}
+      else if(pcode==kPdgKP)  {tcode = kPdgNeutron; scode = kPdgK0; s2code = kPdgProton;}
       else
 	{
 	  // for pi0
@@ -690,9 +733,9 @@ void HNIntranuke2015::ElasHN(
 
   if (pass==true)
   {
-    //  give each of the particles a free step
-    utils::intranuke2015::StepParticle(p,fFreeStep,fTrackingRadius);
-    utils::intranuke2015::StepParticle(t,fFreeStep,fTrackingRadius);
+    //  give each of the particles a free step (remove Apr, 2016 - not needed)
+    //    utils::intranuke2015::StepParticle(p,fFreeStep,fTrackingRadius);
+    //    utils::intranuke2015::StepParticle(t,fFreeStep,fTrackingRadius);
     ev->AddParticle(*p);
     ev->AddParticle(*t);
   } else
