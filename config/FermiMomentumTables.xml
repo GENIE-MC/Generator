@@ -7,6 +7,8 @@
 <fermi_momentum_const>
 
   <kf_table name="Default">
+     <!-- H2    --> <kf nucleus_pdgc="1000010020"> <p> 0.055 </p> <n> 0.055 </n> </kf> <!-- From Eric Christy -->
+     <!-- He4   --> <kf nucleus_pdgc="1000020040"> <p> 0.115 </p> <n> 0.115 </n> </kf> <!-- Added -->
      <!-- Li6   --> <kf nucleus_pdgc="1000030060"> <p> 0.169 </p> <n> 0.169 </n> </kf> 
      <!-- C12   --> <kf nucleus_pdgc="1000060120"> <p> 0.221 </p> <n> 0.221 </n> </kf> 
      <!-- O16   --> <kf nucleus_pdgc="1000080160"> <p> 0.225 </p> <n> 0.225 </n> </kf> 
