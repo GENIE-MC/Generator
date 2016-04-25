@@ -25,8 +25,13 @@
    similar to IntBounce, but also determines the target nucleon.
  @ May 01, 2012 - CA
    Pick data from $GENIE/data/evgen/intranuke/
- @ Jan 9, 2015 - SD, NG, TG
+ @ Jan 9, 2015 - SD, Nick Geary, Tomek Golan
    Added 2014 version of INTRANUKE codes for independent development.
+ @ Oct, 2015 - TG
+   Added 2015 version of INTRANUKE codes for independent development.
+   Include Oset data files.
+ @ Apr, 2016 - Flor Blasczyk
+   Added K+ cex data files
 */
 //____________________________________________________________________________
 
@@ -92,7 +97,7 @@ INukeHadroData2015::~INukeHadroData2015()
   delete fXSecPi0p_Reac;
   delete fXSecPi0d_Abs;
 
-  // K+N x-section splines (elastic only)
+  // K+N x-section splines
   delete fXSecKpn_Elas;
   delete fXSecKpp_Elas;
   delete fXSecKpN_Abs;
@@ -199,7 +204,7 @@ void INukeHadroData2015::LoadCrossSections(void)
   data_gamN.ReadFile(datafile_gamN.c_str(),
     "ke/D:pi0p_tot/D:pipn_tot/D:pimp_tot/D:pi0n_tot/D:gamp_fs/D:gamn_fs/D:gamN_tot/D");
   data_kN.ReadFile(datafile_kN.c_str(),
-		   "ke/D:kpn_elas/D:kpp_elas/D:kp_abs/D:kpN_tot/D");  //????
+		   "ke/D:kpp_elas/D:kpn_elas/D:kpn_cex/D:kp_abs/D:kpN_tot/D");
   data_KA.ReadFile(datafile_KA.c_str(),
      "ke/D:KA_tot/D:KA_elas/D:KA_inel/D:KA_abs/D");
 
@@ -251,7 +256,8 @@ void INukeHadroData2015::LoadCrossSections(void)
    // K+N x-section splines  
   fXSecKpn_Elas   = new Spline(&data_kN,  "ke:kpn_elas");
   fXSecKpp_Elas   = new Spline(&data_kN,  "ke:kpp_elas");
-  fXSecKpN_Abs    = new Spline(&data_kN,  "ke:kp_abs");
+  fXSecKpn_CEx    = new Spline(&data_kN,  "ke:kpn_cex");
+  //  fXSecKpN_Abs    = new Spline(&data_kN,  "ke:kp_abs");  why not used?
   fXSecKpN_Tot    = new Spline(&data_kN,  "ke:kpN_tot");
 
   // gamma x-section splines  
@@ -276,6 +282,7 @@ void INukeHadroData2015::LoadCrossSections(void)
   // K+A x-section fraction splines
   fFracKA_Tot      = new Spline(&data_KA, "ke:KA_tot");
   fFracKA_Elas     = new Spline(&data_KA, "ke:KA_elas");
+  //fFracKA_CEx      = new Spline(&data_KA, "ke:KA_cex"); //Added, but needs to be computed
   fFracKA_Inel     = new Spline(&data_KA, "ke:KA_inel");   
   fFracKA_Abs      = new Spline(&data_KA, "ke:KA_abs");
   //
@@ -502,6 +509,43 @@ void INukeHadroData2015::LoadCrossSections(void)
     fhN2dXSecKpN_Elas = new BLI2DNonUnifGrid(hN_kpNelas_nfiles,hN_kpNelas_points_per_file,
 			   hN_kpNelas_energies,hN_kpNelas_costh,hN_kpNelas_xsec); 
   }
+  // kIHNFtCEx, kpn :
+  {
+    const int hN_kpNcex_nfiles = 18;
+    const int hN_kpNcex_points_per_file = 37;
+    const int hN_kpNcex_npoints = hN_kpNcex_points_per_file * hN_kpNcex_nfiles;
+
+    double hN_kpNcex_energies[hN_kpNcex_nfiles] = {  
+     100, 200, 300, 400, 500, 600, 700, 800, 900, 1000,
+     1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800
+    };
+
+    double hN_kpNcex_costh [hN_kpNcex_points_per_file];
+    double hN_kpNcex_xsec  [hN_kpNcex_npoints];
+
+    int ipoint=0;
+
+    for(int ifile = 0; ifile < hN_kpNcex_nfiles; ifile++) {
+     // build filename
+     ostringstream hN_datafile;
+     double ke = hN_kpNcex_energies[ifile];
+     hN_datafile << data_dir << "/diff_ang/kpncex/kpcex" << ke << ".txt";
+     // read data
+     ReadhNFile(
+       hN_datafile.str(), ke, hN_kpNcex_points_per_file, 
+       ipoint, hN_kpNcex_costh, hN_kpNcex_xsec,2);                
+    }//loop over files
+
+    /*double hN_kpNcex_costh_cond [hN_kpNcex_points_per_file];
+    for (int ient = 0; ient < hN_kpNcex_points_per_file; ient++) {
+      hN_kpNcex_costh_cond[ient] = hN_kpNcex_costh[ient];
+      }*/
+
+    fhN2dXSecKpN_CEx = new BLI2DNonUnifGrid(hN_kpNcex_nfiles,hN_kpNcex_points_per_file,
+			   hN_kpNcex_energies,hN_kpNcex_costh,hN_kpNcex_xsec); 
+  }
+//----------------------------------------------------------------------------------------
+  
   
   // kIHNFtElas, kpp :
   {
@@ -1205,6 +1249,11 @@ double INukeHadroData2015::XSec(
 	ke_eval = TMath::Max(ke_eval,  50.);
 	return fhN2dXSecNP_Elas->Evaluate(ke_eval, costh_eval);
       }
+    else if(hpdgc == kPdgKP && tgtpdgc == kPdgNeutron) {
+    	ke_eval = TMath::Min(ke_eval, 1799.);
+    	ke_eval = TMath::Max(ke_eval,  100.);
+    	return fhN2dXSecKpN_CEx->Evaluate(ke_eval, costh_eval);    
+    }
   }
 
   else if(fate == kIHNFtAbs) {
@@ -1347,6 +1396,7 @@ double INukeHadroData2015::FracAIndep(int hpdgc, INukeFateHA_t fate, double ke) 
   if (fate == kIHAFtInelas ) return TMath::Max(0., fFracKA_Inel    -> Evaluate (ke));
   else if (fate == kIHAFtAbs    ) return TMath::Max(0., fFracKA_Abs     -> Evaluate (ke));
   //  else if (fate == kIHAFtElas   ) return TMath::Max(0., fFracKA_Elas    -> Evaluate (ke));
+  //else if (fate == kIHAFtCEx  ) return TMath::Max(0., fFracKA_CEx -> Evaluate(ke));  //why is this not used?
   else {
     LOG("INukeData", pWARN) 
       << "K+'s don't have this fate: " << INukeHadroFates::AsString(fate);
@@ -1454,6 +1504,33 @@ double INukeHadroData2015::XSec(int hpdgc, INukeFateHN_t fate, double ke, int ta
         << "Neutrons don't have this fate: " << INukeHadroFates::AsString(fate);
      return 0;
     }
+    //Adding here kaons, why elastic only on protons? hA or hN? No _Reac for kaons...
+    } else if (hpdgc == kPdgKP) {
+    /* handle K+ */
+    	if (fate == kIHNFtCEx   ) {xsec = TMath::Max(0., fXSecKpn_CEx  -> Evaluate(ke)) *  targZ;
+	                            xsec+= TMath::Max(0., fXSecKpn_CEx  -> Evaluate(ke)) * (targA-targZ);
+				    return xsec;}
+    	else if (fate == kIHNFtElas  ) {xsec = TMath::Max(0., fXSecKpn_Elas -> Evaluate(ke)) *  targZ;
+	                            xsec+= TMath::Max(0., fXSecKpn_Elas -> Evaluate(ke)) * (targA-targZ);
+				    return xsec;}
+    	/*else if (fate == kIHNFtAbs   ) {xsec = TMath::Max(0., fXSecKpd_Abs  -> Evaluate(ke)) *  targA;
+				    return xsec;}*/
+    	else {
+    		LOG("INukeData", pWARN) 
+        	<< "K+'s don't have this fate: " << INukeHadroFates::AsString(fate);
+     	return 0;
+    }
+    //------------------------------------------------
+	 /*   }  else if (hpdgc == kPdgGamma) {  
+    / * handle gamma * /
+         if (fate == kIHNFtInelas) {xsec = TMath::Max(0., fXSecGamp_fs   -> Evaluate(ke)) *  targZ;
+	                            xsec+= TMath::Max(0., fXSecGamn_fs   -> Evaluate(ke)) * (targA-targZ);
+				    return xsec;}
+    else {
+     LOG("INukeData", pWARN)
+        << "Gamma's don't have this fate: " << INukeHadroFates::AsString(fate);
+     return 0;
+     }*/
    }
   LOG("INukeData", pWARN) 
       << "Can't handle particles with pdg code = " << hpdgc;
