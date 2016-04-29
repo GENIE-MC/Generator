@@ -12,10 +12,14 @@ Name             Type     Optional   Comment                 Default
 -->
 
   <param_set name="Default"> 
+    <!--  it is safe to use adaptive and a tolerance of 0.01 for RS or BS, but BSFM requires vegas, etc.
     <param type="string" name ="gsl-integration-type">    adaptive  </param>
+    <param type="double" name ="gsl-relative-tolerance"  >    0.01  </param>
+    -->
+    <param type="string" name ="gsl-integration-type">       vegas  </param>
     <param type="int"    name ="gsl-max-eval" >             500000  </param>
     <param type="int"    name ="gsl-min-eval" >              10000  </param>
-    <param type="double" name ="gsl-relative-tolerance"  >    0.01  </param>
+    <param type="double" name ="gsl-relative-tolerance"  >   0.001  </param>
     
   </param_set>
 
