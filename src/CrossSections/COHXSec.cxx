@@ -187,9 +187,5 @@ void COHXSec::LoadConfig(void)
   //-- COH model bounds of integration for Q^2
   fQ2Min = fConfig->GetDoubleDef("COH-Q2-min", gc->GetDouble("COH-Q2-min"));
   fQ2Max = fConfig->GetDoubleDef("COH-Q2-max", gc->GetDouble("COH-Q2-max"));
-  //-- nu_min scaling from Paschos, Schalla PRD 80 033005
-  fPaschosSchallaXi = 
-    fConfig->GetDoubleDef("COH-PaschosSchallaXi",
-                          gc->GetDouble("COH-PaschosSchallaXi"));
 }
 //____________________________________________________________________________

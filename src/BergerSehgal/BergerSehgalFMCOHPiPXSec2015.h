@@ -3,12 +3,9 @@
 
   \class    genie::BergerSehgalFMCOHPiPXSec2015
 
-  \brief    Computes the double differential cross section for CC & NC coherent
+  \brief    Computes the triple differential cross section for CC & NC coherent
   pion production according to the \b Berger-Sehgal model.
   v(vbar)A->v(vbar)Api0, vA->l-Api+, vbarA->l+Api-
-
-  The t-dependence of the triple differential cross (d^3xsec/dxdydt)
-  is integrated out.
 
   Is a concrete implementation of the XSecAlgorithmI interface.
 
