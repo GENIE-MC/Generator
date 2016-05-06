@@ -189,11 +189,11 @@ STFC, Rutherford Appleton Laboratory
   coherent pion reactions. (E * y = nu) Dimensionless units. Set this to a value below zero 
   to use simple lepton kinematics to set the nu (y) bounds instead.
   -->
-  <param type="double" name="COH-PaschosSchallaXi"> 0.000 </param>
+  <param type="double" name="COH-PaschosSchallaXi"> -1.000 </param>
 
  <!--
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Maximum considered Q^2 for Berger-Sehgal coherent reactions when estimating the max cross section. 
+  Minimum considered Q^2 for Berger-Sehgal coherent reactions when estimating the max cross section. 
   Units in GeV^2.
   -->
   <param type="double" name="COH-Q2-min"> 0.000 </param>
