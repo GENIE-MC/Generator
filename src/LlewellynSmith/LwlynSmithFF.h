@@ -16,6 +16,9 @@
 
 \created  May 03, 2004
 
+
+\update   AM - Changed axial form factor calculation to an algorithm with a
+          configurable model
 \cpright  Copyright (c) 2003-2016, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
@@ -27,10 +30,12 @@
 
 #include "Base/QELFormFactorsModelI.h"
 #include "ElFF/ELFormFactors.h"
+#include "LlewellynSmith/AxialFormFactor.h"
 
 namespace genie {
 
 class ELFormFactorsModelI;
+class AxialFormFactorModelI;
 
 class LwlynSmithFF : public QELFormFactorsModelI {
 
@@ -70,13 +75,12 @@ protected:
   virtual double StrangexiF2V (const Interaction * interaction) const;
   virtual double StrangeFA    (const Interaction * interaction) const;
   
-  const ELFormFactorsModelI * fElFFModel;
+  const ELFormFactorsModelI   * fElFFModel;
+  const AxialFormFactorModelI * fAxFFModel;
 
-  mutable ELFormFactors fELFF;
+  mutable ELFormFactors   fELFF;
+  mutable AxialFormFactor fAxFF;
 
-  double fMa;  ///< axial mass
-  double fMa2;
-  double fFA0; ///< Fa(q2=0)
   double fMuP;
   double fMuN;
   double fSin28w;

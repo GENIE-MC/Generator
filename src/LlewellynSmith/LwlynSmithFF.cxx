@@ -12,6 +12,8 @@
  Important revisions after version 2.0.0 :
  @ Sep 19, 2009 - CA
    Renamed LlewellynSmithModel -> LwlynSmithFF
+ @ Aug 27, 2013 - AM
+   Implemented Axial Form Factor Model structure
 
 */
 //____________________________________________________________________________
@@ -25,6 +27,8 @@
 #include "ElFF/TransverseEnhancementFFModel.h"
 #include "Conventions/Constants.h"
 #include "LlewellynSmith/LwlynSmithFF.h"
+#include "LlewellynSmith/AxialFormFactor.h"
+#include "LlewellynSmith/AxialFormFactorModelI.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGLibrary.h"
 #include "PDG/PDGCodes.h"
@@ -165,14 +169,10 @@ double LwlynSmithFF::xiF2V(const Interaction * interaction) const
 //____________________________________________________________________________
 double LwlynSmithFF::FA(const Interaction * interaction) const
 {
-  // get scattering parameters
-  const Kinematics & kine = interaction->Kine();
-  double q2 = kine.q2();
+  //-- compute FA(q2) 
 
-  // calculate FA(q2)
-  double dn = TMath::Power(1.-q2/fMa2, 2);
-  double FA = fFA0/dn;
-  return FA;
+  fAxFF.Calculate(interaction);
+  return fAxFF.FA();
 }
 //____________________________________________________________________________
 double LwlynSmithFF::Fp(const Interaction * interaction) const
@@ -238,11 +238,13 @@ void LwlynSmithFF::LoadConfig(void)
 
   fELFF.SetModel(fElFFModel);  
 
-  // axial mass and Fa(q2=0)
-  fMa  = fConfig->GetDoubleDef("Ma",  gc->GetDouble("QEL-Ma"));  // Axial mass
-  fFA0 = fConfig->GetDoubleDef("FA0", gc->GetDouble("QEL-FA0")); // FA(q2=0)
+  RgAlg ax_form_factor_model = fConfig->GetAlgDef(
+                 "AxialFormFactorModel"   , gc->GetAlg("AxialFormFactorModel"   ));
 
-  fMa2 = TMath::Power(fMa,2);
+  fAxFFModel =  dynamic_cast<const AxialFormFactorModelI *> (
+                                          this->SubAlg("AxialFormFactorModel"   ));
+  assert(fAxFFModel);
+  fAxFF.SetModel(fAxFFModel);
 
   // anomalous magnetic moments
   fMuP = fConfig->GetDoubleDef("MuP", gc->GetDouble("AnomMagnMoment-P"));
