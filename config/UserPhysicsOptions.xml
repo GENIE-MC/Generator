@@ -171,6 +171,20 @@ STFC, Rutherford Appleton Laboratory
   -->
   <param type="double" name="QEL-FA0"> -1.2670 </param>
 
+<!-- 
+   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   Value of Z-expansion parameters for QEL axial form factor  
+   - Normalization of expansion controlled by QEL-FA0
+   -->
+  <param type="bool"   name="QEL-Q4limit"> true   </param>
+  <param type="int"    name="QEL-Kmax">    4      </param>
+  <param type="double" name="QEL-T0">     -0.28   </param>
+  <param type="double" name="QEL-Tcut">    0.1764 </param> <!-- 9*m_pi^2 -->
+  <param type="double" name="QEL-Z_A1">    2.30   </param>
+  <param type="double" name="QEL-Z_A2">   -0.6    </param>
+  <param type="double" name="QEL-Z_A3">   -3.8    </param>
+  <param type="double" name="QEL-Z_A4">    2.3    </param>
+
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Parameter eta controlling the strange axial form factor 
@@ -843,6 +857,16 @@ STFC, Rutherford Appleton Laboratory
   - genie::BBA05ELFormFactorsModel, R.Bradford, A.Bodek, H.Budd and J.Arrington, hep-ex/0602017
   -->
   <param type="alg" name="ElasticFormFactorsModel"> genie::BBA05ELFormFactorsModel/Default </param>
+
+<!-- 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Axial form factors used for QEL CC cross section calculation.
+  Options are:
+  - genie::DipoleAxialFormFactorModel
+  - genie::ZExpAxialFormFactorModel, Bhattacharya, Paz, and Hill, Phys.Rev. D84 (2011) 073006 
+  -->
+  <param type="alg" name="AxialFormFactorModel"> genie::DipoleAxialFormFactorModel/Default </param>
+
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

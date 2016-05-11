@@ -91,6 +91,8 @@
    <config alg="genie::DipoleELFormFactorsModel">    DipoleELFormFactorsModel.xml    </config>
    <config alg="genie::BBA03ELFormFactorsModel">     BBA03ELFormFactorsModel.xml     </config>
    <config alg="genie::BBA05ELFormFactorsModel">     BBA05ELFormFactorsModel.xml     </config>
+   <config alg="genie::DipoleAxialFormFactorModel">  DipoleAxialFormFactorModel.xml  </config>
+   <config alg="genie::ZExpAxialFormFactorModel">    ZExpAxialFormFactorModel.xml    </config>
    <config alg="genie::LwlynSmithFFCC">              LwlynSmithFFCC.xml              </config>
    <config alg="genie::TransverseEnhancementFFModel"> TransverseEnhancementFFModel.xml </config>
    <config alg="genie::LwlynSmithFFNC">              LwlynSmithFFNC.xml              </config>

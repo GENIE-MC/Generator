@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration sets for the z-expansion axial form factor model.
+
+Algorithm Configurable Parameters:
+.........................................................................................
+Name        Type    Optional   Comment                    Default
+.........................................................................................
+QEL-T0      double  Yes        z convergence parameter    GPL value: QEL-Z_A0
+QEL-Z_A1    double  Yes        z expansion coefficient    GPL value: QEL-Z_A1
+QEL-Z_A2    double  Yes        z expansion coefficient    GPL value: QEL-Z_A2
+QEL-Z_A3    double  Yes        z expansion coefficient    GPL value: QEL-Z_A3
+QEL-Z_A4    double  Yes        z expansion coefficient    GPL value: QEL-Z_A4
+QEL-Z_A5    double  Yes        z expansion coefficient    GPL value: QEL-Z_A5
+QEL-Z_A6    double  Yes        z expansion coefficient    GPL value: QEL-Z_A6
+QEL-Z_A7    double  Yes        z expansion coefficient    GPL value: QEL-Z_A7
+QEL-Z_A8    double  Yes        z expansion coefficient    GPL value: QEL-Z_A8
+QEL-Z_A9    double  Yes        z expansion coefficient    GPL value: QEL-Z_A9
+QEL-Z_A10   double  Yes        z expansion coefficient    GPL value: QEL-Z_A10
+QEL-Kmax    int     Yes        max summation index        GPL value: QEL-Kmax
+QEL-Q4limit bool    Yes        1/Q^4 limit conditions     GPL value: QEL-Q4limit
+
+-->
+
+  <param_set name="Default"> 
+  </param_set>
+
+</alg_conf>
+
