@@ -50,6 +50,12 @@ typedef enum EGSyst {
   kXSecTwkDial_NormCCQEenu,       ///< tweak CCQE normalization (maintains dependence on neutrino energy)
   kXSecTwkDial_MaCCQEshape,       ///< tweak Ma CCQE, affects dsigma(CCQE)/dQ2 in shape only (normalized to constant integral)
   kXSecTwkDial_MaCCQE,            ///< tweak Ma CCQE, affects dsigma(CCQE)/dQ2 both in shape and normalization
+  kXSecTwkDial_ZNormCCQE,         ///< tweak Z-expansion CCQE normalization (energy independent)
+  kXSecTwkDial_ZExpA1CCQE,        ///< tweak Z-expansion coefficient 1, affects dsigma(CCQE)/dQ2 both in shape and normalization
+  kXSecTwkDial_ZExpA2CCQE,        ///< tweak Z-expansion coefficient 2, affects dsigma(CCQE)/dQ2 both in shape and normalization
+  kXSecTwkDial_ZExpA3CCQE,        ///< tweak Z-expansion coefficient 3, affects dsigma(CCQE)/dQ2 both in shape and normalization
+  kXSecTwkDial_ZExpA4CCQE,        ///< tweak Z-expansion coefficient 4, affects dsigma(CCQE)/dQ2 both in shape and normalization
+  kXSecTwkDial_AxFFCCQEshape,     ///< tweak axial nucleon form factors (dipole -> z-expansion) - shape only effect of dsigma(CCQE)/dQ2
   kXSecTwkDial_VecFFCCQEshape,    ///< tweak elastic nucleon form factors (BBA/default -> dipole) - shape only effect of dsigma(CCQE)/dQ2
   // Resonance neutrino-production tweaking parameters:
   kXSecTwkDial_NormCCRES,         ///< tweak CCRES normalization
@@ -170,6 +176,12 @@ public:
      case ( kXSecTwkDial_NormCCQEenu      ) : return "NormCCQEenu";          break;
      case ( kXSecTwkDial_MaCCQE           ) : return "MaCCQE";               break;
      case ( kXSecTwkDial_MaCCQEshape      ) : return "MaCCQEshape";          break;
+     case ( kXSecTwkDial_ZNormCCQE        ) : return "ZNormCCQE";            break;
+     case ( kXSecTwkDial_ZExpA1CCQE       ) : return "ZExpA1CCQE";           break;
+     case ( kXSecTwkDial_ZExpA2CCQE       ) : return "ZExpA2CCQE";           break;
+     case ( kXSecTwkDial_ZExpA3CCQE       ) : return "ZExpA3CCQE";           break;
+     case ( kXSecTwkDial_ZExpA4CCQE       ) : return "ZExpA4CCQE";           break;
+     case ( kXSecTwkDial_AxFFCCQEshape    ) : return "AxFFCCQEshape";        break;
      case ( kXSecTwkDial_VecFFCCQEshape   ) : return "VecFFCCQEshape";       break;
      case ( kXSecTwkDial_NormCCRES        ) : return "NormCCRES";            break;
      case ( kXSecTwkDial_MaCCRESshape     ) : return "MaCCRESshape";         break;
@@ -247,6 +259,12 @@ public:
        kXSecTwkDial_NormCCQEenu,   
        kXSecTwkDial_MaCCQE,        
        kXSecTwkDial_MaCCQEshape,   
+       kXSecTwkDial_ZNormCCQE,   
+       kXSecTwkDial_ZExpA1CCQE,        
+       kXSecTwkDial_ZExpA2CCQE,        
+       kXSecTwkDial_ZExpA3CCQE,        
+       kXSecTwkDial_ZExpA4CCQE,        
+       kXSecTwkDial_AxFFCCQEshape,
        kXSecTwkDial_VecFFCCQEshape,
        kXSecTwkDial_NormCCRES,    
        kXSecTwkDial_MaCCRESshape, 
