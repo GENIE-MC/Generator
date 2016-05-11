@@ -12,15 +12,22 @@ Name                     Type     Optional   Comment                     Default
 Ma                       double   Yes        Axial  Mass squared         GPL: QEl-Ma
 FA0                      double   Yes        FA(q2=0)                    GPL: QEL-FA0
 ElasticFormFactorsModel  alg      No         Elastic form factors model  GPL: ElasticFormFactorsModel
+AxialFormFactorModel     alg      No         Axial form factor model     GPL: AxialFormFactorModel
 WeinbergAngle            double   Yes        Weinberg angle              GPL: WeinbergAngle
 
 -->
 
   <param_set name="Default"> 
+     <param type="alg" name="AxialFormFactorModel"> genie::DipoleAxialFormFactorModel/Default </param>
   </param_set>
 
   <param_set name="Dipole"> 
      <param type="alg" name="ElasticFormFactorsModel"> genie::DipoleELFormFactorsModel/Default </param>
+     <param type="alg" name="AxialFormFactorModel"> genie::DipoleAxialFormFactorModel/Default </param>
+  </param_set>
+
+  <param_set name="ZExp"> 
+     <param type="alg" name="AxialFormFactorModel"> genie::ZExpAxialFormFactorModel/Default </param>
   </param_set>
 
 </alg_conf>
