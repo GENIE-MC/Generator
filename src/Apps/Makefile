@@ -33,6 +33,9 @@ TGT =    gevgen		  	\
 	 gspl2root	  	\
 	 gmxpl		  	\
 	 grwght1scan		\
+	 grwghtzexpaxff		\
+	 grwghtzexpdirect	\
+	 grwghtcov		\
 	 gntpc	  		\
 	 gmstcl			\
 	 gpdfcomp		\
@@ -190,6 +193,40 @@ ifeq ($(strip $(GOPT_ENABLE_RWGHT)),YES)
 else
 	@echo "Event reweighting not enabled!"
 endif
+
+# reweighting for Zexpansion of axial form factor
+#
+grwghtzexpaxff: FORCE
+	@echo "** Building grwghtzexpaxff"
+ifeq ($(strip $(GOPT_ENABLE_RWGHT)),YES)
+	$(CXX) $(CXXFLAGS) -c gRwghtZExpAxFF.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gRwghtZExpAxFF.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/grwghtzexpaxff
+else
+	@echo "Event reweighting not enabled!"
+endif
+
+# reweighting for Zexpansion of axial form factor
+#
+grwghtzexpdirect: FORCE
+	@echo "** Building grwghtzexpdirect"
+ifeq ($(strip $(GOPT_ENABLE_RWGHT)),YES)
+	$(CXX) $(CXXFLAGS) -c gRwghtZExpDirect.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gRwghtZExpDirect.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/grwghtzexpdirect
+else
+	@echo "Event reweighting not enabled!"
+endif
+
+# reweighting for Zexpansion of axial form factor
+#
+grwghtcov: FORCE
+	@echo "** Building grwghtcov"
+ifeq ($(strip $(GOPT_ENABLE_RWGHT)),YES)
+	$(CXX) $(CXXFLAGS) -c gRwghtCovariance.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gRwghtCovariance.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/grwghtcov
+else
+	@echo "Event reweighting not enabled!"
+endif
+
 
 # ntuple conversion utility
 #

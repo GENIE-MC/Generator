@@ -105,6 +105,7 @@
 #include "ReWeight/GReWeightFZone.h"
 #include "ReWeight/GReWeightINuke.h"
 #include "ReWeight/GReWeightAGKY.h"
+#include "ReWeight/GReWeightNuXSecCCQEaxial.h"
 #include "ReWeight/GReWeightNuXSecCCQEvec.h"
 #include "ReWeight/GReWeightNuXSecNCRES.h"  
 #include "ReWeight/GReWeightNuXSecDIS.h"    
@@ -201,6 +202,7 @@ int main(int argc, char ** argv)
   GReWeight rw;
   rw.AdoptWghtCalc( "xsec_ncel",       new GReWeightNuXSecNCEL      );
   rw.AdoptWghtCalc( "xsec_ccqe",       new GReWeightNuXSecCCQE      );
+  rw.AdoptWghtCalc( "xsec_ccqe_axial", new GReWeightNuXSecCCQEaxial );
   rw.AdoptWghtCalc( "xsec_ccqe_vec",   new GReWeightNuXSecCCQEvec   );
   rw.AdoptWghtCalc( "xsec_ccres",      new GReWeightNuXSecCCRES     );
   rw.AdoptWghtCalc( "xsec_ncres",      new GReWeightNuXSecNCRES     );
