@@ -17,6 +17,7 @@ LIBRARIES  := $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 
 
 TGT =	gtestAlgorithms 	 \
+	gtestAxialFormFactor     \
 	gtestBLI2DUnifGrid       \
 	gtestCmdLnArg		 \
  	gtestConfigPool		 \
@@ -48,6 +49,10 @@ all: $(TGT)
 gtestAlgorithms: FORCE
 	$(CXX) $(CXXFLAGS) -c gtestAlgorithms.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) gtestAlgorithms.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestAlgorithms
+
+gtestAxialFormFactor: FORCE
+	$(CXX) $(CXXFLAGS) -c gtestAxialFormFactor.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gtestAxialFormFactor.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestAxialFormFactor
 
 gtestBLI2DUnifGrid: FORCE
 	$(CXX) $(CXXFLAGS) -c gtestBLI2DUnifGrid.cxx $(INCLUDES)
