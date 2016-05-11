@@ -40,6 +40,9 @@ IntegralNuclearInfluenceCutoffEnergy double   No
   <param_set name="ZExp"> 
      <param type="alg"  name="FormFactorsAlg">  genie::LwlynSmithFFCC/ZExp    </param>
      <param type="alg"  name="XSec-Integrator"> genie::QELXSec/Default        </param>
+     <param type="bool" name = "IntegralAverageOverNucleonMomentum">     true   </param>
+     <param type="alg"  name="IntegralNuclearModel">    genie::NuclearModelMap/Default        </param>
+     <param type="double" name = "IntegralNuclearInfluenceCutoffEnergy">    2.0   </param>     
   </param_set>
   <param_set name="BBA2003"> 
      <param type="alg"  name="FormFactorsAlg">  genie::LwlynSmithFFCC/BBA2003 </param>
