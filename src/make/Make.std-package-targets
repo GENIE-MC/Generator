@@ -20,6 +20,8 @@ PACKAGE_ALL_SOURCES          := $(PACKAGE_ALL_SOURCES) $(DICTIONARY).cc $(wildca
 PACKAGE_ALL_OBJECTS           = $(addsuffix .$(ObjSuf), $(basename $(PACKAGE_ALL_SOURCES)))
 PACKAGE_SOURCES              := $(wildcard *.cxx)
 PACKAGE_OBJECTS               = $(addsuffix .$(ObjSuf), $(basename $(PACKAGE_SOURCES)))
+DICTIONARY_PCM               := $(DICTIONARY)_rdict.pcm
+DICTIONARY_PCM_WITH_PATH     := $(GENIE_LIB_PATH)/$(DICTIONARY)_rdict.pcm
 
 LIB_DEPEND=
 ifeq ($(strip $(DICTIONARY)),undefined)
@@ -46,6 +48,7 @@ ifeq ($(strip $(DICTIONARY)),undefined)
 	$(SOCMD) $(SOFLAGS) $(SOMINF) $(PACKAGE_OBJECTS) $(EXTRA_EXT_LIBS) $(OutPutOpt) $(PACKAGE_LIB_WITH_PATH)
 else
 	$(SOCMD) $(SOFLAGS) $(SOMINF) $(PACKAGE_ALL_OBJECTS) $(EXTRA_EXT_LIBS) $(OutPutOpt) $(PACKAGE_LIB_WITH_PATH)
+	[ ! -f $(DICTIONARY_PCM) ] || $(COPY) $(DICTIONARY_PCM) $(GENIE_LIB_PATH)
 endif
 
 lib: $(PACKAGE_LIB_WITH_PATH)
@@ -72,6 +75,7 @@ lib-link: $(PACKAGE_LIBNOVRS_WITH_PATH) $(PACKAGE_LIBMACLINK_WITH_PATH)
 install-lib:
 	@echo "[package: $(PACKAGE)] Installing library..."
 	[ ! -f $(PACKAGE_LIB_WITH_PATH) ] || $(COPY) $(PACKAGE_LIB_WITH_PATH) $(GENIE_LIB_INSTALLATION_PATH)
+	[ ! -f $(DICTIONARY_PCM_WITH_PATH) ] || $(COPY) $(DICTIONARY_PCM_WITH_PATH) $(GENIE_LIB_INSTALLATION_PATH)
 ifeq ($(strip $(GOPT_ENABLE_DYLIBVERSION)),YES)
 	[ ! -f $(PACKAGE_LIB_WITH_PATH) ] || $(SYMLINK) $(PACKAGE_LIB) $(PACKAGE_LIBNOVRS_WITH_IPATH)
 endif
@@ -97,7 +101,11 @@ purge:
 .PHONY: clean
 clean:
 	@echo "Clean in $(PACKAGE)"
-	$(RM) -f *.d *.o *~ core a.out $(GENIE_LIB_PATH)/$(LIBNAME)* $(DICTIONARY).* Makefile.temp
+ifeq ($(strip $(DICTIONARY)),undefined)
+	$(RM) -f *.d *.o *~ core a.out $(GENIE_LIB_PATH)/$(LIBNAME)* Makefile.temp
+else
+	$(RM) -f *.d *.o *~ core a.out $(GENIE_LIB_PATH)/$(LIBNAME)* $(DICTIONARY)* $(GENIE_LIB_PATH)/$(DICTIONARY)* Makefile.temp
+endif
 
 
 #

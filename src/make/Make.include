@@ -222,6 +222,7 @@ endif
 #                              ROOT
 #-------------------------------------------------------------------
 # ROOT headers and libraries
+ROOT_FLAGS     = -I$(shell root-config --cflags)
 ROOT_INCLUDES  = -I$(shell root-config --incdir)
 ROOT_LIBRARIES = $(shell root-config --glibs) \
                         -lMinuit -lGeom -lEG -lEGPythia6 -lGenVector
@@ -297,6 +298,7 @@ ifeq ($(strip $(ARCH)),macosx)
 ARCH_OK       = YES
 IS_MACOSX     = YES
 CXXFLAGS      = -pipe -W -Wall -Wno-long-double \
+        $(ROOT_FLAGS) \
 		-fsigned-char -fno-common -flat_namespace \
 		$(GOPT_WITH_CXX_DEBUG_FLAG) \
 		$(GOPT_WITH_CXX_OPTIMIZ_FLAG) \
@@ -328,6 +330,7 @@ ARCH_OK       = YES
 IS_MACOSX     = YES
 CXXFLAGS      = -m64 -pipe -W -Wall \
 		-fsigned-char -fno-common -flat_namespace \
+        $(ROOT_FLAGS) \
 		$(GOPT_WITH_CXX_DEBUG_FLAG) \
 		$(GOPT_WITH_CXX_OPTIMIZ_FLAG) \
 		$(GOPT_WITH_CXX_USERDEF_FLAGS) 
@@ -356,6 +359,7 @@ endif
 ifeq ($(strip $(ARCH)),linux) 
 ARCH_OK       = YES
 CXXFLAGS      = -Wall -fPIC \
+        $(ROOT_FLAGS) \
 		$(GOPT_WITH_CXX_DEBUG_FLAG) \
 		$(GOPT_WITH_CXX_OPTIMIZ_FLAG) \
 		$(GOPT_WITH_CXX_USERDEF_FLAGS) 
@@ -383,6 +387,7 @@ endif
 ifeq ($(strip $(ARCH)),linuxx8664gcc) 
 ARCH_OK       = YES
 CXXFLAGS      = -Wall -fPIC \
+        $(ROOT_FLAGS) \
 		$(GOPT_WITH_CXX_DEBUG_FLAG) \
 		$(GOPT_WITH_CXX_OPTIMIZ_FLAG) \
 		$(GOPT_WITH_CXX_USERDEF_FLAGS) 
@@ -411,12 +416,12 @@ endif
 
 # includes and libraries needed to compile programs. 
 
-INCLUDES := $(ROOT_INCLUDES) \
+INCLUDES :=  $(LINUX_SYS_INCLUDES) \
 	    $(XML_INCLUDES) \
 	    $(LOG_INCLUDES) \
+	    $(ROOT_INCLUDES) \
 	    $(LHAPDF_INCLUDES) \
 	    $(GENIE_INCLUDES) \
-	    $(LINUX_SYS_INCLUDES)
 
 LIBRARIES := $(SYSLIBS) \
              $(ROOT_LIBRARIES) \
