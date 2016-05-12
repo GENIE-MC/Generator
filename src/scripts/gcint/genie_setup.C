@@ -6,7 +6,7 @@ void change_prompt()
     rint->SetPrompt("genie [%d] ");
 }
 
-void genie()
+void genie_setup()
 {   
     TString script_dir = gSystem->Getenv("GENIE");
     script_dir += "/src/scripts/gcint/";
