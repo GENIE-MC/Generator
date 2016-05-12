@@ -50,6 +50,8 @@
 using std::endl;
 using std::setw;
 using std::setfill;
+using std::ofstream;
+using std::ifstream;
 
 using namespace genie;
 

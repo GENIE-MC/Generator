@@ -69,6 +69,7 @@ using std::setprecision;
 using std::setfill;
 using std::ios;
 using std::endl;
+using std::ofstream;
 
 using namespace genie;
 using namespace genie::constants;
