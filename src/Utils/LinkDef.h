@@ -23,7 +23,6 @@
 #pragma link C++ namespace genie::utils::system;
 #pragma link C++ namespace genie::utils::style;
 #pragma link C++ namespace genie::utils::xml;
-#pragma link C++ namespace genie::utils::arr;
 
 #pragma link C++ class genie::RunOpt;
 #pragma link C++ class genie::Cache;
