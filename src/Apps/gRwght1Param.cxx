@@ -1,10 +1,10 @@
 //____________________________________________________________________________
 /*!
 
-\program grwght1scan
+\program grwght1p
 
 \brief   Generates weights given an input GHEP event file and for a given
-         systematic parameter (supported by the ReWeight package).
+         (single) systematic parameter (supported by the ReWeight package).
          It outputs a ROOT file containing a tree with an entry for every 
          input event. Each such tree entry contains a TArrayF of all computed 
          weights and a TArrayF of all used tweak dial values. 
@@ -14,6 +14,8 @@
           [-n n1[,n2]] 
            -s systematic 
            -t n_twk_diall_values
+          [--min-tweak minimum_tweak_value]
+          [--max-tweak maximum_tweak_value]
           [-p neutrino_codes] 
           [-o output_weights_file]
           [--seed random_number_seed]
@@ -35,9 +37,14 @@
             This is an optional argument. 
             By default GENIE will process all events.
          -t 
-            Specified the number of tweak dial values between -1 and 1 
-            (must be odd so as to include al -1, 0 and 1 / if it is an even
-             number it will be incremented by 1)
+            Specified the number of tweak dial values between a minimum and a
+            maximum value
+          --min-tweak 
+            Specifies the minimum value of the tweaked parameter.
+            Default: -5 (corresponds to -5\sigma)
+          --max-tweak 
+            Specifies the maximum value of the tweaked parameter.
+            Default: +5 (corresponds to +5\sigma)
          -s 
             Specifies the systematic param to tweak.
             See $GENIE/src/ReWeight/GSyst.h for a list of parameters and
@@ -128,9 +135,11 @@ string      gOptOutFilename; ///< name for output file (contains the output weig
 Long64_t    gOptNEvt1;       ///< range of events to process (1st input, if any)
 Long64_t    gOptNEvt2;       ///< range of events to process (2nd input, if any)
 GSyst_t     gOptSyst;        ///< input systematic param
-int         gOptInpNTwk;     ///< # of tweaking dial values between [-1,1]
+int         gOptInpNTwk;     ///< # of tweaking dial values in the specified range
+double      gOptMinTwk;      ///< Minimum value of tweaked dial
+double      gOptMaxTwk;      ///< Maximum value of tweaked dial
 PDGCodeList gOptNu(false);   ///< neutrinos to consider
-long int    gOptRanSeed;    ///< random number seed
+long int    gOptRanSeed;     ///< random number seed
 
 //___________________________________________________________________
 int main(int argc, char ** argv)
@@ -163,8 +172,8 @@ int main(int argc, char ** argv)
   // The tweaking dial takes N values between [-1,1]
 
   const int   n_points      = gOptInpNTwk;
-  const float twk_dial_min  = -1.0;
-  const float twk_dial_max  =  1.0;
+  const float twk_dial_min  = gOptMinTwk;
+  const float twk_dial_max  = gOptMaxTwk;
   const float twk_dial_step = (twk_dial_max - twk_dial_min) / (n_points-1);
 
   // Work-out the range of events to process
@@ -185,7 +194,7 @@ int main(int argc, char ** argv)
     << "\n - Input event file: " << gOptInpFilename 
     << "\n - Processing: " << nev << " events in the range [" << nfirst << ", " << nlast << "]"
     << "\n - Systematic parameter to tweak: " << GSyst::AsString(gOptSyst)
-    << "\n - Number of tweak dial values in [-1,1] : " << gOptInpNTwk
+    << "\n - Number of tweak dial values in [" << gOptMinTwk << ", " << gOptMaxTwk << "] : " << gOptInpNTwk
     << "\n - Neutrino species to reweight : " << gOptNu
     << "\n - Output weights to be saved in : " << gOptOutFilename 
     << "\n - Specified random number seed : " << gOptRanSeed
@@ -496,6 +505,18 @@ void GetCommandLineArgs(int argc, char ** argv)
     gOptRanSeed = -1;
   }
 
+  // min and max tweak values
+  if( parser.OptionExists("min-tweak") ) {
+     gOptMinTwk =  parser.ArgAsDouble("min-tweak");
+  } else {
+     gOptMinTwk = -5;
+  }
+  if( parser.OptionExists("max-tweak") ) {
+     gOptMaxTwk =  parser.ArgAsDouble("max-tweak");
+  } else {
+     gOptMaxTwk = -5;
+  }
+
 }
 //_________________________________________________________________________________
 void GetEventRange(Long64_t nev_in_file, Long64_t & nfirst, Long64_t & nlast)
@@ -537,6 +558,8 @@ void PrintSyntax(void)
      << "    [-n n1[,n2]]             \n"
      << "     -s systematic           \n"
      << "     -t n_twk_diall_values   \n"
+     << "    [--min-tweak minimum_tweak_value] \n"
+     << "    [--max-tweak maximum_tweak_value] \n"
      << "    [-p neutrino_codes]      \n"
      << "    [-o output_weights_file] \n"
      << "    [--seed random_number_seed] \n"

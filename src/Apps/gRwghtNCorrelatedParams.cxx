@@ -1,10 +1,10 @@
 //____________________________________________________________________________
 /*!
 
-\program grwghtcov
+\program grwghtnp
 
-\brief   Generates weights given an input GHEP event file, a 
-         set of systematic parameters (supported by the ReWeight package),
+\brief   Generates weights given an input GHEP event file, a set of (possibly
+         correlated) systematic parameters (supported by the ReWeight package),
          and a covariance matrix for the input set of parameters.
          The covariance matrix should be in the form a ROOT file containing
          only a TMatrixD object which is square and symmetric.
