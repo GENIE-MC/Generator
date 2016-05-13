@@ -32,8 +32,8 @@ TGT =    gevgen		  	\
 	 gspladd   	  	\
 	 gspl2root	  	\
 	 gmxpl		  	\
-	 grwght1scan		\
-	 grwghtcov		\
+	 grwght1p		\
+	 grwghtnp		\
 	 gntpc	  		\
 	 gmstcl			\
 	 gpdfcomp		\
@@ -183,22 +183,22 @@ endif
 
 # simple utility for calculating weights in response to tweaking a single systematic param
 #
-grwght1scan: FORCE
-	@echo "** Building grwght1scan"
+grwght1p: FORCE
+	@echo "** Building grwght1p"
 ifeq ($(strip $(GOPT_ENABLE_RWGHT)),YES)
-	$(CXX) $(CXXFLAGS) -c gRwght1Scan.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) gRwght1Scan.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/grwght1scan
+	$(CXX) $(CXXFLAGS) -c gRwght1Param.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gRwght1Param.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/grwght1p
 else
 	@echo "Event reweighting not enabled!"
 endif
 
 # simple utility for calculating weights in response to tweaking a multiple (possibly correlated) systematic param
 #
-grwghtcov: FORCE
-	@echo "** Building grwghtcov"
+grwghtnp: FORCE
+	@echo "** Building grwghtnp"
 ifeq ($(strip $(GOPT_ENABLE_RWGHT)),YES)
-	$(CXX) $(CXXFLAGS) -c gRwghtCovariance.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) gRwghtCovariance.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/grwghtcov
+	$(CXX) $(CXXFLAGS) -c gRwghtNCorrelatedParams.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gRwghtNCorrelatedParams.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/grwghtnp
 else
 	@echo "Event reweighting not enabled!"
 endif
@@ -259,7 +259,8 @@ clean: FORCE
 	$(RM) $(GENIE_BIN_PATH)/gspladd 	
 	$(RM) $(GENIE_BIN_PATH)/gspl2root		
 	$(RM) $(GENIE_BIN_PATH)/gmxpl		
-	$(RM) $(GENIE_BIN_PATH)/grwght1scan		
+	$(RM) $(GENIE_BIN_PATH)/grwght1p
+	$(RM) $(GENIE_BIN_PATH)/grwghtnp
 	$(RM) $(GENIE_BIN_PATH)/gntpc		
 	$(RM) $(GENIE_BIN_PATH)/gmstcl		
 	$(RM) $(GENIE_BIN_PATH)/gpdfcomp
@@ -281,7 +282,8 @@ distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gspladd 	
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gspl2root		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gmxpl		
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/grwght1scan		
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/grwght1p
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/grwghtnp
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gntpc		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gmstcl		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gpdfcomp
