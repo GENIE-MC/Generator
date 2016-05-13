@@ -32,6 +32,8 @@ using std::ostream;
 namespace genie {
 
 class Interaction;
+class AxialFormFactor;
+ostream & operator << (ostream & stream, const AxialFormFactor & ff);
 
 class AxialFormFactor {
 
