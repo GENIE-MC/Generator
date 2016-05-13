@@ -33,8 +33,6 @@ TGT =    gevgen		  	\
 	 gspl2root	  	\
 	 gmxpl		  	\
 	 grwght1scan		\
-	 grwghtzexpaxff		\
-	 grwghtzexpdirect	\
 	 grwghtcov		\
 	 gntpc	  		\
 	 gmstcl			\
@@ -194,29 +192,7 @@ else
 	@echo "Event reweighting not enabled!"
 endif
 
-# reweighting for Zexpansion of axial form factor
-#
-grwghtzexpaxff: FORCE
-	@echo "** Building grwghtzexpaxff"
-ifeq ($(strip $(GOPT_ENABLE_RWGHT)),YES)
-	$(CXX) $(CXXFLAGS) -c gRwghtZExpAxFF.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) gRwghtZExpAxFF.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/grwghtzexpaxff
-else
-	@echo "Event reweighting not enabled!"
-endif
-
-# reweighting for Zexpansion of axial form factor
-#
-grwghtzexpdirect: FORCE
-	@echo "** Building grwghtzexpdirect"
-ifeq ($(strip $(GOPT_ENABLE_RWGHT)),YES)
-	$(CXX) $(CXXFLAGS) -c gRwghtZExpDirect.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) gRwghtZExpDirect.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/grwghtzexpdirect
-else
-	@echo "Event reweighting not enabled!"
-endif
-
-# reweighting for Zexpansion of axial form factor
+# simple utility for calculating weights in response to tweaking a multiple (possibly correlated) systematic param
 #
 grwghtcov: FORCE
 	@echo "** Building grwghtcov"
