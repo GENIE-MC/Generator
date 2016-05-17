@@ -170,7 +170,7 @@ void INukeHadroData2015::LoadCrossSections(void)
   string datafile_NA   = data_dir + "/tot_xsec/intranuke-fractions-NA.dat";
   string datafile_KA   = data_dir + "/tot_xsec/intranuke-fractions-KA.dat";
   string datafile_gamN = data_dir + "/tot_xsec/intranuke-xsections-gamN.dat";
-  string datafile_kN   = data_dir + "/tot_xsec/intranuke-xsections-kaonN.dat";
+  string datafile_kN   = data_dir + "/tot_xsec/intranuke-xsections-kaonN2015.dat";
 
   //-- Make sure that all data files are available
 
