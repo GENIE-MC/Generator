@@ -652,13 +652,13 @@ void HAIntranuke::InelasticHA(
 	    exception.SetReason("TwoBodyCollison gives KE> probe KE in hA simulation");
 	    throw exception;
 	  }
+      }
+      // always get here, even nucleon decay
 	ev->AddParticle(*cl1);
 	ev->AddParticle(*cl2);
 	delete cl1;
 	delete cl2;
-
 	LOG("HAIntranuke", pDEBUG) << "Nucleus : (A,Z) = ("<<fRemnA<<','<<fRemnZ<<')';
-      }
 
     } else
     {
