@@ -18,6 +18,7 @@
    <config alg="genie::NucBindEnergyAggregator">     NucBindEnergyAggregator.xml     </config>
    <config alg="genie::InitialStateAppender">        InitialStateAppender.xml        </config>
    <config alg="genie::VertexGenerator">             VertexGenerator.xml             </config>
+   <config alg="genie::QELEventGenerator">           QELEventGenerator.xml           </config>
    <config alg="genie::QELPrimaryLeptonGenerator">   QELPrimaryLeptonGenerator.xml   </config>
    <config alg="genie::DISPrimaryLeptonGenerator">   DISPrimaryLeptonGenerator.xml   </config>
    <config alg="genie::RESPrimaryLeptonGenerator">   RESPrimaryLeptonGenerator.xml   </config>
@@ -121,6 +122,7 @@
    <config alg="genie::BergerSehgalCOHPiPXSec2015">         BergerSehgalCOHPiPXSec2015.xml         </config> 
    <config alg="genie::BergerSehgalFMCOHPiPXSec2015">       BergerSehgalFMCOHPiPXSec2015.xml       </config> 
    <config alg="genie::LwlynSmithQELCCPXSec">               LwlynSmithQELCCPXSec.xml               </config>
+   <config alg="genie::NievesQELCCPXSec">                   NievesQELCCPXSec.xml                   </config>
    <config alg="genie::QPMDISPXSec">                        QPMDISPXSec.xml                        </config>
    <config alg="genie::AivazisCharmPXSecLO">                AivazisCharmPXSecLO.xml                </config>
    <config alg="genie::SlowRsclCharmDISPXSecLO">            SlowRsclCharmDISPXSecLO.xml            </config>
