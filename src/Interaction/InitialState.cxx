@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2016, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -17,7 +17,9 @@
    Adding special ctor for ROOT I/O purposes so as to avoid memory leak due to
    memory allocated in the default ctor when objects of this class are read by 
    the ROOT Streamer. 
-	
+ @ May 19, 2016 - AF, JJ
+   comE() method added to calculate the com energy, for use by the
+   QELEventGenerator class.
 */
 //____________________________________________________________________________
 
@@ -354,6 +356,21 @@ double InitialState::ProbeE(RefFrame_t ref_frame) const
   double E = p4->Energy();
 
   delete p4;
+  return E;
+}
+
+//___________________________________________________________________________
+double InitialState::comE() const
+{
+  TLorentzVector * k4 = this->GetProbeP4(kRfLab);
+  TLorentzVector * p4 = fTgt->HitNucP4Ptr();
+  
+  *k4 += *p4; // now k4 represents centre-of-mass 4-momentum
+  double s = k4->Dot(*k4); // dot-product with itself
+  double E = TMath::Sqrt(s);
+
+  delete k4;
+  
   return E;
 }
 //___________________________________________________________________________
