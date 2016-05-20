@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+Configuration for the QELEventGenerator EventRecordVisitorI
+
+-->
+
+<alg_conf>
+
+  <param_set name="Default"> 
+    <param type="bool"   name="KeepHitNuclOnMassShell"> false                                     </param>
+    <param type="alg"    name="NuclearModel">           genie::NuclearModelMap/Default            </param>
+  </param_set>
+  
+  <param_set name="EM-Default"> 
+    <param type="bool"   name="KeepHitNuclOnMassShell"> false                                     </param>
+    <param type="alg"    name="NuclearModel">           genie::NuclearModelMap/Default            </param>
+    <param type="bool"   name="IsEM">                   true                                      </param>
+  </param_set>
+
+<!--
+  <param_set name="CC-Default"> 
+  </param_set>
+
+  <param_set name="NC-Default"> 
+  </param_set>
+
+
+  <param_set name="CC-Charm-Default"> 
+  </param_set>
+-->
+</alg_conf>
+
