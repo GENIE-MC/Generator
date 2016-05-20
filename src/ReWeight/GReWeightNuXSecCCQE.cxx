@@ -150,7 +150,7 @@ bool GReWeightNuXSecCCQE::IsHandled(GSyst_t syst)
 //_______________________________________________________________________________________
 void GReWeightNuXSecCCQE::SetSystematic(GSyst_t syst, double twk_dial)
 {
-  if(!this->IsHandled(syst)) return;
+  if(!this->IsHandled(syst))
   {
     LOG("ReW",pWARN) << "Systematic " << GSyst::AsString(syst) << " is not handled for algorithm "
       << fFFModel << " and mode " << fMode;
