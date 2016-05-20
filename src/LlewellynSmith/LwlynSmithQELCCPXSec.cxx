@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2016, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -69,8 +69,12 @@ LwlynSmithQELCCPXSec::~LwlynSmithQELCCPXSec()
 double LwlynSmithQELCCPXSec::XSec(
    const Interaction * interaction, KinePhaseSpace_t kps) const
 {
-  if(! this -> ValidProcess    (interaction) ) return 0.;
-  if(! this -> ValidKinematics (interaction) ) return 0.;
+  if(! this -> ValidProcess    (interaction) ) {std::cout << "not a valid process"; return 0.;}
+  if(! this -> ValidKinematics (interaction) ) {std::cout << "not valid kinematics"; return 0.;}
+
+  if (kps == kPSFullDiffQE){
+    return this->FullDifferentialXSec(interaction);
+  }
 
   // Get kinematics & init-state parameters
   const Kinematics &   kinematics = interaction -> Kine();
@@ -315,4 +319,76 @@ void LwlynSmithQELCCPXSec::LoadConfig(void)
   
 }
 //____________________________________________________________________________
+double LwlynSmithQELCCPXSec::FullDifferentialXSec(const Interaction *  interaction)const{
 
+  // First we need access to all of the particles in the interaction
+  // The particles were stored in the lab frame
+  const Kinematics &   kinematics = interaction -> Kine();
+  const InitialState & init_state = interaction -> InitState();
+
+  const TLorentzVector leptonMom = kinematics.FSLeptonP4();
+  const TLorentzVector outNucleonMom = kinematics.HadSystP4();
+
+  TLorentzVector * neutrinoMom = init_state.GetProbeP4(kRfLab);
+  TLorentzVector * inNucleonMom = init_state.TgtPtr()->HitNucP4Ptr();
+
+  //std::cout << "neutrino, target nucleon, lepton, outNucleon" << std::endl;
+  //neutrinoMom->Print();
+  //inNucleonMom->Print();
+  //leptonMom.Print();
+  //outNucleonMom.Print();
+
+  // Now we calculate q and qTilde
+  //TLorentzVector qP4(0,0,0,0);
+  TLorentzVector qTildeP4(0,0,0,0);
+  //qP4 = *neutrinoMom - leptonMom;
+  //qTildeP4 = outNucleonMom - *inNucleonMom;
+  qTildeP4 = *neutrinoMom- leptonMom; // TESTING: Use q rather than qtilde
+  
+  //double Q2tilde = -1 * qTildeP4.Mag2();
+  double Q2tilde = -1 * qTildeP4.Mag2(); 
+  interaction->KinePtr()->SetQ2(Q2tilde);
+
+//  std::cout << "Q2tilde = " << Q2tilde << std::endl;
+//  std::cout << "Q2 (not tilde)= " << -1 * qP4.Mag2() << std::endl;
+//  std::cout << "Q2 difference (tilde - not) = " << Q2tilde + qP4.Mag2() << std::endl;
+
+  // Calculate the QEL form factors
+  fFormFactors.Calculate(interaction);
+
+  double F1V   = fFormFactors.F1V();
+  double xiF2V = fFormFactors.xiF2V();
+  double FA    = fFormFactors.FA();
+  double Fp    = fFormFactors.Fp();
+//  std::cout << "Form factors! F1V = " << F1V << ", xiF2V = " << xiF2V << ", FA = " << FA << ", Fp = " << Fp << std::endl;
+
+  double Gfactor = kGF2*fCos8c2 / (8*kPi*kPi*inNucleonMom->E()*neutrinoMom->E()*outNucleonMom.E()*leptonMom.E());
+
+//  std::cout << "Gfactor = " << Gfactor << std::endl;
+  
+  // Now, we can calculate the cross section
+  double tau = Q2tilde / (4 * inNucleonMom->Mag2());
+  double h1 = FA*FA*(1 + tau) + tau*(F1V + xiF2V)*(F1V + xiF2V);
+  double h2 = FA*FA + F1V*F1V + tau*xiF2V*xiF2V;
+  double h3 = 2.0 * FA * (F1V + xiF2V);
+  double h4 = 0.25 * xiF2V*xiF2V *(1-tau) + 0.5*F1V*xiF2V + FA*Fp - tau*Fp*Fp;
+  
+//  std::cout << "tau = " << tau << ", h1 = " << h1 << ", h2 = " << h2 <<", h3 = " << h3 <<", h4 = " << h4 <<  std::endl;
+
+  bool is_neutrino = pdg::IsNeutrino(init_state.ProbePdg());
+  int sign = (is_neutrino) ? -1 : 1;
+  double l1 = 2*neutrinoMom->Dot(leptonMom)*(inNucleonMom->Mag2());
+  double l2 = 2*(neutrinoMom->Dot(*inNucleonMom)) * (inNucleonMom->Dot(leptonMom)) - neutrinoMom->Dot(leptonMom)*inNucleonMom->Mag2();
+  double l3 = (neutrinoMom->Dot(*inNucleonMom) * qTildeP4.Dot(leptonMom)) - (neutrinoMom->Dot(qTildeP4) * leptonMom.Dot(*inNucleonMom));
+  l3 *= sign;
+  double l4 = neutrinoMom->Dot(leptonMom) * qTildeP4.Dot(qTildeP4) - 2*neutrinoMom->Dot(qTildeP4)*leptonMom.Dot(qTildeP4);
+  double l5 = neutrinoMom->Dot(*inNucleonMom) * leptonMom.Dot(qTildeP4) + leptonMom.Dot(*inNucleonMom)*neutrinoMom->Dot(qTildeP4) - neutrinoMom->Dot(leptonMom)*inNucleonMom->Dot(qTildeP4);
+
+  double LH = 2 *(l1*h1 + l2*h2 + l3*h3 + l4*h4 + l5*h2);
+
+//  std::cout << "LH = " << LH << std::endl;
+  delete neutrinoMom;
+  
+  return Gfactor * LH;
+
+}
