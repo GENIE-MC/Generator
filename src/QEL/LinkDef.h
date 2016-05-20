@@ -10,5 +10,6 @@
 #pragma link C++ class genie::QELHadronicSystemGenerator;
 #pragma link C++ class genie::QELInteractionListGenerator;
 #pragma link C++ class genie::QELKinematicsGenerator;
+#pragma link C++ class genie::QELEventGenerator;
 
 #endif
