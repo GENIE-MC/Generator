@@ -118,6 +118,7 @@
   <priority msgstream="Messenger">             WARN   </priority>
   <priority msgstream="MuELoss">               WARN   </priority>
   <priority msgstream="MultProb">              WARN   </priority>
+  <priority msgstream="Nieves">                WARN   </priority>
   <priority msgstream="NucDeEx">               WARN   </priority>
   <priority msgstream="NucleonDecay">          WARN   </priority>
   <priority msgstream="NucleonP">              WARN   </priority>
@@ -140,6 +141,7 @@
   <priority msgstream="PhysUtil">              WARN   </priority>
   <priority msgstream="QELXSec">               WARN   </priority>
   <priority msgstream="QELCharmXSec">          WARN   </priority>
+  <priority msgstream="QELEvent">              WARN   </priority>
   <priority msgstream="QELHadronicVtx">        WARN   </priority>
   <priority msgstream="QELKinematics">         WARN   </priority>
   <priority msgstream="RESXSec">               WARN   </priority>
