@@ -118,6 +118,7 @@
   <priority msgstream="MEC">                   INFO   </priority>
   <priority msgstream="MuELoss">               NOTICE </priority>
   <priority msgstream="MultProb">              INFO   </priority>
+  <priority msgstream="Nieves">                NOTICE </priority>
   <priority msgstream="NucDeEx">               NOTICE </priority>
   <priority msgstream="NucleonDecay">          NOTICE </priority>
   <priority msgstream="NucleonP">              INFO   </priority>
@@ -139,6 +140,7 @@
   <priority msgstream="PhysUtil">              NOTICE </priority>
   <priority msgstream="QELXSec">               NOTICE </priority>
   <priority msgstream="QELCharmXSec">          NOTICE </priority>
+  <priority msgstream="QELEvent">              INFO   </priority>
   <priority msgstream="QELHadronicVtx">        INFO   </priority>
   <priority msgstream="QELKinematics">         INFO   </priority>
   <priority msgstream="RESXSec">               INFO   </priority>
