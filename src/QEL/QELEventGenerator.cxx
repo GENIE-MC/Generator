@@ -83,7 +83,7 @@ QELEventGenerator::~QELEventGenerator()
 void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
 {
   LOG("QELEvent", pINFO) << "Generating QE event kinematics...";
-  std::cout << "USING NEW QELEventGenerator" << std::endl;
+  LOG("QELEvent", pINFO) << "USING NEW QELEventGenerator";
 
   // Get the random number generators
   RandomGen * rnd = RandomGen::Instance();
@@ -111,12 +111,10 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
   // if not pre-computed already
   if(fXSecMax < 0) {
       LOG("QELEvent", pNOTICE) << "Scanning phase-space...";
-      std::cout << "Computing max xsec";
       fXSecMax = this->ComputeMaxXSec(interaction);
 
       //LOG("QELEvent", pNOTICE) << "Q2 limits: [" << fQ2min << ", " << fQ2max << "] GeV^2";
       //LOG("QELEvent", pNOTICE) << "dsigma/dQ2 (maximum) = " << fXSecMax/(1E-38*units::cm2) << " 1E-38 cm^2/GeV^2";
-      std::cout << "Done compute max xsec";
   }
 
 
@@ -313,6 +311,7 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
 //
 
         double xsec = this->ComputeXSec(interaction, costheta, phi);
+	//double xsec = 1.0e-10;
 
         // select/reject event
         this->AssertXSecLimits(interaction, xsec, fXSecMax);
@@ -353,7 +352,7 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
 	  // Store struck nucleon momentum and binding energy
 	  TLorentzVector p4ptr = interaction->InitStatePtr()->TgtPtr()->HitNucP4();
-	  LOG("QELEvent",pNOTICE) << "pn: " << p4ptr.X() << ", " <<p4ptr.Y() << ", " <<p4ptr.Z() << ", " <<p4ptr.E();
+	  LOG("QELEvent",pINFO) << "pn: " << p4ptr.X() << ", " <<p4ptr.Y() << ", " <<p4ptr.Z() << ", " <<p4ptr.E();
 	  nucleon->SetMomentum(p4ptr);
 	  nucleon->SetRemovalEnergy(fEb);
 
@@ -514,6 +513,7 @@ double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const
         Interaction * interaction = new Interaction(*in);
         interaction->SetBit(kISkipProcessChk);
         interaction->SetBit(kISkipKinematicChk);
+	interaction->SetBit(kIAssumeFreeNucleon);
 
         // Access the target from the interaction summary
         Target * tgt = interaction->InitState().TgtPtr();
@@ -577,7 +577,7 @@ double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const
         }// Done with centre-of-mass angles finely
         if (tmp_xsec_max > xsec_max){
           xsec_max = tmp_xsec_max;  // this nucleon has the highest xsec!
-          std::cout << "best estimate for xsec_max = " <<  xsec_max << std::endl;
+          LOG("QELEvent", pINFO) << "best estimate for xsec_max = " <<  xsec_max;
         }
 
         delete interaction;
@@ -599,32 +599,19 @@ double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const
 //____________________________________________________________________________
 double QELEventGenerator::ComputeXSec( Interaction * interaction, double costheta, double phi) const
 {
-  //std::cout << "running ComputeXSec()" << std::endl;
   Target * tgt = interaction->InitState().TgtPtr();
-  // std::cout << "got target pointer"<< std::endl;
   TLorentzVector * p4 = tgt->HitNucP4Ptr();
-  //std::cout << "got hitNuc pointer"<< std::endl;
 
-  //std::cout << "do we have an fNucModel?"<< std::endl;
-  //if (fNuclModel){std::cout << "yes!" << fNuclModel << std::endl;}
-  //else{std::cout << "no :( " << fNuclModel << std::endl;}
-  //std::cout << "do we have an fNucModel with stuff?"<< std::endl;
-  //if (fNuclModel->Momentum3().X()){std::cout << "yes!" << std::endl;}
-   
   TVector3 p3 = fNuclModel->Momentum3();
   //double w = fNuclModel->RemovalEnergy();
-  //std::cout << "found the nuclear model and retrieved the binding energy and Fermi momentum" << std::endl;
 
   double xsec = 0;
   double pF2 = p3.Mag2(); // (fermi momentum)^2
   double lepMass = interaction->FSPrimLepton()->Mass();
-  //std::cout << "found the lepton mass..." << std::endl;
   
   TDatabasePDG *tb = TDatabasePDG::Instance();
   double Mn = tb->GetParticle(interaction->InitState().TgtPtr()->HitNucPdg())->Mass();// outgoing nucleon mass
   double Mp = tb->GetParticle(interaction->RecoilNucleonPdg())->Mass(); // incoming nucleon mass
-   
-  //std::cout << "found the nucleon masses..." << std::endl;
   
   double EN_offshell(0);
   //FermiMoverInteractionType_t interaction_type = fNuclModel->GetFermiMoverInteractionType(); // check the nuclear model essentially
@@ -651,6 +638,7 @@ double QELEventGenerator::ComputeXSec( Interaction * interaction, double costhet
     double Mi = p->Mass();
     p = PDGLibrary::Instance()->Find(1000060110);
     double Mf = p->Mass();
+
     EN_offshell = Mi - TMath::Sqrt(pF2 + Mf*Mf);
     //std::cout << "Using FermiMoveDefault and defined energy" << std::endl;
     //}
@@ -668,7 +656,6 @@ double QELEventGenerator::ComputeXSec( Interaction * interaction, double costhet
   double outLeptonEnergy = ( s - Mp*Mp + lepMass*lepMass ) / (2 * TMath::Sqrt(s));
   if(outLeptonEnergy*outLeptonEnergy-lepMass*lepMass < 0.) return 0.;
   double outMomentum = TMath::Sqrt(outLeptonEnergy*outLeptonEnergy - lepMass*lepMass);
-  //std::cout << "calculated root s and outLeptonEnergy" << std::endl;
 
   TLorentzVector lepton(outMomentum, 0, 0, outLeptonEnergy);
 
@@ -677,43 +664,15 @@ double QELEventGenerator::ComputeXSec( Interaction * interaction, double costhet
   TLorentzVector outNucleon(-1*lepton.Px(),-1*lepton.Py(),-1*lepton.Pz(), 
 TMath::Sqrt(outMomentum*outMomentum + Mp*Mp));
 
-  /*std::cout << "costheta = " << costheta << ", phi = " << phi << std::endl;
-  std::cout << "lepton = " << utils::print::P4AsString(&lepton) << std::endl;
-  std::cout << "outNucleon = " << utils::print::P4AsString(&outNucleon) << std::endl;
-  std::cout << "inNucleon = " << utils::print::P4AsString(p4) << std::endl;
-  std::cout << "s = " << s << ", outLepE = " << outLeptonEnergy << "outMom = " << outMomentum << std::endl;
-  std::cout << "outMom^2 = " << outLeptonEnergy*outLeptonEnergy - lepMass*lepMass << std::endl;*/
-
-  /*std::cout << "Lepton COM EvGen:\n";
-  lepton.Print();
-  std::cout << "outNucleon COM EvGen:\n";
-  outNucleon.Print();*/
-
-
 
   // Boost particles
   TVector3 beta = this->COMframe2Lab(interaction->InitState());
-  //std::cout << "converted to lab frame" << std::endl;
   
   TLorentzVector leptonCOM = TLorentzVector(lepton);
 
   lepton.Boost(beta);
   outNucleon.Boost(beta);
-  //std::cout << "lepton boosted = " << utils::print::P4AsString(&lepton),
-  //std::cout << "outNucleon boosted = " << utils::print::P4AsString(&outNucleon);
-  /*
-  std::cout << "neutrino LAB EvGen:\n";
-  interaction->InitState().GetProbeP4(kRfLab)->Print();
-  std::cout << "inNucleon LAB EvGen:\n";
-  interaction->InitState().Tgt().HitNucP4().Print();
-  std::cout << "Lepton LAB EvGen:\n";
-  lepton.Print();
-  std::cout << "outNucleon LAB EvGen:\n";
-  outNucleon.Print();
-  std::cout << "beta EvGen:";
-  beta.Print();*/
 
-  
   // Check if event is at a low angle - if so return 0 and stop wasting time
   //double angle = fConfig->GetDoubleDef("MinAngle",  gc->GetDouble("SF-MinAngleEMscattering"));
   //std::cout << "min angle = " << fMinAngleEM << std::endl;
@@ -728,12 +687,10 @@ TMath::Sqrt(outMomentum*outMomentum + Mp*Mp));
   interaction->KinePtr()->SetHadSystP4(outNucleon);
   interaction->KinePtr()->SetQ2(Q2, true);
 
-
-
   // Compute the QE cross section for the current kinematics ("~" variables)
   interaction->InitStatePtr()->TgtPtr()->HitNucP4Ptr()->SetE(EN_onshell);
   try{
-    xsec = fXSecModel->XSec(interaction, kPSFullDiffQE); // 
+    xsec = fXSecModel->XSec(interaction, kPSFullDiffQE);
   }catch(exceptions::NievesQELException e){
     LOG("QELEvent",pINFO) << e;
     LOG("QELEvent",pINFO) << "setting xsec = 0";
@@ -749,10 +706,11 @@ TMath::Sqrt(outMomentum*outMomentum + Mp*Mp));
 
   //delete qP4;
 
-  // TEST CODE: Compare xsec for Furmanski code and Nieves code
+  // TESTING CODE: Compare xsec for Furmanski code and Nieves code
   // Compute the QE cross section for the current kinematics ("~" variables)
-  bool dotest = true;
+  /*bool dotest = true;
   if(dotest){
+  std::cout << "assume free nuc: " << interaction->TestBit(kIAssumeFreeNucleon) << std::endl;
     interaction->InitStatePtr()->TgtPtr()->HitNucP4Ptr()->SetE(EN_onshell);
     try{
       AlgFactory * algf = AlgFactory::Instance();
@@ -762,14 +720,15 @@ TMath::Sqrt(outMomentum*outMomentum + Mp*Mp));
       const XSecAlgorithmI * LwlynSmithXSecModel = dynamic_cast<const XSecAlgorithmI*>(
 				      algf->GetAlgorithm("genie::LwlynSmithQELCCPXSec","Default"));
       double lsxsec = LwlynSmithXSecModel->XSec(interaction,kPSFullDiffQE);
+      double frac = lsxsec/nxsec;
 
       ofstream n_ls_stream;
       n_ls_stream.open("Nieves_kPSFullDiffQE", std::ios_base::app);
-      n_ls_stream << Q2 << "\t" << nxsec << "\t" << lsxsec << "\t" << "\n";
+      n_ls_stream << Q2 << "\t" << nxsec << "\t" << lsxsec << "\t" << 1.0/frac << "\t" << "\n";
       n_ls_stream.close();
       
       n_ls_stream.open("LwlynSmith_kPSFullDiffQE", std::ios_base::app);
-      n_ls_stream << Q2 << "\t" << lsxsec << "\t" << nxsec << "\t" << "\n";
+      n_ls_stream << Q2 << "\t" << lsxsec << "\t" << nxsec << "\t" << frac << "\t" << "\n";
       n_ls_stream.close();
     }catch(exceptions::NievesQELException e){
       ofstream n_ls_stream;
@@ -782,6 +741,7 @@ TMath::Sqrt(outMomentum*outMomentum + Mp*Mp));
       n_ls_stream << Q2 << "\t" << -1.0 << "\t" << -1.0 << "\t" 
 		  << "error: " << e <<"\n";
       n_ls_stream.close();
+  std::cout << "assume free nuc: " << interaction->TestBit(kIAssumeFreeNucleon) << std::endl;
     }
   }
   // END TEST*/
