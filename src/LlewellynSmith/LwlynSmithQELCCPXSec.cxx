@@ -43,6 +43,7 @@
 #include "Utils/MathUtils.h"
 #include "Utils/KineUtils.h"
 #include "Utils/NuclearUtils.h"
+#include "Utils/PrintUtils.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -349,6 +350,12 @@ double LwlynSmithQELCCPXSec::FullDifferentialXSec(const Interaction *  interacti
   double Q2tilde = -1 * qTildeP4.Mag2(); 
   interaction->KinePtr()->SetQ2(Q2tilde);
 
+  LOG("LwlynSmith", pINFO) << "lh qTildep4 = " << utils::print::P4AsString(&qTildeP4);
+  LOG("LwlynSmith", pINFO) << "lh neutrinop4 = " << utils::print::P4AsString(neutrinoMom);
+  LOG("LwlynSmith", pINFO) << "lh inNucleon = " << utils::print::P4AsString(inNucleonMom);
+  LOG("LwlynSmith", pINFO)  << "lh lepton = " << utils::print::P4AsString(&leptonMom);
+  LOG("LwlynSmith", pINFO)  << "lh outNucleon = " << utils::print::P4AsString(&outNucleonMom);
+
 //  std::cout << "Q2tilde = " << Q2tilde << std::endl;
 //  std::cout << "Q2 (not tilde)= " << -1 * qP4.Mag2() << std::endl;
 //  std::cout << "Q2 difference (tilde - not) = " << Q2tilde + qP4.Mag2() << std::endl;
@@ -360,11 +367,11 @@ double LwlynSmithQELCCPXSec::FullDifferentialXSec(const Interaction *  interacti
   double xiF2V = fFormFactors.xiF2V();
   double FA    = fFormFactors.FA();
   double Fp    = fFormFactors.Fp();
-//  std::cout << "Form factors! F1V = " << F1V << ", xiF2V = " << xiF2V << ", FA = " << FA << ", Fp = " << Fp << std::endl;
+  LOG("LwlynSmith", pINFO) << "Form factors! F1V = " << F1V << ", xiF2V = " << xiF2V << ", FA = " << FA << ", Fp = " << Fp;
 
   double Gfactor = kGF2*fCos8c2 / (8*kPi*kPi*inNucleonMom->E()*neutrinoMom->E()*outNucleonMom.E()*leptonMom.E());
 
-//  std::cout << "Gfactor = " << Gfactor << std::endl;
+  LOG("LwlynSmith", pINFO) << "Gfactor = " << Gfactor;
   
   // Now, we can calculate the cross section
   double tau = Q2tilde / (4 * inNucleonMom->Mag2());
@@ -386,9 +393,33 @@ double LwlynSmithQELCCPXSec::FullDifferentialXSec(const Interaction *  interacti
 
   double LH = 2 *(l1*h1 + l2*h2 + l3*h3 + l4*h4 + l5*h2);
 
-//  std::cout << "LH = " << LH << std::endl;
+  LOG("LwlynSmith", pINFO) << "LH = " << LH;
+  LOG("LwlynSmith", pINFO) << "xsec = " << Gfactor * LH;
   delete neutrinoMom;
   
-  return Gfactor * LH;
+  double xsec = Gfactor * LH;
 
+  if( interaction->TestBit(kIAssumeFreeNucleon) ){
+    LOG("LwlynSmith", pINFO) << "assume free nucleon";
+    return xsec;
+  }
+
+  //----- compute nuclear suppression factor
+  //      (R(Q2) is adapted from NeuGEN - see comments therein)
+  double R = nuclear::NuclQELXSecSuppression("Default", 0.5, interaction);
+
+  //----- number of scattering centers in the target
+  const Target & target = init_state.Tgt();
+  int nucpdgc = target.HitNucPdg();
+  int NNucl = (pdg::IsProton(nucpdgc)) ? target.Z() : target.N(); 
+
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+  LOG("LwlynSmith", pDEBUG) 
+    << "Nuclear suppression factor R(Q2) = " << R << ", NNucl = " << NNucl;
+#endif
+
+  xsec *= (R*NNucl); // nuclear xsec
+
+  LOG("LwlynSmith", pINFO) << "returning nuclear xsec";
+  return xsec;
 }
