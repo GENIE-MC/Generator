@@ -265,8 +265,8 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
 //
 //        // Get centre-of-mass energy
         const InitialState & init_state = interaction->InitState();
-        double s = init_state.CME();
-        s *= s; //* init_state.CME(); // centre of mass energy squared
+        double s = init_state.CMEnergy();
+        s *= s; //* init_state.CMEnergy(); // centre of mass energy squared
         
         if (TMath::Sqrt(s) < interaction->FSPrimLepton()->Mass() + Mp){ // throw a new event if this one is below threshold
           LOG("QELEvent", pINFO) << "Event below threshold, reject throw and try again!";
@@ -664,7 +664,7 @@ double QELEventGenerator::ComputeXSec( Interaction * interaction, double costhet
 
   fEb = EN_onshell - EN_offshell;
 
-  double s = interaction->InitState().CME(); // actually sqrt(s)
+  double s = interaction->InitState().CMEnergy(); // actually sqrt(s)
   s *= s; // now s actually = s
   double outLeptonEnergy = ( s - Mp*Mp + lepMass*lepMass ) / (2 * TMath::Sqrt(s));
   if(outLeptonEnergy*outLeptonEnergy-lepMass*lepMass < 0.) return 0.;
