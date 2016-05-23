@@ -18,7 +18,7 @@
    memory allocated in the default ctor when objects of this class are read by 
    the ROOT Streamer. 
  @ May 19, 2016 - AF, JJ
-   CME() method added to calculate the com energy, for use by the
+   CMEnergy() method added to calculate the com energy, for use by the
    QELEventGenerator class.
 */
 //____________________________________________________________________________
@@ -360,7 +360,7 @@ double InitialState::ProbeE(RefFrame_t ref_frame) const
 }
 
 //___________________________________________________________________________
-double InitialState::CME() const
+double InitialState::CMEnergy() const
 {
   TLorentzVector * k4 = this->GetProbeP4(kRfLab);
   TLorentzVector * p4 = fTgt->HitNucP4Ptr();
