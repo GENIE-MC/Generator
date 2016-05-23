@@ -25,6 +25,7 @@
 
 #include "Base/XSecAlgorithmI.h"
 #include "Base/QELFormFactors.h"
+#include "GHEP/GHepRecord.h"
 #include "Nuclear/FermiMomentumTable.h"
 #include "Nuclear/NuclearModelI.h"
 
@@ -51,10 +52,6 @@ public:
   // data to private data members
   void Configure (const Registry & config);
   void Configure (string param_set);
-
-  // Generate outgoing lepton
-  void SetRunningOutgoingLepton(const Interaction * interaction,
-				TLorentzVector * probe) const;
 
 private:
   void LoadConfig (void);
@@ -136,6 +133,8 @@ private:
 		    int tgt_pdgc, int A, int Z, int N,
 		    bool hitNucIsProton) const;
 
+  void SetRunningLepton(GHepRecord * evrec) const;
+
   // NOTE: THE REMAINING CODE IS FOR TESTING PURPOSES ONLY
 
   mutable bool                 fPrintData;        ///< print data
@@ -153,11 +152,6 @@ private:
   mutable double               fl1,fl2,fl3,q2rellin,fkf,fef,fl2im,fl3im;*/
   void CompareNievesTensors(const Interaction* i) const;
 
-  mutable bool                 fCompareFurmanskiTensorContraction;
-  mutable TString              fLHOutFileNieves;
-  mutable TString              fLHOutFileFurmanski;
-  void PrintFurmanskiLH(const Interaction* i) const;
-  double FurmanskiLH(const Interaction* i) const;
 };
 
 }       // genie namespace
