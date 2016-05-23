@@ -63,7 +63,7 @@ typedef enum EKinePhaseSpace {
   kPSElOlOpifE,
   kPSElOlTpifE,
   kPSTkTlctl,
-  kPSFullDiffQE
+  kPSTnctnBnctl // Nucleon momentum, angle, binding energy, lepton com angle
 
 } KinePhaseSpace_t;
 
@@ -113,7 +113,7 @@ public:
       case(kPSElOlOpifE)  : return "<{El,Omega_l,Omega_pi}|E>"; break;
       case(kPSElOlTpifE)  : return "<{El,Omega_l,Theta_pi}|E>"; break;
       case(kPSTkTlctl)    : return "<{Tk,Tl,cos(theta_l)}|E>";  break;
-      case(kPSFullDiffQE) : return "<centre-of-mass plep,Omega_lep, p_p, omega_p|E>"; break;
+      case(kPSTnctnBnctl) : return "<centre-of-mass plep,Omega_lep, p_p, omega_p|E>"; break;
     }
     return "** Undefined kinematic phase space **";
   }
