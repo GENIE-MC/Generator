@@ -55,7 +55,7 @@ public:
   TLorentzVector * GetTgtP4   (RefFrame_t rf = kRfLab) const;
   TLorentzVector * GetProbeP4 (RefFrame_t rf = kRfHitNucRest) const;
   double           ProbeE     (RefFrame_t rf) const;
-  double           comE       () const; ///< centre-of-mass energy (sqrt s)
+  double           CME        () const; ///< centre-of-mass energy (sqrt s)
 
   void SetPdgs     (int tgt_pdgc, int probe_pdgc);
   void SetProbePdg (int pdg_code);
