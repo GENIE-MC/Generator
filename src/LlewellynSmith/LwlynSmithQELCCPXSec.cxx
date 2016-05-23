@@ -43,7 +43,6 @@
 #include "Utils/MathUtils.h"
 #include "Utils/KineUtils.h"
 #include "Utils/NuclearUtils.h"
-#include "Utils/PrintUtils.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -70,10 +69,10 @@ LwlynSmithQELCCPXSec::~LwlynSmithQELCCPXSec()
 double LwlynSmithQELCCPXSec::XSec(
    const Interaction * interaction, KinePhaseSpace_t kps) const
 {
-  if(! this -> ValidProcess    (interaction) ) {std::cout << "not a valid process"; return 0.;}
-  if(! this -> ValidKinematics (interaction) ) {std::cout << "not valid kinematics"; return 0.;}
+  if(! this -> ValidProcess    (interaction) ) {LOG("LwlynSmith",pWARN) << "not a valid process"; return 0.;}
+  if(! this -> ValidKinematics (interaction) ) {LOG("LwlynSmith",pWARN) << "not valid kinematics"; return 0.;}
 
-  if (kps == kPSFullDiffQE){
+  if (kps == kPSTnctnBnctl){
     return this->FullDifferentialXSec(interaction);
   }
 
@@ -350,15 +349,9 @@ double LwlynSmithQELCCPXSec::FullDifferentialXSec(const Interaction *  interacti
   double Q2tilde = -1 * qTildeP4.Mag2(); 
   interaction->KinePtr()->SetQ2(Q2tilde);
 
-  LOG("LwlynSmith", pINFO) << "lh qTildep4 = " << utils::print::P4AsString(&qTildeP4);
-  LOG("LwlynSmith", pINFO) << "lh neutrinop4 = " << utils::print::P4AsString(neutrinoMom);
-  LOG("LwlynSmith", pINFO) << "lh inNucleon = " << utils::print::P4AsString(inNucleonMom);
-  LOG("LwlynSmith", pINFO)  << "lh lepton = " << utils::print::P4AsString(&leptonMom);
-  LOG("LwlynSmith", pINFO)  << "lh outNucleon = " << utils::print::P4AsString(&outNucleonMom);
-
-//  std::cout << "Q2tilde = " << Q2tilde << std::endl;
-//  std::cout << "Q2 (not tilde)= " << -1 * qP4.Mag2() << std::endl;
-//  std::cout << "Q2 difference (tilde - not) = " << Q2tilde + qP4.Mag2() << std::endl;
+//  LOG("LwlynSmith",pINFO) << "Q2tilde = " << Q2tilde << std::endl;
+//  LOG("LwlynSmith",pINFO) << "Q2 (not tilde)= " << -1 * qP4.Mag2();
+//  LOG("LwlynSmith",pINFO) << "Q2 difference (tilde - not) = " << Q2tilde + qP4.Mag2();
 
   // Calculate the QEL form factors
   fFormFactors.Calculate(interaction);
@@ -367,11 +360,11 @@ double LwlynSmithQELCCPXSec::FullDifferentialXSec(const Interaction *  interacti
   double xiF2V = fFormFactors.xiF2V();
   double FA    = fFormFactors.FA();
   double Fp    = fFormFactors.Fp();
-  LOG("LwlynSmith", pINFO) << "Form factors! F1V = " << F1V << ", xiF2V = " << xiF2V << ", FA = " << FA << ", Fp = " << Fp;
+//  std::cout << "Form factors! F1V = " << F1V << ", xiF2V = " << xiF2V << ", FA = " << FA << ", Fp = " << Fp << std::endl;
 
   double Gfactor = kGF2*fCos8c2 / (8*kPi*kPi*inNucleonMom->E()*neutrinoMom->E()*outNucleonMom.E()*leptonMom.E());
 
-  LOG("LwlynSmith", pINFO) << "Gfactor = " << Gfactor;
+//  std::cout << "Gfactor = " << Gfactor << std::endl;
   
   // Now, we can calculate the cross section
   double tau = Q2tilde / (4 * inNucleonMom->Mag2());
@@ -393,20 +386,17 @@ double LwlynSmithQELCCPXSec::FullDifferentialXSec(const Interaction *  interacti
 
   double LH = 2 *(l1*h1 + l2*h2 + l3*h3 + l4*h4 + l5*h2);
 
-  LOG("LwlynSmith", pINFO) << "LH = " << LH;
-  LOG("LwlynSmith", pINFO) << "xsec = " << Gfactor * LH;
+// LOG("LwlynSmith",pINFO)  << "LH = " << LH;
   delete neutrinoMom;
   
   double xsec = Gfactor * LH;
 
-  if( interaction->TestBit(kIAssumeFreeNucleon) ){
-    LOG("LwlynSmith", pINFO) << "assume free nucleon";
-    return xsec;
-  }
+  if( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;
 
   //----- compute nuclear suppression factor
   //      (R(Q2) is adapted from NeuGEN - see comments therein)
   double R = nuclear::NuclQELXSecSuppression("Default", 0.5, interaction);
+  // LOG("LwlynSmith",pINFO)  << "Nuclear Suppression Factor = " << R;
 
   //----- number of scattering centers in the target
   const Target & target = init_state.Tgt();
@@ -420,6 +410,6 @@ double LwlynSmithQELCCPXSec::FullDifferentialXSec(const Interaction *  interacti
 
   xsec *= (R*NNucl); // nuclear xsec
 
-  LOG("LwlynSmith", pINFO) << "returning nuclear xsec";
   return xsec;
+
 }
