@@ -11,9 +11,9 @@
 # Usage:  ./build_pythia6 [version] [--dummies=bestry|remove|keep] \
 #                [--refetch] [gfortran|g77|g95] [-m32]
 #
-# where [version] takes a form like "6.4.24", "6424" or "6_424" w/ or
+# where [version] takes a form like "6.4.28", "6428" or "6_428" w/ or
 # without an optional leading "v".  It will created a subdirectory named 
-# "v6_424" so it is probably wise to run this in a directory named "pythia6"
+# "v6_428" so it is probably wise to run this in a directory named "pythia6"
 # or some such.  The --dummies=XYZZY controls whether the dummy PDFSET,
 # STRUCTM and STRUCTP routines are removed.  The -m32 forces a 32-bit
 # build.
@@ -21,7 +21,7 @@
 # Creates directory structure:
 #
 # pythia6/                       - start in this directory
-#         v6_424/                - created subdirectory
+#         v6_428/                - created subdirectory
 #                download/       - code downloaded from remote locations
 #                inc/            - include files for selected common blocks
 #                                  (hardcoded! not from downloaded source)
@@ -60,10 +60,12 @@
 #                 otherwise first of gfortran or g77 found
 #    2010-12-29:  addition of -m32 option; default v6_422
 #    2011-01-13:  default v6_424; clean up comments
+#    2014-07-14:  default v6_428; http->https for hepforge
+#    2016-05-19:  new location for root download
 #
 ############################################################################
 #
-version=6.4.24
+version=6.4.28
 doclean=0
 dummyaction="besttry"
 refetch=0
@@ -337,7 +339,8 @@ elif [ $mt -eq 410 ] ; then
 else
 # new location, .f file is gzipped
   basef=pythia-${major}.${minor}.${tiny}.f
-  location=http://www.hepforge.org/archive/pythia6
+  #location=http://www.hepforge.org/archive/pythia6
+  location=https://www.hepforge.org/archive/pythia6
   gzipped=".gz"
 fi
 # if we don't already have it, fetch the .f file
@@ -360,8 +363,10 @@ fi
 # fetch the ROOT interface code
 #
 if [ ! -f pythia6.tar.gz -o ${refetch} -ne 0 ] ; then
-  echo "${fetchit} ftp://root.cern.ch/root/pythia6.tar.gz"
-  ${fetchit} ftp://root.cern.ch/root/pythia6.tar.gz
+  # rooti="ftp://root.cern.ch/root/pythia6.tar.gz"
+  rooti=https://root.cern.ch/download/pythia6.tar.gz
+  echo "${fetchit} ${rooti}" 
+  ${fetchit} ${rooti}
 fi
 
 ############################################################################
