@@ -90,9 +90,15 @@ double ReinDFRPXSec::XSec(
     << "b = " << b << ", t = [" << tmin << ", " << tmax << "]";
 #endif
 
+  // fixme: WARNING: don't leave this in here!!!
+  // only needed for comparison to Rein's paper
+//  double W2 = M*M + 2 * M * y * E - Q2;
+//  if (W2 < 4)
+//    return 0;
+
   //----- compute d^2sigma/dxdy
   double xsec = Gf*E*fp2*(1-y)*propg*sTot2*tint;
-
+ 
   //----- Check whether variable tranformation is needed
   if(kps!=kPSxytfE) {
     double J = utils::kinematics::Jacobian(interaction,kPSxytfE,kps);
@@ -127,12 +133,6 @@ bool ReinDFRPXSec::ValidProcess(const Interaction * interaction) const
 
   if(interaction->ProcInfo().IsDiffractive()) return true;
   return false;
-}
-//____________________________________________________________________________
-bool ReinDFRPXSec::ValidKinematics(const Interaction* interaction) const
-{
-  if(interaction->TestBit(kISkipKinematicChk)) return true;
-  return true;
 }
 //____________________________________________________________________________
 void ReinDFRPXSec::Configure(const Registry & config)

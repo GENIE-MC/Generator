@@ -33,12 +33,14 @@
 */
 //____________________________________________________________________________
 
+#include <cmath>
 #include <cstdlib>
 
 #include <TMath.h>
 
 #include "Conventions/Constants.h"
 #include "Conventions/Controls.h"
+#include "EVGCore/EVGThreadException.h"
 #include "Interaction/KPhaseSpace.h"
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
@@ -303,6 +305,38 @@ bool KPhaseSpace::IsAllowed(void) const
     bool allowed = in_phys;
     return allowed;
   }
+  
+  // DFR
+  if (pi.IsDiffractive()) {
+    // first two checks are the same as RES & DIS
+    Range1D_t Wl  = this->WLim();
+    Range1D_t Q2l = this->Q2Lim_W();
+
+    kinematics::UpdateWQ2FromXY(fInteraction);
+    double    W   = kine.W();
+    double    Q2  = kine.Q2();
+
+    LOG("KPhaseSpace", pDEBUG) << " W = " << W << ", limits = [" << Wl.min << "," << Wl.max << "];";
+    LOG("KPhaseSpace", pDEBUG) << " Q2 = " << Q2 << ", limits = [" << Q2l.min << "," << Q2l.max << "];";
+    bool in_phys = math::IsWithinLimits(W, Wl);
+    in_phys = in_phys && math::IsWithinLimits(Q2, Q2l);
+
+    // extra check: there's a t minimum.
+    // but only check if W, Q2 is reasonable
+    // (otherwise get NaNs in tmin)
+    if (in_phys)
+    {
+      double    t   = kine.t();
+      Range1D_t tl  = this->TLim();
+      LOG("KPhaseSpace", pDEBUG) << " t = " << t << ", limits = [" << tl.min << "," << tl.max << "];";
+      in_phys = in_phys && math::IsWithinLimits(t, tl);
+    }
+    LOG("KPhaseSpace", pDEBUG) << " phase space point is " << ( in_phys ? "ALLOWED" : "NOT ALLOWED");
+    
+    
+    bool allowed = in_phys;
+    return allowed;
+  }
 
   // was MECTensor
   if (pi.IsMEC()){
@@ -330,7 +364,7 @@ Range1D_t KPhaseSpace::WLim(void) const
 
   const ProcessInfo & pi = fInteraction->ProcInfo();
   bool is_qel  = pi.IsQuasiElastic()  || pi.IsInverseBetaDecay();
-  bool is_inel = pi.IsDeepInelastic() || pi.IsResonant();
+  bool is_inel = pi.IsDeepInelastic() || pi.IsResonant() || pi.IsDiffractive();
 
   if(is_qel) {
     double MR = fInteraction->RecoilNucleon()->Mass();
@@ -371,7 +405,7 @@ Range1D_t KPhaseSpace::Q2Lim_W(void) const
 
   const ProcessInfo & pi = fInteraction->ProcInfo();
   bool is_qel  = pi.IsQuasiElastic()  || pi.IsInverseBetaDecay();
-  bool is_inel = pi.IsDeepInelastic() || pi.IsResonant();
+  bool is_inel = pi.IsDeepInelastic() || pi.IsResonant() || pi.IsDiffractive();
   bool is_coh  = pi.IsCoherent();
 
   if(!is_qel && !is_inel && !is_coh) return Q2l;
@@ -670,18 +704,54 @@ Range1D_t KPhaseSpace::TLim(void) const
   double nu = Ev * kine.y();
   bool pionIsCharged = pi.IsWeakCC();
   double mpi = pionIsCharged ? kPionMass : kPi0Mass;
+  double mpi2 = mpi*mpi;
 
   //COH
-  bool is_coh = pi.IsCoherent();
-  if(is_coh) {  
-    tl.min = 1.0 * (Q2 + mpi * mpi)/(2.0 * nu) * (Q2 + mpi * mpi)/(2.0 * nu);
+  if(pi.IsCoherent()) {  
+    tl.min = 1.0 * (Q2 + mpi2)/(2.0 * nu) * (Q2 + mpi2)/(2.0 * nu);
     tl.max = 0.05;
     return tl;
   }
+  // DFR
+  else if (pi.IsDiffractive()) {
+    // diffractive tmin from Nucl.Phys.B278,61 (1986), eq. 12
+    double M = init_state.Tgt().HitNucMass();
+    double M2 = M*M;
+    double nuSqPlusQ2 = nu*nu + Q2;
+    double nuOverM = nu / M;
+    double mpiQ2term = mpi2 - Q2 - 2*nu*nu;
+    double A1 = 1 + 2*nuOverM + nuOverM*nuOverM - nuSqPlusQ2/M2;
+    double A2 = (1+nuOverM) * mpiQ2term + 2*nuOverM*nuSqPlusQ2;
+    double A3 = mpiQ2term*mpiQ2term - 4*nuSqPlusQ2*(nu*nu - mpi2);
+    
+    tl.min = std::abs( (A2 + sqrt(A2*A2 - A1*A3)) / A1 );  // GENIE's convention is that t is positive
+    bool tminIsNaN;
+    // use std::is_nan when C++11 is around
+#if __cplusplus >= 201103L
+      tminIsNaN = std::is_nan(tl.min);
+#else
+      // this the old-fashioned way to check for NaN:
+      // NaN's aren't equal to anything, including themselves
+      tminIsNaN = tl.min != tl.min;
+#endif
+    if (tminIsNaN)
+    {
+      LOG("KPhaseSpace", pERROR)
+        << "tmin for diffractive scattering is NaN "
+        << "( Enu = " << Ev << ", Q2 = " << Q2 << ", nu = " << nu << ")";
+      genie::exceptions::EVGThreadException exception;
+      exception.SetReason("NaN tmin for diffractive scattering");
+      exception.SwitchOnFastForward();
+      throw exception;    
+    }
+    tl.max = 0.8;  // fixme: should be able to get this from the configuration.
+    
+    return tl;
+  }
+  
   // RES+DIS
   // IMD
-  // Diffractive is more interesting? TODO: Check on diffractive t limits.
-  LOG("KPhaseSpace", pWARN) << "It is not sensible to ask for t limits for non-coherent events.";
+  LOG("KPhaseSpace", pWARN) << "It is not sensible to ask for t limits for events that are not coherent or diffractive.";
   return tl;
 }
 //____________________________________________________________________________
