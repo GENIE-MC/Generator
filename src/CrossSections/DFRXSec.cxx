@@ -70,7 +70,7 @@ double DFRXSec::Integrate (const XSecAlgorithmI* model, const Interaction* in) c
   Range1D_t xl = kps.Limits(kKVx);
   Range1D_t yl = kps.Limits(kKVy);
   // the actual t lower limit depends on Q^2 and nu, or, equivalently, x and y.
-  // the cross section calculator returns 0 in regions of phase space that aren't allowed.
+  // defer to KPhaseSpace::IsAlllowed() on where to start the t integral.
   Range1D_t tl;
   tl.min = controls::kASmallNum;
   tl.max = fTMax;

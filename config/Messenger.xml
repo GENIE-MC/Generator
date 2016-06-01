@@ -116,6 +116,7 @@
   <priority msgstream="KNOHad">                WARN   </priority> 
   <priority msgstream="KineLimits">            INFO   </priority>
   <priority msgstream="Kinematics">            NOTICE </priority>
+  <priority msgstream="KPhaseSpace">           NOTICE </priority>
   <priority msgstream="LeptonicVertex">        WARN   </priority>
   <priority msgstream="LocalFGM">              WARN   </priority>
   <priority msgstream="LwlynSmith">            NOTICE </priority>
@@ -151,7 +152,7 @@
   <priority msgstream="RESXSec">               INFO   </priority>
   <priority msgstream="RESPXSec">              WARN   </priority>
   <priority msgstream="ReinSehgalCohPi">       WARN   </priority>
-  <priority msgstream="ReinDFR">               WARN   </priority>
+  <priority msgstream="ReinDFR">               INFO   </priority>
   <priority msgstream="ReinSehgalRes">         WARN   </priority>
   <priority msgstream="ReinSehgalResT">        NOTICE </priority>
   <priority msgstream="ReinSehgalResC">        NOTICE </priority>

@@ -297,7 +297,7 @@ STFC, Rutherford Appleton Laboratory
   Maximum considered t for diffractive scattering reactions when estimating the max cross section. 
   Units in GeV^2.
   -->
-  <param type="double" name="DFR-t-max"> 1.0 </param>
+  <param type="double" name="DFR-t-max"> 0.8 </param>
 
  
  <!-- 
