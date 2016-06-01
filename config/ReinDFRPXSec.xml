@@ -14,7 +14,7 @@ beta             double   Yes                                       GPL: DFR-Bet
 -->
 
   <param_set name="Default"> 
-
+    <param type="alg" name="XSec-Integrator"> genie::DFRXSec/Default </param>
   </param_set>
 
 </alg_conf>
