@@ -232,6 +232,48 @@ ROOT::Math::IBaseFunctionMultiDim *
     new genie::utils::gsl::d2XSec_dQ2dydt_E(fModel,fInteraction);
 }
 //____________________________________________________________________________
+genie::utils::gsl::d3XSec_dxdydt_E::d3XSec_dxdydt_E(
+     const XSecAlgorithmI * m, const Interaction * i) :
+ROOT::Math::IBaseFunctionMultiDim(),
+fModel(m),
+fInteraction(i)
+{
+
+}
+genie::utils::gsl::d3XSec_dxdydt_E::~d3XSec_dxdydt_E()
+{
+
+}
+unsigned int genie::utils::gsl::d3XSec_dxdydt_E::NDim(void) const
+{
+  return 3;
+}
+double genie::utils::gsl::d3XSec_dxdydt_E::DoEval(const double * xin) const
+{
+// inputs:
+//    x [-]
+//    y [-]
+//    t [-]
+// outputs:
+//   differential cross section [10^-38 cm^2]
+//
+  //double  E = fInteraction->InitState().ProbeE(kRfLab);
+  double  x = xin[0];
+  double  y = xin[1];
+  double  t = xin[2];
+  fInteraction->KinePtr()->Setx(x);
+  fInteraction->KinePtr()->Sety(y);
+  fInteraction->KinePtr()->Sett(t);
+  double xsec = fModel->XSec(fInteraction, kPSxytfE);
+  return xsec/(1E-38 * units::cm2);
+}
+ROOT::Math::IBaseFunctionMultiDim *
+   genie::utils::gsl::d3XSec_dxdydt_E::Clone() const
+{
+  return
+    new genie::utils::gsl::d3XSec_dxdydt_E(fModel,fInteraction);
+}
+//____________________________________________________________________________
 genie::utils::gsl::d2XSec_dWdQ2_E::d2XSec_dWdQ2_E(
      const XSecAlgorithmI * m, const Interaction * i) :
 ROOT::Math::IBaseFunctionMultiDim(),

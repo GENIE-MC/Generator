@@ -14,6 +14,7 @@
 #pragma link C++ class genie::IMDXSec;
 #pragma link C++ class genie::COHXSec;
 #pragma link C++ class genie::COHXSecAR;
+#pragma link C++ class genie::DFRXSec;
 #pragma link C++ class genie::NuElectronXSec;
 
 // Wrappers for GSL/MathMore lib

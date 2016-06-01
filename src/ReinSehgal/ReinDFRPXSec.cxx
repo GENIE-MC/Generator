@@ -18,6 +18,7 @@
 #include <TMath.h>
 
 #include "Algorithm/AlgConfigPool.h"
+#include "Base/XSecIntegratorI.h"
 #include "Conventions/GBuild.h"
 #include "Conventions/Constants.h"
 #include "Conventions/Controls.h"
@@ -93,8 +94,8 @@ double ReinDFRPXSec::XSec(
   double xsec = Gf*E*fp2*(1-y)*propg*sTot2*tint;
 
   //----- Check whether variable tranformation is needed
-  if(kps!=kPSxyfE) {
-    double J = utils::kinematics::Jacobian(interaction,kPSxyfE,kps);
+  if(kps!=kPSxytfE) {
+    double J = utils::kinematics::Jacobian(interaction,kPSxytfE,kps);
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("ReinDFR", pDEBUG)
      << "Jacobian for transformation to: " 
@@ -116,42 +117,7 @@ double ReinDFRPXSec::XSec(
 //____________________________________________________________________________
 double ReinDFRPXSec::Integral(const Interaction * interaction) const
 {
-  const KPhaseSpace & phsp = interaction->PhaseSpace();
-
-  if(!phsp.IsAboveThreshold()) return 0;
-
-  Range1D_t x = phsp.Limits(kKVx);
-  Range1D_t y = phsp.Limits(kKVy);
-
-  if(y.max <= y.min) return 0;
-
-  KinePhaseSpace_t kps = kPSxyfE;
-
-  int nx=300;
-  int ny=300;
-
-  double dx = (x.max - x.min)/(nx-1);
-  double dy = (y.max - y.min)/(ny-1);
-
-  double xsec = 0;
-
-  for(int ix=0; ix<nx; ix++) {
-    double xc = x.min + ix*dx;
-    for(int iy=0; iy<ny; iy++) {
-      double yc = y.min + iy*dy;
-      interaction->KinePtr()->Setx(xc);
-      interaction->KinePtr()->Sety(yc);
-      xsec += (dx*dy * this->XSec(interaction,kps));
-    }
-  }
-
-  const InitialState & init_state = interaction -> InitState();
-  double Ev = init_state.ProbeE(kRfHitNucRest);
-
-  LOG("ReinDFR", pNOTICE)
-    << "xsec (E = " << Ev << " GeV) = "
-    << xsec/(1E-38*units::cm2) << " x 1E-38 * cm2";
-
+  double xsec = fXSecIntegrator->Integrate(this,interaction);
   return xsec;
 }
 //____________________________________________________________________________
@@ -188,6 +154,10 @@ void ReinDFRPXSec::LoadConfig(void)
 
   fMa   = fConfig->GetDoubleDef("Ma",   gc->GetDouble("DFR-Ma"));
   fBeta = fConfig->GetDoubleDef("beta", gc->GetDouble("DFR-Beta"));
+
+  fXSecIntegrator =
+    dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));
+  assert(fXSecIntegrator);
 }
 //____________________________________________________________________________
 

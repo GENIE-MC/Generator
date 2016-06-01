@@ -137,6 +137,27 @@ private:
 
 //.....................................................................................
 //
+// genie::utils::gsl::d3XSec_dxdydt_E
+// A 3-D cross section function: d3xsec/dxdydt = f(x,y,t)|(fixed E)
+//
+class d3XSec_dxdydt_E: public ROOT::Math::IBaseFunctionMultiDim
+{
+public:
+  d3XSec_dxdydt_E(const XSecAlgorithmI * m, const Interaction * i);
+  ~d3XSec_dxdydt_E();
+
+  // ROOT::Math::IBaseFunctionMultiDim interface
+  unsigned int                        NDim   (void)               const;
+  double                              DoEval (const double * xin) const;
+  ROOT::Math::IBaseFunctionMultiDim * Clone  (void)               const;
+
+private:
+  const XSecAlgorithmI * fModel;
+  const Interaction *    fInteraction;
+};
+
+//.....................................................................................
+//
 // genie::utils::gsl::d2XSec_dWdQ2_E
 // A 2-D cross section function: d2xsec/dWdQ2 = f(W,Q2)|(fixed E)
 //

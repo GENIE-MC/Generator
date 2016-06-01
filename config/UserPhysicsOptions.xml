@@ -292,6 +292,14 @@ STFC, Rutherford Appleton Laboratory
   -->
   <param type="double" name="DFR-Beta"> 7.0 </param>
 
+ <!--
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Maximum considered t for diffractive scattering reactions when estimating the max cross section. 
+  Units in GeV^2.
+  -->
+  <param type="double" name="DFR-t-max"> 1.0 </param>
+
+ 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Parameters for neutrino-electron elastic scattering 
