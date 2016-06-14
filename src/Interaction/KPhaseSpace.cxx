@@ -726,9 +726,9 @@ Range1D_t KPhaseSpace::TLim(void) const
     
     tl.min = std::abs( (A2 + sqrt(A2*A2 - A1*A3)) / A1 );  // GENIE's convention is that t is positive
     bool tminIsNaN;
-    // use std::is_nan when C++11 is around
+    // use std::isnan when C++11 is around
 #if __cplusplus >= 201103L
-      tminIsNaN = std::is_nan(tl.min);
+      tminIsNaN = std::isnan(tl.min);
 #else
       // this the old-fashioned way to check for NaN:
       // NaN's aren't equal to anything, including themselves
