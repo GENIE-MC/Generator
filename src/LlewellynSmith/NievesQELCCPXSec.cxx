@@ -936,7 +936,7 @@ double NievesQELCCPXSec::vcr(const Target * target, double Rcurr) const{
     std::vector<double> Vvec;
     Vvec.resize(nElts);
 
-    //ofstream rhostream;
+    //std::ofstream rhostream;
     //rhostream.open("r_rho.txt", std::ios_base::app);
     for(int i=0; i<nElts; i++){
       double r = rvec[i];
@@ -1338,7 +1338,7 @@ double NievesQELCCPXSec::LmunuAnumu(const TLorentzVector neutrinoMom,
     // get tmu
     double tmugev = leptonMom.E() - leptonMom.Mag();
   // Print Q2, form factors, and tensor elts
-    ofstream ffstream;
+    std::ofstream ffstream;
     ffstream.open(fTensorsOutFile, std::ios_base::app);
     if(imU < 0){
     ffstream << -q2 << "\t" << q[0] << "\t" << dq
@@ -1378,7 +1378,7 @@ double NievesQELCCPXSec::LmunuAnumu(const TLorentzVector neutrinoMom,
     ffstream.close();
   }else  if(fPrintData){
   // Print Q2, form factors, and tensor elts
-    ofstream ffstream;
+    std::ofstream ffstream;
     ffstream.open("tensors_gevgen_allevents.txt", std::ios_base::app);
     ffstream << -q2 << "\t" << q[0] << "\t" << dq << "\t"
 	     << F1V << "\t" << xiF2V << "\t" << FA << "\t" << Fp
