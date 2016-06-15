@@ -525,7 +525,7 @@ void COHKinematicsGenerator::CalculateKin_AlvarezRuso(GHepRecord * evrec) const
                         interaction, interaction->KinePtr());
 
     // computing cross section for the current kinematics
-    xsec = fXSecModel->XSec(interaction,kPSElOlOpifE);
+    xsec = fXSecModel->XSec(interaction,kPSElOlOpifE) / (1E-38 * units::cm2);
 
     if (!fGenerateUniformly) {
       //-- decide whether to accept the current kinematics
@@ -742,7 +742,12 @@ double COHKinematicsGenerator::MaxXSec_BergerSehgal(const Interaction * in) cons
     double Q2 = TMath::Power(10, logQ2min + i * dlogQ2);
     in->KinePtr()->SetQ2(Q2);
 
-    Range1D_t yr = kps.YLim();
+    Range1D_t yr;
+    if (fPaschosSchallaXi >= 0) {
+      yr = kps.YLim(fPaschosSchallaXi);
+    } else {
+      yr = kps.YLim();
+    }
     if ((yr.max < 0) || (yr.max < yr.min) || 
         (yr.max > 1) || (yr.min < 0)) { // forbidden kinematics
       continue;
@@ -755,6 +760,7 @@ double COHKinematicsGenerator::MaxXSec_BergerSehgal(const Interaction * in) cons
       double gy = TMath::Power(10, logymin + j * dlogy);
       in->KinePtr()->Sety(gy);
 
+      /* Range1D_t tl = kps.TLim();   // TESTING! - this becomes a loop over t */
       kinematics::UpdateXFromQ2Y(in);
 
       // Note: We're not stepping through log Q^2, log y - we "unpacked"
@@ -793,7 +799,12 @@ double COHKinematicsGenerator::MaxXSec_BergerSehgalFM(const Interaction * in) co
     double Q2 = TMath::Power(10, logQ2min + i * dlogQ2);
     in->KinePtr()->SetQ2(Q2);
 
-    Range1D_t yr = kps.YLim();
+    Range1D_t yr;
+    if (fPaschosSchallaXi >= 0) {
+      yr = kps.YLim(fPaschosSchallaXi);
+    } else {
+      yr = kps.YLim();
+    }
     if ((yr.max < 0) || (yr.max < yr.min) || 
         (yr.max > 1) || (yr.min < 0)) { // forbidden kinematics
       continue;
@@ -811,8 +822,6 @@ double COHKinematicsGenerator::MaxXSec_BergerSehgalFM(const Interaction * in) co
         in->KinePtr()->Sety(gy);
         in->KinePtr()->Sett(gt);
 
-        // TODO: 
-        // double xsec = fXSecModel->XSec(in, kPSQ2ytfE);
         double xsec = fXSecModel->XSec(in, kPSxyfE);
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
         LOG("COHKinematics", pDEBUG)  
@@ -1010,6 +1019,11 @@ void COHKinematicsGenerator::LoadConfig(void)
   fMaxXSecDiffTolerance = 
     fConfig->GetDoubleDef("MaxXSec-DiffTolerance",999999.);
   assert(fMaxXSecDiffTolerance>=0);
+
+  //-- nu_min scaling from Paschos, Schalla PRD 80 033005
+  fPaschosSchallaXi = 
+    fConfig->GetDoubleDef("COH-PaschosSchallaXi",
+                          gc->GetDouble("COH-PaschosSchallaXi"));
 
   //-- Envelope employed when importance sampling is used 
   //   (initialize with dummy range)
