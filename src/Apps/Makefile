@@ -41,7 +41,7 @@ TGT_BASE += gevgen_atmo
 TGT_BASE += gevgen_upmu
 endif
 ifeq ($(strip $(GOPT_ENABLE_NUCLEON_DECAY)),YES)
-TGT_BASE += gevgen_hdcy
+TGT_BASE += gevgen_ndcy
 endif
 ifeq ($(strip $(GOPT_ENABLE_FLUX_DRIVERS)),YES)
 TGT_BASE += gmxpl
@@ -58,6 +58,7 @@ TGT = $(addprefix $(GENIE_BIN_PATH)/,$(TGT_BASE))
 
 # this is a nasty-looking construction which runs ldd on an existing library
 # to figure out what other libraries it depends on.
+# (sort of like g++ -M)
 find_libs = ${shell ldd $(GENIE_BIN_PATH)/$(1) 2>&1 | sed -n 's/.*=> \(.*\) (.*/\1/pg' | tr '\n' ' '}
 
 all: $(TGT)
