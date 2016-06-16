@@ -79,7 +79,6 @@ namespace genie {
     double fQ2Min;  ///< lower bound of integration for Q^2 in Berger-Sehgal Model
     double fQ2Max;  ///< upper bound of integration for Q^2 in Berger-Sehgal Model
     double fTMax;   ///< upper bound for t = (q - p_pi)^2
-    double fPaschosSchallaXi;
   };
 
 }      // genie namespace
