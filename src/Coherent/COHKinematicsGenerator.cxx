@@ -742,12 +742,7 @@ double COHKinematicsGenerator::MaxXSec_BergerSehgal(const Interaction * in) cons
     double Q2 = TMath::Power(10, logQ2min + i * dlogQ2);
     in->KinePtr()->SetQ2(Q2);
 
-    Range1D_t yr;
-    if (fPaschosSchallaXi >= 0) {
-      yr = kps.YLim(fPaschosSchallaXi);
-    } else {
-      yr = kps.YLim();
-    }
+    Range1D_t yr = kps.YLim();
     if ((yr.max < 0) || (yr.max < yr.min) || 
         (yr.max > 1) || (yr.min < 0)) { // forbidden kinematics
       continue;
@@ -799,12 +794,7 @@ double COHKinematicsGenerator::MaxXSec_BergerSehgalFM(const Interaction * in) co
     double Q2 = TMath::Power(10, logQ2min + i * dlogQ2);
     in->KinePtr()->SetQ2(Q2);
 
-    Range1D_t yr;
-    if (fPaschosSchallaXi >= 0) {
-      yr = kps.YLim(fPaschosSchallaXi);
-    } else {
-      yr = kps.YLim();
-    }
+    Range1D_t yr = kps.YLim();
     if ((yr.max < 0) || (yr.max < yr.min) || 
         (yr.max > 1) || (yr.min < 0)) { // forbidden kinematics
       continue;
@@ -1019,11 +1009,6 @@ void COHKinematicsGenerator::LoadConfig(void)
   fMaxXSecDiffTolerance = 
     fConfig->GetDoubleDef("MaxXSec-DiffTolerance",999999.);
   assert(fMaxXSecDiffTolerance>=0);
-
-  //-- nu_min scaling from Paschos, Schalla PRD 80 033005
-  fPaschosSchallaXi = 
-    fConfig->GetDoubleDef("COH-PaschosSchallaXi",
-                          gc->GetDouble("COH-PaschosSchallaXi"));
 
   //-- Envelope employed when importance sampling is used 
   //   (initialize with dummy range)
