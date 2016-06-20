@@ -41,7 +41,7 @@ XSecAlgorithmI("genie::ReinDFRPXSec")
 
 }
 //____________________________________________________________________________
-ReinDFRPXSec::ReinDFRPXSec(string config) :
+ReinDFRPXSec::ReinDFRPXSec(const std::string & config) :
 XSecAlgorithmI("genie::ReinDFRPXSec", config)
 {
 
@@ -77,9 +77,8 @@ double ReinDFRPXSec::XSec(
   double propg   = TMath::Power(ma2/(ma2+Q2),2.);     // propagator term
   double sTot    = (sqrtEpi>0) ? 12.*(2.+1./sqrtEpi)*units::mb : 0.; // pi+N total cross section (Regge parametrization)
   double sTot2   = TMath::Power(sTot,2.);
-  double tmax    = 1.0;
-  double tmin    = TMath::Min(tmax, TMath::Power(0.5*kPionMass2/Epi,2.));
-  double tint    = (TMath::Exp(-b*tmin) - TMath::Exp(-b*tmax))/b; // t integral
+  double t       = kinematics.t();
+  double tFac    = TMath::Exp(-b*t);
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("ReinDFR", pDEBUG)
@@ -96,8 +95,8 @@ double ReinDFRPXSec::XSec(
 //  if (W2 < 4)
 //    return 0;
 
-  //----- compute d^2sigma/dxdy
-  double xsec = Gf*E*fp2*(1-y)*propg*sTot2*tint;
+  //----- compute d^2sigma/dxdydt
+  double xsec = Gf*E*fp2*(1-y)*propg*sTot2*tFac;
  
   //----- Check whether variable tranformation is needed
   if(kps!=kPSxytfE) {

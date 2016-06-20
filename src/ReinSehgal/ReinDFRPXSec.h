@@ -21,6 +21,8 @@
 #ifndef _REIN_DFRC_PXSEC_H_
 #define _REIN_DFRC_PXSEC_H_
 
+#include <string>
+
 #include "Base/XSecAlgorithmI.h"
 
 namespace genie {
@@ -31,7 +33,7 @@ class ReinDFRPXSec : public XSecAlgorithmI {
 
 public:
   ReinDFRPXSec();
-  ReinDFRPXSec(string config);
+  ReinDFRPXSec(const std::string & config);
   virtual ~ReinDFRPXSec();
 
   // XSecAlgorithmI interface implementation
