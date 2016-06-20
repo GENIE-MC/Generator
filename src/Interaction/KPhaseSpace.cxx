@@ -38,6 +38,7 @@
 
 #include <TMath.h>
 
+#include "Algorithm/AlgConfigPool.h"
 #include "Conventions/Constants.h"
 #include "Conventions/Controls.h"
 #include "EVGCore/EVGThreadException.h"
@@ -45,6 +46,7 @@
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGLibrary.h"
+#include "Registry/Registry.h"
 #include "Utils/KineUtils.h"
 #include "Utils/MathUtils.h"
 
@@ -56,19 +58,34 @@ ClassImp(KPhaseSpace)
 
 //____________________________________________________________________________
 KPhaseSpace::KPhaseSpace(void) :
-TObject()
+TObject(), fInteraction(NULL), fTMaxLoaded(false), fDFR_tMax(std::numeric_limits<double>::signaling_NaN())
 {
   this->UseInteraction(0);
 }
 //___________________________________________________________________________
 KPhaseSpace::KPhaseSpace(const Interaction * in) :
-TObject()
+TObject(), fInteraction(NULL), fTMaxLoaded(false), fDFR_tMax(std::numeric_limits<double>::signaling_NaN())
 {
   this->UseInteraction(in);
 }
 //___________________________________________________________________________
 KPhaseSpace::~KPhaseSpace(void)
 {
+
+}
+//___________________________________________________________________________
+double KPhaseSpace::GetTMaxDFR() const
+{
+  if (!this->fTMaxLoaded)
+  {
+    AlgConfigPool * confp = AlgConfigPool::Instance();
+    const Registry * gc = confp->GlobalParameterList();
+    double tmax = gc->GetDouble("DFR-t-max");
+    this->fDFR_tMax = tmax;
+    this->fTMaxLoaded = true;
+  }
+
+  return this->fDFR_tMax;
 
 }
 //___________________________________________________________________________
@@ -744,7 +761,7 @@ Range1D_t KPhaseSpace::TLim(void) const
       exception.SwitchOnFastForward();
       throw exception;    
     }
-    tl.max = 0.8;  // fixme: should be able to get this from the configuration.
+    tl.max = this->GetTMaxDFR();
     
     return tl;
   }
