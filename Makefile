@@ -506,7 +506,7 @@ clean-files: FORCE
 	cd Apps &&                          $(MAKE) clean && cd .. && \
 	cd scripts &&                       $(MAKE) clean && cd .. && \
 	cd $(GENIE) && \
-    [ ! -d ./bin ] || rm ./bin/* && \
+    [ ! -d ./bin ] || $(RM) ./bin/* && \
 	cd $(GENIE)
 
 clean-dir: FORCE
