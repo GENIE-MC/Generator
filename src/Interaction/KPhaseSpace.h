@@ -67,12 +67,15 @@ public:
   Range1D_t  TLim    (void) const;  ///< t  limits
 
 private:
-
   void Init(void);
 
-  const Interaction * fInteraction;
+  double GetTMaxDFR() const;
 
-ClassDef(KPhaseSpace,1)
+  const Interaction * fInteraction;
+  mutable bool   fTMaxLoaded;
+  mutable double fDFR_tMax;
+
+ClassDef(KPhaseSpace,2)
 };
 
 }      // genie namespace
