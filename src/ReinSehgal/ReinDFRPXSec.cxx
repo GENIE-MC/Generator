@@ -63,6 +63,7 @@ double ReinDFRPXSec::XSec(
   const InitialState & init_state = interaction -> InitState();
   const Target &       target     = init_state.Tgt();
 
+  bool   isCC    = interaction->ProcInfo().IsWeakCC();
   double E       = init_state.ProbeE(kRfHitNucRest);          // neutrino energy
   double x       = kinematics.x();                            // bjorken x
   double y       = kinematics.y();                            // inelasticity y
@@ -76,8 +77,7 @@ double ReinDFRPXSec::XSec(
   double b       = fBeta;
   double ma2     = TMath::Power(fMa,2);
   double propg   = TMath::Power(ma2/(ma2+Q2),2.);             // propagator term
-  bool   isChgPi = interaction->ExclTag().NPi0()==0;
-  double sTot    = utils::hadxs::TotalPionNucleonXSec(Epi, isChgPi);   // pi+N total cross section
+  double sTot    = utils::hadxs::TotalPionNucleonXSec(Epi, isCC);   // pi+N total cross section; CC process always produces a charged pion
   double sTot2   = TMath::Power(sTot,2.);
   double tFac    = TMath::Exp(-b*t);
 
@@ -98,6 +98,10 @@ double ReinDFRPXSec::XSec(
 
   //----- compute d^2sigma/dxdydt
   double xsec = Gf*E*fp2*(1-y)*propg*sTot2*tFac;
+
+  // NC XS is half of CC
+  if (!isCC)
+    xsec *= 0.5;
  
   //----- Check whether variable tranformation is needed
   if(kps!=kPSxytfE) {
