@@ -27,6 +27,7 @@
 #include "Numerical/Spline.h"
 #include "PDG/PDGUtils.h"
 #include "ReinSehgal/ReinDFRPXSec.h"
+#include "Utils/HadXSUtils.h"
 #include "Utils/KineUtils.h"
 
 using namespace genie;
@@ -62,21 +63,21 @@ double ReinDFRPXSec::XSec(
   const InitialState & init_state = interaction -> InitState();
   const Target &       target     = init_state.Tgt();
 
-  double E       = init_state.ProbeE(kRfHitNucRest);  // neutrino energy
-  double x       = kinematics.x();                    // bjorken x
-  double y       = kinematics.y();                    // inelasticity y
-  double t       = kinematics.t();                    // (magnitude of) square of four-momentum xferred to proton
-  double M       = target.HitNucMass();               //
-  double Q2      = 2.*x*y*M*E;                        // momentum transfer Q2>0
-  double Gf      = kGF2 * M/(16*kPi3);                // GF/pi/etc factor
-  double fp      = 0.93 * kPionMass;                  // pion decay constant (cc)
+  double E       = init_state.ProbeE(kRfHitNucRest);          // neutrino energy
+  double x       = kinematics.x();                            // bjorken x
+  double y       = kinematics.y();                            // inelasticity y
+  double t       = kinematics.t();                            // (magnitude of) square of four-momentum xferred to proton
+  double M       = target.HitNucMass();                       //
+  double Q2      = 2.*x*y*M*E;                                // momentum transfer Q2>0
+  double Gf      = kGF2 * M/(16*kPi3);                        // GF/pi/etc factor
+  double fp      = 0.93 * kPionMass;                          // pion decay constant (cc)
   double fp2     = TMath::Power(fp,2.);         
-  double Epi     = y*E - t/(2*M);                     // pion energy.  note we use - instead of + like Rein's paper b/c our t is magnitude only
-  double sqrtEpi = TMath::Sqrt(TMath::Max(0.,Epi));
+  double Epi     = y*E - t/(2*M);                             // pion energy.  note we use - instead of + like Rein's paper b/c our t is magnitude only
   double b       = fBeta;
   double ma2     = TMath::Power(fMa,2);
-  double propg   = TMath::Power(ma2/(ma2+Q2),2.);     // propagator term
-  double sTot    = (sqrtEpi>0) ? 12.*(2.+1./sqrtEpi)*units::mb : 0.; // pi+N total cross section (Regge parametrization)
+  double propg   = TMath::Power(ma2/(ma2+Q2),2.);             // propagator term
+  bool   isChgPi = interaction->ExclTag().NPi0()==0;
+  double sTot    = utils::hadxs::TotalPionNucleonXSec(Epi, isChgPi);   // pi+N total cross section
   double sTot2   = TMath::Power(sTot,2.);
   double tFac    = TMath::Exp(-b*t);
 
