@@ -101,6 +101,11 @@ Generator-%d                alg     No
      <param type="alg" name="Generator-0">   genie::EventGenerator/QEL-CC-CHARM </param>
   </param_set>
 
+  <param_set name="LambdaCCQE">
+     <param type="int" name="NGenerators">   1                                  </param>
+     <param type="alg" name="Generator-0">   genie::EventGenerator/QEL-CC-LAMBDA </param>
+  </param_set>
+
   <param_set name="SingleKaon">
      <param type="int" name="NGenerators">   1                               </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/DIS-CC-SINGLEK </param>

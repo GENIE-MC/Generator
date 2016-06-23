@@ -13,20 +13,8 @@ XSec-Integrator    alg     No         xsection integration algorithm
 -->
 
   <param_set name="Default"> 
-     <param type="alg"  name="FormFactorsAlg">  genie::LwlynSmithFFCC/Default </param>
-     <param type="alg"  name="XSec-Integrator"> genie::QELXSec/Default        </param>
-  </param_set>
-  <param_set name="DipoleELFF"> 
-     <param type="alg"  name="FormFactorsAlg">  genie::LwlynSmithFFCC/Dipole  </param>
-     <param type="alg"  name="XSec-Integrator"> genie::QELXSec/Default        </param>
-  </param_set>
-  <param_set name="BBA2003"> 
-     <param type="alg"  name="FormFactorsAlg">  genie::LwlynSmithFFCC/BBA2003 </param>
-     <param type="alg"  name="XSec-Integrator"> genie::QELXSec/Default        </param>
-  </param_set>
-  <param_set name="BBA2005"> 
-     <param type="alg"  name="FormFactorsAlg">  genie::LwlynSmithFFCC/BBA2005 </param>
-     <param type="alg"  name="XSec-Integrator"> genie::QELXSec/Default        </param>
+     <param type="alg"  name="FormFactorsAlg">  genie::LwlynSmithFFDeltaS/Default </param>
+     <param type="alg"  name="XSec-Integrator"> genie::QELXSec/Default            </param>
   </param_set>
 </alg_conf>
 

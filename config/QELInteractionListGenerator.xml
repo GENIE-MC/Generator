@@ -28,5 +28,10 @@ Name             Type     Optional   Comment               Default
         <param type="bool" name="is-Charm"> true  </param>
   </param_set>
   
+  <param_set name="CC-Lambda-Default"> 
+       <param type="bool" name="is-CC">      true  </param>
+       <param type="bool" name="is-Strange"> true  </param>
+  </param_set> 
+
 </alg_conf>
 
