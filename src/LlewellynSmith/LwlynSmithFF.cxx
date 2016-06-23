@@ -71,9 +71,9 @@ double LwlynSmithFF::StrangeF1V(const Interaction * interaction) const
   const XclsTag &      xcls       = interaction->ExclTag();
   int pdgc = xcls.StrangeHadronPdg();
 
-  if (pdgc == kPdgSigmaM)        value = (f1p + 2 * f1n);
+  if (pdgc == kPdgSigmaM)        value = -1.* (f1p + 2 * f1n);
   else if (pdgc == kPdgLambda)   value = -kSqrt3 / kSqrt2 * f1p;
-  else if (pdgc == kPdgSigma0)   value = kSqrt2 / 2 * (f1p + 2 * f1n);
+  else if (pdgc == kPdgSigma0)   value = -1.* kSqrt2 / 2 * (f1p + 2 * f1n);
 
   return value;
 }
@@ -85,17 +85,14 @@ double LwlynSmithFF::StrangexiF2V(const Interaction * interaction) const
   
   double f2p = this->F2P(interaction);
   double f2n = this->F2N(interaction);
-  double MH = PDGLibrary::Instance()->Find(pdgc)->Mass();  
-  const InitialState & init_state = interaction->InitState();
-  double MN   = init_state.Tgt().HitNucMass();
   double value = 0.;
 
-  if (pdgc == kPdgSigmaM)      
-    value = (fMuP * f2p +  fMuN * f2n)* 2 * MN / (MN + MH);
-  else if (pdgc == kPdgLambda) 
-    value = (-kSqrt3 / kSqrt2 * fMuP * f2p) * 2 * MN / (MN + MH);
-  else if (pdgc == kPdgSigma0) 
-    value = kSqrt2 / 2 * (fMuP * f2p + fMuN * f2n) * 2 * MN / (MN + MH);
+  if (pdgc == kPdgSigmaM)
+    value = -1.*(f2p +  2.* f2n) ;
+  else if (pdgc == kPdgLambda)
+    value = (-kSqrt3 / kSqrt2 * f2p) ;
+  else if (pdgc == kPdgSigma0)
+    value = -1.* kSqrt2 / 2 * (f2p + 2.* f2n) ;
 
   return value;
 }
@@ -103,14 +100,17 @@ double LwlynSmithFF::StrangexiF2V(const Interaction * interaction) const
 //____________________________________________________________________________
 double LwlynSmithFF::StrangeFA(const Interaction * interaction) const
 {
+  double value = 0.;
 
   const XclsTag &      xcls       = interaction->ExclTag();
   int pdgc = xcls.StrangeHadronPdg();
-  double value = 0.;
 
-  if (pdgc == kPdgSigmaM)       value =  -1 * (1 - 2 * fFDratio);
+  if (pdgc == kPdgSigmaM)       value =  +1 * (1 - 2 * fFDratio);
   else if (pdgc == kPdgLambda)  value =  -1 / kSqrt6 * (1 + 2 * fFDratio);
-  else if (pdgc == kPdgSigma0)  value =  -1 * kSqrt2 / 2 * (1 - 2 * fFDratio);
+  else if (pdgc == kPdgSigma0)  value =  +1 * kSqrt2 / 2 * (1 - 2 * fFDratio);
+
+  fAxFF.Calculate(interaction);
+  value *= fAxFF.FA();
 
   return value;
 }
@@ -254,7 +254,9 @@ void LwlynSmithFF::LoadConfig(void)
   double thw = fConfig->GetDoubleDef(
                           "WeinbergAngle", gc->GetDouble("WeinbergAngle"));
   fSin28w  = TMath::Power(TMath::Sin(thw), 2);
-  fFDratio = 0.58;  
+  double d = fConfig->GetDoubleDef("QE-SU3-D", gc->GetDouble("SU3-D")); // SU(3) parameter D
+  double f = fConfig->GetDoubleDef("QE-SU3-F", gc->GetDouble("SU3-F")); // SU(3) parameter F
+  fFDratio = f/(d+f); 
 }
 //____________________________________________________________________________
 double LwlynSmithFF::tau(const Interaction * interaction) const
