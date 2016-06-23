@@ -95,6 +95,7 @@
    <config alg="genie::DipoleAxialFormFactorModel">  DipoleAxialFormFactorModel.xml  </config>
    <config alg="genie::ZExpAxialFormFactorModel">    ZExpAxialFormFactorModel.xml    </config>
    <config alg="genie::LwlynSmithFFCC">              LwlynSmithFFCC.xml              </config>
+   <config alg="genie::LwlynSmithFFDeltaS">          LwlynSmithFFDeltaS.xml          </config>
    <config alg="genie::TransverseEnhancementFFModel"> TransverseEnhancementFFModel.xml </config>
    <config alg="genie::LwlynSmithFFNC">              LwlynSmithFFNC.xml              </config>
    <config alg="genie::QPMDISStrucFunc">             QPMDISStrucFunc.xml             </config>
@@ -128,6 +129,7 @@
    <config alg="genie::AivazisCharmPXSecLO">                AivazisCharmPXSecLO.xml                </config>
    <config alg="genie::SlowRsclCharmDISPXSecLO">            SlowRsclCharmDISPXSecLO.xml            </config>
    <config alg="genie::KovalenkoQELCharmPXSec">             KovalenkoQELCharmPXSec.xml             </config>
+   <config alg="genie::PaisQELLambdaPXSec">                 PaisQELLambdaPXSec.xml                 </config>
    <config alg="genie::AlamSimoAtharVacasSKPXSec2014">      AlamSimoAtharVacasSKPXSec2014.xml      </config>   
    <config alg="genie::P33PaschosLalakulichPXSec">          P33PaschosLalakulichPXSec.xml          </config>
    <config alg="genie::BardinIMDRadCorPXSec">               BardinIMDRadCorPXSec.xml               </config>

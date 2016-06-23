@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration sets for Llewellyn-Smith QEL CC form factors
+
+Configurable Parameters:
+..........................................................................................................
+Name                     Type     Optional   Comment                     Default
+..........................................................................................................
+Ma                       double   Yes        Axial  Mass squared         GPL: QEl-Ma
+FA0                      double   Yes        FA(q2=0)                    GPL: QEL-FA0
+ElasticFormFactorsModel  alg      No         Elastic form factors model  GPL: ElasticFormFactorsModel
+WeinbergAngle            double   Yes        Weinberg angle              GPL: WeinbergAngle
+
+-->
+
+  <param_set name="Default"> 
+  </param_set>
+
+</alg_conf>
+
