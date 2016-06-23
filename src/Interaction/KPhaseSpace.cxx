@@ -497,6 +497,9 @@ Range1D_t KPhaseSpace::Q2Lim(void) const
     if(xcls.IsCharmEvent()) { 
       int charm_pdgc = xcls.CharmHadronPdg();           
       W = PDGLibrary::Instance()->Find(charm_pdgc)->Mass();
+    }  else if(xcls.IsStrangeEvent()) { 
+      int strange_pdgc = xcls.StrangeHadronPdg();           
+      W = PDGLibrary::Instance()->Find(strange_pdgc)->Mass();
     }
     if (pi.IsInverseBetaDecay()) {
       Q2l = kinematics::InelQ2Lim_W(Ev,M,ml,W,controls::kMinQ2Limit_VLE);
