@@ -812,13 +812,6 @@ STFC, Rutherford Appleton Laboratory
   <param type="alg" name="XSecModel@genie::EventGenerator/RES-EM">         genie::KuzminLyubushkinNaumovRESPXSec2014/Default </param>
    -->
 	
-  <!-- New Kuzmin-Lyubushkin-Naumov resonance model w/MiniBooNE tune... -->
-  <!-- 
-  <param type="alg" name="XSecModel@genie::EventGenerator/RES-CC">         genie::KuzminLyubushkinNaumovRESPXSec2014/Default </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/RES-NC">         genie::KuzminLyubushkinNaumovRESPXSec2014/Default </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/RES-EM">         genie::KuzminLyubushkinNaumovRESPXSec2014/Default </param>
-   -->
-
   <param type="alg" name="XSecModel@genie::EventGenerator/RES-CC">         genie::ReinSehgalRESPXSec/Default       </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/RES-NC">         genie::ReinSehgalRESPXSec/Default       </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/RES-EM">         genie::ReinSehgalRESPXSec/Default       </param>
