@@ -193,10 +193,10 @@ void MECHadronTensor::LoadTensorTables(int targetpdg)
       // create a non uniform grid from tensor data
       genie::BLI2DNonUnifGrid *hadTensorGrid = 
            new genie::BLI2DNonUnifGrid(
-               nq0points, 
                nqzpoints, 
-               hadtensor_q0_array, 
+               nq0points, 
                hadtensor_qz_array, 
+               hadtensor_q0_array, 
                hadtensor_w_array[i]
            );
 
