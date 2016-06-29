@@ -36,6 +36,9 @@ class TRootIOCtor;
 
 namespace genie {
 
+class InitialState;
+ostream & operator << (ostream & stream, const InitialState & i); 
+
 class InitialState : public TObject {
 
 public:
