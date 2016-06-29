@@ -117,7 +117,7 @@ double BSKLNBaseRESPXSec2014::XSec(
   int    LR  = utils::res::OrbitalAngularMom (resonance);
   double MR  = utils::res::Mass              (resonance);
   double WR  = utils::res::Width             (resonance);
-  double NR  = utils::res::BWNorm            (resonance);
+  double NR  = utils::res::BWNorm            (resonance,fN0ResMaxNWidths,fN2ResMaxNWidths,fGnResMaxNWidths);
 
   // Following NeuGEN, avoid problems with underlying unphysical
   // model assumptions by restricting the allowed W phase space

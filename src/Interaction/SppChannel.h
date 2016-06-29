@@ -240,6 +240,8 @@ public:
     return 0;
   }
   //__________________________________________________________________________
+  // The values of resonance branching ratio is taken from 
+  //  K.A. Olive et al. (Particle Data Group), Chin. Phys. C, 38, 090001 (2014)
   static double BranchingRatio(SppChannel_t /*channel*/, Resonance_t res)
   {
     // return the BR for the decay of the input resonance to the final state
@@ -249,24 +251,24 @@ public:
     // the branching ratio.
 
     switch(res) {
-      case kP33_1232  : return 1.00; break;
-      case kS11_1535  : return 0.45; break;
-      case kD13_1520  : return 0.55; break; // REMOVE HARDCODED DATA FROM
-      case kS11_1650  : return 0.73; break; // HERE AND GET BR's from PDG
-      case kD13_1700  : return 0.10; break; // TABLES via TDatabasePDG
-      case kD15_1675  : return 0.45; break;
-      case kS31_1620  : return 0.25; break;
-      case kD33_1700  : return 0.15; break;
-      case kP11_1440  : return 0.65; break;
-      case kP33_1600  : return 0.18; break;
-      case kP13_1720  : return 0.15; break;
-      case kF15_1680  : return 0.65; break;
-      case kP31_1910  : return 0.23; break;
-      case kP33_1920  : return 0.13; break;
-      case kF35_1905  : return 0.10; break;
-      case kF37_1950  : return 0.38; break;
-      case kP11_1710  : return 0.15; break;
-      case kF17_1970  : return 0.00; break;
+      case kP33_1232  : return 0.994; break;
+      case kS11_1535  : return 0.450; break;
+      case kD13_1520  : return 0.600; break; // REMOVE HARDCODED DATA FROM
+      case kS11_1650  : return 0.700; break; // HERE AND GET BR's from PDG
+      case kD13_1700  : return 0.120; break; // TABLES via TDatabasePDG
+      case kD15_1675  : return 0.400; break;
+      case kS31_1620  : return 0.250; break;
+      case kD33_1700  : return 0.150; break;
+      case kP11_1440  : return 0.650; break;
+      case kP33_1600  : return 0.175; break;
+      case kP13_1720  : return 0.110; break;
+      case kF15_1680  : return 0.675; break;
+      case kP31_1910  : return 0.225; break;
+      case kP33_1920  : return 0.125; break;
+      case kF35_1905  : return 0.120; break;
+      case kF37_1950  : return 0.400; break;
+      case kP11_1710  : return 0.125; break;
+      case kF17_1970  : return 0.150; break;
       default: break;
     }
     return 0;

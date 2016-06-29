@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2016, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -34,10 +34,11 @@
 #include "PDG/PDGLibrary.h"
 #include "Numerical/RandomGen.h"
 #include "Utils/PrintUtils.h"
+#include "Conventions/Constants.h"
 
 using namespace genie;
 using namespace genie::controls;
-
+using namespace genie::constants;
 //____________________________________________________________________________
 BaryonResonanceDecayer::BaryonResonanceDecayer() :
 DecayModelI("genie::BaryonResonanceDecayer")
@@ -68,6 +69,87 @@ bool BaryonResonanceDecayer::IsHandled(int code) const
   return false;
 }
 //____________________________________________________________________________
+
+//-----------------------------------------customizing-----------------------
+double BaryonResonanceDecayer::DealsDeltaNGamma(int id_mother, int ichannel, double W) const
+{
+  //-- auxiliary parameters
+  int DeltaFlag = 0;
+	  if (id_mother == 2114 || id_mother==-2114) {
+		  DeltaFlag = 1; // Delta0 or Delta0_bar
+	  }  
+	  else if (id_mother == 2214 || id_mother==-2214) {
+	      DeltaFlag = 2; // Delta+ or anti_Delta+
+	  }  
+	  else  {
+     // cout<<"Mother particle is not Delta+ or Delta0!!!"<<endl;
+	  return 0;
+	  }
+  double mN  =   genie::constants::kNucleonMass;
+  double mPi  = genie::constants::kPi0Mass;
+//  double mN    = kNucleonMass;
+//  double mPi   = kPi0Mass;
+
+  if (W<=mN+mPi) {
+	  if (ichannel == 0) {return 0;} // ichannel =0,1,2 has to match 
+	                                // the channel order in genie_pdg_table.dat
+	  if (ichannel == 1) {return 0;}
+	  if (ichannel == 2) {return 1;}
+  } else {
+
+  double m  = 1.232;
+  
+  double width0= 0.12;
+
+  double m_2   = TMath::Power(m, 2);
+  double mN_2  = TMath::Power(mN,   2);
+  double mPi_2 = TMath::Power(mPi,  2);
+  double W_2   = TMath::Power(W,    2);
+  double m_aux1= TMath::Power(mN+mPi, 2);
+  double m_aux2= TMath::Power(mN-mPi, 2);
+  double rDelta= 0.81*FMTOGEV;
+
+  double BRPi0    = 0.994;
+  double BRPi01   = 0.667002;
+  double BRPi02   = 0.332998;
+  double BRgamma0 = 0.006;
+  double widPi0   = width0*BRPi0;
+  double widgamma0= width0*BRgamma0;
+
+  double pPiW   = TMath::Sqrt((W_2-m_aux1)*(W_2-m_aux2))/(2*W);
+  double pPim   = TMath::Sqrt((m_2-m_aux1)*(m_2-m_aux2))/(2*m);
+  double EgammaW= (W_2-mN_2)/(2*W);
+  double Egammam= (m_2-mN_2)/(2*m);
+  double TPiW=TMath::Power(pPiW, 3);  
+  double TPim=TMath::Power(pPim, 3);
+ // double TPiW   = pPiW*TMath::Power(pPiW*rDelta, 2)/(1+TMath::Power(pPiW*rDelta, 2));
+ // double TPim   = pPim*TMath::Power(pPim*rDelta, 2)/(1+TMath::Power(pPim*rDelta, 2));
+  //double fgammaW= 1/(TMath::Power(1+EgammaW*EgammaW/0.706, 2)*(1+EgammaW*EgammaW/3.519));
+  //double fgammam= 1/(TMath::Power(1+Egammam*Egammam/0.706, 2)*(1+Egammam*Egammam/3.519));
+  double fgammaW= 1/(TMath::Power(1+EgammaW*EgammaW/0.706, 2));
+  double fgammam= 1/(TMath::Power(1+Egammam*Egammam/0.706, 2));
+
+
+  double Rinverse = widPi0*TMath::Power(Egammam, 3)*TMath::Power(fgammam, 2)*TPiW
+	     /(widgamma0*TMath::Power(EgammaW, 3)*TMath::Power(fgammaW, 2)*TPim);
+  double BRPi = Rinverse/(1+Rinverse);
+  double BRgamma = 1/(1+Rinverse);
+  
+  if (DeltaFlag==1) {
+  	  if (ichannel == 0) {return BRPi*BRPi02;}
+	  if (ichannel == 1) {return BRPi*BRPi01;}
+	  if (ichannel == 2) {return BRgamma;}
+  }
+  if (DeltaFlag==2) {
+  	  if (ichannel == 0) {return BRPi*BRPi01;}
+	  if (ichannel == 1) {return BRPi*BRPi02;}
+	  if (ichannel == 2) {return BRgamma;}
+  }
+  }
+ //cout<<"Unknown channel in Delta+/Delta0 decay!!!"<<endl;
+ return 0;
+}
+//-----------------------------------------------
 TClonesArray* BaryonResonanceDecayer::Decay(const DecayerInputs_t & inp) const
 {  
   if ( ! this->IsHandled(inp.PdgCode) ) return 0;
@@ -105,7 +187,27 @@ TClonesArray* BaryonResonanceDecayer::Decay(const DecayerInputs_t & inp) const
   //   check and inhibit decay channels for which W > final-state-mass
   
   double BR[nch], tot_BR = 0;    
-  
+ 
+//------------------ cusomizing ------------------------------
+  if(inp.PdgCode== 2114 || inp.PdgCode==-2114 || inp.PdgCode==2214||inp.PdgCode==-2214){
+	  for(unsigned int ich = 0; ich < nch; ich++) {
+
+     TDecayChannel * ch = (TDecayChannel *) decay_list->At(ich);
+     double fsmass = this->FinalStateMass(ch);
+
+     if(fsmass < W) {
+       SLOG("Decay", pDEBUG)
+               << "Using channel: " << ich 
+                        << " with final state mass = " << fsmass << " GeV";         
+       tot_BR += BaryonResonanceDecayer::DealsDeltaNGamma(inp.PdgCode, ich, W);
+     } else {       
+       SLOG("Decay", pINFO)
+               << "Suppresing channel: " << ich 
+                        << " with final state mass = " << fsmass << " GeV";         
+     }
+     BR[ich] = tot_BR;
+  }
+  }  else {
   for(unsigned int ich = 0; ich < nch; ich++) {
 
      TDecayChannel * ch = (TDecayChannel *) decay_list->At(ich);
@@ -123,7 +225,26 @@ TClonesArray* BaryonResonanceDecayer::Decay(const DecayerInputs_t & inp) const
      }
      BR[ich] = tot_BR;
   }
+  }
+//--------------customizing ends --------------------------------------------------
+/*  for(unsigned int ich = 0; ich < nch; ich++) {
 
+     TDecayChannel * ch = (TDecayChannel *) decay_list->At(ich);
+     double fsmass = this->FinalStateMass(ch);
+
+     if(fsmass < W) {
+       SLOG("Decay", pDEBUG)
+               << "Using channel: " << ich 
+                        << " with final state mass = " << fsmass << " GeV";         
+       tot_BR += ch->BranchingRatio();
+     } else {       
+       SLOG("Decay", pINFO)
+               << "Suppresing channel: " << ich 
+                        << " with final state mass = " << fsmass << " GeV";         
+     }
+     BR[ich] = tot_BR;
+  }
+*/
   if(tot_BR==0) {
     SLOG("Decay", pWARN) 
       << "None of the " << nch << " decay chans is available @ W = " << W;
@@ -164,6 +285,12 @@ TClonesArray * BaryonResonanceDecayer::DecayExclusive(
   int    pdgc[nd];
   double mass[nd];
 
+// Customized part
+  bool twobody=false;      // flag of expected channel Delta->pion+nucleon
+  int  npi=0;
+  int  nnucl=0;
+///////////////////////////////////////
+
   for(unsigned int iparticle = 0; iparticle < nd; iparticle++) {
 
      int daughter_code = ch->DaughterPdgCode(iparticle);
@@ -172,6 +299,15 @@ TClonesArray * BaryonResonanceDecayer::DecayExclusive(
 
      pdgc[iparticle] = daughter_code;
      mass[iparticle] = daughter->Mass();
+
+// Customized part--find out the expected channel Delta->pion+nucleon
+	 if(nd==2 && (pdg_code==2224 || pdg_code==2214 || pdg_code==2114) ){
+	    if(pdgc[iparticle]==211 || pdgc[iparticle]==111 ||pdgc[iparticle]==-211){ npi=npi+1;}
+	    else if(pdgc[iparticle]==2112 || pdgc[iparticle]==2212){nnucl=nnucl+1;}
+		
+		if(npi==1 && nnucl==1){twobody=true;}
+	 }
+//////////////////////////////////////
 
      SLOG("Decay", pINFO)
        << "+ daughter[" << iparticle << "]: "
@@ -185,6 +321,25 @@ TClonesArray * BaryonResonanceDecayer::DecayExclusive(
 
   bool is_permitted = fPhaseSpaceGenerator.SetDecay(p, nd, mass);
   assert(is_permitted);
+
+// Customized part--define variables for the Wtheta selection---------------
+  double aidrnd=0;
+  double wthetacheck=0;
+  double p32check=0.75; 
+  double p12check=1-p32check;
+  double p2costhetacheck=0;
+  double costhetacheck=0;
+
+  TLorentzVector vpioncheck;
+  TLorentzVector vcheckdelta;
+
+
+  //-- Create the event record
+  TClonesArray * particle_list = new TClonesArray("TMCParticle", 1+nd);
+  TClonesArray * temp_particle_list = new TClonesArray("TMCParticle", 1+nd);//A temprary record.
+
+
+while(1){  //start a loop until break;
 
   //double wmax = fPhaseSpaceGenerator.GetWtMax();
   double wmax = -1;
@@ -229,8 +384,10 @@ TClonesArray * BaryonResonanceDecayer::DecayExclusive(
      }
   }
 
-  //-- Create the event record
-  TClonesArray * particle_list = new TClonesArray("TMCParticle", 1+nd);
+//  //-- Create the event record
+//  TClonesArray * particle_list = new TClonesArray("TMCParticle", 1+nd);
+//  TClonesArray * temp_particle_list = new TClonesArray("TMCParticle", 1+nd);//A temprary record.
+
 
   //-- Add the mother particle to the event record (KS=11 as in PYTHIA)
   TParticlePDG * mother = PDGLibrary::Instance()->Find(pdg_code);
@@ -241,8 +398,10 @@ TClonesArray * BaryonResonanceDecayer::DecayExclusive(
   double E    = p.Energy();
   double M    = mother->Mass();
 
-  new ( (*particle_list)[0] )
-                    TMCParticle(11,pdg_code,0,0,0,px,py,pz,E,M,0,0,0,0,0);
+  if(twobody){vcheckdelta.SetPxPyPzE(px,py,pz,E);}  // restore mother particle's 4-momentum.
+
+  new ( (*temp_particle_list)[0] )
+                    TMCParticle(11,pdg_code,0,0,0,px,py,pz,E,M,0,0,0,0,0); //restore mother particle to the temp_particle list.
 
   //-- Add the daughter particles to the event record
   for(unsigned int id = 0; id < nd; id++) {
@@ -257,10 +416,34 @@ TClonesArray * BaryonResonanceDecayer::DecayExclusive(
        E    = p4->Energy();
        M    = mass[id];
 
-       new ( (*particle_list)[1+id] )
-                         TMCParticle(1,pdgc[id],0,0,0,px,py,pz,E,M,0,0,0,0,0);
-  }
+//Customized part--set aidrnd and wthetacheck to control the angular distribution.
+	   if(twobody){
+                   
+		   if(pdgc[id]==211 || pdgc[id]==111 ||pdgc[id]==-211){
+                        
+			       vpioncheck.SetPxPyPzE(px,py,pz,E);
+				   //Boost pion 4-vec from lab frame into CM frame
+                   vpioncheck.Boost(-vcheckdelta.BoostVector());
+                   //-----------------------------------------------------------------
+		           costhetacheck=vpioncheck.Pz()/sqrt(vpioncheck.Px()*vpioncheck.Px()+vpioncheck.Py()*vpioncheck.Py()
+                                 +vpioncheck.Pz()*vpioncheck.Pz());
+                   p2costhetacheck=0.5*(3*costhetacheck*costhetacheck-1);
+                   wthetacheck=1-p32check*(p2costhetacheck)+p12check*(p2costhetacheck);  
+                   aidrnd=1.25*gRandom->Rndm();
+                                         
+		   }  //end pion-selection                   
+	   }  //end twobody
 
+       new ( (*temp_particle_list)[1+id] )
+                         TMCParticle(1,pdgc[id],0,0,0,px,py,pz,E,M,0,0,0,0,0);
+  }//end daughter particle loop
+
+  if(!twobody) break;
+  if(twobody && wthetacheck>=aidrnd) break;
+
+   }//end while(1)
+
+  particle_list=temp_particle_list;
   //-- Set owner and return
   particle_list->SetOwner(true);
   return particle_list;
