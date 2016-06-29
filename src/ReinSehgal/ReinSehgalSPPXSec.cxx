@@ -172,6 +172,13 @@ void ReinSehgalSPPXSec::LoadConfig(void)
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();
 
+  // Get GSL integration type & relative tolerance
+  fGSLIntgType = fConfig->GetStringDef("gsl-integration-type",  "adaptive");
+  fGSLRelTol   = fConfig->GetDoubleDef("gsl-relative-tolerance", 0.01);
+  fGSLNCalls   = fConfig->GetIntDef("gsl-ncalls", 100000);
+  fGSLThreshold= fConfig->GetDoubleDef("gsl-threshold", 50);
+  fGSLNCallsFactor= fConfig->GetDoubleDef("gsl-ncalls-factor", 1);
+  
   // get upper E limit on res xsec spline (=f(E)) before assuming xsec=const
   fEMax = fConfig->GetDoubleDef("ESplineMax", 100);
   fEMax = TMath::Max(fEMax,20.); // don't accept user Emax if less than 20 GeV

@@ -19,8 +19,8 @@ UseDRJoinScheme             bool    Yes   Use DIS/RES joining scheme?           
 Wcut                        double  Yes   Param used in DIS/RES joining                                   GPL: Wcut
 MaxNWidthForN2Res           double  Yes   x in limiting allowed W phase space for n=2 res according to    2.0
                                           W < min{ Wmin(physical), MassRes + x * WidthRes }
-MaxNWidthForN0Res           double  Yes   As above for n=0 resonances                                     4.0
-MaxNWidthForGNres           double  Yes   As above for the remaining resonances                           6.0
+MaxNWidthForN0Res           double  Yes   As above for n=0 resonances                                     6.0
+MaxNWidthForGNres           double  Yes   As above for the remaining resonances                           4.0
 XSec-Integrator             alg
 -->
 

@@ -52,43 +52,35 @@ double ReinSehgalSPPPXSec::XSec(
 {
   if(! this -> ValidProcess    (interaction) ) return 0.;
   if(! this -> ValidKinematics (interaction) ) return 0.;
-
-  //-- Get 1pi exclusive channel
-  SppChannel_t spp_channel = SppChannel::FromInteraction(interaction);
-
-  LOG("ReinSehgalSpp", pINFO)
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+  LOG("ReinSehgalSpp", pDEBUG)
                  << "Computing a cross section for " << *interaction;
-  LOG("ReinSehgalSpp", pNOTICE)
-              << "SPP channel " << SppChannel::AsString(spp_channel);
-
+#endif
   //-- Check whether a resonance has been specified
   //   If yes, compute only the contribution of this resonance at the 
   //   specified exclusive state  
 
   Resonance_t inpres = interaction->ExclTag().Resonance();
   if(inpres != kNoResonance) {
-
-    string rname = utils::res::AsString(inpres);
-
-    LOG("ReinSehgalSpp", pNOTICE) 
-               << "Computing only the contribution from: " << rname;
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+	LOG("ReinSehgalSpp", pDEBUG) 
+               << "Computing only the contribution from: " << utils::res::AsString(inpres);
+#endif        
     if(!fResList.Find(inpres)) {
        LOG("ReinSehgalSpp", pWARN) 
-           << "Resonance: " << rname << " was not found in my list";
+           << "Resonance: " << utils::res::AsString(inpres) << " was not found in my list";
        return 0;
     }
     //-- Compute the contribution of this resonance
-    double xsec1 = this->XSec1RES(interaction,kps);
-    LOG("ReinSehgalSpp", pNOTICE) << "d^nxsec/ dK^n = " << xsec1;
-    return xsec1;
+    //-- Get the Breit-Wigner weighted xsec for exciting the resonance
+    
+    return fSingleResXSecModel->XSec(interaction,kps);
   }
 
   //-- Loop over the specified list of baryon resonances and compute
   //   the cross section for the input exclusive channel
-
-  double xsecN = this->XSecNRES(interaction,kps);
-  LOG("ReinSehgalSpp", pNOTICE) << "d^nxsec/ dK^n = " << xsecN;
-  return xsecN;
+  
+  return this->XSecNRES(interaction,kps);
 }
 //____________________________________________________________________________
 double ReinSehgalSPPPXSec::XSecNRES(
@@ -98,9 +90,18 @@ double ReinSehgalSPPPXSec::XSecNRES(
 // specified baryon resonances
 
   unsigned int nres = fResList.NResonances();
-  LOG("ReinSehgalSpp", pNOTICE)
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__ 
+  LOG("ReinSehgalSpp", pDEBUG)
     << "Computing SPP cross section using " << nres << " resonances";
-
+#endif
+  
+  //-- Get 1pi exclusive channel
+  SppChannel_t spp_channel = SppChannel::FromInteraction(interaction);
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+  LOG("ReinSehgalSpp", pDEBUG)
+              << "SPP channel " << SppChannel::AsString(spp_channel);
+#endif
+              
   double xsec = 0;
   for(unsigned int ires = 0; ires < nres; ires++) {
 
@@ -110,8 +111,24 @@ double ReinSehgalSPPPXSec::XSecNRES(
      //-- Set current resonance to interaction object
      interaction->ExclTagPtr()->SetResonance(res);
 
-     //-- Compute the contribution of this resonance
-     double res_xsec_contrib = this->XSec1RES(interaction,kps);
+     //-- Get the BR for the (resonance) -> (exclusive final state)
+	 double br = SppChannel::BranchingRatio(spp_channel, res);
+
+	 //-- Get the Isospin Glebsch-Gordon coefficient for the given resonance
+	 //   and exclusive final state
+	 double igg = SppChannel::IsospinWeight(spp_channel, res);
+
+	 //-- Compute the weighted xsec
+	 //  (total weight = Breit-Wigner * BR * isospin Glebsch-Gordon)
+	 double res_xsec_contrib = fSingleResXSecModel->XSec(interaction,kps)*br*igg;
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+	 LOG("ReinSehgalSpp", pDEBUG)
+     << "Contrib. from [" << utils::res::AsString(res) << "] = "
+     << "<Glebsch-Gordon = " << igg
+     << "> * <BR(->1pi) = " << br
+     << "> * <Breit-Wigner * d^nxsec/dK^n = " << rxsec
+     << "> = " << res_xsec_contrib;
+#endif
 
      //-- Add contribution of this resonance to the cross section
      xsec += res_xsec_contrib;
@@ -123,42 +140,9 @@ double ReinSehgalSPPPXSec::XSecNRES(
   return xsec;
 }
 //____________________________________________________________________________
-double ReinSehgalSPPPXSec::XSec1RES(
-               const Interaction * interaction, KinePhaseSpace_t kps) const
-{
-// computes the contribution of a resonance to a 1pi exlusive reaction
-
-  SppChannel_t spp_channel = SppChannel::FromInteraction(interaction);
-  Resonance_t res = interaction->ExclTag().Resonance();
-
-  //-- Get the Breit-Wigner weighted xsec for exciting the resonance
-  double rxsec = fSingleResXSecModel->XSec(interaction,kps);
-
-  //-- Get the BR for the (resonance) -> (exclusive final state)
-  double br = SppChannel::BranchingRatio(spp_channel, res);
-
-  //-- Get the Isospin Glebsch-Gordon coefficient for the given resonance
-  //   and exclusive final state
-  double igg = SppChannel::IsospinWeight(spp_channel, res);
-
-  //-- Compute the weighted xsec
-  //  (total weight = Breit-Wigner * BR * isospin Glebsch-Gordon)
-  double res_xsec_contrib = rxsec*br*igg;
-
-  SLOG("ReinSehgalSpp", pINFO)
-     << "Contrib. from [" << utils::res::AsString(res) << "] = "
-     << "<Glebsch-Gordon = " << igg
-     << "> * <BR(->1pi) = " << br
-     << "> * <Breit-Wigner * d^nxsec/dK^n = " << rxsec
-     << "> = " << res_xsec_contrib;
-
-  return res_xsec_contrib;
-}
-//____________________________________________________________________________
 double ReinSehgalSPPPXSec::Integral(const Interaction * interaction) const
 {
-  double xsec = fXSecIntegrator->Integrate(this,interaction);
-  return xsec;
+  return fXSecIntegrator->Integrate(this,interaction);
 }
 //____________________________________________________________________________
 bool ReinSehgalSPPPXSec::ValidProcess(const Interaction * interaction) const
@@ -172,8 +156,10 @@ bool ReinSehgalSPPPXSec::ValidProcess(const Interaction * interaction) const
             << "\n *** Insufficient SPP exclusive final state information!";
     return false;
   }
-  LOG("ReinSehgalSpp", pINFO)
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+  LOG("ReinSehgalSpp", pDEBUG)
                        << "Reaction: " << SppChannel::AsString(spp_channel);
+#endif
   return true;
 }
 //____________________________________________________________________________

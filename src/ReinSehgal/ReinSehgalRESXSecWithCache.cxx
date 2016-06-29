@@ -179,8 +179,7 @@ void ReinSehgalRESXSecWithCache::CacheResExcitationXSec(
                       new utils::gsl::d2XSec_dWdQ2_E(fSingleResXSecModel, interaction);
                   ROOT::Math::IntegrationMultiDim::Type ig_type = 
                       utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
-                  ROOT::Math::IntegratorMultiDim ig(ig_type);
-                  ig.SetRelTolerance(fGSLRelTol);   
+                  ROOT::Math::IntegratorMultiDim ig(ig_type,0,fGSLRelTol,Ev<fGSLThreshold  ?  fGSLNCalls : fGSLNCalls*fGSLNCallsFactor);   
                   ig.SetFunction(*func);
                   double kine_min[2] = { rW.min, rQ2.min };
                   double kine_max[2] = { rW.max, rQ2.max };

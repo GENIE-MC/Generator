@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2016, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -19,6 +19,8 @@
    Breit-Weigner functions from utils::bwfunc.
  @ May 01, 2012 - CA
    Pick nutau/nutaubar scaling factors from new location.
+ @ May 01, 2016 - Libo Jiang
+   Add W dependence to Delta->N gamma
 
 */
 //____________________________________________________________________________
@@ -268,7 +270,13 @@ double ReinSehgalRESPXSec::XSec(
   // Breit-Wigner distribution (default: true)
   double bw = 1.0;
   if(fWghtBW) {
+     //different Delta photon decay branch
+     if(is_delta){
+     bw = utils::bwfunc::BreitWignerLGamma(W,LR,MR,WR,NR); 
+     }
+     else{
      bw = utils::bwfunc::BreitWignerL(W,LR,MR,WR,NR); 
+     }
   } 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
      LOG("ReinSehgalRes", pDEBUG) 

@@ -136,6 +136,9 @@ double KPhaseSpace::Threshold(void) const
     double Mn2  = TMath::Power(Mn,2);
     double Wmin = (pi.IsQuasiElastic() || pi.IsInverseBetaDecay()) ? 
                   kNucleonMass : kNucleonMass+kPionMass;
+    if (pi.IsResonant()) {
+        Wmin = kNucleonMass + kPhotontest;
+    }
 
     if(xcls.IsCharmEvent()) {
        if(xcls.IsInclusiveCharm()) {
@@ -363,7 +366,6 @@ bool KPhaseSpace::IsAllowed(void) const
     bool allowed = in_phys;
     return allowed;
   }
-
 
   return false;
 }
