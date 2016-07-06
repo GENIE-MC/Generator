@@ -51,13 +51,6 @@
 #include "Utils/KineUtils.h"
 #include "Utils/PrintUtils.h"
 
-// Testing code
-#include "LlewellynSmith/NievesQELCCPXSec.h"
-#include "LlewellynSmith/LwlynSmithQELCCPXSec.h"
-#include <iostream>
-#include <fstream>
-// End testing code
-
 using namespace genie;
 using namespace genie::controls;
 using namespace genie::constants;
@@ -215,7 +208,7 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
 //         else if (nucleon->Pdg() == 2112){
 //           Mp = tb->GetParticle(2212)->Mass();
 //         }
-//         else{std::cout << "ERROR - incoming particle not a proton or neutron" << std::endl;}
+//         else{LOG("QELEvent",pDEBUG) << "ERROR - incoming particle not a proton or neutron" << std::endl;}
 //
 //         //double EN_offshell = Mi - TMath::Sqrt(pF2 + Mf*Mf);
 //         double EN_offshell = TMath::Sqrt(Mn*Mn + pF2) - w; // old
@@ -246,8 +239,8 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
 //         // Update the binding energy value at the GHEP record
 //         // nucleon->SetRemovalEnergy(Eb);
 //
-//         //std::cout << "offshell energy = "<<EN_offshell << ", fRemovalEnergy = "<<w << std::endl;
-//         //std::cout << "binding energy = "<< Eb << std::endl;
+//         //LOG("QELEvent",pDEBUG) << "offshell energy = "<<EN_offshell << ", fRemovalEnergy = "<<w << std::endl;
+//         //LOG("QELEvent",pDEBUG) << "binding energy = "<< Eb << std::endl;
 //
 //        // Sometimes, for interactions near threshold, Fermi momentum might bring
 //        // the neutrino energy in the nucleon rest frame below threshold (for the
@@ -264,14 +257,14 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
 //        }
 //
 //        // Get centre-of-mass energy
-        const InitialState & init_state = interaction->InitState();
-        double s = init_state.CMEnergy();
-        s *= s; //* init_state.CMEnergy(); // centre of mass energy squared
+//	 const InitialState & init_state = interaction->InitState();
+//        double s = init_state.CMEnergy();
+//        s *= s; //* init_state.CMEnergy(); // centre of mass energy squared
         
-        if (TMath::Sqrt(s) < interaction->FSPrimLepton()->Mass() + Mp){ // throw a new event if this one is below threshold
-          LOG("QELEvent", pINFO) << "Event below threshold, reject throw and try again!";
-          continue;
-        }
+//        if (TMath::Sqrt(s) < interaction->FSPrimLepton()->Mass() + Mp){ // throw a new event if this one is below threshold
+//          LOG("QELEvent", pINFO) << "Event below threshold, reject throw and try again!";
+	  //          continue;
+	  //        }
 
         // Pick a direction
         double costheta = (rnd->RndKine().Rndm() * 2) - 1; // cosine theta between -1 and 1
@@ -349,7 +342,10 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
           TLorentzVector x4l(*(evrec->Probe())->X4());
           
           evrec->AddParticle(interaction->FSPrimLeptonPdg(), kIStStableFinalState, evrec->ProbePosition(),-1,-1,-1, interaction->KinePtr()->FSLeptonP4(), x4l);
-          evrec->AddParticle(interaction->RecoilNucleonPdg(), kIStHadronInTheNucleus, evrec->HitNucleonPosition(),-1,-1,-1, interaction->KinePtr()->HadSystP4(), x4l); // Set status to kIStHadronInTheNucleus to enable hadron transport
+	  
+	  GHepStatus_t ist = (tgt->IsNucleus()) ? 
+	    kIStHadronInTheNucleus : kIStStableFinalState;
+          evrec->AddParticle(interaction->RecoilNucleonPdg(), ist, evrec->HitNucleonPosition(),-1,-1,-1, interaction->KinePtr()->HadSystP4(), x4l);
 
 	  // Store struck nucleon momentum and binding energy
 	  TLorentzVector p4ptr = interaction->InitStatePtr()->TgtPtr()->HitNucP4();
@@ -600,38 +596,25 @@ double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const
 //____________________________________________________________________________
 double QELEventGenerator::ComputeXSec( Interaction * interaction, double costheta, double phi) const
 {
-  //std::cout << "running ComputeXSec()" << std::endl;
   Target * tgt = interaction->InitState().TgtPtr();
-  LOG("QELEvent", pINFO) << "got target pointer";
   TLorentzVector * p4 = tgt->HitNucP4Ptr();
-  //std::cout << "got hitNuc pointer"<< std::endl;
 
-  //std::cout << "do we have an fNucModel?"<< std::endl;
-  //if (fNuclModel){std::cout << "yes!" << fNuclModel << std::endl;}
-  //else{std::cout << "no :( " << fNuclModel << std::endl;}
-  //std::cout << "do we have an fNucModel with stuff?"<< std::endl;
-  //if (fNuclModel->Momentum3().X()){std::cout << "yes!" << std::endl;}
-   
   TVector3 p3 = fNuclModel->Momentum3();
-  //double w = fNuclModel->RemovalEnergy();
-  //std::cout << "found the nuclear model and retrieved the binding energy and Fermi momentum" << std::endl;
+  double w = fNuclModel->RemovalEnergy();
 
   double xsec = 0;
   double pF2 = p3.Mag2(); // (fermi momentum)^2
   double lepMass = interaction->FSPrimLepton()->Mass();
-  //std::cout << "found the lepton mass..." << std::endl;
   
   TDatabasePDG *tb = TDatabasePDG::Instance();
   double Mn = tb->GetParticle(interaction->InitState().TgtPtr()->HitNucPdg())->Mass();// outgoing nucleon mass
   double Mp = tb->GetParticle(interaction->RecoilNucleonPdg())->Mass(); // incoming nucleon mass
    
-  //std::cout << "found the nucleon masses..." << std::endl;
-  
   double EN_offshell(0);
   //FermiMoverInteractionType_t interaction_type = fNuclModel->GetFermiMoverInteractionType(); // check the nuclear model essentially
   //if  (interaction_type == kFermiMoveBenharSF){
   //EN_offshell = Mn - w; 
-  //std::cout << "Using FermiMoveBenharSF and defined energy" << std::endl;
+  //LOG("QELEvent",pDEBUG) << "Using FermiMoveBenharSF and defined energy" << std::endl;
   //}
   //else if (interaction_type == kFermiMoveDefault){
     //GHepParticle * nucleon = evrec->HitNucleon();
@@ -648,14 +631,31 @@ double QELEventGenerator::ComputeXSec( Interaction * interaction, double costhet
 
     //double Mf  = fnucleus -> Mass(); // remnant nucleus mass
     //double Mi  = nucleus  -> Mass(); // initial nucleus mass
-    TParticlePDG * p = PDGLibrary::Instance()->Find(1000060120);
+
+    // Get initial and final nucleus masses
+    int nucleus_init = tgt->Pdg();
+    TParticlePDG * p = PDGLibrary::Instance()->Find(nucleus_init);
     double Mi = p->Mass();
-    p = PDGLibrary::Instance()->Find(1000060110);
-    double Mf = p->Mass();
-    EN_offshell = Mi - TMath::Sqrt(pF2 + Mf*Mf);
-    //std::cout << "Using FermiMoveDefault and defined energy" << std::endl;
+
+    int A = tgt->A() - 1;
+    double Mf;
+    if(A>0){
+      bool is_p = pdg::IsProton(tgt->HitNucPdg());
+      int Z = (is_p) ? tgt->Z()-1 : tgt->Z();
+      int nucleus_remnant = pdg::IonPdgCode(A, Z);
+      p = PDGLibrary::Instance()->Find(nucleus_remnant);
+      Mf = p->Mass();
+    }else{
+      Mf = 0.;
+    }
+
+    //EN_offshell = Mi - TMath::Sqrt(pF2 + Mf*Mf);
+    //LOG("QELEvent",pDEBUG) << "Using FermiMoveDefault and defined energy" << std::endl;
     //}
-//  double EN_offshell = TMath::Sqrt(Mn*Mn + pF2) - w;
+
+  //TESTING: Always leave the nucleon on shell
+    EN_offshell = TMath::Sqrt(pF2+Mn*Mn);
+    //EN_offshell = TMath::Sqrt(Mn*Mn + pF2) - w;
   double EN_onshell  = TMath::Sqrt(pF2+Mn*Mn);
   p4->SetPx( p3.Px()    );
   p4->SetPy( p3.Py()    );
@@ -666,10 +666,18 @@ double QELEventGenerator::ComputeXSec( Interaction * interaction, double costhet
 
   double s = interaction->InitState().CMEnergy(); // actually sqrt(s)
   s *= s; // now s actually = s
+
+
+  if (TMath::Sqrt(s) < interaction->FSPrimLepton()->Mass() + Mp){ // throw a new event if this one is below threshold
+    LOG("QELEvent", pINFO) << "Event below threshold, reject throw and try again!";
+    return 0.;
+  }
+
   double outLeptonEnergy = ( s - Mp*Mp + lepMass*lepMass ) / (2 * TMath::Sqrt(s));
+
   if(outLeptonEnergy*outLeptonEnergy-lepMass*lepMass < 0.) return 0.;
   double outMomentum = TMath::Sqrt(outLeptonEnergy*outLeptonEnergy - lepMass*lepMass);
-  //std::cout << "calculated root s and outLeptonEnergy" << std::endl;
+  //LOG("QELEvent",pDEBUG) << "calculated root s and outLeptonEnergy" << std::endl;
 
   TLorentzVector lepton(outMomentum, 0, 0, outLeptonEnergy);
 
@@ -678,16 +686,16 @@ double QELEventGenerator::ComputeXSec( Interaction * interaction, double costhet
   TLorentzVector outNucleon(-1*lepton.Px(),-1*lepton.Py(),-1*lepton.Pz(), 
 TMath::Sqrt(outMomentum*outMomentum + Mp*Mp));
 
-  /*std::cout << "costheta = " << costheta << ", phi = " << phi << std::endl;
-  std::cout << "lepton = " << utils::print::P4AsString(&lepton) << std::endl;
-  std::cout << "outNucleon = " << utils::print::P4AsString(&outNucleon) << std::endl;
-  std::cout << "inNucleon = " << utils::print::P4AsString(p4) << std::endl;
-  std::cout << "s = " << s << ", outLepE = " << outLeptonEnergy << "outMom = " << outMomentum << std::endl;
-  std::cout << "outMom^2 = " << outLeptonEnergy*outLeptonEnergy - lepMass*lepMass << std::endl;*/
+  /*LOG("QELEvent",pDEBUG) << "costheta = " << costheta << ", phi = " << phi << std::endl;
+  LOG("QELEvent",pDEBUG) << "lepton = " << utils::print::P4AsString(&lepton) << std::endl;
+  LOG("QELEvent",pDEBUG) << "outNucleon = " << utils::print::P4AsString(&outNucleon) << std::endl;
+  LOG("QELEvent",pDEBUG) << "inNucleon = " << utils::print::P4AsString(p4) << std::endl;
+  LOG("QELEvent",pDEBUG) << "s = " << s << ", outLepE = " << outLeptonEnergy << "outMom = " << outMomentum << std::endl;
+  LOG("QELEvent",pDEBUG) << "outMom^2 = " << outLeptonEnergy*outLeptonEnergy - lepMass*lepMass << std::endl;*/
 
-  /*std::cout << "Lepton COM EvGen:\n";
+  /*LOG("QELEvent",pDEBUG) << "Lepton COM EvGen:\n";
   lepton.Print();
-  std::cout << "outNucleon COM EvGen:\n";
+  LOG("QELEvent",pDEBUG) << "outNucleon COM EvGen:\n";
   outNucleon.Print();*/
 
 
@@ -744,30 +752,6 @@ TMath::Sqrt(outMomentum*outMomentum + Mp*Mp));
   xsec *= jac;
 
   //delete qP4;
-
-  /*// TEST CODE: Compare xsec for Furmanski code and Nieves code
-  // Compute the QE cross section for the current kinematics ("~" variables)
-  bool dotest = false;
-  if(dotest){
-    interaction->InitStatePtr()->TgtPtr()->HitNucP4Ptr()->SetE(EN_onshell);
-      AlgFactory * algf = AlgFactory::Instance();
-      const XSecAlgorithmI * NievesXSecModel = dynamic_cast<const XSecAlgorithmI*>(
-				      algf->GetAlgorithm("genie::NievesQELCCPXSec","Default"));
-      double nxsec = NievesXSecModel->XSec(interaction,kPSTnctnBnctl);
-      const XSecAlgorithmI * LwlynSmithXSecModel = dynamic_cast<const XSecAlgorithmI*>(
-				      algf->GetAlgorithm("genie::LwlynSmithQELCCPXSec","Default"));
-      double lsxsec = LwlynSmithXSecModel->XSec(interaction,kPSTnctnBnctl);
-
-      ofstream n_ls_stream;
-      n_ls_stream.open("Nieves_kPSTnctnBnctl", std::ios_base::app);
-      n_ls_stream << Q2 << "\t" << nxsec << "\t" << lsxsec << "\t" << "\n";
-      n_ls_stream.close();
-      
-      n_ls_stream.open("LwlynSmith_kPSTnctnBnctl", std::ios_base::app);
-      n_ls_stream << Q2 << "\t" << lsxsec << "\t" << nxsec << "\t" << "\n";
-      n_ls_stream.close();
-  }
-  // END TEST*/
 
   return xsec;
 }
