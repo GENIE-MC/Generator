@@ -12,17 +12,13 @@
 */
 //____________________________________________________________________________
 
-#include <iostream>
-#include <fstream>
-#include <exception>
-#include <complex>
-
 #include <TMath.h>
 #include <TVector3.h>
 #include <TLorentzVector.h>
-#include <ctype.h>
+#include <Math/IFunction.h>
+#include <Math/Integrator.h>
+#include <complex>
 
-#include "Algorithm/AlgFactory.h"
 #include "Algorithm/AlgConfigPool.h"
 #include "Base/XSecIntegratorI.h"
 #include "Base/QELFormFactors.h"
@@ -32,11 +28,8 @@
 #include "Conventions/RefFrame.h"
 #include "Conventions/KineVar.h"
 #include "Conventions/Units.h"
-#include "EVGModules/InitialStateAppender.h"
 #include "EVGModules/VertexGenerator.h"
 #include "GHEP/GHepParticle.h"
-#include "GHEP/GHepRecord.h"
-#include "GHEP/GHepStatus.h"
 #include "Messenger/Messenger.h"
 #include "Nuclear/NuclearModelI.h"
 #include "Nuclear/FermiMomentumTablePool.h"
@@ -46,11 +39,15 @@
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGLibrary.h"
 #include "PDG/PDGUtils.h"
-#include "QEL/QELPrimaryLeptonGenerator.h"
 #include "Utils/MathUtils.h"
 #include "Utils/KineUtils.h"
 #include "Utils/NuclearUtils.h"
 #include "Utils/PrintUtils.h"
+#include "Utils/GSLUtils.h"
+
+
+#include <iostream> // Used for testing code
+#include <fstream> // Used for testing code
 
 using namespace genie;
 using namespace genie::constants;
@@ -79,19 +76,18 @@ NievesQELCCPXSec::~NievesQELCCPXSec()
 double NievesQELCCPXSec::XSec(const Interaction * interaction,
 		       KinePhaseSpace_t kps) const
 {
-  // TESTING CODE:
+  /*// TESTING CODE:
   // The first time this method is called, output tensor elements and other
   // kinmeatics variables for various kinematics. This can the be compared
   // to Nieves' fortran code for validation purposes
-  //bool exit_prog = false;
-  /*if(fCompareNievesTensors){
+  if(fCompareNievesTensors){
     LOG("Nieves",pNOTICE) << "Printing tensor elements for specific " 
 			  << "kinematics for testing purposes";
     CompareNievesTensors(interaction);
     fCompareNievesTensors = false;
     exit(0);
-    }*/
-  // END TESTING CODE
+  }
+  // END TESTING CODE*/
 
 
   if(! this -> ValidProcess    (interaction) ) return 0.;
@@ -131,42 +127,10 @@ double NievesQELCCPXSec::XSec(const Interaction * interaction,
     delete tempNeutrino;
     // Initial Nucleon
     inNucleonMom = target.HitNucP4();
-    // Generate a lepton, which will be stored so the QELPrimaryLeptonGenerator
-    // can add it to the evrec if this q2 value is accepted.
-    GHepRecord * tempevrec = new GHepRecord();
-    // Temporarily ignore const type of interaction in order to add a lepton
-    tempevrec->AttachSummary(const_cast<Interaction*>(interaction));
-    // Add the initial neutrino to the event record
-    int pdgc = init_state.ProbePdg();
-    const TLorentzVector v4(0.,0.,0.,0.);
-    tempevrec->AddParticle(pdgc,kIStInitialState, -1,-1,-1,-1, neutrinoMom, v4);
-    // add the initial nucleus, because apparently we need it??
-    bool is_nucleus = init_state.Tgt().IsNucleus();
-    int    A    = init_state.Tgt().A();
-    int    Z    = init_state.Tgt().Z();
-    int    pdgc_nucleus = pdg::IonPdgCode(A, Z);
-    double M_nucleus    = PDGLibrary::Instance()->Find(pdgc_nucleus)->Mass();
-    tempevrec->AddParticle(pdgc_nucleus,kIStInitialState,-1,-1,-1,-1, 0,0,0,M_nucleus, 0,0,0,0);
-    // Generate and store the lepton
-    SetRunningLepton(tempevrec);
-    // Remove interaction from tempevrec so it is not deleted
-    tempevrec->AttachSummary(0);
-    delete tempevrec;
-
-    double ml = interaction->FSPrimLepton()->Mass();
-    double ml2 = ml*ml;
-    double Tl = kinematics.GetKV(kKVTl);
-    double ctl = kinematics.GetKV(kKVctl);
-    double phi = kinematics.GetKV(kKVphikq);
-    double El = TMath::Sqrt(Tl*Tl+ml2);
-    double stl = TMath::Sqrt(1-ctl*ctl); // Sin of polar angle
-    double plp = Tl * ctl;
-    double pltx = Tl * stl * TMath::Cos(phi);
-    double plty = Tl * stl * TMath::Sin(phi);
-    leptonMom.SetPxPyPzE(pltx,plty,plp,El);
+    // Generate outgoing lepton in the lab frame
+    leptonMom = GenerateOutgoingLepton(interaction,neutrinoMom);
     // Set outgoing nucleon using conservation of energy
     outNucleonMom = neutrinoMom + inNucleonMom - leptonMom;
-
     // Calculate G factor
     double E = init_state.ProbeE(kRfLab);
     double M  = target.HitNucMass();
@@ -221,17 +185,6 @@ double NievesQELCCPXSec::XSec(const Interaction * interaction,
   double Q2tilde = -1 * qTildeP4.Mag2();
   if(kps==kPSTnctnBnctl) // otherwise q2 is already stored
     interaction->KinePtr()->SetQ2(Q2tilde);
-  
-  /*LOG("Nieves",pINFO) << "qTildep4 = " << utils::print::P4AsString(&qTildeP4);
-    LOG("Nieves",pINFO	<< "neutrinop4 = " << utils::print::P4AsString(&neutrinoMom);
-    LOG("Nieves",pINFO  << "inNucleon = " << utils::print::P4AsString(&inNucleonMom);
-    LOG("Nieves",pINFO  << "lepton = " << utils::print::P4AsString(&leptonMom);
-    LOG("Nieves",pINFO  << "outNucleon = " << utils::print::P4AsString(&outNucleonMom);*/
-
-  /*std::cout << "Q2tilde = " <<Q2tilde << ", " <<  utils::print::P4AsString(&qTildeP4)<< std::endl;
-  std::cout << "Q2 (not tilde) = " << -1 * qP4.Mag2() << ", " <<  utils::print::P4AsString(&qP4)<< std::endl;
-  std::cout << "Q2 difference (tilde - not) = " << Q2tilde + qP4.Mag2() << std::endl;
-  std::cout << "Q2 stored = " << interaction->KinePtr()->Q2() << std::endl;*/
 
   double q2 = -Q2tilde;
 
@@ -260,10 +213,6 @@ double NievesQELCCPXSec::XSec(const Interaction * interaction,
   int Z = target.Z();
   int N = target.N();
   bool hitNucIsProton = pdg::IsProton(target.HitNucPdg());
-  double LmunuAnumuResult = LmunuAnumu(neutrinoMom,inNucleonMom,
-				       leptonMom,outNucleonMom,
-				       M,r,is_neutrino,tgtIsNucleus,
-				       tgt_pdgc,A,Z,N,hitNucIsProton);
 
   // Calculate Coulomb corrections
   double ml = interaction->FSPrimLepton()->Mass();
@@ -287,11 +236,19 @@ double NievesQELCCPXSec::XSec(const Interaction * interaction,
 
     // Correction factor
     coulombFactor= plLocal*ElLocal/leptonMom.Vect().Mag()/El;
-    fElocal = ElLocal;
-    fPlocal = plLocal;
-    fElep = El;
-    fPlep = leptonMom.Vect().Mag();
+
+    // Correct outgoing lepton momentum
+    /*TVector3 ElVect = leptonMom.Vect();
+    ElVect.SetMag(plLocal);
+    leptonMom.SetVect(ElVect);
+    leptonMom.SetE(ElLocal);*/
   }
+
+
+  double LmunuAnumuResult = LmunuAnumu(neutrinoMom,inNucleonMom,
+				       leptonMom,outNucleonMom,
+				       M,r,is_neutrino,tgtIsNucleus,
+				       tgt_pdgc,A,Z,N,hitNucIsProton);
 
   // Calculate xsec
   double xsec = Gfactor*coulombFactor*LmunuAnumuResult;
@@ -386,25 +343,17 @@ double NievesQELCCPXSec::Integral(const Interaction * in) const
     // input target and average the cross section
     double xsec_sum = 0.;
     const int nnuc = 2000;
-    int numExceptions = 0;
+    // VertexGenerator for generating a position before generating
+    // each nucleon
+    VertexGenerator * vg = new VertexGenerator();
+    vg->Configure("Default");
     for(int inuc=0;inuc<nnuc;inuc++){
-      // Use VertexGenerator to generate a position
-      GHepRecord * evrec = new GHepRecord();
-      Interaction * in_temp = new Interaction(*in);
-      evrec->AttachSummary(in_temp);
-      InitialStateAppender * isa = new InitialStateAppender();
-      isa->ProcessEventRecord(evrec);
-      delete isa;
-      VertexGenerator * vg = new VertexGenerator();
-      vg->Configure("Default");
-      vg->ProcessEventRecord(evrec);
-      delete vg;
-      double r = evrec->HitNucleon()->X4()->Vect().Mag();
-      delete evrec; // also deletes in_temp, since in_temp was attached
-      tgt->SetHitNucPosition(r);
+      // Generate a position in the nucleus
+      TVector3 nucpos = vg->GenerateVertex(&in_curr,tgt->A());
+      tgt->SetHitNucPosition(nucpos.Mag());
 
       // Generate a nucleon
-      fNuclModel->GenerateNucleon(*tgt, r);
+      fNuclModel->GenerateNucleon(*tgt, nucpos.Mag());
       TVector3 p3N = fNuclModel->Momentum3();
       double   EN  = Mi - TMath::Sqrt(p3N.Mag2() + Mf*Mf);
       TLorentzVector* p4N = tgt->HitNucP4Ptr();
@@ -415,22 +364,11 @@ double NievesQELCCPXSec::Integral(const Interaction * in) const
 
       double xsec;
       xsec = fXSecIntegrator->Integrate(this,&in_curr);
-      /*}catch(exceptions::NievesQELException exception) {
-	numExceptions++;
-	LOG("Nieves",pINFO) << exception;
-	if(numExceptions <= kRjMaxIterations){
-	  LOG("Nieves",pINFO) << "rewinding";
-	  xsec = 0.;
-	  inuc--; // Do not include this in the sum
-	}else{
-	  LOG("Nieves",pWARN) << "XSec could not be integrated for E = "
-			      << E << ", returning 0";
-	  return 0.;
-	}
-	}*/
+
       xsec_sum += xsec;
     }
     double xsec_avg = xsec_sum / nnuc;
+    delete vg;
     return xsec_avg;
   }else{
     return fXSecIntegrator->Integrate(this,in);
@@ -481,15 +419,6 @@ void NievesQELCCPXSec::LoadConfig(void)
                               "CabbiboAngle", gc->GetDouble("CabbiboAngle"));
   fCos8c2 = TMath::Power(TMath::Cos(thc), 2);
 
-  // variables 
-  double intervalFractions[10] = {.9931285991,.9639719272,.9122344282,
-  				  .8391169718,.7463319064,.6360536807,
-  		       .5108670019,.3737060887,.2277858511,.0765265211};
-  fIntervalFractions.assign(intervalFractions,intervalFractions + 10);
-
-  double w[10] = {.0176140071,.0406014298,.0626720483,.0832767415,.1019301198,
-		  .1181945319,.1316886384,.1420961093,.1491729864,.1527533871};
-  fW.assign(w,w+10);
   // hbarc for unit conversion, GeV*fm
   fhbarc = kLightSpeed*kPlankConstant/fermi;
 
@@ -515,10 +444,6 @@ void NievesQELCCPXSec::LoadConfig(void)
   fCoulomb = fConfig->GetBoolDef("Coulomb",true);
 
   LOG("Nieves",pNOTICE) << "RPA=" << fRPA << ", useCoulomb=" << fCoulomb;
-
-  fPrintData = fConfig->GetBoolDef("PrintDebugData",false);
-  //fPrintData = false;
-  fCompareNievesTensors = fPrintData;
 
   // Get nuclear model for use in Integral()
   RgKey nuclkey = "IntegralNuclearModel";
@@ -551,6 +476,9 @@ void NievesQELCCPXSec::LoadConfig(void)
       fConfig->GetDoubleDef("IntegralNuclearInfluenceCutoffEnergy", 2.0);
   }
 
+  // TESTING CODE
+  fCompareNievesTensors = fConfig->GetBoolDef("PrintDebugData",false);
+  // END TESTING CODE
 }
 //___________________________________________________________________________
 void NievesQELCCPXSec::CNCTCLimUcalc(TLorentzVector qTildeP4,
@@ -576,12 +504,6 @@ void NievesQELCCPXSec::CNCTCLimUcalc(TLorentzVector qTildeP4,
     double rho = rhop + rhon;
     double rho0 = A*nuclear::Density(0,A);
 
-    // TESTING CODE
-    rhopStored = rhop;
-    rhonStored = rhon;
-    rhoStored = rho;
-    rho0Stored = rho0;
-    
     double fPrime = (0.33*rho/rho0+0.45*(1-rho/rho0))*c0;
     
     // Get Fermi momenta
@@ -604,26 +526,16 @@ void NievesQELCCPXSec::CNCTCLimUcalc(TLorentzVector qTildeP4,
       }
     }
 
-    /*fc0 = c0;
-    fPrimeStored = fPrime;
-    fKF1 = kF1;
-    fKF2 = kF2;*/
-
     //LOG("Nieves",pDEBUG) << "r=" << r << ",kF1=" << kF1 << ",kF2=" << kF2;
-    //double kF = kF1 + kF2;
+
     double kF = TMath::Power(1.5*kPi2*rho, 1.0/3.0) *fhbarc;
 
     std::complex<double> imU(relLindhardIm(qTildeP4.E(),dq,kF1,kF2,
 					   M,is_neutrino,t0,r00));
 
     imaginaryU = imag(imU);
-    //LOG("Nieves",pDEBUG) << "imU = " << imaginaryU;
-    std::complex<double> relLin(0,0),udel(0,0);
 
-    /* LOG("Nieves",pDEBUG) << "q0 = " <<qTildeP4.E() << ", dq = " << dq
-			 << ", kF = " << kF << ", M = " << M 
-			 << ", is_neu = " << is_neutrino
-			 << ", imU = " << imU;*/
+    std::complex<double> relLin(0,0),udel(0,0);
 
     // By comparison with Nieves' fortran code
     if(imaginaryU < 0.){
@@ -631,8 +543,6 @@ void NievesQELCCPXSec::CNCTCLimUcalc(TLorentzVector qTildeP4,
       udel = deltaLindhard(qTildeP4.E(),dq,rho,kF);
     }
     std::complex<double> relLinTot(relLin + udel);
-
-    // UPDATE THESE MASSES TO USE GENIE VALUES
 
   /* CRho = 2
      DeltaRho = 2500 MeV, (2.5 GeV)^2 = 6.25 GeV^2
@@ -650,14 +560,7 @@ void NievesQELCCPXSec::CNCTCLimUcalc(TLorentzVector qTildeP4,
 
     CT = 1.0/TMath::Power(abs(1.0-relLinTot*Vt),2);
     CL = 1.0/TMath::Power(abs(1.0-relLinTot*Vl),2);
-    LOG("Nieves",pDEBUG) <<"CN = " << CN <<",CT = " << CT << ",CL = " << CL;
-
-    /*fVt = Vt;
-    fVl = Vl;
-    fRelLinReal = real(relLin);
-    fRelLinIm = imag(relLin);
-    fRelLinTotReal = real(relLinTot);
-    fRelLinTotIm = imag(relLinTot);*/
+    //LOG("Nieves",pDEBUG) <<"CN = " << CN <<",CT = " << CT << ",CL = " << CL;
   }else{
     //Polarization Coefficients: all equal to 1.0 for free nucleon
     CN = 1.0;
@@ -694,19 +597,16 @@ std::complex<double> NievesQELCCPXSec::relLindhardIm(double q0, double dq,
   // That is, q0>0 and -q2>0 are always handled, and q0>EF2-EF1 is
   // handled if pauli blocking is on, because otherwise the final
   // nucleon would be below the fermi sea
-  // This theta function should only be used if suppression is on
   //if(fNievesSuppression && !interaction->TestBit(kIAssumeFreeNucleon )
   //&& !EF1-epsRP<0){
   //LOG("Nieves", pINFO) << "Average value of E(p) above Fermi sea";
-  //exceptions::NievesQELException exception;
-  //exception.SetReason("Average nucleon energy above Fermi sea");
-  //throw exception;
+  //return 0;
   //}else{
-    t0 = 0.5*(EF1+epsRP);
-    r00 = (TMath::Power(EF1,2)+TMath::Power(epsRP,2)+EF1*epsRP)/3.0;
-    std::complex<double> result(0.0,-M2/2.0/kPi/dq*(EF1-epsRP));
-    return result;
-    //}
+  t0 = 0.5*(EF1+epsRP);
+  r00 = (TMath::Power(EF1,2)+TMath::Power(epsRP,2)+EF1*epsRP)/3.0;
+  std::complex<double> result(0.0,-M2/2.0/kPi/dq*(EF1-epsRP));
+  return result;
+  //}
 }
 //____________________________________________________________________________
 //Following obtained from fortran code by J Nieves, which contained the following comment:
@@ -744,8 +644,10 @@ std::complex<double> NievesQELCCPXSec::relLindhard(double q0gev,
   }
 
   std::complex<double> RealLinRel(ruLinRelX(q0,qm,kf,m)+ruLinRelX(-q0,qm,kf,m));
+  double t0,r00;
+  std::complex<double> ImLinRel(relLindhardIm(q0gev,dqgev,kFgev,kFgev,M,isNeutrino,t0,r00));
   //Units of GeV^2
-  return(RealLinRel*TMath::Power(fhbarc,2) + 2.0*relLindIm);
+  return(RealLinRel*TMath::Power(fhbarc,2) + 2.0*ImLinRel);
 }
 //____________________________________________________________________________
 //Inputs assumed to be in natural units
@@ -776,15 +678,6 @@ std::complex<double> NievesQELCCPXSec::ruLinRelX(double q0, double qm,
 			     (TMath::Power(2*kf - q0*ds,2)-qm2))) + 
        TMath::Log(TMath::Abs((TMath::Power(kf-ef*ds,2) - (4*m4*qm2)/q4)/
 			     (TMath::Power(kf+ef*ds,2) - (4*m4*qm2)/q4))));
-  
-  /*q2rellin = q2;
-  fl1 = L1;
-  fl2 = real(uL2);
-  fl3 = real(uL3);
-  fkf = kf;
-  fef = ef;
-  fl2im = imag(uL2);
-  fl3im = imag(uL3);*/
 
   std::complex<double> RlinrelX(-L1/(16.0*kPi2)+
 				uL2*(2.0*ef+q0)/(32.0*kPi2*qm)-
@@ -919,7 +812,7 @@ double NievesQELCCPXSec::vcr(const Target * target, double Rcurr) const{
       // c = 1.75 for A <= 20
       Rmax = TMath::Sqrt(20.0)*1.75;
     }
-    Rmax = 7.558; // TESTING PURPOSES
+
     //LOG("Nieves",pDEBUG) "A = " << A
     //  << ", Rcurr = " << Rcurr << ", Rmax = " << Rmax;
 
@@ -928,119 +821,26 @@ double NievesQELCCPXSec::vcr(const Target * target, double Rcurr) const{
 			  << " Integrating to max radius.";
       Rcurr = Rmax;
     }
-    
-    int nInts = 1; // Number of intervals
-    int nElts = 20*nInts; // Number of elements in x arrays
 
-    std::vector<double> rvec = integrationSetup(0.0, Rcurr, nInts);
-    std::vector<double> Vvec;
-    Vvec.resize(nElts);
+    ROOT::Math::IBaseFunctionOneDim * func = new
+      utils::gsl::wrap::NievesQELvcrIntegrand(Rcurr,A,Z);
+    ROOT::Math::IntegrationOneDim::Type ig_type =
+      utils::gsl::Integration1DimTypeFromString("adaptive");
 
-    //std::ofstream rhostream;
-    //rhostream.open("r_rho.txt", std::ios_base::app);
-    for(int i=0; i<nElts; i++){
-      double r = rvec[i];
-      
-      //Density gives the nuclear density, normalized to number p or n
-      //Input radius r must be in fm
-      double rhop = Z*nuclear::Density(r,A);
+    double abstol = 1; // We mostly care about relative tolerance;
+    double reltol = 1E-4;
+    int nmaxeval = 100000;
+    ROOT::Math::Integrator ig(*func,ig_type,abstol,reltol,nmaxeval);
+    double result = ig.Integral(0,Rmax);
+    delete func;
 
-      Vvec[i] = rhop*r*r / Rcurr;
-      //if(fCompareNievesTensors) rhostream << r << "\t" << rhop << "\t" << Vvec[i] << "\t" << "\n";
-    }
-    double result1 = integrate(0.0, Rcurr, nInts, Vvec);
-
-    rvec = integrationSetup(Rcurr, Rmax, nInts);
-    for(int i=0; i<nElts; i++){
-      double r = rvec[i];
-      double rhop = Z*nuclear::Density(r,A);
-      Vvec[i] = rhop*r;
-      //if(fCompareNievesTensors) rhostream << r << "\t" << rhop << "\t" << Vvec[i] << "\t" << "\n";
-    }
-    double result2 = integrate(Rcurr, Rmax, nInts, Vvec);
-    //rhostream.close();
     // Multiply by Z to normalize densities to number of protons
     // Multiply by hbarc to put result in GeV instead of fm
-    frmax = Rmax;
-    frcurr = Rcurr;
-    fresult1 = result1;
-    fresult2 = result2;
-    falpha = kAem;
-    fZ = Z;
-
-    return -kAem*4*kPi*(result1 + result2)*fhbarc;
+    return -kAem*4*kPi*result*fhbarc;
   }else{
     // If target is not a nucleus the potential will be 0
     return 0.0;
   }
-}
-  /* 
-     To integrate, first call integrationSetup with the lower and upper limits
-     a and b, and the number of intervals n. The returned vector x will be of
-     size 20*n. For each element of x, the value of the function to be 
-     integrated can be stored in a new vector y. ( y[i] = f(x[i]) )
-     Finally, integrate is called with a,b,n, and y as the parameters,and 
-     integrate will return the definite integral from a to b of the function.
-  */
-//____________________________________________________________________________
-std::vector<double> NievesQELCCPXSec::integrationSetup(double a, double b, 
-						       int n) const{
-  int np = 20*n;
-  double interval = (b-a)/double(n);
-  double delt = interval*0.5;
-  double orig = a-delt;
-
-  int i1 = -21;
-  int i2;
-  int j1;
-  int j2;
-
-  std::vector<double> x;
-  x.resize(np);
-  for(int i=1;i<=n;i++){
-    orig+=interval;
-    i1 += 20;
-    i2 = i1 + 21;
-    for(int j=1;j<=10;j++){
-      j1 = i1+j;
-      j2 = i2-j;
-      x[j1] = orig - delt*fIntervalFractions[j-1];
-      x[j2] = orig + delt*fIntervalFractions[j-1];
-      // fIntervalFractions is used to choose at which values in the interval
-      // the function is evaluated.
-    }
-  }
-  return x;
-}
-//____________________________________________________________________________
-double NievesQELCCPXSec::integrate(double a, double b, int n,
-				   std::vector<double> y) const{
-  if(a == b)
-    return 0.0;
-
-  double weightedAvgSum = 0;
-  // For each i value (ie each interval), the weighted avg of the function in 
-  // the corresponding interval is added to weightedAvgSum. For example, if the
-  // function is a constant c, then after each i, weightedAvgSum will be equal 
-  // to c*i. We will need to multiply this by the interval length to get the 
-  // integral.
-
-  int i1 = -21;
-  int i2;
-  int j1;
-  int j2;
-  for(int i=1;i<=n;i++){
-    i1 +=20;
-    i2 = i1+21;
-    for(int j=1;j<=10;j++){
-      j1 = i1+j;
-      j2 = i2-j;
-      weightedAvgSum += fW[j-1]*0.5*(y[j1]+y[j2]);
-      // fW is used to get a weighted sum in each interval
-      // fW is normalized so the sum of its elements is 1
-    }
-  }
-  return weightedAvgSum*(b-a)/double(n);
 }
 //____________________________________________________________________________
 int NievesQELCCPXSec::leviCivita(int input[]) const{
@@ -1074,9 +874,8 @@ int NievesQELCCPXSec::leviCivita(int input[]) const{
   }  
 }
 //____________________________________________________________________________
-// neutrinoMom and leptonMom only affect the leptonic tensor
-// inNucleonMom and outNucleonMom are only used to calculate q
-// Nieves' averages for intial nucleon momenta are used in all other places
+// Calculates the constraction of the leptonic and hadronic tensors. The
+// initial nucleon must be at rest, and q must be in the z direction.
 double NievesQELCCPXSec::LmunuAnumu(const TLorentzVector neutrinoMom,
 				    const TLorentzVector inNucleonMom,
 				    const TLorentzVector leptonMom,
@@ -1094,7 +893,6 @@ double NievesQELCCPXSec::LmunuAnumu(const TLorentzVector neutrinoMom,
   const TLorentzVector qTildeP4 = neutrinoMom-leptonMom;
   double q2 = qTildeP4.Mag2();
 
-
   const double q[4] = {qTildeP4.E(),qTildeP4.Px(),qTildeP4.Py(),qTildeP4.Pz()};
   double q0 = q[0];
   double dq = TMath::Sqrt(TMath::Power(q[1],2)+
@@ -1110,7 +908,6 @@ double NievesQELCCPXSec::LmunuAnumu(const TLorentzVector neutrinoMom,
   // Smith uses Fp = 2.0*M^2*FA/(kPionMass2-q2), so I divide by M
   // This gives units of GeV^-1
   double Fp    = -1.0/M*fFormFactors.Fp(); 
-  //double Fp    = 2.0*M*FA/(kPionMass2-q2); // Has units of GeV^-1
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Nieves", pDEBUG) << "\n" << fFormFactors;
@@ -1122,32 +919,35 @@ double NievesQELCCPXSec::LmunuAnumu(const TLorentzVector neutrinoMom,
   double Fp2     = TMath::Power(Fp,    2);
   double F1V2    = TMath::Power(F1V,   2);
   double xiF2V2  = TMath::Power(xiF2V, 2);
-  double q2_M2   = q2/M2;
   double q02     = TMath::Power(q[0],  2);
   double dq2     = TMath::Power(dq,    2);
   double q4      = TMath::Power(q2,    2);
 
+  // CAN BE DELETED
   //Terms for xsec terms that don't have RPA corrections
-
-  double a1 = 8.0*q2*((F1V2+2*F1V*xiF2V+xiF2V2)+FA2*(1.0/4.0-M2/q2));
+  /*double a1 = 8.0*q2*((F1V2+2*F1V*xiF2V+xiF2V2)+FA2*(1.0/4.0-M2/q2));
   double a2 = 32.0*F1V2 - 8.0*xiF2V2*q2/M2 + 8.0*FA2;
   double a3 = sign*16.0*FA*(F1V+xiF2V);
   double a4 = -8.0*q2_M2*xiF2V2*(M2/q2+1.0/4.0) - 
     8.0*M2*FA2/(kPionMass2-q2)*(q2/(kPionMass2-q2)+2.0) - 16.0*F1V*xiF2V;
+  //double q2_M2   = q2/M2;
+  //int lcNum = 0;
+  */ // END CODE THAT CAN BE DELETED
 
   double t0,r00;
-  double CN=1.,CT=1.,CL=1.,imU=0; // NOTE: imU can be removed as an argument here
+  double CN=1.,CT=1.,CL=1.,imU=0;
   CNCTCLimUcalc(qTildeP4,M,r,is_neutrino,tgtIsNucleus,
 		tgt_pdgc,A,Z,N,hitNucIsProton,
 		CN,CT,CL,imU,t0,r00);
-  
+  if(imU > kASmallNum)
+    return 0.;
+
   if(! fRPA){
     CN=1.0;
     CT=1.0;
     CL=1.0;
   }
 
-  //CN = 1.0, CT = 1.0, CL = 1.0;
   //LOG("Nieves",pDEBUG) << "CN=" << CN << ",CT=" << CT << ",CL=" << CL << ",imU=" << imU;
 
   
@@ -1156,6 +956,8 @@ double NievesQELCCPXSec::LmunuAnumu(const TLorentzVector neutrinoMom,
 			 {0.,0.,0.,0.}, 
 			 {0.,0.,0.,0.}, 
 			 {0.,0.,0.,0.} };
+
+  // TESTING CODE:
   if(fCompareNievesTensors){
     // Use average values for initial momentum to calculate A, as given
     // in Appendix B of Nieves' paper. T gives average values of components
@@ -1182,7 +984,7 @@ double NievesQELCCPXSec::LmunuAnumu(const TLorentzVector neutrinoMom,
     rulin[1][1] = gamma;
     rulin[2][2] = gamma;
     rulin[3][0] = r03;
-    rulin[3][3] = gamma+delta*dq2;
+    rulin[3][3] = gamma+delta*dq2; // END TESTING CODE
   }else{
     // For normal code execulation, tulin is the initial nucleon momentum
     tulin[0] = inNucleonMom.E();
@@ -1208,7 +1010,6 @@ double NievesQELCCPXSec::LmunuAnumu(const TLorentzVector neutrinoMom,
   const int g[4][4] = {{1,0,0,0},{0,-1,0,0},{0,0,-1,0},{0,0,0,-1}};
   const std::complex<double> iNum(0,1);
   int leviCivitaIndexArray[4];
-  int lcNum = 0;
   double imaginaryPart = 0;
 
   std::complex<double> sum(0.0,0.0);
@@ -1221,7 +1022,7 @@ double NievesQELCCPXSec::LmunuAnumu(const TLorentzVector neutrinoMom,
   // Calculate LmunuAnumu by iterating over mu and nu
   // In each iteration, add LmunuAnumu to sum if mu=nu, and add
   // LmunuAnumu + LnumuAmunu if mu != nu, since we start nu at mu
-  double axx=0.,azz=0.,a0z=0.,a00=0.,axy=0.; // Store elts if fPrintData == true
+  double axx=0.,azz=0.,a0z=0.,a00=0.,axy=0.;
   for(int mu=0;mu<4;mu++){
     for(int nu=mu;nu<4;nu++){
       imaginaryPart = 0;
@@ -1253,8 +1054,7 @@ double NievesQELCCPXSec::LmunuAnumu(const TLorentzVector neutrinoMom,
 	  (4.0-4.0*rulin[0][0]/M2-4.0*q[0]*tulin[0]/M2-q02*(4.0/q2+1.0/M2)) +
 	  4.0*FA2*(2.0*rulin[0][0]+2.0*q[0]*tulin[0]+(q2/2.0-2.0*M2))-
 	  (2.0*CL*Fp2*q2+8.0*FA*Fp*CL*M)*q02-16.0*F1V*xiF2V*(-q2+q02)*CN;
-	//if(fPrintData)
-	a00 = real(Amunu);
+	a00 = real(Amunu); // TESTING CODE
 	sum += Lmunu*Amunu;
       }else if(mu == 0 && nu == 3){
 	Amunu = 16.0*F1V2*((2.0*rulin[0][3]+tulin[0]*dq)*CN+tulin[3]*q[0])+
@@ -1263,8 +1063,7 @@ double NievesQELCCPXSec::LmunuAnumu(const TLorentzVector neutrinoMom,
 	  4.0*FA2*((2.0*rulin[0][3]+dq*tulin[0])*CL+q[0]*tulin[3])-
 	  (2.0*CL*Fp2*q2+8.0*FA*Fp*CL*M)*dq*q[0]-
 	  16.0*F1V*xiF2V*dq*q[0];
-	//if(fPrintData) 
-	a0z= real(Amunu);
+	a0z= real(Amunu); // TESTING CODE
 	Anumu = Amunu;
 	sum += Lmunu*Anumu + Lnumu*Amunu;
       }else if(mu == 3 && nu == 3){
@@ -1273,16 +1072,14 @@ double NievesQELCCPXSec::LmunuAnumu(const TLorentzVector neutrinoMom,
 	  4.0*FA2*(2.0*rulin[3][3]+2.0*dq*tulin[3]-(q2/2.0-2.0*CL*M2))-
 	  (2.0*CL*Fp2*q2+8.0*FA*Fp*CL*M)*dq2-
 	  16.0*F1V*xiF2V*(q2+dq2);
-	//if(fPrintData) 
-	azz = real(Amunu);
+	azz = real(Amunu); // TESTING CODE
 	sum += Lmunu*Amunu;
       }else if(mu ==1 && nu == 1){
 	Amunu = 16.0*F1V2*(2.0*rulin[1][1]-q2/2.0)+ 
 	  2.0*q2*xiF2V2*(-4.0*CT-4.0*rulin[1][1]/M2) +
 	  4.0*FA2*(2.0*rulin[1][1]-(q2/2.0-2.0*CT*M2))-
 	  16.0*F1V*xiF2V*CT*q2;
-	//if(fPrintData) 
-	axx = real(Amunu);
+	axx = real(Amunu); // TESTING CODE
 	sum += Lmunu*Amunu;
       }else if(mu == 2 && nu == 2){
 	// Ayy not explicitly listed in paper. This is included so rotating the
@@ -1295,16 +1092,20 @@ double NievesQELCCPXSec::LmunuAnumu(const TLorentzVector neutrinoMom,
       }else if(mu ==1 && nu == 2){
 	Amunu = sign*16.0*iNum*FA*(xiF2V+F1V)*(-dq*tulin[0]*CT + q[0]*tulin[3]);
 	Anumu = -Amunu; // Im(A) is antisymmetric
-	//if(fPrintData) 
-	axy = imag(Amunu);
+	axy = imag(Amunu); // TESTING CODE
 	sum += Lmunu*Anumu+Lnumu*Amunu;
-      }else{
+      }
+      // All other terms will be 0 becuase the initial nucleon is at rest and
+      // q is in the z direction
+
+      // CAN BE DELETED
+      /*else{
 	// No RPA corrections to the remaining terms, so A is not r dependent
 	if(mu == nu){
 	  Amunu = a1*g[mu][nu]+
 	    a2*(rulin[mu][nu]+tulin[mu]*q[nu]/2.0+tulin[nu]*q[mu]/2.0)+a4*q[mu]*q[nu];
 	  sum += Lmunu*Amunu;
-	  //
+
 	}else{
 	  imaginaryPart = 0;
 	  leviCivitaIndexArray[0] = mu;
@@ -1327,68 +1128,42 @@ double NievesQELCCPXSec::LmunuAnumu(const TLorentzVector neutrinoMom,
 	    a2*(rulin[mu][nu]+tulin[mu]*q[nu]/2.0+tulin[nu]*q[mu]/2.0)-
 	    iNum*a3*imaginaryPart+a4*q[mu]*q[nu];
 	  sum += Lmunu*Anumu+Lnumu*Amunu;
-	}
-      }
+	  }
+	  }*/ // END CODE THAT CAN BE DELETED
     } // End loop over nu
   } // End loop over mu
 
+  // TESTING CODE
   if(fCompareNievesTensors){
-    // Compute the coulomb factor
-    
     // get tmu
     double tmugev = leptonMom.E() - leptonMom.Mag();
-  // Print Q2, form factors, and tensor elts
-    std::ofstream ffstream;
+    // Print Q2, form factors, and tensor elts
+    std:ofstream ffstream;
     ffstream.open(fTensorsOutFile, std::ios_base::app);
-    if(imU < 0){
-    ffstream << -q2 << "\t" << q[0] << "\t" << dq
-	     << "\t" << axx << "\t" << azz << "\t" << a0z
-	     << "\t" << a00 << "\t" << axy << "\t"
-	     << CT << "\t" << CL << "\t" << CN << "\t"
-	     << tmugev << "\t" << imU << "\t"
-	     << F1V << "\t" << xiF2V << "\t" 
-	     << FA << "\t" << Fp << "\t"
-	     << tulin[0] << "\t"<< tulin[1] << "\t"
-	     << tulin[2] << "\t"<< tulin[3] << "\t"
-	     << rulin[0][0]<< "\t"<< rulin[0][1]<< "\t"
-	     << rulin[0][2]<< "\t"<< rulin[0][3]<< "\t"
-	     << rulin[1][0]<< "\t"<< rulin[1][1]<< "\t"
-	     << rulin[1][2]<< "\t"<< rulin[1][3]<< "\t"
-	     << rulin[2][0]<< "\t"<< rulin[2][1]<< "\t"
-	     << rulin[2][2]<< "\t"<< rulin[2][3]<< "\t"
-	     << rulin[3][0]<< "\t"<< rulin[3][1]<< "\t"
-	     << rulin[3][2]<< "\t"<< rulin[3][3]<< "\t"
-	     << fVc << "\t" << fCoulombFactor << "\t"
-	     << fElocal << "\t" << fPlocal << "\t"
-	     << fElep << "\t" << fPlep << "\t";
-      //<< rhopStored << "\t" << rhonStored << "\t"
-      //     << rhoStored << "\t" << rho0Stored << "\t" ;
-	   /*<< -q2Orig << "\t"
-	     << fKF1 << "\t" << fKF2 << "\t"
-	     << fc0 << "\t" << fPrimeStored << "\t" << M << "\t"
-	     << fVt << "\t" << fVl << "\t" 
-	     << fRelLinReal << "\t" << fRelLinIm << "\t"
-	     << fRelLinTotReal << "\t" << fRelLinTotIm << "\t"
-	     << fl1 << "\t" << fl2 << "\t" << fl3 << "\t"
-	     << q2rellin << "\t" << fkf << "\t" << fef << "\t"
-	     << fl2im << "\t" << fl3im << "\t";*/
-
-    ffstream << "\n";
+    if(q0 > 0){
+      ffstream << -q2 << "\t" << q[0] << "\t" << dq
+	       << "\t" << axx << "\t" << azz << "\t" << a0z
+	       << "\t" << a00 << "\t" << axy << "\t"
+	       << CT << "\t" << CL << "\t" << CN << "\t"
+	       << tmugev << "\t" << imU << "\t"
+	       << F1V << "\t" << xiF2V << "\t" 
+	       << FA << "\t" << Fp << "\t"
+	       << tulin[0] << "\t"<< tulin[1] << "\t"
+	       << tulin[2] << "\t"<< tulin[3] << "\t"
+	       << rulin[0][0]<< "\t"<< rulin[0][1]<< "\t"
+	       << rulin[0][2]<< "\t"<< rulin[0][3]<< "\t"
+	       << rulin[1][0]<< "\t"<< rulin[1][1]<< "\t"
+	       << rulin[1][2]<< "\t"<< rulin[1][3]<< "\t"
+	       << rulin[2][0]<< "\t"<< rulin[2][1]<< "\t"
+	       << rulin[2][2]<< "\t"<< rulin[2][3]<< "\t"
+	       << rulin[3][0]<< "\t"<< rulin[3][1]<< "\t"
+	       << rulin[3][2]<< "\t"<< rulin[3][3]<< "\t"
+	       << fVc << "\t" << fCoulombFactor << "\t";
+	ffstream << "\n";
     }
     ffstream.close();
-  }else  if(fPrintData){
-  // Print Q2, form factors, and tensor elts
-    std::ofstream ffstream;
-    ffstream.open("tensors_gevgen_allevents.txt", std::ios_base::app);
-    ffstream << -q2 << "\t" << q[0] << "\t" << dq << "\t"
-	     << F1V << "\t" << xiF2V << "\t" << FA << "\t" << Fp
-	     << "\t" << axx << "\t" << azz << "\t" << a0z
-	     << "\t" << a00 << "\t" << axy << "\t"
-	     << CT << "\t" << CL << "\t" << CN;
-    ffstream << "\n";
-    ffstream.close();
   }
-
+  // END TESTING CODE
   
   // Since the real parts of A and L are both symmetric and the imaginary
   // parts are antisymmetric, the contraction should be real
@@ -1400,58 +1175,12 @@ double NievesQELCCPXSec::LmunuAnumu(const TLorentzVector neutrinoMom,
   return real(sum);
 }
 //____________________________________________________________________________
-void QELPrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
-{
-  //PrimaryLeptonGenerator::ProcessEventRecord(evrec);
-  Interaction * interaction = evrec->Summary();
-  Kinematics * kine = interaction->KinePtr();
-
-  // Check that a lepton was stored. If not, call the parent method.
-  if(!(kine->KVSet(kKVSelTl) && kine->KVSet(kKVSelctl) 
-       && kine->KVSet(kKVSelphikq))){
-    LOG("LeptonicVertex",pINFO) << "Calling parent method to generate lepton";
-    PrimaryLeptonGenerator::ProcessEventRecord(evrec);
-    return;
-  }
-  LOG("LeptonicVertex",pINFO) << "Loading stored lepton";
-  // Get the final state primary lepton energy and momentum components
-  // along and perpendicular to the neutrino direction 
-  double ml  = interaction->FSPrimLepton()->Mass();
-  double ml2 = TMath::Power(ml,2);
-
-  // Get the components stored by the QEL kinematics generator
-  double Tl = kine->GetKV(kKVSelTl); // Used to store momentum magnitude pl
-  double ctl = kine->GetKV(kKVSelctl);
-  double phi = kine->GetKV(kKVSelphikq);
-
-  double El = TMath::Sqrt(Tl*Tl + ml2);
-  double stl = TMath::Sqrt(1-ctl*ctl);
-  double plp = Tl * ctl;
-  double pltx = Tl * stl * TMath::Cos(phi);
-  double plty = Tl * stl * TMath::Sin(phi);
-
-  TLorentzVector p4l(pltx,plty,plp,El);
-
-  LOG("LeptonicVertex", pNOTICE)
-       << "fsl @ LAB: " << utils::print::P4AsString(&p4l);
-
-  // Figure out the Final State Lepton PDG Code
-  int pdgc = interaction->FSPrimLepton()->PdgCode();
-
-  // Create a GHepParticle and add it to the event record
-  this->AddToEventRecord(evrec, pdgc, p4l);
-
-  // Set final state lepton polarization
-  this->SetPolarization(evrec);
-}
-//___________________________________________________________________________
 // Generate a lepton using PrimaryLeptonGenerator::ProcessEventRecord()
 // and store it by using the KineVar construct with
 // the Kinematics class (variables kKVTl, kKVctl, kKVphikq).
 // Stored lepton is in the LAB FRAME.
-void NievesQELCCPXSec::SetRunningLepton(GHepRecord * evrec) const{
-  Interaction * interaction = evrec->Summary();
-
+TLorentzVector NievesQELCCPXSec::GenerateOutgoingLepton(const Interaction* interaction,
+							TLorentzVector p4v) const{
   // Velocity for an active Lorentz transform taking the final state primary
   // lepton from the [nucleon rest frame] --> [LAB]
   const InitialState & init_state = interaction->InitState();
@@ -1460,8 +1189,7 @@ void NievesQELCCPXSec::SetRunningLepton(GHepRecord * evrec) const{
 
 
   // Neutrino 4p
-  TLorentzVector * p4v = evrec->Probe()->GetP4(); // v 4p @ LAB
-  p4v->Boost(-1.*beta);                           // v 4p @ Nucleon rest frame
+  p4v.Boost(-1.*beta);                           // v 4p @ Nucleon rest frame
 
   // Look-up selected kinematics & other needed kinematical params
   double Q2  = interaction->Kine().Q2(false);
@@ -1480,11 +1208,11 @@ void NievesQELCCPXSec::SetRunningLepton(GHepRecord * evrec) const{
   // (W,Q2) -> (x,y)
   double x=0, y=0;
   utils::kinematics::WQ2toXY(E,M,W,Q2,x,y);
-  double Ev  = p4v->E(); 
+  double Ev  = p4v.E(); 
   double ml  = interaction->FSPrimLepton()->Mass();
   double ml2 = TMath::Power(ml,2);
 
-  LOG("LeptonicVertex", pINFO)
+  LOG("LeptonicVertex", pDEBUG)
     << "Ev = " << Ev << ", Q2 = " << Q2 << ", y = " << y;
 
   // Compute the final state primary lepton energy and momentum components
@@ -1493,7 +1221,7 @@ void NievesQELCCPXSec::SetRunningLepton(GHepRecord * evrec) const{
   double plp = El - 0.5*(Q2+ml2)/Ev;                          // p(//)
   double plt = TMath::Sqrt(TMath::Max(0.,El*El-plp*plp-ml2)); // p(-|)
 
-  LOG("LeptonicVertex", pINFO)
+  LOG("LeptonicVertex", pDEBUG)
     << "trying fsl: E = " << El << ", |p//| = " << plp << ", [pT] = " << plt;
 
   // Randomize transverse components
@@ -1504,7 +1232,7 @@ void NievesQELCCPXSec::SetRunningLepton(GHepRecord * evrec) const{
 
 
   // Take a unit vector along the neutrino direction @ the nucleon rest frame
-  TVector3 unit_nudir = p4v->Vect().Unit(); 
+  TVector3 unit_nudir = p4v.Vect().Unit(); 
 
   // Rotate lepton momentum vector from the reference frame (x'y'z') where 
   // {z':(neutrino direction), z'x':(theta plane)} to the nucleon rest frame
@@ -1520,59 +1248,98 @@ void NievesQELCCPXSec::SetRunningLepton(GHepRecord * evrec) const{
   // Boost final state primary lepton to the lab frame
   p4l.Boost(beta); // active Lorentz transform
 
-  LOG("LeptonicVertex", pINFO)
-    << "trying fsl @ LAB: " << utils::print::P4AsString(&p4l);
-
-  // Store the outgoing lepton components in the lab frame
-  // Assume El^2 = pl^2 + ml^2
-  double Tl = p4l.Vect().Mag(); // used to store 3-vector magnitude pl
-  LOG("LeptonicVertex",pDEBUG) << "ml = " << ml << ", Tl = " << Tl;
-  double ctl = p4l.CosTheta(); // cos(theta) in the lab frame
-  phi = p4l.Phi(); // get phi in the lab fram
-  interaction->KinePtr()->SetKV(kKVTl,Tl);
-  interaction->KinePtr()->SetKV(kKVctl,ctl);
-  interaction->KinePtr()->SetKV(kKVphikq,phi);
-
-  delete p4v;
-  return;
+  return p4l;
 }
 //___________________________________________________________________________
+// Auxiliary scalar function for internal integration
+//____________________________________________________________________________
+utils::gsl::wrap::NievesQELvcrIntegrand::NievesQELvcrIntegrand(
+					       double Rcurr, int A, int Z):
+ROOT::Math::IBaseFunctionOneDim()
+{
+  fRcurr = Rcurr;
+  fA = A;
+  fZ = Z;
+}
+//____________________________________________________________________________
+utils::gsl::wrap::NievesQELvcrIntegrand::~NievesQELvcrIntegrand()
+{
+
+}
+//____________________________________________________________________________
+unsigned int utils::gsl::wrap::NievesQELvcrIntegrand::NDim(void) const
+{
+  return 1;
+}
+//____________________________________________________________________________
+double utils::gsl::wrap::NievesQELvcrIntegrand::DoEval(double rin) const
+{
+  double rhop = fZ*nuclear::Density(rin,fA);
+  if(rin<fRcurr){
+    return rhop*rin*rin/fRcurr;
+  }else{
+    return rhop*rin;
+  }
+}
+//____________________________________________________________________________
+ROOT::Math::IBaseFunctionOneDim * 
+  utils::gsl::wrap::NievesQELvcrIntegrand::Clone(void) const
+{
+  return new utils::gsl::wrap::NievesQELvcrIntegrand(fRcurr,fA,fZ);
+}
+//____________________________________________________________________________
+
+//____________________________________________________________________________
 //
-// NOTE: THE REMAINING THREE METHODS ARE FOR TESTING PURPOSES ONLY
+// NOTE: THE REMAINING IS TESTING CODE
+//
+// This method prints the tensor elements (as well as various inputs) for
+// different kinematics. The tensor elements can then be compared to the
+// output of Nieves' fortran code.
+//
+// The results of this code will only agree exactlly with Nieves' fortran
+// if Dipole form factors are set (in UserPhysicsOptions).
 //
 void NievesQELCCPXSec::CompareNievesTensors(const Interaction* in) 
   const {
-  //
-  // For this comparison to agree with Nieves' fortran code, the form factors
-  // should be set as the Dipole form factors class.
-  //
-  std::cout << "Interating Kinematics and printing tensor elts" << std::endl;
   Interaction * interaction = new Interaction(*in); // copy in
   
-  // These should be set by the user- eg read these from file
-  double ein = 1.0;
-  double ctl = 0.0;
+  // Set input values here
+  double ein = 0.2;
+  double ctl = 0.5;
   double rmaxfrac = 0.25;
 
+  bool carbon = false; // true -> C12, false -> Pb208
+
   if(fRPA)
-    fTensorsOutFile = "gen.RPA_E1_ctl0_r0.5";
+    fTensorsOutFile = "gen.RPA";
   else
-    fTensorsOutFile = "gen.noRPA_E1_ctl0_r0.5";
+    fTensorsOutFile = "gen.noRPA";
 
   // Calculate radius
-  // CARBON
-  bool klave = true;
-  double rp = 1.692;
-  double ap = 1.082;
-  double rn = 1.692;
-  double an = 1.082;
+  bool klave;
+  double rp,ap,rn,an;
+  if(carbon){
+    klave = true;
+    rp = 1.692;
+    ap = 1.082;
+    rn = 1.692;
+    an = 1.082;
+  }else{
+    // Pb208
+    klave = false;
+    rp = 6.624;
+    ap = 0.549;
+    rn = 6.890;
+    an = 0.549;
+  }
   double rmax;
   if(!klave)
     rmax = TMath::Max(rp,rn) + 9.25*TMath::Max(ap,an);
   else
     rmax = TMath::Sqrt(20.0)*TMath::Max(rp,rn);
   double r = rmax *  rmaxfrac;
-
+    
   // Relevant objects and parameters
   //const Kinematics &   kinematics = interaction -> Kine();
   const InitialState & init_state = interaction -> InitState();
@@ -1599,12 +1366,10 @@ void NievesQELCCPXSec::CompareNievesTensors(const Interaction* in)
 
     double pin = TMath::Sqrt(ein*ein); // Assume massless neutrinos
 
-    double qvalue = .016827; // Units of GeV
-    double q0 = ein-eout-qvalue;
+    double q0 = ein-eout;
     double dq = TMath::Sqrt(pin*pin+pout*pout-2.0*ctl*pin*pout);
     double q2 = q0*q0-dq*dq;
     interaction->KinePtr()->SetQ2(-q2);
-    //q2Orig = interaction->KinePtr()->q2();
 
     // When this method is called, inNucleonMom and outNucleonMom are 
     // only used to calulate 
@@ -1613,46 +1378,37 @@ void NievesQELCCPXSec::CompareNievesTensors(const Interaction* in)
     // z direction, as Nieves does in his paper
     TLorentzVector inNucleonMom(0,0,0,0);
     TLorentzVector outNucleonMom(0,0,dq,q0);
-    std::cout << "E = " << outNucleonMom.E() << ", p = " << outNucleonMom.Vect().Mag()
-	      << ", q2 = " << outNucleonMom.Mag2() << ", q2 = " << q2 << std::endl;
 
     // neutrinoMom and leptonMom only directly affect the leptonic tensor, which
-    // we are not calculating now. Set to large values so we see if they
-    // do make a difference (which would be bad).
-    TLorentzVector * neutrinoMom = new TLorentzVector(999999,999999,999999,999999);
+    // we are not calculating now. Use them to transfer q.
+    TLorentzVector neutrinoMom(0,0,pout+dq,eout+q0);
     TLorentzVector leptonMom(0,0,pout,eout);
 
-  if(fCoulomb){
-    // Coulomb potential
-    double Vc = vcr(& target, r);
-    fVc = Vc;
-
-    // Outgoing lepton energy and momentum including coulomb potential
-    int sign = is_neutrino ? 1 : -1;
-    double El = leptonMom.E();
-    double ElLocal = El - sign*Vc;
-    if(ElLocal - ml <= 0.0){
-      LOG("Nieves",pINFO) << "Event should be rejected. Coulomb effects "
+    if(fCoulomb){ // Use same steps as in XSec()
+      // Coulomb potential
+      double Vc = vcr(& target, r);
+      fVc = Vc;
+      
+      // Outgoing lepton energy and momentum including coulomb potential
+      int sign = is_neutrino ? 1 : -1;
+      double El = leptonMom.E();
+      double ElLocal = El - sign*Vc;
+      if(ElLocal - ml <= 0.0){
+	LOG("Nieves",pINFO) << "Event should be rejected. Coulomb effects "
 			    << "push kinematics below threshold";
-      return;
+	return;
+      }
+      double plLocal = TMath::Sqrt(ElLocal*ElLocal-ml*ml);
+      
+      // Correction factor
+      double coulombFactor= plLocal*ElLocal/leptonMom.Vect().Mag()/El;
+      fCoulombFactor = coulombFactor; // Store and print
     }
-    double plLocal = TMath::Sqrt(ElLocal*ElLocal-ml*ml);
 
-    // Correction factor
-    double coulombFactor= plLocal*ElLocal/leptonMom.Vect().Mag()/El;
-    fCoulombFactor = coulombFactor;
-    fElocal = ElLocal;
-    fPlocal = plLocal;
-    fElep = El;
-    fPlep = leptonMom.Vect().Mag();
-  }
-    
-    
     fFormFactors.Calculate(interaction);
-    LmunuAnumu(*neutrinoMom,inNucleonMom,leptonMom,outNucleonMom,
+    LmunuAnumu(neutrinoMom,inNucleonMom,leptonMom,outNucleonMom,
 	       M,r,is_neutrino,tgtIsNucleus,tgt_pdgc,A,Z,N,hitNucIsProton);
   }
-  std::cout << "Done Interating Kinematics and printing tensor elts" << std::endl;
   return;
-}
+} // END TESTING CODE
 //____________________________________________________________________________
