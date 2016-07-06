@@ -14,7 +14,7 @@
  @ Mar 18, 2016- Joe Johnston (SD)
    Added checks to see if the nuclear model is a LocalFGM object, 
    and in that case use Local FG for Pauli blocking. Replaced LoadKFTable()
-   with LoadConfig(), to detect the nuclear model type and only load a Fermi
+   with LoadModelType(), to detect the nuclear model type and only load a Fermi
    momentum table if the nuclear model is a relativistic Fermi gas.
 
 */
