@@ -33,8 +33,6 @@ public :
 
   // implement the EventRecordVisitorI interface
   void ProcessEventRecord(GHepRecord * event_rec) const;
-  // store running lepton values in the kinematics
-  void SetRunningLepton(GHepRecord * event_rec) const;
 };
 
 }      // genie namespace
