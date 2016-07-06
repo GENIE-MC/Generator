@@ -43,7 +43,6 @@ public:
   double XSec            (const Interaction * i, KinePhaseSpace_t k) const;
   double Integral        (const Interaction * i) const;
   bool   ValidProcess    (const Interaction * i) const;
-  double FullDifferentialXSec(const Interaction * i) const;
 
   // Override the Algorithm::Configure methods to load configuration
   // data to private data members
@@ -51,6 +50,7 @@ public:
   void Configure (string param_set);
 
 private:
+  double FullDifferentialXSec(const Interaction * i) const;
   void LoadConfig (void);
 
   mutable QELFormFactors       fFormFactors;      ///<
