@@ -18,8 +18,8 @@
 //____________________________________________________________________________
 
 
-#ifndef _QEL_Event_GENERATOR_H_
-#define _QEL_Event_GENERATOR_H_
+#ifndef _QEL_EVENT_GENERATOR_H_
+#define _QEL_EVENT_GENERATOR_H_
 
 
 #include "EVGModules/KineGeneratorWithCache.h"
@@ -45,12 +45,12 @@ public :
   void Configure(const Registry & config);
   void Configure(string config);
 
+private:
+
   double ComputeXSec (Interaction * in, double costheta, double phi) const;
   TVector3 COMframe2Lab(InitialState initialState) const;
 
   double COMJacobian(TLorentzVector lepton, TLorentzVector leptonCOM, TLorentzVector outNucleon, TVector3 beta) const;
-
-private:
   
   double fQ2min;
   mutable double fEb; // Binding energy
@@ -74,4 +74,4 @@ private:
 
 } // genie namespace
 
-#endif // _QEL_Event_GENERATOR_H_
+#endif // _QEL_EVENT_GENERATOR_H_
