@@ -102,9 +102,9 @@ double LocalFGM::Prob(double p, double w, const Target & target,
     int bin = prob->FindBin(p);
     double y  = prob->GetBinContent(bin);
     double dx = prob->GetBinWidth(bin);
-    double p  = y*dx;
+    double pr  = y*dx;
     delete prob;
-    return p;
+    return pr;
   }
   return 1;
 }
