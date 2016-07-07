@@ -41,6 +41,8 @@
    Added 2015 version of INTRANUKE codes (new class) for independent development.  Include Oset model for medium corrections to piA for Tpi<350 MeV.
  @ May, 2015 Flor Blaszczyk
    K+ are now handled.
+ @ July, 2016 Nicholas Suarez, Josh Kleckner, SD
+   fix memory leak, fix fates, improve NNCorr binning
 */
 //____________________________________________________________________________
 
@@ -182,6 +184,7 @@ void HNIntranuke2015::SimulateHadronicFinalState(GHepRecord* ev, GHepParticle* p
 	  this-> InelasticHN(ev,p);
 	}
       else if(fate == kIHNFtInelas && pdgc == kPdgGamma) {this-> GammaInelasticHN(ev,p,fate);}
+      else if(fate == kIHNFtCmp){utils::intranuke2015::PreEquilibrium(ev,p,fRemnA,fRemnZ,fRemnP4,fDoFermi,fFermiFac,fNuclmodel,fNucRmvE,kIMdHN);}
       else if(fate == kIHNFtNoInteraction)
 	{
 	  p->SetStatus(kIStStableFinalState);
@@ -275,6 +278,8 @@ INukeFateHN_t HNIntranuke2015::HadronFateHN(const GHepParticle * p) const
 	                           * fHadroData2015->Frac(pdgc, kIHNFtElas,   ke, fRemnA, fRemnZ);
       double frac_inel     = this->FateWeight(pdgc, kIHNFtInelas)
 	                           * fHadroData2015->Frac(pdgc, kIHNFtInelas, ke, fRemnA, fRemnZ);
+      double frac_cmp      = this->FateWeight(pdgc, kIHNFtCmp)
+	                           * fHadroData2015->Frac(pdgc, kIHNFtCmp,    ke, fRemnA , fRemnZ);
 
        LOG("HNIntranuke2015", pINFO) 
           << "\n frac{" << INukeHadroFates::AsString(kIHNFtElas)    << "} = " << frac_elas
@@ -282,7 +287,8 @@ INukeFateHN_t HNIntranuke2015::HadronFateHN(const GHepParticle * p) const
 
        // compute total fraction (can be <1 if fates have been switched off)
        double tf = frac_elas     +
-                   frac_inel;
+                   frac_inel     +
+	           frac_cmp;
 
        double r = tf * rnd->RndFsi().Rndm();
 
@@ -293,6 +299,7 @@ INukeFateHN_t HNIntranuke2015::HadronFateHN(const GHepParticle * p) const
        double cf=0; // current fraction
        if(r < (cf += frac_elas    )) return kIHNFtElas;    // elas
        if(r < (cf += frac_inel    )) return kIHNFtInelas;  // inelas
+       if(r < (cf += frac_cmp     )) return kIHNFtCmp;     // cmp
 
        LOG("HNIntranuke2015", pWARN) 
          << "No selection after going through all fates! "
@@ -368,7 +375,7 @@ double HNIntranuke2015::FateWeight(int pdgc, INukeFateHN_t fate) const
       if (fate == kIHNFtCEx && pdgc==kPdgPiM ) { return (np>=1) ? 1. : 0.; }
       if (fate == kIHNFtCEx && pdgc==kPdgKP  ) { return (nn>=1) ? 1. : 0.; } //Added, changed np to nn
       if (fate == kIHNFtAbs)      { return ((nn>=1) && (np>=1)) ? 1. : 0.; }
-    }
+      if (fate == kIHNFtCmp )     { return ((pdgc==kPdgProton||pdgc==kPdgNeutron)&&fDoCompoundNucleus&&fRemnA>5) ? 1. : 0.; }
 
   return 1.;
 }
@@ -586,8 +593,9 @@ void HNIntranuke2015::AbsorbHN(
       LOG("HNIntranuke2015",pINFO) << "AbsorbHN failed: Pauli blocking";
 #endif
       p->SetStatus(kIStHadronInTheNucleus);
-      utils::intranuke2015::StepParticle(p,fFreeStep,fTrackingRadius);
-      ev->AddParticle(*p);
+      //disable until needed
+      //      utils::intranuke2015::StepParticle(p,fFreeStep,fTrackingRadius);
+      ev->AddParticle(*p);   
       return;
     }
 
@@ -740,6 +748,7 @@ void HNIntranuke2015::ElasHN(
     ev->AddParticle(*t);
   } else
   {
+    delete t; //fixes memory leak
     LOG("HNIntranuke2015", pINFO) << "Elastic in hN failed calling TwoBodyCollision";
     exceptions::INukeException exception;
     exception.SetReason("hN scattering kinematics through TwoBodyCollision failed");
@@ -773,6 +782,10 @@ void HNIntranuke2015::InelasticHN(GHepRecord* ev, GHepParticle* p) const
     }
   else
     {
+      delete s1; //added to prevent potential memory leak
+      delete s2;
+      delete s3;
+
       LOG("HNIntranuke2015", pNOTICE) << "Error: could not create pion production final state";
       exceptions::INukeException exception;
       exception.SetReason("PionProduction in hN failed");
