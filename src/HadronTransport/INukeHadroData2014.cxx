@@ -81,6 +81,19 @@ INukeHadroData2014::~INukeHadroData2014()
   delete fXSecPipp_Reac;
   delete fXSecPipd_Abs;
 
+  delete fXSecPp_Cmp;
+  delete fXSecPn_Cmp;
+  delete fXSecNn_Cmp;
+  delete fXSecPp_Tot;     
+  delete fXSecPp_Elas;      
+  delete fXSecPp_Reac;      
+  delete fXSecPn_Tot;     
+  delete fXSecPn_Elas;      
+  delete fXSecPn_Reac;      
+  delete fXSecNn_Tot;     
+  delete fXSecNn_Elas;      
+  delete fXSecNn_Reac;
+
   // pi0n/p hA x-section splines
   delete fXSecPi0n_Tot;
   delete fXSecPi0n_CEx;
@@ -188,8 +201,7 @@ void INukeHadroData2014::LoadCrossSections(void)
   TTree data_gamN; 
   TTree data_kN;
 
-  data_NN.ReadFile(datafile_NN.c_str(),
-     "ke/D:pp_tot/D:pp_elas/D:pp_reac/D:pn_tot/D:pn_elas/D:pn_reac/D:nn_tot/D:nn_elas/D:nn_reac/D");
+  data_NN.ReadFile(datafile_NN.c_str(),"ke/D:pp_tot/D:pp_elas/D:pp_reac/D:pn_tot/D:pn_elas/D:pn_reac/D:nn_tot/D:nn_elas/D:nn_reac/D:pp_cmp/D:pn_cmp/D:nn_cmp/D");
   data_pipN.ReadFile(datafile_pipN.c_str(),
      "ke/D:pipn_tot/D:pipn_cex/D:pipn_elas/D:pipn_reac/D:pipp_tot/D:pipp_cex/D:pipp_elas/D:pipp_reac/D:pipd_abs");
   data_pi0N.ReadFile(datafile_pi0N.c_str(),
@@ -225,6 +237,9 @@ void INukeHadroData2014::LoadCrossSections(void)
   fXSecNn_Tot      = new Spline(&data_NN, "ke:nn_tot");     
   fXSecNn_Elas     = new Spline(&data_NN, "ke:nn_elas");      
   fXSecNn_Reac     = new Spline(&data_NN, "ke:nn_reac");      
+  fXSecPp_Cmp      = new Spline(&data_NN, "ke:pp_cmp");     
+  fXSecPn_Cmp      = new Spline(&data_NN, "ke:pn_cmp");      
+  fXSecNn_Cmp      = new Spline(&data_NN, "ke:nn_cmp");
 
   // pi+n/p hA x-section splines
   fXSecPipn_Tot     = new Spline(&data_pipN, "ke:pipn_tot");    
@@ -235,7 +250,7 @@ void INukeHadroData2014::LoadCrossSections(void)
   fXSecPipp_CEx     = new Spline(&data_pipN, "ke:pipp_cex");    
   fXSecPipp_Elas    = new Spline(&data_pipN, "ke:pipp_elas");    
   fXSecPipp_Reac    = new Spline(&data_pipN, "ke:pipp_reac");    
-  fXSecPipd_Abs     = new Spline(&data_pipN, "ke:pipd_abs");    
+  fXSecPipd_Abs     = new Spline(&data_pipN, "ke:pipd_abs");     
 
   // pi0n/p hA x-section splines
   fXSecPi0n_Tot     = new Spline(&data_pi0N, "ke:pi0n_tot");    
@@ -1430,17 +1445,20 @@ double INukeHadroData2014::XSec(int hpdgc, INukeFateHN_t fate, double ke, int ta
 
   } else if (hpdgc == kPdgProton) {
     /* handle protons */
-         if (fate == kIHNFtElas  ) {xsec = TMath::Max(0., fXSecPp_Elas -> Evaluate(ke)) *  targZ;
-	                            xsec+= TMath::Max(0., fXSecPn_Elas -> Evaluate(ke)) * (targA-targZ);
-				    return xsec;}
-    else if (fate == kIHNFtInelas) {xsec = TMath::Max(0., fXSecPp_Reac -> Evaluate(ke)) *  targZ;
-	                            xsec+= TMath::Max(0., fXSecPn_Reac -> Evaluate(ke)) * (targA-targZ);
-				    return xsec;}
-    else {
-     LOG("INukeData", pWARN) 
+      if (fate == kIHNFtElas  ) {xsec = TMath::Max(0., fXSecPp_Elas -> Evaluate(ke)) *  targZ;
+	xsec+= TMath::Max(0., fXSecPn_Elas -> Evaluate(ke)) * (targA-targZ);
+	return xsec;}
+      else if (fate == kIHNFtInelas) {xsec = TMath::Max(0., fXSecPp_Reac -> Evaluate(ke)) *  targZ;
+	xsec+= TMath::Max(0., fXSecPn_Reac -> Evaluate(ke)) * (targA-targZ);
+	return xsec;}
+      else if (fate == kIHNFtCmp) {xsec = TMath::Max(0., fXSecPp_Cmp -> Evaluate(ke)) *  targZ;
+	xsec+= TMath::Max(0., fXSecPn_Cmp -> Evaluate(ke)) * (targA-targZ);
+	return xsec;}
+      else {
+	LOG("INukeData", pWARN) 
         << "Protons don't have this fate: " << INukeHadroFates::AsString(fate);
-     return 0;
-    }
+	return 0;
+      }
 
   } else if (hpdgc == kPdgNeutron) {
     /* handle protons */
@@ -1449,6 +1467,9 @@ double INukeHadroData2014::XSec(int hpdgc, INukeFateHN_t fate, double ke, int ta
 				    return xsec;}
     else if (fate == kIHNFtInelas) {xsec = TMath::Max(0., fXSecPn_Reac -> Evaluate(ke)) *  targZ;
 	                            xsec+= TMath::Max(0., fXSecNn_Reac -> Evaluate(ke)) * (targA-targZ);
+				    return xsec;}
+else if (fate == kIHNFtCmp)    {xsec = TMath::Max(0., fXSecPn_Cmp -> Evaluate(ke)) *  targZ;
+	                            xsec+= TMath::Max(0., fXSecNn_Cmp -> Evaluate(ke)) * (targA-targZ);
 				    return xsec;}
     else {
      LOG("INukeData", pWARN) 
