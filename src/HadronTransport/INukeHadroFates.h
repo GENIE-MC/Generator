@@ -36,7 +36,8 @@ typedef enum EINukeFateHN_t {
    kIHNFtCEx,       // cex
    kIHNFtElas,      // elas
    kIHNFtInelas,    // inelas
-   kIHNFtAbs       // abs 
+   kIHNFtAbs,       // abs 
+   kIHNFtCmp         //cmp
 
 } INukeFateHN_t;   
 
@@ -70,6 +71,7 @@ public:
       case kIHNFtElas      : return "HN-mode / elas";   break;
       case kIHNFtInelas    : return "HN-mode / inelas"; break;
       case kIHNFtAbs       : return "HN-mode / abs";    break;
+      case kIHNFtCmp	   : return "HN-mode / compound"; break;
       case kIHNFtNoInteraction : return "HN-mode / no interaction"; break;
       default              : break; 
      }
