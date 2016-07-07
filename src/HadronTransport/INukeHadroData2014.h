@@ -204,6 +204,9 @@ private:
   Spline * fXSecGamp_fs;       ///< gamma A x-section splines
   Spline * fXSecGamn_fs;       ///<
   Spline * fXSecGamN_Tot;      ///<
+  Spline * fXSecPp_Cmp;        //compound nucleus splines
+  Spline * fXSecPn_Cmp;
+  Spline * fXSecNn_Cmp;
 
   TGraph2D * TPipA_Tot;
   TGraph2D * TfracPipA_CEx;
