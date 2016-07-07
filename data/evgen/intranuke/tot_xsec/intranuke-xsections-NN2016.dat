@@ -2,7 +2,8 @@
 #
 # Data used in GENIE for pN and nN total cross sections
 # use PWA results of Arndt, et al. for pp elas, np elas, pp reac, and np reac
-# no nn results, assume nn same as np for now, can be improved later
+# add nn total cross sections from Bystricky, Lehar Physics Data 11-3 (1981)
+#    this is simple fit for 88.2-915.9 MeV, constant otherwise (theory justified)
 # KE is CM energy in MeV, cross sections CM all mb
 #
 # KE     pp tot     pp elas   pp reac    pn tot      pn elas    pn reac    nn tot    nn elas    nn reac    pp cmp     pn cmp     nn cmp
