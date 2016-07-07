@@ -183,6 +183,9 @@ void HNIntranuke2014::SimulateHadronicFinalState(GHepRecord* ev, GHepParticle* p
 	  ev->AddParticle(*p);
 	  return;
 	}
+      else if(fate == kIHNFtCmp){utils::intranuke2014::PreEquilibrium(ev,p,fRemnA,fRemnZ,fRemnP4,fDoFermi,fFermiFac,fNuclmodel,fNucRmvE,kIMdHN);}
+      
+
     }
   catch(exceptions::INukeException exception)
     {
@@ -266,15 +269,16 @@ INukeFateHN_t HNIntranuke2014::HadronFateHN(const GHepParticle * p) const
 	                           * fHadroData2014->Frac(pdgc, kIHNFtElas,   ke, fRemnA, fRemnZ);
       double frac_inel     = this->FateWeight(pdgc, kIHNFtInelas)
 	                           * fHadroData2014->Frac(pdgc, kIHNFtInelas, ke, fRemnA, fRemnZ);
+      double frac_cmp      = this->FateWeight(pdgc, kIHNFtCmp)
+	                           * fHadroData2014->Frac(pdgc, kIHNFtCmp,    ke, fRemnA , fRemnZ);
 
        LOG("HNIntranuke2014", pINFO) 
           << "\n frac{" << INukeHadroFates::AsString(kIHNFtElas)    << "} = " << frac_elas
           << "\n frac{" << INukeHadroFates::AsString(kIHNFtInelas)  << "} = " << frac_inel;
 
        // compute total fraction (can be <1 if fates have been switched off)
-       double tf = frac_elas     +
-                   frac_inel;
-
+       double tf = frac_elas + frac_inel + frac_cmp;
+   
        double r = tf * rnd->RndFsi().Rndm();
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
@@ -284,6 +288,7 @@ INukeFateHN_t HNIntranuke2014::HadronFateHN(const GHepParticle * p) const
        double cf=0; // current fraction
        if(r < (cf += frac_elas    )) return kIHNFtElas;    // elas
        if(r < (cf += frac_inel    )) return kIHNFtInelas;  // inelas
+       if(r < (cf += frac_cmp     )) return kIHNFtCmp; // cmp 
 
        LOG("HNIntranuke2014", pWARN) 
          << "No selection after going through all fates! "
@@ -321,6 +326,7 @@ double HNIntranuke2014::FateWeight(int pdgc, INukeFateHN_t fate) const
       if (fate == kIHNFtCEx && pdgc==kPdgPiP ) { return (nn>=1) ? 1. : 0.; }
       if (fate == kIHNFtCEx && pdgc==kPdgPiM ) { return (np>=1) ? 1. : 0.; }
       if (fate == kIHNFtAbs)      { return ((nn>=1) && (np>=1)) ? 1. : 0.; }
+      if (fate == kIHNFtCmp )     { return ((pdgc==kPdgProton||pdgc==kPdgNeutron)&&fDoCompoundNucleus&&fRemnA>5) ? 1. : 0.; }
     }
 
   return 1.;
@@ -539,7 +545,9 @@ void HNIntranuke2014::AbsorbHN(
       LOG("HNIntranuke2014",pINFO) << "AbsorbHN failed: Pauli blocking";
 #endif
       p->SetStatus(kIStHadronInTheNucleus);
-      utils::intranuke2014::StepParticle(p,fFreeStep,fTrackingRadius);
+
+      //utils::intranuke2014::StepParticle(p,fFreeStep,fTrackingRadius); //not needed
+
       ev->AddParticle(*p);
       return;
     }
@@ -685,13 +693,17 @@ void HNIntranuke2014::ElasHN(
 
   if (pass==true)
   {
-    //  give each of the particles a free step
-    utils::intranuke2014::StepParticle(p,fFreeStep,fTrackingRadius);
-    utils::intranuke2014::StepParticle(t,fFreeStep,fTrackingRadius);
+
+    //utils::intranuke2014::StepParticle(p,fFreeStep,fTrackingRadius); //not needed
+    //utils::intranuke2014::StepParticle(t,fFreeStep,fTrackingRadius);
+
     ev->AddParticle(*p);
     ev->AddParticle(*t);
   } else
   {
+    
+    delete t; //fixes a troublesome memory leak
+
     LOG("HNIntranuke2014", pINFO) << "Elastic in hN failed calling TwoBodyCollision";
     exceptions::INukeException exception;
     exception.SetReason("hN scattering kinematics through TwoBodyCollision failed");
@@ -725,6 +737,11 @@ void HNIntranuke2014::InelasticHN(GHepRecord* ev, GHepParticle* p) const
     }
   else
     {
+      
+      delete s1; //fixes potential memory leak
+      delete s2;
+      delete s3;
+      
       LOG("HNIntranuke2014", pNOTICE) << "Error: could not create pion production final state";
       exceptions::INukeException exception;
       exception.SetReason("PionProduction in hN failed");
