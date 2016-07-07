@@ -4,7 +4,7 @@
 #include "PDG/PDGLibrary.h"
 #include "Conventions/Units.h"
 #include "Numerical/RandomGen.h"
-
+#include "Messenger/Messenger.h"
 using namespace genie;
 
 INukeNucleonCorr* INukeNucleonCorr::fInstance = NULL; // initialize instance with NULL
@@ -19,12 +19,22 @@ const double INukeNucleonCorr::fBeta1   = -116.00 / fRho0 / 1000.0;          // 
 const double INukeNucleonCorr::fLambda0 =    3.29 / (units::fermi);          // converted to GeV
 const double INukeNucleonCorr::fLambda1 =  -0.373 / (units::fermi) / fRho0;  // converted to GeV
 
+//Three Cache arrays give fine binning at low energy and coarse binning at high energy//
 const int INukeNucleonCorr::fNDensityBins = 16;  // number of bins for density cache array
-const int INukeNucleonCorr::fNEnergyBins  = 20;  // number of bins for energy cache array
-const double INukeNucleonCorr::fMaxEnergy    = 1.0; // [GeV]
-
 const double INukeNucleonCorr::fDensityStep = fRho0 / fNDensityBins;      // [fm^{-3}]
-const double INukeNucleonCorr::fEnergyStep  = fMaxEnergy / fNEnergyBins; // [GeV]
+
+const int INukeNucleonCorr::fNEnergyBins1  = 20;  // number of bins for energy cache1 array
+const double INukeNucleonCorr::fMaxEnergy1    = 0.1; // [GeV]
+const double INukeNucleonCorr::fEnergyStep1  = fMaxEnergy1 / fNEnergyBins1; // [GeV]
+
+const int INukeNucleonCorr::fNEnergyBins2  = 8;  // number of bins for energy cache2 array
+const double INukeNucleonCorr::fMaxEnergy2    = 0.4; // [GeV]
+const double INukeNucleonCorr::fEnergyStep2  = fMaxEnergy2 / fNEnergyBins2; // [GeV]
+
+const int INukeNucleonCorr::fNEnergyBins3  = 1;  // number of bins for energy cache3 array
+const double INukeNucleonCorr::fMaxEnergy3    = 1.0; // [GeV]
+const double INukeNucleonCorr::fEnergyStep3  = fMaxEnergy3 / fNEnergyBins3; // [GeV]
+
 
 // ----- CALCULATIONS ----- //
 
@@ -88,14 +98,24 @@ double INukeNucleonCorr :: getCorrection (const double mass, const double rho,
 //! generate kinematics fRepeat times to calculate average correction
 double INukeNucleonCorr :: getAvgCorrection (const double rho, const int A, const int Z, const int pdg, const double Ek)
 {
-  static double cache[fNDensityBins][fNEnergyBins] = {{-1}}; // corrections cache
-  
-  // determine current bins
+  static double cache1[fNDensityBins][fNEnergyBins1] = {{-1}}; // corrections cache
+  static double cache2[fNDensityBins][fNEnergyBins2] = {{-1}}; // corrections cache
+  static double cache3[fNDensityBins][fNEnergyBins3] = {{-1}}; // corrections cache
+  bool useCache1 = false; 
+  bool useCache2 = false;
+
+
   const int densityBin = rho / fDensityStep < fNDensityBins ? rho / fDensityStep : fNDensityBins - 1;
-  const int energyBin  =  Ek / fEnergyStep  < fNEnergyBins  ?  Ek / fEnergyStep  : fNEnergyBins - 1;
+  int energyBin;
+
+  if(Ek < fMaxEnergy1) {energyBin = Ek / fEnergyStep1; useCache1 = true;}  // Determine which cache to use(0-100MeV, 100-400MeV, or 400-1000MeV). Then determine which bin to use
+  else if(Ek < fMaxEnergy2) {energyBin = Ek / fEnergyStep2; useCache2 = true;} 
+  else {energyBin = (fNEnergyBins3 - 1);}
   
-  if (cache[densityBin][energyBin] > 0.0) return cache[densityBin][energyBin]; // correction already calculated
-    
+  if (Ek < fMaxEnergy1 && cache1[densityBin][energyBin] > 0.0) return cache1[densityBin][energyBin]; // correction already calculated
+  if (Ek < fMaxEnergy2 && cache2[densityBin][energyBin] > 0.0) return cache2[densityBin][energyBin]; // correction already calculated
+  if (Ek < fMaxEnergy3 && cache3[densityBin][energyBin] > 0.0) return cache3[densityBin][energyBin]; // correction already calculated
+
   RandomGen * rnd = RandomGen::Instance();
 
   setFermiLevel (rho, A, Z); // set Fermi momenta for protons and neutrons
@@ -136,7 +156,14 @@ double INukeNucleonCorr :: getAvgCorrection (const double rho, const int A, cons
   corrPauliBlocking /= fRepeat;
       corrPotential /= fRepeat;
       
-  cache[densityBin][energyBin] = corrPauliBlocking * corrPotential; // save this results for future calls
-  
-  return cache[densityBin][energyBin];  
+      if(useCache1 == true){
+	cache1[densityBin][energyBin] = corrPauliBlocking * corrPotential; // save this results for future calls
+	return cache1[densityBin][energyBin]; } 
+      else if(useCache2 == true){
+	cache2[densityBin][energyBin] = corrPauliBlocking * corrPotential; // save this results for future calls
+	return cache2[densityBin][energyBin]; } 
+      else{
+	cache3[densityBin][energyBin] = corrPauliBlocking * corrPotential; // save this results for future calls
+	return cache3[densityBin][energyBin]; } 
+
 }
