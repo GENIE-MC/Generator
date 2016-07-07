@@ -148,6 +148,7 @@ INukeHadroData::~INukeHadroData()
   delete fhN2dXSecGamPi0N_Inelas;
   delete fhN2dXSecGamPipN_Inelas;
   delete fhN2dXSecGamPimP_Inelas;
+
 }
 //____________________________________________________________________________
 INukeHadroData * INukeHadroData::Instance()
@@ -240,7 +241,7 @@ void INukeHadroData::LoadCrossSections(void)
   //-- Build x-section splines
 
   // p/n+p/n hA x-section splines
-  fXSecPp_Tot      = new Spline(&data_NN, "ke:pp_tot");     
+  fXSecPp_Tot      = new Spline(&data_NN, "ke:pp_tot");
   fXSecPp_Elas     = new Spline(&data_NN, "ke:pp_elas");      
   fXSecPp_Reac     = new Spline(&data_NN, "ke:pp_reac");      
   fXSecPn_Tot      = new Spline(&data_NN, "ke:pn_tot");     
@@ -319,7 +320,7 @@ void INukeHadroData::LoadCrossSections(void)
   // K+A x-section fraction splines
   fFracKA_Tot      = new Spline(&data_KA, "ke:KA_tot");
   fFracKA_Elas     = new Spline(&data_KA, "ke:KA_elas");
-  fFracKA_Inel     = new Spline(&data_KA, "ke:KA_inel");   
+  fFracKA_Inel     = new Spline(&data_KA, "ke:KA_inel");
   fFracKA_Abs      = new Spline(&data_KA, "ke:KA_abs");
   //
   // hN stuff
