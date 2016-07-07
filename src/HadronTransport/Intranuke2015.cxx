@@ -309,8 +309,6 @@ void Intranuke2015::TransportHadrons(GHepRecord * evrec) const
     // Check whether the particle needs rescattering, otherwise skip it
     if( ! this->NeedsRescattering(p) ) continue;
 
-    if(this->HandleCompoundNucleus(evrec,p,icurr)) continue;
-
     LOG("Intranuke2015", pNOTICE)
       << " >> Stepping a " << p->Name() 
                         << " with kinetic E = " << p->KinE() << " GeV";
