@@ -688,6 +688,9 @@ void HNIntranuke::ElasHN(
     ev->AddParticle(*t);
   } else
   {
+
+    delete t; //fixes memory leak
+   
     LOG("HNIntranuke", pINFO) << "Elastic in hN failed calling TwoBodyCollision";
     exceptions::INukeException exception;
     exception.SetReason("hN scattering kinematics through TwoBodyCollision failed");
@@ -721,6 +724,11 @@ void HNIntranuke::InelasticHN(GHepRecord* ev, GHepParticle* p) const
     }
   else
     {
+
+      delete s1; //prevent potential memory leak
+      delete s2;
+      delete s3;
+
       LOG("HNIntranuke", pNOTICE) << "Error: could not create pion production final state";
       exceptions::INukeException exception;
       exception.SetReason("PionProduction in hN failed");
@@ -845,10 +853,10 @@ bool HNIntranuke::HandleCompoundNucleus(GHepRecord* ev, GHepParticle* p, int mom
   // -- Call the PreEquilibrium function
   if( fDoCompoundNucleus && IsInNucleus(p) && pdg::IsNeutronOrProton(p->Pdg())) 
     {  // random number generator
-  RandomGen * rnd = RandomGen::Instance();
-
-  double rpreeq = rnd->RndFsi().Rndm();   // sdytman test
- 
+      RandomGen * rnd = RandomGen::Instance();
+      
+      double rpreeq = rnd->RndFsi().Rndm();   // sdytman test
+      
       if((p->KinE() < fEPreEq) )
 	{
 	  if(fRemnA>5&&rpreeq<0.12)
