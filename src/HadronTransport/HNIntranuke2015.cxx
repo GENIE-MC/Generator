@@ -377,8 +377,8 @@ double HNIntranuke2015::FateWeight(int pdgc, INukeFateHN_t fate) const
       if (fate == kIHNFtAbs)      { return ((nn>=1) && (np>=1)) ? 1. : 0.; }
       if (fate == kIHNFtCmp )     { return ((pdgc==kPdgProton||pdgc==kPdgNeutron)&&fDoCompoundNucleus&&fRemnA>5) ? 1. : 0.; }
 
-      return 1.;
     }
+  return 1.;
 }
 //___________________________________________________________________________
 void HNIntranuke2015::AbsorbHN(
