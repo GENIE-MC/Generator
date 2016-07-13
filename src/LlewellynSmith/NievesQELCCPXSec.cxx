@@ -1138,7 +1138,7 @@ double NievesQELCCPXSec::LmunuAnumu(const TLorentzVector neutrinoMom,
     // get tmu
     double tmugev = leptonMom.E() - leptonMom.Mag();
     // Print Q2, form factors, and tensor elts
-    std:ofstream ffstream;
+    std::ofstream ffstream;
     ffstream.open(fTensorsOutFile, std::ios_base::app);
     if(q0 > 0){
       ffstream << -q2 << "\t" << q[0] << "\t" << dq
