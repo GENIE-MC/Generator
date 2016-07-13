@@ -721,6 +721,7 @@ Range1D_t KPhaseSpace::TLim(void) const
   const InitialState & init_state = fInteraction->InitState();
   const ProcessInfo & pi = fInteraction->ProcInfo();
   const Kinematics & kine = fInteraction->Kine();
+  kinematics::UpdateWQ2FromXY(fInteraction);
   double Ev = init_state.ProbeE(kRfHitNucRest);
   double Q2 = kine.Q2();
   double nu = Ev * kine.y();
