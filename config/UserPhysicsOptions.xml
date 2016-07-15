@@ -657,7 +657,7 @@ STFC, Rutherford Appleton Laboratory
    - genie::HNIntranuke2015/OsetOff
   -->
   <param type="bool" name="HadronTransp-Enable"> true </param>
-  <param type="alg"  name="HadronTransp-Model">  genie::HAIntranuke/Default  </param>
+  <param type="alg"  name="HadronTransp-Model">  genie::HAIntranuke2014/Default  </param>
 
  <!-- 	
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -671,17 +671,17 @@ STFC, Rutherford Appleton Laboratory
   <param type="double" name="HAINUKE-DelRPion">        0.5   </param>
   <param type="double" name="HAINUKE-DelRNucleon">     0.7   </param>
   <param type="double" name="HNINUKE-DelRPion">        0.05  </param>
-  <param type="double" name="HNINUKE-DelRNucleon">     0.2   </param>
-  <param type="double" name="INUKE-NucAbsFac">         2.0   </param>
-  <param type="double" name="INUKE-NucQEFac">          0.5   </param>
-  <param type="double" name="INUKE-NucCEXFac">         0.35  </param>
+  <param type="double" name="HNINUKE-DelRNucleon">     0.0   </param>
+  <param type="double" name="INUKE-NucAbsFac">         1.0   </param>
+  <param type="double" name="INUKE-NucQEFac">          1.0   </param>
+  <param type="double" name="INUKE-NucCEXFac">         1.0   </param>
   <param type="double" name="INUKE-Energy_Pre_Eq">     0.041 </param> 
   <param type="double" name="INUKE-FermiFac">          1.0   </param>
-  <param type="double" name="INUKE-FreeStep">          1.0   </param>
+  <param type="double" name="INUKE-FreeStep">          0.0   </param>
   <param type="double" name="INUKE-FermiMomentum">     0.250 </param>
   <param type="bool"   name="INUKE-DoFermi">           true  </param>
   <param type="bool"   name="INUKE-DoCompoundNucleus"> true  </param>
-  <param type="bool"   name="INUKE-XsecNNCorr">        false </param>
+  <param type="bool"   name="INUKE-XsecNNCorr">        true  </param>
 
  <!-- 	
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
