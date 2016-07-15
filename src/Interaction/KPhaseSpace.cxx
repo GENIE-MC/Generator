@@ -38,12 +38,13 @@
 
 #include <TMath.h>
 
+#include "Interaction/KPhaseSpace.h"
+
 #include "Algorithm/AlgConfigPool.h"
 #include "Conventions/Constants.h"
 #include "Conventions/Controls.h"
-#include "EVGCore/EVGThreadException.h"
-#include "Interaction/KPhaseSpace.h"
 #include "Interaction/Interaction.h"
+#include "Interaction/InteractionException.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGLibrary.h"
 #include "Registry/Registry.h"
@@ -770,10 +771,7 @@ Range1D_t KPhaseSpace::TLim(void) const
       LOG("KPhaseSpace", pERROR)
         << "tmin for diffractive scattering is NaN "
         << "( Enu = " << Ev << ", Q2 = " << Q2 << ", nu = " << nu << ")";
-      genie::exceptions::EVGThreadException exception;
-      exception.SetReason("NaN tmin for diffractive scattering");
-      exception.SwitchOnFastForward();
-      throw exception;    
+      throw genie::exceptions::InteractionException("NaN tmin for diffractive scattering");
     }
     tl.max = this->GetTMaxDFR();
     
