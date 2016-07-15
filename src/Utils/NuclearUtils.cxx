@@ -47,14 +47,14 @@
 #include "Nuclear/FermiMomentumTablePool.h"
 #include "Nuclear/FermiMomentumTable.h"
 #include "Nuclear/NuclearData.h"
-#include "Nuclear/NuclearModel.h"
-#include "Nuclear/NuclearModelI.h"
 #include "PDG/PDGUtils.h"
 #include "Utils/NuclearUtils.h"
+#include "Interfaces/NuclearModelI.h"
 
 using namespace genie;
 using namespace genie::constants;
 using namespace genie::units;
+
 
 //____________________________________________________________________________
 double genie::utils::nuclear::BindEnergy(const Target & target)
@@ -168,8 +168,8 @@ double genie::utils::nuclear::NuclQELXSecSuppression(
   RgKey nuclkey = "NuclearModel";
   RgAlg nuclalg = gc->GetAlg(nuclkey);
   AlgFactory * algf = AlgFactory::Instance();
-  const NuclearModelI* nuclModel = 
-    dynamic_cast<const NuclearModelI*>(
+  const genie::NuclearModelI* nuclModel =
+    dynamic_cast<const genie::NuclearModelI*>(
 			     algf->GetAlgorithm(nuclalg.name,nuclalg.config));
   // Check if the model is a local Fermi gas
   bool lfg = (nuclModel && nuclModel->ModelType(Target()) == kNucmLocalFermiGas);

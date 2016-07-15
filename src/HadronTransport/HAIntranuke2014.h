@@ -32,12 +32,12 @@
 
 #include <TGenPhaseSpace.h>
 
+#include "Interfaces/NuclearModelI.h"
 #include "Algorithm/AlgFactory.h"
 #include "EVGCore/EventRecordVisitorI.h"
 #include "HadronTransport/INukeMode.h"
 #include "HadronTransport/INukeHadroFates.h"
 #include "HadronTransport/Intranuke2014.h"
-#include "Nuclear/NuclearModelI.h"
 
 class TLorentzVector;
 class TVector3;

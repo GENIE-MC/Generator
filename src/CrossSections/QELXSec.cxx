@@ -36,9 +36,10 @@
 #include "Conventions/KineVar.h"
 #include "Conventions/RefFrame.h"
 #include "CrossSections/QELXSec.h"
+
+#include "Interfaces/NuclearModelI.h"
 #include "CrossSections/GSLXSecFunc.h"
 #include "Messenger/Messenger.h"
-#include "Nuclear/NuclearModelI.h"
 #include "Numerical/RandomGen.h"
 #include "PDG/PDGUtils.h"
 #include "Utils/KineUtils.h"

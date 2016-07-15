@@ -29,41 +29,63 @@
 #ifndef _NUCLEAR_MODEL_I_H_
 #define _NUCLEAR_MODEL_I_H_
 
+#include <string>
+
 #include <TVector3.h>
 
+#include "Types/NuclearModel.h"
 #include "Algorithm/Algorithm.h"
 #include "Interaction/Target.h"
-#include "Nuclear/NuclearModel.h"
 
 namespace genie {
 
 class NuclearModelI : public Algorithm {
 
 public:
-  virtual ~NuclearModelI();
+  virtual ~NuclearModelI() {};
 
   virtual bool           GenerateNucleon (const Target &) const = 0;
   virtual double         Prob            (double p, double w, const Target &) const = 0;
   virtual NuclearModel_t ModelType       (const Target &) const = 0;
 
-  virtual double         RemovalEnergy   (void)           const;
-  virtual double         Momentum        (void)           const;
-  virtual TVector3       Momentum3       (void)           const;
-  virtual FermiMoverInteractionType_t GetFermiMoverInteractionType(void) const;
+  virtual double         RemovalEnergy   (void)           const
+  {
+    return fCurrRemovalEnergy;
+  }
+  virtual double         Momentum        (void)           const
+  {
+    return fCurrMomentum.Mag();
+  };
+  virtual TVector3       Momentum3       (void)           const
+  {
+    return fCurrMomentum;
+  };
+  virtual FermiMoverInteractionType_t GetFermiMoverInteractionType(void) const
+  {
+    return fFermiMoverInteractionType;
+  };
 
   virtual bool GenerateNucleon(const Target & tgt, 
-			       double hitNucleonRadius) const {
+			       double hitNucleonRadius) const
+  {
     return GenerateNucleon(tgt);
   }
   virtual double Prob(double p, double w, const Target & tgt,
-	      double hitNucleonRadius) const {
+	      double hitNucleonRadius) const
+  {
     return Prob(p,w,tgt);
   }
 
 protected:
-  NuclearModelI();
-  NuclearModelI(string name);
-  NuclearModelI(string name, string config);
+  NuclearModelI()
+    : Algorithm(), fFermiMoverInteractionType(kFermiMoveDefault)
+    {};
+  NuclearModelI(std::string name)
+    : Algorithm(name), fFermiMoverInteractionType(kFermiMoveDefault)
+    {};
+  NuclearModelI(std::string name, std::string config)
+    : Algorithm(name, config), fFermiMoverInteractionType(kFermiMoveDefault)
+    {};
 
   mutable double   fCurrRemovalEnergy;
   mutable TVector3 fCurrMomentum;

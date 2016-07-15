@@ -22,10 +22,10 @@
 #include <TMath.h>
 #include <TVector3.h>
 
+#include "../Interfaces/NuclearModelI.h"
 #include "Algorithm/AlgFactory.h"
 #include "Interaction/Target.h"
 #include "Messenger/Messenger.h"
-#include "Nuclear/NuclearModelI.h"
 #include "PDG/PDGCodes.h"
 #include "Utils/PrintUtils.h"
 

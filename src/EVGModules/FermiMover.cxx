@@ -39,6 +39,9 @@
 #include "Conventions/Constants.h"
 #include "Conventions/Units.h"
 #include "EVGModules/FermiMover.h"
+
+#include "Types/NuclearModel.h"
+#include "Interfaces/NuclearModelI.h"
 #include "EVGCore/EVGThreadException.h"
 #include "GHEP/GHepRecord.h"
 #include "GHEP/GHepParticle.h"
@@ -46,8 +49,6 @@
 #include "GHEP/GHepFlags.h"
 #include "Interaction/Interaction.h"
 #include "Messenger/Messenger.h"
-#include "Nuclear/NuclearModel.h"
-#include "Nuclear/NuclearModelI.h"
 #include "Nuclear/FermiMomentumTablePool.h"
 #include "Nuclear/FermiMomentumTable.h"
 #include "Numerical/RandomGen.h"

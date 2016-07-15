@@ -22,7 +22,6 @@
 #include "Conventions/GMode.h"
 #include "Interaction/Target.h"
 #include "Messenger/Messenger.h"
-#include "Nuclear/NuclearModelI.h"
 #include "Numerical/RandomGen.h"
 #include "EVGCore/EVGThreadException.h"
 #include "GHEP/GHepRecord.h"
@@ -33,6 +32,8 @@
 #include "Utils/NuclearUtils.h"
 #include "Utils/PrintUtils.h"
 #include "NucleonDecay/NucleonDecayPrimaryVtxGenerator.h"
+
+#include "Interfaces/NuclearModelI.h"
 #include "NucleonDecay/NucleonDecayUtils.h"
 #include "NucleonDecay/NucleonDecayMode.h"
 

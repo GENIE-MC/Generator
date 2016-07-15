@@ -31,7 +31,6 @@
 #include "EVGModules/VertexGenerator.h"
 #include "GHEP/GHepParticle.h"
 #include "Messenger/Messenger.h"
-#include "Nuclear/NuclearModelI.h"
 #include "Nuclear/FermiMomentumTablePool.h"
 #include "Nuclear/FermiMomentumTable.h"
 #include "LlewellynSmith/NievesQELCCPXSec.h"
@@ -48,6 +47,7 @@
 
 #include <iostream> // Used for testing code
 #include <fstream> // Used for testing code
+#include "Interfaces/NuclearModelI.h"
 
 using namespace genie;
 using namespace genie::constants;
