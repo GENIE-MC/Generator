@@ -51,12 +51,16 @@ private:
   double fMq2d;       ///< toy model param: `mass' in dipole (Q2 - dependence) form factor (GeV)
   double fMass;       ///< toy model param: peak  of W distribution (GeV)
   double fWidth;      ///< toy model param: width of W distribution (GeV)
-  double fFracPN;     ///< toy model param: fraction of nucleon pairs that are pn, not nn or pp
+  double fFracPN_NC;     ///< toy model param: fraction of nucleon pairs that are pn, not nn or pp
+  double fFracPN_CC;     ///< toy model param: fraction of nucleon pairs that are pn, not nn or pp
+  double fFracPN_EM;     ///< toy model param: fraction of nucleon pairs that are pn, not nn or pp
 
-  double fFracCCQElo;   ///< empirical model param: MEC cross section is taken to be this fraction of CCQE cross section at Miniboone energies (0 at NOMAD energies)
+  double fFracCCQE;   ///< empirical model param: MEC cross section is taken to be this fraction of CCQE cross section 
+  double fFracNCQE;   ///< empirical model param: MEC cross section is taken to be this fraction of NCQE cross section 
   double fFracEMQE;   ///< empirical model param: MEC cross section is taken to be this fraction of Rosenbluth xs
 
   const XSecAlgorithmI * fXSecAlgCCQE; ///< cross section algorithm for CCQE
+  const XSecAlgorithmI * fXSecAlgNCQE; ///< cross section algorithm for NCQE
   const XSecAlgorithmI * fXSecAlgEMQE; ///< cross section algorithm for EMQE
 
 };
