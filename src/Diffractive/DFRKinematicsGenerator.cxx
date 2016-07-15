@@ -93,7 +93,14 @@ void DFRKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
   Range1D_t xl = kps.Limits(kKVx);
   Range1D_t yl = kps.Limits(kKVy);
-  Range1D_t tl = kps.Limits(kKVt);
+
+  // Note that the t limits used here are NOT the same as what you get from KPhaseSpace::TLim().
+  // We use a larger range here because the limits from KPhaseSpace::TLim() depend on x and y,
+  // and using the rejection method in a region that's changing depending on some of the
+  // values guarantees that some regions will be oversampled.  We want to avoid that.
+  Range1D_t tl;
+  tl.min = 0;
+  tl.max = KPhaseSpace::GetTMaxDFR();
 
   LOG("DFRKinematics", pNOTICE) << "x: [" << xl.min << ", " << xl.max << "]";
   LOG("DFRKinematics", pNOTICE) << "y: [" << yl.min << ", " << yl.max << "]";
@@ -111,7 +118,7 @@ void DFRKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   }
 */
 
-  assert(xl.min>0 && yl.min>0 && tl.min>0);
+  assert(xl.min>0 && yl.min>0);
 
   //-- For the subsequent kinematic selection with the rejection method:
   //   Calculate the max differential cross section or retrieve it from the
@@ -130,7 +137,7 @@ void DFRKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
   unsigned int iter = 0;
   bool accept = false;
-  while(1) {
+  while(true) {
      iter++;
      if(iter > kRjMaxIterations) {
        LOG("DFRKinematics", pWARN)
@@ -146,10 +153,12 @@ void DFRKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      gx = xl.min + dx * rnd->RndKine().Rndm();
      gy = yl.min + dy * rnd->RndKine().Rndm();
      gt = tl.min + dt * rnd->RndKine().Rndm();
+
      interaction->KinePtr()->Setx(gx);
      interaction->KinePtr()->Sety(gy);
      interaction->KinePtr()->Sett(gt);
-     LOG("DFRKinematics", pNOTICE) 
+
+     LOG("DFRKinematics", pDEBUG)
        << "Trying: x = " << gx << ", y = " << gy << ", t = " << gt;
 
      //-- compute the cross section for current kinematics
@@ -158,8 +167,8 @@ void DFRKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      //-- decide whether to accept the current kinematics
      if(!fGenerateUniformly) {
         this->AssertXSecLimits(interaction, xsec, xsec_max);
-	double n = xsec_max * rnd->RndKine().Rndm();
-	double J = 1;
+        double n = xsec_max * rnd->RndKine().Rndm();
+        double J = 1;
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
         LOG("DFRKinematics", pDEBUG)
@@ -267,9 +276,9 @@ double DFRKinematicsGenerator::ComputeMaxXSec(
   double max_xsec = 0.0;
 
   const KPhaseSpace & kps = interaction->PhaseSpace();
-  Range1D_t xl = kps.Limits(kKVx);
-  Range1D_t yl = kps.Limits(kKVy);
-  Range1D_t tl = kps.Limits(kKVt);
+  Range1D_t xl  = kps.XLim();
+  Range1D_t yl  = kps.YLim();
+  Range1D_t Wl  = kps.WLim();
 
   int    Ny      = 20;
   int    Nx      = 20;
@@ -278,11 +287,9 @@ double DFRKinematicsGenerator::ComputeMaxXSec(
   double xmax    = xl.max;
   double ymin    = yl.min;
   double ymax    = yl.max;
-  double tmin    = tl.min;
-  double tmax    = tl.max;
   double dx      = (xmax-xmin)/(Nx-1);
   double dy      = (ymax-ymin)/(Ny-1);
-  double dt      = (tmax-tmin)/(Nt-1);
+
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DFRKinematics", pDEBUG) 
@@ -306,12 +313,26 @@ double DFRKinematicsGenerator::ComputeMaxXSec(
         double gx = xmin + j*dx;
         interaction->KinePtr()->Setx(gx);
         kinematics::UpdateWQ2FromXY(interaction);
+        Range1D_t Q2l = kps.Q2Lim_W();
+
+        // the t range depends on x and y,
+        // and you get NaNs if you try to calculate t
+        // for an unphysical (x,y) combination
+        bool in_phys = math::IsWithinLimits(interaction->KinePtr()->W(), Wl);
+        in_phys = in_phys && math::IsWithinLimits(interaction->KinePtr()->Q2(), Q2l);
+        if (!in_phys)
+          continue;
 
         double xseclast_t = -1;
         bool increasing_t;
 
-        for(int j=0; j<Nt; j++) {
-          double gt = tmin + j*dt;
+        // t range depends on x and y
+        Range1D_t tl = kps.TLim();
+        double tmin    = tl.min;
+        double tmax    = tl.max;
+        double dt      = (tmax-tmin)/(Nt-1);
+        for(int k=0; k<Nt; k++) {
+          double gt = tmin + k*dt;
           interaction->KinePtr()->Sett(gt);
 
           double xsec = fXSecModel->XSec(interaction, kPSxytfE);
