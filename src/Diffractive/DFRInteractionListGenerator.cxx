@@ -100,7 +100,12 @@ InteractionList * DFRInteractionListGenerator::CreateInteractionList(
     else {
       //v N -> v N pi0
       interaction->ExclTagPtr()->SetNPions(0,1,0);
-    } 
+    }
+
+    if (nuc == kPdgProton)
+      interaction->ExclTagPtr()->SetNProtons(1);
+    else if (nuc == kPdgNeutron)
+      interaction->ExclTagPtr()->SetNNeutrons(1);
 
     interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg(nuc);
     intlist->push_back(interaction);
