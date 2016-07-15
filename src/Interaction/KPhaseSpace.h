@@ -66,14 +66,12 @@ public:
   Range1D_t  YLim_X  (double xsi) const;  ///< y  limits @ fixed x (COH)
   Range1D_t  TLim    (void) const;  ///< t  limits
 
+  static double GetTMaxDFR();
+
 private:
   void Init(void);
 
-  double GetTMaxDFR() const;
-
   const Interaction * fInteraction;
-  mutable bool   fTMaxLoaded;
-  mutable double fDFR_tMax;
 
 ClassDef(KPhaseSpace,2)
 };

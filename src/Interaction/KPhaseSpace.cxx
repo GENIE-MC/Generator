@@ -58,13 +58,13 @@ ClassImp(KPhaseSpace)
 
 //____________________________________________________________________________
 KPhaseSpace::KPhaseSpace(void) :
-TObject(), fInteraction(NULL), fTMaxLoaded(false), fDFR_tMax(std::numeric_limits<double>::signaling_NaN())
+TObject(), fInteraction(NULL)
 {
   this->UseInteraction(0);
 }
 //___________________________________________________________________________
 KPhaseSpace::KPhaseSpace(const Interaction * in) :
-TObject(), fInteraction(NULL), fTMaxLoaded(false), fDFR_tMax(std::numeric_limits<double>::signaling_NaN())
+TObject(), fInteraction(NULL)
 {
   this->UseInteraction(in);
 }
@@ -74,18 +74,21 @@ KPhaseSpace::~KPhaseSpace(void)
 
 }
 //___________________________________________________________________________
-double KPhaseSpace::GetTMaxDFR() const
+double KPhaseSpace::GetTMaxDFR()
 {
-  if (!this->fTMaxLoaded)
+  static bool tMaxLoaded = false;
+  static double DFR_tMax = -1;
+
+  if (!tMaxLoaded)
   {
     AlgConfigPool * confp = AlgConfigPool::Instance();
     const Registry * gc = confp->GlobalParameterList();
     double tmax = gc->GetDouble("DFR-t-max");
-    this->fDFR_tMax = tmax;
-    this->fTMaxLoaded = true;
+    DFR_tMax = tmax;
+    tMaxLoaded = true;
   }
 
-  return this->fDFR_tMax;
+  return DFR_tMax;
 
 }
 //___________________________________________________________________________
@@ -400,8 +403,13 @@ Range1D_t KPhaseSpace::WLim(void) const
     if(fInteraction->ExclTag().IsCharmEvent()) {
       //Wl.min = TMath::Max(Wl.min, kNeutronMass+kPionMass+kLightestChmHad);
       Wl.min = TMath::Max(Wl.min, kNeutronMass+kLightestChmHad);
-      if(Wl.min>Wl.max) {Wl.min=-1; Wl.max=-1;}
     }
+    else if (fInteraction->ProcInfo().IsDiffractive())
+      Wl.min = TMath::Max(Wl.min, kNeutronMass+kPionMass);
+
+    // sanity check
+    if(Wl.min>Wl.max) {Wl.min=-1; Wl.max=-1;}
+
     return Wl;
   }
   return Wl;
