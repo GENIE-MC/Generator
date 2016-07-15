@@ -196,9 +196,9 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
         //
 //         double Mf  = fnucleus -> Mass(); // remnant nucleus mass
 //         double Mi  = nucleus  -> Mass(); // initial nucleus mass
-  	 TDatabasePDG *tb = TDatabasePDG::Instance();
+//  	 TDatabasePDG *tb = TDatabasePDG::Instance();
 //         double Mn = tb->GetParticle(interaction->InitState().TgtPtr()->HitNucPdg())->Mass();// incoming nucleon mass
-         double Mp = tb->GetParticle(interaction->RecoilNucleonPdg())->Mass(); // outgoing nucleon mass
+//         double Mp = tb->GetParticle(interaction->RecoilNucleonPdg())->Mass(); // outgoing nucleon mass
 
 //         double Mn  = nucleon->Mass();    
 //         double Mp(0); // outgoing nucleon mass
@@ -601,7 +601,7 @@ double QELEventGenerator::ComputeXSec( Interaction * interaction, double costhet
   TLorentzVector * p4 = tgt->HitNucP4Ptr();
 
   TVector3 p3 = fNuclModel->Momentum3();
-  double w = fNuclModel->RemovalEnergy();
+//  double w = fNuclModel->RemovalEnergy();
 
   double xsec = 0;
   double pF2 = p3.Mag2(); // (fermi momentum)^2
@@ -633,10 +633,10 @@ double QELEventGenerator::ComputeXSec( Interaction * interaction, double costhet
     //double Mf  = fnucleus -> Mass(); // remnant nucleus mass
     //double Mi  = nucleus  -> Mass(); // initial nucleus mass
 
-    // Get initial and final nucleus masses
+    //// Get initial and final nucleus masses
     int nucleus_init = tgt->Pdg();
     TParticlePDG * p = PDGLibrary::Instance()->Find(nucleus_init);
-    double Mi = p->Mass();
+    //double Mi = p->Mass();
 
     int A = tgt->A() - 1;
     double Mf;
