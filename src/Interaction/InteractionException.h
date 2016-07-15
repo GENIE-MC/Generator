@@ -32,6 +32,7 @@ namespace genie
       public:
         InteractionException ();
         InteractionException (const std::string & reason);
+        ~InteractionException() throw() {};
 
         void                Print       (std::ostream & stream) const;
         const std::string & ShowReason  ()                      const { return fReason;     }
