@@ -21,7 +21,7 @@
 #ifndef _SPECTRAL_FUNCTION_H_
 #define _SPECTRAL_FUNCTION_H_
 
-#include "Nuclear/NuclearModelI.h"
+#include "Interfaces/NuclearModelI.h"
 
 class TNtupleD;
 class TGraph2D;

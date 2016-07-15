@@ -24,7 +24,8 @@
 #include <map>
 
 #include <TH1D.h>
-#include "Nuclear/NuclearModelI.h"
+
+#include "Interfaces/NuclearModelI.h"
 
 using std::map;
 

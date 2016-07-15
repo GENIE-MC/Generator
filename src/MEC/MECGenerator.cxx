@@ -37,9 +37,10 @@
 #include "GHEP/GHepRecord.h"
 #include "Messenger/Messenger.h"
 #include "MEC/MECGenerator.h"
+
+#include "Interfaces/NuclearModelI.h"
 #include "MEC/MECHadronTensor.h"
 #include "Numerical/RandomGen.h"
-#include "Nuclear/NuclearModelI.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGUtils.h"
 #include "PDG/PDGLibrary.h"

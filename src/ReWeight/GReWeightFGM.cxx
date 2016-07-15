@@ -26,9 +26,10 @@
 #include "Messenger/Messenger.h"
 #include "Nuclear/FermiMomentumTablePool.h"
 #include "Nuclear/FermiMomentumTable.h"
-#include "Nuclear/NuclearModelI.h"
 #include "PDG/PDGCodes.h"
 #include "ReWeight/GReWeightFGM.h"
+
+#include "Interfaces/NuclearModelI.h"
 #include "ReWeight/GSystUncertainty.h"
 #include "Utils/NuclearUtils.h"
 

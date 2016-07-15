@@ -22,8 +22,8 @@
 #define _QEL_EVENT_GENERATOR_H_
 
 
+#include "Interfaces/NuclearModelI.h"
 #include "EVGModules/KineGeneratorWithCache.h"
-#include "Nuclear/NuclearModelI.h"
 #include "Utils/Range1.h"
 #include "Conventions/Controls.h"
 

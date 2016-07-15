@@ -26,10 +26,9 @@
 #include "Base/XSecAlgorithmI.h"
 #include "Base/QELFormFactors.h"
 #include "Nuclear/FermiMomentumTable.h"
-#include "Nuclear/NuclearModelI.h"
-
 #include <complex>
 #include <Math/IFunction.h>
+#include "Interfaces/NuclearModelI.h"
 
 namespace genie {
 

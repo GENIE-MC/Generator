@@ -21,9 +21,8 @@
 #ifndef _NUCLEAR_MODEL_MAP_H_
 #define _NUCLEAR_MODEL_MAP_H_
 
-#include "Nuclear/NuclearModelI.h"
-
 #include <map>
+#include "Interfaces/NuclearModelI.h"
 
 using std::map;
 

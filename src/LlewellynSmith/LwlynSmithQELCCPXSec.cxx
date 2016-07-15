@@ -35,8 +35,9 @@
 #include "EVGModules/VertexGenerator.h"
 #include "GHEP/GHepParticle.h"
 #include "LlewellynSmith/LwlynSmithQELCCPXSec.h"
+
+#include "Interfaces/NuclearModelI.h"
 #include "Messenger/Messenger.h"
-#include "Nuclear/NuclearModelI.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGLibrary.h"
 #include "PDG/PDGUtils.h"
