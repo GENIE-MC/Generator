@@ -471,7 +471,7 @@ string DefaultOutputFile(void)
 void PrintSyntax(void)
 {
   string basedir  = string( gSystem->Getenv("GENIE") );
-  string thisfile = basedir + string("/src/stdapp/gEvPick.cxx");
+  string thisfile = basedir + string("/src/Apps/gEvPick.cxx");
   string cmd      = "less " + thisfile;
 
   gSystem->Exec(cmd.c_str());
