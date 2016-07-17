@@ -55,7 +55,6 @@ char * CmdLnArgParser::Arg(char op)
 {
   const int buf_size = 2048;
 
-  bool    set       = false;
   char *  argument  = new char[buf_size];
   strcpy(argument, "");
 
@@ -76,7 +75,6 @@ char * CmdLnArgParser::Arg(char op)
 
          if (strlen(&argv[1][2]) ) {
             strcpy(argument,&argv[1][2]);
-            set = true;
             LOG("CLAP", pINFO) 
                << "Set opt = [" << op << "] to val = [" << argument << "]";
 
@@ -89,7 +87,6 @@ char * CmdLnArgParser::Arg(char op)
             argc--;
             argv++;
             strcpy(argument,&argv[1][0]);
-            set = true;
             LOG("CLAP", pINFO) 
                << "Set opt = [" << op << "] to val = [" << argument << "]";
          }
@@ -206,7 +203,6 @@ vector<long> CmdLnArgParser::ArgAsLongTokens(char op, string delimeter)
 char * CmdLnArgParser::Arg(string op)
 {
   const int buf_size = 2048;
-  bool    set        = false;
   char *  argument   = new char[buf_size];
   strcpy(argument, "");
 
@@ -229,7 +225,6 @@ char * CmdLnArgParser::Arg(string op)
 
          if (strlen(&argv[2][0]) ) {
             strcpy(argument,&argv[2][0]);
-            set = true;
             LOG("CLAP", pINFO) 
                << "Set opt = [" << op << "] to val = [" << argument << "]";
 
@@ -241,7 +236,6 @@ char * CmdLnArgParser::Arg(string op)
             argc--;
             argv++;
             strcpy(argument,&argv[1][0]);
-            set = true;
             LOG("CLAP", pINFO) 
                << "Set opt = [" << op << "] to val = [" << argument << "]";
          }

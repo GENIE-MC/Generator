@@ -49,16 +49,12 @@ double genie::utils::bwfunc::BreitWignerLGamma(
   double mPi   = kPi0Mass;
   double m_2   = TMath::Power(mass, 2);
   double mN_2  = TMath::Power(mN,   2);
-  double mPi_2 = TMath::Power(mPi,  2);
   double W_2   = TMath::Power(W,    2);
   
   double m=mass;
   //m_aux1 m_aux2
   double m_aux1= TMath::Power(mN+mPi, 2);
   double m_aux2= TMath::Power(mN-mPi, 2);
-
-  double rDelta= 0.81*FMTOGEV; //radius of delta resonance state
-                       //convert to GeV
 
   double BRPi0    = 0.994; //Npi Branching Ratio
   double BRgamma0 = 0.006; //Ngamma Branching Ratio
@@ -82,8 +78,9 @@ double genie::utils::bwfunc::BreitWignerLGamma(
 
   double pPim   = TMath::Sqrt((m_2-m_aux1)*(m_2-m_aux2))/(2*m);
 
-  double TPiW   = pPiW*TMath::Power(pPiW*rDelta, 2*L)/(1+TMath::Power(pPiW*rDelta, 2));
-  double TPim   = pPim*TMath::Power(pPim*rDelta, 2*L)/(1+TMath::Power(pPim*rDelta, 2));
+  //double TPiW   = pPiW*TMath::Power(pPiW*rDelta, 2*L)/(1+TMath::Power(pPiW*rDelta, 2));
+  //double TPim   = pPim*TMath::Power(pPim*rDelta, 2*L)/(1+TMath::Power(pPim*rDelta, 2));
+
   // Form factors
   //double fgammaW= 1/(TMath::Power(1+EgammaW*EgammaW/0.706, 2)*(1+EgammaW*EgammaW/3.519));
   //double fgammam= 1/(TMath::Power(1+Egammam*Egammam/0.706, 2)*(1+Egammam*Egammam/3.519));

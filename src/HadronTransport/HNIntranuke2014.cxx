@@ -367,11 +367,11 @@ void HNIntranuke2014::AbsorbHN(
   // -- Subscript "z" is for parallel component, "t" is for transverse
 
   int pcode, t1code, t2code, scode, s2code; // particles
-  double M1, M2, M2_1, M2_2, M3, M4;        // rest energies, in GeV
+  double M1, M2_1, M2_2, M3, M4;        // rest energies, in GeV
   double E1L, P1L, E2L, P2L, E3L, P3L, E4L, P4L;
-  double P1zL, P1tL, P2zL, P2tL;
+  double P1zL, P2zL;
   double beta, gm; // speed and gamma for CM frame in lab
-  double Et, P1CM, E2CM, P2CM;
+  double Et, E2CM;
   double C3CM, S3CM;  // cos and sin of scattering angle
   double Theta1, Theta2, theta5;
   double PHI3;        // transverse scattering angle
@@ -425,7 +425,6 @@ void HNIntranuke2014::AbsorbHN(
   M1   = pLib->Find(pcode) ->Mass();
   M2_1 = pLib->Find(t1code)->Mass();
   M2_2 = pLib->Find(t2code)->Mass();
-  M2   = M2_1 + M2_2;
   M3   = pLib->Find(scode) ->Mass();
   M4   = pLib->Find(s2code)->Mass();
 
@@ -480,9 +479,7 @@ void HNIntranuke2014::AbsorbHN(
 
   // get parallel and transverse components
   P1zL = P1L*TMath::Cos(Theta1);
-  P1tL = TMath::Sqrt(P1L*P1L - P1zL*P1zL);
   P2zL = P2L*TMath::Cos(Theta2);
-  P2tL = TMath::Sqrt(P2L*P2L - P2zL*P2zL);
   tVect.SetXYZ(1,0,0);
   if(TMath::Abs((tVect - bDir).Mag())<.01) tVect.SetXYZ(0,1,0);
   theta5 = tVect.Angle(bDir);
@@ -496,10 +493,8 @@ void HNIntranuke2014::AbsorbHN(
   // boost to CM frame to get scattered particle momenta
   E1CM = gm*E1L - gm*beta*P1zL;
   P1zCM = gm*P1zL*bDir - gm*tbeta*E1L;
-  P1CM = (P1zCM + P1tL*tTrans).Mag();
   E2CM = gm*E2L - gm*beta*P2zL;
   P2zCM = gm*P2zL*bDir - gm*tbeta*E2L;
-  P2CM = (P2zCM - P2tL*tTrans).Mag();
   Et = E1CM + E2CM;
   E3CM = (Et*Et + (M3*M3) - (M4*M4)) / (2.0*Et);
   E4CM = Et - E3CM;

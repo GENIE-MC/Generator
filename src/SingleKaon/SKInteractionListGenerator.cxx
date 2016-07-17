@@ -48,16 +48,14 @@ InteractionList * SKInteractionListGenerator::CreateInteractionList(
   LOG("IntLst", pINFO)
       << "InitialState = " << init_state.AsString();
 
-  InteractionType_t inttype;
-  if      (fIsCC) inttype = kIntWeakCC;
-  else if (fIsNC) {
+  if (fIsNC) {
     // deltaS = deltaQ and deltaS = 1 for this process -- no NC
     LOG("IntLst", pWARN)
       << "Interaction type is NC for deltaS = 1 process! Returning NULL InteractionList "
        << "for init-state: " << init_state.AsString();
      return 0;
   }
-  else {
+  else if (!fIsCC) {
      // shouldn't happen... warn
      LOG("IntLst", pWARN)
        << "Unknown InteractionType! Returning NULL InteractionList "

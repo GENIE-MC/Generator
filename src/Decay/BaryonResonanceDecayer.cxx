@@ -103,11 +103,10 @@ double BaryonResonanceDecayer::DealsDeltaNGamma(int id_mother, int ichannel, dou
 
   double m_2   = TMath::Power(m, 2);
   double mN_2  = TMath::Power(mN,   2);
-  double mPi_2 = TMath::Power(mPi,  2);
   double W_2   = TMath::Power(W,    2);
   double m_aux1= TMath::Power(mN+mPi, 2);
   double m_aux2= TMath::Power(mN-mPi, 2);
-  double rDelta= 0.81*FMTOGEV;
+  // double rDelta= 0.81*FMTOGEV;
 
   double BRPi0    = 0.994;
   double BRPi01   = 0.667002;
