@@ -682,7 +682,7 @@ int KNOHadronization::HadronShowerCharge(const Interaction* interaction) const
 //    in v n -> l- X the hadron shower charge is +1
 //    in v n -> v  X the hadron shower charge is  0
 //
-  int HadronShowerCharge = 0;
+  int hadronShowerCharge = 0;
 
   // find out the charge of the final state lepton
   double ql = interaction->FSPrimLepton()->Charge() / 3.;
@@ -701,9 +701,9 @@ int KNOHadronization::HadronShowerCharge(const Interaction* interaction) const
   double qnuc = PDGLibrary::Instance()->Find(hit_nucleon)->Charge() / 3.;
 
   // calculate the hadron shower charge
-  HadronShowerCharge = (int) ( qp + qnuc - ql );
+  hadronShowerCharge = (int) ( qp + qnuc - ql );
 
-  return HadronShowerCharge;
+  return hadronShowerCharge;
 }
 //____________________________________________________________________________
 TClonesArray * KNOHadronization::DecayMethod1(

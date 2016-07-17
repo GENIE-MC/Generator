@@ -153,8 +153,8 @@ double LwlynSmithFF::F1V(const Interaction * interaction) const
   double gve = this->GVE(interaction);
   double gvm = this->GVM(interaction);
 
-  double F1V = (gve - t*gvm) / (1-t);
-  return F1V;
+  double _F1V = (gve - t*gvm) / (1-t);
+  return _F1V;
 }
 //____________________________________________________________________________
 double LwlynSmithFF::xiF2V(const Interaction * interaction) const
@@ -163,8 +163,8 @@ double LwlynSmithFF::xiF2V(const Interaction * interaction) const
   double gve = this->GVE(interaction);
   double gvm = this->GVM(interaction);
 
-  double xiF2V = (gvm-gve) / (1-t);
-  return xiF2V;
+  double _xiF2V = (gvm-gve) / (1-t);
+  return _xiF2V;
 }
 //____________________________________________________________________________
 double LwlynSmithFF::FA(const Interaction * interaction) const
@@ -192,8 +192,8 @@ double LwlynSmithFF::Fp(const Interaction * interaction) const
   double fa = this->FA(interaction);
 
   // calculate Fp
-  double Fp = 2. * MN2 * fa/(Mpi2-q2);
-  return Fp;
+  double _Fp = 2. * MN2 * fa/(Mpi2-q2);
+  return _Fp;
 }
 //____________________________________________________________________________
 void LwlynSmithFF::Configure(const Registry & config)
