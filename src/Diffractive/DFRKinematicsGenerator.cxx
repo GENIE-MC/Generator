@@ -306,9 +306,6 @@ double DFRKinematicsGenerator::ComputeMaxXSec(
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
      LOG("DFRKinematics", pDEBUG) << "y = " << gy;
 #endif
-     double xseclast_x = -1;
-     bool increasing_x;
-
      for(int j=0; j<Nx; j++) {
         double gx = xmin + j*dx;
         interaction->KinePtr()->Setx(gx);
@@ -322,9 +319,6 @@ double DFRKinematicsGenerator::ComputeMaxXSec(
         in_phys = in_phys && math::IsWithinLimits(interaction->KinePtr()->Q2(), Q2l);
         if (!in_phys)
           continue;
-
-        double xseclast_t = -1;
-        bool increasing_t;
 
         // t range depends on x and y
         Range1D_t tl = kps.TLim();
@@ -342,37 +336,7 @@ double DFRKinematicsGenerator::ComputeMaxXSec(
 #endif
           // update maximum xsec
           max_xsec = TMath::Max(xsec, max_xsec);
-
-          increasing_t = xsec-xseclast_t>=0;
-          xseclast_t   = xsec;
-
-/*
-          // once the cross section stops increasing, I reduce the step size and
-          // step backwards a little bit to handle cases that the max cross section
-          // is grossly underestimated (very peaky distribution & large step)
-          if(!increasing_x) {
-  #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-            LOG("DFRKinematics", pDEBUG)
-             << "d2xsec/dxdy|x stopped increasing. Stepping back & exiting x loop";
-  #endif
-            double dxn = dx/(Nxb+1);
-            for(int ik=0; ik<Nxb; ik++) {
-           gx = gx - dxn;
-               interaction->KinePtr()->Setx(gx);
-               kinematics::UpdateWQ2FromXY(interaction);
-               xsec = fXSecModel->XSec(interaction, kPSxyfE);
-  #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-               LOG("DFRKinematics", pINFO)
-                  << "xsec(y=" << gy << ", x=" << gx << ") = " << xsec;
-  #endif
-      }
-            break;
-          } // stepping back within last bin
-*/
-
         } // t
-        increasing_x = max_xsec-xseclast_x>=0;
-        xseclast_x   = max_xsec;
       } // x
     increasing_y = max_xsec-xseclast_y>=0;
     xseclast_y   = max_xsec;
@@ -387,8 +351,6 @@ double DFRKinematicsGenerator::ComputeMaxXSec(
 
   // Apply safety factor, since value retrieved from the cache might
   // correspond to a slightly different energy
-  //  max_xsec *= fSafetyFactor;
-  //max_xsec *= ( (Ev<3.0) ? 2.5 : fSafetyFactor);
   max_xsec *= 3;
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
