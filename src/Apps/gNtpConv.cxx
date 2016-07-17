@@ -1739,7 +1739,6 @@ void ConvertToGRooTracker(void)
   float       brNuAlpha[2];               // Beam alpha parameter
   float       brNuHcur[3];                // Horns 1, 2 and 3 Currents 
   int         brNuRand;                   // Random seed
-  int         brNuRseed[2];                  // Random seed
   // codes for T2K cross-generator comparisons 
   int         brNeutCode;                 // NEUT-like reaction code for the GENIE event
 
@@ -1928,8 +1927,6 @@ void ConvertToGRooTracker(void)
     rootracker_tree->Branch("NuAlpha",      brNuAlpha,    "NuAlpha[2]/F");
     rootracker_tree->Branch("NuHcur",       brNuHcur,     "NuHcur[3]/F");
     rootracker_tree->Branch("NuRand",      &brNuRand,     "NuRand/I");
-// Remove the following as when dealing with combined flux files it makes no sense
-//    rootracker_tree->Branch("NuRseed",      brNuRseed,    "NuRseed[2]/I");
 
   }
 
@@ -2134,7 +2131,6 @@ void ConvertToGRooTracker(void)
     // variables added since 10d flux compatibility changes
     for(int k=0; k<2; k++) {
       brNuXnu[k] = brNuBpos[k] = brNuBtilt[k] = brNuBrms[k] = brNuEmit[k] = brNuAlpha[k] = -999999.; 
-      brNuRseed[k] = -999999;
     }
     for(int k=0; k<3; k++) brNuHcur[k] = -999999.; 
     for(int np = 0; np < flux::fNgmax; np++){
@@ -2278,7 +2274,6 @@ void ConvertToGRooTracker(void)
           brNuBrms[k] = (double) jnubeam_flux_info->brms[k];
           brNuEmit[k] = (double) jnubeam_flux_info->emit[k];
           brNuAlpha[k] = (double) jnubeam_flux_info->alpha[k];
-          brNuRseed[k]  = jnubeam_flux_info->rseed[k];
         } 
         for(int k=0; k<3; k++) brNuHcur[k] = jnubeam_flux_info->hcur[k]; 
         for(int np = 0; np < flux::fNgmax; np++){
