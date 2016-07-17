@@ -651,9 +651,8 @@ bool genie::utils::intranuke2015::TwoBodyCollision(
 
   // Kinematic variables
   
-  double M1, M2, M3, M4; // rest energies, in GeV
+  double M3, M4; // rest energies, in GeV
   double E3L, P3L, E4L, P4L;
-  double P3zL, P3tL, P4zL, P4tL;
   TVector3 tP1L, tPtot, tbeta, tbetadir, tTrans, tVect;
   TVector3 tP1zCM, tP2zCM, tP3L, tP4L;
 
@@ -667,8 +666,6 @@ bool genie::utils::intranuke2015::TwoBodyCollision(
   Target target(ev->TargetNucleus()->Pdg());
 
   // get mass for particles
-  M1 = pLib->Find(pcode)->Mass();
-  M2 = pLib->Find(tcode)->Mass();
   M3 = pLib->Find(scode)->Mass();
   M4 = pLib->Find(s2code)->Mass();
 
@@ -712,8 +709,6 @@ bool genie::utils::intranuke2015::TwoBodyCollision(
       LOG("INukeUtils",pINFO)
 	<< "Particle 3 momentum small or non-finite: " << P3L
 	<< "\n" << "--> Assigning .001 as new momentum";
-      P3tL = 0;
-      P3zL = .001;
       P3L = .001;
       E3L = TMath::Sqrt(P3L*P3L + M3*M3);
     }
@@ -722,8 +717,6 @@ bool genie::utils::intranuke2015::TwoBodyCollision(
       LOG("INukeUtils",pINFO)
 	<< "Particle 4 momentum small or non-finite: " << P4L
 	<< "\n" << "--> Assigning .001 as new momentum";
-      P4tL = 0;
-      P4zL = .001;
       P4L = .001;
       E4L = TMath::Sqrt(P4L*P4L + M4*M4);
     }
@@ -801,7 +794,7 @@ bool genie::utils::intranuke2015::TwoBodyKinematics(
   double PHI3;
   double E1CM, E2CM, E3CM, P3CM;//, E4CM, P4CM;
   double P3zL, P3tL;//, P4zL, P4tL;
-  double Et, P1CM, Ptot;
+  double Et;
   double theta1, theta2, theta5, P1zL, P2zL, P1tL, P2tL;
   TVector3 tbeta, tbetadir, tTrans, tVect;
   TVector3 tP1zCM, tP2zCM, vP3L;
@@ -829,7 +822,6 @@ bool genie::utils::intranuke2015::TwoBodyKinematics(
   E2L = t4P2buf.E();
   P2L = t4P2buf.P();
   t4Ptot = t4P1buf + t4P2buf;
-  Ptot = t4Ptot.Vect().Mag();
 
   // binding energy
   if (bindE!=0)
@@ -868,7 +860,6 @@ bool genie::utils::intranuke2015::TwoBodyKinematics(
   // boost to CM frame to get scattered particle momenta
   E1CM = gm*E1L - gm*beta*P1zL;
   tP1zCM = gm*P1zL*tbetadir - gm*tbeta*E1L;
-  P1CM = (tP1zCM + P1tL*tTrans).Mag();
   E2CM = gm*E2L - gm*beta*P2zL;
   tP2zCM = gm*P2zL*tbetadir - gm*tbeta*E2L;
   Et = E1CM + E2CM;
@@ -987,13 +978,13 @@ bool genie::utils::intranuke2015::ThreeBodyKinematics(
   double M1, M2, M3, M4, M5; // rest energies, in GeV
   double P1L, P2L, P3L, P4L, P5L;
   double E1L, E2L, E3L, E4L, E5L;
-  double E1CM, P1CM, E2CM, P3tL;
+  double E1CM, E2CM, P3tL;
   double PizL, PitL, PiL, EiL;
   double EiCM, P4CM2, E4CM2, E5CM2, P3CM, E3CM;
   double beta, gm, beta2, gm2;
   double P3zL, P4zL, P4tL, P5zL, P5tL;
-  double Et, M, Ptot, theta1, theta2;
-  double P1zL, P2zL, P1tL, P2tL;
+  double Et, M, theta1, theta2;
+  double P1zL, P2zL;
   double theta3, theta4, phi3, phi4, theta5;
   TVector3 tP2L, tP1L, tPtot, tbeta, tbetadir, tTrans, tP4L, tP5L;
   TVector3 tP1zCM, tP2zCM, tP3L, tPiL, tbeta2, tbetadir2, tVect, tTrans2;
@@ -1035,7 +1026,6 @@ bool genie::utils::intranuke2015::ThreeBodyKinematics(
   P1L = TMath::Sqrt(E1L*E1L - M1*M1);
   tP1L = p->P4()->Vect();
   tPtot = tP1L + tP2L;
-  Ptot = tPtot.Mag();
 
   tbeta = tPtot * (1.0 / (E1L + E2L));
   tbetadir = tbeta.Unit();
@@ -1046,8 +1036,6 @@ bool genie::utils::intranuke2015::ThreeBodyKinematics(
   theta2 = tP2L.Angle(tbeta);
   P1zL = P1L*TMath::Cos(theta1);
   P2zL = P2L*TMath::Cos(theta2);
-  P1tL = TMath::Sqrt(P1L*P1L - P1zL*P1zL);
-  P2tL = TMath::Sqrt(P2L*P2L - P2zL*P2zL);
   tVect.SetXYZ(1,0,0);
   if(TMath::Abs((tVect - tbetadir).Mag())<.01) tVect.SetXYZ(0,1,0);
   theta5 = tVect.Angle(tbetadir);
@@ -1055,7 +1043,6 @@ bool genie::utils::intranuke2015::ThreeBodyKinematics(
 
   E1CM = gm*E1L - gm*beta*P1zL;
   tP1zCM = gm*P1zL*tbetadir - gm*tbeta*E1L;
-  P1CM = (tP1zCM + P1tL*tTrans).Mag();
   E2CM = gm*E2L - gm*beta*P2zL;
   tP2zCM = gm*P2zL*tbetadir - gm*tbeta*E2L;
   Et = E1CM + E2CM;
@@ -1659,7 +1646,7 @@ bool genie::utils::intranuke2015::PhaseSpaceDecay(
 
   // Get the maximum weight
   double wmax = -1;
-  for(int i=0; i<200; i++) {
+  for(int k=0; k<200; k++) {
      double w = GenPhaseSpace.Generate();
      wmax = TMath::Max(wmax,w);
   }
@@ -1734,8 +1721,8 @@ bool genie::utils::intranuke2015::PhaseSpaceDecay(
      double M  = PDGLibrary::Instance()->Find(pdgc)->Mass();
      double En = p4fin->Energy();
      double KE = En-M;
-     double dE = TMath::Min(NucRmvE, KE);
-     KE -= dE;
+     double dE_leftover = TMath::Min(NucRmvE, KE);
+     KE -= dE_leftover;
      En  = KE+M;
      double pmag_old = p4fin->P();
      double pmag_new = TMath::Sqrt(TMath::Max(0.,En*En-M*M));
@@ -1793,7 +1780,7 @@ bool genie::utils::intranuke2015::PhaseSpaceDecay(
      double dpx = (1-scale)*p4fin->Px();
      double dpy = (1-scale)*p4fin->Py();
      double dpz = (1-scale)*p4fin->Pz();
-     TLorentzVector premnadd(dpx,dpy,dpz,dE);
+     TLorentzVector premnadd(dpx,dpy,dpz,dE_leftover);
      RemnP4 += premnadd;
   }
   LOG("INukeUtils", pNOTICE) << "check conservation: Px = " << checkpx << " Py = " << checkpy

@@ -504,8 +504,6 @@ double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const
   double xsec_max = -1;
 
   const int nnucthrows = 1000;
-  double phi_max_overall = -1;
-  double costheta_max_overall = 0;
   for(int i=0; i<nnucthrows; i++) {
 
         Interaction * interaction = new Interaction(*in);
@@ -568,8 +566,6 @@ double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const
             double xs = this->ComputeXSec(interaction, costheta, phi);
             if (xs > tmp_xsec_max){
               tmp_xsec_max = xs;
-	      phi_max_overall = phi;
-	      costheta_max_overall = costheta;
             }           
           } // Done with phi scan
         }// Done with centre-of-mass angles finely
@@ -634,22 +630,22 @@ double QELEventGenerator::ComputeXSec( Interaction * interaction, double costhet
     //double Mi  = nucleus  -> Mass(); // initial nucleus mass
 
     //// Get initial and final nucleus masses
-    int nucleus_init = tgt->Pdg();
-    TParticlePDG * p = PDGLibrary::Instance()->Find(nucleus_init);
+    //int nucleus_init = tgt->Pdg();
+    //TParticlePDG * p = PDGLibrary::Instance()->Find(nucleus_init);
     //double Mi = p->Mass();
-
-    int A = tgt->A() - 1;
-    double Mf;
-    if(A>0){
-      bool is_p = pdg::IsProton(tgt->HitNucPdg());
-      int Z = (is_p) ? tgt->Z()-1 : tgt->Z();
-      int nucleus_remnant = pdg::IonPdgCode(A, Z);
-      p = PDGLibrary::Instance()->Find(nucleus_remnant);
-      Mf = p->Mass();
-    }else{
-      Mf = 0.;
-    }
-
+    //
+    //int A = tgt->A() - 1;
+    //double Mf;
+    //if(A>0){
+    //  bool is_p = pdg::IsProton(tgt->HitNucPdg());
+    //  int Z = (is_p) ? tgt->Z()-1 : tgt->Z();
+    //  int nucleus_remnant = pdg::IonPdgCode(A, Z);
+    //  p = PDGLibrary::Instance()->Find(nucleus_remnant);
+    //  Mf = p->Mass();
+    //}else{
+    //  Mf = 0.;
+    //}
+    //
     //EN_offshell = Mi - TMath::Sqrt(pF2 + Mf*Mf);
     //LOG("QELEvent",pDEBUG) << "Using FermiMoveDefault and defined energy" << std::endl;
     //}
