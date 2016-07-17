@@ -143,6 +143,8 @@ double BergerSehgalFMCOHPiPXSec2015::XSec(
         tpi, ppistar, t, A, 
         tpilow, siglow, 
         tpihigh, sighigh);
+  if (xsec_stat != 0)
+    LOG("BergerSehgalFMCohPi", pWARN) << "Unable to retrieve pion-nucleus cross section with A = " << A << ", t_pi = " << tpi;
   dsigdt = siglow + (sighigh - siglow) * (tpi - tpilow) / (tpihigh - tpilow);
   dsigdt = dsigdt / (2.0 * ppistar * ppistar) * units::mb;
 
