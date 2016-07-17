@@ -100,12 +100,12 @@ double BYStrucFunc::ScalingVar(const Interaction * interaction) const
 
   const Kinematics & kine  = interaction->Kine();
   double x  = kine.x();
-  double Q2 = this->Q2(interaction);
-  //Q2 = TMath::Max(Q2,fQ2min);
-  LOG("BodekYang", pDEBUG) << "Q2 at scaling var calculation = " << Q2;
+  double myQ2 = this->Q2(interaction);
+  //myQ2 = TMath::Max(Q2,fQ2min);
+  LOG("BodekYang", pDEBUG) << "Q2 at scaling var calculation = " << myQ2;
 
-  double a  = TMath::Power( 2*kProtonMass*x, 2 ) / Q2;
-  double xw =  2*x*(Q2+fB) / (Q2*(1.+TMath::Sqrt(1+a)) +  2*fA*x);
+  double a  = TMath::Power( 2*kProtonMass*x, 2 ) / myQ2;
+  double xw =  2*x*(myQ2+fB) / (myQ2*(1.+TMath::Sqrt(1+a)) +  2*fA*x);
   return xw;
 }
 //____________________________________________________________________________
@@ -115,13 +115,13 @@ void BYStrucFunc::KFactors(const Interaction * interaction,
 // Overrides QPMDISStrucFuncBase::KFactors() to compute the BY K factors for
 // u(valence), d(valence), u(sea), d(sea);
 
-  double Q2  = this->Q2(interaction);
-  double GD  = 1. / TMath::Power(1.+Q2/0.71, 2); // p elastic form factor
+  double myQ2  = this->Q2(interaction);
+  double GD  = 1. / TMath::Power(1.+myQ2/0.71, 2); // p elastic form factor
   double GD2 = TMath::Power(GD,2);
 
-  kuv = (1.-GD2)*(Q2+fCv2U)/(Q2+fCv1U); // K - u(valence)
-  kdv = (1.-GD2)*(Q2+fCv2D)/(Q2+fCv1D); // K - d(valence)
-  kus = Q2/(Q2+fCsU);                   // K - u(sea)
-  kds = Q2/(Q2+fCsD);                   // K - d(sea)
+  kuv = (1.-GD2)*(myQ2+fCv2U)/(myQ2+fCv1U); // K - u(valence)
+  kdv = (1.-GD2)*(myQ2+fCv2D)/(myQ2+fCv1D); // K - d(valence)
+  kus = myQ2/(myQ2+fCsU);                   // K - u(sea)
+  kds = myQ2/(myQ2+fCsD);                   // K - d(sea)
 }
 //____________________________________________________________________________

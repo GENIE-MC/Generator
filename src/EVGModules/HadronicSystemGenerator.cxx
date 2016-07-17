@@ -206,7 +206,7 @@ int HadronicSystemGenerator::HadronShowerCharge(GHepRecord * evrec) const
 // Returns the hadron shower charge in units of +e
 // eg in v n -> l- X the hadron shower charge is +1
 
-  int HadronShowerCharge = 0;
+  int hadronShowerCharge = 0;
 
   Interaction * interaction = evrec->Summary();
   const InitialState & init_state = interaction->InitState();
@@ -220,9 +220,9 @@ int HadronicSystemGenerator::HadronShowerCharge(GHepRecord * evrec) const
   double qnuc  = PDGLibrary::Instance()->Find(hit_nucleon)->Charge() / 3.;
 
   // probe + nucleon - primary final state lepton
-  HadronShowerCharge = (int) (qp + qnuc - qfsl);
+  hadronShowerCharge = (int) (qp + qnuc - qfsl);
 
-  return HadronShowerCharge;
+  return hadronShowerCharge;
 }
 //____________________________________________________________________________
 int HadronicSystemGenerator::ResonanceCharge(GHepRecord * evrec) const
