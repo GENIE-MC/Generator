@@ -172,7 +172,7 @@ void INukeHadroData2014::LoadCrossSections(void)
 
   //-- Build filenames
 
-  string datafile_NN   = data_dir + "/tot_xsec/intranuke-xsections-NN.dat";
+  string datafile_NN   = data_dir + "/tot_xsec/intranuke-xsections-NN2014.dat";
   string datafile_pipN = data_dir + "/tot_xsec/intranuke-xsections-pi+N.dat";
   string datafile_pi0N = data_dir + "/tot_xsec/intranuke-xsections-pi0N.dat";
   string datafile_NA   = data_dir + "/tot_xsec/intranuke-fractions-NA.dat";
