@@ -164,7 +164,7 @@ double genie::utils::intranuke2015::MeanFreePath(
     
   if (xsecNNCorr and is_nucleon)
     sigtot *= INukeNucleonCorr::getInstance()->
-              getAvgCorrection (rho, A, Z, pdgc, p4.E() - PDGLibrary::Instance()->Find(pdgc)->Mass());
+      getAvgCorrection (rho, A, Z,  pdgc, p4.E() - PDGLibrary::Instance()->Find(pdgc)->Mass());
 
   // compute the mean free path
   double lamda = 1. / (rho * sigtot);
@@ -822,6 +822,11 @@ bool genie::utils::intranuke2015::TwoBodyKinematics(
   E2L = t4P2buf.E();
   P2L = t4P2buf.P();
   t4Ptot = t4P1buf + t4P2buf;
+
+  if (E1L<120.0)
+    {
+      bindE = 0.0;
+    }
 
   // binding energy
   if (bindE!=0)
