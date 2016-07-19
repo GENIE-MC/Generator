@@ -388,7 +388,7 @@ void Intranuke2015::TransportHadrons(GHepRecord * evrec) const
   }
 }
 //___________________________________________________________________________
-double Intranuke2015::GenerateStep(GHepRecord* /*evrec*/, GHepParticle* p) const
+double Intranuke2015::GenerateStep(GHepRecord*  /*evrec*/, GHepParticle* p) const //Added ev to get tgt argument//
 {
 // Generate a step (in fermis) for particle p in the input event.
 // Computes the mean free path L and generate an 'interaction' distance d 
