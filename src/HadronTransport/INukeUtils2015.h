@@ -65,7 +65,7 @@ namespace intranuke2015
 
   //! Distance to exit
   double Dist2ExitMFP(
-    int pdgc, const TLorentzVector & x4, const TLorentzVector & p4, 
+   int pdgc, const TLorentzVector & x4, const TLorentzVector & p4, 
     double A, double Z, double NR=3, double R0=1.4);
 
   //! Step particle
