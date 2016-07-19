@@ -193,7 +193,7 @@ void   PrintSyntax               (void);
 string DefaultOutputFile         (void);
 int    LatestFormatVersionNumber (void);
 bool   CheckRootFilename         (string filename);
-
+int    HAProbeFSI                (int, int, int, double [], int [], int, int, int); //Test code
 //format enum
 typedef enum EGNtpcFmt {
   kConvFmt_undef = 0,
@@ -2691,8 +2691,8 @@ void ConvertToGINuke(void)
   LOG("gntpc", pNOTICE)
        << "*** Saving summary tree to: " << gOptOutFileName;
   TFile fout(gOptOutFileName.c_str(),"recreate");
-
-  TTree * tEvtTree = new TTree("ginuke","GENIE INuke Summary Tree");
+   
+TTree * tEvtTree = new TTree("ginuke","GENIE INuke Summary Tree");
   assert(tEvtTree);
 
   //-- create tree branches
@@ -2755,7 +2755,7 @@ void ConvertToGINuke(void)
   LOG("gntpc", pNOTICE) << "*** Analyzing: " << nmax << " events";
 
   for(Long64_t iev = 0; iev < nmax; iev++) {
-    brIEv = iev;
+    brIEv = iev; 
     er_tree->GetEntry(iev);
     NtpMCRecHeader rec_header = mcrec->hdr;
     EventRecord &  event      = *(mcrec->event);
@@ -2795,7 +2795,6 @@ void ConvertToGINuke(void)
     brVtxY     = probe  -> Vy();
     brVtxZ     = probe  -> Vz();
     brProbeFSI = probe  -> RescatterCode(); 
-
     GHepParticle * rescattered_hadron  = event.Particle(probe->FirstDaughter());
     assert(rescattered_hadron);
     if(rescattered_hadron->Status() == kIStStableFinalState) {
@@ -2844,6 +2843,12 @@ void ConvertToGINuke(void)
        i++;
     }
     brNh = i;
+    
+    ///////////////Test Code///////////////////////
+    int tempProbeFSI = brProbeFSI;
+    brProbeFSI = HAProbeFSI(tempProbeFSI, brProbe, brNh, brEh, brPdgh, brNpip, brNpim, brNpi0);
+    //////////////End Test///////////////////////// 
+
 
     // fill the summary tree
     tEvtTree->Fill();
@@ -3043,3 +3048,52 @@ void PrintSyntax(void)
   gSystem->Exec(cmd.c_str());
 }
 //____________________________________________________________________________________
+/* Converting HN probe_fsi to HA probe_fsi */
+int HAProbeFSI(int probe_fsi, int probe_pdg, int numh, double E_had[], int pdg_had[], int numpip, int numpim, int numpi0)
+{
+  int index = -1;
+  double energy = 0;
+
+  for(int i=0; i<numh; i++)
+    { energy += E_had[i]; }
+
+
+// Determine fates (as defined in Intranuke/INukeUtils.cxx/ utils::intranuke::FindhAFate())
+  if (probe_fsi==3 && numh==1) // Elastic
+    { index=3; }
+  else if (energy==E_had[0] && numh==1) // No interaction
+    { index=1; }
+  else if ( pdg::IsPion(probe_pdg) && numpip+numpi0+numpim==0) // Absorption
+    { index=5; }
+  else if ( (pdg::IsNucleon(probe_pdg) && numpip+numpi0+numpim==0 && numh>2 )
+	    || (probe_pdg==kPdgGamma && energy!=E_had[0] && numpip+numpi0+numpim==0)) // Knock-out
+    { index=6; }
+  else if ( numpip+numpi0+numpim > (pdg::IsPion(probe_pdg) ? 1 : 0) ) // Pion production
+    { index=7; }
+  else if ( numh>=2 ) // Inelastic or Charge Exchange
+    {
+      for(int i = 0; i < numh; i++)
+	{
+	  if ( (pdg::IsPion(probe_pdg) && ( probe_pdg==pdg_had[i] ))
+	       || pdg::IsNucleon(probe_pdg) ) 
+	    {index=4;}	
+	  if(index!=4) 
+	    {index=2;}
+	}
+    }
+      else //Double Charge Exchange or Undefined
+	{
+	  bool undef = true;
+	  if ( pdg::IsPion(probe_pdg) )
+	    {
+	      for (int iter = 0; iter < numh; iter++)
+		{
+		  if      (probe_pdg==211 && pdg_had[iter]==-211) { index=8; undef=false; }
+		  else if (probe_pdg==-211 && pdg_had[iter]==211) { index=8; undef=false; }
+		}
+	    }
+	  if (undef) { index=0; }
+	}
+
+  return index;
+}
