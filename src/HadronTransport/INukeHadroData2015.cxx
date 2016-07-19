@@ -177,7 +177,7 @@ void INukeHadroData2015::LoadCrossSections(void)
 
   //-- Build filenames
 
-  string datafile_NN   = data_dir + "/tot_xsec/intranuke-xsections-NN.dat";
+  string datafile_NN   = data_dir + "/tot_xsec/intranuke-xsections-NN2014.dat";
   string datafile_pipN = data_dir + "/tot_xsec/intranuke-xsections-pi+N.dat";
   string datafile_pi0N = data_dir + "/tot_xsec/intranuke-xsections-pi0N.dat";
   string datafile_NA   = data_dir + "/tot_xsec/intranuke-fractions-NA.dat";
@@ -1499,6 +1499,9 @@ double INukeHadroData2015::XSec(int hpdgc, INukeFateHN_t fate, double ke, int ta
 				    return xsec;}
     else if (fate == kIHNFtInelas) {xsec = TMath::Max(0., fXSecPp_Reac -> Evaluate(ke)) *  targZ;
 	                            xsec+= TMath::Max(0., fXSecPn_Reac -> Evaluate(ke)) * (targA-targZ);
+				    return xsec;}	 
+    else if (fate == kIHNFtCmp) {xsec = TMath::Max(0., fXSecPp_Cmp -> Evaluate(ke)) *  targZ;
+                                    xsec+= TMath::Max(0., fXSecPn_Cmp -> Evaluate(ke)) * (targA-targZ);
 				    return xsec;}
     else {
      LOG("INukeData", pWARN) 
