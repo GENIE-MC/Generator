@@ -272,7 +272,7 @@ void INukeHadroData2015::LoadCrossSections(void)
   fXSecKpn_Elas   = new Spline(&data_kN,  "ke:kpn_elas");
   fXSecKpp_Elas   = new Spline(&data_kN,  "ke:kpp_elas");
   fXSecKpn_CEx    = new Spline(&data_kN,  "ke:kpn_cex");
-  //  fXSecKpN_Abs    = new Spline(&data_kN,  "ke:kp_abs");  why not used?
+  fXSecKpN_Abs    = 0; // new Spline(&data_kN,  "ke:kp_abs");  why not used?
   fXSecKpN_Tot    = new Spline(&data_kN,  "ke:kpN_tot");
 
   // gamma x-section splines  
@@ -297,7 +297,7 @@ void INukeHadroData2015::LoadCrossSections(void)
   // K+A x-section fraction splines
   fFracKA_Tot      = new Spline(&data_KA, "ke:KA_tot");
   fFracKA_Elas     = new Spline(&data_KA, "ke:KA_elas");
-  //fFracKA_CEx      = new Spline(&data_KA, "ke:KA_cex"); //Added, but needs to be computed
+  fFracKA_CEx      = 0; // new Spline(&data_KA, "ke:KA_cex"); //Added, but needs to be computed
   fFracKA_Inel     = new Spline(&data_KA, "ke:KA_inel");   
   fFracKA_Abs      = new Spline(&data_KA, "ke:KA_abs");
   //
