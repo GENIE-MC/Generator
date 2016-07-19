@@ -163,6 +163,7 @@ int main(int argc, char ** argv)
 
       // We don't want the specific fate data, just the main (9) fate types
       switch (fate){
+
       case 0:   countfate[0]++; break;
       case 1:   countfate[1]++; break;
       case 2:   countfate[2]++; break;
@@ -537,7 +538,7 @@ INukeFateHA_t FindhAFate(const GHepRecord * evrec)
         if(numKE[1]>numKE[0]) { fs_ind=1; }  
         
         if(numtype[fs_ind]==p_pdg)
-        {
+	  {
           //if(numKE[fs_ind]>=(.8*p_KE))
           //{
           //  if(num[0]==1 && num[1]==1) return kIHAFtKo;
@@ -545,13 +546,13 @@ INukeFateHA_t FindhAFate(const GHepRecord * evrec)
 	  //  else return kIHAFtKo;
           //}
           //else
-          return kIHAFtInelas; //fix later
+	     return kIHAFtInelas; //fix later
         }
         else
         {
-          //if(numKE[fs_ind]>=(.8*p_KE)) return kIHAFtInelas;
-          //else
-          //{
+	  // if(numKE[fs_ind]>=(.8*p_KE)) return kIHAFtInelas;
+	  // else
+	  // {
           //  if(num[fs_ind]==2)
           //  {
           //    if(num[0]==2) return kIHAFtKo;
