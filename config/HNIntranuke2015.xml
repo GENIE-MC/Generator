@@ -25,14 +25,20 @@ UseOset             bool    Yes   enables Oset model for low energy pions       
 AltOset             bool    Yes   alternative Oset table-based implementation                 false
 XsecNNCorr          bool    Yes   nuclear medium correction for NN cross section              INUKE-XsecNNCorr
 
--->
 
+-->
   <param_set name="Default"> 
     <param type="bool" name="HNINUKE-UseOset"> true  </param>
     <param type="bool" name="HNINUKE-AltOset"> false </param>
     <param type="bool" name="INUKE-XsecNNCorr"> true </param>
   </param_set>
-
+<!--
+  <param_set name="Default"> 
+    <param type="bool" name="HNINUKE-UseOset"> false  </param>
+    <param type="bool" name="HNINUKE-AltOset"> false </param>
+    <param type="bool" name="INUKE-XsecNNCorr"> false </param>
+  </param_set>
+-->
   <param_set name="OsetOff"> 
     <param type="bool" name="HNINUKE-UseOset"> false </param>
     <param type="bool" name="HNINUKE-AltOset"> false </param>
