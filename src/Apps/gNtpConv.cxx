@@ -665,7 +665,7 @@ void ConvertToGST(void)
     double y  = (hitnucl) ? v/k1.Energy()    : -1; // Inelasticity, y = q*P1/k1*P1
     double W2 = (hitnucl) ? M*M + 2*M*v - Q2 : -1; // Hadronic Invariant mass ^ 2
     double W  = (hitnucl) ? TMath::Sqrt(W2)  : -1; 
-    double t  = 0;
+    double t  = (is_coh || is_dfr) ? kine.t (get_selected) : -1;
 
     // Get v 4-p at hit nucleon rest-frame
     TLorentzVector k1_rf = k1;         

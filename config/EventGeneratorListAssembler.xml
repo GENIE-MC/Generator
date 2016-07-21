@@ -85,6 +85,16 @@ Generator-%d                alg     No
      <param type="alg" name="Generator-1">  genie::EventGenerator/DFR-NC       </param>
   </param_set>
 
+  <param_set name="CCDFR"> 
+     <param type="int" name="NGenerators">    1                               </param>
+     <param type="alg" name="Generator-0 ">   genie::EventGenerator/DFR-CC    </param>
+  </param_set>
+
+  <param_set name="NCDFR"> 
+     <param type="int" name="NGenerators">    1                               </param>
+     <param type="alg" name="Generator-0 ">   genie::EventGenerator/DFR-NC    </param>
+  </param_set>
+
   <param_set name="Charm"> 
      <param type="int" name="NGenerators">   2                                  </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/QEL-CC-CHARM </param>
