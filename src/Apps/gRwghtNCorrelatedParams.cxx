@@ -526,7 +526,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   // run key:
   if( parser.OptionExists('r') ) {
     LOG("grwghtcov", pINFO) << "Reading run key";
-    int gOptRunKey = parser.ArgAsInt('r');
+    gOptRunKey = parser.ArgAsInt('r');
     
     LOG("grwghtcov", pINFO) 
       << "Run key set to " <<gOptRunKey;
