@@ -98,7 +98,7 @@ private:
   TLorentzVector *       fP4Fsl;     ///< generated final state primary lepton 4-p  (LAB)
   TLorentzVector *       fP4HadSyst; ///< generated final state hadronic system 4-p (LAB)
 
-ClassDef(Kinematics,1)
+ClassDef(Kinematics,2)
 };
 
 }       // genie namespace
