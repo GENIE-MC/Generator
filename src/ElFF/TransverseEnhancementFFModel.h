@@ -22,7 +22,7 @@
 */
 //____________________________________________________________________________
 
-#ifndef _TRANSVERSE_ENHANCEMENT_FF_MODEL_H
+#ifndef _TRANSVERSE_ENHANCEMENT_FF_MODEL_H_
 #define _TRANSVERSE_ENHANCEMENT_FF_MODEL_H_
 
 #include "ElFF/ELFormFactorsModelI.h"

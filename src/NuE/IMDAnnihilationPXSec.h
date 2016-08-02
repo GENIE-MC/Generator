@@ -22,7 +22,7 @@
 //____________________________________________________________________________
 
 #ifndef _IMD_ANNIHILATION_PARTIAL_XSEC_H_
-#define _IMD_ANNIHILATION_XSEC_H_
+#define _IMD_ANNIHILATION_PARTIAL_XSEC_H_
 
 #include "Base/XSecAlgorithmI.h"
 
