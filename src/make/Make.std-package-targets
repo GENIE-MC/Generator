@@ -20,8 +20,11 @@ PACKAGE_ALL_SOURCES          := $(PACKAGE_ALL_SOURCES) $(DICTIONARY).cc $(wildca
 PACKAGE_ALL_OBJECTS           = $(addsuffix .$(ObjSuf), $(basename $(PACKAGE_ALL_SOURCES)))
 PACKAGE_SOURCES              := $(wildcard *.cxx)
 PACKAGE_OBJECTS               = $(addsuffix .$(ObjSuf), $(basename $(PACKAGE_SOURCES)))
+
 DICTIONARY_PCM               := $(DICTIONARY)_rdict.pcm
 DICTIONARY_PCM_WITH_PATH     := $(GENIE_LIB_PATH)/$(DICTIONARY)_rdict.pcm
+PACKAGE_PCM_WITH_PATH        := $(GENIE_LIB_PATH)/$(LIBNAME)$(GLIBVERSION)_rdict.pcm
+PACKAGE_ROOTMAP_WITH_PATH    := $(GENIE_LIB_PATH)/$(LIBNAME)$(GLIBVERSION).rootmap
 
 LIB_DEPEND=
 ifeq ($(strip $(DICTIONARY)),undefined)
@@ -37,18 +40,32 @@ rootcint: $(DICTIONARY).o
 $(DICTIONARY).cc: LinkDef.h $(DICTGEN_OBJECTS)
 	$(RM) $(DICTIONARY).*
 	@echo "[package: $(PACKAGE)] Generating ROOT dictionary ..."
-	rootcint -f $(DICTIONARY).cc -c $(INCLUDES) $(DICTGEN_HEADERS) LinkDef.h
+ifeq ($(ROOT_MAJOR),5)
+	  rootcint -f $(DICTIONARY).cc -c $(INCLUDES) $(DICTGEN_HEADERS) LinkDef.h
+else
+	  rootcling -f $(DICTIONARY).cc -s $(PACKAGE_LIB_WITH_PATH) \
+                  -rml $(PACKAGE_PCM_WITH_PATH) \
+                  -rmf $(PACKAGE_ROOTMAP_WITH_PATH) \
+                  $(INCLUDES) $(DICTGEN_HEADERS) LinkDef.h
+# clean rootmap output up a bit ... (magic?)
+	  sed -i.bak -e "s/\.dylib\.so/\.dylib/g" \
+	             -e "s%^header *%header $(PACKAGE)/%g" \
+	             -e "s%$(GENIE_LIB_PATH)/%%g" \
+	             -e "s/_rdict.pcm/.so/g" \
+	     $(PACKAGE_ROOTMAP_WITH_PATH)
+endif
 
 #
 #
 
 $(PACKAGE_LIB_WITH_PATH): $(LIB_DEPEND)
-	@echo "[package: $(PACKAGE)] Generating shared library ..."
+	@echo "[package: $(PACKAGE)] Generating shared library ..dictionary=.$(DICTIONARY)"
 ifeq ($(strip $(DICTIONARY)),undefined)
-	$(SOCMD) $(SOFLAGS) $(SOMINF) $(PACKAGE_OBJECTS) $(EXTRA_EXT_LIBS) $(OutPutOpt) $(PACKAGE_LIB_WITH_PATH)
+	$(SOCMD) $(SOFLAGS) $(SOMINF) $(PACKAGE_OBJECTS) $(EXTRA_EXT_LIBS) \
+                 $(OutPutOpt) $(PACKAGE_LIB_WITH_PATH)
 else
-	$(SOCMD) $(SOFLAGS) $(SOMINF) $(PACKAGE_ALL_OBJECTS) $(EXTRA_EXT_LIBS) $(OutPutOpt) $(PACKAGE_LIB_WITH_PATH)
-	[ ! -f $(DICTIONARY_PCM) ] || $(COPY) $(DICTIONARY_PCM) $(GENIE_LIB_PATH)
+	$(SOCMD) $(SOFLAGS) $(SOMINF) $(PACKAGE_ALL_OBJECTS) $(EXTRA_EXT_LIBS) \
+                 $(OutPutOpt) $(PACKAGE_LIB_WITH_PATH)
 endif
 
 lib: $(PACKAGE_LIB_WITH_PATH)
@@ -78,6 +95,10 @@ install-lib:
 	[ ! -f $(DICTIONARY_PCM_WITH_PATH) ] || $(COPY) $(DICTIONARY_PCM_WITH_PATH) $(GENIE_LIB_INSTALLATION_PATH)
 ifeq ($(strip $(GOPT_ENABLE_DYLIBVERSION)),YES)
 	[ ! -f $(PACKAGE_LIB_WITH_PATH) ] || $(SYMLINK) $(PACKAGE_LIB) $(PACKAGE_LIBNOVRS_WITH_IPATH)
+endif
+ifeq ($(ROOT_MAJOR),6)
+	[ ! -f $(PACKAGE_PCM_WITH_PATH) ]     || $(COPY) $(PACKAGE_PCM_WITH_PATH) $(GENIE_LIB_INSTALLATION_PATH)
+	[ ! -f $(PACKAGE_ROOTMAP_WITH_PATH) ] || $(COPY) $(PACKAGE_ROOTMAP_WITH_PATH) $(GENIE_LIB_INSTALLATION_PATH)
 endif
 ifeq ($(strip $(ARCH)),macosx)
 	[ ! -f $(PACKAGE_LIB_WITH_PATH) ] || $(SYMLINK) $(PACKAGE_LIB) $(PACKAGE_LIBMACLINK_WITH_IPATH)

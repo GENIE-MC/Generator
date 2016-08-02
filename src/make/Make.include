@@ -226,6 +226,9 @@ ROOT_FLAGS     = -I$(shell root-config --cflags)
 ROOT_INCLUDES  = -I$(shell root-config --incdir)
 ROOT_LIBRARIES = $(shell root-config --glibs) \
                         -lMinuit -lGeom -lEG -lEGPythia6 -lGenVector
+ROOT_VERSION = $(shell root-config --version )
+ROOT_MAJOR   = $(shell root-config --version | cut -d. -f1 )
+
 
 #-------------------------------------------------------------------
 #                   PROFILING / DEBUGING OPTIONS
@@ -330,7 +333,7 @@ ARCH_OK       = YES
 IS_MACOSX     = YES
 CXXFLAGS      = -m64 -pipe -W -Wall \
 		-fsigned-char -fno-common -flat_namespace \
-        $(ROOT_FLAGS) \
+		$(ROOT_FLAGS) \
 		$(GOPT_WITH_CXX_DEBUG_FLAG) \
 		$(GOPT_WITH_CXX_OPTIMIZ_FLAG) \
 		$(GOPT_WITH_CXX_USERDEF_FLAGS) 
@@ -359,7 +362,7 @@ endif
 ifeq ($(strip $(ARCH)),linux) 
 ARCH_OK       = YES
 CXXFLAGS      = -Wall -fPIC \
-        $(ROOT_FLAGS) \
+		$(ROOT_FLAGS) \
 		$(GOPT_WITH_CXX_DEBUG_FLAG) \
 		$(GOPT_WITH_CXX_OPTIMIZ_FLAG) \
 		$(GOPT_WITH_CXX_USERDEF_FLAGS) 
@@ -387,7 +390,7 @@ endif
 ifeq ($(strip $(ARCH)),linuxx8664gcc) 
 ARCH_OK       = YES
 CXXFLAGS      = -Wall -fPIC \
-        $(ROOT_FLAGS) \
+		$(ROOT_FLAGS) \
 		$(GOPT_WITH_CXX_DEBUG_FLAG) \
 		$(GOPT_WITH_CXX_OPTIMIZ_FLAG) \
 		$(GOPT_WITH_CXX_USERDEF_FLAGS) 
