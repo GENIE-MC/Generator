@@ -307,7 +307,7 @@ double DFRKinematicsGenerator::ComputeMaxXSec(
      LOG("DFRKinematics", pDEBUG) << "y = " << gy;
 #endif
      double xseclast_x = -1;
-     bool increasing_x;
+     //not-used//bool increasing_x;
 
      for(int j=0; j<Nx; j++) {
         double gx = xmin + j*dx;
@@ -322,7 +322,7 @@ double DFRKinematicsGenerator::ComputeMaxXSec(
         // update maximum xsec
         max_xsec = TMath::Max(xsec, max_xsec);
 
-        increasing_x = xsec-xseclast_x>=0;
+        //not-used//increasing_x = (xsec-xseclast_x)>=0;
         xseclast_x   = xsec;
 
 /*

@@ -102,6 +102,7 @@ char * CmdLnArgParser::Arg(char op)
     }
   }
 
+  LOG("CLAP", pDEBUG) << "CmdLnArgParser::Arg op='" << op << "' set=" << set;
   return argument;
 }
 //____________________________________________________________________________
@@ -254,6 +255,7 @@ char * CmdLnArgParser::Arg(string op)
     }
   }
 
+  LOG("CLAP", pDEBUG) << "CmdLnArgParser::Arg op='" << op << "' set=" << set;
   return argument;
 }
 //____________________________________________________________________________

@@ -329,10 +329,10 @@ void NucDeExcitationSim::AddPhoton(
 
   GHepParticle * target  = evrec->Particle(1);
   GHepParticle * remnant = 0;
-  int iremnant = -1;
+  //not-used//int iremnant = -1;
   for(int i = target->FirstDaughter(); i <= target->LastDaughter(); i++) {
     remnant  = evrec->Particle(i);
-    iremnant = i;
+    //not-used//iremnant = i;
     if(pdg::IsIon(remnant->Pdg())) break;
   }
 
