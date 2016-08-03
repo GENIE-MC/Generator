@@ -227,7 +227,7 @@ double NievesQELCCPXSec::XSec(const Interaction * interaction,
     double El = leptonMom.E();
     double ElLocal = El - sign*Vc;
     if(ElLocal - ml <= 0.0){
-      LOG("Nieves",pWARN) << "Event should be rejected. Coulomb effects "
+      LOG("Nieves", pDEBUG) << "Event should be rejected. Coulomb effects "
 			  << "push kinematics below threshold. Returning "
 			  << "xsec = 0.0";
       return 0.0;
