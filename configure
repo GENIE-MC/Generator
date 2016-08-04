@@ -23,7 +23,7 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "    lowlevel-mesg     Disable (rather than filter out at run time) prolific       default: disabled \n";
   print "                      debug/info level messages known to slow GENIE down          \n";
   print "    debug             Adds -g in the compiler options to request debug info       default: disabled \n";
-  print "    lhapdf            Use the LHAPDF5 parton density function library             default: disabled \n";
+  print "    lhapdf            Use the LHAPDF5 parton density function library             default: enabled  \n";
   print "    flux-drivers      Built-in flux drivers                                       default: enabled  \n";
   print "    geom-drivers      Built-in detector geometry drivers                          default: enabled  \n";
   print "    vle-extension     GENIE very low energy (1 MeV - 100 MeV) extension           default: disabled (Experimental) \n";
@@ -129,7 +129,7 @@ my $gopt_enable_doxygen_doc      = "NO";
 my $gopt_enable_dylibversion     = "YES";
 my $gopt_enable_lowlevel_mesg    = "NO";
 my $gopt_enable_debug            = "NO";
-my $gopt_enable_lhapdf           = "NO";
+my $gopt_enable_lhapdf           = "YES";
 my $gopt_enable_flux_drivers     = "YES";
 my $gopt_enable_geom_drivers     = "YES";
 my $gopt_enable_vle_extension    = "NO";
@@ -150,6 +150,7 @@ if(($match = grep(/--disable-dylibversion/i,    @ARGV)) > 0) { $gopt_enable_dyli
 if(($match = grep(/--enable-lowlevel-mesg/i,    @ARGV)) > 0) { $gopt_enable_lowlevel_mesg    = "YES"; }
 if(($match = grep(/--enable-debug/i,            @ARGV)) > 0) { $gopt_enable_debug            = "YES"; }
 if(($match = grep(/--enable-lhapdf/i,           @ARGV)) > 0) { $gopt_enable_lhapdf           = "YES"; }
+if(($match = grep(/--disable-lhapdf/i,          @ARGV)) > 0) { $gopt_enable_lhapdf           = "NO"; }
 if(($match = grep(/--disable-flux-drivers/i,    @ARGV)) > 0) { $gopt_enable_flux_drivers     = "NO";  }
 if(($match = grep(/--disable-geom-drivers/i,    @ARGV)) > 0) { $gopt_enable_geom_drivers     = "NO";  }
 if(($match = grep(/--enable-vle-extension/i,    @ARGV)) > 0) { $gopt_enable_vle_extension    = "YES"; }

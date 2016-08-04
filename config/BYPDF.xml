@@ -16,11 +16,11 @@ Q2min                      double  Yes   Min Q2 for PDF evaluation              
 Uncorr-PDF-Set             alg     No    Uncorrected PDF model 
 -->
 
-  <param_set name="Default"> 
+  <param_set name="Optional"> 
      <param type="alg" name="Uncorr-PDF-Set">  genie::GRV98LO/Default </param>
   </param_set>
 
-  <param_set name="Optional"> 
+  <param_set name="Default"> 
      <param type="alg" name="Uncorr-PDF-Set">  genie::PDFLIB/GRVLO  </param>
   </param_set>
 
