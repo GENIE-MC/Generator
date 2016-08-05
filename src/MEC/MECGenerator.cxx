@@ -670,13 +670,25 @@ void MECGenerator::SelectNSVLeptonKinematics (GHepRecord * event) const
 
               LOG("MEC", pDEBUG) << " T, Costh: " << T << ", " << Costh ;
 
-              // TODO: all the PDD stuff has now basically been moved into the XSec calc, we
-              // need to check and be sure the modern analog of the `isPDD` flag is being
-              // set appropriately...
-              // double XSecFour[4];
-              // hadtensor->XSecFour(TgtPDG, NuPDG, Enu, T, Costh, XSecFour, true);
 
+              // We need four different cross sections. Right now, pursue the
+              // inelegant method of calling XSec four times - there is
+              // definitely some runtime inefficiency here, but it is not awful
+
+              // first, get delta-less all
               double XSec = fXSecModel->XSec(interaction, kPSTlctl);
+              interaction->ExclTagPtr()->SetResonance(genie::kP33_1232);
+              // now get all with delta
+              double XSecDelta = fXSecModel->XSec(interaction, kPSTlctl);
+              // now get delta-less PN
+              interaction->ExclTagPtr()->SetResonance(genie::kNoResonance);
+              interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg(kPdgClusterNP);
+              double XSecPN = fXSecModel->XSec(interaction, kPSTlctl);
+              // finally get PN with delta
+              interaction->ExclTagPtr()->SetResonance(genie::kP33_1232);
+              double XSecPNDelta = fXSecModel->XSec(interaction, kPSTlctl);
+              // turn the resonance back off for now
+              interaction->ExclTagPtr()->SetResonance(genie::kNoResonance);
 
               if (XSec > XSecMax) {
                   LOG("MEC", pERROR) << "XSec is > XSecMax for nucleus " << TgtPDG 
