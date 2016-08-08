@@ -15,6 +15,7 @@
 #pragma link C++ class genie::KPhaseSpace;
 
 #pragma link C++ class std::map<genie::KineVar_t,double>+; // in Kinematics object
+#pragma link C++ class std::pair<genie::KineVar_t,double>+; // in Kinematics object
 
 #pragma link C++ ioctortype TRootIOCtor;
 
