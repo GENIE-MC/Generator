@@ -25,5 +25,9 @@ CKM-Vcs                    double  Yes                                          
      <param type="alg" name="PDF-Set">   genie::PDFLIB/GRVLO </param>
   </param_set>
 
+  <param_set name="Optional"> 
+     <param type="alg" name="PDF-Set">  genie::GRV98LO/Default </param>
+  </param_set>
+
 </alg_conf>
 
