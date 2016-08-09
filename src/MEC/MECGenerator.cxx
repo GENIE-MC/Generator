@@ -556,6 +556,7 @@ void MECGenerator::SelectNSVLeptonKinematics (GHepRecord * event) const
 
   double Enu = interaction->InitState().ProbeE(kRfHitNucRest);
 
+  int NuPDG = interaction->InitState().ProbePdg();
   int TgtPDG = interaction->InitState().TgtPdg();
   // interacton vtx
   TLorentzVector v4(*event->Probe()->X4());
@@ -677,18 +678,15 @@ void MECGenerator::SelectNSVLeptonKinematics (GHepRecord * event) const
 
               // first, get delta-less all
               double XSec = fXSecModel->XSec(interaction, kPSTlctl);
-              interaction->ExclTagPtr()->SetResonance(genie::kP33_1232);
               // now get all with delta
+              interaction->ExclTagPtr()->SetResonance(genie::kP33_1232);
               double XSecDelta = fXSecModel->XSec(interaction, kPSTlctl);
+              // get PN with delta
+              interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg(kPdgClusterNP);
+              double XSecDeltaPN = fXSecModel->XSec(interaction, kPSTlctl);
               // now get delta-less PN
               interaction->ExclTagPtr()->SetResonance(genie::kNoResonance);
-              interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg(kPdgClusterNP);
               double XSecPN = fXSecModel->XSec(interaction, kPSTlctl);
-              // finally get PN with delta
-              interaction->ExclTagPtr()->SetResonance(genie::kP33_1232);
-              double XSecPNDelta = fXSecModel->XSec(interaction, kPSTlctl);
-              // turn the resonance back off for now
-              interaction->ExclTagPtr()->SetResonance(genie::kNoResonance);
 
               if (XSec > XSecMax) {
                   LOG("MEC", pERROR) << "XSec is > XSecMax for nucleus " << TgtPDG 
@@ -700,62 +698,51 @@ void MECGenerator::SelectNSVLeptonKinematics (GHepRecord * event) const
                   << XSecMax << ", " << accept; 
 
               if(accept){
-                  // If it passes the All cross section we still need to do two things
-                  // Was the initial state pn or not?
-                  // Do we assign the reaction to have had a Delta on the inside?
+                  // If it passes the All cross section we still need to do two things:
+                  // * Was the initial state pn or not?
+                  // * Do we assign the reaction to have had a Delta on the inside?
 
-                  // TODO: comment this block out for now to get things to compile...
-                  /*
-
-                  // This uses the second hadtensor, delta-only to get a second subset Xsec
-                  // Set PDD "pionless delta decay" if it passes this also.
                   // PDD means from the part of the XSec with an internal Delta line
                   // that (at the diagram level) did not produce a pion in the final state.
-                  // Precompute the two cross sections we need, but throw the random later.
-                  //double XSecDelta = hadtensor->XSecDeltaAll(TgtPDG, NuPDG, Enu, T, Costh);
-                  //double XSecDeltaPN = hadtensor->XSecDeltapn(TgtPDG, NuPDG, Enu, T, Costh);
-                  double XSecDelta = XSecFour[2];
-                  double XSecDeltaPN = XSecFour[3];
-                  bool isPDD = 0;  // this flag is actually set inside the if blocks.
+
+                  bool isPDD = false;
 
                   // Find out if we should use a pn initial state
-                  //double XSecPN= hadtensor->XSecFullpn(TgtPDG, NuPDG, Enu, T, Costh);
-                  double XSecPN = XSecFour[1];
-
                   double myrand = rnd->RndKine().Rndm();
                   double pnFraction = XSecPN / XSec;
-                  LOG("MEC", pINFO) << "RIK test for pn " << XSecPN << " " << XSec 
-                      << " " << pnFraction << " " << myrand;
+                  LOG("MEC", pDEBUG) << "Test for pn: xsec_pn = " << XSecPN 
+                      << "; xsec = " << XSec 
+                      << "; pn_fraction = " << pnFraction
+                      << "; random number val = " << myrand;
 
-                  if ( myrand <= pnFraction){
+                  if (myrand <= pnFraction) {
                       // yes it is, add a PN initial state to event record
                       event->AddParticle(kPdgClusterNP, kIStNucleonTarget,
                               1, -1, -1, -1, tempp4, v4);
-                      init_state->TgtPtr()->SetHitNucPdg(kPdgClusterNP);
+                      interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg(kPdgClusterNP);
 
                       // Its a pn, so test for Delta by comparing DeltaPN/PN
-                      if (rnd->RndKine().Rndm() <= XSecDeltaPN/XSecPN) {
-                          isPDD=1;
+                      if (rnd->RndKine().Rndm() <= XSecDeltaPN / XSecPN) {
+                          isPDD = true;
                       }
                   }
                   else {
-                      // no it is not, add either NN or PP initial state to event record.
+                      // no it is not a PN, add either NN or PP initial state to event record.
                       if (NuPDG > 0) {
                           event->AddParticle(kPdgClusterNN, kIStNucleonTarget,
                                   1, -1, -1, -1, tempp4, v4);
-                          init_state->TgtPtr()->SetHitNucPdg(kPdgClusterNN);
+                          interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg(kPdgClusterNN);
                       }
                       else {
                           event->AddParticle(kPdgClusterPP, kIStNucleonTarget,
                                   1, -1, -1, -1, tempp4, v4);
-                          init_state->TgtPtr()->SetHitNucPdg(kPdgClusterPP); 
+                          interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg(kPdgClusterPP); 
                       }
-
                       // its not pn, so test for Delta (XSecDelta-XSecDeltaPN)/(XSec-XSecPN)
                       // right, both numerator and denominator are total not pn.
                       if (rnd->RndKine().Rndm() <=
                               (XSecDelta - XSecDeltaPN) / (XSec - XSecPN)) {
-                          isPDD = 1;
+                          isPDD = true;
                       }
                   }
 
@@ -763,24 +750,22 @@ void MECGenerator::SelectNSVLeptonKinematics (GHepRecord * event) const
                   // and assign that fact to the Exclusive State tag
                   // later, we can query const XclsTag & xcls = interaction->ExclTag() 
                   if (isPDD){
-                      XclsTag * xcls = interaction->ExclTagPtr();
-                      xcls->SetResonance(kP33_1232);		
+                      interaction->ExclTagPtr()->SetResonance(genie::kP33_1232);
                   }
 
-                  */  // end of long comment block - see TODO above...
 
               } // end if accept
-          }// end if delta ==1
+          } // end if delta == 1
 
           /* One can make simpler versions of the above for the
              FullDeltaNodelta == 2 (only delta)
              or
              FullDeltaNodelta == 3 (set Delta FF = 1, lose interference effect).
-             but I don't see what the use-case is for these, genratorly speaking.
+             but I (Rik) don't see what the use-case is for these, genratorly speaking.
              */
 
       }// end if passes q3 test
-  }// end while
+  } // end while
 
   // -- finish lepton kinematics
   // If the code got here, then we accepted some kinematics
