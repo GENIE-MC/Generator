@@ -15,6 +15,7 @@
 #pragma link C++ class genie::AxialFormFactor;
 #pragma link C++ class genie::DipoleAxialFormFactorModel;
 #pragma link C++ class genie::ZExpAxialFormFactorModel;
+#pragma link C++ class genie::KuzminNaumov2016AxialFormFactorModel;
 #pragma link C++ class genie::NievesQELCCPXSec;
 
 #endif
