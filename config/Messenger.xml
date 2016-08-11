@@ -116,6 +116,7 @@
   <priority msgstream="KNOHad">                WARN   </priority> 
   <priority msgstream="KineLimits">            INFO   </priority>
   <priority msgstream="Kinematics">            NOTICE </priority>
+  <priority msgstream="KuzminNaumov2016MA">    NOTICE </priority>
   <priority msgstream="KPhaseSpace">           NOTICE </priority>
   <priority msgstream="LeptonicVertex">        WARN   </priority>
   <priority msgstream="LocalFGM">              WARN   </priority>
@@ -177,6 +178,7 @@
   <priority msgstream="XSecBase">              NOTICE </priority>
   <priority msgstream="XSecAlgMap">            NOTICE </priority>
   <priority msgstream="XSecSplLst">            NOTICE </priority>
+  <priority msgstream="ZExpAxialFormFactorModel"> NOTICE </priority>
 
   <priority msgstream="gevgen">              NOTICE </priority>
   <priority msgstream="gevgen_ndcy">         NOTICE </priority>
