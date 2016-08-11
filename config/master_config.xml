@@ -89,22 +89,23 @@
    <config alg="genie::BaryonResonanceDecayer">      BaryonResonanceDecayer.xml      </config>
    
    <!--  ****** CONFIGURATION FORM FACTOR and STRUCTURE FUNCTION ALGORITHMS ****** -->
-   <config alg="genie::DipoleELFormFactorsModel">    DipoleELFormFactorsModel.xml    </config>
-   <config alg="genie::BBA03ELFormFactorsModel">     BBA03ELFormFactorsModel.xml     </config>
-   <config alg="genie::BBA05ELFormFactorsModel">     BBA05ELFormFactorsModel.xml     </config>
-   <config alg="genie::DipoleAxialFormFactorModel">  DipoleAxialFormFactorModel.xml  </config>
-   <config alg="genie::ZExpAxialFormFactorModel">    ZExpAxialFormFactorModel.xml    </config>
-   <config alg="genie::LwlynSmithFFCC">              LwlynSmithFFCC.xml              </config>
-   <config alg="genie::LwlynSmithFFDeltaS">          LwlynSmithFFDeltaS.xml          </config>
-   <config alg="genie::TransverseEnhancementFFModel"> TransverseEnhancementFFModel.xml </config>
-   <config alg="genie::LwlynSmithFFNC">              LwlynSmithFFNC.xml              </config>
-   <config alg="genie::QPMDISStrucFunc">             QPMDISStrucFunc.xml             </config>
-   <config alg="genie::BYStrucFunc">                 BYStrucFunc.xml                 </config>
-   <config alg="genie::RSHelicityAmplModelCC">       RSHelicityAmplModelCC.xml       </config>
-   <config alg="genie::RSHelicityAmplModelNCp">      RSHelicityAmplModelNCp.xml      </config>
-   <config alg="genie::RSHelicityAmplModelNCn">      RSHelicityAmplModelNCn.xml      </config>
-   <config alg="genie::RSHelicityAmplModelEMp">      RSHelicityAmplModelEMp.xml      </config>
-   <config alg="genie::RSHelicityAmplModelEMn">      RSHelicityAmplModelEMn.xml      </config>
+   <config alg="genie::DipoleELFormFactorsModel">                DipoleELFormFactorsModel.xml                </config>
+   <config alg="genie::BBA03ELFormFactorsModel">                 BBA03ELFormFactorsModel.xml                 </config>
+   <config alg="genie::BBA05ELFormFactorsModel">                 BBA05ELFormFactorsModel.xml                 </config>
+   <config alg="genie::DipoleAxialFormFactorModel">              DipoleAxialFormFactorModel.xml              </config>
+   <config alg="genie::ZExpAxialFormFactorModel">                ZExpAxialFormFactorModel.xml                </config>
+   <config alg="genie::KuzminNaumov2016AxialFormFactorModel">    KuzminNaumov2016AxialFormFactorModel.xml    </config>
+   <config alg="genie::LwlynSmithFFCC">                          LwlynSmithFFCC.xml                          </config>
+   <config alg="genie::LwlynSmithFFDeltaS">                      LwlynSmithFFDeltaS.xml                      </config>
+   <config alg="genie::TransverseEnhancementFFModel">            TransverseEnhancementFFModel.xml            </config>
+   <config alg="genie::LwlynSmithFFNC">                          LwlynSmithFFNC.xml                          </config>
+   <config alg="genie::QPMDISStrucFunc">                         QPMDISStrucFunc.xml                         </config>
+   <config alg="genie::BYStrucFunc">                             BYStrucFunc.xml                             </config>
+   <config alg="genie::RSHelicityAmplModelCC">                   RSHelicityAmplModelCC.xml                   </config>
+   <config alg="genie::RSHelicityAmplModelNCp">                  RSHelicityAmplModelNCp.xml                  </config>
+   <config alg="genie::RSHelicityAmplModelNCn">                  RSHelicityAmplModelNCn.xml                  </config>
+   <config alg="genie::RSHelicityAmplModelEMp">                  RSHelicityAmplModelEMp.xml                  </config>
+   <config alg="genie::RSHelicityAmplModelEMn">                  RSHelicityAmplModelEMn.xml                  </config>
 
    <!--  ****** CONFIGURATION GENERIC CROSS SECTION INTEGRATORS ****** -->
    <config alg="genie::QELXSec">                     QELXSec.xml                     </config>

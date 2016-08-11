@@ -29,5 +29,8 @@ WeinbergAngle            double   Yes        Weinberg angle              GPL: We
      <param type="alg" name="AxialFormFactorModel"> genie::ZExpAxialFormFactorModel/Default </param>
   </param_set>
 
+  <param_set name="RunningMA"> 
+     <param type="alg" name="AxialFormFactorModel"> genie::KuzminNaumov2016AxialFormFactorModel/Default </param>
+  </param_set>
 </alg_conf>
 
