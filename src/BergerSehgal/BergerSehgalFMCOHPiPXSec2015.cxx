@@ -187,7 +187,7 @@ double BergerSehgalFMCOHPiPXSec2015::XSec(
     << "\n pion absorption factor ......... Fabs  = " << Fabs
     << "\n t integration factor ........... tint  = " << tint;
   LOG("BergerSehgalFMCohPi", pINFO)
-    << "d2xsec/dxdy[COHPi] (x= " << x << ", y="
+    << "d3xsec/dQ2dydt[COHPi] (x= " << x << ", y="
     << y << ", E=" << E << ") = "<< xsec;
 #endif
 
