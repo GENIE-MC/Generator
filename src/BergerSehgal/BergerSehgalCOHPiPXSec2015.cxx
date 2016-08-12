@@ -107,6 +107,9 @@ double BergerSehgalCOHPiPXSec2015::XSec(
   double tB     = TMath::Sqrt(1.0 + 2 * MxEpi) * TMath::Sqrt(1.0 - mEpi2);
   double tmin   = 2 * Epi2 * (tA - tB);
   double tmax   = 2 * Epi2 * (tA + tB);
+  if (tmin < 1.0e-8) {
+      tmin = 1.0e-8;
+  }
 
   /* const KPhaseSpace & kphase = interaction->PhaseSpace(); */
   /* Range1D_t tl = kphase.TLim();   // TESTING! */
