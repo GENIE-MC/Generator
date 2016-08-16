@@ -122,6 +122,10 @@
 #include <vector>
 #include <map>
 
+#if defined(HAVE_FENV_H) && defined(HAVE_FEENABLEEXCEPT)
+#include <fenv.h> // for `feenableexcept`
+#endif
+
 #include <TFile.h>
 #include <TTree.h>
 #include <TSystem.h>
@@ -208,6 +212,10 @@ int main(int argc, char ** argv)
   GetCommandLineArgs(argc,argv);
   Initialize();
 
+  // throw on NaNs and Infs...
+#if defined(HAVE_FENV_H) && defined(HAVE_FEENABLEEXCEPT)
+  feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
+#endif
   //
   // Generate neutrino events
   //
