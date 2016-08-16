@@ -82,6 +82,10 @@
 #include <string>
 #include <vector>
 
+#if defined(HAVE_FENV_H) && defined(HAVE_FEENABLEEXCEPT)
+#include <fenv.h> // for `feenableexcept`
+#endif
+
 #include <TSystem.h>
 
 #include "Conventions/GBuild.h"
@@ -132,6 +136,11 @@ int main(int argc, char ** argv)
 {
   // Parse command line arguments
   GetCommandLineArgs(argc,argv);
+
+  // throw on NaNs and Infs...
+#if defined(HAVE_FENV_H) && defined(HAVE_FEENABLEEXCEPT)
+  feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
+#endif
 
   // Init
   utils::app_init::MesgThresholds(RunOpt::Instance()->MesgThresholdFiles());
