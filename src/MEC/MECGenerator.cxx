@@ -677,6 +677,12 @@ void MECGenerator::SelectNSVLeptonKinematics (GHepRecord * event) const
               // definitely some runtime inefficiency here, but it is not awful
 
               // first, get delta-less all
+              if (NuPDG > 0) {
+                  interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg(kPdgClusterNP);
+              }
+              else {
+                  interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg(kPdgClusterPP);
+              }
               double XSec = fXSecModel->XSec(interaction, kPSTlctl);
               // now get all with delta
               interaction->ExclTagPtr()->SetResonance(genie::kP33_1232);
