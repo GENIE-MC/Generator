@@ -678,7 +678,7 @@ void MECGenerator::SelectNSVLeptonKinematics (GHepRecord * event) const
 
               // first, get delta-less all
               if (NuPDG > 0) {
-                  interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg(kPdgClusterNP);
+                  interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg(kPdgClusterNN);
               }
               else {
                   interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg(kPdgClusterPP);
