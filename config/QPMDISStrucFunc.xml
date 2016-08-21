@@ -17,6 +17,8 @@ CKM-Vcd                    double  Yes                                          
 CKM-Vcs                    double  Yes                                          GPL: CKM-Vcs
 CKM-Vud                    double  Yes                                          GPL: CKM-Vud
 CKM-Vcs                    double  Yes                                          GPL: CKM-Vus
+Use2016Corrections         bool    Yes   Use SF corrections?                    GPL: DISSF-Use2016Corrections
+LowQ2CutoffF1F2            double  Yes   min for F1/F2 SF relation              GPL: DISSF-LowQ2CutoffF1F2
 -->
 
 <alg_conf>

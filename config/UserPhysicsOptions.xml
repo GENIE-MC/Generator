@@ -76,10 +76,14 @@ STFC, Rutherford Appleton Laboratory
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Switches controlling the DIS structure function calculation. Those switches specify whether to:
   - include an R (~FL) factor into the calculation
-  - include a nuclear factor (accounting for shadowing/anti-shadowing) 
+  - include a nuclear factor (accounting for shadowing/anti-shadowing)
+  - include corrections for calculating relation between 2xF1 and F2
+  - Select value for Q2 cutoff in relation between 2xF1 and F2
   -->
-  <param type="bool" name="DISSF-IncludeR">       true </param>
-  <param type="bool" name="DISSF-IncludeNuclMod"> true </param>
+  <param type="bool"   name="DISSF-IncludeR">           true </param>
+  <param type="bool"   name="DISSF-IncludeNuclMod">     true </param>
+  <param type="bool"   name="DISSF-Use2016Corrections"> false</param>
+  <param type="double" name="DISSF-LowQ2CutoffF1F2">    0.8  </param>
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
