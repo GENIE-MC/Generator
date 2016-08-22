@@ -120,17 +120,17 @@ double ReinSehgalSPPXSec::Integrate(
      //-- Get the BR for the (resonance) -> (exclusive final state)
      double br = SppChannel::BranchingRatio(spp_channel, res);
 
-     //-- Get the Isospin Glebsch-Gordon coefficient for the given resonance
+     //-- Get the Isospin Clebsch-Gordon coefficient for the given resonance
      //   and exclusive final state
      double igg = SppChannel::IsospinWeight(spp_channel, res);
 
      //-- Compute the weighted xsec
-     //  (total weight = Breit-Wigner * BR * isospin Glebsch-Gordon)
+     //  (total weight = Breit-Wigner * BR * isospin Clebsch-Gordon)
      double res_xsec_contrib = rxsec*br*igg;
 
      SLOG("ReinSehgalSpp", pINFO)
        << "Contrib. from [" << utils::res::AsString(res) << "] = "
-       << "<Glebsch-Gordon = " << igg
+       << "<Clebsch-Gordon = " << igg
        << "> * <BR(->1pi) = " << br
        << "> * <Breit-Wigner * d^2xsec/dQ^2dW = " << rxsec
        << "> = " << res_xsec_contrib;
