@@ -11,7 +11,7 @@ Name               Type     Optional   Comment                          Default
 .....................................................................................................
 FormFactorsAlg     alg      No         QEL form factors algorithm
 XSec-Integrator    alg      No
-CabbiboAngle       double   Yes        Cabbibo angle                    GPL value: CabbiboAngle
+CabibboAngle       double   Yes        Cabibbo angle                    GPL value: CabibboAngle
 
 .....................................................................................................
 Parameters needed when Integrating with this model to generate splines:
