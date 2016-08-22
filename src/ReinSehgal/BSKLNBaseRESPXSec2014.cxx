@@ -497,7 +497,7 @@ double BSKLNBaseRESPXSec2014::XSec(
         if(is_CC && is_KLN ){
           fFKR.S = KNL_S_minus;        //2 times fFKR.S?
           fFKR.B = KNL_B_minus;
-          fFKR.S = KNL_C_minus;
+          fFKR.C = KNL_C_minus;
 
           hamplmod_KNL_minus = fHAmplModelCC;
 
@@ -527,7 +527,7 @@ double BSKLNBaseRESPXSec2014::XSec(
           if(is_CC && is_BRS ){
             fFKR.S = BRS_S_minus;
             fFKR.B = BRS_B_minus;
-            fFKR.S = BRS_C_minus;
+            fFKR.C = BRS_C_minus;
 
             hamplmod_BRS_minus = fHAmplModelCC;
             assert(hamplmod_BRS_minus);
