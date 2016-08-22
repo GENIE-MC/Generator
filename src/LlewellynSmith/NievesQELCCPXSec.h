@@ -58,7 +58,7 @@ private:
   mutable QELFormFactors       fFormFactors;      ///<
   const QELFormFactorsModelI * fFormFactorsModel; ///<
   const XSecIntegratorI *      fXSecIntegrator;   ///<
-  double                       fCos8c2;           ///< cos^2(cabbibo angle)
+  double                       fCos8c2;           ///< cos^2(cabibbo angle)
 
   double                       fhbarc;            ///< hbar*c in GeV*fm
 

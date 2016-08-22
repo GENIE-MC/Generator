@@ -59,7 +59,7 @@ namespace genie {
       //-- private data members loaded from config Registry or set to defaults
       double fMa;          ///< axial mass
       double fRo;          ///< nuclear size scale parameter
-      double fCos8c2;      ///< cos^2(Cabbibo angle)
+      double fCos8c2;      ///< cos^2(Cabibbo angle)
       bool fRSPionXSec;    ///< Use Rein-Sehgal "style" pion-nucleon xsecs
 
       const XSecIntegratorI * fXSecIntegrator;
