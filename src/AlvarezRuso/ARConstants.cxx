@@ -37,7 +37,7 @@ ARConstants::ARConstants() {
   COHAR_b5          = reg->GetDouble("COHAR-b5");
   COHAR_fPi_byHbar  = reg->GetDouble("COHAR-fPi") / HBar();
   COHAR_fStar       = reg->GetDouble("COHAR-fStar");
-  fCosCabbiboAngle  = TMath::Cos(reg->GetDouble("CabbiboAngle"));
+  fCosCabibboAngle  = TMath::Cos(reg->GetDouble("CabibboAngle"));
   fSinWeinbergAngle = TMath::Sin(reg->GetDouble("WeinbergAngle"));
   
   massElectron = genie::PDGLibrary::Instance()->Find(genie::kPdgElectron)->Mass() / HBar();
@@ -100,7 +100,7 @@ double ARConstants::DeltaNCoupling() {
   return COHAR_fStar;
 }
 double ARConstants::CosCabibboAngle() {
-  return fCosCabbiboAngle;
+  return fCosCabibboAngle;
 }
 double ARConstants::SinWeinbergAngle() {
   return fSinWeinbergAngle;

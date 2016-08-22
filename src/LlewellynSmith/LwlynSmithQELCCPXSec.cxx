@@ -361,7 +361,7 @@ void LwlynSmithQELCCPXSec::LoadConfig(void)
   const Registry * gc = confp->GlobalParameterList();
   
   double thc = fConfig->GetDoubleDef(
-                              "CabbiboAngle", gc->GetDouble("CabbiboAngle"));
+                              "CabibboAngle", gc->GetDouble("CabibboAngle"));
   fCos8c2 = TMath::Power(TMath::Cos(thc), 2);
 
    // load QEL form factors model

@@ -416,7 +416,7 @@ void NievesQELCCPXSec::LoadConfig(void)
   const Registry * gc = confp->GlobalParameterList();
   
   double thc = fConfig->GetDoubleDef(
-                              "CabbiboAngle", gc->GetDouble("CabbiboAngle"));
+                              "CabibboAngle", gc->GetDouble("CabibboAngle"));
   fCos8c2 = TMath::Power(TMath::Cos(thc), 2);
 
   // hbarc for unit conversion, GeV*fm

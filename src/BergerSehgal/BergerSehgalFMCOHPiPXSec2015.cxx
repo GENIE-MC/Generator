@@ -158,7 +158,7 @@ double BergerSehgalFMCOHPiPXSec2015::XSec(
     double C = 1.;
     // First, we need to remove the leading G_{A}^2 which is required for NC.
     xsec /= Ga2;
-    // Next, \cos^2 \theta_{Cabbibo} appears in the CC xsec, but not the NC.
+    // Next, \cos^2 \theta_{Cabibbo} appears in the CC xsec, but not the NC.
     xsec *= fCos8c2;
     double ml    = interaction->FSPrimLepton()->Mass();
     double ml2   = TMath::Power(ml,2);
@@ -286,7 +286,7 @@ void BergerSehgalFMCOHPiPXSec2015::LoadConfig(void)
 
   fMa         = fConfig->GetDoubleDef("Ma",           gc->GetDouble("COH-Ma"));
   fRo         = fConfig->GetDoubleDef("Ro",           gc->GetDouble("COH-Ro"));
-  double thc  = fConfig->GetDoubleDef("CabbiboAngle", gc->GetDouble("CabbiboAngle"));
+  double thc  = fConfig->GetDoubleDef("CabibboAngle", gc->GetDouble("CabibboAngle"));
   fCos8c2     = TMath::Power(TMath::Cos(thc), 2);
 
   // fRSPionXSec => Do not use the pion-nucleus cross section from Table 1 in PRD 79, 053003
