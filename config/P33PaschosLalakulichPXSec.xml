@@ -12,7 +12,7 @@ Name             Type     Optional   Comment                        Default
 Ma               double   Yes        RES axial mass                 GPL: RES-Ma
 Mv               double   Yes        RES vector mass                GPL: RES-Mv
 BaryonResData    alg      No         Baryon resonanace dt=ata
-CabbiboAngle     double   Yes        Cabbibo angle                  GPL: CabiboAngle
+CabibboAngle     double   Yes        Cabibbo angle                  GPL: CabiboAngle
 TurnOnPauliSuppr bool     Yes        Use Pauli suppression factor   false
 -->
 
