@@ -6,7 +6,7 @@
 \brief    Is a concrete implementation of the QELFormFactorsModelI:
           Form Factors for Quasi Elastic CC vN Delta S=1 scattering.
 
-\ref      Equations for the strange form factors are taken from Cabbibo 
+\ref      Equations for the strange form factors are taken from Cabibbo 
           and Chilton, Phys.Rev. 137 (1965) B1628-B1634 and 
           Alam et al., J.Phys. G42 (2015) no.5, 055107.
 

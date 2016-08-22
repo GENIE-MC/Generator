@@ -79,7 +79,7 @@ private:
   double FinalStateCorr(const double Ee) const;
 
   // variables
-  double                  fCosCabibbo2;    //  cos^2(cabbibo)
+  double                  fCosCabibbo2;    //  cos^2(cabibbo)
   double                  fg1of0;          //  axial form factor at q2=0
   double                  fMa2;            //  axial mass squared
   double                  fMv2;            //  vector mass squared

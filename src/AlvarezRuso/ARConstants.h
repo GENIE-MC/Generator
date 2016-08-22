@@ -79,7 +79,7 @@ class ARConstants
     double COHAR_b5          ;
     double COHAR_fPi_byHbar  ;
     double COHAR_fStar       ;
-    double fCosCabbiboAngle  ;
+    double fCosCabibboAngle  ;
     double fSinWeinbergAngle ;
     
     double massElectron      ;
