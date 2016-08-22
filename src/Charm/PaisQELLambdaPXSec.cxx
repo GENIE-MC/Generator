@@ -231,7 +231,7 @@ void PaisQELLambdaPXSec::LoadConfig(void)
   const Registry * gc = confp->GlobalParameterList();
 
   double thc = fConfig->GetDoubleDef(
-                              "CabbiboAngle", gc->GetDouble("CabbiboAngle"));
+                              "CabibboAngle", gc->GetDouble("CabibboAngle"));
   fSin8c2 = TMath::Power(TMath::Sin(thc), 2);
 
    // load QEL form factors model
