@@ -197,20 +197,6 @@ double BSKLNBaseRESPXSec2014::XSec(
     //ml=0;
     LOG("BSKLNBaseRESPXSec2014",pINFO) "q2="<<q2<< "m2="<<ml*ml<<" 2.*E*Eprime="<<2.*E*Eprime<<" nom="<< (q2 - ml*ml + 2.*E*Eprime)<<" den="<<2.*E*Pl;
     LOG("BSKLNBaseRESPXSec2014",pINFO) "costh2="<<costh;
-    Pl = TMath::Sqrt(Eprime*Eprime - ml*ml);
-
-    if(costh <= -1. + 1e-7) {
-      LOG("BSKLNBaseRESPXSec2014", pDEBUG)
-        << "Changing costh = " << costh << " to -1";
-      costh = -1 + 1e-6;
-    }
-    if(costh >= 1. - 1e-7){
-      LOG("BSKLNBaseRESPXSec2014", pDEBUG)
-        << "Changing costh = " << costh << " to 1";
-      costh = 1 - 1e-6;
-    }
-    vstar = (Mnuc*v + q2)/W;//missing W
-    Qstar = TMath::Sqrt(-q2 + vstar*vstar);
 
     KNL_Alambda_plus  = TMath::Sqrt(E*(Eprime - Pl));
     KNL_Alambda_minus = TMath::Sqrt(E*(Eprime + Pl));
