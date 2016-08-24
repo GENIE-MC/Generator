@@ -13,7 +13,7 @@
          weights and TArrayD for each requested systematic of all of the
          corresponding randomly generated tweak dial values.
 
-\syntax  grwghtcov \
+\syntax  grwghtnp \
            -f input_event_file 
            -c input_covariance_file
            -s systematic1[,systematic2[,...]] 
@@ -143,16 +143,16 @@ int main(int argc, char ** argv)
   tree = dynamic_cast <TTree *>           ( file.Get("gtree")  );
   thdr = dynamic_cast <NtpMCTreeHeader *> ( file.Get("header") );
   if(!tree){
-    LOG("grwghtcov", pFATAL)
+    LOG("grwghtnp", pFATAL)
       << "Can't find a GHEP tree in input file: "<< file.GetName();
     gAbortingInErr = true;
     PrintSyntax();
     exit(1);
   }
-  LOG("grwghtcov", pNOTICE) << "Input tree header: " << *thdr;
+  LOG("grwghtnp", pNOTICE) << "Input tree header: " << *thdr;
   if(!FindIncompatibleSystematics(gOptVSyst))
   {
-    LOG("grwghtcov", pFATAL) << "Error: conflicting systematics";
+    LOG("grwghtnp", pFATAL) << "Error: conflicting systematics";
     gAbortingInErr = true;
     exit(1);
   }
@@ -176,9 +176,9 @@ int main(int argc, char ** argv)
   GetCorrelationMatrix(gOptInpCovariance,cmat);
   TMatrixD lTri = CholeskyDecomposition(*cmat);
 
-  //LOG("grwghtcov", pNOTICE) << "Correlation matrix:";
+  //LOG("grwghtnp", pNOTICE) << "Correlation matrix:";
   //cmat->Print();
-  //LOG("grwghtcov", pNOTICE) << "Lower triangular matrix:";
+  //LOG("grwghtnp", pNOTICE) << "Lower triangular matrix:";
   //lTri.Print();
 
   NtpMCEventRecord * mcrec = 0;
@@ -190,7 +190,7 @@ int main(int argc, char ** argv)
   GetEventRange(nev_in_file, nfirst, nlast);
   int nev = int(nlast - nfirst + 1);
 
-  LOG("grwghtcov", pNOTICE) << "Will process " << nev << " events";
+  LOG("grwghtnp", pNOTICE) << "Will process " << nev << " events";
 
   //
   // Create a GReWeight object and add to it a set of 
@@ -247,7 +247,7 @@ int main(int argc, char ** argv)
     // Later consolidate the trees into a single tree with the requested filename
     tmpName.str("");
     tmpName << "_temporary_rwght." <<itk <<"." <<gOptRunKey <<".root";
-    LOG("grwghtcov", pINFO) <<"temporary file: " <<tmpName.str();
+    LOG("grwghtnp", pINFO) <<"temporary file: " <<tmpName.str();
     wght_file = new TFile(tmpName.str().c_str(),"RECREATE");
     wght_tree = new TTree("covrwt","GENIE weights tree");
 
@@ -266,7 +266,7 @@ int main(int argc, char ** argv)
       twk_dial_brnch_name << "twk_" << GSyst::AsString(*it);
       // each array element individually
       wght_tree->Branch(twk_dial_brnch_name.str().c_str(), &twkvals(ip));
-      //LOG("grwghtcov", pINFO) << "Setting systematic : "
+      //LOG("grwghtnp", pINFO) << "Setting systematic : "
       //  <<GSyst::AsString(*it) <<", " <<twkvals(ip);
       syst.Set(*it,twkvals(ip));
     }
@@ -345,12 +345,12 @@ int main(int argc, char ** argv)
 
     // create branch
     wght_tree->Branch(twk_dial_brnch_name.str().c_str(), branch_twkdials_array[ip]);
-    LOG("grwghtcov", pINFO) << "Creating tweak branch : " << twk_dial_brnch_name.str();
+    LOG("grwghtnp", pINFO) << "Creating tweak branch : " << twk_dial_brnch_name.str();
  
     // set up loading directly into TArrayD
     for (int i=0; i < n_tweaks; i++) { 
       wght_list[i]->SetBranchAddress(twk_dial_brnch_name.str().c_str(),&branch_twkdials_ptr[ip][i]);
-      //LOG("grwghtcov", pINFO) << "Loading tweak value : "<<branch_twkdials_array[ip]->fArray[i];
+      //LOG("grwghtnp", pINFO) << "Loading tweak value : "<<branch_twkdials_array[ip]->fArray[i];
     }
   }
  
@@ -378,9 +378,9 @@ int main(int argc, char ** argv)
     tmpName.str("");
     tmpName << "_temporary_rwght." <<itk <<"." <<gOptRunKey <<".root";
     if( remove(tmpName.str().c_str()) != 0 )
-    { LOG("grwghtcov", pWARN) << "Could not delete temporary file : " << tmpName.str(); }
+    { LOG("grwghtnp", pWARN) << "Could not delete temporary file : " << tmpName.str(); }
     //else 
-    //{ LOG("grwghtcov", pINFO) << "Deleted temporary file : " << tmpName.str(); }
+    //{ LOG("grwghtnp", pINFO) << "Deleted temporary file : " << tmpName.str(); }
   }
 
   // free memory
@@ -392,22 +392,22 @@ int main(int argc, char ** argv)
     delete branch_twkdials_array[ipr];
   }
 
-  LOG("grwghtcov", pNOTICE)  << "Done!";
+  LOG("grwghtnp", pNOTICE)  << "Done!";
   return 0;
 }
 //___________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
 {
-  LOG("grwghtcov", pINFO) << "*** Parsing command line arguments";
+  LOG("grwghtnp", pINFO) << "*** Parsing command line arguments";
 
   CmdLnArgParser parser(argc,argv);
 
   // get GENIE event sample
   if( parser.OptionExists('f') ) {  
-    LOG("grwghtcov", pINFO) << "Reading event sample filename";
+    LOG("grwghtnp", pINFO) << "Reading event sample filename";
     gOptInpFilename = parser.ArgAsString('f');
   } else {
-    LOG("grwghtcov", pFATAL) 
+    LOG("grwghtnp", pFATAL) 
       << "Unspecified input filename - Exiting";
     PrintSyntax();
     exit(1);
@@ -415,10 +415,10 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   // get ROOT covariance matrix binary file
   if( parser.OptionExists('c') ) {  
-    LOG("grwghtcov", pINFO) << "Reading covariance matrix filename";
+    LOG("grwghtnp", pINFO) << "Reading covariance matrix filename";
     gOptInpCovariance = parser.ArgAsString('c');
   } else {
-    LOG("grwghtcov", pFATAL) 
+    LOG("grwghtnp", pFATAL) 
       << "Unspecified covariance filename - Exiting";
     PrintSyntax();
     exit(1);
@@ -426,21 +426,21 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   // output weight file
   if(parser.OptionExists('o')) {
-    LOG("grwghtcov", pINFO) << "Reading requested output filename";
+    LOG("grwghtnp", pINFO) << "Reading requested output filename";
     gOptOutFilename = parser.ArgAsString('o');
   } else {
-    LOG("grwghtcov", pINFO) << "Setting default output filename";
+    LOG("grwghtnp", pINFO) << "Setting default output filename";
     gOptOutFilename = "rwt_cov.root";
   }
 
   if ( parser.OptionExists('n') ) {
     //
-    LOG("grwghtcov", pINFO) << "Reading number of events to analyze";
+    LOG("grwghtnp", pINFO) << "Reading number of events to analyze";
     string nev =  parser.ArgAsString('n');
     if (nev.find(",") != string::npos) {
       vector<long> vecn = parser.ArgAsLongTokens('n',",");
       if(vecn.size()!=2) {
-         LOG("grwghtcov", pFATAL) << "Invalid syntax";
+         LOG("grwghtnp", pFATAL) << "Invalid syntax";
          gAbortingInErr = true;
          PrintSyntax();
          exit(1);
@@ -456,17 +456,17 @@ void GetCommandLineArgs(int argc, char ** argv)
       gOptNEvt2 = parser.ArgAsLong('n');
     }
   } else {
-    LOG("grwghtcov", pINFO)
+    LOG("grwghtnp", pINFO)
       << "Unspecified number of events to analyze - Use all";
     gOptNEvt1 = -1;
     gOptNEvt2 = -1;
   }
-  LOG("grwghtcov", pDEBUG)
+  LOG("grwghtnp", pDEBUG)
     << "Input event range: " << gOptNEvt1 << ", " << gOptNEvt2;
 
   // systematics:
   if( parser.OptionExists('s') ) {
-    LOG("grwghtcov", pINFO) << "Reading systematics";
+    LOG("grwghtnp", pINFO) << "Reading systematics";
     string insyst = parser.ArgAsString('s');
     vector<string> lsyst = utils::str::Split(insyst, ",");
     vector<string>::iterator it;
@@ -474,11 +474,11 @@ void GetCommandLineArgs(int argc, char ** argv)
     for(it=lsyst.begin();it != lsyst.end();it++,ik++)
     {
       gOptVSyst.push_back(GSyst::FromString(*it));
-      LOG("grwghtcov",pINFO)<<"Read systematic "<<ik+1<<" : "<< lsyst[ik];
+      LOG("grwghtnp",pINFO)<<"Read systematic "<<ik+1<<" : "<< lsyst[ik];
     }
     // split into strings of systematics
     gOptNSyst = gOptVSyst.size();
-    LOG("grwghtcov", pINFO) << "Number of systematics : " << gOptNSyst;
+    LOG("grwghtnp", pINFO) << "Number of systematics : " << gOptNSyst;
   } else {
     LOG("rwghtcov", pFATAL) 
       << "Unspecified systematics - Exiting";
@@ -488,7 +488,7 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   // systematic central values:
   if( parser.OptionExists('v') ) {
-    LOG("grwghtcov", pINFO) << "Reading parameter central values";
+    LOG("grwghtnp", pINFO) << "Reading parameter central values";
     gOptVCentVal  = parser.ArgAsDoubleTokens('v',",");
     // check size
     if (gOptNSyst != (int)gOptVCentVal.size()) {
@@ -506,18 +506,18 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   // number of tweaks:
   if( parser.OptionExists('t') ) {
-    LOG("grwghtcov", pINFO) << "Reading number of tweaks";
+    LOG("grwghtnp", pINFO) << "Reading number of tweaks";
     gOptNTwk = parser.ArgAsInt('t');
     
     if( gOptNTwk < 1 )
     {
-      LOG("grwghtcov", pFATAL) << "Must have at least 1 tweak - Exiting";
+      LOG("grwghtnp", pFATAL) << "Must have at least 1 tweak - Exiting";
       PrintSyntax();
       exit(1);
     }
-    LOG("grwghtcov",pINFO)<<"Number of tweaks : "<< gOptNTwk;
+    LOG("grwghtnp",pINFO)<<"Number of tweaks : "<< gOptNTwk;
   } else {
-    LOG("grwghtcov", pFATAL) 
+    LOG("grwghtnp", pFATAL) 
       << "Unspecified tweaks for parameters - Exiting";
     PrintSyntax();
     exit(1);
@@ -525,10 +525,10 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   // run key:
   if( parser.OptionExists('r') ) {
-    LOG("grwghtcov", pINFO) << "Reading run key";
+    LOG("grwghtnp", pINFO) << "Reading run key";
     gOptRunKey = parser.ArgAsInt('r');
     
-    LOG("grwghtcov", pINFO) 
+    LOG("grwghtnp", pINFO) 
       << "Run key set to " <<gOptRunKey;
   }
 
@@ -590,17 +590,17 @@ void GetCorrelationMatrix(string fname, TMatrixD *& cmat)
   // checks 
   fin->Close();
   if (!inmat) {
-    LOG("grwghtcov", pFATAL) << "Error reading covariance matrix - Exiting";
+    LOG("grwghtnp", pFATAL) << "Error reading covariance matrix - Exiting";
     gAbortingInErr = true;
     exit(1);
   }
   if (inmat->GetNrows() != inmat->GetNcols()) {
-    LOG("grwghtcov", pFATAL) << "Covariance matrix not square - Exiting";
+    LOG("grwghtnp", pFATAL) << "Covariance matrix not square - Exiting";
     gAbortingInErr = true;
     exit(1);
   }
   if (inmat->GetNrows() != gOptNSyst ){
-    LOG("grwghtcov", pFATAL) << "Number of systematics does not match covariance matrix size- Exiting";
+    LOG("grwghtnp", pFATAL) << "Number of systematics does not match covariance matrix size- Exiting";
     gAbortingInErr = true;
     exit(1);
   }
@@ -618,7 +618,7 @@ void GetCorrelationMatrix(string fname, TMatrixD *& cmat)
       if(i!=j) { tmpmat(i,j) = 0.; }
       else     {
         // convert diagonal entries to uncertainty
-        //LOG("grwghtcov", pINFO) <<"Setting uncertainty "<<i<<" to : "<<
+        //LOG("grwghtnp", pINFO) <<"Setting uncertainty "<<i<<" to : "<<
         //  TMath::Sqrt(tmpmat(i,i))/(*itd);
         unc->SetUncertainty(*it,TMath::Sqrt(tmpmat(i,i))/(*itd),
           TMath::Sqrt(tmpmat(i,i))/(*itd));
@@ -626,7 +626,7 @@ void GetCorrelationMatrix(string fname, TMatrixD *& cmat)
       }
     }
   }
-  //LOG("grwghtcov", pWARN) <<"diagonal scaling matrix:";
+  //LOG("grwghtnp", pWARN) <<"diagonal scaling matrix:";
   //tmpmat.Print();
 
   // Cor = Diag^(-1/2).Cov.Diag^(-1/2)
@@ -775,7 +775,7 @@ void AdoptWeightCalcs (vector<GSyst_t> lsyst, GReWeight & rw)
     case kXSecTwkDial_NormCCQE:
     case kXSecTwkDial_MaCCQEshape:
       if ( ! rw.WghtCalc("xsec_ccqe") ){
-        LOG("grwghtcov", pNOTICE) << "Adopting xsec_ccqe weight calc";
+        LOG("grwghtnp", pNOTICE) << "Adopting xsec_ccqe weight calc";
         rw.AdoptWghtCalc( "xsec_ccqe", new GReWeightNuXSecCCQE );
         GReWeightNuXSecCCQE * rwccqe =
           dynamic_cast<GReWeightNuXSecCCQE *> (rw.WghtCalc("xsec_ccqe"));
@@ -790,7 +790,7 @@ void AdoptWeightCalcs (vector<GSyst_t> lsyst, GReWeight & rw)
     case kXSecTwkDial_ZExpA3CCQE:
     case kXSecTwkDial_ZExpA4CCQE:
       if ( ! rw.WghtCalc("xsec_ccqe") ){
-        LOG("grwghtcov", pNOTICE) << "Adopting xsec_ccqe weight calc";
+        LOG("grwghtnp", pNOTICE) << "Adopting xsec_ccqe weight calc";
         rw.AdoptWghtCalc( "xsec_ccqe", new GReWeightNuXSecCCQE );
         GReWeightNuXSecCCQE * rwccqe =
           dynamic_cast<GReWeightNuXSecCCQE *> (rw.WghtCalc("xsec_ccqe"));
@@ -801,7 +801,7 @@ void AdoptWeightCalcs (vector<GSyst_t> lsyst, GReWeight & rw)
     case kXSecTwkDial_MaCCRES:
     case kXSecTwkDial_MvCCRES:
       if ( ! rw.WghtCalc("xsec_ccres") ){
-        LOG("grwghtcov", pNOTICE) << "Adopting xsec_ccres weight calc";
+        LOG("grwghtnp", pNOTICE) << "Adopting xsec_ccres weight calc";
         rw.AdoptWghtCalc( "xsec_ccres", new GReWeightNuXSecCCRES );
         GReWeightNuXSecCCRES * rwccres =
           dynamic_cast<GReWeightNuXSecCCRES *> (rw.WghtCalc("xsec_ccres"));
@@ -812,7 +812,7 @@ void AdoptWeightCalcs (vector<GSyst_t> lsyst, GReWeight & rw)
     case kXSecTwkDial_MaCCRESshape:
     case kXSecTwkDial_MvCCRESshape:
       if ( ! rw.WghtCalc("xsec_ccres") ){
-        LOG("grwghtcov", pNOTICE) << "Adopting xsec_ccres weight calc";
+        LOG("grwghtnp", pNOTICE) << "Adopting xsec_ccres weight calc";
         rw.AdoptWghtCalc( "xsec_ccres", new GReWeightNuXSecCCQE );
         GReWeightNuXSecCCQE * rwccres =
           dynamic_cast<GReWeightNuXSecCCQE *> (rw.WghtCalc("xsec_ccres"));
@@ -825,7 +825,7 @@ void AdoptWeightCalcs (vector<GSyst_t> lsyst, GReWeight & rw)
     case kXSecTwkDial_CV1uBYshape:
     case kXSecTwkDial_CV2uBYshape:
       if ( ! rw.WghtCalc("xsec_dis") ){
-        LOG("grwghtcov", pNOTICE) << "Adopting xsec_dis weight calc";
+        LOG("grwghtnp", pNOTICE) << "Adopting xsec_dis weight calc";
         rw.AdoptWghtCalc( "xsec_dis", new GReWeightNuXSecDIS );
         GReWeightNuXSecDIS * rwdis =
           dynamic_cast<GReWeightNuXSecDIS *> (rw.WghtCalc("xsec_dis"));
@@ -837,7 +837,7 @@ void AdoptWeightCalcs (vector<GSyst_t> lsyst, GReWeight & rw)
     case kXSecTwkDial_CV1uBY:
     case kXSecTwkDial_CV2uBY:
       if ( ! rw.WghtCalc("xsec_dis") ){
-        LOG("grwghtcov", pNOTICE) << "Adopting xsec_dis weight calc";
+        LOG("grwghtnp", pNOTICE) << "Adopting xsec_dis weight calc";
         rw.AdoptWghtCalc( "xsec_dis", new GReWeightNuXSecDIS );
         GReWeightNuXSecDIS * rwdis =
           dynamic_cast<GReWeightNuXSecDIS *> (rw.WghtCalc("xsec_dis"));
@@ -848,7 +848,7 @@ void AdoptWeightCalcs (vector<GSyst_t> lsyst, GReWeight & rw)
     case kXSecTwkDial_MaNCRES:
     case kXSecTwkDial_MvNCRES:
       if ( ! rw.WghtCalc("xsec_ncres") ){
-        LOG("grwghtcov", pNOTICE) << "Adopting xsec_ncres weight calc";
+        LOG("grwghtnp", pNOTICE) << "Adopting xsec_ncres weight calc";
         rw.AdoptWghtCalc( "xsec_ncres", new GReWeightNuXSecNCRES );
         GReWeightNuXSecNCRES * rwncres =
           dynamic_cast<GReWeightNuXSecNCRES *> (rw.WghtCalc("xsec_ncres"));
@@ -859,7 +859,7 @@ void AdoptWeightCalcs (vector<GSyst_t> lsyst, GReWeight & rw)
     case kXSecTwkDial_MaNCRESshape:
     case kXSecTwkDial_MvNCRESshape:
       if ( ! rw.WghtCalc("xsec_ncres") ){
-        LOG("grwghtcov", pNOTICE) << "Adopting xsec_ncres weight calc";
+        LOG("grwghtnp", pNOTICE) << "Adopting xsec_ncres weight calc";
         rw.AdoptWghtCalc( "xsec_ncres", new GReWeightNuXSecNCRES );
         GReWeightNuXSecNCRES * rwncres =
           dynamic_cast<GReWeightNuXSecNCRES *> (rw.WghtCalc("xsec_ncres"));
@@ -874,9 +874,9 @@ void AdoptWeightCalcs (vector<GSyst_t> lsyst, GReWeight & rw)
 //_________________________________________________________________________________
 void PrintSyntax(void)
 {
-  LOG("grwghtcov", pFATAL)
+  LOG("grwghtnp", pFATAL)
      << "\n\n"
-     << "grwghtcov                    \n"
+     << "grwghtnp                    \n"
      << "     -f input_event_file     \n"
      << "     -c input_covariance_file\n"
      << "     -t num_twk              \n"
