@@ -45,7 +45,7 @@ Generator-%d                alg     No
 -->
 
   <param_set name="Default"> 
-     <param type="int" name="NGenerators">   14                                  </param>
+     <param type="int" name="NGenerators">   16                                  </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/QEL-CC        </param>
      <param type="alg" name="Generator-1">   genie::EventGenerator/QEL-NC        </param>
      <param type="alg" name="Generator-2">   genie::EventGenerator/RES-CC        </param>
@@ -60,6 +60,8 @@ Generator-%d                alg     No
      <param type="alg" name="Generator-11">  genie::EventGenerator/IMD           </param>
      <param type="alg" name="Generator-12">  genie::EventGenerator/IMD-ANH       </param>
      <param type="alg" name="Generator-13">  genie::EventGenerator/QEL-CC-LAMBDA </param>
+     <param type="alg" name="Generator-14">  genie::EventGenerator/DFR-CC        </param>
+     <param type="alg" name="Generator-15">  genie::EventGenerator/DFR-NC        </param>
   </param_set>
 
   <param_set name="AnomalyMediatedNuGamma"> 
