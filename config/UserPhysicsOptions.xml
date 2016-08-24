@@ -804,9 +804,9 @@ STFC, Rutherford Appleton Laboratory
   -->
 <!-- New Nieves QE model   -->
 <!--
-  <param type="alg" name="XSecModel@genie::EventGenerator/QEL-CC">         genie::NievesQELCCPXSec/Default     </param>
-  -->
   <param type="alg" name="XSecModel@genie::EventGenerator/QEL-CC">         genie::LwlynSmithQELCCPXSec/Default   </param>
+  -->
+  <param type="alg" name="XSecModel@genie::EventGenerator/QEL-CC">         genie::NievesQELCCPXSec/ZExp            </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/QEL-NC">         genie::AhrensNCELPXSec/Default          </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/QEL-EM">         genie::RosenbluthPXSec/Default          </param>
 
@@ -889,8 +889,9 @@ STFC, Rutherford Appleton Laboratory
   - genie::DipoleAxialFormFactorModel
   - genie::ZExpAxialFormFactorModel, Bhattacharya, Paz, and Hill, Phys.Rev. D84 (2011) 073006 
   - genie::KuzminNaumov2016AxialFormFactorModel, K. Kuzmin and V. Naumov, in press (2016).
-  -->
   <param type="alg" name="AxialFormFactorModel"> genie::DipoleAxialFormFactorModel/Default </param>
+  -->
+  <param type="alg" name="AxialFormFactorModel"> genie::ZExpAxialFormFactorModel/Default </param>
 
 
  <!-- 
