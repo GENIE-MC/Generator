@@ -19,6 +19,7 @@ LIBRARIES  := $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
 TGT =    grwghtzexpaxff		\
 	 grwghtzexpdirect	
 
+all: $(TGT)
 
 # reweighting for Zexpansion of axial form factor
 #
@@ -26,7 +27,7 @@ grwghtzexpaxff: FORCE
 	@echo "** Building grwghtzexpaxff"
 ifeq ($(strip $(GOPT_ENABLE_RWGHT)),YES)
 	$(CXX) $(CXXFLAGS) -c gRwghtZExpAxFF.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) gRwghtZExpAxFF.o $(LIBRARIES) -o grwghtzexpaxff
+	$(LD) $(LDFLAGS) gRwghtZExpAxFF.o $(LIBRARIES) -o ${GENIE_BIN_PATH}/grwghtzexpaxff
 else
 	@echo "Event reweighting not enabled!"
 endif
@@ -37,7 +38,7 @@ grwghtzexpdirect: FORCE
 	@echo "** Building grwghtzexpdirect"
 ifeq ($(strip $(GOPT_ENABLE_RWGHT)),YES)
 	$(CXX) $(CXXFLAGS) -c gRwghtZExpDirect.cxx $(INCLUDES)
-	$(LD) $(LDFLAGS) gRwghtZExpDirect.o $(LIBRARIES) -o grwghtzexpdirect
+	$(LD) $(LDFLAGS) gRwghtZExpDirect.o $(LIBRARIES) -o ${GENIE_BIN_PATH}/grwghtzexpdirect
 else
 	@echo "Event reweighting not enabled!"
 endif
