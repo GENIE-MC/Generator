@@ -118,7 +118,7 @@ STFC, Rutherford Appleton Laboratory
   SetDiNucleonCode:  Include the dinucleon code in the interaction list generator.
                      Want `true` for EmpiricalMEC, `false` for NSV
   -->
-  <param type="bool" name="SetDiNucleonCode"> false </param>
+  <param type="bool" name="SetDiNucleonCode"> true </param>
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -429,9 +429,9 @@ STFC, Rutherford Appleton Laboratory
   Currently the same nuclear model is forced for all isotopes.
 
   <param type="alg"  name="NuclearModel">                 genie::EffectiveSF/Default </param>
-  <param type="alg"  name="NuclearModel">                 genie::FGMBodekRitchie/Default </param>
-  -->
   <param type="alg"  name="NuclearModel">                 genie::LocalFGM/Default </param>
+  -->
+  <param type="alg"  name="NuclearModel">                 genie::FGMBodekRitchie/Default </param>
 
 <!--
 
@@ -804,9 +804,9 @@ STFC, Rutherford Appleton Laboratory
   -->
 <!-- New Nieves QE model   -->
 <!--
-  <param type="alg" name="XSecModel@genie::EventGenerator/QEL-CC">         genie::LwlynSmithQELCCPXSec/Default   </param>
-  -->
   <param type="alg" name="XSecModel@genie::EventGenerator/QEL-CC">         genie::NievesQELCCPXSec/ZExp            </param>
+  -->
+  <param type="alg" name="XSecModel@genie::EventGenerator/QEL-CC">         genie::LwlynSmithQELCCPXSec/Default   </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/QEL-NC">         genie::AhrensNCELPXSec/Default          </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/QEL-EM">         genie::RosenbluthPXSec/Default          </param>
 
@@ -863,9 +863,9 @@ STFC, Rutherford Appleton Laboratory
   <param type="alg" name="XSecModel@genie::EventGenerator/AM-NUGAMMA">     genie::H3AMNuGammaPXSec/Default       </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/DFR-CC">         genie::ReinDFRPXSec/Default           </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/DFR-NC">         genie::ReinDFRPXSec/Default           </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/MEC-CC">         genie::NievesSimoVacasMECPXSec2016/Default </param>
-  <!--
   <param type="alg" name="XSecModel@genie::EventGenerator/MEC-CC">         genie::EmpiricalMECPXSec2015/Default  </param>
+  <!--
+  <param type="alg" name="XSecModel@genie::EventGenerator/MEC-CC">         genie::NievesSimoVacasMECPXSec2016/Default </param>
   -->
   <param type="alg" name="XSecModel@genie::EventGenerator/MEC-NC">         genie::EmpiricalMECPXSec2015/Default  </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/MEC-EM">         genie::EmpiricalMECPXSec2015/Default  </param>
@@ -889,9 +889,9 @@ STFC, Rutherford Appleton Laboratory
   - genie::DipoleAxialFormFactorModel
   - genie::ZExpAxialFormFactorModel, Bhattacharya, Paz, and Hill, Phys.Rev. D84 (2011) 073006 
   - genie::KuzminNaumov2016AxialFormFactorModel, K. Kuzmin and V. Naumov, in press (2016).
-  <param type="alg" name="AxialFormFactorModel"> genie::DipoleAxialFormFactorModel/Default </param>
-  -->
   <param type="alg" name="AxialFormFactorModel"> genie::ZExpAxialFormFactorModel/Default </param>
+  -->
+  <param type="alg" name="AxialFormFactorModel"> genie::DipoleAxialFormFactorModel/Default </param>
 
 
  <!-- 
