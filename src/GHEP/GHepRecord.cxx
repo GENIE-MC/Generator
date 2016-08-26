@@ -985,7 +985,7 @@ void GHepRecord::SetPrintLevel(int print_level)
 { 
   fPrintLevel = print_level; 
 }
-int  GHepRecord::GetPrintLevel() const
+int  GHepRecord::GetPrintLevel()
 { 
   return fPrintLevel; 
 }

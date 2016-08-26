@@ -156,7 +156,7 @@ public :
 
   // Set/Get print level
   static void SetPrintLevel(int print_level);
-  static int  GetPrintLevel() const;
+  static int  GetPrintLevel();
 
   // Methods & operators to print the record
 
