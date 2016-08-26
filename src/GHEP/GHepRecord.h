@@ -154,8 +154,9 @@ public :
   // Set mask
   void SetUnphysEventMask(const TBits & mask);
 
-  // Set print level
+  // Set/Get print level
   static void SetPrintLevel(int print_level);
+  static int  GetPrintLevel() const;
 
   // Methods & operators to print the record
 

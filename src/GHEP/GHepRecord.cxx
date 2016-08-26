@@ -985,6 +985,10 @@ void GHepRecord::SetPrintLevel(int print_level)
 { 
   fPrintLevel = print_level; 
 }
+int  GHepRecord::GetPrintLevel() const
+{ 
+  return fPrintLevel; 
+}
 //___________________________________________________________________________
 void GHepRecord::Print(ostream & stream) const
 {
