@@ -51,6 +51,9 @@ fi
 if test "$GOPT_ENABLE_NUCLEON_DECAY" = "YES"; then
   phys_libs="$phys_libs -lGNucleonDecay "
 fi
+if test "$GOPT_ENABLE_NEUTRON_OSC" = "YES"; then
+  phys_libs="$phys_libs -lGNeutronOsc"
+fi
 
 # Assemble the final libs variable
 libs="-L$libdir $util_libs $phys_libs "

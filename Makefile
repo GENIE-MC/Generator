@@ -30,6 +30,7 @@ BUILD_TARGETS =    print-make-info \
 		   flux-drivers \
 		   geom-drivers \
 		   nucleon-decay \
+		   neutron-osc \
 		   reweight \
 		   mueloss \
 		   masterclass \
@@ -89,6 +90,19 @@ ifeq ($(strip $(GOPT_ENABLE_NUCLEON_DECAY)),YES)
 else
 	@echo " "
 	@echo "** Nucleon decay was not enabled. Skipping..."
+endif
+
+neutron-osc:
+	@echo " "
+	@echo "** Building neutron oscillation library..."
+ifeq ($(strip $(GOPT_ENABLE_NEUTRON_OSC)),YES)
+	cd ${GENIE}/src && \
+	cd NeutronOsc && \
+	$(MAKE) && \
+	cd ${GENIE}
+else
+	@echo " "
+	@echo "** Neutron oscillation was not enabled. Skipping..."
 endif
 
 reweight:
@@ -328,6 +342,7 @@ make-install-dirs: FORCE
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/NuGamma
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Nuclear
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/NucleonDecay
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/NeutronOsc
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Numerical
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/PDF
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/PDG
@@ -379,6 +394,7 @@ copy-install-files: FORCE
 	cd MuELoss &&                $(MAKE) install && cd .. && \
 	cd Nuclear &&                $(MAKE) install && cd .. && \
 	cd NucleonDecay &&           $(MAKE) install && cd .. && \
+	cd NeutronOsc &&             $(MAKE) install && cd .. && \
 	cd Ntuple &&                 $(MAKE) install && cd .. && \
 	cd NuE &&                    $(MAKE) install && cd .. && \
 	cd NuGamma &&                $(MAKE) install && cd .. && \
@@ -432,6 +448,7 @@ purge: FORCE
 	cd MuELoss &&                       $(MAKE) purge && cd .. && \
 	cd Nuclear &&                       $(MAKE) purge && cd .. && \
 	cd NucleonDecay &&                  $(MAKE) purge && cd .. && \
+	cd NeutronOsc &&                    $(MAKE) purge && cd .. && \
 	cd Ntuple &&                        $(MAKE) purge && cd .. && \
 	cd NuGamma &&                       $(MAKE) purge && cd .. && \
 	cd NuE &&                           $(MAKE) purge && cd .. && \
@@ -487,6 +504,7 @@ clean-files: FORCE
 	cd MuELoss &&                       $(MAKE) clean && cd .. && \
 	cd Nuclear &&                       $(MAKE) clean && cd .. && \
 	cd NucleonDecay &&                  $(MAKE) clean && cd .. && \
+	cd NeutronOsc &&                    $(MAKE) clean && cd .. && \
 	cd Ntuple &&                        $(MAKE) clean && cd .. && \
 	cd NuGamma &&                       $(MAKE) clean && cd .. && \
 	cd NuE &&                           $(MAKE) clean && cd .. && \
@@ -556,6 +574,7 @@ distclean: FORCE
 	cd MuELoss &&                        $(MAKE) distclean && cd .. && \
 	cd Nuclear &&                        $(MAKE) distclean && cd .. && \
 	cd NucleonDecay &&                   $(MAKE) distclean && cd .. && \
+	cd NeutronOsc &&                     $(MAKE) distclean && cd .. && \
 	cd Ntuple &&                         $(MAKE) distclean && cd .. && \
 	cd NuGamma &&                        $(MAKE) distclean && cd .. && \
 	cd NuE &&                            $(MAKE) distclean && cd .. && \

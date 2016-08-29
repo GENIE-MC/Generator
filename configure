@@ -33,6 +33,7 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "    fnal              Enable FNAL-specific event generation app                   default: disabled \n";
   print "    atmo              Enable atmospheric neutrino event generation app            default: disabled \n";
   print "    nucleon-decay     Enable nucleon decay event generation app                   default: disabled \n";
+  print "    neutron-osc       Enable neutron oscillation event generation app             default: disabled \n";
   print "    rwght             Enable event reweighting tools                              default: disabled \n";
   print "    masterclass       Enable GENIE neutrino masterclass app                       default: disabled (Experimental) \n";
   print "\n options for 3rd party software, prefix with --with- (eg --with-lhapdf-lib=/some/path/)\n\n";
@@ -139,6 +140,7 @@ my $gopt_enable_t2k              = "NO";
 my $gopt_enable_fnal             = "NO";
 my $gopt_enable_atmo             = "NO";
 my $gopt_enable_nucleon_decay    = "NO";
+my $gopt_enable_neutron_osc      = "NO";
 my $gopt_enable_rwght            = "NO";
 my $gopt_enable_masterclass      = "NO";
 
@@ -160,6 +162,7 @@ if(($match = grep(/--enable-t2k/i,              @ARGV)) > 0) { $gopt_enable_t2k 
 if(($match = grep(/--enable-fnal/i,             @ARGV)) > 0) { $gopt_enable_fnal             = "YES"; }
 if(($match = grep(/--enable-atmo/i,             @ARGV)) > 0) { $gopt_enable_atmo             = "YES"; }
 if(($match = grep(/--enable-nucleon-decay/i,    @ARGV)) > 0) { $gopt_enable_nucleon_decay    = "YES"; }
+if(($match = grep(/--enable-neutron-osc/i,      @ARGV)) > 0) { $gopt_enable_neutron_osc      = "YES"; }
 if(($match = grep(/--enable-rwght/i,            @ARGV)) > 0) { $gopt_enable_rwght            = "YES"; }
 if(($match = grep(/--enable-masterclass/i,      @ARGV)) > 0) { $gopt_enable_masterclass      = "YES"; }
 
@@ -416,6 +419,7 @@ print MKCONF "GOPT_ENABLE_T2K=$gopt_enable_t2k\n";
 print MKCONF "GOPT_ENABLE_FNAL=$gopt_enable_fnal\n";
 print MKCONF "GOPT_ENABLE_ATMO=$gopt_enable_atmo\n";
 print MKCONF "GOPT_ENABLE_NUCLEON_DECAY=$gopt_enable_nucleon_decay\n";
+print MKCONF "GOPT_ENABLE_NEUTRON_OSC=$gopt_enable_neutron_osc\n";
 print MKCONF "GOPT_ENABLE_RWGHT=$gopt_enable_rwght\n";
 print MKCONF "GOPT_ENABLE_MASTERCLASS=$gopt_enable_masterclass\n";
 print MKCONF "GOPT_WITH_COMPILER=$gopt_with_compiler\n";
