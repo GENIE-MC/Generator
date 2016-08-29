@@ -43,6 +43,16 @@ endif
 ifeq ($(strip $(GOPT_ENABLE_NUCLEON_DECAY)),YES)
 TGT_BASE += gevgen_ndcy
 endif
+ifeq ($(strip $(GOPT_ENABLE_NEUTRON_OSC)),YES)
+TGT_BASE += gevgen_nosc
+# Require C++11 for NeutronOsc module.
+GCC_GTEQ_470 := $(shell expr `gcc -dumpversion | sed -e 's/\.\([0-9][0-9]\)/\1/g' -e 's/\.\([0-9]\)/0\1/g' -e 's/^[0-9]\{3,4\}$$/&00/'` \>= 40700)
+ifeq "$(GCC_GTEQ_470)" "1"
+	CXXFLAGS += -std=c++11
+else
+	CXXFLAGS += -std=c++0x
+endif
+endif
 ifeq ($(strip $(GOPT_ENABLE_FLUX_DRIVERS)),YES)
 TGT_BASE += gmxpl
 endif
@@ -112,6 +122,12 @@ $(GENIE_BIN_PATH)/gevgen_hadron: gEvGenHadronNucleus.o $(call find_libs,gevgen_h
 $(GENIE_BIN_PATH)/gevgen_ndcy: gNucleonDecayEvGen.o $(call find_libs,gevgen_ndcy) 
 	@echo "** Building gevgen_ndcy"
 	$(LD) $(LDFLAGS) gNucleonDecayEvGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen_ndcy
+
+# neutron-antineutron event generation app
+#
+$(GENIE_BIN_PATH)/gevgen_nosc: gNeutronOscEvGen.o $(call find_libs,gevgen_nosc) 
+	@echo "** Building gevgen_nosc"
+	$(LD) $(LDFLAGS) gNeutronOscEvGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen_nosc
 
 # gevdump event print-out utility
 #
