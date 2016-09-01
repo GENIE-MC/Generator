@@ -55,7 +55,7 @@ NuclearModelI("genie::FGMBodekRitchie", config)
 FGMBodekRitchie::~FGMBodekRitchie()
 {
   map<string, TH1D*>::iterator iter = fProbDistroMap.begin();
-  for( ; iter != fProbDistroMap.begin(); ++iter) {
+  for( ; iter != fProbDistroMap.end(); ++iter) {
     TH1D * hst = iter->second;
     if(hst) {
       delete hst;
