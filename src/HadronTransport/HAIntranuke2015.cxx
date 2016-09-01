@@ -40,6 +40,8 @@
    Add option of doing K+.  
  @ Jan 9, 2015 - SD, NG, TG
    Added 2014 version of INTRANUKE codes (new class) for independent development.
+ @ Aug 30, 2016 - SD
+   Fix memory leaks - Igor.  
 */
 //____________________________________________________________________________
 
@@ -74,6 +76,7 @@
 #include "PDG/PDGUtils.h"
 #include "Utils/PrintUtils.h"
 #include "Utils/NuclearUtils.h"
+#include "HadronTransport/INukeOset.h" //edit
 
 using std::ostringstream;
 
@@ -220,6 +223,10 @@ INukeFateHA_t HAIntranuke2015::HadronFateHA(const GHepParticle * p) const
   // get pdgc code & kinetic energy in MeV
   int    pdgc = p->Pdg();
   double ke   = p->KinE() / units::MeV;
+
+  bool isPion = (pdgc == kPdgPiP or pdgc == kPdgPi0 or pdgc == kPdgPiM); //edit
+  if (isPion and fUseOset and ke < 350.0) return HadronFateOset (); //edit
+
  
   LOG("HAIntranuke2015", pINFO) 
    << "Selecting hA fate for " << p->Name() << " with KE = " << ke << " MeV";
@@ -591,12 +598,12 @@ void HAIntranuke2015::InelasticHA(
       return;         // another extreme case, best strategy is to exit and go to next event
     }
 
-  GHepParticle * t = new GHepParticle(*p);
-  t->SetPdgCode(tcode);
+  GHepParticle t(*p);
+  t.SetPdgCode(tcode);
 
   // set up fermi target
   Target target(ev->TargetNucleus()->Pdg());
-  double tM = t->Mass();
+  double tM = t.Mass();
 
   // handle fermi momentum
   if(fDoFermi)
@@ -605,17 +612,17 @@ void HAIntranuke2015::InelasticHA(
       fNuclmodel->GenerateNucleon(target);
       TVector3 tP3 = fFermiFac * fNuclmodel->Momentum3();
       double tE = TMath::Sqrt(tP3.Mag2()+ tM*tM);
-      t->SetMomentum(TLorentzVector(tP3,tE));
+      t.SetMomentum(TLorentzVector(tP3,tE));
     }
   else
     {
-      t->SetMomentum(0,0,0,tM);
+      t.SetMomentum(0,0,0,tM);
     }
 
   GHepParticle * cl = new GHepParticle(*p); // clone particle, to run IntBounce at proper energy
                                             // calculate energy and momentum using invariant mass
   double pM  = p->Mass();
-  double E_p = ((*p->P4() + *t->P4()).Mag2() - tM*tM - pM*pM)/(2.0*tM);
+  double E_p = ((*p->P4() + *t.P4()).Mag2() - tM*tM - pM*pM)/(2.0*tM);
   double P_p = TMath::Sqrt(E_p*E_p - pM*pM);
   cl->SetMomentum(TLorentzVector(P_p,0,0,E_p)); 
                   // momentum doesn't have to be in right direction, only magnitude
@@ -626,23 +633,22 @@ void HAIntranuke2015::InelasticHA(
       LOG("HAIntranuke2015", pWARN) << "unphysical angle chosen in InelasicHA - put particle outside nucleus";
       p->SetStatus(kIStStableFinalState);
       ev->AddParticle(*p);
-      delete t;
       return;
     }  
     double KE1L = p->KinE();
-    double KE2L = t->KinE();
+    double KE2L = t.KinE();
     LOG("HAIntranuke2015",pINFO)
       <<  "  KE1L = " << KE1L << "   " << KE1L << "  KE2L = " << KE2L; 
-  GHepParticle * cl1 = new GHepParticle(*p);
-  GHepParticle * cl2 = new GHepParticle(*t);
+  GHepParticle cl1(*p);
+  GHepParticle cl2(t);
   bool success = utils::intranuke2015::TwoBodyCollision(ev,pcode,tcode,scode,s2code,C3CM,
-					       cl1,cl2,fRemnA,fRemnZ,fRemnP4,kIMdHA); 
+					       &cl1,&cl2,fRemnA,fRemnZ,fRemnP4,kIMdHA); 
   if(success)
     {
-      double P3L = TMath::Sqrt(cl1->Px()*cl1->Px() + cl1->Py()*cl1->Py() + cl1->Pz()*cl1->Pz());
-      double P4L = TMath::Sqrt(cl2->Px()*cl2->Px() + cl2->Py()*cl2->Py() + cl2->Pz()*cl2->Pz());
-      double E3L = cl1->KinE();
-      double E4L = cl2->KinE();
+      double P3L = TMath::Sqrt(cl1.Px()*cl1.Px() + cl1.Py()*cl1.Py() + cl1.Pz()*cl1.Pz());
+      double P4L = TMath::Sqrt(cl2.Px()*cl2.Px() + cl2.Py()*cl2.Py() + cl2.Pz()*cl2.Pz());
+      double E3L = cl1.KinE();
+      double E4L = cl2.KinE();
       LOG ("HAIntranuke2015",pINFO) << "Successful quasielastic scattering or charge exchange";
       LOG("HAIntranuke",pINFO)
 	<< "C3CM = " << C3CM << "\n  P3L, E3L = " 
@@ -656,10 +662,8 @@ void HAIntranuke2015::InelasticHA(
 	  exception.SetReason("TwoBodyCollison gives KE> probe KE in hA simulation");
 	  throw exception;
 	}
-      ev->AddParticle(*cl1);
-      ev->AddParticle(*cl2);
-      delete cl1;
-      delete cl2;
+      ev->AddParticle(cl1);
+      ev->AddParticle(cl2);
 
       LOG("HAIntranuke2015", pDEBUG) << "Nucleus : (A,Z) = ("<<fRemnA<<','<<fRemnZ<<')';
     } else
@@ -669,7 +673,6 @@ void HAIntranuke2015::InelasticHA(
       throw exception;
     }
   
-  delete t;
 }
 //___________________________________________________________________________
 void HAIntranuke2015::Inelastic(
@@ -712,29 +715,26 @@ void HAIntranuke2015::Inelastic(
   // only absorption/pipro fates allowed
   if (fate == kIHAFtPiProd) {
 
-      GHepParticle* s1 = new GHepParticle(*p);
-      GHepParticle* s2 = new GHepParticle(*p);
-      GHepParticle* s3 = new GHepParticle(*p);
+      GHepParticle s1(*p);
+      GHepParticle s2(*p);
+      GHepParticle s3(*p);
 
       bool success = utils::intranuke2015::PionProduction(
-         ev,p,s1,s2,s3,fRemnA,fRemnZ,fRemnP4, fDoFermi,fFermiFac,fFermiMomentum,fNuclmodel);
+         ev,p,&s1,&s2,&s3,fRemnA,fRemnZ,fRemnP4, fDoFermi,fFermiFac,fFermiMomentum,fNuclmodel);
 
       if (success){
 	LOG ("HAIntranuke2015",pINFO) << " successful pion production fate";
 	// set status of particles and conserve charge/baryon number
-	s1->SetStatus(kIStStableFinalState);  //should be redundant
+	s1.SetStatus(kIStStableFinalState);  //should be redundant
 	//	  if (pdg::IsPion(s2->Pdg())) s2->SetStatus(kIStHadronInTheNucleus);
-	s2->SetStatus(kIStStableFinalState);
+	s2.SetStatus(kIStStableFinalState);
 	//	  if (pdg::IsPion(s3->Pdg())) s3->SetStatus(kIStHadronInTheNucleus);
-	s3->SetStatus(kIStStableFinalState);
+	s3.SetStatus(kIStStableFinalState);
 	
-	ev->AddParticle(*s1);
-	ev->AddParticle(*s2);
-	ev->AddParticle(*s3);
+	ev->AddParticle(s1);
+	ev->AddParticle(s2);
+	ev->AddParticle(s3);
 	
-	delete s1;
-	delete s2;
-	delete s3;
 	return;
       }
       else {
@@ -1377,7 +1377,7 @@ void HAIntranuke2015::LoadConfig(void)
   fDoFermi       = fConfig->GetBoolDef   ("DoFermi",      gc->GetBool("INUKE-DoFermi"));
   fFreeStep      = fConfig->GetDoubleDef ("FreeStep",     gc->GetDouble("INUKE-FreeStep"));
   fDoCompoundNucleus = fConfig->GetBoolDef ("DoCompoundNucleus", gc->GetBool("INUKE-DoCompoundNucleus"));
-  fUseOset       = false; // disable oset model for hA
+  fUseOset       = true; // disable oset model for hA
 
   // report
   LOG("HAIntranuke2015", pINFO) << "Settings for INTRANUKE mode: " << INukeMode::AsString(kIMdHA);
@@ -1396,3 +1396,17 @@ void HAIntranuke2015::LoadConfig(void)
   LOG("HAIntranuke2015", pINFO) << "DoCmpndNuc? = " << ((fDoCompoundNucleus)?(true):(false));
 }
 //___________________________________________________________________________
+
+INukeFateHA_t HAIntranuke2015::HadronFateOset () const
+{
+  const double fractionAbsorption = osetUtils::currentInstance->
+                                    getAbsorptionFraction();
+  const double fractionCex = osetUtils::currentInstance->getCexFraction ();
+
+  RandomGen *randomGenerator = RandomGen::Instance();
+  const double randomNumber  = randomGenerator->RndFsi().Rndm();
+
+  if (randomNumber < fractionAbsorption && fRemnA > 1) return kIHAFtAbs;
+  else if (randomNumber < fractionAbsorption + fractionCex) return kIHAFtCEx;
+  else return kIHAFtElas;
+}
