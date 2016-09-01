@@ -56,8 +56,7 @@ typedef enum EINukeFateHA_t {
    kIHAFtInclPip,        // pi production : inclusive pi+
    kIHAFtInclPim,        // pi production : inclusive pi-
    kIHAFtInclPi0,        // pi production : inclusive pi0 
-   kIHAFtDCEx,           // dcex
-   kIHAFtOset            // Oset
+   kIHAFtDCEx            // dcex
 
 } INukeFateHA_t;   
 
