@@ -350,7 +350,9 @@ void MECGenerator::RecoilNucleonCluster(GHepRecord * event) const
   // get di-nucleon cluster & its 4-momentum
   GHepParticle * nucleon_cluster = event->HitNucleon();
   assert(nucleon_cluster);
-  TLorentzVector p4cluster(*nucleon_cluster->GetP4());
+  TLorentzVector * tmp=nucleon_cluster->GetP4();
+  TLorentzVector p4cluster(*tmp);
+  delete tmp;
 
   // get neutrino & its 4-momentum
   GHepParticle * neutrino = event->Probe();
