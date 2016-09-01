@@ -225,7 +225,7 @@ INukeFateHA_t HAIntranuke2015::HadronFateHA(const GHepParticle * p) const
   double ke   = p->KinE() / units::MeV;
 
   bool isPion = (pdgc == kPdgPiP or pdgc == kPdgPi0 or pdgc == kPdgPiM); //edit
-  if (isPion and fUseOset and ke < 350.0) return kIHAFtOset; //edit
+  if (isPion and fUseOset and ke < 350.0) return this->HadronFateOset(); //edit
 
  
   LOG("HAIntranuke2015", pINFO) 
