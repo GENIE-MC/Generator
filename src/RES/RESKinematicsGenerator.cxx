@@ -159,6 +159,7 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
        // > charged lepton scattering
        if(is_em) {
          gW  = W.min + dW  * rnd->RndKine().Rndm();
+         interaction->KinePtr()->SetW(gW);
 	 Range1D_t Q2 = kps.Q2Lim_W();
 	 //	 Range1D_t Q2 = genie::utils::kinematics::InelQ2Lim_W(E, M, ml, gW, kMinQ2Limit);
 	 LOG("RESKinematics", pINFO) << "Q2.lim = " << Q2.min << "  " << Q2.max;
