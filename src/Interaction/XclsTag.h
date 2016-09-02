@@ -92,11 +92,11 @@ private:
   int         fCharmedHadronPdg; ///< charmed hadron pdg-code
   bool        fIsStrangeEvent;   ///< true if we have strange production
   int         fStrangeHadronPdg; ///< strange hadron pdg-code
-  int         fNProtons;         ///< # of p's in the f/s hadronic system
-  int         fNNeutrons;        ///< # of n's in the f/s hadronic system
-  int         fNPi0;             ///< # of pi^0's in the f/s hadronic system
-  int         fNPiPlus;          ///< # of pi^+'s in the f/s hadronic system
-  int         fNPiMinus;         ///< # of pi^-'s in the f/s hadronic system
+  int         fNProtons;         ///< # of p's in the hadronic system after this Xcls reaction (before FSI)
+  int         fNNeutrons;        ///< # of n's in the hadronic system after this Xcls reaction (before FSI)
+  int         fNPi0;             ///< # of pi^0's in the hadronic system after this Xcls reaction (before FSI)
+  int         fNPiPlus;          ///< # of pi^+'s in the hadronic system after this Xcls reaction (before FSI)
+  int         fNPiMinus;         ///< # of pi^-'s in the hadronic system after this Xcls reaction (before FSI)
   Resonance_t fResonance;        ///< baryon resonance excited by probe
   int         fDecayMode;
 
