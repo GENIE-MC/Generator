@@ -702,18 +702,21 @@ void GNuMIFlux::LoadBeamSimData(const std::vector<std::string>& patterns,
     string filename = *sitr;
     //std::cout << "  [" << std::setw(3) << indx << "]  \"" 
     //          << filename << "\"" << std::endl;
-    bool isok = ! (gSystem->AccessPathName(filename.c_str()));
+    bool isok = true; 
+    // this next test only works for local files, so we can't do that
+    // if we want to stream via xrootd
+    // ! (gSystem->AccessPathName(filename.c_str()));
     if ( isok ) {
       // open the file to see what it contains
       // h10    => g3numi _or_ flugg
       // nudata => g4numi
       // for now distinguish between g3numi/flugg using file name
-      TFile tf(filename.c_str());
+      TFile* tf = TFile::Open(filename.c_str(),"READ");
       int isflugg = ( filename.find("flugg") != string::npos ) ? 1 : 0;
       const std::string tnames[] = { "h10", "nudata" };
       const std::string gnames[] = { "g3numi","g4numi","flugg","g4flugg"};
       for (int j = 0; j < 2 ; ++j ) { 
-        TTree* atree = (TTree*)tf.Get(tnames[j].c_str());
+        TTree* atree = (TTree*)tf->Get(tnames[j].c_str());
         if ( atree ) {
           const std::string tname_this = tnames[j];
           const std::string gname_this = gnames[j+2*isflugg];
@@ -741,7 +744,8 @@ void GNuMIFlux::LoadBeamSimData(const std::vector<std::string>& patterns,
           this->AddFile(atree,filename);
         } // found a tree
       } // loop over either g3 or g4
-      tf.Close();
+      tf->Close();
+      delete tf;
     } // loop over tree type
   } // loop over sorted file names
 
