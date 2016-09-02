@@ -438,22 +438,26 @@ void GSimpleNtpFlux::LoadBeamSimData(const std::vector<string>& patterns,
     string filename = *sitr;
     //std::cout << "  [" << std::setw(3) << indx << "]  \"" 
     //          << filename << "\"" << std::endl;
-    bool isok = ! (gSystem->AccessPathName(filename.c_str()));
+    bool isok = true; 
+    // this next test only works for local files, so we can't do that
+    // if we want to stream via xrootd
+    // ! (gSystem->AccessPathName(filename.c_str()));
     if ( ! isok ) continue;
     // open the file to see what it contains
     LOG("Flux", pINFO) << "Load file " <<  filename;
     
-    TFile tf(filename.c_str());
-    TTree* etree = (TTree*)tf.Get("flux");
+    TFile* tf = TFile::Open(filename.c_str(),"READ");
+    TTree* etree = (TTree*)tf->Get("flux");
     if ( etree ) {
-      TTree* mtree = (TTree*)tf.Get("meta");
+      TTree* mtree = (TTree*)tf->Get("meta");
       // add the file to the chain
       LOG("Flux", pDEBUG) << "AddFile " << filename
                           << " etree " << etree << " meta " << mtree;
       this->AddFile(etree,mtree,filename);
       
     } // found a GSimpleNtpEntry "flux" tree
-    tf.Close();
+    tf->Close();
+    delete tf;
   } // loop over sorted file names
 
   // this will open all files and read headers!!
