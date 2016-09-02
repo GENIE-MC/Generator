@@ -288,13 +288,13 @@ void NeutronOscPrimaryVtxGenerator::GenerateDecayProducts(
   // Get the decay product masses
 
   vector<int>::const_iterator pdg_iter;
-  int i = 0;
+  int idx = 0;
   double * mass = new double[pdgv.size()];
   double   sum  = 0;
   for(pdg_iter = pdgv.begin(); pdg_iter != pdgv.end(); ++pdg_iter) {
     int pdgc = *pdg_iter;
     double m = PDGLibrary::Instance()->Find(pdgc)->Mass();
-    mass[i++] = m;
+    mass[idx++] = m;
     sum += m;
   }
 
@@ -390,7 +390,9 @@ void NeutronOscPrimaryVtxGenerator::GenerateDecayProducts(
     }
     
     // create new event record with new final state
-    EventRecord * event = new EventRecord;
+    // TODO - I don't think Jeremy meant to make a _new_ record here; it
+    // shadows the one passed in...
+    // EventRecord * event = new EventRecord;
     Interaction * interaction = Interaction::NOsc((int)fCurrInitStatePdg, mode);
     event->AttachSummary(interaction);
     
@@ -402,14 +404,14 @@ void NeutronOscPrimaryVtxGenerator::GenerateDecayProducts(
     
     // get the decay particles again
     LOG("NeutronOsc", pINFO) << "Performing a phase space decay...";
-    i = 0;
+    idx = 0;
     delete mass;
     mass = new double[pdgv.size()];
     sum = 0;
     for(pdg_iter = pdgv.begin(); pdg_iter != pdgv.end(); ++pdg_iter) {
       int pdgc = *pdg_iter;
       double m = PDGLibrary::Instance()->Find(pdgc)->Mass();
-      mass[i++] = m;
+      mass[idx++] = m;
       sum += m;
     }
     
