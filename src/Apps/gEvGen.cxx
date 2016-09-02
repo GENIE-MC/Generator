@@ -460,16 +460,15 @@ GFluxI * TH1FluxDriver(void)
 
     LOG("gevgen", pNOTICE) << hst->GetEntries();
 
-    // copy all bins between emin,emax
-    spectrum  = new TH1D("spectrum","neutrino flux",
-        hst->GetNbinsX(),  hst->GetXaxis()->GetXmin(), hst->GetXaxis()->GetXmax());
+    // Copy in the flux histogram from the root file and remove bins outside the emin,emax range
+    spectrum = (TH1D*)hst->Clone();
+    spectrum->SetNameTitle("spectrum","neutrino_flux");
     spectrum->SetDirectory(0);
     for(int ibin = 1; ibin <= hst->GetNbinsX(); ibin++) {
-       if(hst->GetBinLowEdge(ibin) < emax &&
-         hst->GetBinLowEdge(ibin) + hst->GetBinWidth(ibin) > emin) {
-           spectrum->SetBinContent(ibin, hst->GetBinContent(ibin));
-	    LOG("gevgen", pNOTICE) << "adding => " << ibin << ": " << hst->GetBinContent(ibin);
-         }
+      if(hst->GetBinLowEdge(ibin) + hst->GetBinWidth(ibin) > emax ||
+	 hst->GetBinLowEdge(ibin) < emin) {
+	spectrum->SetBinContent(ibin, 0);
+      }
     }
 
     LOG("gevgen", pNOTICE) << spectrum->GetEntries();
