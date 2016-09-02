@@ -802,8 +802,8 @@ STFC, Rutherford Appleton Laboratory
   Specify which cross section model is to be used by each GENIE event generation thread.
   The parameter name is build as: "XSecModel@[name of thread]"
   -->
-<!-- New Nieves QE model   -->
-<!--
+  <!-- New Nieves QE model   -->
+  <!--
   <param type="alg" name="XSecModel@genie::EventGenerator/QEL-CC">         genie::NievesQELCCPXSec/ZExp            </param>
   -->
   <param type="alg" name="XSecModel@genie::EventGenerator/QEL-CC">         genie::LwlynSmithQELCCPXSec/Default   </param>
@@ -832,8 +832,6 @@ STFC, Rutherford Appleton Laboratory
   <param type="alg" name="XSecModel@genie::EventGenerator/DIS-NC">         genie::QPMDISPXSec/Default            </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/DIS-EM">         genie::QPMDISPXSec/Default            </param>
 
-  <!-- 
-  -->
   <param type="alg" name="XSecModel@genie::EventGenerator/COH-CC">         genie::ReinSehgalCOHPiPXSec/Default   </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/COH-NC">         genie::ReinSehgalCOHPiPXSec/Default   </param>
 
@@ -846,11 +844,6 @@ STFC, Rutherford Appleton Laboratory
   <!-- Berger-Sehgal "as in the paper" (with Paschos-Schalla integration bounds)
   <param type="alg" name="XSecModel@genie::EventGenerator/COH-CC">         genie::BergerSehgalCOHPiPXSec2015/Default   </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/COH-NC">         genie::BergerSehgalCOHPiPXSec2015/Default   </param>
-  -->
-
-  <!-- Alvarez-Ruso et al COH pion
-  <param type="alg" name="XSecModel@genie::EventGenerator/COH-CC">       genie::AlvarezRusoCOHPiPXSec/Fast       </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/COH-NC">       genie::AlvarezRusoCOHPiPXSec/Fast       </param>
   -->
 
   <param type="alg" name="XSecModel@genie::EventGenerator/IMD">            genie::BardinIMDRadCorPXSec/Default   </param>
