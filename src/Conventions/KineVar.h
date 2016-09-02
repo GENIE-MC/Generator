@@ -49,8 +49,10 @@ typedef enum EKineVar {
   kKVSelTl,
   kKVSelctl,
   kKVSelphikq,
-  kKVSelRad
-
+  kKVSelRad,
+  // put all new enum names right before this line
+  // do not change any previous ordering (neither insert nor delete)
+  kNumOfKineVar
 
 } KineVar_t;
 
