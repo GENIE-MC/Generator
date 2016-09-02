@@ -6,6 +6,9 @@
 
 #pragma link C++ namespace genie;
 
+#pragma extra_include "Types/NuclearModel.h";
+#pragma extra_include "Interfaces/NuclearModelI.h";
+
 #pragma link C++ class genie::NuclearModel;
 #pragma link C++ class genie::NuclearModelI;
 #pragma link C++ class genie::SpectralFunc;
