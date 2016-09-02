@@ -214,8 +214,10 @@ ClassDef(GNuMIFluxPassThroughInfo,5)
 /// ==========
 /// An implementation of the GFluxI interface that provides NuMI flux
 ///
-class GNuMIFlux : public GFluxI, 
-    public GFluxExposureI, public GFluxFileConfigI 
+class GNuMIFlux 
+  : public genie::GFluxI
+  , public genie::flux::GFluxExposureI
+  , public genie::flux::GFluxFileConfigI 
 {
 
 public :

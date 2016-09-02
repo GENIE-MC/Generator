@@ -196,8 +196,10 @@ ostream & operator << (ostream & stream, const GSimpleNtpEntry & info);
 /// ==========
 /// An implementation of the GFluxI interface that provides NuMI flux
 ///
-class GSimpleNtpFlux : public GFluxI, 
-    public GFluxExposureI, public GFluxFileConfigI
+class GSimpleNtpFlux 
+  : public genie::GFluxI
+  , public genie::flux::GFluxExposureI
+  , public genie::flux::GFluxFileConfigI 
 {
 
 public :
