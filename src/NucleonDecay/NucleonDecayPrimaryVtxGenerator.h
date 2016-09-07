@@ -53,6 +53,7 @@ private:
 
    mutable int                fCurrInitStatePdg;
    mutable NucleonDecayMode_t fCurrDecayMode;
+   mutable int                fCurrDecayedNucleon;
    mutable bool               fNucleonIsBound;
    mutable TGenPhaseSpace     fPhaseSpaceGenerator;
 

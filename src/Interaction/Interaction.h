@@ -146,7 +146,7 @@ public:
   static Interaction * MECEM     (int tgt, int nuccluster, int probe, const TLorentzVector & p4probe);
   static Interaction * GLR       (int tgt, double E=0);
   static Interaction * GLR       (int tgt, const TLorentzVector & p4probe);
-  static Interaction * NDecay    (int tgt, int decay_mode=-1);
+  static Interaction * NDecay    (int tgt, int decay_mode=-1, int decayed_nucleon = 0);
   static Interaction * NOsc      (int tgt, int annihilation_mode=-1);
   static Interaction * ASK       (int tgt, int probe, double E=0);
   static Interaction * ASK       (int tgt, int probe, const TLorentzVector & p4probe);

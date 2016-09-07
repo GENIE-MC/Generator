@@ -11,6 +11,7 @@
                      [-r run#] 
                       -n n_of_events
                       -m decay_mode
+		     [-N decayed_nucleon_pdg]
 	              -g geometry
                      [-L geometry_length_units] 
                      [-D geometry_density_units]
@@ -49,6 +50,10 @@
                9 |   n --> \mu^{+}    + \pi^{-}     |   0.1
               10 |   p --> \bar{\nu}} + K^{+}       |   0.4
              ---------------------------------------------------------
+
+	   -N
+	      Decayed nucleon PDG code.
+	      Either N=2212 (proton) or N=2112 (neutron) 
 
            -g 
               Input 'geometry'.
@@ -163,6 +168,7 @@ string          kDefOptEvFilePrefix = "gntp";
 Long_t             gOptRunNu        = 1000;                // run number
 int                gOptNev          = 10;                  // number of events to generate
 NucleonDecayMode_t gOptDecayMode    = kNDNull;             // nucleon decay mode
+int                gOptDecayedNucleon = kNDNull;           // decayed nucleon PDG
 string             gOptEvFilePrefix = kDefOptEvFilePrefix; // event file prefix
 bool               gOptUsingRootGeom = false;              // using root geom or target mix?
 map<int,double>    gOptTgtMix;                             // target mix  (tgt pdg -> wght frac) / if not using detailed root geom
@@ -199,6 +205,13 @@ int main(int argc, char ** argv)
 
   // Event loop
   int ievent = 0;
+  int dpdg = 0;
+  if (gOptDecayedNucleon > 0) {
+    dpdg = gOptDecayedNucleon;
+  } else {
+    dpdg = utils::nucleon_decay::DecayedNucleonPdgCode(gOptDecayMode);
+  }  
+
   while (1)
   {
      if(ievent == gOptNev) break;
@@ -209,7 +222,7 @@ int main(int argc, char ** argv)
      EventRecord * event = new EventRecord;
      int target = SelectInitState();
      int decay  = (int)gOptDecayMode;
-     Interaction * interaction = Interaction::NDecay(target,decay);
+     Interaction * interaction = Interaction::NDecay(target,decay,dpdg);
      event->AttachSummary(interaction);
 
      // Simulate decay     
@@ -236,7 +249,18 @@ int main(int argc, char ** argv)
 //_________________________________________________________________________________________
 int SelectInitState(void)
 {
-  int dpdg = utils::nucleon_decay::DecayedNucleonPdgCode(gOptDecayMode);
+  if (!utils::nucleon_decay::IsValidMode(gOptDecayMode, gOptDecayedNucleon)) {
+    LOG("gevgen_ndcy", pFATAL) << "Not a valid decay mode and/or decayed nucleon...";
+    gAbortingInErr = true;
+    exit(1);
+  }
+
+  int dpdg = 0;
+  if (gOptDecayedNucleon > 0) {
+    dpdg = gOptDecayedNucleon;
+  } else {
+     dpdg = utils::nucleon_decay::DecayedNucleonPdgCode(gOptDecayMode);
+  }
 
   map<int,double> cprob; // cumulative probability 
   map<int,double>::const_iterator iter;
@@ -345,10 +369,20 @@ void GetCommandLineArgs(int argc, char ** argv)
     exit(0);
   } //-m
   gOptDecayMode = (NucleonDecayMode_t) mode;
-  bool valid_mode = utils::nucleon_decay::IsValidMode(gOptDecayMode);
+
+  // decayed nucleon PDG
+  if( parser.OptionExists('N') ) {
+    LOG("gevgen_ndcy", pINFO) << "Reading decayed nucleon PDG";
+    gOptDecayedNucleon = parser.ArgAsInt('N');
+  } else {
+    LOG("gevgen_ndcy", pINFO) << "Unspecified decayed nucleon PDG - Using default";
+    gOptDecayedNucleon = 0;
+  }  
+
+  bool valid_mode = utils::nucleon_decay::IsValidMode(gOptDecayMode, gOptDecayedNucleon);
   if(!valid_mode) {
     LOG("gevgen_ndcy", pFATAL) 
-        << "You need to specify a valid decay mode";
+        << "You need to specify a valid decay mode / decayed nucleon PDG combination";
     PrintSyntax();
     exit(0);
   }
@@ -506,7 +540,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   LOG("gevgen_ndcy", pNOTICE) 
      << "\n @@ Run number: " << gOptRunNu
      << "\n @@ Random number seed: " << gOptRanSeed
-     << "\n @@ Decay channel $ " << utils::nucleon_decay::AsString(gOptDecayMode)
+     << "\n @@ Decay channel $ " << utils::nucleon_decay::AsString(gOptDecayMode, gOptDecayedNucleon)
      << "\n @@ Geometry      $ " << gminfo.str()
      << "\n @@ Statistics    $ " << gOptNev << " events";
 
@@ -530,6 +564,7 @@ void PrintSyntax(void)
    << "\n gevgen_ndcy [-h] "
    << "\n             [-r run#]"
    << "\n              -m decay_mode"
+   << "\n             [-N decayed_nucleon]"
    << "\n              -g geometry"
    << "\n             [-t top_volume_name_at_geom]"
    << "\n             [-L length_units_at_geom]"

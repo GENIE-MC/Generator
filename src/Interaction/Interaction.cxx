@@ -938,11 +938,15 @@ Interaction * Interaction::GLR(int tgt, const TLorentzVector & p4probe)
   return interaction;
 }
 //___________________________________________________________________________
-Interaction * Interaction::NDecay(int tgt, int decay_mode)
+Interaction * Interaction::NDecay(int tgt, int decay_mode, int decayed_nucleon)
 {
   Interaction * interaction = 
      Interaction::Create(tgt, 0, kScNull, kIntNDecay);
   interaction->ExclTagPtr()->SetDecayMode(decay_mode);
+
+  InitialState * init_state = interaction->InitStatePtr();
+  init_state->TgtPtr()->SetHitNucPdg(decayed_nucleon);
+
   return interaction;
 }
 //___________________________________________________________________________
