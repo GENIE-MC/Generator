@@ -34,6 +34,7 @@ TGT =	gtestAlgorithms 	 \
 	gtestINukeHadroData      \
 	gtestMessenger		 \
 	gtestNaturalIsotopes	 \
+	gtestNucleonDecay        \
 	gtestPDFLIB		 \
 	gtestPREM		 \
 	gtestROOTGeometry	 \
@@ -117,6 +118,10 @@ gtestGiBUUData: FORCE
 gtestHadronization: FORCE
 	$(CXX) $(CXXFLAGS) -c gtestHadronization.cxx $(INCLUDES)
 	$(LD) $(LDFLAGS) gtestHadronization.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestHadronization
+
+gtestNucleonDecay: FORCE
+	$(CXX) $(CXXFLAGS) -c gtestNucleonDecay.cxx $(INCLUDES)
+	$(LD) $(LDFLAGS) gtestNucleonDecay.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestNucleonDecay
 
 gtestINukeHadroData: FORCE
 	$(CXX) $(CXXFLAGS) -c gtestINukeHadroData.cxx $(INCLUDES)
@@ -206,7 +211,8 @@ clean: FORCE
 	$(RM) $(GENIE_BIN_PATH)/gtestFluxSimple
 	$(RM) $(GENIE_BIN_PATH)/gtestFGPauliBlockSuppr
 	$(RM) $(GENIE_BIN_PATH)/gtestGiBUUData
-	$(RM) $(GENIE_BIN_PATH)/gtestHadronization	
+	$(RM) $(GENIE_BIN_PATH)/gtestHadronization
+	$(RM) $(GENIE_BIN_PATH)/gtestNucleonDecay
 	$(RM) $(GENIE_BIN_PATH)/gtestINukeHadroData	
 	$(RM) $(GENIE_BIN_PATH)/gtestMessenger		
 	$(RM) $(GENIE_BIN_PATH)/gtestNaturalIsotopes	
@@ -239,7 +245,8 @@ distclean: FORCE
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestFluxSimple
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestFGPauliBlockSuppr
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestGiBUUData
-	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestHadronization	
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestHadronization
+	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestNucleonDecay
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestINukeHadroData
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestMessenger		
 	$(RM) $(GENIE_BIN_INSTALLATION_PATH)/gtestNaturalIsotopes		

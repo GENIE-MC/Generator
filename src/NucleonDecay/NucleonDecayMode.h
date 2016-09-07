@@ -27,18 +27,71 @@ namespace genie {
 
  typedef enum ENucleonDecayMode {
 
-     kNDNull     = -1,
-     kNDp2epi0,        // p --> e^{+}   + \pi^{0}
-     kNDp2mupi0,       // p --> \mu^{+} + \pi^{0}
-     kNDp2eeta0,       // p --> e^{+}   + \eta^{0}
-     kNDp2mueta0,      // p --> \mu^{+} + \eta^{0}
-     kNDp2erho0,       // p --> e^{+}   + \rho^{0}
-     kNDp2murho0,      // p --> \mu^{+} + \rho^{0}
-     kNDp2eomega0,     // p --> e^{+}   + \omega^{0}
-     kNDp2muomega0,    // p --> \mu^{+} + \omega^{0}
-     kNDn2epim,        // n --> e^{+}   + \pi^{-}
-     kNDn2mupim,       // n --> \mu^{+} + \pi^{-}
-     kNDp2nubarKp      // p --> \bar{\nu}} + K^{+}
+   kNDNull = 0,
+   // Antilepton + meson
+   kNDN2eppi,           // m = 1: p --> e^{+} + \pi^{0}, n --> e^{+} + \pi^{-}
+   kNDN2muppi,          // m = 2: p --> \mu^{+} + \pi^{0}, n --> \mu^{+} + \pi^{-}
+   kNDN2nubarpi,        // m = 3: p --> \bar{\nu}} + \pi^{+}, n -->  \bar{\nu}} + \pi^{0} 
+   kNDp2epeta,          // m = 4: p --> e^{+} + \eta
+   kNDp2mupeta,         // m = 5: p --> \mu^{+} + \eta
+   kNDn2nubareta,       // m = 6: n --> \bar{\nu}} + \eta
+   kNDN2eprho,          // m = 7: p --> e^{+} + \rho^{0}, n --> e^{+} + \rho^{-}
+   kNDN2muprho,         // m = 8: p --> \mu^{+} + \rho^{0}, n --> \mu^{+} + \rho^{-}
+   kNDN2nubarrho,       // m = 9: p --> \bar{\nu}} + \rho^{+}, n --> \bar{\nu}} + \rho^{0} 
+   kNDp2epomega,        // m = 10: p --> e^{+} + \omega
+   kNDp2mupomega,       // m = 11: p --> \mu^{+} + \omega
+   kNDn2nubaromega,     // m = 12: n --> \bar{\nu}} + \omega
+   kNDN2epK,            // m = 13: p --> e^{+} + K^{0}, n --> e^{+} + K^{-}
+   kNDp2epK0s,          // m = 14: p --> e^{+} + K^{0}_{short}
+   kNDp2epK0l,          // m = 15: p --> e^{+} + K^{0}_{long}
+   kNDN2mupK,           // m = 16: p --> \mu^{+} + K^{0}, n --> \mu^{+} + K^{-}
+   kNDp2mupK0s,         // m = 17: p --> \mu^{+} + K^{0}_{short}
+   kNDp2mupK0l,         // m = 18: p --> \mu^{+} + K^{0}_{long}
+   kNDN2nubarK,         // m = 19: p --> \bar{\nu}} + K^{+}, n --> \bar{\nu}} + K^{0} 
+   kNDn2nubarK0s,       // m = 20: n --> \bar{\nu}} + K^{0}_{short} 
+   kNDp2epKstar0,       // m = 21: p --> e^{+} + K^{\star 0}
+   kNDN2nubarKstar,     // m = 22: p --> \bar{\nu}} + K^{\star +}, n --> \bar{\nu}} + K^{\star 0}
+   // Antilepton + mesons
+   kNDp2eppippim,       // m = 23: p --> e^{+} + \pi^{+} + \pi^{-}
+   kNDp2eppi0pi0,       // m = 24: p --> e^{+} + \pi^{0} + \pi^{0}
+   kNDn2eppimpi0,       // m = 25: n --> e^{+} + \pi^{-} + \pi^{0}
+   kNDp2muppippim,      // m = 26: p --> \mu^{+} + \pi^{+} + \pi^{-}
+   kNDp2muppi0pi0,      // m = 27: p --> \mu^{+} + \pi^{0} + \pi^{0}
+   kNDn2muppimpi0,      // m = 28: n --> \mu^{+} + \pi^{-} + \pi^{0}
+   kNDn2epK0pim,        // m = 29: n --> e^{+} + K^{0} + \pi^{-}
+   // Lepton + meson
+   kNDn2empip,          // m = 30: n --> e^{-} + \pi^{+}
+   kNDn2mumpip,         // m = 31: n --> \mu^{-} + \pi^{+}
+   kNDn2emrhop,         // m = 32: n --> e^{-} + \rho^{+}
+   kNDn2mumrhop,        // m = 33: n --> \mu^{-} + \rho^{+}
+   kNDn2emKp,           // m = 34: n --> e^{-} + K^{+}
+   kNDn2mumKp,          // m = 35: n --> \mu^{-} + K^{+}
+   // Lepton + mesons
+   kNDp2empippip,       // m = 36: p --> e^{-} + \pi^{+} + \pi^{+}
+   kNDn2empippi0,       // m = 37: n --> e^{-} + \pi^{+} + \pi^{0}
+   kNDp2mumpippip,      // m = 38: p --> \mu^{-} + \pi^{+} + \pi^{+}
+   kNDn2mumpippi0,      // m = 39: n --> \mu^{-} + \pi^{+} + \pi^{0}
+   kNDp2empipKp,        // m = 40: p --> e^{-} + \pi^{+} + K^{+}
+   kNDp2mumpipKp,       // m = 41: p --> \mu^{-} + \pi^{+} + K^{+}
+   // Antilepton + photon(s)
+   kNDp2epgamma,        // m = 42: p --> e^{+} + \gamma
+   kNDp2mupgamma,       // m = 43: p --> \mu^{+} + \gamma
+   kNDn2nubargamma,     // m = 44: n -->  \bar{\nu}} + \gamma
+   kNDp2epgammagamma,   // m = 45: p --> e^{+} + \gamma + \gamma
+   kNDn2nubargammagamma,// m = 46: n -->  \bar{\nu}} + \gamma + \gamma
+   // Three (or more) leptons
+   kNDp2epepem,         // m = 47: p --> e^{+} + e^{+} + e^{-}
+   kNDp2epmupmum,       // m = 48: p --> e^{+} + \mu^{+} + \mu^{-}
+   kNDp2epnubarnu,      // m = 49: p --> e^{+} + \bar{\nu}} + \nu
+   kNDn2epemnubar,      // m = 50: n --> e^{+} + e^{-} + \bar{\nu}}
+   kNDn2mupemnubar,     // m = 51: n --> \mu^{+} + e^{-} + \bar{\nu}}
+   kNDn2mupmumnubar,    // m = 52: n --> \mu^{+} + \mu^{-} + \bar{\nu}}
+   kNDp2mupepem,        // m = 53: p --> \mu^{+} + e^{+} + e^{-}
+   kNDp2mupmupmum,      // m = 54: p --> \mu^{+} + \mu^{+} + \mu^{-}
+   kNDp2mupnubarnu,     // m = 55: p --> \mu^{+} + \bar{\nu}} + \nu
+   kNDp2emmupmup,       // m = 56: p --> e^{-} + \mu^{+} + \mu^{+}
+   kNDn2threenus,       // m = 57: n --> \bar{\nu}} + \bar{\nu}} + \nu
+   kNDn2fivenus         // m = 58: n --> \bar{\nu}} + \bar{\nu}} + \bar{\nu}} + \nu + \nu 
 
  } NucleonDecayMode_t;
 
