@@ -82,8 +82,8 @@ STFC, Rutherford Appleton Laboratory
   -->
   <param type="bool"   name="DISSF-IncludeR">           true </param>
   <param type="bool"   name="DISSF-IncludeNuclMod">     true </param>
-  <param type="bool"   name="DISSF-Use2016Corrections"> true </param>
-  <param type="double" name="DISSF-LowQ2CutoffF1F2">    0.0  </param>
+  <param type="bool"   name="DISSF-Use2016Corrections"> false</param>
+  <param type="double" name="DISSF-LowQ2CutoffF1F2">    0.8  </param>
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
