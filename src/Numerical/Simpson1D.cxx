@@ -64,7 +64,7 @@ double Simpson1D::Integrate(GSFunc & gsfunc) const
   // integral value converges to the real one within the required accuracy
   for(unsigned int iter=0; iter<fIMaxConv; iter++) {
 
-    np = (unsigned int) TMath::Power(2,n) + 1;
+    np = (unsigned int) TMath::Power(2, (int)n) + 1;
     n++;
 
     fmap.IncreaseGridDensity(np);

@@ -118,13 +118,16 @@ LOG_LIBRARIES := -L$(LOG_LIB_DIR) -llog4cpp
 
 FORT_LIBRARIES =
 
-ifeq ($(strip $(ARCH)),linux) 
+ifeq ($(strip $(ARCH)),linux)
+have_g2c := $(wildcard /usr/lib/libg2c.so)
+ifneq ($(strip $(have_g2c)),)
 FORT_LIBRARIES = -L/usr/lib -lg2c
 endif
-
-ifeq ($(strip $(ARCH)),linuxx8664gcc) 
-FORT_LIBRARIES = -L/usr/lib64 -lg2c
+have_gfortran := $(wildcard /usr/lib/libgfortran.so)
+ifneq ($(strip $(have_gfortran)),)
+FORT_LIBRARIES := $(FORT_LIBRARIES) -lgfortran
 endif
+endif # linux
 
 ifeq ($(strip $(ARCH)),macosx) 
 FORT_LIBRARIES = /usr/local/lib/libgfortran.dylib 
