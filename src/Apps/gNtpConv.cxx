@@ -572,11 +572,9 @@ void ConvertToGST(void)
 
     //input particles
     GHepParticle * neutrino = event.Probe();
-    assert(neutrino);
     GHepParticle * target = event.Particle(1);
     assert(target);
     GHepParticle * fsl = event.FinalStatePrimaryLepton();
-    assert(fsl);
     GHepParticle * hitnucl = event.HitNucleon();
 
     int tgtZ = 0;
@@ -614,7 +612,9 @@ void ConvertToGST(void)
     bool is_weaknc = proc_info.IsWeakNC();
     bool is_mec    = proc_info.IsMEC();
 
-    if(!hitnucl) { assert(is_coh || is_imd || is_imdanh || is_nuel); }
+    if (!hitnucl && neutrino) {
+        assert(is_coh || is_imd || is_imdanh || is_nuel);
+    }
   
     // Hit quark - set only for DIS events
     int  qrk  = (is_dis) ? tgt.HitQrkPdg() : 0;     
@@ -653,9 +653,9 @@ void ConvertToGST(void)
     // measure them by neglecting the fermi momentum and off-shellness of bound nucleons
     //
 
-    const TLorentzVector & k1 = *(neutrino->P4());                     // v 4-p (k1)
-    const TLorentzVector & k2 = *(fsl->P4());                          // l 4-p (k2)
-    const TLorentzVector & p1 = (hitnucl) ? *(hitnucl->P4()) : pdummy; // N 4-p (p1)      
+    const TLorentzVector & k1 = (neutrino) ? *(neutrino->P4()) : pdummy;  // v 4-p (k1)
+    const TLorentzVector & k2 = (fsl)      ? *(fsl->P4())      : pdummy;  // l 4-p (k2)
+    const TLorentzVector & p1 = (hitnucl)  ? *(hitnucl->P4())  : pdummy;  // N 4-p (p1)      
 
     double M  = kNucleonMass; 
     TLorentzVector q  = k1-k2;                     // q=k1-k2, 4-p transfer
@@ -790,8 +790,8 @@ void ConvertToGST(void)
     // Al information has been assembled -- Start filling up the tree branches
     //
     brIev        = (int) iev;      
-    brNeutrino   = neutrino->Pdg();      
-    brFSPrimLept = fsl->Pdg();
+    brNeutrino   = (neutrino) ? neutrino->Pdg() : 0;      
+    brFSPrimLept = (fsl) ? fsl->Pdg() : 0;
     brTarget     = target->Pdg(); 
     brTargetZ    = tgtZ;
     brTargetA    = tgtA;   
@@ -899,7 +899,7 @@ void ConvertToGST(void)
     brNfEM       = 0;  
     brNfOther    = 0;  
 
-    brSumKEf     = fsl->KinE();
+    brSumKEf     = (fsl) ? fsl->KinE() : 0;
     brCalResp0   = 0;
 
     brNf = final_had_syst.size();
