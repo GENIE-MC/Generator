@@ -14,6 +14,7 @@
 #include <Math/IntegratorMultiDim.h>
 #include "Math/AdaptiveIntegratorMultiDim.h"
 
+#include "Algorithm/AlgConfigPool.h"
 #include "Conventions/GBuild.h"
 #include "Conventions/Constants.h"
 #include "Conventions/Controls.h"
@@ -72,10 +73,22 @@ double MECXSec::Integrate(
   interaction->SetBit(kISkipKinematicChk);
   
   // T, costh limits
-  // NOTE: Where are these limits actually computed
   double Enu = in->InitState().ProbeE(kRfLab);
-  double kine_min[2] = {  0,  -1 }; 
-  double kine_max[2] = { Enu,  1 }; 
+  double LepMass = in->FSPrimLepton()->Mass();
+  double TMax = Enu - LepMass;
+  double TMin = 0.0;
+  double CosthMax = 1.0;
+  double CosthMin = -1.0;
+  if (Enu < fQ3Max) {
+    TMin = 0 ;
+    CosthMin = -1 ; 
+  } else {
+    TMin = TMath::Sqrt(TMath::Power(LepMass, 2) + TMath::Power((Enu - fQ3Max), 2)) - LepMass;
+    CosthMin = TMath::Sqrt(1 - TMath::Power((fQ3Max / Enu ), 2));
+  }
+
+  double kine_min[2] = { TMin,  CosthMin }; 
+  double kine_max[2] = { TMax,  CosthMax }; 
 
   double xsec = 0;
 
@@ -109,11 +122,15 @@ void MECXSec::Configure(string config)
 //____________________________________________________________________________
 void MECXSec::LoadConfig(void)
 {
+  AlgConfigPool * confp = AlgConfigPool::Instance();
+  const Registry * gc = confp->GlobalParameterList();
+  fQ3Max = fConfig->GetDoubleDef("NSV-Q3Max", gc->GetDouble("NSV-Q3Max"));
+
   // Get GSL integration type & relative tolerance
   fGSLIntgType   = fConfig->GetStringDef("gsl-integration-type" ,    "vegas");
-  fGSLMaxEval    = (unsigned int) fConfig->GetIntDef("gsl-max-evals", 20000);
-  fGSLRelTol     = fConfig->GetDoubleDef("gsl-relative-tolerance",    0.01);
-  fSplitIntegral = fConfig->GetBoolDef("split-integral",              true);
+  fGSLMaxEval    = (unsigned int) fConfig->GetIntDef("gsl-max-eval",  20000);
+  fGSLRelTol     = fConfig->GetDoubleDef("gsl-relative-tolerance",     0.01);
+  fSplitIntegral = fConfig->GetBoolDef("split-integral",               true);
 }
 //_____________________________________________________________________________
 // GSL wrappers
