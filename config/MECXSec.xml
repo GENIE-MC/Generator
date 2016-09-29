@@ -18,13 +18,13 @@ gsl-max-evals           int      yes        Max limit of evaluations for multidi
 
   <param_set name="Default"> 
     <param type="string" name ="gsl-integration-type">       vegas  </param>
-    <param type="int"    name ="gsl-max-evals">              40000  </param>
-    <param type="double" name ="gsl-relative-tolerance"  >    0.01  </param>    
+    <param type="int"    name ="gsl-max-eval" >             200000  </param>
+    <param type="double" name ="gsl-relative-tolerance" >   0.0005  </param>
   </param_set>
   
   <param_set name="Fast"> 
     <param type="string" name ="gsl-integration-type">       miser   </param>
-    <param type="int"    name ="gsl-max-evals">              10000   </param>
+    <param type="int"    name ="gsl-max-eval">               10000   </param>
     <param type="double" name ="gsl-relative-tolerance"  >    0.05   </param>    
   </param_set>
 
