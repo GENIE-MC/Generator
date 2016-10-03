@@ -874,10 +874,7 @@ GHepStatus_t genie::utils::nucleon_decay::DecayProductStatus(
   bool in_nucleus, int pdgc)
 {
   if(in_nucleus) {
-    if( pdgc == kPdgPiP   ||
-	pdgc == kPdgPiM   ||
-	pdgc == kPdgPi0   ||
-        pdgc == kPdgKP ) 
+    if( pdg::IsHadron(pdgc) )
     {
       return kIStHadronInTheNucleus;
     } 
