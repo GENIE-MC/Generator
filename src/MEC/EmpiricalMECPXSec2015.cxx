@@ -252,7 +252,7 @@ double EmpiricalMECPXSec2015::Integral(const Interaction * interaction) const
     Interaction * inn = Interaction::QELNC(tgtpdg,nucpdg,nupdg,E);
     
     // Calculate cross section for the QE process - avg of p and n - best for isoscalar nuclei
-    double xsec = 0.5*(Z*fXSecAlgNCQE->Integral(inp) + N*fXSecAlgNCQE->Integral(inn))/A;
+    double xsec = (Z*fXSecAlgNCQE->Integral(inp) + N*fXSecAlgNCQE->Integral(inn))/A;
     
     // Use tunable fraction 
     // FFracNCQE is fraction of QE going to MEC
