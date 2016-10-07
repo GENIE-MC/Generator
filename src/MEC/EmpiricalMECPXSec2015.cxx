@@ -191,7 +191,8 @@ double EmpiricalMECPXSec2015::Integral(const Interaction * interaction) const
   double E      = interaction->InitState().ProbeE(kRfLab);
   int nucleon_cluster_pdg = interaction->InitState().Tgt().HitNucPdg();
   double Z=interaction->InitState().Tgt().Z();
-  double N=interaction->InitState().Tgt().A()-Z;
+  double A=interaction->InitState().Tgt().A();
+  double N=A-Z;
 
   if(iscc) {
 
@@ -251,7 +252,7 @@ double EmpiricalMECPXSec2015::Integral(const Interaction * interaction) const
     Interaction * inn = Interaction::QELNC(tgtpdg,nucpdg,nupdg,E);
     
     // Calculate cross section for the QE process - avg of p and n - best for isoscalar nuclei
-    double xsec = 0.5*(Z*fXSecAlgNCQE->Integral(inp) + N*fXSecAlgNCQE->Integral(inn));
+    double xsec = 0.5*(Z*fXSecAlgNCQE->Integral(inp) + N*fXSecAlgNCQE->Integral(inn))/A;
     
     // Use tunable fraction 
     // FFracNCQE is fraction of QE going to MEC
