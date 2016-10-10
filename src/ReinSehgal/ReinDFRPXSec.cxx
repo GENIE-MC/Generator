@@ -130,7 +130,7 @@ double ReinDFRPXSec::Integral(const Interaction * interaction) const
   //expect only free protons as target
   const InitialState & init_state = interaction -> InitState();
   const Target &       target     = init_state.Tgt();
-  if(target.A() > 1)
+  if(target.A() > 1 || target.Z() != 1)
     return 0;
 
   double xsec = fXSecIntegrator->Integrate(this,interaction);
