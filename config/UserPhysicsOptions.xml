@@ -591,8 +591,8 @@ STFC, Rutherford Appleton Laboratory
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Invariant mass window for the transition from KNO model to PYTHIA
   -->
-  <param type="double" name="KNO2PYTHIA-Wmin">  2000.30 </param>
-  <param type="double" name="KNO2PYTHIA-Wmax">  3000.00 </param>
+  <param type="double" name="KNO2PYTHIA-Wmin">  2.30 </param>
+  <param type="double" name="KNO2PYTHIA-Wmax">  3.00 </param>
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -843,7 +843,7 @@ STFC, Rutherford Appleton Laboratory
   <param type="alg" name="XSecModel@genie::EventGenerator/COH-NC">         genie::BergerSehgalFMCOHPiPXSec2015/Default   </param>
   -->
 
-  <!-- Berger-Sehgal "as in the paper" (with Paschos-Schalla integration bounds)
+  <!-- Berger-Sehgal "as in the paper"
   <param type="alg" name="XSecModel@genie::EventGenerator/COH-CC">         genie::BergerSehgalCOHPiPXSec2015/Default   </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/COH-NC">         genie::BergerSehgalCOHPiPXSec2015/Default   </param>
   -->
