@@ -41,7 +41,9 @@
  @ Jan 9, 2015 - SD, NG, TG
    Added 2014 version of INTRANUKE codes (new class) for independent development.
  @ Aug 30, 2016 - SD
-   Fix memory leaks - Igor.  
+   Fix memory leaks - Igor. 
+ @ Oct 14, 2016 - SD
+   Oset will be standard in new versions of hA 
 */
 //____________________________________________________________________________
 
@@ -76,7 +78,7 @@
 #include "PDG/PDGUtils.h"
 #include "Utils/PrintUtils.h"
 #include "Utils/NuclearUtils.h"
-#include "HadronTransport/INukeOset.h" //edit
+#include "HadronTransport/INukeOset.h" 
 
 using std::ostringstream;
 
@@ -224,8 +226,8 @@ INukeFateHA_t HAIntranuke2015::HadronFateHA(const GHepParticle * p) const
   int    pdgc = p->Pdg();
   double ke   = p->KinE() / units::MeV;
 
-  bool isPion = (pdgc == kPdgPiP or pdgc == kPdgPi0 or pdgc == kPdgPiM); //edit
-  if (isPion and fUseOset and ke < 350.0) return this->HadronFateOset(); //edit
+  bool isPion = (pdgc == kPdgPiP or pdgc == kPdgPi0 or pdgc == kPdgPiM); 
+  if (isPion and fUseOset and ke < 350.0) return this->HadronFateOset(); 
 
  
   LOG("HAIntranuke2015", pINFO) 
@@ -1377,7 +1379,9 @@ void HAIntranuke2015::LoadConfig(void)
   fDoFermi       = fConfig->GetBoolDef   ("DoFermi",      gc->GetBool("INUKE-DoFermi"));
   fFreeStep      = fConfig->GetDoubleDef ("FreeStep",     gc->GetDouble("INUKE-FreeStep"));
   fDoCompoundNucleus = fConfig->GetBoolDef ("DoCompoundNucleus", gc->GetBool("INUKE-DoCompoundNucleus"));
-  fUseOset       = true; // disable oset model for hA
+  fUseOset        = fConfig->GetBoolDef ("UseOset", true);
+  fAltOset        = fConfig->GetBoolDef ("AltOset", false);
+  fXsecNNCorr     = fConfig->GetBoolDef ("XsecNNCorr", gc->GetBool("INUKE-XsecNNCorr"))
 
   // report
   LOG("HAIntranuke2015", pINFO) << "Settings for INTRANUKE mode: " << INukeMode::AsString(kIMdHA);
