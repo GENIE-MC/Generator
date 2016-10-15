@@ -164,8 +164,7 @@ foreach $nu ( keys %nu_pdg ) {
          print PBS "#\$ -N $jobname \n";
          print PBS "#\$ -o $filename_template.pbsout.log \n";
          print PBS "#\$ -e $filename_template.pbserr.log \n";
-         print PBS "#\$ -l ct=6:00:00 \n";
-         print PBS "newgroup -t $ENV{'GROUP'} \n";
+         print PBS "#\$ -l ct=6:00:00,sps=1 \n";
          print PBS "source $genie_setup $config_dir \n";
          print PBS "cd $jobs_dir \n";
          print PBS "$gmkspl_cmd | $grep_pipe &> $filename_template.mkspl.log \n";

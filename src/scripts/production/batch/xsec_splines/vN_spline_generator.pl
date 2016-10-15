@@ -66,7 +66,7 @@ $queue          = "prod"                        unless defined $queue;
 $softw_topdir   = "/opt/ppd/t2k/softw/GENIE/"   unless defined $softw_topdir;
 $jobs_topdir    = $ENV{'PWD'}                   unless defined $jobs_topdir;
 $genie_setup    = "$softw_topdir/generator/builds/$arch/$genie_version-setup";
-$jobs_dir       = "$jobs_topdir/$genie_version-$production\_$cycle-xsec\_vN/";
+$jobs_dir       = "$jobs_topdir/$genie_version-$production\_$cycle-xsec\_vN";
 
 
 $nkots = 500;
@@ -90,8 +90,6 @@ else {
 @proc_v = ( 'CCQE',     'NCEL', 
             'CCRES',    'NCRES', 
             'CCDIS',    'NCDIS', 
-            'CCMEC',    'NCMEC', 
-            'CCCOH',    'NCCOH',
             'GLRES', 
             'CCDFR',    'NCDFR', 
             'CharmCCDIS', 'CharmCCQE', 
@@ -148,11 +146,10 @@ foreach $nu ( keys %nu_pdg ) {
          print PBS "#\$ -N $jobname \n";
          print PBS "#\$ -o $filename_template.pbsout.log \n";
          print PBS "#\$ -e $filename_template.pbserr.log \n";
-         print PBS "#\$ -l ct=6:00:00 \n";
-         print PBS "newgroup -t $ENV{'GROUP'} \n";
+         print PBS "#\$ -l ct=6:00:00,sps=1 \n";
          print PBS "source $genie_setup $config_dir \n";
          print PBS "cd $jobs_dir \n";
-         print PBS "$gmkspl_cmd | $grep_pipe &> $filename_template.mkspl.log \n";
+         print PBS "$gmkspl_cmd \n";
          close(PBS);
          $job_submission_command = "qsub";
          `$job_submission_command  $batch_script`;
