@@ -169,7 +169,7 @@ string genie::utils::nucleon_decay::AsString(NucleonDecayMode_t ndm,
     break;
 
   case (kNDn2nubarK0s):
-    return "p --> nubar K0s";
+    return "n --> nubar K0s";
     break;
 
   case (kNDp2epKstar0):
