@@ -80,18 +80,18 @@ namespace genie {
    kNDp2epgammagamma,   // m = 45: p --> e^{+} + \gamma + \gamma
    kNDn2nubargammagamma,// m = 46: n -->  \bar{\nu}} + \gamma + \gamma
    // Three (or more) leptons
-   kNDp2epepem,         // m = 47: p --> e^{+} + e^{+} + e^{-}
-   kNDp2epmupmum,       // m = 48: p --> e^{+} + \mu^{+} + \mu^{-}
-   kNDp2epnubarnu,      // m = 49: p --> e^{+} + \bar{\nu}} + \nu
-   kNDn2epemnubar,      // m = 50: n --> e^{+} + e^{-} + \bar{\nu}}
-   kNDn2mupemnubar,     // m = 51: n --> \mu^{+} + e^{-} + \bar{\nu}}
-   kNDn2mupmumnubar,    // m = 52: n --> \mu^{+} + \mu^{-} + \bar{\nu}}
-   kNDp2mupepem,        // m = 53: p --> \mu^{+} + e^{+} + e^{-}
-   kNDp2mupmupmum,      // m = 54: p --> \mu^{+} + \mu^{+} + \mu^{-}
-   kNDp2mupnubarnu,     // m = 55: p --> \mu^{+} + \bar{\nu}} + \nu
-   kNDp2emmupmup,       // m = 56: p --> e^{-} + \mu^{+} + \mu^{+}
-   kNDn2threenus,       // m = 57: n --> \bar{\nu}} + \bar{\nu}} + \nu
-   kNDn2fivenus         // m = 58: n --> \bar{\nu}} + \bar{\nu}} + \bar{\nu}} + \nu + \nu 
+   kNDp2epepem = 49,    // m = 49: p --> e^{+} + e^{+} + e^{-}
+   kNDp2epmupmum,       // m = 50: p --> e^{+} + \mu^{+} + \mu^{-}
+   kNDp2epnubarnu,      // m = 51: p --> e^{+} + \bar{\nu}} + \nu
+   kNDn2epemnubar,      // m = 52: n --> e^{+} + e^{-} + \bar{\nu}}
+   kNDn2mupemnubar,     // m = 53: n --> \mu^{+} + e^{-} + \bar{\nu}}
+   kNDn2mupmumnubar,    // m = 54: n --> \mu^{+} + \mu^{-} + \bar{\nu}}
+   kNDp2mupepem,        // m = 55: p --> \mu^{+} + e^{+} + e^{-}
+   kNDp2mupmupmum,      // m = 56: p --> \mu^{+} + \mu^{+} + \mu^{-}
+   kNDp2mupnubarnu,     // m = 57: p --> \mu^{+} + \bar{\nu}} + \nu
+   kNDp2emmupmup,       // m = 58: p --> e^{-} + \mu^{+} + \mu^{+}
+   kNDn2threenus,       // m = 59: n --> \bar{\nu}} + \bar{\nu}} + \nu
+   kNDn2fivenus         // m = 60: n --> \bar{\nu}} + \bar{\nu}} + \bar{\nu}} + \nu + \nu 
 
  } NucleonDecayMode_t;
 
