@@ -34,26 +34,20 @@
               Specifies how many events to generate.
            -m 
               Nucleon decay mode ID:
-             ---------------------------------------------------------
-              ID |   Decay Mode                     |   Current Limit 
-                 |                                  |   (1E+34 yrs)
-             ---------------------------------------------------------
-               0 |   p --> e^{+}      + \pi^{0}     |   1.3
-               1 |   p --> \mu^{+}    + \pi^{0}     |   1.1
-               2 |   p --> e^{+}      + \eta^{0}    |   0.42
-               3 |   p --> \mu^{+}    + \eta^{0}    |   0.13
-               4 |   p --> e^{+}      + \rho^{0}    |   0.07
-               5 |   p --> \mu^{+}    + \rho^{0}    |   0.02
-               6 |   p --> e^{+}      + \omega^{0}  |   0.03
-               7 |   p --> \mu^{+}    + \omega^{0}  |   0.08
-               8 |   n --> e^{+}      + \pi^{-}     |   0.2
-               9 |   n --> \mu^{+}    + \pi^{-}     |   0.1
-              10 |   p --> \bar{\nu}} + K^{+}       |   0.4
-             ---------------------------------------------------------
+	      see http://www-pdg.lbl.gov/2016/listings/rpp2016-list-p.pdf
+	      for nucleon decay mode numbering convention
+	      Example:
+	      m = 1: N -> e+ pi
+	      ...
+	      m = 60: n -> 5nu
+            
 
 	   -N
 	      Decayed nucleon PDG code.
 	      Either N=2212 (proton) or N=2112 (neutron) 
+	      Example:
+	      m = 1 and N = 2112: n -> e+ pi-
+	      m = 1 and N = 2212: p -> e+ pi0
 
            -g 
               Input 'geometry'.
