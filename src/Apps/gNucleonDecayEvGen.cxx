@@ -271,12 +271,12 @@ int SelectInitState(void)
      int A = pdg::IonPdgCodeToA(pdg_code);
      int Z = pdg::IonPdgCodeToZ(pdg_code);
 
-     int Nnuc = 0;
-     if      (dpdg == kPdgProton ) { Nnuc = Z;   }
-     else if (dpdg == kPdgNeutron) { Nnuc = A-Z; }
+     double nucleon_decay_fraction = 0.;
+     if (dpdg == kPdgProton ) { nucleon_decay_fraction = (double)Z / (double)A; }
+     else if (dpdg == kPdgNeutron ) { nucleon_decay_fraction = (double)(A-Z) / (double)A; }
 
      double wgt  = iter->second;
-     double prob = wgt*Nnuc;
+     double prob = wgt*nucleon_decay_fraction;
 
      sum_prob += prob;
      cprob.insert(map<int, double>::value_type(pdg_code, sum_prob));
