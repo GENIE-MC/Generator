@@ -53,7 +53,7 @@ CmdLnArgParser::~CmdLnArgParser()
 //____________________________________________________________________________
 char * CmdLnArgParser::Arg(char op)
 {
-  const int buf_size = 2048;
+  const int buf_size = 2048*128;
 
   char *  argument  = new char[buf_size];
   strcpy(argument, "");
@@ -202,7 +202,7 @@ vector<long> CmdLnArgParser::ArgAsLongTokens(char op, string delimeter)
 //____________________________________________________________________________
 char * CmdLnArgParser::Arg(string op)
 {
-  const int buf_size = 2048;
+  const int buf_size = 2048*128;
   char *  argument   = new char[buf_size];
   strcpy(argument, "");
 
@@ -253,7 +253,7 @@ char * CmdLnArgParser::Arg(string op)
 //____________________________________________________________________________
 bool CmdLnArgParser::OptionExists(string op)
 {
-  const int buf_size = 2048;
+  const int buf_size = 2048*128;
   bool set = false;
 
   int     argc = fArgc;
