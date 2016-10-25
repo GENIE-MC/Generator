@@ -876,17 +876,19 @@ void genie::utils::kinematics::UpdateXFromQ2Y(const Interaction * in)
   if(kine->KVSet(kKVy) && kine->KVSet(kKVQ2)) {
 
     const ProcessInfo &  pi = in->ProcInfo();
+    const InitialState & init_state = in->InitState();
     double M = 0.0;
+    double Ev = 0.0;
 
     if (pi.IsCoherent()) {
       M = in->InitState().Tgt().Mass(); // nucleus mass
+      Ev = init_state.ProbeE(kRfLab);
     }
     else {
       M = in->InitState().Tgt().HitNucP4Ptr()->M(); //can be off m/shell
+      Ev = init_state.ProbeE(kRfHitNucRest);
     }
 
-    const InitialState & init_state = in->InitState();
-    double Ev = init_state.ProbeE(kRfHitNucRest);
     double y  = kine->y();
     double Q2 = kine->Q2();
 

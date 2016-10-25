@@ -173,7 +173,6 @@ double genie::utils::gsl::d2XSec_dQ2dy_E::DoEval(const double * xin) const
 // outputs: 
 //   differential cross section [10^-38 cm^2]
 //
-  //double  E = fInteraction->InitState().ProbeE(kRfLab);
   double Q2 = xin[0];
   double  y = xin[1];
   fInteraction->KinePtr()->SetQ2(Q2);
