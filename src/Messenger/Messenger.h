@@ -190,6 +190,45 @@ using std::string;
 #define BLOG(stream, priority) \
 	  (*Messenger::Instance())(stream) << priority
 
+/*!
+  \def   MAXSLOG(stream, priority, maxcount)
+  \brief Similar to SLOG(stream,priority) but quits after "maxcount" messages
+
+  \def   MAXLOG(stream, priority, maxcount)
+  \brief Similar to LOG(stream,priority) but quits after "maxcount" messages
+
+  \def   MAXLLOG(stream, priority, maxcount)
+  \brief Similar to LLOG(stream,priority) but quits after "maxcount" messages
+
+
+*/
+
+// Macro to concatenate two symbols:                                            
+#define TOKCAT(x,y) x##y
+// Macro to expand preprocessor variables and concatenate:                      
+#define TOKCAT2(x,y) TOKCAT(x,y)
+// Macro to concatenate source line with a symbol:                              
+#define LINECAT(x) TOKCAT2(x, __LINE__ )
+
+#define MAXSLOG(s,l,c)  \
+  static int  LINECAT(MSGCNT) = 0; \
+  const char* LINECAT(MSGADD) = (++LINECAT(MSGCNT)==c) ? "..Last Message .. " : ""; \
+  if (LINECAT(MSGCNT) > c || LINECAT(MSGCNT) < 0) \
+     {;} else SLOG(s,l) << LINECAT(MSGADD)
+
+#define MAXLOG(s,l,c)  \
+  static int  LINECAT(MSGCNT) = 0; \
+  const char* LINECAT(MSGADD) = (++LINECAT(MSGCNT)==c) ? "..Last Message .. " : ""; \
+  if (LINECAT(MSGCNT) > c || LINECAT(MSGCNT) < 0) \
+     {;} else LOG(s,l) << LINECAT(MSGADD)
+
+#define MAXLLOG(s,l,c)  \
+  static int  LINECAT(MSGCNT) = 0; \
+  const char* LINECAT(MSGADD) = (++LINECAT(MSGCNT)==c) ? "..Last Message .. " : ""; \
+  if (LINECAT(MSGCNT) > c || LINECAT(MSGCNT) < 0) \
+     {;} else LLOG(s,l) << LINECAT(MSGADD)
+
+
 namespace genie {
 
 extern bool gAbortingInErr; 
