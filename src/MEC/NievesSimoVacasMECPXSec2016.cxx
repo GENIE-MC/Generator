@@ -72,7 +72,7 @@ double NievesSimoVacasMECPXSec2016::XSec(
         // Decide which hadron tensor to use for different ranges of A.
         if (Arequest < 10){
             // refuse to do He, Li, Be      
-            LOG("NievesSimoVacasMEC", pWARN) 
+            MAXLOG("NievesSimoVacasMEC", pWARN, 10) 
                 << "Asked to scale to a nucleus " 
                 << targetpdg << " which we don't know yet.";
             return 0;
@@ -107,7 +107,7 @@ double NievesSimoVacasMECPXSec2016::XSec(
             tensorpdg = 1001042080;   
         } 
         else {
-            LOG("NievesSimoVacasMEC", pWARN) 
+            MAXLOG("NievesSimoVacasMEC", pWARN, 10) 
                 << "Asked to scale to a nucleus " 
                 << targetpdg << " which we don't know yet.";
             return 0;
