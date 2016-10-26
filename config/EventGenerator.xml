@@ -101,6 +101,12 @@ XSecModel                   alg     Yes  Cross section model used at the thread 
      <param type="alg"    name="ILstGen">    genie::QELInteractionListGenerator/NC-Default        </param>
   </param_set>
 
+  <!-- 
+  modified event generation model for CCQE that re-throws the nuclear model during the kinematic
+  accept-reject loop. this is technically more correct physics, but is not on by default until
+  GENIE 3.0.
+  -->
+  <!--
   <param_set name="QEL-EM"> 
      <param type="string" name="VldContext"> </param>
      <param type="int"    name="NModules">   9                                                   </param>
@@ -115,8 +121,8 @@ XSecModel                   alg     Yes  Cross section model used at the thread 
      <param type="alg"    name="Module-8">   genie::UnstableParticleDecayer/AfterHadronTransport  </param>
      <param type="alg"    name="ILstGen">    genie::QELInteractionListGenerator/EM-Default        </param>
   </param_set>
+  -->
 
-<!--
   <param_set name="QEL-EM"> 
      <param type="string" name="VldContext"> </param>
      <param type="int"    name="NModules">   12                                                   </param>
@@ -134,7 +140,7 @@ XSecModel                   alg     Yes  Cross section model used at the thread 
      <param type="alg"    name="Module-11">  genie::UnstableParticleDecayer/AfterHadronTransport  </param>
      <param type="alg"    name="ILstGen">    genie::QELInteractionListGenerator/EM-Default        </param>
   </param_set>
--->
+
   <param_set name="QEL-CC-LAMBDA"> 
      <param type="string" name="VldContext"> </param>
      <param type="int"    name="NModules">   9                                                    </param>
