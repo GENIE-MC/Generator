@@ -33,7 +33,7 @@ fi
 phys_libs=" -lGPDF -lGElFF -lGDecay -lGFragmentation -lGNuclear -lGLlewellynSmith \
  -lGCrossSections  -lGCharm -lGElas -lGGiBUU -lGReinSehgal -lGQPM \
  -lGBodekYang -lGEVGModules -lGQEL -lGRES -lGDIS -lGCoh -lGDfrc -lGMEC \
- -lGNuE -lGNuGamma -lGHadronTransp -lGAlvarezRuso -lGBergerSehgal "
+ -lGNuE -lGNuGamma -lGHadronTransp -lGAlvarezRuso -lGBergerSehgal -lGSingleKaon "
 
 # the following libs should only be there if an appropriate option was enabled at the configuration step
 if test "$GOPT_ENABLE_VLE_EXTENSION" = "YES"; then
