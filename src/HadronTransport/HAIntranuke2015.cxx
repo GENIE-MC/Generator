@@ -1410,7 +1410,12 @@ INukeFateHA_t HAIntranuke2015::HadronFateOset () const
   RandomGen *randomGenerator = RandomGen::Instance();
   const double randomNumber  = randomGenerator->RndFsi().Rndm();
 
+  LOG("HAIntranuke2015", pINFO) 
+    << "\n frac{" << INukeHadroFates::AsString(kIHAFtCEx)     << "} = " << fractionCex
+    << "\n frac{" << INukeHadroFates::AsString(kIHAFtInelas)  << "} = " << 1-fractionCex-fractionAbsorption
+    << "\n frac{" << INukeHadroFates::AsString(kIHAFtAbs)     << "} = " << fractionAbsorption;
+
   if (randomNumber < fractionAbsorption && fRemnA > 1) return kIHAFtAbs;
   else if (randomNumber < fractionAbsorption + fractionCex) return kIHAFtCEx;
-  else return kIHAFtElas;
+  else return kIHAFtInelas;
 }
