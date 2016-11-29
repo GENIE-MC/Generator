@@ -1322,6 +1322,8 @@ double INukeHadroData2015::FracADep(int hpdgc, INukeFateHA_t fate, double ke, in
 
   ke = TMath::Max(fMinKinEnergy,   ke);  // ke >= 1 MeV
   ke = TMath::Min(fMaxKinEnergyHA, ke);  // ke <= 999 MeV
+  
+  targA = TMath::Min(208, targA);  // A <= 208
 
   LOG("INukeData", pDEBUG)  << "Querying hA cross section at ke  = " << ke << " and target " << targA;
 
