@@ -227,11 +227,9 @@ INukeFateHA_t HAIntranuke2015::HadronFateHA(const GHepParticle * p) const
   double ke   = p->KinE() / units::MeV;
 
   bool isPion = (pdgc == kPdgPiP or pdgc == kPdgPi0 or pdgc == kPdgPiM); 
-  if (isPion and fUseOset and ke < 350.0) return this->HadronFateOset(); 
-
  
   LOG("HAIntranuke2015", pINFO) 
-   << "Selecting hA fate for " << p->Name() << " with KE = " << ke << " MeV";
+   << "Selecting hA fate for " << p->Name() << " with KEx = " << ke << " MeV";
 
   // try to generate a hadron fate
   unsigned int iter = 0;
@@ -242,23 +240,22 @@ INukeFateHA_t HAIntranuke2015::HadronFateHA(const GHepParticle * p) const
    if (pdgc==kPdgPiP || pdgc==kPdgPiM || pdgc==kPdgPi0) {
 
      double frac_cex      = fHadroData2015->FracADep(pdgc, kIHAFtCEx,     ke, nuclA);
-     double frac_elas     = fHadroData2015->FracADep(pdgc, kIHAFtElas,    ke, nuclA);
      double frac_inel     = fHadroData2015->FracADep(pdgc, kIHAFtInelas,  ke, nuclA);
      double frac_abs      = fHadroData2015->FracADep(pdgc, kIHAFtAbs,     ke, nuclA);
      double frac_piprod   = fHadroData2015->FracADep(pdgc, kIHAFtPiProd,  ke, nuclA);
-     LOG("HAIntranuke2015", pDEBUG) 
-          << "\n frac{" << INukeHadroFates::AsString(kIHAFtCEx)     << "} = " << frac_cex
-          << "\n frac{" << INukeHadroFates::AsString(kIHAFtElas)    << "} = " << frac_elas
-          << "\n frac{" << INukeHadroFates::AsString(kIHAFtInelas)  << "} = " << frac_inel
-	  << "\n frac{" << INukeHadroFates::AsString(kIHAFtAbs)     << "} = " << frac_abs
-          << "\n frac{" << INukeHadroFates::AsString(kIHAFtPiProd)  << "} = " << frac_piprod;
-          
+
+     LOG("HAIntranuke2015", pINFO)
+       << "\n frac{" << INukeHadroFates::AsString(kIHAFtCEx)     << "} = " << frac_cex
+       << "\n frac{" << INukeHadroFates::AsString(kIHAFtInelas)  << "} = " << frac_inel
+       << "\n frac{" << INukeHadroFates::AsString(kIHAFtAbs)     << "} = " << frac_abs
+       << "\n frac{" << INukeHadroFates::AsString(kIHAFtPiProd)  << "} = " << frac_piprod;
+     
        // compute total fraction (can be <1 if fates have been switched off)
-       double tf = frac_cex      +
-                   frac_elas     +
-                   frac_inel     +  
-	           frac_abs      +
-                   frac_piprod;
+     double tf = frac_cex      +
+       frac_inel     +  
+       frac_abs      +
+       frac_piprod;
+     
 
        double r = tf * rnd->RndFsi().Rndm();
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
@@ -266,7 +263,6 @@ INukeFateHA_t HAIntranuke2015::HadronFateHA(const GHepParticle * p) const
 #endif
        double cf=0; // current fraction
        if(r < (cf += frac_cex     )) return kIHAFtCEx;     // cex
-       if(r < (cf += frac_elas    )) return kIHAFtElas;    // elas
        if(r < (cf += frac_inel    )) return kIHAFtInelas;  // inelas
        if(r < (cf += frac_abs     )) return kIHAFtAbs;     // abs
        if(r < (cf += frac_piprod  )) return kIHAFtPiProd;  // pi prod
