@@ -23,7 +23,8 @@ class INukeNucleonCorr
     static INukeNucleonCorr* getInstance() {return fInstance ? fInstance : (fInstance = new INukeNucleonCorr);}
     
     //! get the correction for given four-momentum and density
-    double getAvgCorrection (const double rho, const int A, const int Z, const int pdg, const double Ek);
+    //    double getAvgCorrection (const double rho, const int A, const int Z, const int pdg, const double Ek);
+    double getAvgCorrection (const double rho, const int A, const double Ek);
           
   private:
   
