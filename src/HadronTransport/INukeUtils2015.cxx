@@ -132,7 +132,7 @@ double genie::utils::intranuke2015::MeanFreePath(
   //  LOG ("INukeUtils",pWARN)
   //   << "top of sigtot section";
   if (is_pion and useOset and ke < 350.0)
-    sigtot = sigmaTotalOset (ke, rho, pdgc, ppcnt, altOset);
+    { sigtot = sigmaTotalOset (ke, rho, pdgc, ppcnt, altOset);}
   else if (pdgc == kPdgPiP)
     { sigtot = fHadroData2015 -> XSecPipp_Tot() -> Evaluate(ke)*ppcnt;
       sigtot+= fHadroData2015 -> XSecPipn_Tot() -> Evaluate(ke)*(1-ppcnt);}
@@ -164,7 +164,7 @@ double genie::utils::intranuke2015::MeanFreePath(
     
   if (xsecNNCorr and is_nucleon)
     sigtot *= INukeNucleonCorr::getInstance()->
-      getAvgCorrection (rho, A, Z,  pdgc, p4.E() - PDGLibrary::Instance()->Find(pdgc)->Mass());
+      getAvgCorrection (rho, A, p4.E() - PDGLibrary::Instance()->Find(pdgc)->Mass());
 
   // compute the mean free path
   double lamda = 1. / (rho * sigtot);
