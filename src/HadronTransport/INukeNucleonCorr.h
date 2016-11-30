@@ -23,12 +23,7 @@ class INukeNucleonCorr
     static INukeNucleonCorr* getInstance() {return fInstance ? fInstance : (fInstance = new INukeNucleonCorr);}
     
     //! get the correction for given four-momentum and density
-    double AvgCorrection (const double rho, const int A, const int Z, const int pdg, const double Ek);
-    
-    double getAvgCorrection (double rho, double A, double ke);
-
-    void OutputFiles(int A, int Z);
-
+    double getAvgCorrection (const double rho, const int A, const int Z, const int pdg, const double Ek);
           
   private:
   
@@ -48,8 +43,28 @@ class INukeNucleonCorr
     static const double fLambda0; //!< lambda coefficient as defined by Eq. 2.19
     static const double fLambda1; //!< lambda coefficient as defined by Eq. 2.19
     
+    static const int fNDensityBins; //!< cache binning for density
+    //static const int fNEnergyBins;  //!< cache binning for energy
+
+    //static const double fMaxEnergy;   //!< above this energy correction is assumed to be constant
+    static const double fDensityStep; //!< within this density step correction is assumed to be constant
+    //static const double fEnergyStep;  //!< within this energy step correction is assumed to be constant
+    
 
 
+    //Test Code
+    static const int fNEnergyBins1;  //!< cache binning for energy
+    static const double fMaxEnergy1;   //!< above this energy correction is assumed to be constant
+    static const double fEnergyStep1;  //!< within this energy step correction is assumed to be constant
+     static const int fNEnergyBins2;  //!< cache binning for energy
+    static const double fMaxEnergy2;   //!< above this energy correction is assumed to be constant
+    static const double fEnergyStep2;  //!< within this energy step correction is assumed to be constant
+    static const int fNEnergyBins3;  //!< cache binning for energy
+    static const double fMaxEnergy3;   //!< above this energy correction is assumed to be constant
+    static const double fEnergyStep3;  //!< within this energy step correction is assumed to be constant
+
+
+    //End Test Code
     // ----- CALC VARIABLES ----- //
     
     double fFermiMomProton;  // local Fermi momentum for protons
