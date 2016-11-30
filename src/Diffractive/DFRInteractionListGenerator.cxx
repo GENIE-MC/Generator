@@ -70,6 +70,24 @@ InteractionList * DFRInteractionListGenerator::CreateInteractionList(
      return 0;
   }
 
+  // at least for now, we don't have any models
+  // that provide diffractive scattering from nuclear targets--
+  // just free protons
+  const Target & target = init_state.Tgt();
+  if( !target.IsProton() ) {
+     LOG("IntLst", pINFO)
+       << "Target is not free proton -- Returning NULL InteractionList "
+       << "for init-state: " << init_state.AsString();
+     return 0;
+  }
+
+
+  // The code below does way more work than necessary
+  // to assign the final state when scattering
+  // is just for free protons (as ensured by the checks above).
+  // However, it does the correct thing,
+  // and we leave it here in the event that someday we
+  // introduce a diffractive model that can handle other targets.
   InteractionList * intlist = new InteractionList;
 
   ProcessInfo proc_info(kScDiffractive, inttype);
