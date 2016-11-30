@@ -254,6 +254,10 @@
       <point coord="det"> -5.000,  -2.500, -5. </point>
     </window>
 
+    <enumax> 120. 1.05 1.05 2500000 </enumax>
+    <!-- allow entry to be reused 50 times before moving on -->
+    <reuse> 50 </reuse>
+
   </param_set>
 
   <param_set name="NOvA-ND-2011">
@@ -323,6 +327,11 @@
       <point coord="det">  -8.5,  -12.5, 0.0 </point>
       <point coord="det">   8.5,    8.5, 0.0 </point>
     </window>
+
+    <enumax> 120. 1.05 1.05 2500000 </enumax>
+    <!-- allow entry to be reused 10 times before moving on -->
+    <reuse> 10 </reuse>
+
   </param_set>
 
   <param_set name="NOvA-FD-2011">
