@@ -631,6 +631,11 @@ void SaveGraphsToRootFile(void)
        title << "_" << resname.substr(3,4) << resname.substr(0,3);
     }
 
+    if(xcls.IsStrangeEvent()) {
+            title << "_strange";
+            if(!xcls.IsInclusiveStrange()) { title << xcls.StrangeHadronPdg(); }
+    }
+
     if(xcls.IsCharmEvent()) {
         title << "_charm";
         if(!xcls.IsInclusiveCharm()) { title << xcls.CharmHadronPdg(); }
