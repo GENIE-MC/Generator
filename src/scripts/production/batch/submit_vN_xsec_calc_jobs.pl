@@ -66,6 +66,7 @@ $softw_topdir   = "/opt/ppd/t2k/softw/GENIE/"   unless defined $softw_topdir;
 $jobs_topdir    = "/opt/ppd/t2k/scratch/GENIE/" unless defined $jobs_topdir;
 $genie_setup    = "$softw_topdir/generator/builds/$arch/$genie_version-setup";
 $jobs_dir       = "$jobs_topdir/$genie_version-$production\_$cycle-xsec\_vN/";
+$time_limit     = "60:00:00";
 
 $nkots = 500;
 $emax  = 500;
@@ -265,12 +266,18 @@ for my $curr_xsplset (keys %OUTXML)  {
 
     # slurm case
     if($batch_system eq 'slurm') {
+        my $time_lim = `sinfo -h -p batch -o %l`;
+        my ($days, $hours, $remainder) = $time_lim =~ /([0]+)-([0-9]+):(.*)/;
+        my $newhours = $days * 24 + $hours;
+        my $new_time_lim = "$newhours:$remainder";
+        $time_limit = $new_time_lim lt $time_limit ? $new_time_lim : $time_limit;
         $batch_script = "$filename_template.sh";
         open(SLURM, ">$batch_script") or die("Can not create the slurm batch script");
         print SLURM "#!/bin/bash \n";
         print SLURM "#SBATCH-p $queue \n";
         print SLURM "#SBATCH-o $filename_template.slurmout.log \n";
         print SLURM "#SBATCH-e $filename_template.slurmerr.log \n";
+        print SLURM "#SBATCH-t $time_limit \n";
         print SLURM "source $genie_setup \n";
         print SLURM "cd $jobs_dir \n";
         print SLURM "$gmkspl_cmd | $grep_pipe &> $filename_template.mkspl.log \n";

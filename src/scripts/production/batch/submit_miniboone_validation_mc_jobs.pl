@@ -85,6 +85,7 @@ $genie_setup     = "$softw_topdir/generator/builds/$arch/$genie_version-setup";
 $xspl_file       = "$softw_topdir/data/job_inputs/xspl/gxspl-vA-$genie_version.xml";
 $jobs_dir        = "$jobs_topdir/$genie_version-$production\_$cycle-miniboone";
 $mcseed          = 210921029;
+$time_limit     = "60:00:00";
 
 %nevents_hash = ( 
   '10' => '100000',
@@ -206,12 +207,18 @@ for my $curr_runtype (keys %nupdg_hash)  {
 
        # slurm case
        if($batch_system eq 'slurm') {
+          my $time_lim = `sinfo -h -p batch -o %l`;
+          my ($days, $hours, $remainder) = $time_lim =~ /([0]+)-([0-9]+):(.*)/;
+          my $newhours = $days * 24 + $hours;
+          my $new_time_lim = "$newhours:$remainder";
+          $time_limit = $new_time_lim lt $time_limit ? $new_time_lim : $time_limit;
           $batch_script  = "$filename_template.sh";
           open(BATCH_SCRIPT, ">$batch_script") or die("Can not create the SLURM batch script");
           print BATCH_SCRIPT "#!/bin/bash \n";
           print BATCH_SCRIPT "#SBATCH-p $queue \n";
           print BATCH_SCRIPT "#SBATCH-o $filename_template.lsfout.log \n";
           print BATCH_SCRIPT "#SBATCH-e $filename_template.lsferr.log \n";
+          print BATCH_SCRIPT "#SBATCH-t $time_limit \n";
           print BATCH_SCRIPT "source $genie_setup \n"; 
           print BATCH_SCRIPT "cd $jobs_dir \n";
           print BATCH_SCRIPT "$evgen_cmd \n";

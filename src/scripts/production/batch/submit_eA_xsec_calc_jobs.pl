@@ -58,6 +58,7 @@ $softw_topdir   = "/opt/ppd/t2k/softw/GENIE"    unless defined $softw_topdir;
 $jobs_topdir    = "/opt/ppd/t2k/scratch/GENIE/" unless defined $jobs_topdir;
 $genie_setup    = "$softw_topdir/generator/builds/$arch/$genie_version-setup";
 $jobs_dir       = "$jobs_topdir/xsec\_eA-$production\_$cycle/";
+$time_limit     = "60:00:00";
 
 $nkots     = 200;
 $emax      =  35;
@@ -130,12 +131,18 @@ while( my ($tgt_name, $tgt_code) = each %targets ) {
 
     # slurm case
     if($batch_system eq 'slurm') {
+     my $time_lim = `sinfo -h -p batch -o %l`;
+     my ($days, $hours, $remainder) = $time_lim =~ /([0]+)-([0-9]+):(.*)/;
+     my $newhours = $days * 24 + $hours;
+     my $new_time_lim = "$newhours:$remainder";
+     $time_limit = $new_time_lim lt $time_limit ? $new_time_lim : $time_limit;
 	$batch_script = "$fntemplate.sh";
 	open(SLURM, ">$batch_script") or die("Can not create the SLURM batch script");
 	print SLURM "#!/bin/bash \n";
         print SLURM "#SBATCH-p $queue \n";
         print SLURM "#SBATCH-o $fntemplate.lsfout.log \n";
         print SLURM "#SBATCH-e $fntemplate.lsferr.log \n";
+        print SLURM "#SBATCH-t $time_limit \n";
 	print SLURM "source $genie_setup \n";
 	print SLURM "cd $jobs_dir \n";
 	print SLURM "$gmkspl_cmd \n";

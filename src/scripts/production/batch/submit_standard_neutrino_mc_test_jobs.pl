@@ -98,6 +98,7 @@ $batch_system    = "PBS"                        unless defined $batch_system;
 $queue           = "prod"                       unless defined $queue;
 $softw_topdir   = "/opt/ppd/t2k/softw/GENIE/"   unless defined $softw_topdir;
 $jobs_topdir    = "/opt/ppd/t2k/scratch/GENIE/" unless defined $jobs_topdir;  
+$time_limit     = "60:00:00";
 $ref_sample_path = 0                            unless defined $ref_sample_path;
 $genie_setup     = "$softw_topdir/generator/builds/$arch/$genie_version-setup";
 $xspl_file       = "$softw_topdir/data/job_inputs/xspl/gxspl-vA-$genie_version.xml";
@@ -321,12 +322,18 @@ for my $curr_runnu (keys %gevgl_hash)  {
 
     # slurm case
     if($batch_system eq 'slurm') {
+        my $time_lim = `sinfo -h -p batch -o %l`;
+        my ($days, $hours, $remainder) = $time_lim =~ /([0]+)-([0-9]+):(.*)/;
+        my $newhours = $days * 24 + $hours;
+        my $new_time_lim = "$newhours:$remainder";
+        $time_limit = $new_time_lim lt $time_limit ? $new_time_lim : $time_limit;
         $batch_script  = "$filename_template.sh";
         open(SLURM, ">$batch_script") or die("Can not create the SLURM batch script");
         print SLURM "#!/bin/bash \n";
         print SLURM "#SBATCH-p $queue \n";
         print SLURM "#SBATCH-o $filename_template.lsfout.log \n";
         print SLURM "#SBATCH-e $filename_template.lsferr.log \n";
+        print SLURM "#SBATCH-t $time_limit \n";
         print SLURM "source $genie_setup \n"; 
         print SLURM "cd $jobs_dir \n";
         print SLURM "$evgen_cmd \n";
