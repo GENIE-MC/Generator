@@ -35,7 +35,6 @@ public :
 
   void SetRefreshRate (int rate);
   void Update (int iev, const EventRecord * event);
-  void CustomizeFilename(string filename);
 
 private:
 

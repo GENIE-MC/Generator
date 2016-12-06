@@ -22,9 +22,8 @@
                    -e energy (or energy range) 
                    -p neutrino_pdg 
                    -t target_pdg 
-		  [-f flux_description] 
-                  [-o outfile_name]
-		  [-w] 
+                  [-f flux_description] 
+                  [-w] 
                   [--seed random_number_seed] 
                   [--cross-sections xml_file]
                   [--event-generator-list list_name]
@@ -67,8 +66,6 @@
                  energy,flux (see $GENIE/data/flux/ for few examples). 
               -- A 1-D ROOT histogram (TH1D):
                  The general syntax is `-f /full/path/file.root,object_name'
-           -o
-              Specifies the name of the output file events will be saved in.   
            -w 
               Forces generation of weighted events.
               This option is relevant only if a neutrino flux is specified.
@@ -208,8 +205,6 @@ bool            gOptWeighted;     //
 bool            gOptUsingFluxOrTgtMix = false;
 long int        gOptRanSeed;      // random number seed
 string          gOptInpXSecFile;  // cross-section splines
-string          gOptOutFileName;  // Optional outfile name
-string          gOptStatFileName; // Status file name, set if gOptOutFileName was set.
 
 //____________________________________________________________________________
 int main(int argc, char ** argv)
@@ -271,24 +266,12 @@ void GenerateEventsAtFixedInitState(void)
 
   // Initialize an Ntuple Writer
   NtpWriter ntpw(kDefOptNtpFormat, gOptRunNu);
-
-  // If an output file name has been specified... use it
-  if (!gOptOutFileName.empty()){
-    ntpw.CustomizeFilename(gOptOutFileName);
-  }
   ntpw.Initialize();
-
 
   // Create an MC Job Monitor
   GMCJMonitor mcjmonitor(gOptRunNu);
   mcjmonitor.SetRefreshRate(RunOpt::Instance()->MCJobStatusRefreshRate());
-  
-  // If a status file name has been given... use it
-  if (!gOptStatFileName.empty()){
-    mcjmonitor.CustomizeFilename(gOptStatFileName);
-  }
 
-  
   LOG("gevgen", pNOTICE) 
     << "\n ** Will generate " << gOptNevents << " events for \n" 
     << init_state << " at Ev = " << Ev << " GeV";
@@ -344,22 +327,11 @@ void GenerateEventsUsingFluxOrTgtMix(void)
 
   // Initialize an Ntuple Writer to save GHEP records into a TTree
   NtpWriter ntpw(kDefOptNtpFormat, gOptRunNu);
-
-  // If an output file name has been specified... use it
-  if (!gOptOutFileName.empty()){
-    ntpw.CustomizeFilename(gOptOutFileName);
-  }
   ntpw.Initialize();
 
   // Create an MC Job Monitor
   GMCJMonitor mcjmonitor(gOptRunNu);
   mcjmonitor.SetRefreshRate(RunOpt::Instance()->MCJobStatusRefreshRate());
-
-  // If a status file name has been given... use it
-  if (!gOptStatFileName.empty()){
-    mcjmonitor.CustomizeFilename(gOptStatFileName);
-  }
-
 
   // Generate events / print the GHEP record / add it to the ntuple
   int ievent = 0;
@@ -575,19 +547,6 @@ void GetCommandLineArgs(int argc, char ** argv)
     gOptRunNu = kDefOptRunNu;
   }
 
-  // Output file name
-  if( parser.OptionExists('o') ) {
-    LOG("gevgen", pINFO) << "Reading output file name";
-    gOptOutFileName = parser.ArgAsString('o');
-
-    gOptStatFileName = gOptOutFileName;
-    // strip the output file format and replace with .status
-    if (gOptOutFileName.find_last_of(".") != string::npos)
-      gOptStatFileName = 
-	gOptStatFileName.substr(0, gOptOutFileName.find_last_of("."));
-    gOptStatFileName .append(".status");
-  }
-
   // flux functional form
   bool using_flux = false;
   if( parser.OptionExists('f') ) {
@@ -769,7 +728,6 @@ void PrintSyntax(void)
     << "\n               -p neutrino_pdg" 
     << "\n               -t target_pdg "
     << "\n              [-f flux_description]"
-    << "\n              [-o outfile_name]"
     << "\n              [-w]"
     << "\n              [--seed random_number_seed]"
     << "\n              [--cross-sections xml_file]"

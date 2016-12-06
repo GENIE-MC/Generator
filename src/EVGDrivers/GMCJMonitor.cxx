@@ -104,8 +104,3 @@ void GMCJMonitor::Init(void)
 }
 //____________________________________________________________________________
 
-void GMCJMonitor::CustomizeFilename(string filename)
-{
-  fStatusFile = filename;
-}
-//____________________________________________________________________________
