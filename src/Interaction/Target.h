@@ -124,7 +124,7 @@ private:
   TLorentzVector * fHitNucP4; ///< hit nucleon 4p
   double fHitNucRad;          ///< hit nucleon position
 
-ClassDef(Target,1)
+ClassDef(Target,2)
 };
 
 }      // genie namespace
