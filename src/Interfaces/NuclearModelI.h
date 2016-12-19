@@ -66,12 +66,12 @@ public:
   };
 
   virtual bool GenerateNucleon(const Target & tgt, 
-			       double hitNucleonRadius) const
+			       double /*hitNucleonRadius*/) const
   {
     return GenerateNucleon(tgt);
   }
   virtual double Prob(double p, double w, const Target & tgt,
-	      double hitNucleonRadius) const
+	      double /*hitNucleonRadius*/) const
   {
     return Prob(p,w,tgt);
   }
