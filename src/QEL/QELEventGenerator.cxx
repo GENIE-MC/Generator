@@ -77,8 +77,7 @@ QELEventGenerator::~QELEventGenerator()
 //___________________________________________________________________________
 void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
 {
-    LOG("QELEvent", pINFO) << "Generating QE event kinematics...";
-    LOG("QELEvent", pINFO) << "USING NEW QELEventGenerator";
+    LOG("QELEvent", pDEBUG) << "Generating QE event kinematics...";
 
     // Get the random number generators
     RandomGen * rnd = RandomGen::Instance();
@@ -88,11 +87,21 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
     const EventGeneratorI * evg = rtinfo->RunningThread();
     fXSecModel = evg->CrossSectionAlg();
 
-    // Get the interaction and set the 'trust' bits
-    Interaction * interaction = new Interaction(*evrec->Summary());
+    // Get the interaction and check we are working with a nuclear target
+    Interaction * interaction = evrec->Summary();
+    // Skip if not a nuclear target
+    if(interaction->InitState().Tgt().IsNucleus()) {
+        // Skip if no hit nucleon is set
+        if(! evrec->HitNucleon()) {
+            LOG("QELEvent", pFATAL) << "No hit nucleon was set";
+            gAbortingInErr = true;
+            exit(1);
+        }
+    }//is nucl target
+
+    // set the 'trust' bits
     interaction->SetBit(kISkipProcessChk);
     interaction->SetBit(kISkipKinematicChk);
-
     // Note: The kinematic generator would be using the free nucleon cross
     // section (even for nuclear targets) so as not to double-count nuclear
     // suppression. This assumes that a) the nuclear suppression was turned
@@ -108,11 +117,7 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
         LOG("QELEvent", pNOTICE) << "Scanning phase-space...";
         LOG("QELEvent", pINFO) << "Computing max xsec";
         fXSecMax = this->ComputeMaxXSec(interaction);
-
-        //LOG("QELEvent", pNOTICE) << "Q2 limits: [" << fQ2min << ", " << fQ2max << "] GeV^2";
-        //LOG("QELEvent", pNOTICE) << "dsigma/dQ2 (maximum) = " << fXSecMax/(1E-38*units::cm2) << " 1E-38 cm^2/GeV^2";
     }
-
 
     //
     // Try to generate (simultaneously):
@@ -123,12 +128,23 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
     unsigned int iter = 0;
     bool accept = false;
+    // Access the hit nucleon and target nucleus entries at the GHEP record
+    GHepParticle * nucleon = evrec->HitNucleon();
+    GHepParticle * nucleus = evrec->TargetNucleus();
+    assert(nucleon);
+    assert(nucleus);
+    Target * tgt = interaction->InitState().TgtPtr();
+    //TLorentzVector * p4 = tgt->HitNucP4Ptr();
+    // Store the hit nucleon radius first
+    double hitNucPos = nucleon->X4()->Vect().Mag();
+    tgt->SetHitNucPosition(hitNucPos);
     while(1) {
         iter++;
         LOG("QELEvent", pINFO) << "Attempt #: " << iter;
         if(iter > kRjMaxIterations) {
             LOG("QELEvent", pWARN)
-                << "Couldn't select a valid (pF, w, Q^2) tuple after " << iter << " iterations";
+                << "Couldn't select a valid (pF, w, Q^2) tuple after "
+                << iter << " iterations";
             evrec->EventFlags()->SetBitNumber(kKineGenErr, true);
             genie::exceptions::EVGThreadException exception;
             exception.SetReason("Couldn't select kinematics");
@@ -136,238 +152,241 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
             throw exception;
         }
 
-        // Skip if not a nuclear target
-        if(interaction->InitState().Tgt().IsNucleus()) {
+        // First, throw Fermi momentum & removal energy from the nuclear model pdfs
+        fNuclModel->GenerateNucleon(*tgt, hitNucPos);
 
-            // Skip if no hit nucleon is set
-            if(! evrec->HitNucleon()) {
-                LOG("QELEvent", pFATAL) << "No hit nucleon was set";
-                gAbortingInErr = true;
-                exit(1);
-            }
+        // The nucleon is now accessed in the CalculateXSec method
+        //        TVector3 p3 = fNuclModel->Momentum3();
+        //        double w    = fNuclModel->RemovalEnergy();
+        //
+        //        double pF  = p3.Mag();  // (fermi momentum)
+        //        double pF2 = p3.Mag2(); // (fermi momentum)^2
 
-            // Access the hit nucleon and target nucleus entries at the GHEP record
-            GHepParticle * nucleon = evrec->HitNucleon();
-            GHepParticle * nucleus = evrec->TargetNucleus();
-            assert(nucleon);
-            assert(nucleus);
+        //        LOG("QELEvent", pINFO)
+        //            << "Generated nucleon momentum: ("
+        //            << p3.Px() << ", " << p3.Py() << ", " << p3.Pz() << "), "
+        //            << "|p| = " << pF;
+        //        LOG("QELEvent", pINFO)
+        //            << "Generated nucleon removal energy: w = " << w;
 
-            // Access the target from the interaction summary
-            Target * tgt = interaction->InitState().TgtPtr();
-            //TLorentzVector * p4 = tgt->HitNucP4Ptr();
+        // compute A,Z for final state nucleus & get its PDG code
+        int nucleon_pdgc = nucleon->Pdg();
+        bool is_p  = pdg::IsProton(nucleon_pdgc);
+        int Z = (is_p) ? nucleus->Z()-1 : nucleus->Z();
+        int A = nucleus->A() - 1;
+        TParticlePDG * fnucleus = 0;
+        int ipdgc = pdg::IonPdgCode(A, Z);
+        fnucleus = PDGLibrary::Instance()->Find(ipdgc);
+        if(!fnucleus) {
+            LOG("QELEvent", pFATAL)
+                << "No particle with [A = " << A << ", Z = " << Z
+                << ", pdgc = " << ipdgc << "] in PDGLibrary!";
+            exit(1);
+        }
 
-            // First, throw Fermi momentum & removal energy from the nuclear model pdfs
-            // Store the radius first
-            double hitNucPos = nucleon->X4()->Vect().Mag();
-            tgt->SetHitNucPosition(hitNucPos);
-            fNuclModel->GenerateNucleon(*tgt,hitNucPos);
+        //
+        // Calculate the on-shell and off-shell masses for the struck nucleon
+        //
+        //         double Mf  = fnucleus -> Mass(); // remnant nucleus mass
+        //         double Mi  = nucleus  -> Mass(); // initial nucleus mass
+        //  	 TDatabasePDG *tb = TDatabasePDG::Instance();
+        //         double Mn = tb->GetParticle(interaction->InitState().TgtPtr()->HitNucPdg())->Mass();// incoming nucleon mass
+        //         double Mp = tb->GetParticle(interaction->RecoilNucleonPdg())->Mass(); // outgoing nucleon mass
 
-            // The nucleon is now accessed in the CalculateXSec method
-            //        TVector3 p3 = fNuclModel->Momentum3();
-            //        double w    = fNuclModel->RemovalEnergy();
-            //
-            //        double pF  = p3.Mag();  // (fermi momentum)
-            //        double pF2 = p3.Mag2(); // (fermi momentum)^2
+        //         double Mn  = nucleon->Mass();    
+        //         double Mp(0); // outgoing nucleon mass
+        //         TDatabasePDG *tb = TDatabasePDG::Instance();
+        //         if (nucleon->Pdg() == 2212){
+        //           Mp = tb->GetParticle(2112)->Mass();
+        //         }
+        //         else if (nucleon->Pdg() == 2112){
+        //           Mp = tb->GetParticle(2212)->Mass();
+        //         }
+        //         else{LOG("QELEvent",pDEBUG) << "ERROR - incoming particle not a proton or neutron" << std::endl;}
+        //
+        //         //double EN_offshell = Mi - TMath::Sqrt(pF2 + Mf*Mf);
+        //         double EN_offshell = TMath::Sqrt(Mn*Mn + pF2) - w; // old
+        //         double EN_offshell = Mn - w ;
+        //         double EN_onshell  = TMath::Sqrt(pF2+Mn*Mn);
+        //
+        //         double Mn_offshell = TMath::Sqrt(EN_offshell*EN_offshell - pF2);
+        //
+        //         // Calculate the binding energy
+        //         //double Eb = w;
+        //         double Eb = EN_onshell - EN_offshell;
+        //
+        //         LOG("QELEvent", pINFO)
+        //          << "Enuc (on-shell) = " << EN_onshell
+        //          << " GeV, Enuc (off-shell) = " << EN_offshell
+        //          << " GeV, Ebind = " << Eb << " GeV";
+        //
+        //         // Update the struck nucleon 4-momentum at the interaction summary 
+        //         // and at the GHEP record
+        //         p4->SetPx( p3.Px()    );
+        //         p4->SetPy( p3.Py()    );
+        //         p4->SetPz( p3.Pz()    );
+        //       //p4->SetE ( EN_onshell );
+        //         p4->SetE ( EN_offshell);
+        //         evrec->Summary()->InitStatePtr()->TgtPtr()->SetHitNucP4(*p4);
+        //         nucleon->SetMomentum(*p4); // update GHEP values
+        //
+        //         // Update the binding energy value at the GHEP record
+        //         // nucleon->SetRemovalEnergy(Eb);
+        //
+        //         //LOG("QELEvent",pDEBUG) << "offshell energy = "<<EN_offshell << ", fRemovalEnergy = "<<w << std::endl;
+        //         //LOG("QELEvent",pDEBUG) << "binding energy = "<< Eb << std::endl;
+        //
+        //        // Sometimes, for interactions near threshold, Fermi momentum might bring
+        //        // the neutrino energy in the nucleon rest frame below threshold (for the
+        //        // selected interaction). In this case mark, select a new Fermi momentum.
+        //        const KPhaseSpace & kps = interaction->PhaseSpace();
+        //        if(!kps.IsAboveThreshold()) {
+        //            LOG("QELEvent", pNOTICE)
+        //                  << "Event below threshold after generating Fermi momentum";
+        //            double Ethr = kps.Threshold();
+        //            double Ev   = interaction->InitState().ProbeE(kRfHitNucRest);
+        //            LOG("QELEvent", pNOTICE)
+        //                << "Ev (@ nucleon rest frame) = " << Ev << ", Ethr = " << Ethr;
+        //            continue;
+        //        }
+        //
+        //        // Get centre-of-mass energy
+        //	 const InitialState & init_state = interaction->InitState();
+        //        double s = init_state.CMEnergy();
+        //        s *= s; //* init_state.CMEnergy(); // centre of mass energy squared
 
-            //        LOG("QELEvent", pINFO)
-            //            << "Generated nucleon momentum: ("
-            //            << p3.Px() << ", " << p3.Py() << ", " << p3.Pz() << "), "
-            //            << "|p| = " << pF;
-            //        LOG("QELEvent", pINFO)
-            //            << "Generated nucleon removal energy: w = " << w;
+        //        if (TMath::Sqrt(s) < interaction->FSPrimLepton()->Mass() + Mp){ // throw a new event if this one is below threshold
+        //          LOG("QELEvent", pINFO) << "Event below threshold, reject throw and try again!";
+        //          continue;
+        //        }
 
-            // compute A,Z for final state nucleus & get its PDG code
-            int nucleon_pdgc = nucleon->Pdg();
-            bool is_p  = pdg::IsProton(nucleon_pdgc);
-            int Z = (is_p) ? nucleus->Z()-1 : nucleus->Z();
-            int A = nucleus->A() - 1;
-            TParticlePDG * fnucleus = 0;
-            int ipdgc = pdg::IonPdgCode(A, Z);
-            fnucleus = PDGLibrary::Instance()->Find(ipdgc);
-            if(!fnucleus) {
-                LOG("QELEvent", pFATAL)
-                    << "No particle with [A = " << A << ", Z = " << Z
-                    << ", pdgc = " << ipdgc << "] in PDGLibrary!";
-                exit(1);
-            }
+        // Pick a direction
+        double costheta = (rnd->RndKine().Rndm() * 2) - 1; // cosine theta: [-1, 1]
+        double phi = 2 * TMath::Pi() * rnd->RndKine().Rndm(); // phi: [0, 2pi]
 
-            //
-            // Calculate the on-shell and off-shell masses for the struck nucleon
-            //
-            //         double Mf  = fnucleus -> Mass(); // remnant nucleus mass
-            //         double Mi  = nucleus  -> Mass(); // initial nucleus mass
-            //  	 TDatabasePDG *tb = TDatabasePDG::Instance();
-            //         double Mn = tb->GetParticle(interaction->InitState().TgtPtr()->HitNucPdg())->Mass();// incoming nucleon mass
-            //         double Mp = tb->GetParticle(interaction->RecoilNucleonPdg())->Mass(); // outgoing nucleon mass
+        //        // Generate the outgoing particles
+        //        // with the correct momenta
+        //        double lepMass = interaction->FSPrimLepton()->Mass();
+        //        double outLeptonEnergy = ( s - Mp*Mp + lepMass*lepMass ) / (2 * TMath::Sqrt(s));
+        //        double outMomentum = TMath::Sqrt(outLeptonEnergy*outLeptonEnergy - lepMass*lepMass);
+        //
+        //        TLorentzVector lepton(outMomentum, 0, 0, TMath::Sqrt(outMomentum*outMomentum + lepMass*lepMass));
+        //
+        //        lepton.SetTheta(TMath::ACos(costheta));
+        //        lepton.SetPhi(phi);
+        //
+        ////        lepton.SetTheta(0.2);
+        ////        lepton.SetPhi(0.7);
+        //
+        //        TLorentzVector outNucleon(-1*lepton.Px(),-1*lepton.Py(),-1*lepton.Pz(), TMath::Sqrt(outMomentum*outMomentum + Mp*Mp));
+        //
+        //        // Boost particles
+        //        TVector3 beta = this->COMframe2Lab(init_state);
+        //        
+        //        TLorentzVector leptonCOM = TLorentzVector(lepton);
+        //
+        //        lepton.Boost(beta);
+        //        outNucleon.Boost(beta);
+        //
+        //        // Check if Q2 above Minimum Q2 // important for eA scattering
+        //        TLorentzVector qP4 = *(init_state.GetProbeP4()) - lepton;
+        //        double Q2 = -1 * qP4.Mag2();
+        //        if ( Q2 < kMinQ2Limit){
+        //          continue;
+        //        }
+        //
+        //        interaction->KinePtr()->SetFSLeptonP4(lepton);
+        //        interaction->KinePtr()->SetHadSystP4(outNucleon);
+        //
 
-            //         double Mn  = nucleon->Mass();    
-            //         double Mp(0); // outgoing nucleon mass
-            //         TDatabasePDG *tb = TDatabasePDG::Instance();
-            //         if (nucleon->Pdg() == 2212){
-            //           Mp = tb->GetParticle(2112)->Mass();
-            //         }
-            //         else if (nucleon->Pdg() == 2112){
-            //           Mp = tb->GetParticle(2212)->Mass();
-            //         }
-            //         else{LOG("QELEvent",pDEBUG) << "ERROR - incoming particle not a proton or neutron" << std::endl;}
-            //
-            //         //double EN_offshell = Mi - TMath::Sqrt(pF2 + Mf*Mf);
-            //         double EN_offshell = TMath::Sqrt(Mn*Mn + pF2) - w; // old
-            //         double EN_offshell = Mn - w ;
-            //         double EN_onshell  = TMath::Sqrt(pF2+Mn*Mn);
-            //
-            //         double Mn_offshell = TMath::Sqrt(EN_offshell*EN_offshell - pF2);
-            //
-            //         // Calculate the binding energy
-            //         //double Eb = w;
-            //         double Eb = EN_onshell - EN_offshell;
-            //
-            //         LOG("QELEvent", pINFO)
-            //          << "Enuc (on-shell) = " << EN_onshell
-            //          << " GeV, Enuc (off-shell) = " << EN_offshell
-            //          << " GeV, Ebind = " << Eb << " GeV";
-            //
-            //         // Update the struck nucleon 4-momentum at the interaction summary 
-            //         // and at the GHEP record
-            //         p4->SetPx( p3.Px()    );
-            //         p4->SetPy( p3.Py()    );
-            //         p4->SetPz( p3.Pz()    );
-            //       //p4->SetE ( EN_onshell );
-            //         p4->SetE ( EN_offshell);
-            //         evrec->Summary()->InitStatePtr()->TgtPtr()->SetHitNucP4(*p4);
-            //         nucleon->SetMomentum(*p4); // update GHEP values
-            //
-            //         // Update the binding energy value at the GHEP record
-            //         // nucleon->SetRemovalEnergy(Eb);
-            //
-            //         //LOG("QELEvent",pDEBUG) << "offshell energy = "<<EN_offshell << ", fRemovalEnergy = "<<w << std::endl;
-            //         //LOG("QELEvent",pDEBUG) << "binding energy = "<< Eb << std::endl;
-            //
-            //        // Sometimes, for interactions near threshold, Fermi momentum might bring
-            //        // the neutrino energy in the nucleon rest frame below threshold (for the
-            //        // selected interaction). In this case mark, select a new Fermi momentum.
-            //        const KPhaseSpace & kps = interaction->PhaseSpace();
-            //        if(!kps.IsAboveThreshold()) {
-            //            LOG("QELEvent", pNOTICE)
-            //                  << "Event below threshold after generating Fermi momentum";
-            //            double Ethr = kps.Threshold();
-            //            double Ev   = interaction->InitState().ProbeE(kRfHitNucRest);
-            //            LOG("QELEvent", pNOTICE)
-            //                << "Ev (@ nucleon rest frame) = " << Ev << ", Ethr = " << Ethr;
-            //            continue;
-            //        }
-            //
-            //        // Get centre-of-mass energy
-            //	 const InitialState & init_state = interaction->InitState();
-            //        double s = init_state.CMEnergy();
-            //        s *= s; //* init_state.CMEnergy(); // centre of mass energy squared
+        double xsec = this->ComputeXSec(interaction, costheta, phi);
 
-            //        if (TMath::Sqrt(s) < interaction->FSPrimLepton()->Mass() + Mp){ // throw a new event if this one is below threshold
-            //          LOG("QELEvent", pINFO) << "Event below threshold, reject throw and try again!";
-            //          continue;
-            //        }
+        // select/reject event
+        this->AssertXSecLimits(interaction, xsec, fXSecMax);
 
-            // Pick a direction
-            double costheta = (rnd->RndKine().Rndm() * 2) - 1; // cosine theta between -1 and 1
-            double phi = 2 * TMath::Pi() * rnd->RndKine().Rndm(); // phi at random between 0 and 2pi
-
-            //        // Generate the outgoing particles
-            //        // with the correct momenta
-            //        double lepMass = interaction->FSPrimLepton()->Mass();
-            //        double outLeptonEnergy = ( s - Mp*Mp + lepMass*lepMass ) / (2 * TMath::Sqrt(s));
-            //        double outMomentum = TMath::Sqrt(outLeptonEnergy*outLeptonEnergy - lepMass*lepMass);
-            //
-            //        TLorentzVector lepton(outMomentum, 0, 0, TMath::Sqrt(outMomentum*outMomentum + lepMass*lepMass));
-            //
-            //        lepton.SetTheta(TMath::ACos(costheta));
-            //        lepton.SetPhi(phi);
-            //
-            ////        lepton.SetTheta(0.2);
-            ////        lepton.SetPhi(0.7);
-            //
-            //        TLorentzVector outNucleon(-1*lepton.Px(),-1*lepton.Py(),-1*lepton.Pz(), TMath::Sqrt(outMomentum*outMomentum + Mp*Mp));
-            //
-            //        // Boost particles
-            //        TVector3 beta = this->COMframe2Lab(init_state);
-            //        
-            //        TLorentzVector leptonCOM = TLorentzVector(lepton);
-            //
-            //        lepton.Boost(beta);
-            //        outNucleon.Boost(beta);
-            //
-            //        // Check if Q2 above Minimum Q2 // important for eA scattering
-            //        TLorentzVector qP4 = *(init_state.GetProbeP4()) - lepton;
-            //        double Q2 = -1 * qP4.Mag2();
-            //        if ( Q2 < kMinQ2Limit){
-            //          continue;
-            //        }
-            //
-            //        interaction->KinePtr()->SetFSLeptonP4(lepton);
-            //        interaction->KinePtr()->SetHadSystP4(outNucleon);
-            //
-
-            double xsec = this->ComputeXSec(interaction, costheta, phi);
-
-            // select/reject event
-            this->AssertXSecLimits(interaction, xsec, fXSecMax);
-
-            double t = fXSecMax * rnd->RndKine().Rndm();
-            //        LOG("QELEvent", pNOTICE) << "dsigma/dQ2 (random) = " << t/(1E-38*units::cm2) << " 1E-38 cm^2/GeV^2";
+        double t = fXSecMax * rnd->RndKine().Rndm();
+        //        LOG("QELEvent", pNOTICE) << "dsigma/dQ2 (random) = " << t/(1E-38*units::cm2) << " 1E-38 cm^2/GeV^2";
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-            LOG("QELEvent", pDEBUG)
-                << "xsec= " << xsec << ", Rnd= " << t;
+        LOG("QELEvent", pDEBUG)
+            << "xsec= " << xsec << ", Rnd= " << t;
 #endif
-            accept = (t < xsec);
+        accept = (t < xsec);
 
-            // If the generated kinematics are accepted, finish-up module's job
-            if(accept) {
-                //          LOG("QELEvent", pNOTICE) << "*Selected* Q^2 = " << gQ2 << " GeV^2";
+        // If the generated kinematics are accepted, finish-up module's job
+        if(accept) {
+            double gQ2 = interaction->KinePtr()->Q2(false);
+            LOG("QELEvent", pINFO) << "*Selected* Q^2 = " << gQ2 << " GeV^2";
 
-                //        interaction->ResetBit(kISkipProcessChk);
-                //        interaction->ResetBit(kISkipKinematicChk);
-                //        interaction->ResetBit(kIAssumeFreeNucleon);
+            // reset bits
+            interaction->ResetBit(kISkipProcessChk);
+            interaction->ResetBit(kISkipKinematicChk);
+            interaction->ResetBit(kIAssumeFreeNucleon);
 
-                // set the cross section for the selected kinematics
-                evrec->SetDiffXSec(xsec,kPSQ2fE);
+            // get neutrino energy at struck nucleon rest frame and the
+            // struck nucleon mass (can be off the mass shell)
+            const InitialState & init_state = interaction->InitState();
+            double E  = init_state.ProbeE(kRfHitNucRest);
+            double M = init_state.Tgt().HitNucP4().M();
+            LOG("QELKinematics", pNOTICE) << "E = " << E << ", M = "<< M;
 
-                // lock selected kinematics & clear running values
-                //          evrec->Summary()->KinePtr()->SetQ2(gQ2, true);
-                //          evrec->Summary()->KinePtr()->SetW (gW,  true);
-                //          evrec->Summary()->KinePtr()->Setx (gx,  true);
-                //          evrec->Summary()->KinePtr()->Sety (gy,  true);
-                //          evrec->Summary()->KinePtr()->ClearRunningValues();
-
-                TLorentzVector lepton(interaction->KinePtr()->FSLeptonP4());
-                TLorentzVector outNucleon(interaction->KinePtr()->HadSystP4());
-                TLorentzVector x4l(*(evrec->Probe())->X4());
-
-                evrec->AddParticle(interaction->FSPrimLeptonPdg(), kIStStableFinalState, evrec->ProbePosition(),-1,-1,-1, interaction->KinePtr()->FSLeptonP4(), x4l);
-
-                GHepStatus_t ist = (tgt->IsNucleus()) ? 
-                    kIStHadronInTheNucleus : kIStStableFinalState;
-                evrec->AddParticle(interaction->RecoilNucleonPdg(), ist, evrec->HitNucleonPosition(),-1,-1,-1, interaction->KinePtr()->HadSystP4(), x4l);
-
-                // Store struck nucleon momentum and binding energy
-                TLorentzVector p4ptr = interaction->InitStatePtr()->TgtPtr()->HitNucP4();
-                LOG("QELEvent",pNOTICE) << "pn: " << p4ptr.X() << ", " <<p4ptr.Y() << ", " <<p4ptr.Z() << ", " <<p4ptr.E();
-                nucleon->SetMomentum(p4ptr);
-                nucleon->SetRemovalEnergy(fEb);
-
-                // add a recoiled nucleus remnant
-                this->AddTargetNucleusRemnant(evrec);
-
-                delete interaction;
-                break;//done
-            }//accept throw
-
-            else {
-                LOG("QELEvent", pINFO) << "Reject current throw...";
+            // The hadronic inv. mass is equal to the recoil nucleon on-shell mass.
+            // For QEL/Charm events it is set to be equal to the on-shell mass of
+            // the generated charm baryon (Lamda_c+, Sigma_c+ or Sigma_c++)
+            // Similarly for strange baryons
+            //
+            const XclsTag & xcls = interaction->ExclTag();
+            int rpdgc = 0;
+            if (xcls.IsCharmEvent()) {
+                rpdgc = xcls.CharmHadronPdg();
+            } else if (xcls.IsStrangeEvent()) {
+                rpdgc = xcls.StrangeHadronPdg();
+            } else {
+                rpdgc = interaction->RecoilNucleonPdg();
             }
+            assert(rpdgc);
+            double gW = PDGLibrary::Instance()->Find(rpdgc)->Mass();
+            LOG("QELEvent", pNOTICE) << "Selected: W = "<< gW;
 
-        }//is nucl target
-    }// iterations - while(1) loop
+            // (W,Q2) -> (x,y)
+            double gx=0, gy=0;
+            kinematics::WQ2toXY(E,M,gW,gQ2,gx,gy);
 
+            // lock selected kinematics & clear running values
+            interaction->KinePtr()->SetQ2(gQ2, true);
+            interaction->KinePtr()->SetW (gW,  true);
+            interaction->KinePtr()->Setx (gx,  true);
+            interaction->KinePtr()->Sety (gy,  true);
+            interaction->KinePtr()->ClearRunningValues();
+
+            // set the cross section for the selected kinematics
+            evrec->SetDiffXSec(xsec,kPSQ2fE);
+
+            TLorentzVector lepton(interaction->KinePtr()->FSLeptonP4());
+            TLorentzVector outNucleon(interaction->KinePtr()->HadSystP4());
+            TLorentzVector x4l(*(evrec->Probe())->X4());
+
+            evrec->AddParticle(interaction->FSPrimLeptonPdg(), kIStStableFinalState, evrec->ProbePosition(),-1,-1,-1, interaction->KinePtr()->FSLeptonP4(), x4l);
+
+            GHepStatus_t ist = (tgt->IsNucleus()) ? 
+                kIStHadronInTheNucleus : kIStStableFinalState;
+            evrec->AddParticle(interaction->RecoilNucleonPdg(), ist, evrec->HitNucleonPosition(),-1,-1,-1, interaction->KinePtr()->HadSystP4(), x4l);
+
+            // Store struck nucleon momentum and binding energy
+            TLorentzVector p4ptr = interaction->InitStatePtr()->TgtPtr()->HitNucP4();
+            LOG("QELEvent",pNOTICE) << "pn: " << p4ptr.X() << ", " <<p4ptr.Y() << ", " <<p4ptr.Z() << ", " <<p4ptr.E();
+            nucleon->SetMomentum(p4ptr);
+            nucleon->SetRemovalEnergy(fEb);
+
+            // add a recoiled nucleus remnant
+            this->AddTargetNucleusRemnant(evrec);
+
+            break; // done
+        } else { // accept throw
+            LOG("QELEvent", pDEBUG) << "Reject current throw...";
+        }
+
+    } // iterations - while(1) loop
     LOG("QELEvent", pINFO) << "Done generating QE event kinematics!";
 }
 //___________________________________________________________________________
