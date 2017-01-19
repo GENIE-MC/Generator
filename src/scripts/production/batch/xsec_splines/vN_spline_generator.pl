@@ -19,7 +19,7 @@
 #   [--softw-topdir]  : top level dir for softw installations, default: /opt/ppd/t2k/softw/GENIE/
 #   [--jobs-topdir]   : top level dir for job files, default: $PWD
 #   [--gen-list]      : comma separated list of event generator list, default all
-#
+#   [--nu-list]       : comma separated list of neutrino. Both PDGs or names are ok, default all
 # Examples:
 #   shell% perl submit_vN_xsec_calc_jobs.pl --version v2.6.0  
 #   shell% perl submit_vN_xsec_calc_jobs.pl --version v2.6.0 
@@ -50,7 +50,8 @@ foreach (@ARGV) {
   if($_ eq '--queue')          { $queue         = $ARGV[$iarg+1]; }
   if($_ eq '--softw-topdir')   { $softw_topdir  = $ARGV[$iarg+1]; }           
   if($_ eq '--jobs-topdir')    { $jobs_topdir   = $ARGV[$iarg+1]; }           
-  if($_ eq '--gen-list'   )    { $gen_list      = $ARGV[$iarg+1]; }
+  if($_ eq '--gen-list'   )    { $req_gen_list  = $ARGV[$iarg+1]; }
+  if($_ eq '--nu-list' )       { $req_nu_list	= $ARGV[$iarg+1]; }
   $iarg++;
 }
 die("** Aborting [Undefined GENIE version. Use the --version option]")
@@ -69,50 +70,82 @@ $genie_setup    = "$softw_topdir/generator/builds/$arch/$genie_version-setup";
 $jobs_dir       = "$jobs_topdir/$genie_version-$production\_$cycle-xsec\_vN";
 
 
-$nkots = 500;
-$emax  = 500;
+$nkots = 100;
+$emax  = 200;
 
-%nu_pdg = ( 've'      =>   12, 
-            'vebar'   =>  -12, 
-            'vmu'     =>   14, 
-            'vmubar'  =>  -14, 
-            'vtau'    =>   16, 
-            'vtaubar' =>  -16 );
+%nucleons_pdg = ( 'n'  =>  1000000010, 
+                  'p'  =>  1000010010 );
 
-%tgt_pdg = ( 'n'  =>  1000000010, 
-             'p'  =>  1000010010 );
+%nucleons_name = ( 1000000010 => 'n' ,
+                   1000010010 => 'p' );
 
-if ( defined $gen_list ) {
-###print $gen_list."\n";
-@proc_v = split( ",", $gen_list ); 
+@nucleons_proc = ( 'CCQE',  'NCEL', 
+                   'CCRES', 'NCRES', 
+                   'CCDIS', 'NCDIS', 
+                   'CCDFR', 'NCDFR', 
+                   'CharmCCDIS', 
+                   'CharmCCQE', 
+                   'LambdaCCQE', 
+                   'IMD', 
+                   'NuEElastic' );
+
+%nu_pdg_def = ( 've'      =>   12, 
+                'vebar'   =>  -12, 
+                'vmu'     =>   14, 
+                'vmubar'  =>  -14, 
+                'vtau'    =>   16, 
+                'vtaubar' =>  -16 );
+
+%nu_name_def = ( 12 => 've'     , 
+                -12 => 'vebar'  , 
+                 14 => 'vmu'    , 
+                -14 => 'vmubar' ,
+                 16 => 'vtau'   ,
+                -16 => 'vtaubar' );
+
+##create the list of neutrino to be produced
+if ( defined $req_nu_list ) {
+  my @nu_temp_list = split( ",", $req_nu_list );
+  @nu_list = ();
+  foreach my $nu ( @nu_temp_list ) {
+    if ( exists $nu_pdg_def{$nu} ) { push @nu_list, $nu ; }
+    if ( exists	$nu_name_def{$nu} ) { push @nu_list, $nu_name_def{$nu} ; }
+  }
 }
 else {
-@proc_v = ( 'CCQE',     'NCEL', 
-            'CCRES',    'NCRES', 
-            'CCDIS',    'NCDIS', 
-            'GLRES', 
-            'CCDFR',    'NCDFR', 
-            'CharmCCDIS', 'CharmCCQE', 
-            'LambdaCCQE', 'SingleKaon', 
-            'NuEElastic' );
+  @nu_list = values %nu_name_def;
 }
+print "@nu_list \n";
+
+
+if ( defined $req_gen_list ) {
+  my @proc_temp_list = split( ",", $req_gen_list );
+  @nucleons_proc_list = (); 
+  foreach my $proc ( @proc_temp_list ) {
+    if ( grep  {$_ eq $proc} @nucleons_proc ) { push @nucleons_proc_list, $proc ; }
+  }
+}
+else {
+  @nucleons_proc_list = @nucleons_proc;
+}
+print "Process List: @nucleons_proc_list \n";
  
+#
 # make the jobs directory
 #
 print "@@ Creating job directory: $jobs_dir \n";
 mkpath ($jobs_dir, {verbose => 1, mode=>0777});
 
-foreach $nu ( keys %nu_pdg ) { 
-  foreach $tgt ( keys %tgt_pdg ) { 
-    foreach $proc ( @proc_v ) {
+foreach $nu ( @nu_list ) { 
+  foreach $tgt ( keys %nucleons_pdg ) { 
+    foreach $proc ( @nucleons_proc_list ) {
 
       $jobname = $nu."_on_".$tgt."_$proc"; 
       $filename_template = "$jobs_dir/$jobname"; 
       
-
       $grep_pipe     = "grep -B 100 -A 30 -i \"warn\\|error\\|fatal\"";
       $valgrind_cmd  = "valgrind --tool=memcheck --error-limit=no --leak-check=yes --show-reachable=yes";
-      $gmkspl_opt    = "-p $nu_pdg{$nu} -t $tgt_pdg{$tgt} -n $nkots -e $emax -o $filename_template.xml --event-generator-list $proc";
+      $gmkspl_opt    = "-p $nu_pdg_def{$nu} -t $nucleons_pdg{$tgt} -n $nkots -e $emax -o $filename_template.xml --event-generator-list $proc";
       $gmkspl_cmd    = "gmkspl $gmkspl_opt";
 
       print "@@ exec: $gmkspl_cmd \n";
@@ -146,7 +179,7 @@ foreach $nu ( keys %nu_pdg ) {
          print PBS "#\$ -N $jobname \n";
          print PBS "#\$ -o $filename_template.pbsout.log \n";
          print PBS "#\$ -e $filename_template.pbserr.log \n";
-         print PBS "#\$ -l ct=6:00:00,sps=1 \n";
+         print PBS "#\$ -l ct=8:00:00,sps=1 \n";
          print PBS "source $genie_setup $config_dir \n";
          print PBS "cd $jobs_dir \n";
          print PBS "$gmkspl_cmd \n";
