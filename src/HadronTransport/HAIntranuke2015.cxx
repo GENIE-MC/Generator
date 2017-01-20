@@ -44,6 +44,8 @@
    Fix memory leaks - Igor. 
  @ Oct 14, 2016 - SD
    Oset will be standard in new versions of hA 
+ @ Dec, 2016 - SD 
+   Use Oset for hA2015
 */
 //____________________________________________________________________________
 
@@ -226,10 +228,12 @@ INukeFateHA_t HAIntranuke2015::HadronFateHA(const GHepParticle * p) const
   int    pdgc = p->Pdg();
   double ke   = p->KinE() / units::MeV;
 
-  // bool isPion = (pdgc == kPdgPiP or pdgc == kPdgPi0 or pdgc == kPdgPiM); 
+  bool isPion = (pdgc == kPdgPiP or pdgc == kPdgPi0 or pdgc == kPdgPiM); 
+  if (isPion and fUseOset and ke < 350.0) return this->HadronFateOset(); 
+
  
   LOG("HAIntranuke2015", pINFO) 
-   << "Selecting hA fate for " << p->Name() << " with KEx = " << ke << " MeV";
+   << "Selecting hA fate for " << p->Name() << " with KE = " << ke << " MeV";
 
   // try to generate a hadron fate
   unsigned int iter = 0;
@@ -240,22 +244,23 @@ INukeFateHA_t HAIntranuke2015::HadronFateHA(const GHepParticle * p) const
    if (pdgc==kPdgPiP || pdgc==kPdgPiM || pdgc==kPdgPi0) {
 
      double frac_cex      = fHadroData2015->FracADep(pdgc, kIHAFtCEx,     ke, nuclA);
+     //     double frac_elas     = fHadroData2015->FracADep(pdgc, kIHAFtElas,    ke, nuclA);
      double frac_inel     = fHadroData2015->FracADep(pdgc, kIHAFtInelas,  ke, nuclA);
      double frac_abs      = fHadroData2015->FracADep(pdgc, kIHAFtAbs,     ke, nuclA);
      double frac_piprod   = fHadroData2015->FracADep(pdgc, kIHAFtPiProd,  ke, nuclA);
-
-     LOG("HAIntranuke2015", pINFO)
-       << "\n frac{" << INukeHadroFates::AsString(kIHAFtCEx)     << "} = " << frac_cex
-       << "\n frac{" << INukeHadroFates::AsString(kIHAFtInelas)  << "} = " << frac_inel
-       << "\n frac{" << INukeHadroFates::AsString(kIHAFtAbs)     << "} = " << frac_abs
-       << "\n frac{" << INukeHadroFates::AsString(kIHAFtPiProd)  << "} = " << frac_piprod;
-     
+     LOG("HAIntranuke2015", pDEBUG) 
+          << "\n frac{" << INukeHadroFates::AsString(kIHAFtCEx)     << "} = " << frac_cex
+       //          << "\n frac{" << INukeHadroFates::AsString(kIHAFtElas)    << "} = " << frac_elas
+          << "\n frac{" << INukeHadroFates::AsString(kIHAFtInelas)  << "} = " << frac_inel
+	  << "\n frac{" << INukeHadroFates::AsString(kIHAFtAbs)     << "} = " << frac_abs
+          << "\n frac{" << INukeHadroFates::AsString(kIHAFtPiProd)  << "} = " << frac_piprod;
+          
        // compute total fraction (can be <1 if fates have been switched off)
-     double tf = frac_cex      +
-       frac_inel     +  
-       frac_abs      +
-       frac_piprod;
-     
+       double tf = frac_cex      +
+	 //                   frac_elas     +
+                   frac_inel     +  
+	           frac_abs      +
+                   frac_piprod;
 
        double r = tf * rnd->RndFsi().Rndm();
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
@@ -263,6 +268,7 @@ INukeFateHA_t HAIntranuke2015::HadronFateHA(const GHepParticle * p) const
 #endif
        double cf=0; // current fraction
        if(r < (cf += frac_cex     )) return kIHAFtCEx;     // cex
+       //       if(r < (cf += frac_elas    )) return kIHAFtElas;    // elas
        if(r < (cf += frac_inel    )) return kIHAFtInelas;  // inelas
        if(r < (cf += frac_abs     )) return kIHAFtAbs;     // abs
        if(r < (cf += frac_piprod  )) return kIHAFtPiProd;  // pi prod
@@ -654,8 +660,10 @@ void HAIntranuke2015::InelasticHA(
       if(ev->Probe() ) { LOG("HAIntranuke",pINFO)
 	  << "P4L = " << P4L << " ;E4L=  " << E4L << "\n probe KE = " << ev->Probe()->KinE() << "\n";
       }
-      if (ev->Probe() && (E3L>ev->Probe()->E()||E4L>ev->Probe()->E()))  //is this redundant?
+      if (ev->Probe() && (E3L>ev->Probe()->KinE()))  //assuming E3 is most important, definitely for pion.  what about pp?
 	{
+	  //	  LOG("HAIntranuke",pINFO)
+	  //	    << "E3Lagain = " << E3L << " ;E4L=  " << E4L << "\n probe KE = " << ev->Probe()->KinE() << "\n";
 	  exceptions::INukeException exception;
 	  exception.SetReason("TwoBodyCollison gives KE> probe KE in hA simulation");
 	  throw exception;
@@ -1410,7 +1418,6 @@ INukeFateHA_t HAIntranuke2015::HadronFateOset () const
     << "\n frac{" << INukeHadroFates::AsString(kIHAFtCEx)     << "} = " << fractionCex
     << "\n frac{" << INukeHadroFates::AsString(kIHAFtInelas)  << "} = " << 1-fractionCex-fractionAbsorption
     << "\n frac{" << INukeHadroFates::AsString(kIHAFtAbs)     << "} = " << fractionAbsorption;
-
   if (randomNumber < fractionAbsorption && fRemnA > 1) return kIHAFtAbs;
   else if (randomNumber < fractionAbsorption + fractionCex) return kIHAFtCEx;
   else return kIHAFtInelas;
