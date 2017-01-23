@@ -164,7 +164,7 @@ double genie::utils::intranuke2015::MeanFreePath(
     
   if (xsecNNCorr and is_nucleon)
     sigtot *= INukeNucleonCorr::getInstance()->
-      getAvgCorrection (rho, A, Z,  pdgc, p4.E() - PDGLibrary::Instance()->Find(pdgc)->Mass());
+      getAvgCorrection (rho, A, p4.E() - PDGLibrary::Instance()->Find(pdgc)->Mass());   //uses Josh's lookup tables
 
   // compute the mean free path
   double lamda = 1. / (rho * sigtot);
@@ -736,6 +736,9 @@ bool genie::utils::intranuke2015::TwoBodyCollision(
 
   // update remnant nucleus
   RemnP4 -= t4P2L;
+  LOG("INukeUtils",pINFO)
+    << "t4P2L= " << t4P2L.E() << "  " << t4P2L.Z()
+    << "  RemnP4= " << RemnP4.E() << "   " << RemnP4.Z()  ;
   if (tcode==kPdgProton) {RemnZ--;RemnA--;}
   else if(tcode==kPdgNeutron) RemnA--;
 
@@ -822,11 +825,6 @@ bool genie::utils::intranuke2015::TwoBodyKinematics(
   E2L = t4P2buf.E();
   P2L = t4P2buf.P();
   t4Ptot = t4P1buf + t4P2buf;
-
-  if (E1L<120.0)
-    {
-      bindE = 0.0;
-    }
 
   // binding energy
   if (bindE!=0)
