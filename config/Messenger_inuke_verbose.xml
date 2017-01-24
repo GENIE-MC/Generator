@@ -102,9 +102,10 @@
   <priority msgstream="INukeData">             NOTICE </priority>
   <priority msgstream="INukeData2014">         NOTICE </priority>
   <priority msgstream="INukeData2015">         NOTICE </priority>
-  <priority msgstream="INukeUtils">            INFO   </priority> <!-- notice-->
-  <priority msgstream="INukeUtils2014">        INFO   </priority> <!-- notice-->
-  <priority msgstream="INukeUtils2015">        INFO   </priority> <!-- notice-->
+  <priority msgstream="INukeUtils">            INFO   </priority> 
+  <priority msgstream="INukeUtils2014">        INFO   </priority> 
+  <priority msgstream="INukeUtils2015">        INFO   </priority> 
+  <priority msgstream="INukeNucleonCorr">       INFO   </priority> 
   <priority msgstream="TwoBodyCollision">      INFO   </priority>
   <priority msgstream="ISApp">                 INFO   </priority>
   <priority msgstream="IntGenMap">             WARN   </priority>
