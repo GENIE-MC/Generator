@@ -1402,6 +1402,7 @@ void HAIntranuke2015::LoadConfig(void)
   LOG("HAIntranuke2015", pINFO) << "FermiMomtm  = " << fFermiMomentum;
   LOG("HAIntranuke2015", pINFO) << "DoFermi?    = " << ((fDoFermi)?(true):(false));
   LOG("HAIntranuke2015", pINFO) << "DoCmpndNuc? = " << ((fDoCompoundNucleus)?(true):(false));
+  LOG("HAIntranuke2015", pINFO) << "XsecNNCorr? = " << ((fXsecNNCorr)?(true):(false));
 }
 //___________________________________________________________________________
 
