@@ -5,6 +5,7 @@
 #include "Conventions/Units.h"
 #include "Numerical/RandomGen.h"
 #include "Messenger/Messenger.h"
+#include <TSystem.h>
 using namespace genie;
 
 #include <vector>
@@ -25,7 +26,9 @@ INukeNucleonCorr* INukeNucleonCorr::fInstance = NULL; // initialize instance wit
 const int NColumns  = 18;
 const int NRows = 205;
        
-string directory = "/local/xrootd/a/users/genie/GENIEtrunk290/data/evgen/nncorr/";
+string genie_dir = string(gSystem->Getenv("GENIE"));
+//string directory = genie_dir + string("/data/evgen/nncorr/");
+string dir = genie_dir + string("/data/evgen/nncorr/");
 string infile;
 vector<vector<double> > infile_values;
 vector<string> comments;
@@ -156,36 +159,37 @@ double INukeNucleonCorr :: AvgCorrection (const double rho, const int A, const i
 void read_file(string rfilename) 
 {  
   ifstream file;
-  file.open((char*)rfilename.c_str(), ios::in);                                                                                                                                                                 
+  file.open((char*)rfilename.c_str(), ios::in);
   
   if (file.is_open()) 
     {
     string line;
-    int cur_line = 0;                                                                                                                                                                    
+    int cur_line = 0;            
     while (getline(file,line)) 
-      {                                                                                                                                                            
+      { 
       if (line[0]=='#') 
-	{                                                                                                                                                                              
-        comments.push_back(line);                                                                                                                                                  
+	{ 
+        comments.push_back(line); 
 	} 
       else {
-        vector<double> temp_vector;                                                                                                                                                            
-        istringstream iss(line);                                                                                                                                                            
-        string s;                                                                                                                                                           
+        vector<double> temp_vector;
+        istringstream iss(line);            
+        string s; 
         for (int i=0; i<18; i++) 
-	  {                                                                                                                                                 
+	  {
           iss >> s;
-          temp_vector.push_back(atof(s.c_str()));                                                                                                                               
+          temp_vector.push_back(atof(s.c_str()));
         }
-        infile_values.push_back(temp_vector);                                                                                                                                    
+        infile_values.push_back(temp_vector);                  
         cur_line++;
       }
     }
   } 
   else {
-    cout << "Could not open " << rfilename << "." << endl;                                                                                                                                  
+    LOG("INukeNucleonCorr",pWARN) << "Could not open " << rfilename << "\n";
+
   }
-  file.close();                                                                                                                                                                                           
+  file.close();
 }
 
 
@@ -205,10 +209,11 @@ double INukeNucleonCorr :: getAvgCorrection(double rho, double A, double ke)
   static double cache[NRows][NColumns] = {{-1}};
   static bool ReadFile;
   if(ReadFile == true) {
+    LOG("INukeNucleonCorr",pNOTICE)  "Nucleon Corr interpolated value for correction factor = "<< cache[Row][Column] << " for rho, KE, A= "<<  rho << "  " << ke << "   " << A << "\n";
     return cache[Row][Column];}
   else{
     //Reading in correction files//
-    string dir = "/local/xrootd/a/users/genie/GENIEtrunk-fsi/data/evgen/nncorr/";
+    //    string dir = genie_dir + string("/data/evgen/nncorr/");
     vector<vector<double> > HeliumValues;
     vector<vector<double> > CarbonValues;    
     vector<vector<double> > CalciumValues;
@@ -241,7 +246,8 @@ double INukeNucleonCorr :: getAvgCorrection(double rho, double A, double ke)
     UraniumValues = infile_values;
     infile_values = clear;
 
-
+    LOG("INukeNucleonCorr",pNOTICE)
+      "Nucleon Corr interpolation files read in successfully";
     double Interpolated[205][18];
     for(int i = 0; i < 205; i++){Interpolated[i][0] = (i*0.001);}
     for(int i = 0; i < 18; i++){Interpolated[0][i] = (i*0.01);}
@@ -260,7 +266,6 @@ double INukeNucleonCorr :: getAvgCorrection(double rho, double A, double ke)
 
 
 	Interpolated[e][r] = Interp->Eval(A);
-
 	delete Interp;
       }
     }
@@ -272,6 +277,7 @@ double INukeNucleonCorr :: getAvgCorrection(double rho, double A, double ke)
       }
     }
     ReadFile = true;
+ 
     return cache[Row][Column];
   }
 }
@@ -279,7 +285,7 @@ double INukeNucleonCorr :: getAvgCorrection(double rho, double A, double ke)
 //This function outputs new correction files a new target if needed//
 void  INukeNucleonCorr :: OutputFiles(int A, int Z)
 {
-  string outputdir = "/local/xrootd/a/users/genie/GENIEtrunk-fsi/data/evgen/nncorr/";
+  string outputdir = genie_dir + string("/data/evgen/nncorr/");
   double pdgc;
   string file;
   string header;
