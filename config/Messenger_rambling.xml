@@ -106,6 +106,7 @@
   <priority msgstream="INukeUtils">            NOTICE </priority> <!-- notice-->
   <priority msgstream="INukeUtils2014">        NOTICE </priority> <!-- notice-->
   <priority msgstream="INukeUtils2015">        NOTICE </priority> <!-- notice-->
+  <priority msgstream="INukeNucleonCorr">      NOTICE </priority> 
   <priority msgstream="ISApp">                 INFO   </priority>
   <priority msgstream="IntGenMap">             WARN   </priority>
   <priority msgstream="KNOHad">                NOTICE </priority> 

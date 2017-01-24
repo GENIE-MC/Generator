@@ -110,6 +110,7 @@
   <priority msgstream="INukeUtils">            NOTICE </priority>
   <priority msgstream="INukeUtils2014">        NOTICE </priority>
   <priority msgstream="INukeUtils2015">        NOTICE </priority>
+  <priority msgstream="INukeNucleonCorr">      NOTICE   </priority> 
   <priority msgstream="TwoBodyCollision">      NOTICE </priority>
   <priority msgstream="ISApp">                 WARN   </priority>
   <priority msgstream="IntGenMap">             WARN   </priority>
