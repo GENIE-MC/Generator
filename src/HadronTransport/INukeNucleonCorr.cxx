@@ -5,9 +5,35 @@
 #include "Conventions/Units.h"
 #include "Numerical/RandomGen.h"
 #include "Messenger/Messenger.h"
+#include <TSystem.h>
 using namespace genie;
 
+#include <vector>
+#include <string>
+#include <fstream>
+#include <sstream>
+#include <iomanip>
+#include <iostream>
+#include <math.h>
+#include <stdlib.h>
+#include <TGraph.h>
+using namespace std;
+
+
 INukeNucleonCorr* INukeNucleonCorr::fInstance = NULL; // initialize instance with NULL
+
+
+const int NColumns  = 18;
+const int NRows = 205;
+       
+string genie_dir = string(gSystem->Getenv("GENIE"));
+//string directory = genie_dir + string("/data/evgen/nncorr/");
+string dir = genie_dir + string("/data/evgen/nncorr/");
+string infile;
+vector<vector<double> > infile_values;
+vector<string> comments;
+
+
 
 // ----- STATIC CONSTANTS ----- //
 
@@ -19,21 +45,6 @@ const double INukeNucleonCorr::fBeta1   = -116.00 / fRho0 / 1000.0;          // 
 const double INukeNucleonCorr::fLambda0 =    3.29 / (units::fermi);          // converted to GeV
 const double INukeNucleonCorr::fLambda1 =  -0.373 / (units::fermi) / fRho0;  // converted to GeV
 
-//Three Cache arrays give fine binning at low energy and coarse binning at high energy//
-const int INukeNucleonCorr::fNDensityBins = 16;  // number of bins for density cache array
-const double INukeNucleonCorr::fDensityStep = fRho0 / fNDensityBins;      // [fm^{-3}]
-
-const int INukeNucleonCorr::fNEnergyBins1  = 20;  // number of bins for energy cache1 array
-const double INukeNucleonCorr::fMaxEnergy1    = 0.1; // [GeV]
-const double INukeNucleonCorr::fEnergyStep1  = fMaxEnergy1 / fNEnergyBins1; // [GeV]
-
-const int INukeNucleonCorr::fNEnergyBins2  = 8;  // number of bins for energy cache2 array
-const double INukeNucleonCorr::fMaxEnergy2    = 0.4; // [GeV]
-const double INukeNucleonCorr::fEnergyStep2  = fMaxEnergy2 / fNEnergyBins2; // [GeV]
-
-const int INukeNucleonCorr::fNEnergyBins3  = 1;  // number of bins for energy cache3 array
-const double INukeNucleonCorr::fMaxEnergy3    = 1.0; // [GeV]
-const double INukeNucleonCorr::fEnergyStep3  = fMaxEnergy3 / fNEnergyBins3; // [GeV]
 
 
 // ----- CALCULATIONS ----- //
@@ -96,25 +107,8 @@ double INukeNucleonCorr :: getCorrection (const double mass, const double rho,
 }
 
 //! generate kinematics fRepeat times to calculate average correction
-double INukeNucleonCorr :: getAvgCorrection (const double rho, const int A, const int Z, const int pdg, const double Ek)
+double INukeNucleonCorr :: AvgCorrection (const double rho, const int A, const int Z, const int pdg, const double Ek)
 {
-  static double cache1[fNDensityBins][fNEnergyBins1] = {{-1}}; // corrections cache
-  static double cache2[fNDensityBins][fNEnergyBins2] = {{-1}}; // corrections cache
-  static double cache3[fNDensityBins][fNEnergyBins3] = {{-1}}; // corrections cache
-  bool useCache1 = false; 
-  bool useCache2 = false;
-
-
-  const int densityBin = rho / fDensityStep < fNDensityBins ? rho / fDensityStep : fNDensityBins - 1;
-  int energyBin;
-
-  if(Ek < fMaxEnergy1) {energyBin = Ek / fEnergyStep1; useCache1 = true;}  // Determine which cache to use(0-100MeV, 100-400MeV, or 400-1000MeV). Then determine which bin to use
-  else if(Ek < fMaxEnergy2) {energyBin = Ek / fEnergyStep2; useCache2 = true;} 
-  else {energyBin = (fNEnergyBins3 - 1);}
-  
-  if (Ek < fMaxEnergy1 && cache1[densityBin][energyBin] > 0.0) return cache1[densityBin][energyBin]; // correction already calculated
-  if (Ek < fMaxEnergy2 && cache2[densityBin][energyBin] > 0.0) return cache2[densityBin][energyBin]; // correction already calculated
-  if (Ek < fMaxEnergy3 && cache3[densityBin][energyBin] > 0.0) return cache3[densityBin][energyBin]; // correction already calculated
 
   RandomGen * rnd = RandomGen::Instance();
 
@@ -156,14 +150,191 @@ double INukeNucleonCorr :: getAvgCorrection (const double rho, const int A, cons
   corrPauliBlocking /= fRepeat;
       corrPotential /= fRepeat;
       
-      if(useCache1 == true){
-	cache1[densityBin][energyBin] = corrPauliBlocking * corrPotential; // save this results for future calls
-	return cache1[densityBin][energyBin]; } 
-      else if(useCache2 == true){
-	cache2[densityBin][energyBin] = corrPauliBlocking * corrPotential; // save this results for future calls
-	return cache2[densityBin][energyBin]; } 
-      else{
-	cache3[densityBin][energyBin] = corrPauliBlocking * corrPotential; // save this results for future calls
-	return cache3[densityBin][energyBin]; } 
-
+      return corrPotential * corrPauliBlocking;
+     
 }
+
+
+//This function reads the correction files that will be used to interpolate new correction values for some target//
+void read_file(string rfilename) 
+{  
+  ifstream file;
+  file.open((char*)rfilename.c_str(), ios::in);
+  
+  if (file.is_open()) 
+    {
+    string line;
+    int cur_line = 0;            
+    while (getline(file,line)) 
+      { 
+      if (line[0]=='#') 
+	{ 
+        comments.push_back(line); 
+	} 
+      else {
+        vector<double> temp_vector;
+        istringstream iss(line);            
+        string s; 
+        for (int i=0; i<18; i++) 
+	  {
+          iss >> s;
+          temp_vector.push_back(atof(s.c_str()));
+        }
+        infile_values.push_back(temp_vector);                  
+        cur_line++;
+      }
+    }
+  } 
+  else {
+    LOG("INukeNucleonCorr",pWARN) << "Could not open " << rfilename << "\n";
+
+  }
+  file.close();
+}
+
+
+//This function interpolates and returns correction values//
+double INukeNucleonCorr :: getAvgCorrection(double rho, double A, double ke)                                                                               
+{                                                         
+  //Read in energy and density to determine the row and column of the correction table//                                                                                                           
+  int Column = round(rho*100) + 1;
+  int Row = -1;
+  for(int e = 0; e < (ke*1000); e++)
+    {
+      if(e > 100){e+=4;}
+      if(e > 500){e+=15;}
+      Row++;
+    }
+  //If the table of correction values has already been created, return a value. Else, interpolate the needed correction table//
+  static double cache[NRows][NColumns] = {{-1}};
+  static bool ReadFile;
+  if(ReadFile == true) {
+    LOG("INukeNucleonCorr",pNOTICE)  "Nucleon Corr interpolated value for correction factor = "<< cache[Row][Column] << " for rho, KE, A= "<<  rho << "  " << ke << "   " << A << "\n";
+    return cache[Row][Column];}
+  else{
+    //Reading in correction files//
+    //    string dir = genie_dir + string("/data/evgen/nncorr/");
+    vector<vector<double> > HeliumValues;
+    vector<vector<double> > CarbonValues;    
+    vector<vector<double> > CalciumValues;
+    vector<vector<double> > IronValues;
+    vector<vector<double> > TinValues;
+    vector<vector<double> > UraniumValues;
+    vector<vector<double> > clear;
+
+    read_file(dir+"NNCorrection_2_4.txt");
+    HeliumValues = infile_values;
+    infile_values = clear;
+
+    read_file(dir+"NNCorrection_6_12.txt");
+    CarbonValues = infile_values;
+    infile_values = clear;
+
+    read_file(dir+"NNCorrection_20_40.txt");
+    CalciumValues = infile_values;
+    infile_values = clear;
+
+    read_file(dir+"NNCorrection_26_56.txt");
+    IronValues = infile_values;
+    infile_values = clear;
+
+    read_file(dir+"NNCorrection_50_120.txt");
+    TinValues = infile_values;
+    infile_values = clear;
+
+    read_file(dir+"NNCorrection_92_238.txt");
+    UraniumValues = infile_values;
+    infile_values = clear;
+
+    LOG("INukeNucleonCorr",pNOTICE)
+      "Nucleon Corr interpolation files read in successfully";
+    double Interpolated[205][18];
+    for(int i = 0; i < 205; i++){Interpolated[i][0] = (i*0.001);}
+    for(int i = 0; i < 18; i++){Interpolated[0][i] = (i*0.01);}
+    
+    const int Npoints = 6;
+    //Interpolate correction values at every energy and density on the correction table//
+    for(int e = 0; e < 201; e++){
+      for(int r = 1; r < 19; r++){
+	TGraph * Interp = new TGraph(Npoints);
+	Interp->SetPoint(0,4,HeliumValues[e][r]);
+	Interp->SetPoint(1,12,CarbonValues[e][r]);
+	Interp->SetPoint(2,40,CalciumValues[e][r]);
+	Interp->SetPoint(3,56,IronValues[e][r]);
+	Interp->SetPoint(4,120,TinValues[e][r]);
+	Interp->SetPoint(5,238,UraniumValues[e][r]);
+
+
+	Interpolated[e][r] = Interp->Eval(A);
+	delete Interp;
+      }
+    }
+
+    //Save the interpolated values and return the needed correction//
+    for(int e = 0; e < 205; e++){
+      for(int r = 1; r < 18; r++){
+        cache[e][r] = Interpolated[e][r]; 
+      }
+    }
+    ReadFile = true;
+ 
+    return cache[Row][Column];
+  }
+}
+
+//This function outputs new correction files a new target if needed//
+void  INukeNucleonCorr :: OutputFiles(int A, int Z)
+{
+  string outputdir = genie_dir + string("/data/evgen/nncorr/");
+  double pdgc;
+  string file;
+  string header;
+
+ 
+    file = outputdir+"NNCorrection.txt";
+    header = "##Correction values for protons (density(horizontal) and energy(vertical))";
+    pdgc = 2212;
+
+
+  double output[1002][18];
+  //label densities (columns)//	  
+  for(int r = 1; r < 18; r++)
+    { double rho = (r-1)*0.01; 
+      output[0][r] = rho;}
+ 
+  //label energies (rows) //
+  for(int e = 1; e < 1002; e++)
+    { double energy = (e-1)*0.001;
+      output[e][0] = energy;}
+  
+  //loop over each energy and density to get corrections and build the correction table//
+  for(int e = 1; e < 1002; e++){
+    for(int r = 1; r < 18; r++){
+      double energy  = (e-1)*0.001;
+      double density = (r-1)*0.01;
+      double correction = INukeNucleonCorr::getInstance()-> AvgCorrection (density, A, Z, pdgc, energy);
+      output[e][r] = correction;
+    }
+  }
+  //output the new correction table //
+  ofstream outfile;
+  outfile.open((char*)file.c_str(), ios::trunc);
+  if (outfile.is_open()) {
+    
+    outfile << header << endl;
+    outfile << left << setw(12) << "##";
+    for (int e = 0; e < 1002; e++) {    
+      for (int r = 0; r < 18; r++) {  
+	if((e == 0) && (r == 0)) {}
+	else{outfile << left << setw(12) << output[e][r];}
+      } 
+      outfile << endl;
+      
+    }
+  }
+  outfile.close();
+}
+    
+  
+
+
