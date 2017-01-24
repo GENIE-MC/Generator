@@ -994,6 +994,7 @@ void HNIntranuke2015::LoadConfig(void)
   LOG("HNIntranuke2015", pWARN) << "DoCmpndNuc? = " << ((fDoCompoundNucleus)?(true):(false));
   LOG("HNIntranuke2015", pWARN) << "useOset     = " << fUseOset;
   LOG("HNIntranuke2015", pWARN) << "altOset     = " << fAltOset;
+  LOG("HNIntranuke2015", pWARN) << "XsecNNCorr? = " << ((fXsecNNCorr)?(true):(false));
 }
 //___________________________________________________________________________
 
