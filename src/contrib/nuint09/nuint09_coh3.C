@@ -103,7 +103,7 @@ void nuint09_coh3(int isample)
   out_stream << "#  Columns:" << endl;
   out_stream << "#  |  KE(pi)  |  cos(theta_pi)  |  sig(coh; CC; Ev=0.5GeV)  | sig(coh; NC; Ev=0.5GeV)  |  sig(coh; CC; Ev=1.0GeV)  | sig(coh; NC; Ev=1.0GeV)  |  sig(coh; CC; Ev=1.5GeV)  | sig(coh; NC; Ev=1.5GeV) " << endl;
 
-  out_stream << setiosflags(ios::fixed) << setprecision(6);
+  out_stream << std::fixed << setprecision(6);
 
   //
   // load event data

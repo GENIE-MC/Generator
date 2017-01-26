@@ -116,7 +116,7 @@ void nuint09_qel2(int isample, int include_fsi=0)
   out_stream << "#  Columns:" << endl;
   out_stream << "#  |  KE(p)  |  sig(QELCC; Ev=0.5GeV)  | sig(QELCC; Ev=1.0GeV) | " << endl;
 
-  out_stream << setiosflags(ios::fixed) << setprecision(6);
+  out_stream << std::fixed << setprecision(6);
 
   //
   // load event data
