@@ -49,7 +49,6 @@ using std::setw;
 using std::setprecision;
 using std::setfill;
 using std::ios;
-using std::setiosflags;
 using std::cout;
 
 const double kPCutOff    = 1e-15;
@@ -458,7 +457,7 @@ void GHepParticle::Print(ostream & stream) const
   stream << setfill(' ') << setw(3)  << this->LastMother()     << " | ";
   stream << setfill(' ') << setw(3)  << this->FirstDaughter()  << " | ";
   stream << setfill(' ') << setw(3)  << this->LastDaughter()   << " | ";
-  stream << setiosflags(ios::fixed)  << setprecision(3);
+  stream << std::fixed  << setprecision(3);
   stream << setfill(' ') << setw(6)  << this->Px()             << " | ";
   stream << setfill(' ') << setw(6)  << this->Py()             << " | ";
   stream << setfill(' ') << setw(6)  << this->Pz()             << " | ";

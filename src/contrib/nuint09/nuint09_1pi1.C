@@ -113,7 +113,7 @@ void nuint09_1pi1(int isample, int single_pion_sources=0, int stage=1)
   out_stream << "#  Columns:" << endl;
   out_stream << "#  |  Energy     |   sig(nu_mu + A -> mu- 1pi+ X)   |  "  << endl;
 
-  out_stream << setiosflags(ios::fixed) << setprecision(6);
+  out_stream << std::fixed << setprecision(6);
 
   //
   // load event data

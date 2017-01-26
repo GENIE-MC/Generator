@@ -98,7 +98,7 @@ void nuint09_qel6(int isample)
   out_stream << "#   - quoted cross section is nuclear cross section divided with number of nucleons A" << endl;
   out_stream << "#  Columns:" << endl;
   out_stream << "#  |  KE(proton)  | dsig(numu CCQE-like; Enu = 0.5 GeV) | dsig(numu CCQE-like; Enu = 1.0 GeV) | dsig(numu CCQE-like; Enu = 1.5 GeV)  | "  << endl;
-  out_stream << setiosflags(ios::fixed) << setprecision(6);
+  out_stream << std::fixed << setprecision(6);
 
   //
   // load event data
