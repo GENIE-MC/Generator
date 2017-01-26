@@ -111,7 +111,7 @@ void nuint09_1pi3(int isample, int single_pion_sources=0, int stage=1)
   out_stream << "#  Columns:" << endl;
   out_stream << "#  |  KE(pi+)   |   cos(theta_pi+)   |  dsig(numu A -> mu- 1pi+ X; Enu = 1.0 GeV)   |  dsig(numu A -> mu- 1pi+ X; Enu = 1.5 GeV)  | "  << endl;
 
-  out_stream << setiosflags(ios::fixed) << setprecision(6);
+  out_stream << std::fixed << setprecision(6);
 
   //
   // load event data

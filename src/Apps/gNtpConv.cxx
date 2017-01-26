@@ -174,7 +174,6 @@ using std::setw;
 using std::setprecision;
 using std::setfill;
 using std::ios;
-using std::setiosflags;
 using std::vector;
 
 using namespace genie;
@@ -1098,7 +1097,7 @@ void ConvertToGXML(void)
     output << "  <ghep np=\"" << event.GetEntries() 
            << "\" unphysical=\"" 
            << (event.IsUnphysical() ? "true" : "false") << "\">" << endl;
-    output << setiosflags(ios::scientific);
+    output << std::scientific;
 
     // write-out the event-wide properties
     output << "   ";

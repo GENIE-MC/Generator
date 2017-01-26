@@ -252,7 +252,7 @@ ostream & operator<< (ostream & stream, const TClonesArray * particle_list)
 ostream & operator<< (ostream & stream, const TMCParticle * p)
 {
   stream 
-   << setiosflags(ios::scientific) << setprecision(6);
+   << std::scientific << setprecision(6);
 
   stream 
     << setfill(' ') << setw(10) << p->GetName()
