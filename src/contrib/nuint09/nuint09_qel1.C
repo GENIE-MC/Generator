@@ -82,7 +82,7 @@ void nuint09_qel1(int isample)
   out_stream << "#  Columns:" << endl;
   out_stream << "#  |  Energy     |   sig(nu_mu + n[bound] -> mu- + p)   |  "  << endl;
 
-  out_stream << setiosflags(ios::fixed) << setprecision(6);
+  out_stream << std::fixed << setprecision(6);
 
   for(int i=0; i < ne; i++) {
 
