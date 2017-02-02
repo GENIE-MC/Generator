@@ -505,7 +505,6 @@ clean-files: FORCE
 	cd GiBUU &&                         $(MAKE) clean && cd .. && \
 	cd HadronTransport &&               $(MAKE) clean && cd .. && \
 	cd Interaction &&                   $(MAKE) clean && cd .. && \
-	cd Interfaces &&                    $(MAKE) clean && cd .. && \
 	cd LlewellynSmith &&                $(MAKE) clean && cd .. && \
 	cd Masterclass &&                   $(MAKE) clean && cd .. && \
 	cd MEC &&                           $(MAKE) clean && cd .. && \
@@ -527,7 +526,6 @@ clean-files: FORCE
 	cd ReinSehgal &&                    $(MAKE) clean && cd .. && \
 	cd ReWeight &&                      $(MAKE) clean && cd .. && \
 	cd SingleKaon &&                    $(MAKE) clean && cd .. && \
-	cd Types &&                         $(MAKE) clean && cd .. && \
 	cd Utils &&                         $(MAKE) clean && cd .. && \
 	cd VLE &&                           $(MAKE) clean && cd .. && \
 	cd VHE &&                           $(MAKE) clean && cd .. && \
