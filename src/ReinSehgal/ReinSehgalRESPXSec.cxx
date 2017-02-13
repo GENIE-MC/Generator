@@ -297,6 +297,12 @@ double ReinSehgalRESPXSec::XSec(
   }
   xsec *= rf;
 
+  // Apply given scaling factor
+  double xsec_scale = 1.;
+  if      (is_CC) { xsec_scale = fXSecScaleCC; }
+  else if (is_NC) { xsec_scale = fXSecScaleNC; }
+  xsec *= xsec_scale;
+
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("ReinSehgalRes", pINFO) 
     << "\n d2xsec/dQ2dW"  << "[" << interaction->AsString()
@@ -372,6 +378,12 @@ void ReinSehgalRESPXSec::LoadConfig(void)
   const Registry * gc = confp->GlobalParameterList();
 
   // Load all configuration data or set defaults
+
+  // Cross section scaling factors
+  fXSecScaleCC = fConfig->GetDoubleDef(
+     "CC-XSecScale", gc->GetDouble("RES-CC-XSecScale"));
+  fXSecScaleNC = fConfig->GetDoubleDef(
+     "NC-XSecScale", gc->GetDouble("RES-NC-XSecScale"));
 
   fZeta  = fConfig->GetDoubleDef( "Zeta",  gc->GetDouble("RS-Zeta")  );
   fOmega = fConfig->GetDoubleDef( "Omega", gc->GetDouble("RS-Omega") );
