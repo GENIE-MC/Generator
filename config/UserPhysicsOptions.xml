@@ -89,6 +89,7 @@ STFC, Rutherford Appleton Laboratory
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   -->
   <param type="double" name="QEL-CC-XSecScale"> 1.000 </param>
+  <param type="double" name="RES-NC-XSecScale"> 1.000 </param>
   <param type="double" name="RES-CC-XSecScale"> 1.000 </param>
   <param type="double" name="DIS-XSecScale">    1.032 </param>
 
