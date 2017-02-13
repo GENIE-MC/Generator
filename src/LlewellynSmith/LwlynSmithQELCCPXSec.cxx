@@ -126,6 +126,9 @@ double LwlynSmithQELCCPXSec::XSec(
 
   double xsec = Gfactor * (A + sign*B*s_u/M2 + C*s_u*s_u/M4);
 
+  // Apply given scaling factor
+  xsec *= fXSecScale;
+
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("LwlynSmith", pDEBUG)
      << "dXSec[QEL]/dQ2 [FreeN](E = "<< E << ", Q2 = "<< -q2 << ") = "<< xsec;
@@ -360,8 +363,12 @@ void LwlynSmithQELCCPXSec::LoadConfig(void)
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();
   
+  // Cross section scaling factor
+  fXSecScale = fConfig->GetDoubleDef(
+       "XSecScale", gc->GetDouble("QEL-CC-XSecScale"));
+
   double thc = fConfig->GetDoubleDef(
-                              "CabibboAngle", gc->GetDouble("CabibboAngle"));
+       "CabibboAngle", gc->GetDouble("CabibboAngle"));
   fCos8c2 = TMath::Power(TMath::Cos(thc), 2);
 
    // load QEL form factors model
