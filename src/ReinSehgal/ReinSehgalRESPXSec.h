@@ -85,6 +85,8 @@ private:
   double   fGnResMaxNWidths;   ///< limits allowed phase space for other res
   Spline * fNuTauRdSpl;        ///< xsec reduction spline for nu_tau
   Spline * fNuTauBarRdSpl;     ///< xsec reduction spline for nu_tau_bar
+  double   fXSecScaleCC;       ///< external CC xsec scaling factor
+  double   fXSecScaleNC;       ///< external NC xsec scaling factor
 
   const XSecIntegratorI * fXSecIntegrator;
 };
