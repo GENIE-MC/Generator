@@ -4,11 +4,14 @@
 # v*_on_*_*.xml 
 # then it calls the appropriate gspladd to obtain v*_on_*.xml comprehensive
 # file
+# 
 #---------------------------------------------------------------------
 
 $iarg=0;
 foreach (@ARGV) {
-  if($_ eq '--dir')        { $dir  = $ARGV[$iarg+1]; }
+  if($_ eq '--dir')             { $dir           = $ARGV[$iarg+1]; }
+  if($_ eq '--add-list')        { $add_list      = $ARGV[$iarg+1]; }
+  if($_ eq '--add-nucleons')    { $add_nucleons  = true ; }
   $iarg++;
 }
 
@@ -25,7 +28,7 @@ while (my $file = readdir(DIR) ) {
   # We only want files
   next unless (-f "$dir/$file");
 
-  # Use a regular expression to find files ending in .txt
+  # Use a regular expression to find files ending in .xml
   next unless ($file =~ m/\.xml$/);
 
   next unless ( index($file, "_on_") != -1 );
@@ -158,9 +161,23 @@ foreach my $tgt ( keys %tgts ) {
 $glob_file = $dir."/total_xsec.xml"; 
 
 $tgt_size = keys %tgts;
-if ( $tgt_size > 1 ) {
+if ( ($tgt_size > 1) or (defined $add_list ) ) {
 
-    ##$grep_pipe     = "grep -B 100 -A 30 -i \"warn\\|error\\|fatal\"";
+  if ( defined $add_list ) {
+    $tgt_file_list .= "$add_list" . "," . "$tgt_file_list" ;
+  }
+
+  if ( defined $add_nucleons ) {
+    if ( index($tgt_list, "1000010010") == -1 ) {
+      $tgt_list .= ",1000010010";
+    } 
+
+    if ( index($tgt_list, "1000000010") == -1 ) {
+      $tgt_list .= ",1000000010";
+    }
+  }
+
+  ##$grep_pipe     = "grep -B 100 -A 30 -i \"warn\\|error\\|fatal\"";
   $gspladd_opt    = "-p $nu_list -t $tgt_list  -o $glob_file -f $tgt_file_list --event-generator-list $proc_list";
   $gspladd_cmd    = "gspladd $gspladd_opt";
   print "$gspladd_cmd \n \n";

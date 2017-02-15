@@ -168,7 +168,7 @@ foreach $nu ( @nu_list ) {
       else {
         $in_splines = $freenucsplines;
       }
-      $gmkspl_opt = "-p $nu_pdg_def{$nu} -t $tgt -n $nknots -e $emax --input-cross-sections $in_splines --output-cross-sections $filename_template.xml --event-generator-list $proc";
+      $gmkspl_opt = "-p $nu_pdg_def{$nu} -t $tgt -n $nknots -e $emax --input-cross-sections $in_splines --output-cross-sections $filename_template.xml --event-generator-list $proc --no-copy";
       $gmkspl_cmd = "gmkspl $gmkspl_opt | $grep_pipe &> $filename_template.mkspl.log";
       print "@@ exec: $gmkspl_cmd \n";
 
