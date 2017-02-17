@@ -10,14 +10,16 @@
 # Options:
 #    --version        : GENIE version number
 #    --run-type       : Comma separated list of run types
+#   [--config-dir]    : Config directory, default is $GENIE/config 
 #   [--nsubruns]      : number of subruns per run, default: 1
 #   [--arch]          : <SL4.x86_32, SL5.x86_64, SL6.x86_64, ...>, default: SL6.x86_64
-#   [--production]    : default: routine_validation
+#   [--jobs-topdir]   : top level dir for job files, default: /opt/ppd/t2k/scratch/GENIE/
 #   [--cycle]         : default: 01
-#   [--batch-system]  : <PBS, LSF, slurm, HTCondor, HTCondor_PBS, none>, default: HTCondor_PBS
+#   [--batch-system]  : <PBS, LyonPBS, LSF, slurm, HTCondor, HTCondor_PBS, none>, default: HTCondor_PBS
 #   [--queue]         : default: prod
 #   [--softw-topdir]  : top level dir for softw installations, default: /opt/ppd/t2k/softw/GENIE/
 #   [--jobs-topdir]   : top level dir for job files, default: /opt/ppd/t2k/scratch/GENIE/
+#   [--spline-file]   : absoluyte path to xsec_spline_file, default: $softw_topdir/data/job_inputs/xspl/gxspl-vA-$genie_version.xml
 #
 #
 # SAMPLES:
@@ -60,6 +62,7 @@ $iarg=0;
 foreach (@ARGV) {
   if($_ eq '--version')        { $genie_version   = $ARGV[$iarg+1]; }
   if($_ eq '--run-type')       { $run_type        = $ARGV[$iarg+1]; }
+  if($_ eq '--config-dir')     { $config_dir    = $ARGV[$iarg+1]; }
   if($_ eq '--nsubruns')       { $nsubruns        = $ARGV[$iarg+1]; }
   if($_ eq '--arch')           { $arch            = $ARGV[$iarg+1]; }
   if($_ eq '--production')     { $production      = $ARGV[$iarg+1]; }
@@ -70,6 +73,7 @@ foreach (@ARGV) {
   if($_ eq '--queue')          { $queue           = $ARGV[$iarg+1]; }
   if($_ eq '--softw-topdir')   { $softw_topdir    = $ARGV[$iarg+1]; }  
   if($_ eq '--jobs-topdir')    { $jobs_topdir     = $ARGV[$iarg+1]; }
+  if($_ eq '--spline-file')    { $xspl_file       = $ARGV[$iarg+1]; }
   $iarg++;
 }
 die("** Aborting [Undefined benchmark runs #. Use the --run-type option]")
@@ -77,6 +81,7 @@ unless defined $run_type;
 die("** Aborting [Undefined GENIE version. Use the --version option]")
 unless defined $genie_version;
 
+$config_dir     = ""                            unless defined $config_dir;
 $nsubruns        = 1                            unless defined $nsubruns;
 $use_valgrind    = 0                            unless defined $use_valgrind;
 $arch            = "SL6.x86_64"                 unless defined $arch;
@@ -88,7 +93,7 @@ $softw_topdir   = "/opt/ppd/t2k/softw/GENIE/"   unless defined $softw_topdir;
 $jobs_topdir    = "/opt/ppd/t2k/scratch/GENIE/" unless defined $jobs_topdir;  
 $ref_sample_path = 0                            unless defined $ref_sample_path;
 $genie_setup     = "$softw_topdir/generator/builds/$arch/$genie_version-setup";
-$xspl_file       = "$softw_topdir/data/job_inputs/xspl/gxspl-vA-$genie_version.xml";
+$xspl_file       = "$softw_topdir/data/job_inputs/xspl/gxspl-vA-$genie_version.xml" unless defined $xspl_file;
 $jobs_dir        = "$jobs_topdir/$genie_version-$production\_$cycle-t2k";
 $mcseed          = 210921029;
 
@@ -168,9 +173,9 @@ for my $curr_runtype (keys %nupdg_hash)  {
           print BATCH_SCRIPT "#PBS -N $jobname \n";
           print BATCH_SCRIPT "#PBS -o $filename_template.pbsout.log \n";
           print BATCH_SCRIPT "#PBS -e $filename_template.pbserr.log \n";
-          print BATCH_SCRIPT "source $genie_setup \n"; 
+          print BATCH_SCRIPT "source $genie_setup $config_dir \n"; 
           print BATCH_SCRIPT "cd $jobs_dir \n";
-          print BATCH_SCRIPT "$evgen_cmd \n";
+          print BATCH_SCRIPT "$evgen_cmd \n"; 
           close(BATCH_SCRIPT);
           $job_submission_command = "qsub";
           if($batch_system eq 'HTCondor_PBS') {
@@ -178,6 +183,24 @@ for my $curr_runtype (keys %nupdg_hash)  {
           }
           `$job_submission_command -q $queue $batch_script`;
        } #PBS
+
+       # LyonPBS case
+       if($batch_system eq 'LyonPBS' ) {
+         $batch_script = "$filename_template.pbs";
+         open(PBS, ">$batch_script") or die("Can not create the PBS batch script");
+         print PBS "#!/bin/bash \n";
+         print PBS "#\$ -P P_$ENV{'GROUP'} \n";
+         print PBS "#\$ -N $jobname \n";
+         print PBS "#\$ -o $filename_template.pbsout.log \n";
+         print PBS "#\$ -e $filename_template.pbserr.log \n";
+         print PBS "#\$ -l ct=6:00:00,sps=1 \n";
+         print PBS "source $genie_setup $config_dir \n";
+         print PBS "cd $jobs_dir \n";
+         print PBS "$evgen_cmd \n";
+         close(PBS);
+         $job_submission_command = "qsub";
+         `$job_submission_command  $batch_script`;
+       } #LyonPBS 
 
        # LSF case
        if($batch_system eq 'LSF') {
@@ -188,7 +211,7 @@ for my $curr_runtype (keys %nupdg_hash)  {
           print BATCH_SCRIPT "#BSUB-q $queue \n";
           print BATCH_SCRIPT "#BSUB-o $filename_template.lsfout.log \n";
           print BATCH_SCRIPT "#BSUB-e $filename_template.lsferr.log \n";
-          print BATCH_SCRIPT "source $genie_setup \n"; 
+          print BATCH_SCRIPT "source $genie_setup $config_dir\n"; 
           print BATCH_SCRIPT "cd $jobs_dir \n";
           print BATCH_SCRIPT "$evgen_cmd \n";
           close(BATCH_SCRIPT);
@@ -223,7 +246,7 @@ for my $curr_runtype (keys %nupdg_hash)  {
           print BATCH_SCRIPT "#SBATCH-p $queue \n";
           print BATCH_SCRIPT "#SBATCH-o $filename_template.lsfout.log \n";
           print BATCH_SCRIPT "#SBATCH-e $filename_template.lsferr.log \n";
-          print BATCH_SCRIPT "source $genie_setup \n"; 
+          print BATCH_SCRIPT "source $genie_setup $config_dir\n"; 
           print BATCH_SCRIPT "cd $jobs_dir \n";
           print BATCH_SCRIPT "$evgen_cmd \n";
           close(BATCH_SCRIPT);
@@ -232,7 +255,7 @@ for my $curr_runtype (keys %nupdg_hash)  {
  
        # no batch system, run jobs interactively
        if($batch_system eq 'none') {
-          system("source $genie_setup; cd $jobs_dir; $evgen_cmd");
+          system("source $genie_setup; cd $jobs_dir $config_dir; $evgen_cmd");
        } # interactive mode
 
     }#subrunnu

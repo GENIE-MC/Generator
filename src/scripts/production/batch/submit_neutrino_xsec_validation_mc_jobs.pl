@@ -9,16 +9,18 @@
 #
 # Options:
 #    --version        : GENIE version number
+#   [--config-dir]    : Config directory, default is $GENIE/config 
 #   [--nsubruns]      : number of subruns per run, default: 1
 #   [--offset]        : subrun offset (for augmenting existing sample), default: 0
 #   [--arch]          : <SL4.x86_32, SL5.x86_64, SL6.x86_64, ...>, default: SL6.x86_64
 #   [--production]    : production name, default: routine_validation
 #   [--cycle]         : cycle in current production, default: 01
 #   [--use-valgrind]  : default: off
-#   [--batch-system]  : <PBS, LSF, slurm, HTCondor, HTCondor_PBS, none>, default: PBS
+#   [--batch-system]  : <PBS, LyonPBS, LSF, slurm, HTCondor, HTCondor_PBS, none>, default: PBS
 #   [--queue]         : default: prod
 #   [--softw-topdir]  : top level dir for softw installations, default: /opt/ppd/t2k/softw/GENIE/
 #   [--jobs-topdir]   : top level dir for job files, default: /opt/ppd/t2k/softw/scratch/GENIE/
+#   [--spline-file]   : absoluyte path to xsec_spline_file, default: $softw_topdir/data/job_inputs/xspl/gxspl-vA-$genie_version.xml
 #
 # EVENT SAMPLES:
 # The following samples will be submitted.
@@ -75,6 +77,7 @@ use File::Path;
 $iarg=0;
 foreach (@ARGV) {
   if($_ eq '--version')        { $genie_version = $ARGV[$iarg+1]; }
+  if($_ eq '--config-dir')     { $config_dir    = $ARGV[$iarg+1]; }
   if($_ eq '--nsubruns')       { $nsubruns      = $ARGV[$iarg+1]; }
   if($_ eq '--offset')         { $offset        = $ARGV[$iarg+1]; }
   if($_ eq '--arch')           { $arch          = $ARGV[$iarg+1]; }
@@ -85,11 +88,13 @@ foreach (@ARGV) {
   if($_ eq '--queue')          { $queue         = $ARGV[$iarg+1]; }
   if($_ eq '--softw-topdir')   { $softw_topdir  = $ARGV[$iarg+1]; }  
   if($_ eq '--jobs-topdir')    { $jobs_topdir   = $ARGV[$iarg+1]; }
+  if($_ eq '--spline-file')    { $xspl_file     = $ARGV[$iarg+1]; }
   $iarg++;
 }
 die("** Aborting [Undefined GENIE version. Use the --version option]")
 unless defined $genie_version;
 
+$config_dir     = ""                            unless defined $config_dir;
 $nsubruns       = 1                             unless defined $nsubruns;
 $offset         = 0                             unless defined $offset;
 $use_valgrind   = 0                             unless defined $use_valgrind;
@@ -100,12 +105,13 @@ $batch_system   = "PBS"                         unless defined $batch_system;
 $queue          = "prod"                        unless defined $queue;
 $softw_topdir   = "/opt/ppd/t2k/softw/GENIE/"   unless defined $softw_topdir;
 $jobs_topdir    = "/opt/ppd/t2k/scratch/GENIE/" unless defined $jobs_topdir;
+$xspl_file      = "$softw_topdir/data/job_inputs/xspl/gxspl-vA-$genie_version.xml" unless defined $xspl_file ;
 $time_limit     = "60:00:00";
-$genie_setup    = "$softw_topdir/generator/builds/$arch/$genie_version-setup";
-$xspl_file      = "$softw_topdir/data/job_inputs/xspl/gxspl-vA-$genie_version.xml";
+$genie_setup    = "$softw_topdir/generator/builds/$arch/$genie_version-setup $config_dir";
 $jobs_dir       = "$jobs_topdir/$genie_version-$production\_$cycle-xsec_validation";
 $mcseed         = 210921029;
 $nev_per_subrun = 100000;
+
 
 # inputs for event generation jobs
 %evg_nupdg_hash = ( 
@@ -236,6 +242,26 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
            `$job_submission_command -q $queue $batch_script`;
        } #PBS
 
+       # LyonPBS case
+       if($batch_system eq 'LyonPBS' ) {
+         $batch_script = "$filename_template.pbs";
+         open(PBS, ">$batch_script") or die("Can not create the PBS batch script");
+         print PBS "#!/bin/bash \n";
+         print PBS "#\$ -P P_$ENV{'GROUP'} \n";
+         print PBS "#\$ -N $jobname \n";
+         print PBS "#\$ -o $filename_template.pbsout.log \n";
+         print PBS "#\$ -e $filename_template.pbserr.log \n";
+         print PBS "#\$ -l ct=6:00:00,sps=1 \n";
+         print PBS "source $genie_setup  \n";
+         print PBS "cd $jobs_dir \n";
+         print PBS "$evgen_cmd \n";
+         print PBS "$conv_cmd \n";
+         close(PBS);
+         $job_submission_command = "qsub";
+         `$job_submission_command  $batch_script`;
+       } #LyonPBS 
+
+
        # LSF case
        if($batch_system eq 'LSF') {  
            $batch_script  = "$filename_template.sh";
@@ -334,6 +360,25 @@ for my $curr_runnu (keys %evg_gevgl_hash)  {
       }
      `$job_submission_command -q $queue $batch_script`;
    } #PBS
+
+   # LyonPBS case
+   if($batch_system eq 'LyonPBS' ) {
+     $batch_script = "$filename_template.pbs";
+     open(PBS, ">$batch_script") or die("Can not create the PBS batch script");
+     print PBS "#!/bin/bash \n";
+     print PBS "#\$ -P P_$ENV{'GROUP'} \n";
+     print PBS "#\$ -N $jobname \n";
+     print PBS "#\$ -o $filename_template.pbsout.log \n";
+     print PBS "#\$ -e $filename_template.pbserr.log \n";
+     print PBS "#\$ -l ct=6:00:00,sps=1 \n";
+     print PBS "source $genie_setup \n";
+     print PBS "cd $jobs_dir \n";
+     print PBS "$gspl2root_cmd \n";
+     close(PBS);
+     $job_submission_command = "qsub";
+     `$job_submission_command  $batch_script`;
+   } #LyonPBS 
+
   
    # LSF case
    if($batch_system eq 'LSF') {  
