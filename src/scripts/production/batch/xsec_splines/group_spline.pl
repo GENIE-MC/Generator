@@ -164,7 +164,7 @@ $tgt_size = keys %tgts;
 if ( ($tgt_size > 1) or (defined $add_list ) ) {
 
   if ( defined $add_list ) {
-    $tgt_file_list .= "$add_list" . "," . "$tgt_file_list" ;
+    $tgt_file_list = "$add_list" . "," . "$tgt_file_list" ;
   }
 
   if ( defined $add_nucleons ) {
