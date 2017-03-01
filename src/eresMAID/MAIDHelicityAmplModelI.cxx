@@ -1,0 +1,44 @@
+//____________________________________________________________________________
+/*
+ Copyright (c) 2003-2016, GENIE Neutrino MC Generator Collaboration
+ For the full text of the license visit http://copyright.genie-mc.org
+ or see $GENIE/LICENSE
+
+ Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+         University of Liverpool & STFC Rutherford Appleton Lab
+
+ For the class documentation see the corresponding header file.
+
+ Important revisions after version 2.0.0 :
+
+*/
+//____________________________________________________________________________
+
+#include "eresMAID/MAIDHelicityAmplModelI.h"
+
+using namespace genie;
+
+//____________________________________________________________________________
+MAIDHelicityAmplModelI::MAIDHelicityAmplModelI() :
+Algorithm()
+{
+
+}
+//____________________________________________________________________________
+MAIDHelicityAmplModelI::MAIDHelicityAmplModelI(string name) :
+Algorithm(name)
+{
+
+}
+//____________________________________________________________________________
+MAIDHelicityAmplModelI::MAIDHelicityAmplModelI(string name, string config) :
+Algorithm(name, config)
+{
+
+}
+//____________________________________________________________________________
+MAIDHelicityAmplModelI::~MAIDHelicityAmplModelI()
+{
+
+}
+//____________________________________________________________________________
