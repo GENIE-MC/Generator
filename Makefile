@@ -158,6 +158,7 @@ core-medium-energy-range: FORCE
 	cd PDF &&                $(MAKE) && cd .. && \
 	cd QEL &&                $(MAKE) && cd .. && \
 	cd ReinSehgal &&         $(MAKE) && cd .. && \
+        cd eresMAID &&           $(MAKE) && cd .. && \
 	cd RES &&                $(MAKE) && cd .. && \
 	cd Types &&              $(MAKE) && cd .. && \
 	cd VHE &&                $(MAKE) && cd .. && \
@@ -355,6 +356,7 @@ make-install-dirs: FORCE
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/ReWeight
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Registry
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/ReinSehgal
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/eresMAID
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/SingleKaon
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Types
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Utils
@@ -411,6 +413,7 @@ copy-install-files: FORCE
 	cd RES &&                    $(MAKE) install && cd .. && \
 	cd Registry &&               $(MAKE) install && cd .. && \
 	cd ReinSehgal &&             $(MAKE) install && cd .. && \
+	cd eresMAID &&               $(MAKE) install && cd .. && \
 	cd ReWeight &&               $(MAKE) install && cd .. && \
 	cd SingleKaon &&             $(MAKE) install && cd .. && \
 	cd Types &&                  $(MAKE) install && cd .. && \
@@ -467,6 +470,7 @@ purge: FORCE
 	cd RES &&                           $(MAKE) purge && cd .. && \
 	cd Registry &&                      $(MAKE) purge && cd .. && \
 	cd ReinSehgal &&                    $(MAKE) purge && cd .. && \
+	cd eresMAID &&                      $(MAKE) purge && cd .. && \        
 	cd ReWeight &&                      $(MAKE) purge && cd .. && \
 	cd SingleKaon &&                    $(MAKE) purge && cd .. && \
 	cd Utils &&                         $(MAKE) purge && cd .. && \
@@ -524,6 +528,7 @@ clean-files: FORCE
 	cd RES &&                           $(MAKE) clean && cd .. && \
 	cd Registry &&                      $(MAKE) clean && cd .. && \
 	cd ReinSehgal &&                    $(MAKE) clean && cd .. && \
+	cd eresMAID &&                      $(MAKE) clean && cd .. && \
 	cd ReWeight &&                      $(MAKE) clean && cd .. && \
 	cd SingleKaon &&                    $(MAKE) clean && cd .. && \
 	cd Utils &&                         $(MAKE) clean && cd .. && \
@@ -595,6 +600,7 @@ distclean: FORCE
 	cd RES &&                            $(MAKE) distclean && cd .. && \
 	cd Registry &&                       $(MAKE) distclean && cd .. && \
 	cd ReinSehgal &&                     $(MAKE) distclean && cd .. && \
+	cd eresMAID &&                       $(MAKE) distclean && cd .. && \
 	cd ReWeight &&                       $(MAKE) distclean && cd .. && \
 	cd SingleKaon &&                     $(MAKE) distclean && cd .. && \
 	cd Types &&                          $(MAKE) distclean && cd .. && \
