@@ -89,7 +89,7 @@ endif
 #
 
 $(PACKAGE_LIB_WITH_PATH): $(LIB_DEPEND)
-    @echo "[package: $(PACKAGE)] Generating shared library ..dictionary=.$(DICTIONARY)"
+	@echo "[package: $(PACKAGE)] Generating shared library ..dictionary=.$(DICTIONARY)"
 ifeq ($(strip $(DICTIONARY)),undefined)
 	$(SOCMD) $(SOFLAGS) $(SOMINF) $(PACKAGE_OBJECTS) $(EXTRA_EXT_LIBS) $(OutPutOpt) $(PACKAGE_LIB_WITH_PATH)
 else
