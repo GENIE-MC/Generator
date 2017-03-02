@@ -7,6 +7,8 @@
 #pragma link C++ namespace genie;
 
 #pragma link C++ class genie::eresMAIDRESXSec;
+#pragma link C++ class genie::eresMAIDRESPXSec;
+
 #pragma link C++ class genie::eresMAIDRESXSecWithCache;
 
 #pragma link C++ class genie::MAIDHelicityAmpl;

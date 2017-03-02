@@ -35,6 +35,7 @@ extern void G__set_cpp_environment_ROOT_DICT_eresMAID();
 #include "MAIDHelicityAmplModelEMn.h"
 #include "MAIDHelicityAmplModelEMp.h"
 #include "MAIDHelicityAmplModelI.h"
+#include "eresMAIDRESPXSec.h"
 #include "eresMAIDRESXSec.h"
 #include "eresMAIDRESXSecWithCache.h"
 #include <algorithm>
@@ -107,7 +108,9 @@ extern G__linked_taginfo G___ROOT_DICT_eresMAIDLN_geniecLcLMAIDHelicityAmplModel
 extern G__linked_taginfo G___ROOT_DICT_eresMAIDLN_geniecLcLMAIDHelicityAmplModelEMp;
 extern G__linked_taginfo G___ROOT_DICT_eresMAIDLN_geniecLcLEKinePhaseSpace;
 extern G__linked_taginfo G___ROOT_DICT_eresMAIDLN_geniecLcLXSecAlgorithmI;
+extern G__linked_taginfo G___ROOT_DICT_eresMAIDLN_geniecLcLSpline;
 extern G__linked_taginfo G___ROOT_DICT_eresMAIDLN_geniecLcLXSecIntegratorI;
+extern G__linked_taginfo G___ROOT_DICT_eresMAIDLN_geniecLcLeresMAIDRESPXSec;
 extern G__linked_taginfo G___ROOT_DICT_eresMAIDLN_geniecLcLBaryonResList;
 extern G__linked_taginfo G___ROOT_DICT_eresMAIDLN_vectorlEgeniecLcLEResonancecOallocatorlEgeniecLcLEResonancegRsPgR;
 extern G__linked_taginfo G___ROOT_DICT_eresMAIDLN_reverse_iteratorlEvectorlEgeniecLcLEResonancecOallocatorlEgeniecLcLEResonancegRsPgRcLcLiteratorgR;
