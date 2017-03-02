@@ -148,6 +148,8 @@
    <config alg="genie::ReinSehgalSPPPXSec">                 ReinSehgalSPPPXSec.xml                 </config>
    <config alg="genie::ReinSehgalRESXSec">                  ReinSehgalRESXSec.xml                  </config>
    <config alg="genie::ReinSehgalSPPXSec">                  ReinSehgalSPPXSec.xml                  </config>
+   <config alg="genie::eresMAIDRESPXSec">                   eresMAIDRESPXSec.xml                 </config>
+   <config alg="genie::eresMAIDRESXSec">                    eresMAIDRESXSec.xml                  </config>
    <config alg="genie::H3AMNuGammaPXSec">                   H3AMNuGammaPXSec.xml                   </config>
    <config alg="genie::EmpiricalMECPXSec2015">              EmpiricalMECPXSec2015.xml              </config>
    <config alg="genie::NievesSimoVacasMECPXSec2016">        NievesSimoVacasMECPXSec2016.xml        </config>
