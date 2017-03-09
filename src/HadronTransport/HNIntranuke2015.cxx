@@ -1,7 +1,7 @@
 
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2017, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -994,6 +994,7 @@ void HNIntranuke2015::LoadConfig(void)
   LOG("HNIntranuke2015", pWARN) << "DoCmpndNuc? = " << ((fDoCompoundNucleus)?(true):(false));
   LOG("HNIntranuke2015", pWARN) << "useOset     = " << fUseOset;
   LOG("HNIntranuke2015", pWARN) << "altOset     = " << fAltOset;
+  LOG("HNIntranuke2015", pWARN) << "XsecNNCorr? = " << ((fXsecNNCorr)?(true):(false));
 }
 //___________________________________________________________________________
 

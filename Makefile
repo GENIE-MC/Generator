@@ -149,6 +149,7 @@ core-medium-energy-range: FORCE
 	cd Fragmentation &&      $(MAKE) && cd .. && \
 	cd GiBUU &&              $(MAKE) && cd .. && \
 	cd HadronTransport &&    $(MAKE) && cd .. && \
+	cd Interfaces &&         $(MAKE) && cd .. && \
 	cd LlewellynSmith &&     $(MAKE) && cd .. && \
 	cd MEC &&                $(MAKE) && cd .. && \
 	cd NuE &&                $(MAKE) && cd .. && \
@@ -158,6 +159,7 @@ core-medium-energy-range: FORCE
 	cd QEL &&                $(MAKE) && cd .. && \
 	cd ReinSehgal &&         $(MAKE) && cd .. && \
 	cd RES &&                $(MAKE) && cd .. && \
+	cd Types &&              $(MAKE) && cd .. && \
 	cd VHE &&                $(MAKE) && cd .. && \
 	cd SingleKaon &&         $(MAKE) && \
 	cd ${GENIE}
@@ -332,6 +334,7 @@ make-install-dirs: FORCE
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/GiBUU
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/HadronTransport
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Interaction
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/Interfaces
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/LlewellynSmith
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Masterclass
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/MEC
@@ -353,6 +356,7 @@ make-install-dirs: FORCE
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Registry
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/ReinSehgal
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/SingleKaon
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/Types
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Utils
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/VLE
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/VHE
@@ -387,6 +391,7 @@ copy-install-files: FORCE
 	cd GiBUU &&                  $(MAKE) install && cd .. && \
 	cd HadronTransport &&        $(MAKE) install && cd .. && \
 	cd Interaction &&            $(MAKE) install && cd .. && \
+	cd Interfaces &&             $(MAKE) install && cd .. && \
 	cd LlewellynSmith &&         $(MAKE) install && cd .. && \
 	cd Masterclass &&            $(MAKE) install && cd .. && \
 	cd MEC &&                    $(MAKE) install && cd .. && \
@@ -408,6 +413,7 @@ copy-install-files: FORCE
 	cd ReinSehgal &&             $(MAKE) install && cd .. && \
 	cd ReWeight &&               $(MAKE) install && cd .. && \
 	cd SingleKaon &&             $(MAKE) install && cd .. && \
+	cd Types &&                  $(MAKE) install && cd .. && \
 	cd Utils &&                  $(MAKE) install && cd .. && \
 	cd VLE &&                    $(MAKE) install && cd .. && \
 	cd VHE &&                    $(MAKE) install && cd .. && \
@@ -441,6 +447,7 @@ purge: FORCE
 	cd GiBUU &&                         $(MAKE) purge && cd .. && \
 	cd HadronTransport &&               $(MAKE) purge && cd .. && \
 	cd Interaction &&                   $(MAKE) purge && cd .. && \
+	cd Interfaces &&                    $(MAKE) purge && cd .. && \
 	cd LlewellynSmith &&                $(MAKE) purge && cd .. && \
 	cd Masterclass &&                   $(MAKE) purge && cd .. && \
 	cd MEC &&                           $(MAKE) purge && cd .. && \
@@ -463,6 +470,7 @@ purge: FORCE
 	cd ReWeight &&                      $(MAKE) purge && cd .. && \
 	cd SingleKaon &&                    $(MAKE) purge && cd .. && \
 	cd Utils &&                         $(MAKE) purge && cd .. && \
+	cd Types &&                         $(MAKE) purge && cd .. && \
 	cd VLE &&                           $(MAKE) purge && cd .. && \
 	cd VHE &&                           $(MAKE) purge && cd .. && \
 	cd ${GENIE}
@@ -567,6 +575,7 @@ distclean: FORCE
 	cd GiBUU &&                          $(MAKE) distclean && cd .. && \
 	cd HadronTransport &&                $(MAKE) distclean && cd .. && \
 	cd Interaction &&                    $(MAKE) distclean && cd .. && \
+	cd Interfaces &&                     $(MAKE) distclean && cd .. && \
 	cd LlewellynSmith &&                 $(MAKE) distclean && cd .. && \
 	cd Masterclass &&                    $(MAKE) distclean && cd .. && \
 	cd MEC &&                            $(MAKE) distclean && cd .. && \
@@ -588,6 +597,7 @@ distclean: FORCE
 	cd ReinSehgal &&                     $(MAKE) distclean && cd .. && \
 	cd ReWeight &&                       $(MAKE) distclean && cd .. && \
 	cd SingleKaon &&                     $(MAKE) distclean && cd .. && \
+	cd Types &&                          $(MAKE) distclean && cd .. && \
 	cd Utils &&                          $(MAKE) distclean && cd .. && \
 	cd VLE &&                            $(MAKE) distclean && cd .. && \
 	cd VHE &&                            $(MAKE) distclean && cd .. && \

@@ -10,7 +10,7 @@
 
 \created June 20, 2004
 
-\cpright Copyright (c) 2003-2016, GENIE Neutrino MC Generator Collaboration
+\cpright Copyright (c) 2003-2017, GENIE Neutrino MC Generator Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
          or see $GENIE/LICENSE
 */
@@ -252,7 +252,7 @@ ostream & operator<< (ostream & stream, const TClonesArray * particle_list)
 ostream & operator<< (ostream & stream, const TMCParticle * p)
 {
   stream 
-   << setiosflags(ios::scientific) << setprecision(6);
+   << std::scientific << setprecision(6);
 
   stream 
     << setfill(' ') << setw(10) << p->GetName()

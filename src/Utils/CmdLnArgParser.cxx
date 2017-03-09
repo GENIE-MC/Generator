@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2016, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2017, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -55,6 +55,7 @@ char * CmdLnArgParser::Arg(char op)
 {
   const int buf_size = 2048*128;
 
+  bool set = false;
   char *  argument  = new char[buf_size];
   strcpy(argument, "");
 
@@ -87,6 +88,7 @@ char * CmdLnArgParser::Arg(char op)
             argc--;
             argv++;
             strcpy(argument,&argv[1][0]);
+            set = true;
             LOG("CLAP", pINFO) 
                << "Set opt = [" << op << "] to val = [" << argument << "]";
          }
@@ -99,6 +101,7 @@ char * CmdLnArgParser::Arg(char op)
     }
   }
 
+  LOG("CLAP", pDEBUG) << "CmdLnArgParser::Arg op='" << op << "' set=" << set;
   return argument;
 }
 //____________________________________________________________________________

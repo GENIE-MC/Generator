@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2017, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -164,7 +164,7 @@ double genie::utils::intranuke2015::MeanFreePath(
     
   if (xsecNNCorr and is_nucleon)
     sigtot *= INukeNucleonCorr::getInstance()->
-      getAvgCorrection (rho, A, Z,  pdgc, p4.E() - PDGLibrary::Instance()->Find(pdgc)->Mass());
+      getAvgCorrection (rho, A, p4.E() - PDGLibrary::Instance()->Find(pdgc)->Mass());   //uses Josh's lookup tables
 
   // compute the mean free path
   double lamda = 1. / (rho * sigtot);
@@ -651,7 +651,7 @@ bool genie::utils::intranuke2015::TwoBodyCollision(
 
   // Kinematic variables
   
-  double M3, M4; // rest energies, in GeV
+  double M1, M2, M3, M4; // rest energies, in GeV
   double E3L, P3L, E4L, P4L;
   TVector3 tP1L, tPtot, tbeta, tbetadir, tTrans, tVect;
   TVector3 tP1zCM, tP2zCM, tP3L, tP4L;
@@ -666,6 +666,8 @@ bool genie::utils::intranuke2015::TwoBodyCollision(
   Target target(ev->TargetNucleus()->Pdg());
 
   // get mass for particles
+  M1 = pLib->Find(pcode)->Mass();
+  M2 = pLib->Find(tcode)->Mass();
   M3 = pLib->Find(scode)->Mass();
   M4 = pLib->Find(s2code)->Mass();
 
@@ -675,8 +677,11 @@ bool genie::utils::intranuke2015::TwoBodyCollision(
 
   // binding energy
   double bindE = 0.025; // empirical choice, might need to be improved
-  //double bindE = 0.0;
-
+ LOG("TwoBodyCollision",pINFO)
+	<< "pcode = " << pcode << "  " 
+	<< "t4P1L.E, M " << "   " << t4P1L.E()<< "   "<< M1;
+ if((pcode==2112||pcode==2212)&&(t4P1L.E()-M1)<.1) bindE = 0.0;
+ LOG("TwoBodyCollision",pINFO)   << "BE = " << bindE;
   // carry out scattering
   TLorentzVector t4P3L, t4P4L;
   if (!TwoBodyKinematics(M3,M4,t4P1L,t4P2L,t4P3L,t4P4L,C3CM,RemnP4,bindE))
@@ -736,6 +741,9 @@ bool genie::utils::intranuke2015::TwoBodyCollision(
 
   // update remnant nucleus
   RemnP4 -= t4P2L;
+  LOG("INukeUtils",pINFO)
+    << "t4P2L= " << t4P2L.E() << "  " << t4P2L.Z()
+    << "  RemnP4= " << RemnP4.E() << "   " << RemnP4.Z()  ;
   if (tcode==kPdgProton) {RemnZ--;RemnA--;}
   else if(tcode==kPdgNeutron) RemnA--;
 
@@ -822,11 +830,6 @@ bool genie::utils::intranuke2015::TwoBodyKinematics(
   E2L = t4P2buf.E();
   P2L = t4P2buf.P();
   t4Ptot = t4P1buf + t4P2buf;
-
-  if (E1L<120.0)
-    {
-      bindE = 0.0;
-    }
 
   // binding energy
   if (bindE!=0)

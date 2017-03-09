@@ -15,7 +15,7 @@
 
 \created Nov 24, 2008
 
-\cpright Copyright (c) 2003-2016, GENIE Neutrino MC Generator Collaboration
+\cpright Copyright (c) 2003-2017, GENIE Neutrino MC Generator Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
          or see $GENIE/LICENSE
 */
@@ -130,11 +130,11 @@ void make_sk_xsec_table
     double xsec_nue_H20     = w_H1 * xsec_nue_H1     + w_O16 * xsec_nue_O16      ;
     double xsec_nuebar_H20  = w_H1 * xsec_nuebar_H1  + w_O16 * xsec_nuebar_O16   ;
 
-    outf << setfill(' ') << setw(10) << setiosflags(ios::fixed) << setprecision(5) << Ev
-         << setfill(' ') << setw(12) << setiosflags(ios::fixed) << setprecision(5) << xsec_numu_H20
-         << setfill(' ') << setw(12) << setiosflags(ios::fixed) << setprecision(5) << xsec_numubar_H20
-         << setfill(' ') << setw(12) << setiosflags(ios::fixed) << setprecision(5) << xsec_nue_H20
-         << setfill(' ') << setw(12) << setiosflags(ios::fixed) << setprecision(5) << xsec_nuebar_H20
+    outf << setfill(' ') << setw(10) << std::fixed << setprecision(5) << Ev
+         << setfill(' ') << setw(12) << std::fixed << setprecision(5) << xsec_numu_H20
+         << setfill(' ') << setw(12) << std::fixed << setprecision(5) << xsec_numubar_H20
+         << setfill(' ') << setw(12) << std::fixed << setprecision(5) << xsec_nue_H20
+         << setfill(' ') << setw(12) << std::fixed << setprecision(5) << xsec_nuebar_H20
          << endl;
 
     Ev += dEv;

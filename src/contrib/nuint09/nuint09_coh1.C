@@ -64,7 +64,7 @@ void nuint09_coh1(int isample)
   out_stream << "#  Columns:" << endl;
   out_stream << "#  |  Energy     |   sig(coherent; CC)   |   sig(coherent; NC)  |"  << endl;
 
-  out_stream << setiosflags(ios::fixed) << setprecision(6);
+  out_stream << std::fixed << setprecision(6);
 
   for(int i=0; i < ne; i++) {
 

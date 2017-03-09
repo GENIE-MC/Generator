@@ -72,7 +72,7 @@
 
 \created December 15, 2005
 
-\cpright Copyright (c) 2003-2016, GENIE Neutrino MC Generator Collaboration
+\cpright Copyright (c) 2003-2017, GENIE Neutrino MC Generator Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
          or see $GENIE/LICENSE
 */
@@ -629,11 +629,6 @@ void SaveGraphsToRootFile(void)
        resname = str::FilterString(")", resname);
        resname = str::FilterString("(", resname);
        title << "_" << resname.substr(3,4) << resname.substr(0,3);
-    }
-
-    if(xcls.IsStrangeEvent()) {
-      title << "_strange";
-      if(!xcls.IsInclusiveStrange()) { title << xcls.StrangeHadronPdg(); }
     }
 
     if(xcls.IsCharmEvent()) {

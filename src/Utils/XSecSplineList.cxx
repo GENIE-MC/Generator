@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2016, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2017, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -246,7 +246,7 @@ void XSecSplineList::SetMaxE(double Ev)
   if(Ev>0) fEmax = Ev;
 }
 //____________________________________________________________________________
-void XSecSplineList::SaveAsXml(string filename) const
+void XSecSplineList::SaveAsXml(string filename, bool save_init) const
 {
 //! Save XSecSplineList to XML file
 
@@ -272,9 +272,16 @@ void XSecSplineList::SaveAsXml(string filename) const
 
   for(mapiter = fSplineMap.begin(); mapiter != fSplineMap.end(); ++mapiter) {
 
-    string     key     = mapiter->first;
-    Spline *   spline  = mapiter->second;
+    string key = mapiter->first;
+    bool from_init_set = (fInitSet.count(key) == 1);
 
+    // If current spline is from the initailly loaded set,
+    // look-up input option to decide whether to write out in 
+    // new output file or not
+    if(from_init_set && !save_init) continue;
+
+    // Add current spline to output file
+    Spline * spline = mapiter->second;
     spline->SaveAsXml(outxml,"E","xsec", key, true);
   }
   outxml << "</genie_xsec_spline_list>";
@@ -381,6 +388,7 @@ XmlParserStatus_t XSecSplineList::LoadFromXml(string filename, bool keep)
                delete [] xsec;
                // insert the spline to the list
                fSplineMap.insert( map<string, Spline *>::value_type(spline_name,spline) );
+               fInitSet.insert(spline_name);
             }
  
             xmlFree(name);

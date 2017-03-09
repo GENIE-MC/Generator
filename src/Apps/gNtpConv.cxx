@@ -660,11 +660,27 @@ void ConvertToGST(void)
     double M  = kNucleonMass; 
     TLorentzVector q  = k1-k2;                     // q=k1-k2, 4-p transfer
     double Q2 = -1 * q.M2();                       // momemtum transfer
+    
     double v  = (hitnucl) ? q.Energy()       : -1; // v (E transfer to the nucleus)
-    double x  = (hitnucl) ? 0.5*Q2/(M*v)     : -1; // Bjorken x
-    double y  = (hitnucl) ? v/k1.Energy()    : -1; // Inelasticity, y = q*P1/k1*P1
-    double W2 = (hitnucl) ? M*M + 2*M*v - Q2 : -1; // Hadronic Invariant mass ^ 2
-    double W  = (hitnucl) ? TMath::Sqrt(W2)  : -1; 
+    double x, y, W2, W;
+    if(!is_coh){ 
+    
+       x  = (hitnucl) ? 0.5*Q2/(M*v)     : -1; // Bjorken x
+       y  = (hitnucl) ? v/k1.Energy()    : -1; // Inelasticity, y = q*P1/k1*P1
+
+       W2 = (hitnucl) ? M*M + 2*M*v - Q2 : -1; // Hadronic Invariant mass ^ 2
+       W  = (hitnucl) ? TMath::Sqrt(W2)  : -1; 
+    } else{
+
+       v = q.Energy();
+       x  =  0.5*Q2/(M*v);      // Bjorken x
+       y  = v/k1.Energy();    // Inelasticity, y = q*P1/k1*P1
+
+       W2 = M*M + 2*M*v - Q2;  // Hadronic Invariant mass ^ 2
+       W  = TMath::Sqrt(W2); 
+
+    }
+  
     double t  = (is_coh || is_dfr) ? kine.t (get_selected) : -1;
 
     // Get v 4-p at hit nucleon rest-frame

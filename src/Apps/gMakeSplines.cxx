@@ -16,6 +16,7 @@
                   <-o | --output-cross-sections> output_xml_xsec_file
                   [-n nknots] 
                   [-e max_energy] 
+                  [--no-copy]
                   [--seed random_number_seed] 
                   [--input-cross-sections xml_file]
                   [--event-generator-list list_name]
@@ -46,6 +47,8 @@
                Maximum energy in spline.
                Default: The max energy in the validity range of the spline 
                generating thread.
+           --no-copy
+               Does not write out the input cross-sections in the output file
            --seed
               Random number seed.
            --input-cross-sections
@@ -71,7 +74,7 @@
 
 \created September 27, 2005
 
-\cpright Copyright (c) 2003-2016, GENIE Neutrino MC Generator Collaboration
+\cpright Copyright (c) 2003-2017, GENIE Neutrino MC Generator Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
          or see $GENIE/LICENSE
 */
@@ -127,6 +130,7 @@ string   gOptTgtPdgCodeList = "";
 string   gOptGeomFilename   = "";
 int      gOptNKnots         = -1;
 double   gOptMaxE           = -1.;
+bool     gOptNoCopy         = false;
 long int gOptRanSeed        = -1;   // random number seed
 string   gOptInpXSecFile    = "";   // input cross-section file
 string   gOptOutXSecFile    = "";   // output cross-section file
@@ -186,7 +190,8 @@ int main(int argc, char ** argv)
 
   // Save the splines at the requested XML file
   XSecSplineList * xspl = XSecSplineList::Instance();
-  xspl->SaveAsXml(gOptOutXSecFile);
+  bool save_init = !gOptNoCopy;
+  xspl->SaveAsXml(gOptOutXSecFile, save_init);
 
   delete neutrinos;
   delete targets;
@@ -241,6 +246,12 @@ void GetCommandLineArgs(int argc, char ** argv)
        << "Unspecified maximum spline energy - Using default";
     gOptMaxE = -1;
   }
+
+  // write out input splines?
+  if( parser.OptionExists("no-copy") ) {
+    LOG("gmkspl", pINFO) << "Not copying input splines to output";
+    gOptNoCopy = true;
+  } 
 
   // comma-separated neutrino PDG code list
   if( parser.OptionExists('p') ) {

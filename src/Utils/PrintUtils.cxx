@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2016, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2017, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -128,20 +128,20 @@ void genie::utils::print::PrintBanner(void)
   string warn_dev_banner = 
       base_dir + 
       string("/data/logo/warning_development_version.txt");
-  PrintBanner(warn_dev_banner, 0);
+  PrintBanner(warn_dev_banner, 15000);
 #endif
 
 #ifdef __GENIE_RELEASE_CANDIDATE__ 
   string warn_rc_banner = 
       base_dir + 
       string("/data/logo/warning_release_candidate.txt");
-  PrintBanner(warn_rc_banner, 0);
+  PrintBanner(warn_rc_banner, 15000);
 #endif
 
   string main_banner = 
       base_dir + 
       string("/data/logo/genie_banner_long.txt");
-  PrintBanner(main_banner, 0);
+  PrintBanner(main_banner, 1000);
 }
 //___________________________________________________________________________
 void genie::utils::print::PrintBanner(string filename, UInt_t wait_msec)

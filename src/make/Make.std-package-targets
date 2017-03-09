@@ -89,7 +89,7 @@ endif
 #
 
 $(PACKAGE_LIB_WITH_PATH): $(LIB_DEPEND)
-	@echo "[package: $(PACKAGE)] Generating shared library ..."
+	@echo "[package: $(PACKAGE)] Generating shared library ..dictionary=.$(DICTIONARY)"
 ifeq ($(strip $(DICTIONARY)),undefined)
 	$(SOCMD) $(SOFLAGS) $(SOMINF) $(PACKAGE_OBJECTS) $(EXTRA_EXT_LIBS) $(OutPutOpt) $(PACKAGE_LIB_WITH_PATH)
 else
@@ -131,6 +131,10 @@ install-lib:
 
 ifeq ($(strip $(GOPT_ENABLE_DYLIBVERSION)),YES)
 	[ ! -f $(PACKAGE_LIB_WITH_PATH) ] || $(SYMLINK) $(PACKAGE_LIB) $(PACKAGE_LIBNOVRS_WITH_IPATH)
+endif
+ifeq ($(ROOT_MAJOR),6)
+	[ ! -f $(PACKAGE_PCM_WITH_PATH) ]     || $(COPY) $(PACKAGE_PCM_WITH_PATH) $(GENIE_LIB_INSTALLATION_PATH)
+	[ ! -f $(PACKAGE_ROOTMAP_WITH_PATH) ] || $(COPY) $(PACKAGE_ROOTMAP_WITH_PATH) $(GENIE_LIB_INSTALLATION_PATH)
 endif
 ifeq ($(strip $(ARCH)),macosx)
 	[ ! -f $(PACKAGE_LIB_WITH_PATH) ] || $(SYMLINK) $(PACKAGE_LIB) $(PACKAGE_LIBMACLINK_WITH_IPATH)
