@@ -253,10 +253,34 @@
       <point coord="det">  5.000,   5.000, -5. </point>
       <point coord="det"> -5.000,  -2.500, -5. </point>
     </window>
-
-    <enumax> 120. 1.05 1.05 2500000 </enumax>
-    <!-- allow entry to be reused 50 times before moving on -->
+    
+    <!--
+    <enumax> 120. 1.05 4.05 25000000 </enumax>
     <reuse> 50 </reuse>
+    -->
+    <!-- for FLUGG files w/ no limit on "bumping" use 8.05 
+         to artificially inflate initial guess to avoid any bump
+    <enumax> 120. 1.05 8.05 25000000 </enumax>
+    <reuse> 400 </reuse>
+    -->
+
+    <!-- these values are tuned for 
+       /pnfs/fnal.gov/usr/nova/data/flux/g4numi/v6r1/me000z200i/
+            g4numiv6_minervame_me000z200i_*_0006.root
+    -->
+    <enumax> 120. 1.05 1.05 25000000 </enumax>
+    <!-- allow entry to be reused 40 times before moving on -->
+    <reuse> 40 </reuse>
+    <!-- force maxwgt to have an initial miminum of 
+         detector itself would like ~2.6, but rock wants ~4.2
+    -->
+    <minmaxwgt> 4.2 </minmaxwgt>
+    <!-- what to do if exceeded [ "bump" ] "frozen" "abort" 
+         "frozen" means we accept things as they are and thus
+         effectively underrepresenting these high weight events
+         in order to avoid changes of scale that would affect overlays
+    -->
+    <maxwgtfail> frozen </maxwgtfail>
 
   </param_set>
 
@@ -289,6 +313,9 @@
       <point coord="det">  15.000,   15.000, -5. </point>
       <point coord="det"> -15.000,  -12.500, -5. </point>
     </window>
+
+    <!-- allow entry to be reused 2000 times before moving on -->
+    <reuse> 2000 </reuse>
     <!-- <upstreamz> 0.0 </upstreamz> -->
   </param_set>
 
@@ -328,9 +355,21 @@
       <point coord="det">   8.5,    8.5, 0.0 </point>
     </window>
 
-    <enumax> 120. 1.05 1.05 2500000 </enumax>
-    <!-- allow entry to be reused 10 times before moving on -->
-    <reuse> 10 </reuse>
+    <!-- here wgt bump isn't a problem because 1 interaction
+         per spill, and POTs recorded at the end (expected mode) -->
+
+    <!-- these values are tuned for 
+       /pnfs/fnal.gov/usr/nova/data/flux/g4numi/v6r1/me000z200i/
+            g4numiv6_minervame_me000z200i_*_0006.root
+    -->
+    <enumax> 120. 1.05 2.05 25000000 </enumax>
+    <!-- allow entry to be reused 50 times before moving on -->
+    <reuse> 50 </reuse>
+    <!-- force maxwgt to have an initial miminum of -->
+    <minmaxwgt> 4.2e-07 </minmaxwgt>
+    <!-- what to do if exceeded [ "bump" ] "frozen" "abort" -->
+    <maxwgtfail> bump </maxwgtfail>
+
 
   </param_set>
 
@@ -352,6 +391,8 @@
       <point coord="det">  -18.5,  -22.5, 0.0 </point>
       <point coord="det">   18.5,   18.5, 0.0 </point>
     </window>
+    <!-- allow entry to be reused 250 times before moving on -->
+    <reuse> 250 </reuse>
     <!-- <upstreamz> 0.0 </upstreamz> -->
   </param_set>
 
@@ -520,6 +561,7 @@
     <!-- "new" beampos, locally incorporated 2014-10-13 by PAR
          but not merged into SVN until 2017-02-21 -->
     <beampos> 0.2486, 60.350, -1022.74 </beampos>>
+
 
     <!-- define flux window in detector coords -->
     <!-- need 3 positions to define a rectoid -->
