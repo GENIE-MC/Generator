@@ -131,8 +131,8 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
     // Access the hit nucleon and target nucleus entries at the GHEP record
     GHepParticle * nucleon = evrec->HitNucleon();
     GHepParticle * nucleus = evrec->TargetNucleus();
-    assert(nucleon);
-    assert(nucleus);
+    bool have_nucleus = nucleus != 0;
+
     Target * tgt = interaction->InitState().TgtPtr();
     //TLorentzVector * p4 = tgt->HitNucP4Ptr();
     // Store the hit nucleon radius first
@@ -169,19 +169,21 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
         //        LOG("QELEvent", pINFO)
         //            << "Generated nucleon removal energy: w = " << w;
 
-        // compute A,Z for final state nucleus & get its PDG code
-        int nucleon_pdgc = nucleon->Pdg();
-        bool is_p  = pdg::IsProton(nucleon_pdgc);
-        int Z = (is_p) ? nucleus->Z()-1 : nucleus->Z();
-        int A = nucleus->A() - 1;
-        TParticlePDG * fnucleus = 0;
-        int ipdgc = pdg::IonPdgCode(A, Z);
-        fnucleus = PDGLibrary::Instance()->Find(ipdgc);
-        if(!fnucleus) {
-            LOG("QELEvent", pFATAL)
-                << "No particle with [A = " << A << ", Z = " << Z
-                << ", pdgc = " << ipdgc << "] in PDGLibrary!";
-            exit(1);
+        if (have_nucleus) {
+            // compute A,Z for final state nucleus & get its PDG code
+            int nucleon_pdgc = nucleon->Pdg();
+            bool is_p  = pdg::IsProton(nucleon_pdgc);
+            int Z = (is_p) ? nucleus->Z()-1 : nucleus->Z();
+            int A = nucleus->A() - 1;
+            TParticlePDG * fnucleus = 0;
+            int ipdgc = pdg::IonPdgCode(A, Z);
+            fnucleus = PDGLibrary::Instance()->Find(ipdgc);
+            if (!fnucleus) {
+                LOG("QELEvent", pFATAL)
+                    << "No particle with [A = " << A << ", Z = " << Z
+                    << ", pdgc = " << ipdgc << "] in PDGLibrary!";
+                exit(1);
+            }
         }
 
         //
@@ -402,6 +404,9 @@ void QELEventGenerator::AddTargetNucleusRemnant(GHepRecord * evrec) const
     double E  = 0;
 
     GHepParticle * nucleus = evrec->TargetNucleus();
+    bool have_nucleus = nucleus != 0;
+    if (!have_nucleus) return;
+
     int A = nucleus->A();
     int Z = nucleus->Z();
 
