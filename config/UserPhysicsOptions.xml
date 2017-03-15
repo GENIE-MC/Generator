@@ -93,6 +93,19 @@ STFC, Rutherford Appleton Laboratory
   <param type="double" name="RES-CC-XSecScale"> 1.000 </param>
   <param type="double" name="DIS-XSecScale">    1.032 </param>
 
+  <param type="double" name="FSI-Pion-MFPScale">           1.000 </param>
+  <param type="double" name="FSI-Pion-FracCExScale">       1.000 </param>
+  <param type="double" name="FSI-Pion-FracElasScale">      1.000 </param>
+  <param type="double" name="FSI-Pion-FracInelScale">      1.000 </param>
+  <param type="double" name="FSI-Pion-FracAbsScale">       1.000 </param>
+  <param type="double" name="FSI-Pion-FracPiProdScale">    1.000 </param>
+  <param type="double" name="FSI-Nucleon-MFPScale">        1.000 </param>
+  <param type="double" name="FSI-Nucleon-FracCExScale">    1.000 </param>
+  <param type="double" name="FSI-Nucleon-FracElasScale">   1.000 </param>
+  <param type="double" name="FSI-Nucleon-FracInelScale">   1.000 </param>
+  <param type="double" name="FSI-Nucleon-FracAbsScale">    1.000 </param>
+  <param type="double" name="FSI-Nucleon-FracPiProdScale"> 1.000 </param>
+
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Proton and neutron anomalous magnetic moments 
