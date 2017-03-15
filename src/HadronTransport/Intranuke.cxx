@@ -397,8 +397,19 @@ double Intranuke::GenerateStep(GHepRecord* /*evrec*/, GHepParticle* p) const
 
   RandomGen * rnd = RandomGen::Instance();
 
-  double L = utils::intranuke::MeanFreePath(p->Pdg(), *p->X4(), *p->P4(), fRemnA,
+  int pdgc = p->Pdg();
+
+  double scale = 1.;
+  if (pdgc==kPdgPiP || pdgc==kPdgPiM || pdgc==kPdgPi0) {
+    scale = fPionMFPScale; 
+  }
+  else if (pdgc==kPdgProton || pdgc==kPdgNeutron) {
+    scale = fNucleonMFPScale;
+  }
+
+  double L = utils::intranuke::MeanFreePath(pdgc, *p->X4(), *p->P4(), fRemnA,
      fRemnZ, fDelRPion, fDelRNucleon);
+  L *= scale; 
   double d = -1.*L * TMath::Log(rnd->RndFsi().Rndm());
 
   LOG("Intranuke", pDEBUG)

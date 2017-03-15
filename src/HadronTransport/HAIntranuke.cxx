@@ -236,6 +236,19 @@ INukeFateHA_t HAIntranuke::HadronFateHA(const GHepParticle * p) const
        double frac_abs      = fHadroData->Frac(pdgc, kIHAFtAbs,     ke);
        double frac_piprod   = fHadroData->Frac(pdgc, kIHAFtPiProd,  ke);
 
+       // apply external tweaks to fractions
+       frac_cex    *= fPionFracCExScale;
+       frac_elas   *= fPionFracElasScale;
+       frac_inel   *= fPionFracInelScale;
+       frac_abs    *= fPionFracAbsScale;
+       frac_piprod *= fPionFracPiProdScale;
+       double frac_rescale = 1./(frac_cex + frac_elas + frac_inel + frac_abs + frac_piprod);
+       frac_cex    *= frac_rescale;
+       frac_elas   *= frac_rescale;
+       frac_inel   *= frac_rescale;
+       frac_abs    *= frac_rescale;
+       frac_piprod *= frac_rescale;
+
        LOG("HAIntranuke", pDEBUG) 
           << "\n frac{" << INukeHadroFates::AsString(kIHAFtCEx)     << "} = " << frac_cex
           << "\n frac{" << INukeHadroFates::AsString(kIHAFtElas)    << "} = " << frac_elas
@@ -274,6 +287,19 @@ INukeFateHA_t HAIntranuke::HadronFateHA(const GHepParticle * p) const
        double frac_inel     = fHadroData->Frac(pdgc, kIHAFtInelas,  ke);
        double frac_abs      = fHadroData->Frac(pdgc, kIHAFtAbs,     ke);
        double frac_pipro    = fHadroData->Frac(pdgc, kIHAFtPiProd, ke);
+
+       // apply external tweaks to fractions
+       frac_cex    *= fNucleonFracCExScale;
+       frac_elas   *= fNucleonFracElasScale;
+       frac_inel   *= fNucleonFracInelScale;
+       frac_abs    *= fNucleonFracAbsScale;
+       frac_pipro  *= fNucleonFracPiProdScale;
+       double frac_rescale = 1./(frac_cex + frac_elas + frac_inel + frac_abs + frac_pipro);
+       frac_cex    *= frac_rescale;
+       frac_elas   *= frac_rescale;
+       frac_inel   *= frac_rescale;
+       frac_abs    *= frac_rescale;
+       frac_pipro  *= frac_rescale;
 
        LOG("HAIntranuke", pDEBUG) 
           << "\n frac{" << INukeHadroFates::AsString(kIHAFtCEx)     << "} = " << frac_cex
@@ -1343,7 +1369,6 @@ bool HAIntranuke::HandleCompoundNucleus(
 //___________________________________________________________________________
 void HAIntranuke::LoadConfig(void)
 {
-
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();
 
@@ -1370,6 +1395,20 @@ void HAIntranuke::LoadConfig(void)
   fDoFermi       = fConfig->GetBoolDef   ("DoFermi",      gc->GetBool("INUKE-DoFermi"));
   fFreeStep      = fConfig->GetDoubleDef ("FreeStep",     gc->GetDouble("INUKE-FreeStep"));
   fDoCompoundNucleus = fConfig->GetBoolDef ("DoCompoundNucleus", gc->GetBool("INUKE-DoCompoundNucleus"));
+
+
+  fPionMFPScale            = (gc->Exists("FSI-Pion-MFPScale"))           ? gc->GetDouble("FSI-Pion-MFPScale")           : 1.0 ;
+  fPionFracCExScale        = (gc->Exists("FSI-Pion-FracCExScale"))       ? gc->GetDouble("FSI-Pion-FracCExScale")       : 1.0 ;
+  fPionFracElasScale       = (gc->Exists("FSI-Pion-FracElasScale"))      ? gc->GetDouble("FSI-Pion-FracElasScale")      : 1.0 ;
+  fPionFracInelScale       = (gc->Exists("FSI-Pion-FracInelScale"))      ? gc->GetDouble("FSI-Pion-FracInelScale")      : 1.0 ;
+  fPionFracAbsScale        = (gc->Exists("FSI-Pion-FracAbsScale"))       ? gc->GetDouble("FSI-Pion-FracAbsScale")       : 1.0 ;
+  fPionFracPiProdScale     = (gc->Exists("FSI-Pion-FracPiProdScale"))    ? gc->GetDouble("FSI-Pion-FracPiProdScale")    : 1.0 ;
+  fNucleonMFPScale         = (gc->Exists("FSI-Nucleon-MFPScale"))        ? gc->GetDouble("FSI-Nucleon-MFPScale")        : 1.0 ;
+  fNucleonFracCExScale     = (gc->Exists("FSI-Nucleon-FracCExScale"))    ? gc->GetDouble("FSI-Nucleon-FracCExScale")    : 1.0 ;
+  fNucleonFracElasScale    = (gc->Exists("FSI-Nucleon-FracElasScale"))   ? gc->GetDouble("FSI-Nucleon-FracElasScale")   : 1.0 ;
+  fNucleonFracInelScale    = (gc->Exists("FSI-Nucleon-FracInelScale"))   ? gc->GetDouble("FSI-Nucleon-FracInelScale")   : 1.0 ;
+  fNucleonFracAbsScale     = (gc->Exists("FSI-Nucleon-FracAbsScale"))    ? gc->GetDouble("FSI-Nucleon-FracAbsScale")    : 1.0 ;
+  fNucleonFracPiProdScale  = (gc->Exists("FSI-Nucleon-FracPiProdScale")) ? gc->GetDouble("FSI-Nucleon-FracPiProdScale") : 1.0 ;
 
   // report
   LOG("HAIntranuke", pINFO) << "Settings for INTRANUKE mode: " << INukeMode::AsString(kIMdHA);

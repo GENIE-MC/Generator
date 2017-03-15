@@ -114,6 +114,20 @@ protected:
   bool         fDoFermi;      ///< whether or not to do fermi mom. 
   bool         fDoMassDiff;   ///< whether or not to do mass diff. mode
   bool         fDoCompoundNucleus; ///< whether or not to do compound nucleus considerations
+
+  double       fPionMFPScale;       ///< tweaking factors for tuning
+  double       fPionFracCExScale;
+  double       fPionFracElasScale;
+  double       fPionFracInelScale;
+  double       fPionFracAbsScale;
+  double       fPionFracPiProdScale;
+  double       fNucleonMFPScale;
+  double       fNucleonFracCExScale;
+  double       fNucleonFracElasScale;
+  double       fNucleonFracInelScale;
+  double       fNucleonFracAbsScale;
+  double       fNucleonFracPiProdScale;
+
 };
 
 }      // genie namespace
