@@ -79,7 +79,8 @@ $emax  = 200;
 %nucleons_name = ( 1000000010 => 'n' ,
                    1000010010 => 'p' );
 
-@nucleons_proc = ( 'CCQE',  'NCEL', 
+@nucleons_proc = ( 'none',
+                   'CCQE',  'NCEL', 
                    'CCRES', 'NCRES', 
                    'CCDIS', 'NCDIS', 
                    'CCDFR', 'NCDFR', 
@@ -139,6 +140,10 @@ mkpath ($jobs_dir, {verbose => 1, mode=>0777});
 foreach $nu ( @nu_list ) { 
   foreach $tgt ( keys %nucleons_pdg ) { 
     foreach $proc ( @nucleons_proc_list ) {
+
+      if ( $proc eq "none" ) { 
+        next ;
+      }
 
       $jobname = $nu."_on_".$tgt."_$proc"; 
       $filename_template = "$jobs_dir/$jobname"; 

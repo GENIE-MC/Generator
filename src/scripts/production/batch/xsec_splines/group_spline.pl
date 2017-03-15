@@ -3,15 +3,25 @@
 # Given a directory, the script looks for file in the form 
 # v*_on_*_*.xml 
 # then it calls the appropriate gspladd to obtain v*_on_*.xml comprehensive
-# file
+# file. The file name will be total_xsec.xml
+# The scpript also prodces a root output for the splines
 # 
+#  Options:
+#  [--dir]             : Is the directory which contains all the xml files to be converted. Default: $PWD
+#  [--add-list]        : additional file list to be included when the total_xsec.xml file is created
+#  [--root-output]     : Create an output file with all the splines
+#  [--add-nucleons]    : When the ROOT file is created, also splines for proton and neutrons are created
+#  [--save-space]      : remove intermadiate xml files
+#  
 #---------------------------------------------------------------------
 
 $iarg=0;
 foreach (@ARGV) {
   if($_ eq '--dir')             { $dir           = $ARGV[$iarg+1]; }
   if($_ eq '--add-list')        { $add_list      = $ARGV[$iarg+1]; }
-  if($_ eq '--add-nucleons')    { $add_nucleons  = true ; }
+  if($_ eq '--root-output')     { $root_output   = 1 ; }
+  if($_ eq '--add-nucleons')    { $add_nucleons  = 1 ; }
+  if($_ eq '--save-space' )     { $save_space    = 1 ; } 
   $iarg++;
 }
 
@@ -187,26 +197,68 @@ elsif ( $tgt_size == 1 ) {
 
   ###if there is only one target, the global file has to be created manually
   my $temp_name = "$dir/".(keys %tgts)[0].".xml";
-  `ln -s $temp_name $glob_file` ;
+  
+  my $cmd = "ln -s "; 
+  $cmd = "cp " if defined $save_space ;  
+
+  $cmd .= " $temp_name $glob_file ";
+  print "Executing: $cmd \n" ; 
+  `$cmd` ;
 }
 
+if ( defined $root_output ) {
+
 ##
-## Creating a root file
+## Create an output file with all the splines in root format
 ##
 
-if ( index($tgt_list, "1000010010") == -1 ) { 
-  $tgt_list .= ",1000010010";
-} 
+  if ( index($tgt_list, "1000010010") == -1 ) {
+    $tgt_list .= ",1000010010";
+  }
 
-if ( index($tgt_list, "1000000010") == -1 ) {
-  $tgt_list .= ",1000000010";
+  if ( index($tgt_list, "1000000010") == -1 ) {
+    $tgt_list .= ",1000000010";
+  }
+
+  my $cmd = "gspl2root ";
+  $cmd .= " -p $nu_list ";
+  $cmd .= " -t $tgt_list ";
+  $cmd .= " -f $glob_file ";
+  $cmd .= " -o $dir"."/total_xsec.root " ;
+  print "\n$cmd\n";
+  `$cmd`;
+
 }
 
-my $cmd = "gspl2root ";
-$cmd .= " -p $nu_list ";
-$cmd .= " -t $tgt_list ";
-$cmd .= " -f $glob_file ";
-$cmd .= " -o $dir"."/total_xsec.root " ;
-print "\n$cmd\n";
-`$cmd`;
+
+if ( defined $save_space ) { 
+
+##
+## removing intermediate xml file 
+##
+
+  foreach my $tgt ( keys %tgts ) {
+
+    foreach my $nu ( keys %nus ) {
+  
+      my $tmp_nu_file = "$dir/".$nu."_on_".$tgt.".xml"; 
+
+      if ( -f $tmp_nu_file ) {
+        `rm $tmp_nu_file` ;
+      }
+    
+    } ## nu loop 
+
+    my $tmp_tgt_file = "$dir/".$tgt.".xml"; 
+
+    if ( -f $tmp_tgt_file ) {
+      `rm $tmp_tgt_file` ;
+    }
+  
+  }  ##tgt loop
+
+}  ## if defined $save_space 
+
+
+
 

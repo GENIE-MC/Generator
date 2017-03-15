@@ -25,6 +25,7 @@
 #   [--gen-list]       : comma separated list of event generator list, default all
 #   [--target-list]    : comma separated list of targets' PDGs, default De,He4,C12,O16,Ar40,Fe56,Pb207
 #   [--nu-list]        : comma separeted list of neutrino flavors. Both PDGs or names like vmubar,ve,vtau. Default all
+#   
 #
 # Author:
 #   Costas Andreopoulos <costas.andreopoulos \st stfc.ac.uk>
@@ -109,7 +110,8 @@ else {
 print "\n Neutrino List: @nu_list \n";
 
 
-@nuclei_proc = ( 'CCQE',     'NCEL', 
+@nuclei_proc = ( 'none',
+                 'CCQE',     'NCEL', 
                  'CCRES',    'NCRES', 
                  'CCDIS',    'NCDIS', 
                  'CCMEC',    'NCMEC', 
@@ -158,6 +160,10 @@ mkpath ($jobs_dir, {verbose => 1, mode=>0777});
 foreach $nu ( @nu_list ) { 
   foreach $tgt ( @tgt_pdg ) { 
     foreach $proc ( @nuclei_proc_list ) {
+
+      if ( $proc eq "none" ) { 
+        next ;
+      }
 
       $jobname  = $nu."_on_".$tgt."_$proc";  
       $filename_template = "$jobs_dir/$jobname";
