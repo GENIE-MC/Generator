@@ -22,8 +22,8 @@
 */
 //____________________________________________________________________________
 
-#ifndef _REIN_SEHGAL_RES_XSEC_WITH_CACHE_H_
-#define _REIN_SEHGAL_RES_XSEC_WITH_CACHE_H_
+#ifndef _eresMAID_XSEC_WITH_CACHE_H_
+#define _eresMAID_XSEC_WITH_CACHE_H_
 
 #include "Base/XSecIntegratorI.h"
 #include "BaryonResonance/BaryonResList.h"

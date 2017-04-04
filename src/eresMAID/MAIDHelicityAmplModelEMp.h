@@ -20,8 +20,8 @@
 */
 //____________________________________________________________________________
 
-#ifndef _HELICITY_AMPL_MODEL_EM_P_H_
-#define _HELICITY_AMPL_MODEL_EM_P_H_
+#ifndef _eresMAID_HELICITY_AMPL_MODEL_EM_P_H_
+#define _eresMAID_HELICITY_AMPL_MODEL_EM_P_H_
 
 #include "eresMAID/MAIDHelicityAmplModelI.h"
 

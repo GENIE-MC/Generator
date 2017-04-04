@@ -31,8 +31,8 @@
 */
 //____________________________________________________________________________
 
-#ifndef _REIN_SEHGAL_RES_XSEC_H_
-#define _REIN_SEHGAL_RES_XSEC_H_
+#ifndef _eresMAID_XSEC_H_
+#define _eresMAID_XSEC_H_
 
 #include "eresMAID/eresMAIDRESXSecWithCache.h"
 

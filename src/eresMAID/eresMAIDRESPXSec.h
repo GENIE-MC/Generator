@@ -28,8 +28,8 @@
 */
 //____________________________________________________________________________
 
-#ifndef _REIN_SEHGAL_RES_PXSEC_H_
-#define _REIN_SEHGAL_RES_PXSEC_H_
+#ifndef _eresMAID_PXSEC_H_
+#define _eresMAID_PXSEC_H_
 
 #include "Base/XSecAlgorithmI.h"
 #include "BaryonResonance/BaryonResonance.h"
