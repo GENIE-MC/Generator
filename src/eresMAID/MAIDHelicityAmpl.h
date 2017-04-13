@@ -21,8 +21,8 @@
 */
 //____________________________________________________________________________
 
-#ifndef _RS_HELICITY_AMPL_H_
-#define _RS_HELICITY_AMPL_H_
+#ifndef _eresMAID_HELICITY_AMPL_H_
+#define _eresMAID_HELICITY_AMPL_H_
 
 #include <iostream>
 

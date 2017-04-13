@@ -15,8 +15,8 @@
 */
 //____________________________________________________________________________
 
-#ifndef _REIN_SEHGAL_HELICITY_AMPL_MODEL_I_H_
-#define _REIN_SEHGAL_HELICITY_AMPL_MODEL_I_H_
+#ifndef _eresMAID_HELICITY_AMPL_MODEL_I_H_
+#define _eresMAID_HELICITY_AMPL_MODEL_I_H_
 
 #include "Algorithm/Algorithm.h"
 #include "BaryonResonance/BaryonResonance.h"
