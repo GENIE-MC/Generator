@@ -115,11 +115,10 @@ void GFLUKAAtmoFlux::SetBinSizes(void)
          << ": bin centre = " << (fEnergyBins[i] + fEnergyBins[i+1])/2.;
   }
 
-  fMaxEv = fEnergyBins[fNumEnergyBins];
-
   fNumPhiBins      = 1;
   fNumCosThetaBins = kGFlk3DNumCosThetaBins;
   fNumEnergyBins   = kGFlk3DNumLogEvBins;
+  fMaxEv           = fEnergyBins[fNumEnergyBins];
 }
 //____________________________________________________________________________
 bool GFLUKAAtmoFlux::FillFluxHisto(int nu_pdg, string filename)
