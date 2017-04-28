@@ -253,6 +253,9 @@ double NievesQELCCPXSec::XSec(const Interaction * interaction,
   // Calculate xsec
   double xsec = Gfactor*coulombFactor*LmunuAnumuResult;
 
+  // Apply given scaling factor
+  xsec *= fXSecScale;
+
   LOG("Nieves",pDEBUG) << "TESTING: RPA=" << fRPA 
 		       << ", Coulomb=" << fCoulomb
 		       << ", q2 = " << q2 << ", xsec = " << xsec;
@@ -418,6 +421,10 @@ void NievesQELCCPXSec::LoadConfig(void)
   double thc = fConfig->GetDoubleDef(
                               "CabibboAngle", gc->GetDouble("CabibboAngle"));
   fCos8c2 = TMath::Power(TMath::Cos(thc), 2);
+
+  // Cross section scaling factor
+  fXSecScale = fConfig->GetDoubleDef(
+        	       "XSecScale", gc->GetDouble("QEL-CC-XSecScale"));
 
   // hbarc for unit conversion, GeV*fm
   fhbarc = kLightSpeed*kPlankConstant/fermi;

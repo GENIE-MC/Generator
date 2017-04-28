@@ -197,6 +197,9 @@ double NievesSimoVacasMECPXSec2016::XSec(
 
     double xsec = (pn) ? xsec_pn : xsec_all;
 
+    // Apply given scaling factor
+    xsec *= fXSecScale;
+
     if(kps!=kPSTlctl) {
         LOG("NievesSimoVacasMEC", pWARN)
             << "Doesn't support transformation from "
@@ -241,10 +244,15 @@ void NievesSimoVacasMECPXSec2016::Configure(string config)
 //_________________________________________________________________________
 void NievesSimoVacasMECPXSec2016::LoadConfig(void)
 {
-  //AlgConfigPool * confp = AlgConfigPool::Instance();
-  //const Registry * gc = confp->GlobalParameterList();
-    fXSecIntegrator =
-        dynamic_cast<const XSecIntegratorI *> (
+  AlgConfigPool * confp = AlgConfigPool::Instance();
+  const Registry * gc = confp->GlobalParameterList();
+
+   // Cross section scaling factor
+   fXSecScale = fConfig->GetDoubleDef( "XSecScale",
+		                               gc->GetDouble("MEC-CC-XSecScale"));
+
+   fXSecIntegrator =
+		   dynamic_cast<const XSecIntegratorI *> (
                 this->SubAlg("NumericalIntegrationAlg"));
     assert(fXSecIntegrator);
 

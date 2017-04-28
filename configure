@@ -79,7 +79,7 @@ unless defined $ROOTSYS;
 # (GENIE uses GSL via ROOT's MathMore library.)
 #
 {
-  $mathmore_lib = "$ROOTSYS/lib/libMathMore.so";
+  $mathmore_lib = "$ROOTSYS/lib/root/libMathMore.so";
   if( ! -f $mathmore_lib ) {
      die ("*** Error *** ROOT needs to be built with GSL/MathMore enabled.");
   }

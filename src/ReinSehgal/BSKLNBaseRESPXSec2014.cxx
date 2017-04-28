@@ -703,6 +703,11 @@ if(kps!=kPSWQ2fE) {
   xsec *= J;
 }
 
+// Apply given scaling factor
+if      (is_CC) { xsec *= fXSecScaleCC; }
+else if (is_NC) { xsec *= fXSecScaleNC; }
+
+
 // If requested return the free nucleon xsec even for input nuclear tgt
 if( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;
 
@@ -763,6 +768,13 @@ void BSKLNBaseRESPXSec2014::LoadConfig(void)
 {
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();
+
+
+  // Cross section scaling factors
+  fXSecScaleCC = fConfig->GetDoubleDef( "CC-XSecScale",
+		                                gc->GetDouble("RES-CC-XSecScale"));
+  fXSecScaleNC = fConfig->GetDoubleDef( "NC-XSecScale",
+		                                gc->GetDouble("RES-NC-XSecScale"));
 
   // Load all configuration data or set defaults
 

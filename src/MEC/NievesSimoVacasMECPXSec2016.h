@@ -60,6 +60,8 @@ private:
   // Load algorithm configuration
   void LoadConfig (void);
 
+  double                   fXSecScale;        ///< external xsec scaling factor
+
   const XSecIntegratorI *  fXSecIntegrator; // Numerical integrator (GSL)
 
 //double fQ3Max;

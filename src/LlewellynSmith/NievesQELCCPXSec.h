@@ -60,6 +60,8 @@ private:
   const XSecIntegratorI *      fXSecIntegrator;   ///<
   double                       fCos8c2;           ///< cos^2(cabibbo angle)
 
+  double                       fXSecScale;        ///< external xsec scaling factor
+
   double                       fhbarc;            ///< hbar*c in GeV*fm
 
   // mutable for testing purposes only!
