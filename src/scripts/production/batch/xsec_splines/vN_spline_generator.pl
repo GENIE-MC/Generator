@@ -144,6 +144,11 @@ foreach $nu ( @nu_list ) {
       if ( $proc eq "none" ) { 
         next ;
       }
+      
+      if ( $proc eq 'CCQE' ) { 
+        if ( ($tgt eq 'n' ) && ( $nu_pdg_def{$nu} < 0 ) ) { next ; }
+        if ( ($tgt eq 'p' ) && ( $nu_pdg_def{$nu} > 0 ) ) { next ; }
+      }
 
       $jobname = $nu."_on_".$tgt."_$proc"; 
       $filename_template = "$jobs_dir/$jobname"; 
