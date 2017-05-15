@@ -70,16 +70,28 @@ double NievesSimoVacasMECPXSec2016::XSec(
     if( ! hadtensor->KnownTensor(tensorpdg) ) {
 
         // Decide which hadron tensor to use for different ranges of A.
-        if (Arequest < 10){
-            // refuse to do He, Li, Be      
+
+        if( Arequest == 4 && Zrequest == 2 ){
+            tensorpdg = kPdgTgtC12;
+	    // This is for helium 4, but use carbon tensor
+	    // the use of nuclear density parameterization is suspicious
+	    // but some users (MINERvA) need something not nothing.
+	    // The pn will be exactly 1/3, but pp and nn will be ~1/4
+	    // Because the combinatorics are different.
+            // Could do lithium beryllium boron which you don't need
+        }
+        else if (Arequest < 9){
+            // refuse to do D, T, He3, Li, and some Be, B      
+	    // actually it would work technically, maybe except D, T
             MAXLOG("NievesSimoVacasMEC", pWARN, 10) 
-                << "Asked to scale to a nucleus " 
-                << targetpdg << " which we don't know yet.";
+                << "Asked to scale to deuterium through boron " 
+                << targetpdg << " nope, lets not do that.";
             return 0;
         }
-        else if( Arequest >= 10 && Arequest < 15){
+        else if( Arequest >= 9 && Arequest < 15){
             tensorpdg = kPdgTgtC12;
             //} 
+            // could explicitly put in nitrogen for air
             //else if ( Arequest >= 14 && A < 15) { // AND CHANGE <=14 to <14.
             //  tensorpdg = kPdgTgtN14;
         } 
@@ -159,6 +171,7 @@ double NievesSimoVacasMECPXSec2016::XSec(
     }
 
     // now again, run this only if targetpdg != tensorpdg.
+    // would need to trap and treat He3, T, D special here.
     if( ! hadtensor->KnownTensor(targetpdg) ) {
         // if we need to scale, figure it out here.
 
@@ -187,7 +200,7 @@ double NievesSimoVacasMECPXSec2016::XSec(
         double temp_pn  = xsec_pn * scale_pn;
         int nupdg = interaction->InitState().ProbePdg();
         if(nupdg > 0){
-            temp_all = xsec_pn * scale_pn + (xsec_all - temp_pn) * scale_nn;
+            temp_all = xsec_pn * scale_pn + (xsec_all - xsec_pn) * scale_nn;
         } else {
             temp_all = xsec_pn * scale_pn + (xsec_all - xsec_pn) * scale_pp;
         }

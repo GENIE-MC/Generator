@@ -96,8 +96,8 @@ bool MECHadronTensor::KnownTarget(int targetpdg)
   // also, future-person might give a had tensor and want to not allow scaling.
 
   int Arequest = pdg::IonPdgCodeToA(targetpdg);
-  //int Zrequest = pdg::IonPdgCodeToZ(targetpdg);
-  if(Arequest >= 10){
+  int Zrequest = pdg::IonPdgCodeToZ(targetpdg);
+  if(Arequest >= 9 || (Arequest == 4 && Zrequest == 2)){
     return true;
   }
   return false;  

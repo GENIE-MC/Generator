@@ -131,7 +131,28 @@ void MECGenerator::AddTargetRemnant(GHepRecord * event) const
   const TLorentzVector v4(0.,0.,0., 0.);
 
   int momidx = event->TargetNucleusPosition();
+
+  /*
+  if( A == 2 && Z == 2){
+    // residual nucleus was just two protons, not a nucleus we know.
+    // this might not conserve energy...
+    event->AddParticle(kPdgProton,kIStStableFinalState, momidx,-1,-1,-1, p4,v4);  
+    // v4,v4 because I'm lazy, give the four momentum to one of the protons, not the other
+    event->AddParticle(kPdgProton,kIStStableFinalState, momidx,-1,-1,-1, v4,v4);  
+  } else if ( A == 2 && Z == 0){
+    // residual nucleus was just two neutrons, not a nucleus we know.
+    // this might not conserve energy...
+    event->AddParticle(kPdgNeutron,kIStStableFinalState, momidx,-1,-1,-1, p4,v4);  
+    // v4,v4 because I'm lazy, give the four momentum to one of the protons, not the other
+    event->AddParticle(kPdgNeutron,kIStStableFinalState, momidx,-1,-1,-1, v4,v4);  
+  } else {
+    // regular nucleus, including deuterium
+    event->AddParticle(ipdgc,kIStStableFinalState, momidx,-1,-1,-1, p4,v4);  
+  }
+  */
+
   event->AddParticle(ipdgc,kIStStableFinalState, momidx,-1,-1,-1, p4,v4);  
+
 }
 //___________________________________________________________________________
 void MECGenerator::GenerateFermiMomentum(GHepRecord * event) const
@@ -607,7 +628,7 @@ void MECGenerator::SelectNSVLeptonKinematics (GHepRecord * event) const
       // The QE-like portion scales as A, but the Delta portion increases faster, not simple.
       // so this gives additional safety factor.  Remember, we need a safe max, not precise max.
       if (NuclearA < 12) NuclearAfactorXSecMax *= NuclearA / 12.0;
-      else NuclearAfactorXSecMax *= TMath::Power(NuclearA/12.0, 1.2);
+      else NuclearAfactorXSecMax *= TMath::Power(NuclearA/12.0, 1.4);
     } 
     else {
       LOG("MEC", pERROR) << "Trying to scale XSecMax for larger nuclei, but "
@@ -667,9 +688,9 @@ void MECGenerator::SelectNSVLeptonKinematics (GHepRecord * event) const
 
               // extract xsecmax from the spline making process for C12 and other nuclei.
               //  plot Log10(E) on horizontal and Log10(xsecmax) vertical
-              //  and fit a line.  Use that plus 1.25 safety factors to limit the accept/reject loop.
-              double XSecMax = 1.25*TMath::Power(10.0, XSecMaxPar1 * TMath::Log10(Enu) - XSecMaxPar2);
-              XSecMax *=  NuclearAfactorXSecMax;  // Scale it by A, precomputed above.
+              //  and fit a line.  Use that plus 1.35 safety factors to limit the accept/reject loop.
+              double XSecMax = 1.35*TMath::Power(10.0, XSecMaxPar1 * TMath::Log10(Enu) - XSecMaxPar2);
+              if(NuclearA > 12)XSecMax *=  NuclearAfactorXSecMax;  // Scale it by A, precomputed above.
 
               LOG("MEC", pDEBUG) << " T, Costh: " << T << ", " << Costh ;
 
@@ -697,8 +718,9 @@ void MECGenerator::SelectNSVLeptonKinematics (GHepRecord * event) const
               double XSecPN = fXSecModel->XSec(interaction, kPSTlctl);
 
               if (XSec > XSecMax) {
-                  LOG("MEC", pERROR) << "XSec is > XSecMax for nucleus " << TgtPDG 
-                      << " don't let this happen.";
+		LOG("MEC", pERROR) << "XSec is > XSecMax for nucleus " << TgtPDG << " " 
+				   << XSec << " > " << XSecMax 
+				   << " don't let this happen.";
               }
               assert(XSec <= XSecMax);
               accept = XSec > XSecMax*rnd->RndKine().Rndm();
@@ -986,7 +1008,7 @@ void MECGenerator::GenerateNSVInitialHadrons(GHepRecord * event) const
     remnant_nucleus->SetMomentum(-1.0*p4initial_cluster.Px(),
             -1.0*p4initial_cluster.Py(),
             -1.0*p4initial_cluster.Pz(),
-            Mi - p4initial_cluster.E());
+            Mi - p4initial_cluster.E() + removalenergy1 + removalenergy2);
 
     // Now the final nucleon cluster.
 
@@ -998,9 +1020,14 @@ void MECGenerator::GenerateNSVInitialHadrons(GHepRecord * event) const
     // Now write the (undecayed) final two-nucleon system
     GHepParticle p1(final_nucleon_cluster_pdg, kIStDecayedState,
             2, -1, -1, -1, p4final_cluster, v4);
-    p1.SetRemovalEnergy(removalenergy1 + removalenergy2);
+    
+    //p1.SetRemovalEnergy(removalenergy1 + removalenergy2);
+    // The "bound particle" concept applies only to p or n.
+    // Instead, add this directly to the remnant nucleon a few lines above.
+
     // actually, this is not an status1 particle, so it is not picked up
     // by the aggregator. anyway, the aggregator does not run until the very end.
+
     event->AddParticle(p1);
 
     interaction->KinePtr()->SetHadSystP4(p4final_cluster);
