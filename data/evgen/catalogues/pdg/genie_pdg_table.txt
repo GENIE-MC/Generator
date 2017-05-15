@@ -3842,13 +3842,13 @@
 #
 #----- remnant additions for MEC removal of two nucleons
 #
-#  999 n+n-remnant   1000000020 0 100 PseudoIon  0 1.8791   0.00000e+00 -100 -1 -100 -1   -1   1
+# These use double the mass of the proton and neutron earlier (which are off in last digit from pdg now)
+  999 n+n-remnant   1000000020 0 100 PseudoIon  0 1.87914   0.00000e+00 -100 -1 -100 -1   -1   0
 #         1     0   1.00000E+00   2     2112     2112                                     neutron    neutron 
-#  999 p+p-remnant   1000020020 0 100 PseudoIon  6 1.8766   0.00000e+00 -100 -1 -100 -1   -1   1
+  999 p+p-remnant   1000020020 0 100 PseudoIon  6 1.87654   0.00000e+00 -100 -1 -100 -1   -1   0
 #         1     0   1.00000E+00   2     2212     2212                                     proton     proton
-#
 # n+p leftover should really be distinguished from H2 somehow
-# 999 n+p-remnant   1000010020 0 100 PseudoIon  3 1.8778   0.00000e+00 -100 -1 -100 -1   -1   1
+#  999 n+p-remnant   1000010020 0 100 PseudoIon  3 1.87784   0.00000e+00 -100 -1 -100 -1   -1   1
 #        1     0   1.00000E+00   2     2112     2212                                     neutron    proton 
 #
   999 free-n        1000000010 0 100 Ion         0 0.9395654    0.00000e+00 -100  -1 -100 -1 -1 0
