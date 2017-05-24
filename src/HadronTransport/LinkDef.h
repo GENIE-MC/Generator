@@ -21,5 +21,7 @@
 #pragma link C++ class genie::Intranuke2015;
 #pragma link C++ class genie::HAIntranuke2015;
 #pragma link C++ class genie::HNIntranuke2015;
+#pragma link C++ class genie::HINCLCascade;
+#pragma link C++ class genie::INCLCascade;
 
 #endif
