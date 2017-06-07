@@ -10,6 +10,7 @@
 #  [--dir]             : Is the directory which contains all the xml files to be converted. Default: $PWD
 #  [--add-list]        : additional file list to be included when the total_xsec.xml file is created
 #  [--root-output]     : Create an output file with all the splines
+#  Ã[--evet-gen-list]  : Event generator list used in the root file output
 #  [--add-nucleons]    : When the ROOT file is created, also splines for proton and neutrons are created
 #  [--save-space]      : remove intermadiate xml files
 #  
@@ -20,6 +21,7 @@ foreach (@ARGV) {
   if($_ eq '--dir')             { $dir           = $ARGV[$iarg+1]; }
   if($_ eq '--add-list')        { $add_list      = $ARGV[$iarg+1]; }
   if($_ eq '--root-output')     { $root_output   = 1 ; }
+  if($_ eq '--event-gen-list')  { $event_gen_list = $ARGV[$iarg+1]; }
   if($_ eq '--add-nucleons')    { $add_nucleons  = 1 ; }
   if($_ eq '--save-space' )     { $save_space    = 1 ; } 
   $iarg++;
@@ -225,6 +227,9 @@ if ( defined $root_output ) {
   $cmd .= " -t $tgt_list ";
   $cmd .= " -f $glob_file ";
   $cmd .= " -o $dir"."/total_xsec.root " ;
+  if ( defined $event_gen_list ) {
+    $cmd .= " --event-generator-list $event_gen_list " 
+  }
   print "\n$cmd\n";
   `$cmd`;
 
