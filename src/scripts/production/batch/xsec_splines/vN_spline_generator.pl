@@ -87,6 +87,7 @@ $emax  = 200;
                    'CharmCCDIS', 
                    'CharmCCQE', 
                    'LambdaCCQE', 
+                   'SingleKaon',
                    'IMD', 
                    'NuEElastic' );
 

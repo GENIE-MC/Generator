@@ -117,7 +117,8 @@ print "\n Neutrino List: @nu_list \n";
                  'CCMEC',    'NCMEC', 
                  'CCCOH',    'NCCOH',
                  'CharmCCDIS', 'CharmCCQE', 
-                 'LambdaCCQE', 'IMD', 
+                 'LambdaCCQE', 'SingleKaon',
+                 'IMD', 
                  'NuEElastic',
                  'DFR' ### this has to be removed as soon gEvGen is fixed and do not require these splines.
                  );
