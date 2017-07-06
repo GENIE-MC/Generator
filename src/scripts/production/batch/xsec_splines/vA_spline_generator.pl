@@ -113,8 +113,16 @@ print "\n Neutrino List: @nu_list \n";
 @nuclei_proc = ( 'none',
                  'WeakMEC',    
                  'CCCOH',    'NCCOH',
-                 'Fast'
+                 'Fast',
+                 'Fast_with_MEC'  ## this is supposed to be better with G16_01 comprehensive models
                  );
+
+
+@nuclei_proc_def = ( 'none',
+                     'WeakMEC',
+                     'CCCOH',    'NCCOH',
+                     'Fast'
+	             );       
 
 # create the lsit of processes to be generated for composite nuclei
 if ( defined $req_gen_list ) {
@@ -125,7 +133,7 @@ if ( defined $req_gen_list ) {
   }
 }
 else {
-  @nuclei_proc_list = @nuclei_proc ;
+  @nuclei_proc_list = @nuclei_proc_def ;
 }
 print "\n List of processes on composite nuclei: @nuclei_proc_list \n";                 
 
