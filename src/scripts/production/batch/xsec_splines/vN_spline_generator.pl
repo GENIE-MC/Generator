@@ -80,16 +80,10 @@ $emax  = 200;
                    1000010010 => 'p' );
 
 @nucleons_proc = ( 'none',
-                   'CCQE',  'NCEL', 
                    'CCRES', 'NCRES', 
                    'CCDIS', 'NCDIS', 
                    'CCDFR', 'NCDFR', 
-                   'CharmCCDIS', 
-                   'CharmCCQE', 
-                   'LambdaCCQE', 
-                   'SingleKaon',
-                   'IMD', 
-                   'NuEElastic' );
+                   'Fast' );
 
 %nu_pdg_def = ( 've'      =>   12, 
                 'vebar'   =>  -12, 
@@ -151,12 +145,23 @@ foreach $nu ( @nu_list ) {
         if ( ($tgt eq 'p' ) && ( $nu_pdg_def{$nu} > 0 ) ) { next ; }
       }
 
+      if ( ( $proc eq 'CCDFR' ) || ( $proc eq 'NCDFR' ) ) { 
+          if ( $tgt eq 'n' ) { next ; } 
+      }
+
+      if ( $proc eq 'Fast' ) { 
+          $event_gen_list = 'Fast_on_' . $tgt ;
+      } 
+      else { 
+      	  $event_gen_list = $proc ;
+      }
+
       $jobname = $nu."_on_".$tgt."_$proc"; 
       $filename_template = "$jobs_dir/$jobname"; 
       
       $grep_pipe     = "grep -B 100 -A 30 -i \"warn\\|error\\|fatal\"";
       $valgrind_cmd  = "valgrind --tool=memcheck --error-limit=no --leak-check=yes --show-reachable=yes";
-      $gmkspl_opt    = "-p $nu_pdg_def{$nu} -t $nucleons_pdg{$tgt} -n $nkots -e $emax -o $filename_template.xml --event-generator-list $proc";
+      $gmkspl_opt    = "-p $nu_pdg_def{$nu} -t $nucleons_pdg{$tgt} -n $nkots -e $emax -o $filename_template.xml --event-generator-list $event_gen_list";
       $gmkspl_cmd    = "gmkspl $gmkspl_opt";
 
       print "@@ exec: $gmkspl_cmd \n";

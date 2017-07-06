@@ -111,16 +111,9 @@ print "\n Neutrino List: @nu_list \n";
 
 
 @nuclei_proc = ( 'none',
-                 'CCQE',     'NCEL', 
-                 'CCRES',    'NCRES', 
-                 'CCDIS',    'NCDIS', 
-                 'CCMEC',    'NCMEC', 
+                 'WeakMEC',    
                  'CCCOH',    'NCCOH',
-                 'CharmCCDIS', 'CharmCCQE', 
-                 'LambdaCCQE', 'SingleKaon',
-                 'IMD', 
-                 'NuEElastic',
-                 'DFR' ### this has to be removed as soon gEvGen is fixed and do not require these splines.
+                 'Fast'
                  );
 
 # create the lsit of processes to be generated for composite nuclei
@@ -166,6 +159,14 @@ foreach $nu ( @nu_list ) {
         next ;
       }
 
+      if ( $proc eq 'Fast' ) { 
+          $event_gen_list = 'Fast_on_nuclei' ;
+      } 
+      else { 
+          $event_gen_list = $proc ;
+      }
+      
+
       $jobname  = $nu."_on_".$tgt."_$proc";  
       $filename_template = "$jobs_dir/$jobname";
       $grep_pipe  = "grep -B 100 -A 30 -i \"warn\\|error\\|fatal\"";
@@ -175,7 +176,7 @@ foreach $nu ( @nu_list ) {
       else {
         $in_splines = $freenucsplines;
       }
-      $gmkspl_opt = "-p $nu_pdg_def{$nu} -t $tgt -n $nknots -e $emax --input-cross-sections $in_splines --output-cross-sections $filename_template.xml --event-generator-list $proc --no-copy";
+      $gmkspl_opt = "-p $nu_pdg_def{$nu} -t $tgt -n $nknots -e $emax --input-cross-sections $in_splines --output-cross-sections $filename_template.xml --event-generator-list $event_gen_list --no-copy";
       $gmkspl_cmd = "gmkspl $gmkspl_opt ";
       print "@@ exec: $gmkspl_cmd \n";
 

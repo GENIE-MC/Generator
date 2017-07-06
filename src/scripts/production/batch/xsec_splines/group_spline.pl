@@ -10,7 +10,7 @@
 #  [--dir]             : Is the directory which contains all the xml files to be converted. Default: $PWD
 #  [--add-list]        : additional file list to be included when the total_xsec.xml file is created
 #  [--root-output]     : Create an output file with all the splines
-#  Ã[--evet-gen-list]  : Event generator list used in the root file output
+#  [--evet-gen-list]   : Event generator list used in the root file output
 #  [--add-nucleons]    : When the ROOT file is created, also splines for proton and neutrons are created
 #  [--save-space]      : remove intermadiate xml files
 #  
@@ -129,12 +129,9 @@ foreach my $tgt ( keys %tgts ) {
       }
     }  ##proc list
 
-  ##  print "$list_file_list"."\n";
-  ##  $jobname = "add_".$nu."_on_".$tgt; 
     $tmp_nu_file = "$dir/".$nu."_on_".$tgt.".xml"; 
 
-    ##$grep_pipe     = "grep -B 100 -A 30 -i \"warn\\|error\\|fatal\"";
-    $gspladd_opt    = "-p $nus{$nu} -t $tmp_tgt  -o $tmp_nu_file -f $proc_file_list --event-generator-list $proc_list";
+    $gspladd_opt    = " -o $tmp_nu_file -f $proc_file_list ";
     $gspladd_cmd    = "gspladd $gspladd_opt";
     print "$gspladd_cmd \n \n";
     `$gspladd_cmd \n`;
@@ -149,11 +146,9 @@ foreach my $tgt ( keys %tgts ) {
     
   } ## nu loop 
 
-##  $jobname = "add_".$tgt; 
   $tmp_tgt_file = "$dir/".$tgt.".xml"; 
 
-  ##$grep_pipe     = "grep -B 100 -A 30 -i \"warn\\|error\\|fatal\"";
-  $gspladd_opt    = "-p $nu_list -t $tmp_tgt -o $tmp_tgt_file -f $nu_file_list --event-generator-list $proc_list";
+  $gspladd_opt    = " -o $tmp_tgt_file -f $nu_file_list ";
   $gspladd_cmd    = "gspladd $gspladd_opt";
   print "$gspladd_cmd \n \n";
   `$gspladd_cmd \n`;
@@ -190,7 +185,7 @@ if ( ($tgt_size > 1) or (defined $add_list ) ) {
   }
 
   ##$grep_pipe     = "grep -B 100 -A 30 -i \"warn\\|error\\|fatal\"";
-  $gspladd_opt    = "-p $nu_list -t $tgt_list  -o $glob_file -f $tgt_file_list --event-generator-list $proc_list";
+  $gspladd_opt    = " -o $glob_file -f $tgt_file_list ";
   $gspladd_cmd    = "gspladd $gspladd_opt";
   print "$gspladd_cmd \n \n";
   `$gspladd_cmd \n`;
