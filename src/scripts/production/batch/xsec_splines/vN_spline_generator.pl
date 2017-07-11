@@ -150,7 +150,7 @@ foreach $nu ( @nu_list ) {
       }
 
       if ( $proc eq 'Fast' ) { 
-          $event_gen_list = 'Fast_on_' . $tgt ;
+          $event_gen_list = 'FastOn' . ( uc $tgt );
       } 
       else { 
       	  $event_gen_list = $proc ;

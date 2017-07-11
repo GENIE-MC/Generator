@@ -114,7 +114,7 @@ print "\n Neutrino List: @nu_list \n";
                  'WeakMEC',    
                  'CCCOH',    'NCCOH',
                  'Fast',
-                 'Fast_with_MEC'  ## this is supposed to be better with G16_01 comprehensive models
+                 'FastWithMEC'  ## this is supposed to be better with G16_01 comprehensive models
                  );
 
 
@@ -168,7 +168,7 @@ foreach $nu ( @nu_list ) {
       }
 
       if ( $proc eq 'Fast' ) { 
-          $event_gen_list = 'Fast_on_nuclei' ;
+          $event_gen_list = 'FastOnNuclei' ;
       } 
       else { 
           $event_gen_list = $proc ;
