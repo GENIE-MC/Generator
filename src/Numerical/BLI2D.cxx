@@ -204,7 +204,7 @@ BLI2DNonUnifGrid::BLI2DNonUnifGrid(
   double xmin = x[0];
   double xmax = x[nx-1];
   double ymin = y[0];
-  double ymax = y[nx-1];
+  double ymax = y[ny-1];
 
   this->Init(nx, xmin, xmax, ny, ymin, ymax);
 
