@@ -544,6 +544,8 @@ TGraph * Spline::GetAsTGraph(
   }
 
   TGraph * graph = new TGraph(np, x, y);
+  delete[] x;
+  delete[] y;
   return graph;
 }
 //___________________________________________________________________________
