@@ -499,6 +499,13 @@ void SaveToPsFile(void)
   delete ps;
 }
 //____________________________________________________________________________
+void FormatXSecGraph(TGraph * g)
+{
+  g->SetTitle("GENIE cross section graph");
+  g->GetXaxis()->SetTitle("Ev (GeV)");
+  g->GetYaxis()->SetTitle("#sigma_{nuclear} (10^{-38} cm^{2})");
+}
+//____________________________________________________________________________
 void SaveGraphsToRootFile(void)
 {
   //-- get the event generation driver
@@ -648,7 +655,7 @@ void SaveGraphsToRootFile(void)
 
     TGraph * gr = new TGraph(kNSplineP, e, xs);
     gr->SetName(title.str().c_str());
-    //gr->SetTitle("GENIE cross section graph");
+    FormatXSecGraph(gr);
     gr->SetTitle(spl->GetName());
 
     topdir->Add(gr);
@@ -710,19 +717,19 @@ void SaveGraphsToRootFile(void)
 
     TGraph * gr_resccp = new TGraph(kNSplineP, e, xsresccp);
     gr_resccp->SetName("res_cc_p");
-    gr_resccp->SetTitle("GENIE cross section graph");
+    FormatXSecGraph(gr_resccp);
     topdir->Add(gr_resccp);
     TGraph * gr_resccn = new TGraph(kNSplineP, e, xsresccn);
     gr_resccn->SetName("res_cc_n");
-    gr_resccn->SetTitle("GENIE cross section graph");
+    FormatXSecGraph(gr_resccn);
     topdir->Add(gr_resccn);
     TGraph * gr_resncp = new TGraph(kNSplineP, e, xsresncp);
     gr_resncp->SetName("res_nc_p");
-    gr_resncp->SetTitle("GENIE cross section graph");
+    FormatXSecGraph(gr_resncp);
     topdir->Add(gr_resncp);
     TGraph * gr_resncn = new TGraph(kNSplineP, e, xsresncn);
     gr_resncn->SetName("res_nc_n");
-    gr_resncn->SetTitle("GENIE cross section graph");
+    FormatXSecGraph(gr_resncn);
     topdir->Add(gr_resncn);
 
     //
@@ -773,19 +780,19 @@ void SaveGraphsToRootFile(void)
     }
     TGraph * gr_disccp = new TGraph(kNSplineP, e, xsdisccp);
     gr_disccp->SetName("dis_cc_p");
-    gr_disccp->SetTitle("GENIE cross section graph");
+    FormatXSecGraph(gr_disccp);
     topdir->Add(gr_disccp);
     TGraph * gr_disccn = new TGraph(kNSplineP, e, xsdisccn);
     gr_disccn->SetName("dis_cc_n");
-    gr_disccn->SetTitle("GENIE cross section graph");
+    FormatXSecGraph(gr_disccn);
     topdir->Add(gr_disccn);
     TGraph * gr_disncp = new TGraph(kNSplineP, e, xsdisncp);
     gr_disncp->SetName("dis_nc_p");
-    gr_disncp->SetTitle("GENIE cross section graph");
+    FormatXSecGraph(gr_disncp);
     topdir->Add(gr_disncp);
     TGraph * gr_disncn = new TGraph(kNSplineP, e, xsdisncn);
     gr_disncn->SetName("dis_nc_n");
-    gr_disncn->SetTitle("GENIE cross section graph");
+    FormatXSecGraph(gr_disncn);
     topdir->Add(gr_disncn);
 
     //
@@ -832,19 +839,19 @@ void SaveGraphsToRootFile(void)
     }
     TGraph * gr_disccp_charm = new TGraph(kNSplineP, e, xsdisccp);
     gr_disccp_charm->SetName("dis_cc_p_charm");
-    gr_disccp_charm->SetTitle("GENIE cross section graph");
+    FormatXSecGraph(gr_disccp_charm);
     topdir->Add(gr_disccp_charm);
     TGraph * gr_disccn_charm = new TGraph(kNSplineP, e, xsdisccn);
     gr_disccn_charm->SetName("dis_cc_n_charm");
-    gr_disccn_charm->SetTitle("GENIE cross section graph");
+    FormatXSecGraph(gr_disccn_charm);
     topdir->Add(gr_disccn_charm);
     TGraph * gr_disncp_charm = new TGraph(kNSplineP, e, xsdisncp);
     gr_disncp_charm->SetName("dis_nc_p_charm");
-    gr_disncp_charm->SetTitle("GENIE cross section graph");
+    FormatXSecGraph(gr_disncp_charm);
     topdir->Add(gr_disncp_charm);
     TGraph * gr_disncn_charm = new TGraph(kNSplineP, e, xsdisncn);
     gr_disncn_charm->SetName("dis_nc_n_charm");
-    gr_disncn_charm->SetTitle("GENIE cross section graph");
+    FormatXSecGraph(gr_disncn_charm);
     topdir->Add(gr_disncn_charm);
 
     //
@@ -878,11 +885,11 @@ void SaveGraphsToRootFile(void)
 
     TGraph * gr_meccc = new TGraph(kNSplineP, e, xsmeccc);
     gr_meccc->SetName("mec_cc");
-    gr_meccc->SetTitle("GENIE cross section graph");
+    FormatXSecGraph(gr_meccc);
     topdir->Add(gr_meccc);
     TGraph * gr_mecnc = new TGraph(kNSplineP, e, xsmecnc);
     gr_mecnc->SetName("mec_nc");
-    gr_mecnc->SetTitle("GENIE cross section graph");
+    FormatXSecGraph(gr_mecnc);
     topdir->Add(gr_mecnc);
 
     //
@@ -950,27 +957,27 @@ void SaveGraphsToRootFile(void)
 
     TGraph * gr_totcc = new TGraph(kNSplineP, e, xstotcc);
     gr_totcc->SetName("tot_cc");
-    gr_totcc->SetTitle("GENIE cross section graph");
+    FormatXSecGraph(gr_totcc);
     topdir->Add(gr_totcc);
     TGraph * gr_totccp = new TGraph(kNSplineP, e, xstotccp);
     gr_totccp->SetName("tot_cc_p");
-    gr_totccp->SetTitle("GENIE cross section graph");
+    FormatXSecGraph(gr_totccp);
     topdir->Add(gr_totccp);
     TGraph * gr_totccn = new TGraph(kNSplineP, e, xstotccn);
     gr_totccn->SetName("tot_cc_n");
-    gr_totccn->SetTitle("GENIE cross section graph");
+    FormatXSecGraph(gr_totccn);
     topdir->Add(gr_totccn);
     TGraph * gr_totnc = new TGraph(kNSplineP, e, xstotnc);
     gr_totnc->SetName("tot_nc");
-    gr_totnc->SetTitle("GENIE cross section graph");
+    FormatXSecGraph(gr_totnc);
     topdir->Add(gr_totnc);
     TGraph * gr_totncp = new TGraph(kNSplineP, e, xstotncp);
     gr_totncp->SetName("tot_nc_p");
-    gr_totncp->SetTitle("GENIE cross section graph");
+    FormatXSecGraph(gr_totncp);
     topdir->Add(gr_totncp);
     TGraph * gr_totncn = new TGraph(kNSplineP, e, xstotncn);
     gr_totncn->SetName("tot_nc_n");
-    gr_totncn->SetTitle("GENIE cross section graph");
+    FormatXSecGraph(gr_totncn);
     topdir->Add(gr_totncn);
 
     delete [] e;
@@ -1034,11 +1041,11 @@ void SaveGraphsToRootFile(void)
 
     TGraph * gr_resemp = new TGraph(kNSplineP, e, xsresemp);
     gr_resemp->SetName("res_em_p");
-    gr_resemp->SetTitle("GENIE cross section graph");
+    FormatXSecGraph(gr_resemp);
     topdir->Add(gr_resemp);
     TGraph * gr_resemn = new TGraph(kNSplineP, e, xsresemn);
     gr_resemn->SetName("res_em_n");
-    gr_resemn->SetTitle("GENIE cross section graph");
+    FormatXSecGraph(gr_resemn);
     topdir->Add(gr_resemn);
 
     //
@@ -1075,11 +1082,11 @@ void SaveGraphsToRootFile(void)
     }
     TGraph * gr_disemp = new TGraph(kNSplineP, e, xsdisemp);
     gr_disemp->SetName("dis_em_p");
-    gr_disemp->SetTitle("GENIE cross section graph");
+    FormatXSecGraph(gr_disemp);
     topdir->Add(gr_disemp);
     TGraph * gr_disemn = new TGraph(kNSplineP, e, xsdisemn);
     gr_disemn->SetName("dis_em_n");
-    gr_disemn->SetTitle("GENIE cross section graph");
+    FormatXSecGraph(gr_disemn);
     topdir->Add(gr_disemn);
 
     //
@@ -1114,11 +1121,11 @@ void SaveGraphsToRootFile(void)
     }
     TGraph * gr_disemp_charm = new TGraph(kNSplineP, e, xsdisemp);
     gr_disemp_charm->SetName("dis_em_p_charm");
-    gr_disemp_charm->SetTitle("GENIE cross section graph");
+    FormatXSecGraph(gr_disemp_charm);
     topdir->Add(gr_disemp_charm);
     TGraph * gr_disemn_charm = new TGraph(kNSplineP, e, xsdisemn);
     gr_disemn_charm->SetName("dis_em_n_charm");
-    gr_disemn_charm->SetTitle("GENIE cross section graph");
+    FormatXSecGraph(gr_disemn_charm);
     topdir->Add(gr_disemn_charm);
 
     //
@@ -1163,15 +1170,15 @@ void SaveGraphsToRootFile(void)
 
     TGraph * gr_totem = new TGraph(kNSplineP, e, xstotem);
     gr_totem->SetName("tot_em");
-    gr_totem->SetTitle("GENIE cross section graph");
+    FormatXSecGraph(gr_totem);
     topdir->Add(gr_totem);
     TGraph * gr_totemp = new TGraph(kNSplineP, e, xstotemp);
     gr_totemp->SetName("tot_em_p");
-    gr_totemp->SetTitle("GENIE cross section graph");
+    FormatXSecGraph(gr_totemp);
     topdir->Add(gr_totemp);
     TGraph * gr_totemn = new TGraph(kNSplineP, e, xstotemn);
     gr_totemn->SetName("tot_em_n");
-    gr_totemn->SetTitle("GENIE cross section graph");
+    FormatXSecGraph(gr_totemn);
     topdir->Add(gr_totemn);
 
     delete [] e;
