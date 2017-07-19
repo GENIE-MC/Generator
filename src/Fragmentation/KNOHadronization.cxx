@@ -51,6 +51,7 @@
 #include <TH1D.h>
 #include <TMath.h>
 #include <TF1.h>
+#include <TROOT.h>
 
 #include "Algorithm/AlgConfigPool.h"
 #include "Algorithm/AlgFactory.h"
@@ -524,7 +525,10 @@ void KNOHadronization::LoadConfig(void)
   fBaryonXFpdf  = new TF1("fBaryonXFpdf",
                    "0.083*exp(-0.5*pow(x+0.385,2.)/0.131)",-1,0.5);  
   fBaryonPT2pdf = new TF1("fBaryonPT2pdf", 
-                   "exp(-0.214-6.625*x)",0,0.6);  
+                   "exp(-0.214-6.625*x)",0,0.6); 
+  // stop ROOT from deleting these object of its own volition
+  gROOT->GetListOfFunctions()->Remove(fBaryonXFpdf);
+  gROOT->GetListOfFunctions()->Remove(fBaryonPT2pdf);
 
 /*
   // load legacy KNO spline

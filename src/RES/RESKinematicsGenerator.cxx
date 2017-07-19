@@ -28,6 +28,7 @@
 
 #include <TMath.h>
 #include <TF2.h>
+#include <TROOT.h>
 
 #include "Algorithm/AlgConfigPool.h"
 #include "BaryonResonance/BaryonResonance.h"
@@ -350,6 +351,8 @@ void RESKinematicsGenerator::LoadConfig(void)
   if(fEnvelope) delete fEnvelope;
   fEnvelope = new TF2("res-envelope",
         kinematics::RESImportanceSamplingEnvelope,0.01,1,0.01,1,4);
+  // stop ROOT from deleting this object of its own volition
+  gROOT->GetListOfFunctions()->Remove(fEnvelope);
 }
 //____________________________________________________________________________
 double RESKinematicsGenerator::ComputeMaxXSec(

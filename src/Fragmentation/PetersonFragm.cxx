@@ -14,6 +14,8 @@
 */
 //____________________________________________________________________________
 
+#include <TROOT.h>
+
 #include "Fragmentation/PetersonFragm.h"
 #include "Fragmentation/FragmentationFunctions.h"
 
@@ -69,6 +71,8 @@ void PetersonFragm::BuildFunction(void)
   fFunc = new TF1("fFunc",genie::utils::frgmfunc::peterson_func,0,1,2);
 
   fFunc->SetParNames("Norm","Epsilon");
+  // stop ROOT from deleting this object of its own volition
+  gROOT->GetListOfFunctions()->Remove(fFunc);
 
   double N = fConfig->GetDoubleDef("Norm",   -1);
   double e = fConfig->GetDoubleDef("Epsilon", 0);

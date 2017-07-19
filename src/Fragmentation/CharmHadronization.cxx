@@ -29,6 +29,7 @@
 #include <TPythia6.h>
 #include <TVector3.h>
 #include <TF1.h>
+#include <TROOT.h>
 
 #include "Algorithm/AlgConfigPool.h"
 #include "Conventions/Constants.h"
@@ -710,6 +711,8 @@ void CharmHadronization::LoadConfig(void)
   assert(fFragmFunc);
 
   fCharmPT2pdf = new TF1("fCharmPT2pdf", "exp(-0.213362-6.62464*x)",0,0.6);
+  // stop ROOT from deleting this object of its own volition
+  gROOT->GetListOfFunctions()->Remove(fCharmPT2pdf);
 
   // neutrino charm fractions: D^0, D^+, Ds^+ (remainder: Lamda_c^+)
   //

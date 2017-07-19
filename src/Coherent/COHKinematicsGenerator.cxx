@@ -30,6 +30,7 @@
 
 #include <cstdlib>
 
+#include <TROOT.h>
 #include <TMath.h>
 #include <TF2.h>
 #include "Math/Minimizer.h"
@@ -1013,8 +1014,10 @@ void COHKinematicsGenerator::LoadConfig(void)
   //-- Envelope employed when importance sampling is used 
   //   (initialize with dummy range)
   if(fEnvelope) delete fEnvelope;
-  fEnvelope = new TF2("envelope",
+  fEnvelope = new TF2("CohKinEnvelope",
                       kinematics::COHImportanceSamplingEnvelope,0.,1,0.,1,2);
+  // stop ROOT from deleting this object of its own volition
+  gROOT->GetListOfFunctions()->Remove(fEnvelope);
 }
 //____________________________________________________________________________
 
