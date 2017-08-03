@@ -111,14 +111,15 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
     // (discussion with Hugh - GENIE/NeuGEN integration workshop - 07APR2006
     interaction->SetBit(kIAssumeFreeNucleon);
 
-    // Try to calculate the maximum cross-section and kinematical limits 
-    // if not pre-computed already
-    if(fXSecMax < 0) {
-        LOG("QELEvent", pNOTICE) << "Scanning phase-space...";
-        LOG("QELEvent", pINFO) << "Computing max xsec";
-        fXSecMax = this->ComputeMaxXSec(interaction);
-    }
 
+    //-- For the subsequent kinematic selection with the rejection method:
+    //   Calculate the max differential cross section or retrieve it from the
+    //   cache. Throw an exception and quit the evg thread if a non-positive
+    //   value is found.
+    //   If the kinematics are generated uniformly over the allowed phase
+    //   space the max xsec is irrelevant
+    double xsec_max = (fGenerateUniformly) ? -1 : this->MaxXSec(evrec);
+    
     //
     // Try to generate (simultaneously):
     //    - Fermi momentum (pF), 
@@ -304,9 +305,9 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
         double xsec = this->ComputeXSec(interaction, costheta, phi);
 
         // select/reject event
-        this->AssertXSecLimits(interaction, xsec, fXSecMax);
+        this->AssertXSecLimits(interaction, xsec, xsec_max);
 
-        double t = fXSecMax * rnd->RndKine().Rndm();
+        double t = xsec_max * rnd->RndKine().Rndm();
         //        LOG("QELEvent", pNOTICE) << "dsigma/dQ2 (random) = " << t/(1E-38*units::cm2) << " 1E-38 cm^2/GeV^2";
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
@@ -505,10 +506,7 @@ void QELEventGenerator::LoadConfig(void)
     // Generate kinematics uniformly over allowed phase space and compute
     // an event weight?
     fGenerateUniformly = fConfig->GetBoolDef("UniformOverPhaseSpace", false);
-
-    //fXSecMax = 4e-1; // emqe - 880 MeV
-    //fXSecMax = 8e-11; //neutrino
-    fXSecMax = -1; // what should be used
+    
     //  fQ2min   = 99999999;
     //  fQ2max   = -1;
     fMinAngleEM = fConfig->GetDoubleDef("SF-MinAngleEMscattering",  0);
