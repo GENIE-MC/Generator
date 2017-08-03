@@ -749,7 +749,9 @@ double QELEventGenerator::ComputeXSec( Interaction * interaction, double costhet
         return 0;
     }
     // Check if Q2 above Minimum Q2 // important for eA scattering
-    TLorentzVector qP4 = *(interaction->InitState().GetProbeP4()) - lepton;
+    TLorentzVector * nuP4 = interaction->InitState().GetProbeP4();
+    TLorentzVector qP4 = *nuP4 - lepton;
+    delete nuP4;
     double Q2 = -1 * qP4.Mag2();
 
     interaction->KinePtr()->SetFSLeptonP4(lepton);
