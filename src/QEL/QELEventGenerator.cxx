@@ -719,7 +719,6 @@ TMath::Sqrt(outMomentum*outMomentum + Mp*Mp));
   LOG("QELEvent", pINFO) << "beta EvGen:";
   beta.Print();*/
 
-  
   // Check if event is at a low angle - if so return 0 and stop wasting time
   //double angle = fConfig->GetDoubleDef("MinAngle",  gc->GetDouble("SF-MinAngleEMscattering"));
   //LOG("QELEvent", pINFO) << "min angle = " << fMinAngleEM;
@@ -727,14 +726,14 @@ TMath::Sqrt(outMomentum*outMomentum + Mp*Mp));
     return 0;
   }
   // Check if Q2 above Minimum Q2 // important for eA scattering
-  TLorentzVector qP4 = *(interaction->InitState().GetProbeP4()) - lepton;
+  TLorentzVector * nuP4 = interaction->InitState().GetProbeP4();
+  TLorentzVector qP4 = *nuP4 - lepton;
+  delete nuP4;
   double Q2 = -1 * qP4.Mag2();
   
   interaction->KinePtr()->SetFSLeptonP4(lepton);
   interaction->KinePtr()->SetHadSystP4(outNucleon);
   interaction->KinePtr()->SetQ2(Q2, true);
-
-
 
   // Compute the QE cross section for the current kinematics ("~" variables)
   interaction->InitStatePtr()->TgtPtr()->HitNucP4Ptr()->SetE(EN_onshell);
