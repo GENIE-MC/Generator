@@ -689,8 +689,8 @@ void MECGenerator::SelectNSVLeptonKinematics (GHepRecord * event) const
               // extract xsecmax from the spline making process for C12 and other nuclei.
               //  plot Log10(E) on horizontal and Log10(xsecmax) vertical
               //  and fit a line.  Use that plus 1.35 safety factors to limit the accept/reject loop.
-              double XSecMax = 1.35*TMath::Power(10.0, XSecMaxPar1 * TMath::Log10(Enu) - XSecMaxPar2);
-              if(NuclearA > 12)XSecMax *=  NuclearAfactorXSecMax;  // Scale it by A, precomputed above.
+              double XSecMax = 1.35 * TMath::Power(10.0, XSecMaxPar1 * TMath::Log10(Enu) - XSecMaxPar2);
+              if (NuclearA > 12) XSecMax *=  NuclearAfactorXSecMax;  // Scale it by A, precomputed above.
 
               LOG("MEC", pDEBUG) << " T, Costh: " << T << ", " << Costh ;
 
@@ -718,7 +718,7 @@ void MECGenerator::SelectNSVLeptonKinematics (GHepRecord * event) const
               double XSecPN = fXSecModel->XSec(interaction, kPSTlctl);
 
               if (XSec > XSecMax) {
-		LOG("MEC", pERROR) << "XSec is > XSecMax for nucleus " << TgtPDG << " " 
+                  LOG("MEC", pERROR) << "XSec is > XSecMax for nucleus " << TgtPDG << " " 
 				   << XSec << " > " << XSecMax 
 				   << " don't let this happen.";
               }
@@ -831,9 +831,14 @@ void MECGenerator::SelectNSVLeptonKinematics (GHepRecord * event) const
   // -- Interaction: Q2
   Q0 = Enu - Elep;
   Q2 = Q3*Q3 - Q0*Q0;
+  double gy = Q0 / Enu;
+  double gx = kinematics::Q2YtoX(Enu, 2 * kNucleonMass, Q2, gy);
+  double gW = kinematics::XYtoW(Enu, 2 * kNucleonMass, gx, gy);
 
   interaction->KinePtr()->SetQ2(Q2, true);
-  interaction->KinePtr()->Sety(Q0/Enu, true);
+  interaction->KinePtr()->Sety(gy, true);
+  interaction->KinePtr()->Setx(gx, true);
+  interaction->KinePtr()->SetW(gW, true);
   interaction->KinePtr()->SetFSLeptonP4(p4l);
   // in later methods
   // will also set the four-momentum and W^2 of the hadron system.
