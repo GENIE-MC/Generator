@@ -192,7 +192,7 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
         //
         //         double Mf  = fnucleus -> Mass(); // remnant nucleus mass
         //         double Mi  = nucleus  -> Mass(); // initial nucleus mass
-        //  	 TDatabasePDG *tb = TDatabasePDG::Instance();
+        //       TDatabasePDG *tb = TDatabasePDG::Instance();
         //         double Mn = tb->GetParticle(interaction->InitState().TgtPtr()->HitNucPdg())->Mass();// incoming nucleon mass
         //         double Mp = tb->GetParticle(interaction->RecoilNucleonPdg())->Mass(); // outgoing nucleon mass
 
@@ -254,7 +254,7 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
         //        }
         //
         //        // Get centre-of-mass energy
-        //	 const InitialState & init_state = interaction->InitState();
+        //     const InitialState & init_state = interaction->InitState();
         //        double s = init_state.CMEnergy();
         //        s *= s; //* init_state.CMEnergy(); // centre of mass energy squared
 
@@ -525,7 +525,7 @@ double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const
 
     double xsec_max = -1;
 
-    const int nnucthrows = 1000;
+    const int nnucthrows = 400;
     for(int i=0; i<nnucthrows; i++) {
 
         Interaction * interaction = new Interaction(*in);
@@ -544,56 +544,67 @@ double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const
 
         //        TVector3 p3 = fNuclModel->Momentum3();
         //        double w = fNuclModel->RemovalEnergy();
-        //  	
-        //	TDatabasePDG *tb = TDatabasePDG::Instance();
+        //      
+        //        TDatabasePDG *tb = TDatabasePDG::Instance();
         //        double Mn = tb->GetParticle(interaction->InitState().TgtPtr()->HitNucPdg())->Mass();// outgoing nucleon mass
         //        double Mp = tb->GetParticle(interaction->RecoilNucleonPdg())->Mass(); // incoming nucleon mass
         //        double EN_offshell = Mn - w;
-        ////        double EN_offshell = TMath::Sqrt(Mn*Mn + p3.Dot(p3)) - w;
+        ////      double EN_offshell = TMath::Sqrt(Mn*Mn + p3.Dot(p3)) - w;
         //        
         //        p4->SetPx( p3.Px()    );
         //        p4->SetPy( p3.Py()    );
         //        p4->SetPz( p3.Pz()    );
         //        p4->SetE ( EN_offshell );
-
-
-        int N_theta_coarse = 20;
-        int N_theta_fine = 20;
-        int N_phi_coarse = 20;
-        int N_phi_fine = 20;
-        double phi_max = -1;
-        double costheta_max = 0;
-        double tmp_xsec_max = -1;
-        // Now scan through centre-of-mass angles coarsely
-        for (int com_theta_n(0); com_theta_n < N_theta_coarse; com_theta_n++){
-            double costheta = com_theta_n*2.0/N_theta_coarse - 1.0;
-            for (int com_phi_n(0); com_phi_n < N_phi_coarse; com_phi_n++) { // Scan around phi
-                double phi = com_phi_n * TMath::Pi() * 2.0 / N_phi_coarse;
-                double xs = this->ComputeXSec(interaction, costheta, phi);
-                if (xs > tmp_xsec_max){
-                    phi_max = phi;
-                    costheta_max = costheta;
-                    tmp_xsec_max = xs;
-                }
-                //
-            } // Done with phi scan
-        }// Done with centre-of-mass angles coarsely
-
-        // Now scan through centre-of-mass angles finely around maximum
-        // Phi and theta are scanned around max xsec, within 2 coarse points either way
-        for (int com_theta_n(0); com_theta_n < N_theta_fine; com_theta_n++){
-            double costheta = costheta_max - (4.0/N_theta_coarse)*(1.0 - (2.0*com_theta_n/N_theta_fine -1.0)); 
-            for (int com_phi_n(0); com_phi_n < N_phi_fine; com_phi_n++) { // Scan around phi
-                double phi = phi_max - (4*TMath::Pi()/N_phi_coarse)*(1.0 - (2.0*com_phi_n/N_phi_fine));
-                double xs = this->ComputeXSec(interaction, costheta, phi);
-                if (xs > tmp_xsec_max){
-                    tmp_xsec_max = xs;
-                }           
-            } // Done with phi scan
-        }// Done with centre-of-mass angles finely
-        if (tmp_xsec_max > xsec_max){
-            xsec_max = tmp_xsec_max;  // this nucleon has the highest xsec!
-            LOG("QELEvent", pINFO) << "best estimate for xsec_max = ";
+        
+        // OK, we're going to scan the centre-of-mass angles to get the point of max xsec
+        // We'll bin in solid angle, and find the maximum point
+        // Then we'll bin/scan again inside that point
+        // Rinse and repeat until the xsec stabilises to within some fraction of our safety factor
+        const double acceptable_fraction_of_safety_factor = 0.5;
+        const int max_n_layers = 100;
+        const int N_theta = 10;
+        const int N_phi = 10;
+        double phi_at_xsec_max = -1;
+        double costh_at_xsec_max = 0;
+        double this_nuc_xsec_max = -1;
+        
+        double costh_range_min = 0.;
+        double costh_range_max = 1.;
+        double phi_range_min = 0.;
+        double phi_range_max = 2*TMath::Pi();
+        for (int ilayer = 0 ; ilayer < max_n_layers ; ilayer++) {
+          double last_layer_xsec_max = this_nuc_xsec_max;
+          double costh_increment = (costh_range_max-costh_range_min) / N_theta;
+          double phi_increment   = (phi_range_max-phi_range_min) / N_phi;
+          // Now scan through centre-of-mass angles coarsely
+          for (int itheta = 0; itheta < N_theta; itheta++){
+              double costh = costh_range_min + itheta * costh_increment;
+              for (int iphi = 0; iphi < N_phi; iphi++) { // Scan around phi
+                  double phi = phi_range_min + iphi * phi_increment;
+                  double xs = this->ComputeXSec(interaction, costh, phi);
+                  if (xs > this_nuc_xsec_max){
+                      phi_at_xsec_max = phi;
+                      costh_at_xsec_max = costh;
+                      this_nuc_xsec_max = xs;
+                  }
+                  //
+              } // Done with phi scan
+          }// Done with centre-of-mass angles coarsely
+          
+          // Calculate the range for the next layer
+          costh_range_min = costh_at_xsec_max - costh_increment;
+          costh_range_max = costh_at_xsec_max + costh_increment;
+          phi_range_min = phi_at_xsec_max - phi_increment;
+          phi_range_max = phi_at_xsec_max + phi_increment;
+          
+          double improvement_factor = this_nuc_xsec_max/last_layer_xsec_max;
+          if (ilayer && (improvement_factor-1) < acceptable_fraction_of_safety_factor * (fSafetyFactor-1)) {
+            break;
+          }
+        }
+        if (this_nuc_xsec_max > xsec_max){
+            xsec_max = this_nuc_xsec_max;  // this nucleon has the highest xsec!
+            LOG("QELEvent", pINFO) << "best estimate for xsec_max = "<<xsec_max;
         }
 
         delete interaction;
