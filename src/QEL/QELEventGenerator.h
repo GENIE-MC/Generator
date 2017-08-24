@@ -62,8 +62,7 @@ private:
 
 
   const NuclearModelI *  fNuclModel;   ///< nuclear model
-
-  mutable double fXSecMax;
+  
   //mutable double fQ2min;
   //mutable double fQ2max;
   //
