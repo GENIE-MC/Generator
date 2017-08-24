@@ -568,7 +568,7 @@ double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const
         double costh_at_xsec_max = 0;
         double this_nuc_xsec_max = -1;
         
-        double costh_range_min = 0.;
+        double costh_range_min = -1.;
         double costh_range_max = 1.;
         double phi_range_min = 0.;
         double phi_range_max = 2*TMath::Pi();
