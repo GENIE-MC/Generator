@@ -491,7 +491,7 @@ void QELEventGenerator::LoadConfig(void)
     assert(fNuclModel);
 
     // Safety factor for the maximum differential cross section
-    fSafetyFactor = fConfig->GetDoubleDef("MaxXSec-SafetyFactor", 1.25);
+    fSafetyFactor = fConfig->GetDoubleDef("MaxXSec-SafetyFactor", 1.6);
 
     // Minimum energy for which max xsec would be cached, forcing explicit
     // calculation for lower eneries
@@ -525,8 +525,8 @@ double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const
 
     double xsec_max = -1;
 
-    const int nnucthrows = 400;
-    for(int i=0; i<nnucthrows; i++) {
+    const int nnucthrows = 800;
+    for(int inuc = 0; inuc <nnucthrows; inuc++) {
 
         Interaction * interaction = new Interaction(*in);
         interaction->SetBit(kISkipProcessChk);
@@ -560,7 +560,7 @@ double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const
         // We'll bin in solid angle, and find the maximum point
         // Then we'll bin/scan again inside that point
         // Rinse and repeat until the xsec stabilises to within some fraction of our safety factor
-        const double acceptable_fraction_of_safety_factor = 0.5;
+        const double acceptable_fraction_of_safety_factor = 0.2;
         const int max_n_layers = 100;
         const int N_theta = 10;
         const int N_phi = 10;
