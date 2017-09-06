@@ -8,7 +8,7 @@
 
           This algorithm produces in principle what you could also get from 
           the genie::RESXSec algorithm (RES cross section integrator) by 
-          specifying the genie::eresMAIDRESPXSec as the differential 
+          specifying the genie::eresMAIDRESXSec as the differential 
           cross section model. However, eresMAIDRESXSec offers a faster 
           alternative. Before computing any RES cross section this algorithm 
           computes and caches splines for resonance neutrino-production cross 
@@ -31,8 +31,8 @@
 */
 //____________________________________________________________________________
 
-#ifndef _eresMAID_XSEC_H_
-#define _eresMAID_XSEC_H_
+#ifndef _ERESMAID_RES_XSEC_H_
+#define _ERESMAID_RES_XSEC_H_
 
 #include "eresMAID/eresMAIDRESXSecWithCache.h"
 
@@ -58,5 +58,5 @@ private:
 };
 
 }       // genie namespace
-#endif  // _REIN_SEHGAL_RES_XSEC_H_
+#endif  // _ERESMAID_RES_XSEC_H_
 

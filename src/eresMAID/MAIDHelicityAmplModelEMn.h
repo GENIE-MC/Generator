@@ -20,8 +20,8 @@
 */
 //____________________________________________________________________________
 
-#ifndef _eresMAID_HELICITY_AMPL_MODEL_EM_N_H_
-#define _eresMAID_HELICITY_AMPL_MODEL_EM_N_H_
+#ifndef _MAID_HELICITY_AMPL_MODEL_EM_N_H_
+#define _MAID_HELICITY_AMPL_MODEL_EM_N_H_
 
 #include "eresMAID/MAIDHelicityAmplModelI.h"
 
@@ -42,4 +42,4 @@ private:
 };
 
 }        // genie namespace
-#endif   // _HELICITY_AMPL_MODEL_EM_N_H_
+#endif   // _MAID_HELICITY_AMPL_MODEL_EM_N_H_

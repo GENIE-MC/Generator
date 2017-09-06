@@ -163,7 +163,7 @@ double ReinSehgalRESPXSec::XSec(
   double Go  = TMath::Power(1 - 0.25 * q2/Mnuc2, 0.5-IR);
   double GV  = Go * TMath::Power( 1./(1-q2/fMv2), 2);
   double GA  = Go * TMath::Power( 1./(1-q2/fMa2), 2);
-
+  //vector and axial vector ---------------------------------
   if(is_EM) { 
     GA = 0.; // zero the axial term for EM scattering
   }

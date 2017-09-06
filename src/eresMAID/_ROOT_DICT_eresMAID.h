@@ -33,12 +33,15 @@ extern void G__set_cpp_environment_ROOT_DICT_eresMAID();
 #include "TMemberInspector.h"
 #include "FKR.h"
 #include "MAIDHelicityAmpl.h"
+#include "MAIDHelicityAmplModelCC.h"
 #include "MAIDHelicityAmplModelEMn.h"
 #include "MAIDHelicityAmplModelEMp.h"
 #include "MAIDHelicityAmplModelI.h"
 #include "eresMAIDRESPXSec.h"
 #include "eresMAIDRESXSec.h"
 #include "eresMAIDRESXSecWithCache.h"
+#include "eresMAIDSPPPXSec.h"
+#include "eresMAIDSPPXSec.h"
 #include <algorithm>
 namespace std { }
 using namespace std;
@@ -105,6 +108,7 @@ extern G__linked_taginfo G___ROOT_DICT_eresMAIDLN_maplEstringcOgeniecLcLAlgorith
 extern G__linked_taginfo G___ROOT_DICT_eresMAIDLN_pairlEstringcOgeniecLcLAlgorithmmUgR;
 extern G__linked_taginfo G___ROOT_DICT_eresMAIDLN_maplEstringcOgeniecLcLAlgorithmmUcOlesslEstringgRcOallocatorlEpairlEconstsPstringcOgeniecLcLAlgorithmmUgRsPgRsPgRcLcLiterator;
 extern G__linked_taginfo G___ROOT_DICT_eresMAIDLN_geniecLcLMAIDHelicityAmplModelI;
+extern G__linked_taginfo G___ROOT_DICT_eresMAIDLN_geniecLcLMAIDHelicityAmplModelCC;
 extern G__linked_taginfo G___ROOT_DICT_eresMAIDLN_geniecLcLMAIDHelicityAmplModelEMn;
 extern G__linked_taginfo G___ROOT_DICT_eresMAIDLN_geniecLcLMAIDHelicityAmplModelEMp;
 extern G__linked_taginfo G___ROOT_DICT_eresMAIDLN_geniecLcLEKinePhaseSpace;
@@ -117,5 +121,7 @@ extern G__linked_taginfo G___ROOT_DICT_eresMAIDLN_vectorlEgeniecLcLEResonancecOa
 extern G__linked_taginfo G___ROOT_DICT_eresMAIDLN_reverse_iteratorlEvectorlEgeniecLcLEResonancecOallocatorlEgeniecLcLEResonancegRsPgRcLcLiteratorgR;
 extern G__linked_taginfo G___ROOT_DICT_eresMAIDLN_geniecLcLeresMAIDRESXSecWithCache;
 extern G__linked_taginfo G___ROOT_DICT_eresMAIDLN_geniecLcLeresMAIDRESXSec;
+extern G__linked_taginfo G___ROOT_DICT_eresMAIDLN_geniecLcLeresMAIDSPPPXSec;
+extern G__linked_taginfo G___ROOT_DICT_eresMAIDLN_geniecLcLeresMAIDSPPXSec;
 
 /* STUB derived class for protected member access */

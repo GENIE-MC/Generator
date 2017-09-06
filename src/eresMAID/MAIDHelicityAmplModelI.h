@@ -15,8 +15,8 @@
 */
 //____________________________________________________________________________
 
-#ifndef _eresMAID_HELICITY_AMPL_MODEL_I_H_
-#define _eresMAID_HELICITY_AMPL_MODEL_I_H_
+#ifndef _MAID_HELICITY_AMPL_MODEL_I_H_
+#define _MAID_HELICITY_AMPL_MODEL_I_H_
 
 #include "Algorithm/Algorithm.h"
 #include "BaryonResonance/BaryonResonance.h"
@@ -31,7 +31,7 @@ public:
   virtual ~MAIDHelicityAmplModelI();
 
   // define the MAIDHelicityAmplModelI interface
-  virtual const MAIDHelicityAmpl & Compute(Resonance_t res, const FKR & fkr, const Interaction * interaction) const = 0;
+  virtual const MAIDHelicityAmpl & Compute(Resonance_t res, const FKR & fkr,const Interaction * interaction) const = 0;
 
 protected:
   MAIDHelicityAmplModelI();
@@ -41,7 +41,7 @@ protected:
 
 }        // namespace
 
-#endif   // _REIN_SEHGAL_HELICITY_AMPL_MODEL_I_H_
+#endif   // _MAID_HELICITY_AMPL_MODEL_I_H_
 
 
 

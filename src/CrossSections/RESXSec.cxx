@@ -60,7 +60,7 @@ double RESXSec::Integrate(
 
   const KPhaseSpace & kps = in->PhaseSpace();
   if(!kps.IsAboveThreshold()) {
-     LOG("COHXSec", pDEBUG)  << "*** Below energy threshold";
+     LOG("RESXSec", pDEBUG)  << "*** Below energy threshold";
      return 0;
   }
   Range1D_t Q2l = kps.Limits(kKVQ2);

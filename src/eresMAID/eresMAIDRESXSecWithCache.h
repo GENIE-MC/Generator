@@ -22,8 +22,8 @@
 */
 //____________________________________________________________________________
 
-#ifndef _eresMAID_XSEC_WITH_CACHE_H_
-#define _eresMAID_XSEC_WITH_CACHE_H_
+#ifndef _ERESMAID_RES_XSEC_WITH_CACHE_H_
+#define _ERESMAID_RES_XSEC_WITH_CACHE_H_
 
 #include "Base/XSecIntegratorI.h"
 #include "BaryonResonance/BaryonResList.h"
@@ -54,5 +54,5 @@ protected:
 };
 
 }       // genie namespace
-#endif  // _REIN_SEHGAL_RES_XSEC_WITH_CACHE_H_
+#endif  // _ERESMAID_RES_XSEC_WITH_CACHE_H_
 

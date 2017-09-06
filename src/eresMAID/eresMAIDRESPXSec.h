@@ -28,8 +28,8 @@
 */
 //____________________________________________________________________________
 
-#ifndef _eresMAID_PXSEC_H_
-#define _eresMAID_PXSEC_H_
+#ifndef _ERESMAID_RES_PXSEC_H_
+#define _ERESMAID_RES_PXSEC_H_
 
 #include "Base/XSecAlgorithmI.h"
 #include "BaryonResonance/BaryonResonance.h"
@@ -93,4 +93,4 @@ private:
 
 }       // genie namespace
 
-#endif  // _REIN_SEHGAL_RES_PXSEC_H_
+#endif  // _eresMAID_RES_PXSEC_H_

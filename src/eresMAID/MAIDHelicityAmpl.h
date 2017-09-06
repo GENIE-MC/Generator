@@ -21,8 +21,8 @@
 */
 //____________________________________________________________________________
 
-#ifndef _eresMAID_HELICITY_AMPL_H_
-#define _eresMAID_HELICITY_AMPL_H_
+#ifndef _MAID_HELICITY_AMPL_H_
+#define _MAID_HELICITY_AMPL_H_
 
 #include <iostream>
 
@@ -86,6 +86,6 @@ private:
 
 }        // genie namespace
 
-#endif   // _RS_HELICITY_AMPL_H_
+#endif   // _MAID_HELICITY_AMPL_H_
 
 
