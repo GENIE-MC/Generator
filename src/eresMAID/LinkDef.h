@@ -15,6 +15,8 @@
 #pragma link C++ class genie::MAIDHelicityAmpl;
 #pragma link C++ class genie::MAIDHelicityAmplModelI;
 #pragma link C++ class genie::MAIDHelicityAmplModelCC;
+#pragma link C++ class genie::MAIDHelicityAmplModelNCp;
+#pragma link C++ class genie::MAIDHelicityAmplModelNCn;
 #pragma link C++ class genie::MAIDHelicityAmplModelEMp;
 #pragma link C++ class genie::MAIDHelicityAmplModelEMn;
 

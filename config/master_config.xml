@@ -109,6 +109,13 @@
    <config alg="genie::RSHelicityAmplModelEMp">                  RSHelicityAmplModelEMp.xml                  </config>
    <config alg="genie::RSHelicityAmplModelEMn">                  RSHelicityAmplModelEMn.xml                  </config>
 
+   <config alg="genie::MAIDHelicityAmplModelCC">                   MAIDHelicityAmplModelCC.xml                   </config>
+   <config alg="genie::MAIDHelicityAmplModelNCp">                  MAIDHelicityAmplModelNCp.xml                  </config>
+   <config alg="genie::MAIDHelicityAmplModelNCn">                  MAIDHelicityAmplModelNCn.xml                  </config>
+   <config alg="genie::MAIDHelicityAmplModelEMp">                  MAIDHelicityAmplModelEMp.xml                  </config>
+   <config alg="genie::MAIDHelicityAmplModelEMn">                  MAIDHelicityAmplModelEMn.xml                  </config>
+
+
    <!--  ****** CONFIGURATION GENERIC CROSS SECTION INTEGRATORS ****** -->
    <config alg="genie::QELXSec">                     QELXSec.xml                     </config>
    <config alg="genie::DISXSec">                     DISXSec.xml                     </config>

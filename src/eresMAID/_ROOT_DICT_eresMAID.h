@@ -37,6 +37,8 @@ extern void G__set_cpp_environment_ROOT_DICT_eresMAID();
 #include "MAIDHelicityAmplModelEMn.h"
 #include "MAIDHelicityAmplModelEMp.h"
 #include "MAIDHelicityAmplModelI.h"
+#include "MAIDHelicityAmplModelNCn.h"
+#include "MAIDHelicityAmplModelNCp.h"
 #include "eresMAIDRESPXSec.h"
 #include "eresMAIDRESXSec.h"
 #include "eresMAIDRESXSecWithCache.h"
@@ -111,6 +113,8 @@ extern G__linked_taginfo G___ROOT_DICT_eresMAIDLN_geniecLcLMAIDHelicityAmplModel
 extern G__linked_taginfo G___ROOT_DICT_eresMAIDLN_geniecLcLMAIDHelicityAmplModelCC;
 extern G__linked_taginfo G___ROOT_DICT_eresMAIDLN_geniecLcLMAIDHelicityAmplModelEMn;
 extern G__linked_taginfo G___ROOT_DICT_eresMAIDLN_geniecLcLMAIDHelicityAmplModelEMp;
+extern G__linked_taginfo G___ROOT_DICT_eresMAIDLN_geniecLcLMAIDHelicityAmplModelNCn;
+extern G__linked_taginfo G___ROOT_DICT_eresMAIDLN_geniecLcLMAIDHelicityAmplModelNCp;
 extern G__linked_taginfo G___ROOT_DICT_eresMAIDLN_geniecLcLEKinePhaseSpace;
 extern G__linked_taginfo G___ROOT_DICT_eresMAIDLN_geniecLcLXSecAlgorithmI;
 extern G__linked_taginfo G___ROOT_DICT_eresMAIDLN_geniecLcLSpline;
