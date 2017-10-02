@@ -120,11 +120,10 @@ void GBGLRSAtmoFlux::SetBinSizes(void)
     } 
   }      
 
-  fMaxEv = fEnergyBins[fNumEnergyBins];
-
   fNumPhiBins      = 1;
   fNumCosThetaBins = kBGLRS3DNumCosThetaBins;
   fNumEnergyBins   = kBGLRS3DNumLogEvBinsLow + kBGLRS3DNumLogEvBinsHigh; 
+  fMaxEv = fEnergyBins[fNumEnergyBins];
 }
 //___________________________________________________________________________
 bool GBGLRSAtmoFlux::FillFluxHisto(int nu_pdg, string filename)
