@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for the REIN-SEHGAL vp NC Helicity Amplitude Model 
+
+Configurable Parameters:
+..........................................................................................................................
+Name                        Type    Opt  Comment                                               Default
+..........................................................................................................................
+-->
+
+  <param_set name="Default"> 
+  </param_set>
+
+</alg_conf>
+
+
