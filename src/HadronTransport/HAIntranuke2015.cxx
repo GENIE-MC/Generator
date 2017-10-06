@@ -223,7 +223,7 @@ INukeFateHA_t HAIntranuke2015::HadronFateHA(const GHepParticle * p) const
   int    pdgc = p->Pdg();
   double ke   = p->KinE() / units::MeV;
 
-  bool isPion = (pdgc == kPdgPiP or pdgc == kPdgPi0 or pdgc == kPdgPiM); 
+  // bool isPion = (pdgc == kPdgPiP or pdgc == kPdgPi0 or pdgc == kPdgPiM); 
 
  
   LOG("HAIntranuke2015", pINFO) 
