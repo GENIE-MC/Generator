@@ -24,16 +24,7 @@ DelRNucleon         double  Yes   mult. factor for nucleon de-Broglie wavelength
 -->
 
   <param_set name="Default"> 
-  <param type="bool" name="HAINUKE-UseOset"> true  </param>
-  <param type="bool" name="HAINUKE-AltOset"> false </param>
-  <param type="bool" name="INUKE-XsecNNCorr"> false </param>
   </param_set>
   
-  <!-- The Lower 4 lines are for testing. -->
-  <param_set name="OsetOff"> 
-    <param type="bool" name="HNINUKE-UseOset"> false </param>
-    <param type="bool" name="HNINUKE-AltOset"> false </param>
-  </param_set>
-
 </alg_conf>
 
