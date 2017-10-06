@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2017, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2015, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -680,7 +680,10 @@ bool genie::utils::intranuke2015::TwoBodyCollision(
  LOG("TwoBodyCollision",pINFO)
 	<< "pcode = " << pcode << "  " 
 	<< "t4P1L.E, M " << "   " << t4P1L.E()<< "   "<< M1;
+ // avoid problems at low kinetic energy
  if((pcode==2112||pcode==2212)&&(t4P1L.E()-M1)<.1) bindE = 0.0;
+ if((pcode==211||pcode==-211||pcode==111)&&(t4P1L.E()-M1)<.05) bindE = 0.0;
+ if((pcode==321)&&(t4P1L.E()-M1)<.1) bindE = 0.0;
  LOG("TwoBodyCollision",pINFO)   << "BE = " << bindE;
   // carry out scattering
   TLorentzVector t4P3L, t4P4L;
