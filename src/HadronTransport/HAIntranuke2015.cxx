@@ -42,10 +42,6 @@
    Added 2014 version of INTRANUKE codes (new class) for independent development.
  @ Aug 30, 2016 - SD
    Fix memory leaks - Igor. 
- @ Oct 14, 2016 - SD
-   Oset will be standard in new versions of hA 
- @ Dec, 2016 - SD 
-   Use Oset for hA2015
 */
 //____________________________________________________________________________
 
@@ -80,7 +76,6 @@
 #include "PDG/PDGUtils.h"
 #include "Utils/PrintUtils.h"
 #include "Utils/NuclearUtils.h"
-#include "HadronTransport/INukeOset.h" 
 
 using std::ostringstream;
 
@@ -229,7 +224,6 @@ INukeFateHA_t HAIntranuke2015::HadronFateHA(const GHepParticle * p) const
   double ke   = p->KinE() / units::MeV;
 
   bool isPion = (pdgc == kPdgPiP or pdgc == kPdgPi0 or pdgc == kPdgPiM); 
-  if (isPion and fUseOset and ke < 350.0) return this->HadronFateOset(); 
 
  
   LOG("HAIntranuke2015", pINFO) 
@@ -1383,7 +1377,7 @@ void HAIntranuke2015::LoadConfig(void)
   fDoFermi       = fConfig->GetBoolDef   ("DoFermi",      gc->GetBool("INUKE-DoFermi"));
   fFreeStep      = fConfig->GetDoubleDef ("FreeStep",     gc->GetDouble("INUKE-FreeStep"));
   fDoCompoundNucleus = fConfig->GetBoolDef ("DoCompoundNucleus", gc->GetBool("INUKE-DoCompoundNucleus"));
-  fUseOset        = fConfig->GetBoolDef ("UseOset", true);
+  fUseOset        = fConfig->GetBoolDef ("UseOset", false);
   fAltOset        = fConfig->GetBoolDef ("AltOset", false);
   fXsecNNCorr     = fConfig->GetBoolDef ("XsecNNCorr", gc->GetBool("INUKE-XsecNNCorr"));
 
@@ -1406,20 +1400,4 @@ void HAIntranuke2015::LoadConfig(void)
 }
 //___________________________________________________________________________
 
-INukeFateHA_t HAIntranuke2015::HadronFateOset () const
-{
-  const double fractionAbsorption = osetUtils::currentInstance->
-                                    getAbsorptionFraction();
-  const double fractionCex = osetUtils::currentInstance->getCexFraction ();
 
-  RandomGen *randomGenerator = RandomGen::Instance();
-  const double randomNumber  = randomGenerator->RndFsi().Rndm();
-
-  LOG("HAIntranuke2015", pINFO) 
-    << "\n frac{" << INukeHadroFates::AsString(kIHAFtCEx)     << "} = " << fractionCex
-    << "\n frac{" << INukeHadroFates::AsString(kIHAFtInelas)  << "} = " << 1-fractionCex-fractionAbsorption
-    << "\n frac{" << INukeHadroFates::AsString(kIHAFtAbs)     << "} = " << fractionAbsorption;
-  if (randomNumber < fractionAbsorption && fRemnA > 1) return kIHAFtAbs;
-  else if (randomNumber < fractionAbsorption + fractionCex) return kIHAFtCEx;
-  else return kIHAFtInelas;
-}
