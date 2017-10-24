@@ -72,40 +72,46 @@ bool EffectiveSF::GenerateNucleon(const Target & target) const
 
   //-- set fermi momentum vector
   //
-  TH1D * prob = this->ProbDistro(target);
-  if(!prob) {
-    LOG("EffectiveSF", pNOTICE)
+
+  if ( target.A() > 1 ) {
+    TH1D * prob = this->ProbDistro(target);
+    if(!prob) {
+      LOG("EffectiveSF", pNOTICE)
               << "Null nucleon momentum probability distribution";
-    exit(1);
-  }
-  double p = prob->GetRandom();
+      exit(1);
+    }
+
+    double p = prob->GetRandom();
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("EffectiveSF", pDEBUG) << "|p,nucleon| = " << p;
+    LOG("EffectiveSF", pDEBUG) << "|p,nucleon| = " << p;
 #endif
 
-  RandomGen * rnd = RandomGen::Instance();
+    RandomGen * rnd = RandomGen::Instance();
 
-  double costheta = -1. + 2. * rnd->RndGen().Rndm();
-  double sintheta = TMath::Sqrt(1.-costheta*costheta);
-  double fi       = 2 * kPi * rnd->RndGen().Rndm();
-  double cosfi    = TMath::Cos(fi);
-  double sinfi    = TMath::Sin(fi);
+    double costheta = -1. + 2. * rnd->RndGen().Rndm();
+    double sintheta = TMath::Sqrt(1.-costheta*costheta);
+    double fi       = 2 * kPi * rnd->RndGen().Rndm();
+    double cosfi    = TMath::Cos(fi);
+    double sinfi    = TMath::Sin(fi);
 
-  double px = p*sintheta*cosfi;
-  double py = p*sintheta*sinfi;
-  double pz = p*costheta;  
+    double px = p*sintheta*cosfi;
+    double py = p*sintheta*sinfi;
+    double pz = p*costheta;
 
-  fCurrMomentum.SetXYZ(px, py, pz);
+    fCurrMomentum.SetXYZ(px, py, pz);
+
+  }
 
   //-- set removal energy 
   //
+
   fCurrRemovalEnergy = this->ReturnBindingEnergy(target);
   double f1p1h = this->Returnf1p1h(target);
   // Since TE increases the QE peak via a 2p2h process, we decrease f1p1h
   // in order to increase the 2p2h interaction to account for this enhancement.
   f1p1h /= this->GetTransEnh1p1hMod(target);
-  if (rnd->RndGen().Rndm() < f1p1h) {
+  if ( RandomGen::Instance() -> RndGen().Rndm() < f1p1h) {
     fFermiMoverInteractionType = kFermiMoveEffectiveSF1p1h;
   } else if (fEjectSecondNucleon2p2h) {
     fFermiMoverInteractionType = kFermiMoveEffectiveSF2p2h_eject;
