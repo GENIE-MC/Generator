@@ -470,14 +470,34 @@ if(-e $MKCONF_FILE) {
 }
 
 sub auto_detect {
-
-  @search_dir  = ("/usr","/opt","/lib");           # std search paths
+  
+  # First place to look when autodetecting is in the directories in LD_LIBRARY_PATH
+  my @libdirs = ( );
+  push (@libdirs,split(":",$ENV{LD_LIBRARY_PATH}))    if defined $ENV{LD_LIBRARY_PATH};  
+  push (@libdirs,split(":",$ENV{DYLD_LIBRARY_PATH}))  if defined $ENV{DYLD_LIBRARY_PATH}; #and the mac equivalent
+  my @search_dir = ();
+  foreach my $libdir (unique_entries(@libdirs)) {
+    chomp($libdir);
+    if (not $libdir) {next;}
+    push (@search_dir, $libdir); # Append the LD library path directory
+    @pathdirs = split("/",$libdir);
+    $lastdir = pop(@pathdirs);
+    $basedir = join("/",@pathdirs);
+    if ($lastdir =~ m/lib/) {# If the LD_LIBRARY_PATH has "lib" in it, append "../include"
+      push (@search_dir, $basedir."/include"); 
+    }
+  }
+  push (@search_dir,"/usr");                        # Add usr
+  push (@search_dir,"/lib");                        # Add opt 
+  push (@search_dir,"/opt");                        # Add opt 
   push (@search_dir,"$ENV{'HOME'}") 
                  if defined $ENV{'HOME'};          # add $HOME
   push (@search_dir,"/hep");                       # add where I add ext apps in my mac book air
   push (@search_dir,"$ENV{'RSD_TOP_DIR'}") 
                  if defined $ENV{'RSD_TOP_DIR'};   # add where RSD puts ext supporting libs
-
+  
+  @search_dir = unique_entries(@search_dir); # Search each dir only once
+    
   $search_file = shift; 
   $optional_fullpath_substr = shift; # extra help in locating the correct file
 
@@ -486,9 +506,15 @@ sub auto_detect {
   foreach(@search_dir) {
      $curr_dir = $_;
      if(! -d $curr_dir) {next;}
-     @matches = `find $curr_dir -type f -maxdepth 7 -name $search_file 2> /dev/null | grep \"$optional_fullpath_substr\"`;
+     @matches = `find $curr_dir/ -type f -maxdepth 7 -name \"$search_file\" 2> /dev/null | grep \"$optional_fullpath_substr\"`;
      $nmatches = @matches;
      if( $nmatches > 0) { return $matches[0]; }
   }
   return "";
+}
+
+# Get unique entries in an array
+sub unique_entries {
+  my %seen;
+  return grep { !$seen{$_}++ } @_;
 }
