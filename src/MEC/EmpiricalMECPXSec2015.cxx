@@ -224,12 +224,10 @@ double EmpiricalMECPXSec2015::Integral(const Interaction * interaction) const
      //     double fFracCCQE = fFracCCQElo;
 
      double fFracCCQE_cluster=0.;
-     // see the isem case below.  For cc neutrino, one initial state is not accessible. 
-     double npfrac_CC = fFracPN_CC / (fFracPN_CC + 0.5*(1-fFracPN_CC)); //  0.888... if fFracPN = 0.8 
-     if(pdg::IsNeutrino(nupdg) && nucleon_cluster_pdg==2000000201) fFracCCQE_cluster= npfrac_CC;  //n+p
-     if(pdg::IsNeutrino(nupdg) && nucleon_cluster_pdg==2000000200) fFracCCQE_cluster= 1.0-npfrac_CC;  //n+n
-     if(pdg::IsAntiNeutrino(nupdg) && nucleon_cluster_pdg==2000000201) fFracCCQE_cluster= npfrac_CC;   //n+p
-     if(pdg::IsAntiNeutrino(nupdg) && nucleon_cluster_pdg==2000000202) fFracCCQE_cluster= 1.0-npfrac_CC;   //p+p
+     if(pdg::IsNeutrino(nupdg) && nucleon_cluster_pdg==2000000201) fFracCCQE_cluster= fFracPN_CC;  //n+p
+     if(pdg::IsNeutrino(nupdg) && nucleon_cluster_pdg==2000000200) fFracCCQE_cluster= 1.0-fFracPN_CC;  //n+n
+     if(pdg::IsAntiNeutrino(nupdg) && nucleon_cluster_pdg==2000000201) fFracCCQE_cluster= fFracPN_CC;   //n+p
+     if(pdg::IsAntiNeutrino(nupdg) && nucleon_cluster_pdg==2000000202) fFracCCQE_cluster= 1.0-fFracPN_CC;   //p+p
 
 
      xsec *= fFracCCQE*fFracCCQE_cluster;
@@ -257,11 +255,10 @@ double EmpiricalMECPXSec2015::Integral(const Interaction * interaction) const
     // Use tunable fraction 
     // FFracNCQE is fraction of QE going to MEC
     // fFracNCQE_cluster is fraction of MEC going to each NN pair
-     double npfrac_NC = fFracPN_NC / (fFracPN_NC + 0.5*(1-fFracPN_NC)); //  0.888... if fFracPN = 0.8 
     double fFracNCQE_cluster=0.;
-    if(nucleon_cluster_pdg==2000000200) fFracNCQE_cluster= 0.5*(1-npfrac_NC);  //n+n
-    if(nucleon_cluster_pdg==2000000201) fFracNCQE_cluster= npfrac_NC;  //n+p
-    if(nucleon_cluster_pdg==2000000202) fFracNCQE_cluster= 0.5*(1-npfrac_NC);  //p+p
+    if(nucleon_cluster_pdg==2000000200) fFracNCQE_cluster= 0.5*(1-fFracPN_NC);  //n+n
+    if(nucleon_cluster_pdg==2000000201) fFracNCQE_cluster= fFracPN_NC;  //n+p
+    if(nucleon_cluster_pdg==2000000202) fFracNCQE_cluster= 0.5*(1-fFracPN_NC);  //p+p
     xsec *= fFracNCQE*fFracNCQE_cluster;
     delete inn;
     delete inp;
