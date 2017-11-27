@@ -114,6 +114,15 @@ LOG_INCLUDES  := -I$(LOG_INC_DIR)
 LOG_LIBRARIES := -L$(LOG_LIB_DIR) -llog4cpp
 
 #-------------------------------------------------------------------
+#                             gsl
+#-------------------------------------------------------------------
+
+# gsl libraries and headers
+
+GSL_INCLUDES  := 
+GSL_LIBRARIES := $(shell gsl-config --libs)
+
+#-------------------------------------------------------------------
 #                     libfortran and/or libg2c
 #-------------------------------------------------------------------
 
@@ -510,6 +519,7 @@ LIBRARIES := $(SYSLIBS) \
              $(LHAPDF_LIBRARIES) \
              $(XML_LIBRARIES) \
              $(LOG_LIBRARIES) \
+             $(GSL_LIBRARIES) \
              $(GPROF_LIBRARIES) \
 	     $(EXTRALIBS)
 
