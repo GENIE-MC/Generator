@@ -14,22 +14,24 @@ include $(GENIE)/src/make/Make.include
 
 GENIE_LIBS  = $(shell $(GENIE)/src/scripts/setup/genie-config --libs)
 
-LIBRARIES  := $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
+# Mac OS X -bind_at_load means we must list the low level libraries
+# first, and each stage must fully resolved before the next library
+LIBRARIES  := $(LIBRARIES) $(CERN_LIBRARIES) $(GENIE_LIBS)
 
-TGT_BASE =    gevgen		  	\
-	 gevgen_hadron          \
-	 gevdump          	\
-	 gevpick	        \
-	 gevscan	        \
-	 gevcomp	        \
-	 gxscomp	        \
-	 gmkspl  	  	\
-	 gspladd   	  	\
-	 gspl2root	  	\
-	 gntpc	  		\
-	 gpdfcomp		\
-	 gsfcomp
-	 
+TGT_BASE =  gevgen          \
+            gevgen_hadron   \
+            gevdump         \
+            gevpick         \
+            gevscan         \
+            gevcomp         \
+            gxscomp         \
+            gmkspl          \
+            gspladd         \
+            gspl2root       \
+            gntpc           \
+            gpdfcomp        \
+            gsfcomp
+
 ifeq ($(strip $(GOPT_ENABLE_FNAL)),YES)
 TGT_BASE += gevgen_fnal
 endif
@@ -48,9 +50,9 @@ TGT_BASE += gevgen_nosc
 # Require C++11 for NeutronOsc module.
 GCC_GTEQ_470 := $(shell expr `gcc -dumpversion | sed -e 's/\.\([0-9][0-9]\)/\1/g' -e 's/\.\([0-9]\)/0\1/g' -e 's/^[0-9]\{3,4\}$$/&00/'` \>= 40700)
 ifeq "$(GCC_GTEQ_470)" "1"
-	CXXFLAGS += -std=c++11
+        CXXFLAGS += -std=c++11
 else
-	CXXFLAGS += -std=c++0x
+        CXXFLAGS += -std=c++0x
 endif
 endif
 ifeq ($(strip $(GOPT_ENABLE_FLUX_DRIVERS)),YES)
@@ -61,7 +63,7 @@ TGT_BASE += grwght1p
 TGT_BASE += grwghtnp
 endif
 ifeq ($(strip $(GOPT_ENABLE_MASTERCLASS)),YES)
-TGT_BASE += gmstcl	
+TGT_BASE += gmstcl
 endif
 
 TGT = $(addprefix $(GENIE_BIN_PATH)/,$(TGT_BASE))
@@ -81,7 +83,7 @@ all: $(TGT)
 #
 $(GENIE_BIN_PATH)/gevgen: gEvGen.o $(call find_libs,gevgen)
 	@echo "** Building gevgen"
-	$(LD) $(LDFLAGS) gEvGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen 
+	$(LD) $(LDFLAGS) gEvGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen
 
 # neutrino event generation app for Fermilab experiments (DUNE, or experiments in NuMI and Booster beamlines)
 #
@@ -91,9 +93,9 @@ $(GENIE_BIN_PATH)/gevgen_fnal: gFNALExptEvGen.o $(call find_libs,gevgen_fnal)
 	@echo "For historical purposes, add a NuMI event generation app sym link"
 	ln -sf $(GENIE_BIN_PATH)/gevgen_fnal $(GENIE_BIN_PATH)/gevgen_numi
 
-# T2K neutrino event generation app 
+# T2K neutrino event generation app
 #
-$(GENIE_BIN_PATH)/gevgen_t2k: gT2KEvGen.o $(call find_libs,gevgen_t2k) 
+$(GENIE_BIN_PATH)/gevgen_t2k: gT2KEvGen.o $(call find_libs,gevgen_t2k)
 	@echo "** Building gevgen_t2k"
 	$(LD) $(LDFLAGS) gT2KEvGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen_t2k
 	@echo "For historical purposes, add symbolic link to the T2K event generation app"
@@ -101,129 +103,129 @@ $(GENIE_BIN_PATH)/gevgen_t2k: gT2KEvGen.o $(call find_libs,gevgen_t2k)
 
 # atmospheric neutrino event generation app
 #
-$(GENIE_BIN_PATH)/gevgen_atmo: gAtmoEvGen.o $(call find_libs,gevgen_atmo) 
+$(GENIE_BIN_PATH)/gevgen_atmo: gAtmoEvGen.o $(call find_libs,gevgen_atmo)
 	@echo "** Building gevgen_atmo"
 	$(LD) $(LDFLAGS) gAtmoEvGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen_atmo
 
 # (atmospheric) neutrino-incuded upgoing-muon flux generation app
 #
-$(GENIE_BIN_PATH)/gevgen_upmu: gUpMuFluxGen.o $(call find_libs,gevgen_upmu) 
+$(GENIE_BIN_PATH)/gevgen_upmu: gUpMuFluxGen.o $(call find_libs,gevgen_upmu)
 	@echo "** Building gevgen_upmu"
 	$(LD) $(LDFLAGS) gUpMuFluxGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen_upmu
 
 # hadron + nucleus event generation app
 #
-$(GENIE_BIN_PATH)/gevgen_hadron: gEvGenHadronNucleus.o $(call find_libs,gevgen_hadron) 
+$(GENIE_BIN_PATH)/gevgen_hadron: gEvGenHadronNucleus.o $(call find_libs,gevgen_hadron)
 	@echo "** Building gevgen_hadron"
 	$(LD) $(LDFLAGS) gEvGenHadronNucleus.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen_hadron
 
 # nucleon decay event generation app
 #
-$(GENIE_BIN_PATH)/gevgen_ndcy: gNucleonDecayEvGen.o $(call find_libs,gevgen_ndcy) 
+$(GENIE_BIN_PATH)/gevgen_ndcy: gNucleonDecayEvGen.o $(call find_libs,gevgen_ndcy)
 	@echo "** Building gevgen_ndcy"
 	$(LD) $(LDFLAGS) gNucleonDecayEvGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen_ndcy
 
 # neutron-antineutron event generation app
 #
-$(GENIE_BIN_PATH)/gevgen_nosc: gNeutronOscEvGen.o $(call find_libs,gevgen_nosc) 
+$(GENIE_BIN_PATH)/gevgen_nosc: gNeutronOscEvGen.o $(call find_libs,gevgen_nosc)
 	@echo "** Building gevgen_nosc"
 	$(LD) $(LDFLAGS) gNeutronOscEvGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen_nosc
 
 # gevdump event print-out utility
 #
-$(GENIE_BIN_PATH)/gevdump: gEvDump.o $(call find_libs,gevdump) 
+$(GENIE_BIN_PATH)/gevdump: gEvDump.o $(call find_libs,gevdump)
 	@echo "** Building gevdump"
 	$(LD) $(LDFLAGS) gEvDump.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevdump
 
 # event topology cherry-picking program
 #
-$(GENIE_BIN_PATH)/gevpick: gEvPick.o $(call find_libs,gevpick) 
+$(GENIE_BIN_PATH)/gevpick: gEvPick.o $(call find_libs,gevpick)
 	@echo "** Building gevpick"
 	$(LD) $(LDFLAGS) gEvPick.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevpick
 
 # utility performing sanity checks on event samples
 #
-$(GENIE_BIN_PATH)/gevscan: gEvScan.o $(call find_libs,gevscan) 
+$(GENIE_BIN_PATH)/gevscan: gEvScan.o $(call find_libs,gevscan)
 	@echo "** Building gevscan"
 	$(LD) $(LDFLAGS) gEvScan.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevscan
 
 # utility performing comparisons between two event samples
 #
-$(GENIE_BIN_PATH)/gevcomp: gEvComp.o $(call find_libs,gevcomp) 
+$(GENIE_BIN_PATH)/gevcomp: gEvComp.o $(call find_libs,gevcomp)
 	@echo "** Building gevcomp"
 	$(LD) $(LDFLAGS) gEvComp.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevcomp
 
 # utility performing comparisons between two sets of pre-computed x-section splines
 #
-$(GENIE_BIN_PATH)/gxscomp: gXSecComp.o $(call find_libs,gxscomp) 
+$(GENIE_BIN_PATH)/gxscomp: gXSecComp.o $(call find_libs,gxscomp)
 	@echo "** Building gxscomp"
 	$(LD) $(LDFLAGS) gXSecComp.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gxscomp
 
 # x-section spline building utility
 #
-$(GENIE_BIN_PATH)/gmkspl: gMakeSplines.o $(call find_libs,gmkspl) 
+$(GENIE_BIN_PATH)/gmkspl: gMakeSplines.o $(call find_libs,gmkspl)
 	@echo "** Building gmkspl"
-	$(LD) $(LDFLAGS) gMakeSplines.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gmkspl 
+	$(LD) $(LDFLAGS) gMakeSplines.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gmkspl
 
 # utility merging x-section spline xml files
 #
-$(GENIE_BIN_PATH)/gspladd: gSplineAdd.o $(call find_libs,gspladd) 
+$(GENIE_BIN_PATH)/gspladd: gSplineAdd.o $(call find_libs,gspladd)
 	@echo "** Building gspladd"
-	$(LD) $(LDFLAGS) gSplineAdd.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gspladd 
+	$(LD) $(LDFLAGS) gSplineAdd.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gspladd
 
 # utility for converting XML splines into ROOT format
 #
-$(GENIE_BIN_PATH)/gspl2root: gSplineXml2Root.o $(call find_libs,gspl2root) 
+$(GENIE_BIN_PATH)/gspl2root: gSplineXml2Root.o $(call find_libs,gspl2root)
 	@echo "** Building gspl2root"
 	$(LD) $(LDFLAGS) gSplineXml2Root.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gspl2root
 
 # utility computing maximum path lengths for a given root geometry
 #
-$(GENIE_BIN_PATH)/gmxpl: gMaxPathLengths.o $(call find_libs,gmxpl) 
+$(GENIE_BIN_PATH)/gmxpl: gMaxPathLengths.o $(call find_libs,gmxpl)
 	@echo "** Building gmxpl"
 	$(LD) $(LDFLAGS) gMaxPathLengths.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gmxpl
 
 # simple utility for calculating weights in response to tweaking a single systematic param
 #
-$(GENIE_BIN_PATH)/grwght1p: gRwght1Param.o $(call find_libs,grwght1p) 
+$(GENIE_BIN_PATH)/grwght1p: gRwght1Param.o $(call find_libs,grwght1p)
 	@echo "** Building grwght1p"
 	$(LD) $(LDFLAGS) gRwght1Param.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/grwght1p
 
 # simple utility for calculating weights in response to tweaking a multiple (possibly correlated) systematic param
 #
-$(GENIE_BIN_PATH)/grwghtnp: gRwghtNCorrelatedParams.o $(call find_libs,grwghtnp) 
+$(GENIE_BIN_PATH)/grwghtnp: gRwghtNCorrelatedParams.o $(call find_libs,grwghtnp)
 	@echo "** Building grwghtnp"
 	$(LD) $(LDFLAGS) gRwghtNCorrelatedParams.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/grwghtnp
 
 
 # ntuple conversion utility
 #
-$(GENIE_BIN_PATH)/gntpc: gNtpConv.o $(call find_libs,gntpc) 
+$(GENIE_BIN_PATH)/gntpc: gNtpConv.o $(call find_libs,gntpc)
 	@echo "** Building gntpc"
-	$(LD) $(LDFLAGS) gNtpConv.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gntpc 
+	$(LD) $(LDFLAGS) gNtpConv.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gntpc
 
 # Masterclass app
 #
-$(GENIE_BIN_PATH)/gmstcl: gMasterclass.o $(call find_libs,gmstcl) 
+$(GENIE_BIN_PATH)/gmstcl: gMasterclass.o $(call find_libs,gmstcl)
 	@echo "** Building gmstcl";
-	$(LD) $(LDFLAGS) gMasterclass.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gmstcl 
+	$(LD) $(LDFLAGS) gMasterclass.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gmstcl
 
-# App to compare PDF 
+# App to compare PDF
 #
-$(GENIE_BIN_PATH)/gpdfcomp: gPDFComp.o $(call find_libs,gpdfcomp) 
+$(GENIE_BIN_PATH)/gpdfcomp: gPDFComp.o $(call find_libs,gpdfcomp)
 	@echo "** Building gpdfcomp"
 	$(LD) $(LDFLAGS) gPDFComp.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gpdfcomp
 
 # App to compare structure function models (see GENIE/Comparisons for an app to compare with data)
 #
-$(GENIE_BIN_PATH)/gsfcomp: gSFComp.o $(call find_libs,gsfcomp) 
+$(GENIE_BIN_PATH)/gsfcomp: gSFComp.o $(call find_libs,gsfcomp)
 	@echo "** Building gsfcomp"
 	$(LD) $(LDFLAGS) gSFComp.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gsfcomp
 
 # CLEANING-UP
 
 purge: FORCE
-	$(RM) *.o *~ *.d core 
+	$(RM) *.o *~ *.d core
 
 clean: FORCE
 	$(RM) *.o *~ *.d core
@@ -238,3 +240,4 @@ FORCE:
 
 # this should be last because it includes new targets...
 -include $(wildcard *.d)
+
