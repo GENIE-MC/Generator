@@ -29,7 +29,6 @@
 using std::ostringstream;
 using namespace genie;
 using namespace genie::constants;
-using namespace genie::units;
 using namespace genie::utils;
 
 //____________________________________________________________________________
@@ -128,7 +127,7 @@ TH1D * LocalFGM::ProbDistro(const Target & target, double r) const
   double numNuc = (is_p) ? (double)target.Z():(double)target.N();
 
   // Calculate Fermi Momentum using Local FG equations
-  double hbarc = kLightSpeed*kPlankConstant/fermi;
+  double hbarc = kLightSpeed*kPlankConstant/units::fermi;
   double KF= TMath::Power(3*kPi2*numNuc*genie::utils::nuclear::Density(r,A),
 			    1.0/3.0) *hbarc;
 
