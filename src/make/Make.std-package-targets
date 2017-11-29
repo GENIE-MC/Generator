@@ -47,9 +47,9 @@ rootcint: $(DICTIONARY).o
 $(DICTIONARY).cc: LinkDef.h $(DICTGEN_OBJECTS)
 	$(RM) $(DICTIONARY).*
 	@echo "[package: $(PACKAGE)] Generating ROOT dictionary ..."
-#	rootcint -f $(DICTIONARY).cc -c $(INCLUDES) $(DICTGEN_HEADERS) LinkDef.h
+#	rootcint -f $(DICTIONARY).cc -c $(ROOT_DICT_GEN_INCLUDES) $(DICTGEN_HEADERS) LinkDef.h
 ifeq ($(ROOT_MAJOR),5)
-	  rootcint -f $(DICTIONARY).cc -c $(INCLUDES) $(DICTGEN_HEADERS) LinkDef.h
+	  rootcint -f $(DICTIONARY).cc -c $(ROOT_DICT_GEN_INCLUDES) $(DICTGEN_HEADERS) LinkDef.h
 else
         # to make pcm relocatable we have to set it to strip these off
         # sub-dirs Types & Interfaces don't have dictionaries, made as part of Nuclear
@@ -72,7 +72,7 @@ else
                     -s $(PACKAGE_LIBNOVRS) \
                   -rml $(PACKAGE_PCM) \
                   -rmf $(PACKAGE_ROOTMAP) \
-                  $(INCLUDES) $(DICTGEN_HEADERS) LinkDef.h
+                  $(ROOT_DICT_GEN_INCLUDES) $(DICTGEN_HEADERS) LinkDef.h
 # clean rootmap output up a bit ... (magic?)
 # -e "s/\.dylib\.so/\.dylib/g" 
 #   order matters here

@@ -76,7 +76,7 @@ find_libs = ${shell ldd $(GENIE_BIN_PATH)/$(1) 2>&1 | sed -n 's/.*=> \(.*\) (.*/
 all: $(TGT)
 
 %.o : %.cxx
-	$(CXX) $(CXXFLAGS) -MMD -MP -c $(INCLUDES) $< -o $@
+	$(CXX) $(CXXFLAGS) -MMD -MP -c $(CPP_INCLUDES) $< -o $@
 
 
 # a simple/generic gevgen event generation app

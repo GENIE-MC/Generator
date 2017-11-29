@@ -119,7 +119,7 @@ LOG_LIBRARIES := -L$(LOG_LIB_DIR) -llog4cpp
 
 # gsl libraries and headers
 
-GSL_INCLUDES  := 
+GSL_INCLUDES  := $(shell gsl-config --cflags)
 GSL_LIBRARIES := $(shell gsl-config --libs)
 
 #-------------------------------------------------------------------
@@ -506,12 +506,20 @@ endif
 
 # includes and libraries needed to compile programs. 
 
-INCLUDES :=  $(LINUX_SYS_INCLUDES) \
-	    $(XML_INCLUDES) \
-	    $(LOG_INCLUDES) \
-	    $(ROOT_INCLUDES) \
-	    $(LHAPDF_INCLUDES) \
-	    $(GENIE_INCLUDES) \
+CPP_INCLUDES := \
+    $(LINUX_SYS_INCLUDES) \
+    $(XML_INCLUDES) \
+    $(LOG_INCLUDES) \
+    $(ROOT_INCLUDES) \
+    $(LHAPDF_INCLUDES) \
+    $(GSL_INCLUDES) \
+    $(GENIE_INCLUDES) 
+
+ROOT_DICT_GEN_INCLUDES := \
+    $(LINUX_SYS_INCLUDES) \
+    $(XML_INCLUDES) \
+    $(ROOT_INCLUDES) \
+    $(GENIE_INCLUDES) 
 
 LIBRARIES := $(SYSLIBS) \
              $(ROOT_LIBRARIES) \
@@ -521,12 +529,13 @@ LIBRARIES := $(SYSLIBS) \
              $(LOG_LIBRARIES) \
              $(GSL_LIBRARIES) \
              $(GPROF_LIBRARIES) \
-	     $(EXTRALIBS)
+             $(EXTRALIBS)
 
 # Default compiler and preprocessor flags
 
 CXXFLAGS := $(ENV_CXXFLAGS) $(CXXFLAGS)
-CPPFLAGS  = $(INCLUDES)
+CPPFLAGS  = $(CPP_INCLUDES)
+CCFLAGS   = $(ROOT_DICT_GEN_INCLUDES)
 CFLAGS    = -g
 
 #-------------------------------------------------------------------
@@ -536,13 +545,13 @@ CFLAGS    = -g
 .SUFFIXES : .inc .cxx
 
 #.cc.o:
-#	$(CXX) -c -o $@ $(CXXFLAGS) $(CPPFLAGS) $<
+#	$(CXX) -c -o $@ $(CXXFLAGS) $(CCFLAGS) $<
 
 #.cxx.o:
 #	$(CXX) -c -o $@ $(CXXFLAGS) $(CPPFLAGS) $<
 
 .cc.o:
-	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) $<
+	$(CXX) -c $(CXXFLAGS) $(CCFLAGS) $<
 
 .cxx.o:
 	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) $<
