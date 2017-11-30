@@ -5,7 +5,6 @@
 #include "Conventions/Units.h"
 #include "Numerical/RandomGen.h"
 #include "Messenger/Messenger.h"
-#include <TSystem.h>
 using namespace genie;
 
 #include <vector>
@@ -14,8 +13,9 @@ using namespace genie;
 #include <sstream>
 #include <iomanip>
 #include <iostream>
-#include <math.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstdlib>
+
 #include <TGraph.h>
 using namespace std;
 
@@ -26,7 +26,7 @@ INukeNucleonCorr* INukeNucleonCorr::fInstance = NULL; // initialize instance wit
 const int NColumns  = 18;
 const int NRows = 205;
        
-string genie_dir = string(gSystem->Getenv("GENIE"));
+string genie_dir(std::getenv("GENIE"));
 //string directory = genie_dir + string("/data/evgen/nncorr/");
 string dir = genie_dir + string("/data/evgen/nncorr/");
 string infile;
