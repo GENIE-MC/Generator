@@ -16,6 +16,8 @@
 */
 //____________________________________________________________________________
 
+#include <cstdlib>
+
 #ifndef GENIE_INTERPOLATOR2D_H_
 #define GENIE_INTERPOLATOR2D_H_
 
