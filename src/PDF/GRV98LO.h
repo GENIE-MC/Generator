@@ -30,10 +30,8 @@
 #ifndef _GRV98LO_H_
 #define _GRV98LO_H_
 
-#include <TGraph2D.h>
-
 #include "PDF/PDFModelI.h"
-//#include "Numerical/BLI2D.h"
+#include "Numerical/Interpolator2D.h"
 
 namespace genie {
 
@@ -72,7 +70,7 @@ private:
   // >> Information about the PDF grid
 
   static const int kNQ2     = 27; 
-  static const int kNXBj    = 68; 
+  static const int kNXbj    = 68; 
   static const int kNParton = 6;
 
   // >> Information read from the PDF grid file
@@ -81,18 +79,18 @@ private:
   //
   double fGridQ2    [kNQ2];  // Q^2 (GeV^2)    values in grid; between 0.8 and 1E6
   double fGridLogQ2 [kNQ2];  // log(Q^2/GeV^2) values in grid
-  double fGridXbj   [kNXBj]; // Bjorken-x      values in grid; between 1E-9 and 1
-  double fGridLogXbj[kNXBj]; // log(Bjorken-x) values in grid
-  double fParton    [kNParton][kNQ2][kNXBj-1]; // PARTON (NPART,NQ,NX-1) array in original code
+  double fGridXbj   [kNXbj]; // Bjorken-x      values in grid; between 1E-9 and 1
+  double fGridLogXbj[kNXbj]; // log(Bjorken-x) values in grid
+  double fParton    [kNParton][kNQ2][kNXbj-1]; // PARTON (NPART,NQ,NX-1) array in original code
   //
   // arrays for the interpolation routine
   //
-  mutable TGraph2D fXUVF; // = f(logx,logQ2)
-  mutable TGraph2D fXDVF;
-  mutable TGraph2D fXDEF;
-  mutable TGraph2D fXUDF;
-  mutable TGraph2D fXSF;
-  mutable TGraph2D fXGF;
+  Interpolator2D * fXUVF; // = f(logx,logQ2)
+  Interpolator2D * fXDVF;
+  Interpolator2D * fXDEF;
+  Interpolator2D * fXUDF;
+  Interpolator2D * fXSF;
+  Interpolator2D * fXGF;
 };
 
 }         // genie namespace

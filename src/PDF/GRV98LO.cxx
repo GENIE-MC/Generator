@@ -30,13 +30,25 @@ using namespace genie;
 
 //____________________________________________________________________________
 GRV98LO::GRV98LO() :
-PDFModelI("genie::GRV98LO")
+PDFModelI("genie::GRV98LO"),
+ fXUVF(NULL),
+ fXDVF(NULL),
+ fXDEF(NULL),
+ fXUDF(NULL),
+ fXSF (NULL),
+ fXGF (NULL)
 {
   this->Initialize();
 }
 //____________________________________________________________________________
 GRV98LO::GRV98LO(string config) :
-PDFModelI("genie::GRV98LO", config)
+PDFModelI("genie::GRV98LO", config),
+ fXUVF(NULL),
+ fXDVF(NULL),
+ fXDEF(NULL),
+ fXUDF(NULL),
+ fXSF (NULL),
+ fXGF (NULL)
 {
   LOG("GRV98LO", pDEBUG) << "GRV98LO configuration:\n " << *fConfig;  
 
@@ -45,7 +57,12 @@ PDFModelI("genie::GRV98LO", config)
 //____________________________________________________________________________
 GRV98LO::~GRV98LO() 
 { 
-
+  if (fXUVF) {delete fXUVF; fXUVF = NULL;}
+  if (fXDVF) {delete fXDVF; fXDVF = NULL;}
+  if (fXDEF) {delete fXDEF; fXDEF = NULL;}
+  if (fXUDF) {delete fXUDF; fXUDF = NULL;}
+  if (fXSF ) {delete fXSF ; fXSF  = NULL;}
+  if (fXGF ) {delete fXGF ; fXGF  = NULL;}
 }
 //____________________________________________________________________________
 double GRV98LO::UpValence(double x, double Q2) const
@@ -118,29 +135,29 @@ PDF_t GRV98LO::AllPDFs(double x, double Q2) const
   // apply kinematical limits 
 //Q2 = TMath::Max(Q2, fGridQ2[0]);
   if(Q2 <= 0.8) Q2 = 0.80001;
-  Q2 = TMath::Min(Q2, fGridQ2[kNQ2-1]);
-  x  = TMath::Max(x,  fGridXbj[0]);
-  x  = TMath::Min(x,  fGridXbj[kNXBj-1]);
+  Q2 = std::min(Q2, fGridQ2[kNQ2-1]);
+  x  = std::max(x,  fGridXbj[0]);
+  x  = std::min(x,  fGridXbj[kNXbj-1]);
 
-  double logx  = TMath::Log(x);
-  double logQ2 = TMath::Log(Q2);
+  double logx  = std::log(x);
+  double logQ2 = std::log(Q2);
   double x1    = 1-x;
-  double xv    = TMath::Power(x,  0.5);
-  double xs    = TMath::Power(x, -0.2);
-  double x1p3  = TMath::Power(x1, 3.);
-  double x1p4  = TMath::Power(x1, 4.);
-  double x1p5  = TMath::Power(x1, 5.);
-  double x1p7  = TMath::Power(x1, 7.);
+  double xv    = std::sqrt(x);
+  double xs    = std::pow(x, -0.2);
+  double x1p3  = x1*x1*x1;
+  double x1p4  = x1*x1p3;
+  double x1p5  = x1*x1p4;
+  double x1p7  = x1p3*x1p4;
 
-  double uv = fXUVF.Interpolate(logx,logQ2) * x1p3 * xv;
-  double dv = fXDVF.Interpolate(logx,logQ2) * x1p4 * xv;
-  double de = fXDEF.Interpolate(logx,logQ2) * x1p7 * xv;
-  double ud = fXUDF.Interpolate(logx,logQ2) * x1p7 * xs;
+  double uv = fXUVF->Eval(logx,logQ2) * x1p3 * xv;
+  double dv = fXDVF->Eval(logx,logQ2) * x1p4 * xv;
+  double de = fXDEF->Eval(logx,logQ2) * x1p7 * xv;
+  double ud = fXUDF->Eval(logx,logQ2) * x1p7 * xs;
   double us = 0.5 * (ud - de);
   double ds = 0.5 * (ud + de);
-  double ss = fXSF.Interpolate(logx,logQ2)  * x1p7 * xs;
-  double gl = fXGF.Interpolate(logx,logQ2)  * x1p5 * xs;
-	
+  double ss = fXSF->Eval(logx,logQ2)  * x1p7 * xs;
+  double gl = fXGF->Eval(logx,logQ2)  * x1p5 * xs;
+  
   pdf.uval = uv;
   pdf.dval = dv; 
   pdf.usea = us;
@@ -150,7 +167,7 @@ PDF_t GRV98LO::AllPDFs(double x, double Q2) const
   pdf.bot  = 0.;
   pdf.top  = 0.;
   pdf.gl   = gl;
-
+  
   return pdf;                                               
 }
 //____________________________________________________________________________
@@ -194,7 +211,7 @@ void GRV98LO::Initialize(void)
   //
 
   LOG("GRV98LO", pDEBUG) << "Reading x_bj grid values";
-  for(int j=0; j < kNXBj; j++) {
+  for(int j=0; j < kNXbj; j++) {
     double xbj = -1;
     grid_file >> xbj;
     // check against known limits
@@ -204,9 +221,9 @@ void GRV98LO::Initialize(void)
   }
   ostringstream grid_values;
   grid_values << "(";
-  for(int j=0; j < kNXBj; j++) {
+  for(int j=0; j < kNXbj; j++) {
     grid_values << fGridXbj[j];
-    if(j == kNXBj - 1) { grid_values << ")";  }
+    if(j == kNXbj - 1) { grid_values << ")";  }
     else               { grid_values << ", "; }
   }
   LOG("GRV98LO", pDEBUG) 
@@ -246,7 +263,7 @@ void GRV98LO::Initialize(void)
   LOG("GRV98LO", pDEBUG) << "Reading PDF values on grid points";
 
   int k=0;
-  for(int j=0; j < kNXBj-1; j++) {
+  for(int j=0; j < kNXbj-1; j++) {
     for(int i=0; i < kNQ2; i++) {
       double p0 = 0;
       double p1 = 0;
@@ -277,37 +294,56 @@ void GRV98LO::Initialize(void)
 
   // arrays for interpolation routines
   // 
+  
+  vector<double> gridLogQ2 (kNQ2);
+  vector<double> gridLogXbj(kNXbj);
+  vector<double> knotsXUVF(kNQ2*kNXbj);
+  vector<double> knotsXDVF(kNQ2*kNXbj);
+  vector<double> knotsXDEF(kNQ2*kNXbj);
+  vector<double> knotsXUDF(kNQ2*kNXbj);
+  vector<double> knotsXSF (kNQ2*kNXbj);
+  vector<double> knotsXGF (kNQ2*kNXbj);
 
   k=0;
   for(int i=0; i < kNQ2; i++) {
-    double logQ2 = TMath::Log(fGridQ2[i]);
-    for(int j=0; j < kNXBj - 1; j++) {
-       double logx  = TMath::Log  (fGridXbj[j]); 
-       double xb0v  = TMath::Power(fGridXbj[j],  0.5);
-       double xb0s  = TMath::Power(fGridXbj[j], -0.2);
+    double logQ2 = std::log(fGridQ2[i]);
+    gridLogQ2[i] = logQ2;
+    for(int j=0; j < kNXbj - 1; j++) {
+       double logx  = std::log(fGridXbj[j]);
+       gridLogXbj[j] = logx;
+       double xb0v  = std::sqrt(fGridXbj[j]);
+       double xb0s  = std::pow(fGridXbj[j], -0.2);
        double xb1   = 1 - fGridXbj[j];
-       double xb1p3 = TMath::Power(xb1, 3.);
-       double xb1p4 = TMath::Power(xb1, 4.);
-       double xb1p5 = TMath::Power(xb1, 5.);
-       double xb1p7 = TMath::Power(xb1, 7.);
-       fXUVF.SetPoint(k, logx, logQ2, fParton[0][i][j] / (xb1p3 * xb0v) );
-       fXDVF.SetPoint(k, logx, logQ2, fParton[1][i][j] / (xb1p4 * xb0v) );
-       fXDEF.SetPoint(k, logx, logQ2, fParton[2][i][j] / (xb1p7 * xb0v) );
-       fXUDF.SetPoint(k, logx, logQ2, fParton[3][i][j] / (xb1p7 * xb0s) );
-       fXSF .SetPoint(k, logx, logQ2, fParton[4][i][j] / (xb1p7 * xb0s) );
-       fXGF .SetPoint(k, logx, logQ2, fParton[5][i][j] / (xb1p5 * xb0s) );
+       double xb1p3 = std::pow(xb1, 3.);
+       double xb1p4 = std::pow(xb1, 4.);
+       double xb1p5 = std::pow(xb1, 5.);
+       double xb1p7 = std::pow(xb1, 7.);
+       knotsXUVF[k] = fParton[0][i][j] / (xb1p3 * xb0v);
+       knotsXDVF[k] = fParton[1][i][j] / (xb1p4 * xb0v);
+       knotsXDEF[k] = fParton[2][i][j] / (xb1p7 * xb0v);
+       knotsXUDF[k] = fParton[3][i][j] / (xb1p7 * xb0s);
+       knotsXSF [k] = fParton[4][i][j] / (xb1p7 * xb0s);
+       knotsXGF [k] = fParton[5][i][j] / (xb1p5 * xb0s);
        k++;
     }
-    double logxmax = TMath::Log(fGridXbj[kNXBj-1]);
-    fXUVF.SetPoint(k, logxmax, logQ2, 0.);
-    fXDVF.SetPoint(k, logxmax, logQ2, 0.);
-    fXDEF.SetPoint(k, logxmax, logQ2, 0.);
-    fXUDF.SetPoint(k, logxmax, logQ2, 0.);
-    fXSF .SetPoint(k, logxmax, logQ2, 0.);
-    fXGF .SetPoint(k, logxmax, logQ2, 0.);
+    double logxmax = TMath::Log(fGridXbj[kNXbj-1]);
+    gridLogXbj[kNXbj-1] = logxmax;
+    knotsXUVF[k] = 0;
+    knotsXDVF[k] = 0;
+    knotsXDEF[k] = 0;
+    knotsXUDF[k] = 0;
+    knotsXSF [k] = 0;
+    knotsXGF [k] = 0;
     k++;
   }
-
+  
+  fXUVF = new Interpolator2D(gridLogXbj.size(),&gridLogXbj[0],gridLogQ2.size(),&gridLogQ2[0],&knotsXUVF[0]);
+  fXDVF = new Interpolator2D(gridLogXbj.size(),&gridLogXbj[0],gridLogQ2.size(),&gridLogQ2[0],&knotsXDVF[0]);
+  fXDEF = new Interpolator2D(gridLogXbj.size(),&gridLogXbj[0],gridLogQ2.size(),&gridLogQ2[0],&knotsXDEF[0]);
+  fXUDF = new Interpolator2D(gridLogXbj.size(),&gridLogXbj[0],gridLogQ2.size(),&gridLogQ2[0],&knotsXUDF[0]);
+  fXSF  = new Interpolator2D(gridLogXbj.size(),&gridLogXbj[0],gridLogQ2.size(),&gridLogQ2[0],&knotsXSF [0]);
+  fXGF  = new Interpolator2D(gridLogXbj.size(),&gridLogXbj[0],gridLogQ2.size(),&gridLogQ2[0],&knotsXGF [0]);
+  
   fInitialized = true;
 }
 //____________________________________________________________________________
