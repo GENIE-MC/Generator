@@ -1,6 +1,7 @@
 {
   TString libs0 = gSystem->GetDynamicPath();
-  TString libs  = libs0 + ":/usr/lib:/usr/local/lib:/opt/lib:/opt/local/lib";
+  TString libs  = libs0 + ":/usr/local/lib64:/usr/lib64:/lib64:"+
+    "/usr/local/lib/:/usr/lib/:/lib:/opt/lib:/opt/local/lib";
   gSystem->SetDynamicPath(libs.Data());
 
   // PYTHIA 6 lib
@@ -25,6 +26,8 @@
   // GENIE libs
   //
   
+  Long_t status = 0;
+  
   // Read them from genie-config
   TString command = TString::Format("genie-config --libs");
   FILE * f = gSystem->OpenPipe(command.Data(),"r");
@@ -43,11 +46,16 @@
       if (!libname_os) {continue;}
       TString full_libname = "lib"+libname_os->GetString();
       //~ cerr<<full_libname<<endl;
-      gSystem->Load(full_libname.Data());
+      status = status || gSystem->Load(full_libname.Data());
       delete matches;
     }
     delete tokens;
   }
   gSystem->ClosePipe(f);
+  
+  if (status) {
+    std::cout<<"Failed to load GENIE libraries"<<std::endl;
+    exit(1);
+  }
 }
 
