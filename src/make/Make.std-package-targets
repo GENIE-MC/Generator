@@ -159,9 +159,9 @@ purge:
 clean:
 	@echo "Clean in $(PACKAGE)"
 ifeq ($(strip $(DICTIONARY)),undefined)
-	$(RM) -f *.d *.o *~ core a.out $(GENIE_LIB_PATH)/$(LIBNAME)* Makefile.temp
+	$(RM) -f *.d *.o *~ core a.out $(GENIE_LIB_PATH)/$(LIBNAME)* $(LIBNAME)* Makefile.temp
 else
-	$(RM) -f *.d *.o *~ core a.out $(GENIE_LIB_PATH)/$(LIBNAME)* $(DICTIONARY)* $(GENIE_LIB_PATH)/$(DICTIONARY)* Makefile.temp
+	$(RM) -f *.d *.o *~ core a.out $(GENIE_LIB_PATH)/$(LIBNAME)* $(LIBNAME)* $(DICTIONARY)* $(GENIE_LIB_PATH)/$(DICTIONARY)* Makefile.temp
 endif
 
 
