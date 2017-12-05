@@ -18,6 +18,7 @@
   gSystem->Load("liblog4cpp");
 
   // GSL
+  gSystem->Load("libgslcblas");
   gSystem->Load("libgsl");
 
   //
