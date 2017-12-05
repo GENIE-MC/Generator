@@ -17,6 +17,9 @@
   gSystem->Load("libxml2");
   gSystem->Load("liblog4cpp");
 
+  // GSL
+  gSystem->Load("libgsl");
+
   //
   // GENIE libs
   //
