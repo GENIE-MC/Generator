@@ -282,8 +282,8 @@ void MakePlots (void)
 
     lgnd->Clear();
     for(unsigned int im=0; im < gPDFAlgList.size(); im++) {
-      const char * label = gPDFAlgList[im]->Id().Key().c_str();
-      lgnd->AddEntry(gr_xuv_Q2 [im], Form("%s",label), lgopt[im]);
+      std::string label(gPDFAlgList[im]->Id().Key());
+      lgnd->AddEntry(gr_xuv_Q2 [im], label.c_str(), lgopt[im]);
     }
 
     cnv->Clear();
@@ -305,12 +305,12 @@ void MakePlots (void)
       cnv->cd(6); gr_xglu_Q2[im]->Draw(opt[im]);
     }
 
-    cnv->cd(1); lgnd->Draw(); tex->DrawTextNDC(0.4, 0.95, Form("x = %.3e",x));
-    cnv->cd(2); lgnd->Draw(); tex->DrawTextNDC(0.4, 0.95, Form("x = %.3e",x));
-    cnv->cd(3); lgnd->Draw(); tex->DrawTextNDC(0.4, 0.95, Form("x = %.3e",x));
-    cnv->cd(4); lgnd->Draw(); tex->DrawTextNDC(0.4, 0.95, Form("x = %.3e",x));
-    cnv->cd(5); lgnd->Draw(); tex->DrawTextNDC(0.4, 0.95, Form("x = %.3e",x));
-    cnv->cd(6); lgnd->Draw(); tex->DrawTextNDC(0.4, 0.95, Form("x = %.3e",x));
+    cnv->cd(1); lgnd->Draw(); tex->DrawTextNDC(0.4, 0.95, TString::Format("x = %.3e",x).Data());
+    cnv->cd(2); lgnd->Draw(); tex->DrawTextNDC(0.4, 0.95, TString::Format("x = %.3e",x).Data());
+    cnv->cd(3); lgnd->Draw(); tex->DrawTextNDC(0.4, 0.95, TString::Format("x = %.3e",x).Data());
+    cnv->cd(4); lgnd->Draw(); tex->DrawTextNDC(0.4, 0.95, TString::Format("x = %.3e",x).Data());
+    cnv->cd(5); lgnd->Draw(); tex->DrawTextNDC(0.4, 0.95, TString::Format("x = %.3e",x).Data());
+    cnv->cd(6); lgnd->Draw(); tex->DrawTextNDC(0.4, 0.95, TString::Format("x = %.3e",x).Data());
 
     cnv->Update();
   }
@@ -382,7 +382,7 @@ void MakePlots (void)
        palette->SetY1NDC(0.4);
        palette->SetY2NDC(0.8);
     }
-    tex->DrawTextNDC(0.30, 0.95, Form("x*uv: %s", gPDFAlgList[im]->Id().Key().c_str()) );
+    tex->DrawTextNDC(0.30, 0.95, TString::Format("x*uv: %s", gPDFAlgList[im]->Id().Key().c_str()).Data() );
 
     cnv->cd(2); gPad->SetLogx(); gPad->SetLogy(); 
     h2_xdv [im] -> Draw("colz");
@@ -394,7 +394,7 @@ void MakePlots (void)
        palette->SetY1NDC(0.4);
        palette->SetY2NDC(0.8);
     }
-    tex->DrawTextNDC(0.30, 0.95, Form("x*dv: %s", gPDFAlgList[im]->Id().Key().c_str()) );
+    tex->DrawTextNDC(0.30, 0.95, TString::Format("x*dv: %s", gPDFAlgList[im]->Id().Key().c_str()).Data() );
 
     cnv->cd(3); gPad->SetLogx(); gPad->SetLogy(); 
     h2_xus [im] -> Draw("colz");
@@ -406,7 +406,7 @@ void MakePlots (void)
        palette->SetY1NDC(0.4);
        palette->SetY2NDC(0.8);
     }
-    tex->DrawTextNDC(0.30, 0.95, Form("x*us: %s", gPDFAlgList[im]->Id().Key().c_str()) );
+    tex->DrawTextNDC(0.30, 0.95, TString::Format("x*us: %s", gPDFAlgList[im]->Id().Key().c_str()).Data() );
 
     cnv->cd(4); gPad->SetLogx(); gPad->SetLogy(); 
     h2_xds [im] -> Draw("colz");
@@ -418,7 +418,7 @@ void MakePlots (void)
        palette->SetY1NDC(0.4);
        palette->SetY2NDC(0.8);
     }
-    tex->DrawTextNDC(0.30, 0.95, Form("x*ds: %s", gPDFAlgList[im]->Id().Key().c_str()) );
+    tex->DrawTextNDC(0.30, 0.95, TString::Format("x*ds: %s", gPDFAlgList[im]->Id().Key().c_str()).Data() );
 
     cnv->cd(5); gPad->SetLogx(); gPad->SetLogy(); 
     h2_xstr[im] -> Draw("colz");
@@ -430,7 +430,7 @@ void MakePlots (void)
        palette->SetY1NDC(0.4);
        palette->SetY2NDC(0.8);
     }
-    tex->DrawTextNDC(0.30, 0.95, Form("x*str: %s", gPDFAlgList[im]->Id().Key().c_str()) );
+    tex->DrawTextNDC(0.30, 0.95, TString::Format("x*str: %s", gPDFAlgList[im]->Id().Key().c_str()).Data() );
 
     cnv->cd(6); gPad->SetLogx(); gPad->SetLogy(); 
     h2_xglu[im] -> Draw("colz");
@@ -442,7 +442,7 @@ void MakePlots (void)
        palette->SetY1NDC(0.4);
        palette->SetY2NDC(0.8);
     }
-    tex->DrawTextNDC(0.30, 0.95, Form("x*glu: %s", gPDFAlgList[im]->Id().Key().c_str()) );
+    tex->DrawTextNDC(0.30, 0.95, TString::Format("x*glu: %s", gPDFAlgList[im]->Id().Key().c_str()).Data() );
 
     cnv->Update();
   }
@@ -523,8 +523,8 @@ void MakePlots (void)
        palette->SetY1NDC(0.4);
        palette->SetY2NDC(0.8);
     }
-    tex->DrawTextNDC(0.1, 0.95, Form("uv: (%s-%s)/(%s)", 
-      gPDFAlgList[im]->Id().Key().c_str(), gPDFAlgList[0]->Id().Key().c_str(), gPDFAlgList[0]->Id().Key().c_str()) );
+    tex->DrawTextNDC(0.1, 0.95, TString::Format("uv: (%s-%s)/(%s)", 
+      gPDFAlgList[im]->Id().Key().c_str(), gPDFAlgList[0]->Id().Key().c_str(), gPDFAlgList[0]->Id().Key().c_str()).Data() );
 
     cnv->cd(2); gPad->SetLogx(); gPad->SetLogy(); 
     h2_xdv_r [im] -> Draw("colz");
@@ -536,8 +536,8 @@ void MakePlots (void)
        palette->SetY1NDC(0.4);
        palette->SetY2NDC(0.8);
     }
-    tex->DrawTextNDC(0.1, 0.95, Form("dv: (%s-%s)/(%s)", 
-      gPDFAlgList[im]->Id().Key().c_str(), gPDFAlgList[0]->Id().Key().c_str(), gPDFAlgList[0]->Id().Key().c_str()) );
+    tex->DrawTextNDC(0.1, 0.95, TString::Format("dv: (%s-%s)/(%s)", 
+      gPDFAlgList[im]->Id().Key().c_str(), gPDFAlgList[0]->Id().Key().c_str(), gPDFAlgList[0]->Id().Key().c_str()).Data() );
 
     cnv->cd(3); gPad->SetLogx(); gPad->SetLogy(); 
     h2_xus_r [im] -> Draw("colz");
@@ -549,8 +549,8 @@ void MakePlots (void)
        palette->SetY1NDC(0.4);
        palette->SetY2NDC(0.8);
     }
-    tex->DrawTextNDC(0.1, 0.95, Form("us: (%s-%s)/(%s)", 
-      gPDFAlgList[im]->Id().Key().c_str(), gPDFAlgList[0]->Id().Key().c_str(), gPDFAlgList[0]->Id().Key().c_str()) );
+    tex->DrawTextNDC(0.1, 0.95, TString::Format("us: (%s-%s)/(%s)", 
+      gPDFAlgList[im]->Id().Key().c_str(), gPDFAlgList[0]->Id().Key().c_str(), gPDFAlgList[0]->Id().Key().c_str()).Data() );
 
     cnv->cd(4); gPad->SetLogx(); gPad->SetLogy(); 
     h2_xds_r [im] -> Draw("colz");
@@ -562,8 +562,8 @@ void MakePlots (void)
        palette->SetY1NDC(0.4);
        palette->SetY2NDC(0.8);
     }
-    tex->DrawTextNDC(0.1, 0.95, Form("ds: (%s-%s)/(%s)", 
-      gPDFAlgList[im]->Id().Key().c_str(), gPDFAlgList[0]->Id().Key().c_str(), gPDFAlgList[0]->Id().Key().c_str()) );
+    tex->DrawTextNDC(0.1, 0.95, TString::Format("ds: (%s-%s)/(%s)", 
+      gPDFAlgList[im]->Id().Key().c_str(), gPDFAlgList[0]->Id().Key().c_str(), gPDFAlgList[0]->Id().Key().c_str()).Data() );
 
     cnv->cd(5); gPad->SetLogx(); gPad->SetLogy(); 
     h2_xstr_r[im] -> Draw("colz");
@@ -575,8 +575,8 @@ void MakePlots (void)
        palette->SetY1NDC(0.4);
        palette->SetY2NDC(0.8);
     }
-    tex->DrawTextNDC(0.1, 0.95, Form("str: (%s-%s)/(%s)", 
-      gPDFAlgList[im]->Id().Key().c_str(), gPDFAlgList[0]->Id().Key().c_str(), gPDFAlgList[0]->Id().Key().c_str()) );
+    tex->DrawTextNDC(0.1, 0.95, TString::Format("str: (%s-%s)/(%s)", 
+      gPDFAlgList[im]->Id().Key().c_str(), gPDFAlgList[0]->Id().Key().c_str(), gPDFAlgList[0]->Id().Key().c_str()).Data() );
 
     cnv->cd(6); gPad->SetLogx(); gPad->SetLogy(); 
     h2_xglu_r[im] -> Draw("colz");
@@ -588,8 +588,8 @@ void MakePlots (void)
        palette->SetY1NDC(0.4);
        palette->SetY2NDC(0.8);
     }
-    tex->DrawTextNDC(0.1, 0.95, Form("glu: (%s-%s)/(%s)", 
-      gPDFAlgList[im]->Id().Key().c_str(), gPDFAlgList[0]->Id().Key().c_str(), gPDFAlgList[0]->Id().Key().c_str()) );
+    tex->DrawTextNDC(0.1, 0.95, TString::Format("glu: (%s-%s)/(%s)", 
+      gPDFAlgList[im]->Id().Key().c_str(), gPDFAlgList[0]->Id().Key().c_str(), gPDFAlgList[0]->Id().Key().c_str()).Data() );
 
     cnv->Update();
   }
