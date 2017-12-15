@@ -21,6 +21,8 @@
 
 #include <string>
 #include <vector>
+#include <cstdlib>
+
 
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 #include "libxml/parser.h"
@@ -31,6 +33,7 @@
 #include <TVectorT.h>
 
 #include "Utils/StringUtils.h"
+#include "Utils/RunOpt.h"
 
 class TFile;
 class TH1F;
@@ -72,21 +75,51 @@ namespace xml   {
 #endif
 
   //_________________________________________________________________________
-  inline string GetXMLPathList()
-  {
+  inline string GetXMLPathList()   {
+
     // Get a colon separated list of potential locations for xml files
     // e.g. ".:$MYSITEXML:/path/to/exp/version:$GALGCONF:$GENIE/config"
     // user additions should be in $GXMLPATH
+
     string pathlist; 
-    const char* p1 = gSystem->Getenv("GXMLPATH");
-    if ( p1 ) { pathlist = std::string(p1) + ":"; }
-    const char* p2 = gSystem->Getenv("GXMLPATHS");  // handle extra 's'
-    if ( p2 ) { pathlist = std::string(p2) + ":"; }
+    const char* p1 = std::getenv( "GXMLPATH" );
+    if ( p1 ) { pathlist = std::string(p1) + ":" ; }
+    const char* p2 = std::getenv( "GXMLPATHS" );  // handle extra 's'
+    if ( p2 ) { pathlist = std::string(p2) + ":" ; }
+
     // add originally supported alternative path
-    const char* p3 = gSystem->Getenv("GALGCONF");
-    if ( p3 ) { pathlist = std::string(p3) + ":"; }
+    const char* p3 = std::getenv( "GALGCONF" );
+    if ( p3 ) { pathlist = std::string(p3) + ":" ; }
+
+    std::string tune = RunOpt::Instance() -> Tune() ;
+    if ( ! tune.empty() ) {
+    	std::string path_to_tune = std::getenv( "GENIE" ) ;
+
+    	if ( path_to_tune[path_to_tune.length()-1] != '/' )
+    		path_to_tune += '/' ;
+
+    	path_to_tune += "config/" ;
+
+    	path_to_tune += RunOpt::Instance() -> CGC() + '/' + tune ;
+    	pathlist += path_to_tune + ':' ;
+    }
+
+    std::string cgc = RunOpt::Instance() -> CGC() ;
+    if ( ! cgc.empty() ) {
+       	std::string path_to_conf = std::getenv( "GENIE" ) ;
+
+       	if ( path_to_conf[path_to_conf.length()-1] != '/' )
+       		path_to_conf += '/' ;
+
+       	path_to_conf += "config/" ;
+
+       	path_to_conf += RunOpt::Instance() -> CGC() ;
+       	pathlist += path_to_conf + ':' ;
+    }
+
     pathlist += "$GENIE/config";  // standard path in case no env
     pathlist += ":$GENIE/src/FluxDrivers/GNuMINtuple";  // special case
+
     return pathlist;
   }
 
