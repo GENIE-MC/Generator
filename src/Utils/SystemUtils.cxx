@@ -20,10 +20,13 @@
 
 #include <cstdlib>
 #include <sys/types.h>
+#include <sys/stat.h>
+
 #include <dirent.h>
 #include <ctime>
 
 #include <TSystem.h>
+
 
 #include "Messenger/Messenger.h"
 #include "Utils/StringUtils.h"
@@ -93,6 +96,22 @@ bool genie::utils::system::FileExists(string filename)
     
   return false;
 }
+
+//___________________________________________________________________________
+
+bool genie::utils::system::DirectoryExixsts( const char * path ) {
+
+	struct stat info;
+
+	if( stat( path, &info ) != 0 )
+		return false ;
+	else if(info.st_mode & S_IFDIR)
+		return true ;
+	else
+		return false ;
+}
+
+
 //___________________________________________________________________________
 string genie::utils::system::LocalTimeAsString(string format)
 {

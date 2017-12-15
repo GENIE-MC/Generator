@@ -38,6 +38,7 @@ namespace system
   int GenieRevisVrsNum (string tag);
 
   bool FileExists(string filename);
+  bool DirectoryExixsts( const char * path ) ;
 
   string LocalTimeAsString(string format);
 

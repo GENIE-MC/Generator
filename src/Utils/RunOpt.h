@@ -41,6 +41,7 @@ public:
 
   // Get options set.
   string Tune                   (void) const { return fTune;                   }
+  string CGC					(void) const { return fCGC ;                   }
   string EventGeneratorList     (void) const { return fEventGeneratorList;     }
   string CacheFile              (void) const { return fCacheFile;              }
   string MesgThresholdFiles     (void) const { return fMesgThresholds;         }
@@ -64,6 +65,7 @@ private:
 
   // options
   string fTune;                      ///< GENIE comprehensive neutrino interaction model tune.
+  string fCGC ;                      ///< GENIE comprehensive global configuration that may contain the tune configuration.
   string fEventGeneratorList;        ///< Name of event generator list to be loaded by the event generation drivers. 
   string fCacheFile;                 ///< Name of cache file, is cache is to be re-used. 
   string fMesgThresholds;            ///< List of files (delimited with : if more than one) with custom mesg stream thresholds. 

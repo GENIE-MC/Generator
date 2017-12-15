@@ -17,6 +17,7 @@
 //____________________________________________________________________________
 
 #include <iostream>
+#include <cstdlib>
 
 #include <TMath.h>
 #include <TBits.h>
@@ -24,6 +25,7 @@
 #include "GHEP/GHepFlags.h"
 #include "Utils/CmdLnArgParser.h"
 #include "Utils/RunOpt.h"
+#include "Utils/SystemUtils.h"
 #include "Messenger/Messenger.h"
 
 using std::cout;
@@ -111,11 +113,39 @@ void RunOpt::ReadFromCommandLine(int argc, char ** argv)
   }
 
   if( parser.OptionExists("tune") ) {
-    LOG("RunOpt", pWARN) 
-       << "--tune argument is dummy. "
-       << "A single (\"Default\") tune is supported for this version of GENIE";
-  //fTune = parser.ArgAsString("tune");
-  }
+
+	string tune = parser.ArgAsString("tune");
+
+	//the structure of the tunes names is fixed, see http://tunes.genie-mc.org/
+	string cgc( tune, 0, 7 ) ;
+
+	LOG("RunOpt", pINFO) << " Requested tune " << tune << " for CGC " << cgc ;
+
+	string path = std::getenv( "GENIE" ) ;
+	path += "/config/" + cgc ;
+
+	assert( utils::system::DirectoryExixsts( path.c_str() ) );
+
+	fCGC  = cgc  ;
+	LOG("RunOpt", pINFO) << " Comprehensive configuration " << cgc << " set" ;
+
+	if ( tune.size() > 7 ) {
+
+		path += '/' + tune ;
+
+		LOG("RunOpt", pINFO) << " Testing  " << path << " directory" ;
+		assert( utils::system::DirectoryExixsts( path.c_str() ) );
+		LOG("RunOpt", pINFO) << " Tune " << cgc << " set" ;
+
+		fTune = tune ;
+	}
+
+	if ( ! parser.OptionExists("event-generator-list")  ) {
+		LOG("RunOpt", pINFO) << " Setting event generator list: " << fCGC  ;
+		fEventGeneratorList = fCGC ;
+	}
+
+  }  // if( parser.OptionExists("tune") )
 
   if( parser.OptionExists("unphysical-event-mask") ) {
     const char * bitfield = 
