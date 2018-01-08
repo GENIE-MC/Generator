@@ -1,10 +1,10 @@
 Long_t load_libs_from_command(const char * list_libs_command, bool verbose = false)
 { // Takes a linker-style list of libs (eg "-lmygreatlib -lmylessgoodlib" )
-  // and loads each using gSystem::Load() 
+  // and loads each using gSystem::Load()
   // Returns 0 on success, 1 on failure
   Long_t status = 0;
   FILE * f = gSystem->OpenPipe(list_libs_command,"r");
-  
+
   TPRegexp re("-l([\\d\\w]*)");
   while (true) {
     TString line;
@@ -28,7 +28,7 @@ Long_t load_libs_from_command(const char * list_libs_command, bool verbose = fal
   gSystem->ClosePipe(f);
   return status;
 }
-  
+
 int loadlibs()
 {
   TString libs0 = gSystem->GetDynamicPath();
@@ -58,12 +58,13 @@ int loadlibs()
   //
   // GENIE libs
   //
-  
+
   Long_t status = load_libs_from_command("genie-config --libs");
-  
+
   if (status) {
     std::cout<<"Failed to load GENIE libraries"<<std::endl;
     exit(1);
   }
+  return 0;
 }
 
