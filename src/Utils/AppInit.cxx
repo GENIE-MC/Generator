@@ -49,9 +49,21 @@ void genie::utils::app_init::XSecTable (string inpfile, bool require_table)
   XSecSplineList * xspl = XSecSplineList::Instance();
   xspl->AutoLoad(); // display warning for usage $GSPLOAD no longer supported
 
-  // expand in case of embedded env var or ~
-  string expandedinpfile = gSystem->ExpandPathName(inpfile.c_str());
-  string fullinpfile     = genie::utils::xml::GetXMLFilePath(expandedinpfile);
+  // don't try to expand if no filename actually given ...
+  string expandedinpfile = "";
+  string fullinpfile     = "";
+  if ( inpfile != "" ) {
+    // expand in case of embedded env var or ~
+    expandedinpfile = gSystem->ExpandPathName(inpfile.c_str());
+    if (utils::system::FileExists(expandedinpfile)) {
+      // use the file as given if possible
+      fullinpfile   = expandedinpfile;
+    } else {
+      // look for file in $GXMLPATH, then $GENIE/config
+      // return input name if not found any of those places (thus allowing CWD)
+      fullinpfile   = genie::utils::xml::GetXMLFilePath(expandedinpfile);
+    }
+  }
 
   // file was specified & exists - load table
   if (utils::system::FileExists(fullinpfile)) {
