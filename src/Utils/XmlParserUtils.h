@@ -97,6 +97,12 @@ namespace xml   {
     // e.g. passing in "GNuMIFlux.xml"
     //   will return   "/blah/GENIE/HEAD/config/GNuMIFlux.xml"
     // allow ::colon:: ::semicolon:: and ::comma:: as path item separators
+
+    // empty basename should just be returned
+    // otherwise one will end up with a directory rather than a file
+    // as  AccessPathName() isn't checking file vs. directory
+    if ( basename == "" ) return basename;
+
     std::string pathlist = genie::utils::xml::GetXMLPathList();
     std::vector<std::string> paths = genie::utils::str::Split(pathlist,":;,");
     // expand any wildcards, etc.
@@ -111,8 +117,8 @@ namespace xml   {
     }
     // didn't find any, return basename in case it is in "." and that
     // wasn't listed in the XML path list.   If you want "." to take
-    // precedence then it needs to be explicitly listed in GXMLPATHS.
-    return basename;  
+    // precedence then it needs to be explicitly listed in $GXMLPATH.
+    return basename;
   }
 
   //_________________________________________________________________________
