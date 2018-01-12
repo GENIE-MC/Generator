@@ -9,8 +9,8 @@ Configurable Parameters:
 ......................................................................................................................................
 Name                        Type    Optional   Comment                                                    Default
 ......................................................................................................................................
-Zeta                        double  Yes   FKR's Z parameter                                               GPL: RS-Zeta
-Omega                       double  Yes   FKR's Omega parameter                                           GPL: RS-Omega
+RES-Zeta                    double  Yes   FKR's Z parameter                                               GPL: RES-Zeta
+RES-Omega                   double  Yes   FKR's Omega parameter                                           GPL: RES-Omega
 Ma                          double  Yes   RES axial mass                                                  GPL: RES-Max
 Mv                          double  Yes   RES vector mass                                                 GPL: RES-Mv
 BreitWeignerWeight          bool    Yes   Weight xsec with breit-wigner?                                  true
@@ -26,6 +26,8 @@ XSec-Integrator             alg
 
   <param_set name="Default"> 
      <param type="alg"  name="XSec-Integrator">  genie::ReinSehgalRESXSec/Default    </param>
+     <param type="double" name="RES-Omega"> 1.05  </param>
+     <param type="double" name="RES-Zeta">  0.762 </param>
   </param_set>
 
 </alg_conf>

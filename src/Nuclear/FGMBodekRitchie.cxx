@@ -222,8 +222,7 @@ void FGMBodekRitchie::LoadConfig(void)
 
   fPMax    = fConfig->GetDoubleDef ("MomentumMax", 1.0);
 
-  fPCutOff = fConfig->GetDoubleDef ("MomentumCutOff",  
-                                    gc->GetDouble("RFG-MomentumCutOff"));
+  fPCutOff = fConfig->GetDoubleDef ("RFG-MomentumCutOff", gc->GetDouble("RFG-MomentumCutOff"));
 
   assert(fPMax > 0 && fPCutOff > 0 && fPCutOff < fPMax);
 
@@ -231,8 +230,9 @@ void FGMBodekRitchie::LoadConfig(void)
   // configuration file or the UserPhysicsOptions file.
   // If none is used use Wapstra's semi-empirical formula.
   //
-  const std::string gckeyStart = "RFG-NucRemovalE@Pdg=";
-  const std::string keyStart = "NucRemovalE@Pdg=";
+
+  // const std::string gckeyStart = "RFG-NucRemovalE@Pdg=";
+  const std::string keyStart = "RFG-NucRemovalE@Pdg=";
 
   RgIMap entries = fConfig->GetItemMap();
   RgIMap gcEntries = gc->GetItemMap();
@@ -242,21 +242,21 @@ void FGMBodekRitchie::LoadConfig(void)
     const std::string& key = it->first;
     int pdg = 0;
     int Z = 0;
-    if (0 == key.compare(0, gckeyStart.size(), gckeyStart.c_str())) {
-      pdg = atoi(key.c_str() + gckeyStart.size());
-      Z = pdg::IonPdgCodeToZ(pdg);
-    } 
+//    if (0 == key.compare(0, gckeyStart.size(), gckeyStart.c_str())) {
+//      pdg = atoi(key.c_str() + gckeyStart.size());
+//      Z = pdg::IonPdgCodeToZ(pdg);
+//    }
     if (0 == key.compare(0, keyStart.size(), keyStart.c_str())) {
       pdg = atoi(key.c_str() + keyStart.size());
       Z = pdg::IonPdgCodeToZ(pdg);
     } 
     if (0 != pdg && 0 != Z) {
-      ostringstream key_ss, gckey_ss;
-      gckey_ss << gckeyStart << pdg;
+      ostringstream key_ss ; //, gckey_ss;
+     // gckey_ss << gckeyStart << pdg;
       key_ss << keyStart << pdg;
-      RgKey gcrgkey = gckey_ss.str();
+     // RgKey gcrgkey = gckey_ss.str();
       RgKey rgkey   = key_ss.str();
-      double eb = fConfig->GetDoubleDef(rgkey, gc->GetDouble(gcrgkey));
+      double eb = fConfig->GetDoubleDef(rgkey, gc->GetDouble(rgkey));
       eb = TMath::Max(eb, 0.);
       LOG("BodekRitchie", pINFO)
         << "Nucleus: " << pdg << " -> using Eb =  " << eb << " GeV";

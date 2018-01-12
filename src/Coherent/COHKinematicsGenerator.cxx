@@ -990,7 +990,7 @@ void COHKinematicsGenerator::LoadConfig(void)
   const Registry * gc = confp->GlobalParameterList();
 
   //-- COH model parameter Ro
-  fRo = fConfig->GetDoubleDef("Ro", gc->GetDouble("COH-Ro"));
+  fRo = fConfig->GetDoubleDef("COH-Ro", gc->GetDouble("COH-Ro"));
   //-- COH model parameter t_max for t = (q - p_pi)^2
   fTMax = fConfig->GetDoubleDef("COH-t-max", gc->GetDouble("COH-t-max"));
   //-- COH model bounds of integration for Q^2

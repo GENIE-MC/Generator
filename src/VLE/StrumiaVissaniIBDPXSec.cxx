@@ -185,17 +185,15 @@ void StrumiaVissaniIBDPXSec::LoadConfig(void)
    fCosCabibbo2 = cosCab*cosCab;
    
    // form factor params
-   fg1of0          = fConfig->GetDoubleDef("G1of0", gc->GetDouble("QEL-FA0"));
-   const double ma = fConfig->GetDoubleDef("Ma", gc->GetDouble("QEL-Ma"));
-   const double mv = fConfig->GetDoubleDef("Mv", gc->GetDouble("QEL-Mv"));
+   fg1of0          = fConfig->GetDoubleDef("QEL-FA0", gc->GetDouble("QEL-FA0"));
+   const double ma = fConfig->GetDoubleDef("QEL-Ma", gc->GetDouble("QEL-Ma"));
+   const double mv = fConfig->GetDoubleDef("QEL-Mv", gc->GetDouble("QEL-Mv"));
    fMa2 = ma*ma;
    fMv2 = mv*mv;
 
    // magnetic moments
-   const double mup = fConfig->GetDoubleDef(
-      "MuP", gc->GetDouble("AnomMagnMoment-P"));
-   const double mun = fConfig->GetDoubleDef(
-      "MuN", gc->GetDouble("AnomMagnMoment-N"));
+   const double mup = fConfig->GetDoubleDef( "AnomMagnMoment-P", gc->GetDouble("AnomMagnMoment-P"));
+   const double mun = fConfig->GetDoubleDef( "AnomMagnMoment-N", gc->GetDouble("AnomMagnMoment-N"));
    fNucleonMMDiff    = (mup - 1.000) - mun; // *anamolous* mag. mom. diff.
    //fNucleonMMDiff    = 3.706;
    

@@ -261,7 +261,7 @@ void NievesSimoVacasMECPXSec2016::LoadConfig(void)
     const Registry * gc = confp->GlobalParameterList();
 
     // Cross section scaling factor
-    fXSecScale = fConfig->GetDoubleDef( "XSecScale",
+    fXSecScale = fConfig->GetDoubleDef( "MEC-CC-XSecScale",
             gc->GetDouble("MEC-CC-XSecScale"));
 
     fXSecIntegrator =

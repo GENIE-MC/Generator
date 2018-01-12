@@ -215,8 +215,7 @@ void SpectralFunc1d::LoadConfig(void)
   //
   fUseRFGMomentumCutoff = fConfig->GetBoolDef(
        "UseRFGMomentumCutoff", gc->GetBool("SF1d-UseRFGMomentumCutoff"));
-  fPCutOff = fConfig->GetDoubleDef ("MomentumCutOff",
-                                    gc->GetDouble("RFG-MomentumCutOff"));
+  fPCutOff = fConfig->GetDoubleDef ("RFG-MomentumCutOff", gc->GetDouble("RFG-MomentumCutOff"));
 
   // Removal energies as used in the FG model
   // Load removal energy for specific nuclei from either the algorithm's
@@ -225,14 +224,14 @@ void SpectralFunc1d::LoadConfig(void)
   //
   for(int Z=1; Z<140; Z++) {
     for(int A=Z; A<3*Z; A++) {
-      ostringstream key, gckey;
+      ostringstream key; //, gckey;
       int pdgc = pdg::IonPdgCode(A,Z);
-      gckey << "RFG-NucRemovalE@Pdg=" << pdgc;
-      key   << "NucRemovalE@Pdg="     << pdgc;
-      RgKey gcrgkey = gckey.str();
+      //gckey << "RFG-NucRemovalE@Pdg=" << pdgc;
+      key   << "RFG-NucRemovalE@Pdg="     << pdgc;
+      //RgKey gcrgkey = gckey.str();
       RgKey rgkey   = key.str();
-      if (this->GetConfig().Exists(rgkey) || gc->Exists(gcrgkey)) {
-        double eb = fConfig->GetDoubleDef(rgkey, gc->GetDouble(gcrgkey));
+      if (this->GetConfig().Exists(rgkey) ) {
+        double eb = fConfig->GetDoubleDef(rgkey, gc->GetDouble(rgkey));
         eb = TMath::Max(eb, 0.);
         LOG("BodekRitchie", pNOTICE)
           << "Nucleus: " << pdgc << " -> using Eb =  " << eb << " GeV";

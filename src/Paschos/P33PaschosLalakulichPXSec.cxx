@@ -300,11 +300,10 @@ void P33PaschosLalakulichPXSec::LoadConfig(void)
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();
 
-  fMa  = fConfig->GetDoubleDef( "Ma", gc->GetDouble("RES-Ma") );
-  fMv  = fConfig->GetDoubleDef( "Mv", gc->GetDouble("RES-Mv") );
+  fMa  = fConfig->GetDoubleDef( "RES-Ma", gc->GetDouble("RES-Ma") );
+  fMv  = fConfig->GetDoubleDef( "RES-Mv", gc->GetDouble("RES-Mv") );
 
-  double thc = fConfig->GetDoubleDef(
-                            "CabibboAngle", gc->GetDouble("CabibboAngle"));
+  double thc = fConfig->GetDoubleDef( "CabibboAngle", gc->GetDouble("CabibboAngle"));
   fCos28c = TMath::Power( TMath::Cos(thc), 2 );
 
   fTurnOnPauliCorrection = fConfig->GetBoolDef("TurnOnPauliSuppr", false);

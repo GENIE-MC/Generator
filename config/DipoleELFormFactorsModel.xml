@@ -10,11 +10,15 @@ Algorithm Configurable Parameters:
 Name        Type    Optional   Comment                    Default
 .........................................................................................
 Mv          double  Yes        Vector Mass                GPL value: EL-Mv
-MuP         double  Yes        p Anomalous Magn Moment    GPL value: AnomMagnMoment-P
-MuN         double  Yes        n Anomalous Magn Moment    GPL value: AnomMagnMoment-N
+AnomMagnMoment-P   double  Yes p Anomalous Magn Moment    GPL value
+AnomMagnMoment-N   double  Yes n Anomalous Magn Moment    GPL value
 -->
 
   <param_set name="Default"> 
+
+    <param type="double" name="AnomMagnMoment-P">   2.7930     </param>
+    <param type="double" name="AnomMagnMoment-N">  -1.913042   </param>
+  
   </param_set>
 
 </alg_conf>

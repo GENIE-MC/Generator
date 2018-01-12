@@ -771,19 +771,19 @@ void BSKLNBaseRESPXSec2014::LoadConfig(void)
 
 
   // Cross section scaling factors
-  fXSecScaleCC = fConfig->GetDoubleDef( "CC-XSecScale",
+  fXSecScaleCC = fConfig->GetDoubleDef( "RES-CC-XSecScale",
 		                                gc->GetDouble("RES-CC-XSecScale"));
-  fXSecScaleNC = fConfig->GetDoubleDef( "NC-XSecScale",
+  fXSecScaleNC = fConfig->GetDoubleDef( "RES-NC-XSecScale",
 		                                gc->GetDouble("RES-NC-XSecScale"));
 
   // Load all configuration data or set defaults
 
   LOG("RSHAmpl", pWARN)
     << "get to beg = ";
-  fZeta  = fConfig->GetDoubleDef( "Zeta",  gc->GetDouble("RS-Zeta")  );
+  fZeta  = fConfig->GetDoubleDef( "RES-Zeta",  gc->GetDouble("RES-Zeta")  );
   LOG("RSHAmpl", pWARN)
     << "load fZeta";
-  fOmega = fConfig->GetDoubleDef( "Omega", gc->GetDouble("RS-Omega") );
+  fOmega = fConfig->GetDoubleDef( "RES-Omega", gc->GetDouble("RES-Omega") );
   LOG("RSHAmpl", pWARN)
     << "load Omega";
 
@@ -798,8 +798,8 @@ need to be set by concrete classes, not config
   fGA  = fConfig->GetBoolDef("minibooneGA", gc->GetBool("minibooneGA"));
   fGV  = fConfig->GetBoolDef("minibooneGV", gc->GetBool("minibooneGV"));
 
-  double ma  = fConfig->GetDoubleDef( "Ma", gc->GetDouble("RES-Ma") );
-  double mv  = fConfig->GetDoubleDef( "Mv", gc->GetDouble("RES-Mv") );
+  double ma  = fConfig->GetDoubleDef( "RES-Ma", gc->GetDouble("RES-Ma") );
+  double mv  = fConfig->GetDoubleDef( "RES-Mv", gc->GetDouble("RES-Mv") );
 
   fMa2 = TMath::Power(ma,2);
   fMv2 = TMath::Power(mv,2);
@@ -807,7 +807,7 @@ need to be set by concrete classes, not config
   fWghtBW = fConfig->GetBoolDef("BreitWignerWeight", true);
 
   double thw = fConfig->GetDoubleDef(
-      "weinberg-angle", gc->GetDouble("WeinbergAngle"));
+      "WeinbergAngle", gc->GetDouble("WeinbergAngle"));
 
   fSin48w = TMath::Power( TMath::Sin(thw), 4 );
 

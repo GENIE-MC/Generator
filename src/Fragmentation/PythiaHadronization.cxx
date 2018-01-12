@@ -455,14 +455,14 @@ void PythiaHadronization::LoadConfig(void)
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();
 
-  fSSBarSuppression = fConfig->GetDoubleDef(
-              "SSBarSuppression", gc->GetDouble("PYTHIA-SSBarSuppression"));
-  fGaussianPt2 = fConfig->GetDoubleDef(
-                        "GaussianPt2", gc->GetDouble("PYTHIA-GaussianPt2"));
-  fNonGaussianPt2Tail = fConfig->GetDoubleDef(
-          "NonGaussianPt2Tail", gc->GetDouble("PYTHIA-NonGaussianPt2Tail"));
-  fRemainingECutoff = fConfig->GetDoubleDef(
-    "RemainingEnergyCutoff", gc->GetDouble("PYTHIA-RemainingEnergyCutoff"));
+  fSSBarSuppression = fConfig->GetDoubleDef( "PYTHIA-SSBarSuppression",
+		                gc->GetDouble("PYTHIA-SSBarSuppression"));
+  fGaussianPt2 = fConfig->GetDoubleDef( "PYTHIA-GaussianPt2",
+		                gc->GetDouble("PYTHIA-GaussianPt2"));
+  fNonGaussianPt2Tail = fConfig->GetDoubleDef( "PYTHIA-NonGaussianPt2Tail",
+		                gc->GetDouble("PYTHIA-NonGaussianPt2Tail"));
+  fRemainingECutoff = fConfig->GetDoubleDef( "PYTHIA-RemainingEnergyCutoff",
+		                gc->GetDouble("PYTHIA-RemainingEnergyCutoff"));
 
   fPythia->SetPARJ(2,  fSSBarSuppression);
   fPythia->SetPARJ(21, fGaussianPt2);
@@ -482,37 +482,37 @@ void PythiaHadronization::LoadConfig(void)
 
   // Load NEUGEN multiplicity probability scaling parameters Rijk
   fRvpCCm2  = fConfig->GetDoubleDef(
-                      "R-vp-CC-m2", gc->GetDouble("DIS-HMultWgt-vp-CC-m2"));
+                      "DIS-HMultWgt-vp-CC-m2", gc->GetDouble("DIS-HMultWgt-vp-CC-m2"));
   fRvpCCm3  = fConfig->GetDoubleDef(
-                      "R-vp-CC-m3", gc->GetDouble("DIS-HMultWgt-vp-CC-m3"));
+                      "DIS-HMultWgt-vp-CC-m3", gc->GetDouble("DIS-HMultWgt-vp-CC-m3"));
   fRvpNCm2  = fConfig->GetDoubleDef(
-                      "R-vp-NC-m2", gc->GetDouble("DIS-HMultWgt-vp-NC-m2"));
+                      "DIS-HMultWgt-vp-NC-m2", gc->GetDouble("DIS-HMultWgt-vp-NC-m2"));
   fRvpNCm3  = fConfig->GetDoubleDef(
-                      "R-vp-NC-m3", gc->GetDouble("DIS-HMultWgt-vp-NC-m3"));
+                      "DIS-HMultWgt-vp-NC-m3", gc->GetDouble("DIS-HMultWgt-vp-NC-m3"));
   fRvnCCm2  = fConfig->GetDoubleDef(
-                      "R-vn-CC-m2", gc->GetDouble("DIS-HMultWgt-vn-CC-m2"));
+                      "DIS-HMultWgt-vn-CC-m2", gc->GetDouble("DIS-HMultWgt-vn-CC-m2"));
   fRvnCCm3  = fConfig->GetDoubleDef(
-                      "R-vn-CC-m3", gc->GetDouble("DIS-HMultWgt-vn-CC-m3"));
+                      "DIS-HMultWgt-vn-CC-m3", gc->GetDouble("DIS-HMultWgt-vn-CC-m3"));
   fRvnNCm2  = fConfig->GetDoubleDef(
-                      "R-vn-NC-m2", gc->GetDouble("DIS-HMultWgt-vn-NC-m2"));
+                      "DIS-HMultWgt-vn-NC-m2", gc->GetDouble("DIS-HMultWgt-vn-NC-m2"));
   fRvnNCm3  = fConfig->GetDoubleDef(
-                      "R-vn-NC-m3", gc->GetDouble("DIS-HMultWgt-vn-NC-m3"));
+                      "DIS-HMultWgt-vn-NC-m3", gc->GetDouble("DIS-HMultWgt-vn-NC-m3"));
   fRvbpCCm2 = fConfig->GetDoubleDef(
-                     "R-vbp-CC-m2",gc->GetDouble("DIS-HMultWgt-vbp-CC-m2"));
+                     "DIS-HMultWgt-vbp-CC-m2",gc->GetDouble("DIS-HMultWgt-vbp-CC-m2"));
   fRvbpCCm3 = fConfig->GetDoubleDef(
-                     "R-vbp-CC-m3",gc->GetDouble("DIS-HMultWgt-vbp-CC-m3"));
+                     "DIS-HMultWgt-vbp-CC-m3",gc->GetDouble("DIS-HMultWgt-vbp-CC-m3"));
   fRvbpNCm2 = fConfig->GetDoubleDef(
-                     "R-vbp-NC-m2",gc->GetDouble("DIS-HMultWgt-vbp-NC-m2"));
+                     "DIS-HMultWgt-vbp-NC-m2",gc->GetDouble("DIS-HMultWgt-vbp-NC-m2"));
   fRvbpNCm3 = fConfig->GetDoubleDef(
-                     "R-vbp-NC-m3",gc->GetDouble("DIS-HMultWgt-vbp-NC-m3"));
+                     "DIS-HMultWgt-vbp-NC-m3",gc->GetDouble("DIS-HMultWgt-vbp-NC-m3"));
   fRvbnCCm2 = fConfig->GetDoubleDef(
-                     "R-vbn-CC-m2",gc->GetDouble("DIS-HMultWgt-vbn-CC-m2"));
+                     "DIS-HMultWgt-vbn-CC-m2",gc->GetDouble("DIS-HMultWgt-vbn-CC-m2"));
   fRvbnCCm3 = fConfig->GetDoubleDef(
-                     "R-vbn-CC-m3",gc->GetDouble("DIS-HMultWgt-vbn-CC-m3"));
+                     "DIS-HMultWgt-vbn-CC-m3",gc->GetDouble("DIS-HMultWgt-vbn-CC-m3"));
   fRvbnNCm2 = fConfig->GetDoubleDef(
-                     "R-vbn-NC-m2",gc->GetDouble("DIS-HMultWgt-vbn-NC-m2"));
+                     "DIS-HMultWgt-vbn-NC-m2",gc->GetDouble("DIS-HMultWgt-vbn-NC-m2"));
   fRvbnNCm3 = fConfig->GetDoubleDef(
-                     "R-vbn-NC-m3",gc->GetDouble("DIS-HMultWgt-vbn-NC-m3"));
+                     "DIS-HMultWgt-vbn-NC-m3",gc->GetDouble("DIS-HMultWgt-vbn-NC-m3"));
 
   LOG("PythiaHad", pDEBUG) << *fConfig;
 }

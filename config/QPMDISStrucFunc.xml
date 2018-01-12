@@ -16,19 +16,41 @@ IncludeNuclMod             bool    Yes   include nuclear factor?                
 CKM-Vcd                    double  Yes                                          GPL: CKM-Vcd
 CKM-Vcs                    double  Yes                                          GPL: CKM-Vcs
 CKM-Vud                    double  Yes                                          GPL: CKM-Vud
-CKM-Vcs                    double  Yes                                          GPL: CKM-Vus
+CKM-Vus                    double  Yes                                          GPL: CKM-Vus
 Use2016Corrections         bool    Yes   Use SF corrections?                    GPL: DISSF-Use2016Corrections
-LowQ2CutoffF1F2            double  Yes   min for F1/F2 SF relation              GPL: DISSF-LowQ2CutoffF1F2
+DISSF-LowQ2CutoffF1F2      double  Yes   min for F1/F2 SF relation              GPL: DISSF-LowQ2CutoffF1F2
 -->
 
 <alg_conf>
 
   <param_set name="Default"> 
      <param type="alg" name="PDF-Set">   genie::PDFLIB/GRVLO </param>
+     <param type="double" name="CKM-Vud">  0.97377  </param>
+     <param type="double" name="CKM-Vus">  0.2257   </param>
+     <param type="double" name="CKM-Vcd">  0.230    </param>
+     <param type="double" name="CKM-Vcs">  0.957    </param>
+
+     <param type="double" name="PDF-Q2min"> 0.800 </param>
+
+     <param type="double" name="DISSF-LowQ2CutoffF1F2">    0.8  </param>
+
+     <param type="double" name="Charm-Mass"> 1.430 </param>
+
   </param_set>
 
   <param_set name="Optional"> 
      <param type="alg" name="PDF-Set">  genie::GRV98LO/Default </param>
+     <param type="double" name="CKM-Vud">  0.97377  </param>
+     <param type="double" name="CKM-Vus">  0.2257   </param>
+     <param type="double" name="CKM-Vcd">  0.230    </param>
+     <param type="double" name="CKM-Vcs">  0.957    </param>
+
+     <param type="double" name="PDF-Q2min"> 0.800 </param>
+
+     <param type="double" name="DISSF-LowQ2CutoffF1F2">    0.8  </param>
+
+     <param type="double" name="Charm-Mass"> 1.430 </param>
+      
   </param_set>
 
 </alg_conf>

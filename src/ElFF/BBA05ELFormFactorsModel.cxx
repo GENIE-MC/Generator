@@ -88,38 +88,38 @@ void BBA05ELFormFactorsModel::LoadConfig(void)
   const Registry * gc = confp->GlobalParameterList();
 
   //-- load the BBA2005 fit coefficients
-  fGep.a0 = fConfig->GetDoubleDef("Gep-a0", gc->GetDouble("BBA05-Gep-a0"));
-  fGep.a1 = fConfig->GetDoubleDef("Gep-a1", gc->GetDouble("BBA05-Gep-a1"));
-  fGep.a2 = fConfig->GetDoubleDef("Gep-a2", gc->GetDouble("BBA05-Gep-a2"));
-  fGep.b1 = fConfig->GetDoubleDef("Gep-b1", gc->GetDouble("BBA05-Gep-b1"));
-  fGep.b2 = fConfig->GetDoubleDef("Gep-b2", gc->GetDouble("BBA05-Gep-b2"));
-  fGep.b3 = fConfig->GetDoubleDef("Gep-b3", gc->GetDouble("BBA05-Gep-b3"));
-  fGep.b4 = fConfig->GetDoubleDef("Gep-b4", gc->GetDouble("BBA05-Gep-b4"));
-  fGmp.a0 = fConfig->GetDoubleDef("Gmp-a0", gc->GetDouble("BBA05-Gmp-a0"));
-  fGmp.a1 = fConfig->GetDoubleDef("Gmp-a1", gc->GetDouble("BBA05-Gmp-a1"));
-  fGmp.a2 = fConfig->GetDoubleDef("Gmp-a2", gc->GetDouble("BBA05-Gmp-a2"));
-  fGmp.b1 = fConfig->GetDoubleDef("Gmp-b1", gc->GetDouble("BBA05-Gmp-b1"));
-  fGmp.b2 = fConfig->GetDoubleDef("Gmp-b2", gc->GetDouble("BBA05-Gmp-b2"));
-  fGmp.b3 = fConfig->GetDoubleDef("Gmp-b3", gc->GetDouble("BBA05-Gmp-b3"));
-  fGmp.b4 = fConfig->GetDoubleDef("Gmp-b4", gc->GetDouble("BBA05-Gmp-b4"));
-  fGen.a0 = fConfig->GetDoubleDef("Gen-a0", gc->GetDouble("BBA05-Gen-a0"));
-  fGen.a1 = fConfig->GetDoubleDef("Gen-a1", gc->GetDouble("BBA05-Gen-a1"));
-  fGen.a2 = fConfig->GetDoubleDef("Gen-a2", gc->GetDouble("BBA05-Gen-a2"));
-  fGen.b1 = fConfig->GetDoubleDef("Gen-b1", gc->GetDouble("BBA05-Gen-b1"));
-  fGen.b2 = fConfig->GetDoubleDef("Gen-b2", gc->GetDouble("BBA05-Gen-b2"));
-  fGen.b3 = fConfig->GetDoubleDef("Gen-b3", gc->GetDouble("BBA05-Gen-b3"));
-  fGen.b4 = fConfig->GetDoubleDef("Gen-b4", gc->GetDouble("BBA05-Gen-b4"));
-  fGmn.a0 = fConfig->GetDoubleDef("Gmn-a0", gc->GetDouble("BBA05-Gmn-a0"));
-  fGmn.a1 = fConfig->GetDoubleDef("Gmn-a1", gc->GetDouble("BBA05-Gmn-a1"));
-  fGmn.a2 = fConfig->GetDoubleDef("Gmn-a2", gc->GetDouble("BBA05-Gmn-a2"));
-  fGmn.b1 = fConfig->GetDoubleDef("Gmn-b1", gc->GetDouble("BBA05-Gmn-b1"));
-  fGmn.b2 = fConfig->GetDoubleDef("Gmn-b2", gc->GetDouble("BBA05-Gmn-b2"));
-  fGmn.b3 = fConfig->GetDoubleDef("Gmn-b3", gc->GetDouble("BBA05-Gmn-b3"));
-  fGmn.b4 = fConfig->GetDoubleDef("Gmn-b4", gc->GetDouble("BBA05-Gmn-b4"));
+  fGep.a0 = fConfig->GetDoubleDef("BBA05-Gep-a0", gc->GetDouble("BBA05-Gep-a0"));
+  fGep.a1 = fConfig->GetDoubleDef("BBA05-Gep-a1", gc->GetDouble("BBA05-Gep-a1"));
+  fGep.a2 = fConfig->GetDoubleDef("BBA05-Gep-a2", gc->GetDouble("BBA05-Gep-a2"));
+  fGep.b1 = fConfig->GetDoubleDef("BBA05-Gep-b1", gc->GetDouble("BBA05-Gep-b1"));
+  fGep.b2 = fConfig->GetDoubleDef("BBA05-Gep-b2", gc->GetDouble("BBA05-Gep-b2"));
+  fGep.b3 = fConfig->GetDoubleDef("BBA05-Gep-b3", gc->GetDouble("BBA05-Gep-b3"));
+  fGep.b4 = fConfig->GetDoubleDef("BBA05-Gep-b4", gc->GetDouble("BBA05-Gep-b4"));
+  fGmp.a0 = fConfig->GetDoubleDef("BBA05-Gmp-a0", gc->GetDouble("BBA05-Gmp-a0"));
+  fGmp.a1 = fConfig->GetDoubleDef("BBA05-Gmp-a1", gc->GetDouble("BBA05-Gmp-a1"));
+  fGmp.a2 = fConfig->GetDoubleDef("BBA05-Gmp-a2", gc->GetDouble("BBA05-Gmp-a2"));
+  fGmp.b1 = fConfig->GetDoubleDef("BBA05-Gmp-b1", gc->GetDouble("BBA05-Gmp-b1"));
+  fGmp.b2 = fConfig->GetDoubleDef("BBA05-Gmp-b2", gc->GetDouble("BBA05-Gmp-b2"));
+  fGmp.b3 = fConfig->GetDoubleDef("BBA05-Gmp-b3", gc->GetDouble("BBA05-Gmp-b3"));
+  fGmp.b4 = fConfig->GetDoubleDef("BBA05-Gmp-b4", gc->GetDouble("BBA05-Gmp-b4"));
+  fGen.a0 = fConfig->GetDoubleDef("BBA05-Gen-a0", gc->GetDouble("BBA05-Gen-a0"));
+  fGen.a1 = fConfig->GetDoubleDef("BBA05-Gen-a1", gc->GetDouble("BBA05-Gen-a1"));
+  fGen.a2 = fConfig->GetDoubleDef("BBA05-Gen-a2", gc->GetDouble("BBA05-Gen-a2"));
+  fGen.b1 = fConfig->GetDoubleDef("BBA05-Gen-b1", gc->GetDouble("BBA05-Gen-b1"));
+  fGen.b2 = fConfig->GetDoubleDef("BBA05-Gen-b2", gc->GetDouble("BBA05-Gen-b2"));
+  fGen.b3 = fConfig->GetDoubleDef("BBA05-Gen-b3", gc->GetDouble("BBA05-Gen-b3"));
+  fGen.b4 = fConfig->GetDoubleDef("BBA05-Gen-b4", gc->GetDouble("BBA05-Gen-b4"));
+  fGmn.a0 = fConfig->GetDoubleDef("BBA05-Gmn-a0", gc->GetDouble("BBA05-Gmn-a0"));
+  fGmn.a1 = fConfig->GetDoubleDef("BBA05-Gmn-a1", gc->GetDouble("BBA05-Gmn-a1"));
+  fGmn.a2 = fConfig->GetDoubleDef("BBA05-Gmn-a2", gc->GetDouble("BBA05-Gmn-a2"));
+  fGmn.b1 = fConfig->GetDoubleDef("BBA05-Gmn-b1", gc->GetDouble("BBA05-Gmn-b1"));
+  fGmn.b2 = fConfig->GetDoubleDef("BBA05-Gmn-b2", gc->GetDouble("BBA05-Gmn-b2"));
+  fGmn.b3 = fConfig->GetDoubleDef("BBA05-Gmn-b3", gc->GetDouble("BBA05-Gmn-b3"));
+  fGmn.b4 = fConfig->GetDoubleDef("BBA05-Gmn-b4", gc->GetDouble("BBA05-Gmn-b4"));
 
   //-- anomalous magnetic moments
-  fMuP = fConfig->GetDoubleDef("MuP", gc->GetDouble("AnomMagnMoment-P"));
-  fMuN = fConfig->GetDoubleDef("MuN", gc->GetDouble("AnomMagnMoment-N"));
+  fMuP = fConfig->GetDoubleDef("AnomMagnMoment-P", gc->GetDouble("AnomMagnMoment-P"));
+  fMuN = fConfig->GetDoubleDef("AnomMagnMoment-N", gc->GetDouble("AnomMagnMoment-N"));
 }
 //____________________________________________________________________________
 double BBA05ELFormFactorsModel::BBA05Fit(

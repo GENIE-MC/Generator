@@ -299,8 +299,8 @@ void BergerSehgalFMCOHPiPXSec2015::LoadConfig(void)
     AlgConfigPool * confp = AlgConfigPool::Instance();
     const Registry * gc = confp->GlobalParameterList();
 
-    fMa         = fConfig->GetDoubleDef("Ma",           gc->GetDouble("COH-Ma"));
-    fRo         = fConfig->GetDoubleDef("Ro",           gc->GetDouble("COH-Ro"));
+    fMa         = fConfig->GetDoubleDef("COH-Ma",           gc->GetDouble("COH-Ma"));
+    fRo         = fConfig->GetDoubleDef("COH-Ro",           gc->GetDouble("COH-Ro"));
     double thc  = fConfig->GetDoubleDef("CabibboAngle", gc->GetDouble("CabibboAngle"));
     fCos8c2     = TMath::Power(TMath::Cos(thc), 2);
 

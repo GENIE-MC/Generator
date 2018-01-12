@@ -125,7 +125,7 @@ void H3AMNuGammaPXSec::LoadConfig(void)
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();
 
-  fGw = fConfig->GetDoubleDef("Gw", gc->GetDouble("AMNuGamma-Gw"));
+  fGw = fConfig->GetDoubleDef("AMNuGamma-Gw", gc->GetDouble("AMNuGamma-Gw"));
 }
 //____________________________________________________________________________
 

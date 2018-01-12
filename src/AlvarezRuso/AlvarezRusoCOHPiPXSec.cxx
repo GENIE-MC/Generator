@@ -175,7 +175,7 @@ void AlvarezRusoCOHPiPXSec::LoadConfig(void)
   //AlgConfigPool * confp = AlgConfigPool::Instance();
   //const Registry * gc = confp->GlobalParameterList();
 
-  /*fRo      = fConfig->GetDoubleDef("Ro",            gc->GetDouble("COH-Ro"));
+  /*fRo      = fConfig->GetDoubleDef("COH-Ro",            gc->GetDouble("COH-Ro"));
   fMa      = fConfig->GetDoubleDef("Ma",            gc->GetDouble("COH-Ma"));
   fa4      = fConfig->GetDoubleDef("a4",            gc->GetDouble("COHAR-a4"));
   fa5      = fConfig->GetDoubleDef("a5",            gc->GetDouble("COHAR-a5"));

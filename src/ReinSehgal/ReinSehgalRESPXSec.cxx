@@ -381,15 +381,15 @@ void ReinSehgalRESPXSec::LoadConfig(void)
 
   // Cross section scaling factors
   fXSecScaleCC = fConfig->GetDoubleDef(
-     "CC-XSecScale", gc->GetDouble("RES-CC-XSecScale"));
+     "RES-CC-XSecScale", gc->GetDouble("RES-CC-XSecScale"));
   fXSecScaleNC = fConfig->GetDoubleDef(
-     "NC-XSecScale", gc->GetDouble("RES-NC-XSecScale"));
+     "RES-NC-XSecScale", gc->GetDouble("RES-NC-XSecScale"));
 
-  fZeta  = fConfig->GetDoubleDef( "Zeta",  gc->GetDouble("RS-Zeta")  );
-  fOmega = fConfig->GetDoubleDef( "Omega", gc->GetDouble("RS-Omega") );
+  fZeta  = fConfig->GetDoubleDef( "RES-Zeta",  gc->GetDouble("RES-Zeta")  );
+  fOmega = fConfig->GetDoubleDef( "RES-Omega", gc->GetDouble("RES-Omega") );
 
-  double ma  = fConfig->GetDoubleDef( "Ma", gc->GetDouble("RES-Ma") );
-  double mv  = fConfig->GetDoubleDef( "Mv", gc->GetDouble("RES-Mv") );
+  double ma  = fConfig->GetDoubleDef( "RES-Ma", gc->GetDouble("RES-Ma") );
+  double mv  = fConfig->GetDoubleDef( "RES-Mv", gc->GetDouble("RES-Mv") );
 
   fMa2 = TMath::Power(ma,2);
   fMv2 = TMath::Power(mv,2);
@@ -397,7 +397,7 @@ void ReinSehgalRESPXSec::LoadConfig(void)
   fWghtBW = fConfig->GetBoolDef("BreitWignerWeight", true);
 
   double thw = fConfig->GetDoubleDef(
-         "weinberg-angle", gc->GetDouble("WeinbergAngle"));
+         "WeinbergAngle", gc->GetDouble("WeinbergAngle"));
      
   fSin48w = TMath::Power( TMath::Sin(thw), 4 );
 

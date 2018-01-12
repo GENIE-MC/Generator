@@ -34,6 +34,8 @@
 
 #include "Utils/StringUtils.h"
 #include "Utils/RunOpt.h"
+//#include "Messenger/Messenger.h"
+
 
 class TFile;
 class TH1F;
@@ -146,7 +148,10 @@ namespace xml   {
       onepath += "/";
       onepath += basename;
       bool noAccess = gSystem->AccessPathName(onepath.c_str());
-      if ( ! noAccess ) return onepath;  // found one
+      if ( ! noAccess ) {
+    //	  LOG("XmlParserUtils", pDEBUG ) << onepath ;
+    	  return onepath;  // found one
+      }
     }
     // didn't find any, return basename in case it is in "." and that
     // wasn't listed in the XML path list.   If you want "." to take

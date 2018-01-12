@@ -7,7 +7,9 @@ Configuration for the coherent pi production cross section algorithm
 
 Configurable Parameters:
 ....................................................................................................
-Name             Type     Optional   Comment                 Default
+Name             Type     Optional   Comment                                           Default
+DFR-t-max        double   Yes        Maximum considered t when estimating the max      GPL value
+                                     cross section, Units in GeV^2.        
 ....................................................................................................
 -->
 
@@ -20,6 +22,8 @@ Name             Type     Optional   Comment                 Default
     <param type="int"    name ="gsl-max-eval" >             500000  </param>
     <param type="int"    name ="gsl-min-eval" >              10000  </param>
     <param type="double" name ="gsl-relative-tolerance"  >   0.001  </param>
+
+    <param type="double" name="DFR-t-max"> 0.35 </param>
     
   </param_set>
 

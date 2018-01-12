@@ -466,8 +466,7 @@ void KNOHadronization::LoadConfig(void)
              "PhaseSpDec-Reweight", gc->GetBool("KNO-PhaseSpDec-Reweight"));
 
   // Parameter for phase space re-weighting. See ReWeightPt2()
-  fPhSpRwA = fConfig->GetDoubleDef(
-      "PhaseSpDec-ReweightParm", gc->GetDouble("KNO-PhaseSpDec-ReweightParm")); 
+  fPhSpRwA = fConfig->GetDoubleDef( "KNO-PhaseSpDec-ReweightParm", gc->GetDouble("KNO-PhaseSpDec-ReweightParm"));
 
   // use isotropic non-reweighted 2-body phase space decays for consistency
   // with neugen/daikon
@@ -480,23 +479,17 @@ void KNOHadronization::LoadConfig(void)
   // Probabilities for producing hadron pairs
 
   //-- pi0 pi0
-  fPpi0 = fConfig->GetDoubleDef(
-             "ProbPi0Pi0", gc->GetDouble("KNO-ProbPi0Pi0")); 
+  fPpi0 = fConfig->GetDoubleDef( "KNO-ProbPi0Pi0", gc->GetDouble("KNO-ProbPi0Pi0"));
   //-- pi+ pi-
-  fPpic = fConfig->GetDoubleDef(
-             "ProbPiplusPiminus", gc->GetDouble("KNO-ProbPiplusPiminus")); 
+  fPpic = fConfig->GetDoubleDef( "KNO-ProbPiplusPiminus", gc->GetDouble("KNO-ProbPiplusPiminus"));
   //-- K+  K-
-  fPKc  = fConfig->GetDoubleDef(
-             "ProbKplusKminus", gc->GetDouble("KNO-ProbKplusKminus")); 
+  fPKc  = fConfig->GetDoubleDef( "KNO-ProbKplusKminus", gc->GetDouble("KNO-ProbKplusKminus"));
   //-- K0 K0bar
-  fPK0  = fConfig->GetDoubleDef(
-             "ProbK0K0bar", gc->GetDouble("KNO-ProbK0K0bar")); 
+  fPK0  = fConfig->GetDoubleDef( "KNO-ProbK0K0bar", gc->GetDouble("KNO-ProbK0K0bar"));
   //-- pi0 eta
-  fPpi0eta = fConfig->GetDoubleDef(
-	     "ProbPi0Eta", gc->GetDouble("KNO-ProbPi0Eta"));
+  fPpi0eta = fConfig->GetDoubleDef( "KNO-ProbPi0Eta", gc->GetDouble("KNO-ProbPi0Eta"));
   //-- eta eta
-  fPeta  = fConfig->GetDoubleDef(
-	     "ProbEtaEta", gc->GetDouble("KNO-ProbEtaEta")); 
+  fPeta  = fConfig->GetDoubleDef( "KNO-ProbEtaEta", gc->GetDouble("KNO-ProbEtaEta"));
   
   double fsum = fPeta + fPpi0eta + fPK0 + fPKc + fPpic + fPpi0;
   double diff = TMath::Abs(1.-fsum); 
@@ -549,25 +542,25 @@ void KNOHadronization::LoadConfig(void)
 */
 
   // Load parameters determining the average charged hadron multiplicity
-  fAvp  = fConfig->GetDoubleDef("Alpha-vp",  gc->GetDouble("KNO-Alpha-vp") );
-  fAvn  = fConfig->GetDoubleDef("Alpha-vn",  gc->GetDouble("KNO-Alpha-vn") ); 
-  fAvbp = fConfig->GetDoubleDef("Alpha-vbp", gc->GetDouble("KNO-Alpha-vbp")); 
-  fAvbn = fConfig->GetDoubleDef("Alpha-vbn", gc->GetDouble("KNO-Alpha-vbn"));
-  fBvp  = fConfig->GetDoubleDef("Beta-vp",   gc->GetDouble("KNO-Beta-vp") );
-  fBvn  = fConfig->GetDoubleDef("Beta-vn",   gc->GetDouble("KNO-Beta-vn") ); 
-  fBvbp = fConfig->GetDoubleDef("Beta-vbp",  gc->GetDouble("KNO-Beta-vbp")); 
-  fBvbn = fConfig->GetDoubleDef("Beta-vbn",  gc->GetDouble("KNO-Beta-vbn"));
+  fAvp  = fConfig->GetDoubleDef("KNO-Alpha-vp",  gc->GetDouble("KNO-Alpha-vp") );
+  fAvn  = fConfig->GetDoubleDef("KNO-Alpha-vn",  gc->GetDouble("KNO-Alpha-vn") );
+  fAvbp = fConfig->GetDoubleDef("KNO-Alpha-vbp", gc->GetDouble("KNO-Alpha-vbp"));
+  fAvbn = fConfig->GetDoubleDef("KNO-Alpha-vbn", gc->GetDouble("KNO-Alpha-vbn"));
+  fBvp  = fConfig->GetDoubleDef("KNO-Beta-vp",   gc->GetDouble("KNO-Beta-vp") );
+  fBvn  = fConfig->GetDoubleDef("KNO-Beta-vn",   gc->GetDouble("KNO-Beta-vn") );
+  fBvbp = fConfig->GetDoubleDef("KNO-Beta-vbp",  gc->GetDouble("KNO-Beta-vbp"));
+  fBvbn = fConfig->GetDoubleDef("KNO-Beta-vbn",  gc->GetDouble("KNO-Beta-vbn"));
 
   // Load parameters determining the prob of producing a strange baryon
   // via associated production
-  fAhyperon = fConfig->GetDoubleDef("Alpha-Hyperon", gc->GetDouble("KNO-Alpha-Hyperon"));
-  fBhyperon = fConfig->GetDoubleDef("Beta-Hyperon",  gc->GetDouble("KNO-Beta-Hyperon") );
+  fAhyperon = fConfig->GetDoubleDef("KNO-Alpha-Hyperon", gc->GetDouble("KNO-Alpha-Hyperon"));
+  fBhyperon = fConfig->GetDoubleDef("KNO-Beta-Hyperon",  gc->GetDouble("KNO-Beta-Hyperon") );
 
   // Load the Levy function parameter
-  fCvp  = fConfig->GetDoubleDef("LevyC-vp",  gc->GetDouble("KNO-LevyC-vp") );
-  fCvn  = fConfig->GetDoubleDef("LevyC-vn",  gc->GetDouble("KNO-LevyC-vn") ); 
-  fCvbp = fConfig->GetDoubleDef("LevyC-vbp", gc->GetDouble("KNO-LevyC-vbp")); 
-  fCvbn = fConfig->GetDoubleDef("LevyC-vbn", gc->GetDouble("KNO-LevyC-vbn"));
+  fCvp  = fConfig->GetDoubleDef("KNO-LevyC-vp",  gc->GetDouble("KNO-LevyC-vp") );
+  fCvn  = fConfig->GetDoubleDef("KNO-LevyC-vn",  gc->GetDouble("KNO-LevyC-vn") );
+  fCvbp = fConfig->GetDoubleDef("KNO-LevyC-vbp", gc->GetDouble("KNO-LevyC-vbp"));
+  fCvbn = fConfig->GetDoubleDef("KNO-LevyC-vbn", gc->GetDouble("KNO-LevyC-vbn"));
 
   // Force NEUGEN upper limit in hadronic multiplicity (to be used only
   // NEUGEN/GENIE comparisons)
@@ -579,37 +572,37 @@ void KNOHadronization::LoadConfig(void)
 
   // Load NEUGEN multiplicity probability scaling parameters Rijk
   fRvpCCm2  = fConfig->GetDoubleDef(
-                      "R-vp-CC-m2", gc->GetDouble("DIS-HMultWgt-vp-CC-m2"));
+                      "DIS-HMultWgt-vp-CC-m2", gc->GetDouble("DIS-HMultWgt-vp-CC-m2"));
   fRvpCCm3  = fConfig->GetDoubleDef(
-                      "R-vp-CC-m3", gc->GetDouble("DIS-HMultWgt-vp-CC-m3"));
+                      "DIS-HMultWgt-vp-CC-m3", gc->GetDouble("DIS-HMultWgt-vp-CC-m3"));
   fRvpNCm2  = fConfig->GetDoubleDef(
-                      "R-vp-NC-m2", gc->GetDouble("DIS-HMultWgt-vp-NC-m2"));
+                      "DIS-HMultWgt-vp-NC-m2", gc->GetDouble("DIS-HMultWgt-vp-NC-m2"));
   fRvpNCm3  = fConfig->GetDoubleDef(
-                      "R-vp-NC-m3", gc->GetDouble("DIS-HMultWgt-vp-NC-m3"));
+                      "DIS-HMultWgt-vp-NC-m3", gc->GetDouble("DIS-HMultWgt-vp-NC-m3"));
   fRvnCCm2  = fConfig->GetDoubleDef(
-                      "R-vn-CC-m2", gc->GetDouble("DIS-HMultWgt-vn-CC-m2"));
+                      "DIS-HMultWgt-vn-CC-m2", gc->GetDouble("DIS-HMultWgt-vn-CC-m2"));
   fRvnCCm3  = fConfig->GetDoubleDef(
-                      "R-vn-CC-m3", gc->GetDouble("DIS-HMultWgt-vn-CC-m3"));
+                      "DIS-HMultWgt-vn-CC-m3", gc->GetDouble("DIS-HMultWgt-vn-CC-m3"));
   fRvnNCm2  = fConfig->GetDoubleDef(
-                      "R-vn-NC-m2", gc->GetDouble("DIS-HMultWgt-vn-NC-m2"));
+                      "DIS-HMultWgt-vn-NC-m2", gc->GetDouble("DIS-HMultWgt-vn-NC-m2"));
   fRvnNCm3  = fConfig->GetDoubleDef(
-                      "R-vn-NC-m3", gc->GetDouble("DIS-HMultWgt-vn-NC-m3"));
+                      "DIS-HMultWgt-vn-NC-m3", gc->GetDouble("DIS-HMultWgt-vn-NC-m3"));
   fRvbpCCm2 = fConfig->GetDoubleDef(
-                     "R-vbp-CC-m2",gc->GetDouble("DIS-HMultWgt-vbp-CC-m2"));
+                     "DIS-HMultWgt-vbp-CC-m2",gc->GetDouble("DIS-HMultWgt-vbp-CC-m2"));
   fRvbpCCm3 = fConfig->GetDoubleDef(
-                     "R-vbp-CC-m3",gc->GetDouble("DIS-HMultWgt-vbp-CC-m3"));
+                     "DIS-HMultWgt-vbp-CC-m3",gc->GetDouble("DIS-HMultWgt-vbp-CC-m3"));
   fRvbpNCm2 = fConfig->GetDoubleDef(
-                     "R-vbp-NC-m2",gc->GetDouble("DIS-HMultWgt-vbp-NC-m2"));
+                     "DIS-HMultWgt-vbp-NC-m2",gc->GetDouble("DIS-HMultWgt-vbp-NC-m2"));
   fRvbpNCm3 = fConfig->GetDoubleDef(
-                     "R-vbp-NC-m3",gc->GetDouble("DIS-HMultWgt-vbp-NC-m3"));
+                     "DIS-HMultWgt-vbp-NC-m3",gc->GetDouble("DIS-HMultWgt-vbp-NC-m3"));
   fRvbnCCm2 = fConfig->GetDoubleDef(
-                     "R-vbn-CC-m2",gc->GetDouble("DIS-HMultWgt-vbn-CC-m2"));
+                     "DIS-HMultWgt-vbn-CC-m2",gc->GetDouble("DIS-HMultWgt-vbn-CC-m2"));
   fRvbnCCm3 = fConfig->GetDoubleDef(
-                     "R-vbn-CC-m3",gc->GetDouble("DIS-HMultWgt-vbn-CC-m3"));
+                     "DIS-HMultWgt-vbn-CC-m3",gc->GetDouble("DIS-HMultWgt-vbn-CC-m3"));
   fRvbnNCm2 = fConfig->GetDoubleDef(
-                     "R-vbn-NC-m2",gc->GetDouble("DIS-HMultWgt-vbn-NC-m2"));
+                     "DIS-HMultWgt-vbn-NC-m2",gc->GetDouble("DIS-HMultWgt-vbn-NC-m2"));
   fRvbnNCm3 = fConfig->GetDoubleDef(
-                     "R-vbn-NC-m3",gc->GetDouble("DIS-HMultWgt-vbn-NC-m3"));
+                     "DIS-HMultWgt-vbn-NC-m3",gc->GetDouble("DIS-HMultWgt-vbn-NC-m3"));
 }
 //____________________________________________________________________________
 double KNOHadronization::KNO(int probe_pdg, int nuc_pdg, double z) const

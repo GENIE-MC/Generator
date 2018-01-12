@@ -162,8 +162,8 @@ void ReinDFRPXSec::LoadConfig(void)
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();
 
-  fMa   = fConfig->GetDoubleDef("Ma",   gc->GetDouble("DFR-Ma"));
-  fBeta = fConfig->GetDoubleDef("beta", gc->GetDouble("DFR-Beta"));
+  fMa   = fConfig->GetDoubleDef("DFR-Ma",     gc->GetDouble("DFR-Ma"));
+  fBeta = fConfig->GetDoubleDef("DFR-Beta", gc->GetDouble("DFR-Beta"));
 
   fXSecIntegrator =
     dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));

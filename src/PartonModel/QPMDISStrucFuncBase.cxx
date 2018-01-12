@@ -133,7 +133,7 @@ void QPMDISStrucFuncBase::LoadConfig(void)
 
   //-- Set min for relation between 2xF1 and F2
   fLowQ2CutoffF1F2 = fConfig->GetDoubleDef(
-        "LowQ2CutoffF1F2", gc->GetDouble("DISSF-LowQ2CutoffF1F2"));
+        "DISSF-LowQ2CutoffF1F2", gc->GetDouble("DISSF-LowQ2CutoffF1F2"));
 
   //-- turn charm production off?
   fCharmOff  = fConfig->GetBoolDef("Charm-Prod-Off", false);

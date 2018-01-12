@@ -247,15 +247,15 @@ void LwlynSmithFF::LoadConfig(void)
   fAxFF.SetModel(fAxFFModel);
 
   // anomalous magnetic moments
-  fMuP = fConfig->GetDoubleDef("MuP", gc->GetDouble("AnomMagnMoment-P"));
-  fMuN = fConfig->GetDoubleDef("MuN", gc->GetDouble("AnomMagnMoment-N"));
+  fMuP = fConfig->GetDoubleDef("AnomMagnMoment-P", gc->GetDouble("AnomMagnMoment-P"));
+  fMuN = fConfig->GetDoubleDef("AnomMagnMoment-N", gc->GetDouble("AnomMagnMoment-N"));
 
   // weinberg angle
-  double thw = fConfig->GetDoubleDef(
-                          "WeinbergAngle", gc->GetDouble("WeinbergAngle"));
+  double thw = fConfig->GetDoubleDef( "WeinbergAngle", gc->GetDouble("WeinbergAngle"));
+
   fSin28w  = TMath::Power(TMath::Sin(thw), 2);
-  double d = fConfig->GetDoubleDef("QE-SU3-D", gc->GetDouble("SU3-D")); // SU(3) parameter D
-  double f = fConfig->GetDoubleDef("QE-SU3-F", gc->GetDouble("SU3-F")); // SU(3) parameter F
+  double d = fConfig->GetDoubleDef("SU3-D", gc->GetDouble("SU3-D")); // SU(3) parameter D
+  double f = fConfig->GetDoubleDef("SU3-F", gc->GetDouble("SU3-F")); // SU(3) parameter F
   fFDratio = f/(d+f); 
 }
 //____________________________________________________________________________

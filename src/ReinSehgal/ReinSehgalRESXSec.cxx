@@ -232,7 +232,7 @@ void ReinSehgalRESXSec::LoadConfig(void)
   // Create the baryon resonance list specified in the config.
   fResList.Clear();
   string resonances = fConfig->GetStringDef(
-                   "resonance-name-list", gc->GetString("ResonanceNameList"));
+                   "ResonanceNameList", gc->GetString("ResonanceNameList"));
   fResList.DecodeFromNameList(resonances);
 
   // Use algorithm within a DIS/RES join scheme. If yes get Wcut

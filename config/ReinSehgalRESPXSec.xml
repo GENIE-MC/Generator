@@ -9,10 +9,13 @@ Configurable Parameters:
 ......................................................................................................................................
 Name                        Type    Optional   Comment                                                    Default
 ......................................................................................................................................
-Zeta                        double  Yes   FKR's Z parameter                                               GPL: RS-Zeta
-Omega                       double  Yes   FKR's Omega parameter                                           GPL: RS-Omega
+RES-CC-XSecScale            double  Yes   XSec rescaling factor                                           GPL
+RES-NC-XSecScale            double  Yes   Xsec rescaling factor                                           GPL
+RES-Zeta                    double  Yes   FKR's Z parameter                                               GPL: RES-Zeta
+RES-Omega                   double  Yes   FKR's Omega parameter                                           GPL: RES-Omega
 Ma                          double  Yes   RES axial mass                                                  GPL: RES-Max
 Mv                          double  Yes   RES vector mass                                                 GPL: RES-Mv
+WeinbergAngle               double  Yes   Weinberg Angle                                                  GPL 
 BreitWeignerWeight          bool    Yes   Weight xsec with breit-wigner?                                  true
 UseNuTauScalingFactors      bool    Yes   Load/Use NEUGEN reduction factor splines for nutaus             true
 UseDRJoinScheme             bool    Yes   Use DIS/RES joining scheme?                                     GPL: UseDRJoinScheme
@@ -26,6 +29,14 @@ XSec-Integrator             alg
 
   <param_set name="Default"> 
      <param type="alg"  name="XSec-Integrator">  genie::ReinSehgalRESXSec/Default    </param>
+     
+     <param type="double" name="RES-CC-XSecScale"> 1.000 </param>
+     <param type="double" name="RES-NC-XSecScale"> 1.000 </param>
+
+     <param type="double" name="WeinbergAngle"> 0.49744211 </param>
+
+     <param type="double" name="RES-Omega"> 1.05  </param>
+     <param type="double" name="RES-Zeta">  0.762 </param>
   </param_set>
 
 </alg_conf>

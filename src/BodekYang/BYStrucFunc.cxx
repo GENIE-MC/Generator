@@ -72,14 +72,14 @@ void BYStrucFunc::ReadBYParams(void)
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();
 
-  fA    = fConfig->GetDoubleDef( "A",    gc->GetDouble("BY-A")    );
-  fB    = fConfig->GetDoubleDef( "B",    gc->GetDouble("BY-B")    );
-  fCsU  = fConfig->GetDoubleDef( "CsU",  gc->GetDouble("BY-CsU")  );
-  fCsD  = fConfig->GetDoubleDef( "CsD",  gc->GetDouble("BY-CsD")  );
-  fCv1U = fConfig->GetDoubleDef( "Cv1U", gc->GetDouble("BY-Cv1U") );
-  fCv2U = fConfig->GetDoubleDef( "Cv2U", gc->GetDouble("BY-Cv2U") );
-  fCv1D = fConfig->GetDoubleDef( "Cv1D", gc->GetDouble("BY-Cv1D") );
-  fCv2D = fConfig->GetDoubleDef( "Cv2D", gc->GetDouble("BY-Cv2D") );
+  fA    = fConfig->GetDoubleDef( "BY-A",    gc->GetDouble("BY-A")    );
+  fB    = fConfig->GetDoubleDef( "BY-B",    gc->GetDouble("BY-B")    );
+  fCsU  = fConfig->GetDoubleDef( "BY-CsU",  gc->GetDouble("BY-CsU")  );
+  fCsD  = fConfig->GetDoubleDef( "BY-CsD",  gc->GetDouble("BY-CsD")  );
+  fCv1U = fConfig->GetDoubleDef( "BY-Cv1U", gc->GetDouble("BY-Cv1U") );
+  fCv2U = fConfig->GetDoubleDef( "BY-Cv2U", gc->GetDouble("BY-Cv2U") );
+  fCv1D = fConfig->GetDoubleDef( "BY-Cv1D", gc->GetDouble("BY-Cv1D") );
+  fCv2D = fConfig->GetDoubleDef( "BY-Cv2D", gc->GetDouble("BY-Cv2D") );
 }
 //____________________________________________________________________________
 void BYStrucFunc::Init(void)

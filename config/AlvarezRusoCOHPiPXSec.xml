@@ -11,6 +11,13 @@ XSec-Integrator  alg      No
 UseLookuptable	 bool     Yes       Pi w'functions from
                                     lookup table rather than
 				    direct calculation         Yes
+
+Previous parameters are not necessary anymore as everything is read in ARConstants.cxx 
+from the GPL.
+
+This has to change, yet this is where they are now. 
+
+*******************************************************************
 CoHAR_A4         double   yes       parameter in C_4^A form
                                     factor                    -1.21
 CoHAR_A5         double   yes       parameter in C_5^A form
@@ -25,6 +32,8 @@ CoHAR_fStar      double   yes       N-Delta Coupling constant  2.13
 CoHAR_gA	 double   yes	    Coherent axial 
 				    coupling at Q2 = 0         1.26
 CoHAR_mA	 double   yes       Coherent axial mass        1.28
+*********************************************************************
+
 -->
 
 <alg_conf>
@@ -32,7 +41,8 @@ CoHAR_mA	 double   yes       Coherent axial mass        1.28
   <param_set name="Default"> 
       <param type="alg" name="XSec-Integrator"> genie::COHXSecAR/Default </param>
       <param type="bool" name="UseLookupTable"> false </param>
-  </param_set>
+
+   </param_set>
   
   <param_set name="Fast"> 
       <param type="alg" name="XSec-Integrator"> genie::COHXSecAR/Fast </param>

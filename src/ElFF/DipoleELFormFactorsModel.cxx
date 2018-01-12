@@ -99,12 +99,12 @@ void DipoleELFormFactorsModel::LoadConfig(void)
   const Registry * gc = confp->GlobalParameterList();
 
   // vector mass
-  fMv  = fConfig->GetDoubleDef("Mv", gc->GetDouble("EL-Mv"));
+  fMv  = fConfig->GetDoubleDef("EL-Mv", gc->GetDouble("EL-Mv"));
   fMv2 = TMath::Power(fMv,2);
 
   // anomalous magnetic moments
-  fMuP = fConfig->GetDoubleDef("MuP", gc->GetDouble("AnomMagnMoment-P"));
-  fMuN = fConfig->GetDoubleDef("MuN", gc->GetDouble("AnomMagnMoment-N"));
+  fMuP = fConfig->GetDoubleDef("AnomMagnMoment-P", gc->GetDouble("AnomMagnMoment-P"));
+  fMuN = fConfig->GetDoubleDef("AnomMagnMoment-N", gc->GetDouble("AnomMagnMoment-N"));
 }
 //____________________________________________________________________________
 

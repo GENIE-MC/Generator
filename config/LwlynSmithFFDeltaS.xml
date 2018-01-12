@@ -9,15 +9,20 @@ Configurable Parameters:
 ..........................................................................................................
 Name                     Type     Optional   Comment                     Default
 ..........................................................................................................
-Ma                       double   Yes        Axial  Mass squared         GPL: QEl-Ma
-FA0                      double   Yes        FA(q2=0)                    GPL: QEL-FA0
+QEl-Ma                   double   Yes        Axial  Mass squared         GPL: QEl-Ma
+QEl-FA0                  double   Yes        FA(q2=0)                    GPL: QEL-FA0
 ElasticFormFactorsModel  alg      No         Elastic form factors model  GPL: ElasticFormFactorsModel
 WeinbergAngle            double   Yes        Weinberg angle              GPL: WeinbergAngle
 
 -->
 
   <param_set name="Default"> 
-  </param_set>
+    <param type="double" name="WeinbergAngle"> 0.49744211 </param>
+
+    <param type="double" name="QEL-Ma"> 0.990 </param>
+    <param type="double" name="QEL-FA0"> -1.2670 </param>
+
+   </param_set>
 
 </alg_conf>
 

@@ -233,8 +233,8 @@ void GiBUURESPXSec::LoadConfig(void)
 
   // Load all configuration data or set defaults
 
-  double ma  = fConfig->GetDoubleDef( "Ma", gc->GetDouble("RES-Ma") );
-  double mv  = fConfig->GetDoubleDef( "Mv", gc->GetDouble("RES-Mv") );
+  double ma  = fConfig->GetDoubleDef( "RES-Ma", gc->GetDouble("RES-Ma") );
+  double mv  = fConfig->GetDoubleDef( "RES-Mv", gc->GetDouble("RES-Mv") );
 
   fMa2 = TMath::Power(ma,2);
   fMv2 = TMath::Power(mv,2);

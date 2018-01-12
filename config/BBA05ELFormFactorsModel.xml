@@ -12,6 +12,40 @@ Name        Type    Optional   Comment                      Default
 -->
 
   <param_set name="Default"> 
+     <!-- 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  BBA2005 elastic form factor parameters
+  R.Bradford, A.Bodek, H.Budd and J.Arrington, hep-ex/0602017
+  -->
+     <param type="double" name="BBA05-Gep-a0">     1.      </param>
+     <param type="double" name="BBA05-Gep-a1">    -0.0578  </param>  <!--  +/- 0.1660 -->
+     <param type="double" name="BBA05-Gep-a2">     0.      </param>
+     <param type="double" name="BBA05-Gep-b1">    11.100   </param>  <!--  +/- 0.217  -->
+     <param type="double" name="BBA05-Gep-b2">    13.60    </param>  <!--  +/- 1.39   -->
+     <param type="double" name="BBA05-Gep-b3">    33.00    </param>  <!--  +/- 8.95   -->
+     <param type="double" name="BBA05-Gep-b4">     0.      </param> 
+     <param type="double" name="BBA05-Gmp-a0">     1.      </param> 
+     <param type="double" name="BBA05-Gmp-a1">     0.1500  </param>  <!--  +/- 0.0312 -->
+     <param type="double" name="BBA05-Gmp-a2">     0.      </param>
+     <param type="double" name="BBA05-Gmp-b1">    11.100   </param>  <!--  +/- 0.103  -->
+     <param type="double" name="BBA05-Gmp-b2">    19.600   </param>  <!--  +/- 0.281  -->
+     <param type="double" name="BBA05-Gmp-b3">     7.540   </param>  <!--  +/- 0.967  -->
+     <param type="double" name="BBA05-Gmp-b4">     0.      </param>
+     <param type="double" name="BBA05-Gen-a0">     0.      </param>
+     <param type="double" name="BBA05-Gen-a1">     1.250   </param>  <!--  +/- 0.368  -->
+     <param type="double" name="BBA05-Gen-a2">     1.30    </param>  <!--  +/- 1.99   -->
+     <param type="double" name="BBA05-Gen-b1">    -9.86    </param>  <!--  +/- 6.46   -->
+     <param type="double" name="BBA05-Gen-b2">   305.0     </param>  <!--  +/- 28.6   -->
+     <param type="double" name="BBA05-Gen-b3">  -758.0     </param>  <!--  +/- 77.5   -->
+     <param type="double" name="BBA05-Gen-b4">   802.0     </param>  <!--  +/- 156.   -->
+     <param type="double" name="BBA05-Gmn-a0">     1.      </param>
+     <param type="double" name="BBA05-Gmn-a1">     1.810   </param>  <!--  +/- 0.402  -->
+     <param type="double" name="BBA05-Gmn-a2">     0.      </param>
+     <param type="double" name="BBA05-Gmn-b1">    14.100   </param>  <!--  +/- 0.597  -->
+     <param type="double" name="BBA05-Gmn-b2">    20.70    </param>  <!--  +/- 2.55   -->
+     <param type="double" name="BBA05-Gmn-b3">    68.7     </param>  <!--  +/- 14.1   -->
+     <param type="double" name="BBA05-Gmn-b4">     0.      </param>
+
   </param_set>
 
 </alg_conf>

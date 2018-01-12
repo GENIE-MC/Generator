@@ -391,7 +391,7 @@ void QPMDISPXSec::LoadConfig(void)
   }
 
   // Cross section scaling factor
-  fScale = fConfig->GetDoubleDef("Scale", gc->GetDouble("DIS-XSecScale"));
+  fScale = fConfig->GetDoubleDef("DIS-XSecScale", gc->GetDouble("DIS-XSecScale"));
 
   // sin^4(theta_weinberg)
   double thw = fConfig->GetDoubleDef(

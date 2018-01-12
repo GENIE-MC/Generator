@@ -13,11 +13,30 @@ MaxXSec-SafetyFactor     double  Yes   multiplies max xsec in rejection method  
 MaxXSec-DiffTolerance    double  Yes   max allowed 200*(xsec-xsecmax)/(xsec+xsecmax)  999999.00 (disable)
                                        if xsec>xsecmax
 Cache-MinEnergy          double  Yes   minimum energy for which max xsec is cached    0.00
+
+COH-Ro                   double  Yes   Nuclear size scale                             GPL value 
+COH-Q2-min               double  Yes   Minimum considered Q^2 for Berger-Sehgal       GPL value
+                                       coherent reactions when estimating the max 
+                                       cross section. Units in GeV^2.
+COH-Q2-max               double   Yes  Maximum considered Q^2 for Berger-Sehgal       GPL value
+                                       coherent reactions when estimating the max 
+                                       cross section. Units in GeV^2.
+COH-t-max                double   Yes  Maximum considered t for Berger-Sehgal         GPL value
+                                       coherent reactions when estimating 
+                                       the max cross section.  Units in GeV^2.
+.
+
 -->
 
 <alg_conf>
 
   <param_set name="Default"> 
+    <param type="double" name="COH-Ro"> 1.000 </param>
+
+    <param type="double" name="COH-Q2-min"> 0.000 </param>
+    <param type="double" name="COH-Q2-max"> 1.000 </param>
+    <param type="double" name="COH-t-max"> 0.250 </param>
+
   </param_set>
 
 </alg_conf>

@@ -20,7 +20,8 @@ STFC, Rutherford Appleton Laboratory
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   CKM quark mixing parameters 
   Use values listed at the July 2006 particle physics booklet
-  -->
+
+ -->
   <param type="double" name="CKM-Vud">  0.97377  </param>
   <param type="double" name="CKM-Vus">  0.2257   </param>
   <param type="double" name="CKM-Vcd">  0.230    </param>  <!-- 0.2239 -->
@@ -30,6 +31,7 @@ STFC, Rutherford Appleton Laboratory
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Cabibbo and Weinberg angles 
   -->
+
   <param type="double" name="CabibboAngle">  0.22853207 </param> <!-- 0.226893 -->  
   <param type="double" name="WeinbergAngle"> 0.49744211 </param> <!-- 0.501568 --> 
 
@@ -38,8 +40,8 @@ STFC, Rutherford Appleton Laboratory
   Constants in Feynman-Kislinger-Ravndal model for baryon excitation used in the Rein-Sehgal 
   resonance model
   -->
-  <param type="double" name="RS-Omega"> 1.05  </param>
-  <param type="double" name="RS-Zeta">  0.762 </param> <!-- 0.75 -->
+  <param type="double" name="RES-Omega"> 1.05  </param>
+  <param type="double" name="RES-Zeta">  0.762 </param> <!-- 0.75 -->
 
  <!--
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -199,7 +201,7 @@ STFC, Rutherford Appleton Laboratory
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Value of E0 for the Kuzmin-Naumov running axial mass model  
   -->
-  <param type="double" name="CCQE-E0"> 0.334 </param>
+  <param type="double" name="QEL-E0"> 0.334 </param>
 
 <!-- 
    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

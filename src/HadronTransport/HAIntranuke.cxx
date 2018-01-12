@@ -1396,7 +1396,7 @@ void HAIntranuke::LoadConfig(void)
   fFreeStep      = fConfig->GetDoubleDef ("FreeStep",     gc->GetDouble("INUKE-FreeStep"));
   fDoCompoundNucleus = fConfig->GetBoolDef ("DoCompoundNucleus", gc->GetBool("INUKE-DoCompoundNucleus"));
 
-
+  //Would be nice to change thhe following lines simply using GetDoubleDef instead of a ? : statement
   fPionMFPScale            = (gc->Exists("FSI-Pion-MFPScale"))           ? gc->GetDouble("FSI-Pion-MFPScale")           : 1.0 ;
   fPionFracCExScale        = (gc->Exists("FSI-Pion-FracCExScale"))       ? gc->GetDouble("FSI-Pion-FracCExScale")       : 1.0 ;
   fPionFracElasScale       = (gc->Exists("FSI-Pion-FracElasScale"))      ? gc->GetDouble("FSI-Pion-FracElasScale")      : 1.0 ;

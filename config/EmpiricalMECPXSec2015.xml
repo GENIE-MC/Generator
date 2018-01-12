@@ -6,15 +6,36 @@
 Configuration for the EmpiricalMECPXSec2015 xsec algorithm.
 
 Configurable Parameters:
-....................................................................................
-Name           Type     Optional   Comment                 Default
-....................................................................................
+................................................................................................................................
+Name                    Type     Optional   Comment                                                         Default
+
+EmpiricalMEC-Mq2d       double   Yes        Analogous to MA in CCQE (drives Q^2 dependence); units GeV      EmpiricalMEC-Mq2d 
+EmpiricalMEC-Mass       double   Yes        units GeV 
+EmpiricalMEC-Width      double   Yes        Width of the gaussian W-dependence in the dip region; units GeV 
+EmpiricalMEC-FracCCQE   double   Yes        Fraction of CCQE xsec to CCMEC xsec
+EmpiricalMEC-FracNCQE   double   Yes        Fraction of NCQE xsec to NCMEC xsec 
+EmpiricalMEC-FracEMQE   double   Yes        Fraction of 0.5*(ep+en) Rosenbluth xsec going to (e,e') MEC  
+EmpiricalMEC-FracPN_CC  double   Yes        Fraction of pairs in the nucleus that are pn 
+EmpiricalMEC-FracPN_NC  double   Yes        Fraction of pairs in the nucleus that are pn 
+
+................................................................................................................................
 -->
 
   <param_set name="Default"> 
      <param type="alg" name="CCQEXSecModel"> genie::LwlynSmithQELCCPXSec/Default </param>
      <param type="alg" name="NCQEXSecModel"> genie::AhrensNCELPXSec/Default </param>
      <param type="alg" name="EMQEXSecModel"> genie::RosenbluthPXSec/Default </param>
+
+     <param type="double" name="EmpiricalMEC-Mq2d"> 0.4 </param>
+     <param type="double" name="EmpiricalMEC-Mass"> 2.1 </param>
+     <param type="double" name="EmpiricalMEC-Width"> 0.05 </param>
+     <param type="double" name="EmpiricalMEC-FracCCQE"> 0.45 </param>
+     <param type="double" name="EmpiricalMEC-FracNCQE"> 0.45 </param>
+     <param type="double" name="EmpiricalMEC-FracEMQE"> 0.05 </param>
+     <param type="double" name="EmpiricalMEC-FracPN_NC"> 0.8 </param>
+     <param type="double" name="EmpiricalMEC-FracPN_CC"> 0.8 </param>
+     <param type="double" name="EmpiricalMEC-FracPN_EM"> 0.8 </param>
+ 
   </param_set>
 
 </alg_conf>

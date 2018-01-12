@@ -84,7 +84,7 @@ void KuzminNaumov2016AxialFormFactorModel::LoadConfig(void)
   fMa2 = TMath::Power(fMa,2);
 
   // E0 for calculating running axial mass: Ma*(1+E0/Enu)
-  fE0 = fConfig->GetDoubleDef("E0" , gc->GetDouble("CCQE-E0")); 
+  fE0 = fConfig->GetDoubleDef("QEL-E0" , gc->GetDouble("QEL-E0"));
 
   // FA(q2 = 0)
   fFA0 = fConfig->GetDoubleDef("QEL-FA0", gc->GetDouble("QEL-FA0"));

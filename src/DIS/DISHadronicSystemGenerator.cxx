@@ -321,9 +321,9 @@ void DISHadronicSystemGenerator::LoadConfig(void)
 
   //-- Get parameters controlling the formation zone simulation
   //
-  fct0pion    = fConfig->GetDoubleDef ("ct0pion",  gc->GetDouble("FZONE-ct0pion")); // fm
-  fct0nucleon = fConfig->GetDoubleDef ("ct0nucleon",  gc->GetDouble("FZONE-ct0nucleon")); // fm
-  fK          = fConfig->GetDoubleDef ("Kpt2", gc->GetDouble("FZONE-KPt2"));
+  fct0pion    = fConfig->GetDoubleDef ("FZONE-ct0pion",  gc->GetDouble("FZONE-ct0pion")); // fm
+  fct0nucleon = fConfig->GetDoubleDef ("FZONE-ct0nucleon",  gc->GetDouble("FZONE-ct0nucleon")); // fm
+  fK          = fConfig->GetDoubleDef ("FZONE-Kpt2", gc->GetDouble("FZONE-KPt2"));
 
   LOG("DISHadronicVtx", pDEBUG) << "ct0pion     = " << fct0pion    << " fermi";
   LOG("DISHadronicVtx", pDEBUG) << "ct0nucleon  = " << fct0nucleon << " fermi";

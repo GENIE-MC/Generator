@@ -6,12 +6,31 @@
 Configuration for the SpectralFunc1d NuclModelI implementation
 
 Configurable Parameters:
-.........................................................................................
-Name               Type    Optional   Comment                      Default
-.........................................................................................
+...................................................................................................
+Name                     Type    Optional   Comment                                        Default
+...................................................................................................
+RFG-MomentumCutOff       double   Yes        momentum cut off value                         GPL value
+
+RFG-NucRemovalE@Pdg=?    double   Yes        nuclear removal energy for specfic nuclei      GPL value
+
+...................................................................................................
 -->
 
   <param_set name="Default"> 
+
+    <param type="double" name="RFG-MomentumCutOff">              0.5000 </param>
+
+    <param type="double" name="RFG-NucRemovalE@Pdg=1000030060">  0.0170 </param> <!-- Li6    -->
+    <param type="double" name="RFG-NucRemovalE@Pdg=1000060120">  0.0250 </param> <!-- C12    -->
+    <param type="double" name="RFG-NucRemovalE@Pdg=1000080160">  0.0270 </param> <!-- O16    -->
+    <param type="double" name="RFG-NucRemovalE@Pdg=1000120240">  0.0320 </param> <!-- Mg24   -->
+    <param type="double" name="RFG-NucRemovalE@Pdg=1000180400">  0.0295 </param> <!-- Ar40   -->
+    <param type="double" name="RFG-NucRemovalE@Pdg=1000200400">  0.0280 </param> <!-- Ca40   -->
+    <param type="double" name="RFG-NucRemovalE@Pdg=1000220480">  0.0300 </param> <!-- Ti48   -->
+    <param type="double" name="RFG-NucRemovalE@Pdg=1000260560">  0.0360 </param> <!-- Fe56   -->
+    <param type="double" name="RFG-NucRemovalE@Pdg=1000280580">  0.0360 </param> <!-- Ni58   -->
+    <param type="double" name="RFG-NucRemovalE@Pdg=1000822080">  0.0440 </param> <!-- Pb208  -->
+
   </param_set>
 
 </alg_conf>

@@ -365,7 +365,7 @@ void LwlynSmithQELCCPXSec::LoadConfig(void)
   
   // Cross section scaling factor
   fXSecScale = fConfig->GetDoubleDef(
-       "XSecScale", gc->GetDouble("QEL-CC-XSecScale"));
+       "QEL-CC-XSecScale", gc->GetDouble("QEL-CC-XSecScale"));
 
   double thc = fConfig->GetDoubleDef(
        "CabibboAngle", gc->GetDouble("CabibboAngle"));

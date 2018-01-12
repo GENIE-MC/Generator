@@ -9,7 +9,7 @@ Algorithm Configurable Parameters:
 .........................................................................................
 Name        Type    Optional   Comment                    Default
 .........................................................................................
-QEL-T0      double  Yes        z convergence parameter    GPL value: QEL-Z_A0
+QEL-T0      double  Yes        z convergence parameter    GPL value: QEL-T0
 QEL-Z_A1    double  Yes        z expansion coefficient    GPL value: QEL-Z_A1
 QEL-Z_A2    double  Yes        z expansion coefficient    GPL value: QEL-Z_A2
 QEL-Z_A3    double  Yes        z expansion coefficient    GPL value: QEL-Z_A3
@@ -21,11 +21,25 @@ QEL-Z_A8    double  Yes        z expansion coefficient    GPL value: QEL-Z_A8
 QEL-Z_A9    double  Yes        z expansion coefficient    GPL value: QEL-Z_A9
 QEL-Z_A10   double  Yes        z expansion coefficient    GPL value: QEL-Z_A10
 QEL-Kmax    int     Yes        max summation index        GPL value: QEL-Kmax
+QEL-Tcut    double  Yes        ??                         GPL value 
+
 QEL-Q4limit bool    Yes        1/Q^4 limit conditions     GPL value: QEL-Q4limit
 
 -->
 
   <param_set name="Default"> 
+    <param type="double" name="QEL-T0">     -0.28   </param>
+    <param type="int"    name="QEL-Kmax">    4      </param>
+    <param type="double" name="QEL-Tcut">    0.1764 </param> <!-- 9*m_pi^2 -->
+
+    <param type="double" name="QEL-Z_A1">    2.30   </param>
+    <param type="double" name="QEL-Z_A2">   -0.6    </param>
+    <param type="double" name="QEL-Z_A3">   -3.8    </param>
+    <param type="double" name="QEL-Z_A4">    2.3    </param>
+    <!-- more factors can be added, if necessary according to Kmax --> 
+
+    
+
   </param_set>
 
 </alg_conf>

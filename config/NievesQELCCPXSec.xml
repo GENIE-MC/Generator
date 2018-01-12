@@ -14,6 +14,7 @@ XSec-Integrator    alg      No
 CabibboAngle       double   Yes        Cabibbo angle                    GPL value: CabibboAngle
 RPA                bool     Yes        Turn RPA effects on or off       false
 Coulomb            bool     Yes        Turn coulomb effects on or off   false
+QEL-CC-XSecScale   double   Yes        Scaling factor                   GPL value
 .....................................................................................................
 Parameters needed when Integrating with this model to generate splines:
 .....................................................................................................
@@ -27,48 +28,62 @@ IntegralNuclearInfluenceCutoffEnergy double   No
   <param_set name="Default"> 
      <param type="alg"  name="FormFactorsAlg">  genie::LwlynSmithFFCC/Default </param>
      <param type="alg"  name="XSec-Integrator"> genie::QELXSec/Default        </param>
+     <param type="double" name="CabibboAngle">  0.22853207 </param> 
      <param type="bool" name="RPA">             true                          </param>
      <param type="bool" name="Coulomb">         true                         </param>
      <param type="bool" name="PrintDebugData">  false                          </param>
      <param type="bool" name = "IntegralAverageOverNucleonMomentum">   true   </param>
      <param type="alg"  name="IntegralNuclearModel">    genie::NuclearModelMap/Default        </param>
      <param type="double" name = "IntegralNuclearInfluenceCutoffEnergy">    2.0   </param>     
+     <param type="double" name="QEL-CC-XSecScale"> 1.000 </param>
   </param_set>
+
   <param_set name="DipoleELFF"> 
      <param type="alg"  name="FormFactorsAlg">  genie::LwlynSmithFFCC/Dipole  </param>
      <param type="alg"  name="XSec-Integrator"> genie::QELXSec/Default        </param>
+     <param type="double" name="CabibboAngle">  0.22853207 </param> 
      <param type="bool" name="RPA">             true                          </param>
      <param type="bool" name="Coulomb">         true                          </param>
      <param type="bool" name = "IntegralAverageOverNucleonMomentum">     true   </param>
      <param type="alg"  name="IntegralNuclearModel">    genie::NuclearModelMap/Default        </param>
      <param type="double" name = "IntegralNuclearInfluenceCutoffEnergy">    2.0   </param>     
+     <param type="double" name="QEL-CC-XSecScale"> 1.000 </param>
   </param_set>
+
   <param_set name="ZExp"> 
      <param type="alg"  name="FormFactorsAlg">  genie::LwlynSmithFFCC/ZExp    </param>
      <param type="alg"  name="XSec-Integrator"> genie::QELXSec/Default        </param>
+     <param type="double" name="CabibboAngle">  0.22853207 </param> 
      <param type="bool" name="RPA">             true                          </param>
      <param type="bool" name="Coulomb">         true                         </param>
      <param type="bool" name = "IntegralAverageOverNucleonMomentum">     true   </param>
      <param type="alg"  name="IntegralNuclearModel">    genie::NuclearModelMap/Default        </param>
      <param type="double" name = "IntegralNuclearInfluenceCutoffEnergy">    2.0   </param> 
+     <param type="double" name="QEL-CC-XSecScale"> 1.000 </param>
   </param_set>
+
   <param_set name="BBA2003"> 
      <param type="alg"  name="FormFactorsAlg">  genie::LwlynSmithFFCC/BBA2003 </param>
      <param type="alg"  name="XSec-Integrator"> genie::QELXSec/Default        </param>
+     <param type="double" name="CabibboAngle">  0.22853207 </param> 
      <param type="bool" name="RPA">             true                          </param>
      <param type="bool" name="Coulomb">         true                          </param>
      <param type="bool" name = "IntegralAverageOverNucleonMomentum">     true   </param>
      <param type="alg"  name="IntegralNuclearModel">    genie::NuclearModelMap/Default        </param>
      <param type="double" name = "IntegralNuclearInfluenceCutoffEnergy">    2.0   </param>     
+     <param type="double" name="QEL-CC-XSecScale"> 1.000 </param>
   </param_set>
+
   <param_set name="BBA2005"> 
      <param type="alg"  name="FormFactorsAlg">  genie::LwlynSmithFFCC/BBA2005 </param>
      <param type="alg"  name="XSec-Integrator"> genie::QELXSec/Default        </param>
+     <param type="double" name="CabibboAngle">  0.22853207 </param> 
      <param type="bool" name="RPA">             true                          </param>
      <param type="bool" name="Coulomb">         true                          </param>
      <param type="bool" name = "IntegralAverageOverNucleonMomentum">     true   </param>
      <param type="alg"  name="IntegralNuclearModel">    genie::NuclearModelMap/Default        </param>
      <param type="double" name = "IntegralNuclearInfluenceCutoffEnergy">    2.0   </param>     
+     <param type="double" name="QEL-CC-XSecScale"> 1.000 </param>
   </param_set>
 
 </alg_conf>

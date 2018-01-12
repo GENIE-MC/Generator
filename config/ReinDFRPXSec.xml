@@ -7,14 +7,19 @@ Configuration for the ReinDFRPXSec xsec algorithm.
 
 Configurable Parameters:
 ....................................................................................................
-Name             Type     Optional   Comment                        Default
+Name             Type     Optional   Comment                            Default
 ....................................................................................................
-Ma               double   Yes        Diffractive Axial Mass         GPL: DFR-Ma
-beta             double   Yes                                       GPL: DFR-Beta
+DFR-Ma           double   Yes        Diffractive Axial Mass (GeV)       GPL: DFR-Ma
+DFR-Beta         double   Yes        Slope parameter beta (GeV^-2)      GPL: DFR-Beta
+                                     (beta ~ 0.333 * nucleon_size^2)    
 -->
 
   <param_set name="Default"> 
     <param type="alg" name="XSec-Integrator"> genie::DFRXSec/Default </param>
+
+    <param type="double" name="DFR-Ma">   1.100 </param>
+    <param type="double" name="DFR-Beta"> 7.0 </param>
+
   </param_set>
 
 </alg_conf>
