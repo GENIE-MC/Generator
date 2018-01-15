@@ -118,6 +118,7 @@ void RunOpt::ReadFromCommandLine(int argc, char ** argv)
 
 	//the structure of the tunes names is fixed, see http://tunes.genie-mc.org/
 	string cgc( tune, 0, 7 ) ;
+	string temp_tune( tune, 8 ) ;
 
 	LOG("RunOpt", pINFO) << " Requested tune " << tune << " for CGC " << cgc ;
 
@@ -129,7 +130,7 @@ void RunOpt::ReadFromCommandLine(int argc, char ** argv)
 	fCGC  = cgc  ;
 	LOG("RunOpt", pINFO) << " Comprehensive configuration " << cgc << " set" ;
 
-	if ( tune.size() > 7 ) {
+	if ( tune.size() > 7 && temp_tune != "00_000" ) {
 
 		path += '/' + tune ;
 
