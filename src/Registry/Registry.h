@@ -124,6 +124,14 @@ public:
   void   Get (RgKey key, RgH2F &  item) const;
   void   Get (RgKey key, RgTree & item) const;
 
+  // Methods to set/retrieve Registry values from this registry or from a vector of Registries
+  //
+  template<class T>
+    void   Get (RgKey key, const vector<Registry> & rs, T & item ) const ;
+//  template<>
+//    void   Get (RgKey key, const vector<Registry> & rs, const RegistryItemI * & item ) const ;
+
+
   RgBool GetBool      (RgKey key) const;
   RgInt  GetInt       (RgKey key) const;
   RgDbl  GetDouble    (RgKey key) const;
@@ -132,12 +140,26 @@ public:
   RgH1F  GetH1F       (RgKey key) const;
   RgH2F  GetH2F       (RgKey key) const;
   RgTree GetTree      (RgKey key) const;
+
+  RgBool GetBool      (RgKey key, const vector<Registry> & rs ) const;
+  RgInt  GetInt       (RgKey key, const vector<Registry> & rs ) const;
+  RgDbl  GetDouble    (RgKey key, const vector<Registry> & rs ) const;
+  RgStr  GetString    (RgKey key, const vector<Registry> & rs ) const;
+  RgAlg  GetAlg       (RgKey key, const vector<Registry> & rs ) const;
+
   RgBool GetBoolDef   (RgKey key, RgBool def_opt, bool set_def=true);
   RgInt  GetIntDef    (RgKey key, RgInt  def_opt, bool set_def=true);
   RgDbl  GetDoubleDef (RgKey key, RgDbl  def_opt, bool set_def=true);
   RgStr  GetStringDef (RgKey key, RgStr  def_opt, bool set_def=true);
   RgAlg  GetAlgDef    (RgKey key, RgAlg  def_opt, bool set_def=true);
   
+//  RgBool GetBoolDef   (RgKey key, const vector<const Registry> & rs, RgBool def_opt, bool set_def=true);
+//  RgInt  GetIntDef    (RgKey key, const vector<const Registry> & rs, RgInt  def_opt, bool set_def=true);
+//  RgDbl  GetDoubleDef (RgKey key, const vector<const Registry> & rs, RgDbl  def_opt, bool set_def=true);
+//  RgStr  GetStringDef (RgKey key, const vector<const Registry> & rs, RgStr  def_opt, bool set_def=true);
+//  RgAlg  GetAlgDef    (RgKey key, const vector<const Registry> & rs, RgAlg  def_opt, bool set_def=true);
+
+
   RgIMapConstIter SafeFind  (RgKey key) const;
 
   int    NEntries     (void) const;                     ///< get number of items

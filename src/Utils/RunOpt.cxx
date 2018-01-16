@@ -136,7 +136,7 @@ void RunOpt::ReadFromCommandLine(int argc, char ** argv)
 
 		LOG("RunOpt", pINFO) << " Testing  " << path << " directory" ;
 		assert( utils::system::DirectoryExixsts( path.c_str() ) );
-		LOG("RunOpt", pINFO) << " Tune " << cgc << " set" ;
+		LOG("RunOpt", pINFO) << " Tune " << tune << " set" ;
 
 		fTune = tune ;
 	}

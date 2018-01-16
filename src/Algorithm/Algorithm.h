@@ -120,6 +120,8 @@ protected:
   bool         fOwnsSubstruc;  ///< true if it owns its substructure (sub-algs,...)
   AlgId        fID;            ///< algorithm name and configuration set
   Registry *   fConfig;        ///< config. (either owned or pointing to config pool)
+  // vector<Registry*>  fConfig ;
+  // vector<Registry>   fConfig ;
   AlgStatus_t  fStatus;        ///< algorithm execution status
   AlgMap *     fOwnedSubAlgMp; ///< local pool for owned sub-algs (taken out of the factory pool)
 };

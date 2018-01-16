@@ -470,6 +470,101 @@ void Registry::Get(RgKey key, RgTree & item) const
     LOG("Registry", pWARN) << "Returned NULL ptr for TTree param = " << key;
   }
 }
+
+//____________________________________________________________________________
+
+template<class T>
+void Registry::Get (RgKey key, const vector<Registry> & rs, T & item ) const {
+
+	T value ;
+
+	//check this registry
+	if( Exists(key) ) {
+		if( ItemIsLocal(key) ) {
+			Get(key,value);
+			return ;
+		}
+	}
+
+	//key not found
+	//loop over the vector
+	for ( unsigned int i = 0 ; i < rs.size() ; ++i ) {
+
+		const Registry & temp = rs[i] ;
+
+		if( temp.Exists(key) ) {
+			if( temp.ItemIsLocal(key) ) {
+				temp.Get(key,value);
+				return ;
+			}
+		}
+
+	}
+
+	//crash because no key was found
+	std::stringstream names;
+	names << Name();
+	for ( unsigned int i = 0 ; i < rs.size() ; ++i ) {
+		names << ", " << rs[i].Name();
+	}
+	LOG("Registry/Get", pFATAL)
+	   << "*** Key: " << key
+	   << " does not exist in registries : " << names.str() ;
+	gAbortingInErr = true;
+	exit(1);
+
+}
+
+//____________________________________________________________________________
+
+namespace genie {   ///this is a template specialization, hence the code has to be in the same namespace
+
+template<>
+  void Registry::Get (RgKey key, const vector<Registry> & rs, const RegistryItemI * & item ) const {
+
+	RgIMapConstIter entry ;
+
+	//check this registry
+	if( Exists(key) ) {
+		if( ItemIsLocal(key) ) {
+			entry = this->SafeFind(key);
+			item = entry->second;
+			return ;
+		}
+	}
+
+	//key not found
+	//loop over the vector
+	for ( unsigned int i = 0 ; i < rs.size() ; ++i ) {
+
+		const Registry & temp = rs[i] ;
+
+		if( temp.Exists(key) ) {
+			if( temp.ItemIsLocal(key) ) {
+				entry = this->SafeFind(key);
+				item = entry->second;
+				return ;
+			}
+		}
+
+	}
+
+	//crash because no key was found
+	std::stringstream names;
+	names << Name();
+	for ( unsigned int i = 0 ; i < rs.size() ; ++i ) {
+		names << ", " << rs[i].Name();
+	}
+	LOG("Registry/Get", pFATAL)
+	   << "*** Key: " << key
+	   << " does not exist in registries : " << names.str() ;
+	gAbortingInErr = true;
+	exit(1);
+
+}
+
+}
+
 //____________________________________________________________________________
 RgBool Registry::GetBool(RgKey key) const
 {
@@ -535,6 +630,53 @@ RgTree Registry::GetTree(RgKey key) const
   RgTree item = ri->Data();
   return item;
 }
+
+//____________________________________________________________________________
+
+
+RgBool Registry::GetBool(RgKey key, const vector<Registry> & rs ) const {
+
+	RgBool value;
+	Get(key, rs, value ) ;
+	return value ;
+}
+
+//____________________________________________________________________________
+
+ RgInt  Registry::GetInt(RgKey key, const vector<Registry> & rs ) const {
+
+	 RgInt value ;
+	 Get( key, rs, value ) ;
+	 return value ;
+ }
+
+ //____________________________________________________________________________
+
+ RgDbl  Registry::GetDouble(RgKey key, const vector<Registry> & rs ) const {
+
+	 RgDbl value ;
+	 Get( key, rs, value ) ;
+	 return value ;
+ }
+
+ //____________________________________________________________________________
+
+ RgStr  Registry::GetString    (RgKey key, const vector<Registry> & rs ) const {
+
+	 RgStr value;
+	 Get( key, rs, value );
+	 return value ;
+ }
+
+ //____________________________________________________________________________
+
+ RgAlg  Registry::GetAlg       (RgKey key, const vector<Registry> & rs ) const {
+
+	 RgAlg value;
+	 Get( key, rs, value  );
+	 return value ;
+ }
+
 //____________________________________________________________________________
 RgBool Registry::GetBoolDef(RgKey key, RgBool def_opt, bool set_def) 
 {
