@@ -52,6 +52,7 @@ typedef enum EINukeFateHA_t {
    kIHAFtInelas,         // inelas
    kIHAFtAbs,            // abs
    kIHAFtKo, 	         // knock out
+   kIHAFtCmp,            // compound nucleus
    kIHAFtPiProd,         // pi production
    kIHAFtInclPip,        // pi production : inclusive pi+
    kIHAFtInclPim,        // pi production : inclusive pi-
@@ -86,7 +87,8 @@ public:
       case kIHAFtElas      : return "HA-mode / elas";           break;
       case kIHAFtInelas    : return "HA-mode / inelas";         break;
       case kIHAFtAbs       : return "HA-mode / abs";            break;
-      case kIHAFtKo        : return "HA-mode / knock-out";      break; 
+      case kIHAFtKo        : return "HA-mode / knock-out";      break;
+      case kIHAFtCmp       : return "HA-mode / compound";       break;
       case kIHAFtPiProd    : return "HA-mode / pi-production" ; break;
       case kIHAFtInclPip   : return "HA-mode / pi-prod incl pi+";   break;
       case kIHAFtInclPim   : return "HA-mode / pi-prod incl pi-";   break;
@@ -106,6 +108,7 @@ public:
       case kIHAFtInelas    : return "inelas";         break;
       case kIHAFtAbs       : return "abs";            break;
       case kIHAFtKo        : return "knock out";      break; 
+      case kIHAFtCmp       : return "compound";       break;
       case kIHAFtPiProd    : return "pi prod";          break;
       case kIHAFtDCEx      : return "dcex";             break;
       default              : break;
