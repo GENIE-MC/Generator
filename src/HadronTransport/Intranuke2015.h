@@ -69,6 +69,8 @@ public :
   void Configure (const Registry & config);
   void Configure (string param_set);
 
+  virtual string GetINukeMode() const {return "XX2015";};
+
 protected:
 
   // methods for loading configuration
@@ -117,6 +119,7 @@ protected:
   bool         fUseOset;      ///< Oset model for low energy pion in hN
   bool         fAltOset;      ///< NuWro's table-based implementation (not recommended)
   bool         fXsecNNCorr;   ///< use nuclear medium correction for NN cross section
+
 };
 
 }      // genie namespace
