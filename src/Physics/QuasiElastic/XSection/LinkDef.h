@@ -30,5 +30,9 @@
 #pragma link C++ class genie::KuzminNaumov2016AxialFormFactorModel;
 #pragma link C++ class genie::NievesQELCCPXSec;
 
+#pragma link C++ class genie::QELFormFactors;
+#pragma link C++ class genie::QELFormFactorsModelI;
+
+
 
 #endif
