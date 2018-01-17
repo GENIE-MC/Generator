@@ -42,6 +42,10 @@
    Added 2014 version of INTRANUKE codes (new class) for independent development.
  @ Aug 30, 2016 - SD
    Fix memory leaks - Igor. 
+ @ Oct 14, 2016 - SD
+   Oset will be standard in new versions of hA 
+ @ Dec, 2016 - SD 
+   Use Oset for hA2015
 */
 //____________________________________________________________________________
 
@@ -76,6 +80,7 @@
 #include "PDG/PDGUtils.h"
 #include "Utils/PrintUtils.h"
 #include "Utils/NuclearUtils.h"
+//#include "HadronTransport/INukeOset.h" 
 
 using std::ostringstream;
 
@@ -176,41 +181,46 @@ void HAIntranuke2015::SimulateHadronicFinalStateKinematics(
   // try to generate kinematics for the selected fate 
 
   try
-  {
-     fNumIterations++;
-     if (fate == kIHAFtElas)
-     { 
-        this->ElasHA(ev,p,fate);
-     }
-     else 
-     if (fate == kIHAFtInelas || fate == kIHAFtCEx) 
-     {
-        this->InelasticHA(ev,p,fate);
-     }
-     else if (fate == kIHAFtAbs || fate == kIHAFtPiProd)
-     {
-	  this->Inelastic(ev,p,fate);
-     }
-  }
+    {
+      fNumIterations++;
+      if (fate == kIHAFtElas)
+	{ 
+	  this->ElasHA(ev,p,fate);
+	}
+      else 
+	if (fate == kIHAFtInelas || fate == kIHAFtCEx) 
+	  {
+	    this->InelasticHA(ev,p,fate);
+	  }
+	else if (fate == kIHAFtAbs || fate == kIHAFtPiProd)
+	  {
+	    this->Inelastic(ev,p,fate);
+	  }
+	else if (fate == kIHAFtCmp) //(suarez edit, 17 July, 2017: cmp)
+	  {
+	    LOG("HAIntranuke2015", pWARN) << "Running PreEquilibrium for kIHAFtCmp";
+	    utils::intranuke2015::PreEquilibrium(ev,p,fRemnA,fRemnZ,fRemnP4,fDoFermi,fFermiFac,fNuclmodel,fNucRmvE,kIMdHA); //should be kiMdHA or HN?
+	  }
+    }
   catch(exceptions::INukeException exception)
-  {     
-    LOG("HAIntranuke2015", pNOTICE)  
-	 	        << exception;
+    {     
+      LOG("HAIntranuke2015", pNOTICE)  
+	<< exception;
     if(fNumIterations <= 100) {
-        LOG("HAIntranuke2015", pNOTICE)
-	   << "Failed attempt to generate kinematics for "
-           << p->Name() << " fate: " << INukeHadroFates::AsString(fate)
-           << " - After " << fNumIterations << " tries, still retrying...";
-        this->SimulateHadronicFinalStateKinematics(ev,p);
-     } else {
-        LOG("HAIntranuke2015", pNOTICE)
-	   << "Failed attempt to generate kinematics for "
-           << p->Name() << " fate: " << INukeHadroFates::AsString(fate)
-           << " after " << fNumIterations-1 
-           << " attempts. Trying a new fate...";
-        this->SimulateHadronicFinalState(ev,p);
-     }
-  }
+      LOG("HAIntranuke2015", pNOTICE)
+	<< "Failed attempt to generate kinematics for "
+	<< p->Name() << " fate: " << INukeHadroFates::AsString(fate)
+	<< " - After " << fNumIterations << " tries, still retrying...";
+      this->SimulateHadronicFinalStateKinematics(ev,p);
+    } else {
+      LOG("HAIntranuke2015", pNOTICE)
+	<< "Failed attempt to generate kinematics for "
+	<< p->Name() << " fate: " << INukeHadroFates::AsString(fate)
+	<< " after " << fNumIterations-1 
+	<< " attempts. Trying a new fate...";
+      this->SimulateHadronicFinalState(ev,p);
+    }
+    }
 }
 //___________________________________________________________________________
 INukeFateHA_t HAIntranuke2015::HadronFateHA(const GHepParticle * p) const
@@ -223,9 +233,9 @@ INukeFateHA_t HAIntranuke2015::HadronFateHA(const GHepParticle * p) const
   int    pdgc = p->Pdg();
   double ke   = p->KinE() / units::MeV;
 
-  // bool isPion = (pdgc == kPdgPiP or pdgc == kPdgPi0 or pdgc == kPdgPiM); 
+  //bool isPion = (pdgc == kPdgPiP or pdgc == kPdgPi0 or pdgc == kPdgPiM); 
+  //if (isPion and fUseOset and ke < 350.0) return this->HadronFateOset(); 
 
- 
   LOG("HAIntranuke2015", pINFO) 
    << "Selecting hA fate for " << p->Name() << " with KE = " << ke << " MeV";
 
@@ -275,24 +285,27 @@ INukeFateHA_t HAIntranuke2015::HadronFateHA(const GHepParticle * p) const
     // handle nucleons
     else if (pdgc==kPdgProton || pdgc==kPdgNeutron) {
       double frac_cex      = fHadroData2015->FracAIndep(pdgc, kIHAFtCEx,    ke);
-      double frac_elas     = fHadroData2015->FracAIndep(pdgc, kIHAFtElas,   ke);
+      //double frac_elas     = fHadroData2015->FracAIndep(pdgc, kIHAFtElas,   ke);
       double frac_inel     = fHadroData2015->FracAIndep(pdgc, kIHAFtInelas, ke);
       double frac_abs      = fHadroData2015->FracAIndep(pdgc, kIHAFtAbs,    ke);
       double frac_pipro    = fHadroData2015->FracAIndep(pdgc, kIHAFtPiProd, ke);
+      double frac_cmp      = fHadroData2015->FracAIndep(pdgc, kIHAFtCmp   , ke);
 
-       LOG("HAIntranuke2015", pDEBUG) 
+      LOG("HAIntranuke2015", pINFO)
           << "\n frac{" << INukeHadroFates::AsString(kIHAFtCEx)     << "} = " << frac_cex
-          << "\n frac{" << INukeHadroFates::AsString(kIHAFtElas)    << "} = " << frac_elas
+	// << "\n frac{" << INukeHadroFates::AsString(kIHAFtElas)    << "} = " << frac_elas
           << "\n frac{" << INukeHadroFates::AsString(kIHAFtInelas)  << "} = " << frac_inel
 	  << "\n frac{" << INukeHadroFates::AsString(kIHAFtAbs)     << "} = " << frac_abs
-          << "\n frac{" << INukeHadroFates::AsString(kIHAFtPiProd)  << "} = " << frac_pipro;
+          << "\n frac{" << INukeHadroFates::AsString(kIHAFtPiProd)  << "} = " << frac_pipro
+          << "\n frac{" << INukeHadroFates::AsString(kIHAFtCmp)     << "} = " << frac_cmp; //suarez edit, cmp
 
        // compute total fraction (can be <1 if fates have been switched off)
        double tf = frac_cex      +
-                   frac_elas     +
+	 //frac_elas     +
                    frac_inel     +  
 	           frac_abs      +
-	           frac_pipro;
+	           frac_pipro    +
+	           frac_cmp;  //suarez edit, cmp
 
        double r = tf * rnd->RndFsi().Rndm();
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
@@ -300,10 +313,11 @@ INukeFateHA_t HAIntranuke2015::HadronFateHA(const GHepParticle * p) const
 #endif
        double cf=0; // current fraction
        if(r < (cf += frac_cex     )) return kIHAFtCEx;     // cex
-       if(r < (cf += frac_elas    )) return kIHAFtElas;    // elas
+       //if(r < (cf += frac_elas    )) return kIHAFtElas;    // elas
        if(r < (cf += frac_inel    )) return kIHAFtInelas;  // inelas
        if(r < (cf += frac_abs     )) return kIHAFtAbs;     // abs
        if(r < (cf += frac_pipro   )) return kIHAFtPiProd;  // pi prod 
+       if(r < (cf += frac_cmp     )) return kIHAFtCmp;  //suarez edit, cmp
 
        LOG("HAIntranuke2015", pWARN) 
          << "No selection after going through all fates! "
@@ -653,6 +667,29 @@ void HAIntranuke2015::InelasticHA(
 	<< P3L << "   " << E3L << "  P4L, E4L = "<< P4L << "   " << E4L ;
       if(ev->Probe() ) { LOG("HAIntranuke",pINFO)
 	  << "P4L = " << P4L << " ;E4L=  " << E4L << "\n probe KE = " << ev->Probe()->KinE() << "\n";
+	LOG("HAIntranuke2015", pINFO) << "Nucleus : (A,Z) = ("<<fRemnA<<','<<fRemnZ<<')';
+	TParticlePDG * remn = 0;
+	double MassRem = 0.;
+	int ipdgc = pdg::IonPdgCode(fRemnA, fRemnZ);
+	remn = PDGLibrary::Instance()->Find(ipdgc);
+	if(!remn) 
+	  {
+	    LOG("HAIntranuke2015", pINFO)
+	      << "NO Particle with [A = " << fRemnA << ", Z = " << fRemnZ
+	      << ", pdgc = " << ipdgc << "] in PDGLibrary!";
+	  }
+	else
+	  {
+	    MassRem = remn->Mass();
+	    LOG("HAIntranuke2015", pINFO)
+	      << "Particle with [A = " << fRemnA << ", Z = " << fRemnZ
+	      << ", pdgc = " << ipdgc << "] in PDGLibrary!";
+	  }
+	double ERemn = fRemnP4.E();
+	double PRemn = TMath::Sqrt(fRemnP4.Px()*fRemnP4.Px() + fRemnP4.Py()*fRemnP4.Py() + fRemnP4.Pz()*fRemnP4.Pz());
+	double MRemn = TMath::Sqrt(ERemn*ERemn - PRemn*PRemn);
+	LOG("HAIntranuke2015",pINFO) << "PRemn = " << PRemn << " ;ERemn=  " << ERemn;
+	LOG("HAIntranuke2015",pINFO) << "MRemn=  " << MRemn << "  ;true Mass=  " << MassRem << "   ; excitation energy= " << (MRemn-MassRem)*1000. << " MeV";
       }
       if (ev->Probe() && (E3L>ev->Probe()->KinE()))  //assuming E3 is most important, definitely for pion.  what about pp?
 	{
@@ -1230,6 +1267,30 @@ void HAIntranuke2015::Inelastic(
 	  if(success1 && success2 && success3 && success4 && success5)
 	    {
 	      LOG("HAIntranuke2015", pINFO)<<"Successful many-body absorption - n>=18";
+	      LOG("HAIntranuke2015", pDEBUG) << "Nucleus : (A,Z) = ("<<fRemnA<<','<<fRemnZ<<')';
+	      TParticlePDG * remn = 0;
+	      double MassRem = 0.;
+	      int ipdgc = pdg::IonPdgCode(fRemnA, fRemnZ);
+	      remn = PDGLibrary::Instance()->Find(ipdgc);
+	      if(!remn) 
+		{
+		  LOG("HAIntranuke2015", pINFO)
+		    << "NO Particle with [A = " << fRemnA << ", Z = " << fRemnZ
+		    << ", pdgc = " << ipdgc << "] in PDGLibrary!";
+		}
+	      else
+		{
+		  MassRem = remn->Mass();
+		  LOG("HAIntranuke2015", pINFO)
+		    << "Particle with [A = " << fRemnA << ", Z = " << fRemnZ
+		    << ", pdgc = " << ipdgc << "] in PDGLibrary!";
+		}
+	      double ERemn = fRemnP4.E();
+	      double PRemn = TMath::Sqrt(fRemnP4.Px()*fRemnP4.Px() + fRemnP4.Py()*fRemnP4.Py() + fRemnP4.Pz()*fRemnP4.Pz());
+	      double MRemn = TMath::Sqrt(ERemn*ERemn - PRemn*PRemn);
+	      LOG("HAIntranuke2015",pINFO) << "PRemn = " << PRemn << " ;ERemn=  " << ERemn;
+	      LOG("HAIntranuke2015",pINFO) << "MRemn=  " << MRemn << "  ;true Mass=  " << MassRem << "   ; excitation energy= " << (MRemn-MassRem)*1000. << " MeV";
+
 	    }
 	  else 
 	    {
@@ -1316,6 +1377,29 @@ void HAIntranuke2015::Inelastic(
 	  if (success)
 	    {
 	      LOG ("HAIntranuke2015",pINFO) << "Successful many-body absorption, n<=18";
+	      LOG("HAIntranuke2015", pDEBUG) << "Nucleus : (A,Z) = ("<<fRemnA<<','<<fRemnZ<<')';
+	      TParticlePDG * remn = 0;
+	      double MassRem = 0.;
+	      int ipdgc = pdg::IonPdgCode(fRemnA, fRemnZ);
+	      remn = PDGLibrary::Instance()->Find(ipdgc);
+	      if(!remn) 
+		{
+		  LOG("HAIntranuke2015", pINFO)
+		    << "NO Particle with [A = " << fRemnA << ", Z = " << fRemnZ
+		    << ", pdgc = " << ipdgc << "] in PDGLibrary!";
+		}
+	      else
+		{
+		  MassRem = remn->Mass();
+		  LOG("HAIntranuke2015", pINFO)
+		    << "Particle with [A = " << fRemnA << ", Z = " << fRemnZ
+		    << ", pdgc = " << ipdgc << "] in PDGLibrary!";
+		}
+	      double ERemn = fRemnP4.E();
+	      double PRemn = TMath::Sqrt(fRemnP4.Px()*fRemnP4.Px() + fRemnP4.Py()*fRemnP4.Py() + fRemnP4.Pz()*fRemnP4.Pz());
+	      double MRemn = TMath::Sqrt(ERemn*ERemn - PRemn*PRemn);
+	      LOG("HAIntranuke2015",pINFO) << "PRemn = " << PRemn << " ;ERemn=  " << ERemn;
+	      LOG("HAIntranuke2015",pINFO) << "MRemn=  " << MRemn << "  ;true Mass=  " << MassRem << "   ; excitation energy= " << (MRemn-MassRem)*1000. << " MeV";
 	    }
 	  else {
 	    // recover
@@ -1341,11 +1425,12 @@ void HAIntranuke2015::Inelastic(
     }
 }
 //___________________________________________________________________________
-int HAIntranuke2015::HandleCompoundNucleus(
-  GHepRecord* /*ev*/, GHepParticle* /*p*/, int /*mom*/) const
+int HAIntranuke2015::HandleCompoundNucleus(GHepRecord* /*ev*/, GHepParticle* /*p*/, int /*mom*/) const
 {
-  // only relevant for hN mode
+
+  // only relevant for hN mode     - not anymore.
   return false;
+  
 }
 //___________________________________________________________________________
 void HAIntranuke2015::LoadConfig(void)
@@ -1399,5 +1484,22 @@ void HAIntranuke2015::LoadConfig(void)
   LOG("HAIntranuke2015", pINFO) << "XsecNNCorr? = " << ((fXsecNNCorr)?(true):(false));
 }
 //___________________________________________________________________________
+/*
+INukeFateHA_t HAIntranuke2015::HadronFateOset () const
+{
+  const double fractionAbsorption = osetUtils::currentInstance->
+                                    getAbsorptionFraction();
+  const double fractionCex = osetUtils::currentInstance->getCexFraction ();
 
+  RandomGen *randomGenerator = RandomGen::Instance();
+  const double randomNumber  = randomGenerator->RndFsi().Rndm();
 
+  LOG("HAIntranuke2015", pINFO) 
+    << "\n frac{" << INukeHadroFates::AsString(kIHAFtCEx)     << "} = " << fractionCex
+    << "\n frac{" << INukeHadroFates::AsString(kIHAFtInelas)  << "} = " << 1-fractionCex-fractionAbsorption
+    << "\n frac{" << INukeHadroFates::AsString(kIHAFtAbs)     << "} = " << fractionAbsorption;
+  if (randomNumber < fractionAbsorption && fRemnA > 1) return kIHAFtAbs;
+  else if (randomNumber < fractionAbsorption + fractionCex) return kIHAFtCEx;
+  else return kIHAFtInelas;
+}
+*/
