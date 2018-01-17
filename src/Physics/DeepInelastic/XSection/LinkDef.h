@@ -17,4 +17,7 @@
 #pragma link C++ class genie::DISStructureFunc;
 #pragma link C++ class genie::DISStructureFuncModelI;
 
+#pragma link C++ class genie::DISXSec;
+
+
 #endif

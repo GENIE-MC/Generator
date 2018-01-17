@@ -8,4 +8,6 @@
 
 #pragma link C++ class genie::ReinDFRPXSec;
 
+#pragma link C++ class genie::DFRXSec;
+
 #endif

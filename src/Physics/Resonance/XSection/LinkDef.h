@@ -24,6 +24,8 @@
 #pragma link C++ class genie::RSHelicityAmplModelEMp;
 #pragma link C++ class genie::RSHelicityAmplModelEMn;
 
+#pragma link C++ class genie::RESXSec;
+
 #pragma link C++ class genie::P33PaschosLalakulichPXSec;
 
 #endif

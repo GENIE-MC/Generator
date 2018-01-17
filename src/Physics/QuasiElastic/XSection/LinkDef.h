@@ -33,6 +33,8 @@
 #pragma link C++ class genie::QELFormFactors;
 #pragma link C++ class genie::QELFormFactorsModelI;
 
+#pragma link C++ class genie::QELXSec;
+
 
 
 #endif
