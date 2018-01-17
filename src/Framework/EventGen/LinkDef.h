@@ -23,4 +23,12 @@
 #pragma link C++ class genie::XSecAlgorithmMap;
 #pragma link C++ class genie::InteractionGeneratorMap;
 
+#pragma link C++ class genie::GEVGDriver;
+#pragma link C++ class genie::GMCJDriver;
+#pragma link C++ class genie::GEVGPool;
+#pragma link C++ class genie::PathLengthList;
+#pragma link C++ class genie::GFluxI;
+#pragma link C++ class genie::GeomAnalyzerI;
+#pragma link C++ class genie::GMCJMonitor;
+
 #endif
