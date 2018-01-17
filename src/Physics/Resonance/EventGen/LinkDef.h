@@ -10,4 +10,8 @@
 #pragma link C++ class genie::RESKinematicsGenerator;
 #pragma link C++ class genie::RESInteractionListGenerator;
 
+#pragma link C++ class genie::RSPPHadronicSystemGenerator;
+#pragma link C++ class genie::RSPPResonanceSelector;
+#pragma link C++ class genie::RSPPInteractionListGenerator;
+
 #endif
