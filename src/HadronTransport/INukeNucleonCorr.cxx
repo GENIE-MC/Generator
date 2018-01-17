@@ -211,7 +211,7 @@ double INukeNucleonCorr :: getAvgCorrection(double rho, double A, double ke)
   static double cache[NRows][NColumns] = {{-1}};
   static bool ReadFile;
   if(ReadFile == true) {
-    LOG("INukeNucleonCorr",pINFO)  "Nucleon Corr interpolated value for correction factor = "<< cache[Row][Column] << " for rho, KE, A= "<<  rho << "  " << ke << "   " << A << "\n";
+    LOG("INukeNucleonCorr",pDEBUG)  "Nucleon Corr interpolated value for correction factor = "<< cache[Row][Column] << " for rho, KE, A= "<<  rho << "  " << ke << "   " << A << "\n";
     return cache[Row][Column];}
   else{
     //Reading in correction files//
