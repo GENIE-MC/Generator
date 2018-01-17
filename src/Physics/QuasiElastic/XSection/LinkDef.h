@@ -6,6 +6,18 @@
 
 #pragma link C++ namespace genie;
 
+#pragma link C++ class genie::ELFormFactorsModelI;
+#pragma link C++ class genie::ELFormFactors;
+
+#pragma link C++ class genie::BBA03ELFormFactorsModel;
+#pragma link C++ class genie::BBA05ELFormFactorsModel;
+#pragma link C++ class genie::BBA07ELFormFactorsModel;
+#pragma link C++ class genie::DipoleELFormFactorsModel;
+#pragma link C++ class genie::TransverseEnhancementFFModel;
+
+#pragma link C++ class genie::AhrensNCELPXSec;
+#pragma link C++ class genie::RosenbluthPXSec;
+
 #pragma link C++ class genie::LwlynSmithQELCCPXSec;
 #pragma link C++ class genie::LwlynSmithFFCC;
 #pragma link C++ class genie::LwlynSmithFFNC;
@@ -17,5 +29,6 @@
 #pragma link C++ class genie::ZExpAxialFormFactorModel;
 #pragma link C++ class genie::KuzminNaumov2016AxialFormFactorModel;
 #pragma link C++ class genie::NievesQELCCPXSec;
+
 
 #endif
