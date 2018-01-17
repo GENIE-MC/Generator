@@ -31,4 +31,7 @@
 #pragma link C++ class genie::GeomAnalyzerI;
 #pragma link C++ class genie::GMCJMonitor;
 
+#pragma link C++ class genie::XSecAlgorithmI;
+
+
 #endif
