@@ -216,7 +216,7 @@ INukeFateHN_t HNIntranuke2015::HadronFateHN(const GHepParticle * p) const
 
   if (isPion and fUseOset and ke < 350.0) return HadronFateOset ();
  
-  LOG("HNIntranuke2015", pINFO) 
+  LOG("HNIntranuke2015", pNOTICE) 
    << "Selecting hN fate for " << p->Name() << " with KE = " << ke << " MeV";
 
    // try to generate a hadron fate
@@ -235,16 +235,17 @@ INukeFateHN_t HNIntranuke2015::HadronFateHN(const GHepParticle * p) const
 	                            * fHadroData2015->Frac(pdgc, kIHNFtInelas,  ke, fRemnA, fRemnZ);
        double frac_abs      = this->FateWeight(pdgc, kIHNFtAbs)
 	                            * fHadroData2015->Frac(pdgc, kIHNFtAbs,     ke, fRemnA, fRemnZ);
-             	frac_cex     *= fNucCEXFac;    // scaling factors
-		frac_abs     *= fNucAbsFac;
-		frac_elas    *= fNucQEFac;
-		if(pdgc==kPdgPi0) frac_abs*= 0.665;  //isospin factor
 
-       LOG("HNIntranuke2015", pINFO) 
-          << "\n frac{" << INukeHadroFates::AsString(kIHNFtCEx)     << "} = " << frac_cex
-          << "\n frac{" << INukeHadroFates::AsString(kIHNFtElas)    << "} = " << frac_elas
-          << "\n frac{" << INukeHadroFates::AsString(kIHNFtInelas)  << "} = " << frac_inel
-          << "\n frac{" << INukeHadroFates::AsString(kIHNFtAbs)     << "} = " << frac_abs;
+       frac_cex     *= fNucCEXFac;    // scaling factors
+       frac_abs     *= fNucAbsFac;
+       frac_elas    *= fNucQEFac;
+       if(pdgc==kPdgPi0) frac_abs*= 0.665;  //isospin factor
+
+       LOG("HNIntranuke2015", pNOTICE) 
+	 << "\n frac{" << INukeHadroFates::AsString(kIHNFtCEx)     << "} = " << frac_cex
+	 << "\n frac{" << INukeHadroFates::AsString(kIHNFtElas)    << "} = " << frac_elas
+	 << "\n frac{" << INukeHadroFates::AsString(kIHNFtInelas)  << "} = " << frac_inel
+	 << "\n frac{" << INukeHadroFates::AsString(kIHNFtAbs)     << "} = " << frac_abs;
 
        // compute total fraction (can be <1 if fates have been switched off)
        double tf = frac_cex      +
@@ -281,9 +282,9 @@ INukeFateHN_t HNIntranuke2015::HadronFateHN(const GHepParticle * p) const
       double frac_cmp      = this->FateWeight(pdgc, kIHNFtCmp)
 	                           * fHadroData2015->Frac(pdgc, kIHNFtCmp,    ke, fRemnA , fRemnZ);
 
-       LOG("HNIntranuke2015", pINFO) 
-          << "\n frac{" << INukeHadroFates::AsString(kIHNFtElas)    << "} = " << frac_elas
-          << "\n frac{" << INukeHadroFates::AsString(kIHNFtInelas)  << "} = " << frac_inel;
+      LOG("HNIntranuke2015", pINFO) 
+	<< "\n frac{" << INukeHadroFates::AsString(kIHNFtElas)    << "} = " << frac_elas
+	<< "\n frac{" << INukeHadroFates::AsString(kIHNFtInelas)  << "} = " << frac_inel;
 
        // compute total fraction (can be <1 if fates have been switched off)
        double tf = frac_elas     +
@@ -583,16 +584,25 @@ void HNIntranuke2015::AbsorbHN(
     }
 
   // pauli blocking (do not apply PB for Oset)
-  if(!fUseOset && (P3L < fFermiMomentum || P4L < fFermiMomentum))
+  //if(!fUseOset && (P3L < fFermiMomentum || P4L < fFermiMomentum))
+  double ke   = p->KinE() / units::MeV;
+  if((!fUseOset || ke > 350.0 ) && (P3L < fFermiMomentum || P4L < fFermiMomentum))
     {
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
       LOG("HNIntranuke2015",pINFO) << "AbsorbHN failed: Pauli blocking";
 #endif
+      /*
       p->SetStatus(kIStHadronInTheNucleus);
       //disable until needed
       //      utils::intranuke2015::StepParticle(p,fFreeStep,fTrackingRadius);
       ev->AddParticle(*p);   
       return;
+      */
+      // new attempt at error handling:
+      LOG("HNIntranuke2015", pINFO) << "AbsorbHN failed: Pauli blocking";
+      exceptions::INukeException exception;
+      exception.SetReason("hN absorption failed");
+      throw exception;
     }
 
   // handle remnant nucleus updates
@@ -972,7 +982,8 @@ void HNIntranuke2015::LoadConfig(void)
   fDoFermi       = fConfig->GetBoolDef   ("DoFermi",      gc->GetBool("INUKE-DoFermi"));
   fFreeStep      = fConfig->GetDoubleDef ("FreeStep",     gc->GetDouble("INUKE-FreeStep"));
   fDoCompoundNucleus = fConfig->GetBoolDef ("DoCompoundNucleus", gc->GetBool("INUKE-DoCompoundNucleus"));
-  fUseOset        = fConfig->GetBoolDef ("UseOset", true);
+  //fUseOset        = fConfig->GetBoolDef ("UseOset", true);
+  fUseOset       = fConfig->GetBoolDef   ("UseOset",      gc->GetBool("HNINUKE-UseOset"));
   fAltOset        = fConfig->GetBoolDef ("AltOset", false);
   fXsecNNCorr     = fConfig->GetBoolDef ("XsecNNCorr", gc->GetBool("INUKE-XsecNNCorr"));
 
@@ -1000,12 +1011,21 @@ void HNIntranuke2015::LoadConfig(void)
 
 INukeFateHN_t HNIntranuke2015::HadronFateOset () const
 {
+  //LOG("HNIntranuke2015", pWARN) << "IN HadronFateOset";
+
+  //LOG("HNIntranuke2015", pWARN) << "{ frac abs  = " << osetUtils::currentInstance->getAbsorptionFraction();
+  //LOG("HNIntranuke2015", pWARN) << "  frac cex  = " << osetUtils::currentInstance->getCexFraction() << " }";
+
   const double fractionAbsorption = osetUtils::currentInstance->
                                     getAbsorptionFraction();
   const double fractionCex = osetUtils::currentInstance->getCexFraction ();
 
   RandomGen *randomGenerator = RandomGen::Instance();
   const double randomNumber  = randomGenerator->RndFsi().Rndm();
+
+  //LOG("HNIntranuke2015", pWARN) << "{ frac abs  = " << fractionAbsorption;
+  //LOG("HNIntranuke2015", pWARN) << "  frac cex  = " << fractionCex;
+  //LOG("HNIntranuke2015", pWARN) << "  frac elas = " << 1-fractionAbsorption-fractionCex << " }";
 
   if (randomNumber < fractionAbsorption && fRemnA > 1) return kIHNFtAbs;
   else if (randomNumber < fractionAbsorption + fractionCex) return kIHNFtCEx;
