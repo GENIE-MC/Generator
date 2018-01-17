@@ -135,6 +135,9 @@ INukeHadroData2015::~INukeHadroData2015()
   delete fFracNA_Abs;
   delete fFracNA_PiPro;
 
+  delete fFracPA_Cmp;  //  cmp - add support later
+  delete fFracNA_Cmp;
+
   // hN data
   delete fhN2dXSecPP_Elas;
   delete fhN2dXSecNP_Elas;
@@ -211,8 +214,10 @@ void INukeHadroData2015::LoadCrossSections(void)
      "ke/D:pipn_tot/D:pipn_cex/D:pipn_elas/D:pipn_reac/D:pipp_tot/D:pipp_cex/D:pipp_elas/D:pipp_reac/D:pipd_abs");
   data_pi0N.ReadFile(datafile_pi0N.c_str(),
      "ke/D:pi0n_tot/D:pi0n_cex/D:pi0n_elas/D:pi0n_reac/D:pi0p_tot/D:pi0p_cex/D:pi0p_elas/D:pi0p_reac/D:pi0d_abs");
+  //data_NA.ReadFile(datafile_NA.c_str(),
+  //"ke/D:pA_tot/D:pA_elas/D:pA_inel/D:pA_cex/D:pA_abs/D:pA_pipro/D");  // add support for cmp here (?)
   data_NA.ReadFile(datafile_NA.c_str(),
-     "ke/D:pA_tot/D:pA_elas/D:pA_inel/D:pA_cex/D:pA_abs/D:pA_pipro/D");
+		   "ke/D:pA_tot/D:pA_elas/D:pA_inel/D:pA_cex/D:pA_abs/D:pA_pipro/D:pA_cmp/D");  // add support for cmp here (?)
   data_gamN.ReadFile(datafile_gamN.c_str(),
     "ke/D:pi0p_tot/D:pipn_tot/D:pimp_tot/D:pi0n_tot/D:gamp_fs/D:gamn_fs/D:gamN_tot/D");
   data_kN.ReadFile(datafile_kN.c_str(),
@@ -293,6 +298,9 @@ void INukeHadroData2015::LoadCrossSections(void)
   fFracNA_CEx      = new Spline(&data_NA, "ke:pA_cex");   
   fFracNA_Abs      = new Spline(&data_NA, "ke:pA_abs");
   fFracNA_PiPro    = new Spline(&data_NA, "ke:pA_pipro");
+
+  fFracPA_Cmp      = new Spline(&data_NA, "ke:pA_cmp");  //cmp - add support later
+  fFracNA_Cmp      = new Spline(&data_NA, "ke:pA_cmp");
 
   // K+A x-section fraction splines
   fFracKA_Tot      = new Spline(&data_KA, "ke:KA_tot");
@@ -1389,6 +1397,7 @@ double INukeHadroData2015::FracAIndep(int hpdgc, INukeFateHA_t fate, double ke) 
    else if (fate == kIHAFtInelas ) return TMath::Max(0., fFracPA_Inel    -> Evaluate (ke));
    else if (fate == kIHAFtAbs    ) return TMath::Max(0., fFracPA_Abs     -> Evaluate (ke));
    else if (fate == kIHAFtPiProd ) return TMath::Max(0., fFracPA_PiPro   -> Evaluate (ke));
+   else if (fate == kIHAFtCmp    ) return TMath::Max(0., fFracPA_Cmp     -> Evaluate (ke));  // cmp - add support for this later
    else {
      LOG("INukeData", pWARN) 
        << "Protons don't have this fate: " << INukeHadroFates::AsString(fate);
@@ -1402,6 +1411,7 @@ double INukeHadroData2015::FracAIndep(int hpdgc, INukeFateHA_t fate, double ke) 
    else if (fate == kIHAFtInelas ) return TMath::Max(0., fFracNA_Inel    -> Evaluate (ke));
    else if (fate == kIHAFtAbs    ) return TMath::Max(0., fFracNA_Abs     -> Evaluate (ke));
    else if (fate == kIHAFtPiProd ) return TMath::Max(0., fFracNA_PiPro   -> Evaluate (ke));
+   else if (fate == kIHAFtCmp    ) return TMath::Max(0., fFracNA_Cmp     -> Evaluate (ke)); // cmp - add support for this later
    else {
      LOG("INukeData", pWARN) 
        << "Neutrons don't have this fate: " << INukeHadroFates::AsString(fate);
