@@ -11,4 +11,7 @@
 #pragma link C++ class genie::QPMDISStrucFunc;
 #pragma link C++ class genie::QPMDISPXSec;
 
+#pragma link C++ class genie::BYPDF;
+#pragma link C++ class genie::BYStrucFunc;
+
 #endif
