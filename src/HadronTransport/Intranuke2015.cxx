@@ -308,7 +308,7 @@ void Intranuke2015::TransportHadrons(GHepRecord * evrec) const
 
     // Check whether the particle needs rescattering, otherwise skip it
     if( ! this->NeedsRescattering(p) ) continue;
-
+ 
     LOG("Intranuke2015", pNOTICE)
       << " >> Stepping a " << p->Name() 
                         << " with kinetic E = " << p->KinE() << " GeV";
@@ -344,6 +344,9 @@ void Intranuke2015::TransportHadrons(GHepRecord * evrec) const
       has_interacted = (d<fHadStep);
       if(has_interacted) break;
     }//stepping
+
+    //updating the position of the original particle with the position of the clone
+    evrec->Particle(sp->FirstMother())->SetPosition(*(sp->X4()));
  
     if(has_interacted && fRemnA>0)  {
         // the particle interacts - simulate the hadronic interaction
@@ -396,8 +399,10 @@ double Intranuke2015::GenerateStep(GHepRecord*  /*evrec*/, GHepParticle* p) cons
 
   RandomGen * rnd = RandomGen::Instance();
 
+  string fINukeMode = this->GetINukeMode();
+  
   double L = utils::intranuke2015::MeanFreePath(p->Pdg(), *p->X4(), *p->P4(), fRemnA,
-     fRemnZ, fDelRPion, fDelRNucleon, fUseOset, fAltOset, fXsecNNCorr);
+						fRemnZ, fDelRPion, fDelRNucleon, fUseOset, fAltOset, fXsecNNCorr, fINukeMode);
   double d = -1.*L * TMath::Log(rnd->RndFsi().Rndm());
 
   LOG("Intranuke2015", pDEBUG)
