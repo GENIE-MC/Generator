@@ -17,6 +17,8 @@
 #pragma link C++ class genie::DFRXSec;
 #pragma link C++ class genie::NuElectronXSec;
 
+#pragma link C++ class genie::XSecIntegratorI;
+
 // Wrappers for GSL/MathMore lib
 #pragma link C++ class genie::utils::gsl::dXSec_dQ2_E;
 #pragma link C++ class genie::utils::gsl::dXSec_dy_E;
