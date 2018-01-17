@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::GiBUUData
+\class    genie::GiBUURESFormFactor
 
 \brief    Singleton to load and serve data tables provided by the GiBUU group
 
@@ -16,8 +16,8 @@
 */
 //____________________________________________________________________________
 
-#ifndef _GIBUU_DATA_H_
-#define _GIBUU_DATA_H_
+#ifndef _GIBUU_RES_FORM_FACTOR_H_
+#define _GIBUU_RES_FORM_FACTOR_H_
 
 #include "BaryonResonance/BaryonResonance.h"
 #include "Interaction/InteractionType.h"
@@ -26,14 +26,14 @@ namespace genie {
 
 class Spline;
 
-class GiBUUData
+class GiBUURESFormFactor
 {
 public:
 
   class FormFactors;
 
-  // access GiBUUData singleton instance
-  static GiBUUData * Instance (void);
+  // access GiBUURESFormFactor singleton instance
+  static GiBUURESFormFactor * Instance (void);
 
   // access form factor data
   const FormFactors & FF(void) const;
@@ -110,20 +110,20 @@ public:
      //! load all form factor data tables
      void LoadTables(void); 
 
-     friend class GiBUUData;
+     friend class GiBUURESFormFactor;
 
   }; // FormFactors nested class
 
 private:
-  GiBUUData();
-  GiBUUData(const GiBUUData & gibuu_data);
- ~GiBUUData();
+  GiBUURESFormFactor();
+  GiBUURESFormFactor(const GiBUURESFormFactor & gibuu_data);
+ ~GiBUURESFormFactor();
 
   // load all data tables
   void LoadTables(void); 
 
   // singleton 'self'
-  static GiBUUData * fInstance;
+  static GiBUURESFormFactor * fInstance;
 
   // form factor data
   FormFactors * fFormFactors;
@@ -132,17 +132,17 @@ private:
   struct Cleaner {
       void DummyMethodAndSilentCompiler() { }
       ~Cleaner() {
-         if (GiBUUData::fInstance !=0) {
-            delete GiBUUData::fInstance;
-            GiBUUData::fInstance = 0;
+         if (GiBUURESFormFactor::fInstance !=0) {
+            delete GiBUURESFormFactor::fInstance;
+            GiBUURESFormFactor::fInstance = 0;
          }
       }
   };
   friend struct Cleaner;
 
-}; // GiBUUData class
+}; // GiBUURESFormFactor class
 
 }      // genie namespace
 
-#endif // _GIBUU_DATA_H_
+#endif // _GIBUU_RES_FORM_FACTOR_H_ 
 
