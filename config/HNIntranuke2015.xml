@@ -39,10 +39,12 @@ XsecNNCorr          bool    Yes   nuclear medium correction for NN cross section
     <param type="bool" name="INUKE-XsecNNCorr"> false </param>
   </param_set>
 -->
+<!--
   <param_set name="OsetOff"> 
     <param type="bool" name="HNINUKE-UseOset"> false </param>
     <param type="bool" name="HNINUKE-AltOset"> false </param>
   </param_set>
+-->
 
 </alg_conf>
 
