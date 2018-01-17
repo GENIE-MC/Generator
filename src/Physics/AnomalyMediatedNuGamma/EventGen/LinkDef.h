@@ -8,6 +8,5 @@
 
 #pragma link C++ class genie::AMNuGammaInteractionListGenerator;
 #pragma link C++ class genie::AMNuGammaGenerator;
-#pragma link C++ class genie::H3AMNuGammaPXSec;
 
 #endif
