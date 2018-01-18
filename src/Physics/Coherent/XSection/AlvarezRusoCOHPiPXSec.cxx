@@ -17,23 +17,23 @@
 
 #include <TMath.h>
 
-#include "Algorithm/AlgConfigPool.h"
-#include "Base/XSecIntegratorI.h"
-#include "Conventions/GBuild.h"
-#include "Conventions/Constants.h"
-#include "Conventions/Units.h"
-#include "Conventions/RefFrame.h"
-#include "Messenger/Messenger.h"
-#include "PDG/PDGCodes.h"
-#include "PDG/PDGUtils.h"
-#include "AlvarezRuso/AlvarezRusoCOHPiPXSec.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
+#include "Physics/XSectionIntegration/XSecIntegratorI.h"
+#include "Framework/Conventions/GBuild.h"
+#include "Framework/Conventions/Constants.h"
+#include "Framework/Conventions/Units.h"
+#include "Framework/Conventions/RefFrame.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/PDG/PDGCodes.h"
+#include "Framework/PDG/PDGUtils.h"
+#include "Physics/Coherent/XSection/AlvarezRusoCOHPiPXSec.h"
 #include "Utils/HadXSUtils.h"
 #include "Utils/KineUtils.h"
 
-#include "AlvarezRuso/ARConstants.h"
-#include "AlvarezRuso/ARSampledNucleus.h"
-#include "AlvarezRuso/AlvarezRusoCOHPiPDXSec.h"
-#include "AlvarezRuso/AREikonalSolution.h"
+#include "Physics/Coherent/XSection/ARConstants.h"
+#include "Physics/Coherent/XSection/ARSampledNucleus.h"
+#include "Physics/Coherent/XSection/AlvarezRusoCOHPiPDXSec.h"
+#include "Physics/Coherent/XSection/AREikonalSolution.h"
 
 
 using namespace genie;

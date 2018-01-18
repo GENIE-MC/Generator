@@ -20,15 +20,15 @@
 #include <TMath.h>
 #include <TVector3.h>
 
-#include "Conventions/Constants.h"
-#include "NuE/NuEPrimaryLeptonGenerator.h"
-#include "GHEP/GHepStatus.h"
-#include "GHEP/GHepParticle.h"
-#include "GHEP/GHepRecord.h"
-#include "Interaction/Interaction.h"
-#include "Messenger/Messenger.h"
-#include "Numerical/RandomGen.h"
-#include "PDG/PDGCodes.h"
+#include "Framework/Conventions/Constants.h"
+#include "Physics/NuElectron/EventGen/NuEPrimaryLeptonGenerator.h"
+#include "Framework/GHEP/GHepStatus.h"
+#include "Framework/GHEP/GHepParticle.h"
+#include "Framework/GHEP/GHepRecord.h"
+#include "Framework/Interaction/Interaction.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Numerical/RandomGen.h"
+#include "Framework/PDG/PDGCodes.h"
 
 using namespace genie;
 using namespace genie::constants;

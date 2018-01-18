@@ -17,8 +17,8 @@
 #include <TClonesArray.h>
 #include <TH1D.h>
 
-#include "Fragmentation/HadronizationModelI.h"
-#include "Interaction/Interaction.h"
+#include "Physics/Hadronization/HadronizationModelI.h"
+#include "Framework/Interaction/Interaction.h"
 #include "PDG/PDGCodeList.h"
 
 using namespace genie;

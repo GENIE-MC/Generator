@@ -19,7 +19,7 @@
 #ifndef _MUELOSS_PROCESS_H_
 #define _MUELOSS_PROCESS_H_
 
-#include "Conventions/Constants.h"
+#include "Framework/Conventions/Constants.h"
 
 using namespace genie::constants;
 

@@ -16,9 +16,9 @@
 */
 //____________________________________________________________________________
 
-#include "Conventions/Constants.h"
-#include "LlewellynSmith/LwlynSmithFFCC.h"
-#include "Messenger/Messenger.h"
+#include "Framework/Conventions/Constants.h"
+#include "Physics/QuasiElastic/XSection/LwlynSmithFFCC.h"
+#include "Framework/Messenger/Messenger.h"
 
 using namespace genie;
 using namespace genie::constants;

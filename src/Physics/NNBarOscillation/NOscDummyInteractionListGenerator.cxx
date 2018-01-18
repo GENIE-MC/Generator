@@ -16,9 +16,9 @@
 */
 //____________________________________________________________________________
 
-#include "EVGCore/InteractionList.h"
-#include "Interaction/Interaction.h"
-#include "NeutronOsc/NOscDummyInteractionListGenerator.h"
+#include "Framework/EventGen/InteractionList.h"
+#include "Framework/Interaction/Interaction.h"
+#include "Physics/NNBarOscillation/NOscDummyInteractionListGenerator.h"
 
 using namespace genie;
 

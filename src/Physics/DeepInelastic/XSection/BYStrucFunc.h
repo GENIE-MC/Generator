@@ -18,9 +18,9 @@
 #ifndef _BODEK_YANG_STRUCTURE_FUNCTION_MODEL_H_
 #define _BODEK_YANG_STRUCTURE_FUNCTION_MODEL_H_
 
-#include "PartonModel/QPMDISStrucFuncBase.h"
-#include "Interaction/Interaction.h"
-#include "PDF/PDFModelI.h"
+#include "Physics/DeepInelastic/XSection/QPMDISStrucFuncBase.h"
+#include "Framework/Interaction/Interaction.h"
+#include "Physics/PDF/PDFModelI.h"
 
 namespace genie {
 

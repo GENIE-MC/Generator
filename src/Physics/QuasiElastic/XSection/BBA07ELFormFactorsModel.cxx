@@ -18,10 +18,10 @@
 */
 //____________________________________________________________________________
 
-#include "Algorithm/AlgConfigPool.h"
-#include "Conventions/Constants.h"
-#include "ElFF/BBA07ELFormFactorsModel.h"
-#include "Interaction/Interaction.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
+#include "Framework/Conventions/Constants.h"
+#include "Physics/QuasiElastic/XSection/BBA07ELFormFactorsModel.h"
+#include "Framework/Interaction/Interaction.h"
 
 using namespace genie;
 using namespace genie::constants;

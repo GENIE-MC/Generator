@@ -24,7 +24,7 @@
 #ifndef _SV_QUASIELASTIC_NU_NUCLEON_XSEC_H_
 #define _SV_QUASIELASTIC_NU_NUCLEON_XSEC_H_
 
-#include "Base/XSecAlgorithmI.h"
+#include "Framework/EventGen/XSecAlgorithmI.h"
 
 namespace genie {
 

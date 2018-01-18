@@ -16,7 +16,7 @@
 */
 //____________________________________________________________________________
 
-#include "ElFF/ELFormFactorsModelI.h"
+#include "Physics/QuasiElastic/XSection/ELFormFactorsModelI.h"
 
 using namespace genie;
 

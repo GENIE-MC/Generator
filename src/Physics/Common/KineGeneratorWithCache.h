@@ -29,9 +29,9 @@
 
 #include <string>
 
-#include "Base/XSecAlgorithmI.h"
-#include "EVGCore/EventRecordVisitorI.h"
-#include "Utils/Range1.h"
+#include "Framework/EventGen/XSecAlgorithmI.h"
+#include "Framework/EventGen/EventRecordVisitorI.h"
+#include "Framework/Utils/Range1.h"
 
 using std::string;
 

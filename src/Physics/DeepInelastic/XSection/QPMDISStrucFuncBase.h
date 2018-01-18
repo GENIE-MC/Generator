@@ -28,9 +28,9 @@
 #ifndef _QPM_DIS_STRUCTURE_FUNCTIONS_BASE_H_
 #define _QPM_DIS_STRUCTURE_FUNCTIONS_BASE_H_
 
-#include "Base/DISStructureFuncModelI.h"
-#include "Interaction/Interaction.h"
-#include "PDF/PDF.h"
+#include "Physics/DeepInelastic/XSection/DISStructureFuncModelI.h"
+#include "Framework/Interaction/Interaction.h"
+#include "Physics/PDF/PDF.h"
 
 namespace genie {
 

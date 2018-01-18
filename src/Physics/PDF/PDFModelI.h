@@ -25,8 +25,8 @@
 #ifndef _PDF_MODEL_I_H_
 #define _PDF_MODEL_I_H_
 
-#include "Algorithm/Algorithm.h"
-#include "PDF/PDFt.h"
+#include "Framework/Algorithm/Algorithm.h"
+#include "Physics/PDF/PDFt.h"
 
 namespace genie {
 

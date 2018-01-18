@@ -22,8 +22,8 @@
 */
 //____________________________________________________________________________
 
-#include "LlewellynSmith/NievesQELException.h"
-#include "Messenger/Messenger.h"
+#include "Physics/QuasiElastic/XSection/NievesQELException.h"
+#include "Framework/Messenger/Messenger.h"
 
 using std::endl;
 using namespace genie::exceptions;

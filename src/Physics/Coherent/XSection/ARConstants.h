@@ -20,8 +20,8 @@
 #ifndef AR_CONSTANTS_H
 #define AR_CONSTANTS_H
 
-#include "Registry/Registry.h"
-#include "Conventions/Constants.h"
+#include "Framework/Registry/Registry.h"
+#include "Framework/Conventions/Constants.h"
 
 namespace genie {
 namespace alvarezruso {

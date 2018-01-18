@@ -28,7 +28,7 @@
 #include <TGenPhaseSpace.h>
 #include <TLorentzVector.h>
 
-#include "Decay/DecayModelI.h"
+#include "Physics/Decay/DecayModelI.h"
 
 namespace genie {
 

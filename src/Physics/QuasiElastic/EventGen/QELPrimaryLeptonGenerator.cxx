@@ -16,8 +16,8 @@
 */
 //____________________________________________________________________________
 
-#include "GHEP/GHepRecord.h"
-#include "QEL/QELPrimaryLeptonGenerator.h"
+#include "Framework/GHEP/GHepRecord.h"
+#include "Physics/QuasiElastic/EventGen/QELPrimaryLeptonGenerator.h"
 
 using namespace genie;
 

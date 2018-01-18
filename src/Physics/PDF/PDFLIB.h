@@ -20,7 +20,7 @@
 #ifndef _PDFLIB_H_
 #define _PDFLIB_H_
 
-#include "PDF/PDFModelI.h"
+#include "Physics/PDF/PDFModelI.h"
 
 namespace genie {
 

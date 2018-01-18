@@ -19,19 +19,19 @@
 #include <TVector3.h>
 #include <TLorentzVector.h>
 
-#include "Algorithm/AlgConfigPool.h"
-#include "Conventions/Constants.h"
-#include "EVGModules/PrimaryLeptonGenerator.h"
-#include "GHEP/GHepRecord.h"
-#include "GHEP/GHepParticle.h"
-#include "GHEP/GHepStatus.h"
-#include "Interaction/Interaction.h"
-#include "Messenger/Messenger.h"
-#include "PDG/PDGLibrary.h"
-#include "PDG/PDGUtils.h"
-#include "PDG/PDGCodes.h"
-#include "Numerical/RandomGen.h"
-#include "Utils/PrintUtils.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
+#include "Framework/Conventions/Constants.h"
+#include "Physics/Common/PrimaryLeptonGenerator.h"
+#include "Framework/GHEP/GHepRecord.h"
+#include "Framework/GHEP/GHepParticle.h"
+#include "Framework/GHEP/GHepStatus.h"
+#include "Framework/Interaction/Interaction.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/PDG/PDGLibrary.h"
+#include "Framework/PDG/PDGUtils.h"
+#include "Framework/PDG/PDGCodes.h"
+#include "Framework/Numerical/RandomGen.h"
+#include "Framework/Utils/PrintUtils.h"
 #include "Utils/MathUtils.h"
 
 using namespace genie;

@@ -19,7 +19,7 @@
 #ifndef _IBD_CROSSSECTION_MAP_H_
 #define _IBD_CROSSSECTION_MAP_H_
 
-#include "Base/XSecAlgorithmI.h"
+#include "Framework/EventGen/XSecAlgorithmI.h"
 
 namespace genie {
 

@@ -23,7 +23,7 @@
 
 #include <string>
 
-#include "Base/XSecAlgorithmI.h"
+#include "Framework/EventGen/XSecAlgorithmI.h"
 
 namespace genie {
 

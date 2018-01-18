@@ -20,18 +20,18 @@
 
 #include <cstdlib>
 
-#include "Algorithm/AlgConfigPool.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
 #include "Algorithm/AlgFactory.h"
-#include "Conventions/Constants.h"
-#include "EVGModules/HadronTransporter.h"
-#include "GHEP/GHepStatus.h"
-#include "GHEP/GHepRecord.h"
-#include "GHEP/GHepParticle.h"
-#include "Interaction/Interaction.h"
-#include "Messenger/Messenger.h"
-#include "Numerical/RandomGen.h"
-#include "PDG/PDGUtils.h"
-#include "Utils/PrintUtils.h"
+#include "Framework/Conventions/Constants.h"
+#include "Physics/HadronTransport/HadronTransporter.h"
+#include "Framework/GHEP/GHepStatus.h"
+#include "Framework/GHEP/GHepRecord.h"
+#include "Framework/GHEP/GHepParticle.h"
+#include "Framework/Interaction/Interaction.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Numerical/RandomGen.h"
+#include "Framework/PDG/PDGUtils.h"
+#include "Framework/Utils/PrintUtils.h"
 #include "Utils/NuclearUtils.h"
 
 using namespace genie;

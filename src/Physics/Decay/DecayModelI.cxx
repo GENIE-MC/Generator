@@ -17,7 +17,7 @@
 */
 //____________________________________________________________________________
 
-#include "Decay/DecayModelI.h"
+#include "Physics/Decay/DecayModelI.h"
 
 using namespace genie;
 

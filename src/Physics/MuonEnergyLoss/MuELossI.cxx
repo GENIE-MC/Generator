@@ -14,7 +14,7 @@
 */
 //____________________________________________________________________________
 
-#include "MuELoss/MuELossI.h"
+#include "Physics/MuonEnergyLoss/MuELossI.h"
 
 using namespace genie;
 using namespace genie::mueloss;

@@ -14,14 +14,14 @@
 #include <cassert>
 #include <algorithm>
 
-#include "Conventions/Constants.h"
-#include "Messenger/Messenger.h"
-#include "Numerical/Spline.h"
-#include "PDG/PDGCodes.h"
-#include "PDG/PDGUtils.h"
-#include "PDG/PDGLibrary.h"
-#include "Numerical/BLI2D.h"
-#include "MEC/MECHadronTensor.h"
+#include "Framework/Conventions/Constants.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Numerical/Spline.h"
+#include "Framework/PDG/PDGCodes.h"
+#include "Framework/PDG/PDGUtils.h"
+#include "Framework/PDG/PDGLibrary.h"
+#include "Framework/Numerical/BLI2D.h"
+#include "Physics/Multinucleon/XSection/MECHadronTensor.h"
 
 #include <TSystem.h>
 #include <TFile.h>

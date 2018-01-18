@@ -15,7 +15,7 @@
 #include <string>
 #include <complex>
 
-#include "AlvarezRuso/ARWFSolution.h"
+#include "Physics/Coherent/XSection/ARWFSolution.h"
 
 namespace genie
 {

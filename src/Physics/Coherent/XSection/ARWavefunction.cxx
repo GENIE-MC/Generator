@@ -16,7 +16,7 @@
 #include <complex>
 #include <vector>
 
-#include "AlvarezRuso/ARWavefunction.h"
+#include "Physics/Coherent/XSection/ARWavefunction.h"
 
 namespace genie
 {

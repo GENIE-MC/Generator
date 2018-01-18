@@ -21,7 +21,7 @@
 #ifndef _FERMI_MOVER_H_
 #define _FERMI_MOVER_H_
 
-#include "EVGCore/EventRecordVisitorI.h"
+#include "Framework/EventGen/EventRecordVisitorI.h"
 
 namespace genie {
 

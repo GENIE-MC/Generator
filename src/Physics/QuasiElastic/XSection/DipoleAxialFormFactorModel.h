@@ -23,7 +23,7 @@
 #ifndef _DIPOLE_AXIAL_FORM_FACTOR_MODEL_H_
 #define _DIPOLE_AXIAL_FORM_FACTOR_MODEL_H_
 
-#include "LlewellynSmith/AxialFormFactorModelI.h"
+#include "Physics/QuasiElastic/XSection/AxialFormFactorModelI.h"
 
 namespace genie {
 

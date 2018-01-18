@@ -22,8 +22,8 @@
 #include <TSystem.h>
 #include <TMath.h>
 
-#include "PDF/GRV98LO.h"
-#include "Messenger/Messenger.h"
+#include "Physics/PDF/GRV98LO.h"
+#include "Framework/Messenger/Messenger.h"
 
 using namespace std;
 using namespace genie;

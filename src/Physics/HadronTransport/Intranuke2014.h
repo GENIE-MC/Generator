@@ -35,10 +35,10 @@
 #include "Interfaces/NuclearModelI.h"
 
 #include "Algorithm/AlgFactory.h"
-#include "EVGCore/EventRecordVisitorI.h"
-#include "Conventions/GMode.h"
-#include "HadronTransport/INukeMode.h"
-#include "HadronTransport/INukeHadroFates.h"
+#include "Framework/EventGen/EventRecordVisitorI.h"
+#include "Framework/Conventions/GMode.h"
+#include "Physics/HadronTransport/INukeMode.h"
+#include "Physics/HadronTransport/INukeHadroFates.h"
 
 class TLorentzVector;
 class TVector3;

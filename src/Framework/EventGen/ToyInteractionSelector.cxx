@@ -17,7 +17,7 @@
 #include <TLorentzVector.h>
 
 #include "EVGCore/ToyInteractionSelector.h"
-#include "EVGCore/EventRecord.h"
+#include "Framework/EventGen/EventRecord.h"
 #include "Framework/EventGen/InteractionList.h"
 #include "EVGCore/InteractionGeneratorMap.h"
 #include "Framework/Interaction/Interaction.h"

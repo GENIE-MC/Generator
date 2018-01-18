@@ -19,13 +19,13 @@
 #include <TNtupleD.h>
 #include <TGraph2D.h>
 
-#include "Conventions/Constants.h"
-#include "Conventions/Controls.h"
-#include "Conventions/Units.h"
-#include "Messenger/Messenger.h"
-#include "Nuclear/SpectralFunc.h"
-#include "PDG/PDGCodes.h"
-#include "Numerical/RandomGen.h"
+#include "Framework/Conventions/Constants.h"
+#include "Framework/Conventions/Controls.h"
+#include "Framework/Conventions/Units.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Physics/Nuclear/SpectralFunc.h"
+#include "Framework/PDG/PDGCodes.h"
+#include "Framework/Numerical/RandomGen.h"
 
 using namespace genie;
 using namespace genie::constants;

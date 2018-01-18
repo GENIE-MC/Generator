@@ -21,16 +21,16 @@
 
 #include <TMath.h>
 
-#include "Algorithm/AlgConfigPool.h"
-#include "Algorithm/AlgFactory.h"
-#include "Base/XSecIntegratorI.h"
-#include "Conventions/Constants.h"
-#include "Conventions/RefFrame.h"
-#include "Elastic/RosenbluthPXSec.h"
-#include "ElFF/ELFormFactorsModelI.h"
-#include "ElFF/TransverseEnhancementFFModel.h"
-#include "Messenger/Messenger.h"
-#include "PDG/PDGUtils.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
+#include "Framework/Algorithm/AlgFactory.h"
+#include "Physics/XSectionIntegration/XSecIntegratorI.h"
+#include "Framework/Conventions/Constants.h"
+#include "Framework/Conventions/RefFrame.h"
+#include "Physics/QuasiElastic/XSection/RosenbluthPXSec.h"
+#include "Physics/QuasiElastic/XSection/ELFormFactorsModelI.h"
+#include "Physics/QuasiElastic/XSection/TransverseEnhancementFFModel.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/PDG/PDGUtils.h"
 #include "Utils/KineUtils.h"
 #include "Utils/NuclearUtils.h"
 

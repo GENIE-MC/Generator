@@ -38,16 +38,16 @@
 
 #include <TMath.h>
 
-#include "Algorithm/AlgFactory.h"
-#include "Algorithm/AlgConfigPool.h"
-#include "Conventions/Constants.h"
-#include "Conventions/Units.h"
-#include "Interaction/Interaction.h"
-#include "Messenger/Messenger.h"
-#include "Nuclear/FermiMomentumTablePool.h"
-#include "Nuclear/FermiMomentumTable.h"
-#include "Nuclear/NuclearData.h"
-#include "PDG/PDGUtils.h"
+#include "Framework/Algorithm/AlgFactory.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
+#include "Framework/Conventions/Constants.h"
+#include "Framework/Conventions/Units.h"
+#include "Framework/Interaction/Interaction.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Physics/Nuclear/FermiMomentumTablePool.h"
+#include "Physics/Nuclear/FermiMomentumTable.h"
+#include "Physics/Nuclear/NuclearData.h"
+#include "Framework/PDG/PDGUtils.h"
 #include "Utils/NuclearUtils.h"
 #include "Interfaces/NuclearModelI.h"
 

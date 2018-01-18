@@ -23,8 +23,8 @@
 #ifndef _ALVAREZ_RUSO_COH_XSEC_H_
 #define _ALVAREZ_RUSO_COH_XSEC_H_
 
-#include "Base/XSecAlgorithmI.h"
-#include "AlvarezRuso/AlvarezRusoCOHPiPDXSec.h"
+#include "Framework/EventGen/XSecAlgorithmI.h"
+#include "Physics/Coherent/XSection/AlvarezRusoCOHPiPDXSec.h"
 
 namespace genie {
 

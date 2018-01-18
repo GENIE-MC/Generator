@@ -14,7 +14,7 @@
 */
 //____________________________________________________________________________
 
-#include "Fragmentation/FragmentationFunctionI.h"
+#include "Physics/Hadronization/FragmentationFunctionI.h"
 
 using namespace genie;
 

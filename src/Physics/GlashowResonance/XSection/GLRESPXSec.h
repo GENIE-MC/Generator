@@ -22,7 +22,7 @@
 #ifndef _GLASHOW_RESONANCE_PXSEC_H_
 #define _GLASHOW_RESONANCE_PXSEC_H_
 
-#include "Base/XSecAlgorithmI.h"
+#include "Framework/EventGen/XSecAlgorithmI.h"
 
 namespace genie {
 

@@ -21,7 +21,7 @@
 #ifndef _EL_FORM_FACTORS_MODEL_I_H_
 #define _EL_FORM_FACTORS_MODEL_I_H_
 
-#include "Algorithm/Algorithm.h"
+#include "Framework/Algorithm/Algorithm.h"
 
 namespace genie {
 

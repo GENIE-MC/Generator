@@ -20,14 +20,14 @@
 #include <TMath.h>
 #include <TVector3.h>
 
-#include "Conventions/Constants.h"
-#include "Coherent/COHPrimaryLeptonGenerator.h"
-#include "GHEP/GHepParticle.h"
-#include "GHEP/GHepRecord.h"
-#include "Interaction/Interaction.h"
-#include "Messenger/Messenger.h"
-#include "Numerical/RandomGen.h"
-#include "Base/XSecAlgorithmI.h"
+#include "Framework/Conventions/Constants.h"
+#include "Physics/Coherent/EventGen/COHPrimaryLeptonGenerator.h"
+#include "Framework/GHEP/GHepParticle.h"
+#include "Framework/GHEP/GHepRecord.h"
+#include "Framework/Interaction/Interaction.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Numerical/RandomGen.h"
+#include "Framework/EventGen/XSecAlgorithmI.h"
 #include "EVGCore/EVGThreadException.h"
 #include "EVGCore/EventGeneratorI.h"
 #include "EVGCore/RunningThreadInfo.h"

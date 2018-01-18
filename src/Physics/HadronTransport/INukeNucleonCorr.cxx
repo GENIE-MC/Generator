@@ -1,10 +1,10 @@
-#include "HadronTransport/INukeNucleonCorr.h"
-#include "HadronTransport/INukeUtils2015.h"
-#include "HadronTransport/INukeHadroData2015.h"
-#include "PDG/PDGLibrary.h"
-#include "Conventions/Units.h"
-#include "Numerical/RandomGen.h"
-#include "Messenger/Messenger.h"
+#include "Physics/HadronTransport/INukeNucleonCorr.h"
+#include "Physics/HadronTransport/INukeUtils2015.h"
+#include "Physics/HadronTransport/INukeHadroData2015.h"
+#include "Framework/PDG/PDGLibrary.h"
+#include "Framework/Conventions/Units.h"
+#include "Framework/Numerical/RandomGen.h"
+#include "Framework/Messenger/Messenger.h"
 using namespace genie;
 
 #include <vector>

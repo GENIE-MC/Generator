@@ -11,11 +11,11 @@
 */
 //____________________________________________________________________________
 
-#include "Algorithm/AlgConfigPool.h"
-#include "Conventions/Constants.h"
-#include "ElFF/TransverseEnhancementFFModel.h"
-#include "Interaction/Interaction.h"
-#include "Utils/ConfigIsotopeMapUtils.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
+#include "Framework/Conventions/Constants.h"
+#include "Physics/QuasiElastic/XSection/TransverseEnhancementFFModel.h"
+#include "Framework/Interaction/Interaction.h"
+#include "Framework/Utils/ConfigIsotopeMapUtils.h"
 
 using namespace genie;
 using namespace genie::constants;

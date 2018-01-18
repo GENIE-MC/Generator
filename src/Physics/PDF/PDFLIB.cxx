@@ -18,9 +18,9 @@
 #include <TSystem.h>
 #include <TMath.h>
 
-#include "Conventions/GBuild.h"
-#include "PDF/PDFLIB.h"
-#include "Messenger/Messenger.h"
+#include "Framework/Conventions/GBuild.h"
+#include "Physics/PDF/PDFLIB.h"
+#include "Framework/Messenger/Messenger.h"
 
 #ifdef __GENIE_LHAPDF_ENABLED__
 //

@@ -18,7 +18,7 @@
 #ifndef _MEC_UTILS_H_
 #define _MEC_UTILS_H_
 
-#include "MEC/MECHadronTensor.h"
+#include "Physics/Multinucleon/XSection/MECHadronTensor.h"
 
 namespace genie {
 

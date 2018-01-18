@@ -24,7 +24,7 @@
 #ifndef _NUCLEAR_BINDING_ENERGY_AGGREGATOR_H_
 #define _NUCLEAR_BINDING_ENERGY_AGGREGATOR_H_
 
-#include "EVGCore/EventRecordVisitorI.h"
+#include "Framework/EventGen/EventRecordVisitorI.h"
 
 namespace genie {
 

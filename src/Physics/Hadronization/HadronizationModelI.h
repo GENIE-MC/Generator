@@ -21,7 +21,7 @@
 #ifndef _HADRONIZATION_MODEL_I_H_
 #define _HADRONIZATION_MODEL_I_H_
 
-#include "Algorithm/Algorithm.h"
+#include "Framework/Algorithm/Algorithm.h"
 
 class TClonesArray;
 class TH1D;

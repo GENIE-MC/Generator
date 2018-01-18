@@ -22,7 +22,7 @@
 #ifndef _KNO_PYTHIA_HADRONIZATION_H_
 #define _KNO_PYTHIA_HADRONIZATION_H_
 
-#include "Fragmentation/HadronizationModelI.h"
+#include "Physics/Hadronization/HadronizationModelI.h"
 
 namespace genie {
 

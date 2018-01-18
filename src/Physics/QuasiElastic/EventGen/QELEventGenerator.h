@@ -23,9 +23,9 @@
 
 
 #include "Interfaces/NuclearModelI.h"
-#include "EVGModules/KineGeneratorWithCache.h"
-#include "Utils/Range1.h"
-#include "Conventions/Controls.h"
+#include "Physics/Common/KineGeneratorWithCache.h"
+#include "Framework/Utils/Range1.h"
+#include "Framework/Conventions/Controls.h"
 
 
 namespace genie {

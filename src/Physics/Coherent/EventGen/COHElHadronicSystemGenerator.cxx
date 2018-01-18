@@ -21,11 +21,11 @@
 
 #include <cstdlib>
 
-#include "Coherent/COHElHadronicSystemGenerator.h"
-#include "GHEP/GHepStatus.h"
-#include "GHEP/GHepParticle.h"
-#include "GHEP/GHepRecord.h"
-#include "Messenger/Messenger.h"
+#include "Physics/Coherent/EventGen/COHElHadronicSystemGenerator.h"
+#include "Framework/GHEP/GHepStatus.h"
+#include "Framework/GHEP/GHepParticle.h"
+#include "Framework/GHEP/GHepRecord.h"
+#include "Framework/Messenger/Messenger.h"
 
 using namespace genie;
 

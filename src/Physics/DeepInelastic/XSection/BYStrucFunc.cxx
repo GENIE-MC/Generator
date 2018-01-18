@@ -19,10 +19,10 @@
 #include <TMath.h>
 
 #include "Algorithm/AlgFactory.h"
-#include "Algorithm/AlgConfigPool.h"
-#include "BodekYang/BYStrucFunc.h"
-#include "Conventions/Constants.h"
-#include "Messenger/Messenger.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
+#include "Physics/DeepInelastic/XSection/BYStrucFunc.h"
+#include "Framework/Conventions/Constants.h"
+#include "Framework/Messenger/Messenger.h"
 
 using namespace genie;
 using namespace genie::constants;

@@ -25,7 +25,7 @@
 #include <TSystem.h>
 #include <TMath.h>
 
-#include "EVGCore/EventRecord.h"
+#include "Framework/EventGen/EventRecord.h"
 #include "Framework/EventGen/GMCJMonitor.h"
 #include "Framework/GHEP/GHepParticle.h"
 #include "Framework/Messenger/Messenger.h"

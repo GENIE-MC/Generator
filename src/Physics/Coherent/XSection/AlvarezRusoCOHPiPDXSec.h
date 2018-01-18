@@ -25,9 +25,9 @@
 #include <Math/SVector.h>
 #include <Math/LorentzVector.h>
 
-#include "AlvarezRuso/ARSampledNucleus.h"
-#include "AlvarezRuso/ARConstants.h"
-#include "AlvarezRuso/ARWavefunction.h"
+#include "Physics/Coherent/XSection/ARSampledNucleus.h"
+#include "Physics/Coherent/XSection/ARConstants.h"
+#include "Physics/Coherent/XSection/ARWavefunction.h"
 #include "Utils/NuclearUtils.h"
 
 #include <complex>

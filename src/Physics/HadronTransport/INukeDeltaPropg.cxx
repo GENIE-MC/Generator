@@ -19,15 +19,15 @@
 #include <TLorentzVector.h>
 #include <TVector3.h>
 
-#include "Algorithm/AlgConfigPool.h"
-#include "EVGCore/EVGThreadException.h"
-#include "GHEP/GHepRecord.h"
-#include "GHEP/GHepParticle.h"
-#include "HadronTransport/INukeDeltaPropg.h"
-#include "HadronTransport/INukeUtils.h"
-#include "Messenger/Messenger.h"
-#include "Numerical/RandomGen.h"
-#include "PDG/PDGCodes.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
+#include "Framework/EventGen/EVGThreadException.h"
+#include "Framework/GHEP/GHepRecord.h"
+#include "Framework/GHEP/GHepParticle.h"
+#include "Physics/HadronTransport/INukeDeltaPropg.h"
+#include "Physics/HadronTransport/INukeUtils.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Numerical/RandomGen.h"
+#include "Framework/PDG/PDGCodes.h"
 #include "Utils/NuclearUtils.h"
 
 using namespace genie;

@@ -19,14 +19,14 @@
 */
 //____________________________________________________________________________
 
-#include "GHEP/GHepStatus.h"
-#include "GHEP/GHepParticle.h"
-#include "GHEP/GHepRecord.h"
-#include "Messenger/Messenger.h"
-#include "PDG/PDGLibrary.h"
-#include "PDG/PDGCodes.h"
-#include "PDG/PDGUtils.h"
-#include "QEL/QELHadronicSystemGenerator.h"
+#include "Framework/GHEP/GHepStatus.h"
+#include "Framework/GHEP/GHepParticle.h"
+#include "Framework/GHEP/GHepRecord.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/PDG/PDGLibrary.h"
+#include "Framework/PDG/PDGCodes.h"
+#include "Framework/PDG/PDGUtils.h"
+#include "Physics/QuasiElastic/EventGen/QELHadronicSystemGenerator.h"
 
 using namespace genie;
 

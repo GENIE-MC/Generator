@@ -13,10 +13,10 @@
 
 #include "IBDXSecMap.h"
 
-#include "Algorithm/AlgConfigPool.h"
-#include "Messenger/Messenger.h"
-#include "PDG/PDGCodes.h"
-#include "PDG/PDGUtils.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/PDG/PDGCodes.h"
+#include "Framework/PDG/PDGUtils.h"
 
 #include <sstream>
 

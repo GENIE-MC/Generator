@@ -21,8 +21,8 @@
 
 #include <string>
 
-#include "GHEP/GHepStatus.h"
-#include "NeutronOsc/NeutronOscMode.h"
+#include "Framework/GHEP/GHepStatus.h"
+#include "Physics/NNBarOscillation/NeutronOscMode.h"
 #include "PDG/PDGCodeList.h"
 
 using std::string;

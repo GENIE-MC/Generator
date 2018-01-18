@@ -18,12 +18,12 @@
 
 #include <TMath.h>
 
-#include "DIS/DISPrimaryLeptonGenerator.h"
-#include "EVGCore/EVGThreadException.h"
-#include "GHEP/GHepRecord.h"
-#include "GHEP/GHepParticle.h"
-#include "GHEP/GHepFlags.h"
-#include "Messenger/Messenger.h"
+#include "Physics/DeepInelastic/EventGen/DISPrimaryLeptonGenerator.h"
+#include "Framework/EventGen/EVGThreadException.h"
+#include "Framework/GHEP/GHepRecord.h"
+#include "Framework/GHEP/GHepParticle.h"
+#include "Framework/GHEP/GHepFlags.h"
+#include "Framework/Messenger/Messenger.h"
 
 using namespace genie;
 

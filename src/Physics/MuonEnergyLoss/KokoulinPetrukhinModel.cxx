@@ -17,8 +17,8 @@
 #include <TMath.h>
 #include <Math/IntegratorMultiDim.h>
 
-#include "MuELoss/KokoulinPetrukhinModel.h"
-#include "Utils/GSLUtils.h"
+#include "Physics/MuonEnergyLoss/KokoulinPetrukhinModel.h"
+#include "Framework/Numerical/GSLUtils.h"
 
 using namespace genie;
 using namespace genie::mueloss;

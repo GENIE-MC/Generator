@@ -21,8 +21,8 @@
 #ifndef _DIS_STRUCTURE_FUNCTIONS_MODEL_I_H_
 #define _DIS_STRUCTURE_FUNCTIONS_MODEL_I_H_
 
-#include "Algorithm/Algorithm.h"
-#include "Interaction/Interaction.h"
+#include "Framework/Algorithm/Algorithm.h"
+#include "Framework/Interaction/Interaction.h"
 
 namespace genie {
 

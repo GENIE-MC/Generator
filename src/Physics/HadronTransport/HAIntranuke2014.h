@@ -34,10 +34,10 @@
 
 #include "Interfaces/NuclearModelI.h"
 #include "Algorithm/AlgFactory.h"
-#include "EVGCore/EventRecordVisitorI.h"
-#include "HadronTransport/INukeMode.h"
-#include "HadronTransport/INukeHadroFates.h"
-#include "HadronTransport/Intranuke2014.h"
+#include "Framework/EventGen/EventRecordVisitorI.h"
+#include "Physics/HadronTransport/INukeMode.h"
+#include "Physics/HadronTransport/INukeHadroFates.h"
+#include "Physics/HadronTransport/Intranuke2014.h"
 
 class TLorentzVector;
 class TVector3;

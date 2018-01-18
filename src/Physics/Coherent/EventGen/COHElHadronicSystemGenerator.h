@@ -20,7 +20,7 @@
 #ifndef _COHEL_HADRONIC_SYSTEM_GENERATOR_H_
 #define _COHEL_HADRONIC_SYSTEM_GENERATOR_H_
 
-#include "EVGModules/HadronicSystemGenerator.h"
+#include "Physics/Common/HadronicSystemGenerator.h"
 
 namespace genie {
 

@@ -21,8 +21,8 @@
 #ifndef _QEL_FORM_FACTORS_MODEL_I_H_
 #define _QEL_FORM_FACTORS_MODEL_I_H_
 
-#include "Algorithm/Algorithm.h"
-#include "Interaction/Interaction.h"
+#include "Framework/Algorithm/Algorithm.h"
+#include "Framework/Interaction/Interaction.h"
 
 namespace genie {
 

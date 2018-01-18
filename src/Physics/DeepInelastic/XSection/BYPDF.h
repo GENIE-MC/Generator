@@ -18,7 +18,7 @@
 #ifndef _BODEK_YANG_PDF_H_
 #define _BODEK_YANG_PDF_H_
 
-#include "PDF/PDFModelI.h"
+#include "Physics/PDF/PDFModelI.h"
 
 namespace genie {
 

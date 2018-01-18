@@ -19,9 +19,9 @@
 #ifndef _VERTEX_GENERATOR_H_
 #define _VERTEX_GENERATOR_H_
 
-#include "EVGCore/EventRecordVisitorI.h"
-#include "GHEP/GHepParticle.h"
-#include "Interaction/Interaction.h"
+#include "Framework/EventGen/EventRecordVisitorI.h"
+#include "Framework/GHEP/GHepParticle.h"
+#include "Framework/Interaction/Interaction.h"
 
 namespace genie {
 

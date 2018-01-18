@@ -25,7 +25,7 @@
 
 #include <TGenPhaseSpace.h>
 
-#include "Fragmentation/HadronizationModelI.h"
+#include "Physics/Hadronization/HadronizationModelI.h"
 
 class TPythia6;
 class TF1;

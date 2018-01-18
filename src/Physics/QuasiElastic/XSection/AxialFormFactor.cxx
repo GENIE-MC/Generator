@@ -16,9 +16,9 @@
 
 #include <string>
 
-#include "LlewellynSmith/AxialFormFactor.h"
-#include "Interaction/Interaction.h"
-#include "Messenger/Messenger.h"
+#include "Physics/QuasiElastic/XSection/AxialFormFactor.h"
+#include "Framework/Interaction/Interaction.h"
+#include "Framework/Messenger/Messenger.h"
 #include "Utils/MathUtils.h"
 
 using std::endl;

@@ -20,7 +20,7 @@
 #ifndef _QPM_DIS_STRUC_FUNC_H_
 #define _QPM_DIS_STRUC_FUNC_H_
 
-#include "PartonModel/QPMDISStrucFuncBase.h"
+#include "Physics/DeepInelastic/XSection/QPMDISStrucFuncBase.h"
 
 namespace genie {
 

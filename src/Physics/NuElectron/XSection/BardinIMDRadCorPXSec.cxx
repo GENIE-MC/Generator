@@ -17,15 +17,15 @@
 #include <TMath.h>
 #include <Math/Integrator.h>
 
-#include "Base/XSecIntegratorI.h"
-#include "Conventions/GBuild.h"
-#include "Conventions/Constants.h"
-#include "Conventions/RefFrame.h"
-#include "NuE/BardinIMDRadCorPXSec.h"
-#include "Messenger/Messenger.h"
+#include "Physics/XSectionIntegration/XSecIntegratorI.h"
+#include "Framework/Conventions/GBuild.h"
+#include "Framework/Conventions/Constants.h"
+#include "Framework/Conventions/RefFrame.h"
+#include "Physics/NuElectron/XSection/BardinIMDRadCorPXSec.h"
+#include "Framework/Messenger/Messenger.h"
 //#include "Numerical/IntegratorI.h"
 #include "Utils/KineUtils.h"
-#include "Utils/GSLUtils.h"
+#include "Framework/Numerical/GSLUtils.h"
 
 using namespace genie;
 using namespace genie::constants;

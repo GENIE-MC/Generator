@@ -39,13 +39,13 @@
 #include <TMCParticle6.h>
 #endif
 
-#include "BaryonResonance/BaryonResUtils.h"
-#include "Conventions/Units.h"
-#include "Conventions/Constants.h"
-#include "Decay/PythiaDecayer.h"
-#include "Messenger/Messenger.h"
-#include "Numerical/RandomGen.h"
-#include "PDG/PDGLibrary.h"
+#include "Framework/BaryonResonance/BaryonResUtils.h"
+#include "Framework/Conventions/Units.h"
+#include "Framework/Conventions/Constants.h"
+#include "Physics/Decay/PythiaDecayer.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Numerical/RandomGen.h"
+#include "Framework/PDG/PDGLibrary.h"
 
 using std::vector;
 

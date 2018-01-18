@@ -21,7 +21,7 @@
 
 #include <string>
 
-#include "Base/XSecIntegratorI.h"
+#include "Physics/XSectionIntegration/XSecIntegratorI.h"
 
 namespace genie
 {

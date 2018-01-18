@@ -24,8 +24,8 @@
 #include <TH1.h>
 #include <string>
 
-#include "EVGCore/EventRecordVisitorI.h"
-#include "NeutronOsc/NeutronOscMode.h"
+#include "Framework/EventGen/EventRecordVisitorI.h"
+#include "Physics/NNBarOscillation/NeutronOscMode.h"
 
 namespace genie {
 

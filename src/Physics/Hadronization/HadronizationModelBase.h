@@ -21,7 +21,7 @@
 #ifndef _HADRONIZATION_MODEL_BASE_H_
 #define _HADRONIZATION_MODEL_BASE_H_
 
-#include "Fragmentation/HadronizationModelI.h"
+#include "Physics/Hadronization/HadronizationModelI.h"
 
 namespace genie {
 

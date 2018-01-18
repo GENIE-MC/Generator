@@ -20,7 +20,7 @@
 #ifndef _QEL_XSEC_H_
 #define _QEL_XSEC_H_
 
-#include "Base/XSecIntegratorI.h"
+#include "Physics/XSectionIntegration/XSecIntegratorI.h"
 
 namespace genie {
 

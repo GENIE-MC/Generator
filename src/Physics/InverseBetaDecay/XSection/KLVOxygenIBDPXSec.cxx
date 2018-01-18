@@ -14,13 +14,13 @@
 #include <TSpline.h>
 #include <TGraph.h>
 
-#include "Algorithm/AlgConfigPool.h"
-#include "Messenger/Messenger.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
+#include "Framework/Messenger/Messenger.h"
 #include "Utils/KineUtils.h"
-#include "PDG/PDGUtils.h"
-#include "PDG/PDGCodes.h"
-#include "VLE/VLEConstants.h"
-#include "VLE/KLVOxygenIBDPXSec.h"
+#include "Framework/PDG/PDGUtils.h"
+#include "Framework/PDG/PDGCodes.h"
+#include "Physics/InverseBetaDecay/XSection/Constants.h"
+#include "Physics/InverseBetaDecay/XSection/KLVOxygenIBDPXSec.h"
 
 using namespace genie;
 using namespace genie::constants;

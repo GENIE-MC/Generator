@@ -20,7 +20,7 @@
 #ifndef _DIFFRACTIVE_HADRONIC_SYSTEM_GENERATOR_H_
 #define _DIFFRACTIVE_HADRONIC_SYSTEM_GENERATOR_H_
 
-#include "EVGModules/HadronicSystemGenerator.h"
+#include "Physics/Common/HadronicSystemGenerator.h"
 
 namespace genie {
 

@@ -21,7 +21,7 @@
 #ifndef _COH_INTERACTION_LIST_GENERATOR_H_
 #define _COH_INTERACTION_LIST_GENERATOR_H_
 
-#include "EVGCore/InteractionListGeneratorI.h"
+#include "Framework/EventGen/InteractionListGeneratorI.h"
 
 namespace genie {
 

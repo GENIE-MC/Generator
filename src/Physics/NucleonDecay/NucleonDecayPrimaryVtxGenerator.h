@@ -21,8 +21,8 @@
 
 #include <TGenPhaseSpace.h>
 
-#include "EVGCore/EventRecordVisitorI.h"
-#include "NucleonDecay/NucleonDecayMode.h"
+#include "Framework/EventGen/EventRecordVisitorI.h"
+#include "Physics/NucleonDecay/NucleonDecayMode.h"
 
 namespace genie {
 

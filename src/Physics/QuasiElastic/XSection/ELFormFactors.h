@@ -23,7 +23,7 @@
 
 #include <iostream>
 
-#include "ElFF/ELFormFactorsModelI.h"
+#include "Physics/QuasiElastic/XSection/ELFormFactorsModelI.h"
 
 using std::ostream;
 

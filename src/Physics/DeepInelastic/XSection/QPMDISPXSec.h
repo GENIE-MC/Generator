@@ -22,8 +22,8 @@
 #ifndef _DIS_PARTON_MODEL_PARTIAL_XSEC_H_
 #define _DIS_PARTON_MODEL_PARTIAL_XSEC_H_
 
-#include "Base/XSecAlgorithmI.h"
-#include "Base/DISStructureFunc.h"
+#include "Framework/EventGen/XSecAlgorithmI.h"
+#include "Physics/DeepInelastic/XSection/DISStructureFunc.h"
 
 namespace genie {
 

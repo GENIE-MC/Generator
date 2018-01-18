@@ -16,8 +16,8 @@
 
 #include <TROOT.h>
 
-#include "Fragmentation/PetersonFragm.h"
-#include "Fragmentation/FragmentationFunctions.h"
+#include "Physics/Hadronization/PetersonFragm.h"
+#include "Physics/Hadronization/FragmentationFunctions.h"
 
 using namespace genie;
 

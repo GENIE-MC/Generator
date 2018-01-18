@@ -22,12 +22,12 @@
 #include <TH1D.h>
 #include <TMath.h>
 
-#include "Conventions/Constants.h"
-#include "Fragmentation/HadronizationModelBase.h"
-#include "Interaction/Interaction.h"
-#include "Messenger/Messenger.h"
-#include "PDG/PDGCodes.h"
-#include "PDG/PDGUtils.h"
+#include "Framework/Conventions/Constants.h"
+#include "Physics/Hadronization/HadronizationModelBase.h"
+#include "Framework/Interaction/Interaction.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/PDG/PDGCodes.h"
+#include "Framework/PDG/PDGUtils.h"
 
 using namespace genie;
 using namespace genie::constants;

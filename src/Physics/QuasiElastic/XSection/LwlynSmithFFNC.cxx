@@ -18,10 +18,10 @@
 
 #include <TMath.h>
 
-#include "Conventions/Constants.h"
-#include "ElFF/ELFormFactors.h"
-#include "ElFF/ELFormFactorsModelI.h"
-#include "LlewellynSmith/LwlynSmithFFNC.h"
+#include "Framework/Conventions/Constants.h"
+#include "Physics/QuasiElastic/XSection/ELFormFactors.h"
+#include "Physics/QuasiElastic/XSection/ELFormFactorsModelI.h"
+#include "Physics/QuasiElastic/XSection/LwlynSmithFFNC.h"
 
 using namespace genie;
 using namespace genie::constants;

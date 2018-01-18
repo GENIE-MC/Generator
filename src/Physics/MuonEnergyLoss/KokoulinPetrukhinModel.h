@@ -26,7 +26,7 @@
 
 #include <Math/IFunction.h>
 
-#include "MuELoss/MuELossI.h"
+#include "Physics/MuonEnergyLoss/MuELossI.h"
 //#include "Numerical/GSFunc.h"
 
 namespace genie {

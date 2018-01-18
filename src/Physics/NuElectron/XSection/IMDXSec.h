@@ -19,7 +19,7 @@
 #ifndef _IMD_XSEC_H_
 #define _IMD_XSEC_H_
 
-#include "Base/XSecIntegratorI.h"
+#include "Physics/XSectionIntegration/XSecIntegratorI.h"
 
 namespace genie {
 

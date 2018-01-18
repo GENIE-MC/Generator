@@ -25,7 +25,7 @@
 #include <TLorentzVector.h>
 #include <TVector3.h>
 
-#include "EVGCore/EventRecordVisitorI.h"
+#include "Framework/EventGen/EventRecordVisitorI.h"
 
 namespace genie {
 

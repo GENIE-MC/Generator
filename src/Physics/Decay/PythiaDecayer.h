@@ -23,7 +23,7 @@
 
 #include <TPythia6.h>
 
-#include "Decay/DecayModelI.h"
+#include "Physics/Decay/DecayModelI.h"
 
 namespace genie {
 

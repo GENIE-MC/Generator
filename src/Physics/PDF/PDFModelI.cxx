@@ -14,7 +14,7 @@
 */
 //____________________________________________________________________________
 
-#include "PDF/PDFModelI.h"
+#include "Physics/PDF/PDFModelI.h"
 
 using namespace genie;
 

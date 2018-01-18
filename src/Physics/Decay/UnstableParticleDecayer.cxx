@@ -45,21 +45,21 @@
 #endif
 #include <TParticlePDG.h>
 
-#include "Algorithm/AlgConfigPool.h"
-#include "BaryonResonance/BaryonResUtils.h"
-#include "Conventions/Constants.h"
-#include "Conventions/Units.h"
-#include "Decay/DecayModelI.h"
-#include "EVGModules/UnstableParticleDecayer.h"
-#include "GHEP/GHepStatus.h"
-#include "GHEP/GHepParticle.h"
-#include "GHEP/GHepRecord.h"
-#include "Messenger/Messenger.h"
-#include "PDG/PDGLibrary.h"
-#include "PDG/PDGCodes.h"
-#include "PDG/PDGUtils.h"
-#include "Registry/Registry.h"
-#include "Utils/StringUtils.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
+#include "Framework/BaryonResonance/BaryonResUtils.h"
+#include "Framework/Conventions/Constants.h"
+#include "Framework/Conventions/Units.h"
+#include "Physics/Decay/DecayModelI.h"
+#include "Physics/Decay/UnstableParticleDecayer.h"
+#include "Framework/GHEP/GHepStatus.h"
+#include "Framework/GHEP/GHepParticle.h"
+#include "Framework/GHEP/GHepRecord.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/PDG/PDGLibrary.h"
+#include "Framework/PDG/PDGCodes.h"
+#include "Framework/PDG/PDGUtils.h"
+#include "Framework/Registry/Registry.h"
+#include "Framework/Utils/StringUtils.h"
 
 using std::count;
 using std::ostringstream;

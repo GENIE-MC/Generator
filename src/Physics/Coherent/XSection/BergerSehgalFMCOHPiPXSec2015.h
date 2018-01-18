@@ -26,7 +26,7 @@
 #ifndef _BERGER_SEHGAL_FM_COHPI_PXSEC_2015_H_
 #define _BERGER_SEHGAL_FM_COHPI_PXSEC_2015_H_
 
-#include "Base/XSecAlgorithmI.h"
+#include "Framework/EventGen/XSecAlgorithmI.h"
 
 namespace genie {
 

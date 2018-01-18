@@ -31,19 +31,19 @@
 
 #include <TMath.h>
 
-#include "Algorithm/AlgConfigPool.h"
-#include "Conventions/Constants.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
+#include "Framework/Conventions/Constants.h"
 #include "Conventions/Controls.h"
-#include "EVGCore/EVGThreadException.h"
-#include "EVGModules/VertexGenerator.h"
-#include "GHEP/GHepStatus.h"
-#include "GHEP/GHepParticle.h"
-#include "GHEP/GHepRecord.h"
-#include "GHEP/GHepFlags.h"
-#include "Messenger/Messenger.h"
-#include "Numerical/RandomGen.h"
-#include "PDG/PDGUtils.h"
-#include "Utils/PrintUtils.h"
+#include "Framework/EventGen/EVGThreadException.h"
+#include "Physics/Common/VertexGenerator.h"
+#include "Framework/GHEP/GHepStatus.h"
+#include "Framework/GHEP/GHepParticle.h"
+#include "Framework/GHEP/GHepRecord.h"
+#include "Framework/GHEP/GHepFlags.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Numerical/RandomGen.h"
+#include "Framework/PDG/PDGUtils.h"
+#include "Framework/Utils/PrintUtils.h"
 #include "Utils/NuclearUtils.h"
 
 using namespace genie;

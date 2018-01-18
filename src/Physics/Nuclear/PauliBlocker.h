@@ -20,7 +20,7 @@
 #ifndef _PAULI_BLOCKER_H_
 #define _PAULI_BLOCKER_H_
 
-#include "EVGCore/EventRecordVisitorI.h"
+#include "Framework/EventGen/EventRecordVisitorI.h"
 
 namespace genie {
 

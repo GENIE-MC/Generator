@@ -14,7 +14,7 @@
 */
 //____________________________________________________________________________
 
-#include "Base/DISStructureFuncModelI.h"
+#include "Physics/DeepInelastic/XSection/DISStructureFuncModelI.h"
 
 using namespace genie;
 

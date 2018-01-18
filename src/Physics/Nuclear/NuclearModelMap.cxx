@@ -24,15 +24,15 @@
 #include <TNtupleD.h>
 #include <TGraph2D.h>
 
-#include "Algorithm/AlgConfigPool.h"
-#include "Conventions/Constants.h"
-#include "Conventions/Controls.h"
-#include "Conventions/Units.h"
-#include "Messenger/Messenger.h"
-#include "Nuclear/NuclearModelMap.h"
-#include "PDG/PDGCodes.h"
-#include "PDG/PDGUtils.h"
-#include "Numerical/RandomGen.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
+#include "Framework/Conventions/Constants.h"
+#include "Framework/Conventions/Controls.h"
+#include "Framework/Conventions/Units.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Physics/Nuclear/NuclearModelMap.h"
+#include "Framework/PDG/PDGCodes.h"
+#include "Framework/PDG/PDGUtils.h"
+#include "Framework/Numerical/RandomGen.h"
 
 using std::ostringstream;
 using namespace genie;

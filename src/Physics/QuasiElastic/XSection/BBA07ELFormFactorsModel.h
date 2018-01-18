@@ -26,7 +26,7 @@
 #ifndef _BBA2007_EL_FORM_FACTORS_MODEL_H_
 #define _BBA2007_EL_FORM_FACTORS_MODEL_H_
 
-#include "ElFF/ELFormFactorsModelI.h"
+#include "Physics/QuasiElastic/XSection/ELFormFactorsModelI.h"
 
 namespace genie {
 

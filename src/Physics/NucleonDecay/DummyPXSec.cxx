@@ -16,7 +16,7 @@
 */
 //____________________________________________________________________________
 
-#include "NucleonDecay/DummyPXSec.h"
+#include "Physics/NucleonDecay/DummyPXSec.h"
 
 using namespace genie;
 

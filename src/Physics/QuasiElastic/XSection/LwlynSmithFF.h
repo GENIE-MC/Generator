@@ -28,9 +28,9 @@
 #ifndef _LLEWELLYN_SMITH_FORM_FACTOR_MODEL_H_
 #define _LLEWELLYN_SMITH_FORM_FACTOR_MODEL_H_
 
-#include "Base/QELFormFactorsModelI.h"
-#include "ElFF/ELFormFactors.h"
-#include "LlewellynSmith/AxialFormFactor.h"
+#include "Physics/QuasiElastic/XSection/QELFormFactorsModelI.h"
+#include "Physics/QuasiElastic/XSection/ELFormFactors.h"
+#include "Physics/QuasiElastic/XSection/AxialFormFactor.h"
 
 namespace genie {
 

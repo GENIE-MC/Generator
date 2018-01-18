@@ -14,8 +14,8 @@
 */
 //____________________________________________________________________________
 
-#include "Fragmentation/CollinsSpillerFragm.h"
-#include "Fragmentation/FragmentationFunctions.h"
+#include "Physics/Hadronization/CollinsSpillerFragm.h"
+#include "Physics/Hadronization/FragmentationFunctions.h"
 
 using namespace genie;
 

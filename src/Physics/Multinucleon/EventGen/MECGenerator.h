@@ -24,7 +24,7 @@
 
 #include <TGenPhaseSpace.h>
 
-#include "EVGCore/EventRecordVisitorI.h"
+#include "Framework/EventGen/EventRecordVisitorI.h"
 #include "PDG/PDGCodeList.h"
 
 namespace genie {

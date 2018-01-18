@@ -16,9 +16,9 @@
 */
 //____________________________________________________________________________
 
-#include "EVGCore/InteractionList.h"
-#include "Interaction/Interaction.h"
-#include "NucleonDecay/DummyInteractionListGenerator.h"
+#include "Framework/EventGen/InteractionList.h"
+#include "Framework/Interaction/Interaction.h"
+#include "Physics/NucleonDecay/DummyInteractionListGenerator.h"
 
 using namespace genie;
 

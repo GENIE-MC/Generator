@@ -16,8 +16,8 @@
 
 #include <string>
 
-#include "Base/QELFormFactors.h"
-#include "Messenger/Messenger.h"
+#include "Physics/QuasiElastic/XSection/QELFormFactors.h"
+#include "Framework/Messenger/Messenger.h"
 #include "Utils/MathUtils.h"
 
 using namespace genie;

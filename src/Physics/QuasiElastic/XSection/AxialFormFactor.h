@@ -25,7 +25,7 @@
 
 #include <iostream>
 
-#include "LlewellynSmith/AxialFormFactorModelI.h"
+#include "Physics/QuasiElastic/XSection/AxialFormFactorModelI.h"
 
 using std::ostream;
 

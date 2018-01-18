@@ -18,10 +18,10 @@
 
 #include <TMath.h>
 
-#include "Algorithm/AlgConfigPool.h"
-#include "ElFF/DipoleELFormFactorsModel.h"
-#include "Interaction/Interaction.h"
-#include "Messenger/Messenger.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
+#include "Physics/QuasiElastic/XSection/DipoleELFormFactorsModel.h"
+#include "Framework/Interaction/Interaction.h"
+#include "Framework/Messenger/Messenger.h"
 
 using namespace genie;
 

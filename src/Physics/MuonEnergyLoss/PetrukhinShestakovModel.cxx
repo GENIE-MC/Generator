@@ -17,8 +17,8 @@
 #include <TMath.h>
 #include <Math/Integrator.h>
 
-#include "MuELoss/PetrukhinShestakovModel.h"
-#include "Utils/GSLUtils.h"
+#include "Physics/MuonEnergyLoss/PetrukhinShestakovModel.h"
+#include "Framework/Numerical/GSLUtils.h"
 
 using namespace genie;
 using namespace genie::mueloss;

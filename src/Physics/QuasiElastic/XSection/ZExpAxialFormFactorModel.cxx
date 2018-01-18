@@ -17,11 +17,11 @@
 #include <TMath.h>
 #include <sstream>
 
-#include "Algorithm/AlgConfigPool.h"
-#include "Conventions/Constants.h"
-#include "Interaction/Interaction.h"
-#include "LlewellynSmith/ZExpAxialFormFactorModel.h"
-#include "Messenger/Messenger.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
+#include "Framework/Conventions/Constants.h"
+#include "Framework/Interaction/Interaction.h"
+#include "Physics/QuasiElastic/XSection/ZExpAxialFormFactorModel.h"
+#include "Framework/Messenger/Messenger.h"
 
 using std::ostringstream;
 

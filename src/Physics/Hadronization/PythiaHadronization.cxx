@@ -36,17 +36,17 @@
 #include <TMath.h>
 #include <TH1D.h>
 
-#include "Algorithm/AlgConfigPool.h"
-#include "Conventions/Constants.h"
-#include "Conventions/GBuild.h"
-#include "Decay/DecayModelI.h"
-#include "Fragmentation/PythiaHadronization.h"
-#include "Interaction/Interaction.h"
-#include "Messenger/Messenger.h"
-#include "Numerical/RandomGen.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
+#include "Framework/Conventions/Constants.h"
+#include "Framework/Conventions/GBuild.h"
+#include "Physics/Decay/DecayModelI.h"
+#include "Physics/Hadronization/PythiaHadronization.h"
+#include "Framework/Interaction/Interaction.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Numerical/RandomGen.h"
 #include "PDG/PDGCodeList.h"
-#include "PDG/PDGCodes.h"
-#include "PDG/PDGUtils.h"
+#include "Framework/PDG/PDGCodes.h"
+#include "Framework/PDG/PDGUtils.h"
 #include "Utils/KineUtils.h"
 #include "Utils/FragmRecUtils.h"
 

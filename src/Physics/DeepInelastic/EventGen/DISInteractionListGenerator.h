@@ -23,7 +23,7 @@
 
 #include <map>
 
-#include "EVGCore/InteractionListGeneratorI.h"
+#include "Framework/EventGen/InteractionListGeneratorI.h"
 
 using std::multimap;
 

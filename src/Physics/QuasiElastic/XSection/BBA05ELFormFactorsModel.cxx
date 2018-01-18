@@ -16,9 +16,9 @@
 */
 //____________________________________________________________________________
 
-#include "Algorithm/AlgConfigPool.h"
-#include "ElFF/BBA05ELFormFactorsModel.h"
-#include "Interaction/Interaction.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
+#include "Physics/QuasiElastic/XSection/BBA05ELFormFactorsModel.h"
+#include "Framework/Interaction/Interaction.h"
 
 using namespace genie;
 

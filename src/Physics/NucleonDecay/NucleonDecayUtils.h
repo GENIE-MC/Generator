@@ -21,8 +21,8 @@
 
 #include <string>
 
-#include "GHEP/GHepStatus.h"
-#include "NucleonDecay/NucleonDecayMode.h"
+#include "Framework/GHEP/GHepStatus.h"
+#include "Physics/NucleonDecay/NucleonDecayMode.h"
 #include "PDG/PDGCodeList.h"
 
 using std::string;

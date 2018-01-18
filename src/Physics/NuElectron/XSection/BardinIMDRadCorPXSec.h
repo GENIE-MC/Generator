@@ -32,7 +32,7 @@
 
 #include <Math/IFunction.h>
 
-#include "Base/XSecAlgorithmI.h"
+#include "Framework/EventGen/XSecAlgorithmI.h"
 //#include "Numerical/GSFunc.h"
 
 namespace genie {

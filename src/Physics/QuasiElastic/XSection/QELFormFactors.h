@@ -26,8 +26,8 @@
 
 #include <iostream>
 
-#include "Base/QELFormFactorsModelI.h"
-#include "Interaction/Interaction.h"
+#include "Physics/QuasiElastic/XSection/QELFormFactorsModelI.h"
+#include "Framework/Interaction/Interaction.h"
 
 using std::ostream;
 

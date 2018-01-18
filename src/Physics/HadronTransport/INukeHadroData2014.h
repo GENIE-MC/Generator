@@ -38,9 +38,9 @@
 #ifndef _INTRANUKE_HADRON_CROSS_SECTIONS_2014_H_
 #define _INTRANUKE_HADRON_CROSS_SECTIONS_2014_H_
 
-#include "HadronTransport/INukeHadroFates.h"
-#include "GHEP/GHepParticle.h"
-#include "Numerical/BLI2D.h"
+#include "Physics/HadronTransport/INukeHadroFates.h"
+#include "Framework/GHEP/GHepParticle.h"
+#include "Framework/Numerical/BLI2D.h"
 
 class TGraph2D;
 

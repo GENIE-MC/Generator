@@ -17,9 +17,9 @@
 #include <TMath.h>
 #include <Math/Integrator.h>
 
-#include "MuELoss/BezrukovBugaevModel.h"
+#include "Physics/MuonEnergyLoss/BezrukovBugaevModel.h"
 //#include "Numerical/IntegratorI.h"
-#include "Utils/GSLUtils.h"
+#include "Framework/Numerical/GSLUtils.h"
 
 using namespace genie;
 using namespace genie::mueloss;

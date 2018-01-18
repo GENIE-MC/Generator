@@ -19,8 +19,8 @@
 #ifndef _INUKE_DELTA_PROPG_H_
 #define _INUKE_DELTA_PROPG_H_
 
-#include "Conventions/GBuild.h"
-#include "EVGCore/EventRecordVisitorI.h"
+#include "Framework/Conventions/GBuild.h"
+#include "Framework/EventGen/EventRecordVisitorI.h"
 
 namespace genie {
 

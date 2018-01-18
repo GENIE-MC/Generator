@@ -20,18 +20,18 @@
 
 #include <TMath.h>
 
-#include "Algorithm/AlgConfigPool.h"
-#include "Algorithm/AlgFactory.h"
-#include "ElFF/ELFormFactors.h"
-#include "ElFF/ELFormFactorsModelI.h"
-#include "ElFF/TransverseEnhancementFFModel.h"
-#include "Conventions/Constants.h"
-#include "LlewellynSmith/LwlynSmithFF.h"
-#include "LlewellynSmith/AxialFormFactor.h"
-#include "LlewellynSmith/AxialFormFactorModelI.h"
-#include "Messenger/Messenger.h"
-#include "PDG/PDGLibrary.h"
-#include "PDG/PDGCodes.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
+#include "Framework/Algorithm/AlgFactory.h"
+#include "Physics/QuasiElastic/XSection/ELFormFactors.h"
+#include "Physics/QuasiElastic/XSection/ELFormFactorsModelI.h"
+#include "Physics/QuasiElastic/XSection/TransverseEnhancementFFModel.h"
+#include "Framework/Conventions/Constants.h"
+#include "Physics/QuasiElastic/XSection/LwlynSmithFF.h"
+#include "Physics/QuasiElastic/XSection/AxialFormFactor.h"
+#include "Physics/QuasiElastic/XSection/AxialFormFactorModelI.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/PDG/PDGLibrary.h"
+#include "Framework/PDG/PDGCodes.h"
 
 using namespace genie;
 using namespace genie::constants;

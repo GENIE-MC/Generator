@@ -20,7 +20,7 @@
 #define _XSEC_ALGORITHM_I_H_
 
 #include "Framework/Algorithm/Algorithm.h"
-#include "Conventions/KinePhaseSpace.h"
+#include "Framework/Conventions/KinePhaseSpace.h"
 #include "Framework/Interaction/Interaction.h"
 
 namespace genie {

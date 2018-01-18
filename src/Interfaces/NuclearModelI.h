@@ -34,8 +34,8 @@
 #include <TVector3.h>
 
 #include "Types/NuclearModel.h"
-#include "Algorithm/Algorithm.h"
-#include "Interaction/Target.h"
+#include "Framework/Algorithm/Algorithm.h"
+#include "Framework/Interaction/Target.h"
 
 namespace genie {
 

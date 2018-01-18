@@ -23,7 +23,7 @@
 #ifndef _BETHE_BLOCH_MODEL_H_
 #define _BETHE_BLOCH_MODEL_H_
 
-#include "MuELoss/MuELossI.h"
+#include "Physics/MuonEnergyLoss/MuELossI.h"
 
 namespace genie   {
 namespace mueloss {

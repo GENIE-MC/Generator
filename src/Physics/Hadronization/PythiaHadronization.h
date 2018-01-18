@@ -22,7 +22,7 @@
 
 #include <TPythia6.h>
 
-#include "Fragmentation/HadronizationModelBase.h"
+#include "Physics/Hadronization/HadronizationModelBase.h"
 
 namespace genie {
 

@@ -16,23 +16,23 @@
 
 #include <TMath.h>
 
-#include "Algorithm/AlgConfigPool.h"
-#include "Base/XSecIntegratorI.h"
-#include "Charm/AivazisCharmPXSecLO.h"
-#include "Conventions/GBuild.h"
-#include "Conventions/Constants.h"
-#include "Conventions/RefFrame.h"
-#include "Conventions/KineVar.h"
-#include "Conventions/Units.h"
-#include "Messenger/Messenger.h"
-#include "PDF/PDF.h"
-#include "PDF/PDFModelI.h"
-#include "PDG/PDGLibrary.h"
-#include "PDG/PDGUtils.h"
-#include "PDG/PDGCodes.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
+#include "Physics/XSectionIntegration/XSecIntegratorI.h"
+#include "Physics/Charm/XSection/AivazisCharmPXSecLO.h"
+#include "Framework/Conventions/GBuild.h"
+#include "Framework/Conventions/Constants.h"
+#include "Framework/Conventions/RefFrame.h"
+#include "Framework/Conventions/KineVar.h"
+#include "Framework/Conventions/Units.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Physics/PDF/PDF.h"
+#include "Physics/PDF/PDFModelI.h"
+#include "Framework/PDG/PDGLibrary.h"
+#include "Framework/PDG/PDGUtils.h"
+#include "Framework/PDG/PDGCodes.h"
 #include "Utils/MathUtils.h"
 #include "Utils/KineUtils.h"
-#include "Utils/Range1.h"
+#include "Framework/Utils/Range1.h"
 
 using namespace genie;
 using namespace genie::constants;

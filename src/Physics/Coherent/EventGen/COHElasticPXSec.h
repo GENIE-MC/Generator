@@ -21,7 +21,7 @@
 #ifndef _COHERENT_ELASTIC_PXSEC_H_
 #define _COHERENT_ELASTIC_PXSEC_H_
 
-#include "Base/XSecAlgorithmI.h"
+#include "Framework/EventGen/XSecAlgorithmI.h"
 
 namespace genie {
 

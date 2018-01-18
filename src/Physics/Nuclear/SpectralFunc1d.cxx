@@ -18,15 +18,15 @@
 
 #include <TSystem.h>
 
-#include "Algorithm/AlgConfigPool.h"
-#include "Conventions/Constants.h"
-#include "Conventions/Controls.h"
-#include "Messenger/Messenger.h"
-#include "Nuclear/SpectralFunc1d.h"
-#include "Numerical/RandomGen.h"
-#include "Numerical/Spline.h"
-#include "PDG/PDGCodes.h"
-#include "PDG/PDGUtils.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
+#include "Framework/Conventions/Constants.h"
+#include "Framework/Conventions/Controls.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Physics/Nuclear/SpectralFunc1d.h"
+#include "Framework/Numerical/RandomGen.h"
+#include "Framework/Numerical/Spline.h"
+#include "Framework/PDG/PDGCodes.h"
+#include "Framework/PDG/PDGUtils.h"
 #include "Utils/NuclearUtils.h"
 
 using std::ostringstream;

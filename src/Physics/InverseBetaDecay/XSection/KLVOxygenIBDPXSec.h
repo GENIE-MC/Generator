@@ -21,7 +21,7 @@
 #ifndef _KLV_QUASIELASTIC_NU_OXYGEN_XSEC_H_
 #define _KLV_QUASIELASTIC_NU_OXYGEN_XSEC_H_
 
-#include "Base/XSecAlgorithmI.h"
+#include "Framework/EventGen/XSecAlgorithmI.h"
 
 class TSpline3;
 

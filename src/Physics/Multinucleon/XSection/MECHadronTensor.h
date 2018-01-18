@@ -34,7 +34,7 @@
 #include "Rtypes.h"
 #endif
 
-#include "Numerical/BLI2D.h"
+#include "Framework/Numerical/BLI2D.h"
 
 using std::map;
 using std::vector;

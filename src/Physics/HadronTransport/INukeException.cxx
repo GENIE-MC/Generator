@@ -19,8 +19,8 @@
 */
 //____________________________________________________________________________
 
-#include "HadronTransport/INukeException.h"
-#include "Messenger/Messenger.h"
+#include "Physics/HadronTransport/INukeException.h"
+#include "Framework/Messenger/Messenger.h"
 
 using std::endl;
 using namespace genie::exceptions;

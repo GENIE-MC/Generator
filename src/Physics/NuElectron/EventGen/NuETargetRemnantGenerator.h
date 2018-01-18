@@ -21,7 +21,7 @@
 #ifndef _NUE_TARGET_REMNANT_GENERATOR_H_
 #define _NUE_TARGET_REMNANT_GENERATOR_H_
 
-#include "EVGCore/EventRecordVisitorI.h"
+#include "Framework/EventGen/EventRecordVisitorI.h"
 
 namespace genie {
 

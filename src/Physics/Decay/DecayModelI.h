@@ -23,8 +23,8 @@
 
 class TDecayChannel;
 
-#include "Algorithm/Algorithm.h"
-#include "Decay/DecayerInputs.h"
+#include "Framework/Algorithm/Algorithm.h"
+#include "Physics/Decay/DecayerInputs.h"
 
 namespace genie {
 

@@ -35,7 +35,7 @@
 
 #include <TGenPhaseSpace.h>
 
-#include "Fragmentation/HadronizationModelBase.h"
+#include "Physics/Hadronization/HadronizationModelBase.h"
 
 class TF1;
 

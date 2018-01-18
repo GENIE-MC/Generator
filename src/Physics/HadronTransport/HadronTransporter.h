@@ -21,7 +21,7 @@
 #ifndef _HADRON_TRANSPORTER_H_
 #define _HADRON_TRANSPORTER_H_
 
-#include "EVGCore/EventRecordVisitorI.h"
+#include "Framework/EventGen/EventRecordVisitorI.h"
 
 namespace genie {
 

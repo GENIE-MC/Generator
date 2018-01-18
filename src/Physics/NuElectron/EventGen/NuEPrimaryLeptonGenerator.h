@@ -20,7 +20,7 @@
 #ifndef _NUE_PRIMARY_LEPTON_GENERATOR_H_
 #define _NUE_PRIMARY_LEPTON_GENERATOR_H_
 
-#include "EVGModules/PrimaryLeptonGenerator.h"
+#include "Physics/Common/PrimaryLeptonGenerator.h"
 
 namespace genie {
 

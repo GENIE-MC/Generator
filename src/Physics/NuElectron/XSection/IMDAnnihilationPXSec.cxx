@@ -13,15 +13,15 @@
 */
 //____________________________________________________________________________
 
-#include "Algorithm/AlgConfigPool.h"
-#include "Conventions/GBuild.h"
-#include "Conventions/Controls.h"
-#include "Base/XSecIntegratorI.h"
-#include "Conventions/Constants.h"
-#include "Conventions/RefFrame.h"
-#include "NuE/IMDAnnihilationPXSec.h"
-#include "Messenger/Messenger.h"
-#include "PDG/PDGUtils.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
+#include "Framework/Conventions/GBuild.h"
+#include "Framework/Conventions/Controls.h"
+#include "Physics/XSectionIntegration/XSecIntegratorI.h"
+#include "Framework/Conventions/Constants.h"
+#include "Framework/Conventions/RefFrame.h"
+#include "Physics/NuElectron/XSection/IMDAnnihilationPXSec.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/PDG/PDGUtils.h"
 #include "Utils/KineUtils.h"
 
 using namespace genie;

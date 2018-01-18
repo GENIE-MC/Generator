@@ -29,9 +29,9 @@
 #include <TLorentzVector.h>
 
 #include "Framework/EventGen/XSecAlgorithmI.h"
-#include "Conventions/Units.h"
+#include "Framework/Conventions/Units.h"
 #include "EVGCore/PhysInteractionSelector.h"
-#include "EVGCore/EventRecord.h"
+#include "Framework/EventGen/EventRecord.h"
 #include "EVGCore/EventGeneratorI.h"
 #include "Framework/EventGen/InteractionList.h"
 #include "EVGCore/InteractionGeneratorMap.h"

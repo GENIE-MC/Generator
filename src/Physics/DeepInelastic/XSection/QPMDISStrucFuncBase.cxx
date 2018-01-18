@@ -37,14 +37,14 @@
 
 #include <TMath.h>
 
-#include "Algorithm/AlgConfigPool.h"
-#include "Conventions/GBuild.h"
-#include "Conventions/Constants.h"
-#include "Conventions/RefFrame.h"
-#include "Messenger/Messenger.h"
-#include "PartonModel/QPMDISStrucFuncBase.h"
-#include "PDF/PDFModelI.h"
-#include "PDG/PDGUtils.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
+#include "Framework/Conventions/GBuild.h"
+#include "Framework/Conventions/Constants.h"
+#include "Framework/Conventions/RefFrame.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Physics/DeepInelastic/XSection/QPMDISStrucFuncBase.h"
+#include "Physics/PDF/PDFModelI.h"
+#include "Framework/PDG/PDGUtils.h"
 #include "Utils/KineUtils.h"
 #include "Utils/NuclearUtils.h"
 #include "Utils/PhysUtils.h"

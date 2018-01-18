@@ -20,19 +20,19 @@
 
 #include <TVector3.h>
 
-#include "Conventions/Constants.h"
-#include "Diffractive/DFRHadronicSystemGenerator.h"
-#include "EVGCore/EVGThreadException.h"
-#include "GHEP/GHepStatus.h"
-#include "GHEP/GHepParticle.h"
-#include "GHEP/GHepRecord.h"
-#include "GHEP/GHepFlags.h"
-#include "Messenger/Messenger.h"
-#include "Numerical/RandomGen.h"
-#include "PDG/PDGLibrary.h"
-#include "PDG/PDGCodes.h"
-#include "PDG/PDGUtils.h"
-#include "Utils/PrintUtils.h"
+#include "Framework/Conventions/Constants.h"
+#include "Physics/Diffractive/EventGen/DFRHadronicSystemGenerator.h"
+#include "Framework/EventGen/EVGThreadException.h"
+#include "Framework/GHEP/GHepStatus.h"
+#include "Framework/GHEP/GHepParticle.h"
+#include "Framework/GHEP/GHepRecord.h"
+#include "Framework/GHEP/GHepFlags.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Numerical/RandomGen.h"
+#include "Framework/PDG/PDGLibrary.h"
+#include "Framework/PDG/PDGCodes.h"
+#include "Framework/PDG/PDGUtils.h"
+#include "Framework/Utils/PrintUtils.h"
 
 using namespace genie;
 using namespace genie::constants;

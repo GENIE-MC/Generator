@@ -14,9 +14,9 @@
 #include <cmath>
 #include <limits>
 
-#include "PDG/PDGCodes.h"
-#include "PDG/PDGLibrary.h"
-#include "Conventions/Constants.h"
+#include "Framework/PDG/PDGCodes.h"
+#include "Framework/PDG/PDGLibrary.h"
+#include "Framework/Conventions/Constants.h"
 
 using namespace genie;
 using namespace genie::constants;

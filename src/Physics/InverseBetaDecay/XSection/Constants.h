@@ -21,7 +21,7 @@
 
 #include <TMath.h>
 
-#include "Conventions/Constants.h"
+#include "Framework/Conventions/Constants.h"
 
 namespace genie {
 namespace constants {

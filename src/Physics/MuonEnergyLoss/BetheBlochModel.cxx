@@ -16,9 +16,9 @@
 
 #include <TMath.h>
 
-#include "MuELoss/BetheBlochModel.h"
-#include "MuELoss/BetheBlochMaterialParams.h"
-#include "Messenger/Messenger.h"
+#include "Physics/MuonEnergyLoss/BetheBlochModel.h"
+#include "Physics/MuonEnergyLoss/BetheBlochMaterialParams.h"
+#include "Framework/Messenger/Messenger.h"
 
 using namespace genie;
 using namespace genie::mueloss;

@@ -17,10 +17,10 @@
 
 #include <TMath.h>
 
-#include "Algorithm/AlgConfigPool.h"
-#include "Conventions/GBuild.h"
-#include "BodekYang/BYPDF.h"
-#include "Messenger/Messenger.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
+#include "Framework/Conventions/GBuild.h"
+#include "Physics/DeepInelastic/XSection/BYPDF.h"
+#include "Framework/Messenger/Messenger.h"
 
 using namespace genie;
 

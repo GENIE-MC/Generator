@@ -14,8 +14,8 @@
 */
 //____________________________________________________________________________
 
-#include "GHEP/GHepRecord.h"
-#include "VLE/IBDPrimaryLeptonGenerator.h"
+#include "Framework/GHEP/GHepRecord.h"
+#include "Physics/InverseBetaDecay/EventGen/IBDPrimaryLeptonGenerator.h"
 
 using namespace genie;
 

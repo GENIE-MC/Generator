@@ -25,7 +25,7 @@
 namespace genie   {
 namespace mueloss {
 
-#include "MuELoss/MuELMaterial.h"
+#include "Physics/MuonEnergyLoss/MuELMaterial.h"
 
 class BetheBlochMaterialParams
 {

@@ -31,21 +31,21 @@
 #include <TF1.h>
 #include <TROOT.h>
 
-#include "Algorithm/AlgConfigPool.h"
-#include "Conventions/Constants.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
+#include "Framework/Conventions/Constants.h"
 #include "Conventions/Controls.h"
-#include "Fragmentation/CharmHadronization.h"
-#include "Fragmentation/FragmentationFunctionI.h"
-#include "Messenger/Messenger.h"
-#include "Numerical/RandomGen.h"
-#include "Numerical/Spline.h"
-#include "PDG/PDGCodes.h"
-#include "PDG/PDGUtils.h"
-#include "PDG/PDGLibrary.h"
+#include "Physics/Hadronization/CharmHadronization.h"
+#include "Physics/Hadronization/FragmentationFunctionI.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Numerical/RandomGen.h"
+#include "Framework/Numerical/Spline.h"
+#include "Framework/PDG/PDGCodes.h"
+#include "Framework/PDG/PDGUtils.h"
+#include "Framework/PDG/PDGLibrary.h"
 #include "PDG/PDGCodeList.h"
 #include "Utils/KineUtils.h"
 #include "Utils/FragmRecUtils.h"
-#include "Utils/PrintUtils.h"
+#include "Framework/Utils/PrintUtils.h"
 
 using namespace genie;
 using namespace genie::constants;

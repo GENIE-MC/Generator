@@ -8,17 +8,17 @@
 */
 //_________________________________________________________________________
 
-#include "Algorithm/AlgConfigPool.h"
-#include "Base/XSecIntegratorI.h"
-#include "Conventions/Constants.h"
-#include "Conventions/Units.h"
-#include "Messenger/Messenger.h"
-#include "MEC/NievesSimoVacasMECPXSec2016.h"
-#include "MEC/MECHadronTensor.h"
-#include "MEC/MECUtils.h"
-#include "PDG/PDGCodes.h"
-#include "PDG/PDGUtils.h"
-#include "PDG/PDGLibrary.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
+#include "Physics/XSectionIntegration/XSecIntegratorI.h"
+#include "Framework/Conventions/Constants.h"
+#include "Framework/Conventions/Units.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Physics/Multinucleon/XSection/NievesSimoVacasMECPXSec2016.h"
+#include "Physics/Multinucleon/XSection/MECHadronTensor.h"
+#include "Physics/Multinucleon/XSection/MECUtils.h"
+#include "Framework/PDG/PDGCodes.h"
+#include "Framework/PDG/PDGUtils.h"
+#include "Framework/PDG/PDGLibrary.h"
 #include "Utils/KineUtils.h"
 
 using namespace genie;

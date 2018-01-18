@@ -11,8 +11,8 @@
 //____________________________________________________________________________
 
 #include "ARSampledNucleus.h"
-#include "Messenger/Messenger.h"
-#include "Utils/StringUtils.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Utils/StringUtils.h"
 
 #include <string>
 #include <iostream>
@@ -28,8 +28,8 @@
 #include <Math/GaussLegendreIntegrator.h>
 
 #include "Utils/NuclearUtils.h"
-#include "AlvarezRuso/IntegrationTools.h"
-#include "AlvarezRuso/ARConstants.h"
+#include "Framework/Numerical/IntegrationTools.h"
+#include "Physics/Coherent/XSection/ARConstants.h"
 
 //
 // Equation/Table numbers refer to:

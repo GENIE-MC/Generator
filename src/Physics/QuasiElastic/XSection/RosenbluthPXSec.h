@@ -23,8 +23,8 @@
 #ifndef _ROSENBLUTH_CROSS_SECTION_H_
 #define _ROSENBLUTH_CROSS_SECTION_H_
 
-#include "Base/XSecAlgorithmI.h"
-#include "ElFF/ELFormFactors.h"
+#include "Framework/EventGen/XSecAlgorithmI.h"
+#include "Physics/QuasiElastic/XSection/ELFormFactors.h"
 
 namespace genie {
 

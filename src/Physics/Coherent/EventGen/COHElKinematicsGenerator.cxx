@@ -18,19 +18,19 @@
 
 #include <TMath.h>
 
-#include "Algorithm/AlgConfigPool.h"
-#include "Conventions/Constants.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
+#include "Framework/Conventions/Constants.h"
 #include "Conventions/Controls.h"
-#include "Conventions/Units.h"
-#include "Conventions/KinePhaseSpace.h"
-#include "Coherent/COHElKinematicsGenerator.h"
+#include "Framework/Conventions/Units.h"
+#include "Framework/Conventions/KinePhaseSpace.h"
+#include "Physics/Coherent/EventGen/COHElKinematicsGenerator.h"
 #include "EVGCore/EVGThreadException.h"
 #include "EVGCore/EventGeneratorI.h"
 #include "EVGCore/RunningThreadInfo.h"
-#include "GHEP/GHepRecord.h"
+#include "Framework/GHEP/GHepRecord.h"
 #include "GHEP/GHepFlags.h"
-#include "Messenger/Messenger.h"
-#include "Numerical/RandomGen.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Numerical/RandomGen.h"
 #include "Utils/KineUtils.h"
 
 using namespace genie;

@@ -14,7 +14,7 @@
 */
 //____________________________________________________________________________
 
-#include "EVGCore/EventRecord.h"
+#include "Framework/EventGen/EventRecord.h"
 #include "Framework/EventGen/EventRecordVisitorI.h"
 #include "Framework/GHEP/GHepStatus.h"
 #include "Framework/GHEP/GHepParticle.h"

@@ -27,14 +27,14 @@
 #endif
 #include <TMath.h>
 
-#include "BaryonResonance/BaryonResUtils.h"
+#include "Framework/BaryonResonance/BaryonResUtils.h"
 #include "Conventions/Controls.h"
-#include "Decay/BaryonResonanceDecayer.h"
-#include "Messenger/Messenger.h"
-#include "PDG/PDGLibrary.h"
-#include "Numerical/RandomGen.h"
-#include "Utils/PrintUtils.h"
-#include "Conventions/Constants.h"
+#include "Physics/Decay/BaryonResonanceDecayer.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/PDG/PDGLibrary.h"
+#include "Framework/Numerical/RandomGen.h"
+#include "Framework/Utils/PrintUtils.h"
+#include "Framework/Conventions/Constants.h"
 
 using namespace genie;
 using namespace genie::controls;

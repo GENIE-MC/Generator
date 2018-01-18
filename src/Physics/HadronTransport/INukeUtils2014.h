@@ -28,8 +28,8 @@
 #include <TGenPhaseSpace.h>
 
 #include "Interfaces/NuclearModelI.h"
-#include "HadronTransport/INukeHadroFates.h"
-#include "HadronTransport/INukeMode.h"
+#include "Physics/HadronTransport/INukeHadroFates.h"
+#include "Physics/HadronTransport/INukeMode.h"
 
 class TLorentzVector;
 

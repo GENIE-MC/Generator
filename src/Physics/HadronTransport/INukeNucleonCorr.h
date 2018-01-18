@@ -13,7 +13,7 @@
 #include <iostream>
 
 #include <TGenPhaseSpace.h>
-#include "PDG/PDGCodes.h"
+#include "Framework/PDG/PDGCodes.h"
 
 class INukeNucleonCorr
 {

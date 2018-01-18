@@ -20,7 +20,7 @@
 #ifndef _INITIAL_STATE_APPENDER_H_
 #define _INITIAL_STATE_APPENDER_H_
 
-#include "EVGCore/EventRecordVisitorI.h"
+#include "Framework/EventGen/EventRecordVisitorI.h"
 
 namespace genie {
 

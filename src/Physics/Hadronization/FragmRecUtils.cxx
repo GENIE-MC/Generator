@@ -22,9 +22,9 @@
 #endif
 #include <TIterator.h>
 
-#include "Messenger/Messenger.h"
+#include "Framework/Messenger/Messenger.h"
 #include "Utils/FragmRecUtils.h"
-#include "PDG/PDGLibrary.h"
+#include "Framework/PDG/PDGLibrary.h"
 
 using namespace genie;
 

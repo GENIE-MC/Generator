@@ -16,26 +16,26 @@
 */
 //____________________________________________________________________________
 
-#include "Algorithm/AlgFactory.h"
-#include "Conventions/Controls.h"
-#include "Conventions/Constants.h"
-#include "Conventions/GMode.h"
-#include "Interaction/Target.h"
-#include "Messenger/Messenger.h"
-#include "Numerical/RandomGen.h"
-#include "EVGCore/EVGThreadException.h"
-#include "GHEP/GHepRecord.h"
-#include "GHEP/GHepParticle.h"
-#include "PDG/PDGCodes.h"
-#include "PDG/PDGUtils.h"
-#include "PDG/PDGLibrary.h"
+#include "Framework/Algorithm/AlgFactory.h"
+#include "Framework/Conventions/Controls.h"
+#include "Framework/Conventions/Constants.h"
+#include "Framework/Conventions/GMode.h"
+#include "Framework/Interaction/Target.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Numerical/RandomGen.h"
+#include "Framework/EventGen/EVGThreadException.h"
+#include "Framework/GHEP/GHepRecord.h"
+#include "Framework/GHEP/GHepParticle.h"
+#include "Framework/PDG/PDGCodes.h"
+#include "Framework/PDG/PDGUtils.h"
+#include "Framework/PDG/PDGLibrary.h"
 #include "Utils/NuclearUtils.h"
-#include "Utils/PrintUtils.h"
-#include "NucleonDecay/NucleonDecayPrimaryVtxGenerator.h"
+#include "Framework/Utils/PrintUtils.h"
+#include "Physics/NucleonDecay/NucleonDecayPrimaryVtxGenerator.h"
 
 #include "Interfaces/NuclearModelI.h"
-#include "NucleonDecay/NucleonDecayUtils.h"
-#include "NucleonDecay/NucleonDecayMode.h"
+#include "Physics/NucleonDecay/NucleonDecayUtils.h"
+#include "Physics/NucleonDecay/NucleonDecayMode.h"
 
 using namespace genie;
 

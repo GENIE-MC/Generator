@@ -23,10 +23,10 @@
 #include <TNtupleD.h>
 #include <TTree.h>
 
-#include "Messenger/Messenger.h"
-#include "Nuclear/NuclearData.h"
-#include "Numerical/Spline.h"
-#include "PDG/PDGCodes.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Physics/Nuclear/NuclearData.h"
+#include "Framework/Numerical/Spline.h"
+#include "Framework/PDG/PDGCodes.h"
 
 using std::cout;
 using std::endl;

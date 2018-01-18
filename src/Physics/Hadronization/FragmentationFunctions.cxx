@@ -16,7 +16,7 @@
 
 #include <cmath>
 
-#include "Fragmentation/FragmentationFunctions.h"
+#include "Physics/Hadronization/FragmentationFunctions.h"
 
 //___________________________________________________________________________
 double genie::utils::frgmfunc::collins_spiller_func(double* x, double* par)

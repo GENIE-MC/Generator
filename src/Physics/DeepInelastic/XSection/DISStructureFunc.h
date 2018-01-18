@@ -27,8 +27,8 @@
 
 #include <iostream>
 
-#include "Base/DISStructureFuncModelI.h"
-#include "Interaction/Interaction.h"
+#include "Physics/DeepInelastic/XSection/DISStructureFuncModelI.h"
+#include "Framework/Interaction/Interaction.h"
 
 using std::ostream;
 

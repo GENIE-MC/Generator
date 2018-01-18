@@ -20,7 +20,7 @@
 #ifndef _COH_XSEC_AR_H_
 #define _COH_XSEC_AR_H_
 
-#include "Base/XSecIntegratorI.h"
+#include "Physics/XSectionIntegration/XSecIntegratorI.h"
 
 namespace genie {
 

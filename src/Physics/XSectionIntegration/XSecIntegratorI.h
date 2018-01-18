@@ -19,9 +19,9 @@
 #ifndef _XSEC_INTEGRATOR_I_H_
 #define _XSEC_INTEGRATOR_I_H_
 
-#include "Algorithm/Algorithm.h"
-#include "Base/XSecAlgorithmI.h"
-#include "Interaction/Interaction.h"
+#include "Framework/Algorithm/Algorithm.h"
+#include "Framework/EventGen/XSecAlgorithmI.h"
+#include "Framework/Interaction/Interaction.h"
 
 namespace genie {
 

@@ -21,7 +21,7 @@
 #ifndef _SLOW_RESCALING_CHARM_DIS_PARTIAL_XSEC_LO_H_
 #define _SLOW_RESCALING_CHARM_DIS_PARTIAL_XSEC_LO_H_
 
-#include "Base/XSecAlgorithmI.h"
+#include "Framework/EventGen/XSecAlgorithmI.h"
 
 namespace genie {
 

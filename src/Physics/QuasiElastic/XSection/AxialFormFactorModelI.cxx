@@ -14,7 +14,7 @@
 */
 //____________________________________________________________________________
 
-#include "LlewellynSmith/AxialFormFactorModelI.h"
+#include "Physics/QuasiElastic/XSection/AxialFormFactorModelI.h"
 
 using namespace genie;
 

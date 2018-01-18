@@ -16,10 +16,10 @@
 */
 //____________________________________________________________________________
 
-#include "Messenger/Messenger.h"
-#include "PartonModel/QPMDISStrucFunc.h"
-#include "PDG/PDGCodes.h"
-#include "PDG/PDGUtils.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Physics/DeepInelastic/XSection/QPMDISStrucFunc.h"
+#include "Framework/PDG/PDGCodes.h"
+#include "Framework/PDG/PDGUtils.h"
 
 using namespace genie;
 

@@ -26,16 +26,16 @@
 #include <Math/LorentzVector.h>
 
 //Genie
-#include "Algorithm/AlgConfigPool.h"
-#include "Messenger/Messenger.h"
-#include "Conventions/Constants.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Conventions/Constants.h"
 
 //AlvarezRuso
-#include "AlvarezRuso/AlvarezRusoCOHPiPDXSec.h"
-#include "AlvarezRuso/ARSampledNucleus.h"
-#include "AlvarezRuso/AREikonalSolution.h"
-#include "AlvarezRuso/IntegrationTools.h"
-#include "AlvarezRuso/ARWavefunction.h"
+#include "Physics/Coherent/XSection/AlvarezRusoCOHPiPDXSec.h"
+#include "Physics/Coherent/XSection/ARSampledNucleus.h"
+#include "Physics/Coherent/XSection/AREikonalSolution.h"
+#include "Framework/Numerical/IntegrationTools.h"
+#include "Physics/Coherent/XSection/ARWavefunction.h"
 
 using namespace genie::constants;
 

@@ -24,7 +24,7 @@
 
 #include <TF1.h>
 
-#include "Fragmentation/FragmentationFunctionI.h"
+#include "Physics/Hadronization/FragmentationFunctionI.h"
 
 namespace genie {
 

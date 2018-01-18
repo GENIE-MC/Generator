@@ -53,22 +53,22 @@
 #include <TF1.h>
 #include <TROOT.h>
 
-#include "Algorithm/AlgConfigPool.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
 #include "Algorithm/AlgFactory.h"
-#include "Conventions/Constants.h"
+#include "Framework/Conventions/Constants.h"
 #include "Conventions/Controls.h"
-#include "Decay/DecayModelI.h"
-#include "Fragmentation/KNOHadronization.h"
-#include "Interaction/Interaction.h"
-#include "Messenger/Messenger.h"
-#include "Numerical/RandomGen.h"
-//#include "Numerical/Spline.h"
-#include "PDG/PDGLibrary.h"
+#include "Physics/Decay/DecayModelI.h"
+#include "Physics/Hadronization/KNOHadronization.h"
+#include "Framework/Interaction/Interaction.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Numerical/RandomGen.h"
+//#include "Framework/Numerical/Spline.h"
+#include "Framework/PDG/PDGLibrary.h"
 #include "PDG/PDGCodeList.h"
-#include "PDG/PDGCodes.h"
-#include "PDG/PDGUtils.h"
+#include "Framework/PDG/PDGCodes.h"
+#include "Framework/PDG/PDGUtils.h"
 #include "Utils/KineUtils.h"
-#include "Utils/PrintUtils.h"
+#include "Framework/Utils/PrintUtils.h"
 
 using namespace genie;
 using namespace genie::constants;

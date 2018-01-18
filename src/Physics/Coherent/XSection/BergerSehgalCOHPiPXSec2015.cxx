@@ -13,16 +13,16 @@ For the class documentation see the corresponding header file.
 
 #include <TMath.h>
 
-#include "Algorithm/AlgConfigPool.h"
-#include "Base/XSecIntegratorI.h"
-#include "Conventions/GBuild.h"
-#include "Conventions/Constants.h"
-#include "Conventions/Units.h"
-#include "Conventions/RefFrame.h"
-#include "Messenger/Messenger.h"
-#include "PDG/PDGCodes.h"
-#include "PDG/PDGUtils.h"
-#include "BergerSehgal/BergerSehgalCOHPiPXSec2015.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
+#include "Physics/XSectionIntegration/XSecIntegratorI.h"
+#include "Framework/Conventions/GBuild.h"
+#include "Framework/Conventions/Constants.h"
+#include "Framework/Conventions/Units.h"
+#include "Framework/Conventions/RefFrame.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/PDG/PDGCodes.h"
+#include "Framework/PDG/PDGUtils.h"
+#include "Physics/Coherent/XSection/BergerSehgalCOHPiPXSec2015.h"
 #include "Utils/HadXSUtils.h"
 #include "Utils/KineUtils.h"
 

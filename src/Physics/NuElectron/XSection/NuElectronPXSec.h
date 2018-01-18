@@ -29,7 +29,7 @@
 #ifndef _NU_ELECTRON_PARTIAL_XSEC_H_
 #define _NU_ELECTRON_PARTIAL_XSEC_H_
 
-#include "Base/XSecAlgorithmI.h"
+#include "Framework/EventGen/XSecAlgorithmI.h"
 
 namespace genie {
 

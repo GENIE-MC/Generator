@@ -12,13 +12,13 @@
 #include <TMath.h>
 #include <TLorentzVector.h>
 
-#include "Conventions/Constants.h"
-#include "Interaction/Interaction.h"
-#include "MEC/MECUtils.h"
-#include "Messenger/Messenger.h"
-#include "PDG/PDGLibrary.h"
-#include "PDG/PDGCodes.h"
-#include "Conventions/Units.h"
+#include "Framework/Conventions/Constants.h"
+#include "Framework/Interaction/Interaction.h"
+#include "Physics/Multinucleon/XSection/MECUtils.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/PDG/PDGLibrary.h"
+#include "Framework/PDG/PDGCodes.h"
+#include "Framework/Conventions/Units.h"
 
 using namespace genie;
 using namespace genie::constants;

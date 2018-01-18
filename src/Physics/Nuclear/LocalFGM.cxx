@@ -15,15 +15,15 @@
 #include <cstdlib>
 #include <TMath.h>
 
-#include "Algorithm/AlgConfigPool.h"
-#include "Conventions/GBuild.h"
-#include "Conventions/Constants.h"
-#include "Conventions/Units.h"
-#include "Messenger/Messenger.h"
-#include "Nuclear/LocalFGM.h"
-#include "PDG/PDGCodes.h"
-#include "PDG/PDGUtils.h"
-#include "Numerical/RandomGen.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
+#include "Framework/Conventions/GBuild.h"
+#include "Framework/Conventions/Constants.h"
+#include "Framework/Conventions/Units.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Physics/Nuclear/LocalFGM.h"
+#include "Framework/PDG/PDGCodes.h"
+#include "Framework/PDG/PDGUtils.h"
+#include "Framework/Numerical/RandomGen.h"
 #include "Utils/NuclearUtils.h"
 
 using std::ostringstream;

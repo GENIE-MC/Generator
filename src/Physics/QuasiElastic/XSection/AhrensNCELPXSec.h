@@ -23,7 +23,7 @@
 #ifndef _AHRENS_NCEL_CROSS_SECTION_H_
 #define _AHRENS_NCEL_CROSS_SECTION_H_
 
-#include "Base/XSecAlgorithmI.h"
+#include "Framework/EventGen/XSecAlgorithmI.h"
 
 namespace genie {
 

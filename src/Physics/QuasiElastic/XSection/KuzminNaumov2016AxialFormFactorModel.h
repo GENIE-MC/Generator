@@ -26,7 +26,7 @@
 #ifndef _KUZMIN_NAUMOV_2016_AXIAL_FORM_FACTOR_MODEL_H_
 #define _KUZMIN_NAUMOV_2016_AXIAL_FORM_FACTOR_MODEL_H_
 
-#include "LlewellynSmith/AxialFormFactorModelI.h"
+#include "Physics/QuasiElastic/XSection/AxialFormFactorModelI.h"
 
 namespace genie {
 

@@ -26,7 +26,7 @@
 
 #include <vector>
 
-#include "EVGCore/EventRecordVisitorI.h"
+#include "Framework/EventGen/EventRecordVisitorI.h"
 #include "PDG/PDGCodeList.h"
 
 using std::vector;

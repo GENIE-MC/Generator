@@ -17,22 +17,22 @@
 #include <Math/IntegratorMultiDim.h>
 #include "Math/AdaptiveIntegratorMultiDim.h"
 
-#include "Algorithm/AlgConfigPool.h"
-#include "Base/XSecIntegratorI.h"
-#include "Conventions/GBuild.h"
-#include "Conventions/Constants.h"
-#include "Conventions/Units.h"
-#include "Conventions/RefFrame.h"
-#include "CrossSections/GSLXSecFunc.h"
-#include "Messenger/Messenger.h"
-#include "PDG/PDGCodes.h"
-#include "PDG/PDGUtils.h"
-#include "BergerSehgal/BergerSehgalCOHPiPXSec2015.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
+#include "Physics/XSectionIntegration/XSecIntegratorI.h"
+#include "Framework/Conventions/GBuild.h"
+#include "Framework/Conventions/Constants.h"
+#include "Framework/Conventions/Units.h"
+#include "Framework/Conventions/RefFrame.h"
+#include "Physics/XSectionIntegration/GSLXSecFunc.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/PDG/PDGCodes.h"
+#include "Framework/PDG/PDGUtils.h"
+#include "Physics/Coherent/XSection/BergerSehgalCOHPiPXSec2015.h"
 #include "Utils/GSLUtils.h"
 #include "Utils/HadXSUtils.h"
 #include "Utils/KineUtils.h"
 
-#include "CrossSections/DFRXSec.h"
+#include "Physics/Diffractive/XSection/DFRXSec.h"
 
 using namespace genie;
 using namespace genie::utils;

@@ -27,11 +27,11 @@
 //#include <TSQLRow.h>
 #include <TMath.h>
 
-#include "EVGCore/EVGThreadException.h"
-#include "EVGModules/KineGeneratorWithCache.h"
-#include "GHEP/GHepRecord.h"
-#include "GHEP/GHepFlags.h"
-#include "Messenger/Messenger.h"
+#include "Framework/EventGen/EVGThreadException.h"
+#include "Physics/Common/KineGeneratorWithCache.h"
+#include "Framework/GHEP/GHepRecord.h"
+#include "Framework/GHEP/GHepFlags.h"
+#include "Framework/Messenger/Messenger.h"
 #include "Utils/Cache.h"
 #include "Utils/CacheBranchFx.h"
 #include "Utils/MathUtils.h"

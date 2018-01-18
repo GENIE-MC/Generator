@@ -27,25 +27,25 @@
 #include <Math/IFunction.h>
 #include <Math/Integrator.h>
 
-#include "Algorithm/AlgConfigPool.h"
-#include "Algorithm/AlgFactory.h"
-#include "Conventions/GBuild.h"
-#include "Conventions/Constants.h"
-#include "Conventions/Controls.h"
-#include "Conventions/Units.h"
-#include "Conventions/KineVar.h"
-#include "Conventions/RefFrame.h"
-#include "CrossSections/QELXSec.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
+#include "Framework/Algorithm/AlgFactory.h"
+#include "Framework/Conventions/GBuild.h"
+#include "Framework/Conventions/Constants.h"
+#include "Framework/Conventions/Controls.h"
+#include "Framework/Conventions/Units.h"
+#include "Framework/Conventions/KineVar.h"
+#include "Framework/Conventions/RefFrame.h"
+#include "Physics/QuasiElastic/XSection/QELXSec.h"
 
 #include "Interfaces/NuclearModelI.h"
-#include "CrossSections/GSLXSecFunc.h"
-#include "Messenger/Messenger.h"
-#include "Numerical/RandomGen.h"
-#include "PDG/PDGUtils.h"
+#include "Physics/XSectionIntegration/GSLXSecFunc.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Numerical/RandomGen.h"
+#include "Framework/PDG/PDGUtils.h"
 #include "Utils/KineUtils.h"
 #include "Utils/NuclearUtils.h"
-#include "Utils/Range1.h"
-#include "Utils/GSLUtils.h"
+#include "Framework/Utils/Range1.h"
+#include "Framework/Numerical/GSLUtils.h"
 
 using namespace genie;
 using namespace genie::constants;

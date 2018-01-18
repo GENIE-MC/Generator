@@ -21,7 +21,7 @@
 
 #include <TPythia6.h>
 
-#include "EVGCore/EventRecordVisitorI.h"
+#include "Framework/EventGen/EventRecordVisitorI.h"
 
 namespace genie {
 

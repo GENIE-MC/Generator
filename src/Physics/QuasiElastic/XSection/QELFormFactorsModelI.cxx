@@ -14,7 +14,7 @@
 */
 //____________________________________________________________________________
 
-#include "Base/QELFormFactorsModelI.h"
+#include "Physics/QuasiElastic/XSection/QELFormFactorsModelI.h"
 
 using namespace genie;
 

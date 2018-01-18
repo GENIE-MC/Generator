@@ -18,16 +18,16 @@
 #include <Math/IntegratorMultiDim.h>
 #include "Math/AdaptiveIntegratorMultiDim.h"
 
-#include "Conventions/GBuild.h"
-#include "Conventions/Constants.h"
+#include "Framework/Conventions/GBuild.h"
+#include "Framework/Conventions/Constants.h"
 #include "Conventions/Controls.h"
-#include "Conventions/Units.h"
-#include "CrossSections/COHXSecAR.h"
-#include "CrossSections/GSLXSecFunc.h"
-#include "Messenger/Messenger.h"
-#include "PDG/PDGUtils.h"
+#include "Framework/Conventions/Units.h"
+#include "Physics/Coherent/XSection/COHXSecAR.h"
+#include "Physics/XSectionIntegration/GSLXSecFunc.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/PDG/PDGUtils.h"
 #include "Utils/MathUtils.h"
-#include "Utils/Range1.h"
+#include "Framework/Utils/Range1.h"
 #include "Utils/GSLUtils.h"
 
 using namespace genie;

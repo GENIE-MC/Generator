@@ -20,14 +20,14 @@
 #include <Math/IFunction.h>
 #include <Math/Integrator.h>
 
-#include "Conventions/GBuild.h"
-#include "Conventions/Constants.h"
-#include "Conventions/Units.h"
-#include "Conventions/RefFrame.h"
-#include "CrossSections/NuElectronXSec.h"
-#include "CrossSections/GSLXSecFunc.h"
-#include "Messenger/Messenger.h"
-#include "Utils/GSLUtils.h"
+#include "Framework/Conventions/GBuild.h"
+#include "Framework/Conventions/Constants.h"
+#include "Framework/Conventions/Units.h"
+#include "Framework/Conventions/RefFrame.h"
+#include "Physics/NuElectron/XSection/NuElectronXSec.h"
+#include "Physics/XSectionIntegration/GSLXSecFunc.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Numerical/GSLUtils.h"
   
 using namespace genie;
 using namespace genie::constants;

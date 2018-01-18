@@ -22,10 +22,10 @@
 
 #include <complex>
 
-#include "AlvarezRuso/AlvarezRusoCOHPiPDXSec.h"
-#include "AlvarezRuso/ARSampledNucleus.h"
-#include "AlvarezRuso/ARConstants.h"
-#include "AlvarezRuso/ARWFSolution.h"
+#include "Physics/Coherent/XSection/AlvarezRusoCOHPiPDXSec.h"
+#include "Physics/Coherent/XSection/ARSampledNucleus.h"
+#include "Physics/Coherent/XSection/ARConstants.h"
+#include "Physics/Coherent/XSection/ARWFSolution.h"
 
 namespace genie
 {

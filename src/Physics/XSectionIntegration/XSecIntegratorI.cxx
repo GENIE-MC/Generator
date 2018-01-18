@@ -14,7 +14,7 @@
 */
 //____________________________________________________________________________
 
-#include "Base/XSecIntegratorI.h"
+#include "Physics/XSectionIntegration/XSecIntegratorI.h"
 
 using namespace genie;
 

@@ -16,7 +16,7 @@
 */
 //____________________________________________________________________________
 
-#include "NeutronOsc/NOscDummyPXSec.h"
+#include "Physics/NNBarOscillation/NOscDummyPXSec.h"
 
 using namespace genie;
 

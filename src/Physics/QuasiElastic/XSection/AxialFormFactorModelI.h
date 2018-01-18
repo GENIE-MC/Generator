@@ -23,7 +23,7 @@
 #ifndef _AXIAL_FORM_FACTOR_MODEL_I_H_
 #define _AXIAL_FORM_FACTOR_MODEL_I_H_
 
-#include "Algorithm/Algorithm.h"
+#include "Framework/Algorithm/Algorithm.h"
 
 namespace genie {
 

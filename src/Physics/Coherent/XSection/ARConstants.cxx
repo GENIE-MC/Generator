@@ -12,12 +12,12 @@
 
 #include <TMath.h>
 #include <iostream>
-#include "Conventions/Constants.h"
+#include "Framework/Conventions/Constants.h"
 
-#include "Algorithm/AlgConfigPool.h"
-#include "PDG/PDGLibrary.h"
-#include "PDG/PDGCodes.h"
-#include "AlvarezRuso/ARConstants.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
+#include "Framework/PDG/PDGLibrary.h"
+#include "Framework/PDG/PDGCodes.h"
+#include "Physics/Coherent/XSection/ARConstants.h"
 
 namespace genie {
 namespace alvarezruso {

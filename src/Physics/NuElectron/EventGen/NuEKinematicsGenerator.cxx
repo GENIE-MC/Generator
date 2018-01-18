@@ -19,16 +19,16 @@
 */
 //____________________________________________________________________________
 
-#include "Conventions/Controls.h"
-#include "Conventions/KinePhaseSpace.h"
-#include "EVGCore/EVGThreadException.h"
+#include "Framework/Conventions/Controls.h"
+#include "Framework/Conventions/KinePhaseSpace.h"
+#include "Framework/EventGen/EVGThreadException.h"
 #include "EVGCore/EventGeneratorI.h"
 #include "EVGCore/RunningThreadInfo.h"
-#include "NuE/NuEKinematicsGenerator.h"
-#include "GHEP/GHepRecord.h"
-#include "GHEP/GHepFlags.h"
-#include "Messenger/Messenger.h"
-#include "Numerical/RandomGen.h"
+#include "Physics/NuElectron/EventGen/NuEKinematicsGenerator.h"
+#include "Framework/GHEP/GHepRecord.h"
+#include "Framework/GHEP/GHepFlags.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Numerical/RandomGen.h"
 #include "Utils/MathUtils.h"
 #include "Utils/KineUtils.h"
 

@@ -18,14 +18,14 @@
 
 #include <TMath.h>
 
-#include "Algorithm/AlgConfigPool.h"
-#include "Base/XSecIntegratorI.h"
-#include "Conventions/Constants.h"
-#include "Conventions/RefFrame.h"
-#include "Conventions/KineVar.h"
-#include "Elastic/AhrensNCELPXSec.h"
-#include "Messenger/Messenger.h"
-#include "PDG/PDGUtils.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
+#include "Physics/XSectionIntegration/XSecIntegratorI.h"
+#include "Framework/Conventions/Constants.h"
+#include "Framework/Conventions/RefFrame.h"
+#include "Framework/Conventions/KineVar.h"
+#include "Physics/QuasiElastic/XSection/AhrensNCELPXSec.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/PDG/PDGUtils.h"
 #include "Utils/KineUtils.h"
 #include "Utils/MathUtils.h"
 #include "Utils/NuclearUtils.h"

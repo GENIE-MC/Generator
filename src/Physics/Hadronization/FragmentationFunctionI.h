@@ -21,7 +21,7 @@
 #ifndef _FRAGMENTATION_FUNCTION_I_H_
 #define _FRAGMENTATION_FUNCTION_I_H_
 
-#include "Algorithm/Algorithm.h"
+#include "Framework/Algorithm/Algorithm.h"
 
 namespace genie {
 

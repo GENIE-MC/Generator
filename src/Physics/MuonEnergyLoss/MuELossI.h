@@ -19,9 +19,9 @@
 #ifndef _MUELOSS_I_H_
 #define _MUELOSS_I_H_
 
-#include "Algorithm/Algorithm.h"
-#include "MuELoss/MuELMaterial.h"
-#include "MuELoss/MuELProcess.h"
+#include "Framework/Algorithm/Algorithm.h"
+#include "Physics/MuonEnergyLoss/MuELMaterial.h"
+#include "Physics/MuonEnergyLoss/MuELProcess.h"
 
 namespace genie   {
 namespace mueloss {

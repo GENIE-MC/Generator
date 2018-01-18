@@ -23,7 +23,7 @@
 #ifndef _LLEWELLYN_SMITH_NC_FORM_FACTOR_MODEL_H_
 #define _LLEWELLYN_SMITH_NC_FORM_FACTOR_MODEL_H_
 
-#include "LlewellynSmith/LwlynSmithFF.h"
+#include "Physics/QuasiElastic/XSection/LwlynSmithFF.h"
 
 namespace genie {
 
