@@ -20,8 +20,8 @@
 #include "Framework/EventGen/InteractionList.h"
 #include "Framework/Interaction/Interaction.h"
 #include "Framework/Messenger/Messenger.h"
-#include "Framework/PDG/PDGCodes.h"
-#include "Framework/PDG/PDGUtils.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGUtils.h"
 #include "Physics/Multinucleon/EventGen/MECInteractionListGenerator.h"
 
 using namespace genie;

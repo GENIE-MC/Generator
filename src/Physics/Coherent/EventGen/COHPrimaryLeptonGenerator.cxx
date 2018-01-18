@@ -28,9 +28,9 @@
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
 #include "Framework/EventGen/XSecAlgorithmI.h"
-#include "EVGCore/EVGThreadException.h"
-#include "EVGCore/EventGeneratorI.h"
-#include "EVGCore/RunningThreadInfo.h"
+#include "Framework/EventGen/EVGThreadException.h"
+#include "Framework/EventGen/EventGeneratorI.h"
+#include "Framework/EventGen/RunningThreadInfo.h"
 
 using namespace genie;
 using namespace genie::constants;

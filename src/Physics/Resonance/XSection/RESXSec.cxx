@@ -27,9 +27,9 @@
 #include "Physics/Resonance/XSection/RESXSec.h"
 #include "Physics/XSectionIntegration/GSLXSecFunc.h"
 #include "Framework/Messenger/Messenger.h"
-#include "Framework/PDG/PDGUtils.h"
-#include "Utils/MathUtils.h"
-#include "Utils/KineUtils.h"
+#include "Framework/ParticleData/PDGUtils.h"
+#include "Framework/Numerical/MathUtils.h"
+#include "Framework/Utils/KineUtils.h"
 #include "Framework/Numerical/GSLUtils.h"
 
 using namespace genie;

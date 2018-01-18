@@ -15,8 +15,8 @@
 #include "Framework/Conventions/Constants.h"
 
 #include "Framework/Algorithm/AlgConfigPool.h"
-#include "Framework/PDG/PDGLibrary.h"
-#include "Framework/PDG/PDGCodes.h"
+#include "Framework/ParticleData/PDGLibrary.h"
+#include "Framework/ParticleData/PDGCodes.h"
 #include "Physics/Coherent/XSection/ARConstants.h"
 
 namespace genie {

@@ -22,15 +22,15 @@
 #include "Framework/Conventions/Controls.h"
 #include "Framework/Conventions/KinePhaseSpace.h"
 #include "Framework/EventGen/EVGThreadException.h"
-#include "EVGCore/EventGeneratorI.h"
-#include "EVGCore/RunningThreadInfo.h"
+#include "Framework/EventGen/EventGeneratorI.h"
+#include "Framework/EventGen/RunningThreadInfo.h"
 #include "Physics/NuElectron/EventGen/NuEKinematicsGenerator.h"
 #include "Framework/GHEP/GHepRecord.h"
 #include "Framework/GHEP/GHepFlags.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
-#include "Utils/MathUtils.h"
-#include "Utils/KineUtils.h"
+#include "Framework/Numerical/MathUtils.h"
+#include "Framework/Utils/KineUtils.h"
 
 using namespace genie;
 using namespace genie::controls;

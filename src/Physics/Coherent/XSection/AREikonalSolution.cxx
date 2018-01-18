@@ -17,7 +17,7 @@
 
 #include "Framework/Numerical/IntegrationTools.h"
 #include "Physics/Coherent/XSection/AREikonalSolution.h"
-#include "Utils/NuclearUtils.h"
+#include "Physics/NuclearState/NuclearUtils.h"
 
 typedef std::complex<double> cdouble;
 

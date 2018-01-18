@@ -43,11 +43,11 @@
 #include "Framework/Conventions/RefFrame.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Physics/DeepInelastic/XSection/QPMDISStrucFuncBase.h"
-#include "Physics/PDF/PDFModelI.h"
-#include "Framework/PDG/PDGUtils.h"
-#include "Utils/KineUtils.h"
-#include "Utils/NuclearUtils.h"
-#include "Utils/PhysUtils.h"
+#include "Physics/PartonDistributions/PDFModelI.h"
+#include "Framework/ParticleData/PDGUtils.h"
+#include "Framework/Utils/KineUtils.h"
+#include "Physics/NuclearState/NuclearUtils.h"
+#include "Framework/Utils/PhysUtils.h"
 
 using namespace genie;
 using namespace genie::constants;

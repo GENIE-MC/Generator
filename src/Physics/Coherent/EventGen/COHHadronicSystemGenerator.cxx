@@ -35,14 +35,14 @@
 #include "Framework/GHEP/GHepRecord.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
-#include "Framework/PDG/PDGLibrary.h"
-#include "Framework/PDG/PDGCodes.h"
-#include "Framework/PDG/PDGUtils.h"
+#include "Framework/ParticleData/PDGLibrary.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/Utils/PrintUtils.h"
 #include "Framework/EventGen/XSecAlgorithmI.h"
-#include "EVGCore/EVGThreadException.h"
-#include "EVGCore/EventGeneratorI.h"
-#include "EVGCore/RunningThreadInfo.h"
+#include "Framework/EventGen/EVGThreadException.h"
+#include "Framework/EventGen/EventGeneratorI.h"
+#include "Framework/EventGen/RunningThreadInfo.h"
 
 using namespace genie;
 using namespace genie::constants;

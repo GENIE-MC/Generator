@@ -25,10 +25,10 @@
 #include "Framework/Conventions/KineVar.h"
 #include "Physics/QuasiElastic/XSection/AhrensNCELPXSec.h"
 #include "Framework/Messenger/Messenger.h"
-#include "Framework/PDG/PDGUtils.h"
-#include "Utils/KineUtils.h"
-#include "Utils/MathUtils.h"
-#include "Utils/NuclearUtils.h"
+#include "Framework/ParticleData/PDGUtils.h"
+#include "Framework/Utils/KineUtils.h"
+#include "Framework/Numerical/MathUtils.h"
+#include "Physics/NuclearState/NuclearUtils.h"
 
 using namespace genie;
 using namespace genie::utils;

@@ -20,7 +20,7 @@
 
 #include "Physics/DeepInelastic/XSection/QPMDISStrucFuncBase.h"
 #include "Framework/Interaction/Interaction.h"
-#include "Physics/PDF/PDFModelI.h"
+#include "Physics/PartonDistributions/PDFModelI.h"
 
 namespace genie {
 

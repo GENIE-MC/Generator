@@ -27,7 +27,7 @@
 #include <TMath.h>
 #include <Math/GaussLegendreIntegrator.h>
 
-#include "Utils/NuclearUtils.h"
+#include "Physics/NuclearState/NuclearUtils.h"
 #include "Framework/Numerical/IntegrationTools.h"
 #include "Physics/Coherent/XSection/ARConstants.h"
 

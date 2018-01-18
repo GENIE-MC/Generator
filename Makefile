@@ -81,31 +81,29 @@ framework: FORCE
 physics-neutrino-scattering-modes: FORCE
 	@echo " "
 	@echo "** Building core medium energy range physics models..."
-	cd ${GENIE}/src/Physics && \
-	cd AnomalyMediatedNuGamma/XSection  &&  $(MAKE) && cd .. && \
-	cd AnomalyMediatedNuGamma/EventGen  &&  $(MAKE) && cd .. && \
-	cd Charm/EventGen                   &&  $(MAKE) && cd .. && \
-	cd Charm/XSection                   &&  $(MAKE) && cd .. && \
-	cd Coherent/XSection                &&  $(MAKE) && cd .. && \
-	cd Coherent/EventGen                &&  $(MAKE) && cd .. && \
-	cd DeepInelastic/XSection           &&  $(MAKE) && cd .. && \
-	cd DeepInelastic/EventGen           &&  $(MAKE) && cd .. && \
-	cd Diffractive/XSection             &&  $(MAKE) && cd .. && \
-	cd Diffractive/EventGen             &&  $(MAKE) && cd .. && \
-	cd GlashowResonance/XSection        &&  $(MAKE) && cd .. && \
-	cd GlashowResonance/EventGen        &&  $(MAKE) && cd .. && \
-	cd InverseBetaDecay/XSection        &&  $(MAKE) && cd .. && \
-	cd InverseBetaDecay/EventGen        &&  $(MAKE) && cd .. && \
-	cd Multinucleon/XSection            &&  $(MAKE) && cd .. && \
-	cd Multinucleon/EventGen            &&  $(MAKE) && cd .. && \
-	cd NuElectron/XSection              &&  $(MAKE) && cd .. && \
-	cd NuElectron/EventGen              &&  $(MAKE) && cd .. && \
-	cd QuasiElastic/XSection            &&  $(MAKE) && cd .. && \
-	cd QuasiElastic/EventGen            &&  $(MAKE) && cd .. && \
-	cd Resonance/XSection               &&  $(MAKE) && cd .. && \
-	cd Resonance/EventGen               &&  $(MAKE) && cd .. && \
-	cd Strange/XSection                 &&  $(MAKE) && cd .. && \
-	cd Strange/EventGen                 &&  $(MAKE) && \
+	cd ${GENIE}/src/Physics/AnomalyMediatedNuGamma/XSection  &&  $(MAKE) &&   \
+	cd ${GENIE}/src/Physics/AnomalyMediatedNuGamma/EventGen  &&  $(MAKE) &&   \
+	cd ${GENIE}/src/Physics/Charm/XSection                   &&  $(MAKE) &&   \
+	cd ${GENIE}/src/Physics/Coherent/XSection                &&  $(MAKE) &&   \
+	cd ${GENIE}/src/Physics/Coherent/EventGen                &&  $(MAKE) &&   \
+	cd ${GENIE}/src/Physics/DeepInelastic/XSection           &&  $(MAKE) &&   \
+	cd ${GENIE}/src/Physics/DeepInelastic/EventGen           &&  $(MAKE) &&   \
+	cd ${GENIE}/src/Physics/Diffractive/XSection             &&  $(MAKE) &&   \
+	cd ${GENIE}/src/Physics/Diffractive/EventGen             &&  $(MAKE) &&   \
+	cd ${GENIE}/src/Physics/GlashowResonance/XSection        &&  $(MAKE) &&   \
+	cd ${GENIE}/src/Physics/GlashowResonance/EventGen        &&  $(MAKE) &&   \
+	cd ${GENIE}/src/Physics/InverseBetaDecay/XSection        &&  $(MAKE) &&   \
+	cd ${GENIE}/src/Physics/InverseBetaDecay/EventGen        &&  $(MAKE) &&   \
+	cd ${GENIE}/src/Physics/Multinucleon/XSection            &&  $(MAKE) &&   \
+	cd ${GENIE}/src/Physics/Multinucleon/EventGen            &&  $(MAKE) &&   \
+	cd ${GENIE}/src/Physics/NuElectron/XSection              &&  $(MAKE) &&   \
+	cd ${GENIE}/src/Physics/NuElectron/EventGen              &&  $(MAKE) &&   \
+	cd ${GENIE}/src/Physics/QuasiElastic/XSection            &&  $(MAKE) &&   \
+	cd ${GENIE}/src/Physics/QuasiElastic/EventGen            &&  $(MAKE) &&   \
+	cd ${GENIE}/src/Physics/Resonance/XSection               &&  $(MAKE) &&   \
+	cd ${GENIE}/src/Physics/Resonance/EventGen               &&  $(MAKE) &&   \
+	cd ${GENIE}/src/Physics/Strange/XSection                 &&  $(MAKE) &&   \
+	cd ${GENIE}/src/Physics/Strange/EventGen                 &&  $(MAKE) &&   \
 	cd ${GENIE}
 
 physics-nucleon-decay:

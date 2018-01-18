@@ -41,9 +41,9 @@
 #include "Physics/XSectionIntegration/GSLXSecFunc.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
-#include "Framework/PDG/PDGUtils.h"
-#include "Utils/KineUtils.h"
-#include "Utils/NuclearUtils.h"
+#include "Framework/ParticleData/PDGUtils.h"
+#include "Framework/Utils/KineUtils.h"
+#include "Physics/NuclearState/NuclearUtils.h"
 #include "Framework/Utils/Range1.h"
 #include "Framework/Numerical/GSLUtils.h"
 

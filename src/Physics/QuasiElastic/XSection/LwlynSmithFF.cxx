@@ -30,8 +30,8 @@
 #include "Physics/QuasiElastic/XSection/AxialFormFactor.h"
 #include "Physics/QuasiElastic/XSection/AxialFormFactorModelI.h"
 #include "Framework/Messenger/Messenger.h"
-#include "Framework/PDG/PDGLibrary.h"
-#include "Framework/PDG/PDGCodes.h"
+#include "Framework/ParticleData/PDGLibrary.h"
+#include "Framework/ParticleData/PDGCodes.h"
 
 using namespace genie;
 using namespace genie::constants;

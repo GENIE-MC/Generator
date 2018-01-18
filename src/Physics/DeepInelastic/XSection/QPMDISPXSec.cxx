@@ -39,15 +39,15 @@
 #include "Physics/Hadronization/HadronizationModelI.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Physics/DeepInelastic/XSection/QPMDISPXSec.h"
-#include "Framework/PDG/PDGCodes.h"
-#include "Framework/PDG/PDGUtils.h"
-#include "Utils/RunOpt.h"
-#include "Utils/MathUtils.h"
-#include "Utils/KineUtils.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGUtils.h"
+#include "Framework/Utils/RunOpt.h"
+#include "Framework/Numerical/MathUtils.h"
+#include "Framework/Utils/KineUtils.h"
 #include "Framework/Utils/Range1.h"
-#include "Utils/KineUtils.h"
-#include "Utils/Cache.h"
-#include "Utils/CacheBranchFx.h"
+#include "Framework/Utils/KineUtils.h"
+#include "Framework/Utils/Cache.h"
+#include "Framework/Utils/CacheBranchFx.h"
 
 using std::ostringstream;
 

@@ -18,7 +18,7 @@
 
 #include "Physics/DeepInelastic/XSection/DISStructureFunc.h"
 #include "Framework/Messenger/Messenger.h"
-#include "Utils/MathUtils.h"
+#include "Framework/Numerical/MathUtils.h"
 
 using namespace genie;
 using namespace genie::utils;

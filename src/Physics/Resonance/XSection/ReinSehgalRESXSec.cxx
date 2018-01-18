@@ -23,7 +23,7 @@
 #include <Math/IntegratorMultiDim.h>
 
 #include "Framework/Algorithm/AlgConfigPool.h"
-#include "Framework/BaryonResonance/BaryonResUtils.h"
+#include "Framework/ParticleData/BaryonResUtils.h"
 #include "Framework/Conventions/GBuild.h"
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/Units.h"
@@ -31,15 +31,15 @@
 #include "Physics/XSectionIntegration/GSLXSecFunc.h"
 #include "Framework/Conventions/Units.h"
 #include "Framework/Messenger/Messenger.h"
-#include "Framework/PDG/PDGCodes.h"
-#include "Framework/PDG/PDGUtils.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGUtils.h"
 #include "Physics/Resonance/XSection/ReinSehgalRESXSec.h"
 #include "Framework/Utils/RunOpt.h"
-#include "Utils/MathUtils.h"
-#include "Utils/KineUtils.h"
-#include "Utils/Cache.h"
-#include "Utils/CacheBranchFx.h"
-#include "Utils/XSecSplineList.h"
+#include "Framework/Numerical/MathUtils.h"
+#include "Framework/Utils/KineUtils.h"
+#include "Framework/Utils/Cache.h"
+#include "Framework/Utils/CacheBranchFx.h"
+#include "Framework/Utils/XSecSplineList.h"
 #include "Framework/Numerical/GSLUtils.h"
 
 using namespace genie;

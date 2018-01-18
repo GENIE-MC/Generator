@@ -37,7 +37,7 @@
 #define _BSKLN_BASE_RES_PXSEC_2014_H_
 
 #include "Framework/EventGen/XSecAlgorithmI.h"
-#include "Framework/BaryonResonance/BaryonResonance.h"
+#include "Framework/ParticleData/BaryonResonance.h"
 #include "Physics/Resonance/XSection/FKR.h"
 
 namespace genie {

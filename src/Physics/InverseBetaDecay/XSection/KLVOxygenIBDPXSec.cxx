@@ -16,9 +16,9 @@
 
 #include "Framework/Algorithm/AlgConfigPool.h"
 #include "Framework/Messenger/Messenger.h"
-#include "Utils/KineUtils.h"
-#include "Framework/PDG/PDGUtils.h"
-#include "Framework/PDG/PDGCodes.h"
+#include "Framework/Utils/KineUtils.h"
+#include "Framework/ParticleData/PDGUtils.h"
+#include "Framework/ParticleData/PDGCodes.h"
 #include "Physics/InverseBetaDecay/XSection/Constants.h"
 #include "Physics/InverseBetaDecay/XSection/KLVOxygenIBDPXSec.h"
 

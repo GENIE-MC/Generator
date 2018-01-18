@@ -1,3 +1,5 @@
+#!/usr/bin/bash
+
 shopt -s nullglob
 for f in *.*
 do

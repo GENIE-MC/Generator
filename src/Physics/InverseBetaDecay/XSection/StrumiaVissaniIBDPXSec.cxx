@@ -16,7 +16,7 @@
 #include "Framework/Algorithm/AlgConfigPool.h"
 #include "Physics/XSectionIntegration/XSecIntegratorI.h"
 #include "Framework/Messenger/Messenger.h"
-#include "Utils/KineUtils.h"
+#include "Framework/Utils/KineUtils.h"
 #include "Physics/InverseBetaDecay/XSection/Constants.h"
 #include "Physics/InverseBetaDecay/XSection/StrumiaVissaniIBDPXSec.h"
 

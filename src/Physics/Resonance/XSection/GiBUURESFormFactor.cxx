@@ -27,11 +27,11 @@
 #include <TTree.h>
 #include <TMath.h>
 
-#include "Framework/BaryonResonance/BaryonResUtils.h"
-#include "GiBUU/GiBUURESFormFactor.h"
+#include "Framework/ParticleData/BaryonResUtils.h"
+#include "Physics/Resonance/XSection/GiBUURESFormFactor.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/Spline.h"
-#include "Framework/PDG/PDGCodes.h"
+#include "Framework/ParticleData/PDGCodes.h"
 
 using std::ostringstream;
 using std::istream;

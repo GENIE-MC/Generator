@@ -24,7 +24,7 @@
 #include "Physics/NuElectron/XSection/BardinIMDRadCorPXSec.h"
 #include "Framework/Messenger/Messenger.h"
 //#include "Numerical/IntegratorI.h"
-#include "Utils/KineUtils.h"
+#include "Framework/Utils/KineUtils.h"
 #include "Framework/Numerical/GSLUtils.h"
 
 using namespace genie;

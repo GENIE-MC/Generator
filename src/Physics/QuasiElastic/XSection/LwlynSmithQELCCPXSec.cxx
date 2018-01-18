@@ -38,12 +38,12 @@
 
 #include "Interfaces/NuclearModelI.h"
 #include "Framework/Messenger/Messenger.h"
-#include "Framework/PDG/PDGCodes.h"
-#include "Framework/PDG/PDGLibrary.h"
-#include "Framework/PDG/PDGUtils.h"
-#include "Utils/MathUtils.h"
-#include "Utils/KineUtils.h"
-#include "Utils/NuclearUtils.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGLibrary.h"
+#include "Framework/ParticleData/PDGUtils.h"
+#include "Framework/Numerical/MathUtils.h"
+#include "Framework/Utils/KineUtils.h"
+#include "Physics/NuclearState/NuclearUtils.h"
 
 using namespace genie;
 using namespace genie::constants;

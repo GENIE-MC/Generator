@@ -25,7 +25,7 @@
 
 #include "Framework/EventGen/XSecAlgorithmI.h"
 #include "Physics/QuasiElastic/XSection/QELFormFactors.h"
-#include "Physics/Nuclear/FermiMomentumTable.h"
+#include "Physics/NuclearState/FermiMomentumTable.h"
 #include <complex>
 #include <Math/IFunction.h>
 #include "Interfaces/NuclearModelI.h"

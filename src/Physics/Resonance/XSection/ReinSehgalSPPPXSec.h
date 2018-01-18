@@ -47,7 +47,7 @@
 #define _REIN_SEHGAL_EXCLUSIVE_SPP_PXSEC_H_
 
 #include "Framework/EventGen/XSecAlgorithmI.h"
-#include "BaryonResonance/BaryonResList.h"
+#include "Framework/ParticleData/BaryonResList.h"
 
 namespace genie {
 

@@ -28,7 +28,7 @@
 #include "Framework/Interaction/Interaction.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
-#include "Framework/PDG/PDGCodes.h"
+#include "Framework/ParticleData/PDGCodes.h"
 
 using namespace genie;
 using namespace genie::constants;

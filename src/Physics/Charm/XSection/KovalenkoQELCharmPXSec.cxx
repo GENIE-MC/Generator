@@ -35,13 +35,13 @@
 #include "Framework/Conventions/Units.h"
 #include "Framework/Messenger/Messenger.h"
 /////#include "Numerical/IntegratorI.h"
-#include "Physics/PDF/PDF.h"
-#include "Physics/PDF/PDFModelI.h"
-#include "Framework/PDG/PDGCodes.h"
-#include "Framework/PDG/PDGUtils.h"
-#include "Framework/PDG/PDGLibrary.h"
-#include "Utils/KineUtils.h"
-#include "Utils/GSLUtils.h"
+#include "Physics/PartonDistributions/PDF.h"
+#include "Physics/PartonDistributions/PDFModelI.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGUtils.h"
+#include "Framework/ParticleData/PDGLibrary.h"
+#include "Framework/Utils/KineUtils.h"
+#include "Framework/Numerical/GSLUtils.h"
 
 using namespace genie;
 using namespace genie::constants;

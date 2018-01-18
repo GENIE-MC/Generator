@@ -16,7 +16,7 @@
 
 #include <TMath.h>
 
-#include "Framework/BaryonResonance/BaryonResUtils.h"
+#include “Framework/ParticleData/BaryonResUtils.h"
 #include "Framework/Conventions/Constants.h"
 #include "Physics/Resonance/XSection/FKR.h"
 #include "Framework/Messenger/Messenger.h"

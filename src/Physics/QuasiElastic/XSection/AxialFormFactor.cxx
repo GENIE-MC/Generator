@@ -19,7 +19,7 @@
 #include "Physics/QuasiElastic/XSection/AxialFormFactor.h"
 #include "Framework/Interaction/Interaction.h"
 #include "Framework/Messenger/Messenger.h"
-#include "Utils/MathUtils.h"
+#include "Framework/Numerical/MathUtils.h"
 
 using std::endl;
 using std::string;

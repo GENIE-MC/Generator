@@ -15,8 +15,8 @@
 
 #include "Framework/Algorithm/AlgConfigPool.h"
 #include "Framework/Messenger/Messenger.h"
-#include "Framework/PDG/PDGCodes.h"
-#include "Framework/PDG/PDGUtils.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGUtils.h"
 
 #include <sstream>
 

@@ -18,7 +18,7 @@
 //____________________________________________________________________________
 
 #include "Framework/Algorithm/AlgConfigPool.h"
-#include "Framework/BaryonResonance/BaryonResUtils.h"
+#include “Framework/ParticleData/BaryonResUtils.h"
 #include "Framework/Conventions/Constants.h"
 #include "Physics/Resonance/XSection/RSHelicityAmplModelEMn.h"
 #include "Physics/Resonance/XSection/RSHelicityAmpl.h"

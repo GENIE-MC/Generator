@@ -30,7 +30,7 @@
 
 #include "Physics/DeepInelastic/XSection/DISStructureFuncModelI.h"
 #include "Framework/Interaction/Interaction.h"
-#include "Physics/PDF/PDF.h"
+#include "Physics/PartonDistributions/PDF.h"
 
 namespace genie {
 

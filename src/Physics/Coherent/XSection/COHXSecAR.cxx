@@ -20,15 +20,15 @@
 
 #include "Framework/Conventions/GBuild.h"
 #include "Framework/Conventions/Constants.h"
-#include "Conventions/Controls.h"
+#include "Framework/Conventions/Controls.h"
 #include "Framework/Conventions/Units.h"
 #include "Physics/Coherent/XSection/COHXSecAR.h"
 #include "Physics/XSectionIntegration/GSLXSecFunc.h"
 #include "Framework/Messenger/Messenger.h"
-#include "Framework/PDG/PDGUtils.h"
-#include "Utils/MathUtils.h"
+#include "Framework/ParticleData/PDGUtils.h"
+#include "Framework/Numerical/MathUtils.h"
 #include "Framework/Utils/Range1.h"
-#include "Utils/GSLUtils.h"
+#include "Framework/Numerical/GSLUtils.h"
 
 using namespace genie;
 using namespace genie::constants;

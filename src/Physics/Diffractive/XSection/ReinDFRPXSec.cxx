@@ -21,14 +21,14 @@
 #include "Physics/XSectionIntegration/XSecIntegratorI.h"
 #include "Framework/Conventions/GBuild.h"
 #include "Framework/Conventions/Constants.h"
-#include "Conventions/Controls.h"
+#include "Framework/Conventions/Controls.h"
 #include "Framework/Conventions/RefFrame.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/Spline.h"
-#include "Framework/PDG/PDGUtils.h"
+#include "Framework/ParticleData/PDGUtils.h"
 #include "Physics/Diffractive/XSection/ReinDFRPXSec.h"
-#include "Utils/HadXSUtils.h"
-#include "Utils/KineUtils.h"
+#include "Framework/Utils/HadXSUtils.h"
+#include "Framework/Utils/KineUtils.h"
 
 using namespace genie;
 using namespace genie::constants;

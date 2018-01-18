@@ -18,8 +18,8 @@
 
 #include "Framework/Messenger/Messenger.h"
 #include "Physics/DeepInelastic/XSection/QPMDISStrucFunc.h"
-#include "Framework/PDG/PDGCodes.h"
-#include "Framework/PDG/PDGUtils.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGUtils.h"
 
 using namespace genie;
 

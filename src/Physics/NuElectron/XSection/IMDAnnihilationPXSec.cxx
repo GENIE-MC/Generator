@@ -21,8 +21,8 @@
 #include "Framework/Conventions/RefFrame.h"
 #include "Physics/NuElectron/XSection/IMDAnnihilationPXSec.h"
 #include "Framework/Messenger/Messenger.h"
-#include "Framework/PDG/PDGUtils.h"
-#include "Utils/KineUtils.h"
+#include "Framework/ParticleData/PDGUtils.h"
+#include "Framework/Utils/KineUtils.h"
 
 using namespace genie;
 using namespace genie::constants;

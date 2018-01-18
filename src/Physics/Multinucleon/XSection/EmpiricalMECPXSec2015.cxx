@@ -31,16 +31,16 @@
 
 #include "Framework/Algorithm/AlgConfigPool.h"
 #include "Framework/Conventions/Constants.h"
-#include "Conventions/Controls.h"
+#include "Framework/Conventions/Controls.h"
 #include "Framework/Conventions/GBuild.h"
 #include "Framework/Conventions/Units.h"
 #include "Framework/GHEP/GHepParticle.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Physics/Multinucleon/XSection/EmpiricalMECPXSec2015.h"
-#include "Framework/PDG/PDGCodes.h"
-#include "Framework/PDG/PDGUtils.h"
-#include "Framework/PDG/PDGLibrary.h"
-#include "Utils/KineUtils.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGUtils.h"
+#include "Framework/ParticleData/PDGLibrary.h"
+#include "Framework/Utils/KineUtils.h"
 
 using namespace genie;
 using namespace genie::constants;

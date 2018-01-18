@@ -21,7 +21,7 @@
 #include "Framework/Interaction/Interaction.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Physics/AnomalyMediatedNuGamma/EventGen/AMNuGammaInteractionListGenerator.h"
-#include "Framework/PDG/PDGCodes.h"
+#include "Framework/ParticleData/PDGCodes.h"
 
 using namespace genie;
 

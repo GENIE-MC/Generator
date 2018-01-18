@@ -28,7 +28,7 @@
 #include "Physics/Coherent/XSection/ARSampledNucleus.h"
 #include "Physics/Coherent/XSection/ARConstants.h"
 #include "Physics/Coherent/XSection/ARWavefunction.h"
-#include "Utils/NuclearUtils.h"
+#include "Physics/NuclearState/NuclearUtils.h"
 
 #include <complex>
 

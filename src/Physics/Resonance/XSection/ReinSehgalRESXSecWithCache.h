@@ -26,8 +26,8 @@
 #define _REIN_SEHGAL_RES_XSEC_WITH_CACHE_H_
 
 #include "Physics/XSectionIntegration/XSecIntegratorI.h"
-#include "BaryonResonance/BaryonResList.h"
-#include "Framework/BaryonResonance/BaryonResonance.h"
+#include "Framework/ParticleData/BaryonResList.h"
+#include "Framework/ParticleData/BaryonResonance.h"
 #include "Framework/Utils/Range1.h"
 
 namespace genie {

@@ -18,7 +18,7 @@
 
 #include <TMath.h>
 
-#include "Algorithm/AlgFactory.h"
+#include "Framework/Algorithm/AlgFactory.h"
 #include "Framework/Algorithm/AlgConfigPool.h"
 #include "Physics/DeepInelastic/XSection/BYStrucFunc.h"
 #include "Framework/Conventions/Constants.h"

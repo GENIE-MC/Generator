@@ -19,17 +19,17 @@
 
 #include "Framework/Algorithm/AlgConfigPool.h"
 #include "Physics/XSectionIntegration/XSecIntegratorI.h"
-#include "Framework/BaryonResonance/BaryonResonance.h"
-#include "BaryonResonance/BaryonResParams.h"
+#include "Framework/ParticleData/BaryonResonance.h"
+#include "Framework/ParticleData/BaryonResParams.h"
 #include "BaryonResonance/BaryonResDataSetI.h"
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/RefFrame.h"
 #include "Framework/Conventions/KineVar.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Physics/Resonance/XSection/P33PaschosLalakulichPXSec.h"
-#include "Framework/PDG/PDGUtils.h"
-#include "Utils/KineUtils.h"
-#include "Utils/MathUtils.h"
+#include "Framework/ParticleData/PDGUtils.h"
+#include "Framework/Utils/KineUtils.h"
+#include "Framework/Numerical/MathUtils.h"
 #include "Framework/Utils/Range1.h"
 
 using namespace genie;

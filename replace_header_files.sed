@@ -361,10 +361,10 @@ s/include \"Framework\/PDG\/PDGCodeList.h\"/include \"Framework\/ParticleData\/P
 s/include \"Framework\/PDG\/PDGCodes.h\"/include \"Framework\/ParticleData\/PDGCodes.h\"/
 s/include \"Framework\/PDG\/PDGUtils.h\"/include \"Framework\/ParticleData\/PDGUtils.h\"/
 s/include \"Framework\/PDG\/PDGLibrary.h\"/include \"Framework\/ParticleData\/PDGLibrary.h\"/
-s/include \"Framework\/BaryonResonance\/BaryonResList.h\“/include \“Framework\/ParticleData\/BaryonResList.h\"/ 
-s/include \"Framework\/BaryonResonance\/BaryonResUtils.h\“/include \“Framework\/ParticleData\/BaryonResUtils.h\"/ 
-s/include \"Framework\/BaryonResonance\/BaryonResonance.h\“/include \“Framework\/ParticleData\/BaryonResonance.h\"/ 
-s/include \"Framework\/Utils\/NaturalIsotopes.h\“/include \“Framework\/ParticleData\/NaturalIsotopes.h\"/ 
+s/include \"Framework\/BaryonResonance\/BaryonResList.h\"/include \"Framework\/ParticleData\/BaryonResList.h\"/ 
+s/include \"Framework\/BaryonResonance\/BaryonResUtils.h\"/include \"Framework\/ParticleData\/BaryonResUtils.h\"/ 
+s/include \"Framework\/BaryonResonance\/BaryonResonance.h\"/include \"Framework\/ParticleData\/BaryonResonance.h\"/ 
+s/include \"Framework\/Utils\/NaturalIsotopes.h\"/include \"Framework\/ParticleData\/NaturalIsotopes.h\"/ 
 s/include \"Framework\/BaryonResonance\/BaryonResonance.h\"/include \"Framework\/ParticleData\/BaryonResonance.h\"/
 s/include \"Interaction\/InteractionException.h\"/include \"Framework\/Interaction\/InteractionException.h\"/
 s/include \"Utils\/KineUtils.h\"/include \"Framework\/Utils\/KineUtils.h\"/
@@ -388,6 +388,7 @@ s/include \"Conventions\/GVersion.h\"/include \"Framework\/Conventions\/GVersion
 s/include \"Utils\/GSimFiles.h\"/include \"Framework\/Utils\/GSimFiles.h\"/
 s/include \"Utils\/NuclearUtils.h\"/include \"Physics\/NuclearState\/NuclearUtils.h\"/
 s/include \"Physics\/PDF\/PDFLIB.h\"/include \"Physics\/PartonDistributions\/PDFLIB.h\"/
+s/include \"Physics\/PDF\/PDF.h\"/include \"Physics\/PartonDistributions\/PDF.h\"/
 s/include \"Physics\/PDF\/PDFModelI.h\"/include \"Physics\/PartonDistributions\/PDFModelI.h\"/
 s/include \"Physics\/PDF\/PDFt.h\"/include \"Physics\/PartonDistributions\/PDFt.h\"/
 s/include \"Physics\/PDF\/GRV98LO.h\"/include \"Physics\/PartonDistributions\/GRV98LO.h\"/
@@ -403,6 +404,12 @@ s/include \"Physics\/Nuclear\/EffectiveSF.h\"/include \"Physics\/NuclearState\/E
 s/include \"Physics\/Nuclear\/FGMBodekRitchie.h\"/include \"Physics\/NuclearState\/FGMBodekRitchie.h\"/
 s/include \"Physics\/Nuclear\/NuclearModelMap.h\"/include \"Physics\/NuclearState\/NuclearModelMap.h\"/
 s/include \"Utils\/FragmRecUtils.h\"/include \"Physics\/Hadronization\/FragmRecUtils.h\"/
+s/include \"Conventions\/Controls.h\"/include \"Framework\/Conventions\/Controls.h\"/
+s/include \"GiBUU\/GiBUURESFormFactor.h\"/inlcude \"Physics\/Resonance\/XSection\/GiBUURESFormFactor.h\"/
+s/inlcude \"Physics\/Resonance\/XSection\/GiBUURESFormFactor.h\"/include \"Physics\/Resonance\/XSection\/GiBUURESFormFactor.h\"/
+s/include \"BaryonResonance\/BaryonResParams.h\"/include \"Framework\/ParticleData\/BaryonResParams.h\"/
+
+
 
 
 

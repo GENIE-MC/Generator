@@ -19,7 +19,7 @@
 #define _REIN_SEHGAL_HELICITY_AMPL_MODEL_I_H_
 
 #include "Framework/Algorithm/Algorithm.h"
-#include "Framework/BaryonResonance/BaryonResonance.h"
+#include "Framework/ParticleData/BaryonResonance.h"
 #include "Physics/Resonance/XSection/FKR.h"
 #include "Physics/Resonance/XSection/RSHelicityAmpl.h"
 

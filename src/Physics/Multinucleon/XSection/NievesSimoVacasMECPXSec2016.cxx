@@ -16,10 +16,10 @@
 #include "Physics/Multinucleon/XSection/NievesSimoVacasMECPXSec2016.h"
 #include "Physics/Multinucleon/XSection/MECHadronTensor.h"
 #include "Physics/Multinucleon/XSection/MECUtils.h"
-#include "Framework/PDG/PDGCodes.h"
-#include "Framework/PDG/PDGUtils.h"
-#include "Framework/PDG/PDGLibrary.h"
-#include "Utils/KineUtils.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGUtils.h"
+#include "Framework/ParticleData/PDGLibrary.h"
+#include "Framework/Utils/KineUtils.h"
 
 using namespace genie;
 using namespace genie::constants;

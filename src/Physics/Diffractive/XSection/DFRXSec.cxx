@@ -25,12 +25,12 @@
 #include "Framework/Conventions/RefFrame.h"
 #include "Physics/XSectionIntegration/GSLXSecFunc.h"
 #include "Framework/Messenger/Messenger.h"
-#include "Framework/PDG/PDGCodes.h"
-#include "Framework/PDG/PDGUtils.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGUtils.h"
 #include "Physics/Coherent/XSection/BergerSehgalCOHPiPXSec2015.h"
-#include "Utils/GSLUtils.h"
-#include "Utils/HadXSUtils.h"
-#include "Utils/KineUtils.h"
+#include "Framework/Numerical/GSLUtils.h"
+#include "Framework/Utils/HadXSUtils.h"
+#include "Framework/Utils/KineUtils.h"
 
 #include "Physics/Diffractive/XSection/DFRXSec.h"
 

@@ -16,8 +16,8 @@
 #include "Framework/Interaction/Interaction.h"
 #include "Physics/Multinucleon/XSection/MECUtils.h"
 #include "Framework/Messenger/Messenger.h"
-#include "Framework/PDG/PDGLibrary.h"
-#include "Framework/PDG/PDGCodes.h"
+#include "Framework/ParticleData/PDGLibrary.h"
+#include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/Conventions/Units.h"
 
 using namespace genie;
