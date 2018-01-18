@@ -23,9 +23,9 @@
 #include <TBits.h>
 
 #include "Framework/GHEP/GHepFlags.h"
-#include "Utils/CmdLnArgParser.h"
-#include "Utils/RunOpt.h"
-#include "Utils/SystemUtils.h"
+#include "Framework/Utils/CmdLnArgParser.h"
+#include "Framework/Utils/RunOpt.h"
+#include "Framework/Utils/SystemUtils.h"
 #include "Framework/Messenger/Messenger.h"
 
 using std::cout;

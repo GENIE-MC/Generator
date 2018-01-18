@@ -27,7 +27,7 @@
 
 #include "Framework/Messenger/Messenger.h"
 #include "Utils/Cache.h"
-#include "Utils/CacheBranchI.h"
+#include "Framework/Utils/CacheBranchI.h"
 
 using std::ostringstream;
 using std::endl;

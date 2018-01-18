@@ -24,7 +24,7 @@
 #include <map>
 
 #include "Framework/Numerical/Spline.h"
-#include "Utils/CacheBranchI.h"
+#include "Framework/Utils/CacheBranchI.h"
 
 using std::string;
 using std::ostream;
