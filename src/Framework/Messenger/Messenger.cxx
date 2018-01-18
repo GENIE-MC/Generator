@@ -40,10 +40,10 @@
 
 #include <TSystem.h>
 
-#include "Messenger/Messenger.h"
-#include "Utils/StringUtils.h"
-#include "Utils/PrintUtils.h"
-#include "Utils/XmlParserUtils.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Utils/StringUtils.h"
+#include "Framework/Utils/PrintUtils.h"
+#include "Framework/Utils/XmlParserUtils.h"
 
 using std::setw;
 using std::setfill;

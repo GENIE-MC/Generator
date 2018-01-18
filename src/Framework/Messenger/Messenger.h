@@ -30,7 +30,7 @@
 #include "log4cpp/BasicLayout.hh"
 #include "log4cpp/Priority.hh"
 
-#include "Conventions/GBuild.h"
+#include "Framework/Conventions/GBuild.h"
 
 using std::string;
 
