@@ -140,7 +140,7 @@ endif
 physics-boosted-dark-matter:
 	@echo " "
 	@echo "** Building boosted dark matter library..."
-ifeq ($(strip $(GOPT_ENABLE_DARK_MATTER)),YES)
+ifeq ($(strip $(GOPT_ENABLE_BOOSTED_DARK_MATTER)),YES)
 	cd ${GENIE}/src/Physics && \
 	cd DarkMatter && \
 	$(MAKE) && \

@@ -16,51 +16,51 @@ srcdir=$GENIE/src
 ### GENIE libraries;
 # Order is important for loadlibs.C - try to keep libraries before those their depend on.
 
-# the following libs should always be there
-util_libs=" -lGMessenger -lGRegistry -lGAlgorithm -lGInteraction -lGHEP \
-  -lGBase -lGNumerical -lGUtils -lGPDG -lGBaryonResonance -lGEVGCore \
-  -lGEVGDrivers -lGNtuple "
-  
-# the following libs should only be there if an appropriate option was enabled at the configuration step
-if test "$GOPT_ENABLE_GEOM_DRIVERS" = "YES"; then
-  util_libs="$util_libs -lGGeo "
-fi
-if test "$GOPT_ENABLE_FLUX_DRIVERS" = "YES"; then
-  util_libs="$util_libs -lGFluxDrivers "
-fi
+# Libraries from GENIE/Generator/Framework
+# (always present)
+fmwk_libs=" -lGwFMsg -lGFwReg -lGFwAlg -lGFwInt -lGFwGHEP -lGFwNum -lGFwUtl -lGFwPDG -lGFwBaryonRes -lGFwEG -lGFwNtp "
 
-# the following libs should always be there
-phys_libs=" -lGPDF -lGElFF -lGDecay -lGFragmentation -lGNuclear -lGLlewellynSmith \
- -lGCrossSections  -lGCharm -lGElas -lGGiBUU -lGReinSehgal -lGQPM \
- -lGBodekYang -lGEVGModules -lGQEL -lGRES -lGDIS -lGCoh -lGDfrc -lGMEC \
- -lGNuE -lGNuGamma -lGHadronTransp -lGAlvarezRuso -lGBergerSehgal -lGSingleKaon "
-
-# the following libs should only be there if an appropriate option was enabled at the configuration step
-if test "$GOPT_ENABLE_VLE_EXTENSION" = "YES"; then
-  phys_libs="$phys_libs -lGVLE "
-fi
-if test "$GOPT_ENABLE_MUELOSS" = "YES"; then
-  phys_libs="$phys_libs -lGMuELoss "
-fi
-if test "$GOPT_ENABLE_MASTERCLASS" = "YES"; then
-  phys_libs="$phys_libs -lGMasterclass "
-fi
-if test "$GOPT_ENABLE_RWGHT" = "YES"; then
-  phys_libs="$phys_libs -lGReWeight "
-fi
+# Libraries from GENIE/Generator/Physics
+# (standard)
+phys_libs=" -lGPhXSIg -lGPhPDF -lGPhNucl -lGPhCmn -lGPhHadTransp -lGPhHadnz -lGPhDcy -lGPhDeEx \
+  -lGPhAMNGXS -lGPhAMNGEG -lGPhChmXS -lGPhCohXS -lGPhCohEG  -lGPhDISXS -lGPhDISEG \
+  -lGPhDfrcXS -lGPhDfrcEG -lGPhGlwResXS -lGPhGlwResEG -lGPhIBDXS -lGPhIBDEG \
+  -lGPhMNucXS -lGPhMNucEG -lGPhMEL -lGPhNuElXS -lGPhNuElEG \
+  -lGPhQELXS -lGPhQELEG -lGPhResXS -lGPhResEG -lGPhStrXS -lGPhStrEG "
+# (optional)
 if test "$GOPT_ENABLE_NUCLEON_DECAY" = "YES"; then
-  phys_libs="$phys_libs -lGNucleonDecay "
+  phys_libs="$phys_libs -lGPhNDcy "
 fi
 if test "$GOPT_ENABLE_NEUTRON_OSC" = "YES"; then
-  phys_libs="$phys_libs -lGNeutronOsc"
+  phys_libs="$phys_libs -lGPhNNBarOsc"
+fi
+if test "$GOPT_ENABLE_BOOSTED_DARK_MATTER" = "YES"; then
+  phys_libs="$phys_libs -lGPhBDM"
+fi
+
+# Libraries from GENIE/Generator/Tools
+# (standard)
+tool_libs=" "
+# (optional)
+if test "$GOPT_ENABLE_GEOM_DRIVERS" = "YES"; then
+  tool_libs="$tool_libs -lGTlGeo "
+fi
+if test "$GOPT_ENABLE_FLUX_DRIVERS" = "YES"; then
+  tool_libs="$tool_libs -lGtlFlx "
+fi
+if test "$GOPT_ENABLE_RWGHT" = "YES"; then
+  tool_libs="$tool_libs -lGTlRew "
+fi
+if test "$GOPT_ENABLE_MASTERCLASS" = "YES"; then
+  tool_libs="$tool_libs -lGTlMcls "
 fi
 
 # Assemble the final libs variable
-libs="-L$libdir $util_libs $phys_libs "
+libs="-L$libdir $fmwk_libs $phys_libs $tool_libs "
 
 ### Usage
 usage="\
-Usage: genie-config [--libs] [--libdir] [--topsrcdir]" 
+Usage: genie-config [--libs] [--libdir] [--topsrcdir]"
 
 if test $# -eq 0; then
    echo "${usage}" 1>&2
