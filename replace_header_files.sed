@@ -408,6 +408,7 @@ s/include \"Conventions\/Controls.h\"/include \"Framework\/Conventions\/Controls
 s/include \"GiBUU\/GiBUURESFormFactor.h\"/inlcude \"Physics\/Resonance\/XSection\/GiBUURESFormFactor.h\"/
 s/inlcude \"Physics\/Resonance\/XSection\/GiBUURESFormFactor.h\"/include \"Physics\/Resonance\/XSection\/GiBUURESFormFactor.h\"/
 s/include \"BaryonResonance\/BaryonResParams.h\"/include \"Framework\/ParticleData\/BaryonResParams.h\"/
+s/include \"BaryonResonance\/BaryonResDataSetI.h\"/include \"Physics\/Resonance\/XSection\/P33PaschosLalakulichPXSec.h\"/
 
 
 
