@@ -44,11 +44,11 @@
 #include "Framework/Interaction/Interaction.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
-#include "PDG/PDGCodeList.h"
-#include "Framework/PDG/PDGCodes.h"
-#include "Framework/PDG/PDGUtils.h"
-#include "Utils/KineUtils.h"
-#include "Utils/FragmRecUtils.h"
+#include "Framework/ParticleData/PDGCodeList.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGUtils.h"
+#include "Framework/Utils/KineUtils.h"
+#include "Physics/Hadronization/FragmRecUtils.h"
 
 using namespace genie;
 using namespace genie::constants;

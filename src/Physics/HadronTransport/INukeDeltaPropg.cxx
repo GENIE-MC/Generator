@@ -27,8 +27,8 @@
 #include "Physics/HadronTransport/INukeUtils.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
-#include "Framework/PDG/PDGCodes.h"
-#include "Utils/NuclearUtils.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Physics/NuclearState/NuclearUtils.h"
 
 using namespace genie;
 

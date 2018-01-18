@@ -14,8 +14,8 @@
 #include <cmath>
 #include <limits>
 
-#include "Framework/PDG/PDGCodes.h"
-#include "Framework/PDG/PDGLibrary.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/Conventions/Constants.h"
 
 using namespace genie;

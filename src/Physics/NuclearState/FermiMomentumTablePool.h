@@ -22,7 +22,7 @@
 #include <map>
 #include <string>
 
-#include "Conventions/XmlParserStatus.h"
+#include "Framework/Conventions/XmlParserStatus.h"
 
 using std::map;
 using std::string;

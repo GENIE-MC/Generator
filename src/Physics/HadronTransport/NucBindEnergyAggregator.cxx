@@ -23,11 +23,11 @@
 #include "Framework/GHEP/GHepStatus.h"
 #include "Framework/Interaction/Interaction.h"
 #include "Framework/Messenger/Messenger.h"
-#include "Framework/PDG/PDGCodes.h"
-#include "Framework/PDG/PDGUtils.h"
-#include "Framework/PDG/PDGLibrary.h"
-#include "Utils/MathUtils.h"
-#include "Utils/NuclearUtils.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGUtils.h"
+#include "Framework/ParticleData/PDGLibrary.h"
+#include "Framework/Numerical/MathUtils.h"
+#include "Physics/NuclearState/NuclearUtils.h"
 
 using namespace genie;
 using namespace genie::constants;

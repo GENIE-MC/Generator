@@ -20,11 +20,11 @@
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/Units.h"
 #include "Framework/Messenger/Messenger.h"
-#include "Physics/Nuclear/LocalFGM.h"
-#include "Framework/PDG/PDGCodes.h"
-#include "Framework/PDG/PDGUtils.h"
+#include "Physics/NuclearState/LocalFGM.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/Numerical/RandomGen.h"
-#include "Utils/NuclearUtils.h"
+#include "Physics/NuclearState/NuclearUtils.h"
 
 using std::ostringstream;
 using namespace genie;

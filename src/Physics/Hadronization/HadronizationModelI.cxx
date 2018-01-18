@@ -19,7 +19,7 @@
 
 #include "Physics/Hadronization/HadronizationModelI.h"
 #include "Framework/Interaction/Interaction.h"
-#include "PDG/PDGCodeList.h"
+#include "Framework/ParticleData/PDGCodeList.h"
 
 using namespace genie;
 

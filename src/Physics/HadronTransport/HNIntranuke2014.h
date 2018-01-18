@@ -33,7 +33,7 @@
 #include <TGenPhaseSpace.h>
 
 #include "Interfaces/NuclearModelI.h"
-#include "Algorithm/AlgFactory.h"
+#include "Framework/Algorithm/AlgFactory.h"
 #include "Framework/EventGen/EventRecordVisitorI.h"
 #include "Physics/HadronTransport/INukeMode.h"
 #include "Physics/HadronTransport/INukeHadroFates.h"

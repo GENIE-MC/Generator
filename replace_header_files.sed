@@ -391,6 +391,43 @@ s/include \"Physics\/PDF\/PDFLIB.h\"/include \"Physics\/PartonDistributions\/PDF
 s/include \"Physics\/PDF\/PDFModelI.h\"/include \"Physics\/PartonDistributions\/PDFModelI.h\"/
 s/include \"Physics\/PDF\/PDFt.h\"/include \"Physics\/PartonDistributions\/PDFt.h\"/
 s/include \"Physics\/PDF\/GRV98LO.h\"/include \"Physics\/PartonDistributions\/GRV98LO.h\"/
+s/include \"Physics\/Nuclear\/SpectralFunc.h\"/include \"Physics\/NuclearState\/SpectralFunc.h\"/
+s/include \"Physics\/Nuclear\/LocalFGM.h\"/include \"Physics\/NuclearState\/LocalFGM.h\"/
+s/include \"Physics\/Nuclear\/NuclearData.h\"/include \"Physics\/NuclearState\/NuclearData.h\"/
+s/include \"Physics\/Nuclear\/SpectralFunc1d.h\"/include \"Physics\/NuclearState\/SpectralFunc1d.h\"/
+s/include \"Physics\/Nuclear\/FermiMover.h\"/include \"Physics\/NuclearState\/FermiMover.h\"/
+s/include \"Physics\/Nuclear\/FermiMomentumTablePool.h\"/include \"Physics\/NuclearState\/FermiMomentumTablePool.h\"/
+s/include \"Physics\/Nuclear\/FermiMomentumTable.h\"/include \"Physics\/NuclearState\/FermiMomentumTable.h\"/
+s/include \"Physics\/Nuclear\/PauliBlocker.h\"/include \"Physics\/NuclearState\/PauliBlocker.h\"/
+s/include \"Physics\/Nuclear\/EffectiveSF.h\"/include \"Physics\/NuclearState\/EffectiveSF.h\"/
+s/include \"Physics\/Nuclear\/FGMBodekRitchie.h\"/include \"Physics\/NuclearState\/FGMBodekRitchie.h\"/
+s/include \"Physics\/Nuclear\/NuclearModelMap.h\"/include \"Physics\/NuclearState\/NuclearModelMap.h\"/
+s/include \"Utils\/FragmRecUtils.h\"/include \"Physics\/Hadronization\/FragmRecUtils.h\"/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

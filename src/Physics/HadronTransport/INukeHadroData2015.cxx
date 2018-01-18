@@ -52,7 +52,7 @@
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
 #include "Framework/Numerical/Spline.h"
-#include "Framework/PDG/PDGCodes.h"
+#include "Framework/ParticleData/PDGCodes.h"
 
 using std::ostringstream;
 using std::ios;

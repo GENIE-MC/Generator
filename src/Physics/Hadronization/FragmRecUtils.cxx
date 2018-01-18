@@ -23,8 +23,8 @@
 #include <TIterator.h>
 
 #include "Framework/Messenger/Messenger.h"
-#include "Utils/FragmRecUtils.h"
-#include "Framework/PDG/PDGLibrary.h"
+#include "Physics/Hadronization/FragmRecUtils.h"
+#include "Framework/ParticleData/PDGLibrary.h"
 
 using namespace genie;
 

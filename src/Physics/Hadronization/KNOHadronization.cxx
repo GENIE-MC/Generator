@@ -54,20 +54,20 @@
 #include <TROOT.h>
 
 #include "Framework/Algorithm/AlgConfigPool.h"
-#include "Algorithm/AlgFactory.h"
+#include "Framework/Algorithm/AlgFactory.h"
 #include "Framework/Conventions/Constants.h"
-#include "Conventions/Controls.h"
+#include "Framework/Conventions/Controls.h"
 #include "Physics/Decay/DecayModelI.h"
 #include "Physics/Hadronization/KNOHadronization.h"
 #include "Framework/Interaction/Interaction.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
 //#include "Framework/Numerical/Spline.h"
-#include "Framework/PDG/PDGLibrary.h"
-#include "PDG/PDGCodeList.h"
-#include "Framework/PDG/PDGCodes.h"
-#include "Framework/PDG/PDGUtils.h"
-#include "Utils/KineUtils.h"
+#include "Framework/ParticleData/PDGLibrary.h"
+#include "Framework/ParticleData/PDGCodeList.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGUtils.h"
+#include "Framework/Utils/KineUtils.h"
 #include "Framework/Utils/PrintUtils.h"
 
 using namespace genie;

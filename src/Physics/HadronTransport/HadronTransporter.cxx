@@ -21,7 +21,7 @@
 #include <cstdlib>
 
 #include "Framework/Algorithm/AlgConfigPool.h"
-#include "Algorithm/AlgFactory.h"
+#include "Framework/Algorithm/AlgFactory.h"
 #include "Framework/Conventions/Constants.h"
 #include "Physics/HadronTransport/HadronTransporter.h"
 #include "Framework/GHEP/GHepStatus.h"
@@ -30,9 +30,9 @@
 #include "Framework/Interaction/Interaction.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
-#include "Framework/PDG/PDGUtils.h"
+#include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/Utils/PrintUtils.h"
-#include "Utils/NuclearUtils.h"
+#include "Physics/NuclearState/NuclearUtils.h"
 
 using namespace genie;
 using namespace genie::utils;

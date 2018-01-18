@@ -22,12 +22,12 @@
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/Controls.h"
 #include "Framework/Messenger/Messenger.h"
-#include "Physics/Nuclear/SpectralFunc1d.h"
+#include "Physics/NuclearState/SpectralFunc1d.h"
 #include "Framework/Numerical/RandomGen.h"
 #include "Framework/Numerical/Spline.h"
-#include "Framework/PDG/PDGCodes.h"
-#include "Framework/PDG/PDGUtils.h"
-#include "Utils/NuclearUtils.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGUtils.h"
+#include "Physics/NuclearState/NuclearUtils.h"
 
 using std::ostringstream;
 

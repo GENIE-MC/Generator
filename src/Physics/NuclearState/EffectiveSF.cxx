@@ -19,14 +19,14 @@
 #include "Framework/Conventions/GBuild.h"
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Messenger/Messenger.h"
-#include "Physics/Nuclear/EffectiveSF.h"
-#include "Physics/Nuclear/FermiMomentumTablePool.h"
-#include "Physics/Nuclear/FermiMomentumTable.h"
-#include "Framework/PDG/PDGCodes.h"
-#include "Framework/PDG/PDGUtils.h"
+#include "Physics/NuclearState/EffectiveSF.h"
+#include "Physics/NuclearState/FermiMomentumTablePool.h"
+#include "Physics/NuclearState/FermiMomentumTable.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/Numerical/RandomGen.h"
-#include "Utils/ConfigIsotopeMapUtils.h"
-#include "Utils/NuclearUtils.h"
+#include "Framework/Utils/ConfigIsotopeMapUtils.h"
+#include "Physics/NuclearState/NuclearUtils.h"
 
 using std::ostringstream;
 using namespace genie;

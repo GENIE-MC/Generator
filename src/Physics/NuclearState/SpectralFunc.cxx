@@ -23,8 +23,8 @@
 #include "Framework/Conventions/Controls.h"
 #include "Framework/Conventions/Units.h"
 #include "Framework/Messenger/Messenger.h"
-#include "Physics/Nuclear/SpectralFunc.h"
-#include "Framework/PDG/PDGCodes.h"
+#include "Physics/NuclearState/SpectralFunc.h"
+#include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/Numerical/RandomGen.h"
 
 using namespace genie;

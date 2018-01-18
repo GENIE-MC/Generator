@@ -28,7 +28,7 @@
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/Units.h"
 #include "Framework/EventGen/EVGThreadException.h"
-#include "Physics/Nuclear/PauliBlocker.h"
+#include "Physics/NuclearState/PauliBlocker.h"
 
 #include "Types/NuclearModel.h"
 #include "Interfaces/NuclearModelI.h"
@@ -37,12 +37,12 @@
 #include "Framework/GHEP/GHepFlags.h"
 #include "Framework/Interaction/Interaction.h"
 #include "Framework/Messenger/Messenger.h"
-#include "Physics/Nuclear/FermiMomentumTablePool.h"
-#include "Physics/Nuclear/FermiMomentumTable.h"
-#include "Framework/PDG/PDGLibrary.h" 
-#include "Framework/PDG/PDGUtils.h" 
-#include "Framework/PDG/PDGCodes.h"
-#include "Utils/NuclearUtils.h"
+#include "Physics/NuclearState/FermiMomentumTablePool.h"
+#include "Physics/NuclearState/FermiMomentumTable.h"
+#include "Framework/ParticleData/PDGLibrary.h" 
+#include "Framework/ParticleData/PDGUtils.h" 
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Physics/NuclearState/NuclearUtils.h"
 
 using namespace genie;
 using namespace genie::constants;

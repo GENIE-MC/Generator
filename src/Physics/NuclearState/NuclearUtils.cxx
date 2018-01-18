@@ -44,11 +44,11 @@
 #include "Framework/Conventions/Units.h"
 #include "Framework/Interaction/Interaction.h"
 #include "Framework/Messenger/Messenger.h"
-#include "Physics/Nuclear/FermiMomentumTablePool.h"
-#include "Physics/Nuclear/FermiMomentumTable.h"
-#include "Physics/Nuclear/NuclearData.h"
-#include "Framework/PDG/PDGUtils.h"
-#include "Utils/NuclearUtils.h"
+#include "Physics/NuclearState/FermiMomentumTablePool.h"
+#include "Physics/NuclearState/FermiMomentumTable.h"
+#include "Physics/NuclearState/NuclearData.h"
+#include "Framework/ParticleData/PDGUtils.h"
+#include "Physics/NuclearState/NuclearUtils.h"
 #include "Interfaces/NuclearModelI.h"
 
 using namespace genie;

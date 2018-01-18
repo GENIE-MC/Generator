@@ -34,7 +34,7 @@
 
 #include "Interfaces/NuclearModelI.h"
 
-#include "Algorithm/AlgFactory.h"
+#include "Framework/Algorithm/AlgFactory.h"
 #include "Framework/EventGen/EventRecordVisitorI.h"
 #include "Framework/Conventions/GMode.h"
 #include "Physics/HadronTransport/INukeMode.h"

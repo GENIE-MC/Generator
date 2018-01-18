@@ -17,8 +17,8 @@
 #include <TMath.h>
 
 #include "Framework/Messenger/Messenger.h"
-#include "Physics/Nuclear/FermiMomentumTable.h"
-#include "Framework/PDG/PDGUtils.h"
+#include "Physics/NuclearState/FermiMomentumTable.h"
+#include "Framework/ParticleData/PDGUtils.h"
 
 using namespace genie;
 

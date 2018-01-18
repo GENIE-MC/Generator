@@ -171,7 +171,7 @@ physics-nuclear-environment: FORCE
 	cd ${GENIE}
 
 
-physics-hadronic-simulation: FORCE
+physics-hadronic-simulations: FORCE
 	@echo " "
 	@echo "** Building libraries for hadronic simulations..."
 	cd ${GENIE}/src/Physics && \

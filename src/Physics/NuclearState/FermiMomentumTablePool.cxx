@@ -27,8 +27,8 @@
 #include <TSystem.h>
 
 #include "Framework/Messenger/Messenger.h"
-#include "Physics/Nuclear/FermiMomentumTablePool.h"
-#include "Physics/Nuclear/FermiMomentumTable.h"
+#include "Physics/NuclearState/FermiMomentumTablePool.h"
+#include "Physics/NuclearState/FermiMomentumTable.h"
 #include "Framework/Utils/StringUtils.h"
 #include "Framework/Utils/XmlParserUtils.h"
 

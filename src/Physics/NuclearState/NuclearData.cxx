@@ -24,9 +24,9 @@
 #include <TTree.h>
 
 #include "Framework/Messenger/Messenger.h"
-#include "Physics/Nuclear/NuclearData.h"
+#include "Physics/NuclearState/NuclearData.h"
 #include "Framework/Numerical/Spline.h"
-#include "Framework/PDG/PDGCodes.h"
+#include "Framework/ParticleData/PDGCodes.h"
 
 using std::cout;
 using std::endl;

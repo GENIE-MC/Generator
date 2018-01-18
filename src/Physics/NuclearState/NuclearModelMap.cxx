@@ -29,9 +29,9 @@
 #include "Framework/Conventions/Controls.h"
 #include "Framework/Conventions/Units.h"
 #include "Framework/Messenger/Messenger.h"
-#include "Physics/Nuclear/NuclearModelMap.h"
-#include "Framework/PDG/PDGCodes.h"
-#include "Framework/PDG/PDGUtils.h"
+#include "Physics/NuclearState/NuclearModelMap.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/Numerical/RandomGen.h"
 
 using std::ostringstream;
