@@ -31,8 +31,6 @@
 #pragma link C++ class genie::CacheBranchFx;
 #pragma link C++ class genie::CmdLnArgParser;
 #pragma link C++ class genie::XSecSplineList;
-#pragma link C++ class genie::NaturalIsotopeElementData;
-#pragma link C++ class genie::NaturalIsotopes;
 #pragma link C++ class genie::Range1D_t;
 #pragma link C++ class genie::Range1F_t;
 #pragma link C++ class genie::Range1I_t;
