@@ -20,4 +20,7 @@
 #pragma link C++ class genie::FermiMomentumTablePool;
 #pragma link C++ class genie::EffectiveSF;
 
+#pragma link C++ class genie::FermiMover;
+#pragma link C++ class genie::PauliBlocker;
+
 #endif
