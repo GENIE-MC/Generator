@@ -361,14 +361,47 @@ s/include \"Framework\/PDG\/PDGCodeList.h\"/include \"Framework\/ParticleData\/P
 s/include \"Framework\/PDG\/PDGCodes.h\"/include \"Framework\/ParticleData\/PDGCodes.h\"/
 s/include \"Framework\/PDG\/PDGUtils.h\"/include \"Framework\/ParticleData\/PDGUtils.h\"/
 s/include \"Framework\/PDG\/PDGLibrary.h\"/include \"Framework\/ParticleData\/PDGLibrary.h\"/
-s/include \“Framework\/BaryonResonance\/BaryonResList.h\“/include \“Framework\/ParticleData\/BaryonResList.h\“/ 
-s/include \“Framework\/BaryonResonance\/BaryonResUtils.h\“/include \“Framework\/ParticleData\/BaryonResUtils.h\“/ 
-s/include \“Framework\/BaryonResonance\/BaryonResonance.h\“/include \“Framework\/ParticleData\/BaryonResonance.h\“/ 
-s/include \“Framework\/Utils\/NaturalIsotopes.h\“/include \“Framework\/ParticleData\/NaturalIsotopes.h\“/ 
-s/include \"Framework\/BaryonResonance\/BaryonResUtils.h\"/include \"Framework\/ParticleData\/BaryonResUtils.h\"/
+s/include \"Framework\/BaryonResonance\/BaryonResList.h\“/include \“Framework\/ParticleData\/BaryonResList.h\"/ 
+s/include \"Framework\/BaryonResonance\/BaryonResUtils.h\“/include \“Framework\/ParticleData\/BaryonResUtils.h\"/ 
+s/include \"Framework\/BaryonResonance\/BaryonResonance.h\“/include \“Framework\/ParticleData\/BaryonResonance.h\"/ 
+s/include \"Framework\/Utils\/NaturalIsotopes.h\“/include \“Framework\/ParticleData\/NaturalIsotopes.h\"/ 
+s/include \"Framework\/BaryonResonance\/BaryonResonance.h\"/include \"Framework\/ParticleData\/BaryonResonance.h\"/
 s/include \"Interaction\/InteractionException.h\"/include \"Framework\/Interaction\/InteractionException.h\"/
 s/include \"Utils\/KineUtils.h\"/include \"Framework\/Utils\/KineUtils.h\"/
 s/include \"Utils\/MathUtils.h\"/include \"Framework\/Numerical\/MathUtils.h\"/
+s/include \"GHEP\/GHepUtils.h\"/include \"Framework\/GHEP\/GHepUtils.h\"/
+s/include \"Numerical\/Interpolator2D.h\"/include \"Framework\/Numerical\/Interpolator2D.h\"/
+s/include \"Utils\/BWFunc.h\"/include \"Framework\/Utils\/BWFunc.h\"/
+s/include \"BaryonResonance\/BaryonResList.h\"/include \"Framework\/ParticleData\/BaryonResList.h\"/
+s/include \"Utils\/NaturalIsotopes.h\"/include \"Framework\/ParticleData\/NaturalIsotopes.h\"/
+s/include \"Utils\/CacheBranchFx.h\"/include \"Framework\/Utils\/CacheBranchFx.h\"/
+s/include \"Utils\/GUIUtils.h\"/include \"Framework\/Utils\/GUIUtils.h\"/
+s/include \"Utils\/Cache.h\"/include \"Framework\/Utils\/Cache.h\"/
+s/include \"Utils\/PREM.h\"/include \"Framework\/Utils\/PREM.h\"/
+s/include \"Utils\/UnitUtils.h\"/include \"Framework\/Utils\/UnitUtils.h\"/
+s/include \"Utils\/CacheBranchNtp.h\"/include \"Framework\/Utils\/CacheBranchNtp.h\"/
+s/include \"Utils\/HadXSUtils.h\"/include \"Framework\/Utils\/HadXSUtils.h\"/
+s/include \"Utils\/Style.h\"/include \"Framework\/Utils\/Style.h\"/
+s/include \"Utils\/PhysUtils.h\"/include \"Framework\/Utils\/PhysUtils.h\"/
+s/include \"Utils\/AppInit.h\"/include \"Framework\/Utils\/AppInit.h\"/
+s/include \"Conventions\/GVersion.h\"/include \"Framework\/Conventions\/GVersion.h\"/
+s/include \"Utils\/GSimFiles.h\"/include \"Framework\/Utils\/GSimFiles.h\"/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

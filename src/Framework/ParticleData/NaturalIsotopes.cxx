@@ -26,7 +26,7 @@
 #include <TSystem.h>
 
 #include "Framework/Messenger/Messenger.h"
-#include "Utils/NaturalIsotopes.h"
+#include "Framework/ParticleData/NaturalIsotopes.h"
 
 using std::string;
 using std::cout;

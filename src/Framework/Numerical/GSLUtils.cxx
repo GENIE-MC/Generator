@@ -24,7 +24,7 @@
 
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Utils/StringUtils.h"
-#include "Utils/GSLUtils.h"
+#include "Framework/Numerical/GSLUtils.h"
 
 //____________________________________________________________________________
 ROOT::Math::IntegrationOneDim::Type 

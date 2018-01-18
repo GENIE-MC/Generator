@@ -22,7 +22,7 @@
 #include <TMath.h>
 #include <TVector3.h>
 
-#include "Utils/PhysUtils.h"
+#include "Framework/Utils/PhysUtils.h"
 #include "Framework/Messenger/Messenger.h"
 
 //___________________________________________________________________________

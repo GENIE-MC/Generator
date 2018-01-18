@@ -45,7 +45,7 @@
 
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/Spline.h"
-#include "Utils/MathUtils.h"
+#include "Framework/Numerical/MathUtils.h"
 #include "Framework/Utils/XmlParserUtils.h"
 
 using std::endl;

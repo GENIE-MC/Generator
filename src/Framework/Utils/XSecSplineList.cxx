@@ -57,7 +57,7 @@
 #include "Framework/Numerical/Spline.h"
 #include "Framework/Utils/StringUtils.h"
 #include "Framework/Utils/PrintUtils.h"
-#include "Utils/XSecSplineList.h"
+#include "Framework/Utils/XSecSplineList.h"
 #include "Framework/Utils/XmlParserUtils.h"
 
 using std::ofstream;

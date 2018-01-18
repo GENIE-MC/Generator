@@ -9,7 +9,7 @@
 //____________________________________________________________________________
 
 #include "gsl/gsl_spline2d.h"
-#include "Numerical/Interpolator2D.h"
+#include "Framework/Numerical/Interpolator2D.h"
 
 using namespace genie;
 

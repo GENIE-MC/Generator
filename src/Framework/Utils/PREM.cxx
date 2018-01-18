@@ -20,7 +20,7 @@
 
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/Units.h"
-#include "Utils/PREM.h"
+#include "Framework/Utils/PREM.h"
 
 //___________________________________________________________________________
 double genie::utils::prem::Density(double r)

@@ -27,7 +27,7 @@
 #include <limits>
 
 #include "Framework/Messenger/Messenger.h"
-#include "Numerical/BLI2D.h"
+#include "Framework/Numerical/BLI2D.h"
 
 using namespace genie;
 

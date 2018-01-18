@@ -16,8 +16,8 @@
 
 #include <algorithm>
 
-#include "BaryonResonance/BaryonResList.h"
-#include "BaryonResonance/BaryonResUtils.h"
+#include "Framework/ParticleData//BaryonResList.h"
+#include "Framework/ParticleData/BaryonResUtils.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Utils/StringUtils.h"
 

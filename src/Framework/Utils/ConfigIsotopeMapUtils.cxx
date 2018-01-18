@@ -14,8 +14,8 @@
 #include "Framework/Utils/ConfigIsotopeMapUtils.h"
 
 #include "Framework/Messenger/Messenger.h"
-#include "Framework/PDG/PDGCodes.h"
-#include "Framework/PDG/PDGUtils.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/Registry/Registry.h"
 
 using namespace std;

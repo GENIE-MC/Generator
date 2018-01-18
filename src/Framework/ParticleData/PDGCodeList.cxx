@@ -22,8 +22,8 @@
 #include <string>
 
 #include "Framework/Messenger/Messenger.h"
-#include "PDG/PDGCodeList.h"
-#include "Framework/PDG/PDGLibrary.h"
+#include "Framework/ParticleData/PDGCodeList.h"
+#include "Framework/ParticleData/PDGLibrary.h"
 
 using std::setw;
 using std::setfill;

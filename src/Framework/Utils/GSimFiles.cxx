@@ -18,7 +18,7 @@
 #include "libxml/xmlreader.h"
 
 #include "Framework/Messenger/Messenger.h"
-#include "Utils/GSimFiles.h"
+#include "Framework/Utils/GSimFiles.h"
 #include "Framework/Utils/StringUtils.h"
 
 using std::endl;

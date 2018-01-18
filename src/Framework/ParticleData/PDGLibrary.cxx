@@ -21,7 +21,7 @@
 #include <TSystem.h>
 
 #include "Framework/Messenger/Messenger.h"
-#include "Framework/PDG/PDGLibrary.h"
+#include "Framework/ParticleData/PDGLibrary.h"
 
 using std::string;
 

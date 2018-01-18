@@ -21,7 +21,7 @@
 
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
-#include "Utils/MathUtils.h"
+#include "Framework/Numerical/MathUtils.h"
 
 //____________________________________________________________________________
 TMatrixD genie::utils::math::CholeskyDecomposition(const TMatrixD& cov_matrix)

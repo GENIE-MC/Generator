@@ -36,12 +36,12 @@
 
 #include <TMath.h>
 
-#include "BaryonResonance/BaryonResUtils.h"
-#include "Conventions/Units.h"
+#include "Framework/ParticleData/BaryonResUtils.h"
+#include "Framework/Conventions/Units.h"
 #include "Framework/Messenger/Messenger.h"
-#include "Framework/PDG/PDGLibrary.h"
-#include "Framework/PDG/PDGCodes.h"
-#include "Utils/BWFunc.h"
+#include "Framework/ParticleData/PDGLibrary.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/Utils/BWFunc.h"
 
 using namespace genie;
 

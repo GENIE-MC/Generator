@@ -17,7 +17,7 @@
 */
 //____________________________________________________________________________
 
-#include "Utils/CacheBranchFx.h"
+#include "Framework/Utils/CacheBranchFx.h"
 
 using namespace genie;
 

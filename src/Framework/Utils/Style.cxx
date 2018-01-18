@@ -22,7 +22,7 @@
 #include <TGraph.h>
 #include <TH1.h>
 
-#include "Utils/Style.h"
+#include "Framework/Utils/Style.h"
 
 //___________________________________________________________________________
 void genie::utils::style::SetDefaultStyle(bool black_n_white)

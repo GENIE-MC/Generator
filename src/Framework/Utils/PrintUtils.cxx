@@ -21,7 +21,7 @@
 
 #include <TSystem.h>
 
-#include "Conventions/GVersion.h"
+#include "Framework/Conventions/GVersion.h"
 #include "Framework/Utils/PrintUtils.h"
 
 using std::ostringstream;

@@ -24,10 +24,10 @@
 //#include "Framework/Conventions/XmlParserStatus.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
-#include "Utils/Cache.h"
-#include "Utils/XSecSplineList.h"
+#include "Framework/Utils/Cache.h"
+#include "Framework/Utils/XSecSplineList.h"
 #include "Framework/Utils/SystemUtils.h"
-#include "Utils/AppInit.h"
+#include "Framework/Utils/AppInit.h"
 #include "Framework/Utils/StringUtils.h"
 #include "Framework/Utils/XmlParserUtils.h"
 

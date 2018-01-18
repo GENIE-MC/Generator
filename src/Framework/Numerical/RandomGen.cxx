@@ -21,7 +21,7 @@
 #include <TSystem.h>
 #include <TPythia6.h>
 
-#include "Conventions/Controls.h"
+#include "Framework/Conventions/Controls.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
 

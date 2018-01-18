@@ -20,7 +20,7 @@
 
 #include "Framework/Conventions/Units.h"
 #include "Framework/Messenger/Messenger.h"
-#include "Utils/UnitUtils.h"
+#include "Framework/Utils/UnitUtils.h"
 
 //____________________________________________________________________________
 double genie::utils::units::UnitFromString(string u)

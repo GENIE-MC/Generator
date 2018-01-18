@@ -21,7 +21,7 @@
 
 #include <string>
 
-#include "Framework/BaryonResonance/BaryonResonance.h"
+#include "Framework/ParticleData/BaryonResonance.h"
 #include "Framework/ParticleData/BaryonResUtils.h"
 #include "Framework/Interaction/Interaction.h"
 #include "Framework/ParticleData/PDGCodes.h"

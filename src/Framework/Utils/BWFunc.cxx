@@ -20,7 +20,7 @@
 
 #include <TMath.h>
 
-#include "Utils/BWFunc.h"
+#include "Framework/Utils/BWFunc.h"
 #include "Framework/Conventions/Constants.h"
 
 using namespace genie;

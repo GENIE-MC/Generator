@@ -16,7 +16,7 @@
 
 #include <TNtupleD.h>
 
-#include "Utils/CacheBranchNtp.h"
+#include "Framework/Utils/CacheBranchNtp.h"
 
 using namespace genie;
 

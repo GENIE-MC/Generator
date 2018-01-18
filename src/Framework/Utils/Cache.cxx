@@ -26,7 +26,7 @@
 #include <TObjString.h>
 
 #include "Framework/Messenger/Messenger.h"
-#include "Utils/Cache.h"
+#include "Framework/Utils/Cache.h"
 #include "Framework/Utils/CacheBranchI.h"
 
 using std::ostringstream;

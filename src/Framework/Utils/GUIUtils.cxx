@@ -19,7 +19,7 @@
 #include <TList.h>
 
 #include "Framework/Messenger/Messenger.h"
-#include "Utils/GUIUtils.h"
+#include "Framework/Utils/GUIUtils.h"
 
 using std::ostringstream;
 

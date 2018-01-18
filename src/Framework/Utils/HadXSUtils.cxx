@@ -21,7 +21,7 @@
 
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/Units.h"
-#include "Utils/HadXSUtils.h"
+#include "Framework/Utils/HadXSUtils.h"
 
 using namespace genie::constants;
 
