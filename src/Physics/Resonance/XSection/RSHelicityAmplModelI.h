@@ -18,10 +18,10 @@
 #ifndef _REIN_SEHGAL_HELICITY_AMPL_MODEL_I_H_
 #define _REIN_SEHGAL_HELICITY_AMPL_MODEL_I_H_
 
-#include "Algorithm/Algorithm.h"
-#include "BaryonResonance/BaryonResonance.h"
-#include "ReinSehgal/FKR.h"
-#include "ReinSehgal/RSHelicityAmpl.h"
+#include "Framework/Algorithm/Algorithm.h"
+#include "Framework/BaryonResonance/BaryonResonance.h"
+#include "Physics/Resonance/XSection/FKR.h"
+#include "Physics/Resonance/XSection/RSHelicityAmpl.h"
 
 namespace genie {
 

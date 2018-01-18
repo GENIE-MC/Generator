@@ -22,7 +22,7 @@
 #ifndef _ALAM_SIMO_ATHAR_VACAS_SINGLE_KAON_PXSEC_2014_H_
 #define _ALAM_SIMO_ATHAR_VACAS_SINGLE_KAON_PXSEC_2014_H_
 
-#include "Base/XSecAlgorithmI.h"
+#include "Framework/EventGen/XSecAlgorithmI.h"
 
 namespace genie {
 

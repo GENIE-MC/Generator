@@ -46,7 +46,7 @@
 #ifndef _REIN_SEHGAL_EXCLUSIVE_SPP_PXSEC_H_
 #define _REIN_SEHGAL_EXCLUSIVE_SPP_PXSEC_H_
 
-#include "Base/XSecAlgorithmI.h"
+#include "Framework/EventGen/XSecAlgorithmI.h"
 #include "BaryonResonance/BaryonResList.h"
 
 namespace genie {

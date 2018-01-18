@@ -21,19 +21,19 @@
 #include <vector>
 #include <sstream>
 
-#include "Algorithm/AlgConfigPool.h"
-#include "BaryonResonance/BaryonResUtils.h"
-#include "Base/XSecAlgorithmI.h"
-#include "Conventions/KinePhaseSpace.h"
-#include "EVGCore/EventGeneratorI.h"
-#include "EVGCore/RunningThreadInfo.h"
-#include "GHEP/GHepStatus.h"
-#include "GHEP/GHepParticle.h"
-#include "GHEP/GHepRecord.h"
-#include "Messenger/Messenger.h"
-#include "Numerical/RandomGen.h"
-#include "PDG/PDGLibrary.h"
-#include "RES/RSPPResonanceSelector.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
+#include "Framework/BaryonResonance/BaryonResUtils.h"
+#include "Framework/EventGen/XSecAlgorithmI.h"
+#include "Framework/Conventions/KinePhaseSpace.h"
+#include "Framework/EventGen/EventGeneratorI.h"
+#include "Framework/EventGen//RunningThreadInfo.h"
+#include "Framework/GHEP/GHepStatus.h"
+#include "Framework/GHEP/GHepParticle.h"
+#include "Framework/GHEP/GHepRecord.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Numerical/RandomGen.h"
+#include "Framework/PDG/PDGLibrary.h"
+#include "Physics/Resonance/EventGen/RSPPResonanceSelector.h"
 
 using std::vector;
 using std::ostringstream;

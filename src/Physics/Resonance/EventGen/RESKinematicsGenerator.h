@@ -20,8 +20,8 @@
 #ifndef _RES_KINEMATICS_GENERATOR_H_
 #define _RES_KINEMATICS_GENERATOR_H_
 
-#include "EVGModules/KineGeneratorWithCache.h"
-#include "Utils/Range1.h"
+#include "Physics/Common/KineGeneratorWithCache.h"
+#include "Framework/Utils/Range1.h"
 
 class TF2;
 

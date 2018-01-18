@@ -16,10 +16,10 @@
 
 #include <TMath.h>
 
-#include "BaryonResonance/BaryonResUtils.h"
-#include "Conventions/Constants.h"
-#include "ReinSehgal/FKR.h"
-#include "Messenger/Messenger.h"
+#include "Framework/BaryonResonance/BaryonResUtils.h"
+#include "Framework/Conventions/Constants.h"
+#include "Physics/Resonance/XSection/FKR.h"
+#include "Framework/Messenger/Messenger.h"
 
 using std::endl;
 

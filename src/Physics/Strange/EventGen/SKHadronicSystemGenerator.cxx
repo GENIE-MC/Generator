@@ -19,22 +19,22 @@
 
 #include <TVector3.h>
 
-#include "Conventions/Constants.h"
-#include "GHEP/GHepStatus.h"
-#include "GHEP/GHepParticle.h"
-#include "GHEP/GHepRecord.h"
-#include "GHEP/GHepFlags.h"
-#include "Messenger/Messenger.h"
-#include "Numerical/RandomGen.h"
-#include "PDG/PDGLibrary.h"
-#include "PDG/PDGCodes.h"
-#include "PDG/PDGUtils.h"
-#include "Utils/PrintUtils.h"
-#include "Base/XSecAlgorithmI.h"
-#include "EVGCore/EVGThreadException.h"
-#include "EVGCore/EventGeneratorI.h"
-#include "EVGCore/RunningThreadInfo.h"
-#include "SingleKaon/SKHadronicSystemGenerator.h"
+#include "Framework/Conventions/Constants.h"
+#include "Framework/GHEP/GHepStatus.h"
+#include "Framework/GHEP/GHepParticle.h"
+#include "Framework/GHEP/GHepRecord.h"
+#include "Framework/GHEP/GHepFlags.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Numerical/RandomGen.h"
+#include "Framework/PDG/PDGLibrary.h"
+#include "Framework/PDG/PDGCodes.h"
+#include "Framework/PDG/PDGUtils.h"
+#include "Framework/Utils/PrintUtils.h"
+#include "Framework/EventGen/XSecAlgorithmI.h"
+#include "Framework/EventGen/EVGThreadException.h"
+#include "Framework/EventGen/EventGeneratorI.h"
+#include "Framework/EventGen//RunningThreadInfo.h"
+#include "Physics/Strange/EventGen/SKHadronicSystemGenerator.h"
 
 using namespace genie;
 using namespace genie::constants;

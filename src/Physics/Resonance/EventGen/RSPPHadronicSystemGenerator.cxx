@@ -19,20 +19,20 @@
 */
 //____________________________________________________________________________
 
-#include "BaryonResonance/BaryonResonance.h"
-#include "BaryonResonance/BaryonResUtils.h"
-#include "Conventions/Constants.h"
-#include "GHEP/GHepStatus.h"
-#include "GHEP/GHepRecord.h"
-#include "GHEP/GHepParticle.h"
-#include "Interaction/Interaction.h"
+#include "Framework/BaryonResonance/BaryonResonance.h"
+#include "Framework/BaryonResonance/BaryonResUtils.h"
+#include "Framework/Conventions/Constants.h"
+#include "Framework/GHEP/GHepStatus.h"
+#include "Framework/GHEP/GHepRecord.h"
+#include "Framework/GHEP/GHepParticle.h"
+#include "Framework/Interaction/Interaction.h"
 #include "Interaction/SppChannel.h"
-#include "Messenger/Messenger.h"
-#include "PDG/PDGLibrary.h"
-#include "PDG/PDGCodes.h"
-#include "PDG/PDGUtils.h"
-#include "RES/RSPPHadronicSystemGenerator.h"
-#include "Utils/PrintUtils.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/PDG/PDGLibrary.h"
+#include "Framework/PDG/PDGCodes.h"
+#include "Framework/PDG/PDGUtils.h"
+#include "Physics/Resonance/EventGen/RSPPHadronicSystemGenerator.h"
+#include "Framework/Utils/PrintUtils.h"
 
 using namespace genie;
 using namespace genie::constants;

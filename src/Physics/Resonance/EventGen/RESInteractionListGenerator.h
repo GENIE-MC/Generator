@@ -22,7 +22,7 @@
 #define _RES_INTERACTION_LIST_GENERATOR_H_
 
 #include "BaryonResonance/BaryonResList.h"
-#include "EVGCore/InteractionListGeneratorI.h"
+#include "Framework/EventGen/InteractionListGeneratorI.h"
 
 namespace genie {
 

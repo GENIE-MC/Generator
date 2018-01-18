@@ -29,22 +29,22 @@
 #include <Math/IFunction.h>
 #include <Math/IntegratorMultiDim.h>
 
-#include "BaryonResonance/BaryonResUtils.h"
-#include "Conventions/GBuild.h"
-#include "Conventions/Controls.h"
-#include "Conventions/Constants.h"
-#include "Conventions/Units.h"
-#include "Conventions/KineVar.h"
-#include "CrossSections/GSLXSecFunc.h"
-#include "Messenger/Messenger.h"
-#include "PDG/PDGUtils.h"
-#include "PDG/PDGCodes.h"
-#include "ReinSehgal/ReinSehgalRESXSecWithCache.h"
+#include "Framework/BaryonResonance/BaryonResUtils.h"
+#include "Framework/Conventions/GBuild.h"
+#include "Framework/Conventions/Controls.h"
+#include "Framework/Conventions/Constants.h"
+#include "Framework/Conventions/Units.h"
+#include "Framework/Conventions/KineVar.h"
+#include "Physics/XSectionIntegration/GSLXSecFunc.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/PDG/PDGUtils.h"
+#include "Framework/PDG/PDGCodes.h"
+#include "Physics/Resonance/XSection/ReinSehgalRESXSecWithCache.h"
 #include "Utils/MathUtils.h"
 #include "Utils/KineUtils.h"
 #include "Utils/Cache.h"
 #include "Utils/CacheBranchFx.h"
-#include "Utils/GSLUtils.h"
+#include "Framework/Numerical/GSLUtils.h"
 
 using std::ostringstream;
 

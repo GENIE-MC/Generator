@@ -22,7 +22,7 @@
 #ifndef _HELICITY_AMPL_MODEL_NC_P_H_
 #define _HELICITY_AMPL_MODEL_NC_P_H_
 
-#include "ReinSehgal/RSHelicityAmplModelI.h"
+#include "Physics/Resonance/XSection/RSHelicityAmplModelI.h"
 
 namespace genie {
 

@@ -19,10 +19,10 @@
 */
 //____________________________________________________________________________
 
-#include "EVGCore/InteractionList.h"
-#include "Interaction/Interaction.h"
-#include "Messenger/Messenger.h"
-#include "RES/RSPPInteractionListGenerator.h"
+#include "Framework/EventGen/InteractionList.h"
+#include "Framework/Interaction/Interaction.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Physics/Resonance/EventGen/RSPPInteractionListGenerator.h"
 
 using namespace genie;
 

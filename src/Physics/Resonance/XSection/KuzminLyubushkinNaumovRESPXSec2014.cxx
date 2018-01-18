@@ -6,7 +6,7 @@
 */
 //____________________________________________________________________________
 
-#include "ReinSehgal/KuzminLyubushkinNaumovRESPXSec2014.h"
+#include "Physics/Resonance/XSection/KuzminLyubushkinNaumovRESPXSec2014.h"
 
 using namespace genie;
 

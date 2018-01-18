@@ -14,15 +14,15 @@
 */
 //____________________________________________________________________________
 
-#include "Algorithm/AlgConfigPool.h"
-#include "Algorithm/AlgFactory.h"
-#include "Base/XSecIntegratorI.h"
-#include "BaryonResonance/BaryonResUtils.h"
-#include "Conventions/Constants.h"
-#include "Conventions/KineVar.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
+#include "Framework/Algorithm/AlgFactory.h"
+#include "Physics/XSectionIntegration/XSecIntegratorI.h"
+#include "Framework/BaryonResonance/BaryonResUtils.h"
+#include "Framework/Conventions/Constants.h"
+#include "Framework/Conventions/KineVar.h"
 #include "Interaction/SppChannel.h"
-#include "Messenger/Messenger.h"
-#include "ReinSehgal/ReinSehgalSPPPXSec.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Physics/Resonance/XSection/ReinSehgalSPPPXSec.h"
 #include "Utils/KineUtils.h"
 #include "Utils/MathUtils.h"
 

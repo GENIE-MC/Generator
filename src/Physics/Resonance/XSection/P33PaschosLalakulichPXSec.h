@@ -26,7 +26,7 @@
 #ifndef _P33_PASCHOS_LALAKULICH_PARTIAL_XSEC_H_
 #define _P33_PASCHOS_LALAKULICH_PARTIAL_XSEC_H_
 
-#include "Base/XSecAlgorithmI.h"
+#include "Framework/EventGen/XSecAlgorithmI.h"
 
 namespace genie {
 

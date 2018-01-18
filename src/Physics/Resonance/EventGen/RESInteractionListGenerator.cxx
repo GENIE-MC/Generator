@@ -18,14 +18,14 @@
 */
 //____________________________________________________________________________
 
-#include "Algorithm/AlgConfigPool.h"
-#include "BaryonResonance/BaryonResUtils.h"
-#include "EVGCore/InteractionList.h"
-#include "Interaction/Interaction.h"
-#include "Messenger/Messenger.h"
-#include "PDG/PDGCodes.h"
-#include "PDG/PDGUtils.h"
-#include "RES/RESInteractionListGenerator.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
+#include "Framework/BaryonResonance/BaryonResUtils.h"
+#include "Framework/EventGen/InteractionList.h"
+#include "Framework/Interaction/Interaction.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/PDG/PDGCodes.h"
+#include "Framework/PDG/PDGUtils.h"
+#include "Physics/Resonance/EventGen/RESInteractionListGenerator.h"
 
 using namespace genie;
 

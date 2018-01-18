@@ -14,7 +14,7 @@
 */
 //____________________________________________________________________________
 
-#include "ReinSehgal/RSHelicityAmplModelI.h"
+#include "Physics/Resonance/XSection/RSHelicityAmplModelI.h"
 
 using namespace genie;
 

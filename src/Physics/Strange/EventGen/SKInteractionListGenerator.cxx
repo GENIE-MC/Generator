@@ -15,12 +15,12 @@
 */
 //____________________________________________________________________________
 
-#include "SingleKaon/SKInteractionListGenerator.h"
-#include "EVGCore/InteractionList.h"
-#include "Interaction/Interaction.h"
-#include "Messenger/Messenger.h"
-#include "PDG/PDGCodes.h"
-#include "PDG/PDGUtils.h"
+#include "Physics/Strange/EventGen/SKInteractionListGenerator.h"
+#include "Framework/EventGen/InteractionList.h"
+#include "Framework/Interaction/Interaction.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/PDG/PDGCodes.h"
+#include "Framework/PDG/PDGUtils.h"
 
 using namespace genie;
 

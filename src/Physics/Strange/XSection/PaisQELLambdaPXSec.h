@@ -29,8 +29,8 @@
 #ifndef _PAIS_QEL_LAMBDA_PARTIAL_XSEC_H_
 #define _PAIS_QEL_LAMBDA_PARTIAL_XSEC_H_
 
-#include "Base/XSecAlgorithmI.h"
-#include "Base/QELFormFactors.h"
+#include "Framework/EventGen/XSecAlgorithmI.h"
+#include "Physics/QuasiElastic/XSection/QELFormFactors.h"
 
 namespace genie {
 

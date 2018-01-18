@@ -19,8 +19,8 @@
 #ifndef _GIBUU_RES_FORM_FACTOR_H_
 #define _GIBUU_RES_FORM_FACTOR_H_
 
-#include "BaryonResonance/BaryonResonance.h"
-#include "Interaction/InteractionType.h"
+#include "Framework/BaryonResonance/BaryonResonance.h"
+#include "Framework/Interaction/InteractionType.h"
 
 namespace genie {
 

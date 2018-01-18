@@ -16,12 +16,12 @@
 */
 //____________________________________________________________________________
 
-#include "GHEP/GHepParticle.h"
-#include "GHEP/GHepRecord.h"
-#include "GHEP/GHepFlags.h"
-#include "Messenger/Messenger.h"
-#include "EVGCore/EVGThreadException.h"
-#include "SingleKaon/SKPrimaryLeptonGenerator.h"
+#include "Framework/GHEP/GHepParticle.h"
+#include "Framework/GHEP/GHepRecord.h"
+#include "Framework/GHEP/GHepFlags.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/EventGen/EVGThreadException.h"
+#include "Physics/Strange/EventGen/SKPrimaryLeptonGenerator.h"
 
 using namespace genie;
 

@@ -16,13 +16,13 @@
 
 #include <TMath.h>
 
-#include "Algorithm/AlgConfigPool.h"
-#include "BaryonResonance/BaryonResUtils.h"
-#include "Conventions/Constants.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
+#include "Framework/BaryonResonance/BaryonResUtils.h"
+#include "Framework/Conventions/Constants.h"
 #include "Interaction/SppChannel.h"
-#include "Messenger/Messenger.h"
-#include "PDG/PDGUtils.h"
-#include "ReinSehgal/ReinSehgalSPPXSec.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/PDG/PDGUtils.h"
+#include "Physics/Resonance/XSection/ReinSehgalSPPXSec.h"
 #include "Utils/MathUtils.h"
 #include "Utils/KineUtils.h"
 #include "Utils/Cache.h"

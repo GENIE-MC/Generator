@@ -14,7 +14,7 @@
 */
 //____________________________________________________________________________
 
-#include "ReinSehgal/RSHelicityAmpl.h"
+#include "Physics/Resonance/XSection/RSHelicityAmpl.h"
 
 using namespace genie;
 using std::endl;

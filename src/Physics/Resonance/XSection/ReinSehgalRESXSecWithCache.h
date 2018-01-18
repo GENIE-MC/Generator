@@ -25,10 +25,10 @@
 #ifndef _REIN_SEHGAL_RES_XSEC_WITH_CACHE_H_
 #define _REIN_SEHGAL_RES_XSEC_WITH_CACHE_H_
 
-#include "Base/XSecIntegratorI.h"
+#include "Physics/XSectionIntegration/XSecIntegratorI.h"
 #include "BaryonResonance/BaryonResList.h"
-#include "BaryonResonance/BaryonResonance.h"
-#include "Utils/Range1.h"
+#include "Framework/BaryonResonance/BaryonResonance.h"
+#include "Framework/Utils/Range1.h"
 
 namespace genie {
 

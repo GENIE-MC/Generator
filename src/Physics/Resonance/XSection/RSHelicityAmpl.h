@@ -28,8 +28,8 @@
 
 #include <TMath.h>
 
-#include "Interaction/Interaction.h"
-#include "ReinSehgal/FKR.h"
+#include "Framework/Interaction/Interaction.h"
+#include "Physics/Resonance/XSection/FKR.h"
 
 using std::ostream;
 

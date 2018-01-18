@@ -42,7 +42,7 @@
 #ifndef _KUZMIN_LYUBUSHKIN_NAUMOV_RES_PXSEC_2014_H_
 #define _KUZMIN_LYUBUSHKIN_NAUMOV_RES_PXSEC_2014_H_
 
-#include "ReinSehgal/BSKLNBaseRESPXSec2014.h"
+#include "Physics/Resonance/XSection/BSKLNBaseRESPXSec2014.h"
 
 namespace genie {
 

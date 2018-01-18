@@ -21,7 +21,7 @@
 #ifndef _SK_INTERACTION_LIST_GENERATOR_H_
 #define _SK_INTERACTION_LIST_GENERATOR_H_
 
-#include "EVGCore/InteractionListGeneratorI.h"
+#include "Framework/EventGen/InteractionListGeneratorI.h"
 
 namespace genie {
 

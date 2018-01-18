@@ -26,7 +26,7 @@
 
 #include <TGenPhaseSpace.h>
 
-#include "EVGModules/HadronicSystemGenerator.h"
+#include "Physics/Common/HadronicSystemGenerator.h"
 
 namespace genie {
 

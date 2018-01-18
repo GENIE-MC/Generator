@@ -34,7 +34,7 @@
 #ifndef _REIN_SEHGAL_RES_XSEC_H_
 #define _REIN_SEHGAL_RES_XSEC_H_
 
-#include "ReinSehgal/ReinSehgalRESXSecWithCache.h"
+#include "Physics/Resonance/XSection/ReinSehgalRESXSecWithCache.h"
 
 namespace genie {
 

@@ -6,7 +6,7 @@
 */
 //____________________________________________________________________________
 
-#include "ReinSehgal/BergerSehgalRESPXSec2014.h"
+#include "Physics/Resonance/XSection/BergerSehgalRESPXSec2014.h"
 
 using namespace genie;
 

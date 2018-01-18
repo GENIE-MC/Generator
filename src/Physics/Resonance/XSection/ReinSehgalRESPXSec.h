@@ -31,9 +31,9 @@
 #ifndef _REIN_SEHGAL_RES_PXSEC_H_
 #define _REIN_SEHGAL_RES_PXSEC_H_
 
-#include "Base/XSecAlgorithmI.h"
-#include "BaryonResonance/BaryonResonance.h"
-#include "ReinSehgal/FKR.h"
+#include "Framework/EventGen/XSecAlgorithmI.h"
+#include "Framework/BaryonResonance/BaryonResonance.h"
+#include "Physics/Resonance/XSection/FKR.h"
 
 namespace genie {
 
