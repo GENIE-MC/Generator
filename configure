@@ -402,22 +402,22 @@ if(! -d $gopt_with_log4cpp_lib) {
 
 # Save config options
 #
-print MKCONF "GOPT_ENABLE_PROFILER=$gopt_enable_profiler\n";
-print MKCONF "GOPT_ENABLE_DOXYGEN_DOC=$gopt_enable_doxygen_doc\n"; 
-print MKCONF "GOPT_ENABLE_DYLIBVERSION=$gopt_enable_dylibversion\n";
-print MKCONF "GOPT_ENABLE_LOW_LEVEL_MESG=$gopt_enable_lowlevel_mesg\n";
 print MKCONF "GOPT_ENABLE_LHAPDF=$gopt_enable_lhapdf\n";
-print MKCONF "GOPT_ENABLE_FLUX_DRIVERS=$gopt_enable_flux_drivers\n";
-print MKCONF "GOPT_ENABLE_GEOM_DRIVERS=$gopt_enable_geom_drivers\n";
-print MKCONF "GOPT_ENABLE_TEST=$gopt_enable_test\n";
 print MKCONF "GOPT_ENABLE_T2K=$gopt_enable_t2k\n";
 print MKCONF "GOPT_ENABLE_FNAL=$gopt_enable_fnal\n";
 print MKCONF "GOPT_ENABLE_ATMO=$gopt_enable_atmo\n";
 print MKCONF "GOPT_ENABLE_NUCLEON_DECAY=$gopt_enable_nucleon_decay\n";
 print MKCONF "GOPT_ENABLE_NEUTRON_OSC=$gopt_enable_neutron_osc\n";
 print MKCONF "GOPT_ENABLE_BOOSTED_DARK_MATTER=$gopt_enable_boosted_dark_mat\n";
+print MKCONF "GOPT_ENABLE_FLUX_DRIVERS=$gopt_enable_flux_drivers\n";
+print MKCONF "GOPT_ENABLE_GEOM_DRIVERS=$gopt_enable_geom_drivers\n";
 print MKCONF "GOPT_ENABLE_RWGHT=$gopt_enable_rwght\n";
 print MKCONF "GOPT_ENABLE_MASTERCLASS=$gopt_enable_masterclass\n";
+print MKCONF "GOPT_ENABLE_TEST=$gopt_enable_test\n";
+print MKCONF "GOPT_ENABLE_PROFILER=$gopt_enable_profiler\n";
+print MKCONF "GOPT_ENABLE_DOXYGEN_DOC=$gopt_enable_doxygen_doc\n"; 
+print MKCONF "GOPT_ENABLE_DYLIBVERSION=$gopt_enable_dylibversion\n";
+print MKCONF "GOPT_ENABLE_LOW_LEVEL_MESG=$gopt_enable_lowlevel_mesg\n";
 print MKCONF "GOPT_WITH_COMPILER=$gopt_with_compiler\n";
 print MKCONF "GOPT_WITH_CXX_DEBUG_FLAG=$gopt_with_cxx_debug_flag\n";
 print MKCONF "GOPT_WITH_CXX_OPTIMIZ_FLAG=-$gopt_with_cxx_optimiz_flag\n";

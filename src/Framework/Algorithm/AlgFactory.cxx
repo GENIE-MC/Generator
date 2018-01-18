@@ -25,7 +25,7 @@
 #include <TROOT.h>
 #include <TClass.h>
 
-#include "Algorithm/AlgFactory.h"
+#include "Framework/Algorithm/AlgFactory.h"
 #include "Framework/Algorithm/AlgConfigPool.h"
 #include "Framework/Algorithm/Algorithm.h"
 #include "Framework/Messenger/Messenger.h"
