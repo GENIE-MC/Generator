@@ -12,9 +12,9 @@ MAKEFILE = Makefile
 #
 include $(GENIE)/src/make/Make.include
 
-PACKAGE           = Interaction
+PACKAGE           = FwInt
 DICTIONARY        = _ROOT_DICT_$(PACKAGE)
-LIBNAME           = libGFInt
+LIBNAME           = libG$(PACKAGE)
 EXTRA_EXT_LIBS    =
 
 all     : rootcint lib lib-link

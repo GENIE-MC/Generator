@@ -12,9 +12,9 @@ MAKEFILE = Makefile
 #
 include $(GENIE)/src/make/Make.include
 
-PACKAGE           = Registry
+PACKAGE           = FwReg
 DICTIONARY        = _ROOT_DICT_$(PACKAGE)
-LIBNAME           = libGFReg
+LIBNAME           = libG$(PACKAGE)
 EXTRA_EXT_LIBS    =
 
 all     : rootcint lib lib-link

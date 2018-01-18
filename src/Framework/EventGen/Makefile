@@ -11,9 +11,9 @@ MAKEFILE = Makefile
 # Include machine specific flags and locations (inc. files & libs)
 include $(GENIE)/src/make/Make.include
 
-PACKAGE           = EventGen
+PACKAGE           = FwEG
 DICTIONARY        = _ROOT_DICT_$(PACKAGE)
-LIBNAME           = libGFEvGen
+LIBNAME           = libG$(PACKAGE)
 EXTRA_EXT_LIBS    =
 
 all     : rootcint lib lib-link

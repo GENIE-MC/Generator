@@ -12,9 +12,9 @@ MAKEFILE = Makefile
 #
 include $(GENIE)/src/make/Make.include
 
-PACKAGE           = Messenger
+PACKAGE           = FwMsg
 DICTIONARY        = undefined
-LIBNAME           = libGFMsg
+LIBNAME           = libG$(PACKAGE)
 EXTRA_EXT_LIBS    =
 
 all     : lib lib-link

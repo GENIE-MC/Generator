@@ -12,9 +12,9 @@ MAKEFILE = Makefile
 #
 include $(GENIE)/src/make/Make.include
 
-PACKAGE           = Algorithm
+PACKAGE           = FwAlg
 DICTIONARY        = _ROOT_DICT_$(PACKAGE)
-LIBNAME           = libGFAlg
+LIBNAME           = libG$(PACKAGE)
 EXTRA_EXT_LIBS    = 
 
 all     : rootcint lib lib-link
