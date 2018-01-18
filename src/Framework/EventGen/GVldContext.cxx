@@ -17,7 +17,7 @@
 #include <algorithm>
 
 #include "Framework/Algorithm/AlgConfigPool.h"
-#include "EVGCore/GVldContext.h"
+#include "Framework/EventGen/GVldContext.h"
 #include "Framework/Interaction/Interaction.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Utils/StringUtils.h"

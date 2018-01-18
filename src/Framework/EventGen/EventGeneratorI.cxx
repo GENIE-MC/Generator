@@ -14,7 +14,7 @@
 */
 //____________________________________________________________________________
 
-#include "EVGCore/EventGeneratorI.h"
+#include "Framework/EventGen/EventGeneratorI.h"
 
 using namespace genie;
 

@@ -14,8 +14,8 @@
 */
 //____________________________________________________________________________
 
-#include "EVGCore/EventGeneratorList.h"
-#include "EVGCore/EventGeneratorI.h"
+#include "Framework/EventGen/EventGeneratorList.h"
+#include "Framework/EventGen/EventGeneratorI.h"
 #include "Framework/Messenger/Messenger.h"
 
 using std::endl;

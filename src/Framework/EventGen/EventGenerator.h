@@ -26,7 +26,7 @@
 
 #include <vector>
 
-#include "EVGCore/EventGeneratorI.h"
+#include "Framework/EventGen/EventGeneratorI.h"
 #include "GHEP/GHepRecordHistory.h"
 
 class TStopwatch;

@@ -32,7 +32,7 @@
 #include "Framework/Conventions/Units.h"
 #include "EVGCore/PhysInteractionSelector.h"
 #include "Framework/EventGen/EventRecord.h"
-#include "EVGCore/EventGeneratorI.h"
+#include "Framework/EventGen/EventGeneratorI.h"
 #include "Framework/EventGen/InteractionList.h"
 #include "EVGCore/InteractionGeneratorMap.h"
 #include "Framework/Messenger/Messenger.h"

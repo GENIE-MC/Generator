@@ -25,7 +25,7 @@
 #include <ostream>
 #include <string>
 
-#include "Conventions/XmlParserStatus.h"
+#include "Framework/Conventions/XmlParserStatus.h"
 
 class TLorentzVector;
 

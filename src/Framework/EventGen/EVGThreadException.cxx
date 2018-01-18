@@ -14,7 +14,7 @@
 */
 //____________________________________________________________________________
 
-#include "EVGCore/EVGThreadException.h"
+#include "Framework/EventGen/EVGThreadException.h"
 #include "Framework/Messenger/Messenger.h"
 
 using std::endl;

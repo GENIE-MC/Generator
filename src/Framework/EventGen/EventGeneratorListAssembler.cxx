@@ -16,10 +16,10 @@
 
 #include <sstream>
 
-#include "Algorithm/AlgFactory.h"
-#include "EVGCore/EventGeneratorListAssembler.h"
-#include "EVGCore/EventGeneratorList.h"
-#include "EVGCore/EventGeneratorI.h"
+#include "Framework/Algorithm/AlgFactory.h"
+#include "Framework/EventGen/EventGeneratorListAssembler.h"
+#include "Framework/EventGen/EventGeneratorList.h"
+#include "Framework/EventGen/EventGeneratorI.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Utils/PrintUtils.h"
 

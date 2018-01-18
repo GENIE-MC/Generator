@@ -31,14 +31,14 @@
 
 #include "Framework/Algorithm/AlgConfigPool.h"
 #include "Framework/EventGen/XSecAlgorithmI.h"
-#include "Conventions/Controls.h"
+#include "Framework/Conventions/Controls.h"
 #include "EVGCore/EventGenerator.h"
 #include "Framework/EventGen/InteractionListGeneratorI.h"
-#include "EVGCore/EVGThreadException.h"
-#include "EVGCore/GVldContext.h"
+#include "Framework/EventGen/EVGThreadException.h"
+#include "Framework/EventGen/GVldContext.h"
 #include "GHEP/GHepVirtualListFolder.h"
 #include "Framework/GHEP/GHepRecord.h"
-#include "GHEP/GHepFlags.h"
+#include "Framework/GHEP/GHepFlags.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Utils/PrintUtils.h"
 

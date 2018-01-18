@@ -16,9 +16,9 @@
 
 #include "Framework/EventGen/XSecAlgorithmI.h"
 #include "Framework/EventGen/InteractionList.h"
-#include "EVGCore/EventGeneratorList.h"
+#include "Framework/EventGen/EventGeneratorList.h"
 #include "EVGCore/XSecAlgorithmMap.h"
-#include "EVGCore/EventGeneratorI.h"
+#include "Framework/EventGen/EventGeneratorI.h"
 #include "Framework/EventGen/InteractionListGeneratorI.h"
 #include "Framework/Interaction/Interaction.h"
 #include "Framework/Messenger/Messenger.h"
