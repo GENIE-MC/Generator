@@ -12,9 +12,9 @@ MAKEFILE = Makefile
 #
 include $(GENIE)/src/make/Make.include
 
-PACKAGE           = PDF
-DICTIONARY        = _ROOT_DICT_PDF
-LIBNAME           = libGPDF
+PACKAGE           = PhPDF
+DICTIONARY        = _ROOT_DICT_$(PACKAGE)
+LIBNAME           = lib$(PACKAGE)
 EXTRA_EXT_LIBS    = $(CERN_LIBRARIES) $(LHAPDF_LIBRARIES)
 
 all     : rootcint lib lib-link

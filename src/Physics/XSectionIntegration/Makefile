@@ -12,9 +12,9 @@ MAKEFILE = Makefile
 #
 include $(GENIE)/src/make/Make.include
 
-PACKAGE           = CrossSections
-DICTIONARY        = _ROOT_DICT_CrossSections
-LIBNAME           = libGCrossSections
+PACKAGE           = PhXSIg
+DICTIONARY        = _ROOT_DICT_$(PACKAGE)
+LIBNAME           = libG$(PACKAGE)
 
 all     : rootcint lib lib-link
 install : install-inc install-lib

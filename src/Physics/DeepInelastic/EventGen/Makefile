@@ -12,7 +12,7 @@ MAKEFILE = Makefile
 #
 include $(GENIE)/src/make/Make.include
 
-PACKAGE           = PDISEG
+PACKAGE           = PhDISEG
 DICTIONARY        = _ROOT_DICT_$(PACKAGE)
 LIBNAME           = libG$(PACKAGE)
 EXTRA_EXT_LIBS    =

@@ -12,9 +12,9 @@ MAKEFILE = Makefile
 #
 include $(GENIE)/src/make/Make.include
 
-PACKAGE           = SingleKaon
-DICTIONARY        = _ROOT_DICT_SingleKaon
-LIBNAME           = libGSingleKaon
+PACKAGE           = PhStrEG
+DICTIONARY        = _ROOT_DICT_$(PACKAGE)
+LIBNAME           = libG$(PACKAGE)
 EXTRA_EXT_LIBS    =
 
 all     : rootcint lib lib-link

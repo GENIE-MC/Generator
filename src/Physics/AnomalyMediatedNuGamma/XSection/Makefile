@@ -12,7 +12,7 @@ MAKEFILE = Makefile
 #
 include $(GENIE)/src/make/Make.include
 
-PACKAGE           = PAMNGXS
+PACKAGE           = PhAMNGXS
 DICTIONARY        = _ROOT_DICT_$(PACKAGE)
 LIBNAME           = libG$(PACKAGE)
 EXTRA_EXT_LIBS    =

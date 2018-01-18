@@ -12,7 +12,7 @@ MAKEFILE = Makefile
 #
 include $(GENIE)/src/make/Make.include
 
-PACKAGE           = PDcy
+PACKAGE           = PhDcy
 DICTIONARY        = _ROOT_DICT_$(PACKAGE)
 LIBNAME           = libG$(PACKAGE)
 

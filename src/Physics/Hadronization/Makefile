@@ -12,9 +12,9 @@ MAKEFILE = Makefile
 #
 include $(GENIE)/src/make/Make.include
 
-PACKAGE           = Fragmentation
-DICTIONARY        = _ROOT_DICT_Fragmentation
-LIBNAME           = libGFragmentation
+PACKAGE           = PhHadnz
+DICTIONARY        = _ROOT_DICT_$(PACKAGE)
+LIBNAME           = libG$(PACKAGE)
 EXTRA_EXT_LIBS    =
 
 all     : rootcint lib lib-link

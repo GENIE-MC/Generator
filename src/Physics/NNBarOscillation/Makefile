@@ -12,6 +12,9 @@ MAKEFILE = Makefile
 #
 include $(GENIE)/src/make/Make.include
 
+# ------------------------------------------
+# This needs to disappear from here... (CA)
+#
 # Require C++11 for NeutronOsc module.
 GCC_GTEQ_470 := $(shell expr `gcc -dumpversion | sed -e 's/\.\([0-9][0-9]\)/\1/g' -e 's/\.\([0-9]\)/0\1/g' -e 's/^[0-9]\{3,4\}$$/&00/'` \>= 40700)
 ifeq "$(GCC_GTEQ_470)" "1"
@@ -19,10 +22,11 @@ ifeq "$(GCC_GTEQ_470)" "1"
 else
 	CXXFLAGS += -std=c++0x
 endif
+# ------------------------------------------
 
-PACKAGE           = NeutronOsc
-DICTIONARY        = _ROOT_DICT_NeutronOsc
-LIBNAME           = libGNeutronOsc
+PACKAGE           = PhNNBarOsc
+DICTIONARY        = _ROOT_DICT_$(PACKAGE)
+LIBNAME           = libG$(PACKAGE)
 
 all     : rootcint lib lib-link
 install : install-inc install-lib

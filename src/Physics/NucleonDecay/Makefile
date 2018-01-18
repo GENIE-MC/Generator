@@ -12,9 +12,9 @@ MAKEFILE = Makefile
 #
 include $(GENIE)/src/make/Make.include
 
-PACKAGE           = NucleonDecay
-DICTIONARY        = _ROOT_DICT_NucleonDecay
-LIBNAME           = libGNucleonDecay
+PACKAGE           = PhNDcy
+DICTIONARY        = _ROOT_DICT_$(PACKAGE)
+LIBNAME           = libG$(PACKAGE)
 
 all     : rootcint lib lib-link
 install : install-inc install-lib
