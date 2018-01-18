@@ -12,9 +12,9 @@ MAKEFILE = Makefile
 #
 include $(GENIE)/src/make/Make.include
 
-PACKAGE           = Charm
-DICTIONARY        = _ROOT_DICT_Charm
-LIBNAME           = libGCharm
+PACKAGE           = PChmXS
+DICTIONARY        = _ROOT_DICT_$(PACKAGE)
+LIBNAME           = libG$(PACKAGE)
 EXTRA_EXT_LIBS    =
 
 all     : rootcint lib lib-link

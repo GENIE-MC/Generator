@@ -12,9 +12,9 @@ MAKEFILE = Makefile
 #
 include $(GENIE)/src/make/Make.include
 
-PACKAGE           = Decay
-DICTIONARY        = _ROOT_DICT_Decay
-LIBNAME           = libGDecay
+PACKAGE           = PDcy
+DICTIONARY        = _ROOT_DICT_$(PACKAGE)
+LIBNAME           = libG$(PACKAGE)
 
 all     : rootcint lib lib-link
 install : install-inc install-lib
