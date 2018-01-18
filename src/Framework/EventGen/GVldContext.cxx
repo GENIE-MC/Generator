@@ -16,11 +16,11 @@
 
 #include <algorithm>
 
-#include "Algorithm/AlgConfigPool.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
 #include "EVGCore/GVldContext.h"
-#include "Interaction/Interaction.h"
-#include "Messenger/Messenger.h"
-#include "Utils/StringUtils.h"
+#include "Framework/Interaction/Interaction.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Utils/StringUtils.h"
 
 using std::count;
 

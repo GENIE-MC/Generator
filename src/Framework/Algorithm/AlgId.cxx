@@ -16,7 +16,7 @@
 
 #include <sstream>
 
-#include "Algorithm/AlgId.h"
+#include "Framework/Algorithm/AlgId.h"
 
 using std::ostringstream;
 

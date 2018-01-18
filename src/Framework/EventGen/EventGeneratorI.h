@@ -28,7 +28,7 @@
 #ifndef _EVENT_GENERATOR_I_H_
 #define _EVENT_GENERATOR_I_H_
 
-#include "EVGCore/EventRecordVisitorI.h"
+#include "Framework/EventGen/EventRecordVisitorI.h"
 #include "EVGCore/GVldContext.h"
 
 namespace genie {

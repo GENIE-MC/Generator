@@ -29,18 +29,18 @@
 #include <TSystem.h>
 #include <TStopwatch.h>
 
-#include "Algorithm/AlgConfigPool.h"
-#include "Base/XSecAlgorithmI.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
+#include "Framework/EventGen/XSecAlgorithmI.h"
 #include "Conventions/Controls.h"
 #include "EVGCore/EventGenerator.h"
-#include "EVGCore/InteractionListGeneratorI.h"
+#include "Framework/EventGen/InteractionListGeneratorI.h"
 #include "EVGCore/EVGThreadException.h"
 #include "EVGCore/GVldContext.h"
 #include "GHEP/GHepVirtualListFolder.h"
-#include "GHEP/GHepRecord.h"
+#include "Framework/GHEP/GHepRecord.h"
 #include "GHEP/GHepFlags.h"
-#include "Messenger/Messenger.h"
-#include "Utils/PrintUtils.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Utils/PrintUtils.h"
 
 using std::ostringstream;
 

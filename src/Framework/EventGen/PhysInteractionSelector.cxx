@@ -28,18 +28,18 @@
 #include <TMath.h>
 #include <TLorentzVector.h>
 
-#include "Base/XSecAlgorithmI.h"
+#include "Framework/EventGen/XSecAlgorithmI.h"
 #include "Conventions/Units.h"
 #include "EVGCore/PhysInteractionSelector.h"
 #include "EVGCore/EventRecord.h"
 #include "EVGCore/EventGeneratorI.h"
-#include "EVGCore/InteractionList.h"
+#include "Framework/EventGen/InteractionList.h"
 #include "EVGCore/InteractionGeneratorMap.h"
-#include "Messenger/Messenger.h"
-#include "Numerical/RandomGen.h"
-#include "Numerical/Spline.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Numerical/RandomGen.h"
+#include "Framework/Numerical/Spline.h"
 #include "Utils/XSecSplineList.h"
-#include "Utils/PrintUtils.h"
+#include "Framework/Utils/PrintUtils.h"
 
 using std::vector;
 using std::endl;

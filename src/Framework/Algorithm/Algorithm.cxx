@@ -21,10 +21,10 @@
 #include <string>
 
 #include "Algorithm/AlgFactory.h"
-#include "Algorithm/Algorithm.h"
-#include "Algorithm/AlgConfigPool.h"
-#include "Messenger/Messenger.h"
-#include "Utils/StringUtils.h"
+#include "Framework/Algorithm/Algorithm.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Utils/StringUtils.h"
 
 using std::vector;
 using std::string;

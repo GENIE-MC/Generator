@@ -16,7 +16,7 @@
 
 #include "EVGCore/RunningThreadInfo.h"
 #include "EVGCore/EventGeneratorI.h"
-#include "Messenger/Messenger.h"
+#include "Framework/Messenger/Messenger.h"
 
 using namespace genie;
 

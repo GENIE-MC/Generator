@@ -26,10 +26,10 @@
 #include <TMath.h>
 
 #include "EVGCore/EventRecord.h"
-#include "EVGDrivers/GMCJMonitor.h"
-#include "GHEP/GHepParticle.h"
-#include "Messenger/Messenger.h"
-#include "Utils/PrintUtils.h"
+#include "Framework/EventGen/GMCJMonitor.h"
+#include "Framework/GHEP/GHepParticle.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Utils/PrintUtils.h"
 
 using std::ostringstream;
 using std::endl;

@@ -24,11 +24,11 @@
 #include <cassert>
 #include <map>
 
-#include "Algorithm/AlgStatus.h"
-#include "Algorithm/AlgCmp.h"
-#include "Algorithm/AlgId.h"
-#include "Registry/Registry.h"
-#include "Registry/RegistryItemTypeDef.h"
+#include "Framework/Algorithm/AlgStatus.h"
+#include "Framework/Algorithm/AlgCmp.h"
+#include "Framework/Algorithm/AlgId.h"
+#include "Framework/Registry/Registry.h"
+#include "Framework/Registry/RegistryItemTypeDef.h"
 
 using std::string;
 using std::ostream;

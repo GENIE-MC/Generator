@@ -26,7 +26,7 @@
 #include <string>
 #include <ostream>
 
-#include "Interaction/Interaction.h"
+#include "Framework/Interaction/Interaction.h"
 
 using std::map;
 using std::string;

@@ -19,12 +19,12 @@
 
 #include <TLorentzVector.h>
 
-#include "GHEP/GHepParticle.h"
-#include "GHEP/GHepVirtualList.h"
-#include "GHEP/GHepStatus.h"
-#include "Interaction/Interaction.h"
-#include "Messenger/Messenger.h"
-#include "PDG/PDGUtils.h"
+#include "Framework/GHEP/GHepParticle.h"
+#include "Framework/GHEP/GHepVirtualList.h"
+#include "Framework/GHEP/GHepStatus.h"
+#include "Framework/Interaction/Interaction.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/PDG/PDGUtils.h"
 
 using std::string;
 using namespace genie;

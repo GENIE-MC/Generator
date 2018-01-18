@@ -18,8 +18,8 @@
 
 #include "BaryonResonance/BaryonResList.h"
 #include "BaryonResonance/BaryonResUtils.h"
-#include "Messenger/Messenger.h"
-#include "Utils/StringUtils.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Utils/StringUtils.h"
 
 using std::endl;
 

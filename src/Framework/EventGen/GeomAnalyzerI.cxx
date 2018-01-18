@@ -14,7 +14,7 @@
 */
 //____________________________________________________________________________
 
-#include "EVGDrivers/GeomAnalyzerI.h"
+#include "Framework/EventGen/GeomAnalyzerI.h"
 
 using namespace genie;
 

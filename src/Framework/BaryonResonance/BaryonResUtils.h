@@ -22,7 +22,7 @@
 #include <string>
 #include <map> 
 
-#include "BaryonResonance/BaryonResonance.h"
+#include "Framework/BaryonResonance/BaryonResonance.h"
 
 using std::string;
 

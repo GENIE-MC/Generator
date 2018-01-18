@@ -15,7 +15,7 @@
 //____________________________________________________________________________
 
 #include "EVGCore/InteractionSelectorI.h"
-#include "Interaction/Interaction.h"
+#include "Framework/Interaction/Interaction.h"
 
 using namespace genie;
 

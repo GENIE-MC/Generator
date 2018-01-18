@@ -21,7 +21,7 @@
 
 #include <TMath.h>
 
-#include "Conventions/Units.h"
+#include "Framework/Conventions/Units.h"
 
 namespace genie {
 namespace constants {

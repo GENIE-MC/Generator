@@ -15,7 +15,7 @@
 //____________________________________________________________________________
 
 #include "EVGCore/EVGThreadException.h"
-#include "Messenger/Messenger.h"
+#include "Framework/Messenger/Messenger.h"
 
 using std::endl;
 using namespace genie::exceptions;

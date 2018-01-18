@@ -24,7 +24,7 @@
 
 #include <ostream>
 
-#include "GHEP/GHepRecord.h"
+#include "Framework/GHEP/GHepRecord.h"
 
 using std::ostream;
 

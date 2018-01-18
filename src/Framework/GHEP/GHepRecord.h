@@ -25,10 +25,10 @@
 #include <TClonesArray.h>
 #include <TBits.h>
 
-#include "Conventions/GMode.h"
-#include "Conventions/KinePhaseSpace.h"
-#include "Interaction/Interaction.h" 
-#include "GHEP/GHepStatus.h"
+#include "Framework/Conventions/GMode.h"
+#include "Framework/Conventions/KinePhaseSpace.h"
+#include "Framework/Interaction/Interaction.h" 
+#include "Framework/GHEP/GHepStatus.h"
 
 class TRootIOCtor;
 class TLorentzVector;

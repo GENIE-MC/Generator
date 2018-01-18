@@ -23,7 +23,7 @@
 #include <string>
 #include <iostream>
 
-#include "Algorithm/AlgId.h"
+#include "Framework/Algorithm/AlgId.h"
 
 using std::map;
 using std::pair;

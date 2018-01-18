@@ -15,8 +15,8 @@
 //____________________________________________________________________________
 
 #include "GHEP/GHepVirtualListFolder.h"
-#include "GHEP/GHepVirtualList.h"
-#include "Messenger/Messenger.h"
+#include "Framework/GHEP/GHepVirtualList.h"
+#include "Framework/Messenger/Messenger.h"
 
 using namespace genie;
 

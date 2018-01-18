@@ -25,8 +25,8 @@
 #include <string>
 #include <iostream>
 
-#include "Algorithm/Algorithm.h"
-#include "Registry/Registry.h"
+#include "Framework/Algorithm/Algorithm.h"
+#include "Framework/Registry/Registry.h"
 
 using std::map;
 using std::vector;

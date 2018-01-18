@@ -30,7 +30,7 @@
 #include <TTree.h>
 #include <TBits.h>
 
-#include "EVGDrivers/PathLengthList.h"
+#include "Framework/EventGen/PathLengthList.h"
 #include "PDG/PDGCodeList.h"
 
 using std::string;

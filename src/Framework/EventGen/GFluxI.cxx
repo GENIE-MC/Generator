@@ -14,7 +14,7 @@
 */
 //____________________________________________________________________________
 
-#include "EVGDrivers/GFluxI.h"
+#include "Framework/EventGen/GFluxI.h"
 
 using namespace genie;
 

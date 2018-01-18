@@ -23,7 +23,7 @@
 #include <iostream>
 #include <string>
 
-#include "BaryonResonance/BaryonResonance.h"
+#include "Framework/BaryonResonance/BaryonResonance.h"
 
 using std::vector;
 using std::ostream;

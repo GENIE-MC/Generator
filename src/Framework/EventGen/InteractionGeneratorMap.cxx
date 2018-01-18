@@ -18,13 +18,13 @@
 
 #include <TMath.h>
 
-#include "EVGCore/InteractionList.h"
+#include "Framework/EventGen/InteractionList.h"
 #include "EVGCore/EventGeneratorList.h"
 #include "EVGCore/InteractionGeneratorMap.h"
 #include "EVGCore/EventGeneratorI.h"
-#include "EVGCore/InteractionListGeneratorI.h"
-#include "Interaction/Interaction.h"
-#include "Messenger/Messenger.h"
+#include "Framework/EventGen/InteractionListGeneratorI.h"
+#include "Framework/Interaction/Interaction.h"
+#include "Framework/Messenger/Messenger.h"
 
 using std::setw;
 using std::setfill;

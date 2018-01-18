@@ -21,7 +21,7 @@
 #ifndef _INTERACTION_LIST_ASSEMBLER_H_
 #define _INTERACTION_LIST_ASSEMBLER_H_
 
-#include "Algorithm/Algorithm.h"
+#include "Framework/Algorithm/Algorithm.h"
 
 namespace genie {
 

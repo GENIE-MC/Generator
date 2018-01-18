@@ -39,10 +39,10 @@
 #include <TH1F.h>
 #include <TH2F.h>
 
-#include "Algorithm/AlgConfigPool.h"
-#include "Messenger/Messenger.h"
-#include "Registry/RegistryItemTypeDef.h"
-#include "Utils/XmlParserUtils.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Registry/RegistryItemTypeDef.h"
+#include "Framework/Utils/XmlParserUtils.h"
 
 using std::setw;
 using std::setfill;

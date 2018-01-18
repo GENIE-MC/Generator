@@ -61,17 +61,17 @@
 #include <TSystem.h>
 #include <TRootIOCtor.h>
 
-#include "Conventions/GBuild.h"
+#include "Framework/Conventions/GBuild.h"
 #include "Conventions/Units.h"
-#include "GHEP/GHepParticle.h"
-#include "GHEP/GHepRecord.h"
-#include "GHEP/GHepStatus.h"
+#include "Framework/GHEP/GHepParticle.h"
+#include "Framework/GHEP/GHepRecord.h"
+#include "Framework/GHEP/GHepStatus.h"
 #include "GHEP/GHepFlags.h"
 #include "GHEP/GHepUtils.h"
-#include "Messenger/Messenger.h"
-#include "PDG/PDGUtils.h"
-#include "PDG/PDGCodes.h"
-#include "Utils/PrintUtils.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/PDG/PDGUtils.h"
+#include "Framework/PDG/PDGCodes.h"
+#include "Framework/Utils/PrintUtils.h"
 
 using std::endl;
 using std::setw;

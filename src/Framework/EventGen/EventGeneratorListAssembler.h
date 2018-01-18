@@ -20,7 +20,7 @@
 #ifndef _EVENT_GENERATOR_LIST_ASSEMBLER_H_
 #define _EVENT_GENERATOR_LIST_ASSEMBLER_H_
 
-#include "Algorithm/Algorithm.h"
+#include "Framework/Algorithm/Algorithm.h"
 
 namespace genie {
 

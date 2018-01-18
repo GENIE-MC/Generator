@@ -20,7 +20,7 @@
 #ifndef _INTERACTION_SELECTOR_I_H_
 #define _INTERACTION_SELECTOR_I_H_
 
-#include "Algorithm/Algorithm.h"
+#include "Framework/Algorithm/Algorithm.h"
 
 class TLorentzVector;
 

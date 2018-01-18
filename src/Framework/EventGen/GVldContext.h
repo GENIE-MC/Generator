@@ -22,8 +22,8 @@
 #include <string>
 #include <iostream>
 
-#include "Interaction/ScatteringType.h"
-#include "Interaction/InteractionType.h"
+#include "Framework/Interaction/ScatteringType.h"
+#include "Framework/Interaction/InteractionType.h"
 
 using std::string;
 using std::ostream;

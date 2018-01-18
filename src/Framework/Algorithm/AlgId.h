@@ -22,7 +22,7 @@
 #include <string>
 #include <iostream>
 
-#include "Registry/RegistryItemTypeDef.h"
+#include "Framework/Registry/RegistryItemTypeDef.h"
 
 using std::string;
 using std::ostream;

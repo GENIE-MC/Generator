@@ -15,12 +15,12 @@
 //____________________________________________________________________________
 
 #include "EVGCore/InteractionListAssembler.h"
-#include "EVGCore/InteractionListGeneratorI.h"
-#include "EVGCore/InteractionList.h"
+#include "Framework/EventGen/InteractionListGeneratorI.h"
+#include "Framework/EventGen/InteractionList.h"
 #include "EVGCore/EventGeneratorList.h"
 #include "EVGCore/EventGeneratorI.h"
-#include "Interaction/Interaction.h"
-#include "Messenger/Messenger.h"
+#include "Framework/Interaction/Interaction.h"
+#include "Framework/Messenger/Messenger.h"
 
 using namespace genie;
 

@@ -14,10 +14,10 @@
 */
 //____________________________________________________________________________
 
-#include "EVGDrivers/GEVGDriver.h"
-#include "EVGDrivers/GEVGPool.h"
-#include "Interaction/InitialState.h"
-#include "Messenger/Messenger.h"
+#include "Framework/EventGen/GEVGDriver.h"
+#include "Framework/EventGen/GEVGPool.h"
+#include "Framework/Interaction/InitialState.h"
+#include "Framework/Messenger/Messenger.h"
 
 using std::endl;
 using namespace genie;

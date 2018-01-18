@@ -14,8 +14,8 @@
 */
 //____________________________________________________________________________
 
-#include "Base/XSecAlgorithmI.h"
-#include "Messenger/Messenger.h"
+#include "Framework/EventGen/XSecAlgorithmI.h"
+#include "Framework/Messenger/Messenger.h"
 
 using namespace genie;
 

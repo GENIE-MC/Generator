@@ -14,7 +14,7 @@
 */
 //____________________________________________________________________________
 
-#include "EVGCore/EventRecordVisitorI.h"
+#include "Framework/EventGen/EventRecordVisitorI.h"
 
 using namespace genie;
 

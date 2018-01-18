@@ -14,9 +14,9 @@
 */
 //____________________________________________________________________________
 
-#include "EVGCore/InteractionList.h"
-#include "Interaction/Interaction.h"
-#include "Messenger/Messenger.h"
+#include "Framework/EventGen/InteractionList.h"
+#include "Framework/Interaction/Interaction.h"
+#include "Framework/Messenger/Messenger.h"
 
 using std::endl;
 using namespace genie;

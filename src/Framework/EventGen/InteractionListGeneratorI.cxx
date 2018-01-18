@@ -14,7 +14,7 @@
 */
 //____________________________________________________________________________
 
-#include "EVGCore/InteractionListGeneratorI.h"
+#include "Framework/EventGen/InteractionListGeneratorI.h"
 
 using namespace genie;
 

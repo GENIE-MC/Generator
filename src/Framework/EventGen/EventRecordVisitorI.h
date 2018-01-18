@@ -21,7 +21,7 @@
 #ifndef _EVENT_RECORD_VISITOR_I_H_
 #define _EVENT_RECORD_VISITOR_I_H_
 
-#include "Algorithm/Algorithm.h"
+#include "Framework/Algorithm/Algorithm.h"
 
 namespace genie {
 

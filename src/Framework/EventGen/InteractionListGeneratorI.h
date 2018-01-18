@@ -22,7 +22,7 @@
 #ifndef _INTERACTION_LIST_GENERATOR_I_H_
 #define _INTERACTION_LIST_GENERATOR_I_H_
 
-#include "Algorithm/Algorithm.h"
+#include "Framework/Algorithm/Algorithm.h"
 
 namespace genie {
 

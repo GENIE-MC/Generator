@@ -15,10 +15,10 @@
 //____________________________________________________________________________
 
 #include "EVGCore/EventRecord.h"
-#include "EVGCore/EventRecordVisitorI.h"
-#include "GHEP/GHepStatus.h"
-#include "GHEP/GHepParticle.h"
-#include "Messenger/Messenger.h"
+#include "Framework/EventGen/EventRecordVisitorI.h"
+#include "Framework/GHEP/GHepStatus.h"
+#include "Framework/GHEP/GHepParticle.h"
+#include "Framework/Messenger/Messenger.h"
 
 using namespace genie;
 

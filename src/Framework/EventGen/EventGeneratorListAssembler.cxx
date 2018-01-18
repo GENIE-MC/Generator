@@ -20,8 +20,8 @@
 #include "EVGCore/EventGeneratorListAssembler.h"
 #include "EVGCore/EventGeneratorList.h"
 #include "EVGCore/EventGeneratorI.h"
-#include "Messenger/Messenger.h"
-#include "Utils/PrintUtils.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Utils/PrintUtils.h"
 
 using std::ostringstream;
 

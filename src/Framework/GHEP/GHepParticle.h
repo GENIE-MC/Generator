@@ -25,7 +25,7 @@
 #include <TObject.h>
 #include <TLorentzVector.h>
 
-#include "GHEP/GHepStatus.h"
+#include "Framework/GHEP/GHepStatus.h"
 
 class TRootIOCtor;
 

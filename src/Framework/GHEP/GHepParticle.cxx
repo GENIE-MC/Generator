@@ -33,14 +33,14 @@
 #include <TMath.h>
 #include <TRootIOCtor.h>
 
-#include "Conventions/GBuild.h"
-#include "Conventions/Constants.h"
-#include "GHEP/GHepParticle.h"
-#include "Messenger/Messenger.h"
-#include "PDG/PDGLibrary.h"
-#include "PDG/PDGCodes.h"
-#include "PDG/PDGUtils.h"
-#include "Utils/PrintUtils.h"
+#include "Framework/Conventions/GBuild.h"
+#include "Framework/Conventions/Constants.h"
+#include "Framework/GHEP/GHepParticle.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/PDG/PDGLibrary.h"
+#include "Framework/PDG/PDGCodes.h"
+#include "Framework/PDG/PDGUtils.h"
+#include "Framework/Utils/PrintUtils.h"
 
 using namespace genie;
 using namespace genie::constants;

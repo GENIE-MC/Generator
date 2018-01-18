@@ -23,7 +23,7 @@
 #include "Framework/Interaction/XclsTag.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/PDG/PDGLibrary.h"
-#include "Utils/PrintUtils.h"
+#include "Framework/Utils/PrintUtils.h"
 
 using std::endl;
 using std::ostringstream;

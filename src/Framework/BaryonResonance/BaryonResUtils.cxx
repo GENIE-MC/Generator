@@ -38,9 +38,9 @@
 
 #include "BaryonResonance/BaryonResUtils.h"
 #include "Conventions/Units.h"
-#include "Messenger/Messenger.h"
-#include "PDG/PDGLibrary.h"
-#include "PDG/PDGCodes.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/PDG/PDGLibrary.h"
+#include "Framework/PDG/PDGCodes.h"
 #include "Utils/BWFunc.h"
 
 using namespace genie;

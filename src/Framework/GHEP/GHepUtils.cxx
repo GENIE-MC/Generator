@@ -16,14 +16,14 @@
 */
 //____________________________________________________________________________
 
-#include "Messenger/Messenger.h"
-#include "GHEP/GHepStatus.h"
-#include "GHEP/GHepParticle.h"
-#include "GHEP/GHepRecord.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/GHEP/GHepStatus.h"
+#include "Framework/GHEP/GHepParticle.h"
+#include "Framework/GHEP/GHepRecord.h"
 #include "GHEP/GHepUtils.h"
-#include "Interaction/Interaction.h"
-#include "PDG/PDGCodes.h"
-#include "PDG/PDGUtils.h"
+#include "Framework/Interaction/Interaction.h"
+#include "Framework/PDG/PDGCodes.h"
+#include "Framework/PDG/PDGUtils.h"
 
 //____________________________________________________________________________
 int genie::utils::ghep::NeutReactionCode(const GHepRecord * event)

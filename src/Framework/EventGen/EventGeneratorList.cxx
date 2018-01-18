@@ -16,7 +16,7 @@
 
 #include "EVGCore/EventGeneratorList.h"
 #include "EVGCore/EventGeneratorI.h"
-#include "Messenger/Messenger.h"
+#include "Framework/Messenger/Messenger.h"
 
 using std::endl;
 using namespace genie;

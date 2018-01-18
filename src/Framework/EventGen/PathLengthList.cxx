@@ -24,13 +24,13 @@
 
 #include <TLorentzVector.h>
 
-#include "EVGDrivers/PathLengthList.h"
-#include "Messenger/Messenger.h"
+#include "Framework/EventGen/PathLengthList.h"
+#include "Framework/Messenger/Messenger.h"
 #include "PDG/PDGCodeList.h"
-#include "PDG/PDGLibrary.h"
-#include "Utils/PrintUtils.h"
+#include "Framework/PDG/PDGLibrary.h"
+#include "Framework/Utils/PrintUtils.h"
 #include "Utils/MathUtils.h"
-#include "Utils/XmlParserUtils.h"
+#include "Framework/Utils/XmlParserUtils.h"
 
 using std::ofstream;
 using std::setw;

@@ -17,9 +17,9 @@
 #include <TSystem.h>
 
 #include "GHEP/GHepRecordHistory.h"
-#include "GHEP/GHepRecord.h"
-#include "Messenger/Messenger.h"
-#include "Utils/PrintUtils.h"
+#include "Framework/GHEP/GHepRecord.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Utils/PrintUtils.h"
 
 using std::endl;
 
