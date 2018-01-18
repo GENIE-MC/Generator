@@ -18,11 +18,11 @@ srcdir=$GENIE/src
 
 # Libraries from GENIE/Generator/Framework
 # (always present)
-fmwk_libs=" -lGwFMsg -lGFwReg -lGFwAlg -lGFwInt -lGFwGHEP -lGFwNum -lGFwUtl -lGFwPDG -lGFwBaryonRes -lGFwEG -lGFwNtp "
+fmwk_libs=" -lGwFMsg -lGFwReg -lGFwAlg -lGFwInt -lGFwGHEP -lGFwNum -lGFwUtl -lGFwParDat -lGFwEG -lGFwNtp "
 
 # Libraries from GENIE/Generator/Physics
 # (standard)
-phys_libs=" -lGPhXSIg -lGPhPDF -lGPhNucl -lGPhCmn -lGPhHadTransp -lGPhHadnz -lGPhDcy -lGPhDeEx \
+phys_libs=" -lGPhXSIg -lGPhPDF -lGPhNuclSt -lGPhCmn -lGPhHadTransp -lGPhHadnz -lGPhDcy -lGPhDeEx \
   -lGPhAMNGXS -lGPhAMNGEG -lGPhChmXS -lGPhCohXS -lGPhCohEG  -lGPhDISXS -lGPhDISEG \
   -lGPhDfrcXS -lGPhDfrcEG -lGPhGlwResXS -lGPhGlwResEG -lGPhIBDXS -lGPhIBDEG \
   -lGPhMNucXS -lGPhMNucEG -lGPhMEL -lGPhNuElXS -lGPhNuElEG \
