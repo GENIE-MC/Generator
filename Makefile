@@ -66,14 +66,13 @@ framework: FORCE
 	@echo "** Building GENIE framework..."
 	cd ${GENIE}/src/Framework && \
 	cd Algorithm       &&  $(MAKE) && cd .. && \
-	cd BaryonResonance &&  $(MAKE) && cd .. && \
 	cd EventGen        &&  $(MAKE) && cd .. && \
 	cd GHEP            &&  $(MAKE) && cd .. && \
 	cd Interaction     &&  $(MAKE) && cd .. && \
 	cd Messenger       &&  $(MAKE) && cd .. && \
 	cd Ntuple          &&  $(MAKE) && cd .. && \
 	cd Numerical       &&  $(MAKE) && cd .. && \
-	cd PDG             &&  $(MAKE) && cd .. && \
+	cd ParticleData    &&  $(MAKE) && cd .. && \
 	cd Registry        &&  $(MAKE) && cd .. && \
 	cd Utils           &&  $(MAKE) && \
 	cd ${GENIE}
@@ -158,7 +157,7 @@ physics-utilities: FORCE
 	cd Common              &&    $(MAKE) && cd .. && \
 	cd Decay               &&    $(MAKE) && cd .. && \
 	cd MuonEnergyLoss      &&    $(MAKE) && cd .. && \
-	cd PDF                 &&    $(MAKE) && cd .. && \
+	cd PartonDistributions &&    $(MAKE) && cd .. && \
 	cd XSectionIntegration &&    $(MAKE) && \
 	cd ${GENIE}
 
@@ -167,7 +166,7 @@ physics-nuclear-environment: FORCE
 	@echo " "
 	@echo "** Building libraries for simulation of nuclear environment..."
 	cd ${GENIE}/src/Physics && \
-	cd Nuclear              &&    $(MAKE) && cd .. && \
+	cd NuclearState         &&    $(MAKE) && cd .. && \
 	cd NuclearDeExcitation  &&    $(MAKE) && \
 	cd ${GENIE}
 
@@ -336,7 +335,6 @@ make-install-dirs: FORCE
 	mkdir ${GENIE_INC_INSTALLATION_PATH}
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Framework
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Framework/Algorithm
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/Framework/BaryonResonance
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Framework/Conventions
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Framework/EventGen
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Framework/GHEP
@@ -344,7 +342,7 @@ make-install-dirs: FORCE
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Framework/Messenger
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Framework/Ntuple
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Framework/Numerical
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/Framework/PDG
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/Framework/ParticleData
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Framework/Registry
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Framework/Utils
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics
@@ -379,13 +377,13 @@ make-install-dirs: FORCE
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/Multinucleon/EventGen
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/MuonEnergyLoss
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/NNBarOscillation
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/Nuclear
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/NuclearState
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/NuclearDeExcitation
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/NucleonDecay
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/NuElectron
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/NuElectron/XSection
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/NuElectron/EventGen
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/PDF
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/PartonDistributions
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/QuasiElastic
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/QuasiElastic/XSection
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/QuasiElastic/EventGen
@@ -408,7 +406,6 @@ copy-install-files: FORCE
 	@echo "** Copying libraries/binaries/headers to installation location..."
 	cp ${GENIE_BIN_PATH}/* ${GENIE_BIN_INSTALLATION_PATH} && \
 	cd ${GENIE}/src/Framework/Algorithm                      &&  $(MAKE) install && \
-	cd ${GENIE}/src/Framework/BaryonResonance                &&  $(MAKE) install && \
 	cd ${GENIE}/src/Framework/Conventions                    &&  $(MAKE) install && \
 	cd ${GENIE}/src/Framework/EventGen                       &&  $(MAKE) install && \
 	cd ${GENIE}/src/Framework/GHEP                           &&  $(MAKE) install && \
@@ -416,7 +413,7 @@ copy-install-files: FORCE
 	cd ${GENIE}/src/Framework/Messenger                      &&  $(MAKE) install && \
 	cd ${GENIE}/src/Framework/Ntuple                         &&  $(MAKE) install && \
 	cd ${GENIE}/src/Framework/Numerical                      &&  $(MAKE) install && \
-	cd ${GENIE}/src/Framework/PDG                            &&  $(MAKE) install && \
+	cd ${GENIE}/src/Framework/ParticleData                   &&  $(MAKE) install && \
 	cd ${GENIE}/src/Framework/Registry                       &&  $(MAKE) install && \
 	cd ${GENIE}/src/Framework/Utils                          &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/AnomalyMediatedNuGamma/XSection  &&  $(MAKE) install && \
@@ -442,12 +439,12 @@ copy-install-files: FORCE
 	cd ${GENIE}/src/Physics/Multinucleon/EventGen            &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/MuonEnergyLoss                   &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/NNBarOscillation                 &&  $(MAKE) install && \
-	cd ${GENIE}/src/Physics/Nuclear                          &&  $(MAKE) install && \
+	cd ${GENIE}/src/Physics/NuclearState                     &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/NuclearDeExcitation              &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/NucleonDecay                     &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/NuElectron/XSection              &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/NuElectron/EventGen              &&  $(MAKE) install && \
-	cd ${GENIE}/src/Physics/PDF                              &&  $(MAKE) install && \
+	cd ${GENIE}/src/Physics/PartonDistributions              &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/QuasiElastic/XSection            &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/QuasiElastic/EventGen            &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/Resonance/XSection               &&  $(MAKE) install && \
@@ -466,7 +463,6 @@ purge: FORCE
 	@echo " "
 	@echo "** Purging..."
 	cd ${GENIE}/src/Framework/Algorithm                      &&  $(MAKE) purge && \
-	cd ${GENIE}/src/Framework/BaryonResonance                &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Framework/Conventions                    &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Framework/EventGen                       &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Framework/GHEP                           &&  $(MAKE) purge && \
@@ -474,7 +470,7 @@ purge: FORCE
 	cd ${GENIE}/src/Framework/Messenger                      &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Framework/Ntuple                         &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Framework/Numerical                      &&  $(MAKE) purge && \
-	cd ${GENIE}/src/Framework/PDG                            &&  $(MAKE) purge && \
+	cd ${GENIE}/src/Framework/ParticleData                   &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Framework/Registry                       &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Framework/Utils                          &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/AnomalyMediatedNuGamma/XSection  &&  $(MAKE) purge && \
@@ -500,12 +496,12 @@ purge: FORCE
 	cd ${GENIE}/src/Physics/Multinucleon/EventGen            &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/MuonEnergyLoss                   &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/NNBarOscillation                 &&  $(MAKE) purge && \
-	cd ${GENIE}/src/Physics/Nuclear                          &&  $(MAKE) purge && \
+	cd ${GENIE}/src/Physics/NuclearState                     &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/NuclearDeExcitation              &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/NucleonDecay                     &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/NuElectron/XSection              &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/NuElectron/EventGen              &&  $(MAKE) purge && \
-	cd ${GENIE}/src/Physics/PDF                              &&  $(MAKE) purge && \
+	cd ${GENIE}/src/Physics/PartonDistributions              &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/QuasiElastic/XSection            &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/QuasiElastic/EventGen            &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/Resonance/XSection               &&  $(MAKE) purge && \
@@ -525,7 +521,6 @@ clean-files: FORCE
 	@echo " "
 	@echo "** Cleaning..."
 	cd ${GENIE}/src/Framework/Algorithm                      &&  $(MAKE) clean && \
-	cd ${GENIE}/src/Framework/BaryonResonance                &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Framework/Conventions                    &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Framework/EventGen                       &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Framework/GHEP                           &&  $(MAKE) clean && \
@@ -533,7 +528,7 @@ clean-files: FORCE
 	cd ${GENIE}/src/Framework/Messenger                      &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Framework/Ntuple                         &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Framework/Numerical                      &&  $(MAKE) clean && \
-	cd ${GENIE}/src/Framework/PDG                            &&  $(MAKE) clean && \
+	cd ${GENIE}/src/Framework/ParticleData                   &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Framework/Registry                       &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Framework/Utils                          &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/AnomalyMediatedNuGamma/XSection  &&  $(MAKE) clean && \
@@ -559,12 +554,12 @@ clean-files: FORCE
 	cd ${GENIE}/src/Physics/Multinucleon/EventGen            &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/MuonEnergyLoss                   &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/NNBarOscillation                 &&  $(MAKE) clean && \
-	cd ${GENIE}/src/Physics/Nuclear                          &&  $(MAKE) clean && \
+	cd ${GENIE}/src/Physics/NuclearState                     &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/NuclearDeExcitation              &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/NucleonDecay                     &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/NuElectron/XSection              &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/NuElectron/EventGen              &&  $(MAKE) clean && \
-	cd ${GENIE}/src/Physics/PDF                              &&  $(MAKE) clean && \
+	cd ${GENIE}/src/Physics/PartonDistributions              &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/QuasiElastic/XSection            &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/QuasiElastic/EventGen            &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/Resonance/XSection               &&  $(MAKE) clean && \
@@ -596,7 +591,6 @@ distclean: FORCE
 	@echo "** Cleaning GENIE installation... "
 	[ ! -d ${GENIE_INSTALLATION_PATH}/include/GENIE ] || rm -rf ${GENIE_INSTALLATION_PATH}/include/GENIE/
 	cd ${GENIE}/src/Framework/Algorithm                      &&  $(MAKE) distclean && \
-	cd ${GENIE}/src/Framework/BaryonResonance                &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Framework/Conventions                    &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Framework/EventGen                       &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Framework/GHEP                           &&  $(MAKE) distclean && \
@@ -604,7 +598,7 @@ distclean: FORCE
 	cd ${GENIE}/src/Framework/Messenger                      &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Framework/Ntuple                         &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Framework/Numerical                      &&  $(MAKE) distclean && \
-	cd ${GENIE}/src/Framework/PDG                            &&  $(MAKE) distclean && \
+	cd ${GENIE}/src/Framework/ParticleData                   &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Framework/Registry                       &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Framework/Utils                          &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/AnomalyMediatedNuGamma/XSection  &&  $(MAKE) distclean && \
@@ -630,12 +624,12 @@ distclean: FORCE
 	cd ${GENIE}/src/Physics/Multinucleon/EventGen            &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/MuonEnergyLoss                   &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/NNBarOscillation                 &&  $(MAKE) distclean && \
-	cd ${GENIE}/src/Physics/Nuclear                          &&  $(MAKE) distclean && \
+	cd ${GENIE}/src/Physics/NuclearState                     &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/NuclearDeExcitation              &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/NucleonDecay                     &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/NuElectron/XSection              &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/NuElectron/EventGen              &&  $(MAKE) distclean && \
-	cd ${GENIE}/src/Physics/PDF                              &&  $(MAKE) distclean && \
+	cd ${GENIE}/src/Physics/PartonDistributions              &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/QuasiElastic/XSection            &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/QuasiElastic/EventGen            &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/Resonance/XSection               &&  $(MAKE) distclean && \
