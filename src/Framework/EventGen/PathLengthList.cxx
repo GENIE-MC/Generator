@@ -26,10 +26,10 @@
 
 #include "Framework/EventGen/PathLengthList.h"
 #include "Framework/Messenger/Messenger.h"
-#include "Framework/PDG/PDGCodeList.h"
-#include "Framework/PDG/PDGLibrary.h"
+#include "Framework/ParticleData/PDGCodeList.h"
+#include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/Utils/PrintUtils.h"
-#include "Utils/MathUtils.h"
+#include "Framework/Numerical/MathUtils.h"
 #include "Framework/Utils/XmlParserUtils.h"
 
 using std::ofstream;

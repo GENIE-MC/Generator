@@ -122,7 +122,7 @@
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
 #include "Framework/Numerical/Spline.h"
-#include "Framework/PDG/PDGUtils.h"
+#include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/Utils/PrintUtils.h"
 #include "Framework/Utils/XSecSplineList.h"
 #include "Framework/Conventions/Constants.h"
