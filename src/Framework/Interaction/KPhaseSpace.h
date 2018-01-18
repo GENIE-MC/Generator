@@ -23,9 +23,9 @@
 
 #include <TObject.h>
 
-#include "Conventions/KineVar.h"
+#include "Framework/Conventions/KineVar.h"
 //#include "Interaction/KPhaseSpaceCut.h"
-#include "Utils/Range1.h"
+#include "Framework/Utils/Range1.h"
 
 namespace genie {
 

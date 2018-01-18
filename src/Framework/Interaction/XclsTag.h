@@ -24,7 +24,7 @@
 
 #include <TObject.h>
 
-#include "BaryonResonance/BaryonResonance.h"
+#include "Framework/BaryonResonance/BaryonResonance.h"
 
 using std::ostream;
 using std::string;

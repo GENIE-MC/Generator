@@ -26,8 +26,8 @@
 #include <TLorentzVector.h>
 #include <TObject.h>
 
-#include "Conventions/RefFrame.h"
-#include "Interaction/Target.h"
+#include "Framework/Conventions/RefFrame.h"
+#include "Framework/Interaction/Target.h"
 
 using std::ostream;
 using std::string;

@@ -20,9 +20,9 @@
 #include <sstream>
 
 #include "BaryonResonance/BaryonResUtils.h"
-#include "Interaction/XclsTag.h"
-#include "Messenger/Messenger.h"
-#include "PDG/PDGLibrary.h"
+#include "Framework/Interaction/XclsTag.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/PDG/PDGLibrary.h"
 #include "Utils/PrintUtils.h"
 
 using std::endl;

@@ -24,7 +24,7 @@
 
 #include <TObject.h>
 
-#include "Conventions/KineVar.h"
+#include "Framework/Conventions/KineVar.h"
 
 using std::map;
 using std::ostream;

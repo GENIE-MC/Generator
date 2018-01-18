@@ -27,8 +27,8 @@
 
 #include <TObject.h>
 
-#include "Interaction/InteractionType.h"
-#include "Interaction/ScatteringType.h"
+#include "Framework/Interaction/InteractionType.h"
+#include "Framework/Interaction/ScatteringType.h"
 
 using std::ostream;
 using std::string;

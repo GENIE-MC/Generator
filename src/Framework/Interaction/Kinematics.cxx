@@ -22,8 +22,8 @@
 #include <TLorentzVector.h>
 #include <TRootIOCtor.h>
 
-#include "Interaction/Kinematics.h"
-#include "Messenger/Messenger.h"
+#include "Framework/Interaction/Kinematics.h"
+#include "Framework/Messenger/Messenger.h"
 
 using std::endl;
 

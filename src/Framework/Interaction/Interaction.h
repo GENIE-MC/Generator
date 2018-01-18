@@ -27,12 +27,12 @@
 
 #include <TObject.h>
 
-#include "Conventions/RefFrame.h"
-#include "Interaction/InitialState.h"
-#include "Interaction/ProcessInfo.h"
-#include "Interaction/Kinematics.h"
-#include "Interaction/XclsTag.h"
-#include "Interaction/KPhaseSpace.h"
+#include "Framework/Conventions/RefFrame.h"
+#include "Framework/Interaction/InitialState.h"
+#include "Framework/Interaction/ProcessInfo.h"
+#include "Framework/Interaction/Kinematics.h"
+#include "Framework/Interaction/XclsTag.h"
+#include "Framework/Interaction/KPhaseSpace.h"
 
 using std::ostream;
 using std::string;

@@ -35,7 +35,7 @@
 
 #include <sstream>
 
-#include "Interaction/ProcessInfo.h"
+#include "Framework/Interaction/ProcessInfo.h"
 
 using std::ostringstream;
 using std::endl;

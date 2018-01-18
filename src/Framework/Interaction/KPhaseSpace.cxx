@@ -38,15 +38,15 @@
 
 #include <TMath.h>
 
-#include "Interaction/KPhaseSpace.h"
+#include "Framework/Interaction/KPhaseSpace.h"
 
 #include "Algorithm/AlgConfigPool.h"
-#include "Conventions/Constants.h"
+#include "Framework/Conventions/Constants.h"
 #include "Conventions/Controls.h"
-#include "Interaction/Interaction.h"
+#include "Framework/Interaction/Interaction.h"
 #include "Interaction/InteractionException.h"
-#include "Messenger/Messenger.h"
-#include "PDG/PDGLibrary.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/PDG/PDGLibrary.h"
 #include "Registry/Registry.h"
 #include "Utils/KineUtils.h"
 #include "Utils/MathUtils.h"

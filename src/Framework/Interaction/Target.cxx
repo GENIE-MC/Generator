@@ -30,12 +30,12 @@
 #include <TParticlePDG.h>
 #include <TRootIOCtor.h>
 
-#include "Conventions/Constants.h"
-#include "Interaction/Target.h"
-#include "Messenger/Messenger.h"
-#include "PDG/PDGLibrary.h"
-#include "PDG/PDGCodes.h"
-#include "PDG/PDGUtils.h"
+#include "Framework/Conventions/Constants.h"
+#include "Framework/Interaction/Target.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/PDG/PDGLibrary.h"
+#include "Framework/PDG/PDGCodes.h"
+#include "Framework/PDG/PDGUtils.h"
 #include "Utils/PrintUtils.h"
 
 using std::endl;
