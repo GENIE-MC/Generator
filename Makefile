@@ -521,7 +521,6 @@ clean-files: FORCE
 	@echo " "
 	@echo "** Cleaning..."
 	cd ${GENIE}/src/Framework/Algorithm                      &&  $(MAKE) clean && \
-	cd ${GENIE}/src/Framework/Conventions                    &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Framework/EventGen                       &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Framework/GHEP                           &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Framework/Interaction                    &&  $(MAKE) clean && \

@@ -30,8 +30,8 @@
 #ifndef _GRV98LO_H_
 #define _GRV98LO_H_
 
-#include "Physics/PDF/PDFModelI.h"
-#include "Numerical/Interpolator2D.h"
+#include "Physics/PartonDistributions/PDFModelI.h"
+#include "Framework/Numerical/Interpolator2D.h"
 
 namespace genie {
 

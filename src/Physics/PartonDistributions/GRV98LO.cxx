@@ -22,7 +22,7 @@
 #include <TSystem.h>
 #include <TMath.h>
 
-#include "Physics/PDF/GRV98LO.h"
+#include "Physics/PartonDistributions/GRV98LO.h"
 #include "Framework/Messenger/Messenger.h"
 
 using namespace std;

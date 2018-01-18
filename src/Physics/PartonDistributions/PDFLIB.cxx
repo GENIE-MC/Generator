@@ -19,7 +19,7 @@
 #include <TMath.h>
 
 #include "Framework/Conventions/GBuild.h"
-#include "Physics/PDF/PDFLIB.h"
+#include "Physics/PartonDistributions/PDFLIB.h"
 #include "Framework/Messenger/Messenger.h"
 
 #ifdef __GENIE_LHAPDF_ENABLED__

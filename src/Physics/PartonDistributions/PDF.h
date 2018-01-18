@@ -26,7 +26,7 @@
 
 #include <iostream>
 
-#include "Physics/PDF/PDFModelI.h"
+#include "Physics/PartonDistributions/PDFModelI.h"
 
 using std::ostream;
 

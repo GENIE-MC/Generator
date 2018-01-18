@@ -387,6 +387,15 @@ s/include \"Utils\/AppInit.h\"/include \"Framework\/Utils\/AppInit.h\"/
 s/include \"Conventions\/GVersion.h\"/include \"Framework\/Conventions\/GVersion.h\"/
 s/include \"Utils\/GSimFiles.h\"/include \"Framework\/Utils\/GSimFiles.h\"/
 s/include \"Utils\/NuclearUtils.h\"/include \"Physics\/NuclearState\/NuclearUtils.h\"/
+s/include \"Physics\/PDF\/PDFLIB.h\"/include \"Physics\/PartonDistributions\/PDFLIB.h\"/
+s/include \"Physics\/PDF\/PDFModelI.h\"/include \"Physics\/PartonDistributions\/PDFModelI.h\"/
+s/include \"Physics\/PDF\/PDFt.h\"/include \"Physics\/PartonDistributions\/PDFt.h\"/
+s/include \"Physics\/PDF\/GRV98LO.h\"/include \"Physics\/PartonDistributions\/GRV98LO.h\"/
+
+
+
+
+
 
 
 
