@@ -20,10 +20,10 @@
 #include "Framework/GHEP/GHepStatus.h"
 #include "Framework/GHEP/GHepParticle.h"
 #include "Framework/GHEP/GHepRecord.h"
-#include "GHEP/GHepUtils.h"
+#include "Framework/GHEP/GHepUtils.h"
 #include "Framework/Interaction/Interaction.h"
-#include "Framework/PDG/PDGCodes.h"
-#include "Framework/PDG/PDGUtils.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGUtils.h"
 
 //____________________________________________________________________________
 int genie::utils::ghep::NeutReactionCode(const GHepRecord * event)

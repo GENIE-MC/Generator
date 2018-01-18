@@ -62,15 +62,15 @@
 #include <TRootIOCtor.h>
 
 #include "Framework/Conventions/GBuild.h"
-#include "Conventions/Units.h"
+#include "Framework/Conventions/Units.h"
 #include "Framework/GHEP/GHepParticle.h"
 #include "Framework/GHEP/GHepRecord.h"
 #include "Framework/GHEP/GHepStatus.h"
-#include "GHEP/GHepFlags.h"
-#include "GHEP/GHepUtils.h"
+#include "Framework/GHEP/GHepFlags.h"
+#include "Framework/GHEP/GHepUtils.h"
 #include "Framework/Messenger/Messenger.h"
-#include "Framework/PDG/PDGUtils.h"
-#include "Framework/PDG/PDGCodes.h"
+#include "Framework/ParticleData/PDGUtils.h"
+#include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/Utils/PrintUtils.h"
 
 using std::endl;

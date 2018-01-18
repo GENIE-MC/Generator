@@ -16,7 +16,7 @@
 
 #include <TSystem.h>
 
-#include "GHEP/GHepRecordHistory.h"
+#include "Framework/GHEP/GHepRecordHistory.h"
 #include "Framework/GHEP/GHepRecord.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Utils/PrintUtils.h"

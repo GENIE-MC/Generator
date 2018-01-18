@@ -14,7 +14,7 @@
 */
 //____________________________________________________________________________
 
-#include "GHEP/GHepVirtualListFolder.h"
+#include "Framework/GHEP/GHepVirtualListFolder.h"
 #include "Framework/GHEP/GHepVirtualList.h"
 #include "Framework/Messenger/Messenger.h"
 

@@ -24,7 +24,7 @@
 #include "Framework/GHEP/GHepStatus.h"
 #include "Framework/Interaction/Interaction.h"
 #include "Framework/Messenger/Messenger.h"
-#include "Framework/PDG/PDGUtils.h"
+#include "Framework/ParticleData/PDGUtils.h"
 
 using std::string;
 using namespace genie;
