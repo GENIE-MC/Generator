@@ -14,7 +14,7 @@ include $(GENIE)/src/make/Make.include
 
 PACKAGE           = Messenger
 DICTIONARY        = undefined
-LIBNAME           = libGMessenger
+LIBNAME           = libGFMsg
 EXTRA_EXT_LIBS    =
 
 all     : lib lib-link

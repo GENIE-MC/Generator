@@ -13,8 +13,8 @@ MAKEFILE = Makefile
 include $(GENIE)/src/make/Make.include
 
 PACKAGE           = PDG
-DICTIONARY        = _ROOT_DICT_PDG
-LIBNAME           = libGPDG
+DICTIONARY        = _ROOT_DICT_$(PACKAGE)
+LIBNAME           = libGFPDG
 EXTRA_EXT_LIBS    =
 
 all     : rootcint lib lib-link

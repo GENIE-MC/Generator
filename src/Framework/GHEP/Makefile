@@ -13,8 +13,8 @@ MAKEFILE = Makefile
 include $(GENIE)/src/make/Make.include
 
 PACKAGE           = GHEP
-DICTIONARY        = _ROOT_DICT_GHEP
-LIBNAME           = libGHEP
+DICTIONARY        = _ROOT_DICT_$(PACKAGE)
+LIBNAME           = libGFGHEP
 EXTRA_EXT_LIBS    =
 
 all     : rootcint lib lib-link

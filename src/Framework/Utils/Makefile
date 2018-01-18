@@ -13,8 +13,8 @@ MAKEFILE = Makefile
 include $(GENIE)/src/make/Make.include
 
 PACKAGE           = Utils
-DICTIONARY        = _ROOT_DICT_Utils
-LIBNAME           = libGUtils
+DICTIONARY        = _ROOT_DICT_$(PACKAGE)
+LIBNAME           = libGFUtl
 EXTRA_EXT_LIBS    =
 
 all     : rootcint lib lib-link

@@ -13,8 +13,8 @@ MAKEFILE = Makefile
 include $(GENIE)/src/make/Make.include
 
 PACKAGE           = BaryonResonance
-DICTIONARY        = _ROOT_DICT_BaryonResonance
-LIBNAME           = libGBaryonResonance
+DICTIONARY        = _ROOT_DICT_$(PACKAGE)
+LIBNAME           = libGFBaryonRes
 EXTRA_EXT_LIBS    =
 
 all     : rootcint lib lib-link

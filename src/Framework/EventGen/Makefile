@@ -11,9 +11,9 @@ MAKEFILE = Makefile
 # Include machine specific flags and locations (inc. files & libs)
 include $(GENIE)/src/make/Make.include
 
-PACKAGE           = EVGCore
-DICTIONARY        = _ROOT_DICT_EVGCore
-LIBNAME           = libGEVGCore
+PACKAGE           = EventGen
+DICTIONARY        = _ROOT_DICT_$(PACKAGE)
+LIBNAME           = libGFEvGen
 EXTRA_EXT_LIBS    =
 
 all     : rootcint lib lib-link

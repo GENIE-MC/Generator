@@ -13,8 +13,8 @@ MAKEFILE = Makefile
 include $(GENIE)/src/make/Make.include
 
 PACKAGE           = Numerical
-DICTIONARY        = _ROOT_DICT_Numerical
-LIBNAME           = libGNumerical
+DICTIONARY        = _ROOT_DICT_$(PACKAGE)
+LIBNAME           = libGFNum
 EXTRA_EXT_LIBS    =
 
 all     : rootcint lib lib-link

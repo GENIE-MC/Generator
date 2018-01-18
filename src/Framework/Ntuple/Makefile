@@ -13,8 +13,8 @@ MAKEFILE = Makefile
 include $(GENIE)/src/make/Make.include
 
 PACKAGE           = Ntuple
-DICTIONARY        = _ROOT_DICT_Ntuple
-LIBNAME           = libGNtuple
+DICTIONARY        = _ROOT_DICT_$(PACKAGE)
+LIBNAME           = libGFNtp
 EXTRA_EXT_LIBS    =
 
 all     : rootcint lib lib-link
