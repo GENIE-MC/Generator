@@ -34,10 +34,10 @@
 #include <TFolder.h>
 #include <TObjString.h>
 
-#include "Conventions/GBuild.h"
-#include "Messenger/Messenger.h"
-#include "Registry/Registry.h"
-#include "Registry/RegistryItemTypeId.h"
+#include "Framework/Conventions/GBuild.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Registry/Registry.h"
+#include "Framework/Registry/RegistryItemTypeId.h"
 
 using namespace genie;
 

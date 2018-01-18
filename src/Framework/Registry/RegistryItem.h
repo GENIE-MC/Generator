@@ -25,8 +25,8 @@
 #include <string>
 #include <ostream>
 
-#include "Registry/RegistryItemI.h"
-#include "Registry/RegistryItemTypeDef.h"
+#include "Framework/Registry/RegistryItemI.h"
+#include "Framework/Registry/RegistryItemTypeDef.h"
 
 namespace genie {
 

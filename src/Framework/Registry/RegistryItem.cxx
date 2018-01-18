@@ -21,7 +21,7 @@
 #include <string>
 #include <iostream>
 
-#include "Registry/RegistryItem.h"
+#include "Framework/Registry/RegistryItem.h"
 
 using std::string;
 using std::endl;

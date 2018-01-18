@@ -14,7 +14,7 @@
 */
 //____________________________________________________________________________
 
-#include "Registry/RegistryItemTypeDef.h"
+#include "Framework/Registry/RegistryItemTypeDef.h"
 
 using std::endl;
 

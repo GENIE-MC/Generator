@@ -21,7 +21,7 @@
 
 #include <iostream>
 
-#include "Registry/RegistryItemTypeId.h"
+#include "Framework/Registry/RegistryItemTypeId.h"
 
 using std::ostream;
 

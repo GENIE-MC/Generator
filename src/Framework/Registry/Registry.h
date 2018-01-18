@@ -25,8 +25,8 @@
 #include <string>
 #include <iostream>
 
-#include "Registry/RegistryItem.h"
-#include "Registry/RegistryItemTypeDef.h"
+#include "Framework/Registry/RegistryItem.h"
+#include "Framework/Registry/RegistryItemTypeDef.h"
 
 class TH1F;
 class TH2F;
