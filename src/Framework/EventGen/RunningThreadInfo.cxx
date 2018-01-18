@@ -14,7 +14,7 @@
 */
 //____________________________________________________________________________
 
-#include "EVGCore/RunningThreadInfo.h"
+#include "Framework/EventGen//RunningThreadInfo.h"
 #include "Framework/EventGen/EventGeneratorI.h"
 #include "Framework/Messenger/Messenger.h"
 

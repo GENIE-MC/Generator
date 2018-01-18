@@ -14,7 +14,7 @@
 */
 //____________________________________________________________________________
 
-#include "EVGCore/InteractionListAssembler.h"
+#include "Framework/EventGen/InteractionListAssembler.h"
 #include "Framework/EventGen/InteractionListGeneratorI.h"
 #include "Framework/EventGen/InteractionList.h"
 #include "Framework/EventGen/EventGeneratorList.h"

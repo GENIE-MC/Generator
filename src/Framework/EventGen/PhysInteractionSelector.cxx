@@ -30,15 +30,15 @@
 
 #include "Framework/EventGen/XSecAlgorithmI.h"
 #include "Framework/Conventions/Units.h"
-#include "EVGCore/PhysInteractionSelector.h"
+#include "Framework/EventGen/PhysInteractionSelector.h"
 #include "Framework/EventGen/EventRecord.h"
 #include "Framework/EventGen/EventGeneratorI.h"
 #include "Framework/EventGen/InteractionList.h"
-#include "EVGCore/InteractionGeneratorMap.h"
+#include "Framework/EventGen/InteractionGeneratorMap.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
 #include "Framework/Numerical/Spline.h"
-#include "Utils/XSecSplineList.h"
+#include "Framework/Utils/XSecSplineList.h"
 #include "Framework/Utils/PrintUtils.h"
 
 using std::vector;

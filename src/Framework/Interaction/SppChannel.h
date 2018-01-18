@@ -22,10 +22,10 @@
 #include <string>
 
 #include "Framework/BaryonResonance/BaryonResonance.h"
-#include "BaryonResonance/BaryonResUtils.h"
+#include "Framework/ParticleData/BaryonResUtils.h"
 #include "Framework/Interaction/Interaction.h"
-#include "Framework/PDG/PDGCodes.h"
-#include "Framework/PDG/PDGUtils.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGUtils.h"
 
 using std::string;
 

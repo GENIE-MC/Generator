@@ -31,7 +31,7 @@
 #include <TBits.h>
 
 #include "Framework/EventGen/PathLengthList.h"
-#include "PDG/PDGCodeList.h"
+#include "Framework/PDG/PDGCodeList.h"
 
 using std::string;
 using std::map;

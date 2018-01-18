@@ -19,10 +19,10 @@
 
 #include <sstream>
 
-#include "BaryonResonance/BaryonResUtils.h"
+#include "Framework/ParticleData/BaryonResUtils.h"
 #include "Framework/Interaction/XclsTag.h"
 #include "Framework/Messenger/Messenger.h"
-#include "Framework/PDG/PDGLibrary.h"
+#include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/Utils/PrintUtils.h"
 
 using std::endl;

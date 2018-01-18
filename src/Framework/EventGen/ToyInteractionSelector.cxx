@@ -16,10 +16,10 @@
 
 #include <TLorentzVector.h>
 
-#include "EVGCore/ToyInteractionSelector.h"
+#include "Framework/EventGen/ToyInteractionSelector.h"
 #include "Framework/EventGen/EventRecord.h"
 #include "Framework/EventGen/InteractionList.h"
-#include "EVGCore/InteractionGeneratorMap.h"
+#include "Framework/EventGen/InteractionGeneratorMap.h"
 #include "Framework/Interaction/Interaction.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"

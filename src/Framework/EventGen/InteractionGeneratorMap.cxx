@@ -20,7 +20,7 @@
 
 #include "Framework/EventGen/InteractionList.h"
 #include "Framework/EventGen/EventGeneratorList.h"
-#include "EVGCore/InteractionGeneratorMap.h"
+#include "Framework/EventGen/InteractionGeneratorMap.h"
 #include "Framework/EventGen/EventGeneratorI.h"
 #include "Framework/EventGen/InteractionListGeneratorI.h"
 #include "Framework/Interaction/Interaction.h"

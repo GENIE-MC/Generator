@@ -124,7 +124,7 @@
 #include "Framework/Numerical/Spline.h"
 #include "Framework/PDG/PDGUtils.h"
 #include "Framework/Utils/PrintUtils.h"
-#include "Utils/XSecSplineList.h"
+#include "Framework/Utils/XSecSplineList.h"
 #include "Framework/Conventions/Constants.h"
 
 using namespace genie;

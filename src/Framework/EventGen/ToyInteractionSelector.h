@@ -25,7 +25,7 @@
 #ifndef _TOY_INTERACTION_SELECTOR_H_
 #define _TOY_INTERACTION_SELECTOR_H_
 
-#include "EVGCore/InteractionSelectorI.h"
+#include "Framework/EventGen/InteractionSelectorI.h"
 
 namespace genie {
 

@@ -26,7 +26,7 @@
 
 #include "Framework/EventGen/PathLengthList.h"
 #include "Framework/Messenger/Messenger.h"
-#include "PDG/PDGCodeList.h"
+#include "Framework/PDG/PDGCodeList.h"
 #include "Framework/PDG/PDGLibrary.h"
 #include "Framework/Utils/PrintUtils.h"
 #include "Utils/MathUtils.h"

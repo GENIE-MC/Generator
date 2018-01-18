@@ -42,14 +42,14 @@
 
 #include "Framework/Algorithm/AlgConfigPool.h"
 #include "Framework/Conventions/Constants.h"
-#include "Conventions/Controls.h"
+#include "Framework/Conventions/Controls.h"
 #include "Framework/Interaction/Interaction.h"
-#include "Interaction/InteractionException.h"
+#include "Framework/Interaction/InteractionException.h"
 #include "Framework/Messenger/Messenger.h"
-#include "Framework/PDG/PDGLibrary.h"
+#include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/Registry/Registry.h"
-#include "Utils/KineUtils.h"
-#include "Utils/MathUtils.h"
+#include "Framework/Utils/KineUtils.h"
+#include "Framework/Numerical/MathUtils.h"
 
 using namespace genie;
 using namespace genie::utils;
