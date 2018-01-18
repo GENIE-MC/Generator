@@ -27,11 +27,11 @@
 #endif
 #include <TMath.h>
 
-#include "Framework/BaryonResonance/BaryonResUtils.h"
-#include "Conventions/Controls.h"
+#include "Framework/ParticleData/BaryonResUtils.h"
+#include "Framework/Conventions/Controls.h"
 #include "Physics/Decay/BaryonResonanceDecayer.h"
 #include "Framework/Messenger/Messenger.h"
-#include "Framework/PDG/PDGLibrary.h"
+#include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/Numerical/RandomGen.h"
 #include "Framework/Utils/PrintUtils.h"
 #include "Framework/Conventions/Constants.h"

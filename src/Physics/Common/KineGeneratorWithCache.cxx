@@ -32,9 +32,9 @@
 #include "Framework/GHEP/GHepRecord.h"
 #include "Framework/GHEP/GHepFlags.h"
 #include "Framework/Messenger/Messenger.h"
-#include "Utils/Cache.h"
-#include "Utils/CacheBranchFx.h"
-#include "Utils/MathUtils.h"
+#include "Framework/Utils/Cache.h"
+#include "Framework/Utils/CacheBranchFx.h"
+#include "Framework/Numerical/MathUtils.h"
 
 using std::ostringstream;
 using std::map;

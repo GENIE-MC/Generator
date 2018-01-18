@@ -27,7 +27,7 @@
 #include <vector>
 
 #include "Framework/EventGen/EventRecordVisitorI.h"
-#include "PDG/PDGCodeList.h"
+#include "Framework/ParticleData/PDGCodeList.h"
 
 using std::vector;
 

@@ -386,6 +386,9 @@ s/include \"Utils\/PhysUtils.h\"/include \"Framework\/Utils\/PhysUtils.h\"/
 s/include \"Utils\/AppInit.h\"/include \"Framework\/Utils\/AppInit.h\"/
 s/include \"Conventions\/GVersion.h\"/include \"Framework\/Conventions\/GVersion.h\"/
 s/include \"Utils\/GSimFiles.h\"/include \"Framework\/Utils\/GSimFiles.h\"/
+s/include \"Utils\/NuclearUtils.h\"/include \"Physics\/NuclearState\/NuclearUtils.h\"/
+
+
 
 
 
