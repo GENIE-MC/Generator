@@ -12,9 +12,9 @@ MAKEFILE = Makefile
 #
 include $(GENIE)/src/make/Make.include
 
-PACKAGE           = FluxDrivers
-DICTIONARY        = _ROOT_DICT_FluxDrivers
-LIBNAME           = libGFluxDrivers
+PACKAGE           = TlFlx
+DICTIONARY        = _ROOT_DICT_$(PACKAGE)
+LIBNAME           = libG$(PACKAGE)
 EXTRA_EXT_LIBS    =
 
 all     : rootcint lib lib-link

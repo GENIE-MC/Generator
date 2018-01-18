@@ -12,9 +12,9 @@ MAKEFILE = Makefile
 #
 include $(GENIE)/src/make/Make.include
 
-PACKAGE           = ReWeight
-DICTIONARY        = _ROOT_DICT_ReWeight
-LIBNAME           = libGReWeight
+PACKAGE           = TlRew
+DICTIONARY        = _ROOT_DICT_$(PACKAGE)
+LIBNAME           = libG$(PACKAGE)
 EXTRA_EXT_LIBS    =
 
 all     : rootcint lib lib-link
