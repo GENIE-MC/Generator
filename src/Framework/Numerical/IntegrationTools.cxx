@@ -15,9 +15,9 @@
 
 #include <TMath.h>
 
-#include "Interaction/Interaction.h"
-#include "Messenger/Messenger.h"
-#include "AlvarezRuso/IntegrationTools.h"
+#include "Framework/Interaction/Interaction.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Numerical/IntegrationTools.h"
 
 namespace genie {
 namespace alvarezruso {

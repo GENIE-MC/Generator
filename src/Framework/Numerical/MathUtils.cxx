@@ -19,8 +19,8 @@
 
 #include <TMath.h>
 
-#include "Messenger/Messenger.h"
-#include "Numerical/RandomGen.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Numerical/RandomGen.h"
 #include "Utils/MathUtils.h"
 
 //____________________________________________________________________________

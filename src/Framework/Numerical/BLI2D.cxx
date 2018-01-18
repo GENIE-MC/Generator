@@ -26,7 +26,7 @@
 #include <cassert>
 #include <limits>
 
-#include "Messenger/Messenger.h"
+#include "Framework/Messenger/Messenger.h"
 #include "Numerical/BLI2D.h"
 
 using namespace genie;

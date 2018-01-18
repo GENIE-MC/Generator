@@ -22,8 +22,8 @@
 #include <TPythia6.h>
 
 #include "Conventions/Controls.h"
-#include "Messenger/Messenger.h"
-#include "Numerical/RandomGen.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Numerical/RandomGen.h"
 
 using namespace genie::controls;
 

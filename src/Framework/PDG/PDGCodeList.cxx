@@ -21,9 +21,9 @@
 #include <iomanip>
 #include <string>
 
-#include "Messenger/Messenger.h"
+#include "Framework/Messenger/Messenger.h"
 #include "PDG/PDGCodeList.h"
-#include "PDG/PDGLibrary.h"
+#include "Framework/PDG/PDGLibrary.h"
 
 using std::setw;
 using std::setfill;

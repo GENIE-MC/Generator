@@ -19,13 +19,13 @@
 */
 //____________________________________________________________________________
 
-#include "Algorithm/AlgConfigPool.h"
-#include "Conventions/GBuild.h"
-#include "Conventions/Constants.h"
-#include "Conventions/RefFrame.h"
-#include "NuGamma/H3AMNuGammaPXSec.h"
-#include "Messenger/Messenger.h"
-#include "PDG/PDGUtils.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
+#include "Framework/Conventions/GBuild.h"
+#include "Framework/Conventions/Constants.h"
+#include "Framework/Conventions/RefFrame.h"
+#include "Physics/AnomalyMediatedNuGamma/XSection/H3AMNuGammaPXSec.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/PDG/PDGUtils.h"
 #include "Utils/KineUtils.h"
 
 using namespace genie;

@@ -20,8 +20,8 @@
 
 #include <TSystem.h>
 
-#include "Messenger/Messenger.h"
-#include "PDG/PDGLibrary.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/PDG/PDGLibrary.h"
 
 using std::string;
 

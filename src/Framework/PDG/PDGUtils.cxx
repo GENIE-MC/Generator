@@ -28,9 +28,9 @@
 #include <cassert>
 
 #include "BaryonResonance/BaryonResUtils.h"
-#include "Messenger/Messenger.h"
-#include "PDG/PDGUtils.h"
-#include "PDG/PDGCodes.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/PDG/PDGUtils.h"
+#include "Framework/PDG/PDGCodes.h"
 
 using namespace genie;
 

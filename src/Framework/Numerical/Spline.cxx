@@ -43,10 +43,10 @@
 #include <TH2F.h>
 #include <TROOT.h>
 
-#include "Messenger/Messenger.h"
-#include "Numerical/Spline.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Numerical/Spline.h"
 #include "Utils/MathUtils.h"
-#include "Utils/XmlParserUtils.h"
+#include "Framework/Utils/XmlParserUtils.h"
 
 using std::endl;
 using std::setw;

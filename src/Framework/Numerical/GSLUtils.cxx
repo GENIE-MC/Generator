@@ -22,8 +22,8 @@
 #define _OLD_GSL_INTEGRATION_ENUM_TYPES_
 #endif
 
-#include "Messenger/Messenger.h"
-#include "Utils/StringUtils.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Utils/StringUtils.h"
 #include "Utils/GSLUtils.h"
 
 //____________________________________________________________________________
