@@ -17,11 +17,11 @@
 */
 //____________________________________________________________________________
 
-#include "EVGCore/InteractionList.h"
-#include "Interaction/Interaction.h"
-#include "Messenger/Messenger.h"
-#include "NuGamma/AMNuGammaInteractionListGenerator.h"
-#include "PDG/PDGCodes.h"
+#include "Framework/EventGen/InteractionList.h"
+#include "Framework/Interaction/Interaction.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Physics/AnomalyMediatedNuGamma/EventGen/AMNuGammaInteractionListGenerator.h"
+#include "Framework/PDG/PDGCodes.h"
 
 using namespace genie;
 
