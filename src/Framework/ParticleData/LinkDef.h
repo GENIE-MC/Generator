@@ -6,8 +6,10 @@
 
 #pragma link C++ namespace genie;
 #pragma link C++ namespace genie::pdg;
+#pragma link C++ namespace genie::utils::res;
 
 #pragma link C++ class genie::PDGLibrary;
 #pragma link C++ class genie::PDGCodeList;
+#pragma link C++ class genie::BaryonResList;
 
 #endif
