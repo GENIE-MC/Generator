@@ -31,7 +31,7 @@ phys_libs=" -lGPhXSIg -lGPhPDF -lGPhNuclSt -lGPhCmn -lGPhHadTransp -lGPhHadnz -l
 if test "$GOPT_ENABLE_NUCLEON_DECAY" = "YES"; then
   phys_libs="$phys_libs -lGPhNDcy "
 fi
-if test "$GOPT_ENABLE_NEUTRON_OSC" = "YES"; then
+if test "$GOPT_ENABLE_NNBAR_OSCILLATION" = "YES"; then
   phys_libs="$phys_libs -lGPhNNBarOsc"
 fi
 if test "$GOPT_ENABLE_BOOSTED_DARK_MATTER" = "YES"; then

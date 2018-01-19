@@ -123,7 +123,7 @@ endif
 physics-nnbar-oscillation:
 	@echo " "
 	@echo "** Building n-nbar oscillation library..."
-ifeq ($(strip $(GOPT_ENABLE_NEUTRON_OSC)),YES)
+ifeq ($(strip $(GOPT_ENABLE_NNBAR_OSCILLATION)),YES)
 	cd ${GENIE}/src/Physics && \
 	cd NNBarOscillation && \
 	$(MAKE) && \

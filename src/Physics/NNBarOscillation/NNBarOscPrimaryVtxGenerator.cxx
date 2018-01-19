@@ -64,7 +64,7 @@ void NNBarOscPrimaryVtxGenerator::ProcessEventRecord(GHepRecord * event) const
   fCurrDecayMode = (NNBarOscMode_t) interaction->ExclTag().DecayMode();
 
   // spit out that info -j
-  LOG("NeutronOsc", pNOTICE)
+  LOG("NNBarOsc", pNOTICE)
     << "Simulating decay " << genie::utils::nnbar_osc::AsString(fCurrDecayMode)
     << " for an initial state with code: " << fCurrInitStatePdg;
 
@@ -143,7 +143,7 @@ void NNBarOscPrimaryVtxGenerator::GenerateOscillatingNeutronPosition(
   double dA = (double)A;
   double R = R0 * TMath::Power(dA, 1./3.);
             
-  LOG("NeutronOsc", pINFO)
+  LOG("NNBarOsc", pINFO)
       << "Generating vertex according to a realistic nuclear density profile";
 
   // get inputs to the rejection method
@@ -163,7 +163,7 @@ void NNBarOscPrimaryVtxGenerator::GenerateOscillatingNeutronPosition(
 
     // throw an exception if it hasn't find a solution after many attempts
     if(iter > controls::kRjMaxIterations) {
-       LOG("NeutronOsc", pWARN)
+       LOG("NNBarOsc", pWARN)
            << "Couldn't generate a vertex position after " << iter << " iterations";
        genie::exceptions::EVGThreadException exception;
        exception.SetReason("Couldn't generate vertex");
@@ -175,7 +175,7 @@ void NNBarOscPrimaryVtxGenerator::GenerateOscillatingNeutronPosition(
     double t = ymax * rnd->RndFsi().Rndm();
     double y = r*r * utils::nuclear::Density(r,A);
     if(y > ymax) {   
-       LOG("NeutronOsc", pERROR)
+       LOG("NNBarOsc", pERROR)
           << "y = " << y << " > ymax = " << ymax << " for r = " << r << ", A = " << A;
     }
     bool accept = (t < y);
@@ -237,7 +237,7 @@ void NNBarOscPrimaryVtxGenerator::GenerateFermiMomentum(
   TLorentzVector p4(p3, energy);
   oscillating_neutron->SetMomentum(p4);
 
-  LOG("FermiMover", pINFO)
+  LOG("NNBarOsc", pINFO)
      << "Generated neutron momentum: ("
      << p3.Px() << ", " << p3.Py() << ", " << p3.Pz() << "), "
      << "|p| = " << p3.Mag();
@@ -255,7 +255,7 @@ void NNBarOscPrimaryVtxGenerator::GenerateFermiMomentum(
   p4 = TLorentzVector(p3, energy);
   annihilation_nucleon->SetMomentum(p4);
 
-  LOG("FermiMover", pINFO) 
+  LOG("NNBarOsc", pINFO) 
      << "Generated nucleon momentum: ("
      << p3.Px() << ", " << p3.Py() << ", " << p3.Pz() << "), "
      << "|p| = " << p3.Mag();
@@ -273,13 +273,13 @@ void NNBarOscPrimaryVtxGenerator::GenerateFermiMomentum(
 void NNBarOscPrimaryVtxGenerator::GenerateDecayProducts(
   GHepRecord * event) const
 {
-  LOG("NeutronOsc", pINFO) << "Generating decay...";
+  LOG("NNBarOsc", pINFO) << "Generating decay...";
 
   PDGCodeList pdgv = genie::utils::nnbar_osc::DecayProductList(fCurrDecayMode);
-  LOG("NeutronOsc", pINFO) << "Decay product IDs: " << pdgv;
+  LOG("NNBarOsc", pINFO) << "Decay product IDs: " << pdgv;
   assert ( pdgv.size() >  1);
 
-  LOG("NeutronOsc", pINFO) << "Performing a phase space decay...";
+  LOG("NNBarOsc", pINFO) << "Performing a phase space decay...";
 
   // Get the decay product masses
 
@@ -294,7 +294,7 @@ void NNBarOscPrimaryVtxGenerator::GenerateDecayProducts(
     sum += m;
   }
 
-  LOG("NeutronOsc", pINFO)  
+  LOG("NNBarOsc", pINFO)  
     << "Decaying N = " << pdgv.size() << " particles / total mass = " << sum;
   int initial_nucleus_id      = 0;
   int oscillating_neutron_id  = 1;
@@ -324,7 +324,7 @@ void NNBarOscPrimaryVtxGenerator::GenerateDecayProducts(
   delete p4_1;
   delete p4_2;
 
-  LOG("NeutronOsc", pINFO) 
+  LOG("NNBarOsc", pINFO) 
     << "Decaying system p4 = " << utils::print::P4AsString(p4d);
 
   // Set the decay
@@ -333,7 +333,7 @@ void NNBarOscPrimaryVtxGenerator::GenerateDecayProducts(
   // If the decay is not energetically allowed, select a new final state
   while(!permitted) {
 
-    LOG("NeutronOsc", pINFO)
+    LOG("NNBarOsc", pINFO)
       << "Not enough energy to generate decay products! Selecting a new final state.";
     
     int mode = 0;
@@ -342,7 +342,7 @@ void NNBarOscPrimaryVtxGenerator::GenerateDecayProducts(
         
     std::string nucleus_pdg = std::to_string(static_cast<long long>(initial_nucleus_pdg));
     if (nucleus_pdg.size() != 10) {
-      LOG("NeutronOsc", pERROR)
+      LOG("NNBarOsc", pERROR)
         << "Expecting the nuclear PDG code to be a 10-digit integer, but it is " << nucleus_pdg << ", which is "
         << nucleus_pdg.size() << " digits long. Drop me an email at jezhewes@gmail.com ; exiting...";
       exit(1);
@@ -395,11 +395,11 @@ void NNBarOscPrimaryVtxGenerator::GenerateDecayProducts(
     fCurrDecayMode = (NNBarOscMode_t) interaction->ExclTag().DecayMode(); 
     
     pdgv = genie::utils::nnbar_osc::DecayProductList(fCurrDecayMode);
-    LOG("NeutronOsc", pINFO) << "Decay product IDs: " << pdgv;
+    LOG("NNBarOsc", pINFO) << "Decay product IDs: " << pdgv;
     assert ( pdgv.size() > 1);
     
     // get the decay particles again
-    LOG("NeutronOsc", pINFO) << "Performing a phase space decay...";
+    LOG("NNBarOsc", pINFO) << "Performing a phase space decay...";
     idx = 0;
     delete [] mass;
     mass = new double[pdgv.size()];
@@ -411,16 +411,16 @@ void NNBarOscPrimaryVtxGenerator::GenerateDecayProducts(
       sum += m;
     }
     
-    LOG("NeutronOsc", pINFO)
+    LOG("NNBarOsc", pINFO)
       << "Decaying N = " << pdgv.size() << " particles / total mass = " << sum;
-    LOG("NeutronOsc", pINFO)
+    LOG("NNBarOsc", pINFO)
       << "Decaying system p4 = " << utils::print::P4AsString(p4d);
     
     permitted = fPhaseSpaceGenerator.SetDecay(*p4d, pdgv.size(), mass);
   }
   
   if(!permitted) {
-     LOG("NeutronOsc", pERROR) 
+     LOG("NNBarOsc", pERROR) 
        << " *** Phase space decay is not permitted \n"
        << " Total particle mass = " << sum << "\n"
        << " Decaying system p4 = " << utils::print::P4AsString(p4d);
@@ -445,7 +445,7 @@ void NNBarOscPrimaryVtxGenerator::GenerateDecayProducts(
   assert(wmax>0);
   wmax *= 2;
 
-  LOG("NeutronOsc", pNOTICE) 
+  LOG("NNBarOsc", pNOTICE) 
      << "Max phase space gen. weight @ current hadronic system: " << wmax;
 
   // Generate an unweighted decay
@@ -459,7 +459,7 @@ void NNBarOscPrimaryVtxGenerator::GenerateDecayProducts(
 
      if(itry > controls::kMaxUnweightDecayIterations) {
        // report, clean-up and return
-       LOG("NeutronOsc", pWARN) 
+       LOG("NNBarOsc", pWARN) 
            << "Couldn't generate an unweighted phase space decay after " 
            << itry << " attempts";
        // clean up
@@ -474,13 +474,13 @@ void NNBarOscPrimaryVtxGenerator::GenerateDecayProducts(
      }
      double w  = fPhaseSpaceGenerator.Generate();   
      if(w > wmax) {
-        LOG("NeutronOsc", pWARN) 
+        LOG("NNBarOsc", pWARN) 
            << "Decay weight = " << w << " > max decay weight = " << wmax;
      }
      double gw = wmax * rnd->RndHadro().Rndm();
      accept_decay = (gw<=w);
 
-     LOG("NeutronOsc", pINFO) 
+     LOG("NNBarOsc", pINFO) 
         << "Decay weight = " << w << " / R = " << gw 
         << " - accepted: " << accept_decay;
 

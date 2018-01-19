@@ -33,14 +33,14 @@ XSecModel                   alg     Yes  Cross section model used at the thread 
      <param type="alg"    name="ILstGen">    genie::DummyInteractionListGenerator/Default         </param>
   </param_set>
 
-  <param_set name="NeutronOsc">
+  <param_set name="NNBarOsc">
      <param type="string" name="VldContext"> </param>
      <param type="int"    name="NModules">   4                                                    </param>
-     <param type="alg"    name="Module-0">   genie::NeutronOscPrimaryVtxGenerator/Default         </param>
+     <param type="alg"    name="Module-0">   genie::NNBarOscPrimaryVtxGenerator/Default           </param>
      <param type="alg"    name="Module-1">   genie::UnstableParticleDecayer/BeforeHadronTransport </param>
      <param type="alg"    name="Module-2">   genie::HadronTransporter/Default                     </param>
      <param type="alg"    name="Module-3">   genie::UnstableParticleDecayer/AfterHadronTransport  </param>
-     <param type="alg"    name="ILstGen">    genie::NOscDummyInteractionListGenerator/Default     </param>
+     <param type="alg"    name="ILstGen">    genie::NNBarOscDummyInteractionListGenerator/Default </param>
   </param_set>
 
   <!-- 

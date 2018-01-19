@@ -28,7 +28,7 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "    fnal                 FNAL-specific event generation app                          default: disabled \n";
   print "    atmo                 Atmospheric neutrino event generation app                   default: disabled \n";
   print "    nucleon-decay        Nucleon decay simulation                                    default: disabled \n";
-  print "    neutron-osc          Neutron oscillation simulation                              default: disabled \n";
+  print "    nnbar-oscillation    Simulation of nbar annihilation [n-nbar oscillation]        default: disabled \n";
   print "    boosted-dark-matter  Boosted dark matter simulation                              default: disabled \n";
   print "    flux-drivers         Built-in flux drivers                                       default: enabled  \n";
   print "    geom-drivers         Built-in detector geometry drivers                          default: enabled  \n";
@@ -124,44 +124,44 @@ print MKCONF "GENIE_INSTALLATION_PATH=$prefix\n";
 
 # Default --enable/--disable config options (for a minimal genie build)
 #
-my $gopt_enable_profiler         = "NO";
-my $gopt_enable_doxygen_doc      = "NO";
-my $gopt_enable_dylibversion     = "YES";
-my $gopt_enable_lowlevel_mesg    = "NO";
-my $gopt_enable_debug            = "NO";
-my $gopt_enable_lhapdf           = "YES";
-my $gopt_enable_flux_drivers     = "YES";
-my $gopt_enable_geom_drivers     = "YES";
-my $gopt_enable_test             = "NO";
-my $gopt_enable_t2k              = "NO";
-my $gopt_enable_fnal             = "NO";
-my $gopt_enable_atmo             = "NO";
-my $gopt_enable_nucleon_decay    = "NO";
-my $gopt_enable_neutron_osc      = "NO";
-my $gopt_enable_boosted_dark_mat = "NO";
-my $gopt_enable_rwght            = "NO";
-my $gopt_enable_masterclass      = "NO";
+my $gopt_enable_profiler          = "NO";
+my $gopt_enable_doxygen_doc       = "NO";
+my $gopt_enable_dylibversion      = "YES";
+my $gopt_enable_lowlevel_mesg     = "NO";
+my $gopt_enable_debug             = "NO";
+my $gopt_enable_lhapdf            = "YES";
+my $gopt_enable_flux_drivers      = "YES";
+my $gopt_enable_geom_drivers      = "YES";
+my $gopt_enable_test              = "NO";
+my $gopt_enable_t2k               = "NO";
+my $gopt_enable_fnal              = "NO";
+my $gopt_enable_atmo              = "NO";
+my $gopt_enable_nucleon_decay     = "NO";
+my $gopt_enable_nnbar_oscillation = "NO";
+my $gopt_enable_boosted_dark_mat  = "NO";
+my $gopt_enable_rwght             = "NO";
+my $gopt_enable_masterclass       = "NO";
 
 # Check configure's command line arguments for non-default values
 #
-if(($match = grep(/--enable-profiler/i,            @ARGV)) > 0) { $gopt_enable_profiler         = "YES"; }
-if(($match = grep(/--enable-doxygen-doc/i,         @ARGV)) > 0) { $gopt_enable_doxygen_doc      = "YES"; }
-if(($match = grep(/--disable-dylibversion/i,       @ARGV)) > 0) { $gopt_enable_dylibversion     = "NO";  }
-if(($match = grep(/--enable-lowlevel-mesg/i,       @ARGV)) > 0) { $gopt_enable_lowlevel_mesg    = "YES"; }
-if(($match = grep(/--enable-debug/i,               @ARGV)) > 0) { $gopt_enable_debug            = "YES"; }
-if(($match = grep(/--enable-lhapdf/i,              @ARGV)) > 0) { $gopt_enable_lhapdf           = "YES"; }
-if(($match = grep(/--disable-lhapdf/i,             @ARGV)) > 0) { $gopt_enable_lhapdf           = "NO"; }
-if(($match = grep(/--disable-flux-drivers/i,       @ARGV)) > 0) { $gopt_enable_flux_drivers     = "NO";  }
-if(($match = grep(/--disable-geom-drivers/i,       @ARGV)) > 0) { $gopt_enable_geom_drivers     = "NO";  }
-if(($match = grep(/--enable-test/i,                @ARGV)) > 0) { $gopt_enable_test             = "YES"; }
-if(($match = grep(/--enable-t2k/i,                 @ARGV)) > 0) { $gopt_enable_t2k              = "YES"; }
-if(($match = grep(/--enable-fnal/i,                @ARGV)) > 0) { $gopt_enable_fnal             = "YES"; }
-if(($match = grep(/--enable-atmo/i,                @ARGV)) > 0) { $gopt_enable_atmo             = "YES"; }
-if(($match = grep(/--enable-nucleon-decay/i,       @ARGV)) > 0) { $gopt_enable_nucleon_decay    = "YES"; }
-if(($match = grep(/--enable-neutron-osc/i,         @ARGV)) > 0) { $gopt_enable_neutron_osc      = "YES"; }
-if(($match = grep(/--enable-boosted-dark-matter/i, @ARGV)) > 0) { $gopt_enable_boosted_dark_mat = "YES"; }
-if(($match = grep(/--enable-rwght/i,               @ARGV)) > 0) { $gopt_enable_rwght            = "YES"; }
-if(($match = grep(/--enable-masterclass/i,         @ARGV)) > 0) { $gopt_enable_masterclass      = "YES"; }
+if(($match = grep(/--enable-profiler/i,            @ARGV)) > 0) { $gopt_enable_profiler          = "YES"; }
+if(($match = grep(/--enable-doxygen-doc/i,         @ARGV)) > 0) { $gopt_enable_doxygen_doc       = "YES"; }
+if(($match = grep(/--disable-dylibversion/i,       @ARGV)) > 0) { $gopt_enable_dylibversion      = "NO";  }
+if(($match = grep(/--enable-lowlevel-mesg/i,       @ARGV)) > 0) { $gopt_enable_lowlevel_mesg     = "YES"; }
+if(($match = grep(/--enable-debug/i,               @ARGV)) > 0) { $gopt_enable_debug             = "YES"; }
+if(($match = grep(/--enable-lhapdf/i,              @ARGV)) > 0) { $gopt_enable_lhapdf            = "YES"; }
+if(($match = grep(/--disable-lhapdf/i,             @ARGV)) > 0) { $gopt_enable_lhapdf            = "NO"; }
+if(($match = grep(/--disable-flux-drivers/i,       @ARGV)) > 0) { $gopt_enable_flux_drivers      = "NO";  }
+if(($match = grep(/--disable-geom-drivers/i,       @ARGV)) > 0) { $gopt_enable_geom_drivers      = "NO";  }
+if(($match = grep(/--enable-test/i,                @ARGV)) > 0) { $gopt_enable_test              = "YES"; }
+if(($match = grep(/--enable-t2k/i,                 @ARGV)) > 0) { $gopt_enable_t2k               = "YES"; }
+if(($match = grep(/--enable-fnal/i,                @ARGV)) > 0) { $gopt_enable_fnal              = "YES"; }
+if(($match = grep(/--enable-atmo/i,                @ARGV)) > 0) { $gopt_enable_atmo              = "YES"; }
+if(($match = grep(/--enable-nucleon-decay/i,       @ARGV)) > 0) { $gopt_enable_nucleon_decay     = "YES"; }
+if(($match = grep(/--enable-nnbar-oscillation/i,   @ARGV)) > 0) { $gopt_enable_nnbar_oscillation = "YES"; }
+if(($match = grep(/--enable-boosted-dark-matter/i, @ARGV)) > 0) { $gopt_enable_boosted_dark_mat  = "YES"; }
+if(($match = grep(/--enable-rwght/i,               @ARGV)) > 0) { $gopt_enable_rwght             = "YES"; }
+if(($match = grep(/--enable-masterclass/i,         @ARGV)) > 0) { $gopt_enable_masterclass       = "YES"; }
 
 my $gopt_with_cxx_debug_flag="";
 if($gopt_enable_debug eq "YES") { $gopt_with_cxx_debug_flag = "-g"; }
@@ -407,7 +407,7 @@ print MKCONF "GOPT_ENABLE_T2K=$gopt_enable_t2k\n";
 print MKCONF "GOPT_ENABLE_FNAL=$gopt_enable_fnal\n";
 print MKCONF "GOPT_ENABLE_ATMO=$gopt_enable_atmo\n";
 print MKCONF "GOPT_ENABLE_NUCLEON_DECAY=$gopt_enable_nucleon_decay\n";
-print MKCONF "GOPT_ENABLE_NEUTRON_OSC=$gopt_enable_neutron_osc\n";
+print MKCONF "GOPT_ENABLE_NNBAR_OSCILLATION=$gopt_enable_nnbar_oscillation\n";
 print MKCONF "GOPT_ENABLE_BOOSTED_DARK_MATTER=$gopt_enable_boosted_dark_mat\n";
 print MKCONF "GOPT_ENABLE_FLUX_DRIVERS=$gopt_enable_flux_drivers\n";
 print MKCONF "GOPT_ENABLE_GEOM_DRIVERS=$gopt_enable_geom_drivers\n";
