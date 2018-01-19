@@ -139,7 +139,7 @@ physics-boosted-dark-matter:
 	@echo "** Building boosted dark matter library..."
 ifeq ($(strip $(GOPT_ENABLE_BOOSTED_DARK_MATTER)),YES)
 	cd ${GENIE}/src/Physics && \
-	cd DarkMatter && \
+	cd BoostedDarkMatter && \
 	$(MAKE) && \
 	cd ${GENIE}
 else
@@ -346,14 +346,13 @@ make-install-dirs: FORCE
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/AnomalyMediatedNuGamma
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/AnomalyMediatedNuGamma/XSection
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/AnomalyMediatedNuGamma/EventGen
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/BoostedDarkMatter
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/Charm
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/Charm/XSection
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/Charm/EventGen
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/Coherent
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/Coherent/XSection
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/Coherent/EventGen
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/Common
-	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/DarkMatter
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/Decay
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/DeepInelastic
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/DeepInelastic/XSection
@@ -414,12 +413,11 @@ copy-install-files: FORCE
 	cd ${GENIE}/src/Framework/Utils                          &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/AnomalyMediatedNuGamma/XSection  &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/AnomalyMediatedNuGamma/EventGen  &&  $(MAKE) install && \
+	cd ${GENIE}/src/Physics/BoostedDarkMatter                &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/Charm/XSection                   &&  $(MAKE) install && \
-	cd ${GENIE}/src/Physics/Charm/EventGen                   &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/Coherent/XSection                &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/Coherent/EventGen                &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/Common                           &&  $(MAKE) install && \
-	cd ${GENIE}/src/Physics/DarkMatter                       &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/Decay                            &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/DeepInelastic/XSection           &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/DeepInelastic/EventGen           &&  $(MAKE) install && \
@@ -470,12 +468,11 @@ purge: FORCE
 	cd ${GENIE}/src/Framework/Utils                          &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/AnomalyMediatedNuGamma/XSection  &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/AnomalyMediatedNuGamma/EventGen  &&  $(MAKE) purge && \
+	cd ${GENIE}/src/Physics/BoostedDarkMatter                &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/Charm/XSection                   &&  $(MAKE) purge && \
-	cd ${GENIE}/src/Physics/Charm/EventGen                   &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/Coherent/XSection                &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/Coherent/EventGen                &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/Common                           &&  $(MAKE) purge && \
-	cd ${GENIE}/src/Physics/DarkMatter                       &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/Decay                            &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/DeepInelastic/XSection           &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/DeepInelastic/EventGen           &&  $(MAKE) purge && \
@@ -527,12 +524,11 @@ clean-files: FORCE
 	cd ${GENIE}/src/Framework/Utils                          &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/AnomalyMediatedNuGamma/XSection  &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/AnomalyMediatedNuGamma/EventGen  &&  $(MAKE) clean && \
+	cd ${GENIE}/src/Physics/BoostedDarkMatter                &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/Charm/XSection                   &&  $(MAKE) clean && \
-	cd ${GENIE}/src/Physics/Charm/EventGen                   &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/Coherent/XSection                &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/Coherent/EventGen                &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/Common                           &&  $(MAKE) clean && \
-	cd ${GENIE}/src/Physics/DarkMatter                       &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/Decay                            &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/DeepInelastic/XSection           &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/DeepInelastic/EventGen           &&  $(MAKE) clean && \
@@ -596,12 +592,11 @@ distclean: FORCE
 	cd ${GENIE}/src/Framework/Utils                          &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/AnomalyMediatedNuGamma/XSection  &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/AnomalyMediatedNuGamma/EventGen  &&  $(MAKE) distclean && \
+	cd ${GENIE}/src/Physics/BoostedDarkMatter                &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/Charm/XSection                   &&  $(MAKE) distclean && \
-	cd ${GENIE}/src/Physics/Charm/EventGen                   &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/Coherent/XSection                &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/Coherent/EventGen                &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/Common                           &&  $(MAKE) distclean && \
-	cd ${GENIE}/src/Physics/DarkMatter                       &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/Decay                            &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/DeepInelastic/XSection           &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/DeepInelastic/EventGen           &&  $(MAKE) distclean && \
