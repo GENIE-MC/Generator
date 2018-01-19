@@ -171,7 +171,9 @@ endif
 #
 .PHONY: distclean
 distclean:
+ifneq ($(strip $(LIBNAME)),undefined)
 	$(RM) -f $(GENIE_LIB_INSTALLATION_PATH)/$(LIBNAME)*
+endif
 
 
 DEP=$(addsuffix .d, $(basename $(PACKAGE_ALL_SOURCES)))
