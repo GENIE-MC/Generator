@@ -80,7 +80,7 @@ framework: FORCE
 
 physics-neutrino-scattering-modes: FORCE
 	@echo " "
-	@echo "** Building core medium energy range physics models..."
+	@echo "** Building simulation modules for neutrino scattering modes..."
 	cd ${GENIE}/src/Physics/AnomalyMediatedNuGamma/XSection  &&  $(MAKE) &&   \
 	cd ${GENIE}/src/Physics/AnomalyMediatedNuGamma/EventGen  &&  $(MAKE) &&   \
 	cd ${GENIE}/src/Physics/Charm/XSection                   &&  $(MAKE) &&   \
