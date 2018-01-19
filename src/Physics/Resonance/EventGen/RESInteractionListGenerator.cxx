@@ -19,12 +19,12 @@
 //____________________________________________________________________________
 
 #include "Framework/Algorithm/AlgConfigPool.h"
-#include "Framework/BaryonResonance/BaryonResUtils.h"
 #include "Framework/EventGen/InteractionList.h"
 #include "Framework/Interaction/Interaction.h"
 #include "Framework/Messenger/Messenger.h"
-#include "Framework/PDG/PDGCodes.h"
-#include "Framework/PDG/PDGUtils.h"
+#include "Framework/ParticleData/BaryonResUtils.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGUtils.h"
 #include "Physics/Resonance/EventGen/RESInteractionListGenerator.h"
 
 using namespace genie;

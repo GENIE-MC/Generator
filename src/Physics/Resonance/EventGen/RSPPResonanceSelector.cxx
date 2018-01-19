@@ -22,7 +22,6 @@
 #include <sstream>
 
 #include "Framework/Algorithm/AlgConfigPool.h"
-#include "Framework/BaryonResonance/BaryonResUtils.h"
 #include "Framework/EventGen/XSecAlgorithmI.h"
 #include "Framework/Conventions/KinePhaseSpace.h"
 #include "Framework/EventGen/EventGeneratorI.h"
@@ -32,7 +31,8 @@
 #include "Framework/GHEP/GHepRecord.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
-#include "Framework/PDG/PDGLibrary.h"
+#include "Framework/ParticleData/PDGLibrary.h"
+#include "Framework/ParticleData/BaryonResUtils.h"
 #include "Physics/Resonance/EventGen/RSPPResonanceSelector.h"
 
 using std::vector;

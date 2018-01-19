@@ -23,8 +23,8 @@
 #ifndef _RSPP_RESONANCE_SELECTOR_H_
 #define _RSPP_RESONANCE_SELECTOR_H_
 
-#include "Framework/BaryonResonance/BaryonResonance.h"
-#include "BaryonResonance/BaryonResList.h"
+#include "Framework/ParticleData/BaryonResonance.h"
+#include "Framework/ParticleData/BaryonResList.h"
 #include "Physics/Common/HadronicSystemGenerator.h"
 
 namespace genie {

@@ -31,8 +31,6 @@
 #include <TROOT.h>
 
 #include "Framework/Algorithm/AlgConfigPool.h"
-#include "Framework/BaryonResonance/BaryonResonance.h"
-#include "Framework/BaryonResonance/BaryonResUtils.h"
 #include "Framework/Conventions/GBuild.h"
 #include "Framework/Conventions/Controls.h"
 #include "Framework/Conventions/KineVar.h"
@@ -44,9 +42,11 @@
 #include "Framework/GHEP/GHepFlags.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
+#include "Framework/Numerical/MathUtils.h"
+#include "Framework/ParticleData/BaryonResonance.h"
+#include "Framework/ParticleData/BaryonResUtils.h"
+#include "Framework/Utils/KineUtils.h"
 #include "Physics/Resonance/EventGen/RESKinematicsGenerator.h"
-#include "Utils/KineUtils.h"
-#include "Utils/MathUtils.h"
 
 using namespace genie;
 using namespace genie::controls;

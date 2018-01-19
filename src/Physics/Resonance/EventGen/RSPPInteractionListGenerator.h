@@ -23,7 +23,7 @@
 #define _RSPP_INTERACTION_LIST_GENERATOR_H_
 
 #include "Framework/EventGen/InteractionListGeneratorI.h"
-#include "Interaction/SppChannel.h"
+#include "Framework/Interaction/SppChannel.h"
 
 namespace genie {
 

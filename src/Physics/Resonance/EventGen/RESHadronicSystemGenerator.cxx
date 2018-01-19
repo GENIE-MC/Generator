@@ -29,23 +29,23 @@
 #endif
 
 #include "Framework/Algorithm/AlgConfigPool.h"
-#include "Framework/BaryonResonance/BaryonResonance.h"
-#include "Framework/BaryonResonance/BaryonResUtils.h"
 #include "Framework/Conventions/Constants.h"
-#include "Physics/Decay/DecayModelI.h"
 #include "Framework/EventGen/EVGThreadException.h"
 #include "Framework/GHEP/GHepStatus.h"
 #include "Framework/GHEP/GHepRecord.h"
 #include "Framework/GHEP/GHepParticle.h"
 #include "Framework/GHEP/GHepFlags.h"
 #include "Framework/Interaction/Interaction.h"
-#include "Interaction/SppChannel.h"
+#include "Framework/Interaction/SppChannel.h"
 #include "Framework/Messenger/Messenger.h"
-#include "Framework/PDG/PDGLibrary.h"
-#include "Framework/PDG/PDGCodes.h"
-#include "Framework/PDG/PDGUtils.h"
-#include "Physics/Resonance/EventGen/RESHadronicSystemGenerator.h"
+#include "Framework/ParticleData/BaryonResonance.h"
+#include "Framework/ParticleData/BaryonResUtils.h"
+#include "Framework/ParticleData/PDGLibrary.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/Utils/PrintUtils.h"
+#include "Physics/Decay/DecayModelI.h"
+#include "Physics/Resonance/EventGen/RESHadronicSystemGenerator.h"
 
 using namespace genie;
 using namespace genie::constants;

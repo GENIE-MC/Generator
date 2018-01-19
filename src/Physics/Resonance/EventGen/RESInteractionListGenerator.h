@@ -21,7 +21,7 @@
 #ifndef _RES_INTERACTION_LIST_GENERATOR_H_
 #define _RES_INTERACTION_LIST_GENERATOR_H_
 
-#include "BaryonResonance/BaryonResList.h"
+#include "Framework/ParticleData/BaryonResList.h"
 #include "Framework/EventGen/InteractionListGeneratorI.h"
 
 namespace genie {
