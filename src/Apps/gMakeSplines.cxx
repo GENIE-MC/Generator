@@ -106,7 +106,7 @@
 #include "Framework/Utils/CmdLnArgParser.h"
 
 #ifdef __GENIE_GEOM_DRIVERS_ENABLED__
-#include "Geo/ROOTGeomAnalyzer.h"
+#include "Tools/Geometry/ROOTGeomAnalyzer.h"
 #endif
 
 using std::string;

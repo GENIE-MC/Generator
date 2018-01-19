@@ -446,7 +446,7 @@
 #include "Framework/Utils/AppInit.h"
 #include "Framework/Utils/RunOpt.h"
 #include "Framework/Utils/CmdLnArgParser.h"
-#include "Utils/T2KEvGenMetaData.h"
+#include "Framework/Utils/T2KEvGenMetaData.h"
 #include "Framework/Utils/SystemUtils.h"
 #include "Framework/Utils/PrintUtils.h"
 
@@ -456,8 +456,8 @@
 #endif
 
 #ifdef __GENIE_GEOM_DRIVERS_ENABLED__
-#include "Geo/GeoUtils.h"
-#include "Geo/ROOTGeomAnalyzer.h"
+#include "Tools/Geometry/GeoUtils.h"
+#include "Tools/Geometry/ROOTGeomAnalyzer.h"
 #include "Tools/Geometry/PointGeomAnalyzer.h"
 #endif
 

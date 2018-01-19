@@ -145,8 +145,8 @@
 #include "Framework/GHEP/GHepParticle.h"
 #include "Framework/GHEP/GHepUtils.h"
 #include "Framework/Ntuple/NtpMCFormat.h"
-#include "Ntuple/NtpMCTreeHeader.h"
-#include "Ntuple/NtpMCEventRecord.h"
+#include "Framework/Ntuple/NtpMCTreeHeader.h"
+#include "Framework/Ntuple/NtpMCEventRecord.h"
 #include "Framework/Ntuple/NtpWriter.h"
 #include "Framework/Numerical/RandomGen.h"
 #include "Framework/Messenger/Messenger.h"
@@ -157,7 +157,7 @@
 #include "Framework/Utils/RunOpt.h"
 #include "Framework/Utils/CmdLnArgParser.h"
 #include "Framework/Utils/SystemUtils.h"
-#include "Utils/T2KEvGenMetaData.h"
+#include "Framework/Utils/T2KEvGenMetaData.h"
 
 #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
 #include "Tools/Flux/GJPARCNuFlux.h"

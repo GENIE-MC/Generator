@@ -481,6 +481,12 @@ s/include \"Masterclass\/MCTruthDisplay.h\"/include \"Tools\/Masterclass\/MCTrut
 s/include \"Masterclass\/FastSimScintCalo.h\"/include \"Tools\/Masterclass\/FastSimScintCalo.h\"/
 s/include \"Masterclass\/FastSimCherenkov.h\"/include \"Tools\/Masterclass\/FastSimCherenkov.h\"/
 s/include \"Masterclass\/GNuMcMainFrame.h\"/include \"Tools\/Masterclass\/GNuMcMainFrame.h\"/
+s/include \"Ntuple\/NtpMCTreeHeader.h\"/include \"Framework\/Ntuple\/NtpMCTreeHeader.h\"/
+s/include \"Utils\/T2KEvGenMetaData.h\"/include \"Framework\/Utils\/T2KEvGenMetaData.h\"/
+
+
+
+
 
 
 

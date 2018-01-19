@@ -75,7 +75,7 @@
 #include <TMath.h>
 
 #include "Framework/EventGen/PathLengthList.h"
-#include "Geo/ROOTGeomAnalyzer.h"
+#include "Tools/Geometry/ROOTGeomAnalyzer.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
 #include "Framework/Utils/CmdLnArgParser.h"

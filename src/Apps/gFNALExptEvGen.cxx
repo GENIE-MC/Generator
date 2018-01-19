@@ -330,11 +330,11 @@
 #endif
 
 #ifdef __GENIE_GEOM_DRIVERS_ENABLED__
-#include "Geo/GeoUtils.h"
-#include "Geo/ROOTGeomAnalyzer.h"
+#include "Tools/Geometry/GeoUtils.h"
+#include "Tools/Geometry/ROOTGeomAnalyzer.h"
 #include "Tools/Geometry/PointGeomAnalyzer.h"
 #include "Tools/Geometry/GeomVolSelectorFiducial.h"
-#include "Geo/GeomVolSelectorRockBox.h"
+#include "Tools/Geometry/GeomVolSelectorRockBox.h"
 #endif
 
 using std::string;
