@@ -14,7 +14,7 @@ include $(GENIE)/src/make/Make.include
 
 PACKAGE           = PhGlwResEG
 DICTIONARY        = _ROOT_DICT_$(PACKAGE)
-LIBNAME           = lib$(PACKAGE)
+LIBNAME           = libG$(PACKAGE)
 EXTRA_EXT_LIBS    =
 
 all     : rootcint lib lib-link

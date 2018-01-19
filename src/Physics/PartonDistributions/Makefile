@@ -14,7 +14,7 @@ include $(GENIE)/src/make/Make.include
 
 PACKAGE           = PhPDF
 DICTIONARY        = _ROOT_DICT_$(PACKAGE)
-LIBNAME           = lib$(PACKAGE)
+LIBNAME           = libG$(PACKAGE)
 EXTRA_EXT_LIBS    = $(CERN_LIBRARIES) $(LHAPDF_LIBRARIES)
 
 all     : rootcint lib lib-link

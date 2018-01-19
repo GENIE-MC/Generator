@@ -12,7 +12,7 @@ MAKEFILE = Makefile
 #
 include $(GENIE)/src/make/Make.include
 
-PACKAGE           = PCohXS
+PACKAGE           = PhCohXS
 DICTIONARY        = _ROOT_DICT_$(PACKAGE)
 LIBNAME           = libG$(PACKAGE)
 

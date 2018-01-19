@@ -46,7 +46,7 @@ if test "$GOPT_ENABLE_GEOM_DRIVERS" = "YES"; then
   tool_libs="$tool_libs -lGTlGeo "
 fi
 if test "$GOPT_ENABLE_FLUX_DRIVERS" = "YES"; then
-  tool_libs="$tool_libs -lGtlFlx "
+  tool_libs="$tool_libs -lGTlFlx "
 fi
 if test "$GOPT_ENABLE_RWGHT" = "YES"; then
   tool_libs="$tool_libs -lGTlRew "
