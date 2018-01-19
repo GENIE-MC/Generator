@@ -189,13 +189,13 @@
 #include "Framework/Conventions/Units.h"
 #include "Framework/Conventions/GBuild.h"
 
-#include "FluxDrivers/GNuMIFlux.h"
-#include "FluxDrivers/GNuMINtuple/g3numi.h"
-#include "FluxDrivers/GNuMINtuple/g3numi.C"
-#include "FluxDrivers/GNuMINtuple/g4numi.h"
-#include "FluxDrivers/GNuMINtuple/g4numi.C"
-#include "FluxDrivers/GNuMINtuple/flugg.h"
-#include "FluxDrivers/GNuMINtuple/flugg.C"
+#include "Tools/Flux/GNuMIFlux.h"
+#include "Tools/Flux/GNuMINtuple/g3numi.h"
+#include "Tools/Flux/GNuMINtuple/g3numi.C"
+#include "Tools/Flux/GNuMINtuple/g4numi.h"
+#include "Tools/Flux/GNuMINtuple/g4numi.C"
+#include "Tools/Flux/GNuMINtuple/flugg.h"
+#include "Tools/Flux/GNuMINtuple/flugg.C"
 
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
@@ -213,7 +213,7 @@ using std::endl;
 #include "TRegexp.h"
 #include "TString.h"
 
-#include "FluxDrivers/GFluxDriverFactory.h"
+#include "Tools/Flux/GFluxDriverFactory.h"
 FLUXDRIVERREG4(genie,flux,GNuMIFlux,genie::flux::GNuMIFlux)
 
 #ifdef  GNUMI_TEST_XY_WGT

@@ -1,7 +1,7 @@
-#include "Numerical/RandomGen.h"
-#include "FluxDrivers/GNuMIFlux.h"
-#include "FluxDrivers/GSimpleNtpFlux.h"
-#include "Utils/UnitUtils.h"
+#include "Framework/Numerical/RandomGen.h"
+#include "Tools/Flux/GNuMIFlux.h"
+#include "Tools/Flux/GSimpleNtpFlux.h"
+#include "Framework/Utils/UnitUtils.h"
 
 #include "TSystem.h"
 #include "TStopwatch.h"

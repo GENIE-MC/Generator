@@ -20,11 +20,11 @@
 
 //GENIE includes
 #include "Framework/ParticleData/PDGCodes.h"
-#include "FluxDrivers/GNuMIFlux.h"
-#include "FluxDrivers/GSimpleNtpFlux.h"
+#include "Tools/Flux/GNuMIFlux.h"
+#include "Tools/Flux/GSimpleNtpFlux.h"
 #include "Framework/Numerical/RandomGen.h"
 
-#include "FluxDrivers/GFluxBlender.h"
+#include "Tools/Flux/GFluxBlender.h"
 #include "Tools/Flux/GFlavorMixerI.h"
 #include "Framework/Messenger/Messenger.h"
 #define  LOG_BEGIN(a,b)   LOG(a,b)

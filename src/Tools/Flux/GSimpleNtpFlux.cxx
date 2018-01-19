@@ -36,7 +36,7 @@
 #include "Framework/Conventions/Units.h"
 #include "Framework/Conventions/GBuild.h"
 
-#include "FluxDrivers/GSimpleNtpFlux.h"
+#include "Tools/Flux/GSimpleNtpFlux.h"
 
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
@@ -55,7 +55,7 @@ using std::endl;
 #include "TRegexp.h"
 #include "TString.h"
 
-#include "FluxDrivers/GFluxDriverFactory.h"
+#include "Tools/Flux/GFluxDriverFactory.h"
 FLUXDRIVERREG4(genie,flux,GSimpleNtpFlux,genie::flux::GSimpleNtpFlux)
 
 //#define __GENIE_LOW_LEVEL_MESG_ENABLED__

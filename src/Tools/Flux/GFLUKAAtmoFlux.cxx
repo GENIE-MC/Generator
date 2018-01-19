@@ -29,11 +29,11 @@
 #include <TH3D.h>
 #include <TMath.h>
 
-#include "FluxDrivers/GFLUKAAtmoFlux.h"
+#include "Tools/Flux/GFLUKAAtmoFlux.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Conventions/Constants.h"
 
-#include "FluxDrivers/GFluxDriverFactory.h"
+#include "Tools/Flux/GFluxDriverFactory.h"
 FLUXDRIVERREG4(genie,flux,GFLUKAAtmoFlux,genie::flux::GFLUKAAtmoFlux)
 
 using std::ifstream;

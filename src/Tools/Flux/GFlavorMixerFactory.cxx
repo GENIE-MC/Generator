@@ -9,7 +9,7 @@
 /// \update  2012-08-03 initial version
 ////////////////////////////////////////////////////////////////////////
 
-#include "FluxDrivers/GFlavorMixerFactory.h"
+#include "Tools/Flux/GFlavorMixerFactory.h"
 
 #include "Framework/Messenger/Messenger.h"
 

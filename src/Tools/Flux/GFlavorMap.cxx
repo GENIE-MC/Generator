@@ -14,8 +14,8 @@
 #include <cassert>
 #include <cstdlib>
 
-#include "FluxDrivers/GFlavorMap.h"
-#include "FluxDrivers/GFlavorMixerFactory.h"
+#include "Tools/Flux/GFlavorMap.h"
+#include "Tools/Flux/GFlavorMixerFactory.h"
 // self register with the factory
 FLAVORMIXREG4(genie,flux,GFlavorMap,genie::flux::GFlavorMap)
 

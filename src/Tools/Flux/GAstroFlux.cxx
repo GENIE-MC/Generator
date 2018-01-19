@@ -27,7 +27,7 @@
 #include <TMath.h>
 
 #include "Framework/Conventions/Constants.h"
-#include "FluxDrivers/GAstroFlux.h"
+#include "Tools/Flux/GAstroFlux.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
 #include "Framework/ParticleData/PDGCodeList.h"

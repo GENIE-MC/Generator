@@ -126,7 +126,7 @@
 #include "Framework/Conventions/Units.h"
 #include "Framework/Conventions/GBuild.h"
 #include "Framework/Conventions/Controls.h"
-#include "FluxDrivers/GJPARCNuFlux.h"
+#include "Tools/Flux/GJPARCNuFlux.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
 #include "Framework/ParticleData/PDGCodes.h"
@@ -135,7 +135,7 @@
 #include "Framework/Utils/PrintUtils.h"
 #include "Framework/Utils/StringUtils.h"
 
-#include "FluxDrivers/GFluxDriverFactory.h"
+#include "Tools/Flux/GFluxDriverFactory.h"
 FLUXDRIVERREG4(genie,flux,GJPARCNuFlux,genie::flux::GJPARCNuFlux)
 
 using std::endl;

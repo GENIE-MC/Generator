@@ -414,11 +414,38 @@ s/include \"FluxDrivers\/GFlavorMixerI.h\"/include \"Tools\/Flux\/GFlavorMixerI.
 s/include \"FluxDrivers\/GFluxExposureI.h\"/include \"Tools\/Flux\/GFluxExposureI.h\"/
 s/include \"FluxDrivers\/GFluxFileConfigI.h\"/include \"Tools\/Flux\/GFluxFileConfigI.h\"/
 s/include \"FluxDrivers\/GAtmoFlux.h\"/include \"Tools\/Flux\/GAtmoFlux.h\"/
+s/include \"FluxDrivers\/GAstroFlux.h\"/include \"Tools\/Flux\/GAstroFlux.h\"/
+s/include \"FluxDrivers\/GNuMIFlux.h\"/include \"Tools\/Flux\/GNuMIFlux.h\"/
+s/include \"FluxDrivers\/GSimpleNtpFlux.h\"/include \"Tools\/Flux\/GSimpleNtpFlux.h\"/
+s/include \"FluxDrivers\/GFluxBlender.h\"/include \"Tools\/Flux\/GFluxBlender.h\"/
+s/include \"FluxDrivers\/GFlavorMap.h\"/include \"Tools\/Flux\/GFlavorMap.h\"/
+s/include \"FluxDrivers\/GFlavorMixerFactory.h\"/include \"Tools\/Flux\/GFlavorMixerFactory.h\"/
+s/include \"FluxDrivers\/GNuMINtuple\/g3numi.h\"/include \"Tools\/Flux\/GNuMINtuple\/g3numi.h\"/
+s/include \"FluxDrivers\/GNuMINtuple\/g4numi.h\"/include \"Tools\/Flux\/GNuMINtuple\/g4numi.h\"/
+s/include \"FluxDrivers\/GNuMINtuple\/g3numi.C\"/include \"Tools\/Flux\/GNuMINtuple\/g3numi.C\"/
+s/include \"FluxDrivers\/GNuMINtuple\/g4numi.C\"/include \"Tools\/Flux\/GNuMINtuple\/g4numi.C\"/
+s/include \"FluxDrivers\/GNuMINtuple\/flugg.h\"/include \"Tools\/Flux\/GNuMINtuple\/flugg.h\"/
+s/include \"FluxDrivers\/GNuMINtuple\/flugg.C\"/include \"Tools\/Flux\/GNuMINtuple\/flugg.C\"/
+s/include \"FluxDrivers\/GFluxDriverFactory.h\"/include \"Tools\/Flux\/GFluxDriverFactory.h\"/
+s/include \"FluxDrivers\/GJPARCNuFlux.h\"/include \"Tools\/Flux\/GJPARCNuFlux.h\"/
+s/include \"FluxDrivers\/GHAKKMAtmoFlux.h\"/include \"Tools\/Flux\/GHAKKMAtmoFlux.h\"/
+s/include \"FluxDrivers\/GCylindTH1Flux.h\"/include \"Tools\/Flux\/GCylindTH1Flux.h\"/
+s/include \"FluxDrivers\/GBGLRSAtmoFlux.h\"/include \"Tools\/Flux\/GBGLRSAtmoFlux.h\"/
+s/include \"FluxDrivers\/GFLUKAAtmoFlux.h\"/include \"Tools\/Flux\/GFLUKAAtmoFlux.h\"/
+s/include \"FluxDrivers\/GMonoEnergeticFlux.h\"/include \"Tools\/Flux\/GMonoEnergeticFlux.h\"/
+
+
+
+
+
+
 s/include \"Geo\/GeomVolSelectorI.h\"/include \"Tools\/Geometry\/GeomVolSelectorI.h\"/
 s/include \"Geo\/FidShape.h\"/include \"Tools\/Geometry\/FidShape.h\"/
 s/include \"Geo\/PathSegmentList.h\"/include \"Tools\/Geometry\/PathSegmentList.h\"/
 s/include \"Geo\/GeomVolSelectorBasic.h\"/include \"Tools\/Geometry\/GeomVolSelectorBasic.h\"/
 s/include \"Geo\/GeomVolSelectorFiducial.h\"/include \"Tools\/Geometry\/GeomVolSelectorFiducial.h\"/
+
+
 
 
 

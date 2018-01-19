@@ -27,13 +27,13 @@
 #include <TVector3.h>
 
 #include "Framework/Conventions/Constants.h"
-#include "FluxDrivers/GCylindTH1Flux.h"
+#include "Tools/Flux/GCylindTH1Flux.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
 #include "Framework/ParticleData/PDGCodeList.h"
 #include "Framework/Utils/PrintUtils.h"
 
-#include "FluxDrivers/GFluxDriverFactory.h"
+#include "Tools/Flux/GFluxDriverFactory.h"
 FLUXDRIVERREG4(genie,flux,GCylindTH1Flux,genie::flux::GCylindTH1Flux)
 
 using namespace genie;

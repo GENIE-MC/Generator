@@ -24,11 +24,11 @@
 #include <TH3D.h>
 #include <TMath.h>
 
-#include "FluxDrivers/GBGLRSAtmoFlux.h"
+#include "Tools/Flux/GBGLRSAtmoFlux.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Conventions/Constants.h"
 
-#include "FluxDrivers/GFluxDriverFactory.h"
+#include "Tools/Flux/GFluxDriverFactory.h"
 FLUXDRIVERREG4(genie,flux,GBGLRSAtmoFlux,genie::flux::GBGLRSAtmoFlux)
 
 using std::ifstream;

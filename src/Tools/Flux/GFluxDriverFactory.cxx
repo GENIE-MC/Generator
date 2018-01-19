@@ -9,7 +9,7 @@
 /// \update  2012-08-03 initial version
 ////////////////////////////////////////////////////////////////////////
 
-#include "FluxDrivers/GFluxDriverFactory.h"
+#include "Tools/Flux/GFluxDriverFactory.h"
 
 #include "Framework/Messenger/Messenger.h"
 #include <iostream>

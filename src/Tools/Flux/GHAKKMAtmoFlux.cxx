@@ -16,11 +16,11 @@
 #include <TMath.h>
 
 #include "Framework/Conventions/Constants.h"
-#include "FluxDrivers/GHAKKMAtmoFlux.h"
+#include "Tools/Flux/GHAKKMAtmoFlux.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/ParticleData/PDGCodes.h"
 
-#include "FluxDrivers/GFluxDriverFactory.h"
+#include "Tools/Flux/GFluxDriverFactory.h"
 FLUXDRIVERREG4(genie,flux,GHAKKMAtmoFlux,genie::flux::GHAKKMAtmoFlux)
 
 using std::ifstream;

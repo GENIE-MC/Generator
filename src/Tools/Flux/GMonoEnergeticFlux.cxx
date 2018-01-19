@@ -30,13 +30,13 @@
 #include <cassert>
 
 #include "Framework/Conventions/Constants.h"
-#include "FluxDrivers/GMonoEnergeticFlux.h"
+#include "Tools/Flux/GMonoEnergeticFlux.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
 #include "Framework/ParticleData/PDGCodeList.h"
 #include "Framework/Utils/PrintUtils.h"
 
-#include "FluxDrivers/GFluxDriverFactory.h"
+#include "Tools/Flux/GFluxDriverFactory.h"
 FLUXDRIVERREG4(genie,flux,GMonoEnergeticFlux,genie::flux::GMonoEnergeticFlux)
 
 using namespace genie;
