@@ -14,7 +14,7 @@
 */
 //____________________________________________________________________________
 
-#include "Ntuple/NtpMCRecordI.h"
+#include "Framework/Ntuple/NtpMCRecordI.h"
 
 using namespace genie;
 

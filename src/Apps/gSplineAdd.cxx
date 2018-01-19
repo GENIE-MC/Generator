@@ -57,15 +57,15 @@
 
 #include <TSystem.h>
 
-#include "Base/XSecAlgorithmI.h"
-#include "Conventions/XmlParserStatus.h"
-#include "Messenger/Messenger.h"
-#include "Utils/RunOpt.h"
-#include "Utils/AppInit.h"
-#include "Utils/XSecSplineList.h"
-#include "Utils/StringUtils.h"
-#include "Utils/SystemUtils.h"
-#include "Utils/CmdLnArgParser.h"
+#include "Framework/EventGen/XSecAlgorithmI.h"
+#include "Framework/Conventions/XmlParserStatus.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Utils/RunOpt.h"
+#include "Framework/Utils/AppInit.h"
+#include "Framework/Utils/XSecSplineList.h"
+#include "Framework/Utils/StringUtils.h"
+#include "Framework/Utils/SystemUtils.h"
+#include "Framework/Utils/CmdLnArgParser.h"
 
 using std::string;
 using std::vector;

@@ -464,6 +464,30 @@ s/include \"ReWeight\/GReWeightNuXSecNC.h\"/include \"Tools\/ReWeight\/GReWeight
 s/include \"ReWeight\/GReWeightNuXSecDIS.h\"/include \"Tools\/ReWeight\/GReWeightNuXSecDIS.h\"/
 s/include \"ReWeight\/GReWeightDISNuclMod.h\"/include \"Tools\/ReWeight\/GReWeightDISNuclMod.h\"/
 s/include \"ReWeight\/GReWeightAGKY.h\"/include \"Tools\/ReWeight\/GReWeightAGKY.h\"/
+s/include \"Ntuple\/NtpWriter.h\"/include \"framework\/Ntuple\/NtpWriter.h\"/
+s/include \"framework\/Ntuple\/NtpWriter.h\"/include \"Framework\/Ntuple\/NtpWriter.h\"/
+s/include \"Geo\/PointGeomAnalyzer.h\"/include \"Tools\/Geometry\/PointGeomAnalyzer.h\"/
+s/include \"Ntuple\/NtpMCFormat.h\"/include \"Framework\/Ntuple\/NtpMCFormat.h\"/
+s/include \"Ntuple\/NtpMCJobConfig.h\"/include \"Framework\/Ntuple\/NtpMCJobConfig.h\"/
+s/include \"Conventions\/EnvSnapshot.h\"/include \"Framework\/Conventions\/EnvSnapshot.h\"/
+s/include \"Ntuple\/NtpMCJobEnv.h\"/include \"Framework\/Ntuple\/NtpMCJobEnv.h\"/
+s/include \"Ntuple\/NtpMCEventRecord.h\"/include \"Framework\/Ntuple\/NtpMCEventRecord.h\"/
+s/include \"Ntuple\/NtpMCTreeHeader.h\"/include \"Framework\/Ntuple\/NtpMCTreeHeader.h\"/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -22,11 +22,11 @@
 #include <TFolder.h>
 #include <TObjString.h>
 
-#include "Algorithm/AlgConfigPool.h"
-#include "Messenger/Messenger.h"
-#include "Ntuple/NtpMCJobConfig.h"
-#include "Registry/Registry.h"
-#include "Utils/StringUtils.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Ntuple/NtpMCJobConfig.h"
+#include "Framework/Registry/Registry.h"
+#include "Framework/Utils/StringUtils.h"
 
 using std::vector;
 using std::string;

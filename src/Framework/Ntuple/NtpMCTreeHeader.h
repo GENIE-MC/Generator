@@ -24,8 +24,8 @@
 #include <TNamed.h>
 #include <TObjString.h>
 
-#include "Ntuple/NtpMCFormat.h"
-#include "Ntuple/NtpMCDTime.h"
+#include "Framework/Ntuple/NtpMCFormat.h"
+#include "Framework/Ntuple/NtpMCDTime.h"
 
 using std::string;
 using std::ostream;

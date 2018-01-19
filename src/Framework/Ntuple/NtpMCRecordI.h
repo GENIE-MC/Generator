@@ -21,7 +21,7 @@
 
 #include <TObject.h>
 
-#include "Ntuple/NtpMCRecHeader.h"
+#include "Framework/Ntuple/NtpMCRecHeader.h"
 
 namespace genie {
 

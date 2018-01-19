@@ -25,8 +25,8 @@
 
 #include <ostream>
 
-#include "EVGCore/EventRecord.h"
-#include "Ntuple/NtpMCRecordI.h"
+#include "Framework/EventGen/EventRecord.h"
+#include "Framework/Ntuple/NtpMCRecordI.h"
 
 using std::ostream;
 

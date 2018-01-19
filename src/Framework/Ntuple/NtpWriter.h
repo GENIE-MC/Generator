@@ -22,7 +22,7 @@
 
 #include <string>
 
-#include "Ntuple/NtpMCFormat.h"
+#include "Framework/Ntuple/NtpMCFormat.h"
 
 class TFile;
 class TTree;

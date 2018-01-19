@@ -14,9 +14,9 @@
 */
 //____________________________________________________________________________
 
-#include "EVGCore/EventRecord.h"
-#include "Messenger/Messenger.h"
-#include "Ntuple/NtpMCEventRecord.h"
+#include "Framework/EventGen/EventRecord.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Ntuple/NtpMCEventRecord.h"
 
 using std::endl;
 

@@ -46,15 +46,15 @@
 #include <TLatex.h>
 #include <TPaletteAxis.h>
 
-#include "Algorithm/AlgFactory.h"
-#include "Messenger/Messenger.h"
-#include "Base/DISStructureFunc.h"
-#include "Base/DISStructureFuncModelI.h"
-#include "Interaction/Interaction.h"
-#include "PDG/PDGCodes.h"
-#include "Utils/CmdLnArgParser.h"
-#include "Utils/StringUtils.h"
-#include "Utils/Style.h"
+#include "Framework/Algorithm/AlgFactory.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Physics/DeepInelastic/XSection/DISStructureFunc.h"
+#include "Physics/DeepInelastic/XSection/DISStructureFuncModelI.h"
+#include "Framework/Interaction/Interaction.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/Utils/CmdLnArgParser.h"
+#include "Framework/Utils/StringUtils.h"
+#include "Framework/Utils/Style.h"
 
 using namespace std;
 using namespace genie;

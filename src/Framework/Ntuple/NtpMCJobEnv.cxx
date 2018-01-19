@@ -23,9 +23,9 @@
 #include <TFolder.h>
 #include <TObjString.h>
 
-#include "Conventions/EnvSnapshot.h"
-#include "Messenger/Messenger.h"
-#include "Ntuple/NtpMCJobEnv.h"
+#include "Framework/Conventions/EnvSnapshot.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Ntuple/NtpMCJobEnv.h"
 
 using std::string;
 using std::ostringstream;

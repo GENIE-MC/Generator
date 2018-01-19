@@ -56,11 +56,11 @@
 #include <TStyle.h>
 #include <TLegend.h>
 
-#include "Messenger/Messenger.h"
-#include "PDG/PDGUtils.h"
-#include "PDG/PDGCodes.h"
-#include "Utils/CmdLnArgParser.h"
-#include "Utils/Style.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/ParticleData/PDGUtils.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/Utils/CmdLnArgParser.h"
+#include "Framework/Utils/Style.h"
 
 using std::ostringstream;
 using std::string;

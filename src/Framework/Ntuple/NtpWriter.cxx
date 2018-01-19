@@ -30,13 +30,13 @@
 #include <TClonesArray.h>
 #include <TFolder.h>
 
-#include "EVGCore/EventRecord.h"
-#include "Messenger/Messenger.h"
-#include "Ntuple/NtpWriter.h"
-#include "Ntuple/NtpMCEventRecord.h"
-#include "Ntuple/NtpMCTreeHeader.h"
-#include "Ntuple/NtpMCJobConfig.h"
-#include "Ntuple/NtpMCJobEnv.h"
+#include "Framework/EventGen/EventRecord.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Ntuple/NtpWriter.h"
+#include "Framework/Ntuple/NtpMCEventRecord.h"
+#include "Framework/Ntuple/NtpMCTreeHeader.h"
+#include "Framework/Ntuple/NtpMCJobConfig.h"
+#include "Framework/Ntuple/NtpMCJobEnv.h"
 
 #include "RVersion.h"
 

@@ -14,7 +14,7 @@
 */
 //____________________________________________________________________________
 
-#include "Ntuple/NtpMCRecHeader.h"
+#include "Framework/Ntuple/NtpMCRecHeader.h"
 
 using namespace genie;
 

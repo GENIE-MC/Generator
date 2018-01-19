@@ -16,7 +16,7 @@
 
 #include <TDatime.h>
 
-#include "Ntuple/NtpMCDTime.h"
+#include "Framework/Ntuple/NtpMCDTime.h"
 
 using namespace genie;
 

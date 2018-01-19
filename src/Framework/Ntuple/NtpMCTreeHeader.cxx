@@ -19,8 +19,8 @@
 
 #include <TSystem.h>
 
-#include "Messenger/Messenger.h"
-#include "Ntuple/NtpMCTreeHeader.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Ntuple/NtpMCTreeHeader.h"
 
 using namespace genie;
 
