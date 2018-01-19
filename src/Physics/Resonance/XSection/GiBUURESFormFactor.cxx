@@ -28,10 +28,10 @@
 #include <TMath.h>
 
 #include "Framework/ParticleData/BaryonResUtils.h"
-#include "Physics/Resonance/XSection/GiBUURESFormFactor.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/Spline.h"
 #include "Framework/ParticleData/PDGCodes.h"
+#include "Physics/Resonance/XSection/GiBUURESFormFactor.h"
 
 using std::ostringstream;
 using std::istream;

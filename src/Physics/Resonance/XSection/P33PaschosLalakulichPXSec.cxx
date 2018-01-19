@@ -18,19 +18,19 @@
 #include <TMath.h>
 
 #include "Framework/Algorithm/AlgConfigPool.h"
-#include "Physics/XSectionIntegration/XSecIntegratorI.h"
 #include "Framework/ParticleData/BaryonResonance.h"
-//#include "Framework/ParticleData/BaryonResParams.h"
-#include "Physics/Resonance/XSection/P33PaschosLalakulichPXSec.h"
+#include "Framework/ParticleData/BaryonResUtils.h"
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/RefFrame.h"
 #include "Framework/Conventions/KineVar.h"
 #include "Framework/Messenger/Messenger.h"
-#include "Physics/Resonance/XSection/P33PaschosLalakulichPXSec.h"
 #include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/Utils/KineUtils.h"
 #include "Framework/Numerical/MathUtils.h"
 #include "Framework/Utils/Range1.h"
+#include "Physics/Resonance/XSection/P33PaschosLalakulichPXSec.h"
+#include "Physics/XSectionIntegration/XSecIntegratorI.h"
+#include "Physics/Resonance/XSection/P33PaschosLalakulichPXSec.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -76,13 +76,8 @@ double P33PaschosLalakulichPXSec::XSec(
   LOG("PaschLal", pDEBUG) << "Input kinematics: W = " << W << ", Q2 = " << Q2;
 
   //-- Retrieve P33(1232) information
-  BaryonResParams res_params;
-
-  res_params.SetDataSet(fRESDataTable);
-  res_params.RetrieveData(kP33_1232);
-
-  double Gamma_R0 = res_params.Width();
-  double MR       = res_params.Mass();
+  double Gamma_R0  = utils::res::Width (kP33_1232);
+  double MR        = utils::res::Mass  (kP33_1232);
   double MR2      = TMath::Power(MR,2);
   double MR3      = TMath::Power(MR,3);
 
@@ -307,11 +302,6 @@ void P33PaschosLalakulichPXSec::LoadConfig(void)
   fCos28c = TMath::Power( TMath::Cos(thc), 2 );
 
   fTurnOnPauliCorrection = fConfig->GetBoolDef("TurnOnPauliSuppr", false);
-
-  //-- load the baruon resonance data
-  fRESDataTable =
-    dynamic_cast<const BaryonResDataSetI *> (this->SubAlg("BaryonResData"));
-  assert(fRESDataTable);
 
   //-- load the differential cross section integrator
   fXSecIntegrator =

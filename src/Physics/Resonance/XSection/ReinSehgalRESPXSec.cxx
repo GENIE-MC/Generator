@@ -30,7 +30,6 @@
 
 #include "Framework/Algorithm/AlgFactory.h"
 #include "Framework/Algorithm/AlgConfigPool.h"
-#include "Physics/XSectionIntegration/XSecIntegratorI.h"
 #include "Framework/ParticleData/BaryonResUtils.h"
 #include "Framework/Conventions/GBuild.h"
 #include "Framework/Conventions/Constants.h"
@@ -41,13 +40,14 @@
 #include "Framework/Numerical/Spline.h"
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/ParticleData/PDGUtils.h"
-#include "Physics/Resonance/XSection/ReinSehgalRESPXSec.h"
-#include "Physics/Resonance/XSection/RSHelicityAmplModelI.h"
-#include "Physics/Resonance/XSection/RSHelicityAmpl.h"
 #include "Framework/Utils/KineUtils.h"
 #include "Framework/Numerical/MathUtils.h"
 #include "Framework/Utils/Range1.h"
 #include "Framework/Utils/BWFunc.h"
+#include "Physics/Resonance/XSection/ReinSehgalRESPXSec.h"
+#include "Physics/Resonance/XSection/RSHelicityAmplModelI.h"
+#include "Physics/Resonance/XSection/RSHelicityAmpl.h"
+#include "Physics/XSectionIntegration/XSecIntegratorI.h"
 
 using namespace genie;
 using namespace genie::constants;

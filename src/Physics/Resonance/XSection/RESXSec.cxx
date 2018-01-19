@@ -24,13 +24,13 @@
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/Units.h"
 #include "Framework/Conventions/KineVar.h"
-#include "Physics/Resonance/XSection/RESXSec.h"
-#include "Physics/XSectionIntegration/GSLXSecFunc.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/Numerical/MathUtils.h"
 #include "Framework/Utils/KineUtils.h"
 #include "Framework/Numerical/GSLUtils.h"
+#include "Physics/Resonance/XSection/RESXSec.h"
+#include "Physics/XSectionIntegration/GSLXSecFunc.h"
 
 using namespace genie;
 using namespace genie::constants;

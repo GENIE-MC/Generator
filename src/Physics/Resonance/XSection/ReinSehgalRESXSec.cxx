@@ -28,12 +28,10 @@
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/Units.h"
 #include "Framework/Conventions/KineVar.h"
-#include "Physics/XSectionIntegration/GSLXSecFunc.h"
 #include "Framework/Conventions/Units.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/ParticleData/PDGUtils.h"
-#include "Physics/Resonance/XSection/ReinSehgalRESXSec.h"
 #include "Framework/Utils/RunOpt.h"
 #include "Framework/Numerical/MathUtils.h"
 #include "Framework/Utils/KineUtils.h"
@@ -41,6 +39,8 @@
 #include "Framework/Utils/CacheBranchFx.h"
 #include "Framework/Utils/XSecSplineList.h"
 #include "Framework/Numerical/GSLUtils.h"
+#include "Physics/XSectionIntegration/GSLXSecFunc.h"
+#include "Physics/Resonance/XSection/ReinSehgalRESXSec.h"
 
 using namespace genie;
 using namespace genie::constants;

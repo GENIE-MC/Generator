@@ -18,11 +18,11 @@
 //____________________________________________________________________________
 
 #include "Framework/Algorithm/AlgConfigPool.h"
-#include “Framework/ParticleData/BaryonResUtils.h"
+#include "Framework/ParticleData/BaryonResUtils.h"
 #include "Framework/Conventions/Constants.h"
+#include "Framework/Messenger/Messenger.h"
 #include "Physics/Resonance/XSection/RSHelicityAmplModelEMn.h"
 #include "Physics/Resonance/XSection/RSHelicityAmpl.h"
-#include "Framework/Messenger/Messenger.h"
 
 using namespace genie;
 using namespace genie::constants;

@@ -16,15 +16,15 @@
 
 #include "Framework/Algorithm/AlgConfigPool.h"
 #include "Framework/Algorithm/AlgFactory.h"
-#include "Physics/XSectionIntegration/XSecIntegratorI.h"
-#include “Framework/ParticleData/BaryonResUtils.h"
+#include "Framework/ParticleData/BaryonResUtils.h"
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/KineVar.h"
-#include "Interaction/SppChannel.h"
+#include "Framework/Interaction/SppChannel.h"
 #include "Framework/Messenger/Messenger.h"
-#include "Physics/Resonance/XSection/ReinSehgalSPPPXSec.h"
 #include "Framework/Utils/KineUtils.h"
 #include "Framework/Numerical/MathUtils.h"
+#include "Physics/XSectionIntegration/XSecIntegratorI.h"
+#include "Physics/Resonance/XSection/ReinSehgalSPPPXSec.h"
 
 using namespace genie;
 using namespace genie::constants;

@@ -16,10 +16,10 @@
 */
 //____________________________________________________________________________
 
-#include “Framework/ParticleData/BaryonResUtils.h"
+#include "Framework/ParticleData/BaryonResUtils.h"
 #include "Framework/Conventions/Constants.h"
-#include "Physics/Resonance/XSection/RSHelicityAmplModelCC.h"
 #include "Framework/Messenger/Messenger.h"
+#include "Physics/Resonance/XSection/RSHelicityAmplModelCC.h"
 
 using namespace genie;
 using namespace genie::constants;

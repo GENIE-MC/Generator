@@ -30,7 +30,6 @@
 
 namespace genie {
 
-class BaryonResDataSetI;
 class XSecIntegratorI;
 
 class P33PaschosLalakulichPXSec : public XSecAlgorithmI {
@@ -40,13 +39,13 @@ public:
   P33PaschosLalakulichPXSec(string name);
   virtual ~P33PaschosLalakulichPXSec();
 
-  //-- XSecAlgorithmI interface implementation
+  // XSecAlgorithmI interface implementation
   double XSec            (const Interaction * i, KinePhaseSpace_t k) const;
   double Integral        (const Interaction * i) const;
   bool   ValidProcess    (const Interaction * i) const;
 
-  //-- overload the Algorithm::Configure() methods to load private data
-  //   members from configuration options
+  // Overload the Algorithm::Configure() methods to load private data
+  // members from configuration options
   void Configure(const Registry & config);
   void Configure(string config);
 
@@ -58,7 +57,6 @@ private:
   double NuStar  (double Q2, double W, double MN) const; ///< ...
   double PPiStar (double W, double MN) const; ///< ...
 
-  const BaryonResDataSetI * fRESDataTable;
   const XSecIntegratorI *   fXSecIntegrator;
 
   bool   fTurnOnPauliCorrection;

@@ -17,16 +17,16 @@
 #include <TMath.h>
 
 #include "Framework/Algorithm/AlgConfigPool.h"
-#include “Framework/ParticleData/BaryonResUtils.h"
+#include "Framework/ParticleData/BaryonResUtils.h"
 #include "Framework/Conventions/Constants.h"
-#include "Interaction/SppChannel.h"
+#include "Framework/Interaction/SppChannel.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/ParticleData/PDGUtils.h"
-#include "Physics/Resonance/XSection/ReinSehgalSPPXSec.h"
 #include "Framework/Numerical/MathUtils.h"
 #include "Framework/Utils/KineUtils.h"
 #include "Framework/Utils/Cache.h"
 #include "Framework/Utils/CacheBranchFx.h"
+#include "Physics/Resonance/XSection/ReinSehgalSPPXSec.h"
 
 using namespace genie;
 using namespace genie::constants;
