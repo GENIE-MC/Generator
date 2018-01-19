@@ -7,8 +7,8 @@
 #pragma link C++ namespace genie;
 #pragma link C++ namespace genie::utils::neutron_osc;
 
-#pragma link C++ class genie::NeutronOscPrimaryVtxGenerator;
-#pragma link C++ class genie::NOscDummyPXSec;
-#pragma link C++ class genie::NOscDummyInteractionListGenerator;
+#pragma link C++ class genie::NNBarOscPrimaryVtxGenerator;
+#pragma link C++ class genie::NNBarOscDummyPXSec;
+#pragma link C++ class genie::NNBarOscDummyInteractionListGenerator;
 
 #endif

@@ -4,14 +4,12 @@
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
+ Author: Jeremy Hewes, Georgia Karagiorgi
+         University of Manchester
 
  For documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
- @ Nov 03, 2008 - CA
-   First added in v2.7.1
 
 */
 //____________________________________________________________________________
@@ -21,54 +19,53 @@
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/GMode.h"
 #include "Framework/Interaction/Target.h"
-#include "Interfaces/NuclearModelI.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
 #include "Framework/EventGen/EVGThreadException.h"
 #include "Framework/EventGen/EventRecord.h"
 #include "Framework/GHEP/GHepRecord.h"
 #include "Framework/GHEP/GHepParticle.h"
-#include "Framework/PDG/PDGCodes.h"
-#include "Framework/PDG/PDGUtils.h"
-#include "Framework/PDG/PDGLibrary.h"
-#include "Utils/NuclearUtils.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGUtils.h"
+#include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/Utils/PrintUtils.h"
-#include "Physics/NNBarOscillation/NeutronOscPrimaryVtxGenerator.h"
-#include "Physics/NNBarOscillation/NeutronOscUtils.h"
-#include "Physics/NNBarOscillation/NeutronOscMode.h"
+#include "Physics/NNBarOscillation/NNBarOscPrimaryVtxGenerator.h"
+#include "Physics/NNBarOscillation/NNBarOscUtils.h"
+#include "Physics/NNBarOscillation/NNBarOscMode.h"
+#include "Physics/NuclearState/NuclearUtils.h"
+#include "Interfaces/NuclearModelI.h"
 
 using namespace genie;
 
 //____________________________________________________________________________
-NeutronOscPrimaryVtxGenerator::NeutronOscPrimaryVtxGenerator() :
-EventRecordVisitorI("genie::NeutronOscPrimaryVtxGenerator")
+NNBarOscPrimaryVtxGenerator::NNBarOscPrimaryVtxGenerator() :
+EventRecordVisitorI("genie::NNBarOscPrimaryVtxGenerator")
 {
 
 }
 //____________________________________________________________________________
-NeutronOscPrimaryVtxGenerator::NeutronOscPrimaryVtxGenerator(
+NNBarOscPrimaryVtxGenerator::NNBarOscPrimaryVtxGenerator(
   string config) :
-EventRecordVisitorI("genie::NeutronOscPrimaryVtxGenerator",config)
+EventRecordVisitorI("genie::NNBarOscPrimaryVtxGenerator",config)
 {
 
 }
 //____________________________________________________________________________
-NeutronOscPrimaryVtxGenerator::~NeutronOscPrimaryVtxGenerator() 
+NNBarOscPrimaryVtxGenerator::~NNBarOscPrimaryVtxGenerator() 
 {
 
 }
 //____________________________________________________________________________
-void NeutronOscPrimaryVtxGenerator::ProcessEventRecord(
-  GHepRecord * event) const
+void NNBarOscPrimaryVtxGenerator::ProcessEventRecord(GHepRecord * event) const
 {
   // spit out some output
   Interaction * interaction = event->Summary();
   fCurrInitStatePdg = interaction->InitState().Tgt().Pdg();
-  fCurrDecayMode = (NeutronOscMode_t) interaction->ExclTag().DecayMode();
+  fCurrDecayMode = (NNBarOscMode_t) interaction->ExclTag().DecayMode();
 
   // spit out that info -j
   LOG("NeutronOsc", pNOTICE)
-    << "Simulating decay " << genie::utils::neutron_osc::AsString(fCurrDecayMode)
+    << "Simulating decay " << genie::utils::nnbar_osc::AsString(fCurrDecayMode)
     << " for an initial state with code: " << fCurrInitStatePdg;
 
   // check if nucleon is bound
@@ -82,8 +79,7 @@ void NeutronOscPrimaryVtxGenerator::ProcessEventRecord(
   this->GenerateDecayProducts(event);
 }
 //____________________________________________________________________________
-void NeutronOscPrimaryVtxGenerator::AddInitialState(
-  GHepRecord * event) const
+void NNBarOscPrimaryVtxGenerator::AddInitialState(GHepRecord * event) const
 {
 
 // add initial state to event record
@@ -116,7 +112,7 @@ void NeutronOscPrimaryVtxGenerator::AddInitialState(
   event->AddParticle(neutpdg,stdc,0,-1,-1,-1, p4neut, v4);
 
   // add annihilation nucleon
-  int dpdg = genie::utils::neutron_osc::AnnihilatingNucleonPdgCode(fCurrDecayMode);
+  int dpdg = genie::utils::nnbar_osc::AnnihilatingNucleonPdgCode(fCurrDecayMode);
   double mn = PDGLibrary::Instance()->Find(dpdg)->Mass();
   TLorentzVector p4n(0,0,0,mn);
   event->AddParticle(dpdg,stdc, 0,-1,-1,-1, p4n, v4);
@@ -132,7 +128,7 @@ void NeutronOscPrimaryVtxGenerator::AddInitialState(
   event->AddParticle(rpdg,stfs,0,-1,-1,-1, p4f, v4);
 }
 //____________________________________________________________________________
-void NeutronOscPrimaryVtxGenerator::GenerateOscillatingNeutronPosition(
+void NNBarOscPrimaryVtxGenerator::GenerateOscillatingNeutronPosition(
   GHepRecord * event) const
 {
   GHepParticle * initial_nucleus = event->Particle(0);
@@ -208,7 +204,7 @@ void NeutronOscPrimaryVtxGenerator::GenerateOscillatingNeutronPosition(
   annihilation_nucleon->SetPosition(vtx);
 }
 //____________________________________________________________________________
-void NeutronOscPrimaryVtxGenerator::GenerateFermiMomentum(
+void NNBarOscPrimaryVtxGenerator::GenerateFermiMomentum(
   GHepRecord * event) const
 {
   GHepParticle * initial_nucleus = event->Particle(0);
@@ -274,12 +270,12 @@ void NeutronOscPrimaryVtxGenerator::GenerateFermiMomentum(
   remnant_nucleus->SetMomentum(p4);
 }
 //____________________________________________________________________________
-void NeutronOscPrimaryVtxGenerator::GenerateDecayProducts(
+void NNBarOscPrimaryVtxGenerator::GenerateDecayProducts(
   GHepRecord * event) const
 {
   LOG("NeutronOsc", pINFO) << "Generating decay...";
 
-  PDGCodeList pdgv = genie::utils::neutron_osc::DecayProductList(fCurrDecayMode);
+  PDGCodeList pdgv = genie::utils::nnbar_osc::DecayProductList(fCurrDecayMode);
   LOG("NeutronOsc", pINFO) << "Decay product IDs: " << pdgv;
   assert ( pdgv.size() >  1);
 
@@ -340,7 +336,7 @@ void NeutronOscPrimaryVtxGenerator::GenerateDecayProducts(
     LOG("NeutronOsc", pINFO)
       << "Not enough energy to generate decay products! Selecting a new final state.";
     
-    int mode;
+    int mode = 0;
     
     int initial_nucleus_pdg = initial_nucleus->Pdg();
         
@@ -396,16 +392,16 @@ void NeutronOscPrimaryVtxGenerator::GenerateDecayProducts(
     Interaction * interaction = Interaction::NOsc((int)fCurrInitStatePdg, mode);
     event->AttachSummary(interaction);
     
-    fCurrDecayMode = (NeutronOscMode_t) interaction->ExclTag().DecayMode(); 
+    fCurrDecayMode = (NNBarOscMode_t) interaction->ExclTag().DecayMode(); 
     
-    pdgv = genie::utils::neutron_osc::DecayProductList(fCurrDecayMode);
+    pdgv = genie::utils::nnbar_osc::DecayProductList(fCurrDecayMode);
     LOG("NeutronOsc", pINFO) << "Decay product IDs: " << pdgv;
     assert ( pdgv.size() > 1);
     
     // get the decay particles again
     LOG("NeutronOsc", pINFO) << "Performing a phase space decay...";
     idx = 0;
-    delete mass;
+    delete [] mass;
     mass = new double[pdgv.size()];
     sum = 0;
     for(pdg_iter = pdgv.begin(); pdg_iter != pdgv.end(); ++pdg_iter) {
@@ -497,7 +493,7 @@ void NeutronOscPrimaryVtxGenerator::GenerateDecayProducts(
      int pdgc = *pdg_iter;
      TLorentzVector * p4fin = fPhaseSpaceGenerator.GetDecay(idp);
      GHepStatus_t ist = 
-        utils::neutron_osc::DecayProductStatus(fNucleonIsBound, pdgc);
+        utils::nnbar_osc::DecayProductStatus(fNucleonIsBound, pdgc);
      p4fin->Boost(boost);
      event->AddParticle(pdgc, ist, oscillating_neutron_id,-1,-1,-1, *p4fin, v4);
      idp++;
@@ -509,19 +505,19 @@ void NeutronOscPrimaryVtxGenerator::GenerateDecayProducts(
   delete v4d;
 }
 //___________________________________________________________________________
-void NeutronOscPrimaryVtxGenerator::Configure(const Registry & config)
+void NNBarOscPrimaryVtxGenerator::Configure(const Registry & config)
 {
   Algorithm::Configure(config);   
   this->LoadConfig();
 }
 //___________________________________________________________________________
-void NeutronOscPrimaryVtxGenerator::Configure(string config)
+void NNBarOscPrimaryVtxGenerator::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //___________________________________________________________________________
-void NeutronOscPrimaryVtxGenerator::LoadConfig(void)
+void NNBarOscPrimaryVtxGenerator::LoadConfig(void)
 {
 //  AlgConfigPool * confp = AlgConfigPool::Instance();
 //  const Registry * gc = confp->GlobalParameterList();

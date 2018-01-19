@@ -4,32 +4,29 @@
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab
+ Author: Jeremy Hewes, Georgia Karagiorgi
+         University of Manchester
 
  For documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
- @ Nov 03, 2008 - CA
-   First added in v2.7.1
 
 */
 //____________________________________________________________________________
 
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/GHEP/GHepParticle.h"
-#include "Framework/PDG/PDGCodes.h"
-#include "Framework/PDG/PDGUtils.h"
-#include "Framework/PDG/PDGLibrary.h"
-#include "Utils/NuclearUtils.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGUtils.h"
+#include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/Utils/PrintUtils.h"
-#include "Physics/NNBarOscillation/NeutronOscUtils.h"
+#include "Physics/NuclearState/NuclearUtils.h"
+#include "Physics/NNBarOscillation/NNBarOscUtils.h"
 
 using namespace genie;
-//using namespace genie::utils::neutron_osc;
 
 //____________________________________________________________________________
-string genie::utils::neutron_osc::AsString(NeutronOscMode_t ndm)
+string genie::utils::nnbar_osc::AsString(NNBarOscMode_t ndm)
 {
   // this just maps the decay mode integers to string descriptors. replaced. -j
   switch(ndm) {
@@ -73,7 +70,7 @@ string genie::utils::neutron_osc::AsString(NeutronOscMode_t ndm)
   return "??";
 }
 //____________________________________________________________________________
-bool genie::utils::neutron_osc::IsValidMode(NeutronOscMode_t ndm)
+bool genie::utils::nnbar_osc::IsValidMode(NNBarOscMode_t ndm)
 {
   // checks if a mode is valid. just straight replaced. -j
   switch(ndm) {
@@ -103,7 +100,7 @@ bool genie::utils::neutron_osc::IsValidMode(NeutronOscMode_t ndm)
   return false;
 }
 //____________________________________________________________________________
-int genie::utils::neutron_osc::AnnihilatingNucleonPdgCode(NeutronOscMode_t ndm)
+int genie::utils::nnbar_osc::AnnihilatingNucleonPdgCode(NNBarOscMode_t ndm)
 {
   // name isn't really accurate any more. instead of decayed nucleon, function
   // returns what particle the oscillated neutron annihilated with -j
@@ -129,8 +126,8 @@ int genie::utils::neutron_osc::AnnihilatingNucleonPdgCode(NeutronOscMode_t ndm)
   return 0;
 }
 //____________________________________________________________________________
-PDGCodeList genie::utils::neutron_osc::DecayProductList(
-  NeutronOscMode_t ndm)
+PDGCodeList genie::utils::nnbar_osc::DecayProductList(
+  NNBarOscMode_t ndm)
 {
   // ok so i think this is the first function where a straight replacement
   // isn't gonna cut it. all the nucleon decay modes are two-body, but that is
@@ -244,7 +241,7 @@ PDGCodeList genie::utils::neutron_osc::DecayProductList(
   return decay_products;
 }
 //____________________________________________________________________________
-GHepStatus_t genie::utils::neutron_osc::DecayProductStatus(
+GHepStatus_t genie::utils::nnbar_osc::DecayProductStatus(
   bool in_nucleus, int pdgc)
 {
   // took out all the irrelevant particles -j

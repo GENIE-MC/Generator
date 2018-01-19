@@ -1,14 +1,14 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::NeutronOscMode
+\class    genie::NNBarOscMode
 
 \brief    Enumeration of neutron oscillation annihilation modes.
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Jeremy Hewes, Georgia Karagiorgi
+          University of Manchester
 
-\created  November 10, 2011
+\created  November, 2016
 
 \cpright  Copyright (c) 2003-2017, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
@@ -16,8 +16,8 @@
 */
 //____________________________________________________________________________
 
-#ifndef _NEUTRON_OSC_MODE_H_
-#define _NEUTRON_OSC_MODE_H_
+#ifndef _N_NBAR_OSC_MODE_H_
+#define _N_NBAR_OSC_MODE_H_
 
 #ifndef ROOT_Rtypes
 #include "Rtypes.h"
@@ -25,7 +25,7 @@
 
 namespace genie {
 
- typedef enum ENeutronOscMode {
+ typedef enum ENNBarOscMode {
 
      // i just replaced all the nucleon decay modes with nnbar modes -j
 
@@ -48,7 +48,7 @@ namespace genie {
      kNOnto1pip1pim1o,     // n + nbar --> \pi^{+} + \pi^{-} + \omega^{0}
      kNOnto2pip2pim2pi0    // n + nbar --> 2\pi^{+} + 2\pi^{-} + 2\pi^{0}
 
- } NeutronOscMode_t;
+ } NNBarOscMode_t;
 
 }
 #endif

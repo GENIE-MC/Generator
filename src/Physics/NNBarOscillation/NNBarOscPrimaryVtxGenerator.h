@@ -5,10 +5,12 @@
 
 \brief    Utilities for simulating neutron oscillation
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Jeremy Hewes, Georgia Karagiorgi
+          University of Manchester
 
-\created  November 03, 2011
+          Adapted from the NucleonDecay package (Author: Costas Andreopoulos).
+
+\created  November, 2016
 
 \cpright  Copyright (c) 2003-2017, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
@@ -16,8 +18,8 @@
 */
 //____________________________________________________________________________
 
-#ifndef _NEUTRON_OSC_PRIMARY_VTX_GENERATOR_H_
-#define _NEUTRON_OSC_PRIMARY_VTX_GENERATOR_H_
+#ifndef _NNBAR_OSC_PRIMARY_VTX_GENERATOR_H_
+#define _NNBAR_OSC_PRIMARY_VTX_GENERATOR_H_
 
 #include <TGenPhaseSpace.h>
 #include <TFile.h>
@@ -25,18 +27,18 @@
 #include <string>
 
 #include "Framework/EventGen/EventRecordVisitorI.h"
-#include "Physics/NNBarOscillation/NeutronOscMode.h"
+#include "Physics/NNBarOscillation/NNBarOscMode.h"
 
 namespace genie {
 
 class NuclearModelI;
 
-class NeutronOscPrimaryVtxGenerator: public EventRecordVisitorI {
+class NNBarOscPrimaryVtxGenerator: public EventRecordVisitorI {
 
 public:
-  NeutronOscPrimaryVtxGenerator();
-  NeutronOscPrimaryVtxGenerator(string config);
- ~NeutronOscPrimaryVtxGenerator();
+  NNBarOscPrimaryVtxGenerator();
+  NNBarOscPrimaryVtxGenerator(string config);
+ ~NNBarOscPrimaryVtxGenerator();
 
   // implement the EventRecordVisitorI interface
   void ProcessEventRecord (GHepRecord * event) const;
@@ -55,7 +57,7 @@ private:
    void GenerateDecayProducts              (GHepRecord * event) const;
 
    mutable int                fCurrInitStatePdg;
-   mutable NeutronOscMode_t   fCurrDecayMode;
+   mutable NNBarOscMode_t     fCurrDecayMode;
    mutable bool               fNucleonIsBound;
    mutable TGenPhaseSpace     fPhaseSpaceGenerator;
 
@@ -64,4 +66,4 @@ private:
 
 } // genie namespace
 
-#endif // _NEUTRON_OSC_PRIMARY_VTX_GENERATOR_H_
+#endif // _NNBAR_OSC_PRIMARY_VTX_GENERATOR_H_

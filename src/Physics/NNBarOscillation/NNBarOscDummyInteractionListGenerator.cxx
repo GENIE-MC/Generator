@@ -4,43 +4,39 @@
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab - Sep 03, 2008
+Author: Jeremy Hewes, Georgia Karagiorgi
+        University of Manchester
 
  For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Nov 10, 2011 - CA
-   First added in v2.7.1.
 
 */
 //____________________________________________________________________________
 
 #include "Framework/EventGen/InteractionList.h"
 #include "Framework/Interaction/Interaction.h"
-#include "Physics/NNBarOscillation/NOscDummyInteractionListGenerator.h"
+#include "Physics/NNBarOscillation/NNBarOscDummyInteractionListGenerator.h"
 
 using namespace genie;
 
 //___________________________________________________________________________
-NOscDummyInteractionListGenerator::NOscDummyInteractionListGenerator() :
-InteractionListGeneratorI("genie::NOscDummyInteractionListGenerator")
+NNBarOscDummyInteractionListGenerator::NNBarOscDummyInteractionListGenerator() :
+InteractionListGeneratorI("genie::NNBarOscDummyInteractionListGenerator")
 {
 
 }
 //___________________________________________________________________________
-NOscDummyInteractionListGenerator::NOscDummyInteractionListGenerator(string config):
-InteractionListGeneratorI("genie::NOscDummyInteractionListGenerator", config)
+NNBarOscDummyInteractionListGenerator::NNBarOscDummyInteractionListGenerator(string config):
+InteractionListGeneratorI("genie::NNBarOscDummyInteractionListGenerator", config)
 {
 
 }
 //___________________________________________________________________________
-NOscDummyInteractionListGenerator::~NOscDummyInteractionListGenerator()
+NNBarOscDummyInteractionListGenerator::~NNBarOscDummyInteractionListGenerator()
 {
 
 }
 //___________________________________________________________________________
-InteractionList * NOscDummyInteractionListGenerator::CreateInteractionList(
+InteractionList * NNBarOscDummyInteractionListGenerator::CreateInteractionList(
     const InitialState & /*init_state*/) const
 {
   return 0;
