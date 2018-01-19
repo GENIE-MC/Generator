@@ -16,7 +16,6 @@
 #include <Math/IntegratorMultiDim.h>
 #include "Math/AdaptiveIntegratorMultiDim.h"
 
-#include "Physics/Strange/XSection/AlamSimoAtharVacasSKXSec.h"
 #include "Framework/Conventions/GBuild.h"
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/Controls.h"
@@ -26,14 +25,15 @@
 #include "Framework/Interaction/Interaction.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/Spline.h"
-#include "Framework/PDG/PDGCodes.h"
-#include "Framework/PDG/PDGUtils.h"
-#include "Framework/PDG/PDGLibrary.h"
-#include "Utils/MathUtils.h"
-#include "Utils/KineUtils.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGUtils.h"
+#include "Framework/ParticleData/PDGLibrary.h"
+#include "Framework/Utils/KineUtils.h"
 #include "Framework/Utils/Range1.h"
+#include "Framework/Utils/XSecSplineList.h"
+#include "Framework/Numerical/MathUtils.h"
 #include "Framework/Numerical/GSLUtils.h"
-#include "Utils/XSecSplineList.h"
+#include "Physics/Strange/XSection/AlamSimoAtharVacasSKXSec.h"
 
 using namespace genie;
 using namespace genie::constants;

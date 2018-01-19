@@ -21,11 +21,11 @@
 #ifndef _ALAM_SIMO_ATHAR_VACAS_SINGLE_KAON_XSEC_H_
 #define _ALAM_SIMO_ATHAR_VACAS_SINGLE_KAON_XSEC_H_
 
-#include "Physics/XSectionIntegration/XSecIntegratorI.h"
-
 #include <Math/Integrator.h>
 #include <Math/IFunction.h>
 #include <Math/IntegratorMultiDim.h>
+
+#include "Physics/XSectionIntegration/XSecIntegratorI.h"
 
 namespace genie {
 

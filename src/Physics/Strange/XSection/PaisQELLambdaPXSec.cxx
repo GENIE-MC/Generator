@@ -17,10 +17,6 @@
 #include <TMath.h>
 
 #include "Framework/Algorithm/AlgConfigPool.h"
-#include "Physics/XSectionIntegration/XSecIntegratorI.h"
-#include "Physics/QuasiElastic/XSection/QELFormFactors.h"
-#include "Physics/QuasiElastic/XSection/QELFormFactorsModelI.h"
-#include "Physics/Strange/XSection/PaisQELLambdaPXSec.h"
 #include "Framework/Conventions/GBuild.h"
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/Units.h"
@@ -28,12 +24,16 @@
 #include "Framework/Conventions/KineVar.h"
 #include "Framework/Conventions/Units.h"
 #include "Framework/Messenger/Messenger.h"
-#include "Framework/PDG/PDGCodes.h"
-#include "Framework/PDG/PDGUtils.h"
-#include "Framework/PDG/PDGLibrary.h"
-#include "Utils/MathUtils.h"
-#include "Utils/KineUtils.h"
-#include "Utils/NuclearUtils.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGUtils.h"
+#include "Framework/ParticleData/PDGLibrary.h"
+#include "Framework/Numerical/MathUtils.h"
+#include "Framework/Utils/KineUtils.h"
+#include "Physics/NuclearState/NuclearUtils.h"
+#include "Physics/XSectionIntegration/XSecIntegratorI.h"
+#include "Physics/QuasiElastic/XSection/QELFormFactors.h"
+#include "Physics/QuasiElastic/XSection/QELFormFactorsModelI.h"
+#include "Physics/Strange/XSection/PaisQELLambdaPXSec.h"
 
 using namespace genie;
 using namespace genie::constants;
