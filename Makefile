@@ -388,6 +388,7 @@ copy-install-files: FORCE
 	@echo "** Copying libraries/binaries/headers to installation location..."
 	cp ${GENIE_BIN_PATH}/* ${GENIE_BIN_INSTALLATION_PATH} && \
 	cd ${GENIE}/src/Framework/Algorithm                      &&  $(MAKE) install && \
+	cd ${GENIE}/src/Framework/Conventions                    &&  $(MAKE) install && \
 	cd ${GENIE}/src/Framework/EventGen                       &&  $(MAKE) install && \
 	cd ${GENIE}/src/Framework/GHEP                           &&  $(MAKE) install && \
 	cd ${GENIE}/src/Framework/Interaction                    &&  $(MAKE) install && \
@@ -564,6 +565,7 @@ distclean: FORCE
 	@echo "** Cleaning GENIE installation... "
 	[ ! -d ${GENIE_INSTALLATION_PATH}/include/GENIE ] || rm -rf ${GENIE_INSTALLATION_PATH}/include/GENIE/
 	cd ${GENIE}/src/Framework/Algorithm                      &&  $(MAKE) distclean && \
+	cd ${GENIE}/src/Framework/Conventions                    &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Framework/EventGen                       &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Framework/GHEP                           &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Framework/Interaction                    &&  $(MAKE) distclean && \
