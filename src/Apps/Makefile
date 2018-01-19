@@ -94,16 +94,16 @@ $(GENIE_BIN_PATH)/gevgen: gEvGen.o $(call find_libs,gevgen)
 $(GENIE_BIN_PATH)/gevgen_fnal: gFNALExptEvGen.o $(call find_libs,gevgen_fnal)
 	@echo "** Building gevgen_fnal"
 	$(LD) $(LDFLAGS) gFNALExptEvGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen_fnal
-	@echo "For historical purposes, add a NuMI event generation app sym link"
-	ln -sf $(GENIE_BIN_PATH)/gevgen_fnal $(GENIE_BIN_PATH)/gevgen_numi
+#	@echo "For historical purposes, add a NuMI event generation app sym link"
+#	ln -sf $(GENIE_BIN_PATH)/gevgen_fnal $(GENIE_BIN_PATH)/gevgen_numi
 
 # T2K neutrino event generation app
 #
 $(GENIE_BIN_PATH)/gevgen_t2k: gT2KEvGen.o $(call find_libs,gevgen_t2k)
 	@echo "** Building gevgen_t2k"
 	$(LD) $(LDFLAGS) gT2KEvGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen_t2k
-	@echo "For historical purposes, add symbolic link to the T2K event generation app"
-	ln -sf $(GENIE_BIN_PATH)/gevgen_t2k $(GENIE_BIN_PATH)/gT2Kevgen
+#	@echo "For historical purposes, add symbolic link to the T2K event generation app"
+#	ln -sf $(GENIE_BIN_PATH)/gevgen_t2k $(GENIE_BIN_PATH)/gT2Kevgen
 
 # atmospheric neutrino event generation app
 #
