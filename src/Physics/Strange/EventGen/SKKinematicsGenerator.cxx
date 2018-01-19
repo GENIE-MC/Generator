@@ -32,9 +32,9 @@
 #include "Framework/GHEP/GHepFlags.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
-#include "Framework/PDG/PDGCodes.h"
-#include "Framework/PDG/PDGLibrary.h"
-#include "Utils/KineUtils.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGLibrary.h"
+#include "Framework/Utils/KineUtils.h"
 #include "Physics/Strange/EventGen/SKKinematicsGenerator.h"
 
 using namespace genie;

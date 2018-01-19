@@ -21,8 +21,8 @@
 #ifndef _SK_KINEMATICS_GENERATOR_H_
 #define _SK_KINEMATICS_GENERATOR_H_
 
-#include "Physics/Common/KineGeneratorWithCache.h"
 #include "Framework/Utils/Range1.h"
+#include "Physics/Common/KineGeneratorWithCache.h"
 
 namespace genie {
 
