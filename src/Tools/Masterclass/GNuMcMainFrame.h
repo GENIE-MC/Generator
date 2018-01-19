@@ -77,9 +77,9 @@ class TTree;
 #include <TFile.h>
 #include <TTree.h>
 
-#include "EVGCore/EventRecord.h"
-#include "Ntuple/NtpMCEventRecord.h"
-#include "Masterclass/MCTruthDisplay.h"
+#include "Framework/EventGen/EventRecord.h"
+#include "Framework/Ntuple/NtpMCEventRecord.h"
+#include "Tools/Masterclass/MCTruthDisplay.h"
 
 using std::string;
 

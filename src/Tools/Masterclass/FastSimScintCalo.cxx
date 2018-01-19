@@ -21,10 +21,10 @@
 #include <TCanvas.h>
 #include <TStyle.h>
 
-#include "EVGCore/EventRecord.h"
-#include "GHEP/GHepParticle.h"
-#include "Messenger/Messenger.h"
-#include "Masterclass/FastSimScintCalo.h"
+#include "Framework/EventGen/EventRecord.h"
+#include "Framework/GHEP/GHepParticle.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Tools/Masterclass/FastSimScintCalo.h"
 
 using namespace genie;
 using namespace genie::masterclass;

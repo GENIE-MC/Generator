@@ -442,10 +442,6 @@ s/include \"Geo\/ROOTGeomAnalyzer.h\"/include \"Tools\/Geometry\/ROOTGeomAnalyze
 s/include \"Geo\/PointGeomAnalyzer.h\"/include \"Tools\/Geometry\/PointGeomAnalyzer.h\"/
 s/include \"Geo\/GeoUtils.h\"/include \"Tools\/Geometry\/GeoUtils.h\"/
 s/include \"Geo\/GeomVolSelectorRockBox.h\"/include \"Tools\/Geometry\/GeomVolSelectorRockBox.h\"/
-
-
-
-
 s/include \"ReWeight\/GReWeightI.h\"/include \"Tools\/ReWeight\/GReWeightI.h\"/
 s/include \"ReWeight\/GReWeight.h\"/include \"Tools\/ReWeight\/GReWeight.h\"/
 s/include \"ReWeight\/GReWeightNuXSecNCEL.h\"/include \"Tools\/ReWeight\/GReWeightNuXSecNCEL.h\"/
@@ -481,6 +477,18 @@ s/include \"Conventions\/EnvSnapshot.h\"/include \"Framework\/Conventions\/EnvSn
 s/include \"Ntuple\/NtpMCJobEnv.h\"/include \"Framework\/Ntuple\/NtpMCJobEnv.h\"/
 s/include \"Ntuple\/NtpMCEventRecord.h\"/include \"Framework\/Ntuple\/NtpMCEventRecord.h\"/
 s/include \"Ntuple\/NtpMCTreeHeader.h\"/include \"Framework\/Ntuple\/NtpMCTreeHeader.h\"/
+s/include \"Masterclass\/MCTruthDisplay.h\"/include \"Tools\/Masterclass\/MCTruthDisplay.h\"/
+s/include \"Masterclass\/FastSimScintCalo.h\"/include \"Tools\/Masterclass\/FastSimScintCalo.h\"/
+s/include \"Masterclass\/FastSimCherenkov.h\"/include \"Tools\/Masterclass\/FastSimCherenkov.h\"/
+s/include \"Masterclass\/GNuMcMainFrame.h\"/include \"Tools\/Masterclass\/GNuMcMainFrame.h\"/
+
+
+
+
+
+
+
+
 
 
 

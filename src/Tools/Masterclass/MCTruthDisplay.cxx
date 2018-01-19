@@ -23,11 +23,11 @@
 #include <TStyle.h>
 #include <TIterator.h>
 
-#include "EVGCore/EventRecord.h"
-#include "GHEP/GHepParticle.h"
-#include "Messenger/Messenger.h"
-#include "Utils/NuclearUtils.h"
-#include "Masterclass/MCTruthDisplay.h"
+#include "Framework/EventGen/EventRecord.h"
+#include "Framework/GHEP/GHepParticle.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Physics/NuclearState/NuclearUtils.h"
+#include "Tools/Masterclass/MCTruthDisplay.h"
 
 using std::ostringstream;
 

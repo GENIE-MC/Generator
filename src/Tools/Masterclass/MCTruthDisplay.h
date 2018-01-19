@@ -19,7 +19,7 @@
 #include <TRootEmbeddedCanvas.h>
 #include <TGTextEdit.h>
 
-#include "EVGCore/EventRecord.h"
+#include "Framework/EventGen/EventRecord.h"
 
 namespace genie {
  namespace masterclass {

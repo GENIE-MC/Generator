@@ -43,14 +43,14 @@
 #include <TLatex.h>
 #include <TStyle.h>
 
-#include "EVGDrivers/GEVGDriver.h"
-#include "EVGCore/EventRecord.h"
-#include "Interaction/Interaction.h"
-#include "Messenger/Messenger.h"
-#include "Ntuple/NtpMCTreeHeader.h"
-#include "Ntuple/NtpMCEventRecord.h"
-#include "Masterclass/GNuMcMainFrame.h"
-#include "Masterclass/MCTruthDisplay.h"
+#include "Framework/EventGen/GEVGDriver.h"
+#include "Framework/EventGen/EventRecord.h"
+#include "Framework/Interaction/Interaction.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Ntuple/NtpMCTreeHeader.h"
+#include "Framework/Ntuple/NtpMCEventRecord.h"
+#include "Tools/Masterclass/GNuMcMainFrame.h"
+#include "Tools/Masterclass/MCTruthDisplay.h"
 
 using std::ostringstream;
 using std::setprecision;
