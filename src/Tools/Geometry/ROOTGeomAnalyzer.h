@@ -26,8 +26,8 @@
 #include <TGeoManager.h>
 #include <TVector3.h>
 
-#include "EVGDrivers/GeomAnalyzerI.h"
-#include "PDG/PDGUtils.h"
+#include "Framework/EventGen/GeomAnalyzerI.h"
+#include "Framework/ParticleData/PDGUtils.h"
 
 class TGeoVolume;
 class TGeoMaterial;

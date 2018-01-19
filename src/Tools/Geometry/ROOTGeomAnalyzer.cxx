@@ -106,19 +106,19 @@
 #include <TPolyMarker3D.h>
 #include <TGeoBBox.h>
 
-#include "Conventions/GBuild.h"
-#include "Conventions/Units.h"
-#include "Conventions/Controls.h"
-#include "Geo/PathSegmentList.h"
-#include "EVGDrivers/PathLengthList.h"
-#include "EVGDrivers/GFluxI.h"
+#include "Framework/Conventions/GBuild.h"
+#include "Framework/Conventions/Units.h"
+#include "Framework/Conventions/Controls.h"
+#include "Tools/Geometry/PathSegmentList.h"
+#include "Framework/EventGen/PathLengthList.h"
+#include "Framework/EventGen/GFluxI.h"
 #include "Geo/ROOTGeomAnalyzer.h"
-#include "Geo/GeomVolSelectorI.h"
-#include "Messenger/Messenger.h"
-#include "Numerical/RandomGen.h"
-#include "PDG/PDGCodeList.h"
-#include "PDG/PDGLibrary.h"
-#include "Utils/PrintUtils.h"
+#include "Tools/Geometry/GeomVolSelectorI.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Numerical/RandomGen.h"
+#include "Framework/ParticleData/PDGCodeList.h"
+#include "Framework/ParticleData/PDGLibrary.h"
+#include "Framework/Utils/PrintUtils.h"
 
 using namespace genie;
 using namespace genie::geometry;

@@ -33,9 +33,9 @@
 
 #include "TMath.h"
 #include "TLorentzVector.h"
-#include "Geo/FidShape.h"
-#include "Geo/PathSegmentList.h"
-#include "Geo/GeomVolSelectorBasic.h"
+#include "Tools/Geometry/FidShape.h"
+#include "Tools/Geometry/PathSegmentList.h"
+#include "Tools/Geometry/GeomVolSelectorBasic.h"
 
 using namespace std;
 

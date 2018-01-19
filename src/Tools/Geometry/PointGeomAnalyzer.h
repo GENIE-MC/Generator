@@ -29,7 +29,7 @@
 
 #include <map>
 
-#include "EVGDrivers/GeomAnalyzerI.h"
+#include "Framework/EventGen/GeomAnalyzerI.h"
 
 using std::map;
 

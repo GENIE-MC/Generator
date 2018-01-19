@@ -63,13 +63,13 @@
 #include <TGeoVolume.h>
 #include <TGeoMaterial.h>
 
-#include "Geo/PathSegmentList.h"
-#include "Messenger/Messenger.h"
-#include "PDG/PDGCodeList.h"
-#include "PDG/PDGLibrary.h"
-#include "Utils/PrintUtils.h"
-#include "Utils/MathUtils.h"
-//#include "Utils/XmlParserUtils.h"
+#include "Tools/Geometry/PathSegmentList.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/ParticleData/PDGCodeList.h"
+#include "Framework/ParticleData/PDGLibrary.h"
+#include "Framework/Utils/PrintUtils.h"
+#include "Framework/Numerical/MathUtils.h"
+//#include "Framework/Utils/XmlParserUtils.h"
 
 using std::ofstream;
 using std::setw;

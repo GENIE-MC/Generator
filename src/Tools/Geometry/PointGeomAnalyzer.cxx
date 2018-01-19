@@ -20,11 +20,11 @@
 #include <TVector3.h>
 
 #include "Geo/PointGeomAnalyzer.h"
-#include "EVGDrivers/PathLengthList.h"
-#include "Messenger/Messenger.h"
-#include "PDG/PDGCodeList.h"
-#include "PDG/PDGLibrary.h"
-#include "Utils/PrintUtils.h"
+#include "Framework/EventGen/PathLengthList.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/ParticleData/PDGCodeList.h"
+#include "Framework/ParticleData/PDGLibrary.h"
+#include "Framework/Utils/PrintUtils.h"
 
 using namespace genie;
 using namespace genie::geometry;

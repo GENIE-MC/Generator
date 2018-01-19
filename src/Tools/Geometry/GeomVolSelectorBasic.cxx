@@ -18,10 +18,10 @@
 */
 //____________________________________________________________________________
 
-#include "Messenger/Messenger.h"
-#include "Geo/GeomVolSelectorBasic.h"
-#include "Geo/PathSegmentList.h"
-#include "Utils/StringUtils.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Tools/Geometry/GeomVolSelectorBasic.h"
+#include "Tools/Geometry/PathSegmentList.h"
+#include "Framework/Utils/StringUtils.h"
 
 using namespace genie;
 using namespace genie::geometry;

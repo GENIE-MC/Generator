@@ -27,9 +27,9 @@
 */
 //____________________________________________________________________________
 
-#include "Messenger/Messenger.h"
-#include "Geo/GeomVolSelectorI.h"
-#include "Geo/PathSegmentList.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Tools/Geometry/GeomVolSelectorI.h"
+#include "Tools/Geometry/PathSegmentList.h"
 
 using namespace genie;
 using namespace genie::geometry;

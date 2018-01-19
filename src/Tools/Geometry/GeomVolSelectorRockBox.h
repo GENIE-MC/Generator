@@ -28,9 +28,9 @@
 
 #include "TMath.h"
 #include "TLorentzVector.h"
-#include "Geo/FidShape.h"
-#include "Geo/PathSegmentList.h"
-#include "Geo/GeomVolSelectorFiducial.h"
+#include "Tools/Geometry/FidShape.h"
+#include "Tools/Geometry/PathSegmentList.h"
+#include "Tools/Geometry/GeomVolSelectorFiducial.h"
 
 using namespace std;
 

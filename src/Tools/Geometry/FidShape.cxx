@@ -11,11 +11,11 @@
 */
 //____________________________________________________________________________
 
-#include "Messenger/Messenger.h"
+#include "Framework/Messenger/Messenger.h"
 #include <iomanip>
 using namespace std;
 
-#include "Geo/FidShape.h"
+#include "Tools/Geometry/FidShape.h"
 #include "Geo/ROOTGeomAnalyzer.h"
 
 using namespace genie;

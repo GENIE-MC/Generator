@@ -414,6 +414,23 @@ s/include \"FluxDrivers\/GFlavorMixerI.h\"/include \"Tools\/Flux\/GFlavorMixerI.
 s/include \"FluxDrivers\/GFluxExposureI.h\"/include \"Tools\/Flux\/GFluxExposureI.h\"/
 s/include \"FluxDrivers\/GFluxFileConfigI.h\"/include \"Tools\/Flux\/GFluxFileConfigI.h\"/
 s/include \"FluxDrivers\/GAtmoFlux.h\"/include \"Tools\/Flux\/GAtmoFlux.h\"/
+s/include \"Geo\/GeomVolSelectorI.h\"/include \"Tools\/Geometry\/GeomVolSelectorI.h\"/
+s/include \"Geo\/FidShape.h\"/include \"Tools\/Geometry\/FidShape.h\"/
+s/include \"Geo\/PathSegmentList.h\"/include \"Tools\/Geometry\/PathSegmentList.h\"/
+s/include \"Geo\/GeomVolSelectorBasic.h\"/include \"Tools\/Geometry\/GeomVolSelectorBasic.h\"/
+s/include \"Geo\/GeomVolSelectorFiducial.h\"/include \"Tools\/Geometry\/GeomVolSelectorFiducial.h\"/
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

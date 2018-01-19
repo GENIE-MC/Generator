@@ -11,9 +11,9 @@
 */
 //____________________________________________________________________________
 
-#include "Messenger/Messenger.h"
+#include "Framework/Messenger/Messenger.h"
 #include "Geo/GeomVolSelectorRockBox.h"
-#include "Utils/StringUtils.h"
+#include "Framework/Utils/StringUtils.h"
 
 using namespace genie;
 using namespace genie::geometry;

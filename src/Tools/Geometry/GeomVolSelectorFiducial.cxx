@@ -11,9 +11,9 @@
 */
 //____________________________________________________________________________
 
-#include "Messenger/Messenger.h"
-#include "Geo/GeomVolSelectorFiducial.h"
-#include "Utils/StringUtils.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Tools/Geometry/GeomVolSelectorFiducial.h"
+#include "Framework/Utils/StringUtils.h"
 
 using namespace genie;
 using namespace genie::geometry;

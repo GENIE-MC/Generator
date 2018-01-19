@@ -24,7 +24,7 @@
 #include <string>
 #include <vector>
 #include "TLorentzVector.h"
-#include "Geo/GeomVolSelectorI.h"
+#include "Tools/Geometry/GeomVolSelectorI.h"
 
 using namespace std;
 

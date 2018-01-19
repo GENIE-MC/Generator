@@ -196,7 +196,7 @@ tools-geometry-drivers: FORCE
 ifeq ($(strip $(GOPT_ENABLE_GEOM_DRIVERS)),YES)
 	@echo " "
 	@echo "** Building geometry-drivers..."
-	cd ${GENIE}/src/Geo && \
+	cd ${GENIE}/src/Tools/Geometry && \
 	$(MAKE) && \
 	cd ${GENIE}
 else
