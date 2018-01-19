@@ -217,25 +217,11 @@ else
 	@echo "** Event reweighting was not enabled. Skipping..."
 endif
 
-#
-#mueloss: FORCE
-#ifeq ($(strip $(GOPT_ENABLE_MUELOSS)),YES)
-#	@echo " "
-#	@echo "** Building MuELoss utility package..."
-#	cd ${GENIE}/src/MuELoss && \
-#	$(MAKE) && \
-#	cd ${GENIE}
-#else
-#	@echo " "
-#	@echo "** Mueloss was not enabled. Skipping..."
-#endif
-#
-
 tools-masterclass: FORCE
 ifeq ($(strip $(GOPT_ENABLE_MASTERCLASS)),YES)
 	@echo " "
 	@echo "** Building Masterclass package..."
-	cd ${GENIE}/src/Masterclass && \
+	cd ${GENIE}/src/Tools/Masterclass && \
 	$(MAKE) && \
 	cd ${GENIE}
 else
