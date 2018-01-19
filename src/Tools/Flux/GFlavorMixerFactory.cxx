@@ -11,7 +11,7 @@
 
 #include "FluxDrivers/GFlavorMixerFactory.h"
 
-#include "Messenger/Messenger.h"
+#include "Framework/Messenger/Messenger.h"
 
 namespace genie {
 namespace flux {

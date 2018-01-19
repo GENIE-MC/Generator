@@ -9,7 +9,7 @@
 /// \update  2010-10-31 initial version
 ////////////////////////////////////////////////////////////////////////
 
-#include "FluxDrivers/GFlavorMixerI.h"
+#include "Tools/Flux/GFlavorMixerI.h"
 
 namespace genie {
 namespace flux {

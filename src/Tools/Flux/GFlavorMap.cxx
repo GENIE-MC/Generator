@@ -19,12 +19,12 @@
 // self register with the factory
 FLAVORMIXREG4(genie,flux,GFlavorMap,genie::flux::GFlavorMap)
 
-#include "Messenger/Messenger.h"
+#include "Framework/Messenger/Messenger.h"
 #define  LOG_BEGIN(a,b)   LOG(a,b)
 #define  LOG_END ""
 
 // GENIE includes
-#include "Utils/StringUtils.h"
+#include "Framework/Utils/StringUtils.h"
 
 namespace genie {
 namespace flux {

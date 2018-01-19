@@ -104,8 +104,8 @@
 #include <TVector3.h>
 #include <TRotation.h>
 
-#include "Conventions/Units.h"
-#include "EVGDrivers/GFluxI.h"
+#include "Framework/Conventions/Units.h"
+#include "Framework/EventGen/GFluxI.h"
 
 class TH1D;
 class TH2D;

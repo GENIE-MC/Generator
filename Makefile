@@ -183,7 +183,7 @@ tools-flux-drivers: FORCE
 ifeq ($(strip $(GOPT_ENABLE_FLUX_DRIVERS)),YES)
 	@echo " "
 	@echo "** Building flux-drivers..."
-	cd ${GENIE}/src/FluxDrivers && \
+	cd ${GENIE}/src/Tools/Flux && \
 	$(MAKE) && \
 	cd ${GENIE}
 else

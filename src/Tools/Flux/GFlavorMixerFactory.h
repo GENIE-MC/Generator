@@ -22,7 +22,7 @@
 #include <vector>
 #include <map>
 
-#include "FluxDrivers/GFlavorMixerI.h"
+#include "Tools/Flux/GFlavorMixerI.h"
 
 namespace genie {
 namespace flux {

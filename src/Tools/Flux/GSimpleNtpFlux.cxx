@@ -33,19 +33,19 @@
 #include <TSystem.h>
 #include <TStopwatch.h>
 
-#include "Conventions/Units.h"
-#include "Conventions/GBuild.h"
+#include "Framework/Conventions/Units.h"
+#include "Framework/Conventions/GBuild.h"
 
 #include "FluxDrivers/GSimpleNtpFlux.h"
 
-#include "Messenger/Messenger.h"
-#include "Numerical/RandomGen.h"
-#include "PDG/PDGCodes.h"
-#include "PDG/PDGCodeList.h"
-#include "PDG/PDGLibrary.h"
-#include "Utils/MathUtils.h"
-#include "Utils/PrintUtils.h"
-#include "Utils/UnitUtils.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Numerical/RandomGen.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGCodeList.h"
+#include "Framework/ParticleData/PDGLibrary.h"
+#include "Framework/Numerical/MathUtils.h"
+#include "Framework/Utils/PrintUtils.h"
+#include "Framework/Utils/UnitUtils.h"
 
 using std::endl;
 

@@ -26,12 +26,12 @@
 #include <TF1.h>
 #include <TVector3.h>
 
-#include "Conventions/Constants.h"
+#include "Framework/Conventions/Constants.h"
 #include "FluxDrivers/GCylindTH1Flux.h"
-#include "Messenger/Messenger.h"
-#include "Numerical/RandomGen.h"
-#include "PDG/PDGCodeList.h"
-#include "Utils/PrintUtils.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Numerical/RandomGen.h"
+#include "Framework/ParticleData/PDGCodeList.h"
+#include "Framework/Utils/PrintUtils.h"
 
 #include "FluxDrivers/GFluxDriverFactory.h"
 FLUXDRIVERREG4(genie,flux,GCylindTH1Flux,genie::flux::GCylindTH1Flux)

@@ -22,7 +22,7 @@
 #include <vector>
 #include <map>
 
-#include "EVGDrivers/GFluxI.h"
+#include "Framework/EventGen/GFluxI.h"
 
 namespace genie {
 namespace flux {

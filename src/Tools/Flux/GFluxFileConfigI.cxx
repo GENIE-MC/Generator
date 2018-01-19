@@ -9,8 +9,8 @@
 /// \update  2015-03-17 initial version
 ////////////////////////////////////////////////////////////////////////
 
-#include "FluxDrivers/GFluxFileConfigI.h"
-#include "Messenger/Messenger.h"
+#include "Tools/Flux/GFluxFileConfigI.h"
+#include "Framework/Messenger/Messenger.h"
 #include "TMath.h"
 
 namespace genie {

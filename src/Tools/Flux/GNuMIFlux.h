@@ -32,10 +32,10 @@
 #include <TLorentzVector.h>
 #include <TLorentzRotation.h>
 
-#include "EVGDrivers/GFluxI.h"
-#include "PDG/PDGUtils.h"
-#include "FluxDrivers/GFluxExposureI.h"
-#include "FluxDrivers/GFluxFileConfigI.h"
+#include "Framework/EventGen/GFluxI.h"
+#include "Framework/ParticleData/PDGUtils.h"
+#include "Tools/Flux/GFluxExposureI.h"
+#include "Tools/Flux/GFluxFileConfigI.h"
 
 class TFile;
 class TChain;

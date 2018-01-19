@@ -30,8 +30,8 @@
 #define GENIE_FLUX_GFLUXBLENDER_H
 
 #include <vector>
-#include "EVGDrivers/GFluxI.h"
-#include "PDG/PDGCodeList.h"
+#include "Framework/EventGen/GFluxI.h"
+#include "Framework/ParticleData/PDGCodeList.h"
 
 namespace genie {
 namespace flux {

@@ -29,7 +29,7 @@
 
 #include <TLorentzVector.h>
 
-#include "EVGDrivers/GFluxI.h"
+#include "Framework/EventGen/GFluxI.h"
 
 class TH1D;
 class TF1;

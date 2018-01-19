@@ -26,15 +26,15 @@
 #include <TH2D.h>
 #include <TMath.h>
 
-#include "Conventions/Constants.h"
+#include "Framework/Conventions/Constants.h"
 #include "FluxDrivers/GAstroFlux.h"
-#include "Messenger/Messenger.h"
-#include "Numerical/RandomGen.h"
-#include "PDG/PDGCodeList.h"
-#include "PDG/PDGCodes.h"
-#include "PDG/PDGUtils.h"
-#include "PDG/PDGLibrary.h"
-#include "Utils/PrintUtils.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Numerical/RandomGen.h"
+#include "Framework/ParticleData/PDGCodeList.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGUtils.h"
+#include "Framework/ParticleData/PDGLibrary.h"
+#include "Framework/Utils/PrintUtils.h"
 
 using namespace genie;
 using namespace genie::flux;

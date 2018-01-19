@@ -409,6 +409,12 @@ s/include \"GiBUU\/GiBUURESFormFactor.h\"/inlcude \"Physics\/Resonance\/XSection
 s/inlcude \"Physics\/Resonance\/XSection\/GiBUURESFormFactor.h\"/include \"Physics\/Resonance\/XSection\/GiBUURESFormFactor.h\"/
 s/include \"BaryonResonance\/BaryonResParams.h\"/include \"Framework\/ParticleData\/BaryonResParams.h\"/
 s/include \"BaryonResonance\/BaryonResDataSetI.h\"/include \"Physics\/Resonance\/XSection\/P33PaschosLalakulichPXSec.h\"/
+s/include \"Interaction\/SppChannel.h\"/include \"Framework\/Interaction\/SppChannel.h\"/
+s/include \"FluxDrivers\/GFlavorMixerI.h\"/include \"Tools\/Flux\/GFlavorMixerI.h\"/
+s/include \"FluxDrivers\/GFluxExposureI.h\"/include \"Tools\/Flux\/GFluxExposureI.h\"/
+s/include \"FluxDrivers\/GFluxFileConfigI.h\"/include \"Tools\/Flux\/GFluxFileConfigI.h\"/
+s/include \"FluxDrivers\/GAtmoFlux.h\"/include \"Tools\/Flux\/GAtmoFlux.h\"/
+
 
 
 

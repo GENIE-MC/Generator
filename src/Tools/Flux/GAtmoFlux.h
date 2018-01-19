@@ -47,7 +47,7 @@
 #include <TLorentzVector.h>
 #include <TRotation.h>
 
-#include "EVGDrivers/GFluxI.h"
+#include "Framework/EventGen/GFluxI.h"
 
 class TH3D;
 

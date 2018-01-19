@@ -30,8 +30,8 @@
 #include <TVector3.h>
 #include <TH1D.h>
 
-#include "EVGDrivers/GFluxI.h"
-#include "PDG/PDGUtils.h"
+#include "Framework/EventGen/GFluxI.h"
+#include "Framework/ParticleData/PDGUtils.h"
 
 class TFile;
 class TTree;

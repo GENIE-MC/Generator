@@ -11,7 +11,7 @@
 
 #include "FluxDrivers/GFluxDriverFactory.h"
 
-#include "Messenger/Messenger.h"
+#include "Framework/Messenger/Messenger.h"
 #include <iostream>
 #include <iomanip>
 

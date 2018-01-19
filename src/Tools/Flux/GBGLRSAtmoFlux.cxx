@@ -25,8 +25,8 @@
 #include <TMath.h>
 
 #include "FluxDrivers/GBGLRSAtmoFlux.h"
-#include "Messenger/Messenger.h"
-#include "Conventions/Constants.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Conventions/Constants.h"
 
 #include "FluxDrivers/GFluxDriverFactory.h"
 FLUXDRIVERREG4(genie,flux,GBGLRSAtmoFlux,genie::flux::GBGLRSAtmoFlux)

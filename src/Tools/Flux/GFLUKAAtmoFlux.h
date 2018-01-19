@@ -38,7 +38,7 @@
 #ifndef _GENIE_FLUKA_ATMO_FLUX_H_
 #define _GENIE_FLUKA_ATMO_FLUX_H_
 
-#include "FluxDrivers/GAtmoFlux.h"
+#include "Tools/Flux/GAtmoFlux.h"
 
 namespace genie {
 namespace flux  {

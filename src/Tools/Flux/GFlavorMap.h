@@ -38,7 +38,7 @@
 #define GENIE_FLUX_GFLAVORSWAP_H
 
 #include <string>
-#include "FluxDrivers/GFlavorMixerI.h"
+#include "Tools/Flux/GFlavorMixerI.h"
 
 namespace genie {
 namespace flux {

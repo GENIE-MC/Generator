@@ -19,14 +19,14 @@
 #include <iomanip>
 
 //GENIE includes
-#include "PDG/PDGCodes.h"
+#include "Framework/ParticleData/PDGCodes.h"
 #include "FluxDrivers/GNuMIFlux.h"
 #include "FluxDrivers/GSimpleNtpFlux.h"
-#include "Numerical/RandomGen.h"
+#include "Framework/Numerical/RandomGen.h"
 
 #include "FluxDrivers/GFluxBlender.h"
-#include "FluxDrivers/GFlavorMixerI.h"
-#include "Messenger/Messenger.h"
+#include "Tools/Flux/GFlavorMixerI.h"
+#include "Framework/Messenger/Messenger.h"
 #define  LOG_BEGIN(a,b)   LOG(a,b)
 #define  LOG_END ""
 

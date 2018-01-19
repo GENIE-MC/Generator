@@ -29,12 +29,12 @@
 
 #include <cassert>
 
-#include "Conventions/Constants.h"
+#include "Framework/Conventions/Constants.h"
 #include "FluxDrivers/GMonoEnergeticFlux.h"
-#include "Messenger/Messenger.h"
-#include "Numerical/RandomGen.h"
-#include "PDG/PDGCodeList.h"
-#include "Utils/PrintUtils.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Numerical/RandomGen.h"
+#include "Framework/ParticleData/PDGCodeList.h"
+#include "Framework/Utils/PrintUtils.h"
 
 #include "FluxDrivers/GFluxDriverFactory.h"
 FLUXDRIVERREG4(genie,flux,GMonoEnergeticFlux,genie::flux::GMonoEnergeticFlux)

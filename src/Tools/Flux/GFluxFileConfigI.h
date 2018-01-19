@@ -20,7 +20,7 @@
 #include <vector>
 #include <set>
 
-#include "PDG/PDGCodeList.h"
+#include "Framework/ParticleData/PDGCodeList.h"
 class TTree;
 
 namespace genie {

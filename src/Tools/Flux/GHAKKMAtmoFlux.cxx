@@ -15,10 +15,10 @@
 #include <TH3D.h>
 #include <TMath.h>
 
-#include "Conventions/Constants.h"
+#include "Framework/Conventions/Constants.h"
 #include "FluxDrivers/GHAKKMAtmoFlux.h"
-#include "Messenger/Messenger.h"
-#include "PDG/PDGCodes.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/ParticleData/PDGCodes.h"
 
 #include "FluxDrivers/GFluxDriverFactory.h"
 FLUXDRIVERREG4(genie,flux,GHAKKMAtmoFlux,genie::flux::GHAKKMAtmoFlux)

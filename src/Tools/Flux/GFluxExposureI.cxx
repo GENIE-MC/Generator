@@ -9,7 +9,7 @@
 /// \update  2015-03-17 initial version
 ////////////////////////////////////////////////////////////////////////
 
-#include "FluxDrivers/GFluxExposureI.h"
+#include "Tools/Flux/GFluxExposureI.h"
 
 #include "TMath.h"
 #include <cstring>
