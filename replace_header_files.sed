@@ -438,6 +438,14 @@ s/include \"Geo\/FidShape.h\"/include \"Tools\/Geometry\/FidShape.h\"/
 s/include \"Geo\/PathSegmentList.h\"/include \"Tools\/Geometry\/PathSegmentList.h\"/
 s/include \"Geo\/GeomVolSelectorBasic.h\"/include \"Tools\/Geometry\/GeomVolSelectorBasic.h\"/
 s/include \"Geo\/GeomVolSelectorFiducial.h\"/include \"Tools\/Geometry\/GeomVolSelectorFiducial.h\"/
+s/include \"Geo\/ROOTGeomAnalyzer.h\"/include \"Tools\/Geometry\/ROOTGeomAnalyzer.h\"/
+s/include \"Geo\/PointGeomAnalyzer.h\"/include \"Tools\/Geometry\/PointGeomAnalyzer.h\"/
+s/include \"Geo\/GeoUtils.h\"/include \"Tools\/Geometry\/GeoUtils.h\"/
+s/include \"Geo\/GeomVolSelectorRockBox.h\"/include \"Tools\/Geometry\/GeomVolSelectorRockBox.h\"/
+
+
+
+
 s/include \"ReWeight\/GReWeightI.h\"/include \"Tools\/ReWeight\/GReWeightI.h\"/
 s/include \"ReWeight\/GReWeight.h\"/include \"Tools\/ReWeight\/GReWeight.h\"/
 s/include \"ReWeight\/GReWeightNuXSecNCEL.h\"/include \"Tools\/ReWeight\/GReWeightNuXSecNCEL.h\"/

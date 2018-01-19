@@ -19,7 +19,7 @@
 #include <TLorentzVector.h>
 #include <TVector3.h>
 
-#include "Geo/PointGeomAnalyzer.h"
+#include "Tools/Geometry/PointGeomAnalyzer.h"
 #include "Framework/EventGen/PathLengthList.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/ParticleData/PDGCodeList.h"

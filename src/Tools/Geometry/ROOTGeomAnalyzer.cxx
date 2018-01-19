@@ -112,7 +112,7 @@
 #include "Tools/Geometry/PathSegmentList.h"
 #include "Framework/EventGen/PathLengthList.h"
 #include "Framework/EventGen/GFluxI.h"
-#include "Geo/ROOTGeomAnalyzer.h"
+#include "Tools/Geometry/ROOTGeomAnalyzer.h"
 #include "Tools/Geometry/GeomVolSelectorI.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"

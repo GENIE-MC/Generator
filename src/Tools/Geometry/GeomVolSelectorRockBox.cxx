@@ -12,7 +12,7 @@
 //____________________________________________________________________________
 
 #include "Framework/Messenger/Messenger.h"
-#include "Geo/GeomVolSelectorRockBox.h"
+#include "Tools/Geometry/GeomVolSelectorRockBox.h"
 #include "Framework/Utils/StringUtils.h"
 
 using namespace genie;

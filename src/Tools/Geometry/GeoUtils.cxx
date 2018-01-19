@@ -20,7 +20,7 @@
 #include <TGeoVolume.h>
 #include <TGeoNode.h>
 
-#include "Geo/GeoUtils.h"
+#include "Tools/Geometry/GeoUtils.h"
 
 //___________________________________________________________________________
 void genie::utils::geometry::RecursiveExhaust(

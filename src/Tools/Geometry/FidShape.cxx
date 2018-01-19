@@ -16,7 +16,7 @@
 using namespace std;
 
 #include "Tools/Geometry/FidShape.h"
-#include "Geo/ROOTGeomAnalyzer.h"
+#include "Tools/Geometry/ROOTGeomAnalyzer.h"
 
 using namespace genie;
 using namespace genie::geometry;
