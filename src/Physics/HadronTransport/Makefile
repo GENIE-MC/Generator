@@ -12,10 +12,11 @@ MAKEFILE = Makefile
 #
 include $(GENIE)/src/make/Make.include
 
-PACKAGE           = PhHadTransp
-DICTIONARY        = _ROOT_DICT_$(PACKAGE)
-LIBNAME           = libG$(PACKAGE)
-EXTRA_EXT_LIBS    = 
+PACKAGE           = Physics/HadronTransport
+PACKAGE_ABBREV    = PhHadTransp
+DICTIONARY        = _ROOT_DICT_$(PACKAGE_ABBREV)
+LIBNAME           = libG$(PACKAGE_ABBREV)
+EXTRA_EXT_LIBS    =
 
 all     : rootcint lib lib-link
 install : install-inc install-lib
@@ -25,4 +26,3 @@ install : install-inc install-lib
 include $(GENIE)/src/make/Make.std-package-targets
 
 FORCE:
-

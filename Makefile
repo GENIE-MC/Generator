@@ -303,7 +303,7 @@ check-previous-installation: FORCE
 	@echo " "
 	@echo "** Testing for existing GENIE installation at specified installation location..."
 ifeq ($(strip $(GENIE_PREVIOUS_INSTALLATION)),YES)
-	$(error Previous installation exists at your specified installation path: $(GENIE_INSTALLATION_PATH). Trgy '$(MAKE) distclean' first)
+	$(error Previous installation exists at your specified installation path: $(GENIE_INSTALLATION_PATH). Try '$(MAKE) distclean' first)
 endif
 
 
@@ -399,7 +399,6 @@ copy-install-files: FORCE
 	cd ${GENIE}/src/Framework/Utils                          &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/AnomalyMediatedNuGamma/XSection  &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/AnomalyMediatedNuGamma/EventGen  &&  $(MAKE) install && \
-	cd ${GENIE}/src/Physics/BoostedDarkMatter                &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/Charm/XSection                   &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/Coherent/XSection                &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/Coherent/EventGen                &&  $(MAKE) install && \
@@ -454,7 +453,6 @@ purge: FORCE
 	cd ${GENIE}/src/Framework/Utils                          &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/AnomalyMediatedNuGamma/XSection  &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/AnomalyMediatedNuGamma/EventGen  &&  $(MAKE) purge && \
-	cd ${GENIE}/src/Physics/BoostedDarkMatter                &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/Charm/XSection                   &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/Coherent/XSection                &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/Coherent/EventGen                &&  $(MAKE) purge && \
@@ -510,7 +508,6 @@ clean-files: FORCE
 	cd ${GENIE}/src/Framework/Utils                          &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/AnomalyMediatedNuGamma/XSection  &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/AnomalyMediatedNuGamma/EventGen  &&  $(MAKE) clean && \
-	cd ${GENIE}/src/Physics/BoostedDarkMatter                &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/Charm/XSection                   &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/Coherent/XSection                &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/Coherent/EventGen                &&  $(MAKE) clean && \
@@ -578,7 +575,6 @@ distclean: FORCE
 	cd ${GENIE}/src/Framework/Utils                          &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/AnomalyMediatedNuGamma/XSection  &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/AnomalyMediatedNuGamma/EventGen  &&  $(MAKE) distclean && \
-	cd ${GENIE}/src/Physics/BoostedDarkMatter                &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/Charm/XSection                   &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/Coherent/XSection                &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/Coherent/EventGen                &&  $(MAKE) distclean && \

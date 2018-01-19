@@ -12,9 +12,10 @@ MAKEFILE = Makefile
 #
 include $(GENIE)/src/make/Make.include
 
-PACKAGE           = PhPDF
-DICTIONARY        = _ROOT_DICT_$(PACKAGE)
-LIBNAME           = libG$(PACKAGE)
+PACKAGE           = Physics/PartonDistributions
+PACKAGE_ABBREV    = PhPDF
+DICTIONARY        = _ROOT_DICT_$(PACKAGE_ABBREV)
+LIBNAME           = libG$(PACKAGE_ABBREV)
 EXTRA_EXT_LIBS    = $(CERN_LIBRARIES) $(LHAPDF_LIBRARIES)
 
 all     : rootcint lib lib-link
@@ -25,4 +26,3 @@ install : install-inc install-lib
 include $(GENIE)/src/make/Make.std-package-targets
 
 FORCE:
-

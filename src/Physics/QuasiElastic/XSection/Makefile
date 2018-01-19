@@ -11,9 +11,10 @@ MAKEFILE = Makefile
 # Include machine specific flags and locations (inc. files & libs)
 include $(GENIE)/src/make/Make.include
 
-PACKAGE           = PhQELXS
-DICTIONARY        = _ROOT_DICT_$(PACKAGE)
-LIBNAME           = libG$(PACKAGE)
+PACKAGE           = Physics/QuasiElastic/XSection
+PACKAGE_ABBREV    = PhQELXS
+DICTIONARY        = _ROOT_DICT_$(PACKAGE_ABBREV)
+LIBNAME           = libG$(PACKAGE_ABBREV)
 EXTRA_EXT_LIBS    =
 
 all     : rootcint lib lib-link
@@ -24,4 +25,3 @@ install : install-inc install-lib
 include $(GENIE)/src/make/Make.std-package-targets
 
 FORCE:
-

@@ -12,9 +12,10 @@ MAKEFILE = Makefile
 #
 include $(GENIE)/src/make/Make.include
 
-PACKAGE           = PhDcy
-DICTIONARY        = _ROOT_DICT_$(PACKAGE)
-LIBNAME           = libG$(PACKAGE)
+PACKAGE           = Physics/Decay
+PACKAGE_ABBREV    = PhDcy
+DICTIONARY        = _ROOT_DICT_$(PACKAGE_ABBREV)
+LIBNAME           = libG$(PACKAGE_ABBREV)
 
 all     : rootcint lib lib-link
 install : install-inc install-lib
@@ -24,4 +25,3 @@ install : install-inc install-lib
 include $(GENIE)/src/make/Make.std-package-targets
 
 FORCE:
-

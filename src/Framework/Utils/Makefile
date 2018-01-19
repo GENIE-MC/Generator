@@ -2,7 +2,7 @@
 # Makefile for GENIE Neutrino Generator
 #
 # Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-# 
+#
 
 SHELL    = /bin/sh
 NAME     = all
@@ -12,9 +12,10 @@ MAKEFILE = Makefile
 #
 include $(GENIE)/src/make/Make.include
 
-PACKAGE           = FwUtl
-DICTIONARY        = _ROOT_DICT_$(PACKAGE)
-LIBNAME           = libG$(PACKAGE)
+PACKAGE           = Framework/Utils
+PACKAGE_ABBREV    = FwUtl
+DICTIONARY        = _ROOT_DICT_$(PACKAGE_ABBREV)
+LIBNAME           = libG$(PACKAGE_ABBREV)
 EXTRA_EXT_LIBS    =
 
 all     : rootcint lib lib-link
@@ -25,4 +26,3 @@ install : install-inc install-lib
 include $(GENIE)/src/make/Make.std-package-targets
 
 FORCE:
-

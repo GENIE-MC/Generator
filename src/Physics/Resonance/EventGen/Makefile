@@ -12,9 +12,10 @@ MAKEFILE = Makefile
 #
 include $(GENIE)/src/make/Make.include
 
-PACKAGE           = PhResEG
-DICTIONARY        = _ROOT_DICT_$(PACKAGE)
-LIBNAME           = libG$(PACKAGE)
+PACKAGE           = Physics/Resonance/EventGen
+PACKAGE_ABBREV    = PhResEG
+DICTIONARY        = _ROOT_DICT_$(PACKAGE_ABBREV)
+LIBNAME           = libG$(PACKAGE_ABBREV)
 EXTRA_EXT_LIBS    =
 
 all     : rootcint lib lib-link
@@ -25,4 +26,3 @@ install : install-inc install-lib
 include $(GENIE)/src/make/Make.std-package-targets
 
 FORCE:
-

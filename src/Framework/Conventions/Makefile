@@ -12,7 +12,8 @@ MAKEFILE = Makefile
 #
 include $(GENIE)/src/make/Make.include
 
-PACKAGE           = Conventions
+PACKAGE           = Framework/Conventions
+PACKAGE_ABBREV    = 
 DICTIONARY        = 
 LIBNAME           = 
 EXTRA_EXT_LIBS    =

@@ -12,9 +12,10 @@ MAKEFILE = Makefile
 #
 include $(GENIE)/src/make/Make.include
 
-PACKAGE           = FwMsg
+PACKAGE           = Framework/Messenger
+PACKAGE_ABBREV    = FwMsg
 DICTIONARY        = undefined
-LIBNAME           = libG$(PACKAGE)
+LIBNAME           = libG$(PACKAGE_ABBREV)
 EXTRA_EXT_LIBS    =
 
 all     : lib lib-link
@@ -25,4 +26,3 @@ install : install-inc install-lib
 include $(GENIE)/src/make/Make.std-package-targets
 
 FORCE:
-
