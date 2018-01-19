@@ -25,7 +25,7 @@
 #ifndef _G_REWEIGHT_NU_XSEC_NC_H_
 #define _G_REWEIGHT_NU_XSEC_NC_H_
 
-#include "ReWeight/GReWeightI.h"
+#include "Tools/ReWeight/GReWeightI.h"
 
 namespace genie {
 namespace rew   {

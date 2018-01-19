@@ -34,18 +34,18 @@
 #include <TMath.h>
 #include <TLorentzVector.h>
 
-#include "Conventions/Controls.h"
-#include "ReWeight/GReWeightINukeParams.h"
-#include "ReWeight/GReWeightUtils.h"
-#include "Messenger/Messenger.h"
-#include "Conventions/Units.h"
-#include "Messenger/Messenger.h"
-#include "Utils/NuclearUtils.h"
-#include "Numerical/Spline.h"
-#include "HadronTransport/INukeHadroData.h"
-#include "HadronTransport/INukeHadroFates.h"
-#include "PDG/PDGCodes.h"
-#include "ReWeight/GSystUncertainty.h"
+#include "Framework/Conventions/Controls.h"
+#include "Tools/ReWeight/GReWeightINukeParams.h"
+#include "Tools/ReWeight/GReWeightUtils.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Conventions/Units.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Physics/NuclearState/NuclearUtils.h"
+#include "Framework/Numerical/Spline.h"
+#include "Physics/HadronTransport/INukeHadroData.h"
+#include "Physics/HadronTransport/INukeHadroFates.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Tools/ReWeight/GSystUncertainty.h"
 
 using namespace genie;
 using namespace genie::rew;

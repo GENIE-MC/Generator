@@ -21,9 +21,9 @@
 
 #include <map>
 
-#include "Conventions/KinePhaseSpace.h"
-#include "Interaction/ScatteringType.h"
-#include "EVGDrivers/GEVGPool.h"
+#include "Framework/Conventions/KinePhaseSpace.h"
+#include "Framework/Interaction/ScatteringType.h"
+#include "Framework/EventGen/GEVGPool.h"
 
 using std::map;
 

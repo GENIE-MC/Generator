@@ -29,10 +29,10 @@
 #include <TMath.h>
 #include <TString.h>
 
-#include "EVGCore/EventRecord.h"
-#include "Messenger/Messenger.h"
-#include "Utils/RunOpt.h"
-#include "ReWeight/GReWeight.h"
+#include "Framework/EventGen/EventRecord.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Utils/RunOpt.h"
+#include "Tools/ReWeight/GReWeight.h"
 
 using std::vector;
 

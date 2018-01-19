@@ -20,19 +20,19 @@
 */
 //____________________________________________________________________________
 
-#include "Conventions/Controls.h"
-#include "Conventions/Units.h"
-#include "EVGCore/EventRecord.h"
-#include "GHEP/GHepParticle.h"
-#include "GHEP/GHepStatus.h"
-#include "Messenger/Messenger.h"
-#include "PDG/PDGCodes.h"
-#include "PDG/PDGUtils.h"
-#include "ReWeight/GReWeightFZone.h"
-#include "ReWeight/GReWeightUtils.h"
-#include "ReWeight/GSystUncertainty.h"
-#include "Utils/PrintUtils.h"
-#include "Utils/PhysUtils.h"
+#include "Framework/Conventions/Controls.h"
+#include "Framework/Conventions/Units.h"
+#include "Framework/EventGen/EventRecord.h"
+#include "Framework/GHEP/GHepParticle.h"
+#include "Framework/GHEP/GHepStatus.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGUtils.h"
+#include "Tools/ReWeight/GReWeightFZone.h"
+#include "Tools/ReWeight/GReWeightUtils.h"
+#include "Tools/ReWeight/GSystUncertainty.h"
+#include "Framework/Utils/PrintUtils.h"
+#include "Framework/Utils/PhysUtils.h"
 
 using namespace genie;
 using namespace genie::rew;

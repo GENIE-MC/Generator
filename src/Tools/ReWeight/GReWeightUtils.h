@@ -25,8 +25,8 @@
 
 #include <TLorentzVector.h>
 
-#include "EVGCore/EventRecord.h"
-#include "ReWeight/GSyst.h"
+#include "Framework/EventGen/EventRecord.h"
+#include "Tools/ReWeight/GSyst.h"
 
 namespace genie {
 namespace utils {

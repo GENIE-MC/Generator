@@ -25,16 +25,16 @@
 #include <TFile.h>
 #include <TNtupleD.h>
 
-#include "Conventions/Controls.h"
-#include "Conventions/Constants.h"
-#include "EVGCore/EventRecord.h"
-#include "GHEP/GHepParticle.h"
-#include "Messenger/Messenger.h"
-#include "Numerical/RandomGen.h"
-#include "PDG/PDGCodes.h"
-#include "ReWeight/GReWeightAGKY.h"
-#include "ReWeight/GReWeightUtils.h"
-#include "ReWeight/GSystUncertainty.h"
+#include "Framework/Conventions/Controls.h"
+#include "Framework/Conventions/Constants.h"
+#include "Framework/EventGen/EventRecord.h"
+#include "Framework/GHEP/GHepParticle.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Numerical/RandomGen.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Tools/ReWeight/GReWeightAGKY.h"
+#include "Tools/ReWeight/GReWeightUtils.h"
+#include "Tools/ReWeight/GSystUncertainty.h"
 
 using namespace genie;
 using namespace genie::rew;

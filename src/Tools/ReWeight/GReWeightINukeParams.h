@@ -24,8 +24,8 @@
 
 #include <map>
 
-#include "PDG/PDGUtils.h"
-#include "ReWeight/GSyst.h"
+#include "Framework/ParticleData/PDGUtils.h"
+#include "Tools/ReWeight/GSyst.h"
 
 using std::map;
 

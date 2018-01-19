@@ -433,22 +433,37 @@ s/include \"FluxDrivers\/GCylindTH1Flux.h\"/include \"Tools\/Flux\/GCylindTH1Flu
 s/include \"FluxDrivers\/GBGLRSAtmoFlux.h\"/include \"Tools\/Flux\/GBGLRSAtmoFlux.h\"/
 s/include \"FluxDrivers\/GFLUKAAtmoFlux.h\"/include \"Tools\/Flux\/GFLUKAAtmoFlux.h\"/
 s/include \"FluxDrivers\/GMonoEnergeticFlux.h\"/include \"Tools\/Flux\/GMonoEnergeticFlux.h\"/
-
-
-
-
-
-
 s/include \"Geo\/GeomVolSelectorI.h\"/include \"Tools\/Geometry\/GeomVolSelectorI.h\"/
 s/include \"Geo\/FidShape.h\"/include \"Tools\/Geometry\/FidShape.h\"/
 s/include \"Geo\/PathSegmentList.h\"/include \"Tools\/Geometry\/PathSegmentList.h\"/
 s/include \"Geo\/GeomVolSelectorBasic.h\"/include \"Tools\/Geometry\/GeomVolSelectorBasic.h\"/
 s/include \"Geo\/GeomVolSelectorFiducial.h\"/include \"Tools\/Geometry\/GeomVolSelectorFiducial.h\"/
-
-
-
-
-
+s/include \"ReWeight\/GReWeightI.h\"/include \"Tools\/ReWeight\/GReWeightI.h\"/
+s/include \"ReWeight\/GReWeight.h\"/include \"Tools\/ReWeight\/GReWeight.h\"/
+s/include \"ReWeight\/GReWeightNuXSecNCEL.h\"/include \"Tools\/ReWeight\/GReWeightNuXSecNCEL.h\"/
+s/include \"ReWeight\/GSyst.h\"/include \"Tools\/ReWeight\/GSyst.h\"/
+s/include \"ReWeight\/GSystSet.h\"/include \"Tools\/ReWeight\/GSystSet.h\"/
+s/include \"ReWeight\/GSystUncertainty.h\"/include \"Tools\/ReWeight\/GSystUncertainty.h\"/
+s/include \"ReWeight\/GReWeightUtils.h\"/include \"Tools\/ReWeight\/GReWeightUtils.h\"/
+s/include \"ReWeight\/GReWeightFGM.h\"/include \"Tools\/ReWeight\/GReWeightFGM.h\"/
+s/include \"ReWeight\/GReWeightNonResonanceBkg.h\"/include \"Tools\/ReWeight\/GReWeightNonResonanceBkg.h\"/
+s/include \"ReWeight\/GReWeightFZone.h\"/include \"Tools\/ReWeight\/GReWeightFZone.h\"/
+s/include \"ReWeight\/GReWeightNuXSecCCQEaxial.h\"/include \"Tools\/ReWeight\/GReWeightNuXSecCCQEaxial.h\"/
+s/include \"ReWeight\/GReWeightNuXSecCOH.h\"/include \"Tools\/ReWeight\/GReWeightNuXSecCOH.h\"/
+s/include \"ReWeight\/GReWeightNuXSecCCRES.h\"/include \"Tools\/ReWeight\/GReWeightNuXSecCCRES.h\"/
+s/include \"ReWeight\/GReWeightIOBranchDesc.h\"/include \"Tools\/ReWeight\/GReWeightIOBranchDesc.h\"/
+s/include \"ReWeight\/GReWeightResonanceDecay.h\"/include \"Tools\/ReWeight\/GReWeightResonanceDecay.h\"/
+s/include \"ReWeight\/GReWeightNuXSecCCQE.h\"/include \"Tools\/ReWeight\/GReWeightNuXSecCCQE.h\"/
+s/include \"ReWeight\/GReWeightIORecord.h\"/include \"Tools\/ReWeight\/GReWeightIORecord.h\"/
+s/include \"ReWeight\/GReWeightNuXSecHelper.h\"/include \"Tools\/ReWeight\/GReWeightNuXSecHelper.h\"/
+s/include \"ReWeight\/GReWeightINuke.h\"/include \"Tools\/ReWeight\/GReWeightINuke.h\"/
+s/include \"ReWeight\/GReWeightINukeParams.h\"/include \"Tools\/ReWeight\/GReWeightINukeParams.h\"/
+s/include \"ReWeight\/GReWeightNuXSecNCRES.h\"/include \"Tools\/ReWeight\/GReWeightNuXSecNCRES.h\"/
+s/include \"ReWeight\/GReWeightNuXSecCCQEvec.h\"/include \"Tools\/ReWeight\/GReWeightNuXSecCCQEvec.h\"/
+s/include \"ReWeight\/GReWeightNuXSecNC.h\"/include \"Tools\/ReWeight\/GReWeightNuXSecNC.h\"/
+s/include \"ReWeight\/GReWeightNuXSecDIS.h\"/include \"Tools\/ReWeight\/GReWeightNuXSecDIS.h\"/
+s/include \"ReWeight\/GReWeightDISNuclMod.h\"/include \"Tools\/ReWeight\/GReWeightDISNuclMod.h\"/
+s/include \"ReWeight\/GReWeightAGKY.h\"/include \"Tools\/ReWeight\/GReWeightAGKY.h\"/
 
 
 

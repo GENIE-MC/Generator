@@ -35,8 +35,8 @@
 
 //#define _G_REWEIGHT_INUKE_DEBUG_NTP_
 
-#include "ReWeight/GReWeightI.h"
-#include "ReWeight/GReWeightINukeParams.h"
+#include "Tools/ReWeight/GReWeightI.h"
+#include "Tools/ReWeight/GReWeightINukeParams.h"
 
 using namespace genie::rew;
 using namespace genie;

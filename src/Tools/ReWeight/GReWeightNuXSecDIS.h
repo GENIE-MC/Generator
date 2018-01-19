@@ -24,7 +24,7 @@
 
 //#define _G_REWEIGHT_DIS_DEBUG_
 
-#include "ReWeight/GReWeightI.h"
+#include "Tools/ReWeight/GReWeightI.h"
 
 class TFile;
 class TNtupleD;

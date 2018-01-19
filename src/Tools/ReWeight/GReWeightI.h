@@ -19,8 +19,8 @@
 #ifndef _G_REWEIGHT_ABC_H_
 #define _G_REWEIGHT_ABC_H_
 
-#include "ReWeight/GSyst.h"
-#include "ReWeight/GSystSet.h"
+#include "Tools/ReWeight/GSyst.h"
+#include "Tools/ReWeight/GSystSet.h"
 
 namespace genie {
 

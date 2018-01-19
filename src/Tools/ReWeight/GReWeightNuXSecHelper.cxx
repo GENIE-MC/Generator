@@ -21,15 +21,15 @@
 */
 //____________________________________________________________________________
 
-#include "Algorithm/AlgCmp.h"
-#include "Base/XSecAlgorithmI.h"
-#include "Conventions/KinePhaseSpace.h"
-#include "EVGCore/EventGeneratorI.h"
-#include "EVGCore/EventRecord.h"
-#include "EVGDrivers/GEVGDriver.h"
-#include "ReWeight/GReWeightNuXSecHelper.h"
-#include "Interaction/Interaction.h"
-#include "Messenger/Messenger.h"
+#include "Framework/Algorithm/AlgCmp.h"
+#include "Framework/EventGen/XSecAlgorithmI.h"
+#include "Framework/Conventions/KinePhaseSpace.h"
+#include "Framework/EventGen/EventGeneratorI.h"
+#include "Framework/EventGen/EventRecord.h"
+#include "Framework/EventGen/GEVGDriver.h"
+#include "Tools/ReWeight/GReWeightNuXSecHelper.h"
+#include "Framework/Interaction/Interaction.h"
+#include "Framework/Messenger/Messenger.h"
 
 using namespace genie;
 using namespace genie::rew;

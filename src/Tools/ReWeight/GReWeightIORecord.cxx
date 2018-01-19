@@ -1,7 +1,7 @@
 
 #include <TRootIOCtor.h>
 
-#include "ReWeight/GReWeightIORecord.h"
+#include "Tools/ReWeight/GReWeightIORecord.h"
 
 #include <cassert>
 

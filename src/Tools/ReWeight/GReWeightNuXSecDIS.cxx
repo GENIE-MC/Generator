@@ -31,20 +31,20 @@
 #include <TFile.h>
 #include <TNtupleD.h>
 
-#include "Algorithm/AlgFactory.h"
-#include "Algorithm/AlgConfigPool.h"
-#include "Base/XSecAlgorithmI.h"
-#include "Conventions/Units.h"
-#include "Conventions/Controls.h"
-#include "EVGCore/EventRecord.h"
-#include "GHEP/GHepParticle.h"
-#include "Interaction/Interaction.h"
-#include "Messenger/Messenger.h"
-#include "PDG/PDGCodes.h"
-#include "ReWeight/GReWeightNuXSecDIS.h"
-#include "ReWeight/GSystSet.h"
-#include "ReWeight/GSystUncertainty.h"
-#include "Registry/Registry.h"
+#include "Framework/Algorithm/AlgFactory.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
+#include "Framework/EventGen/XSecAlgorithmI.h"
+#include "Framework/Conventions/Units.h"
+#include "Framework/Conventions/Controls.h"
+#include "Framework/EventGen/EventRecord.h"
+#include "Framework/GHEP/GHepParticle.h"
+#include "Framework/Interaction/Interaction.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Tools/ReWeight/GReWeightNuXSecDIS.h"
+#include "Tools/ReWeight/GSystSet.h"
+#include "Tools/ReWeight/GSystUncertainty.h"
+#include "Framework/Registry/Registry.h"
 
 using namespace genie;
 using namespace genie::rew;

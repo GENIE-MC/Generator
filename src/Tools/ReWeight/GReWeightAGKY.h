@@ -24,7 +24,7 @@
 
 //#define _G_REWEIGHT_AGKY_DEBUG_
 
-#include "ReWeight/GReWeightI.h"
+#include "Tools/ReWeight/GReWeightI.h"
 
 using namespace genie::rew;
 using namespace genie;

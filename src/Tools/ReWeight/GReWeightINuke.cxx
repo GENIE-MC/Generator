@@ -35,19 +35,19 @@
 #include <TLorentzVector.h>
 #include <TVector.h>
 
-#include "Conventions/Units.h"
-#include "EVGCore/EventRecord.h"
-#include "GHEP/GHepParticle.h"
-#include "HadronTransport/INukeHadroData.h"
-#include "HadronTransport/INukeHadroFates.h"
-#include "HadronTransport/INukeUtils.h"
-#include "Messenger/Messenger.h"
-#include "Numerical/Spline.h"
-#include "PDG/PDGUtils.h"
-#include "ReWeight/GReWeightINuke.h"
-#include "ReWeight/GReWeightUtils.h"
-#include "ReWeight/GSystUncertainty.h"
-#include "Utils/NuclearUtils.h"
+#include "Framework/Conventions/Units.h"
+#include "Framework/EventGen/EventRecord.h"
+#include "Framework/GHEP/GHepParticle.h"
+#include "Physics/HadronTransport/INukeHadroData.h"
+#include "Physics/HadronTransport/INukeHadroFates.h"
+#include "Physics/HadronTransport/INukeUtils.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Numerical/Spline.h"
+#include "Framework/ParticleData/PDGUtils.h"
+#include "Tools/ReWeight/GReWeightINuke.h"
+#include "Tools/ReWeight/GReWeightUtils.h"
+#include "Tools/ReWeight/GSystUncertainty.h"
+#include "Physics/NuclearState/NuclearUtils.h"
 
 using namespace genie;
 using namespace genie::rew;

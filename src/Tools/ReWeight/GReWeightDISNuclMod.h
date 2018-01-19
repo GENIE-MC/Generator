@@ -22,7 +22,7 @@
 #ifndef _G_REWEIGHT_DISNUCLMOD_H_
 #define _G_REWEIGHT_DISNUCLMOD_H_
 
-#include "ReWeight/GReWeightI.h"
+#include "Tools/ReWeight/GReWeightI.h"
 
 using namespace genie::rew;
 using namespace genie;

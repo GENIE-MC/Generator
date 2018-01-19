@@ -23,14 +23,14 @@
 
 #include <TMath.h>
 
-#include "Conventions/Controls.h"
-#include "EVGCore/EventRecord.h"
-#include "Interaction/Interaction.h"
-#include "Messenger/Messenger.h"
-#include "PDG/PDGCodes.h"
-#include "ReWeight/GReWeightNuXSecNC.h"
-#include "ReWeight/GSystSet.h"
-#include "ReWeight/GSystUncertainty.h"
+#include "Framework/Conventions/Controls.h"
+#include "Framework/EventGen/EventRecord.h"
+#include "Framework/Interaction/Interaction.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Tools/ReWeight/GReWeightNuXSecNC.h"
+#include "Tools/ReWeight/GSystSet.h"
+#include "Tools/ReWeight/GSystUncertainty.h"
 
 using namespace genie;
 using namespace genie::rew;

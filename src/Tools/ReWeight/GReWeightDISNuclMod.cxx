@@ -16,11 +16,11 @@
 */
 //____________________________________________________________________________
 
-#include "Conventions/Controls.h"
-#include "EVGCore/EventRecord.h"
-#include "Messenger/Messenger.h"
-#include "PDG/PDGCodes.h"
-#include "ReWeight/GReWeightDISNuclMod.h"
+#include "Framework/Conventions/Controls.h"
+#include "Framework/EventGen/EventRecord.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Tools/ReWeight/GReWeightDISNuclMod.h"
 
 using namespace genie;
 using namespace genie::rew;

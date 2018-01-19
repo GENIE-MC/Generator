@@ -21,9 +21,9 @@
 
 #include <string>
 
-#include "PDG/PDGUtils.h"
-#include "Interaction/InteractionType.h"
-#include "HadronTransport/INukeHadroFates.h"
+#include "Framework/ParticleData/PDGUtils.h"
+#include "Framework/Interaction/InteractionType.h"
+#include "Physics/HadronTransport/INukeHadroFates.h"
 
 using std::string;
 

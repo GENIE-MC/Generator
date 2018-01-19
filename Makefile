@@ -209,8 +209,7 @@ tools-reweighting:
 	@echo " "
 	@echo "** Building event reweighting library..."
 ifeq ($(strip $(GOPT_ENABLE_RWGHT)),YES)
-	cd ${GENIE}/src && \
-	cd ReWeight && \
+	cd ${GENIE}/src/Tools/ReWeight && \
 	$(MAKE) && \
 	cd ${GENIE}
 else

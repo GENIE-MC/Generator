@@ -30,7 +30,7 @@
 using std::map;
 using std::string;
 
-#include "ReWeight/GReWeightI.h"
+#include "Tools/ReWeight/GReWeightI.h"
 
 class TFile;
 class TNtupleD;

@@ -17,8 +17,8 @@
 */
 //____________________________________________________________________________
 
-#include "Messenger/Messenger.h"
-#include "ReWeight/GSystSet.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Tools/ReWeight/GSystSet.h"
 
 using namespace genie;
 using namespace genie::rew;

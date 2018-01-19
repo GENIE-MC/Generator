@@ -19,19 +19,19 @@
 #include <TFile.h>
 #include <TNtupleD.h>
 
-#include "Algorithm/AlgFactory.h"
-#include "Conventions/Controls.h"
-#include "EVGCore/EventRecord.h"
-#include "GHEP/GHepParticle.h"
-#include "Messenger/Messenger.h"
-#include "Nuclear/FermiMomentumTablePool.h"
-#include "Nuclear/FermiMomentumTable.h"
-#include "PDG/PDGCodes.h"
-#include "ReWeight/GReWeightFGM.h"
+#include "Framework/Algorithm/AlgFactory.h"
+#include "Framework/Conventions/Controls.h"
+#include "Framework/EventGen/EventRecord.h"
+#include "Framework/GHEP/GHepParticle.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Physics/NuclearState/FermiMomentumTablePool.h"
+#include "Physics/NuclearState/FermiMomentumTable.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Tools/ReWeight/GReWeightFGM.h"
 
 #include "Interfaces/NuclearModelI.h"
-#include "ReWeight/GSystUncertainty.h"
-#include "Utils/NuclearUtils.h"
+#include "Tools/ReWeight/GSystUncertainty.h"
+#include "Physics/NuclearState/NuclearUtils.h"
 
 using namespace genie;
 using namespace genie::rew;

@@ -22,15 +22,15 @@
 #include <TParticlePDG.h>
 #include <TDecayChannel.h>
 
-#include "BaryonResonance/BaryonResUtils.h"
-#include "Conventions/Controls.h"
-#include "EVGCore/EventRecord.h"
-#include "GHEP/GHepParticle.h"
-#include "Messenger/Messenger.h"
-#include "PDG/PDGCodes.h"
-#include "PDG/PDGLibrary.h"
-#include "ReWeight/GReWeightResonanceDecay.h"
-#include "ReWeight/GSystUncertainty.h"
+#include "Framework/ParticleData/BaryonResUtils.h"
+#include "Framework/Conventions/Controls.h"
+#include "Framework/EventGen/EventRecord.h"
+#include "Framework/GHEP/GHepParticle.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGLibrary.h"
+#include "Tools/ReWeight/GReWeightResonanceDecay.h"
+#include "Tools/ReWeight/GSystUncertainty.h"
 
 using namespace genie;
 using namespace genie::rew;

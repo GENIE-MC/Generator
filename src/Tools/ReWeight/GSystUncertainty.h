@@ -23,7 +23,7 @@
 #define _G_SYST_UNCERTAINTY_H_
 
 #include <map>
-#include "ReWeight/GSyst.h"
+#include "Tools/ReWeight/GSyst.h"
 
 using std::map;
 

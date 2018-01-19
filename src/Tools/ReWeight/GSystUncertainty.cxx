@@ -24,8 +24,8 @@
 */
 //____________________________________________________________________________
 
-#include "Messenger/Messenger.h"
-#include "ReWeight/GSystUncertainty.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Tools/ReWeight/GSystUncertainty.h"
 
 using namespace genie;
 using namespace genie::rew;

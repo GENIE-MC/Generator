@@ -24,7 +24,7 @@
 #include <map>
 #include <string>
 
-#include "ReWeight/GReWeightI.h"
+#include "Tools/ReWeight/GReWeightI.h"
 
 using std::map;
 using std::string;

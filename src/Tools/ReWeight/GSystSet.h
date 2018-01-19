@@ -23,7 +23,7 @@
 #include <map>
 #include <vector>
 
-#include "ReWeight/GSyst.h"
+#include "Tools/ReWeight/GSyst.h"
 
 using std::string;
 using std::map;
