@@ -47,7 +47,7 @@
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Physics/QuasiElastic/EventGen/QELEventGenerator.h"
 
-#include "Interfaces/NuclearModelI.h"
+#include "Physics/NuclearState/NuclearModelI.h"
 #include "Framework/Numerical/MathUtils.h"
 #include "Framework/Utils/KineUtils.h"
 #include "Framework/Utils/PrintUtils.h"

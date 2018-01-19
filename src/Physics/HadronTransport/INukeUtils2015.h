@@ -27,7 +27,7 @@
 
 #include <TGenPhaseSpace.h>
 
-#include "Interfaces/NuclearModelI.h"
+#include "Physics/NuclearState/NuclearModelI.h"
 #include "Physics/HadronTransport/INukeHadroFates.h"
 #include "Physics/HadronTransport/INukeMode.h"
 #include "Physics/HadronTransport/INukeNucleonCorr.h"

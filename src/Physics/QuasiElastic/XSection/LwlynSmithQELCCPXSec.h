@@ -23,7 +23,7 @@
 #ifndef _LLEWELLYN_SMITH_QELCC_CROSS_SECTION_H_
 #define _LLEWELLYN_SMITH_QELCC_CROSS_SECTION_H_
 
-#include "Interfaces/NuclearModelI.h"
+#include "Physics/NuclearState/NuclearModelI.h"
 #include "Framework/EventGen/XSecAlgorithmI.h"
 #include "Physics/QuasiElastic/XSection/QELFormFactors.h"
 

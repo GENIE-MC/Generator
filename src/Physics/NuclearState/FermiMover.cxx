@@ -40,8 +40,8 @@
 #include "Framework/Conventions/Units.h"
 #include "Physics/NuclearState/FermiMover.h"
 
-#include "Types/NuclearModel.h"
-#include "Interfaces/NuclearModelI.h"
+#include "Physics/NuclearState/NuclearModel.h"
+#include "Physics/NuclearState/NuclearModelI.h"
 #include "Framework/EventGen/EVGThreadException.h"
 #include "Framework/GHEP/GHepRecord.h"
 #include "Framework/GHEP/GHepParticle.h"

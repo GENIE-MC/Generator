@@ -37,7 +37,7 @@
 #include "Framework/Conventions/RefFrame.h"
 #include "Physics/QuasiElastic/XSection/QELXSec.h"
 
-#include "Interfaces/NuclearModelI.h"
+#include "Physics/NuclearState/NuclearModelI.h"
 #include "Physics/XSectionIntegration/GSLXSecFunc.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"

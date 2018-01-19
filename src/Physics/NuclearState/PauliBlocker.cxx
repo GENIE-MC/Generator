@@ -30,8 +30,8 @@
 #include "Framework/EventGen/EVGThreadException.h"
 #include "Physics/NuclearState/PauliBlocker.h"
 
-#include "Types/NuclearModel.h"
-#include "Interfaces/NuclearModelI.h"
+#include "Physics/NuclearState/NuclearModel.h"
+#include "Physics/NuclearState/NuclearModelI.h"
 #include "Framework/GHEP/GHepRecord.h"
 #include "Framework/GHEP/GHepParticle.h"
 #include "Framework/GHEP/GHepFlags.h"

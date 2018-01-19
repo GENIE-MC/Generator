@@ -29,7 +29,7 @@
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Tools/ReWeight/GReWeightFGM.h"
 
-#include "Interfaces/NuclearModelI.h"
+#include "Physics/NuclearState/NuclearModelI.h"
 #include "Tools/ReWeight/GSystUncertainty.h"
 #include "Physics/NuclearState/NuclearUtils.h"
 

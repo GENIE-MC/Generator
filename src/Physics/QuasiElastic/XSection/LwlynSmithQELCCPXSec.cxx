@@ -36,7 +36,7 @@
 #include "Framework/GHEP/GHepParticle.h"
 #include "Physics/QuasiElastic/XSection/LwlynSmithQELCCPXSec.h"
 
-#include "Interfaces/NuclearModelI.h"
+#include "Physics/NuclearState/NuclearModelI.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/ParticleData/PDGLibrary.h"

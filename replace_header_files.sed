@@ -483,8 +483,8 @@ s/include \"Masterclass\/FastSimCherenkov.h\"/include \"Tools\/Masterclass\/Fast
 s/include \"Masterclass\/GNuMcMainFrame.h\"/include \"Tools\/Masterclass\/GNuMcMainFrame.h\"/
 s/include \"Ntuple\/NtpMCTreeHeader.h\"/include \"Framework\/Ntuple\/NtpMCTreeHeader.h\"/
 s/include \"Utils\/T2KEvGenMetaData.h\"/include \"Framework\/Utils\/T2KEvGenMetaData.h\"/
-
-
+s/include \"Types\/NuclearModel.h\"/include \"Physics\/NuclearState\/NuclearModel.h\"/
+s/include \"Interfaces\/NuclearModelI.h\"/include \"Physics\/NuclearState\/NuclearModelI.h\"/
 
 
 

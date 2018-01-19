@@ -28,7 +28,7 @@
 #include "Physics/NuclearState/FermiMomentumTable.h"
 #include <complex>
 #include <Math/IFunction.h>
-#include "Interfaces/NuclearModelI.h"
+#include "Physics/NuclearState/NuclearModelI.h"
 
 namespace genie {
 

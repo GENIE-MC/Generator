@@ -38,7 +38,7 @@
 #include "Framework/Messenger/Messenger.h"
 #include "Physics/Multinucleon/EventGen/MECGenerator.h"
 
-#include "Interfaces/NuclearModelI.h"
+#include "Physics/NuclearState/NuclearModelI.h"
 #include "Physics/Multinucleon/XSection/MECHadronTensor.h"
 #include "Framework/Numerical/RandomGen.h"
 #include "Framework/ParticleData/PDGCodes.h"

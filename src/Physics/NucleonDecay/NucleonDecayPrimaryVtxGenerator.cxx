@@ -34,7 +34,7 @@
 #include "Physics/NucleonDecay/NucleonDecayPrimaryVtxGenerator.h"
 #include "Physics/NucleonDecay/NucleonDecayUtils.h"
 #include "Physics/NucleonDecay/NucleonDecayMode.h"
-#include "Interfaces/NuclearModelI.h"
+#include "Physics/NuclearState/NuclearModelI.h"
 
 using namespace genie;
 

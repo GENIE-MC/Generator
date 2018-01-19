@@ -47,7 +47,7 @@
 
 #include <iostream> // Used for testing code
 #include <fstream> // Used for testing code
-#include "Interfaces/NuclearModelI.h"
+#include "Physics/NuclearState/NuclearModelI.h"
 
 using namespace genie;
 using namespace genie::constants;

@@ -6,8 +6,8 @@
 
 #pragma link C++ namespace genie;
 
-#pragma extra_include "Types/NuclearModel.h";
-#pragma extra_include "Interfaces/NuclearModelI.h";
+//#pragma extra_include "Physics/NuclearState/NuclearModel.h";
+//#pragma extra_include "Physics/NuclearState/NuclearModelI.h";
 
 #pragma link C++ class genie::NuclearModel;
 #pragma link C++ class genie::NuclearModelI;

@@ -22,7 +22,7 @@
 #define _NUCLEAR_MODEL_MAP_H_
 
 #include <map>
-#include "Interfaces/NuclearModelI.h"
+#include "Physics/NuclearState/NuclearModelI.h"
 
 using std::map;
 

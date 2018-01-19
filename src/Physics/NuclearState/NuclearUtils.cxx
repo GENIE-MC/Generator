@@ -49,7 +49,7 @@
 #include "Physics/NuclearState/NuclearData.h"
 #include "Framework/ParticleData/PDGUtils.h"
 #include "Physics/NuclearState/NuclearUtils.h"
-#include "Interfaces/NuclearModelI.h"
+#include "Physics/NuclearState/NuclearModelI.h"
 
 using namespace genie;
 using namespace genie::constants;

@@ -22,7 +22,7 @@
 #define _QEL_EVENT_GENERATOR_H_
 
 
-#include "Interfaces/NuclearModelI.h"
+#include "Physics/NuclearState/NuclearModelI.h"
 #include "Physics/Common/KineGeneratorWithCache.h"
 #include "Framework/Utils/Range1.h"
 #include "Framework/Conventions/Controls.h"

@@ -33,7 +33,7 @@
 
 #include <TVector3.h>
 
-#include "Types/NuclearModel.h"
+#include "Physics/NuclearState/NuclearModel.h"
 #include "Framework/Algorithm/Algorithm.h"
 #include "Framework/Interaction/Target.h"
 
