@@ -26,16 +26,15 @@
 #include "Framework/EventGen/EVGThreadException.h"
 #include "Framework/GHEP/GHepRecord.h"
 #include "Framework/GHEP/GHepParticle.h"
-#include "Framework/PDG/PDGCodes.h"
-#include "Framework/PDG/PDGUtils.h"
-#include "Framework/PDG/PDGLibrary.h"
-#include "Utils/NuclearUtils.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGUtils.h"
+#include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/Utils/PrintUtils.h"
+#include "Physics/NuclearState/NuclearUtils.h"
 #include "Physics/NucleonDecay/NucleonDecayPrimaryVtxGenerator.h"
-
-#include "Interfaces/NuclearModelI.h"
 #include "Physics/NucleonDecay/NucleonDecayUtils.h"
 #include "Physics/NucleonDecay/NucleonDecayMode.h"
+#include "Interfaces/NuclearModelI.h"
 
 using namespace genie;
 

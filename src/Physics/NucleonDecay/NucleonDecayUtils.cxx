@@ -18,12 +18,12 @@
 
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/GHEP/GHepParticle.h"
-#include "Framework/PDG/PDGCodes.h"
-#include "Framework/PDG/PDGUtils.h"
-#include "Framework/PDG/PDGLibrary.h"
-#include "Utils/NuclearUtils.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGUtils.h"
+#include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/Utils/PrintUtils.h"
 #include "Physics/NucleonDecay/NucleonDecayUtils.h"
+#include "Physics/NuclearState/NuclearUtils.h"
 
 using namespace genie;
 //using namespace genie::utils::nucleon_decay;
