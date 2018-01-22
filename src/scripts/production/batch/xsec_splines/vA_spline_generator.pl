@@ -12,6 +12,7 @@
 # Options:
 #    --version         : GENIE version number
 #   [--config-dir]     : Config directory, default is $GENIE/config 
+#   [--tune]           : tune to be used for genie configuration
 #   [--arch]           : <SL4.x86_32, SL5.x86_64, SL6.x86_64, ...>, default: SL6.x86_64
 #   [--production]     : default: routine_validation
 #   [--cycle]          : default: 01
@@ -23,7 +24,8 @@
 #   [--freenucsplines] : Absolute path to free nucleon splines, default: $softw_topdir/data/job_inputs/xspl/gxspl-vN-$genie_version.xml
 #   [--free-nuc-dir]   : Absolute path to free nuclear spline
 #   [--gen-list]       : comma separated list of event generator list, default all
-#   [--target-list]    : comma separated list of targets' PDGs, default De,He4,C12,O16,Ar40,Fe56,Pb207
+#   [--target-list]    : comma separated list of targets' PDGs, default De,He4,C12,O16,Ar40,Fe56,Pb207. 
+#                        Note that it needs the PDG code, not chemical name.
 #   [--nu-list]        : comma separeted list of neutrino flavors. Both PDGs or names like vmubar,ve,vtau. Default all
 #   
 #
@@ -45,6 +47,7 @@ $iarg=0;
 foreach (@ARGV) {
   if($_ eq '--version')        { $genie_version  = $ARGV[$iarg+1]; }
   if($_ eq '--config-dir')     { $config_dir     = $ARGV[$iarg+1]; }
+  if($_ eq '--tune')           { $tune           = $ARGV[$iarg+1]; }
   if($_ eq '--arch')           { $arch           = $ARGV[$iarg+1]; }
   if($_ eq '--production')     { $production     = $ARGV[$iarg+1]; }
   if($_ eq '--cycle')          { $cycle          = $ARGV[$iarg+1]; }
@@ -185,6 +188,7 @@ foreach $nu ( @nu_list ) {
         $in_splines = $freenucsplines;
       }
       $gmkspl_opt = "-p $nu_pdg_def{$nu} -t $tgt -n $nknots -e $emax --input-cross-sections $in_splines --output-cross-sections $filename_template.xml --event-generator-list $event_gen_list --no-copy";
+      $gmkspl_opt .= " --tune $tune " if ( defined $tune ) ;
       $gmkspl_cmd = "gmkspl $gmkspl_opt ";
       print "@@ exec: $gmkspl_cmd \n";
 

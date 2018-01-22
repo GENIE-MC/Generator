@@ -10,6 +10,7 @@
 # Options:
 #    --version        : genie version number
 #   [--config-dir]    : Config directory, default is $GENIE/config 
+#   [--tune]          : Select a tune for Genie configuration
 #   [--arch]          : <SL4.x86_32, SL5.x86_64, SL6.x86_64, ...>, default: SL6.x86_64
 #   [--production]    : default: routine_validation
 #   [--cycle]         : default: 01
@@ -42,6 +43,7 @@ $iarg=0;
 foreach (@ARGV) {
   if($_ eq '--version')        { $genie_version = $ARGV[$iarg+1]; }
   if($_ eq '--config-dir')     { $config_dir    = $ARGV[$iarg+1]; }
+  if($_ eq '--tune')           { $tune          = $ARGV[$iarg+1]; }
   if($_ eq '--arch')           { $arch          = $ARGV[$iarg+1]; }
   if($_ eq '--production')     { $production    = $ARGV[$iarg+1]; }
   if($_ eq '--cycle')          { $cycle         = $ARGV[$iarg+1]; }
@@ -161,7 +163,10 @@ foreach $nu ( @nu_list ) {
       
       $grep_pipe     = "grep -B 100 -A 30 -i \"warn\\|error\\|fatal\"";
       $valgrind_cmd  = "valgrind --tool=memcheck --error-limit=no --leak-check=yes --show-reachable=yes";
-      $gmkspl_opt    = "-p $nu_pdg_def{$nu} -t $nucleons_pdg{$tgt} -n $nkots -e $emax -o $filename_template.xml --event-generator-list $event_gen_list";
+      $gmkspl_opt    = "-p $nu_pdg_def{$nu} -t $nucleons_pdg{$tgt} -n $nkots -e $emax -o $filename_template.xml --event-generator-list $event_gen_list ";
+      if ( defined $tune ) {
+	  $gmkspl_opt.= " --tune $tune ";
+      }
       $gmkspl_cmd    = "gmkspl $gmkspl_opt";
 
       print "@@ exec: $gmkspl_cmd \n";
