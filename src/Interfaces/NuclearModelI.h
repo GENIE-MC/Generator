@@ -66,14 +66,24 @@ public:
   };
 
   virtual bool GenerateNucleon(const Target & tgt, 
-			       double hitNucleonRadius) const
+			       double /*hitNucleonRadius*/) const
   {
     return GenerateNucleon(tgt);
   }
   virtual double Prob(double p, double w, const Target & tgt,
-	      double hitNucleonRadius) const
+	      double /*hitNucleonRadius*/) const
   {
     return Prob(p,w,tgt);
+  }
+  
+  // These setters have to be const. I hate it. We should really update this class interface
+  virtual void SetMomentum3(const TVector3 & mom) const
+  {
+    fCurrMomentum = mom;
+  };
+  virtual void SetRemovalEnergy(double E) const
+  {
+    fCurrRemovalEnergy = E;
   }
 
 protected:

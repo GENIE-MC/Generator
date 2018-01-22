@@ -526,6 +526,11 @@ double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const
     double xsec_max = -1;
 
     const int nnucthrows = 800;
+    double min_energy   = 9E9;
+    double max_momentum = -9E9;
+    // Loop over tthrown nucleons
+    // We'll select the max momentum and the minimum binding energy
+    // Which should give us the nucleon with the highest xsec
     for(int inuc = 0; inuc <nnucthrows; inuc++) {
 
         Interaction * interaction = new Interaction(*in);
@@ -541,6 +546,26 @@ double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const
         // Use r=0. as the radius, since this method should give the max xsec
         // for all possible kinematics
         fNuclModel->GenerateNucleon(*tgt,0.0);
+        
+        min_energy   = std::min(min_energy  ,fNuclModel->RemovalEnergy());
+        max_momentum = std::max(max_momentum,fNuclModel->Momentum());
+        delete interaction;
+    } // nucl throws
+    
+    { // Just a scoping block for now
+        Interaction * interaction = new Interaction(*in);
+        interaction->SetBit(kISkipProcessChk);
+        interaction->SetBit(kISkipKinematicChk);
+        interaction->SetBit(kIAssumeFreeNucleon);
+
+        // Access the target from the interaction summary
+        Target * tgt = interaction->InitState().TgtPtr();
+        //        TLorentzVector * p4 = tgt->HitNucP4Ptr();
+        
+        // Set the nucleon we're using to be upstream at max enegry
+        fNuclModel->GenerateNucleon(*tgt,0.0);
+        fNuclModel->SetMomentum3(TVector3(0.,0.,-max_momentum));
+        fNuclModel->SetRemovalEnergy(min_energy);
 
         //        TVector3 p3 = fNuclModel->Momentum3();
         //        double w = fNuclModel->RemovalEnergy();
@@ -608,7 +633,7 @@ double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const
         }
 
         delete interaction;
-    }//nucl throws
+    }
     // Apply safety factor, since value retrieved from the cache might
     // correspond to a slightly different energy
     xsec_max *= fSafetyFactor;
