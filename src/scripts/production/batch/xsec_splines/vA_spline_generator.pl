@@ -22,7 +22,7 @@
 #   [--softw-topdir]   : top level dir for softw installations, default: /opt/ppd/t2k/softw/GENIE/
 #   [--jobs-topdir]    : top level dir for job files, default: $PWD
 #   [--freenucsplines] : Absolute path to free nucleon splines, default: $softw_topdir/data/job_inputs/xspl/gxspl-vN-$genie_version.xml
-#   [--free-nuc-dir]   : Absolute path to free nuclear spline
+#   [--free-nuc-dir]   : Absolute path to free nuclear spline directory
 #   [--gen-list]       : comma separated list of event generator list, default all
 #   [--target-list]    : comma separated list of targets' PDGs, default De,He4,C12,O16,Ar40,Fe56,Pb207. 
 #                        Note that it needs the PDG code, not chemical name.
@@ -182,7 +182,7 @@ foreach $nu ( @nu_list ) {
       $filename_template = "$jobs_dir/$jobname";
       $grep_pipe  = "grep -B 100 -A 30 -i \"warn\\|error\\|fatal\"";
       if ( defined $free_nuc_dir ) {
-        $in_splines=$free_nuc_dir."/".$nu."_on_p.xml,".$free_nuc_dir."/".$nu."_on_n.xml";
+        $in_splines=$free_nuc_dir."/"."total_xsec.xml"; 
       }
       else {
         $in_splines = $freenucsplines;
