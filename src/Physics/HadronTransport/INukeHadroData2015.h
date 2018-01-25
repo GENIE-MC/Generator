@@ -124,6 +124,9 @@ public:
   const Spline * FracKA_CEx       (void) const { return fFracKA_CEx;       }
   const Spline * FracKA_Abs       (void) const { return fFracKA_Abs;       }
 
+  const Spline * FracPA_Cmp       (void) const { return fFracPA_Cmp;      }
+  const Spline * FracNA_Cmp       (void) const { return fFracNA_Cmp;      } //suarez
+
 
   const BLI2DNonUnifGrid * const hN2dXSecPP_Elas          (void) const { return fhN2dXSecPP_Elas;          }
   const BLI2DNonUnifGrid * const hN2dXSecNP_Elas          (void) const { return fhN2dXSecNP_Elas;          }
@@ -211,6 +214,8 @@ private:
   Spline * fXSecPp_Cmp;        ///< NN cmp (compound nucleus) fate
   Spline * fXSecPn_Cmp;
   Spline * fXSecNn_Cmp;
+  Spline * fFracPA_Cmp;
+  Spline * fFracNA_Cmp;
 
   TGraph2D * TPipA_Tot;
   TGraph2D * TfracPipA_CEx;

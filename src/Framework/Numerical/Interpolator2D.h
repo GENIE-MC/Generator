@@ -4,8 +4,9 @@
 \class    genie::Interpolator2D
 
 \brief    A 2D interpolator using the GSL spline type
+          If GSL version is not sufficient, does an inefficient version using TGraph2D.
 
-\author   Steve Dennsi <s.r.dennis \at liverpool.ac.uk>
+\author   Steve Dennis <s.r.dennis \at liverpool.ac.uk>
           University of Liverpool
 
 \created  November, 2017

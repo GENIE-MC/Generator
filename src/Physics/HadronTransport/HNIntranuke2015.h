@@ -59,6 +59,8 @@ public :
 
   void ProcessEventRecord(GHepRecord * event_rec) const;
 
+  virtual string GetINukeMode() const {return "hN2015";};
+
 private:
 
   void LoadConfig (void);

@@ -757,7 +757,8 @@ STFC, Rutherford Appleton Laboratory
   <param type="double" name="INUKE-FermiMomentum">     0.250 </param>
   <param type="bool"   name="INUKE-DoFermi">           true  </param>
   <param type="bool"   name="INUKE-DoCompoundNucleus"> true  </param>
-  <param type="bool"   name="INUKE-XsecNNCorr">        false  </param>
+  <param type="bool"   name="INUKE-XsecNNCorr">        true  </param>
+  <param type="bool"   name="HNINUKE-UseOset">         true  </param>
 
  <!-- 	
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

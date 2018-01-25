@@ -59,6 +59,8 @@ public :
 
   void ProcessEventRecord(GHepRecord * event_rec) const;
 
+  virtual string GetINukeMode() const {return "hA2015";};
+
 private:
 
   void LoadConfig (void);
@@ -67,7 +69,7 @@ private:
   void  SimulateHadronicFinalStateKinematics (GHepRecord* ev, GHepParticle* p) const;
 
   INukeFateHA_t HadronFateHA     (const GHepParticle* p) const;
-  INukeFateHA_t HadronFateOset   (void) const;
+  //INukeFateHA_t HadronFateOset   (void) const;
   void          Inelastic        (GHepRecord* ev, GHepParticle* p, INukeFateHA_t fate) const;
   void          ElasHA           (GHepRecord* ev, GHepParticle* p, INukeFateHA_t fate) const;
   void          InelasticHA      (GHepRecord* ev, GHepParticle* p, INukeFateHA_t fate) const;
