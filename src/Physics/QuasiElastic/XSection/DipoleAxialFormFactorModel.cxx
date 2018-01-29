@@ -72,8 +72,8 @@ void DipoleAxialFormFactorModel::LoadConfig(void)
   const Registry * gc = confp->GlobalParameterList();
 
   // axial mass
-  fMa  = fConfig->GetDouble("QEL-Ma", { *gc } );
-  //fMa  = fConfig->GetDoubleDef("QEL-Ma", gc->GetDouble("QEL-Ma"));
+  //fMa  = fConfig->GetDouble("QEL-Ma", { *gc } );
+  fMa  = fConfig->GetDoubleDef("QEL-Ma", gc->GetDouble("QEL-Ma"));
   fMa2 = TMath::Power(fMa,2);
 
   // FA(q2 = 0)
