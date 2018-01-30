@@ -7,30 +7,47 @@ Algorithm Configurable Parameters:
 ....................................................................................................
 Name                       Type    Opt   Comment                                Default
 ....................................................................................................
-A                          double  Yes   Bodek-Yang scaling var param A         GPL: BY-A
-B                          double  Yes   Bodek-Yang scaling var param B         GPL: BY-B
-CsU                        double  Yes   Bodek-Yang u sea K factor param        GPL: BY-CsU
-CsD                        double  Yes   Bodek-Yang d sea K factor param        GPL: BY-CsD
-Cv1U                       double  Yes   Bodek-Yang u val K factor param        GPL: BY-Cv1U
-Cv2U                       double  Yes   Bodek-Yang u val K factor param        GPL: BY-Cv2U
-Cv1D                       double  Yes   Bodek-Yang d val K factor param        GPL: BY-Cv1D
-Cv2D                       double  Yes   Bodek-Yang d val K factor param        GPL: BY-Cv2D
+BY-A                       double  Yes   Bodek-Yang scaling var param A         GPL: BY-A
+By-B                       double  Yes   Bodek-Yang scaling var param B         GPL: BY-B
+BY-CsU                     double  Yes   Bodek-Yang u sea K factor param        GPL: BY-CsU
+BY-CsD                     double  Yes   Bodek-Yang d sea K factor param        GPL: BY-CsD
+BY-Cv1U                    double  Yes   Bodek-Yang u val K factor param        GPL: BY-Cv1U
+BY-Cv2U                    double  Yes   Bodek-Yang u val K factor param        GPL: BY-Cv2U
+BY-Cv1D                    double  Yes   Bodek-Yang d val K factor param        GPL: BY-Cv1D
+BY-Cv2D                    double  Yes   Bodek-Yang d val K factor param        GPL: BY-Cv2D
+
 PDF-Set                    alg     No    PDF model
 Charm-Mass                 double  Yes   charm mass                             GPL: Charm-Mass
 Charm-Prod-Off             bool    Yes   charm production is turned off         false
-Q2min                      double  Yes   min Q2 for PDF evaluation              GPL: PDF-Q2min
+PDF-Q2min                  double  Yes   min Q2 for PDF evaluation              GPL: PDF-Q2min
 IncludeR                   bool    Yes   include R factor?                      GPL: DISSF-IncludeR
 IncludeNuclMod             bool    Yes   include nuclear factor?                GPL: DISSF-IncludeNuclMod
 CKM-Vcd                    double  Yes                                          GPL: CKM-Vcd
 CKM-Vcs                    double  Yes                                          GPL: CKM-Vcs
 CKM-Vud                    double  Yes                                          GPL: CKM-Vud
-CKM-Vcs                    double  Yes                                          GPL: CKM-Vus
+CKM-Vus                    double  Yes                                          GPL: CKM-Vus
 -->
 
 <alg_conf>
 
   <param_set name="Default"> 
      <param type="alg" name="PDF-Set"> genie::BYPDF/Default </param>
+     <param type="double" name="CKM-Vud">  0.97377  </param>
+     <param type="double" name="CKM-Vus">  0.2257   </param>
+     <param type="double" name="CKM-Vcd">  0.230    </param>
+     <param type="double" name="CKM-Vcs">  0.957    </param>
+
+     <param type="double" name="BY-A">     0.538   </param>
+     <param type="double" name="BY-B">     0.305   </param>
+     <param type="double" name="BY-CsU">   0.363   </param>
+     <param type="double" name="BY-CsD">   0.621   </param>
+     <param type="double" name="BY-Cv1U">  0.291   </param>
+     <param type="double" name="BY-Cv2U">  0.189   </param>
+     <param type="double" name="BY-Cv1D">  0.202   </param>
+     <param type="double" name="BY-Cv2D">  0.255   </param>
+
+     <param type="double" name="PDF-Q2min"> 0.800 </param>
+     
   </param_set>
 
 </alg_conf>

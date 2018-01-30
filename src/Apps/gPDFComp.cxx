@@ -46,14 +46,14 @@
 #include <TLatex.h>
 #include <TPaletteAxis.h>
 
-#include "Algorithm/AlgFactory.h"
-#include "Messenger/Messenger.h"
-#include "PDF/PDFModelI.h"
-#include "PDF/PDFLIB.h"
-#include "PDF/PDF.h"
-#include "Utils/CmdLnArgParser.h"
-#include "Utils/StringUtils.h"
-#include "Utils/Style.h"
+#include "Framework/Algorithm/AlgFactory.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Physics/PartonDistributions/PDFModelI.h"
+#include "Physics/PartonDistributions/PDFLIB.h"
+#include "Physics/PartonDistributions/PDF.h"
+#include "Framework/Utils/CmdLnArgParser.h"
+#include "Framework/Utils/StringUtils.h"
+#include "Framework/Utils/Style.h"
 
 using namespace std;
 using namespace genie;

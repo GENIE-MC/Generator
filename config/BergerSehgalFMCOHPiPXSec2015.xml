@@ -7,9 +7,8 @@ Algorithm Configurable Parameters:
 ....................................................................................................
 Name             Type     Optional   Comment                 Default
 ....................................................................................................
-Ma               double   Yes        Coherent Axial Mass                   GPL: COH-Ma
-Ro               double   Yes        Nuclear Size Scale                    GPL: COH-Ro
-Re-Im-Ampl       double   Yes        Re/Im of fwd amplitude                GPL: COH-ReImAmpl
+COH-Ma           double   Yes        Coherent Axial Mass                   GPL: COH-Ma
+COH-Ro           double   Yes        Nuclear Size Scale                    GPL: COH-Ro
 fRSPionXSec      bool     Yes        Use Rein-Sehgal "style" pion xsec     GPL: COH-fRSPionXSec
 XSec-Integrator  alg      No
 -->
@@ -18,6 +17,10 @@ XSec-Integrator  alg      No
 
   <param_set name="Default"> 
       <param type="alg" name="XSec-Integrator"> genie::COHXSec/Default </param>
+
+      <param type="double" name="COH-Ma"> 1.000 </param>
+      <param type="double" name="COH-Ro"> 1.000 </param>
+
   </param_set>
 
 </alg_conf>

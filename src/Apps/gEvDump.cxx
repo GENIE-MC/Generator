@@ -49,18 +49,18 @@
 #include <TTree.h>
 #include <TLeaf.h>
 
-#include "Conventions/GBuild.h"
-#include "EVGCore/EventRecord.h"
-#include "Ntuple/NtpMCFormat.h"
-#include "Ntuple/NtpMCTreeHeader.h"
-#include "Ntuple/NtpMCEventRecord.h"
-#include "Messenger/Messenger.h"
-#include "Utils/CmdLnArgParser.h"
-#include "Utils/RunOpt.h"
+#include "Framework/Conventions/GBuild.h"
+#include "Framework/EventGen/EventRecord.h"
+#include "Framework/Ntuple/NtpMCFormat.h"
+#include "Framework/Ntuple/NtpMCTreeHeader.h"
+#include "Framework/Ntuple/NtpMCEventRecord.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Utils/CmdLnArgParser.h"
+#include "Framework/Utils/RunOpt.h"
 
 #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
-#include "FluxDrivers/GJPARCNuFlux.h"
-#include "FluxDrivers/GNuMIFlux.h"
+#include "Tools/Flux/GJPARCNuFlux.h"
+#include "Tools/Flux/GNuMIFlux.h"
 #endif 
 
 using std::string;

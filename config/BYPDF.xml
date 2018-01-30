@@ -9,19 +9,31 @@ Configurable Parameters:
 ....................................................................................................
 Name                       Type    Opt   Comment                                Default
 ....................................................................................................
-X0                         double  Yes   Bodek-Yang param X0                    GPL: BY-X0
-X1                         double  Yes   Bodek-Yang param X1                    GPL: BY-X1
-X2                         double  Yes   Bodek-Yang param X2                    GPL: BY-X2
-Q2min                      double  Yes   Min Q2 for PDF evaluation              GPL: PDF-Q2min
+BY-X0                      double  Yes   Bodek-Yang param X0                    GPL: BY-X0
+BY-X1                      double  Yes   Bodek-Yang param X1                    GPL: BY-X1
+BY-X2                      double  Yes   Bodek-Yang param X2                    GPL: BY-X2
+PDF-Q2min                  double  Yes   Min Q2 for PDF evaluation              GPL: PDF-Q2min
 Uncorr-PDF-Set             alg     No    Uncorrected PDF model 
 -->
 
   <param_set name="Optional"> 
      <param type="alg" name="Uncorr-PDF-Set">  genie::GRV98LO/Default </param>
+     <param type="double" name="BY-X0">   -0.00817 </param>
+     <param type="double" name="BY-X1">    0.0506  </param>
+     <param type="double" name="BY-X2">    0.0798  </param>
+
+     <param type="double" name="PDF-Q2min"> 0.800 </param>
+    
   </param_set>
 
   <param_set name="Default"> 
      <param type="alg" name="Uncorr-PDF-Set">  genie::PDFLIB/GRVLO  </param>
+     <param type="double" name="BY-X0">   -0.00817 </param>
+     <param type="double" name="BY-X1">    0.0506  </param>
+     <param type="double" name="BY-X2">    0.0798  </param>
+
+     <param type="double" name="PDF-Q2min"> 0.800 </param>
+
   </param_set>
 
 </alg_conf>

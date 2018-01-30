@@ -8,6 +8,7 @@
 # 
 #  Options:
 #  [--dir]             : Is the directory which contains all the xml files to be converted. Default: $PWD
+#  [--tune]            : Tune option
 #  [--add-list]        : additional file list to be included when the total_xsec.xml file is created
 #  [--root-output]     : Create an output file with all the splines
 #  [--evet-gen-list]   : Event generator list used in the root file output
@@ -18,12 +19,13 @@
 
 $iarg=0;
 foreach (@ARGV) {
-  if($_ eq '--dir')             { $dir           = $ARGV[$iarg+1]; }
-  if($_ eq '--add-list')        { $add_list      = $ARGV[$iarg+1]; }
-  if($_ eq '--root-output')     { $root_output   = 1 ; }
+  if($_ eq '--dir')             { $dir            = $ARGV[$iarg+1]; }
+  if($_ eq '--tune')            { $tune           = $ARGV[$iarg+1]; }
+  if($_ eq '--add-list')        { $add_list       = $ARGV[$iarg+1]; }
+  if($_ eq '--root-output')     { $root_output    = 1 ; }
   if($_ eq '--event-gen-list')  { $event_gen_list = $ARGV[$iarg+1]; }
-  if($_ eq '--add-nucleons')    { $add_nucleons  = 1 ; }
-  if($_ eq '--save-space' )     { $save_space    = 1 ; } 
+  if($_ eq '--add-nucleons')    { $add_nucleons   = 1 ; }
+  if($_ eq '--save-space' )     { $save_space     = 1 ; } 
   $iarg++;
 }
 
@@ -225,6 +227,7 @@ if ( defined $root_output ) {
   if ( defined $event_gen_list ) {
     $cmd .= " --event-generator-list $event_gen_list " 
   }
+  $cmd .= " --tune $tune " if ( defined $tune ) ;
   print "\n$cmd\n";
   `$cmd`;
 

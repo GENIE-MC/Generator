@@ -45,15 +45,19 @@ endif
 ifeq ($(strip $(GOPT_ENABLE_NUCLEON_DECAY)),YES)
 TGT_BASE += gevgen_ndcy
 endif
-ifeq ($(strip $(GOPT_ENABLE_NEUTRON_OSC)),YES)
-TGT_BASE += gevgen_nosc
-# Require C++11 for NeutronOsc module.
+ifeq ($(strip $(GOPT_ENABLE_NNBAR_OSCILLATION)),YES)
+TGT_BASE += gevgen_nnbarosc
+# ------------------------------------------
+# This should dissapear from here (CA)
+#
+# Require C++11 for NNBarOsc module.
 GCC_GTEQ_470 := $(shell expr `gcc -dumpversion | sed -e 's/\.\([0-9][0-9]\)/\1/g' -e 's/\.\([0-9]\)/0\1/g' -e 's/^[0-9]\{3,4\}$$/&00/'` \>= 40700)
 ifeq "$(GCC_GTEQ_470)" "1"
         CXXFLAGS += -std=c++11
 else
         CXXFLAGS += -std=c++0x
 endif
+# ------------------------------------------
 endif
 ifeq ($(strip $(GOPT_ENABLE_FLUX_DRIVERS)),YES)
 TGT_BASE += gmxpl
@@ -90,16 +94,16 @@ $(GENIE_BIN_PATH)/gevgen: gEvGen.o $(call find_libs,gevgen)
 $(GENIE_BIN_PATH)/gevgen_fnal: gFNALExptEvGen.o $(call find_libs,gevgen_fnal)
 	@echo "** Building gevgen_fnal"
 	$(LD) $(LDFLAGS) gFNALExptEvGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen_fnal
-	@echo "For historical purposes, add a NuMI event generation app sym link"
-	ln -sf $(GENIE_BIN_PATH)/gevgen_fnal $(GENIE_BIN_PATH)/gevgen_numi
+#	@echo "For historical purposes, add a NuMI event generation app sym link"
+#	ln -sf $(GENIE_BIN_PATH)/gevgen_fnal $(GENIE_BIN_PATH)/gevgen_numi
 
 # T2K neutrino event generation app
 #
 $(GENIE_BIN_PATH)/gevgen_t2k: gT2KEvGen.o $(call find_libs,gevgen_t2k)
 	@echo "** Building gevgen_t2k"
 	$(LD) $(LDFLAGS) gT2KEvGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen_t2k
-	@echo "For historical purposes, add symbolic link to the T2K event generation app"
-	ln -sf $(GENIE_BIN_PATH)/gevgen_t2k $(GENIE_BIN_PATH)/gT2Kevgen
+#	@echo "For historical purposes, add symbolic link to the T2K event generation app"
+#	ln -sf $(GENIE_BIN_PATH)/gevgen_t2k $(GENIE_BIN_PATH)/gT2Kevgen
 
 # atmospheric neutrino event generation app
 #
@@ -127,9 +131,9 @@ $(GENIE_BIN_PATH)/gevgen_ndcy: gNucleonDecayEvGen.o $(call find_libs,gevgen_ndcy
 
 # neutron-antineutron event generation app
 #
-$(GENIE_BIN_PATH)/gevgen_nosc: gNeutronOscEvGen.o $(call find_libs,gevgen_nosc)
-	@echo "** Building gevgen_nosc"
-	$(LD) $(LDFLAGS) gNeutronOscEvGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen_nosc
+$(GENIE_BIN_PATH)/gevgen_nnbarosc: gNNBarOscEvGen.o $(call find_libs,gevgen_nnbarosc)
+	@echo "** Building gevgen_nnbarosc"
+	$(LD) $(LDFLAGS) gNNBarOscEvGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen_nnbarosc
 
 # gevdump event print-out utility
 #

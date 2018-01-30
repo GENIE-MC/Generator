@@ -158,10 +158,12 @@ purge:
 .PHONY: clean
 clean:
 	@echo "Clean in $(PACKAGE)"
-ifeq ($(strip $(DICTIONARY)),undefined)
-	$(RM) -f *.d *.o *~ core a.out $(GENIE_LIB_PATH)/$(LIBNAME)* $(LIBNAME)* Makefile.temp
-else
-	$(RM) -f *.d *.o *~ core a.out $(GENIE_LIB_PATH)/$(LIBNAME)* $(LIBNAME)* $(DICTIONARY)* $(GENIE_LIB_PATH)/$(DICTIONARY)* Makefile.temp
+	$(RM) -f *.rootmap *.rootmap.bak *.pcm *.d *.o *~ core a.out Makefile.temp
+ifneq ($(strip $(DICTIONARY)),undefined)
+	$(RM) -f $(DICTIONARY)* $(GENIE_LIB_PATH)/$(DICTIONARY)* 
+endif
+ifneq ($(strip $(LIBNAME)),undefined)
+	$(RM) -f $(LIBNAME)* $(GENIE_LIB_PATH)/$(LIBNAME)*
 endif
 
 
@@ -169,7 +171,9 @@ endif
 #
 .PHONY: distclean
 distclean:
+ifneq ($(strip $(LIBNAME)),undefined)
 	$(RM) -f $(GENIE_LIB_INSTALLATION_PATH)/$(LIBNAME)*
+endif
 
 
 DEP=$(addsuffix .d, $(basename $(PACKAGE_ALL_SOURCES)))

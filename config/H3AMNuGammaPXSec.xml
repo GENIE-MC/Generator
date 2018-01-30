@@ -7,11 +7,15 @@ Configuration for the H3AMNuGammaPXSec xsec algorithm.
 
 Configurable Parameters:
 ....................................................................................
-Name           Type     Optional   Comment                 Default
+Name           Type     Optional  Comment                 Default
+AMNuGamma-Gw   double   Yes       anomaly parameter       GPL value
+
 ....................................................................................
 -->
 
   <param_set name="Default"> 
+     <param type="double" name="AMNuGamma-Gw"> 20.0 </param>
+
   </param_set>
 
 </alg_conf>

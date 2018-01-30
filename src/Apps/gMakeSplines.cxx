@@ -91,22 +91,22 @@
 
 #include <TSystem.h>
 
-#include "Conventions/GBuild.h"
-#include "EVGDrivers/GEVGDriver.h"
-#include "Interaction/Interaction.h"
-#include "Messenger/Messenger.h"
-#include "Numerical/RandomGen.h"
-#include "PDG/PDGCodeList.h"
-#include "Utils/RunOpt.h"
-#include "Utils/AppInit.h"
-#include "Utils/StringUtils.h"
-//#include "Utils/SystemUtils.h"
-#include "Utils/PrintUtils.h"
-#include "Utils/XSecSplineList.h"
-#include "Utils/CmdLnArgParser.h"
+#include "Framework/Conventions/GBuild.h"
+#include "Framework/EventGen/GEVGDriver.h"
+#include "Framework/Interaction/Interaction.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Numerical/RandomGen.h"
+#include "Framework/ParticleData/PDGCodeList.h"
+#include "Framework/Utils/RunOpt.h"
+#include "Framework/Utils/AppInit.h"
+#include "Framework/Utils/StringUtils.h"
+//#include "Framework/Utils/SystemUtils.h"
+#include "Framework/Utils/PrintUtils.h"
+#include "Framework/Utils/XSecSplineList.h"
+#include "Framework/Utils/CmdLnArgParser.h"
 
 #ifdef __GENIE_GEOM_DRIVERS_ENABLED__
-#include "Geo/ROOTGeomAnalyzer.h"
+#include "Tools/Geometry/ROOTGeomAnalyzer.h"
 #endif
 
 using std::string;

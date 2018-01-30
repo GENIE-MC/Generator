@@ -40,6 +40,7 @@ ESplineMax                  double  No   Emax in RES splines, xsec(E>Emax)=xsec(
      <param type="alg"    name="SingleRESDiffXSecAlg">   genie::ReinSehgalRESPXSec/Default                     </param>
      <!-- <param type="alg"    name="SingleRESDiffXSecAlg">   genie::BergerSehgalRESPXSec2014/Default               </param> -->
      <param type="double" name="ESplineMax">             20                             </param>
+
   </param_set>
 
 <!--

@@ -7,35 +7,35 @@ Configuration for the PYTHIA hadronization model
 
 Configurable Parameters:
 ................................................................................................................................
-Name                     Type    Opt   Comment (see PYTHIA manual)                              Default
+Name                            Type    Opt   Comment (see PYTHIA manual)                              Default
 ................................................................................................................................
-SSBarSuppression         double  Yes   PYTHIA's PARJ(2): the suppression of s quark pair        GPL PYTHIA-SSBarSuppression
-                                       production in the field compared with u,d production
-GaussianPt2              double  Yes   PYTHIA's PARJ(21): corresponds to the width sigma in     GPL PYTHIA-GaussianPt2
-                                       the gaussian transverse momentum distribution for
-                                       primary hadrons
-NonGaussianPt2Tail       double  Yes   PYTHIA's PARJ(23): param used to model non-gaussian      GPL PYTHIA-NonGaussianPt2Tail
-                                       pt2 tails
-RemainingEnergyCutoff    double  Yes   PYTHIA's PARJ(33): param used to define the remaining    GPL PYTHIA-RemainingEnergyCutoff
-                                       energy below which the fragmentation of a parton system
-                                       is stopped and two final hadrons formed
-Wcut                     double  Yes   W cut in DIS/RES join scheme                             GPL Wcut
-R-vp-CC-m2               double  Yes   scaling factor, vp  CC, multiplicity=2                   GPL DIS-HMultWgt-vp-CC-m2
-R-vp-CC-m3               double  Yes   scaling factor, vp  CC, multiplicity=3                   GPL DIS-HMultWgt-vp-CC-m3
-R-vp-NC-m2               double  Yes   scaling factor, vp  NC, multiplicity=2                   GPL DIS-HMultWgt-vp-NC-m2
-R-vp-NC-m3               double  Yes   scaling factor, vp  NC, multiplicity=3                   GPL DIS-HMultWgt-vp-NC-m3
-R-vn-CC-m2               double  Yes   scaling factor, vn  CC, multiplicity=2                   GPL DIS-HMultWgt-vn-CC-m2
-R-vn-CC-m3               double  Yes   scaling factor, vn  CC, multiplicity=3                   GPL DIS-HMultWgt-vn-CC-m3
-R-vn-NC-m2               double  Yes   scaling factor, vn  NC, multiplicity=2                   GPL DIS-HMultWgt-vn-NC-m2
-R-vn-NC-m3               double  Yes   scaling factor, vn  NC, multiplicity=3                   GPL DIS-HMultWgt-vn-NC-m3
-R-vbp-CC-m2              double  Yes   scaling factor, vbp CC, multiplicity=2                   GPL DIS-HMultWgt-vbp-CC-m2
-R-vbp-CC-m3              double  Yes   scaling factor, vbp CC, multiplicity=3                   GPL DIS-HMultWgt-vbp-CC-m3
-R-vbp-NC-m2              double  Yes   scaling factor, vbp NC, multiplicity=2                   GPL DIS-HMultWgt-vbp-NC-m2
-R-vbp-NC-m3              double  Yes   scaling factor, vbp NC, multiplicity=3                   GPL DIS-HMultWgt-vbp-NC-m3
-R-vbn-CC-m2              double  Yes   scaling factor, vbn CC, multiplicity=2                   GPL DIS-HMultWgt-vbn-CC-m2
-R-vbn-CC-m3              double  Yes   scaling factor, vbn CC, multiplicity=3                   GPL DIS-HMultWgt-vbn-CC-m3
-R-vbn-NC-m2              double  Yes   scaling factor, vbn NC, multiplicity=2                   GPL DIS-HMultWgt-vbn-NC-m2
-R-vbn-NC-m3              double  Yes   scaling factor, vbn NC, multiplicity=3                   GPL DIS-HMultWgt-vbn-NC-m3
+PYTHIA-SSBarSuppression         double  Yes   PYTHIA's PARJ(2): the suppression of s quark pair        GPL PYTHIA-SSBarSuppression
+                                              production in the field compared with u,d production
+PYTHIA-GaussianPt2              double  Yes   PYTHIA's PARJ(21): corresponds to the width sigma in     GPL PYTHIA-GaussianPt2
+                                              the gaussian transverse momentum distribution for
+                                              primary hadrons
+PYTHIA-NonGaussianPt2Tail       double  Yes   PYTHIA's PARJ(23): param used to model non-gaussian      GPL PYTHIA-NonGaussianPt2Tail
+                                              pt2 tails
+PYTHIA-RemainingEnergyCutoff    double  Yes   PYTHIA's PARJ(33): param used to define the remaining    GPL PYTHIA-RemainingEnergyCutoff
+                                              energy below which the fragmentation of a parton system
+                                              is stopped and two final hadrons formed
+Wcut                            double  Yes   W cut in DIS/RES join scheme                             GPL Wcut
+DIS-HMultWgt-vp-CC-m2           double  Yes   scaling factor, vp  CC, multiplicity=2                   GPL DIS-HMultWgt-vp-CC-m2
+DIS-HMultWgt-vp-CC-m3           double  Yes   scaling factor, vp  CC, multiplicity=3                   GPL DIS-HMultWgt-vp-CC-m3
+DIS-HMultWgt-vp-NC-m2           double  Yes   scaling factor, vp  NC, multiplicity=2                   GPL DIS-HMultWgt-vp-NC-m2
+DIS-HMultWgt-vp-NC-m3           double  Yes   scaling factor, vp  NC, multiplicity=3                   GPL DIS-HMultWgt-vp-NC-m3
+DIS-HMultWgt-vn-CC-m2           double  Yes   scaling factor, vn  CC, multiplicity=2                   GPL DIS-HMultWgt-vn-CC-m2
+DIS-HMultWgt-vn-CC-m3           double  Yes   scaling factor, vn  CC, multiplicity=3                   GPL DIS-HMultWgt-vn-CC-m3
+DIS-HMultWgt-vn-NC-m2           double  Yes   scaling factor, vn  NC, multiplicity=2                   GPL DIS-HMultWgt-vn-NC-m2
+DIS-HMultWgt-vn-NC-m3           double  Yes   scaling factor, vn  NC, multiplicity=3                   GPL DIS-HMultWgt-vn-NC-m3
+DIS-HMultWgt-vbp-CC-m2          double  Yes   scaling factor, vbp CC, multiplicity=2                   GPL DIS-HMultWgt-vbp-CC-m2
+DIS-HMultWgt-vbp-CC-m3          double  Yes   scaling factor, vbp CC, multiplicity=3                   GPL DIS-HMultWgt-vbp-CC-m3
+DIS-HMultWgt-vbp-NC-m2          double  Yes   scaling factor, vbp NC, multiplicity=2                   GPL DIS-HMultWgt-vbp-NC-m2
+DIS-HMultWgt-vbp-NC-m3          double  Yes   scaling factor, vbp NC, multiplicity=3                   GPL DIS-HMultWgt-vbp-NC-m3
+DIS-HMultWgt-vbn-CC-m2          double  Yes   scaling factor, vbn CC, multiplicity=2                   GPL DIS-HMultWgt-vbn-CC-m2
+DIS-HMultWgt-vbn-CC-m3          double  Yes   scaling factor, vbn CC, multiplicity=3                   GPL DIS-HMultWgt-vbn-CC-m3
+DIS-HMultWgt-vbn-NC-m2          double  Yes   scaling factor, vbn NC, multiplicity=2                   GPL DIS-HMultWgt-vbn-NC-m2
+DIS-HMultWgt-vbn-NC-m3          double  Yes   scaling factor, vbn NC, multiplicity=3                   GPL DIS-HMultWgt-vbn-NC-m3
 Decayer                  alg     Yes   particle decayer algorithm in case of -manual- decays    -unused-
 -->
 
@@ -43,26 +43,65 @@ Decayer                  alg     Yes   particle decayer algorithm in case of -ma
   Default PYTHIA 
 -->
   <param_set name="Default"> 
+
+     <!-- 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Parameters controlling the PYTHIA hadronization model:
+
+             PYTHIA    NUX 2001   AGKY 2010 strange prod.
+             default   tune       re-tune (see gDocDB-890-v1)
+  - ssbar:   0.30      0.21       0.30
+  - pt2:     0.36 GeV  0.44 GeV
+  - pt2tail: 0.01      0.01    
+  - cutoff:  0.80 GeV  0.20 GeV
+  -->
+  <param type="double" name="PYTHIA-SSBarSuppression">      0.30 </param>
+  <param type="double" name="PYTHIA-GaussianPt2">           0.44 </param> 
+  <param type="double" name="PYTHIA-NonGaussianPt2Tail">    0.01 </param>
+  <param type="double" name="PYTHIA-RemainingEnergyCutoff"> 0.20 </param>
+
+ <!-- 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  NEUGEN parameters applied to DIS hadronic multiplicity distributions 
+  to avoid 2-ble counting with RES
+  -->
+  <param type="double" name="DIS-HMultWgt-vp-CC-m2">  0.100  </param>
+  <param type="double" name="DIS-HMultWgt-vp-CC-m3">  1.000  </param>
+  <param type="double" name="DIS-HMultWgt-vp-NC-m2">  0.100  </param>
+  <param type="double" name="DIS-HMultWgt-vp-NC-m3">  1.000  </param>
+  <param type="double" name="DIS-HMultWgt-vn-CC-m2">  0.300  </param>
+  <param type="double" name="DIS-HMultWgt-vn-CC-m3">  1.000  </param>
+  <param type="double" name="DIS-HMultWgt-vn-NC-m2">  0.300  </param>
+  <param type="double" name="DIS-HMultWgt-vn-NC-m3">  1.000  </param>
+  <param type="double" name="DIS-HMultWgt-vbp-CC-m2"> 0.300  </param>
+  <param type="double" name="DIS-HMultWgt-vbp-CC-m3"> 1.000  </param>
+  <param type="double" name="DIS-HMultWgt-vbp-NC-m2"> 0.300  </param>
+  <param type="double" name="DIS-HMultWgt-vbp-NC-m3"> 1.000  </param>
+  <param type="double" name="DIS-HMultWgt-vbn-CC-m2"> 0.100  </param>
+  <param type="double" name="DIS-HMultWgt-vbn-CC-m3"> 1.000  </param>
+  <param type="double" name="DIS-HMultWgt-vbn-NC-m2"> 0.100  </param>
+  <param type="double" name="DIS-HMultWgt-vbn-NC-m3"> 1.000  </param>
+
   </param_set>
 
 <!-- 
   Standard PYTHIA
 -->
   <param_set name="Standard"> 
-    <param type="double" name="SSBarSuppression">      0.30 </param> 
-    <param type="double" name="GaussianPt2">           0.36 </param> 
-    <param type="double" name="NonGaussianPt2Tail">    0.01 </param> 
-    <param type="double" name="RemainingEnergyCutoff"> 0.80 </param> 
+    <param type="double" name="PYTHIA-SSBarSuppression">      0.30 </param> 
+    <param type="double" name="PYTHIA-GaussianPt2">           0.36 </param> 
+    <param type="double" name="PYTHIA-NonGaussianPt2Tail">    0.01 </param> 
+    <param type="double" name="PYTHIA-RemainingEnergyCutoff"> 0.80 </param> 
   </param_set>
 
 <!-- 
   Tuned parameters as used by NUX (see A.Rubbia's talk @ NuINT01) 
 -->
   <param_set name="NUX"> 
-    <param type="double" name="SSBarSuppression">      0.21 </param> 
-    <param type="double" name="GaussianPt2">           0.44 </param> 
-    <param type="double" name="NonGaussianPt2Tail">    0.01 </param> 
-    <param type="double" name="RemainingEnergyCutoff"> 0.20 </param> 
+    <param type="double" name="PYTHIA-SSBarSuppression">      0.21 </param> 
+    <param type="double" name="PYTHIA-GaussianPt2">           0.44 </param> 
+    <param type="double" name="PYTHIA-NonGaussianPt2Tail">    0.01 </param> 
+    <param type="double" name="PYTHIA-RemainingEnergyCutoff"> 0.20 </param> 
   </param_set>
 
 </alg_conf>

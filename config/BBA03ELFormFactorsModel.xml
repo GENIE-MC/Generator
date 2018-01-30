@@ -9,9 +9,9 @@ Configurable Parameters:
 .........................................................................................
 Name        Type    Optional   Comment                      Default
 .........................................................................................
-Mv          double  Yes        Vector Mass                  GPL value: EL-Mv
-MuP         double  Yes        p Anomalous Magn Moment      GPL value: AnomMagnMoment-P
-MuN         double  Yes        n Anomalous Magn Moment      GPL value: AnomMagnMoment-N
+EL-Mv       double  Yes        Vector Mass                  GPL value: EL-Mv
+AnomMagnMoment-P double  Yes   p Anomalous Magn Moment      GPL value
+AnomMagnMoment-N double  Yes   n Anomalous Magn Moment      GPL value
 Gep-a2      double  Yes        BBA2003 fit param for Gep    bba2003::kGep_a2
 Gep-a4      double  Yes                -//-                 bba2003::kGep_a4 
 Gep-a6      double  Yes               -//-                  bba2003::kGep_a6 
@@ -36,6 +36,42 @@ Q2Max       double  Yes        Q2>Q2max :Gep/Gmp is const   bba2003::kQ2Max
 -->
 
   <param_set name="Default"> 
+
+    <param type="double" name="EL-Mv">  0.840  </param> 
+
+    <param type="double" name="AnomMagnMoment-P">   2.7930     </param> 
+    <param type="double" name="AnomMagnMoment-N">  -1.913042   </param>
+
+     <!-- 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  BBA2003 elastic form factor parameters
+  - BBA03-Gen-* are parameters for the Krutov Gen parameterization used in BBA2003
+  - BBA03-Gep/Gmp/Gmn-* are coefficients for the BBA2003 inverse polynomial fit for Gep,Gmp,Gmn
+  - BBA03-Q2Max is a Q2 value above which Gep/Gmp is assummed const
+  H.Budd, NuINT-02 proceedings
+  -->
+     <param type="double" name="BBA03-Gen-a">    0.942       </param>
+     <param type="double" name="BBA03-Gen-b">    4.610       </param>
+     <param type="double" name="BBA03-Gep-a2">   3.253       </param>
+     <param type="double" name="BBA03-Gep-a4">   1.422       </param>
+     <param type="double" name="BBA03-Gep-a6">   0.08582     </param>
+     <param type="double" name="BBA03-Gep-a8">   0.3318      </param>
+     <param type="double" name="BBA03-Gep-a10"> -0.09371     </param>
+     <param type="double" name="BBA03-Gep-a12">  0.01076     </param>
+     <param type="double" name="BBA03-Gmp-a2">   3.104       </param>
+     <param type="double" name="BBA03-Gmp-a4">   1.428       </param>
+     <param type="double" name="BBA03-Gmp-a6">   0.1112      </param>                               
+     <param type="double" name="BBA03-Gmp-a8">  -0.006981    </param>
+     <param type="double" name="BBA03-Gmp-a10">  0.0003705   </param>
+     <param type="double" name="BBA03-Gmp-a12"> -0.7063E-5   </param>
+     <param type="double" name="BBA03-Gmn-a2">   3.043       </param>
+     <param type="double" name="BBA03-Gmn-a4">   0.8548      </param>
+     <param type="double" name="BBA03-Gmn-a6">   0.6806      </param>
+     <param type="double" name="BBA03-Gmn-a8">  -0.1287      </param>
+     <param type="double" name="BBA03-Gmn-a10">  0.008912    </param>
+     <param type="double" name="BBA03-Gmn-a12">  0.          </param>
+     <param type="double" name="BBA03-Q2Max">    6.0         </param>
+     
   </param_set>
 
 </alg_conf>

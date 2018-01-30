@@ -9,11 +9,21 @@ Algorithm Configurable Parameters:
 .........................................................................................
 Name        Type    Optional   Comment                    Default
 .........................................................................................
-Ma          double  Yes        Axial Mass                 GPL value: QEL-Ma
-FA0         double  Yes        FA(q2 = 0)                 GPL value: QEL-FA0
+QEL-Ma      double  Yes        Axial Mass                 GPL value: QEL-Ma
+QEL-FA0     double  Yes        FA(q2 = 0)                 GPL value: QEL-FA0
 -->
 
-  <param_set name="Default"> 
+  <param_set name="Default">   <!-- Ideally this should disappear as it is too generic --> 
+    <param type="double" name="QEL-Ma"> 0.990 </param>
+
+  </param_set>
+
+  <param_set name="HistoricalFit"> 
+    <param type="double" name="QEL-Ma"> 0.990 </param>
+    <param type="double" name="QEL-FA0"> -1.2670 </param>
+  </param_set>
+
+  <param_set name="Tunable">   <!-- to be left empty to allow priority from UserPhysicsOptions.xml or other -->
   </param_set>
 
 </alg_conf>

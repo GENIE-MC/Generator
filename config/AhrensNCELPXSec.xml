@@ -9,18 +9,28 @@ Configurable Parameters:
 ..........................................................................................
 Name             Type     Optional   Comment                     Default
 ..........................................................................................
-Ma               double   Yes        Axial Mass                  GPL value: QEL-Ma
-Mv               double   Yes        Vector Mass                 GPL value: QEL-Mv
-Eta              double   Yes        Strange Axial form factor   GPL value: EL-Axial-Eta
-Fa0              double   Yes        Fa(q2=0)                    GPL value: QEL-FA0
-MuP              double   Yes        p Anomalous Magn Moment     GPL value: AnomMagnMoment-P
-MuN              double   Yes        n Anomalous Magn Moment     GPL value: AnomMagnMoment-N
-WeinbergAngle    double   Yes        Weinberg angle              GPL value: WeinbergAngle
+QEL-Ma           double   Yes        Axial Mass                  GPL value: QEL-Ma
+QEL-Mv           double   Yes        Vector Mass                 GPL value: QEL-Mv
+EL-Axial-Eta     double   Yes        Strange Axial form factor   GPL value: EL-Axial-Eta
+QEL-Fa0          double   Yes        Fa(q2=0)                    GPL value: QEL-FA0
+AnomMagnMoment-P double   Yes        p Anomalous Magn Moment     GPL value
+AnomMagnMoment-N double   Yes        n Anomalous Magn Moment     GPL value
+WeinbergAngle    double   Yes        Weinberg angle              GPL value
 XSec-Integrator  alg      No
 -->
 
   <param_set name="Default"> 
      <param type="alg"  name="XSec-Integrator"> genie::QELXSec/Default </param>
+     <param type="double" name="WeinbergAngle"> 0.49744211 </param>
+
+     <param type="double" name="QEL-Ma"> 0.990 </param>
+     <param type="double" name="QEL-Mv">  0.840  </param> 
+     <param type="double" name="QEL-FA0"> -1.2670 </param>
+     <param type="double" name="EL-Axial-Eta"> 0.12 </param>
+
+     <param type="double" name="AnomMagnMoment-P">   2.7930     </param>
+     <param type="double" name="AnomMagnMoment-N">  -1.913042   </param>
+ 
   </param_set>
 </alg_conf>
 

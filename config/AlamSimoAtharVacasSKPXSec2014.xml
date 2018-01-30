@@ -4,10 +4,33 @@
 
 <!--
 Configuration for the Alam Simo Athar single kaon differential cross section model
+
+Configurable Parameters:
+.............................................................................................................
+Name                    Type     Optional   Comment                                                 Default
+AnomMagnMoment-P        double   Yes        p Anomalous Magn Moment                                 GPL value
+AnomMagnMoment-N        double   Yes        n Anomalous Magn Moment                                 GPL value
+PionDecayConstant       double   Yes        Pion decay constant (GeV)                               GPL value
+SU3-D                   double   Yes        SU(3) parameter                                         GPL value
+SU3-F                   double   Yes        SU(3) parameter                                         GPL value
+
+
+.............................................................................................................
+
+
 -->
 
   <param_set name="Default"> 
       <param type="alg" name="XSec-Integrator"> genie::AlamSimoAtharVacasSKXSec/Default </param>
+
+      <param type="double" name="AnomMagnMoment-P">   2.7930     </param> 
+      <param type="double" name="AnomMagnMoment-N">  -1.913042   </param>
+
+      <param type="double" name="PionDecayConstant"> 0.093 </param>
+
+      <param type="double" name="SU3-D"> 0.804 </param>
+      <param type="double" name="SU3-F"> 0.463 </param>
+  
   </param_set>
 
 </alg_conf>

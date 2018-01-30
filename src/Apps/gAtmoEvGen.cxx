@@ -224,36 +224,36 @@
 
 #include <TRotation.h>
 
-#include "Conventions/Units.h"
-#include "EVGCore/EventRecord.h"
-#include "EVGDrivers/GFluxI.h"
-#include "EVGDrivers/GMCJDriver.h"
-#include "EVGDrivers/GMCJMonitor.h"
-#include "Messenger/Messenger.h"
-#include "Ntuple/NtpWriter.h"
-#include "Ntuple/NtpMCFormat.h"
-#include "Numerical/RandomGen.h"
-#include "PDG/PDGCodes.h"
-#include "PDG/PDGLibrary.h"
-#include "Utils/XSecSplineList.h"
-#include "Utils/StringUtils.h"
-#include "Utils/SystemUtils.h"
-#include "Utils/UnitUtils.h"
-#include "Utils/CmdLnArgParser.h"
-#include "Utils/PrintUtils.h"
-#include "Utils/AppInit.h"
-#include "Utils/RunOpt.h"
+#include "Framework/Conventions/Units.h"
+#include "Framework/EventGen/EventRecord.h"
+#include "Framework/EventGen/GFluxI.h"
+#include "Framework/EventGen/GMCJDriver.h"
+#include "Framework/EventGen/GMCJMonitor.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Ntuple/NtpWriter.h"
+#include "Framework/Ntuple/NtpMCFormat.h"
+#include "Framework/Numerical/RandomGen.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGLibrary.h"
+#include "Framework/Utils/XSecSplineList.h"
+#include "Framework/Utils/StringUtils.h"
+#include "Framework/Utils/SystemUtils.h"
+#include "Framework/Utils/UnitUtils.h"
+#include "Framework/Utils/CmdLnArgParser.h"
+#include "Framework/Utils/PrintUtils.h"
+#include "Framework/Utils/AppInit.h"
+#include "Framework/Utils/RunOpt.h"
 
 #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
-#include "FluxDrivers/GFLUKAAtmoFlux.h"
-#include "FluxDrivers/GBGLRSAtmoFlux.h"
-#include "FluxDrivers/GHAKKMAtmoFlux.h"
+#include "Tools/Flux/GFLUKAAtmoFlux.h"
+#include "Tools/Flux/GBGLRSAtmoFlux.h"
+#include "Tools/Flux/GHAKKMAtmoFlux.h"
 #endif
 
 #ifdef __GENIE_GEOM_DRIVERS_ENABLED__
-#include "Geo/GeoUtils.h"
-#include "Geo/ROOTGeomAnalyzer.h"
-#include "Geo/PointGeomAnalyzer.h"
+#include "Tools/Geometry/GeoUtils.h"
+#include "Tools/Geometry/ROOTGeomAnalyzer.h"
+#include "Tools/Geometry/PointGeomAnalyzer.h"
 #endif
 
 using std::string;

@@ -20,7 +20,7 @@
 #include <TApplication.h>
 #include <TGClient.h>
 
-#include "Masterclass/GNuMcMainFrame.h"
+#include "Tools/Masterclass/GNuMcMainFrame.h"
 
 using namespace genie;
 using namespace genie::masterclass;

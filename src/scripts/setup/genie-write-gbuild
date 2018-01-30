@@ -13,7 +13,7 @@ die ("Not even the GENIE environmental variable is defined!") unless defined $GE
 $GCONF_FILE = "$GENIE/src/make/Make.config";
 die("Can not open $GENIE/src/make/Make.config!") unless (-e $GCONF_FILE);
 
-# Read the ROOT config 
+# Read the ROOT config
 #
 $ROOTSYS = $ENV{'ROOTSYS'};
 $RCONF_FILE = "$ROOTSYS/config.status";
@@ -27,7 +27,7 @@ if(-e $RCONF_FILE) {
 
 # Open header file
 #
-$GBLD_FILE = "$GENIE/src/Conventions/GBuild.h";
+$GBLD_FILE = "$GENIE/src/Framework/Conventions/GBuild.h";
 open(GBLD, ">$GBLD_FILE") or die("Can not write out the GBuild.h file!");
 
 # Write header file
@@ -40,55 +40,55 @@ print GBLD "*/ \n\n";
 
 # pythia6 enabled?
 #
-if( $root_conf_status=~m/enable-pythia6/i ) 
+if( $root_conf_status=~m/enable-pythia6/i )
       { print GBLD   "#define __GENIE_PYTHIA6_ENABLED__\n"; }
 else  { print GBLD "//#define __GENIE_PYTHIA6_ENABLED__\n"; }
 
 # mysql enabled?
 #
-if( $root_conf_status=~m/enable-mysql/i ) 
+if( $root_conf_status=~m/enable-mysql/i )
       { print GBLD   "#define __GENIE_MYSQL_ENABLED__\n"; }
 else  { print GBLD "//#define __GENIE_MYSQL_ENABLED__\n"; }
 
 # flux drivers enabled?
 #
 @nret = `grep 'GOPT_ENABLE_FLUX_DRIVERS=YES' $GCONF_FILE`;
-if(@nret>0) 
+if(@nret>0)
       { print GBLD   "#define __GENIE_FLUX_DRIVERS_ENABLED__\n"; }
 else  { print GBLD "//#define __GENIE_FLUX_DRIVERS_ENABLED__\n"; }
 
 # geometry drivers enabled?
 #
 @nret = `grep 'GOPT_ENABLE_GEOM_DRIVERS=YES' $GCONF_FILE`;
-if(@nret>0) 
+if(@nret>0)
       { print GBLD   "#define __GENIE_GEOM_DRIVERS_ENABLED__\n"; }
 else  { print GBLD "//#define __GENIE_GEOM_DRIVERS_ENABLED__\n"; }
 
 # low-level msg printout enabled?
 #
 @nret = `grep 'GOPT_ENABLE_LOW_LEVEL_MESG=YES' $GCONF_FILE`;
-if(@nret>0) 
+if(@nret>0)
       { print GBLD   "#define __GENIE_LOW_LEVEL_MESG_ENABLED__\n"; }
 else  { print GBLD "//#define __GENIE_LOW_LEVEL_MESG_ENABLED__\n"; }
 
 # VHE enabled?
 #
 @nret = `grep 'GOPT_ENABLE_VHE_EXTENSION=YES' $GCONF_FILE`;
-if(@nret>0) 
+if(@nret>0)
       { print GBLD   "#define __GENIE_VHE_ENABLED__\n"; }
 else  { print GBLD "//#define __GENIE_VHE_ENABLED__\n"; }
 
 # LHAPDF enabled?
 #
 @nret = `grep 'GOPT_ENABLE_LHAPDF=YES' $GCONF_FILE`;
-if(@nret>0) 
+if(@nret>0)
       { print GBLD   "#define __GENIE_LHAPDF_ENABLED__\n"; }
 else  { print GBLD "//#define __GENIE_LHAPDF_ENABLED__\n"; }
 
 # GSL enabled?
 #
 @nret = `grep 'GOPT_ENABLE_GSL=YES' $GCONF_FILE`;
-if(@nret>0) 
+if(@nret>0)
       { print GBLD   "#define __GENIE_GSL_ENABLED__\n"; }
 else  { print GBLD "//#define __GENIE_GSL_ENABLED__\n"; }
 
@@ -107,12 +107,12 @@ foreach(<VRS_FILE>) {
 	if(m/\Wdefine\s+LIBXML_VERSION\s+(\d+)/i) {
 		$libxml2_vrs = $1;
 #		print "GENIE seems to be using libxml2 version $libxml2_vrs\n";
-                print GBLD   "#define __GENIE_USES_LIBXML2_VERSION__ $libxml2_vrs \n"; 
+                print GBLD   "#define __GENIE_USES_LIBXML2_VERSION__ $libxml2_vrs \n";
                 $vrs_set = 1;
 	}
 }
 if($vrs_set==0) {
-        print GBLD   "//#define __GENIE_USES_LIBXML2_VERSION__ <unknown> \n"; 
+        print GBLD   "//#define __GENIE_USES_LIBXML2_VERSION__ <unknown> \n";
 }
 close VRS_FILE;
 
@@ -133,12 +133,12 @@ foreach(<VRS_FILE>) {
 	        $log4cpp_vrs = 0;
 		if($1 >0 ) { $log4cpp_vrs = $1 * 100 + $2; }
 #		print "GENIE seems to be using log4cpp version $log4cpp_vrs \n";
-                print GBLD   "#define __GENIE_USES_LOG4CPP_VERSION__ $log4cpp_vrs \n"; 
+                print GBLD   "#define __GENIE_USES_LOG4CPP_VERSION__ $log4cpp_vrs \n";
                 $vrs_set = 1;
 	}
 }
 if($vrs_set==0) {
-        print GBLD   "//#define __GENIE_USES_LOG4CPP_VERSION__ <unknown> \n"; 
+        print GBLD   "//#define __GENIE_USES_LOG4CPP_VERSION__ <unknown> \n";
 }
 close VRS_FILE;
 
@@ -147,4 +147,3 @@ print GBLD "\n#endif\n\n";
 # Close header file
 #
 close(GBLD);
-

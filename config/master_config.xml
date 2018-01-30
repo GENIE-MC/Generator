@@ -48,7 +48,7 @@
    <config alg="genie::MECGenerator">                MECGenerator.xml                </config>
    <config alg="genie::GLRESGenerator">              GLRESGenerator.xml              </config>
    <config alg="genie::NucleonDecayPrimaryVtxGenerator"> NucleonDecayPrimaryVtxGenerator.xml </config>
-   <config alg="genie::NeutronOscPrimaryVtxGenerator"> NeutronOscPrimaryVtxGenerator.xml </config>
+   <config alg="genie::NNBarOscPrimaryVtxGenerator">     NNBarOscPrimaryVtxGenerator.xml     </config>
 
    <!-- ****** CONFIGURATION FOR LIST-GENERATORS ****** -->
    <config alg="genie::QELInteractionListGenerator">           QELInteractionListGenerator.xml       </config>
@@ -63,7 +63,7 @@
    <config alg="genie::DFRInteractionListGenerator">           DFRInteractionListGenerator.xml       </config>
    <config alg="genie::SKInteractionListGenerator">            SKInteractionListGenerator.xml        </config>    
    <config alg="genie::DummyInteractionListGenerator">         Default.xml                           </config>
-   <config alg="genie::NOscDummyInteractionListGenerator">     Default.xml                           </config>
+   <config alg="genie::NNBarOscDummyInteractionListGenerator"> Default.xml                           </config>
    <config alg="genie::InteractionListAssembler">              InteractionListAssembler.xml          </config>
    <config alg="genie::EventGeneratorListAssembler">           EventGeneratorListAssembler.xml       </config>
 
@@ -154,7 +154,7 @@
    <config alg="genie::RosenbluthPXSec">                    RosenbluthPXSec.xml                    </config>
    <config alg="genie::StrumiaVissaniIBDPXSec">             StrumiaVissaniIBDPXSec.xml             </config>
    <config alg="genie::DummyPXSec">                         Default.xml                            </config>
-   <config alg="genie::NOscDummyPXSec">                     Default.xml                            </config>
+   <config alg="genie::NNBarOscDummyPXSec">                 Default.xml                            </config>
 
    <!--  ****** CONFIGURATION FOR NUCLEAR ENV. ALGORITHMS ****** -->
    <config alg="genie::NuclearModelMap">             NuclearModelMap.xml             </config>

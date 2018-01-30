@@ -19,11 +19,23 @@ XSec-Integrator alg
   <param_set name="CC-Optional"> 
      <param type="alg" name="PDF-Set">         genie::GRV98LO/Default  </param>
      <param type="alg" name="XSec-Integrator"> genie::DISXSec/Default  </param>
+
+     <param type="double" name="CKM-Vcd">  0.230    </param>  <!-- 0.2239 -->
+     <param type="double" name="CKM-Vcs">  0.957    </param>
+  
+     <param type="double" name="Charm-Mass"> 1.430 </param>
+
   </param_set>
 
   <param_set name="CC-Default"> 
      <param type="alg" name="PDF-Set">         genie::PDFLIB/GRVLO     </param>
      <param type="alg" name="XSec-Integrator"> genie::DISXSec/Default  </param>
+
+     <param type="double" name="CKM-Vcd">  0.230    </param>  <!-- 0.2239 -->
+     <param type="double" name="CKM-Vcs">  0.957    </param>
+
+     <param type="double" name="Charm-Mass"> 1.430 </param>
+     
   </param_set>
 
 </alg_conf>

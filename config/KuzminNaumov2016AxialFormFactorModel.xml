@@ -9,12 +9,18 @@ Algorithm Configurable Parameters:
 .........................................................................................
 Name        Type    Optional   Comment                    Default
 .........................................................................................
-Ma          double  Yes        Axial Mass                 GPL value: QEL-Ma
-FA0         double  Yes        FA(q2 = 0)                 GPL value: QEL-FA0
-E0          double  Yes        E0                         GPL value: CCQE-E0
+QEL-Ma      double  Yes        Axial Mass                 GPL value: QEL-Ma
+QEL-FA0     double  Yes        FA(q2 = 0)                 GPL value: QEL-FA0
+QEL-E0      double  Yes        E0                         GPL value: QEL-E0
 -->
 
   <param_set name="Default"> 
+      <param type="double" name="QEL-Ma"> 0.990 </param>
+
+      <param type="double" name="QEL-FA0"> -1.2670 </param>
+
+      <param type="double" name="QEL-E0"> 0.334 </param>
+
   </param_set>
 
 </alg_conf>

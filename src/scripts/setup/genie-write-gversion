@@ -21,17 +21,17 @@ $major = $1;
 $minor = $2;
 $revis = $3;
 
-# Get the SVN revision number 
+# Get the SVN revision number
 $svn_revision = `svn info | grep -i revision`;
 if($? == 0) {
   # remove any non-digit
   $svn_revision =~ s/\D+\s+//;
 } else {
-  # Couldn't run svn info. 
+  # Couldn't run svn info.
   # This may be a user without svn who installs GENIE from a tarball.
   # Try to extract the revision number from $GENIE/.svn/entries
-  $svn_revision = -1;  
-  if (open(SVN_ENTRIES, "<$GENIE/.svn/entries")) { 
+  $svn_revision = -1;
+  if (open(SVN_ENTRIES, "<$GENIE/.svn/entries")) {
     @svn_entries = <SVN_ENTRIES>;
     close(SVN_ENTRIES);
     chomp($svn_revision = $svn_entries[3]); # the rev number seems to be at the 4th line
@@ -39,7 +39,7 @@ if($? == 0) {
 }
 
 # Open header file
-$GVRS_FILE = "$GENIE/src/Conventions/GVersion.h";
+$GVRS_FILE = "$GENIE/src/Framework/Conventions/GVersion.h";
 open(GVRS, ">$GVRS_FILE") or die("Can not write out the GVersion.h file!");
 
 # Write header file
@@ -80,10 +80,8 @@ if ($svn_revision != -1 ) {
     print GVRS "*/ \n\n";
   }
 }
-  
+
 print GVRS "#endif\n\n";
 
 # Close header file
 close(GVRS);
-
-

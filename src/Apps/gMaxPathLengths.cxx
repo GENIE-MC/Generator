@@ -74,15 +74,15 @@
 
 #include <TMath.h>
 
-#include "EVGDrivers/PathLengthList.h"
-#include "Geo/ROOTGeomAnalyzer.h"
-#include "Messenger/Messenger.h"
-#include "Numerical/RandomGen.h"
-#include "Utils/CmdLnArgParser.h"
-#include "Utils/UnitUtils.h"
-#include "Utils/PrintUtils.h"
-#include "Utils/AppInit.h"
-#include "Utils/RunOpt.h"
+#include "Framework/EventGen/PathLengthList.h"
+#include "Tools/Geometry/ROOTGeomAnalyzer.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Numerical/RandomGen.h"
+#include "Framework/Utils/CmdLnArgParser.h"
+#include "Framework/Utils/UnitUtils.h"
+#include "Framework/Utils/PrintUtils.h"
+#include "Framework/Utils/AppInit.h"
+#include "Framework/Utils/RunOpt.h"
 
 using std::string;
 
