@@ -33,7 +33,7 @@
 #include "Physics/NNBarOscillation/NNBarOscUtils.h"
 #include "Physics/NNBarOscillation/NNBarOscMode.h"
 #include "Physics/NuclearState/NuclearUtils.h"
-#include "Interfaces/NuclearModelI.h"
+#include "Physics/NuclearState/NuclearModelI.h"
 
 using namespace genie;
 
