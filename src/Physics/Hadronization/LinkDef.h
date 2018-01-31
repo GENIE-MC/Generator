@@ -6,6 +6,7 @@
 
 #pragma link C++ namespace genie;
 #pragma link C++ namespace genie::utils::frgmfunc;
+#pragma link C++ namespace genie::utils::fragmrec;
 
 #pragma link C++ class genie::HadronizationModelI;
 #pragma link C++ class genie::HadronizationModelBase;

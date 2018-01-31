@@ -5,7 +5,7 @@
 #pragma link off all functions;
 
 #pragma link C++ namespace genie;
-#pragma link C++ namespace genie::utils::neutron_osc;
+#pragma link C++ namespace genie::utils::nnbar_osc;
 
 #pragma link C++ class genie::NNBarOscPrimaryVtxGenerator;
 #pragma link C++ class genie::NNBarOscDummyPXSec;
