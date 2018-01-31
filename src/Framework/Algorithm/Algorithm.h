@@ -8,6 +8,9 @@
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           University of Liverpool & STFC Rutherford Appleton Lab
 
+          Marco Roda <mroda \at liverpool.ac.uk>
+          University of Liverpool
+
 \created  May 02, 2004
 
 \cpright  Copyright (c) 2003-2018, The GENIE Collaboration
@@ -50,19 +53,29 @@ class Algorithm {
 public:
   virtual ~Algorithm();
 
-  //! Configure the algorithm
+  //! Configure the algorithm with an external registry
+  //!   The registry is added with the highest priority
   virtual void Configure (const Registry & config);  
 
-  //! Configure the algorithm 
+  //! Configure the algorithm from the AlgoConfigPool
+  //!  based on param_set string given in input
+  //!  This methods will load three registries in order of priority:
+  //!   1) Tunable from CommonParametes for tuning procedures
+  //!   2) config from AlgoConfigPool
+  //!   3) if config != "Default" it will also load Config
   virtual void Configure (string config);            
 
   //! Lookup configuration from the config pool
+  //!   Similar logic from void Configure(string) 
+  //!   It also loads in cascade the registry from the substructures
   virtual void FindConfig (void);   
 
   //! Get configuration registry
+  //!  Evaluate the summary of the configuration and returns it
   virtual const Registry & GetConfig(void) const { return *fConfig; }
 
   //! Get a writeable version of an owned configuration Registry.
+  //!  Gives access to the summary
   Registry * GetOwnedConfig(void);
 
   //! Get algorithm ID
@@ -116,14 +129,24 @@ protected:
   void DeleteSubstructure (void);
 
   bool         fAllowReconfig; ///<
-  bool         fOwnsConfig;    ///< true if it owns its config. registry
+  //  bool         fOwnsConfig;    ///< true if it owns its config. registry
   bool         fOwnsSubstruc;  ///< true if it owns its substructure (sub-algs,...)
   AlgId        fID;            ///< algorithm name and configuration set
-  Registry *   fConfig;        ///< config. (either owned or pointing to config pool)
-  // vector<Registry*>  fConfig ;
-  // vector<Registry>   fConfig ;
+
+  vector<Registry*>  fConfVect ;   //configurations registries from various sources 
+                                   //  the order of the vector is the precedence in case of repeated parameters
+                                   //  position 0 -> Highest precedence
+  vector<bool>       fOwnerships ; //ownership for every registry in fConfVect
+   
+  Registry *   fConfig;        ///< Summary configuration derived from fConvVect, not necessarily allocated
+  
   AlgStatus_t  fStatus;        ///< algorithm execution status
   AlgMap *     fOwnedSubAlgMp; ///< local pool for owned sub-algs (taken out of the factory pool)
+
+private:
+  int   AddTopRegistry( Registry * rp, bool owns = true );  ///< add registry with top priority, also update ownership
+  int   AddTopRegisties( const vector<Registry*> & rs, bool owns = false ) ; ///< Add registries with top priority, also udated Ownerships 
+
 };
 
 }       // genie namespace

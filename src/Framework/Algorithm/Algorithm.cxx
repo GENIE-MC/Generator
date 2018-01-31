@@ -73,18 +73,24 @@ void Algorithm::Configure(const Registry & config)
 
   LOG("Algorithm", pNOTICE) << "Input configuration: " << config;
 
-  if(!fOwnsConfig) {
-    fConfig     = new Registry(config);
-    fOwnsConfig = true;
-  } else {
-    fConfig->Copy(config);
+  if ( config.NEntries() <= 0 ) {
+
+    LOG("Algorithm", pNOTICE) "Registry " << config.Name() << " is empty. Not added to " << fID.Name();
+    return; 
   }
+
+  Registry* rp = new Registry(config) ;
+  AddTopRegistry( rp ) ;
+
   LOG("Algorithm", pNOTICE) << "Copied configuration: " << *fConfig;
 
   if(!fOwnsSubstruc) return;              // doesn't own substructure
   if(fOwnedSubAlgMp->size()==0) return;   // no sub-algorithms
 
   LOG("Algorithm", pNOTICE) << "Configuring algorithms stored at local pool";
+
+
+  // *** what exactly is happening here ?! *** 
 
   // loop over local pool algorithms
   AlgMapIter alg_iter = fOwnedSubAlgMp->begin();
@@ -141,6 +147,18 @@ void Algorithm::FindConfig(void)
 
   AlgConfigPool * pool = AlgConfigPool::Instance();
   Registry * config = pool->FindRegistry(this);
+
+  // Load the right config 
+
+  // load the Default config if config is not the default
+
+  // Load Common Parameters if specific key "CommonParam" is there is
+
+  // Load Cascade registry from lower level
+
+  // Load Tunable from CommonParameters 
+
+
 
   if(!config)
      // notify & keep whatever config Registry was used before.
@@ -385,3 +403,21 @@ void Algorithm::DeleteSubstructure(void)
   fOwnedSubAlgMp = 0;
 }
 //____________________________________________________________________________
+int Algorithm::AddTopRegistry( Registry * rp, bool own ) {  
+
+  fConfVect.insert( fConfVect.begin(), rp ) ;
+  fOwnerships.insert( fOwnerships.begin(), own ) ;
+  return fConfVect.size() ;
+
+}
+
+
+int Algorithm::AddTopRegisties( const vector<Registry*> & rs, bool own ) {
+
+  fConfVect.insert( fCongVect.begin(), rs.begin(), rs.end() ) ;
+  
+  fOwnerships.insert( fOwnerships.begin(), rs.size(), own ) ;
+  
+  return fConfVect.size() ;  
+
+}
