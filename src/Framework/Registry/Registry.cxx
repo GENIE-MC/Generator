@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2017, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2018, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -474,7 +474,7 @@ void Registry::Get(RgKey key, RgTree & item) const
 //____________________________________________________________________________
 
 template<class T>
-void Registry::Get (RgKey key, const vector<Registry> & rs, T & item ) const {
+void Registry::Get (RgKey key, const vector<genie::Registry> & rs, T & item ) const {
 
 	T value ;
 
@@ -520,7 +520,7 @@ void Registry::Get (RgKey key, const vector<Registry> & rs, T & item ) const {
 namespace genie {   ///this is a template specialization, hence the code has to be in the same namespace
 
 template<>
-  void Registry::Get (RgKey key, const vector<Registry> & rs, const RegistryItemI * & item ) const {
+  void Registry::Get (RgKey key, const vector<genie::Registry> & rs, const RegistryItemI * & item ) const {
 
 	RgIMapConstIter entry ;
 
@@ -634,7 +634,7 @@ RgTree Registry::GetTree(RgKey key) const
 //____________________________________________________________________________
 
 
-RgBool Registry::GetBool(RgKey key, const vector<Registry> & rs ) const {
+RgBool Registry::GetBool(RgKey key, const vector<genie::Registry> & rs ) const {
 
 	RgBool value;
 	Get(key, rs, value ) ;
@@ -643,7 +643,7 @@ RgBool Registry::GetBool(RgKey key, const vector<Registry> & rs ) const {
 
 //____________________________________________________________________________
 
- RgInt  Registry::GetInt(RgKey key, const vector<Registry> & rs ) const {
+ RgInt  Registry::GetInt(RgKey key, const vector<genie::Registry> & rs ) const {
 
 	 RgInt value ;
 	 Get( key, rs, value ) ;
@@ -652,7 +652,7 @@ RgBool Registry::GetBool(RgKey key, const vector<Registry> & rs ) const {
 
  //____________________________________________________________________________
 
- RgDbl  Registry::GetDouble(RgKey key, const vector<Registry> & rs ) const {
+ RgDbl  Registry::GetDouble(RgKey key, const vector<genie::Registry> & rs ) const {
 
 	 RgDbl value ;
 	 Get( key, rs, value ) ;
@@ -661,7 +661,7 @@ RgBool Registry::GetBool(RgKey key, const vector<Registry> & rs ) const {
 
  //____________________________________________________________________________
 
- RgStr  Registry::GetString    (RgKey key, const vector<Registry> & rs ) const {
+ RgStr  Registry::GetString    (RgKey key, const vector<genie::Registry> & rs ) const {
 
 	 RgStr value;
 	 Get( key, rs, value );
@@ -670,7 +670,7 @@ RgBool Registry::GetBool(RgKey key, const vector<Registry> & rs ) const {
 
  //____________________________________________________________________________
 
- RgAlg  Registry::GetAlg       (RgKey key, const vector<Registry> & rs ) const {
+ RgAlg  Registry::GetAlg       (RgKey key, const vector<genie::Registry> & rs ) const {
 
 	 RgAlg value;
 	 Get( key, rs, value  );

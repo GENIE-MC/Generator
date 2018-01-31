@@ -22,7 +22,7 @@ fmwk_libs=" -lGFwMsg -lGFwReg -lGFwAlg -lGFwInt -lGFwGHEP -lGFwNum -lGFwUtl -lGF
 
 # Libraries from GENIE/Generator/Physics
 # (standard)
-phys_libs=" -lGPhXSIg -lGPhPDF -lGPhNuclSt -lGPhCmn -lGPhHadTransp -lGPhHadnz -lGPhDcy -lGPhDeEx \
+phys_libs=" -lGPhXSIg -lGPhPDF -lGPhNuclSt -lGPhCmn -lGPhDcy -lGPhHadTransp -lGPhHadnz  -lGPhDeEx \
   -lGPhAMNGXS -lGPhAMNGEG -lGPhChmXS -lGPhCohXS -lGPhCohEG  -lGPhDISXS -lGPhDISEG \
   -lGPhDfrcXS -lGPhDfrcEG -lGPhGlwResXS -lGPhGlwResEG -lGPhIBDXS -lGPhIBDEG \
   -lGPhMNucXS -lGPhMNucEG -lGPhMEL -lGPhNuElXS -lGPhNuElEG \

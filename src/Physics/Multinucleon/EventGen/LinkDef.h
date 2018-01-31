@@ -5,7 +5,7 @@
 #pragma link off all functions;
 
 #pragma link C++ namespace genie;
-#pragma link C++ namespace genie::utils::mec;
+//#pragma link C++ namespace genie::utils::mec;
 
 #pragma link C++ class genie::MECInteractionListGenerator;
 #pragma link C++ class genie::MECGenerator;

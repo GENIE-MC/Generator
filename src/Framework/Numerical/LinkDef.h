@@ -5,6 +5,8 @@
 #pragma link off all functions;
 
 #pragma link C++ namespace genie;
+#pragma link C++ namespace genie::utils::math;
+#pragma link C++ namespace genie::utils::gsl;
 
 #pragma link C++ class genie::RandomGen;
 #pragma link C++ class genie::Spline;

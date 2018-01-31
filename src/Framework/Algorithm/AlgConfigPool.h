@@ -11,7 +11,7 @@
 
 \created  May 06, 2004
 
-\cpright  Copyright (c) 2003-2017, GENIE Neutrino MC Generator Collaboration
+\cpright  Copyright (c) 2003-2018, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
@@ -49,6 +49,8 @@ public:
   Registry * FindRegistry (const AlgId & algid)               const;
 
   Registry * GlobalParameterList(void) const;
+  Registry * CommonParameterList( const string & name ) const;
+ 
 
   const vector<string> & ConfigKeyList (void) const;
 
@@ -66,6 +68,7 @@ private:
   bool   LoadAlgConfig       (void);
   bool   LoadMasterConfig    (void);
   bool   LoadGlobalParamLists(void);
+  bool   LoadCommonParamLists(void);
   bool   LoadSingleAlgConfig (string alg_name, string file_name);
   bool   LoadRegistries      (string key_base, string file_name, string root);
   void   AddConfigParameter  (Registry * r, string pt, string pn, string pv);

@@ -11,7 +11,7 @@
 
 \created  May 04, 2004
 
-\cpright  Copyright (c) 2003-2017, GENIE Neutrino MC Generator Collaboration
+\cpright  Copyright (c) 2003-2018, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
@@ -127,9 +127,9 @@ public:
   // Methods to set/retrieve Registry values from this registry or from a vector of Registries
   //
   template<class T>
-    void   Get (RgKey key, const vector<Registry> & rs, T & item ) const ;
+    void   Get (RgKey key, const vector<genie::Registry> & rs, T & item ) const ;
 //  template<>
-//    void   Get (RgKey key, const vector<Registry> & rs, const RegistryItemI * & item ) const ;
+//    void   Get (RgKey key, const vector<genie::Registry> & rs, const RegistryItemI * & item ) const ;
 
 
   RgBool GetBool      (RgKey key) const;
@@ -141,11 +141,11 @@ public:
   RgH2F  GetH2F       (RgKey key) const;
   RgTree GetTree      (RgKey key) const;
 
-  RgBool GetBool      (RgKey key, const vector<Registry> & rs ) const;
-  RgInt  GetInt       (RgKey key, const vector<Registry> & rs ) const;
-  RgDbl  GetDouble    (RgKey key, const vector<Registry> & rs ) const;
-  RgStr  GetString    (RgKey key, const vector<Registry> & rs ) const;
-  RgAlg  GetAlg       (RgKey key, const vector<Registry> & rs ) const;
+  RgBool GetBool      (RgKey key, const vector<genie::Registry> & rs ) const;
+  RgInt  GetInt       (RgKey key, const vector<genie::Registry> & rs ) const;
+  RgDbl  GetDouble    (RgKey key, const vector<genie::Registry> & rs ) const;
+  RgStr  GetString    (RgKey key, const vector<genie::Registry> & rs ) const;
+  RgAlg  GetAlg       (RgKey key, const vector<genie::Registry> & rs ) const;
 
   RgBool GetBoolDef   (RgKey key, RgBool def_opt, bool set_def=true);
   RgInt  GetIntDef    (RgKey key, RgInt  def_opt, bool set_def=true);

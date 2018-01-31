@@ -14,7 +14,7 @@ import sys
 
 
 search_string = r'Copyright \(c\) 2003-20\d\d'
-replace_string = r'Copyright (c) 2003-2017'
+replace_string = r'Copyright (c) 2003-2018'
 
 
 def has_hidden_dirs(dirpath):

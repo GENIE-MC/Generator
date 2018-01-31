@@ -6,7 +6,7 @@
 
 #pragma link C++ namespace genie;
 
-#pragma link C++ class genie::NucDeExcitationSim
+#pragma link C++ class genie::NucDeExcitationSim;
 
 
 #endif

@@ -9,6 +9,7 @@
 #pragma link C++ class RgAlg+;
 
 #pragma link C++ class genie::Registry;
+#pragma link C++ class vector<genie::Registry>+;
 #pragma link C++ class genie::RegistryItem<RgBool>+;
 #pragma link C++ class genie::RegistryItem<RgInt>+;
 #pragma link C++ class genie::RegistryItem<RgDbl>+;

@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2017, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2018, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -119,6 +119,9 @@ bool AlgConfigPool::LoadAlgConfig(void)
   //-- read the MASTER_CONFIG XML file
   if(!this->LoadMasterConfig()) return false;
 
+  //-- read Common Parameters lists
+  if( ! LoadCommonParamLists() ) return false ;
+
   //-- loop over all XML config files and read all named configuration
   //   sets for each algorithm
   map<string, string>::const_iterator conf_file_iter;
@@ -217,6 +220,22 @@ bool AlgConfigPool::LoadGlobalParamLists(void)
 
   // load and report status
   return this->LoadRegistries(key_prefix, glob_params, "global_param_list");
+}
+//____________________________________________________________________________
+bool AlgConfigPool::LoadCommonParamLists(void)
+{
+// Load the common parameter list 
+//
+  SLOG("AlgConfigPool", pINFO) << "Loading Common parameter lists";
+
+  // -- get the user config XML file using GXMLPATH + default locations
+  string glob_params = utils::xml::GetXMLFilePath("CommonParameters.xml");
+
+  // fixed key prefix
+  string key_prefix = "CommonParameterList";
+
+  // load and report status
+  return this->LoadRegistries(key_prefix, glob_params, "common_param_list");
 }
 //____________________________________________________________________________
 bool AlgConfigPool::LoadSingleAlgConfig(string alg_name, string file_name)
@@ -498,6 +517,15 @@ Registry * AlgConfigPool::GlobalParameterList(void) const
                         string(gSystem->Getenv("GUSERPHYSOPT")) : "Default";
   ostringstream key;
   key << "GlobalParameterList/" << glob_param_set;
+
+  return this->FindRegistry(key.str());
+}
+//____________________________________________________________________________
+Registry * AlgConfigPool::CommonParameterList( const string & name ) const
+{
+
+  ostringstream key;
+  key << "CommonParameterList/" << name;
 
   return this->FindRegistry(key.str());
 }

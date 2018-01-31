@@ -5,6 +5,7 @@
 #pragma link off all functions;
 
 #pragma link C++ namespace genie;
+#pragma link C++ namespace genie::utils::nuclear;
 
 //#pragma extra_include "Physics/NuclearState/NuclearModel.h";
 //#pragma extra_include "Physics/NuclearState/NuclearModelI.h";
@@ -19,7 +20,6 @@
 #pragma link C++ class genie::FermiMomentumTable;
 #pragma link C++ class genie::FermiMomentumTablePool;
 #pragma link C++ class genie::EffectiveSF;
-
 #pragma link C++ class genie::FermiMover;
 #pragma link C++ class genie::PauliBlocker;
 

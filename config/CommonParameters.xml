@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+
+
+<!--
+***************************************************************************************************
+This file defines parameters sets for parameters which are common between algorithms and therefore
+has to be the same for those parameters to be meaningful.
+This is file is read from the AlgConfigPool and the parameters set are expected to be used by the
+algorithms to configure these common parameters.  
+
+Author:
+Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+STFC, Rutherford Appleton Laboratory
+
+and 
+Marco Roda <marco.roda \at liverpool.ac.uk>
+University of Liverpool
+***************************************************************************************************
+-->
+
+
+
+<common_param_list>
+
+
+ <param_set name="Tunable">
+      
+ </param_set>
+
+
+ <param_set name="Physics">
+
+ <!-- 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  CKM quark mixing parameters 
+  Use values listed at the July 2006 particle physics booklet
+  -->
+
+  <param type="double" name="CKM-Vud">  0.97377  </param>
+  <param type="double" name="CKM-Vus">  0.2257   </param>
+  <param type="double" name="CKM-Vcd">  0.230    </param>  <!-- 0.2239 -->
+  <param type="double" name="CKM-Vcs">  0.957    </param>
+
+ <!-- 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Cabibbo and Weinberg angles 
+  -->
+  <param type="double" name="CabibboAngle">  0.22853207 </param> <!-- 0.226893 -->  
+  <param type="double" name="WeinbergAngle"> 0.49744211 </param> <!-- 0.501568 --> 
+
+ </param_set>
+
+</common_param_list>
+
