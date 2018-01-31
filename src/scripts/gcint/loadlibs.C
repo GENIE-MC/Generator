@@ -1,3 +1,8 @@
+Long_t load_single_lib(const char * libname)
+{
+  return gSystem->Load(libname);
+}
+
 Long_t load_libs_from_command(const char * list_libs_command, bool verbose = false)
 { // Takes a linker-style list of libs (eg "-lmygreatlib -lmylessgoodlib" )
   // and loads each using gSystem::Load()
@@ -18,7 +23,7 @@ Long_t load_libs_from_command(const char * list_libs_command, bool verbose = fal
       TObjString * libname_os = static_cast<TObjString*>(matches->At(1));
       if (!libname_os) {continue;}
       TString full_libname = "lib"+libname_os->GetString();
-      Long_t this_status = gSystem->Load(full_libname.Data());
+      Long_t this_status = load_single_lib(full_libname.Data());
       if (verbose) std::cout<<full_libname<<":\t"<<this_status<<std::endl;
       status = (status || this_status);
       delete matches;
