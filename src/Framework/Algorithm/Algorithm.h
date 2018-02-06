@@ -127,22 +127,31 @@ protected:
   void Initialize         (void);
   void DeleteConfig       (void);
   void DeleteSubstructure (void);
-
+  
+  //! Split an incoming configuration Registry into a block valid for this algorithm
+  //! Ownership of the returned registry belongs to the algo
+  Registry * ExtractLocalConfig( const Registry & in ) const ;
+  //! Split an incoming configuration Registry into a block valid for the sub-algo identified by alg_key
+  Registry * ExtractLowerConfig( const Registry & in, const string & alg_key ) const ;
+  
   bool         fAllowReconfig; ///<
   //  bool         fOwnsConfig;    ///< true if it owns its config. registry
   bool         fOwnsSubstruc;  ///< true if it owns its substructure (sub-algs,...)
   AlgId        fID;            ///< algorithm name and configuration set
 
-  vector<Registry*>  fConfVect ;   //configurations registries from various sources 
-                                   //  the order of the vector is the precedence in case of repeated parameters
-                                   //  position 0 -> Highest precedence
-  vector<bool>       fOwnerships ; //ownership for every registry in fConfVect
+  vector<Registry*>  fConfVect ;   ///< configurations registries from various sources 
+                                   ///<  the order of the vector is the precedence in case of repeated parameters
+                                   ///<  position 0 -> Highest precedence
+  vector<bool>       fOwnerships ; ///< ownership for every registry in fConfVect
    
   Registry *   fConfig;        ///< Summary configuration derived from fConvVect, not necessarily allocated
   
   AlgStatus_t  fStatus;        ///< algorithm execution status
   AlgMap *     fOwnedSubAlgMp; ///< local pool for owned sub-algs (taken out of the factory pool)
 
+  template<class T>
+    bool GetParam( const std::string & name, T & p, bool is_top_call = true ) const ;
+  
 private:
   int   AddTopRegistry( Registry * rp, bool owns = true );  ///< add registry with top priority, also update ownership
   int   AddTopRegisties( const vector<Registry*> & rs, bool owns = false ) ; ///< Add registries with top priority, also udated Ownerships 
@@ -150,4 +159,7 @@ private:
 };
 
 }       // genie namespace
+
+#include "Framework/Algorithm/Algorithm.icc"
+
 #endif  // _ALGORITHM_H_

@@ -79,53 +79,50 @@ void Algorithm::Configure(const Registry & config)
     return; 
   }
 
-  Registry* rp = new Registry(config) ;
-  AddTopRegistry( rp ) ;
+  Registry* rp = ExtractLocalConfig( config ) ;
+  if ( rp ) { 
+   
+    AddTopRegistry( rp ) ;
+    LOG("Algorithm", pNOTICE) << fID.Name() << " acquired new local configuration: " << *rp;
+    // The memory hadnled by this pointer now belongs to the algorithm and there is no need to keep track of it
+    
+  }
 
-  LOG("Algorithm", pNOTICE) << "Copied configuration: " << *fConfig;
+
+
 
   if(!fOwnsSubstruc) return;              // doesn't own substructure
   if(fOwnedSubAlgMp->size()==0) return;   // no sub-algorithms
 
   LOG("Algorithm", pNOTICE) << "Configuring algorithms stored at local pool";
 
-
-  // *** what exactly is happening here ?! *** 
-
   // loop over local pool algorithms
-  AlgMapIter alg_iter = fOwnedSubAlgMp->begin();
-  for( ; alg_iter != fOwnedSubAlgMp->end(); ++alg_iter) {
+
+  for( AlgMapIter alg_iter = fOwnedSubAlgMp->begin(); 
+       alg_iter != fOwnedSubAlgMp->end(); ++alg_iter) {
+    
     string      alg_key = alg_iter->first;
     Algorithm * alg     = alg_iter->second;
+    
     if(!alg) {
       LOG("Algorithm", pERROR) 
-       << "Key: " << alg_key << " points to a null algorithm at local pool";
+	<< "Key: " << alg_key << " points to a null algorithm at local pool";
       continue; 
     }
-    LOG("Algorithm", pNOTICE) << "Configuring alg: " << alg->Id().Key();
 
-    // get local pool algorithm's owned config
-    Registry r(alg->GetConfig());
-
-    const RgIMap & rgmap = fConfig->GetItemMap();
-    RgIMapConstIter reg_iter = rgmap.begin();
-    for( ; reg_iter != rgmap.end(); ++reg_iter) {
-       RgKey reg_key = reg_iter->first;
-       if(reg_key.find(alg_key+"/") == string::npos) continue;
-
-       int i0 = reg_key.find_first_of("/")+1;
-       int i1 = reg_key.length();
-       RgKey new_reg_key = reg_key.substr(i0,i1);
-       LOG("Algorithm", pDEBUG) 
- 	 << "Item with key: " << reg_key 
-                   << " is copied 1-level down with key: " << new_reg_key;
-
-       RegistryItemI * ri = reg_iter->second;
-       RgIMapPair key_item_pair(new_reg_key, ri->Clone());
-       r.Set(key_item_pair);
+    LOG("Algorithm", pNOTICE) << "Configuring sub-alg: " << alg->Id().Key();
+    
+    rp = ExtractLowerConfig( config, alg_key ) ;
+    if ( rp ) { 
+      
+      alg -> Configure( *rp ) ;
+      
+      delete rp ;
+      
     }
-    alg->Configure(r);
+    
   }
+    
 }
 //____________________________________________________________________________
 void Algorithm::Configure(string config)
@@ -177,6 +174,21 @@ void Algorithm::FindConfig(void)
      LOG("Algorithm", pDEBUG) << "\n" << *fConfig;
   }
 }
+
+//____________________________________________________________________________
+
+const Registry & GetConfig(void) const {
+
+  if ( fConfig ) delete fConfig ;
+
+  fConfig = new Registry( fID.Key() + "_summary", false ) ;
+  
+  // loop and append 
+  // understand the append mechanism
+
+}
+
+
 //____________________________________________________________________________
 Registry * Algorithm::GetOwnedConfig(void)
 {
@@ -403,6 +415,74 @@ void Algorithm::DeleteSubstructure(void)
   fOwnedSubAlgMp = 0;
 }
 //____________________________________________________________________________
+
+Registry * Algorithm::ExtractLocalConf( const Registry & in ) const {
+
+  const RgIMap & rgmap = in.GetItemMap();
+  Registry * out = new Registry( in.Name(), false );
+  
+  for( RgIMapConstIter reg_iter = rgmap.begin(); 
+       reg_iter != rgmap.end(); ++reg_iter ) {
+
+    RgKey reg_key = reg_iter->first;
+    if( reg_key.find( '/' ) != string::npos) continue; 
+
+    // at this point
+    // this key is referred to the local algorithm
+    // it has to be copied in out;
+      
+    RegistryItemI * ri = reg_iter->second;
+    RgIMapPair key_item_pair( reg_key, ri->Clone() );
+    out -> Set(key_item_pair);
+
+  }
+
+  if ( out -> NEntries() <= 0 ) {
+    delete out ;
+    out = 0 ;
+  }
+
+  return out ;
+}
+
+//____________________________________________________________________________
+
+Registry * Algorith::ExtractLowerConfig( const Registry & in, const string & alg_key ) const {
+
+  const RgIMap & rgmap = in.GetItemMap();
+  Registry * out = new Registry( in.Name(), false );
+  
+  for( RgIMapConstIter reg_iter = rgmap.begin(); 
+       reg_iter != rgmap.end(); ++reg_iter ) {
+    
+    RgKey reg_key = reg_iter->first;
+    if( reg_key.find(alg_key+"/") == string::npos) continue; 
+
+    // at this point
+    // this key is referred to the sub-algorithm
+    // indicated by alg_key: it has to be copied in out;
+      
+    int new_key_start = reg_key.find_first_of('/')+1;
+    RgKey new_reg_key = reg_key.substr( new_key_start, reg_key.length() );
+  
+    RegistryItemI * ri = reg_iter->second;
+    RgIMapPair key_item_pair(new_reg_key, ri->Clone());
+    out -> Set(key_item_pair);
+
+  }
+
+  if ( out -> NEntries() <= 0 ) {
+    delete out ;
+    out = 0 ;
+  }
+  
+  return out ;
+  
+}
+
+
+//____________________________________________________________________________
+
 int Algorithm::AddTopRegistry( Registry * rp, bool own ) {  
 
   fConfVect.insert( fConfVect.begin(), rp ) ;

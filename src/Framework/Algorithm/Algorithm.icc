@@ -1,0 +1,74 @@
+/*
+
+ Templated functions for the Algorithm class
+
+*/ 
+
+template<class T>                                                                                                         
+    bool genie::Algorithm::GetParam( const std::string & name, T & p, bool is_top_call ) const {
+
+
+    // loop over the local registries
+    // if name found: return
+
+    RgIMapConstIter entry ;
+    
+    
+    //check this registry
+        if( Exists(key) ) {
+                if( ItemIsLocal(key) ) {
+                        entry = this->SafeFind(key);
+                        item = entry->second;
+                        return ;
+                }
+        }
+
+        //key not found
+        //loop over the vector
+        for ( unsigned int i = 0 ; i < rs.size() ; ++i ) {
+
+                const Registry & temp = rs[i] ;
+
+                if( temp.Exists(key) ) {
+                        if( temp.ItemIsLocal(key) ) {
+                                entry = this->SafeFind(key);
+                                item = entry->second;
+                                return ;
+                        }
+                }
+
+        }
+
+        //crash because no key was found
+        std::stringstream names;
+        names << Name();
+        for ( unsigned int i = 0 ; i < rs.size() ; ++i ) {
+                names << ", " << rs[i].Name();
+        }
+        LOG("Registry/Get", pFATAL)
+           << "*** Key: " << key
+           << " does not exist in registries : " << names.str() ;
+        gAbortingInErr = true;
+        exit(1);
+
+}
+
+
+
+
+
+    // if own config loop over the local algos calling for the function recursively
+    // in this case is_top_call is false 
+
+  
+    // if not onw subalgo, loop over the local registry in order to look algo and 
+    // call for the same function recorsively, is_top_call false
+
+
+    // if name not found and ! is_top_call return false
+   
+    // if name not found and is_top_call call for an error and crash
+    
+
+
+}
