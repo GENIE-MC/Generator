@@ -270,6 +270,8 @@ void CheckEnergyMomentumConservation (void)
        }
        nerr++;
     }
+    
+    gMCRec->Clear(); // clear it out explicitly; otherwise leaks memory w/Root6
 
   }//i
 
@@ -353,6 +355,8 @@ void CheckChargeConservation(void)
        nerr++;
     }
 
+    gMCRec->Clear(); // clear it out explicitly; otherwise leaks memory w/Root6
+
   }//i
 
   if(gErrLog.is_open()) {
@@ -418,6 +422,8 @@ void CheckForPseudoParticlesInFinState(void)
        nerr++;
     }
 
+    gMCRec->Clear(); // clear it out explicitly; otherwise leaks memory w/Root6
+
   }//i
 
   if(gErrLog.is_open()) {
@@ -481,6 +487,8 @@ void CheckForOffMassShellParticlesInFinState(void)
        }
        nerr++;
     }
+
+    gMCRec->Clear(); // clear it out explicitly; otherwise leaks memory w/Root6
 
   }//i
 
@@ -585,6 +593,8 @@ void CheckForNumFinStateNucleonsInconsistentWithTarget(void)
        nerr++;
     }
 
+    gMCRec->Clear(); // clear it out explicitly; otherwise leaks memory w/Root6
+
   }//i
 
 
@@ -649,6 +659,8 @@ void CheckVertexDistribution(void)
     double r = probe->X4()->Vect().Mag();
 
     r_distr_mc->Fill(r);
+
+    gMCRec->Clear(); // clear it out explicitly; otherwise leaks memory w/Root6
 
   }//i
 
@@ -733,6 +745,7 @@ void CheckDecayerConsistency(void)
       if(ist == kIStStableFinalState) { final_state_particles.push_back(pdgc); }
       if(ist == kIStDecayedState    ) { decayed_particles.push_back(pdgc);     }
     }//p
+    gMCRec->Clear(); // clear it out explicitly; otherwise leaks memory w/Root6
   }//i
 
   // find particles which appear in both lists
@@ -802,6 +815,7 @@ void CheckDecayerConsistency(void)
               if(ist == kIStStableFinalState && iev_fs    == -1) { iev_fs    = i; }
               if(ist == kIStDecayedState     && iev_decay == -1) { iev_decay = i; }
            }//p
+           gMCRec->Clear(); // clear it out explicitly; otherwise leaks memory w/Root6
          }//i
          if(gErrLog.is_open()) {
             gErrLog << ">> " << PDGLibrary::Instance()->Find(pdgc_bothlists)->GetName()
