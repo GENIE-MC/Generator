@@ -270,6 +270,8 @@ void CheckEnergyMomentumConservation (void)
        }
        nerr++;
     }
+    
+    gMCRec->Clear(); // clear out explicitly to prevent memory leak w/Root6
 
   }//i
 
@@ -418,6 +420,8 @@ void CheckForPseudoParticlesInFinState(void)
        nerr++;
     }
 
+    gMCRec->Clear(); // clear out explicitly to prevent memory leak w/Root6
+
   }//i
 
   if(gErrLog.is_open()) {
@@ -481,6 +485,8 @@ void CheckForOffMassShellParticlesInFinState(void)
        }
        nerr++;
     }
+
+    gMCRec->Clear(); // clear out explicitly to prevent memory leak w/Root6
 
   }//i
 
@@ -585,6 +591,8 @@ void CheckForNumFinStateNucleonsInconsistentWithTarget(void)
        nerr++;
     }
 
+    gMCRec->Clear(); // clear out explicitly to prevent memory leak w/Root6
+
   }//i
 
 
@@ -649,6 +657,8 @@ void CheckVertexDistribution(void)
     double r = probe->X4()->Vect().Mag();
 
     r_distr_mc->Fill(r);
+
+    gMCRec->Clear(); // clear out explicitly to prevent memory leak w/Root6
 
   }//i
 
@@ -733,6 +743,7 @@ void CheckDecayerConsistency(void)
       if(ist == kIStStableFinalState) { final_state_particles.push_back(pdgc); }
       if(ist == kIStDecayedState    ) { decayed_particles.push_back(pdgc);     }
     }//p
+    gMCRec->Clear(); // clear out explicitly to prevent memory leak w/Root6
   }//i
 
   // find particles which appear in both lists
