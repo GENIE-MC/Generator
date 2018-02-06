@@ -30,8 +30,11 @@
 #include "Framework/Algorithm/AlgStatus.h"
 #include "Framework/Algorithm/AlgCmp.h"
 #include "Framework/Algorithm/AlgId.h"
+#include "Framework/Algorithm/AlgFactory.h"
 #include "Framework/Registry/Registry.h"
 #include "Framework/Registry/RegistryItemTypeDef.h"
+#include "Framework/Messenger/Messenger.h"
+
 
 using std::string;
 using std::ostream;
@@ -150,7 +153,7 @@ protected:
   AlgMap *     fOwnedSubAlgMp; ///< local pool for owned sub-algs (taken out of the factory pool)
 
   template<class T>
-    bool GetParam( const std::string & name, T & p, bool is_top_call = true ) const ;
+    bool GetParam( const RgKey & name, T & p, bool is_top_call = true ) const ;
   
 private:
   int   AddTopRegistry( Registry * rp, bool owns = true );  ///< add registry with top priority, also update ownership
