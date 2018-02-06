@@ -1723,7 +1723,7 @@ bool genie::utils::intranuke2015::PhaseSpaceDecay(
 
   bool is_nuc  = pdg::IsNeutronOrProton(p->Pdg());
   bool is_kaon = p->Pdg()==kPdgKP  || p->Pdg()==kPdgKM;
-  bool is_pion = p->Pdg()==kPdgPiP || p->Pdg()==kPdgPi0 || p->Pdg()==kPdgPiM;
+  //unused// bool is_pion = p->Pdg()==kPdgPiP || p->Pdg()==kPdgPi0 || p->Pdg()==kPdgPiM;
   // update available energy -> init (mass + kinetic) + sum of f/s masses
   // for pion only.  Probe mass not available for nucleon, kaon
   double availE = pd->Energy() + mass_sum; 
