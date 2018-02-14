@@ -142,6 +142,10 @@ protected:
   bool         fOwnsSubstruc;  ///< true if it owns its substructure (sub-algs,...)
   AlgId        fID;            ///< algorithm name and configuration set
 
+
+  /// ideally these members should go private
+  /// Registry will be access only through the GetParam method
+  /// DIscuss it with Costas
   vector<Registry*>  fConfVect ;   ///< configurations registries from various sources 
                                    ///<  the order of the vector is the precedence in case of repeated parameters
                                    ///<  position 0 -> Highest precedence

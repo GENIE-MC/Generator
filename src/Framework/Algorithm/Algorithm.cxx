@@ -143,36 +143,88 @@ void Algorithm::FindConfig(void)
 // by parsing the XML config files).
 
   AlgConfigPool * pool = AlgConfigPool::Instance();
-  Registry * config = pool->FindRegistry(this);
 
-  // Load the right config 
+  Registry * config = 0 ;
 
   // load the Default config if config is not the default
+  if ( fID.Config() != "Default" ) {
+    config = pool -> FindRegistry( fID.Name(), "Default" );
+    if ( config ) {
+      if ( config -> NEntries() > 0 ) {
+	AddTopRegistry( config, false ) ;
+	LOG("Algorithm", pDEBUG) << "\n" << *fConfig;
+      }
+    }
+  } 
 
-  // Load Common Parameters if specific key "CommonParam" is there is
-
-  // Load Cascade registry from lower level
-
-  // Load Tunable from CommonParameters 
-
-
+  // Load the right config 
+  config = pool->FindRegistry(this);
 
   if(!config)
-     // notify & keep whatever config Registry was used before.
-      LOG("Algorithm", pWARN)
-                   << "No Configuration available for "
-                               << this->Id().Key() << " at the ConfigPool";
+    // notify & keep whatever config Registry was used before.
+    LOG("Algorithm", pWARN)
+       << "No Configuration available for "
+       << this->Id().Key() << " at the ConfigPool";
   else {
-     // check if its already owns a configuration Registry & delete it;
-     if(fOwnsConfig && fConfig) delete fConfig;
-
-     // point to the configuration Registry retrieved from the ConfigPool
-     // and raise the "not-owned" flag.
-     fConfig        = config;
-     fOwnsConfig = false;
-
-     LOG("Algorithm", pDEBUG) << "\n" << *fConfig;
+    if ( config -> NEntries() > 0 ) {
+      AddTopRegistry( config, false ) ;
+      LOG("Algorithm", pDEBUG) << "\n" << *fConfig;
+    }
   }
+  
+  const string common_param_list_key = "CommonParam" ;
+  string common_param_list;
+
+  // Load Common Parameters if specific key "CommonParam" is there is
+  for ( unsigned int i = 0 ; i < fConfVect.size() ; ++i ) {
+    const Registry & temp = * fConfVect[i] ;
+    if( temp.Exists( common_param_list_key ) ) {
+      if( temp.ItemIsLocal( common_param_list_key) ) {
+	common_param_list = temp.GetString( common_param_list_key ) ;
+	break ;
+      }
+    }
+    
+  } // loop over the local registries
+
+
+  if ( common_param_list.length() > 0 ) {
+    vector<string> list = Split( common_param_list, ',' ) ;
+    for ( unsigned int i = 0; i < list.size(); ++i ) {
+
+      config = pool -> CommomParameterList( list[i] ) ;
+      
+      if ( ! config ) {
+	LOG("Algorithm", pERROR)
+	  << "No Commom parameters available for list " 
+	  << list[i] << " at the ConfigPool";
+	
+	exit(0) ;
+      }
+      else  {
+	AddTopRegistry( config, false ) ;
+	
+	LOG("Algorithm", pDEBUG) << "Loading Commom Param registry " << list[i] << " \n" << *fConfig;
+      }
+      
+    }
+  }
+  
+  // Load Tunable from CommonParameters 
+  // only if the option is specified in RunOpt
+  config = CommomParameterList( "Tunable" ) ;
+  if ( config ) {
+    if ( config -> NEntries() > 0 ) {
+      AddTopRegistry( config, false ) ;
+      LOG("Algorithm", pDEBUG) << "Loading Tunable registry \n" << *fConfig;
+    }
+  }
+  else {
+    // notify & keep whatever config Registry was used before.
+    LOG("Algorithm", pWARN)
+      << "No Tunable parameter set available at the ConfigPool";
+  }
+
 }
 
 //____________________________________________________________________________
