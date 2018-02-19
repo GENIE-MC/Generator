@@ -37,7 +37,7 @@
 **     | +44-(0)1517-943201 (tel) |  +44-(0)1235-445091 (tel)            |                            **
 **      -----------------------------------------------------------------                             **
 **                                                                                                    **
-** (c) 2003-2017 GENIE Collaboration                                                                  **
+** (c) 2003-2018 GENIE Collaboration                                                                  **
 **                                                                                                    **
 ** This program is free software: you can redistribute it and/or modify it under the terms of         **
 ** the GNU General Public License as published by the Free Software Foundation, either version 3 of   **
