@@ -89,8 +89,6 @@ void Algorithm::Configure(const Registry & config)
   }
 
 
-
-
   if(!fOwnsSubstruc) return;              // doesn't own substructure
   if(fOwnedSubAlgMp->size()==0) return;   // no sub-algorithms
 
@@ -122,7 +120,11 @@ void Algorithm::Configure(const Registry & config)
     }
     
   }
-    
+
+  if ( fConfig ) {
+    delete fConfig ;
+    fConfig = 0 ;
+  }
 }
 //____________________________________________________________________________
 void Algorithm::Configure(string config)
@@ -189,10 +191,10 @@ void Algorithm::FindConfig(void)
 
 
   if ( common_param_list.length() > 0 ) {
-    vector<string> list = Split( common_param_list, ',' ) ;
+    vector<string> list = str::Split( common_param_list, "," ) ;
     for ( unsigned int i = 0; i < list.size(); ++i ) {
 
-      config = pool -> CommomParameterList( list[i] ) ;
+      config = pool -> CommonParameterList( list[i] ) ;
       
       if ( ! config ) {
 	LOG("Algorithm", pERROR)
@@ -212,7 +214,7 @@ void Algorithm::FindConfig(void)
   
   // Load Tunable from CommonParameters 
   // only if the option is specified in RunOpt
-  config = CommomParameterList( "Tunable" ) ;
+  config = pool -> CommonParameterList( "Tunable" ) ;
   if ( config ) {
     if ( config -> NEntries() > 0 ) {
       AddTopRegistry( config, false ) ;
@@ -225,26 +227,38 @@ void Algorithm::FindConfig(void)
       << "No Tunable parameter set available at the ConfigPool";
   }
 
+  if ( fConfig ) {
+    delete fConfig ;
+    fConfig = 0 ;
+  }
+
 }
 
 //____________________________________________________________________________
 
-const Registry & GetConfig(void) const {
+const Registry & Algorithm::GetConfig(void) const {
 
-  if ( fConfig ) delete fConfig ;
+  if ( fConfig ) return * fConfig ;
 
-  fConfig = new Registry( fID.Key() + "_summary", false ) ;
+  const_cast<Algorithm*>( this ) -> fConfig = new Registry( fID.Key() + "_summary", false ) ;
   
   // loop and append 
   // understand the append mechanism
+  for ( unsigned int i = 0 ; i < fConfVect.size(); ++i ) {
+    fConfig -> Append( * fConfVect[i] ) ;
+  } 
 
+  //should we loop over the owned algos to add their subconfig ?
+
+  return * fConfig ;
 }
 
 
 //____________________________________________________________________________
 Registry * Algorithm::GetOwnedConfig(void)
 {
-  if(!fOwnsConfig) return 0;
+  
+  GetConfig() ;
   return fConfig;
 }
 //____________________________________________________________________________
@@ -279,9 +293,8 @@ void Algorithm::SetId(string name, string config)
 //____________________________________________________________________________
 void Algorithm::Print(ostream & stream) const
 {
- // print algorithm name & parameter-set
+  // print algorithm name & parameter-set
   stream << "\nAlgorithm Key: "  << this->fID.Key();
-  stream << " - Owns Config: "   << ((fOwnsConfig)   ? "[true]" : "[false]");
   stream << " - Owns Substruc: " << ((fOwnsSubstruc) ? "[true]" : "[false]");
 
   // print algorithm configuration
@@ -303,7 +316,6 @@ void Algorithm::Initialize(void)
 // Algorithm initialization
 //
   fAllowReconfig  = true;
-  fOwnsConfig     = false;
   fOwnsSubstruc   = false;
   fConfig         = 0;
   fOwnedSubAlgMp  = 0;
@@ -321,29 +333,29 @@ const Algorithm * Algorithm::SubAlg(const RgKey & registry_key) const
   LOG("Algorithm", pINFO)
     << "Fetching sub-alg within alg: " << this->Id().Key()
                                    << " pointed to by key: " << registry_key;
-
+  
   //-- if the algorithm owns its substructure:
   //      return the sub-algorithm from the local pool
   //
   if(fOwnsSubstruc) {
-     AlgMapConstIter iter = fOwnedSubAlgMp->find(registry_key);
-     if(iter!=fOwnedSubAlgMp->end()) return iter->second;
-     LOG("Algorithm", pERROR) 
-       << "Owned sub-alg pointed to by key: " << registry_key 
-                       << " was not found within alg: " << this->Id().Key();
+    AlgMapConstIter iter = fOwnedSubAlgMp->find(registry_key);
+    if(iter!=fOwnedSubAlgMp->end()) return iter->second;
+    LOG("Algorithm", pERROR) 
+      << "Owned sub-alg pointed to by key: " << registry_key 
+      << " was not found within alg: " << this->Id().Key();
      return 0;
   }
 
   //-- if the algorithm dowes not own its substructure:
   //      return the sub-algorithm from the AlgFactory's pool
   //
-  fConfig->AssertExistence(registry_key);
+  GetConfig().AssertExistence(registry_key);
 
   // retrieve the algorithm item corresponding to key
   RgAlg alg = fConfig->GetAlg(registry_key);
   LOG("Algorithm", pINFO)
-     << "Registry key: " << registry_key << " points to algorithm: " << alg;
-
+    << "Registry key: " << registry_key << " points to algorithm: " << alg;
+  
   // retrieve the Algorithm object from the the Algorithm factory
   AlgFactory * algf = AlgFactory::Instance();
   const Algorithm * algbase = algf->GetAlgorithm(alg.name, alg.config);
@@ -352,18 +364,18 @@ const Algorithm * Algorithm::SubAlg(const RgKey & registry_key) const
   return algbase;
 }
 //____________________________________________________________________________
-void Algorithm::AdoptConfig(void)
-{
+void Algorithm::AdoptConfig(void) {
+
   LOG("Algorithm", pNOTICE)
     << this->Id().Key() << " is taking ownership of its configuration";
+  
+  // if(fOwnsConfig) {
+  //   LOG("Algorithm", pWARN)
+  //     << this->Id().Key() << " already owns its configuration!";
+  //   return;
+  // }
 
-  if(fOwnsConfig) {
-    LOG("Algorithm", pWARN)
-      << this->Id().Key() << " already owns its configuration!";
-    return;
-  }
-  Registry & configuration = *fConfig;
-  this->Configure(configuration);
+  this->Configure( GetConfig() );
 }
 //____________________________________________________________________________
 void Algorithm::AdoptSubstructure(void)
@@ -395,7 +407,7 @@ void Algorithm::AdoptSubstructure(void)
 
   AlgFactory * algf = AlgFactory::Instance();
 
-  const RgIMap & rgmap = fConfig->GetItemMap();
+  const RgIMap & rgmap = GetConfig().GetItemMap();
 
   RgIMapConstIter iter = rgmap.begin();
   for( ; iter != rgmap.end(); ++iter) {
@@ -428,7 +440,7 @@ void Algorithm::AdoptSubstructure(void)
        deep_config.Set(key_item_pair);
     }
   }
-  this->Configure(deep_config);
+  this->Configure( deep_config );
 }
 //____________________________________________________________________________
 void Algorithm::DeleteConfig(void)
@@ -436,15 +448,25 @@ void Algorithm::DeleteConfig(void)
   // there is nothing to delete if the configuration is not owned but is 
   // rather looked up from the configuration pool
   //
-  if(!fOwnsConfig) return;
+  
+  for ( unsigned int i = 0 ; i < fConfVect.size() ; ++i ) {
+    if ( fOwnerships[i] ) {
+      delete fConfVect[i] ;
+    }
+  }
+
+  fConfVect.clear() ;
+  fOwnerships.clear() ;
 
   // delete owned configuration registry
-  //
+
   if(fConfig) {
     delete fConfig; 
     fConfig=0;
   }
+
 }
+
 //____________________________________________________________________________
 void Algorithm::DeleteSubstructure(void)
 {
@@ -468,7 +490,7 @@ void Algorithm::DeleteSubstructure(void)
 }
 //____________________________________________________________________________
 
-Registry * Algorithm::ExtractLocalConf( const Registry & in ) const {
+Registry * Algorithm::ExtractLocalConfig( const Registry & in ) const {
 
   const RgIMap & rgmap = in.GetItemMap();
   Registry * out = new Registry( in.Name(), false );
@@ -499,7 +521,7 @@ Registry * Algorithm::ExtractLocalConf( const Registry & in ) const {
 
 //____________________________________________________________________________
 
-Registry * Algorith::ExtractLowerConfig( const Registry & in, const string & alg_key ) const {
+Registry * Algorithm::ExtractLowerConfig( const Registry & in, const string & alg_key ) const {
 
   const RgIMap & rgmap = in.GetItemMap();
   Registry * out = new Registry( in.Name(), false );
@@ -546,7 +568,7 @@ int Algorithm::AddTopRegistry( Registry * rp, bool own ) {
 
 int Algorithm::AddTopRegisties( const vector<Registry*> & rs, bool own ) {
 
-  fConfVect.insert( fCongVect.begin(), rs.begin(), rs.end() ) ;
+  fConfVect.insert( fConfVect.begin(), rs.begin(), rs.end() ) ;
   
   fOwnerships.insert( fOwnerships.begin(), rs.size(), own ) ;
   

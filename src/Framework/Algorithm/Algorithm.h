@@ -75,7 +75,7 @@ public:
 
   //! Get configuration registry
   //!  Evaluate the summary of the configuration and returns it
-  virtual const Registry & GetConfig(void) const { return *fConfig; }
+  virtual const Registry & GetConfig(void) const ; // { return *fConfig; }
 
   //! Get a writeable version of an owned configuration Registry.
   //!  Gives access to the summary
@@ -151,8 +151,6 @@ protected:
                                    ///<  position 0 -> Highest precedence
   vector<bool>       fOwnerships ; ///< ownership for every registry in fConfVect
    
-  Registry *   fConfig;        ///< Summary configuration derived from fConvVect, not necessarily allocated
-  
   AlgStatus_t  fStatus;        ///< algorithm execution status
   AlgMap *     fOwnedSubAlgMp; ///< local pool for owned sub-algs (taken out of the factory pool)
 
@@ -162,7 +160,9 @@ protected:
 private:
   int   AddTopRegistry( Registry * rp, bool owns = true );  ///< add registry with top priority, also update ownership
   int   AddTopRegisties( const vector<Registry*> & rs, bool owns = false ) ; ///< Add registries with top priority, also udated Ownerships 
-
+  
+  Registry *   fConfig;        ///< Summary configuration derived from fConvVect, not necessarily allocated
+  
 };
 
 }       // genie namespace
