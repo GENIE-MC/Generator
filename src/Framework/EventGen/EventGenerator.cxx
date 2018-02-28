@@ -271,14 +271,14 @@ void EventGenerator::LoadConfig(void)
   LOG("EventGenerator", pDEBUG) << "Loading the generator validity context";
 
   fVldContext = new GVldContext;
-  assert( fConfig->Exists("VldContext") );
-  string encoded_vld_context = fConfig->GetString("VldContext");
+  assert( GetConfig().Exists("VldContext") );
+  string encoded_vld_context = GetConfig().GetString("VldContext");
   fVldContext->Decode( encoded_vld_context );
 
   LOG("EventGenerator", pDEBUG) << "Loading the event generation modules";
 
-  fConfig->AssertExistence("NModules");
-  int nsteps = fConfig->GetInt("NModules");
+  GetConfig().AssertExistence("NModules");
+  int nsteps = GetConfig().GetInt("NModules");
   if(nsteps == 0) {
     LOG("EventGenerator", pFATAL)
          << "EventGenerator configuration declares null visitor list!";
@@ -294,9 +294,9 @@ void EventGenerator::LoadConfig(void)
     keystream << "Module-" << istep;
     RgKey key = keystream.str();
 
-    fConfig->AssertExistence(key);
+    GetConfig().AssertExistence(key);
     SLOG("EventGenerator", pINFO)
-        << " -- Loading module " << istep << " : " << fConfig->GetAlg(key);
+        << " -- Loading module " << istep << " : " << GetConfig().GetAlg(key);
 
     const EventRecordVisitorI * visitor =
                dynamic_cast<const EventRecordVisitorI *>(this->SubAlg(key));
@@ -307,8 +307,8 @@ void EventGenerator::LoadConfig(void)
 
   //-- load the interaction list generator
   RgKey ikey = "ILstGen";
-  fConfig->AssertExistence(ikey);
-  RgAlg ialg = fConfig->GetAlg(ikey);
+  GetConfig().AssertExistence(ikey);
+  RgAlg ialg = GetConfig().GetAlg(ikey);
   LOG("EventGenerator", pINFO) 
       << " -- Loading the interaction list generator: " << ialg;
   fIntListGen = 
@@ -318,7 +318,7 @@ void EventGenerator::LoadConfig(void)
   //-- load the cross section model
   RgKey xkey    = "XSecModel";
   RgKey xdefkey = "XSecModel@" + this->Id().Key();
-  RgAlg xalg    = fConfig->GetAlgDef(xkey, gc->GetAlg(xdefkey));
+  RgAlg xalg    = GetOwnedConfig() -> GetAlgDef(xkey, gc->GetAlg(xdefkey));
   LOG("EventGenerator", pINFO) 
      << " -- Loading the cross section model: " << xalg;
   fXSecModel = dynamic_cast<const XSecAlgorithmI *> (this->SubAlg(xkey));

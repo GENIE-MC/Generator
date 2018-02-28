@@ -29,27 +29,37 @@ University of Liverpool
  </param_set>
 
 
- <param_set name="Physics">
+ <param_set name="CKM">
 
- <!-- 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   CKM quark mixing parameters 
   Use values listed at the July 2006 particle physics booklet
-  -->
+ -->
 
   <param type="double" name="CKM-Vud">  0.97377  </param>
   <param type="double" name="CKM-Vus">  0.2257   </param>
   <param type="double" name="CKM-Vcd">  0.230    </param>  <!-- 0.2239 -->
   <param type="double" name="CKM-Vcs">  0.957    </param>
 
- <!-- 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Cabibbo and Weinberg angles 
-  -->
+ -->
   <param type="double" name="CabibboAngle">  0.22853207 </param> <!-- 0.226893 -->  
   <param type="double" name="WeinbergAngle"> 0.49744211 </param> <!-- 0.501568 --> 
 
  </param_set>
+
+ <param_set name="NUCL">
+ 
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   NUCL-Ro (in fm) is a scale parameter driving the effective nuclear sizes (Ro in R=Ro*A^1/3)
+  -->
+   <param type="double" name="NUCL-R0"> 1.4 </param>
+   <param type="double" name="NUCL-NR"> 3.0 </param>
+
+ </param_set>
+
+
 
 </common_param_list>
 

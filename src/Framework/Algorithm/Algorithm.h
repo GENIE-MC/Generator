@@ -75,7 +75,7 @@ public:
 
   //! Get configuration registry
   //!  Evaluate the summary of the configuration and returns it
-  virtual const Registry & GetConfig(void) const ; // { return *fConfig; }
+  virtual const Registry & GetConfig(void) const ;
 
   //! Get a writeable version of an owned configuration Registry.
   //!  Gives access to the summary

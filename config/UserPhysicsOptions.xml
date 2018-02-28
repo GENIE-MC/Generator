@@ -697,25 +697,7 @@ STFC, Rutherford Appleton Laboratory
   <param type="bool"   name="UseDRJoinScheme"> true </param>
   <param type="double" name="Wcut">            1.7  </param>
 
-
- <!-- 
- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  NUCL-Ro (in fm) is a scale parameter driving the effective nuclear sizes (Ro in R=Ro*A^1/3)
-
-  **** also omnipresent, moved when we'll have dedicated machinery in place ****
-
-  -->
-  <param type="double" name="NUCL-R0"> 1.4 </param>
-  <param type="double" name="NUCL-NR"> 3.0 </param>
-
- <!-- 
- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  NUCL-VtxGenerationMethod defines the intranuclear vertex generation method:
-   - 0 : generated uniformly in volume within the nucleus 
-   - 1 : generated according to a realistic nuclear density profile
-  -->
-  <param type="int" name="NUCL-VtxGenerationMethod"> 1 </param>
-
+ 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Intranuclear rescattering 

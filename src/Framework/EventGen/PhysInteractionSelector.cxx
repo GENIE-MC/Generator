@@ -234,6 +234,8 @@ void PhysInteractionSelector::LoadConfigData(void)
 {
   //check whether the user prefers the cross sections to be calculated or
   //evaluated from a spline object constructed at the job initialization
-  fUseSplines = fConfig->GetBoolDef("UseStoredXSecs", false);
+  fUseSplines = false ;
+  GetParam( "UseStoredXSecs", fUseSplines ) ;
+
 }
 //___________________________________________________________________________

@@ -275,9 +275,9 @@ void PrimaryLeptonGenerator::LoadConfig(void)
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();
      
-  fApplyCoulombCorrection =
-          fConfig->GetBoolDef("ApplyCoulombCorrection", 
-                             gc->GetBool("FSL-ApplyCoulombCorrection"));
+  fApplyCoulombCorrection = gc->GetBool("FSL-ApplyCoulombCorrection") ;
+  GetParam( "ApplyCoulombCorrection", fApplyCoulombCorrection, false ) ;
+
 }
 //___________________________________________________________________________
 

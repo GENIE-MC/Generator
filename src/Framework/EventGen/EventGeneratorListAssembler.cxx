@@ -53,14 +53,14 @@ EventGeneratorList * EventGeneratorListAssembler::AssembleGeneratorList()
 
   EventGeneratorList * evgl = new EventGeneratorList;
   
-  if (!fConfig) {
-    SLOG("EvGenListAssembler", pFATAL) 
-      << "Cannot instantiate EventGeneratorList with no config.";
-    gAbortingInErr = true;
-    exit(-1);
-  }
+//  if (!fConfig) {
+//    SLOG("EvGenListAssembler", pFATAL)
+//      << "Cannot instantiate EventGeneratorList with no config.";
+//    gAbortingInErr = true;
+//    exit(-1);
+//  }
 
-  int nproc = fConfig->GetIntDef("NGenerators", 0);
+  int nproc = GetConfig().GetInt("NGenerators");
   assert(nproc > 0);
 
   //-- Loop over the event generators for all requested processes
