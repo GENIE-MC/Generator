@@ -160,9 +160,6 @@ void SpectralFunc1d::LoadConfig(void)
 
   this->CleanUp();
 
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
-  
   // Load spectral function data.
   // Hopefully analytical expressions will be available soon.
   // Currently I have spectral functions for C12 and Fe56 only.
@@ -206,33 +203,27 @@ void SpectralFunc1d::LoadConfig(void)
   // Check whether to use the same removal energies as in the FG model or
   // to use the average removal energy for the selected fermi momentum 
   // (computed from the spectral function itself)
-  //
-  fUseRFGRemovalE = fConfig->GetBoolDef(
-                    "UseRFGRmVE", gc->GetBool("SF1d-UseRFGRemovalE"));
+  GetParam( "UseRFGRemovalE", fUseRFGRemovalE ) ;
 
   // Check whether to use the same momentum cutoff as in the FG model
-  // and get that cutoff value
-  //
-  fUseRFGMomentumCutoff = fConfig->GetBoolDef(
-       "UseRFGMomentumCutoff", gc->GetBool("SF1d-UseRFGMomentumCutoff"));
-  fPCutOff = fConfig->GetDoubleDef ("RFG-MomentumCutOff", gc->GetDouble("RFG-MomentumCutOff"));
+  GetParam("UseRFGMomentumCutoff", fUseRFGMomentumCutoff ) ;
+
+  //Get the momentum cutoff
+  GetParam( "RFG-MomentumCutOff", fPCutOff ) ;
 
   // Removal energies as used in the FG model
   // Load removal energy for specific nuclei from either the algorithm's
   // configuration file or the UserPhysicsOptions file.
   // If none is used use Wapstra's semi-empirical formula.
-  //
   for(int Z=1; Z<140; Z++) {
     for(int A=Z; A<3*Z; A++) {
-      ostringstream key; //, gckey;
+      ostringstream key;
       int pdgc = pdg::IonPdgCode(A,Z);
-      //gckey << "RFG-NucRemovalE@Pdg=" << pdgc;
       key   << "RFG-NucRemovalE@Pdg="     << pdgc;
-      //RgKey gcrgkey = gckey.str();
       RgKey rgkey   = key.str();
-      if (this->GetConfig().Exists(rgkey) ) {
-        double eb = fConfig->GetDoubleDef(rgkey, gc->GetDouble(rgkey));
-        eb = TMath::Max(eb, 0.);
+      double eb ;
+      if ( GetParam( rgkey, eb, false ) ) {
+    	eb = TMath::Max(eb, 0.);
         LOG("BodekRitchie", pNOTICE)
           << "Nucleus: " << pdgc << " -> using Eb =  " << eb << " GeV";
         fNucRmvE.insert(map<int,double>::value_type(Z,eb));

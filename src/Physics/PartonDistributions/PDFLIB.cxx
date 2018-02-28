@@ -50,7 +50,7 @@ PDFModelI("genie::PDFLIB")
 PDFLIB::PDFLIB(string config) :
 PDFModelI("genie::PDFLIB", config)
 {
-  LOG("PDF", pDEBUG) << "PDFLIB configuration:\n " << *fConfig;  
+  LOG("PDF", pDEBUG) << "PDFLIB configuration:\n " << GetConfig();
 
   this->Initialize();
 }
@@ -111,9 +111,9 @@ void PDFLIB::SetPDFSetFromConfig(void) const
   int    type   = 0;
   int    memset = 0;
 
-  fConfig->Get("name_lhapdf",   name);
-  fConfig->Get("type_lhapdf",   type);
-  fConfig->Get("memset_lhapdf", memset);
+  GetParam("name_lhapdf",   name);
+  GetParam("type_lhapdf",   type);
+  GetParam("memset_lhapdf", memset);
 
   LHAPDF::SetType stype = (type==0) ? LHAPDF::LHPDF :  LHAPDF::LHGRID;
 

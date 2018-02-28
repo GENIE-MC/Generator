@@ -5,13 +5,17 @@
  Configuration sets for the FermiMover EventRecordVisitorI
 
   <param_set name="Default"> 
-     <param type="bool"   name="KeepHitNuclOnMassShell"> false                                     </param>
-     <param type="alg"    name="NuclearModel">           genie::NuclearModelMap/Default            </param>
+     <param type="bool"   name="KeepHitNuclOnMassShell"> false                     </param>
+
+   <!-- Option relevant to simulating Short Range Correlation (SRC) effects  -->
+   <param type="bool" name="SimRecoilNucleon"> false </param>
+   
+     <param type="alg"    name="NuclearModel">   genie::NuclearModelMap/Default    </param>
   </param_set>
 
   <param_set name="NucOnShell"> 
-     <param type="bool"   name="KeepHitNuclOnMassShell"> true                                      </param>
-     <param type="alg"    name="NuclearModel">           genie::NuclearModelMap/Default            </param>
+     <param type="bool"   name="KeepHitNuclOnMassShell"> true                       </param>
+     <param type="alg"    name="NuclearModel">      genie::NuclearModelMap/Default  </param>
   </param_set>
 
 </alg_conf>

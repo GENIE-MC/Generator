@@ -288,42 +288,48 @@ void EffectiveSF::LoadConfig(void)
   Registry * gc = confp->GlobalParameterList();
   // Find out if Transverse enhancement is enabled to figure out whether to load
   // the 2p2h enhancement parameters.
-  fPMax    = fConfig->GetDoubleDef ("MomentumMax", 1.0);
-  fPCutOff = fConfig->GetDoubleDef ("MomentumCutOff", 0.65);
-  fEjectSecondNucleon2p2h = fConfig->GetBoolDef("EjectSecondNucleon2p2h", false);
+  fPMax    = 1.0 ;
+  GetParam( "MomentumMax", fPMax, false ) ;
+
+  fPCutOff = 0.65 ;
+  GetParam( "MomentumCutOff", fPCutOff, false ) ;
+
+
+  fEjectSecondNucleon2p2h = false ;
+  GetParam( "EjectSecondNucleon2p2h", fEjectSecondNucleon2p2h, false ) ;
 
   assert(fPMax > 0 && fPCutOff > 0 && fPCutOff <= fPMax);
-  RgAlg form_factors_model = fConfig->GetAlgDef(
-      "ElasticFormFactorsModel", gc->GetAlg("ElasticFormFactorsModel"));
+
+  RgAlg form_factors_model = gc->GetAlg("ElasticFormFactorsModel") ;
   if (!gc->GetBoolDef("UseElFFTransverseEnhancement", false)) {
     LOG("EffectiveSF", pINFO) << "Transverse enhancement not used; do not "
         "increase the 2p2h cross section.";
   }
   else {
     LoadAllIsotopesForKey("TransEnhf1p1hMod", "EffectiveSF",
-                          fConfig, &fTransEnh1p1hMods);
+                          GetOwnedConfig(), &fTransEnh1p1hMods);
     LoadAllNucARangesForKey("TransEnhf1p1hMod", "EffectiveSF",
-                            fConfig, &fRangeTransEnh1p1hMods);
+                            GetOwnedConfig(), &fRangeTransEnh1p1hMods);
   }
   
-  LoadAllIsotopesForKey("BindingEnergy", "EffectiveSF", fConfig, &fNucRmvE);
+  LoadAllIsotopesForKey("BindingEnergy", "EffectiveSF", GetOwnedConfig(), &fNucRmvE);
   LoadAllNucARangesForKey("BindingEnergy", "EffectiveSF",
-                          fConfig, &fRangeNucRmvE);
-  LoadAllIsotopesForKey("f1p1h", "EffectiveSF", fConfig, &f1p1hMap);
-  LoadAllNucARangesForKey("f1p1h", "EffectiveSF", fConfig, &fRange1p1hMap);
+                          GetOwnedConfig(), &fRangeNucRmvE);
+  LoadAllIsotopesForKey("f1p1h", "EffectiveSF", GetOwnedConfig(), &f1p1hMap);
+  LoadAllNucARangesForKey("f1p1h", "EffectiveSF", GetOwnedConfig(), &fRange1p1hMap);
   
 
   for (int Z = 1; Z < 140; Z++) {
     for (int A = Z; A < 3*Z; A++) {
       const int pdgc = pdg::IonPdgCode(A, Z);
       double bs, bp, alpha, beta, c1, c2, c3;
-      if (GetDoubleKeyPDG("bs", pdgc, fConfig, &bs) &&
-          GetDoubleKeyPDG("bp", pdgc, fConfig, &bp) && 
-          GetDoubleKeyPDG("alpha", pdgc, fConfig, &alpha) &&
-          GetDoubleKeyPDG("beta", pdgc, fConfig, &beta) && 
-          GetDoubleKeyPDG("c1", pdgc, fConfig, &c1) &&
-          GetDoubleKeyPDG("c2", pdgc, fConfig, &c2) && 
-          GetDoubleKeyPDG("c3", pdgc, fConfig, &c3)) {
+      if (GetDoubleKeyPDG("bs", pdgc, GetOwnedConfig(), &bs) &&
+          GetDoubleKeyPDG("bp", pdgc, GetOwnedConfig(), &bp) &&
+          GetDoubleKeyPDG("alpha", pdgc, GetOwnedConfig(), &alpha) &&
+          GetDoubleKeyPDG("beta", pdgc, GetOwnedConfig(), &beta) &&
+          GetDoubleKeyPDG("c1", pdgc, GetOwnedConfig(), &c1) &&
+          GetDoubleKeyPDG("c2", pdgc, GetOwnedConfig(), &c2) &&
+          GetDoubleKeyPDG("c3", pdgc, GetOwnedConfig(), &c3)) {
         vector<double> pars = vector<double>();
         pars.push_back(bs);
         pars.push_back(bp);
@@ -343,13 +349,13 @@ void EffectiveSF::LoadConfig(void)
   for(int lowA = 1; lowA < 3 * 140; lowA++) {
     for(int highA = lowA; highA < 3 * 140; highA++) {
       double bs, bp, alpha, beta, c1, c2, c3;
-      if (GetDoubleKeyRangeNucA("bs", lowA, highA, fConfig, &bs) &&
-          GetDoubleKeyRangeNucA("bp", lowA, highA, fConfig, &bp) &&
-          GetDoubleKeyRangeNucA("alpha", lowA, highA, fConfig, &alpha) &&
-          GetDoubleKeyRangeNucA("beta", lowA, highA, fConfig, &beta) &&
-          GetDoubleKeyRangeNucA("c1", lowA, highA, fConfig, &c1) &&
-          GetDoubleKeyRangeNucA("c2", lowA, highA, fConfig, &c2) &&
-          GetDoubleKeyRangeNucA("c3", lowA, highA, fConfig, &c3)) {
+      if (GetDoubleKeyRangeNucA("bs", lowA, highA, GetOwnedConfig(), &bs) &&
+          GetDoubleKeyRangeNucA("bp", lowA, highA, GetOwnedConfig(), &bp) &&
+          GetDoubleKeyRangeNucA("alpha", lowA, highA, GetOwnedConfig(), &alpha) &&
+          GetDoubleKeyRangeNucA("beta", lowA, highA, GetOwnedConfig(), &beta) &&
+          GetDoubleKeyRangeNucA("c1", lowA, highA, GetOwnedConfig(), &c1) &&
+          GetDoubleKeyRangeNucA("c2", lowA, highA, GetOwnedConfig(), &c2) &&
+          GetDoubleKeyRangeNucA("c3", lowA, highA, GetOwnedConfig(), &c3)) {
         vector<double> pars = vector<double>();
         pars.push_back(bs);
         pars.push_back(bp);

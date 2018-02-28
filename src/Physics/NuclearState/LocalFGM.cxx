@@ -195,28 +195,25 @@ void LocalFGM::Configure(string param_set)
 //____________________________________________________________________________
 void LocalFGM::LoadConfig(void)
 {
-  fPMax    = fConfig->GetDoubleDef ("MomentumMax", 1.0);
+  fPMax = 1. ;
+  GetParam( "MomentumMax", fPMax, false );
   assert(fPMax > 0);
 
   // Load removal energy for specific nuclei from either the algorithm's
   // configuration file or the UserPhysicsOptions file.
   // If none is used use Wapstra's semi-empirical formula.
   //
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
+
   for(int Z=1; Z<140; Z++) {
     for(int A=Z; A<3*Z; A++) {
-      ostringstream key, gckey;
+      ostringstream key ;
       int pdgc = pdg::IonPdgCode(A,Z);
-      gckey << "RFG-NucRemovalE@Pdg=" << pdgc;
-      key   << "NucRemovalE@Pdg="     << pdgc;
-      RgKey gcrgkey = gckey.str();
-      RgKey rgkey   = key.str();
-      if (this->GetConfig().Exists(rgkey) || gc->Exists(gcrgkey)) {
-        double eb = fConfig->GetDoubleDef(rgkey, gc->GetDouble(gcrgkey));
-        eb = TMath::Max(eb, 0.);
-        LOG("LocalFGM", pINFO)
-          << "Nucleus: " << pdgc << " -> using Eb =  " << eb << " GeV";
+      key << "RFG-NucRemovalE@Pdg=" << pdgc;
+      RgKey rgkey = key.str();
+      double eb ;
+      if ( GetParam( rgkey, eb, false ) ) {
+    	eb = TMath::Max(eb, 0.);
+        LOG("LocalFGM", pINFO) << "Nucleus: " << pdgc << " -> using Eb =  " << eb << " GeV";
         fNucRmvE.insert(map<int,double>::value_type(Z,eb));
       }
     }

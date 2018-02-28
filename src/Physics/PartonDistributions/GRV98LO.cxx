@@ -50,7 +50,7 @@ PDFModelI("genie::GRV98LO", config),
  fXSF (NULL),
  fXGF (NULL)
 {
-  LOG("GRV98LO", pDEBUG) << "GRV98LO configuration:\n " << *fConfig;  
+  LOG("GRV98LO", pDEBUG) << "GRV98LO configuration:\n " << GetConfig() ;
 
   this->Initialize();
 }

@@ -294,7 +294,8 @@ void UnstableParticleDecayer::LoadConfig(void)
   // Order is important if both decayers can handle a specific particle
   // as only the first would get the chance to decay it
 
-  int ndec = fConfig->GetIntDef("NDecayers",0);
+  int ndec = 0 ;
+  GetParam( "NDecayers",ndec );
   assert(ndec>0);
 
   if(fDecayers) {
@@ -330,7 +331,7 @@ void UnstableParticleDecayer::LoadConfig(void)
   // should be decay before the event is passed to the detector particle
   // transport MC.
   //
-  fRunBefHadroTransp = fConfig->GetBool("RunBeforeHadronTransport");
+  GetParam( "RunBeforeHadronTransport", fRunBefHadroTransp ) ;
 
   // Allow user to specify a list of particles to be decayed
   //

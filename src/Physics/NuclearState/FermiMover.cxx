@@ -363,9 +363,6 @@ void FermiMover::LoadConfig(void)
 // Reads its configuration from its Registry and loads all the sub-algorithms
 // needed
 
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
-
   fNuclModel = 0;
 
   RgKey nuclkey = "NuclearModel";
@@ -373,11 +370,10 @@ void FermiMover::LoadConfig(void)
   fNuclModel = dynamic_cast<const NuclearModelI *> (this->SubAlg(nuclkey));
   assert(fNuclModel);
 
-  fKeepNuclOnMassShell = 
-         fConfig->GetBoolDef("KeepHitNuclOnMassShell", false);
+  fKeepNuclOnMassShell = false ;
+  GetParam( "KeepHitNuclOnMassShell", fKeepNuclOnMassShell, false ) ;
 
-  fSRCRecoilNucleon = fConfig->GetBoolDef(
-      "SimRecoilNucleon", gc->GetBool("SRC-SimRecoilNucleon"));
+  GetParam( "SimRecoilNucleon", fSRCRecoilNucleon ) ;
 }
 //____________________________________________________________________________
 
