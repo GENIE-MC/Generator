@@ -59,6 +59,46 @@ University of Liverpool
 
  </param_set>
 
+ <param_set name="NonResBackground">
+
+   <!-- 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  RES/DIS joining scheme 
+  At this point there is a single scheme, the one originally developed in neugen3.
+  For W >  Wcut : RES -> 0,   +  DIS                -> full
+  For W <= Wcut : RES -> full + `DIS' (non-RES bkg) -> modified by DIS-HMultWgt-* params
+   - 
+   - ...
+
+   -->
+
+   <param type="double" name="Wcut">            1.7  </param>
+
+ <!-- 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  NEUGEN parameters applied to DIS hadronic multiplicity distributions 
+  to avoid 2-ble counting with RES
+  -->
+  <param type="double" name="DIS-HMultWgt-vp-CC-m2">  0.100  </param>
+  <param type="double" name="DIS-HMultWgt-vp-CC-m3">  1.000  </param>
+  <param type="double" name="DIS-HMultWgt-vp-NC-m2">  0.100  </param>
+  <param type="double" name="DIS-HMultWgt-vp-NC-m3">  1.000  </param>
+  <param type="double" name="DIS-HMultWgt-vn-CC-m2">  0.300  </param>
+  <param type="double" name="DIS-HMultWgt-vn-CC-m3">  1.000  </param>
+  <param type="double" name="DIS-HMultWgt-vn-NC-m2">  0.300  </param>
+  <param type="double" name="DIS-HMultWgt-vn-NC-m3">  1.000  </param>
+  <param type="double" name="DIS-HMultWgt-vbp-CC-m2"> 0.300  </param>
+  <param type="double" name="DIS-HMultWgt-vbp-CC-m3"> 1.000  </param>
+  <param type="double" name="DIS-HMultWgt-vbp-NC-m2"> 0.300  </param>
+  <param type="double" name="DIS-HMultWgt-vbp-NC-m3"> 1.000  </param>
+  <param type="double" name="DIS-HMultWgt-vbn-CC-m2"> 0.100  </param>
+  <param type="double" name="DIS-HMultWgt-vbn-CC-m3"> 1.000  </param>
+  <param type="double" name="DIS-HMultWgt-vbn-NC-m2"> 0.100  </param>
+  <param type="double" name="DIS-HMultWgt-vbn-NC-m3"> 1.000  </param>
+
+ </param_set>
+
+
  <param_set name="FermiGas">
    <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -90,6 +130,8 @@ University of Liverpool
   <param type="string" name="FermiMomentumTable"> Default </param>
   
  </param_set>
+
+
 
 
 

@@ -524,64 +524,11 @@ STFC, Rutherford Appleton Laboratory
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Parameters controlling the average charged hadron multiplicities in the AGKY/KNO model
-  (paramerers a,b entering in the empirical expression: <n> = a + b * lnW^2 )
-  See Nucl.Instrum.Meth.A614:87-104,2010 and Eur.Phys.J.C63:1-10,2009. 
-  -->
-  <param type="double" name="KNO-Alpha-vp">  0.40 </param> 
-  <param type="double" name="KNO-Alpha-vn"> -0.20 </param> 
-  <param type="double" name="KNO-Alpha-vbp"> 0.02 </param> 
-  <param type="double" name="KNO-Alpha-vbn"> 0.80 </param> 
-  <param type="double" name="KNO-Beta-vp">   1.42 </param> 
-  <param type="double" name="KNO-Beta-vn">   1.42 </param> 
-  <param type="double" name="KNO-Beta-vbp">  1.28 </param> 
-  <param type="double" name="KNO-Beta-vbn">  0.95 </param> 
-
- <!-- 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Parameters controlling the probability of producing a strange baryon via associated production.
-  (paramerers a,b entering in the empirical expression: P_{hyperon} = a + b * lnW^2 )
-  Determined from a fit to \Lambda production data.
-  See Nucl.Instrum.Meth.A614:87-104,2010 and Eur.Phys.J.C63:1-10,2009. 
-  -->
-  <param type="double" name="KNO-Alpha-Hyperon"> 0.021951447 </param> 
-  <param type="double" name="KNO-Beta-Hyperon">  0.041969985 </param> 
-
- <!-- 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Levy function (KNO parameterization) parameter c at kno(z) = 2*exp(-c)*pow(c,cz+1)/Gamma(cz+1)
-  v+p    : 7.93 +/- 0.34 source: Tingjun's fit
-  v+n    : 5.22 +/- 0.15 source: Tingjun's fit
-  vbar+p : same as vn
-  vbar+n : same as vp
-  -->
-  <param type="double" name="KNO-LevyC-vp">  7.93 </param> 
-  <param type="double" name="KNO-LevyC-vn">  5.22 </param> 
-  <param type="double" name="KNO-LevyC-vbp"> 5.22 </param> 
-  <param type="double" name="KNO-LevyC-vbn"> 7.93 </param> 
-
- <!-- 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  AGKY/KNO hadronization model probabilities for producing hadron pairs.
-  See Nucl.Instrum.Meth.A614:87-104,2010 and Eur.Phys.J.C63:1-10,2009. 
-  Values below are modified values following strange hadron production tuning (see gDocDB-890-v1).
-  Previous values were P(pi0 pi0) = 0.30, P(pi+ pi-) = 0.60, P(K+ K-) = 0.05, P(K0 \barK0) = 0.05.
-  -->
-  <param type="double" name="KNO-ProbPi0Pi0">        0.3133 </param>
-  <param type="double" name="KNO-ProbPiplusPiminus"> 0.6267 </param>
-  <param type="double" name="KNO-ProbKplusKminus">   0.03 </param>
-  <param type="double" name="KNO-ProbK0K0bar">       0.03 </param>
-  <param type="double" name="KNO-ProbPi0Eta">        0.0 </param> 
-  <param type="double" name="KNO-ProbEtaEta">        0.0   </param>
-
- <!-- 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Parameters controlling whether to reweight the KNO phase space decay reweighting and the actual
   reweighting function.
   See: A.B.Clegg, A.Donnachie, A Description of Jet Structure by pT-limited Phase Space.
   -->
   <param type="bool"   name="KNO-PhaseSpDec-Reweight">     true  </param>
-  <param type="double" name="KNO-PhaseSpDec-ReweightParm"> 3.5   </param> 
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -592,52 +539,7 @@ STFC, Rutherford Appleton Laboratory
   <param type="bool" name="KNO-UseBaryonPdfs-xFpT2">  true  </param>
   <param type="bool" name="KNO-UseIsotropic2BodyDec"> true  </param>
 
- <!-- 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Parameters controlling the PYTHIA hadronization model:
-
-             PYTHIA    NUX 2001   AGKY 2010 strange prod.
-             default   tune       re-tune (see gDocDB-890-v1)
-  - ssbar:   0.30      0.21       0.30
-  - pt2:     0.36 GeV  0.44 GeV
-  - pt2tail: 0.01      0.01    
-  - cutoff:  0.80 GeV  0.20 GeV
-  -->
-  <param type="double" name="PYTHIA-SSBarSuppression">      0.30 </param>
-  <param type="double" name="PYTHIA-GaussianPt2">           0.44 </param> 
-  <param type="double" name="PYTHIA-NonGaussianPt2Tail">    0.01 </param>
-  <param type="double" name="PYTHIA-RemainingEnergyCutoff"> 0.20 </param>
-
- <!-- 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Invariant mass window for the transition from KNO model to PYTHIA
-  -->
-  <param type="double" name="KNO2PYTHIA-Wmin">  2.30 </param>
-  <param type="double" name="KNO2PYTHIA-Wmax">  3.00 </param>
-
- <!-- 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  NEUGEN parameters applied to DIS hadronic multiplicity distributions 
-  to avoid 2-ble counting with RES
-  -->
-  <param type="double" name="DIS-HMultWgt-vp-CC-m2">  0.100  </param>
-  <param type="double" name="DIS-HMultWgt-vp-CC-m3">  1.000  </param>
-  <param type="double" name="DIS-HMultWgt-vp-NC-m2">  0.100  </param>
-  <param type="double" name="DIS-HMultWgt-vp-NC-m3">  1.000  </param>
-  <param type="double" name="DIS-HMultWgt-vn-CC-m2">  0.300  </param>
-  <param type="double" name="DIS-HMultWgt-vn-CC-m3">  1.000  </param>
-  <param type="double" name="DIS-HMultWgt-vn-NC-m2">  0.300  </param>
-  <param type="double" name="DIS-HMultWgt-vn-NC-m3">  1.000  </param>
-  <param type="double" name="DIS-HMultWgt-vbp-CC-m2"> 0.300  </param>
-  <param type="double" name="DIS-HMultWgt-vbp-CC-m3"> 1.000  </param>
-  <param type="double" name="DIS-HMultWgt-vbp-NC-m2"> 0.300  </param>
-  <param type="double" name="DIS-HMultWgt-vbp-NC-m3"> 1.000  </param>
-  <param type="double" name="DIS-HMultWgt-vbn-CC-m2"> 0.100  </param>
-  <param type="double" name="DIS-HMultWgt-vbn-CC-m3"> 1.000  </param>
-  <param type="double" name="DIS-HMultWgt-vbn-NC-m2"> 0.100  </param>
-  <param type="double" name="DIS-HMultWgt-vbn-NC-m3"> 1.000  </param>
-
- <!-- 	
+  <!-- 	
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Parameters relevant to formation zone simulation
   - ct0 is the formation time times the speed of light (given in fm)
@@ -647,20 +549,8 @@ STFC, Rutherford Appleton Laboratory
   <param type="double" name="FZONE-ct0nucleon">    2.300   </param>
   <param type="double" name="FZONE-KPt2">          0.0     </param>
 
- <!-- 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  RES/DIS joining scheme 
-  At this point there is a single scheme, the one originally developed in neugen3.
-  For W >  Wcut : RES -> 0,   +  DIS                -> full
-  For W <= Wcut : RES -> full + `DIS' (non-RES bkg) -> modified by DIS-HMultWgt-* params
-   - 
-   - ...
 
-  ****   Wcut is not moved as it is omnipresent! Will be fixed when we have algorithms for common parameters ****
-
-  -->
   <param type="bool"   name="UseDRJoinScheme"> true </param>
-  <param type="double" name="Wcut">            1.7  </param>
 
  
  <!-- 

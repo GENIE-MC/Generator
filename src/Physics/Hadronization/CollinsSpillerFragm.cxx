@@ -70,8 +70,11 @@ void CollinsSpillerFragm::BuildFunction(void)
 
   fFunc->SetParNames("Norm","Epsilon");
 
-  double N = fConfig->GetDoubleDef("Norm",   -1);
-  double e = fConfig->GetDoubleDef("Epsilon", 0);
+  double N = -1. ;
+  GetParam( "CSFrag-Norm", N, false ) ;
+
+  double e = 0. ;
+  GetParam( "CSFrag-Epsilon", e, false ) ;
 
   // if the normalization parameter was left negative, explicitly normalize
   // the fragmentation function

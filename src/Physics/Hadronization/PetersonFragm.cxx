@@ -74,8 +74,15 @@ void PetersonFragm::BuildFunction(void)
   // stop ROOT from deleting this object of its own volition
   gROOT->GetListOfFunctions()->Remove(fFunc);
 
-  double N = fConfig->GetDoubleDef("Norm",   -1);
-  double e = fConfig->GetDoubleDef("Epsilon", 0);
+  double N = -1. ;
+  GetParam( "PetFrag-Norm", N, false ) ;
+
+  //The xml files says that Epsilon is not optional, while the
+  //orignal behaviour of this function assigned a 0 default value
+  //if the xml file was not providing such a number.
+  // Original behaviour maintained
+  double e = 0. ;
+  GetParam( "PetFrag-Epsilon", e, false ) ;
 
   // if the normalization parameter was left negative, explicitly normalize
   // the fragmentation function
