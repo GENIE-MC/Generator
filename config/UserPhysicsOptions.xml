@@ -353,17 +353,6 @@ STFC, Rutherford Appleton Laboratory
   -->
   <param type="double" name="DFR-t-max"> 0.35 </param>
 
- 
- <!-- 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Parameters for neutrino-electron elastic scattering 
-  -->
-
- <!-- 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Parameters for anomaly mediated neutrino-gamma interactions
-  -->
- <param type="double" name="AMNuGamma-Gw"> 20.0 </param>
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

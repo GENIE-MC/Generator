@@ -61,6 +61,11 @@ University of Liverpool
 
  </param_set>
 
+ <param_set name="Masses">
+   <param type="double" name="Charm-Mass"> 1.430  </param> <!-- GeV --> 
+ </param_set>
+ 
+
  <param_set name="NonResBackground">
 
    <!-- 
