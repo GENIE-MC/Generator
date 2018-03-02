@@ -145,7 +145,6 @@ protected:
 
   /// ideally these members should go private
   /// Registry will be access only through the GetParam method
-  /// DIscuss it with Costas
   vector<Registry*>  fConfVect ;   ///< configurations registries from various sources 
                                    ///<  the order of the vector is the precedence in case of repeated parameters
                                    ///<  position 0 -> Highest precedence
@@ -154,8 +153,17 @@ protected:
   AlgStatus_t  fStatus;        ///< algorithm execution status
   AlgMap *     fOwnedSubAlgMp; ///< local pool for owned sub-algs (taken out of the factory pool)
 
+  //! Ideal access to a parameter value from the vector of registries
+  //! Returns true if the value is found and the parameters is set
   template<class T>
     bool GetParam( const RgKey & name, T & p, bool is_top_call = true ) const ;
+
+  //! Ideal access to a parameter value from the vector of registries,
+  //! With default value. Returns true if the value is set from the
+  //! registries, false if the value is the default
+  template<class T>
+     bool GetParamDef( const RgKey & name, T & p, const T & def ) const ;
+
   
 private:
   int   AddTopRegistry( Registry * rp, bool owns = true );  ///< add registry with top priority, also update ownership

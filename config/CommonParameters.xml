@@ -25,7 +25,9 @@ University of Liverpool
 
 
  <param_set name="Tunable">
-      
+
+   
+
  </param_set>
 
 
@@ -129,6 +131,43 @@ University of Liverpool
   -->
   <param type="string" name="FermiMomentumTable"> Default </param>
   
+ </param_set>
+
+   
+ <!-- 	
+      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      INTRANUKE-specific parameters:
+      - Mode options are: hA, hN
+      - NucRemovalE is the binding E to subtract from cascade nucleons (in GeV)
+      - typical values for pion, nucleon DelR are 0.5, 0.7 (hA) and 0.2, 0.2 (hN)
+
+      Probably these should all be moved in the local configurations
+ -->
+ 
+ <param_set name="INUKE">
+   <param type="double" name="INUKE-NucRemovalE">       0.00  </param>
+   <param type="double" name="INUKE-HadStep">           0.05  </param>
+   <param type="double" name="INUKE-NucAbsFac">         1.0   </param>
+   <param type="double" name="INUKE-NucQEFac">          1.0   </param>
+   <param type="double" name="INUKE-NucCEXFac">         1.0   </param>
+   <param type="double" name="INUKE-Energy_Pre_Eq">     0.041 </param> 
+   <param type="double" name="INUKE-FermiFac">          1.0   </param>
+   <param type="double" name="INUKE-FreeStep">          0.0   </param>
+   <param type="double" name="INUKE-FermiMomentum">     0.250 </param>
+   <param type="bool"   name="INUKE-DoFermi">           true  </param>
+   <param type="bool"   name="INUKE-DoCompoundNucleus"> true  </param>
+   <param type="bool"   name="INUKE-XsecNNCorr">        true  </param>
+ </param_set>
+ 
+ <param_set name="HAINUKE">
+   <param type="double" name="HAINUKE-DelRPion">        0.5   </param>
+   <param type="double" name="HAINUKE-DelRNucleon">     0.7   </param>
+ </param_set>
+ 
+ <param_set name="HNINUKE">
+   <param type="double" name="HNINUKE-DelRPion">        0.0   </param>
+   <param type="double" name="HNINUKE-DelRNucleon">     0.0   </param>
+   <param type="bool"   name="HNINUKE-UseOset">         true  </param>
  </param_set>
 
 

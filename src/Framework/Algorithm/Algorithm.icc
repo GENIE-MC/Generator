@@ -109,5 +109,16 @@ template<class T>
 
 }
 
+template<class T>                                                                                                         
+    bool genie::Algorithm::GetParamDef( const RgKey & name, T & p, const T & def ) const {
+    
+    if ( GetParam( name, p, false ) ) {
+    	return true ;
+    }
+    
+    p = def ;
+    return false ;
+}
 
 //add the the template specification as in Registry for RegistryItemI?
+
