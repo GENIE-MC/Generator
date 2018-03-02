@@ -33,19 +33,19 @@
 #include <TTree.h>
 #include <TMath.h>
 
-#include "Conventions/Units.h"
-#include "EVGCore/EventRecord.h"
-#include "GHEP/GHepParticle.h"
-#include "HadronTransport/INukeHadroFates.h"
-#include "HadronTransport/INukeUtils.h"
-#include "Messenger/Messenger.h"
-#include "Ntuple/NtpMCFormat.h"
-#include "Ntuple/NtpMCTreeHeader.h"
-#include "Ntuple/NtpMCEventRecord.h"
-#include "PDG/PDGCodes.h"
-#include "PDG/PDGUtils.h"
-#include "PDG/PDGLibrary.h"
-#include "Utils/CmdLnArgParser.h"
+#include "Framework/Conventions/Units.h"
+#include "Framework/EventGen/EventRecord.h"
+#include "Framework/GHEP/GHepParticle.h"
+#include "Physics/HadronTransport/INukeHadroFates.h"
+#include "Physics/HadronTransport/INukeUtils.h"
+#include "Framework/Messenger/Messenger.h"
+#include "Framework/Ntuple/NtpMCFormat.h"
+#include "Framework/Ntuple/NtpMCTreeHeader.h"
+#include "Framework/Ntuple/NtpMCEventRecord.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGUtils.h"
+#include "Framework/ParticleData/PDGLibrary.h"
+#include "Framework/Utils/CmdLnArgParser.h"
 
 using std::endl;
 using std::setw;
