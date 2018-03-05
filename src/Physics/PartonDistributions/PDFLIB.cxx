@@ -22,7 +22,7 @@
 #include "Physics/PartonDistributions/PDFLIB.h"
 #include "Framework/Messenger/Messenger.h"
 
-#ifdef __GENIE_LHAPDF_ENABLED__
+#ifdef __GENIE_LHAPDF5_ENABLED__
 //
 // include the LHAPDF C++ wrapper
 //

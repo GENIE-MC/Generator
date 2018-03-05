@@ -10,5 +10,7 @@
 #pragma link C++ class genie::PDFModelI;
 #pragma link C++ class genie::PDFLIB;
 #pragma link C++ class genie::GRV98LO;
+#pragma link C++ class genie::LHAPDF6;
+
 
 #endif
