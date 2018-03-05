@@ -175,6 +175,28 @@ University of Liverpool
    <param type="bool"   name="HNINUKE-UseOset">         true  </param>
  </param_set>
 
+ <param_set name="Coherent">
+   
+   <param type="double" name="COH-Ro"> 1.000 </param>
+   
+   <!--
+       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+       Minimum and maximum considered Q^2 for Berger-Sehgal coherent reactions when estimating 
+       the max cross section. 
+       Units in GeV^2.
+   -->
+   <param type="double" name="COH-Q2-min"> 0.000 </param>
+   <param type="double" name="COH-Q2-max"> 1.000 </param>
+
+   <!--
+       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+       Maximum considered t for Berger-Sehgal coherent reactions when estimating the 
+       max cross section. 
+       Units in GeV^2.
+   -->
+   <param type="double" name="COH-t-max"> 0.250 </param>
+   
+ </param_set>
 
 
 

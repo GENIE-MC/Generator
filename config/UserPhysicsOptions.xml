@@ -177,12 +177,7 @@ STFC, Rutherford Appleton Laboratory
   <param type="double" name="RES-Ma"> 1.120 </param>
   <param type="double" name="RES-Mv"> 0.840 </param>
 
- <!-- 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Axial mass for coherent scattering 
-  -->
-  <param type="double" name="COH-Ma"> 1.000 </param>
-
+ 
  <!--
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Axial and Vector masses for the Delta formfactors in the Alvarez-Ruso model of coherent scattering.
@@ -239,13 +234,7 @@ STFC, Rutherford Appleton Laboratory
   -->
   <param type="double" name="EL-Axial-Eta"> 0.12 </param>
 
- <!-- 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Nuclear scale parameter in coherent scattering (in fm)
-  -->
-  <param type="double" name="COH-Ro"> 1.000 </param>
-
- <!--
+  <!--
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   The $\xi$ scaling variable used to determine \nu_{min} from Paschos-Schalla PRD 80 033005 for 
   coherent pion reactions. (E * y = nu) Dimensionless units. Set this to a value below zero 
@@ -256,48 +245,8 @@ STFC, Rutherford Appleton Laboratory
   -->
   <param type="double" name="COH-PaschosSchallaXi"> -1.000 </param>
 
- <!--
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Minimum considered Q^2 for Berger-Sehgal coherent reactions when estimating the max cross section. 
-  Units in GeV^2.
-  -->
-  <param type="double" name="COH-Q2-min"> 0.000 </param>
 
- <!--
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Maximum considered Q^2 for Berger-Sehgal coherent reactions when estimating the max cross section. 
-  Units in GeV^2.
-  -->
-  <param type="double" name="COH-Q2-max"> 1.000 </param>
-
- <!--
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Maximum considered t for Berger-Sehgal coherent reactions when estimating the max cross section. 
-  Units in GeV^2.
-  -->
-  <param type="double" name="COH-t-max"> 0.250 </param>
-
- <!--
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  If false, use the pion-nucleon cross section specially computed for the Berger-Sehgal model.
-  If true, use the Rein-Sehgal "style" pion-nucleon cross section and scale by A for all pion energies. 
-  -->
-  <param type="bool" name="COH-UseRSPionXSec"> false </param>
-  
- <!-- 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Real over imaginary fwd scattering amplitude in coherent interactions 
-  -->
-  <param type="double" name="COH-ReImAmpl"> 0.300 </param>
-
- <!-- 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Use a modification to Adler's PCAC theorem that includes the final state lepton mass. 
-  See Rein-Sehgal, hep-ph/0606185. Affects the COH CC cross section.
-  -->
-  <param type="bool" name="COH-UseModifiedPCAC"> true </param>
-
- <!--
+  <!--
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   a4,5 and b4,5 are parameters in the parametrisation of C_4^A and C_5^A form factors in the Alvarez-Ruso
   coherent model.

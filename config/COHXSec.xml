@@ -7,16 +7,21 @@ Configuration for the coherent pi production cross section algorithm
 
 Configurable Parameters:
 ....................................................................................................
-Name             Type     Optional   Comment                                      Default
-COH-Q2-min       double   Yes        Minimum considered Q^2 for Berger-Sehgal     GPL value
-                                     coherent reactions when estimating the max 
-                                     cross section.  Units in GeV^2.
-COH-Q2-max       double   Yes        Maximum considered Q^2 for Berger-Sehgal     GPL value
-                                     coherent reactions when estimating the max 
-                                     cross section. Units in GeV^2.
-COH-t-max        double   Yes        Maximum considered t for Berger-Sehgal       GPL value
-                                     coherent reactions when estimating 
-                                     the max cross section.  Units in GeV^2.
+Name                       Type     Optional   Comment                                      Default
+....................................................................................................
+COH-Q2-min                 double   No         Minimum considered Q^2 for Berger-Sehgal     CommonParam[Coherent]
+                                               coherent reactions when estimating the max 
+                                               cross section.  Units in GeV^2.
+COH-Q2-max                 double   Yes        Maximum considered Q^2 for Berger-Sehgal     CommonParam[Coherent]
+                                               coherent reactions when estimating the max 
+                                               cross section. Units in GeV^2.
+COH-t-max                  double   Yes        Maximum considered t for Berger-Sehgal       CommonParam[Coherent]
+                                               coherent reactions when estimating 
+                                               the max cross section.  Units in GeV^2.
+gsl-integration-type       string   Yes                                                     "adaptive"
+gsl-relative-tolerance     double   Yes                                                     0.01
+gsl-max-eval               int      Yes                                                     500000
+gsl-min-eval               int      Yes                                                     5000
 ....................................................................................................
 -->
 
@@ -25,14 +30,13 @@ COH-t-max        double   Yes        Maximum considered t for Berger-Sehgal     
     <param type="string" name ="gsl-integration-type">    adaptive  </param>
     <param type="double" name ="gsl-relative-tolerance"  >    0.01  </param>
     -->
+
+    <param type="string" name ="CommonParam"> Coherent </param>
+
     <param type="string" name ="gsl-integration-type">       vegas  </param>
     <param type="int"    name ="gsl-max-eval" >             500000  </param>
     <param type="int"    name ="gsl-min-eval" >              10000  </param>
     <param type="double" name ="gsl-relative-tolerance"  >   0.001  </param>
-
-    <param type="double" name="COH-Q2-min"> 0.000 </param>
-    <param type="double" name="COH-Q2-max"> 1.000 </param>
-    <param type="double" name="COH-t-max"> 0.250 </param>
     
   </param_set>
 

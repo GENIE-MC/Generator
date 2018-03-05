@@ -32,7 +32,6 @@ gsl-max-eval            int      yes        Max limit of evaluations for multidi
     <param type="string" name ="gsl-integration-type">       miser   </param>
     <param type="int"    name ="gsl-max-eval" >              10000   </param>
     <param type="double" name ="gsl-relative-tolerance"  >    0.05   </param>
-    <param type="bool"   name ="split-integral"  >            true   </param>
     
   </param_set>
 

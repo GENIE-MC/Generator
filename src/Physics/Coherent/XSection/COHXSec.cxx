@@ -173,19 +173,24 @@ void COHXSec::Configure(string config)
 //____________________________________________________________________________
 void COHXSec::LoadConfig(void)
 {
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
 
   // Get GSL integration type & relative tolerance
-  fGSLIntgType = fConfig->GetStringDef("gsl-integration-type",  "adaptive");
-  fGSLRelTol   = fConfig->GetDoubleDef("gsl-relative-tolerance", 1E-2); 
-  fGSLMaxEval  = (unsigned int) fConfig->GetIntDef ("gsl-max-eval", 500000); 
-  fGSLMinEval  = (unsigned int) fConfig->GetIntDef ("gsl-min-eval",  5000); 
+  GetParamDef( "gsl-integration-type", fGSLIntgType, string("adaptive") ) ;
+  GetParamDef( "gsl-relative-tolerance", fGSLRelTol, 1E-2 ) ;
+
+  int max_eval, min_eval ;
+  GetParamDef( "gsl-max-eval", max_eval, 500000 ) ;
+  GetParamDef( "gsl-min-eval", min_eval, 5000 ) ;
+
+  fGSLMaxEval  = (unsigned int) max_eval ;
+  fGSLMinEval  = (unsigned int) min_eval ;
 
   //-- COH model parameter t_max for t = (q - p_pi)^2
-  fTMax = fConfig->GetDoubleDef("COH-t-max", gc->GetDouble("COH-t-max"));
+  GetParam("COH-t-max", fTMax ) ;
+
   //-- COH model bounds of integration for Q^2
-  fQ2Min = fConfig->GetDoubleDef("COH-Q2-min", gc->GetDouble("COH-Q2-min"));
-  fQ2Max = fConfig->GetDoubleDef("COH-Q2-max", gc->GetDouble("COH-Q2-max"));
+  GetParam( "COH-Q2-min", fQ2Min ) ;
+  GetParam( "COH-Q2-max", fQ2Max ) ;
+
 }
 //____________________________________________________________________________

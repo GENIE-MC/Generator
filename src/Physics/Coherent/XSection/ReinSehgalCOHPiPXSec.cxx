@@ -197,13 +197,11 @@ void ReinSehgalCOHPiPXSec::Configure(string config)
 //____________________________________________________________________________
 void ReinSehgalCOHPiPXSec::LoadConfig(void)
 {
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
 
-  fMa      = fConfig->GetDoubleDef("COH-Ma",        gc->GetDouble("COH-Ma"));
-  fReIm    = fConfig->GetDoubleDef("COH-ReImAmpl",  gc->GetDouble("COH-ReImAmpl"));
-  fRo      = fConfig->GetDoubleDef("COH-Ro",        gc->GetDouble("COH-Ro"));
-  fModPCAC = fConfig->GetBoolDef("UseModifiedPCAC", gc->GetBool("COH-UseModifiedPCAC"));
+  GetParam( "COH-Ma", fMa ) ;
+  GetParam( "COH-Ro", fRo ) ;
+  GetParam( "COH-ReImAmpl", fReIm ) ;
+  GetParam( "COH-UseModifiedPCAC", fModPCAC ) ;
 
   //-- load the differential cross section integrator
   fXSecIntegrator =

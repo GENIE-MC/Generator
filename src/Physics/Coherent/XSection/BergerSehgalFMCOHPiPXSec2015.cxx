@@ -296,18 +296,17 @@ void BergerSehgalFMCOHPiPXSec2015::Configure(string config)
 //____________________________________________________________________________
 void BergerSehgalFMCOHPiPXSec2015::LoadConfig(void)
 {
-    AlgConfigPool * confp = AlgConfigPool::Instance();
-    const Registry * gc = confp->GlobalParameterList();
+	GetParam( "COH-Ma",fMa ) ;
+    GetParam( "COH-Ro", fRo ) ;
 
-    fMa         = fConfig->GetDoubleDef("COH-Ma",           gc->GetDouble("COH-Ma"));
-    fRo         = fConfig->GetDoubleDef("COH-Ro",           gc->GetDouble("COH-Ro"));
-    double thc  = fConfig->GetDoubleDef("CabibboAngle", gc->GetDouble("CabibboAngle"));
+    double thc ;
+    GetParam( "CabibboAngle", thc ) ;
     fCos8c2     = TMath::Power(TMath::Cos(thc), 2);
 
     // fRSPionXSec => Do not use the pion-nucleus cross section from Table 1 in PRD 79, 053003
     // Instead, use the Rein-Sehgal "style" pion-nucleon cross section and scale by A 
     // for all pion energies.
-    fRSPionXSec = fConfig->GetBoolDef("UseRSPionXSec", gc->GetBool("COH-UseRSPionXSec"));
+    GetParam( "COH-UseRSPionXSec", fRSPionXSec ) ;
 
     //-- load the differential cross section integrator
     fXSecIntegrator =
