@@ -20,7 +20,8 @@ STFC, Rutherford Appleton Laboratory
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   CKM quark mixing parameters 
   Use values listed at the July 2006 particle physics booklet
-  -->
+
+ -->
   <param type="double" name="CKM-Vud">  0.97377  </param>
   <param type="double" name="CKM-Vus">  0.2257   </param>
   <param type="double" name="CKM-Vcd">  0.230    </param>  <!-- 0.2239 -->
@@ -30,6 +31,7 @@ STFC, Rutherford Appleton Laboratory
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Cabibbo and Weinberg angles 
   -->
+
   <param type="double" name="CabibboAngle">  0.22853207 </param> <!-- 0.226893 -->  
   <param type="double" name="WeinbergAngle"> 0.49744211 </param> <!-- 0.501568 --> 
 
@@ -38,7 +40,7 @@ STFC, Rutherford Appleton Laboratory
   Constants in Feynman-Kislinger-Ravndal model for baryon excitation used in the Rein-Sehgal 
   resonance model
   -->
-  <param type="double" name="RES-Omega"> 1.05  </param>emacs 
+  <param type="double" name="RES-Omega"> 1.05  </param>
   <param type="double" name="RES-Zeta">  0.762 </param> <!-- 0.75 -->
 
  <!--
@@ -46,9 +48,6 @@ STFC, Rutherford Appleton Laboratory
   Parameters for the Berger-Sehgal / Kuzmin-Lyubushkin-Naumov Delta models.
   Set to true to use tuning to axial, vector form factors by MiniBoone (J. Nowak)
   -->
-
- <!-- **** ask Costas what to do with these as they are configurations parameters not numbers **** --> 
-
   <param type="bool" name="minibooneGA">  true </param>
   <param type="bool" name="minibooneGV">  true </param>
 
@@ -65,7 +64,6 @@ STFC, Rutherford Appleton Laboratory
   <param type="double" name="BY-Cv2U">  0.189   </param>
   <param type="double" name="BY-Cv1D">  0.202   </param>
   <param type="double" name="BY-Cv2D">  0.255   </param>
-
   <param type="double" name="BY-X0">   -0.00817 </param>
   <param type="double" name="BY-X1">    0.0506  </param>
   <param type="double" name="BY-X2">    0.0798  </param>
@@ -87,13 +85,11 @@ STFC, Rutherford Appleton Laboratory
   <param type="bool"   name="DISSF-IncludeR">           true </param>
   <param type="bool"   name="DISSF-IncludeNuclMod">     true </param>
   <param type="bool"   name="DISSF-Use2016Corrections"> false</param>
-
   <param type="double" name="DISSF-LowQ2CutoffF1F2">    0.8  </param>
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   -->
-
   <param type="double" name="QEL-CC-XSecScale"> 1.000 </param>
   <param type="double" name="MEC-CC-XSecScale"> 1.000 </param>
   <param type="double" name="MEC-NC-XSecScale"> 1.000 </param>
@@ -101,7 +97,6 @@ STFC, Rutherford Appleton Laboratory
   <param type="double" name="RES-NC-XSecScale"> 1.000 </param>
   <param type="double" name="DIS-XSecScale">    1.032 </param>
 
-  <!-- the following block of parameters is searched only here in the code, therefore for the moment they are not copied anywhere else -->
   <param type="double" name="FSI-Pion-MFPScale">           1.000 </param>
   <param type="double" name="FSI-Pion-FracCExScale">       1.000 </param>
   <param type="double" name="FSI-Pion-FracElasScale">      1.000 </param>
@@ -125,9 +120,6 @@ STFC, Rutherford Appleton Laboratory
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Axial and vector masses for elastic scattering  
- 
-  **** actually EL-Ma is never called in the software **** 
-  **** These value are exactly the same as the QEL parameters, should we allow that? ****
   -->
   <param type="double" name="EL-Ma">  0.990  </param>
   <param type="double" name="EL-Mv">  0.840  </param> 
@@ -146,7 +138,7 @@ STFC, Rutherford Appleton Laboratory
   SetDiNucleonCode:  Include the dinucleon code in the interaction list generator.
                      Want `true` for EmpiricalMEC, `false` for NSV
   -->
-  <param type="bool" name="SetDiNucleonCode"> true </param>
+  <param type="bool" name="SetDiNucleonCode"> false </param>
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -187,9 +179,6 @@ STFC, Rutherford Appleton Laboratory
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Axial and Vector masses for the Delta formfactors in the Alvarez-Ruso model of coherent scattering.
   The values comes from Scheiner and von Hippel, Nucl Phys. B 58 (1973) p 333.
-
-  **** not read from anywhere else so not moved ****
-
   -->
   <param type="double" name="COHAR-Ma-Delta"> 1.280 </param>
   <param type="double" name="COHAR-Mv-Delta"> 0.730 </param>
@@ -198,9 +187,6 @@ STFC, Rutherford Appleton Laboratory
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Axial and Vector masses for the Nucleon formfactors in the Alvarez-Ruso model of coherent scattering.
   Note that the vector mass comes the BBBA-2003 Quasielastic form factor parametrisation.
-
-  **** not read from anywhere else so not moved ****
-
   -->
   <param type="double" name="COHAR-Ma-Nuc"> 1.000 </param>
   <param type="double" name="COHAR-Mv-Nuc"> 0.840 </param>
@@ -225,13 +211,11 @@ STFC, Rutherford Appleton Laboratory
   <param type="bool"   name="QEL-Q4limit"> true   </param>
   <param type="int"    name="QEL-Kmax">    4      </param>
   <param type="double" name="QEL-T0">     -0.28   </param>
+  <param type="double" name="QEL-Tcut">    0.1764 </param> <!-- 9*m_pi^2 -->
   <param type="double" name="QEL-Z_A1">    2.30   </param>
   <param type="double" name="QEL-Z_A2">   -0.6    </param>
   <param type="double" name="QEL-Z_A3">   -3.8    </param>
   <param type="double" name="QEL-Z_A4">    2.3    </param>
-
-  <param type="double" name="QEL-Tcut">    0.1764 </param> <!-- 9*m_pi^2 -->
-
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -250,9 +234,6 @@ STFC, Rutherford Appleton Laboratory
   The $\xi$ scaling variable used to determine \nu_{min} from Paschos-Schalla PRD 80 033005 for 
   coherent pion reactions. (E * y = nu) Dimensionless units. Set this to a value below zero 
   to use simple lepton kinematics to set the nu (y) bounds instead.
-
-  **** not read from anywhere in the code ****  
-
   -->
   <param type="double" name="COH-PaschosSchallaXi"> -1.000 </param>
 
@@ -347,9 +328,6 @@ STFC, Rutherford Appleton Laboratory
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Maximum considered t for diffractive scattering reactions when estimating the max cross section. 
   Units in GeV^2.
-
-  This value is read in KpHase space!!! It's mental, but we have to be careful before removing this
-
   -->
   <param type="double" name="DFR-t-max"> 0.35 </param>
 
@@ -374,16 +352,6 @@ STFC, Rutherford Appleton Laboratory
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   SU(3) parameters D and F
-
-  ***** these are used and called also in src/LlewellynSmith/LwlynSmithFF.cxx but it's not clear which 
-        xml is used to config this, need further investigation to add these parameters 
-
-        There are 3 algprithms inheriting from LwlynSmithFF
-          1) LwlynSmithFFCC
-          2) LwlynSmithFFNC
-          3) LwlynSmithFFDeltaS 
-        
-        should we copy these parameters in each xml file?         ***** 
   -->
   <param type="double" name="SU3-D"> 0.804 </param>
   <param type="double" name="SU3-F"> 0.463 </param>
@@ -461,10 +429,6 @@ STFC, Rutherford Appleton Laboratory
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Default list of baryon resonances included in cross section models and generation threads 
-
-  **** this is in fact a switch, so this is not copied in the lower configurations ****
-  **** Anyway reorganizing these lists of Resonance is suggested ****
-
   -->
   <param type="string" name="ResonanceNameList">
          P33(1232),S11(1535),D13(1520),S11(1650),D13(1700),D15(1675),
@@ -486,11 +450,12 @@ STFC, Rutherford Appleton Laboratory
 
   <param type="alg"  name="NuclearModel">                 genie::EffectiveSF/Default </param>
   <param type="alg"  name="NuclearModel">                 genie::LocalFGM/Default </param>
-  -->
   <param type="alg"  name="NuclearModel">                 genie::FGMBodekRitchie/Default </param>
+  -->
+  <param type="alg"  name="NuclearModel">                 genie::LocalFGM/Default </param>
+
 
 <!--
-
   <param type="alg" name="NuclearModel@Pdg=1000060120">   genie::SpectralFunc1d/Default  </param>
   <param type="alg" name="NuclearModel@Pdg=1000260560">   genie::SpectralFunc1d/Default  </param>
 -->
@@ -690,9 +655,6 @@ STFC, Rutherford Appleton Laboratory
   For W <= Wcut : RES -> full + `DIS' (non-RES bkg) -> modified by DIS-HMultWgt-* params
    - 
    - ...
-
-  ****   Wcut is not moved as it is omnipresent! Will be fixed when we have algorithms for common parameters ****
-
   -->
   <param type="bool"   name="UseDRJoinScheme"> true </param>
   <param type="double" name="Wcut">            1.7  </param>
@@ -701,9 +663,6 @@ STFC, Rutherford Appleton Laboratory
  <!-- 
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   NUCL-Ro (in fm) is a scale parameter driving the effective nuclear sizes (Ro in R=Ro*A^1/3)
-
-  **** also omnipresent, moved when we'll have dedicated machinery in place ****
-
   -->
   <param type="double" name="NUCL-R0"> 1.4 </param>
   <param type="double" name="NUCL-NR"> 3.0 </param>
@@ -739,8 +698,7 @@ STFC, Rutherford Appleton Laboratory
    - Mode options are: hA, hN
    - NucRemovalE is the binding E to subtract from cascade nucleons (in GeV)
    - typical values for pion, nucleon DelR are 0.5, 0.7 (hA) and 0.2, 0.2 (hN)
-
-   **** Also ominipresent, will be moved later **** 
+   - These parameters are no longer used for hA2015 and hN2015, should be 0.0
   -->
   <param type="double" name="INUKE-NucRemovalE">       0.00  </param>
   <param type="double" name="INUKE-HadStep">           0.05  </param>
@@ -868,19 +826,18 @@ STFC, Rutherford Appleton Laboratory
   The parameter name is build as: "XSecModel@[name of thread]"
   -->
 <!-- New Nieves QE model   -->
-<!--
   <param type="alg" name="XSecModel@genie::EventGenerator/QEL-CC">         genie::NievesQELCCPXSec/Default         </param>
-  -->
+
+<!--
   <param type="alg" name="XSecModel@genie::EventGenerator/QEL-CC">         genie::LwlynSmithQELCCPXSec/Default   </param>
+-->
   <param type="alg" name="XSecModel@genie::EventGenerator/QEL-NC">         genie::AhrensNCELPXSec/Default          </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/QEL-EM">         genie::RosenbluthPXSec/Default          </param>
 
   <!-- New Berger-Sehgal resonance model w/MiniBooNE tune... -->
-  <!--
   <param type="alg" name="XSecModel@genie::EventGenerator/RES-CC">         genie::BergerSehgalRESPXSec2014/Default </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/RES-NC">         genie::BergerSehgalRESPXSec2014/Default </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/RES-EM">         genie::BergerSehgalRESPXSec2014/Default </param>
-   -->
   
   <!-- New Kuzmin-Lyubushkin-Naumov resonance model w/MiniBooNE tune... -->
   <!--
@@ -888,19 +845,21 @@ STFC, Rutherford Appleton Laboratory
   <param type="alg" name="XSecModel@genie::EventGenerator/RES-NC">         genie::KuzminLyubushkinNaumovRESPXSec2014/Default </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/RES-EM">         genie::KuzminLyubushkinNaumovRESPXSec2014/Default </param>
    -->
-	
+
+<!--	
   <param type="alg" name="XSecModel@genie::EventGenerator/RES-CC">         genie::ReinSehgalRESPXSec/Default       </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/RES-NC">         genie::ReinSehgalRESPXSec/Default       </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/RES-EM">         genie::ReinSehgalRESPXSec/Default       </param>
-  
+-->  
+
   <param type="alg" name="XSecModel@genie::EventGenerator/DIS-CC">         genie::QPMDISPXSec/Default            </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/DIS-NC">         genie::QPMDISPXSec/Default            </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/DIS-EM">         genie::QPMDISPXSec/Default            </param>
 
   <!-- 
-  -->
   <param type="alg" name="XSecModel@genie::EventGenerator/COH-CC">         genie::ReinSehgalCOHPiPXSec/Default   </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/COH-NC">         genie::ReinSehgalCOHPiPXSec/Default   </param>
+  -->
 
   <!-- BS "Finite-mass" (as opposed to infinite mass) nucleus -->
   <!--
@@ -908,10 +867,9 @@ STFC, Rutherford Appleton Laboratory
   <param type="alg" name="XSecModel@genie::EventGenerator/COH-NC">         genie::BergerSehgalFMCOHPiPXSec2015/Default   </param>
   -->
 
-  <!-- Berger-Sehgal "as in the paper"
+  <!-- Berger-Sehgal "as in the paper" -->
   <param type="alg" name="XSecModel@genie::EventGenerator/COH-CC">         genie::BergerSehgalCOHPiPXSec2015/Default   </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/COH-NC">         genie::BergerSehgalCOHPiPXSec2015/Default   </param>
-  -->
 
   <!-- Alvarez-Ruso et al COH pion
   <param type="alg" name="XSecModel@genie::EventGenerator/COH-CC">       genie::AlvarezRusoCOHPiPXSec/Fast       </param>
@@ -928,10 +886,10 @@ STFC, Rutherford Appleton Laboratory
   <param type="alg" name="XSecModel@genie::EventGenerator/AM-NUGAMMA">     genie::H3AMNuGammaPXSec/Default       </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/DFR-CC">         genie::ReinDFRPXSec/Default           </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/DFR-NC">         genie::ReinDFRPXSec/Default           </param>
+<!--
   <param type="alg" name="XSecModel@genie::EventGenerator/MEC-CC">         genie::EmpiricalMECPXSec2015/Default  </param>
-  <!--
+-->  
   <param type="alg" name="XSecModel@genie::EventGenerator/MEC-CC">         genie::NievesSimoVacasMECPXSec2016/Default </param>
-  -->
   <param type="alg" name="XSecModel@genie::EventGenerator/MEC-NC">         genie::EmpiricalMECPXSec2015/Default  </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/MEC-EM">         genie::EmpiricalMECPXSec2015/Default  </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/GLRES">          genie::GLRESPXSec/Default             </param>
@@ -963,9 +921,6 @@ STFC, Rutherford Appleton Laboratory
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   GENIE validity range
-
-  **** these I'd like to leave them here **** 
-
   -->
   <param type="double" name="GVLD-Emin">    0.010  </param>
   <param type="double" name="GVLD-Emax"> 1000.000  </param>
