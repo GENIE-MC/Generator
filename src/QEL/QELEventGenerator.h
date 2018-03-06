@@ -52,7 +52,7 @@ private:
 
   double COMJacobian(TLorentzVector lepton, TLorentzVector leptonCOM, TLorentzVector outNucleon, TVector3 beta) const;
   
-  double fQ2min;
+  // unused // double fQ2min;
   mutable double fEb; // Binding energy
 
   void   LoadConfig     (void);
