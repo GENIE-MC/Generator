@@ -18,7 +18,8 @@
 
 #pragma link C++ class genie::flux::GNuMIFlux;
 #pragma link C++ class genie::flux::GNuMIFluxPassThroughInfo;
-#pragma link C++ class genie::flux::GNuMIFlux::StdFluxWindow_t;
+#pragma link C++ enum          genie::flux::GNuMIFlux::EStdFluxWindow;
+#pragma link C++ nestedtypedef genie::flux::GNuMIFlux::StdFluxWindow_t;
 
 #pragma link C++ class genie::flux::GCylindTH1Flux;
 #pragma link C++ class genie::flux::GMonoEnergeticFlux;
