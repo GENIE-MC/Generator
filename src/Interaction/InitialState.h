@@ -41,6 +41,10 @@ ostream & operator << (ostream & stream, const InitialState & i);
 
 class InitialState : public TObject {
 
+using TObject::Print; // suppress clang 'hides overloaded virtual function [-Woverloaded-virtual]' warnings
+using TObject::Compare;
+using TObject::Copy;
+
 public:
   InitialState();
   InitialState(int tgt_pdgc, int probe_pdgc);
