@@ -25,14 +25,21 @@ University of Liverpool
 
 
  <param_set name="Tunable">
+   <!-- Reserved register for tuning -->
 
-   
+
+   <!-- <param type="double" name="DIS-XSecScale">    1.032 </param> -->
 
  </param_set>
 
 
- <param_set name="CKM">
+ <param_set name="WeakInt"> 
+   <param type="double" name="WeinbergAngle"> 0.49744211 </param> <!-- 0.501568 --> 
 
+ </param_set>
+ 
+ <param_set name="CKM">
+   
  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   CKM quark mixing parameters 
   Use values listed at the July 2006 particle physics booklet
@@ -43,11 +50,7 @@ University of Liverpool
   <param type="double" name="CKM-Vcd">  0.230    </param>  <!-- 0.2239 -->
   <param type="double" name="CKM-Vcs">  0.957    </param>
 
- <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Cabibbo and Weinberg angles 
- -->
   <param type="double" name="CabibboAngle">  0.22853207 </param> <!-- 0.226893 -->  
-  <param type="double" name="WeinbergAngle"> 0.49744211 </param> <!-- 0.501568 --> 
 
  </param_set>
 
@@ -78,6 +81,8 @@ University of Liverpool
    - ...
 
    -->
+
+   <param type="bool"   name="UseDRJoinScheme"> true </param>
 
    <param type="double" name="Wcut">            1.7  </param>
 

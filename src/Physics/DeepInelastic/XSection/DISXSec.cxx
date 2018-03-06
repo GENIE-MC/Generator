@@ -214,10 +214,15 @@ void DISXSec::Configure(string config)
 void DISXSec::LoadConfig(void)
 {
   // Get GSL integration type & relative tolerance
-  fGSLIntgType = fConfig->GetStringDef("gsl-integration-type"  ,  "adaptive");
-  fGSLRelTol   = fConfig->GetDoubleDef("gsl-relative-tolerance", 1E-2);
-  fGSLMaxEval  = (unsigned int) fConfig->GetIntDef   ("gsl-max-eval"   , 500000);
-  fGSLMinEval  = (unsigned int) fConfig->GetIntDef   ("gsl-min-eval"   , 10000);
+  GetParamDef("gsl-integration-type", fGSLIntgType, string("adaptive") ) ;
+  GetParamDef( "gsl-relative-tolerance", fGSLRelTol, 1E-2 ) ;
+
+  int max_eval, min_eval ;
+  GetParamDef( "gsl-max-eval", max_eval, 500000 ) ;
+  GetParamDef( "gsl-min-eval", min_eval, 10000 ) ;
+
+  fGSLMaxEval  = (unsigned int) max_eval ;
+  fGSLMinEval  = (unsigned int) min_eval ;
 
   // Energy range for cached splines
   AlgConfigPool * confp = AlgConfigPool::Instance();

@@ -233,21 +233,17 @@ void COHElKinematicsGenerator::Configure(string config)
 //____________________________________________________________________________
 void COHElKinematicsGenerator::LoadConfig(void)
 {
-  //AlgConfigPool * confp = AlgConfigPool::Instance();
-  //const Registry * gc = confp->GlobalParameterList();
-
   //-- max xsec safety factor (for rejection method) and min cached energy
-  fSafetyFactor = fConfig->GetDoubleDef("MaxXSec-SafetyFactor", 1.6);
-  fEMin         = fConfig->GetDoubleDef("Cache-MinEnergy",     -1.0);
+  GetParamDef( "MaxXSec-SafetyFactor", fSafetyFactor, 1.6 ) ;
+  GetParamDef( "Cache-MinEnergy", fEMin, -1.0 ) ;
 
   //-- Generate kinematics uniformly over allowed phase space and compute
   //   an event weight?
-  fGenerateUniformly = fConfig->GetBoolDef("UniformOverPhaseSpace", false);
+  GetParamDef( "UniformOverPhaseSpace", fGenerateUniformly, false ) ;
 
   //-- Maximum allowed fractional cross section deviation from maxim cross
   //   section used in rejection method
-  fMaxXSecDiffTolerance = 
-         fConfig->GetDoubleDef("MaxXSec-DiffTolerance",999999.);
+  GetParamDef( "MaxXSec-DiffTolerance", fMaxXSecDiffTolerance, 999999. ) ;
   assert(fMaxXSecDiffTolerance>=0);
 }
 //____________________________________________________________________________

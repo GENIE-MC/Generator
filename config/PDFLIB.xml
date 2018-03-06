@@ -25,6 +25,12 @@ ngroup_pdflib    int      No         PDFLIB PDF group
 nset_pdflib      int      No         PDFLIB PDF set
 -->
 
+  <param_set name="Default"> 
+
+    <param type="double" name="PDF-Q2min"> 0.800 </param>
+
+  </param_set>
+  
   <param_set name="GRVLO"> 
      <param type="string"  name="name_lhapdf">    GRV98lo_patched   </param>
      <param type="int"     name="type_lhapdf">    1         </param>

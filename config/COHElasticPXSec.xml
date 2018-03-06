@@ -9,13 +9,16 @@ Configurable Parameters:
 ..........................................................................................
 Name             Type     Optional   Comment                     Default
 ..........................................................................................
-WeinbergAngle    double   Yes        Weinberg angle              GPL value: WeinbergAngle
+WeinbergAngle    double   No         Weinberg angle              CommonParam[WeakInt]
 XSec-Integrator  alg      No
 -->
 
   <param_set name="Default"> 
-     <param type="alg"  name="XSec-Integrator"> t </param>
-     <param type="double" name="WeinbergAngle"> 0.49744211 </param>
+
+    <param type="string" name="CommonParam"> WeakInt </param>
+
+    <param type="alg"  name="XSec-Integrator"> t </param>
+
   </param_set>
 </alg_conf>
 

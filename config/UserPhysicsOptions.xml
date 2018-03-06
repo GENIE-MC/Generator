@@ -18,23 +18,6 @@ STFC, Rutherford Appleton Laboratory
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  CKM quark mixing parameters 
-  Use values listed at the July 2006 particle physics booklet
-  -->
-  <param type="double" name="CKM-Vud">  0.97377  </param>
-  <param type="double" name="CKM-Vus">  0.2257   </param>
-  <param type="double" name="CKM-Vcd">  0.230    </param>  <!-- 0.2239 -->
-  <param type="double" name="CKM-Vcs">  0.957    </param>
-
- <!-- 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Cabibbo and Weinberg angles 
-  -->
-  <param type="double" name="CabibboAngle">  0.22853207 </param> <!-- 0.226893 -->  
-  <param type="double" name="WeinbergAngle"> 0.49744211 </param> <!-- 0.501568 --> 
-
- <!-- 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Constants in Feynman-Kislinger-Ravndal model for baryon excitation used in the Rein-Sehgal 
   resonance model
   -->
@@ -54,44 +37,6 @@ STFC, Rutherford Appleton Laboratory
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Constants in the Bodek-Yang DIS structure function model and in the Bodek-Yang GRV-LO-9* PDF 
-  corrections
-  -->
-  <param type="double" name="BY-A">     0.538   </param>
-  <param type="double" name="BY-B">     0.305   </param>
-  <param type="double" name="BY-CsU">   0.363   </param>
-  <param type="double" name="BY-CsD">   0.621   </param>
-  <param type="double" name="BY-Cv1U">  0.291   </param>
-  <param type="double" name="BY-Cv2U">  0.189   </param>
-  <param type="double" name="BY-Cv1D">  0.202   </param>
-  <param type="double" name="BY-Cv2D">  0.255   </param>
-
-  <param type="double" name="BY-X0">   -0.00817 </param>
-  <param type="double" name="BY-X1">    0.0506  </param>
-  <param type="double" name="BY-X2">    0.0798  </param>
-
- <!-- 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Minimum Q2 for PDF evaluation - PDF evolution frozen for Q2<Q2min
-  -->
-  <param type="double" name="PDF-Q2min"> 0.800 </param>
-
- <!-- 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Switches controlling the DIS structure function calculation. Those switches specify whether to:
-  - include an R (~FL) factor into the calculation
-  - include a nuclear factor (accounting for shadowing/anti-shadowing)
-  - include corrections for calculating relation between 2xF1 and F2
-  - Select value for Q2 cutoff in relation between 2xF1 and F2
-  -->
-  <param type="bool"   name="DISSF-IncludeR">           true </param>
-  <param type="bool"   name="DISSF-IncludeNuclMod">     true </param>
-  <param type="bool"   name="DISSF-Use2016Corrections"> false</param>
-
-  <param type="double" name="DISSF-LowQ2CutoffF1F2">    0.8  </param>
-
- <!-- 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   -->
 
   <param type="double" name="QEL-CC-XSecScale"> 1.000 </param>
@@ -99,7 +44,6 @@ STFC, Rutherford Appleton Laboratory
   <param type="double" name="MEC-NC-XSecScale"> 1.000 </param>
   <param type="double" name="RES-CC-XSecScale"> 1.000 </param>
   <param type="double" name="RES-NC-XSecScale"> 1.000 </param>
-  <param type="double" name="DIS-XSecScale">    1.032 </param>
 
   <!-- the following block of parameters is searched only here in the code, therefore for the moment they are not copied anywhere else -->
   <param type="double" name="FSI-Pion-MFPScale">           1.000 </param>
@@ -487,9 +431,6 @@ STFC, Rutherford Appleton Laboratory
   <param type="double" name="FZONE-ct0nucleon">    2.300   </param>
   <param type="double" name="FZONE-KPt2">          0.0     </param>
 
-
-  <param type="bool"   name="UseDRJoinScheme"> true </param>
-
  
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -713,9 +654,6 @@ STFC, Rutherford Appleton Laboratory
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   GENIE validity range
-
-  **** these I'd like to leave them here **** 
-
   -->
   <param type="double" name="GVLD-Emin">    0.010  </param>
   <param type="double" name="GVLD-Emax"> 1000.000  </param>
