@@ -28,6 +28,8 @@
 
 #include "ReWeight/GReWeightI.h"
 
+//#define _G_REWEIGHT_CCQE_AXFF_DEBUG_
+
 using std::map;
 using std::string;
 
@@ -74,8 +76,11 @@ namespace rew   {
    bool   fRewNumu;      ///< reweight nu_mu CC?
    bool   fRewNumubar;   ///< reweight nu_mu_bar CC?
 
+#ifdef _G_REWEIGHT_CCQE_AXFF_DEBUG_
    TFile *    fTestFile;
    TNtupleD * fTestNtp;
+#endif
+
  };
 
 } // rew   namespace

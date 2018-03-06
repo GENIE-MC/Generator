@@ -42,8 +42,6 @@
 #include "ReWeight/GSystSet.h"
 #include "ReWeight/GSystUncertainty.h"
 
-//#define _G_REWEIGHT_CCQE_AXFF_DEBUG_
-
 using namespace genie;
 using namespace genie::rew;
 
