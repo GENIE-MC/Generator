@@ -62,7 +62,7 @@ PDFLIB::~PDFLIB()
 //____________________________________________________________________________
 void PDFLIB::Initialize(void) const
 {
-#ifdef __GENIE_LHAPDF_ENABLED__
+#ifdef __GENIE_LHAPDF5_ENABLED__
   //
   // LHAPDF
   //
@@ -103,7 +103,7 @@ void PDFLIB::SetPDFSetFromConfig(void) const
 // Get PDF spec (particle type, pdf group/set) from configuration registry.
 // For definitions, have a look at PDFLIB and LHAPDF manuals
 
-#ifdef __GENIE_LHAPDF_ENABLED__
+#ifdef __GENIE_LHAPDF5_ENABLED__
   //
   // LHAPDF
   //
@@ -198,7 +198,7 @@ PDF_t PDFLIB::AllPDFs(double x, double Q2) const
 {
   PDF_t pdf;
 
-#ifdef __GENIE_LHAPDF_ENABLED__
+#ifdef __GENIE_LHAPDF5_ENABLED__
   //
   // LHAPDF
   //

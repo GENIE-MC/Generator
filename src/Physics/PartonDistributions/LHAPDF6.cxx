@@ -9,6 +9,7 @@
 */
 //____________________________________________________________________________
 
+#include <cassert>
 #include <cstdlib>
 
 #include <TSystem.h>
@@ -30,6 +31,10 @@ PDFModelI("genie::LHAPDF6")
 {
   fSetName = "";
   fMemberID = 0;
+
+#ifdef __GENIE_LHAPDF6_ENABLED__
+  fLHAPDF = 0;
+#endif
 }
 //____________________________________________________________________________
 LHAPDF6::LHAPDF6(string config) :
@@ -37,11 +42,17 @@ PDFModelI("genie::LHAPDF6", config)
 {
   fSetName = "";
   fMemberID = 0;
+
+#ifdef __GENIE_LHAPDF6_ENABLED__
+  fLHAPDF = 0;
+#endif
 }
 //____________________________________________________________________________
 LHAPDF6::~LHAPDF6() 
 { 
-
+//#ifdef __GENIE_LHAPDF6_ENABLED__
+//  if(fLHAPDF) delete fLHAPDF;
+//#endif
 }
 //____________________________________________________________________________
 double LHAPDF6::UpValence(double x, double Q2) const
@@ -94,26 +105,17 @@ PDF_t LHAPDF6::AllPDFs(double x, double Q2) const
   PDF_t pdf;
 
 #ifdef __GENIE_LHAPDF6_ENABLED__
-
-  LHAPDF::PDF * lhapdf_interface = LHAPDF::mkPDF(fSetName, fMemberID);
-  if(lhapdf_interface) {
-     vector<double> pdfvec;
-     lhapdf_interface->xfxQ2(x,Q2,pdfvec);
-     pdf.uval = pdfvec[8] - pdfvec[4];
-     pdf.dval = pdfvec[7] - pdfvec[5];
-     pdf.usea = pdfvec[4];
-     pdf.dsea = pdfvec[5];
-     pdf.str  = pdfvec[9];
-     pdf.chm  = pdfvec[10];
-     pdf.bot  = pdfvec[11];
-     pdf.top  = pdfvec[12];
-     pdf.gl   = pdfvec[6];
-     delete lhapdf_interface;
-  } else {
-     LOG("LHAPDF6",pERROR)
-       << "Couldn't retrieve LHADPF6 pdf set: " 
-       << fSetName << ", member id: " << fMemberID;
-  }
+  vector<double> pdfvec;
+  fLHAPDF->xfxQ2(x,Q2,pdfvec);
+  pdf.uval = pdfvec[8] - pdfvec[4];
+  pdf.dval = pdfvec[7] - pdfvec[5];
+  pdf.usea = pdfvec[4];
+  pdf.dsea = pdfvec[5];
+  pdf.str  = pdfvec[9];
+  pdf.chm  = pdfvec[10];
+  pdf.bot  = pdfvec[11];
+  pdf.top  = pdfvec[12];
+  pdf.gl   = pdfvec[6];
 #endif
 
   return pdf;                                               
@@ -137,6 +139,16 @@ void LHAPDF6::LoadConfig(void)
 {
   fConfig->Get("SetName",  fSetName );
   fConfig->Get("MemberID", fMemberID);
+
+#ifdef __GENIE_LHAPDF6_ENABLED__
+  fLHAPDF = LHAPDF::mkPDF(fSetName, fMemberID);
+  if(!fLHAPDF) {
+     LOG("LHAPDF6",pFATAL)
+       << "Couldn't retrieve LHADPF6 pdf set: " 
+       << fSetName << ", member id: " << fMemberID;
+     exit(1);
+  }
+#endif
 }
 //____________________________________________________________________________
 
