@@ -48,7 +48,7 @@ using std::setprecision;
 using std::setfill;
 using std::ostringstream;
 using namespace genie;
-using namespace genie::units;
+//using namespace genie::units;
 
 //___________________________________________________________________________
 PhysInteractionSelector::PhysInteractionSelector() :
@@ -156,7 +156,7 @@ EventRecord * PhysInteractionSelector::SelectInteraction
 */
      xsec_table_printout 
            << " | " << setfill(' ') << setw(80) << interaction->AsString()
-           << " | " << setfill(' ') << setw(26) << xsec/(1E-38*cm2)
+           << " | " << setfill(' ') << setw(26) << xsec/(1E-38*genie::units::cm2)
            << " | " << endl;
 
      xseclist[i++] = xsec;

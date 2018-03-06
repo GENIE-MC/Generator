@@ -51,7 +51,7 @@ using std::ostringstream;
 using namespace genie;
 using namespace genie::controls;
 using namespace genie::constants;
-using namespace genie::units;
+//using namespace genie::units;
 
 //____________________________________________________________________________
 ReinSehgalRESXSecWithCache::ReinSehgalRESXSecWithCache() :
@@ -193,7 +193,7 @@ void ReinSehgalRESXSecWithCache::CacheResExcitationXSec(
              cache_branch->AddValues(Ev,xsec);
              SLOG("ReinSehgalResC", pNOTICE) 
                << "RES XSec (R:" << utils::res::AsString(res)
-    	       << ", E="<< Ev << ") = "<< xsec/(1E-38 *cm2)<< " x 1E-38 cm^2";
+    	       << ", E="<< Ev << ") = "<< xsec/(1E-38 *genie::units::cm2) << " x 1E-38 cm^2";
          }//spline knots
 
          // Build the spline

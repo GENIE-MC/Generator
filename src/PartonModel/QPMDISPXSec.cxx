@@ -53,7 +53,7 @@ using std::ostringstream;
 
 using namespace genie;
 using namespace genie::constants;
-using namespace genie::units;
+//using namespace genie::units;
 
 //____________________________________________________________________________
 QPMDISPXSec::QPMDISPXSec() :

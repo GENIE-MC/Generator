@@ -53,7 +53,7 @@ using namespace genie;
 using namespace genie::constants;
 using namespace genie::controls;
 using namespace genie::utils;
-using namespace genie::units;
+//using namespace genie::units;
 
 //____________________________________________________________________________
 NievesQELCCPXSec::NievesQELCCPXSec() :
@@ -420,7 +420,7 @@ void NievesQELCCPXSec::LoadConfig(void)
   fCos8c2 = TMath::Power(TMath::Cos(thc), 2);
 
   // hbarc for unit conversion, GeV*fm
-  fhbarc = kLightSpeed*kPlankConstant/fermi;
+  fhbarc = kLightSpeed*kPlankConstant/genie::units::fermi;
 
    // load QEL form factors model
   fFormFactorsModel = dynamic_cast<const QELFormFactorsModelI *> (

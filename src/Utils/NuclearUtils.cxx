@@ -53,7 +53,7 @@
 
 using namespace genie;
 using namespace genie::constants;
-using namespace genie::units;
+//using namespace genie::units;
 
 
 //____________________________________________________________________________
@@ -176,7 +176,7 @@ double genie::utils::nuclear::NuclQELXSecSuppression(
 
   double kFi, kFf;
   if(lfg){
-    double hbarc = kLightSpeed*kPlankConstant/fermi;
+    double hbarc = kLightSpeed*kPlankConstant/genie::units::fermi;
     Target* tgt = interaction->InitStatePtr()->TgtPtr();
     double radius = tgt->HitNucPosition();
 
