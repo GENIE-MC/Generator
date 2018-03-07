@@ -70,16 +70,6 @@ STFC, Rutherford Appleton Laboratory
   <param type="double" name="EL-Ma">  0.990  </param>
   <param type="double" name="EL-Mv">  0.840  </param> 
 
-
- <!-- 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  MEC parameters
-
-  SetDiNucleonCode:  Include the dinucleon code in the interaction list generator.
-                     Want `true` for EmpiricalMEC, `false` for NSV
-  -->
-  <param type="bool" name="SetDiNucleonCode"> true </param>
-
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Empirical MEC parameters

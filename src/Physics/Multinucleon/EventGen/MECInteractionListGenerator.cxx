@@ -142,15 +142,12 @@ void MECInteractionListGenerator::Configure(string config)
 //____________________________________________________________________________
 void MECInteractionListGenerator::LoadConfigData(void)
 {
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
+  GetParamDef( "is-CC", fIsCC, false ) ;
+  GetParamDef( "is-NC", fIsNC, false ) ;
+  GetParamDef( "is-EM", fIsEM, false ) ;
 
-  fIsCC = fConfig->GetBoolDef("is-CC",  false);
-  fIsNC = fConfig->GetBoolDef("is-NC",  false);
-  fIsEM = fConfig->GetBoolDef("is-EM",  false);
+  GetParam( "SetDiNucleonCode", fSetDiNucleonCode ) ;
 
-  fSetDiNucleonCode = fConfig->GetBoolDef("SetDiNucleonCode",
-          gc->GetBool("SetDiNucleonCode"));
 }
 //____________________________________________________________________________
 

@@ -27,8 +27,9 @@ University of Liverpool
  <param_set name="Tunable">
    <!-- Reserved register for tuning -->
 
-
    <!-- <param type="double" name="DIS-XSecScale">    1.032 </param> -->
+   <!-- <param type="double" name="MEC-CC-XSecScale"> 1.000 </param> --> 
+
 
  </param_set>
 
@@ -245,6 +246,12 @@ University of Liverpool
    <param type="double" name="AnomMagnMoment-N">  -1.913042   </param>
 
  </param_set>
+
+ <param_set name="MultiNucleons">
+   <!--  Q3 max for 2p2h model    -->
+   <param type="double" name="NSV-Q3Max"> 1.2 </param>
+ </param_set>
+
 
 
 

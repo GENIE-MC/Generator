@@ -323,19 +323,14 @@ void EmpiricalMECPXSec2015::LoadConfig(void)
   fXSecAlgNCQE = 0;
   fXSecAlgEMQE = 0;
 
-  fMq2d = fConfig->GetDoubleDef("EmpiricalMEC-Mq2d", gc->GetDouble("EmpiricalMEC-Mq2d"));
-  fMass = fConfig->GetDoubleDef("EmpiricalMEC-Mass", gc->GetDouble("EmpiricalMEC-Mass"));
-  fWidth = fConfig->GetDoubleDef("EmpiricalMEC-Width", gc->GetDouble("EmpiricalMEC-Width"));
-  fFracCCQE = fConfig->GetDoubleDef("EmpiricalMEC-FracCCQE",
-          gc->GetDouble("EmpiricalMEC-FracCCQE"));
-  fFracNCQE = fConfig->GetDoubleDef("EmpiricalMEC-FracNCQE",
-          gc->GetDouble("EmpiricalMEC-FracNCQE"));
-  fFracEMQE = fConfig->GetDoubleDef("EmpiricalMEC-FracEMQE",
-          gc->GetDouble("EmpiricalMEC-FracEMQE"));
-  fFracPN_NC = fConfig->GetDoubleDef("EmpiricalMEC-FracPN_NC",
-          gc->GetDouble("EmpiricalMEC-FracPN_NC"));
-  fFracPN_CC = fConfig->GetDoubleDef("EmpiricalMEC-FracPN_CC",
-          gc->GetDouble("EmpiricalMEC-FracPN_CC"));
+  GetParam( "EmpiricalMEC-Mq2d", fMq2d ) ;
+  GetParam( "EmpiricalMEC-Mass", fMass ) ;
+  GetParam( "EmpiricalMEC-Width", fWidth ) ;
+  GetParam( "EmpiricalMEC-FracCCQE", fFracCCQE ) ;
+  GetParam( "EmpiricalMEC-FracNCQE", fFracNCQE ) ;
+  GetParam( "EmpiricalMEC-FracEMQE", fFracEMQE ) ;
+  GetParam( "EmpiricalMEC-FracPN_NC", fFracPN_NC ) ;
+  GetParam( "EmpiricalMEC-FracPN_CC", fFracPN_CC ) ;
 
   // Get the specified NCQE cross section model
   fXSecAlgNCQE = 

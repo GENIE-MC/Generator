@@ -8,15 +8,16 @@ Configuration for MECGenerator
 Configurable Parameters:
 .......................................................................................................
 Name             Type     Optional   Comment                                      Default
-NSV-Q3Max        double   yes        Q3 max for 2p2h model                        GPL value
+NSV-Q3Max        double   No         Q3 max for 2p2h model                        CommonParam[MultiNucleon]
 
 .......................................................................................................
 -->
 
   <param_set name="Default"> 
-     <param type="alg" name="NuclearModel"> genie::NuclearModelMap/Default </param>
-
-     <param type="double" name="NSV-Q3Max"> 1.2 </param>
+    
+    <param type="string" name="CommonParam"> MultiNucleon </param>
+    
+    <param type="alg" name="NuclearModel"> genie::NuclearModelMap/Default </param>
      
   </param_set>
   
