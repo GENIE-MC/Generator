@@ -226,29 +226,6 @@ STFC, Rutherford Appleton Laboratory
  
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Axial mass for diffractive scattering (GeV)
-  -->
-  <param type="double" name="DFR-Ma">   1.100 </param>
-
- <!-- 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Slope parameter beta for diffractive scattering (GeV^-2) (b ~ 0.333 * nucleon_size^2)
-  -->
-  <param type="double" name="DFR-Beta"> 7.0 </param>
-
- <!--
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Maximum considered t for diffractive scattering reactions when estimating the max cross section. 
-  Units in GeV^2.
-
-  This value is read in KpHase space!!! It's mental, but we have to be careful before removing this
-
-  -->
-  <param type="double" name="DFR-t-max"> 0.35 </param>
-
-
- <!-- 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Pion decay constant (GeV)
   -->
  <param type="double" name="PionDecayConstant"> 0.093 </param>

@@ -9,17 +9,24 @@ Configurable Parameters:
 ....................................................................................................
 Name             Type     Optional   Comment                            Default
 ....................................................................................................
-DFR-Ma           double   Yes        Diffractive Axial Mass (GeV)       GPL: DFR-Ma
-DFR-Beta         double   Yes        Slope parameter beta (GeV^-2)      GPL: DFR-Beta
+DFR-Ma           double   No         Diffractive Axial Mass (GeV)       
+DFR-Beta         double   No         Slope parameter beta (GeV^-2)      CommonParam[Diffractive]
                                      (beta ~ 0.333 * nucleon_size^2)    
 -->
 
   <param_set name="Default"> 
+
+    <param type="string" name="CommonParam"> Diffractive </param>
+
     <param type="alg" name="XSec-Integrator"> genie::DFRXSec/Default </param>
 
+    <!-- 
+	 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	 Axial mass for diffractive scattering (GeV)
+    -->
     <param type="double" name="DFR-Ma">   1.100 </param>
-    <param type="double" name="DFR-Beta"> 7.0 </param>
 
+ 
   </param_set>
 
 </alg_conf>

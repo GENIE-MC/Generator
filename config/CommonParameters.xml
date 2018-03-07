@@ -200,6 +200,24 @@ University of Liverpool
        Units in GeV^2.
    -->
    <param type="double" name="COH-t-max"> 0.250 </param>
+
+ <param_set name="Diffractive">
+   
+   <!-- 
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Slope parameter beta for diffractive scattering (GeV^-2) (b ~ 0.333 * nucleon_size^2)
+   -->
+   <param type="double" name="DFR-Beta"> 7.0 </param>
+
+   <!--
+       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+       Maximum considered t for diffractive scattering reactions when estimating the max cross section. 
+       Units in GeV^2.
+       
+       This value is read in KpHase space!!! It's mental, but we have to be careful before removing this
+       Or changing the name of this parameter set
+   -->
+   <param type="double" name="DFR-t-max"> 0.35 </param>
    
  </param_set>
 

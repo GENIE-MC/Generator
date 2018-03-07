@@ -121,10 +121,6 @@ void Algorithm::Configure(const Registry & config)
     
   }
 
-  if ( fConfig ) {
-    delete fConfig ;
-    fConfig = 0 ;
-  }
 }
 //____________________________________________________________________________
 void Algorithm::Configure(string config)
@@ -561,6 +557,12 @@ int Algorithm::AddTopRegistry( Registry * rp, bool own ) {
 
   fConfVect.insert( fConfVect.begin(), rp ) ;
   fOwnerships.insert( fOwnerships.begin(), own ) ;
+
+  if ( fConfig ) {
+    delete fConfig ;
+    fConfig = 0 ;
+  }
+
   return fConfVect.size() ;
 
 }
@@ -572,6 +574,11 @@ int Algorithm::AddTopRegisties( const vector<Registry*> & rs, bool own ) {
   
   fOwnerships.insert( fOwnerships.begin(), rs.size(), own ) ;
   
+  if ( fConfig ) {
+    delete fConfig ;
+    fConfig = 0 ;
+  }
+
   return fConfVect.size() ;  
 
 }

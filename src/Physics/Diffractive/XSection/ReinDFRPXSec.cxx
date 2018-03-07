@@ -159,15 +159,12 @@ void ReinDFRPXSec::Configure(string config)
 //____________________________________________________________________________
 void ReinDFRPXSec::LoadConfig(void)
 {
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
+	GetParam( "DFR-Ma", fMa ) ;
+	GetParam( "DFR-Beta",fBeta ) ;
 
-  fMa   = fConfig->GetDoubleDef("DFR-Ma",     gc->GetDouble("DFR-Ma"));
-  fBeta = fConfig->GetDoubleDef("DFR-Beta", gc->GetDouble("DFR-Beta"));
-
-  fXSecIntegrator =
-    dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));
-  assert(fXSecIntegrator);
+	fXSecIntegrator =
+			dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator") );
+	assert(fXSecIntegrator);
 }
 //____________________________________________________________________________
 

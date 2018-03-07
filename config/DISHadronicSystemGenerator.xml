@@ -15,7 +15,9 @@ PreTransportDecayer alg     No
 FilterPreFragm      bool    No
 FZONE-ct0pion       double  No                                                              
 FZONE-ct0nucleon    double  No                                                              
-FZONE-Kpt2          double  No                                                              
+FZONE-Kpt2          double  No 
+NUCL-R0             double  No                                                              CommonParam[NUCL]
+NUCL-NR             double  No                                                              CommonParam[NUCL]
 -->
 
   <param_set name="Default"> 

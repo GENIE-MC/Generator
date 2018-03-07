@@ -8,12 +8,15 @@ Configuration for the coherent pi production cross section algorithm
 Configurable Parameters:
 ....................................................................................................
 Name             Type     Optional   Comment                                           Default
-DFR-t-max        double   Yes        Maximum considered t when estimating the max      GPL value
+DFR-t-max        double   No         Maximum considered t when estimating the max      CommonParam[Diffractive]
                                      cross section, Units in GeV^2.        
 ....................................................................................................
 -->
 
   <param_set name="Default"> 
+    
+    <param type="string" name ="CommonParam">  Diffractive  </param>
+
     <!--  it is safe to use adaptive and a tolerance of 0.01 for RS or BS, but BSFM requires vegas, etc.
     <param type="string" name ="gsl-integration-type">    adaptive  </param>
     <param type="double" name ="gsl-relative-tolerance"  >    0.01  </param>
@@ -22,9 +25,7 @@ DFR-t-max        double   Yes        Maximum considered t when estimating the ma
     <param type="int"    name ="gsl-max-eval" >             500000  </param>
     <param type="int"    name ="gsl-min-eval" >              10000  </param>
     <param type="double" name ="gsl-relative-tolerance"  >   0.001  </param>
-
-    <param type="double" name="DFR-t-max"> 0.35 </param>
-    
+   
   </param_set>
 
 </alg_conf>
