@@ -294,9 +294,6 @@ void DISHadronicSystemGenerator::Configure(string config)
 //____________________________________________________________________________
 void DISHadronicSystemGenerator::LoadConfig(void)
 {
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
-
   fHadronizationModel = 0;
   fPreINukeDecayer    = 0;
 
@@ -312,18 +309,16 @@ void DISHadronicSystemGenerator::LoadConfig(void)
 
   //-- Get flag to determine whether we copy all fragmentation record entries
   //   into the GHEP record or just the ones marked with kf=1
-  fFilterPreFragmEntries = fConfig->GetBoolDef("FilterPreFragm",false);
+  GetParamDef( "FilterPreFragm", fFilterPreFragmEntries, false ) ;
 
   //-- Get parameters controlling the nuclear sizes
-  //
-  fR0  = fConfig->GetDoubleDef ("R0", gc->GetDouble("NUCL-R0")); // fm
-  fNR  = fConfig->GetDoubleDef ("NR", gc->GetDouble("NUCL-NR"));    
+  GetParam( "NUCL-R0", fR0 ) ;
+  GetParam( "NUCL-NR", fNR ) ;
 
   //-- Get parameters controlling the formation zone simulation
-  //
-  fct0pion    = fConfig->GetDoubleDef ("FZONE-ct0pion",  gc->GetDouble("FZONE-ct0pion")); // fm
-  fct0nucleon = fConfig->GetDoubleDef ("FZONE-ct0nucleon",  gc->GetDouble("FZONE-ct0nucleon")); // fm
-  fK          = fConfig->GetDoubleDef ("FZONE-Kpt2", gc->GetDouble("FZONE-KPt2"));
+  GetParam( "FZONE-ct0pion", fct0pion ) ;
+  GetParam( "FZONE-ct0nucleon",fct0nucleon ) ;
+  GetParam( "FZONE-KPt2", fK ) ;
 
   LOG("DISHadronicVtx", pDEBUG) << "ct0pion     = " << fct0pion    << " fermi";
   LOG("DISHadronicVtx", pDEBUG) << "ct0nucleon  = " << fct0nucleon << " fermi";
