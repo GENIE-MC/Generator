@@ -174,33 +174,32 @@ void StrumiaVissaniIBDPXSec::Configure(string config)
 //____________________________________________________________________________
 void StrumiaVissaniIBDPXSec::LoadConfig(void)
 {
-   
-   AlgConfigPool * confp = AlgConfigPool::Instance();
-   const Registry * gc = confp->GlobalParameterList();
 
    // cabibbo angle
-   const double cab = fConfig->GetDoubleDef(
-      "CabibboAngle", gc->GetDouble("CabibboAngle"));
+   double cab ;
+   GetParam( "CabibboAngle", cab ) ;
    const double cosCab = TMath::Cos(cab);
    fCosCabibbo2 = cosCab*cosCab;
    
    // form factor params
-   fg1of0          = fConfig->GetDoubleDef("QEL-FA0", gc->GetDouble("QEL-FA0"));
-   const double ma = fConfig->GetDoubleDef("QEL-Ma", gc->GetDouble("QEL-Ma"));
-   const double mv = fConfig->GetDoubleDef("QEL-Mv", gc->GetDouble("QEL-Mv"));
+   GetParam( "QEL-FA0", fg1of0 ) ;
+   double ma, mv ;
+   GetParam( "QEL-Ma", ma ) ;
+   GetParam( "QEL-Mv", mv ) ;
    fMa2 = ma*ma;
    fMv2 = mv*mv;
 
    // magnetic moments
-   const double mup = fConfig->GetDoubleDef( "AnomMagnMoment-P", gc->GetDouble("AnomMagnMoment-P"));
-   const double mun = fConfig->GetDoubleDef( "AnomMagnMoment-N", gc->GetDouble("AnomMagnMoment-N"));
+
+   double mup, mun ;
+   GetParam( "AnomMagnMoment-P", mup );
+   GetParam( "AnomMagnMoment-N", mun );
    fNucleonMMDiff    = (mup - 1.000) - mun; // *anamolous* mag. mom. diff.
-   //fNucleonMMDiff    = 3.706;
-   
+
    // numeric
-   const int epmag = fConfig->GetIntDef(
-      "EpsilonMag", fConfig->GetInt("EpsilonMag"));
-   fEpsilon = TMath::Power(10.000, -1.000 * static_cast<double>(epmag));
+   int epmag ;
+   GetParam("EpsilonMag", epmag ) ;
+   fEpsilon = TMath::Power(10.000, -1.000 * static_cast<double>(epmag) );
    
    LOG("StrumiaVissani", pINFO) << "*** USING: cos2(Cabibbo)=" 
 				<< fCosCabibbo2

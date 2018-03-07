@@ -219,6 +219,31 @@ University of Liverpool
    -->
    <param type="double" name="DFR-t-max"> 0.35 </param>
    
+ <param_set name="QuasiElastic">
+   
+   <!-- 
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Value of axial form factor at Q2=0  
+   -->
+
+   <param type="double" name="QEL-FA0"> -1.2670 </param>
+   <!-- 
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Axial and vector masses for quasi-elastic scattering  
+   -->
+   <param type="double" name="QEL-Ma"> 0.990 </param>
+   <param type="double" name="QEL-Mv"> 0.840 </param>
+
+ </param_set>
+
+ <param_set name="MagnMoments">
+   <!-- 
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Proton and neutron anomalous magnetic moments 
+   -->
+   <param type="double" name="AnomMagnMoment-P">   2.7930     </param> <!-- 2.7928473 -->
+   <param type="double" name="AnomMagnMoment-N">  -1.913042   </param>
+
  </param_set>
 
 

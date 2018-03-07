@@ -62,45 +62,41 @@ void IBDXSecMap::LoadConfig(void)
    // build the default xsec model according to the options contained
    // in IBDXSecMap.xml and/or UserPhysicsOptions.xml
    
-   AlgConfigPool * confp = AlgConfigPool::Instance();
-   const Registry * gc = confp->GlobalParameterList();
-
    // load default global model (should work for all nuclei)
-   RgAlg dgmodel =
-      fConfig->GetAlgDef("IBDNucXSecModel", gc->GetAlg("IBDNucXSecModel"));
+   RgAlg dgmodel ;
+   GetParam( "IBDNucXSecModel", dgmodel ) ;
    LOG("IBD", pINFO)
       << "Default IBD cross section model: " << dgmodel;
+
    fDefaultModel =
-      dynamic_cast<const XSecAlgorithmI*>(this->SubAlg("IBDNucXSecModel"));
+      dynamic_cast<const XSecAlgorithmI*>( AlgFactory::Instance()->GetAlgorithm(dgmodel.name, dgmodel.config) );
    assert(fDefaultModel!=0);
    
    // check whether to map according to specific isotopes
-   fIsotopesUseSameModel = 
-      fConfig->GetBoolDef("IsotopesUseSameModel",
-			  gc->GetBool("IsotopesUseSameModel"));
+   GetParam("IsotopesUseSameModel", fIsotopesUseSameModel ) ;
    
    // load refined models for specific nuclei
    for(int Z=1; Z<140; Z++) {
-      for(int A=Z; A<3*Z; A++) {
-	 std::ostringstream key;
-	 const int nucpdg = pdg::IonPdgCode(A,Z);
-	 key << "IBDNucXSecModel@Pdg=" << nucpdg;
-	 RgKey rgkey = key.str();
-	 if (this->GetConfig().Exists(rgkey) || gc->Exists(rgkey)) {
-	    RgAlg rgmodel = fConfig->GetAlgDef(rgkey, gc->GetAlg(rgkey));
-	    LOG("IBD", pNOTICE)
-	       << "Nucleus =" << nucpdg
-	       << " -> refined nuclear model: " << rgmodel;
-	    const XSecAlgorithmI* model =
-	       dynamic_cast<const XSecAlgorithmI*>(this->SubAlg(rgkey));
-	    assert(model);
-	    const int mapkeyval = (fIsotopesUseSameModel) ? Z : nucpdg;
-	    fRefinedModels.
-	       insert(map<int,const XSecAlgorithmI*>::value_type(mapkeyval,
-								 model));
-	}
+     for(int A=Z; A<3*Z; A++) {
+    	 std::ostringstream key;
+    	 const int nucpdg = pdg::IonPdgCode(A,Z);
+    	 key << "IBDNucXSecModel@Pdg=" << nucpdg;
+    	 RgKey rgkey = key.str();
+    	 if ( GetConfig().Exists(rgkey) )  {
+    		 RgAlg rgmodel = GetConfig().GetAlg(rgkey);
+    		 LOG("IBD", pNOTICE)
+    		 << "Nucleus =" << nucpdg
+			 << " -> refined nuclear model: " << rgmodel;
+    		 const XSecAlgorithmI* model =
+    				 dynamic_cast<const XSecAlgorithmI*>(this->SubAlg(rgkey));
+    		 assert(model);
+    		 const int mapkeyval = (fIsotopesUseSameModel) ? Z : nucpdg;
+    		 fRefinedModels.
+			 insert(map<int,const XSecAlgorithmI*>::value_type(mapkeyval,
+					 model));
+    	 }
      }
-  }
+   }
 }
 //____________________________________________________________________________
 const XSecAlgorithmI* IBDXSecMap::SelectModel(const Target & t) const

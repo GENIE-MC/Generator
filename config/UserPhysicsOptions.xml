@@ -59,12 +59,6 @@ STFC, Rutherford Appleton Laboratory
   <param type="double" name="FSI-Nucleon-FracAbsScale">    1.000 </param>
   <param type="double" name="FSI-Nucleon-FracPiProdScale"> 1.000 </param>
 
- <!-- 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Proton and neutron anomalous magnetic moments 
-  -->
-  <param type="double" name="AnomMagnMoment-P">   2.7930     </param> <!-- 2.7928473 -->
-  <param type="double" name="AnomMagnMoment-N">  -1.913042   </param>
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -76,12 +70,6 @@ STFC, Rutherford Appleton Laboratory
   <param type="double" name="EL-Ma">  0.990  </param>
   <param type="double" name="EL-Mv">  0.840  </param> 
 
- <!-- 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Axial and vector masses for quasi-elastic scattering  
-  -->
-  <param type="double" name="QEL-Ma"> 0.990 </param>
-  <param type="double" name="QEL-Mv"> 0.840 </param>
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -145,11 +133,6 @@ STFC, Rutherford Appleton Laboratory
   <param type="double" name="COHAR-Mv-Nuc"> 0.840 </param>
   <param type="double" name="COHAR-GA0"> 1.2670 </param>
   
- <!-- 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Value of axial form factor at Q2=0  
-  -->
-  <param type="double" name="QEL-FA0"> -1.2670 </param>
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Value of E0 for the Kuzmin-Naumov running axial mass model  
