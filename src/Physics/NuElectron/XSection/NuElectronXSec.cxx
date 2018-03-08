@@ -97,9 +97,11 @@ void NuElectronXSec::Configure(string config)
 void NuElectronXSec::LoadConfig(void)
 {
   // Get GSL integration type & relative tolerance
-  fGSLIntgType = fConfig->GetStringDef("gsl-integration-type"  ,   "adaptive");
-  fGSLRelTol   = fConfig->GetDoubleDef("gsl-relative-tolerance",    0.01);
-  fGSLMaxEval  = (unsigned int) fConfig->GetIntDef ("gsl-max-eval", 100000);
+	GetParamDef( "gsl-integration-type", fGSLIntgType, string( "adaptive" ) ) ;
+	GetParamDef( "gsl-relative-tolerance", fGSLRelTol, 0.01 ) ;
+	int max;
+	GetParamDef( "gsl-max-eval", max, 100000 ) ;
+	fGSLMaxEval  = (unsigned int) max ;
 }
 //____________________________________________________________________________
 

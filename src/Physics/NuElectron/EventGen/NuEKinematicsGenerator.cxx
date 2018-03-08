@@ -242,14 +242,15 @@ void NuEKinematicsGenerator::Configure(string config)
 //____________________________________________________________________________
 void NuEKinematicsGenerator::LoadConfig(void)
 {
-  fSafetyFactor = fConfig->GetDoubleDef("MaxXSec-SafetyFactor", 2.00);
-  fEMin         = fConfig->GetDoubleDef("Cache-MinEnergy",      1.00);
+	GetParamDef( "MaxXSec-SafetyFactor", fSafetyFactor, 2.00 ) ;
+	GetParamDef( "Cache-MinEnergy", fEMin, 1.00 ) ;
 
-  fMaxXSecDiffTolerance = fConfig->GetDoubleDef("MaxXSec-DiffTolerance",0.);
-  assert(fMaxXSecDiffTolerance>=0);
+	GetParamDef("MaxXSec-DiffTolerance", fMaxXSecDiffTolerance, 0. ) ;
+	assert(fMaxXSecDiffTolerance>=0);
 
   //-- Generate kinematics uniformly over allowed phase space and compute
   //   an event weight?
-  fGenerateUniformly = fConfig->GetBoolDef("UniformOverPhaseSpace", false);
+	GetParamDef( "UniformOverPhaseSpace", fGenerateUniformly, false ) ;
+
 }
 //____________________________________________________________________________
