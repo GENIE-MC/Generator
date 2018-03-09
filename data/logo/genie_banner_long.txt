@@ -1,51 +1,64 @@
-********************************************************************************************************
-********************************************************************************************************
-**                                                                                                    **
-**   .oooooo.    oooooooooooo ooooo      ooo ooooo oooooooooooo                                       **
-**  d8P'  `Y8b   `888'     `8 `888b.     `8' `888' `888'     `8      NEUTRINO MONTE CARLO GENERATOR   **
-** 888            888          8 `88b.    8   888   888                                               **
-** 888            888oooo8     8   `88b.  8   888   888oooo8              Version 999.999.999         **
-** 888     ooooo  888    "     8     `88b.8   888   888    "                                          **
-** `88.    .88'   888       o  8       `888   888   888       o         http://www.genie-mc.org       **
-**  `Y8bood8P'   o888ooooood8 o8o        `8  o888o o888ooooood8                                       **
-**                                                                                                    **
-**                                                                                                    **
-**              Luis Alvarez-Ruso [8], Costas Andreopoulos (*) [2,5], Christopher Barry [2],          **
-**   Francis Bench [2], Steve Dennis [2], Steve Dytman [3], Hugh Gallagher [7], Tomasz Golan [1,4],   **
-**         Robert Hatcher [1], Rhiannon Jones [2], Libo Jiang [3], Anselmo Meregaglia [6],            **
-**                      Donna Naples [3], Gabriel Perdue [1], Marco Roda [2],                         **
-**                                Jeremy Wolcott [7], Julia Yarba [1]                                 **
-**                                                                                                    **
-**                                     (The GENIE Collaboration)                                      **
-**                                                                                                    **
-**                          (1) Fermi National Accelerator Laboratory, USA                            **
-**                                 (2) University of Liverpool, UK                                    **
-**                                (3) University of Pittsburgh, USA                                   **
-**                                 (4) University of Rochester, USA                                   **
-**                             (5) STFC Rutherford Appleton Laboratory UK                             **
-**                                   (6) Strasbourg IPHC, France                                      **
-**                                    (7) Tufts University, USA                                       **
-**                                 (8) University of Valencia, Spain                                  **
-**                                                                                                    **
-**                                                                                                    **
-** (*) Corresponding Author: Dr. Costas Andreopoulos  <costas.andreopoulos \at stfc.ac.uk>            **
-**      -----------------------------------------------------------------                             **
-**     | University of Liverpool  |  STFC Rutherford Appleton Laboratory |                            **
-**     | Physics Department       |  Particle Physics Department         |                            **
-**     | Oliver Lodge Lab 316     |  Harwell Oxford Campus, R1 2.89      |                            **
-**     | Liverpool L69 7ZE, UK    |  Oxfordshire OX11 0QX, UK            |                            **
-**     | +44-(0)1517-943201 (tel) |  +44-(0)1235-445091 (tel)            |                            **
-**      -----------------------------------------------------------------                             **
-**                                                                                                    **
-** (c) 2003-2016 GENIE Collaboration                                                                  **
-**                                                                                                    **
-** This program is free software: you can redistribute it and/or modify it under the terms of         **
-** the GNU General Public License as published by the Free Software Foundation, either version 3 of   **
-** the License, or any later version.                                                                 **
-** This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;          **
-** without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.          **
-** See the GNU General Public License for more details.                                               **
-** You should have received a copy of the GNU General Public License along with this program.         **
-** If not, see <http://www.gnu.org/licenses/>.                                                        **
-********************************************************************************************************
-********************************************************************************************************
+*****************************************************************************************************************
+*                                                                                                               *
+*                                                   .oooooo.    oooooooooooo ooooo      ooo ooooo oooooooooooo  *
+*                                                  d8P'  `Y8b   `888'     `8 `888b.     `8' `888' `888'     `8  *
+*                                                 888            888          8 `88b.    8   888   888          * 
+*                        Ndyooym          dN      888            888oooo8     8   `88b.  8   888   888oooo8     *
+*                     Nds//+sdmoy       d+m       888     ooooo  888    "     8     `88b.8   888   888    "     * 
+*                   Nh+//ohN  m+s      N//syyN    `88.    .88'   888       o  8       `888   888   888       o  *
+*                 Ny+//od   Nh+oN       o///+      `Y8bood8P'   o888ooooood8 o8o        `8  o888o o888ooooood8  *
+*               Nh+//om   Nh+/yN       o///s                                                                    *
+*              d+//+d   my+/smmyhN    m///h                                      NEUTRINO MONTE CARLO GENERATOR *   
+*            Ns///yN NdyoshNNs///d   h////yN                                                                    *
+*           mo//om        ms///+m   d///////oyhmN                                           Version 999.999.999 *
+*          N+//yN       ms////+N    h////////////oym                                                            *
+*          s//h       ho/+///sN     N///////////////od                                  http://www.genie-mc.org *
+*         N+/h     my++yh+//y       s/////////////////oN                                                        *
+*         Ns/m Nmy++ymNh//+d        s//////////////////+m                                                       *
+*          NhssoshN  Ny//sN         m///////////////////+                                                       *
+*                  Nmo/+ohdmN        mo//////////////////h            NmmN                                      *
+*              ms/+s//o/-----:+sdN     mhso+ooys/////////o      mhs+/------/ohN                                 *
+*    Nhd     N+-/o+/o+------------/shN     Ndy+//////////+ mhs+:---------------om                               *
+*  mo/sN    m:/oo/oo:-----------------:://////////////////-----------------------y                              *
+*  y//d    Noo++o+:----------:------------:://///////////:-------:/+osyso/:-------h                             *
+*  Nyo+syysooo+/--------------::--------------:://///////:----::////+ossyso/------:                             *
+*     NNNNNs--------------------:/::-------------:://///:-:://////////oosyo+:------                             *
+*          y---------------------:////:::-----------:////////////////+o++++/:-----/                             *
+*          m-----------------------://////////////////////////////+so/--:---------y                             *
+*           +------------------------://////////////////////////+yy:---+oh/--:y+-/N                             *
+*           N/-------------------------://////////////////////ohy/-------yy--os-/m                              *
+*            No--------------------------://///////////////+shs/---------/d++/-oN                               *
+*              mo--------------------------:////////////+shyo:------------sy/sm                                 *
+*                Ny+:------------------------::://///oyhyo:--------------/sd                                    *
+*                    mhso+/:------------------:/+oyhyo/----------:/+syhm                                        *
+*                           NmddhyyyssssyyyhdmmNNNmhhhyyyyhhddmN                                                *
+*                                                                                                               *
+*                                                             Copyright (c) 2003-2018, The GENIE Collaboration  *
+*                                                                                                               *
+*                                                                                                               *
+*            Luis Alvarez-Ruso [8], Costas Andreopoulos [4,6], Christopher Barry [4], Francis Bench [4],        *
+*            Steve Dennis [4], Steve Dytman [5], Hugh Gallagher [7], Robert Hatcher [3], Libo Jiang [5],        * 
+*                Rhiannon Jones [4], Igor Kakorin [2], Konstantin Kuzmin [2], Anselmo Meregaglia [1],           * 
+*                        Donna Naples [5], Vadim Naumov [2], Gabriel Perdue [3], Marco Roda [4],                *
+*                            Jeremy Wolcott [7], Julia Tena Vidal [4], and Julia Yarba [3]                      *
+*                                                                                                               *
+*                                               (The GENIE Collaboration)                                       *
+*                                                                                                               *
+*                      [1] CENBG, Université de Bordeaux, CNRS/IN2P3, 33175 Gradignan, France                   *
+*              [2] Joint Institute for Nuclear Research (JINR), Dubna, Moscow region, 141980, Russia            *
+*                     [3] Fermi National Accelerator Laboratory, Batavia, Illinois 60510, USA                   *
+*                      [4] University of Liverpool, Dept. of Physics, Liverpool L69 7ZE, UK                     *
+*              [5] University of Pittsburgh, Dept. of Physics and Astronomy, Pittsburgh PA 15260, USA           *
+*             [6] STFC Rutherford Appleton Laboratory, Particle Physics Dept., Oxfordshire OX11 0QX, UK         *
+*                    [7] Tufts University, Dept. of Physics and Astronomy, Medford MA 02155, USA                *
+*                                       [8] University of Valencia, Valencia, Spain                             *
+*                                                                                                               *
+*  Corresponding Author:                                                                                        *
+*  Dr. Costas Andreopoulos  <costas.andreopoulos \at stfc.ac.uk>                                                *
+*                                                                                                               *
+*  University of Liverpool  |  STFC Rutherford Appleton Laboratory                                              *
+*  Physics Department       |  Particle Physics Department                                                      *
+*  Oliver Lodge Lab 316     |  Harwell Oxford Campus, R1 2.89                                                   *
+*  Liverpool L69 7ZE, UK    |  Oxfordshire OX11 0QX, UK                                                         *
+*  +44-(0)1517-943201 (tel) |  +44-(0)1235-445091 (tel)                                                         *
+*****************************************************************************************************************
