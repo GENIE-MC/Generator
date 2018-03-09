@@ -24,16 +24,6 @@ STFC, Rutherford Appleton Laboratory
   <param type="double" name="RES-Omega"> 1.05  </param>emacs 
   <param type="double" name="RES-Zeta">  0.762 </param> <!-- 0.75 -->
 
- <!--
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Parameters for the Berger-Sehgal / Kuzmin-Lyubushkin-Naumov Delta models.
-  Set to true to use tuning to axial, vector form factors by MiniBoone (J. Nowak)
-  -->
-
- <!-- **** ask Costas what to do with these as they are configurations parameters not numbers **** --> 
-
-  <param type="bool" name="minibooneGA">  true </param>
-  <param type="bool" name="minibooneGV">  true </param>
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -88,12 +78,6 @@ STFC, Rutherford Appleton Laboratory
   <param type="double" name="EmpiricalMEC-FracPN_NC"> 0.8 </param>
   <param type="double" name="EmpiricalMEC-FracPN_CC"> 0.8 </param>
   <param type="double" name="EmpiricalMEC-FracPN_EM"> 0.8 </param>
- <!-- 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Axial and vector masses for resonance production  
-  -->
-  <param type="double" name="RES-Ma"> 1.120 </param>
-  <param type="double" name="RES-Mv"> 0.840 </param>
 
  
  <!--
@@ -168,12 +152,6 @@ STFC, Rutherford Appleton Laboratory
  
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Pion decay constant (GeV)
-  -->
- <param type="double" name="PionDecayConstant"> 0.093 </param>
-
- <!-- 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Default list of baryon resonances included in cross section models and generation threads 
 
   **** this is in fact a switch, so this is not copied in the lower configurations ****
@@ -183,7 +161,9 @@ STFC, Rutherford Appleton Laboratory
   <param type="string" name="ResonanceNameList">
          P33(1232),S11(1535),D13(1520),S11(1650),D13(1700),D15(1675),
          S31(1620),D33(1700),P11(1440),P13(1720),F15(1680),P31(1910),
-         P33(1920),F35(1905),F37(1950),P11(1710) </param>
+         P33(1920),F35(1905),F37(1950),P11(1710) 
+  </param>
+
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

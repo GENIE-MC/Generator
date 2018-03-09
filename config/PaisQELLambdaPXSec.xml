@@ -13,6 +13,9 @@ XSec-Integrator    alg     No         xsection integration algorithm
 -->
 
   <param_set name="Default"> 
+    
+    <param type="string"  name="CommonParam"> CKM </param>
+
      <param type="alg"  name="FormFactorsAlg">  genie::LwlynSmithFFDeltaS/Default </param>
      <param type="alg"  name="XSec-Integrator"> genie::QELXSec/Default            </param>
   </param_set>

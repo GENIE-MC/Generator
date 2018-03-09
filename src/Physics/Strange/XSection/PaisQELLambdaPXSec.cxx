@@ -225,16 +225,12 @@ void PaisQELLambdaPXSec::Configure(string param_set)
 //____________________________________________________________________________
 void PaisQELLambdaPXSec::LoadConfig(void)
 {
-   
-// Cabibbo angle
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
 
-  double thc = fConfig->GetDoubleDef(
-                              "CabibboAngle", gc->GetDouble("CabibboAngle"));
+  double thc ;
+  GetParam( "CabibboAngle", thc ) ;
   fSin8c2 = TMath::Power(TMath::Sin(thc), 2);
 
-   // load QEL form factors model
+  // load QEL form factors model
   fFormFactorsModel = dynamic_cast<const QELFormFactorsModelI *> (
                                              this->SubAlg("FormFactorsAlg"));
   assert(fFormFactorsModel);

@@ -161,7 +161,7 @@ void AlamSimoAtharVacasSKXSec::Configure(string config)
 void AlamSimoAtharVacasSKXSec::LoadConfig(void)
 {
   // Get GSL integration type & relative tolerance
-  this->GetParamDef("gsl-integration-type" ,  fGSLIntgType,   "vegas");
+  this->GetParamDef("gsl-integration-type" ,  fGSLIntgType,   string("vegas") );
   this->GetParamDef("gsl-max-evals",          fGSLMaxEval,    20000);
   this->GetParamDef("gsl-relative-tolerance", fGSLRelTol,     0.01);
   this->GetParamDef("split-integral",         fSplitIntegral, true);
