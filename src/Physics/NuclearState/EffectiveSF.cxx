@@ -292,7 +292,7 @@ void EffectiveSF::LoadConfig(void)
 
   // Find out if Transverse enhancement is enabled to figure out whether to load
   // the 2p2h enhancement parameters.
-  this->GetParamDef("UseElFFTransverseEnhancement", fUseElFFTransEnh, false);
+  this->GetParam("UseElFFTransverseEnhancement", fUseElFFTransEnh );
   if (!fUseElFFTransEnh) {
     LOG("EffectiveSF", pINFO)
         << "Transverse enhancement not used; "

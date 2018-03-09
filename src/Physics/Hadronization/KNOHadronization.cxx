@@ -438,18 +438,11 @@ void KNOHadronization::Configure(string config)
 //____________________________________________________________________________
 void KNOHadronization::LoadConfig(void)
 {
-// Read configuration options or set defaults
-
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
-
   // Force decays of unstable hadronization products?
-  fForceDecays  = false ;
-  GetParam( "ForceDecays", fForceDecays, false ) ;
+  GetParamDef( "ForceDecays", fForceDecays, false ) ;
 
   // Force minimum multiplicity (if generated less than that) or abort?
-  fForceMinMult = true ;
-  GetParam( "ForceMinMultiplicity", fForceMinMult, false ) ;
+  GetParamDef( "ForceMinMultiplicity", fForceMinMult, true ) ;
 
   // Generate the baryon xF and pT^2 using experimental data as PDFs? 
   // In this case, only the N-1 other particles would be fed into the phase
@@ -457,28 +450,23 @@ void KNOHadronization::LoadConfig(void)
   // bkw/fwd xF hemisphere average multiplicities.
   // Note: not in the legacy KNO model (NeuGEN). Switch this feature off for 
   // comparisons or for reproducing old simulations.
-  fUseBaryonXfPt2Param = gc->GetBool("KNO-UseBaryonPdfs-xFpT2") ;
-  GetParam( "KNO-UseBaryonPdfs-xFpT2", fUseBaryonXfPt2Param, false ) ;
+  GetParam( "KNO-UseBaryonPdfs-xFpT2", fUseBaryonXfPt2Param ) ;
 
   // Reweight the phase space decayer events to reproduce the experimentally
   // measured pT^2 distributions.
   // Note: not in the legacy KNO model (NeuGEN). Switch this feature off for 
   // comparisons or for reproducing old simulations.
-  fReWeightDecays = gc->GetBool("KNO-PhaseSpDec-Reweight") ;
-  GetParam( "KNO-PhaseSpDec-Reweight", fReWeightDecays, false ) ;
-
+  GetParam( "KNO-PhaseSpDec-Reweight", fReWeightDecays ) ;
 
   // Parameter for phase space re-weighting. See ReWeightPt2()
   GetParam( "KNO-PhaseSpDec-ReweightParm", fPhSpRwA ) ;
 
   // use isotropic non-reweighted 2-body phase space decays for consistency
   // with neugen/daikon
-  fUseIsotropic2BDecays = gc->GetBool("KNO-UseIsotropic2BodyDec") ;
-  GetParam( "KNO-UseIsotropic2BodyDec", fUseIsotropic2BDecays, false ) ;
+  GetParam( "KNO-UseIsotropic2BodyDec", fUseIsotropic2BDecays ) ;
 
   // Generated weighted or un-weighted hadronic systems?
-  fGenerateWeighted = false ;
-  GetParam( "GenerateWeighted", fGenerateWeighted, false ) ;
+  GetParamDef( "GenerateWeighted", fGenerateWeighted, false ) ;
 
 
   // Probabilities for producing hadron pairs
@@ -569,8 +557,7 @@ void KNOHadronization::LoadConfig(void)
 
   // Force NEUGEN upper limit in hadronic multiplicity (to be used only
   // NEUGEN/GENIE comparisons)
-  fForceNeuGenLimit = false ;
-  GetParam( "ForceNeugenMultLimit", fForceNeuGenLimit, false ) ;
+  GetParamDef( "ForceNeugenMultLimit", fForceNeuGenLimit, false ) ;
 
   // Load Wcut determining the phase space area where the multiplicity prob.
   // scaling factors would be applied -if requested-

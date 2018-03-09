@@ -44,7 +44,7 @@ Decayer                         alg     Yes   particle decayer algorithm in case
 -->
   <param_set name="Default"> 
 
-    <param type="string" name="CommonParam"> NonResBackgroud  </param> 
+    <param type="string" name="CommonParam"> NonResBackground  </param> 
 
     
     <!-- 

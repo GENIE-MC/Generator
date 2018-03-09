@@ -269,14 +269,7 @@ void PrimaryLeptonGenerator::Configure(string config)
 //____________________________________________________________________________
 void PrimaryLeptonGenerator::LoadConfig(void)
 {
-// Reads its configuration from its Registry and loads all the sub-algorithms
-// needed
-     
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
-     
-  fApplyCoulombCorrection = gc->GetBool("FSL-ApplyCoulombCorrection") ;
-  GetParam( "ApplyCoulombCorrection", fApplyCoulombCorrection, false ) ;
+  GetParam( "ApplyCoulombCorrection", fApplyCoulombCorrection ) ;
 
 }
 //___________________________________________________________________________

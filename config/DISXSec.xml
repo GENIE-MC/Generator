@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <!--
-Configuration for the RESXSec cross section algorithm
+Configuration for the DISXSec cross section algorithm
 -->
 
 <alg_conf>
 
   <param_set name="Default"> 
+    <param type="string" name ="CommonParam"> Validation  </param>
+
     <param type="string" name ="gsl-integration-type">    adaptive  </param>
     <param type="int"    name ="gsl-max-eval" >            5000000  </param>
     <param type="int"    name ="gsl-min-eval" >             100000  </param>

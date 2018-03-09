@@ -128,7 +128,7 @@ void MECXSec::LoadConfig(void)
   GetParamDef( "gsl-integration-type", fGSLIntgType, string("vegas") ) ;
 
   int max ;
-  GetParamDef( "gsl-max-eval", fGSLMaxEval, 20000 ) ;
+  GetParamDef( "gsl-max-eval", max, 20000 ) ;
   fGSLMaxEval    = (unsigned int) max ;
 
   GetParamDef( "gsl-relative-tolerance", fGSLRelTol, 0.01 ) ;

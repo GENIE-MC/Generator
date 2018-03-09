@@ -766,10 +766,6 @@ void BSKLNBaseRESPXSec2014::Configure(string config)
 //____________________________________________________________________________
 void BSKLNBaseRESPXSec2014::LoadConfig(void)
 {
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
-
-
   // Cross section scaling factors
   GetParam( "RES-CC-XSecScale", fXSecScaleCC ) ;
   GetParam( "RES-NC-XSecScale", fXSecScaleNC ) ;

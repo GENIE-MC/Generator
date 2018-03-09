@@ -316,9 +316,6 @@ void EmpiricalMECPXSec2015::Configure(string config)
 //____________________________________________________________________________
 void EmpiricalMECPXSec2015::LoadConfig(void)
 {
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
-
   fXSecAlgCCQE = 0;
   fXSecAlgNCQE = 0;
   fXSecAlgEMQE = 0;

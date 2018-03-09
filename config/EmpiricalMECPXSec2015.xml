@@ -25,7 +25,20 @@ EmpiricalMEC-FracPN_NC  double   Yes        Fraction of pairs in the nucleus tha
      <param type="alg" name="CCQEXSecModel"> genie::LwlynSmithQELCCPXSec/Default </param>
      <param type="alg" name="NCQEXSecModel"> genie::AhrensNCELPXSec/Default </param>
      <param type="alg" name="EMQEXSecModel"> genie::RosenbluthPXSec/Default </param>
-
+     
+     <!-- 
+	  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	  Empirical MEC parameters
+	  
+	  Mq2d       : Analogous to MA in CCQE (drives Q^2 dependence); units GeV
+	  Mass       : units GeV
+	  Width      : Width of the gaussian W-dependence in the dip region; units GeV 
+	  FracCCQE   : Fraction of CCQE xsec to CCMEC xsec.
+	  FracNCQE   : Fraction of NCQE xsec to NCMEC xsec.
+	  FracEMQE   : Fraction of 0.5*(ep+en) Rosenbluth xsec going to (e,e') MEC.
+	  FracPN_CC  : Fraction of pairs in the nucleus that are pn.
+	  FracPN_NC  : Fraction of pairs in the nucleus that are pn.
+     -->     
      <param type="double" name="EmpiricalMEC-Mq2d"> 0.4 </param>
      <param type="double" name="EmpiricalMEC-Mass"> 2.1 </param>
      <param type="double" name="EmpiricalMEC-Width"> 0.05 </param>

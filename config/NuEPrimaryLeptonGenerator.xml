@@ -5,6 +5,7 @@
   Configuration sets for NuEPrimaryLeptonGenerator EventRecordVisitorI
 
   <param_set name="Default"> 
+    <param type="string" name="CommonParam"> Lepton </param>
   </param_set>
 
 </alg_conf>

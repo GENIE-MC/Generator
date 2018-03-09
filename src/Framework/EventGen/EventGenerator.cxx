@@ -316,12 +316,12 @@ void EventGenerator::LoadConfig(void)
   assert(fIntListGen);
 
   //-- load the cross section model
-  RgKey xkey    = "XSecModel";
-  RgKey xdefkey = "XSecModel@" + this->Id().Key();
-  RgAlg xalg    = GetOwnedConfig() -> GetAlgDef(xkey, gc->GetAlg(xdefkey));
+  RgKey xkey    = "XSecModel@" + this->Id().Key();
+  RgAlg xalg    = gc->GetAlg(xkey) ;
   LOG("EventGenerator", pINFO) 
      << " -- Loading the cross section model: " << xalg;
-  fXSecModel = dynamic_cast<const XSecAlgorithmI *> (this->SubAlg(xkey));
+  fXSecModel = dynamic_cast<const XSecAlgorithmI *> (
+    AlgFactory::Instance() -> GetAlgorithm( xalg.name, xalg.config ) ) ;
   assert(fXSecModel);
 }
 //___________________________________________________________________________

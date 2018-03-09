@@ -39,7 +39,7 @@ IntegralNuclearInfluenceCutoffEnergy double   No
 
   </param_set>
 
-  <param_set name="DipoleELFF"> 
+  <param_set name="Dipole"> 
      <param type="alg"  name="FormFactorsAlg">  genie::LwlynSmithFFCC/Dipole  </param>
  
    </param_set>

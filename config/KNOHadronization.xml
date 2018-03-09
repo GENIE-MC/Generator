@@ -58,12 +58,9 @@ KNO-PhaseSpDec-ReweightParm       double  Yes   parameter controlling the reweig
 
 <alg_conf>
   <param_set name="Default"> 
-    <!--
-	<param type="bool" name="ForceNeugenMultLimit">  true </param>
-    -->
-
+    
     <param type="string" name="CommonParam">  NonResBackground </param> 
-
+    
     <!-- 
 	 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	 Parameters controlling the average charged hadron multiplicities in the AGKY/KNO model
@@ -122,8 +119,18 @@ KNO-PhaseSpDec-ReweightParm       double  Yes   parameter controlling the reweig
 	 reweighting function.
 	 See: A.B.Clegg, A.Donnachie, A Description of Jet Structure by pT-limited Phase Space.
     -->
+    <param type="bool"   name="KNO-PhaseSpDec-Reweight">     true  </param>
     <param type="double" name="KNO-PhaseSpDec-ReweightParm"> 3.5   </param> 
     
+     <!-- 
+	  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	  Parameters controlling whether to use the baryon xF and pT2 pdfs in the KNO hadronization.
+	  The option to use isotropic, non-reweighted 2-body phase space decays is used for compatibility
+	  with neugen/daikon.
+     -->
+     <param type="bool" name="KNO-UseBaryonPdfs-xFpT2">  true  </param>
+     <param type="bool" name="KNO-UseIsotropic2BodyDec"> true  </param>
+
   </param_set>
   
   <param_set name="Default-Decaying"> 

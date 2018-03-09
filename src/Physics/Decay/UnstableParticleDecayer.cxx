@@ -287,9 +287,6 @@ void UnstableParticleDecayer::Configure(string config)
 //___________________________________________________________________________
 void UnstableParticleDecayer::LoadConfig(void)
 {
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
-
   // Load particle decayers
   // Order is important if both decayers can handle a specific particle
   // as only the first would get the chance to decay it
@@ -335,11 +332,11 @@ void UnstableParticleDecayer::LoadConfig(void)
 
   // Allow user to specify a list of particles to be decayed
   //
-  RgKeyList klist = gc->FindKeys("DecayParticleWithCode="); 
+  RgKeyList klist = GetConfig().FindKeys("DecayParticleWithCode=");
   RgKeyList::const_iterator kiter = klist.begin();
   for( ; kiter != klist.end(); ++kiter) { 
     RgKey key = *kiter;
-    bool decay = gc->GetBool(key);
+    bool decay = GetConfig().GetBool(key);
     vector<string> kv = utils::str::Split(key,"=");
     assert(kv.size()==2);
     int pdgc = atoi(kv[1].c_str());
@@ -368,11 +365,11 @@ void UnstableParticleDecayer::LoadConfig(void)
 
   // Allow user to inhibit certain decay channels
   //
-  klist = gc->FindKeys("InhibitDecay/"); 
+  klist = GetConfig().FindKeys("InhibitDecay/");
   kiter = klist.begin();
   for( ; kiter != klist.end(); ++kiter) { 
     RgKey key = *kiter;
-    if(gc->GetBool(key)) {
+    if(GetConfig().GetBool(key)) {
       string filtkey = utils::str::FilterString("InhibitDecay/", key);
       vector<string> kv = utils::str::Split(filtkey,",");
       assert(kv.size()==2);

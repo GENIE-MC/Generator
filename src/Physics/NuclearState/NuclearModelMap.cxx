@@ -115,7 +115,8 @@ void NuclearModelMap::LoadConfig(void)
   LOG("Nuclear", pINFO)
     << "Default global nuclear model: " << dgmodel;
   fDefGlobModel =
-    dynamic_cast<const NuclearModelI *> (this->SubAlg("NuclearModel"));
+    dynamic_cast<const NuclearModelI *> (
+      AlgFactory::Instance() -> GetAlgorithm( dgmodel.name, dgmodel.config ) ) ;
   assert(fDefGlobModel);
 
   // We're looking for keys that match this string
@@ -137,7 +138,8 @@ void NuclearModelMap::LoadConfig(void)
         << "Nucleus =" << pdg
         << " -> refined nuclear model: " << rgmodel;
       const NuclearModelI * model =
-        dynamic_cast<const NuclearModelI *> (this->SubAlg(key));
+        dynamic_cast<const NuclearModelI *> (
+          AlgFactory::Instance() -> GetAlgorithm(rgmodel.name, rgmodel.config ) ) ;
       assert(model);
       fRefinedModels.insert(map<int,const NuclearModelI*>::value_type(Z,model));
     }

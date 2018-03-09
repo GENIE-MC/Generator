@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-
-
 <!--
 ***************************************************************************************************
 This file defines parameters sets for parameters which are common between algorithms and therefore
@@ -204,6 +202,9 @@ University of Liverpool
    -->
    <param type="double" name="COH-t-max"> 0.250 </param>
 
+ </param_set>
+
+
  <param_set name="Diffractive">
    
    <!-- 
@@ -222,6 +223,8 @@ University of Liverpool
    -->
    <param type="double" name="DFR-t-max"> 0.35 </param>
    
+ </param_set>
+
  <param_set name="QuasiElastic">
    <!-- 
 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -298,11 +301,20 @@ University of Liverpool
    -->
   </param_set>
 
+  <param_set name="Lepton">
+    <param type="bool" name="ApplyCoulombCorrection"> false </param>
+    
+  </param_set>
 
+  <param_set name="Validation">
+    <!-- 
+	 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	 GENIE validity range
+    -->
+    <param type="double" name="GVLD-Emin">    0.010  </param>
+    <param type="double" name="GVLD-Emax"> 1000.000  </param>
 
- </param_set>
-
-
+  </param_set>
 
 </common_param_list>
 

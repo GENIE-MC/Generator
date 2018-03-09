@@ -225,10 +225,9 @@ void DISXSec::LoadConfig(void)
   fGSLMinEval  = (unsigned int) min_eval ;
 
   // Energy range for cached splines
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
-  fVldEmin = gc->GetDouble("GVLD-Emin");
-  fVldEmax = gc->GetDouble("GVLD-Emax");
+  GetParam( "GVLD-Emin", fVldEmin) ;
+  GetParam( "GVLD-Emax", fVldEmax) ;
+
 }
 //____________________________________________________________________________
 void DISXSec::CacheFreeNucleonXSec(
