@@ -15,8 +15,8 @@
    The recoil nucleon is added in case that the selected hit nucleon has a
    momentum selected from the NN corelation tail. The 2 nucleons are put
    back-to-back. For the time-being using hard-coded relative fractions for
-   the nn, pp, np pairs. 
-   The code for adding the recoil nuclear target at the GHEP record was moved 
+   the nn, pp, np pairs.
+   The code for adding the recoil nuclear target at the GHEP record was moved
    into this processing step.
 
  @ Mar 18, 2016- Joe Johnston (SD)
@@ -123,13 +123,13 @@ void FermiMover::KickHitNucleon(GHepRecord * evrec) const
   TVector3 p3 = fNuclModel->Momentum3();
   double w    = fNuclModel->RemovalEnergy();
 
-  LOG("FermiMover", pINFO) 
+  LOG("FermiMover", pINFO)
      << "Generated nucleon momentum: ("
      << p3.Px() << ", " << p3.Py() << ", " << p3.Pz() << "), "
      << "|p| = " << p3.Mag();
-  LOG("FermiMover", pINFO) 
+  LOG("FermiMover", pINFO)
      << "Generated nucleon removal energy: w = " << w;
-  
+
   double pF2 = p3.Mag2(); // (fermi momentum)^2
 
   nucleon->SetRemovalEnergy(w);
@@ -168,7 +168,7 @@ void FermiMover::KickHitNucleon(GHepRecord * evrec) const
   // Do default Fermi Moving
   } else  {
     if (!fKeepNuclOnMassShell) {
-      //-- compute A,Z for final state nucleus & get its PDG code 
+      //-- compute A,Z for final state nucleus & get its PDG code
       int nucleon_pdgc = nucleon->Pdg();
       bool is_p  = pdg::IsProton(nucleon_pdgc);
       int Z = (is_p) ? nucleus->Z()-1 : nucleus->Z();
@@ -229,7 +229,7 @@ void FermiMover::KickHitNucleon(GHepRecord * evrec) const
   p4->SetPx( p3.Px() );
   p4->SetPy( p3.Py() );
   p4->SetPz( p3.Pz() );
-  p4->SetE ( EN      ); 
+  p4->SetE ( EN      );
 
   nucleon->SetMomentum(*p4); // update GHEP value
 
@@ -330,7 +330,7 @@ void FermiMover::AddTargetNucleusRemnant(GHepRecord * evrec) const
     assert(remn);
   }
 
-  double Mi = nucleus->Mass();  
+  double Mi = nucleus->Mass();
   Px *= -1;
   Py *= -1;
   Pz *= -1;
@@ -360,20 +360,12 @@ void FermiMover::Configure(string config)
 //____________________________________________________________________________
 void FermiMover::LoadConfig(void)
 {
-// Reads its configuration from its Registry and loads all the sub-algorithms
-// needed
-
-  fNuclModel = 0;
-
   RgKey nuclkey = "NuclearModel";
-
+  fNuclModel = 0;
   fNuclModel = dynamic_cast<const NuclearModelI *> (this->SubAlg(nuclkey));
   assert(fNuclModel);
 
-  fKeepNuclOnMassShell = false ;
-  GetParam( "KeepHitNuclOnMassShell", fKeepNuclOnMassShell, false ) ;
-
-  GetParam( "SimRecoilNucleon", fSRCRecoilNucleon ) ;
+  this->GetParamDef("KeepHitNuclOnMassShell", fKeepNuclOnMassShell, false);
+  this->GetParamDef("SimRecoilNucleon",       fSRCRecoilNucleon,    false);
 }
 //____________________________________________________________________________
-
