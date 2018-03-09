@@ -49,7 +49,7 @@ LocalFGM::~LocalFGM()
 
 }
 //____________________________________________________________________________
-bool LocalFGM::GenerateNucleon(const Target & target, 
+bool LocalFGM::GenerateNucleon(const Target & target,
 				      double hitNucleonRadius) const
 {
   assert(target.HitNucIsSet());
@@ -79,11 +79,11 @@ bool LocalFGM::GenerateNucleon(const Target & target,
 
   double px = p*sintheta*cosfi;
   double py = p*sintheta*sinfi;
-  double pz = p*costheta;  
+  double pz = p*costheta;
 
   fCurrMomentum.SetXYZ(px,py,pz);
 
-  //-- set removal energy 
+  //-- set removal energy
   //
   int Z = target.Z();
   map<int,double>::const_iterator it = fNucRmvE.find(Z);
@@ -178,7 +178,7 @@ TH1D * LocalFGM::ProbDistro(const Target & target, double r) const
   //-- normalize the probability distribution
   prob->Scale( 1.0 / prob->Integral("width") );
 
-  return prob; 
+  return prob;
 }
 //____________________________________________________________________________
 void LocalFGM::Configure(const Registry & config)
@@ -195,8 +195,7 @@ void LocalFGM::Configure(string param_set)
 //____________________________________________________________________________
 void LocalFGM::LoadConfig(void)
 {
-  fPMax = 1. ;
-  GetParam( "MomentumMax", fPMax, false );
+  this->GetParamDef("MomentumMax", fPMax, 1.0);
   assert(fPMax > 0);
 
   // Load removal energy for specific nuclei from either the algorithm's
@@ -220,4 +219,3 @@ void LocalFGM::LoadConfig(void)
   }
 }
 //____________________________________________________________________________
-
