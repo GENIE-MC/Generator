@@ -12,6 +12,8 @@ Name                        Type    Opt  Comment                                
 -->
 
   <param_set name="Default"> 
+     <param type="string" name="CommonParam">   WeakInt  </param>
+
   </param_set>
 
 </alg_conf>

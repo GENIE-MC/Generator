@@ -114,9 +114,12 @@ void RESXSec::Configure(string config)
 void RESXSec::LoadConfig(void)
 {
   // Get GSL integration type & relative tolerance
-  fGSLIntgType = fConfig->GetStringDef("gsl-integration-type"  ,  "adaptive");
-  fGSLRelTol   = fConfig->GetDoubleDef("gsl-relative-tolerance",   1E-2);
-  fGSLMaxEval  = (unsigned int) fConfig->GetIntDef("gsl-max-eval", 500000);
-  fGSLMinEval  = (unsigned int) fConfig->GetIntDef("gsl-min-eval", 5000);
+  GetParamDef( "gsl-integration-type", fGSLIntgType, string("adaptive") ) ;
+  GetParamDef( "gsl-relative-tolerance", fGSLRelTol, 1E-2 ) ;
+  int max, min ;
+  GetParamDef( "gsl-max-eval", max, 500000 ) ;
+  GetParamDef( "gsl-min-eval", min, 5000 ) ;
+  fGSLMaxEval  = (unsigned int) max ;
+  fGSLMinEval  = (unsigned int) min ;
 }
 //____________________________________________________________________________

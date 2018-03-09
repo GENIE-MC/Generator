@@ -374,31 +374,26 @@ void ReinSehgalRESPXSec::Configure(string config)
 //____________________________________________________________________________
 void ReinSehgalRESPXSec::LoadConfig(void)
 {
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
-
   // Load all configuration data or set defaults
 
   // Cross section scaling factors
-  fXSecScaleCC = fConfig->GetDoubleDef(
-     "RES-CC-XSecScale", gc->GetDouble("RES-CC-XSecScale"));
-  fXSecScaleNC = fConfig->GetDoubleDef(
-     "RES-NC-XSecScale", gc->GetDouble("RES-NC-XSecScale"));
+  GetParam( "RES-CC-XSecScale", fXSecScaleCC ) ;
+  GetParam( "RES-NC-XSecScale", fXSecScaleNC ) ;
 
-  fZeta  = fConfig->GetDoubleDef( "RES-Zeta",  gc->GetDouble("RES-Zeta")  );
-  fOmega = fConfig->GetDoubleDef( "RES-Omega", gc->GetDouble("RES-Omega") );
+  GetParam( "RES-Zeta", fZeta ) ;
+  GetParam( "RES-Omega", fOmega ) ;
 
-  double ma  = fConfig->GetDoubleDef( "RES-Ma", gc->GetDouble("RES-Ma") );
-  double mv  = fConfig->GetDoubleDef( "RES-Mv", gc->GetDouble("RES-Mv") );
-
+  double ma, mv ;
+  GetParam( "RES-Ma", ma ) ;
+  GetParam( "RES-Mv", mv ) ;
   fMa2 = TMath::Power(ma,2);
   fMv2 = TMath::Power(mv,2);
 
-  fWghtBW = fConfig->GetBoolDef("BreitWignerWeight", true);
+  GetParamDef( "BreitWignerWeight", fWghtBW, true ) ;
 
-  double thw = fConfig->GetDoubleDef(
-         "WeinbergAngle", gc->GetDouble("WeinbergAngle"));
-     
+
+  double thw ;
+  GetParam( "WeinbergAngle", thw ) ;
   fSin48w = TMath::Power( TMath::Sin(thw), 4 );
 
   // Load all the sub-algorithms needed
@@ -429,11 +424,10 @@ void ReinSehgalRESPXSec::LoadConfig(void)
   assert( fHAmplModelEMn );
 
   // Use algorithm within a DIS/RES join scheme. If yes get Wcut
-  fUsingDisResJoin = fConfig->GetBoolDef(
-    "UseDRJoinScheme", gc->GetBool("UseDRJoinScheme"));
+  GetParam( "UseDRJoinScheme", fUsingDisResJoin ) ;
   fWcut = 999999;
   if(fUsingDisResJoin) {
-    fWcut = fConfig->GetDoubleDef("Wcut",gc->GetDouble("Wcut"));
+    GetParam( "Wcut", fWcut ) ;
   }
 
   // NeuGEN limits in the allowed resonance phase space:
@@ -442,19 +436,20 @@ void ReinSehgalRESPXSec::LoadConfig(void)
   // problem with huge xsec increase at low Q2 and high W.
   // In correspondence with Hugh, Rein said that the underlying problem
   // are unphysical assumptions in the model. 
-  fN2ResMaxNWidths = fConfig->GetDoubleDef("MaxNWidthForN2Res", 2.0);
-  fN0ResMaxNWidths = fConfig->GetDoubleDef("MaxNWidthForN0Res", 6.0);
-  fGnResMaxNWidths = fConfig->GetDoubleDef("MaxNWidthForGNRes", 4.0);
+  GetParamDef( "MaxNWidthForN2Res", fN2ResMaxNWidths, 2.0 ) ;
+  GetParamDef( "MaxNWidthForN0Res", fN0ResMaxNWidths, 6.0 ) ;
+  GetParamDef( "MaxNWidthForGNRes", fGnResMaxNWidths, 4.0 ) ;
 
   // NeuGEN reduction factors for nu_tau: a gross estimate of the effect of
   // neglected form factors in the R/S model
-  fUsingNuTauScaling = fConfig->GetBoolDef("UseNuTauScalingFactors", true);
+  GetParamDef( "UseNuTauScalingFactors", fUsingNuTauScaling, true ) ;
   if(fUsingNuTauScaling) {
      if(fNuTauRdSpl)    delete fNuTauRdSpl;
      if(fNuTauBarRdSpl) delete fNuTauBarRdSpl;
 
-     assert(gSystem->Getenv("GENIE"));
-     string base = gSystem->Getenv("GENIE");
+
+     assert( std::getenv( "GENIE") );
+     string base = std::getenv( "GENIE") ;
 
      string filename = base + "/data/evgen/rein_sehgal/res/nutau_xsec_scaling_factors.dat";
      LOG("ReinSehgalRes", pNOTICE) 

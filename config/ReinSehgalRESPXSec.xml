@@ -9,34 +9,49 @@ Configurable Parameters:
 ......................................................................................................................................
 Name                        Type    Optional   Comment                                                    Default
 ......................................................................................................................................
-RES-CC-XSecScale            double  Yes   XSec rescaling factor                                           GPL
-RES-NC-XSecScale            double  Yes   Xsec rescaling factor                                           GPL
-RES-Zeta                    double  Yes   FKR's Z parameter                                               GPL: RES-Zeta
-RES-Omega                   double  Yes   FKR's Omega parameter                                           GPL: RES-Omega
-Ma                          double  Yes   RES axial mass                                                  GPL: RES-Max
-Mv                          double  Yes   RES vector mass                                                 GPL: RES-Mv
-WeinbergAngle               double  Yes   Weinberg Angle                                                  GPL 
-BreitWeignerWeight          bool    Yes   Weight xsec with breit-wigner?                                  true
-UseNuTauScalingFactors      bool    Yes   Load/Use NEUGEN reduction factor splines for nutaus             true
-UseDRJoinScheme             bool    Yes   Use DIS/RES joining scheme?                                     GPL: UseDRJoinScheme
-Wcut                        double  Yes   Param used in DIS/RES joining                                   GPL: Wcut
+RES-CC-XSecScale            double  No    XSec rescaling factor                                           
+RES-NC-XSecScale            double  No    Xsec rescaling factor                                           
+RES-Zeta                    double  No    FKR's Z parameter                                               
+RES-Omega                   double  No    FKR's Omega parameter                                          
+RES-Ma                      double  No    RES axial mass                                                 
+RES-Mv                      double  No    RES vector mass                                                
+WeinbergAngle               double  No    Weinberg Angle                                                  CommonParam[WeakInt] 
+BreitWeignerWeight          bool    No    Weight xsec with breit-wigner?                                  true
+UseNuTauScalingFactors      bool    No    Load/Use NEUGEN reduction factor splines for nutaus             true
+UseDRJoinScheme             bool    No    Use DIS/RES joining scheme?                                     CommonParam[NonResBackground]
+Wcut                        double  No    Param used in DIS/RES joining                                   CommonParam[NonResBackground]
 MaxNWidthForN2Res           double  Yes   x in limiting allowed W phase space for n=2 res according to    2.0
                                           W < min{ Wmin(physical), MassRes + x * WidthRes }
 MaxNWidthForN0Res           double  Yes   As above for n=0 resonances                                     4.0
 MaxNWidthForGNres           double  Yes   As above for the remaining resonances                           6.0
-XSec-Integrator             alg
+XSec-Integrator             alg     No                    
 -->
 
   <param_set name="Default"> 
-     <param type="alg"  name="XSec-Integrator">  genie::ReinSehgalRESXSec/Default    </param>
-     
-     <param type="double" name="RES-CC-XSecScale"> 1.000 </param>
-     <param type="double" name="RES-NC-XSecScale"> 1.000 </param>
+    
+    <param type="string" name="CommonParam"> WeakInt,NonResBackground </param>
+    
+    <param type="alg"  name="XSec-Integrator">  genie::ReinSehgalRESXSec/Default    </param>
 
-     <param type="double" name="WeinbergAngle"> 0.49744211 </param>
+    <param type="double" name="RES-CC-XSecScale"> 1.000 </param>
+    <param type="double" name="RES-NC-XSecScale"> 1.000 </param>
 
-     <param type="double" name="RES-Omega"> 1.05  </param>
-     <param type="double" name="RES-Zeta">  0.762 </param>
+    <!-- 
+	 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	 Constants in Feynman-Kislinger-Ravndal model for baryon excitation used in the Rein-Sehgal 
+	 resonance model
+    -->
+    <param type="double" name="RES-Omega"> 1.05  </param>emacs 
+    <param type="double" name="RES-Zeta">  0.762 </param> <!-- 0.75 -->
+
+    
+    <!-- 
+	 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	 Axial and vector masses for resonance production  
+    -->
+    <param type="double" name="RES-Ma"> 1.120 </param>
+    <param type="double" name="RES-Mv"> 0.840 </param>
+    
   </param_set>
 
 </alg_conf>

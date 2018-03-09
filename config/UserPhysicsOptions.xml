@@ -39,11 +39,8 @@ STFC, Rutherford Appleton Laboratory
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   -->
 
-  <param type="double" name="QEL-CC-XSecScale"> 1.000 </param>
-  <param type="double" name="MEC-CC-XSecScale"> 1.000 </param>
+   <param type="double" name="MEC-CC-XSecScale"> 1.000 </param>
   <param type="double" name="MEC-NC-XSecScale"> 1.000 </param>
-  <param type="double" name="RES-CC-XSecScale"> 1.000 </param>
-  <param type="double" name="RES-NC-XSecScale"> 1.000 </param>
 
   <!-- the following block of parameters is searched only here in the code, therefore for the moment they are not copied anywhere else -->
   <param type="double" name="FSI-Pion-MFPScale">           1.000 </param>

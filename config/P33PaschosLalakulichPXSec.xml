@@ -9,14 +9,17 @@ Configurable Parameters:
 ................................................................................................
 Name             Type     Optional   Comment                        Default
 ................................................................................................
-RES-Ma           double   Yes        RES axial mass                 GPL: RES-Ma
-RES-Mv           double   Yes        RES vector mass                GPL: RES-Mv
-BaryonResData    alg      No         Baryon resonanace dt=ata
-CabibboAngle     double   Yes        Cabibbo angle                  GPL: CabiboAngle
+RES-Ma           double   No         RES axial mass             
+RES-Mv           double   No         RES vector mass             
+BaryonResData    alg      No         Baryon resonanace data
+CabibboAngle     double   No         Cabibbo angle                  CommonParam[CKM]
 TurnOnPauliSuppr bool     Yes        Use Pauli suppression factor   false
 -->
 
   <param_set name="Default"> 
+
+     <param type="string" name="CommonParam"> CKM </param>
+
      <param type="alg" name="BaryonResData"> genie::BaryonResDataPDG/Default </param>
      <param type="double" name="CabibboAngle">  0.22853207 </param>
 

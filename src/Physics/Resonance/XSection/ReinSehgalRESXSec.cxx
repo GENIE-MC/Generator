@@ -214,33 +214,28 @@ void ReinSehgalRESXSec::Configure(string config)
 //____________________________________________________________________________
 void ReinSehgalRESXSec::LoadConfig(void)
 {
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
-
   // Get GSL integration type & relative tolerance
-  fGSLIntgType = fConfig->GetStringDef("gsl-integration-type",  "adaptive");
-  fGSLRelTol   = fConfig->GetDoubleDef("gsl-relative-tolerance", 0.01);
-  fGSLNCalls   = fConfig->GetIntDef("gsl-ncalls", 100000);
-  fGSLThreshold= fConfig->GetDoubleDef("gsl-threshold", 50);
-  fGSLNCallsFactor= fConfig->GetDoubleDef("gsl-ncalls-factor", 1);
+  GetParamDef( "gsl-integration-type", fGSLIntgType, string("adaptive" ) ) ;
+  GetParamDef( "gsl-relative-tolerance", fGSLRelTol, 0.01 ) ;
+  GetParamDef( "gsl-ncalls", fGSLNCalls, 100000 ) ;
+  GetParamDef( "gsl-threshold", fGSLThreshold, 50. ) ;
+  GetParamDef( "gsl-ncalls-factor", fGSLNCallsFactor, 1. ) ;
   
-
   // Get upper E limit on res xsec spline (=f(E)) before assuming xsec=const
-  fEMax = fConfig->GetDoubleDef("ESplineMax", 100);
-  fEMax = TMath::Max(fEMax,20.); // don't accept user Emax if less than 20 GeV
+  GetParamDef( "ESplineMax", fEMax, 100. ) ;
+  fEMax = TMath::Max(fEMax, 20.); // don't accept user Emax if less than 20 GeV
 
   // Create the baryon resonance list specified in the config.
   fResList.Clear();
-  string resonances = fConfig->GetStringDef(
-                   "ResonanceNameList", gc->GetString("ResonanceNameList"));
+  string resonances ;
+  GetParam( "ResonanceNameList", resonances ) ;
   fResList.DecodeFromNameList(resonances);
 
   // Use algorithm within a DIS/RES join scheme. If yes get Wcut
-  fUsingDisResJoin = fConfig->GetBoolDef(
-                           "UseDRJoinScheme", gc->GetBool("UseDRJoinScheme"));
+  GetParam( "UseDRJoinScheme", fUsingDisResJoin ) ;
   fWcut = 999999;
   if(fUsingDisResJoin) {
-    fWcut = fConfig->GetDoubleDef("Wcut",gc->GetDouble("Wcut"));
+	  GetParam( "Wcut", fWcut ) ;
   }
 }
 //____________________________________________________________________________

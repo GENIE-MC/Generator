@@ -30,7 +30,6 @@
 #include "Framework/Utils/Range1.h"
 #include "Physics/Resonance/XSection/P33PaschosLalakulichPXSec.h"
 #include "Physics/XSectionIntegration/XSecIntegratorI.h"
-#include "Physics/Resonance/XSection/P33PaschosLalakulichPXSec.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -123,9 +122,9 @@ double P33PaschosLalakulichPXSec::XSec(
   double Gamma_R=Gamma_R0*pow((this->PPiStar(W,MN)/this->PPiStar(MR,MN)),3);
 
   // check for other option
-  if ( fConfig->Exists("running-gamma") ) {
+  if ( GetConfig().Exists("running-gamma") ) {
 
-     string gamma_model = fConfig->GetString("running-gamma");
+     string gamma_model = GetConfig().GetString("running-gamma");
 
      if ( gamma_model.find("Hagiwara") != string::npos )
      {
@@ -292,16 +291,14 @@ void P33PaschosLalakulichPXSec::Configure(string config)
 //____________________________________________________________________________
 void P33PaschosLalakulichPXSec::LoadConfig(void)
 {
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
+  GetParam( "RES-Ma", fMa ) ;
+  GetParam( "RES-Mv", fMv ) ;
 
-  fMa  = fConfig->GetDoubleDef( "RES-Ma", gc->GetDouble("RES-Ma") );
-  fMv  = fConfig->GetDoubleDef( "RES-Mv", gc->GetDouble("RES-Mv") );
-
-  double thc = fConfig->GetDoubleDef( "CabibboAngle", gc->GetDouble("CabibboAngle"));
+  double thc ;
+  GetParam( "CabibboAngle", thc ) ;
   fCos28c = TMath::Power( TMath::Cos(thc), 2 );
 
-  fTurnOnPauliCorrection = fConfig->GetBoolDef("TurnOnPauliSuppr", false);
+  GetParamDef( "TurnOnPauliSuppr", fTurnOnPauliCorrection, false ) ;
 
   //-- load the differential cross section integrator
   fXSecIntegrator =

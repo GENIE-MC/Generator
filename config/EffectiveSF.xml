@@ -60,6 +60,8 @@ MomentumCutOff               double   Yes      Set all momentums past this to ze
 
 <param_set name="Default">
 
+<param type="string" name="CommonParam"> ElasticFF </param>
+
 <param type="bool" name="EjectSecondNucleon2p2h"> true </param>
 <param type="double" name="MomentumMax"> 1.0 </param>
 <param type="double" name="MomentumCutOff"> 0.65 </param>

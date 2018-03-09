@@ -7,13 +7,17 @@ Configurable Parameters:
 ..........................................................................................................................
 Name                        Type    Opt  Comment                                               Default
 ..........................................................................................................................
-ResonanceNameList           string  Yes  list of resonances to be taken into account           GPL: ResonanceNameList
+ResonanceNameList           string  No   list of resonances to be taken into account           CommonParam[Resonances]
 is-CC                       bool    Yes  set true for CC list                                  false
 is-NC                       bool    Yes  set true for NC list                                  false
 is-EM                       bool    Yes  set true for EM list                                  false
 -->
 
 <alg_conf>
+
+  <param_set name="Default">
+    <param type="string" name="CommonParam"> Resonances </param>
+  </param_set>
 
   <param_set name="CC-Default">
     <param type="bool" name="is-CC"> true </param>

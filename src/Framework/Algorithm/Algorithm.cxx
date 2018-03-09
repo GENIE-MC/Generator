@@ -344,11 +344,9 @@ const Algorithm * Algorithm::SubAlg(const RgKey & registry_key) const
 
   //-- if the algorithm dowes not own its substructure:
   //      return the sub-algorithm from the AlgFactory's pool
-  //
-  GetConfig().AssertExistence(registry_key);
+  RgAlg alg ;
+  GetParam( registry_key, alg ) ;
 
-  // retrieve the algorithm item corresponding to key
-  RgAlg alg = fConfig->GetAlg(registry_key);
   LOG("Algorithm", pINFO)
     << "Registry key: " << registry_key << " points to algorithm: " << alg;
   

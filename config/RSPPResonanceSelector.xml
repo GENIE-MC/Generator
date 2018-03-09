@@ -9,10 +9,13 @@ Configurable Parameters:
 ..........................................................................................................................
 Name                        Type    Opt  Comment                                               Default
 ..........................................................................................................................
-ResonanceNameList           string  Yes  list of resonances to be taken into account           GPL: ResonanceNameList
+ResonanceNameList           string  No   list of resonances to be taken into account           CommonParam[Resonances]
 -->
 
   <param_set name="Default">
+
+    <param type="string" name="CommonParam"> Resonances </param>
+
   </param_set>
 
 </alg_conf>

@@ -26,6 +26,9 @@ ESplineMax                  double  No   Emax in RES splines, xsec(E>Emax)=xsec(
   In this configuration set we include all the resonances defined in GlobalParameterList
 -->
   <param_set name="Default"> 
+    
+    <param type="string" name="CommonParam"> NonResBackground,Resonances </param>
+
     <param type="double" name ="ESplineMax">                   100  </param>     
     <param type="string" name ="gsl-integration-type">       vegas  </param>
     <param type="int"    name ="gsl-max-eval" >            5000000  </param>
@@ -33,22 +36,6 @@ ESplineMax                  double  No   Emax in RES splines, xsec(E>Emax)=xsec(
     <param type="double" name ="gsl-relative-tolerance">    0.0001  </param>
   </param_set>
 
-<!--
-  In this configuration set we include all resonances known to GENIE including the the ambiguous P33(1600), F17(1970)
--->
-  <param_set name="AllResonances"> 
-    <param type="string" name="ResonanceNameList">  
-                   P33(1232),S11(1535),D13(1520),S11(1650),D13(1700),D15(1675),S31(1620),
-                   D33(1700),P11(1440),P33(1600),P13(1720),F15(1680),P31(1910),P33(1920),
-                   F35(1905),F37(1950),P11(1710),F17(1970)
-    </param>
-    <param type="double" name ="ESplineMax">                   100  </param>     
-    <param type="string" name ="gsl-integration-type">       vegas  </param>
-    <param type="int"    name ="gsl-max-eval" >            5000000  </param>
-    <param type="int"    name ="gsl-min-eval" >             500000  </param>
-    <param type="double" name ="gsl-relative-tolerance"  >  0.0001  </param>
-  </param_set>
-
-</alg_conf>
+ </alg_conf>
 
 
