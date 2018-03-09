@@ -161,30 +161,27 @@ void AhrensNCELPXSec::Configure(string config)
 //____________________________________________________________________________
 void AhrensNCELPXSec::LoadConfig(void)
 {
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
-
   // alpha and gamma
-  double thw = fConfig->GetDoubleDef( "WeinbergAngle", gc->GetDouble("WeinbergAngle") );
+  double thw ;
+  GetParam( "WeinbergAngle", thw ) ;
   double sin2thw = TMath::Power(TMath::Sin(thw), 2);
-
   fkAlpha = 1.-2.*sin2thw;
   fkGamma = -0.66666667*sin2thw;
 
   // eta and Fa(q2=0)
-  fEta = fConfig->GetDoubleDef("EL-Axial-Eta", gc->GetDouble("EL-Axial-Eta"));
-  fFa0 = fConfig->GetDoubleDef("QEL-FA0",      gc->GetDouble("QEL-FA0"));
+  GetParam( "EL-Axial-Eta", fEta ) ;
+  GetParam( "QEL-FA0", fFa0 ) ;
 
   // axial and vector masses
-  double ma = fConfig->GetDoubleDef("QEL-Ma", gc->GetDouble("QEL-Ma"));
-  double mv = fConfig->GetDoubleDef("QEL-Mv", gc->GetDouble("QEL-Mv"));
-
+  double ma, mv ;
+  GetParam( "QEL-Ma", ma ) ;
+  GetParam( "QEL-Mv", mv ) ;
   fMa2 = TMath::Power(ma,2);
   fMv2 = TMath::Power(mv,2);
 
   // anomalous magnetic moments
-  fMuP = fConfig->GetDoubleDef("AnomMagnMoment-P", gc->GetDouble("AnomMagnMoment-P"));
-  fMuN = fConfig->GetDoubleDef("AnomMagnMoment-N", gc->GetDouble("AnomMagnMoment-N"));
+  GetParam( "AnomMagnMoment-P", fMuP ) ;
+  GetParam( "AnomMagnMoment-N", fMuN ) ;
 
   // load XSec Integrator
   fXSecIntegrator =

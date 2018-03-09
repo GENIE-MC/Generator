@@ -360,15 +360,11 @@ void LwlynSmithQELCCPXSec::Configure(string config)
 //____________________________________________________________________________
 void LwlynSmithQELCCPXSec::LoadConfig(void)
 {
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
-  
   // Cross section scaling factor
-  fXSecScale = fConfig->GetDoubleDef(
-       "QEL-CC-XSecScale", gc->GetDouble("QEL-CC-XSecScale"));
+  GetParamDef( "QEL-CC-XSecScale", fXSecScale, 1. ) ;
 
-  double thc = fConfig->GetDoubleDef(
-       "CabibboAngle", gc->GetDouble("CabibboAngle"));
+  double thc ;
+  GetParam( "CabibboAngle", thc ) ;
   fCos8c2 = TMath::Power(TMath::Cos(thc), 2);
 
    // load QEL form factors model
@@ -389,16 +385,16 @@ void LwlynSmithQELCCPXSec::LoadConfig(void)
 
   fLFG = fNuclModel->ModelType(Target()) == kNucmLocalFermiGas;
 
+  bool average_over_nuc_mom ;
+  GetParamDef( "IntegralAverageOverNucleonMomentum", average_over_nuc_mom, false ) ;
   // Always average over initial nucleons if the nuclear model is LFG
-  fDoAvgOverNucleonMomentum =
-    fLFG || fConfig->GetBoolDef("IntegralAverageOverNucleonMomentum", false);
+  fDoAvgOverNucleonMomentum = fLFG || average_over_nuc_mom ;
 
   fEnergyCutOff = 0.;
 
   if(fDoAvgOverNucleonMomentum) {
     // Get averaging cutoff energy
-    fEnergyCutOff = 
-      fConfig->GetDoubleDef("IntegralNuclearInfluenceCutoffEnergy", 2.0);
+	  GetParamDef("IntegralNuclearInfluenceCutoffEnergy", fEnergyCutOff, 2.0 ) ;
   }
 }
 //____________________________________________________________________________

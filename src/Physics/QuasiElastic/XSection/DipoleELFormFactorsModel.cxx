@@ -92,19 +92,13 @@ void DipoleELFormFactorsModel::Configure(string param_set)
 //____________________________________________________________________________
 void DipoleELFormFactorsModel::LoadConfig(void)
 {
-// get config options from the configuration registry or set defaults 
-// from the global parameter list
-
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
-
   // vector mass
-  fMv  = fConfig->GetDoubleDef("EL-Mv", gc->GetDouble("EL-Mv"));
+  GetParam( "EL-Mv", fMv ) ;
   fMv2 = TMath::Power(fMv,2);
 
   // anomalous magnetic moments
-  fMuP = fConfig->GetDoubleDef("AnomMagnMoment-P", gc->GetDouble("AnomMagnMoment-P"));
-  fMuN = fConfig->GetDoubleDef("AnomMagnMoment-N", gc->GetDouble("AnomMagnMoment-N"));
+  GetParam( "AnomMagnMoment-P", fMuP ) ;
+  GetParam( "AnomMagnMoment-N", fMuN ) ;
 }
 //____________________________________________________________________________
 

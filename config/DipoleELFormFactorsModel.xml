@@ -7,18 +7,19 @@ Configuration sets for the Dipole elastic form factors model.
 
 Algorithm Configurable Parameters:
 .........................................................................................
-Name        Type    Optional   Comment                    Default
+Name                  Type    Optional   Comment                    Default
 .........................................................................................
-Mv          double  Yes        Vector Mass                GPL value: EL-Mv
-AnomMagnMoment-P   double  Yes p Anomalous Magn Moment    GPL value
-AnomMagnMoment-N   double  Yes n Anomalous Magn Moment    GPL value
+EL-Mv                 double  No         Vector Mass                
+AnomMagnMoment-P      double  No         p Anomalous Magn Moment    CommonParam[MagnMoments]
+AnomMagnMoment-N      double  No         n Anomalous Magn Moment    CommonParam[MagnMoments]
+
 -->
 
   <param_set name="Default"> 
+    <param type="string" name="CommonParam"> MagnMoments  </param>
 
-    <param type="double" name="AnomMagnMoment-P">   2.7930     </param>
-    <param type="double" name="AnomMagnMoment-N">  -1.913042   </param>
-  
+    
+
   </param_set>
 
 </alg_conf>

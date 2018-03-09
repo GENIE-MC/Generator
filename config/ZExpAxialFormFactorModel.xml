@@ -28,8 +28,13 @@ QEL-Q4limit bool    Yes        1/Q^4 limit conditions     GPL value: QEL-Q4limit
 -->
 
   <param_set name="Default"> 
-    <param type="double" name="QEL-T0">     -0.28   </param>
+
+    <param type="string"   name="CommandParam"> QuasiElastic  </param>
+    
+    <param type="bool"   name="QEL-Q4limit"> true   </param>
     <param type="int"    name="QEL-Kmax">    4      </param>
+
+    <param type="double" name="QEL-T0">     -0.28   </param>
     <param type="double" name="QEL-Tcut">    0.1764 </param> <!-- 9*m_pi^2 -->
 
     <param type="double" name="QEL-Z_A1">    2.30   </param>

@@ -214,23 +214,26 @@ void LwlynSmithFF::LoadConfig(void)
 // to private data members
 	
   fElFFModel = 0;
-
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  Registry * gc = confp->GlobalParameterList();
-
   // load elastic form factors model
-  RgAlg form_factors_model = fConfig->GetAlgDef(
-                 "ElasticFormFactorsModel", gc->GetAlg("ElasticFormFactorsModel"));
-  fElFFModel =  dynamic_cast<const ELFormFactorsModelI *> (
-                                          this->SubAlg("ElasticFormFactorsModel"));
+  RgAlg form_factors_model ;
+  GetParam( "ElasticFormFactorsModel", form_factors_model ) ;
+
+  fElFFModel =
+	dynamic_cast<const ELFormFactorsModelI *> (
+	  AlgFactory::Instance()->GetAlgorithm( form_factors_model.name, form_factors_model.config ) ) ;
   assert(fElFFModel);
+
   fCleanUpfElFFModel = false;
-  if(gc->GetBoolDef("UseElFFTransverseEnhancement", false)) {
+  bool useElFFTE = false;
+  GetParam( "UseElFFTransverseEnhancement", useElFFTE ) ;
+  if(  useElFFTE ) {
     const ELFormFactorsModelI* sub_alg = fElFFModel;
-    RgAlg transverse_enhancement = gc->GetAlg("TransverseEnhancement");
+
+    RgAlg transverse_enhancement ;
+    GetParam( "TransverseEnhancement", transverse_enhancement );
     fElFFModel = dynamic_cast<const ELFormFactorsModelI *> (
         AlgFactory::Instance()->AdoptAlgorithm(
-            transverse_enhancement.name, transverse_enhancement.config));
+            transverse_enhancement.name, transverse_enhancement.config) );
     dynamic_cast<const TransverseEnhancementFFModel*>(fElFFModel)->SetElFFBaseModel(
         sub_alg);
     fCleanUpfElFFModel = true;
@@ -238,24 +241,28 @@ void LwlynSmithFF::LoadConfig(void)
 
   fELFF.SetModel(fElFFModel);  
 
-  RgAlg ax_form_factor_model = fConfig->GetAlgDef(
-                 "AxialFormFactorModel"   , gc->GetAlg("AxialFormFactorModel"   ));
+  RgAlg ax_form_factor_model ;
+  GetParam( "AxialFormFactorModel", ax_form_factor_model ) ;
 
-  fAxFFModel =  dynamic_cast<const AxialFormFactorModelI *> (
-                                          this->SubAlg("AxialFormFactorModel"   ));
+  fAxFFModel =
+	dynamic_cast<const AxialFormFactorModelI *> (
+	  AlgFactory::Instance()->GetAlgorithm( ax_form_factor_model.name, ax_form_factor_model.config ) ) ;
+
   assert(fAxFFModel);
   fAxFF.SetModel(fAxFFModel);
 
   // anomalous magnetic moments
-  fMuP = fConfig->GetDoubleDef("AnomMagnMoment-P", gc->GetDouble("AnomMagnMoment-P"));
-  fMuN = fConfig->GetDoubleDef("AnomMagnMoment-N", gc->GetDouble("AnomMagnMoment-N"));
+  GetParam( "AnomMagnMoment-P", fMuP ) ;
+  GetParam( "AnomMagnMoment-N", fMuN ) ;
 
   // weinberg angle
-  double thw = fConfig->GetDoubleDef( "WeinbergAngle", gc->GetDouble("WeinbergAngle"));
-
+  double thw ;
+  GetParam( "WeinbergAngle", thw ) ;
   fSin28w  = TMath::Power(TMath::Sin(thw), 2);
-  double d = fConfig->GetDoubleDef("SU3-D", gc->GetDouble("SU3-D")); // SU(3) parameter D
-  double f = fConfig->GetDoubleDef("SU3-F", gc->GetDouble("SU3-F")); // SU(3) parameter F
+
+  double d,f ;
+  GetParam( "SU3-D", d ) ;
+  GetParam( "SU3-F", f ) ;
   fFDratio = f/(d+f); 
 }
 //____________________________________________________________________________

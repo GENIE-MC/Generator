@@ -184,20 +184,21 @@ void RosenbluthPXSec::LoadConfig(void)
 {
   fElFFModel = 0;
 
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  Registry * gc = confp->GlobalParameterList();
-
   // load elastic form factors model
-  RgAlg form_factors_model = fConfig->GetAlgDef(
-      "ElasticFormFactorsModel", gc->GetAlg("ElasticFormFactorsModel"));
-  fElFFModel =  
+  RgAlg form_factors_model ;
+  GetParam( "ElasticFormFactorsModel", form_factors_model ) ;
+  fElFFModel =
     dynamic_cast<const ELFormFactorsModelI *> (
-         this->SubAlg("ElasticFormFactorsModel"));
+      AlgFactory::Instance()->GetAlgorithm( form_factors_model.name, form_factors_model.config ) );
   assert(fElFFModel);
+
   fCleanUpfElFFModel = false;
-  if(gc->GetBoolDef("UseElFFTransverseEnhancement", false)) {
+  bool useFFTE = false ;
+  GetParam( "UseElFFTransverseEnhancement", useFFTE ) ;
+  if( useFFTE ) {
     const ELFormFactorsModelI* sub_alg = fElFFModel;
-    RgAlg transverse_enhancement = gc->GetAlg("TransverseEnhancement");
+    RgAlg transverse_enhancement ;
+    GetParam( "TransverseEnhancement", transverse_enhancement );
     fElFFModel = dynamic_cast<const ELFormFactorsModelI *> (
         AlgFactory::Instance()->AdoptAlgorithm(
             transverse_enhancement.name, transverse_enhancement.config));

@@ -24,23 +24,23 @@ Cache-MinEnergy          double  Yes   minimum energy for which max xsec is cach
   </param_set>
   
   <param_set name="CC-Default">
-    <param type="alg"    name="NuclearModel">           genie::NuclearModelMap/Default            </param>
+
   </param_set>
 
   <param_set name="NC-Default">
-    <param type="alg"    name="NuclearModel">           genie::NuclearModelMap/Default            </param>
+
   </param_set>
 
   <param_set name="EM-Default"> 
-    <param type="alg"    name="NuclearModel">           genie::NuclearModelMap/Default            </param>
+
   </param_set>
 
   <param_set name="CC-Charm-Default"> 
-    <param type="alg"    name="NuclearModel">           genie::NuclearModelMap/Default            </param>
+
   </param_set>
 
   <param_set name="CC-Lambda-Default">
-    <param type="alg"    name="NuclearModel">           genie::NuclearModelMap/Default            </param>
+
   </param_set>
   
 </alg_conf>

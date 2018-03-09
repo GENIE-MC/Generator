@@ -38,6 +38,13 @@ University of Liverpool
    <param type="double" name="WeinbergAngle"> 0.49744211 </param> <!-- 0.501568 --> 
 
  </param_set>
+
+ <param_set name="StrongInt"> 
+  <param type="double" name="SU3-D"> 0.804 </param>
+  <param type="double" name="SU3-F"> 0.463 </param>
+
+ </param_set>
+
  
  <param_set name="CKM">
    
@@ -221,15 +228,14 @@ University of Liverpool
    <param type="double" name="DFR-t-max"> 0.35 </param>
    
  <param_set name="QuasiElastic">
-   
    <!-- 
-	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Value of axial form factor at Q2=0  
    -->
-
    <param type="double" name="QEL-FA0"> -1.2670 </param>
+
    <!-- 
-	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Axial and vector masses for quasi-elastic scattering  
    -->
    <param type="double" name="QEL-Ma"> 0.990 </param>
@@ -252,6 +258,24 @@ University of Liverpool
    <param type="double" name="NSV-Q3Max"> 1.2 </param>
  </param_set>
 
+ <param_set name="ElasticFF">
+   <!-- 
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Elastic form factors used for QEL CC cross section calculation.
+	Options are:
+	- genie::DipoleELFormFactorsModel
+	- genie::BBA03ELFormFactorsModel, H.Budd, NuINT-02 proceedings
+	- genie::BBA05ELFormFactorsModel, R.Bradford, A.Bodek, H.Budd and J.Arrington, hep-ex/0602017
+   -->
+   <param type="alg" name="ElasticFormFactorsModel"> genie::BBA05ELFormFactorsModel/Default </param>
+   
+   <!-- Option for turning on Transverse Enhancement by Elastic Form Factor adjustment. 
+	See http://arxiv.org/abs/1405.0583 and http://arxiv.org/abs/1106.0340
+   -->
+   <param type="bool" name="UseElFFTransverseEnhancement">  false                              </param>
+   <param type="alg" name="TransverseEnhancement"> genie::TransverseEnhancementFFModel/Default </param>
+   
+ </param_set>
 
 
 

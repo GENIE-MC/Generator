@@ -8,18 +8,23 @@ Configuration sets for Llewellyn-Smith QEL NC form factors
 Configurable Parameters:
 ........................................................................................................
 Name                     Type     Optional   Comment                     Default
+ElasticFormFactorsModel       alg      No         Elastic form factors model  CommonParam[ElasticFF]
+UseElFFTransverseEnhancement  bool     No                                     CommonParam[ElasticFF]
+TransverseEnhancement         alg      No         TransverseEnhancement model CommonParam[ElasticFF]
+AxialFormFactorModel          alg      No         Axial form factor model     
+AnomMagnMoment-P              double   No                                     CommonParam[MagnMoments]
+AnomMagnMoment-N              double   No                                     CommonParam[MagnMoments]
+WeinbergAngle                 double   No         Weinberg angle              CommonParam[WeakInt]
+SU3-D                         double   No                                     CommonParam[StrongInt]
+SU3-F                         double   No                                     CommonParam[StrongInt]
 ........................................................................................................
-QEL-Ma                   double   Yes        Axial  Mass squared         GPL: QEl-Ma
-QEL-FA0                  double   Yes        FA(q2=0)                    GPL: QEL-FA0
-ElasticFormFactorsModel  alg      No         Elastic form factors model  GPL: ElasticFormFactorsModel
-WeinbergAngle            double   Yes        Weinberg angle              GPL: WeinbergAngle
 -->
 
   <param_set name="Default">
-    <param type="double" name="WeinbergAngle"> 0.49744211 </param>
-
-    <param type="double" name="QEL-FA0"> -1.2670 </param>
-
+    <param type="string" name="CommonParam"> WeakInt,MagnMoments,StrongInt,ElasticFF </param>
+    
+    <param type="alg" name="AxialFormFactorModel"> genie::DipoleAxialFormFactorModel/Default </param>
+    
   </param_set>
 
 </alg_conf>

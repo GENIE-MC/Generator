@@ -219,28 +219,26 @@ void ZExpAxialFormFactorModel::LoadConfig(void)
 // get config options from the configuration registry or set defaults 
 // from the global parameter list
 
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
+  GetParam( "QEL-Q4limit", fQ4limit ) ;
+  GetParam( "QEL-Kmax", fKmax ) ;
 
-  fQ4limit  = fConfig->GetBoolDef("QEL-Q4limit", gc->GetBool("QEL-Q4limit"));
-  fKmax     = fConfig->GetIntDef ("QEL-Kmax"   , gc->GetInt ("QEL-Kmax"   ));
-  fT0       = fConfig->GetDoubleDef("QEL-T0"   , gc->GetDouble("QEL-T0"   ));
-  fTcut     = fConfig->GetDoubleDef("QEL-Tcut" , gc->GetDouble("QEL-Tcut" ));
-  fFA0      = fConfig->GetDoubleDef("QEL-FA0"  , gc->GetDouble("QEL-FA0"  ));
+  GetParam( "QEL-T0", fT0 ) ;
+  GetParam( "QEL-T0", fT0 ) ;
+  GetParam( "QEL-Tcut", fTcut ) ;
 
+  GetParam( "QEL-FA0", fFA0 ) ;
   assert(fKmax > 0);
+
   // z expansion coefficients
   if (fQ4limit) fZ_An = new double [fKmax+5];
   else          fZ_An = new double [fKmax+1];
 
   // load the user-defined coefficient values
   // -- A0 and An for n<fKmax are calculated from other means
-  for (int ip=1;ip<fKmax+1;ip++)
-  {
+  for (int ip=1;ip<fKmax+1;ip++) {
     ostringstream alg_key;
     alg_key << "QEL-Z_A" << ip;
-    fZ_An[ip] = fConfig->GetDoubleDef(alg_key.str(),
-                                      gc->GetDouble(alg_key.str()));
+    GetParam( alg_key.str(), fZ_An[ip] ) ;
   }
 
   this->FixCoeffs();

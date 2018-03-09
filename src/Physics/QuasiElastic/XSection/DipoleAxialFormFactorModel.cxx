@@ -65,19 +65,11 @@ void DipoleAxialFormFactorModel::Configure(string param_set)
 //____________________________________________________________________________
 void DipoleAxialFormFactorModel::LoadConfig(void)
 {
-// get config options from the configuration registry or set defaults 
-// from the global parameter list
-
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
-
-  // axial mass
-  //fMa  = fConfig->GetDouble("QEL-Ma", { *gc } );
-  fMa  = fConfig->GetDoubleDef("QEL-Ma", gc->GetDouble("QEL-Ma"));
+  GetParam( "QEL-Ma", fMa ) ;
   fMa2 = TMath::Power(fMa,2);
 
   // FA(q2 = 0)
-  fFA0 = fConfig->GetDoubleDef("QEL-FA0", gc->GetDouble("QEL-FA0"));
+  GetParam( "QEL-FA0", fFA0 ) ;
 }
 //____________________________________________________________________________
 
