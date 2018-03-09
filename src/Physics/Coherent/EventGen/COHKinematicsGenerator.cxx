@@ -995,8 +995,8 @@ void COHKinematicsGenerator::LoadConfig(void)
   GetParam( "COH-Q2-max", fQ2Max ) ;
 
   //-- max xsec safety factor (for rejection method) and min cached energy
-  GetParam( "MaxXSec-SafetyFactor", fSafetyFactor, 1.6 ) ;
-  GetParam( "Cache-MinEnergy", fEMin,  -1.0 ) ;
+  GetParamDef( "MaxXSec-SafetyFactor", fSafetyFactor, 1.6 ) ;
+  GetParamDef( "Cache-MinEnergy", fEMin,  -1.0 ) ;
 
   //-- Generate kinematics uniformly over allowed phase space and compute
   //   an event weight?
