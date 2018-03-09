@@ -64,7 +64,7 @@ InteractionList * SKInteractionListGenerator::CreateInteractionList(
   }
 
   int probe_pdg = init_state.ProbePdg();
-  bool isnu = pdg::IsNeutrino(probe_pdg); 
+  bool isnu = pdg::IsNeutrino(probe_pdg);
   if( !isnu ) {
      // shouldn't happen... warn
      LOG("IntLst", pWARN)
@@ -109,7 +109,7 @@ InteractionList * SKInteractionListGenerator::CreateInteractionList(
       continue;
     }
     target->SetHitNucPdg(inuclpdg[i]);
-    xcls->SetStrange(kaonpdg[i]); 
+    xcls->SetStrange(kaonpdg[i]);
     if( fnuclpdg[i] == kPdgProton ) xcls->SetNProtons(1);
     else                            xcls->SetNNeutrons(1);
 
@@ -133,8 +133,7 @@ void SKInteractionListGenerator::Configure(string config)
 //____________________________________________________________________________
 void SKInteractionListGenerator::LoadConfigData(void)
 {
-  fIsCC = fConfig->GetBoolDef("is-CC", false);
-  fIsNC = fConfig->GetBoolDef("is-NC", false);
+  this->GetParamDef("is-CC", fIsCC, false);
+  this->GetParamDef("is-NC", fIsNC, false);
 }
 //____________________________________________________________________________
-
