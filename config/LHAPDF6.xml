@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration sets for the LHAPDF6 PDFModelI
+
+Configurable Parameters:
+................................................................................................
+Name             Type     Optional   Comment                             Default
+................................................................................................
+SetName          string   No         LHAPDF PDF name
+MemberID         int      No         LHAPDF PDF number within set name
+-->
+
+  <!-- an example -->
+  <param_set name="CT10nlo_0"> 
+     <param type="string" name="SetName">  CT10nlo </param>
+     <param type="int"    name="MemberID"> 0       </param>
+  </param_set>
+  
+</alg_conf>
+

@@ -16,14 +16,15 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "Usage: ./configure [option]... [flag=value]... \n\n";
   print "    FLAG                 DESCRIPTION                                                 DEFAULT\n\n";
   print "    --prefix             Installation location (for 'make install')                  /usr/local/\n";
-  print "\n enable/disable options with either --enable- or --disable- (eg --enable-lhapdf --disable-flux-drivers)\n\n";
+  print "\n enable/disable options with either --enable- or --disable- (eg --enable-lhapdf5 --disable-flux-drivers)\n\n";
   print "    profiler             GENIE code profiling using Google PerfTools                 default: disabled \n";
   print "    doxygen-doc          Generate doxygen documentation at build time                default: disabled \n";
   print "    dylibversion         Adds version number in library names (recommended)          default: enabled  \n";
   print "    lowlevel-mesg        Disable (rather than filter out at run time) prolific       default: disabled \n";
   print "                         debug/info level messages known to slow GENIE down          \n";
   print "    debug                Adds -g in the compiler options to request debug info       default: disabled \n";
-  print "    lhapdf               Use the LHAPDF5 parton density function library             default: enabled  \n";
+  print "    lhapdf5              Use the LHAPDF5 parton density function library             default: enabled  \n";
+  print "    lhapdf6              Use the LHAPDF6 parton density function library             default: disabled \n";
   print "    t2k                  T2K-specific event generation app                           default: disabled \n";
   print "    fnal                 FNAL-specific event generation app                          default: disabled \n";
   print "    atmo                 Atmospheric neutrino event generation app                   default: disabled \n";
@@ -35,14 +36,16 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "    rwght                Enable event reweighting tools                              default: disabled \n";
   print "    masterclass          Enable GENIE neutrino masterclass app                       default: disabled (Experimental) \n";
   print "    test                 Build test programs                                         default: disabled \n";
-  print "\n options for 3rd party software, prefix with --with- (eg --with-lhapdf-lib=/some/path/)\n\n";
+  print "\n options for 3rd party software, prefix with --with- (eg --with-lhapdf5-lib=/some/path/)\n\n";
   print "    compiler          Compiler to use (any of clang,gcc)                          default: gcc \n";
   print "    optimiz-level     Compiler optimization        any of O,O2,O3,OO,Os / default: O2 \n";
   print "    profiler-lib      Path to profiler library     needed if you --enable-profiler \n";
   print "    doxygen-path      Doxygen binary path          needed if you --enable-doxygen-doc  (if unset: checks for a \$DOXYGENPATH env.var.) \n";
-  print "    pythia6-lib       PYTHIA6 library path         always needed                       (if unset: checks for a \$PYTHIA6 env.var.,    then tries to auto-detect it) \n";
-  print "    lhapdf-inc        Path to LHAPDF5 includes     needed if you --enable-lhapdf       (if unset: checks for a \$LHAPDF_INC env.var., then tries to auto-detect it) \n";
-  print "    lhapdf-lib        Path to LHAPDF5 libraries    needed if you --enable-lhapdf       (if unset: checks for a \$LHAPDF_INC env.var.. then tries to auto-detect it) \n";
+  print "    pythia6-lib       PYTHIA6 library path         always needed                       (if unset: checks for a \$PYTHIA6 env.var., then tries to auto-detect it) \n";
+  print "    lhapdf5-inc       Path to LHAPDF5 includes     needed if you --enable-lhapdf5      (if unset: checks for a \$LHAPDF5_INC env.var., then tries to auto-detect it) \n";
+  print "    lhapdf5-lib       Path to LHAPDF5 libraries    needed if you --enable-lhapdf5      (if unset: checks for a \$LHAPDF5_INC env.var.. then tries to auto-detect it) \n";
+  print "    lhapdf6-inc       Path to LHAPDF6 includes     needed if you --enable-lhapdf6      (if unset: checks for a \$LHAPDF6_INC env.var., then tries to auto-detect it) \n";
+  print "    lhapdf6-lib       Path to LHAPDF6 libraries    needed if you --enable-lhapdf6      (if unset: checks for a \$LHAPDF6_INC env.var.. then tries to auto-detect it) \n";
   print "    libxml2-inc       Path to libxml2 includes     always needed                       (if unset: tries to auto-detect it) \n";
   print "    libxml2-lib       Path to libxml2 library      always needed                       (if unset: tries to auto-detect it) \n";
   print "    log4cpp-inc       Path to log4cpp includes     always needed                       (if unset: tries to auto-detect it) \n";
@@ -129,7 +132,8 @@ my $gopt_enable_doxygen_doc       = "NO";
 my $gopt_enable_dylibversion      = "YES";
 my $gopt_enable_lowlevel_mesg     = "NO";
 my $gopt_enable_debug             = "NO";
-my $gopt_enable_lhapdf            = "YES";
+my $gopt_enable_lhapdf5           = "YES";
+my $gopt_enable_lhapdf6           = "NO";
 my $gopt_enable_flux_drivers      = "YES";
 my $gopt_enable_geom_drivers      = "YES";
 my $gopt_enable_test              = "NO";
@@ -149,8 +153,10 @@ if(($match = grep(/--enable-doxygen-doc/i,         @ARGV)) > 0) { $gopt_enable_d
 if(($match = grep(/--disable-dylibversion/i,       @ARGV)) > 0) { $gopt_enable_dylibversion      = "NO";  }
 if(($match = grep(/--enable-lowlevel-mesg/i,       @ARGV)) > 0) { $gopt_enable_lowlevel_mesg     = "YES"; }
 if(($match = grep(/--enable-debug/i,               @ARGV)) > 0) { $gopt_enable_debug             = "YES"; }
-if(($match = grep(/--enable-lhapdf/i,              @ARGV)) > 0) { $gopt_enable_lhapdf            = "YES"; }
-if(($match = grep(/--disable-lhapdf/i,             @ARGV)) > 0) { $gopt_enable_lhapdf            = "NO"; }
+if(($match = grep(/--enable-lhapdf5/i,             @ARGV)) > 0) { $gopt_enable_lhapdf5           = "YES"; }
+if(($match = grep(/--disable-lhapdf5/i,            @ARGV)) > 0) { $gopt_enable_lhapdf5           = "NO";  }
+if(($match = grep(/--enable-lhapdf6/i,             @ARGV)) > 0) { $gopt_enable_lhapdf6           = "YES"; }
+if(($match = grep(/--disable-lhapdf6/i,            @ARGV)) > 0) { $gopt_enable_lhapdf6           = "NO";  }
 if(($match = grep(/--disable-flux-drivers/i,       @ARGV)) > 0) { $gopt_enable_flux_drivers      = "NO";  }
 if(($match = grep(/--disable-geom-drivers/i,       @ARGV)) > 0) { $gopt_enable_geom_drivers      = "NO";  }
 if(($match = grep(/--enable-test/i,                @ARGV)) > 0) { $gopt_enable_test              = "YES"; }
@@ -162,6 +168,9 @@ if(($match = grep(/--enable-nnbar-oscillation/i,   @ARGV)) > 0) { $gopt_enable_n
 if(($match = grep(/--enable-boosted-dark-matter/i, @ARGV)) > 0) { $gopt_enable_boosted_dark_mat  = "YES"; }
 if(($match = grep(/--enable-rwght/i,               @ARGV)) > 0) { $gopt_enable_rwght             = "YES"; }
 if(($match = grep(/--enable-masterclass/i,         @ARGV)) > 0) { $gopt_enable_masterclass       = "YES"; }
+
+# LHAPDF6 and 5 are mutually exlusive
+if  ($gopt_enable_lhapdf6 eq "YES") { $gopt_enable_lhapdf5 = "NO";}
 
 my $gopt_with_cxx_debug_flag="";
 if($gopt_enable_debug eq "YES") { $gopt_with_cxx_debug_flag = "-g"; }
@@ -209,72 +218,142 @@ if($gopt_enable_doxygen_doc eq "YES") {
   }
 }
 
-# If --enable-lhapdf was set then the full path to the LHAPDF library must be specified
+# If --enable-lhapdf5 was set then the full path to the LHAPDF5 library must be specified
 #
-my $gopt_with_lhapdf_lib = "";
-if($gopt_enable_lhapdf eq "YES") {
-  if(($match = grep(/--with-lhapdf-lib/i, @ARGV)) > 0) { 
-    $options=~m/--with-lhapdf-lib=(\S*)/i;
-    $gopt_with_lhapdf_lib = $1;
+my $gopt_with_lhapdf5_lib = "";
+if($gopt_enable_lhapdf5 eq "YES") {
+  if(($match = grep(/--with-lhapdf5-lib/i, @ARGV)) > 0) { 
+    $options=~m/--with-lhapdf5-lib=(\S*)/i;
+    $gopt_with_lhapdf5_lib = $1;
   }
-  if(! -d $gopt_with_lhapdf_lib)  {
-    print "\n*** Warning *** LHAPDF has been enabled but you didn't specify the LHAPDF library path \n";
+  if(! -d $gopt_with_lhapdf5_lib)  {
+    print "\n*** Warning *** LHAPDF5 has been enabled but you didn't specify the LHAPDF5 library path \n";
   }
   # if it was not set, try to pick it up from the environment
-  if($gopt_with_lhapdf_lib eq "" && defined $ENV{'LHAPDF_LIB'}) { 
-     $gopt_with_lhapdf_lib = $ENV{'LHAPDF_LIB'}; 
-     print "The \$LHAPDF_LIB env var is defined. I will pick that and use --with-lhapdf-lib=$gopt_with_lhapdf_lib\n";
+  if($gopt_with_lhapdf5_lib eq "" && defined $ENV{'LHAPDF5_LIB'}) { 
+     $gopt_with_lhapdf5_lib = $ENV{'LHAPDF5_LIB'}; 
+     print "The \$LHAPDF5_LIB env var is defined. I will pick that and use --with-lhapdf5-lib=$gopt_with_lhapdf5_lib\n";
   }
   # if it still not set, try autodetecting it
-  if(! -d $gopt_with_lhapdf_lib && $auto_detect)  {
-    print "Auto-detecting LHAPDF library path...\n";
+  if(! -d $gopt_with_lhapdf5_lib && $auto_detect)  {
+    print "Auto-detecting LHAPDF5 library path...\n";
     $matched = auto_detect("libLHAPDF.a");
     if( $matched=~m/(\S*)\/libLHAPDF.a/i ) {
-       $gopt_with_lhapdf_lib = $1;
+       $gopt_with_lhapdf5_lib = $1;
     }
-    print "Setting --with-lhapdf-inc=$gopt_with_lhapdf_lib\n";
+    print "Setting --with-lhapdf5-inc=$gopt_with_lhapdf5_lib\n";
   }
   # check
-  my $fileso    = "$gopt_with_lhapdf_lib/libLHAPDF.so";
-  my $filedylib = "$gopt_with_lhapdf_lib/libLHAPDF.dylib";
+  my $fileso    = "$gopt_with_lhapdf5_lib/libLHAPDF.so";
+  my $filedylib = "$gopt_with_lhapdf5_lib/libLHAPDF.dylib";
   if(! -e $fileso && ! -e $filedylib) {
-     print "*** Error *** You need to specify the path to libLHAPDF using --with-lhapdf-lib=/some/path/\n";
-     print "*** Error *** Otherwise, you should --disable-lhapdf\n\n";
+     print "*** Error *** You need to specify the path to LHAPDF5 library using --with-lhapdf5-lib=/some/path/\n";
+     print "*** Error *** Otherwise, you should --disable-lhapdf5\n\n";
      exit 1;
   }
 }
 
-# If --enable-lhapdf was set then the full path to the LHAPDF includes must be specified
+# If --enable-lhapdf5 was set then the full path to the LHAPDF5 includes must be specified
 #
-my $gopt_with_lhapdf_inc = "";
-if($gopt_enable_lhapdf eq "YES") {
-  if(($match = grep(/--with-lhapdf-inc/i, @ARGV)) > 0) { 
-    $options=~m/--with-lhapdf-inc=(\S*)/i;
-    $gopt_with_lhapdf_inc = $1;
+my $gopt_with_lhapdf5_inc = "";
+if($gopt_enable_lhapdf5 eq "YES") {
+  if(($match = grep(/--with-lhapdf5-inc/i, @ARGV)) > 0) { 
+    $options=~m/--with-lhapdf5-inc=(\S*)/i;
+    $gopt_with_lhapdf5_inc = $1;
   }
-  if(! -d $gopt_with_lhapdf_inc)  {
-    print "\n*** Warning *** LHAPDF has been enabled but you didn't specify the LHAPDF include path \n";
+  if(! -d $gopt_with_lhapdf5_inc)  {
+    print "\n*** Warning *** LHAPDF5 has been enabled but you didn't specify the LHAPDF5 include path \n";
   }
   # if it was not set, try to pick it up from the environment
-  if($gopt_with_lhapdf_inc eq "" && defined $ENV{'LHAPDF_INC'}) { 
-     $gopt_with_lhapdf_inc = $ENV{'LHAPDF_INC'}; 
-     print "The \$LHAPDF_INC env var is defined. I will pick that and use --with-lhapdf-inc=$gopt_with_lhapdf_inc\n";
+  if($gopt_with_lhapdf5_inc eq "" && defined $ENV{'LHAPDF5_INC'}) { 
+     $gopt_with_lhapdf5_inc = $ENV{'LHAPDF5_INC'}; 
+     print "The \$LHAPDF5_INC env var is defined. I will pick that and use --with-lhapdf5-inc=$gopt_with_lhapdf5_inc\n";
   }
   # if it still not set, try autodetecting it
-  if(! -d $gopt_with_lhapdf_inc && $auto_detect)  {
-    print "Auto-detecting the LHAPDF include path...\n";
+  if(! -d $gopt_with_lhapdf5_inc && $auto_detect)  {
+    print "Auto-detecting the LHAPDF5 include path...\n";
     $matched = auto_detect("LHAPDF.h","LHAPDF/LHAPDF.h");
-    print "$gopt_with_lhapdf_inc  \n";
+    print "$gopt_with_lhapdf5_inc  \n";
     if( $matched=~m/(\S*)\/LHAPDF\/LHAPDF.h/i ) {
-       $gopt_with_lhapdf_inc = $1;
+       $gopt_with_lhapdf5_inc = $1;
     }
-    print "Setting --with-lhapdf-inc=$gopt_with_lhapdf_inc\n";
+    print "Setting --with-lhapdf5-inc=$gopt_with_lhapdf5_inc\n";
   }
   # check
-  my $file = "$gopt_with_lhapdf_inc/LHAPDF/LHAPDF.h";
+  my $file = "$gopt_with_lhapdf5_inc/LHAPDF/LHAPDF.h";
   if(! -e $file) {
-     print "*** Error *** You need to specify the LHAPDF includes path using --with-lhapdf-inc=/some/path/\n";
-     print "*** Error *** Otherwise, you should --disable-lhapdf\n\n";
+     print "*** Error *** You need to specify the LHAPDF5 includes path using --with-lhapdf5-inc=/some/path/\n";
+     print "*** Error *** Otherwise, you should --disable-lhapdf5\n\n";
+     exit 1;
+  }
+}
+
+# If --enable-lhapdf6 was set then the full path to the LHAPDF6 library must be specified
+#
+my $gopt_with_lhapdf6_lib = "";
+if($gopt_enable_lhapdf6 eq "YES") {
+  if(($match = grep(/--with-lhapdf6-lib/i, @ARGV)) > 0) { 
+    $options=~m/--with-lhapdf6-lib=(\S*)/i;
+    $gopt_with_lhapdf6_lib = $1;
+  }
+  if(! -d $gopt_with_lhapdf6_lib)  {
+    print "\n*** Warning *** LHAPDF6 has been enabled but you didn't specify the LHAPDF6 library path \n";
+  }
+  # if it was not set, try to pick it up from the environment
+  if($gopt_with_lhapdf6_lib eq "" && defined $ENV{'LHAPDF6_LIB'}) { 
+     $gopt_with_lhapdf6_lib = $ENV{'LHAPDF6_LIB'}; 
+     print "The \$LHAPDF6_LIB env var is defined. I will pick that and use --with-lhapdf6-lib=$gopt_with_lhapdf6_lib\n";
+  }
+  # if it still not set, try autodetecting it
+  if(! -d $gopt_with_lhapdf6_lib && $auto_detect)  {
+    print "Auto-detecting LHAPDF6 library path...\n";
+    $matched = auto_detect("libLHAPDF.a");
+    if( $matched=~m/(\S*)\/libLHAPDF.a/i ) {
+       $gopt_with_lhapdf6_lib = $1;
+    }
+    print "Setting --with-lhapdf6-inc=$gopt_with_lhapdf6_lib\n";
+  }
+  # check
+  my $fileso    = "$gopt_with_lhapdf6_lib/libLHAPDF.so";
+  my $filedylib = "$gopt_with_lhapdf6_lib/libLHAPDF.dylib";
+  if(! -e $fileso && ! -e $filedylib) {
+     print "*** Error *** You need to specify the path to LHAPDF6 library using --with-lhapdf6-lib=/some/path/\n";
+     print "*** Error *** Otherwise, you should --disable-lhapdf6\n\n";
+     exit 1;
+  }
+}
+
+# If --enable-lhapdf6 was set then the full path to the LHAPDF6 includes must be specified
+#
+my $gopt_with_lhapdf6_inc = "";
+if($gopt_enable_lhapdf6 eq "YES") {
+  if(($match = grep(/--with-lhapdf6-inc/i, @ARGV)) > 0) { 
+    $options=~m/--with-lhapdf6-inc=(\S*)/i;
+    $gopt_with_lhapdf6_inc = $1;
+  }
+  if(! -d $gopt_with_lhapdf6_inc)  {
+    print "\n*** Warning *** LHAPDF6 has been enabled but you didn't specify the LHAPDF6 include path \n";
+  }
+  # if it was not set, try to pick it up from the environment
+  if($gopt_with_lhapdf6_inc eq "" && defined $ENV{'LHAPDF6_INC'}) { 
+     $gopt_with_lhapdf6_inc = $ENV{'LHAPDF6_INC'}; 
+     print "The \$LHAPDF6_INC env var is defined. I will pick that and use --with-lhapdf6-inc=$gopt_with_lhapdf6_inc\n";
+  }
+  # if it still not set, try autodetecting it
+  if(! -d $gopt_with_lhapdf6_inc && $auto_detect)  {
+    print "Auto-detecting the LHAPDF6 include path...\n";
+    $matched = auto_detect("LHAPDF.h","LHAPDF/LHAPDF.h");
+    print "$gopt_with_lhapdf6_inc  \n";
+    if( $matched=~m/(\S*)\/LHAPDF\/LHAPDF.h/i ) {
+       $gopt_with_lhapdf6_inc = $1;
+    }
+    print "Setting --with-lhapdf6-inc=$gopt_with_lhapdf6_inc\n";
+  }
+  # check
+  my $file = "$gopt_with_lhapdf6_inc/LHAPDF/LHAPDF.h";
+  if(! -e $file) {
+     print "*** Error *** You need to specify the LHAPDF6 includes path using --with-lhapdf6-inc=/some/path/\n";
+     print "*** Error *** Otherwise, you should --disable-lhapdf6\n\n";
      exit 1;
   }
 }
@@ -402,7 +481,8 @@ if(! -d $gopt_with_log4cpp_lib) {
 
 # Save config options
 #
-print MKCONF "GOPT_ENABLE_LHAPDF=$gopt_enable_lhapdf\n";
+print MKCONF "GOPT_ENABLE_LHAPDF5=$gopt_enable_lhapdf5\n";
+print MKCONF "GOPT_ENABLE_LHAPDF6=$gopt_enable_lhapdf6\n";
 print MKCONF "GOPT_ENABLE_T2K=$gopt_enable_t2k\n";
 print MKCONF "GOPT_ENABLE_FNAL=$gopt_enable_fnal\n";
 print MKCONF "GOPT_ENABLE_ATMO=$gopt_enable_atmo\n";
@@ -424,8 +504,10 @@ print MKCONF "GOPT_WITH_CXX_OPTIMIZ_FLAG=-$gopt_with_cxx_optimiz_flag\n";
 print MKCONF "GOPT_WITH_PROFILER_LIB=$gopt_with_profiler_lib\n";
 print MKCONF "GOPT_WITH_DOXYGEN_PATH=$gopt_with_doxygen_path\n";
 print MKCONF "GOPT_WITH_PYTHIA6_LIB=$gopt_with_pythia6_lib\n";
-print MKCONF "GOPT_WITH_LHAPDF_LIB=$gopt_with_lhapdf_lib\n";
-print MKCONF "GOPT_WITH_LHAPDF_INC=$gopt_with_lhapdf_inc\n";
+print MKCONF "GOPT_WITH_LHAPDF5_LIB=$gopt_with_lhapdf5_lib\n";
+print MKCONF "GOPT_WITH_LHAPDF5_INC=$gopt_with_lhapdf5_inc\n";
+print MKCONF "GOPT_WITH_LHAPDF6_LIB=$gopt_with_lhapdf6_lib\n";
+print MKCONF "GOPT_WITH_LHAPDF6_INC=$gopt_with_lhapdf6_inc\n";
 print MKCONF "GOPT_WITH_LIBXML2_INC=$gopt_with_libxml2_inc\n";
 print MKCONF "GOPT_WITH_LIBXML2_LIB=$gopt_with_libxml2_lib\n";
 print MKCONF "GOPT_WITH_LOG4CPP_INC=$gopt_with_log4cpp_inc\n";

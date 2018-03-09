@@ -78,12 +78,19 @@ if(@nret>0)
       { print GBLD   "#define __GENIE_VHE_ENABLED__\n"; }
 else  { print GBLD "//#define __GENIE_VHE_ENABLED__\n"; }
 
-# LHAPDF enabled?
+# LHAPDF5 enabled?
 #
-@nret = `grep 'GOPT_ENABLE_LHAPDF=YES' $GCONF_FILE`;
+@nret = `grep 'GOPT_ENABLE_LHAPDF5=YES' $GCONF_FILE`;
 if(@nret>0)
-      { print GBLD   "#define __GENIE_LHAPDF_ENABLED__\n"; }
-else  { print GBLD "//#define __GENIE_LHAPDF_ENABLED__\n"; }
+      { print GBLD   "#define __GENIE_LHAPDF5_ENABLED__\n"; }
+else  { print GBLD "//#define __GENIE_LHAPDF5_ENABLED__\n"; }
+
+# LHAPDF6 enabled?
+#
+@nret = `grep 'GOPT_ENABLE_LHAPDF6=YES' $GCONF_FILE`;
+if(@nret>0)
+      { print GBLD   "#define __GENIE_LHAPDF6_ENABLED__\n"; }
+else  { print GBLD "//#define __GENIE_LHAPDF6_ENABLED__\n"; }
 
 # GSL enabled?
 #

@@ -217,6 +217,14 @@ void MakePlots (void)
     double xds_arr  [nm][nQ2];
     double xstr_arr [nm][nQ2];
     double xglu_arr [nm][nQ2];
+    
+    double max_gr_xuv_Q2  = -9E9;
+    double max_gr_xdv_Q2  = -9E9;
+    double max_gr_xus_Q2  = -9E9;
+    double max_gr_xds_Q2  = -9E9;
+    double max_gr_xstr_Q2 = -9E9;
+    double max_gr_xglu_Q2 = -9E9;
+    
     for(unsigned int im=0; im < gPDFAlgList.size(); im++) {
       PDF pdf;
       pdf.SetModel(gPDFAlgList[im]);
@@ -266,9 +274,38 @@ void MakePlots (void)
       gr_xds_Q2  [im] -> GetYaxis() -> SetTitle("x*d_{sea}(x,Q^{2})");
       gr_xstr_Q2 [im] -> GetYaxis() -> SetTitle("x*s(x,Q^{2})");
       gr_xglu_Q2 [im] -> GetYaxis() -> SetTitle("x*g(x,Q^{2})");
+      
+      double this_max_gr_xuv_Q2  = TMath::MaxElement(gr_xuv_Q2 [im]->GetN(),gr_xuv_Q2 [im]->GetY());
+      double this_max_gr_xdv_Q2  = TMath::MaxElement(gr_xdv_Q2 [im]->GetN(),gr_xdv_Q2 [im]->GetY());
+      double this_max_gr_xus_Q2  = TMath::MaxElement(gr_xus_Q2 [im]->GetN(),gr_xus_Q2 [im]->GetY());
+      double this_max_gr_xds_Q2  = TMath::MaxElement(gr_xds_Q2 [im]->GetN(),gr_xds_Q2 [im]->GetY());
+      double this_max_gr_xstr_Q2 = TMath::MaxElement(gr_xstr_Q2[im]->GetN(),gr_xstr_Q2[im]->GetY());
+      double this_max_gr_xglu_Q2 = TMath::MaxElement(gr_xglu_Q2[im]->GetN(),gr_xglu_Q2[im]->GetY());
+      max_gr_xuv_Q2  = std::max(max_gr_xuv_Q2 ,this_max_gr_xuv_Q2 );
+      max_gr_xdv_Q2  = std::max(max_gr_xdv_Q2 ,this_max_gr_xdv_Q2 );
+      max_gr_xus_Q2  = std::max(max_gr_xus_Q2 ,this_max_gr_xus_Q2 );
+      max_gr_xds_Q2  = std::max(max_gr_xds_Q2 ,this_max_gr_xds_Q2 );
+      max_gr_xstr_Q2 = std::max(max_gr_xstr_Q2,this_max_gr_xstr_Q2);
+      max_gr_xglu_Q2 = std::max(max_gr_xglu_Q2,this_max_gr_xglu_Q2);
 
     }//im
-
+    
+    // Now loop to set sensible limits
+    for(unsigned int im=0; im < gPDFAlgList.size(); im++) {
+      gr_xuv_Q2  [im] -> SetMinimum(0.);
+      gr_xdv_Q2  [im] -> SetMinimum(0.);
+      gr_xus_Q2  [im] -> SetMinimum(0.);
+      gr_xds_Q2  [im] -> SetMinimum(0.);
+      gr_xstr_Q2 [im] -> SetMinimum(0.);
+      gr_xglu_Q2 [im] -> SetMinimum(0.);
+      gr_xuv_Q2  [im] -> SetMaximum(1.1*max_gr_xuv_Q2  );
+      gr_xdv_Q2  [im] -> SetMaximum(1.1*max_gr_xdv_Q2  );
+      gr_xus_Q2  [im] -> SetMaximum(1.1*max_gr_xus_Q2  );
+      gr_xds_Q2  [im] -> SetMaximum(1.1*max_gr_xds_Q2  );
+      gr_xstr_Q2 [im] -> SetMaximum(1.1*max_gr_xstr_Q2 );
+      gr_xglu_Q2 [im] -> SetMaximum(1.1*max_gr_xglu_Q2 );
+    }//im
+    
     ps->NewPage();
 
     if(x<0.3) {
@@ -366,6 +403,15 @@ void MakePlots (void)
     h2_xds [im] -> GetXaxis() -> SetTitle("Q^2 (GeV^2/c^2)");
     h2_xstr[im] -> GetXaxis() -> SetTitle("Q^2 (GeV^2/c^2)");
     h2_xglu[im] -> GetXaxis() -> SetTitle("Q^2 (GeV^2/c^2)");
+    
+    h2_xuv [im] -> SetMinimum(0.);
+    h2_xdv [im] -> SetMinimum(0.);
+    h2_xus [im] -> SetMinimum(0.);
+    h2_xds [im] -> SetMinimum(0.);
+    h2_xstr[im] -> SetMinimum(0.);
+    h2_xglu[im] -> SetMinimum(0.);
+    
+    
 
     cnv->Divide(2,3);
 
@@ -606,6 +652,8 @@ void MakePlots (void)
 
   f.Close();
   delete ntpl;
+  
+  std::cout<<"Done."<<std::endl;
 }
 //_________________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)

@@ -22,7 +22,7 @@
 #include "Physics/PartonDistributions/PDFLIB.h"
 #include "Framework/Messenger/Messenger.h"
 
-#ifdef __GENIE_LHAPDF_ENABLED__
+#ifdef __GENIE_LHAPDF5_ENABLED__
 //
 // include the LHAPDF C++ wrapper
 //
@@ -50,7 +50,7 @@ PDFModelI("genie::PDFLIB")
 PDFLIB::PDFLIB(string config) :
 PDFModelI("genie::PDFLIB", config)
 {
-  LOG("PDF", pDEBUG) << "PDFLIB configuration:\n " << GetConfig();
+  LOG("PDF", pDEBUG) << "PDFLIB configuration:\n " << this->GetConfig();  
 
   this->Initialize();
 }
@@ -62,7 +62,7 @@ PDFLIB::~PDFLIB()
 //____________________________________________________________________________
 void PDFLIB::Initialize(void) const
 {
-#ifdef __GENIE_LHAPDF_ENABLED__
+#ifdef __GENIE_LHAPDF5_ENABLED__
   //
   // LHAPDF
   //
@@ -103,7 +103,7 @@ void PDFLIB::SetPDFSetFromConfig(void) const
 // Get PDF spec (particle type, pdf group/set) from configuration registry.
 // For definitions, have a look at PDFLIB and LHAPDF manuals
 
-#ifdef __GENIE_LHAPDF_ENABLED__
+#ifdef __GENIE_LHAPDF5_ENABLED__
   //
   // LHAPDF
   //
@@ -111,9 +111,9 @@ void PDFLIB::SetPDFSetFromConfig(void) const
   int    type   = 0;
   int    memset = 0;
 
-  GetParam("name_lhapdf",   name);
-  GetParam("type_lhapdf",   type);
-  GetParam("memset_lhapdf", memset);
+  this->GetParam("name_lhapdf",   name);
+  this->GetParam("type_lhapdf",   type);
+  this->GetParam("memset_lhapdf", memset);
 
   LHAPDF::SetType stype = (type==0) ? LHAPDF::LHPDF :  LHAPDF::LHGRID;
 
@@ -198,7 +198,7 @@ PDF_t PDFLIB::AllPDFs(double x, double Q2) const
 {
   PDF_t pdf;
 
-#ifdef __GENIE_LHAPDF_ENABLED__
+#ifdef __GENIE_LHAPDF5_ENABLED__
   //
   // LHAPDF
   //

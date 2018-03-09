@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (C) 2003-2015, GENIE Neutrino MC Generator Collaboration
+ Copyright (c) 2003-2018, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -183,7 +183,7 @@ void INukeHadroData2015::LoadCrossSections(void)
   string datafile_NN   = data_dir + "/tot_xsec/intranuke-xsections-NN2014.dat";
   string datafile_pipN = data_dir + "/tot_xsec/intranuke-xsections-pi+N.dat";
   string datafile_pi0N = data_dir + "/tot_xsec/intranuke-xsections-pi0N.dat";
-  string datafile_NA   = data_dir + "/tot_xsec/intranuke-fractions-NA.dat";
+  string datafile_NA   = data_dir + "/tot_xsec/intranuke-fractions-NA2016.dat";
   string datafile_KA   = data_dir + "/tot_xsec/intranuke-fractions-KA.dat";
   string datafile_gamN = data_dir + "/tot_xsec/intranuke-xsections-gamN.dat";
   string datafile_kN   = data_dir + "/tot_xsec/intranuke-xsections-kaonN2015.dat";
