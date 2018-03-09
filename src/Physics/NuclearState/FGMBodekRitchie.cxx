@@ -5,13 +5,13 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
+         University of Liverpool & STFC Rutherford Appleton Lab
 
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
  @ Feb 07, 2008 - CA
-   Call SetDirectory(0) at the temp momentum distribution histogram to stop 
+   Call SetDirectory(0) at the temp momentum distribution histogram to stop
    it from being automatically written out at the event file.
  @ Jun 18, 2008 - CA
    Deallocate the momentum distribution histograms map at dtor
@@ -93,11 +93,11 @@ bool FGMBodekRitchie::GenerateNucleon(const Target & target) const
 
   double px = p*sintheta*cosfi;
   double py = p*sintheta*sinfi;
-  double pz = p*costheta;  
+  double pz = p*costheta;
 
   fCurrMomentum.SetXYZ(px,py,pz);
 
-  //-- set removal energy 
+  //-- set removal energy
   //
   int Z = target.Z();
   map<int,double>::const_iterator it = fNucRmvE.find(Z);
@@ -197,7 +197,7 @@ TH1D * FGMBodekRitchie::ProbDistro(const Target & target) const
   fProbDistroMap.insert(
       map<string, TH1D*>::value_type(target.AsString(),prob));
 
-  return prob; 
+  return prob;
 }
 //____________________________________________________________________________
 void FGMBodekRitchie::Configure(const Registry & config)
@@ -214,13 +214,10 @@ void FGMBodekRitchie::Configure(string param_set)
 //____________________________________________________________________________
 void FGMBodekRitchie::LoadConfig(void)
 {
+  this->GetParam( "FermiMomentumTable", fKFTable);
 
-  GetParam( "FermiMomentumTable", fKFTable  ) ;
-
-  fPMax    = 1. ;
-  GetParam( "MomentumMax", fPMax, false ) ;
-
-  GetParam( "RFG-MomentumCutOff", fPCutOff ) ;
+  this->GetParamDef("MomentumMax", fPMax, 1.0);
+  this->GetParam("RFG-MomentumCutOff", fPCutOff);
 
   assert(fPMax > 0 && fPCutOff > 0 && fPCutOff < fPMax);
 
@@ -238,7 +235,7 @@ void FGMBodekRitchie::LoadConfig(void)
     if (0 == key.compare(0, keyStart.size(), keyStart.c_str())) {
       pdg = atoi(key.c_str() + keyStart.size());
       Z = pdg::IonPdgCodeToZ(pdg);
-    } 
+    }
     if (0 != pdg && 0 != Z) {
       ostringstream key_ss ;
       key_ss << keyStart << pdg;
@@ -262,4 +259,3 @@ void FGMBodekRitchie::LoadConfig(void)
 #endif
 }
 //____________________________________________________________________________
-
