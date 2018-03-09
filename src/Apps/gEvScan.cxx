@@ -270,8 +270,6 @@ void CheckEnergyMomentumConservation (void)
        }
        nerr++;
     }
-    
-    gMCRec->Clear(); // clear out explicitly to prevent memory leak w/Root6
 
   }//i
 
@@ -317,45 +315,44 @@ void CheckChargeConservation(void)
     if (nucltgt) {
       LOG("gevscan", pINFO)
            << "Event in nuclear target - Skipping test...";
+      continue;
     }
-    else {
-      double Q_init  = 0;
-      double Q_fin   = 0; 
 
-      GHepParticle * p = 0;
-      TIter event_iter(&event);
-      while ( (p = dynamic_cast<GHepParticle *>(event_iter.Next())) ) {
+    double Q_init  = 0;
+    double Q_fin   = 0; 
 
-        GHepStatus_t ist  = p->Status();
+    GHepParticle * p = 0;
+    TIter event_iter(&event);
+    while ( (p = dynamic_cast<GHepParticle *>(event_iter.Next())) ) {
 
-        if(ist == kIStInitialState) 
-        {
-           Q_init  += p->Charge();
-         }
-         if(ist == kIStStableFinalState)
-         {
-           Q_fin  += p->Charge();
-         }
-      }//p
+      GHepStatus_t ist  = p->Status();
 
-      double epsilon = 1E-3; 
-      bool ok = TMath::Abs(Q_init - Q_fin)  < epsilon;
-      if(!ok) {
-         LOG("gevscan", pERROR) 
-           << " ** Charge non-conservation in event: " << i 
-           << "\n"
-           << event;
-         if(gErrLog.is_open()) {
-            gErrLog << i << endl;    
-            if(gOptAddEventPrintoutInErrLog) {
-                 gErrLog << event;
-            }
-         }
-         nerr++;
-      }
-      
+      if(ist == kIStInitialState) 
+      {
+         Q_init  += p->Charge();
+       }
+       if(ist == kIStStableFinalState)
+       {
+         Q_fin  += p->Charge();
+       }
+    }//p
+
+    double epsilon = 1E-3; 
+    bool ok = TMath::Abs(Q_init - Q_fin)  < epsilon;
+    if(!ok) {
+       LOG("gevscan", pERROR) 
+         << " ** Charge non-conservation in event: " << i 
+         << "\n"
+         << event;
+       if(gErrLog.is_open()) {
+          gErrLog << i << endl;    
+          if(gOptAddEventPrintoutInErrLog) {
+               gErrLog << event;
+          }
+       }
+       nerr++;
     }
-    gMCRec->Clear(); // clear out explicitly to prevent memory leak w/Root6
+
   }//i
 
   if(gErrLog.is_open()) {
@@ -421,8 +418,6 @@ void CheckForPseudoParticlesInFinState(void)
        nerr++;
     }
 
-    gMCRec->Clear(); // clear out explicitly to prevent memory leak w/Root6
-
   }//i
 
   if(gErrLog.is_open()) {
@@ -487,8 +482,6 @@ void CheckForOffMassShellParticlesInFinState(void)
        nerr++;
     }
 
-    gMCRec->Clear(); // clear out explicitly to prevent memory leak w/Root6
-
   }//i
 
   if(gErrLog.is_open()) {
@@ -532,68 +525,65 @@ void CheckForNumFinStateNucleonsInconsistentWithTarget(void)
            << "Event not in nuclear target - Skipping test...";
       continue;
     }
-    else {
-      GHepParticle * p = 0;
 
-      int Z = 0;
-      int N = 0;
+    GHepParticle * p = 0;
 
-      // get number of spectator nucleons 
-      int fd = nucltgt->FirstDaughter();
-      int ld = nucltgt->LastDaughter();
-      for(int d = fd; d <= ld; d++) {
-        p = event.Particle(d);
+    int Z = 0;
+    int N = 0;
+
+    // get number of spectator nucleons 
+    int fd = nucltgt->FirstDaughter();
+    int ld = nucltgt->LastDaughter();
+    for(int d = fd; d <= ld; d++) {
+	p = event.Particle(d);
         if(!p) continue;
         int pdgc = p->Pdg();
         if(pdg::IsIon(pdgc)) {
-          Z = p->Z();
-          N = p->A() - p->Z();
+            Z = p->Z();
+            N = p->A() - p->Z();
         }
-      }
-      // add nucleons from the primary interaction
-      TIter event_iter(&event);
-      while ( (p = dynamic_cast<GHepParticle *>(event_iter.Next())) ) {
-        GHepStatus_t ist = p->Status();
-        if(ist != kIStHadronInTheNucleus) continue;
-        int pdgc = p->Pdg();
-        if(pdg::IsProton (pdgc)) { Z++; }
-        if(pdg::IsNeutron(pdgc)) { N++; }
-      }//p
+    }
+    // add nucleons from the primary interaction
+    TIter event_iter(&event);
+    while ( (p = dynamic_cast<GHepParticle *>(event_iter.Next())) ) {
+      GHepStatus_t ist = p->Status();
+      if(ist != kIStHadronInTheNucleus) continue;
+      int pdgc = p->Pdg();
+      if(pdg::IsProton (pdgc)) { Z++; }
+      if(pdg::IsNeutron(pdgc)) { N++; }
+    }//p
 
-      LOG("gevscan", pINFO)
-         << "Before intranuclear hadron transport: Z = " << Z << ", N = " << N;
+    LOG("gevscan", pINFO)
+       << "Before intranuclear hadron transport: Z = " << Z << ", N = " << N;
 
-      // count final state nucleons
-      int Zf = 0;
-      int Nf = 0;
-      event_iter.Reset();
-      while ( (p = dynamic_cast<GHepParticle *>(event_iter.Next())) ) {
-        GHepStatus_t ist = p->Status();
-        if(ist != kIStStableFinalState) continue;
-        int pdgc = p->Pdg();
-        if(pdg::IsProton (pdgc)) { Zf++; }
-        if(pdg::IsNeutron(pdgc)) { Nf++; }
-      }
-      LOG("gevscan", pINFO)
-         << "In the final state: Z = " << Zf << ", N = " << Nf;
+    // count final state nucleons
+    int Zf = 0;
+    int Nf = 0;
+    event_iter.Reset();
+    while ( (p = dynamic_cast<GHepParticle *>(event_iter.Next())) ) {
+      GHepStatus_t ist = p->Status();
+      if(ist != kIStStableFinalState) continue;
+      int pdgc = p->Pdg();
+      if(pdg::IsProton (pdgc)) { Zf++; }
+      if(pdg::IsNeutron(pdgc)) { Nf++; }
+    }
+    LOG("gevscan", pINFO)
+       << "In the final state: Z = " << Zf << ", N = " << Nf;
 
-      bool ok = (Zf <= Z && Nf <= N);
-      if(!ok) {
-         LOG("gevscan", pERROR) 
-           << " ** Number of final state nucleons inconsistent with target in event: " << i 
-           << "\n"
-           << event;
-         if(gErrLog.is_open()) {
-             gErrLog << i << endl;    
-             if(gOptAddEventPrintoutInErrLog) {
-                 gErrLog << event;
-             }
-         }
-         nerr++;
-      }
-    } //nucltgt
-
-    gMCRec->Clear(); // clear out explicitly to prevent memory leak w/Root6
+    bool ok = (Zf <= Z && Nf <= N);
+    if(!ok) {
+       LOG("gevscan", pERROR) 
+         << " ** Number of final state nucleons inconsistent with target in event: " << i 
+         << "\n"
+         << event;
+       if(gErrLog.is_open()) {
+           gErrLog << i << endl;    
+           if(gOptAddEventPrintoutInErrLog) {
+               gErrLog << event;
+           }
+       }
+       nerr++;
+    }
 
   }//i
 
@@ -642,26 +632,23 @@ void CheckVertexDistribution(void)
            << "Event not in nuclear target - Skipping...";
       continue;
     }
-    else {
-      if(Z == -1 && A == -1) {
-         Z = nucltgt->Z();
-         A = nucltgt->A();
-      }
 
-      // this test is run on a MC sample for a given target
-      if(Z != nucltgt->Z() || A != nucltgt->A()) {
-        LOG("gevscan", pINFO)
-             << "Event not in nuclear target seen first - Skipping...";
-        continue;
-      }
+    if(Z == -1 && A == -1) {
+       Z = nucltgt->Z();
+       A = nucltgt->A();
+    }
 
-      GHepParticle * probe = event.Particle(0);
-      double r = probe->X4()->Vect().Mag();
+    // this test is run on a MC sample for a given target
+    if(Z != nucltgt->Z() || A != nucltgt->A()) {
+      LOG("gevscan", pINFO)
+           << "Event not in nuclear target seen first - Skipping...";
+      continue;
+    }
 
-      r_distr_mc->Fill(r);
-    } //nucltgt
+    GHepParticle * probe = event.Particle(0);
+    double r = probe->X4()->Vect().Mag();
 
-    gMCRec->Clear(); // clear out explicitly to prevent memory leak w/Root6
+    r_distr_mc->Fill(r);
 
   }//i
 
@@ -746,7 +733,6 @@ void CheckDecayerConsistency(void)
       if(ist == kIStStableFinalState) { final_state_particles.push_back(pdgc); }
       if(ist == kIStDecayedState    ) { decayed_particles.push_back(pdgc);     }
     }//p
-    gMCRec->Clear(); // clear out explicitly to prevent memory leak w/Root6
   }//i
 
   // find particles which appear in both lists
@@ -816,7 +802,6 @@ void CheckDecayerConsistency(void)
               if(ist == kIStStableFinalState && iev_fs    == -1) { iev_fs    = i; }
               if(ist == kIStDecayedState     && iev_decay == -1) { iev_decay = i; }
            }//p
-           gMCRec->Clear(); // clear out explicitly to prevent memory leak w/Root6
          }//i
          if(gErrLog.is_open()) {
             gErrLog << ">> " << PDGLibrary::Instance()->Find(pdgc_bothlists)->GetName()

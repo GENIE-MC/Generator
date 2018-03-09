@@ -69,17 +69,15 @@ void BYStrucFunc::ReadBYParams(void)
 // registry and set some private data members so as not to accessing the
 // registry at every calculation.
 //
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
+  GetParam( "BY-A", fA ) ;
+  GetParam( "BY-B", fB ) ;
+  GetParam( "BY-CsU", fCsU ) ;
+  GetParam( "BY-CsD", fCsD ) ;
+  GetParam( "BY-Cv1U", fCv1U ) ;
+  GetParam( "BY-Cv2U", fCv2U ) ;
+  GetParam( "BY-Cv1D", fCv1D ) ;
+  GetParam( "BY-Cv2D", fCv2D ) ;
 
-  fA    = fConfig->GetDoubleDef( "BY-A",    gc->GetDouble("BY-A")    );
-  fB    = fConfig->GetDoubleDef( "BY-B",    gc->GetDouble("BY-B")    );
-  fCsU  = fConfig->GetDoubleDef( "BY-CsU",  gc->GetDouble("BY-CsU")  );
-  fCsD  = fConfig->GetDoubleDef( "BY-CsD",  gc->GetDouble("BY-CsD")  );
-  fCv1U = fConfig->GetDoubleDef( "BY-Cv1U", gc->GetDouble("BY-Cv1U") );
-  fCv2U = fConfig->GetDoubleDef( "BY-Cv2U", gc->GetDouble("BY-Cv2U") );
-  fCv1D = fConfig->GetDoubleDef( "BY-Cv1D", gc->GetDouble("BY-Cv1D") );
-  fCv2D = fConfig->GetDoubleDef( "BY-Cv2D", gc->GetDouble("BY-Cv2D") );
 }
 //____________________________________________________________________________
 void BYStrucFunc::Init(void)

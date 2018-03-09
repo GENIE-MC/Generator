@@ -123,11 +123,8 @@ void COHElasticPXSec::Configure(string config)
 //____________________________________________________________________________
 void COHElasticPXSec::LoadConfig(void)
 {
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
-
-  double thw = fConfig->GetDoubleDef(
-                       "WeinbergAngle", gc->GetDouble("WeinbergAngle"));
+  double thw ;
+  GetParam( "WeinbergAngle", thw );
   fSin2thw = TMath::Power(TMath::Sin(thw), 2);
 
   fXSecIntegrator =

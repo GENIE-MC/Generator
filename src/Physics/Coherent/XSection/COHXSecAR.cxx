@@ -142,10 +142,15 @@ void COHXSecAR::Configure(string config)
 void COHXSecAR::LoadConfig(void)
 {
   // Get GSL integration type & relative tolerance
-  fGSLIntgType   = fConfig->GetStringDef("gsl-integration-type" ,  "vegas");
-  fGSLMaxEval    = (unsigned int) fConfig->GetIntDef("gsl-max-eval", 4000);
-  fGSLRelTol     = fConfig->GetDoubleDef("gsl-relative-tolerance", 0.01); // Only used by adaptive
-  fSplitIntegral = fConfig->GetBoolDef("split-integral", true);
+  GetParamDef( "gsl-integration-type", fGSLIntgType, string("vegas") ) ;
+
+  int max_eval;
+  GetParamDef( "gsl-max-eval", max_eval, 4000 ) ;
+  fGSLMaxEval    = (unsigned int) max_eval ;
+
+  GetParamDef( "gsl-relative-tolerance", fGSLRelTol,  0.01) ;
+  GetParamDef( "split-integral", fSplitIntegral, true ) ;
+
 }
 //_____________________________________________________________________________
 

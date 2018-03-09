@@ -172,15 +172,9 @@ void NuElectronPXSec::Configure(string config)
 //____________________________________________________________________________
 void NuElectronPXSec::LoadConfig(void)
 {
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
-
-//  fCv = fConfig->GetDoubleDef("CV", gc->GetDouble("NuElecEL-CV"));
-//  fCa = fConfig->GetDoubleDef("CA", gc->GetDouble("NuElecEL-CA"));
-
   // weinberg angle
-  double thw = fConfig->GetDoubleDef(
-                          "WeinbergAngle", gc->GetDouble("WeinbergAngle"));
+  double thw ;
+  GetParam( "WeinbergAngle", thw ) ;
   fSin28w = TMath::Power(TMath::Sin(thw), 2);
   fSin48w = TMath::Power(TMath::Sin(thw), 4);
 

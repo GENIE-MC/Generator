@@ -110,13 +110,10 @@ void VertexGenerator::Configure(string config)
 //____________________________________________________________________________
 void VertexGenerator::LoadConfig(void)
 {
- AlgConfigPool * confp = AlgConfigPool::Instance();
- const Registry * gc = confp->GlobalParameterList();
 
- fVtxGenMethod = fConfig->GetIntDef (
-           "VtxGenerationMethod", gc->GetInt("NUCL-VtxGenerationMethod")); 
- fR0 = fConfig->GetDoubleDef (
-           "R0", gc->GetDouble("NUCL-R0")); // fm
+  GetParam( "VtxGenerationMethod", fVtxGenMethod ) ;
+  GetParam( "NUCL-R0",             fR0 ) ;  //fm
+
 }
 //____________________________________________________________________________
 TVector3 VertexGenerator::GenerateVertex(const Interaction * interaction,

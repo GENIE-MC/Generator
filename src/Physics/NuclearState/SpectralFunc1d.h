@@ -60,7 +60,7 @@ private:
   // Hopefully, analytical expressions for spectral functions will become available soon.
   //
   bool   fUseRFGRemovalE;
-  bool   fUseRFGMomentumCutoff;
+  bool   fUseRFGMomentumCutoff ;
   double fPCutOff;
   map<int, Spline *> fSFk;     ///< All available spectral funcs integrated over removal energy
   map<int, Spline *> fSFw;     ///< Average nucleon removal as a function of pF - computed from the spectral function

@@ -13,22 +13,26 @@ Name                Type    Opt   Comment                                       
 Hadronizer          alg     No   
 PreTransportDecayer alg     No
 FilterPreFragm      bool    No
-FZONE-ct0pion       double  Yes                                                             GPL FZONE-ct0pion
-FZONE-ct0nucleon    double  Yes                                                             GPL FZONE-ct0nucleon
-FZONE-Kpt2          double  Yes                                                             GPL FZONE-KPt2
+FZONE-ct0pion       double  No                                                              
+FZONE-ct0nucleon    double  No                                                              
+FZONE-Kpt2          double  No 
+NUCL-R0             double  No                                                              CommonParam[NUCL]
+NUCL-NR             double  No                                                              CommonParam[NUCL]
 -->
 
   <param_set name="Default"> 
+     <param type="string"  name="CommonParam"> NUCL </param>
+
      <param type="alg"  name="Hadronizer">          genie::KNOPythiaHadronization/Default                 </param>
      <param type="alg"  name="PreTransportDecayer"> genie::UnstableParticleDecayer/BeforeHadronTransport  </param>
      <param type="bool" name="FilterPreFragm">      false                                                 </param>
  
      <!-- 	
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Parameters relevant to formation zone simulation
-  - ct0 is the formation time times the speed of light (given in fm)
-  - KPt2 is the parameter multiplying pT2 in formation zone calc.
-  -->
+	  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	  Parameters relevant to formation zone simulation
+	  - ct0 is the formation time times the speed of light (given in fm)
+	  - KPt2 is the parameter multiplying pT2 in formation zone calc.
+     -->
      <param type="double" name="FZONE-ct0pion">       0.342   </param>
      <param type="double" name="FZONE-ct0nucleon">    2.300   </param>
      <param type="double" name="FZONE-KPt2">          0.0     </param>
@@ -40,16 +44,6 @@ FZONE-Kpt2          double  Yes                                                 
      <param type="alg"  name="PreTransportDecayer"> genie::UnstableParticleDecayer/BeforeHadronTransport  </param>
      <param type="bool" name="FilterPreFragm">      false                                                 </param>
 
-     <!-- 	
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Parameters relevant to formation zone simulation
-  - ct0 is the formation time times the speed of light (given in fm)
-  - KPt2 is the parameter multiplying pT2 in formation zone calc.
-  -->
-     <param type="double" name="FZONE-ct0pion">       0.342   </param>
-     <param type="double" name="FZONE-ct0nucleon">    2.300   </param>
-     <param type="double" name="FZONE-KPt2">          0.0     </param>
-     
   </param_set>
 
 </alg_conf>

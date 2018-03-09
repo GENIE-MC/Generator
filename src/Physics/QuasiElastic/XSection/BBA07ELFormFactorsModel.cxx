@@ -107,12 +107,9 @@ void BBA07ELFormFactorsModel::Configure(string config)
 //____________________________________________________________________________
 void BBA07ELFormFactorsModel::LoadConfig(void)
 {
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
-
   // anomalous magnetic moments
-  fMuP = fConfig->GetDoubleDef("AnomMagnMoment-P", gc->GetDouble("AnomMagnMoment-P"));
-  fMuN = fConfig->GetDoubleDef("AnomMagnMoment-N", gc->GetDouble("AnomMagnMoment-N"));
+  GetParam( "AnomMagnMoment-P", fMuP) ;
+  GetParam( "AnomMagnMoment-N", fMuN) ;
 
   // other parameters hardcoded for the time-being
   // ...

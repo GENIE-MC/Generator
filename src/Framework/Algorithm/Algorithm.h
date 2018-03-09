@@ -8,6 +8,9 @@
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           University of Liverpool & STFC Rutherford Appleton Lab
 
+          Marco Roda <mroda \at liverpool.ac.uk>
+          University of Liverpool
+
 \created  May 02, 2004
 
 \cpright  Copyright (c) 2003-2018, The GENIE Collaboration
@@ -27,8 +30,11 @@
 #include "Framework/Algorithm/AlgStatus.h"
 #include "Framework/Algorithm/AlgCmp.h"
 #include "Framework/Algorithm/AlgId.h"
+#include "Framework/Algorithm/AlgFactory.h"
 #include "Framework/Registry/Registry.h"
 #include "Framework/Registry/RegistryItemTypeDef.h"
+#include "Framework/Messenger/Messenger.h"
+
 
 using std::string;
 using std::ostream;
@@ -50,19 +56,29 @@ class Algorithm {
 public:
   virtual ~Algorithm();
 
-  //! Configure the algorithm
+  //! Configure the algorithm with an external registry
+  //!   The registry is added with the highest priority
   virtual void Configure (const Registry & config);  
 
-  //! Configure the algorithm 
+  //! Configure the algorithm from the AlgoConfigPool
+  //!  based on param_set string given in input
+  //!  This methods will load three registries in order of priority:
+  //!   1) Tunable from CommonParametes for tuning procedures
+  //!   2) config from AlgoConfigPool
+  //!   3) if config != "Default" it will also load Config
   virtual void Configure (string config);            
 
   //! Lookup configuration from the config pool
+  //!   Similar logic from void Configure(string) 
+  //!   It also loads in cascade the registry from the substructures
   virtual void FindConfig (void);   
 
   //! Get configuration registry
-  virtual const Registry & GetConfig(void) const { return *fConfig; }
+  //!  Evaluate the summary of the configuration and returns it
+  virtual const Registry & GetConfig(void) const ;
 
   //! Get a writeable version of an owned configuration Registry.
+  //!  Gives access to the summary
   Registry * GetOwnedConfig(void);
 
   //! Get algorithm ID
@@ -114,17 +130,51 @@ protected:
   void Initialize         (void);
   void DeleteConfig       (void);
   void DeleteSubstructure (void);
-
+  
+  //! Split an incoming configuration Registry into a block valid for this algorithm
+  //! Ownership of the returned registry belongs to the algo
+  Registry * ExtractLocalConfig( const Registry & in ) const ;
+  //! Split an incoming configuration Registry into a block valid for the sub-algo identified by alg_key
+  Registry * ExtractLowerConfig( const Registry & in, const string & alg_key ) const ;
+  
   bool         fAllowReconfig; ///<
-  bool         fOwnsConfig;    ///< true if it owns its config. registry
+  //  bool         fOwnsConfig;    ///< true if it owns its config. registry
   bool         fOwnsSubstruc;  ///< true if it owns its substructure (sub-algs,...)
   AlgId        fID;            ///< algorithm name and configuration set
-  Registry *   fConfig;        ///< config. (either owned or pointing to config pool)
-  // vector<Registry*>  fConfig ;
-  // vector<Registry>   fConfig ;
+
+
+  /// ideally these members should go private
+  /// Registry will be access only through the GetParam method
+  vector<Registry*>  fConfVect ;   ///< configurations registries from various sources 
+                                   ///<  the order of the vector is the precedence in case of repeated parameters
+                                   ///<  position 0 -> Highest precedence
+  vector<bool>       fOwnerships ; ///< ownership for every registry in fConfVect
+   
   AlgStatus_t  fStatus;        ///< algorithm execution status
   AlgMap *     fOwnedSubAlgMp; ///< local pool for owned sub-algs (taken out of the factory pool)
+
+  //! Ideal access to a parameter value from the vector of registries
+  //! Returns true if the value is found and the parameters is set
+  template<class T>
+    bool GetParam( const RgKey & name, T & p, bool is_top_call = true ) const ;
+
+  //! Ideal access to a parameter value from the vector of registries,
+  //! With default value. Returns true if the value is set from the
+  //! registries, false if the value is the default
+  template<class T>
+     bool GetParamDef( const RgKey & name, T & p, const T & def ) const ;
+
+  
+private:
+  int   AddTopRegistry( Registry * rp, bool owns = true );  ///< add registry with top priority, also update ownership
+  int   AddTopRegisties( const vector<Registry*> & rs, bool owns = false ) ; ///< Add registries with top priority, also udated Ownerships 
+  
+  Registry *   fConfig;        ///< Summary configuration derived from fConvVect, not necessarily allocated
+  
 };
 
 }       // genie namespace
+
+#include "Framework/Algorithm/Algorithm.icc"
+
 #endif  // _ALGORITHM_H_

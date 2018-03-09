@@ -12,8 +12,6 @@
 #  [--add-list]        : additional file list to be included when the total_xsec.xml file is created
 #  [--root-output]     : Create an output file with all the splines
 #  [--evet-gen-list]   : Event generator list used in the root file output
-#  [--def-nu-list]     : sometimes vA splines are not necessary, yet the root files requires the nu list 
-#                        Since it cannot be derived from the files, it is required as an-input
 #  [--add-nucleons]    : When the ROOT file is created, also splines for proton and neutrons are created
 #  [--save-space]      : remove intermadiate xml files
 #  
@@ -26,14 +24,12 @@ foreach (@ARGV) {
   if($_ eq '--add-list')        { $add_list       = $ARGV[$iarg+1]; }
   if($_ eq '--root-output')     { $root_output    = 1 ; }
   if($_ eq '--event-gen-list')  { $event_gen_list = $ARGV[$iarg+1]; }
-  if($_ eq '--def-nu-list')     { $def_nu_list    = $ARGV[$iarg+1]; }
   if($_ eq '--add-nucleons')    { $add_nucleons   = 1 ; }
   if($_ eq '--save-space' )     { $save_space     = 1 ; } 
   $iarg++;
 }
 
 $dir=$ENV{'PWD'}   unless defined $dir;
-$def_nu_list = ""  unless defined $def_nu_list ;
 
 opendir(DIR, $dir) or die $!;
 
@@ -224,12 +220,7 @@ if ( defined $root_output ) {
   }
 
   my $cmd = "gspl2root ";
-  if ( $nu_list eq "" ) {
-      $cmd .= " -p $def_nu_list" ;
-  }
-  else {
-      $cmd .= " -p $nu_list ";
-  }
+  $cmd .= " -p $nu_list ";
   $cmd .= " -t $tgt_list ";
   $cmd .= " -f $glob_file ";
   $cmd .= " -o $dir"."/total_xsec.root " ;

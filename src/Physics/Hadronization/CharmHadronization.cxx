@@ -700,10 +700,11 @@ void CharmHadronization::Configure(string config)
 //____________________________________________________________________________
 void CharmHadronization::LoadConfig(void)
 {
-  //AlgConfigPool * confp = AlgConfigPool::Instance();
-  //const Registry * gc = confp->GlobalParameterList();
 
-  fCharmOnly = ! fConfig->GetBoolDef("HadronizeRemnants", true);
+  bool hadronize_remnants = true ;
+  GetParam( "HadronizeRemnants", hadronize_remnants, false ) ;
+
+  fCharmOnly = ! hadronize_remnants ;
 
   //-- Get a fragmentation function
   fFragmFunc = dynamic_cast<const FragmentationFunctionI *> (

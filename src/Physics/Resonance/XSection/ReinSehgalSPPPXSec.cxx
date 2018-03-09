@@ -192,10 +192,10 @@ void ReinSehgalSPPPXSec::LoadConfig(void)
   //   Support for this will be added here as well.
 
   fResList.Clear();
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
-  string resonances = fConfig->GetStringDef(
-                     "ResonanceNameList", gc->GetString("ResonanceNameList"));
+
+
+  string resonances ;
+  GetParam( "ResonanceNameList", resonances ) ;
   fResList.DecodeFromNameList(resonances);
 
   //-- load the differential cross section integrator

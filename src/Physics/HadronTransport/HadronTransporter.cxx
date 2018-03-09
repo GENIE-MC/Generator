@@ -136,23 +136,19 @@ void HadronTransporter::LoadConfig(void)
   const Registry * gc = confp->GlobalParameterList();
 
   fHadTranspModel = 0; 
-  fEnabled = fConfig->GetBoolDef("enable", gc->GetBool("HadronTransp-Enable")); 
+  fEnabled = gc->GetBool("HadronTransp-Enable") ;
 
   LOG("HadTransp", pDEBUG) 
        << "Hadron transport was " << ((fEnabled) ? "" : "not ") << " enabled";
   if(fEnabled) {
-     RgAlg hadtransp_model = 
-        fConfig->GetAlgDef("model", gc->GetAlg("HadronTransp-Model"));
+     RgAlg hadtransp_model = gc->GetAlg("HadronTransp-Model") ;
      LOG("HadTransp", pDEBUG) 
          << "Loading the hadron transport model: " << hadtransp_model;
 
-     // Note: this relies on the fact that if a missing registry entry was
-     // found above then it would be filled up by the default choice so that
-     // when the registry is looked-up again the same key would point to the 
-     // correct value. Probably it would be better to convert the RgAlg to AlgId
-     // and query the AlgFactory directly. 
+     AlgFactory * factory = AlgFactory::Instance() ;
      fHadTranspModel = 
-         dynamic_cast<const EventRecordVisitorI *> (this->SubAlg("model"));
+         dynamic_cast<const EventRecordVisitorI *> ( factory -> GetAlgorithm( hadtransp_model.name,
+        		                                                              hadtransp_model.config ) );
      assert(fHadTranspModel);
   }
 }

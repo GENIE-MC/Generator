@@ -73,21 +73,16 @@ void KuzminNaumov2016AxialFormFactorModel::Configure(string param_set)
 //____________________________________________________________________________
 void KuzminNaumov2016AxialFormFactorModel::LoadConfig(void)
 {
-// get config options from the configuration registry or set defaults 
-// from the global parameter list
-
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
-
   // axial mass
-  fMa  = fConfig->GetDoubleDef("QEL-Ma", gc->GetDouble("QEL-Ma"));
-  fMa2 = TMath::Power(fMa,2);
+	GetParam( "QEL-Ma", fMa ) ;
+	fMa2 = TMath::Power(fMa,2);
 
   // E0 for calculating running axial mass: Ma*(1+E0/Enu)
-  fE0 = fConfig->GetDoubleDef("QEL-E0" , gc->GetDouble("QEL-E0"));
+	GetParam( "QEL-E0", fE0 ) ;
 
-  // FA(q2 = 0)
-  fFA0 = fConfig->GetDoubleDef("QEL-FA0", gc->GetDouble("QEL-FA0"));
+	// FA(q2 = 0)
+	GetParam( "QEL-FA0", fFA0 ) ;
+
 }
 //____________________________________________________________________________
 

@@ -10,11 +10,10 @@ Configurable Parameters:
 Name               Type     Optional   Comment                          Default
 .....................................................................................................
 MEC-CC-XSecScale   double   Yes        XSec Scaling factor              GPL value 
-
 -->
-
   <param_set name="Default"> 
       <param type="alg"  name="NumericalIntegrationAlg"> genie::MECXSec/Default </param>
+
       <param type="double" name="MEC-CC-XSecScale"> 1.000 </param>
   </param_set>
 

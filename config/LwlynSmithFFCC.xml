@@ -7,43 +7,46 @@ Configuration sets for Llewellyn-Smith QEL CC form factors
 
 Configurable Parameters:
 ..........................................................................................................
-Name                     Type     Optional   Comment                     Default
+Name                          Type     Optional   Comment                     Default
 ..........................................................................................................
-QEl-Ma                       double   Yes        Axial  Mass squared         GPL: QEl-Ma
-QEl-FA0                      double   Yes        FA(q2=0)                    GPL: QEL-FA0
-ElasticFormFactorsModel  alg      No         Elastic form factors model  GPL: ElasticFormFactorsModel
-AxialFormFactorModel     alg      No         Axial form factor model     GPL: AxialFormFactorModel
-WeinbergAngle            double   Yes        Weinberg angle              GPL: WeinbergAngle
-
+ElasticFormFactorsModel       alg      No         Elastic form factors model  CommonParam[ElasticFF]
+UseElFFTransverseEnhancement  bool     No                                     CommonParam[ElasticFF]
+TransverseEnhancement         alg      No         TransverseEnhancement model CommonParam[ElasticFF]
+AxialFormFactorModel          alg      No         Axial form factor model     
+AnomMagnMoment-P              double   No                                     CommonParam[MagnMoments]
+AnomMagnMoment-N              double   No                                     CommonParam[MagnMoments]
+WeinbergAngle                 double   No         Weinberg angle              CommonParam[WeakInt]
+SU3-D                         double   No                                     CommonParam[StrongInt]
+SU3-F                         double   No                                     CommonParam[StrongInt]
 -->
 
   <param_set name="Default"> 
-     <param type="double" name="WeinbergAngle"> 0.49744211 </param>
+    <param type="string" name="CommonParam"> WeakInt,MagnMoments,StrongInt,ElasticFF </param>
 
-     <param type="double" name="QEL-FA0"> -1.2670 </param>
-
+    <!-- 
+	 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	 Axial form factors used for QEL CC cross section calculation.
+	 Options are:
+	 - genie::DipoleAxialFormFactorModel
+	 - genie::ZExpAxialFormFactorModel, Bhattacharya, Paz, and Hill, Phys.Rev. D84 (2011) 073006 
+	 - genie::KuzminNaumov2016AxialFormFactorModel, K. Kuzmin and V. Naumov, in press (2016).
+	 <param type="alg" name="AxialFormFactorModel"> genie::ZExpAxialFormFactorModel/Default </param>
+    -->
   </param_set>
 
   <param_set name="Dipole"> 
-     <param type="alg" name="ElasticFormFactorsModel"> genie::DipoleELFormFactorsModel/Default </param>
      <param type="alg" name="AxialFormFactorModel"> genie::DipoleAxialFormFactorModel/Default </param>
 
-     <param type="double" name="WeinbergAngle"> 0.49744211 </param>
-     <param type="double" name="QEL-FA0"> -1.2670 </param>
   </param_set>
 
   <param_set name="ZExp"> 
      <param type="alg" name="AxialFormFactorModel"> genie::ZExpAxialFormFactorModel/Default </param>
 
-     <param type="double" name="WeinbergAngle"> 0.49744211 </param>
-     <param type="double" name="QEL-FA0"> -1.2670 </param>
   </param_set>
 
   <param_set name="RunningMA"> 
      <param type="alg" name="AxialFormFactorModel"> genie::KuzminNaumov2016AxialFormFactorModel/Default </param>
 
-     <param type="double" name="WeinbergAngle"> 0.49744211 </param>
-     <param type="double" name="QEL-FA0"> -1.2670 </param>
   </param_set>
 </alg_conf>
 

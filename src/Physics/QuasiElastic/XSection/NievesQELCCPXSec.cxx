@@ -414,16 +414,12 @@ void NievesQELCCPXSec::Configure(string config)
 //____________________________________________________________________________
 void NievesQELCCPXSec::LoadConfig(void)
 {
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
-  
-  double thc = fConfig->GetDoubleDef(
-                              "CabibboAngle", gc->GetDouble("CabibboAngle"));
+  double thc;
+  GetParam( "CabibboAngle", thc ) ;
   fCos8c2 = TMath::Power(TMath::Cos(thc), 2);
 
   // Cross section scaling factor
-  fXSecScale = fConfig->GetDoubleDef(
-        	       "XSecScale", gc->GetDouble("QEL-CC-XSecScale"));
+  GetParam( "QEL-CC-XSecScale", fXSecScale ) ;
 
   // hbarc for unit conversion, GeV*fm
   fhbarc = kLightSpeed*kPlankConstant/units::fermi;
@@ -442,12 +438,12 @@ void NievesQELCCPXSec::LoadConfig(void)
   // Load settings for RPA and Coulomb effects
 
   // RPA corrections will not effect a free nucleon
-  fRPA = fConfig->GetBoolDef("RPA",true);
-  
+  GetParamDef("RPA", fRPA, true ) ;
+
   // Coulomb Correction- adds a correction factor, and alters outgoing lepton 
   // 3-momentum magnitude (but not direction)
   // Correction only becomes sizeable near threshold and/or for heavy nuclei
-  fCoulomb = fConfig->GetBoolDef("Coulomb",true);
+  GetParamDef( "Coulomb", fCoulomb, true ) ;
 
   LOG("Nieves",pNOTICE) << "RPA=" << fRPA << ", useCoulomb=" << fCoulomb;
 
@@ -460,30 +456,30 @@ void NievesQELCCPXSec::LoadConfig(void)
   fLFG = fNuclModel->ModelType(Target()) == kNucmLocalFermiGas;
   
   if(!fLFG){
-    // get the Fermi momentum table for relativistic Fermi gas
-    fKFTableName = fConfig->GetStringDef ("FermiMomentumTable",
-					  gc->GetString("FermiMomentumTable"));
-    fKFTable = 0;
-    
-    FermiMomentumTablePool * kftp = FermiMomentumTablePool::Instance();
-    fKFTable = kftp->GetTable(fKFTableName);
-    assert(fKFTable);
+	  // get the Fermi momentum table for relativistic Fermi gas
+	  GetParam( "FermiMomentumTable", fKFTableName ) ;
+
+	  fKFTable = 0;
+	  FermiMomentumTablePool * kftp = FermiMomentumTablePool::Instance();
+	  fKFTable = kftp->GetTable(fKFTableName);
+	  assert(fKFTable);
   }
 
   // Always average over initial nucleons if the nuclear model is LFG
-  fDoAvgOverNucleonMomentum =
-    fLFG || fConfig->GetBoolDef("IntegralAverageOverNucleonMomentum", false);
+  bool average_over_nuc_mom ;
+  GetParamDef( "IntegralAverageOverNucleonMomentum", average_over_nuc_mom, false ) ;
+  fDoAvgOverNucleonMomentum = fLFG || average_over_nuc_mom ;
 
   fEnergyCutOff = 0.;
 
   if(fDoAvgOverNucleonMomentum) {
     // Get averaging cutoff energy
-    fEnergyCutOff = 
-      fConfig->GetDoubleDef("IntegralNuclearInfluenceCutoffEnergy", 2.0);
+	  GetParamDef( "IntegralNuclearInfluenceCutoffEnergy", fEnergyCutOff, 2.0 ) ;
+
   }
 
   // TESTING CODE
-  fCompareNievesTensors = fConfig->GetBoolDef("PrintDebugData",false);
+  GetParamDef( "PrintDebugData", fCompareNievesTensors, false ) ;
   // END TESTING CODE
 }
 //___________________________________________________________________________

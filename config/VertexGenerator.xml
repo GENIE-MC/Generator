@@ -7,14 +7,23 @@ Configuration sets for the VertexGenerator EventRecordVisitorI
 
 Configurable Parameters:
 ................................................................................................
-Name                   Type     Optional   Comment            Default
-R0                     double   yes                           NUCL-R0        
-VtxGenerationMethod    int      yes                           NUCL-VtxGenerationMethod
+Name                        Type     Optional   Comment            Default
+NUCL-R0                     double   yes        CommonParam        ///        
+VtxGenerationMethod         int      no                            ///
 ................................................................................................
 -->
 
-  <param_set name="Default"> 
-  </param_set>
+ <param_set name="Default"> 
+   <param type="string" name="CommonParam"> NUCL </param>
+
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   NUCL-VtxGenerationMethod defines the intranuclear vertex generation method:
+   - 0 : generated uniformly in volume within the nucleus 
+   - 1 : generated according to a realistic nuclear density profile
+  -->
+   <param type="int" name="VtxGenerationMethod"> 1 </param>
+
+ </param_set>
 
 </alg_conf>
 

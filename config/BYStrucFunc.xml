@@ -7,35 +7,39 @@ Algorithm Configurable Parameters:
 ....................................................................................................
 Name                       Type    Opt   Comment                                Default
 ....................................................................................................
-BY-A                       double  Yes   Bodek-Yang scaling var param A         GPL: BY-A
-By-B                       double  Yes   Bodek-Yang scaling var param B         GPL: BY-B
-BY-CsU                     double  Yes   Bodek-Yang u sea K factor param        GPL: BY-CsU
-BY-CsD                     double  Yes   Bodek-Yang d sea K factor param        GPL: BY-CsD
-BY-Cv1U                    double  Yes   Bodek-Yang u val K factor param        GPL: BY-Cv1U
-BY-Cv2U                    double  Yes   Bodek-Yang u val K factor param        GPL: BY-Cv2U
-BY-Cv1D                    double  Yes   Bodek-Yang d val K factor param        GPL: BY-Cv1D
-BY-Cv2D                    double  Yes   Bodek-Yang d val K factor param        GPL: BY-Cv2D
+BY-A                       double  No    Bodek-Yang scaling var param A         
+By-B                       double  No    Bodek-Yang scaling var param B         
+BY-CsU                     double  No    Bodek-Yang u sea K factor param        
+BY-CsD                     double  No    Bodek-Yang d sea K factor param        
+BY-Cv1U                    double  No    Bodek-Yang u val K factor param        
+BY-Cv2U                    double  No    Bodek-Yang u val K factor param        
+BY-Cv1D                    double  No    Bodek-Yang d val K factor param        
+BY-Cv2D                    double  No    Bodek-Yang d val K factor param        
+
++++ This model inherits from QPMDISStrucFunc and calls its configure
++++ The following parameters have to be the same as in QPMDISStrucFunc.xml
 
 PDF-Set                    alg     No    PDF model
-Charm-Mass                 double  Yes   charm mass                             GPL: Charm-Mass
+Charm-Mass                 double  No    charm mass                             CommonParam[Masses]
 Charm-Prod-Off             bool    Yes   charm production is turned off         false
-PDF-Q2min                  double  Yes   min Q2 for PDF evaluation              GPL: PDF-Q2min
-IncludeR                   bool    Yes   include R factor?                      GPL: DISSF-IncludeR
-IncludeNuclMod             bool    Yes   include nuclear factor?                GPL: DISSF-IncludeNuclMod
-CKM-Vcd                    double  Yes                                          GPL: CKM-Vcd
-CKM-Vcs                    double  Yes                                          GPL: CKM-Vcs
-CKM-Vud                    double  Yes                                          GPL: CKM-Vud
-CKM-Vus                    double  Yes                                          GPL: CKM-Vus
+PDF-Q2min                  double  No    min Q2 for PDF evaluation              From "PDF-Set" 
+IncludeR                   bool    No    include R factor?              
+IncludeNuclMod             bool    No    include nuclear factor?            
+CKM-Vcd                    double  No                                           CommonParam[CKM]
+CKM-Vcs                    double  No                                           CommonParam[CKM]
+CKM-Vud                    double  No                                           CommonParam[CKM]
+CKM-Vus                    double  No                                           CommonParam[CKM]
+Use2016Corrections         bool    No    Use SF corrections?                    
+LowQ2CutoffF1F2            double  No    min for F1/F2 SF relation             
+WeinbergAngle              double  No                                           CommonParam[WeakInt]
 -->
 
 <alg_conf>
 
   <param_set name="Default"> 
+    <param type="string" name="CommonParam"> CKM,Masses,WeakInt </param>
+
      <param type="alg" name="PDF-Set"> genie::BYPDF/Default </param>
-     <param type="double" name="CKM-Vud">  0.97377  </param>
-     <param type="double" name="CKM-Vus">  0.2257   </param>
-     <param type="double" name="CKM-Vcd">  0.230    </param>
-     <param type="double" name="CKM-Vcs">  0.957    </param>
 
      <param type="double" name="BY-A">     0.538   </param>
      <param type="double" name="BY-B">     0.305   </param>
@@ -46,7 +50,18 @@ CKM-Vus                    double  Yes                                          
      <param type="double" name="BY-Cv1D">  0.202   </param>
      <param type="double" name="BY-Cv2D">  0.255   </param>
 
-     <param type="double" name="PDF-Q2min"> 0.800 </param>
+     <!-- 
+	  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	  Switches controlling the DIS structure function calculation. Those switches specify whether to:
+	  - include an R (~FL) factor into the calculation
+	  - include a nuclear factor (accounting for shadowing/anti-shadowing)
+	  - include corrections for calculating relation between 2xF1 and F2
+	  - Select value for Q2 cutoff in relation between 2xF1 and F2
+     -->
+     <param type="bool"   name="IncludeR">           true  </param>
+     <param type="bool"   name="IncludeNuclMod">     true  </param>
+     <param type="bool"   name="Use2016Corrections"> false </param>
+     <param type="double" name="LowQ2CutoffF1F2">    0.8   </param>
      
   </param_set>
 

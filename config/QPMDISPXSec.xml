@@ -11,15 +11,18 @@ SFAlg                       alg     No    Structure functions algorithm
 XSec-Integrator             alg     No
 Hadronizer                  alg     Dep   Hadronization model used for computing suppression
                                           factors. Set if use-dis-res-joining-scheme=true
-DIS-XSecScale               double  Yes   XSec scaling factor                                 GPL value
-UseDRJoinScheme             bool    Yes   Use DIS/RES joining scheme?                         GPL UseDRJoinScheme
-Wcut                        double  Yes   Param used in DIS/RES joining                       GPL Wcut
+DIS-XSecScale               double  No    XSec scaling factor                                 
+UseDRJoinScheme             bool    No    Use DIS/RES joining scheme?                         CommonParam[NonResBackground]
+Wcut                        double  Yes   Param used in DIS/RES joining                       CommonParam[NonResBackground]
 UseCache                    bool    Yes   Cache suppression factors?                          true
+WeinbergAngle               double  No                                                        CommonParam[WeakInt]
 -->
 
 <alg_conf>
 
   <param_set name="Default"> 
+    <param type="string" name="CommonParam"> NonResBackground,WeakInt  </param>
+
      <param type="alg" name="SFAlg">           genie::BYStrucFunc/Default      </param>
      <param type="alg" name="XSec-Integrator"> genie::DISXSec/Default          </param>
      <param type="alg" name="Hadronizer">      genie::KNOHadronization/Default </param>

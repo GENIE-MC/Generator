@@ -452,17 +452,10 @@ void PythiaHadronization::LoadConfig(void)
   // The defaults are the values used by PYTHIA
   // Use the NUX config set to set the tuned values as used in NUX.
 
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
-
-  fSSBarSuppression = fConfig->GetDoubleDef( "PYTHIA-SSBarSuppression",
-		                gc->GetDouble("PYTHIA-SSBarSuppression"));
-  fGaussianPt2 = fConfig->GetDoubleDef( "PYTHIA-GaussianPt2",
-		                gc->GetDouble("PYTHIA-GaussianPt2"));
-  fNonGaussianPt2Tail = fConfig->GetDoubleDef( "PYTHIA-NonGaussianPt2Tail",
-		                gc->GetDouble("PYTHIA-NonGaussianPt2Tail"));
-  fRemainingECutoff = fConfig->GetDoubleDef( "PYTHIA-RemainingEnergyCutoff",
-		                gc->GetDouble("PYTHIA-RemainingEnergyCutoff"));
+   GetParam( "PYTHIA-SSBarSuppression", fSSBarSuppression ) ;
+  GetParam( "PYTHIA-GaussianPt2",      fGaussianPt2      ) ;
+  GetParam( "PYTHIA-NonGaussianPt2Tail", fNonGaussianPt2Tail  ) ;
+  GetParam( "PYTHIA-RemainingEnergyCutoff", fRemainingECutoff ) ;
 
   fPythia->SetPARJ(2,  fSSBarSuppression);
   fPythia->SetPARJ(21, fGaussianPt2);
@@ -471,50 +464,36 @@ void PythiaHadronization::LoadConfig(void)
 
   // Load Wcut determining the phase space area where the multiplicity prob.
   // scaling factors would be applied -if requested-
-  fWcut = fConfig->GetDoubleDef("Wcut",gc->GetDouble("Wcut"));
+  GetParam( "Wcut", fWcut ) ;
 
   // decayer
   fDecayer = 0;
-  if(fConfig->Exists("Decayer")) {
+  if( GetConfig().Exists("Decayer") ) {
      fDecayer = dynamic_cast<const DecayModelI *> (this->SubAlg("Decayer"));
      assert(fDecayer);
   }
 
   // Load NEUGEN multiplicity probability scaling parameters Rijk
-  fRvpCCm2  = fConfig->GetDoubleDef(
-                      "DIS-HMultWgt-vp-CC-m2", gc->GetDouble("DIS-HMultWgt-vp-CC-m2"));
-  fRvpCCm3  = fConfig->GetDoubleDef(
-                      "DIS-HMultWgt-vp-CC-m3", gc->GetDouble("DIS-HMultWgt-vp-CC-m3"));
-  fRvpNCm2  = fConfig->GetDoubleDef(
-                      "DIS-HMultWgt-vp-NC-m2", gc->GetDouble("DIS-HMultWgt-vp-NC-m2"));
-  fRvpNCm3  = fConfig->GetDoubleDef(
-                      "DIS-HMultWgt-vp-NC-m3", gc->GetDouble("DIS-HMultWgt-vp-NC-m3"));
-  fRvnCCm2  = fConfig->GetDoubleDef(
-                      "DIS-HMultWgt-vn-CC-m2", gc->GetDouble("DIS-HMultWgt-vn-CC-m2"));
-  fRvnCCm3  = fConfig->GetDoubleDef(
-                      "DIS-HMultWgt-vn-CC-m3", gc->GetDouble("DIS-HMultWgt-vn-CC-m3"));
-  fRvnNCm2  = fConfig->GetDoubleDef(
-                      "DIS-HMultWgt-vn-NC-m2", gc->GetDouble("DIS-HMultWgt-vn-NC-m2"));
-  fRvnNCm3  = fConfig->GetDoubleDef(
-                      "DIS-HMultWgt-vn-NC-m3", gc->GetDouble("DIS-HMultWgt-vn-NC-m3"));
-  fRvbpCCm2 = fConfig->GetDoubleDef(
-                     "DIS-HMultWgt-vbp-CC-m2",gc->GetDouble("DIS-HMultWgt-vbp-CC-m2"));
-  fRvbpCCm3 = fConfig->GetDoubleDef(
-                     "DIS-HMultWgt-vbp-CC-m3",gc->GetDouble("DIS-HMultWgt-vbp-CC-m3"));
-  fRvbpNCm2 = fConfig->GetDoubleDef(
-                     "DIS-HMultWgt-vbp-NC-m2",gc->GetDouble("DIS-HMultWgt-vbp-NC-m2"));
-  fRvbpNCm3 = fConfig->GetDoubleDef(
-                     "DIS-HMultWgt-vbp-NC-m3",gc->GetDouble("DIS-HMultWgt-vbp-NC-m3"));
-  fRvbnCCm2 = fConfig->GetDoubleDef(
-                     "DIS-HMultWgt-vbn-CC-m2",gc->GetDouble("DIS-HMultWgt-vbn-CC-m2"));
-  fRvbnCCm3 = fConfig->GetDoubleDef(
-                     "DIS-HMultWgt-vbn-CC-m3",gc->GetDouble("DIS-HMultWgt-vbn-CC-m3"));
-  fRvbnNCm2 = fConfig->GetDoubleDef(
-                     "DIS-HMultWgt-vbn-NC-m2",gc->GetDouble("DIS-HMultWgt-vbn-NC-m2"));
-  fRvbnNCm3 = fConfig->GetDoubleDef(
-                     "DIS-HMultWgt-vbn-NC-m3",gc->GetDouble("DIS-HMultWgt-vbn-NC-m3"));
+   //neutrinos
+   GetParam( "DIS-HMultWgt-vp-CC-m2",  fRvpCCm2  ) ;
+   GetParam( "DIS-HMultWgt-vp-CC-m3",  fRvpCCm3  ) ;
+   GetParam( "DIS-HMultWgt-vp-NC-m2",  fRvpNCm2  ) ;
+   GetParam( "DIS-HMultWgt-vp-NC-m3",  fRvpNCm3  ) ;
+   GetParam( "DIS-HMultWgt-vn-CC-m2",  fRvnCCm2  ) ;
+   GetParam( "DIS-HMultWgt-vn-CC-m3",  fRvnCCm3  ) ;
+   GetParam( "DIS-HMultWgt-vn-NC-m2",  fRvnNCm2  ) ;
+   GetParam( "DIS-HMultWgt-vn-NC-m3",  fRvnNCm3  ) ;
+   //Anti-neutrinos
+   GetParam( "DIS-HMultWgt-vbp-CC-m2", fRvbpCCm2 ) ;
+   GetParam( "DIS-HMultWgt-vbp-CC-m3", fRvbpCCm3 ) ;
+   GetParam( "DIS-HMultWgt-vbp-NC-m2", fRvbpNCm2 ) ;
+   GetParam( "DIS-HMultWgt-vbp-NC-m3", fRvbpNCm3 ) ;
+   GetParam( "DIS-HMultWgt-vbn-CC-m2", fRvbnCCm2 ) ;
+   GetParam( "DIS-HMultWgt-vbn-CC-m3", fRvbnCCm3 ) ;
+   GetParam( "DIS-HMultWgt-vbn-NC-m2", fRvbnNCm2 ) ;
+   GetParam( "DIS-HMultWgt-vbn-NC-m3", fRvbnNCm3 ) ;
 
-  LOG("PythiaHad", pDEBUG) << *fConfig;
+  LOG("PythiaHad", pDEBUG) << GetConfig() ;
 }
 //____________________________________________________________________________
 bool PythiaHadronization::AssertValidity(const Interaction * interaction) const

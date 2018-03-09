@@ -24,21 +24,22 @@ namespace alvarezruso {
   
   
 ARConstants::ARConstants() {
-  reg = genie::AlgConfigPool::Instance()->GlobalParameterList();
-  COHAR_Ma_Nuc      = reg->GetDouble("COHAR-Ma-Nuc");
-  COHAR_Mv_Nuc      = reg->GetDouble("COHAR-Mv-Nuc");
-  COHAR_Ma_Delta    = reg->GetDouble("COHAR-Ma-Delta");
-  COHAR_Mv_Delta    = reg->GetDouble("COHAR-Mv-Delta");
-  COHAR_GA0         = reg->GetDouble("COHAR-GA0");
-  COHAR_Rho0        = reg->GetDouble("COHAR-Rho0");
-  COHAR_a4          = reg->GetDouble("COHAR-a4");
-  COHAR_a5          = reg->GetDouble("COHAR-a5");
-  COHAR_b4          = reg->GetDouble("COHAR-b4");
-  COHAR_b5          = reg->GetDouble("COHAR-b5");
-  COHAR_fPi_byHbar  = reg->GetDouble("COHAR-fPi") / HBar();
-  COHAR_fStar       = reg->GetDouble("COHAR-fStar");
-  fCosCabibboAngle  = TMath::Cos(reg->GetDouble("CabibboAngle"));
-  fSinWeinbergAngle = TMath::Sin(reg->GetDouble("WeinbergAngle"));
+
+
+  COHAR_Ma_Nuc      =  1.000 ;
+  COHAR_Mv_Nuc      =  0.840 ;
+  COHAR_Ma_Delta    =  1.280 ;
+  COHAR_Mv_Delta    =  0.730 ;
+  COHAR_GA0         =  1.2670 ;
+  COHAR_Rho0        =  0.17 ;
+  COHAR_a4          =  -1.21 ;
+  COHAR_a5          =  -1.21 ;
+  COHAR_b4          = 2.0 ;
+  COHAR_b5          = 2.0 ;
+  COHAR_fPi_byHbar  = 0.093 / HBar();
+  COHAR_fStar       = 2.13 ;
+  fCosCabibboAngle  = TMath::Cos( 0.22853207 ) ;
+  fSinWeinbergAngle = TMath::Sin( 0.49744211 ) ;
   
   massElectron = genie::PDGLibrary::Instance()->Find(genie::kPdgElectron)->Mass() / HBar();
   massMuon     = genie::PDGLibrary::Instance()->Find(genie::kPdgMuon)->Mass() / HBar();

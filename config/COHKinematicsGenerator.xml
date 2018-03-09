@@ -9,33 +9,28 @@ Name                     Type    Opt   Comment                                  
 .......................................................................................................................
 UniformOverPhaseSpace    bool    Yes   kinematics uniformly over allowd phase space   false
                                        wgt = (phase_space_volume)*(diff_xsec)/(xsec)
-MaxXSec-SafetyFactor     double  Yes   multiplies max xsec in rejection method        1.40
+MaxXSec-SafetyFactor     double  Yes   multiplies max xsec in rejection method        1.6
 MaxXSec-DiffTolerance    double  Yes   max allowed 200*(xsec-xsecmax)/(xsec+xsecmax)  999999.00 (disable)
                                        if xsec>xsecmax
 Cache-MinEnergy          double  Yes   minimum energy for which max xsec is cached    0.00
 
-COH-Ro                   double  Yes   Nuclear size scale                             GPL value 
-COH-Q2-min               double  Yes   Minimum considered Q^2 for Berger-Sehgal       GPL value
+COH-Ro                   double  No    Nuclear size scale                             CommonParam[Coherent]
+COH-Q2-min               double  No    Minimum considered Q^2 for Berger-Sehgal       CommonParam[Coherent]
                                        coherent reactions when estimating the max 
                                        cross section. Units in GeV^2.
-COH-Q2-max               double   Yes  Maximum considered Q^2 for Berger-Sehgal       GPL value
+COH-Q2-max               double  No    Maximum considered Q^2 for Berger-Sehgal       CommonParam[Coherent]
                                        coherent reactions when estimating the max 
                                        cross section. Units in GeV^2.
-COH-t-max                double   Yes  Maximum considered t for Berger-Sehgal         GPL value
+COH-t-max                double  No    Maximum considered t for Berger-Sehgal         CommonParam[Coherent]
                                        coherent reactions when estimating 
                                        the max cross section.  Units in GeV^2.
-.
-
 -->
 
 <alg_conf>
 
   <param_set name="Default"> 
-    <param type="double" name="COH-Ro"> 1.000 </param>
 
-    <param type="double" name="COH-Q2-min"> 0.000 </param>
-    <param type="double" name="COH-Q2-max"> 1.000 </param>
-    <param type="double" name="COH-t-max"> 0.250 </param>
+    <param type="string" name="CommonParam"> Coherent </param>
 
   </param_set>
 

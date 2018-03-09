@@ -83,7 +83,7 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   //-- Access cross section algorithm for running thread
   RunningThreadInfo * rtinfo = RunningThreadInfo::Instance();
   const EventGeneratorI * evg = rtinfo->RunningThread();
-  fXSecModel = evg->CrossSectionAlg();  
+  fXSecModel = evg->CrossSectionAlg();
 
   //-- Get the interaction from the GHEP record
   Interaction * interaction = evrec->Summary();
@@ -185,29 +185,29 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
             interaction->KinePtr()->SetW(W.min);
             Range1D_t Q2 = kps.Q2Lim_W();
    	    double Q2min  = 0 + kASmallNum;
-	    double Q2max  = Q2.max - kASmallNum;         
+	    double Q2max  = Q2.max - kASmallNum;
 
             // In unweighted mode - use transform that takes out the dipole form
             double QD2min = utils::kinematics::Q2toQD2(Q2max);
             double QD2max = utils::kinematics::Q2toQD2(Q2min);
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-            LOG("RESKinematics", pDEBUG) 
+            LOG("RESKinematics", pDEBUG)
                 <<  "Q^2: [" << Q2min  << ", " << Q2max  << "] => "
                 << "QD^2: [" << QD2min << ", " << QD2max << "]";
 #endif
             double mR, gR;
-            if(!interaction->ExclTag().KnownResonance()) { 
-               mR = 1.2; 
-               gR = 0.6; 
+            if(!interaction->ExclTag().KnownResonance()) {
+               mR = 1.2;
+               gR = 0.6;
             } else {
                Resonance_t res = interaction->ExclTag().Resonance();
                mR = res::Mass(res);
                gR = (E>mR) ? 0.220 : 0.400;
             }
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-            LOG("RESKinematics", pDEBUG) 
-               <<  "(m,g) = (" << mR << ", " << gR 
+            LOG("RESKinematics", pDEBUG)
+               <<  "(m,g) = (" << mR << ", " << gR
                << "), max(xsec,W) = (" << xsec_max << ", " << W.max << ")";
 #endif
             fEnvelope->SetRange(QD2min,W.min,QD2max,W.max); // range
@@ -263,7 +263,7 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      } // uniformly over phase space
 
      //-- If the generated kinematics are accepted, finish-up module's job
-     if(accept) {        
+     if(accept) {
         LOG("RESKinematics", pINFO)
                             << "Selected: W = " << gW << ", Q2 = " << gQ2;
         // reset 'trust' bits
@@ -320,34 +320,27 @@ void RESKinematicsGenerator::Configure(string config)
 //____________________________________________________________________________
 void RESKinematicsGenerator::LoadConfig(void)
 {
-// Reads its configuration data from its configuration Registry and loads them
-// in private data members to avoid looking up at the Registry all the time.
+  // Safety factor for the maximum differential cross section
+  this->GetParamDef("MaxXSec-SafetyFactor", fSafetyFactor, 1.25);
 
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
+  // Minimum energy for which max xsec would be cached, forcing explicit
+  // calculation for lower eneries
+  this->GetParamDef("Cache-MinEnergy", fEMin, 0.5);
 
-  //-- Safety factor for the maximum differential cross section
-  fSafetyFactor = fConfig->GetDoubleDef("MaxXSec-SafetyFactor", 1.25);
+  // Load Wcut used in DIS/RES join scheme
+  this->GetParam("Wcut", fWcut);
 
-  //-- Minimum energy for which max xsec would be cached, forcing explicit
-  //   calculation for lower eneries
-  fEMin = fConfig->GetDoubleDef("Cache-MinEnergy", 0.5);
-
-  //-- Load Wcut used in DIS/RES join scheme
-  fWcut = fConfig->GetDoubleDef("Wcut",gc->GetDouble("Wcut"));
-
-  //-- Maximum allowed fractional cross section deviation from maxim cross
-  //   section used in rejection method
-  fMaxXSecDiffTolerance = 
-                    fConfig->GetDoubleDef("MaxXSec-DiffTolerance",999999.);
+  // Maximum allowed fractional cross section deviation from maxim cross
+  // section used in rejection method
+  this->GetParamDef("MaxXSec-DiffTolerance", fMaxXSecDiffTolerance, 999999.);
   assert(fMaxXSecDiffTolerance>=0);
 
-  //-- Generate kinematics uniformly over allowed phase space and compute
-  //   an event weight?
-  fGenerateUniformly = fConfig->GetBoolDef("UniformOverPhaseSpace", false);
+  // Generate kinematics uniformly over allowed phase space and compute
+  // an event weight?
+  this->GetParamDef("UniformOverPhaseSpace", fGenerateUniformly, false);
 
-  //-- Envelope employed when importance sampling is used 
-  //   (initialize with dummy range)
+  // Envelope employed when importance sampling is used
+  // (initialize with dummy range)
   if(fEnvelope) delete fEnvelope;
   fEnvelope = new TF2("res-envelope",
         kinematics::RESImportanceSamplingEnvelope,0.01,1,0.01,1,4);
@@ -388,7 +381,7 @@ double RESKinematicsGenerator::ComputeMaxXSec(
     // ** 1-D Scan
     //
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-    LOG("RESKinematics", pDEBUG) 
+    LOG("RESKinematics", pDEBUG)
               << "Will search for max{xsec} along W(=MRes) = " << md;
 #endif
     // Set W around the value where d^2xsec/dWdQ^2 peaks
@@ -412,7 +405,7 @@ double RESKinematicsGenerator::ComputeMaxXSec(
       interaction->KinePtr()->SetQ2(Q2);
       double xsec = fXSecModel->XSec(interaction, kPSWQ2fE);
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-      LOG("RESKinematics", pDEBUG) 
+      LOG("RESKinematics", pDEBUG)
                 << "xsec(W= " << md << ", Q2= " << Q2 << ") = " << xsec;
 #endif
       max_xsec = TMath::Max(xsec, max_xsec);
@@ -430,7 +423,7 @@ double RESKinematicsGenerator::ComputeMaxXSec(
           interaction->KinePtr()->SetQ2(Q2);
           xsec = fXSecModel->XSec(interaction, kPSWQ2fE);
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-          LOG("RESKinematics", pDEBUG) 
+          LOG("RESKinematics", pDEBUG)
                  << "xsec(W= " << md << ", Q2= " << Q2 << ") = " << xsec;
 #endif
           max_xsec = TMath::Max(xsec, max_xsec);
@@ -481,7 +474,7 @@ double RESKinematicsGenerator::ComputeMaxXSec(
         double Q2 = TMath::Exp(logQ2min + iq2 * dlogQ2);
         interaction->KinePtr()->SetQ2(Q2);
         double xsec = fXSecModel->XSec(interaction, kPSWQ2fE);
-        LOG("RESKinematics", pDEBUG) 
+        LOG("RESKinematics", pDEBUG)
                 << "xsec(W= " << W << ", Q2= " << Q2 << ") = " << xsec;
         max_xsec = TMath::Max(xsec, max_xsec);
         increasing = xsec-xseclast>=0;
@@ -497,7 +490,7 @@ double RESKinematicsGenerator::ComputeMaxXSec(
            if(Q2 < rQ2.min) continue;
            interaction->KinePtr()->SetQ2(Q2);
            xsec = fXSecModel->XSec(interaction, kPSWQ2fE);
-           LOG("RESKinematics", pDEBUG) 
+           LOG("RESKinematics", pDEBUG)
                  << "xsec(W= " << W << ", Q2= " << Q2 << ") = " << xsec;
            max_xsec = TMath::Max(xsec, max_xsec);
          }

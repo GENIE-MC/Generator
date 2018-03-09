@@ -11,8 +11,8 @@ Algorithm Configurable Parameters:
 Name                Type    Opt   Comment                                                     Default
 .......................................................................................................................
 test-mode           bool    Yes   enables modifications for the pitest mode                   false
-R0                  double  Yes   effective nucleus size Ro in fm                             GPL NUCL-R0
-NR                  double  Yes   param multiplying the nuclear radius determining how        GPL NUCL-NR
+NUCL-R0             double  Yes   effective nucleus size Ro in fm                             CommonParam[NUCL]
+NUCL-NR             double  Yes   param multiplying the nuclear radius determining how        CommonParam[NUCL]
                                   far beyond the nuclear boundary particles are tracked
 mode                string  Yes   intranuke mode                                              GPL INUKE-Mode
 NumRmvE             double  Yes   binding energy to subtract from cascade nucleons (GeV)      GPL INUKE-NucRemovalE
@@ -24,6 +24,26 @@ DelRNucleon         double  Yes   mult. factor for nucleon de-Broglie wavelength
 -->
 
   <param_set name="Default"> 
+
+    <param type="string" name="CommonParam"> NUCL </param>
+
+    <param type="double" name="INUKE-NucRemovalE">       0.00  </param>
+    <param type="double" name="INUKE-HadStep">           0.05  </param>
+    <param type="double" name="INUKE-NucAbsFac">         1.0   </param>
+    <param type="double" name="INUKE-NucQEFac">          1.0   </param>
+    <param type="double" name="INUKE-NucCEXFac">         1.0   </param>
+    <param type="double" name="INUKE-Energy_Pre_Eq">     0.041 </param> 
+    <param type="double" name="INUKE-FermiFac">          1.0   </param>
+    <param type="double" name="INUKE-FreeStep">          0.0   </param>
+    <param type="double" name="INUKE-FermiMomentum">     0.250 </param>
+
+    <param type="bool"   name="INUKE-DoFermi">           true  </param>
+    <param type="bool"   name="INUKE-DoCompoundNucleus"> true  </param>
+    <param type="bool"   name="INUKE-XsecNNCorr">        true  </param>
+    
+    <param type="double" name="HAINUKE-DelRPion">        0.5   </param>
+    <param type="double" name="HAINUKE-DelRNucleon">     0.7   </param>
+
   </param_set>
   
 </alg_conf>

@@ -146,8 +146,8 @@ void DFRInteractionListGenerator::Configure(string config)
 //____________________________________________________________________________
 void DFRInteractionListGenerator::LoadConfigData(void)
 {
-  fIsCC = fConfig->GetBoolDef("is-CC", false);
-  fIsNC = fConfig->GetBoolDef("is-NC", false);
+	GetParamDef( "is-CC",fIsCC, false  ) ;
+	GetParamDef( "is-NC",fIsNC, false  ) ;
 }
 //____________________________________________________________________________
 

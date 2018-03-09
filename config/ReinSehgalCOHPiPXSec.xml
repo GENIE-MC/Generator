@@ -5,13 +5,13 @@ Configurations for the Rein-Sehgal coherent pi production cross section algorith
 
 Algorithm Configurable Parameters:
 ....................................................................................................
-Name             Type     Optional   Comment                 Default
+Name                  Type     Optional   Comment                               Default
 ....................................................................................................
-COH-Ma           double   Yes        Coherent Axial Mass                   GPL: COH-Ma
-COH-Ro           double   Yes        Nuclear Size Scale                    GPL: COH-Ro
-COH-ReImAmpl     double   Yes        Re/Im of fwd amplitude                GPL: COH-ReImAmpl
-UseModifiedPCAC  bool     Yes        Inc. f/s lepton mass to Adler's PCAC  GPL: COH-UseModifiedPCAC
-XSec-Integrator  alg      No
+COH-Ma                double   No         Coherent Axial Mass                  
+COH-Ro                double   No         Nuclear Size Scale                   
+COH-ReImAmpl          double   No         Re/Im of fwd amplitude     
+COH-UseModifiedPCAC   bool     No         Inc. f/s lepton mass to Adler's PCAC  
+XSec-Integrator       alg      No 
 -->
 
 <alg_conf>
@@ -21,7 +21,15 @@ XSec-Integrator  alg      No
 
       <param type="double" name="COH-Ma"> 1.000 </param>
       <param type="double" name="COH-Ro"> 1.000 </param>
+
       <param type="double" name="COH-ReImAmpl"> 0.300 </param>
+
+      <!-- 
+	   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	   Use a modification to Adler's PCAC theorem that includes the final state lepton mass. 
+	   See Rein-Sehgal, hep-ph/0606185. Affects the COH CC cross section.
+      -->
+      <param type="bool" name="COH-UseModifiedPCAC"> true </param>
 
   </param_set>
 

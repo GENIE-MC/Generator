@@ -10,25 +10,20 @@ Configurable Parameters:
 Name               Type     Optional   Comment                          Default
 .....................................................................................................
 XSec-Integrator    alg      No
-CabibboAngle       double   Yes        Cabibbo angle                    GPL value: CabibboAngle
-QEL-FA0            double   Yes        Axial form factor at Q2=0        GPL value: QEL-FA0
-QEL-Ma             double   Yes        Axial Mass                       GPL value: QEL-Ma
-QEL-Mv             double   Yes        Vector Mass                      GPL value: QEL-Mv
-AnomMagnMoment-P   double   Yes        p Anomalous Magn Moment          GPL value 
-AnomMagnMoment-N   double   Yes        n Anomalous Magn Moment          GPL value 
+CabibboAngle       double   No         Cabibbo angle                    CommonParam[CKM]
+QEL-FA0            double   No         Axial form factor at Q2=0        CommonParam[QuasiELastic]
+QEL-Ma             double   No         Axial Mass                       CommonParam[QuasiELastic]
+QEL-Mv             double   No         Vector Mass                      CommonParam[QuasiELastic]
+AnomMagnMoment-P   double   No         p Anomalous Magn Moment          CommonParam[MagnMoments]
+AnomMagnMoment-N   double   No        n Anomalous Magn Moment           CommonParam[MagnMoments]
 EpsilonMag         int      Yes        1e-EPSILON (to compare w/ 0)     10
 -->
 
   <param_set name="Default"> 
+
+     <param type="string" name="CommonParam"> CKM,QuasiElastic,MagnMoments </param>
+
      <param type="alg" name="XSec-Integrator"> genie::QELXSec/Default </param>
-     <param type="double" name="CabibboAngle">  0.22853207            </param>
-
-     <param type="double" name="QEL-FA0"> -1.2670 </param>
-     <param type="double" name="QEL-Ma"> 0.990 </param>
-     <param type="double" name="QEL-Mv">  0.840  </param> 
-
-     <param type="double" name="AnomMagnMoment-P">   2.7930     </param> 
-     <param type="double" name="AnomMagnMoment-N">  -1.913042   </param>
 
      <param type="int" name="EpsilonMag">      10                     </param>
   </param_set>

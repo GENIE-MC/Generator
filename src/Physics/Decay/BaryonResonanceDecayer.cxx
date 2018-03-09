@@ -513,6 +513,9 @@ void BaryonResonanceDecayer::LoadConfig(void)
 // Read configuration options or set defaults
 
   //-- Generated weighted or un-weighted hadronic systems
-  fGenerateWeighted = fConfig->GetBoolDef("generate-weighted", false);
+
+  // note that this variable is not present in any of the xml configuration files
+  fGenerateWeighted = false ;
+  //GetParam( "generate-weighted", fGenerateWeighted, false );  decomment this line if the variable needs to be taken from configurations
 }
 //____________________________________________________________________________

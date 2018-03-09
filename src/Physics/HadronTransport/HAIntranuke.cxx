@@ -1369,10 +1369,7 @@ bool HAIntranuke::HandleCompoundNucleus(
 //___________________________________________________________________________
 void HAIntranuke::LoadConfig(void)
 {
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
-
-  // load hadronic cross sections
+   // load hadronic cross sections
   fHadroData = INukeHadroData::Instance();
 
   // fermi momentum setup
@@ -1381,34 +1378,37 @@ void HAIntranuke::LoadConfig(void)
     (fAlgf->GetAlgorithm("genie::FGMBodekRitchie","Default"));
 
   // other intranuke config params
-  fR0            = fConfig->GetDoubleDef ("R0",           gc->GetDouble("NUCL-R0"));           // fm
-  fNR            = fConfig->GetDoubleDef ("NR",           gc->GetDouble("NUCL-NR"));           
-  fNucRmvE       = fConfig->GetDoubleDef ("NucRmvE",      gc->GetDouble("INUKE-NucRemovalE")); // GeV
-  fDelRPion      = fConfig->GetDoubleDef ("DelRPion",     gc->GetDouble("HAINUKE-DelRPion"));    
-  fDelRNucleon   = fConfig->GetDoubleDef ("DelRNucleon",  gc->GetDouble("HAINUKE-DelRNucleon"));    
-  fHadStep       = fConfig->GetDoubleDef ("HadStep",      gc->GetDouble("INUKE-HadStep"));     // fm
-  fEPreEq        = fConfig->GetDoubleDef ("EPreEq",       gc->GetDouble("INUKE-Energy_Pre_Eq"));
-  fNucAbsFac     = fConfig->GetDoubleDef ("NucAbsFac",    gc->GetDouble("INUKE-NucAbsFac"));
-  fNucCEXFac     = fConfig->GetDoubleDef ("NucCEXFac",    gc->GetDouble("INUKE-NucCEXFac"));
-  fFermiFac      = fConfig->GetDoubleDef ("FermiFac",     gc->GetDouble("INUKE-FermiFac"));
-  fFermiMomentum = fConfig->GetDoubleDef ("FermiMomentum",gc->GetDouble("INUKE-FermiMomentum"));
-  fDoFermi       = fConfig->GetBoolDef   ("DoFermi",      gc->GetBool("INUKE-DoFermi"));
-  fFreeStep      = fConfig->GetDoubleDef ("FreeStep",     gc->GetDouble("INUKE-FreeStep"));
-  fDoCompoundNucleus = fConfig->GetBoolDef ("DoCompoundNucleus", gc->GetBool("INUKE-DoCompoundNucleus"));
+  GetParam( "NUCL-R0",             fR0 );              // fm
+  GetParam( "NUCL-NR",             fNR );
+
+  GetParam( "INUKE-NucRemovalE",   fNucRmvE );        // GeV
+  GetParam( "INUKE-HadStep",       fHadStep ) ;
+  GetParam( "INUKE-NucAbsFac",     fNucAbsFac ) ;
+  GetParam( "INUKE-NucCEXFac",     fNucCEXFac ) ;
+  GetParam( "INUKE-Energy_Pre_Eq", fEPreEq ) ;
+  GetParam( "INUKE-FermiFac",      fFermiFac ) ;
+  GetParam( "INUKE-FermiMomentum", fFermiMomentum ) ;
+  GetParam( "INUKE-FreeStep",      fFreeStep ) ;
+
+  GetParam( "INUKE-DoCompoundNucleus", fDoCompoundNucleus ) ;
+  GetParam( "INUKE-DoFermi",       fDoFermi ) ;
+
+  GetParam( "HAINUKE-DelRPion",    fDelRPion ) ;
+  GetParam( "HAINUKE-DelRNucleon", fDelRNucleon ) ;
+
+
 
   //Would be nice to change thhe following lines simply using GetDoubleDef instead of a ? : statement
-  fPionMFPScale            = (gc->Exists("FSI-Pion-MFPScale"))           ? gc->GetDouble("FSI-Pion-MFPScale")           : 1.0 ;
-  fPionFracCExScale        = (gc->Exists("FSI-Pion-FracCExScale"))       ? gc->GetDouble("FSI-Pion-FracCExScale")       : 1.0 ;
-  fPionFracElasScale       = (gc->Exists("FSI-Pion-FracElasScale"))      ? gc->GetDouble("FSI-Pion-FracElasScale")      : 1.0 ;
-  fPionFracInelScale       = (gc->Exists("FSI-Pion-FracInelScale"))      ? gc->GetDouble("FSI-Pion-FracInelScale")      : 1.0 ;
-  fPionFracAbsScale        = (gc->Exists("FSI-Pion-FracAbsScale"))       ? gc->GetDouble("FSI-Pion-FracAbsScale")       : 1.0 ;
-  fPionFracPiProdScale     = (gc->Exists("FSI-Pion-FracPiProdScale"))    ? gc->GetDouble("FSI-Pion-FracPiProdScale")    : 1.0 ;
-  fNucleonMFPScale         = (gc->Exists("FSI-Nucleon-MFPScale"))        ? gc->GetDouble("FSI-Nucleon-MFPScale")        : 1.0 ;
-  fNucleonFracCExScale     = (gc->Exists("FSI-Nucleon-FracCExScale"))    ? gc->GetDouble("FSI-Nucleon-FracCExScale")    : 1.0 ;
-  fNucleonFracElasScale    = (gc->Exists("FSI-Nucleon-FracElasScale"))   ? gc->GetDouble("FSI-Nucleon-FracElasScale")   : 1.0 ;
-  fNucleonFracInelScale    = (gc->Exists("FSI-Nucleon-FracInelScale"))   ? gc->GetDouble("FSI-Nucleon-FracInelScale")   : 1.0 ;
-  fNucleonFracAbsScale     = (gc->Exists("FSI-Nucleon-FracAbsScale"))    ? gc->GetDouble("FSI-Nucleon-FracAbsScale")    : 1.0 ;
-  fNucleonFracPiProdScale  = (gc->Exists("FSI-Nucleon-FracPiProdScale")) ? gc->GetDouble("FSI-Nucleon-FracPiProdScale") : 1.0 ;
+  GetParamDef( "FSI-Pion-MFPScale",              fPionMFPScale,           1.0 ) ;
+  GetParamDef( "FSI-Pion-FracCExScale",          fPionFracCExScale,       1.0 ) ;
+  GetParamDef( "FSI-Pion-FracAbsScale",          fPionFracAbsScale,       1.0 ) ;
+  GetParamDef( "FSI-Pion-FracPiProdScale",       fPionFracPiProdScale,    1.0 ) ;
+  GetParamDef( "FSI-Nucleon-MFPScale",           fNucleonMFPScale,        1.0 ) ;
+  GetParamDef( "FSI-Nucleon-FracCExScale",       fNucleonFracCExScale ,   1.0 ) ;
+  GetParamDef( "FSI-Nucleon-FracElasScale",      fNucleonFracElasScale,   1.0 ) ;
+  GetParamDef( "FSI-Nucleon-FracInelScale",      fNucleonFracInelScale,   1.0 ) ;
+  GetParamDef( "FSI-Nucleon-FracAbsScale",       fNucleonFracAbsScale,    1.0 ) ;
+  GetParamDef( "FSI-Nucleon-FracPiProdScale",    fNucleonFracPiProdScale, 1.0 ) ;
 
   // report
   LOG("HAIntranuke", pINFO) << "Settings for INTRANUKE mode: " << INukeMode::AsString(kIMdHA);

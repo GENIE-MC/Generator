@@ -182,10 +182,7 @@ void KNOPythiaHadronization::LoadConfig(void)
 {
 // Read configuration options or set defaults
 
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
-
-  // Load the requested hadronizers
+   // Load the requested hadronizers
   fKNOHadronizer = 
      dynamic_cast<const HadronizationModelI *> (
                               this->SubAlg("KNO-Hadronizer"));
@@ -196,14 +193,17 @@ void KNOPythiaHadronization::LoadConfig(void)
   assert(fKNOHadronizer && fPythiaHadronizer);
 
   // Get transition method
-  fMethod = fConfig->GetIntDef("TransMethod", 2);
+  fMethod = 2 ;
+  GetParam( "TransMethod", fMethod, false ) ;
+
 
   // Get transition scheme specific config
   if(fMethod==2) {
-    fWminTrWindow = fConfig->GetDoubleDef(
-                "KNO2PYTHIA-Wmin", gc->GetDouble("KNO2PYTHIA-Wmin"));
-    fWmaxTrWindow = fConfig->GetDoubleDef(
-                "KNO2PYTHIA-Wmax", gc->GetDouble("KNO2PYTHIA-Wmax"));
+
+	GetParam( "KNO2PYTHIA-Wmin", fWminTrWindow ) ;
+
+	GetParam( "KNO2PYTHIA-Wmax", fWmaxTrWindow ) ;
+
   }
 }
 //____________________________________________________________________________

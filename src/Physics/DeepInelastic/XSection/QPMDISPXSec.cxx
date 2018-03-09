@@ -365,8 +365,6 @@ void QPMDISPXSec::Configure(string config)
 void QPMDISPXSec::LoadConfig(void)
 {
   // Access global defaults to use in case of missing parameters
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
 
   fDISSFModel = 0;
   fDISSFModel = 
@@ -375,8 +373,8 @@ void QPMDISPXSec::LoadConfig(void)
 
   fDISSF.SetModel(fDISSFModel); // <-- attach algorithm
 
-  fUsingDisResJoin = fConfig->GetBoolDef(
-                       "UseDRJoinScheme", gc->GetBool("UseDRJoinScheme"));
+  GetParam( "UseDRJoinScheme", fUsingDisResJoin ) ;
+
   fHadronizationModel = 0;
   fWcut = 0.;
 
@@ -387,16 +385,17 @@ void QPMDISPXSec::LoadConfig(void)
 
      // Load Wcut determining the phase space area where the multiplicity prob.
      // scaling factors would be applied -if requested-
-     fWcut = fConfig->GetDoubleDef("Wcut", gc->GetDouble("Wcut"));
+
+     GetParam( "Wcut", fWcut ) ;
+
   }
 
   // Cross section scaling factor
-  fScale = fConfig->GetDoubleDef("DIS-XSecScale", gc->GetDouble("DIS-XSecScale"));
+  GetParam( "DIS-XSecScale", fScale ) ;
 
   // sin^4(theta_weinberg)
-  double thw = fConfig->GetDoubleDef(
-         "weinberg-angle", gc->GetDouble("WeinbergAngle"));
-     
+  double thw  ;
+  GetParam( "WeinbergAngle", thw ) ;
   fSin48w = TMath::Power( TMath::Sin(thw), 4 );
 
   // Caching the reduction factors used in the DIS/RES joing scheme?
@@ -408,7 +407,7 @@ void QPMDISPXSec::LoadConfig(void)
 
   bool cache_enabled = RunOpt::Instance()->BareXSecPreCalc();
 
-  fUseCache = fConfig->GetBoolDef("UseCache", true);
+  GetParamDef( "UseCache", fUseCache, true ) ;
   fUseCache = fUseCache && cache_enabled;
 
   // Since this method would be called every time the current algorithm is 
@@ -428,12 +427,15 @@ void QPMDISPXSec::LoadConfig(void)
   assert(fXSecIntegrator);
 
   // Load the charm production cross section model
-  RgKey xkey    = "CharmXSecModel";
+  AlgConfigPool * confp = AlgConfigPool::Instance();
+  const Registry * gc = confp->GlobalParameterList();
+
   RgKey xdefkey = "XSecModel@genie::EventGenerator/DIS-CC-CHARM";
-  RgAlg xalg    = fConfig->GetAlgDef(xkey, gc->GetAlg(xdefkey));
+  RgAlg xalg    = gc->GetAlg(xdefkey) ;
   LOG("DISXSec", pDEBUG)
      << "Loading the cross section model: " << xalg;
-  fCharmProdModel = dynamic_cast<const XSecAlgorithmI *> (this->SubAlg(xkey));
+
+  fCharmProdModel = dynamic_cast<const XSecAlgorithmI *> ( AlgFactory::Instance() -> GetAlgorithm( xalg.name, xalg.config ) ) ;
   assert(fCharmProdModel);
 }
 //____________________________________________________________________________

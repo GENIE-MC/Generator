@@ -1,0 +1,124 @@
+/*
+
+ Templated functions for the Algorithm class
+
+*/ 
+
+template<class T>                                                                                                         
+    bool genie::Algorithm::GetParam( const RgKey & key, T & p, bool is_top_call ) const {
+
+
+    // loop over the local registries
+    // if name found: return
+
+    RgIMapConstIter entry ;
+    
+    //loop over the vector
+    for ( unsigned int i = 0 ; i < fConfVect.size() ; ++i ) {
+
+      const Registry & temp = * fConfVect[i] ;
+				   
+      if( temp.Exists(key) ) {
+        if( temp.ItemIsLocal(key) ) {
+          temp.Get(key, p );
+          return  true ;
+        }
+      }
+
+    } // loop over the local registries
+
+
+    // if own config loop over the local algos calling for the function recursively
+    // in this case is_top_call is false 
+
+    if ( fOwnsSubstruc ) {
+       
+      for( AlgMapIter alg_iter = fOwnedSubAlgMp->begin(); 
+        alg_iter != fOwnedSubAlgMp->end(); ++alg_iter) {
+
+        string      alg_key = alg_iter->first;
+        Algorithm * alg     = alg_iter->second;
+
+        if(!alg) {
+          LOG("Algorithm", pERROR) 
+            << "Key: " << alg_key << " points to a null algorithm at local pool";
+          continue; 
+        }
+
+	if ( GetParam( key, p, false ) ) 
+	  return true ;
+
+      } // loop over owned algorithms
+
+    } // if OwnSubstructure
+  
+    // if not onw subalgo, loop over the local registry in order to look algo and 
+    // call for the same function recorsively, is_top_call false
+
+    else {
+
+      AlgFactory * algf = AlgFactory::Instance();
+      
+      // loop over the local registries
+      for ( unsigned int i = 0; i < fConfVect.size() ; ++i ) {
+
+        const Registry & temp_config = * fConfVect[i] ;
+        const RgIMap & rgmap = temp_config.GetItemMap();
+	
+	for( RgIMapConstIter iter = rgmap.begin(); 
+             iter != rgmap.end(); ++iter) {
+
+	  RgKey reg_key = iter->first;	  
+          RegistryItemI * ri = iter->second;
+
+          if( ri->TypeInfo() == kRgAlg ) {
+
+            LOG("Algorithm", pDEBUG) 
+              << "Found sub-algorithm pointed to by " << reg_key;
+
+            RgAlg reg_alg = temp_config.GetAlg(reg_key);
+            AlgId id(reg_alg);
+
+	    const Algorithm * temp_alg = algf -> GetAlgorithm( id ) ;
+	    if ( temp_alg -> GetParam( key, p, false ) ) 
+	      return true ;	    
+
+	  }  // found an algorithm
+
+	} // loop over the entries of the registry
+ 
+      }    // loop over the local registries
+
+
+    }   // else from own config
+
+    // if name not found and ! is_top_call return false
+    if ( ! is_top_call ) return false ;
+   
+
+    //crash because no key was found
+    // and since this is a top call the key must be found
+    
+    LOG("Algorithm", pFATAL)
+       << "*** Key: " << key
+       << " does not exist in pools from algorithm : " << fID.Key() ;
+    gAbortingInErr = true;
+    exit(1);
+
+    return false ;   
+
+}
+
+template<class T>                                                                                                         
+    bool genie::Algorithm::GetParamDef( const RgKey & name, T & p, const T & def ) const {
+    
+    if ( GetParam( name, p, false ) ) {
+    	return true ;
+    }
+    
+    p = def ;
+    return false ;
+}
+
+//add the the template specification as in Registry for RegistryItemI?
+

@@ -5,22 +5,31 @@ Configurations for the Berger-Seghal coherent pi production cross section algori
 
 Algorithm Configurable Parameters:
 ....................................................................................................
-Name             Type     Optional   Comment                 Default
+Name             Type     Optional   Comment                               Default
 ....................................................................................................
-COH-Ma           double   Yes        Coherent Axial Mass                   GPL: COH-Ma
-COH-Ro           double   Yes        Nuclear Size Scale                    GPL: COH-Ro
-fRSPionXSec      bool     Yes        Use Rein-Sehgal "style" pion xsec     GPL: COH-fRSPionXSec
+COH-Ma           double   No         Coherent Axial Mass                  
+COH-Ro           double   No         Nuclear Size Scale                    CommonParam[Coherent]
+COH-fRSPionXSec  bool     No         Use Rein-Sehgal "style" pion xsec     
+CabibboAngle     double   No                                               CommonParam[CKM]
 XSec-Integrator  alg      No
 -->
 
 <alg_conf>
 
   <param_set name="Default"> 
+    <param type="string" name="CommonParam"> Coherent,CKM </param>
+
       <param type="alg" name="XSec-Integrator"> genie::COHXSec/Default </param>
 
       <param type="double" name="COH-Ma"> 1.000 </param>
-      <param type="double" name="COH-Ro"> 1.000 </param>
 
+      <!--
+	  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	  If false, use the pion-nucleon cross section specially computed for the Berger-Sehgal model.
+	  If true, use the Rein-Sehgal "style" pion-nucleon cross section and scale by A for all pion energies. 
+      -->
+      <param type="bool" name="COH-UseRSPionXSec"> false </param>
+ 
   </param_set>
 
 </alg_conf>

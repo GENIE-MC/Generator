@@ -368,12 +368,8 @@ void RSHelicityAmplModelNCp::Configure(string config)
 //____________________________________________________________________________
 void RSHelicityAmplModelNCp::LoadConfig(void)
 {
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
-
-  double thw = fConfig->GetDoubleDef(
-                        "weinberg-angle", gc->GetDouble("WeinbergAngle"));
-
+  double thw ;
+  GetParam( "WeinbergAngle", thw ) ;
   fSin28w = TMath::Power( TMath::Sin(thw), 2 );
 }
 //____________________________________________________________________________

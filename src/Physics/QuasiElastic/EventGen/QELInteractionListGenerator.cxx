@@ -317,11 +317,11 @@ void QELInteractionListGenerator::Configure(string config)
 //____________________________________________________________________________
 void QELInteractionListGenerator::LoadConfigData(void)
 {
-  fIsCC      = fConfig->GetBoolDef("is-CC",      false);
-  fIsNC      = fConfig->GetBoolDef("is-NC",      false);
-  fIsEM      = fConfig->GetBoolDef("is-EM",      false);
-  fIsCharm   = fConfig->GetBoolDef("is-Charm",   false);
-  fIsStrange = fConfig->GetBoolDef("is-Strange", false);
+  GetParamDef( "is-CC", fIsCC, false ) ;
+  GetParamDef( "is-NC", fIsNC, false ) ;
+  GetParamDef( "is-EM", fIsEM, false ) ;
+  GetParamDef( "is-Charm", fIsCharm, false  ) ;
+  GetParamDef( "is-Strange", fIsStrange, false  ) ;
 }
 //____________________________________________________________________________
 

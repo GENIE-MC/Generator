@@ -9,10 +9,13 @@ Configurable Parameters:
 ................................................................................................
 Name               Type     Optional   Comment                        Default
 ................................................................................................
-FermiMomentumTable string   Yes        Fermi momentum table           GPL FermiMomentumTable
+FermiMomentumTable string   no         Fermi momentum table           CommonParams[FermiGas]
 -->
 
   <param_set name="Default"> 
+
+      <param type="string" name="CommonParam"> FermiGas </param>
+
   </param_set>
 
 </alg_conf>

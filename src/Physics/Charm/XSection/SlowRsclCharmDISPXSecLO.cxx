@@ -201,13 +201,10 @@ void SlowRsclCharmDISPXSecLO::Configure(string param_set)
 //____________________________________________________________________________
 void SlowRsclCharmDISPXSecLO::LoadConfig(void)
 {
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
-
   // read mc, Vcd, Vcs from config or set defaults
-  fMc    = fConfig->GetDoubleDef("Charm-Mass", gc->GetDouble("Charm-Mass"));
-  fVcd   = fConfig->GetDoubleDef("CKM-Vcd",    gc->GetDouble("CKM-Vcd"));
-  fVcs   = fConfig->GetDoubleDef("CKM-Vcs",    gc->GetDouble("CKM-Vcs"));
+  GetParam( "Charm-Mass", fMc ) ;
+  GetParam( "CKM-Vcd",    fVcd ) ;
+  GetParam( "CKM-Vcs",    fVcs ) ;
 
   fMc2   = TMath::Power(fMc,  2);
   fVcd2  = TMath::Power(fVcd, 2);

@@ -117,12 +117,12 @@ void TransverseEnhancementFFModel::Configure(string config)
 //____________________________________________________________________________
 void TransverseEnhancementFFModel::LoadConfig(void)
 {
-  LoadAllIsotopesForKey("MagFF_RT_A", "TransverseEnhancementFFModel", fConfig,
+	LoadAllIsotopesForKey("MagFF_RT_A", "TansverseEnhancementFFModel", GetOwnedConfig(),
                         &fNucMagFF_RT_A);
-  LoadAllNucARangesForKey("MagFF_RT_A", "TransverseEnhancementFFModel", fConfig,
+  LoadAllNucARangesForKey("MagFF_RT_A", "TransverseEnhancementFFModel", GetOwnedConfig(),
                           &fRangeMagFF_RT_A);
-  LoadAllIsotopesForKey("MagFF_RT_B", "TransverseEnhancementFFModel", fConfig,
+  LoadAllIsotopesForKey("MagFF_RT_B", "TransverseEnhancementFFModel", GetOwnedConfig(),
                         &fNucMagFF_RT_B);
-  LoadAllNucARangesForKey("MagFF_RT_B", "TransverseEnhancementFFModel", fConfig,
+  LoadAllNucARangesForKey("MagFF_RT_B", "TransverseEnhancementFFModel", GetOwnedConfig(),
                           &fRangeMagFF_RT_B);
 }

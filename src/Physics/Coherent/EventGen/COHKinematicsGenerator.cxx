@@ -986,30 +986,26 @@ void COHKinematicsGenerator::Configure(string config)
 //____________________________________________________________________________
 void COHKinematicsGenerator::LoadConfig(void)
 {
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
-
   //-- COH model parameter Ro
-  fRo = fConfig->GetDoubleDef("COH-Ro", gc->GetDouble("COH-Ro"));
+  GetParam( "COH-Ro", fRo );
   //-- COH model parameter t_max for t = (q - p_pi)^2
-  fTMax = fConfig->GetDoubleDef("COH-t-max", gc->GetDouble("COH-t-max"));
+  GetParam( "COH-t-max", fTMax ) ;
   //-- COH model bounds of integration for Q^2
-  fQ2Min = fConfig->GetDoubleDef("COH-Q2-min", gc->GetDouble("COH-Q2-min"));
-  fQ2Max = fConfig->GetDoubleDef("COH-Q2-max", gc->GetDouble("COH-Q2-max"));
+  GetParam( "COH-Q2-min", fQ2Min ) ;
+  GetParam( "COH-Q2-max", fQ2Max ) ;
 
   //-- max xsec safety factor (for rejection method) and min cached energy
-  fSafetyFactor = fConfig->GetDoubleDef("MaxXSec-SafetyFactor", 1.6);
-  fEMin         = fConfig->GetDoubleDef("Cache-MinEnergy",     -1.0);
+  GetParamDef( "MaxXSec-SafetyFactor", fSafetyFactor, 1.6 ) ;
+  GetParamDef( "Cache-MinEnergy", fEMin,  -1.0 ) ;
 
   //-- Generate kinematics uniformly over allowed phase space and compute
   //   an event weight?
-  fGenerateUniformly = fConfig->GetBoolDef("UniformOverPhaseSpace", false);
+  GetParamDef( "UniformOverPhaseSpace", fGenerateUniformly, false ) ;
 
   //-- Maximum allowed fractional cross section deviation from maxim cross
   //   section used in rejection method
-  fMaxXSecDiffTolerance = 
-    fConfig->GetDoubleDef("MaxXSec-DiffTolerance",999999.);
-  assert(fMaxXSecDiffTolerance>=0);
+  GetParamDef( "MaxXSec-DiffTolerance", fMaxXSecDiffTolerance, 999999. ) ;
+    assert(fMaxXSecDiffTolerance>=0);
 
   //-- Envelope employed when importance sampling is used 
   //   (initialize with dummy range)

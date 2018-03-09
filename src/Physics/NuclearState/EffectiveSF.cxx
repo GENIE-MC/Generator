@@ -62,7 +62,7 @@ EffectiveSF::~EffectiveSF()
   fProbDistroMap.clear();
 }
 //____________________________________________________________________________
-// Set the removal energy, 3 momentum, and FermiMover interaction type 
+// Set the removal energy, 3 momentum, and FermiMover interaction type
 //____________________________________________________________________________
 bool EffectiveSF::GenerateNucleon(const Target & target) const
 {
@@ -103,7 +103,7 @@ bool EffectiveSF::GenerateNucleon(const Target & target) const
 
   }
 
-  //-- set removal energy 
+  //-- set removal energy
   //
 
   fCurrRemovalEnergy = this->ReturnBindingEnergy(target);
@@ -118,11 +118,11 @@ bool EffectiveSF::GenerateNucleon(const Target & target) const
   } else {
     fFermiMoverInteractionType = kFermiMoveEffectiveSF2p2h_noeject;
   }
-    
+
   return true;
 }
 //____________________________________________________________________________
-// Returns the probability of the bin with given momentum. I don't know what w 
+// Returns the probability of the bin with given momentum. I don't know what w
 // is supposed to be, but I copied its implementation from Bodek-Ritchie.
 // Implements the interface.
 //____________________________________________________________________________
@@ -157,7 +157,7 @@ TH1D * EffectiveSF::ProbDistro(const Target & target) const
   int nucleon_pdgc = target.HitNucPdg();
   assert( pdg::IsProton(nucleon_pdgc) || pdg::IsNeutron(nucleon_pdgc) );
   return this->MakeEffectiveSF(target);
-	
+
 }
 //____________________________________________________________________________
 // If transverse enhancement form factor modification is enabled, we must
@@ -188,7 +188,7 @@ TH1D * EffectiveSF::MakeEffectiveSF(const Target & target) const
     return this->MakeEffectiveSF(v[0], v[1], v[2], v[3],
                                  v[4], v[5], v[6], target);
   }
-  
+
   // Then check in the ranges of A
   map<pair<int, int>, vector<double> >::const_iterator range_it = fRangeProbDistParams.begin();
   for(; range_it != fRangeProbDistParams.end(); ++range_it) {
@@ -198,7 +198,7 @@ TH1D * EffectiveSF::MakeEffectiveSF(const Target & target) const
                                    v[4], v[5], v[6], target);
     }
   }
-  
+
   return NULL;
 }
 //____________________________________________________________________________
@@ -211,7 +211,7 @@ TH1D * EffectiveSF::MakeEffectiveSF(double bs, double bp, double alpha,
 {
   //-- create the probability distribution
   int npbins = (int) (1000 * fPMax);
-  
+
   TH1D * prob = new TH1D("", "", npbins, 0, fPMax);
   prob->SetDirectory(0);
 
@@ -240,7 +240,7 @@ TH1D * EffectiveSF::MakeEffectiveSF(double bs, double bp, double alpha,
   //-- store
   fProbDistroMap.insert(
       map<string, TH1D*>::value_type(target.AsString(),prob));
-  return prob; 
+  return prob;
 }
 //____________________________________________________________________________
 // Returns the binding energy for a given nucleus.
@@ -284,46 +284,44 @@ void EffectiveSF::Configure(string param_set)
 //____________________________________________________________________________
 void EffectiveSF::LoadConfig(void)
 {
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  Registry * gc = confp->GlobalParameterList();
+  this->GetParamDef("EjectSecondNucleon2p2h", fEjectSecondNucleon2p2h, false);
+
+  this->GetParamDef("MomentumMax",    fPMax,    1.0);
+  this->GetParamDef("MomentumCutOff", fPCutOff, 0.65);
+  assert(fPMax > 0 && fPCutOff > 0 && fPCutOff <= fPMax);
+
   // Find out if Transverse enhancement is enabled to figure out whether to load
   // the 2p2h enhancement parameters.
-  fPMax    = fConfig->GetDoubleDef ("MomentumMax", 1.0);
-  fPCutOff = fConfig->GetDoubleDef ("MomentumCutOff", 0.65);
-  fEjectSecondNucleon2p2h = fConfig->GetBoolDef("EjectSecondNucleon2p2h", false);
-
-  assert(fPMax > 0 && fPCutOff > 0 && fPCutOff <= fPMax);
-  RgAlg form_factors_model = fConfig->GetAlgDef(
-      "ElasticFormFactorsModel", gc->GetAlg("ElasticFormFactorsModel"));
-  if (!gc->GetBoolDef("UseElFFTransverseEnhancement", false)) {
-    LOG("EffectiveSF", pINFO) << "Transverse enhancement not used; do not "
-        "increase the 2p2h cross section.";
+  this->GetParam("UseElFFTransverseEnhancement", fUseElFFTransEnh );
+  if (!fUseElFFTransEnh) {
+    LOG("EffectiveSF", pINFO)
+        << "Transverse enhancement not used; "
+        << "Do not increase the 2p2h cross section.";
   }
   else {
     LoadAllIsotopesForKey("TransEnhf1p1hMod", "EffectiveSF",
-                          fConfig, &fTransEnh1p1hMods);
+                          GetOwnedConfig(), &fTransEnh1p1hMods);
     LoadAllNucARangesForKey("TransEnhf1p1hMod", "EffectiveSF",
-                            fConfig, &fRangeTransEnh1p1hMods);
+                            GetOwnedConfig(), &fRangeTransEnh1p1hMods);
   }
-  
-  LoadAllIsotopesForKey("BindingEnergy", "EffectiveSF", fConfig, &fNucRmvE);
+
+  LoadAllIsotopesForKey("BindingEnergy", "EffectiveSF", GetOwnedConfig(), &fNucRmvE);
   LoadAllNucARangesForKey("BindingEnergy", "EffectiveSF",
-                          fConfig, &fRangeNucRmvE);
-  LoadAllIsotopesForKey("f1p1h", "EffectiveSF", fConfig, &f1p1hMap);
-  LoadAllNucARangesForKey("f1p1h", "EffectiveSF", fConfig, &fRange1p1hMap);
-  
+                          GetOwnedConfig(), &fRangeNucRmvE);
+  LoadAllIsotopesForKey("f1p1h", "EffectiveSF", GetOwnedConfig(), &f1p1hMap);
+  LoadAllNucARangesForKey("f1p1h", "EffectiveSF", GetOwnedConfig(), &fRange1p1hMap);
 
   for (int Z = 1; Z < 140; Z++) {
     for (int A = Z; A < 3*Z; A++) {
       const int pdgc = pdg::IonPdgCode(A, Z);
       double bs, bp, alpha, beta, c1, c2, c3;
-      if (GetDoubleKeyPDG("bs", pdgc, fConfig, &bs) &&
-          GetDoubleKeyPDG("bp", pdgc, fConfig, &bp) && 
-          GetDoubleKeyPDG("alpha", pdgc, fConfig, &alpha) &&
-          GetDoubleKeyPDG("beta", pdgc, fConfig, &beta) && 
-          GetDoubleKeyPDG("c1", pdgc, fConfig, &c1) &&
-          GetDoubleKeyPDG("c2", pdgc, fConfig, &c2) && 
-          GetDoubleKeyPDG("c3", pdgc, fConfig, &c3)) {
+      if (GetDoubleKeyPDG("bs", pdgc, GetOwnedConfig(), &bs) &&
+          GetDoubleKeyPDG("bp", pdgc, GetOwnedConfig(), &bp) &&
+          GetDoubleKeyPDG("alpha", pdgc, GetOwnedConfig(), &alpha) &&
+          GetDoubleKeyPDG("beta", pdgc, GetOwnedConfig(), &beta) &&
+          GetDoubleKeyPDG("c1", pdgc, GetOwnedConfig(), &c1) &&
+          GetDoubleKeyPDG("c2", pdgc, GetOwnedConfig(), &c2) &&
+          GetDoubleKeyPDG("c3", pdgc, GetOwnedConfig(), &c3)) {
         vector<double> pars = vector<double>();
         pars.push_back(bs);
         pars.push_back(bp);
@@ -333,7 +331,7 @@ void EffectiveSF::LoadConfig(void)
         pars.push_back(c2);
         pars.push_back(c3);
         LOG("EffectiveSF", pINFO)
-          << "Nucleus: " << pdgc << " -> using bs =  " << bs << "; bp = "<< bp 
+          << "Nucleus: " << pdgc << " -> using bs =  " << bs << "; bp = "<< bp
           << "; alpha = " << alpha << "; beta = "<<beta<<"; c1 = "<<c1
           <<"; c2 = "<<c2<< "; c3 = " << c3;
         fProbDistParams[pdgc] = pars;
@@ -343,13 +341,13 @@ void EffectiveSF::LoadConfig(void)
   for(int lowA = 1; lowA < 3 * 140; lowA++) {
     for(int highA = lowA; highA < 3 * 140; highA++) {
       double bs, bp, alpha, beta, c1, c2, c3;
-      if (GetDoubleKeyRangeNucA("bs", lowA, highA, fConfig, &bs) &&
-          GetDoubleKeyRangeNucA("bp", lowA, highA, fConfig, &bp) &&
-          GetDoubleKeyRangeNucA("alpha", lowA, highA, fConfig, &alpha) &&
-          GetDoubleKeyRangeNucA("beta", lowA, highA, fConfig, &beta) &&
-          GetDoubleKeyRangeNucA("c1", lowA, highA, fConfig, &c1) &&
-          GetDoubleKeyRangeNucA("c2", lowA, highA, fConfig, &c2) &&
-          GetDoubleKeyRangeNucA("c3", lowA, highA, fConfig, &c3)) {
+      if (GetDoubleKeyRangeNucA("bs",   lowA, highA, GetOwnedConfig(), &bs)    &&
+          GetDoubleKeyRangeNucA("bp",   lowA, highA, GetOwnedConfig(), &bp)    &&
+          GetDoubleKeyRangeNucA("alpha",lowA, highA, GetOwnedConfig(), &alpha) &&
+          GetDoubleKeyRangeNucA("beta", lowA, highA, GetOwnedConfig(), &beta) &&
+          GetDoubleKeyRangeNucA("c1",   lowA, highA, GetOwnedConfig(), &c1) &&
+          GetDoubleKeyRangeNucA("c2",   lowA, highA, GetOwnedConfig(), &c2) &&
+          GetDoubleKeyRangeNucA("c3",   lowA, highA, GetOwnedConfig(), &c3)) {
         vector<double> pars = vector<double>();
         pars.push_back(bs);
         pars.push_back(bp);
@@ -359,7 +357,7 @@ void EffectiveSF::LoadConfig(void)
         pars.push_back(c2);
         pars.push_back(c3);
         LOG("EffectiveSF", pINFO) << "For "<< lowA - 1 <<" < A < " << highA + 1
-          <<" -> using bs =  " << bs << "; bp = "<< bp 
+          <<" -> using bs =  " << bs << "; bp = "<< bp
           << "; alpha = " << alpha << "; beta = "<<beta<<"; c1 = "<<c1
           <<"; c2 = "<<c2<< "; c3 = " << c3;
         fRangeProbDistParams[pair<int, int>(lowA, highA)] = pars;
@@ -367,3 +365,4 @@ void EffectiveSF::LoadConfig(void)
     }
   }
 }
+//____________________________________________________________________________

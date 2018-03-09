@@ -1052,15 +1052,12 @@ void MECGenerator::Configure(string config)
 //___________________________________________________________________________
 void MECGenerator::LoadConfig(void)
 {
-    AlgConfigPool * confp = AlgConfigPool::Instance();
-    const Registry * gc = confp->GlobalParameterList();
-
     fNuclModel = 0;
     RgKey nuclkey = "NuclearModel";
     fNuclModel = dynamic_cast<const NuclearModelI *> (this->SubAlg(nuclkey));
     assert(fNuclModel);
 
-    fQ3Max = fConfig->GetDoubleDef("NSV-Q3Max", gc->GetDouble("NSV-Q3Max"));
+    GetParam( "NSV-Q3Max", fQ3Max ) ;
 }
 //___________________________________________________________________________
 

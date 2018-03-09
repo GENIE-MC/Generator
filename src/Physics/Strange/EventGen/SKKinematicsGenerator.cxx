@@ -81,7 +81,7 @@ void SKKinematicsGenerator::CalculateKin_AtharSingleKaon(GHepRecord * evrec) con
   interaction->SetBit(kISkipProcessChk);
   interaction->SetBit(kISkipKinematicChk);
 
-  // Initialise a random number generator 
+  // Initialise a random number generator
   RandomGen * rnd = RandomGen::Instance();
 
   //-- For the subsequent kinematic selection with the rejection method:
@@ -186,7 +186,7 @@ void SKKinematicsGenerator::CalculateKin_AtharSingleKaon(GHepRecord * evrec) con
      double xbj = Q2/(2*M*q.E());
      double y = q.E()/P4_nu.E();
      double W2 = (pnuc4+q).Mag2();
-      
+
 
      // computing cross section for the current kinematics
      xsec = fXSecModel->XSec(interaction, kPSTkTlctl);
@@ -207,7 +207,7 @@ void SKKinematicsGenerator::CalculateKin_AtharSingleKaon(GHepRecord * evrec) con
 
         accept = (t< J*xsec);
      }
-     else { 
+     else {
         accept = (xsec>0);
      }
 
@@ -366,23 +366,20 @@ void SKKinematicsGenerator::Configure(string config)
 //____________________________________________________________________________
 void SKKinematicsGenerator::LoadConfig(void)
 {
-
   // max xsec safety factor (for rejection method) and min cached energy
-  fSafetyFactor = fConfig->GetDoubleDef("MaxXSec-SafetyFactor", 1.5);
-  fEMin         = fConfig->GetDoubleDef("Cache-MinEnergy",      0.6);
+  this->GetParamDef("MaxXSec-SafetyFactor", fSafetyFactor, 1.5);
+  this->GetParamDef("Cache-MinEnergy",      fEMin,         0.6);
 
   // Generate kinematics uniformly over allowed phase space and compute
   // an event weight?
-  fGenerateUniformly = fConfig->GetBoolDef("UniformOverPhaseSpace", false);
+  this->GetParamDef("UniformOverPhaseSpace", fGenerateUniformly, false);
 
   // Maximum allowed fractional cross section deviation from maxim cross
   // section used in rejection method
-  fMaxXSecDiffTolerance = 
-         fConfig->GetDoubleDef("MaxXSec-DiffTolerance",999999.);
+  this->GetParamDef("MaxXSec-DiffTolerance", fMaxXSecDiffTolerance, 999999.);
   assert(fMaxXSecDiffTolerance>=0);
 
-  fMinLog1MinusCosTheta = fConfig->GetDoubleDef("MaxXSec-MinLog1MinusCosTheta", -20.0);
-
+  //
+  this->GetParamDef("MaxXSec-MinLog1MinusCosTheta", fMinLog1MinusCosTheta, -20.0);
 }
 //____________________________________________________________________________
-

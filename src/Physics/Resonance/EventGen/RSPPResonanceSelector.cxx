@@ -5,7 +5,7 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
+         University of Liverpool & STFC Rutherford Appleton Lab
 
  For the class documentation see the corresponding header file.
 
@@ -198,16 +198,9 @@ void RSPPResonanceSelector::Configure(string param_set)
 //____________________________________________________________________________
 void RSPPResonanceSelector::LoadConfig(void)
 {
-  // Create the list with all the baryon resonances that the user wants me to
-  // consider (from this algorithm's config file).
-
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
-
-  LOG("RESSelector", pDEBUG) << "Getting the baryon resonance list";
   fResList.Clear();
-  string resonances = fConfig->GetStringDef(
-                   "ResonanceNameList", gc->GetString("ResonanceNameList"));
+  string resonances = "";
+  this->GetParam("ResonanceNameList", resonances);
   SLOG("RESSelector", pDEBUG) << "Resonance list: " << resonances;
 
   fResList.DecodeFromNameList(resonances);

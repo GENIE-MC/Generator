@@ -9,12 +9,13 @@ Algorithm Configurable Parameters:
 .........................................................................................
 Name        Type    Optional   Comment                    Default
 .........................................................................................
-QEL-Ma      double  Yes        Axial Mass                 GPL value: QEL-Ma
-QEL-FA0     double  Yes        FA(q2 = 0)                 GPL value: QEL-FA0
+QEL-Ma      double  No         Axial Mass                 CommonParam[QuasiElastic]
+QEL-FA0     double  No         FA(q2 = 0)                 CommonParam[QuasiElastic]
 -->
 
-  <param_set name="Default">   <!-- Ideally this should disappear as it is too generic --> 
-    <param type="double" name="QEL-Ma"> 0.990 </param>
+  <param_set name="Default">   
+
+    <param type="string" name="CommonParam"> QuasiElastic </param>
 
   </param_set>
 
@@ -22,9 +23,6 @@ QEL-FA0     double  Yes        FA(q2 = 0)                 GPL value: QEL-FA0
     <param type="double" name="QEL-Ma"> 0.990 </param>
     <param type="double" name="QEL-FA0"> -1.2670 </param>
   </param_set>
-
-  <param_set name="Tunable">   <!-- to be left empty to allow priority from UserPhysicsOptions.xml or other -->
-  </param_set>
-
+ 
 </alg_conf>
 

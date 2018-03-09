@@ -9,16 +9,16 @@ Configurable Parameters:
 .......................................................................................................
 Name             Type     Optional   Comment               Default
 .......................................................................................................
-Norm             double   Yes                              Value from normalization for given Epsilon
-Epsilon          double   No
+PetFrag-Norm     double   Yes                              Value from normalization for given Epsilon
+PetFrag-Epsilon  double   No
 -->
 
 <!--
   CCFR - NLO fit
 -->
   <param_set name="Default"> 
-     <param type="double"  name="Norm">     1.00  </param>
-     <param type="double"  name="Epsilon">  0.20  </param>
+     <param type="double"  name="PetFrag-Norm">     1.00  </param>
+     <param type="double"  name="PetFrag-Epsilon">  0.20  </param>
   </param_set>
   
 </alg_conf>

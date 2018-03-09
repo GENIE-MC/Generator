@@ -257,18 +257,13 @@ void NievesSimoVacasMECPXSec2016::Configure(string config)
 //_________________________________________________________________________
 void NievesSimoVacasMECPXSec2016::LoadConfig(void)
 {
-    AlgConfigPool * confp = AlgConfigPool::Instance();
-    const Registry * gc = confp->GlobalParameterList();
+	// Cross section scaling factor
+	GetParam( "MEC-CC-XSecScale", fXSecScale ) ;
 
-    // Cross section scaling factor
-    fXSecScale = fConfig->GetDoubleDef( "MEC-CC-XSecScale",
-            gc->GetDouble("MEC-CC-XSecScale"));
-
-    fXSecIntegrator =
+	fXSecIntegrator =
         dynamic_cast<const XSecIntegratorI *> (
                 this->SubAlg("NumericalIntegrationAlg"));
     assert(fXSecIntegrator);
 
-    //fQ3Max = fConfig->GetDoubleDef("NSV-Q3Max", gc->GetDouble("NSV-Q3Max"));
 }
 //_________________________________________________________________________

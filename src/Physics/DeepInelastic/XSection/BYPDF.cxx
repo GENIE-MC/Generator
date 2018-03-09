@@ -171,14 +171,12 @@ void BYPDF::Configure(string config)
 //____________________________________________________________________________
 void BYPDF::LoadConfig(void)
 {
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
 
-  fX0 = fConfig->GetDoubleDef("BY-X0", gc->GetDouble("BY-X0"));
-  fX1 = fConfig->GetDoubleDef("BY-X1", gc->GetDouble("BY-X1"));
-  fX2 = fConfig->GetDoubleDef("BY-X2", gc->GetDouble("BY-X2"));
+  GetParam( "BY-X0", fX0 ) ;
+  GetParam( "BY-X1", fX1 ) ;
+  GetParam( "BY-X2", fX2 ) ;
 
-  fQ2min = fConfig->GetDoubleDef("PDF-Q2min", gc->GetDouble("PDF-Q2min"));
+  GetParam( "PDF-Q2min", fQ2min ) ;
 
   // get the base PDF model (typically GRV9* LO)
   fBasePDFModel = 

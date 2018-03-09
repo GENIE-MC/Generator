@@ -17,10 +17,16 @@ MaxXSec-DiffTolerance    double  Yes   max allowed 200*(xsec-xsecmax)/(xsec+xsec
                                        if xsec>xsecmax
 Cache-MinEnergy          double  Yes   minimum energy for which max xsec is cached    1.00
                                        if xsec>xsecmax
+
+DFR-Beta                 double  No    Slope parameter beta (GeV^-2)                  CommonParam[Diffractive]
+
 -->
 
   <param_set name="Default"> 
-     <param type="double" name="MaxXSec-SafetyFactor">   1.500                                  </param>
+
+    <param type="string" name="CommonParam">  Diffractive  </param>
+
+    <param type="double" name="MaxXSec-SafetyFactor">   1.500     </param>
   </param_set>
 
 </alg_conf>

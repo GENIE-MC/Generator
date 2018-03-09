@@ -169,12 +169,11 @@ void INukeDeltaPropg::Configure(string config)
 //___________________________________________________________________________
 void INukeDeltaPropg::LoadConfig (void)
 {
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
 
-  fR0      = fConfig->GetDoubleDef ("R0",      gc->GetDouble("NUCL-R0"));       // fm
-  fNR      = fConfig->GetDoubleDef ("NR",      gc->GetDouble("NUCL-NR"));
-  fHadStep = fConfig->GetDoubleDef ("HadStep", gc->GetDouble("INUKE-HadStep")); // fm
+  GetParam( "NUCL-R0", fR0 ) ;   //fm
+  GetParam( "NUCL-NR", fNR ) ;
+  GetParam( "INUKE-HadStep", fHadStep ) ;  //fm
+
 }
 //___________________________________________________________________________
 

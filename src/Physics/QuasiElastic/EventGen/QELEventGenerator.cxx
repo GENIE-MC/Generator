@@ -478,10 +478,7 @@ void QELEventGenerator::LoadConfig(void)
 {
     // Load sub-algorithms and config data to reduce the number of registry
     // lookups
-    //AlgConfigPool * confp = AlgConfigPool::Instance();
-    //const Registry * gc = confp->GlobalParameterList();
-
-    fNuclModel = 0;
+	fNuclModel = 0;
 
     RgKey nuclkey = "NuclearModel";
     //  RgAlg nuclalg = fConfig->GetAlgDef(nuclkey, gc->GetAlg(nuclkey));
@@ -491,25 +488,25 @@ void QELEventGenerator::LoadConfig(void)
     assert(fNuclModel);
 
     // Safety factor for the maximum differential cross section
-    fSafetyFactor = fConfig->GetDoubleDef("MaxXSec-SafetyFactor", 1.6);
+    GetParamDef( "MaxXSec-SafetyFactor", fSafetyFactor, 1.6  ) ;
 
     // Minimum energy for which max xsec would be cached, forcing explicit
     // calculation for lower eneries
-    fEMin = fConfig->GetDoubleDef("Cache-MinEnergy", 1.00);
+    GetParamDef( "Cache-MinEnergy", fEMin, 1.00 ) ;
 
     // Maximum allowed fractional cross section deviation from maxim cross
     // section used in rejection method
-    fMaxXSecDiffTolerance = 
-        fConfig->GetDoubleDef("MaxXSec-DiffTolerance",999999.);
+    GetParamDef( "MaxXSec-DiffTolerance", fMaxXSecDiffTolerance, 999999. ) ;
     assert(fMaxXSecDiffTolerance>=0);
 
     // Generate kinematics uniformly over allowed phase space and compute
     // an event weight?
-    fGenerateUniformly = fConfig->GetBoolDef("UniformOverPhaseSpace", false);
-    
+    GetParamDef( "UniformOverPhaseSpace", fGenerateUniformly, false ) ;
+
     //  fQ2min   = 99999999;
     //  fQ2max   = -1;
-    fMinAngleEM = fConfig->GetDoubleDef("SF-MinAngleEMscattering",  0);
+    GetParamDef( "SF-MinAngleEMscattering", fMinAngleEM, 0. ) ;
+
 }
 //____________________________________________________________________________
 double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const

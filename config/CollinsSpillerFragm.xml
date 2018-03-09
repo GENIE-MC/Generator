@@ -5,8 +5,8 @@
   CCFR - NLO fit
 
   <param_set name="Default"> 
-     <param type="double"  name="Norm">     1.00  </param>
-     <param type="double"  name="Epsilon">  0.81  </param>
+     <param type="double"  name="CSFrag-Norm">     1.00  </param>
+     <param type="double"  name="CSFrag-Epsilon">  0.81  </param>
   </param_set>
   
 </alg_conf>

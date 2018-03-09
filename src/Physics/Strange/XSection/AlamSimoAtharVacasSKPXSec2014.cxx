@@ -196,9 +196,6 @@ void AlamSimoAtharVacasSKPXSec2014::Configure(string config)
 //____________________________________________________________________________
 void AlamSimoAtharVacasSKPXSec2014::LoadConfig(void)
 {
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
-
   fXSecIntegrator =
       dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));
   assert(fXSecIntegrator);
@@ -206,15 +203,19 @@ void AlamSimoAtharVacasSKPXSec2014::LoadConfig(void)
   amLam = PDGLibrary::Instance()->Find(kPdgLambda)->Mass();
   am = kNeutronMass; // this will be nucleon mass, set event by event
   amEta = PDGLibrary::Instance()->Find(kPdgEta)->Mass();
-  Vus=fConfig->GetDoubleDef("CKM-Vus", gc->GetDouble("CKM-Vus"));
+
+  GetParam( "CKM-Vus", Vus ) ;
   // fpi is 0.0924 in Athar's code, use the same one that is already in UserPhysicsOptions
-  fpi = fConfig->GetDoubleDef("PionDecayConstant", gc->GetDouble("PionDecayConstant")); // pion decay constant
-  d = fConfig->GetDoubleDef("SU3-D", gc->GetDouble("SU3-D")); // SU(3) parameter D
-  f = fConfig->GetDoubleDef("SU3-F", gc->GetDouble("SU3-F")); // SU(3) parameter F
+  GetParam( "PionDecayConstant",fpi ) ;
+
+  GetParam( "SU3-D", d ) ;
+  GetParam( "SU3-F", f ) ;
   g = kGF;                              // Fermi coupling
   // we really want the anomolous moment, but the one in UserPhysicsOptions is the full moment, despite the name
-  amup = fConfig->GetDoubleDef("AnomMagnMoment-P", gc->GetDouble("AnomMagnMoment-P")) - 1;
-  amun = fConfig->GetDoubleDef("AnomMagnMoment-N", gc->GetDouble("AnomMagnMoment-N"));   //before it was called SK-AnomMagnMoment-N
+  GetParam( "AnomMagnMoment-P", amup ) ;
+  amup -= 1 ;
+  GetParam( "AnomMagnMoment-N", amun ) ;
+
   Fm1 = -(amup+2.0*amun)/(2.0*am);
   Fm2 = -3.0*amup/(2.0*am);
 

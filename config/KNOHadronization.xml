@@ -5,163 +5,149 @@ Configuration for the KNOHadronization HadronizationModelI
 
 Algorithm Configurable Parameters:
 .......................................................................................................................
-Name                          Type    Opt   Comment                                       Default
+Name                              Type    Opt   Comment                                       Default
 .......................................................................................................................
-KNO-Alpha-vp                      double  Yes   a for vp in <mult> = a + blnW^2               KNO-Alpha-vp
+KNO-Alpha-vp                      double  No    a for vp in <mult> = a + blnW^2               KNO-Alpha-vp
 KNO-Alpha-vn                      double  Yes   a for vn                                      KNO-Alpha-vn
-KNO-Alpha-vbp                     double  Yes   a for vbp                                     KNO-Alpha-vbp
-KNO-Alpha-vbn                     double  Yes   a for vbn                                     KNO-Alpha-vbn
-KNO-Beta-vp                       double  Yes   b for vp                                      KNO-Alpha-vp
-KNO-Beta-vn                       double  Yes   b for vn                                      KNO-Alpha-vn
-KNO-Beta-vbp                      double  Yes   b for vbp                                     KNO-Alpha-vbp
-KNO-Beta-vbn                      double  Yes   b for vbn                                     KNO-Alpha-vbn
-KNO-Alpha-Hyperon                 double  Yes   a in Pstrange = a+blnW^2                      KNO-Alpha-Hyperon
-KNO-Beta-Hyperon                  double  Yes   b in Pstrange = a+blnW^2                      KNO-Beta-Hyperon
-KNO-LevyC-vp                      double  Yes   Levy function param c for vp                  KNO-LevyC-vp
-KNO-LevyC-vn                      double  Yes   Levy function param c for vn                  KNO-LevyC-vn
-KNO-LevyC-vbp                     double  Yes   Levy function param c for vbp                 KNO-LevyC-vbp
-KNO-LevyC-vbn                     double  Yes   Levy function param c for vbn                 KNO-LevyC-vbn
+KNO-Alpha-vbp                     double  No    a for vbp                                     KNO-Alpha-vbp
+KNO-Alpha-vbn                     double  No    a for vbn                                     KNO-Alpha-vbn
+KNO-Beta-vp                       double  No    b for vp                                      KNO-Alpha-vp
+KNO-Beta-vn                       double  No    b for vn                                      KNO-Alpha-vn
+KNO-Beta-vbp                      double  No    b for vbp                                     KNO-Alpha-vbp
+KNO-Beta-vbn                      double  No    b for vbn                                     KNO-Alpha-vbn
+KNO-Alpha-Hyperon                 double  No    a in Pstrange = a+blnW^2                      KNO-Alpha-Hyperon
+KNO-Beta-Hyperon                  double  No    b in Pstrange = a+blnW^2                      KNO-Beta-Hyperon
+KNO-LevyC-vp                      double  No    Levy function param c for vp                  KNO-LevyC-vp
+KNO-LevyC-vn                      double  No    Levy function param c for vn                  KNO-LevyC-vn
+KNO-LevyC-vbp                     double  No    Levy function param c for vbp                 KNO-LevyC-vbp
+KNO-LevyC-vbn                     double  No    Levy function param c for vbn                 KNO-LevyC-vbn
 ForceNeugenMultLimit          bool    Yes   force neugen upper multiplicity limit (10)    false
-Wcut                          double  Yes   W cut in DIS/RES join scheme                  Wcut
-DIS-HMultWgt-vp-CC-m2                    double  Yes   scaling factor, vp  CC, multiplicity=2        DIS-HMultWgt-vp-CC-m2
-DIS-HMultWgt-vp-CC-m3                    double  Yes   scaling factor, vp  CC, multiplicity=3        DIS-HMultWgt-vp-CC-m3
-DIS-HMultWgt-vp-NC-m2                    double  Yes   scaling factor, vp  NC, multiplicity=2        DIS-HMultWgt-vp-NC-m2
-DIS-HMultWgt-vp-NC-m3                    double  Yes   scaling factor, vp  NC, multiplicity=3        DIS-HMultWgt-vp-NC-m3
-DIS-HMultWgt-vn-CC-m2                    double  Yes   scaling factor, vn  CC, multiplicity=2        DIS-HMultWgt-vn-CC-m2
-DIS-HMultWgt-vn-CC-m3                    double  Yes   scaling factor, vn  CC, multiplicity=3        DIS-HMultWgt-vn-CC-m3
-DIS-HMultWgt-vn-NC-m2                    double  Yes   scaling factor, vn  NC, multiplicity=2        DIS-HMultWgt-vn-NC-m2
-DIS-HMultWgt-vn-NC-m3                    double  Yes   scaling factor, vn  NC, multiplicity=3        DIS-HMultWgt-vn-NC-m3
-DIS-HMultWgt-vbp-CC-m2                   double  Yes   scaling factor, vbp CC, multiplicity=2        DIS-HMultWgt-vbp-CC-m2
-DIS-HMultWgt-vbp-CC-m3                   double  Yes   scaling factor, vbp CC, multiplicity=3        DIS-HMultWgt-vbp-CC-m3
-DIS-HMultWgt-vbp-NC-m2                   double  Yes   scaling factor, vbp NC, multiplicity=2        DIS-HMultWgt-vbp-NC-m2
-DIS-HMultWgt-vbp-NC-m3                   double  Yes   scaling factor, vbp NC, multiplicity=3        DIS-HMultWgt-vbp-NC-m3
-DIS-HMultWgt-vbn-CC-m2                   double  Yes   scaling factor, vbn CC, multiplicity=2        DIS-HMultWgt-vbn-CC-m2
-DIS-HMultWgt-vbn-CC-m3                   double  Yes   scaling factor, vbn CC, multiplicity=3        DIS-HMultWgt-vbn-CC-m3
-DIS-HMultWgt-vbn-NC-m2                   double  Yes   scaling factor, vbn NC, multiplicity=2        DIS-HMultWgt-vbn-NC-m2
-DIS-HMultWgt-vbn-NC-m3                   double  Yes   scaling factor, vbn NC, multiplicity=3        DIS-HMultWgt-vbn-NC-m3
-KNO-ProbPi0Pi0                    double  Yes   probability for pi0 pair                      KNO-ProbPi0Pi0
-KNO-ProbPiplusPiminus             double  Yes   probability for pi+pi- pair                   KNO-ProbPiplusPiminus
-KNO-ProbKplusKminus               double  Yes   probability for K+K- pair                     KNO-ProbKplusKminus
-KNO-ProbK0K0bar                   double  Yes   probability for K0 K0bar pair                 KNO-ProbK0K0bar
-KNO-ProbPi0Eta                    double  Yes   probability for Pi0 Eta pair                  KNO-ProbPi0Eta
-KNO-ProbEtaEta                    double  Yes   Probability for Eta Eta pair                  KNO-ProbEtaEta
+Wcut                          double  No    W cut in DIS/RES join scheme                      CommonParam[NonResBackground]
+DIS-HMultWgt-vp-CC-m2             double  No    scaling factor, vp  CC, multiplicity=2 CommonParam[NonResBackground]
+DIS-HMultWgt-vp-CC-m3             double  No    scaling factor, vp  CC, multiplicity=3 CommonParam[NonResBackground]
+DIS-HMultWgt-vp-NC-m2             double  No    scaling factor, vp  NC, multiplicity=2 CommonParam[NonResBackground]
+DIS-HMultWgt-vp-NC-m3             double  No    scaling factor, vp  NC, multiplicity=3 CommonParam[NonResBackground]
+DIS-HMultWgt-vn-CC-m2             double  No    scaling factor, vn  CC, multiplicity=2 CommonParam[NonResBackground]
+DIS-HMultWgt-vn-CC-m3             double  No    scaling factor, vn  CC, multiplicity=3 CommonParam[NonResBackground]
+DIS-HMultWgt-vn-NC-m2             double  No    scaling factor, vn  NC, multiplicity=2 CommonParam[NonResBackground]
+DIS-HMultWgt-vn-NC-m3             double  No    scaling factor, vn  NC, multiplicity=3 CommonParam[NonResBackground]
+DIS-HMultWgt-vbp-CC-m2            double  No    scaling factor, vbp CC, multiplicity=2 CommonParam[NonResBackground]
+DIS-HMultWgt-vbp-CC-m3            double  No    scaling factor, vbp CC, multiplicity=3 CommonParam[NonResBackground]
+DIS-HMultWgt-vbp-NC-m2            double  No    scaling factor, vbp NC, multiplicity=2 CommonParam[NonResBackground]
+DIS-HMultWgt-vbp-NC-m3            double  No    scaling factor, vbp NC, multiplicity=3 CommonParam[NonResBackground]
+DIS-HMultWgt-vbn-CC-m2            double  No    scaling factor, vbn CC, multiplicity=2 CommonParam[NonResBackground]
+DIS-HMultWgt-vbn-CC-m3            double  No    scaling factor, vbn CC, multiplicity=3 CommonParam[NonResBackground]
+DIS-HMultWgt-vbn-NC-m2            double  No    scaling factor, vbn NC, multiplicity=2 CommonParam[NonResBackground]
+DIS-HMultWgt-vbn-NC-m3            double  No    scaling factor, vbn NC, multiplicity=3 CommonParam[NonResBackground]
+KNO-ProbPi0Pi0                    double  No    probability for pi0 pair                      KNO-ProbPi0Pi0
+KNO-ProbPiplusPiminus             double  No    probability for pi+pi- pair                   KNO-ProbPiplusPiminus
+KNO-ProbKplusKminus               double  No    probability for K+K- pair                     KNO-ProbKplusKminus
+KNO-ProbK0K0bar                   double  No    probability for K0 K0bar pair                 KNO-ProbK0K0bar
+KNO-ProbPi0Eta                    double  No    probability for Pi0 Eta pair                  KNO-ProbPi0Eta
+KNO-ProbEtaEta                    double  No    Probability for Eta Eta pair                  KNO-ProbEtaEta
 ForceDecays                   bool    Yes   force decays of unstable particles            false   
 Decayer                       alg     Dep   decayer to be used if decayes are forced
 ForceMinMultiplicity          bool    Yes   force a minimum multiplicity of 2             true
 GenerateWeighted              bool    Yes   generate weighted events                      false
-UseBaryonPdfs-xFpT2           bool    Yes   use a baryon pT^2, xF parameterization        KNO-UseBaryonPdfs-xFpT2
-UseIsotropic2BodyDec          bool    Yes   use isotropic, non-reweighted 2-body decays   KNO-UseIsotropic2BodyDec
+KNO-UseBaryonPdfs-xFpT2           bool    Yes   use a baryon pT^2, xF parameterization        KNO-UseBaryonPdfs-xFpT2
+KNO-UseIsotropic2BodyDec          bool    Yes   use isotropic, non-reweighted 2-body decays   KNO-UseIsotropic2BodyDec
                                             for compatibility with neuugen/daikon
-PhaseSpDec-Reweight           bool    Yes   reweight decays to to reproduce exp pT2       KNO-PhaseSpDec-Reweight
-PhaseSpDec-ReweightParm       double  Yes   parameter controlling the reweight function   KNO-PhaseSpDec-ReweightParm
+KNO-PhaseSpDec-Reweight           bool    Yes   reweight decays to to reproduce exp pT2       KNO-PhaseSpDec-Reweight
+KNO-PhaseSpDec-ReweightParm       double  Yes   parameter controlling the reweight function   KNO-PhaseSpDec-ReweightParm
 -->
 
 <alg_conf>
   <param_set name="Default"> 
-  <!--
-    <param type="bool" name="ForceNeugenMultLimit">  true </param>
- -->
-
-  <!-- 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Parameters controlling the average charged hadron multiplicities in the AGKY/KNO model
-  (paramerers a,b entering in the empirical expression: <n> = a + b * lnW^2 )
-  See Nucl.Instrum.Meth.A614:87-104,2010 and Eur.Phys.J.C63:1-10,2009. 
-  -->
-  <param type="double" name="KNO-Alpha-vp">  0.40 </param> 
-  <param type="double" name="KNO-Alpha-vn"> -0.20 </param> 
-  <param type="double" name="KNO-Alpha-vbp"> 0.02 </param> 
-  <param type="double" name="KNO-Alpha-vbn"> 0.80 </param> 
-  <param type="double" name="KNO-Beta-vp">   1.42 </param> 
-  <param type="double" name="KNO-Beta-vn">   1.42 </param> 
-  <param type="double" name="KNO-Beta-vbp">  1.28 </param> 
-  <param type="double" name="KNO-Beta-vbn">  0.95 </param> 
- 
-  <!-- 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Parameters controlling the probability of producing a strange baryon via associated production.
-  (paramerers a,b entering in the empirical expression: P_{hyperon} = a + b * lnW^2 )
-  Determined from a fit to \Lambda production data.
-  See Nucl.Instrum.Meth.A614:87-104,2010 and Eur.Phys.J.C63:1-10,2009. 
-  -->
-  <param type="double" name="KNO-Alpha-Hyperon"> 0.021951447 </param> 
-  <param type="double" name="KNO-Beta-Hyperon">  0.041969985 </param> 
-
-  <!-- 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Levy function (KNO parameterization) parameter c at kno(z) = 2*exp(-c)*pow(c,cz+1)/Gamma(cz+1)
-  v+p    : 7.93 +/- 0.34 source: Tingjun's fit
-  v+n    : 5.22 +/- 0.15 source: Tingjun's fit
-  vbar+p : same as vn
-  vbar+n : same as vp
-  -->
-  <param type="double" name="KNO-LevyC-vp">  7.93 </param> 
-  <param type="double" name="KNO-LevyC-vn">  5.22 </param> 
-  <param type="double" name="KNO-LevyC-vbp"> 5.22 </param> 
-  <param type="double" name="KNO-LevyC-vbn"> 7.93 </param> 
-
-  <!-- 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  AGKY/KNO hadronization model probabilities for producing hadron pairs.
-  See Nucl.Instrum.Meth.A614:87-104,2010 and Eur.Phys.J.C63:1-10,2009. 
-  Values below are modified values following strange hadron production tuning (see gDocDB-890-v1).
-  Previous values were P(pi0 pi0) = 0.30, P(pi+ pi-) = 0.60, P(K+ K-) = 0.05, P(K0 \barK0) = 0.05.
-  -->
-  <param type="double" name="KNO-ProbPi0Pi0">        0.3133 </param>
-  <param type="double" name="KNO-ProbPiplusPiminus"> 0.6267 </param>
-  <param type="double" name="KNO-ProbKplusKminus">   0.03 </param>
-  <param type="double" name="KNO-ProbK0K0bar">       0.03 </param>
-  <param type="double" name="KNO-ProbPi0Eta">        0.0 </param> 
-  <param type="double" name="KNO-ProbEtaEta">        0.0   </param>
-
-  <!-- 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Parameters controlling whether to reweight the KNO phase space decay reweighting and the actual
-  reweighting function.
-  See: A.B.Clegg, A.Donnachie, A Description of Jet Structure by pT-limited Phase Space.
-  -->
-  <param type="double" name="KNO-PhaseSpDec-ReweightParm"> 3.5   </param> 
-
- <!-- 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  NEUGEN parameters applied to DIS hadronic multiplicity distributions 
-  to avoid 2-ble counting with RES
-  -->
-  <param type="double" name="DIS-HMultWgt-vp-CC-m2">  0.100  </param>
-  <param type="double" name="DIS-HMultWgt-vp-CC-m3">  1.000  </param>
-  <param type="double" name="DIS-HMultWgt-vp-NC-m2">  0.100  </param>
-  <param type="double" name="DIS-HMultWgt-vp-NC-m3">  1.000  </param>
-  <param type="double" name="DIS-HMultWgt-vn-CC-m2">  0.300  </param>
-  <param type="double" name="DIS-HMultWgt-vn-CC-m3">  1.000  </param>
-  <param type="double" name="DIS-HMultWgt-vn-NC-m2">  0.300  </param>
-  <param type="double" name="DIS-HMultWgt-vn-NC-m3">  1.000  </param>
-  <param type="double" name="DIS-HMultWgt-vbp-CC-m2"> 0.300  </param>
-  <param type="double" name="DIS-HMultWgt-vbp-CC-m3"> 1.000  </param>
-  <param type="double" name="DIS-HMultWgt-vbp-NC-m2"> 0.300  </param>
-  <param type="double" name="DIS-HMultWgt-vbp-NC-m3"> 1.000  </param>
-  <param type="double" name="DIS-HMultWgt-vbn-CC-m2"> 0.100  </param>
-  <param type="double" name="DIS-HMultWgt-vbn-CC-m3"> 1.000  </param>
-  <param type="double" name="DIS-HMultWgt-vbn-NC-m2"> 0.100  </param>
-  <param type="double" name="DIS-HMultWgt-vbn-NC-m3"> 1.000  </param>
-
+    
+    <param type="string" name="CommonParam">  NonResBackground </param> 
+    
+    <!-- 
+	 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	 Parameters controlling the average charged hadron multiplicities in the AGKY/KNO model
+	 (paramerers a,b entering in the empirical expression: <n> = a + b * lnW^2 )
+	 See Nucl.Instrum.Meth.A614:87-104,2010 and Eur.Phys.J.C63:1-10,2009. 
+    -->
+    <param type="double" name="KNO-Alpha-vp">  0.40 </param> 
+    <param type="double" name="KNO-Alpha-vn"> -0.20 </param> 
+    <param type="double" name="KNO-Alpha-vbp"> 0.02 </param> 
+    <param type="double" name="KNO-Alpha-vbn"> 0.80 </param> 
+    <param type="double" name="KNO-Beta-vp">   1.42 </param> 
+    <param type="double" name="KNO-Beta-vn">   1.42 </param> 
+    <param type="double" name="KNO-Beta-vbp">  1.28 </param> 
+    <param type="double" name="KNO-Beta-vbn">  0.95 </param> 
+    
+    <!-- 
+	 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	 Parameters controlling the probability of producing a strange baryon via associated production.
+	 (paramerers a,b entering in the empirical expression: P_{hyperon} = a + b * lnW^2 )
+	 Determined from a fit to \Lambda production data.
+	 See Nucl.Instrum.Meth.A614:87-104,2010 and Eur.Phys.J.C63:1-10,2009. 
+    -->
+    <param type="double" name="KNO-Alpha-Hyperon"> 0.021951447 </param> 
+    <param type="double" name="KNO-Beta-Hyperon">  0.041969985 </param> 
+    
+    <!-- 
+	 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	 Levy function (KNO parameterization) parameter c at kno(z) = 2*exp(-c)*pow(c,cz+1)/Gamma(cz+1)
+	 v+p    : 7.93 +/- 0.34 source: Tingjun's fit
+	 v+n    : 5.22 +/- 0.15 source: Tingjun's fit
+	 vbar+p : same as vn
+	 vbar+n : same as vp
+    -->
+    <param type="double" name="KNO-LevyC-vp">  7.93 </param> 
+    <param type="double" name="KNO-LevyC-vn">  5.22 </param> 
+    <param type="double" name="KNO-LevyC-vbp"> 5.22 </param> 
+    <param type="double" name="KNO-LevyC-vbn"> 7.93 </param> 
+    
+    <!-- 
+	 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	 AGKY/KNO hadronization model probabilities for producing hadron pairs.
+	 See Nucl.Instrum.Meth.A614:87-104,2010 and Eur.Phys.J.C63:1-10,2009. 
+	 Values below are modified values following strange hadron production tuning (see gDocDB-890-v1).
+	 Previous values were P(pi0 pi0) = 0.30, P(pi+ pi-) = 0.60, P(K+ K-) = 0.05, P(K0 \barK0) = 0.05.
+    -->
+    <param type="double" name="KNO-ProbPi0Pi0">        0.3133 </param>
+    <param type="double" name="KNO-ProbPiplusPiminus"> 0.6267 </param>
+    <param type="double" name="KNO-ProbKplusKminus">   0.03 </param>
+    <param type="double" name="KNO-ProbK0K0bar">       0.03 </param>
+    <param type="double" name="KNO-ProbPi0Eta">        0.0 </param> 
+    <param type="double" name="KNO-ProbEtaEta">        0.0   </param>
+    
+    <!-- 
+	 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	 Parameters controlling whether to reweight the KNO phase space decay reweighting and the actual
+	 reweighting function.
+	 See: A.B.Clegg, A.Donnachie, A Description of Jet Structure by pT-limited Phase Space.
+    -->
+    <param type="bool"   name="KNO-PhaseSpDec-Reweight">     true  </param>
+    <param type="double" name="KNO-PhaseSpDec-ReweightParm"> 3.5   </param> 
+    
+     <!-- 
+	  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	  Parameters controlling whether to use the baryon xF and pT2 pdfs in the KNO hadronization.
+	  The option to use isotropic, non-reweighted 2-body phase space decays is used for compatibility
+	  with neugen/daikon.
+     -->
+     <param type="bool" name="KNO-UseBaryonPdfs-xFpT2">  true  </param>
+     <param type="bool" name="KNO-UseIsotropic2BodyDec"> true  </param>
 
   </param_set>
-
+  
   <param_set name="Default-Decaying"> 
-     <param type="bool" name="ForceDecays">  true                            </param>
-     <param type="alg"  name="Decayer">      genie::PythiaDecayer/Default    </param>
+    <param type="bool" name="ForceDecays">  true                            </param>
+    <param type="alg"  name="Decayer">      genie::PythiaDecayer/Default    </param>
   </param_set>
-
+  
   <param_set name="Old"> 
-     <param type="bool" name="UseBaryonPdfs-xFpT2">  false  </param>
-     <param type="bool" name="PhaseSpDec-Reweight">  false  </param>
+     <param type="bool" name="KNO-UseBaryonPdfs-xFpT2">  false  </param>
+     <param type="bool" name="KNO-PhaseSpDec-Reweight">  false  </param>
   </param_set>
 
   <param_set name="Old-Decaying"> 
      <param type="bool" name="ForceDecays">           true                            </param>
      <param type="alg"  name="Decayer">               genie::PythiaDecayer/Default    </param>
-     <param type="bool" name="UseBaryonPdfs-xFpT2">   false                           </param>
-     <param type="bool" name="PhaseSpDec-Reweight">   false                           </param>
+     <param type="bool" name="KNO-UseBaryonPdfs-xFpT2">   false                           </param>
+     <param type="bool" name="KNO-PhaseSpDec-Reweight">   false                           </param>
   </param_set>
 
 </alg_conf>

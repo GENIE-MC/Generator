@@ -213,7 +213,7 @@ bool AlgConfigPool::LoadGlobalParamLists(void)
   SLOG("AlgConfigPool", pINFO) << "Loading global parameter lists";
 
   // -- get the user config XML file using GXMLPATH + default locations
-  string glob_params = utils::xml::GetXMLFilePath("UserPhysicsOptions.xml");
+  string glob_params = utils::xml::GetXMLFilePath("ModelConfiguration.xml");
 
   // fixed key prefix
   string key_prefix = "GlobalParameterList";

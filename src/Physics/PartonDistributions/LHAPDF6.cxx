@@ -137,8 +137,8 @@ void LHAPDF6::Configure(string config)
 //____________________________________________________________________________
 void LHAPDF6::LoadConfig(void) 
 {
-  fConfig->Get("SetName",  fSetName );
-  fConfig->Get("MemberID", fMemberID);
+  this->GetParam("SetName",  fSetName );
+  this->GetParam("MemberID", fMemberID);
 
 #ifdef __GENIE_LHAPDF6_ENABLED__
   fLHAPDF = LHAPDF::mkPDF(fSetName, fMemberID);

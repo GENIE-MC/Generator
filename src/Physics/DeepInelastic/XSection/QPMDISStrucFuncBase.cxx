@@ -93,9 +93,6 @@ void QPMDISStrucFuncBase::LoadConfig(void)
 {
   LOG("DISSF", pDEBUG) << "Loading configuration...";
 
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
-
   //-- pdf
   const PDFModelI * pdf_model =
          dynamic_cast<const PDFModelI *> (this->SubAlg("PDF-Set"));
@@ -103,10 +100,10 @@ void QPMDISStrucFuncBase::LoadConfig(void)
   fPDFc -> SetModel(pdf_model);
 
   //-- get CKM elements
-  fVcd  = fConfig->GetDoubleDef("CKM-Vcd", gc->GetDouble("CKM-Vcd"));
-  fVcs  = fConfig->GetDoubleDef("CKM-Vcs", gc->GetDouble("CKM-Vcs"));
-  fVud  = fConfig->GetDoubleDef("CKM-Vud", gc->GetDouble("CKM-Vud"));
-  fVus  = fConfig->GetDoubleDef("CKM-Vus", gc->GetDouble("CKM-Vus"));
+  GetParam( "CKM-Vcd", fVcd ) ;
+  GetParam( "CKM-Vcs", fVcs ) ;
+  GetParam( "CKM-Vud", fVud ) ;
+  GetParam( "CKM-Vus", fVus ) ;
 
   fVcd2 = TMath::Power( fVcd, 2 );
   fVcs2 = TMath::Power( fVcs, 2 );
@@ -114,33 +111,29 @@ void QPMDISStrucFuncBase::LoadConfig(void)
   fVus2 = TMath::Power( fVus, 2 );
 
   //-- charm mass
-  fMc = fConfig->GetDoubleDef("Charm-Mass", gc->GetDouble("Charm-Mass"));
+  GetParam( "Charm-Mass", fMc ) ;
 
   //-- min Q2 for PDF evaluation
-  fQ2min = fConfig->GetDoubleDef("PDF-Q2min", gc->GetDouble("PDF-Q2min"));
+  GetParam( "PDF-Q2min", fQ2min ) ;
 
   //-- include R (~FL)?
-  fIncludeR = fConfig->GetBoolDef(
-                           "IncludeR", gc->GetBool("DISSF-IncludeR"));
+  GetParam( "IncludeR", fIncludeR ) ;
 
   //-- include nuclear factor (shadowing / anti-shadowing / ...)
-  fIncludeNuclMod = fConfig->GetBoolDef(
-               "IncludeNuclMod", gc->GetBool("DISSF-IncludeNuclMod"));
+  GetParam( "IncludeNuclMod", fIncludeNuclMod ) ;
 
   //-- Use 2016 SF relation corrections
-  fUse2016Corrections = fConfig->GetBoolDef(
-        "Use2016Corrections", gc->GetBool("DISSF-Use2016Corrections"));
+  GetParam( "Use2016Corrections", fUse2016Corrections ) ;
 
   //-- Set min for relation between 2xF1 and F2
-  fLowQ2CutoffF1F2 = fConfig->GetDoubleDef(
-        "DISSF-LowQ2CutoffF1F2", gc->GetDouble("DISSF-LowQ2CutoffF1F2"));
+  GetParam( "LowQ2CutoffF1F2", fLowQ2CutoffF1F2 ) ;
 
   //-- turn charm production off?
-  fCharmOff  = fConfig->GetBoolDef("Charm-Prod-Off", false);
+  GetParamDef( "Charm-Prod-Off", fCharmOff, false ) ;
 
   //-- weinberg angle
-  double thw = fConfig->GetDoubleDef(
-                          "weinberg-angle", gc->GetDouble("WeinbergAngle"));
+  double thw ;
+  GetParam( "WeinbergAngle", thw ) ;
   fSin2thw = TMath::Power(TMath::Sin(thw), 2);
 
   LOG("DISSF", pDEBUG) << "Done loading configuration";

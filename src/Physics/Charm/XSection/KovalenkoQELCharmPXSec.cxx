@@ -316,17 +316,14 @@ void KovalenkoQELCharmPXSec::LoadConfig(void)
 {
   fPDFModel   = 0;
   ///fIntegrator = 0;
-  /*
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
-  */
+
   // Get config values or set defaults
-  fScLambdaP   = fConfig->GetDoubleDef("Scale-LambdaP",     (0.8*0.0102));
-  fScSigmaP    = fConfig->GetDoubleDef("Scale-SigmaP",      (0.8*0.0028));
-  fScSigmaPP   = fConfig->GetDoubleDef("Scale-SigmaPP",     (0.8*0.0159));
-  fResDMLambda = fConfig->GetDoubleDef("Res-DeltaM-Lambda", 0.56);      //GeV
-  fResDMSigma  = fConfig->GetDoubleDef("Res-DeltaM-Sigma",  0.20);      //GeV
-  fMo          = fConfig->GetDoubleDef("Mo",                sqrt(0.1)); //GeV
+  GetParamDef( "Scale-LambdaP", fScLambdaP,  0.8 * 0.0102 ) ;
+  GetParamDef( "Scale-SigmaP",  fScSigmaP ,  0.8 * 0.0028 ) ;
+  GetParamDef( "Scale-SigmaPP", fScSigmaPP,  0.8 * 0.0159 ) ;
+  GetParamDef( "Res-DeltaM-Lambda", fResDMLambda,  0.56 ) ;      //GeV
+  GetParamDef( "Res-DeltaM-Sigma",  fResDMSigma,   0.20 ) ;      //GeV
+  GetParamDef( "Mo",                fMo,           sqrt(0.1) );  //GeV
 
   // get PDF model and integrator
 

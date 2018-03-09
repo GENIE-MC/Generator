@@ -7,6 +7,9 @@ Configuration sets for the GRV98LO PDFModelI
 -->
 
   <param_set name="Default"> 
+
+    <param type="double" name="PDF-Q2min"> 0.800 </param>
+    
   </param_set>
   
 </alg_conf>

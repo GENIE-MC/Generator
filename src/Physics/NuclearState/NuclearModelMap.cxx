@@ -104,27 +104,25 @@ void NuclearModelMap::Configure(string config)
 //____________________________________________________________________________
 void NuclearModelMap::LoadConfig(void)
 {
+
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();
 
   fDefGlobModel = 0;
-
   // load default global model (should work for all nuclei)
-  //
-  RgAlg dgmodel =
-    fConfig->GetAlgDef("NuclearModel", gc->GetAlg("NuclearModel"));
+  RgAlg dgmodel = gc->GetAlg("NuclearModel") ;
+
   LOG("Nuclear", pINFO)
     << "Default global nuclear model: " << dgmodel;
   fDefGlobModel =
-    dynamic_cast<const NuclearModelI *> (this->SubAlg("NuclearModel"));
+    dynamic_cast<const NuclearModelI *> (
+      AlgFactory::Instance() -> GetAlgorithm( dgmodel.name, dgmodel.config ) ) ;
   assert(fDefGlobModel);
 
   // We're looking for keys that match this string
   const std::string keyStart = "NuclearModel@Pdg=";
   // Looking in both of these registries
-  RgIMap entries = fConfig->GetItemMap();
-  RgIMap gcEntries = gc->GetItemMap();
-  entries.insert(gcEntries.begin(), gcEntries.end());
+  RgIMap entries = gc->GetItemMap();
 
   for(RgIMap::const_iterator it = entries.begin(); it != entries.end(); ++it){
     const std::string& key = it->first;
@@ -135,12 +133,13 @@ void NuclearModelMap::LoadConfig(void)
       const int Z = pdg::IonPdgCodeToZ(pdg);
       //const int A = pdg::IonPdgCodeToA(pdg);
 
-      RgAlg rgmodel = fConfig->GetAlgDef(key, gc->GetAlg(key));
+      RgAlg rgmodel = gc->GetAlg(key) ;
       LOG("Nuclear", pNOTICE)
         << "Nucleus =" << pdg
         << " -> refined nuclear model: " << rgmodel;
       const NuclearModelI * model =
-        dynamic_cast<const NuclearModelI *> (this->SubAlg(key));
+        dynamic_cast<const NuclearModelI *> (
+          AlgFactory::Instance() -> GetAlgorithm(rgmodel.name, rgmodel.config ) ) ;
       assert(model);
       fRefinedModels.insert(map<int,const NuclearModelI*>::value_type(Z,model));
     }

@@ -5,14 +5,14 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
+         University of Liverpool & STFC Rutherford Appleton Lab
 
  For the class documentation see the corresponding header file.
 
  Important revisions after version 2.0.0 :
  @ Feb 07, 2009 - CA
    Removed call to AddTargetNucleusRemnant(). This simulation step is now
-   performed further upstream in the processing chain.  
+   performed further upstream in the processing chain.
  @ Mar 03, 2009 - CA
    Moved into the new RES package from its previous location (EVGModules)
  @ Jul 23, 2010 - CA
@@ -91,7 +91,7 @@ void RESHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
 //___________________________________________________________________________
 int RESHadronicSystemGenerator::GetResonancePdgCode(GHepRecord * evrec) const
 {
-// In the RES thread the resonance is specifed when selecting interaction 
+// In the RES thread the resonance is specifed when selecting interaction
 // This method adds it to the GHEP record.
 
   Interaction * interaction = evrec->Summary();
@@ -137,7 +137,7 @@ void RESHadronicSystemGenerator::AddResonanceDecayProducts(
 // and add them in the GHEP record.
 // Unlike the SPP thread where the resonance decay products are determined
 // from the selected SPP channel, in the RES thread we can any of the the
-// resonance's kinematically available(the RES is not on the mass shell)decay 
+// resonance's kinematically available(the RES is not on the mass shell)decay
 // channels
 
   // find the resonance position
@@ -160,7 +160,7 @@ void RESHadronicSystemGenerator::AddResonanceDecayProducts(
   TClonesArray * decay_products = fResonanceDecayer->Decay(dinp);
   if(!decay_products) {
      LOG("RESHadronicVtx", pWARN) << "Got an empty decay product list!";
-     LOG("RESHadronicVtx", pWARN) 
+     LOG("RESHadronicVtx", pWARN)
                       << "Quitting the current event generation thread";
 
      evrec->EventFlags()->SetBitNumber(kHadroSysGenErr, true);
@@ -207,7 +207,7 @@ void RESHadronicSystemGenerator::AddResonanceDecayProducts(
          evrec->AddParticle(dppdg,dpist,irpos,-1,-1,-1, p4, x4);
        }
      }
-         
+
      // done, release the original list
      decay_products->Delete();
      delete decay_products;
@@ -231,15 +231,12 @@ void RESHadronicSystemGenerator::LoadConfig(void)
   fResonanceDecayer = 0;
   fPreINukeDecayer  = 0;
 
-  //-- Get the specified baryon resonance decayer
-  fResonanceDecayer = 
+  //-- Get the specified decayers
+  fResonanceDecayer =
          dynamic_cast<const DecayModelI *> (this->SubAlg("Decayer"));
   assert(fResonanceDecayer);
-
-  //-- Handle pre-intranuke decays
   fPreINukeDecayer =
      dynamic_cast<const EventRecordVisitorI *> (this->SubAlg("PreTransportDecayer"));
   assert(fPreINukeDecayer);
 }
 //___________________________________________________________________________
-

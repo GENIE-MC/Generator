@@ -147,6 +147,19 @@ void RunOpt::ReadFromCommandLine(int argc, char ** argv)
 	}
 
   }  // if( parser.OptionExists("tune") )
+  else {
+
+	string cgc( "G00_00a" ) ;
+
+	string path = std::getenv( "GENIE" ) ;
+	path += "/config/" + cgc ;
+
+	assert( utils::system::DirectoryExixsts( path.c_str() ) );
+
+	fCGC  = cgc  ;
+	LOG("RunOpt", pINFO) << " Comprehensive configuration " << cgc << " set" ;
+
+  }// else ( parser.OptionExists("tune") )
 
   if( parser.OptionExists("unphysical-event-mask") ) {
     const char * bitfield = 

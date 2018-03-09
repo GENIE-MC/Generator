@@ -107,43 +107,42 @@ void BBA03ELFormFactorsModel::LoadConfig(void)
 {
   //-- load BBA03 model parameters
 
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
-
   // BBA2003 fit coefficients
-  fGep.a2  = fConfig->GetDoubleDef("BBA03-Gep-a2",  gc->GetDouble("BBA03-Gep-a2")  );
-  fGep.a4  = fConfig->GetDoubleDef("BBA03-Gep-a4",  gc->GetDouble("BBA03-Gep-a4")  );
-  fGep.a6  = fConfig->GetDoubleDef("BBA03-Gep-a6",  gc->GetDouble("BBA03-Gep-a6")  );
-  fGep.a8  = fConfig->GetDoubleDef("BBA03-Gep-a8",  gc->GetDouble("BBA03-Gep-a8")  );
-  fGep.a10 = fConfig->GetDoubleDef("BBA03-Gep-a10", gc->GetDouble("BBA03-Gep-a10") );
-  fGep.a12 = fConfig->GetDoubleDef("BBA03-Gep-a12", gc->GetDouble("BBA03-Gep-a12") );
-  fGmp.a2  = fConfig->GetDoubleDef("BBA03-Gmp-a2",  gc->GetDouble("BBA03-Gmp-a2")  );
-  fGmp.a4  = fConfig->GetDoubleDef("BBA03-Gmp-a4",  gc->GetDouble("BBA03-Gmp-a4")  );
-  fGmp.a6  = fConfig->GetDoubleDef("BBA03-Gmp-a6",  gc->GetDouble("BBA03-Gmp-a6")  );
-  fGmp.a8  = fConfig->GetDoubleDef("BBA03-Gmp-a8",  gc->GetDouble("BBA03-Gmp-a8")  );
-  fGmp.a10 = fConfig->GetDoubleDef("BBA03-Gmp-a10", gc->GetDouble("BBA03-Gmp-a10") );
-  fGmp.a12 = fConfig->GetDoubleDef("BBA03-Gmp-a12", gc->GetDouble("BBA03-Gmp-a12") );
-  fGmn.a2  = fConfig->GetDoubleDef("BBA03-Gmn-a2",  gc->GetDouble("BBA03-Gmn-a2")  );
-  fGmn.a4  = fConfig->GetDoubleDef("BBA03-Gmn-a4",  gc->GetDouble("BBA03-Gmn-a4")  );
-  fGmn.a6  = fConfig->GetDoubleDef("BBA03-Gmn-a6",  gc->GetDouble("BBA03-Gmn-a6")  );
-  fGmn.a8  = fConfig->GetDoubleDef("BBA03-Gmn-a8",  gc->GetDouble("BBA03-Gmn-a8")  );
-  fGmn.a10 = fConfig->GetDoubleDef("BBA03-Gmn-a10", gc->GetDouble("BBA03-Gmn-a10") );
-  fGmn.a12 = fConfig->GetDoubleDef("BBA03-Gmn-a12", gc->GetDouble("BBA03-Gmn-a12") );
+  GetParam( "BBA03-Gep-a2", fGep.a2 ) ;
+  GetParam( "BBA03-Gep-a4", fGep.a4 ) ;
+  GetParam( "BBA03-Gep-a6", fGep.a6 ) ;
+  GetParam( "BBA03-Gep-a8", fGep.a8 ) ;
+  GetParam( "BBA03-Gep-a10", fGep.a10 ) ;
+  GetParam( "BBA03-Gep-a12", fGep.a12 ) ;
+
+  GetParam( "BBA03-Gmp-a2", fGmp.a2 ) ;
+  GetParam( "BBA03-Gmp-a4", fGmp.a4 ) ;
+  GetParam( "BBA03-Gmp-a6", fGmp.a6 ) ;
+  GetParam( "BBA03-Gmp-a8", fGmp.a8 ) ;
+  GetParam( "BBA03-Gmp-a10", fGmp.a10 ) ;
+  GetParam( "BBA03-Gmp-a12", fGmp.a12 ) ;
+
+  GetParam( "BBA03-Gmn-a2", fGmn.a2 ) ;
+  GetParam( "BBA03-Gmn-a4", fGmn.a4 ) ;
+  GetParam( "BBA03-Gmn-a6", fGmn.a6 ) ;
+  GetParam( "BBA03-Gmn-a8", fGmn.a8 ) ;
+  GetParam( "BBA03-Gmn-a10", fGmn.a10 ) ;
+  GetParam( "BBA03-Gmn-a12", fGmn.a12 ) ;
 
   // Krutov parameters
-  fGenA    = fConfig->GetDoubleDef("BBA03-Gen-a", gc->GetDouble("BBA03-Gen-a"));
-  fGenB    = fConfig->GetDoubleDef("BBA03-Gen-b", gc->GetDouble("BBA03-Gen-b"));
+  GetParam( "BBA03-Gen-a", fGenA ) ;
+  GetParam( "BBA03-Gen-b", fGenB ) ;
 
   // Q2max
-  fQ2Max   = fConfig->GetDoubleDef("BBA03-Q2Max", gc->GetDouble("BBA03-Q2Max"));
+  GetParam( "BBA03-Q2Max", fQ2Max ) ;
 
   // vector mass
-  fMv  = fConfig->GetDoubleDef("EL-Mv", gc->GetDouble("EL-Mv"));
+  GetParam( "EL-Mv",fMv ) ;
   fMv2 = TMath::Power(fMv,2);
 
   // anomalous magnetic moments
-  fMuP = fConfig->GetDoubleDef("AnomMagnMoment-P", gc->GetDouble("AnomMagnMoment-P"));
-  fMuN = fConfig->GetDoubleDef("AnomMagnMoment-N", gc->GetDouble("AnomMagnMoment-N"));
+  GetParam( "AnomMagnMoment-P", fMuP ) ;
+  GetParam( "AnomMagnMoment-N", fMuN ) ;
 }
 //____________________________________________________________________________
 double BBA03ELFormFactorsModel::BBA03Fit(

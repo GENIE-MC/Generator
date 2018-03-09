@@ -122,15 +122,18 @@ void MECXSec::Configure(string config)
 //____________________________________________________________________________
 void MECXSec::LoadConfig(void)
 {
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
-  fQ3Max = fConfig->GetDoubleDef("NSV-Q3Max", gc->GetDouble("NSV-Q3Max"));
+  GetParam( "NSV-Q3Max", fQ3Max ) ;
 
   // Get GSL integration type & relative tolerance
-  fGSLIntgType   = fConfig->GetStringDef("gsl-integration-type" ,    "vegas");
-  fGSLMaxEval    = (unsigned int) fConfig->GetIntDef("gsl-max-eval",  20000);
-  fGSLRelTol     = fConfig->GetDoubleDef("gsl-relative-tolerance",     0.01);
-  fSplitIntegral = fConfig->GetBoolDef("split-integral",               true);
+  GetParamDef( "gsl-integration-type", fGSLIntgType, string("vegas") ) ;
+
+  int max ;
+  GetParamDef( "gsl-max-eval", max, 20000 ) ;
+  fGSLMaxEval    = (unsigned int) max ;
+
+  GetParamDef( "gsl-relative-tolerance", fGSLRelTol, 0.01 ) ;
+  GetParamDef( "split-integral", fSplitIntegral, true ) ;
+
 }
 //_____________________________________________________________________________
 // GSL wrappers

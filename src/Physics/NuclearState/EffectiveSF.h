@@ -41,16 +41,16 @@ public:
   //-- implement the NuclearModelI interface
   bool           GenerateNucleon (const Target & t) const;
   double         Prob            (double mom, double w, const Target & t) const;
-  NuclearModel_t ModelType       (const Target &) const 
+  NuclearModel_t ModelType       (const Target &) const
   {
-    return kNucmEffSpectralFunc; 
+    return kNucmEffSpectralFunc;
   }
 
   //-- override the Algorithm::Configure methods to load configuration
   //   data to private data members
   void Configure (const Registry & config);
   void Configure (string param_set);
-  
+
 private:
   TH1D * ProbDistro (const Target & t) const;
 
@@ -69,14 +69,15 @@ private:
   mutable map<string, TH1D *> fProbDistroMap;
   double fPMax;
   double fPCutOff;
-  bool fEjectSecondNucleon2p2h;
+  bool   fEjectSecondNucleon2p2h;
+  bool   fUseElFFTransEnh;
 
   // Map from PDG code to spectral function parameters
   map<int, double> fNucRmvE;
   map<int, double> f1p1hMap;
   map<int, std::vector<double> > fProbDistParams;
   map<int, double> fTransEnh1p1hMods;
-  
+
   // Map from range of A (pair<lowA, highA> inclusive> to spectral
   // function parameters.
   map<pair<int, int>, double> fRangeNucRmvE;
@@ -87,4 +88,3 @@ private:
 
 }         // genie namespace
 #endif    // _EFFECTIVE_SF_H_
-

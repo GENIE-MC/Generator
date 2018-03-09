@@ -1436,9 +1436,6 @@ int HAIntranuke2015::HandleCompoundNucleus(GHepRecord* /*ev*/, GHepParticle* /*p
 void HAIntranuke2015::LoadConfig(void)
 {
 
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
-
   // load hadronic cross sections
   fHadroData2015 = INukeHadroData2015::Instance();
 
@@ -1448,25 +1445,28 @@ void HAIntranuke2015::LoadConfig(void)
     (fAlgf->GetAlgorithm("genie::FGMBodekRitchie","Default"));
 
   // other intranuke config params
-  fR0            = fConfig->GetDoubleDef ("R0",           gc->GetDouble("NUCL-R0"));           // fm
-  fNR            = fConfig->GetDoubleDef ("NR",           gc->GetDouble("NUCL-NR"));           
-  fNucRmvE       = fConfig->GetDoubleDef ("NucRmvE",      gc->GetDouble("INUKE-NucRemovalE")); // GeV
-  fDelRPion      = fConfig->GetDoubleDef ("DelRPion",     gc->GetDouble("HAINUKE-DelRPion"));    
-  fDelRNucleon   = fConfig->GetDoubleDef ("DelRNucleon",  gc->GetDouble("HAINUKE-DelRNucleon"));    
-  fHadStep       = fConfig->GetDoubleDef ("HadStep",      gc->GetDouble("INUKE-HadStep"));     // fm
-  fEPreEq        = fConfig->GetDoubleDef ("EPreEq",       gc->GetDouble("INUKE-Energy_Pre_Eq"));
-  fNucAbsFac     = fConfig->GetDoubleDef ("NucAbsFac",    gc->GetDouble("INUKE-NucAbsFac"));
-  fNucCEXFac     = fConfig->GetDoubleDef ("NucCEXFac",    gc->GetDouble("INUKE-NucCEXFac"));
-  fFermiFac      = fConfig->GetDoubleDef ("FermiFac",     gc->GetDouble("INUKE-FermiFac"));
-  fFermiMomentum = fConfig->GetDoubleDef ("FermiMomentum",gc->GetDouble("INUKE-FermiMomentum"));
-  fDoFermi       = fConfig->GetBoolDef   ("DoFermi",      gc->GetBool("INUKE-DoFermi"));
-  fFreeStep      = fConfig->GetDoubleDef ("FreeStep",     gc->GetDouble("INUKE-FreeStep"));
-  fDoCompoundNucleus = fConfig->GetBoolDef ("DoCompoundNucleus", gc->GetBool("INUKE-DoCompoundNucleus"));
-  fUseOset        = fConfig->GetBoolDef ("UseOset", false);
-  fAltOset        = fConfig->GetBoolDef ("AltOset", false);
-  fXsecNNCorr     = fConfig->GetBoolDef ("XsecNNCorr", gc->GetBool("INUKE-XsecNNCorr"));
+  GetParam( "NUCL-R0",             fR0 );              // fm
+  GetParam( "NUCL-NR",             fNR );
 
-  // report
+  GetParam( "INUKE-NucRemovalE",   fNucRmvE );        // GeV
+  GetParam( "INUKE-HadStep",       fHadStep ) ;
+  GetParam( "INUKE-NucAbsFac",     fNucAbsFac ) ;
+  GetParam( "INUKE-NucCEXFac",     fNucCEXFac ) ;
+  GetParam( "INUKE-Energy_Pre_Eq", fEPreEq ) ;
+  GetParam( "INUKE-FermiFac",      fFermiFac ) ;
+  GetParam( "INUKE-FermiMomentum", fFermiMomentum ) ;
+  GetParam( "INUKE-FreeStep",      fFreeStep ) ;
+
+  GetParam( "INUKE-DoCompoundNucleus", fDoCompoundNucleus ) ;
+  GetParam( "INUKE-DoFermi",           fDoFermi ) ;
+  GetParam( "INUKE-XsecNNCorr",        fXsecNNCorr ) ;
+  GetParamDef( "UseOset",              fUseOset, false ) ;
+  GetParamDef( "AltOset",              fAltOset, false ) ;
+
+  GetParam( "HAINUKE-DelRPion",    fDelRPion ) ;
+  GetParam( "HAINUKE-DelRNucleon", fDelRNucleon ) ;
+
+    // report
   LOG("HAIntranuke2015", pINFO) << "Settings for INTRANUKE mode: " << INukeMode::AsString(kIMdHA);
   LOG("HAIntranuke2015", pINFO) << "R0          = " << fR0 << " fermi";
   LOG("HAIntranuke2015", pINFO) << "NR          = " << fNR;

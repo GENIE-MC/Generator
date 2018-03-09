@@ -8,10 +8,13 @@ Configuration for the NuElectronPXSec xsec algorithm.
 Configurable Parameters:
 ....................................................................................
 Name           Type     Optional   Comment                 Default
+WeinbergAngle  double   No                                 CommonParam[WeakInt]
 ....................................................................................
 -->
 
   <param_set name="Default"> 
+    <param type="string"  name="CommonParam"> WeakInt  </param>
+    
      <param type="alg"  name="XSec-Integrator"> genie::NuElectronXSec/Default  </param>
   </param_set>
 

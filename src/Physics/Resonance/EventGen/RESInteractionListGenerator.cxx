@@ -52,21 +52,21 @@ InteractionList * RESInteractionListGenerator::CreateInteractionList(
 {
   LOG("IntLst", pINFO) << "InitialState = " << init_state.AsString();
 
-  // In the thread generating interactions from the list produced here (RES), 
+  // In the thread generating interactions from the list produced here (RES),
   // we simulate (for free and nuclear targets) semi-inclusive resonance
   // interactions: v + N -> v(l) + R -> v(l) + X
   // Specifically, the RES thread generates:
   //
   //  CC:
-  //    nu       + p (A) -> l-       R (A), for all resonances with Q=+2 
-  //    nu       + n (A) -> l-       R (A), for all resonances with Q=+1 
-  //    \bar{nu} + p (A) -> l+       R (A), for all resonances with Q= 0 
-  //    \bar{nu} + n (A) -> l+       R (A), for all resonances with Q=-1 
+  //    nu       + p (A) -> l-       R (A), for all resonances with Q=+2
+  //    nu       + n (A) -> l-       R (A), for all resonances with Q=+1
+  //    \bar{nu} + p (A) -> l+       R (A), for all resonances with Q= 0
+  //    \bar{nu} + n (A) -> l+       R (A), for all resonances with Q=-1
   //  NC:
-  //    nu       + p (A) -> nu       R (A), for all resonances with Q=+1 
-  //    nu       + n (A) -> nu       R (A), for all resonances with Q= 0 
-  //    \bar{nu} + p (A) -> \bar{nu} R (A), for all resonances with Q=+1 
-  //    \bar{nu} + n (A) -> \bar{nu} R (A), for all resonances with Q= 0 
+  //    nu       + p (A) -> nu       R (A), for all resonances with Q=+1
+  //    nu       + n (A) -> nu       R (A), for all resonances with Q= 0
+  //    \bar{nu} + p (A) -> \bar{nu} R (A), for all resonances with Q=+1
+  //    \bar{nu} + n (A) -> \bar{nu} R (A), for all resonances with Q= 0
   //
   // and then the resonance R should be allowed to decay to get the full
   // hadronic final state X. All decay channels kinematically accessible
@@ -123,7 +123,7 @@ InteractionList * RESInteractionListGenerator::CreateInteractionList(
 
        // create an interaction
        Interaction * interaction = new Interaction(init_state, proc_info);
-    
+
        // add the struck nucleon
        Target * target = interaction->InitStatePtr()->TgtPtr();
        target->SetHitNucPdg(hit_nucleon[i]);
@@ -163,25 +163,16 @@ void RESInteractionListGenerator::Configure(string config)
 //____________________________________________________________________________
 void RESInteractionListGenerator::LoadConfigData(void)
 {
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
-
-  fIsCC = fConfig->GetBoolDef("is-CC", false);
-  fIsNC = fConfig->GetBoolDef("is-NC", false);
-  fIsEM = fConfig->GetBoolDef("is-EM", false);
-
-  // Create the list with all the baryon resonances that the user wants me to
-  // consider (from this algorithm's config file).
-
-  LOG("IntLst", pDEBUG) << "Getting the baryon resonance list";
-
-  fResList.Clear();
-  string resonances = fConfig->GetStringDef(
-          "ResonanceNameList", gc->GetString("ResonanceNameList"));
+  string resonances = "";
+  this->GetParam("ResonanceNameList", resonances);
   SLOG("IntLst", pDEBUG) << "Resonance list: " << resonances;
 
+  fResList.Clear();
   fResList.DecodeFromNameList(resonances);
   LOG("IntLst", pDEBUG) << fResList;
+
+  this->GetParamDef("is-CC", fIsCC, false);
+  this->GetParamDef("is-NC", fIsNC, false);
+  this->GetParamDef("is-EM", fIsEM, false);
 }
 //____________________________________________________________________________
-

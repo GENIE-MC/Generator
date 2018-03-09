@@ -463,21 +463,21 @@ void QELKinematicsGenerator::LoadConfig(void)
 // lookups
 
   //-- Safety factor for the maximum differential cross section
-  fSafetyFactor = fConfig->GetDoubleDef("MaxXSec-SafetyFactor", 1.25);
+	GetParamDef( "MaxXSec-SafetyFactor", fSafetyFactor , 1.25 ) ;
 
   //-- Minimum energy for which max xsec would be cached, forcing explicit
   //   calculation for lower eneries
-  fEMin = fConfig->GetDoubleDef("Cache-MinEnergy", 1.00);
+	GetParamDef( "Cache-MinEnergy", fEMin, 1.00 ) ;
 
   //-- Maximum allowed fractional cross section deviation from maxim cross
   //   section used in rejection method
-  fMaxXSecDiffTolerance = 
-               fConfig->GetDoubleDef("MaxXSec-DiffTolerance",999999.);
-  assert(fMaxXSecDiffTolerance>=0);
+	GetParamDef( "MaxXSec-DiffTolerance", fMaxXSecDiffTolerance, 999999. ) ;
+    assert(fMaxXSecDiffTolerance>=0);
 
   //-- Generate kinematics uniformly over allowed phase space and compute
   //   an event weight?
-  fGenerateUniformly = fConfig->GetBoolDef("UniformOverPhaseSpace", false);
+  GetParamDef( "UniformOverPhaseSpace", fGenerateUniformly, false ) ;
+
 }
 //____________________________________________________________________________
 double QELKinematicsGenerator::ComputeMaxXSec(

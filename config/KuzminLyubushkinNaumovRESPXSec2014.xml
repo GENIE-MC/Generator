@@ -11,8 +11,8 @@ Name                        Type    Optional   Comment                          
 ......................................................................................................................................
 RES-Zeta                    double  Yes   FKR's Z parameter                                               GPL: RES-Zeta
 RES-Omega                   double  Yes   FKR's Omega parameter                                           GPL: RES-Omega
-Ma                          double  Yes   RES axial mass                                                  GPL: RES-Max
-Mv                          double  Yes   RES vector mass                                                 GPL: RES-Mv
+RES-Ma                      double  Yes   RES axial mass                                                  GPL: RES-Max
+RES-Mv                      double  Yes   RES vector mass                                                 GPL: RES-Mv
 BreitWeignerWeight          bool    Yes   Weight xsec with breit-wigner?                                  true
 UseNuTauScalingFactors      bool    Yes   Load/Use NEUGEN reduction factor splines for nutaus             true
 UseDRJoinScheme             bool    Yes   Use DIS/RES joining scheme?                                     GPL: UseDRJoinScheme
@@ -25,9 +25,37 @@ XSec-Integrator             alg
 -->
 
   <param_set name="Default"> 
-     <param type="alg"  name="XSec-Integrator">  genie::ReinSehgalRESXSec/Default    </param>
-     <param type="double" name="RES-Omega"> 1.05  </param>
-     <param type="double" name="RES-Zeta">  0.762 </param>
+
+    <param type="string" name="CommonParam"> WeakInt,NonResBackground </param>
+
+    <param type="alg"  name="XSec-Integrator">  genie::ReinSehgalRESXSec/Default    </param>
+
+    <param type="double" name="RES-CC-XSecScale"> 1.000 </param>
+    <param type="double" name="RES-NC-XSecScale"> 1.000 </param>
+    
+    <!-- 
+	 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	 Constants in Feynman-Kislinger-Ravndal model for baryon excitation used in the Rein-Sehgal 
+	 resonance model
+    -->
+    <param type="double" name="RES-Omega"> 1.05  </param>emacs 
+    <param type="double" name="RES-Zeta">  0.762 </param> <!-- 0.75 -->
+    
+    
+    <!-- 
+	 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	 Axial and vector masses for resonance production  
+    -->
+    <param type="double" name="RES-Ma"> 1.120 </param>
+    <param type="double" name="RES-Mv"> 0.840 </param>
+
+     <!--
+	 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	 Set to true to use tuning to axial, vector form factors by MiniBoone (J. Nowak)
+     -->
+     <param type="bool" name="minibooneGA">  true </param>
+     <param type="bool" name="minibooneGV">  true </param>
+
   </param_set>
 
 </alg_conf>

@@ -54,7 +54,7 @@ void GVldContext::Decode(string encoded_vld_context)
 
   // set defauts for missing entries
   AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
+  const Registry * gc = confp->CommonParameterList("Validation");
   
   if(vldc.find("ENERGY") == string::npos) {
     fEmin = gc->GetDouble("GVLD-Emin");

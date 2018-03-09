@@ -73,13 +73,21 @@ void Algorithm::Configure(const Registry & config)
 
   LOG("Algorithm", pNOTICE) << "Input configuration: " << config;
 
-  if(!fOwnsConfig) {
-    fConfig     = new Registry(config);
-    fOwnsConfig = true;
-  } else {
-    fConfig->Copy(config);
+  if ( config.NEntries() <= 0 ) {
+
+    LOG("Algorithm", pNOTICE) "Registry " << config.Name() << " is empty. Not added to " << fID.Name();
+    return; 
   }
-  LOG("Algorithm", pNOTICE) << "Copied configuration: " << *fConfig;
+
+  Registry* rp = ExtractLocalConfig( config ) ;
+  if ( rp ) { 
+   
+    AddTopRegistry( rp ) ;
+    LOG("Algorithm", pNOTICE) << fID.Name() << " acquired new local configuration: " << *rp;
+    // The memory hadnled by this pointer now belongs to the algorithm and there is no need to keep track of it
+    
+  }
+
 
   if(!fOwnsSubstruc) return;              // doesn't own substructure
   if(fOwnedSubAlgMp->size()==0) return;   // no sub-algorithms
@@ -87,39 +95,32 @@ void Algorithm::Configure(const Registry & config)
   LOG("Algorithm", pNOTICE) << "Configuring algorithms stored at local pool";
 
   // loop over local pool algorithms
-  AlgMapIter alg_iter = fOwnedSubAlgMp->begin();
-  for( ; alg_iter != fOwnedSubAlgMp->end(); ++alg_iter) {
+
+  for( AlgMapIter alg_iter = fOwnedSubAlgMp->begin(); 
+       alg_iter != fOwnedSubAlgMp->end(); ++alg_iter) {
+    
     string      alg_key = alg_iter->first;
     Algorithm * alg     = alg_iter->second;
+    
     if(!alg) {
       LOG("Algorithm", pERROR) 
-       << "Key: " << alg_key << " points to a null algorithm at local pool";
+	<< "Key: " << alg_key << " points to a null algorithm at local pool";
       continue; 
     }
-    LOG("Algorithm", pNOTICE) << "Configuring alg: " << alg->Id().Key();
 
-    // get local pool algorithm's owned config
-    Registry r(alg->GetConfig());
-
-    const RgIMap & rgmap = fConfig->GetItemMap();
-    RgIMapConstIter reg_iter = rgmap.begin();
-    for( ; reg_iter != rgmap.end(); ++reg_iter) {
-       RgKey reg_key = reg_iter->first;
-       if(reg_key.find(alg_key+"/") == string::npos) continue;
-
-       int i0 = reg_key.find_first_of("/")+1;
-       int i1 = reg_key.length();
-       RgKey new_reg_key = reg_key.substr(i0,i1);
-       LOG("Algorithm", pDEBUG) 
- 	 << "Item with key: " << reg_key 
-                   << " is copied 1-level down with key: " << new_reg_key;
-
-       RegistryItemI * ri = reg_iter->second;
-       RgIMapPair key_item_pair(new_reg_key, ri->Clone());
-       r.Set(key_item_pair);
+    LOG("Algorithm", pNOTICE) << "Configuring sub-alg: " << alg->Id().Key();
+    
+    rp = ExtractLowerConfig( config, alg_key ) ;
+    if ( rp ) { 
+      
+      alg -> Configure( *rp ) ;
+      
+      delete rp ;
+      
     }
-    alg->Configure(r);
+    
   }
+
 }
 //____________________________________________________________________________
 void Algorithm::Configure(string config)
@@ -140,29 +141,120 @@ void Algorithm::FindConfig(void)
 // by parsing the XML config files).
 
   AlgConfigPool * pool = AlgConfigPool::Instance();
-  Registry * config = pool->FindRegistry(this);
+
+  Registry * config = 0 ;
+
+  // load the Default config if config is not the default
+  if ( fID.Config() != "Default" ) {
+    config = pool -> FindRegistry( fID.Name(), "Default" );
+    if ( config ) {
+      if ( config -> NEntries() > 0 ) {
+	AddTopRegistry( config, false ) ;
+	LOG("Algorithm", pDEBUG) << "\n" << *fConfig;
+      }
+    }
+  } 
+
+  // Load the right config 
+  config = pool->FindRegistry(this);
 
   if(!config)
-     // notify & keep whatever config Registry was used before.
-      LOG("Algorithm", pWARN)
-                   << "No Configuration available for "
-                               << this->Id().Key() << " at the ConfigPool";
+    // notify & keep whatever config Registry was used before.
+    LOG("Algorithm", pWARN)
+       << "No Configuration available for "
+       << this->Id().Key() << " at the ConfigPool";
   else {
-     // check if its already owns a configuration Registry & delete it;
-     if(fOwnsConfig && fConfig) delete fConfig;
-
-     // point to the configuration Registry retrieved from the ConfigPool
-     // and raise the "not-owned" flag.
-     fConfig        = config;
-     fOwnsConfig = false;
-
-     LOG("Algorithm", pDEBUG) << "\n" << *fConfig;
+    if ( config -> NEntries() > 0 ) {
+      AddTopRegistry( config, false ) ;
+      LOG("Algorithm", pDEBUG) << "\n" << *fConfig;
+    }
   }
+  
+  const string common_param_list_key = "CommonParam" ;
+  string common_param_list;
+
+  // Load Common Parameters if specific key "CommonParam" is there is
+  for ( unsigned int i = 0 ; i < fConfVect.size() ; ++i ) {
+    const Registry & temp = * fConfVect[i] ;
+    if( temp.Exists( common_param_list_key ) ) {
+      if( temp.ItemIsLocal( common_param_list_key) ) {
+	common_param_list = temp.GetString( common_param_list_key ) ;
+	break ;
+      }
+    }
+    
+  } // loop over the local registries
+
+
+  if ( common_param_list.length() > 0 ) {
+    vector<string> list = str::Split( common_param_list, "," ) ;
+    for ( unsigned int i = 0; i < list.size(); ++i ) {
+
+      config = pool -> CommonParameterList( list[i] ) ;
+      
+      if ( ! config ) {
+	LOG("Algorithm", pERROR)
+	  << "No Commom parameters available for list " 
+	  << list[i] << " at the ConfigPool";
+	
+	exit(0) ;
+      }
+      else  {
+	AddTopRegistry( config, false ) ;
+	
+	LOG("Algorithm", pDEBUG) << "Loading Commom Param registry " << list[i] << " \n" << *fConfig;
+      }
+      
+    }
+  }
+  
+  // Load Tunable from CommonParameters 
+  // only if the option is specified in RunOpt
+  config = pool -> CommonParameterList( "Tunable" ) ;
+  if ( config ) {
+    if ( config -> NEntries() > 0 ) {
+      AddTopRegistry( config, false ) ;
+      LOG("Algorithm", pDEBUG) << "Loading Tunable registry \n" << *fConfig;
+    }
+  }
+  else {
+    // notify & keep whatever config Registry was used before.
+    LOG("Algorithm", pWARN)
+      << "No Tunable parameter set available at the ConfigPool";
+  }
+
+  if ( fConfig ) {
+    delete fConfig ;
+    fConfig = 0 ;
+  }
+
 }
+
+//____________________________________________________________________________
+
+const Registry & Algorithm::GetConfig(void) const {
+
+  if ( fConfig ) return * fConfig ;
+
+  const_cast<Algorithm*>( this ) -> fConfig = new Registry( fID.Key() + "_summary", false ) ;
+  
+  // loop and append 
+  // understand the append mechanism
+  for ( unsigned int i = 0 ; i < fConfVect.size(); ++i ) {
+    fConfig -> Append( * fConfVect[i] ) ;
+  } 
+
+  //should we loop over the owned algos to add their subconfig ?
+
+  return * fConfig ;
+}
+
+
 //____________________________________________________________________________
 Registry * Algorithm::GetOwnedConfig(void)
 {
-  if(!fOwnsConfig) return 0;
+  
+  GetConfig() ;
   return fConfig;
 }
 //____________________________________________________________________________
@@ -197,9 +289,8 @@ void Algorithm::SetId(string name, string config)
 //____________________________________________________________________________
 void Algorithm::Print(ostream & stream) const
 {
- // print algorithm name & parameter-set
+  // print algorithm name & parameter-set
   stream << "\nAlgorithm Key: "  << this->fID.Key();
-  stream << " - Owns Config: "   << ((fOwnsConfig)   ? "[true]" : "[false]");
   stream << " - Owns Substruc: " << ((fOwnsSubstruc) ? "[true]" : "[false]");
 
   // print algorithm configuration
@@ -221,7 +312,6 @@ void Algorithm::Initialize(void)
 // Algorithm initialization
 //
   fAllowReconfig  = true;
-  fOwnsConfig     = false;
   fOwnsSubstruc   = false;
   fConfig         = 0;
   fOwnedSubAlgMp  = 0;
@@ -239,29 +329,27 @@ const Algorithm * Algorithm::SubAlg(const RgKey & registry_key) const
   LOG("Algorithm", pINFO)
     << "Fetching sub-alg within alg: " << this->Id().Key()
                                    << " pointed to by key: " << registry_key;
-
+  
   //-- if the algorithm owns its substructure:
   //      return the sub-algorithm from the local pool
   //
   if(fOwnsSubstruc) {
-     AlgMapConstIter iter = fOwnedSubAlgMp->find(registry_key);
-     if(iter!=fOwnedSubAlgMp->end()) return iter->second;
-     LOG("Algorithm", pERROR) 
-       << "Owned sub-alg pointed to by key: " << registry_key 
-                       << " was not found within alg: " << this->Id().Key();
+    AlgMapConstIter iter = fOwnedSubAlgMp->find(registry_key);
+    if(iter!=fOwnedSubAlgMp->end()) return iter->second;
+    LOG("Algorithm", pERROR) 
+      << "Owned sub-alg pointed to by key: " << registry_key 
+      << " was not found within alg: " << this->Id().Key();
      return 0;
   }
 
   //-- if the algorithm dowes not own its substructure:
   //      return the sub-algorithm from the AlgFactory's pool
-  //
-  fConfig->AssertExistence(registry_key);
+  RgAlg alg ;
+  GetParam( registry_key, alg ) ;
 
-  // retrieve the algorithm item corresponding to key
-  RgAlg alg = fConfig->GetAlg(registry_key);
   LOG("Algorithm", pINFO)
-     << "Registry key: " << registry_key << " points to algorithm: " << alg;
-
+    << "Registry key: " << registry_key << " points to algorithm: " << alg;
+  
   // retrieve the Algorithm object from the the Algorithm factory
   AlgFactory * algf = AlgFactory::Instance();
   const Algorithm * algbase = algf->GetAlgorithm(alg.name, alg.config);
@@ -270,18 +358,18 @@ const Algorithm * Algorithm::SubAlg(const RgKey & registry_key) const
   return algbase;
 }
 //____________________________________________________________________________
-void Algorithm::AdoptConfig(void)
-{
+void Algorithm::AdoptConfig(void) {
+
   LOG("Algorithm", pNOTICE)
     << this->Id().Key() << " is taking ownership of its configuration";
+  
+  // if(fOwnsConfig) {
+  //   LOG("Algorithm", pWARN)
+  //     << this->Id().Key() << " already owns its configuration!";
+  //   return;
+  // }
 
-  if(fOwnsConfig) {
-    LOG("Algorithm", pWARN)
-      << this->Id().Key() << " already owns its configuration!";
-    return;
-  }
-  Registry & configuration = *fConfig;
-  this->Configure(configuration);
+  this->Configure( GetConfig() );
 }
 //____________________________________________________________________________
 void Algorithm::AdoptSubstructure(void)
@@ -313,7 +401,7 @@ void Algorithm::AdoptSubstructure(void)
 
   AlgFactory * algf = AlgFactory::Instance();
 
-  const RgIMap & rgmap = fConfig->GetItemMap();
+  const RgIMap & rgmap = GetConfig().GetItemMap();
 
   RgIMapConstIter iter = rgmap.begin();
   for( ; iter != rgmap.end(); ++iter) {
@@ -346,7 +434,7 @@ void Algorithm::AdoptSubstructure(void)
        deep_config.Set(key_item_pair);
     }
   }
-  this->Configure(deep_config);
+  this->Configure( deep_config );
 }
 //____________________________________________________________________________
 void Algorithm::DeleteConfig(void)
@@ -354,15 +442,25 @@ void Algorithm::DeleteConfig(void)
   // there is nothing to delete if the configuration is not owned but is 
   // rather looked up from the configuration pool
   //
-  if(!fOwnsConfig) return;
+  
+  for ( unsigned int i = 0 ; i < fConfVect.size() ; ++i ) {
+    if ( fOwnerships[i] ) {
+      delete fConfVect[i] ;
+    }
+  }
+
+  fConfVect.clear() ;
+  fOwnerships.clear() ;
 
   // delete owned configuration registry
-  //
+
   if(fConfig) {
     delete fConfig; 
     fConfig=0;
   }
+
 }
+
 //____________________________________________________________________________
 void Algorithm::DeleteSubstructure(void)
 {
@@ -385,3 +483,100 @@ void Algorithm::DeleteSubstructure(void)
   fOwnedSubAlgMp = 0;
 }
 //____________________________________________________________________________
+
+Registry * Algorithm::ExtractLocalConfig( const Registry & in ) const {
+
+  const RgIMap & rgmap = in.GetItemMap();
+  Registry * out = new Registry( in.Name(), false );
+  
+  for( RgIMapConstIter reg_iter = rgmap.begin(); 
+       reg_iter != rgmap.end(); ++reg_iter ) {
+
+    RgKey reg_key = reg_iter->first;
+    if( reg_key.find( '/' ) != string::npos) continue; 
+
+    // at this point
+    // this key is referred to the local algorithm
+    // it has to be copied in out;
+      
+    RegistryItemI * ri = reg_iter->second;
+    RgIMapPair key_item_pair( reg_key, ri->Clone() );
+    out -> Set(key_item_pair);
+
+  }
+
+  if ( out -> NEntries() <= 0 ) {
+    delete out ;
+    out = 0 ;
+  }
+
+  return out ;
+}
+
+//____________________________________________________________________________
+
+Registry * Algorithm::ExtractLowerConfig( const Registry & in, const string & alg_key ) const {
+
+  const RgIMap & rgmap = in.GetItemMap();
+  Registry * out = new Registry( in.Name(), false );
+  
+  for( RgIMapConstIter reg_iter = rgmap.begin(); 
+       reg_iter != rgmap.end(); ++reg_iter ) {
+    
+    RgKey reg_key = reg_iter->first;
+    if( reg_key.find(alg_key+"/") == string::npos) continue; 
+
+    // at this point
+    // this key is referred to the sub-algorithm
+    // indicated by alg_key: it has to be copied in out;
+      
+    int new_key_start = reg_key.find_first_of('/')+1;
+    RgKey new_reg_key = reg_key.substr( new_key_start, reg_key.length() );
+  
+    RegistryItemI * ri = reg_iter->second;
+    RgIMapPair key_item_pair(new_reg_key, ri->Clone());
+    out -> Set(key_item_pair);
+
+  }
+
+  if ( out -> NEntries() <= 0 ) {
+    delete out ;
+    out = 0 ;
+  }
+  
+  return out ;
+  
+}
+
+
+//____________________________________________________________________________
+
+int Algorithm::AddTopRegistry( Registry * rp, bool own ) {  
+
+  fConfVect.insert( fConfVect.begin(), rp ) ;
+  fOwnerships.insert( fOwnerships.begin(), own ) ;
+
+  if ( fConfig ) {
+    delete fConfig ;
+    fConfig = 0 ;
+  }
+
+  return fConfVect.size() ;
+
+}
+
+
+int Algorithm::AddTopRegisties( const vector<Registry*> & rs, bool own ) {
+
+  fConfVect.insert( fConfVect.begin(), rs.begin(), rs.end() ) ;
+  
+  fOwnerships.insert( fOwnerships.begin(), rs.size(), own ) ;
+  
+  if ( fConfig ) {
+    delete fConfig ;
+    fConfig = 0 ;
+  }
+
+  return fConfVect.size() ;  
+
+}

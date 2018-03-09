@@ -169,8 +169,8 @@ void PauliBlocker::LoadModelType(void){
   
   if(!fLFG){
     // get the Fermi momentum table for relativistic Fermi gas
-    fKFTableName = fConfig->GetStringDef ("FermiMomentumTable",
-					  gc->GetString("FermiMomentumTable"));
+	GetParam( "FermiMomentumTable", fKFTableName ) ;
+
     fKFTable = 0;
     
     FermiMomentumTablePool * kftp = FermiMomentumTablePool::Instance();

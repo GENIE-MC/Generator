@@ -159,8 +159,8 @@ void NuEInteractionListGenerator::Configure(string config)
 //____________________________________________________________________________
 void NuEInteractionListGenerator::LoadConfig(void)
 {
-  fIsIMD = fConfig->GetBoolDef("is-IMD", false);
-  fIsIMDAnh = fConfig->GetBoolDef("is-IMD-ANH", false);
+	GetParamDef( "is-IMD", fIsIMD, false ) ;
+	GetParamDef( "is-IMD-ANH", fIsIMDAnh, false ) ;
 }
 //____________________________________________________________________________
 

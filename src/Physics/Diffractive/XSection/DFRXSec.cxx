@@ -124,16 +124,17 @@ void DFRXSec::Configure (std::string config)
 //____________________________________________________________________________
 void DFRXSec::LoadConfig (void)
 {
-
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
-
   // Get GSL integration type & relative tolerance
-  fGSLIntgType = fConfig->GetStringDef("gsl-integration-type",  "adaptive");
-  fGSLRelTol   = fConfig->GetDoubleDef("gsl-relative-tolerance", 1E-2);
-  fGSLMaxEval  = (unsigned int) fConfig->GetIntDef ("gsl-max-eval", 500000);
-  fGSLMinEval  = (unsigned int) fConfig->GetIntDef ("gsl-min-eval",  5000);
+  GetParamDef( "gsl-integration-type", fGSLIntgType, string("adaptive") ) ;
+  GetParamDef( "gsl-relative-tolerance", fGSLRelTol, 1E-2 ) ;
+
+  int max, min;
+  GetParamDef( "gsl-max-eval", max, 500000 ) ;
+  GetParamDef( "gsl-min-eval", min, 5000 ) ;
+  fGSLMaxEval  = (unsigned int) max ;
+  fGSLMinEval  = (unsigned int) min ;
 
   //-- DFR model parameter t_max for t = (q - p_pi)^2
-  fTMax = fConfig->GetDoubleDef("DFR-t-max", gc->GetDouble("DFR-t-max"));
+  GetParam( "DFR-t-max", fTMax ) ;
+
 }
