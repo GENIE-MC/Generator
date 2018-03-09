@@ -49,7 +49,7 @@ InteractionList * RSPPInteractionListGenerator::CreateInteractionList(
 {
   LOG("IntLst", pINFO) << "InitialState = " << init_state.AsString();
 
-  // In the thread generating interactions from the list produced here (SPP), 
+  // In the thread generating interactions from the list produced here (SPP),
   // we can have (for free and nuclear targets):
   //
   // neutrino CC:
@@ -71,7 +71,7 @@ InteractionList * RSPPInteractionListGenerator::CreateInteractionList(
   //     vb n -> vb n pi0
   //     vb n -> vb p pi-
   //
-  
+
   const int n_nucc_channels = 3;
   const int n_nunc_channels = 4;
 
@@ -88,7 +88,7 @@ InteractionList * RSPPInteractionListGenerator::CreateInteractionList(
     nunc_channels[1] = kSpp_vp_nc_01100;
     nunc_channels[2] = kSpp_vn_nc_01010;
     nunc_channels[3] = kSpp_vn_nc_10001;
-  } 
+  }
   else if ( pdg::IsAntiNeutrino(nupdg) ) {
     nucc_channels[0] = kSpp_vbn_cc_01001;
     nucc_channels[1] = kSpp_vbp_cc_01010;
@@ -97,7 +97,7 @@ InteractionList * RSPPInteractionListGenerator::CreateInteractionList(
     nunc_channels[1] = kSpp_vbp_nc_01100;
     nunc_channels[2] = kSpp_vbn_nc_01010;
     nunc_channels[3] = kSpp_vbn_nc_10001;
-  } 
+  }
   else {
      LOG("IntLst", pWARN)
        << "Can not handle probe! Returning NULL InteractionList "
@@ -131,7 +131,7 @@ InteractionList * RSPPInteractionListGenerator::CreateInteractionList(
           intlist->push_back(interaction);
        }
     }//cc channels
-  
+
   } else if (fIsNC) {
 
     // NC
@@ -215,7 +215,7 @@ void RSPPInteractionListGenerator::Configure(string config)
 //____________________________________________________________________________
 void RSPPInteractionListGenerator::LoadConfigData(void)
 {
-  fIsCC = fConfig->GetBoolDef("is-CC", false);
-  fIsNC = fConfig->GetBoolDef("is-NC", false);
+  this->GetParamDef("is-CC", fIsCC, false);
+  this->GetParamDef("is-NC", fIsNC, false);
 }
 //____________________________________________________________________________
