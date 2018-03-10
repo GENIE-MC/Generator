@@ -22,7 +22,7 @@ EmpiricalMEC-FracPN_NC  double   Yes        Fraction of pairs in the nucleus tha
 -->
 
   <param_set name="Default"> 
-     <param type="alg" name="CCQEXSecModel"> genie::LwlynSmithQELCCPXSec/Default </param>
+     <param type="alg" name="CCQEXSecModel"> genie::LwlynSmithQELCCPXSec/Dipole </param>
      <param type="alg" name="NCQEXSecModel"> genie::AhrensNCELPXSec/Default </param>
      <param type="alg" name="EMQEXSecModel"> genie::RosenbluthPXSec/Default </param>
      
