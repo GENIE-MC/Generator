@@ -247,7 +247,7 @@ void DFRKinematicsGenerator::LoadConfig(void)
 
   //-- Maximum allowed fractional cross section deviation from maxim cross
   //   section used in rejection method
-  GetParam( "MaxXSec-DiffTolerance", fMaxXSecDiffTolerance, 999999. ) ;
+  GetParamDef( "MaxXSec-DiffTolerance", fMaxXSecDiffTolerance, 999999. ) ;
   assert(fMaxXSecDiffTolerance>=0);
 
   //-- Generate kinematics uniformly over allowed phase space and compute
