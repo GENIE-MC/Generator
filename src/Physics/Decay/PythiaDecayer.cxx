@@ -149,7 +149,7 @@ TClonesArray * PythiaDecayer::Decay(const DecayerInputs_t & inp) const
   //   of the container and of its elements to the calling method
   TClonesArray * pl = new TClonesArray("TMCParticle", impl->GetEntries());
 
-  register unsigned int i = 0;
+  unsigned int i = 0;
   TMCParticle * p = 0;
   TIter particle_iter(impl);
 

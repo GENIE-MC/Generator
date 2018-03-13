@@ -23,6 +23,8 @@
 #ifndef _G_REWEIGHT_NU_XSEC_CCQE_AXIAL_H_
 #define _G_REWEIGHT_NU_XSEC_CCQE_AXIAL_H_
 
+//#define _G_REWEIGHT_CCQE_AXFF_DEBUG_
+
 #include <map>
 #include <string>
 
@@ -74,8 +76,11 @@ namespace rew   {
    bool   fRewNumu;      ///< reweight nu_mu CC?
    bool   fRewNumubar;   ///< reweight nu_mu_bar CC?
 
+#ifdef _G_REWEIGHT_CCQE_AXFF_DEBUG_
    TFile *    fTestFile;
    TNtupleD * fTestNtp;
+#endif
+
  };
 
 } // rew   namespace

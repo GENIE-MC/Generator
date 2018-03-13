@@ -299,7 +299,7 @@ TClonesArray *
   TClonesArray * particle_list = new TClonesArray("TMCParticle", np);
   particle_list->SetOwner(true);
 
-  register unsigned int i = 0;
+  unsigned int i = 0;
   TMCParticle * particle = 0;
   TIter particle_iter(pythia_particles);
 

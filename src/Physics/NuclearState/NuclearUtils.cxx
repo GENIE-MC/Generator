@@ -175,7 +175,7 @@ double genie::utils::nuclear::NuclQELXSecSuppression(
 
   double kFi, kFf;
   if(lfg){
-    double hbarc = kLightSpeed*kPlankConstant/units::fermi;
+    double hbarc = kLightSpeed*kPlankConstant/genie::units::fermi;
     Target* tgt = interaction->InitStatePtr()->TgtPtr();
     double radius = tgt->HitNucPosition();
 

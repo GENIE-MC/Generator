@@ -39,6 +39,9 @@ public:
   SpectralFunc1d(string config);
   virtual ~SpectralFunc1d();
 
+  using NuclearModelI::GenerateNucleon;  // inherit versions not overridden here
+  using NuclearModelI::Prob;
+
   //-- implement the NuclearModelI interface
   bool           GenerateNucleon (const Target & t) const;
   double         Prob            (double p, double w, const Target & t) const;

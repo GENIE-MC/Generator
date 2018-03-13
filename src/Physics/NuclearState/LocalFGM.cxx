@@ -127,7 +127,7 @@ TH1D * LocalFGM::ProbDistro(const Target & target, double r) const
   double numNuc = (is_p) ? (double)target.Z():(double)target.N();
 
   // Calculate Fermi Momentum using Local FG equations
-  double hbarc = kLightSpeed*kPlankConstant/units::fermi;
+  double hbarc = kLightSpeed*kPlankConstant/genie::units::fermi;
   double KF= TMath::Power(3*kPi2*numNuc*genie::utils::nuclear::Density(r,A),
 			    1.0/3.0) *hbarc;
 

@@ -362,7 +362,7 @@ while(1){  //start a loop until break;
      RandomGen * rnd = RandomGen::Instance();
      wmax *= 2;
      bool accept_decay=false;
-     register unsigned int itry=0;
+     unsigned int itry=0;
 
      while(!accept_decay)
      {

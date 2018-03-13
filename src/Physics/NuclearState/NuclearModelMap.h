@@ -35,13 +35,16 @@ public:
   NuclearModelMap(string config);
   virtual ~NuclearModelMap();
 
-  //-- Allow GenerateNucleon to be called with a radius  
-  bool           GenerateNucleon (const Target & t,
+  using NuclearModelI::GenerateNucleon;  // inherit versions not overridden here
+  using NuclearModelI::Prob;
+
+  //-- Allow GenerateNucleon to be called with a radius
+  virtual bool   GenerateNucleon (const Target & t,
                                   double hitNucleonRadius) const;
-  double         Prob            (double p, double w, const Target & t,
+  virtual double  Prob           (double p, double w, const Target & t,
                                   double hitNucleonRadius) const;
 
-  //-- implement the NuclearModelI interface             
+  //-- implement the NuclearModelI interface
   bool GenerateNucleon (const Target & t) const {
     return GenerateNucleon(t,0.0);
   }

@@ -38,7 +38,8 @@ ostream & operator<< (ostream& stream, const EventRecord & event);
 class EventRecord : public GHepRecord {
 
 public :
-  using GHepRecord::Copy; // suppress clang 'hides overloaded virtual function [-Woverloaded-virtual]' warnings
+  using GHepRecord::Copy;  // suppress clang 'hides overloaded virtual function [-Woverloaded-virtual]' warnings
+  using GHepRecord::Print;
 
   EventRecord();
   EventRecord(int size);
@@ -46,8 +47,8 @@ public :
   ~EventRecord();
 
   void AcceptVisitor (EventRecordVisitorI * visitor);
-  void Copy          (const EventRecord & record);
-  void Print         (ostream & stream) const;
+  virtual void Copy          (const EventRecord & record);
+  virtual void Print         (ostream & stream) const;
 
   friend ostream & operator<< (ostream& stream, const EventRecord & event);
 

@@ -38,6 +38,9 @@ public:
   LocalFGM(string config);
   virtual ~LocalFGM();
 
+  using NuclearModelI::GenerateNucleon;  // inherit versions not overridden here
+  using NuclearModelI::Prob;
+
   //-- allow methods to be called with a radius
   bool   GenerateNucleon (const Target & t, double hitNucleonRadius) const;
   double Prob            (double p, double w, const Target & t,

@@ -422,7 +422,7 @@ void NievesQELCCPXSec::LoadConfig(void)
   GetParam( "QEL-CC-XSecScale", fXSecScale ) ;
 
   // hbarc for unit conversion, GeV*fm
-  fhbarc = kLightSpeed*kPlankConstant/units::fermi;
+  fhbarc = kLightSpeed*kPlankConstant/genie::units::fermi;
 
    // load QEL form factors model
   fFormFactorsModel = dynamic_cast<const QELFormFactorsModelI *> (
@@ -631,9 +631,10 @@ std::complex<double> NievesQELCCPXSec::relLindhardIm(double q0, double dq,
  USES: ruLinRelX, relLindhardIm
  */
 //Takes inputs in GeV (with imU in GeV^2), and gives output in GeV^2
-std::complex<double> NievesQELCCPXSec::relLindhard(double q0gev, 
-		        double dqgev, double kFgev, double M, 
-			bool isNeutrino, std::complex<double> relLindIm) const
+std::complex<double> NievesQELCCPXSec::relLindhard(double q0gev,
+                        double dqgev, double kFgev, double M,
+                        bool isNeutrino,
+                        std::complex<double> relLindIm) const
 {
   double q0 = q0gev/fhbarc;
   double qm = dqgev/fhbarc;
@@ -879,13 +880,13 @@ int NievesQELCCPXSec::leviCivita(int input[]) const{
 // Calculates the constraction of the leptonic and hadronic tensors. The
 // initial nucleon must be at rest, and q must be in the z direction.
 double NievesQELCCPXSec::LmunuAnumu(const TLorentzVector neutrinoMom,
-				    const TLorentzVector inNucleonMom,
-				    const TLorentzVector leptonMom,
-				    const TLorentzVector outNucleonMom,
-				    double M, double r, bool is_neutrino, 
-				    bool tgtIsNucleus,
-				    int tgt_pdgc, int A, int Z, int N,
-				    bool hitNucIsProton) const
+                                    const TLorentzVector inNucleonMom,
+                                    const TLorentzVector leptonMom,
+                                    const TLorentzVector outNucleonMom,
+                                    double M, double r, bool is_neutrino,
+                                    bool tgtIsNucleus,
+                                    int tgt_pdgc, int A, int Z, int N,
+                                    bool hitNucIsProton) const
 {
   const double k[4] = {neutrinoMom.E(),neutrinoMom.Px(),neutrinoMom.Py(),neutrinoMom.Pz()};
   const double kPrime[4] = {leptonMom.E(),leptonMom.Px(),

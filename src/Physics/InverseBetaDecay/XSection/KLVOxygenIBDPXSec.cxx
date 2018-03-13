@@ -54,8 +54,8 @@ KLVOxygenIBDPXSec::~KLVOxygenIBDPXSec()
    delete fXsplNuebar;
 }
 //____________________________________________________________________________
-double KLVOxygenIBDPXSec::XSec(
-       const Interaction * interaction, KinePhaseSpace_t kps) const
+double KLVOxygenIBDPXSec::XSec(const Interaction * interaction,
+                               KinePhaseSpace_t /* kps */) const
 {
    // compute the differential cross section ds/dt
    // currently not implemented (only total)

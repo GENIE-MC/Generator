@@ -97,7 +97,7 @@ namespace rew   {
    double fMaDef;        ///<
    double fMaCurr;       ///<
 
-   int     fZExpCurrIdx; ///< current coefficient index
+   // unused // int     fZExpCurrIdx; ///< current coefficient index
    int     fZExpMaxCoef; ///< max number of coefficients to use
    string  fZExpPath;    ///< algorithm path to get coefficients
    double  fZExpTwkDial[fZExpMaxSyst]; ///< 

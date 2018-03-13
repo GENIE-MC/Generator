@@ -44,7 +44,7 @@
 
 using namespace genie;
 using namespace genie::constants;
-using namespace genie::units;
+//using namespace genie::units;
 
 //____________________________________________________________________________
 ReinSehgalRESXSec::ReinSehgalRESXSec() :
@@ -109,7 +109,7 @@ double ReinSehgalRESXSec::Integrate(
       double xsec = spl->Evaluate(Ev);
       SLOG("ReinSehgalResT", pNOTICE)  
          << "XSec[RES/" << utils::res::AsString(res)<< "/free] (Ev = " 
-               << Ev << " GeV) = " << xsec/(1E-38 *cm2)<< " x 1E-38 cm^2";
+         << Ev << " GeV) = " << xsec/(1E-38 *genie::units::cm2) << " x 1E-38 cm^2";
       if(! interaction->TestBit(kIAssumeFreeNucleon) ) {
         int NNucl = (pdg::IsProton(nucleon_pdgc)) ? target.Z() : target.N();
         xsec *= NNucl;
@@ -159,7 +159,7 @@ double ReinSehgalRESXSec::Integrate(
 
     SLOG("ReinSehgalResT", pNOTICE)  
        << "XSec[RES/" << utils::res::AsString(res)<< "/free] (Ev = " 
-               << Ev << " GeV) = " << rxsec/(1E-38 *cm2)<< " x 1E-38 cm^2";
+       << Ev << " GeV) = " << rxsec/(1E-38 *genie::units::cm2) << " x 1E-38 cm^2";
 
      if( interaction->TestBit(kIAssumeFreeNucleon) ) return rxsec;
 
