@@ -7,7 +7,7 @@ void change_prompt()
 }
 
 void genie_setup()
-{   
+{
     TString script_dir = gSystem->Getenv("GENIE");
     script_dir += "/src/scripts/gcint/";
 
@@ -15,8 +15,8 @@ void genie_setup()
 
     gSystem->cd(script_dir.Data());
 
-    gROOT->ProcessLine(".x loadincs.C");    
-    gROOT->ProcessLine(".x loadlibs.C");    
+    gROOT->ProcessLine(".x loadincs.C");
+    gROOT->ProcessLine(".x loadlibs.C");
 
     gSystem->cd(curr_dir.Data());
 
