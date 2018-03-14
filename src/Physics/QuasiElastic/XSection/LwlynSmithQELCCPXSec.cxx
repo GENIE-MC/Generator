@@ -229,6 +229,9 @@ double LwlynSmithQELCCPXSec::FullDifferentialXSec(const Interaction *  interacti
   delete neutrinoMom;
   
   double xsec = Gfactor * LH;
+  
+  // Apply given scaling factor
+  xsec *= fXSecScale;
 
   if( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;
 
