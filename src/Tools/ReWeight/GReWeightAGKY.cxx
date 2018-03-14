@@ -49,14 +49,14 @@ GReWeightI()
 //_______________________________________________________________________________________
 GReWeightAGKY::~GReWeightAGKY()
 {
-  delete fBaryonXFpdf;   
-  delete fBaryonPT2pdf; 
+  delete fBaryonXFpdf;
+  delete fBaryonPT2pdf;
   delete fBaryonXFpdfTwk;
   delete fBaryonPT2pdfTwk;
 
 #ifdef _G_REWEIGHT_AGKY_DEBUG_
   fTestFile->cd();
-  fTestNtp ->Write(); 
+  fTestNtp ->Write();
   fTestFile->Close();
   delete fTestFile;
 #endif
@@ -103,15 +103,15 @@ void GReWeightAGKY::Reconfigure(void)
 
 }
 //_______________________________________________________________________________________
-double GReWeightAGKY::CalcWeight(const EventRecord & event) 
-{ 
+double GReWeightAGKY::CalcWeight(const EventRecord & event)
+{
   Interaction * interaction = event.Summary();
 
   bool is_cc  = interaction->ProcInfo().IsWeakCC();
   bool is_nc  = interaction->ProcInfo().IsWeakNC();
-  if(is_cc && !fRewCC) return 1.;   
+  if(is_cc && !fRewCC) return 1.;
   if(is_nc && !fRewNC) return 1.;
-       
+
   int nupdg = interaction->InitState().ProbePdg();
   if(nupdg==kPdgNuMu     && !fRewNumu   ) return 1.;
   if(nupdg==kPdgAntiNuMu && !fRewNumubar) return 1.;
@@ -128,13 +128,13 @@ double GReWeightAGKY::CalcWeight(const EventRecord & event)
   // Reweight events hadronized by AGKY/KNO
   //
 
-  double wght =      
+  double wght =
     this->RewxFpT1pi(event);  /* reweight pT2 and xF for `nucleon+pion' states */
-    
+
   return wght;
 }
 //_______________________________________________________________________________________
-double GReWeightAGKY::RewxFpT1pi(const EventRecord & event) 
+double GReWeightAGKY::RewxFpT1pi(const EventRecord & event)
 {
   bool PT2tweaked = (TMath::Abs(fAvgPT2TwkDial)       > controls::kASmallNum);
   bool XFtweaked  = (TMath::Abs(fPeakBaryonXFTwkDial) > controls::kASmallNum);
@@ -158,35 +158,35 @@ double GReWeightAGKY::RewxFpT1pi(const EventRecord & event)
   }
   if(ihadsyst<0) return 1.;
 
-  LOG("ReW", pDEBUG) 
+  LOG("ReW", pDEBUG)
    << "Found HadronicSystem pseudo-particle at position = " << ihadsyst;
 
   int fd = event.Particle(ihadsyst)->FirstDaughter();
   int ld = event.Particle(ihadsyst)->LastDaughter();
   int nd = ld-fd+1;
 
-  LOG("ReW", pDEBUG) 
+  LOG("ReW", pDEBUG)
    << "HadronicSystem pseudo-particle's num. of daughters = " << nd
    << " at positions (" << fd << ", " << ld << ")";
 
   bool is_Npi = false;
-  int iN = -1;
+  // unused // int iN = -1;
   if(nd==2) {
     int fdpdg = event.Particle(fd)->Pdg();
     int ldpdg = event.Particle(ld)->Pdg();
     if( pdg::IsNucleon(fdpdg) && pdg::IsPion(ldpdg) ) {
        is_Npi = true;
-       iN = fd;
+       // unused // iN = fd;
     }
     else
     if( pdg::IsNucleon(ldpdg) && pdg::IsPion(fdpdg) ) {
        is_Npi = true;
-       iN = ld;
+       // unused // iN = ld;
     }
   }
   if(!is_Npi) return 1.;
 
-  LOG("ReW", pDEBUG) 
+  LOG("ReW", pDEBUG)
       << "A DIS event with a 'nucleon+pion' primary hadronic state";
 
   // Nucleon 4-momentum at LAB
@@ -201,7 +201,7 @@ double GReWeightAGKY::RewxFpT1pi(const EventRecord & event)
   TLorentzVector p4had = utils::rew::Hadronic4pLAB(event);
   TVector3 p3had = p4had.Vect();
 
-  // Nucleon 4-momentum at LAB' (LAB but with z' rotated 
+  // Nucleon 4-momentum at LAB' (LAB but with z' rotated
   // along the hadron shower direction)
   double pTlabp = p3N.Pt(p3had);
   double pLlabp = TMath::Sqrt(p3N.Mag2()-pTlabp*pTlabp);
@@ -220,8 +220,8 @@ double GReWeightAGKY::RewxFpT1pi(const EventRecord & event)
   double PZmax = W/2.;
   double XF    = p4Nr.Pz() / PZmax;
   double PT2   = p4Nr.Perp2();
-  
-  LOG("ReW", pDEBUG) 
+
+  LOG("ReW", pDEBUG)
      << "@ HCM: pT2 = " << PT2 << ", xF = " << XF;
 
   bool XFinrange  = (XF > fXFmin && XF < fXFmax);
@@ -292,7 +292,7 @@ double GReWeightAGKY::RewxFpT1pi(const EventRecord & event)
     if(fxFrnd < fxFpdf && fpT2rnd < fpT2pdf) {
       htwk.Fill(dec_xF, dec_pT2, dec_weight);
     }
-  }//ndec 
+  }//ndec
 
   double Idef = hdef.Integral("width");
   double Itwk = htwk.Integral("width");
@@ -306,11 +306,11 @@ double GReWeightAGKY::RewxFpT1pi(const EventRecord & event)
   int xfbin  = hdef.GetXaxis()->FindBin(XF);
   int pt2bin = hdef.GetYaxis()->FindBin(PT2);
 
-  double prob_def = hdef.GetBinContent(xfbin,pt2bin); 
+  double prob_def = hdef.GetBinContent(xfbin,pt2bin);
   double prob_twk = htwk.GetBinContent(xfbin,pt2bin);
   if(prob_def <= 0 || prob_twk < 0) {
     return 1.;
-  } 
+  }
 
   double wght = prob_twk/prob_def;
 
@@ -340,9 +340,9 @@ void GReWeightAGKY::Init(void)
   fPT2max = 0.6;
 
   fBaryonXFpdf  = new TF1("fBaryonXFpdf",
-                   "0.083*exp(-0.5*pow(x+0.385,2.)/0.131)", fXFmin, fXFmax);  
-  fBaryonPT2pdf = new TF1("fBaryonPT2pdf", 
-                   "exp(-0.214-6.625*x)", fPT2min, fPT2max);  
+                   "0.083*exp(-0.5*pow(x+0.385,2.)/0.131)", fXFmin, fXFmax);
+  fBaryonPT2pdf = new TF1("fBaryonPT2pdf",
+                   "exp(-0.214-6.625*x)", fPT2min, fPT2max);
 
   fI0XFpdf  = fBaryonXFpdf ->Integral(fXFmin, fXFmax);
   fI0PT2pdf = fBaryonPT2pdf->Integral(fPT2min,fPT2max);
@@ -360,8 +360,8 @@ void GReWeightAGKY::Init(void)
   fBaryonXFpdfTwk->SetParameter(1, fDefPeakBaryonXF);
 
   fDefAvgPT2 = 1./6.625;
-  fBaryonPT2pdfTwk = new TF1("fBaryonPT2pdf", 
-                   "[0]*exp(-0.214-x/[1])", fPT2min, fPT2max);  
+  fBaryonPT2pdfTwk = new TF1("fBaryonPT2pdf",
+                   "[0]*exp(-0.214-x/[1])", fPT2min, fPT2max);
   fBaryonPT2pdfTwk->SetParameter(0, 1.); // norm
   fBaryonPT2pdfTwk->SetParameter(1,fDefAvgPT2);
 
@@ -372,7 +372,6 @@ void GReWeightAGKY::Init(void)
 #ifdef _G_REWEIGHT_AGKY_DEBUG_
   fTestFile = new TFile("./agky_reweight_test.root","recreate");
   fTestNtp  = new TNtupleD("testntp","","W:xF:pT2:xFtwkdial:pT2twkdial:wght");
-#endif   
+#endif
 }
 //_______________________________________________________________________________________
-

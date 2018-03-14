@@ -11,7 +11,7 @@
           [2] K.S. Kuzmin, V.V. Lyubushkin, V.A.Naumov Eur. Phys. J. C54, (2008) 517-538
 
 \author   Igor Kakorin <kakorin@jinr.ru>, Joint Institute for Nuclear Research \n
-          adopted from  fortran code provided by 
+          adopted from  fortran code provided by
           Konstantin Kuzmin <kkuzmin@theor.jinr.ru>, \n
           Joint Institute for Nuclear Research,  Institute for Theoretical and Experimental Physics \n
           Vladimir Lyubushkin, \n
@@ -59,31 +59,29 @@ public :
 private:
 
   mutable SmithMonizUtils * sm_utils;
-  
+
   void   LoadConfig     (void);
   double ComputeMaxXSec(const Interaction * in) const;
   void AddTargetNucleusRemnant (GHepRecord * evrec) const; ///< add a recoiled nucleus remnant
-  
+
   double ComputeMaxXSec2 (const Interaction * in) const;
   double MaxXSec2        (GHepRecord * evrec) const;
   double FindMaxXSec2    (const Interaction * in) const;
   void   CacheMaxXSec2   (const Interaction * in, double xsec) const;
   CacheBranchFx * AccessCacheBranch2 (const Interaction * in) const;
-  
+
   double ComputeMaxDiffv (const Interaction * in) const;
   double MaxDiffv        (GHepRecord * evrec) const;
   double FindMaxDiffv    (const Interaction * in) const;
   void   CacheMaxDiffv   (const Interaction * in, double xsec) const;
   CacheBranchFx * AccessCacheBranchDiffv (const Interaction * in) const;
- 
+
   mutable KinePhaseSpace_t fkps;
-  
+
   bool fGenerateNucleonInNucleus;           ///< generate struck nucleon in nucleus
   double fQ2Min;                            ///< Q2-threshold for seeking the second maximum
-  
+
   double fSafetyFacor_nu;
-  
-  const double eps = std::numeric_limits<double>::epsilon();
 
 
 }; // class definition

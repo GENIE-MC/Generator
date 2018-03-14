@@ -49,7 +49,8 @@ $(DICTIONARY).cc: LinkDef.h $(DICTGEN_OBJECTS)
 	@echo "[package: $(PACKAGE)] Generating ROOT dictionary ..."
 #	rootcint -f $(DICTIONARY).cc -c $(ROOT_DICT_GEN_INCLUDES) $(DICTGEN_HEADERS) LinkDef.h
 ifeq ($(ROOT_MAJOR),5)
-	  rootcint -f $(DICTIONARY).cc -c $(ROOT_DICT_GEN_INCLUDES) $(DICTGEN_HEADERS) LinkDef.h
+        # add -p flag to use cpp rather than CINT
+	  rootcint -f $(DICTIONARY).cc -c -p $(ROOT_DICT_GEN_INCLUDES) $(DICTGEN_HEADERS) LinkDef.h
 else
         # to make pcm relocatable we have to set it to strip these off
         # sub-dirs Types & Interfaces don't have dictionaries, made as part of Nuclear

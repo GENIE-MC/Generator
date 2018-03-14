@@ -35,7 +35,6 @@
 #include "Framework/Registry/RegistryItemTypeDef.h"
 #include "Framework/Messenger/Messenger.h"
 
-
 using std::string;
 using std::ostream;
 using std::map;
@@ -58,7 +57,7 @@ public:
 
   //! Configure the algorithm with an external registry
   //!   The registry is added with the highest priority
-  virtual void Configure (const Registry & config);  
+  virtual void Configure (const Registry & config);
 
   //! Configure the algorithm from the AlgoConfigPool
   //!  based on param_set string given in input
@@ -66,12 +65,12 @@ public:
   //!   1) Tunable from CommonParametes for tuning procedures
   //!   2) config from AlgoConfigPool
   //!   3) if config != "Default" it will also load Config
-  virtual void Configure (string config);            
+  virtual void Configure (string config);
 
   //! Lookup configuration from the config pool
-  //!   Similar logic from void Configure(string) 
+  //!   Similar logic from void Configure(string)
   //!   It also loads in cascade the registry from the substructures
-  virtual void FindConfig (void);   
+  virtual void FindConfig (void);
 
   //! Get configuration registry
   //!  Evaluate the summary of the configuration and returns it
@@ -88,7 +87,7 @@ public:
   virtual AlgStatus_t GetStatus(void) const { return fStatus; }
 
   //! Allow reconfigration after initializaton?
-  //! Algorithms may opt-out, if reconfiguration is not necessary, 
+  //! Algorithms may opt-out, if reconfiguration is not necessary,
   //! to improve event reweighting speed.
   virtual bool AllowReconfig(void) const { return fAllowReconfig; }
 
@@ -99,7 +98,7 @@ public:
   virtual void SetId(const AlgId & id);
   virtual void SetId(string name,  string config);
 
-  //! Access the sub-algorithm pointed to by the input key, either from the 
+  //! Access the sub-algorithm pointed to by the input key, either from the
   //! local pool or from AlgFactory's pool
   const Algorithm * SubAlg(const RgKey & registry_key) const;
 
@@ -111,7 +110,7 @@ public:
   //! by copying them from the AlgFactory pool to the local pool
   //! Also bring all the configuration variables to the top level config Registry.
   //! This can be used to group together a series of algorithms & their
-  //! configurations and extract (a clone of) this group from the shared 
+  //! configurations and extract (a clone of) this group from the shared
   //! pools. Having a series of algorithms/configurations behaving as a
   //! monolithic block, with a single point of configuration (the top level)
   //! is to be used when bits & pieces of GENIE are used in isolation for
@@ -130,13 +129,13 @@ protected:
   void Initialize         (void);
   void DeleteConfig       (void);
   void DeleteSubstructure (void);
-  
+
   //! Split an incoming configuration Registry into a block valid for this algorithm
   //! Ownership of the returned registry belongs to the algo
   Registry * ExtractLocalConfig( const Registry & in ) const ;
   //! Split an incoming configuration Registry into a block valid for the sub-algo identified by alg_key
   Registry * ExtractLowerConfig( const Registry & in, const string & alg_key ) const ;
-  
+
   bool         fAllowReconfig; ///<
   //  bool         fOwnsConfig;    ///< true if it owns its config. registry
   bool         fOwnsSubstruc;  ///< true if it owns its substructure (sub-algs,...)
@@ -145,11 +144,11 @@ protected:
 
   /// ideally these members should go private
   /// Registry will be access only through the GetParam method
-  vector<Registry*>  fConfVect ;   ///< configurations registries from various sources 
+  vector<Registry*>  fConfVect ;   ///< configurations registries from various sources
                                    ///<  the order of the vector is the precedence in case of repeated parameters
                                    ///<  position 0 -> Highest precedence
   vector<bool>       fOwnerships ; ///< ownership for every registry in fConfVect
-   
+
   AlgStatus_t  fStatus;        ///< algorithm execution status
   AlgMap *     fOwnedSubAlgMp; ///< local pool for owned sub-algs (taken out of the factory pool)
 
@@ -164,17 +163,19 @@ protected:
   template<class T>
      bool GetParamDef( const RgKey & name, T & p, const T & def ) const ;
 
-  
+
 private:
   int   AddTopRegistry( Registry * rp, bool owns = true );  ///< add registry with top priority, also update ownership
-  int   AddTopRegisties( const vector<Registry*> & rs, bool owns = false ) ; ///< Add registries with top priority, also udated Ownerships 
-  
+  int   AddTopRegisties( const vector<Registry*> & rs, bool owns = false ) ; ///< Add registries with top priority, also udated Ownerships
+
   Registry *   fConfig;        ///< Summary configuration derived from fConvVect, not necessarily allocated
-  
+
 };
 
 }       // genie namespace
 
+#ifndef __CINT__  // don't even try for ROOT 5
 #include "Framework/Algorithm/Algorithm.icc"
+#endif
 
 #endif  // _ALGORITHM_H_

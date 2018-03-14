@@ -5,7 +5,7 @@
 
 \brief    Class containing constants for AlvarezRuso coherent pion production xsec
 
-\ref      
+\ref
 
 \author   Steve Dennis
           University of Warwick, Rutherford Appleton Laboratory
@@ -29,7 +29,7 @@ namespace alvarezruso {
 class ARConstants
 {
   public:
-  
+
     ARConstants();
     ~ARConstants();
 
@@ -61,12 +61,12 @@ class ARConstants
     double PiPMass();
     double Pi0Mass();
     double cm38Conversion();
-    
+
     double NCFactor();
-  
+
   private:
-    const genie::Registry *reg;
-    
+    // unused // const genie::Registry *reg;
+
     double COHAR_Ma_Nuc      ;
     double COHAR_Mv_Nuc      ;
     double COHAR_Ma_Delta    ;
@@ -81,7 +81,7 @@ class ARConstants
     double COHAR_fStar       ;
     double fCosCabibboAngle  ;
     double fSinWeinbergAngle ;
-    
+
     double massElectron      ;
     double massMuon          ;
     double massTau           ;
@@ -93,9 +93,9 @@ class ARConstants
     double massDelta0        ;
     double massPiP           ;
     double massPi0           ;
-    
+
     double ncFactor;
-    
+
 };
 
 } //namespace alvarezruso

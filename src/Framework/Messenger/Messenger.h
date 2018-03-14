@@ -24,11 +24,21 @@
 #include <string>
 #include <map>
 
-#include "log4cpp/Category.hh"
-#include "log4cpp/Appender.hh"
-#include "log4cpp/OstreamAppender.hh"
-#include "log4cpp/BasicLayout.hh"
-#include "log4cpp/Priority.hh"
+// ROOT5 has difficulty with parsing log4cpp headers
+#if !defined(__CINT__) && !defined(__MAKECINT__)
+  #include "log4cpp/Category.hh"
+  #include "log4cpp/Appender.hh"
+  #include "log4cpp/OstreamAppender.hh"
+  #include "log4cpp/BasicLayout.hh"
+  #include "log4cpp/Priority.hh"
+#else
+  namespace log4cpp {
+    class Priority {
+      typedef int Value;
+    };
+    class Category;
+  }
+#endif
 
 #include "Framework/Conventions/GBuild.h"
 
@@ -183,12 +193,12 @@ using std::string;
 
 /*!
   \def   BLOG(stream, priority)
-  \brief A macro that returns the requested log4cpp::Category appending no 
+  \brief A macro that returns the requested log4cpp::Category appending no
          additional information
 */
 
 #define BLOG(stream, priority) \
-	  (*Messenger::Instance())(stream) << priority
+          (*Messenger::Instance())(stream) << priority
 
 /*!
   \def   MAXSLOG(stream, priority, maxcount)
@@ -203,11 +213,11 @@ using std::string;
 
 */
 
-// Macro to concatenate two symbols:                                            
+// Macro to concatenate two symbols:
 #define TOKCAT(x,y) x##y
-// Macro to expand preprocessor variables and concatenate:                      
+// Macro to expand preprocessor variables and concatenate:
 #define TOKCAT2(x,y) TOKCAT(x,y)
-// Macro to concatenate source line with a symbol:                              
+// Macro to concatenate source line with a symbol:
 #define LINECAT(x) TOKCAT2(x, __LINE__ )
 
 #define MAXSLOG(s,l,c)  \
@@ -231,7 +241,7 @@ using std::string;
 
 namespace genie {
 
-extern bool gAbortingInErr; 
+extern bool gAbortingInErr;
 
 class Messenger
 {

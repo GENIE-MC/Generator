@@ -5,8 +5,9 @@
 #pragma link off all functions;
 
 #pragma link C++ namespace genie;
+#pragma link C++ namespace log4cpp;
 
 #pragma link C++ class genie::Messenger;
-//#pragma link C++ class genie::XmlPriorityReader;
+#pragma link C++ nestedtypedef log4cpp::Priority::Value;
 
 #endif

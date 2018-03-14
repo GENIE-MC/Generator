@@ -10,8 +10,8 @@
          Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          University of Liverpool & STFC Rutherford Appleton Lab
 
-	 Aaron Meyer <asm58 \at pitt.edu>
-	 Pittsburgh University
+         Aaron Meyer <asm58 \at pitt.edu>
+         Pittsburgh University
 
  For documentation see the corresponding header file.
 
@@ -76,7 +76,7 @@ using namespace genie::controls;
 
 //____________________________________________________________________________
 double genie::utils::intranuke2015::MeanFreePath(
-   int pdgc, const TLorentzVector & x4, const TLorentzVector & p4, 
+   int pdgc, const TLorentzVector & x4, const TLorentzVector & p4,
    double A, double Z, double nRpi, double nRnuc, const bool useOset, const bool altOset, const bool xsecNNCorr, string INukeMode)
 {
 // Calculate the mean free path (in fm) for a pions and nucleons in a nucleus
@@ -95,7 +95,7 @@ double genie::utils::intranuke2015::MeanFreePath(
   bool is_gamma   = pdgc == kPdgGamma;
 
   if(!is_pion && !is_nucleon && !is_kaon && !is_gamma) return 0.;
-        
+
   // before getting the nuclear density at the current position
   // check whether the nucleus has to become larger by const times the
   // de Broglie wavelength -- that is somewhat empirical, but this
@@ -106,9 +106,9 @@ double genie::utils::intranuke2015::MeanFreePath(
   //
   double momentum = p4.Vect().Mag(); // hadron momentum in GeV
   double ring = (momentum>0) ? 1.240/momentum : 0; // de-Broglie wavelength
- 
+
   if(A<=20) { ring /= 2.; }
- 
+
   /*
   if      (is_pion               ) { ring *= nRpi;  }
   else if (is_nucleon            ) { ring *= nRnuc; }
@@ -128,7 +128,7 @@ double genie::utils::intranuke2015::MeanFreePath(
     }
 
   // get the nuclear density at the current position
-  double rnow = x4.Vect().Mag(); 
+  double rnow = x4.Vect().Mag();
   double rho  = A * utils::nuclear::Density(rnow,(int) A,ring);
 
   // the hadron+nucleon cross section will be evaluated within the range
@@ -159,7 +159,7 @@ double genie::utils::intranuke2015::MeanFreePath(
     {
       sigtot = fHadroData2015 -> XSecPp_Tot()   -> Evaluate(ke)*ppcnt;
       //sigtot+= fHadroData2015 -> XSecPn_Tot()   -> Evaluate(ke)*(1-ppcnt);
-     
+
       PDGLibrary * pLib = PDGLibrary::Instance();
       double hc = 197.327;
       double R0 = 1.25 * TMath::Power(A,1./3.) + 2.0 * 0.65; // should all be in units of fm
@@ -168,22 +168,22 @@ double genie::utils::intranuke2015::MeanFreePath(
       //double E  = (p4.Energy() - Mp) * 1000.; // Convert GeV to MeV.
       double E = ke;
       if (Z*hc/137./x4.Vect().Mag() > E)  // Coulomb correction (Cohen, Concepts of Nuclear Physics, pg. 259-260)
-	{
-	  double z  = 1.0; // charge for single proton
-	  double Bc = z*Z*hc/137./R0;
-	  double x  = E/Bc;
-	  double f  = TMath::ACos(TMath::Power(x,0.5)) - TMath::Power(x*(1-x),0.5);
-	  double B  = 0.63*z*Z*TMath::Power((M/Mp)/E,0.5);
-	  double Pc = TMath::Exp(-B*f);
-	  sigtot *= Pc;
-	}
+        {
+          double z  = 1.0; // charge for single proton
+          double Bc = z*Z*hc/137./R0;
+          double x  = E/Bc;
+          double f  = TMath::ACos(TMath::Power(x,0.5)) - TMath::Power(x*(1-x),0.5);
+          double B  = 0.63*z*Z*TMath::Power((M/Mp)/E,0.5);
+          double Pc = TMath::Exp(-B*f);
+          sigtot *= Pc;
+        }
       sigtot+= fHadroData2015 -> XSecPn_Tot()   -> Evaluate(ke)*(1-ppcnt);
-     
+
       double E0 = TMath::Power(A,0.2)*12.;
       if (INukeMode=="hN2015"){if(ke<E0){sigtot=0.0;}}  //empirical - needed to cut off large number of low energy nucleons
     }
   else if (pdgc == kPdgNeutron)
-    { 
+    {
       sigtot = fHadroData2015 -> XSecPn_Tot()   -> Evaluate(ke)*ppcnt;
       sigtot+= fHadroData2015 -> XSecNn_Tot()   -> Evaluate(ke)*(1-ppcnt);
       double E0 = TMath::Power(A,0.2)*12.;
@@ -205,7 +205,7 @@ double genie::utils::intranuke2015::MeanFreePath(
 
   // avoid defective error handling
   //if(sigtot<1E-6){sigtot=1E-6;}
-    
+
   if (xsecNNCorr and is_nucleon)
     sigtot *= INukeNucleonCorr::getInstance()->
       getAvgCorrection (rho, A, p4.E() - PDGLibrary::Instance()->Find(pdgc)->Mass());   //uses lookup tables
@@ -222,8 +222,8 @@ double genie::utils::intranuke2015::MeanFreePath(
   }
 
 /*
-  LOG("INukeUtils", pDEBUG) 
-     << "sig_total = " << sigtot << " fm^2, rho = " << rho 
+  LOG("INukeUtils", pDEBUG)
+     << "sig_total = " << sigtot << " fm^2, rho = " << rho
      << " fm^-3  => mfp = " << lamda << " fm.";
 */
   return lamda;
@@ -246,9 +246,9 @@ double genie::utils::intranuke2015::MeanFreePath_Delta(
 //
   bool is_deltapp = (pdgc==kPdgP33m1232_DeltaPP);
   if(!is_deltapp) return 0.;
-        
+
   // get the nuclear density at the current position
-  double rnow = x4.Vect().Mag(); 
+  double rnow = x4.Vect().Mag();
   double rho  = A * utils::nuclear::Density(rnow,(int) A);
 
   // the Delta+N->N+N cross section will be evaluated within the range
@@ -291,7 +291,7 @@ double genie::utils::intranuke2015::ProbSurvival(
 //  mfp_scale_factor: Tweaks the mean free path (mfp -> mfp*scale). Def: 1.0
 //  nRpi: Controls the pion ring size in terms of de-Broglie wavelengths
 //  nRnuc: Controls the nuclepn ring size in terms of de-Broglie wavelengths
-//  NR: How far away to track the hadron, in terms of the corresponding 
+//  NR: How far away to track the hadron, in terms of the corresponding
 //      nuclear radius. Def: 3
 //  R0: R0 in R=R0*A^1/3 (units:fm). Def. 1.4
 
@@ -303,11 +303,11 @@ double genie::utils::intranuke2015::ProbSurvival(
    TVector3 dr3 = p4.Vect().Unit();  // unit vector along its direction
    TLorentzVector dr4(dr3,0);
 
-   LOG("INukeUtils", pDEBUG) 
+   LOG("INukeUtils", pDEBUG)
      << "Calculating survival probability for hadron with PDG code = " << pdgc
      << " and momentum = " << p4.P() << " GeV";
-   LOG("INukeUtils", pDEBUG) 
-     << "mfp scale = " << mfp_scale_factor 
+   LOG("INukeUtils", pDEBUG)
+     << "mfp scale = " << mfp_scale_factor
      << ", nRpi = " << nRpi << ", nRnuc = " << nRnuc << ", NR = " << NR
      << ", R0 = " << R0 << " fm";
 
@@ -319,14 +319,14 @@ double genie::utils::intranuke2015::ProbSurvival(
 
      x4_curr += (step*dr4);
      rnow = x4_curr.Vect().Mag();
-     double mfp = 
+     double mfp =
        genie::utils::intranuke2015::MeanFreePath(pdgc,x4_curr,p4,A,Z,nRpi,nRnuc);
      double mfp_twk = mfp * mfp_scale_factor;
 
      double dprob = (mfp_twk>0) ? TMath::Exp(-step/mfp_twk) : 0.;
      prob*=dprob;
 /*
-     LOG("INukeUtils", pDEBUG) 
+     LOG("INukeUtils", pDEBUG)
        << "+ step size = " << step << " fm, |r| = " << rnow << " fm, "
        << "mfp = " << mfp_twk << "fm (nominal mfp = " << mfp << " fm): "
        << "dPsurv = " << dprob << ", current Psurv = " << prob;
@@ -339,21 +339,21 @@ double genie::utils::intranuke2015::ProbSurvival(
 }
 //____________________________________________________________________________
 double genie::utils::intranuke2015::Dist2Exit(
-   const TLorentzVector & x4, const TLorentzVector & p4, 
+   const TLorentzVector & x4, const TLorentzVector & p4,
    double A, double NR, double R0)
 {
-// Calculate distance within a nucleus (units: fm) before we stop tracking 
+// Calculate distance within a nucleus (units: fm) before we stop tracking
 // the hadron.
 // See previous functions for a description of inputs.
 //
    double R    = NR * R0 * TMath::Power(A, 1./3.);
    double step = 0.05; // fermi
-   
+
    TVector3 dr3 = p4.Vect().Unit();  // unit vector along its direction
    TLorentzVector dr4(dr3,0);
 
    TLorentzVector x4_curr(x4); // current position
-  
+
    double d=0;
    while(1) {
         double rnow  = x4_curr.Vect().Mag();
@@ -366,16 +366,16 @@ double genie::utils::intranuke2015::Dist2Exit(
 }
 //____________________________________________________________________________
 double genie::utils::intranuke2015::Dist2ExitMFP(
-   int pdgc, const TLorentzVector & x4, const TLorentzVector & p4, 
+   int pdgc, const TLorentzVector & x4, const TLorentzVector & p4,
    double A, double Z, double NR, double R0)
 {
-// Calculate distance within a nucleus (expressed in terms of 'mean free 
+// Calculate distance within a nucleus (expressed in terms of 'mean free
 // paths') before we stop tracking the hadron.
 // See previous functions for a description of inputs.
 //
 
 // distance before exiting in mean free path lengths
-// 
+//
    double R    = NR * R0 * TMath::Power(A, 1./3.);
    double step = 0.05; // fermi
 
@@ -422,19 +422,19 @@ void genie::utils::intranuke2015::StepParticle(
   double dt = 0;                             // temporal step:
   TLorentzVector dx4(dr,dt);                 // 4-vector step
   TLorentzVector x4new = *(p->X4()) + dx4;   // new position
-  
+
   if(nuclear_radius > 0.) {
     // Check position against nuclear boundary. If the particle was stepped
-    // too far away outside the nuclear boundary bring it back to within 
+    // too far away outside the nuclear boundary bring it back to within
     // 1fm from that boundary
-    double epsilon = 1; // fm  
+    double epsilon = 1; // fm
     double r       = x4new.Vect().Mag(); // fm
     double rmax    = nuclear_radius+epsilon;
     if(r > rmax) {
        LOG("INukeUtils", pINFO)
          << "Particle was stepped too far away (r = " << r << " fm)";
        LOG("INukeUtils", pINFO)
-         << "Placing it " << epsilon 
+         << "Placing it " << epsilon
          << " fm outside the nucleus (r' = " << rmax << " fm)";
        double scale = rmax/r;
        x4new *= scale;
@@ -455,7 +455,7 @@ void genie::utils::intranuke2015::StepParticle(
 //    and equilibrium
 //    Alex Bell -- 6/17/2008
 void genie::utils::intranuke2015::PreEquilibrium(
-  GHepRecord * ev, GHepParticle * p, int &RemnA, int &RemnZ, TLorentzVector &RemnP4, 
+  GHepRecord * ev, GHepParticle * p, int &RemnA, int &RemnZ, TLorentzVector &RemnP4,
   bool DoFermi, double FermiFac, const NuclearModelI* Nuclmodel, double NucRmvE, EINukeMode mode)
 {
 
@@ -471,7 +471,7 @@ void genie::utils::intranuke2015::PreEquilibrium(
 
   bool allow_dup = true;
   PDGCodeList list(allow_dup); // list of final state particles
- 
+
   double ppcnt = (double) RemnZ / (double) RemnA; // % of protons left
 
 
@@ -480,7 +480,7 @@ void genie::utils::intranuke2015::PreEquilibrium(
   double c   = 1 + (0.08 / pKE);
   TVector3 pP3_2 = p->P4()->Vect() * c;
   TVector3 pP3_1 = p->P4()->Vect() - pP3_2;
-  
+
   TLorentzVector clusP4_1( pP3_1, 0.080);
   TLorentzVector clusP4_2( pP3_2, pKE - 0.080 );
 
@@ -501,7 +501,7 @@ void genie::utils::intranuke2015::PreEquilibrium(
 
 
   // figure out the final state conditions
-  
+
   if(p->Pdg()==kPdgProton) list.push_back(kPdgProton);
   else if(p->Pdg()==kPdgNeutron) list.push_back(kPdgNeutron);
 
@@ -509,10 +509,10 @@ void genie::utils::intranuke2015::PreEquilibrium(
   for(int i=0;i<3;i++)
     {
       if(rnd->RndFsi().Rndm()<ppcnt)
-	{
-	  list.push_back(kPdgProton);
+        {
+          list.push_back(kPdgProton);
           RemnZ--;
-	}
+        }
       else list.push_back(kPdgNeutron);
 
       RemnA--;
@@ -523,14 +523,14 @@ void genie::utils::intranuke2015::PreEquilibrium(
   for(int i=0;i<4;i++)  // changed from 3 to 4.  Want to divide energy among 4 + 1 = 5 particles
     {
       if(rnd->RndFsi().Rndm()<ppcnt)
-	{
-	  list.push_back(kPdgProton);
+        {
+          list.push_back(kPdgProton);
           RemnZ--;
-	}
+        }
       else list.push_back(kPdgNeutron);
-      
+
       RemnA--;
-      
+
       ppcnt = (double) RemnZ / (double) RemnA;
     }
 
@@ -541,7 +541,7 @@ void genie::utils::intranuke2015::PreEquilibrium(
       TVector3 pBuf = p->P4()->Vect();
       double mBuf = p->Mass();
       double eBuf = TMath::Sqrt(pBuf.Mag2() + mBuf*mBuf);
-      TLorentzVector tSum(pBuf,eBuf); 
+      TLorentzVector tSum(pBuf,eBuf);
       double mSum = 0.0;
       vector<int>::const_iterator pdg_iter;
       for(pdg_iter=++(list.begin());pdg_iter!=list.end();++pdg_iter)
@@ -556,13 +556,13 @@ void genie::utils::intranuke2015::PreEquilibrium(
           RemnP4 -= TLorentzVector(pBuf,eBuf-mBuf);
         }
       TLorentzVector dP4 = tSum + TLorentzVector(TVector3(0,0,0),-mSum);
-      p->SetMomentum(dP4);    
+      p->SetMomentum(dP4);
       }
 
   // do the phase space decay & save all f/s particles to the event record
   //bool success = genie::utils::intranuke2015::PhaseSpaceDecay(ev,p,list,RemnP4,NucRmvE,mode);
   bool success = genie::utils::intranuke2015::PhaseSpaceDecay(ev,p1,list,RemnP4,NucRmvE,mode);
-  if(success)  LOG("INukeUtils",pINFO) << "Successful phase space decay for pre-equilibrium nucleus FSI event"; 
+  if(success)  LOG("INukeUtils",pINFO) << "Successful phase space decay for pre-equilibrium nucleus FSI event";
   else
     {
       exceptions::INukeException exception;
@@ -608,10 +608,10 @@ void genie::utils::intranuke2015::PreEquilibrium(
       loc = (*descendants)[j];
       energy = ev->Particle(loc)->E();
       if(energy<min_en)
-	{
-	  f_loc = loc;
-	  min_en = energy;
-	}
+        {
+          f_loc = loc;
+          min_en = energy;
+        }
     }
 */
 
@@ -686,10 +686,10 @@ void genie::utils::intranuke2015::Equilibrium(
   for(int i=0;i<2;i++)
     {
       if(rnd->RndFsi().Rndm()<ppcnt)
-	{
-	  list.push_back(kPdgProton);
-	  RemnZ--;
-	}
+        {
+          list.push_back(kPdgProton);
+          RemnZ--;
+        }
       else list.push_back(kPdgNeutron);
 
       RemnA--;
@@ -709,7 +709,7 @@ void genie::utils::intranuke2015::Equilibrium(
       TVector3 pBuf = p->P4()->Vect();
       double mBuf = p->Mass();
       double eBuf = TMath::Sqrt(pBuf.Mag2() + mBuf*mBuf);
-      TLorentzVector tSum(pBuf,eBuf); 
+      TLorentzVector tSum(pBuf,eBuf);
       double mSum = 0.0;
       vector<int>::const_iterator pdg_iter;
       for(pdg_iter=++(list.begin());pdg_iter!=list.end();++pdg_iter)
@@ -724,7 +724,7 @@ void genie::utils::intranuke2015::Equilibrium(
           RemnP4 -= TLorentzVector(pBuf,eBuf-mBuf);
         }
       TLorentzVector dP4 = tSum + TLorentzVector(TVector3(0,0,0),-mSum);
-      p->SetMomentum(dP4);    
+      p->SetMomentum(dP4);
     }
 
   // do the phase space decay & save all f/s particles to the record
@@ -752,8 +752,8 @@ bool genie::utils::intranuke2015::TwoBodyCollision(
   // return value used for error checking
 
   // Kinematic variables
-  
-  double M1, M2, M3, M4; // rest energies, in GeV
+
+  double M1, /* M2, */ M3, M4; // rest energies, in GeV
   double E3L, P3L, E4L, P4L;
   TVector3 tP1L, tPtot, tbeta, tbetadir, tTrans, tVect;
   TVector3 tP1zCM, tP2zCM, tP3L, tP4L;
@@ -769,7 +769,7 @@ bool genie::utils::intranuke2015::TwoBodyCollision(
 
   // get mass for particles
   M1 = pLib->Find(pcode)->Mass();
-  M2 = pLib->Find(tcode)->Mass();
+  // usused // M2 = pLib->Find(tcode)->Mass();
   M3 = pLib->Find(scode)->Mass();
   M4 = pLib->Find(s2code)->Mass();
 
@@ -801,9 +801,9 @@ bool genie::utils::intranuke2015::TwoBodyCollision(
       E4L = t4P4L.E();
 
       LOG("TwoBodyCollision",pNOTICE)
-	<< "TwoBodyKinematics fails: C3CM, P3 = " << C3CM << "  " 
-	<< P3L << "   " << E3L << "\n" << "             P4 = " 
-	<< P4L << "   " << E4L ;
+        << "TwoBodyKinematics fails: C3CM, P3 = " << C3CM << "  "
+        << P3L << "   " << E3L << "\n" << "             P4 = "
+        << P4L << "   " << E4L ;
       return false;     //covers all possiblities for now
     }
 
@@ -813,28 +813,28 @@ bool genie::utils::intranuke2015::TwoBodyCollision(
   E3L = t4P3L.E();
   E4L = t4P4L.E();
   LOG("INukeUtils",pINFO)
-    << "C3CM, P3 = " << C3CM << "  " 
-    << P3L << "   " << E3L << "\n" << "             P4 = " 
+    << "C3CM, P3 = " << C3CM << "  "
+    << P3L << "   " << E3L << "\n" << "             P4 = "
     << P4L << "   " << E4L ;
 
   // handle very low momentum particles
   if(!(TMath::Finite(P3L)) || P3L<.001)
     {
       LOG("INukeUtils",pINFO)
-	<< "Particle 3 momentum small or non-finite: " << P3L
-	<< "\n" << "--> Assigning .001 as new momentum";
+        << "Particle 3 momentum small or non-finite: " << P3L
+        << "\n" << "--> Assigning .001 as new momentum";
       P3L = .001;
       E3L = TMath::Sqrt(P3L*P3L + M3*M3);
     }
   if(!(TMath::Finite(P4L)) || P4L<.001)
     {
       LOG("INukeUtils",pINFO)
-	<< "Particle 4 momentum small or non-finite: " << P4L
-	<< "\n" << "--> Assigning .001 as new momentum";
+        << "Particle 4 momentum small or non-finite: " << P4L
+        << "\n" << "--> Assigning .001 as new momentum";
       P4L = .001;
       E4L = TMath::Sqrt(P4L*P4L + M4*M4);
     }
-    
+
   // if this is going to be on in the future, remember to not apply PB for Oset
   /*// pauli blocking  turn off for now to better match data
   //  if(P3L<fFermiMomentum && pdg::IsNeutronOrProton(scode) ||
@@ -950,14 +950,14 @@ bool genie::utils::intranuke2015::TwoBodyKinematics(
 
       E1L -= bindE;
 
-      if (E1L+E2L < M3+M4) 
-	{
-	  LOG("INukeUtils",pNOTICE) <<"TwoBodyKinematics Failed: Forbidden by binding energy";
-	  LOG("INukeUtils",pNOTICE) <<"E1L, E2L, M3, M4 : "<< E1L <<", "<< E2L <<", "<< M3 <<", "<< M4;
-	  t4P3L.SetPxPyPzE(0,0,0,0);
-	  t4P4L.SetPxPyPzE(0,0,0,0);
-	  return false;
-	  }
+      if (E1L+E2L < M3+M4)
+        {
+          LOG("INukeUtils",pNOTICE) <<"TwoBodyKinematics Failed: Forbidden by binding energy";
+          LOG("INukeUtils",pNOTICE) <<"E1L, E2L, M3, M4 : "<< E1L <<", "<< E2L <<", "<< M3 <<", "<< M4;
+          t4P3L.SetPxPyPzE(0,0,0,0);
+          t4P4L.SetPxPyPzE(0,0,0,0);
+          return false;
+          }
     }
 
   // calculate beta and gamma
@@ -1022,7 +1022,7 @@ bool genie::utils::intranuke2015::TwoBodyKinematics(
   double P4tL = -1.*P3tL;
   double P4L = TMath::Sqrt(P4zL*P4zL + P4tL*P4tL);
   double E4L = TMath::Sqrt(P4L*P4L + M4*M4);
- 
+
   LOG("INukeUtils",pINFO) <<"M3   "<< M3 <<  ", M4    "<< M4;
   LOG("INukeUtils",pINFO) <<"E3L   "<<E3L<< ", E3CM "<<E3CM;
   LOG("INukeUtils",pINFO) <<"P3zL  "<<P3zL<<", P3tL "<<P3tL;
@@ -1036,7 +1036,7 @@ bool genie::utils::intranuke2015::TwoBodyKinematics(
   double echeck = E1L + E2L - (E3L + E4L);
   double pzcheck = P1zL+ P2zL - (P3zL + P4zL);
   double ptcheck = P1tL+ P2tL - (P3tL + P4tL);
-  
+
   LOG("INukeUtils",pINFO) <<"Check 4-momentum conservation -  Energy  "<<echeck<<", z momentum "<<pzcheck << ",    transverse momentum  " << ptcheck ;
 
   // -------
@@ -1045,8 +1045,8 @@ bool genie::utils::intranuke2015::TwoBodyKinematics(
   if(!(TMath::Finite(P3L)) || P3L<.001)
     {
       LOG("INukeUtils",pINFO)
-	<< "Particle 3 momentum small or non-finite: " << P3L
-	<< "\n" << "--> Assigning .001 as new momentum";
+        << "Particle 3 momentum small or non-finite: " << P3L
+        << "\n" << "--> Assigning .001 as new momentum";
       P3tL = 0;
       P3zL = .001;
       P3L = .001;
@@ -1058,7 +1058,7 @@ bool genie::utils::intranuke2015::TwoBodyKinematics(
 
   vP3L = P3zL*tbetadir + P3tL*tTrans;
   vP3L.Rotate(PHI3,tbetadir);
-  
+
   t4P3L.SetVect(vP3L);
   t4P3L.SetE(E3L);
 
@@ -1175,7 +1175,7 @@ bool genie::utils::intranuke2015::ThreeBodyKinematics(
     LOG("INukeUtils",pNOTICE)
       << "PionProduction P3 has non-real momentum - retry kinematics";
     LOG("INukeUtils",pNOTICE) << "Energy, masses of 3 fs particales:"
-      << E3CM << "  " << M3 << "  " << "  " << M4 << "  " << M5; 
+      << E3CM << "  " << M3 << "  " << "  " << M4 << "  " << M5;
     exceptions::INukeException exception;
     exception.SetReason("PionProduction particle 3 has non-real momentum");
     throw exception;
@@ -1202,8 +1202,8 @@ bool genie::utils::intranuke2015::ThreeBodyKinematics(
   if(!(TMath::Finite(P3L)) || P3L < .001)
     {
       LOG("INukeUtils",pINFO)
-	<< "Particle 3 " << M3 << " momentum small or non-finite: " << P3L
-	<< "\n" << "--> Assigning .001 as new momentum";
+        << "Particle 3 " << M3 << " momentum small or non-finite: " << P3L
+        << "\n" << "--> Assigning .001 as new momentum";
       P3tL = 0;
       P3zL = .001;
       P3L = .001;
@@ -1244,8 +1244,8 @@ bool genie::utils::intranuke2015::ThreeBodyKinematics(
   if(!(TMath::Finite(P4L)) || P4L < .001)
     {
       LOG("INukeUtils",pINFO)
-	<< "Particle 4 " << M4 << " momentum small or non-finite: " << P4L
-	<< "\n" << "--> Assigning .001 as new momentum";
+        << "Particle 4 " << M4 << " momentum small or non-finite: " << P4L
+        << "\n" << "--> Assigning .001 as new momentum";
       P4tL = 0;
       P4zL = .001;
       P4L = .001;
@@ -1254,8 +1254,8 @@ bool genie::utils::intranuke2015::ThreeBodyKinematics(
   if(!(TMath::Finite(P5L)) || P5L < .001)
     {
       LOG("INukeUtils",pINFO)
-	<< "Particle 5 " << M5 << " momentum small or non-finite: " << P5L
-	<< "\n" << "--> Assigning .001 as new momentum";
+        << "Particle 5 " << M5 << " momentum small or non-finite: " << P5L
+        << "\n" << "--> Assigning .001 as new momentum";
       P5tL = 0;
       P5zL = .001;
       P5L = .001;
@@ -1271,7 +1271,7 @@ bool genie::utils::intranuke2015::ThreeBodyKinematics(
   if(P3L < FermiMomentum || ( pdg::IsNeutronOrProton(s2->Pdg()) && P4L < FermiMomentum ) )
   {
     LOG("INukeUtils",pNOTICE)
-      << "PionProduction fails because of Pauli blocking - retry kinematics"; 
+      << "PionProduction fails because of Pauli blocking - retry kinematics";
     exceptions::INukeException exception;
     exception.SetReason("PionProduction final state not determined");
     throw exception;
@@ -1295,7 +1295,7 @@ bool genie::utils::intranuke2015::ThreeBodyKinematics(
   s2->SetMomentum(TLorentzVector(tP4L,E4L));
   s3->SetMomentum(TLorentzVector(tP5L,E5L));
   int mode = kIMdHA;
-  LOG ("INukeUtils",pDEBUG) << "in Pi Prod, mode =  " << mode; 
+  LOG ("INukeUtils",pDEBUG) << "in Pi Prod, mode =  " << mode;
   if (mode==kIMdHN)
     {
       s1->SetStatus(kIStHadronInTheNucleus);
@@ -1307,7 +1307,7 @@ bool genie::utils::intranuke2015::ThreeBodyKinematics(
       s1->SetStatus(kIStStableFinalState);
       s2->SetStatus(kIStStableFinalState);
       s3->SetStatus(kIStStableFinalState);
-    } 
+    }
   return true;
 }
 //___________________________________________________________________________
@@ -1353,9 +1353,9 @@ bool genie::utils::intranuke2015::PionProduction(
   //
 
    if ((p1code==kPdgPi0)||(p1code==kPdgPiP)||(p1code==kPdgPiM)) {
-     
+
      double kine = 1000*p->KinE();
-  
+
      // Determine cross sections
 
      // pion
@@ -1370,7 +1370,7 @@ bool genie::utils::intranuke2015::PionProduction(
      //  a = 9.58; b = 1229.4; c = 60.5;
      double xsecpimpi0p = TMath::Max(0.,TMath::Exp(9.58 - (1229.4/(kine-60.5))));
      double totpimp = xsec2pi0n + xsecpippimn + xsecpimpi0p;
-     
+
 
      // pi+ & p
      //  -> pi+ & pi+ & n
@@ -1386,7 +1386,7 @@ bool genie::utils::intranuke2015::PionProduction(
        p->SetStatus(kIStHadronInTheNucleus);
        ev->AddParticle(*p);
        return false;
-	}
+        }
 
      double xsecp, xsecn;
      switch (p1code) {
@@ -1395,7 +1395,7 @@ bool genie::utils::intranuke2015::PionProduction(
      case kPdgPiM:  xsecp = totpimp; xsecn = totpipp; break;
      default:
        LOG("INukeUtils",pWARN) << "InelasticHN cannot handle probe: "
-			       << PDGLibrary::Instance()->Find(p1code)->GetName();
+                               << PDGLibrary::Instance()->Find(p1code)->GetName();
        exceptions::INukeException exception;
        exception.SetReason("PionProduction final state not determined");
        throw exception;
@@ -1416,75 +1416,75 @@ bool genie::utils::intranuke2015::PionProduction(
      else // neutron target
        { rand -= xsecp; rand /= RemnA-RemnZ; ptarg = false;}
 
-  
+
      // determine final state
 
      if (((ptarg==true)&&(p1code==kPdgPiP))
-	 || ((ptarg==false)&&(p1code==kPdgPiM)))
-       { 
-	 if (rand < xsec2pipn) // pi+ & pi+ & n final state
-	   {
-	     p3code = (ptarg ? kPdgNeutron : kPdgProton);
-	     p4code = p1code;
-	     p5code = p4code;
-	   }
-	 else {  // pi+ & pi0 & p final state
-	   p3code = (ptarg ? kPdgProton : kPdgNeutron);
-	   p4code = p1code;
-	   p5code = kPdgPi0;
-	 }
+         || ((ptarg==false)&&(p1code==kPdgPiM)))
+       {
+         if (rand < xsec2pipn) // pi+ & pi+ & n final state
+           {
+             p3code = (ptarg ? kPdgNeutron : kPdgProton);
+             p4code = p1code;
+             p5code = p4code;
+           }
+         else {  // pi+ & pi0 & p final state
+           p3code = (ptarg ? kPdgProton : kPdgNeutron);
+           p4code = p1code;
+           p5code = kPdgPi0;
+         }
        }
      else if (((ptarg==false)&&(p1code==kPdgPiP))
-	      || ((ptarg==true)&&(p1code==kPdgPiM)))
+              || ((ptarg==true)&&(p1code==kPdgPiM)))
        {
-	 if (rand < xsec2pi0n) // pi0 & pi0 & n final state
-	   { 
-	     p3code = (ptarg ? kPdgNeutron : kPdgProton);
-	     p4code = kPdgPi0;
-	     p5code = p4code;
-	   }
-	 else if (rand < (xsec2pi0n + xsecpippimn)) // pi+ & pi- & n final state
-	   {
-	     p3code = (ptarg ? kPdgNeutron : kPdgProton);
-	     p4code = p1code;
-	     p5code = ((p1code==kPdgPiP) ? kPdgPiM : kPdgPiP);
-	   }
-	 else // pi0 & pi- & p final state
-	   { 
-	     p3code = (ptarg ? kPdgProton : kPdgNeutron);
-	     p4code = p1code;
-	     p5code = kPdgPi0;
-	   }
+         if (rand < xsec2pi0n) // pi0 & pi0 & n final state
+           {
+             p3code = (ptarg ? kPdgNeutron : kPdgProton);
+             p4code = kPdgPi0;
+             p5code = p4code;
+           }
+         else if (rand < (xsec2pi0n + xsecpippimn)) // pi+ & pi- & n final state
+           {
+             p3code = (ptarg ? kPdgNeutron : kPdgProton);
+             p4code = p1code;
+             p5code = ((p1code==kPdgPiP) ? kPdgPiM : kPdgPiP);
+           }
+         else // pi0 & pi- & p final state
+           {
+             p3code = (ptarg ? kPdgProton : kPdgNeutron);
+             p4code = p1code;
+             p5code = kPdgPi0;
+           }
        }
      else if (p1code==kPdgPi0)
        {
-	 rand = rnd->RndFsi().Rndm();
-	 if (rand < 191./270.)
-	   {  // pi+ & pi- & p final state
-	     p3code = (ptarg ? kPdgProton : kPdgNeutron);
-	     p4code = kPdgPiP;
-	     p5code = kPdgPiM;
-	   }
-	 else if (rand < 7./135.)
-	   {  // pi0 & pi0 & p final state
-	     p3code = (ptarg ? kPdgProton : kPdgNeutron);
-	     p4code = kPdgPi0;
-	     p5code = p4code;
-	   }
-	 else
-	   {  // pi+ & pi0 & n final state
-	     p3code = (ptarg ? kPdgNeutron : kPdgProton);
-	     p4code = (ptarg ? kPdgPiP : kPdgPiM);
-	     p5code = kPdgPi0;
-	   }
+         rand = rnd->RndFsi().Rndm();
+         if (rand < 191./270.)
+           {  // pi+ & pi- & p final state
+             p3code = (ptarg ? kPdgProton : kPdgNeutron);
+             p4code = kPdgPiP;
+             p5code = kPdgPiM;
+           }
+         else if (rand < 7./135.)
+           {  // pi0 & pi0 & p final state
+             p3code = (ptarg ? kPdgProton : kPdgNeutron);
+             p4code = kPdgPi0;
+             p5code = p4code;
+           }
+         else
+           {  // pi+ & pi0 & n final state
+             p3code = (ptarg ? kPdgNeutron : kPdgProton);
+             p4code = (ptarg ? kPdgPiP : kPdgPiM);
+             p5code = kPdgPi0;
+           }
        }
      else // unhandled
        {
-	 LOG("INukeUtils",pNOTICE) << "Pi production final state unable to be determined, picode, ptarg = " <<PDGLibrary::Instance()->Find(p1code)->GetName() << "  " << PDGLibrary::Instance()->Find(ptarg)->GetName();
-	 exceptions::INukeException exception;
-	 exception.SetReason("PionProduction final state not determined");
-	 throw exception;
-	 return false;
+         LOG("INukeUtils",pNOTICE) << "Pi production final state unable to be determined, picode, ptarg = " <<PDGLibrary::Instance()->Find(p1code)->GetName() << "  " << PDGLibrary::Instance()->Find(ptarg)->GetName();
+         exceptions::INukeException exception;
+         exception.SetReason("PionProduction final state not determined");
+         throw exception;
+         return false;
        }
 
    } else if(p1code==kPdgProton||p1code==kPdgNeutron) //nucleon probes
@@ -1493,23 +1493,23 @@ bool genie::utils::intranuke2015::PionProduction(
       double tote = p->Energy();
       double pMass = pLib->Find(2212)->Mass();
       double nMass = pLib->Find(2112)->Mass();
-      double etapp2ppPi0 = 
-	utils::intranuke2015::CalculateEta(pMass,tote,pMass,pMass+pMass,pLib->Find(111)->Mass());
-      double etapp2pnPip = 
-	utils::intranuke2015::CalculateEta(pLib->Find(p1code)->Mass(),tote,((p1code==kPdgProton)?pMass:nMass),
-				       pMass+nMass,pLib->Find(211)->Mass());
-      double etapn2nnPip = 
-	utils::intranuke2015::CalculateEta(pMass,tote,nMass,nMass+nMass,pLib->Find(211)->Mass());
-      double etapn2ppPim = 
-	utils::intranuke2015::CalculateEta(pMass,tote,nMass,pMass+pMass,pLib->Find(211)->Mass());
+      double etapp2ppPi0 =
+        utils::intranuke2015::CalculateEta(pMass,tote,pMass,pMass+pMass,pLib->Find(111)->Mass());
+      double etapp2pnPip =
+        utils::intranuke2015::CalculateEta(pLib->Find(p1code)->Mass(),tote,((p1code==kPdgProton)?pMass:nMass),
+                                       pMass+nMass,pLib->Find(211)->Mass());
+      double etapn2nnPip =
+        utils::intranuke2015::CalculateEta(pMass,tote,nMass,nMass+nMass,pLib->Find(211)->Mass());
+      double etapn2ppPim =
+        utils::intranuke2015::CalculateEta(pMass,tote,nMass,pMass+pMass,pLib->Find(211)->Mass());
 
       if ((etapp2ppPi0<=0.)&&(etapp2pnPip<=0.)&&(etapn2nnPip<=0.)&&(etapn2ppPim<=0.)) { // below threshold
-	LOG("INukeUtils",pNOTICE) << "PionProduction() called below threshold energy";
-	exceptions::INukeException exception;
-	exception.SetReason("PionProduction final state not possible - below threshold");
-	throw exception;
-	return false; 
-	}
+        LOG("INukeUtils",pNOTICE) << "PionProduction() called below threshold energy";
+        exceptions::INukeException exception;
+        exception.SetReason("PionProduction final state not possible - below threshold");
+        throw exception;
+        return false;
+        }
 
       // calculate cross sections
       double xsecppPi0=0,xsecpnPiP=0,xsecnnPiP=0,xsecppPiM=0;
@@ -1545,20 +1545,20 @@ bool genie::utils::intranuke2015::PionProduction(
       xsecpnPi0 = TMath::Max(xsecpnPi0,0.);
 
       LOG("INukeUtils",pDEBUG) << '\n' << "Cross section values: "<<'\n'
-			       << xsecppPi0 << " PP pi0"  <<'\n'
-			       << xsecpnPiP << " PN pi+"  <<'\n'
-			       << xsecnnPiP << " NN pi+"  <<'\n'
-			       << xsecpnPi0 << " PN pi0";
+                               << xsecppPi0 << " PP pi0"  <<'\n'
+                               << xsecpnPiP << " PN pi+"  <<'\n'
+                               << xsecnnPiP << " NN pi+"  <<'\n'
+                               << xsecpnPi0 << " PN pi0";
 
       double xsecp=0,xsecn=0;
       switch (p1code) {
       case kPdgProton:  xsecp=xsecppPi0+xsecpnPiP; xsecn=xsecppPiM+xsecnnPiP+xsecpnPi0; break;
       case kPdgNeutron: xsecp=xsecppPiM+xsecnnPiP+xsecpnPi0; xsecn=xsecppPi0+xsecpnPiP; break;
       default:
-	LOG("INukeUtils",pWARN) << "InelasticHN cannot handle probe: "
-				 << PDGLibrary::Instance()->Find(p1code)->GetName();
-	return false;
-	break;
+        LOG("INukeUtils",pWARN) << "InelasticHN cannot handle probe: "
+                                 << PDGLibrary::Instance()->Find(p1code)->GetName();
+        return false;
+        break;
       }
 
       // Normalize cross sections by Z or (A-Z)
@@ -1570,43 +1570,43 @@ bool genie::utils::intranuke2015::PionProduction(
 
       double rand = rnd->RndFsi().Rndm() * (xsecp + xsecn);
       if (rand < xsecp) // proton target
-	{ rand /= RemnZ; ptarg = true;}
+        { rand /= RemnZ; ptarg = true;}
       else // neutron target
-	{ rand -= xsecp; rand /= RemnA-RemnZ; ptarg = false;}
+        { rand -= xsecp; rand /= RemnA-RemnZ; ptarg = false;}
 
       if(p1code==kPdgProton) // Cross sections not explicitly given are calculated from isospin relations
-	{
-	  if(ptarg)
-	    {
-	      if   (rand<xsecppPi0) {p3code=kPdgProton; p4code=kPdgProton;  p5code=kPdgPi0;}
-	      else                  {p3code=kPdgProton; p4code=kPdgNeutron; p5code=kPdgPiP;}
-	    }
-	  else
-	    {
-	      if        (rand<xsecnnPiP)           {p3code=kPdgNeutron; p4code=kPdgNeutron; p5code=kPdgPiP;}
-	      else if   (rand<xsecppPiM+xsecnnPiP) {p3code=kPdgProton;  p4code=kPdgProton;  p5code=kPdgPiM;}
-	      else                                 {p3code=kPdgProton;  p4code=kPdgNeutron; p5code=kPdgPi0;}
-	    }
-	}
+        {
+          if(ptarg)
+            {
+              if   (rand<xsecppPi0) {p3code=kPdgProton; p4code=kPdgProton;  p5code=kPdgPi0;}
+              else                  {p3code=kPdgProton; p4code=kPdgNeutron; p5code=kPdgPiP;}
+            }
+          else
+            {
+              if        (rand<xsecnnPiP)           {p3code=kPdgNeutron; p4code=kPdgNeutron; p5code=kPdgPiP;}
+              else if   (rand<xsecppPiM+xsecnnPiP) {p3code=kPdgProton;  p4code=kPdgProton;  p5code=kPdgPiM;}
+              else                                 {p3code=kPdgProton;  p4code=kPdgNeutron; p5code=kPdgPi0;}
+            }
+        }
       else if(p1code==kPdgNeutron)
-	{
-	  if(ptarg)
-	    {
-	      if        (rand<xsecnnPiP)           {p3code=kPdgNeutron; p4code=kPdgNeutron; p5code=kPdgPiP;}
-	      else if   (rand<xsecppPiM+xsecnnPiP) {p3code=kPdgProton;  p4code=kPdgProton;  p5code=kPdgPiM;}
-	      else                                 {p3code=kPdgProton;  p4code=kPdgNeutron; p5code=kPdgPi0;}
-	    }
-	  else
-	    {
-	      if   (rand<xsecpnPiP) {p3code=kPdgNeutron; p4code=kPdgProton;  p5code=kPdgPiM;}
-	      else                  {p3code=kPdgNeutron; p4code=kPdgNeutron; p5code=kPdgPi0;}
-	    }
-	}
+        {
+          if(ptarg)
+            {
+              if        (rand<xsecnnPiP)           {p3code=kPdgNeutron; p4code=kPdgNeutron; p5code=kPdgPiP;}
+              else if   (rand<xsecppPiM+xsecnnPiP) {p3code=kPdgProton;  p4code=kPdgProton;  p5code=kPdgPiM;}
+              else                                 {p3code=kPdgProton;  p4code=kPdgNeutron; p5code=kPdgPi0;}
+            }
+          else
+            {
+              if   (rand<xsecpnPiP) {p3code=kPdgNeutron; p4code=kPdgProton;  p5code=kPdgPiM;}
+              else                  {p3code=kPdgNeutron; p4code=kPdgNeutron; p5code=kPdgPi0;}
+            }
+        }
     }
-  else 
+  else
     {
       LOG("INukeUtils",pWARN)
-		<< "Unable to handle probe (=" << p1code << ") in InelasticHN()";
+                << "Unable to handle probe (=" << p1code << ") in InelasticHN()";
       return false;
     }
 
@@ -1617,9 +1617,9 @@ bool genie::utils::intranuke2015::PionProduction(
        return false;
      }
    else if ( RemnZ + ((pcode==kPdgProton || pcode==kPdgPiP)?1:0) - ((pcode==kPdgPiM)?1:0)
-	     < ((p3code==kPdgProton || p3code==kPdgPiP)?1:0) - ((p3code==kPdgPiM)?1:0)
-	     + ((p4code==kPdgProton || p4code==kPdgPiP)?1:0) - ((p4code==kPdgPiM)?1:0)
-	     + ((p5code==kPdgProton || p5code==kPdgPiP)?1:0) - ((p5code==kPdgPiM)?1:0) )
+             < ((p3code==kPdgProton || p3code==kPdgPiP)?1:0) - ((p3code==kPdgPiM)?1:0)
+             + ((p4code==kPdgProton || p4code==kPdgPiP)?1:0) - ((p4code==kPdgPiM)?1:0)
+             + ((p5code==kPdgProton || p5code==kPdgPiP)?1:0) - ((p5code==kPdgPiM)?1:0) )
      {
        LOG("INukeUtils",pNOTICE) << "PionProduction() failed : too few protons in nucleus";
        exceptions::INukeException exception;
@@ -1633,7 +1633,7 @@ bool genie::utils::intranuke2015::PionProduction(
    s3->SetPdgCode(p5code);
 
    if(genie::utils::intranuke2015::ThreeBodyKinematics(
-	ev,p,(ptarg?kPdgProton:kPdgNeutron),s1,s2,s3,DoFermi,FermiFac,FermiMomentum,Nuclmodel))
+        ev,p,(ptarg?kPdgProton:kPdgNeutron),s1,s2,s3,DoFermi,FermiFac,FermiMomentum,Nuclmodel))
      {
        // okay, handle remnants and return true
        // assumes first particle is always the nucleon,
@@ -1663,7 +1663,7 @@ bool genie::utils::intranuke2015::PionProduction(
 }
 //___________________________________________________________________________
 double genie::utils::intranuke2015::CalculateEta(double Minc, double nrg, double Mtarg,
-			       double Mtwopart, double Mpi)
+                               double Mtwopart, double Mpi)
 {
   //Aaron Meyer (1/20/2010)
 
@@ -1723,31 +1723,31 @@ bool genie::utils::intranuke2015::PhaseSpaceDecay(
 
   bool is_nuc  = pdg::IsNeutronOrProton(p->Pdg());
   bool is_kaon = p->Pdg()==kPdgKP  || p->Pdg()==kPdgKM;
-  bool is_pion = p->Pdg()==kPdgPiP || p->Pdg()==kPdgPi0 || p->Pdg()==kPdgPiM;
+  // not used // bool is_pion = p->Pdg()==kPdgPiP || p->Pdg()==kPdgPi0 || p->Pdg()==kPdgPiM;
   // update available energy -> init (mass + kinetic) + sum of f/s masses
   // for pion only.  Probe mass not available for nucleon, kaon
-  double availE = pd->Energy() + mass_sum; 
+  double availE = pd->Energy() + mass_sum;
   if(is_nuc||is_kaon) availE -= p->Mass();
   pd->SetE(availE);
 
-  LOG("INukeUtils",pNOTICE) 
-    << "size, mass_sum, availE, pd mass, energy = " << pdgv.size() << "  " 
+  LOG("INukeUtils",pNOTICE)
+    << "size, mass_sum, availE, pd mass, energy = " << pdgv.size() << "  "
     << mass_sum << "  " << availE << "  " << p->Mass() << "  " << p->Energy() ;
 
   // compute the 4p transfer to the hadronic blob
   double dE = mass_sum;
-  if(is_nuc||is_kaon) dE -= p->Mass();  
+  if(is_nuc||is_kaon) dE -= p->Mass();
   TLorentzVector premnsub(0,0,0,dE);
   RemnP4 -= premnsub;
 
   LOG("INukeUtils", pINFO)
-    << "Final state = " << state_sstream.str() << " has N = " << pdgv.size() 
+    << "Final state = " << state_sstream.str() << " has N = " << pdgv.size()
     << " particles / total mass = " << mass_sum;
   LOG("INukeUtils", pINFO)
     << "Composite system p4 = " << utils::print::P4AsString(pd);
 
   // Set the decay
-  TGenPhaseSpace GenPhaseSpace; 
+  TGenPhaseSpace GenPhaseSpace;
   bool permitted = GenPhaseSpace.SetDecay(*pd, pdgv.size(), mass);
   if(!permitted) {
      LOG("INukeUtils", pERROR)
@@ -1810,7 +1810,7 @@ bool genie::utils::intranuke2015::PhaseSpaceDecay(
 
     LOG("INukeUtils", pNOTICE) << "Decay weight = " << w << " / R = " << gw;
     accept_decay = (gw<=w);
-  } 
+  }
 
   // Insert final state products into the event record
   // - the particles are added as daughters of the decayed state
@@ -1839,15 +1839,15 @@ bool genie::utils::intranuke2015::PhaseSpaceDecay(
      //-- get the 4-momentum of the i-th final state particle
      TLorentzVector * p4fin = GenPhaseSpace.GetDecay(i++);
 
-     //-- intranuke no longer throws "bindinos" but adds all the energy 
-     //   not going at a simulated f/s particle at a "hadronic blob" 
+     //-- intranuke no longer throws "bindinos" but adds all the energy
+     //   not going at a simulated f/s particle at a "hadronic blob"
      //   representing the remnant system: do the binding energy subtraction
      //   here & update the remnant hadronic system 4p
      double M  = PDGLibrary::Instance()->Find(pdgc)->Mass();
      double En = p4fin->Energy();
-     
-     double KE = En-M;  
-     
+
+     double KE = En-M;
+
      //double KE = En;
      //if(is_pion) KE -= M;
 
@@ -1870,41 +1870,41 @@ bool genie::utils::intranuke2015::PhaseSpaceDecay(
      checkE -= KE;
 
      if (mode==kIMdHA &&
-	 (pdgc==kPdgPiP || pdgc==kPdgPi0 || pdgc==kPdgPiM) )
+         (pdgc==kPdgPiP || pdgc==kPdgPi0 || pdgc==kPdgPiM) )
        {
-	 if (p4n.Vect().Mag()>=0.001)
-	   {
-	     GHepParticle new_particle(pdgc, ist_pi, mom,-1,-1,-1, p4n, *v4);
-	     ev->AddParticle(new_particle);
-	   }
-	 else
-	   {
-	     // Momentum too small, assign a non-zero momentum to the particle
-	     // Conserve momentum with the remnant nucleus
+         if (p4n.Vect().Mag()>=0.001)
+           {
+             GHepParticle new_particle(pdgc, ist_pi, mom,-1,-1,-1, p4n, *v4);
+             ev->AddParticle(new_particle);
+           }
+         else
+           {
+             // Momentum too small, assign a non-zero momentum to the particle
+             // Conserve momentum with the remnant nucleus
 
-	     LOG("INukeUtils", pINFO)<<"Momentum too small; assigning 0.001 as new momentum";
+             LOG("INukeUtils", pINFO)<<"Momentum too small; assigning 0.001 as new momentum";
 
-	     double phi = 2*kPi*rnd->RndFsi().Rndm();
-	     double omega = 2*rnd->RndFsi().Rndm(); 
-	       // throw number against solid angle for uniform distribution
-	     
-	     double E4n = TMath::Sqrt(0.001*0.001+M*M);
-	     p4n.SetPxPyPzE(0.001,0,0,E4n);
-	     p4n.Rotate(TMath::ACos(1-omega),TVector3(0,0,1));
-	     p4n.Rotate(phi,TVector3(1,0,0));
-	     
-	     RemnP4 -= (p4n - TLorentzVector(0,0,0,M));	     
+             double phi = 2*kPi*rnd->RndFsi().Rndm();
+             double omega = 2*rnd->RndFsi().Rndm();
+               // throw number against solid angle for uniform distribution
 
-	     GHepParticle new_particle(pdgc, ist, mom,-1,-1,-1, p4n, *v4);
-	     ev->AddParticle(new_particle);
-	   }
+             double E4n = TMath::Sqrt(0.001*0.001+M*M);
+             p4n.SetPxPyPzE(0.001,0,0,E4n);
+             p4n.Rotate(TMath::ACos(1-omega),TVector3(0,0,1));
+             p4n.Rotate(phi,TVector3(1,0,0));
+
+             RemnP4 -= (p4n - TLorentzVector(0,0,0,M));
+
+             GHepParticle new_particle(pdgc, ist, mom,-1,-1,-1, p4n, *v4);
+             ev->AddParticle(new_particle);
+           }
        }
      else
        {
-	 GHepParticle new_particle(pdgc, ist, mom,-1,-1,-1, p4n, *v4);
-       
-	 if(isnuc) new_particle.SetRemovalEnergy(0.);
-	 ev->AddParticle(new_particle);
+         GHepParticle new_particle(pdgc, ist, mom,-1,-1,-1, p4n, *v4);
+
+         if(isnuc) new_particle.SetRemovalEnergy(0.);
+         ev->AddParticle(new_particle);
        }
 
      double dpx = (1-scale)*p4fin->Px();
@@ -1915,7 +1915,7 @@ bool genie::utils::intranuke2015::PhaseSpaceDecay(
   }
   //LOG("INukeUtils", pNOTICE) << "TEST: " << p->Mass();
   LOG("INukeUtils", pNOTICE) << "check conservation: Px = " << checkpx << " Py = " << checkpy
-			     << " Pz = " << checkpz << " E = " << checkE;
+                             << " Pz = " << checkpz << " E = " << checkE;
 
   // Clean-up
   delete [] mass;
@@ -1945,10 +1945,10 @@ double genie::utils::intranuke2015::sigmaTotalOset (
                                    string(gSystem->Getenv("GINUKEHADRONDATA")) :
                                               string(gSystem->Getenv("GENIE")) +
                                               string("/data/evgen/intranuke/");
-      // set file with Oset table on first call                                 
+      // set file with Oset table on first call
       static const std::string dataFile = dataDir + "tot_xsec/"
                                           "intranuke-xsection-pi+N-Oset.dat";
-      // initialize OsetCrossSection on first call                                    
+      // initialize OsetCrossSection on first call
       iNukeOset = new INukeOsetTable (dataFile.c_str());
     }
     else iNukeOset = new INukeOsetFormula();
@@ -1961,4 +1961,3 @@ double genie::utils::intranuke2015::sigmaTotalOset (
   return iNukeOset->getTotalCrossSection();
 
 }
-
