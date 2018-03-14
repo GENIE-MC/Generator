@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for the BBA2007 elastic form factors model
+
+Configurable Parameters:
+.........................................................................................
+Name        Type    Optional   Comment                      Default
+.........................................................................................
+-->
+
+ <param_set name="Default"> 
+    
+   <param type="string" name="CommonParam">  MagnMoments  </param>
+ 
+   <!-- 
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     BBA2007 elastic form factor parameters
+     A.Bodek, R.Bradford, H.Budd and S.Avvakumov, Euro.Phys.J.C53 (2008);[arXiv:0708.1946 [hep-ex]]
+   -->
+   <param type="double" name="BBA07-Gep-a1">    -0.24    </param>
+   <param type="double" name="BBA07-Gep-b1">    10.98    </param>
+   <param type="double" name="BBA07-Gep-b2">    12.82    </param>
+   <param type="double" name="BBA07-Gep-b3">    21.97    </param>
+   <param type="double" name="BBA07-Gep-p1">     1.0000  </param>
+   <param type="double" name="BBA07-Gep-p2">     0.9927  </param>
+   <param type="double" name="BBA07-Gep-p3">     0.9898  </param>
+   <param type="double" name="BBA07-Gep-p4">     0.9975  </param>
+   <param type="double" name="BBA07-Gep-p5">     0.9812  </param>
+   <param type="double" name="BBA07-Gep-p6">     0.9340  </param>
+   <param type="double" name="BBA07-Gep-p7">     1.0000  </param>
+   <param type="double" name="BBA07-Gmp-a1">     0.1717  </param>
+   <param type="double" name="BBA07-Gmp-b1">    11.26    </param>
+   <param type="double" name="BBA07-Gmp-b2">    19.32    </param>
+   <param type="double" name="BBA07-Gmp-b3">     8.33    </param>
+   <param type="double" name="BBA07-Gmp-p1">     1.0000  </param>
+   <param type="double" name="BBA07-Gmp-p2">     1.0011  </param>
+   <param type="double" name="BBA07-Gmp-p3">     0.9992  </param>
+   <param type="double" name="BBA07-Gmp-p4">     0.9974  </param>
+   <param type="double" name="BBA07-Gmp-p5">     1.0010  </param>
+   <param type="double" name="BBA07-Gmp-p6">     1.0003  </param>
+   <param type="double" name="BBA07-Gmp-p7">     1.0000  </param>
+   <!-- BBA07_25  -->
+   <param type="double" name="BBA07-Gen-p1">     1.0000  </param>
+   <param type="double" name="BBA07-Gen-p2">     1.1011  </param>
+   <param type="double" name="BBA07-Gen-p3">     1.1392  </param>
+   <param type="double" name="BBA07-Gen-p4">     1.0203  </param>
+   <param type="double" name="BBA07-Gen-p5">     1.1093  </param>
+   <param type="double" name="BBA07-Gen-p6">     1.5429  </param>
+   <param type="double" name="BBA07-Gen-p7">     0.9706  </param>
+   <param type="double" name="BBA07-Gmn-p1">     1.0000  </param>
+   <param type="double" name="BBA07-Gmn-p2">     0.9958  </param>
+   <param type="double" name="BBA07-Gmn-p3">     0.9877  </param>
+   <param type="double" name="BBA07-Gmn-p4">     1.0193  </param>
+   <param type="double" name="BBA07-Gmn-p5">     1.0350  </param>
+   <param type="double" name="BBA07-Gmn-p6">     0.9164  </param>
+   <param type="double" name="BBA07-Gmn-p7">     0.7300  </param>
+   <!-- BBA07_43  
+   <param type="double" name="BBA07-Gen-p1">     1.0000  </param>
+   <param type="double" name="BBA07-Gen-p2">     1.1019  </param>
+   <param type="double" name="BBA07-Gen-p3">     1.1387  </param>
+   <param type="double" name="BBA07-Gen-p4">     1.0234  </param>
+   <param type="double" name="BBA07-Gen-p5">     1.1046  </param>
+   <param type="double" name="BBA07-Gen-p6">     1.5395  </param>
+   <param type="double" name="BBA07-Gen-p7">     1.2708  </param>
+   <param type="double" name="BBA07-Gmn-p1">     1.0000  </param>
+   <param type="double" name="BBA07-Gmn-p2">     0.9959  </param>
+   <param type="double" name="BBA07-Gmn-p3">     0.9851  </param>
+   <param type="double" name="BBA07-Gmn-p4">     1.0187  </param>
+   <param type="double" name="BBA07-Gmn-p5">     1.0307  </param>
+   <param type="double" name="BBA07-Gmn-p6">     0.9080 </param>
+   <param type="double" name="BBA07-Gmn-p7">     0.9557  </param>
+   -->
+    
+ </param_set>
+
+</alg_conf>
+

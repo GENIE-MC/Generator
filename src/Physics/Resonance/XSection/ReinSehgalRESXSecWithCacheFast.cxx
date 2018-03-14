@@ -1,83 +1,85 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2018, The GENIE Collaboration
+ Copyright (c) 2003-2017, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab - March 09, 2006
+ Author: Igor Kakorin <kakorin@jinr.ru>
+         Joint Institute for Nuclear Research - March 01, 2017
+         based on code of Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+         University of Liverpool & STFC Rutherford Appleton Lab
 
  For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Jan 18, 2008 - CA
-   Simplify the way free nucleon channels (for which we cache cross sections)
-   are built from the input interaction
- @ Jan 19, 2008 - CA
-   Modify the way knots are distributed in the cached free nucleon resonance
-   neutrino production splines so that the energy threshold is treated more
-   accurately (see also XSecSplineList.cxx).
- @ Sep 07, 2009 - CA
-   Integrated with GNU Numerical Library (GSL) via ROOT's MathMore library.
 
 */
 //____________________________________________________________________________
 
 #include <sstream>
+#include <cassert>
 
 #include <TMath.h>
 #include <Math/IFunction.h>
 #include <Math/IntegratorMultiDim.h>
 
+#include "Framework/EventGen/XSecAlgorithmI.h"
 #include "Framework/ParticleData/BaryonResUtils.h"
 #include "Framework/Conventions/GBuild.h"
 #include "Framework/Conventions/Controls.h"
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/Units.h"
+#include "Framework/Conventions/KinePhaseSpace.h"
 #include "Framework/Conventions/KineVar.h"
+#include "Physics/XSectionIntegration/GSLXSecFunc.h"
+#include "Framework/Interaction/Interaction.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/ParticleData/PDGCodes.h"
+#include "Physics/Resonance/XSection/ReinSehgalRESXSecWithCacheFast.h"
 #include "Framework/Numerical/MathUtils.h"
 #include "Framework/Utils/KineUtils.h"
 #include "Framework/Utils/Cache.h"
 #include "Framework/Utils/CacheBranchFx.h"
 #include "Framework/Numerical/GSLUtils.h"
-#include "Physics/XSectionIntegration/GSLXSecFunc.h"
-#include "Physics/Resonance/XSection/ReinSehgalRESXSecWithCache.h"
+#include "Framework/Utils/Range1.h"
+
+
+
+
+
+
 
 using std::ostringstream;
 
 using namespace genie;
 using namespace genie::controls;
 using namespace genie::constants;
-//using namespace genie::units;
+using namespace genie::units;
 
 //____________________________________________________________________________
-ReinSehgalRESXSecWithCache::ReinSehgalRESXSecWithCache() :
+ReinSehgalRESXSecWithCacheFast::ReinSehgalRESXSecWithCacheFast() :
 XSecIntegratorI()
 {
 
 }
 //____________________________________________________________________________
-ReinSehgalRESXSecWithCache::ReinSehgalRESXSecWithCache(string nm) :
+ReinSehgalRESXSecWithCacheFast::ReinSehgalRESXSecWithCacheFast(string nm) :
 XSecIntegratorI(nm)
 {
 
 }
 //____________________________________________________________________________
-ReinSehgalRESXSecWithCache::ReinSehgalRESXSecWithCache(string nm,string conf):
+ReinSehgalRESXSecWithCacheFast::ReinSehgalRESXSecWithCacheFast(string nm,string conf):
 XSecIntegratorI(nm,conf)
 {
 
 }
 //____________________________________________________________________________
-ReinSehgalRESXSecWithCache::~ReinSehgalRESXSecWithCache()
+ReinSehgalRESXSecWithCacheFast::~ReinSehgalRESXSecWithCacheFast()
 {
 
 }
 //____________________________________________________________________________
-void ReinSehgalRESXSecWithCache::CacheResExcitationXSec(
+void ReinSehgalRESXSecWithCacheFast::CacheResExcitationXSec(
                                                  const Interaction * in) const
 {
 // Cache resonance neutrino production data from free nucleons
@@ -91,7 +93,7 @@ void ReinSehgalRESXSecWithCache::CacheResExcitationXSec(
   // && at least 40 knots in the full energy range
   const double Emin       = 0.01;
   const int    nknots_min = (int) (10*(TMath::Log(fEMax)-TMath::Log(Emin))); 
-  const int    nknots     = TMath::Max(40, nknots_min); 
+  const int    nknots     = TMath::Max(100, nknots_min);
   double * E = new double[nknots]; // knot 'x'
 
   TLorentzVector p4(0,0,0,0);
@@ -122,7 +124,7 @@ void ReinSehgalRESXSecWithCache::CacheResExcitationXSec(
          assert(!cache_branch);
 
          // Create the new cache branch
-         LOG("ReinSehgalResC", pNOTICE) 
+         LOG("ReinSehgalResCF", pNOTICE) 
                         << "\n ** Creating cache branch - key = " << key;
          cache_branch = new CacheBranchFx("RES Excitation XSec");
          cache->AddCacheBranch(key, cache_branch);
@@ -130,7 +132,7 @@ void ReinSehgalRESXSecWithCache::CacheResExcitationXSec(
 
          const KPhaseSpace & kps = interaction->PhaseSpace();
          double Ethr = kps.Threshold();
-         LOG("ReinSehgalResC", pNOTICE) << "E threshold = " << Ethr;
+         LOG("ReinSehgalResCF", pNOTICE) << "E threshold = " << Ethr;
 
          // Distribute the knots in the energy range as is being done in the
          // XSecSplineList so that the energy threshold is treated correctly
@@ -157,28 +159,24 @@ void ReinSehgalRESXSecWithCache::CacheResExcitationXSec(
              interaction->InitStatePtr()->SetProbeP4(p4);
 
              if(Ev>Ethr+kASmallNum) {
-               // Get W integration range and the wider possible Q2 range 
-               // (for all W)
-               Range1D_t rW  = kps.Limits(kKVW);
-               Range1D_t rQ2 = kps.Limits(kKVQ2);
-
-               LOG("ReinSehgalResC", pINFO) 
+             // Get integration ranges 
+				Range1D_t rW  = Range1D_t(0.0,1.0);
+				Range1D_t rQ2 = Range1D_t(0.0,1.0);
+				
+               LOG("ReinSehgalResCF", pINFO) 
 	         << "*** Integrating d^2 XSec/dWdQ^2 for R: " 
      	                 << utils::res::AsString(res) << " at Ev = " << Ev;
-               LOG("ReinSehgalResC", pINFO) 
+               LOG("ReinSehgalResCF", pINFO) 
                                 << "{W}   = " << rW.min  << ", " << rW.max;
-      	       LOG("ReinSehgalResC", pINFO) 
+      	       LOG("ReinSehgalResCF", pINFO) 
                                << "{Q^2} = " << rQ2.min << ", " << rQ2.max;
 
                if(rW.max<rW.min || rQ2.max<rQ2.min || rW.min<0 || rQ2.min<0) {
-     	          LOG("ReinSehgalResC", pINFO) 
+     	          LOG("ReinSehgalResCF", pINFO) 
                               << "** Not allowed kinematically, xsec=0";
                } else {
-
-                  ROOT::Math::IBaseFunctionMultiDim * func = 
-                      new utils::gsl::d2XSec_dWdQ2_E(fSingleResXSecModel, interaction);
-                  ROOT::Math::IntegrationMultiDim::Type ig_type = 
-                      utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
+				  ROOT::Math::IBaseFunctionMultiDim * func= new utils::gsl::d2XSecRESFast_dWQ2_E(fSingleResXSecModel, interaction);
+                  ROOT::Math::IntegrationMultiDim::Type ig_type = utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
                   ROOT::Math::IntegratorMultiDim ig(ig_type,0,fGSLRelTol,fGSLMaxEval);   
                   ig.SetFunction(*func);
                   double kine_min[2] = { rW.min, rQ2.min };
@@ -187,13 +185,13 @@ void ReinSehgalRESXSecWithCache::CacheResExcitationXSec(
                   delete func;
                }
              } else {
-                 LOG("ReinSehgalResC", pINFO) 
+                 LOG("ReinSehgalResCF", pINFO) 
  		       << "** Below threshold E = " << Ev << " <= " << Ethr;
              }
              cache_branch->AddValues(Ev,xsec);
-             SLOG("ReinSehgalResC", pNOTICE) 
+             SLOG("ReinSehgalResCF", pNOTICE) 
                << "RES XSec (R:" << utils::res::AsString(res)
-    	       << ", E="<< Ev << ") = "<< xsec/(1E-38 *genie::units::cm2) << " x 1E-38 cm^2";
+    	       << ", E="<< Ev << ") = "<< xsec/(1E-38 *cm2)<< " x 1E-38 cm^2";
          }//spline knots
 
          // Build the spline
@@ -204,7 +202,7 @@ void ReinSehgalRESXSecWithCache::CacheResExcitationXSec(
   delete interaction;
 }
 //____________________________________________________________________________
-string ReinSehgalRESXSecWithCache::CacheBranchName(
+string ReinSehgalRESXSecWithCacheFast::CacheBranchName(
      Resonance_t res, InteractionType_t it, int nupdgc, int nucleonpdgc) const
 {
 // Build a unique name for the cache branch
@@ -223,5 +221,87 @@ string ReinSehgalRESXSecWithCache::CacheBranchName(
   string key    = cache->CacheBranchKey(algkey, ikey);
 
   return key;
+}
+//____________________________________________________________________________
+// GSL wrappers
+//____________________________________________________________________________
+genie::utils::gsl::d2XSecRESFast_dWQ2_E::d2XSecRESFast_dWQ2_E(
+     const XSecAlgorithmI * m, const Interaction * i) :
+ROOT::Math::IBaseFunctionMultiDim(),
+fModel(m),
+fInteraction(i)
+{
+	kps = fInteraction->PhaseSpacePtr();
+	Range1D_t Wl  = kps->WLim();
+	fWmin = Wl.min;
+	fWmax = Wl.max;
+	Registry fConfig = (const_cast<XSecAlgorithmI *>(fModel))->GetConfig();
+	bool fUsingDisResJoin = fConfig.GetBool("UseDRJoinScheme");
+	double fWcut = 999999;
+	if(fUsingDisResJoin) 
+	{
+		fWcut = fConfig.GetDouble("Wcut");
+	}
+	fWmax=TMath::Min(fWcut, fWmax);
+	if (fWcut<fWmin)
+		isfWcutLessfWmin=true;
+	else
+		isfWcutLessfWmin=false;
+	bool fNormBW = fConfig.GetBoolDef("BreitWignerNorm", true);
+	if (fNormBW)
+	{
+		double fN2ResMaxNWidths = fConfig.GetDoubleDef("MaxNWidthForN2Res", 2.0);
+		double fN0ResMaxNWidths = fConfig.GetDoubleDef("MaxNWidthForN0Res", 6.0);
+		double fGNResMaxNWidths = fConfig.GetDoubleDef("MaxNWidthForGNRes", 4.0);
+		Resonance_t resonance = fInteraction->ExclTag().Resonance();
+		int    IR  = utils::res::ResonanceIndex    (resonance);
+		double MR  = utils::res::Mass              (resonance);
+		double WR  = utils::res::Width             (resonance);
+		if (IR==0)
+			fWcut = MR + fN0ResMaxNWidths * WR;
+		else if (IR==2)
+			fWcut = MR + fN2ResMaxNWidths * WR;
+		else
+			fWcut = MR + fGNResMaxNWidths * WR;
+		fWmax=TMath::Min(fWcut, fWmax);
+		if (fWcut<fWmin)
+			isfWcutLessfWmin=true;
+	}
+	
+}
+genie::utils::gsl::d2XSecRESFast_dWQ2_E::~d2XSecRESFast_dWQ2_E()
+{
+
+}
+unsigned int genie::utils::gsl::d2XSecRESFast_dWQ2_E::NDim(void) const
+{
+  return 2;
+}
+double genie::utils::gsl::d2XSecRESFast_dWQ2_E::DoEval(const double * xin) const
+{
+// inputs:  
+//    W
+//    Q2
+// outputs: 
+//   differential cross section [10^-38 cm^2/GeV^3] for Resonance production
+//
+  
+  if (isfWcutLessfWmin)
+	return 0;
+  double W  = fWmin+(fWmax-fWmin)*xin[0];
+  fInteraction->KinePtr()->SetW(W);
+  Range1D_t Q2l = kps->Q2Lim_W();
+  if (Q2l.min<0 || Q2l.max<0)
+	return 0.0;
+  double Q2 = Q2l.min+(Q2l.max-Q2l.min)*xin[1];
+  fInteraction->KinePtr()->SetQ2(Q2);
+  double xsec = fModel->XSec(fInteraction, kPSWQ2fE)*(fWmax-fWmin)*(Q2l.max-Q2l.min);
+  return xsec/(1E-38 * units::cm2);
+}
+ROOT::Math::IBaseFunctionMultiDim *
+   genie::utils::gsl::d2XSecRESFast_dWQ2_E::Clone() const
+{
+  return 
+    new genie::utils::gsl::d2XSecRESFast_dWQ2_E(fModel,fInteraction);
 }
 //____________________________________________________________________________

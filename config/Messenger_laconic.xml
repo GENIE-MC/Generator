@@ -40,6 +40,7 @@
   <priority msgstream="BSKLNBaseRESPXSec2014"> WARN   </priority>
   <priority msgstream="BodekYang">             WARN   </priority>
   <priority msgstream="BodekRitchie">          WARN   </priority>
+  <priority msgstream="SmithMoniz">            WARN   </priority>
   <priority msgstream="Cache">                 WARN   </priority>
   <priority msgstream="CharmHad">              WARN   </priority>
   <priority msgstream="CFracTab">              WARN   </priority>
@@ -152,6 +153,8 @@
   <priority msgstream="ReinSehgalRes">         WARN   </priority>
   <priority msgstream="ReinSehgalResT">        WARN   </priority>
   <priority msgstream="ReinSehgalResC">        WARN   </priority>
+  <priority msgstream="ReinSehgalResTF">       WARN   </priority>
+  <priority msgstream="ReinSehgalResCF">       WARN   </priority>
   <priority msgstream="ReinSehgalSpp">         WARN   </priority>
   <priority msgstream="RSHAmpl">               WARN   </priority>
   <priority msgstream="Registry">              WARN   </priority>
@@ -161,6 +164,7 @@
   <priority msgstream="RESSelector">           WARN   </priority>
   <priority msgstream="Rndm">                  WARN   </priority>
   <priority msgstream="Rosenbluth">            WARN   </priority>
+  <priority msgstream="SMQELXSec">             WARN   </priority>
   <priority msgstream="StrumiaVissani">        WARN   </priority>
   <priority msgstream="SpectralFunc1">         WARN   </priority>
   <priority msgstream="SpectralFunc">          WARN   </priority>

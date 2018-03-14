@@ -148,6 +148,24 @@ INukeHadroData::~INukeHadroData()
   delete fhN2dXSecGamPi0N_Inelas;
   delete fhN2dXSecGamPipN_Inelas;
   delete fhN2dXSecGamPimP_Inelas;
+  
+  // p/n+p/n hA x-section splines
+  delete fXSecPp_Tot;
+  delete fXSecPp_Elas;      
+  delete fXSecPp_Reac;      
+  delete fXSecPn_Tot;     
+  delete fXSecPn_Elas;      
+  delete fXSecPn_Reac;      
+  delete fXSecNn_Tot;     
+  delete fXSecNn_Elas;      
+  delete fXSecNn_Reac;      
+
+
+  // K+A x-section fraction splines
+  delete fFracKA_Tot;
+  delete fFracKA_Elas;
+  delete fFracKA_Inel;
+  delete fFracKA_Abs;
 
 }
 //____________________________________________________________________________

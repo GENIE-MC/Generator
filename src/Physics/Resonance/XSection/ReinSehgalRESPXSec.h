@@ -72,11 +72,13 @@ private:
 
   // configuration data
   bool     fWghtBW;            ///< weight with resonance breit-wigner?
+  bool     fNormBW;            ///< normalize resonance breit-wigner to 1?
   double   fZeta;              ///< FKR parameter Zeta
   double   fOmega;             ///< FKR parameter Omega
   double   fMa2;               ///< (axial mass)^2
   double   fMv2;               ///< (vector mass)^2
   double   fSin48w;            ///< sin^4(Weingberg angle)
+  double   fVud2;              ///< |Vud|^2(square of magnitude ud-element of CKM-matrix)
   bool     fUsingDisResJoin;   ///< use a DIS/RES joining scheme?
   bool     fUsingNuTauScaling; ///< use NeuGEN nutau xsec reduction factors?
   double   fWcut;              ///< apply DIS/RES joining scheme < Wcut

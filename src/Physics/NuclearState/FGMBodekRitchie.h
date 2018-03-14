@@ -66,6 +66,7 @@ private:
   double fPMax;
   double fPCutOff;
   string fKFTable;
+  bool fUseParametrization;
 };
 
 }         // genie namespace

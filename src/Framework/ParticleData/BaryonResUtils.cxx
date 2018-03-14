@@ -564,7 +564,7 @@ int genie::utils::res::ResonanceIndex(Resonance_t res)
         case kS31_1620:  return 1; break;
         case kD33_1700:  return 1; break;
         case kP11_1440:  return 2; break;
-        case kP33_1600:  return 9; break;
+        case kP33_1600:  return 2; break;
         case kP13_1720:  return 2; break;
         case kF15_1680:  return 2; break;
         case kP31_1910:  return 2; break;
@@ -572,7 +572,7 @@ int genie::utils::res::ResonanceIndex(Resonance_t res)
         case kF35_1905:  return 2; break;
         case kF37_1950:  return 2; break;
         case kP11_1710:  return 2; break;
-        case kF17_1970:  return 0; break;
+        case kF17_1970:  return 2; break;
         default:
                          // should not be here - meaningless to return anything
                          gAbortingInErr = true;

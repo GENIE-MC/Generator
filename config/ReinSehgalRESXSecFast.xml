@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for the Rein-Seghal RES excitation xsec fast algorithm.
+This algorithm offers a fast alternative to RESXSec algorithm as it precomputes and 
+caches free nucleon resonance neutrinoproduction cross sections. Also it transforms integration area,
+that allows to integrate faster.
+
+Algorithm Configurable Parameters:
+...........................................................................................................
+Name                        Type    Opt  Comment                                               Default
+...........................................................................................................
+ResonanceNameList           string  No   list of resonances to be taken into account           CommonParam[Resonances]
+gsl-integration-type        string  Yes  name of GSL numerical integrator                      adaptive
+										 (adaptive, vegas, miser, plain)                   
+gsl-max-eval                int     Yes  GSL number of function calls                          1000000000
+gsl-relative-tolerance      double  Yes  relative tolerance of integration                     1e-9
+ESplineMax                  double  Yes  Emax in RES splines, xsec(E>Emax)=xsec(E=Emax)		   500
+
+-->
+
+
+  <param_set name="Default"> 
+    <param type="string" name ="CommonParam">           Resonances  </param>
+    <param type="double" name ="ESplineMax">                   500  </param>     
+    <param type="string" name ="gsl-integration-type">     adaptive </param>
+    <param type="int"    name ="gsl-max-eval">           1000000000 </param>
+    <param type="double" name ="gsl-relative-tolerance">      1e-9  </param>
+  </param_set>
+
+
+
+</alg_conf>
+
+

@@ -8,13 +8,20 @@ Configuration for the QELXSec xsec algorithm.
 Configurable Parameters:
 .....................................................................................................
 Name                         Type     Optional   Comment                                      Default
+gsl-integration-type         string   Yes        name of GSL 1D numerical integrator          adaptive
+gsl-max-size-of-subintervals int      Yes        GSL maximum number of sub-intervals          40000
+                                                 for 1D integrator
+gsl-relative-tolerance       double   Yes        GSL max evaluations for 1D integrator        0.001
+gsl-rule                     int      Yes        GSL Gauss-Kronrod integration rule           3
+                                                 (only for GSL 1D adaptive type)      
 .....................................................................................................
 -->
 
   <param_set name="Default"> 
-    <param type="string" name = "gsl-integration-type">        adaptive  </param>
-    <param type="int"    name = "gsl-max-eval">                   40000  </param>
-    <param type="double" name = "gsl-relative-tolerance">         0.001  </param>
+    <param type="string" name = "gsl-integration-type">          adaptive  </param>
+    <param type="int"    name = "gsl-max-size-of-subintervals">     40000  </param>
+    <param type="double" name = "gsl-relative-tolerance">           0.001  </param>
+    <param type="int"    name = "gsl-rule">                             3  </param>
   </param_set>
 
 </alg_conf>

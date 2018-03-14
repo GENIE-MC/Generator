@@ -127,7 +127,7 @@ double KineGeneratorWithCache::FindMaxXSec(
   // if there are enough points stored in the cache buffer to build a
   // spline, then intepolate
   if( cb->Spl() ) {
-     if( E > cb->Spl()->XMin()+0.2 && E < cb->Spl()->XMax()-0.2) {
+     if( E >= cb->Spl()->XMin() && E <= cb->Spl()->XMax()) {
        double spl_max_xsec = cb->Spl()->Evaluate(E);
        LOG("Kinematics", pINFO)
           << "\nInterpolated: max xsec (E=" << E << ") = " << spl_max_xsec;
@@ -205,7 +205,7 @@ void KineGeneratorWithCache::CacheMaxXSec(
   }
 
   if( cb->Spl() ) {
-     if( E < cb->Spl()->XMin() && E < cb->Spl()->XMax() ) {
+     if( E < cb->Spl()->XMin() || E > cb->Spl()->XMax() ) {
         cb->CreateSpline();
      }
   }

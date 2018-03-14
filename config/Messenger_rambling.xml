@@ -41,6 +41,7 @@
   <priority msgstream="Bardin">                INFO   </priority>
   <priority msgstream="BodekYang">             INFO   </priority>
   <priority msgstream="BodekRitchie">          WARN   </priority>
+  <priority msgstream="SmithMoniz">            WARN   </priority>
   <priority msgstream="Cache">                 WARN   </priority>
   <priority msgstream="CharmHad">              NOTICE </priority>
   <priority msgstream="CFracTab">              INFO   </priority>
@@ -151,6 +152,8 @@
   <priority msgstream="ReinSehgalRes">         WARN   </priority>
   <priority msgstream="ReinSehgalResT">        NOTICE </priority>
   <priority msgstream="ReinSehgalResC">        NOTICE </priority>
+  <priority msgstream="ReinSehgalResTF">       NOTICE </priority>
+  <priority msgstream="ReinSehgalResCF">       NOTICE </priority>
   <priority msgstream="ReinSehgalSpp">         NOTICE </priority>
   <priority msgstream="RSHAmpl">               WARN   </priority>
   <priority msgstream="Registry">              WARN   </priority>
@@ -160,6 +163,7 @@
   <priority msgstream="RESSelector">           NOTICE </priority>
   <priority msgstream="Rndm">                  NOTICE </priority>
   <priority msgstream="Rosenbluth">            NOTICE </priority>
+  <priority msgstream="SMQELXSec">             NOTICE </priority>
   <priority msgstream="StrumiaVissani">        NOTICE </priority>
   <priority msgstream="SpectralFunc1">         NOTICE </priority>
   <priority msgstream="SpectralFunc">          NOTICE </priority>

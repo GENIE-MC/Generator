@@ -3,24 +3,23 @@
 <alg_conf>
 
 <!--
-Configuration for the Bodek-Ritche RFG model
+Configuration for the SmithMonizUtils
 
 Configurable Parameters:
-.............................................................................................................
-Name                    Type     Optional   Comment                                        Default
-.............................................................................................................
-MomentumMax             double   Yes        max p in prob distribution                     4 GeV
-RFG-MomentumCutOff      double   No         momentum cut off value                         CommonParam[FermiGas]
+.....................................................................................................
+Name                    Type  Optional      Comment                                        Default
 RFG-NucRemovalE@Pdg=?   double   No         nuclear removal energy for specfic nuclei      CommonParam[FermiGas]
 FermiMomentumTable      string   No         Table of Fermi momentum (kF) constants         CommonParam[FermiGas]
 RFG-UseParametrization  bool     No         use parametrization for Fermi momentum and     CommonParam[FermiGas]
                                             binging energy
+.....................................................................................................
 -->
 
   <param_set name="Default"> 
     <param type="string" name="CommonParam"> FermiGas  </param>
 
   </param_set>
+  
 
 </alg_conf>
 

@@ -132,10 +132,18 @@ XmlParserStatus_t FermiMomentumTablePool::ParseXMLTables(string filename)
   if(xml_doc == NULL) return kXmlNotParsed;
 
   xmlNodePtr xml_root = xmlDocGetRootElement(xml_doc);
-  if(xml_root==NULL) return kXmlEmpty;
+  if(xml_root==NULL)
+  {
+	  xmlFreeDoc(xml_doc);
+	  return kXmlEmpty;
+  } 
 
   const xmlChar * xml_root_name = (const xmlChar *)"fermi_momentum_const";
-  if( xmlStrcmp(xml_root->name, xml_root_name) ) return kXmlInvalidRoot;
+  if( xmlStrcmp(xml_root->name, xml_root_name) )
+  {
+	  xmlFreeDoc(xml_doc);
+	  return kXmlInvalidRoot;
+  } 
 
   xmlNodePtr xml_kft = xml_root->xmlChildrenNode; // <kf_table>'s
 
@@ -176,7 +184,7 @@ XmlParserStatus_t FermiMomentumTablePool::ParseXMLTables(string filename)
              if(isn) kfn = kf;
              xml_cur = xml_cur->next;
            }
-           xmlFree(xml_cur);
+           xmlFreeNode(xml_cur);
 
            KF_t kft;
            kft.p = kfp;
@@ -189,7 +197,7 @@ XmlParserStatus_t FermiMomentumTablePool::ParseXMLTables(string filename)
          } //<x> == <kf>
          xml_kf = xml_kf->next;
       } //<kf> loop
-      xmlFree(xml_kf);
+      xmlFreeNode(xml_kf);
 
       fKFSets.insert(
                 map<string, FermiMomentumTable *>::value_type(name,kftable));
@@ -197,9 +205,8 @@ XmlParserStatus_t FermiMomentumTablePool::ParseXMLTables(string filename)
     } //<x> == <kf_table>
     xml_kft = xml_kft->next;
   } //<kf_table> loop
-  xmlFree(xml_kft);
-  xmlFree(xml_root);
-  xmlFree(xml_doc);
+  xmlFreeNode(xml_kft);
+  xmlFreeDoc(xml_doc);
 
   return kXmlOK;
 }

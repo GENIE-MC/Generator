@@ -11,15 +11,12 @@ Algorithm Configurable Parameters:
 ..........................................................................................................................
 Name                        Type    Opt  Comment                                               Default
 ..........................................................................................................................
-Integrator                  alg     No   algorithm used for integrating res excitation xsec 
-ResonanceNameList           string  Yes  list of resonances to be taken into account           GPL: ResonanceNameList
-UseDRJoinScheme             bool    Yes  Use DIS/RES joining scheme?                           GPL: UseDRJoinScheme
-Wcut                        double  Yes  Param used in DIS/RES joining                         GPL: Wcut
-Kine-Wmin                   double  Yes  W  kinematic cut (min of allowed region)              using physical range
-Kine-Wmax                   double  Yes  W  kinematic cut (max of allowed region)              using physical range
-Kine-Q2min                  double  Yes  Q2 kinematic cut (min of allowed region)              using physical range
-Kine-Q2max                  double  Yes  Q2 kinematic cut (max of allowed region)              using physical range
-ESplineMax                  double  No   Emax in RES splines, xsec(E>Emax)=xsec(E=Emax)
+ResonanceNameList           string  No   list of resonances to be taken into account           CommonParam[Resonances]
+gsl-integration-type        string  Yes  name of GSL numerical integrator                      adaptive
+										 (adaptive, vegas, miser, plain)                   
+gsl-max-eval                int     Yes  GSL number of function calls                          100000
+gsl-relative-tolerance      double  Yes  relative tolerance of integration                     0.01
+ESplineMax                  double  Yes  Emax in RES splines, xsec(E>Emax)=xsec(E=Emax)        100
 -->
 
 <!--
@@ -27,15 +24,15 @@ ESplineMax                  double  No   Emax in RES splines, xsec(E>Emax)=xsec(
 -->
   <param_set name="Default"> 
     
-    <param type="string" name="CommonParam"> NonResBackground,Resonances </param>
-
-    <param type="double" name ="ESplineMax">                   100  </param>     
+    <param type="string" name ="CommonParam">           Resonances  </param>
     <param type="string" name ="gsl-integration-type">       vegas  </param>
-    <param type="int"    name ="gsl-max-eval" >            5000000  </param>
-    <param type="int"    name ="gsl-min-eval" >             500000  </param>
+    <param type="int"    name ="gsl-max-eval" >             500000  </param>
     <param type="double" name ="gsl-relative-tolerance">    0.0001  </param>
+    <param type="double" name ="ESplineMax">                   100  </param>
+    
   </param_set>
 
  </alg_conf>
+ 
 
 

@@ -5,6 +5,7 @@
 #pragma link off all functions;
 
 #pragma link C++ namespace genie;
+#pragma link C++ namespace genie::utils::gsl;
 
 #pragma link C++ class genie::BSKLNBaseRESPXSec2014;
 #pragma link C++ class genie::BergerSehgalRESPXSec2014;
@@ -15,6 +16,9 @@
 #pragma link C++ class genie::ReinSehgalSPPPXSec;
 #pragma link C++ class genie::ReinSehgalSPPXSec;
 #pragma link C++ class genie::ReinSehgalRESXSecWithCache;
+#pragma link C++ class genie::ReinSehgalRESXSecFast;
+#pragma link C++ class genie::ReinSehgalRESXSecWithCacheFast;
+#pragma link C++ class genie::utils::gsl::d2XSecRESFast_dWQ2_E;
 
 #pragma link C++ class genie::RSHelicityAmpl;
 #pragma link C++ class genie::RSHelicityAmplModelI;

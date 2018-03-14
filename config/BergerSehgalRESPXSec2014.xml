@@ -7,32 +7,34 @@ Configuration for the Berger-Rein-Sehgal RES excitation d^xsec / dQ^2 dW xsec al
 
 Configurable Parameters:
 ......................................................................................................................................
-Name                        Type    Optional   Comment                                                    Default
+Name                        Type Optional Comment                                                         Default
 ......................................................................................................................................
-RES-CC-XSecScale            double  Yes        XSec rescaling factor                                      GPL
-RES-NC-XSecScale            double  Yes        Xsec rescaling factor                                      GPL
-RES-Zeta                    double  Yes        FKR's Z parameter                                               GPL: RES-Zeta
-RES-Omega                   double  Yes        FKR's Omega parameter                                           GPL: RES-Omega
-RES-Ma                      double  Yes        RES axial mass                                                  GPL: RES-Max
-RES-Mv                      double  Yes        RES vector mass                                                 GPL: RES-Mv
-WeinbergAngle               double  Yes        Weinberg Angle                                             GPL 
-
+RES-CC-XSecScale            double  No    XSec rescaling factor                                           
+RES-NC-XSecScale            double  No    Xsec rescaling factor                                           
+RES-Zeta                    double  No    FKR's Z parameter                                               
+RES-Omega                   double  No    FKR's Omega parameter
+minibooneGA                 bool    No   tuning to axial form factors by MiniBoone (J. Nowak)            
+minibooneGV                 bool    No   tuning to vector form factors by MiniBoone (J. Nowak)                                                     
+RES-Ma                      double  No    RES axial mass                                                 
+RES-Mv                      double  No    RES vector mass                                                
+WeinbergAngle               double  No    Weinberg Angle                                                  CommonParam[WeakInt]
+CKM-Vud                     double  No    Magnitude of ud-element of CKM-matrix                           CommonParam[CKM]
 BreitWeignerWeight          bool    Yes   Weight xsec with breit-wigner?                                  true
-UseNuTauScalingFactors      bool    Yes   Load/Use NEUGEN reduction factor splines for nutaus             true
-UseDRJoinScheme             bool    Yes   Use DIS/RES joining scheme?                                     GPL: UseDRJoinScheme
-Wcut                        double  Yes   Param used in DIS/RES joining                                   GPL: Wcut
+BreitWignerNorm             bool    Yes   Normalize breit-wigner?                                         true
+UseDRJoinScheme             bool    No    Use DIS/RES joining scheme?                                     CommonParam[NonResBackground]
+Wcut                        double  No    Param used in DIS/RES joining                                   CommonParam[NonResBackground]
 MaxNWidthForN2Res           double  Yes   x in limiting allowed W phase space for n=2 res according to    2.0
                                           W < min{ Wmin(physical), MassRes + x * WidthRes }
 MaxNWidthForN0Res           double  Yes   As above for n=0 resonances                                     6.0
 MaxNWidthForGNres           double  Yes   As above for the remaining resonances                           4.0
-XSec-Integrator             alg
+XSec-Integrator             alg     No                    
 -->
 
   <param_set name="Default"> 
      
-    <param type="string"  name="CommonParam"> WeakInt,NonResBackground </param>
+    <param type="string"  name="CommonParam"> WeakInt,NonResBackground,CKM </param>
 
-    <param type="alg"  name="XSec-Integrator">  genie::ReinSehgalRESXSec/Default    </param>
+    <param type="alg"  name="XSec-Integrator">  genie::ReinSehgalRESXSecFast/Default    </param>
 
      <!--
 	 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for the SmithMonizQELCCXSec xsec algorithm.
+
+Configurable Parameters:
+.....................................................................................................
+Name                         Type     Optional   Comment                                      Default
+gsl-integration-type         string   Yes        name of GSL 1D numerical integrator          gauss
+gsl-max-size-of-subintervals int      Yes        GSL maximum number of sub-intervals          40000
+                                                 for 1D integrator
+gsl-relative-tolerance       double   Yes        GSL max evaluations for 1D integrator        1e-3
+gsl-rule                     int      Yes        GSL Gauss-Kronrod integration rule           3
+                                                (only for GSL 1D adaptive type)      
+gsl-integration-type-2D      string   Yes        name of GSL 2D numerical integrator          adaptive
+gsl-max-eval                 int      Yes        required relative tolerance (error)          1000000000
+                                                 for 2D integrator
+gsl-relative-tolerance-2D    double   Yes        GSL max evaluations for 2D integrator        1e-7
+.....................................................................................................
+-->
+
+  <param_set name="Default"> 
+    <param type="string" name = "gsl-integration-type">              gauss  </param>
+    <param type="int"    name = "gsl-max-size-of-subintervals">      40000  </param>
+    <param type="double" name = "gsl-relative-tolerance">             1e-3  </param>
+    <param type="int"    name = "gsl-rule">                              3  </param>
+    <param type="string" name = "gsl-integration-type-2D">        adaptive  </param>
+    <param type="int"    name = "gsl-max-eval">                 1000000000  </param>
+    <param type="double" name = "gsl-relative-tolerance-2D">          1e-7  </param>
+  </param_set>
+  
+
+</alg_conf>
+

@@ -19,6 +19,7 @@
    <config alg="genie::InitialStateAppender">        InitialStateAppender.xml        </config>
    <config alg="genie::VertexGenerator">             VertexGenerator.xml             </config>
    <config alg="genie::QELEventGenerator">           QELEventGenerator.xml           </config>
+   <config alg="genie::QELEventGeneratorSM">         QELEventGeneratorSM.xml         </config>
    <config alg="genie::QELPrimaryLeptonGenerator">   QELPrimaryLeptonGenerator.xml   </config>
    <config alg="genie::DISPrimaryLeptonGenerator">   DISPrimaryLeptonGenerator.xml   </config>
    <config alg="genie::RESPrimaryLeptonGenerator">   RESPrimaryLeptonGenerator.xml   </config>
@@ -95,6 +96,7 @@
    <config alg="genie::DipoleELFormFactorsModel">                DipoleELFormFactorsModel.xml                </config>
    <config alg="genie::BBA03ELFormFactorsModel">                 BBA03ELFormFactorsModel.xml                 </config>
    <config alg="genie::BBA05ELFormFactorsModel">                 BBA05ELFormFactorsModel.xml                 </config>
+   <config alg="genie::BBA07ELFormFactorsModel">                 BBA07ELFormFactorsModel.xml                 </config>
    <config alg="genie::DipoleAxialFormFactorModel">              DipoleAxialFormFactorModel.xml              </config>
    <config alg="genie::ZExpAxialFormFactorModel">                ZExpAxialFormFactorModel.xml                </config>
    <config alg="genie::KuzminNaumov2016AxialFormFactorModel">    KuzminNaumov2016AxialFormFactorModel.xml    </config>
@@ -112,6 +114,7 @@
 
    <!--  ****** CONFIGURATION GENERIC CROSS SECTION INTEGRATORS ****** -->
    <config alg="genie::QELXSec">                     QELXSec.xml                     </config>
+   <config alg="genie::SmithMonizQELCCXSec">         SmithMonizQELCCXSec.xml         </config>
    <config alg="genie::DISXSec">                     DISXSec.xml                     </config>
    <config alg="genie::COHXSec">                     COHXSec.xml                     </config>
    <config alg="genie::COHXSecAR">                   COHXSecAR.xml                   </config>
@@ -129,6 +132,7 @@
    <config alg="genie::BergerSehgalFMCOHPiPXSec2015">       BergerSehgalFMCOHPiPXSec2015.xml       </config> 
    <config alg="genie::LwlynSmithQELCCPXSec">               LwlynSmithQELCCPXSec.xml               </config>
    <config alg="genie::NievesQELCCPXSec">                   NievesQELCCPXSec.xml                   </config>
+   <config alg="genie::SmithMonizQELCCPXSec">               SmithMonizQELCCPXSec.xml               </config>
    <config alg="genie::QPMDISPXSec">                        QPMDISPXSec.xml                        </config>
    <config alg="genie::AivazisCharmPXSecLO">                AivazisCharmPXSecLO.xml                </config>
    <config alg="genie::SlowRsclCharmDISPXSecLO">            SlowRsclCharmDISPXSecLO.xml            </config>
@@ -156,6 +160,7 @@
    <config alg="genie::StrumiaVissaniIBDPXSec">             StrumiaVissaniIBDPXSec.xml             </config>
    <config alg="genie::DummyPXSec">                         Default.xml                            </config>
    <config alg="genie::NNBarOscDummyPXSec">                 Default.xml                            </config>
+   <config alg="genie::ReinSehgalRESXSecFast">              ReinSehgalRESXSecFast.xml              </config>
 
    <!--  ****** CONFIGURATION FOR NUCLEAR ENV. ALGORITHMS ****** -->
    <config alg="genie::NuclearModelMap">             NuclearModelMap.xml             </config>
@@ -164,6 +169,7 @@
    <config alg="genie::EffectiveSF">                 EffectiveSF.xml                 </config>
    <config alg="genie::SpectralFunc1d">              SpectralFunc1d.xml              </config>
    <config alg="genie::SpectralFunc">                SpectralFunc.xml                </config>
+   <config alg="genie::SmithMonizUtils">             SmithMonizUtils.xml             </config>
 
    <!-- ****** CONFIGURATION FOR MODELS IN MUELOSS UTILITY PACKAGE ****** -->
    <config alg="genie::mueloss::BetheBlochModel">         BetheBlochModel.xml        </config>

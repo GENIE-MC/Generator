@@ -209,9 +209,9 @@ if($gopt_enable_doxygen_doc eq "YES") {
     $gopt_with_doxygen_path = $1;
   }
   # if it was not set, try to pick it up from the environment
-  if(! -f $gopt_with_doxygen_path && defined $ENV{'DOXYGENPATH'}) { $gopt_with_doxygen_path = $ENV{'DOXYGENPATH'}; }
+  if(! -d $gopt_with_doxygen_path && defined $ENV{'DOXYGENPATH'}) { $gopt_with_doxygen_path = $ENV{'DOXYGENPATH'}; }
   # complain
-  if(! -f $gopt_with_doxygen_path) {
+  if(! -d $gopt_with_doxygen_path) {
      print "*** Error *** You need to specify the path to doxygen using --with-doxygen-path=/some/path/\n";
      print "*** Error *** Otherwise, you should --disable-doxygen-doc\n\n";
      exit 1;

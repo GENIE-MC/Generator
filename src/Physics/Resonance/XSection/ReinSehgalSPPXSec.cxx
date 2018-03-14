@@ -171,15 +171,12 @@ void ReinSehgalSPPXSec::LoadConfig(void)
 {
   // Get GSL integration type & relative tolerance
   GetParamDef( "gsl-integration-type", fGSLIntgType, string("adaptive") ) ;
-  GetParamDef( "gsl-relative-tolerance",fGSLRelTol, 0.01 ) ;
-  GetParamDef( "gsl-ncalls", fGSLNCalls, 100000 ) ;
-  GetParamDef( "gsl-threshold", fGSLThreshold, 50. ) ;
-  GetParamDef( "gsl-ncalls-factor", fGSLNCallsFactor, 1. ) ;
-
+  GetParamDef( "gsl-relative-tolerance", fGSLRelTol, 0.01 ) ;
+  GetParamDef( "gsl-max-eval", fGSLMaxEval, 100000 ) ;
   
   // get upper E limit on res xsec spline (=f(E)) before assuming xsec=const
   GetParamDef( "ESplineMax", fEMax, 100. ) ;
-  fEMax = TMath::Max(fEMax,20.); // don't accept user Emax if less than 20 GeV
+  fEMax = TMath::Max(fEMax, 20.); // don't accept user Emax if less than 20 GeV
 
   // create the baryon resonance list specified in the config.
   fResList.Clear();
@@ -187,11 +184,5 @@ void ReinSehgalSPPXSec::LoadConfig(void)
   GetParam( "ResonanceNameList", resonances ) ;
   fResList.DecodeFromNameList(resonances);
 
-  //-- Use algorithm within a DIS/RES join scheme. If yes get Wcut
-  GetParam( "UseDRJoinScheme", fUsingDisResJoin ) ;
-  fWcut = 999999;
-  if(fUsingDisResJoin) {
-    GetParam("Wcut", fWcut );
-  }
 }
 //____________________________________________________________________________

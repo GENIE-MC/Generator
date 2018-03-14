@@ -7,17 +7,22 @@
           Concrete implementation of the ELFormFactorsModelI interface.
 
 \ref      A.Bodek, R.Bradford, H.Budd and S.Avvakumov, 
-          Euro.Phys.J.C53 (2008)
+          Euro.Phys.J.C53 (2008);[arXiv:0708.1946 [hep-ex]]
 
-	  Adapted by code provided by authors at:
-          http://www.pas.rochester.edu/~bodek/FF/
-
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+\author   Igor Kakorin <kakorin@jinr.ru>, Joint Institute for Nuclear Research \n
+          adapted from  fortran code provided by 
+          Konstantin Kuzmin <kkuzmin@theor.jinr.ru>, \n
+          Joint Institute for Nuclear Research,  Institute for Theoretical and Experimental Physics \n
+          Vladimir Lyubushkin, \n
+          Joint Institute for Nuclear Research \n
+          Vadim Naumov <vnaumov@theor.jinr.ru>, \n
+          Joint Institute for Nuclear Research  \n
+          based on code of Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk> \n
           University of Liverpool & STFC Rutherford Appleton Lab
 
-\created  May 31, 2008
+\created  Dec 01, 2017
 
-\cpright  Copyright (c) 2003-2018, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2017, GENIE Neutrino MC Generator Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
@@ -29,6 +34,12 @@
 #include "Physics/QuasiElastic/XSection/ELFormFactorsModelI.h"
 
 namespace genie {
+
+typedef struct SBBA2007Fit
+{
+  double a1, b1, b2, b3, p1, p2, p3, p4, p5, p6, p7;
+}
+BBA2007Fit_t;
 
 class BBA07ELFormFactorsModel : public ELFormFactorsModelI {
 
@@ -43,7 +54,7 @@ public:
   double Gen (const Interaction * interaction) const;
   double Gmn (const Interaction * interaction) const;
 
-  // overload Algorithm's Configure() to load the BBA2007 parameters
+  // overload Algorithm's Configure() to load the BBA2007Fit_t
   // structs from the configuration Registry
   void   Configure  (const Registry & config);
   void   Configure  (string param_set);
@@ -53,29 +64,20 @@ private:
   // fill data members from the configuration Registry
   void LoadConfig(void);
 
-  // various parametrizations
-  double Lagrange      (const Interaction * interaction, double* par) const;
-  double Kelly         (const Interaction * interaction, double* par) const;
-  double GalsterFactor (const Interaction * interaction, double* par) const;
-
-  // various kinematical params 
-  double Tau (const Interaction * interaction) const;
-  double Xi  (const Interaction * interaction) const;
+  
+  double AN (double x,double c1, double c2, double c3,double c4,double c5, double c6, double c7) const;
+  
+  
 
   // model parameters.
-  double fMuP;   ///< Anomalous proton  magnetic moment
-  double fMuN;   ///< Anomalous neutron magnetic moment
-
-  static double fsParGalsterFactor  [3]; ///<
-  static double fsParGepKelly       [5]; ///<
-  static double fsParGmpKelly       [5]; ///<
-  static double fsParGepLagrange    [8]; ///<
-  static double fsParGmpLagrange    [8]; ///<
-  static double fsParGmnLagrange_25 [8]; ///<
-  static double fsParGmnLagrange_43 [8]; ///<
-  static double fsParGenLagrange_25 [8]; ///<
-  static double fsParGenLagrange_43 [8]; ///<
+  BBA2007Fit_t fGep;   ///< BBA2007 fit coefficients for Gep
+  BBA2007Fit_t fGen;   ///< BBA2007 fit coefficients for Gen
+  BBA2007Fit_t fGmp;   ///< BBA2007 fit coefficients for Gmp
+  BBA2007Fit_t fGmn;   ///< BBA2007 fit coefficients for Gmn
+  double       fMuP;   ///< Anomalous proton magnetic moment
+  double       fMuN;   ///< Anomalous neutron magnetic moment
 };
 
 }         // genie namespace
+
 #endif    // _BBA2007_EL_FORM_FACTORS_MODEL_H_

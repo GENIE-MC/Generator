@@ -127,14 +127,17 @@ double ReinSehgalRESPXSec::XSec(
   int    LR  = utils::res::OrbitalAngularMom (resonance);
   double MR  = utils::res::Mass              (resonance);
   double WR  = utils::res::Width             (resonance);
-  double NR  = utils::res::BWNorm            (resonance);
+ double NR  = fNormBW?utils::res::BWNorm    (resonance,fN0ResMaxNWidths,fN2ResMaxNWidths,fGnResMaxNWidths):1;
 
   // Following NeuGEN, avoid problems with underlying unphysical
   // model assumptions by restricting the allowed W phase space
   // around the resonance peak
-  if      (W > MR + fN0ResMaxNWidths * WR && IR==0) return 0.;
-  else if (W > MR + fN2ResMaxNWidths * WR && IR==2) return 0.;
-  else if (W > MR + fGnResMaxNWidths * WR)          return 0.;
+  if (fNormBW) {
+	if      (W > MR + fN0ResMaxNWidths * WR && IR==0) return 0.;
+	else if (W > MR + fN2ResMaxNWidths * WR && IR==2) return 0.;
+	else if (W > MR + fGnResMaxNWidths * WR)          return 0.;
+  }
+
 
   // Compute auxiliary & kinematical factors 
   double E      = init_state.ProbeE(kRfHitNucRest);
@@ -219,6 +222,7 @@ double ReinSehgalRESPXSec::XSec(
 #endif
 
   double g2 = kGF2;
+  if(is_CC) g2 = kGF2*fVud2;
   // For EM interaction replace  G_{Fermi} with :
   // a_{em} * pi / ( sqrt(2) * sin^2(theta_weinberg) * Mass_{W}^2 }
   // See C.Quigg, Gauge Theories of the Strong, Weak and E/M Interactions,
@@ -390,12 +394,15 @@ void ReinSehgalRESPXSec::LoadConfig(void)
   fMv2 = TMath::Power(mv,2);
 
   GetParamDef( "BreitWignerWeight", fWghtBW, true ) ;
-
+  GetParamDef( "BreitWignerNorm",   fNormBW, true);
 
   double thw ;
   GetParam( "WeinbergAngle", thw ) ;
   fSin48w = TMath::Power( TMath::Sin(thw), 4 );
-
+  double Vud; 
+  GetParam("CKM-Vud", Vud );
+  fVud2 = TMath::Power( Vud, 2 );
+  
   // Load all the sub-algorithms needed
 
   fHAmplModelCC     = 0;

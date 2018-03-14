@@ -115,6 +115,7 @@ void PointGeomAnalyzer::Initialize(const map<int,double> & tgtmap)
 //___________________________________________________________________________
 void PointGeomAnalyzer::CleanUp(void)
 {
+  if( fCurrVertex )         delete fCurrVertex;
   if( fCurrPathLengthList ) delete fCurrPathLengthList;
   if( fCurrPDGCodeList    ) delete fCurrPDGCodeList;
 }

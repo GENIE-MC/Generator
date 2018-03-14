@@ -41,6 +41,7 @@
   <priority msgstream="Bardin">                FATAL </priority>
   <priority msgstream="BodekYang">             FATAL </priority>
   <priority msgstream="BodekRitchie">          FATAL </priority>
+  <priority msgstream="SmithMoniz">            FATAL </priority>
   <priority msgstream="Cache">                 FATAL </priority>
   <priority msgstream="CharmHad">              FATAL </priority>
   <priority msgstream="CFracTab">              FATAL </priority>
@@ -150,6 +151,8 @@
   <priority msgstream="ReinSehgalRes">         FATAL </priority>
   <priority msgstream="ReinSehgalResT">        FATAL </priority>
   <priority msgstream="ReinSehgalResC">        FATAL </priority>
+  <priority msgstream="ReinSehgalResTF">       FATAL </priority>
+  <priority msgstream="ReinSehgalResCF">       FATAL </priority>
   <priority msgstream="ReinSehgalSpp">         FATAL </priority>
   <priority msgstream="RSHAmpl">               FATAL </priority>
   <priority msgstream="Registry">              FATAL </priority>
@@ -159,6 +162,7 @@
   <priority msgstream="RESSelector">           FATAL </priority>
   <priority msgstream="Rndm">                  FATAL </priority>
   <priority msgstream="Rosenbluth">            FATAL </priority>
+  <priority msgstream="SMQELXSec">             FATAL </priority>
   <priority msgstream="StrumiaVissani">        FATAL </priority>
   <priority msgstream="SpectralFunc1">         FATAL </priority>
   <priority msgstream="SpectralFunc">          FATAL </priority>

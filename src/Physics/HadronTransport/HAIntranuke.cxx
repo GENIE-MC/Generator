@@ -932,6 +932,8 @@ void HAIntranuke::Inelastic(
 
 	      ev->AddParticle(*t1);
 	      ev->AddParticle(*t2);
+	      delete t1;
+	      delete t2;
 
 	      return;
 	    }

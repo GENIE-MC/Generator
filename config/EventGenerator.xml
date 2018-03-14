@@ -43,6 +43,26 @@ XSecModel                   alg     Yes  Cross section model used at the thread 
      <param type="alg"    name="ILstGen">    genie::NNBarOscDummyInteractionListGenerator/Default </param>
   </param_set>
 
+  
+  <!-- 
+  Event generation for Smith-Moniz CCQE model
+  
+  <param_set name="QEL-CC"> 
+     <param type="string" name="VldContext"> </param>
+     <param type="int"    name="NModules">   8                                                    </param>
+     <param type="alg"    name="Module-0">   genie::InitialStateAppender/Default                  </param>
+     <param type="alg"    name="Module-1">   genie::VertexGenerator/Default                       </param>
+     <param type="alg"    name="Module-2">   genie::QELEventGeneratorSM/Default                   </param>
+     <param type="alg"    name="Module-3">   genie::UnstableParticleDecayer/BeforeHadronTransport </param>
+     <param type="alg"    name="Module-4">   genie::NucDeExcitationSim/Default                    </param>
+     <param type="alg"    name="Module-5">   genie::HadronTransporter/Default                     </param>
+     <param type="alg"    name="Module-6">   genie::NucBindEnergyAggregator/Default               </param>
+     <param type="alg"    name="Module-7">   genie::UnstableParticleDecayer/AfterHadronTransport  </param>
+     <param type="alg"    name="ILstGen">    genie::QELInteractionListGenerator/CC-Default        </param>
+   </param_set>
+   -->
+  
+  
   <!-- 
   modified event generation model for CCQE that re-throws the nuclear model during the kinematic
   accept-reject loop. this is technically more correct physics, but is not on by default until

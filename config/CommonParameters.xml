@@ -134,6 +134,7 @@ University of Liverpool
   <param type="double" name="RFG-NucRemovalE@Pdg=1000260560">  0.0360 </param> <!-- Fe56   -->
   <param type="double" name="RFG-NucRemovalE@Pdg=1000280580">  0.0360 </param> <!-- Ni58   -->
   <param type="double" name="RFG-NucRemovalE@Pdg=1000822080">  0.0440 </param> <!-- Pb208  -->
+  <param type="bool"   name="RFG-UseParametrization">          false  </param>
 
   <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -264,8 +265,9 @@ University of Liverpool
 	- genie::DipoleELFormFactorsModel
 	- genie::BBA03ELFormFactorsModel, H.Budd, NuINT-02 proceedings
 	- genie::BBA05ELFormFactorsModel, R.Bradford, A.Bodek, H.Budd and J.Arrington, hep-ex/0602017
+	- genie::BBA07ELFormFactorsModel, R.Bradford, A.Bodek, H.Budd and S.Avvakumov, Euro.Phys.J.C53 (2008);[arXiv:0708.1946 [hep-ex]]
    -->
-   <param type="alg" name="ElasticFormFactorsModel"> genie::BBA05ELFormFactorsModel/Default </param>
+   <param type="alg" name="ElasticFormFactorsModel"> genie::BBA07ELFormFactorsModel/Default </param>
    
    <!-- Option for turning on Transverse Enhancement by Elastic Form Factor adjustment. 
 	See http://arxiv.org/abs/1405.0583 and http://arxiv.org/abs/1106.0340

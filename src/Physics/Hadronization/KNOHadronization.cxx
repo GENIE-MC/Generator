@@ -172,7 +172,7 @@ TClonesArray * KNOHadronization::Hadronize(
 
   //-- The container 'owns' its elements
   particle_list->SetOwner(true);
-
+  delete pdgcv;
   return particle_list;
 }
 //____________________________________________________________________________

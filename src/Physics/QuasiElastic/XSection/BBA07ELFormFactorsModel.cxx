@@ -1,42 +1,31 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2018, The GENIE Collaboration
+ Copyright (c) 2003-2017, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
+ Author:  Igor Kakorin <kakorin@jinr.ru>, Joint Institute for Nuclear Research
+          adapted from  fortran code provided by
+          Konstantin Kuzmin <kkuzmin@theor.jinr.ru>,
+          Joint Institute for Nuclear Research,  Institute for Theoretical and Experimental Physics
+          Vladimir Lyubushkin,
+          Joint Institute for Nuclear Research
+          Vadim Naumov <vnaumov@theor.jinr.ru>,
+          Joint Institute for Nuclear Research
+          based on code of Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+          University of Liverpool & STFC Rutherford Appleton Lab
 
  For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Mar 31, 2009 - CA
-   Was first added in v2.5.1.
- @ Sep 19, 2009 - CA
-   Moved into the ElFF package from its previous location               
 
 */
 //____________________________________________________________________________
 
-#include "Framework/Algorithm/AlgConfigPool.h"
-#include "Framework/Conventions/Constants.h"
 #include "Physics/QuasiElastic/XSection/BBA07ELFormFactorsModel.h"
 #include "Framework/Interaction/Interaction.h"
+#include "Framework/Conventions/Constants.h"
 
 using namespace genie;
 using namespace genie::constants;
-
-// Some model parameters - hardcoded for the time-being
-//
-double BBA07ELFormFactorsModel::fsParGalsterFactor [3] = { 1.7, 3.3, kNeutronMass };
-double BBA07ELFormFactorsModel::fsParGepKelly      [5] = { -0.24,   10.98, 12.82, 21.97, kProtonMass };
-double BBA07ELFormFactorsModel::fsParGmpKelly      [5] = {  0.1717, 11.26, 19.32, 8.33,  kProtonMass };
-double BBA07ELFormFactorsModel::fsParGepLagrange   [8] = { 1., 0.9927, 0.9898, 0.9975, 0.9812, 0.9340, 1.0000, kProtonMass  };
-double BBA07ELFormFactorsModel::fsParGmpLagrange   [8] = { 1., 1.0011, 0.9992, 0.9974, 1.0010, 1.0003, 1.0000, kProtonMass  };
-double BBA07ELFormFactorsModel::fsParGmnLagrange_25[8] = { 1., 0.9958, 0.9877, 1.0193, 1.0350, 0.9164, 0.7300, kNeutronMass };
-double BBA07ELFormFactorsModel::fsParGmnLagrange_43[8] = { 1., 0.9959, 0.9851, 1.0187, 1.0307, 0.9080, 0.9557, kNeutronMass };
-double BBA07ELFormFactorsModel::fsParGenLagrange_25[8] = { 1., 1.1011, 1.1392, 1.0203, 1.1093, 1.5429, 0.9706, kNeutronMass };
-double BBA07ELFormFactorsModel::fsParGenLagrange_43[8] = { 1., 1.1019, 1.1387, 1.0234, 1.1046, 1.5395, 1.2708, kNeutronMass };
 
 //____________________________________________________________________________
 BBA07ELFormFactorsModel::BBA07ELFormFactorsModel() :
@@ -58,38 +47,51 @@ BBA07ELFormFactorsModel::~BBA07ELFormFactorsModel()
 //____________________________________________________________________________
 double BBA07ELFormFactorsModel::Gep(const Interaction * interaction) const
 {
-  double lagr  = this->Lagrange(interaction, fsParGepLagrange);
-  double kelly = this->Kelly(interaction, fsParGepKelly);
-  double gep   = lagr*kelly;
-
+  const Kinematics & kine   = interaction->Kine();
+  double q2 = kine.q2();
+  double M2 = kProtonMass*kProtonMass;
+  double tp = -q2/(4*M2);
+  double xp  = 2.0/(1.0+TMath::Sqrt(1.0+1.0/tp));
+  double GEp = (1.0+fGep.a1*tp)/(1.0+tp*(fGep.b1+tp*(fGep.b2+fGep.b3*tp)));
+  double gep = AN(xp,fGep.p1,fGep.p2,fGep.p3,fGep.p4,fGep.p5,fGep.p6,fGep.p7)*GEp;
   return gep;
 }
 //____________________________________________________________________________
 double BBA07ELFormFactorsModel::Gmp(const Interaction * interaction) const
 {
-  double lagr  = this->Lagrange(interaction, fsParGmpLagrange);
-  double kelly = this->Kelly(interaction, fsParGmpKelly);
-  double gmp   = lagr*kelly; 
-
+  const Kinematics & kine   = interaction->Kine();
+  double q2 = kine.q2();
+  double M2 = kProtonMass*kProtonMass;
+  double tp = -q2/(4*M2);
+  double xp  = 2.0/(1.0+TMath::Sqrt(1.0+1.0/tp));
+  double GMp = (1.0+fGmp.a1*tp)/(1.0+tp*(fGmp.b1+tp*(fGmp.b2+fGmp.b3*tp)));
+  double gmp = AN(xp,fGmp.p1,fGmp.p2,fGmp.p3,fGmp.p4,fGmp.p5,fGmp.p6,fGmp.p7)*GMp;
+  gmp *= fMuP;
   return gmp;
 }
 //____________________________________________________________________________
 double BBA07ELFormFactorsModel::Gen(const Interaction * interaction) const
 {
-  double lagr  = this->Lagrange(interaction, fsParGenLagrange_43);
-  double galst = this->GalsterFactor(interaction, fsParGalsterFactor);
+  const Kinematics & kine   = interaction->Kine();
+  double q2 = kine.q2();
+  double M2 = kNeutronMass*kNeutronMass;
+  double tn = -q2/(4*M2);
+  double xn  = 2.0/(1.0+TMath::Sqrt(1.0+1.0/tn));
   double gep   = this->Gep(interaction);
-  double gen   = lagr*galst*gep;
-
+  double gen = AN(xn,fGen.p1,fGen.p2,fGen.p3,fGen.p4,fGen.p5,fGen.p6,fGen.p7)*gep*1.7*tn/(1+3.3*tn);
   return gen;
 }
 //____________________________________________________________________________
 double BBA07ELFormFactorsModel::Gmn(const Interaction * interaction) const
 {
-  double lagr = this->Lagrange(interaction, fsParGmnLagrange_43);
-  double gmp  = this->Gmp(interaction);
-  double gmn  = lagr*gmp;
-
+  const Kinematics & kine   = interaction->Kine();
+  double q2 = kine.q2();
+  double M2 = kNeutronMass*kNeutronMass;
+  double tn = -q2/(4*M2);
+  double xn  = 2.0/(1.0+TMath::Sqrt(1.0+1.0/tn));
+  double gmp   = this->Gmp(interaction);
+  double gmn = AN(xn,fGmn.p1,fGmn.p2,fGmn.p3,fGmn.p4,fGmn.p5,fGmn.p6,fGmn.p7)*gmp;
+  gmn *= fMuN/fMuP;
   return gmn;
 }
 //____________________________________________________________________________
@@ -107,89 +109,66 @@ void BBA07ELFormFactorsModel::Configure(string config)
 //____________________________________________________________________________
 void BBA07ELFormFactorsModel::LoadConfig(void)
 {
-  // anomalous magnetic moments
-  GetParam( "AnomMagnMoment-P", fMuP) ;
-  GetParam( "AnomMagnMoment-N", fMuN) ;
+  
+  //-- load the BBA2007 fit coefficients
+  GetParam( "BBA07-Gep-a1", fGep.a1) ;
+  GetParam( "BBA07-Gep-b1", fGep.b1) ;
+  GetParam( "BBA07-Gep-b2", fGep.b2) ;
+  GetParam( "BBA07-Gep-b3", fGep.b3) ;
+  GetParam( "BBA07-Gmp-a1", fGmp.a1) ;
+  GetParam( "BBA07-Gmp-b1", fGmp.b1) ;
+  GetParam( "BBA07-Gmp-b2", fGmp.b2) ;
+  GetParam( "BBA07-Gmp-b3", fGmp.b3) ;
+  GetParam( "BBA07-Gep-p1", fGep.p1) ;
+  GetParam( "BBA07-Gep-p2", fGep.p2) ;
+  GetParam( "BBA07-Gep-p3", fGep.p3) ;
+  GetParam( "BBA07-Gep-p4", fGep.p4) ;
+  GetParam( "BBA07-Gep-p5", fGep.p5) ;
+  GetParam( "BBA07-Gep-p6", fGep.p6) ;
+  GetParam( "BBA07-Gep-p7", fGep.p7) ;
+  GetParam( "BBA07-Gen-p1", fGen.p1) ;
+  GetParam( "BBA07-Gen-p2", fGen.p2) ;
+  GetParam( "BBA07-Gen-p3", fGen.p3) ;
+  GetParam( "BBA07-Gen-p4", fGen.p4) ;
+  GetParam( "BBA07-Gen-p5", fGen.p5) ;
+  GetParam( "BBA07-Gen-p6", fGen.p6) ;
+  GetParam( "BBA07-Gen-p7", fGen.p7) ;
+  GetParam( "BBA07-Gmp-p1", fGmp.p1) ;
+  GetParam( "BBA07-Gmp-p2", fGmp.p2) ;
+  GetParam( "BBA07-Gmp-p3", fGmp.p3) ;
+  GetParam( "BBA07-Gmp-p4", fGmp.p4) ;
+  GetParam( "BBA07-Gmp-p5", fGmp.p5) ;
+  GetParam( "BBA07-Gmp-p6", fGmp.p6) ;
+  GetParam( "BBA07-Gmp-p7", fGmp.p7) ;
+  GetParam( "BBA07-Gmn-p1", fGmn.p1) ;
+  GetParam( "BBA07-Gmn-p2", fGmn.p2) ;
+  GetParam( "BBA07-Gmn-p3", fGmn.p3) ;
+  GetParam( "BBA07-Gmn-p4", fGmn.p4) ;
+  GetParam( "BBA07-Gmn-p5", fGmn.p5) ;
+  GetParam( "BBA07-Gmn-p6", fGmn.p6) ;
+  GetParam( "BBA07-Gmn-p7", fGmn.p7) ;
 
-  // other parameters hardcoded for the time-being
-  // ...
-
+   //-- anomalous magnetic moments
+  GetParam( "AnomMagnMoment-P", fMuP ) ;
+  GetParam( "AnomMagnMoment-N", fMuN ) ;
 }
 //____________________________________________________________________________
-double BBA07ELFormFactorsModel::Tau(const Interaction * interaction) const
+double BBA07ELFormFactorsModel::AN (double x,double c1, double c2, double c3,double c4,double c5, double c6, double c7) const
 {
-// tau = Q2 / (4*M2)
-
-  const Kinematics & kine   = interaction->Kine();
-  const Target &     target = interaction->InitState().Tgt();
-
-  double q2 = kine.q2(); // momentum transfer, <0
-  double M2 = TMath::Power(target.HitNucMass(),2); // Mnucl^2
-
-  double t = -q2/(4*M2); 
-  return t;
+	 const double d1  = (0.0-1.0/6)*(0.0-2.0/6)*(0.0-3.0/6)*(0.0-4.0/6)*(0.0-5.0/6)*(0.0-1.0);
+     const double d2  = (1.0/6-0.0)*(1.0/6-2.0/6)*(1.0/6-3.0/6)*(1.0/6-4.0/6)*(1.0/6-5.0/6)*(1.0/6-1.0);
+     const double d3  = (2.0/6-0.0)*(2.0/6-1.0/6)*(2.0/6-3.0/6)*(2.0/6-4.0/6)*(2.0/6-5.0/6)*(2.0/6-1.0);
+     const double d4  = (3.0/6-0.0)*(3.0/6-1.0/6)*(3.0/6-2.0/6)*(3.0/6-4.0/6)*(3.0/6-5.0/6)*(3.0/6-1.0);
+     const double d5  = (4.0/6-0.0)*(4.0/6-1.0/6)*(4.0/6-2.0/6)*(4.0/6-3.0/6)*(4.0/6-5.0/6)*(4.0/6-1.0);
+     const double d6  = (5.0/6-0.0)*(5.0/6-1.0/6)*(5.0/6-2.0/6)*(5.0/6-3.0/6)*(5.0/6-4.0/6)*(5.0/6-1.0);
+     const double d7  = (1.0-0.0)*(1.0-1.0/6)*(1.0-2.0/6)*(1.0-3.0/6)*(1.0-4.0/6)*(1.0-5.0/6);
+     
+     return c1*        (x-1.0/6)*(x-2.0/6)*(x-3.0/6)*(x-4.0/6)*(x-5.0/6)*(x-1.0)/d1+
+            c2*(x-0.0)*          (x-2.0/6)*(x-3.0/6)*(x-4.0/6)*(x-5.0/6)*(x-1.0)/d2+
+            c3*(x-0.0)*(x-1.0/6)*          (x-3.0/6)*(x-4.0/6)*(x-5.0/6)*(x-1.0)/d3+
+            c4*(x-0.0)*(x-1.0/6)*(x-2.0/6)*          (x-4.0/6)*(x-5.0/6)*(x-1.0)/d4+
+            c5*(x-0.0)*(x-1.0/6)*(x-2.0/6)*(x-3.0/6)*          (x-5.0/6)*(x-1.0)/d5+
+            c6*(x-0.0)*(x-1.0/6)*(x-2.0/6)*(x-3.0/6)*(x-4.0/6)*          (x-1.0)/d6+
+            c7*(x-0.0)*(x-1.0/6)*(x-2.0/6)*(x-3.0/6)*(x-4.0/6)*(x-5.0/6)          /d7;
 }
 //____________________________________________________________________________
-double BBA07ELFormFactorsModel::Xi(const Interaction * interaction) const
-{
-// Nachtman variable xi
-
-  double tau = this->Tau(interaction);
-  if(tau!=0.) {
-    return 2./(1.+TMath::Sqrt(1.+1./tau));
-  } 
-  return 0;
-}
-//____________________________________________________________________________
-double BBA07ELFormFactorsModel::Lagrange(
-          const Interaction * interaction, double* par) const
-{
-// Lagrange parameterization
-
-  static const int N = 7;
-  static const double nodes[N] = {0., 1./6., 2./6., 3./6., 4./6., 5./6., 1.};
-
-  double xi = this->Xi(interaction);
-
-  double sum = 0.;
-  for (int i = 0; i<N; ++i) {
-     double part = par[i];
-     for (int j = 0; j<N; ++j) {
-            if ( i != j ) {
-                part *= (xi - nodes[j])/(nodes[i]-nodes[j]);
-            }
-        }
-        sum += part;
-  }
-  return sum;
-}
-//____________________________________________________________________________
-double BBA07ELFormFactorsModel::Kelly(
-          const Interaction * interaction, double* par) const
-{
-// Kelly parameterization
-
-  double tau = this->Tau(interaction);
-
-  double numerator   = 1.;
-  double denominator = 1.;
-  numerator   += par[0]*tau;
-  denominator += par[1]*tau;
-  denominator += par[2]*tau*tau;
-  denominator += par[3]*tau*tau*tau;
-
-  double kelly = (denominator!=0.) ? numerator/denominator : 0.;
-  return kelly;
-}
-//____________________________________________________________________________
-double BBA07ELFormFactorsModel::GalsterFactor(
-          const Interaction * interaction, double* par) const
-{
-// "Galster factor" a*tau/(1+b*tau) 
-
-  double tau = this->Tau(interaction);
-  double gf  = par[0]*tau/(1. + par[1]*tau);
-  return gf;
-}
-//____________________________________________________________________________
-

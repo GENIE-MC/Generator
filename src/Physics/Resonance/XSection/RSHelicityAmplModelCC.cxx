@@ -190,7 +190,7 @@ const RSHelicityAmpl &
      double b       = kSqrt5_3 * (L2 * fkr.C - 5 * fkr.Lamda * fkr.B);
 
      fAmpl.fMinus1 =  -kSqrt27_10 * LTm - kSqrt5_3 * L2Rm;
-     fAmpl.fPlus1  =   kSqrt27_10 * LTm + kSqrt5_3 * L2Rp;
+     fAmpl.fPlus1  =   kSqrt27_10 * LTp + kSqrt5_3 * L2Rp;
      fAmpl.fMinus3 =   k3_Sqrt10 * LTm;
      fAmpl.fPlus3  =  -k3_Sqrt10 * LTp;
      fAmpl.f0Minus =   a-b;

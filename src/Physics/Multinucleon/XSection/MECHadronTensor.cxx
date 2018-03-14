@@ -71,7 +71,20 @@ MECHadronTensor::MECHadronTensor()
 //_________________________________________________________________________
 MECHadronTensor::~MECHadronTensor()
 {
-
+	vector<int>::const_iterator it=fKnownTensors.begin();
+	for( ; it!=fKnownTensors.end(); ++it) {
+		MECHadronTensor::MECHadronTensorTable table = fTargetTensorTables[*it];
+		for(int tensorType = 0; tensorType <= MECHadronTensor::kMHTValenciaDeltapn; ++tensorType) {
+			vector<genie::BLI2DNonUnifGrid*> Grids = table.Table[(MECHadronTensor::MECHadronTensorType_t)tensorType];
+			for (vector<genie::BLI2DNonUnifGrid*>::iterator gridit = Grids.begin() ; gridit != Grids.end(); ++gridit){
+				genie::BLI2DNonUnifGrid *hadTensorGrid = *gridit;
+				if(hadTensorGrid) {
+				  delete hadTensorGrid;
+				  hadTensorGrid=0;
+				}
+			}
+		}
+	}  
 }
 //_________________________________________________________________________
 MECHadronTensor * MECHadronTensor::Instance()

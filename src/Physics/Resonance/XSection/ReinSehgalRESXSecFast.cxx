@@ -1,20 +1,17 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2018, The GENIE Collaboration
+ Copyright (c) 2003-2017, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
- Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+ Author: Igor Kakorin <kakorin@jinr.ru>
+         Joint Institute for Nuclear Research - March 01, 2017
+         based on code of Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          University of Liverpool & STFC Rutherford Appleton Lab
  
  For the class documentation see the corresponding header file.
 
- Important revisions after version 2.0.0 :
- @ Sep 07, 2009 - CA
-   Integrated with GNU Numerical Library (GSL) via ROOT's MathMore library.
- @ Jan 29, 2013 - CA
-   Don't look-up depreciated $GDISABLECACHING environmental variable.
-   Use the RunOpt singleton instead.
+
 */
 //____________________________________________________________________________
 
@@ -22,16 +19,17 @@
 #include <Math/IFunction.h>
 #include <Math/IntegratorMultiDim.h>
 
-#include "Framework/Algorithm/AlgConfigPool.h"
 #include "Framework/ParticleData/BaryonResUtils.h"
 #include "Framework/Conventions/GBuild.h"
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/Units.h"
 #include "Framework/Conventions/KineVar.h"
+#include "Physics/XSectionIntegration/GSLXSecFunc.h"
 #include "Framework/Conventions/Units.h"
 #include "Framework/Messenger/Messenger.h"
-#include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/ParticleData/PDGUtils.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Physics/Resonance/XSection/ReinSehgalRESXSecFast.h"
 #include "Framework/Utils/RunOpt.h"
 #include "Framework/Numerical/MathUtils.h"
 #include "Framework/Utils/KineUtils.h"
@@ -39,32 +37,30 @@
 #include "Framework/Utils/CacheBranchFx.h"
 #include "Framework/Utils/XSecSplineList.h"
 #include "Framework/Numerical/GSLUtils.h"
-#include "Physics/XSectionIntegration/GSLXSecFunc.h"
-#include "Physics/Resonance/XSection/ReinSehgalRESXSec.h"
 
 using namespace genie;
 using namespace genie::constants;
-//using namespace genie::units;
+using namespace genie::units;
 
 //____________________________________________________________________________
-ReinSehgalRESXSec::ReinSehgalRESXSec() :
-ReinSehgalRESXSecWithCache("genie::ReinSehgalRESXSec")
+ReinSehgalRESXSecFast::ReinSehgalRESXSecFast() :
+ReinSehgalRESXSecWithCacheFast("genie::ReinSehgalRESXSecFast")
 {
 
 }
 //____________________________________________________________________________
-ReinSehgalRESXSec::ReinSehgalRESXSec(string config) :
-ReinSehgalRESXSecWithCache("genie::ReinSehgalRESXSec", config)
+ReinSehgalRESXSecFast::ReinSehgalRESXSecFast(string config) :
+ReinSehgalRESXSecWithCacheFast("genie::ReinSehgalRESXSecFast", config)
 {
 
 }
 //____________________________________________________________________________
-ReinSehgalRESXSec::~ReinSehgalRESXSec()
+ReinSehgalRESXSecFast::~ReinSehgalRESXSecFast()
 {
 
 }
 //____________________________________________________________________________
-double ReinSehgalRESXSec::Integrate(
+double ReinSehgalRESXSecFast::Integrate(
           const XSecAlgorithmI * model, const Interaction * interaction) const
 {
   if(! model->ValidProcess(interaction) ) return 0.;
@@ -72,7 +68,7 @@ double ReinSehgalRESXSec::Integrate(
 
   const KPhaseSpace & kps = interaction->PhaseSpace();
   if(!kps.IsAboveThreshold()) {
-     LOG("ReinSehgalRESXSec", pDEBUG)  << "*** Below energy threshold";
+     LOG("ReinSehgalRESXSecFast", pDEBUG)  << "*** Below energy threshold";
      return 0;
   }
 
@@ -107,9 +103,9 @@ double ReinSehgalRESXSec::Integrate(
     if(xsl->SplineExists(model,in)) {
       const Spline * spl = xsl->GetSpline(model, in);
       double xsec = spl->Evaluate(Ev);
-      SLOG("ReinSehgalResT", pNOTICE)  
+      SLOG("ReinSehgalResTF", pNOTICE)  
          << "XSec[RES/" << utils::res::AsString(res)<< "/free] (Ev = " 
-         << Ev << " GeV) = " << xsec/(1E-38 *genie::units::cm2) << " x 1E-38 cm^2";
+               << Ev << " GeV) = " << xsec/(1E-38 *cm2)<< " x 1E-38 cm^2";
       if(! interaction->TestBit(kIAssumeFreeNucleon) ) {
         int NNucl = (pdg::IsProton(nucleon_pdgc)) ? target.Z() : target.N();
         xsec *= NNucl;
@@ -130,21 +126,21 @@ double ReinSehgalRESXSec::Integrate(
   if(bare_xsec_pre_calc) {
      Cache * cache = Cache::Instance();
      string key = this->CacheBranchName(res, it, nu_pdgc, nucleon_pdgc);
-     LOG("ReinSehgalResT", pINFO) 
+     LOG("ReinSehgalResTF", pINFO) 
          << "Finding cache branch with key: " << key;
      CacheBranchFx * cache_branch =
          dynamic_cast<CacheBranchFx *> (cache->FindCacheBranch(key));
      if(!cache_branch) {
-        LOG("ReinSehgalResT", pWARN)  
+        LOG("ReinSehgalResTF", pWARN)  
            << "No cached RES v-production data for input neutrino"
            << " (pdgc: " << nu_pdgc << ")";
-        LOG("ReinSehgalResT", pWARN)  
+        LOG("ReinSehgalResTF", pWARN)  
            << "Wait while computing/caching RES production xsec first...";
 
         this->CacheResExcitationXSec(interaction); 
 
-        LOG("ReinSehgalResT", pINFO) << "Done caching resonance xsec data";
-        LOG("ReinSehgalResT", pINFO) 
+        LOG("ReinSehgalResTF", pINFO) << "Done caching resonance xsec data";
+        LOG("ReinSehgalResTF", pINFO) 
                << "Finding newly created cache branch with key: " << key;
         cache_branch =
               dynamic_cast<CacheBranchFx *> (cache->FindCacheBranch(key));
@@ -157,9 +153,9 @@ double ReinSehgalRESXSec::Integrate(
     //    cross section spline at the end of its energy range-)
     double rxsec = (Ev<fEMax-1) ? cbranch(Ev) : cbranch(fEMax-1);
 
-    SLOG("ReinSehgalResT", pNOTICE)  
+    SLOG("ReinSehgalResTF", pNOTICE)  
        << "XSec[RES/" << utils::res::AsString(res)<< "/free] (Ev = " 
-       << Ev << " GeV) = " << rxsec/(1E-38 *genie::units::cm2) << " x 1E-38 cm^2";
+               << Ev << " GeV) = " << rxsec/(1E-38 *cm2)<< " x 1E-38 cm^2";
 
      if( interaction->TestBit(kIAssumeFreeNucleon) ) return rxsec;
 
@@ -172,22 +168,20 @@ double ReinSehgalRESXSec::Integrate(
   // specified interaction.  
   else {
 
-    Range1D_t rW  = kps.Limits(kKVW);
-    Range1D_t rQ2 = kps.Limits(kKVQ2);
-
-    LOG("ReinSehgalResC", pINFO)
+	Range1D_t rW  = Range1D_t(0.0,1.0);
+	Range1D_t rQ2 = Range1D_t(0.0,1.0);
+	
+    LOG("ReinSehgalResTF", pINFO)
           << "*** Integrating d^2 XSec/dWdQ^2 for R: "
           << utils::res::AsString(res) << " at Ev = " << Ev;
-    LOG("ReinSehgalResC", pINFO)
+    LOG("ReinSehgalResTF", pINFO)
           << "{W}   = " << rW.min  << ", " << rW.max;
-    LOG("ReinSehgalResC", pINFO)
+    LOG("ReinSehgalResTF", pINFO)
           << "{Q^2} = " << rQ2.min << ", " << rQ2.max;
 
-    ROOT::Math::IBaseFunctionMultiDim * func =
-        new utils::gsl::d2XSec_dWdQ2_E(model, interaction);
-    ROOT::Math::IntegrationMultiDim::Type ig_type = 
-        utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
-    ROOT::Math::IntegratorMultiDim ig(ig_type,0,fGSLRelTol,fGSLMaxEval); 
+    ROOT::Math::IBaseFunctionMultiDim * func= new utils::gsl::d2XSecRESFast_dWQ2_E(model, interaction);
+    ROOT::Math::IntegrationMultiDim::Type ig_type = utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
+    ROOT::Math::IntegratorMultiDim ig(ig_type,0,fGSLRelTol,fGSLMaxEval);
     ig.SetFunction(*func);
     double kine_min[2] = { rW.min, rQ2.min };
     double kine_max[2] = { rW.max, rQ2.max };
@@ -199,21 +193,22 @@ double ReinSehgalRESXSec::Integrate(
   return 0;
 }
 //____________________________________________________________________________
-void ReinSehgalRESXSec::Configure(const Registry & config)
+void ReinSehgalRESXSecFast::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void ReinSehgalRESXSec::Configure(string config)
+void ReinSehgalRESXSecFast::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void ReinSehgalRESXSec::LoadConfig(void)
+void ReinSehgalRESXSecFast::LoadConfig(void)
 {
-  // Get GSL integration type & relative tolerance
+  
+   // Get GSL integration type & relative tolerance
   GetParamDef( "gsl-integration-type", fGSLIntgType, string("adaptive") ) ;
   GetParamDef( "gsl-relative-tolerance", fGSLRelTol, 0.01 ) ;
   GetParamDef( "gsl-max-eval", fGSLMaxEval, 100000 ) ;
@@ -227,6 +222,6 @@ void ReinSehgalRESXSec::LoadConfig(void)
   string resonances ;
   GetParam( "ResonanceNameList", resonances ) ;
   fResList.DecodeFromNameList(resonances);
-
 }
 //____________________________________________________________________________
+

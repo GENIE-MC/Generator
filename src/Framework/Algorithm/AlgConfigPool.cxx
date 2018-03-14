@@ -173,7 +173,7 @@ bool AlgConfigPool::LoadMasterConfig(void)
   if(xml_root==NULL) {
      SLOG("AlgConfigPool", pERROR)
              << "The XML doc is empty! (filename : " << fMasterConfig << ")";
-     xmlFree(xml_doc);
+     xmlFreeDoc(xml_doc);
      return false;
   }
 
@@ -181,6 +181,7 @@ bool AlgConfigPool::LoadMasterConfig(void)
      SLOG("AlgConfigPool", pERROR)
               << "The XML doc has invalid root element! "
                                    << "(filename : " << fMasterConfig << ")";
+     xmlFreeDoc(xml_doc);
      return false;
   }
 
@@ -200,8 +201,8 @@ bool AlgConfigPool::LoadMasterConfig(void)
     }
     xml_ac = xml_ac->next;
   }
-  xmlFree(xml_ac);
-  xmlFree(xml_doc);
+  xmlFreeNode(xml_ac);
+  xmlFreeDoc(xml_doc);
   return true;
 }
 //____________________________________________________________________________
@@ -275,12 +276,15 @@ bool AlgConfigPool::LoadRegistries(
   if(xml_cur==NULL) {
      SLOG("AlgConfigPool", pERROR)
              << "The XML document is empty! (filename : " << file_name << ")";
+     xmlFreeDoc(xml_doc);
      return false;
   }
   if( xmlStrcmp(xml_cur->name, (const xmlChar *) root.c_str()) ) {
      SLOG("AlgConfigPool", pERROR)
               << "The XML document has invalid root element! "
                                         << "(filename : " << file_name << ")";
+     xmlFreeNode(xml_cur);
+     xmlFreeDoc(xml_doc);
      return false;
   }
 
@@ -322,8 +326,8 @@ bool AlgConfigPool::LoadRegistries(
         }
         xml_param = xml_param->next;
       }
-      xmlFree(xml_param);
-
+      //xmlFree(xml_param);
+      xmlFreeNode(xml_param);
       config->SetName(param_set);
       config->Lock();
 
@@ -334,8 +338,10 @@ bool AlgConfigPool::LoadRegistries(
     }
     xml_cur = xml_cur->next;
   }
-  xmlFree(xml_cur);
-  xmlFree(xml_doc);
+  //xmlFree(xml_cur);
+  xmlFreeNode(xml_cur);
+  //xmlFree(xml_doc);
+  xmlFreeDoc(xml_doc);
 
   return true;
 }

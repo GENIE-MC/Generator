@@ -169,12 +169,15 @@ bool Messenger::SetPrioritiesFromXmlFile(string filenames)
     if(xml_root==NULL) {
        SLOG("Messenger", pERROR)
            << "XML doc. has null root element! [file: " << filename << "]";
+       xmlFreeDoc(xml_doc);
        return false;
     }
 
     if( xmlStrcmp(xml_root->name, (const xmlChar *) "messenger_config") ) {
        SLOG("Messenger", pERROR)
          << "XML doc. has invalid root element! [file: " << filename << "]";
+       xmlFreeNode(xml_root);
+       xmlFreeDoc(xml_doc);
        return false;
     }
 
@@ -200,10 +203,11 @@ bool Messenger::SetPrioritiesFromXmlFile(string filenames)
       xml_msgp = xml_msgp->next;
     }//xml_msgp != NULL
 
-    xmlFree(xml_msgp);
-
+    //xmlFree(xml_msgp);
+    xmlFreeNode(xml_msgp);
+    xmlFreeDoc(xml_doc);
   }//filename_iter
-
+  
   return true;
 }
 //____________________________________________________________________________

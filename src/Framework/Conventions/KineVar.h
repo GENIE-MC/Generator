@@ -50,6 +50,10 @@ typedef enum EKineVar {
   kKVSelctl,
   kKVSelphikq,
   kKVSelRad,
+  kKVPn,
+  kKVv,
+  kKVSelPn,
+  kKVSelv,
   // put all new enum names right before this line
   // do not change any previous ordering (neither insert nor delete)
   kNumOfKineVar
@@ -86,6 +90,10 @@ public:
       case(kKVSelctl)  : return "*Selected* ASK cosine lepton theta";    break;
       case(kKVSelphikq): return "*Selected* ASK phi kq";                 break;
       case(kKVSelRad)  : return "*Selected* Struck particle position";   break;
+      case(kKVPn)      : return " *Running* Hit nucleon momentum";       break;
+      case(kKVv)       : return " *Running* Energy transfer";            break;
+      case(kKVSelPn)   : return "*Selected* Hit nucleon momentum";       break;
+      case(kKVSelv)    : return "*Selected* Energy transfer";            break;
  
       default          : return "** Unknown kinematic variable **";      break;
     }

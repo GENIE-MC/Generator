@@ -1210,6 +1210,9 @@ void GHepRecord::Print(ostream & stream) const
       case ( kPSQ2fE  ) :
         stream << " dsig(Q2;E)/dQ2 =        " << setfill(' ') << setw(13) << fDiffXSec/units::cm2 << " cm^2/GeV^2 |";
         break;
+      case ( kPSQ2vfE  ) :
+        stream << " dsig(Q2,v;E)/dQ2dv =    " << setfill(' ') << setw(13) << fDiffXSec/units::cm2 << " cm^2/GeV^3 |";
+        break;
       case ( kPSWQ2fE ) :
         stream << " d2sig(W,Q2;E)/dWdQ2 =   " << setfill(' ') << setw(13) << fDiffXSec/units::cm2 << " cm^2/GeV^3 |";
         break;

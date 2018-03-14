@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+Configuration for the QELEventGeneratorSM EventRecordVisitorI
+
+Configurable Parameters:
+.............................................................................................................
+Name                      Type    Optional   Comment                                                    Default
+.............................................................................................................
+MaxXSec-SafetyFactor      double   Yes       Safety factor for the maximum                              1.2
+                                             differential cross section
+MaxDiffv-SafetyFactor     double   Yes       Safety factor for the maximum                              1.1
+                                             vmax(Q2)-vmin(Q2)
+MaxXSec-DiffTolerance     double   Yes       Max allowed 200*(xsec-xsecmax)/(xsec+xsecmax)              999999.0
+                                             if xsec>xsecmax
+UniformOverPhaseSpace     bool     Yes       Kinematics uniformly over allowed phase space              false
+                                             wgt = (phase_space_volume)*(diff_xsec)/(xsec)
+IsNucleonInNucleus        bool     Yes       Generate struck nucleon in nucleus                         true
+Threshold-Q2              double   Yes       Q2-threshold for seeking the second maximum                2.00
+Cache-MinEnergy           double   Yes       min E for which maxxsec is cached -                        1.00
+                                             forcing explicit calc
+-->
+
+
+<alg_conf>
+
+  <param_set name="Default"> 
+      <param type="double" name="MaxXSec-SafetyFactor">    1.2                             </param>
+      <param type="double" name="MaxDiffv-SafetyFactor">   1.2                             </param>
+      <param type="double" name="Threshold-Q2">            2.0                             </param>
+      <param type="bool"   name="IsNucleonInNucleus">      true                            </param>
+  </param_set>
+  
+ 
+
+</alg_conf>
+

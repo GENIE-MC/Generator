@@ -117,14 +117,16 @@ double BSKLNBaseRESPXSec2014::XSec(
   int    LR  = utils::res::OrbitalAngularMom (resonance);
   double MR  = utils::res::Mass              (resonance);
   double WR  = utils::res::Width             (resonance);
-  double NR  = utils::res::BWNorm            (resonance,fN0ResMaxNWidths,fN2ResMaxNWidths,fGnResMaxNWidths);
+   double NR  = fNormBW?utils::res::BWNorm    (resonance,fN0ResMaxNWidths,fN2ResMaxNWidths,fGnResMaxNWidths):1;
 
   // Following NeuGEN, avoid problems with underlying unphysical
   // model assumptions by restricting the allowed W phase space
   // around the resonance peak
-  if      (W > MR + fN0ResMaxNWidths * WR && IR==0) return 0.;
-  else if (W > MR + fN2ResMaxNWidths * WR && IR==2) return 0.;
-  else if (W > MR + fGnResMaxNWidths * WR)          return 0.;
+ if (fNormBW) {
+	if      (W > MR + fN0ResMaxNWidths * WR && IR==0) return 0.;
+	else if (W > MR + fN2ResMaxNWidths * WR && IR==2) return 0.;
+	else if (W > MR + fGnResMaxNWidths * WR)          return 0.;
+  }
 
   // Compute auxiliary & kinematical factors 
   double E      = init_state.ProbeE(kRfHitNucRest);
@@ -442,7 +444,8 @@ double BSKLNBaseRESPXSec2014::XSec(
   const RSHelicityAmplModelI * hamplmod_BRS_plus = 0;
 
   double g2 = kGF2;
-
+  if(is_CC) g2 = kGF2*fVud2;
+  
   double sig0 = 0.125*(g2/kPi)*(-q2/Q2)*(W/Mnuc);
   double scLR = W/Mnuc;
   double scS  = (Mnuc/W)*(-Q2/q2);
@@ -498,7 +501,7 @@ double BSKLNBaseRESPXSec2014::XSec(
 
           fFKR.S = KNL_S_plus;
           fFKR.B = KNL_B_plus;
-          fFKR.S = KNL_C_plus;
+          fFKR.C = KNL_C_plus;
           hamplmod_KNL_plus = fHAmplModelCC;
           assert(hamplmod_KNL_plus);
 
@@ -526,7 +529,7 @@ double BSKLNBaseRESPXSec2014::XSec(
 
             fFKR.S = BRS_S_plus;
             fFKR.B = BRS_B_plus;
-            fFKR.S = BRS_C_plus;
+            fFKR.C = BRS_C_plus;
             hamplmod_BRS_plus = fHAmplModelCC;
             assert(hamplmod_BRS_plus);
 
@@ -674,21 +677,7 @@ LOG("BSKLNBaseRESPXSec2014", pDEBUG) << "BreitWigner(RES="
 #endif
 xsec *= bw; 
 
-// Apply NeuGEN nutau cross section reduction factors
-double rf = 1.0;
-Spline * spl = 0;
-if (is_CC && fUsingNuTauScaling) {
-  if (pdg::IsNuTau(probepdgc)) {
-    spl = fNuTauRdSpl;
-  }
-  else if (pdg::IsAntiNuTau(probepdgc)) {
-    spl = fNuTauBarRdSpl;
-  }
-  if(spl) {
-    if(E <spl->XMax()) rf = spl->Evaluate(E);
-  }
-}
-xsec *= rf;
+
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
 LOG("BSKLNBaseRESPXSec2014", pINFO) 
@@ -801,11 +790,14 @@ need to be set by concrete classes, not config
   fMv2 = TMath::Power(mv,2);
 
   GetParamDef( "BreitWignerWeight", fWghtBW, true ) ;
-
+  GetParamDef( "BreitWignerNorm",   fNormBW, true);
   double thw ;
   GetParam( "WeinbergAngle", thw ) ;
   fSin48w = TMath::Power( TMath::Sin(thw), 4 );
-
+  double Vud; 
+  GetParam("CKM-Vud", Vud );
+  fVud2 = TMath::Power( Vud, 2 );
+  
   // Load all the sub-algorithms needed
 
   fHAmplModelCC     = 0;
@@ -850,26 +842,7 @@ need to be set by concrete classes, not config
   GetParamDef( "MaxNWidthForN0Res", fN0ResMaxNWidths, 6.0 ) ;
   GetParamDef( "MaxNWidthForGNRes", fGnResMaxNWidths, 4.0 ) ;
 
-  // NeuGEN reduction factors for nu_tau: a gross estimate of the effect of
-  // neglected form factors in the R/S model
-  GetParamDef( "UseNuTauScalingFactors", fUsingNuTauScaling, true ) ;
-  if(fUsingNuTauScaling) {
-    if(fNuTauRdSpl)    delete fNuTauRdSpl;
-    if(fNuTauBarRdSpl) delete fNuTauBarRdSpl;
 
-    assert(std::getenv( "GENIE") );
-    string base = std::getenv( "GENIE") ;
-
-    string filename = base + "/data/evgen/rein_sehgal/res/nutau_xsec_scaling_factors.dat";
-    LOG("BSKLNBaseRESPXSec2014", pINFO) 
-      << "Loading nu_tau xsec reduction spline from: " << filename;
-    fNuTauRdSpl = new Spline(filename);
-
-    filename = base + "/data/evgen/rein_sehgal/res/nutaubar_xsec_scaling_factors.dat";
-    LOG("BSKLNBaseRESPXSec2014", pINFO) 
-      << "Loading bar{nu_tau} xsec reduction spline from: " << filename;
-    fNuTauBarRdSpl = new Spline(filename);
-  }
 
   // load the differential cross section integrator
   fXSecIntegrator =

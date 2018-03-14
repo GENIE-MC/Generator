@@ -93,8 +93,8 @@ double QELXSec::Integrate(
   ROOT::Math::IntegrationOneDim::Type ig_type = 
       utils::gsl::Integration1DimTypeFromString(fGSLIntgType);
   
-  double abstol = 1; //We mostly care about relative tolerance
-  ROOT::Math::Integrator ig(*func,ig_type,abstol,fGSLRelTol,fGSLMaxEval);
+  double abstol = 0; //We mostly care about relative tolerance
+  ROOT::Math::Integrator ig(*func,ig_type,abstol,fGSLRelTol,fGSLMaxSizeOfSubintervals, fGSLRule);
   double xsec = ig.Integral(rQ2.min, rQ2.max) * (1E-38 * units::cm2);
      
   //LOG("QELXSec", pDEBUG) << "XSec[QEL] (E = " << E << ") = " << xsec;
@@ -121,10 +121,14 @@ void QELXSec::LoadConfig(void)
 {
   // Get GSL integration type & relative tolerance
 	GetParamDef( "gsl-integration-type", fGSLIntgType, string("adaptive"));
-	GetParamDef( "gsl-relative-tolerance", fGSLRelTol, 0.01 ) ;
-	int max;
-	GetParamDef( "gsl-max-eval", max, 100000) ;
-	fGSLMaxEval  = (unsigned int) max ;
+	GetParamDef( "gsl-relative-tolerance", fGSLRelTol, 0.001 ) ;
+	int max_size_of_subintervals;
+	GetParamDef( "gsl-max-size-of-subintervals", max_size_of_subintervals, 40000);
+	fGSLMaxSizeOfSubintervals = (unsigned int) max_size_of_subintervals;
+	int rule;
+	GetParamDef( "gsl-rule", rule, 3);
+	fGSLRule = (unsigned int) rule;
+    if (fGSLRule>6) fGSLRule=3;
 }
 //____________________________________________________________________________
 

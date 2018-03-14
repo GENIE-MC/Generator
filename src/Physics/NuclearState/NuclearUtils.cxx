@@ -481,4 +481,20 @@ double genie::utils::nuclear::DensityWoodsSaxon(
   return dens;
 }
 //___________________________________________________________________________
+double genie::utils::nuclear::BindEnergyPerNucleonParametrization(const Target & target)
+{
+// Compute the average binding energy per nucleon (in GeV)
+if(!target.IsNucleus()) return 0;
+double x = TMath::Power(target.A(),1/3.0) / target.Z();
+return (0.05042772591+x*(-0.11377355795+x*(0.15159890400-0.08825307197*x)));
+}
+//___________________________________________________________________________
+double genie::utils::nuclear::FermiMomentumForIsoscalarNucleonParametrization(const Target & target)
+{
+// Compute Fermi momentum for isoscalar nucleon (in GeV)
+if(!target.IsNucleus()) return 0;
+double x = 1.0 / target.A();
+return (0.27+x*(-1.12887857491+x*(9.72670908033-39.53095724456*x)));
+}
+//___________________________________________________________________________
 

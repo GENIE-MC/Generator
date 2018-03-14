@@ -334,7 +334,8 @@ TClonesArray * BaryonResonanceDecayer::DecayExclusive(
 
 
   //-- Create the event record
-  TClonesArray * particle_list = new TClonesArray("TMCParticle", 1+nd);
+  //TClonesArray * particle_list = new TClonesArray("TMCParticle", 1+nd);
+  TClonesArray * particle_list = 0;
   TClonesArray * temp_particle_list = new TClonesArray("TMCParticle", 1+nd);//A temprary record.
 
 

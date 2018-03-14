@@ -58,6 +58,10 @@ namespace nuclear
   double DensityGaus       (double r, double ap, double alf, double ring=0.);
   double DensityWoodsSaxon (double r, double c, double z, double ring=0.);
 
+  double BindEnergyPerNucleonParametrization(const Target & target);
+  double FermiMomentumForIsoscalarNucleonParametrization(const Target & target);
+
+
 } // nuclear namespace
 } // utils   namespace
 } // genie   namespace
