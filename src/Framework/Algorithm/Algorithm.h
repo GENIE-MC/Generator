@@ -60,24 +60,36 @@ public:
   virtual void Configure (const Registry & config);
 
   //! Configure the algorithm from the AlgoConfigPool
-  //!  based on param_set string given in input
-  //!  This methods will load three registries in order of priority:
-  //!   1) Tunable from CommonParametes for tuning procedures
-  //!   2) config from AlgoConfigPool
-  //!   3) if config != "Default" it will also load Config
+  //!   based on param_set string given in input
+  //! An algorithm contains a vector of registries coming from different 
+  //!   xml configuration files, which are loaded according a very precise prioriy
+  //! This methods will load a number registries in order of priority:
+  //!   1) "Tunable" parameter set from CommonParametes. This is loaded with the
+  //!      highest prioriry and it is designed to be used for tuning procedure
+  //!      Usage not expected from the user.
+  //!   2) For every string defined in "CommonParame" the corresponding parameter set will be loaded 
+  //!      from CommonParameter.xml
+  //!   3) parameter set specified by the config string and defined in the xml file of the algorithm
+  //!   4) if config is not "Default" also the Default parameter set from the same xml file will be loaded
+  //!      Effectively this avoids the repetion of a parameter when it is not changed in the requested configuration
   virtual void Configure (string config);
 
   //! Lookup configuration from the config pool
   //!   Similar logic from void Configure(string)
-  //!   It also loads in cascade the registry from the substructures
   virtual void FindConfig (void);
 
   //! Get configuration registry
   //!  Evaluate the summary of the configuration and returns it
+  //!  The summary of a configuration is a merge of all the registries 
+  //!  known to the algorithm (see Configure() methods) but every parameter is appearing only
+  //!  once and in case of repetitions, only the parameter from the registry with the highest prioriry 
+  //!  is considered.
   virtual const Registry & GetConfig(void) const ;
 
-  //! Get a writeable version of an owned configuration Registry.
-  //!  Gives access to the summary
+  //! Returns the pointer of the summary registry, see previous method
+  //!  Gives access to the summary so it could be changed. 
+  //!  The usage of this method is deprecated as it is mantained only for back compatibility. 
+  //! If you need to add or chage a parter (or more), use the AddTopRegistry() instead
   Registry * GetOwnedConfig(void);
 
   //! Get algorithm ID
@@ -164,9 +176,10 @@ protected:
      bool GetParamDef( const RgKey & name, T & p, const T & def ) const ;
 
 
-private:
   int   AddTopRegistry( Registry * rp, bool owns = true );  ///< add registry with top priority, also update ownership
-  int   AddTopRegisties( const vector<Registry*> & rs, bool owns = false ) ; ///< Add registries with top priority, also udated Ownerships
+  int   AddTopRegisties( const vector<Registry*> & rs, bool owns = false ) ; ///< Add registries with top priority, also udated Ownerships  
+
+private:
 
   Registry *   fConfig;        ///< Summary configuration derived from fConvVect, not necessarily allocated
 
