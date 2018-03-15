@@ -1,9 +1,9 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::PDFLIB
+\class    genie::LHAPDF5
 
-\brief    LHAPDF/PDFLIB library interface.
+\brief    LHAPDF5 library interface.
           Concrete implementation of the PDFModelI interface.
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
@@ -17,20 +17,20 @@
 */
 //____________________________________________________________________________
 
-#ifndef _PDFLIB_H_
-#define _PDFLIB_H_
+#ifndef _LHAPDF5_H_
+#define _LHAPDF5_H_
 
 #include "Physics/PartonDistributions/PDFModelI.h"
 
 namespace genie {
 
-class PDFLIB : public PDFModelI {
+class LHAPDF5 : public PDFModelI {
 
 public:
 
-  PDFLIB();
-  PDFLIB(string config);
-  virtual ~PDFLIB();
+  LHAPDF5();
+  LHAPDF5(string config);
+  virtual ~LHAPDF5();
 
   // Implement PDFModelI interface
 
@@ -59,4 +59,4 @@ private:
 
 }         // genie namespace
 
-#endif    // _PDFLIB_H_
+#endif    // _LHAPDF5_H_

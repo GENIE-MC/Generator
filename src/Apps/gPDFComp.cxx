@@ -49,7 +49,7 @@
 #include "Framework/Algorithm/AlgFactory.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Physics/PartonDistributions/PDFModelI.h"
-#include "Physics/PartonDistributions/PDFLIB.h"
+//#include "Physics/PartonDistributions/LHAPDF5.h"
 #include "Physics/PartonDistributions/PDF.h"
 #include "Framework/Utils/CmdLnArgParser.h"
 #include "Framework/Utils/StringUtils.h"

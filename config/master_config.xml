@@ -85,7 +85,7 @@
    <!-- ****** CONFIGURATION FOR PARTON DENSITY FUNCTION ALGORITHMS ****** -->
    <config alg="genie::GRV98LO">                     GRV98LO.xml                     </config>
    <config alg="genie::LHAPDF6">                     LHAPDF6.xml                     </config>
-   <config alg="genie::PDFLIB">                      PDFLIB.xml                      </config>
+   <config alg="genie::LHAPDF5">                     LHAPDF5.xml                     </config>
    <config alg="genie::BYPDF">                       BYPDF.xml                       </config>
 
    <!-- ****** CONFIGURATION FOR PARTICLE DECAY ALGORITHMS****** -->

@@ -4,12 +4,8 @@
 \class    genie::PDFModelI
 
 \brief    Pure abstract base class. Defines the PDFModelI interface to be
-          implemented by any algorithmic class computing Parton Density
-          Functions.
-
-          Wrapper classes to existing Parton Density Function
-          libraries (PDFLIB, LHAPDF) should also adopt this interface so as
-          to be integrated into the GENIE framework.
+          implemented by wrapper classes to existing Parton Density Function
+          libraries (PDFLIB, LHAPDF), or by built-in implementations.
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           University of Liverpool & STFC Rutherford Appleton Lab

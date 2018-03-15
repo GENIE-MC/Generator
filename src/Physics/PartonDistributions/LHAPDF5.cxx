@@ -7,8 +7,7 @@
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          University of Liverpool & STFC Rutherford Appleton Lab 
 
- Disabled PDFLIB - Only LHAPDFv5 support left / to clean-up before next
- release. Experimenting in LHAPDFv6
+ Disabled PDFLIB - Only LHAPDFv5 support left.
 
 */
 //____________________________________________________________________________
@@ -19,7 +18,7 @@
 #include <TMath.h>
 
 #include "Framework/Conventions/GBuild.h"
-#include "Physics/PartonDistributions/PDFLIB.h"
+#include "Physics/PartonDistributions/LHAPDF5.h"
 #include "Framework/Messenger/Messenger.h"
 
 #ifdef __GENIE_LHAPDF5_ENABLED__
@@ -41,26 +40,26 @@
 using namespace genie;
 
 //____________________________________________________________________________
-PDFLIB::PDFLIB() :
-PDFModelI("genie::PDFLIB")
+LHAPDF5::LHAPDF5() :
+PDFModelI("genie::LHAPDF5")
 {
   this->Initialize();
 }
 //____________________________________________________________________________
-PDFLIB::PDFLIB(string config) :
-PDFModelI("genie::PDFLIB", config)
+LHAPDF5::LHAPDF5(string config) :
+PDFModelI("genie::LHAPDF5", config)
 {
-  LOG("PDF", pDEBUG) << "PDFLIB configuration:\n " << this->GetConfig();  
+  LOG("LHAPDF5", pDEBUG) << "LHAPDF5 configuration:\n " << this->GetConfig();  
 
   this->Initialize();
 }
 //____________________________________________________________________________
-PDFLIB::~PDFLIB() 
+LHAPDF5::~LHAPDF5() 
 { 
 
 }
 //____________________________________________________________________________
-void PDFLIB::Initialize(void) const
+void LHAPDF5::Initialize(void) const
 {
 #ifdef __GENIE_LHAPDF5_ENABLED__
   //
@@ -75,7 +74,7 @@ void PDFLIB::Initialize(void) const
       else lhapath_ok = false;
   }
   if(!lhapath_ok) {
-   LOG("PDF", pFATAL) 
+   LOG("LHAPDF5", pFATAL) 
      << "\n"
      << "** LHAPDF won't be able to read-in the PDF data. \n"
      << "** The LHAPATH env. variable is not properly (or at all) defined. \n"
@@ -98,7 +97,7 @@ void PDFLIB::Initialize(void) const
 #endif
 }
 //____________________________________________________________________________
-void PDFLIB::SetPDFSetFromConfig(void) const
+void LHAPDF5::SetPDFSetFromConfig(void) const
 {
 // Get PDF spec (particle type, pdf group/set) from configuration registry.
 // For definitions, have a look at PDFLIB and LHAPDF manuals
@@ -149,52 +148,52 @@ void PDFLIB::SetPDFSetFromConfig(void) const
 #endif
 }
 //____________________________________________________________________________
-double PDFLIB::UpValence(double x, double Q2) const
+double LHAPDF5::UpValence(double x, double Q2) const
 {
   return AllPDFs(x,Q2).uval;
 }
 //____________________________________________________________________________
-double PDFLIB::DownValence(double x, double Q2) const
+double LHAPDF5::DownValence(double x, double Q2) const
 {
   return AllPDFs(x,Q2).dval;
 }
 //____________________________________________________________________________
-double PDFLIB::UpSea(double x, double Q2) const
+double LHAPDF5::UpSea(double x, double Q2) const
 {
   return AllPDFs(x,Q2).usea;
 }
 //____________________________________________________________________________
-double PDFLIB::DownSea(double x, double Q2) const
+double LHAPDF5::DownSea(double x, double Q2) const
 {
   return AllPDFs(x,Q2).dsea;
 }
 //____________________________________________________________________________
-double PDFLIB::Strange(double x, double Q2) const
+double LHAPDF5::Strange(double x, double Q2) const
 {
   return AllPDFs(x,Q2).str;
 }
 //____________________________________________________________________________
-double PDFLIB::Charm(double x, double Q2) const
+double LHAPDF5::Charm(double x, double Q2) const
 {
   return AllPDFs(x,Q2).chm;
 }
 //____________________________________________________________________________
-double PDFLIB::Bottom(double x, double Q2) const
+double LHAPDF5::Bottom(double x, double Q2) const
 {
   return AllPDFs(x,Q2).bot;
 }
 //____________________________________________________________________________
-double PDFLIB::Top(double x, double Q2) const
+double LHAPDF5::Top(double x, double Q2) const
 {
   return AllPDFs(x,Q2).top;
 }
 //____________________________________________________________________________
-double PDFLIB::Gluon(double x, double Q2) const
+double LHAPDF5::Gluon(double x, double Q2) const
 {
   return AllPDFs(x,Q2).gl;
 }
 //____________________________________________________________________________
-PDF_t PDFLIB::AllPDFs(double x, double Q2) const
+PDF_t LHAPDF5::AllPDFs(double x, double Q2) const
 {
   PDF_t pdf;
 
@@ -244,7 +243,7 @@ PDF_t PDFLIB::AllPDFs(double x, double Q2) const
   return pdf;                                               
 }
 //____________________________________________________________________________
-void PDFLIB::Configure(const Registry & config)
+void LHAPDF5::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
 
@@ -254,7 +253,7 @@ void PDFLIB::Configure(const Registry & config)
   fAllowReconfig=false;
 }
 //____________________________________________________________________________
-void PDFLIB::Configure(string config)
+void LHAPDF5::Configure(string config)
 {
   Algorithm::Configure(config);
 

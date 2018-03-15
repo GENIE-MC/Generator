@@ -3,8 +3,7 @@
 <alg_conf>
 
 <!--
-Configuration sets for the PDFLIB PDFModelI
-You need to specify each PDF for both PDFLIB and LHAPDF as they canbe used interchangeably.
+Configuration sets for the LHAPDF5 PDFModelI
 
 The PDF set GRV98lo_patched was producted by Graeme Watt (Durham, UK) 
 to correct a kink in the PDFs for the default version of GRV98lo that
@@ -20,9 +19,6 @@ Name             Type     Optional   Comment                        Default
 name_lhapdf      string   No         LHAPDF PDF name
 type_lhapdf      int      No         LHAPDF PDF set type (0:Evolution/LHPDF, 1:Interpolation/LHGRID)
 memset_lhapdf    int      No         LHAPDF PDF number within set name
-nptype_pdflib    int      No         PDFLIB PDF type
-ngroup_pdflib    int      No         PDFLIB PDF group
-nset_pdflib      int      No         PDFLIB PDF set
 -->
 
   <param_set name="Default"> 
@@ -35,18 +31,12 @@ nset_pdflib      int      No         PDFLIB PDF set
      <param type="string"  name="name_lhapdf">    GRV98lo_patched   </param>
      <param type="int"     name="type_lhapdf">    1         </param>
      <param type="int"     name="memset_lhapdf">  0         </param>
-     <param type="int"     name="nptype_pdflib">  1         </param>
-     <param type="int"     name="ngroup_pdflib">  5         </param>
-     <param type="int"     name="nset_pdflib">   12         </param>
   </param_set>
 
   <param_set name="GRVHO"> 
      <param type="string"  name="name_lhapdf">    GRV98nlo  </param>
      <param type="int"     name="type_lhapdf">    2         </param>
      <param type="int"     name="memset_lhapdf">  0         </param>
-     <param type="int"     name="nptype_pdflib">  1         </param>
-     <param type="int"     name="ngroup_pdflib">  5         </param>
-     <param type="int"     name="nset_pdflib">    3         </param>
   </param_set>
   
 </alg_conf>

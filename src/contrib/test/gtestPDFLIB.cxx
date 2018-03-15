@@ -3,7 +3,7 @@
 
 \program gtestPDFLIB
 
-\brief   Test interface to PDFLIB library
+\brief   Test interface to LHAPDF library
 
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          University of Liverpool & STFC Rutherford Appleton Lab
@@ -23,7 +23,7 @@
 #include "Algorithm/AlgFactory.h"
 #include "Messenger/Messenger.h"
 #include "PDF/PDFModelI.h"
-#include "PDF/PDFLIB.h"
+#include "PDF/LHAPDF5.h"
 #include "PDF/PDF.h"
 
 using namespace genie;
@@ -46,7 +46,7 @@ int main(int /*argc*/, char ** /*argv*/)
   AlgFactory * algf = AlgFactory::Instance();
   const PDFModelI * pdfmodel = 
         dynamic_cast<const PDFModelI *> (
-                    algf->GetAlgorithm("genie::PDFLIB","GRVLO"));
+                    algf->GetAlgorithm("genie::LHAPDF5","GRVLO"));
   
   PDF pdf;
   pdf.SetModel(pdfmodel);
@@ -70,8 +70,8 @@ int main(int /*argc*/, char ** /*argv*/)
                x, Q2);
     }
   }
-  TFile f("./genie-pdflib.root","recreate");
-  nt->Write("pdflib");
+  TFile f("./genie-pdfs.root","recreate");
+  nt->Write("pdfs");
 
   f.Close();
   delete nt;

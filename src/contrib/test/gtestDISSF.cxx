@@ -181,7 +181,7 @@ void VerticalSlice(void)
   Messenger * msg = Messenger::Instance();
   msg->SetPriorityLevel("DISSF",     pDEBUG);
   msg->SetPriorityLevel("BodekYang", pDEBUG);
-  msg->SetPriorityLevel("PDFLIB",    pDEBUG);
+  msg->SetPriorityLevel("LHAPDF5",   pDEBUG);
 
   // -- request the specified DIS SF model
   AlgFactory * algf = AlgFactory::Instance();

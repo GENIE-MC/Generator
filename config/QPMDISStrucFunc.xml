@@ -28,7 +28,7 @@ WeinbergAngle              double  No                                           
 
     <param type="string" name="CommonParam"> CKM,Masses,WeakInt </param>
 
-     <param type="alg" name="PDF-Set">   genie::PDFLIB/GRVLO </param>
+     <param type="alg" name="PDF-Set">   genie::LHAPDF5/GRVLO </param>
 
      <!-- 
 	  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
