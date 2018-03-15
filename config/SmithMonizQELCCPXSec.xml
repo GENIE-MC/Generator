@@ -12,6 +12,7 @@ Name               Type     Optional   Comment                          Default
 FormFactorsAlg     alg      No         QEL form factors algorithm
 XSec-Integrator    alg      No         Integrator
 CKM-Vud            double   No         Vud element of CKM-matrix        CommonParam[CKM]
+QEL-CC-XSecScale   double   yes        XSec Scaling factor              1. 
 -->
 
 
