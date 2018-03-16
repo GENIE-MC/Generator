@@ -111,7 +111,6 @@ protected:
   double       fNucCEXFac;    ///< charge exchange xsec correction factor (hN Mode)
   double       fEPreEq;       ///< threshold for pre-equilibrium reaction
   double       fFermiFac;     ///< testing parameter to modify fermi momentum
-  double       fFreeStep;     ///< produced particle free stem, in fm
   double       fFermiMomentum;     ///< whether or not particle collision is pauli blocked
   bool         fDoFermi;      ///< whether or not to do fermi mom. 
   bool         fDoMassDiff;   ///< whether or not to do mass diff. mode
