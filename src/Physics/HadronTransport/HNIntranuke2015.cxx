@@ -43,6 +43,8 @@
    K+ are now handled.
  @ July, 2016 Nicholas Suarez, Josh Kleckner, SD
    fix memory leak, fix fates, improve NNCorr binning
+ & Mar, 2018  Nicholas Suarez, SD
+   add compound nucleus option to populate KE<30 MeV
 */
 //____________________________________________________________________________
 
@@ -113,9 +115,10 @@ void HNIntranuke2015::ProcessEventRecord(GHepRecord * evrec) const
   LOG("HNIntranuke2015", pNOTICE) 
      << "************ Running hN2015 MODE INTRANUKE ************";
      
-  LOG("HNIntranuke2015", pWARN) 
+  /*  LOG("HNIntranuke2015", pWARN) 
      << print::PrintFramedMesg(
          "Experimental code (INTRANUKE/hN model) - Run at your own risk");
+  */
 
   Intranuke2015::ProcessEventRecord(evrec);
 
@@ -747,9 +750,6 @@ void HNIntranuke2015::ElasHN(
 
   if (pass==true)
   {
-    //  give each of the particles a free step (remove Apr, 2016 - not needed)
-    //    utils::intranuke2015::StepParticle(p,fFreeStep,fTrackingRadius);
-    //    utils::intranuke2015::StepParticle(t,fFreeStep,fTrackingRadius);
     ev->AddParticle(*p);
     ev->AddParticle(*t);
   } else
@@ -918,11 +918,12 @@ int HNIntranuke2015::HandleCompoundNucleus(GHepRecord* ev, GHepParticle* p, int 
     {  // random number generator
   RandomGen * rnd = RandomGen::Instance();
 
-  double rpreeq = rnd->RndFsi().Rndm();   // sdytman test
+  //  double rpreeq = rnd->RndFsi().Rndm();   // sdytman test
  
       if((p->KinE() < fEPreEq) )
 	{
-	  if(fRemnA>5&&rpreeq<0.12)
+	  //	  if(fRemnA>5&&rpreeq<0.12)
+	  if(fRemnA>5)
             {
               GHepParticle * sp = new GHepParticle(*p);
               sp->SetFirstMother(mom);
@@ -975,7 +976,6 @@ void HNIntranuke2015::LoadConfig(void)
   GetParam( "INUKE-Energy_Pre_Eq", fEPreEq ) ;
   GetParam( "INUKE-FermiFac",      fFermiFac ) ;
   GetParam( "INUKE-FermiMomentum", fFermiMomentum ) ;
-  GetParam( "INUKE-FreeStep",      fFreeStep ) ;
 
   GetParam( "INUKE-DoCompoundNucleus", fDoCompoundNucleus ) ;
   GetParam( "INUKE-DoFermi",           fDoFermi ) ;
@@ -998,7 +998,6 @@ void HNIntranuke2015::LoadConfig(void)
   LOG("HNIntranuke2015", pWARN) << "NucCEXFac   = " << fNucCEXFac;
   LOG("HNIntranuke2015", pWARN) << "EPreEq      = " << fEPreEq;
   LOG("HNIntranuke2015", pWARN) << "FermiFac    = " << fFermiFac;
-  LOG("HNIntranuke2015", pWARN) << "FreeStep    = " << fFreeStep;  // free step in fm
   LOG("HNIntranuke2015", pWARN) << "FermiMomtm  = " << fFermiMomentum;
   LOG("HNIntranuke2015", pWARN) << "DoFermi?    = " << ((fDoFermi)?(true):(false));
   LOG("HNIntranuke2015", pWARN) << "DoCmpndNuc? = " << ((fDoCompoundNucleus)?(true):(false));

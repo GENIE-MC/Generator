@@ -1455,7 +1455,6 @@ void HAIntranuke2015::LoadConfig(void)
   GetParam( "INUKE-Energy_Pre_Eq", fEPreEq ) ;
   GetParam( "INUKE-FermiFac",      fFermiFac ) ;
   GetParam( "INUKE-FermiMomentum", fFermiMomentum ) ;
-  GetParam( "INUKE-FreeStep",      fFreeStep ) ;
 
   GetParam( "INUKE-DoCompoundNucleus", fDoCompoundNucleus ) ;
   GetParam( "INUKE-DoFermi",           fDoFermi ) ;
@@ -1477,7 +1476,6 @@ void HAIntranuke2015::LoadConfig(void)
   LOG("HAIntranuke2015", pINFO) << "NucAbsFac   = " << fNucAbsFac;
   LOG("HAIntranuke2015", pINFO) << "NucCEXFac   = " << fNucCEXFac;
   LOG("HAIntranuke2015", pINFO) << "FermiFac    = " << fFermiFac;
-  LOG("HAIntranuke2015", pINFO) << "FreeStep    = " << fFreeStep;  // free step in fm
   LOG("HAIntranuke2015", pINFO) << "FermiMomtm  = " << fFermiMomentum;
   LOG("HAIntranuke2015", pINFO) << "DoFermi?    = " << ((fDoFermi)?(true):(false));
   LOG("HAIntranuke2015", pINFO) << "DoCmpndNuc? = " << ((fDoCompoundNucleus)?(true):(false));
