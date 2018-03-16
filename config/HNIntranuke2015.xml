@@ -40,9 +40,8 @@ XsecNNCorr          bool    Yes   nuclear medium correction for NN cross section
     <param type="double" name="INUKE-NucAbsFac">         1.0   </param>
     <param type="double" name="INUKE-NucQEFac">          1.0   </param>
     <param type="double" name="INUKE-NucCEXFac">         1.0   </param>
-    <param type="double" name="INUKE-Energy_Pre_Eq">     0.041 </param> 
+    <param type="double" name="INUKE-Energy_Pre_Eq">     0.025 </param> 
     <param type="double" name="INUKE-FermiFac">          1.0   </param>
-    <param type="double" name="INUKE-FreeStep">          0.0   </param>
     <param type="double" name="INUKE-FermiMomentum">     0.250 </param>
 
     <param type="bool"   name="INUKE-DoFermi">           true  </param>
