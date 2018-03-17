@@ -41,21 +41,18 @@ using namespace genie::constants;
 BSKLNBaseRESPXSec2014::BSKLNBaseRESPXSec2014(string name) :
 XSecAlgorithmI(name)
 {
-  fNuTauRdSpl    = 0;
-  fNuTauBarRdSpl = 0;
+  
 }
 //____________________________________________________________________________
 BSKLNBaseRESPXSec2014::BSKLNBaseRESPXSec2014(string name, string config) :
 XSecAlgorithmI(name, config)
 {
-  fNuTauRdSpl    = 0;
-  fNuTauBarRdSpl = 0;
+  
 }
 //____________________________________________________________________________
 BSKLNBaseRESPXSec2014::~BSKLNBaseRESPXSec2014()
 {
-  if(fNuTauRdSpl)    delete fNuTauRdSpl;
-  if(fNuTauBarRdSpl) delete fNuTauBarRdSpl;
+  
 }
 //____________________________________________________________________________
 double BSKLNBaseRESPXSec2014::XSec(
