@@ -76,8 +76,8 @@ public :
   double Charge (void) const; ///< Chrg that corresponds to the PDG code
 
   // Returns the momentum & position 4-vectors
-  TLorentzVector * P4 (void) const { return fP4; }
-  TLorentzVector * X4 (void) const { return fX4; }
+  const TLorentzVector * P4 (void) const { return fP4; }
+  const TLorentzVector * X4 (void) const { return fX4; }
 
   // Hand over clones of the momentum & position 4-vectors (+ their ownership)
   TLorentzVector * GetP4 (void) const;

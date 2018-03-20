@@ -1495,7 +1495,7 @@ void ConvertToGTracker(void)
            }
          }
          // Get particle's energy & momentum
-         TLorentzVector * p4 = p->P4();
+         const TLorentzVector * p4 = p->P4();
          double E  = p4->Energy() / units::MeV;
          double Px = p4->Px()     / units::MeV;
          double Py = p4->Py()     / units::MeV;

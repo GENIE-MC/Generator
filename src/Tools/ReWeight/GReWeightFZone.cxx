@@ -165,7 +165,7 @@ double GReWeightFZone::CalcWeight(const EventRecord & event)
      
      // Default formation zone
      double m = p->Mass();
-     TLorentzVector * p4  = p->P4();
+     const TLorentzVector * p4  = p->P4();
  
      double ct0=0.;
      pdg::IsNucleon(pdgc) ? ct0=fct0nucleon : ct0=fct0pion;
