@@ -39,6 +39,7 @@ class EventRecord : public GHepRecord {
 
 public :
   using GHepRecord::Copy; // suppress clang 'hides overloaded virtual function [-Woverloaded-virtual]' warnings
+  using GHepRecord::Print;
 
   EventRecord();
   EventRecord(int size);
