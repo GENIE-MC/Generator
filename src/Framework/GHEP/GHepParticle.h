@@ -78,6 +78,8 @@ public :
   // Returns the momentum & position 4-vectors
   const TLorentzVector * P4 (void) const { return fP4; }
   const TLorentzVector * X4 (void) const { return fX4; }
+  TLorentzVector * P4 (void) { return fP4; }
+  TLorentzVector * X4 (void) { return fX4; }
 
   // Hand over clones of the momentum & position 4-vectors (+ their ownership)
   TLorentzVector * GetP4 (void) const;
