@@ -35,13 +35,13 @@ static const double kPlankConstant = 1.;
 //
 // pi, e,...
 //
-static const double kPi    = 3.1415927;
+static const double kPi    = TMath::Pi();
 static const double kPi2   = TMath::Power(kPi,2);
 static const double kPi3   = TMath::Power(kPi,3);
 static const double kPi4   = TMath::Power(kPi,4);
 static const double kSqrtPi= TMath::Sqrt(kPi);
 
-static const double kNapierConst     = 2.7182818;
+static const double kNapierConst     = TMath::E();
 static const double kSqrtNapierConst = TMath::Sqrt(kNapierConst);
 
 //
@@ -68,13 +68,13 @@ static const double kGF2   = TMath::Power(kGF,2);
 // double mass = PDGLibrary::Instance()->Find(pdg_code)->Mass();
 // For consistency, the values below must match whatever is used in PDGLibrary.
 //
-static const double kElectronMass   =  0.0005109989;        // GeV
-static const double kMuonMass       =  0.105658357;         // GeV
-static const double kTauMass        =  1.77703;             // GeV
-static const double kPionMass       =  0.13957018;          // GeV
-static const double kPi0Mass        =  0.1349766;           // GeV
-static const double kProtonMass     =  0.9382720;           // GeV
-static const double kNeutronMass    =  0.9395653;           // GeV
+static const double kElectronMass   =  5.109989461e-04;        // GeV
+static const double kMuonMass       =  1.056583745e-01;         // GeV
+static const double kTauMass        =  1.77686e+00;             // GeV
+static const double kPionMass       =  1.3957018e-01;          // GeV
+static const double kPi0Mass        =  1.349766e-01;           // GeV
+static const double kProtonMass     =  9.38272081e-01;           // GeV
+static const double kNeutronMass    =  9.39565413e-01;           // GeV
 static const double kNucleonMass    =  (kProtonMass+kNeutronMass)/2.;
 static const double kLightestChmHad =  1.870;               // GeV ~lightest charm hadron+
 static const double kPhotontest     =  1E-6;                // GeV
@@ -89,8 +89,8 @@ static const double kProtonMass2    =  TMath::Power(kProtonMass,2);   // GeV^2
 static const double kNeutronMass2   =  TMath::Power(kNeutronMass,2);  // GeV^2
 static const double kNucleonMass2   =  TMath::Power(kNucleonMass,2);  // GeV^2
 
-static const double kMw             =  80.14;                // GeV - W boson mass
-static const double kMz             =  91.19;                // GeV - Z boson mass
+static const double kMw             =  8.0385e+01;                // GeV - W boson mass
+static const double kMz             =  9.11876e+01;                // GeV - Z boson mass
 static const double kMw2            =  TMath::Power(kMw,2);  // GeV^2
 static const double kMz2            =  TMath::Power(kMz,2);  // GeV^2
 

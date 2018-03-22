@@ -59,6 +59,8 @@ public:
 
 private:
   void LoadConfig(void);
+  
+  bool fUsePauliBlocking;      ///< account for Pauli blocking?
 };
 
 }       // genie namespace

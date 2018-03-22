@@ -123,7 +123,7 @@ double ReinSehgalRESXSecFast::Integrate(
   // at any subsequent call.
   //
   bool bare_xsec_pre_calc = RunOpt::Instance()->BareXSecPreCalc();
-  if(bare_xsec_pre_calc) {
+  if(bare_xsec_pre_calc && !fUsePauliBlocking) {
      Cache * cache = Cache::Instance();
      string key = this->CacheBranchName(res, it, nu_pdgc, nucleon_pdgc);
      LOG("ReinSehgalResTF", pINFO) 
@@ -212,7 +212,7 @@ void ReinSehgalRESXSecFast::LoadConfig(void)
   GetParamDef( "gsl-integration-type", fGSLIntgType, string("adaptive") ) ;
   GetParamDef( "gsl-relative-tolerance", fGSLRelTol, 0.01 ) ;
   GetParamDef( "gsl-max-eval", fGSLMaxEval, 100000 ) ;
-  
+  GetParam("UsePauliBlockingForRES", fUsePauliBlocking);
   // Get upper E limit on res xsec spline (=f(E)) before assuming xsec=const
   GetParamDef( "ESplineMax", fEMax, 100. ) ;
   fEMax = TMath::Max(fEMax, 20.); // don't accept user Emax if less than 20 GeV

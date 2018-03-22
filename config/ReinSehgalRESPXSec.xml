@@ -26,12 +26,16 @@ MaxNWidthForN2Res           double  Yes   x in limiting allowed W phase space fo
                                           W < min{ Wmin(physical), MassRes + x * WidthRes }
 MaxNWidthForN0Res           double  Yes   As above for n=0 resonances                                     6.0
 MaxNWidthForGNres           double  Yes   As above for the remaining resonances                           4.0
+RFG-UseParametrization      bool    No    use parametrization for Fermi momentum and binging energy       CommonParam[FermiGas]
+                                            
+FermiMomentumTable          string  No    Table of Fermi momentum (kF) constants for various nuclei       CommonParam[FermiGas]
+UsePauliBlockingForRES      bool    No    Use Pauli blocking for resonance model?                         CommonParam[Resonances]
 XSec-Integrator             alg     No                    
 -->
 
   <param_set name="Default"> 
     
-    <param type="string" name="CommonParam"> WeakInt,NonResBackground,CKM </param>
+    <param type="string" name="CommonParam"> WeakInt,NonResBackground,CKM,FermiGas,Resonances </param>
     
     <param type="alg"  name="XSec-Integrator">  genie::ReinSehgalRESXSecFast/Default    </param>
 
@@ -44,7 +48,7 @@ XSec-Integrator             alg     No
 	 resonance model
     -->
     <param type="double" name="RES-Omega"> 1.05  </param>
-    <param type="double" name="RES-Zeta">  0.762 </param> <!-- 0.75 -->
+    <param type="double" name="RES-Zeta">  0.76338 </param> <!-- 0.75 -->
 
     
     <!-- 

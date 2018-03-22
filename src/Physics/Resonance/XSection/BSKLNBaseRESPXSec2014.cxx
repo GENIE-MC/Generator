@@ -33,6 +33,9 @@
 #include "Physics/Resonance/XSection/BSKLNBaseRESPXSec2014.h"
 #include "Physics/Resonance/XSection/RSHelicityAmplModelI.h"
 #include "Physics/Resonance/XSection/RSHelicityAmpl.h"
+#include "Physics/NuclearState/FermiMomentumTablePool.h"
+#include "Physics/NuclearState/FermiMomentumTable.h"
+#include "Physics/NuclearState/NuclearUtils.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -697,10 +700,74 @@ else if (is_NC) { xsec *= fXSecScaleNC; }
 // If requested return the free nucleon xsec even for input nuclear tgt
 if( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;
 
+int Z = target.Z();
+int A = target.A();
+int N = A-Z;
+
 // Take into account the number of scattering centers in the target
-int NNucl = (is_p) ? target.Z() : target.N();
+int NNucl = (is_p) ? Z : N;
 
 xsec*=NNucl; // nuclear xsec (no nuclear suppression factor)
+
+if (fUsePauliBlocking && A!=1)
+{
+   // Calculation of Pauli blocking according references:
+   //
+   //     [1] S.L. Adler,  S. Nussinov,  and  E.A.  Paschos,  "Nuclear     
+   //         charge exchange corrections to leptonic pion  production     
+   //         in  the (3,3) resonance  region,"  Phys. Rev. D 9 (1974)     
+   //         2125-2143 [Erratum Phys. Rev. D 10 (1974) 1669].             
+   //     [2] J.Y. Yu, "Neutrino interactions and  nuclear  effects in     
+   //         oscillation experiments and the  nonperturbative disper-     
+   //         sive  sector in strong (quasi-)abelian  fields,"  Ph. D.     
+   //         Thesis, Dortmund U., Dortmund, 2002 (unpublished).           
+   //     [3] E.A. Paschos, J.Y. Yu,  and  M. Sakuda,  "Neutrino  pro-     
+   //         duction  of  resonances,"  Phys. Rev. D 69 (2004) 014013     
+   //         [arXiv: hep-ph/0308130].                                     
+  
+   double P_Fermi = 0.0;
+  
+   // Maximum value of Fermi momentum of target nucleon (GeV)
+   if (A<6 || !fUseRFGParametrization)
+   {
+	  //-- look up the Fermi momentum for this Target
+	  FermiMomentumTablePool * kftp = FermiMomentumTablePool::Instance();
+	  const FermiMomentumTable * kft = kftp->GetTable(fKFTable);
+	  P_Fermi = kft->FindClosestKF(pdg::IonPdgCode(A, Z), nucpdgc);
+   }
+   else
+   {
+      //-- define the Fermi momentum for this Target
+      //
+      P_Fermi = utils::nuclear::FermiMomentumForIsoscalarNucleonParametrization(target);
+      //-- correct the Fermi momentum for the struck nucleon
+      if(is_p) 
+          P_Fermi *= TMath::Power( 2.*Z/A, 1./3);
+      else
+          P_Fermi *= TMath::Power( 2.*N/A, 1./3);
+   }
+  
+   double FactorPauli_RES = 1.0;
+  
+   double k, k0, q, q0;
+  
+   if (P_Fermi > 0.)
+   {
+      k0 = (W2-Mnuc2-Q2)/(2*W);
+      k = TMath::Sqrt(k0*k0+Q2);                  // previous value of k is overridden
+      q0 = (W2-Mnuc2+kPionMass2)/(2*W);
+      q = TMath::Sqrt(q0*q0-kPionMass2);
+   }
+           
+   if (2*P_Fermi < k-q) 
+      FactorPauli_RES = 1.0;
+   if (2*P_Fermi >= k+q)
+      FactorPauli_RES = ((3*k*k+q*q)/(2*P_Fermi)-(5*TMath::Power(k,4)+TMath::Power(q,4)+10*k*k*q*q)/(40*TMath::Power(P_Fermi,3)))/(2*k);
+   if (2*P_Fermi >= k-q && 2*P_Fermi <= k+q)
+      FactorPauli_RES = ((q+k)*(q+k)-4*P_Fermi*P_Fermi/5-TMath::Power(k-q, 3)/(2*P_Fermi)+TMath::Power(k-q, 5)/(40*TMath::Power(P_Fermi, 3)))/(4*q*k);
+     
+   xsec *= FactorPauli_RES;
+}
 
 return xsec;
 }
@@ -794,6 +861,10 @@ need to be set by concrete classes, not config
   double Vud; 
   GetParam("CKM-Vud", Vud );
   fVud2 = TMath::Power( Vud, 2 );
+  GetParam("FermiMomentumTable", fKFTable);
+  GetParam("RFG-UseParametrization", fUseRFGParametrization);
+  GetParam("UsePauliBlockingForRES", fUsePauliBlocking);
+  
   
   // Load all the sub-algorithms needed
 

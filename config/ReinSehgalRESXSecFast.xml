@@ -13,6 +13,7 @@ Algorithm Configurable Parameters:
 Name                        Type    Opt  Comment                                               Default
 ...........................................................................................................
 ResonanceNameList           string  No   list of resonances to be taken into account           CommonParam[Resonances]
+UsePauliBlockingForRES      bool    No    Use Pauli blocking for resonance model?              CommonParam[Resonances]
 gsl-integration-type        string  Yes  name of GSL numerical integrator                      adaptive
 										 (adaptive, vegas, miser, plain)                   
 gsl-max-eval                int     Yes  GSL number of function calls                          1000000000

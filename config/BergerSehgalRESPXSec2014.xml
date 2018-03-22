@@ -13,8 +13,8 @@ RES-CC-XSecScale            double  No    XSec rescaling factor
 RES-NC-XSecScale            double  No    Xsec rescaling factor                                           
 RES-Zeta                    double  No    FKR's Z parameter                                               
 RES-Omega                   double  No    FKR's Omega parameter
-minibooneGA                 bool    No   tuning to axial form factors by MiniBoone (J. Nowak)            
-minibooneGV                 bool    No   tuning to vector form factors by MiniBoone (J. Nowak)                                                     
+minibooneGA                 bool    No    tuning to axial form factors by MiniBoone (J. Nowak)            
+minibooneGV                 bool    No    tuning to vector form factors by MiniBoone (J. Nowak)                                                     
 RES-Ma                      double  No    RES axial mass                                                 
 RES-Mv                      double  No    RES vector mass                                                
 WeinbergAngle               double  No    Weinberg Angle                                                  CommonParam[WeakInt]
@@ -27,12 +27,16 @@ MaxNWidthForN2Res           double  Yes   x in limiting allowed W phase space fo
                                           W < min{ Wmin(physical), MassRes + x * WidthRes }
 MaxNWidthForN0Res           double  Yes   As above for n=0 resonances                                     6.0
 MaxNWidthForGNres           double  Yes   As above for the remaining resonances                           4.0
+RFG-UseParametrization      bool    No    use parametrization for Fermi momentum and binging energy       CommonParam[FermiGas]
+                                            
+FermiMomentumTable          string  No    Table of Fermi momentum (kF) constants for various nuclei       CommonParam[FermiGas]
+UsePauliBlockingForRES      bool    No    Use Pauli blocking for resonance model?                         CommonParam[Resonances]
 XSec-Integrator             alg     No                    
 -->
 
   <param_set name="Default"> 
      
-    <param type="string"  name="CommonParam"> WeakInt,NonResBackground,CKM </param>
+    <param type="string"  name="CommonParam"> WeakInt,NonResBackground,CKM,FermiGas,Resonances </param>
 
     <param type="alg"  name="XSec-Integrator">  genie::ReinSehgalRESXSecFast/Default    </param>
 
@@ -47,7 +51,7 @@ XSec-Integrator             alg     No
      <param type="double" name="RES-NC-XSecScale"> 1.000 </param>
 
      <param type="double" name="RES-Omega"> 1.05  </param>
-     <param type="double" name="RES-Zeta">  0.762 </param>
+     <param type="double" name="RES-Zeta">  0.76338 </param>
      
      <!-- 
 	  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

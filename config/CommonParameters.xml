@@ -33,7 +33,7 @@ University of Liverpool
 
 
  <param_set name="WeakInt"> 
-   <param type="double" name="WeinbergAngle"> 0.49744211 </param> <!-- 0.501568 --> 
+   <param type="double" name="WeinbergAngle"> 0.501716712132 </param> <!-- 0.501568 --> 
 
  </param_set>
 
@@ -47,14 +47,15 @@ University of Liverpool
  <param_set name="CKM">
    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	CKM quark mixing parameters 
-	Use values listed at the July 2006 particle physics booklet
+	Chinese Physics C Vol.40, No. 10 (2016) 100001
+	Review of Particle Physics
    -->
-   <param type="double" name="CKM-Vud">  0.97377  </param>
-   <param type="double" name="CKM-Vus">  0.2257   </param>
-   <param type="double" name="CKM-Vcd">  0.230    </param>  <!-- 0.2239 -->
-   <param type="double" name="CKM-Vcs">  0.957    </param>
+   <param type="double" name="CKM-Vud">  0.97417  </param>
+   <param type="double" name="CKM-Vus">  0.2248   </param>
+   <param type="double" name="CKM-Vcd">  0.220    </param>  <!-- 0.2239 -->
+   <param type="double" name="CKM-Vcs">  0.995    </param>
    
-   <param type="double" name="CabibboAngle">  0.22853207 </param> <!-- 0.226893 -->  
+   <param type="double" name="CabibboAngle">  0.227780466682 </param> <!-- 0.226893 -->  
    
  </param_set>
 
@@ -284,23 +285,23 @@ University of Liverpool
    -->
    <param type="string" name="ResonanceNameList">
          P33(1232),S11(1535),D13(1520),S11(1650),D13(1700),D15(1675),
-         S31(1620),D33(1700),P11(1440),P13(1720),F15(1680),P31(1910),
-         P33(1920),F35(1905),F37(1950),P11(1710) 
+         S31(1620),D33(1700),P11(1440),P33(1600),P13(1720),F15(1680),
+         P31(1910),P33(1920),F35(1905),F37(1950),P11(1710),F17(1970)
    </param>
 
-   <!--
-       In this configuration set we include all resonances known to GENIE including the the ambiguous P33(1600), F17(1970)
-       <param type="string" name="ResonanceNameList">  
-           P33(1232),S11(1535),D13(1520),S11(1650),D13(1700),D15(1675),S31(1620),
-           D33(1700),P11(1440),P33(1600),P13(1720),F15(1680),P31(1910),P33(1920),
-           F35(1905),F37(1950),P11(1710),F17(1970)
-       </param>
-  -->
-
+   
    <!--
        In this configuration set we include only the first two resonances
        <param type="string" name="ResonanceNameList">    P33(1232),P11(1440)       </param>
    -->
+   
+  <!--   
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   Account for Pauli blocking in Berger-Sehgal, Kuzmin-Lyubushkin-Naumov and Rein-Sehgal models?
+   If this option is true, when caching for free nucleons is disabled.
+  -->     
+  <param type="bool"   name="UsePauliBlockingForRES">  false  </param>
+  
   </param_set>
 
   <param_set name="Lepton">

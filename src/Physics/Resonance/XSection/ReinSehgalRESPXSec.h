@@ -85,6 +85,9 @@ private:
   double   fN2ResMaxNWidths;   ///< limits allowed phase space for n=2 res
   double   fN0ResMaxNWidths;   ///< limits allowed phase space for n=0 res
   double   fGnResMaxNWidths;   ///< limits allowed phase space for other res
+  string fKFTable;             ///< table of Fermi momentum (kF) constants for various nuclei
+  bool fUseRFGParametrization; ///< use parametrization for fermi momentum insted of table?
+  bool fUsePauliBlocking;      ///< account for Pauli blocking?
   Spline * fNuTauRdSpl;        ///< xsec reduction spline for nu_tau
   Spline * fNuTauBarRdSpl;     ///< xsec reduction spline for nu_tau_bar
   double   fXSecScaleCC;       ///< external CC xsec scaling factor
