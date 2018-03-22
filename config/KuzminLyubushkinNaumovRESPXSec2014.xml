@@ -30,15 +30,13 @@ MaxNWidthForGNres           double  Yes   As above for the remaining resonances 
 RFG-UseParametrization      bool    No    use parametrization for Fermi momentum and binging energy       CommonParam[FermiGas]
                                             
 FermiMomentumTable          string  No    Table of Fermi momentum (kF) constants for various nuclei       CommonParam[FermiGas]
-UsePauliBlockingForRES      bool    No    Use Pauli blocking for resonance model?                         CommonParam[Resonances]
 XSec-Integrator             alg     No                    
 -->
 
   <param_set name="Default"> 
      
-    <param type="string"  name="CommonParam"> WeakInt,NonResBackground,CKM,FermiGas,Resonances </param>
+    <param type="string"  name="CommonParam"> WeakInt,NonResBackground,CKM,FermiGas </param>
 
-    <param type="alg"  name="XSec-Integrator">  genie::ReinSehgalRESXSecFast/Default    </param>
 
      <!--
 	 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -61,6 +59,19 @@ XSec-Integrator             alg     No
      <param type="double" name="RES-Mv"> 0.840 </param>
 
  </param_set>
+ 
+ <param_set name="WithPauliBlock"> 
+   
+     <param type="alg"  name="XSec-Integrator">  genie::ReinSehgalRESXSecFast/WithPauliBlock    </param>
+  
+  </param_set>
+  
+  
+  <param_set name="NoPauliBlock"> 
+   
+     <param type="alg"  name="XSec-Integrator">  genie::ReinSehgalRESXSecFast/NoPauliBlock      </param>
+   
+  </param_set> 
 
 </alg_conf>
 

@@ -295,12 +295,6 @@ University of Liverpool
        <param type="string" name="ResonanceNameList">    P33(1232),P11(1440)       </param>
    -->
    
-  <!--   
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   Account for Pauli blocking in Berger-Sehgal, Kuzmin-Lyubushkin-Naumov and Rein-Sehgal models?
-   If this option is true, when caching for free nucleons is disabled.
-  -->     
-  <param type="bool"   name="UsePauliBlockingForRES">  false  </param>
   
   </param_set>
 

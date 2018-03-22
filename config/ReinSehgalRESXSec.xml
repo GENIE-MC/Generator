@@ -12,7 +12,7 @@ Algorithm Configurable Parameters:
 Name                        Type    Opt  Comment                                               Default
 ..........................................................................................................................
 ResonanceNameList           string  No   list of resonances to be taken into account           CommonParam[Resonances]
-UsePauliBlockingForRES      bool    No    Use Pauli blocking for resonance model?              CommonParam[Resonances]
+UsePauliBlockingForRES      bool    No   Use Pauli blocking for resonance model?               
 gsl-integration-type        string  Yes  name of GSL numerical integrator                      adaptive
 										 (adaptive, vegas, miser, plain)                   
 gsl-max-eval                int     Yes  GSL number of function calls                          100000
@@ -24,13 +24,32 @@ ESplineMax                  double  Yes  Emax in RES splines, xsec(E>Emax)=xsec(
   In this configuration set we include all the resonances defined in GlobalParameterList
 -->
   <param_set name="Default"> 
-    
     <param type="string" name ="CommonParam">           Resonances  </param>
     <param type="string" name ="gsl-integration-type">       vegas  </param>
     <param type="int"    name ="gsl-max-eval" >             500000  </param>
     <param type="double" name ="gsl-relative-tolerance">    0.0001  </param>
     <param type="double" name ="ESplineMax">                   100  </param>
     
+  </param_set>
+  
+  <param_set name="WithPauliBlock"> 
+  <!--   
+   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   Account for Pauli blocking in Berger-Sehgal, Kuzmin-Lyubushkin-Naumov and Rein-Sehgal models?
+   If this option is true, when caching for free nucleons is disabled.
+  -->   
+    <param type="bool"   name="UsePauliBlockingForRES">  true  </param>
+  
+  </param_set>
+  
+  <param_set name="NoPauliBlock"> 
+   <!--   
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   Account for Pauli blocking in Berger-Sehgal, Kuzmin-Lyubushkin-Naumov and Rein-Sehgal models?
+   If this option is true, when caching for free nucleons is disabled.
+  -->  
+    <param type="bool"   name="UsePauliBlockingForRES">  false  </param>
+  
   </param_set>
 
  </alg_conf>
