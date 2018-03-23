@@ -16,6 +16,9 @@ No final state / topology is a proxy for any particular reaction mode.
 Intranuclear re-scattering in particular causes significant migration between states
 (see Table 8.1 in the Physics and User manual).
 
+The Default configuration depends on the tune and it is defined in TuneGeneratorList.xml, 
+which is defined in each Tune subdirectory.
+
 Examples:
 - {1mu-,0pi} is mostly numuCCQE, but can also be caused by numu resonance production followed by pion absorption.
 - numuCCQE gives mostly {1mu-,0pi} but occasionaly can give {1mu-,1pi} if the recoil nucleon re-interacts.
@@ -43,23 +46,6 @@ NGenerators                 int     No
 Generator-%d                alg     No
 
 -->
-
-  <param_set name="Default"> 
-     <param type="int" name="NGenerators">   13                                  </param>
-     <param type="alg" name="Generator-0">   genie::EventGenerator/QEL-CC        </param>
-     <param type="alg" name="Generator-1">   genie::EventGenerator/QEL-NC        </param>
-     <param type="alg" name="Generator-2">   genie::EventGenerator/RES-CC        </param>
-     <param type="alg" name="Generator-3">   genie::EventGenerator/RES-NC        </param>
-     <param type="alg" name="Generator-4">   genie::EventGenerator/DIS-CC        </param>
-     <param type="alg" name="Generator-5">   genie::EventGenerator/DIS-NC        </param>
-     <param type="alg" name="Generator-6">   genie::EventGenerator/COH-CC        </param>
-     <param type="alg" name="Generator-7">   genie::EventGenerator/COH-NC        </param>
-     <param type="alg" name="Generator-8">   genie::EventGenerator/DIS-CC-CHARM  </param>
-     <param type="alg" name="Generator-9">   genie::EventGenerator/QEL-CC-CHARM  </param>
-     <param type="alg" name="Generator-10">  genie::EventGenerator/NUE-EL        </param>
-     <param type="alg" name="Generator-11">  genie::EventGenerator/IMD           </param>
-     <param type="alg" name="Generator-12">  genie::EventGenerator/IMD-ANH       </param>
-  </param_set>
 
   <param_set name="AnomalyMediatedNuGamma"> 
      <param type="int" name="NGenerators">  1                                  </param>
@@ -381,94 +367,8 @@ Generator-%d                alg     No
      <param type="alg" name="Generator-1">    genie::EventGenerator/DIS-CC    </param>
   </param_set>
 
-  <!-- 
-    Event generator lists according to new naming scheme
-  --> 
 
-  <param_set name="G00_00a"> 
-     <param type="int" name="NGenerators">   13                                  </param>
-     <param type="alg" name="Generator-0">   genie::EventGenerator/QEL-CC        </param>
-     <param type="alg" name="Generator-1">   genie::EventGenerator/QEL-NC        </param>
-     <param type="alg" name="Generator-2">   genie::EventGenerator/RES-CC        </param>
-     <param type="alg" name="Generator-3">   genie::EventGenerator/RES-NC        </param>
-     <param type="alg" name="Generator-4">   genie::EventGenerator/DIS-CC        </param>
-     <param type="alg" name="Generator-5">   genie::EventGenerator/DIS-NC        </param>
-     <param type="alg" name="Generator-6">   genie::EventGenerator/COH-CC        </param>
-     <param type="alg" name="Generator-7">   genie::EventGenerator/COH-NC        </param>
-     <param type="alg" name="Generator-8">   genie::EventGenerator/DIS-CC-CHARM  </param>
-     <param type="alg" name="Generator-9">   genie::EventGenerator/QEL-CC-CHARM  </param>
-     <param type="alg" name="Generator-10">  genie::EventGenerator/NUE-EL        </param>
-     <param type="alg" name="Generator-11">  genie::EventGenerator/IMD           </param>
-     <param type="alg" name="Generator-12">  genie::EventGenerator/IMD-ANH       </param>
-  </param_set>
-
-  <param_set name="G16_01a"> 
-     <param type="int" name="NGenerators">   17                                    </param>
-     <param type="alg" name="Generator-0">   genie::EventGenerator/QEL-CC          </param>
-     <param type="alg" name="Generator-1">   genie::EventGenerator/QEL-NC          </param>
-     <param type="alg" name="Generator-2">   genie::EventGenerator/RES-CC          </param>
-     <param type="alg" name="Generator-3">   genie::EventGenerator/RES-NC          </param>
-     <param type="alg" name="Generator-4">   genie::EventGenerator/DIS-CC          </param>
-     <param type="alg" name="Generator-5">   genie::EventGenerator/DIS-NC          </param>
-     <param type="alg" name="Generator-6">   genie::EventGenerator/COH-CC          </param>
-     <param type="alg" name="Generator-7">   genie::EventGenerator/COH-NC          </param>
-     <param type="alg" name="Generator-8">   genie::EventGenerator/DIS-CC-CHARM    </param>
-     <param type="alg" name="Generator-9">   genie::EventGenerator/QEL-CC-CHARM    </param>
-     <param type="alg" name="Generator-10">  genie::EventGenerator/NUE-EL          </param>
-     <param type="alg" name="Generator-11">  genie::EventGenerator/IMD             </param>
-     <param type="alg" name="Generator-12">  genie::EventGenerator/IMD-ANH         </param>
-     <param type="alg" name="Generator-13">  genie::EventGenerator/DFR-CC          </param>
-     <param type="alg" name="Generator-14">  genie::EventGenerator/DFR-NC          </param>
-     <param type="alg" name="Generator-15">  genie::EventGenerator/QEL-CC-LAMBDA   </param>
-     <param type="alg" name="Generator-16">  genie::EventGenerator/DIS-CC-SINGLEK  </param>
-  </param_set>
-
-
-  <param_set name="G16_01b"> 
-     <param type="int" name="NGenerators">   19                                    </param>
-     <param type="alg" name="Generator-0">   genie::EventGenerator/QEL-CC          </param>
-     <param type="alg" name="Generator-1">   genie::EventGenerator/QEL-NC          </param>
-     <param type="alg" name="Generator-2">   genie::EventGenerator/RES-CC          </param>
-     <param type="alg" name="Generator-3">   genie::EventGenerator/RES-NC          </param>
-     <param type="alg" name="Generator-4">   genie::EventGenerator/DIS-CC          </param>
-     <param type="alg" name="Generator-5">   genie::EventGenerator/DIS-NC          </param>
-     <param type="alg" name="Generator-6">   genie::EventGenerator/COH-CC          </param>
-     <param type="alg" name="Generator-7">   genie::EventGenerator/COH-NC          </param>
-     <param type="alg" name="Generator-8">   genie::EventGenerator/DIS-CC-CHARM    </param>
-     <param type="alg" name="Generator-9">   genie::EventGenerator/QEL-CC-CHARM    </param>
-     <param type="alg" name="Generator-10">  genie::EventGenerator/NUE-EL          </param>
-     <param type="alg" name="Generator-11">  genie::EventGenerator/IMD             </param>
-     <param type="alg" name="Generator-12">  genie::EventGenerator/IMD-ANH         </param>
-     <param type="alg" name="Generator-13">  genie::EventGenerator/DFR-CC          </param>
-     <param type="alg" name="Generator-14">  genie::EventGenerator/DFR-NC          </param>
-     <param type="alg" name="Generator-15">  genie::EventGenerator/QEL-CC-LAMBDA   </param>
-     <param type="alg" name="Generator-16">  genie::EventGenerator/DIS-CC-SINGLEK  </param>
-     <param type="alg" name="Generator-17">  genie::EventGenerator/MEC-CC          </param>
-     <param type="alg" name="Generator-18">  genie::EventGenerator/MEC-NC          </param>
-  </param_set>
-
-  <param_set name="G16_02a"> 
-     <param type="int" name="NGenerators">   19                                    </param>
-     <param type="alg" name="Generator-0">   genie::EventGenerator/QEL-CC          </param>
-     <param type="alg" name="Generator-1">   genie::EventGenerator/QEL-NC          </param>
-     <param type="alg" name="Generator-2">   genie::EventGenerator/RES-CC          </param>
-     <param type="alg" name="Generator-3">   genie::EventGenerator/RES-NC          </param>
-     <param type="alg" name="Generator-4">   genie::EventGenerator/DIS-CC          </param>
-     <param type="alg" name="Generator-5">   genie::EventGenerator/DIS-NC          </param>
-     <param type="alg" name="Generator-6">   genie::EventGenerator/COH-CC          </param>
-     <param type="alg" name="Generator-7">   genie::EventGenerator/COH-NC          </param>
-     <param type="alg" name="Generator-8">   genie::EventGenerator/DIS-CC-CHARM    </param>
-     <param type="alg" name="Generator-9">   genie::EventGenerator/QEL-CC-CHARM    </param>
-     <param type="alg" name="Generator-10">  genie::EventGenerator/NUE-EL          </param>
-     <param type="alg" name="Generator-11">  genie::EventGenerator/IMD             </param>
-     <param type="alg" name="Generator-12">  genie::EventGenerator/IMD-ANH         </param>
-     <param type="alg" name="Generator-13">  genie::EventGenerator/DFR-CC          </param>
-     <param type="alg" name="Generator-14">  genie::EventGenerator/DFR-NC          </param>
-     <param type="alg" name="Generator-15">  genie::EventGenerator/QEL-CC-LAMBDA   </param>
-     <param type="alg" name="Generator-16">  genie::EventGenerator/DIS-CC-SINGLEK  </param>
-     <param type="alg" name="Generator-17">  genie::EventGenerator/MEC-CC          </param>
-     <param type="alg" name="Generator-18">  genie::EventGenerator/MEC-NC          </param>
-  </param_set>
+  <!-- Generator List usefull for Spline generations -->
  
   <param_set name="FastOnP">
      <param type="int" name="NGenerators">   9                                     </param>
