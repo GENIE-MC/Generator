@@ -50,6 +50,7 @@ public:
 
   Registry * GlobalParameterList(void) const;
   Registry * CommonParameterList( const string & name ) const;
+  Registry * TuneGeneratorList(void) const;
  
 
   const vector<string> & ConfigKeyList (void) const;
@@ -69,6 +70,7 @@ private:
   bool   LoadMasterConfig    (void);
   bool   LoadGlobalParamLists(void);
   bool   LoadCommonParamLists(void);
+  bool   LoadTuneGeneratorList(void);
   bool   LoadSingleAlgConfig (string alg_name, string file_name);
   bool   LoadRegistries      (string key_base, string file_name, string root);
   void   AddConfigParameter  (Registry * r, string pt, string pn, string pv);

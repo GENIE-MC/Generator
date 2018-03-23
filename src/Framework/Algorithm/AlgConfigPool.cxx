@@ -122,6 +122,13 @@ bool AlgConfigPool::LoadAlgConfig(void)
   //-- read Common Parameters lists
   if( ! LoadCommonParamLists() ) return false ;
 
+
+  //-- read Tune Generator List for the tune, if available
+  if( ! LoadTuneGeneratorList() ) {
+
+    SLOG( "AlgConfigPool", pWARN ) << "Tune generator List not available" ;
+  }
+
   //-- loop over all XML config files and read all named configuration
   //   sets for each algorithm
   map<string, string>::const_iterator conf_file_iter;
@@ -239,6 +246,23 @@ bool AlgConfigPool::LoadCommonParamLists(void)
   return this->LoadRegistries(key_prefix, glob_params, "common_param_list");
 }
 //____________________________________________________________________________
+bool AlgConfigPool::LoadTuneGeneratorList(void)
+{
+// Load the common parameter list 
+//
+  SLOG("AlgConfigPool", pINFO) << "Loading Tune Gerator List";
+
+  // -- get the user config XML file using GXMLPATH + default locations
+  string generator_list_file = utils::xml::GetXMLFilePath("TuneGeneratorList.xml");
+
+  // fixed key prefix
+  string key_prefix = "TuneGeneratorList";
+
+  // load and report status
+  return this->LoadRegistries(key_prefix, generator_list_file, "tune_generator_list");
+}
+//____________________________________________________________________________
+
 bool AlgConfigPool::LoadSingleAlgConfig(string alg_name, string file_name)
 {
 // Loads all configuration sets for the input algorithm that can be found in 
@@ -532,6 +556,15 @@ Registry * AlgConfigPool::CommonParameterList( const string & name ) const
 
   ostringstream key;
   key << "CommonParameterList/" << name;
+
+  return this->FindRegistry(key.str());
+}
+//____________________________________________________________________________
+Registry * AlgConfigPool::TuneGeneratorList( void ) const
+{
+
+  ostringstream key;
+  key << "TuneGeneratorList/Default"; 
 
   return this->FindRegistry(key.str());
 }
