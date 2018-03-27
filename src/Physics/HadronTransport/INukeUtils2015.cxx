@@ -535,7 +535,7 @@ void genie::utils::intranuke2015::PreEquilibrium(
     }
 
   // Add the fermi energy of the three nucleons to the phase space
-  if(DoFermi)
+  /*  if(DoFermi)
     {
       Target target(ev->TargetNucleus()->Pdg());
       TVector3 pBuf = p->P4()->Vect();
@@ -558,7 +558,7 @@ void genie::utils::intranuke2015::PreEquilibrium(
       TLorentzVector dP4 = tSum + TLorentzVector(TVector3(0,0,0),-mSum);
       p->SetMomentum(dP4);
       }
-
+  */
   // do the phase space decay & save all f/s particles to the event record
   //bool success = genie::utils::intranuke2015::PhaseSpaceDecay(ev,p,list,RemnP4,NucRmvE,mode);
   bool success = genie::utils::intranuke2015::PhaseSpaceDecay(ev,p1,list,RemnP4,NucRmvE,mode);
