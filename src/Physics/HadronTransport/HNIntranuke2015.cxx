@@ -918,11 +918,8 @@ int HNIntranuke2015::HandleCompoundNucleus(GHepRecord* ev, GHepParticle* p, int 
     {  // random number generator
   RandomGen * rnd = RandomGen::Instance();
 
-  //  double rpreeq = rnd->RndFsi().Rndm();   // sdytman test
- 
       if((p->KinE() < fEPreEq) )
 	{
-	  //	  if(fRemnA>5&&rpreeq<0.12)
 	  if(fRemnA>5)
             {
               GHepParticle * sp = new GHepParticle(*p);
