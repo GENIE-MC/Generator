@@ -263,7 +263,7 @@ double INukeNucleonCorr :: getAvgCorrection(double rho, double A, double ke)
     const int Npoints = 6;
     //Interpolate correction values at every energy and density on the correction table//
     // RWH: given the initializations above, perhaps these should be starting at 1
-    for(int e = 0; e < NRows; e++){
+    for(int e = 0; e < NRows-5; e++){
       for(int r = 0; r < NColumns; r++){
         TGraph * Interp = new TGraph(Npoints);
         Interp->SetPoint(0,4,HeliumValues[e][r]);
@@ -276,6 +276,8 @@ double INukeNucleonCorr :: getAvgCorrection(double rho, double A, double ke)
         // above: const int NRows=205, NColumns=18
         // above: double Interpolate[NRows][NColumns]
         Interpolated[e][r] = Interp->Eval(A);
+	//	LOG("INukeNucleonCorr",pNOTICE) 
+	//	  << "e,r,value= " << e << "   " << r << "   " << Interpolated[e][r];
         delete Interp;
       }
     }
