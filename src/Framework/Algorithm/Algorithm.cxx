@@ -140,6 +140,8 @@ void Algorithm::FindConfig(void)
 // responsibility to -eventually- delete all the Registries it instantiates
 // by parsing the XML config files).
 
+  DeleteConfig() ;
+
   AlgConfigPool * pool = AlgConfigPool::Instance();
 
   Registry * config = 0 ;
