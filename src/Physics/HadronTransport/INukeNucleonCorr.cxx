@@ -1,3 +1,31 @@
+//____________________________________________________________________________
+/*
+ Copyright (c) 2003-2018, The GENIE Collaboration
+ For the full text of the license visit http://copyright.genie-mc.org
+ or see $GENIE/LICENSE
+
+ Author: Tomek Golan <tomasz.golan@uwr.edu.pl>, FNAL/Rochester 
+         Steve Dytman <dytman+@pitt.edu>, Pittsburgh Univ.
+         Josh Kleckner <jok84@pitt.edu>, Pittsburgh Univ.
+
+         Auguest 20, 2016
+
+ Calculate the cross section attenuation factor due to medium
+corrections for NA FSI from Pandharipande, Pieper (Phys Rev (2009).  
+Paper gives prescription for Pauli blocking and average nuclear
+potential in (e,e'p).  GENIE code was adapted from NuWro implementation.
+
+ Important revisions after version 2.12.0 :
+ @ Aug, 2016 - TK
+   adapted to GENIE from NuWro.  Use free NN xs.
+ @ Aug, 2017 - SD, JK
+   Original code stores values in rotating buffer.  This won't be accurate 
+   for many problems, esp. heavy targets and multiple nuclei.  New code has 
+   lookup tables in probe KE and nuclear density (rho) stored in text files
+   for He4, C12, Ca40, Fe56, Sn120, and U238.  Use values from the text
+   files for KE and rho, interpolation in A.
+*/
+//____________________________________________________________________________
 #include "Physics/HadronTransport/INukeNucleonCorr.h"
 #include "Physics/HadronTransport/INukeUtils2015.h"
 #include "Physics/HadronTransport/INukeHadroData2015.h"
@@ -23,8 +51,8 @@ using namespace std;
 INukeNucleonCorr* INukeNucleonCorr::fInstance = NULL; // initialize instance with NULL
 
 
-const int NRows     = 205;
-const int NColumns  =  18;
+const int NRows     = 200;
+const int NColumns  =  17;
 
 string genie_dir(std::getenv("GENIE"));
 //string directory = genie_dir + string("/data/evgen/nncorr/");
@@ -75,6 +103,13 @@ double INukeNucleonCorr :: localFermiMom (const double rho, const int A, const i
   return pdg == kPdgProton ? pow (factor * rho * Z / A, 1.0 / 3.0) / (units::fermi) :
                              pow (factor * rho * (A - Z) / A, 1.0 / 3.0) / (units::fermi);
 }
+    vector<vector<double> > HeliumValues;
+    vector<vector<double> > CarbonValues;
+    vector<vector<double> > CalciumValues;
+    vector<vector<double> > IronValues;
+    vector<vector<double> > TinValues;
+    vector<vector<double> > UraniumValues;
+    vector<vector<double> > clear;
 
 //! generate random momentum direction and return 4-momentum of target nucleon
 TLorentzVector INukeNucleonCorr :: generateTargetNucleon (const double mass, const double fermiMom)
@@ -199,36 +234,48 @@ void read_file(string rfilename)
 //
 double INukeNucleonCorr :: getAvgCorrection(double rho, double A, double ke)
 {
-  //Read in energy and density to determine the row and column of the correction table
-  int Column = round(rho*100) + 1;
-  int Row = -1;
-  for (int e = 0; e < (ke*1000); e++) {
-    if (e > 100) {e +=  4;}
-    if (e > 500) {e += 15;}
-    Row++;
-  }
-  // RWH: not sure I understand the above calculation of "Row" as "e" is adjusted
-
+  //Read in energy and density to determine the row and column of the correction table - adjust for variable binning - throws away some of the accuracy
+   int Column = round(rho*100);
+   if(rho<.01) Column = 1;
+   if (Column>=NColumns) Column = NColumns-1;
+   int Row = 0;
+   if(ke<=.002) Row = 1;
+   if(ke>.002&&ke<=.1) Row = round(ke*1000.);
+   if(ke>.1&&ke<=.5) Row = round(.1*1000.+(ke-.1)*200);
+   if(ke>.5&&ke<=1) Row = round(.1*1000.+(.5-.1)*200+(ke-.5)*40);
+   if(ke>1) Row = NRows-1;
+   //LOG ("INukeNucleonCorr",pNOTICE) 
+   //  << "row, column = " << Row << "   " << Column;
   //If the table of correction values has already been created
   // return a value. Else, interpolate the needed correction table//
-  static double cache[NRows][NColumns] = {{-1}};  // NRows=18, NColumns=205
+//  static double cache[NRows][NColumns] = {{-1}};
   static bool ReadFile = false;
   if( ReadFile == true ) {
-    LOG("INukeNucleonCorr",pINFO)
-      << "Nucleon Corr interpolated value for correction factor = "
-      << cache[Row][Column]
-      << " for rho, KE, A= "<<  rho << "  " << ke << "   " << A << "\n";
-    return cache[Row][Column];
+   int Npoints = 6;
+   TGraph * Interp = new TGraph(Npoints);
+   //LOG("INukeNucleonCorr",pNOTICE)
+   //  << HeliumValues[Row][Column];
+   Interp->SetPoint(0,4,HeliumValues[Row][Column]);
+   Interp->SetPoint(1,12,CarbonValues[Row][Column]);
+   Interp->SetPoint(2,40,CalciumValues[Row][Column]);
+   Interp->SetPoint(3,56,IronValues[Row][Column]);
+   Interp->SetPoint(4,120,TinValues[Row][Column]);
+   Interp->SetPoint(5,238,UraniumValues[Row][Column]);
+
+   //   Interpolated[e][r] = Interp->Eval(A);
+	//	LOG("INukeNucleonCorr",pNOTICE) 
+	//	  << "e,r,value= " << e << "   " << r << "   " << Interpolated[e][r];
+   double returnval = Interp->Eval(A);
+   delete Interp;
+   LOG("INukeNucleonCorr",pINFO)
+      << "Nucleon Corr interpolated correction factor = "
+      << returnval  //cache[Row][Column]
+      << " for rho, KE, A= "<<  rho << "  " << ke << "   " << A;
+    //    return cache[Row][Column];
+   return returnval;
   } else {
     //Reading in correction files//
     //    string dir = genie_dir + string("/data/evgen/nncorr/");
-    vector<vector<double> > HeliumValues;
-    vector<vector<double> > CarbonValues;
-    vector<vector<double> > CalciumValues;
-    vector<vector<double> > IronValues;
-    vector<vector<double> > TinValues;
-    vector<vector<double> > UraniumValues;
-    vector<vector<double> > clear;
 
     read_file(dir+"NNCorrection_2_4.txt");
     HeliumValues = infile_values;
@@ -256,41 +303,28 @@ double INukeNucleonCorr :: getAvgCorrection(double rho, double A, double ke)
 
     LOG("INukeNucleonCorr",pNOTICE)
       << "Nucleon Corr interpolation files read in successfully";
-    double Interpolated[NRows][NColumns];   // NRows=205, NColumns=18
-    for(int i = 0; i < NRows;    i++){Interpolated[i][0] = (i*0.001);}
-    for(int i = 0; i < NColumns; i++){Interpolated[0][i] = (i*0.01);}
+    //get interpolated value for first event.
+    int Npoints = 6;
+    TGraph * Interp = new TGraph(Npoints);
+    //LOG("INukeNucleonCorr",pNOTICE)
+    //  << HeliumValues[Row][Column];
+    Interp->SetPoint(0,4,HeliumValues[Row][Column]);
+    Interp->SetPoint(1,12,CarbonValues[Row][Column]);
+    Interp->SetPoint(2,40,CalciumValues[Row][Column]);
+    Interp->SetPoint(3,56,IronValues[Row][Column]);
+    Interp->SetPoint(4,120,TinValues[Row][Column]);
+    Interp->SetPoint(5,238,UraniumValues[Row][Column]);
 
-    const int Npoints = 6;
-    //Interpolate correction values at every energy and density on the correction table//
-    // RWH: given the initializations above, perhaps these should be starting at 1
-    for(int e = 0; e < NRows-5; e++){
-      for(int r = 0; r < NColumns; r++){
-        TGraph * Interp = new TGraph(Npoints);
-        Interp->SetPoint(0,4,HeliumValues[e][r]);
-        Interp->SetPoint(1,12,CarbonValues[e][r]);
-        Interp->SetPoint(2,40,CalciumValues[e][r]);
-        Interp->SetPoint(3,56,IronValues[e][r]);
-        Interp->SetPoint(4,120,TinValues[e][r]);
-        Interp->SetPoint(5,238,UraniumValues[e][r]);
-
-        // above: const int NRows=205, NColumns=18
-        // above: double Interpolate[NRows][NColumns]
-        Interpolated[e][r] = Interp->Eval(A);
-	//	LOG("INukeNucleonCorr",pNOTICE) 
-	//	  << "e,r,value= " << e << "   " << r << "   " << Interpolated[e][r];
-        delete Interp;
-      }
-    }
-
-    //Save the interpolated values and return the needed correction//
-    for(int e = 0; e < 205; e++){
-      for(int r = 1; r < 18; r++){
-        cache[e][r] = Interpolated[e][r];
-      }
-    }
+    //	LOG("INukeNucleonCorr",pNOTICE) 
+    //	  << "Row,Column,value= " << Row << "   " << Column << "   " << Interp->Eval(A);
+    double returnval = Interp->Eval(A);
+    delete Interp;
     ReadFile = true;
-
-    return cache[Row][Column];
+    LOG("INukeNucleonCorr",pINFO)
+      << "Nucleon Corr interpolated correction factor = "
+      << returnval  
+      << " for rho, KE, A= "<<  rho << "  " << ke << "   " << A;
+    return returnval;
   }
 }
 
