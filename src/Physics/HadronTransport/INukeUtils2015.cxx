@@ -475,22 +475,8 @@ void genie::utils::intranuke2015::PreEquilibrium(
   double ppcnt = (double) RemnZ / (double) RemnA; // % of protons left
 
 
-  // build the new clusters:
-  double pKE = p->KinE();
-  double c   = 1 + (0.08 / pKE);
-  TVector3 pP3_2 = p->P4()->Vect() * c;
-  TVector3 pP3_1 = p->P4()->Vect() - pP3_2;
-
-  TLorentzVector clusP4_1( pP3_1, 0.080);
-  TLorentzVector clusP4_2( pP3_2, pKE - 0.080 );
-
-  TLorentzVector clusX4(*p->X4());
-  GHepStatus_t ist = kIStNucleonClusterTarget;
-  int mom = p->FirstMother();
-
-  GHepParticle * p1 = new GHepParticle(kPdgCompNuclCluster, ist, mom, -1, -1, -1, clusP4_1, clusX4);  // make sure this is the right constructor
-  GHepParticle * p2 = new GHepParticle(kPdgCompNuclCluster, ist, mom, -1, -1, -1, clusP4_2, clusX4);
-
+  //  GHepStatus_t ist = kIStNucleonClusterTarget;
+  /*
   LOG("INukeUtils",pDEBUG) << "cluster formation check";
   LOG("INukeUtils",pDEBUG) << "particle p0:  E  = " << p->E()  << " , px = " << p->Px()  << " , py = " << p->Py()  << " , pz = " << p->Pz();
   LOG("INukeUtils",pDEBUG) << "particle p1:  E  = " << p1->E() << " , px = " << p1->Px() << " , py = " << p1->Py() << " , pz = " << p1->Pz();
@@ -498,15 +484,14 @@ void genie::utils::intranuke2015::PreEquilibrium(
   LOG("INukeUtils",pDEBUG) << "conservation: dE = " << p->E()-p1->E()-p2->E() << " dpx = " << p->Px()-p1->Px()-p2->Px() << " dpy = " << p->Py()-p1->Py()-p2->Py() << " dpz = " << p->Pz()-p1->Pz()-p2->Pz() ;
 
   RemnP4 -= clusP4_1 + clusP4_2 - *p->P4(); // extra statement to conserve 4-momenta
-
+  */
 
   // figure out the final state conditions
 
   if(p->Pdg()==kPdgProton) list.push_back(kPdgProton);
   else if(p->Pdg()==kPdgNeutron) list.push_back(kPdgNeutron);
 
-  /*
-  for(int i=0;i<3;i++)
+  for(int i=0;i<6;i++)
     {
       if(rnd->RndFsi().Rndm()<ppcnt)
         {
@@ -519,20 +504,7 @@ void genie::utils::intranuke2015::PreEquilibrium(
 
       ppcnt = (double) RemnZ / (double) RemnA;
     }
-  */
-  for(int i=0;i<4;i++)  // changed from 3 to 4.  Want to divide energy among 4 + 1 = 5 particles
-    {
-      if(rnd->RndFsi().Rndm()<ppcnt)
-        {
-          list.push_back(kPdgProton);
-          RemnZ--;
-        }
-      else list.push_back(kPdgNeutron);
 
-      RemnA--;
-
-      ppcnt = (double) RemnZ / (double) RemnA;
-    }
 
   // Add the fermi energy of the three nucleons to the phase space
   /*  if(DoFermi)
@@ -561,7 +533,7 @@ void genie::utils::intranuke2015::PreEquilibrium(
   */
   // do the phase space decay & save all f/s particles to the event record
   //bool success = genie::utils::intranuke2015::PhaseSpaceDecay(ev,p,list,RemnP4,NucRmvE,mode);
-  bool success = genie::utils::intranuke2015::PhaseSpaceDecay(ev,p1,list,RemnP4,NucRmvE,mode);
+  bool success = genie::utils::intranuke2015::PhaseSpaceDecay(ev,p,list,RemnP4,NucRmvE,mode);
   if(success)  LOG("INukeUtils",pINFO) << "Successful phase space decay for pre-equilibrium nucleus FSI event";
   else
     {
@@ -570,7 +542,6 @@ void genie::utils::intranuke2015::PreEquilibrium(
       throw exception;
     }
 
-  /*
   int p_loc = 0;
   while(p_loc<ev->GetEntries())  // this sets p_loc to being the index of the probe particle (or whatever particle has the same pdg, status, and momentum)
     {
@@ -598,7 +569,6 @@ void genie::utils::intranuke2015::PreEquilibrium(
   int loc       = p_loc + 1;
   int f_loc     = p_loc + 1;
   double energy = ev->Particle(loc)->E();
-  */
 
 /*  // (1) least energetic
   double min_en = energy;
@@ -629,26 +599,19 @@ void genie::utils::intranuke2015::PreEquilibrium(
           max_en = energy;
         }
     }
-
+*/
   // (3) 1st particle
   // ...just use the defaulted f_loc
 
   delete descendants;
 
-*/ //no longer selecting most energetic product for second phase space decay
+ //no longer selecting most energetic product for second phase space decay
 
-  /*
   // change particle status for decaying particle
-  ev->Particle(f_loc)->SetStatus(kIStIntermediateState);
+  ev->Particle(f_loc)->SetStatus(kIStHadronInTheNucleus);
   // decay a clone particle
   GHepParticle * t = new GHepParticle(*(ev->Particle(f_loc)));
   t->SetFirstMother(f_loc);
-  genie::utils::intranuke2015::Equilibrium(ev,t,RemnA,RemnZ,RemnP4,DoFermi,FermiFac,Nuclmodel,NucRmvE,mode);
-  */
-
-  // still decaying a clone (?)
-  GHepParticle * t = new GHepParticle(*p2);
-  // may still need to set first mother
   genie::utils::intranuke2015::Equilibrium(ev,t,RemnA,RemnZ,RemnP4,DoFermi,FermiFac,Nuclmodel,NucRmvE,mode);
 
   delete t;
@@ -683,7 +646,7 @@ void genie::utils::intranuke2015::Equilibrium(
   else if(p->Pdg()==kPdgNeutron) list.push_back(kPdgNeutron);
 
   //add additonal particles to stack
-  for(int i=0;i<2;i++)
+  for(int i=0;i<6;i++)
     {
       if(rnd->RndFsi().Rndm()<ppcnt)
         {
@@ -703,7 +666,7 @@ void genie::utils::intranuke2015::Equilibrium(
 #endif
 
   // Add the fermi energy of the three nucleons to the phase space
-  if(DoFermi)
+  /*  if(DoFermi)
     {
       Target target(ev->TargetNucleus()->Pdg());
       TVector3 pBuf = p->P4()->Vect();
@@ -726,7 +689,7 @@ void genie::utils::intranuke2015::Equilibrium(
       TLorentzVector dP4 = tSum + TLorentzVector(TVector3(0,0,0),-mSum);
       p->SetMomentum(dP4);
     }
-
+  */
   // do the phase space decay & save all f/s particles to the record
   bool success = genie::utils::intranuke2015::PhaseSpaceDecay(ev,p,list,RemnP4,NucRmvE,mode);
   if (success) LOG("INukeUtils",pINFO) << "successful pre-equilibrium interaction";
