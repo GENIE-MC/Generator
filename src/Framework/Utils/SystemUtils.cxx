@@ -5,7 +5,7 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
+         University of Liverpool & STFC Rutherford Appleton Lab
 
  For documentation see the corresponding header file.
 
@@ -13,7 +13,7 @@
  @ Oct 08, 2009 - CA
    That file was added in 2.5.1
  @ Apr 20, 2012 - CA
-   Added LocalTimeAsString(string format) to tag validation program outputs.	
+   Added LocalTimeAsString(string format) to tag validation program outputs.
 
 */
 //____________________________________________________________________________
@@ -35,7 +35,7 @@
 using std::atoi;
 
 //___________________________________________________________________________
-vector<string> 
+vector<string>
   genie::utils::system::GetAllFilesInPath(string path, string extension)
 {
   vector<string> files;
@@ -93,22 +93,23 @@ bool genie::utils::system::FileExists(string filename)
 
   bool is_accessible = ! (gSystem->AccessPathName(filename.c_str()));
   if (is_accessible) return true;
-    
+
   return false;
 }
 
 //___________________________________________________________________________
 
-bool genie::utils::system::DirectoryExixsts( const char * path ) {
+bool genie::utils::system::DirectoryExists( const char * path ) {
 
-	struct stat info;
+  struct stat info;
 
-	if( stat( path, &info ) != 0 )
-		return false ;
-	else if(info.st_mode & S_IFDIR)
-		return true ;
-	else
-		return false ;
+  if( stat( path, &info ) != 0 ) {
+    return false ;
+  } else if(info.st_mode & S_IFDIR) {
+    return true ;
+  } else {
+    return false ;
+  }
 }
 
 
@@ -126,8 +127,8 @@ string genie::utils::system::LocalTimeAsString(string format)
   int sec = local_time->tm_sec;
 
   // daylight saving
-  if(local_time->tm_isdst > 0) 
-  { 
+  if(local_time->tm_isdst > 0)
+  {
     if(hr > 0) {
        hr--;
     }
@@ -139,17 +140,17 @@ string genie::utils::system::LocalTimeAsString(string format)
        }
        else {
           mon--;
-          if(mon == 1 || mon == 3 || mon ==  5 || 
-             mon == 7 || mon == 8 || mon == 10 || mon == 12) 
+          if(mon == 1 || mon == 3 || mon ==  5 ||
+             mon == 7 || mon == 8 || mon == 10 || mon == 12)
           {
              day = 31;
           }
-          else 
+          else
           if(mon == 2)
           {
              day = 28;
           }
-          else 
+          else
           {
              day = 30;
           }
@@ -157,10 +158,9 @@ string genie::utils::system::LocalTimeAsString(string format)
     }
   }
 
-  string local_time_as_string = 
+  string local_time_as_string =
         Form(format.c_str(),yr,mon,day,hr,min,sec);
 
   return local_time_as_string;
 }
 //___________________________________________________________________________
-

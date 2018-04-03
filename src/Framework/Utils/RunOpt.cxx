@@ -5,7 +5,7 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
+         University of Liverpool & STFC Rutherford Appleton Lab
 
  For the class documentation see the corresponding header file.
 
@@ -88,7 +88,7 @@ void RunOpt::ReadFromCommandLine(int argc, char ** argv)
 
   if( parser.OptionExists("enable-bare-xsec-pre-calc") ) {
     fEnableBareXSecPreCalc = true;
-  } else 
+  } else
   if( parser.OptionExists("disable-bare-xsec-pre-calc") ) {
     fEnableBareXSecPreCalc = false;
   }
@@ -116,58 +116,63 @@ void RunOpt::ReadFromCommandLine(int argc, char ** argv)
 
   if( parser.OptionExists("tune") ) {
 
-	string tune = parser.ArgAsString("tune");
+    string tune = parser.ArgAsString("tune");
 
-	//the structure of the tunes names is fixed, see http://tunes.genie-mc.org/
-	string cgc( tune, 0, 7 ) ;
-	string temp_tune( tune, 8 ) ;
+    //the structure of the tunes names is fixed, see http://tunes.genie-mc.org/
+    // e.g. G00_00a or G18_10j_PP_xxx
+    size_t tlen = tune.size();
+    string cgc( tune, 0, std::min(tlen,(size_t)7) );
+    string temp_tune = "";
+    if ( tlen > 8 ) temp_tune = string( tune, 8 );
 
-	LOG("RunOpt", pINFO) << " Requested tune " << tune << " for CGC " << cgc ;
+    LOG("RunOpt", pINFO) << " Requested tune " << tune << " for CGC " << cgc ;
 
-	string path = std::getenv( "GENIE" ) ;
-	path += "/config/" + cgc ;
+    string path = std::getenv( "GENIE" ) ;
+    path += "/config/" + cgc ;
 
-	assert( utils::system::DirectoryExixsts( path.c_str() ) );
+    LOG("RunOpt", pINFO) << " Testing  " << path << " directory" ;
+    assert( utils::system::DirectoryExists( path.c_str() ) );
 
-	fCGC  = cgc  ;
-	LOG("RunOpt", pINFO) << " Comprehensive configuration " << cgc << " set" ;
+    fCGC  = cgc ;
+    LOG("RunOpt", pINFO) << " Comprehensive configuration " << cgc << " set" ;
 
-	if ( tune.size() > 7 && temp_tune != "00_000" ) {
+    if ( tlen > 7 && temp_tune != "00_000" ) {
 
-		path += '/' + tune ;
+      path += '/' + tune ;
 
-		LOG("RunOpt", pINFO) << " Testing  " << path << " directory" ;
-		assert( utils::system::DirectoryExixsts( path.c_str() ) );
-		LOG("RunOpt", pINFO) << " Tune " << tune << " set" ;
+      LOG("RunOpt", pINFO) << " Testing  " << path << " subdirectory" ;
+      assert( utils::system::DirectoryExists( path.c_str() ) );
+      LOG("RunOpt", pINFO) << " Tune " << tune << " set" ;
 
-		fTune = tune ;
-	}
+      fTune = tune ;
+
+    }
 
   }  // if( parser.OptionExists("tune") )
   else {
 
-	string cgc( "G00_00a" ) ;
+    string cgc( "G00_00a" ) ;
 
-	string path = std::getenv( "GENIE" ) ;
-	path += "/config/" + cgc ;
+    string path = std::getenv( "GENIE" ) ;
+    path += "/config/" + cgc ;
 
-	assert( utils::system::DirectoryExixsts( path.c_str() ) );
+    assert( utils::system::DirectoryExists( path.c_str() ) );
 
-	fCGC  = cgc  ;
-	LOG("RunOpt", pINFO) << " Comprehensive configuration " << cgc << " set" ;
+    fCGC  = cgc  ;
+    LOG("RunOpt", pINFO) << " Comprehensive configuration " << cgc << " set" ;
 
   }// else ( parser.OptionExists("tune") )
 
   if( parser.OptionExists("unphysical-event-mask") ) {
-    const char * bitfield = 
+    const char * bitfield =
        parser.ArgAsString("unphysical-event-mask").c_str();
     unsigned int n = GHepFlags::NFlags();
     unsigned int i = 0;
-    while(i < n) {
+    while (i < n) {
         bool flag = (bitfield[i]=='1');
         fUnphysEventMask->SetBitNumber(n-1-i,flag);
         i++;
-     }//i
+     } //i
   }
 
 }
