@@ -152,7 +152,7 @@ void Algorithm::FindConfig(void)
     if ( config ) {
       if ( config -> NEntries() > 0 ) {
 	AddTopRegistry( config, false ) ;
-	LOG("Algorithm", pDEBUG) << "\n" << *fConfig;
+	LOG("Algorithm", pDEBUG) << "\n" << *config;
       }
     }
   } 
@@ -168,7 +168,7 @@ void Algorithm::FindConfig(void)
   else {
     if ( config -> NEntries() > 0 ) {
       AddTopRegistry( config, false ) ;
-      LOG("Algorithm", pDEBUG) << "\n" << *fConfig;
+      LOG("Algorithm", pDEBUG) << "\n" << config;
     }
   }
   
@@ -204,7 +204,7 @@ void Algorithm::FindConfig(void)
       else  {
 	AddTopRegistry( config, false ) ;
 	
-	LOG("Algorithm", pDEBUG) << "Loading Commom Param registry " << list[i] << " \n" << *fConfig;
+	LOG("Algorithm", pDEBUG) << "Loading Commom Param registry " << list[i] << " \n" << config;
       }
       
     }
@@ -216,7 +216,7 @@ void Algorithm::FindConfig(void)
   if ( config ) {
     if ( config -> NEntries() > 0 ) {
       AddTopRegistry( config, false ) ;
-      LOG("Algorithm", pDEBUG) << "Loading Tunable registry \n" << *fConfig;
+      LOG("Algorithm", pDEBUG) << "Loading Tunable registry \n" << config;
     }
   }
   else {
