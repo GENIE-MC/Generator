@@ -443,6 +443,12 @@ void Algorithm::AdoptSubstructure(void)
 
   }
 
+
+  if ( fConfig ) {
+    delete fConfig ;
+    fConfig = 0 ;
+  }
+
 }
 //____________________________________________________________________________
 void Algorithm::DeleteConfig(void)
@@ -576,7 +582,7 @@ int Algorithm::AddTopRegistry( Registry * rp, bool own ) {
 //____________________________________________________________________________
 
 
-int  Algorithm:: MergeTopRegistry( const Registry & r )  {
+int  Algorithm::MergeTopRegistry( const Registry & r )  {
 
   if ( fOwnerships.empty() ) {
 
