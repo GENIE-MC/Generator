@@ -8,6 +8,9 @@
 \author     Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
             University of Liverpool & STFC Rutherford Appleton Lab
 
+            Changes required to implement the GENIE Boosted Dark Matter module
+            were installed by Josh Berger (Univ. of Wisconsin)
+
 \created    November 26, 2004
 
 \cpright    Copyright (c) 2003-2018, The GENIE Collaboration
@@ -54,6 +57,14 @@ namespace kinematics
   Range1D_t  CohXLim     (void);
   Range1D_t  CohQ2Lim    (double Mn, double mpi, double mlep, double Ev);
   Range1D_t  Cohq2Lim    (double Mn, double mpi, double mlep, double Ev);
+  Range1D_t  DarkWLim    (double Ev, double M, double ml);
+  Range1D_t  DarkQ2Lim_W (double Ev, double M, double ml, double W, double Q2min_cut =    controls::kMinQ2Limit);
+  Range1D_t  Darkq2Lim_W (double Ev, double M, double ml, double W, double q2min_cut = -1*controls::kMinQ2Limit);
+  Range1D_t  DarkQ2Lim   (double Ev, double M, double ml, double Q2min_cut =    controls::kMinQ2Limit);
+  Range1D_t  Darkq2Lim   (double Ev, double M, double ml, double q2min_cut = -1*controls::kMinQ2Limit);
+  Range1D_t  DarkXLim    (double Ev, double M, double ml);
+  Range1D_t  DarkYLim    (double Ev, double M, double ml);
+  Range1D_t  DarkYLim_X  (double Ev, double M, double ml, double x);
 
   //-- helpers for kinematic limits
   double CohW2Min(double Mn, double mpi);

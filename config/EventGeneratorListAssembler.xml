@@ -441,5 +441,47 @@ Generator-%d                alg     No
   </param_set>
 
 
+  <!-- BDM module -->
+
+  <param_set name="DMELv0">
+     <param type="int" name="NGenerators">   1                              </param>
+     <param type="alg" name="Generator-0">   genie::EventGenerator/DMELv0     </param>
+  </param_set>
+
+  <param_set name="DMDISv0">
+     <param type="int" name="NGenerators">   1                              </param>
+     <param type="alg" name="Generator-0">   genie::EventGenerator/DMDISv0    </param>
+  </param_set>
+
+  <param_set name="DMv0">
+     <param type="int" name="NGenerators">   2                              </param>
+     <param type="alg" name="Generator-0">   genie::EventGenerator/DMELv0     </param>
+     <param type="alg" name="Generator-1">   genie::EventGenerator/DMDISv0    </param>
+  </param_set>
+
+  <param_set name="DMELv2">
+     <param type="int" name="NGenerators">   1                              </param>
+     <param type="alg" name="Generator-0">   genie::EventGenerator/DMELv2     </param>
+  </param_set>
+
+  <param_set name="DMDISv2">
+     <param type="int" name="NGenerators">   1                              </param>
+     <param type="alg" name="Generator-0">   genie::EventGenerator/DMDISv2    </param>
+  </param_set>
+
+  <param_set name="DMv2">
+     <param type="int" name="NGenerators">   2                              </param>
+     <param type="alg" name="Generator-0">   genie::EventGenerator/DMELv2     </param>
+     <param type="alg" name="Generator-1">   genie::EventGenerator/DMDISv2    </param>
+  </param_set>
+
+  <param_set name="DM">
+     <param type="int" name="NGenerators">   4                              </param>
+     <param type="alg" name="Generator-0">   genie::EventGenerator/DMELv0     </param>
+     <param type="alg" name="Generator-1">   genie::EventGenerator/DMDISv0    </param>
+     <param type="alg" name="Generator-2">   genie::EventGenerator/DMELv2     </param>
+     <param type="alg" name="Generator-3">   genie::EventGenerator/DMDISv2    </param>
+  </param_set>
+
 </alg_conf>
 

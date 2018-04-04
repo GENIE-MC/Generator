@@ -138,9 +138,8 @@ physics-boosted-dark-matter:
 	@echo " "
 	@echo "** Building boosted dark matter library..."
 ifeq ($(strip $(GOPT_ENABLE_BOOSTED_DARK_MATTER)),YES)
-	cd ${GENIE}/src/Physics && \
-	cd BoostedDarkMatter && \
-	$(MAKE) && \
+	cd ${GENIE}/src/Physics/BoostedDarkMatter/EventGen && $(MAKE) && \
+	cd ${GENIE}/src/Physics/BoostedDarkMatter/XSection && $(MAKE) && \
 	cd ${GENIE}
 else
 	@echo " "
@@ -509,6 +508,8 @@ clean-files: FORCE
 	cd ${GENIE}/src/Framework/Utils                          &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/AnomalyMediatedNuGamma/XSection  &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/AnomalyMediatedNuGamma/EventGen  &&  $(MAKE) clean && \
+	cd ${GENIE}/src/Physics/BoostedDarkMatter/XSection       &&  $(MAKE) clean && \
+	cd ${GENIE}/src/Physics/BoostedDarkMatter/EventGen       &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/Charm/XSection                   &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/Coherent/XSection                &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/Coherent/EventGen                &&  $(MAKE) clean && \

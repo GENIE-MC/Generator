@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for the DISInteractionListGenerator InteractionListGeneratorI
+
+Configurable Parameters:
+.......................................................................................................
+Name             Type     Optional   Comment               Default
+.......................................................................................................
+-->
+
+  <param_set name="DM-Default">
+        <param type="bool" name="is-DM">          true  </param>
+        <param type="bool" name="set-hit-quark">  true  </param>
+  </param_set>
+
+</alg_conf>
+

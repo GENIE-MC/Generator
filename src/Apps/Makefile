@@ -59,6 +59,11 @@ else
 endif
 # ------------------------------------------
 endif
+ifeq ($(strip $(GOPT_ENABLE_BOOSTED_DARK_MATTER)),YES)
+TGT_BASE += gevgen_dm
+TGT_BASE += gevdump_dm
+TGT_BASE += gmkspl_dm
+endif
 ifeq ($(strip $(GOPT_ENABLE_FLUX_DRIVERS)),YES)
 TGT_BASE += gmxpl
 endif
@@ -135,11 +140,23 @@ $(GENIE_BIN_PATH)/gevgen_nnbarosc: gNNBarOscEvGen.o $(call find_libs,gevgen_nnba
 	@echo "** Building gevgen_nnbarosc"
 	$(LD) $(LDFLAGS) gNNBarOscEvGen.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen_nnbarosc
 
+# a simple/generic gevgen_dm event generation app for dark matter scattering
+#
+$(GENIE_BIN_PATH)/gevgen_dm: gEvGenDM.o $(call find_libs,gevgen_dm)
+	@echo "** Building gevgen_dm"
+	$(LD) $(LDFLAGS) gEvGenDM.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen_dm
+
 # gevdump event print-out utility
 #
 $(GENIE_BIN_PATH)/gevdump: gEvDump.o $(call find_libs,gevdump)
 	@echo "** Building gevdump"
 	$(LD) $(LDFLAGS) gEvDump.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevdump
+
+# gevdump event print-out utility for dark matter scattering
+#
+$(GENIE_BIN_PATH)/gevdump_dm: gEvDumpDM.o $(call find_libs,gevdump_dm)
+	@echo "** Building gevdump_dm"
+	$(LD) $(LDFLAGS) gEvDumpDM.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevdump_dm
 
 # event topology cherry-picking program
 #
@@ -170,6 +187,12 @@ $(GENIE_BIN_PATH)/gxscomp: gXSecComp.o $(call find_libs,gxscomp)
 $(GENIE_BIN_PATH)/gmkspl: gMakeSplines.o $(call find_libs,gmkspl)
 	@echo "** Building gmkspl"
 	$(LD) $(LDFLAGS) gMakeSplines.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gmkspl
+
+# x-section spline building utility for dark matter scattering
+#
+$(GENIE_BIN_PATH)/gmkspl_dm: gMakeSplinesDM.o $(call find_libs,gmkspl_dm)
+	@echo "** Building gmkspl_dm"
+	$(LD) $(LDFLAGS) gMakeSplinesDM.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gmkspl_dm
 
 # utility merging x-section spline xml files
 #

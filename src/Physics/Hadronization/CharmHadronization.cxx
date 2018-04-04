@@ -5,18 +5,11 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab - August 17, 2004
+         University of Liverpool & STFC Rutherford Appleton Lab 
 
- For the class documentation see the corresponding header file.
+         Changes required to implement the GENIE Boosted Dark Matter module
+         were installed by Josh Berger (Univ. of Wisconsin)
 
- Important revisions after version 2.0.0 :
- @ Jun 23, 2008 - CA
-   At dtor delete the Spline and TF1 objects created at LoadConfig()
- @ Jul 03, 2008 - CA
-   Removed a couple of (maximum weight > 0) assertions before generating 
-   an unweighted phase space decay. Return a null particle list instead so
-   that problematic event can be discarded and event generation can continue.
-   This prevents rare problems from stopping event generation jobs.
 */
 //____________________________________________________________________________
 
@@ -122,6 +115,7 @@ TClonesArray * CharmHadronization::Hadronize(
   bool isn     = pdg::IsNeutron(nuc_pdg);
   bool isnu    = pdg::IsNeutrino(nu_pdg);
   bool isnub   = pdg::IsAntiNeutrino(nu_pdg);
+  bool isdm    = pdg::IsDarkMatter(nu_pdg);
 
   // ....................................................................
   // Attempt to generate a charmed hadron & its 4-momentum
@@ -457,7 +451,7 @@ TClonesArray * CharmHadronization::Hadronize(
   if(use_pythia) {
     int  qrkSyst1 = 0;
     int  qrkSyst2 = 0;
-    if(isnu) { // neutrinos
+    if(isnu||isdm) { // neutrinos
        if(ch_pdg==kPdgLambdaPc) {
           if(isp) { qrkSyst1 = kPdgAntiDQuark; qrkSyst2 = kPdgUQuark; }
           if(isn) { qrkSyst1 = kPdgAntiDQuark; qrkSyst2 = kPdgDQuark; }

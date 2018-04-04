@@ -9,6 +9,12 @@
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           University of Liverpool & STFC Rutherford Appleton Lab
 
+          Changes required to implement the GENIE Boosted Dark Matter module
+          were installed by Josh Berger (Univ. of Wisconsin)
+
+          Other code improvements, additions, fixes were installed by 
+          Joe Johnston (Univ of Pittsburgh)
+
 \created  October 08, 2004
 
 \cpright  Copyright (c) 2003-2018, The GENIE Collaboration

@@ -7,18 +7,8 @@
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          University of Liverpool & STFC Rutherford Appleton Lab 
 
- For documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Sep 19, 2009 - CA
-   Removed the hardcoded Q2min cut to accomododate the group extending GENIE
-   to ~MeV range energies (They require the Q2min cut to go down from 1E-4
-   GeV^2 to 1E-10 GeV^2). Now all methods computing Q2 limits accept the cut
-   as argument. The argument has a default value (controls::kMinQ2Limit) that 
-   leaves the intermediate energy (~GeV) simulations unaffected.
-   Removed 'using namespace genie::controls' and added the controls namespace
-   qualifier at all relevent consts to clarify their source.
-   
+         Changes required to implement the GENIE Boosted Dark Matter module
+         were installed by Josh Berger (Univ. of Wisconsin)   
 */
 //____________________________________________________________________________
 
@@ -619,6 +609,173 @@ double genie::utils::kinematics::CohW2Min(double Mn, double mpi)
   // Kartavtsev, Paschos, and Gounaris
 
   return (Mn + mpi) * (Mn + mpi);
+}
+//____________________________________________________________________________
+Range1D_t genie::utils::kinematics::DarkWLim(double Ev, double M, double ml)
+{
+// Computes W limits for inelastic v interactions
+//
+  double M2 = TMath::Power(M,2);
+  double ml2 = TMath::Power(ml,2);
+  double s  = M2 + 2*M*Ev + ml2;
+  assert (s>0);
+
+  Range1D_t W;
+  W.min  = kNeutronMass + kPhotontest;
+//  W.min  = kNeutronMass + kPionMass;
+  W.max  = TMath::Sqrt(s) - ml;
+  if(W.max<=W.min) {
+    W.min = -1;
+    W.max = -1;
+    return W;
+  }
+  W.min  += controls::kASmallNum;
+  W.max  -= controls::kASmallNum;
+  return W;
+}
+//____________________________________________________________________________
+Range1D_t genie::utils::kinematics::DarkQ2Lim_W(
+     double Ev, double M, double ml, double W, double Q2min_cut)
+{
+// Computes Q2 limits (>0) @ the input W for inelastic v interactions
+
+  Range1D_t Q2;
+  Q2.min = -1;
+  Q2.max = -1;
+
+  double M2  = TMath::Power(M,  2.);
+  double ml2 = TMath::Power(ml, 2.);
+  double W2  = TMath::Power(W,  2.);
+  double s   = M2 + 2*M*Ev + ml2;
+  assert(s > 0);
+  double sqs = TMath::Sqrt(s);
+  double E1CM = (s + ml2 - M2) / (2.*sqs);
+  double p1CM = TMath::Max(0., E1CM*E1CM - ml2);
+  p1CM = TMath::Sqrt(p1CM);
+  double E3CM = (s + ml2 - W2) / (2.*sqs);
+  double p3CM = TMath::Max(0., E3CM*E3CM - ml2);
+  p3CM = TMath::Sqrt(p3CM);
+
+  SLOG("KineLimits", pDEBUG) << "s  = " << s;
+  SLOG("KineLimits", pDEBUG) << "Ev = " << Ev;
+  SLOG("KineLimits", pDEBUG) << "M = " << M;
+  SLOG("KineLimits", pDEBUG) << "W = " << W;
+  SLOG("KineLimits", pDEBUG) << "E1_CM = " << E1CM;
+  SLOG("KineLimits", pDEBUG) << "p1_CM = " << p1CM;
+  SLOG("KineLimits", pDEBUG) << "E3_CM = " << E3CM;
+  SLOG("KineLimits", pDEBUG) << "p3_CM = " << p3CM;
+
+  Q2.min = TMath::Power(p3CM - p1CM,2) - TMath::Power((W2 - M2) / (2.*sqs),2);
+  Q2.max = TMath::Power(p3CM + p1CM,2) - TMath::Power((W2 - M2) / (2.*sqs),2);
+
+  SLOG("KineLimits", pDEBUG) << "Nominal Q^2 limits: " << Q2.min << " , " << Q2.max;
+  // guard against overflows
+  Q2.max = TMath::Max(0., Q2.max);
+  Q2.min = TMath::Max(0., Q2.min);
+
+  // limit the minimum Q2
+  if(Q2.min < Q2min_cut) {Q2.min = Q2min_cut;     }
+  if(Q2.max < Q2.min   ) {Q2.min = -1; Q2.max = -1;}
+  
+  return Q2;
+}
+//____________________________________________________________________________
+Range1D_t genie::utils::kinematics::Darkq2Lim_W(
+    double Ev, double M, double ml, double W, double q2min_cut)
+{
+// Computes q2 (<0) limits @ the input W for inelastic v interactions
+
+  Range1D_t Q2 = utils::kinematics::DarkQ2Lim_W(Ev,M,ml,W,-1.*q2min_cut);
+  Range1D_t q2;
+  q2.min = - Q2.max;
+  q2.max = - Q2.min;
+  return q2;
+}
+//____________________________________________________________________________
+Range1D_t genie::utils::kinematics::DarkQ2Lim(
+    double Ev, double M, double ml, double Q2min_cut)
+{
+// Computes Q2 (>0) limits irrespective of W for inelastic v interactions
+
+  Range1D_t Q2;
+  Q2.min = -1;
+  Q2.max = -1;
+
+  Range1D_t W  = utils::kinematics::DarkWLim(Ev,M,ml);
+  if(W.min<0) return Q2;
+
+  Q2 = utils::kinematics::DarkQ2Lim_W(Ev,M,ml,W.min,Q2min_cut);
+  return Q2;
+}
+//____________________________________________________________________________
+Range1D_t genie::utils::kinematics::Darkq2Lim(
+     double Ev, double M, double ml, double q2min_cut)
+{
+// Computes Q2 (>0) limits irrespective of W for inelastic v interactions
+
+  Range1D_t Q2 = utils::kinematics::DarkQ2Lim(Ev,M,ml,-1.*q2min_cut);
+  Range1D_t q2;
+  q2.min = - Q2.max;
+  q2.max = - Q2.min;
+  return q2;
+}
+//____________________________________________________________________________
+Range1D_t genie::utils::kinematics::DarkXLim(double Ev, double M, double ml)
+
+{
+// Computes Bjorken x limits for inelastic interactions
+// For the dark matter case, it is relatively straightforward
+  Range1D_t Wl = utils::kinematics::DarkWLim(Ev, M, ml);
+  double Wmin = Wl.min;
+  double W2min = Wmin*Wmin;
+  SLOG("KineLimits", pDEBUG) << "W^2_min = " << W2min;
+  Range1D_t Q2l = utils::kinematics::DarkQ2Lim_W(Ev, M, ml, Wmin);
+  SLOG("KineLimits", pDEBUG) << "Q^2 range : " << Q2l.min << " , " << Q2l.max;
+  double M2 = M*M;
+  Range1D_t x;
+  x.min = Q2l.min / (Q2l.min + W2min - M2);
+  x.max = Q2l.max / (Q2l.max + W2min - M2);
+  
+  SLOG("KineLimits", pDEBUG) << "x  = [" << x.min << ", " << x.max << "]";
+  return x; 
+}
+//____________________________________________________________________________
+Range1D_t genie::utils::kinematics::DarkYLim(double Ev, double M, double ml)
+{
+  // For dark inelastic scattering, can compute exactly and is much simpler
+  Range1D_t Wl = utils::kinematics::DarkWLim(Ev, M, ml);
+  double Wmin = Wl.min;
+  double W2min = Wmin*Wmin;
+  Range1D_t Q2l = utils::kinematics::DarkQ2Lim_W(Ev, M, ml, Wmin);
+  double M2 = M*M;
+  Range1D_t y;
+  y.min = (Q2l.min + W2min - M2) / (2*Ev*M);
+  y.max = (Q2l.max + W2min - M2) / (2*Ev*M);
+  
+  SLOG("KineLimits", pDEBUG) << "y  = [" << y.min << ", " << y.max << "]";
+  return y;
+}
+//____________________________________________________________________________
+Range1D_t genie::utils::kinematics::DarkYLim_X(
+                                 double Ev, double M, double ml, double x)
+
+{
+  // Computes y limits @ the input x for inelastic interactions
+  // We hit y_min when W = W_min and y_max when Q^2 = Q_min^2 or Q^2 = Q_max^2
+
+  Range1D_t y;
+  y.min = -1;
+  y.max = -1;
+
+  Range1D_t Wl = utils::kinematics::DarkWLim(Ev, M, ml);
+  double Wmin = Wl.min;
+  double W2min = Wmin*Wmin;
+  double M2 = M*M;
+  double ml2 = ml*ml;
+  y.min = (W2min - M2) / (1.-x) / (2*Ev*M);
+  y.max = 2.* M * x *(Ev*Ev - ml2) / Ev / (2. * M * Ev * x + M2 * x * x + ml2);
+
+  return y;
 }
 //____________________________________________________________________________
 // Kinematical Transformations:

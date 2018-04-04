@@ -5,14 +5,10 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab - August 17, 2004
+         University of Liverpool & STFC Rutherford Appleton Lab
 
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Oct 12, 2009 - CA
-   Apply the NC Rijk factors in charged lepton scatterring
-
+         Changes required to implement the GENIE Boosted Dark Matter module
+         were installed by Josh Berger (Univ. of Wisconsin)
 */
 //____________________________________________________________________________
 
@@ -96,6 +92,8 @@ void HadronizationModelBase::ApplyRijk(
   bool is_CC = proc_info.IsWeakCC();
   bool is_NC = proc_info.IsWeakNC();
   bool is_EM = proc_info.IsEM();
+  // EDIT
+  bool is_dm = proc_info.IsDarkMatter();
 
   //
   // get the R2, R3 factors
@@ -104,17 +102,18 @@ void HadronizationModelBase::ApplyRijk(
   double R2=1., R3=1.;
 
   // weak CC or NC case
-
-  if(is_CC || is_NC) {
+  // EDIT
+  if(is_CC || is_NC || is_dm) {
      bool is_nu    = pdg::IsNeutrino     (probe_pdg); 
      bool is_nubar = pdg::IsAntiNeutrino (probe_pdg);
      bool is_p     = pdg::IsProton       (nuc_pdg);
      bool is_n     = pdg::IsNeutron      (nuc_pdg);
-     if(is_nu && is_p)  {
+     bool is_dmi   = pdg::IsDarkMatter   (probe_pdg);  // EDIT
+     if((is_nu && is_p) || (is_dmi && is_p))  {
          R2 = (is_CC) ? fRvpCCm2 : fRvpNCm2;
          R3 = (is_CC) ? fRvpCCm3 : fRvpNCm3;
-      } else 
-      if(is_nu && is_n) {
+     } else 
+      if((is_nu && is_n) || (is_dmi && is_n)) {
          R2 = (is_CC) ? fRvnCCm2 : fRvnNCm2;
          R3 = (is_CC) ? fRvnCCm3 : fRvnNCm3;
       } else 

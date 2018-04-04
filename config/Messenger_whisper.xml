@@ -24,6 +24,8 @@
 
   <priority msgstream="Messenger">             FATAL </priority>
   <priority msgstream="AhrensNCEL">            FATAL </priority>
+  <!-- EDIT: add notification for DM EL algorithm -->
+  <priority msgstream="AhrensDMEL">            FATAL </priority>
   <priority msgstream="AlgFactory">            FATAL </priority>
   <priority msgstream="Algorithm">             FATAL </priority>
   <priority msgstream="AlgConfigPool">         FATAL </priority>
@@ -41,7 +43,6 @@
   <priority msgstream="Bardin">                FATAL </priority>
   <priority msgstream="BodekYang">             FATAL </priority>
   <priority msgstream="BodekRitchie">          FATAL </priority>
-  <priority msgstream="SmithMoniz">            FATAL </priority>
   <priority msgstream="Cache">                 FATAL </priority>
   <priority msgstream="CharmHad">              FATAL </priority>
   <priority msgstream="CFracTab">              FATAL </priority>
@@ -59,6 +60,14 @@
   <priority msgstream="DISPXSec">              FATAL </priority>
   <priority msgstream="DISHadronicVtx">        FATAL </priority>
   <priority msgstream="DISKinematics">         FATAL </priority>
+  <!-- EDIT: add notification for DM DIS processes -->
+  <priority msgstream="DMDISKinematics">       FATAL  </priority>
+  <priority msgstream="DMDISPXSec">            FATAL  </priority>
+  <priority msgstream="DMDISXSec">             FATAL  </priority> 
+  <!-- EDIT: add notification for DM EL processes -->
+  <priority msgstream="DMELEvent">             NOTICE </priority>
+  <priority msgstream="DMELKinematics">        WARN   </priority>
+  <priority msgstream="DMELXSec">              NOTICE </priority>
   <priority msgstream="EventGenerator">        FATAL </priority> 
   <priority msgstream="EffectiveSF">           FATAL </priority>
   <priority msgstream="Elastic">               FATAL </priority>
@@ -92,14 +101,20 @@
   <priority msgstream="IntLst">                FATAL </priority>
   <priority msgstream="Interaction">           FATAL </priority>
   <priority msgstream="Intranuke">             FATAL </priority>
+  <priority msgstream="Intranuke2014">         FATAL </priority>
   <priority msgstream="Intranuke2015">         FATAL </priority>
   <priority msgstream="HAIntranuke">           FATAL </priority>
+  <priority msgstream="HAIntranuke2014">       FATAL </priority>
   <priority msgstream="HAIntranuke2015">       FATAL </priority>
   <priority msgstream="TwoBodyCollision">      FATAL </priority>
+  <priority msgstream="HNIntranuke">           FATAL </priority>
+  <priority msgstream="HNIntranuke2014">       FATAL </priority>
   <priority msgstream="HNIntranuke2015">       FATAL </priority>
   <priority msgstream="INukeData">             FATAL </priority>
+  <priority msgstream="INukeData2014">         FATAL </priority>
   <priority msgstream="INukeData2015">         FATAL </priority>
   <priority msgstream="INukeUtils">            FATAL </priority> 
+  <priority msgstream="INukeUtils2014">        FATAL </priority> 
   <priority msgstream="INukeUtils2015">        FATAL </priority> 
   <priority msgstream="ISApp">                 FATAL </priority>
   <priority msgstream="IntGenMap">             FATAL </priority>
@@ -109,13 +124,11 @@
   <priority msgstream="LeptonicVertex">        FATAL </priority>
   <priority msgstream="LwlynSmith">            FATAL </priority>
   <priority msgstream="LocalFGM">              FATAL </priority>
-  <priority msgstream="LHAPDF5">               FATAL </priority>
-  <priority msgstream="LHAPDF6">               FATAL </priority>
   <priority msgstream="Math">                  FATAL </priority>
   <priority msgstream="MEC">                   FATAL </priority>
   <priority msgstream="MuELoss">               FATAL </priority>
   <priority msgstream="MultProb">              FATAL </priority>
-  <priority msgstream="Nieves">                FATAL </priority>
+  <priority msgstream="Nieves">                FATAL   </priority>
   <priority msgstream="NucDeEx">               FATAL </priority>
   <priority msgstream="NucleonDecay">          FATAL </priority>
   <priority msgstream="NucleonP">              FATAL </priority>
@@ -147,8 +160,6 @@
   <priority msgstream="ReinSehgalRes">         FATAL </priority>
   <priority msgstream="ReinSehgalResT">        FATAL </priority>
   <priority msgstream="ReinSehgalResC">        FATAL </priority>
-  <priority msgstream="ReinSehgalResTF">       FATAL </priority>
-  <priority msgstream="ReinSehgalResCF">       FATAL </priority>
   <priority msgstream="ReinSehgalSpp">         FATAL </priority>
   <priority msgstream="RSHAmpl">               FATAL </priority>
   <priority msgstream="Registry">              FATAL </priority>
@@ -158,7 +169,6 @@
   <priority msgstream="RESSelector">           FATAL </priority>
   <priority msgstream="Rndm">                  FATAL </priority>
   <priority msgstream="Rosenbluth">            FATAL </priority>
-  <priority msgstream="SMQELXSec">             FATAL </priority>
   <priority msgstream="StrumiaVissani">        FATAL </priority>
   <priority msgstream="SpectralFunc1">         FATAL </priority>
   <priority msgstream="SpectralFunc">          FATAL </priority>
@@ -173,6 +183,7 @@
   <priority msgstream="XSecSplLst">            FATAL </priority>
 
   <priority msgstream="gevgen">              FATAL </priority>
+  <priority msgstream="gevgen_dm">           FATAL </priority>
   <priority msgstream="gevgen_ndcy">         FATAL </priority>
   <priority msgstream="gevgen_atmo">         FATAL </priority>
   <priority msgstream="gevgen_upmu">         FATAL </priority>
@@ -184,6 +195,7 @@
   <priority msgstream="gtune">               FATAL </priority>
   <priority msgstream="gntpc">               FATAL </priority>
   <priority msgstream="gmkspl">              FATAL </priority>
+  <priority msgstream="gmkspl_dm">           FATAL </priority>
 
 </messenger_config>
 

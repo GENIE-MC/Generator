@@ -13,27 +13,15 @@
          Tinjun Yang <tjyang \at stanford.edu>          
          Stanford University
 
- For the class documentation see the corresponding header file.
+         Strange baryon production, and adjusted hadronic shower production 
+         to conserve strangeness, and to continue balancing charge and 
+         maintaining correct multiplicity was implemented by Keith Hofmann
+         and Hugh Gallagher (Tufts)
 
- Important revisions after version 2.0.0 :
- @ Aug 11, 2008 - KH,HG
-   Added strange baryon production, and adjusted hadronic shower 
-   production to conserve strangeness, and to continue balancing charge
-   and maintaining correct multiplicity (see gDocDB-890-v1).
- @ Aug 25, 2009 - CA
-   Fixed bug in `special mode' aiming to reproduce old NEUGEN limitation (max
-   multiplicity = 10) for GENIE/NEUGEN cross-comparisons. Boolean logic in if
-   statement was using '&' instead of a '&&'...
- @ Oct 12, 2009 - CA
-   Modified KNO() and AverageChMult() to handle charge lepton scattering.
- @ Oct 20, 2009 - CA
-   Modified HadronShowerCharge() to take into account the probe charge (so as
-   to conserve charge in charged lepton scattering)
- @ Mar 28, 2012 - CA
-   Commented-out option to use 'legacy KNO data' (used in neugrn and in 
-   GENIE/neugen comparisons circa 2007) instead of the Levy parameterization.
- @ Oct 24, 2014 - Ji Liu (NOVA)
-   Add production of etas
+         Production of etas was added by Ji Liu (W&M)
+
+         Changes required to implement the GENIE Boosted Dark Matter module
+         were installed by Josh Berger (Univ. of Wisconsin)
 */
 //____________________________________________________________________________
 
@@ -172,7 +160,7 @@ TClonesArray * KNOHadronization::Hadronize(
 
   //-- The container 'owns' its elements
   particle_list->SetOwner(true);
-  delete pdgcv;
+
   return particle_list;
 }
 //____________________________________________________________________________
@@ -602,6 +590,8 @@ double KNOHadronization::KNO(int probe_pdg, int nuc_pdg, double z) const
   bool is_nubar = pdg::IsAntiNeutrino     (probe_pdg);
   bool is_l     = pdg::IsNegChargedLepton (probe_pdg);
   bool is_lbar  = pdg::IsPosChargedLepton (probe_pdg);
+  // EDIT
+  bool is_dm    = pdg::IsDarkMatter       (probe_pdg);
 
   double c=0; // Levy function parameter
 
@@ -609,6 +599,9 @@ double KNOHadronization::KNO(int probe_pdg, int nuc_pdg, double z) const
   else if ( is_n && (is_nu    || is_l   ) ) c=fCvn;
   else if ( is_p && (is_nubar || is_lbar) ) c=fCvbp;
   else if ( is_n && (is_nubar || is_lbar) ) c=fCvbn;
+  // EDIT: assume it's neutrino-like for now...
+  else if ( is_p && is_dm )                 c=fCvp;
+  else if ( is_n && is_dm )                 c=fCvn;
   else {
     LOG("KNOHad", pERROR)
      << "Invalid initial state (probe = " << probe_pdg << ", "
@@ -633,6 +626,8 @@ double KNOHadronization::AverageChMult(
   bool is_nubar = pdg::IsAntiNeutrino     (probe_pdg);
   bool is_l     = pdg::IsNegChargedLepton (probe_pdg);
   bool is_lbar  = pdg::IsPosChargedLepton (probe_pdg);
+  // EDIT
+  bool is_dm    = pdg::IsDarkMatter       (probe_pdg);
 
   double a=0, b=0; // params controlling average multiplicity
 
@@ -640,6 +635,9 @@ double KNOHadronization::AverageChMult(
   else if ( is_n && (is_nu    || is_l   ) ) { a=fAvn;  b=fBvn;  }
   else if ( is_p && (is_nubar || is_lbar) ) { a=fAvbp; b=fBvbp; }
   else if ( is_n && (is_nubar || is_lbar) ) { a=fAvbn; b=fBvbn; }
+  // EDIT: assume it's neutrino-like for now...
+  else if ( is_p && is_dm )                 { a=fAvp;  b=fBvp;  }
+  else if ( is_n && is_dm )                 { a=fAvn;  b=fBvn;  }
   else {
     LOG("KNOHad", pERROR)
       << "Invalid initial state (probe = " << probe_pdg << ", "

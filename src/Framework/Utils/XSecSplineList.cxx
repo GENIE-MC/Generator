@@ -210,8 +210,14 @@ void XSecSplineList::CreateSpline(const XSecAlgorithmI * alg,
   // Compute cross sections for the input interaction at the selected
   // set of energies
   //
+  double pr_mass = interaction->InitStatePtr()->Probe()->Mass();
   for (int i = 0; i < nknots; i++) {
     TLorentzVector p4(0,0,E[i],E[i]);
+    if (pr_mass > 0.) {
+      double pz = TMath::Max(0.,E[i]*E[i] - pr_mass*pr_mass);
+      pz = TMath::Sqrt(pz);
+      p4.SetPz(pz);
+    }
     interaction->InitStatePtr()->SetProbeP4(p4);
     xsec[i] = alg->Integral(interaction);
     SLOG("XSecSplLst", pNOTICE)

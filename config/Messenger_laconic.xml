@@ -23,6 +23,8 @@
    -->
 
   <priority msgstream="AhrensNCEL">            WARN   </priority>
+  <!-- EDIT: add notification for DM EL algorithm -->
+  <priority msgstream="AhrensDMEL">            WARN   </priority>
   <priority msgstream="AlgFactory">            WARN   </priority>
   <priority msgstream="Algorithm">             WARN   </priority>
   <priority msgstream="AlgConfigPool">         WARN   </priority>
@@ -40,7 +42,6 @@
   <priority msgstream="BSKLNBaseRESPXSec2014"> WARN   </priority>
   <priority msgstream="BodekYang">             WARN   </priority>
   <priority msgstream="BodekRitchie">          WARN   </priority>
-  <priority msgstream="SmithMoniz">            WARN   </priority>
   <priority msgstream="Cache">                 WARN   </priority>
   <priority msgstream="CharmHad">              WARN   </priority>
   <priority msgstream="CFracTab">              WARN   </priority>
@@ -56,6 +57,14 @@
   <priority msgstream="DISPXSec">              WARN   </priority>
   <priority msgstream="DISHadronicVtx">        WARN   </priority>
   <priority msgstream="DISKinematics">         WARN   </priority>
+  <!-- EDIT: add notification for DM DIS processes -->
+  <priority msgstream="DMDISKinematics">       WARN   </priority>
+  <priority msgstream="DMDISPXSec">            WARN   </priority>
+  <priority msgstream="DMDISXSec">             WARN   </priority> 
+  <!-- EDIT: add notification for DM EL processes -->
+  <priority msgstream="DMELEvent">             WARN   </priority>
+  <priority msgstream="DMELKinematics">        WARN   </priority>
+  <priority msgstream="DMELXSec">              WARN   </priority>
   <priority msgstream="EventGenerator">        WARN   </priority> 
   <priority msgstream="EffectiveSF">           WARN   </priority>
   <priority msgstream="Elastic">               WARN   </priority>
@@ -91,13 +100,19 @@
   <priority msgstream="IntLst">                WARN   </priority>
   <priority msgstream="Interaction">           WARN   </priority>
   <priority msgstream="Intranuke">             WARN   </priority>
+  <priority msgstream="Intranuke2014">         WARN   </priority>
   <priority msgstream="Intranuke2015">         WARN   </priority>
   <priority msgstream="HAIntranuke">           WARN   </priority>
+  <priority msgstream="HAIntranuke2014">       WARN   </priority>
   <priority msgstream="HAIntranuke2015">       WARN   </priority>
+  <priority msgstream="HNIntranuke">           WARN   </priority>
+  <priority msgstream="HNIntranuke2014">       WARN   </priority>
   <priority msgstream="HNIntranuke2015">       WARN   </priority>
   <priority msgstream="INukeData">             WARN   </priority>
+  <priority msgstream="INukeData2014">         WARN   </priority>
   <priority msgstream="INukeData2015">         WARN   </priority>
   <priority msgstream="INukeUtils">            WARN   </priority>
+  <priority msgstream="INukeUtils2014">        WARN   </priority>
   <priority msgstream="INukeUtils2015">        WARN   </priority>
   <priority msgstream="INukeNucleonCorr">      WARN   </priority> 
   <priority msgstream="TwoBodyCollision">      WARN   </priority>
@@ -109,7 +124,6 @@
   <priority msgstream="LeptonicVertex">        WARN   </priority>
   <priority msgstream="LocalFGM">              WARN   </priority>
   <priority msgstream="LwlynSmith">            WARN   </priority>
-  <priority msgstream="LHAPDF5">               WARN   </priority>
   <priority msgstream="LHAPDF6">               WARN   </priority>
   <priority msgstream="Math">                  WARN   </priority>
   <priority msgstream="MEC">                   WARN   </priority>
@@ -148,8 +162,6 @@
   <priority msgstream="ReinSehgalRes">         WARN   </priority>
   <priority msgstream="ReinSehgalResT">        WARN   </priority>
   <priority msgstream="ReinSehgalResC">        WARN   </priority>
-  <priority msgstream="ReinSehgalResTF">       WARN   </priority>
-  <priority msgstream="ReinSehgalResCF">       WARN   </priority>
   <priority msgstream="ReinSehgalSpp">         WARN   </priority>
   <priority msgstream="RSHAmpl">               WARN   </priority>
   <priority msgstream="Registry">              WARN   </priority>
@@ -159,7 +171,6 @@
   <priority msgstream="RESSelector">           WARN   </priority>
   <priority msgstream="Rndm">                  WARN   </priority>
   <priority msgstream="Rosenbluth">            WARN   </priority>
-  <priority msgstream="SMQELXSec">             WARN   </priority>
   <priority msgstream="StrumiaVissani">        WARN   </priority>
   <priority msgstream="SpectralFunc1">         WARN   </priority>
   <priority msgstream="SpectralFunc">          WARN   </priority>
@@ -174,6 +185,7 @@
   <priority msgstream="XSecSplLst">            WARN   </priority>
 
   <priority msgstream="gevgen">                WARN   </priority>
+  <priority msgstream="gevgen_dm">             WARN   </priority>
   <priority msgstream="gevgen_ndcy">           WARN   </priority>
   <priority msgstream="gevgen_atmo">           WARN   </priority>
   <priority msgstream="gevgen_upmu">           WARN   </priority>
@@ -184,6 +196,7 @@
   <priority msgstream="grwght1scan">           WARN   </priority>
   <priority msgstream="gntpc">                 WARN   </priority>
   <priority msgstream="gmkspl">                WARN   </priority>
+  <priority msgstream="gmkspl_dm">             WARN   </priority>
 
 </messenger_config>
 

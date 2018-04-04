@@ -7,21 +7,8 @@
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          University of Liverpool & STFC Rutherford Appleton Lab
 
- For documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Oct 01, 2008 - CA
-   Added Is2NucleonCuster(pdg)
- @ Sep 15, 2009 - CA
-   Added IsPseudoParticle(), IsParticle(), IsPion(), IsNucleon()
- @ Sep 18, 2009 - CA
-   Added IsLepton()
- @ Oct 08, 2009 - CA
-   Added IsNegChargedLepton(), IsPosChargedLepton()
- @ Nov 28, 2011 - CA
-   Added `int ModifyNucleonCluster(int pdgc, int dQ)' to get the recoil
-   nucleon cluster PDG for MEC.
-
+         Changes required to implement the GENIE Boosted Dark Matter module
+         were installed by Josh Berger (Univ. of Wisconsin)
 */
 //____________________________________________________________________________
 
@@ -133,6 +120,12 @@ bool genie::pdg::IsAntiNeutrino(int pdgc)
                   (pdgc == kPdgAntiNuTau);
 
   return is_nubar;
+}
+//____________________________________________________________________________
+bool genie::pdg::IsDarkMatter(int pdgc)
+{
+  bool is_dm = (pdgc == kPdgDarkMatter);
+  return is_dm;
 }
 //____________________________________________________________________________
 bool genie::pdg::IsNegChargedLepton(int pdgc)

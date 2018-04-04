@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for the DMELOutgoingDarkGenerator EventRecordVisitorI
+
+Configurable Parameters:
+.......................................................................................................................
+Name                     Type    Opt   Comment                                       Default
+.......................................................................................................................
+-->
+
+  <param_set name="Default"> 
+    <param type="string" name="CommonParam"> Lepton </param>
+  </param_set>
+
+</alg_conf>
+

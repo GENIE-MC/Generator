@@ -11,6 +11,9 @@
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           University of Liverpool & STFC Rutherford Appleton Lab
 
+          Changes required to implement the GENIE Boosted Dark Matter module
+          were installed by Josh Berger (Univ. of Wisconsin)
+
 \created  May 04, 2004
 
 \cpright  Copyright (c) 2003-2018, The GENIE Collaboration
@@ -54,26 +57,29 @@ public:
   void Set(ScatteringType_t sc_type, InteractionType_t  int_type);
 
   // Query for process information
-  bool IsQuasiElastic      (void) const;
-  bool IsDeepInelastic     (void) const;
-  bool IsResonant          (void) const;
-  bool IsCoherent          (void) const;
-  bool IsCoherentElas      (void) const;
-  bool IsSingleKaon        (void) const;
-  bool IsElectronScattering(void) const;
-  bool IsNuElectronElastic (void) const;
-  bool IsInverseMuDecay    (void) const;
-  bool IsIMDAnnihilation   (void) const;
-  bool IsInverseBetaDecay  (void) const;
-  bool IsGlashowResonance  (void) const;
-  bool IsAMNuGamma         (void) const;
-  bool IsMEC               (void) const;
-  bool IsDiffractive       (void) const;
-  bool IsEM                (void) const;
-  bool IsWeak              (void) const;
-  bool IsWeakCC            (void) const;
-  bool IsWeakNC            (void) const;
-  bool IsWeakMix           (void) const;
+  bool IsQuasiElastic            (void) const;
+  bool IsDarkMatterElastic       (void) const;
+  bool IsDeepInelastic           (void) const;
+  bool IsDarkMatterDeepInelastic (void) const;
+  bool IsResonant                (void) const;
+  bool IsCoherent                (void) const;
+  bool IsCoherentElas            (void) const;
+  bool IsSingleKaon              (void) const;
+  bool IsElectronScattering      (void) const;
+  bool IsNuElectronElastic       (void) const;
+  bool IsInverseMuDecay          (void) const;
+  bool IsIMDAnnihilation         (void) const;
+  bool IsInverseBetaDecay        (void) const;
+  bool IsGlashowResonance        (void) const;
+  bool IsAMNuGamma               (void) const;
+  bool IsMEC                     (void) const;
+  bool IsDiffractive             (void) const;
+  bool IsEM                      (void) const;
+  bool IsWeak                    (void) const;
+  bool IsWeakCC                  (void) const;
+  bool IsWeakNC                  (void) const;
+  bool IsWeakMix                 (void) const;
+  bool IsDarkMatter              (void) const;
 
   // Get scattering and interaction type enumerations
   ScatteringType_t  ScatteringTypeId  (void) const;

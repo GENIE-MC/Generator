@@ -61,7 +61,7 @@ double AivazisCharmPXSecLO::XSec(
   if(! this -> ValidProcess    (interaction) ) return 0.;
   if(! this -> ValidKinematics (interaction) ) return 0.;
 
-  if(interaction->ProcInfo().IsWeakNC()) return 0;
+  if(interaction->ProcInfo().IsWeakNC() || interaction->ProcInfo().IsDarkMatter()) return 0;
 
   //----- get init-state & kinematical parameters
   const Kinematics &   kinematics = interaction -> Kine();

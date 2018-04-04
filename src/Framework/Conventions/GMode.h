@@ -24,11 +24,12 @@ namespace genie {
 typedef enum EGEvGenMode {
 
   kGMdUnknown = 0,
-  kGMdLeptonNucleus,   // chg.lepton/neutrino + nucleon/nucleus scattering
-  kGMdHadronNucleus,   // hadron + nucleon/nucleus scattering
-  kGMdPhotonNucleus,   // photon + nucleon/nucleus scattering
-  kGMdNucleonDecay,    // nucleon decay
-  kGMdNeutronOsc       // neutron oscillation
+  kGMdLeptonNucleus,     // chg.lepton/neutrino + nucleon/nucleus scattering
+  kGMdHadronNucleus,     // hadron + nucleon/nucleus scattering
+  kGMdPhotonNucleus,     // photon + nucleon/nucleus scattering
+  kGMdDarkMatterNucleus, // dark matter + nucleon/nucleus scattering
+  kGMdNucleonDecay,      // nucleon decay
+  kGMdNeutronOsc         // neutron oscillation
 
 } GEvGenMode_t;
 

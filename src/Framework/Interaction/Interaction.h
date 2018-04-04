@@ -11,6 +11,9 @@
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           University of Liverpool & STFC Rutherford Appleton Lab
 
+          Changes required to implement the GENIE Boosted Dark Matter module 
+          were installed by Josh Berger (Univ. of Wisconsin)
+
 \created  April 25, 2004
 
 \cpright  Copyright (c) 2003-2018, The GENIE Collaboration
@@ -84,7 +87,7 @@ public:
   // determined for the specified interaction
   int            FSPrimLeptonPdg  (void) const; ///< final state primary lepton pdg
   int            RecoilNucleonPdg (void) const; ///< recoil nucleon pdg
-  TParticlePDG * FSPrimLepton     (void) const; ///< final state primaru lepton
+  TParticlePDG * FSPrimLepton     (void) const; ///< final state primary lepton
   TParticlePDG * RecoilNucleon    (void) const; ///< recoil nucleon 
 
   // Copy, reset, print itself and build string code
@@ -150,6 +153,12 @@ public:
   static Interaction * NOsc      (int tgt, int annihilation_mode=-1);
   static Interaction * ASK       (int tgt, int probe, double E=0);
   static Interaction * ASK       (int tgt, int probe, const TLorentzVector & p4probe);
+  static Interaction * DME       (int tgt, int nuc, int probe, double E=0);
+  static Interaction * DME       (int tgt, int nuc, int probe, const TLorentzVector & p4probe);
+  static Interaction * DMDI      (int tgt, int nuc, int probe, double E=0);
+  static Interaction * DMDI      (int tgt, int nuc, int qrk, bool sea, int probe, double E=0);
+  static Interaction * DMDI      (int tgt, int nuc, int probe, const TLorentzVector & p4probe);
+  static Interaction * DMDI      (int tgt, int nuc, int qrk, bool sea, int probe, const TLorentzVector & p4probe);
 
 private:
 

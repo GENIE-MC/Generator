@@ -7,22 +7,8 @@
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          University of Liverpool & STFC Rutherford Appleton Lab 
 
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Dec 04, 2007 - CA
-   Handle very rare failure mode where a bare quark or di-quark appears in
-   the final state.
- @ Sep 21, 2009 - CA
-   Remove SyncSeeds() function. Now the GENIE/PYTHIA6 random number generator
-   seed is synchonized at the genie::RandomGen() initialization.
- @ Oct 02, 2009 - CA
-   Make sure that calling SetMDCY() doesn't interfere with the decayer to
-   be called later in the simulation thread. Store PYTHIA MDCY values for
-   particles considered and restore values once the hadronization is done.
-   Added Delta0 and Delta-.
- @ Oct 12, 2009 - CA
-   Modified to handle hadronization for charged lepton scattering too.
+         Changes required to implement the GENIE Boosted Dark Matter module
+         were installed by Josh Berger (Univ. of Wisconsin)
 */
 //____________________________________________________________________________
 
@@ -124,6 +110,7 @@ TClonesArray *
 //bool islb = pdg::IsPosChargedLepton (probe);
   bool iscc = proc_info.IsWeakCC      ();
   bool isnc = proc_info.IsWeakNC      ();
+  bool isdm = proc_info.IsDarkMatter  ();
   bool isem = proc_info.IsEM          ();
   bool isu  = pdg::IsUQuark           (hit_quark);
   bool isd  = pdg::IsDQuark           (hit_quark);
@@ -140,7 +127,7 @@ TClonesArray *
   int  diquark     = 0; // remnant diquark (xF<0 at hadronic CMS)
 
   // Figure out the what happens to the hit quark after the interaction
-  if (isnc || isem) {
+  if (isnc || isem || isdm) {
     // NC, EM
     final_quark = hit_quark;
   } else {
@@ -189,19 +176,19 @@ TClonesArray *
     /* bar{u} (-> bar{d}) + u uud => u + uu */
     if(isp && isub && iscc)         {final_quark = kPdgUQuark; diquark = kPdgUUDiquarkS1;}
     /* bar{u} (-> bar{u}) + u uud => u + ud */
-    if(isp && isub && (isnc||isem)) {final_quark = kPdgUQuark; diquark = kPdgUDDiquarkS1;}
+    if(isp && isub && (isnc||isem||isdm)) {final_quark = kPdgUQuark; diquark = kPdgUDDiquarkS1;}
     /* bar{d} (-> bar{u}) + d uud => d + ud */
     if(isp && isdb && iscc)         {final_quark = kPdgDQuark; diquark = kPdgUDDiquarkS1;}
     /* bar{d} (-> bar{d}) + d uud => d + uu */
-    if(isp && isdb && (isnc||isem)) {final_quark = kPdgDQuark; diquark = kPdgUUDiquarkS1;}
+    if(isp && isdb && (isnc||isem||isdm)) {final_quark = kPdgDQuark; diquark = kPdgUUDiquarkS1;}
     /* bar{u} (-> bar{d}) + u udd => u + ud */
     if(isn && isub && iscc)         {final_quark = kPdgUQuark; diquark = kPdgUDDiquarkS1;}
     /* bar{u} (-> bar{u}) + u udd => u + dd */
-    if(isn && isub && (isnc||isem)) {final_quark = kPdgUQuark; diquark = kPdgDDDiquarkS1;}
+    if(isn && isub && (isnc||isem||isdm)) {final_quark = kPdgUQuark; diquark = kPdgDDDiquarkS1;}
     /* bar{d} (-> bar{u}) + d udd => d + dd */
     if(isn && isdb && iscc)         {final_quark = kPdgDQuark; diquark = kPdgDDDiquarkS1;}
     /* bar{d} (-> bar{d}) + d udd => d + ud */
-    if(isn && isdb && (isnc||isem)) {final_quark = kPdgDQuark; diquark = kPdgUDDiquarkS1;}
+    if(isn && isdb && (isnc||isem||isdm)) {final_quark = kPdgDQuark; diquark = kPdgUDDiquarkS1;}
 
     // The neutrino is scatterred off s or sbar sea quarks 
     // For the time being I will handle s like d and sbar like dbar (copy & paste
@@ -215,9 +202,9 @@ TClonesArray *
        if(isn && iss) { diquark = kPdgUDDiquarkS1; }
 
        if(isp && issb && iscc)         {final_quark = kPdgDQuark; diquark = kPdgUDDiquarkS1;}
-       if(isp && issb && (isnc||isem)) {final_quark = kPdgDQuark; diquark = kPdgUUDiquarkS1;}
+       if(isp && issb && (isnc||isem||isdm)) {final_quark = kPdgDQuark; diquark = kPdgUUDiquarkS1;}
        if(isn && issb && iscc)         {final_quark = kPdgDQuark; diquark = kPdgDDDiquarkS1;}
-       if(isn && issb && (isnc||isem)) {final_quark = kPdgDQuark; diquark = kPdgUDDiquarkS1;}
+       if(isn && issb && (isnc||isem||isdm)) {final_quark = kPdgDQuark; diquark = kPdgUDDiquarkS1;}
     }
  
     // if the diquark is a ud, switch it to the singlet state with 50% probability
@@ -299,7 +286,7 @@ TClonesArray *
   TClonesArray * particle_list = new TClonesArray("TMCParticle", np);
   particle_list->SetOwner(true);
 
-  unsigned int i = 0;
+  register unsigned int i = 0;
   TMCParticle * particle = 0;
   TIter particle_iter(pythia_particles);
 
@@ -530,17 +517,19 @@ bool PythiaHadronization::AssertValidity(const Interaction * interaction) const
   bool isn  = pdg::IsNeutron          (hit_nucleon);
   bool isv  = pdg::IsNeutrino         (probe);
   bool isvb = pdg::IsAntiNeutrino     (probe);
+  bool isdm = pdg::IsDarkMatter         (probe);
   bool isl  = pdg::IsNegChargedLepton (probe);
   bool islb = pdg::IsPosChargedLepton (probe);
   bool iscc = proc_info.IsWeakCC      ();
   bool isnc = proc_info.IsWeakNC      ();
+  bool isdmi = proc_info.IsDarkMatter  ();
   bool isem = proc_info.IsEM          ();
-  if( !(iscc||isnc||isem) ) {
+  if( !(iscc||isnc||isem||isdmi) ) {
     LOG("PythiaHad", pWARN) 
        << "Can only handle electro-weak interactions";
     return false;
   }
-  if( !(isp||isn) || !(isv||isvb||isl||islb) ) {
+  if( !(isp||isn) || !(isv||isvb||isl||islb||isdm) ) {
     LOG("PythiaHad", pWARN) 
       << "Invalid initial state: probe = " 
       << probe << ", hit_nucleon = " << hit_nucleon;
@@ -558,6 +547,7 @@ bool PythiaHadronization::AssertValidity(const Interaction * interaction) const
   bool allowed = (iscc && isv  && (isd||isub||iss))  ||
                  (iscc && isvb && (isu||isdb||issb)) ||
                  (isnc && (isv||isvb) && (isu||isd||isub||isdb||iss||issb)) ||
+                 (isdmi && isdm && (isu||isd||isub||isdb||iss||issb)) ||
                  (isem && (isl||islb) && (isu||isd||isub||isdb||iss||issb));
   if(!allowed) {
     LOG("PythiaHad", pWARN) 

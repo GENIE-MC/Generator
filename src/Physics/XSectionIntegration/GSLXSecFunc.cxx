@@ -7,10 +7,8 @@
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          University of Liverpool & STFC Rutherford Appleton Lab 
 
- For documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
-
+         Changes required to implement the GENIE Boosted Dark Matter module
+         were installed by Josh Berger (Univ. of Wisconsin)
 */
 //____________________________________________________________________________
 
@@ -301,7 +299,8 @@ double genie::utils::gsl::d2XSec_dWdQ2_E::DoEval(const double * xin) const
   double Q2 = xin[1];
   fInteraction->KinePtr()->SetW(W);
   fInteraction->KinePtr()->SetQ2(Q2);
-  if(fInteraction->ProcInfo().IsDeepInelastic()) {
+  if(fInteraction->ProcInfo().IsDeepInelastic() ||
+     fInteraction->ProcInfo().IsDarkMatterDeepInelastic()) {
     double x=0,y=0;
     double E = fInteraction->InitState().ProbeE(kRfHitNucRest);
     double M = fInteraction->InitState().Tgt().HitNucP4Ptr()->M();

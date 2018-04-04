@@ -7,31 +7,21 @@
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          University of Liverpool & STFC Rutherford Appleton Lab
 
- Adapted from neugen 3.
- Primary authors: D.Naples (Pittsburgh U.), H.Gallagher (Tufts U), CA
+         This GENIE code was adapted from the neugen3 code co-authored by
+         Donna Naples (Pittsburgh U.), Hugh Gallagher (Tufts U), and 
+         Costas Andreopoulos (RAL)
 
- For the class documentation see the corresponding header file.
+         A fix was installed (Aug 12, 2014) by Brian Tice (Rochester) so that 
+         the nuclear modification to the pdf should be calculated in terms 
+         of the experimental x, not the rescaled x. The same goes for R(x,Q2).
 
- Important revisions after version 2.0.0 :
- @ Oct 08, 2009 - CA
-   Added structure function calculations for charged leptons.
-   Restructured to make switching off quark contributions and going from 
-   lN->l'X mode to lq->l'q' mode more transparant
- @ Oct 09, 2009 - CA
-   Renamed to QPMDISStrucFuncBase from DISStructureFuncModel.
- @ Aug 12, 2014 - HG 
-   Fix a problem identified by Brian Tice (Minerva)
-   The nuclear modification to the pdf should be calculated in terms 
-   of the experimental x, not the rescaled x.  The same goes for R(x,Q2).
- @ Jun 06, 2016 - C. Bronner, J. Morrison
-   Fix the scaling variable used for the relations between structure functions
-   after it was confirmed by A. Bodek that x and not the modified scaling 
-   variable should be used there.
- @ Jun 25, 2016 - JM
-   Added data members to:
-      - Allow for use of original GENIE implementation or 2016 corrections
-      - Select value of cutoff for 2xF1 to F2 relation
+         A fix of the scaling variable used for the relations between structure
+         functions was installed by C. Bronner and J. Morrison Jun 06, 2016
+         after it was confirmed by A. Bodek that x and not the modified 
+         scaling variable should be used there.
 
+         Changes required to implement the GENIE Boosted Dark Matter module
+         were installed by Josh Berger (Univ. of Wisconsin)
 */
 //____________________________________________________________________________
 
@@ -168,11 +158,13 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
   bool is_nu       = pdg::IsNeutrino     ( probe_pdgc  );
   bool is_nubar    = pdg::IsAntiNeutrino ( probe_pdgc  );
   bool is_lepton   = pdg::IsLepton       ( probe_pdgc  );
+  bool is_dm       = pdg::IsDarkMatter   ( probe_pdgc  );
   bool is_CC       = proc_info.IsWeakCC();
   bool is_NC       = proc_info.IsWeakNC();
   bool is_EM       = proc_info.IsEM();
+  bool is_dmi      = proc_info.IsDarkMatter();
 
-  if ( !is_lepton           ) return;
+  if ( !is_lepton && !is_dm ) return;
   if ( !is_p && !is_n       ) return;
   if ( tgt.N() == 0 && is_n ) return;
   if ( tgt.Z() == 0 && is_p ) return;
@@ -252,14 +244,22 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
 
   // ***  NEUTRAL CURRENT
 
-  if(is_NC) {
+  // Include DM in NC
+  if(is_NC || is_dmi) {
 
-    if(!is_nu && !is_nubar) return;
+    if(!is_nu && !is_nubar && !is_dm) return;
 
     double GL   = (is_nu) ? ( 0.5 - (2./3.)*fSin2thw) : (     - (2./3.)*fSin2thw); // clu
     double GR   = (is_nu) ? (     - (2./3.)*fSin2thw) : ( 0.5 - (2./3.)*fSin2thw); // cru
     double GLp  = (is_nu) ? (-0.5 + (1./3.)*fSin2thw) : (       (1./3.)*fSin2thw); // cld
     double GRp  = (is_nu) ? (       (1./3.)*fSin2thw) : (-0.5 + (1./3.)*fSin2thw); // crd
+    // Set the couplings to up and down quarks to be axial for DM
+    if (is_dm) {
+      GL  = -1.;
+      GR  =  1.;
+      GLp = -1.;
+      GRp =  1.;
+    }
     double gvu  = GL  + GR;
     double gau  = GL  - GR;
     double gvd  = GLp + GRp;

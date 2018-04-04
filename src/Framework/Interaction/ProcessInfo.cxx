@@ -7,29 +7,8 @@
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          University of Liverpool & STFC Rutherford Appleton Lab 
 
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Nov 21, 2007 - CA
-   Added IsCoherentPiProd() and IsCoherentElas() to handle the introduction of
-   a new type of coherent interactions (coherent elastic)  
- @ Dec 03, 2007 - CA
-   Added IsElectronScattering() to query about { IMD || ve- elastic }
- @ Feb 15, 2008 - CA
-   Added IsAMNuGamma() to query about anomaly-mediated nu-gamma interactions
- @ Sep 22, 2008 - CA
-   Added IsMEC() to query about meson exchange current interactions
- @ Feb 09, 2009 - CA
-   Added IsDiffractive() to query about diffractive interactions
- @ Mar 03, 2009 - CA
-   Adapt to naming changes made to the coherent generator for including
-   coherent vector meson production.
- @ Sep 08, 2009 - CR
-   Added IsInverseBetaDecay()
- @ Dec 14, 2009 - CA
-   Added IsGlashowResonance()
- @ Feb 12, 2013 - CA (code from Rosen Matev)
-   Added IsIMDAnnihilation()
+         Changes required to implement the GENIE Boosted Dark Matter module
+         were installed by Josh Berger (Univ. of Wisconsin)
 */
 //____________________________________________________________________________
 
@@ -90,6 +69,11 @@ bool ProcessInfo::IsQuasiElastic(void) const
   return (fScatteringType == kScQuasiElastic);
 }
 //____________________________________________________________________________
+bool ProcessInfo::IsDarkMatterElastic(void) const
+{
+  return (fScatteringType == kScDarkMatterElastic);
+}
+//____________________________________________________________________________
 bool ProcessInfo::IsSingleKaon(void) const
 {
   return (fScatteringType == kScSingleKaon);
@@ -98,6 +82,11 @@ bool ProcessInfo::IsSingleKaon(void) const
 bool ProcessInfo::IsDeepInelastic(void) const
 {
   return (fScatteringType == kScDeepInelastic);
+}
+//____________________________________________________________________________
+bool ProcessInfo::IsDarkMatterDeepInelastic(void) const
+{
+  return (fScatteringType == kScDarkMatterDeepInelastic);
 }
 //____________________________________________________________________________
 bool ProcessInfo::IsResonant(void) const
@@ -180,6 +169,11 @@ bool ProcessInfo::IsWeakCC(void) const
 bool ProcessInfo::IsWeakNC(void) const
 {
   return (fInteractionType == kIntWeakNC);
+}
+//____________________________________________________________________________
+bool ProcessInfo::IsDarkMatter(void) const
+{
+  return (fInteractionType == kIntDarkMatter);
 }
 //____________________________________________________________________________
 bool ProcessInfo::IsWeakMix(void) const

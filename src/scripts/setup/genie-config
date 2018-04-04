@@ -34,8 +34,8 @@ fi
 if test "$GOPT_ENABLE_NNBAR_OSCILLATION" = "YES"; then
   phys_libs="$phys_libs -lGPhNNBarOsc"
 fi
-if test "$GOPT_ENABLE_BOOSTED_DARK_MATTER" = "YES"; then
-  phys_libs="$phys_libs -lGPhBDM"
+if test "$GOPT_ENABLE_BOOSTED_DARK_MATTER" = "YES"; then   
+  phys_libs="$phys_libs -lGPhBDMXS -lGPhBDMEG"
 fi
 
 # Libraries from GENIE/Generator/Tools

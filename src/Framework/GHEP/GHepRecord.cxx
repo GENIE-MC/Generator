@@ -269,6 +269,13 @@ GEvGenMode_t GHepRecord::EventGenerationMode(void) const
     return kGMdLeptonNucleus;
   }
 
+  // In dark matter mode, the 1st entry in the event record is a dark
+  // matter particle
+  if( pdg::IsDarkMatter(p0pdg) && p0st == kIStInitialState )
+  {
+    return kGMdDarkMatterNucleus;
+  }
+
   // In hadron+nucleon/nucleus mode, the 1st entry in the event record
   // is a hadron with status code = kIStInitialState and the 2nd entry
   // is a nucleon or nucleus with status code = kIStInitialState
@@ -387,6 +394,7 @@ int GHepRecord::ProbePosition(void) const
   // The probe is *always* at slot 0.
   GEvGenMode_t mode = this->EventGenerationMode();
   if(mode == kGMdLeptonNucleus || 
+     mode == kGMdDarkMatterNucleus ||
      mode == kGMdHadronNucleus ||
      mode == kGMdPhotonNucleus) 
   {
@@ -403,6 +411,7 @@ int GHepRecord::TargetNucleusPosition(void) const
   GEvGenMode_t mode = this->EventGenerationMode();
 
   if(mode == kGMdLeptonNucleus || 
+     mode == kGMdDarkMatterNucleus ||
      mode == kGMdHadronNucleus ||
      mode == kGMdPhotonNucleus) 
   {
@@ -1209,9 +1218,6 @@ void GHepRecord::Print(ostream & stream) const
         break;
       case ( kPSQ2fE  ) :
         stream << " dsig(Q2;E)/dQ2 =        " << setfill(' ') << setw(13) << fDiffXSec/units::cm2 << " cm^2/GeV^2 |";
-        break;
-      case ( kPSQ2vfE  ) :
-        stream << " dsig(Q2,v;E)/dQ2dv =    " << setfill(' ') << setw(13) << fDiffXSec/units::cm2 << " cm^2/GeV^3 |";
         break;
       case ( kPSWQ2fE ) :
         stream << " d2sig(W,Q2;E)/dWdQ2 =   " << setfill(' ') << setw(13) << fDiffXSec/units::cm2 << " cm^2/GeV^3 |";

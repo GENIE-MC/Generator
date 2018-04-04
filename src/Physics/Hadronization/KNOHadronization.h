@@ -3,24 +3,32 @@
 
 \class    genie::KNOHadronization
 
-\brief    The KNO hadronization model.
-          This hadronization scheme originates from the NEUGEN's KNO model
-          (G.Barr, G.F.Pearce, H.Gallagher et al.) \n
-          Improvements were made by C.Andreopoulos, H.Gallagher, T.Yang. \n
-
-          Both the 'historical' version and the new versions are supported.
-          See the algorithms configuration for details.
+\brief    A KNO-based hadronization model.
 
           Is a concrete implementation of the HadronizationModelI interface.
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   The main authors of this model are:
 
-          Hugh Gallagher <gallag@minos.phy.tufts.edu>
-          Tufts University
+          - Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+            University of Liverpool & STFC Rutherford Appleton Lab
 
-          Tinjun Yang <tjyang@stanford.edu>
-          Stanford University
+          - Hugh Gallagher <gallag@minos.phy.tufts.edu>
+            Tufts University
+
+          - Tinjun Yang <tjyang@stanford.edu>
+            Stanford University
+
+          This is an improved version of the legacy neugen3 KNO-based model. 
+          Giles Barr, Geoff Pearce, and Hugh Gallagher were listed as authors
+          of the original neugen3 model.
+          
+          Strange baryon production was implemented by Keith Hofmann and
+          Hugh Gallagher (Tufts)
+
+          Production of etas was added by Ji Liu (W&M)
+
+          Changes required to implement the GENIE Boosted Dark Matter module
+          were installed by Josh Berger (Univ. of Wisconsin)
 
 \created  August 17, 2004
 

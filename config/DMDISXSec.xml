@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+Configuration for the DMDISXSec cross section algorithm
+-->
+
+<alg_conf>
+
+  <param_set name="Default"> 
+    <param type="string" name ="CommonParam"> Validation  </param>
+
+    <param type="string" name ="gsl-integration-type">    adaptive  </param>
+    <param type="int"    name ="gsl-max-eval" >            5000000  </param>
+    <param type="int"    name ="gsl-min-eval" >             100000  </param>
+    <param type="double" name ="gsl-relative-tolerance">    0.0001  </param>
+  </param_set>
+
+</alg_conf>
+

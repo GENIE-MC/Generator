@@ -8,6 +8,9 @@
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           University of Liverpool & STFC Rutherford Appleton Lab
 
+          Changes required to implement the GENIE Boosted Dark Matter module
+          were installed by Josh Berger (Univ. of Wisconsin)
+
 \created  May 06, 2004
 
 \cpright  Copyright (c) 2003-2018, The GENIE Collaboration
@@ -31,12 +34,13 @@ namespace genie {
 typedef enum EInteractionType {
 
   kIntNull   = 0,
-  kIntEM,
-  kIntWeakCC,
-  kIntWeakNC,
-  kIntWeakMix, /* cc+nc+interference */
-  kIntNDecay,
-  kIntNOsc
+  kIntEM,          //
+  kIntWeakCC,      //
+  kIntWeakNC,      //
+  kIntWeakMix,     // CC + NC + interference
+  kIntDarkMatter,  // 
+  kIntNDecay,      //
+  kIntNOsc         //
 
 } InteractionType_t;
 
@@ -50,13 +54,14 @@ public:
   {
     switch (type) {
 
-      case(kIntEM) :      return "EM";                        break;
-      case(kIntWeakCC)  : return "Weak[CC]";                  break;
-      case(kIntWeakNC)  : return "Weak[NC]";                  break;
-      case(kIntWeakMix) : return "Weak[CC+NC+interference]";  break;
-      case(kIntNDecay)  : return "NucleonDecay";              break;
-      case(kIntNOsc)    : return "NeutronOsc";                break;
-      default :           return "Unknown";                   break;
+      case(kIntEM)         : return "EM";                        break;
+      case(kIntWeakCC)     : return "Weak[CC]";                  break;
+      case(kIntWeakNC)     : return "Weak[NC]";                  break; 
+      case(kIntWeakMix)    : return "Weak[CC+NC+interference]";  break;
+      case(kIntDarkMatter) : return "DarkMatter";                break; 
+      case(kIntNDecay)     : return "NucleonDecay";              break;
+      case(kIntNOsc)       : return "NeutronOsc";                break;
+      default :              return "Unknown";                   break;
     }
     return "Unknown";    
   }

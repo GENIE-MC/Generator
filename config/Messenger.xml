@@ -29,6 +29,8 @@
 
   <priority msgstream="Messenger">             NOTICE </priority>
   <priority msgstream="AhrensNCEL">            WARN   </priority>
+  <!-- EDIT: add notification for DM EL algorithm -->
+  <priority msgstream="AhrensDMEL">            WARN   </priority>
   <priority msgstream="AlgFactory">            INFO   </priority>
   <priority msgstream="Algorithm">             WARN   </priority>
   <priority msgstream="AlgConfigPool">         WARN   </priority>
@@ -46,7 +48,6 @@
   <priority msgstream="Bardin">                INFO   </priority>
   <priority msgstream="BodekYang">             INFO   </priority>
   <priority msgstream="BodekRitchie">          WARN   </priority>
-  <priority msgstream="SmithMoniz">            WARN   </priority>
   <priority msgstream="Cache">                 WARN   </priority>
   <priority msgstream="CharmHad">              NOTICE </priority>
   <priority msgstream="CFracTab">              INFO   </priority>
@@ -64,6 +65,14 @@
   <priority msgstream="DISPXSec">              NOTICE </priority>
   <priority msgstream="DISHadronicVtx">        WARN   </priority>
   <priority msgstream="DISKinematics">         WARN   </priority>
+  <!-- EDIT: add notification for DM DIS processes -->
+  <priority msgstream="DMDISKinematics">       WARN   </priority>
+  <priority msgstream="DMDISPXSec">            NOTICE </priority>
+  <priority msgstream="DMDISXSec">             NOTICE </priority> 
+  <!-- EDIT: add notification for DM EL processes -->
+  <priority msgstream="DMELEvent">             NOTICE </priority>
+  <priority msgstream="DMELKinematics">        WARN   </priority>
+  <priority msgstream="DMELXSec">              NOTICE </priority>
   <priority msgstream="EventGenerator">        WARN   </priority> 
   <priority msgstream="EffectiveSF">           NOTICE </priority>
   <priority msgstream="Elastic">               INFO   </priority>
@@ -97,13 +106,19 @@
   <priority msgstream="IntLst">                NOTICE </priority>
   <priority msgstream="Interaction">           NOTICE </priority>
   <priority msgstream="Intranuke">             WARN   </priority>
+  <priority msgstream="Intranuke2014">         WARN   </priority>
   <priority msgstream="Intranuke2015">         WARN   </priority>
   <priority msgstream="HAIntranuke">           WARN   </priority>
+  <priority msgstream="HAIntranuke2014">       WARN   </priority>
   <priority msgstream="HAIntranuke2015">       WARN   </priority>
+  <priority msgstream="HNIntranuke">           NOTICE </priority>
+  <priority msgstream="HNIntranuke2014">       NOTICE </priority>
   <priority msgstream="HNIntranuke2015">       NOTICE </priority>
   <priority msgstream="INukeData">             NOTICE </priority>
+  <priority msgstream="INukeData2014">         NOTICE </priority>
   <priority msgstream="INukeData2015">         NOTICE </priority>
   <priority msgstream="INukeUtils">            NOTICE </priority>
+  <priority msgstream="INukeUtils2014">        NOTICE </priority>
   <priority msgstream="INukeUtils2015">        NOTICE </priority>
   <priority msgstream="INukeNucleonCorr">      NOTICE   </priority> 
   <priority msgstream="TwoBodyCollision">      NOTICE </priority>
@@ -117,7 +132,6 @@
   <priority msgstream="LeptonicVertex">        WARN   </priority>
   <priority msgstream="LocalFGM">              WARN   </priority>
   <priority msgstream="LwlynSmith">            NOTICE </priority>
-  <priority msgstream="LHAPDF5">               NOTICE </priority>
   <priority msgstream="LHAPDF6">               NOTICE </priority>
   <priority msgstream="Math">                  NOTICE </priority>
   <priority msgstream="MEC">                   INFO   </priority>
@@ -155,8 +169,6 @@
   <priority msgstream="ReinSehgalRes">         WARN   </priority>
   <priority msgstream="ReinSehgalResT">        NOTICE </priority>
   <priority msgstream="ReinSehgalResC">        NOTICE </priority>
-  <priority msgstream="ReinSehgalResTF">       NOTICE </priority>
-  <priority msgstream="ReinSehgalResCF">       NOTICE </priority>
   <priority msgstream="ReinSehgalSpp">         NOTICE </priority>
   <priority msgstream="RSHAmpl">               WARN   </priority>
   <priority msgstream="Registry">              WARN   </priority>
@@ -166,7 +178,6 @@
   <priority msgstream="RESSelector">           NOTICE </priority>
   <priority msgstream="Rndm">                  NOTICE </priority>
   <priority msgstream="Rosenbluth">            NOTICE </priority>
-  <priority msgstream="SMQELXSec">             NOTICE </priority>
   <priority msgstream="StrumiaVissani">        NOTICE </priority>
   <priority msgstream="SpectralFunc1">         NOTICE </priority>
   <priority msgstream="SpectralFunc">          NOTICE </priority>
@@ -182,6 +193,7 @@
   <priority msgstream="ZExpAxialFormFactorModel"> NOTICE </priority>
 
   <priority msgstream="gevgen">              NOTICE </priority>
+  <priority msgstream="gevgen_dm">           NOTICE </priority>
   <priority msgstream="gevgen_ndcy">         NOTICE </priority>
   <priority msgstream="gevgen_atmo">         NOTICE </priority>
   <priority msgstream="gevgen_upmu">         NOTICE </priority>
@@ -193,5 +205,6 @@
   <priority msgstream="gtune">               INFO   </priority>
   <priority msgstream="gntpc">               INFO   </priority>
   <priority msgstream="gmkspl">              INFO   </priority>
+  <priority msgstream="gmkspl_dm">           INFO   </priority>
 
 </messenger_config>

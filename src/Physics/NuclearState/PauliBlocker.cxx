@@ -7,16 +7,11 @@
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          University of Liverpool & STFC Rutherford Appleton Lab 
 
- For the class documentation see the corresponding header file.
+         Joe Johnston (Univ of Pittsburgh) added code (Mar 18, 2016) to use 
+         either local or relativistic Fermi Gas for Pauli blocking.
 
- Important revisions after version 2.0.0 :
-
- @ Mar 18, 2016- Joe Johnston (SD)
-   Added checks to see if the nuclear model is a LocalFGM object, 
-   and in that case use Local FG for Pauli blocking. Replaced LoadKFTable()
-   with LoadModelType(), to detect the nuclear model type and only load a Fermi
-   momentum table if the nuclear model is a relativistic Fermi gas.
-
+         Changes required to implement the GENIE Boosted Dark Matter module
+         were installed by Josh Berger (Univ. of Wisconsin)
 */
 //____________________________________________________________________________
 
@@ -76,9 +71,10 @@ void PauliBlocker::ProcessEventRecord(GHepRecord * evrec) const
   }
   
   // Handle only QEL for now...
+  // (can also be dark matter elastic)
   Interaction * interaction = evrec->Summary();
   const ProcessInfo & proc = interaction->ProcInfo();
-  if(!proc.IsQuasiElastic()) {
+  if(!proc.IsQuasiElastic() && !proc.IsDarkMatterElastic()) {
     LOG("PauliBlock", pINFO) << "Not a QEL event - The Pauli Blocker exits";  
     return;
   }
@@ -101,7 +97,7 @@ void PauliBlocker::ProcessEventRecord(GHepRecord * evrec) const
     bool is_p = pdg::IsProton(nucleon_pdgc);
     double numNuc = (is_p) ? (double)tgt->Z():(double)tgt->N();
     double radius = hit->X4()->Vect().Mag();
-    double hbarc = kLightSpeed*kPlankConstant/genie::units::fermi;
+    double hbarc = kLightSpeed*kPlankConstant/units::fermi;
     kf= TMath::Power(3*kPi2*numNuc*
 		     genie::utils::nuclear::Density(radius,A),1.0/3.0) *hbarc;
   }else{
@@ -126,7 +122,8 @@ void PauliBlocker::ProcessEventRecord(GHepRecord * evrec) const
     genie::exceptions::EVGThreadException exception;
     exception.SetReason("Pauli-blocked event");
     
-    if(proc.IsQuasiElastic()) {
+    // Include dark matter elastic
+    if(proc.IsQuasiElastic() || proc.IsDarkMatterElastic()) {
       // nuclear suppression taken into account at the QEL cross
       // section - should attempt to regenerate the event as QEL
       exception.SwitchOnStepBack();

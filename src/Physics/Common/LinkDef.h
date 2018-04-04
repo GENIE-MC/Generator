@@ -15,6 +15,7 @@
 //#pragma link C++ class genie::HadronTransporter;
 //#pragma link C++ class genie::UnstableParticleDecayer;
 #pragma link C++ class genie::PrimaryLeptonGenerator;
+#pragma link C++ class genie::OutgoingDarkGenerator;
 #pragma link C++ class genie::HadronicSystemGenerator;
 #pragma link C++ class genie::KineGeneratorWithCache;
 

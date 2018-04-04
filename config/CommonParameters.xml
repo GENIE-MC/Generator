@@ -303,6 +303,17 @@ University of Liverpool
     
   </param_set>
 
+
+  <param_set name="BoostedDarkMatter">
+    <!--
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        Set the coupling of dark matter to nucleons
+    -->
+    <param type="double" name="ZpCoupling"> 0.1 </param>
+
+  </param_set>
+
+
   <param_set name="Validation">
     <!-- 
 	 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

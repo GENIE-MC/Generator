@@ -1,7 +1,8 @@
 #
 # Makefile for GENIE Neutrino Generator
 #
-# Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+# Author: Joshua Berger <jberger \at physics.wisc.edu>
+#         Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>         
 #
 
 SHELL    = /bin/sh
@@ -12,8 +13,8 @@ MAKEFILE = Makefile
 #
 include $(GENIE)/src/make/Make.include
 
-PACKAGE           = Physics/BoostedDarkMatter
-PACKAGE_ABBREV    = PhBDM
+PACKAGE           = Physics/BoostedDarkMatter/XSection
+PACKAGE_ABBREV    = PhBDMXS
 DICTIONARY        = _ROOT_DICT_$(PACKAGE_ABBREV)
 LIBNAME           = libG$(PACKAGE_ABBREV)
 EXTRA_EXT_LIBS    =
@@ -26,3 +27,4 @@ install : install-inc install-lib
 include $(GENIE)/src/make/Make.std-package-targets
 
 FORCE:
+

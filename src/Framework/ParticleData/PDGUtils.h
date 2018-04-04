@@ -8,6 +8,9 @@
 \author    Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
            University of Liverpool & STFC Rutherford Appleton Lab
 
+           Changes required to implement the GENIE Boosted Dark Matter module
+           were installed by Josh Berger (Univ. of Wisconsin)
+
 \created   May 06, 2004
 
 \cpright   Copyright (c) 2003-2018, The GENIE Collaboration
@@ -41,6 +44,8 @@ namespace pdg
   bool IsNegChargedLepton (int pdgc);
   bool IsPosChargedLepton (int pdgc);
 
+  bool IsDarkMatter       (int pdgc);
+  
   bool IsNuE              (int pdgc);
   bool IsNuMu             (int pdgc);
   bool IsNuTau            (int pdgc);

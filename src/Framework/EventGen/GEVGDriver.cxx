@@ -6,41 +6,6 @@
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          University of Liverpool & STFC Rutherford Appleton Lab 
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Oct 09, 2007 - CA
-   Added EventGeneratorI * EVGDriver::FindGenerator(const Interaction *) const
- @ Oct 10, 2007 - CA
-   In Configure(const InitialState &) filter out any initial state info other
-   that the probe/target pdg codes.
- @ Feb 11, 2008 - CA
-   In BuildInteractionSelector() adopt the interaction selector from the alg
-   factory rather than creating / configuring an instance on my own. 
-   That is preventing the rare failure mode seen by Anselmo M. where the
-   interaction selector configuration was silently failing.
- @ Jun 17, 2008 - CA
-   Protect against round-off err in the cross section spline evaluation
- @ Jun 20, 2008 - CA
-   Fix a memory leak in CreateXSecSumSpline. Arrays were not deleted after 
-   spline instantiation.
- @ Mar 11, 2009 - CA
-   In GenerateEvent() don't abort if no interaction is selected or if no
-   interaction can be generated after N attempts.
- @ Sep 19, 2009 - CA
-   In AssertIsValidInitState() accept any lepton, not just neutrinos. 
-   Make Print() less neutrino-centric.
- @ Mar 05, 2010 - CA
-   Remove FilterUnphysical(TBits). Flags set exclusively via GUNPHYSMASK.
-   Simplify the code cheecking whether to pass-though unphysical events.
- @ Sep 26, 2011 - CA
-   Demote a few mesgs.
- @ Jan 31, 2013 - CA
-   Added SetEventGeneratorList(string listname). $GEVGL var no longer in use.
- @ Feb 01, 2013 - CA
-   The GUNPHYSMASK env. var is no longer used. Added SetUnphysEventMask(const 
-   TBits &). Input is propagated accordingly.
 */
 //____________________________________________________________________________
 
@@ -733,8 +698,8 @@ void GEVGDriver::AssertIsValidInitState(void) const
 {
   assert(fInitState);
   int ppdgc = fInitState->ProbePdg();
-  bool isl = pdg::IsLepton(ppdgc);
-  assert(isl);
+  bool isv = pdg::IsLepton(ppdgc) || pdg::IsDarkMatter(ppdgc);
+  assert(isv);
 }
 //___________________________________________________________________________
 void GEVGDriver::Print(ostream & stream) const

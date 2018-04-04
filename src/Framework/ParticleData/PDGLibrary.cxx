@@ -7,11 +7,8 @@
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          University of Liverpool & STFC Rutherford Appleton Lab 
 
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ 01/05/12 - CA
-   Pick data from new location ($GENIE/data/catalogues/pdg/)
+         Changes required to implement the GENIE Boosted Dark Matter module
+         were installed by Josh Berger (Univ. of Wisconsin)
 */
 //____________________________________________________________________________
 
@@ -21,6 +18,7 @@
 #include <TSystem.h>
 
 #include "Framework/Messenger/Messenger.h"
+#include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/ParticleData/PDGLibrary.h"
 
 using std::string;
@@ -66,6 +64,7 @@ TParticlePDG * PDGLibrary::Find(int pdgc)
 
   return fDatabasePDG->GetParticle(pdgc);
 }
+
 //____________________________________________________________________________
 bool PDGLibrary::LoadDBase(void)
 {
@@ -111,4 +110,35 @@ bool PDGLibrary::LoadDBase(void)
   return false;
 };
 //____________________________________________________________________________
+void PDGLibrary::AddDarkMatter(double mass, double med_ratio)
+{
+// Add dark matter particle to PDG database
 
+  double med_mass = mass*med_ratio;
+  TParticlePDG * dm_particle = fDatabasePDG->GetParticle(kPdgDarkMatter);
+  TParticlePDG * med_particle = fDatabasePDG->GetParticle(kPdgMediator);
+  if (!dm_particle) {
+    // Name Title Mass Stable Width Charge Class PDG
+    fDatabasePDG->AddParticle("chi_dm","chi_dm",mass,true,0.,0,"DarkMatter",kPdgDarkMatter);
+  }
+  else {
+    assert(dm_particle->Mass() == mass);
+  }
+  if (!med_particle) {
+    // Name Title Mass Stable Width Charge Class PDG
+    fDatabasePDG->AddParticle("Z_prime","Z_prime",med_mass,true,0.,0,"DarkMatter",kPdgMediator);
+  }
+  else {
+    assert(med_particle->Mass() == med_mass);
+  }
+}
+//____________________________________________________________________________
+// EDIT: need a way to clear and then reload the PDG database
+void PDGLibrary::ReloadDBase(void)
+{
+  if(fDatabasePDG) {
+    delete fDatabasePDG;
+  }
+
+  if( ! LoadDBase() ) LOG("PDG", pERROR) << "Could not load PDG data";
+}

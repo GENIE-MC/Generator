@@ -7,53 +7,8 @@
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          University of Liverpool & STFC Rutherford Appleton Lab 
 
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Sep 19, 2007 - CA
-   Added == operator and Compare() method.
- @ Nov 21, 2007 - CA
-   In order to handle the introduction of a new type of coherent interactions 
-   (coherent elastic) renamed the COHCC() and COHNC() methods to COHPiCC() 
-   and COHPiNC() respectivelly, and added COHEl() methods.
- @ Dec 01, 2007 - CA
-   For ve- 'weak mix' interactions (ve+e->ve+e) the neutrino is always set
-   as the primary final state lepton
- @ Feb 15, 2008 - CA
-   Added named ctors for anomaly mediated nu-gamma interactions.
- @ Sep 24, 2008 - CA
-   Added named ctors for MEC interactions.
- @ Feb 09, 2009 - CA
-   Added named ctors for diffractive interactions.
- @ Mar 03, 2009 - CA
-   Adapted COH name ctors (COHPi -> COH) in anticipation of including coherent
-   vector meson production.
- @ Aug 21, 2009 - CR
-   Added IBD() named ctors for Inverse Beta Decay interactions.
- @ Sep 18, 2009 - CA
-   Added QELEM() named ctors for charged lepton QEL interactions. 
-   In RecoilNucleonPdg() allow EM interactions.
- @ Oct 19, 2009 - CA
-   Added RESEM() named ctors for charged lepton RES interactions.
- @ Dec 14, 2009 - CA
-   Added GLR() named ctors for Glashow resonance interactions.
- @ May 05, 2010 - CR
-   Adding special ctor for ROOT I/O purposes so as to avoid memory leak due to
-   memory allocated in the default ctor when objects of this class are read by 
-   the ROOT Streamer. 
- @ Nov 17, 2011 - CA
-   Added NDecay() named ctor. Removed unused Compare() method and operator.
- @ Nov 24, 2011 - CA
-   Tweaked RecoilNucleonPdg() so that it works with MEC wgere the hit object
-   is a nucleon-cluster and not a single nucleon. The MEC named ctors now 
-   have an argument for specifying the hit nucleon cluster PDG.
- @ Feb 29, 2012 - CA
-   Added MECNC() and MECEM().
- @ Apr 20, 2012 - CA
-   Added DISEM().
- @ Feb 12, 2013 - CA (code from Rosen Matev)
-   In elastic neutrino-electron scattering, always set the electron as the 
-   final state primary lepton. Handle the IMD annihilation channel.
+         Changes required to implement the GENIE Boosted Dark Matter module 
+         were installed by Josh Berger (Univ. of Wisconsin)
 */
 //____________________________________________________________________________
 
@@ -187,7 +142,7 @@ int Interaction::FSPrimLeptonPdg(void) const
     return kPdgElectron;
 
   // vN (Weak-NC) or eN (EM)
-  if (proc_info.IsWeakNC() || proc_info.IsEM() || proc_info.IsWeakMix()) return pdgc;
+  if (proc_info.IsWeakNC() || proc_info.IsEM() || proc_info.IsWeakMix() || proc_info.IsDarkMatter()) return pdgc;  // EDIT: DM does not change in FS
 
   // vN (Weak-CC)
   else if (proc_info.IsWeakCC()) {
@@ -222,11 +177,12 @@ int Interaction::RecoilNucleonPdg(void) const
   int recoil_nuc = 0;
   int struck_nuc = target.HitNucPdg();
 
-  if (fProcInfo->IsQuasiElastic() || fProcInfo->IsInverseBetaDecay()) {
+  if (fProcInfo->IsQuasiElastic() || fProcInfo->IsInverseBetaDecay() || fProcInfo->IsDarkMatterElastic()) {
     bool struck_is_nuc = pdg::IsNucleon(struck_nuc);
     bool is_weak = fProcInfo->IsWeak();
     bool is_em   = fProcInfo->IsEM();
-    assert(struck_is_nuc && (is_weak || is_em));
+    bool is_dm   = fProcInfo->IsDarkMatter();
+    assert(struck_is_nuc && (is_weak || is_em || is_dm));
     if(fProcInfo->IsWeakCC()) {
        recoil_nuc = pdg::SwitchProtonNeutron(struck_nuc); // CC
     } else {
@@ -290,7 +246,13 @@ string Interaction::AsString(void) const
 
   ostringstream interaction;
 
-  interaction << "nu:"  << fInitialState->ProbePdg() << ";";
+  // If the probe has non-zero mass, then it is DM
+  if (fInitialState->Probe()->Mass() > 0.) {
+    interaction << "dm;";
+  }
+  else {
+    interaction << "nu:"  << fInitialState->ProbePdg() << ";";
+  }
   interaction << "tgt:" << tgt.Pdg() << ";";
 
   if(tgt.HitNucIsSet()) {
@@ -303,7 +265,7 @@ string Interaction::AsString(void) const
 
   interaction << "proc:" << fProcInfo->InteractionTypeAsString() 
               << "," << fProcInfo->ScatteringTypeAsString()  << ";";
-
+  
   string xcls = fExclusiveTag->AsString();
   interaction << xcls;
   if(xcls.size()>0) interaction << ";";
@@ -980,4 +942,80 @@ Interaction * Interaction::ASK(
 
   return interaction;
 }
+//___________________________________________________________________________
+Interaction * Interaction::DME(int target, int hitnuc, int probe, double E)
+{
+  // EDIT: need to be able to create dark matter elastic
+  Interaction * interaction = 
+     Interaction::Create(target,probe,kScDarkMatterElastic, kIntDarkMatter);
 
+  InitialState * init_state = interaction->InitStatePtr();
+  init_state->SetProbeE(E);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
+
+  return interaction;
+}
+//___________________________________________________________________________
+Interaction * Interaction::DME(
+   int target, int hitnuc, int probe, const TLorentzVector & p4probe)
+{
+  // EDIT: need to be able to create dark matter elastic
+  Interaction * interaction = 
+     Interaction::Create(target,probe,kScDarkMatterElastic, kIntDarkMatter);
+
+  InitialState * init_state = interaction->InitStatePtr();
+  init_state->SetProbeP4(p4probe);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
+
+  return interaction;
+}
+//___________________________________________________________________________
+Interaction * Interaction::DMDI(int target, int hitnuc, int probe, double E)
+{
+  Interaction * interaction = 
+             Interaction::Create(target,probe,kScDarkMatterDeepInelastic, kIntDarkMatter);
+
+  InitialState * init_state = interaction->InitStatePtr();
+  init_state->SetProbeE(E);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
+
+  return interaction;
+}
+//___________________________________________________________________________
+Interaction * Interaction::DMDI(
+   int target, int hitnuc, int hitqrk, bool fromsea, int probe, double E)
+{
+  Interaction* interaction = Interaction::DMDI(target,hitnuc,probe,E);
+
+  Target * tgt = interaction->InitStatePtr()->TgtPtr();
+  tgt -> SetHitQrkPdg (hitqrk);
+  tgt -> SetHitSeaQrk (fromsea);
+
+  return interaction;
+}
+//___________________________________________________________________________
+Interaction * Interaction::DMDI(
+   int target, int hitnuc, int probe, const TLorentzVector & p4probe)
+{
+  Interaction * interaction = 
+     Interaction::Create(target,probe,kScDarkMatterDeepInelastic, kIntDarkMatter);
+
+  InitialState * init_state = interaction->InitStatePtr();
+  init_state->SetProbeP4(p4probe);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
+
+  return interaction;
+}
+//___________________________________________________________________________
+Interaction * Interaction::DMDI(
+   int target, int hitnuc, int hitqrk, bool fromsea, int probe, 
+   const TLorentzVector & p4probe)
+{
+  Interaction * interaction = Interaction::DMDI(target,hitnuc,probe,p4probe);
+
+  Target * tgt = interaction->InitStatePtr()->TgtPtr();
+  tgt -> SetHitQrkPdg (hitqrk);
+  tgt -> SetHitSeaQrk (fromsea);
+
+  return interaction;
+}

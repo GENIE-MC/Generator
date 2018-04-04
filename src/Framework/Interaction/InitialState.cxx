@@ -7,19 +7,11 @@
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          University of Liverpool & STFC Rutherford Appleton Lab 
 
- For the class documentation see the corresponding header file.
+         Changes required to implement the GENIE Boosted Dark Matter module 
+         were installed by Josh Berger (Univ. of Wisconsin)
 
- Important revisions after version 2.0.0 :
- @ Dec 03, 2007 - CA
-   Assert that the hit nucleon is set when energy is requested at the hit 
-   nucleon rest frame.
- @ May 05, 2010 - CR
-   Adding special ctor for ROOT I/O purposes so as to avoid memory leak due to
-   memory allocated in the default ctor when objects of this class are read by 
-   the ROOT Streamer. 
- @ May 19, 2016 - AF, JJ
-   CMEnergy() method added to calculate the com energy, for use by the
-   QELEventGenerator class.
+         CMEnergy() method added by Andy Furmanski (Univ. of Manchester) 
+         and Joe Johnston (Univ of Pittsburgh)
 */
 //____________________________________________________________________________
 
@@ -241,6 +233,26 @@ bool InitialState::IsNuBarN(void) const
   return isvbn;
 }
 //___________________________________________________________________________
+bool InitialState::IsDMP(void) const
+{
+// Check if DM - proton interaction
+  int  prob = fProbePdg;
+  int  nucl = fTgt->HitNucPdg();
+  bool isdp = pdg::IsDarkMatter(prob) && pdg::IsProton(nucl);
+
+  return isdp;
+}
+//___________________________________________________________________________
+bool InitialState::IsDMN(void) const
+{
+// Check if DM - neutron interaction
+  int  prob = fProbePdg;
+  int  nucl = fTgt->HitNucPdg();
+  bool isdn = pdg::IsDarkMatter(prob) && pdg::IsNeutron(nucl);
+
+  return isdn;
+}
+//___________________________________________________________________________
 TLorentzVector * InitialState::GetTgtP4(RefFrame_t ref_frame) const
 {
 // Return the target 4-momentum in the specified reference frame
@@ -382,7 +394,12 @@ string InitialState::AsString(void) const
 
   ostringstream init_state;
 
-  init_state << "nu-pdg:"  << this->ProbePdg()  << ";";
+  if (this->Probe()->Mass() > 0) {
+    init_state << "dm_mass:" << this->Probe()->Mass() << ";";
+  }
+  else {
+    init_state << "nu-pdg:"  << this->ProbePdg()  << ";";
+  }
   init_state << "tgt-pdg:" << this->Tgt().Pdg() << ";";
 
   return init_state.str();

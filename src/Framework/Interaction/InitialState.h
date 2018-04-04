@@ -8,6 +8,13 @@
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           University of Liverpool & STFC Rutherford Appleton Lab
 
+          Changes required to implement the GENIE Boosted Dark Matter module
+          were installed by Josh Berger (Univ. of Wisconsin)
+
+          Other minor changes / additions and fixes were installed by: 
+          Andy Furmanski (Univ. of Manchester)
+          Joe Johnston (Univ of Pittsburgh)
+
 \created  May 02, 2004
 
 \cpright  Copyright (c) 2003-2018, The GENIE Collaboration
@@ -75,6 +82,8 @@ public:
   bool IsNuN    (void) const; ///< is neutrino      + neutron?
   bool IsNuBarP (void) const; ///< is anti-neutrino + proton?
   bool IsNuBarN (void) const; ///< is anti-neutrino + neutron?
+  bool IsDMP    (void) const; ///< is dark matter   + proton?
+  bool IsDMN    (void) const; ///< is dark matter   + neutron?
 
   //-- Copy, reset, compare, print itself and build string code
   void   Reset    (void);
