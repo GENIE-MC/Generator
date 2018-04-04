@@ -56,7 +56,8 @@ public:
   virtual ~Algorithm();
 
   //! Configure the algorithm with an external registry
-  //!   The registry is added with the highest priority
+  //!   The registry is merged with the top level registry if it is owned,
+  //!   Otherwise a copy of it is added with the highest priority
   virtual void Configure (const Registry & config);
 
   //! Configure the algorithm from the AlgoConfigPool
@@ -177,6 +178,8 @@ protected:
 
 
   int   AddTopRegistry( Registry * rp, bool owns = true );  ///< add registry with top priority, also update ownership
+  int   MergeTopRegistry( const Registry & r ) ;            ///< Merge with top level registry if first reg of the vector is owned
+                                                            ///< Otherwise an owned copy is added as a top registry
   int   AddTopRegisties( const vector<Registry*> & rs, bool owns = false ) ; ///< Add registries with top priority, also udated Ownerships  
 
 private:
