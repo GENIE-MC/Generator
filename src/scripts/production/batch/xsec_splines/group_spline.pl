@@ -150,10 +150,22 @@ foreach my $tgt ( keys %tgts ) {
 
   $tmp_tgt_file = "$dir/".$tgt.".xml"; 
 
-  $gspladd_opt    = " -o $tmp_tgt_file -f $nu_file_list ";
-  $gspladd_cmd    = "gspladd $gspladd_opt";
-  print "$gspladd_cmd \n \n";
-  `$gspladd_cmd \n`;
+  $nus_size = keys %nus ;
+
+  if ( $nus_size > 1 ) { 
+    $gspladd_opt    = " -o $tmp_tgt_file -f $nu_file_list ";
+    $gspladd_cmd    = "gspladd $gspladd_opt";
+    print "$gspladd_cmd \n \n";
+    `$gspladd_cmd \n`;
+  }
+  elsif ( $nus_size == 1 ) {
+    $cp_cmd = "cp $nu_file_list $tmp_tgt_file ";
+    print "$cp_cmd \n \n";
+    `$cp_cmd \n`;  
+  }
+  elsif ( $nus_size == 0 ) {
+    print "\nError: No Neutrino flavours \n";
+  }
 
   if ( -f $tmp_tgt_file ) {
     $tgt_file_list .= "," if ( $tgt_file_list ne "" );
@@ -162,7 +174,7 @@ foreach my $tgt ( keys %tgts ) {
     $tgt_list .= "$tmp_tgt";
   }
   else { 
-    print "Error: $tmp_tgt_file not created \n";
+    print "\nError: $tmp_tgt_file not created \n";
   }
   
 }  ##tgt loop
