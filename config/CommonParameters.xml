@@ -268,7 +268,7 @@ University of Liverpool
 	- genie::BBA05ELFormFactorsModel, R.Bradford, A.Bodek, H.Budd and J.Arrington, hep-ex/0602017
 	- genie::BBA07ELFormFactorsModel, R.Bradford, A.Bodek, H.Budd and S.Avvakumov, Euro.Phys.J.C53 (2008);[arXiv:0708.1946 [hep-ex]]
    -->
-   <param type="alg" name="ElasticFormFactorsModel"> genie::BBA05ELFormFactorsModel/Default </param>
+   <param type="alg" name="ElasticFormFactorsModel"> genie::BBA07ELFormFactorsModel/Default </param>
    
    <!-- Option for turning on Transverse Enhancement by Elastic Form Factor adjustment. 
 	See http://arxiv.org/abs/1405.0583 and http://arxiv.org/abs/1106.0340
