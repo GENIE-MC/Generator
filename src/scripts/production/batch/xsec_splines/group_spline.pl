@@ -11,6 +11,7 @@
 #  [--tune]            : Tune option
 #  [--add-list]        : additional file list to be included when the total_xsec.xml file is created
 #  [--root-output]     : Create an output file with all the splines
+#  [--def-nu-list]     : Default list of neutrino PDG to be used if that cannot be derived from local files. Default 14
 #  [--evet-gen-list]   : Event generator list used in the root file output
 #  [--add-nucleons]    : When the ROOT file is created, also splines for proton and neutrons are created
 #  [--save-space]      : remove intermadiate xml files
@@ -24,12 +25,14 @@ foreach (@ARGV) {
   if($_ eq '--add-list')        { $add_list       = $ARGV[$iarg+1]; }
   if($_ eq '--root-output')     { $root_output    = 1 ; }
   if($_ eq '--event-gen-list')  { $event_gen_list = $ARGV[$iarg+1]; }
+  if($_ eq '--def-nu-list')     { $def_nu_list    = $ARGV[$iarg+1]; }
   if($_ eq '--add-nucleons')    { $add_nucleons   = 1 ; }
   if($_ eq '--save-space' )     { $save_space     = 1 ; } 
   $iarg++;
 }
 
-$dir=$ENV{'PWD'}   unless defined $dir;
+$dir=$ENV{'PWD'}      unless defined $dir;
+$def_nu_list = "14"   unless defined $def_nu_list ;
 
 opendir(DIR, $dir) or die $!;
 
@@ -222,13 +225,19 @@ if ( defined $root_output ) {
 ##
 ## Create an output file with all the splines in root format
 ##
+    
+  if ( $nu_list eq "" ) {
+    $nu_list = $def_nu_list ;
+  }
 
   if ( index($tgt_list, "1000010010") == -1 ) {
-    $tgt_list .= ",1000010010";
+    $tgt_list .= "," unless ( $tgt_list eq "" ) ;
+    $tgt_list .= "1000010010" ;
   }
 
   if ( index($tgt_list, "1000000010") == -1 ) {
-    $tgt_list .= ",1000000010";
+    $tgt_list .= "," unless ( $tgt_list eq "" ) ;
+    $tgt_list .= "1000000010";
   }
 
   my $cmd = "gspl2root ";
