@@ -21,6 +21,8 @@
 #   [--jobs-topdir]   : top level dir for job files, default: $PWD
 #   [--gen-list]      : comma separated list of event generator list, default all
 #   [--nu-list]       : comma separated list of neutrino. Both PDGs or names are ok, default all
+#   [--with-priority] : (boolean) set a prioirty to optimize bulk productions. Default false
+#   
 # Examples:
 #   shell% perl submit_vN_xsec_calc_jobs.pl --version v2.6.0  
 #   shell% perl submit_vN_xsec_calc_jobs.pl --version v2.6.0 
@@ -54,6 +56,7 @@ foreach (@ARGV) {
   if($_ eq '--jobs-topdir')    { $jobs_topdir   = $ARGV[$iarg+1]; }           
   if($_ eq '--gen-list'   )    { $req_gen_list  = $ARGV[$iarg+1]; }
   if($_ eq '--nu-list' )       { $req_nu_list	= $ARGV[$iarg+1]; }
+  if($_ eq '--with-priority' ) { $priority	= 1; }
   $iarg++;
 }
 die("** Aborting [Undefined GENIE version. Use the --version option]")
@@ -70,6 +73,7 @@ $softw_topdir   = "/opt/ppd/t2k/softw/GENIE/"   unless defined $softw_topdir;
 $jobs_topdir    = $ENV{'PWD'}                   unless defined $jobs_topdir;
 $genie_setup    = "$softw_topdir/generator/builds/$arch/$genie_version-setup";
 $jobs_dir       = "$jobs_topdir/$genie_version-$production\_$cycle-xsec\_vN";
+$priority       = 0                             unless defined $priority ;
 
 
 $nkots = 100;
@@ -179,6 +183,7 @@ foreach $nu ( @nu_list ) {
          print PBS "#PBS -N $jobname \n";
          print PBS "#PBS -o $filename_template.pbsout.log \n";
          print PBS "#PBS -e $filename_template.pbserr.log \n";
+	 print PBS "#PBS -p -2 \n" if ( $priority ) ; 
          print PBS "source $genie_setup $config_dir \n";
          print PBS "cd $jobs_dir \n";
          print PBS "$gmkspl_cmd | $grep_pipe &> $filename_template.mkspl.log \n";
@@ -201,6 +206,7 @@ foreach $nu ( @nu_list ) {
          print PBS "#\$ -o $filename_template.pbsout.log \n";
          print PBS "#\$ -e $filename_template.pbserr.log \n";
          print PBS "#\$ -l ct=8:00:00,sps=1 \n";
+	 print PBS "#\$ -p -2 \n" if ( $priority ) ;
          print PBS "source $genie_setup $config_dir \n";
          print PBS "cd $jobs_dir \n";
          print PBS "$gmkspl_cmd \n";

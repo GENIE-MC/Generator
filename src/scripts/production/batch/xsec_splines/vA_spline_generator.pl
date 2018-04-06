@@ -27,6 +27,7 @@
 #   [--target-list]    : comma separated list of targets' PDGs, default De,He4,C12,O16,Ar40,Fe56,Pb207. 
 #                        Note that it needs the PDG code, not chemical name.
 #   [--nu-list]        : comma separeted list of neutrino flavors. Both PDGs or names like vmubar,ve,vtau. Default all
+#   [--with-priority] : (boolean) set a prioirty to optimize bulk productions. Default false
 #   
 #
 # Author:
@@ -61,6 +62,7 @@ foreach (@ARGV) {
   if($_ eq '--gen-list'   )    { $req_gen_list   = $ARGV[$iarg+1]; }
   if($_ eq '--target-list'   ) { $target_list	 = $ARGV[$iarg+1]; }
   if($_ eq '--nu-list'   )     { $req_nu_list   =  $ARGV[$iarg+1]; }
+  if($_ eq '--with-priority' ) { $priority      = 1; }
   $iarg++;
 }
 die("** Aborting [Undefined GENIE version. Use the --version option]")
@@ -76,6 +78,7 @@ $queue          = "prod"                        unless defined $queue;
 $softw_topdir   = "/opt/ppd/t2k/softw/GENIE/"   unless defined $softw_topdir;
 $jobs_topdir    = $ENV{'PWD'}                   unless defined $jobs_topdir;
 $freenucsplines = "$softw_topdir/data/job_inputs/xspl/gxspl-vN-$genie_version.xml" unless defined $freenucsplines;
+$priority       = 0                             unless defined $priority ;
 
 
 $genie_setup    = "$softw_topdir/generator/builds/$arch/$genie_version-setup";
@@ -225,6 +228,7 @@ foreach $nu ( @nu_list ) {
          print PBS "#\$ -o $filename_template.pbsout.log \n";
          print PBS "#\$ -e $filename_template.pbserr.log \n";
          print PBS "#\$ -l ct=30:00:00,sps=1,s_rss=4G \n";
+         print PBS "#\$ -p -1 \n" if ( $priority ) ;
          print PBS "source $genie_setup $config_dir \n";
          print PBS "cd $jobs_dir \n";
          print PBS "$gmkspl_cmd \n";
