@@ -124,14 +124,6 @@ public:
   void   Get (RgKey key, RgH2F &  item) const;
   void   Get (RgKey key, RgTree & item) const;
 
-  // Methods to set/retrieve Registry values from this registry or from a vector of Registries
-  //
-  template<class T>
-    void   Get (RgKey key, const vector<genie::Registry> & rs, T & item ) const ;
-//  template<>
-//    void   Get (RgKey key, const vector<genie::Registry> & rs, const RegistryItemI * & item ) const ;
-
-
   RgBool GetBool      (RgKey key) const;
   RgInt  GetInt       (RgKey key) const;
   RgDbl  GetDouble    (RgKey key) const;
@@ -141,25 +133,12 @@ public:
   RgH2F  GetH2F       (RgKey key) const;
   RgTree GetTree      (RgKey key) const;
 
-  RgBool GetBool      (RgKey key, const vector<genie::Registry> & rs ) const;
-  RgInt  GetInt       (RgKey key, const vector<genie::Registry> & rs ) const;
-  RgDbl  GetDouble    (RgKey key, const vector<genie::Registry> & rs ) const;
-  RgStr  GetString    (RgKey key, const vector<genie::Registry> & rs ) const;
-  RgAlg  GetAlg       (RgKey key, const vector<genie::Registry> & rs ) const;
-
   RgBool GetBoolDef   (RgKey key, RgBool def_opt, bool set_def=true);
   RgInt  GetIntDef    (RgKey key, RgInt  def_opt, bool set_def=true);
   RgDbl  GetDoubleDef (RgKey key, RgDbl  def_opt, bool set_def=true);
   RgStr  GetStringDef (RgKey key, RgStr  def_opt, bool set_def=true);
   RgAlg  GetAlgDef    (RgKey key, RgAlg  def_opt, bool set_def=true);
   
-//  RgBool GetBoolDef   (RgKey key, const vector<const Registry> & rs, RgBool def_opt, bool set_def=true);
-//  RgInt  GetIntDef    (RgKey key, const vector<const Registry> & rs, RgInt  def_opt, bool set_def=true);
-//  RgDbl  GetDoubleDef (RgKey key, const vector<const Registry> & rs, RgDbl  def_opt, bool set_def=true);
-//  RgStr  GetStringDef (RgKey key, const vector<const Registry> & rs, RgStr  def_opt, bool set_def=true);
-//  RgAlg  GetAlgDef    (RgKey key, const vector<const Registry> & rs, RgAlg  def_opt, bool set_def=true);
-
-
   RgIMapConstIter SafeFind  (RgKey key) const;
 
   int    NEntries     (void) const;                     ///< get number of items
@@ -170,7 +149,8 @@ public:
   string Name         (void) const;                     ///< get the registry name
   void   Print        (ostream & stream) const;         ///< print the registry to stream
   void   Copy         (const Registry &);               ///< copy the input registry
-  void   Append       (const Registry &, RgKey pfx=""); ///< append the input registry
+  void   Append       (const Registry &, RgKey pfx=""); ///< append the input registry. Entries already in the registry are not updated
+  void   Merge        (const Registry &, RgKey pfx=""); ///< append the input registry. Entries already in the registry are updated
   void   Clear        (bool force = false);             ///< clear the registry
   void   Init         (void);                           ///< initialize the registry
 
@@ -193,6 +173,8 @@ public:
   void AssertExistence (RgKey key0, RgKey key1, RgKey key2) const;
 
 private:
+
+  RegistryItemI * CloneRegistryItem( const RgKey & key ) const ;   ///< Properly clone a registry Item according to its type
 
   // Registry's private data members
   //

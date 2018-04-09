@@ -595,7 +595,7 @@ int  Algorithm::MergeTopRegistry( const Registry & r )  {
 
   if ( fOwnerships[0] ) {
 	//the top registry is owned: it can be changed with no consequences for other algorithms
-    fConfVect[0] -> Append( r ) ;
+    fConfVect[0] -> Merge( r ) ;
   }
   else {
 	// The top registry is not owned so it cannot be changed

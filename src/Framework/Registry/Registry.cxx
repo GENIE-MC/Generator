@@ -470,101 +470,6 @@ void Registry::Get(RgKey key, RgTree & item) const
     LOG("Registry", pWARN) << "Returned NULL ptr for TTree param = " << key;
   }
 }
-
-//____________________________________________________________________________
-
-template<class T>
-void Registry::Get (RgKey key, const vector<genie::Registry> & rs, T & item ) const {
-
-	T value ;
-
-	//check this registry
-	if( Exists(key) ) {
-		if( ItemIsLocal(key) ) {
-			Get(key,value);
-			return ;
-		}
-	}
-
-	//key not found
-	//loop over the vector
-	for ( unsigned int i = 0 ; i < rs.size() ; ++i ) {
-
-		const Registry & temp = rs[i] ;
-
-		if( temp.Exists(key) ) {
-			if( temp.ItemIsLocal(key) ) {
-				temp.Get(key,value);
-				return ;
-			}
-		}
-
-	}
-
-	//crash because no key was found
-	std::stringstream names;
-	names << Name();
-	for ( unsigned int i = 0 ; i < rs.size() ; ++i ) {
-		names << ", " << rs[i].Name();
-	}
-	LOG("Registry/Get", pFATAL)
-	   << "*** Key: " << key
-	   << " does not exist in registries : " << names.str() ;
-	gAbortingInErr = true;
-	exit(1);
-
-}
-
-//____________________________________________________________________________
-
-namespace genie {   ///this is a template specialization, hence the code has to be in the same namespace
-
-template<>
-  void Registry::Get (RgKey key, const vector<genie::Registry> & rs, const RegistryItemI * & item ) const {
-
-	RgIMapConstIter entry ;
-
-	//check this registry
-	if( Exists(key) ) {
-		if( ItemIsLocal(key) ) {
-			entry = this->SafeFind(key);
-			item = entry->second;
-			return ;
-		}
-	}
-
-	//key not found
-	//loop over the vector
-	for ( unsigned int i = 0 ; i < rs.size() ; ++i ) {
-
-		const Registry & temp = rs[i] ;
-
-		if( temp.Exists(key) ) {
-			if( temp.ItemIsLocal(key) ) {
-				entry = this->SafeFind(key);
-				item = entry->second;
-				return ;
-			}
-		}
-
-	}
-
-	//crash because no key was found
-	std::stringstream names;
-	names << Name();
-	for ( unsigned int i = 0 ; i < rs.size() ; ++i ) {
-		names << ", " << rs[i].Name();
-	}
-	LOG("Registry/Get", pFATAL)
-	   << "*** Key: " << key
-	   << " does not exist in registries : " << names.str() ;
-	gAbortingInErr = true;
-	exit(1);
-
-}
-
-}
-
 //____________________________________________________________________________
 RgBool Registry::GetBool(RgKey key) const
 {
@@ -630,53 +535,6 @@ RgTree Registry::GetTree(RgKey key) const
   RgTree item = ri->Data();
   return item;
 }
-
-//____________________________________________________________________________
-
-
-RgBool Registry::GetBool(RgKey key, const vector<genie::Registry> & rs ) const {
-
-	RgBool value;
-	Get(key, rs, value ) ;
-	return value ;
-}
-
-//____________________________________________________________________________
-
- RgInt  Registry::GetInt(RgKey key, const vector<genie::Registry> & rs ) const {
-
-	 RgInt value ;
-	 Get( key, rs, value ) ;
-	 return value ;
- }
-
- //____________________________________________________________________________
-
- RgDbl  Registry::GetDouble(RgKey key, const vector<genie::Registry> & rs ) const {
-
-	 RgDbl value ;
-	 Get( key, rs, value ) ;
-	 return value ;
- }
-
- //____________________________________________________________________________
-
- RgStr  Registry::GetString    (RgKey key, const vector<genie::Registry> & rs ) const {
-
-	 RgStr value;
-	 Get( key, rs, value );
-	 return value ;
- }
-
- //____________________________________________________________________________
-
- RgAlg  Registry::GetAlg       (RgKey key, const vector<genie::Registry> & rs ) const {
-
-	 RgAlg value;
-	 Get( key, rs, value  );
-	 return value ;
- }
-
 //____________________________________________________________________________
 RgBool Registry::GetBoolDef(RgKey key, RgBool def_opt, bool set_def) 
 {
@@ -917,65 +775,71 @@ void Registry::Append(const Registry & registry, RgKey prefix)
      RgKey name     = reg_iter->first;
      RgKey new_name = prefix + name;
 
-     RegistryItemI * ri  = reg_iter->second;
+     if ( fRegistry.count( new_name ) > 0 ) continue ;
 
-     bool     ilk   = ri->IsLocked();
-     RgType_t type  = ri->TypeInfo();
+     RgType_t type  = reg_iter -> second -> TypeInfo();
      string   stype = RgType::AsString(type);
 
      LOG("Registry", pINFO)
          << "Copying [" << stype << "] item named = " 
                                          << name << " as " << new_name;
 
-     RegistryItemI * cri = 0; // cloned registry item
-     if (type == kRgBool)
-           cri = new RegistryItem<RgBool>(registry.GetBool(name),ilk);
-     else if (type == kRgDbl)
-           cri = new RegistryItem<RgDbl> (registry.GetDouble(name),ilk);
-     else if (type == kRgInt)
-           cri = new RegistryItem<RgInt> (registry.GetInt(name),ilk);
-     else if (type == kRgStr)
-           cri = new RegistryItem<RgStr> (registry.GetString(name),ilk);
-     else if (type == kRgAlg)
-           cri = new RegistryItem<RgAlg> (registry.GetAlg(name),ilk);
-     else if (type == kRgH1F) {
-           RgH1F histo = registry.GetH1F(name);
-           if(histo) {
-               RgH1F chisto = new TH1F(*histo);
-               LOG("Registry", pDEBUG) << chisto->GetName();
-               cri = new RegistryItem<RgH1F>(chisto,ilk);
-           } else {
-             LOG("Registry", pERROR)
-               << "Null TH1F with key = " << name << " - not copied";
-           }
-     } else if (type == kRgH2F) {
-           RgH2F histo = registry.GetH2F(name);
-           if(histo) {
-               RgH2F chisto = new TH2F(*histo);
-               LOG("Registry", pDEBUG) << chisto->GetName();
-               cri = new RegistryItem<RgH2F>(chisto,ilk);
-           } else {
-             LOG("Registry", pERROR)
-               << "Null TH2F with key = " << name << " - not copied";
-           }
-     } else if (type == kRgTree) {
-           RgTree tree = registry.GetTree(name);
-           if(tree) {
-               //TTree * ctree = new TTree(*tree);
-               TTree * ctree = tree->CopyTree("1");
-               LOG("Registry", pDEBUG) << ctree->GetName();
-               cri = new RegistryItem<RgTree>(ctree,ilk);
-           } else {
-             LOG("Registry", pERROR)
-               << "Null TTree with key = " << name << " - not copied";
-           }
-     } else {}
+     RegistryItemI * cri = registry.CloneRegistryItem( name ) ; // cloned registry item
 
      RgIMapPair reg_entry(new_name, cri);
-     fRegistry.insert(reg_entry);
-   }
+
+     if ( ! fRegistry.insert(reg_entry).second ) {
+    	 // The registry already contained an entry with key new_name
+    	 //   so the new registryItem has to be deleted or we leak memory.
+    	 //   This should not happened as a check is performed
+    	 LOG("Registry", pERROR ) << "Failing to insert item " << new_name ;
+    	 delete cri ;
+     }
+   } // loop on the incoming registry items
 }
 //____________________________________________________________________________
+void Registry::Merge(const Registry & registry, RgKey prefix)
+{
+// Add the input registry entries (& their locks)
+// and updated entries already present
+
+  LOG("Registry", pINFO)
+       << "Appending registry " << registry.Name() << " to " << this->Name();
+
+  if(this->IsLocked()) {
+   LOG("Registry", pWARN) << "Registry is locked. Can't copy input entries!";
+   return;
+  }
+
+  this->InhibitItemLocks();
+
+  RgIMapConstIter reg_iter;
+  for(reg_iter = registry.fRegistry.begin();
+                      reg_iter != registry.fRegistry.end(); reg_iter++) {
+
+     RgKey name     = reg_iter->first;
+     RgKey new_name = prefix + name;
+
+     RgType_t type  = reg_iter -> second -> TypeInfo();
+     string   stype = RgType::AsString(type);
+
+     LOG("Registry", pINFO)
+         << "Copying [" << stype << "] item named = "
+                                         << name << " as " << new_name;
+
+     RegistryItemI * cri = registry.CloneRegistryItem( name ) ; // cloned registry item
+
+     if ( fRegistry.count( new_name ) > 0 ) {
+
+       RegistryItemI * old_ri = fRegistry[new_name] ;
+   	   delete old_ri ;
+     }
+
+     fRegistry[new_name] = cri ;
+
+   } // loop on the incoming registry items
+
+}//____________________________________________________________________________
 RgType_t Registry::ItemType(RgKey key) const
 {
   RgIMapConstIter reg_iter = fRegistry.find(key);
@@ -1037,4 +901,70 @@ void Registry::Clear(bool force)
   fRegistry.clear();
 }
 //____________________________________________________________________________
+RegistryItemI * Registry::CloneRegistryItem( const RgKey & key ) const {
+
+	std::map<RgKey, RegistryItemI*>::const_iterator it = fRegistry.find( key ) ;
+
+	if ( it == fRegistry.end() ) {
+		LOG("Registry", pFATAL) << "Item " << key << " not found while cloning for registry " << Name() ;
+		exit( 0 ) ;
+	}
+
+	RegistryItemI * ri  = it -> second ;
+
+     bool     ilk   = ri->IsLocked();
+     RgType_t type  = ri->TypeInfo();
+     string   stype = RgType::AsString(type);
+
+     RegistryItemI * cri = 0; // cloned registry item
+     if (type == kRgBool)
+           cri = new RegistryItem<RgBool>( GetBool(key), ilk);
+     else if (type == kRgDbl)
+           cri = new RegistryItem<RgDbl> ( GetDouble(key), ilk);
+     else if (type == kRgInt)
+           cri = new RegistryItem<RgInt> ( GetInt(key), ilk);
+     else if (type == kRgStr)
+           cri = new RegistryItem<RgStr> ( GetString(key), ilk);
+     else if (type == kRgAlg)
+           cri = new RegistryItem<RgAlg> ( GetAlg(key), ilk);
+     else if (type == kRgH1F) {
+           RgH1F histo = GetH1F(key);
+           if(histo) {
+               RgH1F chisto = new TH1F(*histo);
+               LOG("Registry", pDEBUG) << chisto->GetName();
+               cri = new RegistryItem<RgH1F>(chisto,ilk);
+           } else {
+             LOG("Registry", pERROR)
+               << "Null TH1F with key = " << key << " - not copied";
+           }
+     } else if (type == kRgH2F) {
+           RgH2F histo = GetH2F(key);
+           if(histo) {
+               RgH2F chisto = new TH2F(*histo);
+               LOG("Registry", pDEBUG) << chisto->GetName();
+               cri = new RegistryItem<RgH2F>(chisto,ilk);
+           } else {
+             LOG("Registry", pERROR)
+               << "Null TH2F with key = " << key << " - not copied";
+           }
+     } else if (type == kRgTree) {
+           RgTree tree = GetTree(key);
+           if(tree) {
+               //TTree * ctree = new TTree(*tree);
+               TTree * ctree = tree->CopyTree("1");
+               LOG("Registry", pDEBUG) << ctree->GetName();
+               cri = new RegistryItem<RgTree>(ctree,ilk);
+           } else {
+             LOG("Registry", pERROR)
+               << "Null TTree with key = " << key << " - not copied";
+           }
+     } else {
+
+       LOG( "Registry", pFATAL ) << "Item " << key << " not cloned because its type is not implemented " ;
+       exit( 0 ) ;
+     }
+
+     return cri ;
+
+}
 
