@@ -161,7 +161,7 @@ template<> void RegistryItem<RgH1F>::Print(ostream & stream) const
          << " "
          << ((fIsLocal)  ? "[l]" : "[g]") 
          << " : " 
-         << fItem->GetName();
+         << (histo ? histo->GetName() : "NULL");
 }
 //____________________________________________________________________________
 template<> void RegistryItem<RgH2F>::Print(ostream & stream) const
@@ -173,7 +173,7 @@ template<> void RegistryItem<RgH2F>::Print(ostream & stream) const
          << " "
          << ((fIsLocal)  ? "[l]" : "[g]") 
          << " : " 
-         << fItem->GetName();
+         << (histo ? histo->GetName() : "NULL");
 }
 //____________________________________________________________________________
 template<> void RegistryItem<RgTree>::Print(ostream & stream) const
@@ -185,7 +185,7 @@ template<> void RegistryItem<RgTree>::Print(ostream & stream) const
          << " "
          << ((fIsLocal)  ? "[l]" : "[g]") 
          << " : " 
-         << fItem->GetName();
+         << (tree ? tree->GetName() : "NULL");
 }
 //____________________________________________________________________________
 
