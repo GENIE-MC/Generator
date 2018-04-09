@@ -39,12 +39,6 @@ namespace str
   string         ToUpper                (string input);
   string         ToLower                (string input);
 
-  const char * Concat(const char * s1, const char * s2, const char * s3 = 0, const char * s4 = 0);
-  const char * Concat(const char * s1, bool b);
-  const char * Concat(const char * s1, int n);
-  const char * Concat(const char * s1, float x);
-  const char * Concat(const char * s1, double x);
-
 } // str    namespace
 } // utils  namespace
 } // genie  namespace
