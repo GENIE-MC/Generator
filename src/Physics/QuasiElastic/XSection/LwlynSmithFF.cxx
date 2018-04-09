@@ -212,15 +212,8 @@ void LwlynSmithFF::LoadConfig(void)
 {
 // Load configuration data from its configuration Registry (or global defaults)
 // to private data members
-	
-  fElFFModel = 0;
-  // load elastic form factors model
-  RgAlg form_factors_model ;
-  GetParam( "ElasticFormFactorsModel", form_factors_model ) ;
-
   fElFFModel =
-	dynamic_cast<const ELFormFactorsModelI *> (
-	  AlgFactory::Instance()->GetAlgorithm( form_factors_model.name, form_factors_model.config ) ) ;
+    dynamic_cast<const ELFormFactorsModelI *> (this->SubAlg("ElasticFormFactorsModel"));
   assert(fElFFModel);
 
   fCleanUpfElFFModel = false;
@@ -228,12 +221,8 @@ void LwlynSmithFF::LoadConfig(void)
   GetParam( "UseElFFTransverseEnhancement", useElFFTE ) ;
   if(  useElFFTE ) {
     const ELFormFactorsModelI* sub_alg = fElFFModel;
-
-    RgAlg transverse_enhancement ;
-    GetParam( "TransverseEnhancement", transverse_enhancement );
-    fElFFModel = dynamic_cast<const ELFormFactorsModelI *> (
-        AlgFactory::Instance()->AdoptAlgorithm(
-            transverse_enhancement.name, transverse_enhancement.config) );
+    fElFFModel =
+      dynamic_cast<const ELFormFactorsModelI *> (this->SubAlg("TransverseEnhancement"));
     dynamic_cast<const TransverseEnhancementFFModel*>(fElFFModel)->SetElFFBaseModel(
         sub_alg);
     fCleanUpfElFFModel = true;
@@ -241,12 +230,8 @@ void LwlynSmithFF::LoadConfig(void)
 
   fELFF.SetModel(fElFFModel);  
 
-  RgAlg ax_form_factor_model ;
-  GetParam( "AxialFormFactorModel", ax_form_factor_model ) ;
-
   fAxFFModel =
-	dynamic_cast<const AxialFormFactorModelI *> (
-	  AlgFactory::Instance()->GetAlgorithm( ax_form_factor_model.name, ax_form_factor_model.config ) ) ;
+    dynamic_cast<const AxialFormFactorModelI *> (this->SubAlg("AxialFormFactorModel"));
 
   assert(fAxFFModel);
   fAxFF.SetModel(fAxFFModel);
