@@ -129,6 +129,12 @@ void SmithMonizQELCCXSec::Configure(const Registry & config)
 void SmithMonizQELCCXSec::Configure(string config)
 {
   Algorithm::Configure(config);
+
+  Registry r("SmithMonizQELCCXSec_specific", false ) ;
+  r.Set("sm_utils_algo", RgAlg("genie::SmithMonizUtils","Default") ) ;
+
+  Algorithm::Configure(r) ;
+
   this->LoadConfig();
 }
 //____________________________________________________________________________
@@ -149,8 +155,9 @@ void SmithMonizQELCCXSec::LoadConfig(void)
   GetParamDef( "gsl-relative-tolerance-2D", fGSLRelTol2D, 1e-7 ) ;
   GetParamDef( "gsl-max-eval", fGSLMaxEval, 1000000000 ) ;
   
-  AlgFactory * algf = AlgFactory::Instance();
-  sm_utils = const_cast<genie::SmithMonizUtils *>(dynamic_cast<const genie::SmithMonizUtils *>(algf->GetAlgorithm("genie::SmithMonizUtils","Default")));
+  sm_utils = const_cast<genie::SmithMonizUtils *>(
+               dynamic_cast<const genie::SmithMonizUtils *>(
+                 this -> SubAlg("sm_utils_algo") ) );
 }
 
 

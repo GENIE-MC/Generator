@@ -394,6 +394,12 @@ void QELEventGeneratorSM::Configure(const Registry & config)
 void QELEventGeneratorSM::Configure(string config)
 {
   Algorithm::Configure(config);
+
+  Registry r( "QELEventGeneratorSM_specific", false ) ;
+  r.Set( "sm_utils_algo", RgAlg("genie::SmithMonizUtils","Default") ) ;
+
+  Algorithm::Configure(r) ;
+
   this->LoadConfig();
 }
 //____________________________________________________________________________
@@ -422,8 +428,7 @@ void QELEventGeneratorSM::LoadConfig(void)
   //   an event weight?
   GetParamDef( "IsNucleonInNucleus", fGenerateNucleonInNucleus, true);
 
-  AlgFactory * algf = AlgFactory::Instance();
-  sm_utils = const_cast<genie::SmithMonizUtils *>(dynamic_cast<const genie::SmithMonizUtils *>(algf->GetAlgorithm("genie::SmithMonizUtils","Default")));
+  sm_utils = const_cast<genie::SmithMonizUtils *>(dynamic_cast<const genie::SmithMonizUtils *>( this -> SubAlg("sm_utils_algo") ) ) ;
 }
 //____________________________________________________________________________
 double QELEventGeneratorSM::ComputeMaxXSec(const Interaction * interaction) const

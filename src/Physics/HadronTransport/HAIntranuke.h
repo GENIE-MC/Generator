@@ -59,6 +59,8 @@ public :
 
   void ProcessEventRecord(GHepRecord * event_rec) const;
 
+  virtual void Configure (string param_set);
+
 private:
 
   void LoadConfig (void);

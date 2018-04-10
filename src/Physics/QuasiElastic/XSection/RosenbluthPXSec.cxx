@@ -185,11 +185,8 @@ void RosenbluthPXSec::LoadConfig(void)
   fElFFModel = 0;
 
   // load elastic form factors model
-  RgAlg form_factors_model ;
-  GetParam( "ElasticFormFactorsModel", form_factors_model ) ;
-  fElFFModel =
-    dynamic_cast<const ELFormFactorsModelI *> (
-      AlgFactory::Instance()->GetAlgorithm( form_factors_model.name, form_factors_model.config ) );
+  fElFFModel = dynamic_cast<const ELFormFactorsModelI *> ( this -> SubAlg("ElasticFormFactorsModel" ) ) ;
+
   assert(fElFFModel);
 
   fCleanUpfElFFModel = false;
@@ -197,13 +194,8 @@ void RosenbluthPXSec::LoadConfig(void)
   GetParam( "UseElFFTransverseEnhancement", useFFTE ) ;
   if( useFFTE ) {
     const ELFormFactorsModelI* sub_alg = fElFFModel;
-    RgAlg transverse_enhancement ;
-    GetParam( "TransverseEnhancement", transverse_enhancement );
-    fElFFModel = dynamic_cast<const ELFormFactorsModelI *> (
-        AlgFactory::Instance()->AdoptAlgorithm(
-            transverse_enhancement.name, transverse_enhancement.config));
-    dynamic_cast<const TransverseEnhancementFFModel*>(fElFFModel)->SetElFFBaseModel(
-        sub_alg);
+    fElFFModel = dynamic_cast<const ELFormFactorsModelI *> ( this -> SubAlg("TransverseEnhancement") ) ;
+    dynamic_cast<const TransverseEnhancementFFModel*>(fElFFModel)->SetElFFBaseModel( sub_alg );
     fCleanUpfElFFModel = true;
   }
   fELFF.SetModel(fElFFModel);

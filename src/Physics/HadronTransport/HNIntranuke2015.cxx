@@ -951,15 +951,15 @@ bool HNIntranuke2015::HandleCompoundNucleusHN(GHepRecord* ev, GHepParticle* p) c
   return (this->HandleCompoundNucleus(ev,p,p->FirstMother())==2);
 }
 //___________________________________________________________________________
+
 void HNIntranuke2015::LoadConfig(void)
 {
   // load hadronic cross sections
   fHadroData2015 = INukeHadroData2015::Instance();
 
   // fermi momentum setup
-  fAlgf = AlgFactory::Instance();
-  fNuclmodel = dynamic_cast<const NuclearModelI *>
-    (fAlgf->GetAlgorithm("genie::FGMBodekRitchie","Default"));
+  // this is specifically set in Intranuke2015::Configure(string)
+  fNuclmodel = dynamic_cast<const NuclearModelI *>( this -> SubAlg("NuclModel_algo") ) ;
 
   // other intranuke config params
   GetParam( "NUCL-R0",             fR0 );              // fm

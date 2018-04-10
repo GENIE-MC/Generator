@@ -223,6 +223,9 @@ void EventGenerator::Configure(const Registry & config)
 void EventGenerator::Configure(string param_set)
 {
   Algorithm::Configure(param_set);
+
+  AddTopRegistry( AlgConfigPool::Instance() -> GlobalParameterList(), false ) ;
+
   this->LoadConfig();
 }
 //___________________________________________________________________________
@@ -261,24 +264,21 @@ void EventGenerator::Init(void)
 //___________________________________________________________________________
 void EventGenerator::LoadConfig(void)
 {
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
-
   if(fEVGModuleVec) delete fEVGModuleVec;
   if(fEVGTime)      delete fEVGTime;
   if(fVldContext)   delete fVldContext;
 
   LOG("EventGenerator", pDEBUG) << "Loading the generator validity context";
 
+  string encoded_vld_context ;
+  GetParam("VldContext", encoded_vld_context ) ;
   fVldContext = new GVldContext;
-  assert( GetConfig().Exists("VldContext") );
-  string encoded_vld_context = GetConfig().GetString("VldContext");
   fVldContext->Decode( encoded_vld_context );
 
   LOG("EventGenerator", pDEBUG) << "Loading the event generation modules";
 
-  GetConfig().AssertExistence("NModules");
-  int nsteps = GetConfig().GetInt("NModules");
+  int nsteps ;
+  GetParam("NModules", nsteps) ;
   if(nsteps == 0) {
     LOG("EventGenerator", pFATAL)
          << "EventGenerator configuration declares null visitor list!";
@@ -294,9 +294,11 @@ void EventGenerator::LoadConfig(void)
     keystream << "Module-" << istep;
     RgKey key = keystream.str();
 
-    GetConfig().AssertExistence(key);
+    RgAlg temp_alg ;
+    GetParam( key, temp_alg ) ;
+
     SLOG("EventGenerator", pINFO)
-        << " -- Loading module " << istep << " : " << GetConfig().GetAlg(key);
+        << " -- Loading module " << istep << " : " << temp_alg ;
 
     const EventRecordVisitorI * visitor =
                dynamic_cast<const EventRecordVisitorI *>(this->SubAlg(key));
@@ -307,8 +309,8 @@ void EventGenerator::LoadConfig(void)
 
   //-- load the interaction list generator
   RgKey ikey = "ILstGen";
-  GetConfig().AssertExistence(ikey);
-  RgAlg ialg = GetConfig().GetAlg(ikey);
+  RgAlg ialg ;
+  GetParam( ikey, ialg ) ;
   LOG("EventGenerator", pINFO) 
       << " -- Loading the interaction list generator: " << ialg;
   fIntListGen = 
@@ -317,11 +319,13 @@ void EventGenerator::LoadConfig(void)
 
   //-- load the cross section model
   RgKey xkey    = "XSecModel@" + this->Id().Key();
-  RgAlg xalg    = gc->GetAlg(xkey) ;
+  RgAlg xalg ;
+  GetParam( xkey, xalg ) ;
   LOG("EventGenerator", pINFO) 
      << " -- Loading the cross section model: " << xalg;
-  fXSecModel = dynamic_cast<const XSecAlgorithmI *> (
-    AlgFactory::Instance() -> GetAlgorithm( xalg.name, xalg.config ) ) ;
+  fXSecModel =
+    dynamic_cast<const XSecAlgorithmI *> (
+      this -> SubAlg( xkey ) ) ;
   assert(fXSecModel);
 }
 //___________________________________________________________________________

@@ -1440,9 +1440,8 @@ void HAIntranuke2015::LoadConfig(void)
   fHadroData2015 = INukeHadroData2015::Instance();
 
   // fermi momentum setup
-  fAlgf = AlgFactory::Instance();
-  fNuclmodel = dynamic_cast<const NuclearModelI *>
-    (fAlgf->GetAlgorithm("genie::FGMBodekRitchie","Default"));
+  // this is specifically set in Intranuke2015::Configure(string)
+  fNuclmodel = dynamic_cast<const NuclearModelI *>( this -> SubAlg("NuclModel_algo") ) ;
 
   // other intranuke config params
   GetParam( "NUCL-R0",             fR0 );              // fm

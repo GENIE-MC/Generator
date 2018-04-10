@@ -117,6 +117,12 @@ void SmithMonizQELCCPXSec::Configure(const Registry & config)
 void SmithMonizQELCCPXSec::Configure(string config)
 {
   Algorithm::Configure(config);
+
+  Registry r( "mithMonizQELCCPXSec_specific", false ) ;
+  r.Set("sm_utils_algo", RgAlg("genie::SmithMonizUtils","Default") ) ;
+
+  Algorithm::Configure(r) ;
+
   this->LoadConfig();
 }
 //____________________________________________________________________________
@@ -141,8 +147,9 @@ void SmithMonizQELCCPXSec::LoadConfig(void)
       dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));
   assert(fXSecIntegrator);
   
-  AlgFactory * algf = AlgFactory::Instance();
-  sm_utils = const_cast<genie::SmithMonizUtils *>(dynamic_cast<const genie::SmithMonizUtils *>(algf->GetAlgorithm("genie::SmithMonizUtils","Default")));
+  sm_utils = const_cast<genie::SmithMonizUtils *>(
+               dynamic_cast<const genie::SmithMonizUtils *>(
+                 this -> SubAlg( "sm_utils_algo" ) ) ) ;
   
 }
 //____________________________________________________________________________

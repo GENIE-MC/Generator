@@ -358,7 +358,7 @@ const Algorithm * Algorithm::SubAlg(const RgKey & registry_key) const
      return 0;
   }
 
-  //-- if the algorithm dowes not own its substructure:
+  //-- if the algorithm does not own its substructure:
   //      return the sub-algorithm from the AlgFactory's pool
   RgAlg alg ;
   GetParam( registry_key, alg ) ;

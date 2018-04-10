@@ -66,8 +66,8 @@ public :
 
   // override the Algorithm::Configure methods to load configuration
   // data to protected data members
-  void Configure (const Registry & config);
-  void Configure (string param_set);
+  virtual void Configure (const Registry & config);
+  virtual void Configure (string param_set);
 
   virtual string GetINukeMode() const {return "XX2015";};
 
