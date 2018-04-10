@@ -224,7 +224,7 @@ void EventGenerator::Configure(string param_set)
 {
   Algorithm::Configure(param_set);
 
-  AddTopRegistry( AlgConfigPool::Instance() -> GlobalParameterList(), false ) ;
+  AddLowRegistry( AlgConfigPool::Instance() -> GlobalParameterList(), false ) ;
 
   this->LoadConfig();
 }

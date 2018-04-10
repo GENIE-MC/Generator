@@ -69,7 +69,7 @@ void IBDXSecMap::LoadConfig(void)
       << "Default IBD cross section model: " << dgmodel;
 
    fDefaultModel =
-      dynamic_cast<const XSecAlgorithmI*>( AlgFactory::Instance()->GetAlgorithm(dgmodel.name, dgmodel.config) );
+      dynamic_cast<const XSecAlgorithmI*>( this -> SubAlg("IBDNucXSecModel") );
    assert(fDefaultModel!=0);
    
    // check whether to map according to specific isotopes

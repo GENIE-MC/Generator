@@ -127,28 +127,33 @@ void HadronTransporter::Configure(const Registry & config)
 void HadronTransporter::Configure(string param_set)
 {
   Algorithm::Configure(param_set);
+
+  Registry * algos = AlgConfigPool::Instance() -> GlobalParameterList() ;
+  Registry r( "HadronTransporter_specific", false ) ;
+
+  r.Set("HadronTransp-Enable", algos -> GetBool("HadronTransp-Enable") ) ;
+  r.Set("HadronTransp-Model",  algos -> GetAlg("HadronTransp-Model")   ) ;
+
+  Algorithm::Configure(r) ;
+
   this->LoadConfig();
 }
 //___________________________________________________________________________
 void HadronTransporter::LoadConfig(void)
 {
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
-
-  fHadTranspModel = 0; 
-  fEnabled = gc->GetBool("HadronTransp-Enable") ;
+  fHadTranspModel = 0;
+  GetParam("HadronTransp-Enable", fEnabled ) ;
 
   LOG("HadTransp", pDEBUG) 
        << "Hadron transport was " << ((fEnabled) ? "" : "not ") << " enabled";
   if(fEnabled) {
-     RgAlg hadtransp_model = gc->GetAlg("HadronTransp-Model") ;
+     RgAlg hadtransp_model ;
+     GetParam( "HadronTransp-Model", hadtransp_model ) ;
      LOG("HadTransp", pDEBUG) 
          << "Loading the hadron transport model: " << hadtransp_model;
 
-     AlgFactory * factory = AlgFactory::Instance() ;
      fHadTranspModel = 
-         dynamic_cast<const EventRecordVisitorI *> ( factory -> GetAlgorithm( hadtransp_model.name,
-        		                                                              hadtransp_model.config ) );
+         dynamic_cast<const EventRecordVisitorI *> ( this -> SubAlg("HadronTransp-Model") );
      assert(fHadTranspModel);
   }
 }

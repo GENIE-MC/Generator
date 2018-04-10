@@ -359,6 +359,15 @@ void QPMDISPXSec::Configure(const Registry & config)
 void QPMDISPXSec::Configure(string config)
 {
   Algorithm::Configure(config);
+
+  Registry r( "QPMDISPXSec_specific", false ) ;
+
+  RgKey xdefkey = "XSecModel@genie::EventGenerator/DIS-CC-CHARM";
+  RgKey local_key = "CharmXSec" ;
+  r.Set( local_key, AlgConfigPool::Instance() -> GlobalParameterList() -> GetAlg(xdefkey) ) ;
+
+  Algorithm::Configure(r) ;
+
   this->LoadConfig();
 }
 //____________________________________________________________________________
@@ -427,15 +436,13 @@ void QPMDISPXSec::LoadConfig(void)
   assert(fXSecIntegrator);
 
   // Load the charm production cross section model
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
-
-  RgKey xdefkey = "XSecModel@genie::EventGenerator/DIS-CC-CHARM";
-  RgAlg xalg    = gc->GetAlg(xdefkey) ;
+  RgKey local_key = "CharmXSec" ;
+  RgAlg xalg;
+  GetParam( local_key, xalg ) ;
   LOG("DISXSec", pDEBUG)
      << "Loading the cross section model: " << xalg;
 
-  fCharmProdModel = dynamic_cast<const XSecAlgorithmI *> ( AlgFactory::Instance() -> GetAlgorithm( xalg.name, xalg.config ) ) ;
+  fCharmProdModel = dynamic_cast<const XSecAlgorithmI *> ( this -> SubAlg(local_key) ) ;
   assert(fCharmProdModel);
 }
 //____________________________________________________________________________

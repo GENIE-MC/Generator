@@ -581,6 +581,22 @@ int Algorithm::AddTopRegistry( Registry * rp, bool own ) {
 
 //____________________________________________________________________________
 
+int Algorithm::AddLowRegistry( Registry * rp, bool own ) {
+
+  fConfVect.push_back( rp ) ;
+  fOwnerships.push_back( own ) ;
+
+  if ( fConfig ) {
+    delete fConfig ;
+    fConfig = 0 ;
+  }
+
+  return fConfVect.size() ;
+
+}
+
+//____________________________________________________________________________
+
 
 int  Algorithm::MergeTopRegistry( const Registry & r )  {
 

@@ -99,30 +99,43 @@ void NuclearModelMap::Configure(const Registry & config)
 void NuclearModelMap::Configure(string config)
 {
   Algorithm::Configure(config);
+
+  Registry * algos = AlgConfigPool::Instance() -> GlobalParameterList() ;
+  Registry r( "NuclearModelMap", false ) ;
+
+  // copy in local pool relevant configurations
+  RgIMap entries = algos -> GetItemMap();
+  const std::string keyStart = "NuclearModel";
+  for( RgIMap::const_iterator it = entries.begin(); it != entries.end(); ++it ) {
+
+    if( it -> first.compare(0, keyStart.size(), keyStart.c_str()) == 0 ) {
+      r.Set( it -> first, algos -> GetAlg(it->first ) ) ;
+    }
+
+  }
+
+  Algorithm::Configure(r) ;
+
   this->LoadConfig();
 }
 //____________________________________________________________________________
 void NuclearModelMap::LoadConfig(void)
 {
 
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
-
   fDefGlobModel = 0;
   // load default global model (should work for all nuclei)
-  RgAlg dgmodel = gc->GetAlg("NuclearModel") ;
+  RgAlg dgmodel ;
+  GetParam( "NuclearModel", dgmodel ) ;
 
   LOG("Nuclear", pINFO)
     << "Default global nuclear model: " << dgmodel;
-  fDefGlobModel =
-    dynamic_cast<const NuclearModelI *> (
-      AlgFactory::Instance() -> GetAlgorithm( dgmodel.name, dgmodel.config ) ) ;
+  fDefGlobModel = dynamic_cast<const NuclearModelI *> ( this -> SubAlg( "NuclearModel" ) ) ;
   assert(fDefGlobModel);
 
   // We're looking for keys that match this string
   const std::string keyStart = "NuclearModel@Pdg=";
   // Looking in both of these registries
-  RgIMap entries = gc->GetItemMap();
+  RgIMap entries = GetConfig().GetItemMap();
 
   for(RgIMap::const_iterator it = entries.begin(); it != entries.end(); ++it){
     const std::string& key = it->first;
@@ -133,13 +146,13 @@ void NuclearModelMap::LoadConfig(void)
       const int Z = pdg::IonPdgCodeToZ(pdg);
       //const int A = pdg::IonPdgCodeToA(pdg);
 
-      RgAlg rgmodel = gc->GetAlg(key) ;
+      RgAlg rgmodel = GetConfig().GetAlg(key) ;
       LOG("Nuclear", pNOTICE)
         << "Nucleus =" << pdg
         << " -> refined nuclear model: " << rgmodel;
       const NuclearModelI * model =
         dynamic_cast<const NuclearModelI *> (
-          AlgFactory::Instance() -> GetAlgorithm(rgmodel.name, rgmodel.config ) ) ;
+          this -> SubAlg(key) ) ;
       assert(model);
       fRefinedModels.insert(map<int,const NuclearModelI*>::value_type(Z,model));
     }

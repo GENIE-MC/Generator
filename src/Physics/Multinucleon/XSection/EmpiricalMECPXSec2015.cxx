@@ -311,6 +311,18 @@ void EmpiricalMECPXSec2015::Configure(const Registry & config)
 void EmpiricalMECPXSec2015::Configure(string config)
 {
   Algorithm::Configure(config);
+
+  Registry* algos = AlgConfigPool::Instance() -> GlobalParameterList() ;
+  string global_key_head = "XSecModel@genie::EventGenerator/" ;
+  string local_key_head = "XSecModel-" ;
+
+  Registry r( "EmpiricalMECPXSec2015_specific", false ) ;
+  r.Set( local_key_head + "QEL-NC", algos -> GetAlg( global_key_head + "QEL-NC") ) ;
+  r.Set( local_key_head + "QEL-CC", algos -> GetAlg( global_key_head + "QEL-CC") ) ;
+  r.Set( local_key_head + "QEL-EM", algos -> GetAlg( global_key_head + "QEL-EM") ) ;
+
+  Algorithm::Configure(r) ;
+
   this->LoadConfig();
 }
 //____________________________________________________________________________
@@ -329,27 +341,18 @@ void EmpiricalMECPXSec2015::LoadConfig(void)
   GetParam( "EmpiricalMEC-FracPN_NC", fFracPN_NC ) ;
   GetParam( "EmpiricalMEC-FracPN_CC", fFracPN_CC ) ;
 
-  // Get the specified NCQE cross section model
-  Registry* algos = AlgConfigPool::Instance() -> GlobalParameterList() ;
-  string key_head = "XSecModel@genie::EventGenerator/" ;
-
-  RgAlg ncel = algos -> GetAlg( key_head + "QEL-NC" ) ;
-  RgAlg ccqe = algos -> GetAlg( key_head + "QEL-CC" ) ;
-  RgAlg ncem = algos -> GetAlg( key_head + "QEL-EM" ) ;
+  string key_head = "XSecModel-" ;
 
   fXSecAlgNCQE = 
-     dynamic_cast<const XSecAlgorithmI *> ( 
-       AlgFactory::Instance() -> GetAlgorithm( ncel.name, ncel.config ) ) ; 
+     dynamic_cast<const XSecAlgorithmI *> ( this -> SubAlg( key_head + "QEL-NC" ) ) ;
   assert(fXSecAlgNCQE);
 
   fXSecAlgCCQE = 
-     dynamic_cast<const XSecAlgorithmI *> (
-       AlgFactory::Instance() -> GetAlgorithm( ccqe.name, ccqe.config ) ) ; 
+     dynamic_cast<const XSecAlgorithmI *> ( this -> SubAlg( key_head + "QEL-CC" ) ) ;
   assert(fXSecAlgCCQE);
 
   fXSecAlgEMQE = 
-     dynamic_cast<const XSecAlgorithmI *> (
-       AlgFactory::Instance() -> GetAlgorithm( ncem.name, ncem.config ) ) ; 
+     dynamic_cast<const XSecAlgorithmI *> ( this -> SubAlg( key_head + "QEL-EM" ) ) ;
   assert(fXSecAlgEMQE);
 }
 //____________________________________________________________________________
