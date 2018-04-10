@@ -14,6 +14,7 @@ test-mode           bool    Yes   enables modifications for the pitest mode     
 NUCL-R0             double  Yes   effective nucleus size Ro in fm                             CommonParam[NUCL]
 NUCL-NR             double  Yes   param multiplying the nuclear radius determining how        CommonParam[NUCL]
                                   far beyond the nuclear boundary particles are tracked
+NuclearModel        Algo    No    Nuclear Model                                               .....
 mode                string  Yes   intranuke mode                                              GPL INUKE-Mode
 NumRmvE             double  Yes   binding energy to subtract from cascade nucleons (GeV)      GPL INUKE-NucRemovalE
 HadStep             double  Yes   step size in fm                                             GPL INUKE-HadStep
@@ -26,6 +27,8 @@ DelRNucleon         double  Yes   mult. factor for nucleon de-Broglie wavelength
   <param_set name="Default"> 
 
     <param type="string" name="CommonParam"> NUCL </param>
+
+    <param type="alg"    name="NuclearModel">      genie::NuclearModelMap/Default  </param>
 
     <param type="bool"   name="INUKE-DoFermi">           true  </param>
     <param type="bool"   name="INUKE-DoCompoundNucleus"> true  </param>

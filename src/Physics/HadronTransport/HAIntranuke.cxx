@@ -1379,12 +1379,6 @@ bool HAIntranuke::HandleCompoundNucleus(
 void  HAIntranuke::Configure (string param_set) {
 
   Algorithm::Configure(param_set) ;
-
-  Registry r( "HAIntranuke_specific", false ) ;
-  r.Set("NuclModel_algo", RgAlg( "genie::FGMBodekRitchie","Default" ) ) ;
-
-  Algorithm::Configure(r) ;
-
   this -> LoadConfig() ;
 }
 //___________________________________________________________________________
@@ -1394,7 +1388,7 @@ void HAIntranuke::LoadConfig(void)
   fHadroData = INukeHadroData::Instance();
 
   // fermi momentum setup
-  fNuclmodel = dynamic_cast<const NuclearModelI *>( this -> SubAlg("NuclModel_algo") ) ;
+  fNuclmodel = dynamic_cast<const NuclearModelI *>( this -> SubAlg("NuclearModel") ) ;
 
   // other intranuke config params
   GetParam( "NUCL-R0",             fR0 );              // fm

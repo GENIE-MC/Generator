@@ -11,9 +11,10 @@ Algorithm Configurable Parameters:
 Name                Type    Opt   Comment                                                     Default
 .......................................................................................................................
 test-mode           bool    Yes   enables modifications for the pitest mode                   false
-R0                  double  Yes   effective nucleus size Ro in fm                             GPL NUCL-R0
-NR                  double  Yes   param multiplying the nuclear radius determining how        GPL NUCL-NR
+NUCL-R0             double  Yes   effective nucleus size Ro in fm                             CommonParam[NUCL]
+NUCL-NR             double  Yes   param multiplying the nuclear radius determining how        CommonParam[NUCL]
                                   far beyond the nuclear boundary particles are tracked
+NuclearModel        Algo    No    Nuclear Model                                               .....
 mode                string  Yes   intranuke mode                                              GPL INUKE-Mode
 NumRmvE             double  Yes   binding energy to subtract from cascade nucleons (GeV)      GPL INUKE-NucRemovalE
 HadStep             double  Yes   step size in fm                                             GPL INUKE-HadStep
@@ -30,6 +31,8 @@ XsecNNCorr          bool    Yes   nuclear medium correction for NN cross section
   <param_set name="Default"> 
 
     <param type="string" name="CommonParam"> NUCL </param>
+
+    <param type="alg"    name="NuclearModel">      genie::NuclearModelMap/Default  </param>
 
     <param type="bool" name="HNINUKE-UseOset"> true  </param>
     <param type="bool" name="HNINUKE-AltOset"> false </param>

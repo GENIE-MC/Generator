@@ -959,7 +959,7 @@ void HNIntranuke2015::LoadConfig(void)
 
   // fermi momentum setup
   // this is specifically set in Intranuke2015::Configure(string)
-  fNuclmodel = dynamic_cast<const NuclearModelI *>( this -> SubAlg("NuclModel_algo") ) ;
+  fNuclmodel = dynamic_cast<const NuclearModelI *>( this -> SubAlg("NuclearModel") ) ;
 
   // other intranuke config params
   GetParam( "NUCL-R0",             fR0 );              // fm

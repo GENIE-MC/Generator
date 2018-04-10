@@ -420,12 +420,6 @@ void Intranuke2015::Configure(const Registry & config)
 void Intranuke2015::Configure(string param_set)
 {
   Algorithm::Configure(param_set);
-
-  Registry r( "Intranuke2015_specific", false ) ;
-  r.Set( "NuclModel_algo", RgAlg("genie::FGMBodekRitchie","Default") ) ;
-
-  Algorithm::Configure(r) ;
-
   this->LoadConfig();
 }
 //___________________________________________________________________________
