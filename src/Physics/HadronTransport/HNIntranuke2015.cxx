@@ -916,7 +916,7 @@ int HNIntranuke2015::HandleCompoundNucleus(GHepRecord* ev, GHepParticle* p, int 
   // -- Call the PreEquilibrium function
   if( fDoCompoundNucleus && IsInNucleus(p) && pdg::IsNeutronOrProton(p->Pdg())) 
     {  // random number generator
-  RandomGen * rnd = RandomGen::Instance();
+  //unused var - quiet compiler warning//RandomGen * rnd = RandomGen::Instance();
 
       if((p->KinE() < fEPreEq) )
 	{
