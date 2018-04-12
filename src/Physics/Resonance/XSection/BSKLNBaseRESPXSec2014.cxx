@@ -749,7 +749,7 @@ if (fUsePauliBlocking && A!=1)
   
    double FactorPauli_RES = 1.0;
   
-   double k, k0, q, q0;
+   double k0, q, q0;
   
    if (P_Fermi > 0.)
    {
