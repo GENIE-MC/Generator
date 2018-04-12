@@ -1,3 +1,6 @@
+
+
+
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <alg_conf>
@@ -443,44 +446,20 @@ Generator-%d                alg     No
 
   <!-- BDM module -->
 
-  <param_set name="DMELv0">
+  <param_set name="DMEL">
      <param type="int" name="NGenerators">   1                              </param>
-     <param type="alg" name="Generator-0">   genie::EventGenerator/DMELv0     </param>
+     <param type="alg" name="Generator-0">   genie::EventGenerator/DMEL     </param>
   </param_set>
 
-  <param_set name="DMDISv0">
+  <param_set name="DMDIS">
      <param type="int" name="NGenerators">   1                              </param>
-     <param type="alg" name="Generator-0">   genie::EventGenerator/DMDISv0    </param>
-  </param_set>
-
-  <param_set name="DMv0">
-     <param type="int" name="NGenerators">   2                              </param>
-     <param type="alg" name="Generator-0">   genie::EventGenerator/DMELv0     </param>
-     <param type="alg" name="Generator-1">   genie::EventGenerator/DMDISv0    </param>
-  </param_set>
-
-  <param_set name="DMELv2">
-     <param type="int" name="NGenerators">   1                              </param>
-     <param type="alg" name="Generator-0">   genie::EventGenerator/DMELv2     </param>
-  </param_set>
-
-  <param_set name="DMDISv2">
-     <param type="int" name="NGenerators">   1                              </param>
-     <param type="alg" name="Generator-0">   genie::EventGenerator/DMDISv2    </param>
-  </param_set>
-
-  <param_set name="DMv2">
-     <param type="int" name="NGenerators">   2                              </param>
-     <param type="alg" name="Generator-0">   genie::EventGenerator/DMELv2     </param>
-     <param type="alg" name="Generator-1">   genie::EventGenerator/DMDISv2    </param>
+     <param type="alg" name="Generator-0">   genie::EventGenerator/DMDIS    </param>
   </param_set>
 
   <param_set name="DM">
-     <param type="int" name="NGenerators">   4                              </param>
-     <param type="alg" name="Generator-0">   genie::EventGenerator/DMELv0     </param>
-     <param type="alg" name="Generator-1">   genie::EventGenerator/DMDISv0    </param>
-     <param type="alg" name="Generator-2">   genie::EventGenerator/DMELv2     </param>
-     <param type="alg" name="Generator-3">   genie::EventGenerator/DMDISv2    </param>
+     <param type="int" name="NGenerators">   2                              </param>
+     <param type="alg" name="Generator-0">   genie::EventGenerator/DMEL     </param>
+     <param type="alg" name="Generator-1">   genie::EventGenerator/DMDIS    </param>
   </param_set>
 
 </alg_conf>

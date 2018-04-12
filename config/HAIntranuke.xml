@@ -29,6 +29,12 @@ DelRNucleon         double  Yes   mult. factor for nucleon de-Broglie wavelength
     <param type="string" name="CommonParam"> NUCL </param>
 
     <param type="alg"    name="NuclearModel">      genie::NuclearModelMap/Default  </param>
+    <!-- For the sake of coherence in the code, the nuclear model is set to NuclearModelMap.
+	 Anyway, the GENIE collaboration would like to remind the users that the Intranuke models
+	 were tuned using genie::FGMBodekRitchie/Default.
+	 If a systematic validation is desired we recommend to switch this to 
+	  <param type="alg"    name="NuclearModel"> genie::FGMBodekRitchie/Default </param>
+    -->
 
     <param type="bool"   name="INUKE-DoFermi">           true  </param>
     <param type="bool"   name="INUKE-DoCompoundNucleus"> true  </param>

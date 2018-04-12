@@ -55,6 +55,7 @@
 #include "Framework/Ntuple/NtpMCTreeHeader.h"
 #include "Framework/Ntuple/NtpMCEventRecord.h"
 #include "Framework/Messenger/Messenger.h"
+#include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/Utils/CmdLnArgParser.h"
 #include "Framework/Utils/RunOpt.h"
 
@@ -72,6 +73,8 @@ void GetEventRange      (Long64_t nev, Long64_t & n1, Long64_t & n2);
 
 Long64_t gOptNEvtL;
 Long64_t gOptNEvtH;
+double   gOptDMMass = -1. ;
+double   gOptMedRatio = -1. ;
 string   gOptInpFilename;
 
 //___________________________________________________________________
@@ -280,6 +283,22 @@ void GetCommandLineArgs(int argc, char ** argv)
     gOptNEvtH = -1;
   }
 
+  // dark matter mass
+  if( parser.OptionExists('m') ) {
+    LOG("gevdump", pINFO) << "Reading dark matter mass";
+    gOptDMMass = parser.ArgAsDouble('m');
+  } 
+
+  // mediator mass ratio
+  if( parser.OptionExists('z') ) {
+    LOG("gevdump", pINFO) << "Reading mediator mass ratio";
+    gOptMedRatio = parser.ArgAsDouble('z');
+  } 
+
+  if (gOptDMMass > 0 || gOptMedRatio > 0) {
+    PDGLibrary::Instance()->AddDarkMatter(gOptDMMass,gOptMedRatio);
+  }
+  
 }
 //_________________________________________________________________________________
 void PrintSyntax(void)

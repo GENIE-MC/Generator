@@ -247,7 +247,7 @@ string Interaction::AsString(void) const
   ostringstream interaction;
 
   // If the probe has non-zero mass, then it is DM
-  if (fInitialState->Probe()->Mass() > 0.) {
+  if (fInitialState->Probe()->PdgCode() == kPdgDarkMatter) {
     interaction << "dm;";
   }
   else {

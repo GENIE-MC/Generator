@@ -216,6 +216,8 @@ string     gOptOutFileName;         ///< output file name
 GNtpcFmt_t gOptOutFileFormat;       ///< output file format id
 int        gOptVersion;             ///< output file format version
 Long64_t   gOptN;                   ///< number of events to process
+double     gOptDMMass;              ///< dark matter mass
+double     gOptMedRatio;            ///< dark matter mediator mass ratio
 bool       gOptCopyJobMeta = false; ///< copy MC job metadata (gconfig, genv TFolders)
 long int   gOptRanSeed;             ///< random number seed
 
@@ -3049,6 +3051,24 @@ void GetCommandLineArgs(int argc, char ** argv)
     gOptRanSeed = -1;
   }
 
+  // dark matter mass
+  if( parser.OptionExists('m') ) {
+    LOG("gntpc", pINFO) << "Reading dark matter mass";
+    gOptDMMass = parser.ArgAsDouble('m');
+  } 
+
+  // mediator mass ratio
+  if( parser.OptionExists('z') ) {
+    LOG("gevdump_dm", pINFO) << "Reading mediator mass ratio";
+    gOptMedRatio = parser.ArgAsDouble('z');
+  } 
+
+  if (gOptDMMass > 0. || gOptMedRatio > 0. ) {
+    PDGLibrary::Instance()->AddDarkMatter(gOptDMMass,gOptMedRatio);
+  }
+
+
+
   LOG("gntpc", pNOTICE) << "Input filename  = " << gOptInpFileName;
   LOG("gntpc", pNOTICE) << "Output filename = " << gOptOutFileName;
   LOG("gntpc", pNOTICE) << "Conversion to format = " << gOptRanSeed 
@@ -3056,6 +3076,11 @@ void GetCommandLineArgs(int argc, char ** argv)
   LOG("gntpc", pNOTICE) << "Number of events to be converted = " << gOptN;
   LOG("gntpc", pNOTICE) << "Copy metadata? = " << ((gOptCopyJobMeta) ? "Yes" : "No");
   LOG("gntpc", pNOTICE) << "Random number seed = " << gOptRanSeed;
+
+  if (gOptDMMass > 0. || gOptMedRatio > 0. ) {
+    LOG("gntpc", pNOTICE) << "Dark matter mass = " << gOptDMMass;
+    LOG("gntpc", pNOTICE) << "Mediator mass ratio = " << gOptMedRatio;
+  }  
 
   LOG("gntpc", pNOTICE) << *RunOpt::Instance();
 }

@@ -33,6 +33,12 @@ XsecNNCorr          bool    Yes   nuclear medium correction for NN cross section
     <param type="string" name="CommonParam"> NUCL </param>
 
     <param type="alg"    name="NuclearModel">      genie::NuclearModelMap/Default  </param>
+    <!-- For the sake of coherence in the code, the nuclear model is set to NuclearModelMap.
+	 Anyway, the GENIE collaboration would like to remind the users that the Intranuke models
+	 were tuned using genie::FGMBodekRitchie/Default.
+	 If a systematic validation is desired we recommend to switch this to 
+	  <param type="alg"    name="NuclearModel"> genie::FGMBodekRitchie/Default </param>
+    -->
 
     <param type="bool" name="HNINUKE-UseOset"> true  </param>
     <param type="bool" name="HNINUKE-AltOset"> false </param>
