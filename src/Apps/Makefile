@@ -154,7 +154,7 @@ $(GENIE_BIN_PATH)/gevdump: gEvDump.o $(call find_libs,gevdump)
 
 # gevgen event generation utility for use with simple fluxes
 #
-(GENIE_BIN_PATH)/gevgen_lardm: gEvGenLArDM.o $(call find_libs,gevgen_lardm)
+$(GENIE_BIN_PATH)/gevgen_lardm: gEvGenLArDM.o $(call find_libs,gevgen_lardm)
 	@echo "** Building gevgen_lardm"
 	$(LD) $(LDFLAGS) gEvGenLArDM.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen_lardm
 
