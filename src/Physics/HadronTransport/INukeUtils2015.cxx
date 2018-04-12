@@ -467,7 +467,7 @@ void genie::utils::intranuke2015::PreEquilibrium(
 
   // Random number generator
   RandomGen * rnd = RandomGen::Instance();
-  PDGLibrary * pLib = PDGLibrary::Instance();
+  //unused var - comment to quiet warnings// PDGLibrary * pLib = PDGLibrary::Instance();
 
   bool allow_dup = true;
   PDGCodeList list(allow_dup); // list of final state particles
@@ -566,9 +566,9 @@ void genie::utils::intranuke2015::PreEquilibrium(
  // find the appropriate daughter
   vector<int> * descendants = ev->GetStableDescendants(p_loc);
 
-  int loc       = p_loc + 1;
+  //unused var - quiet compiler warning//int loc       = p_loc + 1;
   int f_loc     = p_loc + 1;
-  double energy = ev->Particle(loc)->E();
+  //unused var - quiet the warning//double energy = ev->Particle(loc)->E();
 
 /*  // (1) least energetic
   double min_en = energy;
@@ -632,7 +632,7 @@ void genie::utils::intranuke2015::Equilibrium(
 
   // Random number generator
   RandomGen * rnd = RandomGen::Instance();
-  PDGLibrary * pLib = PDGLibrary::Instance();
+  //unused var - quiet compiler warning//PDGLibrary * pLib = PDGLibrary::Instance();
 
   bool allow_dup = true;
   PDGCodeList list(allow_dup); // list of final state particles
