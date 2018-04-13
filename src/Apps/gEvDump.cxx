@@ -73,8 +73,6 @@ void GetEventRange      (Long64_t nev, Long64_t & n1, Long64_t & n2);
 
 Long64_t gOptNEvtL;
 Long64_t gOptNEvtH;
-double   gOptDMMass = -1. ;
-double   gOptMedRatio = -1. ;
 string   gOptInpFilename;
 
 //___________________________________________________________________
@@ -84,7 +82,10 @@ int main(int argc, char ** argv)
 
   // set print level
   GHepRecord::SetPrintLevel(RunOpt::Instance()->EventRecordPrintLevel());
-
+  
+  // Add a dummy value to Dark Matter to allow reading DarkMatter files
+  PDGLibrary::Instance()->AddDarkMatter( 1.0, 0.5 );
+  
   //
   // open the ROOT file and get the TTree & its header
   //
@@ -283,21 +284,6 @@ void GetCommandLineArgs(int argc, char ** argv)
     gOptNEvtH = -1;
   }
 
-  // dark matter mass
-  if( parser.OptionExists('m') ) {
-    LOG("gevdump", pINFO) << "Reading dark matter mass";
-    gOptDMMass = parser.ArgAsDouble('m');
-  } 
-
-  // mediator mass ratio
-  if( parser.OptionExists('z') ) {
-    LOG("gevdump", pINFO) << "Reading mediator mass ratio";
-    gOptMedRatio = parser.ArgAsDouble('z');
-  } 
-
-  if (gOptDMMass > 0 || gOptMedRatio > 0) {
-    PDGLibrary::Instance()->AddDarkMatter(gOptDMMass,gOptMedRatio);
-  }
   
 }
 //_________________________________________________________________________________
