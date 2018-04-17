@@ -49,9 +49,6 @@ STFC, Rutherford Appleton Laboratory
   Also, set the preferred hadron transport model. 
   Options include:
    - genie::HAIntranuke/Default
-   - genie::HNIntranuke/Default
-   - genie::HAIntranuke2014/Default  new 2d spline for piA
-   - genie::HNIntranuke2014/Default
    - genie::HAIntranuke2015/Default
    - genie::HNIntranuke2015/Default
    - genie::HNIntranuke2015/OsetOff
