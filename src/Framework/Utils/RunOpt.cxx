@@ -180,6 +180,7 @@ void RunOpt::ReadFromCommandLine(int argc, char ** argv)
 void RunOpt::Print(ostream & stream) const
 {
   stream << "Global running options:";
+  stream << "\n GENIE CGC: " << fCGC;
   stream << "\n GENIE tune: " << fTune;
   stream << "\n Event generator list: " << fEventGeneratorList;
   stream << "\n User-specified message thresholds : " << fMesgThresholds;
