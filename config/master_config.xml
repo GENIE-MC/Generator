@@ -7,7 +7,6 @@
    <config alg="genie::FermiMover">                  FermiMover.xml                  </config>
    <config alg="genie::HadronTransporter">           HadronTransporter.xml           </config>
    <config alg="genie::HAIntranuke">                 HAIntranuke.xml                 </config>
-   <config alg="genie::HNIntranuke">                 HNIntranuke.xml                 </config>
    <config alg="genie::HAIntranuke2015">             HAIntranuke2015.xml             </config>
    <config alg="genie::HNIntranuke2015">             HNIntranuke2015.xml             </config>
    <config alg="genie::UnstableParticleDecayer">     UnstableParticleDecayer.xml     </config>
