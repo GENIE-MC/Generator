@@ -10,21 +10,18 @@
 #pragma link C++ namespace genie::utils::gui;
 #pragma link C++ namespace genie::utils::print;
 #pragma link C++ namespace genie::utils::str;
-//#pragma link C++ namespace genie::utils::math;
 #pragma link C++ namespace genie::utils::phys;
 #pragma link C++ namespace genie::utils::kinematics;
 #pragma link C++ namespace genie::utils::hadxs;
-//#pragma link C++ namespace genie::utils::fragmrec;
 #pragma link C++ namespace genie::utils::units;
-//#pragma link C++ namespace genie::utils::nuclear;
 #pragma link C++ namespace genie::utils::bwfunc;
 #pragma link C++ namespace genie::utils::prem;
-//#pragma link C++ namespace genie::utils::gsl;
 #pragma link C++ namespace genie::utils::system;
 #pragma link C++ namespace genie::utils::style;
 #pragma link C++ namespace genie::utils::xml;
 
 #pragma link C++ class genie::RunOpt;
+#pragma link C++ class genie::TuneId;
 #pragma link C++ class genie::Cache;
 #pragma link C++ class genie::CacheBranchI;
 #pragma link C++ class genie::CacheBranchNtp;
