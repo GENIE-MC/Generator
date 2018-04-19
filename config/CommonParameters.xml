@@ -165,7 +165,6 @@ University of Liverpool
    <param type="double" name="INUKE-NucCEXFac">         1.0   </param>
    <param type="double" name="INUKE-Energy_Pre_Eq">     0.041 </param> 
    <param type="double" name="INUKE-FermiFac">          1.0   </param>
-   <param type="double" name="INUKE-FreeStep">          0.0   </param>
    <param type="double" name="INUKE-FermiMomentum">     0.250 </param>
    <param type="bool"   name="INUKE-DoFermi">           true  </param>
    <param type="bool"   name="INUKE-DoCompoundNucleus"> true  </param>
