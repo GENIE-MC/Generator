@@ -44,7 +44,18 @@ using namespace genie;
 using namespace genie::rew;
 
 //_______________________________________________________________________________________
-GReWeightNuXSecCOH::GReWeightNuXSecCOH() 
+GReWeightNuXSecCOH::GReWeightNuXSecCOH() :
+GReWeightModel("CCCoh"),
+fManualModelName(),
+fManualModelType()
+{
+  this->Init();
+}
+//_______________________________________________________________________________________
+GReWeightNuXSecCOH::GReWeightNuXSecCOH(std::string model, std::string type) :
+GReWeightModel("CCCoh"),
+fManualModelName(model),
+fManualModelType(type)
 {
   this->Init();
 }
@@ -141,10 +152,25 @@ double GReWeightNuXSecCOH::CalcWeight(const genie::EventRecord & event)
   if(nupdg==kPdgAntiNuE  && !fRewNuebar ) return 1.;
 
   interaction->KinePtr()->UseSelectedKinematics();
+  
+  const KinePhaseSpace_t phase_space = kPSxyfE;
 
   double old_xsec   = event.DiffXSec();
+  if (!fUseOldWeightFromFile || fNWeightChecksDone < fNWeightChecksToDo) {
+    double calc_old_xsec = fXSecModelDef->XSec(interaction, phase_space);
+    if (fNWeightChecksDone < fNWeightChecksToDo) {
+      if (std::abs(calc_old_xsec - old_xsec)/old_xsec > controls::kASmallNum) {
+        LOG("ReW",pWARN) << "Warning - default dxsec does not match dxsec saved in tree. Does the config match?";
+      }
+      fNWeightChecksDone++;
+    }
+    if(!fUseOldWeightFromFile) {
+      old_xsec = calc_old_xsec;
+    }
+  }
+  
   double old_weight = event.Weight();
-  double new_xsec   = fXSecModel->XSec(interaction, kPSxyfE);
+  double new_xsec   = fXSecModel->XSec(interaction, phase_space);
   double new_weight = old_weight * (new_xsec/old_xsec);
 
   interaction->KinePtr()->ClearRunningValues();
@@ -154,13 +180,26 @@ double GReWeightNuXSecCOH::CalcWeight(const genie::EventRecord & event)
 //_______________________________________________________________________________________
 void GReWeightNuXSecCOH::Init(void)
 {
-  AlgId id("genie::ReinSehgalCOHPiPXSec","Default");
+  AlgConfigPool * conf_pool = AlgConfigPool::Instance();
+  Registry * gpl = conf_pool->GlobalParameterList();
+  RgAlg xsec_alg = gpl->GetAlg("XSecModel@genie::EventGenerator/COH-CC");
+  
+  AlgId id(xsec_alg);
+  
+  AlgId twk_id(id);
+  if (fManualModelName.size()) {
+    twk_id = AlgId(fManualModelName,fManualModelType);
+  }
 
   AlgFactory * algf = AlgFactory::Instance();
-  Algorithm * alg = algf->AdoptAlgorithm(id);
+  Algorithm * alg_def = algf->AdoptAlgorithm(id);
+  Algorithm * alg_twk = algf->AdoptAlgorithm(twk_id);
 
-  fXSecModel = dynamic_cast<XSecAlgorithmI*>(alg);
+  fXSecModel = dynamic_cast<XSecAlgorithmI*>(alg_twk);
   fXSecModel->AdoptSubstructure();
+  
+  fXSecModelDef = dynamic_cast<XSecAlgorithmI*>(alg_def);
+  fXSecModelDef->AdoptSubstructure();
 
   fXSecModelConfig = new Registry(fXSecModel->GetConfig());
 //LOG("ReW", pNOTICE) << *fXSecModelConfig;

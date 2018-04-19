@@ -46,7 +46,8 @@ using namespace genie;
 using namespace genie::rew;
 
 //_______________________________________________________________________________________
-GReWeightNuXSecCCQEaxial::GReWeightNuXSecCCQEaxial() 
+GReWeightNuXSecCCQEaxial::GReWeightNuXSecCCQEaxial() :
+GReWeightModel("CCQEaxial")
 {
   this->Init();
 }
@@ -124,24 +125,39 @@ double GReWeightNuXSecCCQEaxial::CalcWeight(const genie::EventRecord & event)
   // Calculated weight includes `shape only effect in dsigma/dQ2
   // (normalized to constant integrated cross section)
   //
+  
+  const KinePhaseSpace_t phase_space = kPSQ2fE;
 
   interaction->KinePtr()->UseSelectedKinematics();
   interaction->SetBit(kIAssumeFreeNucleon);
-
-  double dial                 = fFFTwkDial;
+  
+  double old_xsec   = event.DiffXSec();
+  if (!fUseOldWeightFromFile || fNWeightChecksDone < fNWeightChecksToDo) {
+    double calc_old_xsec = fXSecModelDef->XSec(interaction, phase_space);
+    if (fNWeightChecksDone < fNWeightChecksToDo) {
+      if (std::abs(calc_old_xsec - old_xsec)/old_xsec > controls::kASmallNum) {
+        LOG("ReW",pWARN) << "Warning - default dxsec does not match dxsec saved in tree. Does the config match?";
+      }
+      fNWeightChecksDone++;
+    }
+    if(!fUseOldWeightFromFile) {
+      old_xsec = calc_old_xsec;
+    }
+  }
+  
   double old_weight           = event.Weight();
-  double def_xsec             = event.DiffXSec();
-  double zexp_xsec            = fXSecModel_zexp->XSec(interaction, kPSQ2fE);
-  //double def_integrated_xsec  = fXSecModel_dpl->Integral(interaction);
+  double dial                 = fFFTwkDial;
+  double zexp_xsec            = fXSecModel_zexp->XSec(interaction, phase_space);
+  //double def_integrated_xsec  = fXSecModelDef->Integral(interaction);
   //double zexp_integrated_xsec = fXSecModel_zexp->Integral(interaction);
 
   //assert(def_integrated_xsec > 0.);
   //assert(zexp_integrated_xsec > 0.);
 //  if(def_integrated_xsec <= 0 || zexp_integrated_xsec <= 0) return 1.;
 
-  //double def_ratio  = def_xsec  / def_integrated_xsec;
+  //double def_ratio  = old_xsec  / def_integrated_xsec;
   //double zexp_ratio = zexp_xsec / zexp_integrated_xsec;
-  double def_ratio  = def_xsec ;
+  double def_ratio  = old_xsec ;
   double zexp_ratio = zexp_xsec;
 
   assert(def_ratio > 0.);
@@ -153,7 +169,7 @@ double GReWeightNuXSecCCQEaxial::CalcWeight(const genie::EventRecord & event)
   double E  = interaction->InitState().ProbeE(kRfHitNucRest);
   double Q2 = interaction->Kine().Q2(true);
   fTestNtp->Fill(
-    E,Q2,weight,def_integrated_xsec,zexp_integrated_xsec,def_xsec,zexp_xsec);
+    E,Q2,weight,def_integrated_xsec,zexp_integrated_xsec,old_xsec,zexp_xsec);
 #endif
 
 
@@ -168,15 +184,26 @@ double GReWeightNuXSecCCQEaxial::CalcChisq()
 //_______________________________________________________________________________________
 void GReWeightNuXSecCCQEaxial::Init(void)
 {
+  AlgConfigPool * conf_pool = AlgConfigPool::Instance();
+  Registry * gpl = conf_pool->GlobalParameterList();
+  RgAlg xsec_alg = gpl->GetAlg("XSecModel@genie::EventGenerator/QEL-CC");
+  
+  AlgId dipole_id (AlgId(xsec_alg).Name(),"Dipole");
+  AlgId zexp_id   (AlgId(xsec_alg).Name(),"ZExp");
+  
+  // I can't see why we'd want a non-default model name here, so this bit is unnecessary for now
+  //~ if (fManualModelName.size()) {
+    //~ def_id   = AlgId(fManualModelName,"Dipole");
+    //~ elff_id  = AlgId(fManualModelName,"DipoleELFF");
+  //~ }
+
   AlgFactory * algf = AlgFactory::Instance();
 
-  AlgId id0("genie::LwlynSmithQELCCPXSec","Default");
-  Algorithm * alg0 = algf->AdoptAlgorithm(id0);
-  fXSecModel_dpl = dynamic_cast<XSecAlgorithmI*>(alg0);
-  fXSecModel_dpl->AdoptSubstructure();
+  Algorithm * alg0 = algf->AdoptAlgorithm(dipole_id);
+  fXSecModelDef = dynamic_cast<XSecAlgorithmI*>(alg0);
+  fXSecModelDef->AdoptSubstructure();
 
-  AlgId id1("genie::LwlynSmithQELCCPXSec","ZExp");
-  Algorithm * alg1 = algf->AdoptAlgorithm(id1);
+  Algorithm * alg1 = algf->AdoptAlgorithm(zexp_id);
   fXSecModel_zexp = dynamic_cast<XSecAlgorithmI*>(alg1);
   fXSecModel_zexp->AdoptSubstructure();
 

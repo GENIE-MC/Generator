@@ -37,7 +37,7 @@ using namespace genie::rew;
 
 //_______________________________________________________________________________________
 GReWeightResonanceDecay::GReWeightResonanceDecay() :
-GReWeightI()
+GReWeightModel("ResonanceDecay")
 {
   this->Init();
 }

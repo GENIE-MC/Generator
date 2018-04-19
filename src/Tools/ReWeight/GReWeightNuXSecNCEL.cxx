@@ -40,7 +40,18 @@ using namespace genie;
 using namespace genie::rew;
 
 //_______________________________________________________________________________________
-GReWeightNuXSecNCEL::GReWeightNuXSecNCEL() 
+GReWeightNuXSecNCEL::GReWeightNuXSecNCEL() :
+GReWeightModel("NCEl"),
+fManualModelName(),
+fManualModelType()
+{
+  this->Init();
+}
+//_______________________________________________________________________________________
+GReWeightNuXSecNCEL::GReWeightNuXSecNCEL(std::string model, std::string type) :
+GReWeightModel("NCEl"),
+fManualModelName(model),
+fManualModelType(type)
 {
   this->Init();
 }
@@ -140,10 +151,25 @@ double GReWeightNuXSecNCEL::CalcWeight(const genie::EventRecord & event)
 
   interaction->KinePtr()->UseSelectedKinematics();
   interaction->SetBit(kIAssumeFreeNucleon);
+  
+  const KinePhaseSpace_t phase_space = kPSQ2fE;
 
   double old_xsec   = event.DiffXSec();
+  if (!fUseOldWeightFromFile || fNWeightChecksDone < fNWeightChecksToDo) {
+    double calc_old_xsec = fXSecModelDef->XSec(interaction, phase_space);
+    if (fNWeightChecksDone < fNWeightChecksToDo) {
+      if (std::abs(calc_old_xsec - old_xsec)/old_xsec > controls::kASmallNum) {
+        LOG("ReW",pWARN) << "Warning - default dxsec does not match dxsec saved in tree. Does the config match?";
+      }
+      fNWeightChecksDone++;
+    }
+    if(!fUseOldWeightFromFile) {
+      old_xsec = calc_old_xsec;
+    }
+  }
+  
   double old_weight = event.Weight();
-  double new_xsec   = fXSecModel->XSec(interaction, kPSQ2fE);
+  double new_xsec   = fXSecModel->XSec(interaction, phase_space );
   double new_weight = old_weight * (new_xsec/old_xsec);
 
 //LOG("ReW", pDEBUG) << "differential cross section (old) = " << old_xsec;
@@ -165,7 +191,16 @@ double GReWeightNuXSecNCEL::CalcWeight(const genie::EventRecord & event)
 //_______________________________________________________________________________________
 void GReWeightNuXSecNCEL::Init(void)
 {
-  AlgId id("genie::AhrensNCELPXSec","Default");
+  AlgConfigPool * conf_pool = AlgConfigPool::Instance();
+  Registry * gpl = conf_pool->GlobalParameterList();
+  RgAlg xsec_alg = gpl->GetAlg("XSecModel@genie::EventGenerator/QEL-NC");
+  
+  AlgId id(xsec_alg);
+  
+  AlgId twk_id(id);
+  if (fManualModelName.size()) {
+    twk_id = AlgId(fManualModelName,fManualModelType);
+  }
 
   AlgFactory * algf = AlgFactory::Instance();
 
@@ -173,7 +208,7 @@ void GReWeightNuXSecNCEL::Init(void)
   fXSecModelDef = dynamic_cast<XSecAlgorithmI*>(algdef);
   fXSecModelDef->AdoptSubstructure();
 
-  Algorithm * alg = algf->AdoptAlgorithm(id);
+  Algorithm * alg = algf->AdoptAlgorithm(twk_id);
   fXSecModel = dynamic_cast<XSecAlgorithmI*>(alg);
   fXSecModel->AdoptSubstructure();
 

@@ -25,12 +25,12 @@
 #ifndef _G_REWEIGHT_NU_XSEC_NC_H_
 #define _G_REWEIGHT_NU_XSEC_NC_H_
 
-#include "Tools/ReWeight/GReWeightI.h"
+#include "Tools/ReWeight/GReWeightModel.h"
 
 namespace genie {
 namespace rew   {
 
- class GReWeightNuXSecNC : public GReWeightI 
+ class GReWeightNuXSecNC : public GReWeightModel 
  {
  public:
    GReWeightNuXSecNC();
@@ -64,6 +64,9 @@ namespace rew   {
    bool   fRewRES;         ///< reweight NC RES?
    bool   fRewDIS;         ///< reweight NC DIS?
    double fNCTwkDial;      ///< tweaking dial
+   
+   std::string fManualModelName; ///< If using a tweaked model that isn't the same as default, name
+   std::string fManualModelType; ///< If using a tweaked model that isn't the same as default, type
  };
 
 } // rew   namespace

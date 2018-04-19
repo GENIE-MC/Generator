@@ -24,14 +24,12 @@
 
 #include <map>
 
-#include "Tools/ReWeight/GReWeightI.h"
-
-using std::map;
+#include "Tools/ReWeight/GReWeightModel.h"
 
 namespace genie {
 namespace rew   {
 
- class GReWeightNonResonanceBkg : public GReWeightI 
+ class GReWeightNonResonanceBkg : public GReWeightModel 
  {
  public:
    GReWeightNonResonanceBkg();
@@ -53,9 +51,9 @@ namespace rew   {
 
    double fWmin;   ///< W_{min} cut. Reweight only events with W < W_{min}
 
-   map<GSyst_t, double> fRTwkDial;
-   map<GSyst_t, double> fRDef;
-   map<GSyst_t, double> fRCurr;
+   std::map<GSyst_t, double> fRTwkDial;
+   std::map<GSyst_t, double> fRDef;
+   std::map<GSyst_t, double> fRCurr;
  };
 
 } // rew   namespace

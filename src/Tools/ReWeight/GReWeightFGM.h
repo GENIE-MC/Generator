@@ -26,9 +26,7 @@
 
 #include <map>
 
-#include "Tools/ReWeight/GReWeightI.h"
-
-using std::map;
+#include "Tools/ReWeight/GReWeightModel.h"
 
 using namespace genie::rew;
 using namespace genie;
@@ -43,7 +41,7 @@ class NuclearModelI;
 
 namespace rew   {
 
- class GReWeightFGM : public GReWeightI 
+ class GReWeightFGM : public GReWeightModel 
  {
  public:
    GReWeightFGM();
@@ -69,10 +67,10 @@ namespace rew   {
    const NuclearModelI * fFG;
    const NuclearModelI * fSF;
 
-   map<int, TH1D *> fMapFGn;
-   map<int, TH1D *> fMapFGp;
-   map<int, TH1D *> fMapSFn;
-   map<int, TH1D *> fMapSFp;
+   std::map<int, TH1D *> fMapFGn;
+   std::map<int, TH1D *> fMapFGp;
+   std::map<int, TH1D *> fMapSFn;
+   std::map<int, TH1D *> fMapSFp;
 
 #ifdef _G_REWEIGHT_FGM_DEBUG_
    TFile *    fTestFile;

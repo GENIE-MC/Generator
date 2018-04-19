@@ -22,7 +22,7 @@
 #ifndef _G_REWEIGHT_FZONE_H_
 #define _G_REWEIGHT_FZONE_H_
 
-#include "Tools/ReWeight/GReWeightI.h"
+#include "Tools/ReWeight/GReWeightModel.h"
 
 using namespace genie::rew;
 using namespace genie;
@@ -30,7 +30,7 @@ using namespace genie;
 namespace genie {
 namespace rew   {
 
- class GReWeightFZone : public GReWeightI 
+ class GReWeightFZone : public GReWeightModel 
  {
  public:
    GReWeightFZone();

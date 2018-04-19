@@ -24,13 +24,9 @@
 
 //#define _G_REWEIGHT_CCQE_DEBUG_
 
-#include <map>
 #include <string>
 
-#include "Tools/ReWeight/GReWeightI.h"
-
-using std::map;
-using std::string;
+#include "Tools/ReWeight/GReWeightModel.h"
 
 class TFile;
 class TNtupleD;
@@ -42,7 +38,7 @@ class Registry;
 
 namespace rew   {
 
- class GReWeightNuXSecCCQE : public GReWeightI 
+ class GReWeightNuXSecCCQE : public GReWeightModel 
  {
  public:
    static const int kModeMa               = 0;
@@ -52,6 +48,7 @@ namespace rew   {
    static const int fZExpMaxSyst          = 4; ///< maximum number of systematics
 
    GReWeightNuXSecCCQE();
+   GReWeightNuXSecCCQE(std::string model, std::string type);
   ~GReWeightNuXSecCCQE();
 
    // implement the GReWeightI interface
@@ -82,7 +79,11 @@ namespace rew   {
    XSecAlgorithmI * fXSecModelDef;    ///< default model
    XSecAlgorithmI * fXSecModel;       ///< tweaked model
    Registry *       fXSecModelConfig; ///< config in tweaked model
-   string fFFModel;
+   string fFFModel; ///< String name of form factor model
+   bool fModelIsDipole; ///< Using dipole form factors?
+   bool fModelIsZExp;   ///< Using Zexp form factors?
+   std::string fManualModelName; ///< If using a tweaked model that isn't the same as default, name
+   std::string fManualModelType; ///< If using a tweaked model that isn't the same as default, type
 
    int    fMode;         ///< 0: Ma, 1: Norm and MaShape, 2: Z-Expansion
    bool   fRewNue;       ///< reweight nu_e CC?

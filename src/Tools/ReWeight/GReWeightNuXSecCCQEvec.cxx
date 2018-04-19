@@ -43,7 +43,8 @@ using namespace genie;
 using namespace genie::rew;
 
 //_______________________________________________________________________________________
-GReWeightNuXSecCCQEvec::GReWeightNuXSecCCQEvec() 
+GReWeightNuXSecCCQEvec::GReWeightNuXSecCCQEvec() :
+GReWeightModel("CCQEvec")
 {
   this->Init();
 }
@@ -121,14 +122,29 @@ double GReWeightNuXSecCCQEvec::CalcWeight(const genie::EventRecord & event)
   // Calculated weight includes `shape only effect in dsigma/dQ2
   // (normalized to constant integrated cross section)
   //
+  
+  const KinePhaseSpace_t phase_space = kPSQ2fE;
 
   interaction->KinePtr()->UseSelectedKinematics();
   interaction->SetBit(kIAssumeFreeNucleon);
+  
+  double old_xsec   = event.DiffXSec();
+  if (!fUseOldWeightFromFile || fNWeightChecksDone < fNWeightChecksToDo) {
+    double calc_old_xsec = fXSecModel_bba->XSec(interaction, phase_space);
+    if (fNWeightChecksDone < fNWeightChecksToDo) {
+      if (std::abs(calc_old_xsec - old_xsec)/old_xsec > controls::kASmallNum) {
+        LOG("ReW",pWARN) << "Warning - default dxsec does not match dxsec saved in tree. Does the config match?";
+      }
+      fNWeightChecksDone++;
+    }
+    if(!fUseOldWeightFromFile) {
+      old_xsec = calc_old_xsec;
+    }
+  }
 
   double dial                = fFFTwkDial;
   double old_weight          = event.Weight();
-  double def_xsec            = event.DiffXSec();
-  double dpl_xsec            = fXSecModel_dpl->XSec(interaction, kPSQ2fE);
+  double dpl_xsec            = fXSecModel_dpl->XSec(interaction, phase_space);
   double def_integrated_xsec = fXSecModel_bba->Integral(interaction);
   double dpl_integrated_xsec = fXSecModel_dpl->Integral(interaction);
 
@@ -136,7 +152,7 @@ double GReWeightNuXSecCCQEvec::CalcWeight(const genie::EventRecord & event)
   assert(dpl_integrated_xsec > 0.);
 //  if(def_integrated_xsec <= 0 || dpl_integrated_xsec <= 0) return 1.;
 
-  double def_ratio = def_xsec / def_integrated_xsec;
+  double def_ratio = old_xsec / def_integrated_xsec;
   double dpl_ratio = dpl_xsec / dpl_integrated_xsec;
 
   assert(def_ratio > 0.);
@@ -157,15 +173,26 @@ double GReWeightNuXSecCCQEvec::CalcWeight(const genie::EventRecord & event)
 //_______________________________________________________________________________________
 void GReWeightNuXSecCCQEvec::Init(void)
 {
+  AlgConfigPool * conf_pool = AlgConfigPool::Instance();
+  Registry * gpl = conf_pool->GlobalParameterList();
+  RgAlg xsec_alg = gpl->GetAlg("XSecModel@genie::EventGenerator/QEL-CC");
+  
+  AlgId def_id  (AlgId(xsec_alg).Name(),"Default");
+  AlgId elff_id (AlgId(xsec_alg).Name(),"DipoleELFF");
+  
+  // I can't see why we'd want a non-default model name here, so this bit is unnecessary for now
+  //~ if (fManualModelName.size()) {
+    //~ def_id   = AlgId(fManualModelName,"Dipole");
+    //~ elff_id  = AlgId(fManualModelName,"DipoleELFF");
+  //~ }
+
   AlgFactory * algf = AlgFactory::Instance();
 
-  AlgId id0("genie::LwlynSmithQELCCPXSec","Default");
-  Algorithm * alg0 = algf->AdoptAlgorithm(id0);
+  Algorithm * alg0 = algf->AdoptAlgorithm(def_id);
   fXSecModel_bba = dynamic_cast<XSecAlgorithmI*>(alg0);
   fXSecModel_bba->AdoptSubstructure();
-
-  AlgId id1("genie::LwlynSmithQELCCPXSec","DipoleELFF");
-  Algorithm * alg1 = algf->AdoptAlgorithm(id1);
+  
+  Algorithm * alg1 = algf->AdoptAlgorithm(elff_id);
   fXSecModel_dpl = dynamic_cast<XSecAlgorithmI*>(alg1);
   fXSecModel_dpl->AdoptSubstructure();
 

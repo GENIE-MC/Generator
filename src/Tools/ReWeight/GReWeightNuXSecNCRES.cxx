@@ -49,7 +49,18 @@ const int GReWeightNuXSecNCRES::kModeMaMv;
 const int GReWeightNuXSecNCRES::kModeNormAndMaMvShape;
 
 //_______________________________________________________________________________________
-GReWeightNuXSecNCRES::GReWeightNuXSecNCRES() 
+GReWeightNuXSecNCRES::GReWeightNuXSecNCRES() :
+GReWeightModel("NCRES"),
+fManualModelName(),
+fManualModelType()
+{
+  this->Init();
+}
+//_______________________________________________________________________________________
+GReWeightNuXSecNCRES::GReWeightNuXSecNCRES(std::string model, std::string type) :
+GReWeightModel("NCRES"),
+fManualModelName(model),
+fManualModelType(type)
 {
   this->Init();
 }
@@ -187,15 +198,24 @@ double GReWeightNuXSecNCRES::CalcWeight(const genie::EventRecord & event)
 //_______________________________________________________________________________________
 void GReWeightNuXSecNCRES::Init(void)
 {
-  AlgId id("genie::ReinSehgalRESPXSec","Default");
+  AlgConfigPool * conf_pool = AlgConfigPool::Instance();
+  Registry * gpl = conf_pool->GlobalParameterList();
+  RgAlg xsec_alg = gpl->GetAlg("XSecModel@genie::EventGenerator/RES-NC");
+  
+  AlgId id(xsec_alg);
+  
+  AlgId twk_id(id);
+  if (fManualModelName.size()) {
+    twk_id = AlgId(fManualModelName,fManualModelType);
+  }
 
   AlgFactory * algf = AlgFactory::Instance();
 
   Algorithm * algdef = algf->AdoptAlgorithm(id);
   fXSecModelDef = dynamic_cast<XSecAlgorithmI*>(algdef);
   fXSecModelDef->AdoptSubstructure();
- 
-  Algorithm * alg = algf->AdoptAlgorithm(id);
+
+  Algorithm * alg = algf->AdoptAlgorithm(twk_id);
   fXSecModel = dynamic_cast<XSecAlgorithmI*>(alg);
   fXSecModel->AdoptSubstructure();
 
@@ -243,9 +263,24 @@ double GReWeightNuXSecNCRES::CalcWeightMaMv(const genie::EventRecord & event)
 
   interaction->KinePtr()->UseSelectedKinematics();
 
+  const KinePhaseSpace_t phase_space = kPSWQ2fE;
+
   double old_xsec   = event.DiffXSec();
+  if (!fUseOldWeightFromFile || fNWeightChecksDone < fNWeightChecksToDo) {
+    double calc_old_xsec = fXSecModelDef->XSec(interaction, phase_space);
+    if (fNWeightChecksDone < fNWeightChecksToDo) {
+      if (std::abs(calc_old_xsec - old_xsec)/old_xsec > controls::kASmallNum) {
+        LOG("ReW",pWARN) << "Warning - default dxsec does not match dxsec saved in tree. Does the config match?";
+      }
+      fNWeightChecksDone++;
+    }
+    if(!fUseOldWeightFromFile) {
+      old_xsec = calc_old_xsec;
+    }
+  }
+  
   double old_weight = event.Weight();
-  double new_xsec   = fXSecModel->XSec(interaction, kPSWQ2fE);
+  double new_xsec   = fXSecModel->XSec(interaction, phase_space);
   double new_weight = old_weight * (new_xsec/old_xsec);
 
   interaction->KinePtr()->ClearRunningValues();
@@ -264,9 +299,24 @@ double GReWeightNuXSecNCRES::CalcWeightMaMvShape(const genie::EventRecord & even
 
   interaction->KinePtr()->UseSelectedKinematics();
 
+  const KinePhaseSpace_t phase_space = kPSWQ2fE;
+
   double old_xsec   = event.DiffXSec();
+  if (!fUseOldWeightFromFile || fNWeightChecksDone < fNWeightChecksToDo) {
+    double calc_old_xsec = fXSecModelDef->XSec(interaction, phase_space);
+    if (fNWeightChecksDone < fNWeightChecksToDo) {
+      if (std::abs(calc_old_xsec - old_xsec)/old_xsec > controls::kASmallNum) {
+        LOG("ReW",pWARN) << "Warning - default dxsec does not match dxsec saved in tree. Does the config match?";
+      }
+      fNWeightChecksDone++;
+    }
+    if(!fUseOldWeightFromFile) {
+      old_xsec = calc_old_xsec;
+    }
+  }
+  
   double old_weight = event.Weight();
-  double new_xsec   = fXSecModel->XSec(interaction, kPSWQ2fE);
+  double new_xsec   = fXSecModel->XSec(interaction, phase_space);
   double new_weight = old_weight * (new_xsec/old_xsec);
 
 //LOG("ReW", pDEBUG) << "differential cross section (old) = " << old_xsec;

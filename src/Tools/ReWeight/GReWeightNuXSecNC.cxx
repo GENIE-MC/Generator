@@ -36,7 +36,8 @@ using namespace genie;
 using namespace genie::rew;
 
 //_______________________________________________________________________________________
-GReWeightNuXSecNC::GReWeightNuXSecNC() 
+GReWeightNuXSecNC::GReWeightNuXSecNC()  :
+GReWeightModel("NC")
 {
   this->Init();
 }

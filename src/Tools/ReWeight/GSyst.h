@@ -158,12 +158,14 @@ typedef enum EGSyst {
   kXSecTwkDial_ZExpA2CCQE,        ///< tweak Z-expansion coefficient 2, affects dsigma(CCQE)/dQ2 both in shape and normalization
   kXSecTwkDial_ZExpA3CCQE,        ///< tweak Z-expansion coefficient 3, affects dsigma(CCQE)/dQ2 both in shape and normalization
   kXSecTwkDial_ZExpA4CCQE,        ///< tweak Z-expansion coefficient 4, affects dsigma(CCQE)/dQ2 both in shape and normalization
-  kXSecTwkDial_AxFFCCQEshape     ///< tweak axial nucleon form factors (dipole -> z-expansion) - shape only effect of dsigma(CCQE)/dQ2
+  kXSecTwkDial_AxFFCCQEshape,     ///< tweak axial nucleon form factors (dipole -> z-expansion) - shape only effect of dsigma(CCQE)/dQ2
 
 
   //
   // Misc
-  // 
+  //
+  
+  kNTwkDials /// < Not a real dial, just keep as last entry for looping purposes
 
 
 } GSyst_t;

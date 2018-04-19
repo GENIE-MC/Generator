@@ -53,7 +53,18 @@ const int GReWeightNuXSecDIS::kModeABCV12u;
 const int GReWeightNuXSecDIS::kModeABCV12uShape;
 
 //_______________________________________________________________________________________
-GReWeightNuXSecDIS::GReWeightNuXSecDIS() 
+GReWeightNuXSecDIS::GReWeightNuXSecDIS()  :
+GReWeightModel("CCDIS"),
+fManualModelName(),
+fManualModelType()
+{
+  this->Init();
+}
+//_______________________________________________________________________________________
+GReWeightNuXSecDIS::GReWeightNuXSecDIS(std::string model, std::string type)  :
+GReWeightModel("CCDIS"),
+fManualModelName(model),
+fManualModelType(type)
 {
   this->Init();
 }
@@ -259,10 +270,25 @@ double GReWeightNuXSecDIS::CalcWeightABCV12uShape(const genie::EventRecord & eve
   Interaction * interaction = event.Summary();
 
   interaction->KinePtr()->UseSelectedKinematics();
+  
+  const KinePhaseSpace_t phase_space = kPSxyfE;
 
   double old_xsec   = event.DiffXSec();
+  if (!fUseOldWeightFromFile || fNWeightChecksDone < fNWeightChecksToDo) {
+    double calc_old_xsec = fXSecModelDef->XSec(interaction, phase_space);
+    if (fNWeightChecksDone < fNWeightChecksToDo) {
+      if (std::abs(calc_old_xsec - old_xsec)/old_xsec > controls::kASmallNum) {
+        LOG("ReW",pWARN) << "Warning - default dxsec does not match dxsec saved in tree. Does the config match?";
+      }
+      fNWeightChecksDone++;
+    }
+    if(!fUseOldWeightFromFile) {
+      old_xsec = calc_old_xsec;
+    }
+  }
+  
   double old_weight = event.Weight();
-  double twk_xsec   = fXSecModel->XSec(interaction, kPSxyfE);
+  double twk_xsec   = fXSecModel->XSec(interaction, phase_space);
   double weight = old_weight * (twk_xsec/old_xsec);
 
 //double old_integrated_xsec = event.XSec();

@@ -28,10 +28,8 @@
 #include <map>
 #include <string>
 
-#include "Tools/ReWeight/GReWeightI.h"
+#include "Tools/ReWeight/GReWeightModel.h"
 
-using std::map;
-using std::string;
 
 class TFile;
 class TNtupleD;
@@ -42,7 +40,7 @@ class XSecAlgorithmI;
 
 namespace rew   {
 
- class GReWeightNuXSecCCQEvec : public GReWeightI 
+ class GReWeightNuXSecCCQEvec : public GReWeightModel 
  {
  public:
    GReWeightNuXSecCCQEvec();

@@ -18,7 +18,7 @@ class GReWeightIOBranchDesc : public TObject
    
       GReWeightIOBranchDesc() : TObject(), 
                                 fParameterName(), fParameterMean(0.), 
-				fParameterSigmaPlus(0.), fParameterSigmaMinus(0.) {} 
+                                fParameterSigmaPlus(0.), fParameterSigmaMinus(0.) {} 
       GReWeightIOBranchDesc( const std::string&, const double, const double, const double );
       GReWeightIOBranchDesc( const GReWeightIOBranchDesc& );
       GReWeightIOBranchDesc( TRootIOCtor* );

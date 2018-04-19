@@ -26,13 +26,11 @@
 
 #include <map>
 
-#include "Tools/ReWeight/GReWeightI.h"
+#include "Tools/ReWeight/GReWeightModel.h"
 
 class TH1D;
 class TNtupleD;
 class TFile;
-
-using std::map;
 
 using namespace genie::rew;
 using namespace genie;
@@ -40,7 +38,7 @@ using namespace genie;
 namespace genie {
 namespace rew   {
 
- class GReWeightResonanceDecay : public GReWeightI 
+ class GReWeightResonanceDecay : public GReWeightModel 
  {
  public:
    GReWeightResonanceDecay();
@@ -78,8 +76,8 @@ namespace rew   {
    bool   fRewCC;        ///< reweight CC?
    bool   fRewNC;        ///< reweight NC?
 
-   map<int, TH1D*> fMpBR1gammaDef; // resonance pdg -> X + 1gamma, default BR = f(W)
-   map<int, TH1D*> fMpBR1etaDef;   // resonance pdg -> X + 1eta,   default BR = f(W)
+   std::map<int, TH1D*> fMpBR1gammaDef; // resonance pdg -> X + 1gamma, default BR = f(W)
+   std::map<int, TH1D*> fMpBR1etaDef;   // resonance pdg -> X + 1eta,   default BR = f(W)
 
 #ifdef _G_REWEIGHT_RESDEC_DEBUG_
    TFile *    fTestFile;

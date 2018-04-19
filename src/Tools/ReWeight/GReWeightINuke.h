@@ -35,7 +35,7 @@
 
 //#define _G_REWEIGHT_INUKE_DEBUG_NTP_
 
-#include "Tools/ReWeight/GReWeightI.h"
+#include "Tools/ReWeight/GReWeightModel.h"
 #include "Tools/ReWeight/GReWeightINukeParams.h"
 
 using namespace genie::rew;
@@ -48,7 +48,7 @@ class TLorentzVector;
 namespace genie {
 namespace rew   {
 
- class GReWeightINuke : public GReWeightI 
+ class GReWeightINuke : public GReWeightModel 
  {
  public:
    GReWeightINuke();

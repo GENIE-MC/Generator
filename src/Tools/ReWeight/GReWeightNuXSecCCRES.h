@@ -24,13 +24,9 @@
 
 //#define _G_REWEIGHT_CCRES_DEBUG_
 
-#include <map>
 #include <string>
 
-using std::map;
-using std::string;
-
-#include "Tools/ReWeight/GReWeightI.h"
+#include "Tools/ReWeight/GReWeightModel.h"
 
 class TFile;
 class TNtupleD;
@@ -42,13 +38,14 @@ class Registry;
 
 namespace rew   {
 
- class GReWeightNuXSecCCRES : public GReWeightI 
+ class GReWeightNuXSecCCRES : public GReWeightModel 
  {
  public:
    static const int kModeMaMv             = 0;
    static const int kModeNormAndMaMvShape = 1;
 
    GReWeightNuXSecCCRES();
+   GReWeightNuXSecCCRES(std::string model, std::string type);
   ~GReWeightNuXSecCCRES();
 
    // implement the GReWeightI interface
@@ -77,6 +74,9 @@ namespace rew   {
    XSecAlgorithmI * fXSecModelDef;    ///< default model
    XSecAlgorithmI * fXSecModel;       ///< tweaked model
    Registry *       fXSecModelConfig; ///< config in tweaked model
+   
+   std::string fManualModelName; ///< If using a tweaked model that isn't the same as default, name
+   std::string fManualModelType; ///< If using a tweaked model that isn't the same as default, type
 
    int    fMode;         ///< 0: Ma/Mv, 1: Norm and MaShape/MvShape
    string fMaPath;       ///< M_{A} path in configuration

@@ -70,7 +70,18 @@ const int GReWeightNuXSecCCQE::kModeZExp;
 const int GReWeightNuXSecCCQE::fZExpMaxSyst;
 
 //_______________________________________________________________________________________
-GReWeightNuXSecCCQE::GReWeightNuXSecCCQE() 
+GReWeightNuXSecCCQE::GReWeightNuXSecCCQE() :
+GReWeightModel("CCQE"),
+fManualModelName(),
+fManualModelType()
+{
+  this->Init();
+}
+//_______________________________________________________________________________________
+GReWeightNuXSecCCQE::GReWeightNuXSecCCQE(std::string model, std::string type) :
+GReWeightModel("CCQE"),
+fManualModelName(model),
+fManualModelType(type)
 {
   this->Init();
 }
@@ -93,7 +104,7 @@ bool GReWeightNuXSecCCQE::IsHandled(GSyst_t syst)
    switch(syst) {
 
      case ( kXSecTwkDial_NormCCQE    ) :
-       if(fMode==kModeNormAndMaShape && strcmp(fFFModel.c_str(),kModelDipole) == 0)
+       if(fMode==kModeNormAndMaShape && fModelIsDipole)
        {  
           handle = true;
        } else {  
@@ -102,7 +113,7 @@ bool GReWeightNuXSecCCQE::IsHandled(GSyst_t syst)
        break;
      
      case ( kXSecTwkDial_MaCCQEshape ) :
-       if(fMode==kModeNormAndMaShape && strcmp(fFFModel.c_str(),kModelDipole) == 0)
+       if(fMode==kModeNormAndMaShape && fModelIsDipole)
        {  
           handle = true;
        } else {  
@@ -111,7 +122,7 @@ bool GReWeightNuXSecCCQE::IsHandled(GSyst_t syst)
        break;
      
      case ( kXSecTwkDial_MaCCQE ) :
-       if(fMode==kModeMa && strcmp(fFFModel.c_str(),kModelDipole) == 0)
+       if(fMode==kModeMa && fModelIsDipole)
        {  
           handle = true;
        } else {  
@@ -120,7 +131,7 @@ bool GReWeightNuXSecCCQE::IsHandled(GSyst_t syst)
        break;
      
      case ( kXSecTwkDial_ZNormCCQE    ) :
-       if(fMode==kModeZExp && strcmp(fFFModel.c_str(),kModelZExp) == 0)
+       if(fMode==kModeZExp && fModelIsZExp)
        {  
           handle = true;
        } else {  
@@ -132,7 +143,7 @@ bool GReWeightNuXSecCCQE::IsHandled(GSyst_t syst)
      case ( kXSecTwkDial_ZExpA2CCQE ):
      case ( kXSecTwkDial_ZExpA3CCQE ):
      case ( kXSecTwkDial_ZExpA4CCQE ):
-       if(fMode==kModeZExp && strcmp(fFFModel.c_str(),kModelZExp) == 0)
+       if(fMode==kModeZExp && fModelIsZExp)
        {  
           handle = true;
        } else {
@@ -203,14 +214,14 @@ void GReWeightNuXSecCCQE::Reconfigure(void)
 {
   GSystUncertainty * fracerr = GSystUncertainty::Instance();
 
-  if(fMode==kModeMa && strcmp(fFFModel.c_str(),kModelDipole) == 0) {   
+  if(fMode==kModeMa && fModelIsDipole) {   
      int    sign_matwk = utils::rew::Sign(fMaTwkDial);
      double fracerr_ma = fracerr->OneSigmaErr(kXSecTwkDial_MaCCQE, sign_matwk);
      fMaCurr = fMaDef * (1. + fMaTwkDial * fracerr_ma);
      fMaCurr = TMath::Max(0., fMaCurr  );
   }
   else
-  if(fMode==kModeNormAndMaShape && strcmp(fFFModel.c_str(),kModelDipole) == 0) {
+  if(fMode==kModeNormAndMaShape && fModelIsDipole) {
      int    sign_normtwk = utils::rew::Sign(fNormTwkDial);
      int    sign_mashtwk = utils::rew::Sign(fMaTwkDial  );
      double fracerr_norm = fracerr->OneSigmaErr(kXSecTwkDial_NormCCQE,  sign_normtwk);
@@ -221,7 +232,7 @@ void GReWeightNuXSecCCQE::Reconfigure(void)
      fMaCurr   = TMath::Max(0., fMaCurr  );
   }
   else
-  if(fMode==kModeZExp && strcmp(fFFModel.c_str(),kModelZExp) == 0) {
+  if(fMode==kModeZExp && fModelIsZExp) {
      int     sign_twk = 0;
      int     sign_normtwk = utils::rew::Sign(fNormTwkDial);
      double  fracerr_zexp = 0.;
@@ -248,7 +259,8 @@ void GReWeightNuXSecCCQE::Reconfigure(void)
     return;
   }
 
-  Registry & r = *fXSecModelConfig;
+  Registry r("GReWeightNuXSecCCQE",false);
+  //~ Registry r(fXSecModel->GetConfig());
   if (fMode==kModeMa || fMode==kModeNormAndMaShape)
   {
     r.Set(fMaPath, fMaCurr); 
@@ -282,19 +294,19 @@ double GReWeightNuXSecCCQE::CalcWeight(const genie::EventRecord & event)
   if(nupdg==kPdgNuE      && !fRewNue    ) return 1.;
   if(nupdg==kPdgAntiNuE  && !fRewNuebar ) return 1.;
 
-  if(fMode==kModeMa && strcmp(fFFModel.c_str(),kModelDipole) == 0) {
+  if(fMode==kModeMa && fModelIsDipole) {
      double wght = this->CalcWeightMa(event);
      return wght;
   } 
   else 
-  if(fMode==kModeNormAndMaShape && strcmp(fFFModel.c_str(),kModelDipole) == 0) {
+  if(fMode==kModeNormAndMaShape && fModelIsDipole) {
      double wght = 
          this->CalcWeightNorm    (event) *
          this->CalcWeightMaShape (event);
      return wght;
   }
   else
-  if(fMode==kModeZExp && strcmp(fFFModel.c_str(),kModelZExp) == 0) {
+  if(fMode==kModeZExp && fModelIsZExp) {
      double wght = 
          this->CalcWeightNorm(event) *
          this->CalcWeightZExp(event);
@@ -306,21 +318,33 @@ double GReWeightNuXSecCCQE::CalcWeight(const genie::EventRecord & event)
 //_______________________________________________________________________________________
 void GReWeightNuXSecCCQE::Init(void)
 {
-  AlgId id("genie::LwlynSmithQELCCPXSec","Default");
-
+  AlgConfigPool * conf_pool = AlgConfigPool::Instance();
+  Registry * gpl = conf_pool->GlobalParameterList();
+  RgAlg xsec_alg = gpl->GetAlg("XSecModel@genie::EventGenerator/QEL-CC");
+  
+  AlgId id(xsec_alg);
+  
+  AlgId twk_id(id);
+  if (fManualModelName.size()) {
+    twk_id = AlgId(fManualModelName,fManualModelType);
+  }
+  
   AlgFactory * algf = AlgFactory::Instance();
-
-  Algorithm * algdef = algf->AdoptAlgorithm(id);
-  fXSecModelDef = dynamic_cast<XSecAlgorithmI*>(algdef);
+  
+  Algorithm * alg_def = algf->AdoptAlgorithm(id);
+  fXSecModelDef = dynamic_cast<XSecAlgorithmI*>(alg_def);
   fXSecModelDef->AdoptSubstructure();
 
-  Algorithm * alg = algf->AdoptAlgorithm(id);
-  fXSecModel = dynamic_cast<XSecAlgorithmI*>(alg);
+  Algorithm * alg_twk = algf->AdoptAlgorithm(twk_id);
+  fXSecModel = dynamic_cast<XSecAlgorithmI*>(alg_twk);
   fXSecModel->AdoptSubstructure();
 
   fXSecModelConfig = new Registry(fXSecModel->GetConfig());
   fFFModel = fXSecModelConfig->GetAlg("FormFactorsAlg/AxialFormFactorModel").name;
-
+  
+  fModelIsDipole = (strcmp(fFFModel.c_str(),kModelDipole) == 0);
+  fModelIsZExp   = (strcmp(fFFModel.c_str(),kModelZExp  ) == 0);
+  
   this->RewNue    (true);
   this->RewNuebar (true);
   this->RewNumu   (true);
@@ -330,13 +354,13 @@ void GReWeightNuXSecCCQE::Init(void)
   this->SetMaPath("FormFactorsAlg/AxialFormFactorModel/QEL-Ma");
   this->SetZExpPath("FormFactorsAlg/AxialFormFactorModel/");
 
-  if (strcmp(fFFModel.c_str(),kModelDipole) == 0)
+  if (fModelIsDipole)
   {
     this->SetMode(kModeNormAndMaShape);
     fMaDef       = fXSecModelConfig->GetDouble(fMaPath);
     fZExpMaxCoef = 0;
   } else
-  if (strcmp(fFFModel.c_str(),kModelZExp) == 0)
+  if (fModelIsZExp)
   {
     this->SetMode(kModeZExp);
     fMaDef = 0.;
@@ -356,7 +380,7 @@ void GReWeightNuXSecCCQE::Init(void)
   {
     alg_key.str("");
     alg_key << fZExpPath << "QEL-Z_A" << i+1;
-    if (strcmp(fFFModel.c_str(),kModelZExp) == 0 && i < fZExpMaxCoef)
+    if (fModelIsZExp && i < fZExpMaxCoef)
     { fZExpDef[i] = fXSecModelConfig->GetDouble(alg_key.str()); }
     else
     { fZExpDef[i] = 0.; }
@@ -388,10 +412,26 @@ double GReWeightNuXSecCCQE::CalcWeightMa(const genie::EventRecord & event)
 
   interaction->KinePtr()->UseSelectedKinematics();
   interaction->SetBit(kIAssumeFreeNucleon);
-
+  
+  const KinePhaseSpace_t phase_space = kPSQ2fE;
+  
   double old_xsec   = event.DiffXSec();
+  if (!fUseOldWeightFromFile || fNWeightChecksDone < fNWeightChecksToDo) {
+    double calc_old_xsec = fXSecModelDef->XSec(interaction, phase_space);
+    if (fNWeightChecksDone < fNWeightChecksToDo) {
+      if (std::abs(calc_old_xsec - old_xsec)/old_xsec > controls::kASmallNum) {
+        LOG("ReW",pWARN) << "Warning - default dxsec does not match dxsec saved in tree. Does the config match?";
+        fFailedWeightCheck = true;
+      }
+      fNWeightChecksDone++;
+    }
+    if(!fUseOldWeightFromFile) {
+      old_xsec = calc_old_xsec;
+    }
+  }
+    
   double old_weight = event.Weight();
-  double new_xsec   = fXSecModel->XSec(interaction, kPSQ2fE);
+  double new_xsec   = fXSecModel->XSec(interaction, phase_space);
   double new_weight = old_weight * (new_xsec/old_xsec);
 
 //LOG("ReW", pDEBUG) << "differential cross section (old) = " << old_xsec;
@@ -401,7 +441,7 @@ double GReWeightNuXSecCCQE::CalcWeightMa(const genie::EventRecord & event)
 
   interaction->KinePtr()->ClearRunningValues();
   interaction->ResetBit(kIAssumeFreeNucleon);
-
+  
   return new_weight;
 }
 //_______________________________________________________________________________________
@@ -414,10 +454,24 @@ double GReWeightNuXSecCCQE::CalcWeightMaShape(const genie::EventRecord & event)
 
   interaction->KinePtr()->UseSelectedKinematics();
   interaction->SetBit(kIAssumeFreeNucleon);
+  
+  const KinePhaseSpace_t phase_space = kPSQ2fE;
 
   double old_xsec   = event.DiffXSec();
+  if (!fUseOldWeightFromFile || fNWeightChecksDone < fNWeightChecksToDo) {
+    double calc_old_xsec = fXSecModelDef->XSec(interaction, phase_space);
+    if (fNWeightChecksDone < fNWeightChecksToDo) {
+      if (std::abs(calc_old_xsec - old_xsec)/old_xsec > controls::kASmallNum) {
+        LOG("ReW",pWARN) << "Warning - default dxsec does not match dxsec saved in tree. Does the config match?";
+      }
+      fNWeightChecksDone++;
+    }
+    if(!fUseOldWeightFromFile) {
+      old_xsec = calc_old_xsec;
+    }
+  }
   double old_weight = event.Weight();
-  double new_xsec   = fXSecModel->XSec(interaction, kPSQ2fE);
+  double new_xsec   = fXSecModel->XSec(interaction, phase_space);
   double new_weight = old_weight * (new_xsec/old_xsec);
 
 //LOG("ReW", pDEBUG) << "differential cross section (old) = " << old_xsec;
@@ -461,10 +515,24 @@ double GReWeightNuXSecCCQE::CalcWeightZExp(const genie::EventRecord & event)
 
   interaction->KinePtr()->UseSelectedKinematics();
   interaction->SetBit(kIAssumeFreeNucleon);
-
+  
+  const KinePhaseSpace_t phase_space = kPSQ2fE;
+  
   double old_xsec   = event.DiffXSec();
+  if (!fUseOldWeightFromFile || fNWeightChecksDone < fNWeightChecksToDo) {
+    double calc_old_xsec = fXSecModelDef->XSec(interaction, phase_space);
+    if (fNWeightChecksDone < fNWeightChecksToDo) {
+      if (std::abs(calc_old_xsec - old_xsec)/old_xsec > controls::kASmallNum) {
+        LOG("ReW",pWARN) << "Warning - default dxsec does not match dxsec saved in tree. Does the config match?";
+      }
+      fNWeightChecksDone++;
+    }
+    if(!fUseOldWeightFromFile) {
+      old_xsec = calc_old_xsec;
+    }
+  }
   double old_weight = event.Weight();
-  double new_xsec   = fXSecModel->XSec(interaction, kPSQ2fE);
+  double new_xsec   = fXSecModel->XSec(interaction, phase_space);
   double new_weight = old_weight * (new_xsec/old_xsec);
 
   interaction->KinePtr()->ClearRunningValues();

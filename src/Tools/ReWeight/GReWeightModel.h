@@ -1,14 +1,14 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::rew::GReWeightI
+\class    genie::rew::GReWeightModel
 
-\brief    GENIE event reweighting engine ABC 
+\brief    GENIE event reweighting engine common parameters
 
-\author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab
+\author   Steve Dennis <s.r.dennis \at liverpool.ac.uk>
+          University of Liverpool
 
-\created  Aug 1, 2009
+\created  April 2018
 
 \cpright  Copyright (c) 2003-2018, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
@@ -16,11 +16,10 @@
 */
 //____________________________________________________________________________
 
-#ifndef _G_REWEIGHT_ABC_H_
-#define _G_REWEIGHT_ABC_H_
+#ifndef _G_REWEIGHT_MODEL_BASE_H_
+#define _G_REWEIGHT_MODEL_BASE_H_
 
-#include "Tools/ReWeight/GSyst.h"
-#include "Tools/ReWeight/GSystSet.h"
+#include "Tools/ReWeight/GReWeightI.h"
 
 namespace genie {
 
@@ -28,17 +27,11 @@ class EventRecord;
 
 namespace rew   {
 
- class GReWeightI 
+ class GReWeightModel : public GReWeightI
  {
  public:
-  virtual ~GReWeightI() 
-  { 
-
-  } 
-
-  //
-  // define the GReWeightI interface
-  //
+  GReWeightModel(std::string name);
+  ~GReWeightModel();
 
   //! does the current weight calculator handle the input nuisance param?
   virtual bool IsHandled (GSyst_t syst) = 0; 
@@ -56,17 +49,18 @@ namespace rew   {
   virtual double CalcWeight (const genie::EventRecord & event) = 0;
   
   //! Should we calculate the old weight ourselves, or use the one from the input tree? Default on.
-  virtual void UseOldWeightFromFile(bool) = 0;
+  virtual void UseOldWeightFromFile(bool);
   
   //! If using the weight from the file, how many times should we check by calculating it ourself?
-  virtual void SetNWeightChecks(int) = 0;
+  virtual void SetNWeightChecks(int);
 
  protected:
-
-   GReWeightI() 
-   { 
+   bool fUseOldWeightFromFile;
+   int  fNWeightChecksToDo;
+   int  fNWeightChecksDone;
+   bool fFailedWeightCheck;
    
-   }
+   std::string fName;
  };
 
 } // rew   namespace

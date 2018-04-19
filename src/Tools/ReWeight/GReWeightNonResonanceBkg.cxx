@@ -41,7 +41,8 @@ using namespace genie;
 using namespace genie::rew;
 
 //_______________________________________________________________________________________
-GReWeightNonResonanceBkg::GReWeightNonResonanceBkg() 
+GReWeightNonResonanceBkg::GReWeightNonResonanceBkg() :
+GReWeightModel("NonResonanceBkg")
 {
   this->Init();
 }

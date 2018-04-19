@@ -24,7 +24,7 @@
 
 //#define _G_REWEIGHT_DIS_DEBUG_
 
-#include "Tools/ReWeight/GReWeightI.h"
+#include "Tools/ReWeight/GReWeightModel.h"
 
 class TFile;
 class TNtupleD;
@@ -36,13 +36,14 @@ class Registry;
 
 namespace rew   {
 
- class GReWeightNuXSecDIS : public GReWeightI 
+ class GReWeightNuXSecDIS : public GReWeightModel 
  {
  public:
    static const int kModeABCV12u      = 0;
    static const int kModeABCV12uShape = 1;
 
    GReWeightNuXSecDIS();
+   GReWeightNuXSecDIS(std::string model, std::string type);
   ~GReWeightNuXSecDIS();
 
    // implement the GReWeightI interface
@@ -103,6 +104,9 @@ namespace rew   {
    string fBhtBYPath;       ///<
    string fCV1uBYPath;      ///<
    string fCV2uBYPath;      ///<
+ 
+   std::string fManualModelName; ///< If using a tweaked model that isn't the same as default, name
+   std::string fManualModelType; ///< If using a tweaked model that isn't the same as default, type
 
 #ifdef _G_REWEIGHT_DIS_DEBUG_
    TFile *    fTestFile;

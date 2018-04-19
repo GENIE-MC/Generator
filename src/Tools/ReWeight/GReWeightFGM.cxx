@@ -39,7 +39,7 @@ using namespace genie::utils;
 
 //_______________________________________________________________________________________
 GReWeightFGM::GReWeightFGM() :
-GReWeightI()
+GReWeightModel("FermiGasModel")
 {
   this->Init();
 }

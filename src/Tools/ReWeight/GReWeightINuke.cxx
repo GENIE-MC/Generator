@@ -54,7 +54,7 @@ using namespace genie::rew;
 
 //_______________________________________________________________________________________
 GReWeightINuke::GReWeightINuke() :
-GReWeightI()
+GReWeightModel("IntraNuke")
 {
 #ifdef _G_REWEIGHT_INUKE_DEBUG_NTP_
   fTestFile = new TFile("./intranuke_reweight_test.root","recreate");

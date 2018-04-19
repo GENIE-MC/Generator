@@ -23,13 +23,9 @@
 #ifndef _G_REWEIGHT_NU_XSEC_NCRES_H_
 #define _G_REWEIGHT_NU_XSEC_NCRES_H_
 
-#include <map>
 #include <string>
 
-using std::map;
-using std::string;
-
-#include "Tools/ReWeight/GReWeightI.h"
+#include "Tools/ReWeight/GReWeightModel.h"
 
 namespace genie {
 
@@ -38,13 +34,14 @@ class Registry;
 
 namespace rew   {
 
- class GReWeightNuXSecNCRES : public GReWeightI 
+ class GReWeightNuXSecNCRES : public GReWeightModel 
  {
  public:
    static const int kModeMaMv             = 0;
    static const int kModeNormAndMaMvShape = 1;
 
    GReWeightNuXSecNCRES();
+   GReWeightNuXSecNCRES(std::string model, std::string type);
   ~GReWeightNuXSecNCRES();
 
    // implement the GReWeightI interface
@@ -89,7 +86,10 @@ namespace rew   {
    double fMaCurr;       ///<
    double fMvTwkDial;    ///<
    double fMvDef;        ///<
-   double fMvCurr;       ///<
+   double fMvCurr;       ///<7
+   
+   std::string fManualModelName; ///< If using a tweaked model that isn't the same as default, name
+   std::string fManualModelType; ///< If using a tweaked model that isn't the same as default, type
 
  };
 

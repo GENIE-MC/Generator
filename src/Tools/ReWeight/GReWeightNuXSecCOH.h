@@ -22,13 +22,9 @@
 #ifndef _G_REWEIGHT_NU_XSEC_COH_H_
 #define _G_REWEIGHT_NU_XSEC_COH_H_
 
-#include <map>
 #include <string>
 
-#include "Tools/ReWeight/GReWeightI.h"
-
-using std::map;
-using std::string;
+#include "Tools/ReWeight/GReWeightModel.h"
 
 namespace genie {
 
@@ -37,10 +33,11 @@ class Registry;
 
 namespace rew   {
 
- class GReWeightNuXSecCOH : public GReWeightI 
+ class GReWeightNuXSecCOH : public GReWeightModel 
  {
  public:
    GReWeightNuXSecCOH();
+   GReWeightNuXSecCOH(std::string model, std::string type);
   ~GReWeightNuXSecCOH();
 
    // implement the GReWeightI interface
@@ -64,7 +61,8 @@ namespace rew   {
 
    void Init (void);
 
-   XSecAlgorithmI * fXSecModel;       ///<
+   XSecAlgorithmI * fXSecModel;       ///< tweaked model
+   XSecAlgorithmI * fXSecModelDef;    ///< default model
    Registry *       fXSecModelConfig; ///<
 
    bool   fRewNue;       ///< reweight nu_e?
@@ -81,6 +79,9 @@ namespace rew   {
    double fR0TwkDial;    ///<
    double fR0Def;        ///<
    double fR0Curr;       ///<
+   
+   std::string fManualModelName; ///< If using a tweaked model that isn't the same as default, name
+   std::string fManualModelType; ///< If using a tweaked model that isn't the same as default, type
 
  };
 

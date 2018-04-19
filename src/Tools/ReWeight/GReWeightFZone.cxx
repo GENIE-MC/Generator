@@ -40,7 +40,7 @@ using namespace genie::utils;
 
 //_______________________________________________________________________________________
 GReWeightFZone::GReWeightFZone() :
-GReWeightI()
+GReWeightModel("FormationZone")
 {
   this->Init();
 }

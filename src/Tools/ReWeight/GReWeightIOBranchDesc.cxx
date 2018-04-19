@@ -12,7 +12,7 @@ ClassImp(GReWeightIOBranchDesc)
 
 GReWeightIOBranchDesc::GReWeightIOBranchDesc( const std::string& name, 
                                               const double mean, 
-					      const double sigpls, const double sigmin )
+                                              const double sigpls, const double sigmin )
    : TObject()
 {
 
@@ -38,7 +38,7 @@ GReWeightIOBranchDesc::GReWeightIOBranchDesc( TRootIOCtor* )
 
 void GReWeightIOBranchDesc::SetParameter( const std::string& name, 
                                           const double mean, 
-					  const double sigpls, const double sigmin )
+                                          const double sigpls, const double sigmin )
 {
 
    fParameterName = name;

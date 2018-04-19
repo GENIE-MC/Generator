@@ -21,13 +21,9 @@
 
 //#define _G_REWEIGHT_NCEL_DEBUG_
 
-#include <map>
 #include <string>
 
-#include "Tools/ReWeight/GReWeightI.h"
-
-using std::map;
-using std::string;
+#include "Tools/ReWeight/GReWeightModel.h"
 
 class TFile;
 class TNtupleD;
@@ -39,10 +35,11 @@ class Registry;
 
 namespace rew   {
 
- class GReWeightNuXSecNCEL : public GReWeightI 
+ class GReWeightNuXSecNCEL : public GReWeightModel 
  {
  public:
    GReWeightNuXSecNCEL();
+   GReWeightNuXSecNCEL(std::string model, std::string type);
   ~GReWeightNuXSecNCEL();
 
    // implement the GReWeightI interface
@@ -80,6 +77,9 @@ namespace rew   {
    double fEtaTwkDial;    ///<
    double fEtaDef;        ///<
    double fEtaCurr;       ///<
+   
+   std::string fManualModelName; ///< If using a tweaked model that isn't the same as default, name
+   std::string fManualModelType; ///< If using a tweaked model that isn't the same as default, type
 
 #ifdef _G_REWEIGHT_NCEL_DEBUG_
    TFile *    fTestFile;

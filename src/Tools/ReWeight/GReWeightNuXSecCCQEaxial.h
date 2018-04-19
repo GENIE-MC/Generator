@@ -25,13 +25,9 @@
 
 //#define _G_REWEIGHT_CCQE_AXFF_DEBUG_
 
-#include <map>
 #include <string>
 
-#include "Tools/ReWeight/GReWeightI.h"
-
-using std::map;
-using std::string;
+#include "Tools/ReWeight/GReWeightModel.h"
 
 class TFile;
 class TNtupleD;
@@ -42,7 +38,7 @@ class XSecAlgorithmI;
 
 namespace rew   {
 
- class GReWeightNuXSecCCQEaxial : public GReWeightI 
+ class GReWeightNuXSecCCQEaxial : public GReWeightModel 
  {
  public:
    GReWeightNuXSecCCQEaxial();
@@ -66,7 +62,7 @@ namespace rew   {
 
    void Init (void);
 
-   XSecAlgorithmI * fXSecModel_dpl;   ///< CCQE model with dipole f/f (default)
+   XSecAlgorithmI * fXSecModelDef;   ///< Model loaded from the XML, with dipole FF
    XSecAlgorithmI * fXSecModel_zexp;  ///< CCQE model with z-expansion f/f ("maximally" tweaked)
 
    double fFFTwkDial;    ///< tweaking dial (0: bba/default, +1: dipole)

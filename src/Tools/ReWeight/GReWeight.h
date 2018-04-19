@@ -28,9 +28,6 @@
 #include "Tools/ReWeight/GSystSet.h"
 #include "Tools/ReWeight/GReWeightI.h"
 
-using std::string;
-using std::map;
-
 namespace genie {
 
 class EventRecord;
@@ -55,7 +52,7 @@ namespace rew   {
    void CleanUp (void);
 
    GSystSet                  fSystSet;   ///< set of enabled nuisance parameters
-   map<string, GReWeightI *> fWghtCalc;  ///< concrete weight calculators
+   std::map<std::string, GReWeightI *> fWghtCalc;  ///< concrete weight calculators
  };
 
 } // rew   namespace

@@ -27,8 +27,6 @@
 #include "Framework/ParticleData/PDGUtils.h"
 #include "Tools/ReWeight/GSyst.h"
 
-using std::map;
-
 class TLorentzVector;
 
 namespace genie {
@@ -92,10 +90,9 @@ namespace rew   {
      double ActualTwkDial   (GSyst_t s, double KE=-1.) const;  ///< actual tweaking dial for input systematic at input kinetic energy
 
      HadronType_t         fHadType;           ///<
-     map<GSyst_t, double> fSystValuesUser;    ///< List of systematics included & values set by the user
-     mutable 
-     map<GSyst_t, double> fSystValuesActual;  ///< List of systematics included & values actually used (user values limited to physical range)
-     map<GSyst_t, bool>   fIsCushion;         ///< cushion term flag
+     std::map<GSyst_t, double> fSystValuesUser;    ///< List of systematics included & values set by the user
+     mutable std:: map<GSyst_t, double> fSystValuesActual;  ///< List of systematics included & values actually used (user values limited to physical range)
+     std::map<GSyst_t, bool>   fIsCushion;         ///< cushion term flag
 
    }; // Fates nested class
 

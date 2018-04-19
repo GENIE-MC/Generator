@@ -24,7 +24,7 @@
 
 //#define _G_REWEIGHT_AGKY_DEBUG_
 
-#include "Tools/ReWeight/GReWeightI.h"
+#include "Tools/ReWeight/GReWeightModel.h"
 
 using namespace genie::rew;
 using namespace genie;
@@ -36,7 +36,7 @@ class TNtupleD;
 namespace genie {
 namespace rew   {
 
- class GReWeightAGKY : public GReWeightI 
+ class GReWeightAGKY : public GReWeightModel 
  {
  public:
    GReWeightAGKY();

@@ -27,7 +27,7 @@ using namespace genie::rew;
 
 //_______________________________________________________________________________________
 GReWeightDISNuclMod::GReWeightDISNuclMod() :
-GReWeightI()
+GReWeightModel("DISNuclMod")
 {
   this->Init();
 }
@@ -75,6 +75,8 @@ void GReWeightDISNuclMod::Reconfigure(void)
 //_______________________________________________________________________________________
 double GReWeightDISNuclMod::CalcWeight(const EventRecord & /*event*/) 
 { 
+  LOG("ReW",pFATAL) << "Not implemented.";
+  exit(-1);
   return 1.;
 }
 //_______________________________________________________________________________________

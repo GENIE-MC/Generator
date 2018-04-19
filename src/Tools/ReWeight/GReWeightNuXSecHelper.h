@@ -25,8 +25,6 @@
 #include "Framework/Interaction/ScatteringType.h"
 #include "Framework/EventGen/GEVGPool.h"
 
-using std::map;
-
 namespace genie {
 
 class EventRecord;
@@ -48,7 +46,7 @@ private:
    void Initialize();
 
    GEVGPool                                fGPool;             ///<
-   map<ScatteringType_t, KinePhaseSpace_t> fCrossSecModelPhSp; ///<
+   std::map<ScatteringType_t, KinePhaseSpace_t> fCrossSecModelPhSp; ///<
 };
 
 }      // rew   namespace

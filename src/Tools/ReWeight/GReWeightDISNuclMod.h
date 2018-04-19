@@ -22,7 +22,7 @@
 #ifndef _G_REWEIGHT_DISNUCLMOD_H_
 #define _G_REWEIGHT_DISNUCLMOD_H_
 
-#include "Tools/ReWeight/GReWeightI.h"
+#include "Tools/ReWeight/GReWeightModel.h"
 
 using namespace genie::rew;
 using namespace genie;
@@ -30,7 +30,7 @@ using namespace genie;
 namespace genie {
 namespace rew   {
 
- class GReWeightDISNuclMod : public GReWeightI 
+ class GReWeightDISNuclMod : public GReWeightModel 
  {
  public:
    GReWeightDISNuclMod();

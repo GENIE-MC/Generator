@@ -42,7 +42,7 @@ using namespace genie::constants;
 
 //_______________________________________________________________________________________
 GReWeightAGKY::GReWeightAGKY() :
-GReWeightI()
+GReWeightModel("AGKY")
 {
   this->Init();
 }

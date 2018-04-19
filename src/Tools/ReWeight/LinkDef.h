@@ -13,6 +13,7 @@
 #pragma link C++ class genie::rew::GSystInfo;
 #pragma link C++ class genie::rew::GSystUncertainty;
 #pragma link C++ class genie::rew::GReWeight;
+#pragma link C++ class genie::rew::GReWeightModel;
 #pragma link C++ class genie::rew::GReWeightINuke;
 #pragma link C++ class genie::rew::GReWeightINukeParams;
 #pragma link C++ class genie::rew::GReWeightINukeParams::Fates;
