@@ -5,37 +5,7 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab - May 12, 2005
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Jan 17, 2008 - CA
-   Re-wrote LoadFromXml() and switched from the tree-based libxml2 API to
-   the XmlTextReader API. That eliminates the need to load the whole XML file
-   in memory and is faster. Works much better with the large XML spline files
-   (~ 100 MB) used by MINOS.
- @ Jan 18, 2008 - CA
-   Change the way spline knots are distributed in the given energy range so 
-   that spline energy thresholds are handled more accurately. 
-   One of the knots is sitting on the energy threshold for each interaction, 
-   few knots are linearly spaced below threshold so that the spline behaves 
-   ok for E<Ethr, and the bulk of the knots is spaced linearly or 
-   logarithmically for E>Ethr.
- @ Jun 20, 2008 - CA
-   Fix a memory leak in LoadFromXml(). Arrays were not deleted after splines
-   instantiation. Also xmlChar* buffers got via xmlTextReaderGetAttribute()
-   were not passed to xmlFree().
- @ Dec 06, 2008 - CA
-   Tweak dtor so as not to clutter the output if GENIE exits in err so as to
-   spot the fatal mesg immediately.
- @ Feb 25, 2010 - CA
-   Exit immediately if the file pointed to by GSPLOAD isn't accessible.
- @ Sep 26, 2010 - CA
-   Demote a few messages.
- @ Jan 24, 2013 - CA
-   Use of variables $GSPLOAD and $GSPSAVE is no longer supported.
-
+         University of Liverpool & STFC Rutherford Appleton Lab 
 */
 //____________________________________________________________________________
 
@@ -46,7 +16,6 @@
 #include "libxml/xmlmemory.h"
 #include "libxml/xmlreader.h"
 
-#include <TSystem.h>
 #include <TMath.h>
 #include <TLorentzVector.h>
 
@@ -86,8 +55,6 @@ XSecSplineList::XSecSplineList()
 XSecSplineList::~XSecSplineList()
 {
 // Clean up. Don't clutter output if exiting in err.
-
-  this->AutoSave();
 
   map<string, Spline *>::const_iterator spliter;
   for(spliter = fSplineMap.begin(); spliter != fSplineMap.end(); ++spliter) {
@@ -570,57 +537,6 @@ string XSecSplineList::BuildSplineKey(
   return key;
 }
 //____________________________________________________________________________
-bool XSecSplineList::AutoLoad(void)
-{
-/*
-<disabled 24/01/13>
-
-// Checks the $GSPLOAD env. variable and if found set reads the cross splines
-// from the XML file it points to.
-// Returns true if $GSPLOAD was set and splines were read / false otherwise.
-
-  if( gSystem->Getenv("GSPLOAD") ) {
-
-     string xmlfile = gSystem->Getenv("GSPLOAD");
-     SLOG("XSecSplLst", pINFO) << "$GSPLOAD env.var = " << xmlfile;
-
-     bool is_accessible = ! (gSystem->AccessPathName(xmlfile.c_str()));
-
-     if(is_accessible) {
-       SLOG("XSecSplLst", pINFO) << "Loading cross section splines";
-       XmlParserStatus_t status = this->LoadFromXml(xmlfile);
-       assert(status==kXmlOK);
-       return true;
-     } else {
-       LOG("XSecSplLst", pFATAL)
-         << "Specified XML file [" << xmlfile << "] is not accessible!";
-       gAbortingInErr = true;
-       exit(1);       
-       return false;
-     }
-  }
-  SLOG("XSecSplLst", pNOTICE)
-      << "$GSPLOAD was not defined! No cross section splines will be loaded";
-  return false;
-*/
-
-  if( gSystem->Getenv("GSPLOAD") ) {
-     LOG("XSecSplLst", pFATAL)
-      << "\n\n"
-      << "********************************************************************************************** \n"
-      << "The pre-computed cross-section data file can no longer be specified via the $GSPLOAD variable. \n"
-      << "Please use the command-line option (typically --cross-sections) implemented in all GENIE apps \n"
-      << "or, if in your user code you access XSecSplineList directly, use the \n"
-      << "`XmlParserStatus_t XSecSplineList::LoadFromXml(string filename, bool keep)' method. \n"
-      << "Unset $GSPLOAD to continue running GENIE. \n"
-      << "********************************************************************************************** \n";
-    gAbortingInErr = true;
-    exit(1);
-  }
-
-  return true;
-}
-//____________________________________________________________________________
 const vector<string> * XSecSplineList::GetSplineKeys(void) const
 {
   vector<string> * keyv = new vector<string>(fSplineMap.size());
@@ -632,25 +548,6 @@ const vector<string> * XSecSplineList::GetSplineKeys(void) const
     (*keyv)[i++]=key;
   }
   return keyv;
-}
-//____________________________________________________________________________
-void XSecSplineList::AutoSave(void)
-{
-/*
-<disabled 24/01/13>
-
-// Checks whether the $GSPSAVE env. variable and if found set it saves the
-// cross section splines at the XML file this variable points to.
-// You do not need to invoke this method (just set the env. variable). The
-// method would be automatically called before the singleton destroys itself.
-
-  if( gSystem->Getenv("GSPSAVE") ) {
-     string xmlfile = gSystem->Getenv("GSPSAVE");
-     cout << "Saving cross section splines to file: " << xmlfile << endl;
-     this->SaveAsXml(xmlfile);
-  }
-*/
-
 }
 //____________________________________________________________________________
 void XSecSplineList::Print(ostream & stream) const

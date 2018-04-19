@@ -5,14 +5,7 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab -
-
- For documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Jan 31, 2013 - CA
-   Added in preparation for v2.8.0
-
+         University of Liverpool & STFC Rutherford Appleton Lab 
 */
 //____________________________________________________________________________
 
@@ -48,7 +41,6 @@ void genie::utils::app_init::XSecTable (string inpfile, bool require_table)
   // Load cross-section splines using file specified at the command-line.
 
   XSecSplineList * xspl = XSecSplineList::Instance();
-  xspl->AutoLoad(); // display warning for usage $GSPLOAD no longer supported
 
   // don't try to expand if no filename actually given ...
   string expandedinpfile = "";

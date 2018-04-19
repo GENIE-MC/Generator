@@ -76,10 +76,6 @@ public:
   void               SaveAsXml   (string filename, bool save_init = true) const;
   XmlParserStatus_t  LoadFromXml (string filename, bool keep = false);
 
-  // Autosave/autoload
-  bool AutoLoad (void);
-  void AutoSave (void);
-
   // Methods for building / getting keys
   string BuildSplineKey(const XSecAlgorithmI * alg, const Interaction * i) const;
   const vector<string> * GetSplineKeys(void) const;
