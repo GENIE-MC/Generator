@@ -548,11 +548,6 @@ void GMCJDriver::InitJob(void)
   assert( Messenger::Instance()     );
   assert( AlgConfigPool::Instance() );
 
-  // Autoload splines (from the XML file pointed at the $GSPLOAD env. var.,
-  // if the env. var. has been set);
-  XSecSplineList * xspl = XSecSplineList::Instance();
-  xspl->AutoLoad();
-
   // Clear the target and neutrino lists
   fNuList.clear();
   fTgtList.clear();
