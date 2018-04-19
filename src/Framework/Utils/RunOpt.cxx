@@ -78,8 +78,7 @@ void RunOpt::Init(void)
   fMCJobStatusRefreshRate = 50;
   fEventRecordPrintLevel  = 3;
   fEventGeneratorList     = "Default";
-  fCGC                    = "G00_00a";
-  fTune                   = "" ;
+  fTune                   = 0 ;
 }
 //____________________________________________________________________________
 void RunOpt::ReadFromCommandLine(int argc, char ** argv)
@@ -115,52 +114,10 @@ void RunOpt::ReadFromCommandLine(int argc, char ** argv)
   }
 
   if( parser.OptionExists("tune") ) {
-
-    string tune = parser.ArgAsString("tune");
-
-    //the structure of the tunes names is fixed, see http://tunes.genie-mc.org/
-    // e.g. G00_00a or G18_10j_PP_xxx
-    size_t tlen = tune.size();
-    string cgc( tune, 0, std::min(tlen,(size_t)7) );
-    string temp_tune = "";
-    if ( tlen > 8 ) temp_tune = string( tune, 8 );
-
-    LOG("RunOpt", pINFO) << " Requested tune " << tune << " for CGC " << cgc ;
-
-    string path = std::getenv( "GENIE" ) ;
-    path += "/config/" + cgc ;
-
-    LOG("RunOpt", pINFO) << " Testing  " << path << " directory" ;
-    assert( utils::system::DirectoryExists( path.c_str() ) );
-
-    fCGC  = cgc ;
-    LOG("RunOpt", pINFO) << " Comprehensive configuration " << cgc << " set" ;
-
-    if ( tlen > 7 && temp_tune != "00_000" ) {
-
-      path += '/' + tune ;
-
-      LOG("RunOpt", pINFO) << " Testing  " << path << " subdirectory" ;
-      assert( utils::system::DirectoryExists( path.c_str() ) );
-      LOG("RunOpt", pINFO) << " Tune " << tune << " set" ;
-
-      fTune = tune ;
-
-    }
-
-  }  // if( parser.OptionExists("tune") )
+    fTune = new TuneId( parser.ArgAsString("tune") ) ;
+  }
   else {
-
-    string cgc( "G00_00a" ) ;
-
-    string path = std::getenv( "GENIE" ) ;
-    path += "/config/" + cgc ;
-
-    assert( utils::system::DirectoryExists( path.c_str() ) );
-
-    fCGC  = cgc  ;
-    LOG("RunOpt", pINFO) << " Comprehensive configuration " << cgc << " set" ;
-
+    fTune = new TuneId( "G00_00a_00_000" ) ;
   }// else ( parser.OptionExists("tune") )
 
   if( parser.OptionExists("unphysical-event-mask") ) {
@@ -180,8 +137,7 @@ void RunOpt::ReadFromCommandLine(int argc, char ** argv)
 void RunOpt::Print(ostream & stream) const
 {
   stream << "Global running options:";
-  stream << "\n GENIE CGC: " << fCGC;
-  stream << "\n GENIE tune: " << fTune;
+  stream << "\n GENIE tune: " << *fTune;
   stream << "\n Event generator list: " << fEventGeneratorList;
   stream << "\n User-specified message thresholds : " << fMesgThresholds;
   stream << "\n Cache file : " << fCacheFile;

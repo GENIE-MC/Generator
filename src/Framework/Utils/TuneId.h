@@ -25,8 +25,6 @@
 #include <string>
 #include <iostream>
 
-#include <TObject.h>
-
 using std::string;
 using std::ostream;
 
@@ -37,15 +35,11 @@ ostream & operator << (ostream & stream, const TuneId & id);
 bool      operator == (const TuneId & id1, const TuneId & id2);
 bool      operator != (const TuneId & id1, const TuneId & id2);
 
-class TuneId: public TObject {
+class TuneId  {
 
 public:
-  using TObject::Copy;    // Suppress clang 'hides overloaded virtual function [-Woverloaded-virtual]' warnings
-  using TObject::Compare; // Ditto
-  using TObject::Print;   // Ditto
 
-  TuneId();
-  TuneId(string id_str);
+  TuneId(const string & id_str);
   TuneId(const TuneId & id);
  ~TuneId();
 
@@ -59,6 +53,16 @@ public:
   string TunedParamSetId (void) const { return fTunedParamSetId;              } // PP
   string FitDataSetId    (void) const { return fFitDataSetId;                 } // xxx
  
+  // A tune can be a simple configuration of models or the ouput of a complete tuning procedure
+  // This changes the position the tune files are stored so we need a quick way to know this
+  bool   OnlyConfiguration()   const  { return TunedParamSetId() == "00" ; }
+
+  // Methods related to config directory
+  string CGC             (void) const ;   // Comprehensive Global Confguration
+  string Tail            (void) const ;
+  string CGCDirectory    (void) const ;   
+  string TuneDirectory   (void) const ;   
+  
   void   Decode  (string id_str);
   void   Copy    (const TuneId & id);
   bool   Compare (const TuneId & id) const;
@@ -68,9 +72,12 @@ public:
 
 private:
 
-  void Init (void);
+  TuneId() {;}
+
+  bool CheckDirectory() ;
 
   string fName;
+
   string fPrefix;
   string fYear;
   string fModelId;
@@ -78,6 +85,9 @@ private:
   string fMinorModelId;
   string fTunedParamSetId; 
   string fFitDataSetId;
+
+  string fBaseDirectory ;
+
 };
 
 }       // genie namespace

@@ -77,7 +77,7 @@ namespace xml   {
 #endif
 
   //_________________________________________________________________________
-  inline string GetXMLPathList()   {
+  inline string GetXMLPathList( bool add_tune = true )   {
 
     // Get a colon separated list of potential locations for xml files
     // e.g. ".:$MYSITEXML:/path/to/exp/version:$GALGCONF:$GENIE/config"
@@ -93,30 +93,13 @@ namespace xml   {
     const char* p3 = std::getenv( "GALGCONF" );
     if ( p3 ) { pathlist = std::string(p3) + ":" ; }
 
-    std::string tune = RunOpt::Instance() -> Tune() ;
-    if ( ! tune.empty() ) {
-    	std::string path_to_tune = std::getenv( "GENIE" ) ;
+    if ( add_tune ) {
 
-    	if ( path_to_tune[path_to_tune.length()-1] != '/' )
-    		path_to_tune += '/' ;
+      if ( ! RunOpt::Instance() -> Tune().OnlyConfiguration() )
+        pathlist += RunOpt::Instance() -> Tune().TuneDirectory() + ":" ;
 
-    	path_to_tune += "config/" ;
+      pathlist += RunOpt::Instance() -> Tune().CGCDirectory()  + ':' ;
 
-    	path_to_tune += RunOpt::Instance() -> CGC() + '/' + tune ;
-    	pathlist += path_to_tune + ':' ;
-    }
-
-    std::string cgc = RunOpt::Instance() -> CGC() ;
-    if ( ! cgc.empty() ) {
-       	std::string path_to_conf = std::getenv( "GENIE" ) ;
-
-       	if ( path_to_conf[path_to_conf.length()-1] != '/' )
-       		path_to_conf += '/' ;
-
-       	path_to_conf += "config/" ;
-
-       	path_to_conf += RunOpt::Instance() -> CGC() ;
-       	pathlist += path_to_conf + ':' ;
     }
 
     pathlist += "$GENIE/config";  // standard path in case no env
