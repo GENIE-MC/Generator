@@ -537,7 +537,7 @@ Registry * AlgConfigPool::FindRegistry(string key) const
                                                    fRegistryPool.find(key);
      return config_entry->second;
   } else {
-     LOG("AlgConfigPool", pWARN) << "No config registry for key " << key;
+     LOG("AlgConfigPool", pDEBUG) << "No config registry for key " << key;
      return 0;
   }
   return 0;
