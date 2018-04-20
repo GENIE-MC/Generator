@@ -542,7 +542,7 @@ void XSecSplineList::Print(ostream & stream) const
   stream << "\n  |-----o  Spline NKnots............." << fEmax;
   stream << "\n  |";
 
-  map<string, map<string, Spline *>>::const_iterator mm_iter;
+  map<string, map<string, Spline *> >::const_iterator mm_iter;
   for(mm_iter = fSplineMap.begin(); mm_iter != fSplineMap.end(); ++mm_iter) {
 
     string curr_tune = mm_iter->first;
