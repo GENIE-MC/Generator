@@ -136,7 +136,7 @@ bool TuneId::Compare(const TuneId & id) const
 //____________________________________________________________________________
 void TuneId::Print(ostream & stream) const
 {
-  stream << " GENIE tune: " << std::endl;
+  stream << (IsCustom() ? "Custom" : "Standard") << " GENIE tune: "   << std::endl;
   stream << " - Prefix ............... : " << this->Prefix()          << std::endl;
   stream << " - Year ................. : " << this->Year()            << std::endl;
   stream << " - Major model ID ....... : " << this->MajorModelId()    << std::endl;
@@ -144,12 +144,21 @@ void TuneId::Print(ostream & stream) const
   stream << " - Tuned param set ID ... : " << this->TunedParamSetId() << std::endl;
   stream << " - Fit dataset ID ....... : " << this->FitDataSetId()    << std::endl;
   stream << " - Tune directory ....... : " << this->fBaseDirectory    << std::endl;
+  if ( IsCustom() )
+    stream << " - Custom directory ..... : " << this -> fCustomSource   << std::endl;
 }
 //____________________________________________________________________________
 bool TuneId::CheckDirectory() {
 
-  std::string pathlist = genie::utils::xml::GetXMLPathList(false) ;
-  std::vector<std::string> paths = genie::utils::str::Split(pathlist,":;,");
+  std::string pathlist = utils::xml::GetXMLPathList(false) ;
+  std::vector<std::string> paths = utils::str::Split(pathlist,":;,");
+
+  string top_path = gSystem->ExpandPathName( paths[0].c_str() ) ;
+  string def_path = gSystem->ExpandPathName( utils::xml::GetXMLDefaultPath().c_str() ) ;
+
+  if ( top_path != def_path ) {
+    fCustomSource = top_path ;
+  }
 
   fBaseDirectory = "" ;
   LOG("TuneId",pDEBUG) << "Base dir validation " ;

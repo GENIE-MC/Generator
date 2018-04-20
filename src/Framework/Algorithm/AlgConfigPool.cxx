@@ -44,6 +44,8 @@
 #include "Framework/Registry/RegistryItemTypeDef.h"
 #include "Framework/Utils/XmlParserUtils.h"
 
+#include "Framework/Utils/StringUtils.h"
+
 using std::setw;
 using std::setfill;
 using std::endl;

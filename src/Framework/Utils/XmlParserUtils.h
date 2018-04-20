@@ -33,7 +33,6 @@
 #include <TVectorT.h>
 
 #include "Framework/Utils/StringUtils.h"
-#include "Framework/Utils/RunOpt.h"
 
 
 class TFile;
@@ -67,11 +66,14 @@ namespace xml   {
 #endif
 
   //_________________________________________________________________________
-  inline string GetXMLPathList( bool add_tune = true ) ;
+  string GetXMLPathList( bool add_tune = true ) ;
   // Get a colon separated list of potential locations for xml files
   // e.g. ".:$MYSITEXML:/path/to/exp/version:$GALGCONF:$GENIE/config"
   // user additions should be in $GXMLPATH
 
+  //_________________________________________________________________________
+  inline string GetXMLDefaultPath() { return "$GENIE/config" ; }
+  //standard path in case no env variable are set
 
   //_________________________________________________________________________
   string GetXMLFilePath(string basename) ;

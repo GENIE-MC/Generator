@@ -31,6 +31,8 @@
 #include "Framework/Utils/PrintUtils.h"
 #include "Framework/Numerical/MathUtils.h"
 #include "Framework/Utils/XmlParserUtils.h"
+#include "Framework/Utils/StringUtils.h"
+
 
 using std::ofstream;
 using std::setw;

@@ -54,8 +54,17 @@ public:
   string TunedParamSetId (void) const { return fTunedParamSetId;              } // PP
   string FitDataSetId    (void) const { return fFitDataSetId;                 } // xxx
  
-  bool   IsConfigured    (void) const { return (fPrefix.size() > 0) ;           }
-  bool   IsValidated     (void) const { return (fBaseDirectory.size() > 0) ;    }
+
+  bool   IsConfigured    (void) const { return fPrefix.size() > 0 ;           }
+  // this is true if the name of the tune has been decoded into its parts
+
+  bool   IsValidated     (void) const { return fBaseDirectory.size() > 0 ;    }
+  // this is true if the existence of the tune directory in the system has been checked
+
+  bool   IsCustom        (void) const { return fCustomSource.size() > 0 ;     }
+  // this check if the configuration had a GXMLPATH configuration that took priority
+  // over the standard $GXMLPATH
+  // This boolean is reliable only if IsValidated() is true
 
   // A tune can be a simple configuration of models or the ouput of a complete tuning procedure
   // This changes the position the tune files are stored so we need a quick way to know this
@@ -90,6 +99,7 @@ private:
   string fFitDataSetId;
 
   string fBaseDirectory ;
+  string fCustomSource  ;
 
 };
 

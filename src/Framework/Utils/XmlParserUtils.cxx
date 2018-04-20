@@ -22,6 +22,10 @@
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Utils/XmlParserUtils.h"
 
+#include "Framework/Utils/StringUtils.h"
+#include "Framework/Utils/RunOpt.h"
+
+
 using std::ostringstream;
 
 string genie::utils::xml::TrimSpaces(xmlChar * xmls) {
@@ -82,7 +86,7 @@ string genie::utils::xml::GetXMLPathList( bool add_tune )   {
     }  //tune not set in run option
   }  // requested tune
 
-  pathlist += "$GENIE/config";  // standard path in case no env
+  pathlist += GetXMLDefaultPath() ;  // standard path in case no env
   pathlist += ":$GENIE/src/FluxDrivers/GNuMINtuple";  // special case
 
   return pathlist;
