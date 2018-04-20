@@ -235,6 +235,25 @@ void XSecSplineList::CreateSpline(const XSecAlgorithmI * alg,
   spl_map_curr_tune.insert( map<string, Spline *>::value_type(key, spline) );
 }
 //____________________________________________________________________________
+int XSecSplineList::NSplines(void) const
+{
+  map<string,  map<string, Spline *> >::const_iterator //
+  mm_iter = fSplineMap.find(fCurrentTune);
+  if(mm_iter == fSplineMap.end()) {
+    SLOG("XSecSplLst", pWARN)
+       << "No splines for tune " << fCurrentTune << " were found!";
+    return 0;
+  }
+  const map<string, Spline *> & spl_map_curr_tune = mm_iter->second;
+  return (int) spl_map_curr_tune.size();
+}
+//____________________________________________________________________________
+bool XSecSplineList::IsEmpty(void) const
+{
+  int n = this->NSplines();
+  return (n == 0);
+}
+//____________________________________________________________________________
 void XSecSplineList::SetLogE(bool on)
 {
   fUseLogE = on;

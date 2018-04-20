@@ -71,17 +71,14 @@ public:
   const Spline * GetSpline    (string spline_key) const;
   void           CreateSpline (const XSecAlgorithmI * alg, const Interaction * i,
                                int nknots = -1, double e_min = -1, double e_max = -1);
+  int  NSplines (void) const;
+  bool IsEmpty  (void) const;
 
   // Methods for building / getting keys
   // The results of the following methods depend on the current tune setting
   string BuildSplineKey(const XSecAlgorithmI * alg, const Interaction * i) const;
   const vector<string> * GetSplineKeys(void) const;
 
-/*
-  // removed - I think they were unused and, if re-instated, need to depend on the current tune
-  //  int    NSplines (void) const;
-  //  bool   IsEmpty  (void) const;
-*/
 
   // XSecSplineList options
   void   SetLogE   (bool   on); ///< set opt to build splines as f(E) or as f(logE)
