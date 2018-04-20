@@ -60,7 +60,7 @@ public:
   // Set and query current tune.
   // An XSecSplineList can keep splines for numerous tunes and pick the appropriate
   // one for each process, as instructed. 
-  void   SetCurrentTune (string tune) { fCurrentTune = tune; }
+  void   SetCurrentTune (const string & tune) { fCurrentTune = tune; }
   string CurrentTune    (void) const  { return fCurrentTune; }
 
   // Query the existence, access or create a spline

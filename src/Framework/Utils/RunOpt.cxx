@@ -26,7 +26,9 @@
 #include "Framework/Utils/CmdLnArgParser.h"
 #include "Framework/Utils/RunOpt.h"
 #include "Framework/Utils/SystemUtils.h"
+#include "Framework/Utils/XSecSplineList.h"
 #include "Framework/Messenger/Messenger.h"
+
 
 using std::cout;
 using std::endl;
@@ -118,6 +120,9 @@ void RunOpt::ReadFromCommandLine(int argc, char ** argv)
   else {
     fTune.Build( "G00_00a_00_000" ) ;
   }// else ( parser.OptionExists("tune") )
+
+  //after having a tune set up, we can tell the splines what to load
+  XSecSplineList::Instance() -> SetCurrentTune( fTune.Name() ) ;
 
   if( parser.OptionExists("unphysical-event-mask") ) {
     const char * bitfield =
