@@ -39,9 +39,10 @@ class TuneId  {
 
 public:
 
-  TuneId(const string & id_str);
+  TuneId() {;}
+  TuneId(const string & id_str) : fName(id_str) { Build(); }
   TuneId(const TuneId & id);
- ~TuneId();
+ ~TuneId() {;}
 
   // The typical tune name in neutrino mode is : Gdd_MMv_PP_xxx
   string Name            (void) const { return fName;                         } // Gdd_MMv_PP_xxx
@@ -53,9 +54,12 @@ public:
   string TunedParamSetId (void) const { return fTunedParamSetId;              } // PP
   string FitDataSetId    (void) const { return fFitDataSetId;                 } // xxx
  
+  bool   IsConfigured    (void) const { return (fPrefix.size() > 0) ;           }
+  bool   IsValidated     (void) const { return (fBaseDirectory.size() > 0) ;    }
+
   // A tune can be a simple configuration of models or the ouput of a complete tuning procedure
   // This changes the position the tune files are stored so we need a quick way to know this
-  bool   OnlyConfiguration()   const  { return TunedParamSetId() == "00" ; }
+  bool   OnlyConfiguration()   const  { return (TunedParamSetId() == "00") ; }
 
   // Methods related to config directory
   string CGC             (void) const ;   // Comprehensive Global Confguration
@@ -63,6 +67,7 @@ public:
   string CGCDirectory    (void) const ;   
   string TuneDirectory   (void) const ;   
   
+  void   Build   (const string & name = "" ) ;
   void   Decode  (string id_str);
   void   Copy    (const TuneId & id);
   bool   Compare (const TuneId & id) const;
@@ -71,8 +76,6 @@ public:
   friend ostream & operator << (ostream & stream, const TuneId & id);
 
 private:
-
-  TuneId() {;}
 
   bool CheckDirectory() ;
 

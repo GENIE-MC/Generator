@@ -78,7 +78,6 @@ void RunOpt::Init(void)
   fMCJobStatusRefreshRate = 50;
   fEventRecordPrintLevel  = 3;
   fEventGeneratorList     = "Default";
-  fTune                   = 0 ;
 }
 //____________________________________________________________________________
 void RunOpt::ReadFromCommandLine(int argc, char ** argv)
@@ -114,10 +113,10 @@ void RunOpt::ReadFromCommandLine(int argc, char ** argv)
   }
 
   if( parser.OptionExists("tune") ) {
-    fTune = new TuneId( parser.ArgAsString("tune") ) ;
+    fTune.Build( parser.ArgAsString("tune") ) ;
   }
   else {
-    fTune = new TuneId( "G00_00a_00_000" ) ;
+    fTune.Build( "G00_00a_00_000" ) ;
   }// else ( parser.OptionExists("tune") )
 
   if( parser.OptionExists("unphysical-event-mask") ) {
@@ -137,7 +136,7 @@ void RunOpt::ReadFromCommandLine(int argc, char ** argv)
 void RunOpt::Print(ostream & stream) const
 {
   stream << "Global running options:";
-  stream << "\n GENIE tune: " << *fTune;
+  stream << "\n GENIE tune: " << fTune;
   stream << "\n Event generator list: " << fEventGeneratorList;
   stream << "\n User-specified message thresholds : " << fMesgThresholds;
   stream << "\n Cache file : " << fCacheFile;

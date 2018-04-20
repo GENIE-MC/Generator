@@ -595,7 +595,7 @@ void GetCommandLineArgs(int argc, char ** argv)
       exit(0);
   }
 
-  if ( ! parser.OptionExists('tune') ) {
+  if ( ! parser.OptionExists("tune") ) {
     LOG("gevgen_dm", pFATAL) << "No Dark Matter tune selected, please select one ";
     LOG("gevgen_dm", pFATAL) << "Exiting ";
     exit( 0 ) ;

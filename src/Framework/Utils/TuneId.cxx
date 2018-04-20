@@ -46,20 +46,6 @@ namespace genie
   }
 }
 //____________________________________________________________________________
-TuneId::TuneId(const string & id_str) :
-  fName(id_str)
-{
-  this -> Decode(id_str);
-
-  if ( this -> CheckDirectory() ) {
-    LOG("TuneId", pINFO) << Name() <<" Tune configured " ;
-  }
-  else {
-    LOG("TuneId", pFATAL) << "No valid tune directory associated with " << Name() ;
-    exit(0) ;
-  }
-}
-//____________________________________________________________________________
 TuneId::TuneId(const TuneId & id) 
 {
   this->Copy(id);
@@ -67,11 +53,6 @@ TuneId::TuneId(const TuneId & id)
   if ( ! CheckDirectory() ) {
     LOG("TuneId", pWARN) << "No valid subdirectory associated with " << Name() ;
   }
-}
-//____________________________________________________________________________
-TuneId::~TuneId()
-{
-
 }
 //____________________________________________________________________________
 string TuneId::CGC(void) const {
@@ -108,13 +89,28 @@ string TuneId::TuneDirectory   (void) const {
   return dir ;
 }
 //____________________________________________________________________________
+void TuneId::Build(const string & name ) {
+
+  if ( name.size() > 0 ) fName = name ;
+
+  this -> Decode( fName );
+
+  if ( this -> CheckDirectory() ) {
+    LOG("TuneId", pINFO) << Name() <<" Tune configured " ;
+  }
+  else {
+    LOG("TuneId", pFATAL) << "No valid tune directory associated with " << Name() ;
+    exit(0) ;
+  }
+}
+//____________________________________________________________________________
 void TuneId::Decode(string id_str)
 {
 
   std::vector<string> parts = utils::str::Split( id_str, "_" ) ;
 
-  this -> fPrefix        = parts[0].substr( parts[0].size()-2 ) ;
-  this -> fYear          = parts[0].substr( 0, parts[0].size()-2 ) ;
+  this -> fPrefix        = parts[0].substr( 0, parts[0].size()-2 ) ;
+  this -> fYear          = parts[0].substr( parts[0].size()-2 ) ;
   this -> fMajorModelId  = parts[1].substr( 0, 2 ) ;
   this -> fMinorModelId  = parts[1].substr( 2 ) ;
   this->fTunedParamSetId = parts[2] ;
@@ -147,6 +143,7 @@ void TuneId::Print(ostream & stream) const
   stream << " - Minor model ID ....... : " << this->MinorModelId()    << std::endl;
   stream << " - Tuned param set ID ... : " << this->TunedParamSetId() << std::endl;
   stream << " - Fit dataset ID ....... : " << this->FitDataSetId()    << std::endl;
+  stream << " - Tune directory ....... : " << this->fBaseDirectory    << std::endl;
 }
 //____________________________________________________________________________
 bool TuneId::CheckDirectory() {
@@ -155,6 +152,7 @@ bool TuneId::CheckDirectory() {
   std::vector<std::string> paths = genie::utils::str::Split(pathlist,":;,");
 
   fBaseDirectory = "" ;
+  LOG("TuneId",pDEBUG) << "Base dir validation " ;
 
   for ( size_t i=0; i< paths.size(); ++i ) {
      const char* tmppath = paths[i].c_str();
@@ -178,6 +176,8 @@ bool TuneId::CheckDirectory() {
       return false ;
     }
   }
+
+  LOG("TuneId",pDEBUG) << fBaseDirectory ;
 
   return true ;
 }
