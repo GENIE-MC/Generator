@@ -100,6 +100,8 @@ int main(int argc, char ** argv)
     assert(ist==kXmlOK);
   }
 
+  LOG("gspladd",pDEBUG) << *xspl ;
+
   LOG("gspladd", pNOTICE) 
      << " ****** Saving all loaded splines into : " << gOutFile;
   xspl->SaveAsXml(gOutFile);

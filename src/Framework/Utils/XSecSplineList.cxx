@@ -92,6 +92,12 @@ bool XSecSplineList::SplineExists(
 //____________________________________________________________________________
 bool XSecSplineList::SplineExists(string key) const
 {
+
+  if ( fCurrentTune.size() == 0 ) {
+    SLOG("XSecSplLst", pERROR) << "Spline requested while CurrentTune not set" ;
+    return false ;
+  }
+
   SLOG("XSecSplLst", pDEBUG) 
     << "Checking for spline: " << key << " in tune: " << fCurrentTune;
 
@@ -118,6 +124,12 @@ const Spline * XSecSplineList::GetSpline(
 //____________________________________________________________________________
 const Spline * XSecSplineList::GetSpline(string key) const
 {
+
+  if ( fCurrentTune.size() == 0 ) {
+    SLOG("XSecSplLst", pFATAL) << "Spline requested while CurrentTune not set" ;
+    exit(0) ;
+  }
+
   SLOG("XSecSplLst", pDEBUG) 
     << "Getting spline: " << key << " in tune: " << fCurrentTune;
 
@@ -275,7 +287,7 @@ void XSecSplineList::SetMaxE(double Ev)
   if(Ev>0) fEmax = Ev;
 }
 //____________________________________________________________________________
-void XSecSplineList::SaveAsXml(string filename, bool save_init) const
+void XSecSplineList::SaveAsXml(const string & filename, bool save_init) const
 {
 //! Save XSecSplineList to XML file
 
@@ -318,7 +330,7 @@ void XSecSplineList::SaveAsXml(string filename, bool save_init) const
       // new output file or not
       bool from_init_set = false;
       map<string, set<string> >::const_iterator //\/
-      it = fLoadedSplineSet.find(fCurrentTune);
+      it = fLoadedSplineSet.find(tune_name);
       if(it != fLoadedSplineSet.end()) {
          const set<string> & init_set_curr_tune = it->second;
          from_init_set = (init_set_curr_tune.count(key) == 1);
@@ -338,7 +350,7 @@ void XSecSplineList::SaveAsXml(string filename, bool save_init) const
   outxml.close();
 }
 //____________________________________________________________________________
-XmlParserStatus_t XSecSplineList::LoadFromXml(string filename, bool keep)
+XmlParserStatus_t XSecSplineList::LoadFromXml(const string & filename, bool keep)
 {
 //! Load XSecSplineList from ROOT file. If keep = true, then the loaded splines
 //! are added to the existing list. If false, then the existing list is reset
@@ -362,6 +374,7 @@ XmlParserStatus_t XSecSplineList::LoadFromXml(string filename, bool keep)
   int ret = 0, val_type = -1, iknot = 0, nknots = 0;
   double * E = 0, * xsec = 0;
   string spline_name = "";
+  string temp_tune ;
 
   reader = xmlNewTextReaderFilename(filename.c_str());
   if (reader != NULL) {
@@ -397,8 +410,8 @@ XmlParserStatus_t XSecSplineList::LoadFromXml(string filename, bool keep)
 
             if( (!xmlStrcmp(name, (const xmlChar *) "genie_tune")) && type==kNodeTypeStartElement) {
                xmlChar * xtune = xmlTextReaderGetAttribute(reader,(const xmlChar*)"name");
-               string stune    = utils::str::TrimSpaces((const char *)xtune);
-               SLOG("XSecSplLst", pNOTICE) << "Loading x-section splines for GENIE tune: " << stune;
+               temp_tune    = utils::str::TrimSpaces((const char *)xtune);
+               SLOG("XSecSplLst", pNOTICE) << "Loading x-section splines for GENIE tune: " << temp_tune;
                xmlFree(xtune);
             }
 
@@ -444,17 +457,17 @@ XmlParserStatus_t XSecSplineList::LoadFromXml(string filename, bool keep)
     
                // insert the spline to the map
                map<string,  map<string, Spline *> >::iterator //\/
-               mm_iter = fSplineMap.find(fCurrentTune);
+               mm_iter = fSplineMap.find( temp_tune );
                if(mm_iter == fSplineMap.end()) {
                  map<string, Spline *> spl_map_curr_tune;
                  fSplineMap.insert( map<string, map<string, Spline *> >::value_type(
-                    fCurrentTune, spl_map_curr_tune) );
-                 mm_iter = fSplineMap.find(fCurrentTune);
+                    temp_tune, spl_map_curr_tune) );
+                 mm_iter = fSplineMap.find( temp_tune );
                }
                map<string, Spline *> & spl_map_curr_tune = mm_iter->second;
                spl_map_curr_tune.insert(
                   map<string, Spline *>::value_type(spline_name, spline) );
-               fLoadedSplineSet[fCurrentTune].insert(spline_name);
+               fLoadedSplineSet[temp_tune].insert(spline_name);
             }
             xmlFree(name);
             xmlFree(value);
@@ -533,7 +546,7 @@ void XSecSplineList::Print(ostream & stream) const
   for(mm_iter = fSplineMap.begin(); mm_iter != fSplineMap.end(); ++mm_iter) {
 
     string curr_tune = mm_iter->first;
-    stream << "\n [-] Available x-section splines for tune: << curr_tune";
+    stream << "\n [-] Available x-section splines for tune: " << curr_tune ;
     stream << "\n  |";
 
     const map<string, Spline *> & spl_map_curr_tune = mm_iter->second;

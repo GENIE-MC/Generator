@@ -50,8 +50,8 @@ public:
   static XSecSplineList * Instance();
 
   // Save/load to/from XML file
-  void               SaveAsXml   (string filename, bool save_init = true) const;
-  XmlParserStatus_t  LoadFromXml (string filename, bool keep = false);
+  void               SaveAsXml   (const string & filename, bool save_init = true) const;
+  XmlParserStatus_t  LoadFromXml (const string & filename, bool keep = false);
 
   // Print available splines
   void   Print (ostream & stream) const;
