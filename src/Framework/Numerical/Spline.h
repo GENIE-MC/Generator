@@ -87,8 +87,7 @@ public:
 
   // Save the Spline in XML, flat ASCII or ROOT format
   void   SaveAsXml (string filename, string xtag, string ytag, string name="") const;
-  void   SaveAsXml (ofstream & str,  string xtag, string ytag,
-                                          string name="", bool insert = false) const;
+  void   SaveAsXml (ofstream & str,  string xtag, string ytag, string name="") const;
   void   SaveAsText(string filename, string format="%10.6f\t%10.6f") const;
   void   SaveAsROOT(string filename, string name="", bool recreate=false) const;
 
