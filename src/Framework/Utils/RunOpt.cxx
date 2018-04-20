@@ -80,6 +80,7 @@ void RunOpt::Init(void)
   fMCJobStatusRefreshRate = 50;
   fEventRecordPrintLevel  = 3;
   fEventGeneratorList     = "Default";
+  fXMLPath = "";
 }
 //____________________________________________________________________________
 void RunOpt::ReadFromCommandLine(int argc, char ** argv)
@@ -113,7 +114,11 @@ void RunOpt::ReadFromCommandLine(int argc, char ** argv)
   if( parser.OptionExists("event-generator-list") ) {
     fEventGeneratorList = parser.ArgAsString("event-generator-list");
   }
-
+  
+  if (parser.OptionExists("xml-path")) {
+    fXMLPath = parser.ArgAsString("xml-path");
+  }
+  
   if( parser.OptionExists("tune") ) {
     fTune.Build( parser.ArgAsString("tune") ) ;
   }
@@ -151,6 +156,10 @@ void RunOpt::Print(ostream & stream) const
   stream << "\n MC job status file refresh rate: " << fMCJobStatusRefreshRate;
   stream << "\n Pre-calculate all free-nucleon cross-sections? : " 
          << ((fEnableBareXSecPreCalc) ? "Yes" : "No");
+         
+  if (fXMLPath.size()) {
+    stream << "\n XMLPath over-ride : "<<fXMLPath;
+  }
 
   stream << "\n";
 }

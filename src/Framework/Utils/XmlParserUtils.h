@@ -33,6 +33,7 @@
 #include <TVectorT.h>
 
 #include "Framework/Utils/StringUtils.h"
+#include "Framework/Utils/RunOpt.h"
 
 
 class TFile;

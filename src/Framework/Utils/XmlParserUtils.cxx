@@ -58,16 +58,19 @@ string genie::utils::xml::GetXMLPathList( bool add_tune )   {
   // Get a colon separated list of potential locations for xml files
   // e.g. ".:$MYSITEXML:/path/to/exp/version:$GALGCONF:$GENIE/config"
   // user additions should be in $GXMLPATH
+  // All of the environment variaables have lower priority than the --xml-path command line argument
 
   string pathlist;
+  std::string p0 = RunOpt::Instance()->XMLPath();
+  if ( p0.size() ) { pathlist += std::string(p0) + ":" ; }
   const char* p1 = std::getenv( "GXMLPATH" );
-  if ( p1 ) { pathlist = std::string(p1) + ":" ; }
+  if ( p1 ) { pathlist += std::string(p1) + ":" ; }
   const char* p2 = std::getenv( "GXMLPATHS" );  // handle extra 's'
-  if ( p2 ) { pathlist = std::string(p2) + ":" ; }
+  if ( p2 ) { pathlist += std::string(p2) + ":" ; }
 
   // add originally supported alternative path
   const char* p3 = std::getenv( "GALGCONF" );
-  if ( p3 ) { pathlist = std::string(p3) + ":" ; }
+  if ( p3 ) { pathlist += std::string(p3) + ":" ; }
 
   if ( add_tune ) {
 
