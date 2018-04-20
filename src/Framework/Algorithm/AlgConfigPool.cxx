@@ -329,7 +329,7 @@ bool AlgConfigPool::LoadRegistries(
       fConfigKeyList.push_back(key.str());
 
       // create a new Registry and fill it with the configuration params
-      Registry * config = new Registry();
+      Registry * config = new Registry(param_set,false);
 
       xmlNodePtr xml_param = xml_cur->xmlChildrenNode;
       while (xml_param != NULL) {
