@@ -5,8 +5,8 @@
 
 \brief   A simple 'generic' GENIE v+A event generation driver (gevgen).
 
-	 It handles:
- 	 a) event generation for a fixed init state (v+A) at fixed energy, or
+       It handles:
+         a) event generation for a fixed init state (v+A) at fixed energy, or
          b) event generation for simple fluxes (specified either via some
             functional form, tabular text file or a ROOT histogram) and for 
             simple 'geometries' (a target mix with its corresponding weights)
@@ -22,9 +22,9 @@
                    -e energy (or energy range) 
                    -p neutrino_pdg 
                    -t target_pdg 
-		  [-f flux_description] 
+                  [-f flux_description] 
                   [-o outfile_name]
-		  [-w] 
+                  [-w] 
                   [--seed random_number_seed] 
                   [--cross-sections xml_file]
                   [--event-generator-list list_name]
@@ -34,6 +34,7 @@
                   [--event-record-print-level level]
                   [--mc-job-status-refresh-rate  rate]
                   [--cache-file root_file]
+                  [--xml-path config_xml_dir]
 
          Options :
            [] Denotes an optional argument.
@@ -45,7 +46,7 @@
               Specifies the MC run number.
            -e 
               Specifies the neutrino energy.
-	      If what follows the -e option is a comma separated pair of values
+              If what follows the -e option is a comma separated pair of values
               it will be interpreted as an energy range for the flux specified
               via the -f option (see below).
            -p 
@@ -60,7 +61,7 @@
            -f 
               Specifies the neutrino flux spectrum.
               It can be any of:
-	      -- A function:
+              -- A function:
                  eg ` -f x*x+4*exp(-x)' 
               -- A vector file:
                  The vector file should contain 2 columns corresponding to 
@@ -104,8 +105,10 @@
            --cache-file                  
               Allows users to specify a cache file so that the cache can be
               re-used in subsequent MC jobs.
+           --xml-path
+              A directory to load XML files from - overrides $GXMLPATH, and $GENIE/config
 
-	***  See the User Manual for more details and examples. ***
+        ***  See the User Manual for more details and examples. ***
 
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          University of Liverpool & STFC Rutherford Appleton Lab
@@ -227,7 +230,7 @@ int main(int argc, char ** argv)
 
   if(gOptUsingFluxOrTgtMix) {
 #ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX_OR_TGTMIX__
-	GenerateEventsUsingFluxOrTgtMix();
+        GenerateEventsUsingFluxOrTgtMix();
 #else
   LOG("gevgen", pERROR) 
     << "\n   To be able to generate neutrino events from a flux and/or a target mix" 
@@ -309,7 +312,7 @@ void GenerateEventsAtFixedInitState(void)
      }
 
      LOG("gevgen", pNOTICE) 
-	<< "Generated Event GHEP Record: " << *event;
+        << "Generated Event GHEP Record: " << *event;
 
      // add event at the output ntuple, refresh the mc job monitor & clean up
      ntpw.AddEventRecord(ievent, event);
@@ -340,7 +343,7 @@ void GenerateEventsUsingFluxOrTgtMix(void)
   mcj_driver->Configure();
   mcj_driver->UseSplines();
   if(!gOptWeighted) 
-	mcj_driver->ForceSingleProbScale();
+        mcj_driver->ForceSingleProbScale();
 
   // Initialize an Ntuple Writer to save GHEP records into a TTree
   NtpWriter ntpw(kDefOptNtpFormat, gOptRunNu);
@@ -494,14 +497,14 @@ GFluxI * TH1FluxDriver(void)
     spectrum->SetDirectory(0);
     for(int ibin = 1; ibin <= hst->GetNbinsX(); ibin++) {
       if(hst->GetBinLowEdge(ibin) + hst->GetBinWidth(ibin) > emax ||
-	 hst->GetBinLowEdge(ibin) < emin) {
-	spectrum->SetBinContent(ibin, 0);
+         hst->GetBinLowEdge(ibin) < emin) {
+        spectrum->SetBinContent(ibin, 0);
       }
     }
 
     LOG("gevgen", pNOTICE) << spectrum->GetEntries();
 
-    flux_file->Close();	
+    flux_file->Close();
     delete flux_file;
 
     LOG("gevgen", pNOTICE) << spectrum->GetEntries();
@@ -584,7 +587,7 @@ void GetCommandLineArgs(int argc, char ** argv)
     // strip the output file format and replace with .status
     if (gOptOutFileName.find_last_of(".") != string::npos)
       gOptStatFileName = 
-	gOptStatFileName.substr(0, gOptOutFileName.find_last_of("."));
+        gOptStatFileName.substr(0, gOptOutFileName.find_last_of("."));
     gOptStatFileName .append(".status");
   }
 
@@ -626,8 +629,8 @@ void GetCommandLineArgs(int argc, char ** argv)
           LOG("gevgen", pWARN) 
              << "No flux was specified but an energy range was input!";
           LOG("gevgen", pWARN) 
-	     << "Events will be generated at fixed E = " << gOptNuEnergy << " GeV";
-	  gOptNuEnergyRange = -1;
+             << "Events will be generated at fixed E = " << gOptNuEnergy << " GeV";
+          gOptNuEnergyRange = -1;
        }
     } else {
        gOptNuEnergy       = atof(nue.c_str());
@@ -779,6 +782,7 @@ void PrintSyntax(void)
     << "\n              [--event-record-print-level level]"
     << "\n              [--mc-job-status-refresh-rate  rate]"
     << "\n              [--cache-file root_file]"
+    << "\n              [--xml-path config_xml_dir]"
     << "\n";
 }
 //____________________________________________________________________________

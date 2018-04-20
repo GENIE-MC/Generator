@@ -22,6 +22,7 @@
                   [--event-generator-list list_name]
                   [--tune genie_tune]
                   [--message-thresholds xml_file]
+                  [--xml-path config_xml_dir]
 
          Note :
            [] marks optional arguments.
@@ -65,6 +66,8 @@
               Allows users to customize the message stream thresholds.
               The thresholds are specified using an XML file.
               See $GENIE/config/Messenger.xml for the XML schema.
+           --xml-path
+              A directory to load XML files from - overrides $GXMLPATH, and $GENIE/config
 
         ***  See the User Manual for more details and examples. ***
 
@@ -344,6 +347,7 @@ void PrintSyntax(void)
     << " [--seed seed_number]"
     << " [--input-cross-section xml_file]"
     << " [--event-generator-list list_name]"
+    << " [--xml-path config_xml_dir]"
     << " [--message-thresholds xml_file]\n\n";
 }
 //____________________________________________________________________________
