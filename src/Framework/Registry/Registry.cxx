@@ -111,6 +111,7 @@ fInhibitItemLocks ( false      )
 }
 //____________________________________________________________________________
 Registry::Registry(const Registry & registry) :
+fName("uninitialised"),
 fIsReadOnly(false)
 {
   this->Copy(registry);
