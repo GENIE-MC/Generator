@@ -182,9 +182,10 @@ double genie::utils::mec::Qvalue(int targetpdg, int nupdg)
   if(NULL == partf || NULL == parti){
     // maybe not every valid nucleus in the table has Z+1 or Z-1
     // for example, Ca40 did not.
-    LOG("MECUtils", pERROR) 
+    LOG("MECUtils", pFATAL) 
       << "Can't get qvalue, nucleus " << targetpdg << " or " << nearpdg 
-      << " is not in the table of nuclei in /data/evgen/pdg ";    
+      << " is not in the table of nuclei in /data/evgen/pdg ";   
+    exit(-1);
   }
 
   double massf = partf->Mass();
