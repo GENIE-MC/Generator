@@ -186,16 +186,16 @@ multimap<int,bool> DISInteractionListGenerator::GetHitQuarks(
     int ppdg = interaction->InitState().ProbePdg();
 
     if (pdg::IsNeutrino(ppdg)){
-       if(!fIsCharm) hq.insert(pair<int,bool>(kPdgAntiUQuark, true ));
-                     hq.insert(pair<int,bool>(kPdgDQuark,     false));
-                     hq.insert(pair<int,bool>(kPdgDQuark,     true ));
-                     hq.insert(pair<int,bool>(kPdgSQuark,     true ));
+       if(!fIsCharm) { hq.insert(pair<int,bool>(kPdgAntiUQuark, true )); }
+                       hq.insert(pair<int,bool>(kPdgDQuark,     false));
+                       hq.insert(pair<int,bool>(kPdgDQuark,     true ));
+                       hq.insert(pair<int,bool>(kPdgSQuark,     true ));
     } 
     else if (pdg::IsAntiNeutrino(ppdg)){
-       if(!fIsCharm) hq.insert(pair<int,bool>(kPdgUQuark,     false));
-       if(!fIsCharm) hq.insert(pair<int,bool>(kPdgUQuark,     true ));
-                     hq.insert(pair<int,bool>(kPdgAntiDQuark, true ));
-                     hq.insert(pair<int,bool>(kPdgAntiSQuark, true ));
+       if(!fIsCharm) { hq.insert(pair<int,bool>(kPdgUQuark,     false)); }
+       if(!fIsCharm) { hq.insert(pair<int,bool>(kPdgUQuark,     true )); }
+                       hq.insert(pair<int,bool>(kPdgAntiDQuark, true ));
+                       hq.insert(pair<int,bool>(kPdgAntiSQuark, true ));
     }
   }//CC or NC
 
