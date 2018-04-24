@@ -14,6 +14,10 @@
 
 //#include <sstream>
 
+#include "TPRegexp.h"
+#include "TObjArray.h"
+#include "TObjString.h"
+
 #include "Framework/Utils/TuneId.h"
 
 #include "Framework/Utils/StringUtils.h"
@@ -106,16 +110,22 @@ void TuneId::Build(const string & name ) {
 //____________________________________________________________________________
 void TuneId::Decode(string id_str)
 {
-
-  std::vector<string> parts = utils::str::Split( id_str, "_" ) ;
-
-  this -> fPrefix        = parts[0].substr( 0, parts[0].size()-2 ) ;
-  this -> fYear          = parts[0].substr( parts[0].size()-2 ) ;
-  this -> fMajorModelId  = parts[1].substr( 0, 2 ) ;
-  this -> fMinorModelId  = parts[1].substr( 2 ) ;
-  this->fTunedParamSetId = parts[2] ;
-  this ->fFitDataSetId   = parts[3] ;
-
+  static TPRegexp pattern("([A-Z])(\\d{2})_(\\d{2})([a-z])_(\\d{2})_(\\d{3})");
+  TString tstr(id_str.c_str());
+  TObjArray * matches = pattern.MatchS(tstr);
+  if ( matches -> GetEntries() != 7) {
+    LOG("TuneId", pFATAL) << "Bad tune pattern "<<id_str<<" - form is eg G18_01a_00_000";
+    exit(-1);
+  }
+  
+  this -> fPrefix          = ((TObjString*)matches->At(1))->String().Data();
+  this -> fYear            = ((TObjString*)matches->At(2))->String().Data();
+  this -> fMajorModelId    = ((TObjString*)matches->At(3))->String().Data();
+  this -> fMinorModelId    = ((TObjString*)matches->At(4))->String().Data();
+  this -> fTunedParamSetId = ((TObjString*)matches->At(5))->String().Data();
+  this -> fFitDataSetId    = ((TObjString*)matches->At(6))->String().Data();
+  
+  delete matches;
 }
 //____________________________________________________________________________
 void TuneId::Copy(const TuneId & id)
@@ -162,12 +172,14 @@ bool TuneId::CheckDirectory() {
 
   fBaseDirectory = "" ;
   LOG("TuneId",pDEBUG) << "Base dir validation " ;
+  
+  std::cerr<<"XMLPathList: "<<pathlist<<std::endl;
 
   for ( size_t i=0; i< paths.size(); ++i ) {
      const char* tmppath = paths[i].c_str();
      std::string onepath = gSystem->ExpandPathName(tmppath);
      string test = onepath + "/" + CGC() ;
-     LOG("TuneId", pDEBUG) << " Testing  " << test << " directory" ;
+     LOG("TuneId", pFATAL) << " Testing  " << test << " directory" ;
      if ( utils::system::DirectoryExists( test.c_str() ) ) {
        fBaseDirectory = onepath ;
        break ;
