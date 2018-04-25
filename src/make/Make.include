@@ -456,7 +456,7 @@ endif
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ifeq ($(strip $(ARCH)),linux) 
 ARCH_OK       = YES
-CXXFLAGS      = -Wall -fPIC -Wshadow \
+CXXFLAGS      = -W -Wall -fPIC -Wshadow \
 		$(ROOT_FLAGS) \
 		$(GOPT_WITH_CXX_DEBUG_FLAG) \
 		$(GOPT_WITH_CXX_OPTIMIZ_FLAG) \
@@ -484,7 +484,7 @@ endif
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ifeq ($(strip $(ARCH)),linuxx8664gcc) 
 ARCH_OK       = YES
-CXXFLAGS      = -Wall -fPIC -Wshadow \
+CXXFLAGS      = -W -Wall -fPIC -Wshadow \
 		$(ROOT_FLAGS) \
 		$(GOPT_WITH_CXX_DEBUG_FLAG) \
 		$(GOPT_WITH_CXX_OPTIMIZ_FLAG) \
