@@ -100,11 +100,10 @@ double LHAPDF6::Gluon(double x, double Q2) const
   return AllPDFs(x,Q2).gl;
 }
 //____________________________________________________________________________
+#ifdef __GENIE_LHAPDF6_ENABLED__
 PDF_t LHAPDF6::AllPDFs(double x, double Q2) const
 {
   PDF_t pdf;
-
-#ifdef __GENIE_LHAPDF6_ENABLED__
   vector<double> pdfvec;
   fLHAPDF->xfxQ2(x,Q2,pdfvec);
   pdf.uval = pdfvec[8] - pdfvec[4];
@@ -116,10 +115,15 @@ PDF_t LHAPDF6::AllPDFs(double x, double Q2) const
   pdf.bot  = pdfvec[11];
   pdf.top  = pdfvec[12];
   pdf.gl   = pdfvec[6];
-#endif
-
   return pdf;                                               
 }
+#else
+PDF_t LHAPDF6::AllPDFs(double, double) const
+{
+  LOG("LHAPDF6",pFATAL) << "LHAPDF6 not enabled.";
+  exit(-1);
+}
+#endif
 //____________________________________________________________________________
 void LHAPDF6::Configure(const Registry & config)
 {
