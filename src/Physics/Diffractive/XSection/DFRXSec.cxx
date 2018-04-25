@@ -104,6 +104,7 @@ double DFRXSec::Integrate (const XSecAlgorithmI* model, const Interaction* in) c
   double kine_min[3] = { xl.min, yl.min, tl.min };
   double kine_max[3] = { xl.max, yl.max, tl.max };
   xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2);
+  delete func;
   return xsec;
 }
 

@@ -104,6 +104,7 @@ double COHXSec::Integrate(
     double kine_min[2] = { xl.min, yl.min };
     double kine_max[2] = { xl.max, yl.max };
     xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2);
+    delete func;
   } 
   else if (model->Id().Name() == "genie::BergerSehgalCOHPiPXSec2015")
   {
