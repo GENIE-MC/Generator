@@ -163,7 +163,6 @@ double BSKLNBaseRESPXSec2014::XSec(
   double sqrtq2 = TMath::Sqrt(-q2);
   double a = 1. + 0.5*(W2-q2+Mnuc2)/Mnuc/W;
 
-
   double KNL_Alambda_plus  = 0;
   double KNL_Alambda_minus = 0;
   double KNL_j0_plus  = 0;
@@ -185,11 +184,10 @@ double BSKLNBaseRESPXSec2014::XSec(
   double KNL_cR_plus  = 0;
   double KNL_cR_minus = 0;
 
-
   double KNL_cS_plus  = 0;
   double KNL_cS_minus = 0;
 
-  double KNL_vstar_plus = 0;
+  double KNL_vstar_plus  = 0;
   double KNL_vstar_minus = 0;
 
   if(is_CC && (is_KLN || is_BRS)){
@@ -285,50 +283,37 @@ double BSKLNBaseRESPXSec2014::XSec(
   double GV  = Go * TMath::Power( 1./(1-q2/fMv2), 2);
   double GA  = Go * TMath::Power( 1./(1-q2/fMa2), 2);
 
-
-  //JN New form factors code
-  //  new_GV = false; //JN
-  //  new_GA = true; //JN
-
   if(fGV){
 
-        LOG("BSKLNBaseRESPXSec2014",pDEBUG) <<"Using new GV";
+    LOG("BSKLNBaseRESPXSec2014",pDEBUG) <<"Using new GV";
     double CV0 =  1./(1-q2/fMv2/4.);
     double CV3 =  2.13 * CV0 * TMath::Power( 1-q2/fMv2,-2);
     double CV4 = -1.51 * CV0 * TMath::Power( 1-q2/fMv2,-2);
     double CV5 =  0.48 * CV0 * TMath::Power( 1-q2/fMv2/0.766, -2);
 
-
-    double GV3 =   0.5 / TMath::Sqrt(3) * ( CV3 * (W + Mnuc)/Mnuc
-        + CV4 * (W2 + q2 -Mnuc2)/2./Mnuc2 
-        + CV5 * (W2 - q2 -Mnuc2)/2./Mnuc2 );
+    double GV3 =  0.5 / TMath::Sqrt(3) * ( CV3 * (W + Mnuc)/Mnuc
+                  + CV4 * (W2 + q2 -Mnuc2)/2./Mnuc2 
+                  + CV5 * (W2 - q2 -Mnuc2)/2./Mnuc2 );
 
     double GV1 = - 0.5 / TMath::Sqrt(3) * ( CV3 * (Mnuc2 -q2 +Mnuc*W)/W/Mnuc
-        + CV4 * (W2 +q2 - Mnuc2)/2./Mnuc2 
-        + CV5 * (W2 -q2 - Mnuc2)/2./Mnuc2 );
+                 + CV4 * (W2 +q2 - Mnuc2)/2./Mnuc2 
+                 + CV5 * (W2 -q2 - Mnuc2)/2./Mnuc2 );
 
     GV = 0.5 * TMath::Power( 1 - q2/(Mnuc + W)/(Mnuc + W), 0.5-IR)
-      * TMath::Sqrt( 3 * GV3*GV3 + GV1*GV1);
-
-
+         * TMath::Sqrt( 3 * GV3*GV3 + GV1*GV1);
   }
 
   if(fGA){
-
-    LOG("BSKLNBaseRESPXSec2014",pDEBUG) <<"Using new GA";
+    LOG("BSKLNBaseRESPXSec2014",pDEBUG) << "Using new GA";
 
     double CA5_0 = 1.2;
     double CA5 = CA5_0 *  TMath::Power( 1./(1-q2/fMa2), 2);
     //  GA = 0.5 * TMath::Sqrt(3.) * TMath::Power( 1 - q2/(Mnuc + W)/(Mnuc + W), 0.5-IR) * (1- (W2 +q2 -Mnuc2)/8./Mnuc2) * CA5/fZeta;
     GA = 0.5 * TMath::Sqrt(3.) * TMath::Power( 1 - q2/(Mnuc + W)/(Mnuc + W), 0.5-IR) * (1- (W2 +q2 -Mnuc2)/8./Mnuc2) * CA5;
 
-    //    LOG("BSKLNBaseRESPXSec2014",pINFO) << 0.5 * TMath::Sqrt(3.) * TMath::Power( 1 - q2/(Mnuc + W)/(Mnuc + W), 0.5-IR)* (1- (W2 +q2 -Mnuc2)/8./Mnuc2);
     LOG("BSKLNBaseRESPXSec2014",pINFO) <<"GA= " <<GA << "  C5A= " <<CA5;
   }
-
   //JN end of new form factors code
-
-
 
   if(is_EM) { 
     GA = 0.; // zero the axial term for EM scattering
@@ -458,16 +443,6 @@ double BSKLNBaseRESPXSec2014::XSec(
   double sigRSR =0;
   double sigRSS =0;
 
-  /*
-     hamplmod = fHAmplModelCC;
-     const RSHelicityAmpl & hampl = hamplmod->Compute(resonance, fFKR);
-
-     sigRSL = scLR* (hampl.Amp2Plus3 () + hampl.Amp2Plus1 ());
-     sigRSR = scLR* (hampl.Amp2Minus3() + hampl.Amp2Minus1());
-     sigRSS = scS * (hampl.Amp20Plus () + hampl.Amp20Minus());
-
-*/
-  //<<<<<<<<<
   if(is_CC && !(is_KLN || is_BRS) ) {
 
     hamplmod = fHAmplModelCC;
@@ -539,30 +514,7 @@ double BSKLNBaseRESPXSec2014::XSec(
             sigR_plus = (hampl_BRS_plus.Amp2Minus3() + hampl_BRS_plus.Amp2Minus1());
             sigS_plus = (hampl_BRS_plus.Amp20Plus () + hampl_BRS_plus.Amp20Minus());
           }
-  /*
-     if(is_CC) { 
-     hamplmod = fHAmplModelCC; 
-     }
-     else 
-     if(is_NC) { 
-     if (is_p) { hamplmod = fHAmplModelNCp;}
-     else      { hamplmod = fHAmplModelNCn;}
-     }
-     else 
-     if(is_EM) { 
-     if (is_p) { hamplmod = fHAmplModelEMp;}
-     else      { hamplmod = fHAmplModelEMn;}
-     }
-     assert(hamplmod);
 
-     const RSHelicityAmpl & hampl = hamplmod->Compute(resonance, fFKR); 
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("RSHAmpl", pDEBUG)
-    << "Helicity Amplitudes for RES = " << resname << " : " << hampl;
-#endif
-     */
-
-  //JNtest double g2 = kGF2;
   // For EM interaction replace  G_{Fermi} with :
   // a_{em} * pi / ( sqrt(2) * sin^2(theta_weinberg) * Mass_{W}^2 }
   // See C.Quigg, Gauge Theories of the Strong, Weak and E/M Interactions,
@@ -578,45 +530,30 @@ double BSKLNBaseRESPXSec2014::XSec(
       g2 = kAem2 * kPi2 / (2.0 * fSin48w * q4); 
     }
 
-// Compute the cross section
+  // Compute the cross section
+  if(is_KLN || is_BRS) {
 
-/*
-   double sig0 = 0.125*(g2/kPi)*(-q2/Q2)*(W/Mnuc);
-   double scLR = W/Mnuc;
-   double scS  = (Mnuc/W)*(-Q2/q2);
+     sigL_minus *= scLR;
+     sigR_minus *= scLR;
+     sigS_minus *= scS;
+     sigL_plus  *= scLR;
+     sigR_plus  *= scLR;
+     sigS_plus  *= scS;
 
-   JN test */
-//  double sigL = scLR* (hampl.Amp2Plus3 () + hampl.Amp2Plus1 ());
-//  double sigR = scLR* (hampl.Amp2Minus3() + hampl.Amp2Minus1());
-//  double sigS = scS * (hampl.Amp20Plus () + hampl.Amp20Minus());
+     LOG("BSKLNBaseRESPXSec2014", pINFO) 
+         << "sL,R,S minus = " << sigL_minus << "," << sigR_minus << "," << sigS_minus;
+     LOG("BSKLNBaseRESPXSec2014", pINFO) 
+         << "sL,R,S plus = " << sigL_plus << "," << sigR_plus << "," << sigS_plus;
+  }
+  else {
+     assert(hamplmod);
 
-/*
-   double sigL =0;
-   double sigR =0;
-   double sigS =0;
-   JN tests  */
+     const RSHelicityAmpl & hampl = hamplmod->Compute(resonance, fFKR);
 
-if( is_KLN || is_BRS){
-
-  sigL_minus *= scLR;
-  sigR_minus *= scLR;
-  sigS_minus *= scS;
-
-  sigL_plus *= scLR;
-  sigR_plus *= scLR;
-  sigS_plus *= scS;
-  LOG("BSKLNBaseRESPXSec2014",pINFO) <<"sL,R,S minus="<<sigL_minus<<","<<sigR_minus<<","<<sigS_minus;
-  LOG("BSKLNBaseRESPXSec2014",pINFO) <<"sL,R,S plus ="<<sigL_plus <<","<<sigR_plus <<","<<sigS_plus;
-}
-else {
-  assert(hamplmod);
-
-  const RSHelicityAmpl & hampl = hamplmod->Compute(resonance, fFKR);
-
-  sigL = scLR* (hampl.Amp2Plus3 () + hampl.Amp2Plus1 ());
-  sigR = scLR* (hampl.Amp2Minus3() + hampl.Amp2Minus1());
-  sigS = scS * (hampl.Amp20Plus () + hampl.Amp20Minus());
-}
+     sigL = scLR* (hampl.Amp2Plus3 () + hampl.Amp2Plus1 ());
+     sigR = scLR* (hampl.Amp2Minus3() + hampl.Amp2Minus1());
+     sigS = scS * (hampl.Amp20Plus () + hampl.Amp20Minus());
+  }
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("BSKLNBaseRESPXSec2014", pDEBUG) << "sig_{0} = " << sig0;
@@ -625,151 +562,138 @@ else {
   LOG("BSKLNBaseRESPXSec2014", pDEBUG) << "sig_{S} = " << sigS;
 #endif
 
-double xsec = 0.0;
+  double xsec = 0.0;
 
-if(is_KLN || is_BRS){
-  xsec =  TMath::Power(KNL_cL_minus,2)*sigL_minus + TMath::Power(KNL_cL_plus,2)*sigL_plus
-    + TMath::Power(KNL_cR_minus,2)*sigR_minus + TMath::Power(KNL_cR_plus,2)*sigR_plus
-    + TMath::Power(KNL_cS_minus,2)*sigS_minus + TMath::Power(KNL_cS_plus,2)*sigS_plus;
-  xsec *=sig0;
+  if(is_KLN || is_BRS) {
+      xsec =   TMath::Power(KNL_cL_minus,2)*sigL_minus + TMath::Power(KNL_cL_plus,2)*sigL_plus
+             + TMath::Power(KNL_cR_minus,2)*sigR_minus + TMath::Power(KNL_cR_plus,2)*sigR_plus
+             + TMath::Power(KNL_cS_minus,2)*sigS_minus + TMath::Power(KNL_cS_plus,2)*sigS_plus;
+      xsec *=sig0;
 
-     LOG("BSKLNBaseRESPXSec2014",pINFO) <<"<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n";
+      LOG("BSKLNBaseRESPXSec2014",pINFO) << "A-="<<KNL_Alambda_minus<<" A+="<<KNL_Alambda_plus;
+      LOG("BSKLNBaseRESPXSec2014",pINFO) <<q2<<"\t"<<xsec<<"\t"<<sig0*(V2*sigR + U2*sigL + 2*UV*sigS)<<"\t"<<xsec/(sig0*(V2*sigRSR + U2*sigRSL + 2*UV*sigRSS));
+      LOG("BSKLNBaseRESPXSec2014",pINFO) <<"fFKR.B="<<fFKR.B<<" fFKR.C="<<fFKR.C<<" fFKR.S="<<fFKR.S;
+      LOG("BSKLNBaseRESPXSec2014",pINFO) <<"CL-="<<TMath::Power(KNL_cL_minus,2)<<" CL+="<<TMath::Power(KNL_cL_plus,2)<<" U2="<<U2;
+      LOG("BSKLNBaseRESPXSec2014",pINFO) <<"SL-="<<sigL_minus<<" SL+="<<sigL_plus<<" SL="<<sigRSL;
 
-     LOG("BSKLNBaseRESPXSec2014",pINFO) <<"A-="<<KNL_Alambda_minus<<" A+="<<KNL_Alambda_plus;
-     LOG("BSKLNBaseRESPXSec2014",pINFO) <<q2<<"\t"<<xsec<<"\t"<<sig0*(V2*sigR + U2*sigL + 2*UV*sigS)<<"\t"<<xsec/(sig0*(V2*sigRSR + U2*sigRSL + 2*UV*sigRSS));
-     LOG("BSKLNBaseRESPXSec2014",pINFO) <<"fFKR.B="<<fFKR.B<<" fFKR.C="<<fFKR.C<<" fFKR.S="<<fFKR.S;
-     LOG("BSKLNBaseRESPXSec2014",pINFO) <<"CL-="<<TMath::Power(KNL_cL_minus,2)<<" CL+="<<TMath::Power(KNL_cL_plus,2)<<" U2="<<U2;
-     LOG("BSKLNBaseRESPXSec2014",pINFO) <<"SL-="<<sigL_minus<<" SL+="<<sigL_plus<<" SL="<<sigRSL;
+      LOG("BSKLNBaseRESPXSec2014",pINFO) <<"CR-="<<TMath::Power(KNL_cR_minus,2)<<" CR+="<<TMath::Power(KNL_cR_plus,2)<<" V2="<<V2;
+      LOG("BSKLNBaseRESPXSec2014",pINFO) <<"SR-="<<sigR_minus<<" SR+="<<sigR_plus<<" sR="<<sigRSR;
 
-     LOG("BSKLNBaseRESPXSec2014",pINFO) <<"CR-="<<TMath::Power(KNL_cR_minus,2)<<" CR+="<<TMath::Power(KNL_cR_plus,2)<<" V2="<<V2;
-     LOG("BSKLNBaseRESPXSec2014",pINFO) <<"SR-="<<sigR_minus<<" SR+="<<sigR_plus<<" sR="<<sigRSR;
+      LOG("BSKLNBaseRESPXSec2014",pINFO) <<"CS-="<<TMath::Power(KNL_cS_minus,2)<<" CS+="<<TMath::Power(KNL_cS_plus,2)<<" UV="<<UV;
+      LOG("BSKLNBaseRESPXSec2014",pINFO) <<"SS-="<<sigL_minus<<" SS+="<<sigS_plus<<" sS="<<sigRSS;
+  }
+  else {
+     if (is_nu || is_lminus) {
+         xsec = sig0*(V2*sigR + U2*sigL + 2*UV*sigS);
+     } 
+     else 
+     if (is_nubar || is_lplus) {
+         xsec = sig0*(U2*sigR + V2*sigL + 2*UV*sigS);
+     } 
+     xsec = TMath::Max(0.,xsec);
+  }
+  double mult = 1.0;
+  if(is_CC && is_delta) {
+     if((is_nu && is_p) || (is_nubar && is_n)) mult=3.0;
+  }
+  xsec *= mult;
 
-     LOG("BSKLNBaseRESPXSec2014",pINFO) <<"CS-="<<TMath::Power(KNL_cS_minus,2)<<" CS+="<<TMath::Power(KNL_cS_plus,2)<<" UV="<<UV;
-     LOG("BSKLNBaseRESPXSec2014",pINFO) <<"SS-="<<sigL_minus<<" SS+="<<sigS_plus<<" sS="<<sigRSS;
-     LOG("BSKLNBaseRESPXSec2014",pINFO) <<">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n";
-
-}
-else{
-  if (is_nu || is_lminus) {
-    xsec = sig0*(V2*sigR + U2*sigL + 2*UV*sigS);
+  // Check whether the cross section is to be weighted with a Breit-Wigner distribution 
+  // (default: true)
+  double bw = 1.0;
+  if(fWghtBW) {
+     bw = utils::bwfunc::BreitWignerL(W,LR,MR,WR,NR); 
   } 
-  else 
-    if (is_nubar || is_lplus) {
-      xsec = sig0*(U2*sigR + V2*sigL + 2*UV*sigS);
-    } 
-  xsec = TMath::Max(0.,xsec);
-}
-double mult = 1.0;
-if(is_CC && is_delta) {
-  if((is_nu && is_p) || (is_nubar && is_n)) mult=3.0;
-}
-xsec *= mult;
-
-// Check whether the cross section is to be weighted with a
-// Breit-Wigner distribution (default: true)
-double bw = 1.0;
-if(fWghtBW) {
-  bw = utils::bwfunc::BreitWignerL(W,LR,MR,WR,NR); 
-} 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-LOG("BSKLNBaseRESPXSec2014", pDEBUG) << "BreitWigner(RES=" 
-  << resname << ", W=" << W << ") = " << bw;
+  LOG("BSKLNBaseRESPXSec2014", pDEBUG) 
+      << "BreitWigner(RES=" << resname << ", W=" << W << ") = " << bw;
 #endif
-xsec *= bw; 
-
-
+  xsec *= bw; 
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-LOG("BSKLNBaseRESPXSec2014", pINFO) 
-  << "\n d2xsec/dQ2dW"  << "[" << interaction->AsString()
-  << "](W=" << W << ", q2=" << q2 << ", E=" << E << ") = " << xsec;
+  LOG("BSKLNBaseRESPXSec2014", pINFO) 
+      << "\n d2xsec/dQ2dW"  << "[" << interaction->AsString()
+      << "](W=" << W << ", q2=" << q2 << ", E=" << E << ") = " << xsec;
 #endif
 
-// The algorithm computes d^2xsec/dWdQ2
-// Check whether variable tranformation is needed
-if(kps!=kPSWQ2fE) {
-  double J = utils::kinematics::Jacobian(interaction,kPSWQ2fE,kps);
-  xsec *= J;
-}
+  // The algorithm computes d^2xsec/dWdQ2
+  // Check whether variable tranformation is needed
+  if(kps!=kPSWQ2fE) {
+     double J = utils::kinematics::Jacobian(interaction,kPSWQ2fE,kps);
+     xsec *= J;
+  }
 
-// Apply given scaling factor
-if      (is_CC) { xsec *= fXSecScaleCC; }
-else if (is_NC) { xsec *= fXSecScaleNC; }
+  // Apply given scaling factor
+  if      (is_CC) { xsec *= fXSecScaleCC; }
+  else if (is_NC) { xsec *= fXSecScaleNC; }
 
+  // If requested return the free nucleon xsec even for input nuclear tgt
+  if( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;
 
-// If requested return the free nucleon xsec even for input nuclear tgt
-if( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;
+  int Z = target.Z();
+  int A = target.A();
+  int N = A-Z;
 
-int Z = target.Z();
-int A = target.A();
-int N = A-Z;
+  // Take into account the number of scattering centers in the target
+  int NNucl = (is_p) ? Z : N;
+  xsec*=NNucl; // nuclear xsec (no nuclear suppression factor)
 
-// Take into account the number of scattering centers in the target
-int NNucl = (is_p) ? Z : N;
-
-xsec*=NNucl; // nuclear xsec (no nuclear suppression factor)
-
-if (fUsePauliBlocking && A!=1)
-{
-   // Calculation of Pauli blocking according references:
-   //
-   //     [1] S.L. Adler,  S. Nussinov,  and  E.A.  Paschos,  "Nuclear     
-   //         charge exchange corrections to leptonic pion  production     
-   //         in  the (3,3) resonance  region,"  Phys. Rev. D 9 (1974)     
-   //         2125-2143 [Erratum Phys. Rev. D 10 (1974) 1669].             
-   //     [2] J.Y. Yu, "Neutrino interactions and  nuclear  effects in     
-   //         oscillation experiments and the  nonperturbative disper-     
-   //         sive  sector in strong (quasi-)abelian  fields,"  Ph. D.     
-   //         Thesis, Dortmund U., Dortmund, 2002 (unpublished).           
-   //     [3] E.A. Paschos, J.Y. Yu,  and  M. Sakuda,  "Neutrino  pro-     
-   //         duction  of  resonances,"  Phys. Rev. D 69 (2004) 014013     
-   //         [arXiv: hep-ph/0308130].                                     
+  if (fUsePauliBlocking && A!=1)
+  {
+    // Calculation of Pauli blocking according references:
+    //
+    //     [1] S.L. Adler,  S. Nussinov,  and  E.A.  Paschos,  "Nuclear     
+    //         charge exchange corrections to leptonic pion  production     
+    //         in  the (3,3) resonance  region,"  Phys. Rev. D 9 (1974)     
+    //         2125-2143 [Erratum Phys. Rev. D 10 (1974) 1669].             
+    //     [2] J.Y. Yu, "Neutrino interactions and  nuclear  effects in     
+    //         oscillation experiments and the  nonperturbative disper-     
+    //         sive  sector in strong (quasi-)abelian  fields,"  Ph. D.     
+    //         Thesis, Dortmund U., Dortmund, 2002 (unpublished).           
+    //     [3] E.A. Paschos, J.Y. Yu,  and  M. Sakuda,  "Neutrino  pro-     
+    //         duction  of  resonances,"  Phys. Rev. D 69 (2004) 014013     
+    //         [arXiv: hep-ph/0308130].                                     
   
-   double P_Fermi = 0.0;
+    double P_Fermi = 0.0;
   
-   // Maximum value of Fermi momentum of target nucleon (GeV)
-   if (A<6 || !fUseRFGParametrization)
-   {
-	  //-- look up the Fermi momentum for this Target
-	  FermiMomentumTablePool * kftp = FermiMomentumTablePool::Instance();
-	  const FermiMomentumTable * kft = kftp->GetTable(fKFTable);
-	  P_Fermi = kft->FindClosestKF(pdg::IonPdgCode(A, Z), nucpdgc);
-   }
-   else
-   {
-      //-- define the Fermi momentum for this Target
-      //
-      P_Fermi = utils::nuclear::FermiMomentumForIsoscalarNucleonParametrization(target);
-      //-- correct the Fermi momentum for the struck nucleon
-      if(is_p) 
-          P_Fermi *= TMath::Power( 2.*Z/A, 1./3);
-      else
-          P_Fermi *= TMath::Power( 2.*N/A, 1./3);
-   }
+    // Maximum value of Fermi momentum of target nucleon (GeV)
+    if (A<6 || !fUseRFGParametrization)
+    {
+        // look up the Fermi momentum for this target
+        FermiMomentumTablePool * kftp = FermiMomentumTablePool::Instance();
+        const FermiMomentumTable * kft = kftp->GetTable(fKFTable);
+        P_Fermi = kft->FindClosestKF(pdg::IonPdgCode(A, Z), nucpdgc);
+     } 
+     else {
+        // define the Fermi momentum for this target
+        P_Fermi = utils::nuclear::FermiMomentumForIsoscalarNucleonParametrization(target);
+        // correct the Fermi momentum for the struck nucleon
+        if(is_p) { P_Fermi *= TMath::Power( 2.*Z/A, 1./3); }
+        else     { P_Fermi *= TMath::Power( 2.*N/A, 1./3); }
+     }
   
-   double FactorPauli_RES = 1.0;
+     double FactorPauli_RES = 1.0;
   
-   double k0, q, q0;
+     double k0 = 0., q = 0., q0 = 0.;
   
-   if (P_Fermi > 0.)
-   {
-      k0 = (W2-Mnuc2-Q2)/(2*W);
-      k = TMath::Sqrt(k0*k0+Q2);                  // previous value of k is overridden
-      q0 = (W2-Mnuc2+kPionMass2)/(2*W);
-      q = TMath::Sqrt(q0*q0-kPionMass2);
-   }
+     if (P_Fermi > 0.)
+     {
+        k0 = (W2-Mnuc2-Q2)/(2*W);
+        k = TMath::Sqrt(k0*k0+Q2);  // previous value of k is overridden
+        q0 = (W2-Mnuc2+kPionMass2)/(2*W);
+        q = TMath::Sqrt(q0*q0-kPionMass2);
+     }
            
-   if (2*P_Fermi < k-q) 
-      FactorPauli_RES = 1.0;
-   if (2*P_Fermi >= k+q)
-      FactorPauli_RES = ((3*k*k+q*q)/(2*P_Fermi)-(5*TMath::Power(k,4)+TMath::Power(q,4)+10*k*k*q*q)/(40*TMath::Power(P_Fermi,3)))/(2*k);
-   if (2*P_Fermi >= k-q && 2*P_Fermi <= k+q)
-      FactorPauli_RES = ((q+k)*(q+k)-4*P_Fermi*P_Fermi/5-TMath::Power(k-q, 3)/(2*P_Fermi)+TMath::Power(k-q, 5)/(40*TMath::Power(P_Fermi, 3)))/(4*q*k);
+     if (2*P_Fermi < k-q) 
+        FactorPauli_RES = 1.0;
+     if (2*P_Fermi >= k+q)
+        FactorPauli_RES = ((3*k*k+q*q)/(2*P_Fermi)-(5*TMath::Power(k,4)+TMath::Power(q,4)+10*k*k*q*q)/(40*TMath::Power(P_Fermi,3)))/(2*k);
+     if (2*P_Fermi >= k-q && 2*P_Fermi <= k+q)
+        FactorPauli_RES = ((q+k)*(q+k)-4*P_Fermi*P_Fermi/5-TMath::Power(k-q, 3)/(2*P_Fermi)+TMath::Power(k-q, 5)/(40*TMath::Power(P_Fermi, 3)))/(4*q*k);
      
-   xsec *= FactorPauli_RES;
-}
-
-return xsec;
+     xsec *= FactorPauli_RES;
+  }
+  return xsec;
 }
 //____________________________________________________________________________
 double BSKLNBaseRESPXSec2014::Integral(const Interaction * interaction) const
@@ -820,52 +744,34 @@ void BSKLNBaseRESPXSec2014::Configure(string config)
 void BSKLNBaseRESPXSec2014::LoadConfig(void)
 {
   // Cross section scaling factors
-  GetParam( "RES-CC-XSecScale", fXSecScaleCC ) ;
-  GetParam( "RES-NC-XSecScale", fXSecScaleNC ) ;
+  this->GetParam( "RES-CC-XSecScale", fXSecScaleCC ) ;
+  this->GetParam( "RES-NC-XSecScale", fXSecScaleNC ) ;
 
   // Load all configuration data or set defaults
 
-  LOG("RSHAmpl", pWARN)
-    << "get to beg = ";
-  GetParam( "RES-Zeta",fZeta ) ;
-
-  LOG("RSHAmpl", pWARN)
-    << "load fZeta";
-  GetParam( "RES-Omega", fOmega ) ;
-
-  LOG("RSHAmpl", pWARN)
-    << "load Omega";
-
-/*
-need to be set by concrete classes, not config
-  fKLN = fConfig->GetBoolDef("is_KLN", gc->GetBool("is_KLN"));
-  LOG("RSHAmpl", pWARN)
-    << "load is_KLN";
-  fBRS = fConfig->GetBoolDef("is_BRS", gc->GetBool("is_BRS"));
-*/
-
-  GetParam( "minibooneGA", fGA ) ;
-  GetParam( "minibooneGV", fGV ) ;
+  this->GetParam( "RES-Zeta"   , fZeta  ) ;
+  this->GetParam( "RES-Omega"  , fOmega ) ;
+  this->GetParam( "minibooneGA", fGA    ) ;
+  this->GetParam( "minibooneGV", fGV    ) ;
 
   double ma, mv ;
-  GetParam( "RES-Ma", ma ) ;
-  GetParam( "RES-Mv", mv ) ;
+  this->GetParam( "RES-Ma", ma ) ;
+  this->GetParam( "RES-Mv", mv ) ;
   fMa2 = TMath::Power(ma,2);
   fMv2 = TMath::Power(mv,2);
 
-  GetParamDef( "BreitWignerWeight", fWghtBW, true ) ;
-  GetParamDef( "BreitWignerNorm",   fNormBW, true);
+  this->GetParamDef( "BreitWignerWeight", fWghtBW, true ) ;
+  this->GetParamDef( "BreitWignerNorm",   fNormBW, true);
   double thw ;
-  GetParam( "WeinbergAngle", thw ) ;
+  this->GetParam( "WeinbergAngle", thw ) ;
   fSin48w = TMath::Power( TMath::Sin(thw), 4 );
   double Vud; 
-  GetParam("CKM-Vud", Vud );
+  this->GetParam("CKM-Vud", Vud );
   fVud2 = TMath::Power( Vud, 2 );
-  GetParam("FermiMomentumTable", fKFTable);
-  GetParam("RFG-UseParametrization", fUseRFGParametrization);
-  GetParam("UsePauliBlockingForRES", fUsePauliBlocking);
-  
-  
+  this->GetParam("FermiMomentumTable", fKFTable);
+  this->GetParam("RFG-UseParametrization", fUseRFGParametrization);
+  this->GetParam("UsePauliBlockingForRES", fUsePauliBlocking);
+    
   // Load all the sub-algorithms needed
 
   fHAmplModelCC     = 0;
@@ -894,10 +800,10 @@ need to be set by concrete classes, not config
   assert( fHAmplModelEMn );
 
   // Use algorithm within a DIS/RES join scheme. If yes get Wcut
-  GetParam( "UseDRJoinScheme", fUsingDisResJoin ) ;
+  this->GetParam( "UseDRJoinScheme", fUsingDisResJoin ) ;
   fWcut = 999999;
   if(fUsingDisResJoin) {
-	  GetParam( "Wcut", fWcut ) ;
+    this->GetParam( "Wcut", fWcut ) ;
   }
 
   // NeuGEN limits in the allowed resonance phase space:
@@ -906,13 +812,11 @@ need to be set by concrete classes, not config
   // problem with huge xsec increase at low Q2 and high W.
   // In correspondence with Hugh, Rein said that the underlying problem
   // are unphysical assumptions in the model. 
-  GetParamDef( "MaxNWidthForN2Res", fN2ResMaxNWidths, 2.0 ) ;
-  GetParamDef( "MaxNWidthForN0Res", fN0ResMaxNWidths, 6.0 ) ;
-  GetParamDef( "MaxNWidthForGNRes", fGnResMaxNWidths, 4.0 ) ;
+  this->GetParamDef( "MaxNWidthForN2Res", fN2ResMaxNWidths, 2.0 ) ;
+  this->GetParamDef( "MaxNWidthForN0Res", fN0ResMaxNWidths, 6.0 ) ;
+  this->GetParamDef( "MaxNWidthForGNRes", fGnResMaxNWidths, 4.0 ) ;
 
-
-
-  // load the differential cross section integrator
+  // Load the differential cross section integrator
   fXSecIntegrator =
     dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));
   assert(fXSecIntegrator);
