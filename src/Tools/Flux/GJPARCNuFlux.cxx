@@ -491,15 +491,14 @@ bool GJPARCNuFlux::LoadBeamSimData(string filename, string detector_location)
   LOG("Flux", pNOTICE) 
         << "Detector location: " << detector_location;
 
-  //check to see if its a single flux file (/dir/root_filename.0.root)
+  // Check to see if its a single flux file (/dir/root_filename.0.root)
   // or a sequence of files to be tchained (e.g. /dir/root_filename@0@100)
   fNuFluxUsingTree = true;
-  if (filename.find('@') != string::npos)
-    fNuFluxUsingTree = false;
+  if (filename.find('@') != string::npos) { fNuFluxUsingTree = false; }
 
   vector<string> filenamev = utils::str::Split(filename,"@");
-  string fileroot;
-  int firstfile, lastfile;
+  string fileroot = "";
+  int firstfile = -1, lastfile = -1;
 
   if (!fNuFluxUsingTree) {
     if (filenamev.size() != 3) {
@@ -509,9 +508,12 @@ bool GJPARCNuFlux::LoadBeamSimData(string filename, string detector_location)
 	<< "\t For multiple input files: /dir/root_filename@#@#";
       exit(1);
     }
-    fileroot = filenamev[0];
+    fileroot  = filenamev[0];
     firstfile = atoi(filenamev[1].c_str());
-    lastfile = atoi(filenamev[2].c_str());
+    lastfile  = atoi(filenamev[2].c_str());
+    LOG("Flux", pNOTICE) 
+      << "Chaining beam simulation output files with stem: " << fileroot
+      << " and run numbers in the range: [" << firstfile << ", " << firstfile << "]";
   }
 
   if (fNuFluxUsingTree) {
@@ -548,7 +550,6 @@ bool GJPARCNuFlux::LoadBeamSimData(string filename, string detector_location)
 
   fIsFDLoc = (fDetLocId==-1);
   fIsNDLoc = (fDetLocId>0);
-
 
   if (!fNuFluxUsingTree) {
     string ntuple_name = (fIsNDLoc) ? "h3002" : "h2000";
