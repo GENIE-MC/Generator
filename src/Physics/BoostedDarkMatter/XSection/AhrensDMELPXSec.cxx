@@ -14,7 +14,7 @@
 
 #include <TMath.h>
 
-#include "Framework/Algorithm/AlgConfigPool.h"
+//#include "Framework/Algorithm/AlgConfigPool.h"
 #include "Physics/XSectionIntegration/XSecIntegratorI.h"
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/RefFrame.h"
@@ -73,11 +73,11 @@ double AhrensDMELPXSec::XSec(
   double qma2 = TMath::Power(1 + Q2/fMa2, 2);
 
   //-- handle terms changing sign for antineutrinos and isospin rotations
-  int nusign  = 1;
+  // int nusign  = 1; // comment-out unused variable to eliminate warnings
   int nucsign = 1;
-  int nupdgc  = init_state.ProbePdg();
+  // int nupdgc  = init_state.ProbePdg(); // // comment-out unused variable to eliminate warnings
   int nucpdgc = target.HitNucPdg();
-  if( pdg::IsNeutron(nucpdgc)     ) nucsign = -1;
+  if( pdg::IsNeutron(nucpdgc) ) nucsign = -1;
 
   //-- compute axial form factor terms
   // For dark matter scattering, the factor of 1/2 should be removed
@@ -178,36 +178,33 @@ void AhrensDMELPXSec::Configure(string config)
 //____________________________________________________________________________
 void AhrensDMELPXSec::LoadConfig(void)
 {
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
-
   // alpha and gamma
   double thw ;
-  GetParam( "WeinbergAngle", thw ) ;
+  this->GetParam( "WeinbergAngle", thw ) ;
   double sin2thw = TMath::Power(TMath::Sin(thw), 2);
   fkAlpha = 1.-2.*sin2thw;
   fkGamma = -0.66666667*sin2thw;
 
   // eta and Fa(q2=0)
-  GetParam( "EL-Axial-Eta", fEta ) ;
-  GetParam( "QEL-FA0", fFa0 ) ;
+  this->GetParam( "EL-Axial-Eta", fEta ) ;
+  this->GetParam( "QEL-FA0", fFa0 ) ;
 
   // axial and vector masses
   double ma, mv ;
-  GetParam( "QEL-Ma", ma ) ;
-  GetParam( "QEL-Mv", mv ) ;
+  this->GetParam( "QEL-Ma", ma ) ;
+  this->GetParam( "QEL-Mv", mv ) ;
   fMa2 = TMath::Power(ma,2);
   fMv2 = TMath::Power(mv,2);
 
   // anomalous magnetic moments
-  GetParam( "AnomMagnMoment-P", fMuP ) ;
-  GetParam( "AnomMagnMoment-N", fMuN ) ;
+  this->GetParam( "AnomMagnMoment-P", fMuP ) ;
+  this->GetParam( "AnomMagnMoment-N", fMuN ) ;
 
   // velocity dependence of interaction
-  GetParamDef("velocity-mode", fVelMode, 0 );
+  this->GetParamDef("velocity-mode", fVelMode, 0 );
 
   // mediator coupling
-  GetParam("ZpCoupling", fgZp ) ;
+  this->GetParam("ZpCoupling", fgZp ) ;
 
   // mediator mass
   fMedMass = PDGLibrary::Instance()->Find(kPdgMediator)->Mass();

@@ -73,7 +73,7 @@ double QPMDMDISPXSec::XSec(
   // Get kinematical & init-state parameters
   const Kinematics &   kinematics = interaction -> Kine();
   const InitialState & init_state = interaction -> InitState();
-  const ProcessInfo &  proc_info  = interaction -> ProcInfo();
+  // const ProcessInfo &  proc_info  = interaction -> ProcInfo(); // comment-out unused variable to eliminate warnings
 
   LOG("DMDISPXSec", pDEBUG) << "Using v^" << fVelMode << " dependence";
   
@@ -85,8 +85,8 @@ double QPMDMDISPXSec::XSec(
 
   double E2    = E    * E;
   double ml2   = ml   * ml;
-  double ml4   = ml2  * ml2;
-  double Mnuc2 = Mnuc * Mnuc;
+  // double ml4   = ml2  * ml2; // comment-out unused variable to eliminate warnings
+  // double Mnuc2 = Mnuc * Mnuc; // comment-out unused variable to eliminate warnings
 
   #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DMDISPXSec", pDEBUG)  
@@ -95,9 +95,9 @@ double QPMDMDISPXSec::XSec(
 
   // One of the xsec terms changes sign for antineutrinos @ DMDIS/CC
 
-  bool is_nubar_cc = pdg::IsAntiNeutrino(init_state.ProbePdg()) && 
-                     proc_info.IsWeakCC();
-  int sign = (is_nubar_cc) ? -1 : 1;
+  // bool is_nubar_cc = pdg::IsAntiNeutrino(init_state.ProbePdg()) && 
+  //                    proc_info.IsWeakCC(); // // comment-out unused variable to eliminate warnings
+  // int sign = (is_nubar_cc) ? -1 : 1; // comment-out unused variable to eliminate warnings
 
   // Calculate the DMDIS structure functions
   fDISSF.Calculate(interaction); 
@@ -122,7 +122,7 @@ double QPMDMDISPXSec::XSec(
   // G_{Fermi}^2 --> a_{em}^2 * pi^2 / (2 * sin^4(theta_weinberg) * q^{4})
   //
   double Q2 = utils::kinematics::XYtoQ2(E,Mnuc,x,y);
-  double Q4 = Q2*Q2;
+  // double Q4 = Q2*Q2; // comment-out unused variable to eliminate warnings
   // temp: set the Z' mass to MZ and g' = 1 for now
   LOG("DMDISPXSec", pDEBUG)
     << "Using a mediator mass " << fMedMass;
@@ -402,7 +402,7 @@ void QPMDMDISPXSec::LoadConfig(void)
 
   fDISSF.SetModel(fDISSFModel); // <-- attach algorithm
 
-  GetParam( "UseDRJoinScheme", fUsingDisResJoin ) ;
+  this->GetParam( "UseDRJoinScheme", fUsingDisResJoin ) ;
 
   fHadronizationModel = 0;
   fWcut = 0.;
@@ -414,17 +414,15 @@ void QPMDMDISPXSec::LoadConfig(void)
 
      // Load Wcut determining the phase space area where the multiplicity prob.
      // scaling factors would be applied -if requested-
-
-          GetParam( "Wcut", fWcut ) ;
-
+     this->GetParam( "Wcut", fWcut ) ;
   }
 
   // Cross section scaling factor
-  GetParam( "DIS-XSecScale", fScale ) ;
+  this->GetParam( "DIS-XSecScale", fScale ) ;
 
   // sin^4(theta_weinberg)
   double thw  ;
-  GetParam( "WeinbergAngle", thw ) ;
+  this->GetParam( "WeinbergAngle", thw ) ;
   fSin48w = TMath::Power( TMath::Sin(thw), 4 );
 
   // Caching the reduction factors used in the DMDIS/RES joing scheme?
@@ -436,7 +434,7 @@ void QPMDMDISPXSec::LoadConfig(void)
 
   bool cache_enabled = RunOpt::Instance()->BareXSecPreCalc();
 
-  GetParamDef( "UseCache", fUseCache, true ) ;
+  this->GetParamDef( "UseCache", fUseCache, true ) ;
   fUseCache = fUseCache && cache_enabled;
 
   // Since this method would be called every time the current algorithm is 
@@ -451,10 +449,10 @@ void QPMDMDISPXSec::LoadConfig(void)
   fInInitPhase = false;
 
   // velocity dependence of the interaction
-  GetParamDef("velocity-mode", fVelMode, 0);
+  this->GetParamDef("velocity-mode", fVelMode, 0);
 
   // mediator coupling
-  GetParam("ZpCoupling", fgzp);
+  this->GetParam("ZpCoupling", fgzp);
 
   // mediator mass ratio and mediator mass
   fMedMass = PDGLibrary::Instance()->Find(kPdgMediator)->Mass();
@@ -464,17 +462,12 @@ void QPMDMDISPXSec::LoadConfig(void)
       dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));
   assert(fXSecIntegrator);
 
-  // Load the charm production cross section model
-  AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->GlobalParameterList();
-
   RgKey xdefkey = "CharmXSec" ;
   RgAlg xalg ;
   GetParam( xdefkey, xalg) ;
   LOG("DMDISXSec", pDEBUG)
      << "Loading the cross section model: " << xalg;
   fCharmProdModel = dynamic_cast<const XSecAlgorithmI *> ( this -> SubAlg(xdefkey) ) ;
-
   assert(fCharmProdModel);
 }
 //____________________________________________________________________________
