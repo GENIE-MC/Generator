@@ -173,13 +173,11 @@ bool TuneId::CheckDirectory() {
   fBaseDirectory = "" ;
   LOG("TuneId",pDEBUG) << "Base dir validation " ;
   
-  std::cerr<<"XMLPathList: "<<pathlist<<std::endl;
-
   for ( size_t i=0; i< paths.size(); ++i ) {
      const char* tmppath = paths[i].c_str();
      std::string onepath = gSystem->ExpandPathName(tmppath);
      string test = onepath + "/" + CGC() ;
-     LOG("TuneId", pFATAL) << " Testing  " << test << " directory" ;
+     LOG("TuneId", pDEBUG) << " Testing  " << test << " directory" ;
      if ( utils::system::DirectoryExists( test.c_str() ) ) {
        fBaseDirectory = onepath ;
        break ;
