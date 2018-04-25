@@ -286,7 +286,7 @@ TClonesArray *
   TClonesArray * particle_list = new TClonesArray("TMCParticle", np);
   particle_list->SetOwner(true);
 
-  register unsigned int i = 0;
+  unsigned int i = 0;
   TMCParticle * particle = 0;
   TIter particle_iter(pythia_particles);
 
@@ -296,7 +296,7 @@ TClonesArray *
           << " with status = " << particle->GetKS();
 
      if(particle->GetKS() == 1) {
-	if( pdg::IsQuark  (particle->GetKF()) || 
+        if( pdg::IsQuark  (particle->GetKF()) || 
             pdg::IsDiQuark(particle->GetKF()) ) {
                 LOG("PythiaHad", pERROR)
                   << "Hadronization failed! Bare quark/di-quarks appear in final state!";
@@ -665,9 +665,9 @@ void PythiaHadronization::HandleDecays(TClonesArray * plist) const
                   TIter dpiter(decay_products);
 
                   while ( (dp = (TMCParticle *) dpiter.Next()) ) {
-  	  	     if(dp->GetKS()>10) continue;
-                     dp->SetParent(idecaying);
-                     new ( (*plist)[plist->GetEntries()] ) TMCParticle(*dp);
+                    if(dp->GetKS()>10) continue;
+                    dp->SetParent(idecaying);
+                    new ( (*plist)[plist->GetEntries()] ) TMCParticle(*dp);
                   }
 
                   //-- clean up decay products
