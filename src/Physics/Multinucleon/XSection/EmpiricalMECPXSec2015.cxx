@@ -286,7 +286,7 @@ double EmpiricalMECPXSec2015::Integral(const Interaction * interaction) const
 
      // Add A dependence which is not known from theory, data wants high A suppression
     double fFracADep = 1.;
-    if(A>=12) fFracADep = TMath::Power((A/6.),fMECAPower-1.);
+    if(A>=12) fFracADep = TMath::Power((A/12.),fMECAPower-1.);
   
     // Use tunable fraction 
     // FFracEMQE is fraction of QE going to MEC
