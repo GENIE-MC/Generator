@@ -13,6 +13,8 @@ EmpiricalMEC-Mq2d       double   Yes        Analogous to MA in CCQE (drives Q^2 
 EmpiricalMEC-Mass       double   Yes        units GeV 
 EmpiricalMEC-Width      double   Yes        Width of the gaussian W-dependence in the dip region; units GeV 
                       Both mass and width fit to (e,e') data 
+EmpiricalMEC-APower     double   Yes        Power of A relative to 12
+                      Not known from theory for neutrinos
 EmpiricalMEC-FracCCQE   double   Yes        Fraction of CCQE xsec to CCMEC xsec
                         Fit with RFG nculear model to MiniBoone CCQE_like data
 EmpiricalMEC-FracNCQE   double   Yes        Fraction of NCQE xsec to NCMEC xsec
@@ -32,7 +34,8 @@ EmpiricalMEC-FracPN_NC  double   Yes        Fraction of pairs in the nucleus tha
 	  
 	  Mq2d       : Analogous to MA in CCQE (drives Q^2 dependence); units GeV
 	  Mass       : units GeV
-	  Width      : Width of the gaussian W-dependence in the dip region; units GeV 
+	  Width      : Width of the gaussian W-dependence in the dip region; units GeV
+	  APower     : Power of A governing heavier targets relative to Carbon (saves tune to MiniBooNE CCQE-like.
 	  FracCCQE   : Fraction of CCQE xsec to CCMEC xsec.
 	  FracNCQE   : Fraction of NCQE xsec to NCMEC xsec.
 	  FracEMQE   : Fraction of 0.5*(ep+en) Rosenbluth xsec going to (e,e') MEC.
@@ -40,10 +43,11 @@ EmpiricalMEC-FracPN_NC  double   Yes        Fraction of pairs in the nucleus tha
 	  FracPN_NC  : Fraction of pairs in the nucleus that are pn.
      -->     
      <param type="double" name="EmpiricalMEC-Mq2d"> 0.4 </param>
-     <param type="double" name="EmpiricalMEC-Mass"> 2.1 </param>
+     <param type="double" name="EmpiricalMEC-Mass"> 2.15 </param>
      <param type="double" name="EmpiricalMEC-Width"> 0.05 </param>
-     <param type="double" name="EmpiricalMEC-FracCCQE"> 0.40 </param>
-     <param type="double" name="EmpiricalMEC-FracNCQE"> 0.40 </param>
+     <param type="double" name="EmpiricalMEC-APower"> 0.9 </param>
+     <param type="double" name="EmpiricalMEC-FracCCQE"> 0.30 </param>
+     <param type="double" name="EmpiricalMEC-FracNCQE"> 0.30 </param>
      <param type="double" name="EmpiricalMEC-FracEMQE"> 0.05 </param>
      <param type="double" name="EmpiricalMEC-FracPN_NC"> 0.8 </param>
      <param type="double" name="EmpiricalMEC-FracPN_CC"> 0.8 </param>
