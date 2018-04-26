@@ -51,6 +51,7 @@ private:
   double fMq2d;       ///< toy model param: `mass' in dipole (Q2 - dependence) form factor (GeV)
   double fMass;       ///< toy model param: peak  of W distribution (GeV)
   double fWidth;      ///< toy model param: width of W distribution (GeV)
+  double fMECAPower;      ///< power of A relative to carbon
   double fFracPN_NC;     ///< toy model param: fraction of nucleon pairs that are pn, not nn or pp
   double fFracPN_CC;     ///< toy model param: fraction of nucleon pairs that are pn, not nn or pp
   double fFracPN_EM;     ///< toy model param: fraction of nucleon pairs that are pn, not nn or pp
