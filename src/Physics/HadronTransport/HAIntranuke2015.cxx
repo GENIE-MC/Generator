@@ -80,6 +80,8 @@
 #include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/Utils/PrintUtils.h"
 #include "Physics/NuclearState/NuclearUtils.h"
+#include "Physics/NuclearState/NuclearModelI.h"
+#include "Physics/NuclearState/NuclearModelMap.h"
 //#include "Physics/HadronTransport/INukeOset.h" 
 
 using std::ostringstream;
@@ -880,6 +882,7 @@ void HAIntranuke2015::Inelastic(
 	    {
 	      target.SetHitNucPdg(t1code);
 	      fNuclmodel->GenerateNucleon(target);
+	      //LOG("HAIntranuke2015", pNOTICE) << "Nuclmodel= " << fNuclmodel->ModelType(target) ;
 	      tP2_1L=fFermiFac * fNuclmodel->Momentum3();
 	      E2_1L = TMath::Sqrt(tP2_1L.Mag2() + M2_1*M2_1);
  
