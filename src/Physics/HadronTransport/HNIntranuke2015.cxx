@@ -726,7 +726,7 @@ void HNIntranuke2015::ElasHN(
     {
       // Handle fermi target
       Target target(ev->TargetNucleus()->Pdg());
-
+      //LOG("HAIntranuke2015", pNOTICE) << "Nuclmodel= " << fNuclmodel->ModelType(target) ;
       target.SetHitNucPdg(tcode);
       fNuclmodel->GenerateNucleon(target);
       TVector3 tP3L = fFermiFac * fNuclmodel->Momentum3();
