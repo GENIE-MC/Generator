@@ -218,6 +218,10 @@ double EmpiricalMECPXSec2015::Integral(const Interaction * interaction) const
      // Calculate cross section for the QE process
      double xsec = fXSecAlgCCQE->Integral(in);
 
+    // Add A dependence which is not known from theory
+     double fFracADep = 1.;
+     if(A>=12) fFracADep = TMath::Power((N/6.),fMECAPower-1.);
+
      // Use tunable fraction 
      // FFracCCQE is fraction of QE going to MEC
      // fFracCCQE_cluster is fraction of MEC going to each NN pair
@@ -230,7 +234,7 @@ double EmpiricalMECPXSec2015::Integral(const Interaction * interaction) const
      if(pdg::IsAntiNeutrino(nupdg) && nucleon_cluster_pdg==2000000202) fFracCCQE_cluster= 1.0-fFracPN_CC;   //p+p
 
 
-     xsec *= fFracCCQE*fFracCCQE_cluster;
+     xsec *= fFracCCQE*fFracCCQE_cluster*fFracADep;
 
      // Use gross combinatorial factor (number of 2-nucleon targets over number
      // of 1-nucleon targets) : (A-1)/2
@@ -251,6 +255,10 @@ double EmpiricalMECPXSec2015::Integral(const Interaction * interaction) const
     
     // Calculate cross section for the QE process - avg of p and n - best for isoscalar nuclei
     double xsec = (Z*fXSecAlgNCQE->Integral(inp) + N*fXSecAlgNCQE->Integral(inn))/A;
+
+    // Add A dependence which is not known from theory
+    double fFracADep = 1.;
+    if(A>=12) fFracADep = TMath::Power((A/12.),fMECAPower-1.);
     
     // Use tunable fraction 
     // FFracNCQE is fraction of QE going to MEC
@@ -259,7 +267,7 @@ double EmpiricalMECPXSec2015::Integral(const Interaction * interaction) const
     if(nucleon_cluster_pdg==2000000200) fFracNCQE_cluster= 0.5*(1-fFracPN_NC);  //n+n
     if(nucleon_cluster_pdg==2000000201) fFracNCQE_cluster= fFracPN_NC;  //n+p
     if(nucleon_cluster_pdg==2000000202) fFracNCQE_cluster= 0.5*(1-fFracPN_NC);  //p+p
-    xsec *= fFracNCQE*fFracNCQE_cluster;
+    xsec *= fFracNCQE*fFracNCQE_cluster*fFracADep;
     delete inn;
     delete inp;
     return xsec;
@@ -275,7 +283,11 @@ double EmpiricalMECPXSec2015::Integral(const Interaction * interaction) const
     
     // Calculate cross section for the QE process - avg of p and n - best for isoscalar nuclei
     double xsec = (Z*fXSecAlgEMQE->Integral(inp) + N*fXSecAlgEMQE->Integral(inn))/A;
-    
+
+     // Add A dependence which is not known from theory, data wants high A suppression
+    double fFracADep = 1.;
+    if(A>=12) fFracADep = TMath::Power((A/6.),fMECAPower-1.);
+  
     // Use tunable fraction 
     // FFracEMQE is fraction of QE going to MEC
     // fFracEMQE_cluster is fraction of MEC going to each NN pair
@@ -283,7 +295,7 @@ double EmpiricalMECPXSec2015::Integral(const Interaction * interaction) const
     if(nucleon_cluster_pdg==2000000200) fFracEMQE_cluster= 0.5*(1-fFracPN_EM);  //n+n
     if(nucleon_cluster_pdg==2000000201) fFracEMQE_cluster= fFracPN_EM;  //n+p
     if(nucleon_cluster_pdg==2000000202) fFracEMQE_cluster= 0.5*(1-fFracPN_EM);  //p+p
-    xsec *= fFracEMQE*fFracEMQE_cluster;
+    xsec *= fFracEMQE*fFracEMQE_cluster*fFracADep;
     delete inn;
     delete inp;
     return xsec;
