@@ -39,10 +39,9 @@ class TuneId  {
 
 public:
 
-  TuneId() {;}
-  TuneId(const string & id_str) : fName(id_str) { Build(); }
+  TuneId(const string & id_str) : fName(id_str) { ; }
   TuneId(const TuneId & id);
- ~TuneId() {;}
+  ~TuneId() {;}
 
   // The typical tune name in neutrino mode is : Gdd_MMv_PP_xxx
   string Name            (void) const { return fName;                         } // Gdd_MMv_PP_xxx
@@ -85,6 +84,8 @@ public:
   friend ostream & operator << (ostream & stream, const TuneId & id);
 
 private:
+
+  TuneId() {;}
 
   bool CheckDirectory() ;
 

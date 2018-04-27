@@ -305,6 +305,13 @@ int main(int argc, char** argv)
   // Parse command line arguments
   GetCommandLineArgs(argc,argv);
 
+  if ( ! RunOpt::Instance() -> Tune() ) {
+    LOG("gmkspl", pFATAL) << " No TuneId in RunOption";
+    exit(-1);
+  }
+  RunOpt::Instance() -> Tune() -> Build() ;
+  XSecSplineList::Instance() -> SetCurrentTune( RunOpt::Instance() -> Tune() -> Name() ) ;
+
   // Iinitialization of random number generators, cross-section table, messenger, cache etc...
   utils::app_init::MesgThresholds(RunOpt::Instance()->MesgThresholdFiles());
   utils::app_init::CacheFile(RunOpt::Instance()->CacheFile());

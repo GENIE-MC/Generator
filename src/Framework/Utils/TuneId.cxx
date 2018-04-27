@@ -40,14 +40,14 @@ namespace genie
   }
   //..........................................................................
   bool operator == (const TuneId & id1, const TuneId & id2)
-  {
+          {
     return id1.Compare(id2);
-  }
+          }
   //..........................................................................
   bool operator != (const TuneId & id1, const TuneId & id2)
-  {
+          {
     return !id1.Compare(id2);
-  }
+          }
 }
 //____________________________________________________________________________
 TuneId::TuneId(const TuneId & id) 
@@ -137,6 +137,7 @@ void TuneId::Copy(const TuneId & id)
   this->fMinorModelId    = id.MinorModelId();
   this->fTunedParamSetId = id.TunedParamSetId();
   this->fFitDataSetId    = id.FitDataSetId();
+
 }
 //____________________________________________________________________________
 bool TuneId::Compare(const TuneId & id) const
@@ -146,7 +147,7 @@ bool TuneId::Compare(const TuneId & id) const
 //____________________________________________________________________________
 void TuneId::Print(ostream & stream) const
 {
-  stream << (IsCustom() ? "Custom" : "Standard") << " GENIE tune: "   << std::endl;
+  stream << (IsCustom() ? "Custom" : "Standard") << " GENIE tune: " << this -> Name()  << std::endl;
   stream << " - Prefix ............... : " << this->Prefix()          << std::endl;
   stream << " - Year ................. : " << this->Year()            << std::endl;
   stream << " - Major model ID ....... : " << this->MajorModelId()    << std::endl;
@@ -174,14 +175,14 @@ bool TuneId::CheckDirectory() {
   LOG("TuneId",pDEBUG) << "Base dir validation " ;
   
   for ( size_t i=0; i< paths.size(); ++i ) {
-     const char* tmppath = paths[i].c_str();
-     std::string onepath = gSystem->ExpandPathName(tmppath);
-     string test = onepath + "/" + CGC() ;
-     LOG("TuneId", pDEBUG) << " Testing  " << test << " directory" ;
-     if ( utils::system::DirectoryExists( test.c_str() ) ) {
-       fBaseDirectory = onepath ;
-       break ;
-     }
+    const char* tmppath = paths[i].c_str();
+    std::string onepath = gSystem->ExpandPathName(tmppath);
+    string test = onepath + "/" + CGC() ;
+    LOG("TuneId", pDEBUG) << " Testing  " << test << " directory" ;
+    if ( utils::system::DirectoryExists( test.c_str() ) ) {
+      fBaseDirectory = onepath ;
+      break ;
+    }
   }
 
   if ( fBaseDirectory.size() == 0 ) {

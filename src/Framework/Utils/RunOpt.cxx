@@ -44,7 +44,7 @@ ostream & operator << (ostream & stream, const RunOpt & opt)
 //____________________________________________________________________________
 RunOpt * RunOpt::fInstance = 0;
 //____________________________________________________________________________
-RunOpt::RunOpt()
+RunOpt::RunOpt() : fTune(0)
 {
   fInstance = 0;
 
@@ -53,7 +53,8 @@ RunOpt::RunOpt()
 //____________________________________________________________________________
 RunOpt::~RunOpt()
 {
-  if( fUnphysEventMask )         delete fUnphysEventMask;
+  if ( fTune )                    delete fTune ;
+  if ( fUnphysEventMask )         delete fUnphysEventMask ;
   fInstance = 0;
 }
 //____________________________________________________________________________
@@ -69,6 +70,7 @@ RunOpt * RunOpt::Instance()
 //____________________________________________________________________________
 void RunOpt::Init(void)
 {
+  fTune = 0 ;
   fEnableBareXSecPreCalc = true;
   fCacheFile = "";
   fMesgThresholds = "";
@@ -120,14 +122,11 @@ void RunOpt::ReadFromCommandLine(int argc, char ** argv)
   }
   
   if( parser.OptionExists("tune") ) {
-    fTune.Build( parser.ArgAsString("tune") ) ;
+    fTune = new TuneId( parser.ArgAsString("tune") ) ;
   }
   else {
-    fTune.Build( "G00_00a_00_000" ) ;
+    fTune = new TuneId( "G00_00a_00_000" ) ;
   }// else ( parser.OptionExists("tune") )
-
-  //after having a tune set up, we can tell the splines what to load
-  XSecSplineList::Instance() -> SetCurrentTune( fTune.Name() ) ;
 
   if( parser.OptionExists("unphysical-event-mask") ) {
     const char * bitfield =
@@ -146,7 +145,7 @@ void RunOpt::ReadFromCommandLine(int argc, char ** argv)
 void RunOpt::Print(ostream & stream) const
 {
   stream << "Global running options:";
-  stream << "\n GENIE tune: " << fTune;
+  if ( fTune ) stream << "\n GENIE tune: " << *fTune;
   stream << "\n Event generator list: " << fEventGeneratorList;
   stream << "\n User-specified message thresholds : " << fMesgThresholds;
   stream << "\n Cache file : " << fCacheFile;

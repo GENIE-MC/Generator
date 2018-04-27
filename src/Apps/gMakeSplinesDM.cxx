@@ -155,6 +155,13 @@ int main(int argc, char ** argv)
   // Parse command line arguments
   GetCommandLineArgs(argc,argv);
 
+  if ( ! RunOpt::Instance() -> Tune() ) {
+    LOG("gmkspl", pFATAL) << " No TuneId in RunOption";
+    exit(-1);
+  }
+  RunOpt::Instance() -> Tune() -> Build() ;
+  XSecSplineList::Instance() -> SetCurrentTune( RunOpt::Instance() -> Tune() -> Name() ) ;
+
   for (vector<double>::iterator mass = gOptDMMasses.begin(); mass != gOptDMMasses.end(); ++mass) {
     for (vector<double>::iterator ratio = gOptMedRatios.begin(); ratio != gOptMedRatios.end(); ++ratio) {
       for (vector<double>::iterator coup = gOptZpCouplings.begin(); coup != gOptZpCouplings.end(); ++coup) {

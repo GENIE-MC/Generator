@@ -72,22 +72,22 @@ string genie::utils::xml::GetXMLPathList( bool add_tune )   {
   const char* p3 = std::getenv( "GALGCONF" );
   if ( p3 ) { pathlist += std::string(p3) + ":" ; }
 
-  if ( add_tune ) {
+  if ( add_tune && RunOpt::Instance() -> Tune() ) {
 
-    if ( RunOpt::Instance() -> Tune().IsConfigured() ) {
+    if ( RunOpt::Instance() -> Tune() -> IsConfigured() ) {
 
-      if ( ! RunOpt::Instance() -> Tune().IsValidated() ) {
+      if ( ! RunOpt::Instance() -> Tune() -> IsValidated() ) {
         LOG( "XmlParser", pFATAL) << "Tune not validated" ;
         exit(0) ;
       }
 
-      if ( ! RunOpt::Instance() -> Tune().OnlyConfiguration() )
-        pathlist += RunOpt::Instance() -> Tune().TuneDirectory() + ":" ;
+      if ( ! RunOpt::Instance() -> Tune() -> OnlyConfiguration() )
+        pathlist += RunOpt::Instance() -> Tune() -> TuneDirectory() + ":" ;
 
-      pathlist += RunOpt::Instance() -> Tune().CGCDirectory()  + ':' ;
+      pathlist += RunOpt::Instance() -> Tune() -> CGCDirectory()  + ':' ;
 
     }  //tune not set in run option
-  }  // requested tune
+  }  // requested tune and there is a tune
 
   pathlist += GetXMLDefaultPath() ;  // standard path in case no env
   pathlist += ":$GENIE/src/FluxDrivers/GNuMINtuple";  // special case
