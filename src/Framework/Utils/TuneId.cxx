@@ -110,7 +110,7 @@ void TuneId::Build(const string & name ) {
 //____________________________________________________________________________
 void TuneId::Decode(string id_str)
 {
-  static TPRegexp pattern("([A-Z])(\\d{2})_(\\d{2})([a-z])_(\\d{2})_(\\d{3})");
+  static TPRegexp pattern("([A-Za-z]+)(\\d{2})_(\\d{2})([a-z])_(\\d{2})_(\\d{3})");
   TString tstr(id_str.c_str());
   TObjArray * matches = pattern.MatchS(tstr);
   if ( matches -> GetEntries() != 7) {
