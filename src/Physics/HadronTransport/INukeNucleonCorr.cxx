@@ -27,8 +27,8 @@ potential in (e,e'p).  GENIE code was adapted from NuWro implementation.
 */
 //____________________________________________________________________________
 #include "Physics/HadronTransport/INukeNucleonCorr.h"
-#include "Physics/HadronTransport/INukeUtils2015.h"
-#include "Physics/HadronTransport/INukeHadroData2015.h"
+#include "Physics/HadronTransport/INukeUtils2018.h"
+#include "Physics/HadronTransport/INukeHadroData2018.h"
 #include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/Conventions/Units.h"
 #include "Framework/Numerical/RandomGen.h"
@@ -170,10 +170,10 @@ double INukeNucleonCorr :: AvgCorrection (const double rho, const int A, const i
     TLorentzVector outNucl1, outNucl2, RemnP4; // final 4-momenta
 
     // random scattering angle
-    double C3CM = INukeHadroData2015::Instance()->IntBounce (&incomingParticle, targetPdg, pdg, kIHNFtElas);
+    double C3CM = INukeHadroData2018::Instance()->IntBounce (&incomingParticle, targetPdg, pdg, kIHNFtElas);
 
     // generate kinematics
-    utils::intranuke2015::TwoBodyKinematics (mass, targetMass, p, target, outNucl1, outNucl2, C3CM, RemnP4);
+    utils::intranuke2018::TwoBodyKinematics (mass, targetMass, p, target, outNucl1, outNucl2, C3CM, RemnP4);
 
     // update Pauli blocking correction
     corrPauliBlocking += (outNucl1.Vect().Mag() > fermiMomentum (pdg) and outNucl2.Vect().Mag() > fermiMomentum (targetPdg));
