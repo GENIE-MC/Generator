@@ -155,6 +155,13 @@ int main(int argc, char ** argv)
 {
   GetCommandLineArgs(argc,argv);
 
+  if ( ! RunOpt::Instance() -> Tune() ) {
+    LOG("gmkspl", pFATAL) << " No TuneId in RunOption";
+    exit(-1);
+  }
+  RunOpt::Instance() -> Tune() -> Build() ;
+  XSecSplineList::Instance() -> SetCurrentTune( RunOpt::Instance() -> Tune() -> Name() ) ;
+
   utils::app_init::MesgThresholds(RunOpt::Instance()->MesgThresholdFiles());
 
   // load the x-section splines xml file specified by the user
