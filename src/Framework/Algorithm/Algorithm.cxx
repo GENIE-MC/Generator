@@ -202,7 +202,7 @@ void Algorithm::FindConfig(void)
 	exit(0) ;
       }
       else  {
-	AddTopRegistry( config, false ) ;
+	AddLowRegistry( config, false ) ;
 	
 	LOG("Algorithm", pDEBUG) << "Loading Commom Param registry " << list[i] << " \n" << config;
       }
