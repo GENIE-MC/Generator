@@ -60,7 +60,7 @@ libs="-L$libdir $fmwk_libs $phys_libs $tool_libs "
 
 ### Usage
 usage="\
-Usage: genie-config [--libs] [--libdir] [--topsrcdir]"
+Usage: genie-config [--libs] [--libdir] [--topsrcdir] [--version]"
 
 if test $# -eq 0; then
    echo "${usage}" 1>&2
@@ -87,6 +87,10 @@ while test $# -gt 0; do
     --topsrcdir)
       ### Output GENIE top level src directory
       out="$out $srcdir"
+      ;;
+    --version)
+      ### Output version
+      out="$out $(cat ${GENIE}/VERSION)"
       ;;
   esac
   shift
