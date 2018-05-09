@@ -20,6 +20,7 @@
             [--check-for-num-of-final-state-nucleons-inconsistent-with-target]
             [--check-vertex-distribution]
             [--check-decayer-consistency]
+            [--all]
 
 \author  Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          University of Liverpool & STFC Rutherford Appleton Lab
@@ -530,7 +531,6 @@ void CheckForNumFinStateNucleonsInconsistentWithTarget(void)
     if (!nucltgt) {
       LOG("gevscan", pINFO)
            << "Event not in nuclear target - Skipping test...";
-      continue;
     }
     else {
       GHepParticle * p = 0;
@@ -640,7 +640,6 @@ void CheckVertexDistribution(void)
     if (!nucltgt) {
       LOG("gevscan", pINFO)
            << "Event not in nuclear target - Skipping...";
-      continue;
     }
     else {
       if(Z == -1 && A == -1) {
@@ -652,13 +651,13 @@ void CheckVertexDistribution(void)
       if(Z != nucltgt->Z() || A != nucltgt->A()) {
         LOG("gevscan", pINFO)
              << "Event not in nuclear target seen first - Skipping...";
-        continue;
       }
+      else {
+        GHepParticle * probe = event.Particle(0);
+        double r = probe->X4()->Vect().Mag();
 
-      GHepParticle * probe = event.Particle(0);
-      double r = probe->X4()->Vect().Mag();
-
-      r_distr_mc->Fill(r);
+        r_distr_mc->Fill(r);
+      }
     } //nucltgt
 
     gMCRec->Clear(); // clear out explicitly to prevent memory leak w/Root6
@@ -897,21 +896,23 @@ void GetCommandLineArgs(int argc, char ** argv)
      gOptMaxNumErrs = parser.ArgAsInt("max-num-of-errors-shown");
      gOptMaxNumErrs = TMath::Max(1,gOptMaxNumErrs);
   }
+  
+  bool all = parser.OptionExists("all");
 
   // checks
-  gOptCheckEnergyMomentumConservation =
+  gOptCheckEnergyMomentumConservation = all ||
      parser.OptionExists("check-energy-momentum-conservation");
-  gOptCheckChargeConservation =
+  gOptCheckChargeConservation = all || 
      parser.OptionExists("check-charge-conservation");
-  gOptCheckForNumFinStateNucleonsInconsistentWithTarget =
+  gOptCheckForNumFinStateNucleonsInconsistentWithTarget = all ||
      parser.OptionExists("check-for-num-of-final-state-nucleons-inconsistent-with-target");
-  gOptCheckForPseudoParticlesInFinState = 
+  gOptCheckForPseudoParticlesInFinState = all ||
      parser.OptionExists("check-for-pseudoparticles-in-final-state");
-  gOptCheckForOffMassShellParticlesInFinState = 
+  gOptCheckForOffMassShellParticlesInFinState = all ||
      parser.OptionExists("check-for-off-mass-shell-particles-in-final-state");
-  gOptCheckVertexDistribution =
+  gOptCheckVertexDistribution = all ||
      parser.OptionExists("check-vertex-distribution");
-  gOptCheckDecayerConsistency =
+  gOptCheckDecayerConsistency = all ||
      parser.OptionExists("check-decayer-consistency");
 }
 //____________________________________________________________________________
