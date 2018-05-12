@@ -62,6 +62,7 @@ public:
   // one for each process, as instructed. 
   void   SetCurrentTune (const string & tune) { fCurrentTune = tune; }
   string CurrentTune    (void) const  { return fCurrentTune; }
+  bool   HasSplineFromTune( const string & tune ) const { return fSplineMap.count(tune) > 0 ; }
 
   // Query the existence, access or create a spline
   // The results of the following methods depend on the current tune setting
