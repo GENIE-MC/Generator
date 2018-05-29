@@ -128,19 +128,19 @@ public:
   const Spline * FracNA_Cmp       (void) const { return fFracNA_Cmp;      } //suarez
 
 
-  const BLI2DNonUnifGrid * const hN2dXSecPP_Elas          (void) const { return fhN2dXSecPP_Elas;          }
-  const BLI2DNonUnifGrid * const hN2dXSecNP_Elas          (void) const { return fhN2dXSecNP_Elas;          }
-  const BLI2DNonUnifGrid * const hN2dXSecPipN_Elas        (void) const { return fhN2dXSecPipN_Elas;        }
-  const BLI2DNonUnifGrid * const hN2dXSecPi0N_Elas        (void) const { return fhN2dXSecPi0N_Elas;        }
-  const BLI2DNonUnifGrid * const hN2dXSecPimN_Elas        (void) const { return fhN2dXSecPimN_Elas;        }
-  const BLI2DNonUnifGrid * const hN2dXSecKpN_Elas         (void) const { return fhN2dXSecKpN_Elas;         }
-  const BLI2DNonUnifGrid * const hN2dXSecKpP_Elas         (void) const { return fhN2dXSecKpP_Elas;         }
-  const BLI2DNonUnifGrid * const hN2dXSecPiN_CEx          (void) const { return fhN2dXSecPiN_CEx;          }
-  const BLI2DNonUnifGrid * const hN2dXSecPiN_Abs          (void) const { return fhN2dXSecPiN_Abs;          }
-  const BLI2DNonUnifGrid * const hN2dXSecGamPi0P_Inelas   (void) const { return fhN2dXSecGamPi0P_Inelas;   }
-  const BLI2DNonUnifGrid * const hN2dXSecGamPi0N_Inelas   (void) const { return fhN2dXSecGamPi0N_Inelas;   }
-  const BLI2DNonUnifGrid * const hN2dXSecGamPipN_Inelas   (void) const { return fhN2dXSecGamPipN_Inelas;   }
-  const BLI2DNonUnifGrid * const hN2dXSecGamPimP_Inelas   (void) const { return fhN2dXSecGamPimP_Inelas;   }
+  const BLI2DNonUnifGrid * hN2dXSecPP_Elas          (void) const { return fhN2dXSecPP_Elas;          }
+  const BLI2DNonUnifGrid * hN2dXSecNP_Elas          (void) const { return fhN2dXSecNP_Elas;          }
+  const BLI2DNonUnifGrid * hN2dXSecPipN_Elas        (void) const { return fhN2dXSecPipN_Elas;        }
+  const BLI2DNonUnifGrid * hN2dXSecPi0N_Elas        (void) const { return fhN2dXSecPi0N_Elas;        }
+  const BLI2DNonUnifGrid * hN2dXSecPimN_Elas        (void) const { return fhN2dXSecPimN_Elas;        }
+  const BLI2DNonUnifGrid * hN2dXSecKpN_Elas         (void) const { return fhN2dXSecKpN_Elas;         }
+  const BLI2DNonUnifGrid * hN2dXSecKpP_Elas         (void) const { return fhN2dXSecKpP_Elas;         }
+  const BLI2DNonUnifGrid * hN2dXSecPiN_CEx          (void) const { return fhN2dXSecPiN_CEx;          }
+  const BLI2DNonUnifGrid * hN2dXSecPiN_Abs          (void) const { return fhN2dXSecPiN_Abs;          }
+  const BLI2DNonUnifGrid * hN2dXSecGamPi0P_Inelas   (void) const { return fhN2dXSecGamPi0P_Inelas;   }
+  const BLI2DNonUnifGrid * hN2dXSecGamPi0N_Inelas   (void) const { return fhN2dXSecGamPi0N_Inelas;   }
+  const BLI2DNonUnifGrid * hN2dXSecGamPipN_Inelas   (void) const { return fhN2dXSecGamPipN_Inelas;   }
+  const BLI2DNonUnifGrid * hN2dXSecGamPimP_Inelas   (void) const { return fhN2dXSecGamPimP_Inelas;   }
 
   static double fMinKinEnergy;   ///<
   static double fMaxKinEnergyHA; ///<
@@ -254,5 +254,5 @@ private:
 };
 
 }      // genie namespace
-#endif //_INTRANUKE_HADRON_CROSS_SECTIONS_2018_H_
+#endif //_INTRANUKE_HADRON_CROSS_SECTIONS_2015_H_
 
