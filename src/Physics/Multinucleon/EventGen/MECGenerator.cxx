@@ -621,7 +621,7 @@ void MECGenerator::SelectNSVLeptonKinematics (GHepRecord * event) const
 
   // The accept/reject loop tests a rand against a maxxsec - must scale with A.
   int NuclearA = 12;
-  int NuclearAfactorXSecMax = 1.0;
+  double NuclearAfactorXSecMax = 1.0;
   if (TgtPDG != kPdgTgtC12) {
     if (TgtPDG > kPdgTgtFreeN && TgtPDG) {
       NuclearA = pdg::IonPdgCodeToA(TgtPDG);
