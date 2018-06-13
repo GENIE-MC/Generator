@@ -150,6 +150,14 @@ int main(int argc, char ** argv)
   utils::app_init::RandGen(gOptRanSeed);
   GHepRecord::SetPrintLevel(RunOpt::Instance()->EventRecordPrintLevel());
 
+  if ( ! RunOpt::Instance() -> Tune() ) {
+    LOG("greweight", pFATAL) << " No TuneId in RunOption";
+    exit(-1);
+  }
+  RunOpt::Instance() -> Tune() -> Build() ;
+  XSecSplineList::Instance() -> SetCurrentTune( RunOpt::Instance() -> Tune() -> Name() ) ;
+
+
   // Get the input event sample
   TTree *           tree = 0;
   NtpMCTreeHeader * thdr = 0;

@@ -247,7 +247,7 @@ void Initialize()
 {
 
   if ( ! RunOpt::Instance() -> Tune() ) {
-    LOG("gmkspl", pFATAL) << " No TuneId in RunOption";
+    LOG("gevgen", pFATAL) << " No TuneId in RunOption";
     exit(-1);
   }
   RunOpt::Instance() -> Tune() -> Build() ;
