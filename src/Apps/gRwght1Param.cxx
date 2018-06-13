@@ -97,6 +97,7 @@
 #include "Framework/Numerical/RandomGen.h"
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/ParticleData/PDGCodeList.h"
+#include "Framework/Utils/XSecSplineList.h"
 #include "Tools/ReWeight/GReWeightI.h"
 #include "Tools/ReWeight/GSystSet.h"
 #include "Tools/ReWeight/GSyst.h"
