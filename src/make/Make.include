@@ -297,6 +297,10 @@ CXXVRS_MIN  = $(shell awk 'BEGIN {\
 CXXVRS_REV  = $(shell awk 'BEGIN {\
 		str="$(CXXVRS)"; split(str, tk, "."); print tk[3]}')
 
+ifeq ($(CXXVRS_MIN),)
+  CXXVRS_MIN = 0
+endif
+
 # gcc version >= 4.1.0 ?
 GCC_GE_4_1_0  = $(shell awk 'BEGIN {\
 		if($(CXXVRS_MAJ)>=4 && $(CXXVRS_MIN)>0) print "YES"}') 
