@@ -16,6 +16,7 @@
 #include "Framework/Algorithm/AlgConfigPool.h"
 #include "Physics/XSectionIntegration/XSecIntegratorI.h"
 #include "Framework/Messenger/Messenger.h"
+#include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/Utils/KineUtils.h"
 #include "Physics/InverseBetaDecay/XSection/Constants.h"
 #include "Physics/InverseBetaDecay/XSection/StrumiaVissaniIBDPXSec.h"
@@ -135,7 +136,8 @@ bool StrumiaVissaniIBDPXSec::ValidProcess(const Interaction * interaction) const
   if (interaction->ProcInfo().IsInverseBetaDecay()) {
   
      const InitialState & init_state = interaction -> InitState();
-     if (init_state.IsNuN() || init_state.IsNuBarP()) return true;
+     const Target & target = init_state.Tgt();
+     if ( (target.IsProton() && pdg::IsAntiNuE(init_state.ProbePdg())) || (target.IsNeutron() && pdg::IsNuE(init_state.ProbePdg()) )) return true;
      
   }
   
