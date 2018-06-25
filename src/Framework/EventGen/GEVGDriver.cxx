@@ -611,7 +611,7 @@ void GEVGDriver::CreateSplines(int nknots, double emax, bool useLogE)
 
      // get the energy range of the spline from the EventGenerator
      // validity context
-     double Emin = TMath::Max(0.01,evgen->ValidityContext().Emin());
+     double Emin = TMath::Max(0.001,evgen->ValidityContext().Emin());
      double Emax = evgen->ValidityContext().Emax();
 
      // if the user set a maximum energy, create the spline up to this
@@ -683,7 +683,7 @@ Range1D_t GEVGDriver::ValidEnergyRange(void) const
      const EventGeneratorI * evgen = *evgliter;
 
      // Emin, Emax as declared in current generator's validity context
-     double Emin = TMath::Max(0.01,evgen->ValidityContext().Emin());
+     double Emin = TMath::Max(0.001,evgen->ValidityContext().Emin());
      double Emax = evgen->ValidityContext().Emax();
 
      // combined Emin, Emax

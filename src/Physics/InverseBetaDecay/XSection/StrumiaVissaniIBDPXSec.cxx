@@ -58,10 +58,6 @@ double StrumiaVissaniIBDPXSec::XSec(
   const double         Ev     = init_state.ProbeE(kRfHitNucRest);
   const Target &       target = init_state.Tgt();
   const bool           isProt = target.IsProton();
-  if (isProt==false && target.IsNeutron()==false) {
-     LOG("StrumiaVissani", pERROR) << "*** Target is neither proton nor neutron!";
-     return 0;
-  }
   const Kinematics &   kine   = interaction->Kine();
   const double         q2     = kine.q2();
   const double         mp     = (isProt) ? kProtonMass   : kNeutronMass;
@@ -137,10 +133,10 @@ bool StrumiaVissaniIBDPXSec::ValidProcess(const Interaction * interaction) const
   
      const InitialState & init_state = interaction -> InitState();
      const Target & target = init_state.Tgt();
-     if ( (target.IsProton() && pdg::IsAntiNuE(init_state.ProbePdg())) || (target.IsNeutron() && pdg::IsNuE(init_state.ProbePdg()) )) return true;
-     
-  }
-  
+     if ( (target.IsProton() && pdg::IsAntiNuE(init_state.ProbePdg())) || (target.IsNeutron() && pdg::IsNuE(init_state.ProbePdg()) )) 
+		return true;
+  }	
+  LOG("StrumiaVissani", pERROR) << "*** Should be IBD processes either nu_e + n or anu_e + p!";
   return false;
 }
 //____________________________________________________________________________
