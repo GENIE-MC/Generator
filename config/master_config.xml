@@ -165,7 +165,6 @@
    <config alg="genie::EmpiricalMECPXSec2015">              EmpiricalMECPXSec2015.xml              </config>
    <config alg="genie::NievesSimoVacasMECPXSec2016">        NievesSimoVacasMECPXSec2016.xml        </config>
    <config alg="genie::RosenbluthPXSec">                    RosenbluthPXSec.xml                    </config>
-   <config alg="genie::StrumiaVissaniIBDPXSec">             StrumiaVissaniIBDPXSec.xml             </config>
    <config alg="genie::DummyPXSec">                         Default.xml                            </config>
    <config alg="genie::NNBarOscDummyPXSec">                 Default.xml                            </config>
    <config alg="genie::ReinSehgalRESXSecFast">              ReinSehgalRESXSecFast.xml              </config>
@@ -184,5 +183,16 @@
    <config alg="genie::mueloss::BezrukovBugaevModel">     BezrukovBugaevModel.xml    </config>
    <config alg="genie::mueloss::KokoulinPetrukhinModel">  KokoulinPetrukhinModel.xml </config>
    <config alg="genie::mueloss::PetrukhinShestakovModel"> PetrukhinShestakovModel.xml</config>
+   
+   <!-- ****** CONFIGURATION FOR MODELS IN VLE PACKAGE ****** -->
+   <config alg="genie::IBDHadronicSystemGenerator">     IBDHadronicSystemGenerator.xml   </config>
+   <config alg="genie::IBDKinematicsGenerator">         IBDKinematicsGenerator.xml       </config>
+   <config alg="genie::IBDPrimaryLeptonGenerator">      IBDPrimaryLeptonGenerator.xml    </config>
+   <config alg="genie::IBDXSecMap">                     IBDXSecMap.xml                   </config>
+   <config alg="genie::IBDInteractionListGenerator">    IBDInteractionListGenerator.xml  </config>
+   <config alg="genie::StrumiaVissaniIBDPXSec">         StrumiaVissaniIBDPXSec.xml       </config>
+   <config alg="genie::KLVOxygenIBDPXSec">              KLVOxygenIBDPXSec.xml            </config>
+   
+   
 
 </genie_config>

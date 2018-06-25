@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<global_param_list>
+
+<!--
+***************************************************************************************************
+This file defines defaults for the most important GENIE physics user configuration parameters. 
+Multilple named lists of user physics options can be defined.
+Use the "Default" one to get the standard/default GENIE physics & tuning.
+
+Author:
+Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+STFC, Rutherford Appleton Laboratory
+***************************************************************************************************
+-->
+
+ <param_set name="Default"> 
+
+  <!--
+      IBD processes
+      IBDNucXSecModel               default xsec model
+      IBDNucXSecModel@Pdg=          refinment of default xsec model   
+      IsotopesUseSameModel          map according to specific isotopes
+  -->
+  <param type="alg"  name="IBDNucXSecModel">                genie::StrumiaVissaniIBDPXSec/Default    </param>
+<!--  
+  <param type="alg"  name="IBDNucXSecModel">                genie::KLVOxygenIBDPXSec/Default         </param>   
+-->
+  <param type="bool" name="IsotopesUseSameModel">           true                                     </param>
+ 
+ 
+ 
+  <param type="alg" name="XSecModel@genie::EventGenerator/VLE">            genie::IBDXSecMap/Default             </param>
+ 
+ <!-- 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  GENIE validity range
+  only for IBD processes 
+  -->
+  <param type="double" name="GVLD-Emin">     0.001  </param>
+  <param type="double" name="GVLD-Emax">     0.600  </param>
+
+
+ </param_set>
+
+
+</global_param_list>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration sets for the IBDXSecMap
+
+Configurable Parameters:
+................................................................................................
+Name                   Type     Optional   Comment                                 Default
+IBDNucXSecModel        alg      No         default xsec model
+IBDNucXSecModel@Pdg=   alg      Yes        refinment of default xsec model   
+IsotopesUseSameModel   bool     No         map according to specific isotopes
+................................................................................................
+-->
+
+  <param_set name="Default">
+     <param type="alg"  name="IBDNucXSecModel">                genie::StrumiaVissaniIBDPXSec/Default    </param>
+<!--       <param type="alg"  name="IBDNucXSecModel">  genie::KLVOxygenIBDPXSec/Default         </param>     -->
+	  <param type="bool" name="IsotopesUseSameModel">           true                                     </param>
+  </param_set>
+
+</alg_conf>
+

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration sets for the IBDKinematicsGenerator
+
+Configurable Parameters:
+................................................................................................
+Name                   Type     Optional   Comment                                  Default
+MaxXSec-SafetyFactor   double   Yes        Safety factor for the max diff xsec      1.25
+Cache-MinEnergy        double   Yes        Min energy for which max xsec cached     1.00
+MaxXSec-DiffTolerance  double   Yes        Max fractional xsec deviation from       999999.
+                                           maximum cross section 
+UniformOverPhaseSpace  bool     Yes        Generate kinematics uniformly            false             
+................................................................................................
+-->
+
+  <param_set name="Default"> 
+  </param_set>
+
+</alg_conf>
+
