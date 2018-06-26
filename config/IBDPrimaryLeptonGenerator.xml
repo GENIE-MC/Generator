@@ -12,6 +12,7 @@ Name                   Type     Optional   Comment            Default
 -->
 
   <param_set name="Default"> 
+	  <param type="bool" name="ApplyCoulombCorrection"> false </param>
   </param_set>
 
 </alg_conf>
