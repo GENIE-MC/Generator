@@ -22,17 +22,16 @@ Parameters needed when Integrating with this model to generate splines:
 Name                                 Type     Optional   Comment                                              Default
 ...........................................................................................................................
 IntegralAverageOverNucleonMomentum   bool     Yes        Will be overridden to true if nuclear model is LFG   false
-IntegralNuclearModel                 alg      No         
-IntegralNuclearInfluenceCutoffEnergy double   Yes                                                             2.0  
+IntegralNuclearModel                 alg      No
+IntegralNuclearInfluenceCutoffEnergy double   Yes                                                             2.0
 -->
 
-  <param_set name="Default"> 
+  <param_set name="Default">
 
     <param type="string"  name="CommonParam"> CKM,FermiGas  </param>
 
     <param type="double" name="QEL-CC-XSecScale"> 1.000 </param>
 
-    <param type="alg"  name="FormFactorsAlg">       genie::LwlynSmithFFCC/Dipole   </param>
     <param type="alg"  name="XSec-Integrator">      genie::QELXSec/Default         </param>
     <param type="alg"  name="IntegralNuclearModel"> genie::NuclearModelMap/Default </param>
 
@@ -41,21 +40,20 @@ IntegralNuclearInfluenceCutoffEnergy double   Yes                               
     <param type="bool" name="PrintDebugData">  false                          </param>
 
     <param type="bool" name = "IntegralAverageOverNucleonMomentum">   true   </param>
-    <param type="double" name = "IntegralNuclearInfluenceCutoffEnergy">    2.0   </param>     
+    <param type="double" name = "IntegralNuclearInfluenceCutoffEnergy">    2.0   </param>
 
   </param_set>
 
 
-  <param_set name="DipoleELFF"> 
+  <param_set name="DipoleELFF">
      <param type="alg"  name="FormFactorsAlg">  genie::LwlynSmithFFCC/Dipole  </param>
 
   </param_set>
 
 
-  <param_set name="ZExp"> 
+  <param_set name="ZExp">
      <param type="alg"  name="FormFactorsAlg">  genie::LwlynSmithFFCC/ZExp    </param>
 
   </param_set>
 
 </alg_conf>
-
