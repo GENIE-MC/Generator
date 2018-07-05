@@ -29,14 +29,16 @@ using std::string;
 
 namespace genie {
 
+// Note: please attach new _neutrino_ scattering modes to the _end_ of the
+// list of neutrino enums, and new dark matter modes to the end of the list
+// of dark matter enums, etc. If adding an entirely new set of enums, please
+// append to the end of the total list and set a new enum counter value.
 typedef enum EScatteringType {
 
   kScNull = 0,
   kScQuasiElastic,
-  kScDarkMatterElastic,       
   kScSingleKaon,
   kScDeepInelastic,
-  kScDarkMatterDeepInelastic, 
   kScResonant,
   kScCoherent,
   kScDiffractive,
@@ -47,7 +49,9 @@ typedef enum EScatteringType {
   kScCoherentElas,
   kScInverseBetaDecay,
   kScGlashowResonance,
-  kScIMDAnnihilation
+  kScIMDAnnihilation,
+  kScDarkMatterElastic = 101,
+  kScDarkMatterDeepInelastic
 
 } ScatteringType_t;
 
@@ -61,11 +65,9 @@ public:
     switch (type) {
 
       case(kScQuasiElastic) :            return "QES";       break;
-      case(kScDarkMatterElastic) :       return "DME";       break; 
-      case(kScDeepInelastic) :           return "DIS";       break;
-      case(kScDarkMatterDeepInelastic) : return "DMDIS";     break; 
-      case(kScResonant) :                return "RES";       break;
       case(kScSingleKaon) :              return "1Kaon";     break;
+      case(kScDeepInelastic) :           return "DIS";       break;
+      case(kScResonant) :                return "RES";       break;
       case(kScCoherent) :                return "COH";       break;
       case(kScDiffractive) :             return "DFR";       break;
       case(kScNuElectronElastic) :       return "NuEEL";     break;
@@ -76,6 +78,8 @@ public:
       case(kScInverseBetaDecay) :        return "IBD";       break;
       case(kScGlashowResonance) :        return "GLR";       break;
       case(kScIMDAnnihilation) :         return "IMDAnh";    break;
+      case(kScDarkMatterElastic) :       return "DME";       break;
+      case(kScDarkMatterDeepInelastic) : return "DMDIS";     break;
       default :                          return "Unknown";   break;
     }
     return "Unknown";
