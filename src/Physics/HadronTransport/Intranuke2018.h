@@ -119,6 +119,17 @@ protected:
   bool         fAltOset;      ///< NuWro's table-based implementation (not recommended)
   bool         fXsecNNCorr;   ///< use nuclear medium correction for NN cross section
 
+  double       fPionMFPScale;       ///< tweaking factors for tuning
+  double       fPionFracCExScale;
+  double       fPionFracInelScale;
+  double       fPionFracAbsScale;
+  double       fPionFracPiProdScale;
+  double       fNucleonMFPScale;
+  double       fNucleonFracCExScale;
+  double       fNucleonFracInelScale;
+  double       fNucleonFracAbsScale;
+  double       fNucleonFracPiProdScale;
+
 };
 
 }      // genie namespace

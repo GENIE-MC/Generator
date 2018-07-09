@@ -1408,9 +1408,6 @@ void HAIntranuke::LoadConfig(void)
   GetParam( "HAINUKE-DelRPion",    fDelRPion ) ;
   GetParam( "HAINUKE-DelRNucleon", fDelRNucleon ) ;
 
-
-
-  //Would be nice to change thhe following lines simply using GetDoubleDef instead of a ? : statement
   GetParamDef( "FSI-Pion-MFPScale",              fPionMFPScale,           1.0 ) ;
   GetParamDef( "FSI-Pion-FracCExScale",          fPionFracCExScale,       1.0 ) ;
   GetParamDef( "FSI-Pion-FracAbsScale",          fPionFracAbsScale,       1.0 ) ;

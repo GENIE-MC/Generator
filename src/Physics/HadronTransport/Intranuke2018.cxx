@@ -398,12 +398,25 @@ double Intranuke2018::GenerateStep(GHepRecord*  /*evrec*/, GHepParticle* p) cons
 // Computes the mean free path L and generate an 'interaction' distance d 
 // from an exp(-d/L) distribution
 
+  int pdgc = p->Pdg();
+
+  double scale = 1.;
+  if (pdgc==kPdgPiP || pdgc==kPdgPiM || pdgc==kPdgPi0) {
+    scale = fPionMFPScale;
+  }
+  else if (pdgc==kPdgProton || pdgc==kPdgNeutron) {
+    scale = fNucleonMFPScale;
+  }
+
   RandomGen * rnd = RandomGen::Instance();
 
   string fINukeMode = this->GetINukeMode();
-  
+
   double L = utils::intranuke2018::MeanFreePath(p->Pdg(), *p->X4(), *p->P4(), fRemnA,
 						fRemnZ, fDelRPion, fDelRNucleon, fUseOset, fAltOset, fXsecNNCorr, fINukeMode);
+
+  L *= scale;
+
   double d = -1.*L * TMath::Log(rnd->RndFsi().Rndm());
 
   LOG("Intranuke2018", pDEBUG)
