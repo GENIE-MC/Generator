@@ -5,33 +5,33 @@
 
 \brief   A simple 'generic' GENIE DM+A event generation driver (gevgen_dm).
 
-	 It handles:
- 	 a) event generation for a fixed init state (DM+A) at fixed energy, or
+         It handles:
+         a) event generation for a fixed init state (DM+A) at fixed energy, or
          b) event generation for simple fluxes (specified either via some
-            functional form, tabular text file or a ROOT histogram) and for 
+            functional form, tabular text file or a ROOT histogram) and for
             simple 'geometries' (a target mix with its corresponding weights)
 
-         See the GENIE manual for other apps handling experiment-specific 
-         event generation cases using the outputs of detailed dark matter flux 
+         See the GENIE manual for other apps handling experiment-specific
+         event generation cases using the outputs of detailed dark matter flux
          simulations and realistic detector geometry descriptions.
 
          Syntax :
-           gevgen_dm [-h] 
-                     [-r run#] 
-                     -n nev 
-                     -e energy (or energy range) 
-                     -m mass 
-                     -t target_pdg 
-		     [-g zp_coupling]
-		     [-z med_ratio]
-		     [-f flux_description] 
+           gevgen_dm [-h]
+                     [-r run#]
+                     -n nev
+                     -e energy (or energy range)
+                     -m mass
+                     -t target_pdg
+                     [-g zp_coupling]
+                     [-z med_ratio]
+                     [-f flux_description]
                      [-o outfile_name]
-		     [-w] 
-                     [--seed random_number_seed] 
+                     [-w]
+                     [--seed random_number_seed]
                      [--cross-sections xml_file]
                      [--event-generator-list list_name]
                      [--tune genie_tune]
-                     [--message-thresholds xml_file]          
+                     [--message-thresholds xml_file]
                      [--unphysical-event-mask mask]
                      [--event-record-print-level level]
                      [--mc-job-status-refresh-rate  rate]
@@ -39,45 +39,45 @@
 
          Options :
            [] Denotes an optional argument.
-           -h 
+           -h
               Prints-out help on using gevgen_dm and exits.
-           -n 
+           -n
               Specifies the number of events to generate.
-           -r 
+           -r
               Specifies the MC run number.
-           -e 
+           -e
               Specifies the dark matter energy.
-	      If what follows the -e option is a comma separated pair of values
+              If what follows the -e option is a comma separated pair of values
               it will be interpreted as an energy range for the flux specified
               via the -f option (see below).
-           -m 
+           -m
               Specifies the dark matter mass.
-           -t 
+           -t
               Specifies the target PDG code (pdg format: 10LZZZAAAI) _or_ a target
-              mix (pdg codes with corresponding weights) typed as a comma-separated 
-              list of pdg codes with the corresponding weight fractions in brackets, 
-              eg code1[fraction1],code2[fraction2],... 
-              For example, to use a target mix of 95% O16 and 5% H type: 
+              mix (pdg codes with corresponding weights) typed as a comma-separated
+              list of pdg codes with the corresponding weight fractions in brackets,
+              eg code1[fraction1],code2[fraction2],...
+              For example, to use a target mix of 95% O16 and 5% H type:
               `-t 1000080160[0.95],1000010010[0.05]'.
-	   -z
-	      Specifies the ratio of the mediator mass to dark matter mass.
-	      Default: 0.5
-	   -g
-	      Specifies the Z' coupling constant
-	      Default: Value in UserPhysicsOptions.xml
-           -f 
+           -z
+              Specifies the ratio of the mediator mass to dark matter mass.
+              Default: 0.5
+           -g
+              Specifies the Z' coupling constant
+              Default: Value in UserPhysicsOptions.xml
+           -f
               Specifies the dark matter flux spectrum.
               It can be any of:
-	      -- A function:
-                 eg ` -f x*x+4*exp(-x)' 
+              -- A function:
+                 eg ` -f x*x+4*exp(-x)'
               -- A vector file:
-                 The vector file should contain 2 columns corresponding to 
-                 energy,flux (see $GENIE/data/flux/ for few examples). 
+                 The vector file should contain 2 columns corresponding to
+                 energy,flux (see $GENIE/data/flux/ for few examples).
               -- A 1-D ROOT histogram (TH1D):
                  The general syntax is `-f /full/path/file.root,object_name'
            -o
-              Specifies the name of the output file events will be saved in.   
-           -w 
+              Specifies the name of the output file events will be saved in.
+           -w
               Forces generation of weighted events.
               This option is relevant only if a dark matter flux is specified.
               Note that 'weighted' refers to the selection of the primary
@@ -90,33 +90,33 @@
            --cross-sections
               Name (incl. full path) of an XML file with pre-computed
               cross-section values used for constructing splines.
-           --event-generator-list            
+           --event-generator-list
               List of event generators to load in event generation drivers.
               [default: "Default"].
            --tune
               Specifies a GENIE comprehensive dark matter interaction model tune.
               [default: "Default"].
-           --message-thresholds           
+           --message-thresholds
               Allows users to customize the message stream thresholds.
               The thresholds are specified using an XML file.
               See $GENIE/config/Messenger.xml for the XML schema.
-           --unphysical-event-mask       
+           --unphysical-event-mask
               Allows users to specify a 16-bit mask to allow certain types of
               unphysical events to be written in the output file.
               [default: all unphysical events are rejected]
            --event-record-print-level
               Allows users to set the level of information shown when the event
-              record is printed in the screen. See GHepRecord::Print().              
-           --mc-job-status-refresh-rate   
+              record is printed in the screen. See GHepRecord::Print().
+           --mc-job-status-refresh-rate
               Allows users to customize the refresh rate of the status file.
-           --cache-file                  
+           --cache-file
               Allows users to specify a cache file so that the cache can be
               re-used in subsequent MC jobs.
 
-	***  See the User Manual for more details and examples. ***
+        ***  See the User Manual for more details and examples. ***
 
 \author  Joshua Berger <jberger \at physics.wisc.edu>
-         University of Wisconsin-Madison	
+         University of Wisconsin-Madison
          Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          University of Liverpool & STFC Rutherford Appleton Lab
 
@@ -224,7 +224,7 @@ map<int,double> gOptTgtMix;       // target mix (each with its relative weight)
 double          gOptMedRatio;     // ratio of mediator to DM mass
 Long_t          gOptRunNu;        // run number
 string          gOptFlux;         //
-bool            gOptWeighted;     // 
+bool            gOptWeighted;     //
 bool            gOptUsingFluxOrTgtMix = false;
 long int        gOptRanSeed;      // random number seed
 string          gOptInpXSecFile;  // cross-section splines
@@ -243,7 +243,7 @@ int main(int argc, char ** argv)
       r->Lock();
   }
   Initialize();
-  
+
 
   // throw on NaNs and Infs...
 #if defined(HAVE_FENV_H) && defined(HAVE_FEENABLEEXCEPT)
@@ -255,11 +255,11 @@ int main(int argc, char ** argv)
 
   if(gOptUsingFluxOrTgtMix) {
 #ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX_OR_TGTMIX__
-	GenerateEventsUsingFluxOrTgtMix();
+        GenerateEventsUsingFluxOrTgtMix();
 #else
-  LOG("gevgen_dm", pERROR) 
-    << "\n   To be able to generate dark matter events from a flux and/or a target mix" 
-    << "\n   you need to add the following config options at your GENIE installation:" 
+  LOG("gevgen_dm", pERROR)
+    << "\n   To be able to generate dark matter events from a flux and/or a target mix"
+    << "\n   you need to add the following config options at your GENIE installation:"
     << "\n   --enable-flux-drivers  --enable-geom-drivers \n" ;
 #endif
   } else {
@@ -271,14 +271,13 @@ int main(int argc, char ** argv)
 void Initialize()
 {
 
-  if ( ! RunOpt::Instance() -> Tune() ) {
+  if ( ! RunOpt::Instance()->Tune() ) {
     LOG("gmkspl", pFATAL) << " No TuneId in RunOption";
     exit(-1);
   }
-  RunOpt::Instance() -> Tune() -> Build() ;
-  XSecSplineList::Instance() -> SetCurrentTune( RunOpt::Instance() -> Tune() -> Name() ) ;
+  RunOpt::Instance()->BuildTune();
 
-  // Initialization of random number generators, cross-section table, 
+  // Initialization of random number generators, cross-section table,
   // messenger thresholds, cache file
   utils::app_init::MesgThresholds(RunOpt::Instance()->MesgThresholdFiles());
   utils::app_init::CacheFile(RunOpt::Instance()->CacheFile());
@@ -298,7 +297,7 @@ void GenerateEventsAtFixedInitState(void)
   double pd    = TMath::Sqrt(Ed*Ed - Md*Md);
   assert(pd>=0.);
   TLorentzVector dm_p4(0.,0.,pd,Ed); // px,py,pz,E (GeV)
-  
+
   // Create init state
   InitialState init_state(target, dark_matter);
 
@@ -308,9 +307,9 @@ void GenerateEventsAtFixedInitState(void)
       << "Cross-section risks exceeding unitarity limit - Exiting";
     exit(1);
   }
-      
-  
-  // Create/config event generation driver 
+
+
+  // Create/config event generation driver
   GEVGDriver evg_driver;
   evg_driver.SetEventGeneratorList(RunOpt::Instance()->EventGeneratorList());
   evg_driver.SetUnphysEventMask(*RunOpt::Instance()->UnphysEventMask());
@@ -329,42 +328,42 @@ void GenerateEventsAtFixedInitState(void)
   // Create an MC Job Monitor
   GMCJMonitor mcjmonitor(gOptRunNu);
   mcjmonitor.SetRefreshRate(RunOpt::Instance()->MCJobStatusRefreshRate());
-  
+
   // If a status file name has been given... use it
   if (!gOptStatFileName.empty()){
     mcjmonitor.CustomizeFilename(gOptStatFileName);
   }
 
-  
-  LOG("gevgen_dm", pNOTICE) 
-    << "\n ** Will generate " << gOptNevents << " events for \n" 
+
+  LOG("gevgen_dm", pNOTICE)
+    << "\n ** Will generate " << gOptNevents << " events for \n"
     << init_state << " at Ev = " << Ed << " GeV";
 
   // Generate events / print the GHEP record / add it to the ntuple
   int ievent = 0;
   while (ievent < gOptNevents) {
-    LOG("gevgen_dm", pNOTICE) 
+    LOG("gevgen_dm", pNOTICE)
       << " *** Generating event............ " << ievent;
-    
+
     // generate a single event
     EventRecord * event = evg_driver.GenerateEvent(dm_p4);
-    
+
     if(!event) {
-      LOG("gevgen_dm", pNOTICE) 
-	<< "Last attempt failed. Re-trying....";
+      LOG("gevgen_dm", pNOTICE)
+        << "Last attempt failed. Re-trying....";
       continue;
     }
-    
-    LOG("gevgen_dm", pNOTICE) 
+
+    LOG("gevgen_dm", pNOTICE)
       << "Generated Event GHEP Record: " << *event;
-    
+
     // add event at the output ntuple, refresh the mc job monitor & clean up
     ntpw.AddEventRecord(ievent, event);
     mcjmonitor.Update(ievent,event);
     ievent++;
     delete event;
   }
-    
+
   // Save the generated MC events
   ntpw.Save();
 }
@@ -386,8 +385,8 @@ void GenerateEventsUsingFluxOrTgtMix(void)
   mcj_driver->UseGeomAnalyzer(geom_driver);
   mcj_driver->Configure();
   mcj_driver->UseSplines();
-  if(!gOptWeighted) 
-	mcj_driver->ForceSingleProbScale();
+  if(!gOptWeighted)
+        mcj_driver->ForceSingleProbScale();
 
   // Initialize an Ntuple Writer to save GHEP records into a TTree
   NtpWriter ntpw(kDefOptNtpFormat, gOptRunNu);
@@ -458,7 +457,7 @@ GFluxI * MonoEnergeticFluxDriver(void)
 {
 //
 //
-  flux::GMonoEnergeticFlux * flux = 
+  flux::GMonoEnergeticFlux * flux =
               new flux::GMonoEnergeticFlux(gOptDMEnergy, kPdgDarkMatter);
   GFluxI * flux_driver = dynamic_cast<GFluxI *>(flux);
   return flux_driver;
@@ -466,7 +465,7 @@ GFluxI * MonoEnergeticFluxDriver(void)
 //____________________________________________________________________________
 GFluxI * TH1FluxDriver(void)
 {
-// 
+//
 //
   flux::GCylindTH1Flux * flux = new flux::GCylindTH1Flux;
   TH1D * spectrum = 0;
@@ -517,13 +516,13 @@ GFluxI * TH1FluxDriver(void)
       }
     }
     delete input_flux;
-  } 
+  }
   else if(input_is_root_file) {
     //
     // ** extract specified flux histogram from the input root file
     //
     vector<string> fv = utils::str::Split(gOptFlux,",");
-    assert(fv.size()==2); 
+    assert(fv.size()==2);
     assert( !gSystem->AccessPathName(fv[0].c_str()) );
 
     LOG("gevgen_dm", pNOTICE) << "Getting input flux from root file: " << fv[0];
@@ -541,14 +540,14 @@ GFluxI * TH1FluxDriver(void)
     spectrum->SetDirectory(0);
     for(int ibin = 1; ibin <= hst->GetNbinsX(); ibin++) {
       if(hst->GetBinLowEdge(ibin) + hst->GetBinWidth(ibin) > emax ||
-	 hst->GetBinLowEdge(ibin) < emin) {
-	spectrum->SetBinContent(ibin, 0);
+         hst->GetBinLowEdge(ibin) < emin) {
+        spectrum->SetBinContent(ibin, 0);
       }
     }
 
     LOG("gevgen_dm", pNOTICE) << spectrum->GetEntries();
 
-    flux_file->Close();	
+    flux_file->Close();
     delete flux_file;
 
     LOG("gevgen_dm", pNOTICE) << spectrum->GetEntries();
@@ -636,8 +635,8 @@ void GetCommandLineArgs(int argc, char ** argv)
     gOptStatFileName = gOptOutFileName;
     // strip the output file format and replace with .status
     if (gOptOutFileName.find_last_of(".") != string::npos)
-      gOptStatFileName = 
-	gOptStatFileName.substr(0, gOptOutFileName.find_last_of("."));
+      gOptStatFileName =
+        gOptStatFileName.substr(0, gOptOutFileName.find_last_of("."));
     gOptStatFileName .append(".status");
   }
 
@@ -650,7 +649,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   }
 
   if(parser.OptionExists('s')) {
-    LOG("gevgen_dm", pWARN) 
+    LOG("gevgen_dm", pWARN)
       << "-s option no longer available. Please read the revised code documentation";
     gAbortingInErr = true;
     exit(1);
@@ -669,18 +668,18 @@ void GetCommandLineArgs(int argc, char ** argv)
     if(dme.find(",") != string::npos) {
        // split the comma separated list
        vector<string> nurange = utils::str::Split(dme, ",");
-       assert(nurange.size() == 2);   
+       assert(nurange.size() == 2);
        double emin = atof(nurange[0].c_str());
        double emax = atof(nurange[1].c_str());
        assert(emax>emin && emin>=0);
        gOptDMEnergy      = emin;
        gOptDMEnergyRange = emax-emin;
        if(!using_flux) {
-          LOG("gevgen_dm", pWARN) 
+          LOG("gevgen_dm", pWARN)
              << "No flux was specified but an energy range was input!";
-          LOG("gevgen_dm", pWARN) 
-	     << "Events will be generated at fixed E = " << gOptDMEnergy << " GeV";
-	  gOptDMEnergyRange = -1;
+          LOG("gevgen_dm", pWARN)
+             << "Events will be generated at fixed E = " << gOptDMEnergy << " GeV";
+          gOptDMEnergyRange = -1;
        }
     } else {
        gOptDMEnergy       = atof(dme.c_str());
@@ -755,7 +754,7 @@ void GetCommandLineArgs(int argc, char ** argv)
     LOG("gevgen_dm", pINFO) << "Unspecified mediator mass ratio - Using default";
     gOptMedRatio = 0.5;
   }
-  
+
   gOptUsingFluxOrTgtMix = using_flux || using_tgtmix;
 
   // random number seed
@@ -779,50 +778,50 @@ void GetCommandLineArgs(int argc, char ** argv)
   //
   // print-out the command line options
   //
-  LOG("gevgen_dm", pNOTICE) 
-     << "\n" 
+  LOG("gevgen_dm", pNOTICE)
+     << "\n"
      << utils::print::PrintFramedMesg("gevgen_dm job configuration");
-  LOG("gevgen_dm", pNOTICE) 
+  LOG("gevgen_dm", pNOTICE)
      << "MC Run Number: " << gOptRunNu;
   if(gOptRanSeed != -1) {
-     LOG("gevgen_dm", pNOTICE) 
+     LOG("gevgen_dm", pNOTICE)
        << "Random number seed: " << gOptRanSeed;
   } else {
-     LOG("gevgen_dm", pNOTICE) 
+     LOG("gevgen_dm", pNOTICE)
        << "Random number seed was not set, using default";
   }
-  LOG("gevgen_dm", pNOTICE) 
+  LOG("gevgen_dm", pNOTICE)
        << "Number of events requested: " << gOptNevents;
   if(gOptInpXSecFile.size() > 0) {
-     LOG("gevgen_dm", pNOTICE) 
+     LOG("gevgen_dm", pNOTICE)
        << "Using cross-section splines read from: " << gOptInpXSecFile;
   } else {
-     LOG("gevgen_dm", pNOTICE) 
+     LOG("gevgen_dm", pNOTICE)
        << "No input cross-section spline file";
   }
-  LOG("gevgen_dm", pNOTICE) 
+  LOG("gevgen_dm", pNOTICE)
        << "Flux: " << gOptFlux;
-  LOG("gevgen_dm", pNOTICE) 
+  LOG("gevgen_dm", pNOTICE)
        << "Generate weighted events? " << gOptWeighted;
   if(gOptDMEnergyRange>0) {
-     LOG("gevgen_dm", pNOTICE) 
-        << "Dark matter energy: [" 
+     LOG("gevgen_dm", pNOTICE)
+        << "Dark matter energy: ["
         << gOptDMEnergy << ", " << gOptDMEnergy+gOptDMEnergyRange << "]";
   } else {
-     LOG("gevgen_dm", pNOTICE) 
+     LOG("gevgen_dm", pNOTICE)
         << "Dark matter energy: " << gOptDMEnergy;
   }
-  LOG("gevgen_dm", pNOTICE) 
+  LOG("gevgen_dm", pNOTICE)
       << "Dark matter mass: " << gOptDMMass;
-  LOG("gevgen_dm", pNOTICE) 
+  LOG("gevgen_dm", pNOTICE)
       << "Target code (PDG) & weight fraction (in case of multiple targets): ";
-  LOG("gevgen_dm", pNOTICE) 
+  LOG("gevgen_dm", pNOTICE)
       << "Mediator mass ratio: " << gOptMedRatio;
   map<int,double>::const_iterator iter;
   for(iter = gOptTgtMix.begin(); iter != gOptTgtMix.end(); ++iter) {
       int    tgtpdgc = iter->first;
       double wgt     = iter->second;
-      LOG("gevgen_dm", pNOTICE) 
+      LOG("gevgen_dm", pNOTICE)
           << " >> " <<  tgtpdgc << " (weight fraction = " << wgt << ")";
   }
   LOG("gevgen_dm", pNOTICE) << "\n";
@@ -862,7 +861,7 @@ bool CheckUnitarityLimit(InitialState init_state)
   // Before generating the events, perform a simple sanity check
   // We estimate the leading divergent piece of the cross-section
   // We make sure it does not exceed the unitarity limit
-  double gzp; 
+  double gzp;
   Registry * r = AlgConfigPool::Instance()->CommonParameterList("BoostedDarkMatter");
   r->Get("ZpCoupling", gzp);
   double gzp4 = TMath::Power(gzp,4);

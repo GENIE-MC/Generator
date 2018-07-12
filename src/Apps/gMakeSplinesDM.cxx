@@ -6,20 +6,20 @@
 \brief   GENIE utility program building XML cross section splines that can
          be loaded into GENIE to speed-up event generation.
          The list of neutrino PDG codes is passed from the command line.
-         The list of nuclear target PDG codes is either passed from the 
+         The list of nuclear target PDG codes is either passed from the
          command line or extracted from the input ROOT/GEANT geometry.
 
          Syntax :
            gmkspl_dm -m masses
-                 <-t target_pdg_codes, 
-                  -f geometry_file> 
+                 <-t target_pdg_codes,
+                  -f geometry_file>
                   <-o | --output-cross-sections> output_xml_xsec_file
-	          [-g zp_couplings]
-		  [-z med_ratios]
-                  [-n nknots] 
-                  [-e max_energy] 
+                  [-g zp_couplings]
+                  [-z med_ratios]
+                  [-n nknots]
+                  [-e max_energy]
                   [--no-copy]
-                  [--seed random_number_seed] 
+                  [--seed random_number_seed]
                   [--input-cross-sections xml_file]
                   [--event-generator-list list_name]
                   [--tune genie_tune]
@@ -27,34 +27,34 @@
 
          Note :
            [] marks optional arguments.
-           <> marks a list of arguments out of which only one can be 
+           <> marks a list of arguments out of which only one can be
               selected at any given time.
 
          Options :
-	   -m
+           -m
                A comma separated list of DM masses.
-           -t  
-               A comma separated list of tgt PDG codes. 
+           -t
+               A comma separated list of tgt PDG codes.
                PDG code format: 10LZZZAAAI
-           -f  
+           -f
                A ROOT file containing a ROOT/GEANT geometry description.
-           -o, --output-cross-sections  
+           -o, --output-cross-sections
                Name of output XML file containing computed cross-section data.
                Default: `xsec_splines.xml'.
-	   -g
-	       A comma separated list of Z' coupling constants
-	       Default: Value in UserPhysicsOptions.xml
+           -g
+               A comma separated list of Z' coupling constants
+               Default: Value in UserPhysicsOptions.xml
            -z
-	       A comma separated list of ratios of mediator mass to dark 
-	       matter mass
-	       Default: 0.5
-           -n  
+               A comma separated list of ratios of mediator mass to dark
+               matter mass
+               Default: 0.5
+           -n
                Number of knots per spline.
-               Default: 15 knots per decade of energy range with a minimum 
+               Default: 15 knots per decade of energy range with a minimum
                of 30 knots totally.
-           -e  
+           -e
                Maximum energy in spline.
-               Default: The max energy in the validity range of the spline 
+               Default: The max energy in the validity range of the spline
                generating thread.
            --no-copy
                Does not write out the input cross-sections in the output file
@@ -78,7 +78,7 @@
         ***  See the User Manual for more details and examples. ***
 
 \author  Joshua Berger <jberger \at physics.wisc.edu>
-         University of Wisconsin-Madison	
+         University of Wisconsin-Madison
          Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          University of Liverpool & STFC Rutherford Appleton Lab
 
@@ -155,19 +155,18 @@ int main(int argc, char ** argv)
   // Parse command line arguments
   GetCommandLineArgs(argc,argv);
 
-  if ( ! RunOpt::Instance() -> Tune() ) {
+  if ( ! RunOpt::Instance()->Tune() ) {
     LOG("gmkspl", pFATAL) << " No TuneId in RunOption";
     exit(-1);
   }
-  RunOpt::Instance() -> Tune() -> Build() ;
-  XSecSplineList::Instance() -> SetCurrentTune( RunOpt::Instance() -> Tune() -> Name() ) ;
+  RunOpt::Instance()->BuildTune();
 
   for (vector<double>::iterator mass = gOptDMMasses.begin(); mass != gOptDMMasses.end(); ++mass) {
     for (vector<double>::iterator ratio = gOptMedRatios.begin(); ratio != gOptMedRatios.end(); ++ratio) {
       for (vector<double>::iterator coup = gOptZpCouplings.begin(); coup != gOptZpCouplings.end(); ++coup) {
-	// Add dark matter to the table
-	PDGLibrary::Instance()->ReloadDBase();
-	PDGLibrary::Instance()->AddDarkMatter(*mass,*ratio);
+        // Add dark matter to the table
+        PDGLibrary::Instance()->ReloadDBase();
+        PDGLibrary::Instance()->AddDarkMatter(*mass,*ratio);
         if (*coup > 0.) {
             Registry * r = AlgConfigPool::Instance()->CommonParameterList("BoostedDarkMatter");
             r->UnLock();
@@ -176,57 +175,57 @@ int main(int argc, char ** argv)
         }
 
 
-	// throw on NaNs and Infs...
+        // throw on NaNs and Infs...
 #if defined(HAVE_FENV_H) && defined(HAVE_FEENABLEEXCEPT)
-	feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
+        feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
 #endif
-	
-	// Init
-	utils::app_init::MesgThresholds(RunOpt::Instance()->MesgThresholdFiles());
-	utils::app_init::RandGen(gOptRanSeed);
-	utils::app_init::XSecTable(gOptInpXSecFile, false);
-	
-	// Get list of neutrinos and nuclear targets
-	
-	//  PDGCodeList * neutrinos = GetNeutrinoCodes();
-	PDGCodeList * targets   = GetTargetCodes();
-	
-	if(!targets || targets->size() == 0 ) {
-	  LOG("gmkspl_dm", pFATAL) << "Empty target PDG code list";
-	  PrintSyntax();
-	  exit(3);
-	}
-	
-	LOG("gmkspl_dm", pINFO) << "Targets: "   << *targets;
-	
-	// Loop over all possible input init states and ask the GEVGDriver
-	// to build splines for all the interactions that its loaded list
-	// of event generators can generate.
-    
-	//  PDGCodeList::const_iterator nuiter;
-	PDGCodeList::const_iterator tgtiter;
-	//  for(nuiter = neutrinos->begin(); nuiter != neutrinos->end(); ++nuiter) {
-	for(tgtiter = targets->begin(); tgtiter != targets->end(); ++tgtiter) {
-	  int dmpdgc  = kPdgDarkMatter;
-	  int tgtpdgc = *tgtiter;
-	  InitialState init_state(tgtpdgc, dmpdgc);
-	  GEVGDriver driver;
-	  driver.SetEventGeneratorList(RunOpt::Instance()->EventGeneratorList());
-	  driver.Configure(init_state);
-	  driver.CreateSplines(gOptNKnots, gOptMaxE);
-	}
-	delete targets;
+
+        // Init
+        utils::app_init::MesgThresholds(RunOpt::Instance()->MesgThresholdFiles());
+        utils::app_init::RandGen(gOptRanSeed);
+        utils::app_init::XSecTable(gOptInpXSecFile, false);
+
+        // Get list of neutrinos and nuclear targets
+
+        //  PDGCodeList * neutrinos = GetNeutrinoCodes();
+        PDGCodeList * targets   = GetTargetCodes();
+
+        if(!targets || targets->size() == 0 ) {
+          LOG("gmkspl_dm", pFATAL) << "Empty target PDG code list";
+          PrintSyntax();
+          exit(3);
+        }
+
+        LOG("gmkspl_dm", pINFO) << "Targets: "   << *targets;
+
+        // Loop over all possible input init states and ask the GEVGDriver
+        // to build splines for all the interactions that its loaded list
+        // of event generators can generate.
+
+        //  PDGCodeList::const_iterator nuiter;
+        PDGCodeList::const_iterator tgtiter;
+        //  for(nuiter = neutrinos->begin(); nuiter != neutrinos->end(); ++nuiter) {
+        for(tgtiter = targets->begin(); tgtiter != targets->end(); ++tgtiter) {
+          int dmpdgc  = kPdgDarkMatter;
+          int tgtpdgc = *tgtiter;
+          InitialState init_state(tgtpdgc, dmpdgc);
+          GEVGDriver driver;
+          driver.SetEventGeneratorList(RunOpt::Instance()->EventGeneratorList());
+          driver.Configure(init_state);
+          driver.CreateSplines(gOptNKnots, gOptMaxE);
+        }
+        delete targets;
       }
     }
   }
   //  }
-  
+
   // Save the splines at the requested XML file
   XSecSplineList * xspl = XSecSplineList::Instance();
   bool save_init = !gOptNoCopy;
   xspl->SaveAsXml(gOptOutXSecFile, save_init);
 
-  
+
   return 0;
 }
 //____________________________________________________________________________
@@ -243,15 +242,15 @@ void GetCommandLineArgs(int argc, char ** argv)
   CmdLnArgParser parser(argc,argv);
 
   // output XML file name
-  if( parser.OptionExists('o') || 
-      parser.OptionExists("output-cross-sections") ) 
+  if( parser.OptionExists('o') ||
+      parser.OptionExists("output-cross-sections") )
   {
     LOG("gmkspl_dm", pINFO) << "Reading output filename";
-    if( parser.OptionExists('o') ) { 
-      gOptOutXSecFile = parser.ArgAsString('o'); 
+    if( parser.OptionExists('o') ) {
+      gOptOutXSecFile = parser.ArgAsString('o');
     }
-    else { 
-      gOptOutXSecFile = parser.ArgAsString("output-cross-sections"); 
+    else {
+      gOptOutXSecFile = parser.ArgAsString("output-cross-sections");
     }
   } else {
     LOG("gmkspl_dm", pINFO) << "Unspecified filename - Using default";
@@ -273,7 +272,7 @@ void GetCommandLineArgs(int argc, char ** argv)
     LOG("gmkspl_dm", pINFO) << "Reading maximum spline energy";
     gOptMaxE = parser.ArgAsDouble('e');
   } else {
-    LOG("gmkspl_dm", pINFO) 
+    LOG("gmkspl_dm", pINFO)
        << "Unspecified maximum spline energy - Using default";
     gOptMaxE = -1;
   }
@@ -287,14 +286,14 @@ void GetCommandLineArgs(int argc, char ** argv)
       vector<string> massrange = utils::str::Split(dmm, ",");
       assert(massrange.size() > 1);
       for (vector<string>::iterator m = massrange.begin(); m != massrange.end(); ++m) {
-	gOptDMMasses.push_back(atof((*m).c_str()));
-      }      
+        gOptDMMasses.push_back(atof((*m).c_str()));
+      }
     }
     else {
       gOptDMMasses.push_back(atof(dmm.c_str()));
     }
   } else {
-    LOG("gmkspl_dm", pFATAL) 
+    LOG("gmkspl_dm", pFATAL)
        << "Unspecified dark matter masses - Exiting";
     PrintSyntax();
     exit(1);
@@ -309,23 +308,23 @@ void GetCommandLineArgs(int argc, char ** argv)
       vector<string> ratiorange = utils::str::Split(mr, ",");
       assert(ratiorange.size() > 1);
       for (vector<string>::iterator r = ratiorange.begin(); r != ratiorange.end(); ++r) {
-	gOptMedRatios.push_back(atof((*r).c_str()));
-      }      
+        gOptMedRatios.push_back(atof((*r).c_str()));
+      }
     }
     else {
       gOptMedRatios.push_back(atof(mr.c_str()));
     }
   } else {
-    LOG("gmkspl_dm", pINFO) 
+    LOG("gmkspl_dm", pINFO)
        << "Unspecified mediator mass ratios - Using default";
     gOptMedRatios.push_back(0.5);
   }
-  
+
   // write out input splines?
   if( parser.OptionExists("no-copy") ) {
     LOG("gmkspl_dm", pINFO) << "Not copying input splines to output";
     gOptNoCopy = true;
-  } 
+  }
 
   // get the mediator coupling
   if( parser.OptionExists('g') ) {
@@ -336,23 +335,23 @@ void GetCommandLineArgs(int argc, char ** argv)
       vector<string> couprange = utils::str::Split(gzp, ",");
       assert(couprange.size() > 1);
       for (vector<string>::iterator g = couprange.begin(); g != couprange.end(); ++g) {
-	gOptZpCouplings.push_back(atof((*g).c_str()));
-      }      
+        gOptZpCouplings.push_back(atof((*g).c_str()));
+      }
     }
     else {
       gOptZpCouplings.push_back(atof(gzp.c_str()));
     }
   } else {
-    LOG("gmkspl_dm", pNOTICE) 
+    LOG("gmkspl_dm", pNOTICE)
        << "Unspecified mediator couplings - Using value from config";
     gOptZpCouplings.push_back(-1.);
   }
-  
+
   // write out input splines?
   if( parser.OptionExists("no-copy") ) {
     LOG("gmkspl_dm", pINFO) << "Not copying input splines to output";
     gOptNoCopy = true;
-  } 
+  }
 
 
   // comma-separated target PDG code list or input geometry file
@@ -377,13 +376,13 @@ void GetCommandLineArgs(int argc, char ** argv)
   bool both =  tgt_geom &&  tgt_cmd;
   bool none = !tgt_geom && !tgt_cmd;
   if(none) {
-    LOG("gmkspl_dm", pFATAL) 
+    LOG("gmkspl_dm", pFATAL)
           << "No geom file or cmd line target list was specified - Exiting";
     PrintSyntax();
     exit(1);
   }
   if(both) {
-    LOG("gmkspl_dm", pFATAL) 
+    LOG("gmkspl_dm", pFATAL)
        << "You specified both a geom file and a cmd line target list "
          << "- Exiting confused";
     PrintSyntax();
@@ -409,7 +408,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   }
 
   //
-  // print the command-line options 
+  // print the command-line options
   //
   LOG("gmkspl_dm", pNOTICE)
      << "\n"
@@ -482,7 +481,7 @@ PDGCodeList * GetTargetCodes(void)
      delete geom;
      return list;
 #else
-     LOG("gmkspl_dm", pFATAL) 
+     LOG("gmkspl_dm", pFATAL)
       << "To read-in a ROOT geometry you need to enable the geometry drivers!";
      gAbortingInErr = true;
      exit(1);
@@ -493,4 +492,3 @@ PDGCodeList * GetTargetCodes(void)
   return 0;
 }
 //____________________________________________________________________________
-

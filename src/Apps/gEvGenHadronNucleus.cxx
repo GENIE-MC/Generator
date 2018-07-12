@@ -4,44 +4,44 @@
 \program gevgen_hadron
 
 \brief   Generates hadron + nucleus interactions using GENIE's INTRANUKE
-	 Similar to NEUGEN's pitest (S.Dytman & H.Gallagher)
+         Similar to NEUGEN's pitest (S.Dytman & H.Gallagher)
 
          Syntax :
-           gevgen_hadron [-n nev] -p probe -t tgt [-r run#] -k KE 
-                         [-f flux] [-o prefix] [-m mode] 
+           gevgen_hadron [-n nev] -p probe -t tgt [-r run#] -k KE
+                         [-f flux] [-o prefix] [-m mode]
                          [--seed random_number_seed]
-                         [--message-thresholds xml_file]          
+                         [--message-thresholds xml_file]
                          [--event-record-print-level level]
                          [--mc-job-status-refresh-rate  rate]
 
          Options :
            [] Denotes an optional argument
-           -n 
+           -n
               Specifies the number of events to generate (default: 10000)
-           -p 
-              Specifies the incoming hadron PDG code 
-           -t 
+           -p
+              Specifies the incoming hadron PDG code
+           -t
               Specifies the nuclear target PDG code (10LZZZAAAI)
-           -r 
+           -r
               Specifies the MC run number (default: 0)
-           -k 
+           -k
               Specifies the incoming hadron's kinetic energy (in GeV).
               The same option can be use to specify a kinetic energy range as
-	      a comma-separated set of numbers (eg 0.1,1.2).
-              If no flux is specified then the hadrons will be fired with a 
+              a comma-separated set of numbers (eg 0.1,1.2).
+              If no flux is specified then the hadrons will be fired with a
               uniform kinetic energy distribution within the specified range.
-	      If a kinetic energy spectrum is supplied then the hadrons will be
-              fired with a kinetic energy following the input spectrum within 
+              If a kinetic energy spectrum is supplied then the hadrons will be
+              fired with a kinetic energy following the input spectrum within
               the specified range.
-           -f 
-              Specifies the incoming hadron's kinetic energy spectrum - 
-              it can be either a function, eg 'x*x+4*exp(-x)' or a text file 
+           -f
+              Specifies the incoming hadron's kinetic energy spectrum -
+              it can be either a function, eg 'x*x+4*exp(-x)' or a text file
               containing 2 columns corresponding to (kinetic energy {GeV}, 'flux').
-           -o 
+           -o
               Output filename prefix
-           -m 
+           -m
               INTRANUKE mode <hA, hN> (default: hA)
-	   --seed   
+           --seed
               Random number seed.
            --message-thresholds
               Allows users to customize the message stream thresholds.
@@ -55,7 +55,7 @@
 
          Examples:
 
-         (1) Generate 100k pi^{+}+Fe56 events with a pi^{+} kinetic energy 
+         (1) Generate 100k pi^{+}+Fe56 events with a pi^{+} kinetic energy
              of 165 MeV:
              % gevgen_hadron -n 100000 -p 211 -t 1000260560 -k 0.165
 
@@ -67,12 +67,12 @@
              distributed as f(KE) = 1/KE in the [165 MeV, 1200 MeV] range:
              % ghAevgen -n gevgen_hadron -p 211 -t 1000260560 -k 0.165,1.200 -f '1/x'
 
-\authors  Steve Dytman, Minsuk Kim and Aaron Meyer 
+\authors  Steve Dytman, Minsuk Kim and Aaron Meyer
           University of Pittsburgh
 
-	  Costas Andreopoulos,
+          Costas Andreopoulos,
           University of Liverpool & STFC Rutherford Appleton Lab
-	  
+
 \version 1.3
 
 \created May 1, 2007
@@ -131,7 +131,7 @@ EventRecord *               InitializeEvent       (void);
 void                        BuildSpectrum         (void);
 void                        PrintSyntax           (void);
 
-// Default options 
+// Default options
 int     kDefOptNevents      = 10000;   // n-events to generate
 Long_t  kDefOptRunNu        = 0;       // default run number
 string  kDefOptEvFilePrefix = "gntp.inuke";  // default output file prefix
@@ -159,12 +159,11 @@ int main(int argc, char ** argv)
   // Parse command line arguments
   GetCommandLineArgs(argc,argv);
 
-  if ( ! RunOpt::Instance() -> Tune() ) {
+  if ( ! RunOpt::Instance()->Tune() ) {
     LOG("gmkspl", pFATAL) << " No TuneId in RunOption";
     exit(-1);
   }
-  RunOpt::Instance() -> Tune() -> Build() ;
-  XSecSplineList::Instance() -> SetCurrentTune( RunOpt::Instance() -> Tune() -> Name() ) ;
+  RunOpt::Instance()->BuildTune();
 
   // Init random number generator generator with user-specified seed number,
   // set user-specified mesg thresholds, set user-specified GHEP print-level
@@ -191,34 +190,34 @@ int main(int argc, char ** argv)
   LOG("gevgen_hadron",pNOTICE) << "ready to generate events";
 
   //
-  // Generate events 
+  // Generate events
   //
 
   int ievent = 0;
   while (ievent < gOptNevents) {
-      LOG("gevgen_hadron", pNOTICE) 
+      LOG("gevgen_hadron", pNOTICE)
          << " *** Generating event............ " << ievent;
-      
+
       // initialize
       EventRecord * evrec = InitializeEvent();
 
       // generate full h+A event
       intranuke->ProcessEventRecord(evrec);
 
-      // print generated events 
-      LOG("gevgen_hadron", pNOTICE ) << *evrec; 
-      
+      // print generated events
+      LOG("gevgen_hadron", pNOTICE ) << *evrec;
+
       // add event at the output ntuple
       ntpw.AddEventRecord(ievent, evrec);
-      
+
       // refresh the mc job monitor
       mcjmonitor.Update(ievent,evrec);
 
       ievent++;
       delete evrec;
-      
+
   } // end loop events
-  
+
   // Save the generated MC events
   ntpw.Save();
 
@@ -237,34 +236,34 @@ const EventRecordVisitorI * GetIntranuke(void)
 
   string sname = "";
   string sconf = "";
-  
+
   if(gOptMode.compare("hA")==0) {
-     sname = "genie::HAIntranuke"; 
+     sname = "genie::HAIntranuke";
      sconf = "Default";
   }
-  else 
+  else
   if(gOptMode.compare("hN")==0) {
-     sname = "genie::HNIntranuke"; 
+     sname = "genie::HNIntranuke";
      sconf = "Default";
   }
   else
   if(gOptMode.compare("hA2019")==0) {
-     sname = "genie::HAIntranuke2019"; 
+     sname = "genie::HAIntranuke2019";
      sconf = "Default";
   }
-  else 
+  else
   if(gOptMode.compare("hN2019")==0) {
-     sname = "genie::HNIntranuke2019"; 
+     sname = "genie::HNIntranuke2019";
      sconf = "Default";
   }
   else
   if(gOptMode.compare("hA2018")==0) {
-     sname = "genie::HAIntranuke2018"; 
+     sname = "genie::HAIntranuke2018";
      sconf = "Default";
   }
-  else 
+  else
   if(gOptMode.compare("hN2018")==0) {
-     sname = "genie::HNIntranuke2018"; 
+     sname = "genie::HNIntranuke2018";
      sconf = "Default";
   }
   else {
@@ -274,7 +273,7 @@ const EventRecordVisitorI * GetIntranuke(void)
   }
 
   AlgFactory * algf = AlgFactory::Instance();
-  const EventRecordVisitorI * intranuke = 
+  const EventRecordVisitorI * intranuke =
    dynamic_cast<const EventRecordVisitorI *> (algf->GetAlgorithm(sname,sconf));
   assert(intranuke);
 
@@ -307,10 +306,10 @@ EventRecord * InitializeEvent(void)
   TLorentzVector p4tgt (0.,0.,0., M);
 
   // insert probe and target entries
-  GHepStatus_t ist = kIStInitialState;            
+  GHepStatus_t ist = kIStInitialState;
   evrec->AddParticle(gOptProbePdgCode, ist, -1,-1,-1,-1, p4h,   x4null);
   evrec->AddParticle(gOptTgtPdgCode,   ist, -1,-1,-1,-1, p4tgt, x4null);
-      
+
   return evrec;
 }
 //____________________________________________________________________________
@@ -332,14 +331,14 @@ void BuildSpectrum(void)
     gSpectrum = 0;
   }
 
-  LOG("gevgen_hadron", pNOTICE) 
+  LOG("gevgen_hadron", pNOTICE)
       << "Generating a flux histogram ... ";
 
   int    flux_bins    = 300;
   int    flux_entries = 1000000;
-  double ke_min       = gOptProbeKEmin; 
+  double ke_min       = gOptProbeKEmin;
   double ke_max       = gOptProbeKEmax;
-  double dke          = ke_max - ke_min; 
+  double dke          = ke_max - ke_min;
   assert(dke>0 && ke_min>=0.);
 
   // kinetic energy spectrum
@@ -349,7 +348,7 @@ void BuildSpectrum(void)
   // check whether the input flux is a file or a functional form
   bool input_is_file = ! gSystem->AccessPathName(gOptFlux.c_str());
   if(input_is_file) {
-    Spline * input_flux = new Spline(gOptFlux.c_str());  
+    Spline * input_flux = new Spline(gOptFlux.c_str());
 
     // generate the flux hisogram from the input flux file
     int    n       = 100;
@@ -360,7 +359,7 @@ void BuildSpectrum(void)
       ymax = TMath::Max(ymax, input_flux->Evaluate(ke));
     }
     ymax *= 1.3;
-  
+
     RandomGen * r = RandomGen::Instance();
 
     for(int ientry=0; ientry<flux_entries; ientry++) {
@@ -369,7 +368,7 @@ void BuildSpectrum(void)
       while(!accept) {
         iter++;
         if(iter > kRjMaxIterations) {
-           LOG("gevgen_hadron", pFATAL) 
+           LOG("gevgen_hadron", pFATAL)
              << "Couldn't generate a flux histogram";
            gAbortingInErr = true;
            exit(1);
@@ -382,23 +381,23 @@ void BuildSpectrum(void)
       }
     }
     delete input_flux;
-  
+
   } else {
     // generate the flux histogram from the input functional form
     TF1 *  input_func = new TF1("input_func", gOptFlux.c_str(), ke_min, ke_max);
     gSpectrum->FillRandom("input_func", flux_entries);
     delete input_func;
   }
-  TFile f("./input-hadron-flux.root","recreate");   
+  TFile f("./input-hadron-flux.root","recreate");
   gSpectrum->Write();
-  f.Close(); 
+  f.Close();
 }
 //____________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
 {
   LOG("gevgen_hadron", pINFO) << "Parsing command line arguments";
 
-  // Common run options. 
+  // Common run options.
   RunOpt::Instance()->ReadFromCommandLine(argc,argv);
 
   // Parse run options for this app
@@ -466,7 +465,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   if( parser.OptionExists('k') ) {
     LOG("gevgen_hadron", pINFO) << "Reading probe kinetic energy";
     string ke = parser.ArgAsString('k');
-    // is it just a value or a range (comma separated set of values)   
+    // is it just a value or a range (comma separated set of values)
     if(ke.find(",") != string::npos) {
        // split the comma separated list
        vector<string> kerange = utils::str::Split(ke, ",");
@@ -474,9 +473,9 @@ void GetCommandLineArgs(int argc, char ** argv)
        double kemin = atof(kerange[0].c_str());
        double kemax = atof(kerange[1].c_str());
        assert(kemax>kemin && kemin>0);
-       gOptProbeKE    = -1; 
-       gOptProbeKEmin = kemin; 
-       gOptProbeKEmax = kemax; 
+       gOptProbeKE    = -1;
+       gOptProbeKEmin = kemin;
+       gOptProbeKEmax = kemax;
        // if no flux was specified, generate uniformly within given range
        if(!gOptUsingFlux) {
           gOptFlux = "1";
@@ -484,10 +483,10 @@ void GetCommandLineArgs(int argc, char ** argv)
        }
     } else {
        gOptProbeKE    = atof(ke.c_str());
-       gOptProbeKEmin = -1; 
-       gOptProbeKEmax = -1; 
+       gOptProbeKEmin = -1;
+       gOptProbeKEmax = -1;
        if(gOptUsingFlux) {
-          LOG("gevgen_hadron", pFATAL) 
+          LOG("gevgen_hadron", pFATAL)
             << "You specified an input flux without a kinetic energy range";
           PrintSyntax();
           gAbortingInErr = true;
@@ -516,7 +515,7 @@ void GetCommandLineArgs(int argc, char ** argv)
     LOG("gevgen_hadron", pINFO) << "Reading mode";
     gOptMode = parser.ArgAsString('m');
   } else {
-    LOG("gevgen_hadron", pDEBUG) 
+    LOG("gevgen_hadron", pDEBUG)
        << "Unspecified mode - Using default";
     gOptMode = kDefOptMode;
   }
@@ -542,16 +541,16 @@ void GetCommandLineArgs(int argc, char ** argv)
   LOG("gevgen_hadron", pNOTICE) << "Probe PDG code     = " << gOptProbePdgCode;
   LOG("gevgen_hadron", pNOTICE) << "Target PDG code    = " << gOptTgtPdgCode;
   if(gOptProbeKEmin<0 && gOptProbeKEmax<0) {
-    LOG("gevgen_hadron", pNOTICE) 
+    LOG("gevgen_hadron", pNOTICE)
         << "Hadron input KE    = " << gOptProbeKE;
   } else {
-    LOG("gevgen_hadron", pNOTICE) 
-        << "Hadron input KE range = [" 
+    LOG("gevgen_hadron", pNOTICE)
+        << "Hadron input KE range = ["
         << gOptProbeKEmin << ", " << gOptProbeKEmax << "]";
   }
   if(gOptUsingFlux) {
-    LOG("gevgen_hadron", pNOTICE) 
-        << "Input flux            = " 
+    LOG("gevgen_hadron", pNOTICE)
+        << "Input flux            = "
         << gOptFlux;
   }
 
@@ -562,7 +561,7 @@ void GetCommandLineArgs(int argc, char ** argv)
 void PrintSyntax(void)
 {
   LOG("gevgen_hadron", pNOTICE)
-    << "\n\n" 
+    << "\n\n"
     << "Syntax:" << "\n"
     << "   gevgen_hadron [-r run] [-n nev] -p hadron_pdg -t tgt_pdg -k KE [-m mode] "
     << "                 [-f flux] "

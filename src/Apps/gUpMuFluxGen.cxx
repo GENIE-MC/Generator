@@ -7,11 +7,11 @@
 
          *** Synopsis :
 
-           gevgen_upmu [-h] 
-                       [-r run#] 
+           gevgen_upmu [-h]
+                       [-r run#]
                         -f flux
                         -n n_of_events
-			-d detector_bounding_box_size
+                        -d detector_bounding_box_size
                         -g rock_composition
                        [--seed random_number_seed]
                         --cross-sections xml_file
@@ -21,33 +21,33 @@
 
            [] Denotes an optional argument.
 
-           -h 
+           -h
               Prints out the syntax and exits.
-           -r 
-              Specifies the MC run number 
+           -r
+              Specifies the MC run number
               [default: 1000]
-           -f 
+           -f
               Specifies the input flux files
               The general syntax is: `-f simulation:/path/file.data[neutrino_code],...'
-              [Notes] 
+              [Notes]
                - The `simulation' string can be either `FLUKA' or `BGLRS' (so that
                  input data are binned using the correct FLUKA and BGLRS energy and
-                 costheta binning). See comments in 
+                 costheta binning). See comments in
                  - $GENIE/src/Flux/GFLUKAAtmoFlux.h
                  - $GENIE/src/Flux/GBGLRSAtmoFlux.h
                  and follow the links to the FLUKA and BGLRS atmo. flux web pages.
                - The neutrino codes are the PDG ones, for numu and anumu only
-               - The /path/file.data,neutrino_code part of the option can be 
-                 repeated multiple times (separated by commas), once for each 
-                 flux neutrino species you want to consider, 
+               - The /path/file.data,neutrino_code part of the option can be
+                 repeated multiple times (separated by commas), once for each
+                 flux neutrino species you want to consider,
                  eg. '-f FLUKA:~/data/sdave_numu07.dat[14],~/data/sdave_nue07.dat[12]'
-                 eg. '-f BGLRS:~/data/flux10_271003_z.kam_nue[12]'                     
-           -n 
+                 eg. '-f BGLRS:~/data/flux10_271003_z.kam_nue[12]'
+           -n
               Specifies how many events to generate.
-	   -d 
+           -d
               Specifies side length (in mm) of the detector bounding box.
               [default 100m (100000mm)]
-           -g 
+           -g
               rock composition << NOT IMPLEMENTED YET >>
               Rock composition should be implemented in terms of materials defined in
               src/MuELoss/MuELMaterial.h and their weight fraction
@@ -64,15 +64,15 @@
 
          *** Examples:
 
-           (1) Generate 100k events (run number 999210) for nu_mu only, using the 
-	       sdave_numu07.dat FLUKA flux file (files in /data/flx/), and a detector of
-	       side length 50m.
+           (1) Generate 100k events (run number 999210) for nu_mu only, using the
+               sdave_numu07.dat FLUKA flux file (files in /data/flx/), and a detector of
+               side length 50m.
 
                % gevgen_upmu -r 999210 -n 100000 -d 50000
                        -f FLUKA:/data/flx/sdave_numu07.dat[14]
 
-      
-         You can further control the GENIE behaviour by setting its standard 
+
+         You can further control the GENIE behaviour by setting its standard
          environmental variables.
          Please read the GENIE User Manual for more information.
 
@@ -172,14 +172,13 @@ double kDefOptDetectorSide = 1e+5;     // side length of detector, 100m (in mm)
 int main(int argc, char** argv)
 {
   // Parse command line arguments
-  GetCommandLineArgs(argc,argv); 
+  GetCommandLineArgs(argc,argv);
 
-  if ( ! RunOpt::Instance() -> Tune() ) {
+  if ( ! RunOpt::Instance()->Tune() ) {
     LOG("gmkspl", pFATAL) << " No TuneId in RunOption";
     exit(-1);
   }
-  RunOpt::Instance() -> Tune() -> Build() ;
-  XSecSplineList::Instance() -> SetCurrentTune( RunOpt::Instance() -> Tune() -> Name() ) ;
+  RunOpt::Instance()->BuildTune();
 
   // Init
   utils::app_init::MesgThresholds(RunOpt::Instance()->MesgThresholdFiles());
@@ -193,7 +192,7 @@ int main(int argc, char** argv)
   // Create output tree to store generated up-going muons
   TTree * ntupmuflux = new TTree("ntupmuflux","GENIE Upgoing Muon Event Tree");
   // Tree branches
-  int    brIev        = 0;      // Event number 
+  int    brIev        = 0;      // Event number
   int    brNuCode     = 0;      // Neutrino PDG code
   double brEmu        = 0;      // Muon energy (GeV)
   double brEnu        = 0;      // Neutrino energy (GeV)
@@ -217,7 +216,7 @@ int main(int argc, char** argv)
   ntupmuflux->Branch("xsec",         &brXSec,        "xsec/D"        );
 
   // Build 3-D pdfs describing the the probability of a muon neutrino (or anti-neutrino)
-  // of energy Enu and zenith angle costheta producing a mu- (or mu+) of energy E_mu 
+  // of energy Enu and zenith angle costheta producing a mu- (or mu+) of energy E_mu
   TH3D * pdf3d_numu    = BuildEmuEnuCosThetaPdf (kPdgNuMu    );
   TH3D * pdf3d_numubar = BuildEmuEnuCosThetaPdf (kPdgAntiNuMu);
 
@@ -233,11 +232,11 @@ int main(int argc, char** argv)
     brCosTheta  = -1. * flux_driver->Momentum().Pz() / flux_driver->Momentum().Vect().Mag();
     brWghtFlxNu = flux_driver->Weight();
 
-    LOG("gevgen_upmu", pNOTICE) 
+    LOG("gevgen_upmu", pNOTICE)
         << "Generated flux neutrino: code = " << brNuCode
         << ", Ev = " << brEnu << " GeV"
-        << ", cos(theta) = " << brCosTheta 
-        << ", weight = " << brWghtFlxNu; 
+        << ", cos(theta) = " << brCosTheta
+        << ", weight = " << brWghtFlxNu;
 
     // Get Emu pdf my slicing the 3-D Enu,Emu,costheta pdf.
     TH3D * pdf3d  = (brNuCode == kPdgNuMu) ? pdf3d_numu : pdf3d_numubar;
@@ -246,8 +245,8 @@ int main(int argc, char** argv)
     // Get a random Emu from the pdf, and get the weight for that Emu.
     brEmu        = pdfEmu->GetRandom();
     brWghtEmuPdf = pdfEmu->Integral("width");
-    LOG("gevgen_upmu", pNOTICE) 
-        << "Selected muon has energy Emu = " << brEmu 
+    LOG("gevgen_upmu", pNOTICE)
+        << "Selected muon has energy Emu = " << brEmu
         << " and Emu pdg weight = " << brWghtEmuPdf;
 
     // Randomly select the point at which the neutrino crosses the detector.
@@ -257,9 +256,9 @@ int main(int argc, char** argv)
     brVy = Vertex.Y();
     brVz = Vertex.Z();
 
-    LOG("gevgen_upmu", pNOTICE) 
+    LOG("gevgen_upmu", pNOTICE)
       << "Generated muon position: (" << brVx << ", " << brVy << ", " << brVz << ") m";
-    
+
     // Save the cross section for the interaction generated.
     brXSec = GetCrossSection(brNuCode, brEnu, brEmu);
 
@@ -313,7 +312,7 @@ TVector3 GetDetectorVertex(double costheta, double Enu)
   double y = rad * sintheta * cosphi;
   double x = rad * sintheta * sinphi;
 
-  // Displace muon randomly on a circular surface of radius rad_trans, 
+  // Displace muon randomly on a circular surface of radius rad_trans,
   // perpendicular to a sphere radius rad at that position [x,y,z].
   TVector3 vec(x,y,z);                // vector towards selected point
   TVector3 dvec1 = vec.Orthogonal();  // orthogonal vector
@@ -503,15 +502,15 @@ TH3D* BuildEmuEnuCosThetaPdf(int nu_code)
     {
       double Emu = h3->GetXaxis()->GetBinCenter(i);
       for (int j=1; j<= h3->GetNbinsY(); j++)
-	{
-	  double Enu = h3->GetBinCenter(j);
-	  double Int = ProbabilityEmu(nu_code,Enu,Emu);
-	  for (int k=1; k<= h3->GetNbinsZ(); k++)
-	    {
-	      h3->SetBinContent(i,j,k,Int); // Bin Content will is Int.
-	      //h3->SetBinContent(i,j,k,1); // Bin content constant (to test)
-	    }
-	}
+        {
+          double Enu = h3->GetBinCenter(j);
+          double Int = ProbabilityEmu(nu_code,Enu,Emu);
+          for (int k=1; k<= h3->GetNbinsZ(); k++)
+            {
+              h3->SetBinContent(i,j,k,Int); // Bin Content will is Int.
+              //h3->SetBinContent(i,j,k,1); // Bin content constant (to test)
+            }
+        }
     }
   return h3;
 }
@@ -532,7 +531,7 @@ TH1D * GetEmuPdf(double Enu, double costheta, const TH3D* pdf3d)
   for (int Emu_bin = 1; Emu_bin < pdf_Emu->GetNbinsX(); Emu_bin++) {
     pdf_Emu->SetBinContent(Emu_bin, pdf3d->GetBinContent(Emu_bin,Enu_bin,costheta_bin));
   }
-  
+
   return pdf_Emu;
 }
 //________________________________________________________________________________________
@@ -569,20 +568,20 @@ double GetCrossSection(int nu_code, double Enu, double Emu)
     for (int i = 0; i<=10; i++){
       x = i*dx;
       for (int j = 0; j<=10; j++){
-	y = j * dy;
-	double W  = 0;
-	double Q2 = 0;
-	utils::kinematics::XYtoWQ2(Enu,kNucleonMass,W,Q2,x,y);
-	vp->KinePtr()->Setx(x);
-	vp->KinePtr()->Sety(y);
-	vp->KinePtr()->SetQ2(Q2);
-	vp->KinePtr()->SetW(W);
-	vn->KinePtr()->Setx(x);
-	vn->KinePtr()->Sety(y);
-	vn->KinePtr()->SetQ2(Q2);
-	vn->KinePtr()->SetW(W);
+        y = j * dy;
+        double W  = 0;
+        double Q2 = 0;
+        utils::kinematics::XYtoWQ2(Enu,kNucleonMass,W,Q2,x,y);
+        vp->KinePtr()->Setx(x);
+        vp->KinePtr()->Sety(y);
+        vp->KinePtr()->SetQ2(Q2);
+        vp->KinePtr()->SetW(W);
+        vn->KinePtr()->Setx(x);
+        vn->KinePtr()->Sety(y);
+        vn->KinePtr()->SetQ2(Q2);
+        vn->KinePtr()->SetW(W);
 
-	dxsec_dxdy += 0.5*(xsecalg->XSec(vp,kPSxyfE) + xsecalg->XSec(vn,kPSxyfE)) / units::cm2;
+        dxsec_dxdy += 0.5*(xsecalg->XSec(vp,kPSxyfE) + xsecalg->XSec(vn,kPSxyfE)) / units::cm2;
         }
     }
 
@@ -615,7 +614,7 @@ GFluxI* GetFlux(void)
   }
 
 
-  atmo_flux_driver->GenerateWeighted(true);    
+  atmo_flux_driver->GenerateWeighted(true);
 
   // Configure GAtmoFlux options (common to all concrete atmospheric flux drivers)
   // set flux files:
@@ -628,7 +627,7 @@ GFluxI* GetFlux(void)
   atmo_flux_driver->LoadFluxData();
   // configure flux generation surface:
   atmo_flux_driver->SetRadii(1, 1);
-  // Cast to GFluxI, the generic flux driver interface 
+  // Cast to GFluxI, the generic flux driver interface
   flux_driver = dynamic_cast<GFluxI *>(atmo_flux_driver);
 
 #else
@@ -641,7 +640,7 @@ GFluxI* GetFlux(void)
   return flux_driver;
 }
 //________________________________________________________________________________________
-void GetCommandLineArgs(int argc, char ** argv) 
+void GetCommandLineArgs(int argc, char ** argv)
 {
 // Get the command line arguments
 
@@ -657,7 +656,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   // help?
   bool help = parser.OptionExists('h');
   if(help) {
-    PrintSyntax(); 
+    PrintSyntax();
     exit(0);
   }
 
@@ -674,18 +673,18 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   //
   // *** exposure
-  // 
+  //
 
   // in number of events
   bool have_required_statistics = false;
   if( parser.OptionExists('n') ) {
-    LOG("gevgen_upmu", pDEBUG) 
+    LOG("gevgen_upmu", pDEBUG)
         << "Reading number of events to generate";
     gOptNev = parser.ArgAsInt('n');
     have_required_statistics = true;
   }//-n
   if(!have_required_statistics) {
-    LOG("gevgen_upmu", pFATAL) 
+    LOG("gevgen_upmu", pFATAL)
        << "You must request exposure either in terms of number of events"
        << "\nUse the -n option";
     PrintSyntax();
@@ -711,7 +710,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   // *** flux files
   //
 
-  // syntax: 
+  // syntax:
   // simulation:/path/file.data[neutrino_code],/path/file.data[neutrino_code],...
   //
   if( parser.OptionExists('f') ) {
@@ -722,8 +721,8 @@ void GetCommandLineArgs(int argc, char ** argv)
     // appropriate flux driver
     string::size_type jsimend = flux.find_first_of(":",0);
     if(jsimend==string::npos) {
-       LOG("gevgen_upmu", pFATAL) 
-           << "You need to specify the flux file source"; 
+       LOG("gevgen_upmu", pFATAL)
+           << "You need to specify the flux file source";
        PrintSyntax();
        gAbortingInErr = true;
        exit(1);
@@ -733,25 +732,25 @@ void GetCommandLineArgs(int argc, char ** argv)
        gOptFluxSim[i] = toupper(gOptFluxSim[i]);
     }
     if((gOptFluxSim != "FLUKA") && (gOptFluxSim != "BGLRS")) {
-        LOG("gevgen_upmu", pFATAL) 
-             << "The flux file source needs to be one of <FLUKA,BGLRS>"; 
+        LOG("gevgen_upmu", pFATAL)
+             << "The flux file source needs to be one of <FLUKA,BGLRS>";
         PrintSyntax();
         gAbortingInErr = true;
         exit(1);
     }
     // now get the list of input files and the corresponding neutrino codes.
-    flux.erase(0,jsimend+1); 
-    vector<string> fluxv = utils::str::Split(flux,",");      
+    flux.erase(0,jsimend+1);
+    vector<string> fluxv = utils::str::Split(flux,",");
     vector<string>::const_iterator fluxiter = fluxv.begin();
     for( ; fluxiter != fluxv.end(); ++fluxiter) {
        string filename_and_pdg = *fluxiter;
        string::size_type open_bracket  = filename_and_pdg.find("[");
        string::size_type close_bracket = filename_and_pdg.find("]");
-       if (open_bracket ==string::npos || 
-           close_bracket==string::npos) 
+       if (open_bracket ==string::npos ||
+           close_bracket==string::npos)
        {
-           LOG("gevgen_upmu", pFATAL) 
-              << "You made an error in specifying the flux info"; 
+           LOG("gevgen_upmu", pFATAL)
+              << "You made an error in specifying the flux info";
            PrintSyntax();
            gAbortingInErr = true;
            exit(1);
@@ -762,12 +761,12 @@ void GetCommandLineArgs(int argc, char ** argv)
        string::size_type jend = close_bracket;
        string flux_filename   = filename_and_pdg.substr(ibeg,iend-ibeg);
        string neutrino_pdg    = filename_and_pdg.substr(jbeg,jend-jbeg);
-       gOptFluxFiles.insert( 
+       gOptFluxFiles.insert(
           map<int,string>::value_type(atoi(neutrino_pdg.c_str()), flux_filename));
     }
     if(gOptFluxFiles.size() == 0) {
-       LOG("gevgen_upmu", pFATAL) 
-          << "You must specify at least one flux file!"; 
+       LOG("gevgen_upmu", pFATAL)
+          << "You must specify at least one flux file!";
        PrintSyntax();
        gAbortingInErr = true;
        exit(1);
@@ -806,7 +805,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   //
   // print-out summary
   //
-  
+
   PDGLibrary * pdglib = PDGLibrary::Instance();
 
   ostringstream fluxinfo;
@@ -823,27 +822,27 @@ void GetCommandLineArgs(int argc, char ** argv)
   }
 
   ostringstream expinfo;
-  if(gOptNev > 0) { expinfo << gOptNev << " events";   } 
+  if(gOptNev > 0) { expinfo << gOptNev << " events";   }
 
   LOG("gevgen_atmo", pNOTICE)
      << "\n\n"
      << utils::print::PrintFramedMesg("gevgen_upmu job configuration");
 
-  LOG("gevgen_upmu", pNOTICE) 
+  LOG("gevgen_upmu", pNOTICE)
      << "\n"
      << "\n @@ Run number: " << gOptRunNu
      << "\n @@ Random number seed: " << gOptRanSeed
      << "\n @@ Using cross-section file: " << gOptInpXSecFile
      << "\n @@ Flux"
      << "\n\t" << fluxinfo.str()
-     << "\n @@ Exposure" 
+     << "\n @@ Exposure"
      << "\n\t" << expinfo.str()
      << "\n\n";
 }
 //________________________________________________________________________________________
 void PrintSyntax(void)
 {
-  LOG("gevgen_upmu", pFATAL) 
+  LOG("gevgen_upmu", pFATAL)
    << "\n **Syntax**"
    << "\n gevgen_upmu [-h]"
    << "\n             [-r run#]"
@@ -858,4 +857,3 @@ void PrintSyntax(void)
    << "\n";
 }
 //________________________________________________________________________________________
-

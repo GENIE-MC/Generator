@@ -7,8 +7,8 @@
 
          *** Synopsis :
 
-           gevgen_atmo [-h] 
-                       [-r run#] 
+           gevgen_atmo [-h]
+                       [-r run#]
                         -f flux
                         -g geometry
                        [-R coordinate_rotation_matrix]
@@ -35,28 +35,28 @@
            [] Denotes an optional argument.
            <> Denotes a set of arguments out of which only one can be set.
 
-           -h 
+           -h
               Prints out the syntax and exits
-           -r 
-              Specifies the MC run number 
+           -r
+              Specifies the MC run number
               [default: 100000000]
-           -f 
+           -f
               Specifies the input flux files
               The general syntax is: `-f simulation:/path/file.data[neutrino_code],...'
-              [Notes] 
+              [Notes]
                - The `simulation' string can be either `FLUKA', `BGLRS' or `HAKKM'.
                  See:
                  - $GENIE/src/Flux/GFLUKAAtmoFlux.h
                  - $GENIE/src/Flux/GBGLRSAtmoFlux.h
                  - $GENIE/src/Flux/GHAKKMAtmoFlux.h
                - The neutrino codes are the PDG ones.
-               - The /path/file.data,neutrino_code part of the option can be 
-                 repeated multiple times (separated by commas), once for each 
-                 flux neutrino species you want to consider, 
+               - The /path/file.data,neutrino_code part of the option can be
+                 repeated multiple times (separated by commas), once for each
+                 flux neutrino species you want to consider,
                  eg. '-f FLUKA:~/data/sdave_numu07.dat[14],~/data/sdave_nue07.dat[12]'
                  eg. '-f BGLRS:~/data/flux10_271003_z.kam_nue[12]'
                  eg. '-f HAKKM:~/data/kam-ally-20-12-solmax.d[12]'
-           -g 
+           -g
               Input 'geometry'.
               This option can be used to specify any of:
               1 > A ROOT file containing a ROOT/GEANT geometry description
@@ -76,24 +76,24 @@
                     '-g 1000080160[0.89],1000010010[0.11]'
                   - To use a target which is 100% C12, type:
                     '-g 1000060120'
-           -R 
+           -R
               Input rotation matrix for transforming the flux neutrino coordinates
               from the default Topocentric Horizontal (see GENIE manual) coordinate
-              system to the user-defined topocentric coordinate system. 
+              system to the user-defined topocentric coordinate system.
               The rotation is specified by the 3 Euler angles (phi, theta, psi).
               The Euler angles are input as a comma separated list as:
               `-R <convention>:phi,theta,psi',
               where <convention> is either X (for X-convention), Y (for Y-convention),
               X^-1 or Y^-1 (as previously, but using the inverse matrix).
-              By default, the X-convention (rotation about Z-axis, then about the 
-              new X-axis, then about the Z-axis) is used. 
-              Notes: 
+              By default, the X-convention (rotation about Z-axis, then about the
+              new X-axis, then about the Z-axis) is used.
+              Notes:
               - (Extract from TRotation documentation)
-               "Euler angles usually define the rotation of the new coordinate 
-                system with respect to the original system, however, the TRotation 
-                class specifies the rotation of the object in the original system 
-                (an active rotation). To recover the usual Euler rotations (ie. 
-                rotate the system not the object), you must take the inverse of 
+               "Euler angles usually define the rotation of the new coordinate
+                system with respect to the original system, however, the TRotation
+                class specifies the rotation of the object in the original system
+                (an active rotation). To recover the usual Euler rotations (ie.
+                rotate the system not the object), you must take the inverse of
                 the rotation."
               Examples:
               1. To set the Euler angles phi=3.14, theta=1.28, psi=1.0 using the
@@ -102,21 +102,21 @@
                  Y-convention, type: `-R Y:3.14,1.28,1.0'
               3. To set the Euler angles phi=3.14, theta=1.28, psi=1.0 using the
                  Y-convention, and then use the inverse rotation matrix, type:
-                 `-R Y^-1:3.14,1.28,1.0'                            
-           -L 
+                 `-R Y^-1:3.14,1.28,1.0'
+           -L
               Input geometry length units, eg 'm', 'cm', 'mm', ...
               [default: 'mm']
-           -D 
+           -D
               Input geometry density units, eg 'g_cm3', 'clhep_def_density_unit',...
               [default: 'g_cm3']
-           -t 
+           -t
               Input 'top volume' for event generation -
               can be used to force event generation in given sub-detector
               [default: the 'master volume' of the input geometry]
               You can also use the -t option to switch generation on/off at
               multiple volumes as, for example, in:
               `-t +Vol1-Vol2+Vol3-Vol4',
-              `-t "+Vol1 -Vol2 +Vol3 -Vol4"', 
+              `-t "+Vol1 -Vol2 +Vol3 -Vol4"',
               `-t -Vol2-Vol4+Vol1+Vol3',
               `-t "-Vol2 -Vol4 +Vol1 +Vol3"'
               where:
@@ -126,19 +126,19 @@
               except the ones explicitly turned on. Vice versa, if the very first
               character is a `-', GENIE will keep all volumes except the ones
               explicitly turned off (feature contributed by J.Holeczek).
-           -n 
+           -n
               Specifies how many events to generate.
-           -e 
+           -e
               Specifies requested exposure in terms of kton*yrs.
-           -E 
-              Specifies the neutrino energy in GeV. 
+           -E
+              Specifies the neutrino energy in GeV.
               Must be a comma-separated pair of numbers, eg `-E 0.3,70'
               [default: 0.5,50]
-           -o 
-              Sets the prefix of the output event file. 
-              The output filename is built as: 
+           -o
+              Sets the prefix of the output event file.
+              The output filename is built as:
               [prefix].[run_number].[event_tree_format].[file_format]
-              The default output filename is: 
+              The default output filename is:
               gntp.[run_number].ghep.root
               This cmd line arguments lets you override 'gntp'
            --seed
@@ -172,13 +172,13 @@
            (1) Generate 100k events (run number 999210) in the energy range 1-10 GeV
                for nu_e and nu_mu only, using the sdave_numu07.dat FLUKA flux file for
                nu_mu and the sdave_nue07.dat file for nu_e (files in /data/flx/).
-               Use the detector geometry in the /data/geo/SuperK.root file, where the 
-               geometry length and density units are m and kgr/m^3. Generate events over 
-               the entire geometry volume. Pre-computed cross-section data are loaded 
+               Use the detector geometry in the /data/geo/SuperK.root file, where the
+               geometry length and density units are m and kgr/m^3. Generate events over
+               the entire geometry volume. Pre-computed cross-section data are loaded
                from /data/xsec.xml.
 
                % gevgen_atmo -r 999210 -n 100000 -E 1,10
-                       -f FLUKA:/data/flx/sdave_numu07.dat[14],/data/flx/sdave_nue07.dat[12] 
+                       -f FLUKA:/data/flx/sdave_numu07.dat[14],/data/flx/sdave_nue07.dat[12]
                        -g /data/geo/SuperK.root -L "m" -D "kg_m3"
                        --cross-sections /data/xsec.xml
 
@@ -186,11 +186,11 @@
                geometry, use a simple target mix (88.79% O16 + 11.21% H, i.e. `water')
 
                % gevgen_atmo -r 999210 -n 100000 -E 1,10
-                       -f /data/flux/sdave_numu07.dat[14],/data/flux/sdave_nue07.dat[12] 
+                       -f /data/flux/sdave_numu07.dat[14],/data/flux/sdave_nue07.dat[12]
                        -g 1000080160[0.8879],1000010010[0.1121]
                        --cross-sections /data/xsec.xml
 
-		... to add more
+                ... to add more
 
          Please read the GENIE User Manual for more information.
 
@@ -206,7 +206,7 @@
          Tufts University
 
          Tarak Thakore <tarak \at mailhost.tifr.res.in>
-         Tata Institute of Fundamental Research 
+         Tata Institute of Fundamental Research
 
 \cpright Copyright (c) 2003-2018, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
@@ -281,7 +281,7 @@ string          gOptRootGeomTopVol = "";       // input geometry top event gener
 double          gOptGeomLUnits = 0;            // input geometry length units
 double          gOptGeomDUnits = 0;            // input geometry density units
 string          gOptExtMaxPlXml;               // max path lengths XML file for input geometry
-int             gOptNev = -1;                  // exposure - in terms of number of events 
+int             gOptNev = -1;                  // exposure - in terms of number of events
 double          gOptKtonYrExposure = -1;       // exposure - in terms of kton*yrs
 double          gOptEvMin;                     // minimum neutrino energy
 double          gOptEvMax;                     // maximum neutrino energy
@@ -305,12 +305,11 @@ int main(int argc, char** argv)
   // Parse command line arguments
   GetCommandLineArgs(argc,argv);
 
-  if ( ! RunOpt::Instance() -> Tune() ) {
+  if ( ! RunOpt::Instance()->Tune() ) {
     LOG("gmkspl", pFATAL) << " No TuneId in RunOption";
     exit(-1);
   }
-  RunOpt::Instance() -> Tune() -> Build() ;
-  XSecSplineList::Instance() -> SetCurrentTune( RunOpt::Instance() -> Tune() -> Name() ) ;
+  RunOpt::Instance()->BuildTune();
 
   // Iinitialization of random number generators, cross-section table, messenger, cache etc...
   utils::app_init::MesgThresholds(RunOpt::Instance()->MesgThresholdFiles());
@@ -357,7 +356,7 @@ int main(int argc, char** argv)
     // print-out
     LOG("gevgen_atmo", pNOTICE) << "Generated event: " << *event;
 
-    // save the event, refresh the mc job monitor 
+    // save the event, refresh the mc job monitor
     ntpw.AddEventRecord(iev, event);
     mcjmonitor.Update(iev,event);
 
@@ -417,11 +416,11 @@ GeomAnalyzerI* GetGeometry(void)
     geom_driver = dynamic_cast<GeomAnalyzerI *> (rgeom);
   }
   else {
-    //       
+    //
     // *** Using a 'point' geometry with the specified target mix
     // *** ( = a list of targets with their corresponding weight fraction)
     //
-  
+
     // creating & configuring a point geometry driver
     geometry::PointGeomAnalyzer * pgeom =
               new geometry::PointGeomAnalyzer(gOptTgtMix);
@@ -454,7 +453,7 @@ GFluxI* GetFlux(void)
   if(gOptFluxSim == "BGLRS") {
      GBGLRSAtmoFlux * bartol_flux = new GBGLRSAtmoFlux;
      atmo_flux_driver = dynamic_cast<GAtmoFlux *>(bartol_flux);
-  } else 
+  } else
   if(gOptFluxSim == "HAKKM") {
      GHAKKMAtmoFlux * honda_flux = new GHAKKMAtmoFlux;
      atmo_flux_driver = dynamic_cast<GAtmoFlux *>(honda_flux);
@@ -466,7 +465,7 @@ GFluxI* GetFlux(void)
   // Configure GAtmoFlux options (common to all concrete atmospheric flux drivers)
   // set min/max energy:
   atmo_flux_driver->ForceMinEnergy (gOptEvMin * units::GeV);
-  atmo_flux_driver->ForceMaxEnergy (gOptEvMax * units::GeV);    
+  atmo_flux_driver->ForceMaxEnergy (gOptEvMax * units::GeV);
   // set flux files:
   map<int,string>::const_iterator file_iter = gOptFluxFiles.begin();
   for( ; file_iter != gOptFluxFiles.end(); ++file_iter) {
@@ -482,7 +481,7 @@ GFluxI* GetFlux(void)
   if(!gOptRot.IsIdentity()) {
      atmo_flux_driver->SetUserCoordSystem(gOptRot);
   }
-  // Cast to GFluxI, the generic flux driver interface 
+  // Cast to GFluxI, the generic flux driver interface
   flux_driver = dynamic_cast<GFluxI *>(atmo_flux_driver);
 
 #else
@@ -523,12 +522,12 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   //
   // *** exposure
-  // 
+  //
 
   // in number of events
   bool have_required_statistics = false;
   if( parser.OptionExists('n') ) {
-    LOG("gevgen_atmo", pDEBUG) 
+    LOG("gevgen_atmo", pDEBUG)
         << "Reading number of events to generate";
     gOptNev = parser.ArgAsInt('n');
     have_required_statistics = true;
@@ -536,20 +535,20 @@ void GetCommandLineArgs(int argc, char ** argv)
   // or, in kton*yrs
   if( parser.OptionExists('e') ) {
     if(have_required_statistics) {
-      LOG("gevgen_atmo", pFATAL) 
+      LOG("gevgen_atmo", pFATAL)
          << "Can't request exposure both in terms of number of events and  kton*yrs"
          << "\nUse just one of the -n and -e options";
       PrintSyntax();
       gAbortingInErr = true;
       exit(1);
     }
-    LOG("gevgen_atmo", pDEBUG) 
+    LOG("gevgen_atmo", pDEBUG)
         << "Reading requested exposure in kton*yrs";
     gOptKtonYrExposure = parser.ArgAsDouble('e');
     have_required_statistics = true;
   }//-e?
   if(!have_required_statistics) {
-    LOG("gevgen_atmo", pFATAL) 
+    LOG("gevgen_atmo", pFATAL)
        << "You must request exposure either in terms of number of events and  kton*yrs"
        << "\nUse any of the -n, -e options";
     PrintSyntax();
@@ -603,7 +602,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   //
   // *** flux files
   //
-  // syntax: 
+  // syntax:
   // simulation:/path/file.data[neutrino_code],/path/file.data[neutrino_code],...
   //
   if( parser.OptionExists('f') ) {
@@ -614,8 +613,8 @@ void GetCommandLineArgs(int argc, char ** argv)
     // appropriate flux driver
     string::size_type jsimend = flux.find_first_of(":",0);
     if(jsimend==string::npos) {
-       LOG("gevgen_atmo", pFATAL) 
-           << "You need to specify the flux file source"; 
+       LOG("gevgen_atmo", pFATAL)
+           << "You need to specify the flux file source";
        PrintSyntax();
        gAbortingInErr = true;
        exit(1);
@@ -624,28 +623,28 @@ void GetCommandLineArgs(int argc, char ** argv)
     for(string::size_type i=0; i<gOptFluxSim.size(); i++) {
        gOptFluxSim[i] = toupper(gOptFluxSim[i]);
     }
-    if((gOptFluxSim != "FLUKA") && 
-       (gOptFluxSim != "BGLRS") && 
+    if((gOptFluxSim != "FLUKA") &&
+       (gOptFluxSim != "BGLRS") &&
        (gOptFluxSim != "HAKKM")) {
-        LOG("gevgen_atmo", pFATAL) 
-             << "The flux file source needs to be one of <FLUKA,BGLRS,HAKKM>"; 
+        LOG("gevgen_atmo", pFATAL)
+             << "The flux file source needs to be one of <FLUKA,BGLRS,HAKKM>";
         PrintSyntax();
         gAbortingInErr = true;
         exit(1);
     }
     // now get the list of input files and the corresponding neutrino codes.
-    flux.erase(0,jsimend+1); 
-    vector<string> fluxv = utils::str::Split(flux,",");      
+    flux.erase(0,jsimend+1);
+    vector<string> fluxv = utils::str::Split(flux,",");
     vector<string>::const_iterator fluxiter = fluxv.begin();
     for( ; fluxiter != fluxv.end(); ++fluxiter) {
        string filename_and_pdg = *fluxiter;
        string::size_type open_bracket  = filename_and_pdg.find("[");
        string::size_type close_bracket = filename_and_pdg.find("]");
-       if (open_bracket ==string::npos || 
-           close_bracket==string::npos) 
+       if (open_bracket ==string::npos ||
+           close_bracket==string::npos)
        {
-           LOG("gevgen_atmo", pFATAL) 
-              << "You made an error in specifying the flux info"; 
+           LOG("gevgen_atmo", pFATAL)
+              << "You made an error in specifying the flux info";
            PrintSyntax();
            gAbortingInErr = true;
            exit(1);
@@ -656,12 +655,12 @@ void GetCommandLineArgs(int argc, char ** argv)
        string::size_type jend = close_bracket;
        string flux_filename   = filename_and_pdg.substr(ibeg,iend-ibeg);
        string neutrino_pdg    = filename_and_pdg.substr(jbeg,jend-jbeg);
-       gOptFluxFiles.insert( 
+       gOptFluxFiles.insert(
           map<int,string>::value_type(atoi(neutrino_pdg.c_str()), flux_filename));
     }
     if(gOptFluxFiles.size() == 0) {
-       LOG("gevgen_atmo", pFATAL) 
-          << "You must specify at least one flux file!"; 
+       LOG("gevgen_atmo", pFATAL)
+          << "You must specify at least one flux file!";
        PrintSyntax();
        gAbortingInErr = true;
        exit(1);
@@ -676,21 +675,21 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   //
   // *** geometry
-  //        
+  //
   string geom = "";
   string lunits, dunits;
   if( parser.OptionExists('g') ) {
     LOG("gevgen_atmo", pDEBUG) << "Getting input geometry";
     geom = parser.ArgAsString('g');
-     
+
     // is it a ROOT file that contains a ROOT geometry?
     bool accessible_geom_file =
         utils::system::FileExists(geom.c_str());
     if (accessible_geom_file) {
-      gOptRootGeom      = geom; 
+      gOptRootGeom      = geom;
       gOptUsingRootGeom = true;
     }
-  } else {  
+  } else {
       LOG("gevgen_atmo", pFATAL)
         << "No geometry option specified - Exiting";
       PrintSyntax();
@@ -700,7 +699,7 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   if(gOptUsingRootGeom) {
      // using a ROOT geometry - get requested geometry units
-    
+
      // legth units:
      if( parser.OptionExists('L') ) {
         LOG("gevgen_atmo", pDEBUG)
@@ -785,11 +784,11 @@ void GetCommandLineArgs(int argc, char ** argv)
       }// tgtmix_iter
     } // >1 materials in mix
   } // using tgt mix?
-    
+
   //
   // Coordinate rotation matrix
   //
-  gOptRot.SetToIdentity();   
+  gOptRot.SetToIdentity();
   if( parser.OptionExists('R') ) {
     string rotarg = parser.ArgAsString('R');
     //get convention
@@ -798,7 +797,7 @@ void GetCommandLineArgs(int argc, char ** argv)
     if(j==string::npos) { convention = "X"; }
     else                { convention = rotarg.substr(0,j); }
     //get angles phi,theta,psi
-    rotarg.erase(0,j+1); 
+    rotarg.erase(0,j+1);
     vector<string> euler_angles = utils::str::Split(rotarg,",");
     if(euler_angles.size() != 3) {
        LOG("gevgen_atmo", pFATAL)
@@ -807,18 +806,18 @@ void GetCommandLineArgs(int argc, char ** argv)
        gAbortingInErr = true;
        exit(1);
     }
-    double phi   = atof(euler_angles[0].c_str()); 
+    double phi   = atof(euler_angles[0].c_str());
     double theta = atof(euler_angles[1].c_str());
     double psi   = atof(euler_angles[2].c_str());
     //set Euler angles using appropriate convention
-    if(convention.find("X")!=string::npos || 
-       convention.find("x")!=string::npos) 
+    if(convention.find("X")!=string::npos ||
+       convention.find("x")!=string::npos)
     {
        LOG("gevgen_atmo", pNOTICE) << "Using X-convention for input Euler angles";
        gOptRot.SetXEulerAngles(phi,theta,psi);
-    } else 
-    if(convention.find("Y")!=string::npos || 
-       convention.find("y")!=string::npos) 
+    } else
+    if(convention.find("Y")!=string::npos ||
+       convention.find("y")!=string::npos)
     {
        LOG("gevgen_atmo", pNOTICE) << "Using Y-convention for input Euler angles";
        gOptRot.SetYEulerAngles(phi,theta,psi);
@@ -886,7 +885,7 @@ void GetCommandLineArgs(int argc, char ** argv)
           }//p?
     }
   }
-     
+
   ostringstream fluxinfo;
   fluxinfo << "Using " << gOptFluxSim << " flux files: ";
   map<int,string>::const_iterator file_iter = gOptFluxFiles.begin();
@@ -901,8 +900,8 @@ void GetCommandLineArgs(int argc, char ** argv)
   }
 
   ostringstream expinfo;
-  if(gOptNev > 0)            { expinfo << gOptNev            << " events";   } 
-  if(gOptKtonYrExposure > 0) { expinfo << gOptKtonYrExposure << " kton*yrs"; } 
+  if(gOptNev > 0)            { expinfo << gOptNev            << " events";   }
+  if(gOptKtonYrExposure > 0) { expinfo << gOptKtonYrExposure << " kton*yrs"; }
 
   ostringstream rotation;
   rotation << "\t| " <<  gOptRot.XX() << "  " << gOptRot.XY() << "  " << gOptRot.XZ() << " |\n";
@@ -913,16 +912,16 @@ void GetCommandLineArgs(int argc, char ** argv)
      << "\n\n"
      << utils::print::PrintFramedMesg("gevgen_atmo job configuration");
 
-  LOG("gevgen_atmo", pNOTICE) 
+  LOG("gevgen_atmo", pNOTICE)
      << "\n"
-     << "\n @@ Run number: " << gOptRunNu 
+     << "\n @@ Run number: " << gOptRunNu
      << "\n @@ Random number seed: " << gOptRanSeed
      << "\n @@ Using cross-section file: " << gOptInpXSecFile
      << "\n @@ Geometry"
      << "\n\t" << gminfo.str()
      << "\n @@ Flux"
      << "\n\t" << fluxinfo.str()
-     << "\n @@ Exposure" 
+     << "\n @@ Exposure"
      << "\n\t" << expinfo.str()
      << "\n @@ Cuts"
      << "\n\t Using energy range = (" << gOptEvMin << " GeV, " << gOptEvMax << " GeV)"
@@ -934,7 +933,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   // final checks
   //
   if(gOptKtonYrExposure > 0) {
-    LOG("gevgen_atmo", pFATAL) 
+    LOG("gevgen_atmo", pFATAL)
       << "\n Option to set exposure in terms of kton*yrs not supported just yet!"
       << "\n Try the -n option instead";
     PrintSyntax();
@@ -945,7 +944,7 @@ void GetCommandLineArgs(int argc, char ** argv)
 //________________________________________________________________________________________
 void PrintSyntax(void)
 {
-  LOG("gevgen_atmo", pFATAL) 
+  LOG("gevgen_atmo", pFATAL)
    << "\n **Syntax**"
    << "\n gevgen_atmo [-h]"
    << "\n           [-r run#]"
@@ -973,4 +972,3 @@ void PrintSyntax(void)
    << "\n";
 }
 //________________________________________________________________________________________
-

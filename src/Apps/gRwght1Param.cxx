@@ -5,58 +5,58 @@
 
 \brief   Generates weights given an input GHEP event file and for a given
          (single) systematic parameter (supported by the ReWeight package).
-         It outputs a ROOT file containing a tree with an entry for every 
-         input event. Each such tree entry contains a TArrayF of all computed 
-         weights and a TArrayF of all used tweak dial values. 
+         It outputs a ROOT file containing a tree with an entry for every
+         input event. Each such tree entry contains a TArrayF of all computed
+         weights and a TArrayF of all used tweak dial values.
 
 \syntax  grwght1scan \
-           -f input_event_file 
-          [-n n1[,n2]] 
-           -s systematic 
+           -f input_event_file
+          [-n n1[,n2]]
+           -s systematic
            -t n_twk_diall_values
           [--min-tweak minimum_tweak_value]
           [--max-tweak maximum_tweak_value]
-          [-p neutrino_codes] 
+          [-p neutrino_codes]
           [-o output_weights_file]
           [--seed random_number_seed]
           [--message-thresholds xml_file]
           [--event-record-print-level level]
 
-         where 
+         where
          [] is an optional argument.
 
-         -f 
+         -f
             Specifies a GHEP input file.
-         -n 
+         -n
             Specifies an event range.
             Examples:
             - Type `-n 50,2350' to process all 2301 events from 50 up to 2350.
               Note: Both 50 and 2350 are included.
             - Type `-n 1000' to process the first 1000 events;
               from event number 0 up to event number 999.
-            This is an optional argument. 
+            This is an optional argument.
             By default GENIE will process all events.
-         -t 
+         -t
             Specified the number of tweak dial values between a minimum and a
             maximum value
-          --min-tweak 
+          --min-tweak
             Specifies the minimum value of the tweaked parameter.
             Default: -5 (corresponds to -5\sigma)
-          --max-tweak 
+          --max-tweak
             Specifies the maximum value of the tweaked parameter.
             Default: +5 (corresponds to +5\sigma)
-         -s 
+         -s
             Specifies the systematic param to tweak.
             See $GENIE/src/ReWeight/GSyst.h for a list of parameters and
             their corresponding label, which is what should be input here.
-         -p 
-            If set, grwght1scan reweights *only* the specified neutrino 
+         -p
+            If set, grwght1scan reweights *only* the specified neutrino
             species. The input is a comma separated list of PDG codes.
-            This is an optional argument. 
+            This is an optional argument.
             By default GENIE will reweight all neutrino species.
-         -o 
+         -o
             Specifies the filename of the output weight file.
-            This is an optional argument. 
+            This is an optional argument.
             By default filename is weights_<name_of_systematic_param>.root.
          --seed
             Random number seed.
@@ -115,8 +115,8 @@
 #include "Tools/ReWeight/GReWeightAGKY.h"
 #include "Tools/ReWeight/GReWeightNuXSecCCQEaxial.h"
 #include "Tools/ReWeight/GReWeightNuXSecCCQEvec.h"
-#include "Tools/ReWeight/GReWeightNuXSecNCRES.h"  
-#include "Tools/ReWeight/GReWeightNuXSecDIS.h"    
+#include "Tools/ReWeight/GReWeightNuXSecNCRES.h"
+#include "Tools/ReWeight/GReWeightNuXSecDIS.h"
 #include "Framework/Utils/AppInit.h"
 #include "Framework/Utils/RunOpt.h"
 #include "Framework/Utils/CmdLnArgParser.h"
@@ -151,12 +151,11 @@ int main(int argc, char ** argv)
   utils::app_init::RandGen(gOptRanSeed);
   GHepRecord::SetPrintLevel(RunOpt::Instance()->EventRecordPrintLevel());
 
-  if ( ! RunOpt::Instance() -> Tune() ) {
+  if ( ! RunOpt::Instance()->Tune() ) {
     LOG("greweight", pFATAL) << " No TuneId in RunOption";
     exit(-1);
   }
-  RunOpt::Instance() -> Tune() -> Build() ;
-  XSecSplineList::Instance() -> SetCurrentTune( RunOpt::Instance() -> Tune() -> Name() ) ;
+  RunOpt::Instance()->BuildTune();
 
 
   // Get the input event sample
@@ -167,7 +166,7 @@ int main(int argc, char ** argv)
   thdr = dynamic_cast <NtpMCTreeHeader *> ( file.Get("header") );
   LOG("grwght1scan", pNOTICE) << "Input tree header: " << *thdr;
   if(!tree){
-    LOG("grwght1scan", pFATAL) 
+    LOG("grwght1scan", pFATAL)
       << "Can't find a GHEP tree in input file: "<< file.GetName();
     gAbortingInErr = true;
     PrintSyntax();
@@ -196,24 +195,24 @@ int main(int argc, char ** argv)
   // Summarize
   //
 
-  LOG("grwght1scan", pNOTICE) 
+  LOG("grwght1scan", pNOTICE)
     << "\n"
     << "\n** grwght1scan: Will start processing events promptly."
     << "\nHere is a summary of inputs: "
-    << "\n - Input event file: " << gOptInpFilename 
+    << "\n - Input event file: " << gOptInpFilename
     << "\n - Processing: " << nev << " events in the range [" << nfirst << ", " << nlast << "]"
     << "\n - Systematic parameter to tweak: " << GSyst::AsString(gOptSyst)
     << "\n - Number of tweak dial values in [" << gOptMinTwk << ", " << gOptMaxTwk << "] : " << gOptInpNTwk
     << "\n - Neutrino species to reweight : " << gOptNu
-    << "\n - Output weights to be saved in : " << gOptOutFilename 
+    << "\n - Output weights to be saved in : " << gOptOutFilename
     << "\n - Specified random number seed : " << gOptRanSeed
     << "\n\n";
 
 
-  // Declare the weights and twkdial arrays 
+  // Declare the weights and twkdial arrays
   const int n_events = (const int) nev;
-  float weights  [n_events][n_points]; 
-  float twkdials [n_events][n_points]; 
+  float weights  [n_events][n_points];
+  float twkdials [n_events][n_points];
 
   // Create a GReWeight object and add to it a set of weight calculators
 
@@ -242,23 +241,23 @@ int main(int argc, char ** argv)
   // Fine-tune weight calculators
 
   if(gOptSyst == kXSecTwkDial_MaCCQE) {
-     // By default GReWeightNuXSecCCQE is in `NormAndMaShape' mode 
+     // By default GReWeightNuXSecCCQE is in `NormAndMaShape' mode
      // where Ma affects the shape of dsigma/dQ2 and a different param affects the normalization
      // If the input is MaCCQE, switch the weight calculator to `Ma' mode
-     GReWeightNuXSecCCQE * rwccqe =      
-        dynamic_cast<GReWeightNuXSecCCQE *> (rw.WghtCalc("xsec_ccqe"));  
+     GReWeightNuXSecCCQE * rwccqe =
+        dynamic_cast<GReWeightNuXSecCCQE *> (rw.WghtCalc("xsec_ccqe"));
      rwccqe->SetMode(GReWeightNuXSecCCQE::kModeMa);
   }
   if(gOptSyst == kXSecTwkDial_MaCCRES || gOptSyst == kXSecTwkDial_MvCCRES) {
      // As above, but for the GReWeightNuXSecCCRES weight calculator
-     GReWeightNuXSecCCRES * rwccres = 
-        dynamic_cast<GReWeightNuXSecCCRES *> (rw.WghtCalc("xsec_ccres"));  
+     GReWeightNuXSecCCRES * rwccres =
+        dynamic_cast<GReWeightNuXSecCCRES *> (rw.WghtCalc("xsec_ccres"));
      rwccres->SetMode(GReWeightNuXSecCCRES::kModeMaMv);
   }
   if(gOptSyst == kXSecTwkDial_MaNCRES || gOptSyst == kXSecTwkDial_MvNCRES) {
      // As above, but for the GReWeightNuXSecNCRES weight calculator
-     GReWeightNuXSecNCRES * rwncres = 
-        dynamic_cast<GReWeightNuXSecNCRES *> (rw.WghtCalc("xsec_ncres"));  
+     GReWeightNuXSecNCRES * rwncres =
+        dynamic_cast<GReWeightNuXSecNCRES *> (rw.WghtCalc("xsec_ncres"));
      rwncres->SetMode(GReWeightNuXSecNCRES::kModeMaMv);
   }
   if(gOptSyst == kXSecTwkDial_AhtBYshape  || gOptSyst == kXSecTwkDial_BhtBYshape ||
@@ -267,17 +266,17 @@ int main(int argc, char ** argv)
      // There the default behaviour is for the Aht, Bht, CV1u and CV2u Bodek-Yang
      // params to affects both normalization and dsigma/dxdy shape.
      // Switch mode if a shape-only param is specified.
-     GReWeightNuXSecDIS * rwdis = 
-        dynamic_cast<GReWeightNuXSecDIS *> (rw.WghtCalc("xsec_dis"));  
+     GReWeightNuXSecDIS * rwdis =
+        dynamic_cast<GReWeightNuXSecDIS *> (rw.WghtCalc("xsec_dis"));
      rwdis->SetMode(GReWeightNuXSecDIS::kModeABCV12uShape);
   }
 
   // Twk dial loop
-  for(int ith_dial = 0; ith_dial < n_points; ith_dial++){  
+  for(int ith_dial = 0; ith_dial < n_points; ith_dial++){
 
-     // Set non-default values and re-configure.    
-     double twk_dial = twk_dial_min + ith_dial * twk_dial_step;  
-     LOG("grwght1scan", pNOTICE) 
+     // Set non-default values and re-configure.
+     double twk_dial = twk_dial_min + ith_dial * twk_dial_step;
+     LOG("grwght1scan", pNOTICE)
        << "\n\nReconfiguring systematic: " << GSyst::AsString(gOptSyst)
        << " - Setting tweaking dial to: " << twk_dial;
      syst.Set(gOptSyst, twk_dial);
@@ -287,7 +286,7 @@ int main(int argc, char ** argv)
      for(int iev = nfirst; iev <= nlast; iev++) {
 
           if(iev%100 == 0) {
-              LOG("grwght1scan", pNOTICE) 
+              LOG("grwght1scan", pNOTICE)
                  << "***** Currently at event number: "<< iev;
           }
 
@@ -308,11 +307,11 @@ int main(int argc, char ** argv)
           // Calculate weight
           double wght=1.;
           if(do_reweight) {
-	     wght = rw.CalcWeight(event);
+             wght = rw.CalcWeight(event);
           }
 
           // Print/store
-          LOG("grwght1scan", pDEBUG) 
+          LOG("grwght1scan", pDEBUG)
               << "Overall weight = " << wght;
           weights[idx][ith_dial] = wght;
 
@@ -326,37 +325,37 @@ int main(int argc, char ** argv)
   file.Close();
 
   //
-  // Save weights 
+  // Save weights
   //
 
-  // Make an output tree for saving the weights. As only considering 
+  // Make an output tree for saving the weights. As only considering
   // varying a single systematic use this for name of tree.
   TFile * wght_file = new TFile(gOptOutFilename.c_str(), "RECREATE");
   TTree * wght_tree = new TTree(GSyst::AsString(gOptSyst).c_str(), "GENIE weights tree");
   int branch_eventnum = 0;
   TArrayF * branch_weight_array   = new TArrayF(n_points);
-  TArrayF * branch_twkdials_array = new TArrayF(n_points);  
+  TArrayF * branch_twkdials_array = new TArrayF(n_points);
   wght_tree->Branch("eventnum", &branch_eventnum);
   wght_tree->Branch("weights",  &branch_weight_array);
   wght_tree->Branch("twkdials", &branch_twkdials_array);
 
   for(int iev = nfirst; iev <= nlast; iev++) {
     int idx = iev - nfirst;
-    branch_eventnum = iev; 
-    for(int ith_dial = 0; ith_dial < n_points; ith_dial++){  
+    branch_eventnum = iev;
+    for(int ith_dial = 0; ith_dial < n_points; ith_dial++){
         LOG("grwght1scan", pDEBUG)
-          << "Filling tree with wght = " << weights[idx][ith_dial] 
+          << "Filling tree with wght = " << weights[idx][ith_dial]
           << ", twk dial = "<< twkdials[idx][ith_dial];
        branch_weight_array   -> AddAt (weights [idx][ith_dial], ith_dial);
        branch_twkdials_array -> AddAt (twkdials[idx][ith_dial], ith_dial);
     } // twk_dial loop
     wght_tree->Fill();
-  } 
+  }
 
   wght_file->cd();
   wght_tree->Write();
-  delete wght_tree; 
-  wght_tree = 0; 
+  delete wght_tree;
+  wght_tree = 0;
   wght_file->Close();
 
   LOG("grwght1scan", pNOTICE)  << "Done!";
@@ -366,7 +365,7 @@ int main(int argc, char ** argv)
 //___________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
 {
-  LOG("grwght1scan", pINFO) 
+  LOG("grwght1scan", pINFO)
      << "*** Parsing command line arguments";
 
   LOG("grwght1scan", pINFO) << "Parsing command line arguments";
@@ -383,7 +382,7 @@ void GetCommandLineArgs(int argc, char ** argv)
     LOG("grwght1scan", pINFO) << "Reading event sample filename";
     gOptInpFilename = parser.ArgAsString('f');
   } else {
-    LOG("grwght1scan", pFATAL) 
+    LOG("grwght1scan", pFATAL)
         << "Unspecified input filename - Exiting";
     gAbortingInErr = true;
     PrintSyntax();
@@ -412,35 +411,35 @@ void GetCommandLineArgs(int argc, char ** argv)
       // Use [0,n] as the event range to process.
       gOptNEvt1 = -1;
       gOptNEvt2 = parser.ArgAsLong('n');
-    }  
+    }
   } else {
     LOG("grwght1scan", pINFO)
       << "Unspecified number of events to analyze - Use all";
     gOptNEvt1 = -1;
     gOptNEvt2 = -1;
   }
-  LOG("grwght1scan", pDEBUG) 
+  LOG("grwght1scan", pDEBUG)
     << "Input event range: " << gOptNEvt1 << ", " << gOptNEvt2;
 
   // get the number of tweak dials to scan
   if(parser.OptionExists('t')) {
-    LOG("grwght1scan", pINFO) 
+    LOG("grwght1scan", pINFO)
        << "Reading number of tweak dial values";
     gOptInpNTwk = parser.ArgAsInt('t');
     if(gOptInpNTwk % 2 == 0)
-    { 
+    {
       gOptInpNTwk+=1;
     }
     if(gOptInpNTwk < 3)
-    { 
+    {
       LOG("grwght1scan", pFATAL)
-	 << "Specified number of tweak dial is too low, min value is 3 - Exiting";
+         << "Specified number of tweak dial is too low, min value is 3 - Exiting";
       gAbortingInErr = true;
       PrintSyntax();
       exit(1);
-    } 
+    }
   } else {
-     LOG("grwght1scan", pFATAL) 
+     LOG("grwght1scan", pFATAL)
        << "Unspecified number of tweak dials - Exiting";
      gAbortingInErr = true;
      PrintSyntax();
@@ -449,7 +448,7 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   // get the systematics
   if(parser.OptionExists('s')) {
-   LOG("grwght1scan", pINFO) 
+   LOG("grwght1scan", pINFO)
       << "Reading input systematic parameter";
    string systematic = parser.ArgAsString('s');
    gOptSyst = GSyst::FromString(systematic);
@@ -460,7 +459,7 @@ void GetCommandLineArgs(int argc, char ** argv)
       exit(1);
    }
   } else {
-    LOG("grwght1scan", pFATAL) 
+    LOG("grwght1scan", pFATAL)
        << "You need to specify a systematic param using -s";
     gAbortingInErr = true;
     PrintSyntax();
@@ -480,11 +479,11 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   // which species to reweight?
   if(parser.OptionExists('p')) {
-   LOG("grwght1scan", pINFO) 
+   LOG("grwght1scan", pINFO)
       << "Reading input list of neutrino codes";
    vector<int> vecpdg = parser.ArgAsIntTokens('p',",");
    if(vecpdg.size()==0) {
-      LOG("grwght1scan", pFATAL) 
+      LOG("grwght1scan", pFATAL)
          << "Empty list of neutrino codes!?";
       gAbortingInErr = true;
       PrintSyntax();
@@ -495,7 +494,7 @@ void GetCommandLineArgs(int argc, char ** argv)
      gOptNu.push_back(*it);
    }
   } else {
-    LOG("grwght1scan", pINFO) 
+    LOG("grwght1scan", pINFO)
        << "Considering all neutrino species";
     gOptNu.push_back (kPdgNuE      );
     gOptNu.push_back (kPdgAntiNuE  );
@@ -540,10 +539,10 @@ void GetEventRange(Long64_t nev_in_file, Long64_t & nfirst, Long64_t & nlast)
     nfirst = gOptNEvt1;
     nlast  = TMath::Min(nev_in_file-1, gOptNEvt2);
   }
-  else 
+  else
   if(gOptNEvt1<0 && gOptNEvt2>=0) {
     // Input was `-n N'.
-    // Process first N events [0,N). 
+    // Process first N events [0,N).
     // Note: Event N is not included.
     nfirst = 0;
     nlast  = TMath::Min(nev_in_file-1, gOptNEvt2-1);
@@ -552,7 +551,7 @@ void GetEventRange(Long64_t nev_in_file, Long64_t & nfirst, Long64_t & nlast)
   if(gOptNEvt1<0 && gOptNEvt2<0) {
     // No input. Process all events.
     nfirst = 0;
-    nlast  = nev_in_file-1;    
+    nlast  = nev_in_file-1;
   }
 
   assert(nfirst < nlast && nfirst >= 0 && nlast <= nev_in_file-1);
@@ -574,7 +573,6 @@ void PrintSyntax(void)
      << "    [--seed random_number_seed] \n"
      << "    [--message-thresholds xml_file]\n"
      << "    [--event-record-print-level level]\n\n\n"
-     << " See the GENIE Physics and User manual for more details";      
+     << " See the GENIE Physics and User manual for more details";
 }
 //_________________________________________________________________________________
-

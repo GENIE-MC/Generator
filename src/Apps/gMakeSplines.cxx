@@ -6,18 +6,18 @@
 \brief   GENIE utility program building XML cross section splines that can
          be loaded into GENIE to speed-up event generation.
          The list of neutrino PDG codes is passed from the command line.
-         The list of nuclear target PDG codes is either passed from the 
+         The list of nuclear target PDG codes is either passed from the
          command line or extracted from the input ROOT/GEANT geometry.
 
          Syntax :
-           gmkspl -p nupdg 
-                 <-t target_pdg_codes, 
-                  -f geometry_file> 
+           gmkspl -p nupdg
+                 <-t target_pdg_codes,
+                  -f geometry_file>
                   <-o | --output-cross-sections> output_xml_xsec_file
-                  [-n nknots] 
-                  [-e max_energy] 
+                  [-n nknots]
+                  [-e max_energy]
                   [--no-copy]
-                  [--seed random_number_seed] 
+                  [--seed random_number_seed]
                   [--input-cross-sections xml_file]
                   [--event-generator-list list_name]
                   [--tune genie_tune]
@@ -26,27 +26,27 @@
 
          Note :
            [] marks optional arguments.
-           <> marks a list of arguments out of which only one can be 
+           <> marks a list of arguments out of which only one can be
               selected at any given time.
 
          Options :
-           -p  
+           -p
                A comma separated list of nu PDG codes.
-           -t  
-               A comma separated list of tgt PDG codes. 
+           -t
+               A comma separated list of tgt PDG codes.
                PDG code format: 10LZZZAAAI
-           -f  
+           -f
                A ROOT file containing a ROOT/GEANT geometry description.
-           -o, --output-cross-sections  
+           -o, --output-cross-sections
                Name of output XML file containing computed cross-section data.
                Default: `xsec_splines.xml'.
-           -n  
+           -n
                Number of knots per spline.
-               Default: 15 knots per decade of energy range with a minimum 
+               Default: 15 knots per decade of energy range with a minimum
                of 30 knots totally.
-           -e  
+           -e
                Maximum energy in spline.
-               Default: The max energy in the validity range of the spline 
+               Default: The max energy in the validity range of the spline
                generating thread.
            --no-copy
                Does not write out the input cross-sections in the output file
@@ -144,12 +144,11 @@ int main(int argc, char ** argv)
   // Parse command line arguments
   GetCommandLineArgs(argc,argv);
 
-  if ( ! RunOpt::Instance() -> Tune() ) {
+  if ( ! RunOpt::Instance()->Tune() ) {
     LOG("gmkspl", pFATAL) << " No TuneId in RunOption";
     exit(-1);
   }
-  RunOpt::Instance() -> Tune() -> Build() ;
-  XSecSplineList::Instance() -> SetCurrentTune( RunOpt::Instance() -> Tune() -> Name() ) ;
+  RunOpt::Instance()->BuildTune();
 
   // throw on NaNs and Infs...
 #if defined(HAVE_FENV_H) && defined(HAVE_FEENABLEEXCEPT)
@@ -222,15 +221,15 @@ void GetCommandLineArgs(int argc, char ** argv)
   CmdLnArgParser parser(argc,argv);
 
   // output XML file name
-  if( parser.OptionExists('o') || 
-      parser.OptionExists("output-cross-sections") ) 
+  if( parser.OptionExists('o') ||
+      parser.OptionExists("output-cross-sections") )
   {
     LOG("gmkspl", pINFO) << "Reading output filename";
-    if( parser.OptionExists('o') ) { 
-      gOptOutXSecFile = parser.ArgAsString('o'); 
+    if( parser.OptionExists('o') ) {
+      gOptOutXSecFile = parser.ArgAsString('o');
     }
-    else { 
-      gOptOutXSecFile = parser.ArgAsString("output-cross-sections"); 
+    else {
+      gOptOutXSecFile = parser.ArgAsString("output-cross-sections");
     }
   } else {
     LOG("gmkspl", pINFO) << "Unspecified filename - Using default";
@@ -252,7 +251,7 @@ void GetCommandLineArgs(int argc, char ** argv)
     LOG("gmkspl", pINFO) << "Reading maximum spline energy";
     gOptMaxE = parser.ArgAsDouble('e');
   } else {
-    LOG("gmkspl", pINFO) 
+    LOG("gmkspl", pINFO)
        << "Unspecified maximum spline energy - Using default";
     gOptMaxE = -1;
   }
@@ -261,14 +260,14 @@ void GetCommandLineArgs(int argc, char ** argv)
   if( parser.OptionExists("no-copy") ) {
     LOG("gmkspl", pINFO) << "Not copying input splines to output";
     gOptNoCopy = true;
-  } 
+  }
 
   // comma-separated neutrino PDG code list
   if( parser.OptionExists('p') ) {
     LOG("gmkspl", pINFO) << "Reading neutrino PDG codes";
     gOptNuPdgCodeList = parser.ArgAsString('p');
   } else {
-    LOG("gmkspl", pFATAL) 
+    LOG("gmkspl", pFATAL)
        << "Unspecified neutrino PDG code list - Exiting";
     PrintSyntax();
     exit(1);
@@ -296,13 +295,13 @@ void GetCommandLineArgs(int argc, char ** argv)
   bool both =  tgt_geom &&  tgt_cmd;
   bool none = !tgt_geom && !tgt_cmd;
   if(none) {
-    LOG("gmkspl", pFATAL) 
+    LOG("gmkspl", pFATAL)
           << "No geom file or cmd line target list was specified - Exiting";
     PrintSyntax();
     exit(1);
   }
   if(both) {
-    LOG("gmkspl", pFATAL) 
+    LOG("gmkspl", pFATAL)
        << "You specified both a geom file and a cmd line target list "
          << "- Exiting confused";
     PrintSyntax();
@@ -328,7 +327,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   }
 
   //
-  // print the command-line options 
+  // print the command-line options
   //
   LOG("gmkspl", pNOTICE)
      << "\n"
@@ -401,7 +400,7 @@ PDGCodeList * GetTargetCodes(void)
      delete geom;
      return list;
 #else
-     LOG("gmkspl", pFATAL) 
+     LOG("gmkspl", pFATAL)
       << "To read-in a ROOT geometry you need to enable the geometry drivers!";
      gAbortingInErr = true;
      exit(1);
@@ -412,4 +411,3 @@ PDGCodeList * GetTargetCodes(void)
   return 0;
 }
 //____________________________________________________________________________
-
