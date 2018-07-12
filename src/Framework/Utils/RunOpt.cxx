@@ -29,11 +29,12 @@
 #include "Framework/Utils/XSecSplineList.h"
 #include "Framework/Messenger/Messenger.h"
 
-
 using std::cout;
 using std::endl;
 
 namespace genie {
+
+  static const string gDefaultTune = "G00_00a_00_000";
 
 //____________________________________________________________________________
 ostream & operator << (ostream & stream, const RunOpt & opt)
@@ -85,6 +86,25 @@ void RunOpt::Init(void)
   fXMLPath = "";
 }
 //____________________________________________________________________________
+  void RunOpt::SetTuneName(string tuneName) {
+
+    if ( tuneName == "Default" || tuneName == "" ) tuneName = gDefaultTune;
+    if ( fTune ) {
+      std::cout << "RunOpt::SetTune() already had " << fTune->Name()
+                << ", now being re-set to " << tuneName;
+      delete fTune;
+    }
+    fTune = new TuneId( tuneName ) ;
+
+  }
+//____________________________________________________________________________
+  void RunOpt::BuildTune() {
+
+    //RunOpt::Instance()->
+    Tune()->Build() ;
+    XSecSplineList::Instance()->SetCurrentTune( Tune()->Name() ) ;
+  }
+//____________________________________________________________________________
 void RunOpt::ReadFromCommandLine(int argc, char ** argv)
 {
   CmdLnArgParser parser(argc,argv);
@@ -114,18 +134,18 @@ void RunOpt::ReadFromCommandLine(int argc, char ** argv)
   }
 
   if( parser.OptionExists("event-generator-list") ) {
-    fEventGeneratorList = parser.ArgAsString("event-generator-list");
+    SetEventGeneratorList(parser.ArgAsString("event-generator-list"));
   }
-  
+
   if (parser.OptionExists("xml-path")) {
     fXMLPath = parser.ArgAsString("xml-path");
   }
-  
+
   if( parser.OptionExists("tune") ) {
-    fTune = new TuneId( parser.ArgAsString("tune") ) ;
+    SetTuneName( parser.ArgAsString("tune") ) ;
   }
   else {
-    fTune = new TuneId( "G00_00a_00_000" ) ;
+    SetTuneName( "Default" );
   }// else ( parser.OptionExists("tune") )
 
   if( parser.OptionExists("unphysical-event-mask") ) {
@@ -153,9 +173,9 @@ void RunOpt::Print(ostream & stream) const
          << GHepFlags::NFlags()-1 << " -> 0) : " << *fUnphysEventMask;
   stream << "\n Event record print level : " << fEventRecordPrintLevel;
   stream << "\n MC job status file refresh rate: " << fMCJobStatusRefreshRate;
-  stream << "\n Pre-calculate all free-nucleon cross-sections? : " 
+  stream << "\n Pre-calculate all free-nucleon cross-sections? : "
          << ((fEnableBareXSecPreCalc) ? "Yes" : "No");
-         
+
   if (fXMLPath.size()) {
     stream << "\n XMLPath over-ride : "<<fXMLPath;
   }
@@ -165,5 +185,3 @@ void RunOpt::Print(ostream & stream) const
 //___________________________________________________________________________
 
 } // genie namespace
-
-
