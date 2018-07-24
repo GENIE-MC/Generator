@@ -5,7 +5,7 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
+         University of Liverpool & STFC Rutherford Appleton Lab
 
  For the class documentation see the corresponding header file.
 
@@ -21,17 +21,17 @@
    Added option to specify a minimum energy cut.
  @ Sep 22, 2010 - TF, CA
    Added SetUserCoordSystem(TRotation &) to specify a rotation from the
-   Topocentric Horizontal (THZ) coordinate system to a user-defined 
+   Topocentric Horizontal (THZ) coordinate system to a user-defined
    topocentric coordinate system. Added NFluxNeutrinos() to get number of
-   flux neutrinos generated for sample normalization purposes (note that, in 
-   the presence of cuts, this is not the same as the number of flux neutrinos 
+   flux neutrinos generated for sample normalization purposes (note that, in
+   the presence of cuts, this is not the same as the number of flux neutrinos
    thrown towards the geometry).
  @ Feb 22, 2011 - JD
-   Implemented dummy versions of the new GFluxI::Clear and GFluxI::Index as 
-   these methods needed for pre-generation of flux interaction probabilities 
+   Implemented dummy versions of the new GFluxI::Clear and GFluxI::Index as
+   these methods needed for pre-generation of flux interaction probabilities
    in GMCJDriver.
  @ Feb 03, 2011 - TF
-   Bug fixed: events are now generated randomly and uniformly on a disc with 
+   Bug fixed: events are now generated randomly and uniformly on a disc with
    R = R_{transverse}
  @ Feb 23, 2012 - AB
    Bug fixed: events were being generated according to the differential flux
@@ -120,7 +120,7 @@ bool GAtmoFlux::GenerateNext_1try(void)
   // Get a RandomGen instance
   RandomGen * rnd = RandomGen::Instance();
 
-  // Generate (Ev, costheta, phi) 
+  // Generate (Ev, costheta, phi)
   double Ev       = 0.;
   double costheta = 0.;
   double phi      = 0;
@@ -136,7 +136,7 @@ bool GAtmoFlux::GenerateNext_1try(void)
      // generate events according to a power law spectrum,
      // then weight events by flux and inverse power law
      // (note: cannot use index alpha=1)
-     double alpha = fSpectralIndex; 
+     double alpha = fSpectralIndex;
 
      double emin = TMath::Power(fEnergyBins[0],1.0-alpha);
      double emax = TMath::Power(fEnergyBins[fNumEnergyBins],1.0-alpha);
@@ -150,15 +150,15 @@ bool GAtmoFlux::GenerateNext_1try(void)
 
      if(Ev < fEnergyBins[0]) {
         LOG("Flux", pINFO) << "E < Emin";
-	return false;
+        return false;
      }
      double flux = this->GetFlux(nu_pdg, Ev, costheta, phi);
      if(flux<=0) {
         LOG("Flux", pINFO) << "Flux <= 0";
-	return false;
+        return false;
      }
      weight = flux*TMath::Power(Ev,alpha);
-  } 
+  }
   else {
 
      //
@@ -188,8 +188,8 @@ bool GAtmoFlux::GenerateNext_1try(void)
   // Compute the neutrino momentum
   // The `-1' means it is directed towards the detector.
   double pz = -1.* Ev * costheta;
-  double py = -1.* Ev * sintheta * cosphi;
-  double px = -1.* Ev * sintheta * sinphi;
+  double py = -1.* Ev * sintheta * sinphi;
+  double px = -1.* Ev * sintheta * cosphi;
 
   // Default vertex is at the origin
   double z = 0.0;
@@ -205,7 +205,7 @@ bool GAtmoFlux::GenerateNext_1try(void)
     x += fRl * sintheta * sinphi;
   }
 
-  // Apply user-defined rotation from THZ -> user-defined topocentric 
+  // Apply user-defined rotation from THZ -> user-defined topocentric
   // coordinate system.
   if( !fRotTHz2User.IsIdentity() )
   {
@@ -231,7 +231,7 @@ bool GAtmoFlux::GenerateNext_1try(void)
     TVector3 vec(x,y,z);               // vector towards selected point
     TVector3 dvec1 = vec.Orthogonal(); // orthogonal vector
     TVector3 dvec2 = dvec1;            // second orthogonal vector
-    dvec2.Rotate(-kPi/2.0,vec);        // rotate second vector by 90deg, 
+    dvec2.Rotate(-kPi/2.0,vec);        // rotate second vector by 90deg,
                                        // now forming a new orthogonal cartesian coordinate system
     double psi = 2.*kPi* rnd->RndFlux().Rndm(); // rndm angle [0,2pi]
     double random = rnd->RndFlux().Rndm();      // rndm number  [0,1]
@@ -279,7 +279,7 @@ void GAtmoFlux::ForceMaxEnergy(double emax)
 //___________________________________________________________________________
 void GAtmoFlux::Clear(Option_t * opt)
 {
-// Dummy clear method needed to conform to GFluxI interface 
+// Dummy clear method needed to conform to GFluxI interface
 //
   LOG("Flux", pERROR) << "No clear method implemented for option:"<< opt;
 }
@@ -310,10 +310,10 @@ void GAtmoFlux::Initialize(void)
 {
   LOG("Flux", pNOTICE) << "Initializing atmospheric flux driver";
 
-  fMaxEv = -1; 
+  fMaxEv = -1;
 
-  fNumPhiBins = 0;  
-  fNumCosThetaBins = 0; 
+  fNumPhiBins = 0;
+  fNumCosThetaBins = 0;
   fNumEnergyBins = 0;
   fPhiBins = 0;
   fCosThetaBins = 0;
@@ -334,7 +334,7 @@ void GAtmoFlux::Initialize(void)
   // Default option is to generate unweighted flux neutrinos
   // (flux = f(E,costheta) will be used as PDFs)
   // User can enable option to generate weighted neutrinos
-  // (neutrinos will be generated uniformly over costheta, 
+  // (neutrinos will be generated uniformly over costheta,
   // and using a power law function in neutrino energy.
   // The input flux = f(E,costheta) will be used for calculating a weight).
   // Using a weighted flux avoids statistical fluctuations at high energies.
@@ -352,7 +352,7 @@ void GAtmoFlux::Initialize(void)
   fRt = 0.0;
 
   // Default detector coord system: Topocentric Horizontal Coordinate system
-  fRotTHz2User.SetToIdentity(); 
+  fRotTHz2User.SetToIdentity();
 
   // Reset `current' selected flux neutrino
   this->ResetSelection();
@@ -419,7 +419,7 @@ void GAtmoFlux::AddFluxFile(int nu_pdg, string filename)
   if ( pdg::IsNeutrino(nu_pdg) || pdg::IsAntiNeutrino(nu_pdg) ) {
     fFluxFlavour.push_back(nu_pdg); fFluxFile.push_back(filename);
   } else {
-    LOG ("Flux", pWARN) 
+    LOG ("Flux", pWARN)
      << "Input particle code: " << nu_pdg << " not a neutrino!";
   }
 }
@@ -429,7 +429,7 @@ void GAtmoFlux::AddFluxFile(string filename)
 // FLUKA and BGLRS provide one file per neutrino species.
 // HAKKKM provides a single file for all nue,nuebar,numu,numubar.
 // If no neutrino species is provided, assume that the file contains all 4
-// but fit it into the franework developed for FLUKA and BGLRS, 
+// but fit it into the franework developed for FLUKA and BGLRS,
 // i.e. add the file 4 times
 
   fFluxFlavour.push_back(kPdgNuE);      fFluxFile.push_back(filename);
@@ -459,7 +459,7 @@ bool GAtmoFlux::LoadFluxData(void)
     string pname = PDGLibrary::Instance()->Find(nu_pdg)->GetName();
 
     LOG("Flux", pNOTICE) << "Loading data for: " << pname;
-  
+
     // create histogram
     TH3D* hist = 0;
     std::map<int,TH3D*>::iterator myMapEntry = fRawFluxHistoMap.find(nu_pdg);
@@ -469,7 +469,7 @@ bool GAtmoFlux::LoadFluxData(void)
         hist = this->CreateFluxHisto(pname.c_str(), pname.c_str());
         fRawFluxHistoMap.insert( map<int,TH3D*>::value_type(nu_pdg,hist) );
 //      }
-    }    
+    }
     // now let concrete instances to read the flux-specific data files
     // and fill the histogram
     bool loaded = this->FillFluxHisto(nu_pdg, filename);
@@ -504,10 +504,10 @@ TH3D* GAtmoFlux::CreateNormalisedFluxHisto(TH3D* hist)
 
   // sanity check
   if(!hist) return 0;
-  
+
   // make new histogram name
   TString histname = hist->GetName();
-  histname.Append("_IntegratedFlux");  
+  histname.Append("_IntegratedFlux");
 
   // make new histogram
   TH3D* hist_intg = (TH3D*)(hist->Clone(histname.Data()));
@@ -520,7 +520,7 @@ TH3D* GAtmoFlux::CreateNormalisedFluxHisto(TH3D* hist)
   Double_t dN = 0.0;
 
   for(Int_t e_bin = 1; e_bin <= hist->GetXaxis()->GetNbins(); e_bin++)
-  { 
+  {
     for(Int_t c_bin = 1; c_bin <= hist->GetYaxis()->GetNbins(); c_bin++)
     {
       for(Int_t p_bin = 1; p_bin <= hist->GetZaxis()->GetNbins(); p_bin++)
@@ -536,13 +536,13 @@ TH3D* GAtmoFlux::CreateNormalisedFluxHisto(TH3D* hist)
               - hist->GetYaxis()->GetBinLowEdge(c_bin) );
 
          dN = dN_dEdS*dE*dS;
-   
+
          hist_intg->SetBinContent(e_bin,c_bin,p_bin,dN);
       }
     }
   }
 
-  return hist_intg; 
+  return hist_intg;
 }
 //___________________________________________________________________________
 void GAtmoFlux::ZeroFluxHisto(TH3D * histo)
@@ -575,8 +575,8 @@ TH3D * GAtmoFlux::CreateFluxHisto(string name, string title)
   LOG("Flux", pNOTICE) << "Instantiating histogram: [" << name << "]";
   TH3D * hist = new TH3D(
      name.c_str(), title.c_str(),
-     fNumEnergyBins,   fEnergyBins, 
-     fNumCosThetaBins, fCosThetaBins, 
+     fNumEnergyBins,   fEnergyBins,
+     fNumCosThetaBins, fCosThetaBins,
      fNumPhiBins,      fPhiBins);
   return hist;
 }
@@ -602,7 +602,7 @@ int GAtmoFlux::SelectNeutrino(double Ev, double costheta, double phi)
   for(i=0; i<n; i++) {
      flux_sum  += flux[i];
      flux[i]    = flux_sum;
-     LOG("Flux", pDEBUG) 
+     LOG("Flux", pDEBUG)
        << "Sum{Flux(0->" << i <<")} = " << flux[i];
   }
 
@@ -613,11 +613,11 @@ int GAtmoFlux::SelectNeutrino(double Ev, double costheta, double phi)
 
   for(i=0; i<n; i++) {
      if( R < flux[i] ) {
-	delete [] flux;
+        delete [] flux;
         int selected_pdg = (*fPdgCList)[i];
-        LOG("Flux", pINFO) 
+        LOG("Flux", pINFO)
           << "Selected neutrino PDG code = " << selected_pdg;
-	return selected_pdg;
+        return selected_pdg;
      }
   }
 
@@ -638,7 +638,7 @@ TH3D* GAtmoFlux::GetFluxHistogram(int flavour)
     histogram = it->second;
   }
   return histogram;
-} 
+}
 //___________________________________________________________________________
 double GAtmoFlux::GetFlux(int flavour)
 {
@@ -649,13 +649,13 @@ double GAtmoFlux::GetFlux(int flavour)
   Double_t dN_dEdS = 0.0;
   Double_t dS      = 0.0;
   Double_t dE      = 0.0;
-  
-  for(Int_t e_bin = 1; e_bin <= flux_hist->GetXaxis()->GetNbins(); e_bin++) 
-  { 
-    for(Int_t c_bin = 1; c_bin <= flux_hist->GetYaxis()->GetNbins(); c_bin++) 
-    { 
-      for( Int_t p_bin = 1; p_bin <= flux_hist->GetZaxis()->GetNbins(); p_bin++) 
-      { 
+
+  for(Int_t e_bin = 1; e_bin <= flux_hist->GetXaxis()->GetNbins(); e_bin++)
+  {
+    for(Int_t c_bin = 1; c_bin <= flux_hist->GetYaxis()->GetNbins(); c_bin++)
+    {
+      for( Int_t p_bin = 1; p_bin <= flux_hist->GetZaxis()->GetNbins(); p_bin++)
+      {
          dN_dEdS = flux_hist->GetBinContent(e_bin,c_bin,p_bin);
 
          dE = flux_hist->GetXaxis()->GetBinUpEdge(e_bin)
@@ -683,19 +683,19 @@ double GAtmoFlux::GetFlux(int flavour, double energy)
   Double_t dN_dEdS = 0.0;
   Double_t dS      = 0.0;
 
-  Int_t e_bin = flux_hist->GetXaxis()->FindBin(energy); 
-  
-  for(Int_t c_bin = 1; c_bin <= flux_hist->GetYaxis()->GetNbins(); c_bin++) 
-  { 
-    for( Int_t p_bin = 1; p_bin <= flux_hist->GetZaxis()->GetNbins(); p_bin++) 
-    { 
+  Int_t e_bin = flux_hist->GetXaxis()->FindBin(energy);
+
+  for(Int_t c_bin = 1; c_bin <= flux_hist->GetYaxis()->GetNbins(); c_bin++)
+  {
+    for( Int_t p_bin = 1; p_bin <= flux_hist->GetZaxis()->GetNbins(); p_bin++)
+    {
        dN_dEdS = flux_hist->GetBinContent(e_bin,c_bin,p_bin);
 
        dS = ( flux_hist->GetZaxis()->GetBinUpEdge(p_bin)
               - flux_hist->GetZaxis()->GetBinLowEdge(p_bin) )
           * ( flux_hist->GetYaxis()->GetBinUpEdge(c_bin)
               - flux_hist->GetYaxis()->GetBinLowEdge(c_bin) );
-   
+
        flux += dN_dEdS*dS;
     }
   }
@@ -714,14 +714,14 @@ double GAtmoFlux::GetFlux(int flavour, double energy, double costh)
 
   Int_t e_bin = flux_hist->GetXaxis()->FindBin(energy);
   Int_t c_bin = flux_hist->GetYaxis()->FindBin(costh);
-  
-  for( Int_t p_bin = 1; p_bin <= flux_hist->GetZaxis()->GetNbins(); p_bin++) 
-  { 
+
+  for( Int_t p_bin = 1; p_bin <= flux_hist->GetZaxis()->GetNbins(); p_bin++)
+  {
      dN_dEdS = flux_hist->GetBinContent(e_bin,c_bin,p_bin);
 
      dS = ( flux_hist->GetZaxis()->GetBinUpEdge(p_bin)
           - flux_hist->GetZaxis()->GetBinLowEdge(p_bin) );
-   
+
      flux += dN_dEdS*dS;
   }
 
@@ -736,9 +736,8 @@ double GAtmoFlux::GetFlux(int flavour, double energy, double costh, double phi)
   Int_t e_bin = flux_hist->GetXaxis()->FindBin(energy);
   Int_t c_bin = flux_hist->GetYaxis()->FindBin(costh);
   Int_t p_bin = flux_hist->GetZaxis()->FindBin(phi);
-  
+
   Double_t flux = flux_hist->GetBinContent(e_bin,c_bin,p_bin);
   return flux;
 }
 //___________________________________________________________________________
-
