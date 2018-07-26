@@ -21,7 +21,9 @@
 #   [--jobs-topdir]   : top level dir for job files, default: $PWD
 #   [--gen-list]      : comma separated list of event generator list, default all
 #   [--nu-list]       : comma separated list of neutrino. Both PDGs or names are ok, default all
-#   [--with-priority] : (boolean) set a prioirty to optimize bulk productions. Default false
+#   [--with-priority] : (boolean) set a priority to optimize bulk productions. Default false
+#   [--run-one]       : (boolean) If called, one of the jobs is run as part of the script instead of submitted 
+#                       via the batch system. Default all the jobs are submitted
 #   
 # Examples:
 #   shell% perl submit_vN_xsec_calc_jobs.pl --version v2.6.0  
@@ -57,6 +59,7 @@ foreach (@ARGV) {
   if($_ eq '--gen-list'   )    { $req_gen_list  = $ARGV[$iarg+1]; }
   if($_ eq '--nu-list' )       { $req_nu_list	= $ARGV[$iarg+1]; }
   if($_ eq '--with-priority' ) { $priority	= 1; }
+  if($_ eq '--run-one' )       { $run_one	= 1; }
   $iarg++;
 }
 die("** Aborting [Undefined GENIE version. Use the --version option]")
@@ -135,6 +138,10 @@ print "Process List: @nucleons_proc_list \n";
 #
 # make the jobs directory
 #
+
+@batch_commands = ();
+@direct_commands = () ;
+
 print "@@ Creating job directory: $jobs_dir \n";
 mkpath ($jobs_dir, {verbose => 1, mode=>0777});
 
@@ -174,6 +181,8 @@ foreach $nu ( @nu_list ) {
       $gmkspl_cmd    = "gmkspl $gmkspl_opt";
 
       print "@@ exec: $gmkspl_cmd \n";
+      
+      push( @direct_commands, "source $genie_setup $config_dir; cd $jobs_dir; $gmkspl_cmd" ) ;
 
       # PBS case
       if($batch_system eq 'PBS' || $batch_system eq 'HTCondor_PBS') {
@@ -183,7 +192,7 @@ foreach $nu ( @nu_list ) {
          print PBS "#PBS -N $jobname \n";
          print PBS "#PBS -o $filename_template.pbsout.log \n";
          print PBS "#PBS -e $filename_template.pbserr.log \n";
-	 print PBS "#PBS -p -2 \n" if ( $priority ) ; 
+	 print PBS "#PBS -p -1 \n" if ( $priority ) ; 
          print PBS "source $genie_setup $config_dir \n";
          print PBS "cd $jobs_dir \n";
          print PBS "$gmkspl_cmd | $grep_pipe &> $filename_template.mkspl.log \n";
@@ -192,7 +201,8 @@ foreach $nu ( @nu_list ) {
          if($batch_system eq 'HTCondor_PBS') {
             $job_submission_command = "condor_qsub";
          }
-         `$job_submission_command -q $queue $batch_script`;
+         
+	 push( @batch_commands, "$job_submission_command -q $queue $batch_script" ) ;
        } #PBS / #HTCondor_PBS
 
 
@@ -206,13 +216,15 @@ foreach $nu ( @nu_list ) {
          print PBS "#\$ -o $filename_template.pbsout.log \n";
          print PBS "#\$ -e $filename_template.pbserr.log \n";
          print PBS "#\$ -l ct=8:00:00,sps=1 \n";
-	 print PBS "#\$ -p -2 \n" if ( $priority ) ;
+	 print PBS "#\$ -p -1 \n" if ( $priority ) ;
          print PBS "source $genie_setup $config_dir \n";
          print PBS "cd $jobs_dir \n";
          print PBS "$gmkspl_cmd \n";
          close(PBS);
          $job_submission_command = "qsub";
-         `$job_submission_command  $batch_script`;
+
+	 push( @batch_commands, "$job_submission_command  $batch_script " ) ;
+
        } #LyonPBS 
 
        # LSF case
@@ -228,7 +240,9 @@ foreach $nu ( @nu_list ) {
  	 print LSF "cd $jobs_dir \n";
  	 print LSF "$gmkspl_cmd | $grep_pipe &> $filename_template.mkspl.log \n";
  	 close(LSF);
- 	 `bsub < $batch_script`;
+
+	 push( @batch_commands, "bsub < $batch_script " ) ;
+
       } #LSF
 
       # HTCondor
@@ -244,7 +258,7 @@ foreach $nu ( @nu_list ) {
  	 print HTC "Request_memory         = 2 GB \n";
  	 print HTC "Queue \n";
  	 close(HTC);
- 	 `condor_submit $batch_script`;
+ 	 push ( @batch_commands, "condor_submit $batch_script" ) ;
       } #HTCondor
 
       # slurm case
@@ -259,24 +273,44 @@ foreach $nu ( @nu_list ) {
  	 print SLURM "cd $jobs_dir \n";
  	 print SLURM "$gmkspl_cmd | $grep_pipe &> $filename_template.mkspl.log \n";
  	 close(SLURM);
- 	 `sbatch --job-name=$jobname $batch_script`;
-      } #slurm
 
-      # no batch system, run jobs interactively
-      if($batch_system eq 'none') {
-	system("source $genie_setup $config_dir; cd $jobs_dir; $gmkspl_cmd");
-      } # interactive mode
+	 push( @batch_commands, "sbatch --job-name=$jobname $batch_script" ) ;
+
+      } #slurm
 
     } 
   }
 } 
 
 
+#
+# submit
+#
 
 
-    #
-    # submit
-    #
+if ( $batch_system eq 'none' ) {
+    ## run all of them interactively
+    for my $run_cmd ( @direct_commads ) {
+	system( $run_cmd ) ;
+    }
+}
+else {
+    ## submit all except the first
+    foreach my $i ( 1 .. $#batch_commands ) {
+	system( $batch_commans[$i] ) ;
+    }
+
+    # handle the first according to script options
+    if ( defined $run_one ) {
+	system( $direct_commads[0] ) ;
+    }
+    else {
+	system( $batch_commads[0] ) ; 
+    }
+
+}
+
+
 
 
 

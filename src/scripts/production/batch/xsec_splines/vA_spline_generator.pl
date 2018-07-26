@@ -27,7 +27,9 @@
 #   [--target-list]    : comma separated list of targets' PDGs, default De,He4,C12,O16,Ar40,Fe56,Pb207. 
 #                        Note that it needs the PDG code, not chemical name.
 #   [--nu-list]        : comma separeted list of neutrino flavors. Both PDGs or names like vmubar,ve,vtau. Default all
-#   [--with-priority] : (boolean) set a prioirty to optimize bulk productions. Default false
+#   [--with-priority]  : (boolean) set a prioirty to optimize bulk productions. Default false
+#   [--run-one]        : (boolean) If called, one of the jobs is run as part of the script instead of submitted 
+#                        via the batch system. Default all the jobs are submitted
 #   
 #
 # Author:
@@ -63,6 +65,7 @@ foreach (@ARGV) {
   if($_ eq '--target-list'   ) { $target_list	 = $ARGV[$iarg+1]; }
   if($_ eq '--nu-list'   )     { $req_nu_list   =  $ARGV[$iarg+1]; }
   if($_ eq '--with-priority' ) { $priority      = 1; }
+  if($_ eq '--run-one' )       { $run_one       = 1; }
   $iarg++;
 }
 die("** Aborting [Undefined GENIE version. Use the --version option]")
@@ -164,6 +167,8 @@ print "\n Target List: @tgt_pdg \n";
 #
 mkpath ($jobs_dir, {verbose => 1, mode=>0777});
 
+@batch_commands = ();
+@direct_commands = () ;
 
 foreach $nu ( @nu_list ) { 
   foreach $tgt ( @tgt_pdg ) { 
@@ -198,7 +203,9 @@ foreach $nu ( @nu_list ) {
       #
       # submit
       #
-  
+
+      push( @direct_commands, "source $genie_setup $config_dir; cd $jobs_dir; $gmkspl_cmd" ) ;
+
       # PBS case
       if($batch_system eq 'PBS' || $batch_system eq 'HTCondor_PBS') {
    	$batch_script = "$filename_template.pbs";
@@ -215,7 +222,9 @@ foreach $nu ( @nu_list ) {
         if($batch_system eq 'HTCondor_PBS') {
            $job_submission_command = "condor_qsub";
         }
-        `$job_submission_command -q $queue $batch_script`;
+
+	push( @batch_commands, "$job_submission_command -q $queue $batch_script" ) ;
+
       } #PBS
 
       # LyonPBS case
@@ -234,7 +243,9 @@ foreach $nu ( @nu_list ) {
          print PBS "$gmkspl_cmd \n";
          close(PBS);
          $job_submission_command = "qsub";
-         `$job_submission_command  $batch_script`;
+	 
+	 push( @batch_commands, "$job_submission_command  $batch_script " ) ;
+
        } #LyonPBS 
 
       # LSF case
@@ -249,7 +260,8 @@ foreach $nu ( @nu_list ) {
 	print LSF "cd $jobs_dir \n";
 	print LSF "$gmkspl_cmd \n";
         close(LSF);
-	`bsub < $batch_script`;
+
+	push( @batch_commands, "bsub < $batch_script" ) ;
       } #LSF
 
       # HTCondor
@@ -265,7 +277,9 @@ foreach $nu ( @nu_list ) {
         print HTC "Request_memory         = 2 GB \n";
         print HTC "Queue \n";
         close(HTC);
-        `condor_submit $batch_script`;
+
+	push( @batch_commands, "condor_submit $batch_script" ) ;
+
       } #HTCondor
      
       # slurm case
@@ -280,13 +294,39 @@ foreach $nu ( @nu_list ) {
 	print SLURM "cd $jobs_dir \n";
 	print SLURM "$gmkspl_cmd \n";
         close(SLURM);
-	`sbatch --job-name=$jobname $batch_script`;
+
+	push( @batch_commands, "sbatch --job-name=$jobname $batch_script" );
       } #slurm
 
       # run interactively
-      if($batch_system eq 'none') {
-        system("source $genie_setup $config_dir; cd $jobs_dir; $gmkspl_cmd");
-      }
     }
   }
 }
+
+
+if ( $batch_system eq 'none' ) {
+    ## run all of them interactively
+                                                                                                                                                                                                                          
+    for my $run_cmd ( @direct_commads ) {
+        system( $run_cmd ) ;
+    }
+}
+else {
+    ## submit all except the first
+
+    foreach my $i ( 1 .. $#batch_commands ) {
+        system( $batch_commans[$i] ) ;
+    }
+
+    # handle the first according to script options
+ 
+    if ( defined $run_one ) {
+        system( $direct_commads[0] ) ;
+    }
+    else {
+        system( $batch_commads[0] ) ;
+    }
+
+}
+
+
