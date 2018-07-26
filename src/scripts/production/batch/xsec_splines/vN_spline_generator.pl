@@ -288,24 +288,26 @@ foreach $nu ( @nu_list ) {
 #
 
 
+
+
 if ( $batch_system eq 'none' ) {
     ## run all of them interactively
-    for my $run_cmd ( @direct_commads ) {
-	system( $run_cmd ) ;
+    for my $run_cmd ( @direct_commands ) {
+	`$run_cmd` ;
     }
 }
 else {
     ## submit all except the first
     foreach my $i ( 1 .. $#batch_commands ) {
-	system( $batch_commans[$i] ) ;
+	`$batch_commands[$i]` ;
     }
 
     # handle the first according to script options
     if ( defined $run_one ) {
-	system( $direct_commads[0] ) ;
+	`$direct_commands[0]` ;
     }
     else {
-	system( $batch_commads[0] ) ; 
+	`$batch_commands[0]` ; 
     }
 
 }
