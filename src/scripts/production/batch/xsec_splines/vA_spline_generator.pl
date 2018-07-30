@@ -1,8 +1,8 @@
 #!/usr/bin/perl
 
 #----------------------------------------------------------------------------------------------------------------
-# Submit jobs for calculating GENIE x-section splines for all nuclear targets and at the energy range required 
-# for generating the GENIE release validation samples. Note that other scripts are available for generating 
+# Submit jobs for calculating GENIE x-section splines for all nuclear targets and at the energy range required
+# for generating the GENIE release validation samples. Note that other scripts are available for generating
 # x-section splines for the larger array of targets found in detector geometry descriptions of given expts.
 # If needed, use the GENIE gspladd utility to merge the job outputs.
 #
@@ -11,7 +11,7 @@
 #
 # Options:
 #    --version         : GENIE version number
-#   [--config-dir]     : Config directory, default is $GENIE/config 
+#   [--config-dir]     : Config directory, default is $GENIE/config
 #   [--tune]           : tune to be used for genie configuration
 #   [--arch]           : <SL4.x86_32, SL5.x86_64, SL6.x86_64, ...>, default: SL6.x86_64
 #   [--production]     : default: routine_validation
@@ -24,13 +24,15 @@
 #   [--freenucsplines] : Absolute path to free nucleon splines, default: $softw_topdir/data/job_inputs/xspl/gxspl-vN-$genie_version.xml
 #   [--free-nuc-dir]   : Absolute path to free nuclear spline directory
 #   [--gen-list]       : comma separated list of event generator list, default all
-#   [--target-list]    : comma separated list of targets' PDGs, default De,He4,C12,O16,Ar40,Fe56,Pb207. 
+#   [--target-list]    : comma separated list of targets' PDGs, default De,He4,C12,O16,Ar40,Fe56,Pb207.
 #                        Note that it needs the PDG code, not chemical name.
 #   [--nu-list]        : comma separeted list of neutrino flavors. Both PDGs or names like vmubar,ve,vtau. Default all
+#   [--e-max]         : maxmium energy of the splines in GeV. Default 200 GeV.
+#   [--n-knots]       : number of knots per spline. Default 100.
 #   [--with-priority]  : (boolean) set a prioirty to optimize bulk productions. Default false
-#   [--run-one]        : (boolean) If called, one of the jobs is run as part of the script instead of submitted 
+#   [--run-one]        : (boolean) If called, one of the jobs is run as part of the script instead of submitted
 #                        via the batch system. Default all the jobs are submitted
-#   
+#
 #
 # Author:
 #   Costas Andreopoulos <costas.andreopoulos \st stfc.ac.uk>
@@ -45,7 +47,7 @@ use File::Path;
 use File::Basename;
 
 # inputs
-#  
+#
 $iarg=0;
 foreach (@ARGV) {
   if($_ eq '--version')        { $genie_version  = $ARGV[$iarg+1]; }
@@ -62,10 +64,12 @@ foreach (@ARGV) {
   if($_ eq '--freenucsplines') { $freenucsplines = $ARGV[$iarg+1]; }
   if($_ eq '--free-nuc-dir' )  { $free_nuc_dir   = $ARGV[$iarg+1]; }
   if($_ eq '--gen-list'   )    { $req_gen_list   = $ARGV[$iarg+1]; }
-  if($_ eq '--target-list'   ) { $target_list	 = $ARGV[$iarg+1]; }
-  if($_ eq '--nu-list'   )     { $req_nu_list   =  $ARGV[$iarg+1]; }
-  if($_ eq '--with-priority' ) { $priority      = 1; }
-  if($_ eq '--run-one' )       { $run_one       = 1; }
+  if($_ eq '--target-list'   ) { $target_list	   = $ARGV[$iarg+1]; }
+  if($_ eq '--nu-list'   )     { $req_nu_list    = $ARGV[$iarg+1]; }
+  if($_ eq '--e-max' )         { $e_max	        = $ARGV[$iarg+1]; }
+  if($_ eq '--n-knots' )       { $n_knots    	  = $ARGV[$iarg+1]; }
+  if($_ eq '--with-priority' ) { $priority       = 1; }
+  if($_ eq '--run-one' )       { $run_one        = 1; }
   $iarg++;
 }
 die("** Aborting [Undefined GENIE version. Use the --version option]")
@@ -82,28 +86,27 @@ $softw_topdir   = "/opt/ppd/t2k/softw/GENIE/"   unless defined $softw_topdir;
 $jobs_topdir    = $ENV{'PWD'}                   unless defined $jobs_topdir;
 $freenucsplines = "$softw_topdir/data/job_inputs/xspl/gxspl-vN-$genie_version.xml" unless defined $freenucsplines;
 $priority       = 0                             unless defined $priority ;
+$e_max          = 200                           unless defined $e_max ;
+$n_knots        = 100                           unless defined $n_knots ;
 
 
 $genie_setup    = "$softw_topdir/generator/builds/$arch/$genie_version-setup";
 $jobs_dir       = "$jobs_topdir/$genie_version-$production\_$cycle-xsec\_vA";
 
-$nknots    =  100;
-$emax      =  200;
-
-%nu_pdg_def = ( 've'      =>   12, 
-                'vebar'   =>  -12, 
-                'vmu'     =>   14, 
-                'vmubar'  =>  -14, 
-                'vtau'    =>   16, 
+%nu_pdg_def = ( 've'      =>   12,
+                'vebar'   =>  -12,
+                'vmu'     =>   14,
+                'vmubar'  =>  -14,
+                'vtau'    =>   16,
                 'vtaubar' =>  -16 );
 
-%nu_name_def = ( 12 => 've'     , 
-                -12 => 'vebar'  , 
-                 14 => 'vmu'    , 
+%nu_name_def = ( 12 => 've'     ,
+                -12 => 'vebar'  ,
+                 14 => 'vmu'    ,
                 -14 => 'vmubar' ,
                  16 => 'vtau'   ,
                 -16 => 'vtaubar' );
-                
+
 ##create the list of neutrino to be produced
 if ( defined $req_nu_list ) {
   my @nu_temp_list = split( ",", $req_nu_list );
@@ -120,7 +123,7 @@ print "\n Neutrino List: @nu_list \n";
 
 
 @nuclei_proc = ( 'none',
-                 'WeakMEC',    
+                 'WeakMEC',
                  'CCCOH',    'NCCOH',
                  'Fast',
                  'FastWithMEC'  ## this is supposed to be better with G16_01 comprehensive models
@@ -131,7 +134,7 @@ print "\n Neutrino List: @nu_list \n";
                      'WeakMEC',
                      'CCCOH',    'NCCOH',
                      'Fast'
-	             );       
+	             );
 
 # create the lsit of processes to be generated for composite nuclei
 if ( defined $req_gen_list ) {
@@ -144,7 +147,7 @@ if ( defined $req_gen_list ) {
 else {
   @nuclei_proc_list = @nuclei_proc_def ;
 }
-print "\n List of processes on composite nuclei: @nuclei_proc_list \n";                 
+print "\n List of processes on composite nuclei: @nuclei_proc_list \n";
 
 if ( defined $target_list ) {
 @tgt_pdg = split( ",", $target_list );
@@ -152,7 +155,7 @@ if ( defined $target_list ) {
 else {
 @tgt_pdg = ( 1000060120, #C12
              1000100200, #Ne20
-             1000130270, #Al27            
+             1000130270, #Al27
              1000140300, #Si30
 	     1000180400, #Ar40
              1000260560, #Fe56
@@ -170,32 +173,32 @@ mkpath ($jobs_dir, {verbose => 1, mode=>0777});
 @batch_commands = ();
 @direct_commands = () ;
 
-foreach $nu ( @nu_list ) { 
-  foreach $tgt ( @tgt_pdg ) { 
+foreach $nu ( @nu_list ) {
+  foreach $tgt ( @tgt_pdg ) {
     foreach $proc ( @nuclei_proc_list ) {
 
-      if ( $proc eq "none" ) { 
+      if ( $proc eq "none" ) {
         next ;
       }
 
-      if ( $proc eq 'Fast' ) { 
+      if ( $proc eq 'Fast' ) {
           $event_gen_list = 'FastOnNuclei' ;
-      } 
-      else { 
+      }
+      else {
           $event_gen_list = $proc ;
       }
-      
 
-      $jobname  = $nu."_on_".$tgt."_$proc";  
+
+      $jobname  = $nu."_on_".$tgt."_$proc";
       $filename_template = "$jobs_dir/$jobname";
       $grep_pipe  = "grep -B 100 -A 30 -i \"warn\\|error\\|fatal\"";
       if ( defined $free_nuc_dir ) {
-        $in_splines=$free_nuc_dir."/"."total_xsec.xml"; 
+        $in_splines=$free_nuc_dir."/"."total_xsec.xml";
       }
       else {
         $in_splines = $freenucsplines;
       }
-      $gmkspl_opt = "-p $nu_pdg_def{$nu} -t $tgt -n $nknots -e $emax --input-cross-sections $in_splines --output-cross-sections $filename_template.xml --event-generator-list $event_gen_list --no-copy";
+      $gmkspl_opt = "-p $nu_pdg_def{$nu} -t $tgt -n $n_knots -e $e_max --input-cross-sections $in_splines --output-cross-sections $filename_template.xml --event-generator-list $event_gen_list --no-copy";
       $gmkspl_opt .= " --tune $tune " if ( defined $tune ) ;
       $gmkspl_cmd = "gmkspl $gmkspl_opt ";
       print "@@ exec: $gmkspl_cmd \n";
@@ -243,10 +246,10 @@ foreach $nu ( @nu_list ) {
          print PBS "$gmkspl_cmd \n";
          close(PBS);
          $job_submission_command = "qsub";
-	 
+
 	 push( @batch_commands, "$job_submission_command  $batch_script " ) ;
 
-       } #LyonPBS 
+       } #LyonPBS
 
       # LSF case
       if($batch_system eq 'LSF') {
@@ -281,7 +284,7 @@ foreach $nu ( @nu_list ) {
 	push( @batch_commands, "condor_submit $batch_script" ) ;
 
       } #HTCondor
-     
+
       # slurm case
       if($batch_system eq 'slurm') {
 	$batch_script = "$filename_template.sh";
@@ -326,5 +329,3 @@ else {
     }
 
 }
-
-
