@@ -220,9 +220,14 @@ void GReWeightNuXSecNCEL::Init(void)
   this->RewNumu   (true);
   this->RewNumubar(true);
 
+/*
   this->SetMaPath ("Ma");
   this->SetEtaPath("Eta");
-
+*/
+  
+  this->SetMaPath( "QEL-Ma");
+  this->SetEtaPath( "EL-Axial-Eta" );
+  
   fMaTwkDial   = 0.; 
   fMaDef       = fXSecModelConfig->GetDouble(fMaPath);
   fMaCurr      = fMaDef;
