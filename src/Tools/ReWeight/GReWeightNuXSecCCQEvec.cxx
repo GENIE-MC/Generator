@@ -59,7 +59,7 @@ GReWeightNuXSecCCQEvec::~GReWeightNuXSecCCQEvec()
 #endif
 }
 //_______________________________________________________________________________________
-bool GReWeightNuXSecCCQEvec::IsHandled(GSyst_t syst)
+bool GReWeightNuXSecCCQEvec::IsHandled(GSyst_t syst) const
 {
    switch(syst) {
     case ( kXSecTwkDial_VecFFCCQEshape ) : 
@@ -70,6 +70,14 @@ bool GReWeightNuXSecCCQEvec::IsHandled(GSyst_t syst)
        break;
    }
    return false;
+}
+//_______________________________________________________________________________________
+bool GReWeightNuXSecCCQEvec::AppliesTo(ScatteringType_t type, bool is_cc) const
+{
+  if (type==kScQuasiElastic && is_cc) {
+    return true;
+  }
+  return false;
 }
 //_______________________________________________________________________________________
 void GReWeightNuXSecCCQEvec::SetSystematic(GSyst_t syst, double twk_dial)

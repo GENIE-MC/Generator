@@ -32,9 +32,12 @@ namespace rew   {
  public:
   GReWeightModel(std::string name);
   ~GReWeightModel();
+  
+  //! does the current weight calculator handle this type of event?
+  virtual bool AppliesTo (ScatteringType_t type, bool is_cc) const = 0; 
 
   //! does the current weight calculator handle the input nuisance param?
-  virtual bool IsHandled (GSyst_t syst) = 0; 
+  virtual bool IsHandled (GSyst_t syst) const = 0;
 
   //! update the value for the specified nuisance param
   virtual void SetSystematic (GSyst_t syst, double val) = 0; 

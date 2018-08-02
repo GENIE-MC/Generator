@@ -47,7 +47,7 @@ GReWeightNuXSecNC::~GReWeightNuXSecNC()
 
 }
 //_______________________________________________________________________________________
-bool GReWeightNuXSecNC::IsHandled(GSyst_t syst)
+bool GReWeightNuXSecNC::IsHandled(GSyst_t syst) const
 {
    switch(syst) {
      case ( kXSecTwkDial_NC ) : 
@@ -58,6 +58,14 @@ bool GReWeightNuXSecNC::IsHandled(GSyst_t syst)
        break;
    }
    return false;
+}
+//_______________________________________________________________________________________
+bool GReWeightNuXSecNC::AppliesTo(ScatteringType_t /*type*/, bool is_cc) const
+{
+  if (!is_cc) {
+    return true;
+  }
+  return false;
 }
 //_______________________________________________________________________________________
 void GReWeightNuXSecNC::SetSystematic(GSyst_t syst, double twk_dial)

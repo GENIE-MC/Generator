@@ -37,7 +37,7 @@ GReWeightDISNuclMod::~GReWeightDISNuclMod()
 
 }
 //_______________________________________________________________________________________
-bool GReWeightDISNuclMod::IsHandled(GSyst_t syst)
+bool GReWeightDISNuclMod::IsHandled (GSyst_t syst) const
 {
   switch(syst) {
     case(kXSecTwkDial_DISNuclMod) :
@@ -46,6 +46,14 @@ bool GReWeightDISNuclMod::IsHandled(GSyst_t syst)
     default:
       return false;
       break;
+  }
+  return false;
+}
+//_______________________________________________________________________________________
+bool GReWeightDISNuclMod::AppliesTo (ScatteringType_t type, bool /*is_cc*/) const
+{
+  if (type==kScDeepInelastic) {
+    return true;
   }
   return false;
 }

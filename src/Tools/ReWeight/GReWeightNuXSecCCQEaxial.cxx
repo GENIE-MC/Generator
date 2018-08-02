@@ -62,7 +62,7 @@ GReWeightNuXSecCCQEaxial::~GReWeightNuXSecCCQEaxial()
 #endif
 }
 //_______________________________________________________________________________________
-bool GReWeightNuXSecCCQEaxial::IsHandled(GSyst_t syst)
+bool GReWeightNuXSecCCQEaxial::IsHandled(GSyst_t syst) const
 {
    switch(syst) {
     case ( kXSecTwkDial_AxFFCCQEshape ) : 
@@ -73,6 +73,14 @@ bool GReWeightNuXSecCCQEaxial::IsHandled(GSyst_t syst)
        break;
    }
    return false;
+}
+//_______________________________________________________________________________________
+bool GReWeightNuXSecCCQEaxial::AppliesTo(ScatteringType_t type, bool is_cc) const
+{
+  if (type==kScQuasiElastic && is_cc) {
+    return true;
+  }
+  return false;
 }
 //_______________________________________________________________________________________
 void GReWeightNuXSecCCQEaxial::SetSystematic(GSyst_t syst, double twk_dial)

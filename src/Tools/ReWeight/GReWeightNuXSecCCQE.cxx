@@ -96,7 +96,7 @@ GReWeightNuXSecCCQE::~GReWeightNuXSecCCQE()
 #endif
 }
 //_______________________________________________________________________________________
-bool GReWeightNuXSecCCQE::IsHandled(GSyst_t syst)
+bool GReWeightNuXSecCCQE::IsHandled(GSyst_t syst) const
 {
 // read form factor model and compare to mode
    bool handle;
@@ -157,6 +157,14 @@ bool GReWeightNuXSecCCQE::IsHandled(GSyst_t syst)
    }
 
    return handle;
+}
+//_______________________________________________________________________________________
+bool GReWeightNuXSecCCQE::AppliesTo(ScatteringType_t type, bool is_cc) const
+{
+  if (type==kScQuasiElastic && is_cc) {
+    return true;
+  }
+  return false;
 }
 //_______________________________________________________________________________________
 void GReWeightNuXSecCCQE::SetSystematic(GSyst_t syst, double twk_dial)
@@ -541,4 +549,3 @@ double GReWeightNuXSecCCQE::CalcWeightZExp(const genie::EventRecord & event)
   return new_weight;
 }
 //_______________________________________________________________________________________
-

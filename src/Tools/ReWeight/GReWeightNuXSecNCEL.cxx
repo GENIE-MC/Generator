@@ -66,7 +66,7 @@ GReWeightNuXSecNCEL::~GReWeightNuXSecNCEL()
 #endif
 }
 //_______________________________________________________________________________________
-bool GReWeightNuXSecNCEL::IsHandled(GSyst_t syst)
+bool GReWeightNuXSecNCEL::IsHandled(GSyst_t syst) const
 {
    bool handle;
    switch(syst) {
@@ -77,6 +77,14 @@ bool GReWeightNuXSecNCEL::IsHandled(GSyst_t syst)
           break;
    }
    return handle;
+}
+//_______________________________________________________________________________________
+bool GReWeightNuXSecNCEL::AppliesTo(ScatteringType_t type, bool is_cc) const
+{
+  if (type==kScQuasiElastic && !is_cc) {
+    return true;
+  }
+  return false;
 }
 //_______________________________________________________________________________________
 void GReWeightNuXSecNCEL::SetSystematic(GSyst_t syst, double twk_dial)

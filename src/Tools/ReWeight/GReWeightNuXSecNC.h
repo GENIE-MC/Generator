@@ -37,7 +37,8 @@ namespace rew   {
   ~GReWeightNuXSecNC();
 
    // implement the GReWeightI interface
-   bool   IsHandled      (GSyst_t syst);
+   bool   AppliesTo      (ScatteringType_t type, bool is_cc) const;
+   bool   IsHandled      (GSyst_t syst) const;
    void   SetSystematic  (GSyst_t syst, double val);
    void   Reset          (void);
    void   Reconfigure    (void);

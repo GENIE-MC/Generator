@@ -79,7 +79,7 @@ GReWeightNuXSecCCRES::~GReWeightNuXSecCCRES()
 #endif
 }
 //_______________________________________________________________________________________
-bool GReWeightNuXSecCCRES::IsHandled(GSyst_t syst)
+bool GReWeightNuXSecCCRES::IsHandled(GSyst_t syst) const
 {
    bool handle;
 
@@ -110,6 +110,14 @@ bool GReWeightNuXSecCCRES::IsHandled(GSyst_t syst)
    }
 
    return handle;
+}
+//_______________________________________________________________________________________
+bool GReWeightNuXSecCCRES::AppliesTo(ScatteringType_t type, bool is_cc) const
+{
+  if (type==kScResonant && is_cc) {
+    return true;
+  }
+  return false;
 }
 //_______________________________________________________________________________________
 void GReWeightNuXSecCCRES::SetSystematic(GSyst_t syst, double twk_dial)

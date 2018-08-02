@@ -65,7 +65,7 @@ GReWeightNuXSecCOH::~GReWeightNuXSecCOH()
 
 }
 //_______________________________________________________________________________________
-bool GReWeightNuXSecCOH::IsHandled(GSyst_t syst)
+bool GReWeightNuXSecCOH::IsHandled(GSyst_t syst) const
 {
    bool handle;
 
@@ -79,6 +79,14 @@ bool GReWeightNuXSecCOH::IsHandled(GSyst_t syst)
        break;
    }
    return handle;
+}
+//_______________________________________________________________________________________
+bool GReWeightNuXSecCOH::AppliesTo(ScatteringType_t type, bool /*is_cc*/) const
+{
+  if (type==kScCoherent) {
+    return true;
+  }
+  return false;
 }
 //_______________________________________________________________________________________
 void GReWeightNuXSecCOH::SetSystematic(GSyst_t syst, double twk_dial)

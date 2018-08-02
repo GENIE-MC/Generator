@@ -79,7 +79,7 @@ GReWeightNuXSecDIS::~GReWeightNuXSecDIS()
 #endif
 }
 //_______________________________________________________________________________________
-bool GReWeightNuXSecDIS::IsHandled(GSyst_t syst)
+bool GReWeightNuXSecDIS::IsHandled(GSyst_t syst) const
 {
    bool handle = false;
 
@@ -108,6 +108,14 @@ bool GReWeightNuXSecDIS::IsHandled(GSyst_t syst)
    }
 
    return handle;
+}
+//_______________________________________________________________________________________
+bool GReWeightNuXSecDIS::AppliesTo(ScatteringType_t type, bool /*is_cc*/) const
+{
+  if (type==kScDeepInelastic) {
+    return true;
+  }
+  return false;
 }
 //_______________________________________________________________________________________
 void GReWeightNuXSecDIS::SetSystematic(GSyst_t syst, double twk_dial)
