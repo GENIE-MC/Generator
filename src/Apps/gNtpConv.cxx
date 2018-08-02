@@ -323,6 +323,7 @@ void ConvertToGST(void)
   bool   brIsCC        = false;  // Is Weak CC process?
   bool   brIsNC        = false;  // Is Weak NC process?
   bool   brIsCharmPro  = false;  // Produces charm?
+  bool   brIsAMNuGamma = false;  // is anomaly mediated nu gamma
   int    brCodeNeut    = 0;      // The equivalent NEUT reaction code (if any)
   int    brCodeNuance  = 0;      // The equivalent NUANCE reaction code (if any)
   double brWeight      = 0;      // Event weight
@@ -431,6 +432,7 @@ void ConvertToGST(void)
   s_tree->Branch("cc",	          &brIsCC,	    "cc/O"	    );
   s_tree->Branch("nc",	          &brIsNC,	    "nc/O"	    );
   s_tree->Branch("charm",         &brIsCharmPro,    "charm/O"	    );
+  s_tree->Branch("amnugamma",     &brIsAMNuGamma,    "amnugamma/O"	    );
   s_tree->Branch("neut_code",     &brCodeNeut,      "neut_code/I"   );
   s_tree->Branch("nuance_code",   &brCodeNuance,    "nuance_code/I" );
   s_tree->Branch("wght",          &brWeight,        "wght/D"	    );
@@ -608,14 +610,15 @@ void ConvertToGST(void)
     bool is_imd    = proc_info.IsInverseMuDecay();
     bool is_imdanh = proc_info.IsIMDAnnihilation();
     bool is_singlek = proc_info.IsSingleKaon();    
-    bool is_nuel   = proc_info.IsNuElectronElastic();
-    bool is_em     = proc_info.IsEM();
-    bool is_weakcc = proc_info.IsWeakCC();
-    bool is_weaknc = proc_info.IsWeakNC();
-    bool is_mec    = proc_info.IsMEC();
+    bool is_nuel      = proc_info.IsNuElectronElastic();
+    bool is_em        = proc_info.IsEM();
+    bool is_weakcc    = proc_info.IsWeakCC();
+    bool is_weaknc    = proc_info.IsWeakNC();
+    bool is_mec       = proc_info.IsMEC();
+    bool is_amnugamma = proc_info.IsAMNuGamma();
 
     if (!hitnucl && neutrino) {
-        assert(is_coh || is_imd || is_imdanh || is_nuel);
+        assert(is_coh || is_imd || is_imdanh || is_nuel | is_amnugamma);
     }
   
     // Hit quark - set only for DIS events
@@ -889,6 +892,7 @@ void ConvertToGST(void)
     brIsCC       = is_weakcc;  
     brIsNC       = is_weaknc;  
     brIsCharmPro = charm;
+    brIsAMNuGamma= is_amnugamma;
     brWeight     = weight;      
     brKineXs     = xs;      
     brKineYs     = ys;      
