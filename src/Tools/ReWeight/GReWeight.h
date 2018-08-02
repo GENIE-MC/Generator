@@ -24,6 +24,7 @@
 
 #include <string>
 #include <map>
+#include <vector>
 
 #include "Tools/ReWeight/GSystSet.h"
 #include "Tools/ReWeight/GReWeightI.h"
@@ -46,6 +47,8 @@ namespace rew   {
    void        Reconfigure   (void);                             ///< reconfigure weight calculators with new params
    double      CalcWeight    (const genie::EventRecord & event); ///< calculate weight for input event
    void        Print         (void);                             ///< print
+   
+   const std::vector<std::string> & WghtCalcNames() const;
 
   private:
 
@@ -53,6 +56,7 @@ namespace rew   {
 
    GSystSet                  fSystSet;   ///< set of enabled nuisance parameters
    std::map<std::string, GReWeightI *> fWghtCalc;  ///< concrete weight calculators
+   std::vector<std::string> fWghtCalcNames; ///< list of weight calculators
  };
 
 } // rew   namespace

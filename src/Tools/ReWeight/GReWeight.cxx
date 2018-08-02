@@ -25,6 +25,7 @@
 //____________________________________________________________________________
 
 #include <vector>
+#include <algorithm>
 
 #include <TMath.h>
 #include <TString.h>
@@ -56,6 +57,10 @@ void GReWeight::AdoptWghtCalc(string name, GReWeightI* wcalc)
   if(!wcalc) return;
 
   fWghtCalc.insert(map<string, GReWeightI*>::value_type(name,wcalc));
+  
+  if (std::find(fWghtCalcNames.begin(),fWghtCalcNames.end(),name) == fWghtCalcNames.end()) {
+    fWghtCalcNames.push_back(name);
+  }
 }
 //____________________________________________________________________________
 GReWeightI* GReWeight::WghtCalc(string name)
@@ -138,5 +143,8 @@ void GReWeight::Print()
   }		       	        
 }
 //____________________________________________________________________________
-
-
+const std::vector<std::string> & GReWeight::WghtCalcNames() const
+{
+  return fWghtCalcNames;
+}
+//____________________________________________________________________________
