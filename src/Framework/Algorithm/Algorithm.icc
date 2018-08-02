@@ -45,7 +45,7 @@ template<class T>
           continue; 
         }
 
-	if ( GetParam( key, p, false ) ) 
+	if ( alg->GetParam( key, p, false ) ) 
 	  return true ;
 
       } // loop over owned algorithms
