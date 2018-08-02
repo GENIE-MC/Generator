@@ -211,8 +211,8 @@ void GReWeightNuXSecCOH::Init(void)
   this->RewCC     (true);
   this->RewNC     (true);
 
-  this->SetMaPath("Ma");
-  this->SetR0Path("Ro");
+  this->SetMaPath("COH-Ma");
+  this->SetR0Path("COH-Ro");
 
   fMaTwkDial   = 0.; 
   fMaDef       = fXSecModelConfig->GetDouble(fMaPath);

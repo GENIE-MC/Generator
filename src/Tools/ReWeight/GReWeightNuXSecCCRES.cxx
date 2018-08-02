@@ -238,8 +238,8 @@ void GReWeightNuXSecCCRES::Init(void)
   this->RewNumu   (true);
   this->RewNumubar(true);
 
-  this->SetMaPath("Ma");
-  this->SetMvPath("Mv");
+  this->SetMaPath("RES-Ma");
+  this->SetMvPath("RES-Mv");
 
   fNormTwkDial = 0.;
   fNormDef     = 1.;
