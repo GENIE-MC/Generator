@@ -54,7 +54,7 @@ GReWeightFGM::~GReWeightFGM()
 #endif
 }
 //_______________________________________________________________________________________
-bool GReWeightFGM::IsHandled(GSyst_t syst)
+bool GReWeightFGM::IsHandled(GSyst_t syst) const
 {
   switch(syst) {
     case ( kSystNucl_CCQEPauliSupViaKF   ) : 
@@ -66,6 +66,20 @@ bool GReWeightFGM::IsHandled(GSyst_t syst)
         break;
   }
   return false;
+}
+//_______________________________________________________________________________________
+bool GReWeightFGM::AppliesTo (ScatteringType_t type, bool /*is_cc*/) const
+{
+  switch (type) {
+    case kScCoherent:
+    case kScDiffractive:
+    case kScNuElectronElastic:
+    case kScAMNuGamma:
+    case kScCoherentElas:
+      return false;
+    default:
+      return true;
+  }
 }
 //_______________________________________________________________________________________
 void GReWeightFGM::SetSystematic(GSyst_t syst, double val)

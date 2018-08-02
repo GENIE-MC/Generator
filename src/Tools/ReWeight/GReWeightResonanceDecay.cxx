@@ -52,7 +52,7 @@ GReWeightResonanceDecay::~GReWeightResonanceDecay()
 #endif
 }
 //_______________________________________________________________________________________
-bool GReWeightResonanceDecay::IsHandled(GSyst_t syst)
+bool GReWeightResonanceDecay::IsHandled(GSyst_t syst) const
 {
   switch(syst) {
      case ( kRDcyTwkDial_BR1gamma         ) :
@@ -63,6 +63,14 @@ bool GReWeightResonanceDecay::IsHandled(GSyst_t syst)
      default:
         return false;
         break;
+  }
+  return false;
+}
+//_______________________________________________________________________________________
+bool GReWeightResonanceDecay::AppliesTo (ScatteringType_t type, bool /*is_cc*/) const
+{
+  if (type==kScResonant) {
+    return true;
   }
   return false;
 }

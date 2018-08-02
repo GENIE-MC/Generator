@@ -75,7 +75,7 @@ GReWeightINuke::~GReWeightINuke()
 #endif
 }
 //_______________________________________________________________________________________
-bool GReWeightINuke::IsHandled(GSyst_t syst)
+bool GReWeightINuke::IsHandled(GSyst_t syst) const
 {
    bool handle;
 
@@ -100,6 +100,20 @@ bool GReWeightINuke::IsHandled(GSyst_t syst)
    }
 
    return handle;
+}
+//_______________________________________________________________________________________
+bool GReWeightINuke::AppliesTo(ScatteringType_t type, bool /*is_cc*/) const
+{
+  switch (type) {
+    case kScCoherent:
+    case kScDiffractive:
+    case kScNuElectronElastic:
+    case kScAMNuGamma:
+    case kScCoherentElas:
+      return false;
+    default:
+      return true;
+  }
 }
 //_______________________________________________________________________________________
 void GReWeightINuke::SetSystematic(GSyst_t syst, double val)

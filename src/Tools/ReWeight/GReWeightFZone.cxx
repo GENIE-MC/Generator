@@ -50,7 +50,7 @@ GReWeightFZone::~GReWeightFZone()
 
 }
 //_______________________________________________________________________________________
-bool GReWeightFZone::IsHandled(GSyst_t syst)
+bool GReWeightFZone::IsHandled(GSyst_t syst) const
 {
   switch(syst) {
     case (kHadrNuclTwkDial_FormZone) :
@@ -59,6 +59,14 @@ bool GReWeightFZone::IsHandled(GSyst_t syst)
     default:
       return false;
       break;
+  }
+  return false;
+}
+//_______________________________________________________________________________________
+bool GReWeightFZone::AppliesTo (ScatteringType_t type, bool /*is_cc*/) const
+{
+  if (type==kScDeepInelastic) {
+    return true;
   }
   return false;
 }

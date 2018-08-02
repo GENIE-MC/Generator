@@ -62,7 +62,7 @@ GReWeightAGKY::~GReWeightAGKY()
 #endif
 }
 //_______________________________________________________________________________________
-bool GReWeightAGKY::IsHandled(GSyst_t syst)
+bool GReWeightAGKY::IsHandled(GSyst_t syst) const
 {
   switch(syst) {
      case ( kHadrAGKYTwkDial_xF1pi ) :
@@ -74,6 +74,14 @@ bool GReWeightAGKY::IsHandled(GSyst_t syst)
        break;
   }
 
+  return false;
+}
+//_______________________________________________________________________________________
+bool GReWeightAGKY::AppliesTo (ScatteringType_t type, bool /*is_cc*/) const
+{
+  if (type==kScDeepInelastic) {
+    return true;
+  }
   return false;
 }
 //_______________________________________________________________________________________

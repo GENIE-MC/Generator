@@ -52,7 +52,7 @@ GReWeightNonResonanceBkg::~GReWeightNonResonanceBkg()
 
 }
 //_______________________________________________________________________________________
-bool GReWeightNonResonanceBkg::IsHandled(GSyst_t syst)
+bool GReWeightNonResonanceBkg::IsHandled(GSyst_t syst) const
 {
    bool handle;
 
@@ -83,6 +83,14 @@ bool GReWeightNonResonanceBkg::IsHandled(GSyst_t syst)
    }
 
    return handle;
+}
+//_______________________________________________________________________________________
+bool GReWeightNonResonanceBkg::AppliesTo (ScatteringType_t type, bool /*is_cc*/) const
+{
+  if (type==kScDeepInelastic) {
+    return true;
+  }
+  return false;
 }
 //_______________________________________________________________________________________
 void GReWeightNonResonanceBkg::SetSystematic(GSyst_t syst, double twk_dial)
