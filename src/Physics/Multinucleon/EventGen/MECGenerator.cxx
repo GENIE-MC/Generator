@@ -297,7 +297,11 @@ void MECGenerator::SelectEmpiricalKinematics(GHepRecord * event) const
         LOG("MEC", pINFO) << "Selected: Q^2 = " << gQ2 << ", W = " << gW;
         double gx = 0;
         double gy = 0;
-        kinematics::WQ2toXY(Ev,2*kNucleonMass,gW,gQ2,gx,gy);
+ 	//  More accurate calculation of the mass of the cluster than 2*Mnucl
+ 	int nucleon_cluster_pdg = interaction->InitState().Tgt().HitNucPdg();
+ 	double M2n = PDGLibrary::Instance()->Find(nucleon_cluster_pdg)->Mass(); 
+ 	kinematics::WQ2toXY(Ev,M2n,gW,gQ2,gx,gy);
+
         LOG("MEC", pINFO) << "x = " << gx << ", y = " << gy;
         // lock selected kinematics & clear running values
         interaction->KinePtr()->SetQ2(gQ2, true);
@@ -317,7 +321,16 @@ void MECGenerator::AddFinalStateLepton(GHepRecord * event) const
 // Compute its 4-momentum based on the selected interaction kinematics.
 //
   Interaction * interaction = event->Summary();
-  // const InitialState & init_state = interaction->InitState();
+
+  // apapadop: The boost back to the lab frame was missing, that is included now with the introduction of the beta factor
+  const InitialState & init_state = interaction->InitState();
+  const TLorentzVector & pnuc4 = init_state.Tgt().HitNucP4(); //[@LAB]
+  TVector3 beta = pnuc4.BoostVector();
+
+  // apapadop: Boosting the incoming neutrino to the NN-cluster rest frame
+  // Neutrino 4p
+  TLorentzVector * p4v = event->Probe()->GetP4(); // v 4p @ LAB
+  p4v->Boost(-1.*beta);                           // v 4p @ NN-cluster rest frame
 
   // Look-up selected kinematics
   double Q2 = interaction->Kine().Q2(true);
@@ -345,8 +358,8 @@ void MECGenerator::AddFinalStateLepton(GHepRecord * event) const
   double plty = plt * TMath::Sin(phi);
 
   // Take a unit vector along the neutrino direction
-  TVector3 unit_nudir = event->Probe()->P4()->Vect().Unit();
-
+  // apapadop: WE NEED THE UNIT VECTOR ALONG THE NEUTRINO DIRECTION IN THE NN-CLUSTER REST FRAME, NOT IN THE LAB FRAME
+ TVector3 unit_nudir = p4v->Vect().Unit();      //We use this one, which is in the NN-cluster rest frame
   // Rotate lepton momentum vector from the reference frame (x'y'z') where 
   // {z':(neutrino direction), z'x':(theta plane)} to the LAB
   TVector3 p3l(pltx,plty,plp);
@@ -354,6 +367,9 @@ void MECGenerator::AddFinalStateLepton(GHepRecord * event) const
 
   // Lepton 4-momentum in LAB
   TLorentzVector p4l(p3l,El);
+
+  // apapadop: Boost final state primary lepton to the lab frame
+  p4l.Boost(beta); // active Lorentz transform
 
   // Figure out the final-state primary lepton PDG code
   int pdgc = interaction->FSPrimLepton()->PdgCode();
