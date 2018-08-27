@@ -352,6 +352,7 @@ void EmpiricalMECPXSec2015::LoadConfig(void)
   GetParam( "EmpiricalMEC-FracEMQE", fFracEMQE ) ;
   GetParam( "EmpiricalMEC-FracPN_NC", fFracPN_NC ) ;
   GetParam( "EmpiricalMEC-FracPN_CC", fFracPN_CC ) ;
+  GetParam( "EmpiricalMEC-FracPN_EM", fFracPN_EM ) ;
 
   string key_head = "XSecModel-" ;
 
