@@ -105,7 +105,7 @@ double RosenbluthPXSec::XSec(
   double Ep2 = Ep*Ep;
 
   // Calculate the Mott cross section dsigma/dOmega
-  double xsec_mott = (0.25 * kAem2 * Ep / E3) * (cos_halftheta/sin4_halftheta);
+  double xsec_mott = (0.25 * kAem2 * Ep / E3) * (cos2_halftheta/sin4_halftheta);
 
   // Calculate the electron-nucleon elastic cross section dsigma/dOmega
   double xsec = xsec_mott * (Ge2 + (tau/epsilon)*Gm2) / (1+tau);
