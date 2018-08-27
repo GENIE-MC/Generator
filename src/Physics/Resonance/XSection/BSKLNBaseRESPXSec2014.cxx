@@ -7,6 +7,15 @@
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          University of Liverpool & STFC Rutherford Appleton Lab 
 
+          Afroditi Papadopoulou <apapadop \at mit.edu>
+          Massachusetts Institute of Technology
+
+          Adi Ashkenazi <adishka \at gmail.com>
+	  Massachusetts Institute of Technology
+
+ @ July 4, 2018 - Afroditi Papadopoulou
+   For electromagnetic (EM) interactions, the weak g2 was still used for the calculation of the helicity amplitude. Fixed by replacing with the correct EM g2
+
 */
 //____________________________________________________________________________
 
@@ -428,7 +437,25 @@ double BSKLNBaseRESPXSec2014::XSec(
   const RSHelicityAmplModelI * hamplmod_BRS_minus = 0;
   const RSHelicityAmplModelI * hamplmod_BRS_plus = 0;
 
+  // These lines were ~ 100 lines below, which means that, for EM interactions, the coefficients below were still calculated using the weak coupling constant - Afro
   double g2 = kGF2;
+
+  // For EM interaction replace  G_{Fermi} with :
+  // a_{em} * pi / ( sqrt(2) * sin^2(theta_weinberg) * Mass_{W}^2 }
+  // See C.Quigg, Gauge Theories of the Strong, Weak and E/M Interactions,
+  // ISBN 0-8053-6021-2, p.112 (6.3.57)
+  // Also, take int account that the photon propagator is 1/p^2 but the
+  // W propagator is 1/(p^2-Mass_{W}^2), so weight the EM case with
+  // Mass_{W}^4 / q^4
+  // So, overall:
+  // G_{Fermi}^2 --> a_{em}^2 * pi^2 / (2 * sin^4(theta_weinberg) * q^{4})
+  //
+
+  if(is_EM) {
+    double q4 = q2*q2;
+    g2 = kAem2 * kPi2 / (2.0 * fSin48w * q4); 
+  }
+
   if(is_CC) g2 = kGF2*fVud2;
   
   double sig0 = 0.125*(g2/kPi)*(-q2/Q2)*(W/Mnuc);
@@ -514,21 +541,6 @@ double BSKLNBaseRESPXSec2014::XSec(
             sigR_plus = (hampl_BRS_plus.Amp2Minus3() + hampl_BRS_plus.Amp2Minus1());
             sigS_plus = (hampl_BRS_plus.Amp20Plus () + hampl_BRS_plus.Amp20Minus());
           }
-
-  // For EM interaction replace  G_{Fermi} with :
-  // a_{em} * pi / ( sqrt(2) * sin^2(theta_weinberg) * Mass_{W}^2 }
-  // See C.Quigg, Gauge Theories of the Strong, Weak and E/M Interactions,
-  // ISBN 0-8053-6021-2, p.112 (6.3.57)
-  // Also, take int account that the photon propagator is 1/p^2 but the
-  // W propagator is 1/(p^2-Mass_{W}^2), so weight the EM case with
-  // Mass_{W}^4 / q^4
-  // So, overall:
-  // G_{Fermi}^2 --> a_{em}^2 * pi^2 / (2 * sin^4(theta_weinberg) * q^{4})
-  //
-    if(is_EM) {
-      double q4 = q2*q2;
-      g2 = kAem2 * kPi2 / (2.0 * fSin48w * q4); 
-    }
 
   // Compute the cross section
   if(is_KLN || is_BRS) {
