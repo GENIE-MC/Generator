@@ -86,27 +86,27 @@ void RunOpt::Init(void)
   fXMLPath = "";
 }
 //____________________________________________________________________________
-  void RunOpt::SetTuneName(string tuneName) {
-
-    if ( tuneName == "Default" || tuneName == "" ) tuneName = gDefaultTune;
-    if ( fTune ) {
-      std::cout << "RunOpt::SetTune() already had " << fTune->Name()
-                << ", now being re-set to " << tuneName;
-      delete fTune;
-    }
-    fTune = new TuneId( tuneName ) ;
-
+void RunOpt::SetTuneName(string tuneName)
+{
+  if ( tuneName == "Default" || tuneName == "" ) tuneName = gDefaultTune;
+  if ( fTune ) {
+    LOG("RunOpt",pNOTICE) << "RunOpt::SetTune() already had " << fTune->Name()
+              << ", now being re-set to " << tuneName;
+    delete fTune;
   }
+  fTune = new TuneId( tuneName ) ;
+}
 //____________________________________________________________________________
-  void RunOpt::BuildTune() {
-
-    //RunOpt::Instance()->
-    Tune()->Build() ;
-    XSecSplineList::Instance()->SetCurrentTune( Tune()->Name() ) ;
-  }
+void RunOpt::BuildTune()
+{
+  LOG("RunOpt",pINFO) << "Building tune "<<Tune()->Name();
+  Tune()->Build() ;
+  XSecSplineList::Instance()->SetCurrentTune( Tune()->Name() ) ;
+}
 //____________________________________________________________________________
 void RunOpt::ReadFromCommandLine(int argc, char ** argv)
 {
+  LOG("RunOpt",pDEBUG) << "Reading "<<argc-1<<" command line arguments.";
   CmdLnArgParser parser(argc,argv);
 
   if( parser.OptionExists("enable-bare-xsec-pre-calc") ) {

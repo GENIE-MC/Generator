@@ -94,7 +94,7 @@ string TuneId::TuneDirectory   (void) const {
 }
 //____________________________________________________________________________
 void TuneId::Build(const string & name ) {
-
+  LOG("TuneId",pDEBUG)<<"Building tune "<<name;
   if ( name.size() > 0 ) fName = name ;
 
   this -> Decode( fName );
