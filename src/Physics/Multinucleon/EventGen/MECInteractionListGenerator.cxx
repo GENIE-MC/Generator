@@ -54,78 +54,65 @@ InteractionList *
   int tgtpdg = init_state.Tgt().Pdg();
 
   const Target & target = init_state.Tgt();
+
   if(target.A() < 4) return 0;
 
   InteractionList * intlist = new InteractionList;
 
-  if(!fSetDiNucleonCode) {
-    if(fIsCC) {
+  if(!fSetDiNucleonCode&&fIsCC) {
+	 LOG("IntLst", pWARN) << "fIsCC(val) = " << fIsCC;
       Interaction * interaction = Interaction::MECCC(tgtpdg, nupdg, 0.0);
       intlist->push_back(interaction);
-    }
-/*
-NOTE:  Nieves MEC model implementation does CC only 
-    else
-    if(fIsNC) {
-      Interaction * interaction = Interaction::MECNC(tgtpdg, nupdg, 0.0);
-      intlist->push_back(interaction);
-    } 
-    else
-    if(fIsEM) {
-      Interaction * interaction = Interaction::MECEM(tgtpdg, nupdg, 0.0);
-      intlist->push_back(interaction);
-    }
-*/
-    return intlist;
   }
-
+    
   const int nc = 3;
   const int nucleon_cluster[nc] = { 
     kPdgClusterNN, kPdgClusterNP, kPdgClusterPP };
 
   for(int ic = 0; ic < nc; ic++) {
      int ncpdg = nucleon_cluster[ic];
-     if(fIsCC) {
+     if(fIsCC&&fSetDiNucleonCode) {
        bool allowed = false;
+       LOG("IntLst", pWARN) << "fIsCC(emp) = " << fIsCC;
        if(pdg::IsNeutrino(nupdg)) {
          // neutrino CC => final state primary lepton is -1
          // therefore the nucleon-cluster charge needs to be incremented by +1.
-         if(ncpdg == kPdgClusterNN || ncpdg == kPdgClusterNP) {
-            allowed = true;
-         }
+	 if(ncpdg == kPdgClusterNN || ncpdg == kPdgClusterNP) {
+	   allowed = true;
+	 }
        }
-       else 
-       if(pdg::IsAntiNeutrino(nupdg)) {
-         // anti-neutrino CC => final state primary lepton is +1
-         // therefore the nucleon-cluster charge needs to be incremented by -1.
-         if(ncpdg == kPdgClusterNP || ncpdg == kPdgClusterPP) {
-            allowed = true;
-         }
-       }
+       else
+	 if(pdg::IsAntiNeutrino(nupdg)) {
+	   // anti-neutrino CC => final state primary lepton is +1
+	   // therefore the nucleon-cluster charge needs to be incremented by -1.
+	   if(ncpdg == kPdgClusterNP || ncpdg == kPdgClusterPP) {
+	     allowed = true;
+	   }
+	 }
        if(allowed) {
-         Interaction * interaction = 
-             Interaction::MECCC(tgtpdg,ncpdg,nupdg,0);
-         intlist->push_back(interaction);
+	 Interaction * interaction = 
+	   Interaction::MECCC(tgtpdg,ncpdg,nupdg,0);
+	 intlist->push_back(interaction);
        }
      }//CC?
-
      else
-     if(fIsNC) {
+       if(fIsNC) 
+     {
+       LOG("IntLst", pWARN) << "fIsNC = " << fIsNC;
        Interaction * interaction = 
-           Interaction::MECNC(tgtpdg,ncpdg,nupdg,0);
+	 Interaction::MECNC(tgtpdg,ncpdg,nupdg,0);
        intlist->push_back(interaction);
      }//NC?
-
      else
-     if(fIsEM) {
-       Interaction * interaction = 
-           Interaction::MECEM(tgtpdg,ncpdg,nupdg,0);
-       intlist->push_back(interaction);
-     }//EM?
-
+       if(fIsEM) {
+	 LOG("IntLst", pWARN) << "fIsEM = " << fIsEM << "  ncpdg = " << ncpdg;
+	 Interaction * interaction = 
+	   Interaction::MECEM(tgtpdg,ncpdg,nupdg,0);
+	 intlist->push_back(interaction);
+       }//EM?
   }
-
   return intlist;
+
 }
 //___________________________________________________________________________
 void MECInteractionListGenerator::Configure(const Registry & config)
