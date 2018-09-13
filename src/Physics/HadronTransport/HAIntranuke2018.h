@@ -60,6 +60,7 @@ public :
   void ProcessEventRecord(GHepRecord * event_rec) const;
 
   virtual string GetINukeMode() const {return "hA2018";};
+  virtual string GetGenINukeMode() const {return "hA";};
 
 private:
 
