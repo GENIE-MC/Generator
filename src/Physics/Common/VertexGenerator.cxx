@@ -91,7 +91,7 @@ void VertexGenerator::ProcessEventRecord(GHepRecord * evrec) const
     if(pdg::IsPseudoParticle(p->Pdg())) continue;
     if(pdg::IsIon           (p->Pdg())) continue;
 
-    LOG("Vtx", pNOTICE) << "Setting vertex position for: " << p->Name();
+    LOG("Vtx", pINFO) << "Setting vertex position for: " << p->Name();
     p->SetPosition(vtx.x(), vtx.y(), vtx.z(), 0.);
   }
 }
@@ -226,7 +226,7 @@ TVector3 VertexGenerator::GenerateVertex(const Interaction * interaction,
   } // coh or ve-?
     //} // nuclear target ?
   
-  LOG("Vtx", pNOTICE) 
+  LOG("Vtx", pINFO) 
     << "Generated vtx @ r = " << vtx.Mag() << " fm / " 
     << print::Vec3AsString(&vtx);
   return vtx;
