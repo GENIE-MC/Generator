@@ -159,6 +159,14 @@ typedef enum EGSyst {
   kXSecTwkDial_ZExpA3CCQE,        ///< tweak Z-expansion coefficient 3, affects dsigma(CCQE)/dQ2 both in shape and normalization
   kXSecTwkDial_ZExpA4CCQE,        ///< tweak Z-expansion coefficient 4, affects dsigma(CCQE)/dQ2 both in shape and normalization
   kXSecTwkDial_AxFFCCQEshape,     ///< tweak axial nucleon form factors (dipole -> z-expansion) - shape only effect of dsigma(CCQE)/dQ2
+  
+  
+  //
+  //   Alternative approach to CCQE form factors (RunningMA)
+  //
+  
+  kXSecTwkDial_E0CCQEshape,       ///< tweak E0 CCQE RunningMA, affects dsigma(CCQE)/dQ2 in shape only (normalized to constant integral)
+  kXSecTwkDial_E0CCQE,            ///< tweak E0 CCQE RunningMA, affects dsigma(CCQE)/dQ2 both in shape and normalization
 
 
   //
@@ -183,6 +191,8 @@ public:
      case ( kXSecTwkDial_NormCCQEenu      ) : return "NormCCQEenu";          break;
      case ( kXSecTwkDial_MaCCQE           ) : return "MaCCQE";               break;
      case ( kXSecTwkDial_MaCCQEshape      ) : return "MaCCQEshape";          break;
+     case ( kXSecTwkDial_E0CCQE           ) : return "E0CCQE";               break;
+     case ( kXSecTwkDial_E0CCQEshape      ) : return "E0CCQEshape";          break;
      case ( kXSecTwkDial_ZNormCCQE        ) : return "ZNormCCQE";            break;
      case ( kXSecTwkDial_ZExpA1CCQE       ) : return "ZExpA1CCQE";           break;
      case ( kXSecTwkDial_ZExpA2CCQE       ) : return "ZExpA2CCQE";           break;
@@ -265,7 +275,9 @@ public:
        kXSecTwkDial_NormCCQE,   
        kXSecTwkDial_NormCCQEenu,   
        kXSecTwkDial_MaCCQE,        
-       kXSecTwkDial_MaCCQEshape,   
+       kXSecTwkDial_MaCCQEshape,
+       kXSecTwkDial_E0CCQE,
+       kXSecTwkDial_E0CCQEshape,  
        kXSecTwkDial_ZNormCCQE,   
        kXSecTwkDial_ZExpA1CCQE,        
        kXSecTwkDial_ZExpA2CCQE,        

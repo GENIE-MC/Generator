@@ -68,21 +68,24 @@ namespace rew   {
    void SetMaPath   (string p) { fMaPath     = p;    }
    // z-expansion specific options
    void SetZExpPath    (string p){ fZExpPath    = p;   }
+   // RunningMa specific options
+   void SetE0Path    (string p){ fE0Path    = p;   }
 
  private:
 
-   void   Init              (void);
-   double CalcWeightNorm    (const EventRecord & event);
-   double CalcWeightMaShape (const EventRecord & event);
-   double CalcWeightMa      (const EventRecord & event);
-   double CalcWeightZExp    (const EventRecord & event);
+   void   Init                (void);
+   double CalcWeightNorm      (const EventRecord & event);
+   double CalcWeightMaShape   (const EventRecord & event);
+   double CalcWeightMa        (const EventRecord & event);
+   double CalcWeightZExp      (const EventRecord & event);
 
    XSecAlgorithmI * fXSecModelDef;    ///< default model
    XSecAlgorithmI * fXSecModel;       ///< tweaked model
    Registry *       fXSecModelConfig; ///< config in tweaked model
    string fFFModel; ///< String name of form factor model
-   bool fModelIsDipole; ///< Using dipole form factors?
-   bool fModelIsZExp;   ///< Using Zexp form factors?
+   bool fModelIsDipole;           ///< Using dipole form factors?
+   bool fModelIsZExp;             ///< Using Zexp form factors?
+   bool fModelIsRunningMa;       ///< Using  Kuzmin-Naumov form factors?
    std::string fManualModelName; ///< If using a tweaked model that isn't the same as default, name
    std::string fManualModelType; ///< If using a tweaked model that isn't the same as default, type
 
@@ -98,6 +101,12 @@ namespace rew   {
    double fMaTwkDial;    ///<
    double fMaDef;        ///<
    double fMaCurr;       ///<
+   double fE0TwkDial;    ///<
+   double fE0Def;        ///<
+   double fE0Curr;       ///<
+   string fE0Path;       ///< E_{0} for RunningMA path in config Registry
+   
+   
 
    // unused // int     fZExpCurrIdx; ///< current coefficient index
    int     fZExpMaxCoef; ///< max number of coefficients to use

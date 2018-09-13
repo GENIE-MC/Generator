@@ -61,8 +61,9 @@ using namespace genie;
 using namespace genie::rew;
 using std::ostringstream;
 
-static const char* kModelDipole = "genie::DipoleAxialFormFactorModel";
-static const char* kModelZExp   = "genie::ZExpAxialFormFactorModel";
+static const char* kModelDipole        = "genie::DipoleAxialFormFactorModel";
+static const char* kModelZExp          = "genie::ZExpAxialFormFactorModel";
+static const char* kModelRunningMa     = "genie::KuzminNaumov2016AxialFormFactorModel";
 
 const int GReWeightNuXSecCCQE::kModeMa;
 const int GReWeightNuXSecCCQE::kModeNormAndMaShape;
@@ -104,7 +105,7 @@ bool GReWeightNuXSecCCQE::IsHandled(GSyst_t syst) const
    switch(syst) {
 
      case ( kXSecTwkDial_NormCCQE    ) :
-       if(fMode==kModeNormAndMaShape && fModelIsDipole)
+       if(fMode==kModeNormAndMaShape && (fModelIsDipole || fModelIsRunningMa))
        {  
           handle = true;
        } else {  
@@ -113,7 +114,8 @@ bool GReWeightNuXSecCCQE::IsHandled(GSyst_t syst) const
        break;
      
      case ( kXSecTwkDial_MaCCQEshape ) :
-       if(fMode==kModeNormAndMaShape && fModelIsDipole)
+     case ( kXSecTwkDial_E0CCQEshape ) :
+       if(fMode==kModeNormAndMaShape && (fModelIsDipole || fModelIsRunningMa) )
        {  
           handle = true;
        } else {  
@@ -122,14 +124,15 @@ bool GReWeightNuXSecCCQE::IsHandled(GSyst_t syst) const
        break;
      
      case ( kXSecTwkDial_MaCCQE ) :
-       if(fMode==kModeMa && fModelIsDipole)
+     case ( kXSecTwkDial_E0CCQE ) :
+       if(fMode==kModeMa && (fModelIsDipole || fModelIsRunningMa))
        {  
           handle = true;
        } else {  
           handle = false;
        }
-       break;
-     
+       break;   
+       
      case ( kXSecTwkDial_ZNormCCQE    ) :
        if(fMode==kModeZExp && fModelIsZExp)
        {  
@@ -185,6 +188,10 @@ void GReWeightNuXSecCCQE::SetSystematic(GSyst_t syst, double twk_dial)
       case ( kXSecTwkDial_MaCCQE ) :
         fMaTwkDial = twk_dial;
         break;
+      case ( kXSecTwkDial_E0CCQEshape ) :
+      case ( kXSecTwkDial_E0CCQE ) :
+        fE0TwkDial = twk_dial;
+        break;
       case ( kXSecTwkDial_ZExpA1CCQE ) :
         if(fZExpMaxCoef>0){ fZExpTwkDial[0] = twk_dial; }
         break;
@@ -208,6 +215,7 @@ void GReWeightNuXSecCCQE::Reset(void)
   fNormCurr    = fNormDef;
   fMaTwkDial   = 0.; 
   fMaCurr      = fMaDef;
+  fE0Curr      = fE0Def;
 
   for (int i=0;i<fZExpMaxSyst;i++)
   {
@@ -238,6 +246,32 @@ void GReWeightNuXSecCCQE::Reconfigure(void)
      fMaCurr   = fMaDef   * (1. + fMaTwkDial   * fracerr_mash);
      fNormCurr = TMath::Max(0., fNormCurr);
      fMaCurr   = TMath::Max(0., fMaCurr  );
+  }
+  else
+  if(fMode==kModeMa && fModelIsRunningMa) {   
+     int    sign_matwk = utils::rew::Sign(fMaTwkDial);
+     int    sign_e0twk = utils::rew::Sign(fE0TwkDial);
+     double fracerr_ma = fracerr->OneSigmaErr(kXSecTwkDial_MaCCQE, sign_matwk);
+     double fracerr_e0 = fracerr->OneSigmaErr(kXSecTwkDial_E0CCQE, sign_e0twk);
+     fMaCurr = fMaDef * (1. + fMaTwkDial * fracerr_ma);
+     fMaCurr = TMath::Max(0., fMaCurr  );
+     fE0Curr = fE0Def * (1. + fE0TwkDial * fracerr_e0);
+     fE0Curr = TMath::Max(0., fE0Curr  );
+  }
+  else
+  if(fMode==kModeNormAndMaShape && fModelIsRunningMa) {
+     int    sign_normtwk = utils::rew::Sign(fNormTwkDial);
+     int    sign_mashtwk = utils::rew::Sign(fMaTwkDial  );
+     int    sign_e0shtwk = utils::rew::Sign(fE0TwkDial);
+     double fracerr_norm = fracerr->OneSigmaErr(kXSecTwkDial_NormCCQE,  sign_normtwk);
+     double fracerr_mash = fracerr->OneSigmaErr(kXSecTwkDial_MaCCQEshape, sign_mashtwk);
+     double fracerr_e0sh = fracerr->OneSigmaErr(kXSecTwkDial_E0CCQEshape, sign_e0shtwk);
+     fNormCurr = fNormDef * (1. + fNormTwkDial * fracerr_norm);
+     fMaCurr   = fMaDef   * (1. + fMaTwkDial   * fracerr_mash);
+     fE0Curr = fE0Def * (1. + fE0TwkDial * fracerr_e0sh);
+     fNormCurr = TMath::Max(0., fNormCurr);
+     fMaCurr   = TMath::Max(0., fMaCurr  );
+     fE0Curr = TMath::Max(0., fE0Curr  );
   }
   else
   if(fMode==kModeZExp && fModelIsZExp) {
@@ -271,7 +305,8 @@ void GReWeightNuXSecCCQE::Reconfigure(void)
   //~ Registry r(fXSecModel->GetConfig());
   if (fMode==kModeMa || fMode==kModeNormAndMaShape)
   {
-    r.Set(fMaPath, fMaCurr); 
+    r.Set(fMaPath, fMaCurr);
+    r.Set(fE0Path, fE0Curr);
   }
   else
   if (fMode==kModeZExp)
@@ -302,12 +337,12 @@ double GReWeightNuXSecCCQE::CalcWeight(const genie::EventRecord & event)
   if(nupdg==kPdgNuE      && !fRewNue    ) return 1.;
   if(nupdg==kPdgAntiNuE  && !fRewNuebar ) return 1.;
 
-  if(fMode==kModeMa && fModelIsDipole) {
+  if(fMode==kModeMa && (fModelIsDipole || fModelIsRunningMa)) {
      double wght = this->CalcWeightMa(event);
      return wght;
   } 
   else 
-  if(fMode==kModeNormAndMaShape && fModelIsDipole) {
+  if(fMode==kModeNormAndMaShape && (fModelIsDipole || fModelIsRunningMa)) {
      double wght = 
          this->CalcWeightNorm    (event) *
          this->CalcWeightMaShape (event);
@@ -350,8 +385,9 @@ void GReWeightNuXSecCCQE::Init(void)
   fXSecModelConfig = new Registry(fXSecModel->GetConfig());
   fFFModel = fXSecModelConfig->GetAlg("FormFactorsAlg/AxialFormFactorModel").name;
   
-  fModelIsDipole = (strcmp(fFFModel.c_str(),kModelDipole) == 0);
-  fModelIsZExp   = (strcmp(fFFModel.c_str(),kModelZExp  ) == 0);
+  fModelIsDipole    = (strcmp(fFFModel.c_str(),kModelDipole) == 0);
+  fModelIsZExp      = (strcmp(fFFModel.c_str(),kModelZExp  ) == 0);
+  fModelIsRunningMa = (strcmp(fFFModel.c_str(),kModelRunningMa  ) == 0);
   
   this->RewNue    (true);
   this->RewNuebar (true);
@@ -360,6 +396,7 @@ void GReWeightNuXSecCCQE::Init(void)
 
   //this->SetMaPath("FormFactorsAlg/Ma");
   this->SetMaPath("FormFactorsAlg/AxialFormFactorModel/QEL-Ma");
+  this->SetE0Path("FormFactorsAlg/AxialFormFactorModel/QEL-E0");
   this->SetZExpPath("FormFactorsAlg/AxialFormFactorModel/");
 
   if (fModelIsDipole)
@@ -367,14 +404,20 @@ void GReWeightNuXSecCCQE::Init(void)
     this->SetMode(kModeNormAndMaShape);
     fMaDef       = fXSecModelConfig->GetDouble(fMaPath);
     fZExpMaxCoef = 0;
-  } else
-  if (fModelIsZExp)
+  }
+  else if (fModelIsRunningMa)
+  {
+    this->SetMode(kModeNormAndMaShape);
+    fMaDef       = fXSecModelConfig->GetDouble(fMaPath);
+    fE0Def       = fXSecModelConfig->GetDouble(fE0Path);
+    fZExpMaxCoef = 0; 
+  }
+  else if (fModelIsZExp)
   {
     this->SetMode(kModeZExp);
     fMaDef = 0.;
-    fZExpMaxCoef =
-      TMath::Min(fXSecModelConfig->GetInt(fZExpPath + "QEL-Kmax"),
-       this->fZExpMaxSyst);
+    fZExpMaxCoef = TMath::Min(fXSecModelConfig->GetInt(fZExpPath + "QEL-Kmax"),
+    this->fZExpMaxSyst);
   }
 
   fNormTwkDial = 0.;
@@ -382,6 +425,8 @@ void GReWeightNuXSecCCQE::Init(void)
   fNormCurr    = fNormDef;
   fMaTwkDial   = 0.; 
   fMaCurr      = fMaDef;
+  fE0TwkDial   = 0.; 
+  fE0Curr      = fE0Def;
 
   ostringstream alg_key;
   for (int i=0;i<fZExpMaxSyst;i++)
@@ -413,7 +458,7 @@ double GReWeightNuXSecCCQE::CalcWeightNorm(const genie::EventRecord & /*event*/)
 //_______________________________________________________________________________________
 double GReWeightNuXSecCCQE::CalcWeightMa(const genie::EventRecord & event) 
 {
-  bool tweaked = (TMath::Abs(fMaTwkDial) > controls::kASmallNum);
+  bool tweaked = (TMath::Abs(fMaTwkDial) > controls::kASmallNum) || ((TMath::Abs(fE0TwkDial) > controls::kASmallNum) && fModelIsRunningMa);
   if(!tweaked) return 1.0;
 
   Interaction * interaction = event.Summary();
@@ -421,8 +466,14 @@ double GReWeightNuXSecCCQE::CalcWeightMa(const genie::EventRecord & event)
   interaction->KinePtr()->UseSelectedKinematics();
   interaction->SetBit(kIAssumeFreeNucleon);
   
-  const KinePhaseSpace_t phase_space = kPSQ2fE;
+  KinePhaseSpace_t ps;
+  if (fModelIsRunningMa)
+		ps = kPSQ2vfE;
+  else
+		ps = kPSQ2fE;
   
+  const KinePhaseSpace_t phase_space = ps;
+		
   double old_xsec   = event.DiffXSec();
   if (!fUseOldWeightFromFile || fNWeightChecksDone < fNWeightChecksToDo) {
     double calc_old_xsec = fXSecModelDef->XSec(interaction, phase_space);
@@ -455,7 +506,7 @@ double GReWeightNuXSecCCQE::CalcWeightMa(const genie::EventRecord & event)
 //_______________________________________________________________________________________
 double GReWeightNuXSecCCQE::CalcWeightMaShape(const genie::EventRecord & event) 
 {
-  bool tweaked = (TMath::Abs(fMaTwkDial) > controls::kASmallNum);
+  bool tweaked = (TMath::Abs(fMaTwkDial) > controls::kASmallNum) || ((TMath::Abs(fE0TwkDial) > controls::kASmallNum) && fModelIsRunningMa);
   if(!tweaked) return 1.0;
 
   Interaction * interaction = event.Summary();
@@ -463,7 +514,13 @@ double GReWeightNuXSecCCQE::CalcWeightMaShape(const genie::EventRecord & event)
   interaction->KinePtr()->UseSelectedKinematics();
   interaction->SetBit(kIAssumeFreeNucleon);
   
-  const KinePhaseSpace_t phase_space = kPSQ2fE;
+  KinePhaseSpace_t ps;
+  if (fModelIsRunningMa)
+		ps = kPSQ2vfE;
+  else
+		ps = kPSQ2fE;
+  
+  const KinePhaseSpace_t phase_space = ps;
 
   double old_xsec   = event.DiffXSec();
   if (!fUseOldWeightFromFile || fNWeightChecksDone < fNWeightChecksToDo) {
@@ -524,7 +581,13 @@ double GReWeightNuXSecCCQE::CalcWeightZExp(const genie::EventRecord & event)
   interaction->KinePtr()->UseSelectedKinematics();
   interaction->SetBit(kIAssumeFreeNucleon);
   
-  const KinePhaseSpace_t phase_space = kPSQ2fE;
+  KinePhaseSpace_t ps;
+  if (fModelIsRunningMa)
+		ps = kPSQ2vfE;
+  else
+		ps = kPSQ2fE;
+  
+  const KinePhaseSpace_t phase_space = ps;
   
   double old_xsec   = event.DiffXSec();
   if (!fUseOldWeightFromFile || fNWeightChecksDone < fNWeightChecksToDo) {
