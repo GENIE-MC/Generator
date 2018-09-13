@@ -920,12 +920,15 @@ int HNIntranuke2018::HandleCompoundNucleus(GHepRecord* ev, GHepParticle* p, int 
 
       if((p->KinE() < fEPreEq) )
 	{
-	  if(fRemnA>5)
+	  if(fRemnA>4)  //this needs to be matched to what is in PreEq and Eq
             {
               GHepParticle * sp = new GHepParticle(*p);
               sp->SetFirstMother(mom);
-	      utils::intranuke2018::PreEquilibrium(ev,sp,fRemnA,fRemnZ,fRemnP4,
+	      // this was PreEquilibrium - now just used for hN
+	      //same arguement lists for PreEq and Eq
+	      utils::intranuke2018::Equilibrium(ev,sp,fRemnA,fRemnZ,fRemnP4,
 					       fDoFermi,fFermiFac,fNuclmodel,fNucRmvE,kIMdHN);
+
               delete sp;
               return 2;
             }
