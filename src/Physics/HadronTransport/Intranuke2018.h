@@ -70,6 +70,7 @@ public :
   virtual void Configure (string param_set);
 
   virtual string GetINukeMode() const {return "XX2018";};
+  virtual string GetGenINukeMode() const {return "XX";};
 
 protected:
 
