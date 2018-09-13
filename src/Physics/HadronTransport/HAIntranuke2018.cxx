@@ -42,8 +42,6 @@
    Added 2014 version of INTRANUKE codes (new class) for independent development.
  @ Aug 30, 2016 - SD
    Fix memory leaks - Igor. 
- @ Oct 14, 2016 - SD
-   Oset will be standard in new versions of hA 
 */
 //____________________________________________________________________________
 
@@ -945,10 +943,12 @@ void HAIntranuke2018::Inelastic(
 	  TLorentzVector t4P1L,t4P2L,t4P3L,t4P4L;
 	  t4P1L=*p->P4();
 	  t4P2L=TLorentzVector(TVector3(tP2_1L+tP2_2L),E2L);
-	  double bindE=0.075; // set to fit McKeown data
+	  double bindE=0.050; // set to fit McKeown data, updated aug 18
 	  //double bindE=0.0; 
 	  if (utils::intranuke2018::TwoBodyKinematics(M3,M4,t4P1L,t4P2L,t4P3L,t4P4L,C3CM,fRemnP4,bindE))
 	    {
+	      //construct remnant nucleus and its mass
+
 	      if (pdgc==kPdgPiP || pdgc==kPdgKP) fRemnZ++;
 	      if (pdgc==kPdgPiM || pdgc==kPdgKM) fRemnZ--;
 	      if (t1code==kPdgProton) fRemnZ--;
@@ -956,6 +956,29 @@ void HAIntranuke2018::Inelastic(
 	      fRemnA-=2;
 
 	      fRemnP4-=dNucl_P4;
+
+	      TParticlePDG * remn = 0;
+	      double MassRem = 0.;
+	      int ipdgc = pdg::IonPdgCode(fRemnA, fRemnZ);
+	      remn = PDGLibrary::Instance()->Find(ipdgc);
+	      if(!remn) 
+		{
+		  LOG("HAIntranuke2018", pINFO)
+		    << "NO Particle with [A = " << fRemnA << ", Z = " << fRemnZ
+		    << ", pdgc = " << ipdgc << "] in PDGLibrary!";
+		}
+	      else
+		{
+		  MassRem = remn->Mass();
+		  LOG("HAIntranuke2018", pINFO)
+		    << "Particle with [A = " << fRemnA << ", Z = " << fRemnZ
+		    << ", pdgc = " << ipdgc << "] in PDGLibrary!";
+		}
+	      double ERemn = fRemnP4.E();
+	      double PRemn = TMath::Sqrt(fRemnP4.Px()*fRemnP4.Px() + fRemnP4.Py()*fRemnP4.Py() + fRemnP4.Pz()*fRemnP4.Pz());
+	      double MRemn = TMath::Sqrt(ERemn*ERemn - PRemn*PRemn);
+	      LOG("HAIntranuke2018",pINFO) << "PRemn = " << PRemn << " ;ERemn=  " << ERemn;
+	      LOG("HAIntranuke2018",pINFO) << "expt MRemn=  " << MRemn << "  ;true Mass=  " << MassRem << "   ; excitation energy (>0 good)= " << (MRemn-MassRem)*1000. << " MeV";
 
 	      // create t particles w/ appropriate momenta, code, and status
 	      // Set target's mom to be the mom of the hadron that was cloned
@@ -1213,14 +1236,15 @@ void HAIntranuke2018::Inelastic(
 	  PDGCodeList* listar[5] = {&list0, &list1, &list2, &list3, &list4};
 
 	  //set up HadronClusters
-	  // simple for now, each (of 5) hadron cluster has 1/5 of mom and KE
+	  // simple for now, each (of 5) in hadron cluster has 1/5 of mom and KE
 
        	  double probM = pLib->Find(pdgc)   ->Mass();
+	  probM -= .025;   // BE correction
 	  TVector3 pP3 = p->P4()->Vect() * (1./5.);
 	  double probKE = p->P4()->E() -probM;
 	  double clusKE = probKE * (1./5.);
 	  TLorentzVector clusP4(pP3,clusKE);   //no mass
-
+	  LOG("HAIntranuke2018",pINFO) << "probM = " << probM << " ;clusKE=  " << clusKE;
 	  TLorentzVector X4(*p->X4());
 	  GHepStatus_t ist = kIStNucleonClusterTarget;
 
@@ -1317,7 +1341,7 @@ void HAIntranuke2018::Inelastic(
 	      double PRemn = TMath::Sqrt(fRemnP4.Px()*fRemnP4.Px() + fRemnP4.Py()*fRemnP4.Py() + fRemnP4.Pz()*fRemnP4.Pz());
 	      double MRemn = TMath::Sqrt(ERemn*ERemn - PRemn*PRemn);
 	      LOG("HAIntranuke2018",pINFO) << "PRemn = " << PRemn << " ;ERemn=  " << ERemn;
-	      LOG("HAIntranuke2018",pINFO) << "MRemn=  " << MRemn << "  ;true Mass=  " << MassRem << "   ; excitation energy= " << (MRemn-MassRem)*1000. << " MeV";
+	      LOG("HAIntranuke2018",pINFO) << "MRemn=  " << MRemn << "  ;true Mass=  " << MassRem << "   ; excitation energy (>0 good)= " << (MRemn-MassRem)*1000. << " MeV";
 
 	    }
 	  else 
@@ -1349,6 +1373,35 @@ void HAIntranuke2018::Inelastic(
 	{
 	  if (pdgc==kPdgKP)  list.push_back(kPdgKP); //normally conserve strangeness
 	  if (pdgc==kPdgKM)  list.push_back(kPdgKM);
+	  /*
+	  TParticlePDG * remn0 = 0;
+	  int ipdgc0 = pdg::IonPdgCode(fRemnA, fRemnZ);
+	  remn0 = PDGLibrary::Instance()->Find(ipdgc0);
+	  double Mass0 = remn0->Mass();
+	  TParticlePDG * remnt = 0;
+	  int ipdgct = pdg::IonPdgCode(fRemnA-(nn+np), fRemnZ-np);
+	  remnt = PDGLibrary::Instance()->Find(ipdgct);
+	  double MassRemt = remnt->Mass();
+	  LOG("HAIntranuke2018",pINFO) << "Mass0 = " << Mass0 << " ;Masst=  " << MassRemt << "  ; diff/nucleon= "<< (Mass0-MassRemt)/(np+nn);
+	  */
+	  //set up HadronCluster
+
+       	  double probM = pLib->Find(pdgc)   ->Mass();
+	  double probBE = (np+nn)*.005;   // BE correction
+	  TVector3 pP3 = p->P4()->Vect();
+	  double probKE = p->P4()->E() - (probM - probBE);
+	  double clusKE = probKE;  // + np*0.9383 + nn*.9396;
+	  TLorentzVector clusP4(pP3,clusKE);   //no mass is correct
+	  LOG("HAIntranuke2018",pINFO) << "probM = " << probM << " ;clusKE=  " << clusKE;
+	  TLorentzVector X4(*p->X4());
+	  GHepStatus_t ist = kIStNucleonClusterTarget;
+	  int mom = p->FirstMother();
+
+	  GHepParticle * p0 = new GHepParticle(kPdgCompNuclCluster,ist, mom,-1,-1,-1,clusP4,X4);
+
+	  //set up remnant nucleus
+	  fRemnP4 -= clusP4 - *p->P4();
+
 	  for (int i=0;i<np;i++)
 	    {
 	      list.push_back(kPdgProton);
@@ -1401,7 +1454,8 @@ void HAIntranuke2018::Inelastic(
 	    }
 	  //	  GHepParticle * cl = new GHepParticle(*p);
 	  //	  cl->SetPdgCode(kPdgDecayNuclCluster);
-	  bool success = utils::intranuke2018::PhaseSpaceDecay(ev,p,list,fRemnP4,fNucRmvE,kIMdHA);
+     	  //bool success1 = utils::intranuke2018::PhaseSpaceDecay(ev,p0,*listar[0],fRemnP4,fNucRmvE,kIMdHA);
+	  bool success = utils::intranuke2018::PhaseSpaceDecay(ev,p0,list,fRemnP4,fNucRmvE,kIMdHA);
 	  if (success)
 	    {
 	      LOG ("HAIntranuke2018",pINFO) << "Successful many-body absorption, n<=18";
@@ -1427,7 +1481,7 @@ void HAIntranuke2018::Inelastic(
 	      double PRemn = TMath::Sqrt(fRemnP4.Px()*fRemnP4.Px() + fRemnP4.Py()*fRemnP4.Py() + fRemnP4.Pz()*fRemnP4.Pz());
 	      double MRemn = TMath::Sqrt(ERemn*ERemn - PRemn*PRemn);
 	      LOG("HAIntranuke2018",pINFO) << "PRemn = " << PRemn << " ;ERemn=  " << ERemn;
-	      LOG("HAIntranuke2018",pINFO) << "MRemn=  " << MRemn << "  ;true Mass=  " << MassRem << "   ; excitation energy= " << (MRemn-MassRem)*1000. << " MeV";
+	      LOG("HAIntranuke2018",pINFO) << "expt MRemn=  " << MRemn << "  ;true Mass=  " << MassRem << "   ; excitation energy (>0 good)= " << (MRemn-MassRem)*1000. << " MeV";
 	    }
 	  else {
 	    // recover
