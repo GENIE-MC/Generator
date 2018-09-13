@@ -72,6 +72,7 @@
 #include "Physics/HadronTransport/Intranuke2018.h"
 #include "Physics/HadronTransport/INukeHadroData2018.h"
 #include "Physics/HadronTransport/INukeHadroFates.h"
+#include "Physics/HadronTransport/INukeMode.h"
 #include "Physics/HadronTransport/INukeUtils2018.h"
 #include "Framework/Interaction/Interaction.h"
 #include "Framework/Messenger/Messenger.h"
@@ -411,17 +412,20 @@ double Intranuke2018::GenerateStep(GHepRecord*  /*evrec*/, GHepParticle* p) cons
   RandomGen * rnd = RandomGen::Instance();
 
   string fINukeMode = this->GetINukeMode();
+  string fINukeModeGen = this->GetGenINukeMode();
 
   double L = utils::intranuke2018::MeanFreePath(p->Pdg(), *p->X4(), *p->P4(), fRemnA,
 						fRemnZ, fDelRPion, fDelRNucleon, fUseOset, fAltOset, fXsecNNCorr, fINukeMode);
 
-  L *= scale;
+  LOG("Intranuke2018", pDEBUG)    << "mode= " << fINukeModeGen;
+  if(fINukeModeGen == "hA") L *= scale;
 
   double d = -1.*L * TMath::Log(rnd->RndFsi().Rndm());
 
-  LOG("Intranuke2018", pDEBUG)
-            << "Mean free path = " << L << " fm / "
+  /*    LOG("Intranuke2018", pDEBUG)
+    << "mode= " << fINukeMode << "; Mean free path = " << L << " fm / "
                               << "Generated path length = " << d << " fm";
+  */
   return d;
 }
 //___________________________________________________________________________
