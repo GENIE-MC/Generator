@@ -498,6 +498,8 @@ void GetCommandLineArgs(int argc, char ** argv)
 {
 // Get the command line arguments
 
+  RunOpt::Instance()->ReadFromCommandLine(argc,argv);
+  
   LOG("gevgen_atmo", pNOTICE) << "Parsing command line arguments";
 
   CmdLnArgParser parser(argc,argv);

@@ -112,7 +112,7 @@
   <priority msgstream="KNOHad">                NOTICE </priority> 
   <priority msgstream="KineLimits">            INFO   </priority>
   <priority msgstream="Kinematics">            INFO   </priority>
-  <priority msgstream="LeptonicVertex">        INFO   </priority>
+  <priority msgstream="LeptonicVertex">        NOTICE </priority>
   <priority msgstream="LocalFGM">              WARN   </priority>
   <priority msgstream="LwlynSmith">            NOTICE </priority>
   <priority msgstream="Math">                  NOTICE </priority>

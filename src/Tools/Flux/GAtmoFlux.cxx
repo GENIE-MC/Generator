@@ -53,6 +53,8 @@
 //____________________________________________________________________________
 
 #include <cassert>
+#include <iostream>
+#include <fstream>
 
 #include <TH3D.h>
 #include <TMath.h>
@@ -401,8 +403,10 @@ void GAtmoFlux::CleanUp(void)
   if (fTotalFluxHisto) delete fTotalFluxHisto;
   if (fPdgCList) delete fPdgCList;
 
-  delete [] fCosThetaBins;
-  delete [] fEnergyBins;
+  if (fPhiBins     ) { delete[] fPhiBins     ; fPhiBins     =NULL; }
+  if (fCosThetaBins) { delete[] fCosThetaBins; fCosThetaBins=NULL; }
+  if (fEnergyBins  ) { delete[] fEnergyBins  ; fEnergyBins  =NULL; }
+
 }
 //___________________________________________________________________________
 void GAtmoFlux::SetRadii(double Rlongitudinal, double Rtransverse)
@@ -416,11 +420,18 @@ void GAtmoFlux::SetRadii(double Rlongitudinal, double Rtransverse)
 //___________________________________________________________________________
 void GAtmoFlux::AddFluxFile(int nu_pdg, string filename)
 {
+  // Check file exists
+  std::ifstream f(filename.c_str());
+  if (!f.good()) {
+    LOG("Flux", pFATAL) << "Flux file does not exist "<<filename;
+    exit(-1);
+  }
   if ( pdg::IsNeutrino(nu_pdg) || pdg::IsAntiNeutrino(nu_pdg) ) {
-    fFluxFlavour.push_back(nu_pdg); fFluxFile.push_back(filename);
+    fFluxFlavour.push_back(nu_pdg);
+    fFluxFile.push_back(filename);
   } else {
     LOG ("Flux", pWARN)
-     << "Input particle code: " << nu_pdg << " not a neutrino!";
+      << "Input particle code: " << nu_pdg << " not a neutrino!";
   }
 }
 //___________________________________________________________________________
@@ -432,10 +443,18 @@ void GAtmoFlux::AddFluxFile(string filename)
 // but fit it into the franework developed for FLUKA and BGLRS,
 // i.e. add the file 4 times
 
+// Check file exists
+  std::ifstream f(filename.c_str());
+  if (!f.good()) {
+    LOG("Flux", pFATAL) << "Flux file does not exist "<<filename;
+    exit(-1);
+  }
+
   fFluxFlavour.push_back(kPdgNuE);      fFluxFile.push_back(filename);
   fFluxFlavour.push_back(kPdgAntiNuE);  fFluxFile.push_back(filename);
   fFluxFlavour.push_back(kPdgNuMu);     fFluxFile.push_back(filename);
   fFluxFlavour.push_back(kPdgAntiNuMu); fFluxFile.push_back(filename);
+  
 }
 //___________________________________________________________________________
 //void GAtmoFlux::SetFluxFile(int nu_pdg, string filename)
