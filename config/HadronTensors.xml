@@ -29,6 +29,9 @@
       <tensor type="MEC_Electron" calc="table">
         <file>HadTensor400-SuSAv2-1000060120-Electron-20180820.dat</file>
       </tensor>
+      <tensor type="QE_Electron" calc="table">
+        <file>Rocco_HT_12C_EM.dat</file>
+      </tensor>
     </nuclide>
   <!-- 16O --> <nuclide pdg="1000080160">
       <tensor type="MEC_Electron" calc="table">
