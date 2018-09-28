@@ -52,6 +52,7 @@
 
 // GENIE includes
 #include "Framework/Interaction/Interaction.h"
+#include "Framework/ParticleData/PDGUtils.h"
 
 namespace genie {
 
@@ -176,7 +177,7 @@ public:
   /// \param[in] Q_value The Q-value that should be used to correct
   /// the energy transfer \f$q_0\f$ (GeV)
   virtual double dSigma_dT_dCosTheta(const Interaction* interaction,
-    double Q_value) const;
+    double Q_value) const = 0;
 
   /// \copybrief dSigma_dT_dCosTheta(const Interaction*, double)
   /// \param[in] nu_pdg The PDG code for the incident neutrino
@@ -189,36 +190,27 @@ public:
   /// the energy transfer \f$q_0\f$ (GeV)
   /// \returns The differential cross section (\todo define units!)
   virtual double dSigma_dT_dCosTheta(int nu_pdg, double E_nu, double Tl,
-    double cos_l, double ml, double Q_value) const /*override*/;
+    double cos_l, double ml, double Q_value) const /*override*/ = 0;
 
   /// \todo Use GENIE's native PDG utilities
   /// PDG code of the target nucleus
   inline int pdg() const { return fTargetPDG; }
 
   /// Atomic number of the target nucleus
-  inline int Z() const { return (fTargetPDG % 10000000) / 10000; }
+  inline int Z() const { return genie::pdg::IonPdgCodeToZ(fTargetPDG); }
 
   /// Mass number of the target nucleus
-  inline int A() const { return (fTargetPDG % 10000) / 10; }
+  inline int A() const { return genie::pdg::IonPdgCodeToA(fTargetPDG); }
 
   /// Set the target nucleus PDG code
   inline void set_pdg(int pdg) { fTargetPDG = pdg; }
 
 protected:
 
-  /// Returns the PDG particle ID that corresponds to a ground-state
-  /// nucleus with atomic number Z and mass number A
-  inline static int nucleus_pdg(int Z, int A) {
-    /// \todo Remove hard-coded value here
-    const/*expr*/ int NEUTRON = 2112;
-    if (Z == 0 && A == 1) return NEUTRON;
-    else return 10000*Z + 10*A + 1000000000;
-  }
-
   inline ValenciaHadronTensorI(int pdg = 0) : fTargetPDG(pdg) {}
 
   inline ValenciaHadronTensorI(int Z, int A)
-    : fTargetPDG( nucleus_pdg(Z, A) ) {}
+    : fTargetPDG( genie::pdg::IonPdgCode(A, Z) ) {}
 
   ///< PDG code for the target nucleus represented by the tensor
   int fTargetPDG;

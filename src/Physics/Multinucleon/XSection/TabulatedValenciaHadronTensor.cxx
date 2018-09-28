@@ -19,9 +19,8 @@ namespace {
     kHadronTensorGridFlag_COUNT = 2
   };
 
-
-  // Definition of sqrt() that returns zero if the argument is negative.
-  // Used to prevent spurious NaNs due to numerical roundoff.
+  /// Definition of sqrt() that returns zero if the argument is negative.
+  /// Used to prevent spurious NaNs due to numerical roundoff.
   double real_sqrt(double x) {
     if (x < 0.) return 0.;
     else return std::sqrt(x);
@@ -41,21 +40,24 @@ genie::TabulatedValenciaHadronTensor::TabulatedValenciaHadronTensor(
   std::getline(in_file, dummy);
 
   /// \todo Add error checks
+  std::string type_name;
   int Z, A, num_q0, num_q_mag;
 
-  in_file >> Z >> A >> num_q0 >> num_q_mag;
+  /// \todo Use type name
+  in_file >> Z >> A >> type_name >> num_q0 >> num_q_mag;
 
-  set_pdg( nucleus_pdg(Z, A) );
+  int q0_flag;
+  in_file >> q0_flag;
+  read1DGridValues(num_q0, q0_flag, in_file, fq0Points);
 
-  double q0, q_mag;
+  int q_mag_flag;
+  in_file >> q_mag_flag;
+  read1DGridValues(num_q_mag, q_mag_flag, in_file, fqmagPoints);
+
+  set_pdg( genie::pdg::IonPdgCode(A, Z) );
 
   for (int j = 0; j < num_q0; ++j) {
     for (int k = 0; k < num_q_mag; ++k) {
-
-      in_file >> q0 >> q_mag;
-
-      fq0Points.push_back(q0);
-      fqmagPoints.push_back(q_mag);
 
       fEntries.push_back( TableEntry() );
       TableEntry& entry = fEntries.back();
