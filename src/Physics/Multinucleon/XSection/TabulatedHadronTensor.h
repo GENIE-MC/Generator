@@ -60,8 +60,9 @@ class TabulatedHadronTensor : public HadronTensorI {
   virtual double dSigma_dT_dCosTheta(const Interaction* interaction,
     double Q_value) const /*override*/;
 
-  virtual double dSigma_dT_dCosTheta(int nu_pdg, double E_nu, double Tl,
-    double cos_l, double ml, double Q_value) const /*override*/;
+  virtual double dSigma_dT_dCosTheta(int probe_pdg, double E_probe,
+    double m_probe,double Tl, double cos_l, double ml, double Q_value)
+    const /*override*/;
 
   protected:
 

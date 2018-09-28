@@ -1,9 +1,11 @@
 // standard library includes
+#include <cmath>
 #include <fstream>
 
 // GENIE includes
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/Units.h"
+#include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Physics/Multinucleon/XSection/TabulatedHadronTensor.h"
 
@@ -228,36 +230,46 @@ double genie::TabulatedHadronTensor::dSigma_dT_dCosTheta(
   // Don't do anything if you've been handed a nullptr
   if ( !interaction ) return 0.;
 
-  int nu_pdg     = interaction->InitState().ProbePdg();
-  double E_nu    = interaction->InitState().ProbeE(kRfLab);
+  int probe_pdg     = interaction->InitState().ProbePdg();
+  double E_probe    = interaction->InitState().ProbeE(kRfLab);
+  double m_probe    = interaction->InitState().Probe()->Mass();
   double Tl      = interaction->Kine().GetKV(kKVTl);
   double cos_l   = interaction->Kine().GetKV(kKVctl);
   double ml      = interaction->FSPrimLepton()->Mass();
 
-  return dSigma_dT_dCosTheta(nu_pdg, E_nu, Tl, cos_l, ml, Q_value);
+  return dSigma_dT_dCosTheta(probe_pdg, E_probe, m_probe, Tl, cos_l, ml,
+    Q_value);
 }
 
-double genie::TabulatedHadronTensor::dSigma_dT_dCosTheta(int nu_pdg,
-  double E_nu, double Tl, double cos_l, double ml, double Q_value) const
+double genie::TabulatedHadronTensor::dSigma_dT_dCosTheta(int probe_pdg,
+  double E_probe, double m_probe, double Tl, double cos_l, double ml,
+  double Q_value) const
 {
+  // dSigma_dT_dCosTheta in GeV^(-3)
+  double xsec = 0.;
+
   /// \todo Add check if in grid. If not, return 0
 
-  // Lepton total energy
+  // Final state lepton total energy
   double El = Tl + ml;
 
   // Energy transfer (uncorrected)
-  double q0 = E_nu - El;
+  double q0 = E_probe - El;
 
   // The corrected energy transfer takes into account the binding
   // energy of the struck nucleon(s)
   double q0_corrected = q0 - Q_value;
 
+  // Magnitude of the initial state lepton 3-momentum
+  double k_initial = real_sqrt( std::pow(E_probe, 2) - std::pow(m_probe, 2) );
+
   // Magnitude of the final state lepton 3-momentum
-  double k_prime = real_sqrt( std::pow(Tl, 2) + 2*ml*Tl );
+  double k_final = real_sqrt( std::pow(Tl, 2) + 2*ml*Tl );
 
   // Magnitude of the 3-momentum transfer
-  double q_mag = real_sqrt( std::pow(E_nu, 2) + std::pow(k_prime, 2)
-    - 2.*E_nu*k_prime*cos_l );
+  double q_mag2 = std::pow(k_initial, 2) + std::pow(k_final, 2)
+    - 2.*k_initial*k_final*cos_l;
+  double q_mag = real_sqrt( q_mag2 );
 
   // Find the appropriate values of the hadron tensor elements for the
   // given combination of q0_corrected and q_mag
@@ -268,29 +280,55 @@ double genie::TabulatedHadronTensor::dSigma_dT_dCosTheta(int nu_pdg,
   double s2_half = (1. - cos_l) / 2.; // sin^2(theta/2) = (1 - cos(theta)) / 2
   double c2_half = 1. - s2_half; // cos^2(theta / 2) = 1 - sin^2(theta / 2)
 
-  // Simplify the expressions below by pre-computing the structure functions
-  double w1 = this->W1(q0, q_mag, entry);
-  double w2 = this->W2(q0, q_mag, entry);
-  double w4 = this->W4(q0, q_mag, entry);
-  double w5 = this->W5(q0, q_mag, entry);
+  // Calculate a nonzero cross section only for incident (anti)electrons
+  // or (anti)neutrinos
+  int abs_probe_pdg = std::abs(probe_pdg);
 
-  // Flip the sign of the terms proportional to W3 for antineutrinos
-  double w3 = this->W3(q0, q_mag, entry);
-  if (nu_pdg < 0) w3 *= -1;
+  /// \todo Add any needed changes for positron projectiles
+  if ( probe_pdg == genie::kPdgElectron ) {
+    // (e,e') differential cross section
 
-  double part_1 = (2. * w1 * s2_half) + (w2 * c2_half)
-    - (w3 * (E_nu + El) * s2_half);
+    double q2 = std::pow(q0, 2) - q_mag2;
 
-  double part_2 = (w1 * cos_l) - (w2/2. * cos_l)
-    + (w3/2. * (El + k_prime - (E_nu + El)*cos_l))
-    + (w4/2. * (std::pow(ml, 2)*cos_l + 2*El*(El + k_prime)*s2_half))
-    - (w5/2. * (El + k_prime));
+    double mott = std::pow(
+      genie::constants::kAem / (2. * E_probe * s2_half), 2) * c2_half;
 
-  double all_terms = part_1 + std::pow(ml, 2) * part_2 / (El * (El + k_prime));
+    // Longitudinal part
+    double l_part = std::pow(q2 / q_mag2, 2) * entry.W00;
 
-  // dSigma_dT_dCosTheta in GeV^(-3)
-  double xsec = (2. / genie::constants::kPi) * k_prime * El
-    * genie::constants::kGF2 * all_terms;
+    // Transverse part
+    double t_part = ( (2. * s2_half / c2_half) - (q2 / q_mag2) ) * entry.Wxx;
+
+    xsec = (2. * genie::constants::kPi) * mott * (l_part + t_part);
+  }
+  else if ( abs_probe_pdg == genie::kPdgNuE
+    || abs_probe_pdg == genie::kPdgNuMu
+    || abs_probe_pdg == genie::kPdgNuTau )
+  {
+    // Simplify the expressions below by pre-computing the structure functions
+    double w1 = this->W1(q0, q_mag, entry);
+    double w2 = this->W2(q0, q_mag, entry);
+    double w4 = this->W4(q0, q_mag, entry);
+    double w5 = this->W5(q0, q_mag, entry);
+
+    // Flip the sign of the terms proportional to W3 for antineutrinos
+    double w3 = this->W3(q0, q_mag, entry);
+    if (probe_pdg < 0) w3 *= -1;
+
+    double part_1 = (2. * w1 * s2_half) + (w2 * c2_half)
+      - (w3 * (E_probe + El) * s2_half);
+
+    double part_2 = (w1 * cos_l) - (w2/2. * cos_l)
+      + (w3/2. * (El + k_final - (E_probe + El)*cos_l))
+      + (w4/2. * (std::pow(ml, 2)*cos_l + 2*El*(El + k_final)*s2_half))
+      - (w5/2. * (El + k_final));
+
+    double all_terms = part_1 + std::pow(ml, 2)
+      * part_2 / (El * (El + k_final));
+
+    xsec = (2. / genie::constants::kPi) * k_final * El
+      * genie::constants::kGF2 * all_terms;
+  }
 
   return xsec;
 }
