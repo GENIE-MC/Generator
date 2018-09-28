@@ -19,7 +19,8 @@
 */
 //____________________________________________________________________________
 
-#pragma once
+#ifndef TABULATED_VALENCIA_HADRON_TENSOR_H
+#define TABULATED_VALENCIA_HADRON_TENSOR_H
 
 // standard library includes
 #include <vector>
@@ -56,10 +57,23 @@ class TabulatedValenciaHadronTensor : public ValenciaHadronTensorI {
   virtual double W5(double q0, double q_mag, double Mi) const /*override*/;
   virtual double W6(double q0, double q_mag, double Mi) const /*override*/;
 
-  /// \todo finish
-  //virtual double dSigma_dT_dCosTheta(double q0, double q_mag, double Mi)
+  virtual double dSigma_dT_dCosTheta(const Interaction* interaction,
+    double Q_value) const /*override*/;
+
+  virtual double dSigma_dT_dCosTheta(int nu_pdg, double E_nu, double Tl,
+    double cos_l, double ml, double Q_value) const /*override*/;
 
   protected:
+
+  /// Helper function that allows this class to handle variations in the
+  /// data file format for the 1D \f$q_0\f$ and
+  /// \f$\left|\overrightarrow{q}\right|\f$ grids
+  /// \param[in] num_points The number of grid points to be read from the file
+  /// \param[in] flag A numerical flag describing the grid data format
+  /// \param[inout] in_file A reference to the file being read
+  /// \param[out] vec_to_fill The vector that will store the grid points
+  void read1DGridValues(int num_points, int flag, std::ifstream& in_file,
+    std::vector<double>& vec_to_fill);
 
   class TableEntry {
 
@@ -151,25 +165,24 @@ class TabulatedValenciaHadronTensor : public ValenciaHadronTensorI {
   /// \brief These helper functions allow multiple structure
   /// function values (e.g., \f$W_1\f$ and \f$W_2\f$) to be computed
   /// without having to perform bilinear interpolation every time.
+  /// \details Because the differential cross section
+  /// \f$\frac{ d^2\sigma_{\nu l} }
+  /// { d\cos(\theta^\prime) dE^\prime_l }\f$ does not depend on the
+  /// initial nucleus's mass \f$M_i\f$, the explicit factors of \f$M_i\f$
+  /// have been removed from these internally-used functions.
   /// \param[in] Hadronic tensor table entry that has been pre-interpolated
   /// @{
-  virtual double W1(double q0, double q_mag, double Mi,
-    const TableEntry& entry) const;
+  virtual double W1(double q0, double q_mag, const TableEntry& entry) const;
 
-  virtual double W2(double q0, double q_mag, double Mi,
-    const TableEntry& entry) const;
+  virtual double W2(double q0, double q_mag, const TableEntry& entry) const;
 
-  virtual double W3(double q0, double q_mag, double Mi,
-    const TableEntry& entry) const;
+  virtual double W3(double q0, double q_mag, const TableEntry& entry) const;
 
-  virtual double W4(double q0, double q_mag, double Mi,
-    const TableEntry& entry) const;
+  virtual double W4(double q0, double q_mag, const TableEntry& entry) const;
 
-  virtual double W5(double q0, double q_mag, double Mi,
-    const TableEntry& entry) const;
+  virtual double W5(double q0, double q_mag, const TableEntry& entry) const;
 
-  virtual double W6(double q0, double q_mag, double Mi,
-    const TableEntry& entry) const;
+  virtual double W6(double q0, double q_mag, const TableEntry& entry) const;
   ///@}
 
   std::vector<double> fq0Points;
@@ -181,3 +194,4 @@ class TabulatedValenciaHadronTensor : public ValenciaHadronTensorI {
 }; // class TabulatedValenciaHadronTensor
 
 }  // genie namespace
+#endif

@@ -24,6 +24,15 @@
           https://doi.org/10.1103/PhysRevC.70.055503
           https://arxiv.org/abs/nucl-th/0408005v3
 
+          Note that the associated erratum includes an important correction
+          in the formula for the differential cross section:
+
+\ref      J. Nieves, J. E. Amaro, and M. Valverde,
+          "Erratum: Inclusive quasielastic charged-current neutrino-nucleus
+           reactions [Phys. Rev. C 70, 055503 (2004)],"
+          Phys. Rev. C. 72, 019902 (2005)
+          http://doi.org/10.1103/PhysRevC.72.019902
+
 \author   Steven Gardiner <gardiner \at fnal.gov>
           Fermi National Accelerator Laboratory
 
@@ -35,9 +44,14 @@
 */
 //____________________________________________________________________________
 
-#pragma once
+#ifndef VALENCIA_HADRON_TENSORI_H
+#define VALENCIA_HADRON_TENSORI_H
 
+// standard library includes
 #include <complex>
+
+// GENIE includes
+#include "Framework/Interaction/Interaction.h"
 
 namespace genie {
 
@@ -154,6 +168,30 @@ public:
   virtual double W6(double q0, double q_mag, double Mi) const = 0;
   /// @}
 
+  /// Computes the differential cross section \f$\frac{ d^2\sigma_{\nu l} }
+  /// { dT_\ell d\cos(\theta^\prime) }\f$ for the neutrino reaction represented
+  /// by this hadron tensor
+  /// \param[in] interaction An Interaction object storing information about the
+  /// initial and final states
+  /// \param[in] Q_value The Q-value that should be used to correct
+  /// the energy transfer \f$q_0\f$ (GeV)
+  virtual double dSigma_dT_dCosTheta(const Interaction* interaction,
+    double Q_value) const;
+
+  /// \copybrief dSigma_dT_dCosTheta(const Interaction*, double)
+  /// \param[in] nu_pdg The PDG code for the incident neutrino
+  /// \param[in] E_nu The lab frame energy of the incident neutrino (GeV)
+  /// \param[in] Tl The lab frame kinetic energy of the final state lepton (GeV)
+  /// \param[in] cos_l The angle between the direction of the incident
+  /// neutrino and the final state lepton (radians)
+  /// \param[in] ml The mass of the final state lepton (GeV)
+  /// \param[in] Q_value The Q-value that should be used to correct
+  /// the energy transfer \f$q_0\f$ (GeV)
+  /// \returns The differential cross section (\todo define units!)
+  virtual double dSigma_dT_dCosTheta(int nu_pdg, double E_nu, double Tl,
+    double cos_l, double ml, double Q_value) const /*override*/;
+
+  /// \todo Use GENIE's native PDG utilities
   /// PDG code of the target nucleus
   inline int pdg() const { return fTargetPDG; }
 
@@ -188,3 +226,4 @@ protected:
 }; // class ValenciaHadronTensorI
 
 } // genie namespace
+#endif
