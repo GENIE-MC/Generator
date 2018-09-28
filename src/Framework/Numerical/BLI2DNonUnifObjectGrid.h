@@ -95,13 +95,13 @@ template<typename ZObject, typename IndexType = int, typename XType = double,
     XType evalx = x;
     if (!fExtrapolate) {
       evalx = std::min(x, x_max());
-      evalx = std::max(x, x_min());
+      evalx = std::max(evalx, x_min());
     }
 
     YType evaly = y;
     if (!fExtrapolate) {
       evaly = std::min(y, y_max());
-      evaly = std::max(y, y_min());
+      evaly = std::max(evaly, y_min());
     }
 
     // Find the indices of the grid points on either side of the
