@@ -27,8 +27,8 @@
 // GENIE includes
 #include "Framework/Messenger/Messenger.h"
 #include "Physics/Multinucleon/XSection/HadronTensorPool.h"
-#include "Physics/Multinucleon/XSection/TabulatedValenciaHadronTensor.h"
-#include "Physics/Multinucleon/XSection/ValenciaHadronTensorI.h"
+#include "Physics/Multinucleon/XSection/TabulatedHadronTensor.h"
+#include "Physics/Multinucleon/XSection/HadronTensorI.h"
 #include "Framework/Utils/StringUtils.h"
 #include "Framework/Utils/XmlParserUtils.h"
 
@@ -42,17 +42,6 @@ namespace {
     return genie::utils::str::TrimSpaces(
       genie::utils::xml::GetAttribute(node, name.c_str()));
   }
-
-  /// Converts a string to a bool value. If the string is not "true" or
-  /// "false", returns false and sets the ok flag to false
-  bool string_to_bool(const std::string& str, bool& ok) {
-    if (str == "true") return true;
-    else if (str == "false") return false;
-
-    ok = false;
-    return false;
-  }
-
 
   /// Converts a string to a genie::HadronTensorType_t value. If the string
   /// does not correspond to a valid tensor type, kHT_Undefined
@@ -102,10 +91,10 @@ genie::HadronTensorPool::HadronTensorPool()
 //____________________________________________________________________________
 genie::HadronTensorPool::~HadronTensorPool()
 {
-  std::map< std::pair<int, genie::HadronTensorType_t>, ValenciaHadronTensorI* >
+  std::map< std::pair<int, genie::HadronTensorType_t>, HadronTensorI* >
     ::iterator it;
   for(it = fTensors.begin(); it != fTensors.end(); ++it) {
-    ValenciaHadronTensorI* t = it->second;
+    HadronTensorI* t = it->second;
     if (t) delete t;
   }
   fTensors.clear();
@@ -118,7 +107,7 @@ genie::HadronTensorPool& genie::HadronTensorPool::Instance()
 }
 
 //____________________________________________________________________________
-const genie::ValenciaHadronTensorI* genie::HadronTensorPool::GetTensor(
+const genie::HadronTensorI* genie::HadronTensorPool::GetTensor(
   int tensor_pdg, genie::HadronTensorType_t type)
 {
   std::pair<int, genie::HadronTensorType_t> temp_pair(tensor_pdg, type);
@@ -301,7 +290,7 @@ genie::XmlParserStatus_t genie::HadronTensorPool::ParseXMLConfig(
                       LOG("HadronTensorPool", pDEBUG) << "Loading the hadron"
                         << " tensor data file " << full_file_name;
                       fTensors[tensor_id]
-                        = new TabulatedValenciaHadronTensor(full_file_name);
+                        = new TabulatedHadronTensor(full_file_name);
                     }
                     else {
                       tensor_ok = false;

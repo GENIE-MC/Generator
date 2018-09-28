@@ -1,13 +1,28 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::ValenciaHadronTensorI
+\class    genie::HadronTensorI
 
 \brief    Abstract interface for an object that computes the elements
           (\f$W^{xx}\f$, \f$W^{0z}\f$, etc.) and structure functions
           (\f$W_1\f$, \f$W_2\f$, etc.) of
           the hadron tensor \f$W^{\mu\nu}\f$ as defined in equations (8)
-          and (9) of the Valencia model paper.
+          and (9) of the Valencia model paper:
+
+          J. Nieves, J. E. Amaro, and M. Valverde,
+          "Inclusive Quasi-Elastic Charged-Current Neutrino-Nucleus Reactions,"
+          Phys. Rev. C 70, 055503 (2004)
+          https://doi.org/10.1103/PhysRevC.70.055503
+          https://arxiv.org/abs/nucl-th/0408005v3
+
+          Note that the associated erratum includes an important correction
+          in the formula for the differential cross section:
+
+          J. Nieves, J. E. Amaro, and M. Valverde,
+          "Erratum: Inclusive quasielastic charged-current neutrino-nucleus
+           reactions [Phys. Rev. C 70, 055503 (2004)],"
+          Phys. Rev. C. 72, 019902 (2005)
+          http://doi.org/10.1103/PhysRevC.72.019902
 
           The calculation is carried out in the lab frame (i.e., the frame
           where the target nucleus has initial 4-momentum
@@ -17,21 +32,6 @@
           \overrightarrow{u}_z)\f$. With this choice of frame, the only
           nonzero elements are \f$W^{00}\f$, \f$W^{0z} = (W^{z0})^*\f$,
           \f$W^{xx} = W^{yy}\f$, \f$W^{xy} = (W^{yx})^*\f$, and \f$W^{zz}\f$.
-
-\ref      J. Nieves, J. E. Amaro, and M. Valverde,
-          "Inclusive Quasi-Elastic Charged-Current Neutrino-Nucleus Reactions,"
-          Phys. Rev. C 70, 055503 (2004)
-          https://doi.org/10.1103/PhysRevC.70.055503
-          https://arxiv.org/abs/nucl-th/0408005v3
-
-          Note that the associated erratum includes an important correction
-          in the formula for the differential cross section:
-
-\ref      J. Nieves, J. E. Amaro, and M. Valverde,
-          "Erratum: Inclusive quasielastic charged-current neutrino-nucleus
-           reactions [Phys. Rev. C 70, 055503 (2004)],"
-          Phys. Rev. C. 72, 019902 (2005)
-          http://doi.org/10.1103/PhysRevC.72.019902
 
 \author   Steven Gardiner <gardiner \at fnal.gov>
           Fermi National Accelerator Laboratory
@@ -68,11 +68,11 @@ typedef enum HadronTensorType {
 }
 HadronTensorType_t;
 
-class ValenciaHadronTensorI {
+class HadronTensorI {
 
 public:
 
-  inline virtual ~ValenciaHadronTensorI() {}
+  inline virtual ~HadronTensorI() {}
 
   /// \name Tensor elements
   /// \brief Functions that return the elements of the tensor. Since it is
@@ -188,6 +188,7 @@ public:
   /// initial and final states
   /// \param[in] Q_value The Q-value that should be used to correct
   /// the energy transfer \f$q_0\f$ (GeV)
+  /// \returns The differential cross section (GeV<sup>-3</sup>)
   virtual double dSigma_dT_dCosTheta(const Interaction* interaction,
     double Q_value) const = 0;
 
@@ -200,7 +201,7 @@ public:
   /// \param[in] ml The mass of the final state lepton (GeV)
   /// \param[in] Q_value The Q-value that should be used to correct
   /// the energy transfer \f$q_0\f$ (GeV)
-  /// \returns The differential cross section (\todo define units!)
+  /// \returns The differential cross section (GeV<sup>-3</sup>)
   virtual double dSigma_dT_dCosTheta(int nu_pdg, double E_nu, double Tl,
     double cos_l, double ml, double Q_value) const /*override*/ = 0;
 
@@ -219,15 +220,15 @@ public:
 
 protected:
 
-  inline ValenciaHadronTensorI(int pdg = 0) : fTargetPDG(pdg) {}
+  inline HadronTensorI(int pdg = 0) : fTargetPDG(pdg) {}
 
-  inline ValenciaHadronTensorI(int Z, int A)
+  inline HadronTensorI(int Z, int A)
     : fTargetPDG( genie::pdg::IonPdgCode(A, Z) ) {}
 
   ///< PDG code for the target nucleus represented by the tensor
   int fTargetPDG;
 
-}; // class ValenciaHadronTensorI
+}; // class HadronTensorI
 
 } // genie namespace
 #endif

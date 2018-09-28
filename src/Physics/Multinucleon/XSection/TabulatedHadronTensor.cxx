@@ -5,7 +5,7 @@
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/Units.h"
 #include "Framework/Messenger/Messenger.h"
-#include "Physics/Multinucleon/XSection/TabulatedValenciaHadronTensor.h"
+#include "Physics/Multinucleon/XSection/TabulatedHadronTensor.h"
 
 namespace {
   /// Enumerated type that represents the format used to read in
@@ -27,7 +27,7 @@ namespace {
   }
 }
 
-genie::TabulatedValenciaHadronTensor::TabulatedValenciaHadronTensor(
+genie::TabulatedHadronTensor::TabulatedHadronTensor(
   const std::string& table_file_name)
   : fGrid(&fq0Points, &fqmagPoints, &fEntries)
 {
@@ -68,18 +68,18 @@ genie::TabulatedValenciaHadronTensor::TabulatedValenciaHadronTensor(
   }
 }
 
-genie::TabulatedValenciaHadronTensor::~TabulatedValenciaHadronTensor()
+genie::TabulatedHadronTensor::~TabulatedHadronTensor()
 {
 }
 
-std::complex<double> genie::TabulatedValenciaHadronTensor::tt(
+std::complex<double> genie::TabulatedHadronTensor::tt(
   double q0, double q_mag) const
 {
   TableEntry entry = fGrid.interpolate(q0, q_mag);
   return std::complex<double>(entry.W00, 0.);
 }
 
-std::complex<double> genie::TabulatedValenciaHadronTensor::tz(
+std::complex<double> genie::TabulatedHadronTensor::tz(
   double q0, double q_mag) const
 {
   TableEntry entry = fGrid.interpolate(q0, q_mag);
@@ -89,14 +89,14 @@ std::complex<double> genie::TabulatedValenciaHadronTensor::tz(
   return std::complex<double>(entry.ReW0z, 0.);
 }
 
-std::complex<double> genie::TabulatedValenciaHadronTensor::xx(
+std::complex<double> genie::TabulatedHadronTensor::xx(
   double q0, double q_mag) const
 {
   TableEntry entry = fGrid.interpolate(q0, q_mag);
   return std::complex<double>(entry.Wxx, 0.);
 }
 
-std::complex<double> genie::TabulatedValenciaHadronTensor::xy(
+std::complex<double> genie::TabulatedHadronTensor::xy(
   double q0, double q_mag) const
 {
   TableEntry entry = fGrid.interpolate(q0, q_mag);
@@ -104,7 +104,7 @@ std::complex<double> genie::TabulatedValenciaHadronTensor::xy(
   return std::complex<double>(0., entry.ImWxy);
 }
 
-std::complex<double> genie::TabulatedValenciaHadronTensor::zz(
+std::complex<double> genie::TabulatedHadronTensor::zz(
   double q0, double q_mag) const
 {
   TableEntry entry = fGrid.interpolate(q0, q_mag);
@@ -112,54 +112,54 @@ std::complex<double> genie::TabulatedValenciaHadronTensor::zz(
   return std::complex<double>(entry.Wzz, 0.);
 }
 
-double genie::TabulatedValenciaHadronTensor::W1(double q0,
+double genie::TabulatedHadronTensor::W1(double q0,
   double q_mag, double Mi) const
 {
   TableEntry entry = fGrid.interpolate(q0, q_mag);
   return W1(q0, q_mag, entry) / Mi;
 }
 
-double genie::TabulatedValenciaHadronTensor::W2(double q0,
+double genie::TabulatedHadronTensor::W2(double q0,
   double q_mag, double Mi) const
 {
   TableEntry entry = fGrid.interpolate(q0, q_mag);
   return W2(q0, q_mag, entry) / Mi;
 }
 
-double genie::TabulatedValenciaHadronTensor::W3(double q0,
+double genie::TabulatedHadronTensor::W3(double q0,
   double q_mag, double /*Mi*/) const
 {
   TableEntry entry = fGrid.interpolate(q0, q_mag);
   return W3(q0, q_mag, entry);
 }
 
-double genie::TabulatedValenciaHadronTensor::W4(double q0,
+double genie::TabulatedHadronTensor::W4(double q0,
   double q_mag, double Mi) const
 {
   TableEntry entry = fGrid.interpolate(q0, q_mag);
   return W4(q0, q_mag, entry) * Mi;
 }
 
-double genie::TabulatedValenciaHadronTensor::W5(double q0,
+double genie::TabulatedHadronTensor::W5(double q0,
   double q_mag, double /*Mi*/) const
 {
   TableEntry entry = fGrid.interpolate(q0, q_mag);
   return W5(q0, q_mag, entry);
 }
 
-double genie::TabulatedValenciaHadronTensor::W6(double /* q0 */,
+double genie::TabulatedHadronTensor::W6(double /* q0 */,
   double /* q_mag */, double /* Mi */) const
 {
   return 0.;
 }
 
-void genie::TabulatedValenciaHadronTensor::read1DGridValues(int num_points,
+void genie::TabulatedHadronTensor::read1DGridValues(int num_points,
   int flag, std::ifstream& in_file, std::vector<double>& vec_to_fill)
 {
   vec_to_fill.clear();
 
   if (flag >= kHadronTensorGridFlag_COUNT) {
-    LOG("TabulatedValenciaHadronTensor", pERROR)
+    LOG("TabulatedHadronTensor", pERROR)
       << "Invalid hadron tensor grid flag value \"" << flag
       << "\" encountered.";
     return;
@@ -180,40 +180,40 @@ void genie::TabulatedValenciaHadronTensor::read1DGridValues(int num_points,
 
 }
 
-double genie::TabulatedValenciaHadronTensor::W1(double /*q0*/,
+double genie::TabulatedHadronTensor::W1(double /*q0*/,
  double /*q_mag*/, const TableEntry& entry) const
 {
   return entry.Wxx / 2.;
 }
 
-double genie::TabulatedValenciaHadronTensor::W2(double q0, double q_mag,
+double genie::TabulatedHadronTensor::W2(double q0, double q_mag,
   const TableEntry& entry) const
 {
   double temp_1 = ( std::pow(q0, 2) / std::pow(q_mag, 2) )
     * (entry.Wzz - entry.Wxx);
   double temp_2 = 2. * q0 * entry.ReW0z / q_mag;
-  return ( entry.W00 + entry.Wxx + temp_1 + temp_2 ) / 2.;
+  return ( entry.W00 + entry.Wxx + temp_1 - temp_2 ) / 2.;
 }
 
-double genie::TabulatedValenciaHadronTensor::W3(double /*q0*/, double q_mag,
+double genie::TabulatedHadronTensor::W3(double /*q0*/, double q_mag,
   const TableEntry& entry) const
 {
   return ( entry.ImWxy / q_mag );
 }
 
-double genie::TabulatedValenciaHadronTensor::W4(double /*q0*/, double q_mag,
+double genie::TabulatedHadronTensor::W4(double /*q0*/, double q_mag,
   const TableEntry& entry) const
 {
   return ( entry.Wzz - entry.Wxx ) / ( 2. * std::pow(q_mag, 2) );
 }
 
-double genie::TabulatedValenciaHadronTensor::W5(double q0, double q_mag,
+double genie::TabulatedHadronTensor::W5(double q0, double q_mag,
   const TableEntry& entry) const
 {
   return ( entry.ReW0z - q0 * (entry.Wzz - entry.Wxx) / q_mag ) / q_mag;
 }
 
-double genie::TabulatedValenciaHadronTensor::W6(double /*q0*/,
+double genie::TabulatedHadronTensor::W6(double /*q0*/,
   double /*q_mag*/, const TableEntry& /*entry*/) const
 {
   // Currently, \Im W^{0z} has not been tabulated, so we can't really
@@ -222,7 +222,7 @@ double genie::TabulatedValenciaHadronTensor::W6(double /*q0*/,
   return 0.;
 }
 
-double genie::TabulatedValenciaHadronTensor::dSigma_dT_dCosTheta(
+double genie::TabulatedHadronTensor::dSigma_dT_dCosTheta(
  const Interaction* interaction, double Q_value) const
 {
   // Don't do anything if you've been handed a nullptr
@@ -237,7 +237,7 @@ double genie::TabulatedValenciaHadronTensor::dSigma_dT_dCosTheta(
   return dSigma_dT_dCosTheta(nu_pdg, E_nu, Tl, cos_l, ml, Q_value);
 }
 
-double genie::TabulatedValenciaHadronTensor::dSigma_dT_dCosTheta(int nu_pdg,
+double genie::TabulatedHadronTensor::dSigma_dT_dCosTheta(int nu_pdg,
   double E_nu, double Tl, double cos_l, double ml, double Q_value) const
 {
   /// \todo Add check if in grid. If not, return 0
@@ -270,9 +270,9 @@ double genie::TabulatedValenciaHadronTensor::dSigma_dT_dCosTheta(int nu_pdg,
 
   // Simplify the expressions below by pre-computing the structure functions
   double w1 = this->W1(q0, q_mag, entry);
-  double w2 = this->W1(q0, q_mag, entry);
-  double w4 = this->W1(q0, q_mag, entry);
-  double w5 = this->W1(q0, q_mag, entry);
+  double w2 = this->W2(q0, q_mag, entry);
+  double w4 = this->W4(q0, q_mag, entry);
+  double w5 = this->W5(q0, q_mag, entry);
 
   // Flip the sign of the terms proportional to W3 for antineutrinos
   double w3 = this->W3(q0, q_mag, entry);
@@ -288,9 +288,9 @@ double genie::TabulatedValenciaHadronTensor::dSigma_dT_dCosTheta(int nu_pdg,
 
   double all_terms = part_1 + std::pow(ml, 2) * part_2 / (El * (El + k_prime));
 
+  // dSigma_dT_dCosTheta in GeV^(-3)
   double xsec = (2. / genie::constants::kPi) * k_prime * El
     * genie::constants::kGF2 * all_terms;
 
-  // \todo Fix units!
   return xsec;
 }

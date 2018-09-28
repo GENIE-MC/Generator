@@ -1,12 +1,12 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::TabulatedValenciaHadronTensor
+\class    genie::TabulatedHadronTensor
 
 \brief    Computes the elements and structure functions of the hadron
           tensor (using the conventions of the Valencia model)
           using precomputed tables.
-          Is a concrete implementation of the ValenciaHadronTensorI interface.
+          Is a concrete implementation of the HadronTensorI interface.
 
 \author   Steven Gardiner <gardiner \at fnal.gov>
           Fermi National Accelerator Laboratory
@@ -27,16 +27,16 @@
 
 // GENIE includes
 #include "Framework/Numerical/BLI2DNonUnifObjectGrid.h"
-#include "Physics/Multinucleon/XSection/ValenciaHadronTensorI.h"
+#include "Physics/Multinucleon/XSection/HadronTensorI.h"
 
 namespace genie {
 
-class TabulatedValenciaHadronTensor : public ValenciaHadronTensorI {
+class TabulatedHadronTensor : public HadronTensorI {
 
   public:
 
-  TabulatedValenciaHadronTensor(const std::string& table_file_name);
-  virtual ~TabulatedValenciaHadronTensor();
+  TabulatedHadronTensor(const std::string& table_file_name);
+  virtual ~TabulatedHadronTensor();
 
   // \todo Enable override specifiers when GENIE modernizes to C++11
 
@@ -191,7 +191,7 @@ class TabulatedValenciaHadronTensor : public ValenciaHadronTensorI {
 
   BLI2DNonUnifObjectGrid<TableEntry> fGrid;
 
-}; // class TabulatedValenciaHadronTensor
+}; // class TabulatedHadronTensor
 
 }  // genie namespace
 #endif
