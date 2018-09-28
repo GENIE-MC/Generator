@@ -90,45 +90,105 @@ double genie::TabulatedValenciaHadronTensor::W1(double q0,
   double q_mag, double Mi) const
 {
   TableEntry entry = fGrid.interpolate(q0, q_mag);
-  return entry.Wxx / (2. * Mi);
+  return W1(q0, q_mag, Mi, entry);
 }
 
 double genie::TabulatedValenciaHadronTensor::W2(double q0,
   double q_mag, double Mi) const
 {
   TableEntry entry = fGrid.interpolate(q0, q_mag);
-  double temp_1 = ( std::pow(q0, 2) / std::pow(q_mag, 2) )
-    * (entry.Wzz - entry.Wxx);
-  double temp_2 = 2. * q0 * entry.ReW0z / q_mag;
-  return ( entry.W00 + entry.Wxx + temp_1 + temp_2 ) / (2. * Mi);
+  return W2(q0, q_mag, Mi, entry);
 }
 
-/// \todo Enable the [[maybe_unused]] attribute when GENIE modernizes to C++17
 double genie::TabulatedValenciaHadronTensor::W3(double q0,
-  double q_mag, /* [[maybe_unused]] */ double /* Mi */) const
+  double q_mag, double Mi) const
 {
   TableEntry entry = fGrid.interpolate(q0, q_mag);
-  return ( entry.ImWxy / q_mag );
+  return W3(q0, q_mag, Mi, entry);
 }
 
 double genie::TabulatedValenciaHadronTensor::W4(double q0,
   double q_mag, double Mi) const
 {
   TableEntry entry = fGrid.interpolate(q0, q_mag);
-  return Mi * ( entry.Wzz - entry.Wxx ) / ( 2. * std::pow(q_mag, 2) );
+  return W4(q0, q_mag, Mi, entry);
 }
 
 double genie::TabulatedValenciaHadronTensor::W5(double q0,
-  double q_mag, /* [[maybe_unused]] */ double /* Mi */) const
+  double q_mag, double Mi) const
 {
   TableEntry entry = fGrid.interpolate(q0, q_mag);
+  return W5(q0, q_mag, Mi, entry);
+}
+
+double genie::TabulatedValenciaHadronTensor::W6(double /* q0 */,
+  double /* q_mag */, double /* Mi */) const
+{
+  return 0.;
+}
+
+void genie::TabulatedValenciaHadronTensor::read1DGridValues(int num_points,
+  int flag, std::ifstream& in_file, std::vector<double>& vec_to_fill)
+{
+  vec_to_fill.clear();
+
+  if (flag >= kHadronTensorGridFlag_COUNT) {
+    LOG("TabulatedValenciaHadronTensor", pERROR)
+      << "Invalid hadron tensor grid flag value \"" << flag
+      << "\" encountered.";
+    return;
+  }
+  else if (flag == kStartAndStep) {
+    double start_val, step;
+    in_file >> start_val >> step;
+    for (int k = 0; k < num_points; ++k)
+      vec_to_fill.push_back( start_val + (k * step) );
+  }
+  else if (flag == kExplicitValues) {
+    double val;
+    for (int k = 0; k < num_points; ++k) {
+      in_file >> val;
+      vec_to_fill.push_back( val );
+    }
+  }
+
+}
+
+double genie::TabulatedValenciaHadronTensor::W1(double /*q0*/,
+ double /*q_mag*/, double Mi, const TableEntry& entry) const
+{
+  return entry.Wxx / (2. * Mi);
+}
+
+double genie::TabulatedValenciaHadronTensor::W2(double q0, double q_mag,
+  double Mi, const TableEntry& entry) const
+{
+  double temp_1 = ( std::pow(q0, 2) / std::pow(q_mag, 2) )
+    * (entry.Wzz - entry.Wxx);
+  double temp_2 = 2. * q0 * entry.ReW0z / q_mag;
+  return ( entry.W00 + entry.Wxx + temp_1 + temp_2 ) / (2. * Mi);
+}
+
+double genie::TabulatedValenciaHadronTensor::W3(double /*q0*/, double q_mag,
+  double /*Mi*/, const TableEntry& entry) const
+{
+  return ( entry.ImWxy / q_mag );
+}
+
+double genie::TabulatedValenciaHadronTensor::W4(double /*q0*/, double q_mag,
+  double Mi, const TableEntry& entry) const
+{
+  return Mi * ( entry.Wzz - entry.Wxx ) / ( 2. * std::pow(q_mag, 2) );
+}
+
+double genie::TabulatedValenciaHadronTensor::W5(double q0, double q_mag,
+  double /*Mi*/, const TableEntry& entry) const
+{
   return ( entry.ReW0z - q0 * (entry.Wzz - entry.Wxx) / q_mag ) / q_mag;
 }
 
-double genie::TabulatedValenciaHadronTensor::W6(
-  /* [[maybe_unused]] */ double /* q0 */,
-  /* [[maybe_unused]] */ double /* q_mag */,
-  /* [[maybe_unused]] */ double /* Mi */) const
+double genie::TabulatedValenciaHadronTensor::W6(double /*q0*/,
+  double /*q_mag*/, double /*Mi*/, const TableEntry& /*entry*/) const
 {
   // Currently, \Im W^{0z} has not been tabulated, so we can't really
   // evaluate W6. This isn't a huge problem, however, because W6 doesn't

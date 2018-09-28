@@ -56,6 +56,9 @@ class TabulatedValenciaHadronTensor : public ValenciaHadronTensorI {
   virtual double W5(double q0, double q_mag, double Mi) const /*override*/;
   virtual double W6(double q0, double q_mag, double Mi) const /*override*/;
 
+  /// \todo finish
+  //virtual double dSigma_dT_dCosTheta(double q0, double q_mag, double Mi)
+
   protected:
 
   class TableEntry {
@@ -143,6 +146,31 @@ class TabulatedValenciaHadronTensor : public ValenciaHadronTensorI {
     inline static double multiply(double x, double y) { return x * y; }
     inline static double divide(double x, double y) { return x / y; }
   };
+
+  /// \name Structure function helpers
+  /// \brief These helper functions allow multiple structure
+  /// function values (e.g., \f$W_1\f$ and \f$W_2\f$) to be computed
+  /// without having to perform bilinear interpolation every time.
+  /// \param[in] Hadronic tensor table entry that has been pre-interpolated
+  /// @{
+  virtual double W1(double q0, double q_mag, double Mi,
+    const TableEntry& entry) const;
+
+  virtual double W2(double q0, double q_mag, double Mi,
+    const TableEntry& entry) const;
+
+  virtual double W3(double q0, double q_mag, double Mi,
+    const TableEntry& entry) const;
+
+  virtual double W4(double q0, double q_mag, double Mi,
+    const TableEntry& entry) const;
+
+  virtual double W5(double q0, double q_mag, double Mi,
+    const TableEntry& entry) const;
+
+  virtual double W6(double q0, double q_mag, double Mi,
+    const TableEntry& entry) const;
+  ///@}
 
   std::vector<double> fq0Points;
   std::vector<double> fqmagPoints;
