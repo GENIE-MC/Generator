@@ -1,4 +1,5 @@
-#pragma once
+#ifndef BLI2DNONUNIF_OBJECT_GRID_H_
+#define BLI2DNONUNIF_OBJECT_GRID_H_
 
 namespace genie {
 
@@ -199,3 +200,4 @@ protected:
 }; // template class BLI2DNonUnifObjectGrid
 
 } // namespace genie
+#endif
