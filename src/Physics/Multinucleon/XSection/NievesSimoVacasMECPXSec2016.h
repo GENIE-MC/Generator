@@ -4,14 +4,17 @@
 \class    genie::NievesSimoVacasMECPXSec2016
 
 \brief    Computes the Valencia MEC model differential cross section.
-          Uses precomputed hadon tensor tables.
-          Is a concrete implementation of the XSecAlgorithmI interface. 
+          Uses precomputed hadron tensor tables.
+          Is a concrete implementation of the XSecAlgorithmI interface.
 
 \author   Code contributed by J. Schwehr, D. Cherdack, R. Gran and described
           in arXiv:1601.02038 and some of the refereces there-in,
           in particular PRD 88 (2013) 113007
 
           Substantial code refactorizations by the core GENIE group.
+
+          Refactored by S. Gardiner to use the new HadronTensorI and
+          HadronTensorPool classes
 
 \ref      J. Nieves, I. Ruiz Simo, M.J. Vicente Vacas,
           Inclusive quasi-elastic neutrino reactions, PRC 83 (2011) 045501
@@ -27,12 +30,7 @@
 #ifndef _NIEVES_SIMO_VACAS_MEC_PXSEC_2016_H_
 #define _NIEVES_SIMO_VACAS_MEC_PXSEC_2016_H_
 
-#include <vector>
-
 #include "Framework/EventGen/XSecAlgorithmI.h"
-#include "Physics/Multinucleon/XSection/MECHadronTensor.h"
-
-using std::vector;
 
 namespace genie {
 
@@ -66,6 +64,6 @@ private:
 
 //double fQ3Max;
 };
-  
+
 }       // genie namespace
 #endif  // _NIEVES_SIMO_VACAS_MEC_PXSEC_2016_H_

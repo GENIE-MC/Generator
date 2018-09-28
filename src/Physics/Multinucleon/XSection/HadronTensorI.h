@@ -233,6 +233,24 @@ public:
   /// Set the target nucleus PDG code
   inline void set_pdg(int pdg) { fTargetPDG = pdg; }
 
+  /// The minimum value of the energy transfer \f$q^0\f$ for which this
+  /// hadron tensor may be used to compute cross sections
+  virtual double q0Min() const = 0;
+
+  /// The maximum value of the energy transfer \f$q^0\f$ for which this
+  /// hadron tensor may be used to compute cross sections
+  virtual double q0Max() const = 0;
+
+  /// The minimum value of the magnitude of the 3-momentum transfer
+  /// \f$\left|\overrightarrow{q}\right|\f$ for which this
+  /// hadron tensor may be used to compute cross sections
+  virtual double qMagMin() const = 0;
+
+  /// The maximum value of the magnitude of the 3-momentum transfer
+  /// \f$\left|\overrightarrow{q}\right|\f$ for which this
+  /// hadron tensor may be used to compute cross sections
+  virtual double qMagMax() const = 0;
+
 protected:
 
   inline HadronTensorI(int pdg = 0) : fTargetPDG(pdg) {}
