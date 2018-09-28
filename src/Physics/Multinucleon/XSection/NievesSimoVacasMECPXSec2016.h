@@ -13,25 +13,23 @@
 
           Substantial code refactorizations by the core GENIE group.
 
+          Refactored by S. Gardiner to use the new HadronTensorI and
+          HadronTensorPool classes
+
 \ref      J. Nieves, I. Ruiz Simo, M.J. Vicente Vacas,
           Inclusive quasi-elastic neutrino reactions, PRC 83 (2011) 045501
 
 \created  Mar 22, 2016
 
 \cpright  Copyright (c) 2003-2020, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org          
+          For the full text of the license visit http://copyright.genie-mc.org
 */
 //____________________________________________________________________________
 
 #ifndef _NIEVES_SIMO_VACAS_MEC_PXSEC_2016_H_
 #define _NIEVES_SIMO_VACAS_MEC_PXSEC_2016_H_
 
-#include <vector>
-
 #include "Framework/EventGen/XSecAlgorithmI.h"
-#include "Physics/Multinucleon/XSection/MECHadronTensor.h"
-
-using std::vector;
 
 namespace genie {
 
