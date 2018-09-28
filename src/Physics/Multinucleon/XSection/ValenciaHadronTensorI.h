@@ -56,6 +56,18 @@
 
 namespace genie {
 
+/// Enumerated type that describes the physics represented by a particular
+/// hadron tensor
+/// \todo Document enum values
+typedef enum HadronTensorType {
+  kHT_Undefined = -1,
+  kHT_MEC_FullAll,
+  kHT_MEC_Fullpn,
+  kHT_MEC_DeltaAll,
+  kHT_MEC_Deltapn
+}
+HadronTensorType_t;
+
 class ValenciaHadronTensorI {
 
 public:
