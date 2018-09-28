@@ -27,7 +27,7 @@
 // GENIE includes
 #include "Framework/Messenger/Messenger.h"
 #include "Physics/Multinucleon/XSection/HadronTensorPool.h"
-#include "Physics/Multinucleon/XSection/TabulatedHadronTensor.h"
+#include "Physics/Multinucleon/XSection/TabulatedValenciaHadronTensor.h"
 #include "Physics/Multinucleon/XSection/HadronTensorI.h"
 #include "Framework/Utils/StringUtils.h"
 #include "Framework/Utils/XmlParserUtils.h"
@@ -294,7 +294,7 @@ genie::XmlParserStatus_t genie::HadronTensorPool::ParseXMLConfig(
                       LOG("HadronTensorPool", pDEBUG) << "Loading the hadron"
                         << " tensor data file " << full_file_name;
                       fTensors[tensor_id]
-                        = new TabulatedHadronTensor(full_file_name);
+                        = new TabulatedValenciaHadronTensor(full_file_name);
                     }
                     else {
                       tensor_ok = false;

@@ -15,7 +15,7 @@
 #include "Framework/Messenger/Messenger.h"
 #include "Physics/Multinucleon/XSection/NievesSimoVacasMECPXSec2016.h"
 #include "Physics/Multinucleon/XSection/MECUtils.h"
-#include "Physics/Multinucleon/XSection/HadronTensorI.h"
+#include "Physics/Multinucleon/XSection/ValenciaHadronTensorI.h"
 #include "Physics/Multinucleon/XSection/HadronTensorPool.h"
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/ParticleData/PDGUtils.h"
@@ -143,8 +143,9 @@ double NievesSimoVacasMECPXSec2016::XSec(
 
   genie::utils::mec::Getq0q3FromTlCostl(Tl, costl, Ev, ml, Q0, Q3);
 
-  const HadronTensorI* tensor = htp.GetTensor(tensor_pdg,
-    HadronTensorType::kHT_MEC_FullAll);
+  const ValenciaHadronTensorI* tensor
+    = dynamic_cast<const ValenciaHadronTensorI*>( htp.GetTensor(tensor_pdg,
+    HadronTensorType::kHT_MEC_FullAll) );
 
   // If retrieving the tensor failed, complain and return zero
   if ( !tensor ) {
@@ -183,8 +184,9 @@ double NievesSimoVacasMECPXSec2016::XSec(
   double xsec_pn  = 0.;
   if ( delta ) {
 
-    const HadronTensorI* tensor_delta_all = htp.GetTensor(tensor_pdg,
-      HadronTensorType::kHT_MEC_DeltaAll);
+    const ValenciaHadronTensorI* tensor_delta_all
+      = dynamic_cast<const ValenciaHadronTensorI*>( htp.GetTensor(tensor_pdg,
+      HadronTensorType::kHT_MEC_DeltaAll) );
 
     if ( !tensor_delta_all ) {
       LOG("NievesSimoVacasMEC", pWARN) << "Failed to load a \"DeltaAll\""
@@ -192,8 +194,9 @@ double NievesSimoVacasMECPXSec2016::XSec(
       return 0.;
     }
 
-    const HadronTensorI* tensor_delta_pn = htp.GetTensor(tensor_pdg,
-      HadronTensorType::kHT_MEC_Deltapn);
+    const ValenciaHadronTensorI* tensor_delta_pn
+      = dynamic_cast<const ValenciaHadronTensorI*>( htp.GetTensor(tensor_pdg,
+      HadronTensorType::kHT_MEC_Deltapn) );
 
     if ( !tensor_delta_pn ) {
       LOG("NievesSimoVacasMEC", pWARN) << "Failed to load a \"Deltapn\""
@@ -207,8 +210,9 @@ double NievesSimoVacasMECPXSec2016::XSec(
   }
   else {
 
-    const HadronTensorI* tensor_full_all = htp.GetTensor(tensor_pdg,
-      HadronTensorType::kHT_MEC_FullAll);
+    const ValenciaHadronTensorI* tensor_full_all
+      = dynamic_cast<const ValenciaHadronTensorI*>( htp.GetTensor(tensor_pdg,
+      HadronTensorType::kHT_MEC_FullAll) );
 
     if ( !tensor_full_all ) {
       LOG("NievesSimoVacasMEC", pWARN) << "Failed to load a \"FullAll\""
@@ -216,8 +220,9 @@ double NievesSimoVacasMECPXSec2016::XSec(
       return 0.;
     }
 
-    const HadronTensorI* tensor_full_pn = htp.GetTensor(tensor_pdg,
-      HadronTensorType::kHT_MEC_Fullpn);
+    const ValenciaHadronTensorI* tensor_full_pn
+      = dynamic_cast<const ValenciaHadronTensorI*>( htp.GetTensor(tensor_pdg,
+      HadronTensorType::kHT_MEC_Fullpn) );
 
     if ( !tensor_full_pn ) {
       LOG("NievesSimoVacasMEC", pWARN) << "Failed to load a \"Fullpn\""
