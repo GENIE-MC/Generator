@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- 
+  Configuration file used by the genie::HadronTensorPool class
+-->
+
+<hadron_tensor_config>
+
+  <tensor_table name="Default">
+    <data_paths>
+      <!-- paths may be absolute or relative to the $GENIE folder -->
+      <!--<path type="relative"> data/evgen/mectensor/nieves </path> -->
+      <path type="absolute"> /genie/app/users/gardiner/test/data </path>
+    </data_paths>
+
+    <!-- 12C --> <nuclide pdg="1000060120">
+      <tensor type="MEC_FullAll" calc="table">
+        <file>HadTensor120-Nieves-1000060120-FullAll-20150210.dat</file>
+      </tensor>
+      <tensor type="MEC_Fullpn" calc="table">
+        <file>HadTensor120-Nieves-1000060120-Fullpn-20150210.dat</file>
+      </tensor>
+      <tensor type="MEC_DeltaAll" calc="table">
+        <file>HadTensor120-Nieves-1000060120-DeltaAll-20150210.dat</file>
+      </tensor>
+      <tensor type="MEC_Deltapn" calc="table">
+        <file>HadTensor120-Nieves-1000060120-Deltapn-20150210.dat</file>
+      </tensor>
+    </nuclide>
+  </tensor_table>
+
+</hadron_tensor_config>
