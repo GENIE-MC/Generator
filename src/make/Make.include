@@ -313,9 +313,9 @@ ARCH_OK       = YES
 IS_MACOSX     = YES
 CXXFLAGS      = -pipe -W -Wall -Wno-long-double -fsigned-char -fno-common \
 		$(ROOT_FLAGS) \
-		$(OPT_WITH_CXX_DEBUG_FLAG) \
-		$(OPT_WITH_CXX_OPTIMIZ_FLAG) \
-		$(OPT_WITH_CXX_USERDEF_FLAGS) 
+		$(GOPT_WITH_CXX_DEBUG_FLAG) \
+		$(GOPT_WITH_CXX_OPTIMIZ_FLAG) \
+		$(GOPT_WITH_CXX_USERDEF_FLAGS)
 ifeq ($(strip $(GCC_GE_4_1_0)), YES) 
   CXXFLAGS += -Wno-strict-aliasing 
 endif
@@ -348,7 +348,7 @@ endif
 #		-fsigned-char -fno-common -flat_namespace \#
 #		$(GOPT_WITH_CXX_DEBUG_FLAG) \
 #		$(GOPT_WITH_CXX_OPTIMIZ_FLAG) \
-#		$(GOPT_WITH_CXX_USERDEF_FLAGS) 
+#		$(GOPT_WITH_CXX_USERDEF_FLAGS)
 #ifeq ($(strip $(GCC_GE_4_1_0)), YES) 
 #  CXXFLAGS += -Wno-strict-aliasing -ffriend-injection
 #endif
@@ -391,9 +391,9 @@ IS_MACOSX     = YES
 CXXFLAGS      = -m64 -pipe -Wshadow -W -Wall -Woverloaded-virtual \
                 -fsigned-char -fno-common \
                 $(ROOT_FLAGS) \
-                $(OPT_WITH_CXX_DEBUG_FLAG) \
-                $(OPT_WITH_CXX_OPTIMIZ_FLAG) \
-                $(OPT_WITH_CXX_USERDEF_FLAGS) 
+                $(GOPT_WITH_CXX_DEBUG_FLAG) \
+                $(GOPT_WITH_CXX_OPTIMIZ_FLAG) \
+                $(GOPT_WITH_CXX_USERDEF_FLAGS)
 ifneq ($(strip $(GCC_GE_4_2_1)), YES) 
   ifneq ($(USING_CLANG), YES)
     CXXFLAGS   += -flat_namespace
@@ -435,7 +435,7 @@ endif
 #		-fsigned-char -fno-common -flat_namespace \
 #		$(GOPT_WITH_CXX_DEBUG_FLAG) \
 #		$(GOPT_WITH_CXX_OPTIMIZ_FLAG) \
-#		$(GOPT_WITH_CXX_USERDEF_FLAGS) 
+#		$(GOPT_WITH_CXX_USERDEF_FLAGS)
 #ifeq ($(strip $(GCC_GE_4_1_0)), YES) 
 #  CXXFLAGS += -Wno-strict-aliasing -ffriend-injection
 #endif
@@ -464,7 +464,7 @@ CXXFLAGS      = -W -Wall -fPIC -Wshadow \
 		$(ROOT_FLAGS) \
 		$(GOPT_WITH_CXX_DEBUG_FLAG) \
 		$(GOPT_WITH_CXX_OPTIMIZ_FLAG) \
-		$(GOPT_WITH_CXX_USERDEF_FLAGS) 
+		$(GOPT_WITH_CXX_USERDEF_FLAGS)
 ifeq ($(strip $(GCC_GE_4_1_0)), YES) 
   CXXFLAGS += -Wno-strict-aliasing -ffriend-injection
 endif
@@ -492,7 +492,7 @@ CXXFLAGS      = -W -Wall -fPIC -Wshadow \
 		$(ROOT_FLAGS) \
 		$(GOPT_WITH_CXX_DEBUG_FLAG) \
 		$(GOPT_WITH_CXX_OPTIMIZ_FLAG) \
-		$(GOPT_WITH_CXX_USERDEF_FLAGS) 
+		$(GOPT_WITH_CXX_USERDEF_FLAGS)
 ifeq ($(strip $(GCC_GE_4_1_0)), YES) 
   CXXFLAGS += -Wno-strict-aliasing -ffriend-injection
 endif
