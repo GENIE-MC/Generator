@@ -6,15 +6,17 @@
 \brief    Abstract interface for an object that computes the elements
           (\f$W^{xx}\f$, \f$W^{0z}\f$, etc.) and structure functions
           (\f$W_1\f$, \f$W_2\f$, etc.) of
-          the hadron tensor \f$W^{\mu\nu}\f$ as defined in equation (8)
-          and footnote 2 of the MEC Valencia model paper.
+          the hadron tensor \f$W^{\mu\nu}\f$ as defined in equations (8)
+          and (9) of the Valencia model paper.
 
           The calculation is carried out in the lab frame (i.e., the frame
           where the target nucleus has initial 4-momentum
           \f$P^\mu = (M_i, \overrightarrow{0})\f$) with the 3-momentum
           transfer \f$\overrightarrow{q}\f$ chosen to lie along the
           z axis, i.e., \f$q = (q^0, |\overrightarrow{q}|
-          \overrightarrow{u}_z)\f$.
+          \overrightarrow{u}_z)\f$. With this choice of frame, the only
+          nonzero elements are \f$W^{00}\f$, \f$W^{0z} = (W^{z0})^*\f$,
+          \f$W^{xx} = W^{yy}\f$, \f$W^{xy} = (W^{yx})^*\f$, and \f$W^{zz}\f$.
 
 \ref      J. Nieves, J. E. Amaro, and M. Valverde,
           "Inclusive Quasi-Elastic Charged-Current Neutrino-Nucleus Reactions,"
@@ -43,82 +45,146 @@ class ValenciaHadronTensorI {
 
 public:
 
-  virtual ~ValenciaHadronTensorI();
+  inline virtual ~ValenciaHadronTensorI() {}
 
-  /// \name Functions that return the elements of the tensor. Since it is
+  /// \name Tensor elements
+  /// \brief Functions that return the elements of the tensor. Since it is
   /// Hermitian, only ten elements are independent. Although a return type of
   /// std::complex<double> is used for all elements, note that hermiticity
   /// implies that the diagonal elements must be real.
-  //@{
+  /// \param[in] q0 The energy transfer \f$q^0\f$ in the lab frame (GeV)
+  /// \param[in] q_mag The magnitude of the 3-momentum transfer
+  /// \f$\left|\overrightarrow{q}\right|\f$ in the lab frame (GeV)
+  /// \retval std::complex<double> The value of the hadronic tensor element
+  /// @{
 
-  /// Returns the tensor element \f$W^{00}\f$
-  virtual std::complex<double> tt() const = 0;
+  /// The tensor element \f$W^{00}\f$
+  virtual std::complex<double> tt(double q0, double q_mag) const = 0;
 
-  /// Returns the tensor element \f$W^{0x}\f$
-  virtual std::complex<double> tx() const = 0;
+  /// The tensor element \f$W^{0x}\f$
+  inline std::complex<double> tx(double /*q0*/, double /*q_mag*/) const
+    { return std::complex<double>(0., 0.); }
 
-  /// Returns the tensor element \f$W^{0y}\f$
-  virtual std::complex<double> ty() const = 0;
+  /// The tensor element \f$W^{0y}\f$
+  inline std::complex<double> ty(double /*q0*/, double /*q_mag*/) const
+    { return std::complex<double>(0., 0.); }
 
-  /// Returns the tensor element \f$W^{0z}\f$
-  virtual std::complex<double> tz() const = 0;
+  /// The tensor element \f$W^{0z}\f$
+  virtual std::complex<double> tz(double q0, double q_mag) const = 0;
 
-  /// Returns the tensor element \f$W^{x0} = (W^{0x})^*\f$
-  inline virtual std::complex<double> xt() const
-    { return std::conj( this->tx() ); }
+  /// The tensor element \f$W^{x0} = (W^{0x})^*\f$
+  inline std::complex<double> xt(double q0, double q_mag) const
+    { return std::conj( this->tx(q0, q_mag) ); }
 
-  /// Returns the tensor element \f$W^{xx}\f$
-  virtual std::complex<double> xx() const = 0;
+  /// The tensor element \f$W^{xx}\f$
+  virtual std::complex<double> xx(double q0, double q_mag) const = 0;
 
-  /// Returns the tensor element \f$W^{xy}\f$
-  virtual std::complex<double> xy() const = 0;
+  /// The tensor element \f$W^{xy}\f$
+  virtual std::complex<double> xy(double q0, double q_mag) const = 0;
 
-  /// Returns the tensor element \f$W^{xz}\f$
-  virtual std::complex<double> xz() const = 0;
+  /// The tensor element \f$W^{xz}\f$
+  inline std::complex<double> xz(double /*q0*/, double /*q_mag*/) const
+    { return std::complex<double>(0., 0.); }
 
-  /// Returns the tensor element \f$W^{y0} = (W^{0y})^*\f$
-  inline virtual std::complex<double> yt() const
-    { return std::conj( this->ty() ); }
+  /// The tensor element \f$W^{y0} = (W^{0y})^*\f$
+  inline std::complex<double> yt(double q0, double q_mag) const
+    { return std::conj( this->ty(q0, q_mag) ); }
 
-  /// Returns the tensor element \f$W^{yx} = (W^{xy})^*\f$
-  inline virtual std::complex<double> yx() const
-    { return std::conj( this->xy() ); }
+  /// The tensor element \f$W^{yx} = (W^{xy})^*\f$
+  inline std::complex<double> yx(double q0, double q_mag) const
+    { return std::conj( this->xy(q0, q_mag) ); }
 
-  /// Returns the tensor element \f$W^{yy}\f$
-  virtual std::complex<double> yy() const = 0;
+  /// The tensor element \f$W^{yy}\f$
+  inline std::complex<double> yy(double q0, double q_mag) const
+    { return this->xx(q0, q_mag); }
 
-  /// Returns the tensor element \f$W^{yz}\f$
-  virtual std::complex<double> yz() const = 0;
+  /// The tensor element \f$W^{yz}\f$
+  inline std::complex<double> yz(double /*q0*/, double /*q_mag*/) const
+    { return std::complex<double>(0., 0.); }
 
-  /// Returns the tensor element \f$W^{z0} = (W^{0z})^*\f$
-  inline virtual std::complex<double> zt() const
-    { return std::conj( this->tz() ); }
+  /// The tensor element \f$W^{z0} = (W^{0z})^*\f$
+  inline std::complex<double> zt(double q0, double q_mag) const
+    { return std::conj( this->tz(q0, q_mag) ); }
 
-  /// Returns the tensor element \f$W^{zx} = (W^{xz})^*\f$
-  inline virtual std::complex<double> zx() const
-    { return std::conj( this->xz() ); }
+  /// The tensor element \f$W^{zx} = (W^{xz})^*\f$
+  inline std::complex<double> zx(double q0, double q_mag) const
+    { return std::conj( this->xz(q0, q_mag) ); }
 
-  /// Returns the tensor element \f$W^{zy} = (W^{yz})^*\f$
-  inline virtual std::complex<double> zy() const
-    { return std::conj( this->yz() ); }
+  /// The tensor element \f$W^{zy} = (W^{yz})^*\f$
+  inline std::complex<double> zy(double q0, double q_mag) const
+    { return std::conj( this->yz(q0, q_mag) ); }
 
-  /// Returns the tensor element \f$W^{zz}\f$
-  virtual std::complex<double> zz() const = 0;
-  //@}
+  /// The tensor element \f$W^{zz}\f$
+  virtual std::complex<double> zz(double q0, double q_mag) const = 0;
+  /// @}
 
   /// \name Structure functions
-  //@{
-  virtual double W1() const = 0;
-  virtual double W2() const = 0;
-  virtual double W3() const = 0;
-  virtual double W4() const = 0;
-  virtual double W5() const = 0;
-  virtual double W6() const = 0;
-  //@}
+  /// \param[in] q0 The energy transfer \f$q^0\f$ in the lab frame (GeV)
+  /// \param[in] q_mag The magnitude of the 3-momentum transfer
+  /// \f$\left|\overrightarrow{q}\right|\f$ in the lab frame (GeV)
+  /// \param[in] Mi The mass of the target nucleus \f$M_i\f$ (GeV)
+  /// @{
+
+  /// The structure function \f$W_1 = \frac{ W^{xx} }{ 2M_i }\f$
+  virtual double W1(double q0, double q_mag, double Mi) const = 0;
+
+  /// The structure function \f$W_2 = \frac{ 1 }{ 2M_i }
+  /// \left( W^{00} + W^{xx} + \frac{ (q^0)^2 }
+  /// { \left|\overrightarrow{q}\right|^2 } ( W^{zz} - W^{xx} )
+  /// - 2\frac{ q^0 }{ \left|\overrightarrow{q}\right| }\Re W^{0z}
+  /// \right) \f$
+  virtual double W2(double q0, double q_mag, double Mi) const = 0;
+
+  /// The structure function \f$ W_3 = -i \frac{ W^{xy} }
+  /// { \left|\overrightarrow{q}\right| } \f$
+  virtual double W3(double q0, double q_mag, double Mi) const = 0;
+
+  /// The structure function \f$ W_4 = \frac{ M_i }
+  /// { 2 \left|\overrightarrow{q}\right|^2 } ( W^{zz} - W^{xx} ) \f$
+  virtual double W4(double q0, double q_mag, double Mi) const = 0;
+
+  /// The structure function \f$ W_5 = \frac{ 1 }
+  /// { \left|\overrightarrow{q}\right| }
+  /// \left( \Re W^{0z} - \frac{ q^0 }{ \left|\overrightarrow{q}\right| }
+  /// ( W^{zz} - W^{xx} ) \right) \f$
+  virtual double W5(double q0, double q_mag, double Mi) const = 0;
+
+  /// The structure function \f$ W_6 = \frac{ \Im W^{0z} }
+  /// { \left|\overrightarrow{q}\right| } \f$
+  virtual double W6(double q0, double q_mag, double Mi) const = 0;
+  /// @}
+
+  /// PDG code of the target nucleus
+  inline int pdg() const { return fTargetPDG; }
+
+  /// Atomic number of the target nucleus
+  inline int Z() const { return (fTargetPDG % 10000000) / 10000; }
+
+  /// Mass number of the target nucleus
+  inline int A() const { return (fTargetPDG % 10000) / 10; }
+
+  /// Set the target nucleus PDG code
+  inline void set_pdg(int pdg) { fTargetPDG = pdg; }
 
 protected:
 
-  ValenciaHadronTensorI();
-};
+  /// Returns the PDG particle ID that corresponds to a ground-state
+  /// nucleus with atomic number Z and mass number A
+  inline static int nucleus_pdg(int Z, int A) {
+    /// \todo Remove hard-coded value here
+    const/*expr*/ int NEUTRON = 2112;
+    if (Z == 0 && A == 1) return NEUTRON;
+    else return 10000*Z + 10*A + 1000000000;
+  }
 
-}       // genie namespace
+  inline ValenciaHadronTensorI(int pdg = 0) : fTargetPDG(pdg) {}
+
+  inline ValenciaHadronTensorI(int Z, int A)
+    : fTargetPDG( nucleus_pdg(Z, A) ) {}
+
+  ///< PDG code for the target nucleus represented by the tensor
+  int fTargetPDG;
+
+}; // class ValenciaHadronTensorI
+
+} // genie namespace
