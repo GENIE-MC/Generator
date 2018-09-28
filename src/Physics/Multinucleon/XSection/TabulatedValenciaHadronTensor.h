@@ -1,10 +1,10 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::TabulatedHadronTensor
+\class    genie::TabulatedValenciaHadronTensor
 
 \brief    Computes the elements and structure functions of the hadron
-          tensor (using the conventions of the Valencia model)
+          tensor \f$W^{\mu\nu}\f$ (using the conventions of the Valencia model)
           using precomputed tables.
           Is a concrete implementation of the HadronTensorI interface.
 
@@ -27,16 +27,16 @@
 
 // GENIE includes
 #include "Framework/Numerical/BLI2DNonUnifObjectGrid.h"
-#include "Physics/Multinucleon/XSection/HadronTensorI.h"
+#include "Physics/Multinucleon/XSection/ValenciaHadronTensorI.h"
 
 namespace genie {
 
-class TabulatedHadronTensor : public HadronTensorI {
+class TabulatedValenciaHadronTensor : public ValenciaHadronTensorI {
 
   public:
 
-  TabulatedHadronTensor(const std::string& table_file_name);
-  virtual ~TabulatedHadronTensor();
+  TabulatedValenciaHadronTensor(const std::string& table_file_name);
+  virtual ~TabulatedValenciaHadronTensor();
 
   // \todo Enable override specifiers when GENIE modernizes to C++11
 
@@ -57,11 +57,13 @@ class TabulatedHadronTensor : public HadronTensorI {
   virtual double W5(double q0, double q_mag, double Mi) const /*override*/;
   virtual double W6(double q0, double q_mag, double Mi) const /*override*/;
 
+  //virtual double contraction(const Interaction* interaction) const /*override*/;
+
   virtual double dSigma_dT_dCosTheta(const Interaction* interaction,
     double Q_value) const /*override*/;
 
   virtual double dSigma_dT_dCosTheta(int probe_pdg, double E_probe,
-    double m_probe,double Tl, double cos_l, double ml, double Q_value)
+    double m_probe, double Tl, double cos_l, double ml, double Q_value)
     const /*override*/;
 
   inline virtual double q0Min() const /*override*/ { return fGrid.x_min(); }
@@ -197,7 +199,7 @@ class TabulatedHadronTensor : public HadronTensorI {
 
   BLI2DNonUnifObjectGrid<TableEntry> fGrid;
 
-}; // class TabulatedHadronTensor
+}; // class TabulatedValenciaHadronTensor
 
 }  // genie namespace
 #endif
