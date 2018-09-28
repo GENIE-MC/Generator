@@ -6,8 +6,10 @@
 \brief    Abstract interface for an object that computes the elements
           (\f$W^{xx}\f$, \f$W^{0z}\f$, etc.) and structure functions
           (\f$W_1\f$, \f$W_2\f$, etc.) of
-          the hadron tensor \f$W^{\mu\nu}\f$ as defined in equations (8)
-          and (9) of the Valencia model paper:
+          the hadron tensor \f$W^{\mu\nu}\f$.
+
+\details  For (anti)neutrino projectiles, the hadron tensor \f$W^{\mu\nu}\f$
+          is defined as in equations (8) and (9) of
 
           J. Nieves, J. E. Amaro, and M. Valverde,
           "Inclusive Quasi-Elastic Charged-Current Neutrino-Nucleus Reactions,"
@@ -32,6 +34,17 @@
           \overrightarrow{u}_z)\f$. With this choice of frame, the only
           nonzero elements are \f$W^{00}\f$, \f$W^{0z} = (W^{z0})^*\f$,
           \f$W^{xx} = W^{yy}\f$, \f$W^{xy} = (W^{yx})^*\f$, and \f$W^{zz}\f$.
+
+          For an electron projectile, the hadron tensor is defined as in
+          equation (83) of
+
+          A. Gil, J. Nieves, and E. Oset,
+          "Many-body approach to the inclusive \f$(e,e^\prime)\f$ reaction
+          from the quasielastic to the \f$\Delta\f$ excitation region,"
+          Nuclear Physics A 627, 543-598 (1997)
+          http://doi.org/10.1016/S0375-9474(97)00513-7
+
+          It is evaluated in the same reference frame as the neutrino case.
 
 \author   Steven Gardiner <gardiner \at fnal.gov>
           Fermi National Accelerator Laboratory
@@ -193,8 +206,9 @@ public:
     double Q_value) const = 0;
 
   /// \copybrief dSigma_dT_dCosTheta(const Interaction*, double)
-  /// \param[in] nu_pdg The PDG code for the incident neutrino
-  /// \param[in] E_nu The lab frame energy of the incident neutrino (GeV)
+  /// \param[in] probe_pdg The PDG code for the incident projectile
+  /// \param[in] E_probe The lab frame energy of the incident projectile (GeV)
+  /// \param[in] m_probe The mass of the incident projectile (GeV)
   /// \param[in] Tl The lab frame kinetic energy of the final state lepton (GeV)
   /// \param[in] cos_l The angle between the direction of the incident
   /// neutrino and the final state lepton (radians)
@@ -202,10 +216,10 @@ public:
   /// \param[in] Q_value The Q-value that should be used to correct
   /// the energy transfer \f$q_0\f$ (GeV)
   /// \returns The differential cross section (GeV<sup>-3</sup>)
-  virtual double dSigma_dT_dCosTheta(int nu_pdg, double E_nu, double Tl,
-    double cos_l, double ml, double Q_value) const /*override*/ = 0;
+  virtual double dSigma_dT_dCosTheta(int probe_pdg, double E_probe,
+    double m_probe, double Tl, double cos_l, double ml, double Q_value)
+    const /*override*/ = 0;
 
-  /// \todo Use GENIE's native PDG utilities
   /// PDG code of the target nucleus
   inline int pdg() const { return fTargetPDG; }
 
