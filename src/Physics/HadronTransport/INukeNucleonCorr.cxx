@@ -4,14 +4,14 @@
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
- Author: Tomek Golan <tomasz.golan@uwr.edu.pl>, FNAL/Rochester 
+ Author: Tomek Golan <tomasz.golan@uwr.edu.pl>, FNAL/Rochester
          Steve Dytman <dytman+@pitt.edu>, Pittsburgh Univ.
          Josh Kleckner <jok84@pitt.edu>, Pittsburgh Univ.
 
          Auguest 20, 2016
 
  Calculate the cross section attenuation factor due to medium
-corrections for NA FSI from Pandharipande, Pieper (Phys Rev (2009).  
+corrections for NA FSI from Pandharipande, Pieper (Phys Rev (2009).
 Paper gives prescription for Pauli blocking and average nuclear
 potential in (e,e'p).  GENIE code was adapted from NuWro implementation.
 
@@ -19,8 +19,8 @@ potential in (e,e'p).  GENIE code was adapted from NuWro implementation.
  @ Aug, 2016 - TK
    adapted to GENIE from NuWro.  Use free NN xs.
  @ Aug, 2017 - SD, JK
-   Original code stores values in rotating buffer.  This won't be accurate 
-   for many problems, esp. heavy targets and multiple nuclei.  New code has 
+   Original code stores values in rotating buffer.  This won't be accurate
+   for many problems, esp. heavy targets and multiple nuclei.  New code has
    lookup tables in probe KE and nuclear density (rho) stored in text files
    for He4, C12, Ca40, Fe56, Sn120, and U238.  Use values from the text
    files for KE and rho, interpolation in A.
@@ -77,7 +77,7 @@ const double INukeNucleonCorr::fLambda1 =  -0.373 / (units::fermi) / fRho0;  // 
 
 // ----- CALCULATIONS ----- //
 
-//! \f$m^* (k,\rhp) = m \frac{(\Lambda^2 + k^2)^2}{\Lambda^2 + k^2)^2 - 2\Lambda^2\beta m}\f$
+//! \f$m^* (k,\rho) = m \frac{(\Lambda^2 + k^2)^2}{\Lambda^2 + k^2)^2 - 2\Lambda^2\beta m}\f$
 double INukeNucleonCorr::mstar (const double rho, const double k2)
 {
   // density [fm^-3], momentum square [GeV^2]
@@ -244,7 +244,7 @@ double INukeNucleonCorr :: getAvgCorrection(double rho, double A, double ke)
    if(ke>.1&&ke<=.5) Row = round(.1*1000.+(ke-.1)*200);
    if(ke>.5&&ke<=1) Row = round(.1*1000.+(.5-.1)*200+(ke-.5)*40);
    if(ke>1) Row = NRows-1;
-   //LOG ("INukeNucleonCorr",pNOTICE) 
+   //LOG ("INukeNucleonCorr",pNOTICE)
    //  << "row, column = " << Row << "   " << Column;
   //If the table of correction values has already been created
   // return a value. Else, interpolate the needed correction table//
@@ -263,7 +263,7 @@ double INukeNucleonCorr :: getAvgCorrection(double rho, double A, double ke)
    Interp->SetPoint(5,238,UraniumValues[Row][Column]);
 
    //   Interpolated[e][r] = Interp->Eval(A);
-	//	LOG("INukeNucleonCorr",pNOTICE) 
+	//	LOG("INukeNucleonCorr",pNOTICE)
 	//	  << "e,r,value= " << e << "   " << r << "   " << Interpolated[e][r];
    double returnval = Interp->Eval(A);
    delete Interp;
@@ -315,14 +315,14 @@ double INukeNucleonCorr :: getAvgCorrection(double rho, double A, double ke)
     Interp->SetPoint(4,120,TinValues[Row][Column]);
     Interp->SetPoint(5,238,UraniumValues[Row][Column]);
 
-    //	LOG("INukeNucleonCorr",pNOTICE) 
+    //	LOG("INukeNucleonCorr",pNOTICE)
     //	  << "Row,Column,value= " << Row << "   " << Column << "   " << Interp->Eval(A);
     double returnval = Interp->Eval(A);
     delete Interp;
     ReadFile = true;
     LOG("INukeNucleonCorr",pINFO)
       << "Nucleon Corr interpolated correction factor = "
-      << returnval  
+      << returnval
       << " for rho, KE, A= "<<  rho << "  " << ke << "   " << A;
     return returnval;
   }
