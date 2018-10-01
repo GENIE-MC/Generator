@@ -22,6 +22,9 @@ PACKAGE_ALL_OBJECTS           = $(addsuffix .$(ObjSuf), $(basename $(PACKAGE_ALL
 PACKAGE_SOURCES              := $(wildcard *.cxx)
 PACKAGE_OBJECTS               = $(addsuffix .$(ObjSuf), $(basename $(PACKAGE_SOURCES)))
 
+SUBDIR_HEADERS_H              = $(wildcard *.h)
+SUBDIR_HEADERS_ICC            = $(wildcard *.icc)
+SUBDIR_HEADERS                = $(SUBDIR_HEADERS_H) $(SUBDIR_HEADERS_ICC)
 ### pcm & rootmap files should follow library naming ??
 #DICTIONARY_PCM               := $(DICTIONARY)_rdict.pcm
 #DICTIONARY_PCM_WITH_PATH     := $(GENIE_LIB_PATH)/$(DICTIONARY)_rdict.pcm
@@ -145,7 +148,7 @@ endif
 #
 install-inc:
 	@echo "[package: $(PACKAGE)] Installing headers..."
-	$(COPY) *.h $(GENIE_INC_INSTALLATION_PATH)/$(PACKAGE)
+	$(COPY) $(SUBDIR_HEADERS) $(GENIE_INC_INSTALLATION_PATH)/$(PACKAGE)
 
 #
 #
