@@ -39,7 +39,7 @@ class TuneId  {
 
 public:
 
-  TuneId(const string & id_str) : fName(id_str) { ; }
+  TuneId(const string & id_str) : fName(id_str) { Build(fName); }
   TuneId(const TuneId & id);
   ~TuneId() {;}
 
@@ -52,7 +52,6 @@ public:
   string MinorModelId    (void) const { return fMinorModelId;                 } // v
   string TunedParamSetId (void) const { return fTunedParamSetId;              } // PP
   string FitDataSetId    (void) const { return fFitDataSetId;                 } // xxx
- 
 
   bool   IsConfigured    (void) const { return fPrefix.size() > 0 ;           }
   // this is true if the name of the tune has been decoded into its parts
@@ -72,9 +71,9 @@ public:
   // Methods related to config directory
   string CGC             (void) const ;   // Comprehensive Global Confguration
   string Tail            (void) const ;
-  string CGCDirectory    (void) const ;   
-  string TuneDirectory   (void) const ;   
-  
+  string CGCDirectory    (void) const ;
+  string TuneDirectory   (void) const ;
+
   void   Build   (const string & name = "" ) ;
   void   Decode  (string id_str);
   void   Copy    (const TuneId & id);
@@ -96,7 +95,7 @@ private:
   string fModelId;
   string fMajorModelId;
   string fMinorModelId;
-  string fTunedParamSetId; 
+  string fTunedParamSetId;
   string fFitDataSetId;
 
   string fBaseDirectory ;
