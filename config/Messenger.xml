@@ -2,40 +2,41 @@
 
 <messenger_config>
 
-  <!-- 
+  <!--
     Defines the priority levels for GENIE message streams
 
-    The priority (in descending importance order) can be 
+    The priority (in descending importance order) can be
     FATAL, ALERT, CRIT, ERROR, WARN, NOTICE, INFO, DEBUG
 
     To change the default priority level for a message stream
     or to add a default priority level for a new message stream
-    a) edit this file OR b) set the GMSGCONF env. var to point to 
+    a) edit this file OR b) set the GMSGCONF env. var to point to
     your custom messenger config file. More than one custom files
     may defined in the GMSGCONF var delimited with a ':'. Example:
     export GMSGCONF= /home/me/msgconf1.xml:/home/me/tmp/msgconf2.xml
 
     These files are read in addition to the default priority levels
-    file and after it. The later each file is in the Messenger 
-    configuration file chain the higher priority it has, eg. if the 
-    same stream is listed twice with conflicting priority then the 
+    file and after it. The later each file is in the Messenger
+    configuration file chain the higher priority it has, eg. if the
+    same stream is listed twice with conflicting priority then the
     one found last is used
    -->
 
-  <priority msgstream="EventLoop">          DEBUG   </priority>
-  <priority msgstream="GCPlex">             DEBUG   </priority>
-  <priority msgstream="GSimFiles">          DEBUG   </priority>
-  <priority msgstream="MiniBooNE">          DEBUG   </priority>
-
   <priority msgstream="Messenger">             NOTICE </priority>
+  <priority msgstream="EventLoop">             DEBUG  </priority>
+  <priority msgstream="GCPlex">                DEBUG  </priority>
+  <priority msgstream="GSimFiles">             DEBUG  </priority>
+  <priority msgstream="MiniBooNE">             DEBUG  </priority>
+
   <priority msgstream="AhrensNCEL">            WARN   </priority>
   <!-- EDIT: add notification for DM EL algorithm -->
   <priority msgstream="AhrensDMEL">            WARN   </priority>
+
   <priority msgstream="AlgFactory">            INFO   </priority>
   <priority msgstream="Algorithm">             WARN   </priority>
   <priority msgstream="AlgConfigPool">         WARN   </priority>
   <priority msgstream="AlvarezRusoCohPi">      WARN   </priority>
-  <priority msgstream="BergerSehgalCohPi">     WARN   </priority>  
+  <priority msgstream="BergerSehgalCohPi">     WARN   </priority>
   <priority msgstream="SKXSec">                INFO   </priority>
   <priority msgstream="SKKinematics">          INFO   </priority>
   <priority msgstream="SKLepton">              INFO   </priority>
@@ -60,7 +61,7 @@
   <priority msgstream="DFRKinematics">         DEBUG  </priority>
   <priority msgstream="Decay">                 NOTICE </priority>
   <priority msgstream="DISSF">                 NOTICE </priority>
-  <priority msgstream="DISXSec">               NOTICE </priority> 
+  <priority msgstream="DISXSec">               NOTICE </priority>
   <priority msgstream="DISCharmXSec">          INFO   </priority>
   <priority msgstream="DISPXSec">              NOTICE </priority>
   <priority msgstream="DISHadronicVtx">        WARN   </priority>
@@ -68,12 +69,12 @@
   <!-- EDIT: add notification for DM DIS processes -->
   <priority msgstream="DMDISKinematics">       WARN   </priority>
   <priority msgstream="DMDISPXSec">            NOTICE </priority>
-  <priority msgstream="DMDISXSec">             NOTICE </priority> 
+  <priority msgstream="DMDISXSec">             NOTICE </priority>
   <!-- EDIT: add notification for DM EL processes -->
   <priority msgstream="DMELEvent">             NOTICE </priority>
   <priority msgstream="DMELKinematics">        WARN   </priority>
   <priority msgstream="DMELXSec">              NOTICE </priority>
-  <priority msgstream="EventGenerator">        WARN   </priority> 
+  <priority msgstream="EventGenerator">        WARN   </priority>
   <priority msgstream="EffectiveSF">           NOTICE </priority>
   <priority msgstream="Elastic">               INFO   </priority>
   <priority msgstream="EVGChain">              INFO   </priority>
@@ -120,11 +121,11 @@
   <priority msgstream="INukeUtils">            NOTICE </priority>
   <priority msgstream="INukeUtils2018">        NOTICE </priority>
   <priority msgstream="INukeUtils2019">        NOTICE </priority>
-  <priority msgstream="INukeNucleonCorr">      NOTICE   </priority> 
+  <priority msgstream="INukeNucleonCorr">      NOTICE   </priority>
   <priority msgstream="TwoBodyCollision">      NOTICE </priority>
   <priority msgstream="ISApp">                 WARN   </priority>
   <priority msgstream="IntGenMap">             WARN   </priority>
-  <priority msgstream="KNOHad">                WARN   </priority> 
+  <priority msgstream="KNOHad">                WARN   </priority>
   <priority msgstream="KineLimits">            INFO   </priority>
   <priority msgstream="Kinematics">            NOTICE </priority>
   <priority msgstream="KuzminNaumov2016MA">    NOTICE </priority>

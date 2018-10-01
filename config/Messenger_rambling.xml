@@ -2,23 +2,23 @@
 
 <messenger_config>
 
-  <!-- 
+  <!--
     Defines the priority levels for GENIE message streams
 
-    The priority (in descending importance order) can be 
+    The priority (in descending importance order) can be
     FATAL, ALERT, CRIT, ERROR, WARN, NOTICE, INFO, DEBUG
 
     To change the default priority level for a message stream
     or to add a default priority level for a new message stream
-    a) edit this file OR b) set the GMSGCONF env. var to point to 
+    a) edit this file OR b) set the GMSGCONF env. var to point to
     your custom messenger config file. More than one custom files
     may defined in the GMSGCONF var delimited with a ':'. Example:
     export GMSGCONF= /home/me/msgconf1.xml:/home/me/tmp/msgconf2.xml
 
     These files are read in addition to the default priority levels
-    file and after it. The later each file is in the Messenger 
-    configuration file chain the higher priority it has, eg. if the 
-    same stream is listed twice with conflicting priority then the 
+    file and after it. The later each file is in the Messenger
+    configuration file chain the higher priority it has, eg. if the
+    same stream is listed twice with conflicting priority then the
     one found last is used
    -->
 
@@ -30,7 +30,7 @@
   <priority msgstream="Algorithm">             WARN   </priority>
   <priority msgstream="AlgConfigPool">         WARN   </priority>
   <priority msgstream="AlvarezRusoCohPi">      INFO   </priority>
-  <priority msgstream="BergerSehgalCohPi">     INFO   </priority>  
+  <priority msgstream="BergerSehgalCohPi">     INFO   </priority>
   <priority msgstream="SKXSec">                INFO   </priority>
   <priority msgstream="SKKinematics">          INFO   </priority>
   <priority msgstream="SKLepton">              INFO   </priority>
@@ -55,7 +55,7 @@
   <priority msgstream="DFRKinematics">         DEBUG  </priority>
   <priority msgstream="Decay">                 NOTICE </priority>
   <priority msgstream="DISSF">                 NOTICE </priority>
-  <priority msgstream="DISXSec">               NOTICE </priority> 
+  <priority msgstream="DISXSec">               NOTICE </priority>
   <priority msgstream="DISCharmXSec">          INFO   </priority>
   <priority msgstream="DISPXSec">              NOTICE </priority>
   <priority msgstream="DISHadronicVtx">        INFO   </priority>
@@ -63,12 +63,12 @@
   <!-- EDIT: add notification for DM DIS processes -->
   <priority msgstream="DMDISKinematics">       NOTICE </priority>
   <priority msgstream="DMDISPXSec">            NOTICE </priority>
-  <priority msgstream="DMDISXSec">             NOTICE </priority> 
+  <priority msgstream="DMDISXSec">             NOTICE </priority>
   <!-- EDIT: add notification for DM EL processes -->
   <priority msgstream="DMELEvent">             NOTICE </priority>
   <priority msgstream="DMELKinematics">        NOTICE </priority>
   <priority msgstream="DMELXSec">              NOTICE </priority>
-  <priority msgstream="EventGenerator">        NOTICE </priority> 
+  <priority msgstream="EventGenerator">        NOTICE </priority>
   <priority msgstream="EffectiveSF">           INFO   </priority>
   <priority msgstream="Elastic">               INFO   </priority>
   <priority msgstream="EVGChain">              INFO   </priority>
@@ -88,7 +88,7 @@
   <priority msgstream="GHEP">                  WARN   </priority>
   <priority msgstream="GHepParticle">          INFO   </priority>
   <priority msgstream="GuiUtils">              INFO   </priority>
-  <priority msgstream="GRV98LO">               NOTICE </priority> 
+  <priority msgstream="GRV98LO">               NOTICE </priority>
   <priority msgstream="GXSecFunc">             WARN   </priority>
   <priority msgstream="GLRES">                 WARN   </priority>
   <priority msgstream="HadTransp">             INFO   </priority>
@@ -116,10 +116,10 @@
   <priority msgstream="INukeUtils">            NOTICE </priority> <!-- notice-->
   <priority msgstream="INukeUtils2018">        NOTICE </priority> <!-- notice-->
   <priority msgstream="INukeUtils2019">        NOTICE </priority> <!-- notice-->
-  <priority msgstream="INukeNucleonCorr">      NOTICE </priority> 
+  <priority msgstream="INukeNucleonCorr">      NOTICE </priority>
   <priority msgstream="ISApp">                 INFO   </priority>
   <priority msgstream="IntGenMap">             WARN   </priority>
-  <priority msgstream="KNOHad">                NOTICE </priority> 
+  <priority msgstream="KNOHad">                NOTICE </priority>
   <priority msgstream="KineLimits">            INFO   </priority>
   <priority msgstream="Kinematics">            INFO   </priority>
   <priority msgstream="LeptonicVertex">        INFO   </priority>

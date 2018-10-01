@@ -2,23 +2,23 @@
 
 <messenger_config>
 
-  <!-- 
+  <!--
     Defines the priority levels for GENIE message streams
 
-    The priority (in descending importance order) can be 
+    The priority (in descending importance order) can be
     FATAL, ALERT, CRIT, ERROR, WARN, NOTICE, INFO, DEBUG
 
     To change the default priority level for a message stream
     or to add a default priority level for a new message stream
-    a) edit this file OR b) set the GMSGCONF env. var to point to 
+    a) edit this file OR b) set the GMSGCONF env. var to point to
     your custom messenger config file. More than one custom files
     may defined in the GMSGCONF var delimited with a ':'. Example:
     export GMSGCONF= /home/me/msgconf1.xml:/home/me/tmp/msgconf2.xml
 
     These files are read in addition to the default priority levels
-    file and after it. The later each file is in the Messenger 
-    configuration file chain the higher priority it has, eg. if the 
-    same stream is listed twice with conflicting priority then the 
+    file and after it. The later each file is in the Messenger
+    configuration file chain the higher priority it has, eg. if the
+    same stream is listed twice with conflicting priority then the
     one found last is used
    -->
 
@@ -30,7 +30,7 @@
   <priority msgstream="Algorithm">             FATAL </priority>
   <priority msgstream="AlgConfigPool">         FATAL </priority>
   <priority msgstream="AlvarezRusoCohPi">      FATAL </priority>
-  <priority msgstream="BergerSehgalCohPi">     FATAL </priority>  
+  <priority msgstream="BergerSehgalCohPi">     FATAL </priority>
   <priority msgstream="SKXSec">                FATAL </priority>
   <priority msgstream="SKKinematics">          FATAL </priority>
   <priority msgstream="SKLepton">              FATAL </priority>
@@ -55,7 +55,7 @@
   <priority msgstream="DFRKinematics">         FATAL </priority>
   <priority msgstream="Decay">                 FATAL </priority>
   <priority msgstream="DISSF">                 FATAL </priority>
-  <priority msgstream="DISXSec">               FATAL </priority> 
+  <priority msgstream="DISXSec">               FATAL </priority>
   <priority msgstream="DISCharmXSec">          FATAL </priority>
   <priority msgstream="DISPXSec">              FATAL </priority>
   <priority msgstream="DISHadronicVtx">        FATAL </priority>
@@ -63,12 +63,12 @@
   <!-- EDIT: add notification for DM DIS processes -->
   <priority msgstream="DMDISKinematics">       FATAL  </priority>
   <priority msgstream="DMDISPXSec">            FATAL  </priority>
-  <priority msgstream="DMDISXSec">             FATAL  </priority> 
+  <priority msgstream="DMDISXSec">             FATAL  </priority>
   <!-- EDIT: add notification for DM EL processes -->
   <priority msgstream="DMELEvent">             NOTICE </priority>
   <priority msgstream="DMELKinematics">        WARN   </priority>
   <priority msgstream="DMELXSec">              NOTICE </priority>
-  <priority msgstream="EventGenerator">        FATAL </priority> 
+  <priority msgstream="EventGenerator">        FATAL </priority>
   <priority msgstream="EffectiveSF">           FATAL </priority>
   <priority msgstream="Elastic">               FATAL </priority>
   <priority msgstream="EVGChain">              FATAL </priority>
@@ -88,7 +88,7 @@
   <priority msgstream="GHEP">                  FATAL </priority>
   <priority msgstream="GHepParticle">          FATAL </priority>
   <priority msgstream="GuiUtils">              FATAL </priority>
-  <priority msgstream="GRV98LO">               FATAL </priority> 
+  <priority msgstream="GRV98LO">               FATAL </priority>
   <priority msgstream="GXSecFunc">             FATAL </priority>
   <priority msgstream="GLRES">                 FATAL </priority>
   <priority msgstream="HadTransp">             FATAL </priority>
@@ -113,12 +113,12 @@
   <priority msgstream="INukeData">             FATAL </priority>
   <priority msgstream="INukeData2018">         FATAL </priority>
   <priority msgstream="INukeData2019">         FATAL </priority>
-  <priority msgstream="INukeUtils">            FATAL </priority> 
-  <priority msgstream="INukeUtils2018">        FATAL </priority> 
-  <priority msgstream="INukeUtils2019">        FATAL </priority> 
+  <priority msgstream="INukeUtils">            FATAL </priority>
+  <priority msgstream="INukeUtils2018">        FATAL </priority>
+  <priority msgstream="INukeUtils2019">        FATAL </priority>
   <priority msgstream="ISApp">                 FATAL </priority>
   <priority msgstream="IntGenMap">             FATAL </priority>
-  <priority msgstream="KNOHad">                FATAL </priority> 
+  <priority msgstream="KNOHad">                FATAL </priority>
   <priority msgstream="KineLimits">            FATAL </priority>
   <priority msgstream="Kinematics">            FATAL </priority>
   <priority msgstream="LeptonicVertex">        FATAL </priority>
@@ -198,4 +198,3 @@
   <priority msgstream="gmkspl_dm">           FATAL </priority>
 
 </messenger_config>
-
