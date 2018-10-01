@@ -203,8 +203,8 @@ bool GAtmoFlux::GenerateNext_1try(void)
   // at the topocentric horizontal (THZ) coordinate system.
   if( fRl>0.0 ){
     z += fRl * costheta;
-    y += fRl * sintheta * cosphi;
-    x += fRl * sintheta * sinphi;
+    y += fRl * sintheta * sinphi;
+    x += fRl * sintheta * cosphi;
   }
 
   // Apply user-defined rotation from THZ -> user-defined topocentric
