@@ -1,0 +1,15 @@
+bin/
+lib/
+build-env.log
+src/make/Make.config
+src/make/Make.config_no_paths
+src/Framework/Conventions/GBuild.h
+src/Framework/Conventions/GVersion.h
+*.o
+*.d
+*.pcm
+*.bak
+*~
+*.rootmap
+*_ROOT_DICT_*
+*.swp
