@@ -40,17 +40,17 @@ namespace genie
   }
   //..........................................................................
   bool operator == (const TuneId & id1, const TuneId & id2)
-          {
+  {
     return id1.Compare(id2);
-          }
+  }
   //..........................................................................
   bool operator != (const TuneId & id1, const TuneId & id2)
-          {
+  {
     return !id1.Compare(id2);
-          }
+  }
 }
 //____________________________________________________________________________
-TuneId::TuneId(const TuneId & id) 
+TuneId::TuneId(const TuneId & id)
 {
   this->Copy(id);
 
@@ -110,21 +110,23 @@ void TuneId::Build(const string & name ) {
 //____________________________________________________________________________
 void TuneId::Decode(string id_str)
 {
-  static TPRegexp pattern("([A-Za-z]+)(\\d{2})_(\\d{2})([a-z])_(\\d{2})_(\\d{3})");
+  static TPRegexp pattern("([A-Za-z]+)(\\d{2})_(\\d{2})([a-z])_([a-z0-9]{2})_([a-z0-9]{3})");
+  // TPRegexp pattern("([A-Za-z]+)(\\d{2})_(\\d{2})([a-z])_(\\d{2})_(\\d{3})");
+
   TString tstr(id_str.c_str());
   TObjArray * matches = pattern.MatchS(tstr);
   if ( matches -> GetEntries() != 7) {
     LOG("TuneId", pFATAL) << "Bad tune pattern "<<id_str<<" - form is eg G18_01a_00_000";
     exit(-1);
   }
-  
+
   this -> fPrefix          = ((TObjString*)matches->At(1))->String().Data();
   this -> fYear            = ((TObjString*)matches->At(2))->String().Data();
   this -> fMajorModelId    = ((TObjString*)matches->At(3))->String().Data();
   this -> fMinorModelId    = ((TObjString*)matches->At(4))->String().Data();
   this -> fTunedParamSetId = ((TObjString*)matches->At(5))->String().Data();
   this -> fFitDataSetId    = ((TObjString*)matches->At(6))->String().Data();
-  
+
   delete matches;
 }
 //____________________________________________________________________________
@@ -154,9 +156,12 @@ void TuneId::Print(ostream & stream) const
   stream << " - Minor model ID ....... : " << this->MinorModelId()    << std::endl;
   stream << " - Tuned param set ID ... : " << this->TunedParamSetId() << std::endl;
   stream << " - Fit dataset ID ....... : " << this->FitDataSetId()    << std::endl;
-  stream << " - Tune directory ....... : " << this->fBaseDirectory    << std::endl;
+  stream << " - Base directory ....... : " << this->fBaseDirectory    << std::endl;
+  stream << " - Tune directory ....... : " << this->TuneDirectory()   << std::endl;
   if ( IsCustom() )
     stream << " - Custom directory ..... : " << this -> fCustomSource   << std::endl;
+
+  stream << std::flush;
 }
 //____________________________________________________________________________
 bool TuneId::CheckDirectory() {
@@ -173,7 +178,7 @@ bool TuneId::CheckDirectory() {
 
   fBaseDirectory = "" ;
   LOG("TuneId",pDEBUG) << "Base dir validation " ;
-  
+
   for ( size_t i=0; i< paths.size(); ++i ) {
     const char* tmppath = paths[i].c_str();
     std::string onepath = gSystem->ExpandPathName(tmppath);
@@ -201,4 +206,3 @@ bool TuneId::CheckDirectory() {
 
   return true ;
 }
-
