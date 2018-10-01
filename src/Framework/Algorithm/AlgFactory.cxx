@@ -5,7 +5,7 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
+         University of Liverpool & STFC Rutherford Appleton Lab
 
  For the class documentation see the corresponding header file.
 
@@ -141,7 +141,7 @@ Algorithm * AlgFactory::AdoptAlgorithm(string name, string config) const
 //____________________________________________________________________________
 void AlgFactory::ForceReconfiguration(bool ignore_alg_opt_out)
 {
-  LOG("AlgFactory", pNOTICE) 
+  LOG("AlgFactory", pNOTICE)
        << " ** Forcing algorithm re-configuration";
 
   map<string, Algorithm *>::iterator alg_iter = fAlgPool.begin();
@@ -153,7 +153,7 @@ void AlgFactory::ForceReconfiguration(bool ignore_alg_opt_out)
        bool skip_conf = (config=="NoConfig" || config=="");
        if(!skip_conf) {
 //         LOG("AlgFactory", pINFO) << "Reconfiguring: " << alg->Id().Key();
-	   alg->Configure(config);
+           alg->Configure(config);
        }
     }//allow?
   }
@@ -170,7 +170,7 @@ Algorithm * AlgFactory::InstantiateAlgorithm(string name, string config) const
 
   TClass * tclass = gROOT->GetClass(name.c_str());
   if(!tclass) {
-     LOG("AlgFactory", pERROR) 
+     LOG("AlgFactory", pERROR)
          << "Failed instantiating algorithm = " << name;
      return 0;
   }
@@ -182,10 +182,11 @@ Algorithm * AlgFactory::InstantiateAlgorithm(string name, string config) const
   LOG("AlgFactory", pDEBUG) << "Setting Configuration Set = " << config;
 
   bool skip_conf = (config=="NoConfig" || config=="");
-  if(skip_conf) {
+  if ( skip_conf ) {
     LOG("AlgFactory", pDEBUG) << "Skipping algorithm configuration step!";
-  } 
-  else alg_base->Configure(config);
+  } else {
+    alg_base->Configure(config);
+  }
 
   return alg_base;
 }
@@ -212,4 +213,3 @@ void AlgFactory::Print(ostream & stream) const
   stream << gc;
 }
 //____________________________________________________________________________
-
