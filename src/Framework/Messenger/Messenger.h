@@ -45,14 +45,14 @@
 using std::string;
 
 // comment defined priority levels for the document generator
-/*! \def pFATAL  \brief Defines the FATAL priority level */
-/*! \def pALERT  \brief Defines the ALERT priority level */
-/*! \def pCRIT   \brief Defines the ALERT priority level */
-/*! \def pERROR  \brief Defines the ALERT priority level */
-/*! \def pWARN   \brief Defines the ALERT priority level */
-/*! \def pNOTICE \brief Defines the ALERT priority level */
-/*! \def pINFO   \brief Defines the ALERT priority level */
-/*! \def pDEBUG  \brief Defines the ALERT priority level */
+/*! \def pFATAL  \brief Defines the FATAL  priority level */
+/*! \def pALERT  \brief Defines the ALERT  priority level */
+/*! \def pCRIT   \brief Defines the CRIT   priority level */
+/*! \def pERROR  \brief Defines the ERROR  priority level */
+/*! \def pWARN   \brief Defines the WARN   priority level */
+/*! \def pNOTICE \brief Defines the NOTICE priority level */
+/*! \def pINFO   \brief Defines the INFO   priority level */
+/*! \def pDEBUG  \brief Defines the DEBUG  priority level */
 
 #define pFATAL  log4cpp::Priority::FATAL
 #define pALERT  log4cpp::Priority::ALERT
@@ -99,6 +99,17 @@ using std::string;
                << priority << "[n] <" \
                << __FILE__ << "::" << __FUNCTION__ << " (" << __LINE__ << ")> : "
 
+/*!
+  \def   HIDE_GENIE_MSG_LOG_MACROS
+  \brief Use this cpp flag variable to ensure LOG_DEBUG ... LOG_FATAL macros are not exposed.
+         This allows this header to be used in conjunction with the art framework's
+         conflicting MessengeFacility's macros of the same name.  The two argument
+         LOG macro (see above) is still available for use.
+         Currently this comes up only via Algorithm.h's inclusion of Algorithm.icc
+         which included Messenger.h.
+*/
+#ifndef HIDE_GENIE_MSG_LOG_MACROS
+
 #define LOG_FATAL(stream) \
           (*Messenger::Instance())(stream) \
                << log4cpp::Priority::FATAL << "[n] <" \
@@ -138,6 +149,8 @@ using std::string;
           (*Messenger::Instance())(stream) \
                << log4cpp::Priority::DEBUG << "[n] <" \
                << __FILE__ << "::" << __FUNCTION__ << " (" << __LINE__ << ")> : "
+
+#endif // HIDE_GENIE_MSG_LOG_MACROS
 
 /*!
   \def   LLOG(stream, priority)
