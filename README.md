@@ -11,6 +11,8 @@ relevant from MeV to PeV energy scales. The Generator includes several tools (fl
 navigation drivers, specialized event generation apps, event reweighting engines) to simulate complex experimental 
 setups in full detail and to support generator-related analysis tasks. 
 
+For more information, visit http://www.genie-mc.org
+
 <pre>
                                                    .oooooo.    oooooooooooo ooooo      ooo ooooo oooooooooooo  
                                                   d8P'  `Y8b   `888'     `8 `888b.     `8' `888' `888'     `8  
@@ -23,7 +25,7 @@ setups in full detail and to support generator-related analysis tasks.
               d+//+d   my+/smmyhN    m///h                                         MONTE CARLO EVENT GENERATOR    
             Ns///yN NdyoshNNs///d   h////yN                                                                    
            mo//om        ms///+m   d///////oyhmN                                                               
-          N+//yN       ms////+N    h////////////oym        For more information, visit http://www.genie-mc.org                                                 
+          N+//yN       ms////+N    h////////////oym                                                         
           s//h       ho/+///sN     N///////////////od                                                          
          N+/h     my++yh+//y       s/////////////////oN                                                        
          Ns/m Nmy++ymNh//+d        s//////////////////+m                                                       
