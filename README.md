@@ -85,9 +85,11 @@ Luis Alvarez-Ruso [8], Costas Andreopoulos (*) [4,6], Christopher Barry [4], Fra
 
 Copyright (c) 2003-2018, The GENIE Collaboration. For information, visit http://copyright.genie-mc.org 
 
-## Installing and running GENIE
 
-Please see the GENIE Physics & User Manual in the public section of the GENIE Document Database in
+## Physics & User manual
+
+For installation and usage information, as well as information on the GENIE framework, event generator modules and tuning, 
+see the GENIE Physics & User Manual in the public section of the GENIE Document Database:
 https://genie-docdb.pp.rl.ac.uk/cgi-bin/ShowDocument?docid=2
 
 
@@ -95,7 +97,38 @@ https://genie-docdb.pp.rl.ac.uk/cgi-bin/ShowDocument?docid=2
 
 For a list of public releases and a summary information, see http://releases.genie-mc.org
 
-For a list of comprehensive model configurations and physics tunes supported in each release, see http://tunes.genie-mc.org
+For a list of model configurations and tunes supported in each release, see http://tunes.genie-mc.org
 
-Further information for the GENIE physics modules and tuning can be found in the Physics & User Manual
- 
+The naming conventions for releases, model configurations and tunes are outlined in the GENIE web page and in the Physics & User manual.
+
+
+## Contribution guidelines
+
+GENIE welcomes community contributions through its Incubator. An Incubator Project is the unique route for any physics or software development into any of the GENIE suite products (Generator, Comparisons, Tuning). Details on the Incubator Project Phases (Launch, Research and Development, Graduation, Integration and Deployment) can be found in the GENIE Bylaws in the public section of the GENIE Document Database: https://genie-docdb.pp.rl.ac.uk/cgi-bin/ShowDocument?docid=1
+
+
+## Citing GENIE
+
+If you use GENIE, please **always** cite the following reference: 
+
+<pre>
+@article{Andreopoulos:2009rq,
+      author         = "Andreopoulos, C. and others",
+      title          = "{The GENIE Neutrino Monte Carlo Generator}",
+      journal        = "Nucl. Instrum. Meth.",
+      volume         = "A614",
+      year           = "2010",
+      pages          = "87-104",
+      doi            = "10.1016/j.nima.2009.12.009",
+      eprint         = "0905.2517",
+      archivePrefix  = "arXiv",
+      primaryClass   = "hep-ph",
+      reportNumber   = "FERMILAB-PUB-09-418-CD",
+      SLACcitation   = "%%CITATION = ARXIV:0905.2517;%%"
+}
+</pre>
+
+If you used any of the new model configurations and tunes provided in the GENIE v3* series, please **add the following reference**:
+<pre>
+</pre>
+
