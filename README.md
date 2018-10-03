@@ -46,6 +46,9 @@ setups in full detail and to support generator-related analysis tasks.
                            NmddhyyyssssyyyhdmmNNNmhhhyyyyhhddmN                                                
 </pre>
 
+## Authors
+
+<pre>
 Luis Alvarez-Ruso [8], Costas Andreopoulos (*) [4,6], Christopher Barry [4], Francis Bench [4], Steve Dennis [4], 
  Steve Dytman [5], Hugh Gallagher [7], Steven Gardiner[3], Walter Giele [3], Robert Hatcher [3], Libo Jiang [5], 
       Rhiannon Jones [4], Igor Kakorin [2], Konstantin Kuzmin [2], Anselmo Meregaglia [1], Donna Naples [5], 
@@ -75,6 +78,7 @@ Luis Alvarez-Ruso [8], Costas Andreopoulos (*) [4,6], Christopher Barry [4], Fra
  Oliver Lodge Lab 316             |  Harwell Oxford Campus, R1 2.89
  Liverpool L69 7ZE, UK            |  Oxfordshire OX11 0QX, UK          
  tel: +44-(0)1517-943201          |  tel: +44-(0)1235-445091 
+</pre>
  
 ------------------------------------------------------------------------------------------------------------------
 Copyright (c) 2003-2018, The GENIE Collaboration. For information: http://copyright.genie-mc.org 
