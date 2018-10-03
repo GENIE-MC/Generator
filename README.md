@@ -132,3 +132,21 @@ If you used any of the new model configurations and tunes provided in the GENIE 
 <pre>
 </pre>
 
+Finally, if you used any of the standard GENIE applications, built-in flux and geometry drivers, or if you used any of its event reweightng and error propagation tools, please **add the following reference**:
+<pre>
+@article{Andreopoulos:2015wxa,
+      author         = "Andreopoulos, Costas and Barry, Christopher and Dytman,
+                        Steve and Gallagher, Hugh and Golan, Tomasz and Hatcher,
+                        Robert and Perdue, Gabriel and Yarba, Julia",
+      title          = "{The GENIE Neutrino Monte Carlo Generator: Physics and
+                        User Manual}",
+      year           = "2015",
+      eprint         = "1510.05494",
+      archivePrefix  = "arXiv",
+      primaryClass   = "hep-ph",
+      reportNumber   = "FERMILAB-FN-1004-CD",
+      SLACcitation   = "%%CITATION = ARXIV:1510.05494;%%"
+}
+</pre>
+
+Please notice that the GENIE authors endorse the **MCNET guidelines for fair academic use** which can be found in http://www.montecarlonet.org/GUIDELINES. We invite users to consider which GENIE components are important for a particular analysis and cite them, in addition to the main references. A list of such references in maintained in the official GENIE web page.
