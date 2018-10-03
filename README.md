@@ -1,3 +1,5 @@
+# The GENIE Event Generator
+
 The GENIE Generator product is an advanced physics simulation used by nearly all modern neutrino experiments and 
 it plays a key role in the exploitation of neutrino data. This product implements a modern software framework for 
 MC event generators and includes state-of-the-art physics modules for neutrino or charged-lepton interactions 
