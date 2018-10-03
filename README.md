@@ -89,6 +89,7 @@ Copyright (c) 2003-2018, The GENIE Collaboration. For information, visit http://
 ## Public releases and physics tunes
 
 For a list of public releases and a summary information, see http://releases.genie-mc.org
+
 A list of comprehensive model configurations and physics tunes supported in each release, see http://tunes.genie-mc.org
 
 
