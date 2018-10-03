@@ -80,8 +80,10 @@ Luis Alvarez-Ruso [8], Costas Andreopoulos (*) [4,6], Christopher Barry [4], Fra
  tel: +44-(0)1517-943201          |  tel: +44-(0)1235-445091 
 </pre>
  
-------------------------------------------------------------------------------------------------------------------
-Copyright (c) 2003-2018, The GENIE Collaboration. For information: http://copyright.genie-mc.org 
+
+## Copyright
+
+Copyright (c) 2003-2018, The GENIE Collaboration. For information, visit http://copyright.genie-mc.org 
 
 
 
