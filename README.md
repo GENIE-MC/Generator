@@ -86,5 +86,10 @@ Luis Alvarez-Ruso [8], Costas Andreopoulos (*) [4,6], Christopher Barry [4], Fra
 Copyright (c) 2003-2018, The GENIE Collaboration. For information, visit http://copyright.genie-mc.org 
 
 
+## Public releases and physics tunes
+
+For a list of public releases and a summary information, see http://releases.genie-mc.org
+A list of comprehensive model configurations and physics tunes supported in each release, see http://tunes.genie-mc.org
+
 
  
