@@ -85,12 +85,17 @@ Luis Alvarez-Ruso [8], Costas Andreopoulos (*) [4,6], Christopher Barry [4], Fra
 
 Copyright (c) 2003-2018, The GENIE Collaboration. For information, visit http://copyright.genie-mc.org 
 
+## Installing and running GENIE
+
+Please see the GENIE Physics & User Manual in the public section of the GENIE Document Database in
+https://genie-docdb.pp.rl.ac.uk/cgi-bin/ShowDocument?docid=2
+
 
 ## Public releases and physics tunes
 
 For a list of public releases and a summary information, see http://releases.genie-mc.org
 
-A list of comprehensive model configurations and physics tunes supported in each release, see http://tunes.genie-mc.org
+For a list of comprehensive model configurations and physics tunes supported in each release, see http://tunes.genie-mc.org
 
-
+Further information for the GENIE physics modules and tuning can be found in the Physics & User Manual
  
