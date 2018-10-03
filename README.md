@@ -1,41 +1,39 @@
 <pre>
-#
-#                                                   .oooooo.    oooooooooooo ooooo      ooo ooooo oooooooooooo  
-#                                                  d8P'  `Y8b   `888'     `8 `888b.     `8' `888' `888'     `8  
-#                                                 888            888          8 `88b.    8   888   888           
-#                        Ndyooym          dN      888            888oooo8     8   `88b.  8   888   888oooo8     
-#                     Nds//+sdmoy       d+m       888     ooooo  888    "     8     `88b.8   888   888    "      
-#                   Nh+//ohN  m+s      N//syyN    `88.    .88'   888       o  8       `888   888   888       o  
-#                 Ny+//od   Nh+oN       o///+      `Y8bood8P'   o888ooooood8 o8o        `8  o888o o888ooooood8  
-#               Nh+//om   Nh+/yN       o///s                                                                    
-#              d+//+d   my+/smmyhN    m///h                                         MONTE CARLO EVENT GENERATOR    
-#            Ns///yN NdyoshNNs///d   h////yN                                                                    
-#           mo//om        ms///+m   d///////oyhmN                                                               
-#          N+//yN       ms////+N    h////////////oym        For more information, visit http://www.genie-mc.org                                                 
-#          s//h       ho/+///sN     N///////////////od                                                          
-#         N+/h     my++yh+//y       s/////////////////oN                                                        
-#         Ns/m Nmy++ymNh//+d        s//////////////////+m                                                       
-#          NhssoshN  Ny//sN         m///////////////////+                                                       
-#                  Nmo/+ohdmN        mo//////////////////h            NmmN                                      
-#              ms/+s//o/-----:+sdN     mhso+ooys/////////o      mhs+/------/ohN                                 
-#    Nhd     N+-/o+/o+------------/shN     Ndy+//////////+ mhs+:---------------om                               
-#  mo/sN    m:/oo/oo:-----------------:://////////////////-----------------------y                              
-#  y//d    Noo++o+:----------:------------:://///////////:-------:/+osyso/:-------h                             
-#  Nyo+syysooo+/--------------::--------------:://///////:----::////+ossyso/------:                             
-#     NNNNNs--------------------:/::-------------:://///:-:://////////oosyo+:------                             
-#          y---------------------:////:::-----------:////////////////+o++++/:-----/                             
-#          m-----------------------://////////////////////////////+so/--:---------y                             
-#           +------------------------://////////////////////////+yy:---+oh/--:y+-/N                             
-#           N/-------------------------://////////////////////ohy/-------yy--os-/m                              
-#            No--------------------------://///////////////+shs/---------/d++/-oN                               
-#              mo--------------------------:////////////+shyo:------------sy/sm                                 
-#                Ny+:------------------------::://///oyhyo:--------------/sd                                    
-#                    mhso+/:------------------:/+oyhyo/----------:/+syhm                                        
-#                           NmddhyyyssssyyyhdmmNNNmhhhyyyyhhddmN                                                
-#
-
+                                                   .oooooo.    oooooooooooo ooooo      ooo ooooo oooooooooooo  
+                                                  d8P'  `Y8b   `888'     `8 `888b.     `8' `888' `888'     `8  
+                                                 888            888          8 `88b.    8   888   888           
+                        Ndyooym          dN      888            888oooo8     8   `88b.  8   888   888oooo8     
+                     Nds//+sdmoy       d+m       888     ooooo  888    "     8     `88b.8   888   888    "      
+                   Nh+//ohN  m+s      N//syyN    `88.    .88'   888       o  8       `888   888   888       o  
+                 Ny+//od   Nh+oN       o///+      `Y8bood8P'   o888ooooood8 o8o        `8  o888o o888ooooood8  
+               Nh+//om   Nh+/yN       o///s                                                                    
+              d+//+d   my+/smmyhN    m///h                                         MONTE CARLO EVENT GENERATOR    
+            Ns///yN NdyoshNNs///d   h////yN                                                                    
+           mo//om        ms///+m   d///////oyhmN                                                               
+          N+//yN       ms////+N    h////////////oym        For more information, visit http://www.genie-mc.org                                                 
+          s//h       ho/+///sN     N///////////////od                                                          
+         N+/h     my++yh+//y       s/////////////////oN                                                        
+         Ns/m Nmy++ymNh//+d        s//////////////////+m                                                       
+          NhssoshN  Ny//sN         m///////////////////+                                                       
+                  Nmo/+ohdmN        mo//////////////////h            NmmN                                      
+              ms/+s//o/-----:+sdN     mhso+ooys/////////o      mhs+/------/ohN                                 
+    Nhd     N+-/o+/o+------------/shN     Ndy+//////////+ mhs+:---------------om                               
+  mo/sN    m:/oo/oo:-----------------:://////////////////-----------------------y                              
+  y//d    Noo++o+:----------:------------:://///////////:-------:/+osyso/:-------h                             
+  Nyo+syysooo+/--------------::--------------:://///////:----::////+ossyso/------:                             
+     NNNNNs--------------------:/::-------------:://///:-:://////////oosyo+:------                             
+          y---------------------:////:::-----------:////////////////+o++++/:-----/                             
+          m-----------------------://////////////////////////////+so/--:---------y                             
+           +------------------------://////////////////////////+yy:---+oh/--:y+-/N                             
+           N/-------------------------://////////////////////ohy/-------yy--os-/m                              
+            No--------------------------://///////////////+shs/---------/d++/-oN                               
+              mo--------------------------:////////////+shyo:------------sy/sm                                 
+                Ny+:------------------------::://///oyhyo:--------------/sd                                    
+                    mhso+/:------------------:/+oyhyo/----------:/+syhm                                        
+                           NmddhyyyssssyyyhdmmNNNmhhhyyyyhhddmN                                                
 </pre>
-#------------------------------------------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------------------------------------------
 
 The GENIE Generator product is an advanced physics simulation used by nearly all modern neutrino experiments and 
 it plays a key role in the exploitation of neutrino data. This product implements a modern software framework for 
