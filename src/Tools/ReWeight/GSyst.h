@@ -168,10 +168,21 @@ typedef enum EGSyst {
   kXSecTwkDial_E0CCQEshape,       ///< tweak E0 CCQE RunningMA, affects dsigma(CCQE)/dQ2 in shape only (normalized to constant integral)
   kXSecTwkDial_E0CCQE,            ///< tweak E0 CCQE RunningMA, affects dsigma(CCQE)/dQ2 both in shape and normalization
 
+  /// EmpiricalMEC dials
+  kXSecTwkDial_EmpMEC_Mq2d,
+  kXSecTwkDial_EmpMEC_Mass,
+  kXSecTwkDial_EmpMEC_Width,
+  kXSecTwkDial_EmpMEC_FracPN_NC,
+  kXSecTwkDial_EmpMEC_FracPN_CC,
+  kXSecTwkDial_EmpMEC_FracCCQE,
+  kXSecTwkDial_EmpMEC_FracNCQE,
+  kXSecTwkDial_EmpMEC_FracPN_EM,
+  kXSecTwkDial_EmpMEC_FracEMQE,
 
   //
   // Misc
   //
+
   
   kNTwkDials /// < Not a real dial, just keep as last entry for looping purposes
 
@@ -259,6 +270,15 @@ public:
      case ( kRDcyTwkDial_BR1gamma         ) : return "RDecBR1gamma";         break;
      case ( kRDcyTwkDial_BR1eta           ) : return "RDecBR1eta";           break;
      case ( kRDcyTwkDial_Theta_Delta2Npi  ) : return "Theta_Delta2Npi";      break;
+     case (kXSecTwkDial_EmpMEC_Mq2d       ) : return "EmpMEC_Mq2d";
+     case (kXSecTwkDial_EmpMEC_Mass       ) : return "EmpMEC_Mass";
+     case (kXSecTwkDial_EmpMEC_Width      ) : return "EmpMEC_Width";
+     case (kXSecTwkDial_EmpMEC_FracPN_NC  ) : return "EmpMEC_FracPN_NC";
+     case (kXSecTwkDial_EmpMEC_FracPN_CC  ) : return "EmpMEC_FracPN_CC";
+     case (kXSecTwkDial_EmpMEC_FracCCQE   ) : return "EmpMEC_FracCCQE";
+     case (kXSecTwkDial_EmpMEC_FracNCQE   ) : return "EmpMEC_FracNCQE";
+     case (kXSecTwkDial_EmpMEC_FracPN_EM  ) : return "EmpMEC_FracPN_EM";
+     case (kXSecTwkDial_EmpMEC_FracEMQE   ) : return "EmpMEC_FracEMQE";
 
      default: 
        return "-";
@@ -344,6 +364,15 @@ public:
        kRDcyTwkDial_BR1gamma,       
        kRDcyTwkDial_BR1eta,         
        kRDcyTwkDial_Theta_Delta2Npi,
+       kXSecTwkDial_EmpMEC_Mq2d,
+       kXSecTwkDial_EmpMEC_Mass,
+       kXSecTwkDial_EmpMEC_Width,
+       kXSecTwkDial_EmpMEC_FracPN_NC,
+       kXSecTwkDial_EmpMEC_FracPN_CC,
+       kXSecTwkDial_EmpMEC_FracCCQE,
+       kXSecTwkDial_EmpMEC_FracNCQE,
+       kXSecTwkDial_EmpMEC_FracPN_EM,
+       kXSecTwkDial_EmpMEC_FracEMQE,
        kNullSystematic
    };
 
