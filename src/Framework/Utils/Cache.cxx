@@ -183,7 +183,7 @@ void Cache::Save(void)
       branch->Write(bname.str().c_str(), TObject::kOverwrite);
     }
   }
-  keys->Write("key_list", TObject::kSingleKey&&TObject::kOverwrite);
+  keys->Write("key_list", TObject::kSingleKey | TObject::kOverwrite );
 
   keys->Clear();
   delete keys;
