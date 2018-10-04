@@ -173,7 +173,11 @@ void PrimaryLeptonGenerator::AddToEventRecord(
         << "Correcting f/s lepton energy for Coulomb effects";
 
     double m = interaction->FSPrimLepton()->Mass();
-    double Z  = nucltgt->Z();
+
+    double z = pdgc > 0? -1: +1; // charge of the lepton
+
+    // Get Z of residual nucleus, assuming that all nucleons are still present
+    double Z  = nucltgt->Z() - z;
     double A  = nucltgt->A();
 
     //  charge radius of nucleus in GeV^-1
@@ -183,12 +187,13 @@ void PrimaryLeptonGenerator::AddToEventRecord(
     double Vo = 3*kAem*Z/(2*Rc);
     Vo *= 0.75; // as suggested in R.Gran's note
     
+    // Add or subtract kinetic energy, making sure to keep it non-negative
     double Elo = p4l.Energy();
-    double e   = TMath::Min(Vo, Elo-m);
-    double El  = TMath::Max(0., Elo-e);
+    double e   = z > 0? Vo: -TMath::Min(Vo, Elo-m);
+    double El  = TMath::Max(0., Elo+e);
 
     LOG("LeptonicVertex", pINFO) 
-      << "Lepton energy subtraction: E = " << Elo << " --> " << El;
+      << "Lepton energy shift: E = " << Elo << " --> " << El;
 
     double pmag_old = p4l.P();
     double pmag_new = TMath::Sqrt(utils::math::NonNegative(El*El-m*m));
