@@ -22,7 +22,8 @@
  @ Feb 06, 2013 - CA
    When the value of the differential cross-section for the selected kinematics
    is set to the event, set the corresponding KinePhaseSpace_t value too.
-
+ @ Jul 26, 2018 - IL (Afroditi Papadopoulou, Adi Ashkenazi - Massachusetts Institute of Technology)
+   Included importance sampling envelop both for neutrino and electron scattering
 */
 //____________________________________________________________________________
 
@@ -157,24 +158,11 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
      } else {
 
-       // > charged lepton scattering
-       if(is_em) {
-         gW  = W.min + dW  * rnd->RndKine().Rndm();
-         interaction->KinePtr()->SetW(gW);
-	 Range1D_t Q2 = kps.Q2Lim_W();
-	 //	 Range1D_t Q2 = genie::utils::kinematics::InelQ2Lim_W(E, M, ml, gW, kMinQ2Limit);
-	 LOG("RESKinematics", pINFO) << "Q2.lim = " << Q2.min << "  " << Q2.max;
-	 double Q2min      = Q2.min + kASmallNum;
-	 double Q2max      = Q2.max - kASmallNum;
-         gQ2 = Q2min + rnd->RndKine().Rndm() * (Q2max-Q2min);
-
-       }
 
        // > neutrino scattering
        // Selecting unweighted event kinematics using an importance sampling
        // method. Q2 with be transformed to QD2 to take out the dipole form.
        // An importance sampling envelope will be constructed for W.
-       else {
          // first pass, configure the sampling envelope
          if(iter==1) {
             LOG("RESKinematics", pINFO) << "Initializing the sampling envelope";
@@ -184,10 +172,12 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
             }
             interaction->KinePtr()->SetW(W.min);
             Range1D_t Q2 = kps.Q2Lim_W();
-   	    double Q2min  = 0 + kASmallNum;
-	    double Q2max  = Q2.max - kASmallNum;
-
-            // In unweighted mode - use transform that takes out the dipole form
+	    double Q2min  = -99.;
+            if (is_em) { Q2min  = Q2.min + kASmallNum; }
+            else { Q2min  = 0 + kASmallNum; }
+            double Q2max  = Q2.max - kASmallNum;
+            
+	    // In unweighted mode - use transform that takes out the dipole form
             double QD2min = utils::kinematics::Q2toQD2(Q2max);
             double QD2max = utils::kinematics::Q2toQD2(Q2min);
 
@@ -222,7 +212,6 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
          // QD2 -> Q2
          gQ2 = utils::kinematics::QD2toQ2(gQD2);
-       } // charged lepton or neutrino scattering?
      } // uniformly over phase space?
 
      LOG("RESKinematics", pINFO) << "Trying: W = " << gW << ", Q2 = " << gQ2;
