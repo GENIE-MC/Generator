@@ -48,9 +48,6 @@ fi
 if test "$GOPT_ENABLE_FLUX_DRIVERS" = "YES"; then
   tool_libs="$tool_libs -lGTlFlx "
 fi
-if test "$GOPT_ENABLE_RWGHT" = "YES"; then
-  tool_libs="$tool_libs -lGTlRew "
-fi
 if test "$GOPT_ENABLE_MASTERCLASS" = "YES"; then
   tool_libs="$tool_libs -lGTlMcls "
 fi
