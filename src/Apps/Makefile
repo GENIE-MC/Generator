@@ -67,10 +67,6 @@ endif
 ifeq ($(strip $(GOPT_ENABLE_FLUX_DRIVERS)),YES)
 TGT_BASE += gmxpl
 endif
-ifeq ($(strip $(GOPT_ENABLE_RWGHT)),YES)
-TGT_BASE += grwght1p
-TGT_BASE += grwghtnp
-endif
 ifeq ($(strip $(GOPT_ENABLE_MASTERCLASS)),YES)
 TGT_BASE += gmstcl
 endif
@@ -211,19 +207,6 @@ $(GENIE_BIN_PATH)/gspl2root: gSplineXml2Root.o $(call find_libs,gspl2root)
 $(GENIE_BIN_PATH)/gmxpl: gMaxPathLengths.o $(call find_libs,gmxpl)
 	@echo "** Building gmxpl"
 	$(LD) $(LDFLAGS) gMaxPathLengths.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gmxpl
-
-# simple utility for calculating weights in response to tweaking a single systematic param
-#
-$(GENIE_BIN_PATH)/grwght1p: gRwght1Param.o $(call find_libs,grwght1p)
-	@echo "** Building grwght1p"
-	$(LD) $(LDFLAGS) gRwght1Param.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/grwght1p
-
-# simple utility for calculating weights in response to tweaking a multiple (possibly correlated) systematic param
-#
-$(GENIE_BIN_PATH)/grwghtnp: gRwghtNCorrelatedParams.o $(call find_libs,grwghtnp)
-	@echo "** Building grwghtnp"
-	$(LD) $(LDFLAGS) gRwghtNCorrelatedParams.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/grwghtnp
-
 
 # ntuple conversion utility
 #

@@ -50,6 +50,35 @@ namespace genie
   }
 }
 //____________________________________________________________________________
+TuneId::TuneId(const string & id_str, bool failOnInvalid)
+  : fName(genie::utils::str::TrimSpaces(id_str)) // remove any lead/trailing
+  , fIsConfigured(false)
+  , fIsValidated(false)
+{
+  Build(fName);
+  if ( failOnInvalid && ! fIsValidated ) {
+    //    status & 0377 is returned to parent on exit() call e.g. [0:255]
+    // SYSEXITS(3)       FreeBSD Library Functions Manual
+    // According to style(9),  it is not a good practice to call exit(3) with
+    // arbitrary values to indicate a failure condition when ending a program.
+    // Instead, the pre-defined exit codes from sysexits should be used, so the
+    // caller of the process can get a rough estimation about the failure class
+    // without looking up the source code.
+    // EX_USAGE (64)        The command was used incorrectly, e.g., with the
+    //                      wrong number of arguments, a bad flag, a bad syntax
+    //                      in a parameter, or whatever.
+    // EX_UNAVAILABLE (69)  A service is unavailable.  This can occur if a sup­
+    //                      port program or file does not exist.  This can also
+    //                      be used as a catchall message when something you
+    //                      wanted to do doesn't work, but you don't know why.
+
+    //   use 64 when failed Decode name (i.e. ! fIsConfigured )
+    //   use 69 when failed to find directory (i.e. ! fIsValidated )
+    if ( fIsConfigured ) exit(69);
+    else                 exit(64);
+  }
+}
+//____________________________________________________________________________
 TuneId::TuneId(const TuneId & id)
 {
   this->Copy(id);
@@ -98,26 +127,30 @@ void TuneId::Build(const string & name ) {
   if ( name.size() > 0 ) fName = name ;
 
   this -> Decode( fName );
+  if ( ! fIsConfigured ) return; // no point going on
 
   if ( this -> CheckDirectory() ) {
     LOG("TuneId", pINFO) << Name() <<" Tune configured " ;
-  }
-  else {
+    fIsValidated = true;
+  } else {
     LOG("TuneId", pFATAL) << "No valid tune directory associated with " << Name() ;
-    exit(0) ;
+    fIsValidated = false;
   }
 }
 //____________________________________________________________________________
 void TuneId::Decode(string id_str)
 {
-  static TPRegexp pattern("([A-Za-z]+)(\\d{2})_(\\d{2})([a-z])_([a-z0-9]{2})_([a-z0-9]{3})");
+  static TPRegexp pattern("^([A-Za-z]+)(\\d{2})_(\\d{2})([a-z])_([a-z0-9]{2})_([a-z0-9]{3})$");
   // TPRegexp pattern("([A-Za-z]+)(\\d{2})_(\\d{2})([a-z])_(\\d{2})_(\\d{3})");
 
   TString tstr(id_str.c_str());
   TObjArray * matches = pattern.MatchS(tstr);
   if ( matches -> GetEntries() != 7) {
     LOG("TuneId", pFATAL) << "Bad tune pattern "<<id_str<<" - form is eg G18_01a_00_000";
-    exit(-1);
+    fIsConfigured = false;
+    return;
+  } else {
+    fIsConfigured = true;
   }
 
   this -> fPrefix          = ((TObjString*)matches->At(1))->String().Data();
@@ -140,6 +173,8 @@ void TuneId::Copy(const TuneId & id)
   this->fTunedParamSetId = id.TunedParamSetId();
   this->fFitDataSetId    = id.FitDataSetId();
 
+  this->fIsConfigured    = id.IsConfigured();
+  this->fIsValidated     = id.IsValidated();
 }
 //____________________________________________________________________________
 bool TuneId::Compare(const TuneId & id) const
@@ -149,15 +184,19 @@ bool TuneId::Compare(const TuneId & id) const
 //____________________________________________________________________________
 void TuneId::Print(ostream & stream) const
 {
-  stream << (IsCustom() ? "Custom" : "Standard") << " GENIE tune: " << this -> Name()  << std::endl;
+  std::string             status = "Standard";
+  if ( IsCustom()       ) status = "Custom";
+  if ( ! IsValidated()  ) status = "BadDirectory";
+  if ( ! IsConfigured() ) status = "BadConfig";
+  stream << status << " GENIE tune: " << this -> Name()  << std::endl;
   stream << " - Prefix ............... : " << this->Prefix()          << std::endl;
   stream << " - Year ................. : " << this->Year()            << std::endl;
   stream << " - Major model ID ....... : " << this->MajorModelId()    << std::endl;
   stream << " - Minor model ID ....... : " << this->MinorModelId()    << std::endl;
   stream << " - Tuned param set ID ... : " << this->TunedParamSetId() << std::endl;
   stream << " - Fit dataset ID ....... : " << this->FitDataSetId()    << std::endl;
-  stream << " - Base directory ....... : " << this->fBaseDirectory    << std::endl;
   stream << " - Tune directory ....... : " << this->TuneDirectory()   << std::endl;
+  stream << " - Base directory ....... : " << this->fBaseDirectory    << std::endl;
   if ( IsCustom() )
     stream << " - Custom directory ..... : " << this -> fCustomSource   << std::endl;
 
