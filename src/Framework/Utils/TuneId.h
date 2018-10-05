@@ -39,7 +39,7 @@ class TuneId  {
 
 public:
 
-  TuneId(const string & id_str) : fName(id_str) { Build(fName); }
+  TuneId(const string & id_str, bool failOnInvalid=true);
   TuneId(const TuneId & id);
   ~TuneId() {;}
 
@@ -53,10 +53,11 @@ public:
   string TunedParamSetId (void) const { return fTunedParamSetId;              } // PP
   string FitDataSetId    (void) const { return fFitDataSetId;                 } // xxx
 
-  bool   IsConfigured    (void) const { return fPrefix.size() > 0 ;           }
-  // this is true if the name of the tune has been decoded into its parts
+  bool   IsConfigured    (void) const { return fIsConfigured;                 }
+  // this is true if the name of the tune (correctly) has been decoded into its parts
+  // must match pattern:  "([A-Za-z]+)(\\d{2})_(\\d{2})([a-z])_([a-z0-9]{2})_([a-z0-9]{3})"
 
-  bool   IsValidated     (void) const { return fBaseDirectory.size() > 0 ;    }
+  bool   IsValidated     (void) const { return fIsValidated;                  }
   // this is true if the existence of the tune directory in the system has been checked
 
   bool   IsCustom        (void) const { return fCustomSource.size() > 0 ;     }
@@ -101,6 +102,8 @@ private:
   string fBaseDirectory ;
   string fCustomSource  ;
 
+  bool   fIsConfigured;
+  bool   fIsValidated;
 };
 
 }       // genie namespace
