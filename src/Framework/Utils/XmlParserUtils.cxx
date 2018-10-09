@@ -84,7 +84,7 @@ string genie::utils::xml::GetXMLPathList( bool add_tune )   {
       if ( ! RunOpt::Instance() -> Tune() -> OnlyConfiguration() )
         pathlist += RunOpt::Instance() -> Tune() -> TuneDirectory() + ":" ;
 
-      pathlist += RunOpt::Instance() -> Tune() -> CGCDirectory()  + ':' ;
+      pathlist += RunOpt::Instance() -> Tune() -> CMCDirectory()  + ':' ;
 
     }  //tune not set in run option
   }  // requested tune and there is a tune

@@ -70,9 +70,9 @@ public:
   bool   OnlyConfiguration()   const  { return (TunedParamSetId() == "00") ; }
 
   // Methods related to config directory
-  string CGC             (void) const ;   // Comprehensive Global Confguration
+  string CMC             (void) const ;   // Comprehensive Model Confguration
   string Tail            (void) const ;
-  string CGCDirectory    (void) const ;
+  string CMCDirectory    (void) const ;
   string TuneDirectory   (void) const ;
 
   void   Build   (const string & name = "" ) ;

@@ -88,14 +88,14 @@ TuneId::TuneId(const TuneId & id)
   }
 }
 //____________________________________________________________________________
-string TuneId::CGC(void) const {
+string TuneId::CMC(void) const {
 
-  string cgc = fPrefix ;
-  cgc += fYear ;
-  cgc += "_" ;
-  cgc += ModelId() ;
+  string cmc = fPrefix ;
+  cmc += fYear ;
+  cmc += "_" ;
+  cmc += ModelId() ;
 
-  return cgc ;
+  return cmc ;
 }
 //____________________________________________________________________________
 string TuneId::Tail(void) const {
@@ -105,10 +105,10 @@ string TuneId::Tail(void) const {
   return tail ;
 }
 //____________________________________________________________________________
-string TuneId::CGCDirectory(void) const {
+string TuneId::CMCDirectory(void) const {
 
   string dir = fBaseDirectory ;
-  dir += "/" + CGC() ;
+  dir += "/" + CMC() ;
 
   return dir ;
 
@@ -116,7 +116,7 @@ string TuneId::CGCDirectory(void) const {
 //____________________________________________________________________________
 string TuneId::TuneDirectory   (void) const {
 
-  string dir = CGCDirectory() ;
+  string dir = CMCDirectory() ;
   if ( ! OnlyConfiguration() ) dir += "/" + Name() ;
 
   return dir ;
@@ -221,7 +221,7 @@ bool TuneId::CheckDirectory() {
   for ( size_t i=0; i< paths.size(); ++i ) {
     const char* tmppath = paths[i].c_str();
     std::string onepath = gSystem->ExpandPathName(tmppath);
-    string test = onepath + "/" + CGC() ;
+    string test = onepath + "/" + CMC() ;
     LOG("TuneId", pDEBUG) << " Testing  " << test << " directory" ;
     if ( utils::system::DirectoryExists( test.c_str() ) ) {
       fBaseDirectory = onepath ;
@@ -230,13 +230,13 @@ bool TuneId::CheckDirectory() {
   }
 
   if ( fBaseDirectory.size() == 0 ) {
-    LOG("TuneId", pWARN) << " No " << CGC() << " subdirectory found in pathlist";
+    LOG("TuneId", pWARN) << " No " << CMC() << " subdirectory found in pathlist";
     return false ;
   }
 
   if ( ! OnlyConfiguration() ) {
     if ( ! utils::system::DirectoryExists( TuneDirectory().c_str() ) ) {
-      LOG("TuneId", pWARN) << "No " << Name() << " subdirectory found in " << CGC() ;
+      LOG("TuneId", pWARN) << "No " << Name() << " subdirectory found in " << CMC() ;
       return false ;
     }
   }

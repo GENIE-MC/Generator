@@ -34,7 +34,7 @@ using std::endl;
 
 namespace genie {
 
-  static const string gDefaultTune = "G00_00a_00_000";
+  static const string gDefaultTune = "G18_02a_00_000";
 
 //____________________________________________________________________________
 ostream & operator << (ostream & stream, const RunOpt & opt)
