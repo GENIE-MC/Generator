@@ -4,6 +4,7 @@
 #
 # C.Andreopoulos <costas.andreopoulos \at stfc.ac.uk>, Rutherford Lab.
 #
+# Revised for usage with git by S. Gardiner <gardiner \at fnal.gov>, Fermilab.
 
 $GENIE = $ENV{'GENIE'};
 die ("Not even the GENIE environmental variable is defined!") unless defined $GENIE;
@@ -21,22 +22,31 @@ $major = $1;
 $minor = $2;
 $revis = $3;
 
-# Get the SVN revision number
-$svn_revision = `svn info | grep -i revision`;
-if($? == 0) {
-  # remove any non-digit
-  $svn_revision =~ s/\D+\s+//;
-} else {
-  # Couldn't run svn info.
-  # This may be a user without svn who installs GENIE from a tarball.
-  # Try to extract the revision number from $GENIE/.svn/entries
-  $svn_revision = -1;
-  if (open(SVN_ENTRIES, "<$GENIE/.svn/entries")) {
-    @svn_entries = <SVN_ENTRIES>;
-    close(SVN_ENTRIES);
-    chomp($svn_revision = $svn_entries[3]); # the rev number seems to be at the 4th line
+# Get the hash of the current git commit
+$git_revision = `git rev-parse --verify HEAD`;
+if ($?) {
+  # Couldn't run git rev-parse
+  # This may be a user without git who installs GENIE from a tarball.
+  # Try to extract the hash from $GENIE/.git/HEAD
+  $git_revision = "-1";
+  if (open(GIT_HEAD, "<$GENIE/.git/HEAD")) {
+    @git_head_hash = <GIT_HEAD>;
+    close(GIT_HEAD);
+    # If we have a reference listed in the file instead
+    # of a hash, drop the leading "ref:" and get the
+    # hash from the listed file
+    if ( substr($git_head_hash[0], 0, 4) eq "ref:") {
+      $temp_ref = substr($git_head_hash[0], 4);
+      $temp_ref =~ s/^\s+|\s+$//g; # Remove all whitespace from temp_ref
+      $git_revision = `cat $GENIE/.git/$temp_ref`;
+    }
+    # Otherwise, get the hash from $GENIE/.git/HEAD
+    else {
+      $git_revision = $git_head_hash[0];
+    }
   }
 }
+chomp($git_revision);
 
 # Open header file
 $GVRS_FILE = "$GENIE/src/Framework/Conventions/GVersion.h";
@@ -60,7 +70,7 @@ print GVRS "#define __GENIE_RELEASE__      \"$release\"\n";
 print GVRS "#define __GENIE_RELEASE_CODE__ GRELCODE($major,$minor,$revis) \n\n";
 
 # print the commit number even if it is unresolved (-1) -> that flags that it is unresolved...
-print GVRS "#define __GENIE_SVN_REVISION__ $svn_revision \n\n";
+print GVRS "#define __GENIE_GIT_REVISION__ \"$git_revision\" \n\n";
 
 if($major == 999 && $minor == 999 && $revis == 999) {
   print GVRS "#define __GENIE_DEVEL_VERSION__ \n\n";
@@ -71,12 +81,12 @@ else {
   }
 }
 
-if ($svn_revision != -1 ) {
-  $svn_differences = `svn status -q`;
+if ($git_revision ne "-1" ) {
+  $git_differences = `git diff HEAD`;
   if($? == 0) {
     print GVRS "/* \n";
-    print GVRS " * SVN differences at compile time: \n";
-    print GVRS "$svn_differences";
+    print GVRS " * git differences at compile time: \n";
+    print GVRS "$git_differences";
     print GVRS "*/ \n\n";
   }
 }
