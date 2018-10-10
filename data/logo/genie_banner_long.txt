@@ -37,10 +37,10 @@
 *                                                                                                               *
 *                                                                                                               *
 *            Luis Alvarez-Ruso [8], Costas Andreopoulos [4,6], Christopher Barry [4], Francis Bench [4],        *
-*            Steve Dennis [4], Steve Dytman [5], Hugh Gallagher [7], Robert Hatcher [3], Libo Jiang [5],        * 
-*                Rhiannon Jones [4], Igor Kakorin [2], Konstantin Kuzmin [2], Anselmo Meregaglia [1],           * 
-*                        Donna Naples [5], Vadim Naumov [2], Gabriel Perdue [3], Marco Roda [4],                *
-*                            Jeremy Wolcott [7], Julia Tena Vidal [4], and Julia Yarba [3]                      *
+*            Steve Dennis [4], Steve Dytman [5], Hugh Gallagher [7], Steven Gardiner [3], Walter Giele [3],     *
+*            Robert Hatcher [3], Libo Jiang [5], Rhiannon Jones [4], Igor Kakorin [2], Konstantin Kuzmin [2],   *
+*            Anselmo Meregaglia [1], Donna Naples [5], Vadim Naumov [2], Gabriel Perdue [3], Marco Roda [4],    *
+*            Vladyslav Syrotenko [7], Julia Tena Vidal [4], Jeremy Wolcott [7], and Julia Yarba [3]             *
 *                                                                                                               *
 *                                               (The GENIE Collaboration)                                       *
 *                                                                                                               *
