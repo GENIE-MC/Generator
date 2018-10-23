@@ -269,42 +269,30 @@ genie::XmlParserStatus_t genie::HadronTensorPool::ParseXMLConfig(
 
                 // Tensor values are represented using a 2D grid that is
                 // stored in a data file
-                xmlNodePtr xml_file = xml_tensor->xmlChildrenNode;
+                std::string file_name
+                  = get_trimmed_attribute(xml_tensor, "file");
 
-                tensor_ok = false;
+                std::string full_file_name
+                  = FindTensorTableFile(file_name, tensor_ok);
 
-                while (xml_file) {
-                  if ( name_equal(xml_file, "file") ) {
-                    std::string file_name = genie::utils::str::TrimSpaces(
-                      get_node_content(xml_file));
-                    // Set the ok flag to true. This will be reversed if
-                    // it turns out that the file does not exist
-                    tensor_ok = true;
+                std::pair<int, genie::HadronTensorType_t>
+                  tensor_id(pdg, type);
 
-                    std::string full_file_name
-                      = FindTensorTableFile(file_name, tensor_ok);
-
-                    std::pair<int, genie::HadronTensorType_t>
-                      tensor_id(pdg, type);
-
-                    // Do things this way rather than calling std::map::insert()
-                    // to avoid allocating space for a new tensor object
-                    // when one is not needed.
-                    if ( !this->fTensors.count(tensor_id) ) {
-                      LOG("HadronTensorPool", pDEBUG) << "Loading the hadron"
-                        << " tensor data file " << full_file_name;
-                      fTensors[tensor_id]
-                        = new TabulatedValenciaHadronTensor(full_file_name);
-                    }
-                    else {
-                      tensor_ok = false;
-                      LOG("HadronTensorPool", pWARN) << "A hadron tensor for"
-                        << " nuclide " << pdg_str << " and type " << type_str
-                        << " has already been defined.";
-                    }
-                  } // <x> == <file>
-                  xml_file = xml_file->next;
-                } // <file> loop
+                // Do things this way rather than calling std::map::insert()
+                // to avoid allocating space for a new tensor object
+                // when one is not needed.
+                if ( !this->fTensors.count(tensor_id) ) {
+                  LOG("HadronTensorPool", pDEBUG) << "Loading the hadron"
+                    << " tensor data file " << full_file_name;
+                  fTensors[tensor_id]
+                    = new TabulatedValenciaHadronTensor(full_file_name);
+                }
+                else {
+                  tensor_ok = false;
+                  LOG("HadronTensorPool", pWARN) << "A hadron tensor for"
+                    << " nuclide " << pdg_str << " and type " << type_str
+                    << " has already been defined.";
+                }
               } // calc == "table"
               else tensor_ok = false;
 
