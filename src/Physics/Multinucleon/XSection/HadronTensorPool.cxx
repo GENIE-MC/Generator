@@ -56,10 +56,10 @@ namespace {
       return genie::HadronTensorType::kHT_MEC_DeltaAll;
     else if (str == "MEC_Deltapn")
       return genie::HadronTensorType::kHT_MEC_Deltapn;
-    else if (str == "MEC_Electron")
-      return genie::HadronTensorType::kHT_MEC_Electron;
-    else if (str == "QE_Electron")
-      return genie::HadronTensorType::kHT_QE_Electron;
+    else if (str == "MEC_EM")
+      return genie::HadronTensorType::kHT_MEC_EM;
+    else if (str == "QE_EM")
+      return genie::HadronTensorType::kHT_QE_EM;
     else {
       ok = false;
       return genie::HadronTensorType::kHT_Undefined;
