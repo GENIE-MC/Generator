@@ -41,8 +41,8 @@ typedef enum HadronTensorType {
   kHT_MEC_Fullpn,
   kHT_MEC_DeltaAll,
   kHT_MEC_Deltapn,
-  kHT_MEC_Electron,
-  kHT_QE_Electron
+  kHT_MEC_EM,
+  kHT_QE_EM
 }
 HadronTensorType_t;
 
