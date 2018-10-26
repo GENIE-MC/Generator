@@ -125,10 +125,10 @@ template<typename ZObject, typename IndexType = int, typename XType = double,
     const ZObject& z12 = fZ->at( this->index_Z(ix_lo, iy_hi) );
     const ZObject& z22 = fZ->at( this->index_Z(ix_hi, iy_hi) );
 
-    // Perform the interpolation
-    ZObject z1  = z11 * (x2-evalx)/(x2-x1) + z21 * (evalx-x1)/(x2-x1);
-    ZObject z2  = z12 * (x2-evalx)/(x2-x1) + z22 * (evalx-x1)/(x2-x1);
-    ZObject z   = z1  * (y2-evaly)/(y2-y1) + z2  * (evaly-y1)/(y2-y1);
+    // Perform the interpolation (first y, then x)
+    ZObject z1  = z11 * (y2-evaly)/(y2-y1) + z12 * (evaly-y1)/(y2-y1);
+    ZObject z2  = z21 * (y2-evaly)/(y2-y1) + z22 * (evaly-y1)/(y2-y1);
+    ZObject z   = z1  * (x2-evalx)/(x2-x1) + z2  * (evalx-x1)/(x2-x1);
 
     return z;
   }
