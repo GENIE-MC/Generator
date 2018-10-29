@@ -115,8 +115,17 @@ const genie::HadronTensorI* genie::HadronTensorPool::GetTensor(
   int tensor_pdg, genie::HadronTensorType_t type)
 {
   std::pair<int, genie::HadronTensorType_t> temp_pair(tensor_pdg, type);
-  if ( !fTensors.count(temp_pair) ) return NULL;
-  else return fTensors.at(temp_pair);
+
+  // First check to see if the hadron tensor object already exists in memory.
+  // If it does, return the existing object.
+  if ( fTensors.count(temp_pair) ) return fTensors.at(temp_pair);
+  // If not, check to see if we have XML attributes describing it.
+  else if ( fTensorAttributes.count(temp_pair) ) {
+    return BuildTensor( temp_pair, fTensorAttributes.at(temp_pair) );
+  }
+
+  // Otherwise, give up and return a null pointer
+  return NULL;
 }
 
 //____________________________________________________________________________
@@ -127,8 +136,8 @@ bool genie::HadronTensorPool::LoadConfig(void)
   // Find the XML configuration file
   std::string filename = genie::utils::xml::GetXMLFilePath("HadronTensors.xml");
 
-  LOG("HadronTensorPool", pINFO)  << "Loading hadron tensors from the file "
-    << filename;
+  LOG("HadronTensorPool", pINFO)  << "Loading hadron tensor settings"
+    << " from the file " << filename;
 
   if ( file_exists(filename) ) {
     XmlParserStatus_t status = this->ParseXMLConfig(filename);
@@ -259,46 +268,27 @@ genie::XmlParserStatus_t genie::HadronTensorPool::ParseXMLConfig(
 
               type_str = get_trimmed_attribute(xml_tensor, "type");
 
+              // Check that the declared hadron tensor type is recognized
               genie::HadronTensorType_t type
                 = string_to_tensor_type(type_str, tensor_ok);
 
               std::string calc_str
                 = get_trimmed_attribute(xml_tensor, "calc");
 
-              if (tensor_ok && calc_str == "table") {
-
-                // Tensor values are represented using a 2D grid that is
-                // stored in a data file
-                std::string file_name
-                  = get_trimmed_attribute(xml_tensor, "file");
-
-                std::string full_file_name
-                  = FindTensorTableFile(file_name, tensor_ok);
-
-                std::pair<int, genie::HadronTensorType_t>
-                  tensor_id(pdg, type);
-
-                // Do things this way rather than calling std::map::insert()
-                // to avoid allocating space for a new tensor object
-                // when one is not needed.
-                if ( !this->fTensors.count(tensor_id) ) {
-                  LOG("HadronTensorPool", pDEBUG) << "Loading the hadron"
-                    << " tensor data file " << full_file_name;
-                  fTensors[tensor_id]
-                    = new TabulatedValenciaHadronTensor(full_file_name);
-                }
-                else {
-                  tensor_ok = false;
-                  LOG("HadronTensorPool", pWARN) << "A hadron tensor for"
-                    << " nuclide " << pdg_str << " and type " << type_str
-                    << " has already been defined.";
-                }
-              } // calc == "table"
-              else tensor_ok = false;
+              std::string file_str
+                = get_trimmed_attribute(xml_tensor, "file");
 
               if ( !tensor_ok ) {
-                LOG("HadronTensorPool", pWARN) << "Ignoring hadron tensor"
-                  " for nuclide " << pdg_str << " of type " << type_str << '\n';
+                LOG("HadronTensorPool", pWARN) << "Problem parsing"
+                  << " configuration for the hadron"
+                  " tensor for nuclide " << pdg_str << " of type " << type_str
+                  << ". It will be ignored";
+              }
+              else {
+                // The tensor is ok, so add its XML attributes to the cache
+                std::pair<int, genie::HadronTensorType_t> tensor_id(pdg, type);
+                fTensorAttributes[ tensor_id ]
+                  = HadronTensorXMLAttributes(calc_str, file_str);
               }
             } // <x> == <tensor>
             xml_tensor = xml_tensor->next;
@@ -314,8 +304,60 @@ genie::XmlParserStatus_t genie::HadronTensorPool::ParseXMLConfig(
     " a hadron tensor table named \"" << table_to_use << "\" in the XML"
     " configuration file " << filename;
 
-  //xmlFreeNode(xml_tensor_table);
   xmlFreeDoc(xml_doc);
 
   return kXmlOK;
+}
+//____________________________________________________________________________
+const genie::HadronTensorI* genie::HadronTensorPool::BuildTensor(
+  const std::pair<int, genie::HadronTensorType_t>& tensor_id,
+  const HadronTensorXMLAttributes& attributes)
+{
+  // Determine the right way to build the tensor based on its "calc" XML
+  // attribute
+  if ( attributes.calc == "table" ) {
+
+    bool tensor_ok = true;
+
+    // Tensor values are represented using a 2D grid that is stored in a data
+    // file. Get the full path to the file, or an empty string if it could not
+    // be found. Also set the tensor_ok flag to false if the file could not be
+    // found.
+    std::string full_file_name = FindTensorTableFile(attributes.file,
+      tensor_ok);
+
+    if ( tensor_ok ) {
+      // Create the new hadron tensor object
+      LOG("HadronTensorPool", pINFO) << "Loading the hadron"
+        << " tensor data file " << full_file_name;
+      genie::HadronTensorI* temp_ptr
+        = new TabulatedValenciaHadronTensor(full_file_name);
+
+      // Place a pointer to it in the map of loaded tensor objects for easy
+      // retrieval.
+      /// \todo Switch to using std::unique_ptr here for easy cleanup
+      /// once C++11 features are allowed in GENIE
+      fTensors[tensor_id] = temp_ptr;
+
+      // Return a pointer to the newly-created hadron tensor object
+      return temp_ptr;
+    }
+    else {
+      LOG("HadronTensorPool", pERROR) << "The hadron tensor data file \""
+        << attributes.file << "\" requested for target pdg = "
+        << tensor_id.first << " and hadron tensor type " << tensor_id.second
+        << " could not be found.";
+    }
+
+  } // attributes.calc == "table"
+  else {
+    // Unrecognized "calc" attribute for the currently-requested tensor
+    LOG("HadronTensorPool", pERROR) << "Unable to create a hadron tensor"
+      << " with calculation method \"" << attributes.calc
+      << "\" for target pdg = "
+      << tensor_id.first << " and hadron tensor type " << tensor_id.second;
+  }
+
+  // If there was a problem, return a null pointer
+  return NULL;
 }
