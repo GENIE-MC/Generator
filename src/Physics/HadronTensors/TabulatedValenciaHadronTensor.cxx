@@ -7,7 +7,7 @@
 #include "Framework/Conventions/Units.h"
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/Messenger/Messenger.h"
-#include "Physics/Multinucleon/XSection/TabulatedValenciaHadronTensor.h"
+#include "Physics/HadronTensors/TabulatedValenciaHadronTensor.h"
 
 namespace {
   /// Enumerated type that represents the format used to read in

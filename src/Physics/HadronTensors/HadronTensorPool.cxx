@@ -26,9 +26,9 @@
 
 // GENIE includes
 #include "Framework/Messenger/Messenger.h"
-#include "Physics/Multinucleon/XSection/HadronTensorPool.h"
-#include "Physics/Multinucleon/XSection/TabulatedValenciaHadronTensor.h"
-#include "Physics/Multinucleon/XSection/HadronTensorI.h"
+#include "Physics/HadronTensors/HadronTensorPool.h"
+#include "Physics/HadronTensors/TabulatedValenciaHadronTensor.h"
+#include "Physics/HadronTensors/HadronTensorI.h"
 #include "Framework/Utils/StringUtils.h"
 #include "Framework/Utils/XmlParserUtils.h"
 

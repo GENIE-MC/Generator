@@ -13,9 +13,4 @@
 
 #pragma link C++ class genie::MECXSec;
 
-#pragma link C++ class genie::HadronTensorI;
-#pragma link C++ class genie::HadronTensorPool;
-
-#pragma link C++ class genie::TabulatedHadronTensor;
-
 #endif
