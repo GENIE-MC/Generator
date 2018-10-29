@@ -9,18 +9,18 @@
 //_________________________________________________________________________
 
 #include "Framework/Algorithm/AlgConfigPool.h"
-#include "Physics/XSectionIntegration/XSecIntegratorI.h"
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/Units.h"
 #include "Framework/Messenger/Messenger.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGLibrary.h"
+#include "Framework/ParticleData/PDGUtils.h"
+#include "Framework/Utils/KineUtils.h"
+#include "Physics/HadronTensors/HadronTensorPool.h"
+#include "Physics/HadronTensors/ValenciaHadronTensorI.h"
 #include "Physics/Multinucleon/XSection/NievesSimoVacasMECPXSec2016.h"
 #include "Physics/Multinucleon/XSection/MECUtils.h"
-#include "Physics/Multinucleon/XSection/ValenciaHadronTensorI.h"
-#include "Physics/Multinucleon/XSection/HadronTensorPool.h"
-#include "Framework/ParticleData/PDGCodes.h"
-#include "Framework/ParticleData/PDGUtils.h"
-#include "Framework/ParticleData/PDGLibrary.h"
-#include "Framework/Utils/KineUtils.h"
+#include "Physics/XSectionIntegration/XSecIntegratorI.h"
 
 using namespace genie;
 using namespace genie::constants;

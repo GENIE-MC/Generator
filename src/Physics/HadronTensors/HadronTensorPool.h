@@ -27,7 +27,7 @@
 
 // GENIE includes
 #include "Framework/Conventions/XmlParserStatus.h"
-#include "Physics/Multinucleon/XSection/HadronTensorI.h"
+#include "Physics/HadronTensors/HadronTensorI.h"
 
 namespace genie {
 

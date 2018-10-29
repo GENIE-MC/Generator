@@ -27,7 +27,7 @@
 
 // GENIE includes
 #include "Framework/Numerical/BLI2DNonUnifObjectGrid.h"
-#include "Physics/Multinucleon/XSection/ValenciaHadronTensorI.h"
+#include "Physics/HadronTensors/ValenciaHadronTensorI.h"
 
 namespace genie {
 

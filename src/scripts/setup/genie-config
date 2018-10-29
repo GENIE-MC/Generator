@@ -26,7 +26,7 @@ phys_libs=" -lGPhXSIg -lGPhPDF -lGPhNuclSt -lGPhCmn -lGPhDcy -lGPhHadTransp -lGP
   -lGPhAMNGXS -lGPhAMNGEG -lGPhChmXS -lGPhCohXS -lGPhCohEG  -lGPhDISXS -lGPhDISEG \
   -lGPhDfrcXS -lGPhDfrcEG -lGPhGlwResXS -lGPhGlwResEG -lGPhIBDXS -lGPhIBDEG \
   -lGPhMNucXS -lGPhMNucEG -lGPhMEL -lGPhNuElXS -lGPhNuElEG \
-  -lGPhQELXS -lGPhQELEG -lGPhResXS -lGPhResEG -lGPhStrXS -lGPhStrEG "
+  -lGPhQELXS -lGPhQELEG -lGPhResXS -lGPhResEG -lGPhStrXS -lGPhStrEG -lGPhHadTens "
 # (optional)
 if test "$GOPT_ENABLE_NUCLEON_DECAY" = "YES"; then
   phys_libs="$phys_libs -lGPhNDcy "

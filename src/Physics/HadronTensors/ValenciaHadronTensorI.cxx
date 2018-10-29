@@ -6,7 +6,7 @@
 #include "Framework/Conventions/Units.h"
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/Messenger/Messenger.h"
-#include "Physics/Multinucleon/XSection/ValenciaHadronTensorI.h"
+#include "Physics/HadronTensors/ValenciaHadronTensorI.h"
 
 double genie::ValenciaHadronTensorI::contraction(
   const Interaction* interaction, double Q_value) const

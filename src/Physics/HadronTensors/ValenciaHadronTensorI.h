@@ -67,7 +67,7 @@
 // GENIE includes
 #include "Framework/Interaction/Interaction.h"
 #include "Framework/ParticleData/PDGUtils.h"
-#include "Physics/Multinucleon/XSection/HadronTensorI.h"
+#include "Physics/HadronTensors/HadronTensorI.h"
 
 namespace genie {
 

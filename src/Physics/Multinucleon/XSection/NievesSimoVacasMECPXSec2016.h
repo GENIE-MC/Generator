@@ -13,7 +13,7 @@
 
           Substantial code refactorizations by the core GENIE group.
 
-          Refactored by S. Gardiner to use the new HadronTensorI and
+          Refactored in 2018 by S. Gardiner to use the new HadronTensorI and
           HadronTensorPool classes
 
 \ref      J. Nieves, I. Ruiz Simo, M.J. Vicente Vacas,
@@ -62,7 +62,6 @@ private:
 
   const XSecIntegratorI *  fXSecIntegrator; // Numerical integrator (GSL)
 
-//double fQ3Max;
 };
 
 }       // genie namespace
