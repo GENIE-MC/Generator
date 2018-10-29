@@ -10,14 +10,12 @@
 \created
 
 \cpright   Copyright (c) 2003-2020, The GENIE Collaboration
-           For the full text of the license visit http://copyright.genie-mc.org           
+           For the full text of the license visit http://copyright.genie-mc.org
 */
 //____________________________________________________________________________
 
 #ifndef _MEC_UTILS_H_
 #define _MEC_UTILS_H_
-
-#include "Physics/Multinucleon/XSection/MECHadronTensor.h"
 
 namespace genie {
 
@@ -54,22 +52,6 @@ namespace mec   {
   // this is used in the code that contracts the hadron tensor with the lepton tensor
   // Contributed by R.Gran.
   double Qvalue(int targetpdg, int nupdg);
-
-  // This method implements the lepton tensor contraction with a hadron
-  // tensor provided in tabular form.
-  // The lepton tensor is expressed formally in Nieves PRC 70 (2004) 055503.
-  // Returns  d2sigma/(dTmu dcos_mu) in 10^{41} cm^2 / GeV
-  // Contributed by R.Gran.
-  double TensorContraction(
-     const Interaction * interaction,
-     int tensor_pdg,
-     MECHadronTensor::MECHadronTensorType_t tensor_type);
-  double TensorContraction(
-     int nu_pdg, int target_pdg,
-     double Enu,  // neutrino energy (GeV)
-     double M_l, double T_l, double costh_l, // f/s lepton mass (GeV), kinetic energy (GeV) and cos(angle)
-     int tensor_pdg,
-     MECHadronTensor::MECHadronTensorType_t tensor_type);
 
 } // mec   namespace
 } // utils namespace
