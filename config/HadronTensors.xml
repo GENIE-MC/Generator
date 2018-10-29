@@ -9,8 +9,8 @@
   <tensor_table name="Default">
     <data_paths>
       <!-- paths may be absolute or relative to the $GENIE folder -->
-      <!--<path type="relative"> data/evgen/mectensor/nieves </path> -->
-      <path type="absolute"> /genie/app/users/gardiner/test/data </path>
+      <path type="relative"> data/evgen/hadron_tensors/nieves </path>
+      <!--<path type="absolute"> /genie/app/users/gardiner/test/data </path>-->
     </data_paths>
 
     <!-- 12C --> <nuclide pdg="1000060120">
@@ -22,12 +22,74 @@
         file="HadTensor120-Nieves-1000060120-DeltaAll-20150210.dat"/>
       <tensor type="MEC_Deltapn" calc="table"
         file="HadTensor120-Nieves-1000060120-Deltapn-20150210.dat"/>
-      <!--
-      <tensor type="MEC_EM" calc="table"
-        file="HadTensor400-SuSAv2-1000060120-Electron-20180820.dat"/>
-      <tensor type="QE_EM" calc="table" file="Rocco_HT_12C_EM.dat"/>
-      -->
     </nuclide>
+
+    <!-- 16O --> <nuclide pdg="1000080160">
+      <tensor type="MEC_FullAll" calc="table"
+        file="HadTensor120-Nieves-1000080160-FullAll-20150210.dat"/>
+      <tensor type="MEC_Fullpn" calc="table"
+        file="HadTensor120-Nieves-1000080160-Fullpn-20150210.dat"/>
+      <tensor type="MEC_DeltaAll" calc="table"
+        file="HadTensor120-Nieves-1000080160-DeltaAll-20150210.dat"/>
+      <tensor type="MEC_Deltapn" calc="table"
+        file="HadTensor120-Nieves-1000080160-Deltapn-20150210.dat"/>
+    </nuclide>
+
+    <!-- 28Si --> <nuclide pdg="1000140280">
+      <tensor type="MEC_FullAll" calc="table"
+        file="HadTensor120-Nieves-1000140280-FullAll-20150210.dat"/>
+      <tensor type="MEC_Fullpn" calc="table"
+        file="HadTensor120-Nieves-1000140280-Fullpn-20150210.dat"/>
+      <tensor type="MEC_DeltaAll" calc="table"
+        file="HadTensor120-Nieves-1000140280-DeltaAll-20150210.dat"/>
+      <tensor type="MEC_Deltapn" calc="table"
+        file="HadTensor120-Nieves-1000140280-Deltapn-20150210.dat"/>
+    </nuclide>
+
+    <!-- 40Ca --> <nuclide pdg="1000200400">
+      <tensor type="MEC_FullAll" calc="table"
+        file="HadTensor120-Nieves-1000200400-FullAll-20150210.dat"/>
+      <tensor type="MEC_Fullpn" calc="table"
+        file="HadTensor120-Nieves-1000200400-Fullpn-20150210.dat"/>
+      <tensor type="MEC_DeltaAll" calc="table"
+        file="HadTensor120-Nieves-1000200400-DeltaAll-20150210.dat"/>
+      <tensor type="MEC_Deltapn" calc="table"
+        file="HadTensor120-Nieves-1000200400-Deltapn-20150210.dat"/>
+    </nuclide>
+
+    <!-- 56Ni --> <nuclide pdg="1000280560">
+      <tensor type="MEC_FullAll" calc="table"
+        file="HadTensor120-Nieves-1000280560-FullAll-20150210.dat"/>
+      <tensor type="MEC_Fullpn" calc="table"
+        file="HadTensor120-Nieves-1000280560-Fullpn-20150210.dat"/>
+      <tensor type="MEC_DeltaAll" calc="table"
+        file="HadTensor120-Nieves-1000280560-DeltaAll-20150210.dat"/>
+      <tensor type="MEC_Deltapn" calc="table"
+        file="HadTensor120-Nieves-1000280560-Deltapn-20150210.dat"/>
+    </nuclide>
+
+    <!-- 112Ba --> <nuclide pdg="1000561120">
+      <tensor type="MEC_FullAll" calc="table"
+        file="HadTensor120-Nieves-1000561120-FullAll-20150210.dat"/>
+      <tensor type="MEC_Fullpn" calc="table"
+        file="HadTensor120-Nieves-1000561120-Fullpn-20150210.dat"/>
+      <tensor type="MEC_DeltaAll" calc="table"
+        file="HadTensor120-Nieves-1000561120-DeltaAll-20150210.dat"/>
+      <tensor type="MEC_Deltapn" calc="table"
+        file="HadTensor120-Nieves-1000561120-Deltapn-20150210.dat"/>
+    </nuclide>
+
+    <!-- 208Rf (pseudo-208Pb) --> <nuclide pdg="1001042080">
+      <tensor type="MEC_FullAll" calc="table"
+        file="HadTensor120-Nieves-1001042080-FullAll-20150210.dat"/>
+      <tensor type="MEC_Fullpn" calc="table"
+        file="HadTensor120-Nieves-1001042080-Fullpn-20150210.dat"/>
+      <tensor type="MEC_DeltaAll" calc="table"
+        file="HadTensor120-Nieves-1001042080-DeltaAll-20150210.dat"/>
+      <tensor type="MEC_Deltapn" calc="table"
+        file="HadTensor120-Nieves-1001042080-Deltapn-20150210.dat"/>
+    </nuclide>
+
   </tensor_table>
 
 </hadron_tensor_config>
