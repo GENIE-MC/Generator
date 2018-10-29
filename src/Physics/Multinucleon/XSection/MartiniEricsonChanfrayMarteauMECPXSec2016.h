@@ -3,10 +3,10 @@
 
 \class    genie::MartiniEricsonChanfrayMarteauMECPXSec2016
 
-\brief    Computes the Martini, Ericson, Chanfray and Marteau MEC model 
+\brief    Computes the Martini, Ericson, Chanfray and Marteau MEC model
           differential cross section.
           Uses precomputed hadon tensor tables.
-          Is a concrete implementation of the XSecAlgorithmI interface. 
+          Is a concrete implementation of the XSecAlgorithmI interface.
 
 \author   Sara Bolognesi <sara.bolognesi@cea.fr>
           CEA Saclay
@@ -32,7 +32,6 @@
 #include <vector>
 
 #include "Framework/EventGen/XSecAlgorithmI.h"
-#include "Physics/Multinucleon/XSection/MECHadronTensor.h"
 
 using std::vector;
 
@@ -65,6 +64,6 @@ private:
   const XSecIntegratorI *  fXSecIntegrator; // Numerical integrator (GSL)
 
 };
-  
+
 }       // genie namespace
 #endif  // _MARTINI_ERICSON_CHANFRAY_MARTEAU_MEC_PXSEC_2016_H_

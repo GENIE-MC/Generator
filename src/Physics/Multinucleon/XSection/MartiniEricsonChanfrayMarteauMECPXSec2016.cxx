@@ -13,7 +13,6 @@
 #include "Framework/Conventions/Units.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Physics/Multinucleon/XSection/MartiniEricsonChanfrayMarteauMECPXSec2016.h"
-#include "Physics/Multinucleon/XSection/MECHadronTensor.h"
 #include "Physics/Multinucleon/XSection/MECUtils.h"
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/ParticleData/PDGUtils.h"
@@ -53,14 +52,14 @@ double MartiniEricsonChanfrayMarteauMECPXSec2016::XSec(
 }
 //_________________________________________________________________________
 double MartiniEricsonChanfrayMarteauMECPXSec2016::Integral(
-  const Interaction * interaction) const 
+  const Interaction * interaction) const
 {
   double xsec = fXSecIntegrator->Integrate(this,interaction);
   return xsec;
 }
 //_________________________________________________________________________
 bool MartiniEricsonChanfrayMarteauMECPXSec2016::ValidProcess(
-  const Interaction * interaction) const 
+  const Interaction * interaction) const
 {
   if (interaction->TestBit(kISkipProcessChk)) return true;
 
