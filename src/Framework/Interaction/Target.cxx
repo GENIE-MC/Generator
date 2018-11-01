@@ -5,7 +5,7 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
+         University of Liverpool & STFC Rutherford Appleton Lab
 
  For the class documentation see the corresponding header file.
 
@@ -14,8 +14,8 @@
    Hit nucleon not auto-set for hit nucleon targets
  @ May 05, 2010 - CR
    Adding special ctor for ROOT I/O purposes so as to avoid memory leak due to
-   memory allocated in the default ctor when objects of this class are read by 
-   the ROOT Streamer. 
+   memory allocated in the default ctor when objects of this class are read by
+   the ROOT Streamer.
  @ Nov 28, 2011 - CA
    Now a nucleon-cluster ID is an accepted option for SetHitNucPdg().
  @ Mar 18, 2016 - JJ (SD)
@@ -141,15 +141,25 @@ void Target::Copy(const Target & tgt)
      fHitNucPDG = tgt.fHitNucPDG; // struck nucleon PDG
      fHitQrkPDG = tgt.fHitQrkPDG; // struck quark PDG
      fHitSeaQrk = tgt.fHitSeaQrk; // struck quark is from sea?
-     (*fHitNucP4) = (*tgt.fHitNucP4);
+
+     //// valgrind warns about this ... try something else
+     // (*fHitNucP4) = (*tgt.fHitNucP4);
+     const TLorentzVector& p4 = *(tgt.fHitNucP4);
+     //  *fHitNucP4 = p4; // nope
+     //// this works for valgrind
+     fHitNucP4->SetX(p4.X());
+     fHitNucP4->SetY(p4.Y());
+     fHitNucP4->SetZ(p4.Z());
+     fHitNucP4->SetT(p4.T());
+
      fHitNucRad = tgt.fHitNucRad;
 
      // look-up the nucleus in the isotopes chart
-     this->ForceNucleusValidity(); 
+     this->ForceNucleusValidity();
 
-     // make sure the hit nucleus constituent object is either 
-     // a nucleon (p or n) or a di-nucleon cluster (p+p, p+n, n+n) 
-     this->ForceHitNucValidity();  
+     // make sure the hit nucleus constituent object is either
+     // a nucleon (p or n) or a di-nucleon cluster (p+p, p+n, n+n)
+     this->ForceHitNucValidity();
   }
 }
 //___________________________________________________________________________
@@ -210,7 +220,7 @@ void Target::ForceHitNucOnMassShell(void)
      double m = this->HitNucMass();
      double p = this->HitNucP4Ptr()->P();
      double e = TMath::Sqrt(p*p+m*m);
-     this->HitNucP4Ptr()->SetE(e);     
+     this->HitNucP4Ptr()->SetE(e);
   }
 }
 //___________________________________________________________________________
@@ -358,9 +368,9 @@ bool Target::ForceHitNucValidity(void)
 {
 // resets the struck nucleon pdg-code if it is found not to be a valid one
 
-  bool valid = 
-      pdg::IsNucleon(fHitNucPDG)          || 
-      pdg::Is2NucleonCluster (fHitNucPDG) || 
+  bool valid =
+      pdg::IsNucleon(fHitNucPDG)          ||
+      pdg::Is2NucleonCluster (fHitNucPDG) ||
       (fHitNucPDG==0); /* not set */
 
   return valid;
@@ -451,6 +461,3 @@ Target & Target::operator = (const Target & target)
   return (*this);
 }
 //___________________________________________________________________________
-
-
-
