@@ -9,14 +9,15 @@ Configurable Parameters:
 .....................................................................................................
 Name                  Type     Optional   Comment                      Default
 .....................................................................................................
-MEC-XSecScale         double   Yes        XSec Scaling factor          1.000
-HadronTensorTableName string   Yes        Hadron tensor table to use   "SuSAv2_MEC"
+MEC-XSecScale         double   Yes        XSec Scaling factor          1.
+HadronTensorTableName string   Yes        Hadron tensor table to use   SuSAv2_MEC
+CKM-Vud               double   No         Vud element of CKM matrix    CommonParam[CKM]
 -->
   <param_set name="Default"> 
+      <param type="string" name="CommonParam"> CKM </param>
       <param type="alg"  name="NumericalIntegrationAlg"> genie::MECXSec/Default </param>
-
       <param type="double" name="MEC-XSecScale"> 1.000 </param>
-      <param type="string" name="HadronTensorTableName"> "SuSAv2_MEC" </param>
+      <param type="string" name="HadronTensorTableName"> SuSAv2_MEC </param>
   </param_set>
 
 </alg_conf>

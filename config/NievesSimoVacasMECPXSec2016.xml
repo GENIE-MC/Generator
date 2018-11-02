@@ -10,13 +10,13 @@ Configurable Parameters:
 Name                  Type     Optional   Comment                      Default
 .....................................................................................................
 MEC-CC-XSecScale      double   Yes        XSec Scaling factor          GPL value
-HadronTensorTableName string   Yes        Hadron tensor table to use   "Nieves_MEC"
+HadronTensorTableName string   Yes        Hadron tensor table to use   Nieves_MEC
 -->
   <param_set name="Default"> 
       <param type="alg"  name="NumericalIntegrationAlg"> genie::MECXSec/Default </param>
 
       <param type="double" name="MEC-CC-XSecScale"> 1.000 </param>
-      <param type="string" name="HadronTensorTableName"> "Nieves_MEC" </param>
+      <param type="string" name="HadronTensorTableName"> Nieves_MEC </param>
   </param_set>
 
 </alg_conf>
