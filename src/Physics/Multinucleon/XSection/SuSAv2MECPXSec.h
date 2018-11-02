@@ -57,6 +57,13 @@ private:
   /// External scaling factor for this cross section
   double fXSecScale;
 
+  /// Value of the CKM matrix element Vud to use when computing
+  /// the differential cross section
+  ///
+  /// This factor is not included in the tabulated SuSAv2-MEC hadron
+  /// tensor elements
+  double fVud2;
+
   /// Name of the hadron tensor table to use for this model
   std::string fHadronTensorTableName;
 

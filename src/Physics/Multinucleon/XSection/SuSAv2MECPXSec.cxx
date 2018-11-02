@@ -103,6 +103,10 @@ double SuSAv2MECPXSec::XSec(const Interaction* interaction,
   // Compute the cross section using the hadron tensor
   double xsec = tensor->dSigma_dT_dCosTheta(interaction, Q_value);
 
+  // Apply the squared CKM matrix element Vud as a correction factor
+  // (not included in the tabulated tensor element values)
+  xsec *= fVud2;
+
   // Apply given overall scaling factor
   xsec *= fXSecScale;
 
@@ -151,6 +155,12 @@ void SuSAv2MECPXSec::Configure(std::string config)
 //_________________________________________________________________________
 void SuSAv2MECPXSec::LoadConfig(void)
 {
+  // CKM matrix element connecting the up and down quarks
+  // (not included in the tabulated SuSAv2-MEC hadron tensors)
+  double Vud;
+  GetParam("CKM-Vud", Vud);
+  fVud2 = std::pow(Vud, 2);
+
   // Cross section scaling factor
   GetParam("MEC-XSecScale", fXSecScale) ;
 
