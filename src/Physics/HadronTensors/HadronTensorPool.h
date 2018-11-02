@@ -40,9 +40,12 @@ class HadronTensorPool {
   /// \param[in] tensor_pdg The PDG code for the nuclide described by the
   /// tensor
   /// \param[in] type The desired kind of hadron tensor
+  /// \param[in] table_name The table to which the requested hadron tensor
+  /// belongs (there is typically one table per physics model)
   /// \returns A pointer to the requested hadron tensor, or NULL if a match
   /// could not be found in the pool
-  const HadronTensorI* GetTensor(int tensor_pdg, HadronTensorType_t type);
+  const HadronTensorI* GetTensor(int tensor_pdg, HadronTensorType_t type,
+    const std::string& table_name);
 
   private:
 
@@ -53,20 +56,39 @@ class HadronTensorPool {
   /// Looks up the full path when constructing hadron tensor objects that are
   /// based on a data file
   std::string FindTensorTableFile(const std::string& basename,
-    bool& ok) const;
+    const std::string& table_name, bool& ok) const;
 
   bool LoadConfig(void);
   XmlParserStatus_t ParseXMLConfig(const std::string& filename,
-    const std::string& table_to_use = "Default");
+    const std::string& table_set_to_use = "Default");
+
+  /// Struct used to provide a unique ID for each tensor object
+  struct HadronTensorID {
+    HadronTensorID(int pdg = 0, HadronTensorType_t typ = kHT_Undefined,
+      const std::string& table = "none") : target_pdg(pdg), type(typ),
+      table_name(table) {}
+    int target_pdg;
+    HadronTensorType_t type;
+    std::string table_name;
+
+    // Less than operator needed for sorting a map of these IDs
+    bool operator<(const HadronTensorID& other) const {
+      return (table_name < other.table_name)
+        || (table_name == other.table_name && target_pdg < other.target_pdg)
+        || (table_name == other.table_name && target_pdg == other.target_pdg
+        && type < other.type);
+    }
+  };
 
   /// Cache of hadron tensor objects that have been fully loaded into memory
   ///
-  /// Keys are (PDG code, hadron tensor type) pairs, values are pointers
-  /// to hadron tensor objects
-  std::map< std::pair<int, HadronTensorType_t>, HadronTensorI* > fTensors;
+  /// Keys are tensor IDs, values are pointers to hadron tensor objects
+  std::map< HadronTensorID, HadronTensorI* > fTensors;
 
   /// Paths to check when searching for hadron tensor data files
-  std::vector<std::string> fDataPaths;
+  ///
+  /// Keys are hadron tensor table names, values are vectors of directory names
+  std::map< std::string, std::vector<std::string> > fDataPaths;
 
   /// Struct that stores the XML attributes describing each hadron tensor.
   ///
@@ -86,15 +108,12 @@ class HadronTensorPool {
   /// XML attributes for all known hadron tensors. Used to construct
   /// them on demand (lazy initialization)
   ///
-  /// Keys are (PDG code, hadron tensor type) pairs, values are structs
-  /// containing the XML attributes describing the tensor in the
-  /// HadronTensors.xml configuration file
-  std::map< std::pair<int, HadronTensorType_t>, HadronTensorXMLAttributes >
-    fTensorAttributes;
+  /// Keys are tensor IDs, values are structs containing the XML attributes
+  /// describing the tensor in the HadronTensors.xml configuration file
+  std::map< HadronTensorID, HadronTensorXMLAttributes > fTensorAttributes;
 
   /// Build a hadron tensor object on demand using a set of XML attributes
-  const genie::HadronTensorI* BuildTensor(
-    const std::pair<int, genie::HadronTensorType_t>& tensor_id,
+  const genie::HadronTensorI* BuildTensor(const HadronTensorID& tensor_id,
     const HadronTensorXMLAttributes& attributes);
 
 };

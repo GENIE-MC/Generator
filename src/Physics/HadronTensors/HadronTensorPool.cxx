@@ -95,8 +95,7 @@ genie::HadronTensorPool::HadronTensorPool()
 //____________________________________________________________________________
 genie::HadronTensorPool::~HadronTensorPool()
 {
-  std::map< std::pair<int, genie::HadronTensorType_t>, HadronTensorI* >
-    ::iterator it;
+  std::map< HadronTensorID, HadronTensorI* >::iterator it;
   for(it = fTensors.begin(); it != fTensors.end(); ++it) {
     HadronTensorI* t = it->second;
     if (t) delete t;
@@ -112,16 +111,17 @@ genie::HadronTensorPool& genie::HadronTensorPool::Instance()
 
 //____________________________________________________________________________
 const genie::HadronTensorI* genie::HadronTensorPool::GetTensor(
-  int tensor_pdg, genie::HadronTensorType_t type)
+  int tensor_pdg, genie::HadronTensorType_t type,
+  const std::string& table_name)
 {
-  std::pair<int, genie::HadronTensorType_t> temp_pair(tensor_pdg, type);
+  HadronTensorID temp_id(tensor_pdg, type, table_name);
 
   // First check to see if the hadron tensor object already exists in memory.
   // If it does, return the existing object.
-  if ( fTensors.count(temp_pair) ) return fTensors.at(temp_pair);
+  if ( fTensors.count(temp_id) ) return fTensors.at(temp_id);
   // If not, check to see if we have XML attributes describing it.
-  else if ( fTensorAttributes.count(temp_pair) ) {
-    return BuildTensor( temp_pair, fTensorAttributes.at(temp_pair) );
+  else if ( fTensorAttributes.count(temp_id) ) {
+    return BuildTensor( temp_id, fTensorAttributes.at(temp_id) );
   }
 
   // Otherwise, give up and return a null pointer
@@ -158,10 +158,11 @@ bool genie::HadronTensorPool::LoadConfig(void)
 
 //____________________________________________________________________________
 std::string genie::HadronTensorPool::FindTensorTableFile(
-  const std::string& basename, bool& ok) const
+  const std::string& basename, const std::string& table_name, bool& ok) const
 {
-  for (size_t p = 0; p < fDataPaths.size(); ++p) {
-    const std::string& path = fDataPaths.at(p);
+  const auto& path_vec = fDataPaths.at(table_name);
+  for (size_t p = 0; p < path_vec.size(); ++p) {
+    const std::string& path = path_vec.at(p);
     std::string full_name = path + '/' + basename;
     if ( file_exists(full_name) ) return full_name;
   }
@@ -173,7 +174,7 @@ std::string genie::HadronTensorPool::FindTensorTableFile(
 
 //____________________________________________________________________________
 genie::XmlParserStatus_t genie::HadronTensorPool::ParseXMLConfig(
-  const std::string& filename, const std::string& table_to_use)
+  const std::string& filename, const std::string& table_set_to_use)
 {
   LOG("HadronTensorPool", pDEBUG) << "Reading XML file: " << filename;
 
@@ -195,114 +196,137 @@ genie::XmlParserStatus_t genie::HadronTensorPool::ParseXMLConfig(
     return kXmlInvalidRoot;
   }
 
-  xmlNodePtr xml_tensor_table = xml_root->xmlChildrenNode;
+  xmlNodePtr xml_tensor_table_set = xml_root->xmlChildrenNode;
 
-  // Flag that indicates whether the requested table of hadron tensors
+  // Flag that indicates whether the requested set of hadron tensor tables
   // could be found
-  bool found_table = false;
+  bool found_table_set = false;
+
+  // loop over the <tensor_table_set> tags until the active one is found
 
   // loop over <tensor_table> and <data_paths> nodes
-  while (xml_tensor_table) {
+  while (xml_tensor_table_set) {
 
-    if ( name_equal(xml_tensor_table, "tensor_table") ) {
+    if ( name_equal(xml_tensor_table_set, "tensor_table_set") ) {
 
       // Load only the requested tensor table (this allows for multiple tables
       // with different names to be placed in the same XML configuration file)
-      std::string table_name = get_trimmed_attribute(xml_tensor_table, "name");
-      if ( table_name != table_to_use ) {
-        xml_tensor_table = xml_tensor_table->next;
+      std::string table_set_name
+        = get_trimmed_attribute(xml_tensor_table_set, "name");
+      if ( table_set_name != table_set_to_use ) {
+        xml_tensor_table_set = xml_tensor_table_set->next;
         continue;
       }
-      else found_table = true;
+      else found_table_set = true;
 
-      // loop over the <data_paths> entries in the tensor table
-      xmlNodePtr xml_data_paths = xml_tensor_table->xmlChildrenNode;
-      while ( xml_data_paths ) {
-        if ( name_equal(xml_data_paths, "data_paths") ) {
-          xmlNodePtr xml_path = xml_data_paths->xmlChildrenNode;
+      // loop over the <tensor_table> entries in the tensor table set
+      xmlNodePtr xml_tensor_table = xml_tensor_table_set->xmlChildrenNode;
+      while ( xml_tensor_table ) {
+        if ( name_equal(xml_tensor_table, "tensor_table") ) {
+          std::string table_name = get_trimmed_attribute(xml_tensor_table,
+            "name");
 
-          while ( xml_path ) {
-            if ( name_equal(xml_path, "path") ) {
-              std::string path = genie::utils::str::TrimSpaces(
-                get_node_content(xml_path));
+          // loop over the <data_paths> entries in the tensor table
+          xmlNodePtr xml_data_paths = xml_tensor_table->xmlChildrenNode;
+          while ( xml_data_paths ) {
+            if ( name_equal(xml_data_paths, "data_paths") ) {
+              xmlNodePtr xml_path = xml_data_paths->xmlChildrenNode;
 
-              std::string path_type = get_trimmed_attribute(xml_path, "type");
-              if (path_type == "relative") {
-                // paths may be specified relative to the $GENIE folder
-                path = std::string( gSystem->Getenv("GENIE") ) + '/' + path;
-              }
+              while ( xml_path ) {
+                if ( name_equal(xml_path, "path") ) {
+                  std::string path = genie::utils::str::TrimSpaces(
+                    get_node_content(xml_path));
 
-              LOG("HadronTensorPool", pINFO) << "The HadronTensorPool will"
-                " search for data files in " << path;
-              fDataPaths.push_back( path );
-            } // <x> == <path>
-            xml_path = xml_path->next;
-          } // <path> loop
-        } // <x> == <data_paths>
-        xml_data_paths = xml_data_paths->next;
-      } // <data_paths> loop
+                  std::string path_type = get_trimmed_attribute(xml_path,
+                    "type");
+                  if (path_type == "relative") {
+                    // paths may be specified relative to the $GENIE folder
+                    path = std::string( gSystem->Getenv("GENIE") ) + '/' + path;
+                  }
 
-      xmlNodePtr xml_nuclide = xml_tensor_table->xmlChildrenNode;
+                  LOG("HadronTensorPool", pINFO) << "When evaluating hadron"
+                    << " tensors from the " << table_name << " table, the"
+                    << " HadronTensorPool will search for data files in "
+                    << path;
+                  // Create a new data path vector for this table if one
+                  // doesn't already exist
+                  if ( !fDataPaths.count(table_name) ) {
+                    fDataPaths[table_name] = std::vector<std::string>();
+                  }
+                  // Add the path to the list for the current table
+                  fDataPaths.at(table_name).push_back( path );
+                } // <x> == <path>
+                xml_path = xml_path->next;
+              } // <path> loop
+            } // <x> == <data_paths>
+            xml_data_paths = xml_data_paths->next;
+          } // <data_paths> loop
 
-      // loop over the <nuclide> entries in the tensor table
-      while ( xml_nuclide ) {
-        if ( name_equal(xml_nuclide, "nuclide") ) {
+          xmlNodePtr xml_nuclide = xml_tensor_table->xmlChildrenNode;
 
-          std::string pdg_str = get_trimmed_attribute(xml_nuclide, "pdg");
+          // loop over the <nuclide> entries in the tensor table
+          while ( xml_nuclide ) {
+            if ( name_equal(xml_nuclide, "nuclide") ) {
 
-          LOG("HadronTensorPool", pDEBUG) << "Reading hadron tensor"
-            << " configuration for nuclide " << pdg_str;
+              std::string pdg_str = get_trimmed_attribute(xml_nuclide, "pdg");
 
-          int pdg = std::atoi( pdg_str.c_str() );
+              LOG("HadronTensorPool", pDEBUG) << "Reading hadron tensor"
+                << " configuration for nuclide " << pdg_str;
 
-          xmlNodePtr xml_tensor = xml_nuclide->xmlChildrenNode;
+              int pdg = std::atoi( pdg_str.c_str() );
 
-          std::string type_str("unknown");
+              xmlNodePtr xml_tensor = xml_nuclide->xmlChildrenNode;
 
-          while (xml_tensor) {
-            if ( name_equal(xml_tensor, "tensor") ) {
+              std::string type_str("unknown");
 
-              // Flag to indicate if there was a problem processing
-              // the record for the current tensor
-              bool tensor_ok = true;
+              while (xml_tensor) {
+                if ( name_equal(xml_tensor, "tensor") ) {
 
-              type_str = get_trimmed_attribute(xml_tensor, "type");
+                  // Flag to indicate if there was a problem processing
+                  // the record for the current tensor
+                  bool tensor_ok = true;
 
-              // Check that the declared hadron tensor type is recognized
-              genie::HadronTensorType_t type
-                = string_to_tensor_type(type_str, tensor_ok);
+                  type_str = get_trimmed_attribute(xml_tensor, "type");
 
-              std::string calc_str
-                = get_trimmed_attribute(xml_tensor, "calc");
+                  // Check that the declared hadron tensor type is recognized
+                  genie::HadronTensorType_t type
+                    = string_to_tensor_type(type_str, tensor_ok);
 
-              std::string file_str
-                = get_trimmed_attribute(xml_tensor, "file");
+                  std::string calc_str
+                    = get_trimmed_attribute(xml_tensor, "calc");
 
-              if ( !tensor_ok ) {
-                LOG("HadronTensorPool", pWARN) << "Problem parsing"
-                  << " configuration for the hadron"
-                  " tensor for nuclide " << pdg_str << " of type " << type_str
-                  << ". It will be ignored";
-              }
-              else {
-                // The tensor is ok, so add its XML attributes to the cache
-                std::pair<int, genie::HadronTensorType_t> tensor_id(pdg, type);
-                fTensorAttributes[ tensor_id ]
-                  = HadronTensorXMLAttributes(calc_str, file_str);
-              }
-            } // <x> == <tensor>
-            xml_tensor = xml_tensor->next;
-          } // <tensor> loop
-        } // <x> == <nuclide>
-        xml_nuclide = xml_nuclide->next;
-      } // <nuclide> loop
-    } // <x> == <tensor_table>
-    xml_tensor_table = xml_tensor_table->next;
-  } // <tensor_table> loop
+                  std::string file_str
+                    = get_trimmed_attribute(xml_tensor, "file");
 
-  if ( !found_table ) LOG("HadronTensorPool", pERROR) << "Could not find"
-    " a hadron tensor table named \"" << table_to_use << "\" in the XML"
-    " configuration file " << filename;
+                  if ( !tensor_ok ) {
+                    LOG("HadronTensorPool", pWARN) << "Problem parsing"
+                      << " configuration for the hadron tensor for nuclide "
+                      << pdg_str << " of type " << type_str
+                      << " in the table " << table_name
+                      << ". It will be ignored";
+                  }
+                  else {
+                    // The tensor is ok, so add its XML attributes to the cache
+                    HadronTensorID tensor_id(pdg, type, table_name);
+                    fTensorAttributes[ tensor_id ]
+                      = HadronTensorXMLAttributes(calc_str, file_str);
+                  }
+                } // <x> == <tensor>
+                xml_tensor = xml_tensor->next;
+              } // <tensor> loop
+            } // <x> == <nuclide>
+            xml_nuclide = xml_nuclide->next;
+          } // <nuclide> loop
+        } // <x> == <tensor_table>
+        xml_tensor_table = xml_tensor_table->next;
+      } // <tensor_table> loop
+    } // <x> == <tensor_table_set>
+    xml_tensor_table_set = xml_tensor_table_set->next;
+  } // <tensor_table_set> loop
+
+  if ( !found_table_set ) LOG("HadronTensorPool", pERROR) << "Could not find"
+    " a hadron tensor table set named \"" << table_set_to_use
+    << "\" in the XML configuration file " << filename;
 
   xmlFreeDoc(xml_doc);
 
@@ -310,8 +334,7 @@ genie::XmlParserStatus_t genie::HadronTensorPool::ParseXMLConfig(
 }
 //____________________________________________________________________________
 const genie::HadronTensorI* genie::HadronTensorPool::BuildTensor(
-  const std::pair<int, genie::HadronTensorType_t>& tensor_id,
-  const HadronTensorXMLAttributes& attributes)
+  const HadronTensorID& tensor_id, const HadronTensorXMLAttributes& attributes)
 {
   // Determine the right way to build the tensor based on its "calc" XML
   // attribute
@@ -324,7 +347,7 @@ const genie::HadronTensorI* genie::HadronTensorPool::BuildTensor(
     // be found. Also set the tensor_ok flag to false if the file could not be
     // found.
     std::string full_file_name = FindTensorTableFile(attributes.file,
-      tensor_ok);
+      tensor_id.table_name, tensor_ok);
 
     if ( tensor_ok ) {
       // Create the new hadron tensor object
@@ -345,17 +368,18 @@ const genie::HadronTensorI* genie::HadronTensorPool::BuildTensor(
     else {
       LOG("HadronTensorPool", pERROR) << "The hadron tensor data file \""
         << attributes.file << "\" requested for target pdg = "
-        << tensor_id.first << " and hadron tensor type " << tensor_id.second
-        << " could not be found.";
+        << tensor_id.target_pdg << " and hadron tensor type "
+        << tensor_id.type << " could not be found.";
     }
 
   } // attributes.calc == "table"
   else {
     // Unrecognized "calc" attribute for the currently-requested tensor
-    LOG("HadronTensorPool", pERROR) << "Unable to create a hadron tensor"
+    LOG("HadronTensorPool", pERROR) << "Unable to create the hadron tensor"
+      << " given in the table " << tensor_id.table_name
       << " with calculation method \"" << attributes.calc
-      << "\" for target pdg = "
-      << tensor_id.first << " and hadron tensor type " << tensor_id.second;
+      << "\" for target pdg = " << tensor_id.target_pdg
+      << " and hadron tensor type " << tensor_id.type;
   }
 
   // If there was a problem, return a null pointer

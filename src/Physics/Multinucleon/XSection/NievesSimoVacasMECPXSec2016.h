@@ -57,7 +57,10 @@ private:
   // Load algorithm configuration
   void LoadConfig (void);
 
-  double                   fXSecScale;        ///< external xsec scaling factor
+  double fXSecScale; ///< external xsec scaling factor
+
+  /// Name of the hadron tensor table to use for this model
+  std::string fHadronTensorTableName;
 
   const XSecIntegratorI *  fXSecIntegrator; // Numerical integrator (GSL)
 
