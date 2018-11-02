@@ -162,7 +162,7 @@ void SuSAv2MECPXSec::LoadConfig(void)
   fVud2 = std::pow(Vud, 2);
 
   // Cross section scaling factor
-  GetParam("MEC-XSecScale", fXSecScale) ;
+  GetParamDef("MEC-XSecScale", fXSecScale, 1.) ;
 
   // Name of the hadron tensor table to use for this model
   GetParamDef("HadronTensorTableName", fHadronTensorTableName,
