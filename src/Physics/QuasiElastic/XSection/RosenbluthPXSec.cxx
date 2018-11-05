@@ -86,7 +86,7 @@ double RosenbluthPXSec::XSec(
   double sin2_halftheta = M*Q2 / (4*M*E2 - 2*E*Q2);
   double sin4_halftheta = TMath::Power(sin2_halftheta, 2.);
   double cos2_halftheta = 1.-sin2_halftheta;
-  double cos_halftheta  = TMath::Sqrt(cos2_halftheta);
+  //unused double cos_halftheta  = TMath::Sqrt(cos2_halftheta);
   double tan2_halftheta = sin2_halftheta/cos2_halftheta;
 
   // Calculate the elastic nucleon form factors
@@ -95,12 +95,12 @@ double RosenbluthPXSec::XSec(
   double Ge  = pdg::IsProton(nucpdgc) ? fELFF.Gep() : fELFF.Gen();
   double Ge2 = Ge*Ge;
   double Gm2 = Gm*Gm;
- 
+
   // Calculate tau and the virtual photon polarization (epsilon)
   double tau     = Q2/(4*M2);
   double epsilon = 1. / (1. + 2.*(1.+tau)*tan2_halftheta);
 
-  // Calculate the scattered lepton energy 
+  // Calculate the scattered lepton energy
   double Ep  = E / (1. + 2.*(E/M)*sin2_halftheta);
   double Ep2 = Ep*Ep;
 
@@ -119,7 +119,7 @@ double RosenbluthPXSec::XSec(
     double J = utils::kinematics::Jacobian(interaction,kPSQ2fE,kps);
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("Rosenbluth", pDEBUG)
-       << "Jacobian for transformation to: " 
+       << "Jacobian for transformation to: "
        << KinePhaseSpace::AsString(kps) << ", J = " << J;
 #endif
     xsec *= J;
@@ -158,13 +158,13 @@ bool RosenbluthPXSec::ValidProcess(const Interaction * interaction) const
   const InitialState & init_state = interaction->InitState();
 
   int  hitnuc = init_state.Tgt().HitNucPdg();
-  bool is_pn = (pdg::IsProton(hitnuc) || pdg::IsNeutron(hitnuc));  
+  bool is_pn = (pdg::IsProton(hitnuc) || pdg::IsNeutron(hitnuc));
   if (!is_pn) return false;
 
-  int  probe   = init_state.ProbePdg();    
+  int  probe   = init_state.ProbePdg();
   bool is_chgl = pdg::IsChargedLepton(probe);
   if (!is_chgl) return false;
-  
+
   return true;
 }
 //____________________________________________________________________________
