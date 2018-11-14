@@ -37,13 +37,19 @@ using namespace genie::constants;
 
 //___________________________________________________________________________
 Decayer::Decayer() :
-EventRecordVisitorI("genie::Decayer")
+EventRecordVisitorI()
 {
 
 }
 //___________________________________________________________________________
-Decayer::Decayer(string config) :
-EventRecordVisitorI("genie::Decayer", config)
+Decayer::Decayer(string name) :
+EventRecordVisitorI(name)
+{
+
+}
+//___________________________________________________________________________
+Decayer::Decayer(string name, string config) :
+EventRecordVisitorI(name, config)
 {
 
 }
@@ -53,27 +59,26 @@ Decayer::~Decayer()
 
 }
 //___________________________________________________________________________
-bool Decayer::ToBeDecayed(GHepParticle * particle) const
+bool Decayer::ToBeDecayed(int pdg_code, GHepStatus_t status_code) const
 {
-   if(particle->Pdg() != 0) {
-     bool check = false;
-     GHepStatus_t ist = particle->Status();
+  bool check = false;
+  if(fRunBefHadroTransp) {
+    check = (status_code == kIStHadronInTheNucleus ||
+             status_code == kIStStableFinalState);
+  }
+  else {
+    check = (status_code == kIStStableFinalState);
+  }
 
-     if(fRunBefHadroTransp) {
-       check = (ist == kIStHadronInTheNucleus ||
-                ist == kIStStableFinalState);
-     } else {
-       check = (ist == kIStStableFinalState);
-     }
-     if(check) { return this->IsUnstable(particle); }
-   }
-   return false;
+  if(check) {
+    return this->IsUnstable(pdg_code);
+  }
+  
+  return false;
 }
 //___________________________________________________________________________
-bool Decayer::IsUnstable(GHepParticle * particle) const
+bool Decayer::IsUnstable(int pdg_code) const
 {
-  int pdg_code = particle->Pdg();
-
   // ROOT's TParticlepdg::Lifetime() does not work properly
   // do something else instead (temporarily)
   //
@@ -126,6 +131,10 @@ void Decayer::LoadConfig(void)
   //
   //fMaxLifetime = fConfig->GetDoubleDef("MaxLifetime", 1e-9);
 
+  // Check whether to generate weighted or unweighted particle decays
+  fGenerateWeighted = false ;
+  //this->GetParam("GenerateWeighted", fGenerateWeighted, false);
+
   // Check whether the module is being run before or after the hadron
   // transport (intranuclear rescattering) module.
   //
@@ -155,7 +164,7 @@ void Decayer::LoadConfig(void)
     int pdgc = atoi(kv[1].c_str());
     TParticlePDG * p = PDGLibrary::Instance()->Find(pdgc);
     if(decay) {
-       LOG("ParticleDecayer", pDEBUG)
+       LOG("Decay", pDEBUG)
             << "Configured to decay " <<  p->GetName();
        fParticlesToDecay.push_back(pdgc);
        this->UnInhibitDecay(pdgc);
@@ -166,7 +175,7 @@ void Decayer::LoadConfig(void)
        // }// decayer
     }
     else {
-       LOG("ParticleDecayer", pDEBUG)
+       LOG("Decay", pDEBUG)
             << "Configured to inhibit decays for  " <<  p->GetName();
        fParticlesNotToDecay.push_back(pdgc);
        this->InhibitDecay(pdgc);
@@ -192,7 +201,7 @@ void Decayer::LoadConfig(void)
       int dc   = atoi(utils::str::FilterString("Channel=", kv[1]).c_str());
       TParticlePDG * p = PDGLibrary::Instance()->Find(pdgc);
       if(!p) continue;
-      LOG("ParticleDecayer", pINFO)
+      LOG("Decay", pINFO)
          << "Configured to inhibit " <<  p->GetName()
          << "'s decay channel " << dc;
       this->InhibitDecay(pdgc, p->DecayChannel(dc));
@@ -210,7 +219,7 @@ void Decayer::LoadConfig(void)
 
   // Print-out for only one of the two instances of this module
   if(!fRunBefHadroTransp) {
-    LOG("ParticleDecayer", pNOTICE)
+    LOG("Decay", pNOTICE)
        << "\nConfigured to decay: " << fParticlesToDecay
        << "\nConfigured to inhibit decays of: " << fParticlesNotToDecay
        << "\n";

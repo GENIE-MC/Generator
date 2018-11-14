@@ -25,6 +25,7 @@ class TDecayChannel;
 
 #include "Framework/EventGen/EventRecordVisitorI.h"
 #include "Framework/ParticleData/PDGCodeList.h"
+#include "Framework/GHEP/GHepStatus.h"
 
 namespace genie {
 
@@ -32,7 +33,7 @@ class GHepParticle;
 
 class Decayer : public EventRecordVisitorI {
 
-public :
+public:
   virtual ~Decayer();
 
   // Overload the Algorithm::Configure() methods to load private data
@@ -40,17 +41,20 @@ public :
   void Configure(const Registry & config);
   void Configure(string config);
 
-private:
+protected:
   Decayer();
-  Decayer(string config);
+  Decayer(string name);
+  Decayer(string name, string config);
 
   virtual void LoadConfig    (void);
-  virtual bool ToBeDecayed   (GHepParticle * particle) const;
-  virtual bool IsUnstable    (GHepParticle * particle) const;
+  virtual bool ToBeDecayed   (int pdgc, GHepStatus_t ist) const;
+  virtual bool IsUnstable    (int pdgc) const;
+  virtual bool IsHandled     (int pdgc) const = 0;
   virtual void InhibitDecay  (int pdgc, TDecayChannel * dc=0) const = 0;
   virtual void UnInhibitDecay(int pdgc, TDecayChannel * dc=0) const = 0;
 
-  bool        fRunBefHadroTransp;   ///< is invoked before or after hadron transport?
+  bool        fGenerateWeighted;    ///< generate weighted or unweighted decays?
+  bool        fRunBefHadroTransp;   ///< is invoked before or after FSI?
   PDGCodeList fParticlesToDecay;    ///< list of particles to be decayed
   PDGCodeList fParticlesNotToDecay; ///< list of particles for which decay is inhibited
 };
