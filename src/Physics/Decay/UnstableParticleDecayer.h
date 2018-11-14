@@ -48,8 +48,7 @@ public :
 private:
 
   void  LoadConfig (void);
-  vector <const EventRecordVisitorI *> * fDecayers;///< list of all specified decayers
-  // mutable const DecayModelI *    fCurrDecayer;      ///< current selected decayer
+  vector <const EventRecordVisitorI *> fDecayers;///< list of all specified decayers
 };
 
 }      // genie namespace

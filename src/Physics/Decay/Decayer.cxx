@@ -12,18 +12,9 @@
 #include <sstream>
 
 #include <TParticlePDG.h>
-#include <TDecayChannel.h>
 
-#include "Framework/Algorithm/AlgConfigPool.h"
-#include "Framework/Conventions/Constants.h"
-#include "Framework/Conventions/Units.h"
 #include "Framework/ParticleData/BaryonResUtils.h"
 #include "Framework/ParticleData/PDGLibrary.h"
-#include "Framework/ParticleData/PDGCodes.h"
-#include "Framework/ParticleData/PDGUtils.h"
-#include "Framework/GHEP/GHepStatus.h"
-#include "Framework/GHEP/GHepParticle.h"
-#include "Framework/GHEP/GHepRecord.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Registry/Registry.h"
 #include "Framework/Utils/StringUtils.h"
@@ -33,8 +24,6 @@ using std::count;
 using std::ostringstream;
 
 using namespace genie;
-using namespace genie::constants;
-
 //___________________________________________________________________________
 Decayer::Decayer() :
 EventRecordVisitorI()
@@ -73,7 +62,7 @@ bool Decayer::ToBeDecayed(int pdg_code, GHepStatus_t status_code) const
   if(check) {
     return this->IsUnstable(pdg_code);
   }
-  
+
   return false;
 }
 //___________________________________________________________________________
@@ -168,22 +157,12 @@ void Decayer::LoadConfig(void)
             << "Configured to decay " <<  p->GetName();
        fParticlesToDecay.push_back(pdgc);
        this->UnInhibitDecay(pdgc);
-       // vector <const DecayModelI *>::iterator diter = fDecayers->begin();
-       // for ( ; diter != fDecayers->end(); ++diter) {
-       //     const DecayModelI * decayer = *diter;
-       //     decayer->UnInhibitDecay(pdgc);
-       // }// decayer
     }
     else {
        LOG("Decay", pDEBUG)
             << "Configured to inhibit decays for  " <<  p->GetName();
        fParticlesNotToDecay.push_back(pdgc);
        this->InhibitDecay(pdgc);
-       // vector <const DecayModelI *>::iterator diter = fDecayers->begin();
-       // for ( ; diter != fDecayers->end(); ++diter) {
-       //     const DecayModelI * decayer = *diter;
-       //     decayer->InhibitDecay(pdgc);
-       // }// decayer
     }// decay?
   }// key iterator
 
@@ -205,11 +184,6 @@ void Decayer::LoadConfig(void)
          << "Configured to inhibit " <<  p->GetName()
          << "'s decay channel " << dc;
       this->InhibitDecay(pdgc, p->DecayChannel(dc));
-      // vector <const DecayModelI *>::iterator diter = fDecayers->begin();
-      // for ( ; diter != fDecayers->end(); ++diter) {
-      //    const DecayModelI * decayer = *diter;
-      //    decayer->InhibitDecay(pdgc, p->DecayChannel(dc));
-      // }//decayer iterator
     }//val[key]=true?
   }//key iterator
 

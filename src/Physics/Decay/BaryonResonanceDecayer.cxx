@@ -146,7 +146,7 @@ TDecayChannel * BaryonResonanceDecayer::SelectDecayChannel(
 
   double BR[nch], tot_BR = 0;
 
-  bool isdelta =
+  bool is_delta =
     ( decay_particle_pdg_code ==  kPdgP33m1232_Delta0 ||
       decay_particle_pdg_code == -kPdgP33m1232_Delta0 ||
       decay_particle_pdg_code ==  kPdgP33m1232_DeltaP ||
@@ -162,7 +162,7 @@ TDecayChannel * BaryonResonanceDecayer::SelectDecayChannel(
             << "Using channel: " << ich
             << " with final state mass = " << fsmass << " GeV";
          double ch_BR = 0;
-         if(isdelta) {
+         if(is_delta) {
            ch_BR = this->DealsDeltaNGamma(decay_particle_pdg_code, ich, W);
          }
          else {
@@ -202,7 +202,6 @@ TDecayChannel * BaryonResonanceDecayer::SelectDecayChannel(
 //____________________________________________________________________________
 void BaryonResonanceDecayer::DecayExclusive(
   int decay_particle_id, GHepRecord * event, TDecayChannel * ch) const
-     //int pdg_code, TLorentzVector & p, TDecayChannel * ch) const
 {
   // Find the particle to be decayed in the event record
   GHepParticle * decay_particle = event->Particle(decay_particle_id);
@@ -235,9 +234,10 @@ void BaryonResonanceDecayer::DecayExclusive(
   }
 
   // Check whether the expected channel is Delta->pion+nucleon
-  bool twobody =
-    this->IsPiNDecayChannel(ch) &&
-    this->IsDelta(decay_particle_pdg_code);
+  bool is_delta = (decay_particle_pdg_code == kPdgP33m1232_DeltaPP ||
+                   decay_particle_pdg_code == kPdgP33m1232_DeltaP  ||
+                   decay_particle_pdg_code == kPdgP33m1232_Delta0);
+  bool is_2body = is_delta && this->IsPiNDecayChannel(ch);
 
   // Decay the resonance using an N-body phase space generator
   // The particle will be decayed in its rest frame and then the daughters
@@ -256,17 +256,6 @@ void BaryonResonanceDecayer::DecayExclusive(
   assert(wmax>0);
   LOG("ResonanceDecay", pINFO)
     << "Max phase space gen. weight for current decay: " << wmax;
-
-  // Define variables for the Wtheta selection
-  double aidrnd          = 0;
-  double wthetacheck     = 0;
-  double p32check        = 0.75;
-  double p12check        = 1-p32check;
-  double p2costhetacheck = 0;
-  double costhetacheck   = 0;
-
-  TLorentzVector vpioncheck;
-  TLorentzVector vcheckdelta;
 
   if(fGenerateWeighted)
   {
@@ -299,9 +288,27 @@ void BaryonResonanceDecayer::DecayExclusive(
       LOG("ResonanceDecay", pINFO)
         << "Current decay weight = " << w << " / R = " << gw;
 
-      // Extra logic that applies only for Delta -> N gamma
-      if(twobody)
+      // Extra logic that applies only for Delta -> N + pi
+      if(is_2body)
       {
+        // LIBO: Add detailed explanation for the calculation you are doing here
+        //       Limit the calculation within this set of curly braces *only*
+        //       Influence the outcome by modifying accept_decay below
+
+        // Define variables for the Wtheta selection
+        //double p32check        = 0.75;       // LIBO: Should come from XML config
+        //double p12check        = 1-p32check;
+        //double aidrnd          = 0;
+        //double wthetacheck     = 0;
+        //double p2costhetacheck = 0;
+        //double costhetacheck   = 0;
+
+        //TLorentzVector vpioncheck;
+        //TLorentzVector vcheckdelta;
+
+        //++
+        //++
+        //++
       }
 
       accept_decay = (gw<=w);
@@ -430,85 +437,93 @@ void BaryonResonanceDecayer::DecayExclusive(
   //     if(twobody && wthetacheck>=aidrnd) break;
   //
   // }//end while(1)
-  //
-  // // particle_list=temp_particle_list;
-  // // particle_list->SetOwner(true);
-  // // return particle_list;
-  //
-
 }
 //____________________________________________________________________________
 double BaryonResonanceDecayer::DealsDeltaNGamma(
-  int id_mother, int ichannel, double W) const
+  int decay_particle_pdg_code, int ichannel, double W) const
 {
-  //-- auxiliary parameters
-  int DeltaFlag = 0;
-	  if (id_mother == 2114 || id_mother==-2114) {
-		  DeltaFlag = 1; // Delta0 or Delta0_bar
-	  }
-	  else if (id_mother == 2214 || id_mother==-2214) {
-	      DeltaFlag = 2; // Delta+ or anti_Delta+
-	  }
-	  else  {
-     // cout<<"Mother particle is not Delta+ or Delta0!!!"<<endl;
-	  return 0;
-	  }
-  double mN  =   genie::constants::kNucleonMass;
-  double mPi = genie::constants::kPi0Mass;
-//  double mN    = kNucleonMass;
-//  double mPi   = kPi0Mass;
+// LIBO: Explain the purpose of this routine
+//
+//
+//
+//
 
-  if (W<=mN+mPi) {
-	  if (ichannel == 0) {return 0;} // ichannel =0,1,2 has to match
-	                                // the channel order in genie_pdg_table.dat
+  double mN  = genie::constants::kNucleonMass;
+  double mPi = genie::constants::kPi0Mass;
+
+  if (W <= mN+mPi)
+  {
+	  if (ichannel == 0) {return 0;} // ichannel = 0,1,2 has to match
+	                                 // the channel order in genie_pdg_table.dat
 	  if (ichannel == 1) {return 0;}
 	  if (ichannel == 2) {return 1;}
-  } else {
-
-  double m  = 1.232;
-
-  double width0= 0.12;
-
-  double m_2   = TMath::Power(m, 2);
-  double mN_2  = TMath::Power(mN,   2);
-  double W_2   = TMath::Power(W,    2);
-  double m_aux1= TMath::Power(mN+mPi, 2);
-  double m_aux2= TMath::Power(mN-mPi, 2);
-
-  double BRPi0    = 0.994;
-  double BRPi01   = 0.667002;
-  double BRPi02   = 0.332998;
-  double BRgamma0 = 0.006;
-  double widPi0   = width0*BRPi0;
-  double widgamma0= width0*BRgamma0;
-
-  double pPiW   = TMath::Sqrt((W_2-m_aux1)*(W_2-m_aux2))/(2*W);
-  double pPim   = TMath::Sqrt((m_2-m_aux1)*(m_2-m_aux2))/(2*m);
-  double EgammaW= (W_2-mN_2)/(2*W);
-  double Egammam= (m_2-mN_2)/(2*m);
-  double TPiW=TMath::Power(pPiW, 3);
-  double TPim=TMath::Power(pPim, 3);
-  double fgammaW= 1/(TMath::Power(1+EgammaW*EgammaW/0.706, 2));
-  double fgammam= 1/(TMath::Power(1+Egammam*Egammam/0.706, 2));
-
-
-  double Rinverse = widPi0*TMath::Power(Egammam, 3)*TMath::Power(fgammam, 2)*TPiW
-	     /(widgamma0*TMath::Power(EgammaW, 3)*TMath::Power(fgammaW, 2)*TPim);
-  double BRPi = Rinverse/(1+Rinverse);
-  double BRgamma = 1/(1+Rinverse);
-
-  if (DeltaFlag==1) {
-  	  if (ichannel == 0) {return BRPi*BRPi02;}
-	    if (ichannel == 1) {return BRPi*BRPi01;}
-	    if (ichannel == 2) {return BRgamma;}
   }
-  if (DeltaFlag==2) {
-  	  if (ichannel == 0) {return BRPi*BRPi01;}
-	    if (ichannel == 1) {return BRPi*BRPi02;}
-	    if (ichannel == 2) {return BRgamma;}
-  }
-  }
- return 0;
+  else
+  {
+    // LIBO: Add detailed explanation for the calculation you are doing here
+    //
+    //
+    //
+    //
+    //
+    //
+
+    double m      = 1.232; // LIBO: Should be constant in Constants.h
+    double width0 = 0.12;  // LIBO: ditto
+
+    double m_2   = TMath::Power(m,      2);
+    double mN_2  = TMath::Power(mN,     2);
+    double W_2   = TMath::Power(W,      2);
+    double m_aux1= TMath::Power(mN+mPi, 2);
+    double m_aux2= TMath::Power(mN-mPi, 2);
+
+    double BRPi0    = 0.994;    // LIBO: Should come from XML config
+    double BRPi01   = 0.667002; // LIBO: ditto
+    double BRPi02   = 0.332998; // LIBO: ditto
+    double BRgamma0 = 0.006;    // LIBO: ditto
+    double widPi0   = width0*BRPi0;
+    double widgamma0= width0*BRgamma0;
+
+    double pPiW    = TMath::Sqrt((W_2-m_aux1)*(W_2-m_aux2))/(2*W);
+    double pPim    = TMath::Sqrt((m_2-m_aux1)*(m_2-m_aux2))/(2*m);
+    double EgammaW = (W_2-mN_2)/(2*W);
+    double Egammam = (m_2-mN_2)/(2*m);
+    double TPiW    = TMath::Power(pPiW, 3);
+    double TPim    = TMath::Power(pPim, 3);
+    double fgammaW = 1./(TMath::Power(1+EgammaW*EgammaW/0.706, 2)); // LIBO: 0.706 should come from XML config
+    double fgammam = 1./(TMath::Power(1+Egammam*Egammam/0.706, 2)); // LIBO: ditto
+
+    double Rinverse =
+        widPi0*TMath::Power(Egammam, 3)*TMath::Power(fgammam, 2)*TPiW /
+	      (widgamma0*TMath::Power(EgammaW, 3)*TMath::Power(fgammaW, 2)*TPim);
+    double BRPi = Rinverse/(1+Rinverse);
+    double BRgamma = 1/(1+Rinverse);
+
+    // Delta0 or Delta0_bar
+    if (decay_particle_pdg_code ==  kPdgP33m1232_Delta0 ||
+        decay_particle_pdg_code == -kPdgP33m1232_Delta0)
+    {
+   	   if (ichannel == 0) { return BRPi*BRPi02; }
+	     if (ichannel == 1) { return BRPi*BRPi01; }
+	     if (ichannel == 2) { return BRgamma;     }
+    }
+    // Delta+ or anti_Delta+
+    else
+    if (decay_particle_pdg_code ==  kPdgP33m1232_DeltaP ||
+        decay_particle_pdg_code == -kPdgP33m1232_DeltaP)
+    {
+  	   if (ichannel == 0) { return BRPi*BRPi01; }
+	     if (ichannel == 1) { return BRPi*BRPi02; }
+	     if (ichannel == 2) { return BRgamma;     }
+    }
+    else
+    {
+      LOG("ResonanceDecay", pWARN)
+         << "Mother particle (PDG code = " << decay_particle_pdg_code
+         << ") is not Delta+ or Delta0!";
+  	}
+  }//W
+  return 0;
 }
 //____________________________________________________________________________
 double BaryonResonanceDecayer::Weight(void) const
@@ -541,13 +556,6 @@ double BaryonResonanceDecayer::FinalStateMass(TDecayChannel * ch) const
      mass += md;
   }
   return mass;
-}
-//____________________________________________________________________________
-bool BaryonResonanceDecayer::IsDelta(int pdg_code) const
-{
-  return (pdg_code == kPdgP33m1232_DeltaPP ||
-          pdg_code == kPdgP33m1232_DeltaP  ||
-          pdg_code == kPdgP33m1232_Delta0);
 }
 //____________________________________________________________________________
 bool BaryonResonanceDecayer::IsPiNDecayChannel(TDecayChannel * ch) const

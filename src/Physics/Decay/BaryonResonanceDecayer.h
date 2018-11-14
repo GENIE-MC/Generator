@@ -53,9 +53,8 @@ private:
   bool           Decay             (int dec_part_id, GHepRecord * event) const;
   TDecayChannel* SelectDecayChannel(int dec_part_id, GHepRecord * event) const;
   void           DecayExclusive    (int dec_part_id, GHepRecord * event, TDecayChannel * ch) const;
-  double         DealsDeltaNGamma  (int id_mother, int ich, double W) const; //libo did
+  double         DealsDeltaNGamma  (int dec_part_pdgc, int ich, double W) const;
   double         FinalStateMass    (TDecayChannel * ch) const;
-  bool           IsDelta           (int pdgc) const;
   bool           IsPiNDecayChannel (TDecayChannel * ch) const;
 
   mutable TGenPhaseSpace fPhaseSpaceGenerator;

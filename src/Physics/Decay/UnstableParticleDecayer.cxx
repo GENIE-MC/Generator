@@ -22,27 +22,24 @@ using namespace genie;
 UnstableParticleDecayer::UnstableParticleDecayer() :
 EventRecordVisitorI("genie::UnstableParticleDecayer")
 {
-  fDecayers = 0;
+
 }
 //___________________________________________________________________________
 UnstableParticleDecayer::UnstableParticleDecayer(string config) :
 EventRecordVisitorI("genie::UnstableParticleDecayer", config)
 {
-  fDecayers = 0;
+
 }
 //___________________________________________________________________________
 UnstableParticleDecayer::~UnstableParticleDecayer()
 {
-  if(fDecayers) {
-    fDecayers->clear();
-    delete fDecayers;
-  }
+  fDecayers.clear();
 }
 //___________________________________________________________________________
 void UnstableParticleDecayer::ProcessEventRecord(GHepRecord * event) const
 {
-  vector<const EventRecordVisitorI *>::const_iterator it = fDecayers->begin();
-  for( ; it != fDecayers->end(); ++it)
+  vector<const EventRecordVisitorI *>::const_iterator it = fDecayers.begin();
+  for( ; it != fDecayers.end(); ++it)
   {
     const EventRecordVisitorI * decayer = *it;
     decayer->ProcessEventRecord(event);
@@ -67,17 +64,14 @@ void UnstableParticleDecayer::Configure(string config)
 //___________________________________________________________________________
 void UnstableParticleDecayer::LoadConfig(void)
 {
+  fDecayers.clear();
+
   // Load particle decayers
   // Order is important if both decayers can handle a specific particle
   // as only the first would get the chance to decay it
   int ndec = 0 ;
   this->GetParam("NDecayers", ndec);
   assert(ndec>0);
-  if(fDecayers) {
-    fDecayers->clear();
-    delete fDecayers;
-  }
-  fDecayers = new vector<const EventRecordVisitorI *>(ndec);
 
   for(int idec = 0; idec < ndec; idec++) {
      ostringstream alg_key;
@@ -85,7 +79,7 @@ void UnstableParticleDecayer::LoadConfig(void)
      const EventRecordVisitorI * decayer =
         dynamic_cast<const EventRecordVisitorI *>
             (this->SubAlg(alg_key.str()));
-     (*fDecayers)[idec] = decayer;
+     fDecayers.push_back(decayer);
   }
 }
 //___________________________________________________________________________
