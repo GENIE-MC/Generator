@@ -5,7 +5,7 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
+         University of Liverpool & STFC Rutherford Appleton Lab
 
  For the class documentation see the corresponding header file.
 
@@ -85,7 +85,7 @@ bool SpectralFunc1d::GenerateNucleon(const Target & target) const
     }
     niter++;
 
-    if(fUseRFGMomentumCutoff) p = fPCutOff * rnd->RndGen().Rndm(); 
+    if(fUseRFGMomentumCutoff) p = fPCutOff * rnd->RndGen().Rndm();
     else p = rnd->RndGen().Rndm();
 
     double prob  = spl_it->second->Evaluate(p);
@@ -110,8 +110,8 @@ bool SpectralFunc1d::GenerateNucleon(const Target & target) const
 
   fCurrMomentum.SetXYZ(px,py,pz);
 
-  // Set removal energy 
-  // Do it either in the same way as in the FG model or by using the average 
+  // Set removal energy
+  // Do it either in the same way as in the FG model or by using the average
   // removal energy for the seleced pF as calculated from the s/f itself
   //
   if(fUseRFGRemovalE) {
@@ -164,8 +164,8 @@ void SpectralFunc1d::LoadConfig(void)
   // Hopefully analytical expressions will be available soon.
   // Currently I have spectral functions for C12 and Fe56 only.
   //
-  string data_dir = 
-      string(gSystem->Getenv("GENIE")) + string("/data/spectral_functions/");
+  string data_dir =
+      string(gSystem->Getenv("GENIE")) + string("/data/evgen/nucl/spectral_functions/");
 
   string c12_sf1dk_file  = data_dir + "benhar-sf1dk-12c.data";
   string fe56_sf1dk_file = data_dir + "benhar-sf1dk-56fe.data";
@@ -197,11 +197,11 @@ void SpectralFunc1d::LoadConfig(void)
        double p = pmin + i*dp;
        prob_max = TMath::Max(prob_max, spl->Evaluate(p));
     }
-    fMaxProb.insert(map<int,double>::value_type(Z,prob_max));         
+    fMaxProb.insert(map<int,double>::value_type(Z,prob_max));
   }
 
   // Check whether to use the same removal energies as in the FG model or
-  // to use the average removal energy for the selected fermi momentum 
+  // to use the average removal energy for the selected fermi momentum
   // (computed from the spectral function itself)
   GetParam( "UseRFGRemovalE", fUseRFGRemovalE ) ;
 
@@ -244,8 +244,8 @@ void SpectralFunc1d::CleanUp(void)
     Spline * spl = spliter->second;
     if(spl) delete spl;
   }
-  fSFk.clear(); 
-  fSFw.clear(); 
+  fSFk.clear();
+  fSFw.clear();
   fNucRmvE.clear();
   fMaxProb.clear();
 }
