@@ -5,9 +5,12 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
+         University of Liverpool & STFC Rutherford Appleton Lab
 */
 //____________________________________________________________________________
+
+#include <fenv.h>  //provides: int feenableexcept(int excepts);
+
 
 #include <fstream>
 #include <cstdlib>
@@ -55,7 +58,7 @@ XSecSplineList::XSecSplineList()
 //____________________________________________________________________________
 XSecSplineList::~XSecSplineList()
 {
-// Clean up. 
+// Clean up.
 
   map<string,  map<string, Spline *> >::iterator mm_iter = fSplineMap.begin();
   for( ; mm_iter != fSplineMap.end(); ++mm_iter) {
@@ -68,7 +71,7 @@ XSecSplineList::~XSecSplineList()
       spline = 0;
     }
     spl_map_curr_tune.clear();
-  }  
+  }
   fSplineMap.clear();
   fInstance = 0;
 }
@@ -98,7 +101,7 @@ bool XSecSplineList::SplineExists(string key) const
     return false ;
   }
 
-  SLOG("XSecSplLst", pDEBUG) 
+  SLOG("XSecSplLst", pDEBUG)
     << "Checking for spline: " << key << " in tune: " << fCurrentTune;
 
   map<string,  map<string, Spline *> >::const_iterator //
@@ -130,7 +133,7 @@ const Spline * XSecSplineList::GetSpline(string key) const
     exit(0) ;
   }
 
-  SLOG("XSecSplLst", pDEBUG) 
+  SLOG("XSecSplLst", pDEBUG)
     << "Getting spline: " << key << " in tune: " << fCurrentTune;
 
   map<string,  map<string, Spline *> >::const_iterator //\/
@@ -159,6 +162,11 @@ void XSecSplineList::CreateSpline(const XSecAlgorithmI * alg,
 // For building this specific entry of the spline list, the user is allowed
 // to override the list-wide nknots,e_min,e_max
 
+  // FE_ALL_EXCEPT FE_INEXACT FE_UNDERFLOW
+  // FE_DIVBYZERO  FE_INVALID FE_OVERFLO
+  // rwh -- uncomment to catch NaN
+  // feenableexcept(FE_DIVBYZERO|FE_INVALID|FE_OVERFLOW);
+
   double xsec[nknots];
   double E   [nknots];
 
@@ -173,13 +181,13 @@ void XSecSplineList::CreateSpline(const XSecAlgorithmI * alg,
   if (e_min   < 0.) e_min = this->Emin();
   if (e_max   < 0.) e_max = this->Emax();
   if (nknots <= 2) nknots = this->NKnots();
-  assert(e_min < e_max);
+  assert( e_min < e_max );
 
   // Distribute the knots in the energy range (e_min,e_max) :
   // - Will use 5 knots linearly spaced below the energy thresholds so that the
   //   spline behaves correctly in (e_min,Ethr)
   // - Place 1 knot exactly on the input interaction threshold
-  // - Place the remaining n-6 knots spaced either linearly or logarithmically 
+  // - Place the remaining n-6 knots spaced either linearly or logarithmically
   //   above the input interaction threshold
   // The above scheme schanges appropriately if Ethr<e_min (i.e. no knots
   // are computed below threshold)
@@ -193,7 +201,7 @@ void XSecSplineList::CreateSpline(const XSecAlgorithmI * alg,
 
   // knots < energy threshold
   double dEb =  (Ethr>e_min) ? (Ethr - e_min) / nkb : 0;
-  for(int i=0; i<nkb; i++) {     
+  for(int i=0; i<nkb; i++) {
      E[i] = e_min + i*dEb;
   }
   // knots >= energy threshold
@@ -201,15 +209,17 @@ void XSecSplineList::CreateSpline(const XSecAlgorithmI * alg,
   double dEa = 0;
   if(this->UseLogE())
     dEa = (TMath::Log10(e_max) - TMath::Log10(E0)) /(nka-1);
-  else 
+  else
     dEa = (e_max-E0) /(nka-1);
 
   for(int i=0; i<nka; i++) {
      if(this->UseLogE())
        E[i+nkb] = TMath::Power(10., TMath::Log10(E0) + i * dEa);
-     else  
+     else
        E[i+nkb] = E0 + i * dEa;
   }
+  // force last point to avoid floating point cumulative slew
+  E[nknots-1] = e_max;
 
   // Compute cross sections for the input interaction at the selected
   // set of energies
@@ -225,15 +235,24 @@ void XSecSplineList::CreateSpline(const XSecAlgorithmI * alg,
     interaction->InitStatePtr()->SetProbeP4(p4);
     xsec[i] = alg->Integral(interaction);
     SLOG("XSecSplLst", pNOTICE)
-            << "xsec(E = " << E[i] << ") = " 
+                       << "xsec(E = " << E[i] << ") =  "
                        << (1E+38/units::cm2)*xsec[i] << " x 1E-38 cm^2";
+  }
+
+  // Warn about odd case of decreasing cross section
+  //
+  if ( xsec[nknots-1] < xsec[nknots-2] ) {
+    SLOG("XSecSplLst", pWARN)
+      << "Last point oddity: " << key <<  " has "
+      << " xsec[nknots-1] " << xsec[nknots-1] << " < "
+      << " xsec[nknots-2] " << xsec[nknots-2];
   }
 
   // Build
   //
   Spline * spline = new Spline(nknots, E, xsec);
 
-  // Save 
+  // Save
   //
   map<string,  map<string, Spline *> >::iterator //\/
   mm_iter = fSplineMap.find(fCurrentTune);
@@ -326,7 +345,7 @@ void XSecSplineList::SaveAsXml(const string & filename, bool save_init) const
       string key = m_iter->first;
 
       // If current spline is from the initial loaded set,
-      // look-up input option to decide whether to write out in 
+      // look-up input option to decide whether to write out in
       // new output file or not
       bool from_init_set = false;
       map<string, set<string> >::const_iterator //\/
@@ -356,7 +375,7 @@ XmlParserStatus_t XSecSplineList::LoadFromXml(const string & filename, bool keep
 //! are added to the existing list. If false, then the existing list is reset
 //! before loading the splines.
 
-  SLOG("XSecSplLst", pNOTICE) 
+  SLOG("XSecSplLst", pNOTICE)
     << "Loading splines from: " << filename;
   SLOG("XSecSplLst", pINFO)
     << "Option to keep pre-existing splines is switched "
@@ -398,7 +417,7 @@ XmlParserStatus_t XSecSplineList::LoadFromXml(const string & filename, bool keep
                string svrs      = utils::str::TrimSpaces((const char *)xvrs);
                string sinlog    = utils::str::TrimSpaces((const char *)xinlog);
 
-               LOG("XSecSplLst", pNOTICE) 
+               LOG("XSecSplLst", pNOTICE)
                    << "Input x-section spline XML file format version: " << svrs;
 
                if (atoi(sinlog.c_str()) == 1) this->SetLogE(true);
@@ -406,7 +425,7 @@ XmlParserStatus_t XSecSplineList::LoadFromXml(const string & filename, bool keep
 
                xmlFree(xvrs);
                xmlFree(xinlog);
-            }  
+            }
 
             if( (!xmlStrcmp(name, (const xmlChar *) "genie_tune")) && type==kNodeTypeStartElement) {
                xmlChar * xtune = xmlTextReaderGetAttribute(reader,(const xmlChar*)"name");
@@ -428,7 +447,7 @@ XmlParserStatus_t XSecSplineList::LoadFromXml(const string & filename, bool keep
                iknot=0;
                E     = new double[nknots];
                xsec  = new double[nknots];
-  
+
                xmlFree(xname);
                xmlFree(xnkn);
             }
@@ -454,7 +473,7 @@ XmlParserStatus_t XSecSplineList::LoadFromXml(const string & filename, bool keep
                Spline * spline = new Spline(nknots, E, xsec);
                delete [] E;
                delete [] xsec;
-    
+
                // insert the spline to the map
                map<string,  map<string, Spline *> >::iterator //\/
                mm_iter = fSplineMap.find( temp_tune );
@@ -561,4 +580,3 @@ void XSecSplineList::Print(ostream & stream) const
 //___________________________________________________________________________
 
 } // genie namespace
-
