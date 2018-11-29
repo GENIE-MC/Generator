@@ -48,7 +48,7 @@ typedef enum EINukeFateHA_t {
    kIHAFtUndefined = 0,
    kIHAFtNoInteraction,  // no interaction 
    kIHAFtCEx,            // cex
-   kIHAFtElas,           // elas
+   //   kIHAFtElas,           // elas
    kIHAFtInelas,         // inelas
    kIHAFtAbs,            // abs
    kIHAFtKo, 	         // knock out
@@ -84,7 +84,7 @@ public:
       case kIHAFtUndefined : return "** Undefined HA-mode fate **"; break;
       case kIHAFtNoInteraction : return "HA-mode / no interaction"; break;
       case kIHAFtCEx       : return "HA-mode / cex";            break;
-      case kIHAFtElas      : return "HA-mode / elas";           break;
+	//      case kIHAFtElas      : return "HA-mode / elas";           break;
       case kIHAFtInelas    : return "HA-mode / inelas";         break;
       case kIHAFtAbs       : return "HA-mode / abs";            break;
       case kIHAFtKo        : return "HA-mode / knock-out";      break;
@@ -104,7 +104,7 @@ public:
       case kIHAFtUndefined : return "undefined"; break;
       case kIHAFtNoInteraction : return "no interaction"; break;
       case kIHAFtCEx       : return "cex";            break;
-      case kIHAFtElas      : return "elas";           break;
+	//      case kIHAFtElas      : return "elas";           break;
       case kIHAFtInelas    : return "inelas";         break;
       case kIHAFtAbs       : return "abs";            break;
       case kIHAFtKo        : return "knock out";      break; 

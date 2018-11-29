@@ -123,13 +123,13 @@ INukeHadroData2018::~INukeHadroData2018()
 
   // N+A x-section splines
   delete fFracPA_Tot;
-  delete fFracPA_Elas;
+  //  delete fFracPA_Elas;
   delete fFracPA_Inel;
   delete fFracPA_CEx;
   delete fFracPA_Abs;
   delete fFracPA_PiPro;
   delete fFracNA_Tot;
-  delete fFracNA_Elas;
+  //  delete fFracNA_Elas;
   delete fFracNA_Inel;
   delete fFracNA_CEx;
   delete fFracNA_Abs;
@@ -217,7 +217,7 @@ void INukeHadroData2018::LoadCrossSections(void)
   //data_NA.ReadFile(datafile_NA.c_str(),
   //"ke/D:pA_tot/D:pA_elas/D:pA_inel/D:pA_cex/D:pA_abs/D:pA_pipro/D");  // add support for cmp here (?)
   data_NA.ReadFile(datafile_NA.c_str(),
-		   "ke/D:pA_tot/D:pA_elas/D:pA_inel/D:pA_cex/D:pA_abs/D:pA_pipro/D:pA_cmp/D");  // add support for cmp here (?)
+		   "ke/D:pA_tot/D:pA_inel/D:pA_cex/D:pA_abs/D:pA_pipro/D:pA_cmp/D");  // add support for cmp here (?)
   data_gamN.ReadFile(datafile_gamN.c_str(),
     "ke/D:pi0p_tot/D:pipn_tot/D:pimp_tot/D:pi0n_tot/D:gamp_fs/D:gamn_fs/D:gamN_tot/D");
   data_kN.ReadFile(datafile_kN.c_str(),
@@ -287,13 +287,13 @@ void INukeHadroData2018::LoadCrossSections(void)
 
   // N+A x-section fraction splines
   fFracPA_Tot      = new Spline(&data_NA, "ke:pA_tot");
-  fFracPA_Elas     = new Spline(&data_NA, "ke:pA_elas");
+  //  fFracPA_Elas     = new Spline(&data_NA, "ke:pA_elas");
   fFracPA_Inel     = new Spline(&data_NA, "ke:pA_inel");   
   fFracPA_CEx      = new Spline(&data_NA, "ke:pA_cex");   
   fFracPA_Abs      = new Spline(&data_NA, "ke:pA_abs");
   fFracPA_PiPro    = new Spline(&data_NA, "ke:pA_pipro");  
   fFracNA_Tot      = new Spline(&data_NA, "ke:pA_tot");  // assuming nA same as pA
-  fFracNA_Elas     = new Spline(&data_NA, "ke:pA_elas"); 
+  //  fFracNA_Elas     = new Spline(&data_NA, "ke:pA_elas"); 
   fFracNA_Inel     = new Spline(&data_NA, "ke:pA_inel");   
   fFracNA_CEx      = new Spline(&data_NA, "ke:pA_cex");   
   fFracNA_Abs      = new Spline(&data_NA, "ke:pA_abs");
@@ -799,7 +799,7 @@ void INukeHadroData2018::LoadCrossSections(void)
 
 
   TFile TGraphs_file;
-  bool saveTGraphsToFile = false; //true;
+  bool saveTGraphsToFile = false;  //true; 
 
   if (saveTGraphsToFile) {
     string filename = "TGraphs.root";
@@ -807,6 +807,7 @@ void INukeHadroData2018::LoadCrossSections(void)
     TGraphs_file.Open(filename.c_str(), "RECREATE");
   } 
 
+  /*
   // kIHNFtTot,   pip + A                                            PipA_Tot
   {
     const int pipATot_nfiles = 22;
@@ -837,9 +838,8 @@ void INukeHadroData2018::LoadCrossSections(void)
     if (saveTGraphsToFile) { 
       TPipA_Tot -> Write("TPipA_Tot"); // TPipA_Tot will be _key_ name
     }
-
   }
-
+  */
 
   // kIHNFtAbs, pip + A                                                            PipA_Abs_frac
   {
@@ -873,7 +873,7 @@ void INukeHadroData2018::LoadCrossSections(void)
   }  
 
 
-  // kIHNFtCEx, pip + A                                                            PipA_CEx_frac
+  // kIHNFtCEx, pip + A      PipA_CEx_frac
   {
     const int pipACEx_f_nfiles = 18;
     const int pipACEx_f_nuclei[pipACEx_f_nfiles] = {1, 2, 3, 4, 7, 9, 12, 16, 27, 48, 56, 58, 63, 93, 120, 165, 181, 209};
@@ -1049,7 +1049,7 @@ void INukeHadroData2018::LoadCrossSections(void)
   }
  
 
-
+  /*
   // kIHNFtElas, pip + A                                                            PipA_Elas_frac
   {
     const int pipAElas_f_nfiles = 18;
@@ -1082,7 +1082,7 @@ void INukeHadroData2018::LoadCrossSections(void)
     }
 
   }
-
+  */
 
   // kIHNFtInelas, pip + A                                                            PipA_Inelas_frac
   {
@@ -1149,6 +1149,53 @@ void INukeHadroData2018::LoadCrossSections(void)
       TfracPipA_PiPro -> Write("TfracPipA_PiPro");
     }
    }
+
+   // data stored as xs, therefore sparse.  Rebuild into proper normalized array.
+   // S. Dytman, S. Gardiner 2018 Nov29
+
+    TGraph2D* PiAbs_new = dynamic_cast<TGraph2D*>(TfracPipA_Abs->Clone("PiAbs_new"));
+    delete TfracPipA_Abs;
+    TGraph2D* PiCEx_new = dynamic_cast<TGraph2D*>(TfracPipA_CEx->Clone("PiCEx_new"));
+    delete TfracPipA_CEx;
+    TGraph2D* PiInelas_new = dynamic_cast<TGraph2D*>(TfracPipA_Inelas->Clone("PiInelas_new"));
+    delete TfracPipA_Inelas;
+    TGraph2D* PiPiPro_new = dynamic_cast<TGraph2D*>(TfracPipA_PiPro->Clone("PiPiPro_new"));
+    delete TfracPipA_PiPro;
+    TfracPipA_Abs = new TGraph2D(209*1000);
+    TfracPipA_CEx = new TGraph2D(209*1000);
+    TfracPipA_Inelas = new TGraph2D(209*1000);
+    TfracPipA_PiPro = new TGraph2D(209*1000);
+
+    int counter = 0;
+    double Abs_store=0.;
+    double CEx_store=0.;
+    double Inelas_store=0.;
+    double PiPro_store=0.;
+    double Sum_store=0.;
+
+    for(int A=1; A<=209; A++) {
+      for(double E=1; E<=1000.; E +=1.) {
+	Abs_store =  PiAbs_new->Interpolate(A,E);
+	CEx_store= PiCEx_new->Interpolate(A,E);
+	Inelas_store = PiInelas_new->Interpolate(A,E);
+	PiPro_store = PiPiPro_new->Interpolate(A,E);
+	Sum_store = Abs_store + CEx_store + Inelas_store + PiPro_store;
+
+	TfracPipA_Abs->SetPoint(counter, A, E, Abs_store/Sum_store);
+	TfracPipA_CEx->SetPoint(counter, A, E, CEx_store/Sum_store);
+	TfracPipA_Inelas->SetPoint(counter, A, E, Inelas_store/Sum_store);
+	TfracPipA_PiPro->SetPoint(counter, A, E, PiPro_store/Sum_store);
+
+	counter++;
+      }
+      LOG("INukeData", pWARN)  << "Done with A= " << A;
+
+    }
+
+    delete PiAbs_new;
+    delete PiCEx_new;
+    delete PiInelas_new;
+    delete PiPiPro_new;
 
    TGraphs_file.Close();
 
@@ -1368,7 +1415,7 @@ double INukeHadroData2018::FracADep(int hpdgc, INukeFateHA_t fate, double ke, in
   if (hpdgc == kPdgPiP) {
   // handle pi+
         if (fate == kIHAFtCEx    ) return TMath::Max(0., TfracPipA_CEx     -> Interpolate (targA,ke));
-   else if (fate == kIHAFtElas   ) return TMath::Max(0., TfracPipA_Elas    -> Interpolate (targA,ke));
+	//   else if (fate == kIHAFtElas   ) return TMath::Max(0., TfracPipA_Elas    -> Interpolate (targA,ke));
    else if (fate == kIHAFtInelas ) return TMath::Max(0., TfracPipA_Inelas  -> Interpolate (targA,ke));
    else if (fate == kIHAFtAbs    ) return TMath::Max(0., TfracPipA_Abs     -> Interpolate (targA,ke));
    else if (fate == kIHAFtPiProd ) return TMath::Max(0., TfracPipA_PiPro   -> Interpolate (targA,ke));
@@ -1381,7 +1428,7 @@ double INukeHadroData2018::FracADep(int hpdgc, INukeFateHA_t fate, double ke, in
   } else if (hpdgc == kPdgPiM) {
    // handle pi-
    if      (fate == kIHAFtCEx    ) return TMath::Max(0., TfracPipA_CEx     -> Interpolate (targA,ke));
-   else if (fate == kIHAFtElas   ) return TMath::Max(0., TfracPipA_Elas    -> Interpolate (targA,ke));
+   //   else if (fate == kIHAFtElas   ) return TMath::Max(0., TfracPipA_Elas    -> Interpolate (targA,ke));
    else if (fate == kIHAFtInelas ) return TMath::Max(0., TfracPipA_Inelas  -> Interpolate (targA,ke));
    else if (fate == kIHAFtAbs    ) return TMath::Max(0., TfracPipA_Abs     -> Interpolate (targA,ke));
    else if (fate == kIHAFtPiProd ) return TMath::Max(0., TfracPipA_PiPro   -> Interpolate (targA,ke));
@@ -1394,7 +1441,7 @@ double INukeHadroData2018::FracADep(int hpdgc, INukeFateHA_t fate, double ke, in
   } else if (hpdgc == kPdgPi0) {
    // handle pi0
         if (fate == kIHAFtCEx    ) return TMath::Max(0., TfracPipA_CEx     -> Interpolate (targA,ke));
-   else if (fate == kIHAFtElas   ) return TMath::Max(0., TfracPipA_Elas    -> Interpolate (targA,ke));
+	//   else if (fate == kIHAFtElas   ) return TMath::Max(0., TfracPipA_Elas    -> Interpolate (targA,ke));
    else if (fate == kIHAFtInelas ) return TMath::Max(0., TfracPipA_Inelas  -> Interpolate (targA,ke));
    else if (fate == kIHAFtAbs    ) return TMath::Max(0., TfracPipA_Abs     -> Interpolate (targA,ke));
    else if (fate == kIHAFtPiProd ) return TMath::Max(0., TfracPipA_PiPro   -> Interpolate (targA,ke));
@@ -1423,7 +1470,7 @@ double INukeHadroData2018::FracAIndep(int hpdgc, INukeFateHA_t fate, double ke) 
   if(hpdgc == kPdgProton) {
    /* handle protons */
         if (fate == kIHAFtCEx    ) return TMath::Max(0., fFracPA_CEx     -> Evaluate (ke));
-   else if (fate == kIHAFtElas   ) return TMath::Max(0., fFracPA_Elas    -> Evaluate (ke));
+	//   else if (fate == kIHAFtElas   ) return TMath::Max(0., fFracPA_Elas    -> Evaluate (ke));
    else if (fate == kIHAFtInelas ) return TMath::Max(0., fFracPA_Inel    -> Evaluate (ke));
    else if (fate == kIHAFtAbs    ) return TMath::Max(0., fFracPA_Abs     -> Evaluate (ke));
    else if (fate == kIHAFtPiProd ) return TMath::Max(0., fFracPA_PiPro   -> Evaluate (ke));
@@ -1437,7 +1484,7 @@ double INukeHadroData2018::FracAIndep(int hpdgc, INukeFateHA_t fate, double ke) 
   } else if (hpdgc == kPdgNeutron) {
    /* handle neutrons */
         if (fate == kIHAFtCEx    ) return TMath::Max(0., fFracNA_CEx     -> Evaluate (ke));
-   else if (fate == kIHAFtElas   ) return TMath::Max(0., fFracNA_Elas    -> Evaluate (ke));
+	//   else if (fate == kIHAFtElas   ) return TMath::Max(0., fFracNA_Elas    -> Evaluate (ke));
    else if (fate == kIHAFtInelas ) return TMath::Max(0., fFracNA_Inel    -> Evaluate (ke));
    else if (fate == kIHAFtAbs    ) return TMath::Max(0., fFracNA_Abs     -> Evaluate (ke));
    else if (fate == kIHAFtPiProd ) return TMath::Max(0., fFracNA_PiPro   -> Evaluate (ke));
@@ -1536,7 +1583,7 @@ double INukeHadroData2018::XSec(int hpdgc, INukeFateHN_t fate, double ke, int ta
 
   } else if (hpdgc == kPdgProton) {
     /* handle protons */
-         if (fate == kIHNFtElas  ) {xsec = TMath::Max(0., fXSecPp_Elas -> Evaluate(ke)) *  targZ;
+      if (fate == kIHNFtElas  ) {xsec = TMath::Max(0., fXSecPp_Elas -> Evaluate(ke)) *  targZ;
 	                            xsec+= TMath::Max(0., fXSecPn_Elas -> Evaluate(ke)) * (targA-targZ);
 				    return xsec;}
     else if (fate == kIHNFtInelas) {xsec = TMath::Max(0., fXSecPp_Reac -> Evaluate(ke)) *  targZ;
