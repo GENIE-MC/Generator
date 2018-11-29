@@ -242,7 +242,7 @@ void XSecSplineList::CreateSpline(const XSecAlgorithmI * alg,
       SLOG("XSecSplLst", pWARN)
                        << "xsec(E = " << E[i] << ") =  "
                        << (1E+38/units::cm2)*xsec[i] << " x 1E-38 cm^2"
-                       << " convert NaN to 0.0";
+                       << " : converting NaN to 0.0";
       xsec[i] = 0.0;
     }
 
