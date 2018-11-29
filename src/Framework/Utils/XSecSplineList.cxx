@@ -10,7 +10,7 @@
 //____________________________________________________________________________
 
 #include <fenv.h>  //provides: int feenableexcept(int excepts);
-
+#include <cmath>   //provides: std::isnan()
 
 #include <fstream>
 #include <cstdlib>
@@ -237,11 +237,22 @@ void XSecSplineList::CreateSpline(const XSecAlgorithmI * alg,
     SLOG("XSecSplLst", pNOTICE)
                        << "xsec(E = " << E[i] << ") =  "
                        << (1E+38/units::cm2)*xsec[i] << " x 1E-38 cm^2";
+    if ( std::isnan(xsec[i]) ) {
+      // this sometimes happens near threshold, warn and move on
+      SLOG("XSecSplLst", pWARN)
+                       << "xsec(E = " << E[i] << ") =  "
+                       << (1E+38/units::cm2)*xsec[i] << " x 1E-38 cm^2"
+                       << " convert NaN to 0.0";
+      xsec[i] = 0.0;
+    }
+
   }
 
   // Warn about odd case of decreasing cross section
-  //
-  if ( xsec[nknots-1] < xsec[nknots-2] ) {
+  //    but allow for small variation due to integration errors
+  const double eps_xsec = 1.0e-5;
+  const double xsec_scale = (1.0-eps_xsec);
+  if ( xsec[nknots-1] < xsec[nknots-2]*xsec_scale ) {
     SLOG("XSecSplLst", pWARN)
       << "Last point oddity: " << key <<  " has "
       << " xsec[nknots-1] " << xsec[nknots-1] << " < "
