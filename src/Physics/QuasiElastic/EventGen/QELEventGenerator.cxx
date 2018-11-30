@@ -318,6 +318,15 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
         // If the generated kinematics are accepted, finish-up module's job
         if(accept) {
+
+            // Stored differential cross section uses kPSQ2fE phase space,
+            // but xsec as calculated above does not match. We therefore
+            // recalculate the differential cross section for kPSQ2fE here.
+            // -- S. Gardiner
+            // set the cross section for the selected kinematics
+            double stored_xsec = fXSecModel->XSec(interaction, kPSQ2fE);
+            evrec->SetDiffXSec(stored_xsec,kPSQ2fE);
+
             double gQ2 = interaction->KinePtr()->Q2(false);
             LOG("QELEvent", pINFO) << "*Selected* Q^2 = " << gQ2 << " GeV^2";
 
@@ -361,9 +370,6 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
             interaction->KinePtr()->Setx (gx,  true);
             interaction->KinePtr()->Sety (gy,  true);
             interaction->KinePtr()->ClearRunningValues();
-
-            // set the cross section for the selected kinematics
-            evrec->SetDiffXSec(xsec,kPSQ2fE);
 
             TLorentzVector lepton(interaction->KinePtr()->FSLeptonP4());
             TLorentzVector outNucleon(interaction->KinePtr()->HadSystP4());
