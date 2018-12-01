@@ -4,7 +4,7 @@
 \class    genie::CharmHadronization
 
 \brief    Provides access to the PYTHIA hadronization models. \n
-          Is a concrete implementation of the HadronizationModelI interface.
+          Is a concrete implementation of the EventRecordVisitorI interface.
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           University of Liverpool & STFC Rutherford Appleton Lab
@@ -25,7 +25,7 @@
 
 #include <TGenPhaseSpace.h>
 
-#include "Physics/Hadronization/HadronizationModelI.h"
+#include "Physics/Hadronization/Hadronization.h"
 
 class TPythia6;
 class TF1;
@@ -35,14 +35,14 @@ namespace genie {
 class Spline;
 class FragmentationFunctionI;
 
-class CharmHadronization : public HadronizationModelI {
+class CharmHadronization : public Hadronization {
 
 public:
   CharmHadronization();
   CharmHadronization(string config);
   virtual ~CharmHadronization();
 
-  // Implement the HadronizationModelI interface
+  // Implement the EventRecordVisitorI interface
   //
   void           Initialize       (void)                                    const;
   TClonesArray * Hadronize        (const Interaction* )                     const;

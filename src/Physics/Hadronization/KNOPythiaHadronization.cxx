@@ -36,13 +36,13 @@ using namespace genie::constants;
 
 //____________________________________________________________________________
 KNOPythiaHadronization::KNOPythiaHadronization() :
-HadronizationModelI("genie::KNOPythiaHadronization")
+EventRecordVisitorI("genie::KNOPythiaHadronization")
 {
 
 }
 //____________________________________________________________________________
 KNOPythiaHadronization::KNOPythiaHadronization(string config) :
-HadronizationModelI("genie::KNOPythiaHadronization", config)
+EventRecordVisitorI("genie::KNOPythiaHadronization", config)
 {
 
 }
@@ -55,6 +55,19 @@ KNOPythiaHadronization::~KNOPythiaHadronization()
 void KNOPythiaHadronization::Initialize(void) const
 {
 
+}
+//____________________________________________________________________________
+void KNOPythiaHadronization::ProcessEventRecord(GHepRecord * event) const
+{
+  Interaction * interaction = event->Summary();
+  TClonesArray * particle_list = this->Hadronize(interaction);
+
+  GHepParticle * particle = 0;
+  TIter particle_iter(particle_list);
+  while ((particle = (GHepParticle *) particle_iter.Next())) 
+  {
+     event->AddParticle(*particle);
+  }
 }
 //____________________________________________________________________________
 TClonesArray * KNOPythiaHadronization::Hadronize(
@@ -76,7 +89,7 @@ TClonesArray * KNOPythiaHadronization::Hadronize(
   fWeight = 1.;
 
   //-- Select hadronizer
-  const HadronizationModelI * hadronizer = this->SelectHadronizer(interaction);
+  const EventRecordVisitorI * hadronizer = this->SelectHadronizer(interaction);
 
   //-- Run the selected hadronizer
   TClonesArray * particle_list = hadronizer->Hadronize(interaction);
@@ -91,7 +104,7 @@ PDGCodeList * KNOPythiaHadronization::SelectParticles(
                                         const Interaction * interaction) const
 {
   //-- Select hadronizer
-  const HadronizationModelI * hadronizer = this->SelectHadronizer(interaction);
+  const EventRecordVisitorI * hadronizer = this->SelectHadronizer(interaction);
 
   //-- Run the selected hadronizer
   PDGCodeList * pdgv = hadronizer->SelectParticles(interaction);
@@ -103,7 +116,7 @@ TH1D * KNOPythiaHadronization::MultiplicityProb(
  		       const Interaction * interaction, Option_t * opt) const
 {
   //-- Select hadronizer
-  const HadronizationModelI * hadronizer = this->SelectHadronizer(interaction);
+  const EventRecordVisitorI * hadronizer = this->SelectHadronizer(interaction);
 
   //-- Run the selected hadronizer
   TH1D * mprob = hadronizer->MultiplicityProb(interaction,opt);
@@ -116,10 +129,10 @@ double KNOPythiaHadronization::Weight(void) const
   return fWeight;
 }
 //____________________________________________________________________________
-const HadronizationModelI * KNOPythiaHadronization::SelectHadronizer(
+const EventRecordVisitorI * KNOPythiaHadronization::SelectHadronizer(
                                         const Interaction * interaction) const
 {
-  const HadronizationModelI * hadronizer = 0;
+  const EventRecordVisitorI * hadronizer = 0;
   RandomGen * rnd = RandomGen::Instance();
   double W = 0;
 
@@ -166,28 +179,16 @@ const HadronizationModelI * KNOPythiaHadronization::SelectHadronizer(
   return hadronizer;
 }
 //____________________________________________________________________________
-void KNOPythiaHadronization::Configure(const Registry & config)
-{
-  Algorithm::Configure(config);
-  this->LoadConfig();
-}
-//____________________________________________________________________________
-void KNOPythiaHadronization::Configure(string config)
-{
-  Algorithm::Configure(config);
-  this->LoadConfig();
-}
-//____________________________________________________________________________
 void KNOPythiaHadronization::LoadConfig(void)
 {
 // Read configuration options or set defaults
 
    // Load the requested hadronizers
   fKNOHadronizer = 
-     dynamic_cast<const HadronizationModelI *> (
+     dynamic_cast<const EventRecordVisitorI *> (
                               this->SubAlg("KNO-Hadronizer"));
   fPythiaHadronizer = 
-     dynamic_cast<const HadronizationModelI *> (
+     dynamic_cast<const EventRecordVisitorI *> (
                               this->SubAlg("PYTHIA-Hadronizer"));
 
   assert(fKNOHadronizer && fPythiaHadronizer);

@@ -5,7 +5,7 @@
 
 \brief    A KNO-based hadronization model.
 
-          Is a concrete implementation of the HadronizationModelI interface.
+          Is a concrete implementation of the EventRecordVisitorI interface.
 
 \author   The main authors of this model are:
 
@@ -43,7 +43,7 @@
 
 #include <TGenPhaseSpace.h>
 
-#include "Physics/Hadronization/HadronizationModelBase.h"
+#include "Physics/Hadronization/Hadronization.h"
 
 class TF1;
 
@@ -52,38 +52,31 @@ namespace genie {
 class DecayModelI;
 //class Spline;
 
-class KNOHadronization : public HadronizationModelBase {
+class KNOHadronization : protected Hadronization {
 
 public:
   KNOHadronization();
   KNOHadronization(string config);
   virtual ~KNOHadronization();
 
-  // implement the HadronizationModelI interface
-  void           Initialize       (void)                                    const;
-  TClonesArray * Hadronize        (const Interaction* )                     const;
-  double         Weight           (void)                                    const;
-  PDGCodeList *  SelectParticles  (const Interaction*)                      const;
-  TH1D *         MultiplicityProb (const Interaction*, Option_t* opt = "")  const;
-
-  // overload the Algorithm::Configure() methods to load private data
-  // members from configuration options
-  void Configure(const Registry & config);
-  void Configure(string config);
+  // Implement the EventRecordVisitorI interface
+  void ProcessEventRecord(GHepRecord * event) const;
 
 private:
 
-  // private methods & mutable parameters
-
-  void          LoadConfig            (void);
-  bool          AssertValidity        (const Interaction * i)        const;
-  PDGCodeList * GenerateHadronCodes   (int mult, int maxQ, double W) const;
-  int           GenerateBaryonPdgCode (int mult, int maxQ, double W) const;
-  int           HadronShowerCharge    (const Interaction * )         const;
-  double        KNO                   (int nu, int nuc, double z)    const;
-  double        AverageChMult         (int nu, int nuc, double W)    const;
-  void          HandleDecays          (TClonesArray * particle_list) const;
-  double        ReWeightPt2           (const PDGCodeList & pdgcv)    const;
+  void           Initialize            (void)                                    const;
+  TClonesArray * Hadronize             (const Interaction* )                     const;
+  double         Weight                (void)                                    const;
+  PDGCodeList *  SelectParticles       (const Interaction*)                      const;
+  TH1D *         MultiplicityProb      (const Interaction*, Option_t* opt = "")  const;
+  bool           AssertValidity        (const Interaction * i)                   const;
+  PDGCodeList *  GenerateHadronCodes   (int mult, int maxQ, double W)            const;
+  int            GenerateBaryonPdgCode (int mult, int maxQ, double W)            const;
+  int            HadronShowerCharge    (const Interaction * )                    const;
+  double         KNO                   (int nu, int nuc, double z)               const;
+  double         AverageChMult         (int nu, int nuc, double W)               const;
+  void           HandleDecays          (TClonesArray * particle_list)            const;
+  double         ReWeightPt2           (const PDGCodeList & pdgcv)               const;
 
   TClonesArray* DecayMethod1    (double W, const PDGCodeList & pdgv, bool reweight_decays) const;
   TClonesArray* DecayMethod2    (double W, const PDGCodeList & pdgv, bool reweight_decays) const;
@@ -138,4 +131,3 @@ private:
 }         // genie namespace
 
 #endif    // _KNO_HADRONIZATION_H_
-

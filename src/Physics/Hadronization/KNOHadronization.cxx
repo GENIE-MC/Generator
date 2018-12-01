@@ -65,7 +65,7 @@ using namespace genie::utils::print;
 
 //____________________________________________________________________________
 KNOHadronization::KNOHadronization() :
-HadronizationModelBase("genie::KNOHadronization")
+Hadronization("genie::KNOHadronization")
 {
   fBaryonXFpdf  = 0;
   fBaryonPT2pdf = 0;
@@ -73,7 +73,7 @@ HadronizationModelBase("genie::KNOHadronization")
 }
 //____________________________________________________________________________
 KNOHadronization::KNOHadronization(string config) :
-HadronizationModelBase("genie::KNOHadronization", config)
+Hadronization("genie::KNOHadronization", config)
 {
   fBaryonXFpdf  = 0;
   fBaryonPT2pdf = 0;
@@ -544,34 +544,6 @@ void KNOHadronization::LoadConfig(void)
   GetParam( "KNO-LevyC-vn", fCvn ) ;
   GetParam( "KNO-LevyC-vbp", fCvbp ) ;
   GetParam( "KNO-LevyC-vbn", fCvbn ) ;
-
-  // Force NEUGEN upper limit in hadronic multiplicity (to be used only
-  // NEUGEN/GENIE comparisons)
-  GetParamDef( "ForceNeugenMultLimit", fForceNeuGenLimit, false ) ;
-
-  // Load Wcut determining the phase space area where the multiplicity prob.
-  // scaling factors would be applied -if requested-
-  GetParam( "Wcut", fWcut ) ;
-
-  // Load NEUGEN multiplicity probability scaling parameters Rijk
-  //neutrinos
-  GetParam( "DIS-HMultWgt-vp-CC-m2",  fRvpCCm2  ) ;
-  GetParam( "DIS-HMultWgt-vp-CC-m3",  fRvpCCm3  ) ;
-  GetParam( "DIS-HMultWgt-vp-NC-m2",  fRvpNCm2  ) ;
-  GetParam( "DIS-HMultWgt-vp-NC-m3",  fRvpNCm3  ) ;
-  GetParam( "DIS-HMultWgt-vn-CC-m2",  fRvnCCm2  ) ;
-  GetParam( "DIS-HMultWgt-vn-CC-m3",  fRvnCCm3  ) ;
-  GetParam( "DIS-HMultWgt-vn-NC-m2",  fRvnNCm2  ) ;
-  GetParam( "DIS-HMultWgt-vn-NC-m3",  fRvnNCm3  ) ;
-  //Anti-neutrinos
-  GetParam( "DIS-HMultWgt-vbp-CC-m2", fRvbpCCm2 ) ;
-  GetParam( "DIS-HMultWgt-vbp-CC-m3", fRvbpCCm3 ) ;
-  GetParam( "DIS-HMultWgt-vbp-NC-m2", fRvbpNCm2 ) ;
-  GetParam( "DIS-HMultWgt-vbp-NC-m3", fRvbpNCm3 ) ;
-  GetParam( "DIS-HMultWgt-vbn-CC-m2", fRvbnCCm2 ) ;
-  GetParam( "DIS-HMultWgt-vbn-CC-m3", fRvbnCCm3 ) ;
-  GetParam( "DIS-HMultWgt-vbn-NC-m2", fRvbnNCm2 ) ;
-  GetParam( "DIS-HMultWgt-vbn-NC-m3", fRvbnNCm3 ) ;
 
 }
 //____________________________________________________________________________

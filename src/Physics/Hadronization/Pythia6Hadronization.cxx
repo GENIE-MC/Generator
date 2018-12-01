@@ -25,8 +25,7 @@
 #include "Framework/Algorithm/AlgConfigPool.h"
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/GBuild.h"
-#include "Physics/Decay/DecayModelI.h"
-#include "Physics/Hadronization/PythiaHadronization.h"
+#include "Physics/Hadronization/Pythia6Hadronization.h"
 #include "Framework/Interaction/Interaction.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
@@ -43,24 +42,24 @@ using namespace genie::constants;
 extern "C" void py2ent_(int *,  int *, int *, double *);
 
 //____________________________________________________________________________
-PythiaHadronization::PythiaHadronization() :
-HadronizationModelBase("genie::PythiaHadronization")
+Pythia6Hadronization::Pythia6Hadronization() :
+Hadronization("genie::Pythia6Hadronization")
 {
   this->Initialize();
 }
 //____________________________________________________________________________
-PythiaHadronization::PythiaHadronization(string config) :
-HadronizationModelBase("genie::PythiaHadronization", config)
+Pythia6Hadronization::Pythia6Hadronization(string config) :
+Hadronization("genie::Pythia6Hadronization", config)
 {
   this->Initialize();
 }
 //____________________________________________________________________________
-PythiaHadronization::~PythiaHadronization()
+Pythia6Hadronization::~Pythia6Hadronization()
 {
 
 }
 //____________________________________________________________________________
-void PythiaHadronization::Initialize(void) const
+void Pythia6Hadronization::Initialize(void) const
 {
   fPythia = TPythia6::Instance();
 
@@ -68,14 +67,27 @@ void PythiaHadronization::Initialize(void) const
   RandomGen::Instance();
 }
 //____________________________________________________________________________
+void Pythia8Hadronization::ProcessEventRecord(GHepRecord * event) const
+{
+  Interaction * interaction = event->Summary();
+  TClonesArray * particle_list = this->Hadronize(interaction);
+
+  GHepParticle * particle = 0;
+  TIter particle_iter(particle_list);
+  while ((particle = (GHepParticle *) particle_iter.Next())) 
+  {
+     event->AddParticle(*particle);
+  }
+}
+//____________________________________________________________________________
 TClonesArray * 
-  PythiaHadronization::Hadronize(
+  Pythia6Hadronization::Hadronize(
          const Interaction * interaction) const
 {
-  LOG("PythiaHad", pNOTICE) << "Running PYTHIA hadronizer";
+  LOG("Pythia6Had", pNOTICE) << "Running PYTHIA hadronizer";
 
   if(!this->AssertValidity(interaction)) {
-     LOG("PythiaHad", pERROR) << "Returning a null particle list!";
+     LOG("Pythia6Had", pERROR) << "Returning a null particle list!";
      return 0;
   }
 
@@ -95,9 +107,9 @@ TClonesArray *
   int  hit_quark   = target.HitQrkPdg();
   bool from_sea    = target.HitSeaQrk();
 
-  LOG("PythiaHad", pNOTICE)
+  LOG("Pythia6Had", pNOTICE)
           << "Hit nucleon pdgc = " << hit_nucleon << ", W = " << W;
-  LOG("PythiaHad", pNOTICE)
+  LOG("Pythia6Had", pNOTICE)
             << "Selected hit quark pdgc = " << hit_quark
                            << ((from_sea) ? "[sea]" : "[valence]");
 
@@ -139,7 +151,7 @@ TClonesArray *
     else if (isvb && isdb) final_quark = kPdgAntiUQuark;
     else if (isvb && issb) final_quark = kPdgAntiUQuark;
     else {
-      LOG("PythiaHad", pERROR)
+      LOG("Pythia6Had", pERROR)
         << "Not allowed mode. Refused to make a final quark assignment!";
       return 0;
     }
@@ -195,7 +207,7 @@ TClonesArray *
     // from above) so that I conserve charge. 
 
     if(iss || issb) {
-       LOG("PythiaHad", pNOTICE) 
+       LOG("Pythia6Had", pNOTICE) 
                  << "Can not really handle a hit s or sbar quark / Faking it";
 
        if(isp && iss) { diquark = kPdgUUDiquarkS1; }
@@ -220,7 +232,7 @@ TClonesArray *
   // PYTHIA -> HADRONIZATION
   //
 
-  LOG("PythiaHad", pNOTICE)
+  LOG("Pythia6Had", pNOTICE)
         << "Fragmentation / Init System: "
         << "q = " << final_quark << ", qq = " << diquark;
   int ip = 0;
@@ -238,15 +250,15 @@ TClonesArray *
   int Dpp_decflag = fPythia->GetMDCY(fPythia->Pycomp(kPdgP33m1232_DeltaPP), 1); 
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("PythiaHad", pDEBUG) << "Original decay flag for pi0           =  " << pi0_decflag;
-  LOG("PythiaHad", pDEBUG) << "Original decay flag for K0            =  " << K0_decflag;
-  LOG("PythiaHad", pDEBUG) << "Original decay flag for \bar{K0}      =  " << K0b_decflag;
-  LOG("PythiaHad", pDEBUG) << "Original decay flag for Lambda        =  " << L0_decflag;
-  LOG("PythiaHad", pDEBUG) << "Original decay flag for \bar{Lambda0} =  " << L0b_decflag;
-  LOG("PythiaHad", pDEBUG) << "Original decay flag for D-            =  " << Dm_decflag;
-  LOG("PythiaHad", pDEBUG) << "Original decay flag for D0            =  " << D0_decflag;
-  LOG("PythiaHad", pDEBUG) << "Original decay flag for D+            =  " << Dp_decflag;
-  LOG("PythiaHad", pDEBUG) << "Original decay flag for D++           =  " << Dpp_decflag;
+  LOG("Pythia6Had", pDEBUG) << "Original decay flag for pi0           =  " << pi0_decflag;
+  LOG("Pythia6Had", pDEBUG) << "Original decay flag for K0            =  " << K0_decflag;
+  LOG("Pythia6Had", pDEBUG) << "Original decay flag for \bar{K0}      =  " << K0b_decflag;
+  LOG("Pythia6Had", pDEBUG) << "Original decay flag for Lambda        =  " << L0_decflag;
+  LOG("Pythia6Had", pDEBUG) << "Original decay flag for \bar{Lambda0} =  " << L0b_decflag;
+  LOG("Pythia6Had", pDEBUG) << "Original decay flag for D-            =  " << Dm_decflag;
+  LOG("Pythia6Had", pDEBUG) << "Original decay flag for D0            =  " << D0_decflag;
+  LOG("Pythia6Had", pDEBUG) << "Original decay flag for D+            =  " << Dp_decflag;
+  LOG("Pythia6Had", pDEBUG) << "Original decay flag for D++           =  " << Dpp_decflag;
 #endif
 
   fPythia->SetMDCY(fPythia->Pycomp(kPdgPi0),               1,0); // don't decay pi0
@@ -291,14 +303,14 @@ TClonesArray *
   TIter particle_iter(pythia_particles);
 
   while( (particle = (TMCParticle *) particle_iter.Next()) ) {
-     LOG("PythiaHad", pDEBUG)
+     LOG("Pythia6Had", pDEBUG)
           << "Adding final state particle pdgc = " << particle->GetKF() 
           << " with status = " << particle->GetKS();
 
      if(particle->GetKS() == 1) {
         if( pdg::IsQuark  (particle->GetKF()) || 
             pdg::IsDiQuark(particle->GetKF()) ) {
-                LOG("PythiaHad", pERROR)
+                LOG("Pythia6Had", pERROR)
                   << "Hadronization failed! Bare quark/di-quarks appear in final state!";
             particle_list->Delete();
             delete particle_list;
@@ -320,7 +332,7 @@ TClonesArray *
 }
 //____________________________________________________________________________
 PDGCodeList * 
-   PythiaHadronization::SelectParticles(
+   Pythia6Hadronization::SelectParticles(
             const Interaction * interaction) const
 {
 // Works the opposite way (compared with the KNO hadronization model)
@@ -349,13 +361,13 @@ PDGCodeList *
   return pdgcv;
 }
 //____________________________________________________________________________
-TH1D * PythiaHadronization::MultiplicityProb(
+TH1D * Pythia6Hadronization::MultiplicityProb(
      const Interaction * interaction, Option_t * opt) const
 {
 // Similar comments apply as in SelectParticles()
 
   if(!this->AssertValidity(interaction)) {
-     LOG("PythiaHad", pWARN) 
+     LOG("Pythia6Had", pWARN) 
                 << "Returning a null multipicity probability distribution!";
      return 0;
   }
@@ -388,7 +400,7 @@ TH1D * PythiaHadronization::MultiplicityProb(
     // Normalize the probability distribution
     mult_prob->Scale(1.0/integral);
   } else {
-    SLOG("PythiaHad", pWARN) << "probability distribution integral = 0";
+    SLOG("Pythia6Had", pWARN) << "probability distribution integral = 0";
     return mult_prob;
   }
 
@@ -406,7 +418,7 @@ TH1D * PythiaHadronization::MultiplicityProb(
      if(W<fWcut) {
        this->ApplyRijk(interaction, renormalize, mult_prob);
      } else {
-        SLOG("PythiaHad", pDEBUG)
+        SLOG("Pythia6Had", pDEBUG)
               << "W = " << W << " < Wcut = " << fWcut
                                 << " - Will not apply scaling factors";
      }//<wcut?
@@ -415,153 +427,15 @@ TH1D * PythiaHadronization::MultiplicityProb(
   return mult_prob;
 }
 //____________________________________________________________________________
-double PythiaHadronization::Weight(void) const
+double Pythia6Hadronization::Weight(void) const
 {
   return 1.; // does not generate weighted events
 }
 //____________________________________________________________________________
-void PythiaHadronization::Configure(const Registry & config)
-{
-  Algorithm::Configure(config);
-  this->LoadConfig();
-}
-//____________________________________________________________________________
-void PythiaHadronization::Configure(string config)
-{
-  Algorithm::Configure(config);
-  this->LoadConfig();
-}
-//____________________________________________________________________________
-void PythiaHadronization::LoadConfig(void)
-{
-  // the configurable PYTHIA parameters used here are the ones used by NUX 
-  // (see A.Rubbia's talk @ NuINT-01)
-  // The defaults are the values used by PYTHIA
-  // Use the NUX config set to set the tuned values as used in NUX.
-
-   GetParam( "PYTHIA-SSBarSuppression", fSSBarSuppression ) ;
-  GetParam( "PYTHIA-GaussianPt2",      fGaussianPt2      ) ;
-  GetParam( "PYTHIA-NonGaussianPt2Tail", fNonGaussianPt2Tail  ) ;
-  GetParam( "PYTHIA-RemainingEnergyCutoff", fRemainingECutoff ) ;
-
-  fPythia->SetPARJ(2,  fSSBarSuppression);
-  fPythia->SetPARJ(21, fGaussianPt2);
-  fPythia->SetPARJ(23, fNonGaussianPt2Tail);
-  fPythia->SetPARJ(33, fRemainingECutoff);
-
-  // Load Wcut determining the phase space area where the multiplicity prob.
-  // scaling factors would be applied -if requested-
-  GetParam( "Wcut", fWcut ) ;
-
-  // decayer
-  fDecayer = 0;
-  if( GetConfig().Exists("Decayer") ) {
-     fDecayer = dynamic_cast<const DecayModelI *> (this->SubAlg("Decayer"));
-     assert(fDecayer);
-  }
-
-  // Load NEUGEN multiplicity probability scaling parameters Rijk
-   //neutrinos
-   GetParam( "DIS-HMultWgt-vp-CC-m2",  fRvpCCm2  ) ;
-   GetParam( "DIS-HMultWgt-vp-CC-m3",  fRvpCCm3  ) ;
-   GetParam( "DIS-HMultWgt-vp-NC-m2",  fRvpNCm2  ) ;
-   GetParam( "DIS-HMultWgt-vp-NC-m3",  fRvpNCm3  ) ;
-   GetParam( "DIS-HMultWgt-vn-CC-m2",  fRvnCCm2  ) ;
-   GetParam( "DIS-HMultWgt-vn-CC-m3",  fRvnCCm3  ) ;
-   GetParam( "DIS-HMultWgt-vn-NC-m2",  fRvnNCm2  ) ;
-   GetParam( "DIS-HMultWgt-vn-NC-m3",  fRvnNCm3  ) ;
-   //Anti-neutrinos
-   GetParam( "DIS-HMultWgt-vbp-CC-m2", fRvbpCCm2 ) ;
-   GetParam( "DIS-HMultWgt-vbp-CC-m3", fRvbpCCm3 ) ;
-   GetParam( "DIS-HMultWgt-vbp-NC-m2", fRvbpNCm2 ) ;
-   GetParam( "DIS-HMultWgt-vbp-NC-m3", fRvbpNCm3 ) ;
-   GetParam( "DIS-HMultWgt-vbn-CC-m2", fRvbnCCm2 ) ;
-   GetParam( "DIS-HMultWgt-vbn-CC-m3", fRvbnCCm3 ) ;
-   GetParam( "DIS-HMultWgt-vbn-NC-m2", fRvbnNCm2 ) ;
-   GetParam( "DIS-HMultWgt-vbn-NC-m3", fRvbnNCm3 ) ;
-
-  LOG("PythiaHad", pDEBUG) << GetConfig() ;
-}
-//____________________________________________________________________________
-bool PythiaHadronization::AssertValidity(const Interaction * interaction) const
-{
-  // check that there is no charm production 
-  // (GENIE uses a special model for these cases)
-  if(interaction->ExclTag().IsCharmEvent()) {
-     LOG("PythiaHad", pWARN) << "Can't hadronize charm events";
-     return false;
-  }
-  // check the available mass
-  double W = utils::kinematics::W(interaction);
-  if(W < this->Wmin()) {
-     LOG("PythiaHad", pWARN) << "Low invariant mass, W = " << W << " GeV!!";
-     return false;
-  }
-
-  const InitialState & init_state = interaction->InitState();
-  const ProcessInfo &  proc_info  = interaction->ProcInfo();
-  const Target &       target     = init_state.Tgt();
-
-  if( ! target.HitQrkIsSet() ) {
-     LOG("PythiaHad", pWARN) << "Hit quark was not set!";
-     return false;
-  }
-
-  int  probe       = init_state.ProbePdg();
-  int  hit_nucleon = target.HitNucPdg();
-  int  hit_quark   = target.HitQrkPdg();
-//bool from_sea    = target.HitSeaQrk();
-
-  // check hit-nucleon assignment, input neutrino & weak current
-  bool isp  = pdg::IsProton           (hit_nucleon);
-  bool isn  = pdg::IsNeutron          (hit_nucleon);
-  bool isv  = pdg::IsNeutrino         (probe);
-  bool isvb = pdg::IsAntiNeutrino     (probe);
-  bool isdm = pdg::IsDarkMatter         (probe);
-  bool isl  = pdg::IsNegChargedLepton (probe);
-  bool islb = pdg::IsPosChargedLepton (probe);
-  bool iscc = proc_info.IsWeakCC      ();
-  bool isnc = proc_info.IsWeakNC      ();
-  bool isdmi = proc_info.IsDarkMatter  ();
-  bool isem = proc_info.IsEM          ();
-  if( !(iscc||isnc||isem||isdmi) ) {
-    LOG("PythiaHad", pWARN) 
-       << "Can only handle electro-weak interactions";
-    return false;
-  }
-  if( !(isp||isn) || !(isv||isvb||isl||islb||isdm) ) {
-    LOG("PythiaHad", pWARN) 
-      << "Invalid initial state: probe = " 
-      << probe << ", hit_nucleon = " << hit_nucleon;
-    return false;
-  }
-
-  // assert that the interaction mode is allowed
-  bool isu  = pdg::IsUQuark     (hit_quark);
-  bool isd  = pdg::IsDQuark     (hit_quark);
-  bool iss  = pdg::IsSQuark     (hit_quark);
-  bool isub = pdg::IsAntiUQuark (hit_quark);
-  bool isdb = pdg::IsAntiDQuark (hit_quark);
-  bool issb = pdg::IsAntiSQuark (hit_quark);
-
-  bool allowed = (iscc && isv  && (isd||isub||iss))  ||
-                 (iscc && isvb && (isu||isdb||issb)) ||
-                 (isnc && (isv||isvb) && (isu||isd||isub||isdb||iss||issb)) ||
-                 (isdmi && isdm && (isu||isd||isub||isdb||iss||issb)) ||
-                 (isem && (isl||islb) && (isu||isd||isub||isdb||iss||issb));
-  if(!allowed) {
-    LOG("PythiaHad", pWARN) 
-      << "Impossible interaction type / probe / hit quark combination!";
-    return false;
-  }
-
-  return true;
-}
-//____________________________________________________________________________
 /*
-void PythiaHadronization::SwitchDecays(int pdgc, bool on_off) const
+void Pythia6Hadronization::SwitchDecays(int pdgc, bool on_off) const
 {
-  LOG("PythiaHad", pNOTICE)
+  LOG("Pythia6Had", pNOTICE)
      << "Switching " << ((on_off) ? "ON" : "OFF")
                      << " all PYTHIA decay channels for particle = " << pdgc;
 
@@ -575,7 +449,7 @@ void PythiaHadronization::SwitchDecays(int pdgc, bool on_off) const
 */
 //____________________________________________________________________________
 /*
-void PythiaHadronization::HandleDecays(TClonesArray * plist) const
+void Pythia6Hadronization::HandleDecays(TClonesArray * plist) const
 {
 // Handle decays of unstable particles if requested through the XML config.
 // The default is not to decay the particles at this stage (during event
@@ -585,7 +459,7 @@ void PythiaHadronization::HandleDecays(TClonesArray * plist) const
 // framework it might be necessary to force the decays at this point.
 
   if(!fDecayer) {
-    LOG("PythiaHad", pWARN) << "No decayer was specified!";
+    LOG("Pythia6Had", pWARN) << "No decayer was specified!";
     return;
   }
 
@@ -638,7 +512,7 @@ void PythiaHadronization::HandleDecays(TClonesArray * plist) const
      // bother for final state particle only
      if(decay_it) {
 
-          LOG("PythiaHad", pINFO)
+          LOG("Pythia6Had", pINFO)
                      << "Decaying particle with pdgc = " << p->GetKF();
 
           DecayerInputs_t dinp;
