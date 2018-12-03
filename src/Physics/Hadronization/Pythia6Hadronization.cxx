@@ -67,7 +67,7 @@ void Pythia6Hadronization::Initialize(void) const
   RandomGen::Instance();
 }
 //____________________________________________________________________________
-void Pythia8Hadronization::ProcessEventRecord(GHepRecord * event) const
+void Pythia6Hadronization::ProcessEventRecord(GHepRecord * event) const
 {
   Interaction * interaction = event->Summary();
   TClonesArray * particle_list = this->Hadronize(interaction);

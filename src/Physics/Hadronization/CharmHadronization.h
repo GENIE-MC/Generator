@@ -25,6 +25,7 @@
 
 #include <TGenPhaseSpace.h>
 
+#include "Framework/EventGen/EventRecordVisitorI.h"
 #include "Physics/Hadronization/Hadronization.h"
 
 class TPythia6;
@@ -43,23 +44,18 @@ public:
   virtual ~CharmHadronization();
 
   // Implement the EventRecordVisitorI interface
-  //
-  void           Initialize       (void)                                    const;
-  TClonesArray * Hadronize        (const Interaction* )                     const;
-  double         Weight           (void)                                    const;
-  PDGCodeList *  SelectParticles  (const Interaction*)                      const;
-  TH1D *         MultiplicityProb (const Interaction*, Option_t* opt = "")  const;
-
-  // Overload the Algorithm::Configure() methods to load private data
-  // members from configuration options
-  //
-  void Configure(const Registry & config);
-  void Configure(string config);
+  void ProcessEventRecord(GHepRecord * event) const;
 
 private:
 
-  void LoadConfig          (void);
-  int  GenerateCharmHadron (int nupdg, double EvLab) const;
+  void           LoadConfig          (void);
+  void           Initialize          (void)                                    const;
+  TClonesArray * Hadronize           (const Interaction* )                     const;
+  double         Weight              (void)                                    const;
+  PDGCodeList *  SelectParticles     (const Interaction*)                      const;
+  TH1D *         MultiplicityProb    (const Interaction*, Option_t* opt = "")  const;
+  int            GenerateCharmHadron (int nupdg, double EvLab)                 const;
+
 
   mutable TGenPhaseSpace fPhaseSpaceGenerator; ///< a phase space generator
 

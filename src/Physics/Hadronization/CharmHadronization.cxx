@@ -80,6 +80,19 @@ void CharmHadronization::Initialize(void) const
   fPythia = TPythia6::Instance();
 }
 //____________________________________________________________________________
+void CharmHadronization::ProcessEventRecord(GHepRecord * event) const
+{
+  Interaction * interaction = event->Summary();
+  TClonesArray * particle_list = this->Hadronize(interaction);
+
+  GHepParticle * particle = 0;
+  TIter particle_iter(particle_list);
+  while ((particle = (GHepParticle *) particle_iter.Next())) 
+  {
+     event->AddParticle(*particle);
+  }
+}
+//____________________________________________________________________________
 TClonesArray * CharmHadronization::Hadronize(
                                         const Interaction * interaction) const
 {
@@ -678,18 +691,6 @@ int CharmHadronization::GenerateCharmHadron(int nu_pdg, double EvLab) const
 
   LOG("CharmHad", pERROR) << "Could not generate a charm hadron!";
   return 0;
-}
-//____________________________________________________________________________
-void CharmHadronization::Configure(const Registry & config)
-{
-  Algorithm::Configure(config);
-  this->LoadConfig();
-}
-//____________________________________________________________________________
-void CharmHadronization::Configure(string config)
-{
-  Algorithm::Configure(config);
-  this->LoadConfig();
 }
 //____________________________________________________________________________
 void CharmHadronization::LoadConfig(void)
