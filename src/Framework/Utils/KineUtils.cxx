@@ -5,10 +5,10 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
+         University of Liverpool & STFC Rutherford Appleton Lab
 
          Changes required to implement the GENIE Boosted Dark Matter module
-         were installed by Josh Berger (Univ. of Wisconsin)   
+         were installed by Josh Berger (Univ. of Wisconsin)
 */
 //____________________________________________________________________________
 
@@ -62,13 +62,13 @@ double genie::utils::kinematics::PhaseSpaceVolume(
   {
     Range1D_t W = phase_space.Limits(kKVW);
     if(W.max<0) return 0;
-    const int kNW = 100;  
-    double dW = (W.max-W.min)/(kNW-1);	
+    const int kNW = 100;
+    double dW = (W.max-W.min)/(kNW-1);
     Interaction interaction(*in);
     for(int iw=0; iw<kNW; iw++) {
       interaction.KinePtr()->SetW(W.min + iw*dW);
       Range1D_t Q2 = interaction.PhaseSpace().Q2Lim_W();
-      double dQ2 = (Q2.max-Q2.min);	
+      double dQ2 = (Q2.max-Q2.min);
       vol += (dW*dQ2);
     }
     return vol;
@@ -81,10 +81,10 @@ double genie::utils::kinematics::PhaseSpaceVolume(
 
     const InitialState & init_state = in->InitState();
     double Ev = init_state.ProbeE(kRfHitNucRest);
-    double M  = init_state.Tgt().HitNucP4Ptr()->M(); 
+    double M  = init_state.Tgt().HitNucP4Ptr()->M();
 
-    const int    kNx = 100;  
-    const int    kNy = 100;  
+    const int    kNx = 100;
+    const int    kNy = 100;
     const double kminx = controls::kMinX;
     const double kminy = controls::kMinY;
     const double kdx = (controls::kMaxX - kminx) / (kNx-1);
@@ -92,7 +92,7 @@ double genie::utils::kinematics::PhaseSpaceVolume(
     const double kdV = kdx*kdy;
 
     double cW=-1, cQ2 = -1;
-   
+
     Interaction interaction(*in);
 
     for(int ix=0; ix<kNx; ix++) {
@@ -114,8 +114,8 @@ double genie::utils::kinematics::PhaseSpaceVolume(
     break;
   }
   default:
-   SLOG("KineLimits", pERROR) 
-     << "Couldn't compute phase space volume for " 
+   SLOG("KineLimits", pERROR)
+     << "Couldn't compute phase space volume for "
                     << KinePhaseSpace::AsString(ps) << "using \n" << *in;
    return 0;
   }
@@ -144,9 +144,9 @@ double genie::utils::kinematics::Jacobian(
 //                    |                            |
 //                    |  ...     ...    ...    ... |
 //
-  SLOG("KineLimits", pDEBUG) 
+  SLOG("KineLimits", pDEBUG)
        << "Computing Jacobian for transformation: "
-       << KinePhaseSpace::AsString(fromps) << " --> " 
+       << KinePhaseSpace::AsString(fromps) << " --> "
        << KinePhaseSpace::AsString(tops);
 
   double J=0;
@@ -159,34 +159,34 @@ double genie::utils::kinematics::Jacobian(
   if ( TransformMatched(fromps,tops,kPSQ2fE,kPSlogQ2fE,forward) )
   {
     J = 1. / kine.Q2();
-  } 
+  }
 
   //
-  // transformation: {QD2}|E -> {Q2}|E 
+  // transformation: {QD2}|E -> {Q2}|E
   //
-  else 
+  else
   if ( TransformMatched(fromps,tops,kPSQD2fE,kPSQ2fE,forward) )
   {
     J = TMath::Power(1+kine.Q2()/controls::kMQD2,-2)/controls::kMQD2;
-  } 
+  }
 
   //
   // transformation: {x,y}|E -> {lnx,lny}|E
   //
-  else 
-  if ( TransformMatched(fromps,tops,kPSxyfE,kPSlogxlogyfE,forward) ) 
+  else
+  if ( TransformMatched(fromps,tops,kPSxyfE,kPSlogxlogyfE,forward) )
   {
     J = 1. / (kine.x() * kine.y());
-  } 
+  }
 
   //
   // transformation: {Q2,y}|E -> {lnQ2,lny}|E
   //
-  else 
-  if ( TransformMatched(fromps,tops,kPSQ2yfE,kPSlogQ2logyfE,forward) ) 
+  else
+  if ( TransformMatched(fromps,tops,kPSQ2yfE,kPSlogQ2logyfE,forward) )
   {
     J = 1. / (kine.Q2() * kine.y());
-  } 
+  }
 
   //
   // transformation: {Q2,y}|E -> {x,y}|E
@@ -204,57 +204,97 @@ double genie::utils::kinematics::Jacobian(
   //
   // transformation: {W,Q2}|E -> {W,lnQ2}|E
   //
-  else if ( TransformMatched(fromps,tops,kPSWQ2fE,kPSWlogQ2fE,forward) ) 
+  else if ( TransformMatched(fromps,tops,kPSWQ2fE,kPSWlogQ2fE,forward) )
   {
     J = 1. / kine.Q2();
-  } 
+  }
 
   //
-  // transformation: {W,QD2}|E -> {W,Q2}|E 
+  // transformation: {W,QD2}|E -> {W,Q2}|E
   //
-  else 
+  else
   if ( TransformMatched(fromps,tops,kPSWQD2fE,kPSWQ2fE,forward) )
   {
     J = TMath::Power(1+kine.Q2()/controls::kMQD2,-2)/controls::kMQD2;
-  } 
+  }
 
   //
   // transformation: {W2,Q2}|E --> {x,y}|E
   //
-  else 
-  if ( TransformMatched(fromps,tops,kPSW2Q2fE,kPSxyfE,forward) ) 
+  else
+  if ( TransformMatched(fromps,tops,kPSW2Q2fE,kPSxyfE,forward) )
   {
     const InitialState & init_state = i->InitState();
     double Ev = init_state.ProbeE(kRfHitNucRest);
-    double M  = init_state.Tgt().HitNucP4Ptr()->M(); 
+    double M  = init_state.Tgt().HitNucP4Ptr()->M();
     double y  = kine.y();
     J = TMath::Power(2*M*Ev,2) * y;
-  } 
+  }
 
-  // 
+  //
   // transformation: {W,Q2}|E -> {x,y}|E
   //
-  else 
-  if ( TransformMatched(fromps,tops,kPSWQ2fE,kPSxyfE,forward) ) 
+  else
+  if ( TransformMatched(fromps,tops,kPSWQ2fE,kPSxyfE,forward) )
   {
     const InitialState & init_state = i->InitState();
     double Ev = init_state.ProbeE(kRfHitNucRest);
-    double M  = init_state.Tgt().HitNucP4Ptr()->M(); 
+    double M  = init_state.Tgt().HitNucP4Ptr()->M();
     double y  = kine.y();
     double W  = kine.W();
     J = 2*TMath::Power(M*Ev,2) * y/W;
   }
-  
+
   // Transformation: {Omegalep,Omegapi}|E -> {Omegalep,Thetapi}|E
   else if ( TransformMatched(fromps,tops,kPSElOlOpifE,kPSElOlTpifE,forward) ) {
     // Use symmetry to turn 4d integral into 3d * 2pi
     J = 2*constants::kPi;
   }
 
+  // Transformation: centre-of-mass plep,Omega_lep, p_p, omega_p|E
+  // -> QELEvGen
+  // TODO: update this comment when kPSQELEvGen has been renamed
+  else if ( TransformMatched(fromps, tops, kPSTnctnBnctl, kPSQELEvGen, forward) )
+  {
+    // Get the final-state lepton and struck nucleon 4-momenta in the lab frame
+    const TLorentzVector& lepton = i->Kine().FSLeptonP4();
+    const TLorentzVector& outNucleon = i->Kine().HadSystP4();
+
+    // Get beta for a Lorentz boost from the lab frame to the COM frame and
+    // vice-versa
+    TLorentzVector* probe = i->InitStatePtr()->GetProbeP4(kRfLab);
+    const TLorentzVector& target = i->InitStatePtr()->TgtPtr()
+      ->HitNucP4();
+    TLorentzVector total_p4 = (*probe) + target;
+    TVector3 beta_COM_to_lab = total_p4.BoostVector();
+    TVector3 beta_lab_to_COM = -beta_COM_to_lab;
+
+    // Square of the Lorentz gamma factor for the boosts
+    double gamma2 = std::pow(total_p4.Gamma(), 2);
+
+    // Get the final-state lepton 4-momentum in the COM frame
+    TLorentzVector leptonCOM = TLorentzVector( lepton );
+    leptonCOM.Boost( beta_lab_to_COM );
+
+    // Angle between lab-frame muon velocity and velocity of COM frame
+    // as measured in lab frame
+    double theta_J = lepton.Angle( beta_COM_to_lab );
+    double cos_theta_J2 = std::pow(std::cos( theta_J ), 2);
+
+    // Difference in lab frame velocities between lepton and outgoing nucleon
+    TVector3 lepton_vel = ( lepton.Vect() * (1. / lepton.E()) );
+    TVector3 outNucleon_vel = ( outNucleon.Vect() * (1. / outNucleon.E()) );
+    double vel_diff = ( lepton_vel - outNucleon_vel ).Mag();
+
+    // Compute the Jacobian
+    J = 4. * kPi * leptonCOM.P() * leptonCOM.P()
+      * std::sqrt( 1. + (1. - cos_theta_J2)*(gamma2 - 1) ) / vel_diff;
+  }
+
   else {
-     SLOG("KineLimits", pFATAL) 
+     SLOG("KineLimits", pFATAL)
        << "*** Can not compute Jacobian for transforming: "
-       << KinePhaseSpace::AsString(fromps) << " --> " 
+       << KinePhaseSpace::AsString(fromps) << " --> "
        << KinePhaseSpace::AsString(tops);
      exit(1);
   }
@@ -269,9 +309,9 @@ bool genie::utils::kinematics::TransformMatched(
 	       KinePhaseSpace_t inpa, KinePhaseSpace_t inpb,
                            KinePhaseSpace_t a, KinePhaseSpace_t b, bool & fwd)
 {
-  
+
   // match a->b or b->a
-  bool matched = ( (a==inpa&&b==inpb) || (a==inpb&&b==inpa) ); 
+  bool matched = ( (a==inpa&&b==inpb) || (a==inpb&&b==inpa) );
 
   if(matched) {
     if(a==inpa&&b==inpb) fwd = true;  // matched forward transform: a->b
@@ -397,7 +437,7 @@ Range1D_t genie::utils::kinematics::InelXLim(double Ev, double M, double ml)
 
   Range1D_t x;
   x.min = ml2/(s-M2) + controls::kASmallNum;
-  x.max = 1.         - controls::kASmallNum;  
+  x.max = 1.         - controls::kASmallNum;
 
   return x;
 }
@@ -408,7 +448,7 @@ Range1D_t genie::utils::kinematics::InelYLim(double Ev, double M, double ml)
 
   Range1D_t y;
   y.min =  999;
-  y.max = -999;  
+  y.max = -999;
 
   Range1D_t xl = kinematics::InelXLim(Ev,M,ml);
   assert(xl.min>0 && xl.max>0);
@@ -428,7 +468,7 @@ Range1D_t genie::utils::kinematics::InelYLim(double Ev, double M, double ml)
 
   if(y.max >= 0 && y.max <= 1 && y.min >= 0 && y.min <= 1) {
     y.min = TMath::Max(y.min,     controls::kASmallNum);
-    y.max = TMath::Min(y.max, 1 - controls::kASmallNum);  
+    y.max = TMath::Min(y.max, 1 - controls::kASmallNum);
   } else {
     y.min = -1;
     y.max = -1;
@@ -480,7 +520,7 @@ Range1D_t genie::utils::kinematics::CohXLim(void)
 //____________________________________________________________________________
 Range1D_t genie::utils::kinematics::CohQ2Lim(double Mn, double mpi, double mlep, double Ev)
 {
-  // The expressions for Q^2 min appears in PRD 74, 054007 (2006) by 
+  // The expressions for Q^2 min appears in PRD 74, 054007 (2006) by
   // Kartavtsev, Paschos, and Gounaris
 
   Range1D_t Q2;
@@ -491,7 +531,7 @@ Range1D_t genie::utils::kinematics::CohQ2Lim(double Mn, double mpi, double mlep,
   double mlep2 = mlep * mlep;
   double s = Mn2 + 2.0 * Mn * Ev;
   double W2min = CohW2Min(Mn, mpi);
-  
+
   // Looks like Q2min = A * B - C, where A, B, and C are complicated
   double a = 1.0;
   double b = mlep2 / s;
@@ -502,13 +542,13 @@ Range1D_t genie::utils::kinematics::CohQ2Lim(double Mn, double mpi, double mlep,
     double B = 1 - TMath::Sqrt(lambda);
     double C = 0.5 * (W2min + mlep2 - Mn2 * (W2min - mlep2) / s );
     if (A * B - C < 0) {
-      SLOG("KineLimits", pERROR) 
+      SLOG("KineLimits", pERROR)
         << "Q2 kinematic limits calculation failed for CohQ2Lim. "
         << "Assuming Q2min = 0.0";
     }
     Q2.min = TMath::Max(0., A * B - C);
   } else {
-    SLOG("KineLimits", pERROR) 
+    SLOG("KineLimits", pERROR)
       << "Q2 kinematic limits calculation failed for CohQ2Lim. "
       << "Assuming Q2min = 0.0";
   }
@@ -525,7 +565,7 @@ Range1D_t genie::utils::kinematics::Cohq2Lim(double Mn, double mpi, double mlep,
   return q2;
 }
 //____________________________________________________________________________
-Range1D_t genie::utils::kinematics::CohW2Lim(double Mn, double mpi, double mlep, 
+Range1D_t genie::utils::kinematics::CohW2Lim(double Mn, double mpi, double mlep,
     double Ev, double Q2)
 {
   // These expressions for W^2 min and max appear in PRD 74, 054007 (2006) by
@@ -543,14 +583,14 @@ Range1D_t genie::utils::kinematics::CohW2Lim(double Mn, double mpi, double mlep,
   double T2 = Q2 - (0.5 * s * Mnterm) + (0.5 * mlep * mlep * Mnterm);
 
   W2l.min = CohW2Min(Mn, mpi);
-  W2l.max = (T1 - T2 * T2 ) * 
-    (1.0 / Mnterm) * 
+  W2l.max = (T1 - T2 * T2 ) *
+    (1.0 / Mnterm) *
     (1.0 / (Q2 + mlep * mlep));
 
   return W2l;
 }
 //____________________________________________________________________________
-Range1D_t genie::utils::kinematics::CohNuLim(double W2min, double W2max, 
+Range1D_t genie::utils::kinematics::CohNuLim(double W2min, double W2max,
     double Q2, double Mn, double xsi)
 {
   Range1D_t nul;
@@ -567,7 +607,7 @@ Range1D_t genie::utils::kinematics::CohNuLim(double W2min, double W2max,
   return nul;
 }
 //____________________________________________________________________________
-Range1D_t genie::utils::kinematics::CohYLim(double Mn, double mpi, double mlep, 
+Range1D_t genie::utils::kinematics::CohYLim(double Mn, double mpi, double mlep,
     double Ev, double Q2, double xsi)
 {
   Range1D_t ylim;
@@ -576,15 +616,15 @@ Range1D_t genie::utils::kinematics::CohYLim(double Mn, double mpi, double mlep,
 
   Range1D_t W2lim = genie::utils::kinematics::CohW2Lim(Mn, mpi, mlep, Ev, Q2);
   if (W2lim.min > W2lim.max) {
-    LOG("KineLimits", pDEBUG) 
-      << "Kinematically forbidden region in CohYLim. W2min = " << W2lim.min 
+    LOG("KineLimits", pDEBUG)
+      << "Kinematically forbidden region in CohYLim. W2min = " << W2lim.min
       << "; W2max =" << W2lim.max;
-    LOG("KineLimits", pDEBUG) 
-      << "  Mn = " << Mn << "; mpi = " << mpi << "; mlep = " 
+    LOG("KineLimits", pDEBUG)
+      << "  Mn = " << Mn << "; mpi = " << mpi << "; mlep = "
       << mlep << "; Ev = " << Ev << "; Q2 = " << Q2;
     return ylim;
   }
-  Range1D_t nulim = genie::utils::kinematics::CohNuLim(W2lim.min, W2lim.max, 
+  Range1D_t nulim = genie::utils::kinematics::CohNuLim(W2lim.min, W2lim.max,
       Q2, Mn, xsi);
   ylim.min = nulim.min / Ev;
   ylim.max = nulim.max / Ev;
@@ -596,7 +636,7 @@ Range1D_t genie::utils::kinematics::CohYLim(double EvL, double ml)
 {
 // Computes y limits for coherent v interactions
 
-  Range1D_t y(kPionMass/EvL + controls::kASmallNum, 
+  Range1D_t y(kPionMass/EvL + controls::kASmallNum,
               1.-ml/EvL - controls::kASmallNum);
   return y;
 }
@@ -676,7 +716,7 @@ Range1D_t genie::utils::kinematics::DarkQ2Lim_W(
   // limit the minimum Q2
   if(Q2.min < Q2min_cut) {Q2.min = Q2min_cut;     }
   if(Q2.max < Q2.min   ) {Q2.min = -1; Q2.max = -1;}
-  
+
   return Q2;
 }
 //____________________________________________________________________________
@@ -735,9 +775,9 @@ Range1D_t genie::utils::kinematics::DarkXLim(double Ev, double M, double ml)
   Range1D_t x;
   x.min = Q2l.min / (Q2l.min + W2min - M2);
   x.max = Q2l.max / (Q2l.max + W2min - M2);
-  
+
   SLOG("KineLimits", pDEBUG) << "x  = [" << x.min << ", " << x.max << "]";
-  return x; 
+  return x;
 }
 //____________________________________________________________________________
 Range1D_t genie::utils::kinematics::DarkYLim(double Ev, double M, double ml)
@@ -751,7 +791,7 @@ Range1D_t genie::utils::kinematics::DarkYLim(double Ev, double M, double ml)
   Range1D_t y;
   y.min = (Q2l.min + W2min - M2) / (2*Ev*M);
   y.max = (Q2l.max + W2min - M2) / (2*Ev*M);
-  
+
   SLOG("KineLimits", pDEBUG) << "y  = [" << y.min << ", " << y.max << "]";
   return y;
 }
@@ -839,7 +879,7 @@ double genie::utils::kinematics::W(const Interaction * const interaction)
   if(kinematics.KVSet(kKVx) && kinematics.KVSet(kKVy)) {
     const InitialState & init_state = interaction->InitState();
     double Ev = init_state.ProbeE(kRfHitNucRest);
-    double M  = init_state.Tgt().HitNucP4Ptr()->M(); 
+    double M  = init_state.Tgt().HitNucP4Ptr()->M();
     double M2 = M*M;
     double x  = kinematics.x();
     double y  = kinematics.y();
@@ -870,7 +910,7 @@ void genie::utils::kinematics::WQ2toXY(
   x = TMath::Max(0.,x);
   y = TMath::Max(0.,y);
 
-  LOG("KineLimits", pDEBUG) 
+  LOG("KineLimits", pDEBUG)
         << "(W=" << W << ",Q2=" << Q2 << ") => (x="<< x << ", y=" << y<< ")";
 }
 //___________________________________________________________________________
@@ -888,7 +928,7 @@ void genie::utils::kinematics::XYtoWQ2(
   W  = TMath::Sqrt(TMath::Max(0., W2));
   Q2 = 2*x*y*M*Ev;
 
-  LOG("KineLimits", pDEBUG) 
+  LOG("KineLimits", pDEBUG)
       << "(x=" << x << ",y=" << y << " => (W=" << W << ",Q2=" << Q2 << ")";
 }
 //___________________________________________________________________________
@@ -932,7 +972,7 @@ double genie::utils::kinematics::Q2YtoX(
 
   double x = Q2 / (2. * y * M * Ev);
 
-  LOG("KineLimits", pDEBUG) << "(Ev=" << Ev << ",Q2=" << Q2 
+  LOG("KineLimits", pDEBUG) << "(Ev=" << Ev << ",Q2=" << Q2
     << ",y=" << y << ",M=" << M << ") => x=" << x;
 
   return x;
@@ -1001,7 +1041,7 @@ void genie::utils::kinematics::UpdateWQ2FromXY(const Interaction * in)
     double x  = kine->x();
     double y  = kine->y();
 
-    double Q2=-1,W=-1; 
+    double Q2=-1,W=-1;
     kinematics::XYtoWQ2(Ev,M,W,Q2,x,y);
     kine->SetQ2(Q2);
     kine->SetW(W);
@@ -1019,7 +1059,7 @@ void genie::utils::kinematics::UpdateXYFromWQ2(const Interaction * in)
     double W  = kine->W();
     double Q2 = kine->Q2();
 
-    double x=-1,y=-1; 
+    double x=-1,y=-1;
     kinematics::WQ2toXY(Ev,M,W,Q2,x,y);
     kine->Setx(x);
     kine->Sety(y);
@@ -1106,7 +1146,7 @@ double genie::utils::kinematics::RESImportanceSamplingEnvelope(
      } else {
        //low-W falling edge
        func = xsmax / (1 + TMath::Power((W-plateau_edge)/gD,2));
-     } 
+     }
   }
 
   if(QD2<0.5) {
@@ -1144,7 +1184,7 @@ double genie::utils::kinematics::DISImportanceSamplingEnvelope(
   } else {
        // plateau
        func = xsmax;
-  } 
+  }
   return func;
 }
 //___________________________________________________________________________

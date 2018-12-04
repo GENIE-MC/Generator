@@ -363,7 +363,7 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
             interaction->KinePtr()->ClearRunningValues();
 
             // set the cross section for the selected kinematics
-            evrec->SetDiffXSec(xsec,kPSQ2fE);
+            evrec->SetDiffXSec(xsec, kPSQELEvGen);
 
             TLorentzVector lepton(interaction->KinePtr()->FSLeptonP4());
             TLorentzVector outNucleon(interaction->KinePtr()->HadSystP4());
@@ -801,7 +801,11 @@ double QELEventGenerator::ComputeXSec( Interaction * interaction, double costhet
     double jac = this->COMJacobian(lepton, leptonCOM, outNucleon, beta);
     xsec *= jac;
 
-    //delete qP4;
+    //// BEGIN DEBUG
+    //double debug_xsec = fXSecModel->XSec(interaction, kPSQELEvGen);
+    //std::cout << "\nDEBUG: xsec = " << xsec << ", debug_xsec = " << debug_xsec
+    //  << " xsec / debug_xsec = " << xsec / debug_xsec << '\n';
+    //// END DEBUG
 
     return xsec;
 }
