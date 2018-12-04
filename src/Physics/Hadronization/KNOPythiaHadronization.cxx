@@ -25,11 +25,12 @@
 
 #include "Framework/Algorithm/AlgConfigPool.h"
 #include "Framework/Conventions/Constants.h"
-#include "Physics/Hadronization/KNOPythiaHadronization.h"
+#include "Framework/GHEP/GHepRecord.h"
 #include "Framework/Interaction/Interaction.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
 #include "Framework/ParticleData/PDGCodeList.h"
+#include "Physics/Hadronization/KNOPythiaHadronization.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -59,22 +60,9 @@ void KNOPythiaHadronization::Initialize(void) const
 //____________________________________________________________________________
 void KNOPythiaHadronization::ProcessEventRecord(GHepRecord * event) const
 {
-  Interaction * interaction = event->Summary();
-  TClonesArray * particle_list = this->Hadronize(interaction);
-
-  GHepParticle * particle = 0;
-  TIter particle_iter(particle_list);
-  while ((particle = (GHepParticle *) particle_iter.Next())) 
-  {
-     event->AddParticle(*particle);
-  }
-}
-//____________________________________________________________________________
-TClonesArray * KNOPythiaHadronization::Hadronize(
-                                        const Interaction * interaction) const
-{
 // Generate the hadronic system using either the KNO-based or PYTHIA/JETSET 
 // hadronization models according to the specified transition scheme
+  Interaction * interaction = event->Summary();
 
   double W = interaction->Kine().W();
   LOG("HybridHad", pINFO) << "W = " << W << " GeV";
@@ -82,7 +70,7 @@ TClonesArray * KNOPythiaHadronization::Hadronize(
   if(W <= kNucleonMass+kPionMass) {
      LOG("HybridHad", pWARN) 
         << "Low invariant mass, W = " << W << " GeV! Returning a null list";
-     return 0;
+     return;
   }
 
   //-- Init event weight (to be set if producing weighted events)
@@ -92,12 +80,10 @@ TClonesArray * KNOPythiaHadronization::Hadronize(
   const EventRecordVisitorI * hadronizer = this->SelectHadronizer(interaction);
 
   //-- Run the selected hadronizer
-  TClonesArray * particle_list = hadronizer->Hadronize(interaction);
+  hadronizer->ProcessEventRecord(event);
 
   //-- Update the weight
   fWeight = hadronizer->Weight();
-
-  return particle_list;
 }
 //____________________________________________________________________________
 PDGCodeList * KNOPythiaHadronization::SelectParticles(

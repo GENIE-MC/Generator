@@ -17,12 +17,17 @@
 #include <TMath.h>
 
 #include "Framework/Conventions/Constants.h"
+#include "Framework/Conventions/KineVar.h"
 #include "Framework/Interaction/Interaction.h"
 #include "Framework/Messenger/Messenger.h"
-#include "Framework/ParticleData/PDGLibrary.h"
+#include "Framework/ParticleData/PDGUtils.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/Utils/KineUtils.h"
 #include "Physics/Hadronization/Hadronization.h"
 
 using namespace genie;
+using namespace genie::constants;
+
 //___________________________________________________________________________
 Hadronization::Hadronization() :
 EventRecordVisitorI()
@@ -267,7 +272,7 @@ void Hadronization::Configure(const Registry & config)
   fAllowReconfig = false;
 }
 //___________________________________________________________________________
-void Decayer::Configure(string config)
+void Hadronization::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
@@ -275,7 +280,7 @@ void Decayer::Configure(string config)
   fAllowReconfig = false;
 }
 //___________________________________________________________________________
-void Decayer::LoadConfig(void)
+void Hadronization::LoadConfig(void)
 {
   // Check whether to generate weighted or unweighted particle decays
   fGenerateWeighted = false ;

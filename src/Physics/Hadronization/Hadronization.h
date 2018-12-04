@@ -34,6 +34,7 @@ class TH1D;
 namespace genie {
 
 class GHepParticle;
+class Interaction;
 
 class Hadronization : public EventRecordVisitorI {
 
