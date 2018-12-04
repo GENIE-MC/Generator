@@ -1556,7 +1556,7 @@ bool genie::utils::intranuke::PhaseSpaceDecay(
   TLorentzVector &RemnP4, double NucRmvE, EINukeMode mode)
 {
 // General method decaying the input particle system 'pdgv' with available 4-p
-// given by 'pd'. The decayed system is used to populate the input TMCParticle
+// given by 'pd'. The decayed system is used to populate the input GHepParticle
 // array starting from the slot 'offset'.
 //
   LOG("INukeUtils", pINFO) << "*** Performing a Phase Space Decay";

@@ -396,7 +396,7 @@ void BaryonResonanceDecayer::DecayExclusive(
   //     //
   //     // // restore mother particle to the temp_particle list.
   //     // new ( (*temp_particle_list)[0] )
-  //     //   TMCParticle(11,pdg_code,0,0,0,px,py,pz,E,M,0,0,0,0,0);
+  //     //   GHepParticle(pdg_code,kIStNucleonTarget,0,0,0,px,py,pz,E,0,0,0,0);
   //
   //     // Add the daughter particles to the event record
   //     for(unsigned int id = 0; id < nd; id++) {
@@ -430,7 +430,7 @@ void BaryonResonanceDecayer::DecayExclusive(
 	//        }  //end twobody
   //
   //        new ( (*temp_particle_list)[1+id] )
-  //           TMCParticle(1,pdgc[id],0,0,0,px,py,pz,E,M,0,0,0,0,0);
+  //           GHepParticle(pdgc[id],kIStStableFinalState,0,0,0,0,px,py,pz,E,0,0,0,0);
   //     }//end daughter particle loop
   //
   //     if(!twobody) break;

@@ -14,11 +14,6 @@
 //____________________________________________________________________________
 
 #include <RVersion.h>
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,6)
-#include <TMCParticle.h>
-#else
-#include <TMCParticle6.h>
-#endif
 #include <TPythia6.h>
 #include <TVector3.h>
 #include <TF1.h>
@@ -27,6 +22,9 @@
 #include "Framework/Algorithm/AlgConfigPool.h"
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/Controls.h"
+#include "Framework/GHEP/GHepStatus.h"
+#include "Framework/GHEP/GHepParticle.h"
+#include "Framework/GHEP/GHepRecord.h"
 #include "Physics/Hadronization/CharmHadronization.h"
 #include "Physics/Hadronization/FragmentationFunctionI.h"
 #include "Framework/Messenger/Messenger.h"
@@ -324,14 +322,14 @@ TClonesArray * CharmHadronization::Hadronize(
   //
   if(fCharmOnly) {
     // Create particle list (fragmentation record)
-    TClonesArray * particle_list = new TClonesArray("TMCParticle", 2);
+    TClonesArray * particle_list = new TClonesArray("genie::GHepParticle", 2);
     particle_list->SetOwner(true);
 
     // insert the generated particles
-    new ((*particle_list)[0]) TMCParticle (1,ch_pdg,
-	     -1,-1,-1, p4C.Px(),p4C.Py(),p4C.Pz(),p4C.E(),MC, 0,0,0,0,0);
-    new ((*particle_list)[1]) TMCParticle (1,kPdgHadronicBlob,
-             -1,-1,-1, p4R.Px(),p4R.Py(),p4R.Pz(),p4R.E(),WR, 0,0,0,0,0);
+    new ((*particle_list)[0]) GHepParticle (ch_pdg,kIStStableFinalState,
+	     -1,-1,-1,-1, p4C.Px(),p4C.Py(),p4C.Pz(),p4C.E(), 0,0,0,0);
+    new ((*particle_list)[1]) GHepParticle (kPdgHadronicBlob,kIStStableFinalState,
+             -1,-1,-1,-1, p4R.Px(),p4R.Py(),p4R.Pz(),p4R.E(), 0,0,0,0);
 
     return particle_list;
   }
@@ -343,16 +341,16 @@ TClonesArray * CharmHadronization::Hadronize(
   //
   if(used_lowW_strategy) {
     // Create particle list (fragmentation record)
-    TClonesArray * particle_list = new TClonesArray("TMCParticle", 3);
+    TClonesArray * particle_list = new TClonesArray("genie::GHepParticle", 3);
     particle_list->SetOwner(true);
 
     // insert the generated particles
-    new ((*particle_list)[0]) TMCParticle (1,ch_pdg,
-	     -1,-1,-1, p4C.Px(),p4C.Py(),p4C.Pz(),p4C.E(),MC, 0,0,0,0,0);
-    new ((*particle_list)[1]) TMCParticle (11,kPdgHadronicBlob,
-               -1,2,2, p4R.Px(),p4R.Py(),p4R.Pz(),p4R.E(),WR, 0,0,0,0,0);
-    new ((*particle_list)[2]) TMCParticle (1,fs_nucleon_pdg,
-              1,-1,-1, p4R.Px(),p4R.Py(),p4R.Pz(),p4R.E(),WR, 0,0,0,0,0);
+    new ((*particle_list)[0]) GHepParticle (ch_pdg,kIStStableFinalState,
+	    -1,-1,-1,-1, p4C.Px(),p4C.Py(),p4C.Pz(),p4C.E(), 0,0,0,0);
+    new ((*particle_list)[1]) GHepParticle (kPdgHadronicBlob,kIStNucleonTarget,
+            -1,-1,2,2, p4R.Px(),p4R.Py(),p4R.Pz(),p4R.E(), 0,0,0,0);
+    new ((*particle_list)[2]) GHepParticle (fs_nucleon_pdg,kIStStableFinalState,
+            1,1,-1,-1, p4R.Px(),p4R.Py(),p4R.Pz(),p4R.E(), 0,0,0,0);
 
     return particle_list;
   }
@@ -367,13 +365,13 @@ TClonesArray * CharmHadronization::Hadronize(
   // Insert the generated charm hadron & the hadronic (non-charm) blob.
   // In this case the hadronic blob is entered as a pre-fragm. state.
 
-  TClonesArray * particle_list = new TClonesArray("TMCParticle");
+  TClonesArray * particle_list = new TClonesArray("genie::GHepParticle");
   particle_list->SetOwner(true);
 
-  new ((*particle_list)[0]) TMCParticle (1,ch_pdg,
-                  -1,-1,-1,  p4C.Px(),p4C.Py(),p4C.Pz(),p4C.E(),MC, 0,0,0,0,0);
-  new ((*particle_list)[1]) TMCParticle (11,kPdgHadronicBlob,
-                     -1,2,3, p4R.Px(),p4R.Py(),p4R.Pz(),p4R.E(),WR, 0,0,0,0,0);
+  new ((*particle_list)[0]) GHepParticle (ch_pdg,kIStStableFinalState,
+          -1,-1,-1,-1,  p4C.Px(),p4C.Py(),p4C.Pz(),p4C.E(), 0,0,0,0);
+  new ((*particle_list)[1]) GHepParticle (kPdgHadronicBlob,kIStNucleonTarget,
+          -1,-1,2,3, p4R.Px(),p4R.Py(),p4R.Pz(),p4R.E(), 0,0,0,0);
 
   unsigned int rpos =2; // offset in event record
 
@@ -523,16 +521,16 @@ TClonesArray * CharmHadronization::Hadronize(
 
       TVector3 rmnbeta = +1 * p4R.BoostVector(); // boost velocity
 
-      TMCParticle * remn  = 0; // remnant
-      TMCParticle * bremn = 0; // boosted remnant
+      GHepParticle * remn  = 0; // remnant
+      GHepParticle * bremn = 0; // boosted remnant
       TIter remn_iter(remnants);
-      while( (remn = (TMCParticle *) remn_iter.Next()) ) {
+      while( (remn = (GHepParticle *) remn_iter.Next()) ) {
 
          // insert and get a pointer to inserted object for mods
-         bremn = new ((*particle_list)[rpos++]) TMCParticle (*remn);
+         bremn = new ((*particle_list)[rpos++]) GHepParticle (*remn);
 
          // boost 
-         TLorentzVector p4(remn->GetPx(),remn->GetPy(),remn->GetPz(),remn->GetEnergy());
+         TLorentzVector p4(remn->Px(),remn->Py(),remn->Pz(),remn->Energy());
          p4.Boost(rmnbeta);
          bremn -> SetPx     (p4.Px());
          bremn -> SetPy     (p4.Py());
@@ -540,12 +538,12 @@ TClonesArray * CharmHadronization::Hadronize(
          bremn -> SetEnergy (p4.E() );
 
          // handle insertion of charmed hadron 
-         int jp  = bremn->GetParent();
-         int ifc = bremn->GetFirstChild();
-         int ilc = bremn->GetLastChild();
-         bremn -> SetParent     ( (jp  == 0 ?  1 : jp +1) );
-         bremn -> SetFirstChild ( (ifc == 0 ? -1 : ifc+1) );
-         bremn -> SetLastChild  ( (ilc == 0 ? -1 : ilc+1) );
+         int jp  = bremn->FirstMother();
+         int ifc = bremn->FirstDaughter();
+         int ilc = bremn->LastDaughter();
+         bremn -> SetFirstDaughter ( (jp  == 0 ?  1 : jp +1) );
+         bremn -> SetFirstDaughter ( (ifc == 0 ? -1 : ifc+1) );
+         bremn -> SetLastDaughter  ( (ilc == 0 ? -1 : ilc+1) );
       }
   } // use_pythia
 
@@ -641,9 +639,9 @@ TClonesArray * CharmHadronization::Hadronize(
      for(unsigned int i=0; i<2; i++) {
         int pdgc = pd[i];
         TLorentzVector * p4d = fPhaseSpaceGenerator.GetDecay(i);
-        new ( (*particle_list)[rpos+i] ) TMCParticle(
-           1,pdgc,1,-1,-1,p4d->Px(),p4d->Py(),p4d->Pz(),p4d->Energy(),
-           mass[i],0,0,0,0,0);
+        new ( (*particle_list)[rpos+i] ) GHepParticle(
+           pdgc,kIStStableFinalState,1,1,-1,-1,p4d->Px(),p4d->Py(),p4d->Pz(),p4d->Energy(),
+           0,0,0,0);
      }
   } 
 

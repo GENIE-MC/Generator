@@ -28,11 +28,6 @@
 #include <cstdlib>
 
 #include <RVersion.h>
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,6)
-#include <TMCParticle.h>
-#else
-#include <TMCParticle6.h>
-#endif
 #include <TSystem.h>
 #include <TLorentzVector.h>
 #include <TClonesArray.h>
@@ -45,6 +40,9 @@
 #include "Framework/Algorithm/AlgFactory.h"
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/Controls.h"
+#include "Framework/GHEP/GHepStatus.h"
+#include "Framework/GHEP/GHepParticle.h"
+#include "Framework/GHEP/GHepRecord.h"
 #include "Physics/Decay/DecayModelI.h"
 #include "Physics/Hadronization/KNOHadronization.h"
 #include "Framework/Interaction/Interaction.h"
@@ -664,7 +662,7 @@ TClonesArray * KNOHadronization::DecayMethod1(
   LOG("KNOHad", pINFO) << "** Using Hadronic System Decay method 1";
 
   TLorentzVector p4had(0,0,0,W);
-  TClonesArray * plist = new TClonesArray("TMCParticle", pdgv.size());
+  TClonesArray * plist = new TClonesArray("genie::GHepParticle", pdgv.size());
 
   // do the decay
   bool ok = this->PhaseSpaceDecay(*plist, p4had, pdgv, 0, reweight_decays); 
@@ -714,7 +712,7 @@ TClonesArray * KNOHadronization::DecayMethod2(
   }
 
   // Create the particle list
-  TClonesArray * plist = new TClonesArray("TMCParticle", pdgv.size());
+  TClonesArray * plist = new TClonesArray("genie::GHepParticle", pdgv.size());
 
   RandomGen * rnd = RandomGen::Instance();
   TLorentzVector p4had(0,0,0,W);
@@ -761,8 +759,10 @@ TClonesArray * KNOHadronization::DecayMethod2(
         << "Generated baryon with P4 = " << utils::print::P4AsString(&p4N);
 
     // Insert the baryon at the event record
-    new ((*plist)[0]) TMCParticle(
-      1,baryon,-1,-1,-1, p4N.Px(),p4N.Py(),p4N.Pz(),p4N.Energy(),MN, 0,0,0,0,0);
+    new ((*plist)[0]) GHepParticle(
+      baryon,kIStStableFinalState, -1,-1,-1,-1,
+      p4N.Px(),p4N.Py(),p4N.Pz(),p4N.Energy(), 0,0,0,0
+    );
 
     // Do a phase space decay for the N-1 particles and add them to the list
     LOG("KNOHad", pINFO) 
@@ -805,7 +805,7 @@ TClonesArray * KNOHadronization::DecayBackToBack(
   RandomGen * rnd = RandomGen::Instance();
 
   // Create the particle list
-  TClonesArray * plist = new TClonesArray("TMCParticle", pdgv.size());
+  TClonesArray * plist = new TClonesArray("genie::GHepParticle", pdgv.size());
 
   // Get xF,pT2 distribution (y-) maxima for the rejection method
   double xFo  = 1.1 * fBaryonXFpdf ->GetMaximum(-1,1);
@@ -832,12 +832,12 @@ TClonesArray * KNOHadronization::DecayBackToBack(
     // If the decay was allowed, then compute the baryon xF,pT2 and accept/
     // reject the phase space decays so as to reproduce the xF,pT2 PDFs
 
-    TMCParticle * baryon = (TMCParticle *) (*plist)[0];
-    assert(pdg::IsNeutronOrProton(baryon->GetKF()));
+    GHepParticle * baryon = (GHepParticle *) (*plist)[0];
+    assert(pdg::IsNeutronOrProton(baryon->Pdg()));
 
-    double px  = baryon->GetPx();
-    double py  = baryon->GetPy();
-    double pz  = baryon->GetPz();
+    double px  = baryon->Px();
+    double py  = baryon->Py();
+    double pz  = baryon->Pz();
 
     double pT2 = px*px + py*py;
     double pL  = pz;
@@ -863,7 +863,7 @@ bool KNOHadronization::PhaseSpaceDecay(
                    const PDGCodeList & pdgv, int offset, bool reweight) const
 {
 // General method decaying the input particle system 'pdgv' with available 4-p
-// given by 'pd'. The decayed system is used to populate the input TMCParticle 
+// given by 'pd'. The decayed system is used to populate the input GHepParticle 
 // array starting from the slot 'offset'.
 //
   LOG("KNOHad", pINFO) << "*** Performing a Phase Space Decay";
@@ -970,7 +970,7 @@ bool KNOHadronization::PhaseSpaceDecay(
      }
   }
 
-  // Insert final state products into a TClonesArray of TMCParticles
+  // Insert final state products into a TClonesArray of GHepParticle's
 
   i=0;
   for(pdg_iter = pdgv.begin(); pdg_iter != pdgv.end(); ++pdg_iter) {
@@ -981,22 +981,21 @@ bool KNOHadronization::PhaseSpaceDecay(
      //-- get the 4-momentum of the i-th final state particle
      TLorentzVector * p4fin = fPhaseSpaceGenerator.GetDecay(i);
 
-     new ( plist[offset+i] ) TMCParticle(
-           1,               /* KS Code                          */
-           pdgc,            /* PDG Code                         */
-          -1,               /* parent particle                  */
-          -1,               /* first child particle             */
-          -1,               /* last child particle              */
-           p4fin->Px(),     /* 4-momentum: px component         */
-           p4fin->Py(),     /* 4-momentum: py component         */
-           p4fin->Pz(),     /* 4-momentum: pz component         */
-           p4fin->Energy(), /* 4-momentum: E  component         */
-           mass[i],         /* particle mass                    */
-           0,               /* production vertex 4-vector: vx   */
-           0,               /* production vertex 4-vector: vy   */
-           0,               /* production vertex 4-vector: vz   */
-           0,               /* production vertex 4-vector: time */
-           0                /* lifetime                         */
+     new ( plist[offset+i] ) GHepParticle(
+           pdgc,                 /* PDG Code                         */
+           kIStStableFinalState, /* GHepStatus_t                     */
+          -1,                    /* first mother particle            */
+          -1,                    /* second mother particle           */
+          -1,                    /* first daughter particle          */
+          -1,                    /* last daughter particle           */
+           p4fin->Px(),          /* 4-momentum: px component         */
+           p4fin->Py(),          /* 4-momentum: py component         */
+           p4fin->Pz(),          /* 4-momentum: pz component         */
+           p4fin->Energy(),      /* 4-momentum: E  component         */
+           0,                    /* production vertex 4-vector: vx   */
+           0,                    /* production vertex 4-vector: vy   */
+           0,                    /* production vertex 4-vector: vz   */
+           0                     /* production vertex 4-vector: time */
         );
      i++;
   }
@@ -1402,49 +1401,49 @@ void KNOHadronization::HandleDecays(TClonesArray * plist) const
 
      //-- loop through the fragmentation event record & decay unstables
      int idecaying   = -1; // position of decaying particle
-     TMCParticle * p =  0; // current particle
+     GHepParticle * p =  0; // current particle
 
      TIter piter(plist);
-     while ( (p = (TMCParticle *) piter.Next()) ) {
+     while ( (p = (GHepParticle *) piter.Next()) ) {
 
         idecaying++;
-        int status = p->GetKS();
+        int status = p->Status();
 
         // bother for final state particle only
         if(status < 10) {
 
           // until ROOT's T(MC)Particle(PDG) Lifetime() is fixed, decay only
           // pi^0's
-          if ( p->GetKF() == kPdgPi0 ) {
+          if ( p->Pdg() == kPdgPi0 ) {
 
                DecayerInputs_t dinp;
 
                TLorentzVector p4;
-               p4.SetPxPyPzE(p->GetPx(), p->GetPy(), p->GetPz(), p->GetEnergy());
+               p4.SetPxPyPzE(p->Px(), p->Py(), p->Pz(), p->Energy());
 
-               dinp.PdgCode = p->GetKF();
+               dinp.PdgCode = p->Pdg();
                dinp.P4      = &p4;
 
                TClonesArray * decay_products = fDecayer->Decay(dinp);
 
                if(decay_products) {
                   //--  mark the parent particle as decayed & set daughters
-                  p->SetKS(11);
+                  p->SetStatus(kIStNucleonTarget);
 
                   int nfp = plist->GetEntries();          // n. fragm. products
                   int ndp = decay_products->GetEntries(); // n. decay products
 
-                  p->SetFirstChild ( nfp );          // decay products added at
-                  p->SetLastChild  ( nfp + ndp -1 ); // the end of the fragm.rec.
+                  p->SetFirstDaughter ( nfp );          // decay products added at
+                  p->SetLastDaughter  ( nfp + ndp -1 ); // the end of the fragm.rec.
 
                   //--  add decay products to the fragmentation record
-                  TMCParticle * dp = 0;
+                  GHepParticle * dp = 0;
                   TIter dpiter(decay_products);
 
-                  while ( (dp = (TMCParticle *) dpiter.Next()) ) {
+                  while ( (dp = (GHepParticle *) dpiter.Next()) ) {
 
-                     dp->SetParent(idecaying);
-                     new ( (*plist)[plist->GetEntries()] ) TMCParticle(*dp);
+                     dp->SetFirstMother(idecaying);
+                     new ( (*plist)[plist->GetEntries()] ) GHepParticle(*dp);
                   }
 
                   //-- clean up decay products

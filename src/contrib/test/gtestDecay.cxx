@@ -20,11 +20,6 @@
 #include <iomanip>
 
 #include <RVersion.h>
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,6)
-#include <TMCParticle.h>
-#else
-#include <TMCParticle6.h>
-#endif
 #include <TClonesArray.h>
 #include <TParticlePDG.h>
 #include <TIterator.h>
@@ -35,6 +30,9 @@
 #include "Conventions/Constants.h"
 #include "Decay/DecayModelI.h"
 #include "Decay/PythiaDecayer.h"
+#include "Framework/GHEP/GHepStatus.h"
+#include "Framework/GHEP/GHepParticle.h"
+#include "Framework/GHEP/GHepRecord.h"
 #include "Messenger/Messenger.h"
 #include "PDG/PDGCodes.h"
 #include "PDG/PDGLibrary.h"
@@ -49,7 +47,7 @@ using std::setfill;
 using std::ios;
 
 ostream & operator<< (ostream & stream, const TClonesArray * particle_list);
-ostream & operator<< (ostream & stream, const TMCParticle * particle);
+ostream & operator<< (ostream & stream, const GHepParticle * particle);
 
 void TestPythiaTauDecays(void);
 void Decay(const DecayModelI * decayer, int pdgc, double E,  int ndecays);
@@ -224,14 +222,14 @@ void Decay(const DecayModelI * decayer, int pdgc, double E, int ndecays)
 //__________________________________________________________________________
 ostream & operator<< (ostream & stream, const TClonesArray * particle_list)
 {
-  TMCParticle * p = 0;
+  GHepParticle * p = 0;
   TObjArrayIter particle_iter(particle_list);
 
 
   stream 
     << setfill(' ') << setw(10) << "name "
-    << setfill(' ') << setw(10)  << "KF"
-    << setfill(' ') << setw(10)  << "KS"
+    << setfill(' ') << setw(10)  << "PDG"
+    << setfill(' ') << setw(10)  << "Status"
     << setfill(' ') << setw(15) << "E (GeV)"
     << setfill(' ') << setw(15) << "Px (GeV/c)"
     << setfill(' ') << setw(15) << "Py (GeV/c)"
@@ -242,30 +240,30 @@ ostream & operator<< (ostream & stream, const TClonesArray * particle_list)
     << setfill(' ') << setw(15) << "z (mm)"
     << endl;
 
-  while( (p = (TMCParticle *) particle_iter.Next()) ) stream << p;
+  while( (p = (GHepParticle *) particle_iter.Next()) ) stream << p;
 
   stream << setfill('-') << setw(100) << "|";
 
   return stream; 
 }
 //__________________________________________________________________________
-ostream & operator<< (ostream & stream, const TMCParticle * p)
+ostream & operator<< (ostream & stream, const GHepParticle * p)
 {
   stream 
    << std::scientific << setprecision(6);
 
   stream 
-    << setfill(' ') << setw(10) << p->GetName()
-    << setfill(' ') << setw(10)  << p->GetKF() 
-    << setfill(' ') << setw(10)  << p->GetKS()
-    << setfill(' ') << setw(15) << p->GetEnergy()
-    << setfill(' ') << setw(15) << p->GetPx() 
-    << setfill(' ') << setw(15) << p->GetPy() 
-    << setfill(' ') << setw(15) << p->GetPz() 
-    << setfill(' ') << setw(15) << p->GetTime() /(units::mm) 
-    << setfill(' ') << setw(15) << p->GetVx()   /(units::mm) 
-    << setfill(' ') << setw(15) << p->GetVy()   /(units::mm) 
-    << setfill(' ') << setw(15) << p->GetVz()   /(units::mm) 
+    << setfill(' ') << setw(10) << p->Name()
+    << setfill(' ') << setw(10) << p->Pdg() 
+    << setfill(' ') << setw(10) << p->Status()
+    << setfill(' ') << setw(15) << p->Energy()
+    << setfill(' ') << setw(15) << p->Px() 
+    << setfill(' ') << setw(15) << p->Py() 
+    << setfill(' ') << setw(15) << p->Pz() 
+    << setfill(' ') << setw(15) << p->Vt()   /(units::mm) 
+    << setfill(' ') << setw(15) << p->Vx()   /(units::mm) 
+    << setfill(' ') << setw(15) << p->Vy()   /(units::mm) 
+    << setfill(' ') << setw(15) << p->Vz()   /(units::mm) 
     << endl;
 
   return stream;

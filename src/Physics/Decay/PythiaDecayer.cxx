@@ -15,11 +15,6 @@
 #include <TLorentzVector.h>
 #include <TDecayChannel.h>
 #include <RVersion.h>
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,6)
-#include <TMCParticle.h>
-#else
-#include <TMCParticle6.h>
-#endif
 
 #include "Framework/Conventions/Units.h"
 #include "Framework/Conventions/Constants.h"
@@ -147,17 +142,17 @@ bool PythiaDecayer::Decay(int decay_particle_id, GHepRecord * event) const
   GHepParticle * target_nucleus = event->TargetNucleus();
   bool in_nucleus = (target_nucleus!=0);
 
-  TMCParticle * mcp = 0;
+  GHepParticle * mcp = 0;
   TIter particle_iter(impl);
-  while( (mcp = (TMCParticle *) particle_iter.Next()) ) {
+  while( (mcp = (GHepParticle *) particle_iter.Next()) ) {
 
-    if(mcp->GetKS()==11) continue; // mother particle, already in GHEP
+    if(mcp->Status()==kIStNucleonTarget) continue; // mother particle, already in GHEP
 
-    int daughter_pdg_code = mcp->GetKF();
+    int daughter_pdg_code = mcp->Pdg();
     SLOG("Pythia6Decay", pINFO)
        << "Adding daughter particle wit PDG code = "
-       << daughter_pdg_code << ", m = " << mcp->GetMass()
-       << " GeV, E = " << mcp->GetEnergy() << " GeV)";
+       << daughter_pdg_code << ", m = " << mcp->Mass()
+       << " GeV, E = " << mcp->Energy() << " GeV)";
 
     bool is_hadron = pdg::IsHadron(daughter_pdg_code);
     bool hadron_in_nuc = (in_nucleus && is_hadron && fRunBefHadroTransp);
@@ -166,7 +161,7 @@ bool PythiaDecayer::Decay(int decay_particle_id, GHepRecord * event) const
          kIStHadronInTheNucleus : kIStStableFinalState;
 
     TLorentzVector daughter_p4(
-       mcp->GetPx(),mcp->GetPy(),mcp->GetPz(),mcp->GetEnergy());
+       mcp->Px(),mcp->Py(),mcp->Pz(),mcp->Energy());
     event->AddParticle(
        daughter_pdg_code, daughter_status_code,
        decay_particle_id,-1,-1,-1,
