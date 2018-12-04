@@ -39,7 +39,7 @@
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/Utils/PrintUtils.h"
-#include "Physics/Decay/DecayModelI.h"
+#include "Physics/Decay/Decayer.h"
 #include "Physics/Resonance/EventGen/RESHadronicSystemGenerator.h"
 
 using namespace genie;
@@ -228,7 +228,7 @@ void RESHadronicSystemGenerator::LoadConfig(void)
 
   //-- Get the specified decayers
   fResonanceDecayer =
-         dynamic_cast<const DecayModelI *> (this->SubAlg("Decayer"));
+         dynamic_cast<const Decayer *> (this->SubAlg("Decayer"));
   assert(fResonanceDecayer);
   fPreINukeDecayer =
      dynamic_cast<const EventRecordVisitorI *> (this->SubAlg("PreTransportDecayer"));

@@ -4,7 +4,7 @@
 \class    genie::PythiaDecayer
 
 \brief    Interface to PYTHIA particle decayer. \n
-          The PythiaDecayer is a concrete implementation of the DecayModelI
+          The PythiaDecayer is a concrete implementation of the Decayer
           interface.
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>

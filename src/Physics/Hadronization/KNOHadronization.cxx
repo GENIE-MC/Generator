@@ -43,7 +43,7 @@
 #include "Framework/GHEP/GHepStatus.h"
 #include "Framework/GHEP/GHepParticle.h"
 #include "Framework/GHEP/GHepRecord.h"
-#include "Physics/Decay/DecayModelI.h"
+#include "Physics/Decay/Decayer.h"
 #include "Physics/Hadronization/KNOHadronization.h"
 #include "Framework/Interaction/Interaction.h"
 #include "Framework/Messenger/Messenger.h"
@@ -487,7 +487,7 @@ void KNOHadronization::LoadConfig(void)
   // Decay unstable particles now or leave it for later? Which decayer to use?
   fDecayer = 0;
   if(fForceDecays) {
-      fDecayer = dynamic_cast<const DecayModelI *> (this->SubAlg("Decayer"));
+      fDecayer = dynamic_cast<const Decayer *> (this->SubAlg("Decayer"));
       assert(fDecayer);
   }
 

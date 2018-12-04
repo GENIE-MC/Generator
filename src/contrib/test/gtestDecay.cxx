@@ -28,7 +28,7 @@
 #include "Algorithm/AlgFactory.h"
 #include "Conventions/Units.h"
 #include "Conventions/Constants.h"
-#include "Decay/DecayModelI.h"
+#include "Decay/Decayer.h"
 #include "Decay/PythiaDecayer.h"
 #include "Framework/GHEP/GHepStatus.h"
 #include "Framework/GHEP/GHepParticle.h"
@@ -50,7 +50,7 @@ ostream & operator<< (ostream & stream, const TClonesArray * particle_list);
 ostream & operator<< (ostream & stream, const GHepParticle * particle);
 
 void TestPythiaTauDecays(void);
-void Decay(const DecayModelI * decayer, int pdgc, double E,  int ndecays);
+void Decay(const Decayer * decayer, int pdgc, double E,  int ndecays);
 
 //__________________________________________________________________________
 int main(int /*argc*/, char ** /*argv*/)
@@ -66,8 +66,8 @@ void TestPythiaTauDecays(void)
   LOG("test",pINFO)
      << "Asking the AlgFactory for a genie::PythiaDecayer\\Default instance";
   AlgFactory * algf = AlgFactory::Instance();
-  const DecayModelI * pdecayer =
-     dynamic_cast<const DecayModelI *> (
+  const Decayer * pdecayer =
+     dynamic_cast<const Decayer *> (
          algf->GetAlgorithm("genie::PythiaDecayer","Default"));
 
   // Decayer config print-out
@@ -176,7 +176,7 @@ void TestPythiaTauDecays(void)
   Decay(pdecayer, kPdgTau, E, ndec);
 }
 //__________________________________________________________________________
-void Decay(const DecayModelI * decayer, int pdgc, double E, int ndecays)
+void Decay(const Decayer * decayer, int pdgc, double E, int ndecays)
 {
   DecayerInputs_t dinp;
 

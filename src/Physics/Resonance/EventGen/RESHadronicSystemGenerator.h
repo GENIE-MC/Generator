@@ -31,7 +31,7 @@
 
 namespace genie {
 
-class DecayModelI;
+class Decayer;
 
 class RESHadronicSystemGenerator : public HadronicSystemGenerator {
 
@@ -55,7 +55,7 @@ private:
   void AddResonance              (GHepRecord * evrec, int pdgc) const;
   void AddResonanceDecayProducts (GHepRecord * evrec, int pdgc) const;
 
-  const DecayModelI * fResonanceDecayer;
+  const Decayer * fResonanceDecayer;
 };
 
 }      // genie namespace

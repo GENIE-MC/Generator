@@ -43,13 +43,14 @@
 
 #include <TGenPhaseSpace.h>
 
+#include "Physics/Decay/Decayer.h"
 #include "Physics/Hadronization/Hadronization.h"
 
 class TF1;
 
 namespace genie {
 
-class DecayModelI;
+class Decayer;
 //class Spline;
 
 class KNOHadronization : protected Hadronization {
@@ -93,7 +94,7 @@ private:
   // Note: additional configuration parameters common to all hadronizers
   // (Wcut,Rijk,...) are declared one layer down in the inheritance tree
 
-  const DecayModelI * fDecayer;  ///< decay algorithm
+  const Decayer * fDecayer;  ///< decay algorithm
   bool     fForceNeuGenLimit;    ///< force upper hadronic multiplicity to NeuGEN limit
 //bool     fUseLegacyKNOSpline;  ///< use legacy spline instead of Levy
   bool     fUseIsotropic2BDecays;///< force isotropic, non-reweighted 2-body decays for consistency with neugen/daikon
