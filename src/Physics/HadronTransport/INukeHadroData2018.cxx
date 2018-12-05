@@ -302,38 +302,6 @@ void INukeHadroData2018::LoadCrossSections(void)
   fFracPA_Cmp      = new Spline(&data_NA, "ke:pA_cmp");  //cmp - add support later
   fFracNA_Cmp      = new Spline(&data_NA, "ke:pA_cmp");
 
-// BEGIN
-// Fix nucleon fate fraction normalizations now that kIHAFtElas has been
-// removed. Since the fraction splines are all built using the same energy
-// grid, this is easy to do.
-// -- S. Gardiner
-  int num_knots = fFracPA_CEx->NKnots();
-  // Double-check that all of the channels use the same energy grid
-  // (just in case things change in the future)
-  assert( num_knots == fFracPA_Inel->NKnots() );
-  for (int k = 0; k < num_knots; ++k) {
-    // Compute the sum of all fate fractions for the current grid point (knot)
-    double cex = fFracPA_CEx->GetKnotY(k);
-    double inel = fFracPA_Inel->GetKnotY(k);
-    double abs = fFracPA_Abs->GetKnotY(k);
-    double pipro = fFracPA_PiPro->GetKnotY(k);
-    //double cmp = fFracPA_Cmp->GetKnotY(k);
-    double sum = cex + inel + abs + pipro; //+ cmp;
-
-    // Double check that the energy grid is the same for all channels
-    double energy = fFracPA_CEx->GetKnotX(k);
-    assert( energy == fFracPA_Inel->GetKnotX(k) );
-
-    // Renormalize the fate fractions to sum to unity
-    fFracPA_CEx->GetAsTSpline()->SetPoint(k, energy, cex / sum);
-    fFracPA_Inel->GetAsTSpline()->SetPoint(k, energy, inel / sum);
-    fFracPA_Abs->GetAsTSpline()->SetPoint(k, energy, abs / sum);
-    fFracPA_PiPro->GetAsTSpline()->SetPoint(k, energy, pipro / sum);
-    //fFracPA_Cmp->GetAsTSpline()->SetPoint(k, energy, cmp / sum);
-  }
-
-// END
-
   // K+A x-section fraction splines
   fFracKA_Tot      = new Spline(&data_KA, "ke:KA_tot");
   fFracKA_Elas     = new Spline(&data_KA, "ke:KA_elas");
@@ -1182,53 +1150,6 @@ void INukeHadroData2018::LoadCrossSections(void)
     }
    }
 
-   // data stored as xs, therefore sparse.  Rebuild into proper normalized array.
-   // S. Dytman, S. Gardiner 2018 Nov29
-
-    TGraph2D* PiAbs_new = dynamic_cast<TGraph2D*>(TfracPipA_Abs->Clone("PiAbs_new"));
-    delete TfracPipA_Abs;
-    TGraph2D* PiCEx_new = dynamic_cast<TGraph2D*>(TfracPipA_CEx->Clone("PiCEx_new"));
-    delete TfracPipA_CEx;
-    TGraph2D* PiInelas_new = dynamic_cast<TGraph2D*>(TfracPipA_Inelas->Clone("PiInelas_new"));
-    delete TfracPipA_Inelas;
-    TGraph2D* PiPiPro_new = dynamic_cast<TGraph2D*>(TfracPipA_PiPro->Clone("PiPiPro_new"));
-    delete TfracPipA_PiPro;
-    TfracPipA_Abs = new TGraph2D(209*1000);
-    TfracPipA_CEx = new TGraph2D(209*1000);
-    TfracPipA_Inelas = new TGraph2D(209*1000);
-    TfracPipA_PiPro = new TGraph2D(209*1000);
-
-    int counter = 0;
-    double Abs_store=0.;
-    double CEx_store=0.;
-    double Inelas_store=0.;
-    double PiPro_store=0.;
-    double Sum_store=0.;
-
-    for(int A=1; A<=209; A++) {
-      for(double E=1; E<=1000.; E +=1.) {
-	Abs_store =  PiAbs_new->Interpolate(A,E);
-	CEx_store= PiCEx_new->Interpolate(A,E);
-	Inelas_store = PiInelas_new->Interpolate(A,E);
-	PiPro_store = PiPiPro_new->Interpolate(A,E);
-	Sum_store = Abs_store + CEx_store + Inelas_store + PiPro_store;
-
-	TfracPipA_Abs->SetPoint(counter, A, E, Abs_store/Sum_store);
-	TfracPipA_CEx->SetPoint(counter, A, E, CEx_store/Sum_store);
-	TfracPipA_Inelas->SetPoint(counter, A, E, Inelas_store/Sum_store);
-	TfracPipA_PiPro->SetPoint(counter, A, E, PiPro_store/Sum_store);
-
-	counter++;
-      }
-      LOG("INukeData", pWARN)  << "Done with A= " << A;
-
-    }
-
-    delete PiAbs_new;
-    delete PiCEx_new;
-    delete PiInelas_new;
-    delete PiPiPro_new;
-
    TGraphs_file.Close();
 
    LOG("INukeData", pINFO)  << "Done building x-section splines...";
@@ -1434,8 +1355,8 @@ double INukeHadroData2018::XSec(
 //____________________________________________________________________________
 double INukeHadroData2018::FracADep(int hpdgc, INukeFateHA_t fate, double ke, int targA) const
 {
-// return the x-section fraction for the input fate for the particle with the input pdg
-// code and the target with the input mass number at the input kinetic energy
+  // return the x-section fraction for the input fate for the particle with the input pdg
+  // code and the target with the input mass number at the input kinetic energy
 
   ke = TMath::Max(fMinKinEnergy,   ke);  // ke >= 1 MeV
   ke = TMath::Min(fMaxKinEnergyHA, ke);  // ke <= 999 MeV
@@ -1444,104 +1365,115 @@ double INukeHadroData2018::FracADep(int hpdgc, INukeFateHA_t fate, double ke, in
 
   LOG("INukeData", pDEBUG)  << "Querying hA cross section at ke  = " << ke << " and target " << targA;
 
-  if (hpdgc == kPdgPiP) {
-  // handle pi+
-        if (fate == kIHAFtCEx    ) return TMath::Max(0., TfracPipA_CEx     -> Interpolate (targA,ke));
-	//   else if (fate == kIHAFtElas   ) return TMath::Max(0., TfracPipA_Elas    -> Interpolate (targA,ke));
-   else if (fate == kIHAFtInelas ) return TMath::Max(0., TfracPipA_Inelas  -> Interpolate (targA,ke));
-   else if (fate == kIHAFtAbs    ) return TMath::Max(0., TfracPipA_Abs     -> Interpolate (targA,ke));
-   else if (fate == kIHAFtPiProd ) return TMath::Max(0., TfracPipA_PiPro   -> Interpolate (targA,ke));
-   else {
-     LOG("INukeData", pWARN)
-         << "Pi+'s don't have this fate: " << INukeHadroFates::AsString(fate);
-     return 0;
-   }
+  // Handle pions (currently the same cross sections are used for pi+, pi-, and pi0)
+  if ( hpdgc == kPdgPiP || hpdgc == kPdgPiM || hpdgc == kPdgPi0 ) {
 
-  } else if (hpdgc == kPdgPiM) {
-   // handle pi-
-   if      (fate == kIHAFtCEx    ) return TMath::Max(0., TfracPipA_CEx     -> Interpolate (targA,ke));
-   //   else if (fate == kIHAFtElas   ) return TMath::Max(0., TfracPipA_Elas    -> Interpolate (targA,ke));
-   else if (fate == kIHAFtInelas ) return TMath::Max(0., TfracPipA_Inelas  -> Interpolate (targA,ke));
-   else if (fate == kIHAFtAbs    ) return TMath::Max(0., TfracPipA_Abs     -> Interpolate (targA,ke));
-   else if (fate == kIHAFtPiProd ) return TMath::Max(0., TfracPipA_PiPro   -> Interpolate (targA,ke));
-   else {
-     LOG("INukeData", pWARN)
-        << "Pi-'s don't have this fate: " << INukeHadroFates::AsString(fate);
-     return 0;
-   }
+    double frac_cex = TfracPipA_CEx->Interpolate(targA, ke);
+    //double frac_elas = TfracPipA_Elas->Interpolate(targA, ke);
+    double frac_inelas = TfracPipA_Inelas->Interpolate(targA, ke);
+    double frac_abs = TfracPipA_Abs->Interpolate(targA, ke);
+    double frac_pipro = TfracPipA_PiPro->Interpolate(targA, ke);
 
-  } else if (hpdgc == kPdgPi0) {
-   // handle pi0
-        if (fate == kIHAFtCEx    ) return TMath::Max(0., TfracPipA_CEx     -> Interpolate (targA,ke));
-	//   else if (fate == kIHAFtElas   ) return TMath::Max(0., TfracPipA_Elas    -> Interpolate (targA,ke));
-   else if (fate == kIHAFtInelas ) return TMath::Max(0., TfracPipA_Inelas  -> Interpolate (targA,ke));
-   else if (fate == kIHAFtAbs    ) return TMath::Max(0., TfracPipA_Abs     -> Interpolate (targA,ke));
-   else if (fate == kIHAFtPiProd ) return TMath::Max(0., TfracPipA_PiPro   -> Interpolate (targA,ke));
-   else {
-     LOG("INukeData", pWARN)
-        << "Pi0's don't have this fate: " << INukeHadroFates::AsString(fate);
-       return 0;
-   }
+    // Protect against unitarity violation due to interpolation problems
+    // by renormalizing all available fate fractions to unity.
+    double total = frac_cex + frac_inelas + frac_abs + frac_pipro; // + frac_elas
+
+    if ( fate == kIHAFtCEx ) return frac_cex / total;
+  //else if ( fate == kIHAFtElas   ) return frac_elas / total;
+    else if ( fate == kIHAFtInelas ) return frac_inelas / total;
+    else if ( fate == kIHAFtAbs    ) return frac_abs / total;
+    else if ( fate == kIHAFtPiProd ) return frac_pipro / total;
+    else {
+      std::string sign("+");
+      if ( hpdgc == kPdgPiM ) sign = "-";
+      else if ( hpdgc == kPdgPi0 ) sign = "0";
+      LOG("INukeData", pWARN) << "Pi" << sign << "'s don't have this fate: " << INukeHadroFates::AsString(fate);
+      return 0.;
+    }
   }
 
-  LOG("INukeData", pWARN)
-      << "Can't handle particles with pdg code = " << hpdgc;
-  return 0;
+  LOG("INukeData", pWARN) << "Can't handle particles with pdg code = " << hpdgc;
+  return 0.;
 }
 //____________________________________________________________________________
 double INukeHadroData2018::FracAIndep(int hpdgc, INukeFateHA_t fate, double ke) const
 {
-// return the x-section fraction for the input fate for the particle with the input pdg
-// code at the input kinetic energy
-
+  // return the x-section fraction for the input fate for the particle with the input pdg
+  // code at the input kinetic energy
   ke = TMath::Max(fMinKinEnergy,   ke);
   ke = TMath::Min(fMaxKinEnergyHA, ke);
 
   LOG("INukeData", pDEBUG)  << "Querying hA cross section at ke = " << ke;
 
-  if(hpdgc == kPdgProton) {
-   /* handle protons */
-        if (fate == kIHAFtCEx    ) return TMath::Max(0., fFracPA_CEx     -> Evaluate (ke));
-	//   else if (fate == kIHAFtElas   ) return TMath::Max(0., fFracPA_Elas    -> Evaluate (ke));
-   else if (fate == kIHAFtInelas ) return TMath::Max(0., fFracPA_Inel    -> Evaluate (ke));
-   else if (fate == kIHAFtAbs    ) return TMath::Max(0., fFracPA_Abs     -> Evaluate (ke));
-   else if (fate == kIHAFtPiProd ) return TMath::Max(0., fFracPA_PiPro   -> Evaluate (ke));
-   else if (fate == kIHAFtCmp    ) return TMath::Max(0., fFracPA_Cmp     -> Evaluate (ke));  // cmp - add support for this later
-   else {
-     LOG("INukeData", pWARN)
-       << "Protons don't have this fate: " << INukeHadroFates::AsString(fate);
-     return 0;
-   }
+  // TODO: reduce code duplication here
+  if (hpdgc == kPdgProton) {
+    // handle protons
+    double frac_cex = fFracPA_CEx->Evaluate(ke);
+    double frac_inelas = fFracPA_Inel->Evaluate(ke);
+    double frac_abs = fFracPA_Abs->Evaluate(ke);
+    double frac_pipro = fFracPA_PiPro->Evaluate(ke);
+    double frac_comp = fFracPA_Cmp->Evaluate(ke);
 
-  } else if (hpdgc == kPdgNeutron) {
-   /* handle neutrons */
-        if (fate == kIHAFtCEx    ) return TMath::Max(0., fFracNA_CEx     -> Evaluate (ke));
-	//   else if (fate == kIHAFtElas   ) return TMath::Max(0., fFracNA_Elas    -> Evaluate (ke));
-   else if (fate == kIHAFtInelas ) return TMath::Max(0., fFracNA_Inel    -> Evaluate (ke));
-   else if (fate == kIHAFtAbs    ) return TMath::Max(0., fFracNA_Abs     -> Evaluate (ke));
-   else if (fate == kIHAFtPiProd ) return TMath::Max(0., fFracNA_PiPro   -> Evaluate (ke));
-   else if (fate == kIHAFtCmp    ) return TMath::Max(0., fFracNA_Cmp     -> Evaluate (ke)); // cmp - add support for this later
-   else {
-     LOG("INukeData", pWARN)
-       << "Neutrons don't have this fate: " << INukeHadroFates::AsString(fate);
-     return 0;
-   }
+    // Protect against unitarity violation due to interpolation problems
+    // by renormalizing all available fate fractions to unity.
+    double total = frac_cex + frac_inelas + frac_abs + frac_pipro + frac_comp; // + frac_elas
 
-  } else if (hpdgc == kPdgKP) {
-   /* handle K+ */
-  if (fate == kIHAFtInelas ) return TMath::Max(0., fFracKA_Inel    -> Evaluate (ke));
-  else if (fate == kIHAFtAbs    ) return TMath::Max(0., fFracKA_Abs     -> Evaluate (ke));
-  //  else if (fate == kIHAFtElas   ) return TMath::Max(0., fFracKA_Elas    -> Evaluate (ke));
-  //else if (fate == kIHAFtCEx  ) return TMath::Max(0., fFracKA_CEx -> Evaluate(ke));  //why is this not used?
-  else {
-    LOG("INukeData", pWARN)
-      << "K+'s don't have this fate: " << INukeHadroFates::AsString(fate);
-       return 0;
-   }
+    if ( fate == kIHAFtCEx ) return frac_cex / total;
+  //else if ( fate == kIHAFtElas   ) return frac_elas / total;
+    else if ( fate == kIHAFtInelas ) return frac_inelas / total;
+    else if ( fate == kIHAFtAbs    ) return frac_abs / total;
+    else if ( fate == kIHAFtPiProd ) return frac_pipro / total;
+    else if ( fate == kIHAFtCmp    ) return frac_comp / total; // cmp - add support for this later
+    else {
+      LOG("INukeData", pWARN)
+        << "Protons don't have this fate: " << INukeHadroFates::AsString(fate);
+      return 0;
+    }
   }
-  LOG("INukeData", pWARN)
-      << "Can't handle particles with pdg code = " << hpdgc;
-  return 0;
+  else if (hpdgc == kPdgNeutron) {
+    // handle neutrons
+    double frac_cex = fFracNA_CEx->Evaluate(ke);
+    double frac_inelas = fFracNA_Inel->Evaluate(ke);
+    double frac_abs = fFracNA_Abs->Evaluate(ke);
+    double frac_pipro = fFracNA_PiPro->Evaluate(ke);
+    double frac_comp = fFracNA_Cmp->Evaluate(ke);
+
+    // Protect against unitarity violation due to interpolation problems
+    // by renormalizing all available fate fractions to unity.
+    double total = frac_cex + frac_inelas + frac_abs + frac_pipro + frac_comp; // + frac_elas
+
+    if ( fate == kIHAFtCEx ) return frac_cex / total;
+  //else if ( fate == kIHAFtElas   ) return frac_elas / total;
+    else if ( fate == kIHAFtInelas ) return frac_inelas / total;
+    else if ( fate == kIHAFtAbs    ) return frac_abs / total;
+    else if ( fate == kIHAFtPiProd ) return frac_pipro / total;
+    else if ( fate == kIHAFtCmp    ) return frac_comp / total; // cmp - add support for this later
+    else {
+      LOG("INukeData", pWARN)
+        << "Neutrons don't have this fate: " << INukeHadroFates::AsString(fate);
+      return 0;
+    }
+  }
+  else if (hpdgc == kPdgKP) {
+    // handle K+
+    double frac_inelas = fFracKA_Inel->Evaluate(ke);
+  //double frac_elas = fFracKA_Elas->Evaluate(ke);
+    double frac_abs = fFracKA_Abs->Evaluate(ke);
+
+    // Protect against unitarity violation due to interpolation problems
+    // by renormalizing all available fate fractions to unity.
+    double total = frac_inelas + frac_abs; // + frac_elas
+
+    if ( fate == kIHAFtInelas ) return frac_inelas / total;
+    else if ( fate == kIHAFtAbs ) return frac_abs / total;
+    else {
+      LOG("INukeData", pWARN)
+        << "K+'s don't have this fate: " << INukeHadroFates::AsString(fate);
+      return 0.;
+    }
+  }
+  LOG("INukeData", pWARN) << "Can't handle particles with pdg code = " << hpdgc;
+  return 0.;
 }
 //____________________________________________________________________________
 double INukeHadroData2018::XSec(int hpdgc, INukeFateHN_t fate, double ke, int targA, int targZ) const
