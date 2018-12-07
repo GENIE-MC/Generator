@@ -26,7 +26,7 @@
 
 namespace genie {
 
-class DecayModelI;
+//class DecayModelI;
 class PythiaHadronization : public HadronizationModelBase {
 
 public:
@@ -56,10 +56,10 @@ private:
 */
   mutable TPythia6 * fPythia;   ///< PYTHIA6 wrapper class
 
-  const DecayModelI * fDecayer;
+  //const DecayModelI * fDecayer;
 
   //-- configuration parameters
-  //   Note: additional configuration parameters common to all hadronizers 
+  //   Note: additional configuration parameters common to all hadronizers
   //   (Wcut,Rijk,...) are declared one layer down in the inheritance tree
   double fSSBarSuppression;   ///< ssbar suppression
   double fGaussianPt2;        ///< gaussian pt2 distribution width
@@ -70,4 +70,3 @@ private:
 }         // genie namespace
 
 #endif    // _PYTHIA_HADRONIZATION__H_
-

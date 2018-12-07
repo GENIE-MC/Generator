@@ -5,7 +5,7 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
+         University of Liverpool & STFC Rutherford Appleton Lab
 
          Changes required to implement the GENIE Boosted Dark Matter module
          were installed by Josh Berger (Univ. of Wisconsin)
@@ -25,7 +25,7 @@
 #include "Framework/Algorithm/AlgConfigPool.h"
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/GBuild.h"
-#include "Physics/Decay/DecayModelI.h"
+//#include "Physics/Decay/DecayModelI.h"
 #include "Physics/Hadronization/PythiaHadronization.h"
 #include "Framework/Interaction/Interaction.h"
 #include "Framework/Messenger/Messenger.h"
@@ -68,7 +68,7 @@ void PythiaHadronization::Initialize(void) const
   RandomGen::Instance();
 }
 //____________________________________________________________________________
-TClonesArray * 
+TClonesArray *
   PythiaHadronization::Hadronize(
          const Interaction * interaction) const
 {
@@ -86,7 +86,7 @@ TClonesArray *
   const ProcessInfo &  proc_info  = interaction->ProcInfo();
   const Target &       target     = init_state.Tgt();
 
-  assert(target.HitQrkIsSet()); 
+  assert(target.HitQrkIsSet());
 
   double W = kinematics.W();
 
@@ -146,9 +146,9 @@ TClonesArray *
   }//CC
 
   // Figure out what the remnant diquark is.
-  // Note from Hugh, following a conversation with his local HEP theorist 
-  // (Gary Goldstein): "I am told that the probability of finding the diquark 
-  // in the singlet vs. triplet states is 50-50."  
+  // Note from Hugh, following a conversation with his local HEP theorist
+  // (Gary Goldstein): "I am told that the probability of finding the diquark
+  // in the singlet vs. triplet states is 50-50."
 
   // hit quark = valence quark
   if(!from_sea) {
@@ -190,12 +190,12 @@ TClonesArray *
     /* bar{d} (-> bar{d}) + d udd => d + ud */
     if(isn && isdb && (isnc||isem||isdm)) {final_quark = kPdgDQuark; diquark = kPdgUDDiquarkS1;}
 
-    // The neutrino is scatterred off s or sbar sea quarks 
+    // The neutrino is scatterred off s or sbar sea quarks
     // For the time being I will handle s like d and sbar like dbar (copy & paste
-    // from above) so that I conserve charge. 
+    // from above) so that I conserve charge.
 
     if(iss || issb) {
-       LOG("PythiaHad", pNOTICE) 
+       LOG("PythiaHad", pNOTICE)
                  << "Can not really handle a hit s or sbar quark / Faking it";
 
        if(isp && iss) { diquark = kPdgUUDiquarkS1; }
@@ -206,7 +206,7 @@ TClonesArray *
        if(isn && issb && iscc)         {final_quark = kPdgDQuark; diquark = kPdgDDDiquarkS1;}
        if(isn && issb && (isnc||isem||isdm)) {final_quark = kPdgDQuark; diquark = kPdgUDDiquarkS1;}
     }
- 
+
     // if the diquark is a ud, switch it to the singlet state with 50% probability
     if(diquark == kPdgUDDiquarkS1) {
       RandomGen * rnd = RandomGen::Instance();
@@ -227,15 +227,15 @@ TClonesArray *
 
   // Determine how jetset treats un-stable particles appearing in hadronization
 
-  int pi0_decflag = fPythia->GetMDCY(fPythia->Pycomp(kPdgPi0),              1); 
-  int K0_decflag  = fPythia->GetMDCY(fPythia->Pycomp(kPdgK0),               1); 
-  int K0b_decflag = fPythia->GetMDCY(fPythia->Pycomp(kPdgAntiK0),           1); 
-  int L0_decflag  = fPythia->GetMDCY(fPythia->Pycomp(kPdgLambda),           1); 
+  int pi0_decflag = fPythia->GetMDCY(fPythia->Pycomp(kPdgPi0),              1);
+  int K0_decflag  = fPythia->GetMDCY(fPythia->Pycomp(kPdgK0),               1);
+  int K0b_decflag = fPythia->GetMDCY(fPythia->Pycomp(kPdgAntiK0),           1);
+  int L0_decflag  = fPythia->GetMDCY(fPythia->Pycomp(kPdgLambda),           1);
   int L0b_decflag = fPythia->GetMDCY(fPythia->Pycomp(kPdgAntiLambda),       1);
-  int Dm_decflag  = fPythia->GetMDCY(fPythia->Pycomp(kPdgP33m1232_DeltaM),  1); 
-  int D0_decflag  = fPythia->GetMDCY(fPythia->Pycomp(kPdgP33m1232_Delta0),  1); 
-  int Dp_decflag  = fPythia->GetMDCY(fPythia->Pycomp(kPdgP33m1232_DeltaP),  1); 
-  int Dpp_decflag = fPythia->GetMDCY(fPythia->Pycomp(kPdgP33m1232_DeltaPP), 1); 
+  int Dm_decflag  = fPythia->GetMDCY(fPythia->Pycomp(kPdgP33m1232_DeltaM),  1);
+  int D0_decflag  = fPythia->GetMDCY(fPythia->Pycomp(kPdgP33m1232_Delta0),  1);
+  int Dp_decflag  = fPythia->GetMDCY(fPythia->Pycomp(kPdgP33m1232_DeltaP),  1);
+  int Dpp_decflag = fPythia->GetMDCY(fPythia->Pycomp(kPdgP33m1232_DeltaPP), 1);
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("PythiaHad", pDEBUG) << "Original decay flag for pi0           =  " << pi0_decflag;
@@ -262,16 +262,16 @@ TClonesArray *
   // -- hadronize --
   py2ent_(&ip, &final_quark, &diquark, &W); // hadronizer
 
-  // restore pythia decay settings so as not to interfere with decayer 
+  // restore pythia decay settings so as not to interfere with decayer
   fPythia->SetMDCY(fPythia->Pycomp(kPdgPi0),              1, pi0_decflag);
   fPythia->SetMDCY(fPythia->Pycomp(kPdgK0),               1, K0_decflag);
   fPythia->SetMDCY(fPythia->Pycomp(kPdgAntiK0),           1, K0b_decflag);
-  fPythia->SetMDCY(fPythia->Pycomp(kPdgLambda),           1, L0_decflag); 
-  fPythia->SetMDCY(fPythia->Pycomp(kPdgAntiLambda),       1, L0b_decflag); 
-  fPythia->SetMDCY(fPythia->Pycomp(kPdgP33m1232_DeltaM),  1, Dm_decflag); 
-  fPythia->SetMDCY(fPythia->Pycomp(kPdgP33m1232_Delta0),  1, D0_decflag); 
-  fPythia->SetMDCY(fPythia->Pycomp(kPdgP33m1232_DeltaP),  1, Dp_decflag); 
-  fPythia->SetMDCY(fPythia->Pycomp(kPdgP33m1232_DeltaPP), 1, Dpp_decflag); 
+  fPythia->SetMDCY(fPythia->Pycomp(kPdgLambda),           1, L0_decflag);
+  fPythia->SetMDCY(fPythia->Pycomp(kPdgAntiLambda),       1, L0b_decflag);
+  fPythia->SetMDCY(fPythia->Pycomp(kPdgP33m1232_DeltaM),  1, Dm_decflag);
+  fPythia->SetMDCY(fPythia->Pycomp(kPdgP33m1232_Delta0),  1, D0_decflag);
+  fPythia->SetMDCY(fPythia->Pycomp(kPdgP33m1232_DeltaP),  1, Dp_decflag);
+  fPythia->SetMDCY(fPythia->Pycomp(kPdgP33m1232_DeltaPP), 1, Dpp_decflag);
 
   // get LUJETS record
   fPythia->GetPrimaries();
@@ -292,17 +292,17 @@ TClonesArray *
 
   while( (particle = (TMCParticle *) particle_iter.Next()) ) {
      LOG("PythiaHad", pDEBUG)
-          << "Adding final state particle pdgc = " << particle->GetKF() 
+          << "Adding final state particle pdgc = " << particle->GetKF()
           << " with status = " << particle->GetKS();
 
      if(particle->GetKS() == 1) {
-        if( pdg::IsQuark  (particle->GetKF()) || 
+        if( pdg::IsQuark  (particle->GetKF()) ||
             pdg::IsDiQuark(particle->GetKF()) ) {
                 LOG("PythiaHad", pERROR)
                   << "Hadronization failed! Bare quark/di-quarks appear in final state!";
             particle_list->Delete();
             delete particle_list;
-            return 0;            
+            return 0;
         }
      }
 
@@ -319,7 +319,7 @@ TClonesArray *
   return particle_list;
 }
 //____________________________________________________________________________
-PDGCodeList * 
+PDGCodeList *
    PythiaHadronization::SelectParticles(
             const Interaction * interaction) const
 {
@@ -339,7 +339,7 @@ PDGCodeList *
   TMCParticle * particle = 0;
   TIter particle_iter(particle_list);
 
-  while ((particle = (TMCParticle *) particle_iter.Next())) 
+  while ((particle = (TMCParticle *) particle_iter.Next()))
   {
     if (particle->GetKS()==1) pdgcv->push_back(particle->GetKF());
   }
@@ -355,7 +355,7 @@ TH1D * PythiaHadronization::MultiplicityProb(
 // Similar comments apply as in SelectParticles()
 
   if(!this->AssertValidity(interaction)) {
-     LOG("PythiaHad", pWARN) 
+     LOG("PythiaHad", pWARN)
                 << "Returning a null multipicity probability distribution!";
      return 0;
   }
@@ -374,10 +374,10 @@ TH1D * PythiaHadronization::MultiplicityProb(
 
      int n = 0;
      TIter particle_iter(particle_list);
-     while ((particle = (TMCParticle *) particle_iter.Next())) 
+     while ((particle = (TMCParticle *) particle_iter.Next()))
      {
        if (particle->GetKS()==1) n++;
-     }   
+     }
      particle_list->Delete();
      delete particle_list;
      mult_prob->Fill( (double)n, weight);
@@ -434,7 +434,7 @@ void PythiaHadronization::Configure(string config)
 //____________________________________________________________________________
 void PythiaHadronization::LoadConfig(void)
 {
-  // the configurable PYTHIA parameters used here are the ones used by NUX 
+  // the configurable PYTHIA parameters used here are the ones used by NUX
   // (see A.Rubbia's talk @ NuINT-01)
   // The defaults are the values used by PYTHIA
   // Use the NUX config set to set the tuned values as used in NUX.
@@ -453,12 +453,12 @@ void PythiaHadronization::LoadConfig(void)
   // scaling factors would be applied -if requested-
   GetParam( "Wcut", fWcut ) ;
 
-  // decayer
-  fDecayer = 0;
-  if( GetConfig().Exists("Decayer") ) {
-     fDecayer = dynamic_cast<const DecayModelI *> (this->SubAlg("Decayer"));
-     assert(fDecayer);
-  }
+  // // decayer
+  // fDecayer = 0;
+  // if( GetConfig().Exists("Decayer") ) {
+  //    fDecayer = dynamic_cast<const DecayModelI *> (this->SubAlg("Decayer"));
+  //    assert(fDecayer);
+  // }
 
   // Load NEUGEN multiplicity probability scaling parameters Rijk
    //neutrinos
@@ -485,7 +485,7 @@ void PythiaHadronization::LoadConfig(void)
 //____________________________________________________________________________
 bool PythiaHadronization::AssertValidity(const Interaction * interaction) const
 {
-  // check that there is no charm production 
+  // check that there is no charm production
   // (GENIE uses a special model for these cases)
   if(interaction->ExclTag().IsCharmEvent()) {
      LOG("PythiaHad", pWARN) << "Can't hadronize charm events";
@@ -525,13 +525,13 @@ bool PythiaHadronization::AssertValidity(const Interaction * interaction) const
   bool isdmi = proc_info.IsDarkMatter  ();
   bool isem = proc_info.IsEM          ();
   if( !(iscc||isnc||isem||isdmi) ) {
-    LOG("PythiaHad", pWARN) 
+    LOG("PythiaHad", pWARN)
        << "Can only handle electro-weak interactions";
     return false;
   }
   if( !(isp||isn) || !(isv||isvb||isl||islb||isdm) ) {
-    LOG("PythiaHad", pWARN) 
-      << "Invalid initial state: probe = " 
+    LOG("PythiaHad", pWARN)
+      << "Invalid initial state: probe = "
       << probe << ", hit_nucleon = " << hit_nucleon;
     return false;
   }
@@ -550,7 +550,7 @@ bool PythiaHadronization::AssertValidity(const Interaction * interaction) const
                  (isdmi && isdm && (isu||isd||isub||isdb||iss||issb)) ||
                  (isem && (isl||islb) && (isu||isd||isub||isdb||iss||issb));
   if(!allowed) {
-    LOG("PythiaHad", pWARN) 
+    LOG("PythiaHad", pWARN)
       << "Impossible interaction type / probe / hit quark combination!";
     return false;
   }
@@ -605,9 +605,9 @@ void PythiaHadronization::HandleDecays(TClonesArray * plist) const
   this->SwitchDecays(kPdgAntiOmegaP, true); // decay \bar{Omega+}
 
   int mstj21 = fPythia->GetMSTJ(21);
-  fPythia->SetMSTJ(21,1); 
-  fPythia->SetMSTJ(22,2);                  
-  fPythia->SetPARJ(71,100);                  
+  fPythia->SetMSTJ(21,1);
+  fPythia->SetMSTJ(22,2);
+  fPythia->SetPARJ(71,100);
 
   //-- loop through the fragmentation event record & decay unstables
   int idecaying   = -1; // position of decaying particle
@@ -619,7 +619,7 @@ void PythiaHadronization::HandleDecays(TClonesArray * plist) const
      int status = p->GetKS();
      int pdg    = p->GetKF();
 
-     bool decay_it = (status<10) && 
+     bool decay_it = (status<10) &&
                      ( pdg == kPdgLambda ||
                        pdg == kPdgAntiLambda ||
                        pdg == kPdgSigmaP ||
@@ -682,4 +682,3 @@ void PythiaHadronization::HandleDecays(TClonesArray * plist) const
 }
 */
 //____________________________________________________________________________
-
