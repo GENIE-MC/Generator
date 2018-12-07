@@ -597,13 +597,13 @@ void BaryonResonanceDecayer::Initialize(void) const
 //____________________________________________________________________________
 bool BaryonResonanceDecayer::IsHandled(int pdg_code) const
 {
-  if( utils::res::IsBaryonResonance(pdg_code) ) return true;
+  bool is_handled = utils::res::IsBaryonResonance(pdg_code);
 
   LOG("ResonanceDecay", pINFO)
-      << "This algorithm can not decay particles with PDG code = "
-      << pdg_code;
+      << "Can decay particle with PDG code = " << pdg_code
+      << "? " << ((is_handled)? "Yes" : "No");
 
-  return false;
+  return pdg_code;
 }
 //____________________________________________________________________________
 void BaryonResonanceDecayer::InhibitDecay(int pdgc, TDecayChannel * dc) const

@@ -50,20 +50,38 @@ Decayer::~Decayer()
 //___________________________________________________________________________
 bool Decayer::ToBeDecayed(int pdg_code, GHepStatus_t status_code) const
 {
-  bool check = false;
+  // Check whether it is "unstable" (definition can vary)
+
+  bool is_unstable = this->IsUnstable(pdg_code);
+
+  LOG("Decay", pDEBUG)
+    << "Particle is unstable? "
+    << ((is_unstable) ? "Yes" : "No");
+
+  if(!is_unstable) return false;
+
+  // Check whether the given unstable particle
+  // has the appropriate status code to be decayed
+
+  bool to_be_decayed = false;
+
   if(fRunBefHadroTransp) {
-    check = (status_code == kIStHadronInTheNucleus ||
-             status_code == kIStStableFinalState);
+    to_be_decayed =
+      (status_code == kIStHadronInTheNucleus    ||
+       status_code == kIStPreDecayResonantState ||
+       status_code == kIStStableFinalState);
   }
   else {
-    check = (status_code == kIStStableFinalState);
+    to_be_decayed =
+      (status_code == kIStStableFinalState);
   }
 
-  if(check) {
-    return this->IsUnstable(pdg_code);
-  }
+  LOG("Decay", pNOTICE)
+      << "Particle to be decayed "
+      << "[" << ((fRunBefHadroTransp) ? "Before" : "After") << " FSI]? "
+      << ((to_be_decayed) ? "Yes" : "No");
 
-  return false;
+  return to_be_decayed;
 }
 //___________________________________________________________________________
 bool Decayer::IsUnstable(int pdg_code) const
