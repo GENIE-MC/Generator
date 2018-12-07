@@ -61,6 +61,10 @@ PythiaDecayer::~PythiaDecayer()
 //____________________________________________________________________________
 void PythiaDecayer::ProcessEventRecord(GHepRecord * event) const
 {
+  LOG("ResonanceDecay", pINFO)
+    << "Running PYTHIA6 particle decayer "
+    << ((fRunBefHadroTransp) ? "*before*" : "*after*") << " FSI";
+
   // Loop over particles, find unstable ones and decay them
   TObjArrayIter piter(event);
   GHepParticle * p = 0;
@@ -198,7 +202,7 @@ bool PythiaDecayer::IsHandled(int pdg_code) const
 
  bool is_handled = (!utils::res::IsBaryonResonance(pdg_code));
 
- LOG("Pythia6Decay", pINFO)
+ LOG("Pythia6Decay", pDEBUG)
     << "Can decay particle with PDG code = " << pdg_code
     << "? " << ((is_handled)? "Yes" : "No");
 

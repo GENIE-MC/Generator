@@ -49,6 +49,10 @@ BaryonResonanceDecayer::~BaryonResonanceDecayer()
 //____________________________________________________________________________
 void BaryonResonanceDecayer::ProcessEventRecord(GHepRecord * event) const
 {
+  LOG("ResonanceDecay", pINFO)
+    << "Running resonance decayer "
+    << ((fRunBefHadroTransp) ? "*before*" : "*after*") << " FSI";
+
   // Loop over particles, find unstable ones and decay them
   TObjArrayIter piter(event);
   GHepParticle * p = 0;
@@ -57,7 +61,7 @@ void BaryonResonanceDecayer::ProcessEventRecord(GHepRecord * event) const
   while( (p = (GHepParticle *) piter.Next()) ) {
 
     ipos++;
-    LOG("ResonanceDecay", pINFO) << "Checking: " << p->Name();
+    LOG("ResonanceDecay", pDEBUG) << "Checking: " << p->Name();
 
     int pdg_code = p->Pdg();
     GHepStatus_t status_code = p->Status();
@@ -599,7 +603,7 @@ bool BaryonResonanceDecayer::IsHandled(int pdg_code) const
 {
   bool is_handled = utils::res::IsBaryonResonance(pdg_code);
 
-  LOG("ResonanceDecay", pINFO)
+  LOG("ResonanceDecay", pDEBUG)
       << "Can decay particle with PDG code = " << pdg_code
       << "? " << ((is_handled)? "Yes" : "No");
 

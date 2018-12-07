@@ -76,7 +76,7 @@ bool Decayer::ToBeDecayed(int pdg_code, GHepStatus_t status_code) const
       (status_code == kIStStableFinalState);
   }
 
-  LOG("Decay", pNOTICE)
+  LOG("Decay", pDEBUG)
       << "Particle to be decayed "
       << "[" << ((fRunBefHadroTransp) ? "Before" : "After") << " FSI]? "
       << ((to_be_decayed) ? "Yes" : "No");
