@@ -76,15 +76,15 @@ private:
   string                       fKFTableName;
 
   bool   fDoAvgOverNucleonMomentum;    ///< Average cross section over hit nucleon monentum?
-  double fEnergyCutOff;                ///< Average only for energies below this cutoff defining 
+  double fEnergyCutOff;                ///< Average only for energies below this cutoff defining
                                        ///< the region where nuclear modeling details do matter
 
   //Functions needed to calculate XSec:
 
-  // Calculates values of CN, CT, CL, and imU, and stores them in the provided 
+  // Calculates values of CN, CT, CL, and imU, and stores them in the provided
   // variables. If target is not a nucleus, then CN, CN, and CL are all 1.0.
   // r must be in units of fm.
-  void CNCTCLimUcalc(TLorentzVector qTildeP4, double M, double r, 
+  void CNCTCLimUcalc(TLorentzVector qTildeP4, double M, double r,
 		     bool is_neutrino, bool tgtIsNucleus, int tgt_pdgc,
 		     int A, int Z, int N, bool hitNucIsProton,
 		     double & CN, double & CT, double & CL,
@@ -95,13 +95,13 @@ private:
 				     double kFngev, double kFpgev,
 				     double M, bool isNeutrino,
 				     double & t0, double & r00) const;
-  std::complex<double> relLindhard(double q0gev, double dqgev, 
+  std::complex<double> relLindhard(double q0gev, double dqgev,
 				   double kFgev, double M,
 				   bool isNeutrino,
 				   std::complex<double> relLindIm) const;
-  std::complex<double> ruLinRelX(double q0, double qm, 
+  std::complex<double> ruLinRelX(double q0, double qm,
 				 double kf, double m) const;
-  std::complex<double> deltaLindhard(double q0gev, double dqgev, 
+  std::complex<double> deltaLindhard(double q0gev, double dqgev,
 				     double rho, double kFgev) const;
 
   // Potential for coulomb correction
@@ -116,7 +116,7 @@ private:
 		    const TLorentzVector inNucleonMom,
 		    const TLorentzVector leptonMom,
 		    const TLorentzVector outNucleonMom,
-		    double M, double r, bool is_neutrino, 
+		    double M, double r, bool is_neutrino,
 		    bool tgtIsNucleus,
 		    int tgt_pdgc, int A, int Z, int N,
 		    bool hitNucIsProton) const;
@@ -176,4 +176,4 @@ namespace genie {
 } // genie namespace
 
 
-#endif  
+#endif

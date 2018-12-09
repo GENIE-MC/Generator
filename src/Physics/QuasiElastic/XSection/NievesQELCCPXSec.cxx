@@ -105,7 +105,7 @@ double NievesQELCCPXSec::XSec(const Interaction * interaction,
   // at rest and q in the z direction)
   TLorentzVector neutrinoMom,inNucleonMom,leptonMom, outNucleonMom;
   double Gfactor = 0.;
-  if(kps == kPSTnctnBnctl){
+  if (kps == kPSTnctnBnctl || kps == kPSQELEvGen) {
     // All kinematics will already be stored
     TLorentzVector * tempNeutrino = init_state.GetProbeP4(kRfLab);
     neutrinoMom = *tempNeutrino;
@@ -182,8 +182,10 @@ double NievesQELCCPXSec::XSec(const Interaction * interaction,
   qTildeP4 = neutrinoMom - leptonMom;
 
   double Q2tilde = -1 * qTildeP4.Mag2();
-  if(kps==kPSTnctnBnctl) // otherwise q2 is already stored
+  if ( kps == kPSTnctnBnctl || kps == kPSQELEvGen ) {
+    // otherwise q2 is already stored
     interaction->KinePtr()->SetQ2(Q2tilde);
+  }
 
   double q2 = -Q2tilde;
 
@@ -266,8 +268,17 @@ double NievesQELCCPXSec::XSec(const Interaction * interaction,
 
   //----- The algorithm computes dxsec/dQ2 or kPSTnctnBnctl
   //      Check whether variable tranformation is needed
-  if(kps!=kPSQ2fE && kps!=kPSTnctnBnctl) {
-    double J = utils::kinematics::Jacobian(interaction,kPSQ2fE,kps);
+  if ( kps != kPSQ2fE && kps != kPSTnctnBnctl ) {
+
+    // Compute the appropriate Jacobian for transformation to the requested
+    // phase space
+    double J = 1.;
+    if ( kps == kPSQELEvGen ) {
+      J = utils::kinematics::Jacobian(interaction, kPSTnctnBnctl, kps);
+    }
+    else {
+      J = utils::kinematics::Jacobian(interaction, kPSQ2fE, kps);
+    }
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("Nieves", pDEBUG)
@@ -1253,6 +1264,7 @@ TLorentzVector NievesQELCCPXSec::GenerateOutgoingLepton(const Interaction* inter
 
   return p4l;
 }
+
 //___________________________________________________________________________
 // Auxiliary scalar function for internal integration
 //____________________________________________________________________________
