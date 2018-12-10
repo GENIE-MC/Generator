@@ -335,7 +335,7 @@ void BaryonResonanceDecayer::DecayExclusive(
         double costheta = pion.CosTheta() ;
         double legendre_2 = 0.5*(3.*costheta*costheta -1.);
 
-        double w_theta = 1. - fProb32 * (legendre_2) + fProb12*( legendre_2 );
+        double w_theta = 1. - fProb32 * legendre_2 + fProb12 * legendre_2 ;
 
         double aidrnd = 1.25 * rnd->RndDec().Rndm();
 
@@ -470,6 +470,59 @@ double BaryonResonanceDecayer::DealsDeltaNGamma(
   return 0;
 }
 //____________________________________________________________________________
+double BaryonResonanceDecayer::DeltaNGammaBR(int dec_part_pdgc, TDecayChannel * ch, double W) const {
+
+  /*
+   * The branching rations of the Delta in Pions or in N gammas are not constant.
+   * They depend on the actual mass of the decaying delta (W) they need to be evolved accordingly.
+   * This method tweaks the Delta branching ratios as a function of the W and
+   * returns the proper one depending on the specific decay channel.
+   */
+
+  // get the final state mass from TDecayChannel
+  if (W < /* total mass of the final state */) {
+
+    // return a proper branching ration, which most likely will be 0 (for pi + N) and 1 (for gamma+N)
+    // wait comments from Libo
+     if (ichannel == 0) {return 0;} // ichannel = 0,1,2 has to match
+                                    // the channel order in genie_pdg_table.dat
+     if (ichannel == 1) {return 0;}
+     if (ichannel == 2) {return 1;}
+   }
+
+  // at this point, W is high enough to allow the decay of the delta in both N+pi or N+gamma
+  // This requires the amplitude of both decays to be scaled according to W
+  // The amplitude dependencies of W scales with the momentum of the pion or the photon respectivelly
+  // following these relationships
+  //
+  //                              (p_pi(W))^3
+  //  Ampl_pi(W) = Ampl_pi(std)x---------------
+  //                             (p_pi(std))^3
+  //
+  //
+  //                              (p_ga(W))^3       (F_ga(W))^2
+  //  Ampl_ga(W) = Ampl_ga(std)x--------------- x ---------------
+  //                             (p_ga(std))^3     (F_ga(std))^2
+  //
+  // where the "std" stand for the nominal value of the Delta mass.
+  //  - pi_* are the momentum of the gamma and of the pion coming from the decay
+  //  - F_ga is the form factor
+  //
+  // So the new amplitudes are evaluated and the proper value is returned
+
+  // Getting the delta resonance from GENIE database
+   Resonance_t res = genie::utils::res::FromPdgCode( dec_part_pdgc ) ;
+
+   // get the width of the delta and obtain the width of the decay in Pi+N and gamma+N
+   // evaluated at the nominal mass of the delta
+   double defWidth   = genie::utils::res::Width( res ) ;
+   double defPiWidth = width0*fPionBR;
+   double defGaWidth = width0*fGammaBR;
+
+
+}
+//____________________________________________________________________________
+
 double BaryonResonanceDecayer::Weight(void) const
 {
   return fWeight;
