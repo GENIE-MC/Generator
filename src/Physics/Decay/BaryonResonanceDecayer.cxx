@@ -479,6 +479,13 @@ double BaryonResonanceDecayer::DeltaNGammaBR(int dec_part_pdgc, TDecayChannel * 
    * returns the proper one depending on the specific decay channel.
    */
 
+  // identify a channel code or id from the TDecayChannle
+  // I suspect them being
+  // 0) Delta -> Pi + N
+  // 1) Delta -> Pi + N
+  // 2) Delta -> Gamma + N
+  // channel 0 and 1 distinguished by something. They correspond to different BR so need investigation
+
   // get the final state mass from TDecayChannel
   if (W < /* total mass of the final state */) {
 
@@ -496,15 +503,15 @@ double BaryonResonanceDecayer::DeltaNGammaBR(int dec_part_pdgc, TDecayChannel * 
   // following these relationships
   //
   //                              (p_pi(W))^3
-  //  Ampl_pi(W) = Ampl_pi(std)x---------------
-  //                             (p_pi(std))^3
+  //  Ampl_pi(W) = Ampl_pi(def)x---------------
+  //                             (p_pi(def))^3
   //
   //
   //                              (p_ga(W))^3       (F_ga(W))^2
-  //  Ampl_ga(W) = Ampl_ga(std)x--------------- x ---------------
-  //                             (p_ga(std))^3     (F_ga(std))^2
+  //  Ampl_ga(W) = Ampl_ga(def)x--------------- x ---------------
+  //                             (p_ga(def))^3     (F_ga(def))^2
   //
-  // where the "std" stand for the nominal value of the Delta mass.
+  // where the "def" stand for the nominal value of the Delta mass.
   //  - pi_* are the momentum of the gamma and of the pion coming from the decay
   //  - F_ga is the form factor
   //
