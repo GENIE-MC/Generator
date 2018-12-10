@@ -43,6 +43,8 @@ public:
   // Implement the EventRecordVisitorI interface
   void ProcessEventRecord(GHepRecord * event) const;
 
+  virtual void LoadConfig    (void);
+
 private:
 
   void           Initialize        (void) const;
@@ -53,12 +55,19 @@ private:
   bool           Decay             (int dec_part_id, GHepRecord * event) const;
   TDecayChannel* SelectDecayChannel(int dec_part_id, GHepRecord * event) const;
   void           DecayExclusive    (int dec_part_id, GHepRecord * event, TDecayChannel * ch) const;
-  double         DealsDeltaNGamma  (int dec_part_pdgc, int ich, double W) const;
+  double         DealsDeltaNGamma  (int dec_part_pdgc, int ich, double W) const; // LIBO to be replaced by the following
+  double         DeltaNGammaBR     (int dec_part_pdgc, TDecayChannel * ch, double W) const;
   double         FinalStateMass    (TDecayChannel * ch) const;
   bool           IsPiNDecayChannel (TDecayChannel * ch) const;
 
   mutable TGenPhaseSpace fPhaseSpaceGenerator;
   mutable double         fWeight;
+
+  double fProb32, fProb12 ; // parameters for pion angular distribution for Delta -> N + pi
+  double fGammaBR, fPionBR ;  //Branching ratios for Delta -> gammas + N and Delta -> pi + N
+
+  double fFFScaling ;  // Scaling factor of the form factor of the Delta wrt to Q2
+
 };
 
 }         // genie namespace
