@@ -125,13 +125,13 @@ INukeHadroData2018::~INukeHadroData2018()
 
   // N+A x-section splines
   delete fFracPA_Tot;
-  //  delete fFracPA_Elas;
+  delete fFracPA_Elas;
   delete fFracPA_Inel;
   delete fFracPA_CEx;
   delete fFracPA_Abs;
   delete fFracPA_PiPro;
   delete fFracNA_Tot;
-  //  delete fFracNA_Elas;
+  delete fFracNA_Elas;
   delete fFracNA_Inel;
   delete fFracNA_CEx;
   delete fFracNA_Abs;
@@ -306,13 +306,13 @@ void INukeHadroData2018::LoadCrossSections(void)
 
   // N+A x-section fraction splines
   fFracPA_Tot      = new Spline(&data_NA, "ke:pA_tot");
-  //  fFracPA_Elas     = new Spline(&data_NA, "ke:pA_elas");
+  fFracPA_Elas     = new Spline(&data_NA, "ke:pA_elas");
   fFracPA_Inel     = new Spline(&data_NA, "ke:pA_inel");
   fFracPA_CEx      = new Spline(&data_NA, "ke:pA_cex");
   fFracPA_Abs      = new Spline(&data_NA, "ke:pA_abs");
   fFracPA_PiPro    = new Spline(&data_NA, "ke:pA_pipro");
   fFracNA_Tot      = new Spline(&data_NA, "ke:pA_tot");  // assuming nA same as pA
-  //  fFracNA_Elas     = new Spline(&data_NA, "ke:pA_elas");
+  fFracNA_Elas     = new Spline(&data_NA, "ke:pA_elas");
   fFracNA_Inel     = new Spline(&data_NA, "ke:pA_inel");
   fFracNA_CEx      = new Spline(&data_NA, "ke:pA_cex");
   fFracNA_Abs      = new Spline(&data_NA, "ke:pA_abs");
