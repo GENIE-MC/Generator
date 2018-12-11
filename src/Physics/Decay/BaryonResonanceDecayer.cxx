@@ -479,25 +479,50 @@ double BaryonResonanceDecayer::EvolveDeltaBR(int dec_part_pdgc, TDecayChannel * 
    * returns the proper one depending on the specific decay channel.
    */
 
-  // identify a channel code or id from the TDecayChannle
-  // I suspect them being
-  // 0) Delta -> Pi + N
-  // 1) Delta -> Pi + N
-  // 2) Delta -> Gamma + N
-  // channel 0 and 1 distinguished by something. They correspond to different BR so need investigation
+  // identify the decay channel
+  // The delta decays only in 3 ways
+  // Delta -> Charged Pi + N
+  // Delta -> Pi0 + N
+  // Delta -> Gamma + N
 
-  // get the final state mass from TDecayChannel
-  if (W < /* total mass of the final state */) {
+  // They have evolution as a function of W that are different if the final state has pions or not
+  // so having tagged the pion is enough for the purpose of this method.
 
-    // return a proper branching ration, which most likely will be 0 (for pi + N) and 1 (for gamma+N)
-    // wait comments from Libo
-     if (ichannel == 0) {return 0;} // ichannel = 0,1,2 has to match
-                                    // the channel order in genie_pdg_table.dat
-     if (ichannel == 1) {return 0;}
-     if (ichannel == 2) {return 1;}
+  bool has_pion = false ;
+  int pion_id = -1 ;
+  int nucleon_id = -1 ;
+  unsigned int nd = ch -> NDaughters() ;
+  for( int i = 0 ; i < nd; ++i ) {
+    if ( genie::pdg::IsPion( ch -> DaughterPdgCode(i) ) ) {
+      has_pion = true ;
+      pion_id = i ;
+    }
+
+    if ( genie::pdg::IsNucleon( ch -> DaughterPdgCode(i) ) ) {
+      nucleon_id = i ;
+    }
+  }
+
+
+  // The first and most trivial evolution of the BR as a function of W
+  // is that if W is lower then mass of Pi0 and the corresponding nucleon
+  // The only possible decay is the one with gamma, therefore the BR goes
+  // to either 0 or 1 depending if there is pion or not in the final state.
+  // The reason why we check only with pi0 is because reguardless of the
+  // charge of the Delta, the ligther final state is always the one with the pi0
+  // For simplicity the check is done on the generic nucleon mass
+
+  if (W < genie::constants::kPi0Mass + genie::constants::kNucleonMass ) {
+
+    if ( has_pion ) return 0. ;
+    else return 1. ;
+
    }
 
-  // at this point, W is high enough to allow the decay of the delta in both N+pi or N+gamma
+  // there is a region of a few MeV in which the Pi0 decay is allowed by the W and the other is not
+  // this condition is treated as both the decays were available
+
+  // At this point, W is high enough to assume the decay of the delta in both N+pi or N+gamma
   // This requires the amplitude of both decays to be scaled according to W
   // The amplitude dependencies of W scales with the momentum of the pion or the photon respectivelly
   // following these relationships
@@ -523,6 +548,35 @@ double BaryonResonanceDecayer::EvolveDeltaBR(int dec_part_pdgc, TDecayChannel * 
    // get the width of the delta and obtain the width of the decay in Pi+N and gamma+N
    // evaluated at the nominal mass of the delta
    double defWidth   = genie::utils::res::Width( res ) ;
+
+   double m = genie::utils::res::Mass( res ) ;
+   double m_2   = TMath::Power(m, 2);
+
+   double mN = genie::pdg::IsProton( ch -> DaughterPdgCode( nucleon_id ) ) ?  genie::constants::kProtonMass : genie::constants::kNucleonMass ;
+   double mN_2  = TMath::Power( mN,     2);
+
+   double mPion = TMath::Abs( ch -> DaughterPdgCode( pion_id ) ) == kPdgPiP ? genie::constants::kPionMass : genie::constants::kPi0Mass ;
+   double m_aux1= TMath::Power( mN + mPion, 2) ;
+   double m_aux2= TMath::Power( mN - mPion, 2) ;
+
+   double W_2   = TMath::Power(W,      2);
+
+   // momentum of the pion in the Delta reference frame
+   double pPi_W    = TMath::Sqrt((W_2-m_aux1)*(W_2-m_aux2))/(2*W);  // at W
+   double pPi_m    = TMath::Sqrt((m_2-m_aux1)*(m_2-m_aux2))/(2*m);  // at the default Delta mass
+
+   double TPi_W    = TMath::Power(pPi_W, 3);
+   double TPi_m    = TMath::Power(pPi_m, 3);
+
+   // momentum of the photon in the Delta Reference frame = Energy of the photon
+   double Egamma_W = (W_2-mN_2)/(2*W);  // at W
+   double Egamma_m = (m_2-mN_2)/(2*m);  // at the default Delta mass
+
+   // form factor of the photon production
+   double fgamma_W = 1./(TMath::Power(1+Egamma_W*Egamma_W/fFFScaling, 2));
+   double fgamma_m = 1./(TMath::Power(1+Egamma_m*Egamma_m/fFFScaling, 2));
+
+
    double defPiWidth = width0*fPionBR;
    double defGaWidth = width0*fGammaBR;
 
