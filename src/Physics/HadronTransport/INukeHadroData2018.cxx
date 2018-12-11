@@ -75,6 +75,7 @@ INukeHadroData2018::INukeHadroData2018()
 //____________________________________________________________________________
 INukeHadroData2018::~INukeHadroData2018()
 {
+  
   // pi+n/p hA x-section splines
   delete fXSecPipn_Tot;
   delete fXSecPipn_CEx;
@@ -113,6 +114,7 @@ INukeHadroData2018::~INukeHadroData2018()
   // K+N x-section splines
   delete fXSecKpn_Elas;
   delete fXSecKpp_Elas;
+  delete fXSecKpn_CEx;
   delete fXSecKpN_Abs;
   delete fXSecKpN_Tot;
 
@@ -152,6 +154,22 @@ INukeHadroData2018::~INukeHadroData2018()
   delete fhN2dXSecGamPi0N_Inelas;
   delete fhN2dXSecGamPipN_Inelas;
   delete fhN2dXSecGamPimP_Inelas;
+  delete fhN2dXSecKpN_CEx;
+  
+  delete TPipA_Tot; 
+  delete TfracPipA_Abs;
+  delete TfracPipA_CEx;
+  delete TfracPipA_Elas;
+  delete TfracPipA_Inelas;
+  delete TfracPipA_PiPro;
+  
+  // K+A x-section fraction splines
+  delete fFracKA_Tot;
+  delete fFracKA_Elas;
+  delete fFracKA_CEx;
+  delete fFracKA_Inel;
+  delete fFracKA_Abs;
+  
 }
 //____________________________________________________________________________
 INukeHadroData2018 * INukeHadroData2018::Instance()
@@ -193,6 +211,7 @@ void INukeHadroData2018::LoadCrossSections(void)
   assert( ! gSystem->AccessPathName(datafile_NN.  c_str()) );
   assert( ! gSystem->AccessPathName(datafile_pipN.c_str()) );
   assert( ! gSystem->AccessPathName(datafile_pi0N.c_str()) );
+  assert( ! gSystem->AccessPathName(datafile_NA.  c_str()) );
   assert( ! gSystem->AccessPathName(datafile_KA. c_str())  );
   assert( ! gSystem->AccessPathName(datafile_gamN.c_str())  );
   assert( ! gSystem->AccessPathName(datafile_kN.  c_str())  );
@@ -238,7 +257,7 @@ void INukeHadroData2018::LoadCrossSections(void)
   //-- Build x-section splines
 
   // p/n+p/n hA x-section splines
-  fXSecPp_Tot      = new Spline(&data_NN, "ke:pp_tot");     
+  fXSecPp_Tot      = new Spline(&data_NN, "ke:pp_tot");
   fXSecPp_Elas     = new Spline(&data_NN, "ke:pp_elas");      
   fXSecPp_Reac     = new Spline(&data_NN, "ke:pp_reac");      
   fXSecPn_Tot      = new Spline(&data_NN, "ke:pn_tot");     
@@ -306,7 +325,7 @@ void INukeHadroData2018::LoadCrossSections(void)
   fFracKA_Tot      = new Spline(&data_KA, "ke:KA_tot");
   fFracKA_Elas     = new Spline(&data_KA, "ke:KA_elas");
   fFracKA_CEx      = 0; // new Spline(&data_KA, "ke:KA_cex"); //Added, but needs to be computed
-  fFracKA_Inel     = new Spline(&data_KA, "ke:KA_inel");   
+  fFracKA_Inel     = new Spline(&data_KA, "ke:KA_inel");
   fFracKA_Abs      = new Spline(&data_KA, "ke:KA_abs");
   //
   // hN stuff
@@ -940,7 +959,8 @@ void INukeHadroData2018::LoadCrossSections(void)
     if (saveTGraphsToFile) { 
       TPipA_CEx -> Write("TPipA_CEx");
     }
-
+    delete TPipA_CEx;
+   
   }
 
   // kIHNFtAbs, pip + A                                                            PipA_Abs (just for developmental purposes)
@@ -975,7 +995,8 @@ void INukeHadroData2018::LoadCrossSections(void)
     if (saveTGraphsToFile) { 
       TPipA_Abs -> Write("TPipA_Abs");
     }
-
+    delete TPipA_Abs;
+   
   }
 
   // kIHNFtElas, pip + A                                                            PipA_Elas (just for developmental purposes)
@@ -1010,7 +1031,7 @@ void INukeHadroData2018::LoadCrossSections(void)
     if (saveTGraphsToFile) { 
       TPipA_Elas -> Write("TPipA_Elas");
     }
-
+    delete TPipA_Elas; 
   }
 
   // kIHNFtInelas, pip + A                                                            PipA_Inelas (just for developmental purposes)
@@ -1045,7 +1066,7 @@ void INukeHadroData2018::LoadCrossSections(void)
     if (saveTGraphsToFile) { 
       TPipA_Inelas -> Write("TPipA_Inelas");
     }
-
+    delete TPipA_Inelas;
   }
  
 
@@ -1153,7 +1174,7 @@ void INukeHadroData2018::LoadCrossSections(void)
    TGraphs_file.Close();
 
    LOG("INukeData", pINFO)  << "Done building x-section splines...";
-
+   
 }
 //____________________________________________________________________________
 void INukeHadroData2018::ReadhNFile(
@@ -1462,6 +1483,7 @@ double INukeHadroData2018::FracAIndep(int hpdgc, INukeFateHA_t fate, double ke) 
   }
   LOG("INukeData", pWARN) 
       << "Can't handle particles with pdg code = " << hpdgc;
+
   return 0;
 }
 //____________________________________________________________________________

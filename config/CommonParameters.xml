@@ -33,7 +33,7 @@ University of Liverpool
 
 
  <param_set name="WeakInt"> 
-   <param type="double" name="WeinbergAngle"> 0.501716712132 </param> <!-- 0.501568 --> 
+   <param type="double" name="WeinbergAngle"> 0.50162777299552883387 </param> <!-- 0.501568 --> 
 
  </param_set>
 
@@ -47,15 +47,15 @@ University of Liverpool
  <param_set name="CKM">
    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	CKM quark mixing parameters 
-	Chinese Physics C Vol.40, No. 10 (2016) 100001
+	Physical Review D 98 (2018) 030001
 	Review of Particle Physics
    -->
-   <param type="double" name="CKM-Vud">  0.97417  </param>
-   <param type="double" name="CKM-Vus">  0.2248   </param>
-   <param type="double" name="CKM-Vcd">  0.220    </param>  <!-- 0.2239 -->
-   <param type="double" name="CKM-Vcs">  0.995    </param>
+   <param type="double" name="CKM-Vud">  0.97420  </param>
+   <param type="double" name="CKM-Vus">  0.2243   </param>
+   <param type="double" name="CKM-Vcd">  0.218    </param>  <!-- 0.2239 -->
+   <param type="double" name="CKM-Vcs">  0.997    </param>
    
-   <param type="double" name="CabibboAngle">  0.227780466682 </param> <!-- 0.226893 -->  
+   <param type="double" name="CabibboAngle">  0.22629650507833410219 </param> <!-- 0.226893 -->  
    
  </param_set>
 
@@ -247,8 +247,8 @@ University of Liverpool
 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Proton and neutron anomalous magnetic moments 
    -->
-   <param type="double" name="AnomMagnMoment-P">   2.7930     </param> <!-- 2.7928473 -->
-   <param type="double" name="AnomMagnMoment-N">  -1.913042   </param>
+   <param type="double" name="AnomMagnMoment-P">   2.7928473446  </param> <!-- 2.7928473 -->
+   <param type="double" name="AnomMagnMoment-N">  -1.9130427   </param>
 
  </param_set>
 
