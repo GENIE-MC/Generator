@@ -13,7 +13,7 @@
  @ Mar 03, 2009 - CA
    Moved into the new QEL package from its previous location (EVGModules)
  @ Mar 05, 2010 - CA
-   Added a temprorary SpectralFuncExperimentalCode() 
+   Added a temprorary SpectralFuncExperimentalCode()
  @ Feb 06, 2013 - CA
    When the value of the differential cross-section for the selected kinematics
    is set to the event, set the corresponding KinePhaseSpace_t value too.
@@ -105,8 +105,8 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
     // Note: The kinematic generator would be using the free nucleon cross
     // section (even for nuclear targets) so as not to double-count nuclear
     // suppression. This assumes that a) the nuclear suppression was turned
-    // on when computing the cross sections for selecting the current event 
-    // and that b) if the event turns out to be unphysical (Pauli-blocked) 
+    // on when computing the cross sections for selecting the current event
+    // and that b) if the event turns out to be unphysical (Pauli-blocked)
     // the next attempted event will be forced to QEL again.
     // (discussion with Hugh - GENIE/NeuGEN integration workshop - 07APR2006
     interaction->SetBit(kIAssumeFreeNucleon);
@@ -119,11 +119,11 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
     //   If the kinematics are generated uniformly over the allowed phase
     //   space the max xsec is irrelevant
     double xsec_max = (fGenerateUniformly) ? -1 : this->MaxXSec(evrec);
-    
+
     //
     // Try to generate (simultaneously):
-    //    - Fermi momentum (pF), 
-    //    - binding energy (w) and 
+    //    - Fermi momentum (pF),
+    //    - binding energy (w) and
     //    - momentum transfer (Q2)
     //
 
@@ -196,7 +196,7 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
         //         double Mn = tb->GetParticle(interaction->InitState().TgtPtr()->HitNucPdg())->Mass();// incoming nucleon mass
         //         double Mp = tb->GetParticle(interaction->RecoilNucleonPdg())->Mass(); // outgoing nucleon mass
 
-        //         double Mn  = nucleon->Mass();    
+        //         double Mn  = nucleon->Mass();
         //         double Mp(0); // outgoing nucleon mass
         //         TDatabasePDG *tb = TDatabasePDG::Instance();
         //         if (nucleon->Pdg() == 2212){
@@ -223,7 +223,7 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
         //          << " GeV, Enuc (off-shell) = " << EN_offshell
         //          << " GeV, Ebind = " << Eb << " GeV";
         //
-        //         // Update the struck nucleon 4-momentum at the interaction summary 
+        //         // Update the struck nucleon 4-momentum at the interaction summary
         //         // and at the GHEP record
         //         p4->SetPx( p3.Px()    );
         //         p4->SetPy( p3.Py()    );
@@ -285,7 +285,7 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
         //
         //        // Boost particles
         //        TVector3 beta = this->COMframe2Lab(init_state);
-        //        
+        //
         //        TLorentzVector leptonCOM = TLorentzVector(lepton);
         //
         //        lepton.Boost(beta);
@@ -363,7 +363,7 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
             interaction->KinePtr()->ClearRunningValues();
 
             // set the cross section for the selected kinematics
-            evrec->SetDiffXSec(xsec,kPSQ2fE);
+            evrec->SetDiffXSec(xsec, kPSQELEvGen);
 
             TLorentzVector lepton(interaction->KinePtr()->FSLeptonP4());
             TLorentzVector outNucleon(interaction->KinePtr()->HadSystP4());
@@ -371,7 +371,7 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
             evrec->AddParticle(interaction->FSPrimLeptonPdg(), kIStStableFinalState, evrec->ProbePosition(),-1,-1,-1, interaction->KinePtr()->FSLeptonP4(), x4l);
 
-            GHepStatus_t ist = (tgt->IsNucleus()) ? 
+            GHepStatus_t ist = (tgt->IsNucleus()) ?
                 kIStHadronInTheNucleus : kIStStableFinalState;
             evrec->AddParticle(interaction->RecoilNucleonPdg(), ist, evrec->HitNucleonPosition(),-1,-1,-1, interaction->KinePtr()->HadSystP4(), x4l);
 
@@ -443,7 +443,7 @@ void QELEventGenerator::AddTargetNucleusRemnant(GHepRecord * evrec) const
         assert(remn);
     }
 
-    double Mi = nucleus->Mass();  
+    double Mi = nucleus->Mass();
     Px *= -1;
     Py *= -1;
     Pz *= -1;
@@ -478,7 +478,7 @@ void QELEventGenerator::LoadConfig(void)
 {
     // Load sub-algorithms and config data to reduce the number of registry
     // lookups
-	fNuclModel = 0;
+        fNuclModel = 0;
 
     RgKey nuclkey = "NuclearModel";
     //  RgAlg nuclalg = fConfig->GetAlgDef(nuclkey, gc->GetAlg(nuclkey));
@@ -543,12 +543,12 @@ double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const
         // Use r=0. as the radius, since this method should give the max xsec
         // for all possible kinematics
         fNuclModel->GenerateNucleon(*tgt,0.0);
-        
+
         min_energy   = std::min(min_energy  ,fNuclModel->RemovalEnergy());
         max_momentum = std::max(max_momentum,fNuclModel->Momentum());
         delete interaction;
     } // nucl throws
-    
+
     { // Just a scoping block for now
         Interaction * interaction = new Interaction(*in);
         interaction->SetBit(kISkipProcessChk);
@@ -558,7 +558,7 @@ double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const
         // Access the target from the interaction summary
         Target * tgt = interaction->InitState().TgtPtr();
         //        TLorentzVector * p4 = tgt->HitNucP4Ptr();
-        
+
         // Set the nucleon we're using to be upstream at max enegry
         fNuclModel->GenerateNucleon(*tgt,0.0);
         fNuclModel->SetMomentum3(TVector3(0.,0.,-max_momentum));
@@ -566,18 +566,18 @@ double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const
 
         //        TVector3 p3 = fNuclModel->Momentum3();
         //        double w = fNuclModel->RemovalEnergy();
-        //      
+        //
         //        TDatabasePDG *tb = TDatabasePDG::Instance();
         //        double Mn = tb->GetParticle(interaction->InitState().TgtPtr()->HitNucPdg())->Mass();// outgoing nucleon mass
         //        double Mp = tb->GetParticle(interaction->RecoilNucleonPdg())->Mass(); // incoming nucleon mass
         //        double EN_offshell = Mn - w;
         ////      double EN_offshell = TMath::Sqrt(Mn*Mn + p3.Dot(p3)) - w;
-        //        
+        //
         //        p4->SetPx( p3.Px()    );
         //        p4->SetPy( p3.Py()    );
         //        p4->SetPz( p3.Pz()    );
         //        p4->SetE ( EN_offshell );
-        
+
         // OK, we're going to scan the centre-of-mass angles to get the point of max xsec
         // We'll bin in solid angle, and find the maximum point
         // Then we'll bin/scan again inside that point
@@ -589,7 +589,7 @@ double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const
         double phi_at_xsec_max = -1;
         double costh_at_xsec_max = 0;
         double this_nuc_xsec_max = -1;
-        
+
         double costh_range_min = -1.;
         double costh_range_max = 1.;
         double phi_range_min = 0.;
@@ -612,13 +612,13 @@ double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const
                   //
               } // Done with phi scan
           }// Done with centre-of-mass angles coarsely
-          
+
           // Calculate the range for the next layer
           costh_range_min = costh_at_xsec_max - costh_increment;
           costh_range_max = costh_at_xsec_max + costh_increment;
           phi_range_min = phi_at_xsec_max - phi_increment;
           phi_range_max = phi_at_xsec_max + phi_increment;
-          
+
           double improvement_factor = this_nuc_xsec_max/last_layer_xsec_max;
           if (ilayer && (improvement_factor-1) < acceptable_fraction_of_safety_factor * (fSafetyFactor-1)) {
             break;
@@ -665,7 +665,7 @@ double QELEventGenerator::ComputeXSec( Interaction * interaction, double costhet
     double EN_offshell(0);
     //FermiMoverInteractionType_t interaction_type = fNuclModel->GetFermiMoverInteractionType(); // check the nuclear model essentially
     //if  (interaction_type == kFermiMoveBenharSF){
-    //EN_offshell = Mn - w; 
+    //EN_offshell = Mn - w;
     //LOG("QELEvent",pDEBUG) << "Using FermiMoveBenharSF and defined energy" << std::endl;
     //}
     //else if (interaction_type == kFermiMoveDefault){
@@ -735,7 +735,7 @@ double QELEventGenerator::ComputeXSec( Interaction * interaction, double costhet
 
     lepton.SetTheta(TMath::ACos(costheta));
     lepton.SetPhi(phi);
-    TLorentzVector outNucleon(-1*lepton.Px(),-1*lepton.Py(),-1*lepton.Pz(), 
+    TLorentzVector outNucleon(-1*lepton.Px(),-1*lepton.Py(),-1*lepton.Pz(),
             TMath::Sqrt(outMomentum*outMomentum + Mp*Mp));
 
     /*LOG("QELEvent",pDEBUG) << "costheta = " << costheta << ", phi = " << phi << std::endl;
@@ -791,7 +791,7 @@ double QELEventGenerator::ComputeXSec( Interaction * interaction, double costhet
 
     // Compute the QE cross section for the current kinematics ("~" variables)
     interaction->InitStatePtr()->TgtPtr()->HitNucP4Ptr()->SetE(EN_onshell);
-    xsec = fXSecModel->XSec(interaction, kPSTnctnBnctl); // 
+    xsec = fXSecModel->XSec(interaction, kPSTnctnBnctl); //
 
     interaction->InitStatePtr()->TgtPtr()->HitNucP4Ptr()->SetE(EN_offshell);
 
@@ -801,7 +801,11 @@ double QELEventGenerator::ComputeXSec( Interaction * interaction, double costhet
     double jac = this->COMJacobian(lepton, leptonCOM, outNucleon, beta);
     xsec *= jac;
 
-    //delete qP4;
+    //// BEGIN DEBUG
+    //double debug_xsec = fXSecModel->XSec(interaction, kPSQELEvGen);
+    //std::cout << "\nDEBUG: xsec = " << xsec << ", debug_xsec = " << debug_xsec
+    //  << " xsec / debug_xsec = " << xsec / debug_xsec << '\n';
+    //// END DEBUG
 
     return xsec;
 }
@@ -821,7 +825,10 @@ TVector3 QELEventGenerator::COMframe2Lab(InitialState initialState) const
 }
 
 //___________________________________________________________________________
-double QELEventGenerator::COMJacobian(TLorentzVector lepton, TLorentzVector leptonCOM, TLorentzVector outNucleon, TVector3 beta) const
+double QELEventGenerator::COMJacobian(TLorentzVector lepton,
+                                      TLorentzVector /* leptonCOM */,
+                                      TLorentzVector outNucleon,
+                                      TVector3 beta) const
 {
 
     double gamma = 1. / TMath::Sqrt(1. - beta.Dot(beta)); //  gamma factor

@@ -5,7 +5,7 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
+         University of Liverpool & STFC Rutherford Appleton Lab
 */
 //____________________________________________________________________________
 
@@ -80,7 +80,7 @@ void GEVGDriver::Init(void)
   fIntSelector = 0;
 
   // flag instructing the driver whether, for each interaction, to compute
-  // cross section by running their corresponding XSecAlgorithm or by 
+  // cross section by running their corresponding XSecAlgorithm or by
   // evaluating their corresponding xsec spline
   fUseSplines = false;
 
@@ -93,7 +93,7 @@ void GEVGDriver::Init(void)
   fNRecLevel = 0;
 
   // an "interaction" -> "generator" associative contained built for all
-  // simulated interactions (from the loaded Event Generators and for the 
+  // simulated interactions (from the loaded Event Generators and for the
   // input initial state)
   fIntGenMap = 0;
 
@@ -105,16 +105,16 @@ void GEVGDriver::Init(void)
   fXSecSumSpl = 0;
 
   // Default driver behaviour is to filter out unphysical events
-  // If needed, set the fUnphysEventMask bitfield to get pre-selected types of 
+  // If needed, set the fUnphysEventMask bitfield to get pre-selected types of
   // unphysical events (just set to 1 the bit you want ignored from the check).
-  // Be warned that the event record for unphysical events might be incomplete 
+  // Be warned that the event record for unphysical events might be incomplete
   // depending on the processing step that event generation was stopped.
   fUnphysEventMask = new TBits(GHepFlags::NFlags());
-  //fUnphysEventMask->ResetAllBits(true); 
+  //fUnphysEventMask->ResetAllBits(true);
   for(unsigned int i = 0; i < GHepFlags::NFlags(); i++) {
    fUnphysEventMask->SetBitNumber(i, true);
   }
-  LOG("GEVGDriver", pNOTICE) 
+  LOG("GEVGDriver", pNOTICE)
     << "Initializing unphysical event mask (bits: " << GHepFlags::NFlags()-1
     << " -> 0) : " << *fUnphysEventMask;
 }
@@ -150,10 +150,10 @@ void GEVGDriver::Configure(const InitialState & is)
   ostringstream mesg;
   mesg << "Configuring event generation driver for initial state: `"
        << init_state.AsString()
-       << "' using event generator list: `" 
+       << "' using event generator list: `"
        << fEventGenList << "'.";
 
-  LOG("GEVGDriver", pNOTICE) 
+  LOG("GEVGDriver", pNOTICE)
         << utils::print::PrintFramedMesg(mesg.str(), 0, '*');
 
   this -> BuildInitialState            (init_state);
@@ -179,8 +179,8 @@ void GEVGDriver::BuildGeneratorList(void)
 //! Load event generators.
 //! The list of event generators is named by fEventGenList.
 
-  LOG("GEVGDriver", pINFO) 
-    << "Building the event generator list (specified list name: " 
+  LOG("GEVGDriver", pINFO)
+    << "Building the event generator list (specified list name: "
     << fEventGenList << ")";
 
   EventGeneratorListAssembler evglist_assembler(fEventGenList.c_str());
@@ -221,7 +221,7 @@ void GEVGDriver::SetUnphysEventMask(const TBits & mask)
 {
   *fUnphysEventMask = mask;
 
-  LOG("GEVGDriver", pNOTICE) 
+  LOG("GEVGDriver", pNOTICE)
     << "Setting unphysical event mask (bits: " << GHepFlags::NFlags() - 1
     << " -> 0) : " << *fUnphysEventMask;
 }
@@ -242,7 +242,7 @@ EventRecord * GEVGDriver::GenerateEvent(const TLorentzVector & nu4p)
 
   if(!fCurrentRecord) {
      LOG("GEVGDriver", pWARN)
-         << "No interaction could be selected for: " 
+         << "No interaction could be selected for: "
          << init_state.AsString() << " at E = " << nu4p.E() << " GeV";
      return 0;
   }
@@ -277,45 +277,45 @@ EventRecord * GEVGDriver::GenerateEvent(const TLorentzVector & nu4p)
   //
   //   (note: use of the 'Visitor' Design Pattern)
 
-  string mesg = "Requesting from event generation thread: " + 
+  string mesg = "Requesting from event generation thread: " +
          evgen->Id().Key() + " to generate the selected interaction";
 
-  LOG("GEVGDriver", pNOTICE) 
+  LOG("GEVGDriver", pNOTICE)
          << utils::print::PrintFramedMesg(mesg,1,'=');
 
   fCurrentRecord->SetUnphysEventMask(*fUnphysEventMask);
   evgen->ProcessEventRecord(fCurrentRecord);
 
   //-- Check the generated event flags. The default behaviour is
-  //   to reject an unphysical event and enter in recursive mode 
-  //   and try to regenerate it. If an unphysical event mask has 
+  //   to reject an unphysical event and enter in recursive mode
+  //   and try to regenerate it. If an unphysical event mask has
   //   been set, error conditions may be ignored so that the
   //   requested classes of unphysical events can be passed-through.
 
   bool unphys = fCurrentRecord->IsUnphysical();
   if(!unphys) {
      LOG("GEVGDriver", pINFO) << "Returning the current event!";
-     fNRecLevel = 0;     
+     fNRecLevel = 0;
      return fCurrentRecord; // The client 'adopts' the event record
   } else {
      LOG("GEVGDriver", pWARN) << "An unphysical event was generated...";
      // Check whether the user wants to ignore the err
      bool accept = fCurrentRecord->Accept();
      if(accept) {
-       LOG("GEVGDriver", pWARN) 
+       LOG("GEVGDriver", pWARN)
           << "The generated unphysical event is accepted by the user";
-       fNRecLevel = 0;     
+       fNRecLevel = 0;
        return fCurrentRecord; // The client 'adopts' the event record
 
      } else {
-       LOG("GEVGDriver", pWARN) 
+       LOG("GEVGDriver", pWARN)
           << "The generated unphysical event is rejected";
        delete fCurrentRecord;
        fCurrentRecord = 0;
        fNRecLevel++; // increase the nested level counter
 
        if(fNRecLevel<=kRecursiveModeMaxDepth) {
-          LOG("GEVGDriver", pWARN) 
+          LOG("GEVGDriver", pWARN)
             << "Attempting to regenerate the event...";
           return this->GenerateEvent(nu4p);
        } else {
@@ -348,13 +348,13 @@ const InteractionList * GEVGDriver::Interactions(void) const
 //___________________________________________________________________________
 void GEVGDriver::SetEventGeneratorList(string listname)
 {
-  LOG("GEVGDriver", pNOTICE) 
+  LOG("GEVGDriver", pNOTICE)
        << "Setting event generator list: " << listname;
 
   fEventGenList = listname;
 }
 //___________________________________________________________________________
-const EventGeneratorI * 
+const EventGeneratorI *
   GEVGDriver::FindGenerator(const Interaction * interaction) const
 {
   if(!interaction) {
@@ -513,10 +513,10 @@ void GEVGDriver::UseSplines(void)
 // can be very time-consuming.
 // **Note**
 // -- If you called GEVGDriver::CreateSplines() already the driver would
-//    a) assume that you want to use them and b) would be assured that it 
+//    a) assume that you want to use them and b) would be assured that it
 //    has all the splines it needs, so you do not need to call this method.
 // -- If you populated the XSecSplineList in another way without this driver
-//    knowing about it, eg from an external XML file, do call this method 
+//    knowing about it, eg from an external XML file, do call this method
 //    to let the driver know that you want to use the splines. However, note
 //    that the driver would **explicitly check** that you have loaded all the
 //    splines it needs. If not, then its fiery personality will take over and
@@ -555,14 +555,14 @@ void GEVGDriver::UseSplines(void)
 
        if(!spl_exists) {
           if(!xsec_alg) {
-            LOG("GEVGDriver", pWARN) 
+            LOG("GEVGDriver", pWARN)
               << "Null cross-section algorithm! Can not load cross-section spline.";
-            return;              
+            return;
           }
           if(!interaction) {
-            LOG("GEVGDriver", pWARN) 
+            LOG("GEVGDriver", pWARN)
               << "Null interaction! Can not load cross-section spline.";
-            return;              
+            return;
           }
           LOG("GEVGDriver", pWARN)
              << "*** At least a spline (algorithm: "
@@ -617,19 +617,21 @@ void GEVGDriver::CreateSplines(int nknots, double emax, bool useLogE)
      // if the user set a maximum energy, create the spline up to this
      // energy - otherwise use the upper limit of the validity range of
      // the current generator
-     if(emax>0) {
-       if(emax>Emax) {
-	 LOG("GEVGDriver", pWARN) 
+     if ( emax > 0 ) {
+       if ( emax > Emax ) {
+         LOG("GEVGDriver", pWARN)
            << "Refusing to exceed validity range: Emax = " << Emax;
        }
        emax = TMath::Min(emax,Emax); // don't exceed validity range
-     } else emax = Emax;
+     } else {
+       emax = Emax;
+     }
 
-     assert(emax>Emin);
+     assert( emax > Emin );
 
      // number of knots: use specified number. If not set, use 15 knots
      // per decade. Don't use less than 30 knots.
-     if(nknots<0) {
+     if ( nknots < 0 ) {
        nknots = (int) (15 * TMath::Log10(emax-Emin));
      }
      nknots = TMath::Max(nknots,30);
@@ -647,9 +649,9 @@ void GEVGDriver::CreateSplines(int nknots, double emax, bool useLogE)
          // only create the spline if it does not already exists
          bool spl_exists = xsl->SplineExists(alg, interaction);
          if(!spl_exists) {
-             SLOG("GEVGDriver", pDEBUG) 
+             SLOG("GEVGDriver", pDEBUG)
                << "The spline wasn't loaded at initialization. "
-               << "I can build it now but it might take a while..."; 
+               << "I can build it now but it might take a while...";
              xsl->CreateSpline(alg, interaction, nknots, Emin, emax);
          } else {
              SLOG("GEVGDriver", pDEBUG) << "Spline was found";
@@ -721,4 +723,3 @@ void GEVGDriver::Print(ostream & stream) const
   stream << "\n *********************************************************\n";
 }
 //___________________________________________________________________________
-

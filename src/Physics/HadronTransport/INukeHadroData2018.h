@@ -8,16 +8,16 @@
 
           See $GENIE/src/HadronTransport/Intranuke.h for more details on the
           INTRANUKE cascade MC developed primarity by S.Dytman and H.Gallagher
-          continuing older work from R.Edgecock, G.F.Pearce, W.A.Mann, 
+          continuing older work from R.Edgecock, G.F.Pearce, W.A.Mann,
           R.Merenyi and others.
 
           The hadron x-section data used to build the x-section splines stored
           at this singleton are provided & maintained by Steve Dytman.
           See the data files in $GENIE/data/hadron_xsec/ for more details on
-          Steve's data sources and applied corrections. 
+          Steve's data sources and applied corrections.
           In a nutshell:
           The h+N x-sections come mostly from the SAID (Arndt et al.) PWA fit
-          while the h+A x-sections come from a combination of Ashery, Carroll 
+          while the h+A x-sections come from a combination of Ashery, Carroll
           data and extrapolations, and INC model results from Mashnik et al.
           for h+Fe56.
 
@@ -38,7 +38,7 @@
 #ifndef _INTRANUKE_HADRON_CROSS_SECTIONS_2018_H_
 #define _INTRANUKE_HADRON_CROSS_SECTIONS_2018_H_
 
-#include "Physics/HadronTransport/INukeHadroFates.h"
+#include "Physics/HadronTransport/INukeHadroFates2018.h"
 #include "Framework/GHEP/GHepParticle.h"
 #include "Framework/Numerical/BLI2D.h"
 
@@ -90,17 +90,17 @@ public:
   const Spline * XSecPp_Elas      (void) const { return fXSecPp_Elas;      }
   const Spline * XSecPp_Reac      (void) const { return fXSecPp_Reac;      }
   const Spline * XSecPn_Tot       (void) const { return fXSecPn_Tot;       }
-  const Spline * XSecPn_Elas      (void) const { return fXSecPn_Elas;      } 
+  const Spline * XSecPn_Elas      (void) const { return fXSecPn_Elas;      }
   const Spline * XSecPn_Reac      (void) const { return fXSecPn_Reac;      }
   const Spline * XSecNn_Tot       (void) const { return fXSecNn_Tot;       }
-  const Spline * XSecNn_Elas      (void) const { return fXSecNn_Elas;      } 
+  const Spline * XSecNn_Elas      (void) const { return fXSecNn_Elas;      }
   const Spline * XSecNn_Reac      (void) const { return fXSecNn_Reac;      }
   const Spline * XSecKpn_Elas     (void) const { return fXSecKpn_Elas;     }
   const Spline * XSecKpn_CEx      (void) const { return fXSecKpn_CEx;      }
   const Spline * XSecKpp_Elas     (void) const { return fXSecKpp_Elas;     }
   const Spline * XSecKpN_Abs      (void) const { return fXSecKpN_Abs;      } //not implemented
   const Spline * XSecKpN_Tot      (void) const { return fXSecKpN_Tot;      }
-  const Spline * XSecGamp_fs      (void) const { return fXSecGamp_fs;      }  
+  const Spline * XSecGamp_fs      (void) const { return fXSecGamp_fs;      }
   const Spline * XSecGamn_fs      (void) const { return fXSecGamn_fs;      }
   const Spline * XSecGamN_Tot     (void) const { return fXSecGamN_Tot;     }
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -151,7 +151,7 @@ private:
   INukeHadroData2018(const INukeHadroData2018 & shx);
  ~INukeHadroData2018();
 
-  void LoadCrossSections(void); 
+  void LoadCrossSections(void);
 
   void ReadhNFile(
          string filename, double ke, int npoints, int & curr_point,

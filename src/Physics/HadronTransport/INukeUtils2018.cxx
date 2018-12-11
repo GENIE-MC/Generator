@@ -193,7 +193,7 @@ double genie::utils::intranuke2018::MeanFreePath(
     }
   else if (pdgc == kPdgKP)
     { sigtot = fHadroData2018 -> XSecKpN_Tot()  -> Evaluate(ke);
-      // this factor is used to empirically get agreement with tot xs data, justified historically. 
+      // this factor is used to empirically get agreement with tot xs data, justified historically.
       sigtot*=1.1;}
   else if (pdgc == kPdgGamma)
     { sigtot = fHadroData2018 -> XSecGamp_fs()  -> Evaluate(ke)*ppcnt;
@@ -460,8 +460,10 @@ void genie::utils::intranuke2018::StepParticle(
 //    and equilibrium
 //    Alex Bell -- 6/17/2008
 void genie::utils::intranuke2018::PreEquilibrium(
-  GHepRecord * ev, GHepParticle * p, int &RemnA, int &RemnZ, TLorentzVector &RemnP4, 
-  bool DoFermi, double FermiFac, const NuclearModelI* Nuclmodel, double NucRmvE, EINukeMode mode)
+  GHepRecord * ev, GHepParticle * p,
+  int &RemnA, int &RemnZ, TLorentzVector &RemnP4,
+  bool /* DoFermi */, double /* FermiFac */,
+  const NuclearModelI* /* Nuclmodel */, double NucRmvE, EINukeMode mode)
 {
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
@@ -472,25 +474,25 @@ void genie::utils::intranuke2018::PreEquilibrium(
 
   // Random number generator
   RandomGen * rnd = RandomGen::Instance();
-  PDGLibrary * pLib = PDGLibrary::Instance();
+  //unused PDGLibrary * pLib = PDGLibrary::Instance();
 
   bool allow_dup = true;
   PDGCodeList list(allow_dup); // list of final state particles
- 
+
   double ppcnt = (double) RemnZ / (double) RemnA; // % of protons left
 
   // figure out the final state conditions
-  
+
   if(p->Pdg()==kPdgProton) list.push_back(kPdgProton);
   else if(p->Pdg()==kPdgNeutron) list.push_back(kPdgNeutron);
 
   for(int i=0;i<3;i++)
     {
       if(rnd->RndFsi().Rndm()<ppcnt)
-	{
-	  list.push_back(kPdgProton);
+        {
+          list.push_back(kPdgProton);
           RemnZ--;
-	}
+        }
       else list.push_back(kPdgNeutron);
 
       RemnA--;
@@ -506,7 +508,7 @@ void genie::utils::intranuke2018::PreEquilibrium(
       TVector3 pBuf = p->P4()->Vect();
       double mBuf = p->Mass();
       double eBuf = TMath::Sqrt(pBuf.Mag2() + mBuf*mBuf);
-      TLorentzVector tSum(pBuf,eBuf); 
+      TLorentzVector tSum(pBuf,eBuf);
       double mSum = 0.0;
       vector<int>::const_iterator pdg_iter;
       for(pdg_iter=++(list.begin());pdg_iter!=list.end();++pdg_iter)
@@ -521,12 +523,12 @@ void genie::utils::intranuke2018::PreEquilibrium(
           RemnP4 -= TLorentzVector(pBuf,eBuf-mBuf);
         }
       TLorentzVector dP4 = tSum + TLorentzVector(TVector3(0,0,0),-mSum);
-      p->SetMomentum(dP4);    
+      p->SetMomentum(dP4);
       }
   */
   // do the phase space decay & save all f/s particles to the event record
   bool success = genie::utils::intranuke2018::PhaseSpaceDecay(ev,p,list,RemnP4,NucRmvE,mode);
-  if(success)  LOG("INukeUtils2018",pINFO) << "Successful phase space decay for pre-equilibrium nucleus FSI event"; 
+  if(success)  LOG("INukeUtils2018",pINFO) << "Successful phase space decay for pre-equilibrium nucleus FSI event";
   else
     {
       exceptions::INukeException exception;
@@ -570,10 +572,10 @@ void genie::utils::intranuke2018::PreEquilibrium(
       loc = (*descendants)[j];
       energy = ev->Particle(loc)->E();
       if(energy<min_en)
-	{
-	  f_loc = loc;
-	  min_en = energy;
-	}
+        {
+          f_loc = loc;
+          min_en = energy;
+        }
     }
 */
   // (2) most energetic
@@ -609,8 +611,10 @@ void genie::utils::intranuke2018::PreEquilibrium(
 // Method to handle Equilibrium reaction
 // Alex Bell -- 6/17/2008
 void genie::utils::intranuke2018::Equilibrium(
-  GHepRecord * ev, GHepParticle * p, int &RemnA, int &RemnZ, TLorentzVector &RemnP4,
-  bool DoFermi, double FermiFac, const NuclearModelI* Nuclmodel, double NucRmvE, EINukeMode mode)
+  GHepRecord * ev, GHepParticle * p,
+  int &RemnA, int &RemnZ, TLorentzVector &RemnP4,
+  bool /* DoFermi */, double /* FermiFac */,
+  const NuclearModelI* /* Nuclmodel */, double NucRmvE, EINukeMode mode)
 {
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
@@ -621,7 +625,7 @@ void genie::utils::intranuke2018::Equilibrium(
 
   // Random number generator
   RandomGen * rnd = RandomGen::Instance();
-  PDGLibrary * pLib = PDGLibrary::Instance();
+  //usused PDGLibrary * pLib = PDGLibrary::Instance();
 
   bool allow_dup = true;
   PDGCodeList list(allow_dup); // list of final state particles
@@ -638,10 +642,10 @@ void genie::utils::intranuke2018::Equilibrium(
   for(int i=0;i<4;i++)
     {
       if(rnd->RndFsi().Rndm()<ppcnt)
-	{
-	  list.push_back(kPdgProton);
-	  RemnZ--;
-	}
+        {
+          list.push_back(kPdgProton);
+          RemnZ--;
+        }
       else list.push_back(kPdgNeutron);
 
       RemnA--;
@@ -661,7 +665,7 @@ void genie::utils::intranuke2018::Equilibrium(
       TVector3 pBuf = p->P4()->Vect();
       double mBuf = p->Mass();
       double eBuf = TMath::Sqrt(pBuf.Mag2() + mBuf*mBuf);
-      TLorentzVector tSum(pBuf,eBuf); 
+      TLorentzVector tSum(pBuf,eBuf);
       double mSum = 0.0;
       vector<int>::const_iterator pdg_iter;
       for(pdg_iter=++(list.begin());pdg_iter!=list.end();++pdg_iter)
@@ -676,7 +680,7 @@ void genie::utils::intranuke2018::Equilibrium(
           RemnP4 -= TLorentzVector(pBuf,eBuf-mBuf);
         }
       TLorentzVector dP4 = tSum + TLorentzVector(TVector3(0,0,0),-mSum);
-      p->SetMomentum(dP4);    
+      p->SetMomentum(dP4);
     }
   */
   // do the phase space decay & save all f/s particles to the record
