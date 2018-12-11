@@ -470,7 +470,7 @@ double BaryonResonanceDecayer::DealsDeltaNGamma(
   return 0;
 }
 //____________________________________________________________________________
-double BaryonResonanceDecayer::DeltaNGammaBR(int dec_part_pdgc, TDecayChannel * ch, double W) const {
+double BaryonResonanceDecayer::EvolveDeltaBR(int dec_part_pdgc, TDecayChannel * ch, double W) const {
 
   /*
    * The branching rations of the Delta in Pions or in N gammas are not constant.
