@@ -138,8 +138,9 @@ TDecayChannel * BaryonResonanceDecayer::SelectDecayChannel(
   LOG("ResonanceDecay", pINFO) << "Available mass W = " << W;
 
   // Get all decay channels
-  TObjArray * decay_list = mother->DecayList();
-  unsigned int nch = decay_list->GetEntries();
+  TObjArray * original_decay_list = mother->DecayList();
+
+  unsigned int nch = original_decay_list -> GetEntries();
   LOG("ResonanceDecay", pINFO)
     << mother->GetName() << " has: " << nch << " decay channels";
 
@@ -156,34 +157,40 @@ TDecayChannel * BaryonResonanceDecayer::SelectDecayChannel(
       decay_particle_pdg_code ==  kPdgP33m1232_DeltaP ||
       decay_particle_pdg_code == -kPdgP33m1232_DeltaP );
 
-	for(unsigned int ich = 0; ich < nch; ich++) {
+  TObjArray * actual_decay_list = nullptr ;
 
-      TDecayChannel * ch = (TDecayChannel *) decay_list->At(ich);
-      double fsmass = this->FinalStateMass(ch);
+  if ( is_delta )
+    actual_decay_list = EvolveDeltaBR( decay_particle_pdg_code, original_decay_list, W ) ;
+  else
+    actual_decay_list = original_decay_list ;
 
-      if(fsmass < W) {
-         SLOG("ResonanceDecay", pDEBUG)
-            << "Using channel: " << ich
-            << " with final state mass = " << fsmass << " GeV";
-         double ch_BR = 0;
-         if(is_delta) {
-           ch_BR = this->DealsDeltaNGamma(decay_particle_pdg_code, ich, W);
-         }
-         else {
-           ch_BR = ch->BranchingRatio();
-         }
-         tot_BR += ch_BR;
-      } else {
-         SLOG("ResonanceDecay", pINFO)
-            << "Suppresing channel: " << ich
-            << " with final state mass = " << fsmass << " GeV";
-      } // final state mass
-      BR[ich] = tot_BR;
+  for(unsigned int ich = 0; ich < nch; ich++) {
+
+    TDecayChannel * ch = (TDecayChannel *) actual_decay_list -> At(ich);
+
+    if ( this->FinalStateMass(ch) < W ) {
+
+      SLOG("ResonanceDecay", pDEBUG)
+                << "Using channel: " << ich
+                << " with final state mass = " << fsmass << " GeV";
+
+      tot_BR += ch->BranchingRatio();
+
+    } else {
+      SLOG("ResonanceDecay", pINFO)
+                << "Suppresing channel: " << ich
+                << " with final state mass = " << fsmass << " GeV";
+    } // final state mass
+
+    BR[ich] = tot_BR;
   }//channel loop
 
-  if(tot_BR==0) {
+  if ( is_delta )
+    delete actual_decay_list ;
+
+  if( tot_BR <= 0. ) {
     SLOG("ResonanceDecay", pWARN)
-      << "None of the " << nch << " decay channels is available @ W = " << W;
+          << "None of the " << nch << " decay channels is available @ W = " << W;
     return 0;
   }
 

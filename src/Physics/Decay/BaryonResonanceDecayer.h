@@ -57,7 +57,9 @@ private:
   void           DecayExclusive    (int dec_part_id, GHepRecord * event, TDecayChannel * ch) const;
   double         DealsDeltaNGamma  (int dec_part_pdgc, int ich, double W) const; // LIBO to be replaced by the following
 
-  double         EvolveDeltaBR     (int dec_part_pdgc, TDecayChannel * ch, double W) const;
+  TObjArray *    EvolveDeltaBR        (int dec_part_pdgc, TObjArray * decay_list, double W) const;
+  double         EvolveDeltaDecayWidth(int dec_part_pdgc, TDecayChannel * ch, double W) const;
+
   //             This method evolves the BR of the decay channel ch according to the actual mass of the Delta W
 
   double         FinalStateMass    (TDecayChannel * ch) const;
