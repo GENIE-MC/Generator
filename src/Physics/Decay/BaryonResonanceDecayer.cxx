@@ -149,8 +149,6 @@ TDecayChannel * BaryonResonanceDecayer::SelectDecayChannel(
   // Since a baryon resonance can be created at W < Mres, explicitly
   // check and inhibit decay channels for which W > final-state-mass
 
-  double BR[nch], tot_BR = 0;
-
   bool is_delta =
     ( decay_particle_pdg_code ==  kPdgP33m1232_Delta0 ||
       decay_particle_pdg_code == -kPdgP33m1232_Delta0 ||
@@ -164,11 +162,14 @@ TDecayChannel * BaryonResonanceDecayer::SelectDecayChannel(
   else
     actual_decay_list = original_decay_list ;
 
+  double BR[nch], tot_BR = 0;
+
   for(unsigned int ich = 0; ich < nch; ich++) {
 
     TDecayChannel * ch = (TDecayChannel *) actual_decay_list -> At(ich);
 
-    if ( this->FinalStateMass(ch) < W ) {
+    double fsmass = this->FinalStateMass(ch) ;
+    if ( fsmass < W ) {
 
       SLOG("ResonanceDecay", pDEBUG)
                 << "Using channel: " << ich
@@ -324,7 +325,6 @@ void BaryonResonanceDecayer::DecayExclusive(
         // Locate the pion in the decay products
         // at this point we already know that the pion is unique so the first pion we find is our pion
         unsigned int pi_id = 0 ;
-        unsigned int nd = ch->NDaughters();
 
         for(unsigned int iparticle = 0; iparticle < nd; iparticle++) {
 
@@ -385,7 +385,7 @@ void BaryonResonanceDecayer::DecayExclusive(
   }
 
 }
-TObjArray *  BaryonResonanceDecayer::EvolveDeltaBR(int dec_part_pdgc, const TObjArray * decay_list, double W) const {
+TObjArray *  BaryonResonanceDecayer::EvolveDeltaBR(int dec_part_pdgc, TObjArray * decay_list, double W) const {
 
   unsigned int nch = decay_list -> GetEntries();
 
@@ -397,7 +397,7 @@ TObjArray *  BaryonResonanceDecayer::EvolveDeltaBR(int dec_part_pdgc, const TObj
 
   for ( unsigned int i = 0 ; i < nch ; ++i ) {
 
-    temp = (TDecayChannel*) decay_list -> At(ich) ;
+    temp = (TDecayChannel*) decay_list -> At(i) ;
     widths[i] = EvolveDeltaDecayWidth(dec_part_pdgc, temp, W ) ;
     tot += widths[i] ;
 
@@ -411,7 +411,7 @@ TObjArray *  BaryonResonanceDecayer::EvolveDeltaBR(int dec_part_pdgc, const TObj
 
   for ( unsigned int i = 0 ; i < nch ; ++i ) {
 
-    temp = (TDecayChannel*) decay_list -> At(ich) ;
+    temp = (TDecayChannel*) decay_list -> At(i) ;
 
     unsigned int nd = temp -> NDaughters() ;
     std::vector<Int_t> ds( 3, 0 ) ;
@@ -434,7 +434,7 @@ TObjArray *  BaryonResonanceDecayer::EvolveDeltaBR(int dec_part_pdgc, const TObj
 }
 
 //____________________________________________________________________________
-double BaryonResonanceDecayer::EvolveDeltaDecayWidth(int dec_part_pdgc, const TDecayChannel * ch, double W) const {
+double BaryonResonanceDecayer::EvolveDeltaDecayWidth(int dec_part_pdgc, TDecayChannel * ch, double W) const {
 
   /*
    * The decay widths of the Delta in Pions or in N gammas are not constant.
@@ -456,7 +456,7 @@ double BaryonResonanceDecayer::EvolveDeltaDecayWidth(int dec_part_pdgc, const TD
   int pion_id = -1 ;
   int nucleon_id = -1 ;
   unsigned int nd = ch -> NDaughters() ;
-  for( int i = 0 ; i < nd; ++i ) {
+  for(unsigned int i = 0 ; i < nd; ++i ) {
     if ( genie::pdg::IsPion( ch -> DaughterPdgCode(i) ) ) {
       has_pion = true ;
       pion_id = i ;
@@ -471,7 +471,7 @@ double BaryonResonanceDecayer::EvolveDeltaDecayWidth(int dec_part_pdgc, const TD
   // The first and most trivial evolution of the Width as a function of W
   // is that if W is lower then the final state mass the width collapses to 0.
 
-  if ( W < this -> FinalStateMass( ch -> ) ) {
+  if ( W < this -> FinalStateMass( ch ) ) {
 
     return 0. ;
 
@@ -550,7 +550,7 @@ double BaryonResonanceDecayer::Weight(void) const
   return fWeight;
 }
 //____________________________________________________________________________
-double BaryonResonanceDecayer::FinalStateMass(const TDecayChannel * ch) const
+double BaryonResonanceDecayer::FinalStateMass( TDecayChannel * ch ) const
 {
 // Computes the total mass of the final state system
 
@@ -577,7 +577,7 @@ double BaryonResonanceDecayer::FinalStateMass(const TDecayChannel * ch) const
   return mass;
 }
 //____________________________________________________________________________
-bool BaryonResonanceDecayer::IsPiNDecayChannel(const TDecayChannel * ch) const
+bool BaryonResonanceDecayer::IsPiNDecayChannel( TDecayChannel * ch ) const
 {
   if(!ch) return false;
 
@@ -647,22 +647,7 @@ void BaryonResonanceDecayer::LoadConfig(void) {
   this->GetParam( "Prob32", fProb32 ) ;
   fProb12 = 1. - fProb32 ;
 
-  this->GetParam( "TotGammaBR", fGammaBR ) ;
-  fPionBR = 1. - fGammaBR ;
-
-  fWidthPi_0 =    delta_width * TotNPiBR ;
-  fWidthGamma_0 = delta_width * TotGammaBR ;
-
-  this -> GetParam( "OnePiBR", fBRPi01 ) ;
-  fBRPi02 = 1. - fBRPi01 ;
-
-  fDeltaMass2   = TMath::Power( fDeltaMass, 2) ;
-  fNucleonMass2 = TMath::Power( genie::constants::kNucleonMass, 2) ;
-  fMAux1 = TMath::Power( genie::constants::kNucleonMass + genie::constants::kPi0Mass , 2) ;
-  fMAux2 = TMath::Power( genie::constants::kNucleonMass - genie::constants::kPi0Mass , 2) ;
-
   this -> GetParam( "FFScaling", fFFScaling ) ;
-
 
 }
 
