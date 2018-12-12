@@ -157,8 +157,10 @@ TDecayChannel * BaryonResonanceDecayer::SelectDecayChannel(
 
   TObjArray * actual_decay_list = nullptr ;
 
-  if ( is_delta )
+  if ( is_delta ) {
     actual_decay_list = EvolveDeltaBR( decay_particle_pdg_code, original_decay_list, W ) ;
+    nch = actual_decay_list -> GetEntries() ;
+  }
   else
     actual_decay_list = original_decay_list ;
 
@@ -429,6 +431,8 @@ TObjArray *  BaryonResonanceDecayer::EvolveDeltaBR(int dec_part_pdgc, TObjArray 
 
     new_list -> Add( update ) ;
   }
+
+  new_list -> SetOwner(kTRUE);
 
   return new_list ;
 }
