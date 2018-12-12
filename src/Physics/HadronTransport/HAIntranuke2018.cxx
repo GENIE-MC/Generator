@@ -181,11 +181,11 @@ void HAIntranuke2018::SimulateHadronicFinalStateKinematics(
   try
     {
       fNumIterations++;
-      if (fate == kIHAFtElas)
+      /*      if (fate == kIHAFtElas)
 	{ 
 	  this->ElasHA(ev,p,fate);
 	}
-      else 
+	else */ 
 	if (fate == kIHAFtInelas || fate == kIHAFtCEx) 
 	  {
 	    this->InelasticHA(ev,p,fate);
@@ -489,12 +489,12 @@ void HAIntranuke2018::ElasHA(
     << " whose fate is : " << INukeHadroFates::AsString(fate);
 #endif
 
-  if(fate!=kIHAFtElas)
+  /*  if(fate!=kIHAFtElas)
     {
       LOG("HAIntranuke2018", pWARN)
 	<< "ElasHA() cannot handle fate: " << INukeHadroFates::AsString(fate);
       return;
-    }
+      } */
 
   // check remnants
   if(fRemnA<0 || fRemnZ<0) // best to stop it here and not try again.
@@ -1001,6 +1001,8 @@ void HAIntranuke2018::Inelastic(
 
 	      ev->AddParticle(*t1);
 	      ev->AddParticle(*t2);
+	      delete t1;
+	      delete t2;
 
 	      return;
 	    }
@@ -1496,6 +1498,7 @@ void HAIntranuke2018::Inelastic(
 	    exception.SetReason("Phase space generation of absorption final state failed");
 	    throw exception;
 	  }
+	  delete p0;
 	}
 	} // end multi-nucleon FS
     }
