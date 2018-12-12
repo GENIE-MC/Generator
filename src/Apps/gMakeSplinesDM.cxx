@@ -13,6 +13,7 @@
            gmkspl_dm -m masses
                  <-t target_pdg_codes,
                   -f geometry_file>
+		  --tune tune
                   <-o | --output-cross-sections> output_xml_xsec_file
                   [-g zp_couplings]
                   [-z med_ratios]
@@ -38,6 +39,9 @@
                PDG code format: 10LZZZAAAI
            -f
                A ROOT file containing a ROOT/GEANT geometry description.
+	   --tune
+	       Specifies the desired tune.  GDM18_00a_00_000 corresponds to fermionic dark matter,
+	       while GDM18_00b_00_000 corresponds to scalar dark matter.	  
            -o, --output-cross-sections
                Name of output XML file containing computed cross-section data.
                Default: `xsec_splines.xml'.
@@ -440,16 +444,17 @@ void PrintSyntax(void)
 {
   LOG("gmkspl_dm", pNOTICE)
     << "\n\n" << "Syntax:" << "\n"
-    << "   gmkspl_dm -m dm_masses "
-    << " <-t tgtpdg, -f geomfile> "
-    << " <-o | --output-cross-section> xsec_xml_file_name"
-    << " [-g zp_couplings] "
-    << " [-z med_ratios] "
-    << " [-n nknots] [-e max_energy] "
-    << " [--seed seed_number]"
-    << " [--input-cross-section xml_file]"
-    << " [--event-generator-list list_name]"
-    << " [--message-thresholds xml_file]\n\n";
+    << "\n      gmkspl_dm -m dm_masses "
+    << "\n                 <-t tgtpdg, -f geomfile> "
+    << "\n                 <-o | --output-cross-section> xsec_xml_file_name"
+    << "\n                 --tune tune "
+    << "\n                 [-g zp_couplings] "
+    << "\n                 [-z med_ratios] "
+    << "\n                 [-n nknots] [-e max_energy] "
+    << "\n                 [--seed seed_number]"
+    << "\n                 [--input-cross-section xml_file]"
+    << "\n                 [--event-generator-list list_name]"
+    << "\n                 [--message-thresholds xml_file]\n";
 }
 //____________________________________________________________________________
 PDGCodeList * GetTargetCodes(void)

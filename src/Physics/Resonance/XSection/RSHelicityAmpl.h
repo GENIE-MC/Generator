@@ -45,6 +45,8 @@ friend class RSHelicityAmplModelNCp;
 friend class RSHelicityAmplModelNCn;
 friend class RSHelicityAmplModelEMp;
 friend class RSHelicityAmplModelEMn;
+friend class RSHelicityAmplModelDMp;
+friend class RSHelicityAmplModelDMn;
 
 public:
 

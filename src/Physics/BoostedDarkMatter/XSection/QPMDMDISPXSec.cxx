@@ -88,29 +88,30 @@ double QPMDMDISPXSec::XSec(
   // double ml4   = ml2  * ml2; // comment-out unused variable to eliminate warnings
   // double Mnuc2 = Mnuc * Mnuc; // comment-out unused variable to eliminate warnings
 
-  #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DMDISPXSec", pDEBUG)  
    << "Computing d2xsec/dxdy @ E = " << E << ", x = " << x << ", y = " << y;
-  #endif
+#endif
 
   // One of the xsec terms changes sign for antineutrinos @ DMDIS/CC
 
   // bool is_nubar_cc = pdg::IsAntiNeutrino(init_state.ProbePdg()) && 
   //                    proc_info.IsWeakCC(); // // comment-out unused variable to eliminate warnings
   // int sign = (is_nubar_cc) ? -1 : 1; // comment-out unused variable to eliminate warnings
-
+  int sign = 1;
+  if ( pdg::IsAntiDarkMatter(init_state.ProbePdg()) ) sign = -1;
+  
   // Calculate the DMDIS structure functions
   fDISSF.Calculate(interaction); 
 
-  #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DMDISPXSec", pDEBUG) << fDISSF;
-  #endif
+#endif
 
   //
   // Compute the differential cross section
   //
 
-  double g2 = kGF2;
   // For EM interaction replace  G_{Fermi} with :
   // a_{em} * pi / ( sqrt(2) * sin^2(theta_weinberg) * Mass_{W}^2 }
   // See C.Quigg, Gauge Theories of the Strong, Weak and E/M Interactions,
@@ -130,9 +131,9 @@ double QPMDMDISPXSec::XSec(
   // double gzp = RunOpt::Instance()->ZpCoupling();
   double gzp = fgzp;
   double gzp4 = TMath::Power(gzp,4);
-  g2 = gzp4 / TMath::Power((Q2 + Mzp2), 2);
+  double g2 = gzp4 / TMath::Power((Q2 + Mzp2), 2);
   double p2 = TMath::Max(E2 - ml2,0.);
-  double front_factor = (g2*Mnuc*E) / kPi * (E2 / p2);
+  double front_factor = (g2*Mnuc*E) / (32.0 * kPi) * (E2 / p2);
   
   // Build all dxsec/dxdy terms
   double term1 = 0.;
@@ -143,24 +144,25 @@ double QPMDMDISPXSec::XSec(
   // The cross-check of these expressions is that they should
   // give the elastic cross-section in the limit x -> 1, PDF -> 1,
   // and absent nuclear effects
-  switch (fVelMode) {
-  case 0:
+  if (fVelMode == 0) {
     // Second lines contain longitudinal Z' coupling
     // If the mediator is relatively light, these terms are important
     // and can't be neglected like they are in the SM
-    term1  = 0.125 * y * ( x*y + 3.*ml2/(E*Mnuc) );
-    term1 += ml2*x*y*y/(2*Mzp2) *  (1. + Mnuc*E*x*y / Mzp2);
-    term2  = 0.125 * (1 - y - Mnuc*x*y/(2*E) - ml2/E2);
-    term2 += ml2*y*y/(4*Mzp2) * (1. + Mnuc*E*x*y / Mzp2);
-    term4  = x*y*ml2/(4*Mnuc*E);
-    term4 += ml2*x*x*y*y/Mzp2 * (1. + Mnuc*E*x*y / Mzp2);
-    term5  = -y*ml2/(8*Mnuc*E);
-    term5 += -ml2*x*y*y/(2*Mzp2) * (1. + Mnuc*E*x*y / Mzp2);
-    break;
-  case 2:
+    double QchiV2 = TMath::Power(0.5*(fQchiL + fQchiR),2);
+    double QchiA2 = TMath::Power(0.5*(fQchiL - fQchiR),2);
+    double QchiVA = TMath::Power(0.5*fQchiL,2) - TMath::Power(0.5*fQchiR,2);
+    double LongF = TMath::Power(1.0 + 2.0 * x * y * Mnuc * E / Mzp2,2);
+    term1  = 4.0 * y * ((QchiV2 + QchiA2) * x * y - (QchiV2 - (2.0 + LongF) * QchiA2) * ml2 / (E * Mnuc));
+    term2  = 2.0 * (2.0 * (QchiV2 + QchiA2) * (1.0 - y - 0.5 * Mnuc / E * x * y) - QchiA2 * ml2 / E * (2.0 / E + y / x / Mnuc * (1.0 - LongF)));
+    term3  = sign * 4.0 * (2.0 - y) * x * y * QchiVA;
+    term4  = 8.0 * QchiA2 * LongF * ml2 * x * y / (E * Mnuc);
+    term5  = -4.0 * QchiA2 * LongF * ml2 * y / (E * Mnuc);
+  }
+  else if (fVelMode == 2) {
     // Scalar case has no longitudinal Z' coupling
-    term1 = -0.125 * y * (0.5 * x * y + ml2/(E*Mnuc));
-    term2 = 0.125 * (1. - y + 0.25 * y * y);
+    double QchiS2 = TMath::Power(fQchiS, 2);
+    term1 = - 2.0 * QchiS2 * y * (x * y + 2.0 * ml2/(E*Mnuc));
+    term2 = QchiS2 * TMath::Power(y - 2.0,2);
   }  
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DMDISPXSec", pDEBUG)  
@@ -192,10 +194,10 @@ double QPMDMDISPXSec::XSec(
   if(fUsingDisResJoin) {
      double R = this->DMDISRESJoinSuppressionFactor(interaction);
      xsec*=R;
-     #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
      LOG("DMDISPXSec", pINFO) << "D/R Join scheme - suppression factor R = " << R;;
      LOG("DMDISPXSec", pINFO) << "d2xsec/dxdy[FreeN, D/R Join] " << xsec;
-     #endif
+#endif
   }
 
   // The algorithm computes d^2xsec/dxdy
@@ -245,7 +247,7 @@ bool QPMDMDISPXSec::ValidProcess(const Interaction * interaction) const
 
   const InitialState & init_state = interaction -> InitState();
   int probe_pdg = init_state.ProbePdg();
-  if(!pdg::IsDarkMatter(probe_pdg)) return false;
+  if(!pdg::IsDarkMatter(probe_pdg) && !pdg::IsAntiDarkMatter(probe_pdg)) return false;
 
   if(! init_state.Tgt().HitNucIsSet()) return false;
 
@@ -453,6 +455,9 @@ void QPMDMDISPXSec::LoadConfig(void)
 
   // mediator coupling
   this->GetParam("ZpCoupling", fgzp);
+  this->GetParam("DarkLeftCharge", fQchiL);
+  this->GetParam("DarkRightCharge", fQchiR);
+  this->GetParam("DarkScalarCharge", fQchiS);
 
   // mediator mass ratio and mediator mass
   fMedMass = PDGLibrary::Instance()->Find(kPdgMediator)->Mass();

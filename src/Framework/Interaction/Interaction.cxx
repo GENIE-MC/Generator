@@ -250,6 +250,9 @@ string Interaction::AsString(void) const
   if (fInitialState->Probe()->PdgCode() == kPdgDarkMatter) {
     interaction << "dm;";
   }
+  else if (fInitialState->Probe()->PdgCode() == kPdgAntiDarkMatter) {
+    interaction << "dmb;";
+  }
   else {
     interaction << "nu:"  << fInitialState->ProbePdg() << ";";
   }
@@ -1016,6 +1019,31 @@ Interaction * Interaction::DMDI(
   Target * tgt = interaction->InitStatePtr()->TgtPtr();
   tgt -> SetHitQrkPdg (hitqrk);
   tgt -> SetHitSeaQrk (fromsea);
+
+  return interaction;
+}
+//___________________________________________________________________________
+Interaction * Interaction::DMRES(int target, int hitnuc, int probe, double E)
+{
+  Interaction * interaction = 
+     Interaction::Create(target,probe,kScDarkMatterResonant, kIntDarkMatter);
+
+  InitialState * init_state = interaction->InitStatePtr();
+  init_state->SetProbeE(E);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
+
+  return interaction;
+}
+//___________________________________________________________________________
+Interaction * Interaction::DMRES(
+   int target, int hitnuc, int probe, const TLorentzVector & p4probe)
+{
+  Interaction * interaction = 
+     Interaction::Create(target,probe,kScDarkMatterResonant, kIntDarkMatter);
+
+  InitialState * init_state = interaction->InitStatePtr();
+  init_state->SetProbeP4(p4probe);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
 
   return interaction;
 }

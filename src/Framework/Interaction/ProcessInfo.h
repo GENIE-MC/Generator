@@ -62,6 +62,7 @@ public:
   bool IsDeepInelastic           (void) const;
   bool IsDarkMatterDeepInelastic (void) const;
   bool IsResonant                (void) const;
+  bool IsDarkMatterResonant      (void) const;
   bool IsCoherent                (void) const;
   bool IsCoherentElas            (void) const;
   bool IsSingleKaon              (void) const;
@@ -69,6 +70,7 @@ public:
   bool IsNuElectronElastic       (void) const;
   bool IsInverseMuDecay          (void) const;
   bool IsIMDAnnihilation         (void) const;
+  bool IsDarkMatterElectronElastic (void) const;
   bool IsInverseBetaDecay        (void) const;
   bool IsGlashowResonance        (void) const;
   bool IsAMNuGamma               (void) const;

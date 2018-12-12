@@ -1,47 +1,46 @@
 //______________________________________________________________________________
 /*!
 
-\program gevgen_lardm
+\program gevgen_fluxdm
 
-\brief   A GENIE event generation driver `customized' for the FNAL neutrino
-         experiments using flux drivers for file types used by those expts.
-         This program was adapted from gevgen_t2k used at T2K.
+\brief   A GENIE event generation driver for use with a simple dark matter flux.
+         This program was adapted from gevgen_fnal.
 
          *** Synopsis :
 
-           gevgen_lardm [-h]
-                       [-r run#]
-                        -f flux
-                        -g geometry
-                        -M dm mass
-                       [-c zp_coupling]
-                       [-v med_ratio]
-                       [-t top_volume_name_at_geom || -t +Vol1-Vol2...]
-                       [-m max_path_lengths_xml_file]
-                       [-L length_units_at_geom]
-                       [-D density_units_at_geom]
-                       [-n n_of_events]
-                       [-o output_event_file_prefix]
-                       [-F fid_cut_string]
-                       [-S nrays]
-                       [-z zmin]
-                       [-d debug flags]
-                       [--seed random_number_seed]
-                       [ --cross-sections xml_file]
-                       [--event-generator-list list_name]
-                       [--tune genie_tune]
-                       [--message-thresholds xml_file]
-                       [--unphysical-event-mask mask]
-                       [--event-record-print-level level]
-                       [--mc-job-status-refresh-rate  rate]
-                       [--cache-file root_file]
+           gevgen_fluxdm [-h]
+                        [-r run#]
+                         -f flux
+                         -g geometry
+                         -M dm mass
+                        [-c zp_coupling]
+                        [-v med_ratio]
+                        [-t top_volume_name_at_geom || -t +Vol1-Vol2...]
+                        [-m max_path_lengths_xml_file]
+                        [-L length_units_at_geom]
+                        [-D density_units_at_geom]
+                        [-n n_of_events]
+                        [-o output_event_file_prefix]
+                        [-F fid_cut_string]
+                        [-S nrays]
+                        [-z zmin]
+                        [-d debug flags]
+                        [--seed random_number_seed]
+                        [ --cross-sections xml_file]
+                        [--event-generator-list list_name]
+                        [--tune genie_tune]
+                        [--message-thresholds xml_file]
+                        [--unphysical-event-mask mask]
+                        [--event-record-print-level level]
+                        [--mc-job-status-refresh-rate  rate]
+                        [--cache-file root_file]
 
          *** Options :
 
            [] Denotes an optional argument
 
            -h
-              Prints out the gevgen_lardm syntax and exits.
+              Prints out the gevgen_fluxdm syntax and exits.
            -r
               Specifies the MC run number [default: 1000]
            -g
@@ -214,7 +213,7 @@
 
          *** Examples:
 
-         (1) shell% gevgen_lardm
+         (1) shell% gevgen_fluxdm
                        -r 1001
                        -f /data/mc_inputs/flux/flux_00001.root,MINOS-NearDet,12,-12
                        -g /data/mc_inputs/geom/minos.root
@@ -231,7 +230,7 @@
              5E+17 POT.
              Pre-computed cross-section data are loaded from /data/xsec.xml
 
-         (2) shell% gevgen_lardm
+         (2) shell% gevgen_fluxdm
                        -r 1001
                        -f /data/t2k/flux/hst/flux.root,12[h100],-12[h101],14[h200]
                        -g 1000080160[0.95],1000010010[0.05]
@@ -246,7 +245,11 @@
          Robert Hatcher <rhatcher \at fnal.gov>
          Fermi National Accelerator Laboratory
 
-\created August 20, 2008
+         Joshua Berger <josh.berger \at pitt.edu>
+         University of Pittsburgh
+         
+
+\created December 12, 2018
 
 \cpright Copyright (c) 2003-2018, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
@@ -488,7 +491,7 @@ int main(int argc, char ** argv)
       genie::flux::GFluxDriverFactory::Instance().AvailableFluxDrivers();
     std::vector<std::string>::const_iterator itr = known.begin();
     for ( ; itr != known.end(); ++itr ) s << "  " << (*itr) << "\n";
-    LOG("gevgen_lardm", pFATAL)
+    LOG("gevgen_fluxdm", pFATAL)
       << "Failed to get any flux driver from GFluxDriverFactory";
     exit(1);
   }
@@ -496,7 +499,7 @@ int main(int argc, char ** argv)
   genie::flux::GFluxFileConfigI* flux_file_config =
       dynamic_cast<genie::flux::GFluxFileConfigI*>(flux_driver);
   if ( ! flux_file_config ) {
-      LOG("gevgen_lardm", pFATAL)
+      LOG("gevgen_fluxdm", pFATAL)
           << "Failed to get GFluxFileConfigI driver from GFluxDriverFactory";
       exit(1);
   }
@@ -530,13 +533,13 @@ int main(int argc, char ** argv)
 
     // even if user doesn't specify gOptNScan configure to scan using flux
     if ( gOptNScan >= 0 ) {
-      LOG("gevgen_lardm", pNOTICE)
+      LOG("gevgen_fluxdm", pNOTICE)
         << "Using ROOTGeomAnalyzer: geom scan using flux: nparticles=" << gOptNScan;
       rgeom->SetScannerFlux(flux_driver);
       if ( gOptNScan > 0 ) rgeom->SetScannerNParticles(gOptNScan);
     } else {
       int nabs = TMath::Abs(gOptNScan);
-      LOG("gevgen_lardm", pNOTICE)
+      LOG("gevgen_fluxdm", pNOTICE)
         << "Using ROOTGeomAnalyzer: geom scan using box: npoints=nrays=" << nabs;
       rgeom->SetScannerNPoints(nabs);
       rgeom->SetScannerNRays(nabs);
@@ -610,7 +613,7 @@ int main(int argc, char ** argv)
     size_t nc = branchClassNames.size();
     size_t np = branchObjPointers.size();
     if ( nn != nc || nc != np ) {
-     LOG("gevgen_lardm", pERROR)
+     LOG("gevgen_fluxdm", pERROR)
        << "Inconsistent info back from flux driver "
        << "for branch info:  " << nn << " " << nc << " " << np;
     } else {
@@ -620,7 +623,7 @@ int main(int argc, char ** argv)
         void**&     optr  = branchObjPointers[ii];  // note critical '&' !
         if ( ! optr || ! *optr ) continue;  // no pointer supplied, skip it
         int split = 99;  // 1
-        LOG("gevgen_lardm", pNOTICE)
+        LOG("gevgen_fluxdm", pNOTICE)
           << "Adding extra branch \"" << bname << "\" of type \""
           << cname << "\" (" << optr << ") to output tree";
         TBranch* bptr = ntpw.EventTree()->Branch(bname,cname,optr,32000,split);
@@ -630,7 +633,7 @@ int main(int argc, char ** argv)
           // don't delete this !!! we're sharing
           bptr->SetAutoDelete(false);
         } else {
-          LOG("gevgen_lardm", pERROR)
+          LOG("gevgen_fluxdm", pERROR)
           << "FAILED to add extra branch \"" << bname << "\" of type \""
           << cname << "\" to output tree";
         }
@@ -652,7 +655,7 @@ int main(int argc, char ** argv)
   int ievent = 0;
   while ( ! gSigTERM )
   {
-     LOG("gevgen_lardm", pINFO)
+     LOG("gevgen_fluxdm", pINFO)
           << " *** Generating event............ " << ievent;
 
      // In case the required statistics was expressed as 'number of events'
@@ -666,16 +669,16 @@ int main(int argc, char ** argv)
      // Check whether a null event was returned due to the flux driver reaching
      // the end of the input flux ntuple - exit the event generation loop
      if ( ! event && flux_driver->End() ) {
-        LOG("gevgen_lardm", pWARN)
+        LOG("gevgen_fluxdm", pWARN)
           << "** The flux driver read all the input flux entries: End()==true";
         break;
      }
      if ( ! event ) {
-         LOG("gevgen_lardm", pERROR)
+         LOG("gevgen_fluxdm", pERROR)
              << "Got a null generated neutino event! Retrying ...";
          continue;
      }
-     LOG("gevgen_lardm", pINFO)
+     LOG("gevgen_fluxdm", pINFO)
          << "Generated event: " << *event;
 
      // A valid event was generated: flux info (parent decay/prod
@@ -704,7 +707,7 @@ int main(int argc, char ** argv)
     }
   }
 
-  LOG("gevgen_lardm", pINFO)
+  LOG("gevgen_fluxdm", pINFO)
     << "The GENIE MC job is done generating events - Cleaning up & exiting...";
 
   // *************************************************************************
@@ -721,7 +724,7 @@ int main(int argc, char ** argv)
   // this list should only be histograms that have (for some reason)
   // not been handed over to the GCylindTH1Flux driver.
 
-  LOG("gevgen_lardm", pNOTICE) << "Done!";
+  LOG("gevgen_fluxdm", pNOTICE) << "Done!";
 
   return 0;
 }
@@ -762,7 +765,7 @@ void LoadExtraOptions(void)
     else if ( loadStatus == -1 ) { statWords = "couldn't find library"; }
     else if ( loadStatus == -2 ) { statWords = "mismatched version"; }
 
-    LOG("gevgen_lardm",pNOTICE)
+    LOG("gevgen_fluxdm",pNOTICE)
          << statWords << " (" << loadStatus << ") " << extraLibs[ilib];
   }
   // restore the ROOT error message level
@@ -773,7 +776,7 @@ void LoadExtraOptions(void)
 //____________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
 {
-  LOG("gevgen_lardm", pINFO) << "Parsing command line arguments";
+  LOG("gevgen_fluxdm", pINFO) << "Parsing command line arguments";
 
   // Common run options. Set defaults and read.
   RunOpt::Instance()->EnableBareXSecPreCalc(true);
@@ -792,10 +795,10 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   // run number:
   if ( parser.OptionExists('r') ) {
-    LOG("gevgen_lardm", pDEBUG) << "Reading MC run number";
+    LOG("gevgen_fluxdm", pDEBUG) << "Reading MC run number";
     gOptRunNu = parser.ArgAsLong('r');
   } else {
-    LOG("gevgen_lardm", pDEBUG)
+    LOG("gevgen_fluxdm", pDEBUG)
       << "Unspecified run number - Using default";
     gOptRunNu = 0;
   } //-r
@@ -807,7 +810,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   string geom = "";
   string lunits, dunits;
   if( parser.OptionExists('g') ) {
-    LOG("gevgen_lardm", pDEBUG) << "Getting input geometry";
+    LOG("gevgen_fluxdm", pDEBUG) << "Getting input geometry";
     geom = parser.ArgAsString('g');
 
     // is it a ROOT file that contains a ROOT geometry?
@@ -818,7 +821,7 @@ void GetCommandLineArgs(int argc, char ** argv)
       gOptUsingRootGeom = true;
     }
   } else {
-      LOG("gevgen_lardm", pFATAL)
+      LOG("gevgen_fluxdm", pFATAL)
         << "No geometry option specified - Exiting";
       PrintSyntax();
       exit(1);
@@ -826,29 +829,29 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   // dark matter mass
   if( parser.OptionExists('M') ) {
-    LOG("gevgen_lardm", pINFO) << "Reading dark matter mass";
+    LOG("gevgen_fluxdm", pINFO) << "Reading dark matter mass";
     gOptDMMass = parser.ArgAsDouble('M');
   } else {
-    LOG("gevgen_lardm", pFATAL) << "Unspecified dark matter mass - Exiting";
+    LOG("gevgen_fluxdm", pFATAL) << "Unspecified dark matter mass - Exiting";
     PrintSyntax();
     exit(1);
   } // -M
 
   // mediator coupling
   if( parser.OptionExists('c') ) {
-    LOG("gevgen_lardm", pINFO) << "Reading mediator coupling";
+    LOG("gevgen_fluxdm", pINFO) << "Reading mediator coupling";
     gOptZpCoupling = parser.ArgAsDouble('c');
   } else {
-    LOG("gevgen_lardm", pINFO) << "Unspecified mediator coupling - Using value from config file";
+    LOG("gevgen_fluxdm", pINFO) << "Unspecified mediator coupling - Using value from config file";
     gOptZpCoupling = -1.;
   } // -c
 
   // mediator mass ratio
   if( parser.OptionExists('v') ) {
-    LOG("gevgen_lardm", pINFO) << "Reading mediator mass ratio";
+    LOG("gevgen_fluxdm", pINFO) << "Reading mediator mass ratio";
     gOptMedRatio = parser.ArgAsDouble('v');
   } else {
-    LOG("gevgen_lardm", pINFO) << "Unspecified mediator mass ratio - Using default";
+    LOG("gevgen_fluxdm", pINFO) << "Unspecified mediator mass ratio - Using default";
     gOptMedRatio = 0.5;
   } // -v
 
@@ -857,20 +860,20 @@ void GetCommandLineArgs(int argc, char ** argv)
 
      // legth units:
      if( parser.OptionExists('L') ) {
-        LOG("gevgen_lardm", pDEBUG)
+        LOG("gevgen_fluxdm", pDEBUG)
            << "Checking for input geometry length units";
         lunits = parser.ArgAsString('L');
      } else {
-        LOG("gevgen_lardm", pDEBUG) << "Using default geometry length units";
+        LOG("gevgen_fluxdm", pDEBUG) << "Using default geometry length units";
         lunits = kDefOptGeomLUnits;
      } // -L
      // density units:
      if( parser.OptionExists('D') ) {
-        LOG("gevgen_lardm", pDEBUG)
+        LOG("gevgen_fluxdm", pDEBUG)
            << "Checking for input geometry density units";
         dunits = parser.ArgAsString('D');
      } else {
-        LOG("gevgen_lardm", pDEBUG) << "Using default geometry density units";
+        LOG("gevgen_fluxdm", pDEBUG) << "Using default geometry density units";
         dunits = kDefOptGeomDUnits;
      } // -D
      gOptGeomLUnits = genie::utils::units::UnitFromString(lunits);
@@ -879,10 +882,10 @@ void GetCommandLineArgs(int argc, char ** argv)
      // check whether an event generation volume name has been
      // specified -- default is the 'top volume'
      if( parser.OptionExists('t') ) {
-        LOG("gevgen_lardm", pDEBUG) << "Checking for input volume name";
+        LOG("gevgen_fluxdm", pDEBUG) << "Checking for input volume name";
         gOptRootGeomTopVol = parser.ArgAsString('t');
      } else {
-        LOG("gevgen_lardm", pDEBUG) << "Using the <master volume>";
+        LOG("gevgen_fluxdm", pDEBUG) << "Using the <master volume>";
      } // -t
 
      // check whether an XML file with the maximum (density weighted)
@@ -890,55 +893,55 @@ void GetCommandLineArgs(int argc, char ** argv)
      // otherwise will compute the max path lengths at job init
      // if passed name starts with '+', then compute max at job init, but write out the result
      if ( parser.OptionExists('m') ) {
-        LOG("gevgen_lardm", pDEBUG)
+        LOG("gevgen_fluxdm", pDEBUG)
               << "Checking for maximum path lengths XML file";
         gOptExtMaxPlXml   = parser.ArgAsString('m');
         gOptWriteMaxPlXml = false;
         if ( gOptExtMaxPlXml[0] == '+' ) {
           gOptExtMaxPlXml   = gOptExtMaxPlXml.substr(1,std::string::npos);
           gOptWriteMaxPlXml = true;
-          LOG("gevgen_lardm", pINFO)
+          LOG("gevgen_fluxdm", pINFO)
             << "Will write maximum path lengths XML file: " << gOptExtMaxPlXml;
         }
      } else {
-        LOG("gevgen_lardm", pDEBUG)
+        LOG("gevgen_fluxdm", pDEBUG)
                << "Will compute the maximum path lengths at job init";
         gOptExtMaxPlXml = "";
      } // -m
 
      // fidcut:
      if( parser.OptionExists('F') ) {
-       LOG("gevgen_lardm", pDEBUG) << "Using Fiducial cut?";
+       LOG("gevgen_fluxdm", pDEBUG) << "Using Fiducial cut?";
        gOptFidCut = parser.ArgAsString('F');
      } else {
-       LOG("gevgen_lardm", pDEBUG) << "No fiducial volume cut";
+       LOG("gevgen_fluxdm", pDEBUG) << "No fiducial volume cut";
        gOptFidCut = "";
      } //-F
 
      // how to scan the geometry (if relevant)
      if( parser.OptionExists('S') ) {
-         LOG("gevgen_lardm", pDEBUG)  << "Reading requested geom scan count";
+         LOG("gevgen_fluxdm", pDEBUG)  << "Reading requested geom scan count";
          gOptNScan = parser.ArgAsInt('S');
      } else {
-         LOG("gevgen_lardm", pDEBUG) << "No geom scan count was requested";
+         LOG("gevgen_fluxdm", pDEBUG) << "No geom scan count was requested";
          gOptNScan = 0;
      } //-S
 
      // z for flux rays to start
      if( parser.OptionExists('z') ) {
-         LOG("gevgen_lardm", pDEBUG)  << "Reading requested zmin";
+         LOG("gevgen_fluxdm", pDEBUG)  << "Reading requested zmin";
          gOptZmin = parser.ArgAsDouble('z');
      } else {
-         LOG("gevgen_lardm", pDEBUG) << "No zmin was requested";
+         LOG("gevgen_fluxdm", pDEBUG) << "No zmin was requested";
          gOptZmin = -2.0e30; // < -1.0e30 ==> leave it on flux window
      } //-z
 
      // debug flags
      if ( parser.OptionExists('d') ) {
-         LOG("gevgen_lardm", pDEBUG) << "Reading debug flag value";
+         LOG("gevgen_fluxdm", pDEBUG) << "Reading debug flag value";
          gOptDebug = parser.ArgAsInt('d');
        } else {
-         LOG("gevgen_lardm", pDEBUG) << "Unspecified debug flags - Using default";
+         LOG("gevgen_fluxdm", pDEBUG) << "Unspecified debug flags - Using default";
          gOptDebug = 0;
        } //-d
 
@@ -965,7 +968,7 @@ void GetCommandLineArgs(int argc, char ** argv)
          if (open_bracket ==string::npos ||
              close_bracket==string::npos)
          {
-             LOG("gevgen_lardm", pFATAL)
+             LOG("gevgen_fluxdm", pFATAL)
                 << "You made an error in specifying the target mix";
              PrintSyntax();
              exit(1);
@@ -976,7 +979,7 @@ void GetCommandLineArgs(int argc, char ** argv)
          string::size_type jend = close_bracket;
          int    pdg = atoi(tgt_with_wgt.substr(ibeg,iend-ibeg).c_str());
          double wgt = atof(tgt_with_wgt.substr(jbeg,jend-jbeg).c_str());
-         LOG("gevgen_lardm", pDEBUG)
+         LOG("gevgen_fluxdm", pDEBUG)
             << "Adding to target mix: pdg = " << pdg << ", wgt = " << wgt;
          gOptTgtMix.insert(map<int, double>::value_type(pdg, wgt));
 
@@ -988,31 +991,31 @@ void GetCommandLineArgs(int argc, char ** argv)
   // *** flux
   //
   if ( parser.OptionExists('f') ) {
-    LOG("gevgen_lardm", pDEBUG) << "Getting input flux";
+    LOG("gevgen_fluxdm", pDEBUG) << "Getting input flux";
     gOptFluxFile = parser.ArgAsString('f');
   } else {
-    LOG("gevgen_lardm", pFATAL) << "No flux info was specified - Exiting";
+    LOG("gevgen_fluxdm", pFATAL) << "No flux info was specified - Exiting";
     PrintSyntax();
     exit(1);
   }
 
   // number of events to generate
   if( parser.OptionExists('n') ) {
-    LOG("gevgen_lardm", pDEBUG)
+    LOG("gevgen_fluxdm", pDEBUG)
         << "Reading limit on number of events to generate";
     gOptNev = parser.ArgAsInt('n');
   } else {
-    LOG("gevgen_lardm", pDEBUG)
+    LOG("gevgen_fluxdm", pDEBUG)
        << "Will keep on generating events till the flux driver stops";
     gOptNev = -1;
   } //-n
 
   // event file prefix
   if( parser.OptionExists('o') ) {
-    LOG("gevgen_lardm", pDEBUG) << "Reading the event filename prefix";
+    LOG("gevgen_fluxdm", pDEBUG) << "Reading the event filename prefix";
     gOptEvFilePrefix = parser.ArgAsString('o');
   } else {
-    LOG("gevgen_lardm", pDEBUG)
+    LOG("gevgen_fluxdm", pDEBUG)
       << "Will set the default event filename prefix";
     gOptEvFilePrefix = kDefOptEvFilePrefix;
   } //-o
@@ -1020,19 +1023,19 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   // random number seed
   if( parser.OptionExists("seed") ) {
-    LOG("gevgen_lardm", pINFO) << "Reading random number seed";
+    LOG("gevgen_fluxdm", pINFO) << "Reading random number seed";
     gOptRanSeed = parser.ArgAsLong("seed");
   } else {
-    LOG("gevgen_lardm", pINFO) << "Unspecified random number seed - Using default";
+    LOG("gevgen_fluxdm", pINFO) << "Unspecified random number seed - Using default";
     gOptRanSeed = -1;
   }
 
   // input cross-section file
   if( parser.OptionExists("cross-sections") ) {
-    LOG("gevgen_lardm", pINFO) << "Reading cross-section file";
+    LOG("gevgen_fluxdm", pINFO) << "Reading cross-section file";
     gOptInpXSecFile = parser.ArgAsString("cross-sections");
   } else {
-    LOG("gevgen_lardm", pINFO) << "Unspecified cross-section file";
+    LOG("gevgen_fluxdm", pINFO) << "Unspecified cross-section file";
     gOptInpXSecFile = "";
   }
 
@@ -1072,11 +1075,11 @@ void GetCommandLineArgs(int argc, char ** argv)
   if(gOptNev > 0)
       exposure << "Number of events = " << gOptNev;
 
-  LOG("gevgen_lardm", pNOTICE)
+  LOG("gevgen_fluxdm", pNOTICE)
       << "\n\n"
       << utils::print::PrintFramedMesg("NuMI expt. event generation job configuration");
 
-  LOG("gevgen_lardm", pNOTICE)
+  LOG("gevgen_fluxdm", pNOTICE)
       << "\n - Run number: " << gOptRunNu
       << "\n - Random number seed: " << gOptRanSeed
       << "\n - Using cross-section file: " << gOptInpXSecFile
@@ -1084,33 +1087,40 @@ void GetCommandLineArgs(int argc, char ** argv)
       << "\n - Geometry @ " << gminfo.str()
       << "\n - Exposure @ " << exposure.str();
 
-  LOG("gevgen_lardm", pNOTICE) << *RunOpt::Instance();
+  LOG("gevgen_fluxdm", pNOTICE) << *RunOpt::Instance();
 }
 //____________________________________________________________________________
 void PrintSyntax(void)
 {
-  LOG("gevgen_lardm", pFATAL)
+  LOG("gevgen_fluxdm", pFATAL)
    << "\n **Syntax**"
-   << "\n gevgen_lardm [-h] [-r run#]"
-   << "\n            -f flux -g geometry -M dm_mass"
-   << "\n            [-c zp_coupling] [-v med_ratio]"
-   << "\n            [-t top_volume_name_at_geom] [-m max_path_lengths_xml_file]"
-   << "\n            [-L length_units_at_geom] [-D density_units_at_geom]"
-   << "\n            [-n n_of_events] "
-   << "\n            [-o output_event_file_prefix]"
-   << "\n            [-F fid_cut_string] [-S nrays_scan]"
-   << "\n            [-z zmin_start]"
-   << "\n            [--seed random_number_seed]"
-   << "\n             --cross-sections xml_file"
-   << "\n            [--event-generator-list list_name]"
-   << "\n            [--message-thresholds xml_file]"
-   << "\n            [--unphysical-event-mask mask]"
-   << "\n            [--event-record-print-level level]"
-   << "\n            [--mc-job-status-refresh-rate  rate]"
-   << "\n            [--cache-file root_file]"
+   << "\n gevgen_fluxdm [-h]" 
+   << "\n               [-r run#]"
+   << "\n                -f flux" 
+   << "\n                -g geometry" 
+   << "\n                -M dm_mass"
+   << "\n               [-c zp_coupling]"
+   << "\n               [-v med_ratio]"
+   << "\n               [-t top_volume_name_at_geom]"
+   << "\n               [-m max_path_lengths_xml_file]"
+   << "\n               [-L length_units_at_geom]"
+   << "\n               [-D density_units_at_geom]"
+   << "\n               [-n n_of_events] "
+   << "\n               [-o output_event_file_prefix]"
+   << "\n               [-F fid_cut_string]"
+   << "\n               [-S nrays_scan]"
+   << "\n               [-z zmin_start]"
+   << "\n               [--seed random_number_seed]"
+   << "\n                --cross-sections xml_file"
+   << "\n               [--event-generator-list list_name]"
+   << "\n               [--message-thresholds xml_file]"
+   << "\n               [--unphysical-event-mask mask]"
+   << "\n               [--event-record-print-level level]"
+   << "\n               [--mc-job-status-refresh-rate  rate]"
+   << "\n               [--cache-file root_file]"
    << "\n"
    << " Please also read the detailed documentation at "
-   << "$GENIE/src/Apps/gFNALExptEvGen.cxx"
+   << "$GENIE/src/Apps/gEvGenFluxDM.cxx"
    << "\n";
 }
 //____________________________________________________________________________
@@ -1145,13 +1155,13 @@ void CreateFidSelection (string fidcut, GeomAnalyzerI* geom_driver)
   geometry::ROOTGeomAnalyzer * rgeom =
     dynamic_cast<geometry::ROOTGeomAnalyzer *>(geom_driver);
   if ( ! rgeom ) {
-    LOG("gevgen_lardm", pWARN)
+    LOG("gevgen_fluxdm", pWARN)
       << "Can not create GeomVolSelectorFiduction,"
       << " geometry driver is not ROOTGeomAnalyzer";
     return;
   }
 
-  LOG("gevgen_lardm", pNOTICE) << "-F " << fidcut;
+  LOG("gevgen_fluxdm", pNOTICE) << "-F " << fidcut;
 
   genie::geometry::GeomVolSelectorFiducial* fidsel =
     new genie::geometry::GeomVolSelectorFiducial();
@@ -1163,11 +1173,11 @@ void CreateFidSelection (string fidcut, GeomAnalyzerI* geom_driver)
 
   vector<string> strtok = genie::utils::str::Split(fidcut,":");
   if ( strtok.size() != 2 ) {
-    LOG("gevgen_lardm", pWARN)
+    LOG("gevgen_fluxdm", pWARN)
       << "Can not create GeomVolSelectorFiduction,"
       << " no \":\" separating type from values.  nsplit=" << strtok.size();
     for ( unsigned int i=0; i < strtok.size(); ++i )
-      LOG("gevgen_lardm",pNOTICE)
+      LOG("gevgen_fluxdm",pNOTICE)
         << "strtok[" << i << "] = \"" << strtok[i] << "\"";
     return;
   }
@@ -1199,14 +1209,14 @@ void CreateFidSelection (string fidcut, GeomAnalyzerI* geom_driver)
   if        ( stype.find("zcyl")   != string::npos ) {
     // cylinder along z direction at (x0,y0) radius zmin zmax
     if ( nvals < 5 )
-      LOG("gevgen_lardm", pFATAL) << "MakeZCylinder needs 5 values, not " << nvals
+      LOG("gevgen_fluxdm", pFATAL) << "MakeZCylinder needs 5 values, not " << nvals
                                 << " fidcut=\"" << fidcut << "\"";
     fidsel->MakeZCylinder(vals[0],vals[1],vals[2],vals[3],vals[4]);
 
   } else if ( stype.find("box")    != string::npos ) {
     // box (xmin,ymin,zmin) (xmax,ymax,zmax)
     if ( nvals < 6 )
-      LOG("gevgen_lardm", pFATAL) << "MakeBox needs 6 values, not " << nvals
+      LOG("gevgen_fluxdm", pFATAL) << "MakeBox needs 6 values, not " << nvals
                                 << " fidcut=\"" << fidcut << "\"";
     double xyzmin[3] = { vals[0], vals[1], vals[2] };
     double xyzmax[3] = { vals[3], vals[4], vals[5] };
@@ -1215,33 +1225,33 @@ void CreateFidSelection (string fidcut, GeomAnalyzerI* geom_driver)
   } else if ( stype.find("zpoly")  != string::npos ) {
     // polygon along z direction nfaces at (x0,y0) radius phi zmin zmax
     if ( nvals < 7 )
-      LOG("gevgen_lardm", pFATAL) << "MakeZPolygon needs 7 values, not " << nvals
+      LOG("gevgen_fluxdm", pFATAL) << "MakeZPolygon needs 7 values, not " << nvals
                                 << " fidcut=\"" << fidcut << "\"";
     int nfaces = (int)vals[0];
     if ( nfaces < 3 )
-      LOG("gevgen_lardm", pFATAL) << "MakeZPolygon needs nfaces>=3, not " << nfaces
+      LOG("gevgen_fluxdm", pFATAL) << "MakeZPolygon needs nfaces>=3, not " << nfaces
                                 << " fidcut=\"" << fidcut << "\"";
     fidsel->MakeZPolygon(nfaces,vals[1],vals[2],vals[3],vals[4],vals[5],vals[6]);
 
   } else if ( stype.find("sphere") != string::npos ) {
     // sphere at (x0,y0,z0) radius
     if ( nvals < 4 )
-      LOG("gevgen_lardm", pFATAL) << "MakeZSphere needs 4 values, not " << nvals
+      LOG("gevgen_fluxdm", pFATAL) << "MakeZSphere needs 4 values, not " << nvals
                                 << " fidcut=\"" << fidcut << "\"";
     fidsel->MakeSphere(vals[0],vals[1],vals[2],vals[3]);
 
   } else {
-    LOG("gevgen_lardm", pFATAL)
+    LOG("gevgen_fluxdm", pFATAL)
       << "Can not create GeomVolSelectorFiduction for shape \"" << stype << "\"";
   }
 
   if ( master  ) {
     fidsel->ConvertShapeMaster2Top(rgeom);
-    LOG("gevgen_lardm", pNOTICE) << "Convert fiducial volume from master to topvol coords";
+    LOG("gevgen_fluxdm", pNOTICE) << "Convert fiducial volume from master to topvol coords";
   }
   if ( reverse ) {
     fidsel->SetReverseFiducial(true);
-    LOG("gevgen_lardm", pNOTICE) << "Reverse sense of fiducial volume cut";
+    LOG("gevgen_fluxdm", pNOTICE) << "Reverse sense of fiducial volume cut";
   }
   rgeom->AdoptGeomVolSelector(fidsel);
 

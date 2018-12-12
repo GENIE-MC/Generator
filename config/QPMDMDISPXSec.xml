@@ -23,7 +23,7 @@ WeinbergAngle               double  No                                          
   <param_set name="Velocity0"> 
     <param type="string" name="CommonParam"> NonResBackground,WeakInt,BoostedDarkMatter  </param>
 
-     <param type="alg" name="SFAlg">           genie::BYStrucFunc/Default      </param>
+     <param type="alg" name="SFAlg">           genie::DMBYStrucFunc/Default      </param>
      <param type="alg" name="XSec-Integrator"> genie::DMDISXSec/Default          </param>
      <param type="alg" name="Hadronizer">      genie::KNOHadronization/Default </param>
      <param type="int" name="velocity-mode">   0                               </param>
@@ -32,7 +32,7 @@ WeinbergAngle               double  No                                          
   <param_set name="Velocity2"> 
     <param type="string" name="CommonParam"> NonResBackground,WeakInt,BoostedDarkMatter  </param>
 
-     <param type="alg" name="SFAlg">           genie::BYStrucFunc/Default      </param>
+     <param type="alg" name="SFAlg">           genie::DMBYStrucFunc/Default      </param>
      <param type="alg" name="XSec-Integrator"> genie::DMDISXSec/Default          </param>
      <param type="alg" name="Hadronizer">      genie::KNOHadronization/Default </param>
      <param type="int" name="velocity-mode">   2                               </param>

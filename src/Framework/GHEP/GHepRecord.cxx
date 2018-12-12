@@ -271,7 +271,7 @@ GEvGenMode_t GHepRecord::EventGenerationMode(void) const
 
   // In dark matter mode, the 1st entry in the event record is a dark
   // matter particle
-  if( pdg::IsDarkMatter(p0pdg) && p0st == kIStInitialState )
+  if( (pdg::IsDarkMatter(p0pdg) || pdg::IsAntiDarkMatter(p0pdg)) && p0st == kIStInitialState )
   {
     return kGMdDarkMatterNucleus;
   }

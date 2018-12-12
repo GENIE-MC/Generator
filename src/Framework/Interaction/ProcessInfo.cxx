@@ -94,6 +94,11 @@ bool ProcessInfo::IsResonant(void) const
   return (fScatteringType == kScResonant);
 }
 //____________________________________________________________________________
+bool ProcessInfo::IsDarkMatterResonant(void) const
+{
+  return (fScatteringType == kScDarkMatterResonant);
+}
+//____________________________________________________________________________
 bool ProcessInfo::IsCoherent(void) const
 {
   return (fScatteringType == kScCoherent);
@@ -124,6 +129,11 @@ bool ProcessInfo::IsInverseMuDecay(void) const
 bool ProcessInfo::IsIMDAnnihilation(void) const
 {
   return (fScatteringType == kScIMDAnnihilation);
+}
+//____________________________________________________________________________
+bool ProcessInfo::IsDarkMatterElectronElastic(void) const
+{
+  return (fScatteringType == kScDarkMatterElectronElastic);
 }
 //____________________________________________________________________________
 bool ProcessInfo::IsInverseBetaDecay(void) const

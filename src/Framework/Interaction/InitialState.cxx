@@ -253,6 +253,26 @@ bool InitialState::IsDMN(void) const
   return isdn;
 }
 //___________________________________________________________________________
+bool InitialState::IsDMBP(void) const
+{
+// Check if DM - proton interaction
+  int  prob = fProbePdg;
+  int  nucl = fTgt->HitNucPdg();
+  bool isdp = pdg::IsAntiDarkMatter(prob) && pdg::IsProton(nucl);
+
+  return isdp;
+}
+//___________________________________________________________________________
+bool InitialState::IsDMBN(void) const
+{
+// Check if DM - neutron interaction
+  int  prob = fProbePdg;
+  int  nucl = fTgt->HitNucPdg();
+  bool isdn = pdg::IsAntiDarkMatter(prob) && pdg::IsNeutron(nucl);
+
+  return isdn;
+}
+//___________________________________________________________________________
 TLorentzVector * InitialState::GetTgtP4(RefFrame_t ref_frame) const
 {
 // Return the target 4-momentum in the specified reference frame

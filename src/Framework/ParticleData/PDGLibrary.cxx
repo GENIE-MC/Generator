@@ -120,6 +120,7 @@ void PDGLibrary::AddDarkMatter(double mass, double med_ratio)
   if (!dm_particle) {
     // Name Title Mass Stable Width Charge Class PDG
     fDatabasePDG->AddParticle("chi_dm","chi_dm",mass,true,0.,0,"DarkMatter",kPdgDarkMatter);
+    fDatabasePDG->AddAntiParticle("chi_dm_bar",kPdgAntiDarkMatter);
   }
   else {
     assert(dm_particle->Mass() == mass);

@@ -193,6 +193,7 @@ const int kPdgClusterNP       = 2000000201; // A np cluster within a nucleus
 const int kPdgClusterPP       = 2000000202; // A pp cluster within a nucleus
 const int kPdgCompNuclCluster = 2000000300; // Nucleon cluster before phase decay 
 const int kPdgDarkMatter      = 2000010000; // Dark matter particle for GENIE Boosted Dark Matter mode
+const int kPdgAntiDarkMatter  = -2000010000; // Dark matter particle for GENIE Boosted Dark Matter mode
 const int kPdgMediator        = 2000010001; // Mediator particle for GENIE Boosted Dark Matter mode
 
 //

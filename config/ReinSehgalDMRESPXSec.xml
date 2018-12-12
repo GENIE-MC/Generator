@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for the Rein-Sehgal RES excitation d^xsec / dQ^2 dW xsec algorithm
+
+Configurable Parameters:
+......................................................................................................................................
+Name                        Type Optional Comment                                                        Default
+......................................................................................................................................
+RES-CC-XSecScale            double  No    XSec rescaling factor                                           
+RES-NC-XSecScale            double  No    Xsec rescaling factor                                           
+RES-Zeta                    double  No    FKR's Z parameter                                               
+RES-Omega                   double  No    FKR's Omega parameter                                          
+RES-Ma                      double  No    RES axial mass                                                 
+RES-Mv                      double  No    RES vector mass                                                
+BreitWeignerWeight          bool    Yes   Weight xsec with breit-wigner?                                  true
+BreitWignerNorm             bool    Yes   Normalize breit-wigner?                                         true
+UseNuTauScalingFactors      bool    Yes   Load/Use NEUGEN reduction factor splines for nutaus             true
+UseDRJoinScheme             bool    No    Use DIS/RES joining scheme?                                     CommonParam[NonResBackground]
+Wcut                        double  No    Param used in DIS/RES joining                                   CommonParam[NonResBackground]
+MaxNWidthForN2Res           double  Yes   x in limiting allowed W phase space for n=2 res according to    2.0
+                                          W < min{ Wmin(physical), MassRes + x * WidthRes }
+MaxNWidthForN0Res           double  Yes   As above for n=0 resonances                                     6.0
+MaxNWidthForGNres           double  Yes   As above for the remaining resonances                           4.0
+RFG-UseParametrization      bool    No    use parametrization for Fermi momentum and binging energy       CommonParam[FermiGas]
+                                            
+FermiMomentumTable          string  No    Table of Fermi momentum (kF) constants for various nuclei       CommonParam[FermiGas]
+XSec-Integrator             alg     No                    
+-->
+
+  <param_set name="Velocity0"> 
+    
+    <param type="string" name="CommonParam"> NonResBackground,FermiGas,BoostedDarkMatter </param>
+    
+    <param type="double" name="RES-CC-XSecScale"> 1.000 </param>
+    <param type="double" name="RES-NC-XSecScale"> 1.000 </param>
+
+    <!-- 
+	 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	 Constants in Feynman-Kislinger-Ravndal model for baryon excitation used in the Rein-Sehgal 
+	 resonance model
+    -->
+    <param type="double" name="RES-Omega"> 1.05  </param>
+    <param type="double" name="RES-Zeta">  0.76338 </param> <!-- 0.75 -->
+
+    
+    <!-- 
+	 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	 Axial and vector masses for resonance production  
+    -->
+    <param type="double" name="RES-Ma"> 1.120 </param>
+    <param type="double" name="RES-Mv"> 0.840 </param>
+
+    <param type="int"    name="velocity-mode">   0                                  </param>
+
+    <param type="alg"  name="XSec-Integrator">  genie::ReinSehgalDMRESXSecFast/WithPauliBlock      </param>
+  </param_set>
+  
+</alg_conf>
+
+

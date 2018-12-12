@@ -84,6 +84,8 @@ public:
   bool IsNuBarN (void) const; ///< is anti-neutrino + neutron?
   bool IsDMP    (void) const; ///< is dark matter   + proton?
   bool IsDMN    (void) const; ///< is dark matter   + neutron?
+  bool IsDMBP   (void) const; ///< is anti-dark matter   + proton?
+  bool IsDMBN   (void) const; ///< is anti-dark matter   + neutron?
 
   //-- Copy, reset, compare, print itself and build string code
   void   Reset    (void);

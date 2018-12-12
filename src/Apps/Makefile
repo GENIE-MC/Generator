@@ -62,7 +62,7 @@ endif
 ifeq ($(strip $(GOPT_ENABLE_BOOSTED_DARK_MATTER)),YES)
 TGT_BASE += gevgen_dm
 TGT_BASE += gmkspl_dm
-TGT_BASE += gevgen_lardm
+TGT_BASE += gevgen_fluxdm
 endif
 ifeq ($(strip $(GOPT_ENABLE_FLUX_DRIVERS)),YES)
 TGT_BASE += gmxpl
@@ -150,9 +150,9 @@ $(GENIE_BIN_PATH)/gevdump: gEvDump.o $(call find_libs,gevdump)
 
 # gevgen event generation utility for use with simple fluxes
 #
-$(GENIE_BIN_PATH)/gevgen_lardm: gEvGenLArDM.o $(call find_libs,gevgen_lardm)
-	@echo "** Building gevgen_lardm"
-	$(LD) $(LDFLAGS) gEvGenLArDM.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen_lardm
+$(GENIE_BIN_PATH)/gevgen_fluxdm: gEvGenFluxDM.o $(call find_libs,gevgen_fluxdm)
+	@echo "** Building gevgen_fluxdm"
+	$(LD) $(LDFLAGS) gEvGenFluxDM.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevgen_fluxdm
 
 # event topology cherry-picking program
 #

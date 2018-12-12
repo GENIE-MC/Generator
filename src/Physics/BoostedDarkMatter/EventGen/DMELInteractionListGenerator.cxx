@@ -64,7 +64,7 @@ InteractionList * DMELInteractionListGenerator::CreateInteractionListDM(
   int nuclpdg[2] = { kPdgProton, kPdgNeutron };
 
   int      dmpdg   = init_state.ProbePdg();
-  bool     isdm    = pdg::IsDarkMatter     (dmpdg);
+  bool     isdm    = pdg::IsDarkMatter(dmpdg) || pdg::IsAntiDarkMatter(dmpdg);
 
   if(!isdm) {
     LOG("IntLst", pWARN)

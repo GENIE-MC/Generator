@@ -128,6 +128,12 @@ bool genie::pdg::IsDarkMatter(int pdgc)
   return is_dm;
 }
 //____________________________________________________________________________
+bool genie::pdg::IsAntiDarkMatter(int pdgc)
+{
+  bool is_dmbar = (pdgc == kPdgAntiDarkMatter);
+  return is_dmbar;
+}
+//____________________________________________________________________________
 bool genie::pdg::IsNegChargedLepton(int pdgc)
 {
   bool is_neg_lepton = (pdgc ==  kPdgElectron) ||

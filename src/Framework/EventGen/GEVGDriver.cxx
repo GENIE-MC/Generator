@@ -698,7 +698,7 @@ void GEVGDriver::AssertIsValidInitState(void) const
 {
   assert(fInitState);
   int ppdgc = fInitState->ProbePdg();
-  bool isv = pdg::IsLepton(ppdgc) || pdg::IsDarkMatter(ppdgc);
+  bool isv = pdg::IsLepton(ppdgc) || pdg::IsDarkMatter(ppdgc) || pdg::IsAntiDarkMatter(ppdgc);
   assert(isv);
 }
 //___________________________________________________________________________
