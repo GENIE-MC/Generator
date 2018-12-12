@@ -185,9 +185,6 @@ TDecayChannel * BaryonResonanceDecayer::SelectDecayChannel(
     BR[ich] = tot_BR;
   }//channel loop
 
-  if ( is_delta )
-    delete actual_decay_list ;
-
   if( tot_BR <= 0. ) {
     SLOG("ResonanceDecay", pWARN)
           << "None of the " << nch << " decay channels is available @ W = " << W;
@@ -202,11 +199,14 @@ TDecayChannel * BaryonResonanceDecayer::SelectDecayChannel(
     sel_ich = ich;
   } while (x > BR[ich++]);
 
-  TDecayChannel * sel_ch = (TDecayChannel *) decay_list->At(sel_ich);
+  TDecayChannel * sel_ch = (TDecayChannel *) actual_decay_list -> At(sel_ich);
 
   LOG("ResonanceDecay", pINFO)
     << "Selected " << sel_ch->NDaughters() << "-particle decay channel ("
     << sel_ich << ") has BR = " << sel_ch->BranchingRatio();
+
+  if ( is_delta )
+    delete actual_decay_list ;
 
   return sel_ch;
 }
@@ -385,102 +385,59 @@ void BaryonResonanceDecayer::DecayExclusive(
   }
 
 }
-//____________________________________________________________________________
-double BaryonResonanceDecayer::DealsDeltaNGamma(
-  int decay_particle_pdg_code, int ichannel, double W) const
-{
+TObjArray *  BaryonResonanceDecayer::EvolveDeltaBR(int dec_part_pdgc, const TObjArray * decay_list, double W) const {
 
-/*
- * The branching rations of the Delta in Pions or in N gammas are not constant.
- * They depend on the actual mass of the decaying delta (W) they need to be evolved accordingly.
- * This method tweaks the Delta branching ratios as a function of the W and
- * returns the proper one depending on the specific decay channel.
- */
+  unsigned int nch = decay_list -> GetEntries();
+
+  std::vector<double> widths( nch, 0. ) ;
+  double tot = 0. ;
 
 
-  if (W <= genie::constants::kNucleonMass+genie::genie::constants::kPi0Mass) {
+  TDecayChannel * temp = nullptr ;
 
-    if (ichannel == 0) {return 0;} // ichannel = 0,1,2 has to match
-                                   // the channel order in genie_pdg_table.dat
-    if (ichannel == 1) {return 0;}
-    if (ichannel == 2) {return 1;}
+  for ( unsigned int i = 0 ; i < nch ; ++i ) {
+
+    temp = (TDecayChannel*) decay_list -> At(ich) ;
+    widths[i] = EvolveDeltaDecayWidth(dec_part_pdgc, temp, W ) ;
+    tot += widths[i] ;
+
   }
-  else
-  {
-    // LIBO: Add detailed explanation for the calculation you are doing here
-    //
-    //
-    //
-    //
-    //
-    //
 
-    // Getting the delta resonance from GENIE database
-    Resonance_t res = genie::utils::res::FromPdgCode( decay_particle_pdg_code ) ;
+  if ( tot <= 0. ) return  new TObjArray( 0 ) ;
 
-    // get the width of the delta and obtain the width of the decay in Pi+N and gamma+N
-    // evaluated at the nominal mass of the delta
-    double width0 = genie::utils::res::Width( res ) ;
-    double widPi0   = width0*fPionBR;
-    double widgamma0= width0*fGammaBR;
+  TObjArray * new_list = new TObjArray( nch ) ;
 
-    // Possible optimization here: we could use the actual masses of the final state particles
-    double m      = genie::utils::res::Mass( res ) ;
-    double m_2   = TMath::Power(m,      2);
-    double mN_2  = TMath::Power(genie::constants::kNucleonMass,     2);
-    double W_2   = TMath::Power(W,      2);
-    double m_aux1= TMath::Power(genie::constants::kNucleonMass+genie::genie::constants::kPi0Mass, 2);
-    double m_aux2= TMath::Power(genie::constants::kNucleonMass-genie::genie::constants::kPi0Mass, 2);
+  TDecayChannel * update = nullptr ;
 
-    double pPiW    = TMath::Sqrt((W_2-m_aux1)*(W_2-m_aux2))/(2*W);
-    double pPim    = TMath::Sqrt((m_2-m_aux1)*(m_2-m_aux2))/(2*m);
-    double EgammaW = (W_2-mN_2)/(2*W);
-    double Egammam = (m_2-mN_2)/(2*m);
-    double TPiW    = TMath::Power(pPiW, 3);
-    double TPim    = TMath::Power(pPim, 3);
-    double fgammaW = 1./(TMath::Power(1+EgammaW*EgammaW/fFFScaling, 2));
-    double fgammam = 1./(TMath::Power(1+Egammam*Egammam/fFFScaling, 2));
+  for ( unsigned int i = 0 ; i < nch ; ++i ) {
 
-    double Rinverse =
-        widPi0*TMath::Power(Egammam, 3)*TMath::Power(fgammam, 2)*TPiW /
-	      (widgamma0*TMath::Power(EgammaW, 3)*TMath::Power(fgammaW, 2)*TPim);
-    double BRPi = Rinverse/(1+Rinverse);
-    double BRgamma = 1/(1+Rinverse);
+    temp = (TDecayChannel*) decay_list -> At(ich) ;
 
-    double BRPi01   = 0.667002; // LIBO: ditto
-    double BRPi02   = 0.332998; // LIBO: ditto
-
-    // Delta0 or Delta0_bar
-    if (decay_particle_pdg_code ==  kPdgP33m1232_Delta0 ||
-        decay_particle_pdg_code == -kPdgP33m1232_Delta0)
-    {
-   	   if (ichannel == 0) { return BRPi*BRPi02; }
-	     if (ichannel == 1) { return BRPi*BRPi01; }
-	     if (ichannel == 2) { return BRgamma;     }
+    unsigned int nd = temp -> NDaughters() ;
+    std::vector<Int_t> ds( 3, 0 ) ;
+    for ( unsigned int d = 0 ; d < nd; ++d ) {
+      ds[d] = temp -> DaughterPdgCode(d) ;
     }
-    // Delta+ or anti_Delta+
-    else
-    if (decay_particle_pdg_code ==  kPdgP33m1232_DeltaP ||
-        decay_particle_pdg_code == -kPdgP33m1232_DeltaP)
-    {
-  	   if (ichannel == 0) { return BRPi*BRPi01; }
-	     if (ichannel == 1) { return BRPi*BRPi02; }
-	     if (ichannel == 2) { return BRgamma;     }
-    }
-    else
-    {
-      LOG("ResonanceDecay", pWARN)
-         << "Mother particle (PDG code = " << decay_particle_pdg_code
-         << ") is not Delta+ or Delta0!";
-  	}
-  }//W
-  return 0;
+
+    update = new TDecayChannel(
+        temp -> Number(),
+        temp -> MatrixElementCode(),
+        widths[i] / tot,
+        temp -> NDaughters(),
+        & ds[0]
+        ) ;
+
+    new_list -> Add( update ) ;
+  }
+
+  return new_list ;
 }
+
 //____________________________________________________________________________
-double BaryonResonanceDecayer::EvolveDeltaBR(int dec_part_pdgc, TDecayChannel * ch, double W) const {
+double BaryonResonanceDecayer::EvolveDeltaDecayWidth(int dec_part_pdgc, const TDecayChannel * ch, double W) const {
 
   /*
-   * The branching rations of the Delta in Pions or in N gammas are not constant.
+   * The decay widths of the Delta in Pions or in N gammas are not constant.
    * They depend on the actual mass of the decaying delta (W) they need to be evolved accordingly.
    * This method tweaks the Delta branching ratios as a function of the W and
    * returns the proper one depending on the specific decay channel.
@@ -511,27 +468,18 @@ double BaryonResonanceDecayer::EvolveDeltaBR(int dec_part_pdgc, TDecayChannel * 
   }
 
 
-  // The first and most trivial evolution of the BR as a function of W
-  // is that if W is lower then mass of Pi0 and the corresponding nucleon
-  // The only possible decay is the one with gamma, therefore the BR goes
-  // to either 0 or 1 depending if there is pion or not in the final state.
-  // The reason why we check only with pi0 is because reguardless of the
-  // charge of the Delta, the ligther final state is always the one with the pi0
-  // For simplicity the check is done on the generic nucleon mass
+  // The first and most trivial evolution of the Width as a function of W
+  // is that if W is lower then the final state mass the width collapses to 0.
 
-  if (W < genie::constants::kPi0Mass + genie::constants::kNucleonMass ) {
+  if ( W < this -> FinalStateMass( ch -> ) ) {
 
-    if ( has_pion ) return 0. ;
-    else return 1. ;
+    return 0. ;
 
-   }
+  }
 
-  // there is a region of a few MeV in which the Pi0 decay is allowed by the W and the other is not
-  // this condition is treated as both the decays were available
-
-  // At this point, W is high enough to assume the decay of the delta in both N+pi or N+gamma
-  // This requires the amplitude of both decays to be scaled according to W
-  // The amplitude dependencies of W scales with the momentum of the pion or the photon respectivelly
+  // At this point, W is high enough to assume the decay of the delta in this channel
+  //
+  // The amplitude dependencies on W scales with the momentum of the pion or the photon respectivelly
   // following these relationships
   //
   //                              (p_pi(W))^3
@@ -552,41 +500,47 @@ double BaryonResonanceDecayer::EvolveDeltaBR(int dec_part_pdgc, TDecayChannel * 
   // Getting the delta resonance from GENIE database
    Resonance_t res = genie::utils::res::FromPdgCode( dec_part_pdgc ) ;
 
-   // get the width of the delta and obtain the width of the decay in Pi+N and gamma+N
-   // evaluated at the nominal mass of the delta
-   double defWidth   = genie::utils::res::Width( res ) ;
-
    double m = genie::utils::res::Mass( res ) ;
    double m_2   = TMath::Power(m, 2);
 
    double mN = genie::pdg::IsProton( ch -> DaughterPdgCode( nucleon_id ) ) ?  genie::constants::kProtonMass : genie::constants::kNucleonMass ;
    double mN_2  = TMath::Power( mN,     2);
 
-   double mPion = TMath::Abs( ch -> DaughterPdgCode( pion_id ) ) == kPdgPiP ? genie::constants::kPionMass : genie::constants::kPi0Mass ;
-   double m_aux1= TMath::Power( mN + mPion, 2) ;
-   double m_aux2= TMath::Power( mN - mPion, 2) ;
-
    double W_2   = TMath::Power(W,      2);
 
-   // momentum of the pion in the Delta reference frame
-   double pPi_W    = TMath::Sqrt((W_2-m_aux1)*(W_2-m_aux2))/(2*W);  // at W
-   double pPi_m    = TMath::Sqrt((m_2-m_aux1)*(m_2-m_aux2))/(2*m);  // at the default Delta mass
+   double scaling = 0. ;
 
-   double TPi_W    = TMath::Power(pPi_W, 3);
-   double TPi_m    = TMath::Power(pPi_m, 3);
+   if ( has_pion ) {
 
-   // momentum of the photon in the Delta Reference frame = Energy of the photon
-   double Egamma_W = (W_2-mN_2)/(2*W);  // at W
-   double Egamma_m = (m_2-mN_2)/(2*m);  // at the default Delta mass
+     double mPion = TMath::Abs( ch -> DaughterPdgCode( pion_id ) ) == kPdgPiP ? genie::constants::kPionMass : genie::constants::kPi0Mass ;
+     double m_aux1= TMath::Power( mN + mPion, 2) ;
+     double m_aux2= TMath::Power( mN - mPion, 2) ;
 
-   // form factor of the photon production
-   double fgamma_W = 1./(TMath::Power(1+Egamma_W*Egamma_W/fFFScaling, 2));
-   double fgamma_m = 1./(TMath::Power(1+Egamma_m*Egamma_m/fFFScaling, 2));
+     // momentum of the pion in the Delta reference frame
+     double pPi_W    = TMath::Sqrt((W_2-m_aux1)*(W_2-m_aux2))/(2*W);  // at W
+     double pPi_m    = TMath::Sqrt((m_2-m_aux1)*(m_2-m_aux2))/(2*m);  // at the default Delta mass
 
+     scaling = TMath::Power( pPi_W / pPi_m , 3 ) ;
 
-   double defPiWidth = width0*fPionBR;
-   double defGaWidth = width0*fGammaBR;
+   }
+   else {
 
+     // momentum of the photon in the Delta Reference frame = Energy of the photon
+     double Egamma_W = (W_2-mN_2)/(2*W);  // at W
+     double Egamma_m = (m_2-mN_2)/(2*m);  // at the default Delta mass
+
+     // form factor of the photon production
+     double fgamma_W = 1./(TMath::Power(1+Egamma_W*Egamma_W/fFFScaling, 2));
+     double fgamma_m = 1./(TMath::Power(1+Egamma_m*Egamma_m/fFFScaling, 2));
+
+     scaling = TMath::Power( Egamma_W / Egamma_m, 3 ) * TMath::Power( fgamma_W / fgamma_m , 2 ) ;
+   }
+
+   // get the width of the delta and obtain the width of the decay in the channel we are evolving
+   // evaluated at the nominal mass of the delta
+   double defChWidth    = ch -> BranchingRatio() * genie::utils::res::Width( res ) ;
+
+   return defChWidth * scaling ;
 
 }
 //____________________________________________________________________________
@@ -596,7 +550,7 @@ double BaryonResonanceDecayer::Weight(void) const
   return fWeight;
 }
 //____________________________________________________________________________
-double BaryonResonanceDecayer::FinalStateMass(TDecayChannel * ch) const
+double BaryonResonanceDecayer::FinalStateMass(const TDecayChannel * ch) const
 {
 // Computes the total mass of the final state system
 
@@ -623,7 +577,7 @@ double BaryonResonanceDecayer::FinalStateMass(TDecayChannel * ch) const
   return mass;
 }
 //____________________________________________________________________________
-bool BaryonResonanceDecayer::IsPiNDecayChannel(TDecayChannel * ch) const
+bool BaryonResonanceDecayer::IsPiNDecayChannel(const TDecayChannel * ch) const
 {
   if(!ch) return false;
 

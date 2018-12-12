@@ -55,15 +55,14 @@ private:
   bool           Decay             (int dec_part_id, GHepRecord * event) const;
   TDecayChannel* SelectDecayChannel(int dec_part_id, GHepRecord * event) const;
   void           DecayExclusive    (int dec_part_id, GHepRecord * event, TDecayChannel * ch) const;
-  double         DealsDeltaNGamma  (int dec_part_pdgc, int ich, double W) const; // LIBO to be replaced by the following
 
-  TObjArray *    EvolveDeltaBR        (int dec_part_pdgc, TObjArray * decay_list, double W) const;
-  double         EvolveDeltaDecayWidth(int dec_part_pdgc, TDecayChannel * ch, double W) const;
+  TObjArray *    EvolveDeltaBR        (int dec_part_pdgc, const TObjArray * decay_list, double W) const;
+  double         EvolveDeltaDecayWidth(int dec_part_pdgc, const TDecayChannel * ch, double W) const;
 
   //             This method evolves the BR of the decay channel ch according to the actual mass of the Delta W
 
-  double         FinalStateMass    (TDecayChannel * ch) const;
-  bool           IsPiNDecayChannel (TDecayChannel * ch) const;
+  double         FinalStateMass    (const TDecayChannel * ch) const;
+  bool           IsPiNDecayChannel (const TDecayChannel * ch) const;
 
   mutable TGenPhaseSpace fPhaseSpaceGenerator;
   mutable double         fWeight;
