@@ -346,11 +346,8 @@ void BaryonResonanceDecayer::DecayExclusive(
 
         double w_theta = 1. - fProb32 * legendre_2 + fProb12 * legendre_2 ;
 
-	// the maximum of the W(theta) is necessary to throw to scale the random number used for the check
-	
-	double w_max = fProb12 > 0.5 ? 2*fProb12 : 1.5 - fProb12 ; 
 
-        double aidrnd = w_max * rnd->RndDec().Rndm();
+        double aidrnd = fW_max * rnd->RndDec().Rndm();
 
         if ( w_theta < aidrnd )
           accept_decay = false ;
@@ -673,6 +670,11 @@ void BaryonResonanceDecayer::LoadConfig(void) {
     exit( 78 ) ;
     
   }
+
+  // the maximum of the W(theta) is necessary to throw to scale the random number used for the check
+  
+  fW_max = fProb12 > 0.5 ? 2*fProb12 : 1.5 - fProb12 ; 
+
 
   this -> GetParam( "FFScaling", fFFScaling ) ;
 

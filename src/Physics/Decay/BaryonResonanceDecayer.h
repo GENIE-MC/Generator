@@ -66,6 +66,7 @@ private:
   mutable double         fWeight;
 
   double fProb32, fProb12 ; // parameters for pion angular distribution for Delta -> N + pi
+  double fW_max ;
 
   double fFFScaling ;  // Scaling factor of the form factor of the Delta wrt to Q2
 
