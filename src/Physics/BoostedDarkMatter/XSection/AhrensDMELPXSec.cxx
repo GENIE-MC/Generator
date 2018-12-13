@@ -241,7 +241,6 @@ void AhrensDMELPXSec::LoadConfig(void)
   double ma, mv, mp, mpi, meta ;
   this->GetParam( "QEL-Ma", ma ) ;
   this->GetParam( "QEL-Mv", mv ) ;
-  this->GetParam( "DMEL-Mp", mp ) ;
   this->GetParam( "DMEL-Mpi", mpi ) ;
   this->GetParam( "DMEL-Meta", meta ) ;
   fMa2 = TMath::Power(ma,2);
