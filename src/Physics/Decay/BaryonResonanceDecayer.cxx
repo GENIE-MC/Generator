@@ -346,7 +346,11 @@ void BaryonResonanceDecayer::DecayExclusive(
 
         double w_theta = 1. - fProb32 * legendre_2 + fProb12 * legendre_2 ;
 
-        double aidrnd = 1.25 * rnd->RndDec().Rndm();
+	// the maximum of the W(theta) is necessary to throw to scale the random number used for the check
+	
+	double w_max = fProb12 > 0.5 ? 2*fProb12 : 1.5 - fProb12 ; 
+
+        double aidrnd = w_max * rnd->RndDec().Rndm();
 
         if ( w_theta < aidrnd )
           accept_decay = false ;
@@ -394,29 +398,29 @@ TObjArray *  BaryonResonanceDecayer::EvolveDeltaBR(int dec_part_pdgc, TObjArray 
   std::vector<double> widths( nch, 0. ) ;
   double tot = 0. ;
 
-
   TDecayChannel * temp = nullptr ;
 
   for ( unsigned int i = 0 ; i < nch ; ++i ) {
 
     temp = (TDecayChannel*) decay_list -> At(i) ;
-    widths[i] = EvolveDeltaDecayWidth(dec_part_pdgc, temp, W ) ;
-    tot += widths[i] ;
+    tot += widths[i] = EvolveDeltaDecayWidth(dec_part_pdgc, temp, W ) ;
 
   }
 
   if ( tot <= 0. ) return  new TObjArray( 0 ) ;
 
-  TObjArray * new_list = new TObjArray( nch ) ;
+  TObjArray * new_list = new TObjArray() ;
 
   TDecayChannel * update = nullptr ;
 
   for ( unsigned int i = 0 ; i < nch ; ++i ) {
 
+    if ( widths[i] <= 0. ) continue ;
+
     temp = (TDecayChannel*) decay_list -> At(i) ;
 
     unsigned int nd = temp -> NDaughters() ;
-    std::vector<Int_t> ds( 3, 0 ) ;
+    std::vector<Int_t> ds( nd, 0 ) ;
     for ( unsigned int d = 0 ; d < nd; ++d ) {
       ds[d] = temp -> DaughterPdgCode(d) ;
     }
@@ -425,7 +429,7 @@ TObjArray *  BaryonResonanceDecayer::EvolveDeltaBR(int dec_part_pdgc, TObjArray 
         temp -> Number(),
         temp -> MatrixElementCode(),
         widths[i] / tot,
-        temp -> NDaughters(),
+        nd,
         & ds[0]
         ) ;
 
@@ -648,8 +652,27 @@ void BaryonResonanceDecayer::LoadConfig(void) {
 
   Decayer::LoadConfig() ;
 
-  this->GetParam( "Prob32", fProb32 ) ;
+  this->GetParamDef( "Prob32", fProb32, 0.75 ) ;
+
   fProb12 = 1. - fProb32 ;
+
+  // the W(theta) function, see above, has to be positive
+  // so prob12 has to be in [0, 3/2]
+  
+  if ( fProb12 < 0. || fProb12 > 1.5 ) {
+
+ 
+    LOG("BaryonResonanceDecayer", pFATAL)
+      << "Input configuration value for P(1/2) is not physical: Exiting" ; 
+
+    // From the FreeBSD Library Functions Manual 
+    // 
+    // EX_CONFIG (78)   Something was found in an unconfigured or miscon-
+    //                  figured state.
+
+    exit( 78 ) ;
+    
+  }
 
   this -> GetParam( "FFScaling", fFFScaling ) ;
 

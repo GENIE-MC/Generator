@@ -12,7 +12,10 @@ Name                          Type     Optional   Comment                       
 ..........................................................................................................
 FFScaling                     double   No         Scaling factor for Form Factor for Gamma Delta coupling
                                                   This value is coming from an MiniBooNE technical note
-Prob32                        double   No                                  
+Prob32                        double   yes        This is the parameter of the angular distribution of the pion
+                                                  in the Delta reference frame. To have a positive distribution
+						  this value needs to be in [-1/2, 1] 
+						  The default value is 3/4 which is the result of Rein-Sehgal theory
 --> 
 
 
@@ -24,7 +27,6 @@ Prob32                        double   No
 
     <param type="double" name="FFScaling">  0.706    </param> 
 
-    <param type="double" name="Prob32">     0.75   </param> 
   </param_set>
 
   <param_set name="BeforeHadronTransport">
