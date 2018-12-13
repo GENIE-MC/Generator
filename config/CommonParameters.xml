@@ -322,11 +322,11 @@ University of Liverpool
     <param type="double" name="CharmRightCharge"> 1 </param>
     <param type="double" name="ElectronLeftCharge"> -1 </param>
     <param type="double" name="ElectronRightCharge"> 1 </param>
-    <param type="double" name="DMEL-Mpi"> 0.1349766 </param>
+    <param type="double" name="DMEL-Mpi"> 0.1349770 </param>
     <param type="double" name="DMEL-Meta"> 0.547862 </param>
-    <param type="double" name="AxialVectorSpin-u"> 0.827 </param>
-    <param type="double" name="AxialVectorSpin-d"> -0.38 </param>
-    <param type="double" name="AxialVectorSpin-s"> -0.0427 </param>
+    <param type="double" name="AxialVectorSpin-u"> 0.84 </param>
+    <param type="double" name="AxialVectorSpin-d"> -0.43 </param>
+    <param type="double" name="AxialVectorSpin-s"> -0.09 </param>
 
   </param_set>
 
