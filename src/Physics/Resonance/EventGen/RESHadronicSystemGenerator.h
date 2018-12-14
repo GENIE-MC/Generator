@@ -5,7 +5,7 @@
 
 \brief    Generates the 'final state' hadronic system in v RES interactions.
           It adds the remnant nucleus (if any), the pre-selected resonance
-          and the resonance decay products at the GHEP record. 
+          and the resonance decay products at the GHEP record.
           Unlike the SPP thread, in the RES thread the resonance is specified
           at the time an interaction is selected but its decay products not
           (semi-inclusive resonance reactions). The off the mass-shell baryon
@@ -53,9 +53,9 @@ private:
   void LoadConfig                (void);
   int  GetResonancePdgCode       (GHepRecord * evrec) const;
   void AddResonance              (GHepRecord * evrec, int pdgc) const;
-  void AddResonanceDecayProducts (GHepRecord * evrec, int pdgc) const;
+  // void AddResonanceDecayProducts (GHepRecord * evrec, int pdgc) const;
 
-  const Decayer * fResonanceDecayer;
+  const EventRecordVisitorI * fResonanceDecayer;
 };
 
 }      // genie namespace

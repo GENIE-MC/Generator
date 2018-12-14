@@ -52,7 +52,7 @@ private:
   mutable TPythia6 * fPythia;   ///< PYTHIA6 wrapper class
 
   //-- configuration parameters
-  //   Note: additional configuration parameters common to all hadronizers 
+  //   Note: additional configuration parameters common to all hadronizers
   //   (Wcut,Rijk,...) are declared one layer down in the inheritance tree
   double fSSBarSuppression;   ///< ssbar suppression
   double fGaussianPt2;        ///< gaussian pt2 distribution width
@@ -63,4 +63,3 @@ private:
 }         // genie namespace
 
 #endif    // _PYTHIA6_HADRONIZATION_H_
-

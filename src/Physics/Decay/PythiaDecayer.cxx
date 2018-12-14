@@ -56,6 +56,10 @@ PythiaDecayer::~PythiaDecayer()
 //____________________________________________________________________________
 void PythiaDecayer::ProcessEventRecord(GHepRecord * event) const
 {
+  LOG("ResonanceDecay", pINFO)
+    << "Running PYTHIA6 particle decayer "
+    << ((fRunBefHadroTransp) ? "*before*" : "*after*") << " FSI";
+
   // Loop over particles, find unstable ones and decay them
   TObjArrayIter piter(event);
   GHepParticle * p = 0;
@@ -64,7 +68,7 @@ void PythiaDecayer::ProcessEventRecord(GHepRecord * event) const
   while( (p = (GHepParticle *) piter.Next()) ) {
     ipos++;
 
-    LOG("Pythia6Decay", pINFO) << "Checking: " << p->Name();
+    LOG("Pythia6Decay", pDEBUG) << "Checking: " << p->Name();
 
     int pdg_code = p->Pdg();
     GHepStatus_t status_code = p->Status();
@@ -80,7 +84,7 @@ void PythiaDecayer::ProcessEventRecord(GHepRecord * event) const
   }
 
   LOG("Pythia6Decay", pNOTICE)
-     << "Done finding & decaying baryon resonances";
+     << "Done finding & decaying unstable particles";
 }
 //____________________________________________________________________________
 bool PythiaDecayer::Decay(int decay_particle_id, GHepRecord * event) const
@@ -191,14 +195,13 @@ bool PythiaDecayer::IsHandled(int pdg_code) const
 {
 // does not handle requests to decay baryon resonances
 
-  if( utils::res::IsBaryonResonance(pdg_code) ) {
-     LOG("Pythia6Decay", pINFO)
-       << "This algorithm can not decay particles with PDG code = "
-       << pdg_code;
-     return false;
-  }
+ bool is_handled = (!utils::res::IsBaryonResonance(pdg_code));
 
-  return true;
+ LOG("Pythia6Decay", pDEBUG)
+    << "Can decay particle with PDG code = " << pdg_code
+    << "? " << ((is_handled)? "Yes" : "No");
+
+  return is_handled;
 }
 //____________________________________________________________________________
 void PythiaDecayer::InhibitDecay(int pdg_code, TDecayChannel * dc) const

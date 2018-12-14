@@ -18,10 +18,10 @@
           - Tinjun Yang <tjyang@stanford.edu>
             Stanford University
 
-          This is an improved version of the legacy neugen3 KNO-based model. 
+          This is an improved version of the legacy neugen3 KNO-based model.
           Giles Barr, Geoff Pearce, and Hugh Gallagher were listed as authors
           of the original neugen3 model.
-          
+
           Strange baryon production was implemented by Keith Hofmann and
           Hugh Gallagher (Tufts)
 
@@ -84,7 +84,7 @@ private:
   TClonesArray* DecayBackToBack (double W, const PDGCodeList & pdgv) const;
 
   bool PhaseSpaceDecay(
-         TClonesArray & pl, TLorentzVector & pd, 
+         TClonesArray & pl, TLorentzVector & pd,
 	   const PDGCodeList & pdgv, int offset=0, bool reweight=false) const;
 
   mutable TGenPhaseSpace fPhaseSpaceGenerator; ///< a phase space generator

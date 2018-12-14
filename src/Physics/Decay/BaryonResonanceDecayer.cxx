@@ -49,6 +49,10 @@ BaryonResonanceDecayer::~BaryonResonanceDecayer()
 //____________________________________________________________________________
 void BaryonResonanceDecayer::ProcessEventRecord(GHepRecord * event) const
 {
+  LOG("ResonanceDecay", pINFO)
+    << "Running resonance decayer "
+    << ((fRunBefHadroTransp) ? "*before*" : "*after*") << " FSI";
+
   // Loop over particles, find unstable ones and decay them
   TObjArrayIter piter(event);
   GHepParticle * p = 0;
@@ -57,7 +61,7 @@ void BaryonResonanceDecayer::ProcessEventRecord(GHepRecord * event) const
   while( (p = (GHepParticle *) piter.Next()) ) {
 
     ipos++;
-    LOG("ResonanceDecay", pINFO) << "Checking: " << p->Name();
+    LOG("ResonanceDecay", pDEBUG) << "Checking: " << p->Name();
 
     int pdg_code = p->Pdg();
     GHepStatus_t status_code = p->Status();
@@ -134,8 +138,9 @@ TDecayChannel * BaryonResonanceDecayer::SelectDecayChannel(
   LOG("ResonanceDecay", pINFO) << "Available mass W = " << W;
 
   // Get all decay channels
-  TObjArray * decay_list = mother->DecayList();
-  unsigned int nch = decay_list->GetEntries();
+  TObjArray * original_decay_list = mother->DecayList();
+
+  unsigned int nch = original_decay_list -> GetEntries();
   LOG("ResonanceDecay", pINFO)
     << mother->GetName() << " has: " << nch << " decay channels";
 
@@ -144,42 +149,48 @@ TDecayChannel * BaryonResonanceDecayer::SelectDecayChannel(
   // Since a baryon resonance can be created at W < Mres, explicitly
   // check and inhibit decay channels for which W > final-state-mass
 
-  double BR[nch], tot_BR = 0;
-
   bool is_delta =
     ( decay_particle_pdg_code ==  kPdgP33m1232_Delta0 ||
       decay_particle_pdg_code == -kPdgP33m1232_Delta0 ||
       decay_particle_pdg_code ==  kPdgP33m1232_DeltaP ||
       decay_particle_pdg_code == -kPdgP33m1232_DeltaP );
 
-	for(unsigned int ich = 0; ich < nch; ich++) {
+  TObjArray * actual_decay_list = nullptr ;
 
-      TDecayChannel * ch = (TDecayChannel *) decay_list->At(ich);
-      double fsmass = this->FinalStateMass(ch);
+  if ( is_delta ) {
+    actual_decay_list = EvolveDeltaBR( decay_particle_pdg_code, original_decay_list, W ) ;
+    nch = actual_decay_list -> GetEntries() ;
+  }
+  else
+    actual_decay_list = original_decay_list ;
 
-      if(fsmass < W) {
-         SLOG("ResonanceDecay", pDEBUG)
-            << "Using channel: " << ich
-            << " with final state mass = " << fsmass << " GeV";
-         double ch_BR = 0;
-         if(is_delta) {
-           ch_BR = this->DealsDeltaNGamma(decay_particle_pdg_code, ich, W);
-         }
-         else {
-           ch_BR = ch->BranchingRatio();
-         }
-         tot_BR += ch_BR;
-      } else {
-         SLOG("ResonanceDecay", pINFO)
-            << "Suppresing channel: " << ich
-            << " with final state mass = " << fsmass << " GeV";
-      } // final state mass
-      BR[ich] = tot_BR;
+  double BR[nch], tot_BR = 0;
+
+  for(unsigned int ich = 0; ich < nch; ich++) {
+
+    TDecayChannel * ch = (TDecayChannel *) actual_decay_list -> At(ich);
+
+    double fsmass = this->FinalStateMass(ch) ;
+    if ( fsmass < W ) {
+
+      SLOG("ResonanceDecay", pDEBUG)
+                << "Using channel: " << ich
+                << " with final state mass = " << fsmass << " GeV";
+
+      tot_BR += ch->BranchingRatio();
+
+    } else {
+      SLOG("ResonanceDecay", pINFO)
+                << "Suppresing channel: " << ich
+                << " with final state mass = " << fsmass << " GeV";
+    } // final state mass
+
+    BR[ich] = tot_BR;
   }//channel loop
 
-  if(tot_BR==0) {
+  if( tot_BR <= 0. ) {
     SLOG("ResonanceDecay", pWARN)
-      << "None of the " << nch << " decay channels is available @ W = " << W;
+          << "None of the " << nch << " decay channels is available @ W = " << W;
     return 0;
   }
 
@@ -191,11 +202,14 @@ TDecayChannel * BaryonResonanceDecayer::SelectDecayChannel(
     sel_ich = ich;
   } while (x > BR[ich++]);
 
-  TDecayChannel * sel_ch = (TDecayChannel *) decay_list->At(sel_ich);
+  TDecayChannel * sel_ch = (TDecayChannel *) actual_decay_list -> At(sel_ich);
 
   LOG("ResonanceDecay", pINFO)
     << "Selected " << sel_ch->NDaughters() << "-particle decay channel ("
     << sel_ich << ") has BR = " << sel_ch->BranchingRatio();
+
+  if ( is_delta )
+    delete actual_decay_list ;
 
   return sel_ch;
 }
@@ -237,7 +251,8 @@ void BaryonResonanceDecayer::DecayExclusive(
   bool is_delta = (decay_particle_pdg_code == kPdgP33m1232_DeltaPP ||
                    decay_particle_pdg_code == kPdgP33m1232_DeltaP  ||
                    decay_particle_pdg_code == kPdgP33m1232_Delta0);
-  bool is_2body = is_delta && this->IsPiNDecayChannel(ch);
+
+  bool is_delta_N_Pi_decay = is_delta && this->IsPiNDecayChannel(ch);
 
   // Decay the resonance using an N-body phase space generator
   // The particle will be decayed in its rest frame and then the daughters
@@ -288,31 +303,59 @@ void BaryonResonanceDecayer::DecayExclusive(
       LOG("ResonanceDecay", pINFO)
         << "Current decay weight = " << w << " / R = " << gw;
 
-      // Extra logic that applies only for Delta -> N + pi
-      if(is_2body)
-      {
-        // LIBO: Add detailed explanation for the calculation you are doing here
-        //       Limit the calculation within this set of curly braces *only*
-        //       Influence the outcome by modifying accept_decay below
-
-        // Define variables for the Wtheta selection
-        //double p32check        = 0.75;       // LIBO: Should come from XML config
-        //double p12check        = 1-p32check;
-        //double aidrnd          = 0;
-        //double wthetacheck     = 0;
-        //double p2costhetacheck = 0;
-        //double costhetacheck   = 0;
-
-        //TLorentzVector vpioncheck;
-        //TLorentzVector vcheckdelta;
-
-        //++
-        //++
-        //++
-      }
-
       accept_decay = (gw<=w);
+
+      // Extra logic that applies only for Delta -> N + pi
+      if( accept_decay && is_delta_N_Pi_decay ) {
+
+        // We don't want the decay Delta -> Pi + N to be isotropic in the Delta referemce frame
+        // as generated by the simple phase space generator.
+        // In order to sample pion distribution according to W(Theta) in the Delta resonance decay,
+        // we make use of the following.
+        // For each event generated from a Delta -> N + Pi event with Pi emitted at
+        // at angle Theta (in the Delta rest frame), attach a random number to it.
+        // then we calculate W(Theta) according to the definition
+        // W(Theta) = 1 − P[ 3/2 ] x L_2(cos Theta) + P[ 1/2 ] x L_2(cos Theta)
+        // where
+        // L_2 is the second Legendre polynomial L_2(x) = (3x^2 -1)/2
+        // and P[3/2] and P[1/2] have to some up to 1.
+        // Each possible final state is used to evaluate (Theta),
+        // then a random number is thrown, if the the random number is higher than W(Theta) drop this event and go
+        // back to re-generate an event and repeat the procedure.
+        // Otherwise keep this event to the record.
+
+        // Locate the pion in the decay products
+        // at this point we already know that the pion is unique so the first pion we find is our pion
+        unsigned int pi_id = 0 ;
+
+        for(unsigned int iparticle = 0; iparticle < nd; iparticle++) {
+
+          if ( genie::pdg::IsPion( ch->DaughterPdgCode(iparticle) ) ) {
+            pi_id = iparticle ;
+            break ;
+          }
+        }//iparticle
+
+        TLorentzVector * lab_pion = fPhaseSpaceGenerator.GetDecay(pi_id);
+        TLorentzVector pion( lab_pion -> Px(), lab_pion -> Py(), lab_pion -> Pz(), lab_pion -> Energy() ) ;
+
+        pion.Boost(-decay_particle_p4.BoostVector() );  // this gives us the pion in the Delta reference frame
+
+        double costheta = pion.CosTheta() ;
+        double legendre_2 = 0.5*(3.*costheta*costheta -1.);
+
+        double w_theta = 1. - fProb32 * legendre_2 + fProb12 * legendre_2 ;
+
+
+        double aidrnd = fW_max * rnd->RndDec().Rndm();
+
+        if ( w_theta < aidrnd )
+          accept_decay = false ;
+
+      } //if it is a Delta -> N + Pi
+
     }//accept_decay
+
   }//fGenerateWeighted
 
   // A decay was generated - Copy to the event record
@@ -344,194 +387,175 @@ void BaryonResonanceDecayer::DecayExclusive(
        *daughter_p4, decay_particle_x4);
   }
 
-  //
-  // while(1){  //start a loop until break;
-  //
-  //   if(fGenerateWeighted)
-  //   {
-  //     // *** generating weighted decays ***
-  //     double w = fPhaseSpaceGenerator.Generate();
-  //     fWeight *= TMath::Max(w/wmax, 1.);
-  //   }
-  //   else
-  //   {
-  //     // *** generating un-weighted decays ***
-  //     RandomGen * rnd = RandomGen::Instance();
-  //     wmax *= 2;
-  //     bool accept_decay=false;
-  //     unsigned int itry=0;
-  //
-  //     while(!accept_decay)
-  //     {
-  //       itry++;
-  //       assert(itry<kMaxUnweightDecayIterations);
-  //
-  //       double w  = fPhaseSpaceGenerator.Generate();
-  //       double gw = wmax * rnd->RndDec().Rndm();
-  //
-  //       if(w>wmax) {
-  //          LOG("Decay", pWARN)
-  //             << "Current decay weight = " << w << " > wmax = " << wmax;
-  //       }
-  //       LOG("Decay", pINFO)
-  //         << "Current decay weight = " << w << " / R = " << gw;
-  //
-  //       accept_decay = (gw<=w);
-  //     }//accept_decay
-  //   }//fGenerateWeighted
-  //
-  //   // // Add the mother particle to the event record (KS=11 as in PYTHIA)
-  //   // TParticlePDG * mother = PDGLibrary::Instance()->Find(pdg_code);
-  //   //
-  //   // double px   = p.Px();
-  //   // double py   = p.Py();
-  //   // double pz   = p.Pz();
-  //   // double E    = p.Energy();
-  //   // double M    = mother->Mass();
-  //
-  //   if(twobody)
-  //   {
-  //     // // restore mother particle's 4-momentum.
-  //     // vcheckdelta.SetPxPyPzE(px,py,pz,E);}
-  //     //
-  //     // // restore mother particle to the temp_particle list.
-  //     // new ( (*temp_particle_list)[0] )
-  //     //   GHepParticle(pdg_code,kIStNucleonTarget,0,0,0,px,py,pz,E,0,0,0,0);
-  //
-  //     // Add the daughter particles to the event record
-  //     for(unsigned int id = 0; id < nd; id++) {
-  //
-  //        TLorentzVector * p4 = fPhaseSpaceGenerator.GetDecay(id);
-  //        LOG("Decay", pDEBUG)
-  //           << "Adding final state particle PDGC = " << pdgc[id]
-  //           << " with mass = " << mass[id] << " GeV";
-  //
-  //        px   = p4->Px();
-  //        py   = p4->Py();
-  //        pz   = p4->Pz();
-  //        E    = p4->Energy();
-  //        M    = mass[id];
-  //
-  //        // Set aidrnd and wthetacheck to control the angular distribution.
-	//        if(twobody){
-  //           if(pdgc[id]==kPdgPiP || pdgc[id]==kPdgPi0 ||pdgc[id]==kPdgPiM)
-  //           {
-	// 		       vpioncheck.SetPxPyPzE(px,py,pz,E);
-	// 			     // Boost pion 4-vec from lab frame into CM frame
-  //            vpioncheck.Boost(-vcheckdelta.BoostVector());
-	// 	         costhetacheck=vpioncheck.Pz()/sqrt(
-  //               vpioncheck.Px()*vpioncheck.Px()+
-  //               vpioncheck.Py()*vpioncheck.Py()+
-  //               vpioncheck.Pz()*vpioncheck.Pz());
-  //            p2costhetacheck=0.5*(3*costhetacheck*costhetacheck-1);
-  //            wthetacheck=1-p32check*(p2costhetacheck)+p12check*(p2costhetacheck);
-  //            aidrnd=1.25*gRandom->Rndm();
-	// 	       }  //end pion-selection
-	//        }  //end twobody
-  //
-  //        new ( (*temp_particle_list)[1+id] )
-  //           GHepParticle(pdgc[id],kIStStableFinalState,0,0,0,0,px,py,pz,E,0,0,0,0);
-  //     }//end daughter particle loop
-  //
-  //     if(!twobody) break;
-  //     if(twobody && wthetacheck>=aidrnd) break;
-  //
-  // }//end while(1)
 }
-//____________________________________________________________________________
-double BaryonResonanceDecayer::DealsDeltaNGamma(
-  int decay_particle_pdg_code, int ichannel, double W) const
-{
-// LIBO: Explain the purpose of this routine
-//
-//
-//
-//
+TObjArray *  BaryonResonanceDecayer::EvolveDeltaBR(int dec_part_pdgc, TObjArray * decay_list, double W) const {
 
-  double mN  = genie::constants::kNucleonMass;
-  double mPi = genie::constants::kPi0Mass;
+  unsigned int nch = decay_list -> GetEntries();
 
-  if (W <= mN+mPi)
-  {
-	  if (ichannel == 0) {return 0;} // ichannel = 0,1,2 has to match
-	                                 // the channel order in genie_pdg_table.dat
-	  if (ichannel == 1) {return 0;}
-	  if (ichannel == 2) {return 1;}
+  std::vector<double> widths( nch, 0. ) ;
+  double tot = 0. ;
+
+  TDecayChannel * temp = nullptr ;
+
+  for ( unsigned int i = 0 ; i < nch ; ++i ) {
+
+    temp = (TDecayChannel*) decay_list -> At(i) ;
+    tot += widths[i] = EvolveDeltaDecayWidth(dec_part_pdgc, temp, W ) ;
+
   }
-  else
-  {
-    // LIBO: Add detailed explanation for the calculation you are doing here
-    //
-    //
-    //
-    //
-    //
-    //
 
-    double m      = 1.232; // LIBO: Should be constant in Constants.h
-    double width0 = 0.12;  // LIBO: ditto
+  if ( tot <= 0. ) return  new TObjArray( 0 ) ;
 
-    double m_2   = TMath::Power(m,      2);
-    double mN_2  = TMath::Power(mN,     2);
-    double W_2   = TMath::Power(W,      2);
-    double m_aux1= TMath::Power(mN+mPi, 2);
-    double m_aux2= TMath::Power(mN-mPi, 2);
+  TObjArray * new_list = new TObjArray() ;
 
-    double BRPi0    = 0.994;    // LIBO: Should come from XML config
-    double BRPi01   = 0.667002; // LIBO: ditto
-    double BRPi02   = 0.332998; // LIBO: ditto
-    double BRgamma0 = 0.006;    // LIBO: ditto
-    double widPi0   = width0*BRPi0;
-    double widgamma0= width0*BRgamma0;
+  TDecayChannel * update = nullptr ;
 
-    double pPiW    = TMath::Sqrt((W_2-m_aux1)*(W_2-m_aux2))/(2*W);
-    double pPim    = TMath::Sqrt((m_2-m_aux1)*(m_2-m_aux2))/(2*m);
-    double EgammaW = (W_2-mN_2)/(2*W);
-    double Egammam = (m_2-mN_2)/(2*m);
-    double TPiW    = TMath::Power(pPiW, 3);
-    double TPim    = TMath::Power(pPim, 3);
-    double fgammaW = 1./(TMath::Power(1+EgammaW*EgammaW/0.706, 2)); // LIBO: 0.706 should come from XML config
-    double fgammam = 1./(TMath::Power(1+Egammam*Egammam/0.706, 2)); // LIBO: ditto
+  for ( unsigned int i = 0 ; i < nch ; ++i ) {
 
-    double Rinverse =
-        widPi0*TMath::Power(Egammam, 3)*TMath::Power(fgammam, 2)*TPiW /
-	      (widgamma0*TMath::Power(EgammaW, 3)*TMath::Power(fgammaW, 2)*TPim);
-    double BRPi = Rinverse/(1+Rinverse);
-    double BRgamma = 1/(1+Rinverse);
+    if ( widths[i] <= 0. ) continue ;
 
-    // Delta0 or Delta0_bar
-    if (decay_particle_pdg_code ==  kPdgP33m1232_Delta0 ||
-        decay_particle_pdg_code == -kPdgP33m1232_Delta0)
-    {
-   	   if (ichannel == 0) { return BRPi*BRPi02; }
-	     if (ichannel == 1) { return BRPi*BRPi01; }
-	     if (ichannel == 2) { return BRgamma;     }
+    temp = (TDecayChannel*) decay_list -> At(i) ;
+
+    unsigned int nd = temp -> NDaughters() ;
+    std::vector<Int_t> ds( nd, 0 ) ;
+    for ( unsigned int d = 0 ; d < nd; ++d ) {
+      ds[d] = temp -> DaughterPdgCode(d) ;
     }
-    // Delta+ or anti_Delta+
-    else
-    if (decay_particle_pdg_code ==  kPdgP33m1232_DeltaP ||
-        decay_particle_pdg_code == -kPdgP33m1232_DeltaP)
-    {
-  	   if (ichannel == 0) { return BRPi*BRPi01; }
-	     if (ichannel == 1) { return BRPi*BRPi02; }
-	     if (ichannel == 2) { return BRgamma;     }
+
+    update = new TDecayChannel(
+        temp -> Number(),
+        temp -> MatrixElementCode(),
+        widths[i] / tot,
+        nd,
+        & ds[0]
+        ) ;
+
+    new_list -> Add( update ) ;
+  }
+
+  new_list -> SetOwner(kTRUE);
+
+  return new_list ;
+}
+
+//____________________________________________________________________________
+double BaryonResonanceDecayer::EvolveDeltaDecayWidth(int dec_part_pdgc, TDecayChannel * ch, double W) const {
+
+  /*
+   * The decay widths of the Delta in Pions or in N gammas are not constant.
+   * They depend on the actual mass of the decaying delta (W) they need to be evolved accordingly.
+   * This method tweaks the Delta branching ratios as a function of the W and
+   * returns the proper one depending on the specific decay channel.
+   */
+
+  // identify the decay channel
+  // The delta decays only in 3 ways
+  // Delta -> Charged Pi + N
+  // Delta -> Pi0 + N
+  // Delta -> Gamma + N
+
+  // They have evolution as a function of W that are different if the final state has pions or not
+  // so having tagged the pion is enough for the purpose of this method.
+
+  bool has_pion = false ;
+  int pion_id = -1 ;
+  int nucleon_id = -1 ;
+  unsigned int nd = ch -> NDaughters() ;
+  for(unsigned int i = 0 ; i < nd; ++i ) {
+    if ( genie::pdg::IsPion( ch -> DaughterPdgCode(i) ) ) {
+      has_pion = true ;
+      pion_id = i ;
     }
-    else
-    {
-      LOG("ResonanceDecay", pWARN)
-         << "Mother particle (PDG code = " << decay_particle_pdg_code
-         << ") is not Delta+ or Delta0!";
-  	}
-  }//W
-  return 0;
+
+    if ( genie::pdg::IsNucleon( ch -> DaughterPdgCode(i) ) ) {
+      nucleon_id = i ;
+    }
+  }
+
+
+  // The first and most trivial evolution of the Width as a function of W
+  // is that if W is lower then the final state mass the width collapses to 0.
+
+  if ( W < this -> FinalStateMass( ch ) ) {
+
+    return 0. ;
+
+  }
+
+  // At this point, W is high enough to assume the decay of the delta in this channel
+  //
+  // The amplitude dependencies on W scales with the momentum of the pion or the photon respectivelly
+  // following these relationships
+  //
+  //                              (p_pi(W))^3
+  //  Ampl_pi(W) = Ampl_pi(def)x---------------
+  //                             (p_pi(def))^3
+  //
+  //
+  //                              (p_ga(W))^3       (F_ga(W))^2
+  //  Ampl_ga(W) = Ampl_ga(def)x--------------- x ---------------
+  //                             (p_ga(def))^3     (F_ga(def))^2
+  //
+  // where the "def" stand for the nominal value of the Delta mass.
+  //  - pi_* are the momentum of the gamma and of the pion coming from the decay
+  //  - F_ga is the form factor
+  //
+  // So the new amplitudes are evaluated and the proper value is returned
+
+  // Getting the delta resonance from GENIE database
+   Resonance_t res = genie::utils::res::FromPdgCode( dec_part_pdgc ) ;
+
+   double m = genie::utils::res::Mass( res ) ;
+   double m_2   = TMath::Power(m, 2);
+
+   double mN = genie::pdg::IsProton( ch -> DaughterPdgCode( nucleon_id ) ) ?  genie::constants::kProtonMass : genie::constants::kNucleonMass ;
+   double mN_2  = TMath::Power( mN,     2);
+
+   double W_2   = TMath::Power(W,      2);
+
+   double scaling = 0. ;
+
+   if ( has_pion ) {
+
+     double mPion = TMath::Abs( ch -> DaughterPdgCode( pion_id ) ) == kPdgPiP ? genie::constants::kPionMass : genie::constants::kPi0Mass ;
+     double m_aux1= TMath::Power( mN + mPion, 2) ;
+     double m_aux2= TMath::Power( mN - mPion, 2) ;
+
+     // momentum of the pion in the Delta reference frame
+     double pPi_W    = TMath::Sqrt((W_2-m_aux1)*(W_2-m_aux2))/(2*W);  // at W
+     double pPi_m    = TMath::Sqrt((m_2-m_aux1)*(m_2-m_aux2))/(2*m);  // at the default Delta mass
+
+     scaling = TMath::Power( pPi_W / pPi_m , 3 ) ;
+
+   }
+   else {
+
+     // momentum of the photon in the Delta Reference frame = Energy of the photon
+     double Egamma_W = (W_2-mN_2)/(2*W);  // at W
+     double Egamma_m = (m_2-mN_2)/(2*m);  // at the default Delta mass
+
+     // form factor of the photon production
+     double fgamma_W = 1./(TMath::Power(1+Egamma_W*Egamma_W/fFFScaling, 2));
+     double fgamma_m = 1./(TMath::Power(1+Egamma_m*Egamma_m/fFFScaling, 2));
+
+     scaling = TMath::Power( Egamma_W / Egamma_m, 3 ) * TMath::Power( fgamma_W / fgamma_m , 2 ) ;
+   }
+
+   // get the width of the delta and obtain the width of the decay in the channel we are evolving
+   // evaluated at the nominal mass of the delta
+   double defChWidth    = ch -> BranchingRatio() * genie::utils::res::Width( res ) ;
+
+   return defChWidth * scaling ;
+
 }
 //____________________________________________________________________________
+
 double BaryonResonanceDecayer::Weight(void) const
 {
   return fWeight;
 }
 //____________________________________________________________________________
-double BaryonResonanceDecayer::FinalStateMass(TDecayChannel * ch) const
+double BaryonResonanceDecayer::FinalStateMass( TDecayChannel * ch ) const
 {
 // Computes the total mass of the final state system
 
@@ -558,7 +582,7 @@ double BaryonResonanceDecayer::FinalStateMass(TDecayChannel * ch) const
   return mass;
 }
 //____________________________________________________________________________
-bool BaryonResonanceDecayer::IsPiNDecayChannel(TDecayChannel * ch) const
+bool BaryonResonanceDecayer::IsPiNDecayChannel( TDecayChannel * ch ) const
 {
   if(!ch) return false;
 
@@ -570,24 +594,19 @@ bool BaryonResonanceDecayer::IsPiNDecayChannel(TDecayChannel * ch) const
 
   for(unsigned int iparticle = 0; iparticle < nd; iparticle++) {
 
-     int daughter_code = ch->DaughterPdgCode(iparticle);
+    int daughter_code = ch->DaughterPdgCode(iparticle);
 
-	   if(daughter_code == kPdgPiP ||
-        daughter_code == kPdgPi0 ||
-        daughter_code == kPdgPiM)
-     {
-         npi++;
-     }
-     else
-     if(daughter_code == kPdgNeutron ||
-        daughter_code == kPdgProton)
-     {
-         nnucl++;
-     }
-	 }//iparticle
-   if(npi == 1 && nnucl == 1) return true;
+    if( genie::pdg::IsPion( daughter_code ) )
+      npi++;
 
-   return false;
+    if ( genie::pdg::IsNucleon(daughter_code ) )
+      nnucl++;
+
+  }//iparticle
+
+  if(npi == 1 && nnucl == 1) return true;
+
+  return false;
 }
 //____________________________________________________________________________
 void BaryonResonanceDecayer::Initialize(void) const
@@ -597,13 +616,13 @@ void BaryonResonanceDecayer::Initialize(void) const
 //____________________________________________________________________________
 bool BaryonResonanceDecayer::IsHandled(int pdg_code) const
 {
-  if( utils::res::IsBaryonResonance(pdg_code) ) return true;
+  bool is_handled = utils::res::IsBaryonResonance(pdg_code);
 
-  LOG("ResonanceDecay", pINFO)
-      << "This algorithm can not decay particles with PDG code = "
-      << pdg_code;
+  LOG("ResonanceDecay", pDEBUG)
+      << "Can decay particle with PDG code = " << pdg_code
+      << "? " << ((is_handled)? "Yes" : "No");
 
-  return false;
+  return pdg_code;
 }
 //____________________________________________________________________________
 void BaryonResonanceDecayer::InhibitDecay(int pdgc, TDecayChannel * dc) const
@@ -626,3 +645,38 @@ void BaryonResonanceDecayer::UnInhibitDecay(int pdgc, TDecayChannel * dc) const
   //
 }
 //____________________________________________________________________________
+void BaryonResonanceDecayer::LoadConfig(void) {
+
+  Decayer::LoadConfig() ;
+
+  this->GetParamDef( "Prob32", fProb32, 0.75 ) ;
+
+  fProb12 = 1. - fProb32 ;
+
+  // the W(theta) function, see above, has to be positive
+  // so prob12 has to be in [0, 3/2]
+  
+  if ( fProb12 < 0. || fProb12 > 1.5 ) {
+
+ 
+    LOG("BaryonResonanceDecayer", pFATAL)
+      << "Input configuration value for P(1/2) is not physical: Exiting" ; 
+
+    // From the FreeBSD Library Functions Manual 
+    // 
+    // EX_CONFIG (78)   Something was found in an unconfigured or miscon-
+    //                  figured state.
+
+    exit( 78 ) ;
+    
+  }
+
+  // the maximum of the W(theta) is necessary to throw to scale the random number used for the check
+  
+  fW_max = fProb12 > 0.5 ? 2*fProb12 : 1.5 - fProb12 ; 
+
+
+  this -> GetParam( "FFScaling", fFFScaling ) ;
+
+}
+

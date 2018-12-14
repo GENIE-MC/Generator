@@ -1,27 +1,40 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!--
+
+
+<!-- 
+
 Configuration sets for Baryon Resonance decayer
 
 Configurable Parameters:
-.......................................................................................................
-Name             Type     Optional   Comment               Default
-.......................................................................................................
+..........................................................................................................
+Name                          Type     Optional   Comment                                                 Default
+..........................................................................................................
+FFScaling                     double   No         Scaling factor for Form Factor for Gamma Delta coupling
+                                                  This value is coming from an MiniBooNE technical note
+Prob32                        double   yes        This is the parameter of the angular distribution of the pion
+                                                  in the Delta reference frame. To have a positive distribution
+						  this value needs to be in [-1/2, 1] 
+						  The default value is 3/4 which is the result of Rein-Sehgal theory
+--> 
 
--->
+
 
 <alg_conf>
 
   <param_set name="Default">
-     <param type="string" name="CommonParam"> DecayFlags </param>
+    <param type="string" name="CommonParam"> DecayFlags </param>
+
+    <param type="double" name="FFScaling">  0.706    </param> 
+
   </param_set>
 
   <param_set name="BeforeHadronTransport">
-     <param type="bool" name="RunBeforeHadronTransport"> true  </param>
+    <param type="bool" name="RunBeforeHadronTransport"> true  </param>
   </param_set>
 
   <param_set name="AfterHadronTransport">
-     <param type="bool" name="RunBeforeHadronTransport"> false </param>
+    <param type="bool" name="RunBeforeHadronTransport"> false </param>
   </param_set>
 
 </alg_conf>

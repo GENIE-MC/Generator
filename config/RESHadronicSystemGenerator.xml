@@ -13,8 +13,10 @@ Decayer          alg      No
 -->
 
   <param_set name="Default"> 
-     <param type="alg" name="Decayer">             genie::BaryonResonanceDecayer/Default                 </param>
+     <param type="alg" name="Decayer">             genie::UnstableParticleDecayer/BeforeHadronTransport  </param>
+<!--
      <param type="alg" name="PreTransportDecayer"> genie::UnstableParticleDecayer/BeforeHadronTransport  </param>
+-->
   </param_set>
 
 </alg_conf>

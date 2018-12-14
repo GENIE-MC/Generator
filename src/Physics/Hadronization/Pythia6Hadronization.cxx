@@ -5,7 +5,7 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
+         University of Liverpool & STFC Rutherford Appleton Lab
 
          Changes required to implement the GENIE Boosted Dark Matter module
          were installed by Josh Berger (Univ. of Wisconsin)
@@ -24,6 +24,7 @@
 #include "Framework/GHEP/GHepParticle.h"
 #include "Framework/GHEP/GHepRecord.h"
 #include "Physics/Hadronization/Pythia6Hadronization.h"
+//#include "Physics/Decay/DecayModelI.h"
 #include "Framework/Interaction/Interaction.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
@@ -96,7 +97,7 @@ TClonesArray *
   const ProcessInfo &  proc_info  = interaction->ProcInfo();
   const Target &       target     = init_state.Tgt();
 
-  assert(target.HitQrkIsSet()); 
+  assert(target.HitQrkIsSet());
 
   double W = kinematics.W();
 
@@ -156,9 +157,9 @@ TClonesArray *
   }//CC
 
   // Figure out what the remnant diquark is.
-  // Note from Hugh, following a conversation with his local HEP theorist 
-  // (Gary Goldstein): "I am told that the probability of finding the diquark 
-  // in the singlet vs. triplet states is 50-50."  
+  // Note from Hugh, following a conversation with his local HEP theorist
+  // (Gary Goldstein): "I am told that the probability of finding the diquark
+  // in the singlet vs. triplet states is 50-50."
 
   // hit quark = valence quark
   if(!from_sea) {
@@ -200,9 +201,9 @@ TClonesArray *
     /* bar{d} (-> bar{d}) + d udd => d + ud */
     if(isn && isdb && (isnc||isem||isdm)) {final_quark = kPdgDQuark; diquark = kPdgUDDiquarkS1;}
 
-    // The neutrino is scatterred off s or sbar sea quarks 
+    // The neutrino is scatterred off s or sbar sea quarks
     // For the time being I will handle s like d and sbar like dbar (copy & paste
-    // from above) so that I conserve charge. 
+    // from above) so that I conserve charge.
 
     if(iss || issb) {
        LOG("Pythia6Had", pNOTICE) 
@@ -216,7 +217,7 @@ TClonesArray *
        if(isn && issb && iscc)         {final_quark = kPdgDQuark; diquark = kPdgDDDiquarkS1;}
        if(isn && issb && (isnc||isem||isdm)) {final_quark = kPdgDQuark; diquark = kPdgUDDiquarkS1;}
     }
- 
+
     // if the diquark is a ud, switch it to the singlet state with 50% probability
     if(diquark == kPdgUDDiquarkS1) {
       RandomGen * rnd = RandomGen::Instance();
@@ -237,15 +238,15 @@ TClonesArray *
 
   // Determine how jetset treats un-stable particles appearing in hadronization
 
-  int pi0_decflag = fPythia->GetMDCY(fPythia->Pycomp(kPdgPi0),              1); 
-  int K0_decflag  = fPythia->GetMDCY(fPythia->Pycomp(kPdgK0),               1); 
-  int K0b_decflag = fPythia->GetMDCY(fPythia->Pycomp(kPdgAntiK0),           1); 
-  int L0_decflag  = fPythia->GetMDCY(fPythia->Pycomp(kPdgLambda),           1); 
+  int pi0_decflag = fPythia->GetMDCY(fPythia->Pycomp(kPdgPi0),              1);
+  int K0_decflag  = fPythia->GetMDCY(fPythia->Pycomp(kPdgK0),               1);
+  int K0b_decflag = fPythia->GetMDCY(fPythia->Pycomp(kPdgAntiK0),           1);
+  int L0_decflag  = fPythia->GetMDCY(fPythia->Pycomp(kPdgLambda),           1);
   int L0b_decflag = fPythia->GetMDCY(fPythia->Pycomp(kPdgAntiLambda),       1);
-  int Dm_decflag  = fPythia->GetMDCY(fPythia->Pycomp(kPdgP33m1232_DeltaM),  1); 
-  int D0_decflag  = fPythia->GetMDCY(fPythia->Pycomp(kPdgP33m1232_Delta0),  1); 
-  int Dp_decflag  = fPythia->GetMDCY(fPythia->Pycomp(kPdgP33m1232_DeltaP),  1); 
-  int Dpp_decflag = fPythia->GetMDCY(fPythia->Pycomp(kPdgP33m1232_DeltaPP), 1); 
+  int Dm_decflag  = fPythia->GetMDCY(fPythia->Pycomp(kPdgP33m1232_DeltaM),  1);
+  int D0_decflag  = fPythia->GetMDCY(fPythia->Pycomp(kPdgP33m1232_Delta0),  1);
+  int Dp_decflag  = fPythia->GetMDCY(fPythia->Pycomp(kPdgP33m1232_DeltaP),  1);
+  int Dpp_decflag = fPythia->GetMDCY(fPythia->Pycomp(kPdgP33m1232_DeltaPP), 1);
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Pythia6Had", pDEBUG) << "Original decay flag for pi0           =  " << pi0_decflag;
@@ -272,16 +273,16 @@ TClonesArray *
   // -- hadronize --
   py2ent_(&ip, &final_quark, &diquark, &W); // hadronizer
 
-  // restore pythia decay settings so as not to interfere with decayer 
+  // restore pythia decay settings so as not to interfere with decayer
   fPythia->SetMDCY(fPythia->Pycomp(kPdgPi0),              1, pi0_decflag);
   fPythia->SetMDCY(fPythia->Pycomp(kPdgK0),               1, K0_decflag);
   fPythia->SetMDCY(fPythia->Pycomp(kPdgAntiK0),           1, K0b_decflag);
-  fPythia->SetMDCY(fPythia->Pycomp(kPdgLambda),           1, L0_decflag); 
-  fPythia->SetMDCY(fPythia->Pycomp(kPdgAntiLambda),       1, L0b_decflag); 
-  fPythia->SetMDCY(fPythia->Pycomp(kPdgP33m1232_DeltaM),  1, Dm_decflag); 
-  fPythia->SetMDCY(fPythia->Pycomp(kPdgP33m1232_Delta0),  1, D0_decflag); 
-  fPythia->SetMDCY(fPythia->Pycomp(kPdgP33m1232_DeltaP),  1, Dp_decflag); 
-  fPythia->SetMDCY(fPythia->Pycomp(kPdgP33m1232_DeltaPP), 1, Dpp_decflag); 
+  fPythia->SetMDCY(fPythia->Pycomp(kPdgLambda),           1, L0_decflag);
+  fPythia->SetMDCY(fPythia->Pycomp(kPdgAntiLambda),       1, L0b_decflag);
+  fPythia->SetMDCY(fPythia->Pycomp(kPdgP33m1232_DeltaM),  1, Dm_decflag);
+  fPythia->SetMDCY(fPythia->Pycomp(kPdgP33m1232_Delta0),  1, D0_decflag);
+  fPythia->SetMDCY(fPythia->Pycomp(kPdgP33m1232_DeltaP),  1, Dp_decflag);
+  fPythia->SetMDCY(fPythia->Pycomp(kPdgP33m1232_DeltaPP), 1, Dpp_decflag);
 
   // get LUJETS record
   fPythia->GetPrimaries();
@@ -312,7 +313,7 @@ TClonesArray *
                   << "Hadronization failed! Bare quark/di-quarks appear in final state!";
             particle_list->Delete();
             delete particle_list;
-            return 0;            
+            return 0;
         }
      }
 
@@ -477,9 +478,9 @@ void Pythia6Hadronization::HandleDecays(TClonesArray * plist) const
   this->SwitchDecays(kPdgAntiOmegaP, true); // decay \bar{Omega+}
 
   int mstj21 = fPythia->GetMSTJ(21);
-  fPythia->SetMSTJ(21,1); 
-  fPythia->SetMSTJ(22,2);                  
-  fPythia->SetPARJ(71,100);                  
+  fPythia->SetMSTJ(21,1);
+  fPythia->SetMSTJ(22,2);
+  fPythia->SetPARJ(71,100);
 
   //-- loop through the fragmentation event record & decay unstables
   int idecaying   = -1; // position of decaying particle
@@ -491,7 +492,7 @@ void Pythia6Hadronization::HandleDecays(TClonesArray * plist) const
      GHepStatus_t status = p->Status();
      int pdg    = p->Pdg();
 
-     bool decay_it = (status<10) && 
+     bool decay_it = (status<10) &&
                      ( pdg == kPdgLambda ||
                        pdg == kPdgAntiLambda ||
                        pdg == kPdgSigmaP ||
@@ -554,4 +555,3 @@ void Pythia6Hadronization::HandleDecays(TClonesArray * plist) const
 }
 */
 //____________________________________________________________________________
-
