@@ -17,3 +17,4 @@ src/Framework/Conventions/GVersion.h
 mySplines/
 mySamples/
 environment_setup.sh
+*Interpolator2D.cxx
