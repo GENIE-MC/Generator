@@ -15,6 +15,9 @@ src/Framework/Conventions/GVersion.h
 *_ROOT_DICT_*
 *.swp
 environment_setup_master.sh
+environment_setup_master.sh~
+environment_setup.sh
+environment_setup.sh~
 .gitignore
 mySplines/
 mySamples/
