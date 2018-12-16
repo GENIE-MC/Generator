@@ -17,4 +17,4 @@ src/Framework/Conventions/GVersion.h
 mySplines/
 mySamples/
 environment_setup.sh
-*Interpolator2D.cxx
+/home/afroditi/master/src/Framework/Numerical/Interpolator2D.cxx
