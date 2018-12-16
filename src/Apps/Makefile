@@ -51,12 +51,12 @@ TGT_BASE += gevgen_nnbarosc
 # This should dissapear from here (CA)
 #
 # Require C++11 for NNBarOsc module.
-GCC_GTEQ_470 := $(shell expr `gcc -dumpversion | sed -e 's/\.\([0-9][0-9]\)/\1/g' -e 's/\.\([0-9]\)/0\1/g' -e 's/^[0-9]\{3,4\}$$/&00/'` \>= 40700)
-ifeq "$(GCC_GTEQ_470)" "1"
-        CXXFLAGS += -std=c++11
-else
-        CXXFLAGS += -std=c++0x
-endif
+#GCC_GTEQ_470 := $(shell expr `gcc -dumpversion | sed -e 's/\.\([0-9][0-9]\)/\1/g' -e 's/\.\([0-9]\)/0\1/g' -e 's/^[0-9]\{3,4\}$$/&00/'` \>= 40700)
+#ifeq "$(GCC_GTEQ_470)" "1"
+#        CXXFLAGS += -std=c++11
+#else
+#        CXXFLAGS += -std=c++0x
+#endif
 # ------------------------------------------
 endif
 ifeq ($(strip $(GOPT_ENABLE_BOOSTED_DARK_MATTER)),YES)

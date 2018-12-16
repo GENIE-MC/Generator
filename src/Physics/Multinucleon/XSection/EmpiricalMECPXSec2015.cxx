@@ -5,7 +5,7 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
+         University of Liverpool & STFC Rutherford Appleton Lab
 
          Steve Dytman <dytman+ \at pitt.edu>
          Pittsburgh University
@@ -14,7 +14,7 @@
 
  Important revisions after version 2.0.0 :
  @ Nov 28, 2011 - CA
-   Integrated cross section for CCMEC is taken to be a fraction of the 
+   Integrated cross section for CCMEC is taken to be a fraction of the
    CCQE cross section for the given neutrino energy and nucleus.
  @ Dec 9, 2011 - SD
    Using a simple model now - 2N mass chosen with a Gaussian.
@@ -65,7 +65,7 @@ EmpiricalMECPXSec2015::~EmpiricalMECPXSec2015()
 }
 //____________________________________________________________________________
 double EmpiricalMECPXSec2015::XSec(
-		      const Interaction * interaction, KinePhaseSpace_t kps) const
+                      const Interaction * interaction, KinePhaseSpace_t kps) const
 {
 
 // meson exchange current contribution depends a lot on QE model.
@@ -84,10 +84,10 @@ double EmpiricalMECPXSec2015::XSec(
 
   //
   // Do a check whether W,Q2 is allowed. Return 0 otherwise.
-  // 
+  //
   double Ev = interaction->InitState().ProbeE(kRfHitNucRest);  // kRfLab
   int nucleon_cluster_pdg = interaction->InitState().Tgt().HitNucPdg();
-  double M2n = PDGLibrary::Instance()->Find(nucleon_cluster_pdg)-> Mass(); // nucleon cluster mass  
+  double M2n = PDGLibrary::Instance()->Find(nucleon_cluster_pdg)-> Mass(); // nucleon cluster mass
   double M2n2 = M2n*M2n;
   double ml  = interaction->FSPrimLepton()->Mass();
   Range1D_t Wlim = genie::utils::kinematics::InelWLim(Ev, M2n, ml);
@@ -96,7 +96,7 @@ double EmpiricalMECPXSec2015::XSec(
   if(W < Wlim.min || W > Wlim.max)
     {double xsec = 0.;
       return xsec;
-    } 
+    }
   //use proper Q2 limit from Controls.h
   Range1D_t Q2lim = genie::utils::kinematics::InelQ2Lim_W (Ev, M2n, ml, W, kMinQ2Limit);
   //LOG("MEC", pINFO) << "Q2lim= " << Q2lim.min << "  " <<Q2lim.max ;
@@ -122,7 +122,7 @@ double EmpiricalMECPXSec2015::XSec(
 
 // using formulas in Bodek and Budd for (e,e') inclusive cross section
   double xsec = 1.;
-  if(isem)  {   
+  if(isem)  {
       // Calculate scattering angle
   //
   // Q^2 = 4 * E^2 * sin^2 (theta/2) / ( 1 + 2 * (E/M) * sin^2(theta/2) ) =>
@@ -141,16 +141,16 @@ double EmpiricalMECPXSec2015::XSec(
   double tau     = Q2/(4*M2n2);
   //  double epsilon = 1. / (1. + 2.*(tau/x))*tan2_halftheta); //different than RosenbluthPXSec.cxx
 
-  // Calculate the scattered lepton energy 
+  // Calculate the scattered lepton energy
   double Ep  = E / (1. + 2.*(E/M2n)*sin2_halftheta);
   double Ep2 = Ep*Ep;
 
   //calculate cross section - d2sig/dOmega dE for purely transverse process
-  xsec = 4*kAem2*Ep2*cos2_halftheta/Q4 * FF2 * (tau/(1+tau) +2*tau*tan2_halftheta);  
+  xsec = 4*kAem2*Ep2*cos2_halftheta/Q4 * FF2 * (tau/(1+tau) +2*tau*tan2_halftheta);
     }
   // use BB formula which seems to be same as Llewlyn-Smith
   // note B term is only difference between nu and antinu, so both same here
-  else if(isnc||iscc){  
+  else if(isnc||iscc){
     double tau     = Q2/(4*M2n2);
     double tau2 = tau*tau;
     double smufac = 4*M2n*Ev - Q2 - ml*ml;
@@ -163,7 +163,7 @@ double EmpiricalMECPXSec2015::XSec(
     double J = utils::kinematics::Jacobian(interaction,kPSWQ2fE,kps);
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("MEC", pDEBUG)
-     << "Jacobian for transformation to: " 
+     << "Jacobian for transformation to: "
                   << KinePhaseSpace::AsString(kps) << ", J = " << J;
 #endif
     xsec *= J;
@@ -199,8 +199,8 @@ double EmpiricalMECPXSec2015::Integral(const Interaction * interaction) const
      int nucpdg = 0;
      // neutrino CC: calculate the CCQE cross section resetting the
      // hit nucleon cluster to neutron
-     if(pdg::IsNeutrino(nupdg)) { 
-         nucpdg = kPdgNeutron; 
+     if(pdg::IsNeutrino(nupdg)) {
+         nucpdg = kPdgNeutron;
      }
      // anti-neutrino CC: calculate the CCQE cross section resetting the
      // hit nucleon cluster to proton
@@ -222,7 +222,7 @@ double EmpiricalMECPXSec2015::Integral(const Interaction * interaction) const
      double fFracADep = 1.;
      if(A>=12) fFracADep = TMath::Power((N/6.),fMECAPower-1.);
 
-     // Use tunable fraction 
+     // Use tunable fraction
      // FFracCCQE is fraction of QE going to MEC
      // fFracCCQE_cluster is fraction of MEC going to each NN pair
      //     double fFracCCQE = fFracCCQElo;
@@ -252,15 +252,15 @@ double EmpiricalMECPXSec2015::Integral(const Interaction * interaction) const
     nucpdg = kPdgNeutron;
     // Create a tmp QE process
     Interaction * inn = Interaction::QELNC(tgtpdg,nucpdg,nupdg,E);
-    
+
     // Calculate cross section for the QE process - avg of p and n - best for isoscalar nuclei
     double xsec = (Z*fXSecAlgNCQE->Integral(inp) + N*fXSecAlgNCQE->Integral(inn))/A;
 
     // Add A dependence which is not known from theory
     double fFracADep = 1.;
     if(A>=12) fFracADep = TMath::Power((A/12.),fMECAPower-1.);
-    
-    // Use tunable fraction 
+
+    // Use tunable fraction
     // FFracNCQE is fraction of QE going to MEC
     // fFracNCQE_cluster is fraction of MEC going to each NN pair
     double fFracNCQE_cluster=0.;
@@ -280,15 +280,15 @@ double EmpiricalMECPXSec2015::Integral(const Interaction * interaction) const
     nucpdg = kPdgNeutron;
     // Create a tmp QE process
     Interaction * inn = Interaction::QELEM(tgtpdg,nucpdg,nupdg,E);
-    
+
     // Calculate cross section for the QE process - avg of p and n - best for isoscalar nuclei
     double xsec = (Z*fXSecAlgEMQE->Integral(inp) + N*fXSecAlgEMQE->Integral(inn))/A;
 
      // Add A dependence which is not known from theory, data wants high A suppression
     double fFracADep = 1.;
     if(A>=12) fFracADep = TMath::Power((A/12.),fMECAPower-1.);
-  
-    // Use tunable fraction 
+
+    // Use tunable fraction
     // FFracEMQE is fraction of QE going to MEC
     // fFracEMQE_cluster is fraction of MEC going to each NN pair
     double fFracEMQE_cluster=0.;
@@ -347,26 +347,28 @@ void EmpiricalMECPXSec2015::LoadConfig(void)
   GetParam( "EmpiricalMEC-Mq2d", fMq2d ) ;
   GetParam( "EmpiricalMEC-Mass", fMass ) ;
   GetParam( "EmpiricalMEC-Width", fWidth ) ;
-  GetParam( "EmpiricalMEC-FracCCQE", fFracCCQE ) ;
-  GetParam( "EmpiricalMEC-FracNCQE", fFracNCQE ) ;
-  GetParam( "EmpiricalMEC-FracEMQE", fFracEMQE ) ;
+  GetParam( "EmpiricalMEC-APower", fMECAPower ) ;
+
   GetParam( "EmpiricalMEC-FracPN_NC", fFracPN_NC ) ;
   GetParam( "EmpiricalMEC-FracPN_CC", fFracPN_CC ) ;
   GetParam( "EmpiricalMEC-FracPN_EM", fFracPN_EM ) ;
 
+  GetParam( "EmpiricalMEC-FracCCQE", fFracCCQE ) ;
+  GetParam( "EmpiricalMEC-FracNCQE", fFracNCQE ) ;
+  GetParam( "EmpiricalMEC-FracEMQE", fFracEMQE ) ;
+
   string key_head = "XSecModel-" ;
 
-  fXSecAlgNCQE = 
+  fXSecAlgNCQE =
      dynamic_cast<const XSecAlgorithmI *> ( this -> SubAlg( key_head + "QEL-NC" ) ) ;
   assert(fXSecAlgNCQE);
 
-  fXSecAlgCCQE = 
+  fXSecAlgCCQE =
      dynamic_cast<const XSecAlgorithmI *> ( this -> SubAlg( key_head + "QEL-CC" ) ) ;
   assert(fXSecAlgCCQE);
 
-  fXSecAlgEMQE = 
+  fXSecAlgEMQE =
      dynamic_cast<const XSecAlgorithmI *> ( this -> SubAlg( key_head + "QEL-EM" ) ) ;
   assert(fXSecAlgEMQE);
 }
 //____________________________________________________________________________
-

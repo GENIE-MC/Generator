@@ -48,15 +48,15 @@ bool XSecAlgorithmI::ValidKinematics(const Interaction* interaction) const
 // can offer common implementation for all concrete x-section models because
 // the input interaction is aware of its kinematic limits
 
-  if(interaction->TestBit(kISkipKinematicChk)) return true;
+  if ( interaction->TestBit(kISkipKinematicChk) ) return true;
 
-  KPhaseSpace kps = interaction->PhaseSpace();
+  const KPhaseSpace& kps = interaction->PhaseSpace();
 
-  if(!kps.IsAboveThreshold()) {
+  if ( ! kps.IsAboveThreshold() ) {
      LOG("XSecBase", pINFO)  << "*** Below energy threshold";
      return false;
   }
-  if(!kps.IsAllowed()) {
+  if ( ! kps.IsAllowed() ) {
      LOG("XSecBase", pINFO)  << "*** Not in allowed kinematical space";
      return false;
   }

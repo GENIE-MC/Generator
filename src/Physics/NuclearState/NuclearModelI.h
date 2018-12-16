@@ -4,7 +4,7 @@
 \class    genie::NuclearModelI
 
 \brief    Pure abstract base class.
-          Defines the NuclearModelI interface to be implemented by any physics 
+          Defines the NuclearModelI interface to be implemented by any physics
           model describing the distribution of nucleons within a nuclei
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
@@ -19,7 +19,7 @@
  Important revisions after version 2.0.0 :
  @ Mar 18, 2016 - JJ (SD)
    Added option for GenerateNucleon() to be called with a target and a radius
-   as the arguments. Currently used by LocalFGM. Calls 
+   as the arguments. Currently used by LocalFGM. Calls
    GenerateNucleon() with the radius set to 0 for all other NuclearModelI
    implementations.
 
@@ -54,42 +54,54 @@ public:
 
   virtual NuclearModel_t ModelType       (const Target &) const = 0;
 
-  virtual double         RemovalEnergy   (void)           const
+  inline double         RemovalEnergy   (void)           const
   {
     return fCurrRemovalEnergy;
   }
-  virtual double         Momentum        (void)           const
+
+  inline double         Momentum        (void)           const
   {
     return fCurrMomentum.Mag();
-  };
-  virtual TVector3       Momentum3       (void)           const
+  }
+
+  inline const TVector3& Momentum3      (void)           const
   {
     return fCurrMomentum;
-  };
-  virtual FermiMoverInteractionType_t GetFermiMoverInteractionType(void) const
+  }
+
+  inline FermiMoverInteractionType_t GetFermiMoverInteractionType(void) const
   {
     return fFermiMoverInteractionType;
-  };
+  }
 
   // These setters have to be const. I hate it. We should really update this class interface
-  virtual void SetMomentum3(const TVector3 & mom) const
+  inline void SetMomentum3(const TVector3 & mom) const
   {
     fCurrMomentum = mom;
   };
-  virtual void SetRemovalEnergy(double E) const
+  inline void SetRemovalEnergy(double E) const
   {
     fCurrRemovalEnergy = E;
   }
 
 protected:
   NuclearModelI()
-    : Algorithm(), fFermiMoverInteractionType(kFermiMoveDefault)
+    : Algorithm()
+    , fCurrRemovalEnergy(0)
+    , fCurrMomentum(0,0,0)
+    , fFermiMoverInteractionType(kFermiMoveDefault)
     {};
   NuclearModelI(std::string name)
-    : Algorithm(name), fFermiMoverInteractionType(kFermiMoveDefault)
+    : Algorithm(name)
+    , fCurrRemovalEnergy(0)
+    , fCurrMomentum(0,0,0)
+    , fFermiMoverInteractionType(kFermiMoveDefault)
     {};
   NuclearModelI(std::string name, std::string config)
-    : Algorithm(name, config), fFermiMoverInteractionType(kFermiMoveDefault)
+    : Algorithm(name, config)
+    , fCurrRemovalEnergy(0)
+    , fCurrMomentum(0,0,0)
+    , fFermiMoverInteractionType(kFermiMoveDefault)
     {};
 
   mutable double   fCurrRemovalEnergy;
@@ -100,4 +112,3 @@ protected:
 
 }         // genie namespace
 #endif    // _NUCLEAR_MODEL_I_H_
-

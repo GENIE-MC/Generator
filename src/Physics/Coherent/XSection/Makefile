@@ -12,7 +12,7 @@ MAKEFILE = Makefile
 #
 include $(GENIE)/src/make/Make.include
 
-PACKAGE           = Physics/AnomalyMediatedNuGamma/XSection
+PACKAGE           = Physics/Coherent/XSection
 PACKAGE_ABBREV    = PhCohXS
 DICTIONARY        = _ROOT_DICT_$(PACKAGE_ABBREV)
 LIBNAME           = libG$(PACKAGE_ABBREV)

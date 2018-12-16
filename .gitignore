@@ -1,3 +1,4 @@
+.gitignore
 bin/
 lib/
 build-env.log
@@ -15,3 +16,6 @@ src/Framework/Conventions/GVersion.h
 *.swp
 environment_setup_master.sh
 .gitignore
+mySplines/
+mySamples/
+

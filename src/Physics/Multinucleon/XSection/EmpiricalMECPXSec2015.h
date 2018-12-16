@@ -7,7 +7,7 @@
           Is a concrete implementation of the XSecAlgorithmI interface. \n
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-          University of Liverpool & STFC Rutherford Appleton Lab 
+          University of Liverpool & STFC Rutherford Appleton Lab
 
           Steve Dytman <dytman+ \at pitt.edu>
           Pittsburgh University
@@ -52,12 +52,13 @@ private:
   double fMass;       ///< toy model param: peak  of W distribution (GeV)
   double fWidth;      ///< toy model param: width of W distribution (GeV)
   double fMECAPower;      ///< power of A relative to carbon
+
   double fFracPN_NC;     ///< toy model param: fraction of nucleon pairs that are pn, not nn or pp
   double fFracPN_CC;     ///< toy model param: fraction of nucleon pairs that are pn, not nn or pp
   double fFracPN_EM;     ///< toy model param: fraction of nucleon pairs that are pn, not nn or pp
 
-  double fFracCCQE;   ///< empirical model param: MEC cross section is taken to be this fraction of CCQE cross section 
-  double fFracNCQE;   ///< empirical model param: MEC cross section is taken to be this fraction of NCQE cross section 
+  double fFracCCQE;   ///< empirical model param: MEC cross section is taken to be this fraction of CCQE cross section
+  double fFracNCQE;   ///< empirical model param: MEC cross section is taken to be this fraction of NCQE cross section
   double fFracEMQE;   ///< empirical model param: MEC cross section is taken to be this fraction of Rosenbluth xs
 
   const XSecAlgorithmI * fXSecAlgCCQE; ///< cross section algorithm for CCQE

@@ -51,6 +51,7 @@ public:
 
 private:
   double FullDifferentialXSec(const Interaction * i) const;
+
   void LoadConfig (void);
 
   mutable QELFormFactors       fFormFactors;      ///<
@@ -64,10 +65,10 @@ private:
   const NuclearModelI *        fNuclModel;
   bool   fLFG;                         ///< If the nuclear model is lfg alway average over nucleons
   bool   fDoAvgOverNucleonMomentum;    ///< Average cross section over hit nucleon monentum?
-  double fEnergyCutOff;                ///< Average only for energies below this cutoff defining 
+  double fEnergyCutOff;                ///< Average only for energies below this cutoff defining
                                        ///< the region where nuclear modeling details do matter
 };
 
 }       // genie namespace
 
-#endif  
+#endif
