@@ -158,7 +158,7 @@ s/include \"CrossSections\/NuElectronXSec.h\"/include \"Physics\/XSectionIntegra
 s/include \"CrossSections\/QELXSec.h\"/include \"Physics\/XSectionIntegration\/QELXSec.h\"/ 
 s/include \"CrossSections\/RESXSec.h\"/include \"Physics\/XSectionIntegration\/RESXSec.h\"/ 
 s/include \"Decay\/BaryonResonanceDecayer.h\"/include \"Physics\/Decay\/BaryonResonanceDecayer.h\"/ 
-s/include \"Decay\/DecayModelI.h\"/include \"Physics\/Decay\/DecayModelI.h\"/ 
+s/include \"Decay\/Decayer.h\"/include \"Physics\/Decay\/Decayer.h\"/ 
 s/include \"Decay\/DecayerInputs.h\"/include \"Physics\/Decay\/DecayerInputs.h\"/ 
 s/include \"Decay\/LinkDef.h\"/include \"Physics\/Decay\/LinkDef.h\"/ 
 s/include \"Decay\/PythiaDecayer.h\"/include \"Physics\/Decay\/PythiaDecayer.h\"/ 

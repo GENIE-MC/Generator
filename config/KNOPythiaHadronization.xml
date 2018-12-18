@@ -20,8 +20,8 @@ KNO2PYTHIA-Wmax             double  Yes    relevant only for method=2           
 <alg_conf>
 
   <param_set name="Default"> 
-     <param type="alg" name="KNO-Hadronizer">      genie::KNOHadronization/Default    </param>
-     <param type="alg" name="PYTHIA-Hadronizer">   genie::PythiaHadronization/Default </param>
+     <param type="alg" name="KNO-Hadronizer">      genie::KNOHadronization/Default     </param>
+     <param type="alg" name="PYTHIA-Hadronizer">   genie::Pythia6Hadronization/Default </param>
 
  <!-- 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

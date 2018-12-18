@@ -1,10 +1,10 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::PythiaHadronization
+\class    genie::Pythia6Hadronization
 
 \brief    Provides access to the PYTHIA hadronization models. \n
-          Is a concrete implementation of the HadronizationModelI interface.
+          Is a concrete implementation of the EventRecordVisitorI interface.
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           University of Liverpool & STFC Rutherford Appleton Lab
@@ -17,46 +17,39 @@
 */
 //____________________________________________________________________________
 
-#ifndef _PYTHIA_HADRONIZATION_H_
-#define _PYTHIA_HADRONIZATION_H_
+#ifndef _PYTHIA6_HADRONIZATION_H_
+#define _PYTHIA6_HADRONIZATION_H_
 
 #include <TPythia6.h>
 
-#include "Physics/Hadronization/HadronizationModelBase.h"
+#include "Framework/EventGen/EventRecordVisitorI.h"
+#include "Physics/Hadronization/Hadronization.h"
 
 namespace genie {
 
-//class DecayModelI;
-class PythiaHadronization : public HadronizationModelBase {
+class GHepParticle;
+
+class Pythia6Hadronization : protected Hadronization {
 
 public:
-  PythiaHadronization();
-  PythiaHadronization(string config);
-  virtual ~PythiaHadronization();
+  Pythia6Hadronization();
+  Pythia6Hadronization(string config);
+  virtual ~Pythia6Hadronization();
 
-  //-- implement the HadronizationModelI interface
+  // Implement the EventRecordVisitorI interface
+  void ProcessEventRecord(GHepRecord * event) const;
+
+private:
   void           Initialize       (void)                                  const;
   TClonesArray * Hadronize        (const Interaction*)                    const;
   double         Weight           (void)                                  const;
   PDGCodeList *  SelectParticles  (const Interaction*)                    const;
   TH1D *         MultiplicityProb (const Interaction*, Option_t* opt="")  const;
-
-  //-- overload the Algorithm::Configure() methods to load private data
-  //   members from configuration options
-  void Configure(const Registry & config);
-  void Configure(string config);
-
-private:
-
-  void LoadConfig     (void);
-  bool AssertValidity (const Interaction * i) const;
 /*
   void SwitchDecays   (int pdgc, bool on_off) const;
   void HandleDecays   (TClonesArray * plist) const;
 */
   mutable TPythia6 * fPythia;   ///< PYTHIA6 wrapper class
-
-  //const DecayModelI * fDecayer;
 
   //-- configuration parameters
   //   Note: additional configuration parameters common to all hadronizers
@@ -69,4 +62,4 @@ private:
 
 }         // genie namespace
 
-#endif    // _PYTHIA_HADRONIZATION__H_
+#endif    // _PYTHIA6_HADRONIZATION_H_

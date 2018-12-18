@@ -31,7 +31,7 @@
 
 namespace genie {
 
-class DecayModelI;
+class Decayer;
 
 class RESHadronicSystemGenerator : public HadronicSystemGenerator {
 
