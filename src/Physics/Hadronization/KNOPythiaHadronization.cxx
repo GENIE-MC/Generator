@@ -5,7 +5,7 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
+         University of Liverpool & STFC Rutherford Appleton Lab
 
  For the class documentation see the corresponding header file.
 
@@ -53,14 +53,14 @@ KNOPythiaHadronization::~KNOPythiaHadronization()
 
 }
 //____________________________________________________________________________
-void KNOPythiaHadronization::Initialize(void) const
-{
-
-}
+// void KNOPythiaHadronization::Initialize(void) const
+// {
+//
+// }
 //____________________________________________________________________________
 void KNOPythiaHadronization::ProcessEventRecord(GHepRecord * event) const
 {
-// Generate the hadronic system using either the KNO-based or PYTHIA/JETSET 
+// Generate the hadronic system using either the KNO-based or PYTHIA/JETSET
 // hadronization models according to the specified transition scheme
   Interaction * interaction = event->Summary();
 
@@ -68,24 +68,26 @@ void KNOPythiaHadronization::ProcessEventRecord(GHepRecord * event) const
   LOG("HybridHad", pINFO) << "W = " << W << " GeV";
 
   if(W <= kNucleonMass+kPionMass) {
-     LOG("HybridHad", pWARN) 
+     LOG("HybridHad", pWARN)
         << "Low invariant mass, W = " << W << " GeV! Returning a null list";
      return;
   }
 
-  //-- Init event weight (to be set if producing weighted events)
-  fWeight = 1.;
+  // //-- Init event weight (to be set if producing weighted events)
+  // fWeight = 1.;
 
   //-- Select hadronizer
-  const EventRecordVisitorI * hadronizer = this->SelectHadronizer(interaction);
+  const EventRecordVisitorI * hadronizer =
+      this->SelectHadronizer(interaction);
 
   //-- Run the selected hadronizer
   hadronizer->ProcessEventRecord(event);
 
-  //-- Update the weight
-  fWeight = hadronizer->Weight();
+  // //-- Update the weight
+  // fWeight = hadronizer->Weight();
 }
 //____________________________________________________________________________
+/*
 PDGCodeList * KNOPythiaHadronization::SelectParticles(
                                         const Interaction * interaction) const
 {
@@ -114,6 +116,7 @@ double KNOPythiaHadronization::Weight(void) const
 {
   return fWeight;
 }
+*/
 //____________________________________________________________________________
 const EventRecordVisitorI * KNOPythiaHadronization::SelectHadronizer(
                                         const Interaction * interaction) const
@@ -151,7 +154,7 @@ const EventRecordVisitorI * KNOPythiaHadronization::SelectHadronizer(
     break;
 
   default :
-    LOG("HybridHad", pFATAL) 
+    LOG("HybridHad", pFATAL)
                     << "Unspecified transition method: " << fMethod;
     exit(1);
   }
@@ -165,15 +168,27 @@ const EventRecordVisitorI * KNOPythiaHadronization::SelectHadronizer(
   return hadronizer;
 }
 //____________________________________________________________________________
+void KNOPythiaHadronization::Configure(const Registry & config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//____________________________________________________________________________
+void KNOPythiaHadronization::Configure(string config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//____________________________________________________________________________
 void KNOPythiaHadronization::LoadConfig(void)
 {
 // Read configuration options or set defaults
 
    // Load the requested hadronizers
-  fKNOHadronizer = 
+  fKNOHadronizer =
      dynamic_cast<const EventRecordVisitorI *> (
                               this->SubAlg("KNO-Hadronizer"));
-  fPythiaHadronizer = 
+  fPythiaHadronizer =
      dynamic_cast<const EventRecordVisitorI *> (
                               this->SubAlg("PYTHIA-Hadronizer"));
 

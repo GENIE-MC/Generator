@@ -44,7 +44,7 @@ int genie::utils::fragmrec::NParticles(
 }
 //____________________________________________________________________________
 int genie::utils::fragmrec::NParticles(
-           int pdg_code, GHepStatus status, const TClonesArray * const particle_list)
+   int pdg_code, GHepStatus_t status, const TClonesArray * const particle_list)
 {
   int nparticles = 0;
   GHepParticle* p = 0;
@@ -96,7 +96,7 @@ void genie::utils::fragmrec::Print(const TClonesArray * const part_list)
 
   double sum_px = 0, sum_py = 0, sum_pz = 0, sum_E = 0;
 
-  
+
   while( (particle = (GHepParticle *) piter.Next()) ) {
 
     sum_E  += (particle->Energy());
@@ -110,8 +110,8 @@ void genie::utils::fragmrec::Print(const TClonesArray * const part_list)
         << " status = " << particle->Status()
         << " moms = {"
         << particle->FirstMother() << ", " << particle->LastMother()
-        << "} kids = {" 
-        << particle->FirstDaughter() << ", " << particle->LastDaughter() 
+        << "} kids = {"
+        << particle->FirstDaughter() << ", " << particle->LastDaughter()
         << "}(E = "  << particle->Energy()
         << ",Px = "  << particle->Px()
         << ",Py = "  << particle->Py()
@@ -124,4 +124,3 @@ void genie::utils::fragmrec::Print(const TClonesArray * const part_list)
 
 }
 //__________________________________________________________________________
-

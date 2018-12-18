@@ -63,8 +63,14 @@ public:
   // Implement the EventRecordVisitorI interface
   void ProcessEventRecord(GHepRecord * event) const;
 
+  // Overload the Algorithm::Configure() methods to load private data
+  // members from configuration options
+  virtual void Configure(const Registry & config);
+  virtual void Configure(string config);
+
 private:
 
+  void           LoadConfig            (void);
   void           Initialize            (void)                                    const;
   TClonesArray * Hadronize             (const Interaction* )                     const;
   double         Weight                (void)                                    const;

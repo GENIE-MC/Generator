@@ -37,18 +37,29 @@ public:
   // Implement the EventRecordVisitorI interface
   void ProcessEventRecord(GHepRecord * event) const;
 
+  // Overload the Algorithm::Configure() methods to load private data
+  // members from configuration options
+  virtual void Configure(const Registry & config);
+  virtual void Configure(string config);
+
 private:
+
+/*
+
+They were part of the old Hadronization interface - they need to go now
+
   //-- private methods & mutable parameters
   void           Initialize       (void)                                 const;
   TClonesArray * Hadronize        (const Interaction* )                  const;
   double         Weight           (void)                                 const;
   PDGCodeList *  SelectParticles  (const Interaction*)                   const;
   TH1D *         MultiplicityProb (const Interaction*, Option_t* opt="") const;
+*/
 
   void LoadConfig (void);
   const EventRecordVisitorI * SelectHadronizer(const Interaction *) const;
 
-  mutable double fWeight; ///< weight for generated event
+//  mutable double fWeight; ///< weight for generated event
 
   //-- configuration
 
@@ -63,4 +74,3 @@ private:
 }         // genie namespace
 
 #endif    // _KNO_PYTHIA_HADRONIZATION_H_
-

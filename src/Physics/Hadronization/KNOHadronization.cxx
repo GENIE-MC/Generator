@@ -412,13 +412,13 @@ double KNOHadronization::Weight(void) const
 //____________________________________________________________________________
 void KNOHadronization::Configure(const Registry & config)
 {
-  Algorithm::Configure(config);
+  Hadronization::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
 void KNOHadronization::Configure(string config)
 {
-  Algorithm::Configure(config);
+  Hadronization::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
@@ -863,7 +863,7 @@ bool KNOHadronization::PhaseSpaceDecay(
                    const PDGCodeList & pdgv, int offset, bool reweight) const
 {
 // General method decaying the input particle system 'pdgv' with available 4-p
-// given by 'pd'. The decayed system is used to populate the input GHepParticle 
+// given by 'pd'. The decayed system is used to populate the input GHepParticle
 // array starting from the slot 'offset'.
 //
   LOG("KNOHad", pINFO) << "*** Performing a Phase Space Decay";

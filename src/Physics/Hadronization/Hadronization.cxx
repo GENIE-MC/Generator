@@ -70,7 +70,7 @@ TH1D * Hadronization::CreateMultProbHist(double maxmult) const
   double minmult = 2;
   int    nbins   = TMath::Nint(maxmult-minmult+1);
 
-  TH1D * mult_prob = new TH1D("mult_prob", 
+  TH1D * mult_prob = new TH1D("mult_prob",
       "hadronic multiplicity distribution", nbins, minmult-0.5, maxmult+0.5);
   mult_prob->SetDirectory(0);
 
@@ -104,7 +104,7 @@ void Hadronization::ApplyRijk(
   // weak CC or NC case
   // EDIT
   if(is_CC || is_NC || is_dm) {
-     bool is_nu    = pdg::IsNeutrino     (probe_pdg); 
+     bool is_nu    = pdg::IsNeutrino     (probe_pdg);
      bool is_nubar = pdg::IsAntiNeutrino (probe_pdg);
      bool is_p     = pdg::IsProton       (nuc_pdg);
      bool is_n     = pdg::IsNeutron      (nuc_pdg);
@@ -112,20 +112,20 @@ void Hadronization::ApplyRijk(
      if((is_nu && is_p) || (is_dmi && is_p))  {
          R2 = (is_CC) ? fRvpCCm2 : fRvpNCm2;
          R3 = (is_CC) ? fRvpCCm3 : fRvpNCm3;
-     } else 
+     } else
       if((is_nu && is_n) || (is_dmi && is_n)) {
          R2 = (is_CC) ? fRvnCCm2 : fRvnNCm2;
          R3 = (is_CC) ? fRvnCCm3 : fRvnNCm3;
-      } else 
+      } else
       if(is_nubar && is_p)  {
          R2 = (is_CC) ? fRvbpCCm2 :   fRvbpNCm2;
          R3 = (is_CC) ? fRvbpCCm3 :   fRvbpNCm3;
-      } else 
+      } else
       if(is_nubar && is_n) {
          R2 = (is_CC) ? fRvbnCCm2 : fRvbnNCm2;
          R3 = (is_CC) ? fRvbnCCm3 : fRvbnNCm3;
       } else {
-         LOG("Hadronization", pERROR) 
+         LOG("Hadronization", pERROR)
             << "Invalid initial state: " << init_state;
      }
   }//cc||nc?
@@ -133,27 +133,27 @@ void Hadronization::ApplyRijk(
   // EM case (apply the NC tuning factors)
 
   if(is_EM) {
-     bool is_l     = pdg::IsNegChargedLepton (probe_pdg); 
+     bool is_l     = pdg::IsNegChargedLepton (probe_pdg);
      bool is_lbar  = pdg::IsPosChargedLepton (probe_pdg);
      bool is_p     = pdg::IsProton           (nuc_pdg);
      bool is_n     = pdg::IsNeutron          (nuc_pdg);
      if(is_l && is_p)  {
          R2 = fRvpNCm2;
          R3 = fRvpNCm3;
-      } else 
+      } else
       if(is_l && is_n) {
          R2 = fRvnNCm2;
          R3 = fRvnNCm3;
-      } else 
+      } else
       if(is_lbar && is_p)  {
          R2 = fRvbpNCm2;
          R3 = fRvbpNCm3;
-      } else 
+      } else
       if(is_lbar && is_n) {
          R2 = fRvbnNCm2;
          R3 = fRvbnNCm3;
       } else {
-         LOG("Hadronization", pERROR) 
+         LOG("Hadronization", pERROR)
             << "Invalid initial state: " << init_state;
      }
   }//em?
@@ -164,7 +164,7 @@ void Hadronization::ApplyRijk(
 
   int nbins = mp->GetNbinsX();
   for(int i = 1; i <= nbins; i++) {
-     int n = TMath::Nint( mp->GetBinCenter(i) ); 
+     int n = TMath::Nint( mp->GetBinCenter(i) );
 
      double R=1;
      if      (n==2) R=R2;
@@ -173,8 +173,8 @@ void Hadronization::ApplyRijk(
      if(n==2 || n==3) {
         double P   = mp->GetBinContent(i);
         double Psc = R*P;
-        LOG("Hadronization", pDEBUG) 
-          << "n=" << n << "/ Scaling factor R = " 
+        LOG("Hadronization", pDEBUG)
+          << "n=" << n << "/ Scaling factor R = "
                               << R << "/ P " << P << " --> " << Psc;
         mp->SetBinContent(i, Psc);
      }
@@ -190,7 +190,7 @@ void Hadronization::ApplyRijk(
 //____________________________________________________________________________
 bool Hadronization::AssertValidity(const Interaction * interaction) const
 {
-  // check that there is no charm production 
+  // check that there is no charm production
   // (GENIE uses a special model for these cases)
   if(interaction->ExclTag().IsCharmEvent()) {
      LOG("Hadronization", pWARN) << "Can't hadronize charm events";
@@ -231,13 +231,13 @@ bool Hadronization::AssertValidity(const Interaction * interaction) const
   bool isdmi = proc_info.IsDarkMatter  ();
   bool isem = proc_info.IsEM          ();
   if( !(iscc||isnc||isem||isdmi) ) {
-    LOG("Hadronization", pWARN) 
+    LOG("Hadronization", pWARN)
        << "Can only handle electro-weak interactions";
     return false;
   }
   if( !(isp||isn) || !(isv||isvb||isl||islb||isdm) ) {
-    LOG("Hadronization", pWARN) 
-      << "Invalid initial state: probe = " 
+    LOG("Hadronization", pWARN)
+      << "Invalid initial state: probe = "
       << probe << ", hit_nucleon = " << hit_nucleon;
     return false;
   }
@@ -256,7 +256,7 @@ bool Hadronization::AssertValidity(const Interaction * interaction) const
                  (isdmi && isdm && (isu||isd||isub||isdb||iss||issb)) ||
                  (isem && (isl||islb) && (isu||isd||isub||isdb||iss||issb));
   if(!allowed) {
-    LOG("Hadronization", pWARN) 
+    LOG("Hadronization", pWARN)
       << "Impossible interaction type / probe / hit quark combination!";
     return false;
   }
@@ -267,7 +267,7 @@ bool Hadronization::AssertValidity(const Interaction * interaction) const
 void Hadronization::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
-  this->LoadConfig();
+  this->LoadConfigRemoveMe();
 
   fAllowReconfig = false;
 }
@@ -275,12 +275,12 @@ void Hadronization::Configure(const Registry & config)
 void Hadronization::Configure(string config)
 {
   Algorithm::Configure(config);
-  this->LoadConfig();
+  this->LoadConfigRemoveMe();
 
   fAllowReconfig = false;
 }
 //___________________________________________________________________________
-void Hadronization::LoadConfig(void)
+void Hadronization::LoadConfigRemoveMe(void)
 {
   // Check whether to generate weighted or unweighted particle decays
   fGenerateWeighted = false ;

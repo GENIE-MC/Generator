@@ -43,15 +43,16 @@ public:
 
     // Overload the Algorithm::Configure() methods to load private data
     // members from configuration options
-    void Configure(const Registry & config);
-    void Configure(string config);
+    virtual void Configure(const Registry & config);
+    virtual void Configure(string config);
 
 protected:
     Hadronization();
     Hadronization(string name);
     Hadronization(string name, string config);
 
-    virtual void           LoadConfig         (void);
+    void  LoadConfigRemoveMe (void);
+
     virtual double         Wmin               (void) const;
     virtual double         Weight             (void) const;
     virtual TH1D *         CreateMultProbHist (double maxmult) const;

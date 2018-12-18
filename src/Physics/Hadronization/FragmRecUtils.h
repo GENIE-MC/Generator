@@ -32,7 +32,7 @@ namespace utils {
 namespace fragmrec
 {
   int NParticles(int pdg_code, const TClonesArray * const particle_list);
-  int NParticles(int pdg_code, int status, const TClonesArray * const particle_list);
+  int NParticles(int pdg_code, GHepStatus_t status, const TClonesArray * const particle_list);
   int NPositives(const TClonesArray * const particle_list);
   int NNegatives(const TClonesArray * const particle_list);
 
