@@ -47,13 +47,13 @@ extern "C" void py2ent_(int *,  int *, int *, double *);
 
 //____________________________________________________________________________
 CharmHadronization::CharmHadronization() :
-HadronizationModelI("genie::CharmHadronization")
+Hadronization("genie::CharmHadronization")
 {
   this->Initialize();
 }
 //____________________________________________________________________________
 CharmHadronization::CharmHadronization(string config) :
-HadronizationModelI("genie::CharmHadronization", config)
+Hadronization("genie::CharmHadronization", config)
 {
   this->Initialize();
 }
