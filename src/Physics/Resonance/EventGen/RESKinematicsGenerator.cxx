@@ -225,15 +225,9 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
      //-- Decide whether to accept the current kinematics
      if(!fGenerateUniformly) {
-        // > charged lepton scattering
-        if(is_em) {
-          this->AssertXSecLimits(interaction, xsec, xsec_max);
-          double t  = xsec_max * rnd->RndKine().Rndm();
-          accept = (t < xsec);
-	  LOG("RESKinematics", pINFO) << "xsec = " << xsec << ", ran*max = " << t << ", accept= " << accept;
-      }
-        // > neutrino scattering (using importance sampling envelope)
-        else {
+
+          // apapadop
+          // unified neutrino / electron scattering
           double max = fEnvelope->Eval(gQD2, gW);
           double t   = max * rnd->RndKine().Rndm();
           double J   = kinematics::Jacobian(interaction,kPSWQ2fE,kPSWQD2fE);
@@ -246,7 +240,6 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 #endif
           accept = (t < J*xsec);
         } // charged lepton or neutrino scattering?
-     }
      else {
         accept = (xsec>0);
      } // uniformly over phase space
