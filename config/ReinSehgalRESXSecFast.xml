@@ -27,8 +27,11 @@ ESplineMax                  double  Yes  Emax in RES splines, xsec(E>Emax)=xsec(
     <param type="string" name ="CommonParam">           Resonances  </param>
     <param type="double" name ="ESplineMax">                   500  </param>     
     <param type="string" name ="gsl-integration-type">     adaptive </param>
-    <param type="int"    name ="gsl-max-eval">           1000000000 </param>
-    <param type="double" name ="gsl-relative-tolerance">      1e-9  </param>
+    <!--<param type="int"    name ="gsl-max-eval">           1000000000 </param>
+    <param type="double" name ="gsl-relative-tolerance">      1e-9  </param>-->
+    <!--apapadop-->
+    <param type="int"    name ="gsl-max-eval">           500000 </param>
+    <param type="double" name ="gsl-relative-tolerance">      0.01  </param>
   </param_set>
 
   <param_set name="WithPauliBlock"> 
