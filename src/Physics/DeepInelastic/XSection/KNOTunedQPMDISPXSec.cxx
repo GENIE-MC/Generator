@@ -21,6 +21,8 @@
  @ Jan 29, 2013 - CA
    Don't look-up depreciated $GDISABLECACHING environmental variable.
    Use the RunOpt singleton instead.
+ @ This revision branches the old QPMDISPXSec in order to disentangle the pure DIS
+   from Pachos et al.
 
 */
 //____________________________________________________________________________
@@ -41,7 +43,7 @@
 #include "Framework/Conventions/Units.h"
 #include "Physics/Hadronization/HadronizationModelI.h"
 #include "Framework/Messenger/Messenger.h"
-#include "Physics/DeepInelastic/XSection/QPMDISPXSec.h"
+#include "Physics/DeepInelastic/XSection/KNOTunedQPMDISPXSec.h"
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/Utils/RunOpt.h"
