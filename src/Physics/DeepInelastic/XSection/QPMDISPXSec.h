@@ -50,7 +50,6 @@ public:
 
 private:
   void   LoadConfig                  (void);
-  double DISRESJoinSuppressionFactor (const Interaction * in) const;
 
   mutable DISStructureFunc fDISSF;
   bool                     fInInitPhase;
@@ -61,9 +60,7 @@ private:
 
   const XSecAlgorithmI * fCharmProdModel;
 
-  bool   fUsingDisResJoin;  ///< use a DIS/RES joining scheme?
   bool   fUseCache;         ///< cache reduction factors used in joining scheme
-  double fWcut;             ///< apply DIS/RES joining scheme < Wcut
   double fScale;            ///< cross section scaling factor
   double fSin48w;           ///< sin^4(Weingberg angle)
 };
