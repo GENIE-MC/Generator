@@ -55,7 +55,6 @@ private:
   bool                     fInInitPhase;
 
   const DISStructureFuncModelI * fDISSFModel;         ///< SF model
-  const HadronizationModelI *    fHadronizationModel; ///< hadronic multip. model
   const XSecIntegratorI *        fXSecIntegrator;     ///< diff. xsec integrator
 
   const XSecAlgorithmI * fCharmProdModel;

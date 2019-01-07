@@ -260,9 +260,7 @@ void QPMDISPXSec::LoadConfig(void)
 
   fDISSF.SetModel(fDISSFModel); // <-- attach algorithm
 
-  fHadronizationModel = 0;
-
-   // Cross section scaling factor
+  // Cross section scaling factor
   GetParam( "DIS-XSecScale", fScale ) ;
 
   // sin^4(theta_weinberg)
