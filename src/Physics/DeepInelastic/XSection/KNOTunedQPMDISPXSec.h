@@ -25,6 +25,7 @@
 
 #include "Framework/EventGen/XSecAlgorithmI.h"
 #include "Physics/DeepInelastic/XSection/QPMDISPXSec.h"
+#include "Physics/Hadronization/KNOHadronization.h"
 
 
 namespace genie {
@@ -52,8 +53,9 @@ private:
   void   LoadConfig                  (void);
   double DISRESJoinSuppressionFactor (const Interaction * in) const;
 
-  const HadronizationModelI *    fHadronizationModel; ///< hadronic multip. model
-  const QPMDISPXSec *            fDISModel ;
+  const KNOHadronization *    fHadronizationModel; ///< hadronic multip. model
+  const QPMDISPXSec *         fDISModel ;
+  const XSecIntegratorI *     fXSecIntegrator;     ///< diff. xsec integrator
 
   double fWcut;             ///< apply DIS/RES joining scheme < Wcut
 };
