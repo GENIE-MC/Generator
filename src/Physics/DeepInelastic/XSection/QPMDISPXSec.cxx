@@ -39,7 +39,6 @@
 #include "Framework/Conventions/RefFrame.h"
 #include "Framework/Conventions/KineVar.h"
 #include "Framework/Conventions/Units.h"
-#include "Physics/Hadronization/HadronizationModelI.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Physics/DeepInelastic/XSection/QPMDISPXSec.h"
 #include "Framework/ParticleData/PDGCodes.h"
@@ -268,17 +267,6 @@ void QPMDISPXSec::LoadConfig(void)
   GetParam( "WeinbergAngle", thw ) ;
   fSin48w = TMath::Power( TMath::Sin(thw), 4 );
 
-  // Caching the reduction factors used in the DIS/RES joing scheme?
-  // In normal event generation (1 config -> many calls) it is worth caching
-  // these suppression factors.
-  // Depending on the way this algorithm is used during event reweighting,
-  // precomputing (for all W's) & caching these factors might not be efficient.
-  // Here we provide the option to turn the caching off at run-time (default: on)
-
-  bool cache_enabled = RunOpt::Instance()->BareXSecPreCalc();
-
-  GetParamDef( "UseCache", fUseCache, true ) ;
-  fUseCache = fUseCache && cache_enabled;
 
   // Since this method would be called every time the current algorithm is 
   // reconfigured at run-time, remove all the data cached by this algorithm

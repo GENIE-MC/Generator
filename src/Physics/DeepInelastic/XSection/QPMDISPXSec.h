@@ -59,7 +59,6 @@ private:
 
   const XSecAlgorithmI * fCharmProdModel;
 
-  bool   fUseCache;         ///< cache reduction factors used in joining scheme
   double fScale;            ///< cross section scaling factor
   double fSin48w;           ///< sin^4(Weingberg angle)
 };

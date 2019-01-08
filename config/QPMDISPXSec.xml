@@ -10,7 +10,6 @@ SFAlg                       alg     No    Structure functions algorithm
 XSec-Integrator             alg     No
 
 DIS-XSecScale               double  No    XSec scaling factor
-UseCache                    bool    Yes   Cache suppression factors?                          true
 WeinbergAngle               double  No                                                        CommonParam[WeakInt]
 -->
 

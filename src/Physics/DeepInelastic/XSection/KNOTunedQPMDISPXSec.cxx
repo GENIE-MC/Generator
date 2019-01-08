@@ -41,7 +41,6 @@
 #include "Framework/Conventions/RefFrame.h"
 #include "Framework/Conventions/KineVar.h"
 #include "Framework/Conventions/Units.h"
-#include "Physics/Hadronization/HadronizationModelI.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Physics/DeepInelastic/XSection/KNOTunedQPMDISPXSec.h"
 #include "Framework/ParticleData/PDGCodes.h"
@@ -237,7 +236,7 @@ void KNOTunedQPMDISPXSec::Configure(string config)
   Registry r( "KNOTunedQPMDISPXSec_specific", false ) ;
 
   r.Set( "Hadronizer", AlgId("genie::KNOHadronization", "Default" ) ) ;
-  r.Set( "DISModel",   AlgId("genie::QPMDISPXSec,       "Default" ) ) ;
+  r.Set( "DISModel",   AlgId("genie::QPMDISPXSec",      "Default" ) ) ;
 
   Algorithm::Configure(r) ;
 
@@ -278,6 +277,19 @@ void KNOTunedQPMDISPXSec::LoadConfig(void)
   fXSecIntegrator =
       dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));
   assert(fXSecIntegrator);
+
+  // Caching the reduction factors used in the DIS/RES joing scheme?
+  // In normal event generation (1 config -> many calls) it is worth caching
+  // these suppression factors.
+  // Depending on the way this algorithm is used during event reweighting,
+  // precomputing (for all W's) & caching these factors might not be efficient.
+  // Here we provide the option to turn the caching off at run-time (default: on)
+
+  bool cache_enabled = RunOpt::Instance()->BareXSecPreCalc();
+
+  GetParamDef( "UseCache", fUseCache, true ) ;
+  fUseCache = fUseCache && cache_enabled;
+
 
   }
 //____________________________________________________________________________

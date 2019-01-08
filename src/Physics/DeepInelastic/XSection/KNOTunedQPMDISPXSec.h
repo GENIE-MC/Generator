@@ -57,6 +57,7 @@ private:
   const QPMDISPXSec *         fDISModel ;
   const XSecIntegratorI *     fXSecIntegrator;     ///< diff. xsec integrator
 
+  bool   fUseCache;         ///< cache reduction factors used in joining scheme
   double fWcut;             ///< apply DIS/RES joining scheme < Wcut
 };
 
