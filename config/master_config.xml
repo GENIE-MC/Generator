@@ -142,6 +142,7 @@
    <config alg="genie::SmithMonizQELCCPXSec">               SmithMonizQELCCPXSec.xml               </config>
    <config alg="genie::QPMDMDISPXSec">                      QPMDMDISPXSec.xml                      </config>
    <config alg="genie::QPMDISPXSec">                        QPMDISPXSec.xml                        </config>
+   <config alg="genie::KNOTunedQPMDISPXSec">                KNOTunedQPMDISPXSec.xml                </config>
    <config alg="genie::AivazisCharmPXSecLO">                AivazisCharmPXSecLO.xml                </config>
    <config alg="genie::SlowRsclCharmDISPXSecLO">            SlowRsclCharmDISPXSecLO.xml            </config>
    <config alg="genie::KovalenkoQELCharmPXSec">             KovalenkoQELCharmPXSec.xml             </config>
