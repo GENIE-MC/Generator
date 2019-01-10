@@ -233,13 +233,6 @@ void KNOTunedQPMDISPXSec::Configure(string config)
 {
   Algorithm::Configure(config);
 
-  Registry r( "KNOTunedQPMDISPXSec_specific", false ) ;
-
-  r.Set( RgKey("Hadronizer"), AlgId("genie::KNOHadronization", "Default" ) ) ;
-  r.Set( TRKey("DISModel"),   AlgId("genie::QPMDISPXSec",      "Default" ) ) ;
-
-  Algorithm::Configure(r) ;
-
   this->LoadConfig();
 }
 //____________________________________________________________________________
@@ -249,7 +242,7 @@ void KNOTunedQPMDISPXSec::LoadConfig(void)
   fHadronizationModel = nullptr ;
 
   fHadronizationModel =
-    dynamic_cast<const HadronizationModelI *> (this->SubAlg("Hadronizer"));
+    dynamic_cast<const KNOHadronization *> (this->SubAlg("Hadronizer"));
   assert(fHadronizationModel);
 
   GetParam( "Wcut", fWcut ) ;
