@@ -68,6 +68,8 @@ public:
   virtual void Configure(const Registry & config);
   virtual void Configure(string config);
 
+  friend class KNOTunedQPMDISPXSec ;
+
 private:
 
   void           LoadConfig            (void);

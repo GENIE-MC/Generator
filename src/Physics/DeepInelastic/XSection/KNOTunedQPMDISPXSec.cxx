@@ -235,8 +235,8 @@ void KNOTunedQPMDISPXSec::Configure(string config)
 
   Registry r( "KNOTunedQPMDISPXSec_specific", false ) ;
 
-  r.Set( "Hadronizer", AlgId("genie::KNOHadronization", "Default" ) ) ;
-  r.Set( "DISModel",   AlgId("genie::QPMDISPXSec",      "Default" ) ) ;
+  r.Set( RgKey("Hadronizer"), AlgId("genie::KNOHadronization", "Default" ) ) ;
+  r.Set( TRKey("DISModel"),   AlgId("genie::QPMDISPXSec",      "Default" ) ) ;
 
   Algorithm::Configure(r) ;
 
