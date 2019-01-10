@@ -21,10 +21,9 @@
 #define _DIS_HADRONIC_SYSTEM_GENERATOR_H_
 
 #include "Physics/Common/HadronicSystemGenerator.h"
+#include "Physics/Hadronization/Hadronization.h"
 
 namespace genie {
-
-class HadronizationModelI;
 
 class DISHadronicSystemGenerator : public HadronicSystemGenerator {
 
@@ -48,7 +47,7 @@ private:
 
   void LoadConfig (void);
 
-  const HadronizationModelI * fHadronizationModel;
+  const Hadronization * fHadronizationModel;
 
   bool   fFilterPreFragmEntries;
   double fR0;          ///< param controling nuclear size
