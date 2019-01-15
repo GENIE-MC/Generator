@@ -92,6 +92,19 @@ void KNOHadronization::Initialize(void) const
 
 }
 //____________________________________________________________________________
+void KNOHadronization::ProcessEventRecord(GHepRecord * event) const {
+
+	Interaction * interaction = event->Summary();
+	TClonesArray * particle_list = this->Hadronize(interaction);
+
+	GHepParticle * particle = 0;
+	TIter particle_iter(particle_list);
+	while ((particle = (GHepParticle *) particle_iter.Next()))
+	{
+      event->AddParticle(*particle);
+	}
+}
+//____________________________________________________________________________
 TClonesArray * KNOHadronization::Hadronize(
                                         const Interaction * interaction) const
 {
