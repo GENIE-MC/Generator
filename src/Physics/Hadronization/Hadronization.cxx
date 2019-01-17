@@ -5,8 +5,12 @@
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          University of Liverpool & STFC Rutherford Appleton Lab
+
          Shivesh Mandalia <s.p.mandalia \at qmul.ac.uk>
          Queen Mary University of London
+
+	 Marco Roda <mroda@liverpool.ac.uk>
+	 University of Liverpool
  */
 //____________________________________________________________________________
 
@@ -49,6 +53,19 @@ EventRecordVisitorI(name, config)
 //___________________________________________________________________________
 Hadronization::~Hadronization()
 {
+
+}
+//___________________________________________________________________________
+void Hadronization::ProcessEventRecord(GHepRecord * event) const {
+
+  Interaction * interaction = event->Summary();
+  TClonesArray * particle_list = this->Hadronize(interaction);
+  
+  GHepParticle * particle = 0;
+  TIter particle_iter(particle_list);
+  while ((particle = (GHepParticle *) particle_iter.Next())) {
+    event->AddParticle(*particle);
+  }
 
 }
 //___________________________________________________________________________

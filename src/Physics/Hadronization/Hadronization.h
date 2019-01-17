@@ -4,14 +4,19 @@
 \class    genie::Hadronizer
 
 \brief    Base class for Hadronization classes
+          that are related to the AGKY model
           Implements common configuration, allowing users to perform
           hadronization on a quark/diquark pair.
           Is a concerete implementation of the EventRecordVisitorI interface.
 
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           University of Liverpool & STFC Rutherford Appleton Lab
+
           Shivesh Mandalia <s.p.mandalia \at qmul.ac.uk>
           Queen Mary University of London
+
+	  Marco Roda <mroda@liverpool.ac.uk>
+	  Univerisity of Liverpool
 
 \created  November 19, 2019
 
@@ -45,6 +50,8 @@ public:
     // members from configuration options
     virtual void Configure(const Registry & config);
     virtual void Configure(string config);
+
+    virtual void ProcessEventRecord(GHepRecord * event) const;
 
 protected:
     Hadronization();
