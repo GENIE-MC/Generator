@@ -36,7 +36,7 @@ namespace genie {
 class Spline;
 class FragmentationFunctionI;
 
-class CharmHadronization : public Hadronization {
+class CharmHadronization : public EventRecordVisitorI {
 
 public:
   CharmHadronization();
@@ -51,11 +51,7 @@ private:
   void           LoadConfig          (void);
   void           Initialize          (void)                                    const;
   TClonesArray * Hadronize           (const Interaction* )                     const;
-  double         Weight              (void)                                    const;
-  PDGCodeList *  SelectParticles     (const Interaction*)                      const;
-  TH1D *         MultiplicityProb    (const Interaction*, Option_t* opt = "")  const;
   int            GenerateCharmHadron (int nupdg, double EvLab)                 const;
-
 
   mutable TGenPhaseSpace fPhaseSpaceGenerator; ///< a phase space generator
 

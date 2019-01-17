@@ -650,23 +650,6 @@ TClonesArray * CharmHadronization::Hadronize(
   return particle_list;
 }
 //____________________________________________________________________________
-double CharmHadronization::Weight(void) const
-{
-  return 1.; // does not generate weighted events
-}
-//____________________________________________________________________________
-PDGCodeList * CharmHadronization::SelectParticles(
-                               const Interaction * /*interaction*/) const
-{
-  return 0;
-}
-//____________________________________________________________________________
-TH1D * CharmHadronization::MultiplicityProb(
-           const Interaction * /*interaction*/, Option_t * /*opt*/)  const
-{
-  return 0;
-}
-//____________________________________________________________________________
 int CharmHadronization::GenerateCharmHadron(int nu_pdg, double EvLab) const
 {
   // generate a charmed hadron pdg code using a charm fraction table
