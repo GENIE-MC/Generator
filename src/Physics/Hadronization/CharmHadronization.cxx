@@ -47,13 +47,13 @@ extern "C" void py2ent_(int *,  int *, int *, double *);
 
 //____________________________________________________________________________
 CharmHadronization::CharmHadronization() :
-Hadronization("genie::CharmHadronization")
+EventRecordVisitorI("genie::CharmHadronization")
 {
   this->Initialize();
 }
 //____________________________________________________________________________
 CharmHadronization::CharmHadronization(string config) :
-Hadronization("genie::CharmHadronization", config)
+EventRecordVisitorI("genie::CharmHadronization", config)
 {
   this->Initialize();
 }
@@ -312,7 +312,7 @@ TClonesArray * CharmHadronization::Hadronize(
 
   TLorentzVector p4R = p4H - p4C;
   double WR = p4R.M();
-  double MC = pdglib->Find(ch_pdg)->Mass();
+  //double MC = pdglib->Find(ch_pdg)->Mass();
 
   LOG("CharmHad", pNOTICE) << "Remnant hadronic system mass = " << WR;
 

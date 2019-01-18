@@ -23,13 +23,13 @@
 #include <TPythia6.h>
 
 #include "Framework/EventGen/EventRecordVisitorI.h"
-#include "Physics/Hadronization/Hadronization.h"
+#include "Framework/ParticleData/PDGCodeList.h" 
 
 namespace genie {
 
 class GHepParticle;
 
-class Pythia6Hadronization : protected Hadronization {
+class Pythia6Hadronization : protected EventRecordVisitorI {
 
 public:
   Pythia6Hadronization();
@@ -39,16 +39,25 @@ public:
   // Implement the EventRecordVisitorI interface
   void ProcessEventRecord(GHepRecord * event) const;
 
+  //-- overload the Algorithm::Configure() methods to load private data
+  //   members from configuration options
+  void Configure(const Registry & config);
+  void Configure(string config);
+
 private:
-  void           Initialize       (void)                                  const;
-  TClonesArray * Hadronize        (const Interaction*)                    const;
-  double         Weight           (void)                                  const;
-  PDGCodeList *  SelectParticles  (const Interaction*)                    const;
-  TH1D *         MultiplicityProb (const Interaction*, Option_t* opt="")  const;
-/*
-  void SwitchDecays   (int pdgc, bool on_off) const;
-  void HandleDecays   (TClonesArray * plist) const;
-*/
+  void           Initialize         (void)                    const;
+  TClonesArray * Hadronize          (const Interaction*)      const;
+  double         Weight             (void)                    const;
+  PDGCodeList *  SelectParticles    (const Interaction*)      const;
+  TH1D *         MultiplicityProb   (const Interaction*)      const;
+
+  bool           AssertValidity     (const Interaction * i)   const;
+  double         MaxMult            (const Interaction * i)   const;
+  TH1D *         CreateMultProbHist (double maxmult)          const;
+  double         Wmin               (void)                    const;
+
+  void LoadConfig                   (void);
+
   mutable TPythia6 * fPythia;   ///< PYTHIA6 wrapper class
 
   //-- configuration parameters

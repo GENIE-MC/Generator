@@ -35,6 +35,7 @@ class TH1D;
 #include "Framework/EventGen/EventRecordVisitorI.h"
 #include "Framework/ParticleData/PDGCodeList.h"
 #include "Framework/GHEP/GHepStatus.h"
+#include "Framework/GHEP/GHepRecord.h"
 
 namespace genie {
 
