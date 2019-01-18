@@ -44,7 +44,8 @@
 #include <TGenPhaseSpace.h>
 
 #include "Physics/Decay/Decayer.h"
-#include "Physics/Hadronization/Hadronization.h"
+#include "Framework/EventGen/EventRecordVisitorI.h"
+
 
 class TF1;
 
@@ -53,9 +54,10 @@ namespace genie {
 class Decayer;
 //class Spline;
 
-class KNOHadronization : protected Hadronization {
+class KNOHadronization : public EventRecordVisitorI {
 
 public:
+
   KNOHadronization();
   KNOHadronization(string config);
   virtual ~KNOHadronization();
@@ -73,19 +75,23 @@ public:
 private:
 
   void           LoadConfig            (void);
-  void           Initialize            (void)                                    const;
-  TClonesArray * Hadronize             (const Interaction* )                     const;
-  double         Weight                (void)                                    const;
-  PDGCodeList *  SelectParticles       (const Interaction*)                      const;
-  TH1D *         MultiplicityProb      (const Interaction*, Option_t* opt = "")  const;
-  bool           AssertValidity        (const Interaction * i)                   const;
-  PDGCodeList *  GenerateHadronCodes   (int mult, int maxQ, double W)            const;
-  int            GenerateBaryonPdgCode (int mult, int maxQ, double W)            const;
-  int            HadronShowerCharge    (const Interaction * )                    const;
-  double         KNO                   (int nu, int nuc, double z)               const;
-  double         AverageChMult         (int nu, int nuc, double W)               const;
-  void           HandleDecays          (TClonesArray * particle_list)            const;
-  double         ReWeightPt2           (const PDGCodeList & pdgcv)               const;
+  void           Initialize            (void)                                        const;
+  TClonesArray * Hadronize             (const Interaction* )                         const;
+  double         Weight                (void)                                        const;
+  PDGCodeList *  SelectParticles       (const Interaction*)                          const;
+  TH1D *         MultiplicityProb      (const Interaction*, Option_t* opt = "")      const;
+  bool           AssertValidity        (const Interaction * i)                       const;
+  PDGCodeList *  GenerateHadronCodes   (int mult, int maxQ, double W)                const;
+  int            GenerateBaryonPdgCode (int mult, int maxQ, double W)                const;
+  int            HadronShowerCharge    (const Interaction * )                        const;
+  double         KNO                   (int nu, int nuc, double z)                   const;
+  double         AverageChMult         (int nu, int nuc, double W)                   const;
+  void           HandleDecays          (TClonesArray * particle_list)                const;
+  double         ReWeightPt2           (const PDGCodeList & pdgcv)                   const;
+  double         MaxMult               (const Interaction * i)                       const;
+  TH1D *         CreateMultProbHist    (double maxmult)                              const;
+  void           ApplyRijk             (const Interaction * i, bool norm, TH1D * mp) const;
+  double         Wmin                  (void)                                        const;
 
   TClonesArray* DecayMethod1    (double W, const PDGCodeList & pdgv, bool reweight_decays) const;
   TClonesArray* DecayMethod2    (double W, const PDGCodeList & pdgv, bool reweight_decays) const;
@@ -102,7 +108,6 @@ private:
   // Note: additional configuration parameters common to all hadronizers
   // (Wcut,Rijk,...) are declared one layer down in the inheritance tree
 
-  const Decayer * fDecayer;  ///< decay algorithm
   bool     fForceNeuGenLimit;    ///< force upper hadronic multiplicity to NeuGEN limit
 //bool     fUseLegacyKNOSpline;  ///< use legacy spline instead of Levy
   bool     fUseIsotropic2BDecays;///< force isotropic, non-reweighted 2-body decays for consistency with neugen/daikon
@@ -134,7 +139,26 @@ private:
   double   fCvbn;                ///< Levy function parameter for vbn
   TF1 *    fBaryonXFpdf;         ///< baryon xF PDF
   TF1 *    fBaryonPT2pdf;        ///< baryon pT^2 PDF
-//Spline * fKNO;                 ///< legacy KNO distribution (superseded by the Levy func)
+
+  // nuegen parameters
+  double   fWcut;      ///< Rijk applied for W<Wcut (see DIS/RES join scheme)
+  double   fRvpCCm2;   ///< Rijk: vp,  CC, multiplicity = 2
+  double   fRvpCCm3;   ///< Rijk: vp,  CC, multiplicity = 3
+  double   fRvpNCm2;   ///< Rijk: vp,  NC, multiplicity = 2
+  double   fRvpNCm3;   ///< Rijk: vp,  NC, multiplicity = 3
+  double   fRvnCCm2;   ///< Rijk: vn,  CC, multiplicity = 2
+  double   fRvnCCm3;   ///< Rijk: vn,  CC, multiplicity = 3
+  double   fRvnNCm2;   ///< Rijk: vn,  NC, multiplicity = 2
+  double   fRvnNCm3;   ///< Rijk: vn,  NC, multiplicity = 3
+  double   fRvbpCCm2;  ///< Rijk: vbp, CC, multiplicity = 2
+  double   fRvbpCCm3;  ///< Rijk: vbp, CC, multiplicity = 3
+  double   fRvbpNCm2;  ///< Rijk: vbp, NC, multiplicity = 2
+  double   fRvbpNCm3;  ///< Rijk: vbp, NC, multiplicity = 3
+  double   fRvbnCCm2;  ///< Rijk: vbn, CC, multiplicity = 2
+  double   fRvbnCCm3;  ///< Rijk: vbn, CC, multiplicity = 3
+  double   fRvbnNCm2;  ///< Rijk: vbn, NC, multiplicity = 2
+  double   fRvbnNCm3;  ///< Rijk: vbn, NC, multiplicity = 3
+
 };
 
 }         // genie namespace

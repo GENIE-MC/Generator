@@ -22,7 +22,7 @@
 #ifndef _KNO_PYTHIA_HADRONIZATION_H_
 #define _KNO_PYTHIA_HADRONIZATION_H_
 
-#include "Physics/Hadronization/Hadronization.h"
+#include "Framework/EventGen/EventRecordVisitorI.h"
 
 namespace genie {
 
@@ -44,22 +44,9 @@ public:
 
 private:
 
-/*
-
-They were part of the old Hadronization interface - they need to go now
-
-  //-- private methods & mutable parameters
-  void           Initialize       (void)                                 const;
-  TClonesArray * Hadronize        (const Interaction* )                  const;
-  double         Weight           (void)                                 const;
-  PDGCodeList *  SelectParticles  (const Interaction*)                   const;
-  TH1D *         MultiplicityProb (const Interaction*, Option_t* opt="") const;
-*/
-
   void LoadConfig (void);
-  const EventRecordVisitorI * SelectHadronizer(const Interaction *) const;
 
-//  mutable double fWeight; ///< weight for generated event
+  const EventRecordVisitorI * SelectHadronizer(const Interaction *) const;
 
   //-- configuration
 

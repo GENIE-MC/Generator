@@ -63,7 +63,7 @@ using namespace genie::utils::print;
 
 //____________________________________________________________________________
 KNOHadronization::KNOHadronization() :
-Hadronization("genie::KNOHadronization")
+EventRecordVisitorI("genie::KNOHadronization")
 {
   fBaryonXFpdf  = 0;
   fBaryonPT2pdf = 0;
@@ -71,7 +71,7 @@ Hadronization("genie::KNOHadronization")
 }
 //____________________________________________________________________________
 KNOHadronization::KNOHadronization(string config) :
-Hadronization("genie::KNOHadronization", config)
+EventRecordVisitorI("genie::KNOHadronization", config)
 {
   fBaryonXFpdf  = 0;
   fBaryonPT2pdf = 0;
@@ -425,13 +425,13 @@ double KNOHadronization::Weight(void) const
 //____________________________________________________________________________
 void KNOHadronization::Configure(const Registry & config)
 {
-  Hadronization::Configure(config);
+  EventRecordVisitorI::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
 void KNOHadronization::Configure(string config)
 {
-  Hadronization::Configure(config);
+  EventRecordVisitorI::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
@@ -497,12 +497,6 @@ void KNOHadronization::LoadConfig(void)
      fPeta = fPeta/fsum;
   }
 
-  // Decay unstable particles now or leave it for later? Which decayer to use?
-  // fDecayer = 0;
-  // if(fForceDecays) {
-  //     fDecayer = dynamic_cast<const Decayer *> (this->SubAlg("Decayer"));
-  //     assert(fDecayer);
-  // }
 
   // Baryon pT^2 and xF parameterizations used as PDFs
 
@@ -555,6 +549,35 @@ void KNOHadronization::LoadConfig(void)
   GetParam( "KNO-LevyC-vn", fCvn ) ;
   GetParam( "KNO-LevyC-vbp", fCvbp ) ;
   GetParam( "KNO-LevyC-vbn", fCvbn ) ;
+
+  // Check whether to generate weighted or unweighted particle decays
+  fGenerateWeighted = false ;
+  //this->GetParam("GenerateWeighted", fGenerateWeighted, false);{
+
+  // Load Wcut determining the phase space area where the multiplicity prob.
+  // scaling factors would be applied -if requested-
+  this->GetParam( "Wcut", fWcut ) ;
+
+  // Load NEUGEN multiplicity probability scaling parameters Rijk
+  // neutrinos
+  this->GetParam( "DIS-HMultWgt-vp-CC-m2",  fRvpCCm2  ) ;
+  this->GetParam( "DIS-HMultWgt-vp-CC-m3",  fRvpCCm3  ) ;
+  this->GetParam( "DIS-HMultWgt-vp-NC-m2",  fRvpNCm2  ) ;
+  this->GetParam( "DIS-HMultWgt-vp-NC-m3",  fRvpNCm3  ) ;
+  this->GetParam( "DIS-HMultWgt-vn-CC-m2",  fRvnCCm2  ) ;
+  this->GetParam( "DIS-HMultWgt-vn-CC-m3",  fRvnCCm3  ) ;
+  this->GetParam( "DIS-HMultWgt-vn-NC-m2",  fRvnNCm2  ) ;
+  this->GetParam( "DIS-HMultWgt-vn-NC-m3",  fRvnNCm3  ) ;
+  //Anti-neutrinos
+  this->GetParam( "DIS-HMultWgt-vbp-CC-m2", fRvbpCCm2 ) ;
+  this->GetParam( "DIS-HMultWgt-vbp-CC-m3", fRvbpCCm3 ) ;
+  this->GetParam( "DIS-HMultWgt-vbp-NC-m2", fRvbpNCm2 ) ;
+  this->GetParam( "DIS-HMultWgt-vbp-NC-m3", fRvbpNCm3 ) ;
+  this->GetParam( "DIS-HMultWgt-vbn-CC-m2", fRvbnCCm2 ) ;
+  this->GetParam( "DIS-HMultWgt-vbn-CC-m3", fRvbnCCm3 ) ;
+  this->GetParam( "DIS-HMultWgt-vbn-NC-m2", fRvbnNCm2 ) ;
+  this->GetParam( "DIS-HMultWgt-vbn-NC-m3", fRvbnNCm3 ) ;
+
 
 }
 //____________________________________________________________________________
@@ -1482,5 +1505,141 @@ bool KNOHadronization::AssertValidity(const Interaction * interaction) const
      return false;
   }
   return true;
+}
+//____________________________________________________________________________
+double KNOHadronization::MaxMult(const Interaction * interaction) const
+{
+  double W = interaction->Kine().W();
+
+  double maxmult = TMath::Floor(1 + (W-kNeutronMass)/kPionMass);
+  return maxmult;
+}
+//____________________________________________________________________________
+TH1D * KNOHadronization::CreateMultProbHist(double maxmult) const
+{
+  double minmult = 2;
+  int    nbins   = TMath::Nint(maxmult-minmult+1);
+
+  TH1D * mult_prob = new TH1D("mult_prob",
+			      "hadronic multiplicity distribution", nbins, minmult-0.5, maxmult+0.5);
+  mult_prob->SetDirectory(0);
+
+  return mult_prob;
+}
+//____________________________________________________________________________
+void KNOHadronization::ApplyRijk( const Interaction * interaction, 
+                                  bool norm, TH1D * mp ) const
+{
+  // Apply the NEUGEN multiplicity probability scaling factors
+  //
+  if(!mp) return;
+
+  const InitialState & init_state = interaction->InitState();
+  int probe_pdg = init_state.ProbePdg();
+  int nuc_pdg   = init_state.Tgt().HitNucPdg();
+
+  const ProcessInfo & proc_info = interaction->ProcInfo();
+  bool is_CC = proc_info.IsWeakCC();
+  bool is_NC = proc_info.IsWeakNC();
+  bool is_EM = proc_info.IsEM();
+  // EDIT
+  bool is_dm = proc_info.IsDarkMatter();
+
+  //
+  // get the R2, R3 factors
+  //
+
+  double R2=1., R3=1.;
+
+  // weak CC or NC case
+  // EDIT
+  if(is_CC || is_NC || is_dm) {
+    bool is_nu    = pdg::IsNeutrino     (probe_pdg);
+    bool is_nubar = pdg::IsAntiNeutrino (probe_pdg);
+    bool is_p     = pdg::IsProton       (nuc_pdg);
+    bool is_n     = pdg::IsNeutron      (nuc_pdg);
+    bool is_dmi   = pdg::IsDarkMatter   (probe_pdg);  // EDIT
+    if((is_nu && is_p) || (is_dmi && is_p))  {
+      R2 = (is_CC) ? fRvpCCm2 : fRvpNCm2;
+      R3 = (is_CC) ? fRvpCCm3 : fRvpNCm3;
+    } else
+      if((is_nu && is_n) || (is_dmi && is_n)) {
+	R2 = (is_CC) ? fRvnCCm2 : fRvnNCm2;
+	R3 = (is_CC) ? fRvnCCm3 : fRvnNCm3;
+      } else
+	if(is_nubar && is_p)  {
+	  R2 = (is_CC) ? fRvbpCCm2 :   fRvbpNCm2;
+	  R3 = (is_CC) ? fRvbpCCm3 :   fRvbpNCm3;
+	} else
+	  if(is_nubar && is_n) {
+	    R2 = (is_CC) ? fRvbnCCm2 : fRvbnNCm2;
+	    R3 = (is_CC) ? fRvbnCCm3 : fRvbnNCm3;
+	  } else {
+	    LOG("Hadronization", pERROR)
+	      << "Invalid initial state: " << init_state;
+	  }
+  }//cc||nc?
+
+  // EM case (apply the NC tuning factors)
+
+  if(is_EM) {
+    bool is_l     = pdg::IsNegChargedLepton (probe_pdg);
+    bool is_lbar  = pdg::IsPosChargedLepton (probe_pdg);
+    bool is_p     = pdg::IsProton           (nuc_pdg);
+    bool is_n     = pdg::IsNeutron          (nuc_pdg);
+    if(is_l && is_p)  {
+      R2 = fRvpNCm2;
+      R3 = fRvpNCm3;
+    } else
+      if(is_l && is_n) {
+	R2 = fRvnNCm2;
+	R3 = fRvnNCm3;
+      } else
+	if(is_lbar && is_p)  {
+	  R2 = fRvbpNCm2;
+	  R3 = fRvbpNCm3;
+	} else
+	  if(is_lbar && is_n) {
+	    R2 = fRvbnNCm2;
+	    R3 = fRvbnNCm3;
+	  } else {
+	    LOG("Hadronization", pERROR)
+	      << "Invalid initial state: " << init_state;
+	  }
+  }//em?
+
+  //
+  // Apply to the multiplicity probability distribution
+  //
+
+  int nbins = mp->GetNbinsX();
+  for(int i = 1; i <= nbins; i++) {
+    int n = TMath::Nint( mp->GetBinCenter(i) );
+
+    double R=1;
+    if      (n==2) R=R2;
+    else if (n==3) R=R3;
+
+    if(n==2 || n==3) {
+      double P   = mp->GetBinContent(i);
+      double Psc = R*P;
+      LOG("Hadronization", pDEBUG)
+	<< "n=" << n << "/ Scaling factor R = "
+	<< R << "/ P " << P << " --> " << Psc;
+      mp->SetBinContent(i, Psc);
+    }
+    if(n>3) break;
+  }
+
+  // renormalize the histogram?
+  if(norm) {
+    double histo_norm = mp->Integral("width");
+    if(histo_norm>0) mp->Scale(1.0/histo_norm);
+  }
+}
+//____________________________________________________________________________
+double KNOHadronization::Wmin(void) const
+{
+  return (kNucleonMass+kPionMass);
 }
 //____________________________________________________________________________

@@ -26,7 +26,7 @@
 #include <TGenPhaseSpace.h>
 
 #include "Framework/EventGen/EventRecordVisitorI.h"
-#include "Physics/Hadronization/Hadronization.h"
+#include "Framework/Interaction/Interaction.h"
 
 class TPythia6;
 class TF1;
