@@ -56,8 +56,10 @@ private:
   TDecayChannel* SelectDecayChannel(int dec_part_id, GHepRecord * event) const;
   void           DecayExclusive    (int dec_part_id, GHepRecord * event, TDecayChannel * ch) const;
 
+  // Methods specific for Delta decay
   TObjArray *    EvolveDeltaBR        (int dec_part_pdgc, TObjArray * decay_list, double W) const;
   double         EvolveDeltaDecayWidth(int dec_part_pdgc, TDecayChannel * ch, double W) const;
+  bool           AcceptPionDecay( TLorentzVector lab_pion, int dec_part_id, const GHepRecord * event ) const ;
 
   double         FinalStateMass    ( TDecayChannel * ch ) const;
   bool           IsPiNDecayChannel ( TDecayChannel * ch ) const;
@@ -65,8 +67,12 @@ private:
   mutable TGenPhaseSpace fPhaseSpaceGenerator;
   mutable double         fWeight;
 
-  double fProb32, fProb12 ; // parameters for pion angular distribution for Delta -> N + pi
-  double fW_max ;
+  bool   fDeltaThetaOnly ;
+
+  std::vector<double> fR33, fR31, fR3m1 ;
+  std::vector<double> fQ2Thresholds ;
+
+  std::vector<double> fW_max ;
 
   double fFFScaling ;  // Scaling factor of the form factor of the Delta wrt to Q2
 
