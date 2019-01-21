@@ -21,7 +21,6 @@
 #define _DIS_HADRONIC_SYSTEM_GENERATOR_H_
 
 #include "Physics/Common/HadronicSystemGenerator.h"
-#include "Physics/Hadronization/Hadronization.h"
 
 namespace genie {
 
@@ -42,12 +41,11 @@ public :
 
 private:
 
-  void AddFragmentationProducts (GHepRecord * event_rec) const;
   void SimulateFormationZone    (GHepRecord * event_rec) const;
 
   void LoadConfig (void);
 
-  const Hadronization * fHadronizationModel;
+  const EventRecordVisitorI * fHadronizationModel;
 
   bool   fFilterPreFragmEntries;
   double fR0;          ///< param controling nuclear size

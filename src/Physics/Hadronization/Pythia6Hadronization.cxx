@@ -510,11 +510,18 @@ double Pythia6Hadronization::Wmin(void) const {
   return (kNucleonMass+kPionMass);
 }
 //____________________________________________________________________________
+void Pythia6Hadronization::Configure(const Registry & config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//____________________________________________________________________________
 void Pythia6Hadronization::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
+
 //____________________________________________________________________________
 void Pythia6Hadronization::LoadConfig(void)
 {
