@@ -53,7 +53,8 @@ private:
   void           UnInhibitDecay    (int pdgc, TDecayChannel * ch=0) const;
   double         Weight            (void) const;
   bool           Decay             (int dec_part_id, GHepRecord * event) const;
-  TDecayChannel* SelectDecayChannel(int dec_part_id, GHepRecord * event) const;
+  TDecayChannel* SelectDecayChannel(int dec_part_id, GHepRecord * event, bool & to_be_deleted ) const;
+  // the flag to_be_deleted is referred to the returned decay channel 
   void           DecayExclusive    (int dec_part_id, GHepRecord * event, TDecayChannel * ch) const;
 
   TObjArray *    EvolveDeltaBR        (int dec_part_pdgc, TObjArray * decay_list, double W) const;
@@ -61,6 +62,9 @@ private:
 
   double         FinalStateMass    ( TDecayChannel * ch ) const;
   bool           IsPiNDecayChannel ( TDecayChannel * ch ) const;
+
+  static bool IsDelta( int dec_part_pdgc ) ; 
+  static bool HasEvolvedBRs( int dec_part_pdgc ) ; 
 
   mutable TGenPhaseSpace fPhaseSpaceGenerator;
   mutable double         fWeight;
