@@ -246,14 +246,9 @@ void BaryonResonanceDecayer::DecayExclusive(
   int    pdgc[nd];
   double mass[nd];
 
-  std::cout << ch << std::endl ;
-  ch -> Dump() ;
-
   for(unsigned int iparticle = 0; iparticle < nd; iparticle++) {
-    std::cout << "id particle "<< iparticle << std::endl ;
-    std::cout << ch->DaughterPdgCode(iparticle) << std::endl ;
+
      int daughter_code = ch->DaughterPdgCode(iparticle);
-     std::cout << daughter_code  << std::endl ;
      TParticlePDG * daughter = PDGLibrary::Instance()->Find(daughter_code);
      assert(daughter);
 
@@ -439,7 +434,6 @@ TObjArray *  BaryonResonanceDecayer::EvolveDeltaBR(int dec_part_pdgc, TObjArray 
     std::vector<Int_t> ds( nd, 0 ) ;
     for ( unsigned int d = 0 ; d < nd; ++d ) {
       ds[d] = temp -> DaughterPdgCode(d) ;
-      std::cout << "dauther: " << d << " -> " <<ds[d] << std::endl ;
     }
 
     update = new TDecayChannel(
@@ -449,12 +443,6 @@ TObjArray *  BaryonResonanceDecayer::EvolveDeltaBR(int dec_part_pdgc, TObjArray 
         nd,
         & ds[0]
         ) ;
-
-    std::cout << update << std::endl ;
-
-    for ( unsigned int d = 0 ; d < nd; ++d ) {
-      std::cout<< "new dauther: " << d << " -> " << update -> DaughterPdgCode(d) << std::endl ;
-    }
 
     new_list -> Add( update ) ;
   }
