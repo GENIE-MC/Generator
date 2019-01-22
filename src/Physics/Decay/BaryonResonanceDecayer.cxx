@@ -8,6 +8,8 @@
 */
 //____________________________________________________________________________
 
+#include <cmath>
+
 #include <TClonesArray.h>
 #include <TDecayChannel.h>
 #include <TMath.h>
@@ -90,13 +92,18 @@ bool BaryonResonanceDecayer::Decay(
   GHepParticle * decay_particle = event->Particle(decay_particle_id);
   if(!decay_particle) return false;
 
+  bool to_be_deleted ; 
+
   // Select a decay channel
   TDecayChannel * selected_decay_channel =
-     this->SelectDecayChannel(decay_particle_id, event);
+    this->SelectDecayChannel(decay_particle_id, event, to_be_deleted );
   if(!selected_decay_channel) return false;
 
   // Decay the exclusive state and copy daughters in the event record
   this->DecayExclusive(decay_particle_id, event, selected_decay_channel);
+
+  if ( to_be_deleted ) 
+    delete selected_decay_channel ; 
 
   // Update the event weight for each weighted particle decay
   double weight = event->Weight() * fWeight;
@@ -108,8 +115,9 @@ bool BaryonResonanceDecayer::Decay(
   return true;
 }
 //____________________________________________________________________________
-TDecayChannel * BaryonResonanceDecayer::SelectDecayChannel(
-   int decay_particle_id, GHepRecord * event) const
+TDecayChannel * BaryonResonanceDecayer::SelectDecayChannel( int decay_particle_id, 
+							    GHepRecord * event, 
+							    bool & to_be_deleted ) const
 {
   // Get particle to be decayed
   GHepParticle * decay_particle = event->Particle(decay_particle_id);
@@ -149,20 +157,19 @@ TDecayChannel * BaryonResonanceDecayer::SelectDecayChannel(
   // Since a baryon resonance can be created at W < Mres, explicitly
   // check and inhibit decay channels for which W > final-state-mass
 
-  bool is_delta =
-    ( decay_particle_pdg_code ==  kPdgP33m1232_Delta0 ||
-      decay_particle_pdg_code == -kPdgP33m1232_Delta0 ||
-      decay_particle_pdg_code ==  kPdgP33m1232_DeltaP ||
-      decay_particle_pdg_code == -kPdgP33m1232_DeltaP );
-
+  bool has_evolved_brs = BaryonResonanceDecayer::HasEvolvedBRs( decay_particle_pdg_code ) ; 
+  
   TObjArray * actual_decay_list = nullptr ;
 
-  if ( is_delta ) {
+  if ( has_evolved_brs ) {
     actual_decay_list = EvolveDeltaBR( decay_particle_pdg_code, original_decay_list, W ) ;
     nch = actual_decay_list -> GetEntries() ;
+    to_be_deleted = true ;
   }
-  else
+  else {
     actual_decay_list = original_decay_list ;
+    to_be_deleted = false ;
+  }
 
   double BR[nch], tot_BR = 0;
 
@@ -208,8 +215,14 @@ TDecayChannel * BaryonResonanceDecayer::SelectDecayChannel(
     << "Selected " << sel_ch->NDaughters() << "-particle decay channel ("
     << sel_ich << ") has BR = " << sel_ch->BranchingRatio();
 
-  if ( is_delta )
+  if ( has_evolved_brs ) {
+
+    for ( unsigned int i = 0; i < nch; ++i) {
+      if ( sel_ich != i ) delete actual_decay_list -> At(i);
+    }
+
     delete actual_decay_list ;
+  }
 
   return sel_ch;
 }
@@ -233,8 +246,14 @@ void BaryonResonanceDecayer::DecayExclusive(
   int    pdgc[nd];
   double mass[nd];
 
+  std::cout << ch << std::endl ;
+  ch -> Dump() ;
+
   for(unsigned int iparticle = 0; iparticle < nd; iparticle++) {
+    std::cout << "id particle "<< iparticle << std::endl ;
+    std::cout << ch->DaughterPdgCode(iparticle) << std::endl ;
      int daughter_code = ch->DaughterPdgCode(iparticle);
+     std::cout << daughter_code  << std::endl ;
      TParticlePDG * daughter = PDGLibrary::Instance()->Find(daughter_code);
      assert(daughter);
 
@@ -420,6 +439,7 @@ TObjArray *  BaryonResonanceDecayer::EvolveDeltaBR(int dec_part_pdgc, TObjArray 
     std::vector<Int_t> ds( nd, 0 ) ;
     for ( unsigned int d = 0 ; d < nd; ++d ) {
       ds[d] = temp -> DaughterPdgCode(d) ;
+      std::cout << "dauther: " << d << " -> " <<ds[d] << std::endl ;
     }
 
     update = new TDecayChannel(
@@ -430,10 +450,16 @@ TObjArray *  BaryonResonanceDecayer::EvolveDeltaBR(int dec_part_pdgc, TObjArray 
         & ds[0]
         ) ;
 
+    std::cout << update << std::endl ;
+
+    for ( unsigned int d = 0 ; d < nd; ++d ) {
+      std::cout<< "new dauther: " << d << " -> " << update -> DaughterPdgCode(d) << std::endl ;
+    }
+
     new_list -> Add( update ) ;
   }
 
-  new_list -> SetOwner(kTRUE);
+  new_list -> SetOwner(kFALSE);
 
   return new_list ;
 }
@@ -643,6 +669,28 @@ void BaryonResonanceDecayer::UnInhibitDecay(int pdgc, TDecayChannel * dc) const
   //
   // Not implemented
   //
+}
+//____________________________________________________________________________
+bool BaryonResonanceDecayer::IsDelta( int dec_part_pdgc ) {
+
+  dec_part_pdgc = abs( dec_part_pdgc ) ;
+
+  return  ( dec_part_pdgc ==  kPdgP33m1232_DeltaM ||
+	    dec_part_pdgc ==  kPdgP33m1232_Delta0 ||
+            dec_part_pdgc ==  kPdgP33m1232_DeltaP ||
+	    dec_part_pdgc ==  kPdgP33m1232_DeltaPP ) ; 
+}
+//____________________________________________________________________________
+bool BaryonResonanceDecayer::HasEvolvedBRs( int dec_part_pdgc ) {
+
+  dec_part_pdgc = abs( dec_part_pdgc ) ;
+
+  //  the evolution of the Delta BR as a function of W is meaningful only when there are 
+  //  more than one decay channels. 
+  //  Delta++ and Delta- have only one decay channel bacause of baryon number and charge conservation
+
+  return  ( dec_part_pdgc ==  kPdgP33m1232_Delta0 ||
+            dec_part_pdgc ==  kPdgP33m1232_DeltaP ) ; 
 }
 //____________________________________________________________________________
 void BaryonResonanceDecayer::LoadConfig(void) {
