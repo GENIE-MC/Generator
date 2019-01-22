@@ -16,6 +16,11 @@
 #include <TClonesArray.h>
 #include <TMath.h>
 #include <TH1D.h>
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,6)
+#include <TMCParticle.h>
+#else
+#include <TMCParticle6.h>
+#endif
 
 #include "Framework/Algorithm/AlgConfigPool.h"
 #include "Framework/Conventions/Constants.h"
@@ -297,17 +302,35 @@ TClonesArray *
   particle_list->SetOwner(true);
 
   unsigned int i = 0;
-  GHepParticle * particle = 0;
+  TMCParticle * p = 0;
   TIter particle_iter(pythia_particles);
 
-  while( (particle = (GHepParticle *) particle_iter.Next()) ) {
-     LOG("Pythia6Had", pDEBUG)
-          << "Adding final state particle pdgc = " << particle->Pdg() 
-          << " with status = " << particle->Status();
+  while( (p = (TMCParticle *) particle_iter.Next()) ) {
+     // Convert from TMCParticle to GHepParticle
+     GHepParticle particle = GHepParticle(
+         p->GetKF(),                // pdg
+         GHepStatus_t(p->GetKS()),  // status
+         p->GetParent(),            // first parent
+         0,                         // second parent
+         p->GetFirstChild(),        // first daughter
+         p->GetLastChild(),         // second daughter
+         p->GetPx(),                // px
+         p->GetPy(),                // py
+         p->GetPz(),                // pz
+         p->GetEnergy(),            // e
+         p->GetVx(),                // x
+         p->GetVy(),                // y
+         p->GetVz(),                // z
+         p->GetTime()               // t
+     );
 
-     if(particle->Status() == 1) {
-        if( pdg::IsQuark  (particle->Pdg()) || 
-            pdg::IsDiQuark(particle->Pdg()) ) {
+     LOG("Pythia6Had", pDEBUG)
+          << "Adding final state particle pdgc = " << particle.Pdg() 
+          << " with status = " << particle.Status();
+
+     if(particle.Status() == 1) {
+        if( pdg::IsQuark  (particle.Pdg()) || 
+            pdg::IsDiQuark(particle.Pdg()) ) {
                 LOG("Pythia6Had", pERROR)
                   << "Hadronization failed! Bare quark/di-quarks appear in final state!";
             particle_list->Delete();
@@ -317,12 +340,12 @@ TClonesArray *
      }
 
      // fix numbering scheme used for mother/daughter assignments
-     particle->SetFirstMother   (particle->FirstMother()   - 1);
-     particle->SetFirstDaughter (particle->FirstDaughter() - 1);
-     particle->SetLastDaughter  (particle->LastDaughter()  - 1);
+     particle.SetFirstMother   (particle.FirstMother()   - 1);
+     particle.SetFirstDaughter (particle.FirstDaughter() - 1);
+     particle.SetLastDaughter  (particle.LastDaughter()  - 1);
 
      // insert the particle in the list
-     new ( (*particle_list)[i++] ) GHepParticle(*particle);
+     new ( (*particle_list)[i++] ) GHepParticle(particle);
   }
 
   utils::fragmrec::Print(particle_list);
