@@ -586,32 +586,31 @@ bool BaryonResonanceDecayer::AcceptPionDecay( TLorentzVector pion,
   double c_t = pion_dir*z_axis; // cos theta
   double s_t = sqrt(1. - c_t*c_t) ;  //sin theta
 
-  double phi_dependency = 0. ;
-
   unsigned int q2_index = 0 ;  // in case of the simple delta decay there is only one Q2 bin so this is enough
+
+  double w_function = 1. - (fR33[q2_index] - 0.5)*(3.*c_t*c_t - 1.) ;
 
   if ( ! fDeltaThetaOnly ) {
 
-	  // find out Q2 region for values
-	  double Q2 = - q.Mag2() ;
-	  while( q2_index < fQ2Thresholds.size() ) {
-		if ( Q2 < fQ2Thresholds[q2_index] ) ++q2_index ;
-		else break ;
-	  }
+	// find out Q2 region for values
+	double Q2 = - q.Mag2() ;
+	while( q2_index < fQ2Thresholds.size() ) {
+	  if ( Q2 < fQ2Thresholds[q2_index] ) ++q2_index ;
+	  else break ;
+	}
 
-	  in_lep_p4.Boost(-delta_p4.BoostVector() ) ;
-	  out_lep_p4.Boost( -delta_p4.BoostVector() ) ;
+	in_lep_p4.Boost(-delta_p4.BoostVector() ) ;
+	out_lep_p4.Boost( -delta_p4.BoostVector() ) ;
 
-	  // evaluate reference frame -> define x axis
-	  TVector3 y_axis = in_lep_p4.Vect().Cross( out_lep_p4.Vect() ).Unit() ;
-	  TVector3 x_axis = y_axis.Cross(z_axis);
+	// evaluate reference frame -> define x axis
+	TVector3 y_axis = in_lep_p4.Vect().Cross( out_lep_p4.Vect() ).Unit() ;
+	TVector3 x_axis = y_axis.Cross(z_axis);
 
-	  double c_phi = pion_dir*x_axis;
+	double c_phi = pion_dir*x_axis;
 
-	  phi_dependency = kSqrt3 *( 2.*fR31[q2_index]*s_t*c_t*c_phi + fR3m1[q2_index]*s_t*(2.*c_phi*c_phi-1.) ) ;
+	double phi_dependency = kSqrt3 *( 2.*fR31[q2_index]*s_t*c_t*c_phi + fR3m1[q2_index]*s_t*(2.*c_phi*c_phi-1.) ) ;
+	w_function -= phi_dependency ;
   }
-
-  double w_function = 1. - (fR33[q2_index] - 0.5)*(3.*c_t*c_t - 1.) - phi_dependency ;
 
   double aidrnd = fW_max[q2_index] * RandomGen::Instance()-> RndDec().Rndm();
 
@@ -719,9 +718,9 @@ bool BaryonResonanceDecayer::IsDelta( int dec_part_pdgc ) {
   dec_part_pdgc = abs( dec_part_pdgc ) ;
 
   return  ( dec_part_pdgc ==  kPdgP33m1232_DeltaM ||
-	    dec_part_pdgc ==  kPdgP33m1232_Delta0 ||
+	        dec_part_pdgc ==  kPdgP33m1232_Delta0 ||
             dec_part_pdgc ==  kPdgP33m1232_DeltaP ||
-	    dec_part_pdgc ==  kPdgP33m1232_DeltaPP ) ; 
+	        dec_part_pdgc ==  kPdgP33m1232_DeltaPP ) ;
 }
 //____________________________________________________________________________
 bool BaryonResonanceDecayer::HasEvolvedBRs( int dec_part_pdgc ) {
