@@ -23,6 +23,7 @@
 #define _ALGORITHM_H_
 
 #include <string>
+#include <sstream>
 #include <iostream>
 #include <cassert>
 #include <map>

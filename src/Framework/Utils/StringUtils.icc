@@ -1,16 +1,18 @@
- template<class T>
-    bool genie::utils::str::Convert( const vector<std::string> & input, std::vector<T> & v ) { 
+#include <sstream>
 
-  	v.resize( input ) ;
-  	bool success = true ;
+template<class T>
+  bool genie::utils::str::Convert( const vector<std::string> & input, std::vector<T> & v ) { 
+
+    v.resize( input.size() ) ;
+    bool success = true ;
 
     for ( unsigned int i = 0 ; i < input.size() ; ++i ) {
-      std:stringstream temp ;
+      std::stringstream temp ;
       temp << input[i] ;
-      v[i] << temp ;
+      temp >> v[i] ;
       success = success && temp.good() ;
     }
 	
-	return success ;
-	
+    return success ;
+
 }
