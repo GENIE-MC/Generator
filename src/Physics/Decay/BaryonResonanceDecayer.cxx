@@ -26,6 +26,7 @@
 #include "Framework/GHEP/GHepRecord.h"
 #include "Framework/Numerical/RandomGen.h"
 #include "Framework/Utils/PrintUtils.h"
+#include "Framework/Utils/StringUtils.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Physics/Decay/BaryonResonanceDecayer.h"
 
@@ -741,64 +742,104 @@ void BaryonResonanceDecayer::LoadConfig(void) {
 
   this -> GetParam( "FFScaling", fFFScaling ) ;
 
-  this -> GetParam( "Delta-ThetaOnly", fDeltaThetaOnly ) ;
+  this -> GetParamDef( "Delta-ThetaOnly", fDeltaThetaOnly, true ) ;
 
   bool invalid_configuration = false ;
 
-  int n_bins;
-  this -> GetParamDef( "Delta-NBins", n_bins, 1 ) ;
+  std::string raw ;
+  std::vector<std::string> bits ;
 
-  if ( n_bins > 1 ) {
+  // load R33 parameters
+  this -> GetParamDef( "Delta-R33", raw, string(" 0.5 ") ) ;
+  bits = utils::str::Split( raw, ";;" ) ;
 
-	  // load Q2 thresholds
+  if ( ! utils::str::Convert(bits, fR33) ) {
+	LOG("BaryonResonanceDecayer", pFATAL) << "Failed to decode Delta-R33 string: " ;
+	LOG("BaryonResonanceDecayer", pFATAL) << "String " << raw ;
+	invalid_configuration = true ;
   }
 
-  // load
+  // load Q2 thresholds
+  this -> GetParamDef("Delta-Q2", raw, std::string() ) ;
+  bits = utils::str::Split( raw, ";;" ) ;
+
+  if ( ! utils::str::Convert(bits, fQ2Thresholds ) ) {
+	LOG("BaryonResonanceDecayer", pFATAL) << "Failed to decode Delta-Q2 string: " ;
+	LOG("BaryonResonanceDecayer", pFATAL) << "String: " << raw ;
+	invalid_configuration = true ;
+  }
+
+  // check if the number of Q2 matches the number of R33
+  if ( fQ2Thresholds.size() != fR33.size() -1 ) {
+	invalid_configuration = true ;
+	LOG("BaryonResonanceDecayer", pFATAL) << "Delta-Q2 and Delta-R33 have wrong sizes" ;
+	LOG("BaryonResonanceDecayer", pFATAL) << "Delta-Q2  -> " << fQ2Thresholds.size() ;
+	LOG("BaryonResonanceDecayer", pFATAL) << "Delta-R33 -> " << fR33.size() ;
+  }
 
   if ( fDeltaThetaOnly ) {
 
+	// check the parameters validity
+	for ( unsigned int i = 0 ; i < fR33.size(); ++i ) {
+      if ( (fR33[i] < -0.5) ||  (fR33[i] > 1.) ) {
+    	invalid_configuration = true ;
+    	LOG("BaryonResonanceDecayer", pFATAL) << "Delta-R33[" << i << "] out of valid range [-0.5 ; 1 ]" ;
+    	LOG("BaryonResonanceDecayer", pFATAL) << "Delta-R33[" << i << "] = " << fR33[i] ;
+    	break ;
+      }
+	}
 
-
-	this->GetParamDef( "Prob32", fProb32, 0.75 ) ;
-
-  fProb12 = 1. - fProb32 ;
-
-  // the W(theta) function, see above, has to be positive
-  // so prob12 has to be in [0, 3/2]
-
-  // the maximum of the W(theta) is necessary to throw to scale the random number used for the check
-
-    fW_max = fProb12 > 0.5 ? 2*fProb12 : 1.5 - fProb12 ;
-
+	// set appropriate maxima
+	fW_max.resize( fR33.size(), 0. ) ;
+	for ( unsigned int i = 0 ; i < fR33.size(); ++i ) {
+      fW_max[i] = fR33[i] < 0.5 ? 2. * ( 1. - fR33[i] ) : fR33[i] + 0.5 ;
+	}
   
-  if ( fProb12 < 0. || fProb12 > 1.5 ) {
+  } // Delta Theta Only
 
- 
-    LOG("BaryonResonanceDecayer", pFATAL)
-      << "Input configuration value for P(1/2) is not physical: Exiting" ; 
-
-    // From the FreeBSD Library Functions Manual 
-    // 
-    // EX_CONFIG (78)   Something was found in an unconfigured or miscon-
-    //                  figured state.
-
-    exit( 78 ) ;
-    
-  }
-
-
-
-  }
   else {
 
-    // load vectors
+    // load R31 and R3m1 parameters
+	this -> GetParam( "Delta-R31", raw ) ;
+	bits = utils::str::Split( raw, ";;" ) ;
 
+	 if ( ! utils::str::Convert(bits, fR31) ) {
+	   LOG("BaryonResonanceDecayer", pFATAL) << "Failed to decode Delta-R31 string: " ;
+	   LOG("BaryonResonanceDecayer", pFATAL) << "String " << raw ;
+	   invalid_configuration =  true ;
+     }
+
+	this -> GetParam( "Delta-R3m1", raw ) ;
+ 	bits = utils::str::Split( raw, ";;" ) ;
+
+	if ( ! utils::str::Convert(bits, fR3m1) ) {
+	  LOG("BaryonResonanceDecayer", pFATAL) << "Failed to decode Delta-R3m1 string: " ;
+	  LOG("BaryonResonanceDecayer", pFATAL) << "String " << raw ;
+	  invalid_configuration =  true ;
+	}
+
+	// check if they match the numbers of R33
+	if ( (fR31.size() != fR33.size()) || (fR3m1.size() != fR33.size()) ) {
+	  LOG("BaryonResonanceDecayer", pFATAL) << "Delta-R31 or Delta-R3m1 sizes don't match Delta-R33" ;
+	  LOG("BaryonResonanceDecayer", pFATAL) << "R31: " << fR31.size()
+			                                << ", R3m1: " << fR31.size()
+											<< " while R33: " << fR33.size() ;
+	  invalid_configuration = true ;
+	}
+
+	// check if they are physical
+
+	// Set the appropriate maxima
+	fW_max.resize( fR33.size(), 0. ) ;
+	for ( unsigned int i = 0 ; i < fR33.size(); ++i ) {
+      fW_max[i] = 1.+(fR33[i]-0.5) + 2.*k1_Sqrt3*fR31[i] + k1_Sqrt3*fR3m1[i];
+	}
   }
 
   if ( invalid_configuration ) {
 
 	   LOG("BaryonResonanceDecayer", pFATAL)
-	      << "Input configuration value for P(1/2) is not physical: Exiting" ;
+	      << "Invalid configuration: Exiting" ;
 
 	    // From the FreeBSD Library Functions Manual
 	    //
