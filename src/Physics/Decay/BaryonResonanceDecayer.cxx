@@ -552,8 +552,8 @@ double BaryonResonanceDecayer::EvolveDeltaDecayWidth(int dec_part_pdgc, TDecayCh
 }
 //____________________________________________________________________________
 bool BaryonResonanceDecayer::AcceptPionDecay( TLorentzVector pion,
-	                                          int dec_part_id,
-		                                      const GHepRecord * event ) const {
+					      int dec_part_id,
+					      const GHepRecord * event ) const {
 
   // This evaluate the function W(theta, phi) as a function of the emitted pion and of the status of
   // the Delta to be decayed and the whole event
@@ -593,24 +593,24 @@ bool BaryonResonanceDecayer::AcceptPionDecay( TLorentzVector pion,
 
   if ( ! fDeltaThetaOnly ) {
 
-	// find out Q2 region for values
-	double Q2 = - q.Mag2() ;
-	while( q2_index < fQ2Thresholds.size() ) {
-	  if ( Q2 < fQ2Thresholds[q2_index] ) ++q2_index ;
-	  else break ;
-	}
+    // find out Q2 region for values
+    double Q2 = - q.Mag2() ;
+    while( q2_index < fQ2Thresholds.size() ) {
+      if ( Q2 < fQ2Thresholds[q2_index] ) ++q2_index ;
+      else break ;
+    }
 
-	in_lep_p4.Boost(-delta_p4.BoostVector() ) ;
-	out_lep_p4.Boost( -delta_p4.BoostVector() ) ;
+    in_lep_p4.Boost(-delta_p4.BoostVector() ) ;
+    out_lep_p4.Boost( -delta_p4.BoostVector() ) ;
 
-	// evaluate reference frame -> define x axis
-	TVector3 y_axis = in_lep_p4.Vect().Cross( out_lep_p4.Vect() ).Unit() ;
-	TVector3 x_axis = y_axis.Cross(z_axis);
+    // evaluate reference frame -> define x axis
+    TVector3 y_axis = in_lep_p4.Vect().Cross( out_lep_p4.Vect() ).Unit() ;
+    TVector3 x_axis = y_axis.Cross(z_axis);
 
-	double c_phi = pion_dir*x_axis;
+    double c_phi = pion_dir*x_axis;
 
-	double phi_dependency = kSqrt3 *( 2.*fR31[q2_index]*s_t*c_t*c_phi + fR3m1[q2_index]*s_t*(2.*c_phi*c_phi-1.) ) ;
-	w_function -= phi_dependency ;
+    double phi_dependency = kSqrt3 *( 2.*fR31[q2_index]*s_t*c_t*c_phi + fR3m1[q2_index]*s_t*(2.*c_phi*c_phi-1.) ) ;
+    w_function -= phi_dependency ;
   }
 
   double aidrnd = fW_max[q2_index] * RandomGen::Instance()-> RndDec().Rndm();
@@ -751,102 +751,107 @@ void BaryonResonanceDecayer::LoadConfig(void) {
 
   // load R33 parameters
   this -> GetParamDef( "Delta-R33", raw, string(" 0.5 ") ) ;
-  bits = utils::str::Split( raw, ";;" ) ;
+  bits = utils::str::Split( raw, ";" ) ;
 
   if ( ! utils::str::Convert(bits, fR33) ) {
-	LOG("BaryonResonanceDecayer", pFATAL) << "Failed to decode Delta-R33 string: " ;
-	LOG("BaryonResonanceDecayer", pFATAL) << "String " << raw ;
-	invalid_configuration = true ;
+    LOG("BaryonResonanceDecayer", pFATAL) << "Failed to decode Delta-R33 string: " ;
+    LOG("BaryonResonanceDecayer", pFATAL) << "String " << raw ;
+    invalid_configuration = true ;
   }
 
-  // load Q2 thresholds
-  this -> GetParamDef("Delta-Q2", raw, std::string() ) ;
-  bits = utils::str::Split( raw, ";;" ) ;
+  // load Q2 thresholds if necessary
+  if ( fR33.size() > 1 ) {
+    this -> GetParam("Delta-Q2", raw ) ;
+    bits = utils::str::Split( raw, ";" ) ;
 
-  if ( ! utils::str::Convert(bits, fQ2Thresholds ) ) {
-	LOG("BaryonResonanceDecayer", pFATAL) << "Failed to decode Delta-Q2 string: " ;
-	LOG("BaryonResonanceDecayer", pFATAL) << "String: " << raw ;
-	invalid_configuration = true ;
+    if ( ! utils::str::Convert(bits, fQ2Thresholds ) ) {
+      LOG("BaryonResonanceDecayer", pFATAL) << "Failed to decode Delta-Q2 string: " ;
+      LOG("BaryonResonanceDecayer", pFATAL) << "String: " << raw ;
+      invalid_configuration = true ;
+    }
+  }
+  else {
+    fQ2Thresholds.clear() ;
   }
 
   // check if the number of Q2 matches the number of R33
   if ( fQ2Thresholds.size() != fR33.size() -1 ) {
-	invalid_configuration = true ;
-	LOG("BaryonResonanceDecayer", pFATAL) << "Delta-Q2 and Delta-R33 have wrong sizes" ;
-	LOG("BaryonResonanceDecayer", pFATAL) << "Delta-Q2  -> " << fQ2Thresholds.size() ;
-	LOG("BaryonResonanceDecayer", pFATAL) << "Delta-R33 -> " << fR33.size() ;
+    invalid_configuration = true ;
+    LOG("BaryonResonanceDecayer", pFATAL) << "Delta-Q2 and Delta-R33 have wrong sizes" ;
+    LOG("BaryonResonanceDecayer", pFATAL) << "Delta-Q2  -> " << fQ2Thresholds.size() ;
+    LOG("BaryonResonanceDecayer", pFATAL) << "Delta-R33 -> " << fR33.size() ;
   }
 
   if ( fDeltaThetaOnly ) {
 
-	// check the parameters validity
-	for ( unsigned int i = 0 ; i < fR33.size(); ++i ) {
+    // check the parameters validity
+    for ( unsigned int i = 0 ; i < fR33.size(); ++i ) {
       if ( (fR33[i] < -0.5) ||  (fR33[i] > 1.) ) {
     	invalid_configuration = true ;
     	LOG("BaryonResonanceDecayer", pFATAL) << "Delta-R33[" << i << "] out of valid range [-0.5 ; 1 ]" ;
     	LOG("BaryonResonanceDecayer", pFATAL) << "Delta-R33[" << i << "] = " << fR33[i] ;
     	break ;
       }
-	}
+    }
 
-	// set appropriate maxima
-	fW_max.resize( fR33.size(), 0. ) ;
-	for ( unsigned int i = 0 ; i < fR33.size(); ++i ) {
+    // set appropriate maxima
+    fW_max.resize( fR33.size(), 0. ) ;
+    for ( unsigned int i = 0 ; i < fR33.size(); ++i ) {
       fW_max[i] = fR33[i] < 0.5 ? 2. * ( 1. - fR33[i] ) : fR33[i] + 0.5 ;
-	}
+    }
   
   } // Delta Theta Only
 
   else {
 
     // load R31 and R3m1 parameters
-	this -> GetParam( "Delta-R31", raw ) ;
-	bits = utils::str::Split( raw, ";;" ) ;
+    this -> GetParam( "Delta-R31", raw ) ;
+    bits = utils::str::Split( raw, ";" ) ;
 
-	 if ( ! utils::str::Convert(bits, fR31) ) {
-	   LOG("BaryonResonanceDecayer", pFATAL) << "Failed to decode Delta-R31 string: " ;
-	   LOG("BaryonResonanceDecayer", pFATAL) << "String " << raw ;
-	   invalid_configuration =  true ;
-     }
+    if ( ! utils::str::Convert(bits, fR31) ) {
+      LOG("BaryonResonanceDecayer", pFATAL) << "Failed to decode Delta-R31 string: " ;
+      LOG("BaryonResonanceDecayer", pFATAL) << "String " << raw ;
+      invalid_configuration =  true ;
+    }
 
-	this -> GetParam( "Delta-R3m1", raw ) ;
- 	bits = utils::str::Split( raw, ";;" ) ;
+    this -> GetParam( "Delta-R3m1", raw ) ;
+    bits = utils::str::Split( raw, ";" ) ;
 
-	if ( ! utils::str::Convert(bits, fR3m1) ) {
-	  LOG("BaryonResonanceDecayer", pFATAL) << "Failed to decode Delta-R3m1 string: " ;
-	  LOG("BaryonResonanceDecayer", pFATAL) << "String " << raw ;
-	  invalid_configuration =  true ;
-	}
+    if ( ! utils::str::Convert(bits, fR3m1) ) {
+      LOG("BaryonResonanceDecayer", pFATAL) << "Failed to decode Delta-R3m1 string: " ;
+      LOG("BaryonResonanceDecayer", pFATAL) << "String " << raw ;
+      invalid_configuration =  true ;
+    }
 
-	// check if they match the numbers of R33
-	if ( (fR31.size() != fR33.size()) || (fR3m1.size() != fR33.size()) ) {
-	  LOG("BaryonResonanceDecayer", pFATAL) << "Delta-R31 or Delta-R3m1 sizes don't match Delta-R33" ;
-	  LOG("BaryonResonanceDecayer", pFATAL) << "R31: " << fR31.size()
-			                                << ", R3m1: " << fR31.size()
-											<< " while R33: " << fR33.size() ;
-	  invalid_configuration = true ;
-	}
+    // check if they match the numbers of R33
+    if ( (fR31.size() != fR33.size()) || (fR3m1.size() != fR33.size()) ) {
+      LOG("BaryonResonanceDecayer", pFATAL) << "Delta-R31 or Delta-R3m1 sizes don't match Delta-R33" ;
+      LOG("BaryonResonanceDecayer", pFATAL) << "R31: " << fR31.size()
+					    << ", R3m1: " << fR31.size()
+					    << " while R33: " << fR33.size() ;
+      invalid_configuration = true ;
+    }
 
-	// check if they are physical
+    // check if they are physical
 
-	// Set the appropriate maxima
-	fW_max.resize( fR33.size(), 0. ) ;
-	for ( unsigned int i = 0 ; i < fR33.size(); ++i ) {
+    // Set the appropriate maxima
+    fW_max.resize( fR33.size(), 0. ) ;
+    for ( unsigned int i = 0 ; i < fR33.size(); ++i ) {
       fW_max[i] = 1.+(fR33[i]-0.5) + 2.*k1_Sqrt3*fR31[i] + k1_Sqrt3*fR3m1[i];
-	}
+    }
   }
 
   if ( invalid_configuration ) {
 
-	   LOG("BaryonResonanceDecayer", pFATAL)
-	      << "Invalid configuration: Exiting" ;
+    LOG("BaryonResonanceDecayer", pFATAL)
+      << "Invalid configuration: Exiting" ;
 
-	    // From the FreeBSD Library Functions Manual
-	    //
-	    // EX_CONFIG (78)   Something was found in an unconfigured or miscon-
-	    //                  figured state.
+    // From the FreeBSD Library Functions Manual
+    //
+    // EX_CONFIG (78)   Something was found in an unconfigured or miscon-
+    //                  figured state.
 
-	    exit( 78 ) ;
+    exit( 78 ) ;
 
   }
   

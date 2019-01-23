@@ -10,7 +10,6 @@ template<class T>
       std::stringstream temp ;
       temp << input[i] ;
       temp >> v[i] ;
-      success = success && temp.good() ;
     }
 	
     return success ;
