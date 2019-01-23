@@ -739,14 +739,37 @@ void BaryonResonanceDecayer::LoadConfig(void) {
 
   Decayer::LoadConfig() ;
 
+  this -> GetParam( "FFScaling", fFFScaling ) ;
+
   this -> GetParam( "Delta-ThetaOnly", fDeltaThetaOnly ) ;
 
-  this->GetParamDef( "Prob32", fProb32, 0.75 ) ;
+  bool invalid_configuration = false ;
+
+  int n_bins;
+  this -> GetParamDef( "Delta-NBins", n_bins, 1 ) ;
+
+  if ( n_bins > 1 ) {
+
+	  // load Q2 thresholds
+  }
+
+  // load
+
+  if ( fDeltaThetaOnly ) {
+
+
+
+	this->GetParamDef( "Prob32", fProb32, 0.75 ) ;
 
   fProb12 = 1. - fProb32 ;
 
   // the W(theta) function, see above, has to be positive
   // so prob12 has to be in [0, 3/2]
+
+  // the maximum of the W(theta) is necessary to throw to scale the random number used for the check
+
+    fW_max = fProb12 > 0.5 ? 2*fProb12 : 1.5 - fProb12 ;
+
   
   if ( fProb12 < 0. || fProb12 > 1.5 ) {
 
@@ -763,12 +786,28 @@ void BaryonResonanceDecayer::LoadConfig(void) {
     
   }
 
-  // the maximum of the W(theta) is necessary to throw to scale the random number used for the check
+
+
+  }
+  else {
+
+    // load vectors
+
+  }
+
+  if ( invalid_configuration ) {
+
+	   LOG("BaryonResonanceDecayer", pFATAL)
+	      << "Input configuration value for P(1/2) is not physical: Exiting" ;
+
+	    // From the FreeBSD Library Functions Manual
+	    //
+	    // EX_CONFIG (78)   Something was found in an unconfigured or miscon-
+	    //                  figured state.
+
+	    exit( 78 ) ;
+
+  }
   
-  fW_max = fProb12 > 0.5 ? 2*fProb12 : 1.5 - fProb12 ; 
-
-
-  this -> GetParam( "FFScaling", fFFScaling ) ;
-
 }
 

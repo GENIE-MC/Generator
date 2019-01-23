@@ -2,7 +2,7 @@
 
 
 
-<!-- 
+<!--
 
 Configuration sets for Baryon Resonance decayer
 
@@ -12,11 +12,15 @@ Name                          Type     Optional   Comment                       
 ..........................................................................................................
 FFScaling                     double   No         Scaling factor for Form Factor for Gamma Delta coupling
                                                   This value is coming from an MiniBooNE technical note
-Prob32                        double   yes        This is the parameter of the angular distribution of the pion
-                                                  in the Delta reference frame. To have a positive distribution
-						  this value needs to be in [-1/2, 1] 
-						  The default value is 3/4 which is the result of Rein-Sehgal theory
---> 
+
+Delta-ThetaOnly               bool     No         Pion angolar distribution from delta decay isotropic in phi
+Delta-NBins                   int      Yes        Number of Q2 regions for the W(theta,phi) function parameters
+                                                  default: 1
+Delta-R33-0                   double   No         This is on of the parameter of the angular distribution of the pion
+                                                  in the Delta reference frame.
+                                                  -0 identifies this as the number
+
+-->
 
 
 
@@ -25,7 +29,7 @@ Prob32                        double   yes        This is the parameter of the a
   <param_set name="Default">
     <param type="string" name="CommonParam"> DecayFlags </param>
 
-    <param type="double" name="FFScaling">  0.706    </param> 
+    <param type="double" name="FFScaling">  0.706    </param>
 
   </param_set>
 
