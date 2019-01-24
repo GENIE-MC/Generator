@@ -311,7 +311,7 @@ TClonesArray *
          p->GetKF(),                // pdg
          GHepStatus_t(p->GetKS()),  // status
          p->GetParent(),            // first parent
-         0,                         // second parent
+         -1,                        // second parent
          p->GetFirstChild(),        // first daughter
          p->GetLastChild(),         // second daughter
          p->GetPx(),                // px
