@@ -79,6 +79,13 @@ void DISHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
   //-- Add an entry for the DIS Pre-Fragm. Hadronic State
   this->AddFinalHadronicSyst(evrec);
 
+  // set W in the Event Summary
+  //-- Compute the hadronic system invariant mass
+  TLorentzVector p4Had = this->Hadronic4pLAB(evrec);
+
+  Interaction * interaction = evrec->Summary();
+  interaction->KinePtr()->SetW( p4Had.M() );
+
   //-- Add the fragmentation products
   fHadronizationModel -> ProcessEventRecord( evrec ) ;
 
