@@ -57,10 +57,10 @@ Delta-R3m1                    string   Yes        string ; separated of values f
     <!-- BNL -->
     <!--
     <param type="bool" name="Delta-ThetaOnly"> false </param>
-    <param type="string" name="Delta-R33">    0.661 ;;  0.673 ;; 0.750 ;; 0.800 </param>
-    <param type="string" name="Delta-R31">   -0.213 ;;  0.025 ;; 0.036 ;; 0.075 </param>
-    <param type="string" name="Delta-R3m1">  -0.133 ;; -0.075 ;; 0.046 ;; 0.004 </param>
-    <param type="string" name="Delta-Q2">          0.2   ;;  0.4  ;;  0.6   </param>
+    <param type="string" name="Delta-R33">    0.661 ;  0.673 ; 0.750 ; 0.800 </param>
+    <param type="string" name="Delta-R31">   -0.213 ;  0.025 ; 0.036 ; 0.075 </param>
+    <param type="string" name="Delta-R3m1">  -0.133 ; -0.075 ; 0.046 ; 0.004 </param>
+    <param type="string" name="Delta-Q2">          0.2   ;  0.4  ;  0.6   </param>
     -->
 
   </param_set>
