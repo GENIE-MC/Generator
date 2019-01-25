@@ -107,7 +107,7 @@ void KNOHadronization::ProcessEventRecord(GHepRecord * event) const {
 
   // retrieve the hadronic blob lorentz boost
   // Because Hadronize() returned particles not in the LAB reference frame
-  TLorentzVector * had_syst = event -> Particle(mom) ->  GetP4() ;
+  const TLorentzVector * had_syst = event -> Particle(mom) -> P4() ;
   TVector3 boost = had_syst -> BoostVector() ;
 
   GHepParticle * particle = 0;
@@ -117,7 +117,7 @@ void KNOHadronization::ProcessEventRecord(GHepRecord * event) const {
     int pdgc = particle -> Pdg() ;
 
     //  bring the particle in the LAB reference frame
-    particle -> GetP4() -> Boost( boost ) ;
+    particle -> P4() -> Boost( boost ) ;
 
     // set the proper status according to a number of things:
     // interaction on a nucleaus or nucleon, particle type
