@@ -136,6 +136,8 @@ void KNOHadronization::ProcessEventRecord(GHepRecord * event) const {
     int ifc = ( particle -> FirstDaughter() == -1) ? -1 : mom + 1 + particle -> FirstDaughter();
     int ilc = ( particle -> LastDaughter()  == -1) ? -1 : mom + 1 + particle -> LastDaughter();
 
+    particle -> SetFirstMother( im ) ;
+
     event->AddParticle(*particle);
   }
 
