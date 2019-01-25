@@ -46,6 +46,13 @@ public:
   // Implement the EventRecordVisitorI interface
   void ProcessEventRecord(GHepRecord * event) const;
 
+  // Overload the Algorithm::Configure() methods to load private data
+  // members from configuration options
+  //
+  void Configure(const Registry & config);
+  void Configure(string config);
+
+
 private:
 
   void           LoadConfig          (void);

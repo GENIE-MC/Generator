@@ -674,11 +674,23 @@ int CharmHadronization::GenerateCharmHadron(int nu_pdg, double EvLab) const
   return 0;
 }
 //____________________________________________________________________________
+void CharmHadronization::Configure(const Registry & config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//____________________________________________________________________________
+void CharmHadronization::Configure(string config)
+{
+  Algorithm::Configure(config);
+  this->LoadConfig();
+}
+//____________________________________________________________________________
 void CharmHadronization::LoadConfig(void)
 {
 
-  bool hadronize_remnants = true ;
-  GetParam( "HadronizeRemnants", hadronize_remnants, false ) ;
+  bool hadronize_remnants ; 
+  GetParamDef( "HadronizeRemnants", hadronize_remnants, true ) ;
 
   fCharmOnly = ! hadronize_remnants ;
 
