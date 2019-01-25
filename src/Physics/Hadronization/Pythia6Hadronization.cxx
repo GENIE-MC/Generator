@@ -16,6 +16,11 @@
 #include <TClonesArray.h>
 #include <TMath.h>
 #include <TH1D.h>
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,6)
+#include <TMCParticle.h>
+#else
+#include <TMCParticle6.h>
+#endif
 
 #include "Framework/Algorithm/AlgConfigPool.h"
 #include "Framework/Conventions/Constants.h"
@@ -70,11 +75,21 @@ void Pythia6Hadronization::ProcessEventRecord(GHepRecord * event) const
   Interaction * interaction = event->Summary();
   TClonesArray * particle_list = this->Hadronize(interaction);
 
-  GHepParticle * particle = 0;
+  int mom = event->FinalStateHadronicSystemPosition();
+  assert(mom!=-1);
+
+  GHepParticle * p = 0;
   TIter particle_iter(particle_list);
-  while ((particle = (GHepParticle *) particle_iter.Next())) 
+  while ((p = (GHepParticle *) particle_iter.Next())) 
   {
-     event->AddParticle(*particle);
+     p->SetFirstMother(mom + p->FirstMother());
+     p->SetLastMother(mom + p->LastMother());
+     int ifd = (p->FirstDaughter() == -1) ? -1 : mom + p->FirstDaughter();
+     int ild = (p->LastDaughter()  == -1) ? -1 : mom + p->LastDaughter();
+     p->SetFirstDaughter(ifd);
+     p->SetLastDaughter (ild);
+
+     event->AddParticle(*p);
   }
 }
 //____________________________________________________________________________
@@ -297,17 +312,55 @@ TClonesArray *
   particle_list->SetOwner(true);
 
   unsigned int i = 0;
-  GHepParticle * particle = 0;
+  TMCParticle * p = 0;
   TIter particle_iter(pythia_particles);
 
-  while( (particle = (GHepParticle *) particle_iter.Next()) ) {
-     LOG("Pythia6Had", pDEBUG)
-          << "Adding final state particle pdgc = " << particle->Pdg() 
-          << " with status = " << particle->Status();
+  // Hadronic 4vec
+  TLorentzVector p4Had = kinematics.HadSystP4();
 
-     if(particle->Status() == 1) {
-        if( pdg::IsQuark  (particle->Pdg()) || 
-            pdg::IsDiQuark(particle->Pdg()) ) {
+  // Vector defining rotation from LAB to LAB' (z:= \vec{phad})
+  TVector3 unitvq = p4Had.Vect().Unit();
+
+  // Boost velocity LAB' -> HCM
+  TVector3 beta(0,0,p4Had.P()/p4Had.Energy());
+
+  while( (p = (TMCParticle *) particle_iter.Next()) ) {
+     // The fragmentation products are generated in the hadronic CM frame
+     // where the z>0 axis is the \vec{phad} direction. For each particle 
+     // returned by the hadronizer:
+     // - boost it back to LAB' frame {z:=\vec{phad}} / doesn't affect pT
+     // - rotate its 3-momentum from LAB' to LAB
+     TLorentzVector p4o(p->GetPx(), p->GetPy(), p->GetPz(), p->GetEnergy());
+     p4o.Boost(beta); 
+     TVector3 p3 = p4o.Vect();
+     p3.RotateUz(unitvq); 
+     TLorentzVector p4(p3,p4o.Energy());
+
+     // Convert from TMCParticle to GHepParticle
+     GHepParticle particle = GHepParticle(
+         p->GetKF(),                // pdg
+         GHepStatus_t(p->GetKS()),  // status
+         p->GetParent(),            // first parent
+         -1,                        // second parent
+         p->GetFirstChild(),        // first daughter
+         p->GetLastChild(),         // second daughter
+         p4.Px(),                   // px
+         p4.Py(),                   // py
+         p4.Pz(),                   // pz
+         p4.Energy(),               // e
+         p->GetVx(),                // x
+         p->GetVy(),                // y
+         p->GetVz(),                // z
+         p->GetTime()               // t
+     );
+
+     LOG("Pythia6Had", pDEBUG)
+          << "Adding final state particle pdgc = " << particle.Pdg() 
+          << " with status = " << particle.Status();
+
+     if(particle.Status() == 1) {
+        if( pdg::IsQuark  (particle.Pdg()) || 
+            pdg::IsDiQuark(particle.Pdg()) ) {
                 LOG("Pythia6Had", pERROR)
                   << "Hadronization failed! Bare quark/di-quarks appear in final state!";
             particle_list->Delete();
@@ -316,13 +369,8 @@ TClonesArray *
         }
      }
 
-     // fix numbering scheme used for mother/daughter assignments
-     particle->SetFirstMother   (particle->FirstMother()   - 1);
-     particle->SetFirstDaughter (particle->FirstDaughter() - 1);
-     particle->SetLastDaughter  (particle->LastDaughter()  - 1);
-
      // insert the particle in the list
-     new ( (*particle_list)[i++] ) GHepParticle(*particle);
+     new ( (*particle_list)[i++] ) GHepParticle(particle);
   }
 
   utils::fragmrec::Print(particle_list);

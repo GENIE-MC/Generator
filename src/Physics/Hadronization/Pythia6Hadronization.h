@@ -23,6 +23,7 @@
 #include <TPythia6.h>
 
 #include "Framework/EventGen/EventRecordVisitorI.h"
+#include "Framework/Interaction/Interaction.h"
 #include "Framework/ParticleData/PDGCodeList.h" 
 
 namespace genie {
