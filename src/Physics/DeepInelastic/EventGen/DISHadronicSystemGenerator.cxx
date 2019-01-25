@@ -89,6 +89,7 @@ void DISHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
   //-- Add the fragmentation products
   fHadronizationModel -> ProcessEventRecord( evrec ) ;
 
+
   //-- Simulate the formation zone if not taken directly from the 
   //   hadronization model
   this->SimulateFormationZone(evrec);

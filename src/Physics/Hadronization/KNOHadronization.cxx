@@ -97,12 +97,52 @@ void KNOHadronization::ProcessEventRecord(GHepRecord * event) const {
 	Interaction * interaction = event->Summary();
 	TClonesArray * particle_list = this->Hadronize(interaction);
 
+	int mom = event->FinalStateHadronicSystemPosition();
+	assert(mom!=-1);
+
+	// find the proper status for the particles we are going to put in event record
+    bool is_nucleus = interaction->InitState().Tgt().IsNucleus();
+    GHepStatus_t istfin = (is_nucleus) ?
+    		kIStHadronInTheNucleus : kIStStableFinalState ;
+
+    // retrieve the hadronic blob lorentz boost
+    // Because Hadronize() returned particles not in the LAB reference frame
+    TLorentVector * had_syst = event -> Particle(mom) ->  GetP4() ;
+    TVector3 boost = had_syst -> BoostVector() ;
+
 	GHepParticle * particle = 0;
 	TIter particle_iter(particle_list);
 	while ((particle = (GHepParticle *) particle_iter.Next()))
 	{
+
+	  int pdgc = particle -> Pdg() ;
+
+      //  bring the particle in the LAB reference frame
+	  particle -> GetP4() -> Boost( boost ) ;
+
+	  // set the proper status according to a number of things:
+	  // interaction on a nucleaus or nucleon, particle type
+	  GHepStatus_t ist = ( particle -> Status() ==1 ) ? istfin : kIStDISPreFragmHadronicState;
+
+	  // handle gammas, and leptons that might come from internal pythia decays
+	  // mark them as final state particles
+	  bool not_hadron = ( pdgc == kPdgGamma ||
+	                      pdg::IsNeutralLepton(pdgc) ||
+						  pdg::IsChargedLepton(pdgc) ) ;
+
+	  if(not_hadron)  { ist = kIStStableFinalState; }
+	  particle -> SetStatus( ist ) ;
+
+	  int im  = mom + 1 + particle -> FirstMother() ;
+	  int ifc = ( particle -> FirstDaughter() == -1) ? -1 : mom + 1 + particle -> FirstDaughter();
+	  int ilc = ( particle -> LastDaughter()  == -1) ? -1 : mom + 1 + particle -> LastDaughter();
+
       event->AddParticle(*particle);
 	}
+
+	// update the weight of the event
+	event -> SetWeight ( Weight()) * event->Weight() );
+
 }
 //____________________________________________________________________________
 TClonesArray * KNOHadronization::Hadronize(
@@ -511,23 +551,6 @@ void KNOHadronization::LoadConfig(void)
   gROOT->GetListOfFunctions()->Remove(fBaryonXFpdf);
   gROOT->GetListOfFunctions()->Remove(fBaryonPT2pdf);
 
-/*
-  // load legacy KNO spline
-  fUseLegacyKNOSpline = fConfig->GetBoolDef("UseLegacyKNOSpl", false);
-
-  // Delete the KNO spline from previous configuration of this instance
-  if(fKNO) delete fKNO;
-
-  if(fUseLegacyKNOSpline) {
-     assert(gSystem->Getenv("GENIE"));
-     string basedir    = gSystem->Getenv("GENIE");
-     string defknodata = basedir + "/data/kno/KNO.dat";
-     string knodata    = fConfig->GetStringDef("kno-data",defknodata);
-
-     LOG("KNOHad", pNOTICE) << "Loading KNO data from: " << knodata;
-     fKNO = new Spline(knodata);
-  }
-*/
 
   // Load parameters determining the average charged hadron multiplicity
   GetParam( "KNO-Alpha-vp",  fAvp ) ;
@@ -584,13 +607,6 @@ void KNOHadronization::LoadConfig(void)
 double KNOHadronization::KNO(int probe_pdg, int nuc_pdg, double z) const
 {
 // Computes <n>P(n) for the input reduced multiplicity z=n/<n>
-
-/*
-  if(fUseLegacyKNOSpline) {
-     bool inrange = z > fKNO->XMin() && z < fKNO->XMax();
-     return (inrange) ? fKNO->Evaluate(z) : 0.;
-  }
-*/
 
   bool is_p     = pdg::IsProton           (nuc_pdg);
   bool is_n     = pdg::IsNeutron          (nuc_pdg);
