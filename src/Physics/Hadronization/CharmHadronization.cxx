@@ -19,6 +19,12 @@
 #include <TF1.h>
 #include <TROOT.h>
 
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,6)
+#include <TMCParticle.h>
+#else
+#include <TMCParticle6.h>
+#endif
+
 #include "Framework/Algorithm/AlgConfigPool.h"
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/Controls.h"
@@ -101,6 +107,7 @@ void CharmHadronization::ProcessEventRecord(GHepRecord * event) const
   while ((particle = (GHepParticle *) particle_iter.Next()))  {
 
     int pdgc = particle -> Pdg() ;
+    std::cout << pdgc << std::endl ; 
 
     //  bring the particle in the LAB reference frame
     particle -> P4() -> Boost( boost ) ;
@@ -123,6 +130,8 @@ void CharmHadronization::ProcessEventRecord(GHepRecord * event) const
     //int ilc = ( particle -> LastDaughter()  == -1) ? -1 : mom + 1 + particle -> LastDaughter();
 
     particle -> SetFirstMother( im ) ;
+
+    std::cout << "before inserting" << std::endl ;
 
     event->AddParticle(*particle);
   }
@@ -547,13 +556,20 @@ TClonesArray * CharmHadronization::Hadronize(
      fPythia->SetMDCY(fPythia->Pycomp(kPdgPi0),1,1); // restore
 
      //-- Get PYTHIA's LUJETS event record
-     TClonesArray * remnants = 0;
+     TClonesArray * pythia_remnants = 0;
      fPythia->GetPrimaries();
-     remnants = dynamic_cast<TClonesArray *>(fPythia->ImportParticles("All"));
-     if(!remnants) {
+     pythia_remnants = dynamic_cast<TClonesArray *>(fPythia->ImportParticles("All"));
+     if(!pythia_remnants) {
          LOG("CharmHad", pWARN) << "Couldn't hadronize (non-charm) remnants!";
          return 0;
       }
+
+     int np = pythia_remnants->GetEntries();
+     assert(np>0);
+
+     TClonesArray * remnants = new TClonesArray("genie::GHepParticle", np);
+     particle_list->SetOwner(true);
+
 
       // PYTHIA performs the hadronization at the *remnant hadrons* centre of mass 
       // frame  (not the hadronic centre of mass frame). 
@@ -562,22 +578,31 @@ TClonesArray * CharmHadronization::Hadronize(
 
       TVector3 rmnbeta = +1 * p4R.BoostVector(); // boost velocity
 
-      GHepParticle * remn  = 0; // remnant
+      TMCParticle * pythia_remn  = 0; // remnant
       GHepParticle * bremn = 0; // boosted remnant
       TIter remn_iter(remnants);
-      while( (remn = (GHepParticle *) remn_iter.Next()) ) {
+      while( (pythia_remn = (TMCParticle *) remn_iter.Next()) ) {
 
          // insert and get a pointer to inserted object for mods
-         bremn = new ((*particle_list)[rpos++]) GHepParticle (*remn);
+	bremn = new ((*particle_list)[rpos++]) GHepParticle ( pythia_remn->GetKF(),                // pdg
+							      GHepStatus_t(pythia_remn->GetKS()),  // status
+							      pythia_remn->GetParent(),            // first parent
+							      -1,                                  // second parent
+							      pythia_remn->GetFirstChild(),        // first daughter
+							      pythia_remn->GetLastChild(),         // second daughter
+							      pythia_remn -> GetPx(),              // px
+							      pythia_remn -> GetPy(),             // py
+							      pythia_remn -> GetPz(),              // pz
+							      pythia_remn -> GetEnergy(),          // e
+							      pythia_remn->GetVx(),                // x
+							      pythia_remn->GetVy(),                // y
+							      pythia_remn->GetVz(),                // z
+							      pythia_remn->GetTime()               // t
+							      );
 
-         // boost 
-         TLorentzVector p4(remn->Px(),remn->Py(),remn->Pz(),remn->Energy());
-         p4.Boost(rmnbeta);
-         bremn -> SetPx     (p4.Px());
-         bremn -> SetPy     (p4.Py());
-         bremn -> SetPz     (p4.Pz());
-         bremn -> SetEnergy (p4.E() );
-
+	// boost 
+	bremn -> P4() -> Boost( rmnbeta ) ; 
+	
          // handle insertion of charmed hadron 
          int jp  = bremn->FirstMother();
          int ifc = bremn->FirstDaughter();
@@ -679,6 +704,7 @@ TClonesArray * CharmHadronization::Hadronize(
      }
      for(unsigned int i=0; i<2; i++) {
         int pdgc = pd[i];
+	std::cout << "PDG: " << pdgc << std::endl ;
         TLorentzVector * p4d = fPhaseSpaceGenerator.GetDecay(i);
         new ( (*particle_list)[rpos+i] ) GHepParticle(
            pdgc,kIStStableFinalState,1,1,-1,-1,p4d->Px(),p4d->Py(),p4d->Pz(),p4d->Energy(),
