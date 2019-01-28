@@ -56,9 +56,11 @@ public:
 private:
 
   void           LoadConfig          (void);
-  void           Initialize          (void)                                    const;
-  TClonesArray * Hadronize           (const Interaction* )                     const;
-  int            GenerateCharmHadron (int nupdg, double EvLab)                 const;
+  void           Initialize          (void)                                    const ;
+  TClonesArray * Hadronize           (const Interaction* )                     const ;
+  int            GenerateCharmHadron (int nupdg, double EvLab)                 const ;
+
+  double         Weight              (void)                                    const ;
 
   mutable TGenPhaseSpace fPhaseSpaceGenerator; ///< a phase space generator
 
