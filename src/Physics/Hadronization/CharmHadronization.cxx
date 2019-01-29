@@ -107,7 +107,6 @@ void CharmHadronization::ProcessEventRecord(GHepRecord * event) const
   while ((particle = (GHepParticle *) particle_iter.Next()))  {
 
     int pdgc = particle -> Pdg() ;
-    std::cout << pdgc << std::endl ; 
 
     //  bring the particle in the LAB reference frame
     particle -> P4() -> Boost( boost ) ;
@@ -126,12 +125,15 @@ void CharmHadronization::ProcessEventRecord(GHepRecord * event) const
     particle -> SetStatus( ist ) ;
 
     int im  = mom + 1 + particle -> FirstMother() ;
-    //int ifc = ( particle -> FirstDaughter() == -1) ? -1 : mom + 1 + particle -> FirstDaughter();
-    //int ilc = ( particle -> LastDaughter()  == -1) ? -1 : mom + 1 + particle -> LastDaughter();
+    int ifc = ( particle -> FirstDaughter() == -1) ? -1 : mom + 1 + particle -> FirstDaughter();
+    int ilc = ( particle -> LastDaughter()  == -1) ? -1 : mom + 1 + particle -> LastDaughter();
 
     particle -> SetFirstMother( im ) ;
-
-    std::cout << "before inserting" << std::endl ;
+    if ( ifc > -1 ) {
+      particle -> SetFirstDaughter( ifc ) ; 
+      particle -> SetLastDaughter( ilc ) ; 
+    }
+    
 
     event->AddParticle(*particle);
   }
@@ -567,10 +569,6 @@ TClonesArray * CharmHadronization::Hadronize(
      int np = pythia_remnants->GetEntries();
      assert(np>0);
 
-     TClonesArray * remnants = new TClonesArray("genie::GHepParticle", np);
-     particle_list->SetOwner(true);
-
-
       // PYTHIA performs the hadronization at the *remnant hadrons* centre of mass 
       // frame  (not the hadronic centre of mass frame). 
       // Boost all hadronic blob fragments to the HCM', fix their mother/daughter 
@@ -580,7 +578,7 @@ TClonesArray * CharmHadronization::Hadronize(
 
       TMCParticle * pythia_remn  = 0; // remnant
       GHepParticle * bremn = 0; // boosted remnant
-      TIter remn_iter(remnants);
+      TIter remn_iter(pythia_remnants);
       while( (pythia_remn = (TMCParticle *) remn_iter.Next()) ) {
 
          // insert and get a pointer to inserted object for mods
@@ -591,7 +589,7 @@ TClonesArray * CharmHadronization::Hadronize(
 							      pythia_remn->GetFirstChild(),        // first daughter
 							      pythia_remn->GetLastChild(),         // second daughter
 							      pythia_remn -> GetPx(),              // px
-							      pythia_remn -> GetPy(),             // py
+							      pythia_remn -> GetPy(),              // py
 							      pythia_remn -> GetPz(),              // pz
 							      pythia_remn -> GetEnergy(),          // e
 							      pythia_remn->GetVx(),                // x
@@ -605,11 +603,12 @@ TClonesArray * CharmHadronization::Hadronize(
 	
          // handle insertion of charmed hadron 
          int jp  = bremn->FirstMother();
-         int ifc = bremn->FirstDaughter();
-         int ilc = bremn->LastDaughter();
-         bremn -> SetFirstDaughter ( (jp  == 0 ?  1 : jp +1) );
-         bremn -> SetFirstDaughter ( (ifc == 0 ? -1 : ifc+1) );
-         bremn -> SetLastDaughter  ( (ilc == 0 ? -1 : ilc+1) );
+	 int ifc = bremn->FirstDaughter();
+	 int ilc = bremn->LastDaughter();
+
+         bremn -> SetFirstMother( (jp  == 0 ?  1 : jp +1) );
+	 bremn -> SetFirstDaughter ( (ifc == 0 ? -1 : ifc+1) );
+	 bremn -> SetLastDaughter  ( (ilc == 0 ? -1 : ilc+1) );
       }
   } // use_pythia
 
@@ -704,7 +703,6 @@ TClonesArray * CharmHadronization::Hadronize(
      }
      for(unsigned int i=0; i<2; i++) {
         int pdgc = pd[i];
-	std::cout << "PDG: " << pdgc << std::endl ;
         TLorentzVector * p4d = fPhaseSpaceGenerator.GetDecay(i);
         new ( (*particle_list)[rpos+i] ) GHepParticle(
            pdgc,kIStStableFinalState,1,1,-1,-1,p4d->Px(),p4d->Py(),p4d->Pz(),p4d->Energy(),
