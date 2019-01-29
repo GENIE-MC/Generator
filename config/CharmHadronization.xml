@@ -7,15 +7,46 @@ Algorithm Configurable Parameters:
 .......................................................................................................................
 Name                          Type    Opt   Comment                                       Default
 .......................................................................................................................
+FragmentationFunc             alg     No    Fragmentation function algorithm
+HadronizeRemnants             bool    yes   handle to allow the hadronization             true
+                                            (with Pytha) of the charm remnants
+PTFunction                    string  No    Function in form of a string for the
+                                            P_t distribution of the Charmed hadron
+                                            The variable as to be x
 
+CharmFrac-E                   string  No    string of ; separated values of the energy
+                                            points for ChramFraction splines
+CharmFrac-D0                  string  No    string of ; separated values of the fractions
+                                            for D0 meson
+                                            the number of elements must be the same as in
+                                            CharmFrac-E
+CharmFrac-D+                  string  No    string of ; separated values of the fractions
+                                            for D+ meson
+                                            the number of elements must be the same as in
+                                            CharmFrac-E
+CharmFrac-Ds                  string  No    string of ; separated values of the fractions
+                                            for D_s meson
+                                            the number of elements must be the same as in
+                                            CharmFrac-E
 -->
 
 <alg_conf>
 
-  <param_set name="Default"> 
-     <param type="alg"    name="FragmentationFunc">  genie::PetersonFragm/Default </param>
-     <param type="bool"   name="HadronizeRemnants">  true                         </param>
+  <param_set name="Default">
+    
+     <param type="alg"      name="FragmentationFunc">  genie::PetersonFragm/Default </param>
+     <param type="bool"     name="HadronizeRemnants">  true                         </param>
+
+     <param type="string"   name="PTFunction">  exp(-0.213362-6.62464*x)            </param>
+
+     <param type="string"   name="CharmFrac-E">   0.    ; 5.    ; 10.   ; 15.   ; 20.   ; 25.   ; 30.   ; 35.   ; 40.   ; 50.   ; 60.   ; 70.   ; 80.   ; 90.   ; 100.   </param>
+
+     <param type="string"   name="CharmFrac-D0">  0.000 ; 0.320 ; 0.460 ; 0.500 ; 0.520 ; 0.530 ; 0.540 ; 0.540 ; 0.540 ; 0.550 ; 0.550 ; 0.560 ; 0.570 ; 0.580 ; 0.600  </param>
+     <param type="string"   name="CharmFrac-D+">  0.000 ; 0.120 ; 0.180 ; 0.200 ; 0.200 ; 0.210 ; 0.210 ; 0.210 ; 0.210 ; 0.210 ; 0.220 ; 0.220 ; 0.220 ; 0.230 ; 0.230  </param>
+     <param type="string"   name="CharmFrac-Ds">  0.000 ; 0.054 ; 0.078 ; 0.130 ; 0.130 ; 0.140 ; 0.140 ; 0.140 ; 0.140 ; 0.140 ; 0.140 ; 0.140 ; 0.140 ; 0.150 ; 0.150  </param>
+
+     <param type="double"   name="CharmFrac-D0bar">  0.667 </param>
+     <param type="double"   name="CharmFrac-D-">     0.222 </param>
   </param_set>
 
 </alg_conf>
-

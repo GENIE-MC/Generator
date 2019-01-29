@@ -41,6 +41,7 @@
 #include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/ParticleData/PDGCodeList.h"
 #include "Framework/Utils/KineUtils.h"
+#include "Framework/Utils/StringUtils.h"
 #include "Physics/Hadronization/FragmRecUtils.h"
 #include "Framework/Utils/PrintUtils.h"
 
@@ -770,29 +771,110 @@ void CharmHadronization::LoadConfig(void)
     this->SubAlg("FragmentationFunc"));
   assert(fFragmFunc);
 
-  fCharmPT2pdf = new TF1("fCharmPT2pdf", "exp(-0.213362-6.62464*x)",0,0.6);
+  string pt_function ;
+  this -> GetParam( "PTFunction", pt_function ) ;
+
+  fCharmPT2pdf = new TF1("fCharmPT2pdf", pt_function.c_str(),0,0.6);
+
   // stop ROOT from deleting this object of its own volition
   gROOT->GetListOfFunctions()->Remove(fCharmPT2pdf);
 
   // neutrino charm fractions: D^0, D^+, Ds^+ (remainder: Lamda_c^+)
-  //
-  const int nc = 15;
-  double ec[nc] = {0.,5.,10.,15.,20.,25.,30.,35.,40.,50.,60.,70.,80.,90.,100.};
+  std::vector<double> ec, d0frac, dpfrac, dsfrac ;
 
-  double d0frac[nc] = { .000, .320, .460,  .500,  .520,  .530, .540, .540,
-                        .540, .550,  .550,  .560,  .570, .580, .600  };
-  double dpfrac[nc] = { .000, .120, .180,  .200,  .200,  .210, .210, .210,
-                        .210, .210,  .220,  .220,  .220, .230, .230  };
-  double dsfrac[nc] = { .000, .054, .078,  .130,  .130,  .140, .140, .140,
-                        .140, .140,  .140,  .140,  .140, .150, .150  };
- 
-  fD0FracSpl = new Spline(nc, ec, d0frac);
-  fDpFracSpl = new Spline(nc, ec, dpfrac);
-  fDsFracSpl = new Spline(nc, ec, dsfrac);
+  std::string raw ;
+  std::vector<std::string> bits ;
+
+  bool invalid_configurations = false ;
+
+  // load energy points
+  this -> GetParam( "CharmFram-E", raw ) ;
+  bits = utils::str::Split( raw, ";" ) ;
+
+  if ( ! utils::str::Convert(bits, ec) ) {
+    LOG("CharmHadronization", pFATAL) <<
+    		"Failed to decode CharmFrac-E string: ";
+    LOG("CharmHadronization", pFATAL) << "string: "<< raw ;
+    invalid_configuration = true ;
+  }
+
+  // load D0 fractions
+  this -> GetParam( "CharmFrac-D0", raw ) ;
+  bits = utils::str::Split( raw, ";" ) ;
+
+  if ( ! utils::str::Convert(bits, d0frac) ) {
+    LOG("CharmHadronization", pFATAL) <<
+    		"Failed to decode CharmFrac-D0 string: ";
+    LOG("CharmHadronization", pFATAL) << "string: "<< raw ;
+    invalid_configuration = true ;
+  }
+
+  // check the size
+  if ( d0frac.size() != ec.size() ) {
+	  LOG("CharmHadronization", pFATAL) << "E entries don't match D0 fraction entries";
+	  LOG("CharmHadronization", pFATAL) << "E:  " << ec.size() ;
+	  LOG("CharmHadronization", pFATAL) << "D0: " << d0frac.size() ;
+	  invalid_configurations = true ;
+  }
+
+  // load D+ fractions
+    this -> GetParam( "CharmFrac-D+", raw ) ;
+    bits = utils::str::Split( raw, ";" ) ;
+
+    if ( ! utils::str::Convert(bits, dpfrac) ) {
+      LOG("CharmHadronization", pFATAL) <<
+      		"Failed to decode CharmFrac-D+ string: ";
+      LOG("CharmHadronization", pFATAL) << "string: "<< raw ;
+      invalid_configuration = true ;
+    }
+
+    // check the size
+    if ( dpfrac.size() != ec.size() ) {
+  	  LOG("CharmHadronization", pFATAL) << "E entries don't match D+ fraction entries";
+  	  LOG("CharmHadronization", pFATAL) << "E:  " << ec.size() ;
+  	  LOG("CharmHadronization", pFATAL) << "D+: " << dpfrac.size() ;
+  	  invalid_configurations = true ;
+    }
+
+    // load D_s fractions
+    this -> GetParam( "CharmFrac-Ds", raw ) ;
+    bits = utils::str::Split( raw, ";" ) ;
+
+    if ( ! utils::str::Convert(bits, dsfrac) ) {
+    	LOG("CharmHadronization", pFATAL) <<
+    			"Failed to decode CharmFrac-Ds string: ";
+    	LOG("CharmHadronization", pFATAL) << "string: "<< raw ;
+    	invalid_configuration = true ;
+    }
+
+    // check the size
+    if ( dsfrac.size() != ec.size() ) {
+    	LOG("CharmHadronization", pFATAL) << "E entries don't match Ds fraction entries";
+    	LOG("CharmHadronization", pFATAL) << "E:  " << ec.size() ;
+    	LOG("CharmHadronization", pFATAL) << "Ds: " << dsfrac.size() ;
+    	invalid_configurations = true ;
+    }
+
+  fD0FracSpl = new Spline( ec.size(), & ec[0], & d0frac[0] );
+  fDpFracSpl = new Spline( ec.size(), & ec[0], & dpfrac[0] );
+  fDsFracSpl = new Spline( ec.size(), & ec[0], & dsfrac[0] );
 
   // anti-neutrino charm fractions: bar(D^0), D^-, (remainder: Ds^-)
-  //
-  fD0BarFrac = 0.667;
-  fDmFrac    = 0.222;
+
+  this -> GetParam( "CharmFrac-D0bar", fD0BarFrac ) ;
+  this -> GetParam( "CharmFrac-D-",    fDmFrac ) ;
+
+  if ( invalid_configurations ) {
+
+	    LOG("CharmHadronization", pFATAL)
+	      << "Invalid configuration: Exiting" ;
+
+	    // From the FreeBSD Library Functions Manual
+	    //
+	    // EX_CONFIG (78)   Something was found in an unconfigured or miscon-
+	    //                  figured state.
+
+	    exit( 78 ) ;
+  }
 }
 //____________________________________________________________________________
