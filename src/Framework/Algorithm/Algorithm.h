@@ -23,6 +23,7 @@
 #define _ALGORITHM_H_
 
 #include <string>
+#include <sstream>
 #include <iostream>
 #include <cassert>
 #include <map>
@@ -176,6 +177,11 @@ protected:
   template<class T>
      bool GetParamDef( const RgKey & name, T & p, const T & def ) const ;
 
+  //! Handle to load vectors of parameters
+  //! It looks for different registry item with name comm_name0, comm_name1, etc...
+  template<class T>
+    bool GetParamVect( const std::string & comm_name, std::vector<T> & v,
+    		           unsigned int max, bool is_top_call = true ) const ;
 
   int   AddTopRegistry( Registry * rp, bool owns = true );  ///< add registry with top priority, also update ownership
   int   AddLowRegistry( Registry * rp, bool owns = true );  ///< add registry with lowest priority, also update ownership
