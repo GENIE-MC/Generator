@@ -5,7 +5,7 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
+         University of Liverpool & STFC Rutherford Appleton Lab
 
  For the class documentation see the corresponding header file.
 
@@ -76,6 +76,13 @@ double LwlynSmithQELCCPXSec::XSec(
   if (kps == kPSTnctnBnctl){
     return this->FullDifferentialXSec(interaction);
   }
+  else if (kps == kPSQELEvGen) {
+    double full_diff_xsec = this->FullDifferentialXSec(interaction);
+    double jacobian = utils::kinematics::Jacobian(interaction,
+      kPSTnctnBnctl, kps);
+    double xsec = full_diff_xsec * jacobian;
+    return xsec;
+  }
 
   // Get kinematics & init-state parameters
   const Kinematics &   kinematics = interaction -> Kine();
@@ -93,7 +100,7 @@ double LwlynSmithQELCCPXSec::XSec(
   int sign = (is_neutrino) ? -1 : 1;
 
   // Calculate the QEL form factors
-  fFormFactors.Calculate(interaction);    
+  fFormFactors.Calculate(interaction);
 
   double F1V   = fFormFactors.F1V();
   double xiF2V = fFormFactors.xiF2V();
@@ -119,7 +126,7 @@ double LwlynSmithQELCCPXSec::XSec(
   // Compute free nucleon differential cross section
   double A = (0.25*(ml2-q2)/M2) * (
 	      (4-q2_M2)*FA2 - (4+q2_M2)*F1V2 - q2_M2*xiF2V2*(1+0.25*q2_M2)
-              -4*q2_M2*F1V*xiF2V - (ml2/M2)*( 
+              -4*q2_M2*F1V*xiF2V - (ml2/M2)*(
                (F1V2+xiF2V2+2*F1V*xiF2V)+(FA2+4*Fp2+4*FA*Fp)+(q2_M2-4)*Fp2));
   double B = -1 * q2_M2 * FA*(F1V+xiF2V);
   double C = 0.25*(FA2 + F1V2 - 0.25*q2_M2*xiF2V2);
@@ -132,7 +139,7 @@ double LwlynSmithQELCCPXSec::XSec(
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("LwlynSmith", pDEBUG)
      << "dXSec[QEL]/dQ2 [FreeN](E = "<< E << ", Q2 = "<< -q2 << ") = "<< xsec;
-  LOG("LwlynSmith", pDEBUG) 
+  LOG("LwlynSmith", pDEBUG)
                  << "A(Q2) = " << A << ", B(Q2) = " << B << ", C(Q2) = " << C;
 #endif
 
@@ -143,13 +150,13 @@ double LwlynSmithQELCCPXSec::XSec(
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("LwlynSmith", pDEBUG)
-     << "Jacobian for transformation to: " 
+     << "Jacobian for transformation to: "
                   << KinePhaseSpace::AsString(kps) << ", J = " << J;
 #endif
     xsec *= J;
   }
 
-  //----- if requested return the free nucleon xsec even for input nuclear tgt 
+  //----- if requested return the free nucleon xsec even for input nuclear tgt
   if( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;
 
   //----- compute nuclear suppression factor
@@ -158,10 +165,10 @@ double LwlynSmithQELCCPXSec::XSec(
 
   //----- number of scattering centers in the target
   int nucpdgc = target.HitNucPdg();
-  int NNucl = (pdg::IsProton(nucpdgc)) ? target.Z() : target.N(); 
+  int NNucl = (pdg::IsProton(nucpdgc)) ? target.Z() : target.N();
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("LwlynSmith", pDEBUG) 
+  LOG("LwlynSmith", pDEBUG)
        << "Nuclear suppression factor R(Q2) = " << R << ", NNucl = " << NNucl;
 #endif
 
@@ -190,8 +197,8 @@ double LwlynSmithQELCCPXSec::FullDifferentialXSec(const Interaction *  interacti
   //qTildeP4 = outNucleonMom - *inNucleonMom;
 
   qTildeP4 = *neutrinoMom- leptonMom; // TESTING: Use q rather than qtilde
-  
-  double Q2tilde = -1 * qTildeP4.Mag2(); 
+
+  double Q2tilde = -1 * qTildeP4.Mag2();
   interaction->KinePtr()->SetQ2(Q2tilde);
 
 //  LOG("LwlynSmith",pDEBUG) << "Q2tilde = " << Q2tilde;
@@ -214,7 +221,7 @@ double LwlynSmithQELCCPXSec::FullDifferentialXSec(const Interaction *  interacti
   double h2 = FA*FA + F1V*F1V + tau*xiF2V*xiF2V;
   double h3 = 2.0 * FA * (F1V + xiF2V);
   double h4 = 0.25 * xiF2V*xiF2V *(1-tau) + 0.5*F1V*xiF2V + FA*Fp - tau*Fp*Fp;
-  
+
   bool is_neutrino = pdg::IsNeutrino(init_state.ProbePdg());
   int sign = (is_neutrino) ? -1 : 1;
   double l1 = 2*neutrinoMom->Dot(leptonMom)*(inNucleonMom->Mag2());
@@ -227,9 +234,9 @@ double LwlynSmithQELCCPXSec::FullDifferentialXSec(const Interaction *  interacti
   double LH = 2 *(l1*h1 + l2*h2 + l3*h3 + l4*h4 + l5*h2);
 
   delete neutrinoMom;
-  
+
   double xsec = Gfactor * LH;
-  
+
   // Apply given scaling factor
   xsec *= fXSecScale;
 
@@ -243,10 +250,10 @@ double LwlynSmithQELCCPXSec::FullDifferentialXSec(const Interaction *  interacti
   //----- number of scattering centers in the target
   const Target & target = init_state.Tgt();
   int nucpdgc = target.HitNucPdg();
-  int NNucl = (pdg::IsProton(nucpdgc)) ? target.Z() : target.N(); 
+  int NNucl = (pdg::IsProton(nucpdgc)) ? target.Z() : target.N();
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("LwlynSmith", pDEBUG) 
+  LOG("LwlynSmith", pDEBUG)
     << "Nuclear suppression factor R(Q2) = " << R << ", NNucl = " << NNucl;
 #endif
 
@@ -291,7 +298,7 @@ double LwlynSmithQELCCPXSec::Integral(const Interaction * in) const
     double Mi  = nucl_i -> Mass(); // initial nucleus mass
     double Mf  = nucl_f -> Mass(); // remnant nucleus mass
 
-    // throw nucleons with fermi momenta and binding energies 
+    // throw nucleons with fermi momenta and binding energies
     // generated according to the current nuclear model for the
     // input target and average the cross section
     double xsec_sum = 0.;
@@ -400,4 +407,3 @@ void LwlynSmithQELCCPXSec::LoadConfig(void)
 	  GetParamDef("IntegralNuclearInfluenceCutoffEnergy", fEnergyCutOff, 2.0 ) ;
   }
 }
-//____________________________________________________________________________

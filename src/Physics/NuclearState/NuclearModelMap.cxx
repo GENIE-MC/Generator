@@ -58,7 +58,7 @@ NuclearModelMap::~NuclearModelMap()
 }
 //____________________________________________________________________________
 bool NuclearModelMap::GenerateNucleon(const Target & target,
-				      double hitNucleonRadius) const
+                                      double hitNucleonRadius) const
 {
   const NuclearModelI * nm = this->SelectModel(target);
   if(!nm) return false;
@@ -66,15 +66,15 @@ bool NuclearModelMap::GenerateNucleon(const Target & target,
   bool ok = nm->GenerateNucleon(target,hitNucleonRadius);
 
   fCurrRemovalEnergy = nm->RemovalEnergy();
-  TVector3 p = nm->Momentum3();
+  const TVector3& p  = nm->Momentum3();
   fCurrMomentum.SetXYZ(p.Px(), p.Py(), p.Pz());
   fFermiMoverInteractionType = nm->GetFermiMoverInteractionType();
-  
+
   return ok;
 }
 //____________________________________________________________________________
 double NuclearModelMap::Prob(double p, double w, const Target & target,
-			     double hitNucRadius) const
+                             double hitNucRadius) const
 {
   const NuclearModelI * nm = this->SelectModel(target);
   if(!nm) return 0;
@@ -157,9 +157,9 @@ void NuclearModelMap::LoadConfig(void)
       fRefinedModels.insert(map<int,const NuclearModelI*>::value_type(Z,model));
     }
   }
- 
+
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  for (map<int,const NuclearModelI*>::iterator it = fRefinedModels.begin(); 
+  for (map<int,const NuclearModelI*>::iterator it = fRefinedModels.begin();
       it != fRefinedModels.end(); ++it) {
     LOG("Nuclear", pDEBUG)
       << "Z = " << (*it).first << "; model = " << (*it).second;

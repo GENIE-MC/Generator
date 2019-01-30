@@ -13,31 +13,31 @@ Name             Type     Optional   Comment               Default
 
 
 
-  <param_set name="BeforeHadronTransport"> 
+  <param_set name="BeforeHadronTransport">
      <param type="int"    name="NDecayers">                2                                        </param>
      <param type="alg"    name="Decayer-0">                genie::PythiaDecayer/Default             </param>
      <param type="alg"    name="Decayer-1">                genie::BaryonResonanceDecayer/Default    </param>
      <param type="bool"   name="RunBeforeHadronTransport"> true                                     </param>
   </param_set>
 
-  <param_set name="AfterHadronTransport"> 
+  <param_set name="AfterHadronTransport">
      <param type="int"    name="NDecayers">                2                                        </param>
      <param type="alg"    name="Decayer-0">                genie::PythiaDecayer/Default             </param>
      <param type="alg"    name="Decayer-1">                genie::BaryonResonanceDecayer/Default    </param>
      <param type="bool"   name="RunBeforeHadronTransport"> false                                    </param>
   </param_set>
 
-  <param_set name="Default"> 
+  <param_set name="Default">
 
      <!--
-	 Pi0's: Decays inhibited by default, as per popular request
+         Pi0's: Decays inhibited by default, as per popular request
      -->
      <param type="bool" name="DecayParticleWithCode=111">   false </param>  <!--  pi^{0}            -->
 
      <!--
-	 Charmed hadrons: Not decayed by default.
-	 Switch on charm decays if your detector doesn't see charm hadron tracks and
-	 your detector simulation doesn't want to handle these decays.
+         Charmed hadrons: Not decayed by default.
+         Switch on charm decays if your detector doesn't see charm hadron tracks and
+         your detector simulation doesn't want to handle these decays.
      -->
      <param type="bool" name="DecayParticleWithCode=411">   false </param>  <!--  D^{+}             -->
      <param type="bool" name="DecayParticleWithCode=-411">  false </param>  <!--  D^{-}             -->
@@ -51,15 +51,15 @@ Name             Type     Optional   Comment               Default
      <param type="bool" name="DecayParticleWithCode=4222">  false </param>  <!--  Sigma_{c}^{++}    -->
 
      <!--
-	 Taus: Not decayed by default.
-	 Switch on tau decays if your detector doesn't see tau tracks and
-	 your detector simulation doesn't want to handle these decays.
+         Taus: Not decayed by default.
+         Switch on tau decays if your detector doesn't see tau tracks and
+         your detector simulation doesn't want to handle these decays.
      -->
      <param type="bool" name="DecayParticleWithCode=15">    false </param>  <!--  tau^{-}           -->
      <param type="bool" name="DecayParticleWithCode=-15">   false </param>  <!--  tau^{+}           -->
 
      <!--
-	 Standard particles that get decayed by GENIE
+         Standard particles that get decayed by GENIE
      -->
      <param type="bool" name="DecayParticleWithCode=221">   true  </param>  <!-- eta                -->
      <param type="bool" name="DecayParticleWithCode=331">   true  </param>  <!-- eta^{prime}        -->
@@ -85,7 +85,7 @@ Name             Type     Optional   Comment               Default
      <param type="bool" name="DecayParticleWithCode=1112">  true  </param>  <!-- S31(1620) Delta-   -->
      <param type="bool" name="DecayParticleWithCode=1212">  true  </param>  <!-- S31(1620) Delta0   -->
      <param type="bool" name="DecayParticleWithCode=2122">  true  </param>  <!-- S31(1620) Delta+   -->
-     <param type="bool" name="DecayParticleWithCode=2222">  true  </param>  <!-- S31(1620) Delta++  --> 
+     <param type="bool" name="DecayParticleWithCode=2222">  true  </param>  <!-- S31(1620) Delta++  -->
      <param type="bool" name="DecayParticleWithCode=11114"> true  </param>  <!-- D33(1700) Delta-   -->
      <param type="bool" name="DecayParticleWithCode=12114"> true  </param>  <!-- D33(1700) Delta0   -->
      <param type="bool" name="DecayParticleWithCode=12214"> true  </param>  <!-- D33(1700) Delta+   -->
@@ -115,20 +115,23 @@ Name             Type     Optional   Comment               Default
      <param type="bool" name="DecayParticleWithCode=42112"> true  </param>  <!-- P11(1710) N0       -->
      <param type="bool" name="DecayParticleWithCode=42212"> true  </param>  <!-- P11(1710) N+       -->
      <param type="bool" name="DecayParticleWithCode=-24">   false </param>  <!-- W- from Glashow Resonance reactions -->
-     
+
      <!--
-	 For particles to be decayed, all decay channels are open. 
-	 To inhibit specific decay channels use as many of following configuration options as is needed
-	 specifying the particle PDG code and the inhibited TDecayChannel id.
-	 To print out the decay channel ids for any particle, use $GENIE/src/contrib/misc/print_decay_channel.C
-	 
-	 <param type="bool" name="InhibitDecay/Particle=15,Channel=0"> true </param>  
-	 <param type="bool" name="InhibitDecay/Particle=15,Channel=1"> true </param>  
-	 ...
-	 ...
+         For particles to be decayed, all decay channels are open.
+         To inhibit specific decay channels use as many of following configuration options as is needed
+         specifying the particle PDG code and the inhibited TDecayChannel id.
+         To print out the decay channel ids for any particle, use
+         $GENIE/src/contrib/misc/print_decay_channels.C
+
+           root[0] .L print_decay_channels.C
+           root[1] print_decay_channels(15)  // check tau-
+
+         <param type="bool" name="InhibitDecay/Particle=15,Channel=0"> true </param>
+         <param type="bool" name="InhibitDecay/Particle=15,Channel=1"> true </param>
+         ...
+         ...
      -->
   </param_set>
 
 
 </alg_conf>
-

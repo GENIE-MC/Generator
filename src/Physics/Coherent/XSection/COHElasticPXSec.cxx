@@ -23,7 +23,7 @@
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/RefFrame.h"
 #include "Framework/Conventions/KineVar.h"
-#include "Physics/Coherent/EventGen/COHElasticPXSec.h"
+#include "Physics/Coherent/XSection/COHElasticPXSec.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/Utils/KineUtils.h"
