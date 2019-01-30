@@ -125,8 +125,8 @@ TObject()
   this->InitSpline();
   this->BuildSpline(nentries, dblx, dbly);
 
-  delete [] x;
-  delete [] y;
+  delete [] dblx;
+  delete [] dbly;
 }
 //___________________________________________________________________________
 Spline::Spline(const Spline & spline) :

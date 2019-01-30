@@ -770,37 +770,30 @@ void HNIntranuke2018::InelasticHN(GHepRecord* ev, GHepParticle* p) const
   // Aaron Meyer (Jan 2010)
   // Updated version of InelasticHN 
 
-  GHepParticle * s1 = new GHepParticle(*p);  
-  GHepParticle * s2 = new GHepParticle(*p);
-  GHepParticle * s3 = new GHepParticle(*p);
-
-  if (utils::intranuke2018::PionProduction(ev,p,s1,s2,s3,fRemnA,fRemnZ,fRemnP4,fDoFermi,fFermiFac,fFermiMomentum,fNuclmodel))
-    {
-      // set status of particles and return
-      
-      s1->SetStatus(kIStHadronInTheNucleus);
-      s2->SetStatus(kIStHadronInTheNucleus);
-      s3->SetStatus(kIStHadronInTheNucleus);
-      
-      ev->AddParticle(*s1);
-      ev->AddParticle(*s2);
-      ev->AddParticle(*s3);
-    }
+  GHepParticle s1(*p);  
+  GHepParticle s2(*p);
+  GHepParticle s3(*p);
+  
+  
+  if (utils::intranuke2018::PionProduction(ev,p,&s1,&s2,&s3,fRemnA,fRemnZ,fRemnP4,fDoFermi,fFermiFac,fFermiMomentum,fNuclmodel))
+	{
+	  // set status of particles and return
+	  
+	  s1.SetStatus(kIStHadronInTheNucleus);
+	  s2.SetStatus(kIStHadronInTheNucleus);
+	  s3.SetStatus(kIStHadronInTheNucleus);
+	  
+	  ev->AddParticle(s1);
+	  ev->AddParticle(s2);
+	  ev->AddParticle(s3);
+	}
   else
-    {
-      delete s1; //added to prevent potential memory leak
-      delete s2;
-      delete s3;
-
-      LOG("HNIntranuke2018", pNOTICE) << "Error: could not create pion production final state";
-      exceptions::INukeException exception;
-      exception.SetReason("PionProduction in hN failed");
-      throw exception;
-    }
-
-  delete s1;
-  delete s2;
-  delete s3;
+	{
+	  LOG("HNIntranuke2018", pNOTICE) << "Error: could not create pion production final state";
+	  exceptions::INukeException exception;
+	  exception.SetReason("PionProduction in hN failed");
+	  throw exception;
+	}
   return;
 
 }

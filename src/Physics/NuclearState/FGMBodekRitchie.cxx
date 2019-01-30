@@ -75,7 +75,7 @@ bool FGMBodekRitchie::GenerateNucleon(const Target & target) const
   //-- set fermi momentum vector
   //
   TH1D * prob = this->ProbDistro(target);
-  if(!prob) {
+  if ( ! prob ) {
     LOG("BodekRitchie", pNOTICE)
               << "Null nucleon momentum probability distribution";
     exit(1);
@@ -99,16 +99,16 @@ bool FGMBodekRitchie::GenerateNucleon(const Target & target) const
 
   //-- set removal energy
   //
-  if (target.A()<6 || !fUseParametrization)
+  if ( target.A() < 6 || ! fUseParametrization )
   {
      int Z = target.Z();
      map<int,double>::const_iterator it = fNucRmvE.find(Z);
      if(it != fNucRmvE.end()) fCurrRemovalEnergy = it->second;
      else fCurrRemovalEnergy = nuclear::BindEnergyPerNucleon(target);
   }
-  else
+  else {
      fCurrRemovalEnergy = nuclear::BindEnergyPerNucleonParametrization(target);
-
+  }
 
   return true;
 }

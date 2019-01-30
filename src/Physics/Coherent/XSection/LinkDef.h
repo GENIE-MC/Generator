@@ -17,6 +17,8 @@
 
 #pragma link C++ class genie::ReinSehgalCOHPiPXSec;
 
+#pragma link C++ class genie::COHElasticPXSec;
+
 #pragma link C++ class genie::COHXSec;
 #pragma link C++ class genie::COHXSecAR;
 

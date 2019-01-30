@@ -16,12 +16,12 @@ include $(GENIE)/src/make/Make.include
 # This needs to disappear from here... (CA)
 #
 # Require C++11 for NeutronOsc module.
-GCC_GTEQ_470 := $(shell expr `gcc -dumpversion | sed -e 's/\.\([0-9][0-9]\)/\1/g' -e 's/\.\([0-9]\)/0\1/g' -e 's/^[0-9]\{3,4\}$$/&00/'` \>= 40700)
-ifeq "$(GCC_GTEQ_470)" "1"
-	CXXFLAGS += -std=c++11
-else
-	CXXFLAGS += -std=c++0x
-endif
+#GCC_GTEQ_470 := $(shell expr `gcc -dumpversion | sed -e 's/\.\([0-9][0-9]\)/\1/g' -e 's/\.\([0-9]\)/0\1/g' -e 's/^[0-9]\{3,4\}$$/&00/'` \>= 40700)
+#ifeq "$(GCC_GTEQ_470)" "1"
+#	CXXFLAGS += -std=c++11
+#else
+#	CXXFLAGS += -std=c++0x
+#endif
 # ------------------------------------------
 
 PACKAGE           = Physics/NNBarOscillation

@@ -10,7 +10,7 @@ Configurable Parameters:
 Name             Type     Optional   Comment               Default
 .......................................................................................................
 -->
-
+ 
   <param_set name="BeforeHadronTransport">
      <param type="int" name="NDecayers">  2                                                    </param>
      <param type="alg" name="Decayer-0">  genie::PythiaDecayer/BeforeHadronTransport           </param>

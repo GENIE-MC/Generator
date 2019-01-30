@@ -647,7 +647,7 @@ CacheBranchFx * QELEventGeneratorSM::AccessCacheBranch2(
   return cache_branch;
 }
 //___________________________________________________________________________
-double QELEventGeneratorSM::ComputeMaxDiffv(const Interaction * interaction) const
+double QELEventGeneratorSM::ComputeMaxDiffv(const Interaction * /* interaction */) const
 {
         double max_diffv = -1;
         const int N_Q2 = 10;

@@ -81,16 +81,6 @@ else {
   }
 }
 
-if ($git_revision ne "-1" ) {
-  $git_differences = `git diff HEAD`;
-  if($? == 0) {
-    print GVRS "/* \n";
-    print GVRS " * git differences at compile time: \n";
-    print GVRS "$git_differences";
-    print GVRS "*/ \n\n";
-  }
-}
-
 print GVRS "#endif\n\n";
 
 # Close header file
