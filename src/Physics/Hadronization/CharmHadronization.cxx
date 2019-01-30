@@ -785,10 +785,10 @@ void CharmHadronization::LoadConfig(void)
   std::string raw ;
   std::vector<std::string> bits ;
 
-  bool invalid_configurations = false ;
+  bool invalid_configuration = false ;
 
   // load energy points
-  this -> GetParam( "CharmFram-E", raw ) ;
+  this -> GetParam( "CharmFrac-E", raw ) ;
   bits = utils::str::Split( raw, ";" ) ;
 
   if ( ! utils::str::Convert(bits, ec) ) {
@@ -814,7 +814,7 @@ void CharmHadronization::LoadConfig(void)
 	  LOG("CharmHadronization", pFATAL) << "E entries don't match D0 fraction entries";
 	  LOG("CharmHadronization", pFATAL) << "E:  " << ec.size() ;
 	  LOG("CharmHadronization", pFATAL) << "D0: " << d0frac.size() ;
-	  invalid_configurations = true ;
+	  invalid_configuration = true ;
   }
 
   // load D+ fractions
@@ -833,7 +833,7 @@ void CharmHadronization::LoadConfig(void)
   	  LOG("CharmHadronization", pFATAL) << "E entries don't match D+ fraction entries";
   	  LOG("CharmHadronization", pFATAL) << "E:  " << ec.size() ;
   	  LOG("CharmHadronization", pFATAL) << "D+: " << dpfrac.size() ;
-  	  invalid_configurations = true ;
+  	  invalid_configuration = true ;
     }
 
     // load D_s fractions
@@ -852,7 +852,7 @@ void CharmHadronization::LoadConfig(void)
     	LOG("CharmHadronization", pFATAL) << "E entries don't match Ds fraction entries";
     	LOG("CharmHadronization", pFATAL) << "E:  " << ec.size() ;
     	LOG("CharmHadronization", pFATAL) << "Ds: " << dsfrac.size() ;
-    	invalid_configurations = true ;
+    	invalid_configuration = true ;
     }
 
   fD0FracSpl = new Spline( ec.size(), & ec[0], & d0frac[0] );
@@ -864,7 +864,7 @@ void CharmHadronization::LoadConfig(void)
   this -> GetParam( "CharmFrac-D0bar", fD0BarFrac ) ;
   this -> GetParam( "CharmFrac-D-",    fDmFrac ) ;
 
-  if ( invalid_configurations ) {
+  if ( invalid_configuration ) {
 
 	    LOG("CharmHadronization", pFATAL)
 	      << "Invalid configuration: Exiting" ;
