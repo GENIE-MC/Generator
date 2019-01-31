@@ -92,14 +92,22 @@ bool BaryonResonanceDecayer::Decay(
 
   // Get particle to be decayed
   GHepParticle * decay_particle = event->Particle(decay_particle_id);
-  if(!decay_particle) return false;
+  if( ! decay_particle) {
+    LOG("ResonanceDecay", pNOTICE)
+      << "Particle to be decayed not in the event record. Particle ud: " << decay_particle_id ; 
+    return false;
+  }
 
   bool to_be_deleted ; 
 
   // Select a decay channel
   TDecayChannel * selected_decay_channel =
-    this->SelectDecayChannel(decay_particle_id, event, to_be_deleted );
-  if(!selected_decay_channel) return false;
+    this->SelectDecayChannel(decay_particle_id, event, to_be_deleted ) ;
+  if(!selected_decay_channel) {
+    LOG("ResonanceDecay", pNOTICE)
+      << "No decay channel for particle " << decay_particle_id ; 
+    return false;
+  }
 
   // Decay the exclusive state and copy daughters in the event record
   this->DecayExclusive(decay_particle_id, event, selected_decay_channel);
