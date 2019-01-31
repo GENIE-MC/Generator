@@ -93,7 +93,7 @@ bool BaryonResonanceDecayer::Decay(
   // Get particle to be decayed
   GHepParticle * decay_particle = event->Particle(decay_particle_id);
   if( ! decay_particle) {
-    LOG("ResonanceDecay", pNOTICE)
+    LOG("ResonanceDecay", pERROR)
       << "Particle to be decayed not in the event record. Particle ud: " << decay_particle_id ; 
     return false;
   }
@@ -104,8 +104,11 @@ bool BaryonResonanceDecayer::Decay(
   TDecayChannel * selected_decay_channel =
     this->SelectDecayChannel(decay_particle_id, event, to_be_deleted ) ;
   if(!selected_decay_channel) {
-    LOG("ResonanceDecay", pNOTICE)
+    LOG("ResonanceDecay", pERROR)
       << "No decay channel for particle " << decay_particle_id ; 
+    LOG("ResonanceDecay", pERROR) 
+      << *event ; 
+
     return false;
   }
 
