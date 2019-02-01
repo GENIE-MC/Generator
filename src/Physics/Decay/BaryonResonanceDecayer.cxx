@@ -191,7 +191,7 @@ TDecayChannel * BaryonResonanceDecayer::SelectDecayChannel( int decay_particle_i
     TDecayChannel * ch = (TDecayChannel *) actual_decay_list -> At(ich);
 
     double fsmass = this->FinalStateMass(ch) ;
-    if ( fsmass < W ) {
+    if ( fsmass < W || nch == 1 ) {
 
       SLOG("ResonanceDecay", pDEBUG)
                 << "Using channel: " << ich
