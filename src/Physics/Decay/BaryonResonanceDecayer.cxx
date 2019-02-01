@@ -15,6 +15,8 @@
 #include <TDecayChannel.h>
 #include <TMath.h>
 
+#include "Framework/GHEP/GHepFlags.h" 
+#include "Framework/EventGen/EVGThreadException.h" 
 #include "Framework/Conventions/Controls.h"
 #include "Framework/Conventions/Constants.h"
 #include "Framework/ParticleData/PDGLibrary.h"
@@ -69,6 +71,8 @@ void BaryonResonanceDecayer::ProcessEventRecord(GHepRecord * event) const
 
     int pdg_code = p->Pdg();
     GHepStatus_t status_code = p->Status();
+
+    //    std::cout << "Decaing particle " << ipos << " with PDG " << pdg_code << std::endl ; 
 
     if(!this->IsHandled  (pdg_code)) continue;
     if(!this->ToBeDecayed(pdg_code, status_code)) continue;
