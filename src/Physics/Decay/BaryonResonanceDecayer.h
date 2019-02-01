@@ -55,7 +55,7 @@ private:
   bool           Decay             (int dec_part_id, GHepRecord * event) const;
   TDecayChannel* SelectDecayChannel(int dec_part_id, GHepRecord * event, bool & to_be_deleted ) const;
   // the flag to_be_deleted is referred to the returned decay channel 
-  void           DecayExclusive    (int dec_part_id, GHepRecord * event, TDecayChannel * ch) const;
+  bool           DecayExclusive    (int dec_part_id, GHepRecord * event, TDecayChannel * ch) const;
 
   // Methods specific for Delta decay
   TObjArray *    EvolveDeltaBR        (int dec_part_pdgc, TObjArray * decay_list, double W) const;

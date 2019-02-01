@@ -77,7 +77,20 @@ void BaryonResonanceDecayer::ProcessEventRecord(GHepRecord * event) const
           << "Decaying unstable particle: " << p->Name();
 
     bool decayed = this->Decay(ipos, event);
-    assert(decayed); // handle this more graciously and throw an exception
+    if ( ! decayed ) {
+      LOG("ResonanceDecay", pWARN) << "Resonance not decayed!" ;
+      LOG("ResonanceDecay", pWARN) << "Quitting the current event generation thread" ;
+
+      event -> EventFlags() -> SetBitNumber(kHadroSysGenErr, true);
+
+      genie::exceptions::EVGThreadException exception;
+      exception.SetReason("Resonance not decayed");
+      exception.SwitchOnFastForward();
+      throw exception;
+
+      return ;
+    }
+
   } // loop over particles
 
   LOG("ResonanceDecay", pNOTICE)
@@ -103,6 +116,7 @@ bool BaryonResonanceDecayer::Decay(
   // Select a decay channel
   TDecayChannel * selected_decay_channel =
     this->SelectDecayChannel(decay_particle_id, event, to_be_deleted ) ;
+
   if(!selected_decay_channel) {
     LOG("ResonanceDecay", pERROR)
       << "No decay channel for particle " << decay_particle_id ; 
@@ -113,10 +127,12 @@ bool BaryonResonanceDecayer::Decay(
   }
 
   // Decay the exclusive state and copy daughters in the event record
-  this->DecayExclusive(decay_particle_id, event, selected_decay_channel);
+  bool decayed = this->DecayExclusive(decay_particle_id, event, selected_decay_channel);
 
   if ( to_be_deleted ) 
     delete selected_decay_channel ; 
+
+  if ( ! decayed ) return false ;
 
   // Update the event weight for each weighted particle decay
   double weight = event->Weight() * fWeight;
@@ -176,6 +192,7 @@ TDecayChannel * BaryonResonanceDecayer::SelectDecayChannel( int decay_particle_i
 
   if ( has_evolved_brs ) {
     actual_decay_list = EvolveDeltaBR( decay_particle_pdg_code, original_decay_list, W ) ;
+    if ( ! actual_decay_list ) return nullptr ;
     nch = actual_decay_list -> GetEntries() ;
     to_be_deleted = true ;
   }
@@ -191,7 +208,7 @@ TDecayChannel * BaryonResonanceDecayer::SelectDecayChannel( int decay_particle_i
     TDecayChannel * ch = (TDecayChannel *) actual_decay_list -> At(ich);
 
     double fsmass = this->FinalStateMass(ch) ;
-    if ( fsmass < W || nch == 1 ) {
+    if ( fsmass < W ) {
 
       SLOG("ResonanceDecay", pDEBUG)
                 << "Using channel: " << ich
@@ -240,12 +257,12 @@ TDecayChannel * BaryonResonanceDecayer::SelectDecayChannel( int decay_particle_i
   return sel_ch;
 }
 //____________________________________________________________________________
-void BaryonResonanceDecayer::DecayExclusive(
+bool BaryonResonanceDecayer::DecayExclusive(
   int decay_particle_id, GHepRecord * event, TDecayChannel * ch) const
 {
   // Find the particle to be decayed in the event record
   GHepParticle * decay_particle = event->Particle(decay_particle_id);
-  if(!decay_particle) return;
+  if(!decay_particle) return false ;
 
   // Get the decayed particle 4-momentum, 4-position and PDG code
   TLorentzVector decay_particle_p4 = *(decay_particle->P4());
@@ -286,7 +303,7 @@ void BaryonResonanceDecayer::DecayExclusive(
   // will be boosted back to the original frame.
 
   bool is_permitted = fPhaseSpaceGenerator.SetDecay(decay_particle_p4, nd, mass);
-  assert(is_permitted);
+  if ( ! is_permitted ) return false ;
 
   // Find the maximum phase space decay weight
   // double wmax = fPhaseSpaceGenerator.GetWtMax();
@@ -400,7 +417,9 @@ void BaryonResonanceDecayer::DecayExclusive(
        *daughter_p4, decay_particle_x4);
   }
 
+  return true ;
 }
+//__________________________________________________________________________________
 TObjArray *  BaryonResonanceDecayer::EvolveDeltaBR(int dec_part_pdgc, TObjArray * decay_list, double W) const {
 
   unsigned int nch = decay_list -> GetEntries();
@@ -417,7 +436,7 @@ TObjArray *  BaryonResonanceDecayer::EvolveDeltaBR(int dec_part_pdgc, TObjArray 
 
   }
 
-  if ( tot <= 0. ) return  new TObjArray( 0 ) ;
+  if ( tot <= 0. ) return nullptr ;
 
   TObjArray * new_list = new TObjArray() ;
 
