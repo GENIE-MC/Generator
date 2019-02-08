@@ -619,20 +619,24 @@ bool BaryonResonanceDecayer::AcceptPionDecay( TLorentzVector pion,
   TVector3 z_axis = q.Vect().Unit() ;
 
   double c_t = pion_dir*z_axis; // cos theta
-  double s_t = sqrt(1. - c_t*c_t) ;  //sin theta
 
-  unsigned int q2_index = 0 ;  // in case of the simple delta decay there is only one Q2 bin so this is enough
-
+  unsigned int q2_index = 0 ;
+  
+  // find out Q2 region for values
+  // note that Q2 is a lorentz invariant so it does not matter it is evaluated in the lab frame
+  // like in this case or in the Delta reference frame
+  double Q2 = - q.Mag2() ;
+  while( q2_index < fQ2Thresholds.size() ) {
+    if ( Q2 < fQ2Thresholds[q2_index] ) ++q2_index ;
+    else break ;
+  }
+  
   double w_function = 1. - (fR33[q2_index] - 0.5)*(3.*c_t*c_t - 1.) ;
 
   if ( ! fDeltaThetaOnly ) {
 
-    // find out Q2 region for values
-    double Q2 = - q.Mag2() ;
-    while( q2_index < fQ2Thresholds.size() ) {
-      if ( Q2 < fQ2Thresholds[q2_index] ) ++q2_index ;
-      else break ;
-    }
+    // evaluate sin theta as it appears in the formula
+    double s_t = sqrt(1. - c_t*c_t) ;  //sin theta
 
     in_lep_p4.Boost(-delta_p4.BoostVector() ) ;
     out_lep_p4.Boost( -delta_p4.BoostVector() ) ;
