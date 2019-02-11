@@ -269,12 +269,12 @@
             g4numiv6_minervame_me000z200i_*_0006.root
     -->
     <enumax> 120. 1.05 1.05 25000000 </enumax>
-    <!-- allow entry to be reused 40 times before moving on -->
-    <reuse> 40 </reuse>
+    <!-- allow entry to be reused 400 times before moving on -->
+    <reuse> 400 </reuse>
     <!-- force maxwgt to have an initial miminum of
          detector itself would like ~2.6, but rock wants ~4.2
     -->
-    <minmaxwgt> 4.2 </minmaxwgt>
+    <minmaxwgt> 1.25 </minmaxwgt>
     <!-- what to do if exceeded [ "bump" ] "frozen" "abort"
          "frozen" means we accept things as they are and thus
          effectively underrepresenting these high weight events
@@ -311,12 +311,13 @@
     <window>
       <point coord="det">  15.000,  -12.500, -5. </point>
       <point coord="det">  15.000,   15.000, -5. </point>
-      <point coord="det"> -15.000,  -12.500, -5. </point>
+      <point coord="det"> -22.000,  -12.500, -5. </point>
     </window>
 
-    <!-- allow entry to be reused 2000 times before moving on -->
-    <reuse> 2000 </reuse>
-    <!-- <upstreamz> 0.0 </upstreamz> -->
+    <!-- allow entry to be reused 4000 times before moving on -->
+    <reuse>        4000   </reuse>
+    <minmaxwgt>       3.5 </minmaxwgt>
+    <upstreamz>  -10000.0 </upstreamz>
   </param_set>
 
   <param_set name="NOvA-FD">
@@ -366,7 +367,8 @@
     <!-- allow entry to be reused 50 times before moving on -->
     <reuse> 50 </reuse>
     <!-- force maxwgt to have an initial miminum of -->
-    <minmaxwgt> 4.2e-07 </minmaxwgt>
+    <!-- <minmaxwgt> 4.2e-07 </minmaxwgt> -->
+    <minmaxwgt> 2.5e-07 </minmaxwgt>
     <!-- what to do if exceeded [ "bump" ] "frozen" "abort" -->
     <maxwgtfail> bump </maxwgtfail>
 
