@@ -791,21 +791,9 @@ double QELEventGenerator::ComputeXSec( Interaction * interaction, double costhet
 
     // Compute the QE cross section for the current kinematics ("~" variables)
     interaction->InitStatePtr()->TgtPtr()->HitNucP4Ptr()->SetE(EN_onshell);
-    xsec = fXSecModel->XSec(interaction, kPSTnctnBnctl); //
+    xsec = fXSecModel->XSec(interaction, kPSQELEvGen); //
 
     interaction->InitStatePtr()->TgtPtr()->HitNucP4Ptr()->SetE(EN_offshell);
-
-    // Multiply xsec by Jacobian
-    xsec *= 4*kPi*leptonCOM.P()*leptonCOM.P();
-
-    double jac = this->COMJacobian(lepton, leptonCOM, outNucleon, beta);
-    xsec *= jac;
-
-    //// BEGIN DEBUG
-    //double debug_xsec = fXSecModel->XSec(interaction, kPSQELEvGen);
-    //std::cout << "\nDEBUG: xsec = " << xsec << ", debug_xsec = " << debug_xsec
-    //  << " xsec / debug_xsec = " << xsec / debug_xsec << '\n';
-    //// END DEBUG
 
     return xsec;
 }
@@ -822,29 +810,4 @@ TVector3 QELEventGenerator::COMframe2Lab(InitialState initialState) const
     delete k4;
 
     return beta;
-}
-
-//___________________________________________________________________________
-double QELEventGenerator::COMJacobian(TLorentzVector lepton,
-                                      TLorentzVector /* leptonCOM */,
-                                      TLorentzVector outNucleon,
-                                      TVector3 beta) const
-{
-
-    double gamma = 1. / TMath::Sqrt(1. - beta.Dot(beta)); //  gamma factor
-
-    // angle between muon in com frame and com frame velocity
-    double theta0 = lepton.Angle(beta);
-
-    // difference in velocity between lepton and outgoing nucleon
-    TLorentzVector leptonVel = TLorentzVector(lepton);
-    TLorentzVector nucleonVel = TLorentzVector(outNucleon);
-    leptonVel *= 1. / lepton.E();
-    nucleonVel *= 1. / outNucleon.E();
-
-    double velDiff = (leptonVel - nucleonVel).P(); // centre-of-mass velocity difference between lepton and nucleon
-
-    double jacobian = TMath::Sqrt(1 + (1 - TMath::Cos(theta0)*TMath::Cos(theta0))*(gamma*gamma - 1)) / velDiff;
-
-    return jacobian;
 }

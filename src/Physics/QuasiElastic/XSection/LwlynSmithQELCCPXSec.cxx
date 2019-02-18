@@ -44,6 +44,7 @@
 #include "Framework/Numerical/MathUtils.h"
 #include "Framework/Utils/KineUtils.h"
 #include "Physics/NuclearState/NuclearUtils.h"
+#include "Physics/QuasiElastic/XSection/QELUtils.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -73,15 +74,11 @@ double LwlynSmithQELCCPXSec::XSec(
   if(! this -> ValidProcess    (interaction) ) {LOG("LwlynSmith",pWARN) << "not a valid process"; return 0.;}
   if(! this -> ValidKinematics (interaction) ) {LOG("LwlynSmith",pWARN) << "not valid kinematics"; return 0.;}
 
-  if (kps == kPSTnctnBnctl){
+  // If computing the full differential cross section, then all four momentum
+  // four-vectors (probe, hit nucleon, final lepton, and final nucleon) should
+  // have been set already, with the hit nucleon off-shell as appropriate.
+  if (kps == kPSQELEvGen) {
     return this->FullDifferentialXSec(interaction);
-  }
-  else if (kps == kPSQELEvGen) {
-    double full_diff_xsec = this->FullDifferentialXSec(interaction);
-    double jacobian = utils::kinematics::Jacobian(interaction,
-      kPSTnctnBnctl, kps);
-    double xsec = full_diff_xsec * jacobian;
-    return xsec;
   }
 
   // Get kinematics & init-state parameters
@@ -187,6 +184,9 @@ double LwlynSmithQELCCPXSec::FullDifferentialXSec(const Interaction *  interacti
   const TLorentzVector leptonMom = kinematics.FSLeptonP4();
   const TLorentzVector outNucleonMom = kinematics.HadSystP4();
 
+  // Note that GetProbeP4 defaults to returning the probe 4-momentum in the
+  // struck nucleon rest frame, so we have to explicitly ask for the lab frame
+  // here
   TLorentzVector * neutrinoMom = init_state.GetProbeP4(kRfLab);
   TLorentzVector * inNucleonMom = init_state.TgtPtr()->HitNucP4Ptr();
 
@@ -236,6 +236,10 @@ double LwlynSmithQELCCPXSec::FullDifferentialXSec(const Interaction *  interacti
   delete neutrinoMom;
 
   double xsec = Gfactor * LH;
+
+  // Apply the factor that arises from elimination of the energy-conserving
+  // delta function
+  xsec *= genie::utils::EnergyDeltaFunctionSolutionQEL( *interaction );
 
   // Apply given scaling factor
   xsec *= fXSecScale;

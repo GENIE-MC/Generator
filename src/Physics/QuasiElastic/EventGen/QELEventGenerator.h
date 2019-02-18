@@ -50,8 +50,6 @@ private:
   double ComputeXSec (Interaction * in, double costheta, double phi) const;
   TVector3 COMframe2Lab(InitialState initialState) const;
 
-  double COMJacobian(TLorentzVector lepton, TLorentzVector leptonCOM, TLorentzVector outNucleon, TVector3 beta) const;
-  
   // unused // double fQ2min;
   mutable double fEb; // Binding energy
 
@@ -62,7 +60,7 @@ private:
 
 
   const NuclearModelI *  fNuclModel;   ///< nuclear model
-  
+
   //mutable double fQ2min;
   //mutable double fQ2max;
   //

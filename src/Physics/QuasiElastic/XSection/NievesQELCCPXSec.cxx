@@ -43,6 +43,7 @@
 #include "Physics/NuclearState/NuclearUtils.h"
 #include "Framework/Utils/PrintUtils.h"
 #include "Framework/Numerical/GSLUtils.h"
+#include "Physics/QuasiElastic/XSection/QELUtils.h"
 
 
 #include <iostream> // Used for testing code
@@ -105,8 +106,9 @@ double NievesQELCCPXSec::XSec(const Interaction * interaction,
   // at rest and q in the z direction)
   TLorentzVector neutrinoMom,inNucleonMom,leptonMom, outNucleonMom;
   double Gfactor = 0.;
-  if (kps == kPSTnctnBnctl || kps == kPSQELEvGen) {
-    // All kinematics will already be stored
+  if (kps == kPSQELEvGen) {
+    // All 4-momenta should already be stored, with the hit nucleon off-shell
+    // as appropriate
     TLorentzVector * tempNeutrino = init_state.GetProbeP4(kRfLab);
     neutrinoMom = *tempNeutrino;
     delete tempNeutrino;
@@ -119,7 +121,8 @@ double NievesQELCCPXSec::XSec(const Interaction * interaction,
     // Divide by 4.0 because Nieves' conventions for the leptonic and hadronic
     // tensor contraction differ from LwlynSmith by a factor of 4
     Gfactor = kGF2*fCos8c2 / (8.0*kPi*kPi*inNucleonMom.E()*neutrinoMom.E()*outNucleonMom.E()*leptonMom.E()) / 4.0;
-  }else{
+  }
+  else {
     // Initial Neutrino, Lab frame
     TLorentzVector * tempNeutrino = init_state.GetProbeP4(kRfLab);
     neutrinoMom = *tempNeutrino;
@@ -182,7 +185,7 @@ double NievesQELCCPXSec::XSec(const Interaction * interaction,
   qTildeP4 = neutrinoMom - leptonMom;
 
   double Q2tilde = -1 * qTildeP4.Mag2();
-  if ( kps == kPSTnctnBnctl || kps == kPSQELEvGen ) {
+  if ( kps == kPSQELEvGen ) {
     // otherwise q2 is already stored
     interaction->KinePtr()->SetQ2(Q2tilde);
   }
@@ -254,6 +257,12 @@ double NievesQELCCPXSec::XSec(const Interaction * interaction,
   // Calculate xsec
   double xsec = Gfactor*coulombFactor*LmunuAnumuResult;
 
+  if ( kps == kPSQELEvGen ) {
+    // Apply the factor that arises from elimination of the energy-conserving
+    // delta function
+    xsec *= genie::utils::EnergyDeltaFunctionSolutionQEL( *interaction );
+  }
+
   // Apply given scaling factor
   xsec *= fXSecScale;
 
@@ -266,19 +275,13 @@ double NievesQELCCPXSec::XSec(const Interaction * interaction,
      << "dXSec[QEL]/dQ2 [FreeN](E = "<< E << ", Q2 = "<< -q2 << ") = "<< xsec;
 #endif
 
-  //----- The algorithm computes dxsec/dQ2 or kPSTnctnBnctl
+  //----- The algorithm computes dxsec/dQ2 or kPSQELEvGen
   //      Check whether variable tranformation is needed
-  if ( kps != kPSQ2fE && kps != kPSTnctnBnctl ) {
+  if ( kps != kPSQ2fE && kps != kPSQELEvGen ) {
 
     // Compute the appropriate Jacobian for transformation to the requested
     // phase space
-    double J = 1.;
-    if ( kps == kPSQELEvGen ) {
-      J = utils::kinematics::Jacobian(interaction, kPSTnctnBnctl, kps);
-    }
-    else {
-      J = utils::kinematics::Jacobian(interaction, kPSQ2fE, kps);
-    }
+    double J = utils::kinematics::Jacobian(interaction, kPSQ2fE, kps);
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("Nieves", pDEBUG)
