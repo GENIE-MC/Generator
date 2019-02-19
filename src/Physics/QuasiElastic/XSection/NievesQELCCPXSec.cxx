@@ -167,14 +167,6 @@ double NievesQELCCPXSec::XSec(const Interaction * interaction,
     Gfactor = kGF2 * fCos8c2 / (8*kPi*num);
   }
 
-  // Boost to nucleon rest frame to calculate the nucleon rest frame cross section
-  TVector3 beta = -1.0 * inNucleonMom.BoostVector(); // boost from lab to nucRest
-  neutrinoMom.Boost(beta);
-  inNucleonMom.Boost(beta);
-  leptonMom.Boost(beta);
-  outNucleonMom.Boost(beta);
-  inNucleonMomOnShell.Boost(beta);
-
   // When computing the contraction of the leptonic and hadronic tensors,
   // we need to use an effective value of the 4-momentum transfer q.
   // The energy transfer (q0) needs to be modified to account for the binding
@@ -942,7 +934,8 @@ int NievesQELCCPXSec::leviCivita(int input[]) const{
 }
 //____________________________________________________________________________
 // Calculates the constraction of the leptonic and hadronic tensors. The
-// initial nucleon must be at rest, and q must be in the z direction.
+// expressions used here are valid in a frame in which the
+// initial nucleus is at rest, and qTilde must be in the z direction.
 double NievesQELCCPXSec::LmunuAnumu(const TLorentzVector neutrinoMom,
                                     const TLorentzVector inNucleonMomOnShell,
                                     const TLorentzVector leptonMom,
@@ -1141,8 +1134,8 @@ double NievesQELCCPXSec::LmunuAnumu(const TLorentzVector neutrinoMom,
         axy = imag(Amunu); // TESTING CODE
         sum += Lmunu*Anumu+Lnumu*Amunu;
       }
-      // All other terms will be 0 becuase the initial nucleon is at rest and
-      // q is in the z direction
+      // All other terms will be 0 because the initial nucleus is at rest and
+      // qTilde is in the z direction
 
     } // End loop over nu
   } // End loop over mu
