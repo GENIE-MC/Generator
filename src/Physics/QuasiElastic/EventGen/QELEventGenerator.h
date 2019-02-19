@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::QELKinematicsGenerator
+\class    genie::QELEventGenerator
 
 \brief    Generates values for the kinematic variables describing QEL neutrino
           interaction events.
@@ -30,6 +30,20 @@
 
 namespace genie {
 
+typedef enum EQELEvGenBindingMode {
+
+  // Use removal energy from the nuclear model
+  kUseNuclearModel,
+
+  // Calculate binding energy assuming that the remnant nucleus is left in its
+  // ground state
+  kUseGroundStateRemnant,
+
+  // Leave the struck nucleon on shell, effectively ignoring its binding energy
+  kOnShell
+} QELEvGen_BindingMode_t;
+
+
 class QELEventGenerator: public KineGeneratorWithCache {
 
 public :
@@ -50,7 +64,6 @@ private:
   double ComputeXSec (Interaction * in, double costheta, double phi) const;
   TVector3 COMframe2Lab(InitialState initialState) const;
 
-  // unused // double fQ2min;
   mutable double fEb; // Binding energy
 
   void   LoadConfig     (void);
@@ -61,11 +74,11 @@ private:
 
   const NuclearModelI *  fNuclModel;   ///< nuclear model
 
-  //mutable double fQ2min;
-  //mutable double fQ2max;
-  //
   mutable double fMinAngleEM;
 
+  /// Enum that indicates which approach should be used to handle the binding
+  /// energy of the struck nucleon
+  QELEvGen_BindingMode_t fHitNucleonBindingMode;
 
 }; // class definition
 
