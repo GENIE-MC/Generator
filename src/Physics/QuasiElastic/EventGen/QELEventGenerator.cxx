@@ -425,7 +425,7 @@ double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const
     const int nnucthrows = 800;
     double min_energy   = 9E9;
     double max_momentum = -9E9;
-    // Loop over tthrown nucleons
+    // Loop over thrown nucleons
     // We'll select the max momentum and the minimum binding energy
     // Which should give us the nucleon with the highest xsec
     for(int inuc = 0; inuc <nnucthrows; inuc++) {
@@ -437,11 +437,10 @@ double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const
 
         // Access the target from the interaction summary
         Target * tgt = interaction->InitState().TgtPtr();
-        //        TLorentzVector * p4 = tgt->HitNucP4Ptr();
 
-        // First, throw Fermi momentum & removal energy from the nuclear model pdfs
-        // Use r=0. as the radius, since this method should give the max xsec
-        // for all possible kinematics
+        // First, throw hit nucleon 3-momentum & removal energy from the
+        // nuclear model PDFs. Use r=0. as the radius, since this method should
+        // give the max xsec for all possible kinematics
         fNuclModel->GenerateNucleon(*tgt,0.0);
 
         min_energy   = std::min(min_energy  ,fNuclModel->RemovalEnergy());
@@ -457,26 +456,11 @@ double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const
 
         // Access the target from the interaction summary
         Target * tgt = interaction->InitState().TgtPtr();
-        //        TLorentzVector * p4 = tgt->HitNucP4Ptr();
 
         // Set the nucleon we're using to be upstream at max enegry
         fNuclModel->GenerateNucleon(*tgt,0.0);
         fNuclModel->SetMomentum3(TVector3(0.,0.,-max_momentum));
         fNuclModel->SetRemovalEnergy(min_energy);
-
-        //        TVector3 p3 = fNuclModel->Momentum3();
-        //        double w = fNuclModel->RemovalEnergy();
-        //
-        //        TDatabasePDG *tb = TDatabasePDG::Instance();
-        //        double Mn = tb->GetParticle(interaction->InitState().TgtPtr()->HitNucPdg())->Mass();// outgoing nucleon mass
-        //        double Mp = tb->GetParticle(interaction->RecoilNucleonPdg())->Mass(); // incoming nucleon mass
-        //        double EN_offshell = Mn - w;
-        ////      double EN_offshell = TMath::Sqrt(Mn*Mn + p3.Dot(p3)) - w;
-        //
-        //        p4->SetPx( p3.Px()    );
-        //        p4->SetPy( p3.Py()    );
-        //        p4->SetPz( p3.Pz()    );
-        //        p4->SetE ( EN_offshell );
 
         // OK, we're going to scan the centre-of-mass angles to get the point of max xsec
         // We'll bin in solid angle, and find the maximum point

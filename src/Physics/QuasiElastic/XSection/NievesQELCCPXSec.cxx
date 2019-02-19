@@ -167,6 +167,47 @@ double NievesQELCCPXSec::XSec(const Interaction * interaction,
     Gfactor = kGF2 * fCos8c2 / (8*kPi*num);
   }
 
+  // Calculate Coulomb corrections
+  double ml = interaction->FSPrimLepton()->Mass();
+  double ml2 = TMath::Power(ml, 2);
+  double coulombFactor = 1.0;
+  double plLocal = leptonMom.P();
+
+  // Store the extra parameters needed to compute the contraction of the
+  // leptonic and hadronic tensors LmunuAnumu
+  bool is_neutrino = pdg::IsNeutrino(init_state.ProbePdg());
+  double r = target.HitNucPosition();
+  bool tgtIsNucleus = target.IsNucleus();
+  int tgt_pdgc = target.HitNucPdg();
+  int A = target.A();
+  int Z = target.Z();
+  int N = target.N();
+  bool hitNucIsProton = pdg::IsProton(target.HitNucPdg());
+
+  if ( fCoulomb ) {
+    // Coulomb potential
+    double Vc = vcr(& target, r);
+
+    // Outgoing lepton energy and momentum including Coulomb potential
+    int sign = is_neutrino ? 1 : -1;
+    double El = leptonMom.E();
+    double ElLocal = El - sign*Vc;
+    if(ElLocal - ml <= 0.0){
+      LOG("Nieves", pDEBUG) << "Event should be rejected. Coulomb effects "
+                          << "push kinematics below threshold. Returning "
+                          << "xsec = 0.0";
+      return 0.0;
+    }
+
+    // Local value of the lepton 3-momentum magnitude for the Coulomb
+    // correction
+    plLocal = TMath::Sqrt( ElLocal*ElLocal - ml2 );
+
+    // Correction factor
+    coulombFactor= plLocal*ElLocal/leptonMom.Vect().Mag()/El;
+
+  }
+
   // When computing the contraction of the leptonic and hadronic tensors,
   // we need to use an effective value of the 4-momentum transfer q.
   // The energy transfer (q0) needs to be modified to account for the binding
@@ -182,36 +223,55 @@ double NievesQELCCPXSec::XSec(const Interaction * interaction,
   // zero for the differential cross section
   if ( q0Tilde <= 0. ) return 0.;
 
-  // Rotate vectors so q is in the z direction, to use Nieves'
-  // explicit form of the Amunu tensor
+  // Note that we're working in the lab frame (i.e., the rest frame
+  // of the target nucleus). We can therefore use Nieves' explicit
+  // form of the Amunu tensor if we rotate the 3-momenta so that
+  // qTilde is in the +z direction
   TVector3 neutrinoMom3 = neutrinoMom.Vect();
   TVector3 leptonMom3 = leptonMom.Vect();
-  TVector3 q3Vec = neutrinoMom3-leptonMom3; // TESTING: Use q rather than qTilde
 
   TVector3 inNucleonMom3 = inNucleonMom.Vect();
   TVector3 outNucleonMom3 = outNucleonMom.Vect();
-  //TVector3 q3Vec = outNucleonMom3-inNucleonMom3; // qTilde
 
-  TVector3 zvec(0,0,1.0);
-  TVector3 rot = (q3Vec.Cross(zvec)).Unit(); // Vector to rotate about
-  double angle = zvec.Angle(q3Vec); // Angle between the z direction and q
+  // If Coulomb corrections are being used, adjust the lepton 3-momentum used
+  // to get q3VecTilde so that its magnitude matches the local
+  // Coulomb-corrected value calculated earlier. Note that, although the
+  // treatment of Coulomb corrections by Nieves et al. doesn't change the
+  // direction of the lepton 3-momentum, it *does* change the direction of the
+  // 3-momentum transfer, and so the correction should be applied *before*
+  // rotating coordinates into a frame where q3VecTilde lies along the positive
+  // z axis.
+  TVector3 leptonMomCoulomb3 = (! fCoulomb ) ? leptonMom3
+    : plLocal * leptonMom3 * (1. / leptonMom3.Mag());
+  TVector3 q3VecTilde = neutrinoMom3 - leptonMomCoulomb3;
+
+  // Find the rotation angle needed to put q3VecTilde along z
+  TVector3 zvec(0.0, 0.0, 1.0);
+  TVector3 rot = ( q3VecTilde.Cross(zvec) ).Unit(); // Vector to rotate about
+  // Angle between the z direction and q
+  double angle = zvec.Angle( q3VecTilde );
 
   // Rotate if the rotation vector is not 0
-  if(rot.Mag() >= kASmallNum){
+  if ( rot.Mag() >= kASmallNum ) {
+
     neutrinoMom3.Rotate(angle,rot);
     neutrinoMom.SetVect(neutrinoMom3);
+
     leptonMom3.Rotate(angle,rot);
     leptonMom.SetVect(leptonMom3);
+
     inNucleonMom3.Rotate(angle,rot);
     inNucleonMom.SetVect(inNucleonMom3);
     inNucleonMomOnShell.SetVect(inNucleonMom3);
+
     outNucleonMom3.Rotate(angle,rot);
     outNucleonMom.SetVect(outNucleonMom3);
+
   }
 
   // Calculate q and qTilde
   TLorentzVector qP4 = neutrinoMom - leptonMom;
-  TLorentzVector qTildeP4 = outNucleonMom - inNucleonMomOnShell;
+  TLorentzVector qTildeP4(0., 0., q3VecTilde.Mag(), q0Tilde);
 
   double Q2 = -1. * qP4.Mag2();
   double Q2tilde = -1. * qTildeP4.Mag2();
@@ -232,58 +292,18 @@ double NievesQELCCPXSec::XSec(const Interaction * interaction,
   // Check that the energy tranfer q0 is greater than 0, or else the
   // following equations do not apply. (Note also that the event would
   // be Pauli blocked )
-  if(qTildeP4.E()<=-kASmallNum){
+  if (qTildeP4.E()<=-kASmallNum) {
     LOG("Nieves", pWARN) << "q0<=0.0, returning xsec = 0.0";
     return 0.0;
   }
 
-  // Calculate tensor product
-
-  fFormFactors.Calculate(interaction);
+  // Calculate form factors
+  fFormFactors.Calculate( interaction );
 
   if ( kps == kPSQELEvGen ) {
     // Now that the form factors have been calculated, store Q2
     // in the event instead of Q2tilde
     interaction->KinePtr()->SetQ2( Q2 );
-  }
-
-  bool is_neutrino = pdg::IsNeutrino(init_state.ProbePdg());
-  double r = target.HitNucPosition();
-  bool tgtIsNucleus = target.IsNucleus();
-  int tgt_pdgc = target.HitNucPdg();
-  int A = target.A();
-  int Z = target.Z();
-  int N = target.N();
-  bool hitNucIsProton = pdg::IsProton(target.HitNucPdg());
-
-  // Calculate Coulomb corrections
-  double ml = interaction->FSPrimLepton()->Mass();
-  double ml2 = TMath::Power(ml,    2);
-  double coulombFactor = 1.0;
-  if(fCoulomb){
-    // Coulomb potential
-    double Vc = vcr(& target, r);
-
-    // Outgoing lepton energy and momentum including coulomb potential
-    int sign = is_neutrino ? 1 : -1;
-    double El = leptonMom.E();
-    double ElLocal = El - sign*Vc;
-    if(ElLocal - ml <= 0.0){
-      LOG("Nieves", pDEBUG) << "Event should be rejected. Coulomb effects "
-                          << "push kinematics below threshold. Returning "
-                          << "xsec = 0.0";
-      return 0.0;
-    }
-    double plLocal = TMath::Sqrt(ElLocal*ElLocal-ml2);
-
-    // Correction factor
-    coulombFactor= plLocal*ElLocal/leptonMom.Vect().Mag()/El;
-
-    // Correct outgoing lepton momentum
-    /*TVector3 ElVect = leptonMom.Vect();
-    ElVect.SetMag(plLocal);
-    leptonMom.SetVect(ElVect);
-    leptonMom.SetE(ElLocal);*/
   }
 
   // Do the contraction of the leptonic and hadronic tensors. See the
@@ -1451,6 +1471,8 @@ void NievesQELCCPXSec::CompareNievesTensors(const Interaction* in)
       double coulombFactor= plLocal*ElLocal/leptonMom.Vect().Mag()/El;
       fCoulombFactor = coulombFactor; // Store and print
     }
+
+    // TODO: apply Coulomb correction to 3-momentum transfer dq
 
     fFormFactors.Calculate(interaction);
     LmunuAnumu(neutrinoMom,inNucleonMomOnShell,leptonMom,qTildeP4,
