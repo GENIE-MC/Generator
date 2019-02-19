@@ -264,6 +264,11 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
         //        }
 
         // Pick a direction
+        // NOTE: In the kPSQELEvGen phase space used by this generator,
+        // these angles are specified with respect to the velocity of the
+        // probe + hit nucleon COM frame as measured in the lab frame. That is,
+        // costheta = 1 means that the outgoing lepton's COM frame 3-momentum
+        // points parallel to the velocity of the COM frame.
         double costheta = (rnd->RndKine().Rndm() * 2) - 1; // cosine theta: [-1, 1]
         double phi = 2 * TMath::Pi() * rnd->RndKine().Rndm(); // phi: [0, 2pi]
 
@@ -731,31 +736,39 @@ double QELEventGenerator::ComputeXSec( Interaction * interaction, double costhet
     double outMomentum = TMath::Sqrt(outLeptonEnergy*outLeptonEnergy - lepMass*lepMass);
     //LOG("QELEvent",pDEBUG) << "calculated root s and outLeptonEnergy" << std::endl;
 
-    TLorentzVector lepton(outMomentum, 0, 0, outLeptonEnergy);
-
-    lepton.SetTheta(TMath::ACos(costheta));
-    lepton.SetPhi(phi);
-    TLorentzVector outNucleon(-1*lepton.Px(),-1*lepton.Py(),-1*lepton.Pz(),
-            TMath::Sqrt(outMomentum*outMomentum + Mp*Mp));
-
-    /*LOG("QELEvent",pDEBUG) << "costheta = " << costheta << ", phi = " << phi << std::endl;
-      LOG("QELEvent",pDEBUG) << "lepton = " << utils::print::P4AsString(&lepton) << std::endl;
-      LOG("QELEvent",pDEBUG) << "outNucleon = " << utils::print::P4AsString(&outNucleon) << std::endl;
-      LOG("QELEvent",pDEBUG) << "inNucleon = " << utils::print::P4AsString(p4) << std::endl;
-      LOG("QELEvent",pDEBUG) << "s = " << s << ", outLepE = " << outLeptonEnergy << "outMom = " << outMomentum << std::endl;
-      LOG("QELEvent",pDEBUG) << "outMom^2 = " << outLeptonEnergy*outLeptonEnergy - lepMass*lepMass << std::endl;*/
-
-    /*LOG("QELEvent",pDEBUG) << "Lepton COM EvGen:\n";
-      lepton.Print();
-      LOG("QELEvent",pDEBUG) << "outNucleon COM EvGen:\n";
-      outNucleon.Print();*/
-
-    // Boost particles
+    // Compute the boost vector for moving from the COM frame to the
+    // lab frame, i.e., the velocity of the COM frame as measured
+    // in the lab frame.
     TVector3 beta = this->COMframe2Lab(interaction->InitState());
-    //LOG("QELEvent", pINFO) << "converted to lab frame";
 
-    TLorentzVector leptonCOM = TLorentzVector(lepton);
+    // FullDifferentialXSec depends on theta_0 and phi_0, the lepton COM
+    // frame angles with respect to the direction of the COM frame velocity
+    // as measured in the lab frame. To generate the correct dependence
+    // here, first set the lepton COM frame angles with respect to +z
+    // (via TVector3::SetTheta() and TVector3::SetPhi()).
+    TVector3 lepton3Mom(0., 0., outMomentum);
+    lepton3Mom.SetTheta( TMath::ACos(costheta) );
+    lepton3Mom.SetPhi( phi );
 
+    // Then rotate the lepton 3-momentum so that the old +z direction now
+    // points along the COM frame velocity (beta)
+    TVector3 zvec(0., 0., 1.);
+    TVector3 rot = ( zvec.Cross(beta) ).Unit();
+    double angle = beta.Angle( zvec );
+    // Rotate if the rotation vector is not 0
+    if ( rot.Mag() >= kASmallNum ) {
+      lepton3Mom.Rotate(angle, rot);
+    }
+
+    // Construct the lepton 4-momentum in the COM frame
+    TLorentzVector lepton(lepton3Mom, outLeptonEnergy);
+
+    // The final state nucleon will have an equal and opposite 3-momentum
+    // in the COM frame and will be on the mass shell
+    TLorentzVector outNucleon(-1*lepton.Px(),-1*lepton.Py(),-1*lepton.Pz(),
+      TMath::Sqrt(outMomentum*outMomentum + Mp*Mp));
+
+    // Boost the 4-momenta for both particles into the lab frame
     lepton.Boost(beta);
     outNucleon.Boost(beta);
     //LOG("QELEvent", pINFO) << "lepton boosted = " << utils::print::P4AsString(&lepton),
@@ -776,7 +789,7 @@ double QELEventGenerator::ComputeXSec( Interaction * interaction, double costhet
     // Check if event is at a low angle - if so return 0 and stop wasting time
     //double angle = fConfig->GetDoubleDef("MinAngle",  gc->GetDouble("SF-MinAngleEMscattering"));
     //LOG("QELEvent", pINFO) << "min angle = " << fMinAngleEM;
-    if (180 * lepton.Theta() / 3.1415 < fMinAngleEM && interaction->ProcInfo().IsEM()){
+    if (180 * lepton.Theta() / kPi < fMinAngleEM && interaction->ProcInfo().IsEM()){
         return 0;
     }
     // Check if Q2 above Minimum Q2 // important for eA scattering
