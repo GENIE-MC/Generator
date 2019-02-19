@@ -537,6 +537,30 @@ void NievesQELCCPXSec::LoadConfig(void)
   // TESTING CODE
   GetParamDef( "PrintDebugData", fCompareNievesTensors, false ) ;
   // END TESTING CODE
+
+  // Nuclear radius parameter (R = R0*A^(1/3)) to use when computing
+  // the maximum radius to use to integrate the Coulomb potential
+  GetParam("NUCL-R0", fR0) ; // fm
+
+  std::string temp_mode;
+  GetParamDef( "RmaxMode", temp_mode, std::string("VertexGenerator") ) ;
+
+  // Translate the string setting the Rmax mode to the appropriate
+  // enum value, or complain if one couldn't be found
+  if ( temp_mode == "VertexGenerator" ) {
+    fCoulombRmaxMode = kMatchVertexGeneratorRmax;
+  }
+  else if ( temp_mode == "Nieves" ) {
+    fCoulombRmaxMode = kMatchNieves;
+  }
+  else {
+    LOG("Nieves", pFATAL) << "Unrecognized setting \"" << temp_mode
+      << "\" requested for the RmaxMode parameter in the"
+      << " configuration for NievesQELCCPXSec";
+    gAbortingInErr = true;
+    std::exit(1);
+  }
+
 }
 //___________________________________________________________________________
 void NievesQELCCPXSec::CNCTCLimUcalc(TLorentzVector qTildeP4,
@@ -861,15 +885,31 @@ double NievesQELCCPXSec::vcr(const Target * target, double Rcurr) const{
   if(target->IsNucleus()){
     int A = target->A();
     int Z = target->Z();
-    // RMax calculated using formula from Nieves' fortran code and default
-    // charge and neutron matter density paramters from NuclearUtils.cxx
-    double Rmax;
-    if(A > 20){
-      double c = TMath::Power(A,0.35), z = 0.54;
-      Rmax = c + 9.25*z;
-    }else{
-      // c = 1.75 for A <= 20
-      Rmax = TMath::Sqrt(20.0)*1.75;
+    double Rmax = 0.;
+
+    if ( fCoulombRmaxMode == kMatchNieves ) {
+      // Rmax calculated using formula from Nieves' fortran code and default
+      // charge and neutron matter density parameters from NuclearUtils.cxx
+      if (A > 20) {
+        double c = TMath::Power(A,0.35), z = 0.54;
+        Rmax = c + 9.25*z;
+      }
+      else {
+        // c = 1.75 for A <= 20
+        Rmax = TMath::Sqrt(20.0)*1.75;
+      }
+    }
+    else if ( fCoulombRmaxMode == kMatchVertexGeneratorRmax ) {
+      // TODO: This solution is fragile. If the formula used by VertexGenerator
+      // changes, then this one will need to change too. Switch to using
+      // a common function to get Rmax for both.
+      Rmax = 3. * fR0 * std::pow(A, 1./3.);
+    }
+    else {
+      LOG("Nieves", pFATAL) << "Unrecognized setting for fCoulombRmaxMode encountered"
+        << " in NievesQELCCPXSec::vcr()";
+      gAbortingInErr = true;
+      std::exit(1);
     }
 
     //LOG("Nieves",pDEBUG) "A = " << A
