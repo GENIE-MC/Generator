@@ -43,6 +43,8 @@
 #include "Framework/GHEP/GHepStatus.h"
 #include "Framework/GHEP/GHepParticle.h"
 #include "Framework/GHEP/GHepRecord.h"
+#include "Framework/GHEP/GHepFlags.h" 
+#include "Framework/EventGen/EVGThreadException.h"
 #include "Physics/Decay/Decayer.h"
 #include "Physics/Hadronization/KNOHadronization.h"
 #include "Framework/Interaction/Interaction.h"
@@ -98,17 +100,17 @@ void KNOHadronization::ProcessEventRecord(GHepRecord * event) const {
   TClonesArray * particle_list = this->Hadronize(interaction);
 
   if(! particle_list ) {
-       LOG("KNOHadronization", pWARN) << "Got an empty particle list. Hadronizer failed!";
-       LOG("KNOHadronization", pWARN) << "Quitting the current event generation thread";
-
-       evrec->EventFlags()->SetBitNumber(kHadroSysGenErr, true);
-
-       genie::exceptions::EVGThreadException exception;
-       exception.SetReason("Could not simulate the hadronic system");
-       exception.SwitchOnFastForward();
-       throw exception;
-
-       return;
+    LOG("KNOHadronization", pWARN) << "Got an empty particle list. Hadronizer failed!";
+    LOG("KNOHadronization", pWARN) << "Quitting the current event generation thread";
+    
+    event->EventFlags()->SetBitNumber(kHadroSysGenErr, true);
+    
+    genie::exceptions::EVGThreadException exception;
+    exception.SetReason("Could not simulate the hadronic system");
+    exception.SwitchOnFastForward();
+    throw exception;
+    
+    return;
   }
 
   int mom = event->FinalStateHadronicSystemPosition();

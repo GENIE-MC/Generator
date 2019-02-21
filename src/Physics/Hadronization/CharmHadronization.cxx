@@ -31,6 +31,8 @@
 #include "Framework/GHEP/GHepStatus.h"
 #include "Framework/GHEP/GHepParticle.h"
 #include "Framework/GHEP/GHepRecord.h"
+#include "Framework/GHEP/GHepFlags.h" 
+#include "Framework/EventGen/EVGThreadException.h"
 #include "Physics/Hadronization/CharmHadronization.h"
 #include "Physics/Hadronization/FragmentationFunctionI.h"
 #include "Framework/Messenger/Messenger.h"
@@ -91,20 +93,19 @@ void CharmHadronization::ProcessEventRecord(GHepRecord * event) const
   TClonesArray * particle_list = this->Hadronize(interaction);
 
   if(! particle_list ) {
-        LOG("CharmHadronization", pWARN) << "Got an empty particle list. Hadronizer failed!";
-        LOG("CharmHadronization", pWARN) << "Quitting the current event generation thread";
+    LOG("CharmHadronization", pWARN) << "Got an empty particle list. Hadronizer failed!";
+    LOG("CharmHadronization", pWARN) << "Quitting the current event generation thread";
+    
+    event->EventFlags()->SetBitNumber(kHadroSysGenErr, true);
 
-        evrec->EventFlags()->SetBitNumber(kHadroSysGenErr, true);
-
-        genie::exceptions::EVGThreadException exception;
-        exception.SetReason("Could not simulate the hadronic system");
-        exception.SwitchOnFastForward();
-        throw exception;
-
-        return;
-   }
-
-
+    genie::exceptions::EVGThreadException exception;
+    exception.SetReason("Could not simulate the hadronic system");
+    exception.SwitchOnFastForward();
+    throw exception;
+    
+    return;
+  }
+  
   int mom = event->FinalStateHadronicSystemPosition();
   assert(mom!=-1);
 
