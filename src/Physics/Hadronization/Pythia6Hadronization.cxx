@@ -75,6 +75,21 @@ void Pythia6Hadronization::ProcessEventRecord(GHepRecord * event) const
   Interaction * interaction = event->Summary();
   TClonesArray * particle_list = this->Hadronize(interaction);
 
+  if(! particle_list ) {
+        LOG("Pythia6Hadronization", pWARN) << "Got an empty particle list. Hadronizer failed!";
+        LOG("Pythia6Hadronization", pWARN) << "Quitting the current event generation thread";
+
+        evrec->EventFlags()->SetBitNumber(kHadroSysGenErr, true);
+
+        genie::exceptions::EVGThreadException exception;
+        exception.SetReason("Could not simulate the hadronic system");
+        exception.SwitchOnFastForward();
+        throw exception;
+
+        return;
+   }
+
+
   int mom = event->FinalStateHadronicSystemPosition();
   assert(mom!=-1);
 

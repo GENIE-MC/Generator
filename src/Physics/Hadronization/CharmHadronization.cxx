@@ -90,6 +90,21 @@ void CharmHadronization::ProcessEventRecord(GHepRecord * event) const
   Interaction * interaction = event->Summary();
   TClonesArray * particle_list = this->Hadronize(interaction);
 
+  if(! particle_list ) {
+        LOG("CharmHadronization", pWARN) << "Got an empty particle list. Hadronizer failed!";
+        LOG("CharmHadronization", pWARN) << "Quitting the current event generation thread";
+
+        evrec->EventFlags()->SetBitNumber(kHadroSysGenErr, true);
+
+        genie::exceptions::EVGThreadException exception;
+        exception.SetReason("Could not simulate the hadronic system");
+        exception.SwitchOnFastForward();
+        throw exception;
+
+        return;
+   }
+
+
   int mom = event->FinalStateHadronicSystemPosition();
   assert(mom!=-1);
 
