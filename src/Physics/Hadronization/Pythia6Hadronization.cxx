@@ -28,6 +28,8 @@
 #include "Framework/GHEP/GHepStatus.h"
 #include "Framework/GHEP/GHepParticle.h"
 #include "Framework/GHEP/GHepRecord.h"
+#include "Framework/GHEP/GHepFlags.h" 
+#include "Framework/EventGen/EVGThreadException.h"
 #include "Physics/Hadronization/Pythia6Hadronization.h"
 #include "Framework/Interaction/Interaction.h"
 #include "Framework/Messenger/Messenger.h"
@@ -37,6 +39,7 @@
 #include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/Utils/KineUtils.h"
 #include "Physics/Hadronization/FragmRecUtils.h"
+
 
 using namespace genie;
 using namespace genie::constants;
@@ -76,17 +79,17 @@ void Pythia6Hadronization::ProcessEventRecord(GHepRecord * event) const
   TClonesArray * particle_list = this->Hadronize(interaction);
 
   if(! particle_list ) {
-        LOG("Pythia6Hadronization", pWARN) << "Got an empty particle list. Hadronizer failed!";
-        LOG("Pythia6Hadronization", pWARN) << "Quitting the current event generation thread";
-
-        evrec->EventFlags()->SetBitNumber(kHadroSysGenErr, true);
-
-        genie::exceptions::EVGThreadException exception;
-        exception.SetReason("Could not simulate the hadronic system");
-        exception.SwitchOnFastForward();
-        throw exception;
-
-        return;
+    LOG("Pythia6Hadronization", pWARN) << "Got an empty particle list. Hadronizer failed!";
+    LOG("Pythia6Hadronization", pWARN) << "Quitting the current event generation thread";
+    
+    event->EventFlags()->SetBitNumber(kHadroSysGenErr, true);
+    
+    genie::exceptions::EVGThreadException exception;
+    exception.SetReason("Could not simulate the hadronic system");
+    exception.SwitchOnFastForward();
+    throw exception;
+    
+    return;
    }
 
 
