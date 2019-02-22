@@ -64,17 +64,6 @@ void KNOPythiaHadronization::ProcessEventRecord(GHepRecord * event) const
 // hadronization models according to the specified transition scheme
   Interaction * interaction = event->Summary();
 
-  double W = interaction->Kine().W();
-  LOG("HybridHad", pINFO) << "W = " << W << " GeV";
-
-  if(W <= kNucleonMass+kPionMass) {
-     LOG("HybridHad", pWARN)
-        << "Low invariant mass, W = " << W << " GeV! Returning a null list";
-     return;
-  }
-
-  // //-- Init event weight (to be set if producing weighted events)
-  // fWeight = 1.;
 
   //-- Select hadronizer
   const EventRecordVisitorI * hadronizer =
