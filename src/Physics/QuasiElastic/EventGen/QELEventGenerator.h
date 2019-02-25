@@ -64,6 +64,10 @@ private:
   /// energy of the struck nucleon
   QELEvGen_BindingMode_t fHitNucleonBindingMode;
 
+  /// The number of nucleons to sample from the nuclear model when choosing a maximum
+  /// momentum to use in ComputeMaxXSec()
+  int fMaxXSecNucleonThrows;
+
 }; // class definition
 
 } // genie namespace

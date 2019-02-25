@@ -11,6 +11,8 @@
 
 // standard library includes
 #include <cmath>
+#include <limits>
+#include <sstream>
 
 // ROOT includes
 #include "TDatabasePDG.h"
@@ -92,85 +94,31 @@ double genie::utils::EnergyDeltaFunctionSolutionQEL(
 double genie::utils::ComputeFullQELPXSec(genie::Interaction* interaction,
   const genie::NuclearModelI* nucl_model, const genie::XSecAlgorithmI* xsec_model,
   double cos_theta_0, double phi_0, double& Eb,
-  genie::QELEvGen_BindingMode_t hitNucleonBindingMode, double min_angle_EM)
+  genie::QELEvGen_BindingMode_t hitNucleonBindingMode, double min_angle_EM,
+  bool bind_nucleon)
 {
-  genie::Target* tgt = interaction->InitState().TgtPtr();
-  TLorentzVector* p4Ni = tgt->HitNucP4Ptr();
+  // If requested, set the initial hit nucleon 4-momentum to be off-shell
+  // according to the binding mode specified in the function call
+  if ( bind_nucleon ) {
+    genie::utils::BindHitNucleon(*interaction, *nucl_model, Eb,
+      hitNucleonBindingMode);
+  }
 
-  // Initial nucleon 3-momentum (lab frame)
-  TVector3 p3Ni = nucl_model->Momentum3();
-
+  // Mass of the outgoing lepton
   double lepMass = interaction->FSPrimLepton()->Mass();
 
-  // Look up the (on-shell) masses of the initial and final nucleon
+  // Look up the (on-shell) mass of the final nucleon
   TDatabasePDG *tb = TDatabasePDG::Instance();
-
-  double mNi = tb->GetParticle( tgt->HitNucPdg() )->Mass();
   double mNf = tb->GetParticle( interaction->RecoilNucleonPdg() )->Mass();
-
-  // Set the (possibly off-shell) initial nucleon energy based on
-  // the selected binding energy mode. Always put the initial nucleon
-  // on shell if it is not part of a composite nucleus
-  double ENi = 0.;
-  bool composite_target = tgt->A() > 1;
-  if ( composite_target && hitNucleonBindingMode != genie::kOnShell ) {
-    // Initial nucleus mass
-    double Mi = tgt->Mass();
-
-    // Final nucleus mass
-    double Mf = 0.;
-
-    // If we use the removal energy reported by the nuclear
-    // model, then it implies a certain value for the final
-    // nucleus mass
-    if ( hitNucleonBindingMode == genie::kUseNuclearModel ) {
-      Eb = nucl_model->RemovalEnergy();
-      // This equation is the definition that we assume
-      // here for the "removal energy" (Eb) returned by the
-      // nuclear model. It matches GENIE's convention for
-      // the Bodek/Ritchie Fermi gas model.
-      Mf = Mi + Eb - mNi;
-    }
-    // We can also assume that the final nucleus is in its
-    // ground state. In this case, we can just look up its
-    // mass from the standard table. This implies a particular
-    // binding energy for the hit nucleon.
-    else if ( hitNucleonBindingMode == genie::kUseGroundStateRemnant ) {
-      // Determine the mass and proton numbers for the remnant nucleus
-      int Af = tgt->A() - 1;
-      int Zf = tgt->Z();
-      if ( genie::pdg::IsProton( tgt->HitNucPdg()) ) --Zf;
-      Mf = genie::PDGLibrary::Instance()->Find( genie::pdg::IonPdgCode(Af, Zf) )->Mass();
-
-      // Deduce the binding energy from the final nucleus mass
-      Eb = Mf - Mi + mNi;
-    }
-
-    // The (lab-frame) off-shell initial nucleon energy is the difference
-    // between the lab frame total energies of the initial and remnant nuclei
-    ENi = Mi - std::sqrt( Mf*Mf + p3Ni.Mag2() );
-  }
-  else {
-    // Keep the struck nucleon on shell either because
-    // hitNucleonBindingMode == kOnShell or because
-    // the target is a single nucleon
-    ENi = std::sqrt( p3Ni.Mag2() + std::pow(mNi, 2) );
-    Eb = 0.;
-  }
-
-  // Update the initial nucleon lab-frame 4-momentum in the interaction with
-  // its current components
-  p4Ni->SetVect( p3Ni );
-  p4Ni->SetE( ENi );
 
   // Mandelstam s for the probe/hit nucleon system
   double s = std::pow( interaction->InitState().CMEnergy(), 2 );
 
   // Return a differential cross section of zero if we're below threshold (and
   // therefore need to sample a new event)
-  if ( TMath::Sqrt(s) < lepMass + mNf ) return 0.;
+  if ( std::sqrt(s) < lepMass + mNf ) return 0.;
 
-  double outLeptonEnergy = ( s - mNf*mNf + lepMass*lepMass ) / (2 * TMath::Sqrt(s));
+  double outLeptonEnergy = ( s - mNf*mNf + lepMass*lepMass ) / (2 * std::sqrt(s));
 
   if (outLeptonEnergy*outLeptonEnergy - lepMass*lepMass < 0.) return 0.;
   double outMomentum = TMath::Sqrt(outLeptonEnergy*outLeptonEnergy - lepMass*lepMass);
@@ -251,4 +199,124 @@ genie::QELEvGen_BindingMode_t genie::utils::StringToQELBindingMode(
     gAbortingInErr = true;
     std::exit(1);
   }
+}
+
+double genie::utils::CosTheta0Max(const genie::Interaction& interaction) {
+  double probe_E_lab = interaction.InitState().ProbeE( genie::kRfLab );
+
+  TVector3 beta = COMframe2Lab( interaction.InitState() );
+  double gamma = 1. / std::sqrt(1. - beta.Mag2());
+
+  double sqrt_s = interaction.InitState().CMEnergy();
+  double mNf = interaction.RecoilNucleon()->Mass();
+  double ml = interaction.FSPrimLepton()->Mass();
+  double lepton_E_COM = (sqrt_s*sqrt_s + ml*ml - mNf*mNf) / (2.*sqrt_s);
+
+  // If there isn't enough available energy to create an on-shell
+  // final lepton, then don't bother with the rest of the calculation
+  // NOTE: C++11 would allow use to use lowest() here instead
+  if ( lepton_E_COM <= ml ) return -std::numeric_limits<double>::max();
+
+  double lepton_p_COM = std::sqrt( std::max(lepton_E_COM*lepton_E_COM
+    - ml*ml, 0.) );
+
+  // Possibly off-shell initial struck nucleon total energy
+  // (BindHitNucleon() should have been called previously if needed)
+  const TLorentzVector& p4Ni = interaction.InitState().Tgt().HitNucP4();
+  double ENi = p4Ni.E();
+  // On-shell mass of initial struck nucleon
+  double mNi = interaction.InitState().Tgt().HitNucMass();
+  // On-shell initial struck nucleon energy
+  double ENi_on_shell = std::sqrt( mNi*mNi + p4Ni.Vect().Mag2() );
+  // Energy needed to put initial nucleon on the mass shell
+  double epsilon_B = ENi_on_shell - ENi;
+
+  double cos_theta0_max = ( probe_E_lab - gamma*lepton_E_COM - epsilon_B )
+    / ( gamma * lepton_p_COM * beta.Mag() );
+  return cos_theta0_max;
+}
+
+std::string genie::utils::VecToString(const TVector3& vec)
+{
+  std::stringstream ss;
+  ss << '(' << vec.X() << ", " << vec.Y() << ", " << vec.Z() << ')';
+  return ss.str();
+}
+
+std::string genie::utils::LVecToString(const TLorentzVector& lvec)
+{
+  std::stringstream ss;
+  ss << "E = " << lvec.E() << ", p = ";
+  return ss.str() + genie::utils::VecToString( lvec.Vect() );
+}
+
+void genie::utils::BindHitNucleon(genie::Interaction& interaction,
+  const genie::NuclearModelI& nucl_model, double& Eb,
+  genie::QELEvGen_BindingMode_t hitNucleonBindingMode)
+{
+  genie::Target* tgt = interaction.InitState().TgtPtr();
+  TLorentzVector* p4Ni = tgt->HitNucP4Ptr();
+
+  // Initial nucleon 3-momentum (lab frame)
+  TVector3 p3Ni = nucl_model.Momentum3();
+
+  // Look up the (on-shell) mass of the initial nucleon
+  TDatabasePDG* tb = TDatabasePDG::Instance();
+  double mNi = tb->GetParticle( tgt->HitNucPdg() )->Mass();
+
+  // Set the (possibly off-shell) initial nucleon energy based on
+  // the selected binding energy mode. Always put the initial nucleon
+  // on shell if it is not part of a composite nucleus
+  double ENi = 0.;
+  bool composite_target = tgt->A() > 1;
+  if ( composite_target && hitNucleonBindingMode != genie::kOnShell ) {
+    // Initial nucleus mass
+    double Mi = tgt->Mass();
+
+    // Final nucleus mass
+    double Mf = 0.;
+
+    // If we use the removal energy reported by the nuclear
+    // model, then it implies a certain value for the final
+    // nucleus mass
+    if ( hitNucleonBindingMode == genie::kUseNuclearModel ) {
+      Eb = nucl_model.RemovalEnergy();
+      // This equation is the definition that we assume
+      // here for the "removal energy" (Eb) returned by the
+      // nuclear model. It matches GENIE's convention for
+      // the Bodek/Ritchie Fermi gas model.
+      Mf = Mi + Eb - mNi;
+    }
+    // We can also assume that the final nucleus is in its
+    // ground state. In this case, we can just look up its
+    // mass from the standard table. This implies a particular
+    // binding energy for the hit nucleon.
+    else if ( hitNucleonBindingMode == genie::kUseGroundStateRemnant ) {
+      // Determine the mass and proton numbers for the remnant nucleus
+      int Af = tgt->A() - 1;
+      int Zf = tgt->Z();
+      if ( genie::pdg::IsProton( tgt->HitNucPdg()) ) --Zf;
+      Mf = genie::PDGLibrary::Instance()->Find( genie::pdg::IonPdgCode(Af, Zf) )->Mass();
+
+      // Deduce the binding energy from the final nucleus mass
+      Eb = Mf - Mi + mNi;
+    }
+
+    // The (lab-frame) off-shell initial nucleon energy is the difference
+    // between the lab frame total energies of the initial and remnant nuclei
+    ENi = Mi - std::sqrt( Mf*Mf + p3Ni.Mag2() );
+  }
+  else {
+    // Keep the struck nucleon on shell either because
+    // hitNucleonBindingMode == kOnShell or because
+    // the target is a single nucleon
+    ENi = std::sqrt( p3Ni.Mag2() + std::pow(mNi, 2) );
+    Eb = 0.;
+  }
+
+  // Update the initial nucleon lab-frame 4-momentum in the interaction with
+  // its current components
+  p4Ni->SetVect( p3Ni );
+  p4Ni->SetE( ENi );
+
 }

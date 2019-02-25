@@ -5,6 +5,11 @@
 #include "Physics/NuclearState/NuclearModelI.h"
 #include "Framework/EventGen/XSecAlgorithmI.h"
 
+#include "TLorentzVector.h"
+#include "TVector3.h"
+
+#include <string>
+
 namespace genie {
 
   // Enumerated type used to specify the method for determining the off-shell energy
@@ -23,11 +28,18 @@ namespace genie {
   } QELEvGen_BindingMode_t;
 
   namespace utils {
-    double EnergyDeltaFunctionSolutionQEL(const genie::Interaction& inter);
+    double EnergyDeltaFunctionSolutionQEL(const Interaction& inter);
     QELEvGen_BindingMode_t StringToQELBindingMode( const std::string& mode_str );
-    double ComputeFullQELPXSec(Interaction* interaction, const NuclearModelI* nucl_model,
-      const XSecAlgorithmI* xsec_model, double cos_theta_0, double phi_0, double& Eb,
-      QELEvGen_BindingMode_t hitNucleonBindingMode, double min_angle_EM = 0.);
+    double ComputeFullQELPXSec(Interaction* interaction,
+      const NuclearModelI* nucl_model, const XSecAlgorithmI* xsec_model,
+      double cos_theta_0, double phi_0, double& Eb,
+      QELEvGen_BindingMode_t hitNucleonBindingMode, double min_angle_EM = 0.,
+      bool bind_nucleon = true);
+    double CosTheta0Max(const genie::Interaction& interaction);
+    std::string VecToString(const TVector3& vec);
+    std::string LVecToString(const TLorentzVector& lvec);
+    void BindHitNucleon(Interaction& interaction, const NuclearModelI& nucl_model,
+      double& Eb, QELEvGen_BindingMode_t hitNucleonBindingMode);
   }
 }
 
