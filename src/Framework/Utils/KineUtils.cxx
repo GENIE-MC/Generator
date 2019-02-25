@@ -331,8 +331,7 @@ Range1D_t genie::utils::kinematics::InelWLim(double Ev, double M, double ml)
   assert (s>0);
 
   Range1D_t W;
-  W.min  = kNeutronMass + kPhotontest;
-//  W.min  = kNeutronMass + kPionMass;
+  W.min  = kNeutronMass + kPionMass;
   W.max  = TMath::Sqrt(s) - ml;
   if(W.max<=W.min) {
     W.min = -1;
@@ -1228,5 +1227,3 @@ double genie::utils::kinematics::COHImportanceSamplingEnvelope(
   return func;
 }
 //___________________________________________________________________________
-
-
