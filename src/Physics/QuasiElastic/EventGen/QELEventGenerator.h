@@ -24,25 +24,12 @@
 
 #include "Physics/NuclearState/NuclearModelI.h"
 #include "Physics/Common/KineGeneratorWithCache.h"
+#include "Physics/QuasiElastic/XSection/QELUtils.h"
 #include "Framework/Utils/Range1.h"
 #include "Framework/Conventions/Controls.h"
 
 
 namespace genie {
-
-typedef enum EQELEvGenBindingMode {
-
-  // Use removal energy from the nuclear model
-  kUseNuclearModel,
-
-  // Calculate binding energy assuming that the remnant nucleus is left in its
-  // ground state
-  kUseGroundStateRemnant,
-
-  // Leave the struck nucleon on shell, effectively ignoring its binding energy
-  kOnShell
-} QELEvGen_BindingMode_t;
-
 
 class QELEventGenerator: public KineGeneratorWithCache {
 
@@ -60,9 +47,6 @@ public :
   void Configure(string config);
 
 private:
-
-  double ComputeXSec (Interaction * in, double costheta, double phi) const;
-  TVector3 COMframe2Lab(InitialState initialState) const;
 
   mutable double fEb; // Binding energy
 

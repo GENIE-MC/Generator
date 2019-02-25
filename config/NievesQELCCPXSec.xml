@@ -22,6 +22,7 @@ Parameters needed when Integrating with this model to generate splines:
 Name                                 Type     Optional   Comment                                              Default
 ...........................................................................................................................
 IntegralAverageOverNucleonMomentum   bool     Yes        Will be overridden to true if nuclear model is LFG   false
+IntegralNumberOfNucleonThrows        int      Yes        Number of nucleons to sample when computing splines  5000
 IntegralNuclearModel                 alg      No
 IntegralNuclearInfluenceCutoffEnergy double   Yes                                                             2.0
 RmaxMode                             string   Yes        Method to use to compute Rmax for integrating the    VertexGenerator
@@ -36,6 +37,8 @@ RmaxMode                             string   Yes        Method to use to comput
 
     <param type="alg"  name="XSec-Integrator">      genie::QELXSec/Default         </param>
     <param type="alg"  name="IntegralNuclearModel"> genie::NuclearModelMap/Default </param>
+    <param type="int"  name="IntegralNumberOfNucleonThrows"> 5000 </param>
+    <param type="string" name="IntegralNucleonBindingMode"> UseNuclearModel </param>
 
     <param type="bool" name="RPA">             true                          </param>
     <param type="bool" name="Coulomb">         true                         </param>

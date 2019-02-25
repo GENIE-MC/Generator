@@ -43,8 +43,6 @@
 #include "Physics/NuclearState/NuclearUtils.h"
 #include "Framework/Utils/PrintUtils.h"
 #include "Framework/Numerical/GSLUtils.h"
-#include "Physics/QuasiElastic/XSection/QELUtils.h"
-
 
 #include <iostream> // Used for testing code
 #include <fstream> // Used for testing code
@@ -380,76 +378,59 @@ double NievesQELCCPXSec::Integral(const Interaction * in) const
 {
   bool nuclear_target = in->InitState().Tgt().IsNucleus();
   double E = in->InitState().ProbeE(kRfHitNucRest);
-  if(!nuclear_target || !fDoAvgOverNucleonMomentum) {
-    return fXSecIntegrator->Integrate(this,in);
+  if (!nuclear_target || !fDoAvgOverNucleonMomentum) {
+    return fXSecIntegrator->Integrate(this, in);
   }
-
-
 
   // If the nuclear model is LFG or if RPA effects are on, then the xsec
   // is dependent on the position in the nucleus, and possible radii and
   // initial nucleon momenta should always be averaged over
-  if(fLFG || fRPA || E < fEnergyCutOff) {
+  if (fLFG || fRPA || E < fEnergyCutOff) {
     // clone the input interaction so as to tweak the
     // hit nucleon 4-momentum in the averaging loop
-    Interaction in_curr(*in);
+    Interaction in_curr( *in );
+    Target* tgt = in_curr.InitState().TgtPtr();
 
-    // hit target
-    Target * tgt = in_curr.InitState().TgtPtr();
-
-    // get nuclear masses (init & final state nucleus)
-    int nucleon_pdgc = tgt->HitNucPdg();
-    bool is_p = pdg::IsProton(nucleon_pdgc);
-    int Zi = tgt->Z();
-    int Ai = tgt->A();
-    int Zf = (is_p) ? Zi-1 : Zi;
-    int Af = Ai-1;
-    PDGLibrary * pdglib = PDGLibrary::Instance();
-    TParticlePDG * nucl_i = pdglib->Find( pdg::IonPdgCode(Ai, Zi) );
-    TParticlePDG * nucl_f = pdglib->Find( pdg::IonPdgCode(Af, Zf) );
-    if(!nucl_f) {
-      LOG("QELXSec", pFATAL)
-        << "Unknwown nuclear target! No target with code: "
-        << pdg::IonPdgCode(Af, Zf) << " in PDGLibrary!";
-      exit(1);
-    }
-    double Mi  = nucl_i -> Mass(); // initial nucleus mass
-    double Mf  = nucl_f -> Mass(); // remnant nucleus mass
-
-    // throw nucleons with fermi momenta and binding energies
+    // Throw nucleons with initial 3-momenta and binding energies
     // generated according to the current nuclear model for the
-    // input target and average the cross section
+    // input target. Average the cross section.
     double xsec_sum = 0.;
-    const int nnuc = 2000;
+
     // VertexGenerator for generating a position before generating
     // each nucleon
     VertexGenerator * vg = new VertexGenerator();
     vg->Configure("Default");
-    for(int inuc=0;inuc<nnuc;inuc++){
+    for (int inuc = 0; inuc < fIntegralNumNucleonThrows; inuc++) {
+
       // Generate a position in the nucleus
-      TVector3 nucpos = vg->GenerateVertex(&in_curr,tgt->A());
-      tgt->SetHitNucPosition(nucpos.Mag());
+      TVector3 nucpos = vg->GenerateVertex( &in_curr,tgt->A() );
+      tgt->SetHitNucPosition( nucpos.Mag() );
 
       // Generate a nucleon
       fNuclModel->GenerateNucleon(*tgt, nucpos.Mag());
-      TVector3 p3N = fNuclModel->Momentum3();
-      double   EN  = Mi - TMath::Sqrt(p3N.Mag2() + Mf*Mf);
-      TLorentzVector* p4N = tgt->HitNucP4Ptr();
-      p4N->SetPx (p3N.Px());
-      p4N->SetPy (p3N.Py());
-      p4N->SetPz (p3N.Pz());
-      p4N->SetE  (EN);
 
-      double xsec;
-      xsec = fXSecIntegrator->Integrate(this,&in_curr);
+      // Throw the COM frame angles needed for the full differential xsec
+      RandomGen* rnd = RandomGen::Instance();
+      double cos_theta_0 = (rnd->RndKine().Rndm() * 2) - 1; // cosine theta: [-1, 1]
+      double phi_0 = 2 * TMath::Pi() * rnd->RndKine().Rndm(); // phi: [0, 2pi]
+
+      double Eb = 0.; // Dummy storage for the hit nucleon's binding energy
+
+      // Compute the full differential cross section (which conveniently has the
+      // same units as the total cross section)
+      double xsec = genie::utils::ComputeFullQELPXSec(&in_curr, fNuclModel,
+        this, cos_theta_0, phi_0, Eb, fIntegralNucleonBindingMode);
 
       xsec_sum += xsec;
     }
-    double xsec_avg = xsec_sum / nnuc;
+
+    // Factor of 4*pi comes from MC integration over cos_theta_0 and phi_0
+    double xsec_avg = 4. * kPi * xsec_sum / fIntegralNumNucleonThrows;
     delete vg;
     return xsec_avg;
-  }else{
-    return fXSecIntegrator->Integrate(this,in);
+  }
+  else {
+    return fXSecIntegrator->Integrate(this, in);
   }
 }
 //____________________________________________________________________________
@@ -581,6 +562,13 @@ void NievesQELCCPXSec::LoadConfig(void)
     std::exit(1);
   }
 
+  // Number of sampled nucleons to use when averaging the total cross section
+  GetParamDef( "IntegralNumberOfNucleonThrows", fIntegralNumNucleonThrows, 5000 );
+
+  // Method to use to calculate the binding energy of the initial hit nucleon
+  std::string temp_binding_mode;
+  GetParamDef( "IntegralNucleonBindingMode", temp_binding_mode, std::string("UseNuclearModel") );
+  fIntegralNucleonBindingMode = genie::utils::StringToQELBindingMode( temp_binding_mode );
 }
 //___________________________________________________________________________
 void NievesQELCCPXSec::CNCTCLimUcalc(TLorentzVector qTildeP4,

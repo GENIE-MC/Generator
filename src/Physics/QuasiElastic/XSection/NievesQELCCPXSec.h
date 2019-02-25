@@ -29,6 +29,7 @@
 #include <complex>
 #include <Math/IFunction.h>
 #include "Physics/NuclearState/NuclearModelI.h"
+#include "Physics/QuasiElastic/XSection/QELUtils.h"
 
 namespace genie {
 
@@ -86,6 +87,14 @@ private:
   bool   fDoAvgOverNucleonMomentum;    ///< Average cross section over hit nucleon monentum?
   double fEnergyCutOff;                ///< Average only for energies below this cutoff defining
                                        ///< the region where nuclear modeling details do matter
+
+  /// Number of nucleons to sample when computing the average total cross
+  /// section in Integral()
+  int fIntegralNumNucleonThrows;
+
+  /// Enum specifying the method to use when calculating the binding energy of
+  /// the initial hit nucleon
+  QELEvGen_BindingMode_t fIntegralNucleonBindingMode;
 
   /// Nuclear radius parameter r = R0*A^(1/3) used to compute the
   /// maximum radius for integration of the Coulomb potential

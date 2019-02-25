@@ -183,7 +183,8 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
         double costheta = (rnd->RndKine().Rndm() * 2) - 1; // cosine theta: [-1, 1]
         double phi = 2 * TMath::Pi() * rnd->RndKine().Rndm(); // phi: [0, 2pi]
 
-        double xsec = this->ComputeXSec(interaction, costheta, phi);
+        double xsec = genie::utils::ComputeFullQELPXSec(interaction, fNuclModel, fXSecModel, costheta,
+          phi, fEb, fHitNucleonBindingMode, fMinAngleEM);
 
         // select/reject event
         this->AssertXSecLimits(interaction, xsec, xsec_max);
@@ -388,25 +389,7 @@ void QELEventGenerator::LoadConfig(void)
     std::string binding_mode;
     GetParamDef( "HitNucleonBindingMode", binding_mode, std::string("UseNuclearModel") );
 
-    // Translate the string setting the binding mode to the appropriate
-    // enum value, or complain if one couldn't be found
-    if ( binding_mode == "UseGroundStateRemnant" ) {
-      fHitNucleonBindingMode = kUseGroundStateRemnant;
-    }
-    else if ( binding_mode == "UseNuclearModel" ) {
-      fHitNucleonBindingMode = kUseNuclearModel;
-    }
-    else if ( binding_mode == "OnShell" ) {
-      fHitNucleonBindingMode = kOnShell;
-    }
-    else {
-      LOG("QELEvent", pFATAL) << "Unrecognized setting \"" << binding_mode
-        << "\" requested for the HitNucleonBindingMode parameter in the"
-        << " configuration for QELEventGenerator";
-      gAbortingInErr = true;
-      std::exit(1);
-    }
-
+    fHitNucleonBindingMode = genie::utils::StringToQELBindingMode( binding_mode );
 }
 //____________________________________________________________________________
 double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const
@@ -487,7 +470,8 @@ double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const
               double costh = costh_range_min + itheta * costh_increment;
               for (int iphi = 0; iphi < N_phi; iphi++) { // Scan around phi
                   double phi = phi_range_min + iphi * phi_increment;
-                  double xs = this->ComputeXSec(interaction, costh, phi);
+                  double xs = genie::utils::ComputeFullQELPXSec(interaction, fNuclModel, fXSecModel, costh,
+                    phi, fEb, fHitNucleonBindingMode, fMinAngleEM);
                   if (xs > this_nuc_xsec_max){
                       phi_at_xsec_max = phi;
                       costh_at_xsec_max = costh;
@@ -528,160 +512,4 @@ double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const
     LOG("QELEvent", pINFO) << "Computed maximum cross section to throw against - value is " << xsec_max;
     return xsec_max;
 
-}
-//____________________________________________________________________________
-double QELEventGenerator::ComputeXSec( Interaction * interaction, double costheta, double phi) const
-{
-    Target * tgt = interaction->InitState().TgtPtr();
-    TLorentzVector* p4Ni = tgt->HitNucP4Ptr();
-
-    // Initial nucleon 3-momentum (lab frame)
-    TVector3 p3Ni = fNuclModel->Momentum3();
-
-    double lepMass = interaction->FSPrimLepton()->Mass();
-
-    // Look up the (on-shell) masses of the initial and final nucleon
-    TDatabasePDG *tb = TDatabasePDG::Instance();
-
-    double mNi = tb->GetParticle( tgt->HitNucPdg() )->Mass();
-    double mNf = tb->GetParticle( interaction->RecoilNucleonPdg() )->Mass();
-
-    // Set the (possibly off-shell) initial nucleon energy based on
-    // the selected binding energy mode. Always put the initial nucleon
-    // on shell if it is not part of a composite nucleus
-    double ENi = 0.;
-    bool composite_target = tgt->A() > 1;
-    if ( composite_target && fHitNucleonBindingMode != kOnShell ) {
-      // Initial nucleus mass
-      double Mi = tgt->Mass();
-
-      // Final nucleus mass
-      double Mf = 0.;
-
-      // If we use the removal energy reported by the nuclear
-      // model, then it implies a certain value for the final
-      // nucleus mass
-      if ( fHitNucleonBindingMode == kUseNuclearModel ) {
-        fEb = fNuclModel->RemovalEnergy();
-        // This equation is the definition that we assume
-        // here for the "removal energy" (fEb) returned by the
-        // nuclear model. It matches GENIE's convention for
-        // the Bodek/Ritchie Fermi gas model.
-        Mf = Mi + fEb - mNi;
-      }
-      // We can also assume that the final nucleus is in its
-      // ground state. In this case, we can just look up its
-      // mass from the standard table. This implies a particular
-      // binding energy for the hit nucleon.
-      else if ( fHitNucleonBindingMode == kUseGroundStateRemnant ) {
-        // Determine the mass and proton numbers for the remnant nucleus
-        int Af = tgt->A() - 1;
-        int Zf = tgt->Z();
-        if ( pdg::IsProton( tgt->HitNucPdg()) ) --Zf;
-        Mf = PDGLibrary::Instance()->Find( pdg::IonPdgCode(Af, Zf) )->Mass();
-
-        // Deduce the binding energy from the final nucleus mass
-        fEb = Mf - Mi + mNi;
-      }
-
-      // The (lab-frame) off-shell initial nucleon energy is the difference
-      // between the lab frame total energies of the initial and remnant nuclei
-      ENi = Mi - std::sqrt( Mf*Mf + p3Ni.Mag2() );
-    }
-    else {
-      // Keep the struck nucleon on shell either because
-      // fHitNucleonBindingMode == kOnShell or because
-      // the target is a single nucleon
-      ENi = std::sqrt( p3Ni.Mag2() + std::pow(mNi, 2) );
-      fEb = 0.;
-    }
-
-    // Update the initial nucleon lab-frame 4-momentum in the interaction with
-    // its current components
-    p4Ni->SetVect( p3Ni );
-    p4Ni->SetE( ENi );
-
-    // Mandelstam s for the probe/hit nucleon system
-    double s = std::pow( interaction->InitState().CMEnergy(), 2 );
-
-    // Return a differential cross section of zero if we're below threshold (and
-    // therefore need to sample a new event)
-    if ( TMath::Sqrt(s) < lepMass + mNf ) {
-      LOG("QELEvent", pINFO) << "Event below threshold, reject throw and try again!";
-      return 0.;
-    }
-
-    double outLeptonEnergy = ( s - mNf*mNf + lepMass*lepMass ) / (2 * TMath::Sqrt(s));
-
-    if(outLeptonEnergy*outLeptonEnergy-lepMass*lepMass < 0.) return 0.;
-    double outMomentum = TMath::Sqrt(outLeptonEnergy*outLeptonEnergy - lepMass*lepMass);
-
-    // Compute the boost vector for moving from the COM frame to the
-    // lab frame, i.e., the velocity of the COM frame as measured
-    // in the lab frame.
-    TVector3 beta = this->COMframe2Lab(interaction->InitState());
-
-    // FullDifferentialXSec depends on theta_0 and phi_0, the lepton COM
-    // frame angles with respect to the direction of the COM frame velocity
-    // as measured in the lab frame. To generate the correct dependence
-    // here, first set the lepton COM frame angles with respect to +z
-    // (via TVector3::SetTheta() and TVector3::SetPhi()).
-    TVector3 lepton3Mom(0., 0., outMomentum);
-    lepton3Mom.SetTheta( TMath::ACos(costheta) );
-    lepton3Mom.SetPhi( phi );
-
-    // Then rotate the lepton 3-momentum so that the old +z direction now
-    // points along the COM frame velocity (beta)
-    TVector3 zvec(0., 0., 1.);
-    TVector3 rot = ( zvec.Cross(beta) ).Unit();
-    double angle = beta.Angle( zvec );
-    // Rotate if the rotation vector is not 0
-    if ( rot.Mag() >= kASmallNum ) {
-      lepton3Mom.Rotate(angle, rot);
-    }
-
-    // Construct the lepton 4-momentum in the COM frame
-    TLorentzVector lepton(lepton3Mom, outLeptonEnergy);
-
-    // The final state nucleon will have an equal and opposite 3-momentum
-    // in the COM frame and will be on the mass shell
-    TLorentzVector outNucleon(-1*lepton.Px(),-1*lepton.Py(),-1*lepton.Pz(),
-      TMath::Sqrt(outMomentum*outMomentum + mNf*mNf));
-
-    // Boost the 4-momenta for both particles into the lab frame
-    lepton.Boost(beta);
-    outNucleon.Boost(beta);
-
-    // Check if event is at a low angle - if so return 0 and stop wasting time
-    if (180 * lepton.Theta() / kPi < fMinAngleEM && interaction->ProcInfo().IsEM()){
-      return 0;
-    }
-
-    TLorentzVector * nuP4 = interaction->InitState().GetProbeP4( kRfLab );
-    TLorentzVector qP4 = *nuP4 - lepton;
-    delete nuP4;
-    double Q2 = -1 * qP4.Mag2();
-
-    interaction->KinePtr()->SetFSLeptonP4(lepton);
-    interaction->KinePtr()->SetHadSystP4(outNucleon);
-    interaction->KinePtr()->SetQ2(Q2 /*, true */);  // (val, selected) -> probably don't want selected here
-
-    // Compute the QE cross section for the current kinematics
-    double xsec = fXSecModel->XSec(interaction, kPSQELEvGen);
-
-    return xsec;
-}
-//___________________________________________________________________________
-TVector3 QELEventGenerator::COMframe2Lab(InitialState initialState) const
-{
-
-    TLorentzVector * k4 = initialState.GetProbeP4(kRfLab);
-    TLorentzVector * p4 = initialState.TgtPtr()->HitNucP4Ptr();
-    TLorentzVector totMom = *k4 + *p4;
-
-    TVector3 beta = totMom.BoostVector();
-
-    delete k4;
-
-    return beta;
 }

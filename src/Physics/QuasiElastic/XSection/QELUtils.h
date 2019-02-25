@@ -2,10 +2,32 @@
 #define _QEL_UTILS_H_
 
 #include "Framework/Interaction/Interaction.h"
+#include "Physics/NuclearState/NuclearModelI.h"
+#include "Framework/EventGen/XSecAlgorithmI.h"
 
 namespace genie {
+
+  // Enumerated type used to specify the method for determining the off-shell energy
+  // of the hit nucleon for quasielastic events
+  typedef enum EQELEvGenBindingMode {
+
+    // Use removal energy from the nuclear model
+    kUseNuclearModel,
+
+    // Calculate binding energy assuming that the remnant nucleus is left in its
+    // ground state
+    kUseGroundStateRemnant,
+
+    // Leave the struck nucleon on shell, effectively ignoring its binding energy
+    kOnShell
+  } QELEvGen_BindingMode_t;
+
   namespace utils {
     double EnergyDeltaFunctionSolutionQEL(const genie::Interaction& inter);
+    QELEvGen_BindingMode_t StringToQELBindingMode( const std::string& mode_str );
+    double ComputeFullQELPXSec(Interaction* interaction, const NuclearModelI* nucl_model,
+      const XSecAlgorithmI* xsec_model, double cos_theta_0, double phi_0, double& Eb,
+      QELEvGen_BindingMode_t hitNucleonBindingMode, double min_angle_EM = 0.);
   }
 }
 
