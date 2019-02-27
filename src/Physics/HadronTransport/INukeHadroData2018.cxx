@@ -156,10 +156,10 @@ INukeHadroData2018::~INukeHadroData2018()
   delete fhN2dXSecGamPimP_Inelas;
   delete fhN2dXSecKpN_CEx;
   
-  delete TPipA_Tot; 
+//  delete TPipA_Tot; 
   delete TfracPipA_Abs;
   delete TfracPipA_CEx;
-  delete TfracPipA_Elas;
+//  delete TfracPipA_Elas;
   delete TfracPipA_Inelas;
   delete TfracPipA_PiPro;
   
