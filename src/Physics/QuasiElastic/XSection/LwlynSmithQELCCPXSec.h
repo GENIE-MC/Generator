@@ -26,6 +26,7 @@
 #include "Physics/NuclearState/NuclearModelI.h"
 #include "Framework/EventGen/XSecAlgorithmI.h"
 #include "Physics/QuasiElastic/XSection/QELFormFactors.h"
+#include "Physics/QuasiElastic/XSection/QELUtils.h"
 
 namespace genie {
 
@@ -67,6 +68,10 @@ private:
   bool   fDoAvgOverNucleonMomentum;    ///< Average cross section over hit nucleon monentum?
   double fEnergyCutOff;                ///< Average only for energies below this cutoff defining
                                        ///< the region where nuclear modeling details do matter
+
+  /// Enum specifying the method to use when calculating the binding energy of
+  /// the initial hit nucleon during spline generation
+  QELEvGen_BindingMode_t fIntegralNucleonBindingMode;
 };
 
 }       // genie namespace

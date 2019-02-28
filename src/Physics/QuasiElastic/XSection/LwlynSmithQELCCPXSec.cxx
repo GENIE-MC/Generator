@@ -303,6 +303,18 @@ double LwlynSmithQELCCPXSec::FullDifferentialXSec(const Interaction *  interacti
 //____________________________________________________________________________
 double LwlynSmithQELCCPXSec::Integral(const Interaction * in) const
 {
+  // If we're using the new spline generation method (which integrates
+  // over the kPSQELEvGen phase space used by QELEventGenerator) then
+  // let the cross section integrator do all of the work. It's smart
+  // enough to handle free nucleon vs. nuclear targets, different
+  // nuclear models (including the local Fermi gas model), etc.
+  // TODO: think about doing this in a better way
+  if ( fXSecIntegrator->Id().Name() == "genie::NewQELXSec" ) {
+    return fXSecIntegrator->Integrate(this, in);
+  }
+
+  // Otherwise, use the old integration method (kept for use with
+  // the historical default G18_00x series of tunes)
   bool nuclear_target = in->InitState().Tgt().IsNucleus();
   if(!nuclear_target || !fDoAvgOverNucleonMomentum) {
     return fXSecIntegrator->Integrate(this,in);
@@ -444,4 +456,10 @@ void LwlynSmithQELCCPXSec::LoadConfig(void)
     // Get averaging cutoff energy
 	  GetParamDef("IntegralNuclearInfluenceCutoffEnergy", fEnergyCutOff, 2.0 ) ;
   }
+
+  // Method to use to calculate the binding energy of the initial hit nucleon when
+  // generating splines
+  std::string temp_binding_mode;
+  GetParamDef( "IntegralNucleonBindingMode", temp_binding_mode, std::string("UseNuclearModel") );
+  fIntegralNucleonBindingMode = genie::utils::StringToQELBindingMode( temp_binding_mode );
 }

@@ -35,9 +35,8 @@ RmaxMode                             string   Yes        Method to use to comput
 
     <param type="double" name="QEL-CC-XSecScale"> 1.000 </param>
 
-    <param type="alg"  name="XSec-Integrator">      genie::QELXSec/Default         </param>
+    <param type="alg"  name="XSec-Integrator">      genie::NewQELXSec/Default </param>
     <param type="alg"  name="IntegralNuclearModel"> genie::NuclearModelMap/Default </param>
-    <param type="int"  name="IntegralNumberOfNucleonThrows"> 5000 </param>
     <param type="string" name="IntegralNucleonBindingMode"> UseNuclearModel </param>
 
     <param type="bool" name="RPA">             true                          </param>

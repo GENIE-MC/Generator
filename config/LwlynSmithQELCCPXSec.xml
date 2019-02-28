@@ -31,10 +31,11 @@ IntegralNuclearInfluenceCutoffEnergy double   No
     <param type="double" name="QEL-CC-XSecScale"> 1.000 </param>
 
      <param type="alg"  name="FormFactorsAlg">  genie::LwlynSmithFFCC/Default </param>
-     <param type="alg"  name="XSec-Integrator"> genie::QELXSec/Default        </param>
+     <param type="alg"  name="XSec-Integrator"> genie::NewQELXSec/Default     </param>
     
      <param type="bool" name = "IntegralAverageOverNucleonMomentum">     true   </param>
      <param type="alg"  name="IntegralNuclearModel">    genie::NuclearModelMap/Default        </param>
+     <param type="string" name="IntegralNucleonBindingMode"> UseNuclearModel </param>
      <param type="double" name = "IntegralNuclearInfluenceCutoffEnergy">    2.0   </param>     
 
   </param_set>

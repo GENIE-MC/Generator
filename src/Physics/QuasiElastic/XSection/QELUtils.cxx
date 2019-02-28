@@ -268,8 +268,7 @@ void genie::utils::BindHitNucleon(genie::Interaction& interaction,
   // the selected binding energy mode. Always put the initial nucleon
   // on shell if it is not part of a composite nucleus
   double ENi = 0.;
-  bool composite_target = tgt->A() > 1;
-  if ( composite_target && hitNucleonBindingMode != genie::kOnShell ) {
+  if ( tgt->IsNucleus() && hitNucleonBindingMode != genie::kOnShell ) {
     // Initial nucleus mass
     double Mi = tgt->Mass();
 
