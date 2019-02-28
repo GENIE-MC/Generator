@@ -422,57 +422,12 @@ double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const
 
     double xsec_max = -1;
 
-    double min_energy   = std::numeric_limits<double>::max();
-    // NOTE: C++11 would allow us to use lowest() here instead
-    double max_momentum = -std::numeric_limits<double>::max();
-    bool one_nucleon_ok = false;
     // Loop over thrown nucleons
     // We'll select the max momentum and the minimum binding energy
     // Which should give us the nucleon with the highest xsec
     for (int inuc = 0; inuc < fMaxXSecNucleonThrows; inuc++) {
 
-        Interaction * interaction = new Interaction(*in);
-        interaction->SetBit(kISkipProcessChk);
-        interaction->SetBit(kISkipKinematicChk);
-        interaction->SetBit(kIAssumeFreeNucleon);
 
-        // Access the target from the interaction summary
-        Target * tgt = interaction->InitState().TgtPtr();
-
-        // First, throw hit nucleon 3-momentum & removal energy from the
-        // nuclear model PDFs. Use r=0. as the radius, since this method should
-        // give the max xsec for all possible kinematics
-        fNuclModel->GenerateNucleon(*tgt, 0.0);
-
-        // Put the initial nucleon off-shell consistent with the configured
-        // binding mode
-        tgt->SetHitNucPosition(0.0);
-        double dummy_Eb;
-        genie::utils::BindHitNucleon(*interaction, *fNuclModel,
-          dummy_Eb, fHitNucleonBindingMode);
-
-        // Make the nucleon 3-momentum point along -z (toward the probe)
-        TLorentzVector* p4Ni = tgt->HitNucP4Ptr();
-        p4Ni->SetVect( TVector3(0., 0., -fNuclModel->Momentum()) );
-
-        double cos_theta0_max = CosTheta0Max( *interaction );
-        LOG("QELEvent", pDEBUG) << "cos_theta0_max = " << cos_theta0_max;
-        if ( cos_theta0_max > -1. ) {
-          min_energy   = std::min(min_energy, fNuclModel->RemovalEnergy());
-          max_momentum = std::max(max_momentum, fNuclModel->Momentum());
-          one_nucleon_ok = true;
-        }
-        delete interaction;
-    } // nucl throws
-
-    if ( !one_nucleon_ok ) {
-      LOG("QELEvent", pWARN) << "Failed to find a nonzero value of MaxXSec after"
-        " sampling " << fMaxXSecNucleonThrows << " nucleons from the nuclear"
-        " model";
-      return 0.;
-    }
-
-    { // Just a scoping block for now
         Interaction * interaction = new Interaction(*in);
         interaction->SetBit(kISkipProcessChk);
         interaction->SetBit(kISkipKinematicChk);
@@ -483,8 +438,12 @@ double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const
 
         // Set the nucleon we're using to be upstream at max enegry
         fNuclModel->GenerateNucleon(*tgt, 0.0);
-        fNuclModel->SetMomentum3(TVector3(0.,0.,-max_momentum));
-        fNuclModel->SetRemovalEnergy(min_energy);
+
+        // Needed to set value of costh_range_max. The call to CosTheta0Max() below
+        // assumes that BindHitNucleon() has already been executed.
+        double another_dummy_Eb; // Dummy storage for the binding energy
+	genie::utils::BindHitNucleon(*interaction, *fNuclModel,
+				     another_dummy_Eb, fHitNucleonBindingMode);
 
         // OK, we're going to scan the centre-of-mass angles to get the point of max xsec
         // We'll bin in solid angle, and find the maximum point
@@ -499,7 +458,9 @@ double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const
         double this_nuc_xsec_max = -1;
 
         double costh_range_min = -1.;
-        double costh_range_max = std::min(1., CosTheta0Max( *interaction ));
+        double temp_cos_theta0_max = CosTheta0Max( *interaction );
+        if ( temp_cos_theta0_max < -1. ) continue;
+        double costh_range_max = std::min(1., temp_cos_theta0_max);
         LOG("QELEvent", pDEBUG) << "costh_range_max = " << costh_range_max;
 
         double phi_range_min = 0.;
@@ -513,8 +474,10 @@ double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const
               double costh = costh_range_min + itheta * costh_increment;
               for (int iphi = 0; iphi < N_phi; iphi++) { // Scan around phi
                   double phi = phi_range_min + iphi * phi_increment;
+                  // We've already called genie::utils::BindHitNucleon() above, so we can use false
+                  // as the last argument here to speed things up a bit
                   double xs = genie::utils::ComputeFullQELPXSec(interaction, fNuclModel, fXSecModel, costh,
-                    phi, fEb, fHitNucleonBindingMode, fMinAngleEM);
+                    phi, fEb, fHitNucleonBindingMode, fMinAngleEM, false);
                   if (xs > this_nuc_xsec_max){
                       phi_at_xsec_max = phi;
                       costh_at_xsec_max = costh;
