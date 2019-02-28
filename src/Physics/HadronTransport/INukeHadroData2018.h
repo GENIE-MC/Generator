@@ -217,9 +217,9 @@ private:
   Spline * fFracPA_Cmp;
   Spline * fFracNA_Cmp;
 
-  TGraph2D * TPipA_Tot;
+//  TGraph2D * TPipA_Tot;
   TGraph2D * TfracPipA_CEx;
-  TGraph2D * TfracPipA_Elas;
+//  TGraph2D * TfracPipA_Elas;
   TGraph2D * TfracPipA_Inelas;
   TGraph2D * TfracPipA_Abs;
   TGraph2D * TfracPipA_PiPro;
