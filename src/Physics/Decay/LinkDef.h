@@ -6,7 +6,7 @@
 
 #pragma link C++ namespace genie;
 
-#pragma link C++ class genie::DecayModelI;
+#pragma link C++ class genie::Decayer;
 #pragma link C++ class genie::PythiaDecayer;
 #pragma link C++ class genie::BaryonResonanceDecayer;
 
