@@ -88,7 +88,7 @@ const Algorithm * AlgFactory::GetAlgorithm(const AlgId & algid)
 //! Manages the instantiation and "storage/retrieval" of algorithms.
 //! These algorithms are owned by the factory and it hands over (to the client)
 //! a "const Algorithm *" that can be dynamically casted to the requested
-//! Algorithm Interface (eg. XSecAlgorithmI, DecayModelI, PdfModelI, etc...)
+//! Algorithm Interface (eg. XSecAlgorithmI, Decayer, PdfModelI, etc...)
 
   return this->GetAlgorithm(algid.Name(), algid.Config());
 }
