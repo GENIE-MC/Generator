@@ -45,6 +45,11 @@ IntegralNuclearInfluenceCutoffEnergy double   No
  
    </param_set>
 
+  <param_set name="DipoleAndOldIntegrator">
+     <param type="alg"  name="FormFactorsAlg">  genie::LwlynSmithFFCC/Dipole  </param>
+     <param type="alg"  name="XSec-Integrator"> genie::QELXSec/Default     </param>
+  </param_set>
+
   <param_set name="ZExp"> 
      <param type="alg"  name="FormFactorsAlg">  genie::LwlynSmithFFCC/ZExp    </param>
  
