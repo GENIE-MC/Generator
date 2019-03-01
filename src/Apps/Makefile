@@ -16,7 +16,7 @@ GENIE_LIBS  = $(shell $(GENIE)/src/scripts/setup/genie-config --libs)
 
 # Mac OS X -bind_at_load means we must list the low level libraries
 # first, and each stage must fully resolved before the next library
-LIBRARIES  := $(LIBRARIES) $(CERN_LIBRARIES) $(GENIE_LIBS)
+LIBRARIES  := $(GENIE_LIBS)  $(LIBRARIES) $(CERN_LIBRARIES)
 
 TGT_BASE =  gevgen          \
             gevgen_hadron   \
@@ -51,12 +51,12 @@ TGT_BASE += gevgen_nnbarosc
 # This should dissapear from here (CA)
 #
 # Require C++11 for NNBarOsc module.
-#GCC_GTEQ_470 := $(shell expr `gcc -dumpversion | sed -e 's/\.\([0-9][0-9]\)/\1/g' -e 's/\.\([0-9]\)/0\1/g' -e 's/^[0-9]\{3,4\}$$/&00/'` \>= 40700)
-#ifeq "$(GCC_GTEQ_470)" "1"
-#        CXXFLAGS += -std=c++11
-#else
-#        CXXFLAGS += -std=c++0x
-#endif
+GCC_GTEQ_470 := $(shell expr `gcc -dumpversion | sed -e 's/\.\([0-9][0-9]\)/\1/g' -e 's/\.\([0-9]\)/0\1/g' -e 's/^[0-9]\{3,4\}$$/&00/'` \>= 40700)
+ifeq "$(GCC_GTEQ_470)" "1"
+        CXXFLAGS += -std=c++11
+else
+        CXXFLAGS += -std=c++0x
+endif
 # ------------------------------------------
 endif
 ifeq ($(strip $(GOPT_ENABLE_BOOSTED_DARK_MATTER)),YES)
@@ -66,6 +66,10 @@ TGT_BASE += gevgen_lardm
 endif
 ifeq ($(strip $(GOPT_ENABLE_FLUX_DRIVERS)),YES)
 TGT_BASE += gmxpl
+endif
+ifeq ($(strip $(GOPT_ENABLE_RWGHT)),YES)
+TGT_BASE += grwght1p
+TGT_BASE += grwghtnp
 endif
 ifeq ($(strip $(GOPT_ENABLE_MASTERCLASS)),YES)
 TGT_BASE += gmstcl
@@ -208,6 +212,19 @@ $(GENIE_BIN_PATH)/gmxpl: gMaxPathLengths.o $(call find_libs,gmxpl)
 	@echo "** Building gmxpl"
 	$(LD) $(LDFLAGS) gMaxPathLengths.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gmxpl
 
+# simple utility for calculating weights in response to tweaking a single systematic param
+#
+$(GENIE_BIN_PATH)/grwght1p: gRwght1Param.o $(call find_libs,grwght1p)
+	@echo "** Building grwght1p"
+	$(LD) $(LDFLAGS) gRwght1Param.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/grwght1p
+
+# simple utility for calculating weights in response to tweaking a multiple (possibly correlated) systematic param
+#
+$(GENIE_BIN_PATH)/grwghtnp: gRwghtNCorrelatedParams.o $(call find_libs,grwghtnp)
+	@echo "** Building grwghtnp"
+	$(LD) $(LDFLAGS) gRwghtNCorrelatedParams.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/grwghtnp
+
+
 # ntuple conversion utility
 #
 $(GENIE_BIN_PATH)/gntpc: gNtpConv.o $(call find_libs,gntpc)
@@ -250,4 +267,5 @@ FORCE:
 
 # this should be last because it includes new targets...
 -include $(wildcard *.d)
+
 
