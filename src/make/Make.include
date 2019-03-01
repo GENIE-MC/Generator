@@ -193,6 +193,27 @@ LHAPDF_LIBRARIES += -L$(GOPT_WITH_LHAPDF5_LIB) -lLHAPDF $(FORT_LIBRARIES)
 
 endif
 
+#-------------------------------------------------------------------
+#                             INCL
+#-------------------------------------------------------------------
+
+INCL_LIBRARIES = 
+INCL_INCLUDES  =
+
+ifeq ($(strip $(GOPT_ENABLE_INCL)),YES) 
+
+INCL_INCLUDES  = -I$(GOPT_WITH_INCL_INC)
+INCL_LIBRARIES = -L$(GOPT_WITH_INCL_LIB)  -lINCL_IO  -lINCL_Physics -lINCL_Utils -Wl,--start-group -lDeExcitation -lSMM -lABLA07 -lABLAXX -lGEMINIXX  -lFERMI_BREAKUP -Wl,--end-group
+
+BOOST_LIBRARIES = -lboost_program_options -lboost_timer -lboost_system -lboost_date_time
+INCL_LIBRARIES := $(BOOST_LIBRARIES) -lgfortran $(INCL_LIBRARIES) 
+
+# Extra flags for compiling INCL codes: $(INCL_FLAGS)
+include $(GOPT_WITH_INCL_INC)/../incl_flags.make
+
+endif
+
+
 
 #-------------------------------------------------------------------
 #                             PYTHIA6
@@ -490,6 +511,7 @@ ifeq ($(strip $(ARCH)),linuxx8664gcc)
 ARCH_OK       = YES
 CXXFLAGS      = -W -Wall -fPIC -Wshadow \
 		$(ROOT_FLAGS) \
+    $(INCL_FLAGS) \
 		$(GOPT_WITH_CXX_DEBUG_FLAG) \
 		$(GOPT_WITH_CXX_OPTIMIZ_FLAG) \
 		$(GOPT_WITH_CXX_USERDEF_FLAGS) 
@@ -525,14 +547,16 @@ CPP_INCLUDES := \
     $(ROOT_INCLUDES) \
     $(LHAPDF_INCLUDES) \
     $(GSL_INCLUDES) \
-    $(GENIE_INCLUDES) 
+    $(GENIE_INCLUDES) \
+    $(INCL_INCLUDES)
 
 ROOT_DICT_GEN_INCLUDES := \
     $(LINUX_SYS_INCLUDES) \
     $(XML_INCLUDES) \
     $(LOG_INCLUDES) \
     $(ROOT_INCLUDES) \
-    $(GENIE_INCLUDES) 
+    $(GENIE_INCLUDES) \
+    $(INCL_INCLUDES)
 
 LIBRARIES := $(SYSLIBS) \
              $(ROOT_LIBRARIES) \
@@ -542,6 +566,7 @@ LIBRARIES := $(SYSLIBS) \
              $(LOG_LIBRARIES) \
              $(GSL_LIBRARIES) \
              $(GPROF_LIBRARIES) \
+             $(INCL_LIBRARIES) \
              $(EXTRALIBS)
 
 # Default compiler and preprocessor flags
@@ -594,3 +619,4 @@ CFLAGS    = -g
 	$(RM) $*.o
 
 print-%  : ; @echo $* = $($*)
+
