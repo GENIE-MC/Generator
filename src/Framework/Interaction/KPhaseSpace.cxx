@@ -395,8 +395,8 @@ Range1D_t KPhaseSpace::WLim(void) const
     }
     else if (fInteraction->ProcInfo().IsDiffractive())
       Wl.min = TMath::Max(Wl.min, kNeutronMass+kPionMass);
-    else if ( fInteraction->ProcInfo().IsResonant() ) {
-      Wl.min = TMath::Min(Wl.min, kNeutronMass + kPhotontest );
+    else if ( fInteraction->ProcInfo().IsDeepInelastic() ) {
+      Wl.min = TMath::Max(Wl.min, kNeutronMass + kPionMass );
     }
 
     // sanity check
