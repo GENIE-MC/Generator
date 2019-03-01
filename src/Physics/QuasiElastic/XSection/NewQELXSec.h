@@ -30,7 +30,6 @@
 namespace genie {
 
 class NuclearModelI;
-class PauliBlocker;
 class VertexGenerator;
 
 namespace utils {
@@ -40,8 +39,7 @@ namespace utils {
     {
      public:
        FullQELdXSec(const XSecAlgorithmI* xsec_model, const Interaction* interaction,
-         bool do_Pauli_blocking, const AlgId& pauli_blocker_ID,
-         QELEvGen_BindingMode_t binding_mode);
+         QELEvGen_BindingMode_t binding_mode, double min_angle_EM);
        virtual ~FullQELdXSec();
 
        // ROOT::Math::IBaseFunctionMultiDim interface
@@ -52,10 +50,9 @@ namespace utils {
      private:
        const XSecAlgorithmI* fXSecModel;
        const NuclearModelI* fNuclModel;
-       const PauliBlocker* fPauliBlocker;
        Interaction* fInteraction;
-       bool fDoPauliBlocking;
        QELEvGen_BindingMode_t fHitNucleonBindingMode;
+       double fMinAngleEM;
     };
 
   } // gsl   namespace
@@ -88,10 +85,9 @@ private:
   std::string fGSLIntgType;
   double fGSLRelTol;
   unsigned int fGSLMaxEval;
-  bool fPauliBlock;
-  AlgId fPauliBlockID;
   AlgId fVertexGenID;
   int fNumNucleonThrows;
+  double fMinAngleEM;
 };
 
 

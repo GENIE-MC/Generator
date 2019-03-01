@@ -32,7 +32,6 @@
 #include "Framework/Utils/Range1.h"
 #include "Framework/Numerical/GSLUtils.h"
 #include "Physics/Common/VertexGenerator.h"
-#include "Physics/NuclearState/PauliBlocker.h"
 #include "Physics/NuclearState/NuclearModel.h"
 #include "Physics/NuclearState/NuclearModelMap.h"
 
@@ -60,12 +59,6 @@ double NewQELXSec::Integrate(const XSecAlgorithmI* model, const Interaction* in)
   interaction->SetBit( kISkipProcessChk );
   //interaction->SetBit( kISkipKinematicChk );
 
-  // We're doing an MC integration over the nucleon momentum distribution
-  // ourselves (including Pauli blocking), so we don't want to apply the
-  // nuclear suppression factor. To turn it off, we'll set the "assume free
-  // nucleon" flag.
-  interaction->SetBit( kIAssumeFreeNucleon );
-
   const NuclearModelI* nucl_model = dynamic_cast<const NuclearModelI*>(
     model->SubAlg("IntegralNuclearModel") );
   assert( nucl_model );
@@ -86,14 +79,16 @@ double NewQELXSec::Integrate(const XSecAlgorithmI* model, const Interaction* in)
   }
 
   ROOT::Math::IBaseFunctionMultiDim* func = new utils::gsl::FullQELdXSec(model,
-    interaction, fPauliBlock, fPauliBlockID, bind_mode);
+    interaction, bind_mode, fMinAngleEM);
   ROOT::Math::IntegrationMultiDim::Type ig_type =
     utils::gsl::IntegrationNDimTypeFromString( fGSLIntgType );
 
   double abstol = 1e-16; // We mostly care about relative tolerance
   ROOT::Math::IntegratorMultiDim ig(*func, ig_type, abstol, fGSLRelTol, fGSLMaxEval);
 
-  // TODO: perhaps use genie::utils::CosTheta0Max() to speed things up here?
+  // Integration ranges for the lepton COM frame scattering angles (in the
+  // kPSQELEvGen phase space, these are measured with respect to the COM
+  // velocity as observed in the lab frame)
   Range1D_t cos_theta_0_lim( -1., 1. );
   Range1D_t phi_0_lim( 0., 2.*kPi );
 
@@ -105,6 +100,7 @@ double NewQELXSec::Integrate(const XSecAlgorithmI* model, const Interaction* in)
   // this case, just set up the nucleon at the origin, on-shell, and at rest,
   // then integrate over the angles and return the result.
   if ( !tgt->IsNucleus() ) {
+    interaction->SetBit( kIAssumeFreeNucleon );
     tgt->SetHitNucPosition(0.);
     nucl_model->SetMomentum3( TVector3(0., 0., 0.) );
     nucl_model->SetRemovalEnergy(0.);
@@ -120,8 +116,9 @@ double NewQELXSec::Integrate(const XSecAlgorithmI* model, const Interaction* in)
   double xsec_sum = 0.;
   for (int n = 0; n < fNumNucleonThrows; ++n) {
 
-    // Select a new position for the initial hit nucleon (needed for
-    // the local Fermi gas model)
+    // Select a new position for the initial hit nucleon (needed for the local
+    // Fermi gas model, but other than slowing things down a bit, it doesn't
+    // hurt to do this for other models)
     TVector3 vertex_pos = vtx_gen->GenerateVertex( interaction, tgt->A() );
     double radius = vertex_pos.Mag();
     tgt->SetHitNucPosition( radius );
@@ -132,9 +129,7 @@ double NewQELXSec::Integrate(const XSecAlgorithmI* model, const Interaction* in)
     nucl_model->GenerateNucleon(*tgt, radius);
 
     // The initial state variables have all been defined, so integrate over
-    // the final lepton angles. Note that we handle Pauli blocking and
-    // multiplying by the number of active nucleons within the call
-    // to ig.Integral()
+    // the final lepton angles.
     double xsec = ig.Integral(kine_min, kine_max);
 
     xsec_sum += xsec;
@@ -143,6 +138,7 @@ double NewQELXSec::Integrate(const XSecAlgorithmI* model, const Interaction* in)
   delete func;
   delete interaction;
 
+  // MC estimator of the total cross section is the mean of the xsec values
   double xsec_mean = xsec_sum / fNumNucleonThrows;
 
   return xsec_mean;
@@ -173,27 +169,21 @@ void NewQELXSec::LoadConfig(void)
   GetParamDef( "VertexGenAlg", vertexGenID, RgAlg("genie::VertexGenerator", "Default") );
   fVertexGenID = AlgId( vertexGenID );
 
-  GetParamDef( "DoPauliBlocking", fPauliBlock, true );
-
-  RgAlg pauliBlockID;
-  GetParamDef( "PauliBlockerAlg", pauliBlockID, RgAlg("genie::PauliBlocker", "Default") );
-  fPauliBlockID = AlgId( pauliBlockID );
-
   GetParamDef( "NumNucleonThrows", fNumNucleonThrows, 5000 );
+
+  // TODO: This is a parameter that may also be specified in the XML
+  // configuration for QELEventGenerator. Avoid duplication here to ensure
+  // consistency.
+  GetParamDef( "SF-MinAngleEMscattering", fMinAngleEM, 0. ) ;
 }
 
 genie::utils::gsl::FullQELdXSec::FullQELdXSec(const XSecAlgorithmI* xsec_model,
-  const Interaction* interaction, bool do_Pauli_blocking,
-  const AlgId& pauli_blocker_ID, QELEvGen_BindingMode_t binding_mode)
+  const Interaction* interaction, QELEvGen_BindingMode_t binding_mode, double min_angle_EM)
   : fXSecModel( xsec_model ), fInteraction( new Interaction(*interaction) ),
-  fDoPauliBlocking( do_Pauli_blocking ), fHitNucleonBindingMode( binding_mode )
+  fHitNucleonBindingMode( binding_mode ), fMinAngleEM( min_angle_EM )
 {
   fNuclModel = dynamic_cast<const NuclearModelI*>( fXSecModel->SubAlg("IntegralNuclearModel") );
   assert( fNuclModel );
-
-  AlgFactory* algf = AlgFactory::Instance();
-  fPauliBlocker = dynamic_cast<const PauliBlocker*>( algf->GetAlgorithm(pauli_blocker_ID) );
-  assert( fPauliBlocker );
 }
 
 genie::utils::gsl::FullQELdXSec::~FullQELdXSec()
@@ -203,8 +193,7 @@ genie::utils::gsl::FullQELdXSec::~FullQELdXSec()
 
 ROOT::Math::IBaseFunctionMultiDim* genie::utils::gsl::FullQELdXSec::Clone(void) const
 {
-  return new FullQELdXSec(fXSecModel, fInteraction, fDoPauliBlocking,
-    fPauliBlocker->Id(), fHitNucleonBindingMode);
+  return new FullQELdXSec(fXSecModel, fInteraction, fHitNucleonBindingMode, fMinAngleEM);
 }
 
 unsigned int genie::utils::gsl::FullQELdXSec::NDim(void) const
@@ -229,32 +218,9 @@ double genie::utils::gsl::FullQELdXSec::DoEval(const double* xin) const
   // Dummy storage for the binding energy of the hit nucleon
   double dummy_Eb = 0.;
 
-  // TODO: min_angle_EM!!!!
-  double min_angle_EM = 0.;
-
   // Compute the full differential cross section
   double xsec = genie::utils::ComputeFullQELPXSec(fInteraction, fNuclModel,
-    fXSecModel, cos_theta0, phi0, dummy_Eb, fHitNucleonBindingMode, min_angle_EM, true);
-
-  // ComputeFullQELPXSec() sets the final nucleon's lab frame 4-momentum via
-  // interaction->KinePtr()->SetHadSystP4(), so we can now check for Pauli
-  // blocking
-
-  // If the final nucleon would be Pauli blocked, then return zero immediately
-  const Target& tgt = fInteraction->InitState().Tgt();
-  if ( fDoPauliBlocking && tgt.IsNucleus() ) {
-    double kF = fPauliBlocker->GetFermiMomentum(tgt, fInteraction->RecoilNucleonPdg(),
-      tgt.HitNucPosition());
-    double pNf = fInteraction->Kine().HadSystP4().P();
-    if ( pNf < kF ) return 0.;
-  }
-
-  // PDG code for the initial hit nucleon
-  int pdg_Ni = tgt.HitNucPdg();
-  // Number of active nucleons in the target
-  int num_active_nucleons = genie::pdg::IsProton( pdg_Ni ) ? tgt.Z() : tgt.N();
-
-  xsec *= num_active_nucleons;
+    fXSecModel, cos_theta0, phi0, dummy_Eb, fHitNucleonBindingMode, fMinAngleEM, true);
 
   return xsec;
 }
