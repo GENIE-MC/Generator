@@ -168,7 +168,8 @@ void PauliBlocker::LoadModelType(void){
 double PauliBlocker::GetFermiMomentum(const Target& tgt, int pdg_Nf,
   double radius) const
 {
-  assert(pdg::IsProton(pdg_Nf) || pdg::IsNeutron(pdg_Nf));
+  // Pauli blocking should only be applied for nucleons
+  assert( pdg::IsProton(pdg_Nf) || pdg::IsNeutron(pdg_Nf) );
   double kF = 0.;
   if ( fLFG ) {
     int A = tgt.A();
