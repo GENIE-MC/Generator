@@ -157,7 +157,7 @@ double NievesQELCCPXSec::XSec(const Interaction * interaction,
     // Set outgoing nucleon using conservation of energy
     outNucleonMom = neutrinoMom + inNucleonMom - leptonMom;
     // Calculate G factor
-    double E = init_state.ProbeE(kRfLab);
+    double E = init_state.ProbeE(kRfHitNucRest);
     double M  = target.HitNucMass();
     double M2 = TMath::Power(M,     2);
     double s = (2*E+M)*M;
