@@ -26,6 +26,7 @@
 #include "Framework/Interaction/InteractionException.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/ParticleData/PDGLibrary.h"
+#include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/Registry/Registry.h"
 #include "Framework/Utils/KineUtils.h"
 #include "Framework/Numerical/MathUtils.h"
@@ -119,8 +120,12 @@ double KPhaseSpace::Threshold(void) const
     assert(tgt.HitNucIsSet());
     double Mn   = tgt.HitNucP4Ptr()->M();
     double Mn2  = TMath::Power(Mn,2);
-    double Wmin = (pi.IsQuasiElastic() || pi.IsDarkMatterElastic() || pi.IsInverseBetaDecay()) ?
-                  kNucleonMass : kNucleonMass+kPionMass;
+    double Wmin = kNucleonMass + kPionMass;
+    if ( pi.IsQuasiElastic() || pi.IsDarkMatterElastic() || pi.IsInverseBetaDecay() ) {
+      int finalNucPDG = tgt.HitNucPdg();
+      if ( pi.IsWeakCC() ) finalNucPDG = pdg::SwitchProtonNeutron( finalNucPDG );
+      Wmin = PDGLibrary::Instance()->Find( finalNucPDG )->Mass();
+    }
     if (pi.IsResonant()) {
         Wmin = kNucleonMass + kPhotontest;
     }
