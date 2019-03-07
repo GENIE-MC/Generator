@@ -105,6 +105,8 @@ double NewQELXSec::Integrate(const XSecAlgorithmI* model, const Interaction* in)
     nucl_model->SetMomentum3( TVector3(0., 0., 0.) );
     nucl_model->SetRemovalEnergy(0.);
     double xsec_total = ig.Integral(kine_min, kine_max);
+    delete func;
+    delete interaction;
     return xsec_total;
   }
 

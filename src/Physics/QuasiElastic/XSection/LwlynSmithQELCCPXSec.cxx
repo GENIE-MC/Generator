@@ -187,7 +187,9 @@ double LwlynSmithQELCCPXSec::FullDifferentialXSec(const Interaction *  interacti
   // Note that GetProbeP4 defaults to returning the probe 4-momentum in the
   // struck nucleon rest frame, so we have to explicitly ask for the lab frame
   // here
-  TLorentzVector * neutrinoMom = init_state.GetProbeP4(kRfLab);
+  TLorentzVector * tempNeutrino = init_state.GetProbeP4(kRfLab);
+  TLorentzVector neutrinoMom = *tempNeutrino;
+  delete tempNeutrino;
   TLorentzVector * inNucleonMom = init_state.TgtPtr()->HitNucP4Ptr();
 
   // *** CALCULATION OF "q" and "qTilde" ***
@@ -209,7 +211,7 @@ double LwlynSmithQELCCPXSec::FullDifferentialXSec(const Interaction *  interacti
   double mNucleon = ( mNi + interaction->RecoilNucleon()->Mass() ) / 2.;
 
   // Ordinary 4-momentum transfer
-  TLorentzVector qP4 = *neutrinoMom - leptonMom;
+  TLorentzVector qP4 = neutrinoMom - leptonMom;
 
   // Initial struck nucleon 4-momentum in which it is forced to be on-shell
   double inNucleonOnShellEnergy = std::sqrt( std::pow(mNi, 2)
@@ -247,7 +249,7 @@ double LwlynSmithQELCCPXSec::FullDifferentialXSec(const Interaction *  interacti
 
   // Overall factor in the differential cross section
   double Gfactor = kGF2*fCos8c2 / ( 8. * kPi * kPi * inNucleonOnShellEnergy
-    * neutrinoMom->E() * outNucleonMom.E() * leptonMom.E() );
+    * neutrinoMom.E() * outNucleonMom.E() * leptonMom.E() );
 
   // Now, we can calculate the cross section
   double tau = Q2tilde / (4 * std::pow(mNucleon, 2));
@@ -258,16 +260,14 @@ double LwlynSmithQELCCPXSec::FullDifferentialXSec(const Interaction *  interacti
 
   bool is_neutrino = pdg::IsNeutrino(init_state.ProbePdg());
   int sign = (is_neutrino) ? -1 : 1;
-  double l1 = 2*neutrinoMom->Dot(leptonMom)*std::pow(mNucleon, 2);
-  double l2 = 2*(neutrinoMom->Dot(inNucleonMomOnShell)) * (inNucleonMomOnShell.Dot(leptonMom)) - neutrinoMom->Dot(leptonMom)*std::pow(mNucleon, 2);
-  double l3 = (neutrinoMom->Dot(inNucleonMomOnShell) * qTildeP4.Dot(leptonMom)) - (neutrinoMom->Dot(qTildeP4) * leptonMom.Dot(inNucleonMomOnShell));
+  double l1 = 2*neutrinoMom.Dot(leptonMom)*std::pow(mNucleon, 2);
+  double l2 = 2*(neutrinoMom.Dot(inNucleonMomOnShell)) * (inNucleonMomOnShell.Dot(leptonMom)) - neutrinoMom.Dot(leptonMom)*std::pow(mNucleon, 2);
+  double l3 = (neutrinoMom.Dot(inNucleonMomOnShell) * qTildeP4.Dot(leptonMom)) - (neutrinoMom.Dot(qTildeP4) * leptonMom.Dot(inNucleonMomOnShell));
   l3 *= sign;
-  double l4 = neutrinoMom->Dot(leptonMom) * qTildeP4.Dot(qTildeP4) - 2*neutrinoMom->Dot(qTildeP4)*leptonMom.Dot(qTildeP4);
-  double l5 = neutrinoMom->Dot(inNucleonMomOnShell) * leptonMom.Dot(qTildeP4) + leptonMom.Dot(inNucleonMomOnShell)*neutrinoMom->Dot(qTildeP4) - neutrinoMom->Dot(leptonMom)*inNucleonMomOnShell.Dot(qTildeP4);
+  double l4 = neutrinoMom.Dot(leptonMom) * qTildeP4.Dot(qTildeP4) - 2*neutrinoMom.Dot(qTildeP4)*leptonMom.Dot(qTildeP4);
+  double l5 = neutrinoMom.Dot(inNucleonMomOnShell) * leptonMom.Dot(qTildeP4) + leptonMom.Dot(inNucleonMomOnShell)*neutrinoMom.Dot(qTildeP4) - neutrinoMom.Dot(leptonMom)*inNucleonMomOnShell.Dot(qTildeP4);
 
   double LH = 2 *(l1*h1 + l2*h2 + l3*h3 + l4*h4 + l5*h2);
-
-  delete neutrinoMom;
 
   double xsec = Gfactor * LH;
 
