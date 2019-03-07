@@ -134,12 +134,32 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
     GHepParticle * nucleus = evrec->TargetNucleus();
     bool have_nucleus = nucleus != 0;
 
+    // For a composite nuclear target, check to make sure that the
+    // final nucleus has a recognized PDG code
+    if ( have_nucleus ) {
+      // compute A,Z for final state nucleus & get its PDG code
+      int nucleon_pdgc = nucleon->Pdg();
+      bool is_p  = pdg::IsProton(nucleon_pdgc);
+      int Z = (is_p) ? nucleus->Z()-1 : nucleus->Z();
+      int A = nucleus->A() - 1;
+      TParticlePDG * fnucleus = 0;
+      int ipdgc = pdg::IonPdgCode(A, Z);
+      fnucleus = PDGLibrary::Instance()->Find(ipdgc);
+      if (!fnucleus) {
+        LOG("QELEvent", pFATAL)
+            << "No particle with [A = " << A << ", Z = " << Z
+            << ", pdgc = " << ipdgc << "] in PDGLibrary!";
+        exit(1);
+      }
+    }
+
+    // Store the hit nucleon radius before entering accept/reject loop
     Target * tgt = interaction->InitState().TgtPtr();
-    //TLorentzVector * p4 = tgt->HitNucP4Ptr();
-    // Store the hit nucleon radius first
     double hitNucPos = nucleon->X4()->Vect().Mag();
     tgt->SetHitNucPosition(hitNucPos);
-    while(1) {
+
+    while (1) {
+
         iter++;
         LOG("QELEvent", pINFO) << "Attempt #: " << iter;
         if(iter > kRjMaxIterations) {
@@ -153,30 +173,20 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
             throw exception;
         }
 
-        // First, sample an initial nucleon 3-momentum and removal energy from
-        // the nuclear model
-        fNuclModel->GenerateNucleon(*tgt, hitNucPos);
-
-        // For a composite nuclear target, check to make sure that the
-        // final nucleus has a recognized PDG code
-        if (have_nucleus) {
-            // compute A,Z for final state nucleus & get its PDG code
-            int nucleon_pdgc = nucleon->Pdg();
-            bool is_p  = pdg::IsProton(nucleon_pdgc);
-            int Z = (is_p) ? nucleus->Z()-1 : nucleus->Z();
-            int A = nucleus->A() - 1;
-            TParticlePDG * fnucleus = 0;
-            int ipdgc = pdg::IonPdgCode(A, Z);
-            fnucleus = PDGLibrary::Instance()->Find(ipdgc);
-            if (!fnucleus) {
-                LOG("QELEvent", pFATAL)
-                    << "No particle with [A = " << A << ", Z = " << Z
-                    << ", pdgc = " << ipdgc << "] in PDGLibrary!";
-                exit(1);
-            }
+        // If the target is a composite nucleus, then sample an initial nucleon
+        // 3-momentum and removal energy from the nuclear model.
+        if ( tgt->IsNucleus() ) {
+          fNuclModel->GenerateNucleon(*tgt, hitNucPos);
+        }
+        else {
+          // Otherwise, just set the nucleon to be at rest in the lab frame and
+          // unbound. Use the nuclear model to make these assignments. The call
+          // to BindHitNucleon() will apply them correctly below.
+          fNuclModel->SetMomentum3( TVector3(0., 0., 0.) );
+          fNuclModel->SetRemovalEnergy( 0. );
         }
 
-        // Put the hit nucleon off-shell so that we can get the correct
+        // Put the hit nucleon off-shell (if needed) so that we can get the correct
         // value of cos_theta0_max
         genie::utils::BindHitNucleon(*interaction, *fNuclModel,
           fEb, fHitNucleonBindingMode);
