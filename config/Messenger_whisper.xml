@@ -43,6 +43,8 @@
   <priority msgstream="Bardin">                FATAL </priority>
   <priority msgstream="BodekYang">             FATAL </priority>
   <priority msgstream="BodekRitchie">          FATAL </priority>
+  <priority msgstream="SmithMoniz">            FATAL </priority>
+  <priority msgstream="SMQELXSec">             FATAL </priority>
   <priority msgstream="Cache">                 FATAL </priority>
   <priority msgstream="CharmHad">              FATAL </priority>
   <priority msgstream="CFracTab">              FATAL </priority>
