@@ -228,23 +228,23 @@ bool AlgConfigPool::LoadGlobalParamLists(void)
   return this->LoadRegistries(key_prefix, glob_params, "global_param_list");
 }
 //____________________________________________________________________________
-bool AlgConfigPool::LoadCommonLists( const string & type )
+bool AlgConfigPool::LoadCommonLists( const string & file_id )
 {
 // Load the common parameter list 
 //
-  SLOG("AlgConfigPool", pINFO) << "Loading Common " << type << " lists";
+  SLOG("AlgConfigPool", pINFO) << "Loading Common " << file_id << " lists";
 
   // -- get the user config XML file using GXMLPATH + default locations
-  std::string xml_name = "Common" + type + ".xml" ;
+  std::string xml_name = "Common" + file_id + ".xml" ;
   string full_path = utils::xml::GetXMLFilePath( xml_name );
 
   // fixed key prefix
-  string key_prefix = "Common" + type + "List";
+  string key_prefix = "Common" + file_id + "List";
 
   // load and report status
-  if ( ! this->LoadRegistries(key_prefix, full_path, "common_"+type+"_list") ) {
+  if ( ! this->LoadRegistries(key_prefix, full_path, "common_"+file_id+"_list") ) {
 
-	  SLOG("AlgConfigPool", pERROR) << "Failed to load Common " << type ;
+	  SLOG("AlgConfigPool", pERROR) << "Failed to load Common " << file_id ;
 	  return false ;
   }
 
@@ -556,14 +556,14 @@ Registry * AlgConfigPool::GlobalParameterList(void) const
   return this->FindRegistry(key.str());
 }
 //____________________________________________________________________________
-Registry * AlgConfigPool::CommonList( const string & type, const string & name ) const
+Registry * AlgConfigPool::CommonList( const string & file_id, const string & set_name ) const
 {
 
   ostringstream key;
-  key << "Common" << type << "List/" << name;
+  key << "Common" << file_id << "List/" << set_name;
 
   if ( ! this->FindRegistry(key.str()) ) {
-	const_cast<AlgConfigPool*>( this ) -> LoadCommonLists( type ) ;
+	const_cast<AlgConfigPool*>( this ) -> LoadCommonLists( file_id ) ;
   }
 
   return this->FindRegistry(key.str()) ;

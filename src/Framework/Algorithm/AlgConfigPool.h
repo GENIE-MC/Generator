@@ -49,7 +49,7 @@ public:
   Registry * FindRegistry (const AlgId & algid)               const;
 
   Registry * GlobalParameterList(void) const;
-  Registry * CommonList( const string & type, const string & name ) const;
+  Registry * CommonList( const string & file_id, const string & set_name ) const;
   Registry * TuneGeneratorList(void) const;
  
 
@@ -69,7 +69,7 @@ private:
   bool   LoadAlgConfig       (void);
   bool   LoadMasterConfig    (void);
   bool   LoadGlobalParamLists(void);
-  bool   LoadCommonLists( const string & type );
+  bool   LoadCommonLists( const string & file_id );
   bool   LoadTuneGeneratorList(void);
   bool   LoadSingleAlgConfig (string alg_name, string file_name);
   bool   LoadRegistries      (string key_base, string file_name, string root);
