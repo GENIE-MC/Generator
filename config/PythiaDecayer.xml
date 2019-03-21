@@ -13,7 +13,7 @@ Name             Type     Optional   Comment               Default
 -->
 
   <param_set name="Default">
-     <param type="string" name="CommonParam"> DecayFlags </param>
+     <param type="string" name="CommonOptions"> DecayFlags </param>
   </param_set>
 
   <param_set name="BeforeHadronTransport">
