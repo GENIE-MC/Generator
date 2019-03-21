@@ -19,7 +19,7 @@ University of Liverpool
 
 
 
-<common_Options_list>
+<common_Decay_list>
 
   <param_set name="DecayFlags"> 
 
@@ -123,4 +123,4 @@ University of Liverpool
      -->
   </param_set>
 
-</common_Options_list>
+</common_Decay_list>

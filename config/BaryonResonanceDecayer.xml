@@ -37,7 +37,7 @@ Delta-R3m1                    string   Yes        string ; separated of values f
 <alg_conf>
 
   <param_set name="Default">
-    <param type="string" name="CommonOptions"> DecayFlags </param>
+    <param type="string" name="CommonDecay"> DecayFlags </param>
 
     <param type="double" name="FFScaling">  0.706    </param>
 
