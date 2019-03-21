@@ -179,28 +179,28 @@ void Algorithm::FindConfig(void)
   for ( unsigned int i = 0 ; i < fConfVect.size() ; ++i ) {
     const Registry & temp = * fConfVect[i] ;
     for ( RgIMapConstIter it = temp.GetItemMap().begin() ; it !=  temp.GetItemMap().end() ; ++it ) {
-
+      
       // check if it is a "Common" entry
       if ( it -> first.find( common_key_root ) == 0 ) {
         // retrieve the type of the common entry
     	std::string type = it -> first.substr(common_key_root.size() ) ;
-
+	
     	if ( temp.ItemIsLocal( it -> first ) ) {
-
+	  
     	  string temp_list = temp.GetString( it -> first ) ;
     	  if ( temp_list.length() > 0 ) {
     	    common_lists[type] = temp_list ;
     	  }
     	}
       }
-
+      
     }
-
+    
   } // loop over the local registries
 
 
   for ( std::map<string, string>::const_iterator it = common_lists.begin() ;
-		it != common_lists.end() ; ++it ) {
+	it != common_lists.end() ; ++it ) {
 
     vector<string> list = str::Split( it -> second , "," ) ;
 
@@ -210,14 +210,16 @@ void Algorithm::FindConfig(void)
 
       if ( ! config ) {
         LOG("Algorithm", pFATAL)
-		  << "No Commom parameters available for " << type " list "
-	      << list[i] << " at the ConfigPool";
+	  << "No Commom parameters available for " << it -> first << " list "
+	  << list[i] << " at the ConfigPool";
 
 	    exit( 78 ) ;
       }
       else  {
 	    AddLowRegistry( config, false ) ;
-	    LOG("Algorithm", pDEBUG) << "Loading " << type << " registry " << list[i] << " \n" << config;
+	    LOG("Algorithm", pDEBUG) << "Loading " 
+				     << it -> first << " registry " 
+				     << list[i] << " \n" << config;
       }
 
     }
@@ -227,7 +229,7 @@ void Algorithm::FindConfig(void)
 
   // Load Tunable from CommonParameters 
   // only if the option is specified in RunOpt
-  config = pool -> CommonParameterList( "Tunable" ) ;
+  config = pool -> CommonList( "Param", "Tunable" ) ;
   if ( config ) {
     if ( config -> NEntries() > 0 ) {
       AddTopRegistry( config, false ) ;

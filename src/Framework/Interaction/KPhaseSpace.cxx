@@ -63,7 +63,7 @@ double KPhaseSpace::GetTMaxDFR()
   if (!tMaxLoaded)
   {
     AlgConfigPool * confp = AlgConfigPool::Instance();
-    const Registry * r = confp->CommonParameterList( "Diffractive" ) ;
+    const Registry * r = confp->CommonList( "Param", "Diffractive" ) ;
     double tmax = r->GetDouble("DFR-t-max");
     DFR_tMax = tmax;
     tMaxLoaded = true;
