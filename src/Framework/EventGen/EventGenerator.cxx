@@ -131,6 +131,7 @@ void EventGenerator::ProcessEventRecord(GHepRecord * event_rec) const
          LOG("EventGenerator", pFATAL)
            << "Caught max allowed number (" << kMaxEVGThreadExceptions
            << ") of EVGThreadExceptions/thread. Aborting";
+         LOG("EventGenerator", pFATAL) << "Event : \n" << *event_rec ;
          exit(1);
       }
 
