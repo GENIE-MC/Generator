@@ -31,11 +31,11 @@ RmaxMode                             string   Yes        Method to use to comput
 
   <param_set name="Default">
 
-    <param type="string"  name="CommonParam"> CKM,FermiGas,NUCL  </param>
+    <param type="string"  name="CommonParam"> CKM,FermiGas,NUCL </param>
 
     <param type="double" name="QEL-CC-XSecScale"> 1.000 </param>
 
-    <param type="alg"  name="XSec-Integrator">      genie::NewQELXSec/Default </param>
+    <param type="alg"  name="XSec-Integrator"> genie::NewQELXSec/Default </param>
     <param type="alg"  name="IntegralNuclearModel"> genie::NuclearModelMap/Default </param>
     <param type="string" name="IntegralNucleonBindingMode"> UseNuclearModel </param>
 
@@ -43,8 +43,8 @@ RmaxMode                             string   Yes        Method to use to comput
     <param type="bool" name="Coulomb">         true                         </param>
     <param type="bool" name="PrintDebugData">  false                          </param>
 
-    <param type="bool" name = "IntegralAverageOverNucleonMomentum">   true   </param>
-    <param type="double" name = "IntegralNuclearInfluenceCutoffEnergy">    2.0   </param>
+    <param type="alg" name = "PauliBlockerAlg"> genie::PauliBlocker/Default </param>
+    <param type="bool" name = "DoPauliBlocking"> true </param>
 
     <!-- Use the same Rmax as in genie::VertexGenerator -->
     <param type="string" name = "RmaxMode"> VertexGenerator </param>
@@ -57,14 +57,12 @@ RmaxMode                             string   Yes        Method to use to comput
 
 
   <param_set name="Dipole">
-     <param type="alg"  name="FormFactorsAlg">  genie::LwlynSmithFFCC/Dipole  </param>
-
+    <param type="alg"  name="FormFactorsAlg"> genie::LwlynSmithFFCC/Dipole </param>
   </param_set>
 
 
   <param_set name="ZExp">
-     <param type="alg"  name="FormFactorsAlg">  genie::LwlynSmithFFCC/ZExp    </param>
-
+    <param type="alg"  name="FormFactorsAlg"> genie::LwlynSmithFFCC/ZExp </param>
   </param_set>
 
 </alg_conf>

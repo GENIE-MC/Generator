@@ -174,15 +174,27 @@ double LwlynSmithQELCCPXSec::XSec(
   return xsec;
 }
 //____________________________________________________________________________
-double LwlynSmithQELCCPXSec::FullDifferentialXSec(const Interaction *  interaction)const{
-
+double LwlynSmithQELCCPXSec::FullDifferentialXSec(const Interaction*  interaction)
+  const
+{
   // First we need access to all of the particles in the interaction
   // The particles were stored in the lab frame
-  const Kinematics &   kinematics = interaction -> Kine();
-  const InitialState & init_state = interaction -> InitState();
+  const Kinematics&   kinematics = interaction -> Kine();
+  const InitialState& init_state = interaction -> InitState();
+
+  const Target& tgt = init_state.Tgt();
 
   const TLorentzVector leptonMom = kinematics.FSLeptonP4();
   const TLorentzVector outNucleonMom = kinematics.HadSystP4();
+
+  // Apply Pauli blocking if enabled
+  if ( fDoPauliBlocking ) {
+    int final_nucleon_pdg = interaction->RecoilNucleonPdg();
+    double kF = fPauliBlocker->GetFermiMomentum(tgt, final_nucleon_pdg,
+      tgt.HitNucPosition());
+    double pNf = outNucleonMom.P();
+    if ( pNf < kF ) return 0.;
+  }
 
   // Note that GetProbeP4 defaults to returning the probe 4-momentum in the
   // struck nucleon rest frame, so we have to explicitly ask for the lab frame
@@ -278,14 +290,7 @@ double LwlynSmithQELCCPXSec::FullDifferentialXSec(const Interaction *  interacti
   // Apply given scaling factor
   xsec *= fXSecScale;
 
-  if( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;
-
-  //----- compute nuclear suppression factor
-  //      (R(Q2) is adapted from NeuGEN - see comments therein)
-  double R = nuclear::NuclQELXSecSuppression("Default", 0.5, interaction);
-  // LOG("LwlynSmith",pINFO)  << "Nuclear Suppression Factor = " << R;
-
-  //----- number of scattering centers in the target
+  // Number of scattering centers in the target
   const Target & target = init_state.Tgt();
   int nucpdgc = target.HitNucPdg();
   int NNucl = (pdg::IsProton(nucpdgc)) ? target.Z() : target.N();
@@ -295,7 +300,7 @@ double LwlynSmithQELCCPXSec::FullDifferentialXSec(const Interaction *  interacti
     << "Nuclear suppression factor R(Q2) = " << R << ", NNucl = " << NNucl;
 #endif
 
-  xsec *= (R*NNucl); // nuclear xsec
+  xsec *= NNucl; // nuclear xsec
 
   return xsec;
 
@@ -462,4 +467,12 @@ void LwlynSmithQELCCPXSec::LoadConfig(void)
   std::string temp_binding_mode;
   GetParamDef( "IntegralNucleonBindingMode", temp_binding_mode, std::string("UseNuclearModel") );
   fIntegralNucleonBindingMode = genie::utils::StringToQELBindingMode( temp_binding_mode );
+
+  // Get PauliBlocker for possible use in FullDifferentialXSec()
+  GetParamDef( "IntegralNucleonBindingMode", temp_binding_mode, std::string("UseNuclearModel") );
+  fPauliBlocker = dynamic_cast<const PauliBlocker*>( this->SubAlg("PauliBlockerAlg") );
+  assert( fPauliBlocker );
+
+  // Decide whether or not it should be used in FullDifferentialXSec
+  GetParamDef( "DoPauliBlocking", fDoPauliBlocking, true );
 }

@@ -27,6 +27,7 @@
 #include "Framework/EventGen/XSecAlgorithmI.h"
 #include "Physics/QuasiElastic/XSection/QELFormFactors.h"
 #include "Physics/QuasiElastic/XSection/QELUtils.h"
+#include "Physics/NuclearState/PauliBlocker.h"
 
 namespace genie {
 
@@ -72,6 +73,11 @@ private:
   /// Enum specifying the method to use when calculating the binding energy of
   /// the initial hit nucleon during spline generation
   QELEvGen_BindingMode_t fIntegralNucleonBindingMode;
+
+  /// Whether to apply Pauli blocking in FullDifferentialXSec
+  bool fDoPauliBlocking;
+  /// The PauliBlocker instance to use to apply that correction
+  const genie::PauliBlocker* fPauliBlocker;
 };
 
 }       // genie namespace

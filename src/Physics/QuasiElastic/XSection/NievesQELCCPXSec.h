@@ -29,6 +29,7 @@
 #include <complex>
 #include <Math/IFunction.h>
 #include "Physics/NuclearState/NuclearModelI.h"
+#include "Physics/NuclearState/PauliBlocker.h"
 #include "Physics/QuasiElastic/XSection/QELUtils.h"
 
 namespace genie {
@@ -84,13 +85,14 @@ private:
   const FermiMomentumTable *   fKFTable;
   string                       fKFTableName;
 
-  bool   fDoAvgOverNucleonMomentum;    ///< Average cross section over hit nucleon monentum?
-  double fEnergyCutOff;                ///< Average only for energies below this cutoff defining
-                                       ///< the region where nuclear modeling details do matter
-
   /// Enum specifying the method to use when calculating the binding energy of
   /// the initial hit nucleon during spline generation
   QELEvGen_BindingMode_t fIntegralNucleonBindingMode;
+
+  /// Whether to apply Pauli blocking in XSec()
+  bool fDoPauliBlocking;
+  /// The PauliBlocker instance to use to apply that correction
+  const genie::PauliBlocker* fPauliBlocker;
 
   /// Nuclear radius parameter r = R0*A^(1/3) used to compute the
   /// maximum radius for integration of the Coulomb potential
@@ -142,10 +144,6 @@ private:
 		    bool tgtIsNucleus,
 		    int tgt_pdgc, int A, int Z, int N,
 		    bool hitNucIsProton) const;
-
-  // Generate a temporary lepton in the LAB frame in order to calculate the xsec
-  TLorentzVector GenerateOutgoingLepton(const Interaction * in,
-					TLorentzVector p4v) const;
 
   // NOTE: THE FOLLOWING CODE IS FOR TESTING PURPOSES ONLY
   // Used to print tensor elements and various inputs for comparison to Nieves'
