@@ -175,11 +175,24 @@ double NievesQELCCPXSec::XSec(const Interaction * interaction,
     // Outgoing lepton energy and momentum including Coulomb potential
     int sign = is_neutrino ? 1 : -1;
     double El = leptonMom.E();
+    double pl = leptonMom.P();
     double ElLocal = El - sign*Vc;
-    if(ElLocal - ml <= 0.0){
-      LOG("Nieves", pDEBUG) << "Event should be rejected. Coulomb effects "
-                          << "push kinematics below threshold. Returning "
-                          << "xsec = 0.0";
+
+    if ( ElLocal - ml <= 0. ) {
+      LOG("Nieves", pDEBUG) << "Event should be rejected. Coulomb effects"
+        << " push kinematics below threshold. Returning xsec = 0.0";
+      return 0.0;
+    }
+
+    // The Coulomb correction factor blows up as pl -> 0. To guard against
+    // unphysically huge corrections here, require that the lepton kinetic energy
+    // (at infinity) is larger than the magnitude of the Coulomb potential
+    // (should be around a few MeV)
+    double KEl = El - ml;
+    if ( KEl <= std::abs(Vc) ) {
+      LOG("Nieves", pDEBUG) << "Outgoing lepton has a very small kinetic energy."
+        << " Protecting against near-singularities in the Coulomb correction"
+        << " factor by returning xsec = 0.0";
       return 0.0;
     }
 
@@ -188,7 +201,7 @@ double NievesQELCCPXSec::XSec(const Interaction * interaction,
     plLocal = TMath::Sqrt( ElLocal*ElLocal - ml2 );
 
     // Correction factor
-    coulombFactor= plLocal*ElLocal/leptonMom.Vect().Mag()/El;
+    coulombFactor= (plLocal * ElLocal) / (pl * El);
 
   }
 
@@ -527,8 +540,6 @@ void NievesQELCCPXSec::CNCTCLimUcalc(TLorentzVector qTildeP4,
       }
     }
 
-    //LOG("Nieves",pDEBUG) << "r=" << r << ",kF1=" << kF1 << ",kF2=" << kF2;
-
     double kF = TMath::Power(1.5*kPi2*rho, 1.0/3.0) *fhbarc;
 
     std::complex<double> imU(relLindhardIm(qTildeP4.E(),dq,kF1,kF2,
@@ -561,7 +572,6 @@ void NievesQELCCPXSec::CNCTCLimUcalc(TLorentzVector qTildeP4,
 
     CT = 1.0/TMath::Power(abs(1.0-relLinTot*Vt),2);
     CL = 1.0/TMath::Power(abs(1.0-relLinTot*Vl),2);
-    //LOG("Nieves",pDEBUG) <<"CN = " << CN <<",CT = " << CT << ",CL = " << CL;
   }else{
     //Polarization Coefficients: all equal to 1.0 for free nucleon
     CN = 1.0;
@@ -831,9 +841,6 @@ double NievesQELCCPXSec::vcr(const Target * target, double Rcurr) const{
       std::exit(1);
     }
 
-    //LOG("Nieves",pDEBUG) "A = " << A
-    //  << ", Rcurr = " << Rcurr << ", Rmax = " << Rmax;
-
     if(Rcurr >= Rmax){
       LOG("Nieves",pNOTICE) << "Radius greater than maximum radius for coulomb corrections."
                           << " Integrating to max radius.";
@@ -953,9 +960,6 @@ double NievesQELCCPXSec::LmunuAnumu(const TLorentzVector neutrinoMom,
     CT=1.0;
     CL=1.0;
   }
-
-  //LOG("Nieves",pDEBUG) << "CN=" << CN << ",CT=" << CT << ",CL=" << CL << ",imU=" << imU;
-
 
   double tulin[4] = {0.,0.,0.,0.};
   double rulin[4][4] = { {0.,0.,0.,0.},
