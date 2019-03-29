@@ -25,8 +25,6 @@
 */
 //____________________________________________________________________________
 
-#include <limits>
-
 #include <TMath.h>
 
 #include "Framework/Algorithm/AlgFactory.h"
@@ -99,20 +97,22 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
             gAbortingInErr = true;
             exit(1);
         }
-    }//is nucl target
+    } // is nuclear target
 
     // set the 'trust' bits
     interaction->SetBit(kISkipProcessChk);
     interaction->SetBit(kISkipKinematicChk);
-    // Note: The kinematic generator would be using the free nucleon cross
-    // section (even for nuclear targets) so as not to double-count nuclear
-    // suppression. This assumes that a) the nuclear suppression was turned
-    // on when computing the cross sections for selecting the current event
-    // and that b) if the event turns out to be unphysical (Pauli-blocked)
-    // the next attempted event will be forced to QEL again.
-    // (discussion with Hugh - GENIE/NeuGEN integration workshop - 07APR2006
-    interaction->SetBit(kIAssumeFreeNucleon);
 
+    // Access the hit nucleon and target nucleus entries at the GHEP record
+    GHepParticle * nucleon = evrec->HitNucleon();
+    GHepParticle * nucleus = evrec->TargetNucleus();
+    bool have_nucleus = (nucleus != 0);
+
+    // Store the hit nucleon radius before computing the maximum differential
+    // cross section (important when using the local Fermi gas model)
+    Target* tgt = interaction->InitState().TgtPtr();
+    double hitNucPos = nucleon->X4()->Vect().Mag();
+    tgt->SetHitNucPosition( hitNucPos );
 
     //-- For the subsequent kinematic selection with the rejection method:
     //   Calculate the max differential cross section or retrieve it from the
@@ -121,18 +121,6 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
     //   If the kinematics are generated uniformly over the allowed phase
     //   space the max xsec is irrelevant
     double xsec_max = (fGenerateUniformly) ? -1 : this->MaxXSec(evrec);
-
-    // In the accept/reject loop, each iteration samples a new value of
-    //    - the hit nucleon 3-momentum,
-    //    - its binding energy (only actually used if fHitNucleonBindingMode == kUseNuclearModel)
-    //    - the final lepton scattering angles in the neutrino-and-hit-nucleon COM frame
-
-    unsigned int iter = 0;
-    bool accept = false;
-    // Access the hit nucleon and target nucleus entries at the GHEP record
-    GHepParticle * nucleon = evrec->HitNucleon();
-    GHepParticle * nucleus = evrec->TargetNucleus();
-    bool have_nucleus = nucleus != 0;
 
     // For a composite nuclear target, check to make sure that the
     // final nucleus has a recognized PDG code
@@ -153,11 +141,13 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
       }
     }
 
-    // Store the hit nucleon radius before entering accept/reject loop
-    Target * tgt = interaction->InitState().TgtPtr();
-    double hitNucPos = nucleon->X4()->Vect().Mag();
-    tgt->SetHitNucPosition(hitNucPos);
-
+    // In the accept/reject loop, each iteration samples a new value of
+    //   - the hit nucleon 3-momentum,
+    //   - its binding energy (only actually used if fHitNucleonBindingMode == kUseNuclearModel)
+    //   - the final lepton scattering angles in the neutrino-and-hit-nucleon COM frame
+    //     (measured with respect to the velocity of the COM frame as seen in the lab frame)
+    unsigned int iter = 0;
+    bool accept = false;
     while (1) {
 
         iter++;
@@ -208,6 +198,7 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
         // Set the "bind_nucleon" flag to false in this call to ComputeFullQELPXSec
         // since we've already done that above
+        LOG("QELEvent", pDEBUG) << "cth0 = " << costheta << ", phi0 = " << phi;
         double xsec = genie::utils::ComputeFullQELPXSec(interaction, fNuclModel,
           fXSecModel, costheta, phi, fEb, fHitNucleonBindingMode, fMinAngleEM, false);
 
@@ -230,7 +221,6 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
             // reset bits
             interaction->ResetBit(kISkipProcessChk);
             interaction->ResetBit(kISkipKinematicChk);
-            interaction->ResetBit(kIAssumeFreeNucleon);
 
             // get neutrino energy at struck nucleon rest frame and the
             // struck nucleon mass (can be off the mass shell)
@@ -275,15 +265,17 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
             TLorentzVector outNucleon(interaction->KinePtr()->HadSystP4());
             TLorentzVector x4l(*(evrec->Probe())->X4());
 
-            evrec->AddParticle(interaction->FSPrimLeptonPdg(), kIStStableFinalState, evrec->ProbePosition(),-1,-1,-1, interaction->KinePtr()->FSLeptonP4(), x4l);
+            evrec->AddParticle(interaction->FSPrimLeptonPdg(), kIStStableFinalState,
+              evrec->ProbePosition(), -1, -1, -1, interaction->KinePtr()->FSLeptonP4(), x4l);
 
-            GHepStatus_t ist = (tgt->IsNucleus()) ?
-                kIStHadronInTheNucleus : kIStStableFinalState;
-            evrec->AddParticle(interaction->RecoilNucleonPdg(), ist, evrec->HitNucleonPosition(),-1,-1,-1, interaction->KinePtr()->HadSystP4(), x4l);
+            GHepStatus_t ist = (tgt->IsNucleus()) ? kIStHadronInTheNucleus : kIStStableFinalState;
+            evrec->AddParticle(interaction->RecoilNucleonPdg(), ist, evrec->HitNucleonPosition(),
+              -1, -1, -1, interaction->KinePtr()->HadSystP4(), x4l);
 
             // Store struck nucleon momentum and binding energy
             TLorentzVector p4ptr = interaction->InitStatePtr()->TgtPtr()->HitNucP4();
-            LOG("QELEvent",pNOTICE) << "pn: " << p4ptr.X() << ", " <<p4ptr.Y() << ", " <<p4ptr.Z() << ", " <<p4ptr.E();
+            LOG("QELEvent",pNOTICE) << "pn: " << p4ptr.X() << ", "
+              << p4ptr.Y() << ", " << p4ptr.Z() << ", " << p4ptr.E();
             nucleon->SetMomentum(p4ptr);
             nucleon->SetRemovalEnergy(fEb);
 
@@ -431,31 +423,58 @@ double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const
     LOG("QELEvent", pINFO) << "Computing maximum cross section to throw against";
 
     double xsec_max = -1;
+    double dummy_Eb = 0.;
 
-    // Loop over thrown nucleons
-    // We'll select the max momentum and the minimum binding energy
-    // Which should give us the nucleon with the highest xsec
-    for (int inuc = 0; inuc < fMaxXSecNucleonThrows; inuc++) {
+    // Clone the input interaction so that we can modify it a bit
+    Interaction * interaction = new Interaction( *in );
+    interaction->SetBit( kISkipProcessChk );
+    interaction->SetBit( kISkipKinematicChk );
+    // Ignore Pauli blocking when finding max xsec
+    // (we're treating the hit nucleon as free)
+    interaction->SetBit( kIAssumeFreeNucleon );
 
+    // We'll select the max momentum and zero binding energy.
+    // That should give us the nucleon with the highest xsec
+    const Target& tgt = interaction->InitState().Tgt();
+    // Pick a really slow nucleon to start, but not one at rest,
+    // since Prob() for the Fermi gas family of models is zero
+    // for a vanishing nucleon momentum
+    double max_momentum = 0.010;
+    double search_step = 0.1;
+    const double STEP_STOP = 1e-6;
+    while ( search_step > STEP_STOP ) {
+      double pNi_next = max_momentum + search_step;
 
-        Interaction * interaction = new Interaction(*in);
-        interaction->SetBit(kISkipProcessChk);
-        interaction->SetBit(kISkipKinematicChk);
-        interaction->SetBit(kIAssumeFreeNucleon);
+      // Set the nucleon we're using to be upstream at max energy and unbound
+      fNuclModel->SetMomentum3( TVector3(0., 0., -pNi_next) );
+      fNuclModel->SetRemovalEnergy( 0. );
 
-        // Access the target from the interaction summary
-        Target * tgt = interaction->InitState().TgtPtr();
+      // Set the nucleon total energy to be on-shell with a quick call to
+      // BindHitNucleon()
+      genie::utils::BindHitNucleon(*interaction, *fNuclModel, dummy_Eb, kOnShell);
 
-        // Set the nucleon we're using to be upstream at max enegry
-        fNuclModel->GenerateNucleon(*tgt, 0.0);
+      // TODO: document this, won't work for spectral functions
+      double dummy_w = -1.;
+      double prob = fNuclModel->Prob(pNi_next, dummy_w, tgt,
+        tgt.HitNucPosition());
 
-        // Needed to set value of costh_range_max. The call to CosTheta0Max() below
-        // assumes that BindHitNucleon() has already been executed.
-        double another_dummy_Eb; // Dummy storage for the binding energy
-	genie::utils::BindHitNucleon(*interaction, *fNuclModel,
-				     another_dummy_Eb, fHitNucleonBindingMode);
+      double costh0_max = genie::utils::CosTheta0Max( *interaction );
 
-        // OK, we're going to scan the centre-of-mass angles to get the point of max xsec
+      if ( prob > 0. && costh0_max > -1. ) max_momentum = pNi_next;
+      else search_step /= 2.;
+    }
+
+    {
+        // Set the nucleon we're using to be upstream at max energy and unbound
+        fNuclModel->SetMomentum3( TVector3(0., 0., -max_momentum) );
+        fNuclModel->SetRemovalEnergy( 0. );
+
+        // Set the nucleon total energy to be on-shell with a quick call to
+        // BindHitNucleon()
+        genie::utils::BindHitNucleon(*interaction, *fNuclModel, dummy_Eb, kOnShell);
+
+        // Just a scoping block for now
+        // OK, we're going to scan the COM frame angles to get the point of max xsec
         // We'll bin in solid angle, and find the maximum point
         // Then we'll bin/scan again inside that point
         // Rinse and repeat until the xsec stabilises to within some fraction of our safety factor
@@ -468,11 +487,7 @@ double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const
         double this_nuc_xsec_max = -1;
 
         double costh_range_min = -1.;
-        double temp_cos_theta0_max = CosTheta0Max( *interaction );
-        if ( temp_cos_theta0_max < -1. ) continue;
-        double costh_range_max = std::min(1., temp_cos_theta0_max);
-        LOG("QELEvent", pDEBUG) << "costh_range_max = " << costh_range_max;
-
+        double costh_range_max = genie::utils::CosTheta0Max( *interaction );
         double phi_range_min = 0.;
         double phi_range_max = 2*TMath::Pi();
         for (int ilayer = 0 ; ilayer < max_n_layers ; ilayer++) {
@@ -484,10 +499,13 @@ double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const
               double costh = costh_range_min + itheta * costh_increment;
               for (int iphi = 0; iphi < N_phi; iphi++) { // Scan around phi
                   double phi = phi_range_min + iphi * phi_increment;
-                  // We've already called genie::utils::BindHitNucleon() above, so we can use false
-                  // as the last argument here to speed things up a bit
-                  double xs = genie::utils::ComputeFullQELPXSec(interaction, fNuclModel, fXSecModel, costh,
-                    phi, fEb, fHitNucleonBindingMode, fMinAngleEM, false);
+                  // We're after an upper limit on the cross section, so just
+                  // put the nucleon on-shell and call it good. The last
+                  // argument is false because we've already called
+                  // BindHitNucleon() above
+                  double xs = genie::utils::ComputeFullQELPXSec(interaction,
+                    fNuclModel, fXSecModel, costh, phi, dummy_Eb, kOnShell, fMinAngleEM, false);
+
                   if (xs > this_nuc_xsec_max){
                       phi_at_xsec_max = phi;
                       costh_at_xsec_max = costh;
@@ -508,8 +526,8 @@ double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const
             break;
           }
         }
-        if (this_nuc_xsec_max > xsec_max){
-            xsec_max = this_nuc_xsec_max;  // this nucleon has the highest xsec!
+        if (this_nuc_xsec_max > xsec_max) {
+            xsec_max = this_nuc_xsec_max;
             LOG("QELEvent", pINFO) << "best estimate for xsec_max = " << xsec_max;
         }
 
@@ -527,5 +545,4 @@ double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const
 
     LOG("QELEvent", pINFO) << "Computed maximum cross section to throw against - value is " << xsec_max;
     return xsec_max;
-
 }

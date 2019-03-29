@@ -51,10 +51,9 @@ private:
   mutable double fEb; // Binding energy
 
   void   LoadConfig     (void);
-  double  ComputeMaxXSec(const Interaction * in) const;
+  double ComputeMaxXSec(const Interaction* in) const;
 
   void AddTargetNucleusRemnant (GHepRecord * evrec) const; ///< add a recoiled nucleus remnant
-
 
   const NuclearModelI *  fNuclModel;   ///< nuclear model
 

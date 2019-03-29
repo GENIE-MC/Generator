@@ -21,9 +21,10 @@ HitNucleonBindingMode    string  Yes   Method used to handle the binding energy 
 <alg_conf>
 
   <param_set name="Default"> 
-    <param type="double" name="Cache-MinEnergy">        1.0       </param>
-    <param type="alg"    name="NuclearModel">           genie::NuclearModelMap/Default            </param>
+    <param type="double" name="Cache-MinEnergy"> 1.5 </param>
+    <param type="alg"    name="NuclearModel"> genie::NuclearModelMap/Default </param>
     <param type="string" name="HitNucleonBindingMode"> UseNuclearModel </param>
+    <param type="double"    name="MaxXSec-SafetyFactor"> 1.6 </param>
     <!-- <param type="string" name="HitNucleonBindingMode"> OnShell </param> -->
     <!-- <param type="string" name="HitNucleonBindingMode"> UseGroundStateRemnant </param> -->
   </param_set>

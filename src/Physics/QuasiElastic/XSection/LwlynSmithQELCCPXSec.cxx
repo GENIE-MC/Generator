@@ -188,7 +188,7 @@ double LwlynSmithQELCCPXSec::FullDifferentialXSec(const Interaction*  interactio
   const TLorentzVector outNucleonMom = kinematics.HadSystP4();
 
   // Apply Pauli blocking if enabled
-  if ( fDoPauliBlocking ) {
+  if ( fDoPauliBlocking && !interaction->TestBit(kIAssumeFreeNucleon) ) {
     int final_nucleon_pdg = interaction->RecoilNucleonPdg();
     double kF = fPauliBlocker->GetFermiMomentum(tgt, final_nucleon_pdg,
       tgt.HitNucPosition());

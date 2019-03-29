@@ -136,7 +136,7 @@ double NievesQELCCPXSec::XSec(const Interaction * interaction,
   TLorentzVector outNucleonMom = kinematics.HadSystP4();
 
   // Apply Pauli blocking if enabled
-  if ( fDoPauliBlocking ) {
+  if ( fDoPauliBlocking && !interaction->TestBit(kIAssumeFreeNucleon) ) {
     int final_nucleon_pdg = interaction->RecoilNucleonPdg();
     double kF = fPauliBlocker->GetFermiMomentum(target, final_nucleon_pdg,
       target.HitNucPosition());
