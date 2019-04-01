@@ -57,6 +57,7 @@
    <config alg="genie::MECGenerator">                    MECGenerator.xml                    </config>
    <config alg="genie::GLRESGenerator">                  GLRESGenerator.xml                  </config>
    <config alg="genie::CEvNSEventGenerator">             CEvNSEventGenerator.xml             </config>
+   <config alg="genie::QELKinematicsGeneratorSuSA">      QELKinematicsGeneratorSuSA.xml      </config>
    <config alg="genie::NucleonDecayPrimaryVtxGenerator"> NucleonDecayPrimaryVtxGenerator.xml </config>
    <config alg="genie::NNBarOscPrimaryVtxGenerator">     NNBarOscPrimaryVtxGenerator.xml     </config>
    <config alg="genie::NHLPrimaryVtxGenerator">          NHLPrimaryVtxGenerator.xml          </config>
@@ -154,6 +155,7 @@
    <config alg="genie::BergerSehgalFMCOHPiPXSec2015">       BergerSehgalFMCOHPiPXSec2015.xml       </config>
    <config alg="genie::LwlynSmithQELCCPXSec">               LwlynSmithQELCCPXSec.xml               </config>
    <config alg="genie::NievesQELCCPXSec">                   NievesQELCCPXSec.xml                   </config>
+   <config alg="genie::SuSAv2QEXSec">                       SuSAv2QEXSec.xml                       </config>
    <config alg="genie::SmithMonizQELCCPXSec">               SmithMonizQELCCPXSec.xml               </config>
    <config alg="genie::QPMDMDISPXSec">                      QPMDMDISPXSec.xml                      </config>
    <config alg="genie::QPMDISPXSec">                        QPMDISPXSec.xml                        </config>
@@ -184,7 +186,7 @@
    <config alg="genie::H3AMNuGammaPXSec">                   H3AMNuGammaPXSec.xml                   </config>
    <config alg="genie::EmpiricalMECPXSec2015">              EmpiricalMECPXSec2015.xml              </config>
    <config alg="genie::NievesSimoVacasMECPXSec2016">        NievesSimoVacasMECPXSec2016.xml        </config>
-   <config alg="genie::SuSAv2MECPXSec">                     SuSAv2MECPXSec.xml        </config>
+   <config alg="genie::SuSAv2MECPXSec">                     SuSAv2MECPXSec.xml                     </config>
    <config alg="genie::RosenbluthPXSec">                    RosenbluthPXSec.xml                    </config>
    <config alg="genie::DummyPXSec">                         Default.xml                            </config>
    <config alg="genie::NNBarOscDummyPXSec">                 Default.xml                            </config>

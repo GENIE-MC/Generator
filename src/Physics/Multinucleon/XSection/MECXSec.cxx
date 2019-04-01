@@ -65,6 +65,8 @@ double MECXSec::Integrate(
      return 0;
   }
 
+  std::cout << "MECXSec::Integrate: Starting integral, fQ3Max is " << fQ3Max << std::endl; 
+
   Interaction * interaction = new Interaction(*in);
   interaction->SetBit(kISkipProcessChk);
   interaction->SetBit(kISkipKinematicChk);

@@ -66,6 +66,13 @@ class TabulatedValenciaHadronTensor : public ValenciaHadronTensorI {
     double m_probe, double Tl, double cos_l, double ml, double Q_value)
     const /*override*/;
 
+  virtual double dSigma_dT_dCosTheta_rosenbluth(const Interaction* interaction,
+    double Q_value) const /*override*/;
+
+  virtual double dSigma_dT_dCosTheta_rosenbluth(int probe_pdg, double E_probe,
+    double m_probe, double Tl, double cos_l, double ml, double Q_value)
+    const /*override*/;
+
   inline virtual double q0Min() const /*override*/ { return fGrid.x_min(); }
   inline virtual double q0Max() const /*override*/ { return fGrid.x_max(); }
   inline virtual double qMagMin() const /*override*/ { return fGrid.y_min(); }

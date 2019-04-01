@@ -873,6 +873,18 @@ Interaction * Interaction::MECNC(
   return interaction;
 }
 //___________________________________________________________________________
+Interaction * Interaction::MECEM(int tgt, int probe, double E)
+{
+
+  Interaction * interaction = 
+     Interaction::Create(tgt, probe, kScMEC, kIntEM);
+
+  InitialState * init_state = interaction->InitStatePtr();
+  init_state->SetProbeE(E);
+
+  return interaction;
+}
+//___________________________________________________________________________
 Interaction * Interaction::MECEM(int tgt, int ncluster, int probe, double E)
 {
   Interaction * interaction =

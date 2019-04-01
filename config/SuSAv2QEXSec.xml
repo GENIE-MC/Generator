@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for the SuSAv2QE xsec algorithm.
+
+Configurable Parameters:
+.....................................................................................................
+Name               Type     Optional   Comment                          Default
+.....................................................................................................
+FormFactorsAlg     alg      No         QEL form factors algorithm
+XSec-Integrator    alg      No
+CabibboAngle       double   No         Cabibbo angle                    CommonParam[CKM]
+QEL-CC-XSecScale   double   yes        XSec Scaling factor              1. 
+
+.....................................................................................................
+Parameters needed when Integrating with this model to generate splines:
+.....................................................................................................
+Name                                 Type     Optional   Comment 
+.....................................................................................................
+IntegralAverageOverNucleonMomentum   bool     No       Will be overridden to true if nuclear model is LFG
+IntegralNuclearModel                 alg      No        
+IntegralNuclearInfluenceCutoffEnergy double   No
+-->
+
+  <param_set name="Default"> 
+
+    <param type="string" name="CommonParam"> CKM </param>
+
+    <param type="double" name="QEL-CC-XSecScale"> 1.000 </param>
+
+     <param type="alg"  name="FormFactorsAlg">  genie::LwlynSmithFFCC/Default </param>
+     <param type="alg"  name="XSec-Integrator"> genie::MECXSec/Default        </param>
+     <!--
+     Using the MEC itnegrator rather than the QEL integrator:
+     <param type="alg"  name="XSec-Integrator"> genie::QELXSec/Default        </param>
+     as we need to integrate in q0,q3 and not in Q2. 
+     -->
+    
+     <param type="bool" name = "IntegralAverageOverNucleonMomentum">     true   </param>
+     <param type="alg"  name="IntegralNuclearModel">    genie::NuclearModelMap/Default        </param>
+     <param type="double" name = "IntegralNuclearInfluenceCutoffEnergy">    2.0   </param> 
+
+     <param type="string" name="HadronTensorTableName"> SuSAv2_QE </param>     
+
+  </param_set>
+
+  <param_set name="Dipole"> 
+     <param type="alg"  name="FormFactorsAlg">  genie::LwlynSmithFFCC/Dipole  </param>
+ 
+   </param_set>
+
+  <param_set name="ZExp"> 
+     <param type="alg"  name="FormFactorsAlg">  genie::LwlynSmithFFCC/ZExp    </param>
+ 
+  </param_set>
+
+  <param_set name="RunningMA"> 
+     <param type="alg"  name="FormFactorsAlg">  genie::LwlynSmithFFCC/RunningMA </param>
+
+  </param_set>
+
+</alg_conf>

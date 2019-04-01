@@ -9,6 +9,12 @@
 #include "Framework/Messenger/Messenger.h"
 #include "Physics/HadronTensors/TabulatedValenciaHadronTensor.h"
 
+// For q3q0 scan verification:
+#include <TH1F.h>
+#include <TFile.h>
+#include "Framework/Conventions/Constants.h"
+
+
 namespace {
   /// Enumerated type that represents the format used to read in
   /// grid points from the hadron tensor data file
@@ -34,7 +40,7 @@ genie::TabulatedValenciaHadronTensor::TabulatedValenciaHadronTensor(
   : fGrid(&fq0Points, &fqmagPoints, &fEntries)
 {
   // Read in the table
-  std::ifstream in_file( table_file_name );
+  std::ifstream in_file( table_file_name.c_str() );
 
 
   // Skip the initial comment line
@@ -58,14 +64,39 @@ genie::TabulatedValenciaHadronTensor::TabulatedValenciaHadronTensor(
 
   set_pdg( genie::pdg::IonPdgCode(A, Z) );
 
-  for (int j = 0; j < num_q0; ++j) {
-    for (int k = 0; k < num_q_mag; ++k) {
+  std::cout<< "TabulatedValenciaHadronTensor: reading hadron tensor table" << std::endl;
+  std::cout<< "table_file_name:  " << table_file_name << std::endl;
+  std::cout<< "Z:                " << Z << std::endl;
+  std::cout<< "A:                " << A << std::endl;
+  std::cout<< "num_q0:           " << num_q0 << std::endl;
+  std::cout<< "num_q_mag:        " << num_q_mag << std::endl;
+
+  double W00, ReW0z, Wxx, ImWxy, Wzz;
+  int lineCount=1;
+
+  for (long j = 0; j < num_q0; ++j) {
+    for (long k = 0; k < num_q_mag; ++k) {
 
       fEntries.push_back( TableEntry() );
       TableEntry& entry = fEntries.back();
 
-      in_file >> entry.W00 >> entry.ReW0z >> entry.Wxx
-        >> entry.ImWxy >> entry.Wzz;
+      // in_file >> entry.W00 >> entry.ReW0z >> entry.Wxx
+      //   >> entry.ImWxy >> entry.Wzz;
+
+      in_file >> W00 >> ReW0z >> Wxx >> ImWxy >> Wzz;
+
+      entry.W00  = W00;
+      entry.ReW0z= ReW0z;
+      entry.Wxx  = Wxx;
+      entry.ImWxy= ImWxy;
+      entry.Wzz  = Wzz;
+
+      //if(W00 > 0.0) {
+      //  std::cout<< "line count is" << lineCount << std::endl;
+      //  std::cout<< "Entry: " << entry.W00 << " " << entry.ReW0z << " " << entry.Wxx << " " << entry.ImWxy << " " << entry.Wzz << std::endl;
+      //  std::cout<< "File:  " << W00 << " " << ReW0z << " " << Wxx << " " << ImWxy << " " << Wzz << std::endl;
+      //}
+      lineCount++;
     }
   }
 }
@@ -328,6 +359,188 @@ double genie::TabulatedValenciaHadronTensor::dSigma_dT_dCosTheta(int probe_pdg,
 
     xsec = (2. / genie::constants::kPi) * k_final * El
       * genie::constants::kGF2 * all_terms;
+  }
+
+  return xsec;
+}
+
+double genie::TabulatedValenciaHadronTensor::dSigma_dT_dCosTheta_rosenbluth(
+ const Interaction* interaction, double Q_value) const
+{
+  // Don't do anything if you've been handed a nullptr
+  if ( !interaction ) return 0.;
+
+  int probe_pdg     = interaction->InitState().ProbePdg();
+  double E_probe    = interaction->InitState().ProbeE(kRfLab);
+  double m_probe    = interaction->InitState().Probe()->Mass();
+  double Tl      = interaction->Kine().GetKV(kKVTl);
+  double cos_l   = interaction->Kine().GetKV(kKVctl);
+  double ml      = interaction->FSPrimLepton()->Mass();
+
+  return dSigma_dT_dCosTheta_rosenbluth(probe_pdg, E_probe, m_probe, Tl, cos_l, ml,
+    Q_value);
+}
+
+double genie::TabulatedValenciaHadronTensor::dSigma_dT_dCosTheta_rosenbluth(int probe_pdg,
+  double E_probe, double m_probe, double Tl, double cos_l, double ml,
+  double Q_value) const
+{
+  // dSigma_dT_dCosTheta in GeV^(-3)
+  double xsec = 0.;
+
+  /// \todo Add check if in grid. If not, return 0
+
+  // Final state lepton total energy
+  double El = Tl + ml;
+
+  // Energy transfer (uncorrected)
+  double q0 = E_probe - El;
+
+  // The corrected energy transfer takes into account the binding
+  // energy of the struck nucleon(s)
+  double q0_corrected = q0 - Q_value;
+
+  // Magnitude of the initial state lepton 3-momentum
+  double k_initial = real_sqrt( std::pow(E_probe, 2) - std::pow(m_probe, 2) );
+
+  // Magnitude of the final state lepton 3-momentum
+  double k_final = real_sqrt( std::pow(Tl, 2) + 2*ml*Tl );
+
+  // Magnitude of the 3-momentum transfer
+  double q_mag2 = std::pow(k_initial, 2) + std::pow(k_final, 2)
+    - 2.*k_initial*k_final*cos_l;
+  double q_mag = real_sqrt( q_mag2 );
+
+  // Find the appropriate values of the hadron tensor elements for the
+  // given combination of q0_corrected and q_mag
+  TableEntry entry = fGrid.interpolate(q0_corrected, q_mag);
+
+  // The half-angle formulas come in handy here. See, e.g.,
+  // http://mathworld.wolfram.com/Half-AngleFormulas.html
+  double s2_half = (1. - cos_l) / 2.; // sin^2(theta/2) = (1 - cos(theta)) / 2
+  double c2_half = 1. - s2_half; // cos^2(theta / 2) = 1 - sin^2(theta / 2)
+
+  // Calculate a nonzero cross section only for incident (anti)electrons
+  // or (anti)neutrinos
+  int abs_probe_pdg = std::abs(probe_pdg);
+
+  // This Q^2 is defined as negative (Q^2<0)
+  double q2 = std::pow(q0, 2) - q_mag2;
+
+  /// \todo Add any needed changes for positron projectiles
+  if ( probe_pdg == genie::kPdgElectron ) {
+    // (e,e') differential cross section
+
+    //   double mott = std::pow(
+    //   genie::constants::kAem / (2. * E_probe * s2_half), 2) * c2_half;
+    // the previous expression was an approximation in the case of ml-->0 (UR limit).
+    // To be more accurate, SIGMA_MOTT SHOULD BE EXPRESSED AS:
+    double mott = std::pow(2.*El*genie::constants::kAem / q2, 2) * c2_half;
+    // ALTHOUGH THE DIFFERENCES SHOULD BE VERY SMALL OR NEGLIGIBLE
+
+    // Longitudinal part
+    double l_part = std::pow(q2 / q_mag2, 2) * entry.W00;
+
+    // Transverse part
+    double t_part = ( (2.*s2_half / c2_half) - (q2 / q_mag2) ) * entry.Wxx;
+
+    // This is the double diff cross section dsigma/dOmega/domega==dsigma/dOmega/dEl
+
+    //xsec = (2. * genie::constants::kPi) * mott * (l_part + t_part);
+
+    //Bug in HT means we Wxx is off by factor of 2
+    xsec = (2. * genie::constants::kPi) * mott * (l_part + t_part/2.);
+
+    //std::cout << "Electron debugging: " << std::endl;
+    //std::cout << "xsec(NU) is " << xsec << std::endl;
+    //std::cout << "xsec     is " << xsec/units::cm2 << std::endl;
+    //std::cout << "mott(NU) is " << mott << std::endl;
+    //std::cout << "mott     is " << mott/units::cm2 << std::endl;
+    //std::cout << "c2_half  is " << c2_half  << std::endl;
+    //std::cout << "q2       is " << q2  << std::endl;
+    //std::cout << "W00      is " << entry.W00  << std::endl;
+    //std::cout << "l_part   is " << l_part/entry.W00  << std::endl;
+    //std::cout << "t_part   is " << t_part/entry.Wxx  << std::endl;
+    //std::cout << "W11      is " << entry.Wxx  << std::endl << std::endl;
+
+
+  }
+  // This is the double diff cross section dsigma/dcostheta/domega==dsigma/dcostheta/dEl
+
+  else if ( abs_probe_pdg == genie::kPdgNuE
+    || abs_probe_pdg == genie::kPdgNuMu
+    || abs_probe_pdg == genie::kPdgNuTau )
+  {
+
+    // sigma_0 (sig0) for neutrinos. Similar to sigma_mott for electrons
+    double v0=4.*El*E_probe+q2; // global factor v_0==cos^2(\tilde\theta/2)
+    double Vud = 0.97417; // Cabibbo angle
+    //GetParam("CKM-Vud", Vud); // I don't know what to include to make this work
+    double fVud2 = std::pow(Vud, 2);
+    double sig0 = genie::constants::kGF2 * fVud2 * v0 * k_final / (4. * genie::constants::kPi *  E_probe);
+
+    // Definition of dimensionless factors
+    double xdelta=ml/sqrt(-q2); // delta
+    double xrho=-q2/q_mag2;
+    double xrhop=q_mag/(El+E_probe);
+    double tan2th2=-q2/v0;
+
+    // Definition of the lepton kinematic factors, V_K, related to the lepton tensor
+    double VCC=1-std::pow(xdelta, 2)*tan2th2;
+    double VCL=q0/q_mag+tan2th2*std::pow(xdelta, 2)/xrhop;
+    double VLL=std::pow(q0, 2)/q_mag2+std::pow(xdelta, 2)*tan2th2*(1.+2.*q0/q_mag/xrhop+xrho*std::pow(xdelta, 2));
+    double VT=xrho/2.+tan2th2-tan2th2*std::pow(xdelta, 2)/xrhop*(q0/q_mag+std::pow(xdelta, 2)*xrho*xrhop/2.);
+    double VTP=tan2th2/xrhop*(1-q0/q_mag*xrhop*std::pow(xdelta, 2));
+
+    // Definition of the hadron (nuclear) response functions, R_K, related to the hadron (nuclear) tensor, Wij.
+
+    double RCC=entry.W00;
+    double RCL=-entry.ReW0z; // RCL must be always negative
+    double RLL=entry.Wzz;
+    double RT=2.*entry.Wxx;
+    double RTP=-entry.ImWxy; // RTP must be positive for nu and negative for nubar
+    if (probe_pdg < 0) RTP *= -1; // THIS IS FOR NUBAR
+
+
+    // Determination of the double differential cross section: dsigma/dcostheta_l/dEl. In order to calculate dsigma/dcostheta_l/dp_l, the c.s. must be multiplied by k_final/El 
+    xsec= sig0*(VCC*RCC+2.*VCL*RCL+VLL*RLL+VT*RT+2.*VTP*RTP);//*xcorr
+
+
+    // This should never happen using the full SuSAv2-MEC hadron tensors
+    // but can trigger when using the tensors from the parameterisation    
+    if(xsec<0){ 
+      xsec=0.; 
+    } 
+
+    //std::cout << "Interaction kinematics: " << std::endl;
+    //std::cout << " E_probe is: " << E_probe << std::endl;
+    //std::cout << " El      is: " << El      << std::endl;
+    //std::cout << " cos_l   is: " << cos_l   << std::endl;
+    //std::cout << " ml      is: " << ml      << std::endl;
+    //std::cout << " q0      is: " << q0      << std::endl;
+    //std::cout << " q_mag   is: " << q_mag   << std::endl;    
+    //std::cout << "Neutrino debugging: " << std::endl;
+    //std::cout << "xsec is " << xsec/units::cm2 << std::endl;
+    //std::cout << "sig0 is " << sig0/units::cm2 << std::endl;
+    //std::cout << "VCC  is " << VCC  << std::endl;
+    //std::cout << "RCC  is " << RCC  << std::endl;
+    //std::cout << "VCL  is " << VCL  << std::endl;
+    //std::cout << "RCL  is " << RCL  << std::endl;
+    //std::cout << "VLL  is " << VLL  << std::endl;
+    //std::cout << "RLL  is " << RLL  << std::endl;
+    //std::cout << "VT   is " << VT   << std::endl;
+    //std::cout << "RT   is " << RT   << std::endl;
+    //std::cout << "VTP  is " << VTP  << std::endl;
+    //std::cout << "RTP  is " << RTP  << std::endl;
+    //std::cout << "Lepton Factor Components: " << std::endl;
+    //std::cout << "xrho: " <<  xrho << std::endl;
+    //std::cout << "xrhop: " <<  xrhop << std::endl;
+    //std::cout << "tan2th2: " << tan2th2 << std::endl;
+    //std::cout << "xdelta: " << xdelta << std::endl;
+    //std::cout << "q0: " << q0 << std::endl;
+    //std::cout << "q_mag: " << q_mag << std::endl;
+    //std::cout << "q2: " << q2 << std::endl << std::endl;
+
   }
 
   return xsec;

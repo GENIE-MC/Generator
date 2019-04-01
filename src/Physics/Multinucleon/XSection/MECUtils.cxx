@@ -19,6 +19,9 @@
 #include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/Conventions/Units.h"
+#include "Physics/HadronTensors/HadronTensorPool.h"
+#include "Physics/HadronTensors/ValenciaHadronTensorI.h"
+#include "Physics/HadronTensors/HadronTensorI.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -197,4 +200,128 @@ double genie::utils::mec::Qvalue(int targetpdg, int nupdg)
   // mass, so don't need this.
 
   return massf - massi;  // in GeV.
+}
+//______________________________________________________________________
+double genie::utils::mec::OldTensorContraction(
+  int nupdg, int targetpdg,
+  double Enu, double Ml, double Tl, double costhl,
+  int tensorpdg,
+  HadronTensorType_t tensor_type,
+  char* tensor_model)
+{
+  TLorentzVector v4lep;
+  TLorentzVector v4Nu(0,0,Enu,Enu); // assuming traveling along z:
+  TLorentzVector v4q;
+  double q0nucleus;  
+  double facconv = 0.0389391289e15; // std::pow(0.19733,2)*1e15;
+
+  HadronTensorPool& htp = HadronTensorPool::Instance();
+  
+  double myQvalue = 0.0;
+  
+  // Angles
+  double sinthl = 1. - costhl * costhl;
+  if(sinthl < 0.0) sinthl = 0.0;
+  else sinthl = TMath::Sqrt(sinthl);
+  
+  double Cosh = TMath::Cos(TMath::ACos(costhl)/2.);
+  double Sinh = TMath::Sin(TMath::ACos(costhl)/2.);
+  
+  // Lepton
+  v4lep.SetE( Tl + Ml );
+  // energy transfer from the lepton
+  double q0 = v4Nu.E() - v4lep.E(); 
+  // energy transfer that actually gets to the nucleons
+  q0nucleus = q0 - myQvalue;
+
+  //Get q3
+  double pl = TMath::Sqrt(v4lep.E() * v4lep.E() - Ml * Ml);
+  double q3sq = pl * pl + Enu * Enu - 2.0 * pl * Enu * costhl;
+  double q3 = sqrt(q3sq);
+  
+  // Define some calculation placeholders
+  double part1, part2;
+  double modkprime ;  
+  double w1, w2, w3, w4, w5;
+  double wtotd[5];
+
+  double xsec = 0;
+  if (q0nucleus <= 0){
+    //nothing transfered to nucleus thus no 2p2h
+    xsec = 0.;
+  } else {
+    // energy was transfered to the nucleus
+    modkprime = std::sqrt(TMath::Power(v4lep.E(),2)-TMath::Power(Ml,2));
+    v4lep.SetX(modkprime*sinthl);
+    v4lep.SetY(0);
+    v4lep.SetZ(modkprime*costhl);
+    
+    //q: v4q = v4Nu - v4lep; 
+    v4q.SetE(q0nucleus);
+    v4q.SetX(v4Nu.X() - v4lep.X());
+    v4q.SetY(v4Nu.Y() - v4lep.Y());
+    v4q.SetZ(v4Nu.Z() - v4lep.Z());
+    
+
+    const ValenciaHadronTensorI* tensor_table
+      = dynamic_cast<const ValenciaHadronTensorI*>( htp.GetTensor(targetpdg,
+      tensor_type, tensor_model) );
+    
+    
+    double W00 = (tensor_table->tt(q0nucleus,q3)).real();
+    double W0Z = (tensor_table->tz(q0nucleus,q3)).real();
+    double WXX = (tensor_table->xx(q0nucleus,q3)).real();
+    double WXY = -1.0*(tensor_table->xy(q0nucleus,q3)).imag();
+    double WZZ = (tensor_table->zz(q0nucleus,q3)).real();
+
+    w1=WXX/2.;
+    w2=(W00+WXX+(q0*q0/(v4q.Vect().Mag()*v4q.Vect().Mag())
+                           *(WZZ-WXX))
+          -(2.*q0/v4q.Vect().Mag()*W0Z))/2.;
+    w3=WXY/v4q.Vect().Mag();
+    w4=(WZZ-WXX)/(2.*v4q.Vect().Mag()*v4q.Vect().Mag());
+    w5=(W0Z-(q0/v4q.Vect().Mag()*(WZZ-WXX)))/v4q.Vect().Mag();
+    //w6 we have no need for w6, noted at the end of IIA.
+  
+    // adjust for anti neutrinos
+
+    if (nupdg < 0) w3 = -1. * w3;
+    
+    // calculate cross section, in parts
+    double xw1 = w1*costhl;
+    double xw2 = w2/2.*costhl;
+    double xw3 = w3/2.*(v4lep.E()+modkprime-(v4lep.E()+v4Nu.E())*costhl);
+    double xw4 = w4/2.*(Ml*Ml*costhl+2.*v4lep.E()*(v4lep.E()+modkprime)*Sinh*Sinh);
+    double xw5 = w5*(v4lep.E()+modkprime)/2.;
+    part1 = xw1 - xw2 + xw3 + xw4 - xw5;
+    
+    double yw1 = 2.*w1*Sinh*Sinh;
+    double yw2 = w2*Cosh*Cosh;
+    double yw3 = w3*(v4lep.E()+v4Nu.E())*Sinh*Sinh;
+    double yw4 = Ml*Ml*part1/(v4lep.E()*(v4lep.E()+modkprime));
+    part2 = yw1 + yw2 - yw3 + yw4;
+    
+    xsec = modkprime*v4lep.E()*kGF2*2./kPi*part2*facconv;
+
+    if( ! (xsec >= 0.0) ){
+      // Traps negative numbers and nan's.
+      // Sometimes costhl is just over 1.0 due to fluke or numerical
+      // precision, so sinthl would be undefined.
+      xsec = 0;
+    }
+  }
+  if((Enu>1.15 && Enu<1.25) && (v4q.Vect().Mag()>0.615 && v4q.Vect().Mag()<0.625) &&  (q0<0.500 && q0>0.490))
+    LOG("MECUtils", pFATAL)//SB
+         << "Got xsec = " << xsec
+         << "\n " << part1 << " " << part2
+         << "\n w[] : " << w1 << ", " << w2 << ", " << w3 << ", " << w4 << ", " << w5
+         << "\n wtotd[] : " << wtotd[0] << ", " << wtotd[1] << ", " << wtotd[2] << ", " << wtotd[3] << ", " << wtotd[4]
+         << "\n vec " << v4q.Vect().Mag() << ", " << q0  << ", " << v4q.Px() << ", " << v4q.Py() << ", " << v4q.Pz()
+         << "\n v4qX " << v4Nu.X() << ", " << v4lep.X() << ", " << costhl << ", " << sinthl << ", " << modkprime
+   << "\n input " << Enu << ", " << Ml << ", " << Tl << ", " <<costhl << ", " << v4q.Vect().Mag() << ", " << q0;
+  
+  //LOG("MECUtils", pFATAL) << "xsec(Enu = " << Enu << " GeV, Ml = " << Ml << " GeV; " << "Tl = " << Tl << " GeV, costhl = " << costhl << ") = " << xsec << " x 1E-41 cm^2";
+
+  //return (xsec * (1.0E-39 * units::cm2));
+  return (xsec);
 }

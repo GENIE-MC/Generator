@@ -17,6 +17,8 @@
 #ifndef _MEC_UTILS_H_
 #define _MEC_UTILS_H_
 
+#include "Physics/HadronTensors/HadronTensorI.h"
+
 namespace genie {
 
 class Interaction;
@@ -53,6 +55,10 @@ namespace mec   {
   // Contributed by R.Gran.
   double Qvalue(int targetpdg, int nupdg);
 
+
+  //Version of the tesor contraction in GENIE 2.12.X (modified to use new hadron tensor pool) for debugging purposes
+  //double OldTensorContraction(int nupdg, int targetpdg, double Enu, double Ml, double Tl, double costhl, int tensorpdg, genie::HadronTensorType_t tensor_type, char* tensor_model);
+  double OldTensorContraction(int nupdg, int targetpdg, double Enu, double Ml, double Tl, double costhl, int tensorpdg, genie::HadronTensorType_t tensor_type, char* tensor_model );
 } // mec   namespace
 } // utils namespace
 } // genie namespace

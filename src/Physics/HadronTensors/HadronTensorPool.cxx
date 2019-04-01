@@ -49,26 +49,32 @@ namespace {
   genie::HadronTensorType_t string_to_tensor_type(const std::string& str,
     bool& ok)
   {
-    if (str == "MEC_FullAll") return genie::HadronTensorType::kHT_MEC_FullAll;
+    if (str == "MEC_FullAll") return genie::kHT_MEC_FullAll;
     else if (str == "MEC_Fullpn")
-      return genie::HadronTensorType::kHT_MEC_Fullpn;
+      return genie::kHT_MEC_Fullpn;
     else if (str == "MEC_DeltaAll")
-      return genie::HadronTensorType::kHT_MEC_DeltaAll;
+      return genie::kHT_MEC_DeltaAll;
     else if (str == "MEC_Deltapn")
-      return genie::HadronTensorType::kHT_MEC_Deltapn;
+      return genie::kHT_MEC_Deltapn;
     else if (str == "MEC_EM")
-      return genie::HadronTensorType::kHT_MEC_EM;
+      return genie::kHT_MEC_EM;
     else if (str == "QE_EM")
-      return genie::HadronTensorType::kHT_QE_EM;
+      return genie::kHT_QE_EM;
+    else if (str == "MEC_FullAll_Param")
+      return genie::kHT_MEC_FullAll_Param;
+    else if (str == "MEC_FullAll_wImag")
+      return genie::kHT_MEC_FullAll_wImag;
+    else if (str == "QE_Full")
+      return genie::kHT_QE_Full;
     else {
       ok = false;
-      return genie::HadronTensorType::kHT_Undefined;
+      return genie::kHT_Undefined;
     }
   }
 
   /// Returns true if a given file exists and is accessible, or false otherwise
   bool file_exists(const std::string& file_name) {
-    return std::ifstream(file_name).good();
+    return std::ifstream(file_name.c_str()).good();
   }
 
   /// Helper function for comparing xmlNode names and string literals. It helps
@@ -114,6 +120,9 @@ const genie::HadronTensorI* genie::HadronTensorPool::GetTensor(
   int tensor_pdg, genie::HadronTensorType_t type,
   const std::string& table_name)
 {
+
+  LOG("HadronTensorPool", pDEBUG)  << "GetTensor: START";
+
   HadronTensorID temp_id(tensor_pdg, type, table_name);
 
   // First check to see if the hadron tensor object already exists in memory.
@@ -123,6 +132,11 @@ const genie::HadronTensorI* genie::HadronTensorPool::GetTensor(
   else if ( fTensorAttributes.count(temp_id) ) {
     return BuildTensor( temp_id, fTensorAttributes.at(temp_id) );
   }
+
+  LOG("HadronTensorPool", pWARN) << "Unable to create the hadron tensor"
+    << " given in the table " << temp_id.table_name
+    << "\" for target pdg = " << temp_id.target_pdg
+    << " and hadron tensor type " << temp_id.type;
 
   // Otherwise, give up and return a null pointer
   return NULL;
@@ -160,7 +174,8 @@ bool genie::HadronTensorPool::LoadConfig(void)
 std::string genie::HadronTensorPool::FindTensorTableFile(
   const std::string& basename, const std::string& table_name, bool& ok) const
 {
-  const auto& path_vec = fDataPaths.at(table_name);
+  //const auto& path_vec = fDataPaths.at(table_name);
+  const std::vector<std::string> path_vec = fDataPaths.at(table_name);
   for (size_t p = 0; p < path_vec.size(); ++p) {
     const std::string& path = path_vec.at(p);
     std::string full_name = path + '/' + basename;
@@ -336,6 +351,9 @@ genie::XmlParserStatus_t genie::HadronTensorPool::ParseXMLConfig(
 const genie::HadronTensorI* genie::HadronTensorPool::BuildTensor(
   const HadronTensorID& tensor_id, const HadronTensorXMLAttributes& attributes)
 {
+
+  LOG("HadronTensorPool", pDEBUG)  << "Building tensor based on XML attributes";
+
   // Determine the right way to build the tensor based on its "calc" XML
   // attribute
   if ( attributes.calc == "table" ) {

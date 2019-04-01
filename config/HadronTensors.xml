@@ -103,6 +103,12 @@
       <!-- 12C --> <nuclide pdg="1000060120">
         <tensor type="MEC_FullAll" calc="table"
           file="SuSAv2_1000060120_MEC_FullAll.dat"/>
+        <tensor type="MEC_Fullpn" calc="table"
+          file="SuSAv2_1000060120_MEC_Fullpn.dat"/>
+        <tensor type="MEC_FullAll_Param" calc="table"
+          file="SuSAv2_1000060120_MEC_FullAll_Param.dat"/>
+        <tensor type="MEC_FullAll_wImag" calc="table"
+          file="SuSAv2_1000060120_MEC_FullAll_wImag.dat"/> 
         <tensor type="MEC_EM" calc="table" file="SuSAv2_1000060120_MEC_EM.dat"/>
       </nuclide>
 
@@ -110,6 +116,18 @@
         <tensor type="MEC_FullAll" calc="table"
           file="SuSAv2_1000080160_MEC_FullAll.dat"/>
         <tensor type="MEC_EM" calc="table" file="SuSAv2_1000080160_MEC_EM.dat"/>
+      </nuclide>
+
+    </tensor_table>
+
+    <tensor_table name="SuSAv2_QE">
+      <data_paths>
+        <path type="relative"> data/evgen/hadron_tensors/susav2 </path>
+      </data_paths>
+
+      <!-- 12C --> <nuclide pdg="1000060120">
+        <tensor type="QE_Full" calc="table" file="SuSAv2_1000060120_QE_Full.dat"/>
+        <tensor type="QE_EM" calc="table" file="SuSAv2_1000060120_QE_Full.dat"/>
       </nuclide>
 
     </tensor_table>

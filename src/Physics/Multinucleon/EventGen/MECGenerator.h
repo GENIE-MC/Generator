@@ -57,6 +57,7 @@ private:
   void    RecoilNucleonCluster              (GHepRecord * event) const;
   void    DecayNucleonCluster               (GHepRecord * event) const;
   void    SelectNSVLeptonKinematics         (GHepRecord * event) const;
+  void    SelectSuSALeptonKinematics        (GHepRecord * event) const;
   void    GenerateNSVInitialHadrons         (GHepRecord * event) const;
   PDGCodeList NucleonClusterConstituents    (int pdgc)           const;
 

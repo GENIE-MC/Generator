@@ -166,8 +166,8 @@ protected:
     bool within = true;
 
     typedef typename std::vector<Type>::const_iterator Iterator;
-    Iterator begin = vec->cbegin();
-    Iterator end = vec->cend();
+    Iterator begin = vec->begin();
+    Iterator end = vec->end();
 
     // std::lower_bound returns an iterator to the first element of the
     // container which is not less than the supplied value

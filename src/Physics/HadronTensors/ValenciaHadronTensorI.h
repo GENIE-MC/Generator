@@ -213,6 +213,14 @@ public:
     double m_probe, double Tl, double cos_l, double ml, double Q_value)
     const /*override*/ = 0;
 
+
+  //As above but using the rosenbluth formalism: should give the same result!
+  virtual double dSigma_dT_dCosTheta_rosenbluth(const Interaction* interaction,
+    double Q_value) const = 0;
+  virtual double dSigma_dT_dCosTheta_rosenbluth(int probe_pdg, double E_probe,
+    double m_probe, double Tl, double cos_l, double ml, double Q_value)
+    const /*override*/ = 0;
+
 protected:
 
   inline ValenciaHadronTensorI(int pdg = 0) : HadronTensorI(pdg) {}

@@ -54,6 +54,14 @@ private:
   /// Load algorithm configuration
   void LoadConfig (void);
 
+  //debugging xsec draw
+  void Scanq0q3 (void);
+  void Scanq0q3_np (void);
+  void Scanq0q3_electron (void);
+
+  //for buildingRWhistograms
+  void buildRWhistos (void);  
+
   /// External scaling factor for this cross section
   double fXSecScale;
 
