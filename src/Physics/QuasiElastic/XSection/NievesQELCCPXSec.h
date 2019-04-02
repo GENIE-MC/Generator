@@ -89,6 +89,10 @@ private:
   /// the initial hit nucleon during spline generation
   QELEvGen_BindingMode_t fIntegralNucleonBindingMode;
 
+  /// Cutoff lab-frame probe energy above which the effects of Fermi motion and
+  /// binding energy are ignored when computing the total cross section
+  double fEnergyCutOff;
+
   /// Whether to apply Pauli blocking in XSec()
   bool fDoPauliBlocking;
   /// The PauliBlocker instance to use to apply that correction

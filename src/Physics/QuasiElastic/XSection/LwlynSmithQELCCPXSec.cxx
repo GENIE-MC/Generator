@@ -457,10 +457,8 @@ void LwlynSmithQELCCPXSec::LoadConfig(void)
 
   fEnergyCutOff = 0.;
 
-  if(fDoAvgOverNucleonMomentum) {
-    // Get averaging cutoff energy
-	  GetParamDef("IntegralNuclearInfluenceCutoffEnergy", fEnergyCutOff, 2.0 ) ;
-  }
+  // Get averaging cutoff energy
+  GetParamDef("IntegralNuclearInfluenceCutoffEnergy", fEnergyCutOff, 2.0 ) ;
 
   // Method to use to calculate the binding energy of the initial hit nucleon when
   // generating splines
