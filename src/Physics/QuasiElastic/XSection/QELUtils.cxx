@@ -142,6 +142,14 @@ double genie::utils::ComputeFullQELPXSec(genie::Interaction* interaction,
   TVector3 zvec(0., 0., 1.);
   TVector3 rot = ( zvec.Cross(beta) ).Unit();
   double angle = beta.Angle( zvec );
+
+  // Handle the edge case where beta is along -z, so the
+  // cross product above vanishes
+  if ( beta.Perp() == 0. && beta.Z() < 0. ) {
+    rot = TVector3(0., 1., 0.);
+    angle = genie::constants::kPi;
+  }
+
   // Rotate if the rotation vector is not 0
   if ( rot.Mag() >= genie::controls::kASmallNum ) {
     lepton3Mom.Rotate(angle, rot);

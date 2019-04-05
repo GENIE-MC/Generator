@@ -240,6 +240,13 @@ double NievesQELCCPXSec::XSec(const Interaction * interaction,
   // Angle between the z direction and q
   double angle = zvec.Angle( q3VecTilde );
 
+  // Handle the edge case where q3VecTilde is along -z, so the
+  // cross product above vanishes
+  if ( q3VecTilde.Perp() == 0. && q3VecTilde.Z() < 0. ) {
+    rot = TVector3(0., 1., 0.);
+    angle = kPi;
+  }
+
   // Rotate if the rotation vector is not 0
   if ( rot.Mag() >= kASmallNum ) {
 
