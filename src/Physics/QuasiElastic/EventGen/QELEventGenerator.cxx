@@ -221,6 +221,7 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
             // reset bits
             interaction->ResetBit(kISkipProcessChk);
             interaction->ResetBit(kISkipKinematicChk);
+            interaction->ResetBit(kIAssumeFreeNucleon);
 
             // get neutrino energy at struck nucleon rest frame and the
             // struck nucleon mass (can be off the mass shell)

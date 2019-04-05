@@ -113,10 +113,9 @@ private:
   // variables. If target is not a nucleus, then CN, CN, and CL are all 1.0.
   // r must be in units of fm.
   void CNCTCLimUcalc(TLorentzVector qTildeP4, double M, double r,
-		     bool is_neutrino, bool tgtIsNucleus, int tgt_pdgc,
-		     int A, int Z, int N, bool hitNucIsProton,
-		     double & CN, double & CT, double & CL,
-		     double & imU, double & t0, double & r00) const;
+    bool is_neutrino, bool tgtIsNucleus, int tgt_pdgc, int A, int Z, int N,
+    bool hitNucIsProton, double & CN, double & CT, double & CL, double & imU,
+    double & t0, double & r00, bool assumeFreeNucleon) const;
 
   //Equations to calculate the relativistic Lindhard function for Amunu
   std::complex<double> relLindhardIm(double q0gev, double dqgev,
@@ -141,13 +140,9 @@ private:
   int leviCivita(int input[]) const;
 
   double LmunuAnumu(const TLorentzVector neutrinoMom,
-		    const TLorentzVector inNucleonMom,
-		    const TLorentzVector leptonMom,
-		    const TLorentzVector outNucleonMom,
-		    double M, double r, bool is_neutrino,
-		    bool tgtIsNucleus,
-		    int tgt_pdgc, int A, int Z, int N,
-		    bool hitNucIsProton) const;
+    const TLorentzVector inNucleonMom, const TLorentzVector leptonMom,
+    const TLorentzVector outNucleonMom, double M, bool is_neutrino,
+    const Target& target, bool assumeFreeNucleon) const;
 
   // NOTE: THE FOLLOWING CODE IS FOR TESTING PURPOSES ONLY
   // Used to print tensor elements and various inputs for comparison to Nieves'

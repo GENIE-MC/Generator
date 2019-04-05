@@ -157,16 +157,8 @@ double NievesQELCCPXSec::XSec(const Interaction * interaction,
   double coulombFactor = 1.0;
   double plLocal = leptonMom.P();
 
-  // Store the extra parameters needed to compute the contraction of the
-  // leptonic and hadronic tensors LmunuAnumu
   bool is_neutrino = pdg::IsNeutrino(init_state.ProbePdg());
   double r = target.HitNucPosition();
-  bool tgtIsNucleus = target.IsNucleus();
-  int tgt_pdgc = target.HitNucPdg();
-  int A = target.A();
-  int Z = target.Z();
-  int N = target.N();
-  bool hitNucIsProton = pdg::IsProton(target.HitNucPdg());
 
   if ( fCoulomb ) {
     // Coulomb potential
@@ -299,8 +291,8 @@ double NievesQELCCPXSec::XSec(const Interaction * interaction,
   // the effective 4-momentum transfer q tilde (corrected for the nucleon
   // binding energy and Coulomb effects)
   double LmunuAnumuResult = LmunuAnumu(neutrinoMom, inNucleonMomOnShell,
-    leptonMom, qTildeP4, mNucleon, r, is_neutrino, tgtIsNucleus, tgt_pdgc,
-    A, Z, N, hitNucIsProton);
+    leptonMom, qTildeP4, mNucleon, is_neutrino, target,
+    interaction->TestBit( kIAssumeFreeNucleon ));
 
   // Calculate xsec
   double xsec = Gfactor*coulombFactor*LmunuAnumuResult;
@@ -493,14 +485,11 @@ void NievesQELCCPXSec::LoadConfig(void)
 }
 //___________________________________________________________________________
 void NievesQELCCPXSec::CNCTCLimUcalc(TLorentzVector qTildeP4,
-                                     double M, double r, bool is_neutrino,
-                                     bool tgtIsNucleus, int tgt_pdgc,
-                                     int A, int Z, int N, bool hitNucIsProton,
-                                     double & CN, double & CT, double & CL,
-                                     double & imaginaryU,
-                                     double & t0, double & r00) const
+  double M, double r, bool is_neutrino, bool tgtIsNucleus, int tgt_pdgc,
+  int A, int Z, int N, bool hitNucIsProton, double & CN, double & CT, double & CL,
+  double & imaginaryU, double & t0, double & r00, bool assumeFreeNucleon) const
 {
-  if ( tgtIsNucleus ) {
+  if ( tgtIsNucleus && !assumeFreeNucleon ) {
     double dq = qTildeP4.Vect().Mag();
     double dq2 = TMath::Power(dq,2);
     double q2 = 1 * qTildeP4.Mag2();
@@ -569,7 +558,8 @@ void NievesQELCCPXSec::CNCTCLimUcalc(TLorentzVector qTildeP4,
 
     CT = 1.0/TMath::Power(abs(1.0-relLinTot*Vt),2);
     CL = 1.0/TMath::Power(abs(1.0-relLinTot*Vl),2);
-  }else{
+  }
+  else {
     //Polarization Coefficients: all equal to 1.0 for free nucleon
     CN = 1.0;
     CT = 1.0;
@@ -900,14 +890,18 @@ int NievesQELCCPXSec::leviCivita(int input[]) const{
 // expressions used here are valid in a frame in which the
 // initial nucleus is at rest, and qTilde must be in the z direction.
 double NievesQELCCPXSec::LmunuAnumu(const TLorentzVector neutrinoMom,
-                                    const TLorentzVector inNucleonMomOnShell,
-                                    const TLorentzVector leptonMom,
-                                    const TLorentzVector qTildeP4,
-                                    double M, double r, bool is_neutrino,
-                                    bool tgtIsNucleus,
-                                    int tgt_pdgc, int A, int Z, int N,
-                                    bool hitNucIsProton) const
+const TLorentzVector inNucleonMomOnShell, const TLorentzVector leptonMom,
+const TLorentzVector qTildeP4, double M, bool is_neutrino,
+const Target& target, bool assumeFreeNucleon) const
 {
+  double r = target.HitNucPosition();
+  bool tgtIsNucleus = target.IsNucleus();
+  int tgt_pdgc = target.Pdg();
+  int A = target.A();
+  int Z = target.Z();
+  int N = target.N();
+  bool hitNucIsProton = pdg::IsProton( target.HitNucPdg() );
+
   const double k[4] = {neutrinoMom.E(),neutrinoMom.Px(),neutrinoMom.Py(),neutrinoMom.Pz()};
   const double kPrime[4] = {leptonMom.E(),leptonMom.Px(),
                             leptonMom.Py(),leptonMom.Pz()};
@@ -946,16 +940,17 @@ double NievesQELCCPXSec::LmunuAnumu(const TLorentzVector neutrinoMom,
 
   double t0,r00;
   double CN=1.,CT=1.,CL=1.,imU=0;
-  CNCTCLimUcalc(qTildeP4,M,r,is_neutrino,tgtIsNucleus,
-                tgt_pdgc,A,Z,N,hitNucIsProton,
-                CN,CT,CL,imU,t0,r00);
-  if(imU > kASmallNum)
+  CNCTCLimUcalc(qTildeP4, M, r, is_neutrino, tgtIsNucleus,
+    tgt_pdgc, A, Z, N, hitNucIsProton, CN, CT, CL, imU,
+    t0, r00, assumeFreeNucleon);
+
+  if ( imU > kASmallNum )
     return 0.;
 
-  if(! fRPA){
-    CN=1.0;
-    CT=1.0;
-    CL=1.0;
+  if ( !fRPA || assumeFreeNucleon ) {
+    CN = 1.0;
+    CT = 1.0;
+    CL = 1.0;
   }
 
   double tulin[4] = {0.,0.,0.,0.};
@@ -1134,7 +1129,7 @@ double NievesQELCCPXSec::LmunuAnumu(const TLorentzVector neutrinoMom,
 
   // Since the real parts of A and L are both symmetric and the imaginary
   // parts are antisymmetric, the contraction should be real
-  if(imag(sum) > kASmallNum)
+  if ( imag(sum) > kASmallNum )
     LOG("Nieves",pWARN) << "Imaginary part of tensor contraction is nonzero "
                         << "in QEL XSec, real(sum) = " << real(sum)
                         << "imag(sum) = " << imag(sum);
@@ -1241,12 +1236,6 @@ void NievesQELCCPXSec::CompareNievesTensors(const Interaction* in)
   double M  = target.HitNucMass();
   double ml = interaction->FSPrimLepton()->Mass();
   bool is_neutrino = pdg::IsNeutrino(init_state.ProbePdg());
-  bool tgtIsNucleus = target.IsNucleus();
-  int tgt_pdgc = target.HitNucPdg();
-  int A = target.A();
-  int Z = target.Z();
-  int N = target.N();
-  bool hitNucIsProton = pdg::IsProton(target.HitNucPdg());
 
   // Iterate over lepton energy (which then affects q, which is passed to
   // LmunuAnumu using in and out NucleonMom
@@ -1299,8 +1288,8 @@ void NievesQELCCPXSec::CompareNievesTensors(const Interaction* in)
     // TODO: apply Coulomb correction to 3-momentum transfer dq
 
     fFormFactors.Calculate(interaction);
-    LmunuAnumu(neutrinoMom,inNucleonMomOnShell,leptonMom,qTildeP4,
-               M,r,is_neutrino,tgtIsNucleus,tgt_pdgc,A,Z,N,hitNucIsProton);
+    LmunuAnumu(neutrinoMom, inNucleonMomOnShell, leptonMom, qTildeP4,
+               M, is_neutrino, target, false);
   }
   return;
 } // END TESTING CODE

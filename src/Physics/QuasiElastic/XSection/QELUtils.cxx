@@ -248,20 +248,6 @@ double genie::utils::CosTheta0Max(const genie::Interaction& interaction) {
   return cos_theta0_max;
 }
 
-std::string genie::utils::VecToString(const TVector3& vec)
-{
-  std::stringstream ss;
-  ss << '(' << vec.X() << ", " << vec.Y() << ", " << vec.Z() << ')';
-  return ss.str();
-}
-
-std::string genie::utils::LVecToString(const TLorentzVector& lvec)
-{
-  std::stringstream ss;
-  ss << "E = " << lvec.E() << ", p = ";
-  return ss.str() + genie::utils::VecToString( lvec.Vect() );
-}
-
 void genie::utils::BindHitNucleon(genie::Interaction& interaction,
   const genie::NuclearModelI& nucl_model, double& Eb,
   genie::QELEvGen_BindingMode_t hitNucleonBindingMode)
