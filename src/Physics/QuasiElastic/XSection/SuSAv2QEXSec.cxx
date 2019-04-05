@@ -201,7 +201,7 @@ void SuSAv2QEXSec::LoadConfig(void)
   assert(fXSecIntegrator);
 
   //uncomment this to make histo output on a 2D grid for validation
-  this->Scanq0q3();
+  //this->Scanq0q3();
   //this->Scanq0q3_np();
   //this->Scanq0q3_electron();
 

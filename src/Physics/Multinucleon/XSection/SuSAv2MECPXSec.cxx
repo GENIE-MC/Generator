@@ -213,12 +213,12 @@ void SuSAv2MECPXSec::LoadConfig(void)
   assert(fXSecIntegrator);
 
   //uncomment this to make histo output on a 2D grid for validation
-  this->Scanq0q3();
-  this->Scanq0q3_np();
-  this->Scanq0q3_electron();
+  //this->Scanq0q3();
+  //this->Scanq0q3_np();
+  //this->Scanq0q3_electron();
 
   //uncomment this to make 3D histograms to be used for RW-ing
-  this->buildRWhistos();
+  //this->buildRWhistos();
 }
 //_________________________________________________________________________
 void SuSAv2MECPXSec::Scanq0q3(void)

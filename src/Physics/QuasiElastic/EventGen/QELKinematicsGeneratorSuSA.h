@@ -20,15 +20,14 @@
 
 #include <TGenPhaseSpace.h>
 
-#include "Framework/EventGen/EventRecordVisitorI.h"
+#include "Physics/NuclearState/NuclearModelI.h"
 #include "Framework/ParticleData/PDGCodeList.h"
+#include "Physics/Common/KineGeneratorWithCache.h"
+#include "Framework/Utils/Range1.h"
 
 namespace genie {
 
-class XSecAlgorithmI;
-class NuclearModelI;
-
-class QELKinematicsGeneratorSuSA : public EventRecordVisitorI {
+class QELKinematicsGeneratorSuSA : public KineGeneratorWithCache {
 
 public :
   QELKinematicsGeneratorSuSA();
@@ -49,11 +48,14 @@ private:
   void    AddTargetNucleusRemnant (GHepRecord * event) const;
   void    SelectLeptonKinematics  (GHepRecord * event) const;
   void    GenerateNucleon         (GHepRecord * event) const;
+  double  ComputeMaxXSec(const Interaction * in) const;
+
   
-  mutable const XSecAlgorithmI * fXSecModel;
   const NuclearModelI *          fNuclModel;
 
   double fQ3Max;
+  bool fForceBound;
+  bool fForceEbFromModel;
 };
 
 }      // genie namespace

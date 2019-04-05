@@ -350,11 +350,11 @@ void NievesSimoVacasMECPXSec2016::LoadConfig(void)
         assert(fXSecIntegrator);
 
   //uncomment this to make histo output on a 2D grid for validation
-  this->Scanq0q3();
-  this->Scanq0q3_np();
+  //this->Scanq0q3();
+  //this->Scanq0q3_np();
 
   //uncomment this to make 3D histograms to be used for RW-ing
-  this->buildRWhistos();
+  //this->buildRWhistos();
 }
 //_________________________________________________________________________
 void NievesSimoVacasMECPXSec2016::Scanq0q3(void)

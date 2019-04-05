@@ -7,8 +7,10 @@ Configuration for QELKinematicsGeneratorSuSA
 
 Configurable Parameters:
 .......................................................................................................
-Name             Type     Optional   Comment                                      Default
-QEL-Q3Max        double   No         Q3 max for 2p2h and 1p1h model               CommonParam[MultiNucleons]
+Name                 Type     Optional   Comment                                      Default
+QEL-Q3Max            double   No         Q3 max for 2p2h and 1p1h model               CommonParam[QE]
+QEL-ForceBound       bool     No         Whether to force nucleons to be bound        CommonParam[QE]
+QEL-ForceEbFromModel bool     No         Whether to force Eb from Nuc. Model          CommonParam[QE]
 
 .......................................................................................................
 -->

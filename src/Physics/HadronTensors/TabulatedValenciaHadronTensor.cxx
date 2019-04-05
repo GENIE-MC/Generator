@@ -502,7 +502,7 @@ double genie::TabulatedValenciaHadronTensor::dSigma_dT_dCosTheta_rosenbluth(int 
     if (probe_pdg < 0) RTP *= -1; // THIS IS FOR NUBAR
 
 
-    // Determination of the double differential cross section: dsigma/dcostheta_l/dEl. In order to calculate dsigma/dcostheta_l/dp_l, the c.s. must be multiplied by k_final/El 
+    // Determination of the double differential cross section: dsigma/dcostheta_ldEl. In order to calculate dsigma/dcostheta_ldp_l, the c.s. must be multiplied by k_final/El 
     xsec= sig0*(VCC*RCC+2.*VCL*RCL+VLL*RLL+VT*RT+2.*VTP*RTP);//*xcorr
 
 
