@@ -188,7 +188,7 @@ double LwlynSmithQELCCPXSec::FullDifferentialXSec(const Interaction*  interactio
   const TLorentzVector outNucleonMom = kinematics.HadSystP4();
 
   // Apply Pauli blocking if enabled
-  if ( fDoPauliBlocking && !interaction->TestBit(kIAssumeFreeNucleon) ) {
+  if ( fDoPauliBlocking && tgt.IsNucleus() && !interaction->TestBit(kIAssumeFreeNucleon) ) {
     int final_nucleon_pdg = interaction->RecoilNucleonPdg();
     double kF = fPauliBlocker->GetFermiMomentum(tgt, final_nucleon_pdg,
       tgt.HitNucPosition());
@@ -239,7 +239,8 @@ double LwlynSmithQELCCPXSec::FullDifferentialXSec(const Interaction*  interactio
 
   // If the binding energy correction causes an unphysical value
   // of q0Tilde or Q2tilde, just return 0.
-  if ( qTildeP4.E() <= 0. ) return 0.;
+  if ( qTildeP4.E() <= 0. && init_state.Tgt().IsNucleus() &&
+    !interaction->TestBit(kIAssumeFreeNucleon) ) return 0.;
   if ( Q2tilde <= 0. ) return 0.;
 
   // Store Q2tilde in the kinematic variable representing Q2.

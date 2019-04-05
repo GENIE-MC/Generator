@@ -207,6 +207,13 @@ genie::QELEvGen_BindingMode_t genie::utils::StringToQELBindingMode(
 }
 
 double genie::utils::CosTheta0Max(const genie::Interaction& interaction) {
+
+  // q0 > 0 only needs to be enforced (indirectly via a calculation of
+  // CosTheta0Max) for bound nucleons. The Q2 limits should take care of valid
+  // kinematics for free nucleons.
+  if ( !interaction.InitState().Tgt().IsNucleus()
+    || interaction.TestBit(kIAssumeFreeNucleon) ) return 1.;
+
   double probe_E_lab = interaction.InitState().ProbeE( genie::kRfLab );
 
   TVector3 beta = COMframe2Lab( interaction.InitState() );
@@ -274,6 +281,12 @@ void genie::utils::BindHitNucleon(genie::Interaction& interaction,
   // on shell if it is not part of a composite nucleus
   double ENi = 0.;
   if ( tgt->IsNucleus() && hitNucleonBindingMode != genie::kOnShell ) {
+
+    // For a nuclear target with a bound initial struck nucleon, take binding
+    // energy effects and Pauli blocking into account when computing QE
+    // differential cross sections
+    interaction.ResetBit( kIAssumeFreeNucleon );
+
     // Initial nucleus mass
     double Mi = tgt->Mass();
 
@@ -316,6 +329,12 @@ void genie::utils::BindHitNucleon(genie::Interaction& interaction,
     // the target is a single nucleon
     ENi = std::sqrt( p3Ni.Mag2() + std::pow(mNi, 2) );
     Eb = 0.;
+
+    // If we're dealing with a nuclear target but using the on-shell
+    // binding mode, set the "assume free nucleon" flag. This turns off
+    // Pauli blocking and the requirement that q0 > 0 in the QE cross section
+    // models (an on-shell nucleon *is* a free nucleon)
+    if ( tgt->IsNucleus() ) interaction.SetBit( kIAssumeFreeNucleon );
   }
 
   // Update the initial nucleon lab-frame 4-momentum in the interaction with

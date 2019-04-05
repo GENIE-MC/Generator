@@ -136,7 +136,7 @@ double NievesQELCCPXSec::XSec(const Interaction * interaction,
   TLorentzVector outNucleonMom = kinematics.HadSystP4();
 
   // Apply Pauli blocking if enabled
-  if ( fDoPauliBlocking && !interaction->TestBit(kIAssumeFreeNucleon) ) {
+  if ( fDoPauliBlocking && target.IsNucleus() && !interaction->TestBit(kIAssumeFreeNucleon) ) {
     int final_nucleon_pdg = interaction->RecoilNucleonPdg();
     double kF = fPauliBlocker->GetFermiMomentum(target, final_nucleon_pdg,
       target.HitNucPosition());
@@ -218,7 +218,7 @@ double NievesQELCCPXSec::XSec(const Interaction * interaction,
 
   // If binding energy effects pull us into an unphysical region, return
   // zero for the differential cross section
-  if ( q0Tilde <= 0. ) return 0.;
+  if ( q0Tilde <= 0. && target.IsNucleus() && !interaction->TestBit(kIAssumeFreeNucleon) ) return 0.;
 
   // Note that we're working in the lab frame (i.e., the rest frame
   // of the target nucleus). We can therefore use Nieves' explicit
@@ -282,13 +282,6 @@ double NievesQELCCPXSec::XSec(const Interaction * interaction,
   // Check that q2 < 0 (accounting for rounding errors)
   if ( q2 >= kASmallNum ) {
     LOG("Nieves", pWARN) << "q2 >= 0, returning xsec = 0.0";
-    return 0.0;
-  }
-  // Check that the energy tranfer q0 is greater than 0, or else the
-  // following equations do not apply. (Note also that the event would
-  // be Pauli blocked )
-  if ( qTildeP4.E() <= -kASmallNum ) {
-    LOG("Nieves", pWARN) << "q0 <= 0.0, returning xsec = 0.0";
     return 0.0;
   }
 

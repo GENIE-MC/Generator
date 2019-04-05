@@ -429,9 +429,6 @@ double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const
     Interaction * interaction = new Interaction( *in );
     interaction->SetBit( kISkipProcessChk );
     interaction->SetBit( kISkipKinematicChk );
-    // Ignore Pauli blocking when finding max xsec
-    // (we're treating the hit nucleon as free)
-    interaction->SetBit( kIAssumeFreeNucleon );
 
     // We'll select the max momentum and zero binding energy.
     // That should give us the nucleon with the highest xsec
