@@ -110,6 +110,7 @@
         <tensor type="MEC_FullAll_wImag" calc="table"
           file="SuSAv2_1000060120_MEC_FullAll_wImag.dat"/> 
         <tensor type="MEC_EM" calc="table" file="SuSAv2_1000060120_MEC_EM.dat"/>
+        <tensor type="MEC_EM_wImag" calc="table" file="SuSAv2_1000060120_MEC_EM_wImag.dat"/>
       </nuclide>
 
       <!-- 16O --> <nuclide pdg="1000080160">
@@ -127,7 +128,7 @@
 
       <!-- 12C --> <nuclide pdg="1000060120">
         <tensor type="QE_Full" calc="table" file="SuSAv2_1000060120_QE_Full.dat"/>
-        <tensor type="QE_EM" calc="table" file="SuSAv2_1000060120_QE_Full.dat"/>
+        <tensor type="QE_EM" calc="table" file="SuSAv2_1000060120_QE_EM.dat"/>
       </nuclide>
 
     </tensor_table>

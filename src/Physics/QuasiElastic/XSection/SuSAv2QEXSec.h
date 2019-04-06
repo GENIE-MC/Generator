@@ -77,6 +77,9 @@ private:
   /// Name of the hadron tensor table to use for this model
   std::string fHadronTensorTableName;
 
+  // Fermi momentum table used for scaling
+  string fKFTable;
+
   /// GSL numerical integrator
   const XSecIntegratorI *  fXSecIntegrator;
 

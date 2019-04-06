@@ -19,6 +19,9 @@
 #include "Physics/Multinucleon/XSection/SuSAv2MECPXSec.h"
 #include "Physics/Multinucleon/XSection/MECUtils.h"
 #include "Physics/XSectionIntegration/XSecIntegratorI.h"
+#include "Physics/NuclearState/FermiMomentumTablePool.h"
+#include "Physics/NuclearState/FermiMomentumTable.h"
+
 // For q3q0 scan verification and RW histos:
 #include <TH1F.h>
 #include <TH3D.h>
@@ -52,6 +55,10 @@ double SuSAv2MECPXSec::XSec(const Interaction* interaction,
   // electron scattering
   int target_pdg = interaction->InitState().Tgt().Pdg();
   int probe_pdg = interaction->InitState().ProbePdg();
+  int tensor_pdg = target_pdg;
+  int A_request = pdg::IonPdgCodeToA(target_pdg);
+  int Z_request = pdg::IonPdgCodeToZ(target_pdg);
+  bool need_to_scale = false;
 
   HadronTensorType_t tensor_type = kHT_Undefined;
   HadronTensorType_t pn_tensor_type = kHT_Undefined;
@@ -68,27 +75,53 @@ double SuSAv2MECPXSec::XSec(const Interaction* interaction,
     pn_tensor_type = kHT_MEC_EM;
   }
 
+  /// \todo Add more hadron tensors so this scaling is not so terrible
+  if ( A_request == 4 && Z_request == 2 ) {
+    tensor_pdg = kPdgTgtC12;
+    // This is for helium 4, but use carbon tensor
+    // the use of nuclear density parameterization is suspicious
+    // but some users (MINERvA) need something not nothing.
+  }
+  else if (A_request < 9) {
+    // refuse to do D, T, He3, Li, and some Be, B
+    // actually it would work technically, maybe except D, T
+    MAXLOG("SuSAv2MEC", pWARN, 10) << "Asked to scale to D through B, this will not work";
+    return 0;
+  }
+  else if (A_request >= 9 && A_request < 15) {
+    tensor_pdg = kPdgTgtC12;
+  }
+  else if(A_request >= 15 && A_request < 22) {
+      tensor_pdg = kPdgTgtO16;    
+  }
+  else if(A_request >= 22) {
+      tensor_pdg = kPdgTgtO16;
+      LOG("SuSAv2MEC", pWARN) << "Dangerous scaling from " << target_pdg << " to " << tensor_pdg;    
+      LOG("SuSAv2MEC", pWARN) << "Hadron tensors for such heavy elements not ready yet";    
+      LOG("SuSAv2MEC", pWARN) << "Proceed at your own peril!";    
+  }
+
+
+  if(tensor_pdg != target_pdg) need_to_scale = true;
+
   // The SuSAv2-MEC hadron tensors are defined using the same conventions
   // as the Valencia MEC model, so we can use the same sort of tensor
   // object to describe them.
   const ValenciaHadronTensorI* tensor
-    = dynamic_cast<const ValenciaHadronTensorI*>( htp.GetTensor(target_pdg,
+    = dynamic_cast<const ValenciaHadronTensorI*>( htp.GetTensor(tensor_pdg,
     tensor_type, fHadronTensorTableName) );
 
-  //everything is pn for the moment ... 
   const ValenciaHadronTensorI* tensor_pn
-    = dynamic_cast<const ValenciaHadronTensorI*>( htp.GetTensor(target_pdg,
+    = dynamic_cast<const ValenciaHadronTensorI*>( htp.GetTensor(tensor_pdg,
     pn_tensor_type, fHadronTensorTableName) );
 
-  /// \todo Add scaling of the hadron tensor elements if an exact match
-  /// for the requested target PDG code cannot be found in the hadron tensor
-  /// table for this model.
-  /// Also add the different pair configurations for e-scattering
+
+  /// \todo add the different pair configurations for e-scattering
 
   // If retrieving the tensor failed, complain and return zero
   if ( !tensor ) {
     LOG("SuSAv2MEC", pWARN) << "Failed to load a hadronic tensor for the"
-      " nuclide " << target_pdg;
+      " nuclide " << tensor_pdg;
     return 0.;
   }
 
@@ -141,6 +174,23 @@ double SuSAv2MECPXSec::XSec(const Interaction* interaction,
   // Choose the right kind of cross section ("all" or "pn") to return
   // based on whether a {p, n} dinucleon was hit
   double xsec = (pn) ? xsec_pn : xsec_all;
+
+  
+  // This scaling should be okay-ish for the total xsec, but it misses 
+  // the energy shift. To get this we should really just build releveant 
+  // hadron tensors but there may be some ways to approximate it.
+  // For more details see Guille's thesis: https://idus.us.es/xmlui/handle/11441/74826
+  if ( need_to_scale ) {
+    FermiMomentumTablePool * kftp = FermiMomentumTablePool::Instance();
+    const FermiMomentumTable * kft = kftp->GetTable(fKFTable);
+    double KF_tgt = kft->FindClosestKF(target_pdg, kPdgProton);
+    double KF_ten = kft->FindClosestKF(tensor_pdg, kPdgProton);
+    LOG("SuSAv2MEC", pDEBUG) << "KF_tgt = " << KF_tgt;
+    LOG("SuSAv2MEC", pDEBUG) << "KF_ten = " << KF_ten;
+    double A_ten  = pdg::IonPdgCodeToA(tensor_pdg);
+    double scaleFact = (A_ten/A_request)*(KF_ten/KF_tgt)*(KF_ten/KF_tgt);
+    xsec *= scaleFact;
+  }
 
   // Apply the squared CKM matrix element Vud as a correction factor
   // (not included in the tabulated tensor element values)
@@ -197,9 +247,10 @@ void SuSAv2MECPXSec::LoadConfig(void)
 {
   // CKM matrix element connecting the up and down quarks
   // (not included in the tabulated SuSAv2-MEC hadron tensors)
-  double Vud;
-  GetParam("CKM-Vud", Vud);
-  fVud2 = std::pow(Vud, 2);
+  // No longer needed as using Rosenbluth formalism
+  //double Vud;
+  //GetParam("CKM-Vud", Vud);
+  //fVud2 = std::pow(Vud, 2);
 
   // Cross section scaling factor
   GetParamDef("MEC-XSecScale", fXSecScale, 1.) ;
@@ -211,6 +262,9 @@ void SuSAv2MECPXSec::LoadConfig(void)
   fXSecIntegrator = dynamic_cast<const XSecIntegratorI*> (
     this->SubAlg("NumericalIntegrationAlg"));
   assert(fXSecIntegrator);
+
+  //Fermi momentum tables for scaling
+  this->GetParam( "FermiMomentumTable", fKFTable);
 
   //uncomment this to make histo output on a 2D grid for validation
   //this->Scanq0q3();
