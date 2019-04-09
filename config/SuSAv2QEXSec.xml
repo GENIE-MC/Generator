@@ -13,7 +13,7 @@ FormFactorsAlg     alg      No         QEL form factors algorithm
 XSec-Integrator    alg      No
 CabibboAngle       double   No         Cabibbo angle                    CommonParam[CKM]
 QEL-CC-XSecScale   double   yes        XSec Scaling factor              1. 
-FermiMomentumTable    string   No         Table of Fermi momentum (kF) constants     CommonParam[FermiGas]
+FermiMomentumTable string   No         Table of Fermi momentum (kF) constants     CommonParam[FermiGas]
 
 .....................................................................................................
 Parameters needed when Integrating with this model to generate splines:
@@ -27,9 +27,9 @@ IntegralNuclearInfluenceCutoffEnergy double   No
 
   <param_set name="Default"> 
 
-      <!-- <param type="string" name="CommonParam"> CKM </param> No longer needed -->
+     <!-- <param type="string" name="CommonParam"> CKM </param> No longer needed -->
 
-    <param type="double" name="QEL-CC-XSecScale"> 1.000 </param>
+     <param type="double" name="QEL-CC-XSecScale"> 1.000 </param>
 
      <param type="alg"  name="FormFactorsAlg">  genie::LwlynSmithFFCC/Default </param>
      <param type="alg"  name="XSec-Integrator"> genie::MECXSec/Default        </param>
@@ -48,6 +48,8 @@ IntegralNuclearInfluenceCutoffEnergy double   No
      <param type="string" name="CommonParam"> FermiGas  </param> <!-- For Kf lookups -->   
 
   </param_set>
+
+
 
   <param_set name="Dipole"> 
      <param type="alg"  name="FormFactorsAlg">  genie::LwlynSmithFFCC/Dipole  </param>

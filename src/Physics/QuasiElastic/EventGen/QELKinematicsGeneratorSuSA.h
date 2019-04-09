@@ -56,6 +56,9 @@ private:
   double fQ3Max;
   bool fForceBound;
   bool fForceEbFromModel;
+  bool fForceFixEb;
+  double fEbOR;
+  
 };
 
 }      // genie namespace

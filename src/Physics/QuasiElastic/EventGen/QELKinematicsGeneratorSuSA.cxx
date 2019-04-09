@@ -32,6 +32,7 @@
 #include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Physics/QuasiElastic/EventGen/QELKinematicsGeneratorSuSA.h"
+#include "Physics/Multinucleon/XSection/MECUtils.h"
 
 #include "Physics/NuclearState/NuclearModelI.h"
 #include "Framework/Numerical/MathUtils.h"
@@ -170,6 +171,13 @@ void QELKinematicsGeneratorSuSA::SelectLeptonKinematics (GHepRecord * event) con
       // generate random kinetic energy T and Costh
       T = TMin + (TMax-TMin)*rnd->RndKine().Rndm();
       Costh = CosthMin + (CosthMax-CosthMin)*rnd->RndKine().Rndm();
+
+      // Anti neutrino elastic scattering case - include delta in xsec
+      if(TgtPDG==kPdgTgtFreeP){ 
+        genie::utils::mec::Getq0q3FromTlCostl(T, Costh, Enu, LepMass, Q0, Q3);
+        Q3 = sqrt(Q0*Q0+2*kNucleonMass*Q0);
+        genie::utils::mec::GetTlCostlFromq0q3(Q0, Q3, Enu, LepMass, T, Costh);
+      }
 
       // Calculate useful values for judging this choice
       Plep = TMath::Sqrt( T * (T + (2.0 * LepMass)));  // ok is sqrt(E2 - m2)
@@ -404,7 +412,7 @@ void QELKinematicsGeneratorSuSA::GenerateNucleon(GHepRecord * event) const
         fNuclModel->GenerateNucleon(tgt,hitNucPos);
         p3i = fNuclModel->Momentum3();
 
-        // Calculate the removal energy as in Guille's thesis - this is a simplicification of 
+        // Defaulf: Calculate the removal energy as in Guille's thesis - this is a simplicification of 
         // a fairly complex aproach employed in SuSAv2, but we expect it to work pretty well. 
         // We should write something about this in the implementation technical paper ... 
         // IMPORTANT CAVEAT: By default we choose to allow the binding energy to depend on the interaction
@@ -415,6 +423,7 @@ void QELKinematicsGeneratorSuSA::GenerateNucleon(GHepRecord * event) const
         double q3 = Q4.Vect().Mag();
 
         if(fForceEbFromModel) removalenergy = fNuclModel->RemovalEnergy();
+        else if(fForceFixEb) removalenergy = fEbOR;
         else{
           if(q3<0.827){
             removalenergy = -0.017687 + 0.0564*q3;
@@ -563,8 +572,12 @@ void QELKinematicsGeneratorSuSA::LoadConfig(void)
     //-- Whether to force Eb to come from the nuclear model
     GetParam( "QEL-ForceEbFromModel", fForceEbFromModel) ;
 
+    //-- Whether to force some fixed Eb
+    GetParam( "QEL-ForceFixedEb", fForceFixEb) ;
+    GetParam( "QEL-EbOR", fEbOR) ;
+
     //-- Safety factor for the maximum differential cross section
-    GetParamDef( "MaxXSec-SafetyFactor", fSafetyFactor , 4.00 ) ;
+    GetParamDef( "MaxXSec-SafetyFactor", fSafetyFactor , 5.00 ) ;
 
     //-- Minimum energy for which max xsec would be cached, forcing explicit
     //   calculation for lower eneries
@@ -595,8 +608,8 @@ double QELKinematicsGeneratorSuSA::ComputeMaxXSec(
 
   double max_xsec = 0.0;
 
-  const int N  = 15;
-  const int Nb = 10;
+  const int N  = 20;
+  const int Nb = 12;
 
   double xseclast = -1;
   bool   increasing;

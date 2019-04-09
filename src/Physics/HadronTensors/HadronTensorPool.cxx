@@ -58,6 +58,8 @@ namespace {
       return genie::kHT_MEC_Deltapn;
     else if (str == "MEC_EM")
       return genie::kHT_MEC_EM;
+    else if (str == "MEC_EM_wImag")
+      return genie::kHT_MEC_EM_wImag;
     else if (str == "QE_EM")
       return genie::kHT_QE_EM;
     else if (str == "MEC_FullAll_Param")
