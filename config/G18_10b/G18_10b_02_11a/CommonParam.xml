@@ -19,7 +19,7 @@ University of Liverpool
 
 
 
-<common_param_list>
+<common_Param_list>
 
 
  <param_set name="Tunable">
@@ -311,4 +311,4 @@ University of Liverpool
 
   </param_set>
 
-</common_param_list>
+</common_Param_list>

@@ -3,17 +3,25 @@
 <alg_conf>
 
 <!--
-Configuration sets for the PYTHIA DecayModelI
+Configuration sets for the PYTHIA6 decayer
 
 Configurable Parameters:
 .......................................................................................................
 Name             Type     Optional   Comment               Default
 .......................................................................................................
-ForceDecays      bool     Yes                              false
+
 -->
 
-  <param_set name="Default"> 
+  <param_set name="Default">
+     <param type="string" name="CommonDecay"> DecayFlags </param>
+  </param_set>
+
+  <param_set name="BeforeHadronTransport">
+     <param type="bool" name="RunBeforeHadronTransport"> true  </param>
+  </param_set>
+
+  <param_set name="AfterHadronTransport">
+     <param type="bool" name="RunBeforeHadronTransport"> false </param>
   </param_set>
 
 </alg_conf>
-
