@@ -386,7 +386,7 @@ int main(int argc, char ** argv)
   GetCommandLineArgs(argc,argv);
   PDGLibrary::Instance()->AddDarkMatter(gOptDMMass,gOptMedRatio);
   if (gOptZpCoupling > 0.) {
-      Registry * r = AlgConfigPool::Instance()->CommonParameterList("BoostedDarkMatter");
+      Registry * r = AlgConfigPool::Instance()->CommonList("Param", "BoostedDarkMatter");
       r->UnLock();
       r->Set("ZpCoupling", gOptZpCoupling);
       r->Lock();
