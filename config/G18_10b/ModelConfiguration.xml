@@ -75,7 +75,7 @@ STFC, Rutherford Appleton Laboratory
   <!-- New Berger-Sehgal resonance model w/MiniBooNE tune... -->
   <param type="alg" name="XSecModel@genie::EventGenerator/RES-CC">         genie::BergerSehgalRESPXSec2014/NoPauliBlock </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/RES-NC">         genie::BergerSehgalRESPXSec2014/NoPauliBlock </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/RES-EM">         genie::BergerSehgalRESPXSec2014/NoPauliBlock </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/RES-EM">         genie::BergerSehgalRESPXSec2014/EM-NoPauliBlock </param>
 
 
   <!-- New Kuzmin-Lyubushkin-Naumov resonance model w/MiniBooNE tune... -->
