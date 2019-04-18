@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2018, The GENIE Collaboration
+ Copyright (c) 2003-2019, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -88,7 +88,7 @@ const Algorithm * AlgFactory::GetAlgorithm(const AlgId & algid)
 //! Manages the instantiation and "storage/retrieval" of algorithms.
 //! These algorithms are owned by the factory and it hands over (to the client)
 //! a "const Algorithm *" that can be dynamically casted to the requested
-//! Algorithm Interface (eg. XSecAlgorithmI, DecayModelI, PdfModelI, etc...)
+//! Algorithm Interface (eg. XSecAlgorithmI, Decayer, PdfModelI, etc...)
 
   return this->GetAlgorithm(algid.Name(), algid.Config());
 }

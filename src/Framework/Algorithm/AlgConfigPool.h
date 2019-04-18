@@ -11,7 +11,7 @@
 
 \created  May 06, 2004
 
-\cpright  Copyright (c) 2003-2018, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
@@ -49,7 +49,7 @@ public:
   Registry * FindRegistry (const AlgId & algid)               const;
 
   Registry * GlobalParameterList(void) const;
-  Registry * CommonParameterList( const string & name ) const;
+  Registry * CommonList( const string & file_id, const string & set_name ) const;
   Registry * TuneGeneratorList(void) const;
  
 
@@ -69,7 +69,7 @@ private:
   bool   LoadAlgConfig       (void);
   bool   LoadMasterConfig    (void);
   bool   LoadGlobalParamLists(void);
-  bool   LoadCommonParamLists(void);
+  bool   LoadCommonLists( const string & file_id );
   bool   LoadTuneGeneratorList(void);
   bool   LoadSingleAlgConfig (string alg_name, string file_name);
   bool   LoadRegistries      (string key_base, string file_name, string root);

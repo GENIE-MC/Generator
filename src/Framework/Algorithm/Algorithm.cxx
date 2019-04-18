@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2018, The GENIE Collaboration
+ Copyright (c) 2003-2019, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -172,47 +172,64 @@ void Algorithm::FindConfig(void)
     }
   }
   
-  const string common_param_list_key = "CommonParam" ;
-  string common_param_list;
+  const string common_key_root = "Common" ;
+  std::map<string, string> common_lists;
 
-  // Load Common Parameters if specific key "CommonParam" is there is
+  // Load Common Parameters if key that start with "Common" is found
   for ( unsigned int i = 0 ; i < fConfVect.size() ; ++i ) {
     const Registry & temp = * fConfVect[i] ;
-    if( temp.Exists( common_param_list_key ) ) {
-      if( temp.ItemIsLocal( common_param_list_key) ) {
-	common_param_list = temp.GetString( common_param_list_key ) ;
-	break ;
+    for ( RgIMapConstIter it = temp.GetItemMap().begin() ; it !=  temp.GetItemMap().end() ; ++it ) {
+      
+      // check if it is a "Common" entry
+      if ( it -> first.find( common_key_root ) == 0 ) {
+        // retrieve the type of the common entry
+    	std::string type = it -> first.substr(common_key_root.size() ) ;
+	
+    	if ( temp.ItemIsLocal( it -> first ) ) {
+	  
+    	  string temp_list = temp.GetString( it -> first ) ;
+    	  if ( temp_list.length() > 0 ) {
+    	    common_lists[type] = temp_list ;
+    	  }
+    	}
       }
+      
     }
     
   } // loop over the local registries
 
 
-  if ( common_param_list.length() > 0 ) {
-    vector<string> list = str::Split( common_param_list, "," ) ;
+  for ( std::map<string, string>::const_iterator it = common_lists.begin() ;
+	it != common_lists.end() ; ++it ) {
+
+    vector<string> list = str::Split( it -> second , "," ) ;
+
     for ( unsigned int i = 0; i < list.size(); ++i ) {
 
-      config = pool -> CommonParameterList( list[i] ) ;
-      
+      config = pool -> CommonList( it -> first, list[i] ) ;
+
       if ( ! config ) {
-	LOG("Algorithm", pERROR)
-	  << "No Commom parameters available for list " 
+        LOG("Algorithm", pFATAL)
+	  << "No Commom parameters available for " << it -> first << " list "
 	  << list[i] << " at the ConfigPool";
-	
-	exit(0) ;
+
+	    exit( 78 ) ;
       }
       else  {
-	AddLowRegistry( config, false ) ;
-	
-	LOG("Algorithm", pDEBUG) << "Loading Commom Param registry " << list[i] << " \n" << config;
+	    AddLowRegistry( config, false ) ;
+	    LOG("Algorithm", pDEBUG) << "Loading " 
+				     << it -> first << " registry " 
+				     << list[i] << " \n" << config;
       }
-      
+
     }
+
   }
-  
+
+
   // Load Tunable from CommonParameters 
   // only if the option is specified in RunOpt
-  config = pool -> CommonParameterList( "Tunable" ) ;
+  config = pool -> CommonList( "Param", "Tunable" ) ;
   if ( config ) {
     if ( config -> NEntries() > 0 ) {
       AddTopRegistry( config, false ) ;

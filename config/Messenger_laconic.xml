@@ -43,6 +43,8 @@
   <priority msgstream="BSKLNBaseRESPXSec2014">         WARN   </priority>
   <priority msgstream="BodekYang">                     WARN   </priority>
   <priority msgstream="BodekRitchie">                  WARN   </priority>
+  <priority msgstream="SmithMoniz">                    WARN   </priority>
+  <priority msgstream="SMQELXSec">                     WARN   </priority>
   <priority msgstream="Cache">                         WARN   </priority>
   <priority msgstream="CharmHad">                      WARN   </priority>
   <priority msgstream="CFracTab">                      WARN   </priority>

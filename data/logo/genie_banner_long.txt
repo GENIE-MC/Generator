@@ -33,7 +33,7 @@
 *                    mhso+/:------------------:/+oyhyo/----------:/+syhm                                        *
 *                           NmddhyyyssssyyyhdmmNNNmhhhyyyyhhddmN                                                *
 *                                                                                                               *
-*                                                             Copyright (c) 2003-2018, The GENIE Collaboration  *
+*                                                             Copyright (c) 2003-2019, The GENIE Collaboration  *
 *                                                                                                               *
 *                                                                                                               *
 *            Luis Alvarez-Ruso [8], Costas Andreopoulos [4,6], Christopher Barry [4], Francis Bench [4],        *

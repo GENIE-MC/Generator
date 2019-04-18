@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2018, The GENIE Collaboration
+ Copyright (c) 2003-2019, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -60,7 +60,7 @@ InteractionList *
   InteractionList * intlist = new InteractionList;
 
   if(!fSetDiNucleonCode&&fIsCC) {
-	 LOG("IntLst", pWARN) << "fIsCC(val) = " << fIsCC;
+	 LOG("IntLst", pINFO) << "fIsCC(val) = " << fIsCC;
       Interaction * interaction = Interaction::MECCC(tgtpdg, nupdg, 0.0);
       intlist->push_back(interaction);
   }
@@ -73,7 +73,7 @@ InteractionList *
      int ncpdg = nucleon_cluster[ic];
      if(fIsCC&&fSetDiNucleonCode) {
        bool allowed = false;
-       LOG("IntLst", pWARN) << "fIsCC(emp) = " << fIsCC;
+       LOG("IntLst", pINFO) << "fIsCC(emp) = " << fIsCC;
        if(pdg::IsNeutrino(nupdg)) {
          // neutrino CC => final state primary lepton is -1
          // therefore the nucleon-cluster charge needs to be incremented by +1.
@@ -98,14 +98,14 @@ InteractionList *
      else
        if(fIsNC) 
      {
-       LOG("IntLst", pWARN) << "fIsNC = " << fIsNC;
+       LOG("IntLst", pINFO) << "fIsNC = " << fIsNC;
        Interaction * interaction = 
 	 Interaction::MECNC(tgtpdg,ncpdg,nupdg,0);
        intlist->push_back(interaction);
      }//NC?
      else
        if(fIsEM) {
-	 LOG("IntLst", pWARN) << "fIsEM = " << fIsEM << "  ncpdg = " << ncpdg;
+	 LOG("IntLst", pINFO) << "fIsEM = " << fIsEM << "  ncpdg = " << ncpdg;
 	 Interaction * interaction = 
 	   Interaction::MECEM(tgtpdg,ncpdg,nupdg,0);
 	 intlist->push_back(interaction);

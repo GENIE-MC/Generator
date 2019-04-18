@@ -1,37 +1,19 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2018, The GENIE Collaboration
+ Copyright (c) 2003-2019, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
          University of Liverpool & STFC Rutherford Appleton Lab
-
- For the class documentation see the corresponding header file.
-
- Important revisions after version 2.0.0 :
- @ Sep 21, 2009 - CA
-   Remove SyncSeeds() function. Now the GENIE/PYTHIA6 random number generator
-   seed is synchonized at the genie::RandomGen() initialization.
- @ Oct 02, 2009 - CA
-   Re-organize code and implement the `UnInhibitDecay(int,TDecayChannel*)
-   const' and `InhibitDecay(int,TDecayChannel*) const' methods.
-   Test/fix the code to match a ROOT TDecayChannel to a PYTHIA6 decay channel.
-   Decay() returns null if decay is inhibited or if the sum{branching ratios}
-   for all enabled decay channels is non-positive. In case of inhibited decay
-   channels, a weight is calculated as w = 1./sum{BR for enabled channels}.
- @ Feb 04, 2010 - CA
-   Comment out (unused) code using the fForceDecay flag
-
 */
 //____________________________________________________________________________
 
 #include <vector>
+#include <cassert>
 
 #include <TClonesArray.h>
 #include <TLorentzVector.h>
 #include <TDecayChannel.h>
-
 #include <RVersion.h>
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,6)
 #include <TMCParticle.h>
@@ -39,50 +21,187 @@
 #include <TMCParticle6.h>
 #endif
 
-#include "Framework/ParticleData/BaryonResUtils.h"
 #include "Framework/Conventions/Units.h"
 #include "Framework/Conventions/Constants.h"
-#include "Physics/Decay/PythiaDecayer.h"
+#include "Framework/ParticleData/BaryonResUtils.h"
+#include "Framework/ParticleData/PDGLibrary.h"
+#include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGUtils.h"
+#include "Framework/GHEP/GHepStatus.h"
+#include "Framework/GHEP/GHepParticle.h"
+#include "Framework/GHEP/GHepRecord.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
-#include "Framework/ParticleData/PDGLibrary.h"
+#include "Physics/Decay/PythiaDecayer.h"
 
 using std::vector;
 
 using namespace genie;
 
-//the actual PYTHIA calls
-
+// actual PYTHIA calls:
 extern "C" void py1ent_(int *,  int *, double *, double *, double *);
 extern "C" void pydecy_(int *);
-
 //____________________________________________________________________________
 PythiaDecayer::PythiaDecayer() :
-DecayModelI("genie::PythiaDecayer")
+Decayer("genie::PythiaDecayer")
 {
   this->Initialize();
 }
 //____________________________________________________________________________
 PythiaDecayer::PythiaDecayer(string config) :
-DecayModelI("genie::PythiaDecayer", config)
+Decayer("genie::PythiaDecayer", config)
 {
   this->Initialize();
 }
 //____________________________________________________________________________
-PythiaDecayer::~PythiaDecayer() 
-{ 
+PythiaDecayer::~PythiaDecayer()
+{
 
 }
 //____________________________________________________________________________
-bool PythiaDecayer::IsHandled(int code) const
+void PythiaDecayer::ProcessEventRecord(GHepRecord * event) const
 {
-// does not handle requests to decay baryon resonances
-  
-  if( utils::res::IsBaryonResonance(code) ) {
-     LOG("PythiaDec", pINFO)
-       << "This algorithm can not decay particles with PDG code = " << code;
-     return false;
-  } else return true;
+  LOG("ResonanceDecay", pINFO)
+    << "Running PYTHIA6 particle decayer "
+    << ((fRunBefHadroTransp) ? "*before*" : "*after*") << " FSI";
+
+  // Loop over particles, find unstable ones and decay them
+  TObjArrayIter piter(event);
+  GHepParticle * p = 0;
+  int ipos = -1;
+
+  while( (p = (GHepParticle *) piter.Next()) ) {
+    ipos++;
+
+    LOG("Pythia6Decay", pDEBUG) << "Checking: " << p->Name();
+
+    int pdg_code = p->Pdg();
+    GHepStatus_t status_code = p->Status();
+
+    if(!this->IsHandled  (pdg_code)) continue;
+    if(!this->ToBeDecayed(pdg_code, status_code)) continue;
+
+    LOG("Pythia6Decay", pNOTICE)
+          << "Decaying unstable particle: " << p->Name();
+
+    bool decayed = this->Decay(ipos, event);
+    assert(decayed); // handle this more graciously and throw an exception
+  }
+
+  LOG("Pythia6Decay", pNOTICE)
+     << "Done finding & decaying unstable particles";
+}
+//____________________________________________________________________________
+bool PythiaDecayer::Decay(int decay_particle_id, GHepRecord * event) const
+{
+  fWeight = 1.; // reset previous decay weight
+
+  // Get particle to be decayed
+  GHepParticle * decay_particle = event->Particle(decay_particle_id);
+  if(!decay_particle) return 0;
+
+  // Get the particle 4-momentum, 4-position and PDG code
+  TLorentzVector decay_particle_p4 = *(decay_particle->P4());
+  TLorentzVector decay_particle_x4 = *(decay_particle->X4());
+  int decay_particle_pdg_code = decay_particle->Pdg();
+
+  // Convert to PYTHIA6 particle code and check whether decay is inhibited
+  int kc   = fPythia->Pycomp(decay_particle_pdg_code);
+  int mdcy = fPythia->GetMDCY(kc, 1);
+  if(mdcy == 0) {
+    LOG("Pythia6Decay", pNOTICE)
+       << (PDGLibrary::Instance())->Find(decay_particle_pdg_code)->GetName()
+       << " decays are inhibited!";
+    return false;
+  }
+
+  // Get sub of BRs and compute weight if decay channels were inhibited
+  double sumbr = this->SumOfBranchingRatios(kc);
+  if(sumbr <= 0) {
+    LOG("Pythia6Decay", pWARN)
+       << "The sum of enabled "
+       << (PDGLibrary::Instance())->Find(decay_particle_pdg_code)->GetName()
+       << " decay channel branching ratios is non-positive!";
+    return false;
+  }
+  fWeight = 1./sumbr; // update weight to account for inhibited channels
+
+  // Run PYTHIA6 decay
+  int    ip    = 0;
+  double E     = decay_particle_p4.Energy();
+  double theta = decay_particle_p4.Theta();
+  double phi   = decay_particle_p4.Phi();
+  fPythia->SetMSTJ(22,1);
+  py1ent_(&ip, &decay_particle_pdg_code, &E, &theta, &phi);
+
+  // Get decay products
+  fPythia->GetPrimaries();
+  TClonesArray * impl = (TClonesArray *) fPythia->ImportParticles("All");
+  if(!impl) {
+    LOG("Pythia6Decay", pWARN)
+      << "TPythia6::ImportParticles() returns a null list!";
+    return false;
+  }
+
+  // Copy the PYTHIA6 container to the GENIE event record
+
+  // Check whether the interaction is off a nuclear target or free nucleon
+  // Depending on whether this module is run before or after the hadron
+  // transport module it would affect the daughters status code
+  GHepParticle * target_nucleus = event->TargetNucleus();
+  bool in_nucleus = (target_nucleus!=0);
+
+  TMCParticle * p = 0;
+  TIter particle_iter(impl);
+  while( (p = (TMCParticle *) particle_iter.Next()) ) {
+    // Convert from TMCParticle to GHepParticle
+    GHepParticle mcp = GHepParticle(
+        p->GetKF(),                // pdg
+        GHepStatus_t(p->GetKS()),  // status
+        p->GetParent(),            // first parent
+        0,                         // second parent
+        p->GetFirstChild(),        // first daughter
+        p->GetLastChild(),         // second daughter
+        p->GetPx(),                // px
+        p->GetPy(),                // py
+        p->GetPz(),                // pz
+        p->GetEnergy(),            // e
+        p->GetVx(),                // x
+        p->GetVy(),                // y
+        p->GetVz(),                // z
+        p->GetTime()               // t
+    );
+
+    if(mcp.Status()==kIStNucleonTarget) continue; // mother particle, already in GHEP
+
+    int daughter_pdg_code = mcp.Pdg();
+    SLOG("Pythia6Decay", pINFO)
+       << "Adding daughter particle wit PDG code = "
+       << daughter_pdg_code << ", m = " << mcp.Mass()
+       << " GeV, E = " << mcp.Energy() << " GeV)";
+
+    bool is_hadron = pdg::IsHadron(daughter_pdg_code);
+    bool hadron_in_nuc = (in_nucleus && is_hadron && fRunBefHadroTransp);
+
+    GHepStatus_t daughter_status_code = (hadron_in_nuc) ?
+         kIStHadronInTheNucleus : kIStStableFinalState;
+
+    TLorentzVector daughter_p4(
+       mcp.Px(),mcp.Py(),mcp.Pz(),mcp.Energy());
+    event->AddParticle(
+       daughter_pdg_code, daughter_status_code,
+       decay_particle_id,-1,-1,-1,
+       daughter_p4, decay_particle_x4);
+  }
+
+  // Update the event weight for each weighted particle decay
+  double weight = event->Weight() * fWeight;
+  event->SetWeight(weight);
+
+  // Mark input particle as a 'decayed state' & add its daughter links
+  decay_particle->SetStatus(kIStDecayedState);
+
+  return true;
 }
 //____________________________________________________________________________
 void PythiaDecayer::Initialize(void) const
@@ -94,108 +213,35 @@ void PythiaDecayer::Initialize(void) const
   RandomGen::Instance();
 }
 //____________________________________________________________________________
-TClonesArray * PythiaDecayer::Decay(const DecayerInputs_t & inp) const
+bool PythiaDecayer::IsHandled(int pdg_code) const
 {
-  fWeight = 1.; // reset weight
+// does not handle requests to decay baryon resonances
 
-  int pdgc = inp.PdgCode;
+ bool is_handled = (!utils::res::IsBaryonResonance(pdg_code));
 
-  if ( ! this->IsHandled(pdgc) ) return 0;
-  
-  int kc   = fPythia->Pycomp(pdgc);
-  int mdcy = fPythia->GetMDCY(kc, 1);
-  if(mdcy == 0) {
-    LOG("PythiaDec", pNOTICE)
-       << (PDGLibrary::Instance())->Find(pdgc)->GetName() 
-       << " decays are inhibited!";
-    return 0;
-  }
+ LOG("Pythia6Decay", pDEBUG)
+    << "Can decay particle with PDG code = " << pdg_code
+    << "? " << ((is_handled)? "Yes" : "No");
 
-  double sumbr = this->SumBR(kc);
-  if(sumbr <= 0) {
-    LOG("PythiaDec", pNOTICE)
-       << "The sum of enabled "
-       << (PDGLibrary::Instance())->Find(pdgc)->GetName() 
-       << " decay channel branching rations is non-positive!";
-    return 0;
-  }
-
-  fWeight = 1./sumbr; // update weight to account for inhibited channels
-
-  int    ip    = 0;
-  double E     = inp.P4->Energy();
-  double Theta = inp.P4->Theta();
-  double Phi   = inp.P4->Phi();
-
-  fPythia->SetMSTJ(22,1);
-
-  py1ent_(&ip, &pdgc, &E, &Theta, &Phi);
-
-/*
-  //-- check whether we are asked to force the decay 
-  if(fForceDecay) {
-    int F = 1;
-    pydecy_(&F); // FORCE DECAY
-  }
-*/
-  
-  //-- get decay products
-  fPythia->GetPrimaries();
-  TClonesArray * impl = (TClonesArray *) fPythia->ImportParticles("All");
-
-  if(!impl) return 0;
-  
-  //-- copy PYTHIA container to a new TClonesArray so as to transfer ownership
-  //   of the container and of its elements to the calling method
-  TClonesArray * pl = new TClonesArray("TMCParticle", impl->GetEntries());
-
-  unsigned int i = 0;
-  TMCParticle * p = 0;
-  TIter particle_iter(impl);
-
-  while( (p = (TMCParticle *) particle_iter.Next()) ) {
-
-    string type = (p->GetKS()==11) ? "mother: " : "+ daughter: ";
-    SLOG("PythiaDec", pINFO)
-       << type << p->GetName() << " (pdg-code = "
-          << p->GetKF() << ", m = " << p->GetMass() 
-             << ", E = " << p->GetEnergy() << ")";
-
-    p->SetLifetime (p->GetLifetime() * units::mm/constants::kLightSpeed);
-    p->SetTime     (p->GetTime()     * units::mm/constants::kLightSpeed);
-    p->SetVx       (p->GetVx()       * units::mm);
-    p->SetVy       (p->GetVy()       * units::mm);
-    p->SetVz       (p->GetVz()       * units::mm);
-
-    new ( (*pl)[i++] ) TMCParticle(*p);
-  }
-
-  //-- transfer ownership and return
-  pl->SetOwner(true);    
-  return pl;
+  return is_handled;
 }
 //____________________________________________________________________________
-double PythiaDecayer::Weight(void) const 
+void PythiaDecayer::InhibitDecay(int pdg_code, TDecayChannel * dc) const
 {
-  return fWeight; 
-}
-//____________________________________________________________________________
-void PythiaDecayer::InhibitDecay(int pdgc, TDecayChannel * dc) const
-{
-  if(! this->IsHandled(pdgc)) return; 
+  if(! this->IsHandled(pdg_code)) return;
 
-  int kc = fPythia->Pycomp(pdgc);
+  int kc = fPythia->Pycomp(pdg_code);
 
   if(!dc) {
-    LOG("PythiaDec", pINFO)
-       << "Switching OFF ALL decay channels for particle = " << pdgc;
-    fPythia->SetMDCY(kc, 1,0); 
+    LOG("Pythia6Decay", pINFO)
+       << "Switching OFF ALL decay channels for particle = " << pdg_code;
+    fPythia->SetMDCY(kc, 1,0);
     return;
   }
 
-  LOG("PythiaDec", pINFO)
+  LOG("Pythia6Decay", pINFO)
      << "Switching OFF decay channel = " << dc->Number()
-     << " for particle = " << pdgc;
+     << " for particle = " << pdg_code;
 
   int ichannel = this->FindPythiaDecayChannel(kc, dc);
   if(ichannel != -1) {
@@ -203,31 +249,31 @@ void PythiaDecayer::InhibitDecay(int pdgc, TDecayChannel * dc) const
   }
 }
 //____________________________________________________________________________
-void PythiaDecayer::UnInhibitDecay(int pdgc, TDecayChannel * dc) const
+void PythiaDecayer::UnInhibitDecay(int pdg_code, TDecayChannel * dc) const
 {
-  if(! this->IsHandled(pdgc)) return; 
+  if(! this->IsHandled(pdg_code)) return;
 
-  int kc = fPythia->Pycomp(pdgc);
+  int kc = fPythia->Pycomp(pdg_code);
 
   if(!dc) {
-    LOG("PythiaDec", pINFO)
-      << "Switching ON all PYTHIA decay channels for particle = " << pdgc;
+    LOG("Pythia6Decay", pINFO)
+      << "Switching ON all PYTHIA decay channels for particle = " << pdg_code;
 
-    fPythia->SetMDCY(kc, 1,1); 
+    fPythia->SetMDCY(kc, 1,1);
 
     int first_channel = fPythia->GetMDCY(kc,2);
     int last_channel  = fPythia->GetMDCY(kc,2) + fPythia->GetMDCY(kc,3) - 1;
 
-    for(int ichannel = first_channel; 
+    for(int ichannel = first_channel;
             ichannel < last_channel; ichannel++) {
          fPythia->SetMDME(ichannel,1,1); // switch-on
     }
     return;
   }//!dc
 
-  LOG("PythiaDec", pINFO)
+  LOG("Pythia6Decay", pINFO)
      << "Switching OFF decay channel = " << dc->Number()
-     << " for particle = " << pdgc;
+     << " for particle = " << pdg_code;
 
   int ichannel = this->FindPythiaDecayChannel(kc, dc);
   if(ichannel != -1) {
@@ -235,7 +281,7 @@ void PythiaDecayer::UnInhibitDecay(int pdgc, TDecayChannel * dc) const
   }
 }
 //____________________________________________________________________________
-double PythiaDecayer::SumBR(int kc) const
+double PythiaDecayer::SumOfBranchingRatios(int kc) const
 {
 // Sum of branching ratios for enabled channels
 //
@@ -247,33 +293,25 @@ double PythiaDecayer::SumBR(int kc) const
   bool has_inhibited_channels=false;
 
   // loop over pythia decay channels
-  for(int ichannel = first_channel; 
+  for(int ichannel = first_channel;
           ichannel < last_channel; ichannel++) {
 
      bool enabled = (fPythia->GetMDME(ichannel,1) == 1);
-     if (!enabled) { 
-       has_inhibited_channels = true; 
+     if (!enabled) {
+       has_inhibited_channels = true;
      } else {
        sumbr += fPythia->GetBRAT(ichannel);
      }
-
-/*
-     LOG("PythiaDec", pDEBUG) 
-        << "ich: " << ichannel << ", " << ((enabled)? "ON" : "OFF")
-        << ", br = " << fPythia->GetBRAT(ichannel)
-        << ", curr_sum{br}[enabled] = " << sumbr;
-*/
   }
 
   if(!has_inhibited_channels) return 1.;
-
-  LOG("PythiaDec", pINFO) << "Sum{BR} = " << sumbr;
+  LOG("Pythia6Decay", pINFO) << "Sum{BR} = " << sumbr;
 
   return sumbr;
 }
 //____________________________________________________________________________
 int PythiaDecayer::FindPythiaDecayChannel(int kc, TDecayChannel* dc) const
-{	
+{
   if(!dc) return -1;
 
   int first_channel = fPythia->GetMDCY(kc,2);
@@ -282,24 +320,24 @@ int PythiaDecayer::FindPythiaDecayChannel(int kc, TDecayChannel* dc) const
   bool found_match = false;
 
   // loop over pythia decay channels
-  for(int ichannel = first_channel; 
+  for(int ichannel = first_channel;
           ichannel < last_channel; ichannel++) {
 
      // does the  current pythia channel matches the input TDecayChannel?
-     LOG("PythiaDec", pINFO)
+     LOG("Pythia6Decay", pINFO)
          << "\nComparing PYTHIA's channel = " << ichannel
          << " with TDecayChannel = " << dc->Number();
- 
+
      found_match = this->MatchDecayChannels(ichannel,dc);
      if(found_match) {
-         LOG("PythiaDec", pNOTICE)
+         LOG("Pythia6Decay", pNOTICE)
             << " ** TDecayChannel id = " << dc->Number()
             << " corresponds to PYTHIA6 channel id = " << ichannel;
          return ichannel;
      }//match?
   }//loop pythia decay ch.
 
-  LOG("PythiaDec", pWARN)
+  LOG("Pythia6Decay", pWARN)
      << " ** No PYTHIA6 decay channel match found for "
      << "TDecayChannel id = " << dc->Number();
 
@@ -309,30 +347,30 @@ int PythiaDecayer::FindPythiaDecayChannel(int kc, TDecayChannel* dc) const
 bool PythiaDecayer::MatchDecayChannels(int ichannel, TDecayChannel* dc) const
 {
   // num. of daughters in the input TDecayChannel & the input PYTHIA ichannel
-  int nd = dc->NDaughters(); 
+  int nd = dc->NDaughters();
 
   int py_nd = 0;
   for (int i = 1; i <= 5; i++) {
      if(fPythia->GetKFDP(ichannel,i) != 0) py_nd++;
   }
 
-  LOG("PythiaDec", pDEBUG)
+  LOG("Pythia6Decay", pDEBUG)
     << "NDaughters: PYTHIA = " << py_nd << ", ROOT's TDecayChannel = " << nd;
 
   if(nd != py_nd) return false;
-  
+
   //
   // if the two channels have the same num. of daughters, then compare them
   //
- 
+
   // store decay daughters for the input TDecayChannel
-  vector<int> dc_daughter(nd); 
+  vector<int> dc_daughter(nd);
   int k=0;
   for( ; k < nd; k++) {
      dc_daughter[k] = dc->DaughterPdgCode(k);
   }
   // store decay daughters for the input PYTHIA's ichannel
-  vector<int> py_daughter(nd); 
+  vector<int> py_daughter(nd);
   k=0;
   for(int i = 1; i <= 5; i++) {
      if(fPythia->GetKFDP(ichannel,i) == 0) continue;
@@ -340,35 +378,14 @@ bool PythiaDecayer::MatchDecayChannels(int ichannel, TDecayChannel* dc) const
      k++;
   }
 
-  // sort both daughter lists 
-  sort( dc_daughter.begin(), dc_daughter.end() ); 
+  // sort both daughter lists
+  sort( dc_daughter.begin(), dc_daughter.end() );
   sort( py_daughter.begin(), py_daughter.end() );
 
-  // compare  
+  // compare
   for(int i = 0; i < nd; i++) {
     if(dc_daughter[i] != py_daughter[i]) return false;
   }
   return true;
-}
-//____________________________________________________________________________
-void PythiaDecayer::Configure(const Registry & config)
-{
-  Algorithm::Configure(config);
-  this->LoadConfig();
-}
-//____________________________________________________________________________
-void PythiaDecayer::Configure(string config)
-{
-  Algorithm::Configure(config);
-  this->LoadConfig();
-}
-//____________________________________________________________________________
-void PythiaDecayer::LoadConfig(void)
-{
-// Read configuration options or set defaults
-/*
-  // check whether we are asked to force the decay / default = false
-  fForceDecay = fConfig->GetBoolDef("ForceDecay", false);
-*/
 }
 //____________________________________________________________________________

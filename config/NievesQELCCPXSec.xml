@@ -22,38 +22,48 @@ Parameters needed when Integrating with this model to generate splines:
 Name                                 Type     Optional   Comment                                              Default
 ...........................................................................................................................
 IntegralAverageOverNucleonMomentum   bool     Yes        Will be overridden to true if nuclear model is LFG   false
+IntegralNumberOfNucleonThrows        int      Yes        Number of nucleons to sample when computing splines  5000
 IntegralNuclearModel                 alg      No
 IntegralNuclearInfluenceCutoffEnergy double   Yes                                                             2.0
+RmaxMode                             string   Yes        Method to use to compute Rmax for integrating the    VertexGenerator
+                                                         Coulomb potential in NievesQELCCPXSec::vcr()
 -->
 
   <param_set name="Default">
 
-    <param type="string"  name="CommonParam"> CKM,FermiGas  </param>
+    <param type="string"  name="CommonParam"> CKM,FermiGas,NUCL </param>
 
     <param type="double" name="QEL-CC-XSecScale"> 1.000 </param>
 
-    <param type="alg"  name="XSec-Integrator">      genie::QELXSec/Default         </param>
+    <param type="alg"  name="XSec-Integrator"> genie::NewQELXSec/Default </param>
     <param type="alg"  name="IntegralNuclearModel"> genie::NuclearModelMap/Default </param>
+    <param type="string" name="IntegralNucleonBindingMode"> UseNuclearModel </param>
+    <param type="double" name = "IntegralNuclearInfluenceCutoffEnergy"> 10.0 </param>
 
     <param type="bool" name="RPA">             true                          </param>
     <param type="bool" name="Coulomb">         true                         </param>
     <param type="bool" name="PrintDebugData">  false                          </param>
 
-    <param type="bool" name = "IntegralAverageOverNucleonMomentum">   true   </param>
-    <param type="double" name = "IntegralNuclearInfluenceCutoffEnergy">    2.0   </param>
+    <param type="alg" name = "PauliBlockerAlg"> genie::PauliBlocker/Default </param>
+    <param type="bool" name = "DoPauliBlocking"> true </param>
+
+    <!-- Use the same Rmax as in genie::VertexGenerator -->
+    <param type="string" name = "RmaxMode"> VertexGenerator </param>
+
+    <!-- Use the same Rmax as in Nieves' original paper
+      <param type="string" name = "RmaxMode"> Nieves </param>
+    -->
 
   </param_set>
 
 
   <param_set name="Dipole">
-     <param type="alg"  name="FormFactorsAlg">  genie::LwlynSmithFFCC/Dipole  </param>
-
+    <param type="alg"  name="FormFactorsAlg"> genie::LwlynSmithFFCC/Dipole </param>
   </param_set>
 
 
   <param_set name="ZExp">
-     <param type="alg"  name="FormFactorsAlg">  genie::LwlynSmithFFCC/ZExp    </param>
-
+    <param type="alg"  name="FormFactorsAlg"> genie::LwlynSmithFFCC/ZExp </param>
   </param_set>
 
 </alg_conf>

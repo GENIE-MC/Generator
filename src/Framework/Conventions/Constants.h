@@ -10,7 +10,7 @@
 
 \created   May 03, 2004
 
-\cpright   Copyright (c) 2003-2018, The GENIE Collaboration
+\cpright   Copyright (c) 2003-2019, The GENIE Collaboration
            For the full text of the license visit http://copyright.genie-mc.org
            or see $GENIE/LICENSE
 */
@@ -75,7 +75,7 @@ static const double kPionMass       =  1.3957018e-01;          // GeV
 static const double kPi0Mass        =  1.349766e-01;           // GeV
 static const double kProtonMass     =  9.38272081e-01;           // GeV
 static const double kNeutronMass    =  9.39565413e-01;           // GeV
-static const double kNucleonMass    =  (kProtonMass+kNeutronMass)/2.;
+static const double kNucleonMass    =  (kProtonMass+kNeutronMass)/2.;  //GeV
 static const double kLightestChmHad =  1.870;               // GeV ~lightest charm hadron+
 static const double kPhotontest     =  1E-6;                // GeV
 
