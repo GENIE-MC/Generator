@@ -30,6 +30,7 @@
 #define _NIEVES_SIMO_VACAS_MEC_PXSEC_2016_H_
 
 #include "Framework/EventGen/XSecAlgorithmI.h"
+#include "Physics/HadronTensors/HadronTensorModelI.h"
 
 namespace genie {
 
@@ -62,12 +63,11 @@ private:
   void Scanq0q3_np (void);
 
   //for buildingRWhistograms
-  void buildRWhistos (void);  
+  void buildRWhistos (void);
 
   double fXSecScale; ///< external xsec scaling factor
 
-  /// Name of the hadron tensor table to use for this model
-  std::string fHadronTensorTableName;
+  const HadronTensorModelI* fHadronTensorModel;
 
   const XSecIntegratorI *  fXSecIntegrator; // Numerical integrator (GSL)
 

@@ -16,7 +16,7 @@
 #include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/Utils/KineUtils.h"
-#include "Physics/HadronTensors/HadronTensorPool.h"
+#include "Physics/HadronTensors/NievesMECHadronTensorModel.h"
 #include "Physics/HadronTensors/ValenciaHadronTensorI.h"
 #include "Physics/Multinucleon/XSection/NievesSimoVacasMECPXSec2016.h"
 #include "Physics/Multinucleon/XSection/MECUtils.h"
@@ -53,9 +53,6 @@ double NievesSimoVacasMECPXSec2016::XSec(
 {
   // This function returns d2sigma/(dTmu dcos_mu) in GeV^(-3)
 
-  // Get the hadron tensor pool
-  HadronTensorPool& htp = HadronTensorPool::Instance();
-
   int target_pdg = interaction->InitState().Tgt().Pdg();
 
   int A_request = pdg::IonPdgCodeToA(target_pdg);
@@ -80,8 +77,7 @@ double NievesSimoVacasMECPXSec2016::XSec(
 
   /// \todo Replace these hard-coded replacements with an equivalent XML
   /// configuration
-  if ( ! htp.GetTensor(tensor_pdg, genie::kHT_MEC_FullAll,
-    fHadronTensorTableName) )
+  if ( ! fHadronTensorModel->GetTensor(tensor_pdg, genie::kHT_MEC_FullAll) )
   {
 
     if ( A_request == 4 && Z_request == 2 ) {
@@ -151,8 +147,8 @@ double NievesSimoVacasMECPXSec2016::XSec(
   genie::utils::mec::Getq0q3FromTlCostl(Tl, costl, Ev, ml, Q0, Q3);
 
   const ValenciaHadronTensorI* tensor
-    = dynamic_cast<const ValenciaHadronTensorI*>( htp.GetTensor(tensor_pdg,
-    genie::kHT_MEC_FullAll, fHadronTensorTableName) );
+    = dynamic_cast<const ValenciaHadronTensorI*>(
+    fHadronTensorModel->GetTensor(tensor_pdg, genie::kHT_MEC_FullAll) );
 
   // If retrieving the tensor failed, complain and return zero
   if ( !tensor ) {
@@ -192,8 +188,8 @@ double NievesSimoVacasMECPXSec2016::XSec(
   if ( delta ) {
 
     const ValenciaHadronTensorI* tensor_delta_all
-      = dynamic_cast<const ValenciaHadronTensorI*>( htp.GetTensor(tensor_pdg,
-      genie::kHT_MEC_DeltaAll, fHadronTensorTableName) );
+      = dynamic_cast<const ValenciaHadronTensorI*>(
+      fHadronTensorModel->GetTensor(tensor_pdg, genie::kHT_MEC_DeltaAll) );
 
     if ( !tensor_delta_all ) {
       LOG("NievesSimoVacasMEC", pWARN) << "Failed to load a \"DeltaAll\""
@@ -202,8 +198,8 @@ double NievesSimoVacasMECPXSec2016::XSec(
     }
 
     const ValenciaHadronTensorI* tensor_delta_pn
-      = dynamic_cast<const ValenciaHadronTensorI*>( htp.GetTensor(tensor_pdg,
-      genie::kHT_MEC_Deltapn, fHadronTensorTableName) );
+      = dynamic_cast<const ValenciaHadronTensorI*>(
+      fHadronTensorModel->GetTensor(tensor_pdg, genie::kHT_MEC_Deltapn) );
 
     if ( !tensor_delta_pn ) {
       LOG("NievesSimoVacasMEC", pWARN) << "Failed to load a \"Deltapn\""
@@ -218,8 +214,8 @@ double NievesSimoVacasMECPXSec2016::XSec(
   else {
 
     const ValenciaHadronTensorI* tensor_full_all
-      = dynamic_cast<const ValenciaHadronTensorI*>( htp.GetTensor(tensor_pdg,
-      genie::kHT_MEC_FullAll, fHadronTensorTableName) );
+      = dynamic_cast<const ValenciaHadronTensorI*>(
+      fHadronTensorModel->GetTensor(tensor_pdg, genie::kHT_MEC_FullAll) );
 
     if ( !tensor_full_all ) {
       LOG("NievesSimoVacasMEC", pWARN) << "Failed to load a \"FullAll\""
@@ -228,8 +224,8 @@ double NievesSimoVacasMECPXSec2016::XSec(
     }
 
     const ValenciaHadronTensorI* tensor_full_pn
-      = dynamic_cast<const ValenciaHadronTensorI*>( htp.GetTensor(tensor_pdg,
-      genie::kHT_MEC_Fullpn, fHadronTensorTableName) );
+      = dynamic_cast<const ValenciaHadronTensorI*>(
+      fHadronTensorModel->GetTensor(tensor_pdg, genie::kHT_MEC_Fullpn) );
 
     if ( !tensor_full_pn ) {
       LOG("NievesSimoVacasMEC", pWARN) << "Failed to load a \"Fullpn\""
@@ -340,9 +336,9 @@ void NievesSimoVacasMECPXSec2016::LoadConfig(void)
 	// Cross section scaling factor
 	GetParam( "MEC-CC-XSecScale", fXSecScale ) ;
 
-        // Name of the hadron tensor table to use for this model
-        GetParamDef( "HadronTensorTableName", fHadronTensorTableName,
-          std::string("Nieves_MEC"));
+	fHadronTensorModel = dynamic_cast<const HadronTensorModelI *> (
+          this->SubAlg("HadronTensorAlg") );
+        assert( fHadronTensorModel );
 
 	fXSecIntegrator =
         dynamic_cast<const XSecIntegratorI *> (
@@ -361,13 +357,9 @@ void NievesSimoVacasMECPXSec2016::Scanq0q3(void)
 {
   std::cout << "Calling NievesSimoVacasMECPXSec2016::Scanq0q3" << std::endl;
 
-
-  // Get the hadron tensor pool
-  HadronTensorPool& htp = HadronTensorPool::Instance();
-
   // Runs after loading the tensors.  But all this is hard coded, so you need a private build.
   // Can gmkspl | grep dsdq0q3 > output.dat
-  
+
   int nu_pdg = 14;
   int target_pdg = kPdgTgtC12;
   double Enu = 3.0;
@@ -404,9 +396,9 @@ void NievesSimoVacasMECPXSec2016::Scanq0q3(void)
 
 
   const ValenciaHadronTensorI* tensor
-    = dynamic_cast<const ValenciaHadronTensorI*>( htp.GetTensor(target_pdg,
-    tensor_type, "Nieves_MEC") );
-  
+    = dynamic_cast<const ValenciaHadronTensorI*>(
+    fHadronTensorModel->GetTensor(target_pdg, tensor_type) );
+
 
   double Q0min = tensor->q0Min();
   double Q0max = tensor->q0Max();
@@ -415,24 +407,24 @@ void NievesSimoVacasMECPXSec2016::Scanq0q3(void)
 
   std::cout << "Scanq0q3: q0 min / max is " << Q0min << " / " << Q0max << std::endl;
   std::cout << "Scanq0q3: q3 min / max is " << Q3min << " / " << Q3max << std::endl;
-    
+
   for(int iq = 0; iq<nbins; iq++){
     for(int iw = 0; iw<nbins; iw++){
       myq = addhalfstep + step * (double)iq;
       myw = addhalfstep + step * (double)iw;
       int myBin_qw = nievesq0q3Hist->FindBin(myq,myw);
 
-      
+
       genie::utils::mec::GetTlCostlFromq0q3(myw, myq, Enu, Ml, Tl, costhl);
 
       double xsec = 0.0;
-      if(myq > Q3max || myq < Q3min || myw > Q0max || myw < Q0min){ 
+      if(myq > Q3max || myq < Q3min || myw > Q0max || myw < Q0min){
         xsec = 0.0;
       }
       else if (Tl < 0.0){
         xsec = 0.0;
       }
-      else { 
+      else {
         xsec = tensor->dSigma_dT_dCosTheta(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
 
         double w00 = (tensor->tt(myw,myq)).real();
@@ -461,7 +453,7 @@ void NievesSimoVacasMECPXSec2016::Scanq0q3(void)
       xsec = xsec / (1.0E-38 * units::cm2);  // output in something other than genie units.
 
       //SD 04/12/17 - apply SuSAv2 correction factor (cos^2theta_c):
-      //corr_fact=0.9471182*1000.;    
+      //corr_fact=0.9471182*1000.;
 
       nievesq0q3Hist->SetBinContent(myBin_qw, xsec);
 
@@ -479,20 +471,16 @@ void NievesSimoVacasMECPXSec2016::Scanq0q3(void)
   nievesW12Hist->Write();
   nievesW33Hist->Write();
   nievesq0q3Hist->SaveAs("nievesq0q3.png");
-  nievesq0q3->Close();    
+  nievesq0q3->Close();
 }
 //_________________________________________________________________________
 void NievesSimoVacasMECPXSec2016::Scanq0q3_np(void)
 {
   std::cout << "Calling NievesSimoVacasMECPXSec2016::Scanq0q3_np" << std::endl;
 
-
-  // Get the hadron tensor pool
-  HadronTensorPool& htp = HadronTensorPool::Instance();
-
   // Runs after loading the tensors.  But all this is hard coded, so you need a private build.
   // Can gmkspl | grep dsdq0q3 > output.dat
-  
+
   int nu_pdg = 14;
   int target_pdg = kPdgTgtC12;
   double Enu = 3.0;
@@ -529,9 +517,8 @@ void NievesSimoVacasMECPXSec2016::Scanq0q3_np(void)
 
 
   const ValenciaHadronTensorI* tensor
-    = dynamic_cast<const ValenciaHadronTensorI*>( htp.GetTensor(target_pdg,
-    tensor_type, "Nieves_MEC") );
-  
+    = dynamic_cast<const ValenciaHadronTensorI*>(
+    fHadronTensorModel->GetTensor(target_pdg, tensor_type) );
 
   double Q0min = tensor->q0Min();
   double Q0max = tensor->q0Max();
@@ -540,24 +527,24 @@ void NievesSimoVacasMECPXSec2016::Scanq0q3_np(void)
 
   std::cout << "Scanq0q3: q0 min / max is " << Q0min << " / " << Q0max << std::endl;
   std::cout << "Scanq0q3: q3 min / max is " << Q3min << " / " << Q3max << std::endl;
-    
+
   for(int iq = 0; iq<nbins; iq++){
     for(int iw = 0; iw<nbins; iw++){
       myq = addhalfstep + step * (double)iq;
       myw = addhalfstep + step * (double)iw;
       int myBin_qw = nievesq0q3Hist->FindBin(myq,myw);
 
-      
+
       genie::utils::mec::GetTlCostlFromq0q3(myw, myq, Enu, Ml, Tl, costhl);
 
       double xsec = 0.0;
-      if(myq > Q3max || myq < Q3min || myw > Q0max || myw < Q0min){ 
+      if(myq > Q3max || myq < Q3min || myw > Q0max || myw < Q0min){
         xsec = 0.0;
       }
       else if (Tl < 0.0){
         xsec = 0.0;
       }
-      else { 
+      else {
         xsec = tensor->dSigma_dT_dCosTheta(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
 
         double w00 = (tensor->tt(myw,myq)).real();
@@ -586,7 +573,7 @@ void NievesSimoVacasMECPXSec2016::Scanq0q3_np(void)
       xsec = xsec / (1.0E-38 * units::cm2);  // output in something other than genie units.
 
       //SD 04/12/17 - apply SuSAv2 correction factor (cos^2theta_c):
-      //corr_fact=0.9471182*1000.;    
+      //corr_fact=0.9471182*1000.;
 
       nievesq0q3Hist->SetBinContent(myBin_qw, xsec);
 
@@ -604,7 +591,7 @@ void NievesSimoVacasMECPXSec2016::Scanq0q3_np(void)
   nievesW12Hist->Write();
   nievesW33Hist->Write();
   nievesq0q3Hist->SaveAs("nievesq0q3.png");
-  nievesq0q3->Close();    
+  nievesq0q3->Close();
 }
 
 //_________________________________
@@ -612,12 +599,8 @@ void NievesSimoVacasMECPXSec2016::buildRWhistos(void)
 {
   std::cout << "Calling NievesSimoVacasMECPXSec2016::buildRWhistos" << std::endl;
 
-
-  // Get the hadron tensor pool
-  HadronTensorPool& htp = HadronTensorPool::Instance();
-
   // Runs after loading the tensors.  But all this is hard coded, so you need a private build.
-  
+
   int nu_pdg = 14;
   int target_pdg = kPdgTgtC12;
   double Enu = 3.0;
@@ -653,8 +636,8 @@ void NievesSimoVacasMECPXSec2016::buildRWhistos(void)
 
 
   const ValenciaHadronTensorI* tensor
-    = dynamic_cast<const ValenciaHadronTensorI*>( htp.GetTensor(target_pdg,
-    tensor_type, "Nieves_MEC") );
+    = dynamic_cast<const ValenciaHadronTensorI*>(
+    fHadronTensorModel->GetTensor(target_pdg, tensor_type) );
 
   if(!tensor){
     std::cout << "ERROR!!!! Tensor is NULL" << std::endl;
@@ -678,17 +661,17 @@ void NievesSimoVacasMECPXSec2016::buildRWhistos(void)
         int myBin_qw = nievesEnuq0q3Hist->FindBin(myenu,myq,myw);
 
         if(ienu%50 && iq==0 && iw==0) std::cout << "buildRWhistos: energy is " << myenu <<  ", max is " << upperEnu << std::endl;
-        
+
         genie::utils::mec::GetTlCostlFromq0q3(myw, myq, Enu, Ml, Tl, costhl);
 
         double xsec = 0.0;
-        if(myq > Q3max || myq < Q3min || myw > Q0max || myw < Q0min){ 
+        if(myq > Q3max || myq < Q3min || myw > Q0max || myw < Q0min){
           xsec = 0.0;
         }
         else if (Tl < 0.0){
           xsec = 0.0;
         }
-        else { 
+        else {
           xsec = tensor->dSigma_dT_dCosTheta_rosenbluth(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
         }
 
@@ -696,7 +679,7 @@ void NievesSimoVacasMECPXSec2016::buildRWhistos(void)
         xsec *= fXSecScale;
 
         // output in something other than genie units.
-        xsec = xsec / (1.0E-38 * units::cm2);  
+        xsec = xsec / (1.0E-38 * units::cm2);
 
         //Find bin and fill:
         nievesEnuq0q3Hist->SetBinContent(myBin_qw, xsec);
@@ -713,5 +696,5 @@ void NievesSimoVacasMECPXSec2016::buildRWhistos(void)
   nievesEnuCthTlHist->Write();
 
   //nievesq0q3Hist->SaveAs("nievesq0q3.png");
-  nievesq0q3->Close();    
+  nievesq0q3->Close();
 }

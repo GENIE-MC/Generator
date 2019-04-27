@@ -112,7 +112,7 @@ void QELKinematicsGeneratorSuSA::SelectLeptonKinematics (GHepRecord * event) con
   double Plep = 0.0; // lepton 3 momentum
   double Elep = 0.0; // lepton energy
   double LepMass = interaction->FSPrimLepton()->Mass();
-  
+
   double Q0 = 0.0; // energy component of q four vector
   double Q3 = 0.0; // magnitude of transfered 3 momentum
   double Q2 = 0.0; // properly Q^2 (Q squared) - transfered 4 momentum.
@@ -128,13 +128,13 @@ void QELKinematicsGeneratorSuSA::SelectLeptonKinematics (GHepRecord * event) con
   // make the accept/reject loop more efficient by using Min values.
   if(Enu < fQ3Max){
     TMin = 0 ;
-    CosthMin = -1 ; 
+    CosthMin = -1 ;
   } else {
     TMin = TMath::Sqrt(TMath::Power(LepMass, 2) + TMath::Power((Enu - fQ3Max), 2)) - LepMass;
     CosthMin = TMath::Sqrt(1 - TMath::Power((fQ3Max / Enu ), 2));
   }
 
-  
+
   // -- Generate and Test the Kinematics----------------------------------//
 
   RandomGen * rnd = RandomGen::Instance();
@@ -159,7 +159,7 @@ void QELKinematicsGeneratorSuSA::SelectLeptonKinematics (GHepRecord * event) con
       if(iter > maxIter) {
           // error if try too many times
           LOG("QELEvent", pERROR)
-              << "Couldn't select a valid Tmu, CosTheta pair after " 
+              << "Couldn't select a valid Tmu, CosTheta pair after "
               << iter << " iterations";
           event->EventFlags()->SetBitNumber(kKineGenErr, true);
           genie::exceptions::EVGThreadException exception;
@@ -173,7 +173,7 @@ void QELKinematicsGeneratorSuSA::SelectLeptonKinematics (GHepRecord * event) con
       Costh = CosthMin + (CosthMax-CosthMin)*rnd->RndKine().Rndm();
 
       // Anti neutrino elastic scattering case - include delta in xsec
-      if(TgtPDG==kPdgTgtFreeP){ 
+      if(TgtPDG==kPdgTgtFreeP){
         genie::utils::mec::Getq0q3FromTlCostl(T, Costh, Enu, LepMass, Q0, Q3);
         Q3 = sqrt(Q0*Q0+2*kNucleonMass*Q0);
         genie::utils::mec::GetTlCostlFromq0q3(Q0, Q3, Enu, LepMass, T, Costh);
@@ -197,15 +197,15 @@ void QELKinematicsGeneratorSuSA::SelectLeptonKinematics (GHepRecord * event) con
               LOG("QELEvent", pDEBUG) << "XSec in cm2 is  " << XSec/(units::cm2);
               LOG("QELEvent", pDEBUG) << "XSec in cm2 /neutron is  " << XSec/(units::cm2*pdg::IonPdgCodeToZ(TgtPDG));
               LOG("QELEvent", pDEBUG) << "XSecMax in cm2 /neutron is  " << XSecMax/(units::cm2*pdg::IonPdgCodeToZ(TgtPDG));
-              LOG("QELEvent", pERROR) << "XSec is > XSecMax for nucleus " << TgtPDG << " " 
-                                 << XSec << " > " << XSecMax 
+              LOG("QELEvent", pERROR) << "XSec is > XSecMax for nucleus " << TgtPDG << " "
+                                 << XSec << " > " << XSecMax
                                  << " don't let this happen.";
           }
           // decide whether to accept or reject these kinematics
           assert(XSec <= XSecMax);
           accept = XSec > XSecMax*rnd->RndKine().Rndm();
-          LOG("QELEvent", pINFO) << "Xsec, Max, Accept: " << XSec << ", " 
-              << XSecMax << ", " << accept; 
+          LOG("QELEvent", pINFO) << "Xsec, Max, Accept: " << XSec << ", "
+              << XSecMax << ", " << accept;
               LOG("QELEvent", pDEBUG) << "XSec in cm2 /neutron is  " << XSec/(units::cm2*pdg::IonPdgCodeToZ(TgtPDG));
               LOG("QELEvent", pDEBUG) << "XSecMax in cm2 /neutron is  " << XSecMax/(units::cm2*pdg::IonPdgCodeToZ(TgtPDG));
 
@@ -229,14 +229,14 @@ void QELKinematicsGeneratorSuSA::SelectLeptonKinematics (GHepRecord * event) con
   double PlepX = PlepXY * TMath::Cos(phi);
   double PlepY = PlepXY * TMath::Sin(phi);
 
-  // Rotate lepton momentum vector from the reference frame (x'y'z') where 
+  // Rotate lepton momentum vector from the reference frame (x'y'z') where
   // {z':(neutrino direction), z'x':(theta plane)} to the LAB
   TVector3 unit_nudir = event->Probe()->P4()->Vect().Unit();
   TVector3 p3l(PlepX, PlepY, PlepZ);
   p3l.RotateUz(unit_nudir);
 
   // Lepton 4-momentum in LAB
-  Elep = TMath::Sqrt(LepMass*LepMass + PlepX*PlepX + PlepY*PlepY + PlepZ*PlepZ); 
+  Elep = TMath::Sqrt(LepMass*LepMass + PlepX*PlepX + PlepY*PlepY + PlepZ*PlepZ);
   TLorentzVector p4l(p3l,Elep);
 
   // Figure out the final-state primary lepton PDG code
@@ -313,7 +313,7 @@ void QELKinematicsGeneratorSuSA::AddTargetNucleusRemnant(GHepRecord * event) con
         assert(remn);
     }
 
-    double Mi = nucleus->Mass();  
+    double Mi = nucleus->Mass();
     Px *= -1;
     Py *= -1;
     Pz *= -1;
@@ -363,7 +363,7 @@ void QELKinematicsGeneratorSuSA::GenerateNucleon(GHepRecord * event) const
     assert(remnant_nucleus);
 
     // instantiate an empty local target nucleus, so I can use existing methods
-    // to get a momentum from the prevailing Fermi-motion distribution 
+    // to get a momentum from the prevailing Fermi-motion distribution
     Target tgt(target_nucleus->Pdg());
 
     // These things need to be saved through to the end of the accept loop.
@@ -394,7 +394,7 @@ void QELKinematicsGeneratorSuSA::GenerateNucleon(GHepRecord * event) const
         if(iter > kRjMaxIterations) {
             // error if try too many times
             LOG("QELEvent", pWARN)
-                << "Couldn't select a valid nucleon after " 
+                << "Couldn't select a valid nucleon after "
                 << iter << " iterations";
             event->EventFlags()->SetBitNumber(kKineGenErr, true);
             genie::exceptions::EVGThreadException exception;
@@ -412,9 +412,9 @@ void QELKinematicsGeneratorSuSA::GenerateNucleon(GHepRecord * event) const
         fNuclModel->GenerateNucleon(tgt,hitNucPos);
         p3i = fNuclModel->Momentum3();
 
-        // Defaulf: Calculate the removal energy as in Guille's thesis - this is a simplicification of 
-        // a fairly complex aproach employed in SuSAv2, but we expect it to work pretty well. 
-        // We should write something about this in the implementation technical paper ... 
+        // Defaulf: Calculate the removal energy as in Guille's thesis - this is a simplicification of
+        // a fairly complex aproach employed in SuSAv2, but we expect it to work pretty well.
+        // We should write something about this in the implementation technical paper ...
         // IMPORTANT CAVEAT: By default we choose to allow the binding energy to depend on the interaction
         // (as it should), but this means we don't corrolate the chosen Eb with the intial nucleon
         // momentum. Therefore we can sometimes have initial state nucleons with KE>Eb. This isn't
@@ -448,8 +448,8 @@ void QELKinematicsGeneratorSuSA::GenerateNucleon(GHepRecord * event) const
 
         //One rather unsubtle option for making sure nucleons remain bound.
         //This will give us bound nucleons with a sensible missing eneergy
-        //but the distribution of Fermi motion will look crazy. 
-        // Anything we do is wrong (without semi-inclusive inputs) you just 
+        //but the distribution of Fermi motion will look crazy.
+        // Anything we do is wrong (without semi-inclusive inputs) you just
         // have to decide what is less wrong!
         if(fForceBound && (energy-mass>removalenergy)) continue;
 
@@ -461,7 +461,7 @@ void QELKinematicsGeneratorSuSA::GenerateNucleon(GHepRecord * event) const
         p4final_nucleon = p4initial_nucleon + Q4 + tLVebind;
 
         // Put on shell as in the Aggregator
-        // This is a bit of a horrible approximation but it is hard to think 
+        // This is a bit of a horrible approximation but it is hard to think
         // of anything simple and better without semi-inclusive model predictions.
         // However, we are working on an improvments.
         double En = p4final_nucleon.E();
@@ -533,7 +533,7 @@ void QELKinematicsGeneratorSuSA::GenerateNucleon(GHepRecord * event) const
     // or for sophisticated treatments of intranuclear rescattering.
     TLorentzVector v4(*neutrino->X4());
 
-    // Now add the final nucleon 
+    // Now add the final nucleon
 
     interaction->KinePtr()->SetHadSystP4(p4final_nucleon);
 
@@ -544,12 +544,12 @@ void QELKinematicsGeneratorSuSA::GenerateNucleon(GHepRecord * event) const
 
 }
 //___________________________________________________________________________
-void QELKinematicsGeneratorSuSA::Configure(const Registry & config)   
+void QELKinematicsGeneratorSuSA::Configure(const Registry & config)
 {
     Algorithm::Configure(config);
     this->LoadConfig();
-} 
-//___________________________________________________________________________ 
+}
+//___________________________________________________________________________
 void QELKinematicsGeneratorSuSA::Configure(string config)
 {
     Algorithm::Configure(config);
@@ -563,7 +563,7 @@ void QELKinematicsGeneratorSuSA::LoadConfig(void)
     fNuclModel = dynamic_cast<const NuclearModelI *> (this->SubAlg(nuclkey));
     assert(fNuclModel);
 
-    //-- Maximum q3 in input hadron tensors 
+    //-- Maximum q3 in input hadron tensors
     GetParam( "QEL-Q3Max", fQ3Max ) ;
 
     //-- Whether to force nucleons to be bound
@@ -635,8 +635,8 @@ double QELKinematicsGeneratorSuSA::ComputeMaxXSec(
 
     for(int i=0; i<N; i++) {
       double Q2 = TMath::Exp(logQ2min + i * dlogQ2);
-      // Calculate other useful values 
-      double pl = TMath::Sqrt( T * (T + (2.0 * LepMass)));  
+      // Calculate other useful values
+      double pl = TMath::Sqrt( T * (T + (2.0 * LepMass)));
       double q0 = Enu - TMath::Sqrt(pl*pl+LepMass*LepMass);
       double q3 = TMath::Sqrt(Q2+q0*q0);
       double cthl = (pl*pl + Enu*Enu - q3*q3)/(2*pl*Enu);

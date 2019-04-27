@@ -1,7 +1,9 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::SuSAv2MECPXSec
+NEED TO REWRITE THIS BEFORE COMMITTING
+
+\class    genie::SuSAv2QELPXSec
 
 \brief    Computes the SuSAv2-MEC model differential cross section.
           Uses precomputed hadron tensor tables.
@@ -16,29 +18,30 @@
 
 \created  November 2, 2018
 
-\cpright  Copyright (c) 2003-2018, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
 //____________________________________________________________________________
 
-#ifndef _SUSAV2_MEC_PXSEC_H_
-#define _SUSAV2_MEC_PXSEC_H_
+#ifndef _SUSAV2_QE_PXSEC_H_
+#define _SUSAV2_QE_PXSEC_H_
 
 #include "Framework/EventGen/XSecAlgorithmI.h"
+#include "Physics/HadronTensors/HadronTensorI.h"
 #include "Physics/HadronTensors/HadronTensorModelI.h"
 
 namespace genie {
 
 class XSecIntegratorI;
 
-class SuSAv2MECPXSec : public XSecAlgorithmI {
+class SuSAv2QELPXSec : public XSecAlgorithmI {
 
 public:
 
-  SuSAv2MECPXSec();
-  SuSAv2MECPXSec(string config);
-  virtual ~SuSAv2MECPXSec();
+  SuSAv2QELPXSec();
+  SuSAv2QELPXSec(string config);
+  virtual ~SuSAv2QELPXSec();
 
   // XSecAlgorithmI interface implementation
   double XSec(const Interaction* i, KinePhaseSpace_t k) const;
@@ -73,7 +76,7 @@ private:
   /// tensor elements
   double fVud2;
 
-  const genie::HadronTensorModelI* fHadronTensorModel;
+  const HadronTensorModelI* fHadronTensorModel;
 
   // Fermi momentum table used for scaling
   string fKFTable;
@@ -84,4 +87,4 @@ private:
 };
 
 } // genie namespace
-#endif // _SUSAV2_MEC_PXSEC_H_
+#endif // _SUSAV2_QE_PXSEC_H_

@@ -1,6 +1,6 @@
 //_________________________________________________________________________
 /*
- Copyright (c) 2003-2018, The GENIE Collaboration
+ Copyright (c) 2003-2019, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -14,9 +14,9 @@
 #include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/Utils/KineUtils.h"
-#include "Physics/HadronTensors/SuSAv2MECHadronTensorModel.h"
 #include "Physics/HadronTensors/ValenciaHadronTensorI.h"
-#include "Physics/Multinucleon/XSection/SuSAv2MECPXSec.h"
+#include "Physics/HadronTensors/SuSAv2QELHadronTensorModel.h"
+#include "Physics/QuasiElastic/XSection/SuSAv2QELPXSec.h"
 #include "Physics/Multinucleon/XSection/MECUtils.h"
 #include "Physics/XSectionIntegration/XSecIntegratorI.h"
 #include "Physics/NuclearState/FermiMomentumTablePool.h"
@@ -31,20 +31,20 @@
 using namespace genie;
 
 //_________________________________________________________________________
-SuSAv2MECPXSec::SuSAv2MECPXSec() : XSecAlgorithmI("genie::SuSAv2MECPXSec")
+SuSAv2QELPXSec::SuSAv2QELPXSec() : XSecAlgorithmI("genie::SuSAv2QELPXSec")
 {
 }
 //_________________________________________________________________________
-SuSAv2MECPXSec::SuSAv2MECPXSec(string config)
-  : XSecAlgorithmI("genie::SuSAv2MECPXSec", config)
+SuSAv2QELPXSec::SuSAv2QELPXSec(string config)
+  : XSecAlgorithmI("genie::SuSAv2QELPXSec", config)
 {
 }
 //_________________________________________________________________________
-SuSAv2MECPXSec::~SuSAv2MECPXSec()
+SuSAv2QELPXSec::~SuSAv2QELPXSec()
 {
 }
 //_________________________________________________________________________
-double SuSAv2MECPXSec::XSec(const Interaction* interaction,
+double SuSAv2QELPXSec::XSec(const Interaction* interaction,
   KinePhaseSpace_t kps) const
 {
   // Get the hadron tensor for the selected nuclide. Check the probe PDG code
@@ -58,21 +58,16 @@ double SuSAv2MECPXSec::XSec(const Interaction* interaction,
   bool need_to_scale = false;
 
   HadronTensorType_t tensor_type = kHT_Undefined;
-  HadronTensorType_t pn_tensor_type = kHT_Undefined;
   if ( pdg::IsNeutrino(probe_pdg) || pdg::IsAntiNeutrino(probe_pdg) ) {
-    tensor_type = kHT_MEC_FullAll;
-    pn_tensor_type = kHT_MEC_Fullpn;
-    //tensor_type = kHT_MEC_FullAll_wImag;
-    //pn_tensor_type = kHT_MEC_FullAll_wImag;
+    tensor_type = kHT_QE_Full;
   }
   else {
     // If the probe is not a neutrino, assume that it's an electron
-    // For the moment all electron interactions are pp final state
-    tensor_type = kHT_MEC_EM;
-    pn_tensor_type = kHT_MEC_EM;
+    tensor_type = kHT_QE_EM;
   }
 
   /// \todo Add more hadron tensors so this scaling is not so terrible
+  // At the moment all we have is Carbon so this is all just a place holder ...
   if ( A_request == 4 && Z_request == 2 ) {
     tensor_pdg = kPdgTgtC12;
     // This is for helium 4, but use carbon tensor
@@ -89,35 +84,28 @@ double SuSAv2MECPXSec::XSec(const Interaction* interaction,
     tensor_pdg = kPdgTgtC12;
   }
   else if(A_request >= 15 && A_request < 22) {
-      tensor_pdg = kPdgTgtO16;
+      tensor_pdg = kPdgTgtC12;
   }
   else if(A_request >= 22) {
-      tensor_pdg = kPdgTgtO16;
+      tensor_pdg = kPdgTgtC12;
       LOG("SuSAv2MEC", pWARN) << "Dangerous scaling from " << target_pdg << " to " << tensor_pdg;
       LOG("SuSAv2MEC", pWARN) << "Hadron tensors for such heavy elements not ready yet";
       LOG("SuSAv2MEC", pWARN) << "Proceed at your own peril!";
   }
 
+  if (tensor_pdg != target_pdg) need_to_scale = true;
 
-  if(tensor_pdg != target_pdg) need_to_scale = true;
-
-  // The SuSAv2-MEC hadron tensors are defined using the same conventions
-  // as the Valencia MEC model, so we can use the same sort of tensor
+  // The SuSAv2-1p1h hadron tensors are defined using the same conventions
+  // as the Valencia MEC (and SuSAv2-MEC) model, so we can use the same sort of tensor
   // object to describe them.
   const ValenciaHadronTensorI* tensor
     = dynamic_cast<const ValenciaHadronTensorI*>( fHadronTensorModel->GetTensor(tensor_pdg,
     tensor_type) );
 
-  const ValenciaHadronTensorI* tensor_pn
-    = dynamic_cast<const ValenciaHadronTensorI*>( fHadronTensorModel->GetTensor(tensor_pdg,
-    pn_tensor_type) );
-
-
-  /// \todo add the different pair configurations for e-scattering
 
   // If retrieving the tensor failed, complain and return zero
   if ( !tensor ) {
-    LOG("SuSAv2MEC", pWARN) << "Failed to load a hadronic tensor for the"
+    LOG("SuSAv2QE", pWARN) << "Failed to load a hadronic tensor for the"
       " nuclide " << tensor_pdg;
     return 0.;
   }
@@ -145,33 +133,25 @@ double SuSAv2MECPXSec::XSec(const Interaction* interaction,
   // hadron tensor.
   /// \todo Shouldn't we get this from the nuclear model?
   // SD: The Q-Value essentially corrects q0 to account for nuclear
-  // binding energy in the Valencia model but I this effect is already
+  // binding energy in the Valencia model but this effect is already
   // in Guille's tensors so I'll set it to 0.
 
   int nu_pdg = interaction->InitState().ProbePdg();
-  //double Q_value = genie::utils::mec::Qvalue(target_pdg, nu_pdg);
   double Q_value = 0.;
 
-  // By default, we will compute the full cross-section. If a {p,n} hit
-  // dinucleon was set we will calculate the cross-section for that
-  // component only
-
-  bool pn = (interaction->InitState().Tgt().HitNucPdg() == kPdgClusterNP);
-
   // Compute the cross section using the hadron tensor
-  double xsec_all = tensor->dSigma_dT_dCosTheta_rosenbluth(interaction, Q_value);
-  double xsec_pn = tensor_pn->dSigma_dT_dCosTheta_rosenbluth(interaction, Q_value);
-  //double xsec_all = tensor->dSigma_dT_dCosTheta(interaction, Q_value);
-  //double xsec_pn = tensor_pn->dSigma_dT_dCosTheta(interaction, Q_value);
+  double xsec = tensor->dSigma_dT_dCosTheta_rosenbluth(interaction, Q_value);
+  LOG("SuSAv2QE", pDEBUG) << "XSec in cm2 / neutron is  " << xsec/(units::cm2);
 
-  //hadron tensor precision can sometimes lead to 0 xsec_pn but finite xsec
-  //seems to cause issues downstream ...
-  if(xsec_pn==0) xsec_pn = 0.00001*xsec_all;
+  // Apply the squared CKM matrix element Vud as a correction factor
+  // (not included in the tabulated tensor element values)
+  // NOT NEEDED IF USING THE ROSENBLUTH FORMALISM
+  //xsec *= fVud2;
 
-  // Choose the right kind of cross section ("all" or "pn") to return
-  // based on whether a {p, n} dinucleon was hit
-  double xsec = (pn) ? xsec_pn : xsec_all;
-
+  // Currently the hadron tensors are per neutron, but the calculation above
+  // assumes they are per atom. Need to adjust for this
+  xsec *= interaction->InitState().Tgt().Z();
+  LOG("SuSAv2QE", pDEBUG) << "XSec in cm2 / atom is  " << xsec/(units::cm2);
 
   // This scaling should be okay-ish for the total xsec, but it misses
   // the energy shift. To get this we should really just build releveant
@@ -185,20 +165,15 @@ double SuSAv2MECPXSec::XSec(const Interaction* interaction,
     LOG("SuSAv2MEC", pDEBUG) << "KF_tgt = " << KF_tgt;
     LOG("SuSAv2MEC", pDEBUG) << "KF_ten = " << KF_ten;
     double A_ten  = pdg::IonPdgCodeToA(tensor_pdg);
-    double scaleFact = (A_ten/A_request)*(KF_ten/KF_tgt)*(KF_ten/KF_tgt);
+    double scaleFact = (KF_tgt/KF_ten); // A-scaling already applied in section above
     xsec *= scaleFact;
   }
-
-  // Apply the squared CKM matrix element Vud as a correction factor
-  // (not included in the tabulated tensor element values)
-  // NOT NEEDED IF USING THE ROSENBLUTH FORMALISM
-  //xsec *= fVud2;
 
   // Apply given overall scaling factor
   xsec *= fXSecScale;
 
   if ( kps != kPSTlctl ) {
-    LOG("SuSAv2MEC", pWARN)
+    LOG("SuSAv2QE", pWARN)
       << "Doesn't support transformation from "
       << KinePhaseSpace::AsString(kPSTlctl) << " to "
       << KinePhaseSpace::AsString(kps);
@@ -208,39 +183,48 @@ double SuSAv2MECPXSec::XSec(const Interaction* interaction,
   return xsec;
 }
 //_________________________________________________________________________
-double SuSAv2MECPXSec::Integral(const Interaction* interaction) const
+double SuSAv2QELPXSec::Integral(const Interaction* interaction) const
 {
-  double xsec = fXSecIntegrator->Integrate(this,interaction);
+  double xsec = fXSecIntegrator->Integrate(this, interaction);
   return xsec;
 }
 //_________________________________________________________________________
-bool SuSAv2MECPXSec::ValidProcess(const Interaction* interaction) const
+bool SuSAv2QELPXSec::ValidProcess(const Interaction* interaction) const
 {
   if ( interaction->TestBit(kISkipProcessChk) ) return true;
 
-  const ProcessInfo& proc_info = interaction->ProcInfo();
-  if ( !proc_info.IsMEC() ) {
-    return false;
-  }
+  const InitialState & init_state = interaction->InitState();
+  const ProcessInfo &  proc_info  = interaction->ProcInfo();
 
-  /// \todo Check whether CC, NC, EM? No tensor files for NC yet.
+  if ( !proc_info.IsQuasiElastic() ) return false;
+
+  int  nuc = init_state.Tgt().HitNucPdg();
+  int  nu  = init_state.ProbePdg();
+
+  bool isP   = pdg::IsProton(nuc);
+  bool isN   = pdg::IsNeutron(nuc);
+  bool isnu  = pdg::IsNeutrino(nu);
+  bool isnub = pdg::IsAntiNeutrino(nu);
+
+  bool prcok = proc_info.IsWeakCC() && ((isP&&isnub) || (isN&&isnu));
+  if ( !prcok ) return false;
 
   return true;
 }
 //_________________________________________________________________________
-void SuSAv2MECPXSec::Configure(const Registry& config)
+void SuSAv2QELPXSec::Configure(const Registry& config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void SuSAv2MECPXSec::Configure(std::string config)
+void SuSAv2QELPXSec::Configure(std::string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //_________________________________________________________________________
-void SuSAv2MECPXSec::LoadConfig(void)
+void SuSAv2QELPXSec::LoadConfig(void)
 {
   // CKM matrix element connecting the up and down quarks
   // (not included in the tabulated SuSAv2-MEC hadron tensors)
@@ -250,15 +234,16 @@ void SuSAv2MECPXSec::LoadConfig(void)
   //fVud2 = std::pow(Vud, 2);
 
   // Cross section scaling factor
-  GetParamDef("MEC-XSecScale", fXSecScale, 1.) ;
+  GetParam( "QEL-CC-XSecScale", fXSecScale ) ;
 
-  fHadronTensorModel = dynamic_cast<const HadronTensorModelI*> (
+  fHadronTensorModel = dynamic_cast< const SuSAv2QELHadronTensorModel* >(
     this->SubAlg("HadronTensorAlg") );
   assert( fHadronTensorModel );
 
-  fXSecIntegrator = dynamic_cast<const XSecIntegratorI*> (
-    this->SubAlg("NumericalIntegrationAlg"));
-  assert(fXSecIntegrator);
+   // load XSec Integrator
+  fXSecIntegrator = dynamic_cast<const XSecIntegratorI *>(
+    this->SubAlg("XSec-Integrator") );
+  assert( fXSecIntegrator );
 
   //Fermi momentum tables for scaling
   this->GetParam( "FermiMomentumTable", fKFTable);
@@ -272,12 +257,10 @@ void SuSAv2MECPXSec::LoadConfig(void)
   //this->buildRWhistos();
 }
 //_________________________________________________________________________
-void SuSAv2MECPXSec::Scanq0q3(void)
+void SuSAv2QELPXSec::Scanq0q3(void)
 {
-  std::cout << "Calling SuSAv2MECPXSec::Scanq0q3" << std::endl;
+  std::cout << "Calling SuSAv2QELPXSec::Scanq0q3" << std::endl;
 
-  // Runs after loading the tensors.  But all this is hard coded, so you need a private build.
-  // Can gmkspl | grep dsdq0q3 > output.dat
 
   int nu_pdg = 14;
   int target_pdg = kPdgTgtC12;
@@ -289,7 +272,7 @@ void SuSAv2MECPXSec::Scanq0q3(void)
   double pmu = 0.0;
   double costhl = 0.0;
   int tensor_pdg = kPdgTgtC12;
-  HadronTensorType_t tensor_type = kHT_MEC_FullAll; // kHT_MEC_FullAll_wImag;
+  HadronTensorType_t tensor_type = kHT_QE_Full;
 
   int nbins = 500;
   double upper = 2.0;
@@ -302,7 +285,7 @@ void SuSAv2MECPXSec::Scanq0q3(void)
 
   double Q_value = 0.0;
 
-  TFile* susaq0q3 = new TFile("susaq0q3.root","RECREATE");
+  TFile* susaq0q3 = new TFile("susaq0q3_QE.root","RECREATE");
   TH2D* susaq0q3Hist = new TH2D("SuSAv2q0q3", "SuSAv2q0q3", nbins, 0, upper, nbins, 0, upper);
   TH2D* susaCthTlHist = new TH2D("susaCthTlHist", "susaCthTlHist", 100, -1, 1, 100, 0, upper);
 
@@ -348,15 +331,6 @@ void SuSAv2MECPXSec::Scanq0q3(void)
   std::cout << "W11 for q0=550MeV, q3=500MeV  is: " << tensor->xx(0.55, 0.5) << std::endl << std::endl;
 
 
-  std::cout << "W11 for q0=300MeV, q3=400MeV  is: " << tensor->xx(0.3, 0.4) << std::endl;
-  std::cout << "W00 for q0=300MeV, q3=400MeV  is: " << tensor->tt(0.3, 0.4) << std::endl;
-
-  std::cout << "W11 for q0=300MeV, q3=500MeV  is: " << tensor->xx(0.3, 0.5) << std::endl;
-  std::cout << "W00 for q0=300MeV, q3=500MeV  is: " << tensor->tt(0.3, 0.5) << std::endl;
-
-  std::cout << "W11 for q0=350MeV, q3=400MeV  is: " << tensor->xx(0.35, 0.4) << std::endl;
-  std::cout << "W00 for q0=350MeV, q3=400MeV  is: " << tensor->tt(0.35, 0.4) << std::endl;
-
   // Fixed point debugging
   double xsec_t = 0;
   double xsec_r = 0;
@@ -379,7 +353,8 @@ void SuSAv2MECPXSec::Scanq0q3(void)
   xsec_r = tensor->dSigma_dT_dCosTheta_rosenbluth(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
   xsec_r = xsec_r*1E+38/units::cm2;
   //cont_t = tensor->contraction(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
-  cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2MECHadronTensorModel");
+  //cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2QELHadronTensorModel");
+  cont_t = 0.0;
   w00 = (tensor->tt(myw,myq)).real();
   w03 = (tensor->tz(myw,myq)).real();
   w11 = (tensor->xx(myw,myq)).real();
@@ -399,7 +374,7 @@ void SuSAv2MECPXSec::Scanq0q3(void)
   xsec_r = tensor->dSigma_dT_dCosTheta_rosenbluth(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
   xsec_r = xsec_r*1E+38/units::cm2;
   cont_t = tensor->contraction(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
-  //cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2MECHadronTensorModel");
+  //cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2QELHadronTensorModel");
   w00 = (tensor->tt(myw,myq)).real();
   w03 = (tensor->tz(myw,myq)).real();
   w11 = (tensor->xx(myw,myq)).real();
@@ -418,7 +393,7 @@ void SuSAv2MECPXSec::Scanq0q3(void)
   xsec_r = tensor->dSigma_dT_dCosTheta_rosenbluth(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
   xsec_r = xsec_r*1E+38/units::cm2;
   cont_t = tensor->contraction(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
-  //cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2MECHadronTensorModel");  w00 = (tensor->tt(myw,myq)).real();
+  //cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2QELHadronTensorModel");  w00 = (tensor->tt(myw,myq)).real();
   w00 = (tensor->tt(myw,myq)).real();
   w03 = (tensor->tz(myw,myq)).real();
   w11 = (tensor->xx(myw,myq)).real();
@@ -437,7 +412,7 @@ void SuSAv2MECPXSec::Scanq0q3(void)
   xsec_r = tensor->dSigma_dT_dCosTheta_rosenbluth(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
   xsec_r = xsec_r*1E+38/units::cm2;
   cont_t = tensor->contraction(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
-  //cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2MECHadronTensorModel");  w00 = (tensor->tt(myw,myq)).real();
+  //cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2QELHadronTensorModel");  w00 = (tensor->tt(myw,myq)).real();
   w00 = (tensor->tt(myw,myq)).real();
   w03 = (tensor->tz(myw,myq)).real();
   w11 = (tensor->xx(myw,myq)).real();
@@ -456,7 +431,7 @@ void SuSAv2MECPXSec::Scanq0q3(void)
   xsec_r = tensor->dSigma_dT_dCosTheta_rosenbluth(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
   xsec_r = xsec_r*1E+38/units::cm2;
   cont_t = tensor->contraction(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
-  //cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2MECHadronTensorModel");  w00 = (tensor->tt(myw,myq)).real();
+  //cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2QELHadronTensorModel");  w00 = (tensor->tt(myw,myq)).real();
   w00 = (tensor->tt(myw,myq)).real();
   w03 = (tensor->tz(myw,myq)).real();
   w11 = (tensor->xx(myw,myq)).real();
@@ -475,7 +450,7 @@ void SuSAv2MECPXSec::Scanq0q3(void)
   xsec_r = tensor->dSigma_dT_dCosTheta_rosenbluth(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
   xsec_r = xsec_r*1E+38/units::cm2;
   cont_t = tensor->contraction(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
-  //cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2MECHadronTensorModel");  w00 = (tensor->tt(myw,myq)).real();
+  //cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2QELHadronTensorModel");  w00 = (tensor->tt(myw,myq)).real();
   w00 = (tensor->tt(myw,myq)).real();
   w03 = (tensor->tz(myw,myq)).real();
   w11 = (tensor->xx(myw,myq)).real();
@@ -495,7 +470,7 @@ void SuSAv2MECPXSec::Scanq0q3(void)
   xsec_r = tensor->dSigma_dT_dCosTheta_rosenbluth(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
   xsec_r = xsec_r*1E+38/units::cm2;
   cont_t = tensor->contraction(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
-  //cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2MECHadronTensorModel");  w00 = (tensor->tt(myw,myq)).real();
+  //cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2QELHadronTensorModel");  w00 = (tensor->tt(myw,myq)).real();
   w00 = (tensor->tt(myw,myq)).real();
   w03 = (tensor->tz(myw,myq)).real();
   w11 = (tensor->xx(myw,myq)).real();
@@ -514,7 +489,7 @@ void SuSAv2MECPXSec::Scanq0q3(void)
   xsec_r = tensor->dSigma_dT_dCosTheta_rosenbluth(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
   xsec_r = xsec_r*1E+38/units::cm2;
   cont_t = tensor->contraction(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
-  //cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2MECHadronTensorModel");  w00 = (tensor->tt(myw,myq)).real();
+  //cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2QELHadronTensorModel");  w00 = (tensor->tt(myw,myq)).real();
   w00 = (tensor->tt(myw,myq)).real();
   w03 = (tensor->tz(myw,myq)).real();
   w11 = (tensor->xx(myw,myq)).real();
@@ -533,7 +508,7 @@ void SuSAv2MECPXSec::Scanq0q3(void)
   xsec_r = tensor->dSigma_dT_dCosTheta_rosenbluth(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
   xsec_r = xsec_r*1E+38/units::cm2;
   cont_t = tensor->contraction(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
-  //cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2MECHadronTensorModel");  w00 = (tensor->tt(myw,myq)).real();
+  //cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2QELHadronTensorModel");  w00 = (tensor->tt(myw,myq)).real();
   w00 = (tensor->tt(myw,myq)).real();
   w03 = (tensor->tz(myw,myq)).real();
   w11 = (tensor->xx(myw,myq)).real();
@@ -552,7 +527,7 @@ void SuSAv2MECPXSec::Scanq0q3(void)
   xsec_r = tensor->dSigma_dT_dCosTheta_rosenbluth(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
   xsec_r = xsec_r*1E+38/units::cm2;
   cont_t = tensor->contraction(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
-  //cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2MECHadronTensorModel");  w00 = (tensor->tt(myw,myq)).real();
+  //cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2QELHadronTensorModel");  w00 = (tensor->tt(myw,myq)).real();
   w00 = (tensor->tt(myw,myq)).real();
   w03 = (tensor->tz(myw,myq)).real();
   w11 = (tensor->xx(myw,myq)).real();
@@ -628,9 +603,10 @@ void SuSAv2MECPXSec::Scanq0q3(void)
   susaq0q3->Close();
 }
 //_________________________________________________________________________
-void SuSAv2MECPXSec::Scanq0q3_np(void)
+void SuSAv2QELPXSec::Scanq0q3_np(void)
 {
-  std::cout << "Calling SuSAv2MECPXSec::Scanq0q3_np" << std::endl;
+  std::cout << "Calling SuSAv2QELPXSec::Scanq0q3_np" << std::endl;
+
 
   // Runs after loading the tensors.  But all this is hard coded, so you need a private build.
   // Can gmkspl | grep dsdq0q3 > output.dat
@@ -672,7 +648,7 @@ void SuSAv2MECPXSec::Scanq0q3_np(void)
     = dynamic_cast<const ValenciaHadronTensorI*>( fHadronTensorModel->GetTensor(target_pdg,
     tensor_type) );
 
-  if(!tensor){
+  if ( !tensor ) {
     std::cout << "ERROR!!!! Tensor is NULL" << std::endl;
   }
 
@@ -726,7 +702,7 @@ void SuSAv2MECPXSec::Scanq0q3_np(void)
   xsec_r = tensor->dSigma_dT_dCosTheta_rosenbluth(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
   xsec_r = xsec_r*1E+38/units::cm2;
   //cont_t = tensor->contraction(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
-  cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2MECHadronTensorModel");
+  cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2QELHadronTensorModel");
   w00 = (tensor->tt(myw,myq)).real();
   w03 = (tensor->tz(myw,myq)).real();
   w11 = (tensor->xx(myw,myq)).real();
@@ -746,7 +722,7 @@ void SuSAv2MECPXSec::Scanq0q3_np(void)
   xsec_r = tensor->dSigma_dT_dCosTheta_rosenbluth(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
   xsec_r = xsec_r*1E+38/units::cm2;
   cont_t = tensor->contraction(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
-  //cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2MECHadronTensorModel");
+  //cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2QELHadronTensorModel");
   w00 = (tensor->tt(myw,myq)).real();
   w03 = (tensor->tz(myw,myq)).real();
   w11 = (tensor->xx(myw,myq)).real();
@@ -765,7 +741,7 @@ void SuSAv2MECPXSec::Scanq0q3_np(void)
   xsec_r = tensor->dSigma_dT_dCosTheta_rosenbluth(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
   xsec_r = xsec_r*1E+38/units::cm2;
   cont_t = tensor->contraction(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
-  //cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2MECHadronTensorModel");  w00 = (tensor->tt(myw,myq)).real();
+  //cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2QELHadronTensorModel");  w00 = (tensor->tt(myw,myq)).real();
   w00 = (tensor->tt(myw,myq)).real();
   w03 = (tensor->tz(myw,myq)).real();
   w11 = (tensor->xx(myw,myq)).real();
@@ -784,7 +760,7 @@ void SuSAv2MECPXSec::Scanq0q3_np(void)
   xsec_r = tensor->dSigma_dT_dCosTheta_rosenbluth(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
   xsec_r = xsec_r*1E+38/units::cm2;
   cont_t = tensor->contraction(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
-  //cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2MECHadronTensorModel");  w00 = (tensor->tt(myw,myq)).real();
+  //cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2QELHadronTensorModel");  w00 = (tensor->tt(myw,myq)).real();
   w00 = (tensor->tt(myw,myq)).real();
   w03 = (tensor->tz(myw,myq)).real();
   w11 = (tensor->xx(myw,myq)).real();
@@ -803,7 +779,7 @@ void SuSAv2MECPXSec::Scanq0q3_np(void)
   xsec_r = tensor->dSigma_dT_dCosTheta_rosenbluth(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
   xsec_r = xsec_r*1E+38/units::cm2;
   cont_t = tensor->contraction(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
-  //cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2MECHadronTensorModel");  w00 = (tensor->tt(myw,myq)).real();
+  //cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2QELHadronTensorModel");  w00 = (tensor->tt(myw,myq)).real();
   w00 = (tensor->tt(myw,myq)).real();
   w03 = (tensor->tz(myw,myq)).real();
   w11 = (tensor->xx(myw,myq)).real();
@@ -822,7 +798,7 @@ void SuSAv2MECPXSec::Scanq0q3_np(void)
   xsec_r = tensor->dSigma_dT_dCosTheta_rosenbluth(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
   xsec_r = xsec_r*1E+38/units::cm2;
   cont_t = tensor->contraction(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
-  //cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2MECHadronTensorModel");  w00 = (tensor->tt(myw,myq)).real();
+  //cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2QELHadronTensorModel");  w00 = (tensor->tt(myw,myq)).real();
   w00 = (tensor->tt(myw,myq)).real();
   w03 = (tensor->tz(myw,myq)).real();
   w11 = (tensor->xx(myw,myq)).real();
@@ -842,7 +818,7 @@ void SuSAv2MECPXSec::Scanq0q3_np(void)
   xsec_r = tensor->dSigma_dT_dCosTheta_rosenbluth(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
   xsec_r = xsec_r*1E+38/units::cm2;
   cont_t = tensor->contraction(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
-  //cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2MECHadronTensorModel");  w00 = (tensor->tt(myw,myq)).real();
+  //cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2QELHadronTensorModel");  w00 = (tensor->tt(myw,myq)).real();
   w00 = (tensor->tt(myw,myq)).real();
   w03 = (tensor->tz(myw,myq)).real();
   w11 = (tensor->xx(myw,myq)).real();
@@ -861,7 +837,7 @@ void SuSAv2MECPXSec::Scanq0q3_np(void)
   xsec_r = tensor->dSigma_dT_dCosTheta_rosenbluth(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
   xsec_r = xsec_r*1E+38/units::cm2;
   cont_t = tensor->contraction(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
-  //cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2MECHadronTensorModel");  w00 = (tensor->tt(myw,myq)).real();
+  //cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2QELHadronTensorModel");  w00 = (tensor->tt(myw,myq)).real();
   w00 = (tensor->tt(myw,myq)).real();
   w03 = (tensor->tz(myw,myq)).real();
   w11 = (tensor->xx(myw,myq)).real();
@@ -880,7 +856,7 @@ void SuSAv2MECPXSec::Scanq0q3_np(void)
   xsec_r = tensor->dSigma_dT_dCosTheta_rosenbluth(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
   xsec_r = xsec_r*1E+38/units::cm2;
   cont_t = tensor->contraction(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
-  //cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2MECHadronTensorModel");  w00 = (tensor->tt(myw,myq)).real();
+  //cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2QELHadronTensorModel");  w00 = (tensor->tt(myw,myq)).real();
   w00 = (tensor->tt(myw,myq)).real();
   w03 = (tensor->tz(myw,myq)).real();
   w11 = (tensor->xx(myw,myq)).real();
@@ -899,7 +875,7 @@ void SuSAv2MECPXSec::Scanq0q3_np(void)
   xsec_r = tensor->dSigma_dT_dCosTheta_rosenbluth(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
   xsec_r = xsec_r*1E+38/units::cm2;
   cont_t = tensor->contraction(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
-  //cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2MECHadronTensorModel");  w00 = (tensor->tt(myw,myq)).real();
+  //cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2QELHadronTensorModel");  w00 = (tensor->tt(myw,myq)).real();
   w00 = (tensor->tt(myw,myq)).real();
   w03 = (tensor->tz(myw,myq)).real();
   w11 = (tensor->xx(myw,myq)).real();
@@ -975,9 +951,9 @@ void SuSAv2MECPXSec::Scanq0q3_np(void)
   susaq0q3->Close();
 }
 //_________________________________________________________________________
-void SuSAv2MECPXSec::Scanq0q3_electron(void)
+void SuSAv2QELPXSec::Scanq0q3_electron(void)
 {
-  std::cout << "Calling SuSAv2MECPXSec::Scanq0q3_electron" << std::endl;
+  std::cout << "Calling SuSAv2QELPXSec::Scanq0q3_electron" << std::endl;
 
   // Runs after loading the tensors.  But all this is hard coded, so you need a private build.
   // Can gmkspl | grep dsdq0q3 > output.dat
@@ -1071,7 +1047,7 @@ void SuSAv2MECPXSec::Scanq0q3_electron(void)
   xsec_r = tensor->dSigma_dT_dCosTheta_rosenbluth(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
   xsec_r = xsec_r/units::cm2;
   //cont_t = tensor->contraction(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
-  cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2MECHadronTensorModel");
+  cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2QELHadronTensorModel");
   w00 = (tensor->tt(myw,myq)).real();
   w03 = (tensor->tz(myw,myq)).real();
   w11 = (tensor->xx(myw,myq)).real();
@@ -1091,7 +1067,7 @@ void SuSAv2MECPXSec::Scanq0q3_electron(void)
   xsec_r = tensor->dSigma_dT_dCosTheta_rosenbluth(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
   xsec_r = xsec_r/units::cm2;
   cont_t = tensor->contraction(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
-  //cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2MECHadronTensorModel");
+  //cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2QELHadronTensorModel");
   w00 = (tensor->tt(myw,myq)).real();
   w03 = (tensor->tz(myw,myq)).real();
   w11 = (tensor->xx(myw,myq)).real();
@@ -1110,7 +1086,7 @@ void SuSAv2MECPXSec::Scanq0q3_electron(void)
   xsec_r = tensor->dSigma_dT_dCosTheta_rosenbluth(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
   xsec_r = xsec_r/units::cm2;
   cont_t = tensor->contraction(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
-  //cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2MECHadronTensorModel");  w00 = (tensor->tt(myw,myq)).real();
+  //cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2QELHadronTensorModel");  w00 = (tensor->tt(myw,myq)).real();
   w03 = (tensor->tz(myw,myq)).real();
   w11 = (tensor->xx(myw,myq)).real();
   w12 = -1.0*(tensor->xy(myw,myq)).imag();
@@ -1128,7 +1104,7 @@ void SuSAv2MECPXSec::Scanq0q3_electron(void)
   xsec_r = tensor->dSigma_dT_dCosTheta_rosenbluth(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
   xsec_r = xsec_r/units::cm2;
   cont_t = tensor->contraction(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
-  //cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2MECHadronTensorModel");  w00 = (tensor->tt(myw,myq)).real();
+  //cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2QELHadronTensorModel");  w00 = (tensor->tt(myw,myq)).real();
   w03 = (tensor->tz(myw,myq)).real();
   w11 = (tensor->xx(myw,myq)).real();
   w12 = -1.0*(tensor->xy(myw,myq)).imag();
@@ -1146,7 +1122,7 @@ void SuSAv2MECPXSec::Scanq0q3_electron(void)
   xsec_r = tensor->dSigma_dT_dCosTheta_rosenbluth(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
   xsec_r = xsec_r/units::cm2;
   cont_t = tensor->contraction(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
-  //cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2MECHadronTensorModel");  w00 = (tensor->tt(myw,myq)).real();
+  //cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2QELHadronTensorModel");  w00 = (tensor->tt(myw,myq)).real();
   w03 = (tensor->tz(myw,myq)).real();
   w11 = (tensor->xx(myw,myq)).real();
   w12 = -1.0*(tensor->xy(myw,myq)).imag();
@@ -1164,7 +1140,7 @@ void SuSAv2MECPXSec::Scanq0q3_electron(void)
   xsec_r = tensor->dSigma_dT_dCosTheta_rosenbluth(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
   xsec_r = xsec_r/units::cm2;
   cont_t = tensor->contraction(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
-  //cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2MECHadronTensorModel");  w00 = (tensor->tt(myw,myq)).real();
+  //cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2QELHadronTensorModel");  w00 = (tensor->tt(myw,myq)).real();
   w03 = (tensor->tz(myw,myq)).real();
   w11 = (tensor->xx(myw,myq)).real();
   w12 = -1.0*(tensor->xy(myw,myq)).imag();
@@ -1183,7 +1159,7 @@ void SuSAv2MECPXSec::Scanq0q3_electron(void)
   xsec_r = tensor->dSigma_dT_dCosTheta_rosenbluth(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
   xsec_r = xsec_r/units::cm2;
   cont_t = tensor->contraction(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
-  //cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2MECHadronTensorModel");  w00 = (tensor->tt(myw,myq)).real();
+  //cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2QELHadronTensorModel");  w00 = (tensor->tt(myw,myq)).real();
   w03 = (tensor->tz(myw,myq)).real();
   w11 = (tensor->xx(myw,myq)).real();
   w12 = -1.0*(tensor->xy(myw,myq)).imag();
@@ -1202,7 +1178,7 @@ void SuSAv2MECPXSec::Scanq0q3_electron(void)
   xsec_r = tensor->dSigma_dT_dCosTheta_rosenbluth(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
   xsec_r = xsec_r/units::cm2;
   cont_t = tensor->contraction(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
-  //cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2MECHadronTensorModel");  w00 = (tensor->tt(myw,myq)).real();
+  //cont_t = genie::utils::mec::OldTensorContraction(nu_pdg, target_pdg, Enu, Ml, Tl, costhl, target_pdg, tensor_type, "genie::SuSAv2QELHadronTensorModel");  w00 = (tensor->tt(myw,myq)).real();
   w03 = (tensor->tz(myw,myq)).real();
   w11 = (tensor->xx(myw,myq)).real();
   w12 = -1.0*(tensor->xy(myw,myq)).imag();
@@ -1287,9 +1263,10 @@ void SuSAv2MECPXSec::Scanq0q3_electron(void)
 
 }
 //_________________________________
-void SuSAv2MECPXSec::buildRWhistos(void)
+void SuSAv2QELPXSec::buildRWhistos(void)
 {
-  std::cout << "Calling SuSAv2MECPXSec::buildRWhistos" << std::endl;
+  std::cout << "Calling SuSAv2QELPXSec::buildRWhistos" << std::endl;
+
 
   // Runs after loading the tensors.  But all this is hard coded, so you need a private build.
 
@@ -1304,14 +1281,13 @@ void SuSAv2MECPXSec::buildRWhistos(void)
   double costhl = 0.0;
   int tensor_pdg = kPdgTgtC12;
   HadronTensorType_t tensor_type = kHT_MEC_FullAll;
-  HadronTensorType_t tensor_type_np = kHT_MEC_Fullpn;
 
-  int nbins = 200;
+  int nbins = 100;
   double upper = 2.0;
   double step = upper/(double)nbins;
   double addhalfstep = step/2.0;
 
-  double upperEnu = 5.0;
+  double upperEnu = 10.0;
   double stepEnu = upperEnu/(double)nbins;
   double addhalfstepEnu = stepEnu/2.0;
 
@@ -1326,17 +1302,11 @@ void SuSAv2MECPXSec::buildRWhistos(void)
   TH3D* susaEnuq0q3Hist = new TH3D("SuSAv2Elq0q3", "SuSAv2Elq0q3", nbins, 0, upperEnu, nbins, 0, upper, nbins, 0, upper);
   TH3D* susaEnuCthTlHist = new TH3D("SuSAv2ElCthTlHist", "SuSAv2ElCthTlHist", nbins, 0, upperEnu, 100, -1, 1, 100, 0, upper);
 
-  TH3D* susaEnuq0q3Hist_pn = new TH3D("SuSAv2Elq0q3_pn", "SuSAv2Elq0q3_pn", nbins, 0, upperEnu, nbins, 0, upper, nbins, 0, upper);
-  TH3D* susaEnuCthTlHist_pn = new TH3D("SuSAv2ElCthTlHist_pn", "SuSAv2ElCthTlHist_pn", nbins, 0, upperEnu, 100, -1, 1, 100, 0, upper);
 
 
   const ValenciaHadronTensorI* tensor
     = dynamic_cast<const ValenciaHadronTensorI*>( fHadronTensorModel->GetTensor(target_pdg,
     tensor_type) );
-
-  const ValenciaHadronTensorI* tensor_pn
-    = dynamic_cast<const ValenciaHadronTensorI*>( fHadronTensorModel->GetTensor(target_pdg,
-    tensor_type_np) );
 
   if(!tensor){
     std::cout << "ERROR!!!! Tensor is NULL" << std::endl;
@@ -1358,42 +1328,33 @@ void SuSAv2MECPXSec::buildRWhistos(void)
         myq = addhalfstep + step * (double)iq;
         myw = addhalfstep + step * (double)iw;
         int myBin_qw = susaEnuq0q3Hist->FindBin(myenu,myq,myw);
-        Enu = myenu;
 
         if(ienu%50 && iq==0 && iw==0) std::cout << "buildRWhistos: energy is " << myenu <<  ", max is " << upperEnu << std::endl;
 
         genie::utils::mec::GetTlCostlFromq0q3(myw, myq, Enu, Ml, Tl, costhl);
 
         double xsec = 0.0;
-        double xsec_pn = 0.0;
         if(myq > Q3max || myq < Q3min || myw > Q0max || myw < Q0min){
           xsec = 0.0;
-          xsec_pn = 0.0;
         }
         else if (Tl < 0.0){
           xsec = 0.0;
-          xsec_pn = 0.0;
         }
         else {
           xsec = tensor->dSigma_dT_dCosTheta_rosenbluth(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
-          xsec_pn = tensor_pn->dSigma_dT_dCosTheta_rosenbluth(nu_pdg, Enu, m_probe, Tl, costhl, Ml, Q_value);
         }
 
         // Apply given overall scaling factor
         xsec *= fXSecScale;
-        xsec_pn *= fXSecScale;
 
         // output in something other than genie units.
         xsec = xsec / (1.0E-38 * units::cm2);
-        xsec_pn = xsec_pn / (1.0E-38 * units::cm2);
 
         //Find bin and fill:
         susaEnuq0q3Hist->SetBinContent(myBin_qw, xsec);
-        susaEnuq0q3Hist_pn->SetBinContent(myBin_qw, xsec_pn);
 
         int myBin_CthTl = susaEnuCthTlHist->FindBin(myenu, costhl,Tl);
         susaEnuCthTlHist->SetBinContent(myBin_CthTl, xsec);
-        susaEnuCthTlHist_pn->SetBinContent(myBin_CthTl, xsec_pn);
         //susaq0q3Hist->Fill(myq,myw,xsec);
 
       }
@@ -1403,10 +1364,251 @@ void SuSAv2MECPXSec::buildRWhistos(void)
   susaEnuq0q3Hist->Write();
   susaEnuCthTlHist->Write();
 
-  susaEnuq0q3Hist_pn->Write();
-  susaEnuCthTlHist_pn->Write();
-
   //susaq0q3Hist->SaveAs("susaq0q3.png");
   susaq0q3->Close();
 }
 
+
+//Details on what form factors are used for SuSAv2:
+
+/*
+NOTE: MAQE = 1.032 using dipole form factor
+
+
+       subroutine GKex(Q2,GEPROT,GMPROT,GENEUT,GMNEUT)
+       implicit real*8 (a-h,o-z)
+C
+C---------------------------------------------------------------
+C                           All masses, etc. in GeV
+       q2t=-q2 !Esto seria Q^2
+              xmnucleon=0.939D0
+C                    nucleon mass
+              xmrho=0.776D0
+C                    rho mass
+C
+C                           irho=0 : no rho width
+C                           irho=1 : with rho width
+       xirho=1.
+              xmrho1=xmrho-xirho*0.03465D0
+C                    mass rho1
+              xmrho2=xmrho-xirho*0.04374D0
+C                    mass rho2
+              alpha1=xirho*0.0781808D0
+C                    parameter alpha1
+              alpha2=xirho*0.0632907D0
+C                    parameter alpha2
+              qq1=0.3176D0
+C                    parameter q1**2
+              qq2=0.1422D0
+C                    parameter q2**2
+              xmrhop=1.45D0
+C                    rho-prime mass
+              xmomega=0.784D0
+C                    omega mass
+              xmomegap=1.419D0
+C                    omega-prime mass
+              xmphi=1.019D0
+C                    phi mass
+C
+C----------------------------------------------------------------
+C
+              xkaps=-0.12D0
+C                    isoscalar anomalous mag. mom.
+              xkapv=3.706D0
+C                    isovector anomalous mag. mom.
+              xkaprho=5.51564D0
+C                    rho anomalous moment
+              xkaprhop=12.0D0
+C                    rho-prime anomalous moment
+              xkapomega=0.4027D0
+C                    omega anomalous moment
+              xkapomegap=-2.973D0
+C                    omega-prime anomalous moment
+              xkapphi=0.01D0
+C                    phi anomalous moment
+C
+C----------------------------------------------------------------
+C
+              fgrho=0.5596D0
+C                    rho coupling
+              fgrhop=0.007208D0
+C                    rho-prime coupling
+              fgomega=0.7021D0
+C                    omega coupling
+              fgomegap=0.164D0
+C                    omega-prime coupling
+              fgphi=-0.1711D0
+C                    phi coupling
+C
+C----------------------------------------------------------------
+C
+              xlam1=0.93088D0
+C                    parameter lambda1
+              xlam2=2.6115D0
+C                    parameter lambda2
+              xlamd=1.181D0
+C                    parameter lambdaD
+              xlamqcd=0.15D0
+C                    parameter lambdaQCD
+              arat= DLOG(xlamd**2./xlamqcd**2.)
+              xmuphi=0.2D0
+C                    parameter mu-phi
+C
+C------------------------------------------------------------------
+c
+              tau=q2t/(4.0D0*xmnucleon**2.)
+C                    q2 is 4-momentum q**2; tau is the usual
+              femrho1=xmrho1**2./(xmrho1**2.+q2t)
+              femrho2=xmrho2**2./(xmrho2**2.+q2t)
+              femrhop=xmrhop**2./(xmrhop**2.+q2t)
+              femomega=xmomega**2./(xmomega**2.+q2t)
+              femomegap=xmomegap**2./(xmomegap**2.+q2t)
+              femphi=xmphi**2./(xmphi**2.+q2t)
+C
+C      In the following the notation should be obvious:
+C      e.g., f1somega means F1, isoscalar (s), omega piece, etc.
+C
+c
+              q2tilda=q2t*DLOG((xlamd**2.+q2t)/xlamqcd**2.)/arat
+              f1=xlam1**2./(xlam1**2.+q2tilda)
+              f2=xlam2**2./(xlam2**2.+q2tilda)
+              fhad1=f1*f2
+              fhad2=f1*f2**2.
+              fhad1s=fhad1*(q2t/(xlam1**2.+q2t))**1.5
+              fmuphi=(xmuphi**2.+q2t)/xmuphi**2.
+              fhad2s=fhad2*(fmuphi*xlam1**2./(xlam1**2.+q2t))**1.5
+              fqcd=xlamd**2./(xlamd**2.+q2tilda)
+              fhad1qcd=fqcd*f2
+              fhad2qcd=fqcd*f2**2.
+c
+C
+              zzf1s=1.-fgomega-fgomegap
+       zzf2s=xkaps-xkapomega*fgomega-xkapomegap*fgomegap-xkapphi*fgphi
+              zzf1v=1.-fgrho-fgrhop
+              zzf2v=xkapv-xkaprho*fgrho-xkaprhop*fgrhop
+c
+c
+c
+              f1somega=fgomega*femomega*fhad1
+              f1somegap=fgomegap*femomegap*fhad1
+              f1sphi= fgphi*femphi*fhad1s
+              f1spqcd= zzf1s*fhad1qcd
+              f2somega=xkapomega*fgomega*femomega*fhad2
+              f2somegap= xkapomegap*fgomegap*femomegap*fhad2
+              f2sphi= xkapphi*fgphi*femphi*fhad2s
+              f2spqcd= zzf2s*fhad2qcd
+              width1=1.-alpha1+alpha1/(1.+q2t/qq1)**2.
+              width2=1.-alpha2+alpha2/(1.+q2t/qq2)
+              f1vrho=fgrho*femrho1*fhad1*width1
+              f1vrhop= fgrhop*femrhop*fhad1
+              f1vpqcd= zzf1v*fhad1qcd
+              f2vrho=xkaprho*fgrho*femrho2*fhad2*width2
+              f2vrhop= xkaprhop*fgrhop*femrhop*fhad2
+              f2vpqcd= zzf2v*fhad2qcd
+c
+C
+c
+              f1s=f1somega+f1somegap+f1sphi+f1spqcd
+              f2s=f2somega+f2somegap+f2sphi+f2spqcd
+              f1v=f1vrho+f1vrhop+f1vpqcd
+              f2v=f2vrho+f2vrhop+f2vpqcd
+c
+C
+c
+              f1prho=0.5D0*(f1vrho)
+              f1prhop= 0.5D0*(f1vrhop)
+              f1pomega= 0.5D0*(f1somega)
+              f1pomegap= 0.5D0*(f1somegap)
+              f1pphi= 0.5D0*(f1sphi)
+              f1ppqcd= 0.5D0*(f1spqcd+f1vpqcd)
+              f1p=f1prho+f1prhop+f1pomega+f1pomegap+f1pphi+f1ppqcd
+C
+              f1nrho=0.5D0*(-f1vrho)
+              f1nrhop= 0.5D0*(-f1vrhop)
+              f1nomega= 0.5D0*(f1somega)
+              f1nomegap= 0.5D0*(f1somegap)
+              f1nphi= 0.5D0*(f1sphi)
+              f1npqcd= 0.5D0*(f1spqcd-f1vpqcd)
+              f1n=f1nrho+f1nrhop+f1nomega+f1nomegap+f1nphi+f1npqcd
+C
+              f2prho=0.5D0*(f2vrho)
+              f2prhop= 0.5D0*(f2vrhop)
+              f2pomega= 0.5D0*(f2somega)
+              f2pomegap= 0.5D0*(f2somegap)
+              f2pphi= 0.5D0*(f2sphi)
+              f2ppqcd= 0.5D0*(f2spqcd+f2vpqcd)
+              f2p=f2prho+f2prhop+f2pomega+f2pomegap+f2pphi+f2ppqcd
+C
+              f2nrho=0.5D0*(-f2vrho)
+              f2nrhop= 0.5D0*(-f2vrhop)
+              f2nomega= 0.5D0*(f2somega)
+              f2nomegap= 0.5D0*(f2somegap)
+              f2nphi= 0.5D0*(f2sphi)
+              f2npqcd= 0.5D0*(f2spqcd-f2vpqcd)
+              f2n=f2nrho+f2nrhop+f2nomega+f2nomegap+f2nphi+f2npqcd
+C
+c
+              gevrho=f1vrho-tau*f2vrho
+              gevrhop=f1vrhop-tau*f2vrhop
+              gesomega=f1somega-tau*f2somega
+              gesomegap=f1somegap-tau*f2somegap
+              gesphi=f1sphi-tau*f2sphi
+              gespqcd=f1spqcd-tau*f2spqcd
+              gevpqcd=f1vpqcd-tau*f2vpqcd
+              ges=gesomega+gesomegap+gesphi+gespqcd
+              gev=gevrho+gevrhop+gevpqcd
+C
+              gmvrho=f1vrho+f2vrho
+              gmvrhop=f1vrhop+f2vrhop
+              gmsomega=f1somega+f2somega
+              gmsomegap=f1somegap+f2somegap
+              gmsphi=f1sphi+f2sphi
+              gmspqcd=f1spqcd+f2spqcd
+              gmvpqcd=f1vpqcd+f2vpqcd
+              gms=gmsomega+gmsomegap+gmsphi+gmspqcd
+              gmv=gmvrho+gmvrhop+gmvpqcd
+C
+              geprho= 0.5D0*(gevrho)
+              geprhop= 0.5D0*(gevrhop)
+              gepomega= 0.5D0*(gesomega)
+              gepomegap= 0.5D0*(gesomegap)
+              gepphi= 0.5D0*(gesphi)
+              geppqcd= 0.5D0*(gespqcd+gevpqcd)
+              xgep=geprho+geprhop+gepomega+gepomegap+gepphi+geppqcd
+C
+              genrho= 0.5D0*(-gevrho)
+              genrhop= 0.5D0*(-gevrhop)
+              genomega= 0.5D0*(gesomega)
+              genomegap= 0.5D0*(gesomegap)
+              genphi= 0.5D0*(gesphi)
+              genpqcd= 0.5D0*(gespqcd-gevpqcd)
+              xgen=genrho+genrhop+genomega+genomegap+genphi+genpqcd
+C
+              gmprho= 0.5D0*(gmvrho)
+              gmprhop= 0.5D0*(gmvrhop)
+              gmpomega= 0.5D0*(gmsomega)
+              gmpomegap= 0.5D0*(gmsomegap)
+              gmpphi= 0.5D0*(gmsphi)
+              gmppqcd= 0.5D0*(gmspqcd+gmvpqcd)
+              xgmp=gmprho+gmprhop+gmpomega+gmpomegap+gmpphi+gmppqcd
+C
+              gmnrho= 0.5D0*(-gmvrho)
+              gmnrhop= 0.5D0*(-gmvrhop)
+              gmnomega= 0.5D0*(gmsomega)
+              gmnomegap= 0.5D0*(gmsomegap)
+              gmnphi= 0.5D0*(gmsphi)
+              gmnpqcd= 0.5D0*(gmspqcd-gmvpqcd)
+              xgmn=gmnrho+gmnrhop+gmnomega+gmnomegap+gmnphi+gmnpqcd
+c
+C Al final se obtienen los factores de forma electricos y magneticos de Sachs para protones y neutrones, y para el caso isovector (CC neutrino)
+       GEPROT=xgep
+       GENEUT=xgen
+       GMPROT=xgmp
+       GMNEUT=xgmn
+  GE1=GEPROT-GENEUT
+  GM1=GMPROT-GMNEUT
+
+              return
+              end
+
+*/

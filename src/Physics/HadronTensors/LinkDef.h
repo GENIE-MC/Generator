@@ -10,6 +10,10 @@
 #pragma link C++ class genie::ValenciaHadronTensorI;
 #pragma link C++ class genie::TabulatedValenciaHadronTensor;
 
-#pragma link C++ class genie::HadronTensorPool;
+#pragma link C++ class genie::HadronTensorModelI;
+#pragma link C++ class genie::TabulatedHadronTensorModelI;
+#pragma link C++ class genie::NievesMECHadronTensorModel;
+#pragma link C++ class genie::SuSAv2QELHadronTensorModel;
+#pragma link C++ class genie::SuSAv2MECHadronTensorModel;
 
 #endif
