@@ -58,13 +58,13 @@ void make_sk_xsec_table
 
   cout << "Initializing event generation drivers!" << endl;
 
-  GEVGDriver numu_H1;   
+  GEVGDriver numu_H1;
   GEVGDriver numu_O16;
-  GEVGDriver numubar_H1;   
+  GEVGDriver numubar_H1;
   GEVGDriver numubar_O16;
-  GEVGDriver nue_H1;   
+  GEVGDriver nue_H1;
   GEVGDriver nue_O16;
-  GEVGDriver nuebar_H1;   
+  GEVGDriver nuebar_H1;
   GEVGDriver nuebar_O16;
   numu_H1.    Configure (kPdgNuMu,     pdg::IonPdgCodeToZ(kPdgTgtFreeP), pdg::IonPdgCodeToA(kPdgTgtFreeP));
   numu_O16.   Configure (kPdgNuMu,     pdg::IonPdgCodeToZ(kPdgTgtO16),   pdg::IonPdgCodeToA(kPdgTgtO16)  );
@@ -84,7 +84,7 @@ void make_sk_xsec_table
   nuebar_O16. UseSplines();
 
   //
-  // Instruct the drivers to sum-up the cross-section splines for all simulated processes 
+  // Instruct the drivers to sum-up the cross-section splines for all simulated processes
   // (compute total cross-section)
   //
 
