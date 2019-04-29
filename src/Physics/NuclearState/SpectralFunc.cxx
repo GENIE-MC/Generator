@@ -5,7 +5,7 @@
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
+         University of Liverpool & STFC Rutherford Appleton Lab
 
  For the class documentation see the corresponding header file.
 
@@ -15,9 +15,9 @@
 */
 //____________________________________________________________________________
 
-#include <TSystem.h>
-#include <TNtupleD.h>
-#include <TGraph2D.h>
+#include "TSystem.h"
+#include "TNtupleD.h"
+#include "TGraph2D.h"
 
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/Controls.h"
@@ -72,15 +72,15 @@ bool SpectralFunc::GenerateNucleon(const Target & target) const
   double dk = kmax - kmin;
   double dw = wmax - wmin;
 
-  LOG("SpectralFunc", pINFO) << "Momentum range = ["   << kmin << ", " << kmax << "]"; 
+  LOG("SpectralFunc", pINFO) << "Momentum range = ["   << kmin << ", " << kmax << "]";
   LOG("SpectralFunc", pINFO) << "Rmv energy range = [" << wmin << ", " << wmax << "]";
 
   RandomGen * rnd = RandomGen::Instance();
 
   unsigned int niter = 0;
   while(1) {
-    if(niter > kRjMaxIterations) {
-       LOG("SpectralFunc", pWARN) 
+    if (niter > 10000*kRjMaxIterations) {
+       LOG("SpectralFunc", pWARN)
            << "Couldn't generate a hit nucleon after " << niter << " iterations";
        return false;
     }
@@ -95,9 +95,9 @@ bool SpectralFunc::GenerateNucleon(const Target & target) const
     double prob  = this->Prob(kc,wc, target);
     double probg = probmax * rnd->RndGen().Rndm();
     bool accept = (probg < prob);
-    if(!accept) continue;
+    if ( !accept ) continue;
 
-    LOG("SpectralFunc", pINFO) << "|p,nucleon| = " << kc; 
+    LOG("SpectralFunc", pINFO) << "|p,nucleon| = " << kc;
     LOG("SpectralFunc", pINFO) << "|w,nucleon| = " << wc;
 
     // generate momentum components
@@ -146,7 +146,7 @@ void SpectralFunc::LoadConfig(void)
   LOG("SpectralFunc", pDEBUG) << "Loading Benhar et al. spectral functions";
 
   string data_dir =
-        string(gSystem->Getenv("GENIE")) + 
+        string(gSystem->Getenv("GENIE")) +
         string("/data/evgen/nucl/spectral_functions/");
   string c12file  = data_dir + "benhar-sf-12c.data";
   string fe56file = data_dir + "benhar-sf-56fe.data";
@@ -198,7 +198,7 @@ TGraph2D * SpectralFunc::SelectSpectralFunction(const Target & t) const
   if      (pdgc == kPdgTgtC12)  sf = fSfC12;
   else if (pdgc == kPdgTgtFe56) sf = fSfFe56;
   else {
-    LOG("SpectralFunc", pERROR) 
+    LOG("SpectralFunc", pERROR)
      << "** The spectral function for target " << pdgc << " isn't available";
   }
   if(!sf) {

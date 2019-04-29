@@ -62,6 +62,12 @@ public:
   //! Get the computed form factor Fp
   double Fp     (void) const { return fFp;    }
 
+  //! Get the computed form factor F3V
+  double F3V    (void) const { return fF3V;   }
+
+  //! Get the computed form factor F3A
+  double F3A    (void) const { return fF3A;   }
+
   //! Get the attached model
   const QELFormFactorsModelI * Model (void) const {return fModel;}
 
@@ -80,6 +86,8 @@ private:
   double fxiF2V;
   double fFA;
   double fFp;
+  double fF3V;
+  double fF3A;
 
   const QELFormFactorsModelI * fModel;
 };
