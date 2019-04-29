@@ -1,13 +1,13 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2018, The GENIE Collaboration
+ Copyright (c) 2003-2019, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
+         University of Liverpool & STFC Rutherford Appleton Lab
 
-         Joe Johnston (Univ of Pittsburgh) added code (Mar 18, 2016) to use 
+         Joe Johnston (Univ of Pittsburgh) added code (Mar 18, 2016) to use
          either local or relativistic Fermi Gas for Pauli blocking.
 
          Changes required to implement the GENIE Boosted Dark Matter module
@@ -34,8 +34,8 @@
 #include "Framework/Messenger/Messenger.h"
 #include "Physics/NuclearState/FermiMomentumTablePool.h"
 #include "Physics/NuclearState/FermiMomentumTable.h"
-#include "Framework/ParticleData/PDGLibrary.h" 
-#include "Framework/ParticleData/PDGUtils.h" 
+#include "Framework/ParticleData/PDGLibrary.h"
+#include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Physics/NuclearState/NuclearUtils.h"
 
@@ -57,7 +57,7 @@ EventRecordVisitorI("genie::PauliBlocker",  config)
 //___________________________________________________________________________
 PauliBlocker::~PauliBlocker()
 {
-  
+
 }
 //___________________________________________________________________________
 void PauliBlocker::ProcessEventRecord(GHepRecord * evrec) const
@@ -69,59 +69,48 @@ void PauliBlocker::ProcessEventRecord(GHepRecord * evrec) const
 	    << "No nuclear target found - The Pauli Blocker exits";
     return;
   }
-  
+
   // Handle only QEL for now...
   // (can also be dark matter elastic)
   Interaction * interaction = evrec->Summary();
   const ProcessInfo & proc = interaction->ProcInfo();
   if(!proc.IsQuasiElastic() && !proc.IsDarkMatterElastic()) {
-    LOG("PauliBlock", pINFO) << "Not a QEL event - The Pauli Blocker exits";  
+    LOG("PauliBlock", pINFO) << "Not a QEL event - The Pauli Blocker exits";
     return;
   }
-  
+
+  // Get the particle representing the initial hit nucleon
   GHepParticle * hit = evrec->HitNucleon();
   assert(hit);
+
+  // Get the particle representing the recoiling final nucleon
   GHepParticle * recoil = evrec->Particle(hit->FirstDaughter());
   assert(recoil);
-  
-  int tgt_pdgc = nucltgt -> Pdg();
-  int nuc_pdgc = recoil  -> Pdg();
-  
-  // get the Fermi momentum
-  double kf;
-  if(fLFG){
-    int nucleon_pdgc = hit->Pdg();
-    assert(pdg::IsProton(nucleon_pdgc) || pdg::IsNeutron(nucleon_pdgc));
-    Target* tgt = interaction->InitStatePtr()->TgtPtr();
-    int A = tgt->A();
-    bool is_p = pdg::IsProton(nucleon_pdgc);
-    double numNuc = (is_p) ? (double)tgt->Z():(double)tgt->N();
-    double radius = hit->X4()->Vect().Mag();
-    double hbarc = kLightSpeed*kPlankConstant/units::fermi;
-    kf= TMath::Power(3*kPi2*numNuc*
-		     genie::utils::nuclear::Density(radius,A),1.0/3.0) *hbarc;
-  }else{
-    kf = fKFTable->FindClosestKF(tgt_pdgc, nuc_pdgc);
-  }
+  int nuc_pdgc = recoil->Pdg();
+
+  const Target& tgt = interaction->InitState().Tgt();
+  double radius = hit->X4()->Vect().Mag();
+  double kf = this->GetFermiMomentum(tgt, nuc_pdgc, radius);
+
   LOG("PauliBlock", pINFO) << "KF = " << kf;
-  
+
   // get the recoil momentum
   double p = recoil->P4()->P(); // |p| for the recoil nucleon
   LOG("PauliBlock", pINFO) << "Recoil nucleon |P| = " << p;
-  
+
    // check for pauli blocking
   bool is_blocked = (p < kf);
-  
+
   // if it is blocked, set & thow an exception
-  if(is_blocked) {
+  if ( is_blocked ) {
     LOG("PauliBlock", pNOTICE)
       << " *** The generated event is Pauli-blocked ("
       << "|p_{nucleon}| = " << p << " GeV < Fermi momentum = " << kf << " GeV) ***";
-    
+
     evrec->EventFlags()->SetBitNumber(kPauliBlock, true);
     genie::exceptions::EVGThreadException exception;
     exception.SetReason("Pauli-blocked event");
-    
+
     // Include dark matter elastic
     if(proc.IsQuasiElastic() || proc.IsDarkMatterElastic()) {
       // nuclear suppression taken into account at the QEL cross
@@ -129,7 +118,7 @@ void PauliBlocker::ProcessEventRecord(GHepRecord * evrec) const
       exception.SwitchOnStepBack();
       exception.SetReturnStep(0);
     } else {
-      // end this event generation thread and start again at the 
+      // end this event generation thread and start again at the
       // interaction selection step
       // - this is irrelevant for the time being as we only handle QEL-
       exception.SwitchOnFastForward();
@@ -153,26 +142,46 @@ void PauliBlocker::Configure(string param_set)
 void PauliBlocker::LoadModelType(void){
   AlgConfigPool * confp = AlgConfigPool::Instance();
   const Registry * gc = confp->GlobalParameterList();
-  
+
   // Create a nuclear model object to check the model type
   RgKey nuclkey = "NuclearModel";
   RgAlg nuclalg = gc->GetAlg(nuclkey);
   AlgFactory * algf = AlgFactory::Instance();
-  const NuclearModelI* nuclModel = 
+  const NuclearModelI* nuclModel =
     dynamic_cast<const NuclearModelI*>(
 			     algf->GetAlgorithm(nuclalg.name,nuclalg.config));
   // Check if the model is a local Fermi gas
   fLFG = (nuclModel && nuclModel->ModelType(Target()) == kNucmLocalFermiGas);
-  
-  if(!fLFG){
+
+  if ( !fLFG ) {
     // get the Fermi momentum table for relativistic Fermi gas
 	GetParam( "FermiMomentumTable", fKFTableName ) ;
 
     fKFTable = 0;
-    
+
     FermiMomentumTablePool * kftp = FermiMomentumTablePool::Instance();
     fKFTable = kftp->GetTable(fKFTableName);
     assert(fKFTable);
   }
 }
 //___________________________________________________________________________
+double PauliBlocker::GetFermiMomentum(const Target& tgt, int pdg_Nf,
+  double radius) const
+{
+  // Pauli blocking should only be applied for nucleons
+  assert( pdg::IsProton(pdg_Nf) || pdg::IsNeutron(pdg_Nf) );
+  double kF = 0.;
+  if ( fLFG ) {
+    int A = tgt.A();
+    bool is_p = pdg::IsProton( pdg_Nf );
+    int numNuc = (is_p) ? tgt.Z() : tgt.N();
+    double hbarc = kLightSpeed * kPlankConstant / units::fermi;
+    kF = TMath::Power(3 * kPi2 * numNuc *
+      genie::utils::nuclear::Density(radius, A), 1.0/3.0) * hbarc;
+  }
+  else {
+    kF = fKFTable->FindClosestKF(tgt.Pdg(), pdg_Nf);
+  }
+
+  return kF;
+}

@@ -11,7 +11,7 @@ Name                     Type     Optional   Comment                     Default
 ElasticFormFactorsModel       alg      No         Elastic form factors model  CommonParam[ElasticFF]
 UseElFFTransverseEnhancement  bool     No                                     CommonParam[ElasticFF]
 TransverseEnhancement         alg      No         TransverseEnhancement model CommonParam[ElasticFF]
-AxialFormFactorModel          alg      No         Axial form factor model     
+AxialFormFactorModel          alg      No         Axial form factor model
 AnomMagnMoment-P              double   No                                     CommonParam[MagnMoments]
 AnomMagnMoment-N              double   No                                     CommonParam[MagnMoments]
 WeinbergAngle                 double   No         Weinberg angle              CommonParam[WeakInt]
@@ -22,10 +22,9 @@ SU3-F                         double   No                                     Co
 
   <param_set name="Default">
     <param type="string" name="CommonParam"> WeakInt,MagnMoments,StrongInt,ElasticFF </param>
-    
+
     <param type="alg" name="AxialFormFactorModel"> genie::DipoleAxialFormFactorModel/Default </param>
-    
+
   </param_set>
 
 </alg_conf>
-

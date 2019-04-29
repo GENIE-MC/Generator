@@ -1,11 +1,76 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
+
+
+<!--
+
+Configuration sets for Baryon Resonance decayer
+
+Configurable Parameters:
+..........................................................................................................
+Name                          Type     Optional   Comment
+..........................................................................................................
+FFScaling                     double   No         Scaling factor for Form Factor for Gamma Delta coupling
+                                                  This value is coming from an MiniBooNE technical note
+
+Delta-ThetaOnly               bool     yes        Pion angolar distribution from delta decay isotropic in phi
+
+Delta-R33                     string   Yes        string ; separated of values for the R33 parameter of the
+                                                  pion angular distribution in the Delta reference frame.
+                                                  The default is a Q2 independent value so that the decay is fully isotropic
+
+Delta-Q2                      string   Yes        string ; separated values that sets the Q2 regions of the parameters
+                                                  This not requested only if Delta-R33 has one parameter
+
+Delta-R31                     string   Yes        string ; separated of values for the R31 parameter of the
+                                                  pion angular distribution in the Delta reference frame.
+                                                  There is not default here: if Delta-ThetaOnly is false, the string must be here
+
+Delta-R3m1                    string   Yes        string ; separated of values for the R31 parameter of the
+                                                  pion angular distribution in the Delta reference frame.
+                                                  There is not default here: if Delta-ThetaOnly is false, the string must be here
+
+-->
+
+
+
 <alg_conf>
 
-  Configuration sets for Baryon Resonance decayer
+  <param_set name="Default">
+    <param type="string" name="CommonDecay"> DecayFlags </param>
 
-  <param_set name="Default"> 
+    <param type="double" name="FFScaling">  0.706    </param>
+
+    <!-- MiniBooNE -->
+    <param type="bool" name="Delta-ThetaOnly"> true </param>
+    <param type="string" name="Delta-R33"> 0.75 </param>
+
+    <!-- ANL -->
+    <!--
+    <param type="bool" name="Delta-ThetaOnly"> false </param>
+    <param type="string" name="Delta-R33">    0.523 ;  0.649 ;  0.674 ;  0.748 </param>
+    <param type="string" name="Delta-R31">   -0.322 ; -0.128 ; -0.017 ;  0.041 </param>
+    <param type="string" name="Delta-R3m1">  -0.138 ;  0.034 ; -0.203 ; -0.162 </param>
+    <param type="string" name="Delta-Q2">          0.1  ;   0.3  ;   0.5   </param>
+    -->
+
+    <!-- BNL -->
+    <!--
+    <param type="bool" name="Delta-ThetaOnly"> false </param>
+    <param type="string" name="Delta-R33">    0.661 ;  0.673 ; 0.750 ; 0.800 </param>
+    <param type="string" name="Delta-R31">   -0.213 ;  0.025 ; 0.036 ; 0.075 </param>
+    <param type="string" name="Delta-R3m1">  -0.133 ; -0.075 ; 0.046 ; 0.004 </param>
+    <param type="string" name="Delta-Q2">          0.2   ;  0.4  ;  0.6   </param>
+    -->
+
+  </param_set>
+
+  <param_set name="BeforeHadronTransport">
+    <param type="bool" name="RunBeforeHadronTransport"> true  </param>
+  </param_set>
+
+  <param_set name="AfterHadronTransport">
+    <param type="bool" name="RunBeforeHadronTransport"> false </param>
   </param_set>
 
 </alg_conf>
-
