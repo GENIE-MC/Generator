@@ -9,6 +9,9 @@
 \author   Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
           University of Liverpool & STFC Rutherford Appleton Lab
 
+          Steven Gardiner <gardiner \at fnal.gov>
+          Fermi National Accelerator Laboratory
+
 \created  May 07, 2004
 
 \cpright  Copyright (c) 2003-2019, The GENIE Collaboration
@@ -21,10 +24,13 @@
 #ifndef _SPECTRAL_FUNCTION_H_
 #define _SPECTRAL_FUNCTION_H_
 
+#include <map>
+
 #include "Physics/NuclearState/NuclearModelI.h"
 
-class TNtupleD;
 class TGraph2D;
+class TH2D;
+class TNtupleD;
 
 namespace genie {
 
@@ -41,7 +47,7 @@ public:
   //-- implement the NuclearModelI interface
   bool           GenerateNucleon (const Target & t) const;
   double         Prob            (double p, double w, const Target & t) const;
-  NuclearModel_t ModelType       (const Target &) const 
+  NuclearModel_t ModelType       (const Target &) const
   {
     return kNucmSpectralFunc;
   }
@@ -53,11 +59,23 @@ public:
 
 private:
   void       LoadConfig             (void);
-  TGraph2D * Convert2Graph          (TNtupleD & data) const;
-  TGraph2D * SelectSpectralFunction (const Target & target) const; 
+  TGraph2D*  Convert2Graph          (TNtupleD& data) const;
+  TH2D*      SelectSpectralFunction (const Target& target) const;
 
-  TGraph2D * fSfFe56;   ///< Benhar's Fe56 SF
-  TGraph2D * fSfC12;    ///< Benhar's C12 SF
+  /// The path to the folder containing the spectral function data files
+  std::string fDataPath;
+
+  /// Map storing cached spectral functions. Keys are nuclear PDG codes,
+  /// values are 2D histograms representing the probability distribution
+  mutable std::map<int, TH2D*> fSpectralFunctionMap;
+
+  /// The number of nucleon momentum bins to use when making spectral function
+  /// histograms
+  int fNumXBins;
+
+  /// The number of removal energy bins to use when making spectral function
+  /// histograms
+  int fNumYBins;
 };
 
 }      // genie namespace
