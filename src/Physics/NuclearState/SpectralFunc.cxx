@@ -23,6 +23,9 @@
 */
 //____________________________________________________________________________
 
+#include <sstream>
+#include <string>
+
 #include "TF2.h"
 #include "TGraph2D.h"
 #include "TH2D.h"
@@ -55,6 +58,13 @@ namespace {
     private:
       TGraph2D* fGraph;
   };
+
+  // Replace this with std::to_string when we switch to C++11
+  std::string replace_with_std_to_string(int an_integer) {
+    std::ostringstream oss;
+    oss << an_integer;
+    return oss.str();
+  }
 
 }
 
@@ -227,7 +237,7 @@ TH2D* SpectralFunc::SelectSpectralFunction(const Target& t) const
   }
 
   // If not, attempt to build it
-  std::string target_pdg_string = std::to_string( target_pdg );
+  std::string target_pdg_string = replace_with_std_to_string( target_pdg );
   RgKey sf_key( "SpectFuncTable@Pdg=" + target_pdg_string );
   std::string data_filename;
   this->GetParamDef( sf_key, data_filename, std::string() );
@@ -241,7 +251,8 @@ TH2D* SpectralFunc::SelectSpectralFunction(const Target& t) const
   // Prepend the data path to the file name
   data_filename = fDataPath + data_filename;
 
-  TNtupleD temp_sf_data( ("sfdata_" + target_pdg_string).c_str(), "", "k:e:prob" );
+  TNtupleD temp_sf_data( ("sfdata_" + target_pdg_string).c_str(), "",
+    "k:e:prob" );
 
   temp_sf_data.ReadFile( data_filename.c_str() );
 
