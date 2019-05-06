@@ -6,7 +6,7 @@
 Configuration sets for the Intranuke EventRecordVisitorI
 -->
 
-  <param_set name="Default"> 
+  <param_set name="Default">
   </param_set>
 
 </alg_conf>
