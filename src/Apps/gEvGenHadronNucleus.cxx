@@ -266,7 +266,12 @@ const EventRecordVisitorI * GetIntranuke(void)
      sname = "genie::HNIntranuke2018";
      sconf = "Default";
   }
-  else {
+  else 
+  if(gOptMode.compare("HINCL")==0) {
+     sname = "genie::HINCLCascade";
+     sconf = "Default";
+  }
+  else{
     LOG("gevgen_hadron", pFATAL) << "Invalid Intranuke mode - Exiting";
     gAbortingInErr = true;
     exit(1);
