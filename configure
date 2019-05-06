@@ -33,7 +33,6 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "    boosted-dark-matter  Boosted dark matter simulation                              default: disabled \n";
   print "    flux-drivers         Built-in flux drivers                                       default: enabled  \n";
   print "    geom-drivers         Built-in detector geometry drivers                          default: enabled  \n";
-  print "    rwght                Enable event reweighting tools                              default: disabled \n";
   print "    masterclass          Enable GENIE neutrino masterclass app                       default: disabled (Experimental) \n";
   print "    test                 Build test programs                                         default: disabled \n";
   print "    incl                 Build against INCL++                                        default: disabled \n";
@@ -90,10 +89,9 @@ unless defined $ROOTSYS;
 {
   $mathmore_lib = "$ROOTSYS/lib/libMathMore.so";
   if( ! -f $mathmore_lib ) {
-   die ("*** Error *** ROOT needs to be built with GSL/MathMore enabled.");
- }
+    die ("*** Error *** ROOT needs to be built with GSL/MathMore enabled.");
+  }
 }
-
 
 # Enable auto-detection?
 #
@@ -101,7 +99,7 @@ system("find $GENIE/configure");
 print "\n";
 $auto_detect = ($?==0) ? 1 : 0;
 if(! $auto_detect) {
- print "\n*** Warning *** Path auto-detection is turned off. You need the 'find' utility to use that feature\n\n";
+  print "\n*** Warning *** Path auto-detection is turned off. You need the 'find' utility to use that feature\n\n";
 }
 
 # Open Make.config to write configuration options
@@ -126,9 +124,9 @@ if(($match = grep(/--prefix/i, @ARGV)) > 0) {
   $options=~m/--prefix=(\S*)/i;
   $prefix = $1;
   if( $GENIE eq $prefix ) {
-   print "*** Error *** --prefix can not point to the GENIE top level directory!\n\n";
-   exit 1;
- }
+    print "*** Error *** --prefix can not point to the GENIE top level directory!\n\n";
+    exit 1;
+  }
 }
 print MKCONF "GENIE_INSTALLATION_PATH=$prefix\n";
 
@@ -150,7 +148,6 @@ my $gopt_enable_atmo              = "NO";
 my $gopt_enable_nucleon_decay     = "NO";
 my $gopt_enable_nnbar_oscillation = "NO";
 my $gopt_enable_boosted_dark_mat  = "NO";
-my $gopt_enable_rwght             = "NO";
 my $gopt_enable_masterclass       = "NO";
 my $gopt_enable_incl              = "NO";
 # Check configure's command line arguments for non-default values
@@ -173,7 +170,6 @@ if(($match = grep(/--enable-atmo/i,                @ARGV)) > 0) { $gopt_enable_a
 if(($match = grep(/--enable-nucleon-decay/i,       @ARGV)) > 0) { $gopt_enable_nucleon_decay     = "YES"; }
 if(($match = grep(/--enable-nnbar-oscillation/i,   @ARGV)) > 0) { $gopt_enable_nnbar_oscillation = "YES"; }
 if(($match = grep(/--enable-boosted-dark-matter/i, @ARGV)) > 0) { $gopt_enable_boosted_dark_mat  = "YES"; }
-if(($match = grep(/--enable-rwght/i,               @ARGV)) > 0) { $gopt_enable_rwght             = "YES"; }
 if(($match = grep(/--enable-masterclass/i,         @ARGV)) > 0) { $gopt_enable_masterclass       = "YES"; }
 if(($match = grep(/--enable-incl/i,                @ARGV)) > 0) { $gopt_enable_incl              = "YES"; }
 
@@ -220,10 +216,10 @@ if($gopt_enable_doxygen_doc eq "YES") {
   if(! -d $gopt_with_doxygen_path && defined $ENV{'DOXYGENPATH'}) { $gopt_with_doxygen_path = $ENV{'DOXYGENPATH'}; }
   # complain
   if(! -d $gopt_with_doxygen_path) {
-   print "*** Error *** You need to specify the path to doxygen using --with-doxygen-path=/some/path/\n";
-   print "*** Error *** Otherwise, you should --disable-doxygen-doc\n\n";
-   exit 1;
- }
+    print "*** Error *** You need to specify the path to doxygen using --with-doxygen-path=/some/path/\n";
+    print "*** Error *** Otherwise, you should --disable-doxygen-doc\n\n";
+    exit 1;
+  }
 }
 
 # If --enable-lhapdf5 was set then the full path to the LHAPDF5 library must be specified
@@ -239,26 +235,26 @@ if($gopt_enable_lhapdf5 eq "YES") {
   }
   # if it was not set, try to pick it up from the environment
   if($gopt_with_lhapdf5_lib eq "" && defined $ENV{'LHAPDF5_LIB'}) {
-   $gopt_with_lhapdf5_lib = $ENV{'LHAPDF5_LIB'};
-   print "The \$LHAPDF5_LIB env var is defined. I will pick that and use --with-lhapdf5-lib=$gopt_with_lhapdf5_lib\n";
- }
+    $gopt_with_lhapdf5_lib = $ENV{'LHAPDF5_LIB'};
+    print "The \$LHAPDF5_LIB env var is defined. I will pick that and use --with-lhapdf5-lib=$gopt_with_lhapdf5_lib\n";
+  }
   # if it still not set, try autodetecting it
   if(! -d $gopt_with_lhapdf5_lib && $auto_detect)  {
     print "Auto-detecting LHAPDF5 library path...\n";
     $matched = auto_detect("libLHAPDF.a");
     if( $matched=~m/(\S*)\/libLHAPDF.a/i ) {
-     $gopt_with_lhapdf5_lib = $1;
-   }
-   print "Setting --with-lhapdf5-inc=$gopt_with_lhapdf5_lib\n";
- }
+      $gopt_with_lhapdf5_lib = $1;
+    }
+    print "Setting --with-lhapdf5-inc=$gopt_with_lhapdf5_lib\n";
+  }
   # check
   my $fileso    = "$gopt_with_lhapdf5_lib/libLHAPDF.so";
   my $filedylib = "$gopt_with_lhapdf5_lib/libLHAPDF.dylib";
   if(! -e $fileso && ! -e $filedylib) {
-   print "*** Error *** You need to specify the path to LHAPDF5 library using --with-lhapdf5-lib=/some/path/\n";
-   print "*** Error *** Otherwise, you should --disable-lhapdf5\n\n";
-   exit 1;
- }
+    print "*** Error *** You need to specify the path to LHAPDF5 library using --with-lhapdf5-lib=/some/path/\n";
+    print "*** Error *** Otherwise, you should --disable-lhapdf5\n\n";
+    exit 1;
+  }
 }
 
 # If --enable-lhapdf5 was set then the full path to the LHAPDF5 includes must be specified
@@ -274,26 +270,26 @@ if($gopt_enable_lhapdf5 eq "YES") {
   }
   # if it was not set, try to pick it up from the environment
   if($gopt_with_lhapdf5_inc eq "" && defined $ENV{'LHAPDF5_INC'}) {
-   $gopt_with_lhapdf5_inc = $ENV{'LHAPDF5_INC'};
-   print "The \$LHAPDF5_INC env var is defined. I will pick that and use --with-lhapdf5-inc=$gopt_with_lhapdf5_inc\n";
- }
+    $gopt_with_lhapdf5_inc = $ENV{'LHAPDF5_INC'};
+    print "The \$LHAPDF5_INC env var is defined. I will pick that and use --with-lhapdf5-inc=$gopt_with_lhapdf5_inc\n";
+  }
   # if it still not set, try autodetecting it
   if(! -d $gopt_with_lhapdf5_inc && $auto_detect)  {
     print "Auto-detecting the LHAPDF5 include path...\n";
     $matched = auto_detect("LHAPDF.h","LHAPDF/LHAPDF.h");
     print "$gopt_with_lhapdf5_inc  \n";
     if( $matched=~m/(\S*)\/LHAPDF\/LHAPDF.h/i ) {
-     $gopt_with_lhapdf5_inc = $1;
-   }
-   print "Setting --with-lhapdf5-inc=$gopt_with_lhapdf5_inc\n";
- }
+      $gopt_with_lhapdf5_inc = $1;
+    }
+    print "Setting --with-lhapdf5-inc=$gopt_with_lhapdf5_inc\n";
+  }
   # check
   my $file = "$gopt_with_lhapdf5_inc/LHAPDF/LHAPDF.h";
   if(! -e $file) {
-   print "*** Error *** You need to specify the LHAPDF5 includes path using --with-lhapdf5-inc=/some/path/\n";
-   print "*** Error *** Otherwise, you should --disable-lhapdf5\n\n";
-   exit 1;
- }
+    print "*** Error *** You need to specify the LHAPDF5 includes path using --with-lhapdf5-inc=/some/path/\n";
+    print "*** Error *** Otherwise, you should --disable-lhapdf5\n\n";
+    exit 1;
+  }
 }
 
 # If --enable-lhapdf6 was set then the full path to the LHAPDF6 library must be specified
@@ -309,26 +305,26 @@ if($gopt_enable_lhapdf6 eq "YES") {
   }
   # if it was not set, try to pick it up from the environment
   if($gopt_with_lhapdf6_lib eq "" && defined $ENV{'LHAPDF6_LIB'}) {
-   $gopt_with_lhapdf6_lib = $ENV{'LHAPDF6_LIB'};
-   print "The \$LHAPDF6_LIB env var is defined. I will pick that and use --with-lhapdf6-lib=$gopt_with_lhapdf6_lib\n";
- }
+    $gopt_with_lhapdf6_lib = $ENV{'LHAPDF6_LIB'};
+    print "The \$LHAPDF6_LIB env var is defined. I will pick that and use --with-lhapdf6-lib=$gopt_with_lhapdf6_lib\n";
+  }
   # if it still not set, try autodetecting it
   if(! -d $gopt_with_lhapdf6_lib && $auto_detect)  {
     print "Auto-detecting LHAPDF6 library path...\n";
     $matched = auto_detect("libLHAPDF.a");
     if( $matched=~m/(\S*)\/libLHAPDF.a/i ) {
-     $gopt_with_lhapdf6_lib = $1;
-   }
-   print "Setting --with-lhapdf6-inc=$gopt_with_lhapdf6_lib\n";
- }
+      $gopt_with_lhapdf6_lib = $1;
+    }
+    print "Setting --with-lhapdf6-inc=$gopt_with_lhapdf6_lib\n";
+  }
   # check
   my $fileso    = "$gopt_with_lhapdf6_lib/libLHAPDF.so";
   my $filedylib = "$gopt_with_lhapdf6_lib/libLHAPDF.dylib";
   if(! -e $fileso && ! -e $filedylib) {
-   print "*** Error *** You need to specify the path to LHAPDF6 library using --with-lhapdf6-lib=/some/path/\n";
-   print "*** Error *** Otherwise, you should --disable-lhapdf6\n\n";
-   exit 1;
- }
+    print "*** Error *** You need to specify the path to LHAPDF6 library using --with-lhapdf6-lib=/some/path/\n";
+    print "*** Error *** Otherwise, you should --disable-lhapdf6\n\n";
+    exit 1;
+  }
 }
 
 # If --enable-lhapdf6 was set then the full path to the LHAPDF6 includes must be specified
@@ -344,26 +340,26 @@ if($gopt_enable_lhapdf6 eq "YES") {
   }
   # if it was not set, try to pick it up from the environment
   if($gopt_with_lhapdf6_inc eq "" && defined $ENV{'LHAPDF6_INC'}) {
-   $gopt_with_lhapdf6_inc = $ENV{'LHAPDF6_INC'};
-   print "The \$LHAPDF6_INC env var is defined. I will pick that and use --with-lhapdf6-inc=$gopt_with_lhapdf6_inc\n";
- }
+    $gopt_with_lhapdf6_inc = $ENV{'LHAPDF6_INC'};
+    print "The \$LHAPDF6_INC env var is defined. I will pick that and use --with-lhapdf6-inc=$gopt_with_lhapdf6_inc\n";
+  }
   # if it still not set, try autodetecting it
   if(! -d $gopt_with_lhapdf6_inc && $auto_detect)  {
     print "Auto-detecting the LHAPDF6 include path...\n";
     $matched = auto_detect("LHAPDF.h","LHAPDF/LHAPDF.h");
     print "$gopt_with_lhapdf6_inc  \n";
     if( $matched=~m/(\S*)\/LHAPDF\/LHAPDF.h/i ) {
-     $gopt_with_lhapdf6_inc = $1;
-   }
-   print "Setting --with-lhapdf6-inc=$gopt_with_lhapdf6_inc\n";
- }
+      $gopt_with_lhapdf6_inc = $1;
+    }
+    print "Setting --with-lhapdf6-inc=$gopt_with_lhapdf6_inc\n";
+  }
   # check
   my $file = "$gopt_with_lhapdf6_inc/LHAPDF/LHAPDF.h";
   if(! -e $file) {
-   print "*** Error *** You need to specify the LHAPDF6 includes path using --with-lhapdf6-inc=/some/path/\n";
-   print "*** Error *** Otherwise, you should --disable-lhapdf6\n\n";
-   exit 1;
- }
+    print "*** Error *** You need to specify the LHAPDF6 includes path using --with-lhapdf6-inc=/some/path/\n";
+    print "*** Error *** Otherwise, you should --disable-lhapdf6\n\n";
+    exit 1;
+  }
 }
 
 # Get pythia6 library path
@@ -376,23 +372,22 @@ if($options=~m/--with-pythia6=\S*/i) {
 }
 if($options=~m/--with-pythia6-lib=(\S*)/i) {
   $gopt_with_pythia6_lib = $1;
-  } else {
-    print "\n*** Warning *** You didn't specify the PYTHIA6 path \n";
-  }
+} else {
+  print "\n*** Warning *** You didn't specify the PYTHIA6 path \n";
+}
 # if it was not set, try to pick it up from the environment
 if(! -d $gopt_with_pythia6_lib && defined $ENV{'PYTHIA6'}) {
   $gopt_with_pythia6_lib = $ENV{'PYTHIA6'};
   print "The \$PYTHIA6 env var is defined. I will pick that and set --with-pythia6-lib=$gopt_with_pythia6_lib\n";
 }
 # if it still not set, try autodetecting it
-if(! -d $gopt_with_pythia6_lib && $auto_detect)
-{
+if(! -d $gopt_with_pythia6_lib && $auto_detect) {
   print "Auto-detecting the PYTHIA6 path...\n";
   $matched = auto_detect("libPythia6*");
   if( $matched=~m/(\S*)\/libPythia6\S*/i ) {
-   $gopt_with_pythia6_lib = $1;
- }
- print "Setting --with-pythia6-lib=$gopt_with_pythia6_lib\n";
+    $gopt_with_pythia6_lib = $1;
+  }
+  print "Setting --with-pythia6-lib=$gopt_with_pythia6_lib\n";
 }
 if(! -d $gopt_with_pythia6_lib) {
   print "*** Error *** Could not locate the PYTHIA6 library path. Please specify it using --with-pythia6=/some/path/\n\n";
@@ -418,9 +413,9 @@ if(! -d $gopt_with_libxml2_inc && $auto_detect)  {
   print "Auto-detecting...\n";
   $matched = auto_detect("xmlmemory.h");
   if( $matched=~m/(\S*)\/libxml\/xmlmemory.h/i ) {
-   $gopt_with_libxml2_inc = $1;
- }
- print "Setting --with-libxml2-inc=$gopt_with_libxml2_inc\n";
+    $gopt_with_libxml2_inc = $1;
+  }
+  print "Setting --with-libxml2-inc=$gopt_with_libxml2_inc\n";
 }
 if(! -d $gopt_with_libxml2_inc) {
   print "*** Error *** You need to specify the libxml2 include path using --with-libxml2-inc=/some/path/\n\n";
@@ -438,9 +433,9 @@ if(! -d $gopt_with_libxml2_lib && $auto_detect)  {
   print "Auto-detecting...\n";
   $matched = auto_detect("libxml2.*");
   if( $matched=~m/(\S*)\/libxml2\S*/i ) {
-   $gopt_with_libxml2_lib = $1;
- }
- print "Setting --with-libxml2-lib=$gopt_with_libxml2_lib\n";
+    $gopt_with_libxml2_lib = $1;
+  }
+  print "Setting --with-libxml2-lib=$gopt_with_libxml2_lib\n";
 }
 if(! -d $gopt_with_libxml2_lib) {
   print "*** Error *** You need to specify the libxml2 library path using --with-libxml2-lib=/some/path/\n\n";
@@ -458,9 +453,9 @@ if(! -d $gopt_with_log4cpp_inc && $auto_detect)  {
   print "Auto-detecting...\n";
   $matched = auto_detect("OstreamAppender.hh");
   if( $matched=~m/(\S*)\/log4cpp\/OstreamAppender.hh/i ) {
-   $gopt_with_log4cpp_inc = $1;
- }
- print "Setting --with-log4cpp-inc=$gopt_with_log4cpp_inc\n";
+    $gopt_with_log4cpp_inc = $1;
+  }
+  print "Setting --with-log4cpp-inc=$gopt_with_log4cpp_inc\n";
 }
 if(! -d $gopt_with_log4cpp_inc) {
   print "*** Error *** You need to specify the log4cpp include path using --with-log4cpp-inc=/some/path/\n\n";
@@ -478,9 +473,9 @@ if(! -d $gopt_with_log4cpp_lib && $auto_detect)  {
   print "Auto-detecting...\n";
   $matched = auto_detect("liblog4cpp.*");
   if( $matched=~m/(\S*)\/liblog4cpp\S*/i ) {
-   $gopt_with_log4cpp_lib = $1;
- }
- print "Setting --with-log4cpp-lib=$gopt_with_log4cpp_lib\n";
+    $gopt_with_log4cpp_lib = $1;
+  }
+  print "Setting --with-log4cpp-lib=$gopt_with_log4cpp_lib\n";
 }
 if(! -d $gopt_with_log4cpp_lib) {
   print "*** Error *** You need to specify the log4cpp library path using --with-log4cpp-lib=/some/path/\n\n";
@@ -490,103 +485,103 @@ if(! -d $gopt_with_log4cpp_lib) {
 # If --enable-incl was set then the full path to the INCL library must be specified
 my $gopt_with_incl_lib = "";
 if($gopt_enable_incl eq "YES") {
-    if(($match = grep(/--with-incl-lib/i, @ARGV)) > 0) {
-        $options=~m/--with-incl-lib=(\S*)/i;
-        $gopt_with_incl_lib = $1;
-    }
-    if(! -d $gopt_with_incl_lib)  {
-        print "\n*** Warning *** INCL has been enabled but you didn't specify the INCL library path \n";
-    }
-    # if it was not set, try to pick it up from the environment
-    if($gopt_with_incl_lib eq "" && defined $ENV{'INCL_LIB'}) {
-        $gopt_with_incl_lib = $ENV{'INCL_LIB'};
-        print "The \$INCL_LIB env var is defined. I will pick that and use --with-incl-lib=$gopt_with_incl_lib\n";
-    }
+  if(($match = grep(/--with-incl-lib/i, @ARGV)) > 0) {
+    $options=~m/--with-incl-lib=(\S*)/i;
+    $gopt_with_incl_lib = $1;
+  }
+  if(! -d $gopt_with_incl_lib)  {
+    print "\n*** Warning *** INCL has been enabled but you didn't specify the INCL library path \n";
+  }
+  # if it was not set, try to pick it up from the environment
+  if($gopt_with_incl_lib eq "" && defined $ENV{'INCL_LIB'}) {
+    $gopt_with_incl_lib = $ENV{'INCL_LIB'};
+    print "The \$INCL_LIB env var is defined. I will pick that and use --with-incl-lib=$gopt_with_incl_lib\n";
+  }
 
-    # check
-    my $fileso    = "$gopt_with_incl_lib/libINCL_Physics.so";
-    my $filea = "$gopt_with_incl_lib/libINCL_Physics.a";
-    if(! -e $fileso && ! -e $filea) {
-        print "*** Error *** You need to specify the path to libINCL_Physics using --with-incl-lib=/some/path/\n";
-        print "*** Error *** Otherwise, you should --disable-incl\n\n";
-        exit 1;
-    }
+  # check
+  my $fileso    = "$gopt_with_incl_lib/libINCL_Physics.so";
+  my $filea = "$gopt_with_incl_lib/libINCL_Physics.a";
+  if(! -e $fileso && ! -e $filea) {
+    print "*** Error *** You need to specify the path to libINCL_Physics using --with-incl-lib=/some/path/\n";
+    print "*** Error *** Otherwise, you should --disable-incl\n\n";
+    exit 1;
+  }
 }
 
 # If --enable-incl was set then the full path to the INCL includes must be specified
 my $gopt_with_incl_inc = "";
 if($gopt_enable_incl eq "YES") {
-    if(($match = grep(/--with-incl-inc/i, @ARGV)) > 0) {
-        $options=~m/--with-incl-inc=(\S*)/i;
-        $gopt_with_incl_inc = $1;
-    }
-    if(! -d $gopt_with_incl_inc)  {
-        print "\n*** Warning *** INCL has been enabled but you didn't specify the INCL includes path \n";
-    }
-    # if it was not set, try to pick it up from the environment
-    if($gopt_with_incl_inc eq "" && defined $ENV{'INCL_INC'}) {
-        $gopt_with_incl_inc = $ENV{'INCL_INC'};
-        print "The \$INCL_INC env var is defined. I will pick that and use --with-incl-inc=$gopt_with_incl_inc\n";
-    }
+  if(($match = grep(/--with-incl-inc/i, @ARGV)) > 0) {
+    $options=~m/--with-incl-inc=(\S*)/i;
+    $gopt_with_incl_inc = $1;
+  }
+  if(! -d $gopt_with_incl_inc)  {
+    print "\n*** Warning *** INCL has been enabled but you didn't specify the INCL includes path \n";
+  }
+  # if it was not set, try to pick it up from the environment
+  if($gopt_with_incl_inc eq "" && defined $ENV{'INCL_INC'}) {
+    $gopt_with_incl_inc = $ENV{'INCL_INC'};
+    print "The \$INCL_INC env var is defined. I will pick that and use --with-incl-inc=$gopt_with_incl_inc\n";
+  }
 
-    # check
-    my $file = "$gopt_with_incl_inc/G4INCLCascade.hh";
-    if(! -e $file) {
-        print "*** Error *** You need to specify the path to G4INCLCascade.hh using --with-incl-inc=/some/path/\n";
-        print "*** Error *** Otherwise, you should --disable-incl\n\n";
-        exit 1;
-    }
+  # check
+  my $file = "$gopt_with_incl_inc/G4INCLCascade.hh";
+  if(! -e $file) {
+    print "*** Error *** You need to specify the path to G4INCLCascade.hh using --with-incl-inc=/some/path/\n";
+    print "*** Error *** Otherwise, you should --disable-incl\n\n";
+    exit 1;
+  }
 }
 
 # If --enable-incl was set then the full path to the boost library must also be specified
 my $gopt_with_boost_lib = "";
 if($gopt_enable_incl eq "YES") {
-    if(($match = grep(/--with-boost-lib/i, @ARGV)) > 0) {
-        $options=~m/--with-boost-lib=(\S*)/i;
-        $gopt_with_boost_lib = $1;
-    }
-    if(! -d $gopt_with_boost_lib)  {
-        print "\n*** Warning *** INCL has been enabled but you didn't specify the boost library path \n";
-    }
-    # if it was not set, try to pick it up from the environment
-    if($gopt_with_boost_lib eq "" && defined $ENV{'BOOST_LIB'}) {
-        $gopt_with_boost_lib = $ENV{'BOOST_LIB'};
-        print "The \$BOOST_LIB env var is defined. I will pick that and use --with-boost-lib=$gopt_with_boost_lib\n";
-    }
+  if(($match = grep(/--with-boost-lib/i, @ARGV)) > 0) {
+    $options=~m/--with-boost-lib=(\S*)/i;
+    $gopt_with_boost_lib = $1;
+  }
+  if(! -d $gopt_with_boost_lib)  {
+    print "\n*** Warning *** INCL has been enabled but you didn't specify the boost library path \n";
+  }
+  # if it was not set, try to pick it up from the environment
+  if($gopt_with_boost_lib eq "" && defined $ENV{'BOOST_LIB'}) {
+    $gopt_with_boost_lib = $ENV{'BOOST_LIB'};
+    print "The \$BOOST_LIB env var is defined. I will pick that and use --with-boost-lib=$gopt_with_boost_lib\n";
+  }
 
-    # check
-    my $fileso = "$gopt_with_boost_lib/libboost_program_options-mt.so";
-    my $filea  = "$gopt_with_boost_lib/libboost_program_options-mt.a";
-    if(! -e $fileso && ! -e $filea) {
-        print "*** Error *** You need to specify the path to libboost_program_options-mt.so using --with-boost-lib=/some/path/\n";
-        print "*** Error *** Otherwise, you should --disable-incl\n\n";
-        exit 1;
-    }
+  # check
+  my $fileso = "$gopt_with_boost_lib/libboost_program_options-mt.so";
+  my $filea  = "$gopt_with_boost_lib/libboost_program_options-mt.a";
+  if(! -e $fileso && ! -e $filea) {
+    print "*** Error *** You need to specify the path to libboost_program_options-mt.so using --with-boost-lib=/some/path/\n";
+    print "*** Error *** Otherwise, you should --disable-incl\n\n";
+    exit 1;
+  }
 }
 
 # If --enable-incl was set then the full path to the boost includes must also be specified
 my $gopt_with_boost_inc = "";
 if($gopt_enable_incl eq "YES") {
-    if(($match = grep(/--with-boost-inc/i, @ARGV)) > 0) {
-        $options=~m/--with-boost-inc=(\S*)/i;
-        $gopt_with_boost_inc = $1;
-    }
-    if(! -d $gopt_with_boost_inc)  {
-        print "\n*** Warning *** INCL has been enabled but you didn't specify the boost includes path \n";
-    }
-    # if it was not set, try to pick it up from the environment
-    if($gopt_with_boost_inc eq "" && defined $ENV{'BOOST_INC'}) {
-        $gopt_with_boost_inc = $ENV{'BOOST_INC'};
-        print "The \$BOOST_INC env var is defined. I will pick that and use --with-boost-inc=$gopt_with_boost_inc\n";
-    }
+  if(($match = grep(/--with-boost-inc/i, @ARGV)) > 0) {
+    $options=~m/--with-boost-inc=(\S*)/i;
+    $gopt_with_boost_inc = $1;
+  }
+  if(! -d $gopt_with_boost_inc)  {
+    print "\n*** Warning *** INCL has been enabled but you didn't specify the boost includes path \n";
+  }
+  # if it was not set, try to pick it up from the environment
+  if($gopt_with_boost_inc eq "" && defined $ENV{'BOOST_INC'}) {
+    $gopt_with_boost_inc = $ENV{'BOOST_INC'};
+    print "The \$BOOST_INC env var is defined. I will pick that and use --with-boost-inc=$gopt_with_boost_inc\n";
+  }
 
-    # check
-    my $file = "$gopt_with_boost_inc/boost/program_options.hpp";
-    if(! -e $file) {
-        print "*** Error *** You need to specify the path to boost/program_options.hpp using --with-boost-inc=/some/path/\n";
-        print "*** Error *** Otherwise, you should --disable-incl\n\n";
-        exit 1;
-    }
+  # check
+  my $file = "$gopt_with_boost_inc/boost/program_options.hpp";
+  if(! -e $file) {
+    print "*** Error *** You need to specify the path to boost/program_options.hpp using --with-boost-inc=/some/path/\n";
+    print "*** Error *** Otherwise, you should --disable-incl\n\n";
+    exit 1;
+  }
 }
 
 #Save config options
@@ -600,7 +595,6 @@ print MKCONF "GOPT_ENABLE_NNBAR_OSCILLATION=$gopt_enable_nnbar_oscillation\n";
 print MKCONF "GOPT_ENABLE_BOOSTED_DARK_MATTER=$gopt_enable_boosted_dark_mat\n";
 print MKCONF "GOPT_ENABLE_FLUX_DRIVERS=$gopt_enable_flux_drivers\n";
 print MKCONF "GOPT_ENABLE_GEOM_DRIVERS=$gopt_enable_geom_drivers\n";
-print MKCONF "GOPT_ENABLE_RWGHT=$gopt_enable_rwght\n";
 print MKCONF "GOPT_ENABLE_MASTERCLASS=$gopt_enable_masterclass\n";
 print MKCONF "GOPT_ENABLE_TEST=$gopt_enable_test\n";
 print MKCONF "GOPT_ENABLE_PROFILER=$gopt_enable_profiler\n";
