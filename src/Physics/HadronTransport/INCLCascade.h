@@ -23,48 +23,50 @@ class TVector3;
 
 //using namespace G4INCL;
 
-namespace genie{
+namespace genie {
 
- class GHepParticle;
- class INukeHadroData;
- class PDGCodeList;
- class HINCLCascade;
- class INCLCascade: public EventRecordVisitorI{
+  class GHepParticle;
+  class INukeHadroData;
+  class PDGCodeList;
+  class HINCLCascade;
 
+  class INCLCascade: public EventRecordVisitorI {
 
   public :
-  INCLCascade();
-  INCLCascade(string name);
-  INCLCascade(string name, string config);
-  ~INCLCascade();
-  int INCLcascade(int arg, char * test[],GHepRecord * event_rec)const ;
+    INCLCascade();
+    INCLCascade(string name);
+    INCLCascade(string name, string config);
+    ~INCLCascade();
 
-  int pdgcpiontoA(int pdgc)const;
-  int pdgcpiontoZ(int pdgc)const;
-  
+    int doCascade(int nflags, const char * flags[], GHepRecord * event_rec) const;
+
+    int pdgcpiontoA(int pdgc) const;
+    int pdgcpiontoZ(int pdgc) const;
+
     // implement the EventRecordVisitorI interface
 
-  void Configure (const Registry & config);
-  void Configure (string param_set);
+    void Configure (const Registry & config);
+    void Configure (string param_set);
 
-  virtual void ProcessEventRecord(GHepRecord * event_rec) const;
+    virtual void ProcessEventRecord(GHepRecord * event_rec) const;
 
 
+  protected:
+    bool CanRescatter(const GHepParticle * p) const;
+    bool IsInNucleus(const GHepParticle * p) const;
+    void TransportHadrons(GHepRecord * evrec) const;
+    bool NeedsRescattering(const GHepParticle * p) const;
+    virtual void LoadConfig (void) = 0;
 
-protected:
- bool CanRescatter(const GHepParticle * p) const;
- bool IsInNucleus(const GHepParticle * p) const;
- void TransportHadrons(GHepRecord * evrec) const;
- bool NeedsRescattering(const GHepParticle * p) const;
-virtual void LoadConfig (void)=0;
-   mutable int            fRemnA;         ///< remnant nucleus A
-   mutable int            fRemnZ;         ///< remnant nucleus Z
-   mutable double         fTrackingRadius;
-   mutable TLorentzVector fRemnP4;        ///< P4 of remnant system
-   mutable GEvGenMode_t   fGMode;
-   double       fR0;           ///< effective nuclear size param
-   double       fNR;
- };
+    mutable int            fRemnA;         ///< remnant nucleus A
+    mutable int            fRemnZ;         ///< remnant nucleus Z
+    mutable double         fTrackingRadius;
+    mutable TLorentzVector fRemnP4;        ///< P4 of remnant system
+    mutable GEvGenMode_t   fGMode;
+    double       fR0;           ///< effective nuclear size param
+    double       fNR;
+  };
+
 }
 
 #endif
