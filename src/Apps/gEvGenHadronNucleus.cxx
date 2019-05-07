@@ -237,41 +237,28 @@ const EventRecordVisitorI * GetIntranuke(void)
   string sname = "";
   string sconf = "";
 
-  if(gOptMode.compare("hA")==0) {
+  if        ( gOptMode.compare("hA") == 0 ) {
      sname = "genie::HAIntranuke";
      sconf = "Default";
-  }
-  else
-  if(gOptMode.compare("hN")==0) {
+  } else if ( gOptMode.compare("hN") == 0 ) {
      sname = "genie::HNIntranuke";
      sconf = "Default";
-  }
-  else
-  if(gOptMode.compare("hA2019")==0) {
+  } else if ( gOptMode.compare("hA2019") == 0 ) {
      sname = "genie::HAIntranuke2019";
      sconf = "Default";
-  }
-  else
-  if(gOptMode.compare("hN2019")==0) {
+  } else if ( gOptMode.compare("hN2019") == 0 ) {
      sname = "genie::HNIntranuke2019";
      sconf = "Default";
-  }
-  else
-  if(gOptMode.compare("hA2018")==0) {
+  } else if ( gOptMode.compare("hA2018") == 0 ) {
      sname = "genie::HAIntranuke2018";
      sconf = "Default";
-  }
-  else
-  if(gOptMode.compare("hN2018")==0) {
+  } else if ( gOptMode.compare("hN2018") == 0 ) {
      sname = "genie::HNIntranuke2018";
      sconf = "Default";
-  }
-  else 
-  if(gOptMode.compare("HINCL")==0) {
+  } else if ( gOptMode.compare("HINCL") == 0 ) {
      sname = "genie::HINCLCascade";
      sconf = "Default";
-  }
-  else{
+  } else {
     LOG("gevgen_hadron", pFATAL) << "Invalid Intranuke mode - Exiting";
     gAbortingInErr = true;
     exit(1);
