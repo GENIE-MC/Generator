@@ -160,7 +160,7 @@ double KPhaseSpace::Threshold(void) const
     return TMath::Max(0.,Ethr);
   }
 
-  if(pi.IsNuElectronElastic()) {
+  if(pi.IsNuElectronElastic() || pi.IsGlashowResonance() ) {
     return 0;
   }
   if(pi.IsAMNuGamma()) {
