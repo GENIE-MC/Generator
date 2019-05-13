@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2018, The GENIE Collaboration
+ Copyright (c) 2003-2019, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -121,10 +121,6 @@ bool AlgConfigPool::LoadAlgConfig(void)
   //-- read the MASTER_CONFIG XML file
   if(!this->LoadMasterConfig()) return false;
 
-  //-- read Common Parameters lists
-  if( ! LoadCommonParamLists() ) return false ;
-
-
   //-- read Tune Generator List for the tune, if available
   if( ! LoadTuneGeneratorList() ) {
 
@@ -232,20 +228,27 @@ bool AlgConfigPool::LoadGlobalParamLists(void)
   return this->LoadRegistries(key_prefix, glob_params, "global_param_list");
 }
 //____________________________________________________________________________
-bool AlgConfigPool::LoadCommonParamLists(void)
+bool AlgConfigPool::LoadCommonLists( const string & file_id )
 {
 // Load the common parameter list 
 //
-  SLOG("AlgConfigPool", pINFO) << "Loading Common parameter lists";
+  SLOG("AlgConfigPool", pINFO) << "Loading Common " << file_id << " lists";
 
   // -- get the user config XML file using GXMLPATH + default locations
-  string glob_params = utils::xml::GetXMLFilePath("CommonParameters.xml");
+  std::string xml_name = "Common" + file_id + ".xml" ;
+  string full_path = utils::xml::GetXMLFilePath( xml_name );
 
   // fixed key prefix
-  string key_prefix = "CommonParameterList";
+  string key_prefix = "Common" + file_id + "List";
 
   // load and report status
-  return this->LoadRegistries(key_prefix, glob_params, "common_param_list");
+  if ( ! this->LoadRegistries(key_prefix, full_path, "common_"+file_id+"_list") ) {
+
+	  SLOG("AlgConfigPool", pERROR) << "Failed to load Common " << file_id ;
+	  return false ;
+  }
+
+  return true ;
 }
 //____________________________________________________________________________
 bool AlgConfigPool::LoadTuneGeneratorList(void)
@@ -553,13 +556,17 @@ Registry * AlgConfigPool::GlobalParameterList(void) const
   return this->FindRegistry(key.str());
 }
 //____________________________________________________________________________
-Registry * AlgConfigPool::CommonParameterList( const string & name ) const
+Registry * AlgConfigPool::CommonList( const string & file_id, const string & set_name ) const
 {
 
   ostringstream key;
-  key << "CommonParameterList/" << name;
+  key << "Common" << file_id << "List/" << set_name;
 
-  return this->FindRegistry(key.str());
+  if ( ! this->FindRegistry(key.str()) ) {
+	const_cast<AlgConfigPool*>( this ) -> LoadCommonLists( file_id ) ;
+  }
+
+  return this->FindRegistry(key.str()) ;
 }
 //____________________________________________________________________________
 Registry * AlgConfigPool::TuneGeneratorList( void ) const

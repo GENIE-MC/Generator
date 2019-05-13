@@ -86,7 +86,7 @@ Luis Alvarez-Ruso [9], Costas Andreopoulos (*) [5,7], Adi Ashkenazi [4], Christo
 
 ## Copyright
 
-Copyright (c) 2003-2018, The GENIE Collaboration. For information, visit http://copyright.genie-mc.org 
+Copyright (c) 2003-2019, The GENIE Collaboration. For information, visit http://copyright.genie-mc.org 
 
 
 ## Physics & User manual

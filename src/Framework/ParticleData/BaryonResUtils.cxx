@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2018, The GENIE Collaboration
+ Copyright (c) 2003-2019, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -436,23 +436,23 @@ double genie::utils::res::Mass(Resonance_t res)
 {
     switch(res) {
         case kP33_1232  : return 1.232 * units::GeV ; break;
-        case kS11_1535  : return 1.530 * units::GeV ; break;
+        case kS11_1535  : return 1.535 * units::GeV ; break;
         case kD13_1520  : return 1.515 * units::GeV ; break;
-        case kS11_1650  : return 1.650 * units::GeV ; break;
-        case kD13_1700  : return 1.720 * units::GeV ; break;
+        case kS11_1650  : return 1.655 * units::GeV ; break;
+        case kD13_1700  : return 1.700 * units::GeV ; break;
         case kD15_1675  : return 1.675 * units::GeV ; break;
-        case kS31_1620  : return 1.610 * units::GeV ; break;
-        case kD33_1700  : return 1.710 * units::GeV ; break;
-        case kP11_1440  : return 1.440 * units::GeV ; break;
-        case kP33_1600  : return 1.570 * units::GeV ; break;
+        case kS31_1620  : return 1.630 * units::GeV ; break;
+        case kD33_1700  : return 1.700 * units::GeV ; break;
+        case kP11_1440  : return 1.430 * units::GeV ; break;
+        case kP33_1600  : return 1.600 * units::GeV ; break;
         case kP13_1720  : return 1.720 * units::GeV ; break;
         case kF15_1680  : return 1.685 * units::GeV ; break;
-        case kP31_1910  : return 1.900 * units::GeV ; break;
+        case kP31_1910  : return 1.890 * units::GeV ; break;
         case kP33_1920  : return 1.920 * units::GeV ; break;
         case kF35_1905  : return 1.880 * units::GeV ; break;
         case kF37_1950  : return 1.930 * units::GeV ; break;
         case kP11_1710  : return 1.710 * units::GeV ; break;
-        case kF17_1970  : return 2.180 * units::GeV ; break;
+        case kF17_1970  : return 2.190 * units::GeV ; break;
         default: break;
     }
     return -1;
@@ -463,22 +463,22 @@ double genie::utils::res::Width(Resonance_t res)
     switch(res) {
         case kP33_1232  : return 0.117 * units::GeV ; break;
         case kS11_1535  : return 0.150 * units::GeV ; break;
-        case kD13_1520  : return 0.110 * units::GeV ; break;
-        case kS11_1650  : return 0.125 * units::GeV ; break;
-        case kD13_1700  : return 0.200 * units::GeV ; break;
-        case kD15_1675  : return 0.145 * units::GeV ; break;
-        case kS31_1620  : return 0.130 * units::GeV ; break;
+        case kD13_1520  : return 0.115 * units::GeV ; break;
+        case kS11_1650  : return 0.140 * units::GeV ; break;
+        case kD13_1700  : return 0.150 * units::GeV ; break;
+        case kD15_1675  : return 0.150 * units::GeV ; break;
+        case kS31_1620  : return 0.140 * units::GeV ; break;
         case kD33_1700  : return 0.300 * units::GeV ; break;
         case kP11_1440  : return 0.350 * units::GeV ; break;
-        case kP33_1600  : return 0.250 * units::GeV ; break;
+        case kP33_1600  : return 0.320 * units::GeV ; break;
         case kP13_1720  : return 0.250 * units::GeV ; break;
-        case kF15_1680  : return 0.120 * units::GeV ; break;
-        case kP31_1910  : return 0.300 * units::GeV ; break;
-        case kP33_1920  : return 0.300 * units::GeV ; break;
+        case kF15_1680  : return 0.130 * units::GeV ; break;
+        case kP31_1910  : return 0.280 * units::GeV ; break;
+        case kP33_1920  : return 0.260 * units::GeV ; break;
         case kF35_1905  : return 0.330 * units::GeV ; break;
         case kF37_1950  : return 0.285 * units::GeV ; break;
-        case kP11_1710  : return 0.140 * units::GeV ; break;
-        case kF17_1970  : return 0.400 * units::GeV ; break;
+        case kP11_1710  : return 0.100 * units::GeV ; break;
+        case kF17_1970  : return 0.500 * units::GeV ; break;
         default: break;
     }
     return -1;

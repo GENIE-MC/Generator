@@ -19,27 +19,17 @@ University of Liverpool
 
 
 
-<common_param_list>
+<common_Param_list>
 
 
  <param_set name="Tunable">
    <!-- Reserved register for tuning -->
-   <param type="double" name="RES-Ma">   0.989013 </param>
-   <param type="double" name="DIS-XSecScale"> 1.058279 </param>
-   <param type="double" name="RES-CC-XSecScale"> 0.870225 </param>
+
+   <!-- <param type="double" name="DIS-XSecScale">    1.032 </param> -->
+   <!-- <param type="double" name="MEC-CC-XSecScale"> 1.000 </param> -->
+
+
  </param_set>
-
-
-  <param_set name="KNO2Pythia">
-    <!--                                                                                                              
-         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~            
-         Invariant mass window for the transition from KNO model to PYTHIA                                            
-    -->
-
-    <param type="double" name="KNO2PYTHIA-Wmin">  2.30 </param>
-    <param type="double" name="KNO2PYTHIA-Wmax">  3.00 </param>
-
-  </param_set>
 
 
  <param_set name="WeakInt">
@@ -96,27 +86,27 @@ University of Liverpool
 
    -->
    <param type="bool"   name="UseDRJoinScheme"> true </param>
-   <param type="double" name="Wcut">  2.280200  </param>
+   <param type="double" name="Wcut">            1.7  </param>
 
  <!--
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   NEUGEN parameters applied to DIS hadronic multiplicity distributions
   to avoid 2-ble counting with RES
   -->
-  <param type="double" name="DIS-HMultWgt-vp-CC-m2">  0.151143 </param>
-  <param type="double" name="DIS-HMultWgt-vp-CC-m3">  0.622996 </param>
+  <param type="double" name="DIS-HMultWgt-vp-CC-m2">  0.100  </param>
+  <param type="double" name="DIS-HMultWgt-vp-CC-m3">  1.000  </param>
   <param type="double" name="DIS-HMultWgt-vp-NC-m2">  0.100  </param>
   <param type="double" name="DIS-HMultWgt-vp-NC-m3">  1.000  </param>
-  <param type="double" name="DIS-HMultWgt-vn-CC-m2">  0.158376  </param>
-  <param type="double" name="DIS-HMultWgt-vn-CC-m3">  1.335991  </param>
+  <param type="double" name="DIS-HMultWgt-vn-CC-m2">  0.300  </param>
+  <param type="double" name="DIS-HMultWgt-vn-CC-m3">  1.000  </param>
   <param type="double" name="DIS-HMultWgt-vn-NC-m2">  0.300  </param>
   <param type="double" name="DIS-HMultWgt-vn-NC-m3">  1.000  </param>
-  <param type="double" name="DIS-HMultWgt-vbp-CC-m2"> 0.158376  </param>
-  <param type="double" name="DIS-HMultWgt-vbp-CC-m3"> 1.335991  </param>
+  <param type="double" name="DIS-HMultWgt-vbp-CC-m2"> 0.300  </param>
+  <param type="double" name="DIS-HMultWgt-vbp-CC-m3"> 1.000  </param>
   <param type="double" name="DIS-HMultWgt-vbp-NC-m2"> 0.300  </param>
   <param type="double" name="DIS-HMultWgt-vbp-NC-m3"> 1.000  </param>
-  <param type="double" name="DIS-HMultWgt-vbn-CC-m2"> 0.151143 </param>
-  <param type="double" name="DIS-HMultWgt-vbn-CC-m3"> 0.622996 </param>
+  <param type="double" name="DIS-HMultWgt-vbn-CC-m2"> 0.100  </param>
+  <param type="double" name="DIS-HMultWgt-vbn-CC-m3"> 1.000  </param>
   <param type="double" name="DIS-HMultWgt-vbn-NC-m2"> 0.100  </param>
   <param type="double" name="DIS-HMultWgt-vbn-NC-m3"> 1.000  </param>
 
@@ -175,7 +165,6 @@ University of Liverpool
    <param type="double" name="INUKE-NucCEXFac">         1.0   </param>
    <param type="double" name="INUKE-Energy_Pre_Eq">     0.041 </param>
    <param type="double" name="INUKE-FermiFac">          1.0   </param>
-   <param type="double" name="INUKE-FreeStep">          0.0   </param>
    <param type="double" name="INUKE-FermiMomentum">     0.250 </param>
    <param type="bool"   name="INUKE-DoFermi">           true  </param>
    <param type="bool"   name="INUKE-DoCompoundNucleus"> true  </param>
@@ -299,19 +288,35 @@ University of Liverpool
          P31(1910),P33(1920),F35(1905),F37(1950),P11(1710),F17(1970)
    </param>
 
-
-   <!--
-       In this configuration set we include only the first two resonances
-       <param type="string" name="ResonanceNameList">    P33(1232),P11(1440)       </param>
-   -->
-
-
-  </param_set>
+ </param_set>
 
   <param_set name="Lepton">
     <param type="bool" name="ApplyCoulombCorrection"> false </param>
 
   </param_set>
+
+
+  <param_set name="BoostedDarkMatter">
+    <!--
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        Set the coupling of dark matter to nucleons
+    -->
+    <param type="double" name="ZpCoupling"> 0.1 </param>
+
+  </param_set>
+
+  <param_set name="KNO2Pythia">
+    <!--
+	 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	 Invariant mass window for the transition from KNO model to PYTHIA
+    -->
+
+    <param type="double" name="KNO2PYTHIA-Wmin">  2.30 </param>
+    <param type="double" name="KNO2PYTHIA-Wmax">  3.00 </param>
+
+  </param_set>
+
+
 
   <param_set name="Validation">
     <!--
@@ -323,4 +328,4 @@ University of Liverpool
 
   </param_set>
 
-</common_param_list>
+</common_Param_list>

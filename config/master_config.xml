@@ -17,7 +17,6 @@
    <config alg="genie::VertexGenerator">             VertexGenerator.xml             </config>
    <config alg="genie::QELEventGenerator">           QELEventGenerator.xml           </config>
    <config alg="genie::QELEventGeneratorSM">         QELEventGeneratorSM.xml         </config>
-   <config alg="genie::DMELEventGenerator">          DMELEventGenerator.xml          </config>
    <config alg="genie::QELPrimaryLeptonGenerator">   QELPrimaryLeptonGenerator.xml   </config>
    <config alg="genie::DISPrimaryLeptonGenerator">   DISPrimaryLeptonGenerator.xml   </config>
    <config alg="genie::RESPrimaryLeptonGenerator">   RESPrimaryLeptonGenerator.xml   </config>
@@ -118,6 +117,7 @@
 
    <!--  ****** CONFIGURATION GENERIC CROSS SECTION INTEGRATORS ****** -->
    <config alg="genie::QELXSec">                     QELXSec.xml                     </config>
+   <config alg="genie::NewQELXSec">                  NewQELXSec.xml                  </config>
    <config alg="genie::SmithMonizQELCCXSec">         SmithMonizQELCCXSec.xml         </config>
    <config alg="genie::DISXSec">                     DISXSec.xml                     </config>
    <config alg="genie::COHXSec">                     COHXSec.xml                     </config>
