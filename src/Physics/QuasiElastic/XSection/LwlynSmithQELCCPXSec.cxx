@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2018, The GENIE Collaboration
+ Copyright (c) 2003-2019, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -44,6 +44,7 @@
 #include "Framework/Numerical/MathUtils.h"
 #include "Framework/Utils/KineUtils.h"
 #include "Physics/NuclearState/NuclearUtils.h"
+#include "Physics/QuasiElastic/XSection/QELUtils.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -73,15 +74,11 @@ double LwlynSmithQELCCPXSec::XSec(
   if(! this -> ValidProcess    (interaction) ) {LOG("LwlynSmith",pWARN) << "not a valid process"; return 0.;}
   if(! this -> ValidKinematics (interaction) ) {LOG("LwlynSmith",pWARN) << "not valid kinematics"; return 0.;}
 
-  if (kps == kPSTnctnBnctl){
+  // If computing the full differential cross section, then all four momentum
+  // four-vectors (probe, hit nucleon, final lepton, and final nucleon) should
+  // have been set already, with the hit nucleon off-shell as appropriate.
+  if (kps == kPSQELEvGen) {
     return this->FullDifferentialXSec(interaction);
-  }
-  else if (kps == kPSQELEvGen) {
-    double full_diff_xsec = this->FullDifferentialXSec(interaction);
-    double jacobian = utils::kinematics::Jacobian(interaction,
-      kPSTnctnBnctl, kps);
-    double xsec = full_diff_xsec * jacobian;
-    return xsec;
   }
 
   // Get kinematics & init-state parameters
@@ -177,33 +174,79 @@ double LwlynSmithQELCCPXSec::XSec(
   return xsec;
 }
 //____________________________________________________________________________
-double LwlynSmithQELCCPXSec::FullDifferentialXSec(const Interaction *  interaction)const{
-
+double LwlynSmithQELCCPXSec::FullDifferentialXSec(const Interaction*  interaction)
+  const
+{
   // First we need access to all of the particles in the interaction
   // The particles were stored in the lab frame
-  const Kinematics &   kinematics = interaction -> Kine();
-  const InitialState & init_state = interaction -> InitState();
+  const Kinematics&   kinematics = interaction -> Kine();
+  const InitialState& init_state = interaction -> InitState();
+
+  const Target& tgt = init_state.Tgt();
 
   const TLorentzVector leptonMom = kinematics.FSLeptonP4();
   const TLorentzVector outNucleonMom = kinematics.HadSystP4();
 
-  TLorentzVector * neutrinoMom = init_state.GetProbeP4(kRfLab);
+  // Apply Pauli blocking if enabled
+  if ( fDoPauliBlocking && tgt.IsNucleus() && !interaction->TestBit(kIAssumeFreeNucleon) ) {
+    int final_nucleon_pdg = interaction->RecoilNucleonPdg();
+    double kF = fPauliBlocker->GetFermiMomentum(tgt, final_nucleon_pdg,
+      tgt.HitNucPosition());
+    double pNf = outNucleonMom.P();
+    if ( pNf < kF ) return 0.;
+  }
+
+  // Note that GetProbeP4 defaults to returning the probe 4-momentum in the
+  // struck nucleon rest frame, so we have to explicitly ask for the lab frame
+  // here
+  TLorentzVector * tempNeutrino = init_state.GetProbeP4(kRfLab);
+  TLorentzVector neutrinoMom = *tempNeutrino;
+  delete tempNeutrino;
   TLorentzVector * inNucleonMom = init_state.TgtPtr()->HitNucP4Ptr();
 
-  // Now we calculate q and qTilde
-  //TLorentzVector qP4(0,0,0,0);
-  TLorentzVector qTildeP4(0,0,0,0);
-  //qP4 = *neutrinoMom - leptonMom;
-  //qTildeP4 = outNucleonMom - *inNucleonMom;
+  // *** CALCULATION OF "q" and "qTilde" ***
+  // According to the de Forest prescription for handling the off-shell
+  // initial struck nucleon, the cross section calculation should proceed
+  // as if for a free nucleon, except that an effective value of the 4-momentum
+  // transfer qTilde should be used in which the difference between the on-
+  // and off-shell energies of the hit nucleon has been subtracted from the
+  // energy transfer q0.
 
-  qTildeP4 = *neutrinoMom- leptonMom; // TESTING: Use q rather than qtilde
+  // HitNucMass() looks up the PDGLibrary (on-shell) value for the initial
+  // struck nucleon
+  double mNi = init_state.Tgt().HitNucMass();
 
-  double Q2tilde = -1 * qTildeP4.Mag2();
+  // Hadronic matrix element for CC neutrino interactions should really use
+  // the "nucleon mass," i.e., the mean of the proton and neutrino masses.
+  // This expression would also work for NC and EM scattering (since the
+  // initial and final on-shell nucleon masses would be the same)
+  double mNucleon = ( mNi + interaction->RecoilNucleon()->Mass() ) / 2.;
+
+  // Ordinary 4-momentum transfer
+  TLorentzVector qP4 = neutrinoMom - leptonMom;
+
+  // Initial struck nucleon 4-momentum in which it is forced to be on-shell
+  double inNucleonOnShellEnergy = std::sqrt( std::pow(mNi, 2)
+    + std::pow(inNucleonMom->P(), 2) );
+  TLorentzVector inNucleonMomOnShell( inNucleonMom->Vect(), inNucleonOnShellEnergy );
+
+  // Effective 4-momentum transfer (according to the deForest prescription) for
+  // use in computing the hadronic tensor
+  TLorentzVector qTildeP4 = outNucleonMom - inNucleonMomOnShell;
+
+  double Q2 = -1. * qP4.Mag2();
+  double Q2tilde = -1. * qTildeP4.Mag2();
+
+  // If the binding energy correction causes an unphysical value
+  // of q0Tilde or Q2tilde, just return 0.
+  if ( qTildeP4.E() <= 0. && init_state.Tgt().IsNucleus() &&
+    !interaction->TestBit(kIAssumeFreeNucleon) ) return 0.;
+  if ( Q2tilde <= 0. ) return 0.;
+
+  // Store Q2tilde in the kinematic variable representing Q2.
+  // This will ensure that the form factors are calculated correctly
+  // using the de Forest prescription (Q2tilde instead of Q2).
   interaction->KinePtr()->SetQ2(Q2tilde);
-
-//  LOG("LwlynSmith",pDEBUG) << "Q2tilde = " << Q2tilde;
-//  LOG("LwlynSmith",pDEBUG) << "Q2 (not tilde)= " << -1 * qP4.Mag2();
-//  LOG("LwlynSmith",pDEBUG) << "Q2 difference (tilde - not) = " << Q2tilde + qP4.Mag2();
 
   // Calculate the QEL form factors
   fFormFactors.Calculate(interaction);
@@ -213,10 +256,16 @@ double LwlynSmithQELCCPXSec::FullDifferentialXSec(const Interaction *  interacti
   double FA    = fFormFactors.FA();
   double Fp    = fFormFactors.Fp();
 
-  double Gfactor = kGF2*fCos8c2 / (8*kPi*kPi*inNucleonMom->E()*neutrinoMom->E()*outNucleonMom.E()*leptonMom.E());
+  // Restore Q2 in the interaction's kinematic variables
+  // now that the form factors have been computed
+  interaction->KinePtr()->SetQ2( Q2 );
+
+  // Overall factor in the differential cross section
+  double Gfactor = kGF2*fCos8c2 / ( 8. * kPi * kPi * inNucleonOnShellEnergy
+    * neutrinoMom.E() * outNucleonMom.E() * leptonMom.E() );
 
   // Now, we can calculate the cross section
-  double tau = Q2tilde / (4 * inNucleonMom->Mag2());
+  double tau = Q2tilde / (4 * std::pow(mNucleon, 2));
   double h1 = FA*FA*(1 + tau) + tau*(F1V + xiF2V)*(F1V + xiF2V);
   double h2 = FA*FA + F1V*F1V + tau*xiF2V*xiF2V;
   double h3 = 2.0 * FA * (F1V + xiF2V);
@@ -224,30 +273,25 @@ double LwlynSmithQELCCPXSec::FullDifferentialXSec(const Interaction *  interacti
 
   bool is_neutrino = pdg::IsNeutrino(init_state.ProbePdg());
   int sign = (is_neutrino) ? -1 : 1;
-  double l1 = 2*neutrinoMom->Dot(leptonMom)*(inNucleonMom->Mag2());
-  double l2 = 2*(neutrinoMom->Dot(*inNucleonMom)) * (inNucleonMom->Dot(leptonMom)) - neutrinoMom->Dot(leptonMom)*inNucleonMom->Mag2();
-  double l3 = (neutrinoMom->Dot(*inNucleonMom) * qTildeP4.Dot(leptonMom)) - (neutrinoMom->Dot(qTildeP4) * leptonMom.Dot(*inNucleonMom));
+  double l1 = 2*neutrinoMom.Dot(leptonMom)*std::pow(mNucleon, 2);
+  double l2 = 2*(neutrinoMom.Dot(inNucleonMomOnShell)) * (inNucleonMomOnShell.Dot(leptonMom)) - neutrinoMom.Dot(leptonMom)*std::pow(mNucleon, 2);
+  double l3 = (neutrinoMom.Dot(inNucleonMomOnShell) * qTildeP4.Dot(leptonMom)) - (neutrinoMom.Dot(qTildeP4) * leptonMom.Dot(inNucleonMomOnShell));
   l3 *= sign;
-  double l4 = neutrinoMom->Dot(leptonMom) * qTildeP4.Dot(qTildeP4) - 2*neutrinoMom->Dot(qTildeP4)*leptonMom.Dot(qTildeP4);
-  double l5 = neutrinoMom->Dot(*inNucleonMom) * leptonMom.Dot(qTildeP4) + leptonMom.Dot(*inNucleonMom)*neutrinoMom->Dot(qTildeP4) - neutrinoMom->Dot(leptonMom)*inNucleonMom->Dot(qTildeP4);
+  double l4 = neutrinoMom.Dot(leptonMom) * qTildeP4.Dot(qTildeP4) - 2*neutrinoMom.Dot(qTildeP4)*leptonMom.Dot(qTildeP4);
+  double l5 = neutrinoMom.Dot(inNucleonMomOnShell) * leptonMom.Dot(qTildeP4) + leptonMom.Dot(inNucleonMomOnShell)*neutrinoMom.Dot(qTildeP4) - neutrinoMom.Dot(leptonMom)*inNucleonMomOnShell.Dot(qTildeP4);
 
   double LH = 2 *(l1*h1 + l2*h2 + l3*h3 + l4*h4 + l5*h2);
 
-  delete neutrinoMom;
-
   double xsec = Gfactor * LH;
+
+  // Apply the factor that arises from elimination of the energy-conserving
+  // delta function
+  xsec *= genie::utils::EnergyDeltaFunctionSolutionQEL( *interaction );
 
   // Apply given scaling factor
   xsec *= fXSecScale;
 
-  if( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;
-
-  //----- compute nuclear suppression factor
-  //      (R(Q2) is adapted from NeuGEN - see comments therein)
-  double R = nuclear::NuclQELXSecSuppression("Default", 0.5, interaction);
-  // LOG("LwlynSmith",pINFO)  << "Nuclear Suppression Factor = " << R;
-
-  //----- number of scattering centers in the target
+  // Number of scattering centers in the target
   const Target & target = init_state.Tgt();
   int nucpdgc = target.HitNucPdg();
   int NNucl = (pdg::IsProton(nucpdgc)) ? target.Z() : target.N();
@@ -257,7 +301,7 @@ double LwlynSmithQELCCPXSec::FullDifferentialXSec(const Interaction *  interacti
     << "Nuclear suppression factor R(Q2) = " << R << ", NNucl = " << NNucl;
 #endif
 
-  xsec *= (R*NNucl); // nuclear xsec
+  xsec *= NNucl; // nuclear xsec
 
   return xsec;
 
@@ -265,6 +309,18 @@ double LwlynSmithQELCCPXSec::FullDifferentialXSec(const Interaction *  interacti
 //____________________________________________________________________________
 double LwlynSmithQELCCPXSec::Integral(const Interaction * in) const
 {
+  // If we're using the new spline generation method (which integrates
+  // over the kPSQELEvGen phase space used by QELEventGenerator) then
+  // let the cross section integrator do all of the work. It's smart
+  // enough to handle free nucleon vs. nuclear targets, different
+  // nuclear models (including the local Fermi gas model), etc.
+  // TODO: think about doing this in a better way
+  if ( fXSecIntegrator->Id().Name() == "genie::NewQELXSec" ) {
+    return fXSecIntegrator->Integrate(this, in);
+  }
+
+  // Otherwise, use the old integration method (kept for use with
+  // the historical default G18_00x series of tunes)
   bool nuclear_target = in->InitState().Tgt().IsNucleus();
   if(!nuclear_target || !fDoAvgOverNucleonMomentum) {
     return fXSecIntegrator->Integrate(this,in);
@@ -402,8 +458,20 @@ void LwlynSmithQELCCPXSec::LoadConfig(void)
 
   fEnergyCutOff = 0.;
 
-  if(fDoAvgOverNucleonMomentum) {
-    // Get averaging cutoff energy
-	  GetParamDef("IntegralNuclearInfluenceCutoffEnergy", fEnergyCutOff, 2.0 ) ;
-  }
+  // Get averaging cutoff energy
+  GetParamDef("IntegralNuclearInfluenceCutoffEnergy", fEnergyCutOff, 2.0 ) ;
+
+  // Method to use to calculate the binding energy of the initial hit nucleon when
+  // generating splines
+  std::string temp_binding_mode;
+  GetParamDef( "IntegralNucleonBindingMode", temp_binding_mode, std::string("UseNuclearModel") );
+  fIntegralNucleonBindingMode = genie::utils::StringToQELBindingMode( temp_binding_mode );
+
+  // Get PauliBlocker for possible use in FullDifferentialXSec()
+  GetParamDef( "IntegralNucleonBindingMode", temp_binding_mode, std::string("UseNuclearModel") );
+  fPauliBlocker = dynamic_cast<const PauliBlocker*>( this->SubAlg("PauliBlockerAlg") );
+  assert( fPauliBlocker );
+
+  // Decide whether or not it should be used in FullDifferentialXSec
+  GetParamDef( "DoPauliBlocking", fDoPauliBlocking, true );
 }

@@ -12,12 +12,12 @@
           Changes required to implement the GENIE Boosted Dark Matter module
           were installed by Josh Berger (Univ. of Wisconsin)
 
-          Other code improvements, additions, fixes were installed by 
+          Other code improvements, additions, fixes were installed by
           Joe Johnston (Univ of Pittsburgh)
 
 \created  October 08, 2004
 
-\cpright  Copyright (c) 2003-2018, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
@@ -27,6 +27,7 @@
 #define _PAULI_BLOCKER_H_
 
 #include "Framework/EventGen/EventRecordVisitorI.h"
+#include "Framework/Interaction/Target.h"
 
 namespace genie {
 
@@ -46,6 +47,10 @@ public :
   //   data to private data members
   void Configure (const Registry & config);
   void Configure (string param_set);
+
+  /// Get the Fermi momentum needed to check Pauli blocking
+  double GetFermiMomentum(const Target& tgt, int pdg_Nf,
+    double radius = 0.0) const;
 
 private:
    void LoadModelType(void);

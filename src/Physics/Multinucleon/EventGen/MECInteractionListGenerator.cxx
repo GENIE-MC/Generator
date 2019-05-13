@@ -1,11 +1,11 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2018, The GENIE Collaboration
+ Copyright (c) 2003-2019, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
  Author: Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-         University of Liverpool & STFC Rutherford Appleton Lab 
+         University of Liverpool & STFC Rutherford Appleton Lab
 
  For the class documentation see the corresponding header file.
 
@@ -44,7 +44,7 @@ MECInteractionListGenerator::~MECInteractionListGenerator()
 
 }
 //___________________________________________________________________________
-InteractionList * 
+InteractionList *
   MECInteractionListGenerator::CreateInteractionList(
       const InitialState & init_state) const
 {
@@ -60,55 +60,55 @@ InteractionList *
   InteractionList * intlist = new InteractionList;
 
   if(!fSetDiNucleonCode&&fIsCC) {
-	 LOG("IntLst", pWARN) << "fIsCC(val) = " << fIsCC;
+         LOG("IntLst", pINFO) << "fIsCC(val) = " << fIsCC;
       Interaction * interaction = Interaction::MECCC(tgtpdg, nupdg, 0.0);
       intlist->push_back(interaction);
   }
-    
+
   const int nc = 3;
-  const int nucleon_cluster[nc] = { 
+  const int nucleon_cluster[nc] = {
     kPdgClusterNN, kPdgClusterNP, kPdgClusterPP };
 
   for(int ic = 0; ic < nc; ic++) {
      int ncpdg = nucleon_cluster[ic];
      if(fIsCC&&fSetDiNucleonCode) {
        bool allowed = false;
-       LOG("IntLst", pWARN) << "fIsCC(emp) = " << fIsCC;
+       LOG("IntLst", pINFO) << "fIsCC(emp) = " << fIsCC;
        if(pdg::IsNeutrino(nupdg)) {
          // neutrino CC => final state primary lepton is -1
          // therefore the nucleon-cluster charge needs to be incremented by +1.
-	 if(ncpdg == kPdgClusterNN || ncpdg == kPdgClusterNP) {
-	   allowed = true;
-	 }
+         if(ncpdg == kPdgClusterNN || ncpdg == kPdgClusterNP) {
+           allowed = true;
+         }
        }
        else
-	 if(pdg::IsAntiNeutrino(nupdg)) {
-	   // anti-neutrino CC => final state primary lepton is +1
-	   // therefore the nucleon-cluster charge needs to be incremented by -1.
-	   if(ncpdg == kPdgClusterNP || ncpdg == kPdgClusterPP) {
-	     allowed = true;
-	   }
-	 }
+         if(pdg::IsAntiNeutrino(nupdg)) {
+           // anti-neutrino CC => final state primary lepton is +1
+           // therefore the nucleon-cluster charge needs to be incremented by -1.
+           if(ncpdg == kPdgClusterNP || ncpdg == kPdgClusterPP) {
+             allowed = true;
+           }
+         }
        if(allowed) {
-	 Interaction * interaction = 
-	   Interaction::MECCC(tgtpdg,ncpdg,nupdg,0);
-	 intlist->push_back(interaction);
+         Interaction * interaction =
+           Interaction::MECCC(tgtpdg,ncpdg,nupdg,0);
+         intlist->push_back(interaction);
        }
      }//CC?
      else
-       if(fIsNC) 
+       if(fIsNC)
      {
-       LOG("IntLst", pWARN) << "fIsNC = " << fIsNC;
-       Interaction * interaction = 
-	 Interaction::MECNC(tgtpdg,ncpdg,nupdg,0);
+       LOG("IntLst", pINFO) << "fIsNC = " << fIsNC;
+       Interaction * interaction =
+         Interaction::MECNC(tgtpdg,ncpdg,nupdg,0);
        intlist->push_back(interaction);
      }//NC?
      else
        if(fIsEM) {
-	 LOG("IntLst", pWARN) << "fIsEM = " << fIsEM << "  ncpdg = " << ncpdg;
-	 Interaction * interaction = 
-	   Interaction::MECEM(tgtpdg,ncpdg,nupdg,0);
-	 intlist->push_back(interaction);
+         LOG("IntLst", pINFO) << "fIsEM = " << fIsEM << "  ncpdg = " << ncpdg;
+         Interaction * interaction =
+           Interaction::MECEM(tgtpdg,ncpdg,nupdg,0);
+         intlist->push_back(interaction);
        }//EM?
   }
   return intlist;
@@ -137,4 +137,3 @@ void MECInteractionListGenerator::LoadConfigData(void)
 
 }
 //____________________________________________________________________________
-
