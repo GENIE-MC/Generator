@@ -1,5 +1,3 @@
-src/Framework/Numerical/Interpolator2D.cxx
-.gitignore
 bin/
 lib/
 build-env.log
@@ -15,11 +13,3 @@ src/Framework/Conventions/GVersion.h
 *.rootmap
 *_ROOT_DICT_*
 *.swp
-environment_setup_master.sh
-environment_setup_master.sh~
-environment_setup.sh
-environment_setup.sh~
-.gitignore
-mySplines/
-mySamples/
-
