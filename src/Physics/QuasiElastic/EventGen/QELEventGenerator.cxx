@@ -391,11 +391,6 @@ void QELEventGenerator::LoadConfig(void)
     // calculation for lower eneries
     GetParamDef( "Cache-MinEnergy", fEMin, 1.00 ) ;
 
-    // Maximum allowed fractional cross section deviation from maxim cross
-    // section used in rejection method
-    GetParamDef( "MaxXSec-DiffTolerance", fMaxXSecDiffTolerance, 999999. ) ;
-    assert(fMaxXSecDiffTolerance>=0);
-
     // Generate kinematics uniformly over allowed phase space and compute
     // an event weight?
     GetParamDef( "UniformOverPhaseSpace", fGenerateUniformly, false ) ;
