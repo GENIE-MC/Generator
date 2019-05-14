@@ -83,5 +83,4 @@ XSec-Integrator             alg     No
      <param type="alg"  name="XSec-Integrator">  genie::ReinSehgalRESXSec/NoPauliBlock    </param>
   </param_set>
 
-
 </alg_conf>  
