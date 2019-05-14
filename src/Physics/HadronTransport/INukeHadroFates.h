@@ -23,9 +23,11 @@
 
 #include <string>
 
-using std::string;
+
 
 namespace genie {
+
+using std::string;
 
 // Fates in INTRANUKE's HN mode
 //
