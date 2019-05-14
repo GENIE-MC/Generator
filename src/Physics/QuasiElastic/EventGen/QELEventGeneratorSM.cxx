@@ -96,6 +96,10 @@ void QELEventGeneratorSM::ProcessEventRecord(GHepRecord * evrec) const
 
   // Access the target from the interaction summary
   Target * tgt = init_state.TgtPtr();
+  GHepParticle * nucleon = evrec->HitNucleon();
+  // Store position of nucleon
+  double hitNucPos = nucleon->X4()->Vect().Mag();
+  tgt->SetHitNucPosition( hitNucPos );
 
   // Get the random number generators
   RandomGen * rnd = RandomGen::Instance();
@@ -130,7 +134,7 @@ void QELEventGeneratorSM::ProcessEventRecord(GHepRecord * evrec) const
      if(iter > kRjMaxIterations)
      {
         LOG("QELEvent", pWARN)
-          << "Couldn't select a valid Q2 after " << iter << " iterations";
+          << "Couldn't select a valid kinematics after " << iter << " iterations";
         evrec->EventFlags()->SetBitNumber(kKineGenErr, true);
         genie::exceptions::EVGThreadException exception;
         exception.SetReason("Couldn't select kinematics");
@@ -138,62 +142,63 @@ void QELEventGeneratorSM::ProcessEventRecord(GHepRecord * evrec) const
         throw exception;
      }
 
-         // Pick Q2 and v
+      // Pick Q2 and v
      double xsec_max = 0.;
      double pth = rnd->RndKine().Rndm();
      //pth < prob1/(prob1+prob2), where prob1,prob2 - probabilities to generate event in area1 (Q2<fQ2Min) and area2 (Q2>fQ2Min) which are not normalized
      if (pth <= xsec_max1*(TMath::Min(rQ2.max, fQ2Min)-rQ2.min)/(xsec_max1*(TMath::Min(rQ2.max, fQ2Min)-rQ2.min)+xsec_max2*(rQ2.max-fQ2Min)))
      {
-                 xsec_max = xsec_max1;
-                 gQ2 = (rnd->RndKine().Rndm() * (TMath::Min(rQ2.max, fQ2Min)-rQ2.min)) + rQ2.min;
-         }
-         else
-         {
-                 xsec_max = xsec_max2;
-                 gQ2 = (rnd->RndKine().Rndm() * (rQ2.max-fQ2Min)) + fQ2Min;
-         }
-         Range1D_t rv  = sm_utils->vQES_SM_lim(gQ2);
-         // for nuclei heavier than deuterium generate energy transfer in defined energy interval
-         v = 0.;
-         if (isHeavyNucleus)
-         {
-                v = vmax * rnd->RndKine().Rndm();
-                if (v > (rv.max-rv.min)){
-                        continue;
-                }
-         }
-         v += rv.min;
+       xsec_max = xsec_max1;
+       gQ2 = (rnd->RndKine().Rndm() * (TMath::Min(rQ2.max, fQ2Min)-rQ2.min)) + rQ2.min;
+     }
+     else
+     {
+        xsec_max = xsec_max2;
+        gQ2 = (rnd->RndKine().Rndm() * (rQ2.max-fQ2Min)) + fQ2Min;
+     }
+     Range1D_t rv  = sm_utils->vQES_SM_lim(gQ2);
+     // for nuclei heavier than deuterium generate energy transfer in defined energy interval
+     v = 0.;
+     if (isHeavyNucleus)
+     {
+       v = vmax * rnd->RndKine().Rndm();
+       if (v > (rv.max-rv.min))
+       {
+          continue;
+       }
+     }
+     v += rv.min;
 
-         Kinematics * kinematics = interaction->KinePtr();
-         kinematics->SetKV(kKVQ2, gQ2);
-         kinematics->SetKV(kKVv, v);
-         xsec = fXSecModel->XSec(interaction, fkps);
+     Kinematics * kinematics = interaction->KinePtr();
+     kinematics->SetKV(kKVQ2, gQ2);
+     kinematics->SetKV(kKVv, v);
+     xsec = fXSecModel->XSec(interaction, fkps);
 
-          //-- Decide whether to accept the current kinematics
-         if(!fGenerateUniformly) {
-                this->AssertXSecLimits(interaction, xsec, xsec_max);
-
-                double t = xsec_max * rnd->RndKine().Rndm();
+      //-- Decide whether to accept the current kinematics
+     if(!fGenerateUniformly)
+     {
+       this->AssertXSecLimits(interaction, xsec, xsec_max);
+       double t = xsec_max * rnd->RndKine().Rndm();
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-                LOG("QELEvent", pDEBUG)
-                        << "xsec= " << xsec << ", J= " << J << ", Rnd= " << t;
+       LOG("QELEvent", pDEBUG)<< "xsec= " << xsec << ", J= " << J << ", Rnd= " << t;
 #endif
-                accept = (t < xsec);
-         }
-         else {
-                accept = (xsec>0);
-         }
+       accept = (t < xsec);
+     }
+     else 
+     {
+        accept = (xsec>0);
+     }
 
-         // If the generated kinematics are accepted, finish-up module's job
-         if(accept)
-         {
-
-                 break;
-         }
-         iter++;
+     // If the generated kinematics are accepted, finish-up module's job
+     if(accept)
+     {
+       interaction->ResetBit(kISkipProcessChk);
+       interaction->ResetBit(kISkipKinematicChk);
+       break;
+     }
+     iter++;
   }
-
 
   // Z-frame is frame where momentum transfer is (v,0,0,qv)
   double qv = TMath::Sqrt(v*v+gQ2);
@@ -280,16 +285,17 @@ void QELEventGeneratorSM::ProcessEventRecord(GHepRecord * evrec) const
 
   // set the cross section for the selected kinematics
   evrec->SetDiffXSec(xsec,fkps);
-  if(fGenerateUniformly) {
-          double vol     = sm_utils->PhaseSpaceVolume(fkps);
-          double totxsec = evrec->XSec();
-          double wght    = (vol/totxsec)*xsec;
-          LOG("QELEvent", pNOTICE)  << "Kinematics wght = "<< wght;
-
-          // apply computed weight to the current event weight
-          wght *= evrec->Weight();
-          LOG("QELEvent", pNOTICE) << "Current event wght = " << wght;
-          evrec->SetWeight(wght);
+  if(fGenerateUniformly) 
+  {
+     double vol     = sm_utils->PhaseSpaceVolume(fkps);
+     double totxsec = evrec->XSec();
+     double wght    = (vol/totxsec)*xsec;
+     LOG("QELEvent", pNOTICE)  << "Kinematics wght = "<< wght;
+     
+     // apply computed weight to the current event weight
+     wght *= evrec->Weight();
+     LOG("QELEvent", pNOTICE) << "Current event wght = " << wght;
+     evrec->SetWeight(wght);
   }
   TLorentzVector x4l(*(evrec->Probe())->X4());
 
@@ -297,23 +303,22 @@ void QELEventGeneratorSM::ProcessEventRecord(GHepRecord * evrec) const
 
   GHepStatus_t ist;
   if (!fGenerateNucleonInNucleus)
-        ist = kIStStableFinalState;
+     ist = kIStStableFinalState;
   else
-        ist = (tgt->IsNucleus()) ? kIStHadronInTheNucleus : kIStStableFinalState;
+     ist = (tgt->IsNucleus()) ? kIStHadronInTheNucleus : kIStStableFinalState;
 
   GHepParticle outNucleon(interaction->RecoilNucleonPdg(), ist, evrec->HitNucleonPosition(),-1,-1,-1, outNucleonMom , x4l);
   evrec->AddParticle(outNucleon);
 
   // Store struck nucleon momentum
-  GHepParticle * nucleon = evrec->HitNucleon();
   LOG("QELEvent",pNOTICE) << "pn: " << inNucleonMom.X() << ", " <<inNucleonMom.Y() << ", " <<inNucleonMom.Z() << ", " <<inNucleonMom.E();
   nucleon->SetMomentum(inNucleonMom);
   nucleon->SetRemovalEnergy(sm_utils->GetBindingEnergy());
 
   // skip if not a nuclear target
   if(evrec->Summary()->InitState().Tgt().IsNucleus())
-          // add a recoiled nucleus remnant
-          this->AddTargetNucleusRemnant(evrec);
+    // add a recoiled nucleus remnant
+    this->AddTargetNucleusRemnant(evrec);
 
 
   LOG("QELEvent", pINFO) << "Done generating QE event kinematics!";
@@ -337,29 +342,31 @@ void QELEventGeneratorSM::AddTargetNucleusRemnant(GHepRecord * evrec) const
   int fd = nucleus->FirstDaughter();
   int ld = nucleus->LastDaughter();
 
-  for(int id = fd; id <= ld; id++) {
+  for(int id = fd; id <= ld; id++) 
+  {
 
-    // compute A,Z for final state nucleus & get its PDG code and its mass
-    GHepParticle * particle = evrec->Particle(id);
-    assert(particle);
-    int  pdgc = particle->Pdg();
-    bool is_p  = pdg::IsProton (pdgc);
-    bool is_n  = pdg::IsNeutron(pdgc);
-
-    if (is_p) Z--;
-    if (is_p || is_n) A--;
-
-    Px += particle->Px();
-    Py += particle->Py();
-    Pz += particle->Pz();
-    E  += particle->E();
+     // compute A,Z for final state nucleus & get its PDG code and its mass
+     GHepParticle * particle = evrec->Particle(id);
+     assert(particle);
+     int  pdgc = particle->Pdg();
+     bool is_p  = pdg::IsProton (pdgc);
+     bool is_n  = pdg::IsNeutron(pdgc);
+     
+     if (is_p) Z--;
+     if (is_p || is_n) A--;
+     
+     Px += particle->Px();
+     Py += particle->Py();
+     Pz += particle->Pz();
+     E  += particle->E();
 
   }//daughters
 
   TParticlePDG * remn = 0;
   int ipdgc = pdg::IonPdgCode(A, Z);
   remn = PDGLibrary::Instance()->Find(ipdgc);
-  if(!remn) {
+  if(!remn)
+  {
     LOG("HadronicVtx", pFATAL)
           << "No particle with [A = " << A << ", Z = " << Z
                             << ", pdgc = " << ipdgc << "] in PDGLibrary!";
@@ -408,13 +415,13 @@ void QELEventGeneratorSM::LoadConfig(void)
 
   // Safety factor for the maximum differential cross section
   GetParamDef( "MaxXSec-SafetyFactor", fSafetyFactor,   1.2) ;
-  GetParamDef( "MaxDiffv-SafetyFactor",fSafetyFacor_nu, 1.1);
+  GetParamDef( "MaxDiffv-SafetyFactor",fSafetyFacor_nu, 1.2);
 
   // Minimum energy for which max xsec would be cached, forcing explicit
   // calculation for lower eneries
-  GetParamDef( "Cache-MinEnergy", fEMin,   1.00) ;
+  GetParamDef( "Cache-MinEnergy", fEMin, 1.00) ;
   GetParamDef( "Threshold-Q2", fQ2Min, 2.00);
-
+  
   // Maximum allowed fractional cross section deviation from maxim cross
   // section used in rejection method
   GetParamDef( "MaxXSec-DiffTolerance", fMaxXSecDiffTolerance, 999999.);
@@ -424,91 +431,93 @@ void QELEventGeneratorSM::LoadConfig(void)
   //   an event weight?
   GetParamDef( "UniformOverPhaseSpace", fGenerateUniformly, false);
 
-  //-- Generate kinematics uniformly over allowed phase space and compute
-  //   an event weight?
+  // Generate nucleon in nucleus?
   GetParamDef( "IsNucleonInNucleus", fGenerateNucleonInNucleus, true);
+  
 
   sm_utils = const_cast<genie::SmithMonizUtils *>(dynamic_cast<const genie::SmithMonizUtils *>( this -> SubAlg("sm_utils_algo") ) ) ;
 }
 //____________________________________________________________________________
 double QELEventGeneratorSM::ComputeMaxXSec(const Interaction * interaction) const
 {
-        double xsec_max = -1;
-        const int N_Q2 = 8;
-        const int N_v = 8;
+    double xsec_max = -1;
+    const int N_Q2 = 8;
+    const int N_v = 8;
 
-        Range1D_t rQ2 = sm_utils->Q2QES_SM_lim();
+    Range1D_t rQ2 = sm_utils->Q2QES_SM_lim();
     const double logQ2min = TMath::Log(TMath::Max(rQ2.min, eps));
     const double logQ2max = TMath::Log(TMath::Min(rQ2.max, fQ2Min));
 
-        double tmp_xsec_max = -1;
-        // Now scan through kinematical variables Q2,v
-        for (int Q2_n=0; Q2_n < N_Q2; Q2_n++)
-        {  // Scan around Q2
-                double Q2 = TMath::Exp(Q2_n * (logQ2max-logQ2min)/N_Q2 + logQ2min);
-                Range1D_t rv  = sm_utils->vQES_SM_lim(Q2);
-                const double logvmin = TMath::Log(TMath::Max(rv.min, eps));
-            const double logvmax = TMath::Log(TMath::Max(rv.max, TMath::Max(rv.min, eps)));
-                for (int v_n=0; v_n < N_v; v_n++)
-                {  // Scan around v
-                   double v = TMath::Exp(v_n * (logvmax-logvmin)/N_v + logvmin);
-                   Kinematics * kinematics = interaction->KinePtr();
-                   kinematics->SetKV(kKVQ2, Q2);
-                   kinematics->SetKV(kKVv, v);
-                   // Compute the QE cross section for the current kinematics
-                   double xs = fXSecModel->XSec(interaction, fkps);
-                   if (xs > tmp_xsec_max)
-                          tmp_xsec_max = xs;
-                } // Done with v scan
-        }// Done with Q2 scan
+    double tmp_xsec_max = -1;
+    // Now scan through kinematical variables Q2,v
+    for (int Q2_n=0; Q2_n < N_Q2; Q2_n++)
+    {  
+       // Scan around Q2
+       double Q2 = TMath::Exp(Q2_n * (logQ2max-logQ2min)/N_Q2 + logQ2min);
+       Range1D_t rv  = sm_utils->vQES_SM_lim(Q2);
+       const double logvmin = TMath::Log(TMath::Max(rv.min, eps));
+       const double logvmax = TMath::Log(TMath::Max(rv.max, TMath::Max(rv.min, eps)));
+       for (int v_n=0; v_n < N_v; v_n++)
+       {  
+          // Scan around v
+          double v = TMath::Exp(v_n * (logvmax-logvmin)/N_v + logvmin);
+          Kinematics * kinematics = interaction->KinePtr();
+          kinematics->SetKV(kKVQ2, Q2);
+          kinematics->SetKV(kKVv, v);
+          // Compute the QE cross section for the current kinematics
+          double xs = fXSecModel->XSec(interaction, fkps);
+          if (xs > tmp_xsec_max)
+            tmp_xsec_max = xs;
+       } // Done with v scan
+    }// Done with Q2 scan
 
-
-        xsec_max = tmp_xsec_max;
-        // Apply safety factor, since value retrieved from the cache might
-        // correspond to a slightly different value
-        xsec_max *= fSafetyFactor;
-        return xsec_max;
+    xsec_max = tmp_xsec_max;
+    // Apply safety factor, since value retrieved from the cache might
+    // correspond to a slightly different value
+    xsec_max *= fSafetyFactor;
+    return xsec_max;
 
 }
 //___________________________________________________________________________
 double QELEventGeneratorSM::ComputeMaxXSec2(const Interaction * interaction) const
 {
-        double xsec_max = -1;
-        const int N_Q2 = 8;
-        const int N_v = 8;
+    double xsec_max = -1;
+    const int N_Q2 = 8;
+    const int N_v = 8;
 
-        Range1D_t rQ2 = sm_utils->Q2QES_SM_lim();
-        if (rQ2.max<fQ2Min) return xsec_max;
-        const double logQ2min = TMath::Log(fQ2Min);
+    Range1D_t rQ2 = sm_utils->Q2QES_SM_lim();
+    if (rQ2.max<fQ2Min) return xsec_max;
+    const double logQ2min = TMath::Log(fQ2Min);
     const double logQ2max = TMath::Log(rQ2.max);
 
-        double tmp_xsec_max = -1;
-        // Now scan through kinematical variables Q2,v
-        for (int Q2_n=0; Q2_n < N_Q2; Q2_n++)
-        {  // Scan around Q2
-                double Q2 = TMath::Exp(Q2_n * (logQ2max-logQ2min)/N_Q2 + logQ2min);
-                Range1D_t rv  = sm_utils->vQES_SM_lim(Q2);
-                const double logvmin = TMath::Log(TMath::Max(rv.min, eps));
-            const double logvmax = TMath::Log(TMath::Max(rv.max, TMath::Max(rv.min, eps)));
-                for (int v_n=0; v_n < N_v; v_n++)
-                {  // Scan around v
-                   double v = TMath::Exp(v_n * (logvmax-logvmin)/N_v + logvmin);
-                   Kinematics * kinematics = interaction->KinePtr();
-                   kinematics->SetKV(kKVQ2, Q2);
-                   kinematics->SetKV(kKVv, v);
-                   // Compute the QE cross section for the current kinematics
-                   double xs = fXSecModel->XSec(interaction, fkps);
-                   if (xs > tmp_xsec_max)
-                          tmp_xsec_max = xs;
-                } // Done with v scan
-        }// Done with Q2 scan
+    double tmp_xsec_max = -1;
+    // Now scan through kinematical variables Q2,v
+    for (int Q2_n=0; Q2_n < N_Q2; Q2_n++)
+    {  
+       // Scan around Q2
+       double Q2 = TMath::Exp(Q2_n * (logQ2max-logQ2min)/N_Q2 + logQ2min);
+       Range1D_t rv  = sm_utils->vQES_SM_lim(Q2);
+       const double logvmin = TMath::Log(TMath::Max(rv.min, eps));
+       const double logvmax = TMath::Log(TMath::Max(rv.max, TMath::Max(rv.min, eps)));
+       for (int v_n=0; v_n < N_v; v_n++)
+       {  
+          // Scan around v
+          double v = TMath::Exp(v_n * (logvmax-logvmin)/N_v + logvmin);
+          Kinematics * kinematics = interaction->KinePtr();
+          kinematics->SetKV(kKVQ2, Q2);
+          kinematics->SetKV(kKVv, v);
+          // Compute the QE cross section for the current kinematics
+          double xs = fXSecModel->XSec(interaction, fkps);
+          if (xs > tmp_xsec_max)
+            tmp_xsec_max = xs;
+       } // Done with v scan
+    }// Done with Q2 scan
 
-
-        xsec_max = tmp_xsec_max;
-        // Apply safety factor, since value retrieved from the cache might
-        // correspond to a slightly different value
-        xsec_max *= fSafetyFactor;
-        return xsec_max;
+    xsec_max = tmp_xsec_max;
+    // Apply safety factor, since value retrieved from the cache might
+    // correspond to a slightly different value
+    xsec_max *= fSafetyFactor;
+    return xsec_max;
 
 }
 //___________________________________________________________________________
@@ -647,21 +656,21 @@ CacheBranchFx * QELEventGeneratorSM::AccessCacheBranch2(
   return cache_branch;
 }
 //___________________________________________________________________________
-double QELEventGeneratorSM::ComputeMaxDiffv(const Interaction * /* interaction */) const
+double QELEventGeneratorSM::ComputeMaxDiffv(const Interaction *) const
 {
-        double max_diffv = -1;
-        const int N_Q2 = 10;
+  double max_diffv = -1;
+  const int N_Q2 = 10;
 
-        Range1D_t rQ2 = sm_utils->Q2QES_SM_lim();
-        for (int Q2_n = 0; Q2_n<N_Q2; Q2_n++) // Scan around Q2
-        {
-                double Q2 = rQ2.min + 1.*Q2_n * (rQ2.max-rQ2.min)/N_Q2;
-                Range1D_t rv  = sm_utils->vQES_SM_lim(Q2);
-                if (rv.max-rv.min > max_diffv)
-                  max_diffv = rv.max-rv.min;
-        } // Done with Q2 scan
-        max_diffv *= fSafetyFactor;
-        return max_diffv;
+  Range1D_t rQ2 = sm_utils->Q2QES_SM_lim();
+  for (int Q2_n = 0; Q2_n<N_Q2; Q2_n++) // Scan around Q2
+  {
+     double Q2 = rQ2.min + 1.*Q2_n * (rQ2.max-rQ2.min)/N_Q2;
+     Range1D_t rv  = sm_utils->vQES_SM_lim(Q2);
+     if (rv.max-rv.min > max_diffv)
+        max_diffv = rv.max-rv.min;
+  } // Done with Q2 scan
+  max_diffv *= fSafetyFactor;
+  return max_diffv;
 
 }
 //___________________________________________________________________________
@@ -705,8 +714,7 @@ double QELEventGeneratorSM::MaxDiffv(GHepRecord * event_rec) const
   return 0;
 }
 //___________________________________________________________________________
-double QELEventGeneratorSM::FindMaxDiffv(
-                                       const Interaction * interaction) const
+double QELEventGeneratorSM::FindMaxDiffv(const Interaction * interaction) const
 {
 // Find a cached maximum of vmax(Q2)-vmin(Q2) for xsec algorithm & interaction and
 // close to the specified energy
@@ -727,7 +735,8 @@ double QELEventGeneratorSM::FindMaxDiffv(
   // if there are enough points stored in the cache buffer to build a
   // spline, then intepolate
   if( cb->Spl() ) {
-     if( E >= cb->Spl()->XMin() && E <= cb->Spl()->XMax()) {
+     if( E >= cb->Spl()->XMin() && E <= cb->Spl()->XMax()) 
+     {
        double spl_maxdiffv = cb->Spl()->Evaluate(E);
        LOG("Kinematics", pINFO)
           << "\nInterpolated: max vmax(Q2)-vmin(Q2) (E=" << E << ") = " << spl_maxdiffv;
@@ -743,7 +752,8 @@ double QELEventGeneratorSM::FindMaxDiffv(
   double dE = TMath::Min(0.25, 0.05*E);
   const map<double,double> & fmap = cb->Map();
   map<double,double>::const_iterator iter = fmap.lower_bound(E);
-  if(iter != fmap.end()) {
+  if(iter != fmap.end()) 
+  {
      if(TMath::Abs(E - iter->first) < dE) return iter->second;
   }
 
@@ -751,8 +761,7 @@ double QELEventGeneratorSM::FindMaxDiffv(
 
 }
 //___________________________________________________________________________
-void QELEventGeneratorSM::CacheMaxDiffv(
-                     const Interaction * interaction, double max_diffv) const
+void QELEventGeneratorSM::CacheMaxDiffv(const Interaction * interaction, double max_diffv) const
 {
   LOG("Kinematics", pINFO)
                        << "Adding the computed max{vmax(Q2)-vmin(Q2)} value to cache";
@@ -761,19 +770,21 @@ void QELEventGeneratorSM::CacheMaxDiffv(
   double E = this->Energy(interaction);
   if(max_diffv>0) cb->AddValues(E,max_diffv);
 
-  if(! cb->Spl() ) {
+  if(! cb->Spl() )
+  {
     if( cb->Map().size() > 40 ) cb->CreateSpline();
   }
 
-  if( cb->Spl() ) {
-     if( E < cb->Spl()->XMin() || E > cb->Spl()->XMax() ) {
+  if( cb->Spl() )
+  {
+     if( E < cb->Spl()->XMin() || E > cb->Spl()->XMax() ) 
+     {
         cb->CreateSpline();
      }
   }
 }
 //___________________________________________________________________________
-CacheBranchFx * QELEventGeneratorSM::AccessCacheBranchDiffv(
-                                      const Interaction * interaction) const
+CacheBranchFx * QELEventGeneratorSM::AccessCacheBranchDiffv(const Interaction * interaction) const
 {
 // Returns the cache branch for this algorithm and this interaction. If no
 // branch is found then one is created.
@@ -787,7 +798,8 @@ CacheBranchFx * QELEventGeneratorSM::AccessCacheBranchDiffv(
 
   CacheBranchFx * cache_branch =
               dynamic_cast<CacheBranchFx *> (cache->FindCacheBranch(key));
-  if(!cache_branch) {
+  if(!cache_branch)
+  {
     //-- create the cache branch at the first pass
     LOG("Kinematics", pINFO) << "No Max vmax(Q2)-vmin(Q2) cache branch found";
     LOG("Kinematics", pINFO) << "Creating cache branch - key = " << key;
