@@ -90,7 +90,10 @@ double EmpiricalMECPXSec2015::XSec(
   double M2n = PDGLibrary::Instance()->Find(nucleon_cluster_pdg)-> Mass(); // nucleon cluster mass
   double M2n2 = M2n*M2n;
   double ml  = interaction->FSPrimLepton()->Mass();
-  Range1D_t Wlim = genie::utils::kinematics::InelWLim(Ev, M2n, ml);
+  // apapadop
+  Range1D_t Wlim;
+  if (isem) { Wlim = genie::utils::kinematics::electromagnetic::InelWLim_em(Ev, M2n, ml); }
+  else { Wlim = genie::utils::kinematics::InelWLim(Ev, M2n, ml); }
   //LOG("MEC", pINFO) << "Ev, ml, M2n = " << Ev << "  " << ml << "  " << M2n;
   //LOG("MEC", pINFO) << "Wlim= " << Wlim.min << "  " <<Wlim.max ;
   if(W < Wlim.min || W > Wlim.max)
@@ -98,7 +101,10 @@ double EmpiricalMECPXSec2015::XSec(
       return xsec;
     }
   //use proper Q2 limit from Controls.h
-  Range1D_t Q2lim = genie::utils::kinematics::InelQ2Lim_W (Ev, M2n, ml, W, kMinQ2Limit);
+  // apapadop
+  Range1D_t Q2lim;
+  if (isem) { Q2lim = genie::utils::kinematics::electromagnetic::InelQ2Lim_W_em (Ev, M2n, ml, W); }
+  else { Q2lim = genie::utils::kinematics::InelQ2Lim_W (Ev, M2n, ml, W, kMinQ2Limit); }
   //LOG("MEC", pINFO) << "Q2lim= " << Q2lim.min << "  " <<Q2lim.max ;
   if(Q2 < Q2lim.min || Q2 > Q2lim.max)
     {double xsec = 0.;
@@ -108,7 +114,9 @@ double EmpiricalMECPXSec2015::XSec(
   //get x and y
   double x = 0.;
   double y = 0.;
-  genie::utils::kinematics::WQ2toXY(Ev,M2n,W,Q2,x,y);
+  // apapadop
+  if (isem) { genie::utils::kinematics::electromagnetic::WQ2toXY_em(Ev,M2n,ml,W,Q2,x,y); }
+  else { genie::utils::kinematics::WQ2toXY(Ev,M2n,W,Q2,x,y); }
   //  LOG("MEC", pINFO) << "x = " << x << ", y = " << y;
   // double Tmu = (1.-y)*Ev;  // UNUSED - comment to quiet compiler warnings
 

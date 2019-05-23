@@ -98,6 +98,22 @@ namespace kinematics
   double DISImportanceSamplingEnvelope(double * x, double * par);
   double COHImportanceSamplingEnvelope(double * x, double * par);
 
+  // apapadop
+  namespace electromagnetic
+  {
+   Range1D_t  InelWLim_em    (double El, double M, double ml);
+   Range1D_t  InelQ2Lim_W_em (double El, double M, double ml, double W);
+   Range1D_t  Inelq2Lim_W_em (double El, double M, double ml, double W);
+   Range1D_t  InelQ2Lim_em   (double El, double M, double ml);
+   Range1D_t  Inelq2Lim_em   (double El, double M, double ml);
+   Range1D_t  InelXLim_em    (double El, double M, double ml);
+   Range1D_t  InelYLim_em    (double El, double M, double ml);
+   Range1D_t  InelYLim_X_em  (double El, double M, double ml, double x);
+   void   WQ2toXY_em (double El, double M, double ml, double W, double Q2, double & x, double & y); // added mass of lepton as argument
+   void   XYtoWQ2_em (double El, double M, double ml, double & W, double & Q2, double x, double y); // added mass of lepton as argument
+   double XYtoW_em   (double El, double M, double ml, double x, double y); // added mass of lepton as argument
+  }
+
 } // kinematics namespace
 } // utils namespace
 } // genie namespace

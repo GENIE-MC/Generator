@@ -193,7 +193,11 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
          }
 
          // compute W,Q2 for selected x,y
-         kinematics::XYtoWQ2(Ev,M,gW,gQ2,gx,gy);
+         // apapadop
+         bool is_em = interaction->ProcInfo().IsEM();
+         double ml = interaction->KinePtr()->FSLeptonP4().M();
+         if (is_em) { kinematics::electromagnetic::XYtoWQ2_em(Ev, M, ml, gW, gQ2, gx, gy); }
+         else { kinematics::XYtoWQ2(Ev,M,gW,gQ2,gx,gy); }
 
          LOG("DISKinematics", pNOTICE) 
                         << "Selected x,y => W = " << gW << ", Q2 = " << gQ2;
