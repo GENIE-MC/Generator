@@ -27,6 +27,7 @@
 #include "Framework/Messenger/Messenger.h"
 #include "Physics/Common/PrimaryLeptonUtils.h"
 #include "Physics/Multinucleon/EventGen/MECGenerator.h"
+#include "Physics/Multinucleon/XSection/SuSAv2MECPXSec.h"
 
 #include "Physics/NuclearState/NuclearModelI.h"
 //#include "Physics/Multinucleon/XSection/MECHadronTensor.h"
@@ -938,8 +939,7 @@ void MECGenerator::SelectSuSALeptonKinematics (GHepRecord * event) const
   if (TgtPDG != kPdgTgtC12) {
     if (TgtPDG > kPdgTgtFreeN && TgtPDG) {
       NuclearA = pdg::IonPdgCodeToA(TgtPDG);
-      // The QE-like portion scales as A, but the Delta portion increases faster, not simple.
-      // so this gives additional safety factor.  Remember, we need a safe max, not precise max.
+      // This gives additional safety factor.  Remember, we need a safe max, not precise max.
       if (NuclearA < 12) NuclearAfactorXSecMax *= NuclearA / 12.0;
       else NuclearAfactorXSecMax *= TMath::Power(NuclearA/12.0, 1.4);
     } 
@@ -1016,22 +1016,8 @@ void MECGenerator::SelectSuSALeptonKinematics (GHepRecord * event) const
 
           LOG("MEC", pDEBUG) << " T, Costh: " << T << ", " << Costh ;
 
-
-          // We need two different cross sections. Right now, pursue the
-          // inelegant method of calling XSec two times - there is
-          // definitely some runtime inefficiency here, but it is not awful
-
-          // first, get total xsec
-          if (NuPDG > 0) {
-              interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg(kPdgClusterNN);
-          }
-          else {
-              interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg(kPdgClusterPP);
-          }
+          // Get total xsec (nn+np)
           double XSec = fXSecModel->XSec(interaction, kPSTlctl);
-          // now get PN xsec
-          interaction->InitStatePtr()->TgtPtr()->SetHitNucPdg(kPdgClusterNP);
-          double XSecPN = fXSecModel->XSec(interaction, kPSTlctl);
 
           if (XSec > XSecMax) {
               LOG("MEC", pERROR) << "XSec is > XSecMax for nucleus " << TgtPDG << " " 
@@ -1050,8 +1036,8 @@ void MECGenerator::SelectSuSALeptonKinematics (GHepRecord * event) const
 
               // Find out if we should use a pn initial state
               double myrand = rnd->RndKine().Rndm();
-              double pnFraction = XSecPN / XSec;
-              LOG("MEC", pINFO) << "Test for pn: xsec_pn = " << XSecPN 
+              double pnFraction = ((SuSAv2MECPXSec*)fXSecModel)->PairRatio(interaction);
+              LOG("MEC", pINFO) << "Test for pn: " 
                   << "; xsec = " << XSec 
                   << "; pn_fraction = " << pnFraction
                   << "; random number val = " << myrand;

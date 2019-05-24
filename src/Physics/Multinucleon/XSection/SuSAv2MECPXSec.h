@@ -50,6 +50,10 @@ public:
   void Configure (const Registry & config);
   void Configure (string config);
 
+  // Method specifically for evaluating nn/np pair probabilities
+  double PairRatio(const Interaction* i) const;
+
+
 private:
 
   /// Load algorithm configuration
@@ -77,6 +81,20 @@ private:
 
   // Fermi momentum table used for scaling
   string fKFTable;
+
+  // Binding energies: 
+  double fEbHe;
+  double fEbLi;
+  double fEbC;
+  double fEbO;
+  double fEbMg;
+  double fEbAr;
+  double fEbCa;
+  double fEbFe;
+  double fEbNi;
+  double fEbSn;
+  double fEbAu;
+  double fEbPb;
 
   /// GSL numerical integrator
   const XSecIntegratorI *  fXSecIntegrator;

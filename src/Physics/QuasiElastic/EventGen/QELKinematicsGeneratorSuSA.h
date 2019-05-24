@@ -49,6 +49,7 @@ private:
   void    SelectLeptonKinematics  (GHepRecord * event) const;
   void    GenerateNucleon         (GHepRecord * event) const;
   double  ComputeMaxXSec(const Interaction * in) const;
+  double  ComputeMaxXSec_elas(const Interaction * in) const;
 
   
   const NuclearModelI *          fNuclModel;
@@ -58,6 +59,9 @@ private:
   bool fForceEbFromModel;
   bool fForceFixEb;
   double fEbOR;
+
+  // Carbon removal energy - used for scaling
+  double fEbC;
   
 };
 

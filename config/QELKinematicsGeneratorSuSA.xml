@@ -18,7 +18,7 @@ QEL-EbOR             bool     No         What Eb to use if fixed                
 -->
 
   <param_set name="Default"> 
-  	<param type="string" name="CommonParam"> QuasiElastic </param>
+  	<param type="string" name="CommonParam"> QuasiElastic,FermiGas </param>
     <param type="double" name="Cache-MinEnergy">        1.0       </param>
     <param type="alg"    name="NuclearModel">           genie::NuclearModelMap/Default            </param>
     <!--  Extra stuff for SuSAv2 1p1h implementation   -->

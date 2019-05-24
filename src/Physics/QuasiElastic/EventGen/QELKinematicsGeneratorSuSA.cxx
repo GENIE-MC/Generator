@@ -100,6 +100,9 @@ void QELKinematicsGeneratorSuSA::SelectLeptonKinematics (GHepRecord * event) con
   TLorentzVector v4(*event->Probe()->X4());
   TLorentzVector tempp4(0.,0.,0.,0.);
 
+  GHepParticle * nucleus = event->TargetNucleus();
+  bool have_nucleus = nucleus != 0;
+
   // -- Lepton Kinematic Limits ----------------------------------------- //
   double Costh = 0.0; // lepton angle
   double CosthMax = 1.0;
@@ -151,6 +154,7 @@ void QELKinematicsGeneratorSuSA::SelectLeptonKinematics (GHepRecord * event) con
 
   //Get Max XSec:
   double XSecMax = this->MaxXSec(event);
+  //if(!have_nucleus)  XSecMax*=50; // elastic case is super peaked
 
 
   // loop over different (randomly) selected T and Costh
@@ -172,16 +176,18 @@ void QELKinematicsGeneratorSuSA::SelectLeptonKinematics (GHepRecord * event) con
       T = TMin + (TMax-TMin)*rnd->RndKine().Rndm();
       Costh = CosthMin + (CosthMax-CosthMin)*rnd->RndKine().Rndm();
 
-      // Anti neutrino elastic scattering case - include delta in xsec
-      if(TgtPDG==kPdgTgtFreeP){
-        genie::utils::mec::Getq0q3FromTlCostl(T, Costh, Enu, LepMass, Q0, Q3);
-        Q3 = sqrt(Q0*Q0+2*kNucleonMass*Q0);
-        genie::utils::mec::GetTlCostlFromq0q3(Q0, Q3, Enu, LepMass, T, Costh);
-      }
-
       // Calculate useful values for judging this choice
       Plep = TMath::Sqrt( T * (T + (2.0 * LepMass)));  // ok is sqrt(E2 - m2)
       Q3 = TMath::Sqrt(Plep*Plep + Enu*Enu - 2.0 * Plep * Enu * Costh);
+
+      // Anti neutrino elastic scattering case - include delta in xsec
+      if (!have_nucleus){
+        genie::utils::mec::Getq0q3FromTlCostl(T, Costh, Enu, LepMass, Q0, Q3);
+        Q3 = sqrt(Q0*Q0+2*kNucleonMass*Q0);
+        genie::utils::mec::GetTlCostlFromq0q3(Q0, Q3, Enu, LepMass, T, Costh);
+        LOG("QELEvent", pDEBUG) << " Anu elastic case. T, Costh:  " << T << ", " << Costh ;
+        LOG("QELEvent", pDEBUG) << " Anu elastic case. Q0, Q3:  " << Q0 << ", " << Q3 ;
+      }
 
       // Don't bother doing hard work if the selected Q3 is greater than Q3Max
       if (Q3 < fQ3Max){
@@ -356,15 +362,19 @@ void QELKinematicsGeneratorSuSA::GenerateNucleon(GHepRecord * event) const
     // get the target nucleon and nucleus.
     // the remnant nucleus is apparently set, except for its momentum.
     GHepParticle * target_nucleus = event->TargetNucleus();
-    assert(target_nucleus);
+    bool have_nucleus = (target_nucleus != 0);
+    //assert(target_nucleus);
     GHepParticle * initial_nucleon = event->HitNucleon();
     assert(initial_nucleon);
     GHepParticle * remnant_nucleus = event->RemnantNucleus();
-    assert(remnant_nucleus);
+    //assert(remnant_nucleus);
 
     // instantiate an empty local target nucleus, so I can use existing methods
     // to get a momentum from the prevailing Fermi-motion distribution
-    Target tgt(target_nucleus->Pdg());
+    int tgtpdg;
+    if(have_nucleus) tgtpdg = target_nucleus->Pdg();
+    else tgtpdg = kPdgTgtFreeP;
+    Target tgt(tgtpdg);
 
     // These things need to be saved through to the end of the accept loop.
     bool accept = false;
@@ -412,7 +422,7 @@ void QELKinematicsGeneratorSuSA::GenerateNucleon(GHepRecord * event) const
         fNuclModel->GenerateNucleon(tgt,hitNucPos);
         p3i = fNuclModel->Momentum3();
 
-        // Defaulf: Calculate the removal energy as in Guille's thesis - this is a simplicification of
+        // Default: Calculate the removal energy as in Guille's thesis - this is a simplicification of
         // a fairly complex aproach employed in SuSAv2, but we expect it to work pretty well.
         // We should write something about this in the implementation technical paper ...
         // IMPORTANT CAVEAT: By default we choose to allow the binding energy to depend on the interaction
@@ -422,7 +432,12 @@ void QELKinematicsGeneratorSuSA::GenerateNucleon(GHepRecord * event) const
 
         double q3 = Q4.Vect().Mag();
 
-        if(fForceEbFromModel) removalenergy = fNuclModel->RemovalEnergy();
+        if(!have_nucleus){
+          // For elastic case no Fermi momentum and no Eb
+          removalenergy = 0.0;
+          p3i.SetXYZ(0.0,0.0,0.0);
+        }
+        else if(fForceEbFromModel) removalenergy = fNuclModel->RemovalEnergy();
         else if(fForceFixEb) removalenergy = fEbOR;
         else{
           if(q3<0.827){
@@ -431,6 +446,8 @@ void QELKinematicsGeneratorSuSA::GenerateNucleon(GHepRecord * event) const
           else{
             removalenergy = 0.0289558;
           }
+          // The above is for Carbon, should shift for different targets
+          removalenergy += (fNuclModel->RemovalEnergy()) - fEbC;
           if(removalenergy<0.005) removalenergy=0.005;
         }
 
@@ -464,18 +481,20 @@ void QELKinematicsGeneratorSuSA::GenerateNucleon(GHepRecord * event) const
         // This is a bit of a horrible approximation but it is hard to think
         // of anything simple and better without semi-inclusive model predictions.
         // However, we are working on an improvments.
-        double En = p4final_nucleon.E();
-        double M = PDGLibrary::Instance()->Find( final_nucleon_pdg )->Mass();
-        double pmag_old = p4final_nucleon.Vect().Mag();
+        if(have_nucleus){
+          double En = p4final_nucleon.E();
+          double M = PDGLibrary::Instance()->Find( final_nucleon_pdg )->Mass();
+          double pmag_old = p4final_nucleon.Vect().Mag();
 
-        double pmag_new = TMath::Sqrt(utils::math::NonNegative(En*En-M*M));
-        double scale    = pmag_new / pmag_old;
+          double pmag_new = TMath::Sqrt(utils::math::NonNegative(En*En-M*M));
+          double scale    = pmag_new / pmag_old;
 
-        double pxn = scale * p4final_nucleon.Px();
-        double pyn = scale * p4final_nucleon.Py();
-        double pzn = scale * p4final_nucleon.Pz();
+          double pxn = scale * p4final_nucleon.Px();
+          double pyn = scale * p4final_nucleon.Py();
+          double pzn = scale * p4final_nucleon.Pz();
 
-        p4final_nucleon.SetPxPyPzE(pxn,pyn,pzn,En);
+          p4final_nucleon.SetPxPyPzE(pxn,pyn,pzn,En);
+        }
 
         // Extra momentum xfer to keep nucleon on shell - I'll give this to the remnant
 
@@ -524,9 +543,10 @@ void QELKinematicsGeneratorSuSA::GenerateNucleon(GHepRecord * event) const
     initial_nucleon->SetMomentum(p4initial_nucleon);
 
     // and the remnant nucleus
-    double Mi  = PDGLibrary::Instance()->Find(target_nucleus->Pdg() )-> Mass();
-    remnant_nucleus->SetMomentum(pxb,pyb,pzb,
-            Mi - p4initial_nucleon.E() + removalenergy);
+    if(have_nucleus){
+      double Mi  = PDGLibrary::Instance()->Find(target_nucleus->Pdg() )-> Mass();
+      remnant_nucleus->SetMomentum(pxb,pyb,pzb, Mi - p4initial_nucleon.E() + removalenergy);
+    }
 
     // Getting this v4 is a position, i.e. a position within the nucleus (?)
     // possibly it takes on a non-trivial value only for local Fermi gas
@@ -576,6 +596,9 @@ void QELKinematicsGeneratorSuSA::LoadConfig(void)
     GetParam( "QEL-ForceFixedEb", fForceFixEb) ;
     GetParam( "QEL-EbOR", fEbOR) ;
 
+    //-- Carbon Eb - needed for scaling
+    this->GetParam( "RFG-NucRemovalE@Pdg=1000060120", fEbC);
+
     //-- Safety factor for the maximum differential cross section
     GetParamDef( "MaxXSec-SafetyFactor", fSafetyFactor , 5.00 ) ;
 
@@ -606,15 +629,23 @@ double QELKinematicsGeneratorSuSA::ComputeMaxXSec(
 
 //*********************
 
+
+
+  int TgtPDG = interaction->InitState().TgtPdg();
+  bool have_nucleus = (TgtPDG!=kPdgTgtFreeP);
+  if(!have_nucleus) return this->ComputeMaxXSec_elas(interaction);
+
+
+
   double max_xsec = 0.0;
 
-  const int N  = 20;
-  const int Nb = 12;
+  int N  = 20;
+  int Nb = 12;
 
   double xseclast = -1;
   bool   increasing;
 
-  const int N_T = 40;
+  int N_T = 40;
 
   double Enu = interaction->InitState().ProbeE(kRfLab);
   double LepMass = interaction->FSPrimLepton()->Mass();
@@ -687,4 +718,84 @@ double QELKinematicsGeneratorSuSA::ComputeMaxXSec(
   return max_xsec;
 
 }
+//___________________________________________________________________________
+double QELKinematicsGeneratorSuSA::ComputeMaxXSec_elas(
+                                       const Interaction * interaction) const
+{
+  // Copied from QELKinematicsGenerator
+
+  LOG("QELKinematics", pDEBUG)  << "Running QELKinematicsGeneratorSuSA::ComputeMaxXSec_elas" ;
+
+  double max_xsec = 0.0;
+
+  const KPhaseSpace & kps = interaction->PhaseSpace();
+  Range1D_t rQ2 = kps.Limits(kKVQ2);
+  if(rQ2.min <=0 || rQ2.max <= rQ2.min) return 0.;
+
+  const double logQ2min = TMath::Log(rQ2.min + kASmallNum);
+  const double logQ2max = TMath::Log(rQ2.max - kASmallNum);
+
+  const int N  = 15;
+  const int Nb = 10;
+
+  double dlogQ2   = (logQ2max - logQ2min) /(N-1);
+  double xseclast = -1;
+  bool   increasing;
+
+  double T=0;
+  double Costh=0;
+  double LepMass = interaction->FSPrimLepton()->Mass();
+  double Enu = interaction->InitState().ProbeE(kRfLab);
+
+  for(int i=0; i<N; i++) {
+     double Q2 = TMath::Exp(logQ2min + i * dlogQ2);
+     double Q0 = Q2/(2*kNucleonMass);
+     double Q3 = sqrt(Q0*Q0+2*kNucleonMass*Q0);
+     genie::utils::mec::GetTlCostlFromq0q3(Q0, Q3, Enu, LepMass, T, Costh);
+     Kinematics * kinematics = interaction->KinePtr();
+     kinematics->SetKV(kKVQ2, Q2);
+     kinematics->SetKV(kKVTl, T);
+     kinematics->SetKV(kKVctl, Costh);
+     kinematics->SetKV(kKVv, Q0);
+
+     double xsec = fXSecModel->XSec(interaction, kPSTlctl);
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+     LOG("QELKinematics", pDEBUG)  << "xsec(Q2= " << Q2 << ") = " << xsec;
+#endif
+     max_xsec = TMath::Max(xsec, max_xsec);
+     increasing = xsec-xseclast>=0;
+     xseclast   = xsec;
+
+     // once the cross section stops increasing, I reduce the step size and
+     // step backwards a little bit to handle cases that the max cross section
+     // is grossly underestimated (very peaky distribution & large step)
+     if(!increasing) {
+       dlogQ2/=(Nb+1);
+       for(int ib=0; ib<Nb; ib++) {
+         Q2 = TMath::Exp(TMath::Log(Q2) - dlogQ2);
+         if(Q2 < rQ2.min) continue;
+         interaction->KinePtr()->SetQ2(Q2);
+         xsec = fXSecModel->XSec(interaction, kPSTlctl);
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+         LOG("QELKinematics", pDEBUG)  << "xsec(Q2= " << Q2 << ") = " << xsec;
+#endif
+         max_xsec = TMath::Max(xsec, max_xsec);
+       }
+       break;
+     }
+  }//Q^2
+
+  // Apply safety factor, since value retrieved from the cache might
+  // correspond to a slightly different energy
+  max_xsec *= fSafetyFactor;
+
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+  SLOG("QELKinematics", pDEBUG) << interaction->AsString();
+  SLOG("QELKinematics", pDEBUG) << "Max xsec in phase space = " << max_xsec;
+  SLOG("QELKinematics", pDEBUG) << "Computed using alg = " << *fXSecModel;
+#endif
+
+  return max_xsec;
+}
+
 //___________________________________________________________________________

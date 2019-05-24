@@ -58,10 +58,9 @@ double SuSAv2MECPXSec::XSec(const Interaction* interaction,
   bool need_to_scale = false;
 
   HadronTensorType_t tensor_type = kHT_Undefined;
-  HadronTensorType_t pn_tensor_type = kHT_Undefined;
   if ( pdg::IsNeutrino(probe_pdg) || pdg::IsAntiNeutrino(probe_pdg) ) {
     tensor_type = kHT_MEC_FullAll;
-    pn_tensor_type = kHT_MEC_Fullpn;
+    //pn_tensor_type = kHT_MEC_Fullpn;
     //tensor_type = kHT_MEC_FullAll_wImag;
     //pn_tensor_type = kHT_MEC_FullAll_wImag;
   }
@@ -69,33 +68,55 @@ double SuSAv2MECPXSec::XSec(const Interaction* interaction,
     // If the probe is not a neutrino, assume that it's an electron
     // For the moment all electron interactions are pp final state
     tensor_type = kHT_MEC_EM;
-    pn_tensor_type = kHT_MEC_EM;
+    //pn_tensor_type = kHT_MEC_EM;
   }
 
+
+  double Eb_tgt=0;
+  double Eb_ten=0;
+
   /// \todo Add more hadron tensors so this scaling is not so terrible
-  if ( A_request == 4 && Z_request == 2 ) {
+  // At the moment all we have is Carbon so this is all just a place holder ...
+  if ( A_request == 4 ) {
     tensor_pdg = kPdgTgtC12;
-    // This is for helium 4, but use carbon tensor
-    // the use of nuclear density parameterization is suspicious
-    // but some users (MINERvA) need something not nothing.
+    Eb_tgt=fEbHe; Eb_ten=fEbC;
+    // This is for helium 4, but use carbon tensor, may not be ideal ...
   }
   else if (A_request < 9) {
-    // refuse to do D, T, He3, Li, and some Be, B
-    // actually it would work technically, maybe except D, T
-    MAXLOG("SuSAv2MEC", pWARN, 10) << "Asked to scale to D through B, this will not work";
-    return 0;
+    tensor_pdg = kPdgTgtC12;
+    Eb_tgt=fEbLi; Eb_ten=fEbC;
   }
   else if (A_request >= 9 && A_request < 15) {
     tensor_pdg = kPdgTgtC12;
+    Eb_tgt=fEbC; Eb_ten=fEbC;
   }
   else if(A_request >= 15 && A_request < 22) {
-      tensor_pdg = kPdgTgtO16;
+    tensor_pdg = kPdgTgtC12;
+    //tensor_pdg = kPdgTgtO16; 
+    // Oxygen tensor has some issues - xsec @ 50 GeV = 45.2835 x 1E-38 cm^2 
+    // This is ~ 24 times higher than C
+    // I think it's just a missing scale factor but I need to check. 
+    Eb_tgt=fEbO; Eb_ten=fEbC;
   }
-  else if(A_request >= 22) {
-      tensor_pdg = kPdgTgtO16;
-      LOG("SuSAv2MEC", pWARN) << "Dangerous scaling from " << target_pdg << " to " << tensor_pdg;
-      LOG("SuSAv2MEC", pWARN) << "Hadron tensors for such heavy elements not ready yet";
-      LOG("SuSAv2MEC", pWARN) << "Proceed at your own peril!";
+  else if(A_request >= 22 && A_request < 40) {
+    tensor_pdg = kPdgTgtC12;
+    Eb_tgt=fEbMg; Eb_ten=fEbC;
+  }
+  else if(A_request >= 40 && A_request < 56) {
+    tensor_pdg = kPdgTgtC12;
+    Eb_tgt=fEbAr; Eb_ten=fEbC;
+  }
+  else if(A_request >= 56 && A_request < 119) {
+    tensor_pdg = kPdgTgtC12;
+    Eb_tgt=fEbFe; Eb_ten=fEbC;
+  }
+  else if(A_request >= 119 && A_request < 206) {
+    tensor_pdg = kPdgTgtC12;
+    Eb_tgt=fEbSn; Eb_ten=fEbC;
+  }
+  else if(A_request >= 206) {
+    tensor_pdg = kPdgTgtC12;
+    Eb_tgt=fEbPb; Eb_ten=fEbC;
   }
 
 
@@ -107,11 +128,6 @@ double SuSAv2MECPXSec::XSec(const Interaction* interaction,
   const ValenciaHadronTensorI* tensor
     = dynamic_cast<const ValenciaHadronTensorI*>( fHadronTensorModel->GetTensor(tensor_pdg,
     tensor_type) );
-
-  const ValenciaHadronTensorI* tensor_pn
-    = dynamic_cast<const ValenciaHadronTensorI*>( fHadronTensorModel->GetTensor(tensor_pdg,
-    pn_tensor_type) );
-
 
   /// \todo add the different pair configurations for e-scattering
 
@@ -131,26 +147,26 @@ double SuSAv2MECPXSec::XSec(const Interaction* interaction,
   double Q0    = 0.;
   double Q3    = 0.;
 
+  // SD: The Q-Value essentially corrects q0 to account for nuclear
+  // binding energy in the Valencia model but this effect is already
+  // in Guille's tensors so I'll set it to 0.
+  // However, if I want to scale I need to account for the altered
+  // binding energy. To first order I can use the Q_value for this.
+  // But this is 2p2h - so binding energy counts twice - use 2*1p1h 
+  // value (although what should be done here is still not clear).
+
+  int nu_pdg = interaction->InitState().ProbePdg();
+  double Q_value = 2*(Eb_tgt-Eb_ten);
+
   genie::utils::mec::Getq0q3FromTlCostl(Tl, costl, Ev, ml, Q0, Q3);
 
   double Q0min = tensor->q0Min();
   double Q0max = tensor->q0Max();
   double Q3min = tensor->qMagMin();
   double Q3max = tensor->qMagMax();
-  if (Q0 < Q0min || Q0 > Q0max || Q3 < Q3min || Q3 > Q3max) {
+  if (Q0-Q_value < Q0min || Q0-Q_value > Q0max || Q3 < Q3min || Q3 > Q3max) {
     return 0.0;
   }
-
-  // Get the Q-value needed to calculate the cross sections using the
-  // hadron tensor.
-  /// \todo Shouldn't we get this from the nuclear model?
-  // SD: The Q-Value essentially corrects q0 to account for nuclear
-  // binding energy in the Valencia model but I this effect is already
-  // in Guille's tensors so I'll set it to 0.
-
-  int nu_pdg = interaction->InitState().ProbePdg();
-  //double Q_value = genie::utils::mec::Qvalue(target_pdg, nu_pdg);
-  double Q_value = 0.;
 
   // By default, we will compute the full cross-section. If a {p,n} hit
   // dinucleon was set we will calculate the cross-section for that
@@ -159,19 +175,7 @@ double SuSAv2MECPXSec::XSec(const Interaction* interaction,
   bool pn = (interaction->InitState().Tgt().HitNucPdg() == kPdgClusterNP);
 
   // Compute the cross section using the hadron tensor
-  double xsec_all = tensor->dSigma_dT_dCosTheta_rosenbluth(interaction, Q_value);
-  double xsec_pn = tensor_pn->dSigma_dT_dCosTheta_rosenbluth(interaction, Q_value);
-  //double xsec_all = tensor->dSigma_dT_dCosTheta(interaction, Q_value);
-  //double xsec_pn = tensor_pn->dSigma_dT_dCosTheta(interaction, Q_value);
-
-  //hadron tensor precision can sometimes lead to 0 xsec_pn but finite xsec
-  //seems to cause issues downstream ...
-  if(xsec_pn==0) xsec_pn = 0.00001*xsec_all;
-
-  // Choose the right kind of cross section ("all" or "pn") to return
-  // based on whether a {p, n} dinucleon was hit
-  double xsec = (pn) ? xsec_pn : xsec_all;
-
+  double xsec = tensor->dSigma_dT_dCosTheta_rosenbluth(interaction, Q_value);
 
   // This scaling should be okay-ish for the total xsec, but it misses
   // the energy shift. To get this we should really just build releveant
@@ -185,7 +189,7 @@ double SuSAv2MECPXSec::XSec(const Interaction* interaction,
     LOG("SuSAv2MEC", pDEBUG) << "KF_tgt = " << KF_tgt;
     LOG("SuSAv2MEC", pDEBUG) << "KF_ten = " << KF_ten;
     double A_ten  = pdg::IonPdgCodeToA(tensor_pdg);
-    double scaleFact = (A_ten/A_request)*(KF_ten/KF_tgt)*(KF_ten/KF_tgt);
+    double scaleFact = (A_request/A_ten)*(KF_tgt/KF_ten)*(KF_tgt/KF_ten);
     xsec *= scaleFact;
   }
 
@@ -206,6 +210,87 @@ double SuSAv2MECPXSec::XSec(const Interaction* interaction,
   }
 
   return xsec;
+}
+//_________________________________________________________________________
+double SuSAv2MECPXSec::PairRatio(const Interaction* interaction) const
+{
+
+  // Currently we only have the relative pair contributions for C12.
+  // We hope to add mode later, but for the moment assume the relative 
+  // contributions are A-independant.
+ 
+  int probe_pdg = interaction->InitState().ProbePdg();
+
+  HadronTensorType_t tensor_type = kHT_Undefined;
+  HadronTensorType_t pn_tensor_type = kHT_Undefined;
+  if ( pdg::IsNeutrino(probe_pdg) || pdg::IsAntiNeutrino(probe_pdg) ) {
+    tensor_type = kHT_MEC_FullAll;
+    pn_tensor_type = kHT_MEC_Fullpn;
+  }
+  else {
+    // If the probe is not a neutrino, assume that it's an electron
+    // For the moment all electron interactions are pp final state
+    tensor_type = kHT_MEC_EM;
+    pn_tensor_type = kHT_MEC_EM;
+  }
+
+  // The SuSAv2-MEC hadron tensors are defined using the same conventions
+  // as the Valencia MEC model, so we can use the same sort of tensor
+  // object to describe them.
+  const ValenciaHadronTensorI* tensor
+    = dynamic_cast<const ValenciaHadronTensorI*>( fHadronTensorModel->GetTensor(kPdgTgtC12,
+    tensor_type) );
+
+  const ValenciaHadronTensorI* tensor_pn
+    = dynamic_cast<const ValenciaHadronTensorI*>( fHadronTensorModel->GetTensor(kPdgTgtC12,
+    pn_tensor_type) );
+
+
+  /// \todo add the different pair configurations for e-scattering
+
+  // If retrieving the tensor failed, complain and return zero
+  if ( !tensor ) {
+    LOG("SuSAv2MEC", pWARN) << "Failed to load a hadronic tensor for the"
+      " nuclide " << kPdgTgtC12;
+    return 0.;
+  }
+
+  // Check that the input kinematical point is within the range
+  // in which hadron tensors are known (for chosen target)
+  double Ev    = interaction->InitState().ProbeE(kRfLab);
+  double Tl    = interaction->Kine().GetKV(kKVTl);
+  double costl = interaction->Kine().GetKV(kKVctl);
+  double ml    = interaction->FSPrimLepton()->Mass();
+  double Q0    = 0.;
+  double Q3    = 0.;
+
+  genie::utils::mec::Getq0q3FromTlCostl(Tl, costl, Ev, ml, Q0, Q3);
+
+  double Q0min = tensor->q0Min();
+  double Q0max = tensor->q0Max();
+  double Q3min = tensor->qMagMin();
+  double Q3max = tensor->qMagMax();
+  if (Q0 < Q0min || Q0 > Q0max || Q3 < Q3min || Q3 > Q3max) {
+    return 1.0;
+  }
+
+  // SD: The Q-Value essentially corrects q0 to account for nuclear
+  // binding energy in the Valencia model but I this effect is already
+  // in Guille's tensors so I'll set it to 0.
+
+  double Q_value = 0.;
+
+  // Compute the cross section using the hadron tensor
+  double xsec_all = tensor->dSigma_dT_dCosTheta_rosenbluth(interaction, Q_value);
+  double xsec_pn = tensor_pn->dSigma_dT_dCosTheta_rosenbluth(interaction, Q_value);
+
+  //hadron tensor precision can sometimes lead to 0 xsec_pn but finite xsec
+  //seems to cause issues downstream ...
+  if(xsec_pn==0) xsec_pn = 0.00001*xsec_all;
+
+  double ratio = (1e10*xsec_pn)/(1e10*xsec_all);
+
+  return ratio;
 }
 //_________________________________________________________________________
 double SuSAv2MECPXSec::Integral(const Interaction* interaction) const
@@ -262,6 +347,20 @@ void SuSAv2MECPXSec::LoadConfig(void)
 
   //Fermi momentum tables for scaling
   this->GetParam( "FermiMomentumTable", fKFTable);
+
+  //binding energy lookups for scaling
+  this->GetParam( "RFG-NucRemovalE@Pdg=1000020040", fEbHe );
+  this->GetParam( "RFG-NucRemovalE@Pdg=1000030060", fEbLi );
+  this->GetParam( "RFG-NucRemovalE@Pdg=1000060120", fEbC  );
+  this->GetParam( "RFG-NucRemovalE@Pdg=1000080160", fEbO  );
+  this->GetParam( "RFG-NucRemovalE@Pdg=1000120240", fEbMg );
+  this->GetParam( "RFG-NucRemovalE@Pdg=1000180400", fEbAr );
+  this->GetParam( "RFG-NucRemovalE@Pdg=1000200400", fEbCa );
+  this->GetParam( "RFG-NucRemovalE@Pdg=1000260560", fEbFe );
+  this->GetParam( "RFG-NucRemovalE@Pdg=1000280580", fEbNi );
+  this->GetParam( "RFG-NucRemovalE@Pdg=1000501190", fEbSn );
+  this->GetParam( "RFG-NucRemovalE@Pdg=1000791970", fEbAu );
+  this->GetParam( "RFG-NucRemovalE@Pdg=1000822080", fEbPb );
 
   //uncomment this to make histo output on a 2D grid for validation
   //this->Scanq0q3();

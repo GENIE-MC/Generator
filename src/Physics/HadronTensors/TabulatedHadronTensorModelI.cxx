@@ -233,8 +233,14 @@ const genie::HadronTensorI* genie::TabulatedHadronTensorModelI::BuildTensor(
 std::string genie::TabulatedHadronTensorModelI::GetTensorFileBasename(
   const HadronTensorID& ht_id ) const
 {
+
+  std::string tgt_string;
+  std::stringstream ss;
+  ss <<  ht_id.target_pdg;
+  tgt_string = ss.str();
+
   RgKey key = tensor_type_to_string( ht_id.type ) + "@Pdg="
-    + std::to_string( ht_id.target_pdg );
+    + tgt_string;
 
   std::string basename;
   GetParam( key, basename );
