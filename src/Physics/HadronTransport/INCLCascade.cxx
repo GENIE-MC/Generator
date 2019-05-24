@@ -169,18 +169,27 @@ INCLCascade::~INCLCascade()
 
 
 int INCLCascade::INCLcascade(int argc1, char *test[],GHepRecord * evrec) const{
- ConfigParser theParser;
- G4INCL::Config *theConfig = theParser.parse(argc1,test); 
- 
- if(!theConfig)
-  return 0;
+ //ConfigParser theParser;
+ //G4INCL::Config *theConfig = theParser.parse(argc1,test);
+
+  //G4INCL::Config theConfig;
+  //theConfig.setINCLXXDataFilePath(defaultINCLXXDatafilePath);
+  //theConfig.INCLXXDataFilePath = defaultINCLXXDatafilePath;
+  //if(!theConfig)
+  //return 0;
 
 #ifdef INCL_SIGNAL_HANDLING
-enableSignalHandling();
+  enableSignalHandling();
 #endif
-
+/*
 if(!theINCLModel){
-  theINCLModel = new G4INCL::INCL(theConfig);}
+  G4INCL::Config *aConfig = new G4INCL::Config(theConfig);
+  theINCLModel = new G4INCL::INCL(aConfig);}*/
+  if (!theINCLModel) {
+    ConfigParser theParser;
+    G4INCL::Config *theConfig = theParser.parse(argc1,test);
+    theINCLModel = new G4INCL::INCL(theConfig);
+  }
 
 
   int tpos = evrec->TargetNucleusPosition();
@@ -203,163 +212,177 @@ if(!theINCLModel){
   
 
   
-
+/*
   if(!theDeExcitation) {
-    theDeExcitation = new ABLA07CXX::Abla07Interface(theConfig);}
-
-
-    G4INCL::Random::SeedVector const theInitialSeeds = G4INCL::Random::getSeeds();
-    GHepStatus_t    ist1  = kIStStableFinalState;
-    int pdg_codeProbe = 0;
-    double m_probe(0), m_pnP(0),E_pnP(0), EKinP(0);
-    pdg_codeProbe =  INCLpartycleSpecietoPDGCODE(theSpecies);
-
-    G4INCL::EventInfo result;
-    result = theINCLModel->processEvent(theSpecies,EKin,target->A(),target->Z());
-
-    m_probe = ParticleTable::getRealMass(theType);
-
-    double m_target = ParticleTable::getTableMass(result.At, result.Zt);
-    GHepParticle * fsProbe = evrec->Probe();
-
-    TLorentzVector p4h   (0.,0.,fsProbe->Pz(),fsProbe->E());
-    TLorentzVector x4null(0.,0.,0.,0.);
-    TLorentzVector p4tgt (0.,0.,0.,m_target/1000);
-    int pdg_codeTarget= genie::pdg::IonPdgCode(target->A(), target->Z());
-
-    if (result.transparent) {
-      evrec->AddParticle(pdg_codeProbe, ist1, 0,-1,-1,-1, p4h,x4null);
-      evrec->AddParticle(pdg_codeTarget,kIStFinalStateNuclearRemnant,1,-1,-1,-1,p4tgt,x4null);
-      INCL_DEBUG("Transparent event" << std::endl);
-    }
-    else {
-      INCL_DEBUG("Number of produced particles: " << result.nParticles << "\n");
-      if(theDeExcitation != 0) {
-        theDeExcitation->deExcite(&result);
-      }
-      int mom = 1;
-      for (int nP = 0; nP < result.nParticles; nP++){
-        if(nP==result.nParticles -1){GHepParticle *p_outR =INCLtoGenieParticle(result,nP,kIStFinalStateNuclearRemnant,mom,-1);
-          evrec->AddParticle(*p_outR); 
-        }
-        else {
-          GHepParticle *p_outR =INCLtoGenieParticle(result,nP,kIStStableFinalState,0,-1);
-          evrec->AddParticle(*p_outR); 
-        }
-
-      }
-    }
-    return 0;
+    G4INCL::Config *aConfig = new G4INCL::Config(theConfig);
+    theDeExcitation = new ABLA07CXX::Abla07Interface(aConfig);}*/
+  if(!theDeExcitation) {
+    ConfigParser theParser;
+    G4INCL::Config *theConfig = theParser.parse(argc1,test);
+    theDeExcitation= new ABLA07CXX::Abla07Interface(theConfig);
   }
 
-  void INCLCascade::ProcessEventRecord(GHepRecord * evrec) const{
 
-    fGMode = evrec->EventGenerationMode();
-    if(fGMode == kGMdHadronNucleus ||
-     fGMode == kGMdPhotonNucleus)
-    {
-     char * incl[] = {"NULL","-pp","-tFe56","-N1","-E1","-dabla07"};
-     int arg = 6;
-     INCLCascade::INCLcascade(arg,incl,evrec);
-   }else if(fGMode == kGMdLeptonNucleus){
-    INCLCascade::TransportHadrons(evrec);}
+  G4INCL::Random::SeedVector const theInitialSeeds = G4INCL::Random::getSeeds();
+  GHepStatus_t    ist1  = kIStStableFinalState;
+  int pdg_codeProbe = 0;
+  double m_probe(0), m_pnP(0),E_pnP(0), EKinP(0);
+  pdg_codeProbe =  INCLpartycleSpecietoPDGCODE(theSpecies);
 
+  G4INCL::EventInfo result;
+  result = theINCLModel->processEvent(theSpecies,EKin,target->A(),target->Z());
+
+  m_probe = ParticleTable::getRealMass(theType);
+
+  double m_target = ParticleTable::getTableMass(result.At, result.Zt);
+  GHepParticle * fsProbe = evrec->Probe();
+
+  TLorentzVector p4h   (0.,0.,fsProbe->Pz(),fsProbe->E());
+  TLorentzVector x4null(0.,0.,0.,0.);
+  TLorentzVector p4tgt (0.,0.,0.,m_target/1000);
+  int pdg_codeTarget= genie::pdg::IonPdgCode(target->A(), target->Z());
+
+  if (result.transparent) {
+    evrec->AddParticle(pdg_codeProbe, ist1, 0,-1,-1,-1, p4h,x4null);
+    evrec->AddParticle(pdg_codeTarget,kIStFinalStateNuclearRemnant,1,-1,-1,-1,p4tgt,x4null);
+    INCL_DEBUG("Transparent event" << std::endl);
   }
-  bool INCLCascade::CanRescatter(const GHepParticle * p) const
+  else {
+    INCL_DEBUG("Number of produced particles: " << result.nParticles << "\n");
+    if(theDeExcitation != 0) {
+      theDeExcitation->deExcite(&result);
+    }
+    int mom = 1;
+    for (int nP = 0; nP < result.nParticles; nP++){
+      if(nP==result.nParticles -1){GHepParticle *p_outR =INCLtoGenieParticle(result,nP,kIStFinalStateNuclearRemnant,mom,-1);
+        evrec->AddParticle(*p_outR); 
+        delete p_outR;
+      }
+      else {
+        GHepParticle *p_outR =INCLtoGenieParticle(result,nP,kIStStableFinalState,0,-1);
+        evrec->AddParticle(*p_outR); 
+        delete p_outR;
+      }
+
+    }
+  }
+  return 0;
+}
+
+void INCLCascade::ProcessEventRecord(GHepRecord * evrec) const{
+
+  fGMode = evrec->EventGenerationMode();
+  if(fGMode == kGMdHadronNucleus ||
+   fGMode == kGMdPhotonNucleus)
   {
+   char * incl[] = {"NULL","-pp","-tFe56","-N1","-E1","-dabla07"};
+   int arg = 6;
+   INCLCascade::INCLcascade(arg,incl,evrec);
+ }else if(fGMode == kGMdLeptonNucleus){
+  INCLCascade::TransportHadrons(evrec);
+}
+
+}
+bool INCLCascade::CanRescatter(const GHepParticle * p) const
+{
 // checks whether a particle that needs to be rescattered, can in fact be
 // rescattered by this cascade MC
-    assert(p);
-    return  ( p->Pdg() == kPdgPiP     ||
-      p->Pdg() == kPdgPiM     ||
-      p->Pdg() == kPdgPi0     ||
-      p->Pdg() == kPdgProton  ||
-      p->Pdg() == kPdgNeutron 
-      );
-  }
+  assert(p);
+  return  ( p->Pdg() == kPdgPiP     ||
+    p->Pdg() == kPdgPiM     ||
+    p->Pdg() == kPdgPi0     ||
+    p->Pdg() == kPdgProton  ||
+    p->Pdg() == kPdgNeutron 
+    );
+}
 
-  void INCLCascade::TransportHadrons(GHepRecord * evrec) const{
-    int inucl = -1;
-    if(fGMode == kGMdHadronNucleus ||
-     fGMode == kGMdPhotonNucleus)
-    {
-     inucl = evrec->TargetNucleusPosition();
-   }
-   else
-    if(fGMode == kGMdLeptonNucleus ||
-     fGMode == kGMdNucleonDecay  ||
-     fGMode == kGMdNeutronOsc)
-    {
-     inucl = evrec->RemnantNucleusPosition();
-   }
+void INCLCascade::TransportHadrons(GHepRecord * evrec) const{
+  int inucl = -1;
+  if(fGMode == kGMdHadronNucleus ||
+   fGMode == kGMdPhotonNucleus)
+  {
+   inucl = evrec->TargetNucleusPosition();
+ }
+ else
+  if(fGMode == kGMdLeptonNucleus ||
+   fGMode == kGMdNucleonDecay  ||
+   fGMode == kGMdNeutronOsc)
+  {
+   inucl = evrec->RemnantNucleusPosition();
+ }
 
-   LOG("Intranuke", pNOTICE)
-   << "Propagating hadrons within nucleus found in position = " << inucl;
-   int tpos = evrec->TargetNucleusPosition();
-   GHepParticle * target = evrec->Particle(tpos);
-   GHepParticle * nucl = evrec->Particle(inucl);
-   if(!nucl) {
-    LOG("Intranuke", pERROR)
-    << "No nucleus found in position = " << inucl;
-    LOG("Intranuke", pERROR)
-    << *evrec;
-    return;
-  }
-  fRemnA = nucl->A();
-  fRemnZ = nucl->Z();
-  int A_f(0), Z_f(0), Aft(0), A_i(target->A()),Z_i(target->Z()),Af_REmn(0),Zf_Remn(0);
+ LOG("Intranuke", pNOTICE)
+ << "Propagating hadrons within nucleus found in position = " << inucl;
+ int tpos = evrec->TargetNucleusPosition();
+ GHepParticle * target = evrec->Particle(tpos);
+ GHepParticle * nucl = evrec->Particle(inucl);
+ if(!nucl) {
+  LOG("Intranuke", pERROR)
+  << "No nucleus found in position = " << inucl;
+  LOG("Intranuke", pERROR)
+  << *evrec;
+  return;
+}
+fRemnA = nucl->A();
+fRemnZ = nucl->Z();
+int A_f(0), Z_f(0), Aft(0), A_i(target->A()),Z_i(target->Z()),Af_REmn(0),Zf_Remn(0);
 
-  LOG("Intranuke", pNOTICE)
-  << "Nucleus (A,Z) = (" << fRemnA << ", " << fRemnZ << ")";
+LOG("Intranuke", pNOTICE)
+<< "Nucleus (A,Z) = (" << fRemnA << ", " << fRemnZ << ")";
 
-  const TLorentzVector & p4nucl = *(nucl->P4());
-  TLorentzVector x4null(0.,0.,0.,0.);
-  fRemnP4 = p4nucl;
-
-
-  TObjArrayIter piter(evrec);
-  GHepParticle * p = 0;
+const TLorentzVector & p4nucl = *(nucl->P4());
+TLorentzVector x4null(0.,0.,0.,0.);
+fRemnP4 = p4nucl;
 
 
-  int icurr = -1;
+TObjArrayIter piter(evrec);
+GHepParticle * p = 0;
 
+
+int icurr = -1;
+
+  #ifdef INCL_SIGNAL_HANDLING
+enableSignalHandling();
+        #endif
+
+    // Create the INCL- Model at the first Use.
+if(!theINCLModel) {
   char * inclinit[] = {"NULL","-pp","-tFe56","-N1","-E1","-dabla07"};
   int argcc = 6;
   ConfigParser theParser; 
   G4INCL::Config *theConfig = theParser.parse(argcc,inclinit);
+  theINCLModel = new G4INCL::INCL(theConfig);
+}
 
-  #ifdef INCL_SIGNAL_HANDLING
-  enableSignalHandling();
-        #endif
+if(!theDeExcitation) {
+  char * inclinit[] = {"NULL","-pp","-tFe56","-N1","-E1","-dabla07"};
+  int argcc = 6;
+  ConfigParser theParser; 
+  G4INCL::Config *theConfig = theParser.parse(argcc,inclinit);
+  theDeExcitation = new ABLA07CXX::Abla07Interface(theConfig);
+}
 
-    // Create the INCL- Model at the first Use.
-  if(!theINCLModel) theINCLModel = new G4INCL::INCL(theConfig);
+bool is_DIS = evrec->Summary()->ProcInfo().IsDeepInelastic();
+bool is_RES = evrec->Summary()->ProcInfo().IsResonant();
+bool is_CCQE = evrec->Summary()->ProcInfo().IsQuasiElastic();
 
-  if(!theDeExcitation) theDeExcitation = new ABLA07CXX::Abla07Interface(theConfig);
-
-
-  bool is_DIS = evrec->Summary()->ProcInfo().IsDeepInelastic();
-  bool is_RES = evrec->Summary()->ProcInfo().IsResonant();
-  bool is_CCQE = evrec->Summary()->ProcInfo().IsQuasiElastic();
-
-  TLorentzVector * p_4 = nucl->P4();
+TLorentzVector * p_4 = nucl->P4();
    // momentum of the remnant nucleus.
-  double pxRemn = p_4->Px();
-  double pyRemn = p_4->Py();
-  double pzRemn = p_4->Pz();
-  int pdg_codeTargetRemn= genie::pdg::IonPdgCode(nucl->A(),nucl->Z());
-  TLorentzVector p4tgf(p_4->Px(),p_4->Py(),p_4->Pz(),0.0);
-
+double pxRemn = p_4->Px();
+double pyRemn = p_4->Py();
+double pzRemn = p_4->Pz();
+int pdg_codeTargetRemn= genie::pdg::IonPdgCode(nucl->A(),nucl->Z());
+TLorentzVector p4tgf(p_4->Px(),p_4->Py(),p_4->Pz(),0.0);
    // Loop over GHEP and run intranuclear rescattering on handled particles
-  std::vector<G4INCL::Particle> *pincl;
-  std::vector<G4INCL::EventInfo>ListeOfINCLresult;
-  std::vector<int> Postion_evrec;
+//std::vector<G4INCL::Particle> *pincl;
+std::vector<G4INCL::EventInfo>ListeOfINCLresult;
+std::vector<int> Postion_evrec;
     GHepParticle * fsl = evrec->FinalStatePrimaryLepton();  // primary Lepton
     double ExcitaionE(0), the_pxRemn(0),the_pyRemn(0),the_pzRemn(0);
     int Zl(0), Aresult(0),Zresult(0),Aexception(0),Zexception(0),Pos(0),theA_Remn(0),theZ_Remn(0);  
     if(fsl->Charge()==0.) Zl=0;
     if(fsl->Charge()<0.)  Zl=-1;
-    if(fsl->Charge()>0.) Zl=1;  
+    if(fsl->Charge()>0.) Zl=1; 
     while( (p = (GHepParticle *) piter.Next()) )
     {
       icurr++;
@@ -413,7 +436,6 @@ if(!theINCLModel){
   double M4 = momentum.getX()*momentum.getX() + momentum.getY()*momentum.getY() + momentum.getZ()*momentum.getZ();
   double EKin = E - massp;
 
-
   G4INCL::ParticleSpecies  theSpecies;
   theSpecies.theType=theType;
   theSpecies.theA=pdgcpiontoA(sp->Pdg());
@@ -426,10 +448,10 @@ if(!theINCLModel){
         //*******************************************************************************
 
   G4INCL::Random::SeedVector const theInitialSeeds = G4INCL::Random::getSeeds();
-  int i =0;
   G4INCL::Random::saveSeeds();
   G4INCL::EventInfo result;
   result=theINCLModel->processEvent(theSpecies,pincl,EKin, fRemnA,fRemnZ);
+  delete pincl;
 
         //if result  give a transparent event FSI=1 
         // Store *sp 
@@ -450,6 +472,7 @@ if(!theINCLModel){
       if(nP<ListeOfINCLresult.at(it).nParticles){
         GHepParticle *p_outR =INCLtoGenieParticle(ListeOfINCLresult.at(it),nP,kIStStableFinalState,Pos,inucl);
         evrec->AddParticle(*p_outR);
+        delete p_outR;
         nP++;
       }
     }
@@ -480,7 +503,6 @@ if(!theINCLModel){
                    the_pxRemn+=ListeOfINCLresult.at(it).pxRem[0];
                    the_pyRemn+=ListeOfINCLresult.at(it).pyRem[0];
                    the_pzRemn+=ListeOfINCLresult.at(it).pzRem[0];
-
                    ExcitaionE+=ListeOfINCLresult.at(it).EStarRem[0];
   if(is_DIS == false && is_RES == false){ // QE - event
     ListeOfINCLresult.at(it).pxRem[0]+= pxRemn*1000;
@@ -491,6 +513,7 @@ if(!theINCLModel){
     {
       GHepParticle *p_out =INCLtoGenieParticle(ListeOfINCLresult.at(it),nP,kIStStableFinalState,Pos,inucl);
       evrec->AddParticle(*p_out);
+      delete p_out;
       }// Add to evrec the result
     }if(is_RES || is_DIS){
       if(it<ListeOfINCLresult.size()-1){
@@ -505,6 +528,7 @@ if(!theINCLModel){
           Z_f+=ListeOfINCLresult.at(it).Z[nP];
           GHepParticle *p_outD =INCLtoGenieParticle(ListeOfINCLresult.at(it),nP,kIStStableFinalState,Pos,inucl);
           evrec->AddParticle(*p_outD); 
+          delete p_outD;
             }//Add result without the remnant nucleus
           }else{
             ListeOfINCLresult.at(it).ARem[0]=A_i-theA_Remn-Aft; 
@@ -521,14 +545,15 @@ if(!theINCLModel){
 
               GHepParticle *p_outR =INCLtoGenieParticle(ListeOfINCLresult.at(it),nP,kIStStableFinalState,Pos,inucl);
               evrec->AddParticle(*p_outR); 
+              delete p_outR;
               //}
         }//Add all the result with the correct remnant nucleus
       }  
     }
-  }// Loop over all the result from INCLCascade
+}// Loop over all the result from INCLCascade
+
 }
-delete pincl;
-delete theConfig;
+
 if(ListeOfINCLresult.size()==0){
   GHepParticle remnant(pdg_codeTargetRemn, kIStFinalStateNuclearRemnant, inucl,-1,-1,-1, fRemnP4, x4null);
   evrec->AddParticle(remnant);

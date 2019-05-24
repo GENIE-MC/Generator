@@ -3,6 +3,9 @@
 
 #include "G4INCLCascade.hh"
 #include "G4INCLVersion.hh"
+#include "G4INCLParticleTable.hh"
+#include "G4INCLGlobals.hh"
+#include "DatafilePaths.hh"
 #include "G4INCLConfig.hh"
 #include "ConfigParser.hh"
 #include "G4INCLConfigEnums.hh"
@@ -27,7 +30,7 @@ using namespace genie;
 
 namespace G4INCL{
   G4INCL::INCL *theINCLModel;
-  G4INCL::IDeExcitation *theDeExcitation ;
+  G4INCL::IDeExcitation *theDeExcitation;
 
    int INCLpartycleSpecietoPDGCODE(G4INCL::ParticleSpecies  theSpecies){
      int pdg_codeProbe(0);
