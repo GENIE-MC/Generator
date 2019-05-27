@@ -92,7 +92,7 @@ double EmpiricalMECPXSec2015::XSec(
   double ml  = interaction->FSPrimLepton()->Mass();
   // apapadop
   Range1D_t Wlim;
-  if (isem) { Wlim = genie::utils::kinematics::electromagnetic::InelWLim_em(Ev, M2n, ml); }
+  if (isem) { Wlim = genie::utils::kinematics::electromagnetic::InelWLim(Ev, M2n, ml); }
   else { Wlim = genie::utils::kinematics::InelWLim(Ev, M2n, ml); }
   //LOG("MEC", pINFO) << "Ev, ml, M2n = " << Ev << "  " << ml << "  " << M2n;
   //LOG("MEC", pINFO) << "Wlim= " << Wlim.min << "  " <<Wlim.max ;
@@ -103,7 +103,7 @@ double EmpiricalMECPXSec2015::XSec(
   //use proper Q2 limit from Controls.h
   // apapadop
   Range1D_t Q2lim;
-  if (isem) { Q2lim = genie::utils::kinematics::electromagnetic::InelQ2Lim_W_em (Ev, M2n, ml, W); }
+  if (isem) { Q2lim = genie::utils::kinematics::electromagnetic::InelQ2Lim_W(Ev, M2n, ml, W); }
   else { Q2lim = genie::utils::kinematics::InelQ2Lim_W (Ev, M2n, ml, W, kMinQ2Limit); }
   //LOG("MEC", pINFO) << "Q2lim= " << Q2lim.min << "  " <<Q2lim.max ;
   if(Q2 < Q2lim.min || Q2 > Q2lim.max)
@@ -115,7 +115,7 @@ double EmpiricalMECPXSec2015::XSec(
   double x = 0.;
   double y = 0.;
   // apapadop
-  if (isem) { genie::utils::kinematics::electromagnetic::WQ2toXY_em(Ev,M2n,ml,W,Q2,x,y); }
+  if (isem) { genie::utils::kinematics::electromagnetic::WQ2toXY(Ev,M2n,ml,W,Q2,x,y); }
   else { genie::utils::kinematics::WQ2toXY(Ev,M2n,W,Q2,x,y); }
   //  LOG("MEC", pINFO) << "x = " << x << ", y = " << y;
   // double Tmu = (1.-y)*Ev;  // UNUSED - comment to quiet compiler warnings

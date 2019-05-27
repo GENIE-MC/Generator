@@ -220,7 +220,7 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         // apapadop
         bool is_em = interaction->ProcInfo().IsEM();
         double ml = interaction->KinePtr()->FSLeptonP4().M();
-        if (is_em) { kinematics::electromagnetic::WQ2toXY_em(E, M, ml, gW, gQ2, gx, gy); }
+        if (is_em) { kinematics::electromagnetic::WQ2toXY(E, M, ml, gW, gQ2, gx, gy); }
         else { kinematics::WQ2toXY(E,M,gW,gQ2,gx,gy); }
 
         // set the cross section for the selected kinematics
@@ -365,7 +365,7 @@ void QELKinematicsGenerator::SpectralFuncExperimentalCode(
      bool is_em = interaction->ProcInfo().IsEM();
      double ml = interaction->KinePtr()->FSLeptonP4().M();
      double M = init_state.Tgt().HitNucP4().M();
-     if (is_em) { kinematics::electromagnetic::WQ2toXY_em(E, M, ml, gW, gQ2, gx, gy); }
+     if (is_em) { kinematics::electromagnetic::WQ2toXY(E, M, ml, gW, gQ2, gx, gy); }
      else { kinematics::WQ2toXY(E,Mn,gW,gQ2,gx,gy); }
 
      LOG("QELKinematics", pNOTICE) << "W = "<< gW;
