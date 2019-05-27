@@ -259,7 +259,7 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         //double M = init_state.Tgt().HitNucMass();
         // apapadop
         double ml = interaction->KinePtr()->FSLeptonP4().M();
-        if (is_em) { kinematics::electromagnetic::WQ2toXY_em(E, M, ml, gW, gQ2, gx, gy); }
+        if (is_em) { kinematics::electromagnetic::WQ2toXY(E, M, ml, gW, gQ2, gx, gy); }
         else { kinematics::WQ2toXY(E,M,gW,gQ2,gx,gy); }
 
         // set the cross section for the selected kinematics
@@ -349,10 +349,8 @@ double RESKinematicsGenerator::ComputeMaxXSec(
   const InitialState & init_state = interaction -> InitState();
   double E = init_state.ProbeE(kRfHitNucRest);
   // apapadop
-  double Q2Thres = -99.;
-  bool is_em = interaction->ProcInfo().IsEM();
-  if (is_em) { Q2Thres = controls::kMinQ2Limit_em; }
-  else { Q2Thres = controls::kMinQ2Limit; }
+  bool is_em = interaction->ProcInfo().IsEM(); 
+  double Q2Thres = is_em ? controls::kMinQ2Limit_em : controls::kMinQ2Limit; 
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("RESKinematics", pDEBUG) << "Scanning phase space for E= " << E;

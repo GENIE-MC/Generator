@@ -303,7 +303,7 @@ void MECGenerator::SelectEmpiricalKinematics(GHepRecord * event) const
         // apapadop
         bool is_em = interaction->ProcInfo().IsEM();
         double ml = interaction->KinePtr()->FSLeptonP4().M();
-        if (is_em) { kinematics::electromagnetic::WQ2toXY_em(Ev, M2n, ml, gW, gQ2, gx, gy); }
+        if (is_em) { kinematics::electromagnetic::WQ2toXY(Ev, M2n, ml, gW, gQ2, gx, gy); }
         else { kinematics::WQ2toXY(Ev,M2n,gW,gQ2,gx,gy); }
 
         LOG("MEC", pINFO) << "x = " << gx << ", y = " << gy;
@@ -857,7 +857,7 @@ void MECGenerator::SelectNSVLeptonKinematics (GHepRecord * event) const
   // apapadop
   bool isem = interaction->ProcInfo().IsEM();
   double gW = -99.;
-  if (isem) { gW = kinematics::electromagnetic::XYtoW_em(Enu, 2 * kNucleonMass, LepMass, gx, gy); }
+  if (isem) { gW = kinematics::electromagnetic::XYtoW(Enu, 2 * kNucleonMass, LepMass, gx, gy); }
   else { gW = kinematics::XYtoW(Enu, 2 * kNucleonMass, gx, gy); }
 
   interaction->KinePtr()->SetQ2(Q2, true);

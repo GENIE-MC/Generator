@@ -253,7 +253,7 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
             //apapadop
             bool is_em = interaction->ProcInfo().IsEM();
             double ml = interaction->KinePtr()->FSLeptonP4().M();
-            if (is_em) { kinematics::electromagnetic::WQ2toXY_em(E, M, ml, gW, gQ2, gx, gy); }
+            if (is_em) { kinematics::electromagnetic::WQ2toXY(E, M, ml, gW, gQ2, gx, gy); }
             else { kinematics::WQ2toXY(E,M,gW,gQ2,gx,gy); }
 
             // lock selected kinematics & clear running values
