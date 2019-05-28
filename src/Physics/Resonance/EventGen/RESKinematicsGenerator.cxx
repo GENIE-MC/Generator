@@ -258,8 +258,7 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         double M = init_state.Tgt().HitNucP4().M();
         //double M = init_state.Tgt().HitNucMass();
         // apapadop
-        double ml = interaction->KinePtr()->FSLeptonP4().M();
-        if (is_em) { kinematics::electromagnetic::WQ2toXY(E, M, ml, gW, gQ2, gx, gy); }
+        if (is_em) { kinematics::electromagnetic::WQ2toXY(E,interaction->KinePtr()->FSLeptonP4().M(), M, gW, gQ2, gx, gy); }
         else { kinematics::WQ2toXY(E,M,gW,gQ2,gx,gy); }
 
         // set the cross section for the selected kinematics

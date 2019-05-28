@@ -396,8 +396,8 @@ Range1D_t KPhaseSpace::WLim(void) const
     double M  = init_state.Tgt().HitNucP4Ptr()->M(); //can be off m/shell
     double ml = fInteraction->FSPrimLepton()->Mass();
     //apapadop
-    if (is_em) { Wl = kinematics::electromagnetic::InelWLim(Ev,M,ml); }
-    else { Wl = kinematics::InelWLim(Ev,M,ml); }
+    Wl = is_em ? kinematics::electromagnetic::InelWLim(Ev,ml,M) : kinematics::InelWLim(Ev,M,ml); 
+
     if(fInteraction->ExclTag().IsCharmEvent()) {
       //Wl.min = TMath::Max(Wl.min, kNeutronMass+kPionMass+kLightestChmHad);
       Wl.min = TMath::Max(Wl.min, kNeutronMass+kLightestChmHad);
@@ -481,8 +481,7 @@ Range1D_t KPhaseSpace::Q2Lim_W(void) const
     Q2l = kinematics::DarkQ2Lim_W(Ev,M,ml,W);
   } else {
      // apapadop
-     if (is_em) { Q2l = kinematics::electromagnetic::InelQ2Lim_W(Ev,M,ml,W); }
-     else { Q2l = kinematics::InelQ2Lim_W(Ev,M,ml,W); }
+     Q2l = is_em ? kinematics::electromagnetic::InelQ2Lim_W(Ev,ml,M,W) : Q2l = kinematics::InelQ2Lim_W(Ev,M,ml,W); 
   }
 
   return Q2l;
@@ -548,8 +547,7 @@ Range1D_t KPhaseSpace::Q2Lim(void) const
       Q2l = kinematics::InelQ2Lim_W(Ev,M,ml,W,controls::kMinQ2Limit_VLE);
     } else {
      // apapadop
-     if (is_em) { Q2l = kinematics::electromagnetic::InelQ2Lim_W(Ev,M,ml,W); }
-     else { Q2l = kinematics::InelQ2Lim_W(Ev,M,ml,W); }
+     Q2l = is_em ? kinematics::electromagnetic::InelQ2Lim_W(Ev,ml,M,W) : kinematics::InelQ2Lim_W(Ev,M,ml,W); 
     }
 
     return Q2l;
@@ -580,8 +578,7 @@ Range1D_t KPhaseSpace::Q2Lim(void) const
   if (pi.IsMEC()){
     double W = fInteraction->RecoilNucleon()->Mass();
     // apapadop
-    if (is_em) { Q2l = kinematics::electromagnetic::InelQ2Lim_W(Ev,M,ml,W); }
-    else { Q2l = kinematics::InelQ2Lim_W(Ev,M,ml,W); }
+    Q2l = is_em ? kinematics::electromagnetic::InelQ2Lim_W(Ev,ml,M,W) : kinematics::InelQ2Lim_W(Ev,M,ml,W); 
     double Q2maxConfig = 1.44; // need to pull from config file somehow?
     if (Q2l.max > Q2maxConfig) Q2l.max = Q2maxConfig;
     return Q2l;
@@ -594,8 +591,7 @@ Range1D_t KPhaseSpace::Q2Lim(void) const
 
   // inelastic
   // apapadop
-  if (is_em) { Q2l = kinematics::electromagnetic::InelQ2Lim(Ev,M,ml); }
-  else { Q2l = kinematics::InelQ2Lim(Ev,M,ml); }
+  Q2l = is_em ? kinematics::electromagnetic::InelQ2Lim(Ev,ml,M) : kinematics::InelQ2Lim(Ev,M,ml); 
   return Q2l;
 }
 //____________________________________________________________________________
@@ -630,8 +626,7 @@ Range1D_t KPhaseSpace::XLim(void) const
     double M   = init_state.Tgt().HitNucP4Ptr()->M(); // can be off m/shell
     double ml  = fInteraction->FSPrimLepton()->Mass();
     // apapadop
-    if (is_em) { xl = kinematics::electromagnetic::InelXLim(Ev,M,ml); }
-    else { xl = kinematics::InelXLim(Ev,M,ml); }
+    xl = is_em ? kinematics::electromagnetic::InelXLim(Ev,ml,M) : kinematics::InelXLim(Ev,M,ml); 
     return xl;
   }
   //DMDIS
@@ -685,8 +680,7 @@ Range1D_t KPhaseSpace::YLim(void) const
     double M   = init_state.Tgt().HitNucP4Ptr()->M(); // can be off m/shell
     double ml  = fInteraction->FSPrimLepton()->Mass();
     // apapadop
-    if (is_em) { yl = kinematics::electromagnetic::InelYLim(Ev,M,ml); }
-    else { yl = kinematics::InelYLim(Ev,M,ml); }
+    yl = is_em ? kinematics::electromagnetic::InelYLim(Ev,ml,M) : kinematics::InelYLim(Ev,M,ml); 
     return yl;
   }
   //DMDIS
@@ -751,8 +745,7 @@ Range1D_t KPhaseSpace::YLim_X(void) const
     double ml  = fInteraction->FSPrimLepton()->Mass();
     double x   = fInteraction->Kine().x();
     // apapadop
-    if (is_em) { yl = kinematics::electromagnetic::InelYLim_X(Ev,M,ml,x); }
-    else { yl = kinematics::InelYLim_X(Ev,M,ml,x); }
+    yl = is_em ? kinematics::electromagnetic::InelYLim_X(Ev,ml,M,x) : kinematics::InelYLim_X(Ev,M,ml,x); 
     return yl;
   }
   //DMDIS
