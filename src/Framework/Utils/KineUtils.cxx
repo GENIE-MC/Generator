@@ -475,7 +475,7 @@ Range1D_t genie::utils::kinematics::InelYLim_X(
 //____________________________________________________________________________
 // Kinematical Limits for em interactions:
 //____________________________________________________________________________
-Range1D_t genie::utils::kinematics::electromagnetic::InelWLim(double El, double M, double ml)
+Range1D_t genie::utils::kinematics::electromagnetic::InelWLim(double El, double ml, double M)
 {
 // Computes W limits for inelastic em interactions
 //
@@ -498,7 +498,7 @@ Range1D_t genie::utils::kinematics::electromagnetic::InelWLim(double El, double 
 }
 //____________________________________________________________________________
 Range1D_t genie::utils::kinematics::electromagnetic::InelQ2Lim_W(
-     double El, double M, double ml, double W)
+     double El, double ml, double M, double W)
 {
 // Computes Q2 limits (>0) @ the input W for inelastic em interactions
 
@@ -536,7 +536,7 @@ Range1D_t genie::utils::kinematics::electromagnetic::InelQ2Lim_W(
 }
 //____________________________________________________________________________
 Range1D_t genie::utils::kinematics::electromagnetic::Inelq2Lim_W(
-    double El, double M, double ml, double W)
+    double El, double ml, double M, double W)
 {
 // Computes q2 (<0) limits @ the input W for inelastic em interactions
 
@@ -548,7 +548,7 @@ Range1D_t genie::utils::kinematics::electromagnetic::Inelq2Lim_W(
 }
 //____________________________________________________________________________
 Range1D_t genie::utils::kinematics::electromagnetic::InelQ2Lim(
-    double El, double M, double ml)
+    double El, double ml, double M)
 {
 // Computes Q2 (>0) limits irrespective of W for inelastic em interactions
 
@@ -564,7 +564,7 @@ Range1D_t genie::utils::kinematics::electromagnetic::InelQ2Lim(
 }
 //____________________________________________________________________________
 Range1D_t genie::utils::kinematics::electromagnetic::Inelq2Lim(
-     double El, double M, double ml)
+     double El, double ml, double M)
 {
 // Computes Q2 (>0) limits irrespective of W for inelastic em interactions
 
@@ -575,7 +575,7 @@ Range1D_t genie::utils::kinematics::electromagnetic::Inelq2Lim(
   return q2;
 }
 //____________________________________________________________________________
-Range1D_t genie::utils::kinematics::electromagnetic::InelXLim(double El, double M, double ml)
+Range1D_t genie::utils::kinematics::electromagnetic::InelXLim(double El, double ml, double M)
 
 {
 // Computes Bjorken x limits for inelastic em interactions
@@ -595,7 +595,7 @@ Range1D_t genie::utils::kinematics::electromagnetic::InelXLim(double El, double 
   return x;
 }
 //____________________________________________________________________________
-Range1D_t genie::utils::kinematics::electromagnetic::InelYLim(double El, double M, double ml)
+Range1D_t genie::utils::kinematics::electromagnetic::InelYLim(double El, double ml, double M)
 {
 // Computes y limits for inelastic v interactions
 
@@ -631,7 +631,7 @@ Range1D_t genie::utils::kinematics::electromagnetic::InelYLim(double El, double 
 }
 //____________________________________________________________________________
 Range1D_t genie::utils::kinematics::electromagnetic::InelYLim_X(
-                                 double El, double M, double ml, double x)
+                                 double El, double ml, double M, double x)
 
 {
 // Computes y limits @ the input x for inelastic em interactions
@@ -664,7 +664,7 @@ Range1D_t genie::utils::kinematics::electromagnetic::InelYLim_X(
 }
 //___________________________________________________________________________
 void genie::utils::kinematics::electromagnetic::WQ2toXY(
-            double El, double M, double ml, double W, double Q2, double & x, double & y)
+            double El, double ml, double M, double W, double Q2, double & x, double & y)
 {
 // Converts (W,Q2) => (x,y) for em interactions
 // Uses the system: a) W^2 - M^2 - ml^2 = 2*Ev*M*y*(1-x) and b) Q^2 = 2*x*y*M*Ev
@@ -689,7 +689,7 @@ void genie::utils::kinematics::electromagnetic::WQ2toXY(
 }
 //___________________________________________________________________________
 void genie::utils::kinematics::electromagnetic::XYtoWQ2(
-            double El, double M, double ml, double & W, double & Q2, double x, double y)
+            double El, double ml, double M, double & W, double & Q2, double x, double y)
 {
 // Converts (W,Q2) => (x,y) for em interactions
 // Uses the system: a) W^2 - M^2 - ml^2 = 2*Ev*M*y*(1-x) and b) Q^2 = 2*x*y*M*Ev
@@ -709,7 +709,7 @@ void genie::utils::kinematics::electromagnetic::XYtoWQ2(
 }
 //___________________________________________________________________________
 double genie::utils::kinematics::electromagnetic::XYtoW(
-                                     double El, double M, double ml, double x, double y)
+                                     double El, double ml, double M, double x, double y)
 {
 // Converts (W,Q2) => (x,y) for em interactions
 // Uses the system: a) W^2 - M^2 - ml^2 = 2*Ev*M*y*(1-x) and b) Q^2 = 2*x*y*M*Ev
