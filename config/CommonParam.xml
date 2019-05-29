@@ -305,24 +305,16 @@ Or changing the name of this parameter set
 
   </param_set>
 
-  <<<<<<< HEAD:config/CommonParam.xml
+
   <param_set name="KNO2Pythia">
     <!--
-	=======
-	<param_set name="KNO2Pythia"> 
-	<!-- 
-	>>>>>>> 751f3ab80760c8d0d4dc84ca3755388b719572a5:config/CommonParam.xml
+	
 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Invariant mass window for the transition from KNO model to PYTHIA
     -->
 
     <param type="double" name="KNO2PYTHIA-Wmin">  2.30 </param>
     <param type="double" name="KNO2PYTHIA-Wmax">  3.00 </param>
-    <<<<<<< HEAD:config/CommonParam.xml
-
-    =======
-    
-    >>>>>>> 751f3ab80760c8d0d4dc84ca3755388b719572a5:config/CommonParam.xml
   </param_set>
 
 
