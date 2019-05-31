@@ -71,7 +71,7 @@ GHepParticle *INCLtoGenieParticle(G4INCL::EventInfo result, int nP, GHepStatus_t
   double E_pnP(0), EKinP = result.EKin[nP];
   TVector3 p3M(result.px[nP]/1000,result.py[nP]/1000,result.pz[nP]/1000);
   TLorentzVector x4null(0.,0.,0.,0.);
-  double  m_pnP = 0.5*((result.px[nP])*(result.px[nP]) + (result.py[nP])*(result.py[nP]) + (result.pz[nP])*(result.pz[nP]) + EKinP*EKinP)/(EKinP);
+  double  m_pnP = 0.5*((result.px[nP])*(result.px[nP]) + (result.py[nP])*(result.py[nP]) + (result.pz[nP])*(result.pz[nP]) - EKinP*EKinP)/(EKinP);
   if (m_pnP<10&&result.A[nP]==0&&result.Z[nP]==0)
   {
     pdg_codeP = 22;
