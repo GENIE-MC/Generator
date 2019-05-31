@@ -540,7 +540,7 @@ Range1D_t genie::utils::kinematics::electromagnetic::Inelq2Lim_W(
 {
 // Computes q2 (<0) limits @ the input W for inelastic em interactions
 
-  Range1D_t Q2 = utils::kinematics::electromagnetic::InelQ2Lim_W(El,M,ml,W);
+  Range1D_t Q2 = utils::kinematics::electromagnetic::InelQ2Lim_W(El,ml,M,W);
   Range1D_t q2;
   q2.min = - Q2.max;
   q2.max = - Q2.min;
@@ -556,10 +556,10 @@ Range1D_t genie::utils::kinematics::electromagnetic::InelQ2Lim(
   Q2.min = -1;
   Q2.max = -1;
 
-  Range1D_t W  = utils::kinematics::electromagnetic::InelWLim(El,M,ml);
+  Range1D_t W  = utils::kinematics::electromagnetic::InelWLim(El,ml,M);
   if(W.min<0) return Q2;
 
-  Q2 = utils::kinematics::electromagnetic::InelQ2Lim_W(El,M,ml,W.min);
+  Q2 = utils::kinematics::electromagnetic::InelQ2Lim_W(El,ml,M,W.min);
   return Q2;
 }
 //____________________________________________________________________________
@@ -568,7 +568,7 @@ Range1D_t genie::utils::kinematics::electromagnetic::Inelq2Lim(
 {
 // Computes Q2 (>0) limits irrespective of W for inelastic em interactions
 
-  Range1D_t Q2 = utils::kinematics::electromagnetic::InelQ2Lim(El,M,ml);
+  Range1D_t Q2 = utils::kinematics::electromagnetic::InelQ2Lim(El,ml,M);
   Range1D_t q2;
   q2.min = - Q2.max;
   q2.max = - Q2.min;
@@ -603,7 +603,7 @@ Range1D_t genie::utils::kinematics::electromagnetic::InelYLim(double El, double 
   y.min =  999;
   y.max = -999;
 
-  Range1D_t xl = kinematics::electromagnetic::InelXLim(El,M,ml);
+  Range1D_t xl = kinematics::electromagnetic::InelXLim(El,ml,M);
   assert(xl.min>0 && xl.max>0);
 
   const unsigned int N=100;
@@ -614,7 +614,7 @@ Range1D_t genie::utils::kinematics::electromagnetic::InelYLim(double El, double 
   for(unsigned int i=0; i<N; i++) {
     double x = TMath::Power(10, logxmin + i*dlogx);
 
-    Range1D_t y_x = kinematics::electromagnetic::InelYLim_X(El,M,ml,x);
+    Range1D_t y_x = kinematics::electromagnetic::InelYLim_X(El,ml,M,x);
     if(y_x.min>=0 && y_x.min<=1) y.min = TMath::Min(y.min, y_x.min);
     if(y_x.max>=0 && y_x.max<=1) y.max = TMath::Max(y.max, y_x.max);
   }
