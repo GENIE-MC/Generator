@@ -106,6 +106,7 @@ genie::FreeNucleonTensor::FreeNucleonTensor(
   fqTilde = probeP4 - p4lep;
   fqTilde.SetE( fqTilde.E() - fEpsilonB );
 
+  fPNiOnShell = TLorentzVector( p3Ni, ENi_on_shell );
 }
 
 std::complex<double> genie::FreeNucleonTensor::operator()(
