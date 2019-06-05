@@ -91,7 +91,7 @@ double EmpiricalMECPXSec2015::XSec(
   double M2n2 = M2n*M2n;
   double ml  = interaction->FSPrimLepton()->Mass();
   // apapadop
-  Range1D_t Wlim = isem ? genie::utils::kinematics::electromagnetic::InelWLim(Ev, M2n, ml) : genie::utils::kinematics::InelWLim(Ev, M2n, ml); 
+  Range1D_t Wlim = isem ? genie::utils::kinematics::electromagnetic::InelWLim(Ev, ml, M2n) : genie::utils::kinematics::InelWLim(Ev, M2n, ml); 
 
   //LOG("MEC", pINFO) << "Ev, ml, M2n = " << Ev << "  " << ml << "  " << M2n;
   //LOG("MEC", pINFO) << "Wlim= " << Wlim.min << "  " <<Wlim.max ;
