@@ -116,6 +116,7 @@ void RadiativeCorrector::BuildInitialState(const InitialState & init_state)
 void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const 
 {
   // decay a photon with dE from the electron 
+  evrec->Print();
   bool radDone = false;
  
   bool vanderhagen = true;
@@ -166,14 +167,14 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
 	   delete f;
 	   LOG("RadiativeCorrector", pINFO) << "Energy loss is "<<energyLoss;
 	}
-	double L1,L2,b,t,lambda_e,g,e_gamma_max,e_gamma_min,power_hi,power_lo;
+	double L1,L2,b,thickness,lambda_e,g,e_gamma_max,e_gamma_min,power_hi,power_lo;
 	if (simc) { 
            L1 = log(184.15) - (1./3)*log(Z);
 	   L2 = log(1194.) - (2./3)*log(Z);
            b = (1./9)*(12 + float(Z+1)/(Z*(Z*L1 + L2)));
 	   lambda_e = (kAem/kPi)*( TMath::Log(4*pow(p->P4()->P(),2)/pow(kElectronMass,2)-1) + 2*TMath::Log(init_state_ptr->GetProbeP4(kRfLab)->P()/kine->FSLeptonP4().P()) + TMath::Log(0.5*(1-kine->FSLeptonP4().CosTheta()) ) );
-	   t =  0.005176; //thinkness in radiation length (0.1 cm carbon)
-           g = b*t + lambda_e;
+	   thickness =  0.005176; //thickness in radiation length (0.1 cm carbon)
+           g = b*thickness + lambda_e;
            std::cout<<" lambda e  is "<<lambda_e<<" g "<<g<<std::endl;
 
 	   e_gamma_max = evrec->Probe()->GetP4()->E() - kine->FSLeptonP4().E();
@@ -218,9 +219,18 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
 	  LOG("RadiativeCorrector", pINFO) << "performing ISR correction for: " << p->Name() << " reduced energy is : "<<p4.E();
 	  // changing the probe energy instead of decaying it 
 	  init_state_ptr->SetProbeP4(p4);
-	  p->SetMomentum(p4);
+	  //p->SetMomentum(p4);
 
+	  //-- Mark it as a 'decayed state' & add its daughter links
+	  p->SetStatus(kIStDecayedState);
+	  ////-- Add the mom & daughters to the event record
+	  LOG("RadiativeCorrector", pINFO) << "Adding daughter... PDG=" << p->Pdg();
+          evrec->AddParticle(p->Pdg(), kIStIntermediateState, ipos,-1,-1,-1, p4, x4);
+          LOG("RadiativeCorrector", pINFO) << "Adding daughter... PDG= 22";
+          evrec->AddParticle(22, kIStStableFinalState, ipos,-1,-1,-1, p4RadGamma, x4);
 	  radDone = true;
+          //LOG("RadiativeCorrector", pINFO) <<"TESTING PROBE "<<init_state_ptr->ProbeE(kRfLab)<<" from event rec mother "<<evrec->Probe()->FirstMother();
+          //evrec->Print();
 	}
 	
         if (!fISR && !radDone) {
@@ -265,7 +275,8 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
 	   //-- Correct the final state lepton 
            evrec->Probe()->SetFirstDaughter(ipos);
            evrec->Probe()->SetLastDaughter(-1);
-           LOG("RadiativeCorrector", pINFO) <<"After setting the lepton first and last mother to -1  "<<evrec->FinalStatePrimaryLepton()->P4()->E(); 
+           LOG("RadiativeCorrector", pINFO) <<"After setting the lepton first and last mother to -1  "<<evrec->FinalStatePrimaryLepton()->P4()->E();
+           evrec->Print(); 
 	}
       }
      }
@@ -275,15 +286,15 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
 	//	p->SetMomentum(0.,0.,0.,p->Mass());
 	//	//p->SetEnergy(p->Mass());
 	//}
-	p->SetStatus(kIStDecayedState);
 	//-- Correct the final state lepton 
-        evrec->Probe()->SetFirstDaughter(-1);
-        evrec->Probe()->SetLastDaughter(-1);
+        //evrec->Probe()->SetFirstDaughter(-1);
+        //evrec->Probe()->SetLastDaughter(-1);
         
+	p->SetStatus(kIStDecayedState);
 	LOG("RadiativeCorrector", pINFO) <<"After setting the particles status to decyed and momentum of the nucleon to be zero, pdg "<<p->Pdg()<<" mass "<<p->Mass();
+        evrec->Print();
         //kine->ClearRunningValues();
         //kine->Reset();
-        //evrec->Print();
      }
      ipos++;
   } // loop over particles

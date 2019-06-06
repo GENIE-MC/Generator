@@ -16,14 +16,10 @@ Name                   Type     Optional   Comment            Default
   </param_set>
 
   <param_set name="ISR"> 
-     <param type="int"    name="NDecayers">                1                                        </param>
-     <param type="alg"    name="Decayer-0">                genie::RadiativeDecayer/Default          </param>
      <param type="bool"   name="ISR"> true                                     </param>
   </param_set>
 
   <param_set name="FSR"> 
-     <param type="int"    name="NDecayers">                1                                        </param>
-     <param type="alg"    name="Decayer-0">                genie::RadiativeDecayer/Default          </param>
      <param type="bool"   name="ISR"> false                                     </param>
   </param_set>
 
