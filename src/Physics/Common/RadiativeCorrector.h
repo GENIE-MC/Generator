@@ -35,7 +35,6 @@ class GHepParticle;
 class Interaction;
 class InitialState;
 class Target;
-class RadiativeDecayer;
 class NtpMCFormat;
 
 class RadiativeCorrector : public EventRecordVisitorI {
@@ -69,11 +68,8 @@ private:
   void  LoadConfig (void);
   void  BuildInitialState(const InitialState & init_state);
   bool  ToBeDecayed       (GHepParticle * particle) const;
-  //bool  findEnergyLoss(const DecayerInputs_t & inp) const;
 
   bool 				      fISR; ///< to distinguish between ISR and FSR
-  vector <const RadiativeDecayer *> * fDecayers;            ///< list of all specified decayers
-  mutable const RadiativeDecayer *    fCurrDecayer;         ///< current selected decayer
   InitialState *            fInitState;       ///< initial state information for changing probe
 
   mutable GHepRecordHistory             fRecHistory;     ///< event record history 

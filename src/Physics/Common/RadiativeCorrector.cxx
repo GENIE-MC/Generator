@@ -51,7 +51,6 @@
 #include "Physics/Common/RadiativeCorrector.h"
 #include "Physics/Decay/DecayModelI.h"
 #include "Physics/Decay/UnstableParticleDecayer.h"
-#include "Physics/Decay/RadiativeDecayer.h"
 #include "Framework/GHEP/GHepStatus.h"
 #include "Framework/GHEP/GHepParticle.h"
 #include "Framework/GHEP/GHepRecord.h"
@@ -80,7 +79,6 @@ using namespace genie::constants;
 RadiativeCorrector::RadiativeCorrector() :
 EventRecordVisitorI("genie::RadiativeCorrector")
 {
-  fDecayers = 0;
   fInitState = 0;
   //rad_gOptRunNu = 0;
   //rad_kDefOptNtpFormat = kNFGHEP;
@@ -89,15 +87,10 @@ EventRecordVisitorI("genie::RadiativeCorrector")
 RadiativeCorrector::RadiativeCorrector(string config) :
 EventRecordVisitorI("genie::RadiativeCorrector", config)
 {
-  fDecayers = 0;
 }
 //___________________________________________________________________________
 RadiativeCorrector::~RadiativeCorrector()
 {
-  if(fDecayers) {
-   fDecayers->clear();
-   delete fDecayers;
-  }
   if (fInitState)        delete fInitState;
   //rad_gOptRunNu = 0;
   //rad_kDefOptNtpFormat = kNFGHEP;
@@ -115,7 +108,8 @@ void RadiativeCorrector::BuildInitialState(const InitialState & init_state)
 //___________________________________________________________________________
 void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const 
 {
-  // decay a photon with dE from the electron 
+  // decay a photon with dE from the electron
+  evrec->SetPrintLevel(13); 
   evrec->Print();
   bool radDone = false;
  
@@ -139,10 +133,7 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
       if( init_state_ptr->Probe()->PdgCode() == 11 || init_state_ptr->Probe()->PdgCode() == -11) {
         TLorentzVector p4 = *(p->P4());
         TLorentzVector x4 = *(p->X4());
-        DecayerInputs_t dinp;
-        dinp.PdgCode = p->Pdg();
-        dinp.P4      = &p4;
-	double e = dinp.P4->E();
+	double e = p4.E();
 	double energyLoss = 0.;
 
 	//double targetThickness = init_state.TgtThickness();
@@ -150,7 +141,6 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
 	//	LOG("RadiativeCorrector", pNOTICE) << "Decaying ISR particle is not the probe, not performing ISR correction";
 	//	continue;
 	//}	
-	/////double energyLoss = fCurrDecayer->findEnergyLoss(dinp);
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// find energy loss
         
@@ -334,19 +324,6 @@ bool RadiativeCorrector::ToBeDecayed(GHepParticle * particle) const
    return false;
 }
 //___________________________________________________________________________
-//bool RadiativeCorrector::findEnergyLoss(const DecayerInputs_t & inp) const
-//{
-//        double e = inp.P4->E();
-//        double Q = 1.; // typical momentum scale,
-//        double a = (kAem/kPi)*(2*TMath::Log(Q/kElectronMass) - 1.);
-//        TF1 *f = new TF1("f","([0]/x)*TMath::Power(x/[1],[0])",0,e);
-//        f->SetParameter(0,a);
-//        f->SetParameter(1,e);
-//        double energyloss = f->GetRandom();
-//        LOG("RadiativeDecay", pNOTICE) << "energy loss " << energyloss;
-//        return energyloss;
-//}
-//___________________________________________________________________________
 void RadiativeCorrector::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
@@ -364,25 +341,6 @@ void RadiativeCorrector::LoadConfig(void)
   //AlgConfigPool * confp = AlgConfigPool::Instance();
   //const Registry * gc = confp->GlobalParameterList();
 
-  //int ndec = fConfig->GetIntDef("NDecayers",0);
-  //assert(ndec>0);
-  //GetParam( "NDecayers", fNDecayers);
-  //assert(fNDecayers>0);
-
-  //if(fDecayers) {
-  //  fDecayers->clear();
-  //  delete fDecayers;
-  //}
-  //fDecayers = new vector<const RadiativeDecayer *>(ndec);
-
-  //for(int idec = 0; idec < ndec; idec++) {
-  //   ostringstream alg_key;
-  //   alg_key     << "Decayer-" << idec;
-  //   const RadiativeDecayer * decayer =
-  //            dynamic_cast<const RadiativeDecayer *> (this->SubAlg(alg_key.str()));
-  //   (*fDecayers)[idec] = decayer;
-  //}
-  
   //fISR = fConfig->GetBool("ISR");
   GetParam( "ISR",fISR);
 
