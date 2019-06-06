@@ -212,14 +212,13 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
 	  //p->SetMomentum(p4);
 
 	  //-- Mark it as a 'decayed state' & add its daughter links
-	  p->SetStatus(kIStDecayedState);
 	  ////-- Add the mom & daughters to the event record
 	  LOG("RadiativeCorrector", pINFO) << "Adding daughter... PDG=" << p->Pdg();
-          evrec->AddParticle(p->Pdg(), kIStIntermediateState, ipos,-1,-1,-1, p4, x4);
+          evrec->AddParticle(p->Pdg(), kIStCorrectedProbe, ipos,-1,-1,-1, p4, x4);
           LOG("RadiativeCorrector", pINFO) << "Adding daughter... PDG= 22";
           evrec->AddParticle(22, kIStStableFinalState, ipos,-1,-1,-1, p4RadGamma, x4);
 	  radDone = true;
-          //LOG("RadiativeCorrector", pINFO) <<"TESTING PROBE "<<init_state_ptr->ProbeE(kRfLab)<<" from event rec mother "<<evrec->Probe()->FirstMother();
+          LOG("RadiativeCorrector", pINFO) <<"TESTING PROBE "<<init_state_ptr->ProbeE(kRfLab)<<" from event rec status "<<evrec->Probe()->Status()<<" and e "<<evrec->Probe()->E();
           //evrec->Print();
 	}
 	

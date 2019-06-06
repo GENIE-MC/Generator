@@ -13,10 +13,6 @@
 \cpright  Copyright (c) 2003-2019, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
-
-Important revisions after version 3.00.04 :
-@ June 2019 - AA
-adding kGMdRadiatedLeptonNucleus 
 */
 //____________________________________________________________________________
 
@@ -33,8 +29,7 @@ typedef enum EGEvGenMode {
   kGMdPhotonNucleus,            // photon + nucleon/nucleus scattering
   kGMdDarkMatterNucleus,        // dark matter + nucleon/nucleus scattering
   kGMdNucleonDecay,             // nucleon decay
-  kGMdNeutronOsc,               // neutron oscillation
-  kGMdRadiatedLeptonNucleus     // chg.lepton/neutrino with radiative correction + nucleon/nucleus scattering
+  kGMdNeutronOsc                // neutron oscillation
 
 } GEvGenMode_t;
 

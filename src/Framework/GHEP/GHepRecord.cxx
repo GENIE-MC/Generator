@@ -269,14 +269,6 @@ GEvGenMode_t GHepRecord::EventGenerationMode(void) const
     return kGMdLeptonNucleus;
   }
 
-  // In charged lepton+nucleon/nucleus mode, the 1st entry in the event record
-  // is a charged lepton with status code = kIStInitialState, the probe position
-  // should be chagned for the charged lepton post radiation
-  if( pdg::IsChargedLepton(p0pdg) && p0st == kIStDecayedState )
-  {
-    return kGMdRadiatedLeptonNucleus;
-  }
-
   // In dark matter mode, the 1st entry in the event record is a dark
   // matter particle
   if( pdg::IsDarkMatter(p0pdg) && p0st == kIStInitialState )
@@ -401,14 +393,15 @@ int GHepRecord::ProbePosition(void) const
   // The probe is *always* at slot 0.
   // Except for when the original probe radiated
   GEvGenMode_t mode = this->EventGenerationMode();
-  if(mode == kGMdRadiatedLeptonNucleus)
+  bool ask_CorrectedProbePosition = true; //temp
+  if (ask_CorrectedProbePosition)
   {
     int ipos = 0;
     GHepParticle * p = 0;
     TIter iter(this);
     while( (p = (GHepParticle *)iter.Next()) ) {
      if(!p) continue;
-     if(this->Particle(ipos)->Pdg() == 11 && this->Particle(ipos)->FirstMother()==0 ) return ipos;
+     if(this->Particle(ipos)->Status() == kIStCorrectedProbe ) return ipos;
      ipos++;
    }
   }
@@ -430,7 +423,6 @@ int GHepRecord::TargetNucleusPosition(void) const
   GEvGenMode_t mode = this->EventGenerationMode();
 
   if(mode == kGMdLeptonNucleus || 
-     mode == kGMdRadiatedLeptonNucleus || 
      mode == kGMdDarkMatterNucleus ||
      mode == kGMdHadronNucleus ||
      mode == kGMdPhotonNucleus) 
