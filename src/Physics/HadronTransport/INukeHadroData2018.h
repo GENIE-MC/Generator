@@ -28,7 +28,7 @@
 
 \created  February 01, 2007
 
-\cpright  Copyright (c) 2003-2018, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 
@@ -217,9 +217,9 @@ private:
   Spline * fFracPA_Cmp;
   Spline * fFracNA_Cmp;
 
-  TGraph2D * TPipA_Tot;
+//  TGraph2D * TPipA_Tot;
   TGraph2D * TfracPipA_CEx;
-  TGraph2D * TfracPipA_Elas;
+//  TGraph2D * TfracPipA_Elas;
   TGraph2D * TfracPipA_Inelas;
   TGraph2D * TfracPipA_Abs;
   TGraph2D * TfracPipA_PiPro;

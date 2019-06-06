@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2018, The GENIE Collaboration
+ Copyright (c) 2003-2017, GENIE Neutrino MC Generator Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -15,6 +15,7 @@
 
 */
 //____________________________________________________________________________
+
 
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/GHEP/GHepStatus.h"
@@ -34,6 +35,9 @@ int genie::utils::ghep::NeutReactionCode(const GHepRecord * event)
 // http://t2k.phy.duke.edu/bin/view/Main/NeutModes
 // Any extension used here has been agreed with SK (Hayato et al)
 //
+// Updated for NEUT 5.4.0 by Christophe Bronner
+
+  
   if(!event) {
     LOG("GHepUtils", pWARN) << "Null event!";
     return 0;
@@ -57,6 +61,7 @@ int genie::utils::ghep::NeutReactionCode(const GHepRecord * event)
   bool is_res   = proc.IsResonant();
   bool is_cohpi = proc.IsCoherent();
   bool is_ve    = proc.IsNuElectronElastic();
+  bool is_mec   = proc.IsMEC();
   bool is_imd   = proc.IsInverseMuDecay();
   bool is_ask   = proc.IsSingleKaon();
   bool is_p     = tgt.HitNucIsSet() ? tgt.HitNucPdg()==kPdgProton  : false;
@@ -74,13 +79,17 @@ int genie::utils::ghep::NeutReactionCode(const GHepRecord * event)
   else if (is_qel && !is_charm && is_nc && is_nubar && is_p) evtype = -51;
   else if (is_qel && !is_charm && is_nc && is_nubar && is_n) evtype = -52;
            
+  // MEC - only CC implemented in NEUT
+  else if      (is_mec && !is_charm && is_cc && is_nu           ) evtype =   2;
+  else if      (is_mec && !is_charm && is_cc && is_nubar        ) evtype =  -2;
+
   // quasi-elastic charm production
-  //
-  else if (is_qel && is_charm && is_cc && is_nu    ) evtype =   25;
-  else if (is_qel && is_charm && is_cc && is_nubar ) evtype =  -25;
+  // Part of the DIS W>2GeV mode in NEUT - CB
+  else if (is_qel && is_charm && is_cc && is_nu    ) evtype =   26;
+  else if (is_qel && is_charm && is_cc && is_nubar ) evtype =  -26;
 
   // inverse mu- (tau-) decay and ve- elastic
-  //
+  //Those modes don't actually exist in NEUT, 9 and 59 used as place holders
   else if ( is_imd ) evtype =  9;
   else if ( is_ve  ) evtype = 59;
                
@@ -230,11 +239,12 @@ int genie::utils::ghep::NeutReactionCode(const GHepRecord * event)
      //
      // single K from AtharSingleKaon (dS=1)
      //
-     
+     //Those modes are assigned but not used (xsec=0) in NEUT
      else if (is_ask &&  is_nu && is_cc && is_n && nn==1 && np==0 && nKp==1 && neKL==1) evtype =  18;
      else if (is_ask &&  is_nu && is_cc && is_n && nn==0 && np==1 && nK0==1 && neKL==1) evtype =  19;
      else if (is_ask &&  is_nu && is_cc && is_p && nn==0 && np==1 && nKp==1 && neKL==1) evtype =  20;
      
+
      // antineutrino modes not yet implemented
      //else if (is_ask &&  is_nubar && is_cc && is_n && nn==1 && np==0 && nKp==1 && neKL==1) evtype = -18;
      //else if (is_ask &&  is_nubar && is_cc && is_n && nn==0 && np==1 && nK0==1 && neKL==1) evtype = -19;

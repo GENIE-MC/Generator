@@ -111,7 +111,7 @@
 
 \created September 23, 2005
 
-\cpright Copyright (c) 2003-2018, The GENIE Collaboration
+\cpright Copyright (c) 2003-2019, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
          or see $GENIE/LICENSE
 */
@@ -776,89 +776,102 @@ void ConvertToGST(void)
     vector<int> prim_had_syst;
     if(study_hadsyst) {
       // if coherent or free nucleon target set primary states equal to final states
+      
       if(!pdg::IsIon(target->Pdg()) || (is_coh)) {
-         vector<int>::const_iterator hiter = final_had_syst.begin();
-         for( ; hiter != final_had_syst.end(); ++hiter) {
-           prim_had_syst.push_back(*hiter);
-         }
+
+	for( vector<int>::const_iterator hiter = final_had_syst.begin();
+	     hiter != final_had_syst.end(); ++hiter) {
+
+	  prim_had_syst.push_back(*hiter);
+	}
       } 
-      //to find the true particles emitted from the principal vertex,
-      // looping over all Ist=14 particles ok for hA, but doesn't
-      // work for hN.  We must now look specifically for these particles.
-      int ist_store = -10;
-      if(is_res){
-	while( (p = (GHepParticle *) piter_prim.Next()) ){
-	  ip++;      
-	  int ist_comp  = p->Status();
-	  if(ist_comp==kIStDecayedState) {
-	    ist_store = ip;    //store this mother
-	    continue;
-	  }
-	  //	  LOG("gntpc",pNOTICE) << p->FirstMother()<< "  "<<ist_store;
-	  if(p->FirstMother()==ist_store) {
-	      prim_had_syst.push_back(ip);
-	    }
-	}
-      }
-      if(is_dis){
-	while( (p = (GHepParticle *) piter_prim.Next()) ){
-	  ip++;      
-	  int ist_comp  = p->Status();
-	  if(ist_comp==kIStDISPreFragmHadronicState) {
-	    ist_store = ip;    //store this mother
-	    continue;
-	  }
-	  if(p->FirstMother()==ist_store) {
-	      prim_had_syst.push_back(ip);
-	    }
-	}
-      }
-      if(is_qel){
-	while( (p = (GHepParticle *) piter_prim.Next()) ){
-	  ip++;      
-	  int ist_comp  = p->Status();
-	  if(ist_comp==kIStNucleonTarget) {
-	    ist_store = ip;    //store this mother
-	    continue;
-	  }
-	  //	  LOG("gntpc",pNOTICE) << p->FirstMother()<< "  "<<ist_store;
-	  if(p->FirstMother()==ist_store) {
-	      prim_had_syst.push_back(ip);
-	    }
-	}
-      }      
-      if(is_mec){
-	while( (p = (GHepParticle *) piter_prim.Next()) ){
-	  ip++;      
-	  int ist_comp  = p->Status();
-	  if(ist_comp==kIStDecayedState) {
-	    ist_store = ip;    //store this mother
-	    continue;
-	  }
-	  //	  LOG("gntpc",pNOTICE) << "MEC: " << p->FirstMother()<< "  "<<ist_store;
-	  if(p->FirstMother()==ist_store) {
-	      prim_had_syst.push_back(ip);
-	    }
-	}
-      }
-      // otherwise loop over all particles and store indices of those which are hadrons
-      // created within the nucleus
-      /*      else {
-	while( (p = (GHepParticle *) piter_prim.Next()) ){
-	  ip++;      
-	  int ist_comp  = p->Status();
-	  if(ist_comp==kIStHadronInTheNucleus) {
-	    prim_had_syst.push_back(ip); 
-	  }
-	  }//particle-loop   */
+      
+      else {
+
+	// otherwise loop over all particles and store indices of those which are hadrons
+	// created within the nucleus
+	/*      else {
+		while( (p = (GHepParticle *) piter_prim.Next()) ){
+		ip++;      
+		int ist_comp  = p->Status();
+		if(ist_comp==kIStHadronInTheNucleus) {
+		prim_had_syst.push_back(ip); 
+		}
+		}//particle-loop   */
 	//
+
+
+	//to find the true particles emitted from the principal vertex,
+	// looping over all Ist=14 particles ok for hA, but doesn't
+	// work for hN.  We must now look specifically for these particles.
+	int ist_store = -10;
+	if(is_res){
+	  while( (p = (GHepParticle *) piter_prim.Next()) ){
+	    ip++;      
+	    int ist_comp  = p->Status();
+	    if(ist_comp==kIStDecayedState) {
+	      ist_store = ip;    //store this mother
+	      continue;
+	    }
+	    //	  LOG("gntpc",pNOTICE) << p->FirstMother()<< "  "<<ist_store;
+	    if(p->FirstMother()==ist_store) {
+	      prim_had_syst.push_back(ip);
+	    }
+	  }
+	}
+	if(is_dis){
+	  while( (p = (GHepParticle *) piter_prim.Next()) ){
+	    ip++;      
+	    int ist_comp  = p->Status();
+	    if(ist_comp==kIStDISPreFragmHadronicState) {
+	      ist_store = ip;    //store this mother
+	      continue;
+	    }
+	    if(p->FirstMother()==ist_store) {
+	      prim_had_syst.push_back(ip);
+	    }
+	  }
+	}
+	if(is_qel){
+	  while( (p = (GHepParticle *) piter_prim.Next()) ){
+	    ip++;      
+	    int ist_comp  = p->Status();
+	    if(ist_comp==kIStNucleonTarget) {
+	      ist_store = ip;    //store this mother
+	      continue;
+	    }
+	    //	  LOG("gntpc",pNOTICE) << p->FirstMother()<< "  "<<ist_store;
+	    if(p->FirstMother()==ist_store) {
+	      prim_had_syst.push_back(ip);
+	    }
+	  }
+	}      
+	if(is_mec){
+	  while( (p = (GHepParticle *) piter_prim.Next()) ){
+	    ip++;      
+	    int ist_comp  = p->Status();
+	    if(ist_comp==kIStDecayedState) {
+	      ist_store = ip;    //store this mother
+	      continue;
+	    }
+	    //	  LOG("gntpc",pNOTICE) << "MEC: " << p->FirstMother()<< "  "<<ist_store;
+	    if(p->FirstMother()==ist_store) {
+	      prim_had_syst.push_back(ip);
+	    }
+	  }
+	}
+	
+	
 	// also include gammas from nuclear de-excitations (appearing in the daughter list of the 
 	// hit nucleus, earlier than the primary hadronic system extracted above)
 	for(int i = target->FirstDaughter(); i <= target->LastDaughter(); i++) {
 	  if(i<0) continue;
 	  if(event.Particle(i)->Status()==kIStStableFinalState) { prim_had_syst.push_back(i); }
 	}      
-	//      }//freenuc?
+
+	
+      } // else from ( not ion or coherent ) 
+      
     }//study_hadsystem?
     
     if( count(prim_had_syst.begin(), prim_had_syst.end(), -1) > 0) {

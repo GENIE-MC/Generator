@@ -10,7 +10,7 @@
 
 \created    January 12, 2004
 
-\cpright    Copyright (c) 2003-2018, The GENIE Collaboration
+\cpright    Copyright (c) 2003-2019, The GENIE Collaboration
             For the full text of the license visit http://copyright.genie-mc.org
             or see $GENIE/LICENSE
 */
@@ -39,9 +39,17 @@ namespace str
   string         ToUpper                (string input);
   string         ToLower                (string input);
 
+  template<class T>
+    bool Convert( const vector<std::string> & input, std::vector<T> & v ) ;
+
+
 } // str    namespace
 } // utils  namespace
 } // genie  namespace
+
+#ifndef __CINT__  // don't even try for ROOT 5
+#include "Framework/Utils/StringUtils.icc"
+#endif
 
 #endif // _STRING_UTILS_H_
 

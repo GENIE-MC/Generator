@@ -208,7 +208,7 @@
          Tarak Thakore <tarak \at mailhost.tifr.res.in>
          Tata Institute of Fundamental Research
 
-\cpright Copyright (c) 2003-2018, The GENIE Collaboration
+\cpright Copyright (c) 2003-2019, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
          or see $GENIE/LICENSE
 */

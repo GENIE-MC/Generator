@@ -1,5 +1,5 @@
 //
-// Data vs GENIE neutrino F2 comparisons 
+// Data vs GENIE neutrino F2 comparisons
 //
 // Contributed to GENIE/ValidationTools by Debdatta Bhattacharya (Pittsburgh Univ.)
 // Jan 15h, 2009
@@ -318,7 +318,7 @@ for(int k=0;k<nccfr;k++){
 ccfr_count[0] = count_sp1;
 
 for(int k=0;k<ccfr_count[0];k++){
-  
+
   ccfr_q2[0][k] = temp_q21[k];
   ccfr_q2err[0][k] = 0;
 
@@ -357,7 +357,7 @@ for(int k=0;k<nccfr;k++){
 ccfr_count[1] = count_sp1;
 
 for(int k=0;k<ccfr_count[1];k++){
-  
+
   ccfr_q2[1][k] = temp_q21[k];
   ccfr_q2err[1][k] = 0;
 
@@ -397,7 +397,7 @@ for(int k=0;k<nccfr;k++){
 ccfr_count[2] = count_sp1;
 
 for(int k=0;k<ccfr_count[2];k++){
-  
+
   ccfr_q2[2][k] = temp_q21[k];
   ccfr_q2err[2][k] = 0;
 
@@ -438,7 +438,7 @@ for(int k=0;k<nccfr;k++){
 ccfr_count[3] = count_sp1;
 
 for(int k=0;k<ccfr_count[3];k++){
-  
+
   ccfr_q2[3][k] = temp_q21[k];
   ccfr_q2err[3][k] = 0;
 
@@ -456,10 +456,10 @@ count_sp2=0;
 for(int k=0;k<nccfr;k++){
 
   if(fabs(ccfr1[k]-0.180)<.001){
-    
+
     ccfr_q2[4][ccfr_count[4]] = ccfr2[k];
     ccfr_q2err[4][ccfr_count[4]] = 0;
-    
+
     ccfr_xf3[4][ccfr_count[4]] = 2*ccfr5[k];
     ccfr_err[4][ccfr_count[4]] = 2*ccfr6[k];
 
@@ -775,7 +775,7 @@ TGraphErrors *grccfr_080 = new TGraphErrors(ccfr_count[2],ccfr_q2[2],ccfr_xf3[2]
 grccfr_080->Draw("P*");
 grccfr_080->SetMarkerColor(kMagenta);
 grccfr_080->SetLineColor(kMagenta);*/
-			
+
 /*TGraphErrors *grnutev_125 = new TGraphErrors(nutev_count[3],nutev_q2[3],nutev_xf3[3],nutev_q2err[3],nutev_q2err[3]);
 grnutev_125->Draw("P*");
 grnutev_125->SetMarkerColor(kMagenta);

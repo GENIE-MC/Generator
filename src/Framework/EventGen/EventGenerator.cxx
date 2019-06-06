@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2018, The GENIE Collaboration
+ Copyright (c) 2003-2019, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -131,6 +131,7 @@ void EventGenerator::ProcessEventRecord(GHepRecord * event_rec) const
          LOG("EventGenerator", pFATAL)
            << "Caught max allowed number (" << kMaxEVGThreadExceptions
            << ") of EVGThreadExceptions/thread. Aborting";
+         LOG("EventGenerator", pFATAL) << "Event : \n" << *event_rec ;
          exit(1);
       }
 

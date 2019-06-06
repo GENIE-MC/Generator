@@ -13,14 +13,20 @@ MaxXSec-SafetyFactor     double  Yes   multiplies max xsec in rejection method  
 MaxXSec-DiffTolerance    double  Yes   max allowed 200*(xsec-xsecmax)/(xsec+xsecmax) 999999
                                        if xsec>xsecmax
 Cache-MinEnergy          double  Yes   minimum energy for which max xsec is cached   1.00
+HitNucleonBindingMode    string  Yes   Method used to handle the binding energy of   UseNuclearModel
+                                       the struck nucleon
 
 -->
 
 <alg_conf>
 
   <param_set name="Default"> 
-    <param type="double" name="Cache-MinEnergy">        1.0       </param>
-    <param type="alg"    name="NuclearModel">           genie::NuclearModelMap/Default            </param>
+    <param type="double" name="Cache-MinEnergy"> 5.0 </param>
+    <param type="alg"    name="NuclearModel"> genie::NuclearModelMap/Default </param>
+    <param type="string" name="HitNucleonBindingMode"> UseNuclearModel </param>
+    <param type="double"    name="MaxXSec-SafetyFactor"> 1.6 </param>
+    <!-- <param type="string" name="HitNucleonBindingMode"> OnShell </param> -->
+    <!-- <param type="string" name="HitNucleonBindingMode"> UseGroundStateRemnant </param> -->
   </param_set>
   
   <param_set name="CC-Default">
