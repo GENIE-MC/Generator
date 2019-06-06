@@ -7,8 +7,19 @@
 ### GENIE config options:
 . $GENIE/src/make/Make.config_no_paths
 
-### GENIE libraries path:
+### GENIE libraries path (local build location):
 libdir=$GENIE/lib
+
+### perhaps "installed" and lib is not at the same level as src
+if test ! -d ${libdir} ; then
+  installpathline=`grep GENIE_INSTALLATION_PATH $GENIE/src/make/Make.config`
+  installpathval=`echo $installpathline | cut -d= -f2`
+  ### extracted string might be an env variable itself
+  installpath=`eval echo $installpathval`
+  if test -d ${installpath}/lib ; then
+    libdir=${installpath}/lib
+  fi
+fi
 
 ### GENIE src top level directory:
 srcdir=$GENIE/src
@@ -34,7 +45,7 @@ fi
 if test "$GOPT_ENABLE_NNBAR_OSCILLATION" = "YES"; then
   phys_libs="$phys_libs -lGPhNNBarOsc"
 fi
-if test "$GOPT_ENABLE_BOOSTED_DARK_MATTER" = "YES"; then   
+if test "$GOPT_ENABLE_BOOSTED_DARK_MATTER" = "YES"; then
   phys_libs="$phys_libs -lGPhBDMXS -lGPhBDMEG"
 fi
 

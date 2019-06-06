@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2018, The GENIE Collaboration
+ Copyright (c) 2003-2019, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -21,11 +21,6 @@
 #include <cstring>
 
 #include <RVersion.h>
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,6)
-#include <TMCParticle.h>
-#else
-#include <TMCParticle6.h>
-#endif
 #include <TClonesArray.h>
 #include <TMath.h>
 
@@ -118,7 +113,7 @@ void GLRESGenerator::ProcessEventRecord(GHepRecord * event) const
   // of the container and of its elements to the calling method
   int np = pythia_particles->GetEntries();
   assert(np>0);
-  TClonesArray * particle_list = new TClonesArray("TMCParticle", np);
+  TClonesArray * particle_list = new TClonesArray("genie::GHepParticle", np);
   particle_list->SetOwner(true);
 
   // Vector defining rotation from LAB to LAB' (z:= \vec{resonance momentum})
@@ -127,13 +122,13 @@ void GLRESGenerator::ProcessEventRecord(GHepRecord * event) const
   // Boost velocity LAB' -> Resonance rest frame
   TVector3 beta(0,0,p4_W.P()/p4_W.Energy());
 
-  TMCParticle * p = 0;
+  GHepParticle * p = 0;
   TIter piter(pythia_particles);
-  while( (p = (TMCParticle *) piter.Next()) ) {
-     int pdgc = p->GetKF();
-     int ist  = p->GetKS();
+  while( (p = (GHepParticle *) piter.Next()) ) {
+     int pdgc = p->Pdg();
+     int ist  = p->Status();
      if(ist == 1) {
-        TLorentzVector p4o(p->GetPx(), p->GetPy(), p->GetPz(), p->GetEnergy());
+        TLorentzVector p4o(p->Px(), p->Py(), p->Pz(), p->Energy());
         p4o.Boost(beta); 
         TVector3 p3 = p4o.Vect();
         p3.RotateUz(unitvq); 

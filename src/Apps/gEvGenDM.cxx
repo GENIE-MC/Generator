@@ -122,7 +122,7 @@
 
 \created September 1, 2017
 
-\cpright Copyright (c) 2003-2018, The GENIE Collaboration
+\cpright Copyright (c) 2003-2019, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
          or see $GENIE/LICENSE
 */
@@ -237,7 +237,7 @@ int main(int argc, char ** argv)
   GetCommandLineArgs(argc,argv);
   PDGLibrary::Instance()->AddDarkMatter(gOptDMMass,gOptMedRatio);
   if (gOptZpCoupling > 0.) {
-      Registry * r = AlgConfigPool::Instance()->CommonParameterList("BoostedDarkMatter");
+      Registry * r = AlgConfigPool::Instance()->CommonList("Param", "BoostedDarkMatter");
       r->UnLock();
       r->Set("ZpCoupling", gOptZpCoupling);
       r->Lock();
@@ -862,7 +862,7 @@ bool CheckUnitarityLimit(InitialState init_state)
   // We estimate the leading divergent piece of the cross-section
   // We make sure it does not exceed the unitarity limit
   double gzp;
-  Registry * r = AlgConfigPool::Instance()->CommonParameterList("BoostedDarkMatter");
+  Registry * r = AlgConfigPool::Instance()->CommonList("Param", "BoostedDarkMatter");
   r->Get("ZpCoupling", gzp);
   double gzp4 = TMath::Power(gzp,4);
   double Mzp  = gOptMedRatio * gOptDMMass;

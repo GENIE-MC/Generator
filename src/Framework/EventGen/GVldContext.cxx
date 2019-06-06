@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2018, The GENIE Collaboration
+ Copyright (c) 2003-2019, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -54,7 +54,7 @@ void GVldContext::Decode(string encoded_vld_context)
 
   // set defauts for missing entries
   AlgConfigPool * confp = AlgConfigPool::Instance();
-  const Registry * gc = confp->CommonParameterList("Validation");
+  const Registry * gc = confp->CommonList("Param", "Validation");
   
   if(vldc.find("ENERGY") == string::npos) {
     fEmin = gc->GetDouble("GVLD-Emin");

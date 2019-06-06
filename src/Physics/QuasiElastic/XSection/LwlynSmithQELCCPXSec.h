@@ -14,7 +14,7 @@
 
 \created  May 05, 2004
 
-\cpright  Copyright (c) 2003-2018, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
@@ -26,6 +26,8 @@
 #include "Physics/NuclearState/NuclearModelI.h"
 #include "Framework/EventGen/XSecAlgorithmI.h"
 #include "Physics/QuasiElastic/XSection/QELFormFactors.h"
+#include "Physics/QuasiElastic/XSection/QELUtils.h"
+#include "Physics/NuclearState/PauliBlocker.h"
 
 namespace genie {
 
@@ -67,6 +69,15 @@ private:
   bool   fDoAvgOverNucleonMomentum;    ///< Average cross section over hit nucleon monentum?
   double fEnergyCutOff;                ///< Average only for energies below this cutoff defining
                                        ///< the region where nuclear modeling details do matter
+
+  /// Enum specifying the method to use when calculating the binding energy of
+  /// the initial hit nucleon during spline generation
+  QELEvGen_BindingMode_t fIntegralNucleonBindingMode;
+
+  /// Whether to apply Pauli blocking in FullDifferentialXSec
+  bool fDoPauliBlocking;
+  /// The PauliBlocker instance to use to apply that correction
+  const genie::PauliBlocker* fPauliBlocker;
 };
 
 }       // genie namespace
