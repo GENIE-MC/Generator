@@ -71,7 +71,7 @@ void PrimaryLeptonGenerator::ProcessEventRecord(GHepRecord * evrec) const
   TVector3 beta = this->NucRestFrame2Lab(evrec);
 
   // Neutrino 4p
-  TLorentzVector * p4v = evrec->Probe()->GetP4(); // v 4p @ LAB
+  TLorentzVector * p4v = evrec->CorrectProbe()->GetP4(); // v 4p @ LAB
   p4v->Boost(-1.*beta);                           // v 4p @ Nucleon rest frame
 
   // Look-up selected kinematics & other needed kinematical params
@@ -153,8 +153,8 @@ void PrimaryLeptonGenerator::AddToEventRecord(
 
   Interaction * interaction = evrec->Summary();
     
-  GHepParticle * mom  = evrec->Probe();
-  int            imom = evrec->ProbePosition();
+  GHepParticle * mom  = evrec->CorrectProbe();
+  int            imom = evrec->CorrectProbePosition();
 
   const TLorentzVector & vtx = *(mom->X4());
 

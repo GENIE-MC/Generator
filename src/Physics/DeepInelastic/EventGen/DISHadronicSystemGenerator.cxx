@@ -98,7 +98,7 @@ void DISHadronicSystemGenerator::AddFragmentationProducts(
 {
 // Calls a hadronizer and adds the fragmentation products at the GHEP
 
-  GHepParticle * neutrino  = evrec->Probe();
+  GHepParticle * neutrino  = evrec->CorrectProbe();
   const TLorentzVector & vtx = *(neutrino->X4());
 
   //-- Compute the hadronic system invariant mass

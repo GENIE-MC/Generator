@@ -1282,7 +1282,7 @@ void GMCJDriver::ComputeEventProbability(void)
   // get weight for selected event
   //
 
-  GHepParticle * nu = fCurEvt->Probe();
+  GHepParticle * nu = fCurEvt->ExperimentalProbe();
   int    nu_pdg = nu->Pdg();
   double Ev     = nu->P4()->Energy();
  

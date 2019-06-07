@@ -43,6 +43,7 @@
 #include "Framework/Numerical/RandomGen.h"
 #include "Framework/ParticleData/PDGLibrary.h"
 #include "Physics/QuasiElastic/EventGen/QELKinematicsGenerator.h"
+#include "Physics/Common/RadiativeCorrector.h"
 #include "Framework/Numerical/MathUtils.h"
 #include "Framework/Utils/KineUtils.h"
 

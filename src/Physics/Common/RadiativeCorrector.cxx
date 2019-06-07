@@ -137,7 +137,7 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
 	double energyLoss = 0.;
 
 	//double targetThickness = init_state.TgtThickness();
-	//if (fabs(p4.E() - init_state_ptr->ProbeE(kRfLab)) > 0.1) {
+	//if (fabs(p4.E() - init_state_ptr->CorrectProbeE(kRfLab)) > 0.1) {
 	//	LOG("RadiativeCorrector", pNOTICE) << "Decaying ISR particle is not the probe, not performing ISR correction";
 	//	continue;
 	//}	
@@ -146,8 +146,8 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
         
 	if (vanderhagen) {
            //double energyLossLimit = init_state_ptr->ProbeE(kRfLab) - kine->FSLeptonP4().E();
-           double energyLossLimit = evrec->Probe()->GetP4()->E() - kine->FSLeptonP4().E();
-	   LOG("RadiativeCorrector", pINFO) << "probE  "<<init_state_ptr->ProbeE(kRfLab)<<" evrec->Probe()->GetP4()->E() "<<evrec->Probe()->GetP4()->E()<<" final state lepton e "<< kine->FSLeptonP4().E()<<" energy loss limit "<<energyLossLimit;
+           double energyLossLimit = evrec->CorrectProbe()->GetP4()->E() - kine->FSLeptonP4().E();
+	   LOG("RadiativeCorrector", pINFO) << "probE  "<<init_state_ptr->ProbeE(kRfLab)<<" evrec->CorrectProbe()->GetP4()->E() "<<evrec->CorrectProbe()->GetP4()->E()<<" final state lepton e "<< kine->FSLeptonP4().E()<<" energy loss limit "<<energyLossLimit;
            double a = (kAem/kPi)*(TMath::Log(kine->Q2(true)/pow(kElectronMass,2)) - 1.);
            if (energyLossLimit<0) energyLossLimit = 0.;
            TF1 *f = new TF1("f","([0]/x)*TMath::Power(x/[1],[0])",1E-10,energyLossLimit);
@@ -167,7 +167,7 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
            g = b*thickness + lambda_e;
            std::cout<<" lambda e  is "<<lambda_e<<" g "<<g<<std::endl;
 
-	   e_gamma_max = evrec->Probe()->GetP4()->E() - kine->FSLeptonP4().E();
+	   e_gamma_max = evrec->CorrectProbe()->GetP4()->E() - kine->FSLeptonP4().E();
 	   e_gamma_min = 0.2;
 	   std::cout<<"e_gamma_max "<<e_gamma_max<<std::endl;
 	   power_hi = pow(e_gamma_max,g);
@@ -207,7 +207,7 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
 
 	if (fISR && !radDone) {
 	  LOG("RadiativeCorrector", pINFO) << "performing ISR correction for: " << p->Name() << " reduced energy is : "<<p4.E();
-	  // changing the probe energy instead of decaying it 
+	  // changing the probe energy for the initial state 
 	  init_state_ptr->SetProbeP4(p4);
 	  //p->SetMomentum(p4);
 
@@ -218,7 +218,7 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
           LOG("RadiativeCorrector", pINFO) << "Adding daughter... PDG= 22";
           evrec->AddParticle(22, kIStStableFinalState, ipos,-1,-1,-1, p4RadGamma, x4);
 	  radDone = true;
-          LOG("RadiativeCorrector", pINFO) <<"TESTING PROBE "<<init_state_ptr->ProbeE(kRfLab)<<" from event rec status "<<evrec->Probe()->Status()<<" and e "<<evrec->Probe()->E();
+          LOG("RadiativeCorrector", pINFO) <<"TESTING PROBE "<<init_state_ptr->ProbeE(kRfLab)<<" from event rec status "<<evrec->CorrectProbe()->Status()<<" and e "<<evrec->CorrectProbe()->E();
           //evrec->Print();
 	}
 	
@@ -240,7 +240,7 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
 	   	TF1 *fsp = new TF1("fsp","1./x * TMath::Log(1-x)");
 	   	double SP = -1*fsp->Integral(0.03,pow(cos(p4.Theta())/2,2));
 		delete fsp;
-	   	//radcor_weight = 1. + Z*(kAem/kPi)*((13./6)*TMath::Log(kine->Q2(true)/pow(kElectronMass,2))-(28./9)-0.5*pow(TMath::Log(init_state_ptr->ProbeE(kRfLab)/p4.E()),2)-pow(kPi,2)/6 + SP);
+	   	//radcor_weight = 1. + Z*(kAem/kPi)*((13./6)*TMath::Log(kine->Q2(true)/pow(kElectronMass,2))-(28./9)-0.5*pow(TMath::Log(init_state_ptr->CorrectProbeE(kRfLab)/p4.E()),2)-pow(kPi,2)/6 + SP);
 	   	radcor_weight = 1. + Z*(kAem/kPi)*( (TMath::Log(kine->Q2(true)/pow(kElectronMass,2))-1)*TMath::Log(pow(init_state_ptr->ProbeE(kRfLab),2)/(init_state_ptr->ProbeE(kRfLab)*kine->FSLeptonP4().E())) 
 					       + (13./6)*TMath::Log(kine->Q2(true)/pow(kElectronMass,2))
 					       - (28./9)
@@ -250,7 +250,7 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
 	   }
            if(simc)
 	   {
-		double c = lambda_e/pow(evrec->Probe()->GetP4()->E() * kine->FSLeptonP4().E(),(lambda_e/2.));
+		double c = lambda_e/pow(evrec->CorrectProbe()->GetP4()->E() * kine->FSLeptonP4().E(),(lambda_e/2.));
 		radcor_weight = c/(g * (power_hi-power_lo));
 	   }
            evrec->SetWeight(evrec->Weight() * radcor_weight);
@@ -262,8 +262,8 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
 	if (!fISR && radDone && (p->Status() == kIStStableFinalState) && (p->Pdg()==11)) { 
            LOG("RadiativeCorrector", pINFO) <<"FSR stable electron in pos "<<ipos; 
 	   //-- Correct the final state lepton 
-           evrec->Probe()->SetFirstDaughter(ipos);
-           evrec->Probe()->SetLastDaughter(-1);
+           evrec->CorrectProbe()->SetFirstDaughter(ipos);
+           evrec->CorrectProbe()->SetLastDaughter(-1);
            LOG("RadiativeCorrector", pINFO) <<"After setting the lepton first and last mother to -1  "<<evrec->FinalStatePrimaryLepton()->P4()->E();
            evrec->Print(); 
 	}
@@ -276,8 +276,8 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
 	//	//p->SetEnergy(p->Mass());
 	//}
 	//-- Correct the final state lepton 
-        //evrec->Probe()->SetFirstDaughter(-1);
-        //evrec->Probe()->SetLastDaughter(-1);
+        //evrec->CorrectProbe()->SetFirstDaughter(-1);
+        //evrec->CorrectProbe()->SetLastDaughter(-1);
         
 	p->SetStatus(kIStDecayedState);
 	LOG("RadiativeCorrector", pINFO) <<"After setting the particles status to decyed and momentum of the nucleon to be zero, pdg "<<p->Pdg()<<" mass "<<p->Mass();
@@ -360,7 +360,7 @@ void RadiativeCorrector::LoadConfig(void)
 //____________________________________________________________________________
 void RadiativeCorrector::Configure(const InitialState & is)
 {
-  /*InitialState init_state(is.TgtPdg(), is.ProbePdg()); // filter any other init state info
+  /*InitialState init_state(is.TgtPdg(), is.CorrectProbePdg()); // filter any other init state info
 
   ostringstream mesg;
   mesg << "Configuring for initial state: `"

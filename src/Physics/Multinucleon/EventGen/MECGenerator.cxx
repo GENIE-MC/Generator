@@ -329,7 +329,7 @@ void MECGenerator::AddFinalStateLepton(GHepRecord * event) const
 
   // apapadop: Boosting the incoming neutrino to the NN-cluster rest frame
   // Neutrino 4p
-  TLorentzVector * p4v = event->Probe()->GetP4(); // v 4p @ LAB
+  TLorentzVector * p4v = event->CorrectProbe()->GetP4(); // v 4p @ LAB
   p4v->Boost(-1.*beta);                           // v 4p @ NN-cluster rest frame
 
   // Look-up selected kinematics
@@ -375,9 +375,9 @@ void MECGenerator::AddFinalStateLepton(GHepRecord * event) const
   int pdgc = interaction->FSPrimLepton()->PdgCode();
 
   // Lepton 4-position (= interacton vtx)
-  TLorentzVector v4(*event->Probe()->X4());
+  TLorentzVector v4(*event->CorrectProbe()->X4());
 
-  int momidx = event->ProbePosition();
+  int momidx = event->CorrectProbePosition();
   event->AddParticle(
     pdgc, kIStStableFinalState, momidx, -1, -1, -1, p4l, v4);
 }
@@ -392,7 +392,7 @@ void MECGenerator::RecoilNucleonCluster(GHepRecord * event) const
   delete tmp;
 
   // get neutrino & its 4-momentum
-  GHepParticle * neutrino = event->Probe();
+  GHepParticle * neutrino = event->CorrectProbe();
   assert(neutrino);
   TLorentzVector p4v(*neutrino->P4());
 
@@ -598,7 +598,7 @@ void MECGenerator::SelectNSVLeptonKinematics (GHepRecord * event) const
   int NuPDG = interaction->InitState().ProbePdg();
   int TgtPDG = interaction->InitState().TgtPdg();
   // interacton vtx
-  TLorentzVector v4(*event->Probe()->X4());
+  TLorentzVector v4(*event->CorrectProbe()->X4());
   TLorentzVector tempp4(0.,0.,0.,0.);
 
   // -- Lepton Kinematic Limits ----------------------------------------- //
@@ -831,7 +831,7 @@ void MECGenerator::SelectNSVLeptonKinematics (GHepRecord * event) const
 
   // Rotate lepton momentum vector from the reference frame (x'y'z') where 
   // {z':(neutrino direction), z'x':(theta plane)} to the LAB
-  TVector3 unit_nudir = event->Probe()->P4()->Vect().Unit();
+  TVector3 unit_nudir = event->CorrectProbe()->P4()->Vect().Unit();
   TVector3 p3l(PlepX, PlepY, PlepZ);
   p3l.RotateUz(unit_nudir);
 
@@ -841,7 +841,7 @@ void MECGenerator::SelectNSVLeptonKinematics (GHepRecord * event) const
 
   // Figure out the final-state primary lepton PDG code
   int pdgc = interaction->FSPrimLepton()->PdgCode();
-  int momidx = event->ProbePosition();
+  int momidx = event->CorrectProbePosition();
 
   // -- Store Values ------------------------------------------//
   // -- Interaction: Q2
@@ -873,7 +873,7 @@ void MECGenerator::GenerateNSVInitialHadrons(GHepRecord * event) const
     LOG("MEC",pDEBUG) << "Generate Initial Hadrons - Start";
 
     Interaction * interaction = event->Summary();
-    GHepParticle * neutrino = event->Probe();
+    GHepParticle * neutrino = event->CorrectProbe();
     assert(neutrino);
     TLorentzVector p4nu(*neutrino->P4());
 
