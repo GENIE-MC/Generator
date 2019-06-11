@@ -304,7 +304,6 @@ double genie::utils::gsl::d2XSec_dWdQ2_E::DoEval(const double * xin) const
     double x=0,y=0;
     double E = fInteraction->InitState().ProbeE(kRfHitNucRest);
     double M = fInteraction->InitState().Tgt().HitNucP4Ptr()->M();
-    // apapadop
     bool is_em = fInteraction->ProcInfo().IsEM();
     if (is_em) { kinematics::electromagnetic::WQ2toXY(E,fInteraction->KinePtr()->FSLeptonP4().M(),M,W,Q2,x,y); }
     else { kinematics::WQ2toXY(E,M,W,Q2,x,y); }

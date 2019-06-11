@@ -471,7 +471,6 @@ Range1D_t genie::utils::kinematics::InelYLim_X(
 
   return y;
 }
-// apapadop
 //____________________________________________________________________________
 // Kinematical Limits for em interactions:
 //____________________________________________________________________________
@@ -480,8 +479,8 @@ Range1D_t genie::utils::kinematics::electromagnetic::InelWLim(double El, double 
 // Computes W limits for inelastic em interactions
 //
   double M2 = TMath::Power(M,2);
-  double ml2 = TMath::Power(ml,2); // apapadop: added lepton mass squared to be used in s calculation
-  double s  = M2 + 2*M*El + ml2; // apapadop: non-negligible mass for em interactions
+  double ml2 = TMath::Power(ml,2); // added lepton mass squared to be used in s calculation
+  double s  = M2 + 2*M*El + ml2; // non-negligible mass for em interactions
   assert (s>0);
 
   Range1D_t W;
@@ -509,13 +508,13 @@ Range1D_t genie::utils::kinematics::electromagnetic::InelQ2Lim_W(
   double M2  = TMath::Power(M,  2.);
   double ml2 = TMath::Power(ml, 2.);
   double W2  = TMath::Power(W,  2.);
-  double s   = M2 + 2*M*El + ml2; // apapadop: added lepton mass squared to be used in s calculation (non-negligible mass for em interactions)
+  double s   = M2 + 2*M*El + ml2; // added lepton mass squared to be used in s calculation (non-negligible mass for em interactions)
 
   SLOG("KineLimits", pDEBUG) << "s  = " << s;
   SLOG("KineLimits", pDEBUG) << "El = " << El;
   assert (s>0);
 
-  double auxC = 0.5*(s - M2 - ml2)/s; // apapadop: subtract ml2 to account for the non-negligible mass of the incoming lepton
+  double auxC = 0.5*(s - M2 - ml2)/s; // subtract ml2 to account for the non-negligible mass of the incoming lepton
   double aux1 = s + ml2 - W2;
   double aux2 = aux1*aux1 - 4*s*ml2;
 
@@ -529,7 +528,7 @@ Range1D_t genie::utils::kinematics::electromagnetic::InelQ2Lim_W(
   Q2.min = TMath::Max(0., Q2.min);
 
   // limit the minimum Q2
-  if(Q2.min < controls::kMinQ2Limit_em) {Q2.min = controls::kMinQ2Limit_em; } // apapadop: use the relevant threshold for em scattering 
+  if(Q2.min < controls::kMinQ2Limit_em) {Q2.min = controls::kMinQ2Limit_em; } // use the relevant threshold for em scattering 
   if(Q2.max < Q2.min   ) {Q2.min = -1; Q2.max = -1;}
 
   return Q2;
@@ -582,14 +581,14 @@ Range1D_t genie::utils::kinematics::electromagnetic::InelXLim(double El, double 
 
   double M2  = TMath::Power(M, 2.);
   double ml2 = TMath::Power(ml,2.);
-  double s   = M2 + 2*M*El + ml2; // apapadop: added lepton mass squared to be used in s calculation (non-negligible mass for em interactions)
+  double s   = M2 + 2*M*El + ml2; // added lepton mass squared to be used in s calculation (non-negligible mass for em interactions)
 
   SLOG("KineLimits", pDEBUG) << "s  = " << s;
   SLOG("KineLimits", pDEBUG) << "El = " << El;
-  assert (s > M2 + ml2); // apapadop: added lepton mass squared to be used in s calculation (non-negligible mass for em interactions)
+  assert (s > M2 + ml2); // added lepton mass squared to be used in s calculation (non-negligible mass for em interactions)
 
   Range1D_t x;
-  x.min = ml2/(s - M2 - ml2) + controls::kASmallNum; // apapadop: subtracted lepton mass squared to be used in s calculation (non-negligible mass for em interactions)
+  x.min = ml2/(s - M2 - ml2) + controls::kASmallNum; // subtracted lepton mass squared to be used in s calculation (non-negligible mass for em interactions)
   x.max = 1. - controls::kASmallNum;
 
   return x;
@@ -672,12 +671,12 @@ void genie::utils::kinematics::electromagnetic::WQ2toXY(
 // M is the nucleon mass - it does not need to be on the mass shell
 // ml is mass of the incoming lepton
 
-  double ml2  = TMath::Power(ml,2); // apapadop: mass of the incoming lepton squared
+  double ml2  = TMath::Power(ml,2); // mass of the incoming lepton squared
   double M2  = TMath::Power(M,2);
   double W2  = TMath::Power(W,2);
 
-  x = Q2 / (W2-M2-ml2+Q2); // apapadop: subtracted lepton mass squared to account for the non-negligible mass in em interactions
-  y = (W2-M2-ml2+Q2) / (2*M*El); // apapadop: subtracted lepton mass squared to account for the non-negligible mass in em interactions
+  x = Q2 / (W2-M2-ml2+Q2); // subtracted lepton mass squared to account for the non-negligible mass in em interactions
+  y = (W2-M2-ml2+Q2) / (2*M*El); // subtracted lepton mass squared to account for the non-negligible mass in em interactions
 
   x = TMath::Min(1.,x);
   y = TMath::Min(1.,y);
@@ -697,9 +696,9 @@ void genie::utils::kinematics::electromagnetic::XYtoWQ2(
 // M is the nucleon mass - it does not need to be on the mass shell
 // ml is mass of the incoming lepton
 
-  double ml2  = TMath::Power(ml,2); // apapadop: mass of the incoming lepton squared
+  double ml2  = TMath::Power(ml,2); // mass of the incoming lepton squared
   double M2  = TMath::Power(M,2);
-  double W2  = M2 + 2*El*M*y*(1-x) + ml2; // apapadop: added lepton mass squared to account for the non-negligible mass in em interactions
+  double W2  = M2 + 2*El*M*y*(1-x) + ml2; // added lepton mass squared to account for the non-negligible mass in em interactions
 
   W  = TMath::Sqrt(TMath::Max(0., W2));
   Q2 = 2*x*y*M*El;
@@ -717,9 +716,9 @@ double genie::utils::kinematics::electromagnetic::XYtoW(
 // M is the nucleon mass - it does not need to be on the mass shell
 // ml is mass of the incoming lepton
 
-  double ml2  = TMath::Power(ml,2); // apapadop: mass of the incoming lepton squared
+  double ml2  = TMath::Power(ml,2); // mass of the incoming lepton squared
   double M2  = TMath::Power(M,2);
-  double W2  = M2 + 2*El*M*y*(1-x) + ml2; // apapadop: added lepton mass squared to account for the non-negligible mass in em interactions
+  double W2  = M2 + 2*El*M*y*(1-x) + ml2; // added lepton mass squared to account for the non-negligible mass in em interactions
   double W  = TMath::Sqrt(TMath::Max(0., W2));
 
   LOG("KineLimits", pDEBUG) << "(x=" << x << ",y=" << y << ") => W=" << W;

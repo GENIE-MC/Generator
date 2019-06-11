@@ -226,7 +226,6 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      //-- Decide whether to accept the current kinematics
      if(!fGenerateUniformly) {
 
-          // apapadop
           // unified neutrino / electron scattering
           double max = fEnvelope->Eval(gQD2, gW);
           double t   = max * rnd->RndKine().Rndm();
@@ -257,7 +256,6 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         double gx=-1, gy=-1;
         double M = init_state.Tgt().HitNucP4().M();
         //double M = init_state.Tgt().HitNucMass();
-        // apapadop
         if (is_em) { kinematics::electromagnetic::WQ2toXY(E,interaction->KinePtr()->FSLeptonP4().M(), M, gW, gQ2, gx, gy); }
         else { kinematics::WQ2toXY(E,M,gW,gQ2,gx,gy); }
 
@@ -347,7 +345,6 @@ double RESKinematicsGenerator::ComputeMaxXSec(
 
   const InitialState & init_state = interaction -> InitState();
   double E = init_state.ProbeE(kRfHitNucRest);
-  // apapadop
   bool is_em = interaction->ProcInfo().IsEM(); 
   double Q2Thres = is_em ? controls::kMinQ2Limit_em : controls::kMinQ2Limit; 
 
@@ -376,7 +373,6 @@ double RESKinematicsGenerator::ComputeMaxXSec(
 
     const KPhaseSpace & kps = interaction->PhaseSpace();
     Range1D_t rQ2 = kps.Q2Lim_W();
-    // apapadop
     if( rQ2.max < Q2Thres || rQ2.min <=0 ) return 0.;
 
     int    NQ2      = 25;
@@ -448,7 +444,6 @@ double RESKinematicsGenerator::ComputeMaxXSec(
       int NQ2b =  4;
 
       Range1D_t rQ2 = kps.Q2Lim_W();
-      // apapadop
       if( rQ2.max < Q2Thres || rQ2.min <=0 ) continue;
       if( rQ2.max-rQ2.min<0.02 ) {NQ2=5; NQ2b=3;}
 

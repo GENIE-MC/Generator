@@ -217,7 +217,6 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
         // (W,Q2) -> (x,y)
         double gx=0, gy=0;
-        // apapadop
         bool is_em = interaction->ProcInfo().IsEM();
         if (is_em) { kinematics::electromagnetic::WQ2toXY(E, interaction->KinePtr()->FSLeptonP4().M(), M, gW, gQ2, gx, gy); }
         else { kinematics::WQ2toXY(E,M,gW,gQ2,gx,gy); }
@@ -360,7 +359,6 @@ void QELKinematicsGenerator::SpectralFuncExperimentalCode(
      gW = PDGLibrary::Instance()->Find(rpdgc)->Mass();
 
      // (W,Q2) -> (x,y)
-     // apapadop
      bool is_em = interaction->ProcInfo().IsEM();
      if (is_em) { kinematics::electromagnetic::WQ2toXY(E,interaction->KinePtr()->FSLeptonP4().M(), Mn, gW, gQ2, gx, gy); }
      else { kinematics::WQ2toXY(E,Mn,gW,gQ2,gx,gy); }

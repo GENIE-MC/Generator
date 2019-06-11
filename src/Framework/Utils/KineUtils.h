@@ -98,7 +98,6 @@ namespace kinematics
   double DISImportanceSamplingEnvelope(double * x, double * par);
   double COHImportanceSamplingEnvelope(double * x, double * par);
 
-  // apapadop
   namespace electromagnetic
   {
    Range1D_t  InelWLim    (double El, double ml, double M);
