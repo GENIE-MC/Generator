@@ -346,7 +346,7 @@ double RESKinematicsGenerator::ComputeMaxXSec(
   const InitialState & init_state = interaction -> InitState();
   double E = init_state.ProbeE(kRfHitNucRest);
   bool is_em = interaction->ProcInfo().IsEM(); 
-  double Q2Thres = is_em ? utils::kinematics::electromagnetic::ReturnQ2Thres() : controls::kMinQ2Limit; 
+  double Q2Thres = is_em ? utils::kinematics::electromagnetic::kMinQ2Limit : controls::kMinQ2Limit; 
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("RESKinematics", pDEBUG) << "Scanning phase space for E= " << E;
