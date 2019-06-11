@@ -528,7 +528,7 @@ Range1D_t genie::utils::kinematics::electromagnetic::InelQ2Lim_W(
   Q2.min = TMath::Max(0., Q2.min);
 
   // limit the minimum Q2
-  if(Q2.min < controls::kMinQ2Limit_em) {Q2.min = controls::kMinQ2Limit_em; } // use the relevant threshold for em scattering 
+  if(Q2.min < utils::kinematics::electromagnetic::ReturnQ2Thres()) {Q2.min = utils::kinematics::electromagnetic::ReturnQ2Thres(); } // use the relevant threshold for em scattering 
   if(Q2.max < Q2.min   ) {Q2.min = -1; Q2.max = -1;}
 
   return Q2;
@@ -725,6 +725,17 @@ double genie::utils::kinematics::electromagnetic::XYtoW(
 
   return W;
 }
+//___________________________________________________________________________
+double genie::utils::kinematics::electromagnetic::ReturnQ2Thres()
+{
+  // Returning the Q2 threshold relevant for em scattering events
+
+  const double kMinQ2Limit   = 0.02;  // GeV^2
+
+  return kMinQ2Limit;
+}
+
+
 //____________________________________________________________________________
 Range1D_t genie::utils::kinematics::CohXLim(void)
 {

@@ -111,6 +111,7 @@ namespace kinematics
    void   WQ2toXY (double El, double ml, double M, double W, double Q2, double & x, double & y); // added mass of lepton as argument
    void   XYtoWQ2 (double El, double ml, double M, double & W, double & Q2, double x, double y); // added mass of lepton as argument
    double XYtoW   (double El, double ml, double M, double x, double y); // added mass of lepton as argument
+   double ReturnQ2Thres   (); // Returning the Q2 threshold relevant for em scattering events
   }
 
 } // kinematics namespace
