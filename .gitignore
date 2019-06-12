@@ -1,3 +1,5 @@
+src/Framework/Numerical/Interpolator2D.cxx
+environment_setup.sh
 bin/
 lib/
 build-env.log
