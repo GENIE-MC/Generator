@@ -88,7 +88,7 @@ genie::FreeNucleonTensor::FreeNucleonTensor(
   fF3V = ff.F3V();
    fFA = ff.FA();
    fFP = ff.Fp();
-  fF3A = ff.F3V();
+  fF3A = ff.F3A();
 
   double ENi = interaction.InitState().Tgt().HitNucP4().E();
   TVector3 p3Ni = interaction.InitState().Tgt().HitNucP4().Vect();
