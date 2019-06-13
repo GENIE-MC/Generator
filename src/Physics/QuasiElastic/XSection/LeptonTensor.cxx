@@ -56,7 +56,8 @@ std::complex<double> genie::LeptonTensor::operator()(genie::TensorIndex_t mu,
 std::complex<double> genie::LeptonTensor::LeviCivitaProduct(
   genie::TensorIndex_t mu, genie::TensorIndex_t nu) const
 {
-  return Rank2LorentzTensorI::LeviCivitaProduct(mu, nu, fFSLepP4, fProbeP4);
+  return std::complex<double>( 0.,
+    Rank2LorentzTensorI::LeviCivitaProduct(mu, nu, fProbeP4, fFSLepP4) );
 }
 
 std::complex<double> genie::LeptonTensor::Contract(
