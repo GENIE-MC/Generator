@@ -246,9 +246,9 @@ Or changing the name of this parameter set
     <!--
 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Proton and neutron anomalous magnetic moments
-    -->
-    <param type="double" name="AnomMagnMoment-P">   2.7930     </param> <!-- 2.7928473 -->
-    <param type="double" name="AnomMagnMoment-N">  -1.913042   </param>
+   -->
+   <param type="double" name="AnomMagnMoment-P">   2.79278     </param> <!-- 2.7928473 -->
+   <param type="double" name="AnomMagnMoment-N">  -1.91315   </param>
 
   </param_set>
 
@@ -266,8 +266,8 @@ Or changing the name of this parameter set
 	- genie::BBA03ELFormFactorsModel, H.Budd, NuINT-02 proceedings
 	- genie::BBA05ELFormFactorsModel, R.Bradford, A.Bodek, H.Budd and J.Arrington, hep-ex/0602017
 	- genie::BBA07ELFormFactorsModel, R.Bradford, A.Bodek, H.Budd and S.Avvakumov, Euro.Phys.J.C53 (2008);[arXiv:0708.1946 [hep-ex]]
-    -->
-    <param type="alg" name="ElasticFormFactorsModel"> genie::BBA07ELFormFactorsModel/Default </param>
+   -->
+   <param type="alg" name="ElasticFormFactorsModel"> genie::DipoleELFormFactorsModel/Default </param>
 
     <!-- Option for turning on Transverse Enhancement by Elastic Form Factor adjustment.
 	 See http://arxiv.org/abs/1405.0583 and http://arxiv.org/abs/1106.0340
