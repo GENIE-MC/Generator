@@ -106,6 +106,7 @@ genie::FreeNucleonTensor::FreeNucleonTensor(
   fqTilde = probeP4 - p4lep;
   fqTilde.SetE( fqTilde.E() - fEpsilonB );
 
+  // Initialize the on-shell initial nucleon 4-momentum
   fPNiOnShell = TLorentzVector( p3Ni, ENi_on_shell );
 }
 
@@ -194,6 +195,13 @@ std::complex<double> genie::FreeNucleonTensor::Contract(
 
     double correction = (std::pow(fNucleonMass, 2) / qTilde2) * coeff1 * H1t;
     correction += coeff2 * H2t;
+
+    // Note that the paper from which these current-conservation corrections
+    // were taken, https://arxiv.org/abs/0711.2031, uses a different
+    // normalization convention for the lepton and free nucleon tensors. To
+    // convert to ours (that of https://arxiv.org/pdf/1506.02355.pdf), we need
+    // to multiply by 16.
+    correction *= 16.;
 
     result += correction;
   }

@@ -72,7 +72,7 @@ double CBFSpectFuncQELPXSec::XSec(const Interaction* interaction,
   TLorentzVector* temp_probeP4 = init_state.GetProbeP4( kRfLab );
   TLorentzVector probeP4 = *temp_probeP4;
   delete temp_probeP4;
-  double E_probe = probeP4.E();
+  double p_probe = probeP4.P();
 
   const TLorentzVector& p4Ni = target.HitNucP4();
   double mNi = target.HitNucMass(); // on-shell initial hit nucleon mass
@@ -89,7 +89,7 @@ double CBFSpectFuncQELPXSec::XSec(const Interaction* interaction,
 
   // Start xsec calculation with overall phase space factor and
   // scaling factor from XML
-  double xsec = fXSecScale / (4.*kPi*kPi * E_probe * E_NiOnShell
+  double xsec = fXSecScale / (64.*kPi*kPi * p_probe * E_NiOnShell
     * E_lep * E_Nf);
 
   // If we're dealing with a nuclear target, then apply Pauli blocking as
@@ -135,6 +135,7 @@ double CBFSpectFuncQELPXSec::XSec(const Interaction* interaction,
     fFormFactors.SetModel( fNCFormFactorsModel );
   }
   else if ( proc_info.IsEM() ) {
+    // Lorentz-Heaviside natural units: e^4 = 16 * kPi^2 * kAem2
     coupling_factor = 16. * kPi * kPi * kAem2 / ( Q2*Q2 );
     fFormFactors.SetModel( fEMFormFactorsModel );
   }
@@ -184,7 +185,8 @@ double CBFSpectFuncQELPXSec::XSec(const Interaction* interaction,
     xsec *= genie::utils::EnergyDeltaFunctionSolutionQEL( *interaction );
   }
   else {
-    xsec *= lepP4.P() * lepP4.E();
+    xsec *= lepP4.P() * lepP4.E() * p4Nf.E()
+      / ( 4. * qP4.P() * p4Ni.P() );
   }
 
   // Check whether variable tranformation is needed

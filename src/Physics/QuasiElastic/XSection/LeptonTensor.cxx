@@ -6,14 +6,18 @@
 
 genie::LeptonTensor::LeptonTensor(const genie::Interaction& interaction)
 {
-  // Get the initial and final lepton momentum 4-vectors in the lab frame
+  // Make copies of the initial and final lepton 4-momenta in the lab frame
   TLorentzVector* temp_probeP4 = interaction.InitState()
     .GetProbeP4( genie::kRfLab );
   fProbeP4 = *temp_probeP4;
   delete temp_probeP4;
+
   fFSLepP4 = interaction.Kine().FSLeptonP4();
+
   fInitialLeptonPDG = interaction.InitState().ProbePdg();
   fInteractionType = interaction.ProcInfo().InteractionTypeId();
+
+  // Initial lepton mass (needed for EM channel)
   fMLep2 = std::pow(interaction.InitState().Probe()->Mass(), 2);
 }
 
@@ -26,7 +30,7 @@ std::complex<double> genie::LeptonTensor::operator()(genie::TensorIndex_t mu,
 
   std::complex<double> result = 0.;
   if ( fInteractionType == genie::kIntEM ) {
-    result = 4. * (fMLep2*g_mu_nu + common_terms);
+    result = 2. * (fMLep2*g_mu_nu + common_terms);
   }
   else if ( fInteractionType == genie::kIntWeakCC
     || fInteractionType == genie::kIntWeakNC )
