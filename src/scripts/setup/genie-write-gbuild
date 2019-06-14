@@ -99,6 +99,14 @@ if(@nret>0)
       { print GBLD   "#define __GENIE_GSL_ENABLED__\n"; }
 else  { print GBLD "//#define __GENIE_GSL_ENABLED__\n"; }
 
+# INCL enabled?
+#
+@nret = `grep 'GOPT_ENABLE_INCL=YES' $GCONF_FILE`;
+if(@nret>0)
+      { print GBLD   "#define __GENIE_INCL_ENABLED__\n"; }
+else  { print GBLD "//#define __GENIE_INCL_ENABLED__\n"; }
+
+
 # grab libxml2 version information
 #
 $libxml2_inc = "";
