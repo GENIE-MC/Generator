@@ -206,7 +206,7 @@ INCL_INCLUDES  = -I$(GOPT_WITH_INCL_INC) -I$(GOPT_WITH_BOOST_INC)
 INCL_LIBRARIES = -L$(GOPT_WITH_INCL_LIB)  -lINCL_IO  -lINCL_Physics -lINCL_Utils -Wl,--start-group -lDeExcitation -lSMM -lABLA07 -lABLAXX -lGEMINIXX  -lFERMI_BREAKUP -Wl,--end-group
 
 BOOST_LIBRARIES = -L$(GOPT_WITH_BOOST_LIB) -lboost_program_options -lboost_timer -lboost_system -lboost_date_time
-INCL_LIBRARIES := $(BOOST_LIBRARIES) -lgfortran $(INCL_LIBRARIES)
+INCL_LIBRARIES := $(BOOST_LIBRARIES) $(FORT_LIBRARIES) $(INCL_LIBRARIES)
 
 # Extra flags for compiling INCL codes: $(INCL_FLAGS)
 include $(GOPT_WITH_INCL_INC)/../incl_flags.make
@@ -334,9 +334,9 @@ ARCH_OK       = YES
 IS_MACOSX     = YES
 CXXFLAGS      = -pipe -W -Wall -Wno-long-double -fsigned-char -fno-common \
 		$(ROOT_FLAGS) \
-		$(OPT_WITH_CXX_DEBUG_FLAG) \
-		$(OPT_WITH_CXX_OPTIMIZ_FLAG) \
-		$(OPT_WITH_CXX_USERDEF_FLAGS)
+		$(GOPT_WITH_CXX_DEBUG_FLAG) \
+		$(GOPT_WITH_CXX_OPTIMIZ_FLAG) \
+		$(GOPT_WITH_CXX_USERDEF_FLAGS)
 ifeq ($(strip $(GCC_GE_4_1_0)), YES)
   CXXFLAGS += -Wno-strict-aliasing
 endif
@@ -412,9 +412,9 @@ IS_MACOSX     = YES
 CXXFLAGS      = -m64 -pipe -Wshadow -W -Wall -Woverloaded-virtual \
                 -fsigned-char -fno-common \
                 $(ROOT_FLAGS) \
-                $(OPT_WITH_CXX_DEBUG_FLAG) \
-                $(OPT_WITH_CXX_OPTIMIZ_FLAG) \
-                $(OPT_WITH_CXX_USERDEF_FLAGS)
+                $(GOPT_WITH_CXX_DEBUG_FLAG) \
+                $(GOPT_WITH_CXX_OPTIMIZ_FLAG) \
+                $(GOPT_WITH_CXX_USERDEF_FLAGS)
 ifneq ($(strip $(GCC_GE_4_2_1)), YES)
   ifneq ($(USING_CLANG), YES)
     CXXFLAGS   += -flat_namespace
@@ -511,7 +511,6 @@ ifeq ($(strip $(ARCH)),linuxx8664gcc)
 ARCH_OK       = YES
 CXXFLAGS      = -W -Wall -fPIC -Wshadow \
 		$(ROOT_FLAGS) \
-    $(INCL_FLAGS) \
 		$(GOPT_WITH_CXX_DEBUG_FLAG) \
 		$(GOPT_WITH_CXX_OPTIMIZ_FLAG) \
 		$(GOPT_WITH_CXX_USERDEF_FLAGS)
@@ -547,16 +546,16 @@ CPP_INCLUDES := \
     $(ROOT_INCLUDES) \
     $(LHAPDF_INCLUDES) \
     $(GSL_INCLUDES) \
-    $(GENIE_INCLUDES) \
-    $(INCL_INCLUDES)
+    $(GENIE_INCLUDES)
+
 
 ROOT_DICT_GEN_INCLUDES := \
     $(LINUX_SYS_INCLUDES) \
     $(XML_INCLUDES) \
     $(LOG_INCLUDES) \
     $(ROOT_INCLUDES) \
-    $(GENIE_INCLUDES) \
-    $(INCL_INCLUDES)
+    $(GENIE_INCLUDES)
+
 
 LIBRARIES := $(SYSLIBS) \
              $(ROOT_LIBRARIES) \
@@ -566,7 +565,6 @@ LIBRARIES := $(SYSLIBS) \
              $(LOG_LIBRARIES) \
              $(GSL_LIBRARIES) \
              $(GPROF_LIBRARIES) \
-             $(INCL_LIBRARIES) \
              $(EXTRALIBS)
 
 # Default compiler and preprocessor flags
