@@ -163,8 +163,13 @@ std::complex<double> genie::FreeNucleonTensor::operator()(
   result += (0.5*fF2V*fF3V/M2 - q2*fF3A*fFP/M2 - 2.*fF3A*fFA
     + 2.*fF1V*fF3V) * (p_mu*q_nu + q_mu*p_nu + q_mu*q_nu);
 
-  // Overall factor
-  result *= 4.;
+  // ** Overall factor **
+  // Note that the expression I used to write this code (equation (A1) in the appendix of
+  // https://arxiv.org/pdf/1506.02355.pdf) is off by a factor of two from the definition of J^{\mu\nu}
+  // (see equation equation 9 therein) given earlier in the paper. We're using FreeNucleonTensor = J^{\mu\nu}
+  // as defined in equation 9, so the overall factor that should be used is 2, not 4. You can verify this
+  // yourself, e.g., try computing the Fp^2 term from the Dirac traces.
+  result *= 2.;
 
   return result;
 }
