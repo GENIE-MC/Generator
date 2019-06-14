@@ -86,12 +86,14 @@
 #include <cassert>
 #include <cstdlib>
 
-#include <TSystem.h>
-#include <TFile.h>
-#include <TTree.h>
-#include <TH1D.h>
-#include <TF1.h>
+// ROOT
+#include "TSystem.h"
+#include "TFile.h"
+#include "TTree.h"
+#include "TH1D.h"
+#include "TF1.h"
 
+#include "Framework/Conventions/GBuild.h"
 #include "Framework/Algorithm/AlgFactory.h"
 #include "Framework/Conventions/Controls.h"
 #include "Framework/EventGen/EventRecord.h"
@@ -255,9 +257,11 @@ const EventRecordVisitorI * GetIntranuke(void)
   } else if ( gOptMode.compare("hN2018") == 0 ) {
      sname = "genie::HNIntranuke2018";
      sconf = "Default";
+#ifdef __GENIE_INCL_ENABLED__
   } else if ( gOptMode.compare("HINCL") == 0 ) {
      sname = "genie::HINCLCascade";
      sconf = "Default";
+#endif
   } else {
     LOG("gevgen_hadron", pFATAL) << "Invalid Intranuke mode - Exiting";
     gAbortingInErr = true;
