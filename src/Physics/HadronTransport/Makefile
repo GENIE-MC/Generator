@@ -25,4 +25,11 @@ install : install-inc install-lib
 #
 include $(GENIE)/src/make/Make.std-package-targets
 
+# only need these here ...
+CXXFLAGS               += $(INCL_FLAGS)
+CPP_INCLUDES           += $(INCL_INCLUDES)
+ROOT_DICT_GEN_INCLUDES += $(INCL_INCLUDES) ${INCL_FLAGS}
+EXTRA_EXT_LIBS         += $(INCL_LIBRARIES)
+
+
 FORCE:
