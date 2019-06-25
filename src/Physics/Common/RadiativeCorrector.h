@@ -58,7 +58,7 @@ public :
   void Configure(const InitialState & is);
   void SetISR(bool isr); 
   void SetQ2(double Q2); 
-  void SetEl(double El); 
+  void SetP4l(TLorentzVector p4l); 
 
   //int           rad_kDefOptNevents;       // n-events to generate
   //NtpMCFormat_t rad_kDefOptNtpFormat; // ntuple format
@@ -75,7 +75,7 @@ private:
   bool 		 fISR; ///< to distinguish between ISR and FSR
   double         fRadiatedEnergyLimit; 
   double         fQ2; 
-  double         fEl; 
+  TLorentzVector fP4l; 
   InitialState * fInitState;       ///< initial state information for changing probe
 
   mutable GHepRecordHistory             fRecHistory;     ///< event record history 

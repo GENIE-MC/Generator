@@ -256,7 +256,7 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
           RadiativeCorrector * fRadiativeCorrector = new RadiativeCorrector();
           fRadiativeCorrector->SetISR(true);
           fRadiativeCorrector->SetQ2(gQ2);
-          fRadiativeCorrector->SetEl(p4l.E());
+          fRadiativeCorrector->SetP4l(p4l);
           fRadiativeCorrector->ProcessEventRecord(evrec); 
           doRadiativeCorrection = false;
           continue;
