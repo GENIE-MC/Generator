@@ -147,7 +147,7 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
 	if (vanderhagen) {
            //double energyLossLimit = init_state_ptr->ProbeE(kRfLab) - kine->FSLeptonP4().E();
            //double energyLossLimit = evrec->CorrectProbe()->GetP4()->E() - kine->FSLeptonP4().E();
-           double energyLossLimit = fRadiatedEnergyLimit; 
+           double energyLossLimit = init_state_ptr->ProbeE(kRfLab) - fEl;; 
            if (energyLossLimit<0) energyLossLimit = 0.;
 	   LOG("RadiativeCorrector", pINFO) << "\nprobE  "<<init_state_ptr->ProbeE(kRfLab)<<" evrec->CorrectProbe()->GetP4()->E() "<<evrec->CorrectProbe()->GetP4()->E()<<" final state lepton e "<< kine->FSLeptonP4().E()<<" energy loss limit "<<energyLossLimit;
            double a = (kAem/kPi)*(TMath::Log(fQ2/pow(kElectronMass,2)) - 1.);
@@ -363,11 +363,6 @@ void RadiativeCorrector::LoadConfig(void)
 void RadiativeCorrector::SetISR(bool isr)
 {
   fISR = isr;
-}
-//____________________________________________________________________________
-void RadiativeCorrector::SetRadiatedEnergyLimit(double radEmax)
-{
-  fRadiatedEnergyLimit = radEmax;
 }
 //____________________________________________________________________________
 void RadiativeCorrector::SetQ2(double Q2)

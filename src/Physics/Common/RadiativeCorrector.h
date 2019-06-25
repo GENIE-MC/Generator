@@ -57,7 +57,6 @@ public :
   void Configure (string param_set);
   void Configure(const InitialState & is);
   void SetISR(bool isr); 
-  void SetRadiatedEnergyLimit(double radEmax); 
   void SetQ2(double Q2); 
   void SetEl(double El); 
 
