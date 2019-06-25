@@ -26,6 +26,7 @@
 
 namespace genie {
 
+class RadiativeCorrector;
 class QELKinematicsGenerator : public KineGeneratorWithCache {
 
 public :
@@ -47,6 +48,7 @@ private:
 
   void   LoadConfig     (void);
   double ComputeMaxXSec (const Interaction * in) const;
+
 };
 
 }      // genie namespace

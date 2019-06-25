@@ -56,7 +56,11 @@ public :
   void Configure (const Registry & config);
   void Configure (string param_set);
   void Configure(const InitialState & is);
-  //void  SetE(double e); 
+  void SetISR(bool isr); 
+  void SetRadiatedEnergyLimit(double radEmax); 
+  void SetQ2(double Q2); 
+  void SetEl(double El); 
+
   //int           rad_kDefOptNevents;       // n-events to generate
   //NtpMCFormat_t rad_kDefOptNtpFormat; // ntuple format
   //Long_t        rad_kDefOptRunNu;       // default run number
@@ -69,8 +73,11 @@ private:
   void  BuildInitialState(const InitialState & init_state);
   bool  ToBeDecayed       (GHepParticle * particle) const;
 
-  bool 				      fISR; ///< to distinguish between ISR and FSR
-  InitialState *            fInitState;       ///< initial state information for changing probe
+  bool 		 fISR; ///< to distinguish between ISR and FSR
+  double         fRadiatedEnergyLimit; 
+  double         fQ2; 
+  double         fEl; 
+  InitialState * fInitState;       ///< initial state information for changing probe
 
   mutable GHepRecordHistory             fRecHistory;     ///< event record history 
 

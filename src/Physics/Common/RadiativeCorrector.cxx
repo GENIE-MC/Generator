@@ -146,10 +146,11 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
         
 	if (vanderhagen) {
            //double energyLossLimit = init_state_ptr->ProbeE(kRfLab) - kine->FSLeptonP4().E();
-           double energyLossLimit = evrec->CorrectProbe()->GetP4()->E() - kine->FSLeptonP4().E();
-	   LOG("RadiativeCorrector", pINFO) << "probE  "<<init_state_ptr->ProbeE(kRfLab)<<" evrec->CorrectProbe()->GetP4()->E() "<<evrec->CorrectProbe()->GetP4()->E()<<" final state lepton e "<< kine->FSLeptonP4().E()<<" energy loss limit "<<energyLossLimit;
-           double a = (kAem/kPi)*(TMath::Log(kine->Q2(true)/pow(kElectronMass,2)) - 1.);
+           //double energyLossLimit = evrec->CorrectProbe()->GetP4()->E() - kine->FSLeptonP4().E();
+           double energyLossLimit = fRadiatedEnergyLimit; 
            if (energyLossLimit<0) energyLossLimit = 0.;
+	   LOG("RadiativeCorrector", pINFO) << "\nprobE  "<<init_state_ptr->ProbeE(kRfLab)<<" evrec->CorrectProbe()->GetP4()->E() "<<evrec->CorrectProbe()->GetP4()->E()<<" final state lepton e "<< kine->FSLeptonP4().E()<<" energy loss limit "<<energyLossLimit;
+           double a = (kAem/kPi)*(TMath::Log(fQ2/pow(kElectronMass,2)) - 1.);
            TF1 *f = new TF1("f","([0]/x)*TMath::Power(x/[1],[0])",1E-10,energyLossLimit);
            f->SetParameter(0,a);
            f->SetParameter(1,e);
@@ -159,11 +160,11 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
 	}
 	double L1,L2,b,thickness,lambda_e,g,e_gamma_max,e_gamma_min,power_hi,power_lo;
 	if (simc) { 
-           L1 = log(184.15) - (1./3)*log(Z);
-	   L2 = log(1194.) - (2./3)*log(Z);
-           b = (1./9)*(12 + float(Z+1)/(Z*(Z*L1 + L2)));
-	   lambda_e = (kAem/kPi)*( TMath::Log(4*pow(p->P4()->P(),2)/pow(kElectronMass,2)-1) + 2*TMath::Log(init_state_ptr->GetProbeP4(kRfLab)->P()/kine->FSLeptonP4().P()) + TMath::Log(0.5*(1-kine->FSLeptonP4().CosTheta()) ) );
-	   thickness =  0.005176; //thickness in radiation length (0.1 cm carbon)
+           //L1 = log(184.15) - (1./3)*log(Z);
+	   //L2 = log(1194.) - (2./3)*log(Z);
+           //b = (1./9)*(12 + float(Z+1)/(Z*(Z*L1 + L2)));
+	   //lambda_e = (kAem/kPi)*( TMath::Log(4*pow(p->P4()->P(),2)/pow(kElectronMass,2)-1) + 2*TMath::Log(init_state_ptr->GetProbeP4(kRfLab)->P()/El) + TMath::Log(0.5*(1-kine->FSLeptonP4().CosTheta()) ) );
+	   /*thickness =  0.005176; //thickness in radiation length (0.1 cm carbon)
            g = b*thickness + lambda_e;
            std::cout<<" lambda e  is "<<lambda_e<<" g "<<g<<std::endl;
 
@@ -183,6 +184,7 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
 	   energyLoss = x*e_gamma_max;
 	   //double c_int = lambda_e/pow(init_state_ptr->GetProbeP4(kRfLab)->E()*kine->FSLeptonP4().E(),lambda_e/2);
 	   //TF1 *f = new TF1("f","([0]*pow(x,[0]-1)/[1]"
+	   */
 	}
 
 	double momentumLoss = energyLoss;
@@ -241,10 +243,10 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
 	   	double SP = -1*fsp->Integral(0.03,pow(cos(p4.Theta())/2,2));
 		delete fsp;
 	   	//radcor_weight = 1. + Z*(kAem/kPi)*((13./6)*TMath::Log(kine->Q2(true)/pow(kElectronMass,2))-(28./9)-0.5*pow(TMath::Log(init_state_ptr->CorrectProbeE(kRfLab)/p4.E()),2)-pow(kPi,2)/6 + SP);
-	   	radcor_weight = 1. + Z*(kAem/kPi)*( (TMath::Log(kine->Q2(true)/pow(kElectronMass,2))-1)*TMath::Log(pow(init_state_ptr->ProbeE(kRfLab),2)/(init_state_ptr->ProbeE(kRfLab)*kine->FSLeptonP4().E())) 
-					       + (13./6)*TMath::Log(kine->Q2(true)/pow(kElectronMass,2))
+	   	radcor_weight = 1. + Z*(kAem/kPi)*( (TMath::Log(fQ2/pow(kElectronMass,2))-1)*TMath::Log(pow(init_state_ptr->ProbeE(kRfLab),2)/(init_state_ptr->ProbeE(kRfLab)*fEl)) 
+					       + (13./6)*TMath::Log(fQ2/pow(kElectronMass,2))
 					       - (28./9)
-					       - 0.5*pow(TMath::Log(init_state_ptr->ProbeE(kRfLab)/kine->FSLeptonP4().E()),2)
+					       - 0.5*pow(TMath::Log(init_state_ptr->ProbeE(kRfLab)/fEl),2)
 					       - pow(kPi,2)/6 
 					       + SP );
 	   }
@@ -356,6 +358,26 @@ void RadiativeCorrector::LoadConfig(void)
   //this -> BuildInitialState            (init_state);
   //LOG("RadiativeCorrector", pINFO) << "Done configuring. \n"; 
 
+}
+//____________________________________________________________________________
+void RadiativeCorrector::SetISR(bool isr)
+{
+  fISR = isr;
+}
+//____________________________________________________________________________
+void RadiativeCorrector::SetRadiatedEnergyLimit(double radEmax)
+{
+  fRadiatedEnergyLimit = radEmax;
+}
+//____________________________________________________________________________
+void RadiativeCorrector::SetQ2(double Q2)
+{
+  fQ2 = Q2;
+}
+//____________________________________________________________________________
+void RadiativeCorrector::SetEl(double El)
+{
+  fEl = El;
 }
 //____________________________________________________________________________
 void RadiativeCorrector::Configure(const InitialState & is)
