@@ -110,8 +110,7 @@ double EmpiricalMECPXSec2015::XSec(
   //get x and y
   double x = 0.;
   double y = 0.;
-  if (isem) { genie::utils::kinematics::electromagnetic::WQ2toXY(Ev,ml,M2n,W,Q2,x,y); }
-  else { genie::utils::kinematics::WQ2toXY(Ev,M2n,W,Q2,x,y); }
+  genie::utils::kinematics::WQ2toXY(Ev,M2n,W,Q2,x,y);
   //  LOG("MEC", pINFO) << "x = " << x << ", y = " << y;
   // double Tmu = (1.-y)*Ev;  // UNUSED - comment to quiet compiler warnings
 

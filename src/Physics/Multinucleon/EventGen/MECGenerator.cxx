@@ -301,8 +301,7 @@ void MECGenerator::SelectEmpiricalKinematics(GHepRecord * event) const
  	int nucleon_cluster_pdg = interaction->InitState().Tgt().HitNucPdg();
  	double M2n = PDGLibrary::Instance()->Find(nucleon_cluster_pdg)->Mass(); 
         bool is_em = interaction->ProcInfo().IsEM();
-        if (is_em) { kinematics::electromagnetic::WQ2toXY(Ev, interaction->KinePtr()->FSLeptonP4().M(), M2n, gW, gQ2, gx, gy); }
-        else { kinematics::WQ2toXY(Ev,M2n,gW,gQ2,gx,gy); }
+        kinematics::WQ2toXY(Ev,M2n,gW,gQ2,gx,gy);
 
         LOG("MEC", pINFO) << "x = " << gx << ", y = " << gy;
         // lock selected kinematics & clear running values
@@ -851,9 +850,7 @@ void MECGenerator::SelectNSVLeptonKinematics (GHepRecord * event) const
   Q2 = Q3*Q3 - Q0*Q0;
   double gy = Q0 / Enu;
   double gx = kinematics::Q2YtoX(Enu, 2 * kNucleonMass, Q2, gy);
-
-  bool isem = interaction->ProcInfo().IsEM();
-  double gW = isem ? kinematics::electromagnetic::XYtoW(Enu, LepMass, 2 * kNucleonMass, gx, gy) : kinematics::XYtoW(Enu, 2 * kNucleonMass, gx, gy); 
+  double gW = kinematics::XYtoW(Enu, 2 * kNucleonMass, gx, gy); 
 
   interaction->KinePtr()->SetQ2(Q2, true);
   interaction->KinePtr()->Sety(gy, true);
