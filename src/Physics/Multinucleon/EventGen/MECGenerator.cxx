@@ -44,6 +44,7 @@
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/ParticleData/PDGLibrary.h"
+#include "Physics/Common/RadiativeCorrector.h"
 #include "Framework/Utils/KineUtils.h"
 #include "Framework/Utils/PrintUtils.h"
 
@@ -265,6 +266,8 @@ void MECGenerator::SelectEmpiricalKinematics(GHepRecord * event) const
   RandomGen * rnd = RandomGen::Instance();
   unsigned int iter = 0;
   bool accept = false;
+  bool doRadiativeCorrection;
+  if (fDoRadiativeCorrection) doRadiativeCorrection = true;
   while(1) {
      iter++;
      if(iter > kRjMaxIterations) {
@@ -303,6 +306,47 @@ void MECGenerator::SelectEmpiricalKinematics(GHepRecord * event) const
  	kinematics::WQ2toXY(Ev,M2n,gW,gQ2,gx,gy);
 
         LOG("MEC", pINFO) << "x = " << gx << ", y = " << gy;
+
+
+       event->Print();
+       if(doRadiativeCorrection) {
+          LOG("MEC", pINFO) << "Event selected for radiative correction Selected in kRfHitNucRest: Q^2 = " << gQ2<<" gy = ";
+          const TLorentzVector & pnuc4 = interaction->InitState().Tgt().HitNucP4(); //[@LAB]
+          TVector3 beta = pnuc4.BoostVector();
+          double El  = (1-gy)*Ev;
+          double ml  = interaction->FSPrimLepton()->Mass();
+          double ml2 = TMath::Power(ml,2);
+          double plp = El - 0.5*(gQ2+ml2)/Ev;                          // p(//)
+          double plt = TMath::Sqrt(TMath::Max(0.,El*El-plp*plp-ml2)); // p(-|)
+          LOG("MEC", pINFO) << "Calulating temp final state for radiative correction fsl @ Nucleon rest frame: E = " << El << ", |p//| = " << plp << ", [pT] = " << plt;
+          // Randomize transverse components
+          RandomGen * rnd_temp = RandomGen::Instance();
+          double phi  = 2*kPi * rnd_temp->RndLep().Rndm();
+          double pltx = plt * TMath::Cos(phi);
+          double plty = plt * TMath::Sin(phi);
+          TLorentzVector * p4v = event->CorrectProbe()->GetP4(); // v 4p @ LAB
+          p4v->Boost(-1.*beta);                           // v 4p @ Nucleon rest frame
+          // Take a unit vector along the neutrino direction @ the nucleon rest frame
+          TVector3 unit_nudir = p4v->Vect().Unit();
+          // Rotate lepton momentum vector from the reference frame (x'y'z') where 
+          //           // {z':(neutrino direction), z'x':(theta plane)} to the nucleon rest frame
+          TVector3 p3l(pltx,plty,plp);
+          p3l.RotateUz(unit_nudir);
+          // Lepton 4-momentum in the nucleon rest frame
+          TLorentzVector p4l(p3l,El);
+	  // Boost final state primary lepton to the lab frame
+	  p4l.Boost(beta); // active Lorentz transform
+          LOG("MEC", pINFO) << "Calulating temp final state for radiative correction fsl @ LAB: E " <<p4l.E() << " px "<<p4l.Px() << " py "<<p4l.Py() << " pz "<<p4l.Pz() ;
+          RadiativeCorrector * fRadiativeCorrector = new RadiativeCorrector();
+          fRadiativeCorrector->SetISR(true);
+          fRadiativeCorrector->SetModel("vanderhagen");
+          fRadiativeCorrector->SetQ2(gQ2);
+          fRadiativeCorrector->SetP4l(p4l);
+          fRadiativeCorrector->ProcessEventRecord(event);
+          doRadiativeCorrection = false;
+          continue;
+        }
+
         // lock selected kinematics & clear running values
         interaction->KinePtr()->SetQ2(gQ2, true);
         interaction->KinePtr()->SetW (gW,  true);
@@ -429,10 +473,26 @@ void MECGenerator::DecayNucleonCluster(GHepRecord * event) const
   LOG("MEC", pINFO) << "Decaying nucleon cluster...";
 
   // get di-nucleon cluster
-  int nucleon_cluster_id = 5;
+  ///////////////////////////////////////////////Please review
+  //Since the radiative corrector emits a photon the nucleon 
+  //cluster is not longer at position 5. From now on it will
+  //be defined as the particle which is the daughter of pos 2
+  //int nucleon_cluster_id = 5; 
+  TObjArrayIter piter(event);
+  GHepParticle * p = 0;
+  unsigned int ipos = 0;
+  int nucleon_cluster_id;
+  while( (p = (GHepParticle *) piter.Next()) )
+  {
+    if (p->FirstMother() == 2) {
+	nucleon_cluster_id = ipos;
+	break;
+    }
+    ipos++;
+  }
   GHepParticle * nucleon_cluster = event->Particle(nucleon_cluster_id);
   assert(nucleon_cluster);
-
+  
   // get decay products
   PDGCodeList pdgv = this->NucleonClusterConstituents(nucleon_cluster->Pdg());
   LOG("MEC", pINFO) << "Decay product IDs: " << pdgv;
@@ -1074,6 +1134,8 @@ void MECGenerator::LoadConfig(void)
     assert(fNuclModel);
 
     GetParam( "NSV-Q3Max", fQ3Max ) ;
+    GetParam("doRadiativeCorrection", fDoRadiativeCorrection, false) ;
+
 }
 //___________________________________________________________________________
 

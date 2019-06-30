@@ -66,6 +66,7 @@ private:
   const NuclearModelI *          fNuclModel;
 
   double fQ3Max;
+  bool fDoRadiativeCorrection;
 };
 
 }      // genie namespace
