@@ -57,6 +57,7 @@ public :
   void Configure (string param_set);
   void Configure(const InitialState & is);
   void SetISR(bool isr); 
+  void SetModel(std::string model); 
   void SetQ2(double Q2); 
   void SetP4l(TLorentzVector p4l); 
 
@@ -73,6 +74,7 @@ private:
   bool  ToBeDecayed       (GHepParticle * particle) const;
 
   bool 		 fISR; ///< to distinguish between ISR and FSR
+  std::string	 fModel; ///< to distinguish between differnt models, right now simc / vanderhagen
   double         fRadiatedEnergyLimit; 
   double         fQ2; 
   TLorentzVector fP4l; 

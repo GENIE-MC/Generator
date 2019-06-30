@@ -255,6 +255,7 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
           LOG("QELKinematics", pNOTICE) << "Calulating temp final state for radiative correction fsl @ LAB: E " <<p4l.E() << " px "<<p4l.Px() << " py "<<p4l.Py() << " pz "<<p4l.Pz() ;
           RadiativeCorrector * fRadiativeCorrector = new RadiativeCorrector();
           fRadiativeCorrector->SetISR(true);
+          fRadiativeCorrector->SetModel("simc");
           fRadiativeCorrector->SetQ2(gQ2);
           fRadiativeCorrector->SetP4l(p4l);
           fRadiativeCorrector->ProcessEventRecord(evrec); 

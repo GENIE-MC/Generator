@@ -11,6 +11,10 @@ Name                   Type     Optional   Comment            Default
 ................................................................................................
 -->
   <param_set name="Default"> 
+   <param type="string"  name="model"> simc </param>
+   <!--
+   <param type="string"  name="model"> vanderhagen </param>
+   -->
   </param_set>
 
   <param_set name="ISR"> 
@@ -20,7 +24,6 @@ Name                   Type     Optional   Comment            Default
   <param_set name="FSR"> 
      <param type="bool"   name="ISR"> false                                     </param>
   </param_set>
-
 
 </alg_conf>
 
