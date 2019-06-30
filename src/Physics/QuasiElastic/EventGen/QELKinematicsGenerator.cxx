@@ -136,7 +136,8 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
   unsigned int iter = 0;
   bool accept = false;
-  bool doRadiativeCorrection = true; //ADI temp
+  bool doRadiativeCorrection;
+  if (fDoRadiativeCorrection) doRadiativeCorrection = true; //ADI temp
   while(1) {
      iter++;
      if(iter > kRjMaxIterations) {
@@ -522,6 +523,7 @@ void QELKinematicsGenerator::LoadConfig(void)
   //   an event weight?
   GetParamDef( "UniformOverPhaseSpace", fGenerateUniformly, false ) ;
 
+  GetParam("doRadiativeCorrection", fDoRadiativeCorrection, true) ;
 }
 //____________________________________________________________________________
 double QELKinematicsGenerator::ComputeMaxXSec(

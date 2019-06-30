@@ -49,6 +49,7 @@ private:
   void   LoadConfig     (void);
   double ComputeMaxXSec (const Interaction * in) const;
 
+  bool fDoRadiativeCorrection;
 };
 
 }      // genie namespace
