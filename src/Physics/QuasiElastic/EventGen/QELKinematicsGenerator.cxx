@@ -137,7 +137,7 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
   unsigned int iter = 0;
   bool accept = false;
   bool doRadiativeCorrection;
-  if (fDoRadiativeCorrection) doRadiativeCorrection = true; //ADI temp
+  if (fDoRadiativeCorrection) doRadiativeCorrection = true; 
   while(1) {
      iter++;
      if(iter > kRjMaxIterations) {
