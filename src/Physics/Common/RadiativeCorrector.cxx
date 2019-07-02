@@ -132,13 +132,16 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
         TLorentzVector x4 = *(p->X4());
 	double e = p4.E();
 	double energyLoss = 0.;
+        double e_gamma_max;
+        if (fISR) e_gamma_max = init_state_ptr->ProbeE(kRfLab) - fP4l.E();
+        else e_gamma_max = init_state_ptr->ProbeE(kRfLab) - kine->FSLeptonP4().E();
+ 
 	if (fModel == "vanderhagen") {
-           //double e_gamma_max = init_state_ptr->ProbeE(kRfLab) - kine->FSLeptonP4().E();
-           //double e_gamma_max = evrec->CorrectProbe()->GetP4()->E() - kine->FSLeptonP4().E();
-           double e_gamma_max = init_state_ptr->ProbeE(kRfLab) - fP4l.E(); 
            if (e_gamma_max<0) e_gamma_max = 0.;
-	   LOG("RadiativeCorrector", pINFO) << "\nprobE  "<<init_state_ptr->ProbeE(kRfLab)<<" evrec->CorrectProbe()->GetP4()->E() "<<evrec->CorrectProbe()->GetP4()->E()<<" energy loss limit "<<e_gamma_max;
-           double a = (kAem/kPi)*(TMath::Log(fQ2/pow(kElectronMass,2)) - 1.);
+           double a;
+ 	   if (fISR) a = (kAem/kPi)*(TMath::Log(fQ2/pow(kElectronMass,2)) - 1.);
+	   else a = (kAem/kPi)*(TMath::Log(kine->Q2(true)/pow(kElectronMass,2)) - 1.);
+	   LOG("RadiativeCorrector", pINFO) << "\nprobE  "<<init_state_ptr->ProbeE(kRfLab)<<" evrec->CorrectProbe()->GetP4()->E() "<<evrec->CorrectProbe()->GetP4()->E()<<" energy loss limit "<<e_gamma_max<<" a parameter "<<a<<" the radiated lepton e "<<e;
            TF1 *f = new TF1("f","([0]/x)*TMath::Power(x/[1],[0])",1E-10,e_gamma_max);
            f->SetParameter(0,a);
            f->SetParameter(1,e);
@@ -146,7 +149,7 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
 	   delete f;
 	   LOG("RadiativeCorrector", pINFO) << "Vanderhagen Energy loss is "<<energyLoss;
 	}
-	double L1,L2,b,thickness,lambda_e,g,e_gamma_max,e_gamma_min,power_hi,power_lo;
+	double L1,L2,b,thickness,lambda_e,g,e_gamma_min,power_hi,power_lo;
 	if (fModel =="simc") {
  
            L1 = log(184.15) - (1./3)*log(Z);
@@ -157,7 +160,6 @@ void RadiativeCorrector::ProcessEventRecord(GHepRecord * evrec) const
            g = b*thickness + lambda_e;
            std::cout<<" lambda e  is "<<lambda_e<<" g "<<g<<std::endl;
 
-	   e_gamma_max = init_state_ptr->ProbeE(kRfLab) - fP4l.E(); 
 	   e_gamma_min = 0.2;
 	   LOG("RadiativeCorrector", pINFO) << " e_gamma_max "<<e_gamma_max;
 	   power_hi = pow(e_gamma_max,g);
