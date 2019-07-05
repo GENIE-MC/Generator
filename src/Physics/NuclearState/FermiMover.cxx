@@ -194,7 +194,7 @@ void FermiMover::KickHitNucleon(GHepRecord * evrec) const
       double MN2 = TMath::Power(MN,2);
       EN = TMath::Sqrt(MN2+pF2);
     }
-    if (fSRCRecoilNucleon) { eject_nucleon_pdg = this->SRCRecoilPDG(nucleon, nucleus, tgt); }
+    if (fSRCRecoilNucleon) { eject_nucleon_pdg = this->SRCRecoilPDG(nucleon, nucleus, tgt, pF2); }
   }
 
   //-- update the struck nucleon 4p at the interaction summary and at
@@ -231,7 +231,7 @@ void FermiMover::KickHitNucleon(GHepRecord * evrec) const
   }
 }
 //___________________________________________________________________________
-int FermiMover::SRCRecoilPDG(GHepParticle * nucleon, GHepParticle * nucleus, Target* tgt) const {
+int FermiMover::SRCRecoilPDG(GHepParticle * nucleon, GHepParticle * nucleus, Target* tgt, double pF2) const {
 
       int eject_nucleon_pdg = 0;
 
@@ -251,7 +251,7 @@ int FermiMover::SRCRecoilPDG(GHepParticle * nucleon, GHepParticle * nucleus, Tar
 	kF= TMath::Power(3*kPi2*numNuc*
 		  genie::utils::nuclear::Density(radius,A),1.0/3.0) *hbarc;
       }else{
-        kF = fKFTable->FindClosestKF(tgt.Pdg(), pdg_Nf);
+        kF = fKFTable->FindClosestKF(nucleus_pdgc, nucleon_pdgc);
       }
       if (TMath::Sqrt(pF2) > kF) {
         double Pp = (nucleon->Pdg() == kPdgProton) ? fPPPairPercentage : fPNPairPercentage;
