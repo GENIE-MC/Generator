@@ -9,7 +9,6 @@
 #pragma link C++ class genie::Decayer;
 #pragma link C++ class genie::PythiaDecayer;
 #pragma link C++ class genie::BaryonResonanceDecayer;
-
 #pragma link C++ class genie::UnstableParticleDecayer;
 
 #endif

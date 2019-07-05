@@ -31,6 +31,7 @@ typedef enum EGHepStatus {
    kIStStableFinalState           =  1,   /* generator-level final state: particles to be tracked by detector-level MC */
    kIStIntermediateState          =  2,
    kIStDecayedState               =  3,
+   kIStCorrectedProbe             =  5,
    kIStCorrelatedNucleon          = 10,
    kIStNucleonTarget              = 11,
    kIStDISPreFragmHadronicState   = 12,
@@ -60,6 +61,9 @@ class GHepStatus {
            break;
      case kIStDecayedState:            
            return  "[decayed state]"; 
+           break;
+     case kIStCorrectedProbe:            
+           return  "[incoming probe to the nucleus after correction such as radiative correction]"; 
            break;
      case kIStCorrelatedNucleon:
            return  "[other energetic initial state nucleons]"; 
