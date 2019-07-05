@@ -194,34 +194,7 @@ void FermiMover::KickHitNucleon(GHepRecord * evrec) const
       double MN2 = TMath::Power(MN,2);
       EN = TMath::Sqrt(MN2+pF2);
     }
-    if (fSRCRecoilNucleon) {
-      const int nucleus_pdgc = nucleus->Pdg();
-      const int nucleon_pdgc = nucleon->Pdg();
-
-      // Calculate the Fermi momentum, using a local Fermi gas if the
-      // nuclear model is LocalFGM, and RFG otherwise
-      double kF;
-      if(fNuclModel->ModelType(*tgt) == kNucmLocalFermiGas){
-	assert(pdg::IsProton(nucleon_pdgc) || pdg::IsNeutron(nucleon_pdgc));
-	int A = tgt->A();
-	bool is_p = pdg::IsProton(nucleon_pdgc);
-	double numNuc = (is_p) ? (double)tgt->Z():(double)tgt->N();
-	double radius = nucleon->X4()->Vect().Mag();
-	double hbarc = kLightSpeed*kPlankConstant/genie::units::fermi;
-	kF= TMath::Power(3*kPi2*numNuc*
-		  genie::utils::nuclear::Density(radius,A),1.0/3.0) *hbarc;
-      }else{
-	FermiMomentumTablePool * kftp = FermiMomentumTablePool::Instance();
-	const FermiMomentumTable * kft  = kftp->GetTable("Default");
-	kF = kft->FindClosestKF(nucleus_pdgc, nucleon_pdgc);
-      }
-      if (TMath::Sqrt(pF2) > kF) {
-        double Pp = (nucleon->Pdg() == kPdgProton) ? 0.05 : 0.95;
-        RandomGen * rnd = RandomGen::Instance();
-        double prob = rnd->RndGen().Rndm();
-        eject_nucleon_pdg = (prob > Pp) ? kPdgNeutron : kPdgProton;
-      }
-    }
+    if (fSRCRecoilNucleon) { eject_nucleon_pdg = this->SRCRecoilPDG(nucleon, nucleus, tgt, pF2); }
   }
 
   //-- update the struck nucleon 4p at the interaction summary and at
@@ -257,6 +230,39 @@ void FermiMover::KickHitNucleon(GHepRecord * evrec) const
     this->Emit2ndNucleonFromSRC(evrec, eject_nucleon_pdg);
   }
 }
+//___________________________________________________________________________
+int FermiMover::SRCRecoilPDG(GHepParticle * nucleon, GHepParticle * nucleus, Target* tgt, double pF2) const {
+
+      int eject_nucleon_pdg = 0;
+
+      const int nucleus_pdgc = nucleus->Pdg();
+      const int nucleon_pdgc = nucleon->Pdg();
+
+      // Calculate the Fermi momentum, using a local Fermi gas if the
+      // nuclear model is LocalFGM, and RFG otherwise
+      double kF;
+      if(fNuclModel->ModelType(*tgt) == kNucmLocalFermiGas){
+	assert(pdg::IsProton(nucleon_pdgc) || pdg::IsNeutron(nucleon_pdgc));
+	int A = tgt->A();
+	bool is_p = pdg::IsProton(nucleon_pdgc);
+	double numNuc = (is_p) ? (double)tgt->Z():(double)tgt->N();
+	double radius = nucleon->X4()->Vect().Mag();
+	double hbarc = kLightSpeed*kPlankConstant/genie::units::fermi;
+	kF= TMath::Power(3*kPi2*numNuc*
+		  genie::utils::nuclear::Density(radius,A),1.0/3.0) *hbarc;
+      }else{
+        kF = fKFTable->FindClosestKF(nucleus_pdgc, nucleon_pdgc);
+      }
+      if (TMath::Sqrt(pF2) > kF) {
+        double Pp = (nucleon->Pdg() == kPdgProton) ? fPPPairPercentage : fPNPairPercentage;
+        RandomGen * rnd = RandomGen::Instance();
+        double prob = rnd->RndGen().Rndm();
+        eject_nucleon_pdg = (prob > Pp) ? kPdgNeutron : kPdgProton;
+      }
+
+      return eject_nucleon_pdg;
+}
+
 //___________________________________________________________________________
 void FermiMover::Emit2ndNucleonFromSRC(GHepRecord * evrec,
                                        const int eject_pdg_code) const
@@ -367,5 +373,14 @@ void FermiMover::LoadConfig(void)
 
   this->GetParamDef("KeepHitNuclOnMassShell", fKeepNuclOnMassShell, false);
   this->GetParamDef("SimRecoilNucleon",       fSRCRecoilNucleon,    false);
+  this->GetParamDef("PPPairPercentage",       fPPPairPercentage,    0.05);
+  this->GetParamDef("PNPairPercentage",       fPNPairPercentage,    0.95);
+
+  // get the Fermi momentum table for relativistic Fermi gas
+  GetParam( "FermiMomentumTable", fKFTableName ) ;
+  fKFTable = 0;
+  FermiMomentumTablePool * kftp = FermiMomentumTablePool::Instance();
+  fKFTable = kftp->GetTable(fKFTableName);
+  assert(fKFTable);
 }
 //____________________________________________________________________________
