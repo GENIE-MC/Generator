@@ -84,7 +84,7 @@ void AMNuGammaGenerator::AddPhoton(GHepRecord * evrec) const
   TVector3 beta = p4nuc_lab.BoostVector();
 
   // Get the neutrino 4-momentum at the LAB
-  GHepParticle * nu = evrec->CorrectProbe();
+  GHepParticle * nu = evrec->Probe();
   const TLorentzVector & p4v_lab = *(nu->P4()); 
 
   // Get the neutrino 4-momentum at the NRF
@@ -136,7 +136,7 @@ void AMNuGammaGenerator::AddFinalStateNeutrino(GHepRecord * evrec) const
 
   LOG("AMNuGammaGenerator", pINFO) << "Adding final state neutrino";
 
-  GHepParticle * nu    = evrec->CorrectProbe();                       // incoming v
+  GHepParticle * nu    = evrec->Probe();                       // incoming v
   GHepParticle * gamma = evrec->Particle(nu->FirstDaughter()); // gamma
   assert(nu);
   assert(gamma);
@@ -188,7 +188,7 @@ void AMNuGammaGenerator::AddRecoilNucleon(GHepRecord * evrec) const
   }
 
   // Get the vtx position
-  GHepParticle * neutrino  = evrec->CorrectProbe();
+  GHepParticle * neutrino  = evrec->Probe();
   const TLorentzVector & vtx = *(neutrino->X4());
 
   // Add the recoil nucleon at the event record

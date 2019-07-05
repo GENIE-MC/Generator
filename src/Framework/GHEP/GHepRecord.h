@@ -92,18 +92,15 @@ public :
   GEvGenMode_t EventGenerationMode(void) const;
 
   // Easy access methods for the most frequently used GHEP entries
-  // CorrectProbe is the hitting lepton after possible corrections such as radiative correction 
 
-  virtual GHepParticle * ExperimentalProbe                (void) const;
-  virtual GHepParticle * CorrectProbe                     (void) const;
+  virtual GHepParticle * Probe                            (void) const;
   virtual GHepParticle * TargetNucleus                    (void) const;
   virtual GHepParticle * RemnantNucleus                   (void) const;
   virtual GHepParticle * HitNucleon                       (void) const;
   virtual GHepParticle * HitElectron                      (void) const;
   virtual GHepParticle * FinalStatePrimaryLepton          (void) const;
   virtual GHepParticle * FinalStateHadronicSystem         (void) const;
-  virtual int            ExperimentalProbePosition        (void) const;
-  virtual int            CorrectProbePosition             (void) const;
+  virtual int            ProbePosition                    (void) const;
   virtual int            TargetNucleusPosition            (void) const;
   virtual int            RemnantNucleusPosition           (void) const;
   virtual int            HitNucleonPosition               (void) const;

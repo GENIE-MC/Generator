@@ -76,7 +76,7 @@ void QELHadronicSystemGenerator::AddRecoilBaryon(GHepRecord * evrec) const
                           kIStHadronInTheNucleus : kIStStableFinalState;
 
   //-- Get the vtx position
-  GHepParticle * neutrino  = evrec->CorrectProbe();
+  GHepParticle * neutrino  = evrec->Probe();
   const TLorentzVector & vtx = *(neutrino->X4());
 
   //-- Get nucleon 4-momentum (in the LAB frame) & position

@@ -562,8 +562,8 @@ void HAIntranuke2018::InelasticHA(
     << "InelasticHA() is invoked for a : " << p->Name()
     << " whose fate is : " << INukeHadroFates::AsString(fate);
 #endif
-  if(ev->CorrectProbe() ) {
-    LOG("HAIntranuke2018", pINFO) << " probe KE = " << ev->CorrectProbe()->KinE();
+  if(ev->Probe() ) {
+    LOG("HAIntranuke2018", pINFO) << " probe KE = " << ev->Probe()->KinE();
   }
   if(fate!=kIHAFtCEx && fate!=kIHAFtInelas)
     {
@@ -690,8 +690,8 @@ void HAIntranuke2018::InelasticHA(
       LOG("HAIntranuke",pINFO)
 	<< "C3CM = " << C3CM << "\n  P3L, E3L = " 
 	<< P3L << "   " << E3L << "  P4L, E4L = "<< P4L << "   " << E4L ;
-      if(ev->CorrectProbe() ) { LOG("HAIntranuke",pINFO)
-	  << "P4L = " << P4L << " ;E4L=  " << E4L << "\n probe KE = " << ev->CorrectProbe()->KinE() << "\n";
+      if(ev->Probe() ) { LOG("HAIntranuke",pINFO)
+	  << "P4L = " << P4L << " ;E4L=  " << E4L << "\n probe KE = " << ev->Probe()->KinE() << "\n";
 	LOG("HAIntranuke2018", pINFO) << "Nucleus : (A,Z) = ("<<fRemnA<<','<<fRemnZ<<')';
 	TParticlePDG * remn = 0;
 	double MassRem = 0.;
@@ -716,10 +716,10 @@ void HAIntranuke2018::InelasticHA(
 	LOG("HAIntranuke2018",pINFO) << "PRemn = " << PRemn << " ;ERemn=  " << ERemn;
 	LOG("HAIntranuke2018",pINFO) << "MRemn=  " << MRemn << "  ;true Mass=  " << MassRem << "   ; excitation energy= " << (MRemn-MassRem)*1000. << " MeV";
       }
-      if (ev->CorrectProbe() && (E3L>ev->CorrectProbe()->KinE()))  //assuming E3 is most important, definitely for pion.  what about pp?
+      if (ev->Probe() && (E3L>ev->Probe()->KinE()))  //assuming E3 is most important, definitely for pion.  what about pp?
 	{
 	  //	  LOG("HAIntranuke",pINFO)
-	  //	    << "E3Lagain = " << E3L << " ;E4L=  " << E4L << "\n probe KE = " << ev->CorrectProbe()->KinE() << "\n";
+	  //	    << "E3Lagain = " << E3L << " ;E4L=  " << E4L << "\n probe KE = " << ev->Probe()->KinE() << "\n";
 	  exceptions::INukeException exception;
 	  exception.SetReason("TwoBodyCollison gives KE> probe KE in hA simulation");
 	  throw exception;

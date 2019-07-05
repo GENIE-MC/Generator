@@ -32,11 +32,5 @@ Cache-MinEnergy          double  Yes   minimum energy for which max xsec is cach
      <param type="double" name="MaxXSec-SafetyFactor">   1.400                               </param>
   </param_set>
 
-  <param_set name="RES-radcorr">
-     <param type="bool"   name="doRadiativeCorrection"> true                      </param>
-     <param type="double" name="MaxXSec-SafetyFactor">   1.400                               </param>
-     <param type="double" name="Cache-MinEnergy">        0.500                               </param>
-  </param_set>
-
 </alg_conf>
 

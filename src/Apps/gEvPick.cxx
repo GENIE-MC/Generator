@@ -276,7 +276,7 @@ bool AcceptEvent(const EventRecord & event)
 
   const Interaction * interaction = event.Summary();
 
-  int  nupdg     = event.ExperimentalProbe()->Pdg();
+  int  nupdg     = event.Probe()->Pdg();
   bool isnumu    = (nupdg == kPdgNuMu);
   bool isnumubar = (nupdg == kPdgAntiNuMu);
   bool iscc      = interaction->ProcInfo().IsWeakCC();

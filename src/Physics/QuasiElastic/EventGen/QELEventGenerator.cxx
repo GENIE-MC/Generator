@@ -264,10 +264,10 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
             TLorentzVector lepton(interaction->KinePtr()->FSLeptonP4());
             TLorentzVector outNucleon(interaction->KinePtr()->HadSystP4());
-            TLorentzVector x4l(*(evrec->CorrectProbe())->X4());
+            TLorentzVector x4l(*(evrec->Probe())->X4());
 
             evrec->AddParticle(interaction->FSPrimLeptonPdg(), kIStStableFinalState,
-              evrec->CorrectProbePosition(), -1, -1, -1, interaction->KinePtr()->FSLeptonP4(), x4l);
+              evrec->ProbePosition(), -1, -1, -1, interaction->KinePtr()->FSLeptonP4(), x4l);
 
             GHepStatus_t ist = (tgt->IsNucleus()) ? kIStHadronInTheNucleus : kIStStableFinalState;
             evrec->AddParticle(interaction->RecoilNucleonPdg(), ist, evrec->HitNucleonPosition(),
