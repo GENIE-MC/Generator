@@ -127,7 +127,7 @@ void RESHadronicSystemGenerator::AddResonance(
   int mom = evrec->HitNucleonPosition();
 
   //-- Get vtx position
-  GHepParticle * neutrino  = evrec->CorrectProbe();
+  GHepParticle * neutrino  = evrec->Probe();
   const TLorentzVector & vtx = *(neutrino->X4());
 
   evrec->AddParticle(pdgc, ist, mom,-1,-1,-1, p4, vtx);

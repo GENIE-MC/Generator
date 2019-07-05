@@ -58,7 +58,7 @@ void NuETargetRemnantGenerator::AddElectronNeutrino(GHepRecord * evrec) const
   //-- Get all initial & final state particles 4-momenta (in the LAB frame)
 
   //incoming v:
-  GHepParticle * nu = evrec->CorrectProbe();
+  GHepParticle * nu = evrec->Probe();
 
   //struck particle
   GHepParticle * el = evrec->HitElectron();

@@ -48,7 +48,6 @@ private:
 
   mutable TF2 * fEnvelope; ///< 2-D envelope used for importance sampling
   double fWcut;            ///< Wcut parameter in DIS/RES join scheme
-  bool fDoRadiativeCorrection;
 };
 
 }      // genie namespace

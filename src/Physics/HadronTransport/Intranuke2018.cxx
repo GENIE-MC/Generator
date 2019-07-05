@@ -179,7 +179,7 @@ void Intranuke2018::GenerateVertex(GHepRecord * evrec) const
   vtx.SetXYZ(x,y, -1.*TMath::Sqrt(TMath::Max(0.,R2-rp2)) + epsilon);
 
   // get the actual unit vector along the incoming hadron direction
-  TVector3 direction = evrec->CorrectProbe()->P4()->Vect().Unit();
+  TVector3 direction = evrec->Probe()->P4()->Vect().Unit();
 
   // rotate the vtx position
   vtx.RotateUz(direction);
