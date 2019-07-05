@@ -48,6 +48,8 @@ private:
   void Emit2ndNucleonFromSRC   (GHepRecord * evrec,
                                 const int eject_nucleon_pdg) const;
                                 ///^ emit a 2nd nucleon due to short range corellations
+  int SRCRecoilPDG(GHepParticle * nucleon, GHepParticle * nucleus, Target* tgt); // determine the PDG code of the SRC pair
+
   void AddTargetNucleusRemnant (GHepRecord * evrec) const; ///< add a recoiled nucleus remnant
 
   void LoadConfig (void);
@@ -55,6 +57,11 @@ private:
   bool  fKeepNuclOnMassShell;          ///< keep hit bound nucleon on the mass shell?
   bool  fSRCRecoilNucleon;             ///< simulate recoil nucleon due to short range corellation?
   const NuclearModelI *  fNuclModel;   ///< nuclear model
+
+  double fPPPairPercentage;
+  double fPNPairPercentage;
+  const FermiMomentumTable * fKFTable;
+  string fKFTableName;
 };
 
 }      // genie namespace
