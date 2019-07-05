@@ -43,6 +43,7 @@
 #include "Framework/Numerical/RandomGen.h"
 #include "Framework/ParticleData/PDGLibrary.h"
 #include "Physics/QuasiElastic/EventGen/QELKinematicsGenerator.h"
+#include "Physics/Common/RadiativeCorrector.h"
 #include "Framework/Numerical/MathUtils.h"
 #include "Framework/Utils/KineUtils.h"
 
@@ -135,6 +136,8 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
   unsigned int iter = 0;
   bool accept = false;
+  bool doRadiativeCorrection;
+  if (fDoRadiativeCorrection) doRadiativeCorrection = true; 
   while(1) {
      iter++;
      if(iter > kRjMaxIterations) {
@@ -181,7 +184,9 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         accept = (xsec>0);
      }
 
+
      //-- If the generated kinematics are accepted, finish-up module's job
+
      if(accept) {
         LOG("QELKinematics", pINFO) << "Selected: Q^2 = " << gQ2;
 
@@ -218,6 +223,46 @@ void QELKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         // (W,Q2) -> (x,y)
         double gx=0, gy=0;
         kinematics::WQ2toXY(E,M,gW,gQ2,gx,gy);
+
+        //-- In the case of Radiative correction, the radiated photon energy
+        //   depends on the final state lepton kinematics.
+        if(doRadiativeCorrection) {
+          LOG("QELKinematics", pNOTICE) << "Event selected for radiative correction Selected in kRfHitNucRest: Q^2 = " << gQ2<<" gy = ";
+	  const TLorentzVector & pnuc4 = init_state.Tgt().HitNucP4(); //[@LAB]
+          TVector3 beta = pnuc4.BoostVector();
+          double El  = (1-gy)*E;
+          double ml  = interaction->FSPrimLepton()->Mass();
+          double ml2 = TMath::Power(ml,2);
+          double plp = El - 0.5*(gQ2+ml2)/E;                          // p(//)
+          double plt = TMath::Sqrt(TMath::Max(0.,El*El-plp*plp-ml2)); // p(-|)
+          LOG("QELKinematics", pNOTICE) << "Calulating temp final state for radiative correction fsl @ Nucleon rest frame: E = " << El << ", |p//| = " << plp << ", [pT] = " << plt;
+          // Randomize transverse components
+          RandomGen * rnd_temp = RandomGen::Instance();
+          double phi  = 2*kPi * rnd_temp->RndLep().Rndm();
+          double pltx = plt * TMath::Cos(phi);
+          double plty = plt * TMath::Sin(phi);
+          TLorentzVector * p4v = evrec->CorrectProbe()->GetP4(); // v 4p @ LAB
+          p4v->Boost(-1.*beta);                           // v 4p @ Nucleon rest frame
+          // Take a unit vector along the neutrino direction @ the nucleon rest frame
+          TVector3 unit_nudir = p4v->Vect().Unit();
+          // Rotate lepton momentum vector from the reference frame (x'y'z') where 
+          // {z':(neutrino direction), z'x':(theta plane)} to the nucleon rest frame
+          TVector3 p3l(pltx,plty,plp);
+          p3l.RotateUz(unit_nudir);
+          // Lepton 4-momentum in the nucleon rest frame
+          TLorentzVector p4l(p3l,El);
+          // Boost final state primary lepton to the lab frame
+          p4l.Boost(beta); // active Lorentz transform
+          LOG("QELKinematics", pNOTICE) << "Calulating temp final state for radiative correction fsl @ LAB: E " <<p4l.E() << " px "<<p4l.Px() << " py "<<p4l.Py() << " pz "<<p4l.Pz() ;
+          RadiativeCorrector * fRadiativeCorrector = new RadiativeCorrector();
+          fRadiativeCorrector->SetISR(true);
+          fRadiativeCorrector->SetModel("vanderhagen");
+          fRadiativeCorrector->SetQ2(gQ2);
+          fRadiativeCorrector->SetP4l(p4l);
+          fRadiativeCorrector->ProcessEventRecord(evrec); 
+          doRadiativeCorrection = false;
+          continue;
+        }
 
         // set the cross section for the selected kinematics
         evrec->SetDiffXSec(xsec,kPSQ2fE);
@@ -478,6 +523,7 @@ void QELKinematicsGenerator::LoadConfig(void)
   //   an event weight?
   GetParamDef( "UniformOverPhaseSpace", fGenerateUniformly, false ) ;
 
+  GetParam("doRadiativeCorrection", fDoRadiativeCorrection, false) ;
 }
 //____________________________________________________________________________
 double QELKinematicsGenerator::ComputeMaxXSec(

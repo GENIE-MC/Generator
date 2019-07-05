@@ -203,7 +203,7 @@ void QELEventGeneratorSM::ProcessEventRecord(GHepRecord * evrec) const
   double kF = (rnd->RndKine().Rndm() * (rkF.max-rkF.min)) + rkF.min;
 
   // Momentum of initial neutrino in LAB frame
-  TLorentzVector * tempTLV = evrec->Probe()->GetP4();
+  TLorentzVector * tempTLV = evrec->CorrectProbe()->GetP4();
   TLorentzVector neutrinoMom = *tempTLV;
   delete tempTLV;
 
@@ -291,9 +291,9 @@ void QELEventGeneratorSM::ProcessEventRecord(GHepRecord * evrec) const
           LOG("QELEvent", pNOTICE) << "Current event wght = " << wght;
           evrec->SetWeight(wght);
   }
-  TLorentzVector x4l(*(evrec->Probe())->X4());
+  TLorentzVector x4l(*(evrec->CorrectProbe())->X4());
 
-  evrec->AddParticle(interaction->FSPrimLeptonPdg(), kIStStableFinalState, evrec->ProbePosition(),-1,-1,-1, outLeptonMom, x4l);
+  evrec->AddParticle(interaction->FSPrimLeptonPdg(), kIStStableFinalState, evrec->CorrectProbePosition(),-1,-1,-1, outLeptonMom, x4l);
 
   GHepStatus_t ist;
   if (!fGenerateNucleonInNucleus)

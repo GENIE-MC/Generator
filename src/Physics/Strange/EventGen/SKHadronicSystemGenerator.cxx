@@ -77,7 +77,7 @@ void SKHadronicSystemGenerator::CalculateHadronicSystem_AtharSingleKaon(GHepReco
   const XclsTag & xcls_tag  = interaction->ExclTag();
 
   //-- Access neutrino, initial nucleus and final state prim. lepton entries
-  GHepParticle * nu  = evrec->Probe();
+  GHepParticle * nu  = evrec->CorrectProbe();
   GHepParticle * Ni  = evrec->HitNucleon();
   GHepParticle * fsl = evrec->FinalStatePrimaryLepton();
   assert(nu);
