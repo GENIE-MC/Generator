@@ -536,6 +536,14 @@ int GHepRecord::FinalStatePrimaryLeptonPosition(void) const
   if(!probe) return -1;
 
   int ifsl = probe->FirstDaughter();
+  ////////////////////////////////////////////////////////////////////////////////
+  //To Review: In case of fsl radiation the fsl should be the one post radiation//
+  //we can add an if statement - if the fsl status is not final state ////////////
+  for(int i = 0 ; i < this->GetEntries(); i++) {
+     GHepParticle * p = (GHepParticle *) (*this)[i];
+     if(p->FirstMother() == ifsl && p->Pdg() == probe->Pdg()) return i;
+  }
+  ////////////////////////////////////////////////////////////////////////////////
   return ifsl;
 }
 //___________________________________________________________________________
