@@ -367,5 +367,24 @@ void FermiMover::LoadConfig(void)
 
   this->GetParamDef("KeepHitNuclOnMassShell", fKeepNuclOnMassShell, false);
   this->GetParamDef("SimRecoilNucleon",       fSRCRecoilNucleon,    false);
+
+  this->GetParamDef("PNPairPercentage",       fPNPairPercentage,    0.95);
+
+  if (fPNPairPercentage < 0. || fPNPairPercentage > 1.) { 
+
+	LOG("FermiMover", pFATAL)
+	<< "PNPairPercentage either less than 0 or greater than 1: Exiting" ;
+
+	exit(78); 
+  }
+
+  fPPPairPercentage = 1. - fPNPairPercentage;
+
+  // get the Fermi momentum table for relativistic Fermi gas
+  GetParam( "FermiMomentumTable", fKFTableName ) ;
+  fKFTable = 0;
+  FermiMomentumTablePool * kftp = FermiMomentumTablePool::Instance();
+  fKFTable = kftp->GetTable(fKFTableName);
+  assert(fKFTable);
 }
 //____________________________________________________________________________
