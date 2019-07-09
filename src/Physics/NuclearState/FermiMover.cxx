@@ -367,7 +367,10 @@ void FermiMover::LoadConfig(void)
 
   this->GetParamDef("KeepHitNuclOnMassShell", fKeepNuclOnMassShell, false);
   this->GetParamDef("SimRecoilNucleon",       fSRCRecoilNucleon,    false);
+<<<<<<< 2e41ecd8745e2c91aaaa967269bf1fb65fee1600
 
+=======
+>>>>>>> final form of fermimover ready for pull request
   this->GetParamDef("PNPairPercentage",       fPNPairPercentage,    0.95);
 
   if (fPNPairPercentage < 0. || fPNPairPercentage > 1.) { 
