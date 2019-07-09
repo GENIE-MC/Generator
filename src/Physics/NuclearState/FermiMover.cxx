@@ -254,10 +254,12 @@ int FermiMover::SRCRecoilPDG(GHepParticle * nucleon, GHepParticle * nucleus, Tar
         kF = fKFTable->FindClosestKF(nucleus_pdgc, nucleon_pdgc);
       }
       if (TMath::Sqrt(pF2) > kF) {
+
         double Pp = (nucleon->Pdg() == kPdgProton) ? fPPPairPercentage : fPNPairPercentage;
         RandomGen * rnd = RandomGen::Instance();
         double prob = rnd->RndGen().Rndm();
         eject_nucleon_pdg = (prob > Pp) ? kPdgNeutron : kPdgProton;
+
       }
 
       return eject_nucleon_pdg;
@@ -373,8 +375,17 @@ void FermiMover::LoadConfig(void)
 
   this->GetParamDef("KeepHitNuclOnMassShell", fKeepNuclOnMassShell, false);
   this->GetParamDef("SimRecoilNucleon",       fSRCRecoilNucleon,    false);
-  this->GetParamDef("PPPairPercentage",       fPPPairPercentage,    0.05);
   this->GetParamDef("PNPairPercentage",       fPNPairPercentage,    0.95);
+
+  if (fPNPairPercentage < 0. || fPNPairPercentage > 1.) { 
+
+	LOG("FermiMover", pFATAL)
+	<< "PNPairPercentage either less than 0 or greater than 1: Exiting" ;
+
+	exit(78); 
+  }
+
+  fPPPairPercentage = 1. - fPNPairPercentage;
 
   // get the Fermi momentum table for relativistic Fermi gas
   GetParam( "FermiMomentumTable", fKFTableName ) ;
