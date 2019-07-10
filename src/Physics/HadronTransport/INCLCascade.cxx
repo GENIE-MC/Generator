@@ -550,7 +550,7 @@ void INCLCascade::TransportHadrons(GHepRecord * evrec) const{
     }// Loop over all the result from INCLCascade
   }
   // rwh // delete pincl;
-  delete theConfig;
+  // rwh per marc // delete theConfig;
   if ( ListeOfINCLresult.size() == 0 ) {
     GHepParticle remnant(pdg_codeTargetRemn, kIStFinalStateNuclearRemnant, inucl,-1,-1,-1, fRemnP4, x4null);
     evrec->AddParticle(remnant);
