@@ -2,6 +2,8 @@
 
 <!--
 ***************************************************************************************************
+MODIFIED TO ADD NEW ENERGY SHIFT AND KF FOR SuSA
+
 This file defines parameters sets for parameters which are common between algorithms and therefore
 has to be the same for those parameters to be meaningful.
 This is file is read from the AlgConfigPool and the parameters set are expected to be used by the
@@ -19,7 +21,7 @@ University of Liverpool
 
 
 
-<common_param_list>
+<common_Param_list>
 
 
  <param_set name="Tunable">
@@ -337,5 +339,4 @@ University of Liverpool
 
   </param_set>
 
-</common_param_list>
-
+</common_Param_list>
