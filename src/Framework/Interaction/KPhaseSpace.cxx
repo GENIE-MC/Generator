@@ -160,7 +160,7 @@ double KPhaseSpace::Threshold(void) const
     return TMath::Max(0.,Ethr);
   }
 
-  if(pi.IsNuElectronElastic()) {
+  if(pi.IsNuElectronElastic() || pi.IsGlashowResonance() ) {
     return 0;
   }
   if(pi.IsAMNuGamma()) {
@@ -378,6 +378,8 @@ Range1D_t KPhaseSpace::WLim(void) const
   Wl.max = -1;
 
   const ProcessInfo & pi = fInteraction->ProcInfo();
+
+  bool is_em = pi.IsEM();
   bool is_qel  = pi.IsQuasiElastic()  || pi.IsInverseBetaDecay() || pi.IsDarkMatterElastic();
   bool is_inel = pi.IsDeepInelastic() || pi.IsResonant() || pi.IsDiffractive();
   bool is_dmdis = pi.IsDarkMatterDeepInelastic();
@@ -393,7 +395,9 @@ Range1D_t KPhaseSpace::WLim(void) const
     double Ev = init_state.ProbeE(kRfHitNucRest);
     double M  = init_state.Tgt().HitNucP4Ptr()->M(); //can be off m/shell
     double ml = fInteraction->FSPrimLepton()->Mass();
-    Wl = kinematics::InelWLim(Ev,M,ml);
+
+    Wl = is_em ? kinematics::electromagnetic::InelWLim(Ev,ml,M) : kinematics::InelWLim(Ev,M,ml); 
+
     if(fInteraction->ExclTag().IsCharmEvent()) {
       //Wl.min = TMath::Max(Wl.min, kNeutronMass+kPionMass+kLightestChmHad);
       Wl.min = TMath::Max(Wl.min, kNeutronMass+kLightestChmHad);
@@ -448,6 +452,8 @@ Range1D_t KPhaseSpace::Q2Lim_W(void) const
   Q2l.max = -1;
 
   const ProcessInfo & pi = fInteraction->ProcInfo();
+
+  bool is_em = pi.IsEM();
   bool is_qel   = pi.IsQuasiElastic()  || pi.IsInverseBetaDecay();
   bool is_inel  = pi.IsDeepInelastic() || pi.IsResonant() || pi.IsDiffractive();
   bool is_coh   = pi.IsCoherent();
@@ -474,7 +480,7 @@ Range1D_t KPhaseSpace::Q2Lim_W(void) const
   } else if (is_dme || is_dmdis) {
     Q2l = kinematics::DarkQ2Lim_W(Ev,M,ml,W);
   } else {
-     Q2l = kinematics::InelQ2Lim_W(Ev,M,ml,W);
+     Q2l = is_em ? kinematics::electromagnetic::InelQ2Lim_W(Ev,ml,M,W) : Q2l = kinematics::InelQ2Lim_W(Ev,M,ml,W); 
   }
 
   return Q2l;
@@ -502,6 +508,8 @@ Range1D_t KPhaseSpace::Q2Lim(void) const
   Q2l.max = -1;
 
   const ProcessInfo & pi = fInteraction->ProcInfo();
+
+  bool is_em = pi.IsEM();
   bool is_qel   = pi.IsQuasiElastic()  || pi.IsInverseBetaDecay();
   bool is_inel  = pi.IsDeepInelastic() || pi.IsResonant();
   bool is_coh   = pi.IsCoherent();
@@ -537,7 +545,7 @@ Range1D_t KPhaseSpace::Q2Lim(void) const
     if (pi.IsInverseBetaDecay()) {
       Q2l = kinematics::InelQ2Lim_W(Ev,M,ml,W,controls::kMinQ2Limit_VLE);
     } else {
-      Q2l = kinematics::InelQ2Lim_W(Ev,M,ml,W);
+     Q2l = is_em ? kinematics::electromagnetic::InelQ2Lim_W(Ev,ml,M,W) : kinematics::InelQ2Lim_W(Ev,M,ml,W); 
     }
 
     return Q2l;
@@ -567,7 +575,7 @@ Range1D_t KPhaseSpace::Q2Lim(void) const
   // TODO: Q2maxConfig
   if (pi.IsMEC()){
     double W = fInteraction->RecoilNucleon()->Mass();
-    Q2l = kinematics::InelQ2Lim_W(Ev,M,ml,W);
+    Q2l = is_em ? kinematics::electromagnetic::InelQ2Lim_W(Ev,ml,M,W) : kinematics::InelQ2Lim_W(Ev,M,ml,W); 
     double Q2maxConfig = 1.44; // need to pull from config file somehow?
     if (Q2l.max > Q2maxConfig) Q2l.max = Q2maxConfig;
     return Q2l;
@@ -579,7 +587,7 @@ Range1D_t KPhaseSpace::Q2Lim(void) const
   }
 
   // inelastic
-  Q2l = kinematics::InelQ2Lim(Ev,M,ml);
+  Q2l = is_em ? kinematics::electromagnetic::InelQ2Lim(Ev,ml,M) : kinematics::InelQ2Lim(Ev,M,ml); 
   return Q2l;
 }
 //____________________________________________________________________________
@@ -603,6 +611,7 @@ Range1D_t KPhaseSpace::XLim(void) const
   xl.max = -1;
 
   const ProcessInfo & pi = fInteraction->ProcInfo();
+  bool is_em = pi.IsEM();
 
   //RES+DIS
   bool is_inel = pi.IsDeepInelastic() || pi.IsResonant();
@@ -611,7 +620,7 @@ Range1D_t KPhaseSpace::XLim(void) const
     double Ev  = init_state.ProbeE(kRfHitNucRest);
     double M   = init_state.Tgt().HitNucP4Ptr()->M(); // can be off m/shell
     double ml  = fInteraction->FSPrimLepton()->Mass();
-    xl = kinematics::InelXLim(Ev,M,ml);
+    xl = is_em ? kinematics::electromagnetic::InelXLim(Ev,ml,M) : kinematics::InelXLim(Ev,M,ml); 
     return xl;
   }
   //DMDIS
@@ -654,6 +663,7 @@ Range1D_t KPhaseSpace::YLim(void) const
   yl.max = -1;
 
   const ProcessInfo & pi = fInteraction->ProcInfo();
+  bool is_em = pi.IsEM();
 
   //RES+DIS
   bool is_inel = pi.IsDeepInelastic() || pi.IsResonant();
@@ -662,7 +672,7 @@ Range1D_t KPhaseSpace::YLim(void) const
     double Ev  = init_state.ProbeE(kRfHitNucRest);
     double M   = init_state.Tgt().HitNucP4Ptr()->M(); // can be off m/shell
     double ml  = fInteraction->FSPrimLepton()->Mass();
-    yl = kinematics::InelYLim(Ev,M,ml);
+    yl = is_em ? kinematics::electromagnetic::InelYLim(Ev,ml,M) : kinematics::InelYLim(Ev,M,ml); 
     return yl;
   }
   //DMDIS
@@ -715,6 +725,7 @@ Range1D_t KPhaseSpace::YLim_X(void) const
   yl.max = -1;
 
   const ProcessInfo & pi = fInteraction->ProcInfo();
+  bool is_em = pi.IsEM();
 
   //RES+DIS
   bool is_inel = pi.IsDeepInelastic() || pi.IsResonant();
@@ -724,7 +735,7 @@ Range1D_t KPhaseSpace::YLim_X(void) const
     double M   = init_state.Tgt().HitNucP4Ptr()->M(); // can be off m/shell
     double ml  = fInteraction->FSPrimLepton()->Mass();
     double x   = fInteraction->Kine().x();
-    yl = kinematics::InelYLim_X(Ev,M,ml,x);
+    yl = is_em ? kinematics::electromagnetic::InelYLim_X(Ev,ml,M,x) : kinematics::InelYLim_X(Ev,M,ml,x); 
     return yl;
   }
   //DMDIS
