@@ -78,10 +78,18 @@ double NewQELXSec::Integrate(const XSecAlgorithmI* model, const Interaction* in)
     bind_mode = genie::utils::StringToQELBindingMode( bind_mode_str );
   }
 
-  ROOT::Math::IBaseFunctionMultiDim* func = new utils::gsl::FullQELdXSec(model,
+  utils::gsl::FullQELdXSec* func = new utils::gsl::FullQELdXSec(model,
     interaction, bind_mode, fMinAngleEM);
   ROOT::Math::IntegrationMultiDim::Type ig_type =
     utils::gsl::IntegrationNDimTypeFromString( fGSLIntgType );
+
+  // Switch to using the copy of the interaction in the integrator rather than
+  // the copy that we made in this function
+  delete interaction;
+  interaction = func->GetInteractionPtr();
+
+  // Also update the pointer to the Target
+  tgt = interaction->InitState().TgtPtr();
 
   double abstol = 1e-16; // We mostly care about relative tolerance
   ROOT::Math::IntegratorMultiDim ig(*func, ig_type, abstol, fGSLRelTol, fGSLMaxEval);
@@ -119,7 +127,6 @@ double NewQELXSec::Integrate(const XSecAlgorithmI* model, const Interaction* in)
     nucl_model->SetMomentum3( TVector3(0., 0., 0.) );
     double xsec_total = ig.Integral(kine_min, kine_max);
     delete func;
-    delete interaction;
     return xsec_total;
   }
 
@@ -151,7 +158,6 @@ double NewQELXSec::Integrate(const XSecAlgorithmI* model, const Interaction* in)
   }
 
   delete func;
-  delete interaction;
 
   // MC estimator of the total cross section is the mean of the xsec values
   double xsec_mean = xsec_sum / fNumNucleonThrows;
@@ -204,6 +210,16 @@ genie::utils::gsl::FullQELdXSec::FullQELdXSec(const XSecAlgorithmI* xsec_model,
 genie::utils::gsl::FullQELdXSec::~FullQELdXSec()
 {
   delete fInteraction;
+}
+
+Interaction* genie::utils::gsl::FullQELdXSec::GetInteractionPtr()
+{
+  return fInteraction;
+}
+
+const Interaction& genie::utils::gsl::FullQELdXSec::GetInteraction() const
+{
+  return *fInteraction;
 }
 
 ROOT::Math::IBaseFunctionMultiDim* genie::utils::gsl::FullQELdXSec::Clone(void) const
