@@ -232,7 +232,7 @@ bool SuSAv2QELPXSec::ValidProcess(const Interaction* interaction) const
   bool isnu  = pdg::IsNeutrino(nu);
   bool isnub = pdg::IsAntiNeutrino(nu);
 
-  bool prcok = proc_info.IsWeakCC() && ((isP&&isnub) || (isN&&isnu));
+  bool prcok = (proc_info.IsWeakCC() && ((isP&&isnub) || (isN&&isnu))) || proc_info.IsEM();
   if ( !prcok ) return false;
 
   return true;
