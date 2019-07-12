@@ -443,14 +443,17 @@ void PythiaHadronization::LoadConfig(void)
   GetParam( "PYTHIA-GaussianPt2",      fGaussianPt2      ) ;
   GetParam( "PYTHIA-NonGaussianPt2Tail", fNonGaussianPt2Tail  ) ;
   GetParam( "PYTHIA-RemainingEnergyCutoff", fRemainingECutoff ) ;
+  ofstream outputfile_test ;
+  outputfile_test.open("/pbs/home/j/jtena/MyHome/trial/GENIE_HadroTune_Validation/TEST2_COMPARISONS/outputfile_test.txt");
+  
+  outputfile_test << "PARJ1  = " << fPythia->GetPARJ( 1  ) ;
+  outputfile_test << "PARJ11 = " << fPythia->GetPARJ( 11 ) ;
+  outputfile_test << "PARJ12 = " << fPythia->GetPARJ( 12 ) ;
+  outputfile_test << "PARJ41 = " << fPythia->GetPARJ( 41 ) ;
+  outputfile_test << "PARJ42 = " << fPythia->GetPARJ( 42 ) ;
+  outputfile_test << "PARJ45 = " << fPythia->GetPARJ( 45 ) ;
 
-  std::cout<< "PARJ1  = " << fPythia->GetPARJ( 1  ) << std::endl ;
-  std::cout<< "PARJ11 = " << fPythia->GetPARJ( 11 ) << std::endl ;
-  std::cout<< "PARJ12 = " << fPythia->GetPARJ( 12 ) << std::endl ;
-  std::cout<< "PARJ41 = " << fPythia->GetPARJ( 41 ) << std::endl ;
-  std::cout<< "PARJ42 = " << fPythia->GetPARJ( 42 ) << std::endl ;
-  std::cout<< "PARJ45 = " << fPythia->GetPARJ( 45 ) << std::endl ;
-
+  outputfile_test.close();
   /*
     GetParam( "PYTHIA-DiQuarkSupression", fDiQuarkSupression ) ;
     GetParam( "PYTHIA-LightVMesonSupression", fLightVMesonSupression ) ;
