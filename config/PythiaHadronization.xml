@@ -19,6 +19,18 @@ PYTHIA-NonGaussianPt2Tail       double  No    PYTHIA's PARJ(23): param used to m
 PYTHIA-RemainingEnergyCutoff    double  No    PYTHIA's PARJ(33): param used to define the remaining    //
                                               energy below which the fragmentation of a parton system
                                               is stopped and two final hadrons formed
+PYTHIA-DiQuarkSuppression       double  No    PYTHIA's PARJ(1): Di quark supression                    //
+
+PYTHIA-LightVMesonSuppression   double  No    PYTHIA's PARJ(11): Light vector meson suppression        //
+
+PYTHIA-SVMesonSuppression       double  No    PYTHIA's PARJ(12): Strange vector meson suppression      //
+
+PYTHIA-Lunda                    double  No    PYTHIA's PARJ(41): Lund a parameter                      //
+
+PYTHIA-Lundb                    double  No    PYTHIA's PARJ(42): Lund b parameter                      //
+
+PYTHIA-LundaDiq                 double  No    PYTHIA's PARJ(45): Lund a di quark parameter             //
+
 Wcut                            double  No    W cut in DIS/RES join scheme                             CommonParam[NonResBackground]
 DIS-HMultWgt-vp-CC-m2           double  No    scaling factor, vp  CC, multiplicity=2                   CommonParam[NonResBackground]
 DIS-HMultWgt-vp-CC-m3           double  No    scaling factor, vp  CC, multiplicity=3                   CommonParam[NonResBackground]
@@ -62,14 +74,12 @@ Decayer                         alg     Yes   particle decayer algorithm in case
     <param type="double" name="PYTHIA-GaussianPt2">           0.44 </param> 
     <param type="double" name="PYTHIA-NonGaussianPt2Tail">    0.01 </param>
     <param type="double" name="PYTHIA-RemainingEnergyCutoff"> 0.20 </param>
-    <!--
-	<param type="double" name="PYTHIA-DiQuarkSupression"> value </param>
-	<param type="double" name="PYTHIA-LightVMesonSupression"> value </param>
-	<param type="double" name="PYTHIA-SVMesonSupression"> value </param>
-	<param type="double" name="PYTHIA-Lunda"> value </param>
-	<param type="double" name="PYTHIA-Lundb"> value </param>
-	<param type="double" name="PYTHIA-LundaDiq"> value </param>
--->    
+    <param type="double" name="PYTHIA-DiQuarkSuppression"> 0.10 </param>
+    <param type="double" name="PYTHIA-LightVMesonSuppression"> 0.50 </param>
+    <param type="double" name="PYTHIA-SVMesonSuppression"> 0.60 </param>
+    <param type="double" name="PYTHIA-Lunda"> 0.30 </param>
+    <param type="double" name="PYTHIA-Lundb"> 0.58 </param>
+    <param type="double" name="PYTHIA-LundaDiq"> 0.5 </param>
 
     <!-- 
 	 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -103,6 +113,12 @@ Decayer                         alg     Yes   particle decayer algorithm in case
     <param type="double" name="PYTHIA-GaussianPt2">           0.36 </param> 
     <param type="double" name="PYTHIA-NonGaussianPt2Tail">    0.01 </param> 
     <param type="double" name="PYTHIA-RemainingEnergyCutoff"> 0.80 </param> 
+    <param type="double" name="PYTHIA-DiQuarkSuppression"> 0.10 </param>
+    <param type="double" name="PYTHIA-LightVMesonSuppression"> 0.50 </param>
+    <param type="double" name="PYTHIA-SVMesonSuppression"> 0.60 </param>
+    <param type="double" name="PYTHIA-Lunda"> 0.30 </param>
+    <param type="double" name="PYTHIA-Lundb"> 0.58 </param>
+    <param type="double" name="PYTHIA-LundaDiq"> 0.5 </param>
   </param_set>
 
 <!-- 
@@ -113,6 +129,12 @@ Decayer                         alg     Yes   particle decayer algorithm in case
     <param type="double" name="PYTHIA-GaussianPt2">           0.44 </param> 
     <param type="double" name="PYTHIA-NonGaussianPt2Tail">    0.01 </param> 
     <param type="double" name="PYTHIA-RemainingEnergyCutoff"> 0.20 </param> 
+    <param type="double" name="PYTHIA-DiQuarkSuppression"> 0.10 </param>
+    <param type="double" name="PYTHIA-LightVMesonSuppression"> 0.50 </param>
+    <param type="double" name="PYTHIA-SVMesonSuppression"> 0.60 </param>
+    <param type="double" name="PYTHIA-Lunda"> 0.30 </param>
+    <param type="double" name="PYTHIA-Lundb"> 0.58 </param>
+    <param type="double" name="PYTHIA-LundaDiq"> 0.5 </param>
   </param_set>
 
 </alg_conf>
