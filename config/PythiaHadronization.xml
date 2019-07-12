@@ -62,7 +62,14 @@ Decayer                         alg     Yes   particle decayer algorithm in case
     <param type="double" name="PYTHIA-GaussianPt2">           0.44 </param> 
     <param type="double" name="PYTHIA-NonGaussianPt2Tail">    0.01 </param>
     <param type="double" name="PYTHIA-RemainingEnergyCutoff"> 0.20 </param>
-    
+    <!--
+	<param type="double" name="PYTHIA-DiQuarkSupression"> value </param>
+	<param type="double" name="PYTHIA-LightVMesonSupression"> value </param>
+	<param type="double" name="PYTHIA-SVMesonSupression"> value </param>
+	<param type="double" name="PYTHIA-Lunda"> value </param>
+	<param type="double" name="PYTHIA-Lundb"> value </param>
+	<param type="double" name="PYTHIA-LundaDiq"> value </param>
+-->    
 
     <!-- 
 	 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
