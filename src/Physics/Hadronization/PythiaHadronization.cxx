@@ -443,34 +443,21 @@ void PythiaHadronization::LoadConfig(void)
   GetParam( "PYTHIA-GaussianPt2",      fGaussianPt2      ) ;
   GetParam( "PYTHIA-NonGaussianPt2Tail", fNonGaussianPt2Tail  ) ;
   GetParam( "PYTHIA-RemainingEnergyCutoff", fRemainingECutoff ) ;
-  ofstream outputfile_test ;
-  outputfile_test.open("/pbs/home/j/jtena/MyHome/trial/GENIE_HadroTune_Validation/TEST2_COMPARISONS/outputfile_test.txt");
+
+  GetParam( "PYTHIA-DiQuarkSuppression", fDiQuarkSuppression ) ;
+  GetParam( "PYTHIA-LightVMesonSuppression", fLightVMesonSuppression ) ;
+  GetParam( "PYTHIA-SVMesonSuppression", fSVMesonSuppression ) ;
+  GetParam( "PYTHIA-Lunda", fLunda ) ;
+  GetParam( "PYTHIA-Lundb", fLundb ) ;
+  GetParam( "PYTHIA-LundaDiq", fLundaDiq ) ;
+
+  fPythia->SetPARJ(1,  fDiQuarkSuppression ) ;
+  fPythia->SetPARJ(11, fLightVMesonSuppression ) ;
+  fPythia->SetPARJ(12, fSVMesonSuppression ) ;
+  fPythia->SetPARJ(41, fLunda ) ;
+  fPythia->SetPARJ(42, fLundb ) ;
+  fPythia->SetPARJ(45, fLundaDiq ) ;
   
-  outputfile_test << "PARJ1  = " << fPythia->GetPARJ( 1  ) ;
-  outputfile_test << "PARJ11 = " << fPythia->GetPARJ( 11 ) ;
-  outputfile_test << "PARJ12 = " << fPythia->GetPARJ( 12 ) ;
-  outputfile_test << "PARJ41 = " << fPythia->GetPARJ( 41 ) ;
-  outputfile_test << "PARJ42 = " << fPythia->GetPARJ( 42 ) ;
-  outputfile_test << "PARJ45 = " << fPythia->GetPARJ( 45 ) ;
-
-  outputfile_test.close();
-  /*
-    GetParam( "PYTHIA-DiQuarkSupression", fDiQuarkSupression ) ;
-    GetParam( "PYTHIA-LightVMesonSupression", fLightVMesonSupression ) ;
-    GetParam( "PYTHIA-SVMesonSupression", fSVMesonSupression ) ;
-    GetParam( "PYTHIA-Lunda", fLunda ) ;
-    GetParam( "PYTHIA-Lundb", fLundb ) ;
-    GetParam( "PYTHIA-LundaDiq", fLundaDiq ) ;
-
-    fPythia->SetPARJ(1,  fDiQuarkSupression ) ;
-    fPythia->SetPARJ(11, fLightVMesonSupression ) ;
-    fPythia->SetPARJ(12, fSVMesonSupression ) ;
-    fPythia->SetPARJ(41, fLunda ) ;
-    fPythia->SetPARJ(42, fLundb ) ;
-    fPythia->SetPARJ(45, fLundaDiq ) ;
-
-   */
-
   fPythia->SetPARJ(2,  fSSBarSuppression);
   fPythia->SetPARJ(21, fGaussianPt2);
   fPythia->SetPARJ(23, fNonGaussianPt2Tail);
