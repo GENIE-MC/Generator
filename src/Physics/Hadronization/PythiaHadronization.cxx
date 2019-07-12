@@ -439,10 +439,34 @@ void PythiaHadronization::LoadConfig(void)
   // The defaults are the values used by PYTHIA
   // Use the NUX config set to set the tuned values as used in NUX.
 
-   GetParam( "PYTHIA-SSBarSuppression", fSSBarSuppression ) ;
+  GetParam( "PYTHIA-SSBarSuppression", fSSBarSuppression ) ;
   GetParam( "PYTHIA-GaussianPt2",      fGaussianPt2      ) ;
   GetParam( "PYTHIA-NonGaussianPt2Tail", fNonGaussianPt2Tail  ) ;
   GetParam( "PYTHIA-RemainingEnergyCutoff", fRemainingECutoff ) ;
+
+  std::cout<< "PARJ1  = " << fPythia->GetPARJ( 1  ) << std::endl ;
+  std::cout<< "PARJ11 = " << fPythia->GetPARJ( 11 ) << std::endl ;
+  std::cout<< "PARJ12 = " << fPythia->GetPARJ( 12 ) << std::endl ;
+  std::cout<< "PARJ41 = " << fPythia->GetPARJ( 41 ) << std::endl ;
+  std::cout<< "PARJ42 = " << fPythia->GetPARJ( 42 ) << std::endl ;
+  std::cout<< "PARJ45 = " << fPythia->GetPARJ( 45 ) << std::endl ;
+
+  /*
+    GetParam( "PYTHIA-DiQuarkSupression", fDiQuarkSupression ) ;
+    GetParam( "PYTHIA-LightVMesonSupression", fLightVMesonSupression ) ;
+    GetParam( "PYTHIA-SVMesonSupression", fSVMesonSupression ) ;
+    GetParam( "PYTHIA-Lunda", fLunda ) ;
+    GetParam( "PYTHIA-Lundb", fLundb ) ;
+    GetParam( "PYTHIA-LundaDiq", fLundaDiq ) ;
+
+    fPythia->SetPARJ(1,  fDiQuarkSupression ) ;
+    fPythia->SetPARJ(11, fLightVMesonSupression ) ;
+    fPythia->SetPARJ(12, fSVMesonSupression ) ;
+    fPythia->SetPARJ(41, fLunda ) ;
+    fPythia->SetPARJ(42, fLundb ) ;
+    fPythia->SetPARJ(45, fLundaDiq ) ;
+
+   */
 
   fPythia->SetPARJ(2,  fSSBarSuppression);
   fPythia->SetPARJ(21, fGaussianPt2);
